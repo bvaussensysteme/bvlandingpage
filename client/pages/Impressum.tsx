@@ -36,7 +36,7 @@ export default function Impressum() {
                 <p className="text-slate-700">
                   Kontaktformular:{" "}
                   <a
-                    href="bv-aussensysteme.de/kontakt"
+                    href="http://www.bv-aussensysteme.de/kontakt"
                     className="text-brand-forest-green hover:text-brand-soft-leaf"
                     target="_blank"
                     rel="noopener noreferrer"
