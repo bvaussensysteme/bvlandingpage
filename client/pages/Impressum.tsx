@@ -37,9 +37,7 @@ export default function Impressum() {
                   Kontaktformular:{" "}
                   <a
                     href="/kontakt"
-                    className="text-brand-forest-green hover:text-brand-soft-leaf"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    className="text-brand-forest-green hover:text-brand-soft-leaf
                   >
                     bv-aussensysteme.de/kontakt
                   </a>
