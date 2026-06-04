@@ -41,7 +41,7 @@ export default function Impressum() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    http://www.bv-aussensysteme.de/kontakt
+                    bv-aussensysteme.de/kontakt
                   </a>
                   <br />
                   E-Mail:{" "}
