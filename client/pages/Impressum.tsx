@@ -39,7 +39,7 @@ export default function Impressum() {
                     href="/kontakt"
                     className="text-brand-forest-green hover:text-brand-soft-leaf
                   >
-                    bv-aussensysteme.de/kontakt
+                    http//:bv-aussensysteme.de/kontakt
                   </a>
                   <br />
                   E-Mail:{" "}
