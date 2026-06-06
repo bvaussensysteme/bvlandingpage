@@ -114,7 +114,7 @@ export default function Kontakt() {
               to="/kontakt"
               className="hover:text-brand-soft-leaf transition-colors"
             >
-              Kontakt
+              bv-aussensysteme.de/kontakt
             </Link>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-700 text-center text-xs text-gray-400">

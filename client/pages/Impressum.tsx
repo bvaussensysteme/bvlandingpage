@@ -35,12 +35,12 @@ export default function Impressum() {
                 </h2>
                 <p className="text-slate-700">
                   Kontaktformular:{" "}
-                  <a
-                    href="/kontakt"
-                    className="text-brand-forest-green hover:text-brand-soft-leaf
+                  <Link
+                    to="/kontakt"
+                    className="text-brand-forest-green hover:text-brand-soft-leaf"
                   >
-                    http//:bv-aussensysteme.de/kontakt
-                  </a>
+                    /kontakt
+                  </Link>
                   <br />
                   E-Mail:{" "}
                   <a
