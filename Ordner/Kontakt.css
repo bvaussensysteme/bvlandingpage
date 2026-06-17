@@ -1,0 +1,125 @@
+.u-section-1 .u-sheet-1 {
+  min-height: 552px;
+}
+
+.u-section-1 .u-form-1 {
+  height: 492px;
+  width: 570px;
+  margin: 30px auto;
+}
+
+.u-section-1 .u-form-group-1 {
+  margin-left: 0;
+}
+
+.u-section-1 .u-form-group-2 {
+  margin-left: 0;
+}
+
+.u-section-1 .u-form-group-3 {
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.u-section-1 .u-form-group-4 {
+  margin-left: 0;
+}
+
+.u-section-1 .u-form-group-5 {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+}
+
+.u-section-1 .u-btn-1 {
+  background-image: none;
+}
+
+.u-section-1 .u-btn-2 {
+  background-image: none;
+}
+
+.u-section-1 .u-btn-3 {
+  background-image: none;
+}
+
+@media (max-width: 1199px) {
+  .u-section-1 .u-form-group-1 {
+    height: 67px;
+    margin-top: 155px;
+    margin-right: 98px;
+    margin-bottom: 60px;
+  }
+
+  .u-section-1 .u-form-group-4 {
+    height: 67px;
+    margin-top: 155px;
+    margin-right: 98px;
+    margin-bottom: 60px;
+  }
+}
+
+@media (max-width: 991px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 1049px;
+  }
+
+  .u-section-1 .u-form-1 {
+    height: 679px;
+    margin-top: 106px;
+    margin-bottom: 60px;
+  }
+
+  .u-section-1 .u-form-group-1 {
+    margin-top: 0;
+    margin-right: 0;
+  }
+
+  .u-section-1 .u-form-group-4 {
+    margin-top: 0;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 735px;
+  }
+
+  .u-section-1 .u-form-1 {
+    height: 989px;
+    margin-top: 0;
+    margin-bottom: 56px;
+    margin-right: initial;
+    margin-left: initial;
+    width: auto;
+  }
+
+  .u-section-1 .u-form-group-2 {
+    margin-right: 0;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 699px;
+  }
+
+  .u-section-1 .u-form-1 {
+    height: 699px;
+    margin-bottom: 0;
+    width: auto;
+    margin-right: initial;
+    margin-left: initial;
+  }
+
+  .u-section-1 .u-form-group-1 {
+    margin-top: 8px;
+  }
+
+  .u-section-1 .u-form-group-2 {
+    margin-bottom: 0;
+  }
+}
