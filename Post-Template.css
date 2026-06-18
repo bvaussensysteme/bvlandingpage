@@ -1,40 +1,45 @@
+.u-section-1 .u-sheet-1 {
+  min-height: 835px;
+}
+
+.u-section-1 .u-post-details-1 {
+  min-height: 375px;
+  margin-top: 60px;
+  margin-bottom: -10px;
+}
+
+.u-section-1 .u-container-layout-1 {
+  padding: 30px;
+}
+
+.u-section-1 .u-image-1 {
+  height: 486px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 0;
+}
+
+.u-section-1 .u-text-1 {
+  margin-top: 20px;
+  margin-bottom: 0;
+  margin-left: 0;
+}
+
+.u-section-1 .u-metadata-1 {
+  margin-top: 30px;
+  margin-bottom: 0;
+  margin-left: 0;
+}
+
+.u-section-1 .u-text-2 {
+  margin-bottom: 0;
+  margin-top: 20px;
+  margin-left: 0;
+}
+
 @media (max-width: 1399px) {
-  .u-section-1 .u-sheet-1 {
-    min-height: 835px;
-  }
-
-  .u-section-1 .u-post-details-1 {
-    min-height: 375px;
-    margin-top: 60px;
-    margin-bottom: -10px;
-  }
-
-  .u-section-1 .u-container-layout-1 {
-    padding: 30px;
-  }
-
   .u-section-1 .u-image-1 {
-    height: 486px;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  .u-section-1 .u-text-1 {
-    margin-top: 20px;
-    margin-bottom: 0;
-    margin-left: 0;
-  }
-
-  .u-section-1 .u-metadata-1 {
-    margin-top: 30px;
-    margin-bottom: 0;
-    margin-left: 0;
-  }
-
-  .u-section-1 .u-text-2 {
-    margin-bottom: 0;
-    margin-top: 20px;
-    margin-left: 0;
+    margin-left: initial;
   }
 }
 
@@ -49,6 +54,7 @@
 
   .u-section-1 .u-image-1 {
     height: 423px;
+    margin-left: initial;
   }
 }
 
@@ -65,41 +71,17 @@
   .u-section-1 .u-image-1 {
     height: 354px;
     margin-top: 9px;
+    margin-left: initial;
   }
 }
 
 @media (max-width: 575px) {
   .u-section-1 .u-sheet-1 {
-    min-height: auto;
-  }
-
-  .u-section-1 .u-post-details-1 {
-    min-height: auto;
-    margin-top: initial;
-    margin-bottom: initial;
+    min-height: 656px;
   }
 
   .u-section-1 .u-image-1 {
-    height: auto;
-    margin-top: initial;
-    margin-bottom: initial;
-  }
-
-  .u-section-1 .u-text-1 {
-    margin-top: initial;
-    margin-bottom: initial;
-    margin-left: initial;
-  }
-
-  .u-section-1 .u-metadata-1 {
-    margin-top: initial;
-    margin-bottom: initial;
-    margin-left: initial;
-  }
-
-  .u-section-1 .u-text-2 {
-    margin-bottom: initial;
-    margin-top: initial;
+    height: 275px;
     margin-left: initial;
   }
 }

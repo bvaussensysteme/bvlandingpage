@@ -31,7 +31,49 @@
     <meta property="og:title" content="Startseite">
     <meta property="og:description" content="BV Außensysteme ist Ihr regionaler Partner für hochwertige Terrassenüberdachungen, Carports, Kaltwintergärten, Pergolen und Sonnenschutzsysteme. Wir betreuen Privat- und Gewerbekunden im Westerwald, Raum Montabaur, Neuwied, Altenkirchen, Hachenburg, Limburg und Koblenz mit individuellen Lösungen nach Maß.">
     <meta property="og:type" content="website">
-  <meta data-intl-tel-input-cdn-path="intlTelInput/"></head>
+  <script>
+    (function() {
+    function gdprConfirmed() {
+        return true;
+    }
+
+    var added = false;
+    var currentScript = document.currentScript;
+
+    function insertHTML(html) {
+        var container = document.createElement('div');
+        container.innerHTML = html;
+        container.querySelectorAll('script').forEach(s => {
+            const ns = document.createElement('script');
+            ns.async = s.async;
+            if (s.src) {
+                ns.src = s.src;
+            } else {
+                ns.textContent = s.textContent;
+            }
+            s.replaceWith(ns);
+        });
+
+            var fragment = document.createDocumentFragment();
+            fragment.append(...container.childNodes);
+
+            if (currentScript && currentScript.parentNode) {
+                currentScript.after(fragment);
+            }
+    }
+
+    window._npAddGAnalytics = function () {
+        if (gdprConfirmed() && !added) {
+            var gaBody = "<!-- Google Analytics -->\n    <gascript async src=\"https://www.googletagmanager.com/gtag/js?id=G-QE700SH5G0\"></gascript>\n    <gascript>\n        window.dataLayer = window.dataLayer || [];\n        function gtag(){dataLayer.push(arguments);}\n        gtag('js', new Date());\n        gtag('config', 'G-QE700SH5G0');\n    </gascript>\n    <!-- End Google Analytics -->";
+            var replacedBody = gaBody.replace(/gascript/g, 'script');
+            insertHTML(replacedBody);
+            added = true;
+        }
+    }
+
+    window._npAddGAnalytics();
+    })();
+    </script><meta data-intl-tel-input-cdn-path="intlTelInput/"></head>
   <body data-home-page="Startseite.html" data-home-page-title="Startseite" data-path-to-root="./" data-include-products="false" class="u-body u-clearfix u-xxl-mode" data-lang="de"><header class="u-clearfix u-header u-header" id="header"><div class="u-clearfix u-sheet u-sheet-1">
         <a href="#" class="u-image u-logo u-image-1" data-image-width="1536" data-image-height="1024" data-lang-de="#" data-lang-ru="#" data-lang-ena="#">
           <img src="images/bvohnehintergrundl.png" class="u-logo-image u-logo-image-1">
