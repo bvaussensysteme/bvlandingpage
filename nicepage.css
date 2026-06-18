@@ -49111,10 +49111,6 @@ a.u-link.u-text-hover-color-var.hover {
   font-size: 1.25rem;
 }
 @media (max-width: 1399px) {
-  .u-header .u-sheet-1 {
-    min-height: 160px;
-  }
-
   .u-header .u-image-1 {
     width: 277px;
     height: 185px;
@@ -49127,10 +49123,6 @@ a.u-link.u-text-hover-color-var.hover {
   }
 }
 @media (max-width: 1199px) {
-  .u-header .u-sheet-1 {
-    min-height: 3px;
-  }
-
   .u-header .u-image-1 {
     margin-left: 148px;
   }
@@ -49140,10 +49132,6 @@ a.u-link.u-text-hover-color-var.hover {
   }
 }
 @media (max-width: 991px) {
-  .u-header .u-sheet-1 {
-    min-height: 152px;
-  }
-
   .u-header .u-image-1 {
     width: 282px;
     height: 188px;
@@ -49156,10 +49144,6 @@ a.u-link.u-text-hover-color-var.hover {
   }
 }
 @media (max-width: 767px) {
-  .u-header .u-sheet-1 {
-    min-height: 260px;
-  }
-
   .u-header .u-image-1 {
     width: 223px;
     height: 149px;
@@ -49172,10 +49156,6 @@ a.u-link.u-text-hover-color-var.hover {
   }
 }
 @media (max-width: 575px) {
-  .u-header .u-sheet-1 {
-    min-height: 151px;
-  }
-
   .u-header .u-image-1 {
     width: 196px;
     height: 131px;
@@ -49186,7 +49166,6 @@ a.u-link.u-text-hover-color-var.hover {
     width: auto;
     margin-top: -81px;
     margin-right: 0;
-    margin-bottom: 60px;
   }
 
   .u-header .u-hamburger-link-1 {
@@ -49204,7 +49183,7 @@ a.u-link.u-text-hover-color-var.hover {
 .u-footer .u-social-icons-1 {
   height: 38px;
   width: 193px;
-  margin: 16px auto 0;
+  margin: 14px auto 0;
 }
 
 .u-footer .u-icon-1 {
@@ -49220,8 +49199,12 @@ a.u-link.u-text-hover-color-var.hover {
   background-image: none;
 }
 
+.u-footer .u-icon-4 {
+  background-image: none;
+}
+
 .u-footer .u-menu-1 {
-  margin: 21px auto 0;
+  margin: 23px auto 0;
 }
 
 .u-footer .u-hamburger-link-1 {
@@ -49245,8 +49228,18 @@ a.u-link.u-text-hover-color-var.hover {
   margin: 36px 0 50px;
 }
 @media (max-width: 1399px) {
+  .u-footer .u-social-icons-1 {
+    height: 40px;
+    width: 221px;
+    margin-top: 28px;
+  }
+
+  .u-footer .u-icon-4 {
+    height: 100%;
+  }
+
   .u-footer .u-menu-1 {
-    margin-top: 40px;
+    margin-top: 25px;
   }
 
   .u-footer .u-text-1 {
