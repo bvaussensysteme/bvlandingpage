@@ -179,6 +179,15 @@ h3 { font-size: 1.4rem; color: var(--black); }
 }
 .hero h1 { color: var(--white); margin-bottom: 18px; }
 .hero h1 span { color: var(--gold); }
+.hero-slogan {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
 .hero-sub {
   font-size: 1.05rem; color: rgba(255,255,255,0.8);
   margin-bottom: 30px; max-width: 460px; line-height: 1.65;
@@ -613,7 +622,7 @@ footer h4 {
    ============================================ */
 @media (max-width: 600px) {
   .section            { padding: 56px 0; }
-  .leistungen-grid    { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .leistungen-grid    { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; padding: 0 4px; }
   .reviews-grid       { grid-template-columns: 1fr; }
   .prozess-grid       { grid-template-columns: 1fr; }
   .form-row           { grid-template-columns: 1fr; }
@@ -819,3 +828,105 @@ footer h4 {
   .cb-btn { min-width: unset; text-align: center; }
 }
 
+
+/* Mobile: Karten nicht randlos */
+@media (max-width: 600px) {
+  .leistung-card {
+    margin: 0 4px;
+  }
+}
+
+/* ============================================
+   KONFIGURATOR NAV ITEM
+   ============================================ */
+.nav-konfigurator {
+  background: rgba(196,154,42,0.1) !important;
+  color: var(--gold) !important;
+  padding: 8px 14px !important;
+  border-radius: var(--radius) !important;
+  border: 1px solid rgba(196,154,42,0.3) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
+}
+.nav-konfigurator:hover {
+  background: var(--gold) !important;
+  color: var(--black) !important;
+  border-color: var(--gold) !important;
+}
+
+/* ============================================
+   KONFIGURATOR TEASER (Startseite)
+   ============================================ */
+.konfigurator-teaser { background: var(--black); }
+.kt-inner {
+  max-width: 760px; margin: 0 auto; text-align: center;
+}
+.kt-badge {
+  display: inline-block;
+  background: rgba(196,154,42,0.12); color: var(--gold);
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 5px 14px;
+  border-radius: 100px; margin-bottom: 18px;
+  border: 1px solid rgba(196,154,42,0.3);
+}
+.kt-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800; color: var(--white);
+  margin-bottom: 14px; line-height: 1.1;
+}
+.kt-sub {
+  font-size: 0.95rem; color: rgba(255,255,255,0.65);
+  line-height: 1.7; margin-bottom: 32px;
+  max-width: 580px; margin-left: auto; margin-right: auto;
+}
+.kt-features {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 32px;
+}
+.kt-feature {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(196,154,42,0.2);
+  border-radius: 10px; padding: 18px 14px;
+}
+.kt-feature span { font-size: 1.6rem; display: block; margin-bottom: 8px; }
+.kt-feature strong { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; color: var(--white); margin-bottom: 4px; }
+.kt-feature p { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin: 0; }
+
+@media (max-width: 760px) {
+  .kt-features { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .kt-features { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============================================
+   KONFIGURATOR SORRY BOX
+   ============================================ */
+.kp-sorry-box {
+  background: var(--black);
+  border: 1px solid rgba(196,154,42,0.25);
+  border-left: 4px solid var(--gold);
+  border-radius: 14px;
+  padding: 40px 36px;
+  margin-bottom: 36px;
+  text-align: center;
+}
+.kp-sorry-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+.kp-sorry-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.8rem; font-weight: 800;
+  color: var(--white); margin-bottom: 14px;
+}
+.kp-sorry-text {
+  font-size: 0.95rem; color: rgba(255,255,255,0.7);
+  line-height: 1.75; margin-bottom: 10px;
+  max-width: 520px; margin-left: auto; margin-right: auto;
+}
+.kp-sorry-text strong { color: var(--gold); }
+@media (max-width: 500px) {
+  .kp-sorry-box { padding: 28px 18px; }
+}
