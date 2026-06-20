@@ -2,17 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.bv-aussensysteme.de/</loc>
+    <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/impressum.html</loc>
+    <lastmod>2026-06-20</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.1</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/datenschutz.html</loc>
+    <lastmod>2026-06-20</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.1</priority>
   </url>
 </urlset>

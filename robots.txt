@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /datenschutz.html
+Disallow: /impressum.html
 
 Sitemap: https://www.bv-aussensysteme.de/sitemap.xml
