@@ -222,8 +222,11 @@ h3 { font-size: 1.4rem; color: var(--black); }
    LEISTUNGEN (Services)
    ============================================ */
 .leistungen-grid {
-  display: grid; grid-template-columns: repeat(3,1fr);
-  gap: 24px; margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 44px;
+  align-items: stretch;
 }
 .leistung-card {
   background: var(--white); border-radius: 10px; overflow: hidden;
@@ -231,6 +234,7 @@ h3 { font-size: 1.4rem; color: var(--black); }
   transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
 }
 .leistung-card:hover {
   transform: translateY(-5px);
@@ -239,10 +243,15 @@ h3 { font-size: 1.4rem; color: var(--black); }
 }
 .leistung-img {
   height: 180px;
+  min-height: 180px;
+  max-height: 180px;
+  width: 100%;
   overflow: hidden;
   position: relative;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  flex-shrink: 0;        /* prevent stretching in flex context */
+  flex-shrink: 0;
+  flex-grow: 0;
+  display: block;
 }
 .leistung-img img {
   width: 100%; height: 100%; object-fit: cover;
@@ -256,19 +265,29 @@ h3 { font-size: 1.4rem; color: var(--black); }
 }
 .leistung-img-fallback {
   position: absolute;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3.5rem;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  line-height: 1;
 }
-.leistung-body { padding: 22px; }
+.leistung-body {
+  padding: 22px;
+  flex: 1;           /* füllt restliche Kartenhöhe aus */
+  display: flex;
+  flex-direction: column;
+}
 .leistung-body h3 { margin-bottom: 7px; font-size: 1.2rem; }
-.leistung-body p { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin-bottom: 14px; }
+.leistung-body p { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin-bottom: 14px; flex: 1; }
 .leistung-link {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; color: var(--gold); font-size: 0.9rem;
+  margin-top: auto;    /* drückt Link immer ans untere Ende */
+  display: block;
 }
 
 /* ============================================
@@ -574,7 +593,7 @@ footer h4 {
   .hero               { padding-bottom: 60px; }
   .gold-strip-grid    { grid-template-columns: repeat(2,1fr); }
   .gold-item          { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.12); padding: 10px 14px; }
-  .leistungen-grid    { grid-template-columns: 1fr 1fr; }
+  .leistungen-grid    { grid-template-columns: 1fr 1fr; max-width: 720px; margin-left: auto; margin-right: auto; }
   .why-grid           { grid-template-columns: 1fr; }
   .prozess-grid       { grid-template-columns: 1fr 1fr; gap: 28px; }
   .prozess-grid::before { display: none; }
@@ -594,7 +613,7 @@ footer h4 {
    ============================================ */
 @media (max-width: 600px) {
   .section            { padding: 56px 0; }
-  .leistungen-grid    { grid-template-columns: 1fr; }
+  .leistungen-grid    { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
   .reviews-grid       { grid-template-columns: 1fr; }
   .prozess-grid       { grid-template-columns: 1fr; }
   .form-row           { grid-template-columns: 1fr; }
