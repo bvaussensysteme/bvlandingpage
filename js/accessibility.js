@@ -196,9 +196,13 @@
   /* ── CSS injizieren ── */
   function injectCSS() {
     var css = [
-      /* ── Trigger Button ── */
+      /* ── Widget Isolation – immer sichtbar ── */
+      '#bv-a11y-widget {',
+        'isolation: isolate;',
+      '}',
+      '#bv-a11y-trigger { isolation: isolate; }',
       '#bv-a11y-trigger {',
-        'position: fixed; bottom: 80px; left: 16px; z-index: 999998;',
+        'position: fixed; bottom: 80px; right: 16px; z-index: 999998;',
         'width: 48px; height: 48px; border-radius: 50%;',
         'background: #1a1a1a; color: #C49A2A;',
         'border: 2px solid #C49A2A; cursor: pointer;',
@@ -209,11 +213,11 @@
       '}',
       '#bv-a11y-trigger:hover { background: #C49A2A; color: #000; transform: scale(1.08); }',
       '#bv-a11y-trigger svg { width: 22px; height: 22px; }',
-      '@media (max-width: 600px) { #bv-a11y-trigger { bottom: 74px; left: 12px; width: 44px; height: 44px; } }',
+      '@media (max-width: 600px) { #bv-a11y-trigger { bottom: 74px; right: 12px; width: 44px; height: 44px; } }',
 
       /* ── Panel ── */
       '#bv-a11y-panel {',
-        'position: fixed; bottom: 136px; left: 16px; z-index: 999999;',
+        'position: fixed; bottom: 136px; right: 16px; z-index: 999999;',
         'width: 296px; max-height: 80vh;',
         'background: #fff; border-radius: 14px;',
         'box-shadow: 0 8px 40px rgba(0,0,0,0.22);',
@@ -227,7 +231,7 @@
         'transform: translateY(0) scale(1); opacity: 1; pointer-events: all;',
       '}',
       '@media (max-width: 600px) {',
-        '#bv-a11y-panel { left: 8px; right: 8px; width: auto; bottom: 126px; }',
+        '#bv-a11y-panel { left: 8px; right: 8px; width: auto; bottom: 126px; max-height: 70vh; }',
       '}',
 
       /* ── Header ── */
@@ -324,6 +328,7 @@
 
       /* Hoher Kontrast */
       'body.a11y-high-contrast { filter: contrast(1.5) brightness(1.05); }',
+      'body.a11y-high-contrast #bv-a11y-widget { filter: none; }',
 
       /* Links unterstreichen */
       'body.a11y-underline-links a { text-decoration: underline !important; text-decoration-thickness: 2px !important; }',
@@ -336,6 +341,7 @@
       /* Nachtmodus */
       'body.a11y-night-mode { filter: invert(0.9) hue-rotate(180deg); }',
       'body.a11y-night-mode img, body.a11y-night-mode video, body.a11y-night-mode .hero { filter: invert(1) hue-rotate(180deg); }',
+      'body.a11y-night-mode #bv-a11y-widget { filter: invert(1) hue-rotate(180deg); }',
 
       /* Leseschrift (OpenDyslexic-ähnlich via font-stack) */
       'body.a11y-dyslexia, body.a11y-dyslexia p, body.a11y-dyslexia li, body.a11y-dyslexia label {',
@@ -344,7 +350,7 @@
       '}',
 
       /* Animationen stoppen */
-      'body.a11y-pause-animations *, body.a11y-pause-animations *::before, body.a11y-pause-animations *::after {',
+      'body.a11y-pause-animations *:not(#bv-a11y-widget):not(#bv-a11y-widget *), body.a11y-pause-animations *:not(#bv-a11y-widget)::before, body.a11y-pause-animations *:not(#bv-a11y-widget)::after {',
         'animation-play-state: paused !important;',
         'transition: none !important;',
       '}',
