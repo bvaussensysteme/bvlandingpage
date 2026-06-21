@@ -51,25 +51,70 @@ document.addEventListener('DOMContentLoaded', function () {
   }, { passive: true });
 
   // ---- KONTAKT FORM ----
+  // ══════════════════════════════════════════════════════
+  // KONTAKTFORMULAR – Formspree Ajax SDK
+  // formId: xnjkabdv → sendet an info@bv-aussensysteme.de
+  // ══════════════════════════════════════════════════════
   var formSubmit = document.getElementById('formSubmit');
   if (formSubmit) {
     formSubmit.addEventListener('click', function () {
-      var vorname  = document.getElementById('vorname').value.trim();
-      var email    = document.getElementById('email').value.trim();
-      var msgBox   = document.getElementById('formMsg');
+      var vorname   = document.getElementById('vorname').value.trim();
+      var nachname  = document.getElementById('nachname').value.trim();
+      var email     = document.getElementById('email').value.trim();
+      var telefon   = document.getElementById('telefon').value.trim();
+      var produkt   = document.getElementById('produkt').value;
+      var nachricht = document.getElementById('nachricht').value.trim();
+      var msgBox    = document.getElementById('formMsg');
+
+      // Validierung
       if (!vorname || !email) {
-        msgBox.textContent = 'Bitte füllen Sie mindestens Name und E-Mail aus.';
+        msgBox.textContent = 'Bitte füllen Sie mindestens Vorname und E-Mail aus.';
         msgBox.style.color = '#e05555';
         return;
       }
+
       formSubmit.disabled = true;
       formSubmit.textContent = 'Wird gesendet …';
-      // Simulate send (replace with real fetch/FormSubmit/Netlify Forms)
-      setTimeout(function () {
-        msgBox.textContent = '✓ Vielen Dank! Wir melden uns schnellstmöglich bei Ihnen.';
-        msgBox.style.color = '#C49A2A';
-        formSubmit.textContent = 'Anfrage gesendet ✓';
-      }, 1000);
+      msgBox.textContent = '';
+
+      var formData = new FormData();
+      formData.append('vorname',   vorname);
+      formData.append('nachname',  nachname);
+      formData.append('email',     email);
+      formData.append('telefon',   telefon  || '–');
+      formData.append('produkt',   produkt  || 'Keine Auswahl');
+      formData.append('nachricht', nachricht || '–');
+      formData.append('_subject',  'Neue Anfrage: ' + vorname + ' ' + nachname + ' – BV AussenSysteme');
+      formData.append('_replyto',  email);
+
+      fetch('https://formspree.io/f/xnjkabdv', {
+        method:  'POST',
+        body:    formData,
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.ok) {
+          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vorname + '!</strong> Wir melden uns schnellstmöglich bei Ihnen.';
+          msgBox.style.color = '#C49A2A';
+          formSubmit.textContent = 'Anfrage gesendet ✓';
+          ['vorname','nachname','email','telefon','nachricht'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.value = '';
+          });
+          document.getElementById('produkt').value = '';
+        } else {
+          var errors = data.errors ? data.errors.map(function(e){ return e.message; }).join(', ') : 'Unbekannter Fehler';
+          throw new Error(errors);
+        }
+      })
+      .catch(function(err) {
+        msgBox.innerHTML = '❌ Fehler beim Senden. Bitte rufen Sie uns direkt an: <a href="tel:+4915678696609" style="color:var(--gold-dark)">015678696609</a>';
+        msgBox.style.color = '#e05555';
+        formSubmit.disabled = false;
+        formSubmit.textContent = 'Kostenlose Beratung anfordern →';
+        console.error('Formspree:', err);
+      });
     });
   }
 

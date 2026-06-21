@@ -295,9 +295,12 @@ h3 { font-size: 1.4rem; color: var(--black); }
 .leistung-link {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; color: var(--gold); font-size: 0.9rem;
-  margin-top: auto;    /* drückt Link immer ans untere Ende */
+  margin-top: auto;
   display: block;
+  text-decoration: none;
+  cursor: pointer;
 }
+.leistung-link:hover { color: var(--gold-dark); }
 
 /* ============================================
    REGIONEN
@@ -341,6 +344,8 @@ h3 { font-size: 1.4rem; color: var(--black); }
   background: var(--black); border-radius: 14px; padding: 36px;
   display: flex; flex-direction: column; gap: 20px;
   border: 1px solid rgba(196,154,42,0.3);
+  width: 100%;
+  box-sizing: border-box;
 }
 .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .stat-box {
@@ -603,7 +608,7 @@ footer h4 {
   .gold-strip-grid    { grid-template-columns: repeat(2,1fr); }
   .gold-item          { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.12); padding: 10px 14px; }
   .leistungen-grid    { grid-template-columns: 1fr 1fr; max-width: 720px; margin-left: auto; margin-right: auto; }
-  .why-grid           { grid-template-columns: 1fr; }
+  .why-grid           { grid-template-columns: 1fr; width: 100%; overflow: hidden; }
   .prozess-grid       { grid-template-columns: 1fr 1fr; gap: 28px; }
   .prozess-grid::before { display: none; }
   .reviews-grid       { grid-template-columns: 1fr 1fr; }
@@ -929,4 +934,17 @@ footer h4 {
 .kp-sorry-text strong { color: var(--gold); }
 @media (max-width: 500px) {
   .kp-sorry-box { padding: 28px 18px; }
+}
+
+/* Mobile: why-visual volle Breite ohne Überlauf */
+@media (max-width: 600px) {
+  .why-visual {
+    padding: 24px 20px;
+    margin: 0;
+    width: 100%;
+  }
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
 }

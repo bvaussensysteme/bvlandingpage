@@ -340,16 +340,47 @@
 <script src="js/cookie.js"></script>
 <script>
   function kpNotify() {
-    var email = document.getElementById('kpEmail').value.trim();
-    var msg   = document.getElementById('kpMsg');
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    var email  = document.getElementById('kpEmail').value.trim();
+    var msg    = document.getElementById('kpMsg');
+    var btn    = document.querySelector('.kp-notify-row button');
+
+    if (!email || !email.includes('@')) {
       msg.style.color = '#e05555';
       msg.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
       return;
     }
-    msg.style.color = '#C49A2A';
-    msg.textContent = '✓ Danke! Wir melden uns sobald der Konfigurator fertig ist.';
-    document.getElementById('kpEmail').value = '';
+
+    btn.disabled    = true;
+    btn.textContent = 'Wird gesendet …';
+    msg.textContent = '';
+
+    var formData = new FormData();
+    formData.append('email',     email);
+    formData.append('_subject',  'Konfigurator Launch-Benachrichtigung – ' + email);
+    formData.append('nachricht', 'Diese E-Mail möchte beim Launch des 3D Konfigurators benachrichtigt werden.');
+
+    fetch('https://formspree.io/f/xnjkabdv', {
+      method:  'POST',
+      body:    formData,
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        msg.style.color = '#C49A2A';
+        msg.textContent = '✓ Danke! Wir benachrichtigen Sie sobald der Konfigurator verfügbar ist.';
+        btn.textContent = 'Eingetragen ✓';
+        document.getElementById('kpEmail').value = '';
+      } else {
+        throw new Error('Fehler');
+      }
+    })
+    .catch(function() {
+      msg.style.color = '#e05555';
+      msg.textContent = 'Fehler beim Senden. Bitte schreiben Sie uns: info@bv-aussensysteme.de';
+      btn.disabled    = false;
+      btn.textContent = 'Benachrichtigen';
+    });
   }
 </script>
 </body>
