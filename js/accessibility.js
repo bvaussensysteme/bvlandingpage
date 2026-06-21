@@ -8,6 +8,21 @@
   var STORAGE_KEY = 'bv_a11y';
   var ROOT = document.documentElement;
 
+  /* ── Page Wrapper für Filter-Effekte (Widget bleibt außerhalb) ── */
+  function getPageWrapper() {
+    var w = document.getElementById('bv-page-wrapper');
+    if (w) return w;
+    // Wrapper erstellen der alle body-Kinder außer dem Widget einschließt
+    w = document.createElement('div');
+    w.id = 'bv-page-wrapper';
+    // Alle bestehenden body-Kinder in den Wrapper verschieben
+    while (document.body.firstChild) {
+      w.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(w);
+    return w;
+  }
+
   /* ── Einstellungen laden / speichern ── */
   function loadState() {
     try {
@@ -40,7 +55,7 @@
       label: 'Hoher Kontrast',
       default: false,
       apply: function (val) {
-        document.body.classList.toggle('a11y-high-contrast', val);
+        getPageWrapper().classList.toggle('a11y-high-contrast', val);
       }
     },
     {
@@ -80,7 +95,7 @@
       label: 'Nachtmodus',
       default: false,
       apply: function (val) {
-        document.body.classList.toggle('a11y-night-mode', val);
+        getPageWrapper().classList.toggle('a11y-night-mode', val);
       }
     },
     {
@@ -100,7 +115,7 @@
       label: 'Animationen stoppen',
       default: false,
       apply: function (val) {
-        document.body.classList.toggle('a11y-pause-animations', val);
+        getPageWrapper().classList.toggle('a11y-pause-animations', val);
       }
     }
   ];
@@ -127,8 +142,11 @@
     if (guideEl) guideEl.style.top = (e.clientY - 20) + 'px';
   }
 
-  /* ── Zustand auf alle Features anwenden ── */
+  /* ── Einstellungen auf alle Features anwenden ── */
   function applyAll() {
+    // Pre-Klassen vom head-Script entfernen (werden durch body-Klassen ersetzt)
+    var html = document.documentElement;
+    html.classList.remove('a11y-pre-contrast','a11y-pre-night','a11y-pre-links','a11y-pre-dyslexia');
     features.forEach(function (f) {
       var val = state[f.id] !== undefined ? state[f.id] : f.default;
       f.apply(val);
@@ -196,11 +214,20 @@
   /* ── CSS injizieren ── */
   function injectCSS() {
     var css = [
-      /* ── Widget Isolation – immer sichtbar ── */
+      '#bv-page-wrapper { min-height: 100vh; }',
+
+      /* ── Widget immer sichtbar – alle Body-Filter neutralisieren ── */
       '#bv-a11y-widget {',
-        'isolation: isolate;',
+        'position: fixed !important;',
+        'z-index: 2147483647 !important;',  /* max possible z-index */
+        'filter: none !important;',
+        'opacity: 1 !important;',
+        'visibility: visible !important;',
+        'display: block !important;',
+        'mix-blend-mode: normal !important;',
       '}',
-      '#bv-a11y-trigger { isolation: isolate; }',
+      
+      
       '#bv-a11y-trigger {',
         'position: fixed; bottom: 80px; right: 16px; z-index: 999998;',
         'width: 48px; height: 48px; border-radius: 50%;',
@@ -327,8 +354,8 @@
       /* ── A11Y-Modi ── */
 
       /* Hoher Kontrast */
-      'body.a11y-high-contrast { filter: contrast(1.5) brightness(1.05); }',
-      'body.a11y-high-contrast #bv-a11y-widget { filter: none; }',
+      '#bv-page-wrapper.a11y-high-contrast { filter: contrast(1.5) brightness(1.05); }',
+      
 
       /* Links unterstreichen */
       'body.a11y-underline-links a { text-decoration: underline !important; text-decoration-thickness: 2px !important; }',
@@ -339,9 +366,9 @@
       '}',
 
       /* Nachtmodus */
-      'body.a11y-night-mode { filter: invert(0.9) hue-rotate(180deg); }',
-      'body.a11y-night-mode img, body.a11y-night-mode video, body.a11y-night-mode .hero { filter: invert(1) hue-rotate(180deg); }',
-      'body.a11y-night-mode #bv-a11y-widget { filter: invert(1) hue-rotate(180deg); }',
+      '#bv-page-wrapper.a11y-night-mode { filter: invert(0.9) hue-rotate(180deg); }',
+      '#bv-page-wrapper.a11y-night-mode img, #bv-page-wrapper.a11y-night-mode video { filter: invert(1) hue-rotate(180deg); }',
+      
 
       /* Leseschrift (OpenDyslexic-ähnlich via font-stack) */
       'body.a11y-dyslexia, body.a11y-dyslexia p, body.a11y-dyslexia li, body.a11y-dyslexia label {',
@@ -350,7 +377,7 @@
       '}',
 
       /* Animationen stoppen */
-      'body.a11y-pause-animations *:not(#bv-a11y-widget):not(#bv-a11y-widget *), body.a11y-pause-animations *:not(#bv-a11y-widget)::before, body.a11y-pause-animations *:not(#bv-a11y-widget)::after {',
+      '#bv-page-wrapper.a11y-pause-animations *, #bv-page-wrapper.a11y-pause-animations *::before, #bv-page-wrapper.a11y-pause-animations *::after {',
         'animation-play-state: paused !important;',
         'transition: none !important;',
       '}',
@@ -480,7 +507,8 @@
   /* ── Init ── */
   function init() {
     injectCSS();
-    applyAll(); /* gespeicherte Einstellungen sofort anwenden */
+    getPageWrapper(); // Wrapper erstellen bevor Widget angehängt wird
+    applyAll();
 
     var wrapper = document.createElement('div');
     wrapper.id = 'bv-a11y-widget';
