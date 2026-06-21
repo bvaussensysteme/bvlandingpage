@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pflegehinweise Terrassenüberdachung & Carport | BV AussenSysteme</title>
+  <meta name="description" content="Pflegehinweise für Ihre Aluminium-Terrassenüberdachung, Carport und Verglasung – Reinigung von Glas, Polycarbonat und Aluminium-Profilen. BV AussenSysteme Westerwald." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.bv-aussensysteme.de/pflege.html" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <meta name="theme-color" content="#C49A2A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .pflege-hero {
+      background: var(--black); padding: 60px 0 50px;
+      border-bottom: 3px solid var(--gold); position: relative;
+    }
+    .pflege-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+      background: var(--offwhite); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+    }
+    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .pflege-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.2rem); }
+    .pflege-hero p { color: rgba(255,255,255,0.75); max-width: 580px; font-size: 1rem; line-height: 1.7; }
+
+    /* Pflege Karten */
+    .pflege-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 28px; margin-top: 48px;
+    }
+    .pflege-card {
+      background: var(--white); border-radius: 12px;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .pflege-card-header {
+      background: var(--black); padding: 24px 28px;
+      border-bottom: 3px solid var(--gold);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .pflege-card-header .icon { font-size: 2.2rem; flex-shrink: 0; }
+    .pflege-card-header h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem; font-weight: 800; color: var(--white);
+      margin: 0;
+    }
+    .pflege-card-header span {
+      font-size: 0.78rem; color: rgba(255,255,255,0.55); display: block; margin-top: 2px;
+    }
+    .pflege-card-body { padding: 24px 28px; }
+
+    /* Do / Don't Listen */
+    .pflege-list { list-style: none; margin-bottom: 20px; }
+    .pflege-list li {
+      display: flex; gap: 10px; padding: 8px 0;
+      border-bottom: 1px solid var(--border); font-size: 0.88rem;
+      color: var(--text); line-height: 1.5; align-items: flex-start;
+    }
+    .pflege-list li:last-child { border-bottom: none; }
+    .pflege-list li .check { color: #2a9d4e; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .pflege-list li .cross  { color: #e05555; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    .pflege-section-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 10px; display: block;
+    }
+
+    /* Wartungsintervall Box */
+    .wartung-box {
+      background: rgba(196,154,42,0.08); border: 1px solid rgba(196,154,42,0.25);
+      border-radius: 8px; padding: 14px 16px; margin-top: 16px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .wartung-box .wi { font-size: 1.3rem; flex-shrink: 0; }
+    .wartung-box p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin: 0; }
+    .wartung-box strong { color: var(--black); }
+
+    /* Hinweisbox */
+    .hinweis-box {
+      background: #fff8e6; border: 1px solid rgba(196,154,42,0.4);
+      border-left: 4px solid var(--gold);
+      border-radius: 8px; padding: 16px 20px;
+      margin-bottom: 32px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .hinweis-box .hi { font-size: 1.5rem; flex-shrink: 0; }
+    .hinweis-box p { font-size: 0.88rem; color: #6b4f10; line-height: 1.65; margin: 0; }
+
+    /* Saison-Tabelle */
+    .saison-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.88rem; }
+    .saison-table th {
+      background: var(--black); color: var(--gold);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      padding: 10px 16px; text-align: left; font-size: 0.9rem;
+    }
+    .saison-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .saison-table tr:last-child td { border-bottom: none; }
+    .saison-table tr:hover td { background: var(--offwhite); }
+
+    @media (max-width: 900px) { .pflege-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .pflege-card-body { padding: 18px; } }
+  </style>
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Pflegehinweise für Aluminium-Terrassenüberdachungen und Carports",
+    "description": "Anleitung zur Reinigung und Pflege von Aluminium-Profilen, VSG-Glas und Polycarbonat bei Terrassenüberdachungen und Carports.",
+    "step": [
+      { "@type": "HowToStep", "name": "Aluminium reinigen", "text": "Profile mit mildem Spülmittel und Wasser reinigen, mit Mikrofasertuch nachwischen und mit klarem Wasser abspülen." },
+      { "@type": "HowToStep", "name": "Glas reinigen", "text": "Glasreiniger oder mildes Spülmittel mit lauwarmem Wasser verwenden. Mit Gummiabzieher streifenfrei trocknen." },
+      { "@type": "HowToStep", "name": "Polycarbonat reinigen", "text": "Nur mit weichem Tuch und mildem Spülmittel reinigen. Keine Scheuermittel oder scharfe Reiniger verwenden." },
+      { "@type": "HowToStep", "name": "Dichtungen prüfen", "text": "Regelmäßig Dichtungen und Verschraubungen auf festen Sitz prüfen. Entwässerungsschlitze freihalten." }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
+  <div class="container navbar-inner">
+    <a href="/" aria-label="BV AussenSysteme Startseite">
+      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="/#leistungen">Leistungen</a></li>
+      <li><a href="/#galerie">Galerie</a></li>
+      <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
+    </ul>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="de" onclick="setLanguage('de')">DE</button>
+      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <a href="/" onclick="closeMobile()">Startseite</a>
+  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
+  <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+  <div class="mobile-lang-switcher">
+    <button class="lang-btn active" data-lang="de" onclick="setLanguage('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button class="lang-btn" data-lang="en" onclick="setLanguage('en');closeMobile()">🇬🇧 English</button>
+    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru');closeMobile()">🇷🇺 Русский</button>
+  </div>
+</div>
+
+<header class="pflege-hero">
+  <div class="container">
+    <p class="breadcrumb">
+      <a href="/">Startseite</a> › Pflegehinweise
+    </p>
+    <p class="tag">Wartung & Pflege</p>
+    <h1>Pflegehinweise für Ihre Überdachung</h1>
+    <p>
+      Mit der richtigen Pflege behalten Ihre Aluminium-Profile, Verglasung und Dichtungen
+      über Jahrzehnte ihre Optik und Funktion. Hier finden Sie alle wichtigen Hinweise –
+      einfach und verständlich erklärt.
+    </p>
+  </div>
+</header>
+
+<main>
+<section class="section section--alt">
+  <div class="container">
+
+    <!-- Hinweisbox -->
+    <div class="hinweis-box">
+      <span class="hi">💡</span>
+      <p>
+        <strong>Gut zu wissen:</strong> Unsere Aluminium-Konstruktionen sind bewusst
+        wartungsarm konzipiert. Eine einfache Reinigung 1–2× pro Jahr genügt in den meisten
+        Fällen vollkommen, um Ihre Überdachung dauerhaft in einwandfreiem Zustand zu halten.
+        Kein Streichen, kein Lasieren, keine Sonderbehandlung nötig.
+      </p>
+    </div>
+
+    <!-- 3 Pflege-Karten -->
+    <div class="pflege-grid">
+
+      <!-- ALUMINIUM -->
+      <div class="pflege-card">
+        <div class="pflege-card-header">
+          <div class="icon">🔩</div>
+          <div>
+            <h2>Aluminium-Profile</h2>
+            <span>Rahmen, Pfosten, Träger, Regenrinne</span>
+          </div>
+        </div>
+        <div class="pflege-card-body">
+          <span class="pflege-section-label">✅ Das dürfen Sie tun</span>
+          <ul class="pflege-list">
+            <li><span class="check">✓</span> Mit mildem Spülmittel und lauwarmem Wasser reinigen</li>
+            <li><span class="check">✓</span> Weiches Mikrofasertuch oder Schwamm verwenden</li>
+            <li><span class="check">✓</span> Leichte Verschmutzungen mit weicher Bürste entfernen</li>
+            <li><span class="check">✓</span> Anschließend mit klarem Wasser abspülen</li>
+            <li><span class="check">✓</span> Mit weichem Tuch trocknen</li>
+            <li><span class="check">✓</span> Kleine Kratzer mit passendem Alu-Lackstift ausbessern</li>
+          </ul>
+          <span class="pflege-section-label">❌ Das sollten Sie vermeiden</span>
+          <ul class="pflege-list">
+            <li><span class="cross">✗</span> Keine Scheuermittel oder Stahlwolle</li>
+            <li><span class="cross">✗</span> Kein Hochdruckreiniger direkt auf Dichtungen</li>
+            <li><span class="cross">✗</span> Keine säure- oder laugenhaltigen Reiniger</li>
+            <li><span class="cross">✗</span> Keine lösemittelhaltigen Reiniger (Aceton, Benzin)</li>
+          </ul>
+          <div class="wartung-box">
+            <span class="wi">🗓️</span>
+            <p><strong>Empfohlener Rhythmus:</strong> 1–2× pro Jahr, ideal im Frühjahr nach Winter und im Herbst nach Laubfall. Regenrinnen nach Laubfall reinigen.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- GLAS -->
+      <div class="pflege-card">
+        <div class="pflege-card-header">
+          <div class="icon">🪟</div>
+          <div>
+            <h2>VSG- & ESG-Glas</h2>
+            <span>Glasdächer, Schiebetüren, Seitenteile</span>
+          </div>
+        </div>
+        <div class="pflege-card-body">
+          <span class="pflege-section-label">✅ Das dürfen Sie tun</span>
+          <ul class="pflege-list">
+            <li><span class="check">✓</span> Mildes Spülmittel oder handelsüblichen Glasreiniger verwenden</li>
+            <li><span class="check">✓</span> Lauwarmes Wasser, weiche fusselfreie Tücher oder Mikrofaser</li>
+            <li><span class="check">✓</span> Mit Gummiabzieher streifenfrei trocknen</li>
+            <li><span class="check">✓</span> Vogelkot und Pollen durch Einweichen mit warmem Wasser lösen</li>
+            <li><span class="check">✓</span> Kalkablagerungen mit verdünntem Essigwasser (1:10) entfernen</li>
+          </ul>
+          <span class="pflege-section-label">❌ Das sollten Sie vermeiden</span>
+          <ul class="pflege-list">
+            <li><span class="cross">✗</span> Keine Scheuerschwämme oder Stahlwolle</li>
+            <li><span class="cross">✗</span> Kein Hochdruckreiniger auf Glas und Dichtungen</li>
+            <li><span class="cross">✗</span> Keine konzentrierten Säuren oder Laugen</li>
+            <li><span class="cross">✗</span> Nicht bei direkter Sonneneinstrahlung reinigen (Schlieren)</li>
+          </ul>
+          <div class="wartung-box">
+            <span class="wi">🗓️</span>
+            <p><strong>Empfohlener Rhythmus:</strong> Je nach Verschmutzung 2–4× pro Jahr. Bei starkem Pollenflug im Frühjahr öfter. Essigwasser nur bei Kalkflecken einsetzen.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- POLYCARBONAT -->
+      <div class="pflege-card">
+        <div class="pflege-card-header">
+          <div class="icon">🔆</div>
+          <div>
+            <h2>Polycarbonat</h2>
+            <span>Stegplatten, Hohlkammerplatten, Lichtplatten</span>
+          </div>
+        </div>
+        <div class="pflege-card-body">
+          <span class="pflege-section-label">✅ Das dürfen Sie tun</span>
+          <ul class="pflege-list">
+            <li><span class="check">✓</span> Nur mit weichem Tuch oder Schwamm reinigen</li>
+            <li><span class="check">✓</span> Mildes Spülmittel mit lauwarmem Wasser verwenden</li>
+            <li><span class="check">✓</span> Vorsichtig abspülen – keine starken Wasserströme</li>
+            <li><span class="check">✓</span> Sanft trocknen ohne Druck</li>
+          </ul>
+          <span class="pflege-section-label">❌ Das sollten Sie vermeiden</span>
+          <ul class="pflege-list">
+            <li><span class="cross">✗</span> Keine Scheuermittel – Polycarbonat verkratzt leicht!</li>
+            <li><span class="cross">✗</span> Kein Hochdruckreiniger</li>
+            <li><span class="cross">✗</span> Keine lösemittelhaltigen Reiniger (löst die Oberfläche an)</li>
+            <li><span class="cross">✗</span> Kein Aceton, Alkohol oder Essig</li>
+            <li><span class="cross">✗</span> Keine trockene Reinigung – immer mit Wasser vorbefeuchten</li>
+          </ul>
+          <div class="wartung-box">
+            <span class="wi">🗓️</span>
+            <p><strong>Empfohlener Rhythmus:</strong> 1–2× pro Jahr. Polycarbonat vergilbt bei dauerhafter Verschmutzung – regelmäßige Reinigung erhält die Lichtdurchlässigkeit.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Wartungscheck Jahrestabelle -->
+    <div style="margin-top: 56px;">
+      <p class="tag">Jährliche Wartung</p>
+      <h2 style="margin-bottom: 8px;">Wartungsplan – was wann zu tun ist</h2>
+      <p style="color:var(--muted); margin-bottom: 0;">Ein kurzer Blick zweimal im Jahr genügt – Ihre Überdachung dankt es mit langer Lebensdauer.</p>
+
+      <table class="saison-table">
+        <thead>
+          <tr>
+            <th>Zeitpunkt</th>
+            <th>Aufgabe</th>
+            <th>Warum</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Frühjahr</strong> (März–April)</td>
+            <td>Komplette Reinigung aller Profile, Glas/Polycarbonat, Regenrinne</td>
+            <td>Winterschmutz, Streusalzreste, Moosansatz entfernen</td>
+          </tr>
+          <tr>
+            <td><strong>Frühjahr</strong> (März–April)</td>
+            <td>Dichtungen auf Risse oder Verhärtung prüfen</td>
+            <td>Undichtigkeiten nach Frost frühzeitig erkennen</td>
+          </tr>
+          <tr>
+            <td><strong>Frühjahr</strong> (März–April)</td>
+            <td>Verschraubungen auf festen Sitz prüfen</td>
+            <td>Frost kann Schrauben lockern</td>
+          </tr>
+          <tr>
+            <td><strong>Sommer</strong> (Juni–August)</td>
+            <td>Entwässerungsschlitze auf Verstopfung prüfen</td>
+            <td>Starkregen muss ungehindert abfließen können</td>
+          </tr>
+          <tr>
+            <td><strong>Herbst</strong> (Oktober–November)</td>
+            <td>Regenrinnen von Laub befreien</td>
+            <td>Verstopfung führt zu Überlauf und Schäden</td>
+          </tr>
+          <tr>
+            <td><strong>Herbst</strong> (Oktober–November)</td>
+            <td>Profile und Glas nochmals reinigen</td>
+            <td>Laub- und Harzniederschlag entfernen</td>
+          </tr>
+          <tr>
+            <td><strong>Winter</strong> (Dezember–Februar)</td>
+            <td>Bei Schnee: Schnee schonend entfernen</td>
+            <td>Nicht mit scharfen Werkzeugen kratzen – Kratzer vermeiden</td>
+          </tr>
+          <tr>
+            <td><strong>Winter</strong> (Dezember–Februar)</td>
+            <td>Kein Streusalz auf oder unter der Überdachung</td>
+            <td>Streusalz greift Aluminium und Dichtungen an</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Allgemeine Hinweise -->
+    <div style="margin-top: 56px;">
+      <p class="tag">Allgemeine Hinweise</p>
+      <h2 style="margin-bottom: 24px;">Was Sie noch wissen sollten</h2>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+
+        <div class="kontakt-card" style="border-left-color: var(--gold);">
+          <div class="kontakt-card-icon">🌿</div>
+          <div>
+            <strong>Moos & Algenbelag</strong>
+            <p style="font-size:0.87rem; color:var(--muted); margin-top:4px;">Bei Moos- oder Algenbildung handelsübliche Außenreiniger auf Basis von Benzalkoniumchlorid verwenden – gut verträglich mit Aluminium und Glas. Nicht bei Wind aufsprühen.</p>
+          </div>
+        </div>
+
+        <div class="kontakt-card" style="border-left-color: var(--gold);">
+          <div class="kontakt-card-icon">❄️</div>
+          <div>
+            <strong>Schnee & Eis</strong>
+            <p style="font-size:0.87rem; color:var(--muted); margin-top:4px;">Schnee nur mit weichem Besen oder der Hand entfernen. Nie mit Schaufeln oder Eiskratzern – Kratzer in Glas und Polycarbonat sind dauerhaft. Statik ist für regionaltypische Schneelasten ausgelegt.</p>
+          </div>
+        </div>
+
+        <div class="kontakt-card" style="border-left-color: var(--gold);">
+          <div class="kontakt-card-icon">🔧</div>
+          <div>
+            <strong>Dichtungen & Silikon</strong>
+            <p style="font-size:0.87rem; color:var(--muted); margin-top:4px;">Dichtungen regelmäßig auf Risse prüfen. Verhärtete oder gerissene Dichtungen rechtzeitig austauschen – so bleibt die Konstruktion dauerhaft dicht und die Garantie erhalten.</p>
+          </div>
+        </div>
+
+        <div class="kontakt-card" style="border-left-color: var(--gold);">
+          <div class="kontakt-card-icon">⚙️</div>
+          <div>
+            <strong>Elektrische Antriebe (Markisen)</strong>
+            <p style="font-size:0.87rem; color:var(--muted); margin-top:4px;">Laufschienen 1× jährlich mit säurefreiem Pflegeöl leicht einölen. Bei Geräuschen oder Gleichlaufproblemen nicht selbst öffnen – uns kontaktieren. 5 Jahre Garantie auf alle Antriebe.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="background:var(--black); padding:56px 0;">
+  <div class="container" style="text-align:center;">
+    <p class="tag" style="color:var(--gold);">Fragen zur Pflege?</p>
+    <h2 style="color:var(--white); margin-bottom:12px;">Wir helfen Ihnen weiter</h2>
+    <p style="color:rgba(255,255,255,0.7); margin-bottom:28px; max-width:480px; margin-left:auto; margin-right:auto;">
+      Bei Fragen zur Pflege Ihrer Überdachung, zu Reparaturen oder zur Wartung
+      stehen wir Ihnen gerne zur Verfügung – auch für Anlagen anderer Hersteller.
+    </p>
+    <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a href="/#kontakt" class="btn btn-gold" style="font-size:1.05rem; padding:14px 32px;">
+        Kontakt aufnehmen
+      </a>
+      <a href="tel:+4915678696609" class="btn btn-outline-white" style="font-size:1.05rem; padding:14px 32px;">
+        📞 015678696609
+      </a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
+    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
+    <p>
+      <a href="impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
+    </p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/cookie.js"></script>
+</body>
+</html>
