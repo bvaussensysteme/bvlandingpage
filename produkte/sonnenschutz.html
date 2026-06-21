@@ -80,16 +80,16 @@
     <a href="/" aria-label="BV AussenSysteme Startseite">
       <img src="../images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
-        <div class="lang-dropdown">
+            <div class="lang-dropdown">
       <button class="lang-dropdown-btn" onclick="toggleLangMenu(event)" aria-label="Sprache wählen">
-        <span id="langFlag">🇩🇪</span>
-        <span id="langCode">DE</span>
-        <span class="lang-chevron">▾</span>
+        <span id="langFlag" data-notranslate="1">🇩🇪</span>
+        <span id="langCode" data-notranslate="1">DE</span>
+        <span class="lang-chevron" data-notranslate="1">▾</span>
       </button>
       <div class="lang-dropdown-menu" id="langMenu">
-        <button onclick="chooseLang('de')">🇩🇪 Deutsch</button>
-        <button onclick="chooseLang('en')">🇬🇧 English</button>
-        <button onclick="chooseLang('ru')">🇷🇺 Русский</button>
+        <button onclick="chooseLang('de')" data-notranslate="1">🇩🇪 Deutsch</button>
+        <button onclick="chooseLang('en')" data-notranslate="1">🇬🇧 English</button>
+        <button onclick="chooseLang('ru')" data-notranslate="1">🇷🇺 Русский</button>
       </div>
     </div>
     <ul class="nav-links">

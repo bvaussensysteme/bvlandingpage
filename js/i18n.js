@@ -185,8 +185,13 @@ function applyLang(lang) {
     NodeFilter.SHOW_TEXT,
     {
       acceptNode: function(node) {
-        var tag = node.parentElement && node.parentElement.tagName;
-        if (['SCRIPT','STYLE','NOSCRIPT','TEXTAREA'].indexOf(tag) >= 0) 
+        var el = node.parentElement;
+        if (!el) return NodeFilter.FILTER_REJECT;
+        // Skip script/style/textarea
+        if (['SCRIPT','STYLE','NOSCRIPT','TEXTAREA'].indexOf(el.tagName) >= 0)
+          return NodeFilter.FILTER_REJECT;
+        // Skip elements marked as no-translate
+        if (el.getAttribute('data-notranslate') || el.closest('[data-notranslate]'))
           return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
