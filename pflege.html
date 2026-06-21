@@ -103,7 +103,12 @@
     .saison-table tr:hover td { background: var(--offwhite); }
 
     @media (max-width: 900px) { .pflege-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 600px) { .pflege-card-body { padding: 18px; } }
+    @media (max-width: 600px) {
+      .pflege-card-body { padding: 18px; }
+      .hints-grid { grid-template-columns: 1fr !important; }
+      .saison-table { font-size: 0.8rem; }
+      .saison-table th, .saison-table td { padding: 8px 10px; }
+    }
   </style>
 
   <!-- Schema.org -->
@@ -304,6 +309,7 @@
       <h2 style="margin-bottom: 8px;">Wartungsplan – was wann zu tun ist</h2>
       <p style="color:var(--muted); margin-bottom: 0;">Ein kurzer Blick zweimal im Jahr genügt – Ihre Überdachung dankt es mit langer Lebensdauer.</p>
 
+      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
       <table class="saison-table">
         <thead>
           <tr>
@@ -355,6 +361,7 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Allgemeine Hinweise -->
@@ -362,7 +369,7 @@
       <p class="tag">Allgemeine Hinweise</p>
       <h2 style="margin-bottom: 24px;">Was Sie noch wissen sollten</h2>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;" class="hints-grid">
 
         <div class="kontakt-card" style="border-left-color: var(--gold);">
           <div class="kontakt-card-icon">🌿</div>
