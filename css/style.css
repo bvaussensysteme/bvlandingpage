@@ -948,3 +948,28 @@ footer h4 {
     width: 100%;
   }
 }
+
+/* ============================================
+   GALERIE PLATZHALTER (humorvoll)
+   ============================================ */
+.galerie-placeholder {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px dashed rgba(196,154,42,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.galerie-placeholder--dark {
+  background: linear-gradient(135deg, #111 0%, #1e1e1e 100%);
+}
+.galerie-placeholder-inner {
+  text-align: center; padding: 24px 20px;
+}
+.galerie-placeholder-inner span {
+  font-size: 2.5rem; display: block; margin-bottom: 12px;
+}
+.galerie-placeholder-inner strong {
+  display: block; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 6px;
+}
+.galerie-placeholder-inner p {
+  font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.5;
+}
