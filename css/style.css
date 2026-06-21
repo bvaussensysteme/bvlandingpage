@@ -1088,19 +1088,26 @@ footer h4 {
 .navbar.scrolled .lang-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
 .navbar.scrolled .lang-btn.active { background: var(--gold); color: var(--black); border-color: var(--gold); }
 
+/* Mobile: lang switcher inside hamburger menu */
 @media (max-width: 768px) {
-  .lang-switcher { display: none; }
+  .lang-switcher { display: none !important; }
   .mobile-lang-switcher {
-    display: flex; gap: 8px; justify-content: center;
-    padding: 16px 0; border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    padding: 16px 0 8px; border-top: 1px solid rgba(255,255,255,0.12);
     margin-top: 8px;
   }
   .mobile-lang-switcher .lang-btn {
     border-color: rgba(255,255,255,0.3);
-    color: rgba(255,255,255,0.7);
-    padding: 8px 16px; font-size: 0.9rem;
+    color: rgba(255,255,255,0.75);
+    padding: 10px 18px; font-size: 0.95rem;
+    flex: 1;
+  }
+  .mobile-lang-switcher .lang-btn.active {
+    background: var(--gold); color: var(--black);
   }
 }
+/* Desktop: hide mobile switcher, show desktop one */
 @media (min-width: 769px) {
-  .mobile-lang-switcher { display: none; }
+  .mobile-lang-switcher { display: none !important; }
+  .lang-switcher { display: flex; }
 }

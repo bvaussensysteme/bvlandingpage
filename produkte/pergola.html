@@ -88,9 +88,9 @@
       <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
     </ul>
     <div class="lang-switcher">
-      <button class="lang-btn active" data-lang="de" onclick="setLanguage('de')">DE</button>
-      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
-      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+      <button class="lang-btn active" data-lang="de" onclick="setLanguage('de')">🇩🇪 DE</button>
+      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
+      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 RU</button>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
@@ -103,7 +103,12 @@
   <a href="/" onclick="closeMobile()">Startseite</a>
   <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
   <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
-  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta">Jetzt anfragen</a>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+  <div class="mobile-lang-switcher">
+    <button class="lang-btn active" data-lang="de" onclick="setLanguage('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button class="lang-btn" data-lang="en" onclick="setLanguage('en');closeMobile()">🇬🇧 English</button>
+    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru');closeMobile()">🇷🇺 Русский</button>
+  </div>
 </div>
 
 <header class="produkt-hero">

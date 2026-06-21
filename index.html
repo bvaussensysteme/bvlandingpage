@@ -262,9 +262,9 @@
       <li><a href="#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
     <div class="lang-switcher">
-      <button class="lang-btn active" data-lang="de" onclick="setLanguage('de')">DE</button>
-      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
-      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+      <button class="lang-btn active" data-lang="de" onclick="setLanguage('de')">🇩🇪 DE</button>
+      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
+      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 RU</button>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
@@ -275,12 +275,17 @@
 <!-- ===== MOBILE MENU ===== -->
 <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
-  <a href="#leistungen">Leistungen</a>
+  <a href="#leistungen" data-i18n="nav_leistungen">Leistungen</a>
   <a href="#galerie" data-i18n="nav_galerie">Galerie</a>
-  <a href="#warum-wir">Über uns</a>
-  <a href="#prozess">Ablauf</a>
-  <a href="#faq">FAQ</a>
-  <a href="#kontakt" class="mobile-cta">Jetzt anfragen</a>
+  <a href="#warum-wir" data-i18n="nav_ueberuns">Über uns</a>
+  <a href="#prozess" data-i18n="nav_ablauf">Ablauf</a>
+  <a href="#faq" data-i18n="nav_faq">FAQ</a>
+  <a href="#kontakt" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+  <div class="mobile-lang-switcher">
+    <button class="lang-btn active" data-lang="de" onclick="setLanguage('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button class="lang-btn" data-lang="en" onclick="setLanguage('en');closeMobile()">🇬🇧 English</button>
+    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru');closeMobile()">🇷🇺 Русский</button>
+  </div>
 </div>
 
 <!-- ===== HERO ===== -->
@@ -290,16 +295,16 @@
   <div class="container hero-inner">
     <div>
       <p class="hero-eyebrow" data-i18n="hero_eyebrow">Ihr Spezialist im Westerwald</p>
-      <h1>Ihr Traumplatz draußen – das ganze Jahr.</h1>
+      <h1 data-i18n="hero_h1">Ihr Traumplatz draußen – das ganze Jahr.</h1>
       <p class="hero-slogan" data-i18n="hero_slogan">Überdacht. Durchdacht. Zuverlässig.</p>
-      <p class="hero-sub">
+      <p class="hero-sub" data-i18n="hero_sub">
         Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz –
         maßgefertigt, professionell montiert, 10 Jahre Garantie.
         Für Privat- und Gewerbekunden im Westerwald und Umgebung.
       </p>
       <div class="hero-btns">
-        <a href="#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
-        <a href="#leistungen" class="btn btn-outline-white">Alle Leistungen →</a>
+        <a href="#kontakt" class="btn btn-gold" data-i18n="hero_btn1">Kostenlos beraten lassen</a>
+        <a href="#leistungen" class="btn btn-outline-white" data-i18n="hero_btn2">Alle Leistungen →</a>
       </div>
     </div>
     <div class="hero-right">
@@ -384,7 +389,7 @@
             Glas, Polycarbonat, Lamellen oder Flachdach erhältlich und werden
             exakt nach Ihren Maßen gefertigt.
           </p>
-          <a class="leistung-link" href="produkte/terrassenueberdachung.html">Mehr erfahren →</a>
+          <a class="leistung-link" href="produkte/terrassenueberdachung.html"><span data-i18n="mehr_erfahren">Mehr erfahren →</span></a>
         </div>
       </article>
 
@@ -397,7 +402,7 @@
             Unsere Aluminium-Carports sind robust, langlebig und individuell
             mit Glas- oder Polycarbonateinsätzen gestaltbar.
           </p>
-          <a class="leistung-link" href="produkte/carport.html">Mehr erfahren →</a>
+          <a class="leistung-link" href="produkte/carport.html"><span data-i18n="mehr_erfahren">Mehr erfahren →</span></a>
         </div>
       </article>
 
@@ -410,7 +415,7 @@
             Sonne und Luft Sie möchten. Ideal für Terrassen, Gärten und
             gastronomische Außenbereiche.
           </p>
-          <a class="leistung-link" href="produkte/pergola.html">Mehr erfahren →</a>
+          <a class="leistung-link" href="produkte/pergola.html"><span data-i18n="mehr_erfahren">Mehr erfahren →</span></a>
         </div>
       </article>
 
@@ -423,7 +428,7 @@
             Heizung. Perfekt als überdachter Sitzbereich, harmonisch ans Haus
             angebunden.
           </p>
-          <a class="leistung-link" href="produkte/kaltwintergarten.html">Mehr erfahren →</a>
+          <a class="leistung-link" href="produkte/kaltwintergarten.html"><span data-i18n="mehr_erfahren">Mehr erfahren →</span></a>
         </div>
       </article>
 
@@ -436,7 +441,7 @@
             wetterfest, in vielen Stoffen und Farben. Als Ergänzung zur
             Überdachung oder eigenständig.
           </p>
-          <a class="leistung-link" href="produkte/sonnenschutz.html">Mehr erfahren →</a>
+          <a class="leistung-link" href="produkte/sonnenschutz.html"><span data-i18n="mehr_erfahren">Mehr erfahren →</span></a>
         </div>
       </article>
 
@@ -449,7 +454,7 @@
             pflegeleicht und ästhetisch. Dazu LED-Beleuchtung, Lautsprecher
             und alles, was Ihren Außenbereich perfekt macht.
           </p>
-          <a class="leistung-link" href="produkte/gelaender.html">Mehr erfahren →</a>
+          <a class="leistung-link" href="produkte/gelaender.html"><span data-i18n="mehr_erfahren">Mehr erfahren →</span></a>
         </div>
       </article>
 
@@ -818,7 +823,7 @@
 <section class="section" id="faq" aria-labelledby="faq-h">
   <div class="container">
     <p class="tag" data-i18n="faq_tag">Häufige Fragen</p>
-    <h2 id="faq-h">Alles Wichtige auf einen Blick</h2>
+    <h2 id="faq-h" data-i18n="faq_h2">Alles Wichtige auf einen Blick</h2>
     <div class="faq-list" role="list">
 
       <div class="faq-item" role="listitem">
@@ -1059,7 +1064,7 @@
 <section class="section section--alt" id="kontakt" aria-labelledby="kontakt-h">
   <div class="container">
     <p class="tag">Kontakt</p>
-    <h2 id="kontakt-h">Kostenlose Beratung – wir kommen zu Ihnen</h2>
+    <h2 id="kontakt-h" data-i18n="kontakt_h2">Kostenlose Beratung – wir kommen zu Ihnen</h2>
     <div class="kontakt-grid">
 
       <div class="kontakt-info">
@@ -1100,20 +1105,20 @@
         <div class="form-row">
           <div class="form-group">
             <label for="vorname" data-i18n="kontakt_vorname">Vorname</label> *
-            <input type="text" id="vorname" name="vorname" placeholder="Max" required autocomplete="given-name" />
+            <input type="text" id="vorname" name="vorname" placeholder="Max" data-i18n-placeholder="kontakt_vorname" required autocomplete="given-name" />
           </div>
           <div class="form-group">
             <label for="nachname" data-i18n="kontakt_nachname">Nachname</label> *
-            <input type="text" id="nachname" name="nachname" placeholder="Mustermann" required autocomplete="family-name" />
+            <input type="text" id="nachname" name="nachname" placeholder="Mustermann" data-i18n-placeholder="kontakt_nachname" required autocomplete="family-name" />
           </div>
         </div>
         <div class="form-group">
           <label for="email" data-i18n="kontakt_email">E-Mail-Adresse</label> *
-          <input type="email" id="email" name="email" placeholder="max@beispiel.de" required autocomplete="email" />
+          <input type="email" id="email" name="email" placeholder="max@beispiel.de" data-i18n-placeholder="kontakt_email" required autocomplete="email" />
         </div>
         <div class="form-group">
           <label for="telefon" data-i18n="kontakt_telefon">Telefon / WhatsApp</label>
-          <input type="tel" id="telefon" name="telefon" placeholder="0156 …" autocomplete="tel" />
+          <input type="tel" id="telefon" name="telefon" placeholder="0156 …" data-i18n-placeholder="kontakt_telefon" autocomplete="tel" />
         </div>
         <div class="form-group">
           <label for="produkt">Ich interessiere mich für</label>
