@@ -197,7 +197,8 @@ h3 { font-size: 1.4rem; color: var(--black); }
   font-size: 1.05rem; color: rgba(255,255,255,0.8);
   margin-bottom: 30px; max-width: 460px; line-height: 1.65;
 }
-.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; max-width: 600px; }
+.hero-btns .btn { text-align: center; flex: 1; min-width: 160px; padding: 13px 16px; font-size: 0.95rem; }
 .hero-right { display: flex; flex-direction: column; gap: 14px; }
 .hero-card {
   background: rgba(255,255,255,0.06);
@@ -1376,8 +1377,8 @@ footer h4 {
   .hero { padding: 52px 0 56px; }
   .hero h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
   .hero-sub { font-size: 0.95rem; }
-  .hero-btns { flex-direction: column; }
-  .hero-btns .btn { text-align: center; width: 100%; }
+  .hero-btns { flex-direction: column; max-width: 360px; }
+  .hero-btns .btn { width: 100%; min-width: unset; }
   .hero-card { padding: 14px 16px; }
   .hero-card strong { font-size: 0.95rem; }
   .hero-card span { font-size: 0.78rem; }
