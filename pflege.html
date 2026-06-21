@@ -136,10 +136,17 @@
       <li><a href="/#faq">FAQ</a></li>
       <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
     </ul>
-    <div class="lang-switcher">
-      <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">🇩🇪 DE</button>
-      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
-      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 RU</button>
+    <div class="lang-dropdown">
+      <button class="lang-dropdown-btn" onclick="toggleLangMenu(event)" aria-label="Sprache wählen">
+        <span id="langFlag">🇩🇪</span>
+        <span id="langCode">DE</span>
+        <span class="lang-chevron">▾</span>
+      </button>
+      <div class="lang-dropdown-menu" id="langMenu">
+        <button onclick="chooseLang('de')">🇩🇪 Deutsch</button>
+        <button onclick="chooseLang('en')">🇬🇧 English</button>
+        <button onclick="chooseLang('ru')">🇷🇺 Русский</button>
+      </div>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
@@ -154,9 +161,9 @@
   <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
   <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
   <div class="mobile-lang-switcher">
-    <button class="lang-btn active" data-lang="de" onclick="setLanguage('de');closeMobile()">🇩🇪 Deutsch</button>
-    <button class="lang-btn" data-lang="en" onclick="setLanguage('en');closeMobile()">🇬🇧 English</button>
-    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru');closeMobile()">🇷🇺 Русский</button>
+    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
+    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
   </div>
 </div>
 
@@ -422,6 +429,7 @@
     <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
     <p>
       <a href="impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
       <a href="datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
     </p>
   </div>

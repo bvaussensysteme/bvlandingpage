@@ -261,10 +261,17 @@
       <li><a href="#faq" data-i18n="nav_faq">FAQ</a></li>
       <li><a href="#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
-    <div class="lang-switcher">
-      <button class="lang-btn" data-lang="de" onclick="setLanguage('de')">🇩🇪 DE</button>
-      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
-      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 RU</button>
+    <div class="lang-dropdown">
+      <button class="lang-dropdown-btn" onclick="toggleLangMenu(event)" aria-label="Sprache wählen">
+        <span id="langFlag">🇩🇪</span>
+        <span id="langCode">DE</span>
+        <span class="lang-chevron">▾</span>
+      </button>
+      <div class="lang-dropdown-menu" id="langMenu">
+        <button onclick="chooseLang('de')">🇩🇪 Deutsch</button>
+        <button onclick="chooseLang('en')">🇬🇧 English</button>
+        <button onclick="chooseLang('ru')">🇷🇺 Русский</button>
+      </div>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
@@ -282,9 +289,9 @@
   <a href="#faq" data-i18n="nav_faq">FAQ</a>
   <a href="#kontakt" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
   <div class="mobile-lang-switcher">
-    <button class="lang-btn active" data-lang="de" onclick="setLanguage('de');closeMobile()">🇩🇪 Deutsch</button>
-    <button class="lang-btn" data-lang="en" onclick="setLanguage('en');closeMobile()">🇬🇧 English</button>
-    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru');closeMobile()">🇷🇺 Русский</button>
+    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
+    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
   </div>
 </div>
 
@@ -380,7 +387,7 @@
     <div class="leistungen-grid">
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><div class="leistung-img-fallback">☀️</div></div>
+        <div class="leistung-img"><img src="images/prod_terrasse_tds.jpg" alt="Terrassenüberdachung Aluminium TDS" loading="lazy" width="400" height="180" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Terrassenüberdachung</h3>
           <p itemprop="description">
@@ -394,7 +401,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><div class="leistung-img-fallback">🚗</div></div>
+        <div class="leistung-img"><img src="images/prod_carport_tds.jpg" alt="Carport TDS Aluminium" loading="lazy" width="400" height="180" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Carport</h3>
           <p itemprop="description">
@@ -407,7 +414,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><div class="leistung-img-fallback">🌿</div></div>
+        <div class="leistung-img"><img src="images/prod_pergola_velaris.jpg" alt="Pergola Lamellendach" loading="lazy" width="400" height="180" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Pergola & Lamellendach</h3>
           <p itemprop="description">
@@ -420,7 +427,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><div class="leistung-img-fallback">❄️</div></div>
+        <div class="leistung-img"><img src="images/prod_kaltwintergarten_tds.jpg" alt="Kaltwintergarten TDS" loading="lazy" width="400" height="180" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Kaltwintergarten</h3>
           <p itemprop="description">
@@ -433,7 +440,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><div class="leistung-img-fallback">🌞</div></div>
+        <div class="leistung-img"><img src="images/prod_sonnenschutz.jpg" alt="Sonnenschutz Markisen" loading="lazy" width="400" height="180" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Sonnenschutz & Markisen</h3>
           <p itemprop="description">
@@ -446,7 +453,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><div class="leistung-img-fallback">🔩</div></div>
+        <div class="leistung-img"><img src="images/prod_gelaender_glas.jpg" alt="Aluminium Glasgeländer" loading="lazy" width="400" height="180" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Geländer & Zubehör</h3>
           <p itemprop="description">
@@ -1214,7 +1221,8 @@
           <li><a href="einzugsgebiet.html">📍 Einzugsgebiet</a></li>
           <li><a href="#kontakt">Kontakt</a></li>
           <li><a href="impressum.html">Impressum</a></li>
-          <li><a href="datenschutz.html" data-i18n="footer_datenschutz">Datenschutz</a></li>
+          <li><a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+      <a href="datenschutz.html" data-i18n="footer_datenschutz">Datenschutz</a></li>
         </ul>
       </div>
     </div>
