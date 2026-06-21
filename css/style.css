@@ -1126,7 +1126,7 @@ footer h4 {
    ============================================ */
 .lang-dropdown {
   position: relative;
-  margin-left: 12px;
+  margin-left: 10px;
   flex-shrink: 0;
 }
 .lang-dropdown-btn {

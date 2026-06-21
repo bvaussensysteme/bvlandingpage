@@ -261,18 +261,18 @@
       <li><a href="#faq" data-i18n="nav_faq">FAQ</a></li>
       <li><a href="#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
-    <div class="lang-dropdown">
-      <button class="lang-dropdown-btn" onclick="toggleLangMenu(event)" aria-label="Sprache wählen">
-        <span id="langFlag" data-notranslate="1">🇩🇪</span>
-        <span id="langCode" data-notranslate="1">DE</span>
+    <div class="lang-dropdown" id="langDropdown">
+      <button class="lang-dropdown-btn" id="langBtn" type="button">
+        <span id="langLabel" data-notranslate="1">🇩🇪 DE</span>
         <span class="lang-chevron" data-notranslate="1">▾</span>
       </button>
       <div class="lang-dropdown-menu" id="langMenu">
-        <button onclick="chooseLang('de')" data-notranslate="1">🇩🇪 Deutsch</button>
-        <button onclick="chooseLang('en')" data-notranslate="1">🇬🇧 English</button>
-        <button onclick="chooseLang('ru')" data-notranslate="1">🇷🇺 Русский</button>
+        <button type="button" onclick="chooseLang('de')" data-notranslate="1">🇩🇪 Deutsch</button>
+        <button type="button" onclick="chooseLang('en')" data-notranslate="1">🇬🇧 English</button>
+        <button type="button" onclick="chooseLang('ru')" data-notranslate="1">🇷🇺 Русский</button>
       </div>
-    </div><button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -386,7 +386,7 @@
     <div class="leistungen-grid">
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_terrasse_tds.jpg" alt="Terrassenüberdachung Aluminium TDS" loading="lazy" width="400" height="180" /></div>
+        <div class="leistung-img"><img src="images/prod_terrasse_tds.jpg" alt="Terrassenüberdachung Aluminium" loading="lazy" width="400" height="240" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Terrassenüberdachung</h3>
           <p itemprop="description">
@@ -400,7 +400,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_carport_tds.jpg" alt="Carport TDS Aluminium" loading="lazy" width="400" height="180" /></div>
+        <div class="leistung-img"><img src="images/prod_carport_tds.jpg" alt="Carport Aluminium" loading="lazy" width="400" height="240" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Carport</h3>
           <p itemprop="description">
@@ -426,7 +426,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_kaltwintergarten_tds.jpg" alt="Kaltwintergarten TDS" loading="lazy" width="400" height="180" /></div>
+        <div class="leistung-img"><img src="images/prod_kaltwintergarten_tds.jpg" alt="Kaltwintergarten" loading="lazy" width="400" height="240" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Kaltwintergarten</h3>
           <p itemprop="description">
@@ -439,7 +439,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_sonnenschutz.jpg" alt="Sonnenschutz Markisen" loading="lazy" width="400" height="180" /></div>
+        <div class="leistung-img"><img src="images/prod_sonnenschutz.jpg" alt="Sonnenschutz Markisen" loading="lazy" width="400" height="240" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Sonnenschutz & Markisen</h3>
           <p itemprop="description">
@@ -452,7 +452,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_gelaender_glas.jpg" alt="Aluminium Glasgeländer" loading="lazy" width="400" height="180" /></div>
+        <div class="leistung-img"><img src="images/prod_gelaender_glas.jpg" alt="Glasgeländer Aluminium" loading="lazy" width="400" height="240" /></div>
         <div class="leistung-body">
           <h3 itemprop="name">Geländer & Zubehör</h3>
           <p itemprop="description">

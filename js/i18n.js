@@ -311,22 +311,26 @@ function applyLang(lang) {
   });
 }
 
+var langLabels = {de:'🇩🇪 DE', en:'🇬🇧 EN', ru:'🇷🇺 RU'};
+
 function updateDropdownLabel(lang) {
-  var f = document.getElementById('langFlag');
-  var c = document.getElementById('langCode');
-  if (f) f.textContent = flags[lang];
-  if (c) c.textContent = codes[lang];
+  var label = document.getElementById('langLabel');
+  if (label) label.textContent = langLabels[lang] || '🇩🇪 DE';
   document.querySelectorAll('.lang-dropdown-menu button').forEach(function(btn) {
-    var isActive = (lang==='de' && btn.textContent.includes('Deutsch')) ||
-                   (lang==='en' && btn.textContent.includes('English')) ||
-                   (lang==='ru' && btn.textContent.includes('Русский'));
-    btn.classList.toggle('active', isActive);
+    var t = btn.textContent;
+    btn.classList.toggle('active',
+      (lang==='de' && t.includes('Deutsch')) ||
+      (lang==='en' && t.includes('English')) ||
+      (lang==='ru' && t.includes('Русский'))
+    );
   });
   document.querySelectorAll('.mobile-lang-switcher button').forEach(function(btn) {
-    var isActive = (lang==='de' && btn.textContent.includes('Deutsch')) ||
-                   (lang==='en' && btn.textContent.includes('English')) ||
-                   (lang==='ru' && btn.textContent.includes('Русский'));
-    btn.classList.toggle('active', isActive);
+    var t = btn.textContent;
+    btn.classList.toggle('active',
+      (lang==='de' && t.includes('Deutsch')) ||
+      (lang==='en' && t.includes('English')) ||
+      (lang==='ru' && t.includes('Русский'))
+    );
   });
 }
 
@@ -339,22 +343,32 @@ function setLanguage(lang) {
   document.documentElement.lang = lang;
 }
 
-/* ── Dropdown toggle ────────────────────────────────────── */
 function toggleLangMenu(e) {
-  e.stopPropagation();
-  var dd = document.querySelector('.lang-dropdown');
+  if (e) e.stopPropagation();
+  var dd = document.getElementById('langDropdown');
   if (dd) dd.classList.toggle('open');
 }
 
 function chooseLang(lang) {
-  var dd = document.querySelector('.lang-dropdown');
+  var dd = document.getElementById('langDropdown');
   if (dd) dd.classList.remove('open');
   setLanguage(lang);
 }
 
-document.addEventListener('click', function() {
-  var dd = document.querySelector('.lang-dropdown');
-  if (dd) dd.classList.remove('open');
+// Attach click to button via JS (more reliable than inline onclick)
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('langBtn');
+  if (btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleLangMenu(null);
+    });
+  }
+  // Close on outside click
+  document.addEventListener('click', function() {
+    var dd = document.getElementById('langDropdown');
+    if (dd) dd.classList.remove('open');
+  });
 });
 
 /* ── Init on load ───────────────────────────────────────── */
