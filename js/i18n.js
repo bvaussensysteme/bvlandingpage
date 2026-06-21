@@ -207,6 +207,11 @@ function setLanguage(lang) {
   document.documentElement.lang = lang === 'ru' ? 'ru' : lang === 'en' ? 'en' : 'de';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+// Apply language immediately when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    setLanguage(currentLang);
+  });
+} else {
   setLanguage(currentLang);
-});
+}
