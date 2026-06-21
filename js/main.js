@@ -147,3 +147,57 @@ function switchTab(tab) {
   if (panel) { panel.style.display = 'block'; panel.classList.add('active'); }
   if (btn)   { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
 }
+
+// ---- LIGHTBOX ----
+var lightboxImages = [
+  { src: 'images/galerie-1.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
+  { src: 'images/galerie-2.jpg', caption: 'Detailansicht · Aluminium-Profile & Verglasung' },
+  { src: 'images/galerie-3.jpg', caption: 'Gesamtansicht · Terrassenüberdachung Westerwaldkreis' },
+];
+var lightboxIndex = 0;
+
+function openLightbox(index) {
+  lightboxIndex = index;
+  updateLightbox();
+  var lb = document.getElementById('lightbox');
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateLightbox() {
+  var item = lightboxImages[lightboxIndex];
+  document.getElementById('lightbox-img').src     = item.src;
+  document.getElementById('lightbox-img').alt     = item.caption;
+  document.getElementById('lightbox-caption').textContent = item.caption;
+  document.getElementById('lightbox-prev').classList.toggle('hidden', lightboxIndex === 0);
+  document.getElementById('lightbox-next').classList.toggle('hidden', lightboxIndex === lightboxImages.length - 1);
+}
+
+function lightboxNav(dir) {
+  lightboxIndex = Math.max(0, Math.min(lightboxImages.length - 1, lightboxIndex + dir));
+  updateLightbox();
+}
+
+// Close on backdrop click
+document.addEventListener('DOMContentLoaded', function() {
+  var lb = document.getElementById('lightbox');
+  if (lb) {
+    lb.addEventListener('click', function(e) {
+      if (e.target === lb) closeLightbox();
+    });
+  }
+});
+
+// Close on ESC, navigate with arrow keys
+document.addEventListener('keydown', function(e) {
+  var lb = document.getElementById('lightbox');
+  if (!lb || !lb.classList.contains('open')) return;
+  if (e.key === 'Escape')      closeLightbox();
+  if (e.key === 'ArrowLeft')   lightboxNav(-1);
+  if (e.key === 'ArrowRight')  lightboxNav(1);
+});
