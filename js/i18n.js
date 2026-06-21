@@ -198,9 +198,13 @@ function setLanguage(lang) {
     }
   });
 
-  // Update lang switcher buttons
-  document.querySelectorAll('.lang-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  // Update ALL lang switcher buttons on page
+  document.querySelectorAll('.lang-btn[data-lang]').forEach(function(btn) {
+    if (btn.getAttribute('data-lang') === lang) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
   });
 
   // Update html lang attribute
