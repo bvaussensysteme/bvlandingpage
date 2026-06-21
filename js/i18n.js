@@ -259,6 +259,9 @@ function applyLang(lang) {
         // Skip script/style/textarea
         if (['SCRIPT','STYLE','NOSCRIPT','TEXTAREA'].indexOf(el.tagName) >= 0)
           return NodeFilter.FILTER_REJECT;
+        // Skip lang dropdown entirely (by id or data-notranslate)
+        if (el.id === 'langLabel' || el.id === 'langDropdown' || el.id === 'langMenu' || el.id === 'langBtn')
+          return NodeFilter.FILTER_REJECT;
         // Skip elements marked as no-translate
         if (el.getAttribute('data-notranslate') || el.closest('[data-notranslate]'))
           return NodeFilter.FILTER_REJECT;
@@ -315,7 +318,10 @@ var langLabels = {de:'🇩🇪 DE', en:'🇬🇧 EN', ru:'🇷🇺 RU'};
 
 function updateDropdownLabel(lang) {
   var label = document.getElementById('langLabel');
-  if (label) label.textContent = langLabels[lang] || '🇩🇪 DE';
+  if (label) {
+    label.setAttribute('data-notranslate','1');
+    label.textContent = langLabels[lang] || '🇩🇪 DE';
+  }
   document.querySelectorAll('.lang-dropdown-menu button').forEach(function(btn) {
     var t = btn.textContent;
     btn.classList.toggle('active',

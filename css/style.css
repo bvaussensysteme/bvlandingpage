@@ -255,9 +255,9 @@ h3 { font-size: 1.4rem; color: var(--black); }
   border-color: var(--gold);
 }
 .leistung-img {
-  height: 180px;
-  min-height: 180px;
-  max-height: 180px;
+  height: 200px;
+  min-height: 200px;
+  max-height: 200px;
   width: 100%;
   overflow: hidden;
   position: relative;
