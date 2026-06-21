@@ -46,6 +46,18 @@
     <a href="/" aria-label="BV AussenSysteme Startseite">
       <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
     </a>
+        <div class="lang-dropdown">
+      <button class="lang-dropdown-btn" onclick="toggleLangMenu(event)" aria-label="Sprache wählen">
+        <span id="langFlag">🇩🇪</span>
+        <span id="langCode">DE</span>
+        <span class="lang-chevron">▾</span>
+      </button>
+      <div class="lang-dropdown-menu" id="langMenu">
+        <button onclick="chooseLang('de')">🇩🇪 Deutsch</button>
+        <button onclick="chooseLang('en')">🇬🇧 English</button>
+        <button onclick="chooseLang('ru')">🇷🇺 Русский</button>
+      </div>
+    </div>
     <ul class="nav-links">
       <li><a href="/">← Zurück zur Startseite</a></li>
       <li><a href="#kontakt" style="display:none"></a></li>

@@ -1126,28 +1126,30 @@ footer h4 {
    ============================================ */
 .lang-dropdown {
   position: relative;
-  margin-left: 12px;
+  margin-right: 16px;
   flex-shrink: 0;
 }
 .lang-dropdown-btn {
-  display: flex; align-items: center; gap: 5px;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid rgba(255,255,255,0.35);
   color: var(--white);
   font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: 0.88rem;
-  padding: 6px 12px; border-radius: 6px;
+  font-weight: 700; font-size: 0.9rem;
+  padding: 7px 13px; border-radius: 6px;
   cursor: pointer; transition: all 0.2s;
   white-space: nowrap;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .lang-dropdown-btn:hover {
   border-color: var(--gold);
-  background: rgba(196,154,42,0.15);
+  background: rgba(196,154,42,0.2);
   color: var(--gold);
 }
 .navbar.scrolled .lang-dropdown-btn {
-  background: rgba(0,0,0,0.06);
-  border-color: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.08);
+  border-color: rgba(0,0,0,0.2);
   color: var(--black);
 }
 .navbar.scrolled .lang-dropdown-btn:hover {
