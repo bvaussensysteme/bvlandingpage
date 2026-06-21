@@ -1,221 +1,112 @@
 /* ============================================================
-   BV AussenSysteme – Internationalisierung (DE / EN / RU)
+   BV AussenSysteme – Vollständige Übersetzung DE / EN / RU
+   Strategie: innerHTML-Ersatz für vollständige Übersetzung
    ============================================================ */
 
-var translations = {
-
-  de: {
-    // NAV
-    nav_leistungen:   'Leistungen',
-    nav_galerie:      'Galerie',
-    nav_konfigurator: '🛠 Konfigurator',
-    nav_ueberuns:     'Über uns',
-    nav_ablauf:       'Ablauf',
-    nav_faq:          'FAQ',
-    nav_anfragen:     'Jetzt anfragen',
-
-    // HERO
-    hero_eyebrow:     'Ihr Spezialist im Westerwald',
-    hero_slogan:      'Überdacht. Durchdacht. Zuverlässig.',
-    hero_h1:          'Ihr Traumplatz draußen – das ganze Jahr.',
-    hero_sub:         'Terrassenüberdachungen, Carports, Pergolen & mehr – maßgefertigt aus Aluminium, direkt vom Hersteller. Kostenlose Beratung vor Ort im Westerwald.',
-    hero_btn1:        'Kostenlos beraten lassen',
-    hero_btn2:        'Alle Leistungen',
-
-    // USP STRIP
-    usp_garantie:     '10 J. Alu · 5 J. Elektro',
-    usp_garantie_sub: 'Garantie direkt vom Hersteller',
-    usp_mass:         '100% Maßanfertigung',
-    usp_mass_sub:     'exakt nach Ihren Wünschen',
-    usp_beratung:     'Kostenlose Beratung',
-    usp_beratung_sub: 'wir kommen zu Ihnen',
-    usp_ce:           'CE & Statik',
-    usp_ce_sub:       'Wind- & Schneelasten-Nachweis',
-    usp_gewerbe:      'Privat & Gewerbe',
-    usp_gewerbe_sub:  'für jeden Bedarf',
-
-    // LEISTUNGEN
-    leistungen_tag:   'Unsere Leistungen',
-    leistungen_h2:    'Alles für draußen – aus einer Hand',
-    mehr_erfahren:    'Mehr erfahren →',
-
-    // GALERIE
-    galerie_tag:      'Unsere Referenzen',
-    galerie_h2:       'Projekte, die für sich sprechen',
-
-    // KONTAKT
-    kontakt_h2:       'Kostenlose Beratung – wir kommen zu Ihnen',
-    kontakt_btn:      'Kostenlose Beratung anfordern →',
-    kontakt_vorname:  'Vorname',
-    kontakt_nachname: 'Nachname',
-    kontakt_email:    'E-Mail-Adresse',
-    kontakt_telefon:  'Telefon / WhatsApp',
-    kontakt_produkt:  'Ich interessiere mich für',
-    kontakt_nachricht:'Nachricht',
-    kontakt_note:     '* Pflichtfelder. Ihre Daten werden vertraulich behandelt.',
-
-    // FAQ
-    faq_tag:          'Häufige Fragen',
-    faq_h2:           'Alles Wichtige auf einen Blick',
-
-    // FOOTER
-    footer_rechte:    'Alle Rechte vorbehalten',
-    footer_impressum: 'Impressum',
-    footer_datenschutz:'Datenschutz',
-    footer_cookies:   'Cookie-Einstellungen',
-  },
-
-  en: {
-    nav_leistungen:   'Services',
-    nav_galerie:      'Gallery',
-    nav_konfigurator: '🛠 Configurator',
-    nav_ueberuns:     'About us',
-    nav_ablauf:       'Process',
-    nav_faq:          'FAQ',
-    nav_anfragen:     'Get a quote',
-
-    hero_eyebrow:     'Your specialist in the Westerwald',
-    hero_slogan:      'Covered. Considered. Reliable.',
-    hero_h1:          'Your dream outdoor space – all year round.',
-    hero_sub:         'Patio covers, carports, pergolas & more – custom-made from aluminium, direct from the manufacturer. Free on-site consultation in the Westerwald region.',
-    hero_btn1:        'Free consultation',
-    hero_btn2:        'All services',
-
-    usp_garantie:     '10 / 5 Years',
-    usp_garantie_sub: 'Manufacturer warranty',
-    usp_mass:         '100% Custom-made',
-    usp_mass_sub:     'exactly to your wishes',
-    usp_beratung:     'Free consultation',
-    usp_beratung_sub: 'we come to you',
-    usp_ce:           'CE & Statics',
-    usp_ce_sub:       'wind & snow load certificate',
-    usp_gewerbe:      'Private & Commercial',
-    usp_gewerbe_sub:  'for every need',
-
-    leistungen_tag:   'Our Services',
-    leistungen_h2:    'Everything for outdoors – from one source',
-    mehr_erfahren:    'Learn more →',
-
-    galerie_tag:      'Our References',
-    galerie_h2:       'Projects that speak for themselves',
-
-    kontakt_h2:       'Free consultation – we come to you',
-    kontakt_btn:      'Request free consultation →',
-    kontakt_vorname:  'First name',
-    kontakt_nachname: 'Last name',
-    kontakt_email:    'Email address',
-    kontakt_telefon:  'Phone / WhatsApp',
-    kontakt_produkt:  'I am interested in',
-    kontakt_nachricht:'Message',
-    kontakt_note:     '* Required fields. Your data will be treated confidentially.',
-
-    faq_tag:          'Frequently Asked Questions',
-    faq_h2:           'Everything you need to know',
-
-    footer_rechte:    'All rights reserved',
-    footer_impressum: 'Legal notice',
-    footer_datenschutz:'Privacy policy',
-    footer_cookies:   'Cookie settings',
-  },
-
-  ru: {
-    nav_leistungen:   'Услуги',
-    nav_galerie:      'Галерея',
-    nav_konfigurator: '🛠 Конфигуратор',
-    nav_ueberuns:     'О нас',
-    nav_ablauf:       'Процесс',
-    nav_faq:          'Вопросы',
-    nav_anfragen:     'Запросить',
-
-    hero_eyebrow:     'Ваш специалист в регионе Вестервальд',
-    hero_slogan:      'Надёжно. Продуманно. Качественно.',
-    hero_h1:          'Ваше идеальное место на улице – круглый год.',
-    hero_sub:         'Навесы для террас, карпорты, перголы и многое другое – изготовление на заказ из алюминия, напрямую от производителя. Бесплатная консультация на месте.',
-    hero_btn1:        'Бесплатная консультация',
-    hero_btn2:        'Все услуги',
-
-    usp_garantie:     '10 / 5 лет',
-    usp_garantie_sub: 'Гарантия от производителя',
-    usp_mass:         '100% Под заказ',
-    usp_mass_sub:     'по вашим пожеланиям',
-    usp_beratung:     'Бесплатная консультация',
-    usp_beratung_sub: 'приедем к вам',
-    usp_ce:           'CE & Статика',
-    usp_ce_sub:       'нагрузки ветра и снега',
-    usp_gewerbe:      'Частным и бизнесу',
-    usp_gewerbe_sub:  'для любых нужд',
-
-    leistungen_tag:   'Наши услуги',
-    leistungen_h2:    'Всё для улицы – из одних рук',
-    mehr_erfahren:    'Подробнее →',
-
-    galerie_tag:      'Наши проекты',
-    galerie_h2:       'Проекты, говорящие сами за себя',
-
-    kontakt_h2:       'Бесплатная консультация – приедем к вам',
-    kontakt_btn:      'Запросить бесплатную консультацию →',
-    kontakt_vorname:  'Имя',
-    kontakt_nachname: 'Фамилия',
-    kontakt_email:    'Электронная почта',
-    kontakt_telefon:  'Телефон / WhatsApp',
-    kontakt_produkt:  'Меня интересует',
-    kontakt_nachricht:'Сообщение',
-    kontakt_note:     '* Обязательные поля. Ваши данные обрабатываются конфиденциально.',
-
-    faq_tag:          'Часто задаваемые вопросы',
-    faq_h2:           'Всё важное на одной странице',
-
-    footer_rechte:    'Все права защищены',
-    footer_impressum: 'Об организации',
-    footer_datenschutz:'Конфиденциальность',
-    footer_cookies:   'Настройки cookies',
-  }
-};
-
-// ---- Language switcher logic ----
 var currentLang = localStorage.getItem('bv_lang') || 'de';
 
+// ============================================================
+// ÜBERSETZUNGS-PAARE: [selector, de_text, en_text, ru_text]
+// ============================================================
+var t = [
+  // NAV
+  ['[data-i18n="nav_leistungen"]', 'Leistungen', 'Services', 'Услуги'],
+  ['[data-i18n="nav_galerie"]', 'Galerie', 'Gallery', 'Галерея'],
+  ['[data-i18n="nav_ueberuns"]', 'Über uns', 'About us', 'О нас'],
+  ['[data-i18n="nav_ablauf"]', 'Ablauf', 'Process', 'Процесс'],
+  ['[data-i18n="nav_faq"]', 'FAQ', 'FAQ', 'Вопросы'],
+  ['[data-i18n="nav_anfragen"]', 'Jetzt anfragen', 'Get a quote', 'Запросить'],
+
+  // HERO
+  ['[data-i18n="hero_eyebrow"]', 'Ihr Spezialist im Westerwald', 'Your specialist in the Westerwald', 'Ваш специалист в регионе Вестервальд'],
+  ['[data-i18n="hero_slogan"]', 'Überdacht. Durchdacht. Zuverlässig.', 'Covered. Considered. Reliable.', 'Надёжно. Продуманно. Качественно.'],
+  ['[data-i18n="hero_h1"]', 'Ihr Traumplatz draußen – das ganze Jahr.', 'Your dream outdoor space – all year round.', 'Ваше идеальное место на улице – круглый год.'],
+  ['[data-i18n="hero_sub"]', 'Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz – maßgefertigt, professionell montiert, 10 Jahre Garantie. Für Privat- und Gewerbekunden im Westerwald und Umgebung.', 'Patio covers, carports, pergolas & sun protection – custom-made, professionally installed, 10-year warranty. For private and commercial customers in the Westerwald region.', 'Навесы для террас, карпорты, перголы и солнцезащита – изготовление на заказ, профессиональный монтаж, 10 лет гарантии. Для частных и коммерческих клиентов в регионе Вестервальд.'],
+  ['[data-i18n="hero_btn1"]', 'Kostenlos beraten lassen', 'Free consultation', 'Бесплатная консультация'],
+  ['[data-i18n="hero_btn2"]', 'Alle Leistungen →', 'All services →', 'Все услуги →'],
+
+  // USP STRIP
+  ['[data-i18n="usp_garantie"]', '10 J. Alu · 5 J. Elektro', '10 / 5 Years', '10 / 5 лет'],
+  ['[data-i18n="usp_garantie_sub"]', 'Garantie direkt vom Hersteller', 'Manufacturer warranty', 'Гарантия от производителя'],
+  ['[data-i18n="usp_mass"]', '100% Maßanfertigung', '100% Custom-made', '100% Под заказ'],
+  ['[data-i18n="usp_mass_sub"]', 'exakt nach Ihren Wünschen', 'exactly to your wishes', 'по вашим пожеланиям'],
+  ['[data-i18n="usp_beratung"]', 'Kostenlose Beratung', 'Free consultation', 'Бесплатная консультация'],
+  ['[data-i18n="usp_beratung_sub"]', 'wir kommen zu Ihnen', 'we come to you', 'приедем к вам'],
+  ['[data-i18n="usp_ce"]', 'CE & Statik', 'CE & Statics', 'CE & Статика'],
+  ['[data-i18n="usp_ce_sub"]', 'Wind- & Schneelasten-Nachweis', 'wind & snow load certificate', 'нагрузки ветра и снега'],
+  ['[data-i18n="usp_gewerbe"]', 'Privat & Gewerbe', 'Private & Commercial', 'Частным и бизнесу'],
+  ['[data-i18n="usp_gewerbe_sub"]', 'für jeden Bedarf', 'for every need', 'для любых нужд'],
+
+  // SECTIONS
+  ['[data-i18n="leistungen_tag"]', 'Unsere Leistungen', 'Our Services', 'Наши услуги'],
+  ['[data-i18n="leistungen_h2"]', 'Alles für draußen – aus einer Hand', 'Everything for outdoors – from one source', 'Всё для улицы – из одних рук'],
+  ['[data-i18n="galerie_tag"]', 'Unsere Referenzen', 'Our References', 'Наши проекты'],
+  ['[data-i18n="galerie_h2"]', 'Projekte, die für sich sprechen', 'Projects that speak for themselves', 'Проекты, говорящие сами за себя'],
+  ['[data-i18n="faq_tag"]', 'Häufige Fragen', 'Frequently Asked Questions', 'Часто задаваемые вопросы'],
+  ['[data-i18n="faq_h2"]', 'Alles Wichtige auf einen Blick', 'Everything you need to know', 'Всё важное на одной странице'],
+  ['[data-i18n="kontakt_h2"]', 'Kostenlose Beratung – wir kommen zu Ihnen', 'Free consultation – we come to you', 'Бесплатная консультация – приедем к вам'],
+  ['[data-i18n="kontakt_btn"]', 'Kostenlose Beratung anfordern →', 'Request free consultation →', 'Запросить бесплатную консультацию →'],
+
+  // KONTAKT FORM LABELS
+  ['[data-i18n="kontakt_vorname"]', 'Vorname', 'First name', 'Имя'],
+  ['[data-i18n="kontakt_nachname"]', 'Nachname', 'Last name', 'Фамилия'],
+  ['[data-i18n="kontakt_email"]', 'E-Mail-Adresse', 'Email address', 'Электронная почта'],
+  ['[data-i18n="kontakt_telefon"]', 'Telefon / WhatsApp', 'Phone / WhatsApp', 'Телефон / WhatsApp'],
+  ['[data-i18n="kontakt_nachricht"]', 'Nachricht', 'Message', 'Сообщение'],
+  ['[data-i18n="kontakt_produkt"]', 'Ich interessiere mich für', 'I am interested in', 'Меня интересует'],
+  ['[data-i18n="kontakt_note"]', '* Pflichtfelder. Ihre Daten werden vertraulich behandelt und nicht weitergegeben.', '* Required fields. Your data will be treated confidentially.', '* Обязательные поля. Ваши данные обрабатываются конфиденциально.'],
+
+  // MEHR ERFAHREN
+  ['[data-i18n="mehr_erfahren"]', 'Mehr erfahren →', 'Learn more →', 'Подробнее →'],
+
+  // FOOTER
+  ['[data-i18n="footer_cookies"]', 'Cookie-Einstellungen', 'Cookie settings', 'Настройки cookies'],
+  ['[data-i18n="footer_impressum"]', 'Impressum', 'Legal notice', 'Об организации'],
+  ['[data-i18n="footer_datenschutz"]', 'Datenschutz', 'Privacy policy', 'Конфиденциальность'],
+];
+
+// Placeholder translations
+var placeholders = [
+  ['[data-i18n-placeholder="kontakt_vorname"]', 'Max', 'John', 'Иван'],
+  ['[data-i18n-placeholder="kontakt_nachname"]', 'Mustermann', 'Smith', 'Иванов'],
+  ['[data-i18n-placeholder="kontakt_email"]', 'max@beispiel.de', 'john@example.com', 'ivan@beispiel.de'],
+  ['[data-i18n-placeholder="kontakt_telefon"]', '0156 …', '0156 …', '+7 / 0156 …'],
+];
+
+var langIndex = { de: 1, en: 2, ru: 3 };
+
 function setLanguage(lang) {
-  if (!translations[lang]) return;
+  if (!langIndex[lang]) return;
   currentLang = lang;
   localStorage.setItem('bv_lang', lang);
+  var idx = langIndex[lang];
 
-  var t = translations[lang];
-
-  // Update all elements with data-i18n attribute
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n');
-    if (t[key] !== undefined) {
-      el.innerHTML = t[key];
-    }
+  // Apply all text translations
+  t.forEach(function(row) {
+    document.querySelectorAll(row[0]).forEach(function(el) {
+      el.innerHTML = row[idx];
+    });
   });
 
-  // Update placeholders
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n-placeholder');
-    if (t[key] !== undefined) {
-      el.placeholder = t[key];
-    }
+  // Apply placeholder translations
+  placeholders.forEach(function(row) {
+    document.querySelectorAll(row[0]).forEach(function(el) {
+      el.placeholder = row[idx];
+    });
   });
 
-  // Update ALL lang switcher buttons on page
+  // Update active button state
   document.querySelectorAll('.lang-btn[data-lang]').forEach(function(btn) {
-    if (btn.getAttribute('data-lang') === lang) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
   });
 
-  // Update html lang attribute
-  document.documentElement.lang = lang === 'ru' ? 'ru' : lang === 'en' ? 'en' : 'de';
+  // Update html lang
+  document.documentElement.lang = lang;
 }
 
-// Apply language immediately when DOM is ready
+// Apply on load
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    setLanguage(currentLang);
-  });
+  document.addEventListener('DOMContentLoaded', function() { setLanguage(currentLang); });
 } else {
   setLanguage(currentLang);
 }
