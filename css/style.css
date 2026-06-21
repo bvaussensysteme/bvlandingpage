@@ -997,9 +997,12 @@ footer h4 {
 #lightbox-img {
   max-width: 92vw;
   max-height: 88vh;
+  width: auto;
+  height: auto;
   border-radius: 8px;
   box-shadow: 0 8px 60px rgba(0,0,0,0.8);
-  object-fit: contain;
+  object-fit: contain;   /* zeigt volles Bild ohne Beschnitt */
+  display: block;
   animation: lbZoomIn 0.25s ease;
 }
 @keyframes lbZoomIn {

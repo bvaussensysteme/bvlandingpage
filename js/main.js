@@ -150,9 +150,9 @@ function switchTab(tab) {
 
 // ---- LIGHTBOX ----
 var lightboxImages = [
-  { src: 'images/galerie-1.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
-  { src: 'images/galerie-2.jpg', caption: 'Detailansicht · Aluminium-Profile & Verglasung' },
-  { src: 'images/galerie-3.jpg', caption: 'Gesamtansicht · Terrassenüberdachung Westerwaldkreis' },
+  { src: 'images/galerie-1-full.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
+  { src: 'images/galerie-2-full.jpg', caption: 'Detailansicht · Aluminium-Profile & Verglasung' },
+  { src: 'images/galerie-3-full.jpg', caption: 'Gesamtansicht · Terrassenüberdachung Westerwaldkreis' },
 ];
 var lightboxIndex = 0;
 
