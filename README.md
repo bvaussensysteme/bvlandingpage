@@ -1,164 +1,85 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Impressum | BV AussenSysteme</title>
-  <meta name="description" content="Impressum von BV AussenSysteme – Alexander Becker, Westerwaldkreis, Rheinland-Pfalz." />
-  <meta name="robots" content="noindex, follow" />
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
-  <meta name="theme-color" content="#C49A2A" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .legal-page { max-width: 720px; margin: 0 auto; }
-    .legal-page h2 { margin-bottom: 32px; }
-    .legal-block {
-      background: var(--white); border-radius: 10px;
-      border-left: 3px solid var(--gold);
-      padding: 24px 28px; margin-bottom: 20px;
-      box-shadow: var(--shadow);
-    }
-    .legal-block h3 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 1px;
-      color: var(--gold); margin-bottom: 10px;
-    }
-    .legal-block p, .legal-block address {
-      font-size: 0.92rem; color: var(--muted);
-      line-height: 1.8; font-style: normal;
-    }
-    .legal-block a { color: var(--gold-dark); text-decoration: none; }
-    .legal-block a:hover { color: var(--gold); }
-    .notice-box {
-      background: #fffbf0; border: 1px solid rgba(196,154,42,0.3);
-      border-radius: 8px; padding: 16px 20px; margin-top: 12px;
-      font-size: 0.85rem; color: #7a6020;
-    }
-  </style>
-</head>
-<body>
+# BV AussenSysteme – Website
 
-<nav class="navbar" role="navigation" aria-label="Navigation">
-  <div class="container navbar-inner">
-    <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
-    </a> </div>
-    <ul class="nav-links">
-      <li><a href="/">← Zurück zur Startseite</a></li>
-      <li><a href="#kontakt" style="display:none"></a></li>
-    </ul>
-  </div>
-</nav>
+Offizielle Website von BV AussenSysteme, Ihr Spezialist für Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz im Westerwald.
 
-<main>
-<section class="section">
-  <div class="container legal-page">
-    <p class="tag">Rechtliche Informationen</p>
-    <h2>Impressum</h2>
+## 📁 Projektstruktur
 
-    <div class="legal-block">
-      <h3>Angaben gemäß § 5 DDG</h3>
-      <address>
-        <strong>BV AussenSysteme</strong><br />
-        (Gründung in Vorbereitung)<br /><br />
-        Alexander Becker<br />
-        Westerwaldkreis<br />
-        56428 Dernbach<br />
-        Rheinland-Pfalz, Deutschland
-      </address>
-      <div class="notice-box">
-        ℹ️ Das Unternehmen befindet sich derzeit in der Gründungsphase.
-        Alle angegebenen Kontaktdaten sind bereits aktiv und verbindlich.
-      </div>
-    </div>
+```
+bv-aussensysteme/
+├── index.html          ← Hauptseite (Startseite)
+├── impressum.html      ← Impressum
+├── datenschutz.html    ← Datenschutzerklärung
+├── css/
+│   └── style.css       ← Alle Styles
+├── js/
+│   └── main.js         ← Interaktionen (FAQ, Menü, Formular)
+├── images/
+│   ├── logo-hell.png   ← Logo (weiß/hell Hintergrund) – für Navbar
+│   ├── logo-dunkel.png ← Logo (schwarz Hintergrund)   – für Footer
+│   │
+│   ├── terrasse.jpg    ← BILD EINFÜGEN: Terrassenüberdachung
+│   ├── carport.jpg     ← BILD EINFÜGEN: Carport
+│   ├── pergola.jpg     ← BILD EINFÜGEN: Pergola / Lamellendach
+│   ├── wintergarten.jpg← BILD EINFÜGEN: Kaltwintergarten
+│   ├── markise.jpg     ← BILD EINFÜGEN: Markise / Sonnenschutz
+│   ├── gelaender.jpg   ← BILD EINFÜGEN: Geländer
+│   │
+│   ├── galerie-1.jpg   ← BILD EINFÜGEN: Galerie Referenz 1 (groß)
+│   ├── galerie-2.jpg   ← BILD EINFÜGEN: Galerie Referenz 2
+│   ├── galerie-3.jpg   ← BILD EINFÜGEN: Galerie Referenz 3
+│   ├── galerie-4.jpg   ← BILD EINFÜGEN: Galerie Referenz 4
+│   ├── galerie-5.jpg   ← BILD EINFÜGEN: Galerie Referenz 5 (groß)
+│   ├── galerie-6.jpg   ← BILD EINFÜGEN: Galerie Referenz 6
+│   └── og-preview.jpg  ← BILD EINFÜGEN: Vorschaubild für Social Media (1200x630px)
+└── README.md
+```
 
-    <div class="legal-block">
-      <h3>Kontakt</h3>
-      <p>
-        Telefon / WhatsApp: <a href="tel:+4915678696609">015678696609</a><br />
-        E-Mail: <a href="mailto:info@bv-aussensysteme.de">info@bv-aussensysteme.de</a>
-      </p>
-    </div>
+## 🖼️ Bilder einfügen
 
-    <div class="legal-block">
-      <h3>Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)</h3>
-      <p>
-        Alexander Becker<br />
-        Westerwaldkreis, 56428 Dernbach<br />
-        Rheinland-Pfalz, Deutschland
-      </p>
-    </div>
+Kopiere die Produktbilder von VD AluSysteme in den `images/` Ordner mit den oben genannten Dateinamen.
+Falls ein Bild fehlt, zeigt die Seite automatisch ein Emoji als Platzhalter.
 
-    <div class="legal-block">
-      <h3>Umsatzsteuer-Hinweis</h3>
-      <p>
-        Da sich das Unternehmen in der Gründungsphase befindet, liegt noch keine
-        Umsatzsteuer-Identifikationsnummer vor. Diese wird nach erfolgter Gewerbeanmeldung
-        ergänzt.
-      </p>
-    </div>
+**Empfohlene Bildgrößen:**
+- Leistungskarten (terrasse.jpg etc.): 800×600px, max. 200KB
+- Galerie groß (galerie-1.jpg, galerie-5.jpg): 1200×675px, max. 300KB
+- Galerie klein (galerie-2 bis 4, 6): 800×600px, max. 200KB
+- Social-Media-Vorschau (og-preview.jpg): genau 1200×630px
 
-    <div class="legal-block">
-      <h3>Streitschlichtung (§ 36 VSBG)</h3>
-      <p>
-        Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren
-        vor einer Verbraucherschlichtungsstelle teilzunehmen.<br /><br />
-        Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung
-        bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">
-        https://ec.europa.eu/consumers/odr</a>
-      </p>
-    </div>
+## 🚀 Deployment auf GitHub Pages
 
-    <div class="legal-block">
-      <h3>Haftung für Inhalte</h3>
-      <p>
-        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf
-        diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis
-        10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte
-        oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu
-        forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-      </p>
-    </div>
+### Schritt-für-Schritt:
 
-    <div class="legal-block">
-      <h3>Haftung für Links</h3>
-      <p>
-        Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte
-        wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch
-        keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der
-        jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
-      </p>
-    </div>
+1. **GitHub-Konto erstellen** (falls noch nicht vorhanden): https://github.com
 
-    <div class="legal-block">
-      <h3>Urheberrecht</h3>
-      <p>
-        Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten
-        unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,
-        Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechts
-        bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
-        Produktbilder werden mit freundlicher Genehmigung der
-        unserem Hersteller verwendet.
-      </p>
-    </div>
+2. **Neues Repository erstellen:**
+   - Auf GitHub: Klick auf "+" → "New repository"
+   - Name: `bv-aussensysteme` (oder `bv-aussensysteme.github.io` für direkte URL)
+   - Sichtbarkeit: Public (für GitHub Pages kostenlos)
+   - Klick: "Create repository"
 
-  </div>
-</section>
-</main>
+3. **Dateien hochladen:**
+   - Klick auf "uploading an existing file"
+   - Alle Dateien und Ordner aus diesem Projektordner hochladen
+   - Commit-Nachricht: "Website launch"
+   - Klick: "Commit changes"
 
-<footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
-    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
-    <p>
-      <a href="impressum.html" style="color:rgba(255,255,255,0.6)">Impressum</a> ·
-      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="datenschutz.html" style="color:rgba(255,255,255,0.6)">Datenschutz</a>
-    </p>
-  </div>
-</footer>
+4. **GitHub Pages aktivieren:**
+   - Repository → Settings → Pages
+   - Source: "Deploy from a branch"
+   - Branch: "main" → Ordner: "/ (root)"
+   - Klick: "Save"
+   - Nach 1–2 Minuten ist die Seite unter `https://DEIN-USERNAME.github.io/bv-aussensysteme/` live
 
-</body>
-</html>
+5. **Eigene Domain (bv-aussensysteme.de) verknüpfen:**
+   - In GitHub Pages Settings: "Custom domain" eingeben: `www.bv-aussensysteme.de`
+   - Bei Ihrem Domain-Anbieter DNS-Eintrag setzen:
+     - Typ: CNAME | Name: www | Ziel: `DEIN-USERNAME.github.io`
+   - HTTPS wird automatisch aktiviert (Let's Encrypt)
+
+## 📊 Nächste SEO-Schritte nach Go-Live
+
+1. Google Search Console: https://search.google.com/search-console
+   → Domain hinzufügen → Sitemap einreichen
+2. Google Business Profil anlegen: https://business.google.com
+3. Bilder einfügen und Galerie füllen
+4. Erste echte Kundenbewertungen einholen (Google + Website)

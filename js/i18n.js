@@ -162,6 +162,71 @@ var T = [
   ['Unternehmen','Company','Компания'],
   ['Regionen','Regions','Регионы'],
   ['Alle Rechte vorbehalten','All rights reserved','Все права защищены'],
+  // ── FAQ ANTWORTEN ────────────────────────────────────────────
+  ['In Rheinland-Pfalz und den meisten Bundesländern ist ab einer bestimmten Größe eine Baugenehmigung erforderlich. Wir kennen die lokalen Vorschriften im Westerwald genau und unterstützen Sie bei der Beantragung – das klären wir gemeinsam im ersten Gespräch.',
+   'In Rhineland-Palatinate and most federal states, a building permit is required above a certain size. We know the local regulations in the Westerwald area and support you with the application – we clarify this together in the first consultation.',
+   'В Рейнланд-Пфальце и большинстве федеральных земель при определённом размере требуется разрешение на строительство. Мы хорошо знаем местные нормы в регионе Вестервальд и помогаем с оформлением – разберёмся вместе на первой консультации.'],
+
+  ['Da wir direkt mit dem Hersteller zusammenarbeiten, sind die Lieferzeiten deutlich kürzer als bei klassischen Händlern. Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2–4 Wochen, je nach Produktart und Auslastung.',
+   'Since we work directly with the manufacturer, delivery times are significantly shorter than with traditional dealers. From order confirmation to installation usually takes 2–4 weeks, depending on the product type and workload.',
+   'Поскольку мы работаем напрямую с производителем, сроки доставки значительно короче, чем у обычных дилеров. От подтверждения заказа до монтажа обычно проходит 2–4 недели.'],
+
+  ['Unsere Aluminium-Profile sind in zahlreichen RAL-Farben erhältlich – von klassischem Weiß und Anthrazit bis zu individuellen Wunschfarben. Bei der Verglasung wählen Sie zwischen Klarglas, Mattglas, Polycarbonat, Lamellen oder Vollblech.',
+   'Our aluminium profiles are available in numerous RAL colours – from classic white and anthracite to individual custom colours. For glazing, choose between clear glass, frosted glass, polycarbonate, louvres or solid panel.',
+   'Наши алюминиевые профили доступны во множестве цветов RAL – от классического белого и антрацитового до индивидуальных цветов на заказ. Для остекления выбирайте между прозрачным стеклом, матовым стеклом, поликарбонатом, жалюзи или сплошной панелью.'],
+
+  ['Die Preise hängen von Größe, Material, Verglasung und Montageaufwand ab. Eine einfache Terrassenüberdachung beginnt ab ca. 3.000 €, ein Carport ab ca. 2.500 €. Wir erstellen Ihnen kostenlos und unverbindlich ein Angebot nach Ihren genauen Wünschen.',
+   'Prices depend on size, material, glazing and installation effort. A simple patio cover starts from around €3,000, a carport from around €2,500. We will create a free, non-binding quote tailored to your exact wishes.',
+   'Цены зависят от размера, материала, остекления и объёма монтажных работ. Простой навес для террасы начинается от около 3 000 €, карпорт – от около 2 500 €. Мы составим для вас бесплатное предложение.'],
+
+  ['Ja! Wir betreuen Kunden im gesamten Raum Westerwald, Montabaur, Neuwied, Altenkirchen, Hachenburg, Limburg und Koblenz. Sprechen Sie uns einfach an – wir finden gemeinsam eine Lösung.',
+   'Yes! We serve customers throughout the Westerwald area, Montabaur, Neuwied, Altenkirchen, Hachenburg, Limburg and Koblenz. Simply contact us – we will find a solution together.',
+   'Да! Мы обслуживаем клиентов по всему региону Вестервальд, Монтабаур, Нойвид, Альтенкирхен, Хахенбург, Лимбург и Кобленц. Просто свяжитесь с нами – найдём решение вместе.'],
+
+  ['Ja. Wir kümmern uns nicht nur um Neuinstallationen, sondern auch um Wartung und Reparatur bestehender Anlagen – auch von anderen Herstellern. Einfach anfragen.',
+   'Yes. We not only handle new installations, but also maintenance and repair of existing structures – including those from other manufacturers. Simply enquire.',
+   'Да. Мы занимаемся не только новыми установками, но и техническим обслуживанием и ремонтом существующих конструкций – в том числе от других производителей. Просто обратитесь к нам.'],
+
+  ['Aluminium ist das überlegene Material für Außenanlagen: Es rostet nicht, fault nicht, verzieht sich nicht und ist absolut wartungsfrei. Im Vergleich zu Holz spart man sich jährliches Streichen oder Lasieren. Gegenüber Stahl ist Aluminium leichter, was die Montage erleichtert und die Statik des Hauses weniger belastet. Dazu sind unsere Profile in beliebigen RAL-Farben pulverbeschichtet – die Farbe hält Jahrzehnte.',
+   'Aluminium is the superior material for outdoor structures: it does not rust, rot or warp and is completely maintenance-free. Compared to wood, you save the annual painting or staining. Compared to steel, aluminium is lighter, making installation easier and putting less load on the house structure. Our profiles are powder-coated in any RAL colour – the colour lasts for decades.',
+   'Алюминий – превосходный материал для уличных конструкций: он не ржавеет, не гниёт, не деформируется и абсолютно не требует обслуживания. По сравнению с деревом не нужно ежегодно красить. По сравнению со сталью алюминий легче. Наши профили порошково окрашены в любой цвет RAL – краска держится десятилетиями.'],
+
+  ['Beide Materialien haben ihre Stärken. Glas (VSG/Einscheibensicherheitsglas) wirkt hochwertiger, lässt mehr Licht durch und ist kratzfest. Polycarbonat ist leichter, günstiger und dämmend – ideal wenn es unter der Überdachung im Sommer nicht zu heiß werden soll. Lamellen bieten maximale Flexibilität: offen für Sonne, geschlossen bei Regen. Wir beraten Sie im persönlichen Gespräch, was für Ihre Situation am besten passt.',
+   'Both materials have their strengths. Glass (VSG/toughened safety glass) looks more premium, lets in more light and is scratch-resistant. Polycarbonate is lighter, cheaper and insulating – ideal if you do not want it to get too hot under the cover in summer. Louvres offer maximum flexibility: open for sunshine, closed in rain. We will advise you personally on what suits your situation best.',
+   'Оба материала имеют свои преимущества. Стекло выглядит более премиально, пропускает больше света и устойчиво к царапинам. Поликарбонат легче, дешевле и обладает теплоизоляционными свойствами – идеально, если не хочется перегрева летом. Жалюзи дают максимальную гибкость. Мы проконсультируем вас лично.'],
+
+  ['Ja – unbedingt. Eine fest montierte Terrassenüberdachung ist ein Gebäudebestandteil und muss Ihrer Gebäudeversicherung gemeldet werden. Andernfalls riskieren Sie bei Sturm-, Hagel- oder Schneeschäden eine Leistungsablehnung. Der Mehrwert der Versicherungssumme ist in der Regel gering – die Meldung dauert nur wenige Minuten.',
+   'Yes – absolutely. A permanently installed patio cover is part of the building and must be reported to your building insurance. Otherwise you risk having claims rejected in the event of storm, hail or snow damage. The increase in the insured sum is usually small – the notification only takes a few minutes.',
+   'Да – обязательно. Стационарный навес является частью здания и должен быть сообщён в вашу страховку. Иначе вы рискуете получить отказ при штормовых, градовых или снеговых повреждениях. Уведомление занимает всего несколько минут.'],
+
+  ['In Deutschland gilt häufig eine Mindestabstandsregel von 3 Metern zur Grundstücksgrenze – aber das ist Ländersache. In Rheinland-Pfalz regelt die Landesbauordnung (LBauO RLP) die genauen Abstandsflächen. Bei Grenzabständen unter 3 Metern ist oft eine Zustimmung des Nachbarn oder eine Baugenehmigung nötig. Wir klären das gemeinsam mit Ihnen vor der Planung.',
+   'In Germany, a minimum setback of 3 metres from the property boundary is often required – but this is governed by state law. In Rhineland-Palatinate, the State Building Code (LBauO RLP) regulates the exact setback areas. For distances under 3 metres, neighbour consent or a building permit is often required. We will clarify this with you before planning.',
+   'В Германии часто действует правило минимального отступа 3 метра от границы участка – но это регулируется земельным законодательством. В Рейнланд-Пфальце Строительный кодекс земли (LBauO RLP) регулирует точные отступы. При расстояниях менее 3 метров часто требуется согласие соседей или разрешение. Мы разберёмся с этим вместе до начала планирования.'],
+
+  ['Ja. Unsere Überdachungen sind sowohl als Wandanbau (an der Hauswand befestigt) als auch freistehend mit vier Pfosten erhältlich. Freistehende Varianten eignen sich besonders für Gartenbereiche, die weiter vom Haus entfernt sind, oder wenn keine geeignete Wand zur Verfügung steht. Auch Kombinationen – z.B. zwei Pfosten + Wandbefestigung – sind möglich.',
+   'Yes. Our covers are available both as wall-mounted (attached to the house wall) and freestanding with four posts. Freestanding versions are particularly suitable for garden areas further from the house, or when no suitable wall is available. Combinations – e.g. two posts plus wall attachment – are also possible.',
+   'Да. Наши навесы доступны как в настенном исполнении (крепятся к стене дома), так и отдельностоящими на четырёх стойках. Отдельностоящие варианты особенно подходят для садовых зон, расположенных дальше от дома. Также возможны комбинации.'],
+
+  ['Aluminium-Konstruktionen sind nahezu wartungsfrei. Einmal im Jahr empfehlen wir eine Reinigung mit klarem Wasser und einem milden Haushaltsreiniger – kein Hochdruckreiniger direkt auf Dichtungen. Glasscheiben können mit handelsüblichem Glasreiniger gepflegt werden. Die Entwässerungsrinnen sollten im Herbst von Laub befreit werden. Das war's – mehr braucht es nicht.',
+   'Aluminium structures are virtually maintenance-free. Once a year we recommend cleaning with clean water and a mild household cleaner – no high-pressure washer directly on seals. Glass panes can be maintained with standard glass cleaner. The drainage channels should be cleared of leaves in autumn. That is all – nothing more is needed.',
+   'Алюминиевые конструкции практически не требуют обслуживания. Раз в год рекомендуем чистку чистой водой и мягким бытовым чистящим средством – без мойки высокого давления на уплотнители. Стёкла можно ухаживать обычным стеклоочистителем. Водосточные желоба следует очищать от листьев осенью. Вот и всё.'],
+
+  ['Ja. Unsere Aluminium-Systeme sind modular aufgebaut und können nachträglich erweitert werden – z.B. durch Seitenteile, Glasschiebeelemente, Markisen, LED-Beleuchtung oder Lautsprecher. Auch eine Verlängerung der Tiefe oder Breite ist in vielen Fällen möglich. Das macht Ihre Investition zukunftssicher.',
+   'Yes. Our aluminium systems are modularly designed and can be extended later – for example with side panels, glass sliding elements, awnings, LED lighting or speakers. An extension in depth or width is also possible in many cases. This makes your investment future-proof.',
+   'Да. Наши алюминиевые системы имеют модульную конструкцию и могут быть расширены позже – например, боковыми панелями, стеклянными раздвижными элементами, маркизами, светодиодным освещением или динамиками. Это делает вашу инвестицию перспективной.'],
+
+  ['Ja. Wir betreuen sowohl Privatkunden als auch Gewerbetreibende, Gastronomen und Unternehmen. Für den gewerblichen Bereich planen wir größere Flächen, Sondergrößen und Systemlösungen – inkl. aller erforderlichen Statik- und CE-Nachweise. Sprechen Sie uns an – wir erstellen Ihnen ein individuelles Angebot.',
+   'Yes. We serve both private customers and businesses, restaurateurs and companies. For the commercial sector, we plan larger areas, special sizes and system solutions – including all required static and CE certificates. Contact us – we will create an individual quote for you.',
+   'Да. Мы обслуживаем как частных клиентов, так и предпринимателей, рестораторов и компании. Для коммерческого сектора планируем большие площади и специальные решения – включая все необходимые статические расчёты и CE-сертификаты.'],
+
+  ['Ja. Alle unsere Produkte sind CE-gekennzeichnet und erfüllen die europäischen Sicherheitsnormen. Statikberechnungen mit Nachweisen für Wind- und Schneelasten (nach Lastklassen) werden von unserem Hersteller bereitgestellt. Das ist besonders wichtig für die Baugenehmigung sowie für Ihre Gebäudeversicherung – und bei uns selbstverständlich im Lieferumfang enthalten.',
+   'Yes. All our products are CE-marked and meet European safety standards. Static calculations with proof for wind and snow loads (by load class) are provided by our manufacturer. This is particularly important for the building permit and for your building insurance – and is of course included in our delivery.',
+   'Да. Все наши продукты имеют маркировку CE и соответствуют европейским стандартам безопасности. Статические расчёты с доказательствами ветровых и снеговых нагрузок предоставляются нашим производителем. Это особенно важно для разрешения на строительство и страховки – и у нас входит в стандартную поставку.'],
+
+  ['In der Regel erhalten Sie nach dem Beratungsgespräch und der Maßaufnahme innerhalb von 2–3 Werktagen Ihr schriftliches Angebot. Wir arbeiten zügig – weil wir wissen, dass Sie Ihren Außenbereich so schnell wie möglich genießen möchten.',
+   'You will usually receive your written quote within 2–3 working days after the consultation and measurement. We work quickly – because we know you want to enjoy your outdoor area as soon as possible.',
+   'Как правило, вы получите письменное предложение в течение 2–3 рабочих дней после консультации и замеров. Мы работаем оперативно – потому что знаем, что вы хотите наслаждаться своим уличным пространством как можно скорее.'],
+
 ];
 
 var flags = {de:'🇩🇪', en:'🇬🇧', ru:'🇷🇺'};
@@ -172,7 +237,11 @@ var idx    = {de:0,     en:1,     ru:2};
 var lookupByLang = {de:{}, en:{}, ru:{}};
 T.forEach(function(row) {
   ['de','en','ru'].forEach(function(lang) {
-    lookupByLang[lang][row[idx[lang]]] = row; // key = text in that lang
+    var key = row[idx[lang]];
+    lookupByLang[lang][key] = row;
+    // Also store normalized version (collapse whitespace)
+    var normalized = key.replace(/\s+/g, ' ').trim();
+    if (normalized !== key) lookupByLang[lang][normalized] = row;
   });
 });
 
@@ -204,20 +273,30 @@ function applyLang(lang) {
   nodes.forEach(function(node) {
     var text = node.textContent;
     var trimmed = text.trim();
-    if (!trimmed) return;
+    // Also normalize internal whitespace for matching long texts
+    var normalized = trimmed.replace(/\s+/g, ' ');
+    if (!normalized) return;
 
-    // Try exact trimmed match in any source language
     var found = null;
+    // Try exact match first
     ['de','en','ru'].forEach(function(srcLang) {
-      if (!found && lookupByLang[srcLang][trimmed]) {
-        found = lookupByLang[srcLang][trimmed];
+      if (!found && lookupByLang[srcLang][normalized]) {
+        found = lookupByLang[srcLang][normalized];
       }
     });
+    // Also try trimmed (for short strings)
+    if (!found) {
+      ['de','en','ru'].forEach(function(srcLang) {
+        if (!found && lookupByLang[srcLang][trimmed]) {
+          found = lookupByLang[srcLang][trimmed];
+        }
+      });
+    }
 
     if (found) {
-      var newText = found[toIdx];
-      // Preserve surrounding whitespace
-      node.textContent = text.replace(trimmed, newText);
+      var leading  = text.match(/^\s*/)[0];
+      var trailing = text.match(/\s*$/)[0];
+      node.textContent = leading + found[toIdx] + trailing;
     }
   });
 

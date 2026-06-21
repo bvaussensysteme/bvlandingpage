@@ -3,74 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kaltwintergarten | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Kaltwintergarten im Westerwald – Kaltwintergarten TDS von BV AussenSysteme. Maßgefertigt, CE-zertifiziert, 10 Jahre Garantie." />
+  <title>Einzugsgebiet Westerwald | BV AussenSysteme – Terrassenüberdachung & Carport</title>
+  <meta name="description" content="BV AussenSysteme beliefert und montiert im gesamten Westerwaldkreis – Montabaur, Neuwied, Altenkirchen, Hachenburg, Pleckhausen, Horhausen, Limburg und Koblenz." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/kaltwintergarten.html" />
-  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
+  <link rel="canonical" href="https://www.bv-aussensysteme.de/einzugsgebiet.html" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
   <meta name="theme-color" content="#C49A2A" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Leaflet.js – kostenlose Open-Source Kartenbibliothek, keine API-Key nötig -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    .produkt-hero {
-      background: var(--black); padding: 60px 0 50px;
+    .gebiet-hero {
+      background: var(--black); padding: 56px 0 48px;
       border-bottom: 3px solid var(--gold); position: relative;
     }
-    .produkt-hero::after {
+    .gebiet-hero::after {
       content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
       background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
     }
-    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
     .breadcrumb a { color: var(--gold); text-decoration: none; }
-    .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
-    .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
-    .produkt-grid {
-      display: grid; grid-template-columns: repeat(2,1fr);
-      gap: 28px; margin-top: 48px;
+    .gebiet-hero h1 { color: var(--white); margin-bottom: 10px; font-size: clamp(1.9rem,5vw,3rem); }
+    .gebiet-hero p  { color: rgba(255,255,255,0.75); max-width: 560px; font-size: 0.97rem; line-height: 1.7; }
+
+    /* Layout */
+    .gebiet-layout {
+      display: grid; grid-template-columns: 1fr 340px;
+      gap: 32px; margin-top: 40px; align-items: start;
     }
-    .produkt-card {
-      background: var(--white); border-radius: 12px; overflow: hidden;
+
+    /* Karte */
+    #map {
+      height: 540px; border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      border: 2px solid var(--border);
+      z-index: 0;
+    }
+
+    /* Ortsliste */
+    .orte-panel {
+      background: var(--white); border-radius: 12px;
       box-shadow: var(--shadow); border: 1px solid var(--border);
-      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      overflow: hidden;
     }
-    .produkt-card:hover {
-      transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
+    .orte-panel-header {
+      background: var(--black); padding: 18px 20px;
+      border-bottom: 3px solid var(--gold);
     }
-    .produkt-card-img {
-      height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 4rem; position: relative;
+    .orte-panel-header h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem; font-weight: 700; color: var(--white); margin: 0;
     }
-    .produkt-card-img::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-      height: 3px; background: var(--gold);
+    .orte-panel-header p { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
+    .orte-list { list-style: none; padding: 8px 0; max-height: 460px; overflow-y: auto; }
+    .orte-list li {
+      padding: 0;
     }
-    .produkt-card-img img {
-      width: 100%; height: 100%; object-fit: cover;
+    .orte-list button {
+      width: 100%; text-align: left; background: none; border: none;
+      padding: 11px 20px; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text);
+      transition: background 0.15s; border-bottom: 1px solid var(--border);
     }
-    .produkt-card-img .img-coming {
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    .orte-list li:last-child button { border-bottom: none; }
+    .orte-list button:hover { background: var(--offwhite); color: var(--gold-dark); }
+    .orte-list button.active { background: rgba(196,154,42,0.08); color: var(--gold-dark); font-weight: 600; }
+    .orte-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
     }
-    .produkt-card-img .img-coming span { font-size: 3rem; }
-    .produkt-card-img .img-coming p { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-    .produkt-card-body { padding: 24px; }
-    .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; color: var(--black); }
-    .produkt-card-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
-    .produkt-tag {
-      display: inline-block; background: rgba(196,154,42,0.1);
-      color: var(--gold-dark); font-size: 0.75rem; font-weight: 700;
-      padding: 3px 10px; border-radius: 100px; margin-bottom: 10px;
+    .orte-dot.hauptort { background: var(--black); box-shadow: 0 0 0 3px rgba(196,154,42,0.4); }
+
+    /* CTA unter Karte */
+    .gebiet-cta {
+      background: var(--black); border-radius: 12px;
+      padding: 28px; text-align: center; margin-top: 24px;
       border: 1px solid rgba(196,154,42,0.25);
     }
-    .produkt-features { list-style: none; margin-bottom: 18px; }
-    .produkt-features li {
-      font-size: 0.85rem; color: var(--muted); padding: 4px 0;
-      border-bottom: 1px solid var(--border); display: flex; gap: 8px;
+    .gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
+    .gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+
+    /* Leaflet Marker anpassen */
+    .custom-marker {
+      background: var(--gold); border: 2px solid var(--black);
+      border-radius: 50%; width: 14px; height: 14px;
     }
-    .produkt-features li:last-child { border-bottom: none; }
-    .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
-    @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
+
+    @media (max-width: 860px) {
+      .gebiet-layout { grid-template-columns: 1fr; }
+      #map { height: 400px; }
+      .orte-list { max-height: 300px; }
+    }
   </style>
 </head>
 <body>
@@ -78,15 +106,27 @@
 <nav class="navbar" role="navigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="../images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
-    </a> </div>
+      <img src="images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
+    </a>
     <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
       <li><a href="/#galerie">Galerie</a></li>
       <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
       <li><a href="/#faq">FAQ</a></li>
       <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
-    </ul><button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+    </ul>
+    <div class="lang-dropdown">
+      <button class="lang-dropdown-btn" onclick="toggleLangMenu(event)" aria-label="Sprache wählen">
+        <span id="langFlag" data-notranslate="1">🇩🇪</span>
+        <span id="langCode" data-notranslate="1">DE</span>
+        <span class="lang-chevron" data-notranslate="1">▾</span>
+      </button>
+      <div class="lang-dropdown-menu" id="langMenu">
+        <button onclick="chooseLang('de')" data-notranslate="1">🇩🇪 Deutsch</button>
+        <button onclick="chooseLang('en')" data-notranslate="1">🇬🇧 English</button>
+        <button onclick="chooseLang('ru')" data-notranslate="1">🇷🇺 Русский</button>
+      </div>
+    </div><button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -105,85 +145,141 @@
   </div>
 </div>
 
-<header class="produkt-hero">
+<header class="gebiet-hero">
   <div class="container">
-    <p class="breadcrumb">
-      <a href="/">Startseite</a> › <a href="/#leistungen">Leistungen</a> › Kaltwintergarten
-    </p>
-    <p class="tag">Unsere Leistungen</p>
-    <h1>Kaltwintergarten</h1>
-    <p>Ein Kaltwintergarten verlängert Ihre Saison und schafft einen wettergeschützten Wohnbereich ohne Heizung. Er verbindet Haus und Garten harmonisch und lässt sich individuell an Ihre Architektur anpassen.</p>
-    <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
-      <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
-      <a href="/#faq" class="btn btn-outline-white">Häufige Fragen</a>
-    </div>
+    <p class="breadcrumb"><a href="/">Startseite</a> › Einzugsgebiet</p>
+    <p class="tag">Unser Einzugsgebiet</p>
+    <h1>Wir kommen zu Ihnen –<br>im Westerwald & Umgebung</h1>
+    <p>Als regionaler Spezialist kennen wir die Gegend, die lokalen Bauvorschriften und
+       die Wetterbedingungen im Westerwald. Unser Hauptstandort ist Dernbach – 
+       wir sind in einem Umkreis von ca. <strong style="color:var(--gold)">50 km</strong> unterwegs.
+       Bei größeren Aufträgen kommen wir auch weiter.</p>
   </div>
 </header>
 
 <main>
 <section class="section">
   <div class="container">
-    <p class="tag">Unsere Modelle</p>
-    <h2 style="margin-bottom:8px;">Kaltwintergarten – unsere Modelle</h2>
-    <p style="color:var(--muted);margin-bottom:0;">Alle Produkte werden maßgefertigt, CE-zertifiziert und mit Statiknachweis geliefert.</p>
 
-    <div class="produkt-grid">
-      <div class="produkt-card">
-        <div class="produkt-card-img">
-          <img src="../images/prod_kaltwintergarten_tds.jpg" alt="Kaltwintergarten TDS – wettergeschützter Wohnraum" loading="lazy" width="800" height="500" />
+    <div class="gebiet-layout">
+
+      <!-- KARTE -->
+      <div>
+        <div id="map"></div>
+        <div class="gebiet-cta">
+          <h3>Ihr Standort dabei?</h3>
+          <p>Nicht sicher ob wir zu Ihnen kommen? Einfach anrufen oder schreiben – wir klären das schnell.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <a href="/#kontakt" class="btn btn-gold">Anfrage starten</a>
+            <a href="tel:+4915678696609" class="btn btn-dark">📞 015678696609</a>
           </div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Ganzjährig</span>
-          <h2>Kaltwintergarten TDS</h2>
-          <p>Der Kaltwintergarten TDS ermöglicht es, die Natur das ganze Jahr über zu genießen – ganz nach Ihren Wünschen: ohne Heizung, mit Heizstrahler für gemütliche Herbst- und Winterabende oder im Sommer mit Klimaanlage für angenehme Kühle. Mit seinem modernen Aluminium-Design fügt er sich perfekt in jede Hausarchitektur ein.</p>
-          <ul class="produkt-features">
-            <li>Aluminium-Konstruktion, maßgefertigt</li>
-            <li>Standardfarben inkl.: Anthrazit, Weißalu, Graualuminium, Reinweiß – Wunschfarbe gegen Aufpreis</li>
-            <li>Einfach- oder Isolierverglasung wählbar</li>
-            <li>Schiebe- oder Klapptüren integrierbar</li>
-            <li>Erweiterbar mit Markisen & Beleuchtung</li>
-            <li>10 Jahre Garantie · CE-zertifiziert</li>
-            <li>Statiknachweis Wind- & Schneelasten inklusive</li>
-          </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Kaltwintergarten';return true;"
-             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
-            Jetzt anfragen →
-          </a>
         </div>
       </div>
 
-    </div>
-  </div>
-</section>
+      <!-- ORTSLISTE -->
+      <div class="orte-panel">
+        <div class="orte-panel-header">
+          <h3>📍 Unsere Regionen</h3>
+          <p>Klicken zum Anzeigen auf der Karte</p>
+        </div>
+        <ul class="orte-list" id="orteListe"></ul>
+      </div>
 
-<!-- CTA -->
-<section style="background:var(--black);padding:56px 0;">
-  <div class="container" style="text-align:center;">
-    <p class="tag" style="color:var(--gold);">Ihr nächster Schritt</p>
-    <h2 style="color:var(--white);margin-bottom:12px;">Jetzt kostenlos beraten lassen</h2>
-    <p style="color:rgba(255,255,255,0.7);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;">
-      Wir kommen zu Ihnen in den Westerwald – Montabaur, Neuwied, Altenkirchen und Umgebung.
-      Unverbindlich, persönlich, ohne Wartezeit.
-    </p>
-    <a href="/#kontakt" class="btn btn-gold" style="font-size:1.1rem;padding:16px 36px;">
-      Anfrage starten →
-    </a>
+    </div>
   </div>
 </section>
 </main>
 
 <footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
   <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
-    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis</p>
+    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
     <p>
-      <a href="../impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
-      <a href="../agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="../datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
+      <a href="impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+      <a href="datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
     </p>
   </div>
 </footer>
-<script src="../js/main.js"></script>
-<script src="../js/i18n.js"></script>
-<script src="../js/cookie.js"></script>
+
+<script src="js/main.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/cookie.js"></script>
+<script>
+// Orte mit Koordinaten
+var orte = [
+  { name: 'Westerwaldkreis (Zentrum)',  lat: 50.570, lng: 7.900,  hauptort: true,  info: 'Unser Heimatkreis – wir kennen jeden Winkel.' },
+  { name: 'Dernbach (Unser Standort)',  lat: 50.522, lng: 7.764,  hauptort: true,  info: 'Unser Heimatstandort im Westerwaldkreis.' },
+  { name: 'Montabaur',                  lat: 50.434, lng: 7.826,  hauptort: true,  info: 'Kreisstadt des Westerwaldkreises.' },
+  { name: 'Neuwied',                    lat: 50.428, lng: 7.462,  hauptort: false, info: 'Am Rhein – ca. 30 Min. von uns.' },
+  { name: 'Altenkirchen',               lat: 50.686, lng: 7.647,  hauptort: false, info: 'Nördlicher Westerwald.' },
+  { name: 'Hachenburg',                 lat: 50.659, lng: 7.819,  hauptort: false, info: 'Historische Stadt im Westerwald.' },
+  { name: 'Bad Marienberg',             lat: 50.642, lng: 7.955,  hauptort: false, info: 'Heilbad im Westerwald.' },
+  { name: 'Westerburg',                 lat: 50.553, lng: 7.975,  hauptort: false, info: 'Im östlichen Westerwaldkreis.' },
+  { name: 'Ransbach-Baumbach',          lat: 50.470, lng: 7.729,  hauptort: false, info: 'Nähe Montabaur.' },
+  { name: 'Pleckhausen',                lat: 50.600, lng: 7.550,  hauptort: false, info: 'Im Westerwald.' },
+  { name: 'Horhausen',                  lat: 50.610, lng: 7.540,  hauptort: false, info: 'Im Westerwald.' },
+  { name: 'Limburg an der Lahn',        lat: 50.385, lng: 8.064,  hauptort: false, info: 'Ca. 35 Min. südlich.' },
+  { name: 'Koblenz',                    lat: 50.353, lng: 7.579,  hauptort: false, info: 'Am Rhein-Mosel-Dreieck.' },
+];
+
+// Karte initialisieren – zentriert auf Westerwald
+var map = L.map('map', { zoomControl: true }).setView([50.520, 7.800], 10);
+
+// OpenStreetMap Tiles (kostenlos, keine API-Key)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 18
+}).addTo(map);
+
+// Custom Marker Icons
+function makeIcon(hauptort) {
+  return L.divIcon({
+    className: '',
+    html: '<div style="width:' + (hauptort ? '18' : '13') + 'px;height:' + (hauptort ? '18' : '13') + 'px;background:' + (hauptort ? '#111' : '#C49A2A') + ';border:2px solid ' + (hauptort ? '#C49A2A' : '#9A7318') + ';border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+    iconSize: [hauptort ? 18 : 13, hauptort ? 18 : 13],
+    iconAnchor: [hauptort ? 9 : 7, hauptort ? 9 : 7],
+    popupAnchor: [0, -12]
+  });
+}
+
+// Marker & Popups
+var markers = [];
+orte.forEach(function(ort, idx) {
+  var marker = L.marker([ort.lat, ort.lng], { icon: makeIcon(ort.hauptort) })
+    .addTo(map)
+    .bindPopup(
+      '<div style="font-family:Inter,sans-serif;min-width:160px;">' +
+        '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
+        '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
+        '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
+      '</div>',
+      { maxWidth: 220 }
+    );
+  markers.push(marker);
+});
+
+// Ortsliste aufbauen
+var liste = document.getElementById('orteListe');
+orte.forEach(function(ort, idx) {
+  var li = document.createElement('li');
+  var btn = document.createElement('button');
+  btn.innerHTML =
+    '<span class="orte-dot' + (ort.hauptort ? ' hauptort' : '') + '"></span>' +
+    ort.name;
+  btn.addEventListener('click', function() {
+    // Aktiven Button markieren
+    liste.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    // Zur Position zoomen und Popup öffnen
+    map.setView([ort.lat, ort.lng], 13, { animate: true });
+    markers[idx].openPopup();
+  });
+  li.appendChild(btn);
+  liste.appendChild(li);
+});
+
+// Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
+var group = L.featureGroup(markers);
+</script>
 </body>
 </html>
