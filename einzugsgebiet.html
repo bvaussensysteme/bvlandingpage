@@ -135,8 +135,9 @@
     <p class="tag">Unser Einzugsgebiet</p>
     <h1>Wir kommen zu Ihnen –<br>im Westerwald & Umgebung</h1>
     <p>Als regionaler Spezialist kennen wir die Gegend, die lokalen Bauvorschriften und
-       die Wetterbedingungen im Westerwald. Kurze Wege bedeuten schnelle Termine und
-       persönliche Beratung direkt bei Ihnen.</p>
+       die Wetterbedingungen im Westerwald. Unser Hauptstandort ist Dernbach – 
+       wir sind in einem Umkreis von ca. <strong style="color:var(--gold)">50 km</strong> unterwegs.
+       Bei größeren Aufträgen kommen wir auch weiter.</p>
   </div>
 </header>
 
@@ -259,9 +260,8 @@ orte.forEach(function(ort, idx) {
   liste.appendChild(li);
 });
 
-// Alle Marker in View zeigen
+// Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
 var group = L.featureGroup(markers);
-map.fitBounds(group.getBounds().pad(0.1));
 </script>
 </body>
 </html>

@@ -41,7 +41,14 @@
     }
   }
 
-  window.openCookieSettings = function () { showBanner(true); };
+  window.openCookieSettings = function () {
+    // Banner existiert möglicherweise nicht mehr (Cookie bereits gesetzt)
+    // In dem Fall neu erstellen
+    if (!document.getElementById('cookieBanner')) {
+      injectBanner();
+    }
+    showBanner(true);
+  };
 
   window.acceptAll = function () {
     setCookie(COOKIE_KEY, 'all', COOKIE_DAYS);
@@ -60,9 +67,8 @@
     if (d) d.style.display = (d.style.display === 'none' || d.style.display === '') ? 'block' : 'none';
   };
 
-  document.addEventListener('DOMContentLoaded', function () {
-    if (getCookie(COOKIE_KEY)) return;
-
+  function injectBanner() {
+    if (document.getElementById('cookieBanner')) return; // already exists
     var banner = document.createElement('div');
     banner.id = 'cookieBanner';
     banner.setAttribute('role', 'dialog');
@@ -120,5 +126,10 @@
     document.body.appendChild(banner);
 
     setTimeout(function () { showBanner(false); }, 800);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (getCookie(COOKIE_KEY)) return;
+    injectBanner();
   });
 })();
