@@ -261,18 +261,7 @@
       <li><a href="#faq" data-i18n="nav_faq">FAQ</a></li>
       <li><a href="#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
-    <div class="lang-dropdown" id="langDropdown" data-notranslate="1">
-      <button class="lang-dropdown-btn" id="langBtn" type="button">
-        <span id="langLabel" data-notranslate="1">🇩🇪 DE</span>
-        <span class="lang-chevron" data-notranslate="1">▾</span>
-      </button>
-      <div class="lang-dropdown-menu" id="langMenu">
-        <button type="button" onclick="chooseLang('de')" data-notranslate="1">🇩🇪 Deutsch</button>
-        <button type="button" onclick="chooseLang('en')" data-notranslate="1">🇬🇧 English</button>
-        <button type="button" onclick="chooseLang('ru')" data-notranslate="1">🇷🇺 Русский</button>
-      </div>
-    </div>
-    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -287,11 +276,6 @@
   <a href="#prozess" data-i18n="nav_ablauf">Ablauf</a>
   <a href="#faq" data-i18n="nav_faq">FAQ</a>
   <a href="#kontakt" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
-  <div class="mobile-lang-switcher">
-    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
-    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
-    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
-  </div>
 </div>
 
 <!-- ===== HERO ===== -->
@@ -386,7 +370,7 @@
     <div class="leistungen-grid">
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_terrasse_tds.jpg" alt="Terrassenüberdachung Aluminium" loading="lazy" width="400" height="240" /></div>
+        <div class="leistung-placeholder" aria-hidden="true"><span class="placeholder-icon">🏠</span></div>
         <div class="leistung-body">
           <h3 itemprop="name">Terrassenüberdachung</h3>
           <p itemprop="description">
@@ -400,7 +384,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_carport_tds.jpg" alt="Carport Aluminium" loading="lazy" width="400" height="240" /></div>
+        <div class="leistung-placeholder" aria-hidden="true"><span class="placeholder-icon">🚗</span></div>
         <div class="leistung-body">
           <h3 itemprop="name">Carport</h3>
           <p itemprop="description">
@@ -413,7 +397,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_pergola_velaris.jpg" alt="Pergola Lamellendach" loading="lazy" width="400" height="180" /></div>
+        <div class="leistung-placeholder" aria-hidden="true"><span class="placeholder-icon">🌿</span></div>
         <div class="leistung-body">
           <h3 itemprop="name">Pergola & Lamellendach</h3>
           <p itemprop="description">
@@ -426,7 +410,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_kaltwintergarten_tds.jpg" alt="Kaltwintergarten" loading="lazy" width="400" height="240" /></div>
+        <div class="leistung-placeholder" aria-hidden="true"><span class="placeholder-icon">🌱</span></div>
         <div class="leistung-body">
           <h3 itemprop="name">Kaltwintergarten</h3>
           <p itemprop="description">
@@ -439,7 +423,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_sonnenschutz.jpg" alt="Sonnenschutz Markisen" loading="lazy" width="400" height="240" /></div>
+        <div class="leistung-placeholder" aria-hidden="true"><span class="placeholder-icon">☀️</span></div>
         <div class="leistung-body">
           <h3 itemprop="name">Sonnenschutz & Markisen</h3>
           <p itemprop="description">
@@ -452,7 +436,7 @@
       </article>
 
       <article class="leistung-card" itemscope itemtype="https://schema.org/Service">
-        <div class="leistung-img"><img src="images/prod_gelaender_glas.jpg" alt="Glasgeländer Aluminium" loading="lazy" width="400" height="240" /></div>
+        <div class="leistung-placeholder" aria-hidden="true"><span class="placeholder-icon">🔩</span></div>
         <div class="leistung-body">
           <h3 itemprop="name">Geländer & Zubehör</h3>
           <p itemprop="description">
@@ -1212,6 +1196,7 @@
       <div>
         <h4>Unternehmen</h4>
         <ul class="footer-links">
+          <li><a href="partner.html">🤝 Partner</a></li>
           <li><a href="konfigurator.html">🛠 Konfigurator</a></li>
           <li><a href="#warum-wir">Über uns</a></li>
           <li><a href="#prozess">Unser Ablauf</a></li>
@@ -1256,6 +1241,61 @@
 <script src="js/main.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/cookie.js"></script>
+
+<!-- ===== BETA NOTICE MODAL ===== -->
+<div id="betaModal" role="dialog" aria-modal="true" aria-label="Hinweis zum Seitenaufbau" style="display:none;">
+  <div class="beta-backdrop"></div>
+  <div class="beta-box">
+    <div class="beta-icon">🚧</div>
+    <h3 class="beta-title">Website im Aufbau</h3>
+    <p class="beta-text">
+      Diese Website befindet sich noch im Aufbau. Es kann vereinzelt zu
+      Darstellungsfehlern, fehlenden Inhalten oder technischen Problemen kommen –
+      wir arbeiten kontinuierlich daran.
+    </p>
+    <div class="beta-divider"></div>
+    <p class="beta-contacts-label">✅ Alle Kontakte sind aktiv und erreichbar:</p>
+    <div class="beta-contacts">
+      <a href="tel:+4915678696609" class="beta-contact-item">
+        <span class="beta-contact-icon">📞</span>
+        <span>015678 696609</span>
+      </a>
+      <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="beta-contact-item">
+        <span class="beta-contact-icon">💬</span>
+        <span>WhatsApp</span>
+      </a>
+      <a href="mailto:info@bv-aussensysteme.de" class="beta-contact-item">
+        <span class="beta-contact-icon">✉️</span>
+        <span>info@bv-aussensysteme.de</span>
+      </a>
+    </div>
+    <button class="beta-btn" onclick="closeBetaModal()">Verstanden – weiter zur Seite</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var KEY = 'bv_beta_notice';
+  function closeBetaModal() {
+    window.closeBetaModal();
+  }
+  window.closeBetaModal = function() {
+    var m = document.getElementById('betaModal');
+    if (!m) return;
+    m.classList.remove('beta-visible');
+    setTimeout(function() { m.style.display = 'none'; }, 350);
+    sessionStorage.setItem(KEY, '1');
+  };
+  document.addEventListener('DOMContentLoaded', function() {
+    if (sessionStorage.getItem(KEY)) return; // already seen this session
+    var m = document.getElementById('betaModal');
+    if (!m) return;
+    m.style.display = 'flex';
+    m.offsetHeight;
+    setTimeout(function() { m.classList.add('beta-visible'); }, 80);
+  });
+})();
+</script>
 
 </body>
 </html>

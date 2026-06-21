@@ -7,46 +7,73 @@
   var COOKIE_KEY  = 'bv_cookie_consent';
   var COOKIE_DAYS = 365;
 
+  /* ── Helpers ── */
   function setCookie(name, value, days) {
     var d = new Date();
     d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = name + '=' + value + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
   }
   function getCookie(name) {
     var ca = document.cookie.split(';');
     for (var i = 0; i < ca.length; i++) {
       var c = ca[i].trim();
-      if (c.indexOf(name + '=') === 0) return c.substring(name.length + 1);
+      if (c.indexOf(name + '=') === 0)
+        return decodeURIComponent(c.substring(name.length + 1));
     }
     return null;
   }
 
+  /* ── Parse/Serialize consent object ── */
+  // Format: "all" | "rejected" | "necessary" | "custom:analytics=0,external=1"
+  function parseConsent(raw) {
+    if (!raw) return null;
+    if (raw === 'all')       return { analytics: true,  external: true  };
+    if (raw === 'rejected')  return { analytics: false, external: false };
+    if (raw === 'necessary') return { analytics: false, external: false };
+    if (raw.indexOf('custom:') === 0) {
+      var obj = { analytics: false, external: false };
+      raw.replace('custom:', '').split(',').forEach(function(pair) {
+        var kv = pair.split('=');
+        if (kv.length === 2) obj[kv[0]] = kv[1] === '1';
+      });
+      return obj;
+    }
+    return null;
+  }
+  function serializeCustom(analytics, external) {
+    return 'custom:analytics=' + (analytics ? '1' : '0') + ',external=' + (external ? '1' : '0');
+  }
+
+  /* ── Banner visibility ── */
   function hideBanner() {
     var b = document.getElementById('cookieBanner');
     if (!b) return;
     b.classList.remove('cb-visible');
     setTimeout(function () { b.style.display = 'none'; }, 400);
   }
-
   function showBanner(openDetails) {
     var b = document.getElementById('cookieBanner');
     if (!b) return;
     b.style.display = 'flex';
-    // Force reflow so transition fires
-    b.offsetHeight;
+    b.offsetHeight; // force reflow
     b.classList.add('cb-visible');
     if (openDetails) {
       var d = document.getElementById('cookieDetails');
       if (d) d.style.display = 'block';
+      // Load saved toggle states
+      var consent = parseConsent(getCookie(COOKIE_KEY));
+      if (consent) {
+        var cbA = document.getElementById('cbAnalytics');
+        var cbE = document.getElementById('cbExternal');
+        if (cbA) cbA.checked = consent.analytics;
+        if (cbE) cbE.checked = consent.external;
+      }
     }
   }
 
+  /* ── Public API ── */
   window.openCookieSettings = function () {
-    // Banner existiert möglicherweise nicht mehr (Cookie bereits gesetzt)
-    // In dem Fall neu erstellen
-    if (!document.getElementById('cookieBanner')) {
-      injectBanner();
-    }
+    if (!document.getElementById('cookieBanner')) injectBanner();
     showBanner(true);
   };
 
@@ -62,13 +89,34 @@
     setCookie(COOKIE_KEY, 'rejected', COOKIE_DAYS);
     hideBanner();
   };
+  window.saveCustomCookies = function () {
+    var cbA = document.getElementById('cbAnalytics');
+    var cbE = document.getElementById('cbExternal');
+    var analytics = cbA ? cbA.checked : false;
+    var external  = cbE ? cbE.checked : true;
+    setCookie(COOKIE_KEY, serializeCustom(analytics, external), COOKIE_DAYS);
+    hideBanner();
+  };
   window.showCookieDetails = function () {
     var d = document.getElementById('cookieDetails');
-    if (d) d.style.display = (d.style.display === 'none' || d.style.display === '') ? 'block' : 'none';
+    if (!d) return;
+    var open = d.style.display !== 'none' && d.style.display !== '';
+    d.style.display = open ? 'none' : 'block';
+    // Load saved states when opening
+    if (!open) {
+      var consent = parseConsent(getCookie(COOKIE_KEY));
+      if (consent) {
+        var cbA = document.getElementById('cbAnalytics');
+        var cbE = document.getElementById('cbExternal');
+        if (cbA) cbA.checked = consent.analytics;
+        if (cbE) cbE.checked = consent.external;
+      }
+    }
   };
 
+  /* ── Inject banner HTML ── */
   function injectBanner() {
-    if (document.getElementById('cookieBanner')) return; // already exists
+    if (document.getElementById('cookieBanner')) return;
     var banner = document.createElement('div');
     banner.id = 'cookieBanner';
     banner.setAttribute('role', 'dialog');
@@ -82,8 +130,7 @@
           '<div class="cb-text">' +
             '<strong>Wir verwenden Cookies</strong>' +
             '<p>Wir nutzen Cookies und ähnliche Technologien, um unsere Website zu betreiben. ' +
-            'Einige sind technisch notwendig, andere helfen uns, Dienste wie Google Fonts ' +
-            'oder Trustindex bereitzustellen.</p>' +
+            'Einige sind technisch notwendig, andere helfen uns, Dienste wie Google Fonts bereitzustellen.</p>' +
           '</div>' +
         '</div>' +
         '<div class="cb-details" id="cookieDetails" style="display:none;">' +
@@ -96,7 +143,7 @@
             '<label class="cb-toggle-label">' +
               '<input type="checkbox" id="cbAnalytics" />' +
               '<span class="cb-toggle-slider"></span>' +
-              '<strong>Analyse & Statistik</strong>' +
+              '<strong>Analyse &amp; Statistik</strong>' +
             '</label>' +
             '<p>Helfen uns zu verstehen, wie Besucher die Website nutzen.</p>' +
           '</div>' +
@@ -106,8 +153,11 @@
               '<span class="cb-toggle-slider"></span>' +
               '<strong>Externe Dienste</strong>' +
             '</label>' +
-            '<p>Google Fonts, Trustindex, sipgate AI Flow. Details in unserer ' +
+            '<p>Google Fonts, Trustindex. Details in unserer ' +
             '<a href="datenschutz.html">Datenschutzerklärung</a>.</p>' +
+          '</div>' +
+          '<div class="cb-save-row">' +
+            '<button class="cb-btn cb-btn--save" onclick="saveCustomCookies()">Auswahl speichern ✓</button>' +
           '</div>' +
         '</div>' +
         '<div class="cb-actions">' +
@@ -124,12 +174,12 @@
       '</div>';
 
     document.body.appendChild(banner);
-
     setTimeout(function () { showBanner(false); }, 800);
   }
 
+  /* ── Init ── */
   document.addEventListener('DOMContentLoaded', function () {
-    if (getCookie(COOKIE_KEY)) return;
+    if (getCookie(COOKIE_KEY)) return; // already decided
     injectBanner();
   });
 })();
