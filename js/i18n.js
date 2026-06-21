@@ -355,8 +355,13 @@ function chooseLang(lang) {
   setLanguage(lang);
 }
 
-// Attach click to button via JS (more reliable than inline onclick)
+/* ── Init on load ───────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function() {
+  // Apply translation first, then set label (so TreeWalker can't overwrite it)
+  if (currentLang !== 'de') applyLang(currentLang);
+  updateDropdownLabel(currentLang);
+
+  // Attach click to button via JS
   var btn = document.getElementById('langBtn');
   if (btn) {
     btn.addEventListener('click', function(e) {
@@ -369,10 +374,4 @@ document.addEventListener('DOMContentLoaded', function() {
     var dd = document.getElementById('langDropdown');
     if (dd) dd.classList.remove('open');
   });
-});
-
-/* ── Init on load ───────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', function() {
-  updateDropdownLabel(currentLang);
-  if (currentLang !== 'de') applyLang(currentLang);
 });

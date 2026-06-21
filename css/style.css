@@ -104,6 +104,10 @@ h3 { font-size: 1.4rem; color: var(--black); }
   font-weight: 700 !important; font-size: 1rem !important;
 }
 .nav-cta:hover { background: var(--gold-dark) !important; color: var(--white) !important; }
+.navbar .navbar-inner {
+  padding-left: 20px;
+  padding-right: 12px;
+}
 
 /* Hamburger */
 .hamburger {
@@ -1126,7 +1130,7 @@ footer h4 {
    ============================================ */
 .lang-dropdown {
   position: relative;
-  margin-left: 10px;
+  margin-left: 6px;
   flex-shrink: 0;
 }
 .lang-dropdown-btn {
