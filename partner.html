@@ -12,9 +12,10 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner | BV AussenSysteme</title>
-  <meta name="description" content="Unsere Partner – BV AussenSysteme arbeitet mit führenden Herstellern und Lieferanten zusammen." />
+  <title>Einzugsgebiet Westerwald | BV AussenSysteme – Terrassenüberdachung & Carport</title>
+  <meta name="description" content="BV AussenSysteme beliefert und montiert im gesamten Westerwaldkreis – Montabaur, Neuwied, Altenkirchen, Hachenburg, Pleckhausen, Horhausen, Limburg und Koblenz." />
   <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.bv-aussensysteme.de/einzugsgebiet.html" />
   <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
@@ -45,168 +46,170 @@
 })();
 </script>
   <link rel="stylesheet" href="css/style.css" />
+  <!-- Leaflet.js – kostenlose Open-Source Kartenbibliothek, keine API-Key nötig -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    .partner-page { max-width: 860px; margin: 0 auto; }
-    .partner-page h2 { margin-bottom: 12px; }
-    .partner-page .page-intro {
-      color: var(--muted); font-size: 1rem; line-height: 1.7;
-      margin-bottom: 48px; max-width: 600px;
+    .gebiet-hero {
+      background: var(--black); padding: 56px 0 48px;
+      border-bottom: 3px solid var(--gold); position: relative;
     }
-    .partner-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 24px;
+    .gebiet-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+      background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
     }
-    .partner-card {
-      background: var(--white);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: box-shadow 0.2s, transform 0.2s;
+    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .gebiet-hero h1 { color: var(--white); margin-bottom: 10px; font-size: clamp(1.9rem,5vw,3rem); }
+    .gebiet-hero p  { color: rgba(255,255,255,0.75); max-width: 560px; font-size: 0.97rem; line-height: 1.7; }
+
+    /* Layout */
+    .gebiet-layout {
+      display: grid; grid-template-columns: 1fr 340px;
+      gap: 32px; margin-top: 40px; align-items: start;
     }
-    .partner-card:hover {
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-      transform: translateY(-2px);
+
+    /* Karte */
+    #map {
+      height: 540px; border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      border: 2px solid var(--border);
+      z-index: 0;
     }
-    .partner-logo-wrap {
-      background: var(--offwhite);
-      border-radius: 10px;
-      padding: 20px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 4px;
+
+    /* Ortsliste */
+    .orte-panel {
+      background: var(--white); border-radius: 12px;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      overflow: hidden;
     }
-    .partner-logo-img {
-      max-width: 220px;
-      max-height: 60px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
+    .orte-panel-header {
+      background: var(--black); padding: 18px 20px;
+      border-bottom: 3px solid var(--gold);
     }
-    .partner-card-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .partner-icon {
-      width: 52px; height: 52px;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem;
-      flex-shrink: 0;
-    }
-    .partner-name {
+    .orte-panel-header h3 {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--black);
-      line-height: 1.2;
+      font-size: 1.1rem; font-weight: 700; color: var(--white); margin: 0;
     }
-    .partner-category {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--gold-dark);
-      margin-top: 2px;
+    .orte-panel-header p { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
+    .orte-list { list-style: none; padding: 8px 0; max-height: 460px; overflow-y: auto; }
+    .orte-list li {
+      padding: 0;
     }
-    .partner-divider {
-      height: 2px;
-      background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
-      border-radius: 1px;
-      opacity: 0.4;
+    .orte-list button {
+      width: 100%; text-align: left; background: none; border: none;
+      padding: 11px 20px; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text);
+      transition: background 0.15s; border-bottom: 1px solid var(--border);
     }
-    .partner-description {
-      font-size: 0.91rem;
-      color: var(--muted);
-      line-height: 1.65;
+    .orte-list li:last-child button { border-bottom: none; }
+    .orte-list button:hover { background: var(--offwhite); color: var(--gold-dark); }
+    .orte-list button.active { background: rgba(196,154,42,0.08); color: var(--gold-dark); font-weight: 600; }
+    .orte-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
     }
-    .partner-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--gold-dark);
-      font-size: 0.88rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: color 0.2s;
-      margin-top: auto;
+    .orte-dot.hauptort { background: var(--black); box-shadow: 0 0 0 3px rgba(196,154,42,0.4); }
+
+    /* CTA unter Karte */
+    .gebiet-cta {
+      background: var(--black); border-radius: 12px;
+      padding: 28px; text-align: center; margin-top: 24px;
+      border: 1px solid rgba(196,154,42,0.25);
     }
-    .partner-link:hover { color: var(--gold); }
-    .partner-link svg {
-      width: 14px; height: 14px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    .gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
+    .gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+
+    /* Leaflet Marker anpassen */
+    .custom-marker {
+      background: var(--gold); border: 2px solid var(--black);
+      border-radius: 50%; width: 14px; height: 14px;
     }
-    @media (max-width: 600px) {
-      .partner-grid { grid-template-columns: 1fr; }
-      .partner-card { padding: 24px 20px; }
+
+    @media (max-width: 860px) {
+      .gebiet-layout { grid-template-columns: 1fr; }
+      #map { height: 400px; }
+      .orte-list { max-height: 300px; }
     }
   </style>
 </head>
 <body>
 
-<nav class="navbar" role="navigation" aria-label="Navigation">
+<nav class="navbar" role="navigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+      <img src="images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
-      <li><a href="/">← Zurück zur Startseite</a></li>
+      <li><a href="/#leistungen">Leistungen</a></li>
+      <li><a href="/#galerie">Galerie</a></li>
+      <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
     </ul>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <a href="/" onclick="closeMobile()">Startseite</a>
+  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
+  <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+  <div class="mobile-lang-switcher">
+    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
+    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
+  </div>
+</div>
+
+<header class="gebiet-hero">
+  <div class="container">
+    <p class="breadcrumb"><a href="/">Startseite</a> › Einzugsgebiet</p>
+    <p class="tag">Unser Einzugsgebiet</p>
+    <h1>Wir kommen zu Ihnen –<br>im Westerwald & Umgebung</h1>
+    <p>Als regionaler Spezialist kennen wir die Gegend, die lokalen Bauvorschriften und
+       die Wetterbedingungen im Westerwald. Unser Hauptstandort ist Dernbach – 
+       wir sind in einem Umkreis von ca. <strong style="color:var(--gold)">50 km</strong> unterwegs.
+       Bei größeren Aufträgen kommen wir auch weiter.</p>
+  </div>
+</header>
+
 <main>
 <section class="section">
-  <div class="container partner-page">
+  <div class="container">
 
-    <p class="tag">Vertrauen & Qualität</p>
-    <h2>Unsere Partner</h2>
-    <p class="page-intro">
-      Wir arbeiten ausschließlich mit geprüften Herstellern und Lieferanten zusammen,
-      deren Qualität wir persönlich kennen und vertreten. So garantieren wir Ihnen
-      Produkte, die halten was sie versprechen.
-    </p>
+    <div class="gebiet-layout">
 
-    <div class="partner-grid">
-
-      <!-- VD AluSysteme -->
-      <div class="partner-card">
-        <div class="partner-logo-wrap">
-          <img src="images/partner-vd-alusysteme.png" alt="VD AluSysteme Dietrich GmbH Logo" class="partner-logo-img" />
-        </div>
-        <div class="partner-divider"></div>
-        <div class="partner-card-header">
-          <div>
-            <div class="partner-name">VD AluSysteme Dietrich GmbH</div>
-            <div class="partner-category">Hersteller · Aluminium-Systeme</div>
+      <!-- KARTE -->
+      <div>
+        <div id="map"></div>
+        <div class="gebiet-cta">
+          <h3>Ihr Standort nicht dabei?</h3>
+          <p>Melden Sie sich trotzdem – wir prüfen individuell ob wir zu Ihnen kommen können und suchen gemeinsam nach einer Lösung.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <a href="/#kontakt" class="btn btn-gold">Anfrage starten</a>
+            <a href="tel:+4915678696609" class="btn btn-dark" style="color:#fff !important;">📞 015678696609</a>
           </div>
         </div>
-        <div class="partner-divider"></div>
-        <p class="partner-description">
-          Führender Hersteller hochwertiger Aluminium-Außensysteme –
-          Terrassenüberdachungen, Carports, Pergolen, Kaltwintergärten,
-          Geländer und mehr. Alle Produkte werden direkt ab Werk geliefert
-          und sind exakt nach Maß gefertigt.
-        </p>
-        <a href="https://www.vd-alusysteme.de" target="_blank" rel="noopener noreferrer" class="partner-link">
-          vd-alusysteme.de besuchen
-          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>
       </div>
 
-      <!-- Platzhalter für weitere Partner -->
-      <!-- Weitere Partner können hier ergänzt werden -->
+      <!-- ORTSLISTE -->
+      <div class="orte-panel">
+        <div class="orte-panel-header">
+          <h3>📍 Unsere Regionen</h3>
+          <p>Klicken zum Anzeigen auf der Karte</p>
+        </div>
+        <ul class="orte-list" id="orteListe"></ul>
+      </div>
 
     </div>
-
   </div>
 </section>
 </main>
@@ -215,13 +218,110 @@
   <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
     <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
     <p>
-      <a href="impressum.html" style="color:rgba(255,255,255,0.6)">Impressum</a> ·
+      <a href="impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
       <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="datenschutz.html" style="color:rgba(255,255,255,0.6)">Datenschutz</a>
+      <a href="datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
     </p>
   </div>
 </footer>
 
+<script src="js/main.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/cookie.js"></script>
+<script>
+// Orte mit Koordinaten
+var orte = [
+  { name: 'Westerwaldkreis (Zentrum)',  lat: 50.570, lng: 7.900,  hauptort: true,  info: 'Unser Heimatkreis – wir kennen jeden Winkel.' },
+  { name: 'Dernbach (Unser Standort)',  lat: 50.522, lng: 7.764,  hauptort: true,  info: 'Unser Heimatstandort im Westerwaldkreis.' },
+  { name: 'Montabaur',                  lat: 50.434, lng: 7.826,  hauptort: true,  info: 'Kreisstadt des Westerwaldkreises.' },
+  { name: 'Neuwied',                    lat: 50.428, lng: 7.462,  hauptort: false, info: 'Am Rhein – ca. 30 Min. von uns.' },
+  { name: 'Altenkirchen',               lat: 50.686, lng: 7.647,  hauptort: false, info: 'Nördlicher Westerwald.' },
+  { name: 'Hachenburg',                 lat: 50.659, lng: 7.819,  hauptort: false, info: 'Historische Stadt im Westerwald.' },
+  { name: 'Bad Marienberg',             lat: 50.642, lng: 7.955,  hauptort: false, info: 'Heilbad im Westerwald.' },
+  { name: 'Westerburg',                 lat: 50.553, lng: 7.975,  hauptort: false, info: 'Im östlichen Westerwaldkreis.' },
+  { name: 'Ransbach-Baumbach',          lat: 50.470, lng: 7.729,  hauptort: false, info: 'Nähe Montabaur.' },
+  { name: 'Pleckhausen',                lat: 50.600, lng: 7.550,  hauptort: false, info: 'Im Westerwald.' },
+  { name: 'Horhausen',                  lat: 50.610, lng: 7.540,  hauptort: false, info: 'Im Westerwald.' },
+  { name: 'Limburg an der Lahn',        lat: 50.385, lng: 8.064,  hauptort: false, info: 'Ca. 35 Min. südlich.' },
+  { name: 'Koblenz',                    lat: 50.353, lng: 7.579,  hauptort: false, info: 'Am Rhein-Mosel-Dreieck.' },
+];
+
+// Karte initialisieren – zentriert auf Westerwald
+var map = L.map('map', { zoomControl: true }).setView([50.520, 7.800], 10);
+
+// OpenStreetMap Tiles (kostenlos, keine API-Key)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 18
+}).addTo(map);
+
+// Custom Marker Icons – BV Logo als CSS Marker (kein externes Bild nötig)
+function makeIcon(hauptort) {
+  var size = hauptort ? 40 : 32;
+  var half = size / 2;
+  var fontSize = hauptort ? '13px' : '11px';
+  var html =
+    '<div style="' +
+      'width:' + size + 'px;height:' + size + 'px;' +
+      'border-radius:50%;' +
+      'background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);' +
+      'border:2px solid #C49A2A;' +
+      'box-shadow:0 2px 8px rgba(0,0,0,0.5);' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'font-family:Arial Black,Arial,sans-serif;' +
+      'font-weight:900;font-size:' + fontSize + ';' +
+      'color:#C49A2A;' +
+      'cursor:pointer;' +
+      'user-select:none;' +
+    '">BV</div>';
+  return L.divIcon({
+    className: '',
+    html: html,
+    iconSize: [size, size],
+    iconAnchor: [half, half],
+    popupAnchor: [0, -(half + 6)]
+  });
+}
+
+// Marker & Popups
+var markers = [];
+orte.forEach(function(ort, idx) {
+  var marker = L.marker([ort.lat, ort.lng], { icon: makeIcon(ort.hauptort) })
+    .addTo(map)
+    .bindPopup(
+      '<div style="font-family:Inter,sans-serif;min-width:160px;">' +
+        '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
+        '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
+        '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
+      '</div>',
+      { maxWidth: 220 }
+    );
+  markers.push(marker);
+});
+
+// Ortsliste aufbauen
+var liste = document.getElementById('orteListe');
+orte.forEach(function(ort, idx) {
+  var li = document.createElement('li');
+  var btn = document.createElement('button');
+  btn.innerHTML =
+    '<span class="orte-dot' + (ort.hauptort ? ' hauptort' : '') + '"></span>' +
+    ort.name;
+  btn.addEventListener('click', function() {
+    // Aktiven Button markieren
+    liste.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    // Zur Position zoomen und Popup öffnen
+    map.setView([ort.lat, ort.lng], 13, { animate: true });
+    markers[idx].openPopup();
+  });
+  li.appendChild(btn);
+  liste.appendChild(li);
+});
+
+// Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
+var group = L.featureGroup(markers);
+</script>
 <script src="js/accessibility.js"></script>
 </body>
 </html>

@@ -1,16 +1,50 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+<script>
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
+(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
+</script>
+<style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pergola & Lamellendach | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Pergola und Lamellendach im Westerwald – Lamellendach SunPro Plus von BV AussenSysteme. Elektrisch steuerbar, CE-zertifiziert." />
+  <title>Geländer & Zubehör | BV AussenSysteme Westerwald</title>
+  <meta name="description" content="Aluminium-Geländer im Westerwald – Geländer mit VSG-Glas und Ganzglasgeländer von BV AussenSysteme. Maßgefertigt, langlebig." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/pergola.html" />
+  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/gelaender.html" />
+  <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    // Listen for consent being given
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+})();
+</script>
   <link rel="stylesheet" href="../css/style.css" />
   <style>
     .produkt-hero {
@@ -79,14 +113,16 @@
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
       <img src="../images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
-    </a> </div>
+    </a>
     <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
       <li><a href="/#galerie">Galerie</a></li>
       <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
       <li><a href="/#faq">FAQ</a></li>
       <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
-    </ul><button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+    </ul>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -108,11 +144,11 @@
 <header class="produkt-hero">
   <div class="container">
     <p class="breadcrumb">
-      <a href="/">Startseite</a> › <a href="/#leistungen">Leistungen</a> › Pergola & Lamellendach
+      <a href="/">Startseite</a> › <a href="/#leistungen">Leistungen</a> › Geländer & Zubehör
     </p>
     <p class="tag">Unsere Leistungen</p>
-    <h1>Pergola & Lamellendach</h1>
-    <p>Maximale Flexibilität für Ihre Terrasse: Regulierbare Aluminium-Lamellen lassen sich per Fernbedienung stufenlos öffnen und schließen. Sie bestimmen, wie viel Sonne, Luft und Regen Sie möchten – jederzeit und mit einem Knopfdruck.</p>
+    <h1>Geländer & Zubehör</h1>
+    <p>Hochwertige Aluminium-Geländer für Terrassen, Balkone und Treppen – stabil, pflegeleicht und ästhetisch. Dazu LED-Beleuchtung, Lautsprecher und alles was Ihren Außenbereich perfekt macht.</p>
     <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
       <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
       <a href="/#faq" class="btn btn-outline-white">Häufige Fragen</a>
@@ -124,27 +160,27 @@
 <section class="section">
   <div class="container">
     <p class="tag">Unsere Modelle</p>
-    <h2 style="margin-bottom:8px;">Pergola & Lamellendach – unsere Modelle</h2>
+    <h2 style="margin-bottom:8px;">Geländer & Zubehör – unsere Modelle</h2>
     <p style="color:var(--muted);margin-bottom:0;">Alle Produkte werden maßgefertigt, CE-zertifiziert und mit Statiknachweis geliefert.</p>
 
     <div class="produkt-grid">
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/prod_pergola_velaris.jpg" alt="Pergola Lamellendach – elektrisch steuerbar" loading="lazy" width="800" height="500" />
+          <img src="../images/prod_gelaender_glas.jpg" alt="Aluminium-Glasgeländer – VSG-Sicherheitsglas" loading="lazy" width="800" height="500" />
           </div>
         <div class="produkt-card-body">
-          <span class="produkt-tag">Elektrisch steuerbar</span>
-          <h2>Lamellendach SunPro Plus</h2>
-          <p>Das Lamellendach SunPro Plus bietet mit seinen motorisierten Aluminium-Lamellen maximale Flexibilität. Bei Sonnenschein öffnen, bei Regen schließen – vollautomatisch oder per Fernbedienung. Ideal für Terrassen, Gärten und Gastronomiebetriebe.</p>
+          <span class="produkt-tag">Sicherheit</span>
+          <h2>Geländer mit VSG-Glas</h2>
+          <p>Unsere Aluminium-Geländer mit VSG-Sicherheitsglas verbinden Stabilität und Eleganz. Das Verbund-Sicherheitsglas bleibt auch bei Bruch in einem Stück und schützt zuverlässig. Ideal für Terrassen, Balkone und Treppen.</p>
           <ul class="produkt-features">
-            <li>Motorisierte Aluminium-Lamellen</li>
-            <li>Fernbedienung oder Smartphone-Steuerung</li>
-            <li>Regensensor optional</li>
-            <li>Wandanbau oder freistehend</li>
-            <li>LED-Beleuchtung integrierbar</li>
-            <li>CE-zertifiziert · Statiknachweis inklusive</li>
+            <li>Aluminium-Rahmen mit VSG-Glas</li>
+            <li>Splitterfrei bei Bruch</li>
+            <li>Für Terrassen, Balkone, Treppen</li>
+            <li>Maßgefertigt</li>
+            <li>Verschiedene Farben</li>
+            <li>Langlebig und pflegeleicht</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Pergola / Lamellendach';return true;"
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Geländer';return true;"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -152,21 +188,21 @@
       </div>
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/prod_pergola_velaris.jpg" alt="Lamellendach Warema – Premium Sonnenschutz" loading="lazy" width="800" height="500" />
+          <img src="../images/prod_gelaender_easyrail.jpg" alt="Easy Rail Ganzglasgeländer – rahmenlos und transparent" loading="lazy" width="800" height="500" />
           </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Premium</span>
-          <h2>Lamellendach Warema L50</h2>
-          <p>Das Warema L50 verbindet hochwertigen Sonnenschutz mit elegantem Design. Die 50mm starken Aluminium-Lamellen bieten optimalen Schutz und lassen sich präzise einstellen. Ein echtes Premium-Produkt für anspruchsvolle Außenbereiche.</p>
+          <h2>Ganzglasgeländer Easy Rail</h2>
+          <p>Das Ganzglasgeländer Easy Rail besteht nahezu vollständig aus Glas – für maximale Transparenz und ein modernes, offenes Raumgefühl. Kein Aluminium-Rahmen sichtbar – nur Glas und elegante Befestigungen.</p>
           <ul class="produkt-features">
-            <li>50 mm Aluminium-Lamellen</li>
-            <li>Warema-Antrieb – zuverlässig & leise</li>
-            <li>Perfekter Sonnenschutz & Sichtschutz</li>
-            <li>Für Privat- und Gewerbebereich</li>
-            <li>CE-zertifiziert</li>
-            <li>Statiknachweis inklusive</li>
+            <li>Rahmenloses Ganzglas-Design</li>
+            <li>Maximale Transparenz</li>
+            <li>Modernes, offenes Raumgefühl</li>
+            <li>VSG-Sicherheitsglas</li>
+            <li>Verschiedene Glasdicken</li>
+            <li>Ideal für moderne Architektur</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Pergola / Lamellendach';return true;"
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Geländer';return true;"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -206,5 +242,6 @@
 <script src="../js/main.js"></script>
 <script src="../js/i18n.js"></script>
 <script src="../js/cookie.js"></script>
+<script src="../js/accessibility.js"></script>
 </body>
 </html>

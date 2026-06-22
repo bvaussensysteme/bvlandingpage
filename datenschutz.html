@@ -12,13 +12,14 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Datenschutzerklärung | BV AussenSysteme</title>
-  <meta name="description" content="Datenschutzerklärung von BV AussenSysteme gemäß DSGVO." />
-  <meta name="robots" content="noindex, follow" />
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+  <title>Sonnenschutz & Markisen | BV AussenSysteme Westerwald</title>
+  <meta name="description" content="Sonnenschutz und Markisen im Westerwald – Aufdach-, Unterdach- und Senkrechtmarkisen von BV AussenSysteme. Elektrisch steuerbar, 5 Jahre Garantie." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/sonnenschutz.html" />
+  <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
   <style>
   /* Fallback fonts bis Google Fonts geladen */
@@ -44,460 +45,225 @@
   } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
 })();
 </script>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="../css/style.css" />
   <style>
-    .legal-page { max-width: 720px; margin: 0 auto; }
-    .legal-page h2 { margin-bottom: 32px; }
-    .legal-block {
-      background: var(--white); border-radius: 10px;
-      border-left: 3px solid var(--gold);
-      padding: 24px 28px; margin-bottom: 20px;
-      box-shadow: var(--shadow);
+    .produkt-hero {
+      background: var(--black); padding: 60px 0 50px;
+      border-bottom: 3px solid var(--gold); position: relative;
     }
-    .legal-block h3 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 1px;
-      color: var(--gold); margin-bottom: 10px;
+    .produkt-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+      background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
     }
-    .legal-block p, .legal-block ul {
-      font-size: 0.92rem; color: var(--muted); line-height: 1.8;
+    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
+    .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
+    .produkt-grid {
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 28px; margin-top: 48px;
     }
-    .legal-block ul { padding-left: 20px; margin-top: 6px; }
-    .legal-block li { margin-bottom: 4px; }
-    .legal-block a { color: var(--gold-dark); text-decoration: none; }
-    .legal-block a:hover { color: var(--gold); }
-    .legal-block strong { color: var(--black); }
-    .toc {
-      background: var(--offwhite); border-radius: 10px;
-      padding: 20px 24px; margin-bottom: 28px;
-      border: 1px solid var(--border);
+    .produkt-card {
+      background: var(--white); border-radius: 12px; overflow: hidden;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
     }
-    .toc h3 { font-family: 'Barlow Condensed',sans-serif; font-size:0.9rem; font-weight:700; color:var(--gold); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
-    .toc ol { padding-left:20px; }
-    .toc li { font-size:0.88rem; margin-bottom:4px; }
-    .toc a { color:var(--muted); text-decoration:none; }
-    .toc a:hover { color:var(--gold); }
-    .last-updated { font-size:0.8rem; color:var(--muted); margin-bottom:28px; }
+    .produkt-card:hover {
+      transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
+    }
+    .produkt-card-img {
+      height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; position: relative;
+    }
+    .produkt-card-img::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--gold);
+    }
+    .produkt-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .produkt-card-img .img-coming {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .produkt-card-img .img-coming span { font-size: 3rem; }
+    .produkt-card-img .img-coming p { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+    .produkt-card-body { padding: 24px; }
+    .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; color: var(--black); }
+    .produkt-card-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+    .produkt-tag {
+      display: inline-block; background: rgba(196,154,42,0.1);
+      color: var(--gold-dark); font-size: 0.75rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px; margin-bottom: 10px;
+      border: 1px solid rgba(196,154,42,0.25);
+    }
+    .produkt-features { list-style: none; margin-bottom: 18px; }
+    .produkt-features li {
+      font-size: 0.85rem; color: var(--muted); padding: 4px 0;
+      border-bottom: 1px solid var(--border); display: flex; gap: 8px;
+    }
+    .produkt-features li:last-child { border-bottom: none; }
+    .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
+    @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
-<nav class="navbar" role="navigation" aria-label="Navigation">
+<nav class="navbar" role="navigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+      <img src="../images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
-      <li><a href="/">← Zurück zur Startseite</a></li>
+      <li><a href="/#leistungen">Leistungen</a></li>
+      <li><a href="/#galerie">Galerie</a></li>
+      <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
     </ul>
+    </div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <a href="/" onclick="closeMobile()">Startseite</a>
+  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
+  <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+  <div class="mobile-lang-switcher">
+    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
+    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
+    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
+  </div>
+</div>
+
+<header class="produkt-hero">
+  <div class="container">
+    <p class="breadcrumb">
+      <a href="/">Startseite</a> › <a href="/#leistungen">Leistungen</a> › Sonnenschutz & Markisen
+    </p>
+    <p class="tag">Unsere Leistungen</p>
+    <h1>Sonnenschutz & Markisen</h1>
+    <p>Perfekter Sonnenschutz für Ihre Terrasse – ob als Ergänzung zur Überdachung oder eigenständige Lösung. Unsere Markisen sind elektrisch steuerbar, wetterfest und in vielen Stoffen und Farben erhältlich.</p>
+    <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
+      <a href="/#faq" class="btn btn-outline-white">Häufige Fragen</a>
+    </div>
+  </div>
+</header>
+
 <main>
 <section class="section">
-  <div class="container legal-page">
-    <p class="tag">Rechtliche Informationen</p>
-    <h2>Datenschutzerklärung</h2>
-    <p class="last-updated">Stand: Juni 2026 · Gemäß DSGVO, BDSG und TMG</p>
+  <div class="container">
+    <p class="tag">Unsere Modelle</p>
+    <h2 style="margin-bottom:8px;">Sonnenschutz & Markisen – unsere Modelle</h2>
+    <p style="color:var(--muted);margin-bottom:0;">Alle Produkte werden maßgefertigt, CE-zertifiziert und mit Statiknachweis geliefert.</p>
 
-    <!-- Inhaltsverzeichnis -->
-    <div class="toc">
-      <h3>Inhalt</h3>
-      <ol>
-        <li><a href="#verantwortlicher">Verantwortlicher</a></li>
-        <li><a href="#erhebung">Datenerhebung beim Websitebesuch</a></li>
-        <li><a href="#hosting">Hosting (GitHub Pages)</a></li>
-        <li><a href="#kontaktformular">Kontaktformular & Kontaktaufnahme</a></li>
-        <li><a href="#google-fonts">Google Fonts</a></li>
-        <li><a href="#google-maps">Google Maps</a></li>
-        <li><a href="#google-business">Google Business Profil</a></li>
-        <li><a href="#bewertungen">Bewertungsplattformen (Trustindex)</a></li>
-        <li><a href="#social-media">Social Media</a></li>
-        <li><a href="#cookies">Cookies</a></li>
-        <li><a href="#rechte">Ihre Rechte</a></li>
-        <li><a href="#beschwerderecht">Beschwerderecht</a></li>
-        <li><a href="#telefon-ki">Telefonanlage & KI-Gesprächsanalyse (sipgate AI Flow)</a></li>
-        <li><a href="#ionos">E-Mail & Domain (IONOS)</a></li>
-        <li><a href="#avv">Auftragsverarbeitungsverträge (AVV)</a></li>
-      </ol>
+    <div class="produkt-grid">
+      <div class="produkt-card">
+        <div class="produkt-card-img">
+          <img src="../images/prod_sonnenschutz.jpg" alt="Aufdachbeschattung – elektrisch steuerbar" loading="lazy" width="800" height="500" />
+          </div>
+        <div class="produkt-card-body">
+          <span class="produkt-tag">Aufdach</span>
+          <h2>Aufdachbeschattung</h2>
+          <p>Die Aufdachmarkise wird oberhalb des Terrassendachs montiert und verhindert, dass sich das Dach aufheizt. Sie bietet zuverlässigen Schutz vor Sonne und Blendung – ohne den Blick nach draußen zu beeinträchtigen. Mit Somfy-Antrieben aus eigener Herstellung.</p>
+          <ul class="produkt-features">
+            <li>Montage auf dem Terrassendach</li>
+            <li>Verhindert Aufheizen des Dachs</li>
+            <li>Somfy-Antrieb, elektrisch steuerbar</li>
+            <li>Viele Stoffe und Farben</li>
+            <li>5 Jahre Garantie</li>
+            <li>Kompatibel mit TDS und SkyView</li>
+          </ul>
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonnenschutz / Markise';return true;"
+             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
+            Jetzt anfragen →
+          </a>
+        </div>
+      </div>
+      <div class="produkt-card">
+        <div class="produkt-card-img">
+          <img src="../images/prod_sonnenschutz.jpg" alt="Unterdachmarkise – platzsparend und elegant" loading="lazy" width="800" height="500" />
+          </div>
+        <div class="produkt-card-body">
+          <span class="produkt-tag">Unterdach</span>
+          <h2>Unterdachbeschattung</h2>
+          <p>Die Unterdachmarkise wird unterhalb des Terrassendachs montiert – ideal um direktes Sonnenlicht zu filtern und eine angenehme Atmosphäre zu schaffen. Platzsparend, elegant und einfach zu bedienen.</p>
+          <ul class="produkt-features">
+            <li>Montage unter dem Terrassendach</li>
+            <li>Filtert direktes Sonnenlicht</li>
+            <li>Elektrisch oder manuell</li>
+            <li>Verschiedene Stoffe wählbar</li>
+            <li>5 Jahre Garantie</li>
+            <li>Platzsparende Lösung</li>
+          </ul>
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonnenschutz / Markise';return true;"
+             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
+            Jetzt anfragen →
+          </a>
+        </div>
+      </div>
+      <div class="produkt-card">
+        <div class="produkt-card-img">
+          <img src="../images/prod_sonnenschutz.jpg" alt="Senkrechtmarkise – Sichtschutz und Sonnenschutz" loading="lazy" width="800" height="500" />
+          </div>
+        <div class="produkt-card-body">
+          <span class="produkt-tag">Senkrecht</span>
+          <h2>Senkrechtbeschattung</h2>
+          <p>Senkrechtmarkisen schützen seitlich vor tiefstehender Sonne, Wind und neugierigen Blicken. Sie sind ideal als Sichtschutz und Windschutz – elektrisch steuerbar, stabil und langlebig.</p>
+          <ul class="produkt-features">
+            <li>Seitlicher Sonnen- und Windschutz</li>
+            <li>Ideal als Sichtschutz</li>
+            <li>Elektrisch steuerbar</li>
+            <li>Reißfeste, UV-beständige Stoffe</li>
+            <li>5 Jahre Garantie</li>
+            <li>Passend zu allen Überdachungen</li>
+          </ul>
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonnenschutz / Markise';return true;"
+             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
+            Jetzt anfragen →
+          </a>
+        </div>
+      </div>
+
     </div>
+  </div>
+</section>
 
-    <!-- 1 -->
-    <div class="legal-block" id="verantwortlicher">
-      <h3>1. Verantwortlicher</h3>
-      <p>
-        <strong>BV AussenSysteme (Gründung in Vorbereitung)</strong><br />
-        Alexander Becker<br />
-        Westerwaldkreis, 56428 Dernbach<br />
-        Rheinland-Pfalz, Deutschland<br /><br />
-        Telefon: <a href="tel:+4915678696609">015678696609</a><br />
-        E-Mail: <a href="mailto:info@bv-aussensysteme.de">info@bv-aussensysteme.de</a>
-      </p>
-    </div>
-
-    <!-- 2 -->
-    <div class="legal-block" id="erhebung">
-      <h3>2. Datenerhebung beim Websitebesuch</h3>
-      <p>
-        Beim Aufrufen unserer Website werden durch den Webserver automatisch folgende
-        Daten in sogenannten Server-Logfiles erfasst:
-      </p>
-      <ul>
-        <li>IP-Adresse des anfragenden Geräts (anonymisiert)</li>
-        <li>Datum und Uhrzeit des Zugriffs</li>
-        <li>Name und URL der abgerufenen Datei</li>
-        <li>Zuvor besuchte Website (Referrer-URL)</li>
-        <li>Verwendeter Browser und Betriebssystem</li>
-      </ul>
-      <p>
-        Diese Daten werden ausschließlich zur Sicherstellung des ordnungsgemäßen
-        Betriebs der Website sowie zur Fehleranalyse genutzt. Eine Zusammenführung
-        dieser Daten mit anderen Datenquellen findet nicht statt.<br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO
-        (berechtigtes Interesse am sicheren Betrieb der Website).
-      </p>
-    </div>
-
-    <!-- 3 -->
-    <div class="legal-block" id="hosting">
-      <h3>3. Hosting (GitHub Pages)</h3>
-      <p>
-        Diese Website wird über den Dienst <strong>GitHub Pages</strong> gehostet,
-        einem Angebot der GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco,
-        CA 94107, USA. Mit GitHub besteht ein Auftragsverarbeitungsvertrag (AVV)
-        auf Basis der EU-Standardvertragsklauseln gemäß Art. 46 DSGVO.<br /><br />
-        Beim Aufruf unserer Website werden Ihre Zugriffsdaten (inkl. IP-Adresse) an
-        Server von GitHub übertragen. GitHub ist nach dem EU-US Data Privacy Framework
-        zertifiziert. Weitere Informationen:
-        <a href="https://docs.github.com/de/site-policy/privacy-policies/github-privacy-statement"
-           target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a>.<br /><br />
-        Unsere Domain und E-Mail-Dienste werden über <strong>IONOS SE</strong>
-        (Elgendorfer Str. 57, 56410 Montabaur) bereitgestellt. Siehe Abschnitt 14.<br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO.
-      </p>
-    </div>
-
-    <!-- 4 -->
-    <div class="legal-block" id="kontaktformular">
-      <h3>4. Kontaktformular & Kontaktaufnahme</h3>
-      <p>
-        Wenn Sie uns über das Kontaktformular, per E-Mail, Telefon oder WhatsApp
-        kontaktieren, werden Ihre übermittelten Daten (Name, E-Mail, Telefon,
-        Nachricht) bei uns gespeichert und ausschließlich zur Bearbeitung Ihrer
-        Anfrage und für etwaige Anschlussfragen verwendet.<br /><br />
-        Diese Daten geben wir nicht ohne Ihre Einwilligung weiter. Sie werden
-        nach vollständiger Bearbeitung Ihrer Anfrage gelöscht, sofern keine
-        gesetzlichen Aufbewahrungspflichten bestehen.<br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO
-        (Vertragsanbahnung) bzw. Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse).
-      </p>
-      <p>
-        <strong>Kontaktformular-Verarbeiter:</strong> Unser Kontaktformular wird über
-        den Dienst <strong>Formspree</strong> (Formspree, Inc., USA) verarbeitet.
-        Ihre eingegebenen Daten werden verschlüsselt an Formspree übertragen und
-        von dort an unsere E-Mail-Adresse weitergeleitet. Formspree speichert
-        Einsendungen temporär. Mit Formspree besteht ein Auftragsverarbeitungsvertrag.
-        Datenschutz: <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer">formspree.io/legal/privacy-policy</a>
-      </p>
-    </div>
-
-    <!-- 4b -->
-    <div class="legal-block" id="cloudflare">
-      <h3>4b. Hosting & CDN (Cloudflare)</h3>
-      <p>
-        Diese Website wird über <strong>Cloudflare</strong> (Cloudflare, Inc.,
-        101 Townsend St., San Francisco, CA 94107, USA) ausgeliefert. Cloudflare
-        fungiert als CDN (Content Delivery Network) und DNS-Anbieter. Beim Aufruf
-        unserer Website wird Ihre IP-Adresse durch Cloudflare verarbeitet.
-        Cloudflare ist nach dem EU-US Data Privacy Framework zertifiziert und
-        hat europäische Rechenzentren (inkl. Frankfurt).<br /><br />
-        Datenschutz: <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">cloudflare.com/privacypolicy</a><br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO
-        (berechtigtes Interesse an sicherem und schnellem Websitebetrieb).
-      </p>
-    </div>
-
-    <!-- 5 -->
-    <div class="legal-block" id="google-fonts">
-      <h3>5. Google Fonts</h3>
-      <p>
-        Diese Website verwendet <strong>Google Fonts</strong> (Anbieter: Google LLC,
-        1600 Amphitheatre Parkway, Mountain View, CA 94043, USA) zur einheitlichen
-        Darstellung von Schriftarten. Google Fonts werden <strong>erst nach Ihrer
-        Einwilligung in externe Dienste</strong> über unser Cookie-Banner geladen.
-        Vor der Einwilligung werden systemseitige Fallback-Schriften verwendet,
-        sodass kein Datentransfer zu Google stattfindet.<br /><br />
-        Nach Einwilligung wird eine Verbindung zu Google-Servern hergestellt und
-        Ihre IP-Adresse übertragen. Google ist nach dem EU-US Data Privacy Framework
-        zertifiziert. Datenschutzrichtlinie:
-        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
-        https://policies.google.com/privacy</a><br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).
-      </p>
-    </div>
-
-    <!-- 6 -->
-    <div class="legal-block" id="google-maps">
-      <h3>6. Google Maps</h3>
-      <p>
-        Sofern auf dieser Website Google Maps eingebunden ist, werden bei der
-        Nutzung Daten (insbesondere Ihre IP-Adresse) an Google LLC übertragen.
-        Wir haben keinen Einfluss auf diese Datenübertragung. Google Maps wird
-        nur nach Ihrer aktiven Zustimmung geladen (2-Klick-Lösung).<br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO (Einwilligung).
-      </p>
-    </div>
-
-    <!-- 7 -->
-    <div class="legal-block" id="google-business">
-      <h3>7. Google Business Profil</h3>
-      <p>
-        Wir unterhalten ein Unternehmensprofil bei <strong>Google Business</strong>
-        (Google LLC). Wenn Sie über Google auf uns stoßen oder eine Bewertung
-        hinterlassen, gelten die Datenschutzbestimmungen von Google:
-        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
-        https://policies.google.com/privacy</a>.
-      </p>
-    </div>
-
-    <!-- 8 -->
-    <div class="legal-block" id="bewertungen">
-      <h3>8. Bewertungsplattformen (Trustindex)</h3>
-      <p>
-        Auf unserer Website kann ein Widget des Dienstes <strong>Trustindex</strong>
-        (Trustindex.io, Ungarn) eingebunden sein, das Kundenbewertungen von Google
-        und anderen Plattformen anzeigt. Beim Laden des Widgets kann eine Verbindung
-        zu Servern von Trustindex und Google hergestellt werden.<br /><br />
-        Datenschutzerklärung Trustindex:
-        <a href="https://www.trustindex.io/privacy-policy.php" target="_blank" rel="noopener noreferrer">
-        https://www.trustindex.io/privacy-policy.php</a><br /><br />
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO.
-      </p>
-    </div>
-
-    <!-- 9 -->
-    <div class="legal-block" id="social-media">
-      <h3>9. Social Media</h3>
-      <p>
-        Wir verlinken auf unsere Profile bei folgenden Plattformen:
-      </p>
-      <ul>
-        <li><strong>Facebook</strong> – Meta Platforms Ireland Ltd.,
-            <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener noreferrer">Datenschutzrichtlinie</a></li>
-        <li><strong>Instagram</strong> – Meta Platforms Ireland Ltd.,
-            <a href="https://privacycenter.instagram.com/policy" target="_blank" rel="noopener noreferrer">Datenschutzrichtlinie</a></li>
-        <li><strong>YouTube</strong> – Google LLC,
-            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Datenschutzrichtlinie</a></li>
-        <li><strong>WhatsApp</strong> – Meta Platforms Ireland Ltd.,
-            <a href="https://www.whatsapp.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Datenschutzrichtlinie</a></li>
-      </ul>
-      <p>
-        Es handelt sich um einfache externe Links. Beim Klick auf einen Link verlassen
-        Sie unsere Website. Für die Datenverarbeitung auf den verlinkten Plattformen
-        sind deren Betreiber verantwortlich. Wir haben keinen Einfluss darauf.
-      </p>
-    </div>
-
-    <!-- 10 -->
-    <div class="legal-block" id="cookies">
-      <h3>10. Cookies</h3>
-      <p>
-        Unsere Website selbst setzt keine Tracking- oder Marketing-Cookies.
-        Technisch notwendige Cookies können durch eingebundene Drittanbieter
-        (z.B. Google Fonts, Trustindex) gesetzt werden. Sie können Cookies in
-        Ihrem Browser jederzeit deaktivieren oder löschen – dies kann die
-        Funktionalität der Website einschränken.
-      </p>
-    </div>
-
-    <!-- 11 -->
-    <div class="legal-block" id="rechte">
-      <h3>11. Ihre Rechte als betroffene Person</h3>
-      <p>Sie haben gegenüber uns folgende Rechte bezüglich Ihrer personenbezogenen Daten:</p>
-      <ul>
-        <li><strong>Auskunftsrecht</strong> (Art. 15 DSGVO)</li>
-        <li><strong>Recht auf Berichtigung</strong> (Art. 16 DSGVO)</li>
-        <li><strong>Recht auf Löschung</strong> (Art. 17 DSGVO)</li>
-        <li><strong>Recht auf Einschränkung der Verarbeitung</strong> (Art. 18 DSGVO)</li>
-        <li><strong>Recht auf Datenübertragbarkeit</strong> (Art. 20 DSGVO)</li>
-        <li><strong>Widerspruchsrecht</strong> (Art. 21 DSGVO)</li>
-        <li><strong>Recht auf Widerruf</strong> erteilter Einwilligungen (Art. 7 Abs. 3 DSGVO)</li>
-      </ul>
-      <p>
-        Für die Ausübung Ihrer Rechte wenden Sie sich bitte an:<br />
-        <a href="mailto:info@bv-aussensysteme.de">info@bv-aussensysteme.de</a>
-      </p>
-    </div>
-
-    <!-- 13 -->
-    <div class="legal-block" id="telefon-ki">
-      <h3>13. Telefonanlage & KI-Gesprächsanalyse (sipgate AI Flow)</h3>
-      <p>
-        Für unsere geschäftliche Telefonnummer nutzen wir den Dienst
-        <strong>sipgate GmbH</strong> (Gladbacher Straße 74, 40219 Düsseldorf,
-        E-Mail: info@sipgate.de). sipgate stellt uns eine virtuelle
-        Geschäftstelefonnummer bereit und wertet eingehende sowie ausgehende
-        Telefongespräche mithilfe der Funktion <strong>„AI Flow"</strong>
-        (Künstliche Intelligenz) automatisch aus. Dies umfasst insbesondere:
-      </p>
-      <ul>
-        <li>Live-Transkription von Telefongesprächen (keine dauerhafte Audioaufzeichnung)</li>
-        <li>Echtzeit-Verschriftlichung der Gesprächsinhalte während des Gesprächs</li>
-        <li>KI-gestützte Auswertung und Zusammenfassung der transkribierten Inhalte</li>
-        <li>Speicherung der Transkripte und KI-Zusammenfassungen (kein Audio gespeichert)</li>
-      </ul>
-      <p>
-        <strong>Hinweis für Anrufende:</strong> Wenn Sie uns anrufen oder wir Sie
-        zurückrufen, werden Sie zu Beginn des Gesprächs darauf hingewiesen, dass das Gespräch
-        live transkribiert und KI-gestützt ausgewertet wird. Es erfolgt
-        <strong>keine dauerhafte Audioaufzeichnung</strong>. Durch Fortführung des
-        Gesprächs erklären Sie sich mit der Transkription einverstanden. Sie können
-        der Transkription jederzeit widersprechen.
-      </p>
-      <p>
-        <strong>Zweck der Verarbeitung:</strong> Qualitätssicherung, Dokumentation
-        von Kundenanfragen, Vorbereitung von Angeboten und interne Weiterverarbeitung
-        von Gesprächsinhalten zur Auftragsbearbeitung.
-      </p>
-      <p>
-        <strong>Gespeicherte Daten:</strong> Telefonnummer des Anrufenden,
-        Datum und Uhrzeit des Gesprächs, Gesprächsdauer, Transkript des Gesprächsinhalts,
-        KI-Zusammenfassung. <strong>Es wird kein Audio gespeichert.</strong>
-      </p>
-      <p>
-        <strong>Speicherdauer:</strong> Transkripte und KI-Zusammenfassungen werden
-        nach spätestens 90 Tagen gelöscht, sofern keine gesetzlichen
-        Aufbewahrungspflichten entgegenstehen oder das Gespräch Grundlage
-        eines Vertragsverhältnisses ist.
-      </p>
-      <p>
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO
-        (Vertragsanbahnung/-erfüllung) sowie Art. 6 Abs. 1 lit. f DSGVO
-        (berechtigtes Interesse an der Qualitätssicherung). Soweit eine
-        ausdrückliche Einwilligung eingeholt wird: Art. 6 Abs. 1 lit. a DSGVO.
-      </p>
-      <p>
-        <strong>Datenweitergabe:</strong> Die Gesprächsdaten werden zur
-        Verarbeitung an die sipgate GmbH übermittelt. Mit sipgate besteht ein
-        Auftragsverarbeitungsvertrag (AVV) gemäß Art. 28 DSGVO. Eine Weitergabe
-        an weitere Dritte erfolgt nicht, sofern keine gesetzliche Verpflichtung
-        besteht.
-      </p>
-      <p style="margin-top:12px;">
-        Weitere Informationen zum Datenschutz bei sipgate finden Sie unter:<br />
-        <a href="https://www.sipgate.de/datenschutz" target="_blank" rel="noopener noreferrer">
-        https://www.sipgate.de/datenschutz</a><br />
-        Informationen zur Auftragsverarbeitung:
-        <a href="https://www.sipgate.de/auftragsverarbeitung" target="_blank" rel="noopener noreferrer">
-        https://www.sipgate.de/auftragsverarbeitung</a>
-      </p>
-    </div>
-
-    <!-- 14 -->
-    <div class="legal-block" id="ionos">
-      <h3>14. E-Mail & Domain (IONOS)</h3>
-      <p>
-        Unsere Domain <strong>bv-aussensysteme.de</strong> sowie unsere geschäftliche
-        E-Mail-Adresse <strong>info@bv-aussensysteme.de</strong> werden über den Dienst
-        <strong>IONOS SE</strong> (Elgendorfer Str. 57, 56410 Montabaur, Deutschland)
-        betrieben.
-      </p>
-      <p>
-        Wenn Sie uns eine E-Mail senden, werden Ihre Nachricht sowie die darin
-        enthaltenen personenbezogenen Daten (Name, E-Mail-Adresse, Nachrichteninhalt)
-        auf Servern von IONOS gespeichert und verarbeitet. IONOS verarbeitet diese
-        Daten ausschließlich zur Bereitstellung des E-Mail-Dienstes im Rahmen eines
-        Auftragsverarbeitungsvertrags (AVV) gemäß Art. 28 DSGVO.
-      </p>
-      <p>
-        Weitere Informationen zum Datenschutz bei IONOS finden Sie unter:<br />
-        <a href="https://www.ionos.de/terms-gtc/datenschutzerklaerung/"
-           target="_blank" rel="noopener noreferrer">
-          https://www.ionos.de/terms-gtc/datenschutzerklaerung/</a>
-      </p>
-      <p>
-        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO
-        (Vertragsanbahnung/-erfüllung) sowie Art. 6 Abs. 1 lit. f DSGVO
-        (berechtigtes Interesse an der Kommunikation).
-      </p>
-    </div>
-
-    <!-- 15 -->
-    <div class="legal-block" id="avv">
-      <h3>15. Auftragsverarbeitungsverträge (AVV)</h3>
-      <p>
-        Soweit wir externe Dienstleister einsetzen, die personenbezogene Daten
-        in unserem Auftrag verarbeiten, haben wir mit diesen gemäß Art. 28 DSGVO
-        einen Auftragsverarbeitungsvertrag (AVV) geschlossen. Dies gewährleistet,
-        dass die Verarbeitung Ihrer Daten ausschließlich nach unseren Weisungen
-        und unter Einhaltung der datenschutzrechtlichen Vorschriften erfolgt.
-      </p>
-      <p>AVV bestehen aktuell mit folgenden Dienstleistern:</p>
-      <ul>
-        <li>
-          <strong>IONOS SE</strong>, Elgendorfer Str. 57, 56410 Montabaur –
-          Bereitstellung von Domain und E-Mail-Diensten
-        </li>
-        <li>
-          <strong>sipgate GmbH</strong>, Gladbacher Straße 74, 40219 Düsseldorf –
-          Virtuelle Geschäftstelefonnummer und KI-gestützte Gesprächsauswertung (AI Flow)
-        </li>
-        <li>
-          <strong>GitHub, Inc.</strong>, 88 Colin P. Kelly Jr. Street,
-          San Francisco, CA 94107, USA – Website-Hosting über GitHub Pages
-          (Standardvertragsklauseln gemäß Art. 46 DSGVO)
-        </li>
-        <li>
-          <strong>Cloudflare, Inc.</strong>, 101 Townsend St., San Francisco, CA 94107, USA –
-          CDN, DNS und Website-Auslieferung über Cloudflare Worker. Cloudflare ist nach dem
-          EU-US Data Privacy Framework zertifiziert. Datenschutz:
-          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">cloudflare.com/privacypolicy</a>
-        </li>
-        <li>
-          <strong>Formspree, Inc.</strong>, USA – Verarbeitung von Kontaktformular-Daten.
-          Wenn Sie unser Kontaktformular nutzen, werden Ihre Daten über den Dienst Formspree
-          an uns weitergeleitet. Formspree ist nach dem EU-US Data Privacy Framework zertifiziert.
-          Datenschutz: <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer">formspree.io/legal/privacy-policy</a>
-        </li>
-      </ul>
-      <p>
-        Die AVV-Dokumente sind bei uns hinterlegt und können auf begründete
-        Anfrage eingesehen werden. Wenden Sie sich dazu an:
-        <a href="mailto:info@bv-aussensysteme.de">info@bv-aussensysteme.de</a>
-      </p>
-    </div>
-
-    <!-- 12 -->
-    <div class="legal-block" id="beschwerderecht">
-      <h3>12. Beschwerderecht bei der Aufsichtsbehörde</h3>
-      <p>
-        Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die
-        Verarbeitung Ihrer personenbezogenen Daten durch uns zu beschweren.<br /><br />
-        Zuständige Aufsichtsbehörde für Rheinland-Pfalz:<br />
-        <strong>Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit
-        Rheinland-Pfalz</strong><br />
-        Hintere Bleiche 34, 55116 Mainz<br />
-        <a href="https://www.datenschutz.rlp.de" target="_blank" rel="noopener noreferrer">
-        www.datenschutz.rlp.de</a>
-      </p>
-    </div>
-
+<!-- CTA -->
+<section style="background:var(--black);padding:56px 0;">
+  <div class="container" style="text-align:center;">
+    <p class="tag" style="color:var(--gold);">Ihr nächster Schritt</p>
+    <h2 style="color:var(--white);margin-bottom:12px;">Jetzt kostenlos beraten lassen</h2>
+    <p style="color:rgba(255,255,255,0.7);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;">
+      Wir kommen zu Ihnen in den Westerwald – Montabaur, Neuwied, Altenkirchen und Umgebung.
+      Unverbindlich, persönlich, ohne Wartezeit.
+    </p>
+    <a href="/#kontakt" class="btn btn-gold" style="font-size:1.1rem;padding:16px 36px;">
+      Anfrage starten →
+    </a>
   </div>
 </section>
 </main>
 
 <footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
   <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
-    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
+    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis</p>
     <p>
-      <a href="impressum.html" style="color:rgba(255,255,255,0.6)">Impressum</a> ·
-      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="datenschutz.html" style="color:rgba(255,255,255,0.6)">Datenschutz</a>
+      <a href="../impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="../agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+      <a href="../datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
     </p>
   </div>
 </footer>
-
-<script src="js/accessibility.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/cookie.js"></script>
+<script src="../js/accessibility.js"></script>
 </body>
 </html>
