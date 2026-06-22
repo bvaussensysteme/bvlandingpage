@@ -1,85 +1,105 @@
 # BV AussenSysteme – Website
 
-Offizielle Website von BV AussenSysteme, Ihr Spezialist für Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz im Westerwald.
+Offizielle Website von BV AussenSysteme – Ihr Spezialist für Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz im Westerwald.
+
+🌐 **Live:** https://bv-aussensysteme.de
+
+---
 
 ## 📁 Projektstruktur
 
 ```
 bv-aussensysteme/
-├── index.html          ← Hauptseite (Startseite)
-├── impressum.html      ← Impressum
-├── datenschutz.html    ← Datenschutzerklärung
+├── index.html                  ← Startseite mit Hero-Slider
+├── agb.html                    ← AGB
+├── datenschutz.html            ← Datenschutzerklärung
+├── impressum.html              ← Impressum (Gründung in Vorbereitung)
+├── konfigurator.html           ← 3D Konfigurator (Platzhalter)
+├── pflege.html                 ← Pflegehinweise
+├── einzugsgebiet.html          ← Einzugsgebiet-Karte (Leaflet.js)
+├── partner.html                ← Partnerseite
+├── kontakt.html                ← Redirect → /#kontakt
+├── sitemap.xml
+├── robots.txt
+├── PROJEKTSTAND.md             ← Vollständiger Projektstand für KI-Chats
 ├── css/
-│   └── style.css       ← Alle Styles
+│   └── style.css               ← Alle Styles
 ├── js/
-│   └── main.js         ← Interaktionen (FAQ, Menü, Formular)
+│   ├── main.js                 ← FAQ, Hamburger, Sticky CTA, Formspree
+│   ├── cookie.js               ← DSGVO Cookie-Banner
+│   ├── accessibility.js        ← Barrierefreiheits-Widget
+│   └── slider.js               ← Hero-Slider
 ├── images/
-│   ├── logo-hell.png   ← Logo (weiß/hell Hintergrund) – für Navbar
-│   ├── logo-dunkel.png ← Logo (schwarz Hintergrund)   – für Footer
-│   │
-│   ├── terrasse.jpg    ← BILD EINFÜGEN: Terrassenüberdachung
-│   ├── carport.jpg     ← BILD EINFÜGEN: Carport
-│   ├── pergola.jpg     ← BILD EINFÜGEN: Pergola / Lamellendach
-│   ├── wintergarten.jpg← BILD EINFÜGEN: Kaltwintergarten
-│   ├── markise.jpg     ← BILD EINFÜGEN: Markise / Sonnenschutz
-│   ├── gelaender.jpg   ← BILD EINFÜGEN: Geländer
-│   │
-│   ├── galerie-1.jpg   ← BILD EINFÜGEN: Galerie Referenz 1 (groß)
-│   ├── galerie-2.jpg   ← BILD EINFÜGEN: Galerie Referenz 2
-│   ├── galerie-3.jpg   ← BILD EINFÜGEN: Galerie Referenz 3
-│   ├── galerie-4.jpg   ← BILD EINFÜGEN: Galerie Referenz 4
-│   ├── galerie-5.jpg   ← BILD EINFÜGEN: Galerie Referenz 5 (groß)
-│   ├── galerie-6.jpg   ← BILD EINFÜGEN: Galerie Referenz 6
-│   └── og-preview.jpg  ← BILD EINFÜGEN: Vorschaubild für Social Media (1200x630px)
-└── README.md
+│   ├── logo-hell.png           ← Logo für Navbar
+│   ├── logo-dunkel.png         ← Logo für Footer
+│   ├── marker-logo.png         ← BV-Logo für Kartenmarker
+│   ├── partner-vd-alusysteme.png
+│   └── prod_*.jpg              ← 21 Produktbilder (800×600)
+└── produkte/
+    ├── terrassenueberdachung.html
+    ├── carport.html
+    ├── pergola.html
+    ├── kaltwintergarten.html
+    ├── sonnenschutz.html
+    ├── gelaender.html
+    └── eingangsüberdachung.html
 ```
 
-## 🖼️ Bilder einfügen
+---
 
-Kopiere die Produktbilder von VD AluSysteme in den `images/` Ordner mit den oben genannten Dateinamen.
-Falls ein Bild fehlt, zeigt die Seite automatisch ein Emoji als Platzhalter.
+## 🚀 Deployment
 
-**Empfohlene Bildgrößen:**
-- Leistungskarten (terrasse.jpg etc.): 800×600px, max. 200KB
-- Galerie groß (galerie-1.jpg, galerie-5.jpg): 1200×675px, max. 300KB
-- Galerie klein (galerie-2 bis 4, 6): 800×600px, max. 200KB
-- Social-Media-Vorschau (og-preview.jpg): genau 1200×630px
+**Hosting:** Cloudflare Worker „bvlanding"
+**GitHub:** Repository `bvaussensysteme/bvlandingpage` (Public)
 
-## 🚀 Deployment auf GitHub Pages
+### Änderungen veröffentlichen:
+1. Dateien im GitHub Repository aktualisieren (Web-UI Upload)
+2. Cloudflare Cache leeren: dash.cloudflare.com → bv-aussensysteme.de → Caching → **Purge Everything**
 
-### Schritt-für-Schritt:
+---
 
-1. **GitHub-Konto erstellen** (falls noch nicht vorhanden): https://github.com
+## 🎨 Design
 
-2. **Neues Repository erstellen:**
-   - Auf GitHub: Klick auf "+" → "New repository"
-   - Name: `bv-aussensysteme` (oder `bv-aussensysteme.github.io` für direkte URL)
-   - Sichtbarkeit: Public (für GitHub Pages kostenlos)
-   - Klick: "Create repository"
+| Element | Wert |
+|---------|------|
+| Gold | `#C49A2A` |
+| Gold Dark | `#9A7318` |
+| Schwarz | `#111111` |
+| Off-White | `#F5F2EB` |
+| Schrift Überschriften | Barlow Condensed 700/800 |
+| Schrift Text | Inter 400/500 |
 
-3. **Dateien hochladen:**
-   - Klick auf "uploading an existing file"
-   - Alle Dateien und Ordner aus diesem Projektordner hochladen
-   - Commit-Nachricht: "Website launch"
-   - Klick: "Commit changes"
+---
 
-4. **GitHub Pages aktivieren:**
-   - Repository → Settings → Pages
-   - Source: "Deploy from a branch"
-   - Branch: "main" → Ordner: "/ (root)"
-   - Klick: "Save"
-   - Nach 1–2 Minuten ist die Seite unter `https://DEIN-USERNAME.github.io/bv-aussensysteme/` live
+## ⚙️ Features
 
-5. **Eigene Domain (bv-aussensysteme.de) verknüpfen:**
-   - In GitHub Pages Settings: "Custom domain" eingeben: `www.bv-aussensysteme.de`
-   - Bei Ihrem Domain-Anbieter DNS-Eintrag setzen:
-     - Typ: CNAME | Name: www | Ziel: `DEIN-USERNAME.github.io`
-   - HTTPS wird automatisch aktiviert (Let's Encrypt)
+- **Hero-Slider** – 4 Slides, 6,5s Auto-Slide, Touch/Swipe, Ken Burns Effekt
+- **Barrierefreiheits-Widget** – 8 Funktionen, rechts unten, localStorage
+- **Cookie-Banner** – DSGVO-konform, localStorage + Cookie Fallback
+- **Beta-Modal** – Erscheint beim ersten Besuch mit Kontaktinfos
+- **Einzugsgebiet-Karte** – Leaflet.js + BV-Logo als Marker
+- **Formspree-Formular** – ID `xnjkabdv` → info@bv-aussensysteme.de
+- **Google Bewertungsbutton** – Echter Google-Style Button
 
-## 📊 Nächste SEO-Schritte nach Go-Live
+---
 
-1. Google Search Console: https://search.google.com/search-console
-   → Domain hinzufügen → Sitemap einreichen
-2. Google Business Profil anlegen: https://business.google.com
-3. Bilder einfügen und Galerie füllen
-4. Erste echte Kundenbewertungen einholen (Google + Website)
+## 📋 Offene Aufgaben
+
+### Nach Gründung (Pflicht)
+- [ ] Impressum vervollständigen (USt-ID, Handelsregisternummer)
+- [ ] Google Business Verifizierung via Google Meet abschließen
+- [ ] Google Business auf „Geöffnet" stellen
+
+### Geplant
+- [ ] Trustindex Widget (nach erster Bewertung)
+- [ ] Terminbuchung via Cal.com + Google Calendar
+- [ ] Echte Produktfotos einbauen
+- [ ] 3D Konfigurator entwickeln lassen
+
+---
+
+## 📞 Kontakt
+
+- **Tel:** 015678 696609
+- **E-Mail:** info@bv-aussensysteme.de
+- **WhatsApp:** https://wa.me/4915678696609

@@ -1,25 +1,27 @@
-# BV AussenSysteme – Projektstand für neuen Chat
+# BV AussenSysteme – Projektstand
 
-## SOFORT SAGEN: 
-"Hier ist der vollständige Projektstand von BV AussenSysteme. Bitte lies alles durch bevor du antwortest."
+> **Für neuen Chat:** ZIP hochladen, diese Datei lesen lassen, sofort weitermachen.
+> Letzte Aktualisierung: 22.06.2026
 
 ---
 
 ## KUNDE
-- **Name:** Alexander Becker
-- **Firma:** BV AussenSysteme (Gründung in Vorbereitung)
-- **Tel:** 015678696609
+- **Inhaber:** Alexander Becker + Josef (2. Geschäftsführer, Gründung in Vorbereitung)
+- **Firma:** BV AussenSysteme
+- **Tel:** 015678 696609
 - **E-Mail:** info@bv-aussensysteme.de
-- **Standort:** Dernbach, Westerwaldkreis, Rheinland-Pfalz
+- **Adresse:** Am Driesch 1, 56428 Dernbach (Westerwald) – Heimarbeitsplatz, kein Kundenstandort
 - **Branche:** Terrassenüberdachungen, Carports, Pergolen, Kaltwintergärten, Sonnenschutz, Geländer
-- **Hersteller-Partner:** VD AluSysteme (vd-alusysteme.de)
+- **Hersteller-Partner:** VD AluSysteme Dietrich GmbH (vd-alusysteme.de)
 
 ---
 
 ## LIVE WEBSITE
-- **URL:** https://bv-aussensysteme.de
-- **Hosting:** GitHub Pages (Repository: bvaussensysteme/bvlandingpage, Public)
-- **DNS:** Cloudflare (Cache bei Änderungen leeren: dash.cloudflare.com → Purge Everything)
+- **URL:** https://bv-aussensysteme.de (ohne www funktioniert sicher)
+- **www:** https://www.bv-aussensysteme.de → leitet weiter via Cloudflare Redirect Rule
+- **Hosting:** Cloudflare Worker „bvlanding" (serviert statische Dateien direkt)
+- **GitHub:** Repository bvaussensysteme/bvlandingpage (Public) – Dateien dort hochladen
+- **DNS:** Cloudflare – nach Änderungen: dash.cloudflare.com → bv-aussensysteme.de → Caching → Purge Everything
 - **Formular:** Formspree ID `xnjkabdv` → geht an info@bv-aussensysteme.de
 - **Google Bewertungslink:** https://g.page/r/CQh4XlvW-1nEEBM/review
 
@@ -28,22 +30,32 @@
 ## TECHNISCHER AUFBAU
 ```
 bv-aussensysteme/
-├── index.html              ← Hauptseite
-├── agb.html                ← AGB (basierend auf VD, umgeschrieben)
-├── konfigurator.html       ← Konfigurator-Platzhalter
-├── pflege.html             ← Pflegehinweise
-├── einzugsgebiet.html      ← Karte (Leaflet.js + 50km Radius)
-├── impressum.html          ← "Gründung in Vorbereitung"
-├── datenschutz.html        ← DSGVO
+├── index.html                  ← Hauptseite mit Hero-Slider
+├── agb.html
+├── konfigurator.html           ← Platzhalter „Demnächst verfügbar"
+├── pflege.html                 ← Pflegehinweise für Überdachungen
+├── einzugsgebiet.html          ← Leaflet.js Karte mit BV-Logo als Marker
+├── impressum.html              ← „Gründung in Vorbereitung"
+├── datenschutz.html
+├── partner.html                ← Partnerseite (VD AluSysteme mit Logo)
+├── kontakt.html                ← Redirect auf /#kontakt
 ├── sitemap.xml
 ├── robots.txt
-├── css/style.css           ← Alle Styles
+├── css/style.css               ← Alle Styles (~1400 Zeilen)
 ├── js/
-│   ├── main.js             ← FAQ-Accordion, Hamburger-Menü, Formspree
-│   ├── i18n.js             ← Übersetzung DE/EN/RU (TreeWalker-Methode)
-│   └── cookie.js           ← DSGVO Cookie-Banner
-├── images/                 ← 40+ Bilder inkl. Produktfotos
-└── produkte/               ← 7 Produktseiten
+│   ├── main.js                 ← FAQ, Hamburger, Sticky CTA, Formspree
+│   ├── i18n.js                 ← ENTFERNT (Sprachauswahl wurde deaktiviert)
+│   ├── cookie.js               ← Cookie-Banner (speichert in localStorage + Cookie)
+│   ├── accessibility.js        ← Barrierefreiheits-Widget (8 Funktionen, rechts unten)
+│   └── slider.js               ← Hero-Slider (4 Slides, 6.5s, Touch/Swipe)
+├── images/
+│   ├── logo-hell.png           ← Navbar Logo (hell)
+│   ├── logo-dunkel.png         ← Footer Logo (dunkel)
+│   ├── marker-logo.png         ← BV-Logo freigestellt für Kartenmarker (36px)
+│   ├── partner-vd-alusysteme.png ← VD Logo freigestellt (1256x308)
+│   ├── prod_*.jpg              ← 21 Produktbilder (800x600, aus VD-Screenshots)
+│   └── galerie-*.jpg           ← Galeriebilder
+└── produkte/
     ├── terrassenueberdachung.html
     ├── carport.html
     ├── pergola.html
@@ -56,85 +68,141 @@ bv-aussensysteme/
 ---
 
 ## DESIGN
-- **Farben:** Gold `#C49A2A`, Schwarz `#111111`, Weiß `#FFFFFF`
-- **Fonts:** Barlow Condensed (Überschriften) + Inter (Text) via Google Fonts
-- **Logo:** logo-hell.png (für helle Navbar), logo-dunkel.png (für Footer)
+- **Primärfarbe:** Gold `#C49A2A`, Gold-Dark `#9A7318`
+- **Hintergrund:** Schwarz `#111111`, Off-White `#F5F2EB`
+- **Fonts:** Barlow Condensed (Überschriften, 700/800) + Inter (Fließtext) via Google Fonts
+- **Logo hell:** logo-hell.png (Navbar auf weißem Hintergrund)
+- **Logo dunkel:** logo-dunkel.png (Footer auf schwarzem Hintergrund)
+- **Border-Radius:** `--radius: 6px`
 
 ---
 
-## SPRACHAUSWAHL (DE/EN/RU)
-- **Methode:** TreeWalker – geht durch alle Textknoten, kein innerHTML-Reset
-- **Wichtig:** Event-Listener (FAQ, Cookie, Hamburger) bleiben beim Sprachwechsel erhalten
-- **Dropdown:** Button `id="langBtn"`, Label `id="langLabel"`, Menü `id="langMenu"`, Container `id="langDropdown"`
-- **Flaggen:** `data-notranslate="1"` auf allen Dropdown-Elementen (verhindert Übersetzung der Flaggen)
-- **Mobile:** `class="mobile-lang-switcher"` im Hamburger-Menü
-- **Speicherung:** localStorage `bv_lang`
-- **Position:** Steht nach dem "Jetzt anfragen" Button in der Navbar, vor dem Hamburger
+## FEATURES IM DETAIL
+
+### Hero-Slider (js/slider.js)
+- 4 Slides: 1) Hauptbotschaft+Karten, 2) Terrassendach, 3) Carport, 4) Pergola
+- Auto-Slide alle **6,5 Sekunden** mit goldener Fortschrittsleiste
+- Pause nur beim Hover über Pfeile/Punkte (NICHT bei allgemeinem Hover)
+- Touch/Swipe Mobile, Mausdrag Desktop, Pfeiltasten Keyboard
+- Ken Burns Zoom-Effekt auf Hintergrundbilder
+- Stoppt wenn Barrierefreiheits-Widget „Animationen stoppen" aktiv
+
+### Barrierefreiheits-Widget (js/accessibility.js)
+- Button: unten **rechts**, goldener Kreis mit Rollstuhl-Icon
+- 8 Funktionen: Schriftgröße, Hoher Kontrast, Links unterstreichen, Großer Cursor, Lesehilfe, Nachtmodus, Leseschrift, Animationen stoppen
+- Filter (Kontrast/Nachtmodus) werden auf `#bv-page-wrapper` angewendet → Widget bleibt immer sichtbar
+- Einstellungen in localStorage gespeichert
+- Early-Script im `<head>` verhindert Flash beim Laden
+
+### Cookie-Banner (js/cookie.js)
+- Speichert in **localStorage** (primär) + Browser-Cookie (Fallback)
+- Cloudflare-kompatibel (Browser-Cookies wurden von Cloudflare Worker manchmal blockiert)
+- Optionen: Alle akzeptieren / Nur notwendige / Ablehnen / Einstellungen (mit Toggles)
+
+### Einzugsgebiet-Karte (einzugsgebiet.html)
+- Leaflet.js mit OpenStreetMap
+- Marker: BV-Logo (marker-logo.png) – Hauptorte 36px, normale Orte 28px
+- Absoluter Bildpfad via `window.location.origin + '/images/marker-logo.png'`
+- Liste rechts: normale Punkte (nicht Logo)
+- Unten: „Ihr Standort nicht dabei? Melden Sie sich trotzdem – wir prüfen individuell..."
+
+### Beta-Hinweis-Modal
+- Erscheint beim ersten Besuch (einmal pro Session via sessionStorage)
+- Zeigt: Entschuldigung für Baustelle + alle Kontakte (Tel, WhatsApp, E-Mail) als klickbare Kacheln
+- Button „Verstanden – weiter zur Seite"
+
+### Partner-Seite (partner.html)
+- VD AluSysteme Dietrich GmbH mit freigestelltem Logo
+- Link: vd-alusysteme.de
+- Im Footer unter „Unternehmen" verlinkt
+
+### Konfigurator (konfigurator.html)
+- Platzhalter „Demnächst verfügbar"
+- 6 Feature-Karten: Maße, Farben, 3D Vorschau, Preisanfrage, Direkte Anfrage, Mobil & Desktop
+- E-Mail-Benachrichtigungs-Formular (Formspree)
+
+### Kontakt-Redirect (kontakt.html)
+- `bv-aussensysteme.de/kontakt` → leitet direkt zu `/#kontakt`
 
 ---
 
-## BEKANNTE BUGS / NOCH OFFEN
-- [ ] Sprachauswahl zeigt evtl. noch "DE DE" statt "🇩🇪 DE" → fix war letzter Stand
-- [ ] Produktbilder neu zugeschnitten aus Screenshots IMG_8508–IMG_8515 (bessere Qualität)
-- [ ] Dropdown-Klick manchmal nicht zuverlässig → wurde per addEventListener gefixt
+## SPRACHAUSWAHL
+- **Status: DEAKTIVIERT** – wurde entfernt weil der TreeWalker den Sprachbutton-Text überschrieben hat („DE DE" Bug) und trotz mehrerer Fixes nicht zuverlässig funktioniert hat
+- i18n.js ist noch im Projekt aber hat keinen Sprachswitcher mehr in der Navbar
 
 ---
 
-## OFFENE AUFGABEN (NACH GRÜNDUNG)
-- [ ] Impressum: Straße, UStID, Handelsregisternummer nachtragen  
+## SEO & GOOGLE
+- **Google Search Console:** Verifiziert, Sitemap `sitemap.xml` eingereicht (14 Seiten erkannt, Status: Erfolgreich)
+- **Indexierung:** Seite bereits in Google-Suchergebnissen sichtbar
+- **Schema.org:** LocalBusiness, FAQ, HowTo in index.html
+- **Google Business Profil:** Aktiv, verifiziert via DNS
+  - Adressänderung ausstehend (Wartung/Verifizierung via Google Meet nötig)
+  - Toggle „Unternehmensadresse für Kunden einblenden" = AUS
+- **Google Bewertungs-Button:** Echter Google-Style Button auf Startseite (weiß, G-Logo, Sterne)
+
+---
+
+## CLOUDFLARE SETUP
+- **Worker:** bvlanding → serviert die statische Website
+- **Custom Domain:** bv-aussensysteme.de (direkt am Worker)
+- **www-Redirect:** Redirect Rule „Redirect from WWW to root" (Active) + CNAME www → bv-aussensysteme.de
+- **DNS Records:**
+  - Worker: bv-aussensysteme.de → bvlanding (Proxied)
+  - CNAME: www → bv-aussensysteme.de (Proxied)
+  - MX: mx00/mx01.ionos.de (E-Mail via Ionos)
+  - TXT: google-site-verification + SPF
+- **Wartungsfenster:** 22.06.2026 12:00-13:00 UTC (kurzer Ausfall war normal)
+
+---
+
+## OFFENE AUFGABEN
+
+### Nach Gründung (Pflicht)
+- [ ] Impressum: Straße, USt-ID, Handelsregisternummer nachtragen
 - [ ] AGB: Straße im Widerrufsrecht ergänzen
+- [ ] Google Business: Adress-Verifizierung via Google Meet abschließen
+- [ ] Google Business: „Vorübergehend geschlossen" auf „Geöffnet" stellen
 - [ ] Rahmenliefervertrag VD unterschreiben → Händlerportal-Bilder dürfen dann verwendet werden
-- [ ] Trustindex Widget einbauen nach erster Google-Bewertung
-- [ ] Google Search Console: sitemap.xml einreichen
-- [ ] „Vorübergehend geschlossen" → Geöffnet stellen bei Google Business
-- [ ] "Vorübergehend geschlossen" entfernen sobald gegründet
 
----
-
-## GOOGLE BUSINESS
-- **Profil:** BV AussenSysteme, Dernbach
-- **Kategorien:** Anbieter v. Terrassenüberdachungen (PRIMÄR), + 6 weitere
-- **Einzugsgebiet:** Westerwaldkreis, Montabaur, Neuwied, Altenkirchen, Hachenburg, Bad Marienberg, Westerburg, Ransbach-Baumbach, Pleckhausen, Horhausen, Limburg an der Lahn, Koblenz
-- **Bewertungslink:** https://g.page/r/CQh4XlvW-1nEEBM/review
-
----
-
-## PRODUKTBILDER (in images/)
-Aus VD-Katalog-PDF + Screenshots von vd-alusysteme.de extrahiert:
-- prod_terrasse_tds.jpg, prod_terrasse_skyview.jpg
-- prod_carport_tds.jpg, prod_carport_flatline.jpg, prod_carport_flatbox.jpg
-- prod_pergola_velaris.jpg, prod_pergola_sunpro.jpg, prod_pergola_warema.jpg
-- prod_kaltwintergarten_tds.jpg
-- prod_sonnenschutz.jpg
-- prod_gelaender_glas.jpg, prod_gelaender_easyrail.jpg
-- prod_eingang_fly.jpg, prod_eingang_frontline.jpg, prod_eingang_frontline2.jpg
-- prod_balkon_tds.jpg, prod_gartenhaus.jpg, prod_fahrrad.jpg
-- prod_sichtschutz.jpg, prod_fassade.jpg, prod_faltdach.jpg
-- Galerie-Fotos: galerie-1/2/3.jpg (echte Fotos der Terrasse der Eltern)
-
----
-
-## LETZTER ZIP-STAND
-Die fertige ZIP liegt immer als Output bereit.
-Im neuen Chat: "Kannst du mir die aktuelle ZIP geben?" – dann muss Claude die Dateien 
-aus dem internen Arbeitsverzeichnis `/home/claude/bv-aussensysteme/` neu packen.
-
-**WICHTIG FÜR NEUEN CHAT:**
-Der neue Chat hat KEINEN Zugriff auf die alten Dateien. 
-Alexander muss die ZIP aus diesem Chat herunterladen und ggf. hochladen,
-oder die Änderungen direkt auf GitHub machen.
+### Geplant / Nice-to-have
+- [ ] Trustindex Widget einbauen (nach erster Google-Bewertung)
+- [ ] Terminbuchung: Cal.com mit Google Calendar (wenn auf Google Calendar umgestellt)
+  - Aktuell: TimeTree (kein Cal.com-Sync möglich)
+  - Plan: Google Calendar testen, dann Cal.com einbinden
+- [ ] Produktbilder: Durch echte Fotos ersetzen (aktuell Platzhalter aus VD-Screenshots)
+- [ ] Galerie: Mit echten Referenzfotos befüllen
+- [ ] 3D Konfigurator: Entwickeln lassen wenn Budget vorhanden
+- [ ] Weitere Partner zur partner.html hinzufügen
 
 ---
 
 ## WAS GUT FUNKTIONIERT
-- ✅ Website live auf bv-aussensysteme.de
-- ✅ GitHub Pages aktiv (Repository public)
+- ✅ Website live, 100/100 Ionos Score (Präsenz, Gefunden, Abgesichert, Schnell)
+- ✅ Google indexiert, Search Console aktiv
 - ✅ Formspree-Formular funktioniert
-- ✅ Cookie-Banner DSGVO-konform
-- ✅ SEO: Schema.org (LocalBusiness, FAQ, HowTo), Sitemap, robots.txt
-- ✅ Mobile-responsive
-- ✅ 3 Sprachen DE/EN/RU
-- ✅ FAQ mit 16 Fragen (DE/EN/RU übersetzt)
-- ✅ AGB-Seite vorhanden
-- ✅ Einzugsgebiet-Karte (Leaflet.js)
-- ✅ 7 Produktseiten mit echten Produktfotos
+- ✅ Cookie-Banner (localStorage-basiert, Cloudflare-kompatibel)
+- ✅ Beta-Hinweis-Modal beim ersten Besuch
+- ✅ Hero-Slider mit 4 Slides (6,5s, Touch, Swipe, Ken Burns)
+- ✅ Barrierefreiheits-Widget (8 Funktionen, rechts unten)
+- ✅ Partner-Seite mit VD AluSysteme Logo
+- ✅ Einzugsgebiet-Karte mit BV-Logo als Marker
+- ✅ SEO: Schema.org, Sitemap, robots.txt
+- ✅ Mobile-responsive (Audit durchgeführt)
+- ✅ 7 Produktseiten
+- ✅ Pflegehinweise-Seite
+- ✅ Konfigurator-Platzhalter
+- ✅ Google-Style Bewertungsbutton
+- ✅ /kontakt Redirect
+- ✅ Barrierefreiheits-Widget stoppt Hero-Slider bei „Animationen stoppen"
+
+---
+
+## WICHTIG FÜR NEUEN CHAT
+1. ZIP hochladen und entpacken
+2. Diese PROJEKTSTAND.md lesen
+3. Änderungen immer in `/home/claude/bv-aussensysteme/` vornehmen
+4. Am Ende ZIP neu packen: `cd /home/claude && zip -r /mnt/user-data/outputs/bv-aussensysteme.zip bv-aussensysteme/`
+5. **PROJEKTSTAND.md nach jeder Änderung aktualisieren**
+6. Auf GitHub: Dateien direkt ins Repository hochladen (kein Git nötig, Upload via Web-UI)
+7. Nach GitHub-Upload: Cloudflare Purge Everything (Cache leeren)
