@@ -23,12 +23,10 @@
     var total = slides.length;
     index = ((index % total) + total) % total;
     slides[current].classList.remove('hs-slide--active');
-    dots[current].classList.remove('hs-dot--active');
-    dots[current].setAttribute('aria-selected', 'false');
+    if (dots[current]) { dots[current].classList.remove('hs-dot--active'); dots[current].setAttribute('aria-selected', 'false'); }
     current = index;
     slides[current].classList.add('hs-slide--active');
-    dots[current].classList.add('hs-dot--active');
-    dots[current].setAttribute('aria-selected', 'true');
+    if (dots[current]) { dots[current].classList.add('hs-dot--active'); dots[current].setAttribute('aria-selected', 'true'); }
   }
 
   function go(index) {
