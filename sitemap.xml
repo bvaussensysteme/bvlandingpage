@@ -1,227 +1,87 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<script>
-/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
-(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
-</script>
-<style>
-.a11y-pre-links a{text-decoration:underline!important;}
-.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
-</style>
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner | BV AussenSysteme</title>
-  <meta name="description" content="Unsere Partner – BV AussenSysteme arbeitet mit führenden Herstellern und Lieferanten zusammen." />
-  <meta name="robots" content="index, follow" />
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
-  <meta name="theme-color" content="#C49A2A" />
-  <style>
-  /* Fallback fonts bis Google Fonts geladen */
-  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
-  body { font-family: 'Arial', sans-serif; }
-</style>
-<script>
-/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
-(function(){
-  function loadFonts(){
-    if(document.getElementById('gfonts-loaded')) return;
-    var l = document.createElement('link');
-    l.id = 'gfonts-loaded';
-    l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
-    document.head.appendChild(l);
-  }
-  try {
-    var consent = localStorage.getItem('bv_cookie_consent');
-    if(consent && consent !== 'rejected') loadFonts();
-    // Listen for consent being given
-    window.addEventListener('bv_consent_given', loadFonts);
-  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
-})();
-</script>
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .partner-page { max-width: 860px; margin: 0 auto; }
-    .partner-page h2 { margin-bottom: 12px; }
-    .partner-page .page-intro {
-      color: var(--muted); font-size: 1rem; line-height: 1.7;
-      margin-bottom: 48px; max-width: 600px;
-    }
-    .partner-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 24px;
-    }
-    .partner-card {
-      background: var(--white);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 32px 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .partner-card:hover {
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-      transform: translateY(-2px);
-    }
-    .partner-logo-wrap {
-      background: var(--offwhite);
-      border-radius: 10px;
-      padding: 20px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 4px;
-    }
-    .partner-logo-img {
-      max-width: 220px;
-      max-height: 60px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-    }
-    .partner-card-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .partner-icon {
-      width: 52px; height: 52px;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem;
-      flex-shrink: 0;
-    }
-    .partner-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--black);
-      line-height: 1.2;
-    }
-    .partner-category {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--gold-dark);
-      margin-top: 2px;
-    }
-    .partner-divider {
-      height: 2px;
-      background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
-      border-radius: 1px;
-      opacity: 0.4;
-    }
-    .partner-description {
-      font-size: 0.91rem;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-    .partner-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--gold-dark);
-      font-size: 0.88rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: color 0.2s;
-      margin-top: auto;
-    }
-    .partner-link:hover { color: var(--gold); }
-    .partner-link svg {
-      width: 14px; height: 14px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    @media (max-width: 600px) {
-      .partner-grid { grid-template-columns: 1fr; }
-      .partner-card { padding: 24px 20px; }
-    }
-  </style>
-</head>
-<body>
-
-<nav class="navbar" role="navigation" aria-label="Navigation">
-  <div class="container navbar-inner">
-    <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
-    </a>
-    <ul class="nav-links">
-      <li><a href="/">← Zurück zur Startseite</a></li>
-    </ul>
-  </div>
-</nav>
-
-<main>
-<section class="section">
-  <div class="container partner-page">
-
-    <p class="tag">Vertrauen & Qualität</p>
-    <h2>Unsere Partner</h2>
-    <p class="page-intro">
-      Wir arbeiten ausschließlich mit geprüften Herstellern und Lieferanten zusammen,
-      deren Qualität wir persönlich kennen und vertreten. So garantieren wir Ihnen
-      Produkte, die halten was sie versprechen.
-    </p>
-
-    <div class="partner-grid">
-
-      <!-- VD AluSysteme -->
-      <div class="partner-card">
-        <div class="partner-logo-wrap">
-          <img src="images/partner-vd-alusysteme.png" alt="VD AluSysteme Dietrich GmbH Logo" class="partner-logo-img" />
-        </div>
-        <div class="partner-divider"></div>
-        <div class="partner-card-header">
-          <div>
-            <div class="partner-name">VD AluSysteme Dietrich GmbH</div>
-            <div class="partner-category">Hersteller · Aluminium-Systeme</div>
-          </div>
-        </div>
-        <div class="partner-divider"></div>
-        <p class="partner-description">
-          Führender Hersteller hochwertiger Aluminium-Außensysteme –
-          Terrassenüberdachungen, Carports, Pergolen, Kaltwintergärten,
-          Geländer und mehr. Alle Produkte werden direkt ab Werk geliefert
-          und sind exakt nach Maß gefertigt.
-        </p>
-        <a href="https://www.vd-alusysteme.de" target="_blank" rel="noopener noreferrer" class="partner-link">
-          vd-alusysteme.de besuchen
-          <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>
-      </div>
-
-      <!-- Platzhalter für weitere Partner -->
-      <!-- Weitere Partner können hier ergänzt werden -->
-
-    </div>
-
-  </div>
-</section>
-</main>
-
-<footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
-    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
-    <p>
-      <a href="impressum.html" style="color:rgba(255,255,255,0.6)">Impressum</a> ·
-      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="datenschutz.html" style="color:rgba(255,255,255,0.6)">Datenschutz</a>
-    </p>
-  </div>
-</footer>
-
-<script src="js/accessibility.js"></script>
-</body>
-</html>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.bv-aussensysteme.de/</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/impressum.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/datenschutz.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.1</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/konfigurator.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/terrassenueberdachung.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/carport.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/pergola.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/kaltwintergarten.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/sonnenschutz.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/gelaender.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/eingangs%C3%BCberdachung.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/pflege.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/einzugsgebiet.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/agb.html</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

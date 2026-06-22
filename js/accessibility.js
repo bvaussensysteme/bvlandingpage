@@ -242,6 +242,22 @@
       '#bv-a11y-trigger svg { width: 22px; height: 22px; }',
       '@media (max-width: 600px) { #bv-a11y-trigger { bottom: 74px; right: 12px; width: 44px; height: 44px; } }',
 
+      /* ── Scroll-to-Top Button ── */
+      '#bv-scroll-top {',
+        'position: fixed; bottom: 138px; right: 16px; z-index: 999998;',
+        'width: 48px; height: 48px; border-radius: 50%;',
+        'background: #1a1a1a; color: #C49A2A;',
+        'border: 2px solid #C49A2A; cursor: pointer;',
+        'display: flex; align-items: center; justify-content: center;',
+        'box-shadow: 0 4px 16px rgba(0,0,0,0.3);',
+        'transition: all 0.2s ease, opacity 0.3s ease;',
+        'padding: 0; opacity: 0; pointer-events: none;',
+      '}',
+      '#bv-scroll-top.visible { opacity: 1; pointer-events: all; }',
+      '#bv-scroll-top:hover { background: #C49A2A; color: #000; transform: scale(1.08); }',
+      '#bv-scroll-top svg { width: 20px; height: 20px; stroke-width: 2.5; }',
+      '@media (max-width: 600px) { #bv-scroll-top { bottom: 128px; right: 12px; width: 44px; height: 44px; } }',
+
       /* ── Panel ── */
       '#bv-a11y-panel {',
         'position: fixed; bottom: 136px; right: 16px; z-index: 999999;',
@@ -516,6 +532,25 @@
     wrapper.setAttribute('aria-label', 'Barrierefreiheit');
     wrapper.innerHTML = buildTrigger() + buildPanel();
     document.body.appendChild(wrapper);
+
+    // Scroll-to-Top Button
+    var scrollBtn = document.createElement('button');
+    scrollBtn.id = 'bv-scroll-top';
+    scrollBtn.setAttribute('aria-label', 'Nach oben scrollen');
+    scrollBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+    scrollBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.body.appendChild(scrollBtn);
+
+    // Zeige Button erst wenn gescrollt
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 300) {
+        scrollBtn.classList.add('visible');
+      } else {
+        scrollBtn.classList.remove('visible');
+      }
+    }, { passive: true });
 
     bindEvents(wrapper);
   }

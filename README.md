@@ -1,437 +1,105 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-<script>
-/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
-(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
-</script>
-<style>
-.a11y-pre-links a{text-decoration:underline!important;}
-.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
-</style>
+# BV AussenSysteme – Website
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Terrassendach Konfigurator | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Konfigurieren Sie Ihr Terrassendach in 3D – Maße, Farben, Material und Preisindikation direkt online. BV AussenSysteme im Westerwald." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/konfigurator.html" />
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
-  <meta name="theme-color" content="#C49A2A" />
-  <style>
-  /* Fallback fonts bis Google Fonts geladen */
-  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
-  body { font-family: 'Arial', sans-serif; }
-</style>
-<script>
-/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
-(function(){
-  function loadFonts(){
-    if(document.getElementById('gfonts-loaded')) return;
-    var l = document.createElement('link');
-    l.id = 'gfonts-loaded';
-    l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
-    document.head.appendChild(l);
-  }
-  try {
-    var consent = localStorage.getItem('bv_cookie_consent');
-    if(consent && consent !== 'rejected') loadFonts();
-    // Listen for consent being given
-    window.addEventListener('bv_consent_given', loadFonts);
-  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
-})();
-</script>
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .konfigurator-page {
-      min-height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-    }
-    .kp-inner {
-      max-width: 700px;
-      width: 100%;
-      text-align: center;
-    }
-    .kp-badge {
-      display: inline-block;
-      background: rgba(196,154,42,0.12);
-      color: var(--gold-dark);
-      font-size: 0.8rem; font-weight: 700;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      padding: 5px 14px; border-radius: 100px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(196,154,42,0.3);
-    }
-    .kp-icon {
-      font-size: 5rem;
-      margin-bottom: 20px;
-      display: block;
-      filter: grayscale(0.2);
-    }
-    .kp-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 800; color: var(--black);
-      margin-bottom: 16px; line-height: 1.1;
-    }
-    .kp-sub {
-      font-size: 1rem; color: var(--muted);
-      line-height: 1.7; margin-bottom: 36px;
-      max-width: 540px; margin-left: auto; margin-right: auto;
-    }
-    /* Progress timeline */
-    .kp-timeline {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      margin-bottom: 44px;
-      position: relative;
-    }
-    .kp-timeline::before {
-      content: '';
-      position: absolute;
-      top: 20px; left: 15%; right: 15%;
-      height: 2px;
-      background: var(--border);
-    }
-    .kp-step {
-      flex: 1; max-width: 160px;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
-    .kp-step-dot {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; margin: 0 auto 10px;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800; font-size: 1.1rem;
-    }
-    .kp-step-dot.done   { background: var(--gold); color: var(--black); }
-    .kp-step-dot.active { background: var(--black); color: var(--gold); border: 2px solid var(--gold); }
-    .kp-step-dot.todo   { background: var(--border); color: var(--muted); }
-    .kp-step-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
-    .kp-step-label.active { color: var(--black); font-weight: 600; }
+Offizielle Website von BV AussenSysteme – Ihr Spezialist für Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz im Westerwald.
 
-    /* Notify form */
-    .kp-notify {
-      background: var(--black);
-      border-radius: 14px;
-      padding: 32px 36px;
-      border: 1px solid rgba(196,154,42,0.25);
-      margin-bottom: 28px;
-    }
-    .kp-notify h3 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.4rem; font-weight: 700;
-      color: var(--white); margin-bottom: 8px;
-    }
-    .kp-notify p { font-size: 0.88rem; color: rgba(255,255,255,0.6); margin-bottom: 20px; }
-    .kp-notify-row { display: flex; gap: 10px; }
-    .kp-notify-row input {
-      flex: 1; padding: 12px 16px;
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
-      border-radius: var(--radius);
-      color: var(--white); font-family: 'Inter', sans-serif;
-      font-size: 0.93rem; outline: none;
-      transition: border-color 0.2s;
-    }
-    .kp-notify-row input:focus { border-color: var(--gold); }
-    .kp-notify-row button {
-      padding: 12px 22px;
-      background: var(--gold); color: var(--black);
-      border: none; border-radius: var(--radius);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700; font-size: 1rem;
-      cursor: pointer; white-space: nowrap;
-      transition: background 0.2s;
-    }
-    .kp-notify-row button:hover { background: var(--gold-dark); color: var(--white); }
-    #kpMsg { font-size: 0.82rem; margin-top: 10px; min-height: 18px; color: var(--gold); }
+🌐 **Live:** https://bv-aussensysteme.de
 
-    /* Preview features */
-    .kp-features {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 14px; margin-bottom: 28px;
-      max-width: 700px; margin-left: auto; margin-right: auto;
-    }
-    .kp-feature {
-      background: var(--offwhite);
-      border-radius: 10px; padding: 18px;
-      text-align: center; display: flex; flex-direction: column;
-      gap: 8px; align-items: center;
-      border: 1px solid var(--border);
-    }
-    .kp-feature span { font-size: 1.8rem; flex-shrink: 0; }
-    .kp-feature strong { display: block; font-size: 0.9rem; color: var(--black); margin-bottom: 3px; }
-    .kp-feature p { font-size: 0.8rem; color: var(--muted); margin: 0; }
+---
 
-    /* 3D Preview mockup */
-    .kp-preview-box {
-      background: linear-gradient(135deg, var(--black) 0%, #2a2a2a 100%);
-      border-radius: 14px; padding: 48px 20px;
-      margin-bottom: 32px;
-      border: 1px solid rgba(196,154,42,0.2);
-      position: relative; overflow: hidden;
-    }
-    .kp-preview-box::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 20px,
-        rgba(196,154,42,0.03) 20px,
-        rgba(196,154,42,0.03) 40px
-      );
-    }
-    .kp-preview-content { position: relative; z-index: 1; }
-    .kp-preview-content .big-icon { font-size: 5rem; display: block; margin-bottom: 12px; }
-    .kp-preview-content p { color: rgba(255,255,255,0.5); font-size: 0.88rem; }
-    .kp-coming-tag {
-      display: inline-block;
-      background: rgba(196,154,42,0.15);
-      color: var(--gold);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700; font-size: 0.85rem;
-      letter-spacing: 1px; padding: 6px 14px;
-      border-radius: 100px; margin-top: 12px;
-      border: 1px solid rgba(196,154,42,0.3);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.6; }
-    }
+## 📁 Projektstruktur
 
-    @media (max-width: 500px) {
-      .kp-features { grid-template-columns: 1fr; }
-      .kp-notify { padding: 22px 18px; }
-      .kp-notify-row { flex-direction: column; }
-      .kp-timeline { display: none; }
-    }
-  </style>
-</head>
-<body>
+```
+bv-aussensysteme/
+├── index.html                  ← Startseite mit Hero-Slider
+├── agb.html                    ← AGB
+├── datenschutz.html            ← Datenschutzerklärung
+├── impressum.html              ← Impressum (Gründung in Vorbereitung)
+├── konfigurator.html           ← 3D Konfigurator (Platzhalter)
+├── pflege.html                 ← Pflegehinweise
+├── einzugsgebiet.html          ← Einzugsgebiet-Karte (Leaflet.js)
+├── partner.html                ← Partnerseite
+├── kontakt.html                ← Redirect → /#kontakt
+├── sitemap.xml
+├── robots.txt
+├── PROJEKTSTAND.md             ← Vollständiger Projektstand für KI-Chats
+├── css/
+│   └── style.css               ← Alle Styles
+├── js/
+│   ├── main.js                 ← FAQ, Hamburger, Sticky CTA, Formspree
+│   ├── cookie.js               ← DSGVO Cookie-Banner
+│   ├── accessibility.js        ← Barrierefreiheits-Widget
+│   └── slider.js               ← Hero-Slider
+├── images/
+│   ├── logo-hell.png           ← Logo für Navbar
+│   ├── logo-dunkel.png         ← Logo für Footer
+│   ├── marker-logo.png         ← BV-Logo für Kartenmarker
+│   ├── partner-vd-alusysteme.png
+│   └── prod_*.jpg              ← 21 Produktbilder (800×600)
+└── produkte/
+    ├── terrassenueberdachung.html
+    ├── carport.html
+    ├── pergola.html
+    ├── kaltwintergarten.html
+    ├── sonnenschutz.html
+    ├── gelaender.html
+    └── eingangsüberdachung.html
+```
 
-<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
-  <div class="container navbar-inner">
-    <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
-    </a>
-    <ul class="nav-links">
-      <li><a href="/#leistungen">Leistungen</a></li>
-      <li><a href="konfigurator.html" style="color:var(--gold);font-weight:600;">🛠 Konfigurator</a></li>
-      <li><a href="/#warum-wir">Über uns</a></li>
-      <li><a href="/#faq">FAQ</a></li>
-      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
-    </ul>
-    </div>
-    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</nav>
+---
 
-<div class="mobile-menu" id="mobileMenu">
-  <button class="mobile-close" id="mobileClose">✕</button>
-  <a href="/" onclick="closeMobile()">Startseite</a>
-  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
-  <a href="konfigurator.html" style="color:var(--gold)">🛠 Konfigurator</a>
-  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
-  <div class="mobile-lang-switcher">
-    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
-    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
-    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
-  </div>
-</div>
+## 🚀 Deployment
 
-<main>
-<div class="konfigurator-page">
-  <div class="kp-inner">
+**Hosting:** Cloudflare Worker „bvlanding"
+**GitHub:** Repository `bvaussensysteme/bvlandingpage` (Public)
 
-    <span class="kp-badge">🚀 In Entwicklung</span>
+### Änderungen veröffentlichen:
+1. Dateien im GitHub Repository aktualisieren (Web-UI Upload)
+2. Cloudflare Cache leeren: dash.cloudflare.com → bv-aussensysteme.de → Caching → **Purge Everything**
 
-    <!-- 3D Konfigurator Platzhalter -->
-    <div class="kp-sorry-box">
-      <div class="kp-sorry-icon">🏗️</div>
-      <h2 class="kp-sorry-title">Wir arbeiten mit Hochdruck daran!</h2>
-      <p class="kp-sorry-text">
-        Unser 3D Terrassendach-Konfigurator befindet sich aktuell in der Entwicklung
-        und steht leider noch nicht zur Verfügung. Wir bitten Sie um etwas Geduld –
-        er wird schon bald hier verfügbar sein.
-      </p>
-      <p class="kp-sorry-text">
-        In der Zwischenzeit beraten wir Sie gerne <strong>persönlich und kostenlos</strong>
-        direkt vor Ort – individuell, schnell und ohne Wartezeit.
-      </p>
-      <a href="/#kontakt" class="btn btn-gold" style="margin-top:8px;">
-        Jetzt kostenlos beraten lassen →
-      </a>
-    </div>
+---
 
-    <h1 class="kp-title">3D Terrassendach<br>Konfigurator</h1>
-    <p class="kp-sub">
-      Planen Sie Ihre Traumterrasse direkt online – Maße eingeben, Material wählen,
-      Farbe bestimmen und sofort in 3D sehen wie es aussieht.
-      Mit integrierter Preiskalkulation und direkter Anfragefunktion.
-    </p>
+## 🎨 Design
 
-    <!-- Roadmap Timeline -->
-    <div class="kp-timeline">
-      <div class="kp-step">
-        <div class="kp-step-dot done">✓</div>
-        <div class="kp-step-label">Website live</div>
-      </div>
-      <div class="kp-step">
-        <div class="kp-step-dot done">✓</div>
-        <div class="kp-step-label">Produkte & Beratung</div>
-      </div>
-      <div class="kp-step">
-        <div class="kp-step-dot active">3</div>
-        <div class="kp-step-label active">3D Konfigurator</div>
-      </div>
-      <div class="kp-step">
-        <div class="kp-step-dot todo">4</div>
-        <div class="kp-step-label">Online-Bestellung</div>
-      </div>
-    </div>
+| Element | Wert |
+|---------|------|
+| Gold | `#C49A2A` |
+| Gold Dark | `#9A7318` |
+| Schwarz | `#111111` |
+| Off-White | `#F5F2EB` |
+| Schrift Überschriften | Barlow Condensed 700/800 |
+| Schrift Text | Inter 400/500 |
 
-    <!-- Features Preview -->
-    <div class="kp-features">
-      <div class="kp-feature">
-        <span>📐</span>
-        <div>
-          <strong>Eigene Maße eingeben</strong>
-          <p>Breite, Tiefe & Höhe frei wählbar</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span>🎨</span>
-        <div>
-          <strong>Farben & Materialien</strong>
-          <p>Alle RAL-Farben, Glas, Lamellen oder Polycarbonat</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span>🖥️</span>
-        <div>
-          <strong>3D Echtzeit-Vorschau</strong>
-          <p>Realistische Darstellung aus allen Blickwinkeln</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span>💶</span>
-        <div>
-          <strong>Preisanfrage</strong>
-          <p>Konfiguration absenden – wir erstellen Ihr individuelles Angebot</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span>📤</span>
-        <div>
-          <strong>Direkte Anfrage</strong>
-          <p>Konfiguration als Anfrage senden</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span>📱</span>
-        <div>
-          <strong>Mobil & Desktop</strong>
-          <p>Funktioniert auf allen Geräten</p>
-        </div>
-      </div>
-    </div>
-    <!-- Notify Form -->
-    <div class="kp-notify">
-      <h3>🔔 Benachrichtigung beim Launch</h3>
-      <p>Tragen Sie Ihre E-Mail ein – wir informieren Sie sobald der Konfigurator verfügbar ist.</p>
-      <div class="kp-notify-row">
-        <input type="email" id="kpEmail" placeholder="ihre@email.de" autocomplete="email" />
-        <button onclick="kpNotify()">Benachrichtigen</button>
-      </div>
-      <div id="kpMsg"></div>
-    </div>
+---
 
-    <a href="/#kontakt" class="btn btn-gold" style="font-size:1rem; padding:13px 28px; margin-right:10px;">
-      Jetzt persönlich beraten lassen
-    </a>
-    <a href="/" style="font-size:0.9rem; color:var(--muted); text-decoration:none;">
-      ← Zurück zur Startseite
-    </a>
+## ⚙️ Features
 
-  </div>
-</div>
-</main>
+- **Hero-Slider** – 4 Slides, 6,5s Auto-Slide, Touch/Swipe, Ken Burns Effekt
+- **Barrierefreiheits-Widget** – 8 Funktionen, rechts unten, localStorage
+- **Cookie-Banner** – DSGVO-konform, localStorage + Cookie Fallback
+- **Beta-Modal** – Erscheint beim ersten Besuch mit Kontaktinfos
+- **Einzugsgebiet-Karte** – Leaflet.js + BV-Logo als Marker
+- **Formspree-Formular** – ID `xnjkabdv` → info@bv-aussensysteme.de
+- **Google Bewertungsbutton** – Echter Google-Style Button
 
-<footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
-    <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
-    <p>
-      <a href="impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
-      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
-    </p>
-  </div>
-</footer>
+---
 
-<script src="js/main.js"></script>
-<script src="js/i18n.js"></script>
-<script src="js/cookie.js"></script>
-<script>
-  function kpNotify() {
-    var email  = document.getElementById('kpEmail').value.trim();
-    var msg    = document.getElementById('kpMsg');
-    var btn    = document.querySelector('.kp-notify-row button');
+## 📋 Offene Aufgaben
 
-    if (!email || !email.includes('@')) {
-      msg.style.color = '#e05555';
-      msg.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
-      return;
-    }
+### Nach Gründung (Pflicht)
+- [ ] Impressum vervollständigen (USt-ID, Handelsregisternummer)
+- [ ] Google Business Verifizierung via Google Meet abschließen
+- [ ] Google Business auf „Geöffnet" stellen
 
-    btn.disabled    = true;
-    btn.textContent = 'Wird gesendet …';
-    msg.textContent = '';
+### Geplant
+- [ ] Trustindex Widget (nach erster Bewertung)
+- [ ] Terminbuchung via Cal.com + Google Calendar
+- [ ] Echte Produktfotos einbauen
+- [ ] 3D Konfigurator entwickeln lassen
 
-    var formData = new FormData();
-    formData.append('email',     email);
-    formData.append('_subject',  'Konfigurator Launch-Benachrichtigung – ' + email);
-    formData.append('nachricht', 'Diese E-Mail möchte beim Launch des 3D Konfigurators benachrichtigt werden.');
+---
 
-    fetch('https://formspree.io/f/xnjkabdv', {
-      method:  'POST',
-      body:    formData,
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data.ok) {
-        msg.style.color = '#C49A2A';
-        msg.textContent = '✓ Danke! Wir benachrichtigen Sie sobald der Konfigurator verfügbar ist.';
-        btn.textContent = 'Eingetragen ✓';
-        document.getElementById('kpEmail').value = '';
-      } else {
-        throw new Error('Fehler');
-      }
-    })
-    .catch(function() {
-      msg.style.color = '#e05555';
-      msg.textContent = 'Fehler beim Senden. Bitte schreiben Sie uns: info@bv-aussensysteme.de';
-      btn.disabled    = false;
-      btn.textContent = 'Benachrichtigen';
-    });
-  }
-</script>
-<script src="js/accessibility.js"></script>
-</body>
-</html>
+## 📞 Kontakt
+
+- **Tel:** 015678 696609
+- **E-Mail:** info@bv-aussensysteme.de
+- **WhatsApp:** https://wa.me/4915678696609

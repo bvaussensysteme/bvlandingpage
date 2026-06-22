@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+<script>
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
+(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
+</script>
+<style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eingangsüberdachung & Vordach | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Eingangsüberdachungen und Vordächer im Westerwald – Vordach FLY, TDS und Front Line von BV AussenSysteme. Aluminium, maßgefertigt." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/eingangsüberdachung.html" />
-  <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
-  <meta name="theme-color" content="#C49A2A" />
+  <title>AGB – Allgemeine Geschäftsbedingungen | BV AussenSysteme</title>
+  <meta name="description" content="Allgemeine Liefer- und Montagebedingungen der BV AussenSysteme, Alexander Becker, Dernbach (Westerwald)." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
   <style>
   /* Fallback fonts bis Google Fonts geladen */
   :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
@@ -36,66 +43,30 @@
   } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
 })();
 </script>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="css/style.css" />
   <style>
-    .produkt-hero {
-      background: var(--black); padding: 60px 0 50px;
-      border-bottom: 3px solid var(--gold); position: relative;
+    .legal-hero { background:var(--black); padding:52px 0 44px; border-bottom:3px solid var(--gold); }
+    .legal-hero h1 { color:var(--white); font-size:clamp(1.8rem,4vw,2.8rem); }
+    .legal-hero p  { color:rgba(255,255,255,0.6); font-size:0.88rem; margin-top:8px; }
+    .legal-body { max-width:820px; margin:0 auto; padding:48px 0 64px; }
+    .legal-body h2 {
+      font-family:'Barlow Condensed',sans-serif; font-size:1.25rem; font-weight:700;
+      color:var(--black); margin:36px 0 10px; padding-bottom:6px;
+      border-bottom:2px solid var(--gold);
     }
-    .produkt-hero::after {
-      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
-      background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+    .legal-body h3 { font-size:0.97rem; font-weight:600; color:var(--black); margin:18px 0 5px; }
+    .legal-body p  { font-size:0.89rem; color:var(--text); line-height:1.8; margin-bottom:10px; }
+    .legal-body ul { padding-left:20px; margin-bottom:10px; }
+    .legal-body ul li { font-size:0.89rem; color:var(--text); line-height:1.8; margin-bottom:4px; }
+    .legal-note {
+      background:#fff8e6; border-left:4px solid var(--gold); border-radius:6px;
+      padding:14px 18px; margin:20px 0; font-size:0.86rem; color:#7a5a10; line-height:1.65;
     }
-    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
-    .breadcrumb a { color: var(--gold); text-decoration: none; }
-    .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
-    .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
-    .produkt-grid {
-      display: grid; grid-template-columns: repeat(2,1fr);
-      gap: 28px; margin-top: 48px;
+    .widerruf-box {
+      background:var(--offwhite); border:1px solid var(--border); border-radius:10px;
+      padding:24px 28px; margin-top:36px;
     }
-    .produkt-card {
-      background: var(--white); border-radius: 12px; overflow: hidden;
-      box-shadow: var(--shadow); border: 1px solid var(--border);
-      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-    }
-    .produkt-card:hover {
-      transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-    }
-    .produkt-card-img {
-      height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 4rem; position: relative;
-    }
-    .produkt-card-img::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-      height: 3px; background: var(--gold);
-    }
-    .produkt-card-img img {
-      width: 100%; height: 100%; object-fit: cover;
-    }
-    .produkt-card-img .img-coming {
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-    }
-    .produkt-card-img .img-coming span { font-size: 3rem; }
-    .produkt-card-img .img-coming p { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-    .produkt-card-body { padding: 24px; }
-    .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; color: var(--black); }
-    .produkt-card-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
-    .produkt-tag {
-      display: inline-block; background: rgba(196,154,42,0.1);
-      color: var(--gold-dark); font-size: 0.75rem; font-weight: 700;
-      padding: 3px 10px; border-radius: 100px; margin-bottom: 10px;
-      border: 1px solid rgba(196,154,42,0.25);
-    }
-    .produkt-features { list-style: none; margin-bottom: 18px; }
-    .produkt-features li {
-      font-size: 0.85rem; color: var(--muted); padding: 4px 0;
-      border-bottom: 1px solid var(--border); display: flex; gap: 8px;
-    }
-    .produkt-features li:last-child { border-bottom: none; }
-    .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
-    @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
+    .widerruf-box h3 { font-family:'Barlow Condensed',sans-serif; font-size:1.15rem; margin-bottom:10px; }
   </style>
 </head>
 <body>
@@ -103,16 +74,15 @@
 <nav class="navbar" role="navigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="../images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
+      <img src="images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
       <li><a href="/#galerie">Galerie</a></li>
       <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
       <li><a href="/#faq">FAQ</a></li>
-      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
+      <li><a href="/#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
-    </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
     </button>
@@ -123,100 +93,123 @@
   <button class="mobile-close" id="mobileClose">✕</button>
   <a href="/" onclick="closeMobile()">Startseite</a>
   <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
-  <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
-  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
-  <div class="mobile-lang-switcher">
-    <button onclick="chooseLang('de');closeMobile()">🇩🇪 Deutsch</button>
-    <button onclick="chooseLang('en');closeMobile()">🇬🇧 English</button>
-    <button onclick="chooseLang('ru');closeMobile()">🇷🇺 Русский</button>
-  </div>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta">Jetzt anfragen</a>
 </div>
 
-<header class="produkt-hero">
+<header class="legal-hero">
   <div class="container">
-    <p class="breadcrumb">
-      <a href="/">Startseite</a> › <a href="/#leistungen">Leistungen</a> › Eingangsüberdachung & Vordach
-    </p>
-    <p class="tag">Unsere Leistungen</p>
-    <h1>Eingangsüberdachung & Vordach</h1>
-    <p>Gestalten Sie Ihren Eingangsbereich stilvoll und funktional. Unsere Vordächer und Eingangsüberdachungen aus Aluminium schützen zuverlässig vor Regen und setzen optische Akzente an Ihrer Hausfassade.</p>
-    <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
-      <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
-      <a href="/#faq" class="btn btn-outline-white">Häufige Fragen</a>
-    </div>
+    <p class="tag">Rechtliches</p>
+    <h1>Allgemeine Geschäftsbedingungen</h1>
+    <p>BV AussenSysteme · Alexander Becker · Dernbach (Westerwald) · Stand: Juni 2026</p>
   </div>
 </header>
 
 <main>
 <section class="section">
-  <div class="container">
-    <p class="tag">Unsere Modelle</p>
-    <h2 style="margin-bottom:8px;">Eingangsüberdachung & Vordach – unsere Modelle</h2>
-    <p style="color:var(--muted);margin-bottom:0;">Alle Produkte werden maßgefertigt, CE-zertifiziert und mit Statiknachweis geliefert.</p>
+<div class="container">
+<div class="legal-body">
 
-    <div class="produkt-grid">
-      <div class="produkt-card">
-        <div class="produkt-card-img">
-          <img src="../images/prod_eingang_fly.jpg" alt="Vordach FLY – elegant und wetterfest" loading="lazy" width="800" height="500" />
-          </div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Eingang</span>
-          <h2>Vordach FLY</h2>
-          <p>Das Vordach FLY ist die elegante Lösung für Ihren Eingangsbereich. Das schlanke, moderne Design macht es zum Hingucker – gleichzeitig schützt es zuverlässig vor Regen und Witterung.</p>
-          <ul class="produkt-features">
-            <li>Schlankes, modernes Design</li>
-            <li>Aluminium, maßgefertigt</li>
-            <li>Polycarbonat oder Glaseindeckung</li>
-            <li>Wandmontage</li>
-            <li>Verschiedene Farben</li>
-            <li>10 Jahre Herstellergarantie</li>
-          </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonstiges / allgemeine Beratung';return true;"
-             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
-            Jetzt anfragen →
-          </a>
-        </div>
-      </div>
-      <div class="produkt-card">
-        <div class="produkt-card-img">
-          <img src="../images/prod_eingang_frontline.jpg" alt="Eingangsüberdachung Front Line – flexibel und modern" loading="lazy" width="800" height="500" />
-          </div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Eingang</span>
-          <h2>Eingangsüberdachung TDS</h2>
-          <p>Die Eingangsüberdachung TDS basiert auf dem bewährten TDS-System und bietet maximalen Schutz am Eingangsbereich. Robust, wetterfest und in allen RAL-Farben erhältlich.</p>
-          <ul class="produkt-features">
-            <li>Bewährtes TDS-System</li>
-            <li>Maximaler Witterungsschutz</li>
-            <li>Polycarbonat oder Glaseindeckung</li>
-            <li>Alle RAL-Farben</li>
-            <li>Maßgefertigt</li>
-            <li>10 Jahre Herstellergarantie</li>
-          </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonstiges / allgemeine Beratung';return true;"
-             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
-            Jetzt anfragen →
-          </a>
-        </div>
-      </div>
+  <p><strong>Allgemeine Liefer- und Montagebedingungen der BV AussenSysteme (Inhaber: Alexander Becker)</strong><br>
+  – für den Geschäftsverkehr mit Verbrauchern –</p>
 
-    </div>
+  <h2>§ 1 Geltungsbereich</h2>
+  <p><strong>1.1.</strong> Diese Allgemeinen Liefer- und Montagebedingungen (nachfolgend „AMB") finden Anwendung auf sämtliche Vertragsbeziehungen zwischen BV AussenSysteme und Kunden, die als Verbraucher handeln. Als Verbraucher gilt gemäß § 13 BGB jede natürliche Person, die Verträge zu privaten Zwecken abschließt, also nicht im Rahmen einer gewerblichen oder selbständigen beruflichen Tätigkeit.</p>
+  <p><strong>1.2.</strong> Der Anwendungsbereich dieser AMB beschränkt sich auf Liefer- und Montageverträge für unsere Produkte – darunter insbesondere Terrassenüberdachungen, Überdachungssysteme, Vordächer, Carports sowie Markisen- und Sonnenschutzanlagen.</p>
+  <p><strong>1.3.</strong> Es gelten ausschließlich diese AMB. Abweichende Bedingungen des Kunden erlangen nur dann Gültigkeit, wenn wir diesen ausdrücklich und schriftlich zugestimmt haben – ein stillschweigendes Akzeptieren ist ausgeschlossen.</p>
+  <p><strong>1.4.</strong> Rechtserhebliche Erklärungen und Anzeigen des Kunden in Bezug auf den Vertrag (z.B. Fristsetzung, Mängelanzeige, Rücktritt oder Minderung) sind schriftlich abzugeben. Schriftlichkeit schließt Schrift- und Textform (z.B. Brief, E-Mail, Telefax) ein.</p>
+  <p><strong>1.5.</strong> Hinweise auf die Geltung gesetzlicher Vorschriften haben nur klarstellende Bedeutung. Auch ohne eine derartige Klarstellung gelten die gesetzlichen Vorschriften, soweit sie in diesen AMB nicht unmittelbar abgeändert oder ausdrücklich ausgeschlossen werden.</p>
+  <p><strong>1.6.</strong> Der Gegenstand des Vertrages ergibt sich aus den in Textform dokumentierten Vereinbarungen in Verbindung mit etwaigen weiteren Unterlagen wie Angebot, Angebotsbestätigung, Zahlungsbedingungen, Aufmaßunterlagen. Ergänzend gelten diese AMB, soweit nicht abweichende Vereinbarungen getroffen wurden.</p>
+
+  <h2>§ 2 Vertragsschluss, Widerrufsrecht</h2>
+  <p><strong>2.1.</strong> Alle von uns unterbreiteten Angebote sind bis zu einer schriftlichen Auftragsbestätigung unverbindlich. Ein rechtswirksamer Vertrag entsteht erst mit unserer schriftlichen Bestätigung oder durch tatsächliche Leistungserbringung. Bleibt eine Rückmeldung unsererseits länger als 30 Tage nach Eingang der Bestellung aus, gilt diese als nicht angenommen.</p>
+  <p><strong>2.2.</strong> Wenn dem Kunden ein gesetzliches Widerrufsrecht zusteht, richtet sich dies nach den jeweils einschlägigen gesetzlichen Vorschriften entsprechend der beiliegenden Widerrufsbelehrung.</p>
+  <p><strong>2.3.</strong> Soweit der Vertrag auf die Erbringung von sonstigen Dienstleistungen (z.B. die Errichtung eines Bauwerkes) gerichtet ist, behalten wir uns vor, bei Bestehen eines gesetzlichen Widerrufsrechts mit der Ausführung erst nach Ablauf der gesetzlichen Widerrufsfrist zu beginnen, soweit der Kunde nicht ausdrücklich verlangt, dass mit der Ausführung bereits vorher begonnen wird. In diesem Fall hat der Kunde im Falle eines Widerrufes Wertersatz für die bis zum Widerruf erbrachten Dienstleistungen zu bezahlen (§ 357a Abs. 2 BGB).</p>
+
+  <h2>§ 3 Ausführung und Abnahme</h2>
+  <p><strong>3.1.</strong> Vor Beginn der Montage nehmen wir gemeinsam mit dem Kunden ein Aufmaß vor Ort vor. Der Kunde ist dazu verpflichtet, uns auf örtliche Gegebenheiten hinzuweisen, die nicht unmittelbar erkennbar sind und die Ausführung oder Anlieferung beeinflussen könnten (insbesondere Besonderheiten des Baukörpers, des Fassadenaufbaus, des Baugrundes sowie im Baugrund verlegte Rohre oder Kabel).</p>
+  <p><strong>3.2.</strong> Wir sind berechtigt, die Leistungen ganz oder teilweise durch Dritte ausführen zu lassen.</p>
+  <p><strong>3.3.</strong> Nach Abschluss der Montage führen wir zusammen mit dem Kunden eine gemeinsame Inaugenscheinnahme der Vertragsleistung durch und erstellen ein schriftliches Abnahmeprotokoll. Der Kunde ist verpflichtet, die vertragsgemäß hergestellte Leistung abzunehmen. Wegen unwesentlicher Mängel kann die Abnahme nicht verweigert werden.</p>
+  <p><strong>3.4.</strong> Teilabnahmen von wesentlichen Teilen unserer Vertragsleistung sind zulässig und können von uns verlangt werden.</p>
+  <p><strong>3.5.</strong> Nimmt der Kunde die Vertragsleistung ab, obschon er den Mangel kennt, stehen ihm Nacherfüllungs-, Selbstvornahme-, Aufwendungsersatz- und Rücktrittsrechte nur zu, wenn er sich seine Rechte wegen des Mangels bei der Abnahme vorbehalten hat.</p>
+
+  <h2>§ 4 Hinweise zum Leistungsumfang und Mitwirkungspflichten</h2>
+  <p><strong>4.1.</strong> Der Anschluss von elektrisch betriebenen Liefergütern (z.B. LED-Beleuchtung, Heizstrahler, Elektromotoren von Markisenanlagen) ist nicht vom Vertragsgegenstand umfasst und darf nicht durch uns ausgeführt werden. Es obliegt dem Kunden, diese Leistungen entsprechend zu beauftragen.</p>
+  <p><strong>4.2.</strong> Unsere Leistungen basieren auf typenstatischen Berechnungen. Sollten darüber hinausgehende Planungen erforderlich sein, weisen wir den Kunden hierauf hin. Solche Planungsleistungen sind vom Kunden extern zu beauftragen und nicht im vereinbarten Preis enthalten.</p>
+  <p><strong>4.3.</strong> Die Entsorgung und der Abtransport von Erdaushub bei Fundamentarbeiten, Pflaster-, Betonier- oder sonstige Arbeiten für den Verschluss der Fundamentoberfläche sowie etwaig erforderliche Stein-, Pflaster- oder Holzausschnitte obliegen dem Kunden und sind nicht im Vertragsgegenstand enthalten.</p>
+  <p><strong>4.4.</strong> Wir weisen darauf hin, dass die Errichtung oder Änderung von baulichen Anlagen unter Umständen genehmigungspflichtig ist. Die Einholung etwaig erforderlicher Genehmigungen ist nicht im vereinbarten Preis enthalten. Der Kunde ist verpflichtet, auf eigene Kosten erforderliche Genehmigungen vor Bauausführung einzuholen.</p>
+  <p><strong>4.5.</strong> Der Kunde ist auf unsere Anfrage hin verpflichtet, nachzuweisen, dass er Eigentümer des Grundstücks ist, auf dem die Anlage errichtet werden soll. Andernfalls ist eine schriftliche Zustimmung des Eigentümers vorzulegen.</p>
+  <p><strong>4.6.</strong> Der Kunde ist verpflichtet, dafür zu sorgen, dass wir die Leistung frei von Behinderungen erbringen können. Dies gilt insbesondere für die Sicherung empfindlicher Flächen, freie Zugänge zur Baustelle, Mitteilung über unterirdische Leitungen sowie die Bereitstellung eines freien Zugangs zu Wasser- und Stromanschluss.</p>
+  <p><strong>4.7.</strong> Unterlässt der Kunde eine zur Herstellung des Werkes erforderliche Mitwirkung und gerät er dadurch in Annahmeverzug, können wir eine angemessene Entschädigung verlangen.</p>
+  <p><strong>4.8.</strong> Der Kunde ist verpflichtet, Dritte (z.B. andere Handwerker), die im Bereich der von uns zu montierenden Anlage tätig sind, entsprechend diesen Mitwirkungspflichten zu instruieren.</p>
+
+  <h2>§ 5 Preise und Zahlung</h2>
+  <p><strong>5.1.</strong> Der verbindliche Vertragspreis ergibt sich aus der Auftragsbestätigung und versteht sich in Euro inklusive der zum Zeitpunkt der Leistungserbringung geltenden gesetzlichen Mehrwertsteuer, sämtlicher Transport- und Verpackungskosten sowie der vereinbarten Montagekosten.</p>
+  <p><strong>5.2.</strong> Die Zahlungsmöglichkeiten werden dem Kunden im Angebot mitgeteilt. Rechnungsbeträge sind grundsätzlich innerhalb von 14 Kalendertagen nach Zugang der Rechnung zu begleichen. Wurde eine Vorauszahlung per Überweisung vereinbart, so ist diese binnen 7 Kalendertagen nach Rechnungsdatum fällig.</p>
+  <p><strong>5.3.</strong> Der Kunde kommt in Zahlungsverzug spätestens 30 Kalendertage nach Zugang und Fälligkeit einer Rechnung (§ 286 Abs. 3 BGB). Bei Zahlungsverzug sind wir berechtigt, die gesetzlichen Verzugszinsen geltend zu machen.</p>
+  <p><strong>5.4.</strong> Aufwendungen für geänderte oder zusätzliche Leistungen, die auf Veranlassung des Kunden nach unserer Auftragsbestätigung erfolgen, sind uns gesondert zu vergüten.</p>
+  <p><strong>5.5.</strong> Sofern unsere Leistungen aus Gründen, die wir nicht zu vertreten haben, erst sechs Monate oder später nach Vertragsschluss erbracht werden, sind wir berechtigt, angemessene Preisänderungen wegen veränderter Kosten vorzunehmen.</p>
+
+  <h2>§ 6 Leistungszeit</h2>
+  <p><strong>6.1.</strong> Die voraussichtliche Lieferfrist beträgt ca. 12 Wochen ab Vertragsabschluss – dies jedoch nur unter der Voraussetzung, dass der Kunde alle notwendigen Mitwirkungshandlungen rechtzeitig vorgenommen hat.</p>
+  <p><strong>6.2.</strong> Montagetermine sowie Terminänderungen sind zwischen dem Kunden und uns schriftlich zu vereinbaren. Ein verbindlicher Fertigstellungstermin muss von uns schriftlich bestätigt sein.</p>
+  <p><strong>6.3.</strong> Stellt sich während Lieferung oder Montage heraus, dass der Kunde seine Mitwirkungspflichten nicht erfüllt hat, bleibt diese Zeit bei der Berechnung von Fristen außer Betracht.</p>
+  <p><strong>6.4.</strong> Wir kommen nicht in Verzug, wenn wir aus Gründen, die wir nicht zu vertreten haben, selbst nicht beliefert werden. In diesem Fall informieren wir den Kunden schriftlich und vereinbaren einen neuen Termin.</p>
+  <p><strong>6.5.</strong> Verzögerungen aufgrund von Witterungsbedingungen oder höherer Gewalt (Streik, Naturkatastrophen, Pandemien, öffentliche Vorgaben etc.) bleiben bei der Berechnung von Fristen außer Betracht.</p>
+
+  <h2>§ 7 Eigentumsvorbehalt</h2>
+  <p>Die gelieferte Leistung bleibt bis zur vollen Bezahlung des vereinbarten Vertragspreises in unserem Eigentum.</p>
+
+  <h2>§ 8 Gewährleistung</h2>
+  <p><strong>8.1.</strong> Soweit sich aus den nachfolgenden Regelungen nichts anderes ergibt, gelten die Vorschriften der gesetzlichen Mängelhaftung.</p>
+  <p><strong>8.2.</strong> In unseren Prospekten, Anzeigen und sonstigen Angebotsunterlagen enthaltene Abbildungen oder Zeichnungen sind nur annähernd maßgebend. Herstellungsbedingte Abweichungen in Maßen, Farbtönungen und Gewichten sind im Rahmen der branchenüblichen Toleranzen zulässig und stellen keinen Mangel dar.</p>
+  <p><strong>8.3.</strong> Wir übernehmen keine Gewährleistung bei Schäden durch gewöhnliche Verschleißerscheinungen, unsachgemäße Behandlung, Nichtbeachtung von Sicherheitsvorkehrungen, Gewaltanwendung oder eigenmächtige Reparaturversuche des Kunden.</p>
+  <p><strong>8.4.</strong> Keine Mängel stellen folgende technisch-physikalisch bedingte Erscheinungen an Gläsern dar: farbige Spiegelungen (Interferenzen), optische Erscheinungen bei vorgespannten Gläsern sowie bei Isoliergläsern, Verzerrungen des äußeren Spiegelbildes bei Isoliergläsern.</p>
+  <p><strong>8.5.</strong> Voraussetzung für eine uns treffende Gewährleistungspflicht bei eloxierten und pulverbeschichteten Profilen ist, dass der Kunde eine ordnungsgemäße Pflege und Reinigung gemäß unseren Pflegehinweisen vorgenommen hat.</p>
+  <p><strong>8.6.</strong> Liegt ein Mangel vor und verlangt der Kunde Nacherfüllung, können wir nach unserer Wahl den Mangel beseitigen oder ein neues Werk herstellen. Wir können die Nacherfüllung verweigern, wenn sie nur mit unverhältnismäßigen Kosten möglich ist.</p>
+
+  <h2>§ 9 Haftung</h2>
+  <p><strong>9.1.</strong> Soweit sich aus diesen AMB nichts anderes ergibt, haften wir bei einer Verletzung von vertraglichen und außervertraglichen Pflichten nach den gesetzlichen Vorschriften.</p>
+  <p><strong>9.2.</strong> Auf Schadensersatz haften wir bei Vorsatz und grober Fahrlässigkeit. Bei einfacher Fahrlässigkeit haften wir, vorbehaltlich gesetzlicher Haftungsbeschränkungen, nur:</p>
+  <ul>
+    <li>für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit, sowie</li>
+    <li>für Schäden aus der Verletzung einer wesentlichen Vertragspflicht; in diesem Fall ist unsere Haftung auf den Ersatz des vorhersehbaren, typischerweise eintretenden Schadens begrenzt.</li>
+  </ul>
+  <p><strong>9.3.</strong> Die Haftungsbeschränkungen gelten nicht, soweit ein Mangel arglistig verschwiegen oder eine Garantie für die Beschaffenheit der Ware übernommen wurde und für Ansprüche nach dem Produkthaftungsgesetz.</p>
+  <p><strong>9.4.</strong> Wegen einer Pflichtverletzung, die nicht in einem Mangel besteht, kann der Kunde nur zurücktreten oder kündigen, wenn wir die Pflichtverletzung zu vertreten haben.</p>
+
+  <h2>§ 10 Kündigung und pauschale Vergütung</h2>
+  <p>Kündigt der Kunde den Vertrag aus einem Grund, den wir nicht zu vertreten haben, sind wir berechtigt, eine Aufwandsentschädigung von pauschal <strong>10 % des vereinbarten Gesamtpreises</strong> in Rechnung zu stellen. Sowohl dem Kunden als auch uns bleibt es unbenommen, einen abweichenden tatsächlichen Schaden – ob höher oder niedriger als die Pauschale – im Einzelfall nachzuweisen.</p>
+
+  <h2>§ 11 Datenschutz</h2>
+  <p>Im Rahmen der Vertrags- und Geschäftsbeziehung werden personenbezogene Daten im Sinne von Art. 4 Nr. 1 DS-GVO verarbeitet. Informationen zur Verarbeitung Ihrer Daten entnehmen Sie bitte unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+
+  <h2>§ 12 Rechtswahl</h2>
+  <p>Für diese AMB und die Vertragsbeziehung gilt das Recht der Bundesrepublik Deutschland unter Ausschluss internationalen Einheitsrechts, insbesondere des UN-Kaufrechts, soweit nicht zwingendes internationales Verbraucherschutzrecht entgegensteht.</p>
+
+  <!-- WIDERRUFSBELEHRUNG -->
+  <div class="widerruf-box">
+    <h3>Widerrufsrecht des Kunden</h3>
+    <p>Ausschließlich für Verbraucherinnen und Verbraucher gelten bei <strong>außerhalb von Geschäftsräumen geschlossenen Verträgen</strong> (§ 312b BGB) sowie bei <strong>Fernabsatzverträgen</strong> (§ 312c BGB) je nach Gegenstand des Vertrages die folgenden Widerrufsrechte:</p>
+
+    <h3>I. Verträge über die Lieferung von Waren</h3>
+    <p>(insbesondere alle Kauf-, Tausch- und Werklieferungsverträge, die auf den Erwerb beweglicher Sachen gerichtet sind, sowie die damit unmittelbar zusammenhängenden Dienstleistungen wie Installation und/oder Montage der gelieferten Ware)</p>
+    <p><strong>Widerrufsrecht:</strong> Sie haben das Recht, binnen 14 Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt 14 Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die letzte Ware in Besitz genommen haben bzw. hat.</p>
+    <p>Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (BV AussenSysteme, Alexander Becker, Am Driesch 1, 56428 Dernbach (Westerwald), Tel.: 015678696609, E-Mail: info@bv-aussensysteme.de) mittels einer eindeutigen Erklärung (z.B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren.</p>
+
+    <h3>II. Verträge über sonstige Dienstleistungen</h3>
+    <p>(Verträge über Dienstleistungen, die nicht im unmittelbaren Zusammenhang zu einer Warenlieferung stehen oder die eigenständig als zusätzliche Leistungen vereinbart wurden, z.B. die Errichtung eines Wintergartens oder eines sonstigen Bauwerks)</p>
+    <p><strong>Widerrufsrecht:</strong> Sie haben das Recht, binnen 14 Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt 14 Tage ab dem Tag des Vertragsabschlusses.</p>
+    <p>Haben Sie verlangt, dass die Dienstleistungen während der Widerrufsfrist beginnen sollen, so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichten, bereits erbrachten Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.</p>
   </div>
-</section>
 
-<!-- CTA -->
-<section style="background:var(--black);padding:56px 0;">
-  <div class="container" style="text-align:center;">
-    <p class="tag" style="color:var(--gold);">Ihr nächster Schritt</p>
-    <h2 style="color:var(--white);margin-bottom:12px;">Jetzt kostenlos beraten lassen</h2>
-    <p style="color:rgba(255,255,255,0.7);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;">
-      Wir kommen zu Ihnen in den Westerwald – Montabaur, Neuwied, Altenkirchen und Umgebung.
-      Unverbindlich, persönlich, ohne Wartezeit.
-    </p>
-    <a href="/#kontakt" class="btn btn-gold" style="font-size:1.1rem;padding:16px 36px;">
-      Anfrage starten →
-    </a>
-  </div>
+  <p style="margin-top:40px; font-size:0.85rem; color:var(--muted);">
+    <strong>BV AussenSysteme</strong> · Inhaber: Alexander Becker · Dernbach (Westerwald)<br>
+    Tel.: 015678696609 · E-Mail: info@bv-aussensysteme.de<br>
+    Stand: Juni 2026
+  </p>
+
+</div>
+</div>
 </section>
 </main>
 
@@ -224,15 +217,16 @@
   <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
     <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis</p>
     <p>
-      <a href="../impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
-      <a href="../agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="../datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
+      <a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+      <a href="impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
     </p>
   </div>
 </footer>
-<script src="../js/main.js"></script>
-<script src="../js/i18n.js"></script>
-<script src="../js/cookie.js"></script>
-<script src="../js/accessibility.js"></script>
+
+<script src="js/main.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/cookie.js"></script>
+<script src="js/accessibility.js"></script>
 </body>
 </html>

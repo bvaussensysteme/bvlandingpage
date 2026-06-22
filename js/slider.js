@@ -81,14 +81,14 @@
     if (!slider) return;
 
     slides = Array.from(slider.querySelectorAll('.hs-slide'));
-    dots   = Array.from(slider.querySelectorAll('.hs-dot'));
+    dots   = Array.from(document.querySelectorAll('.hs-dot'));
 
     // Progress bar
     progress = document.createElement('div');
     progress.className = 'hs-progress';
     slider.appendChild(progress);
 
-    // Pause button
+    // Pause button neben den Punkten
     pauseBtn = document.createElement('button');
     pauseBtn.className = 'hs-pause-btn';
     pauseBtn.innerHTML = '⏸';
@@ -97,7 +97,7 @@
       e.stopPropagation();
       toggleManualPause();
     });
-    var dotsEl = slider.querySelector('.hs-dots');
+    var dotsEl = document.querySelector('.hs-dots-inline');
     if (dotsEl) dotsEl.appendChild(pauseBtn);
 
     // Arrows
