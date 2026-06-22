@@ -197,8 +197,8 @@ h3 { font-size: 1.4rem; color: var(--black); }
   font-size: 1.05rem; color: rgba(255,255,255,0.8);
   margin-bottom: 30px; max-width: 460px; line-height: 1.65;
 }
-.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; max-width: 600px; }
-.hero-btns .btn { text-align: center; flex: 1; min-width: 160px; padding: 13px 16px; font-size: 0.95rem; }
+.hero-btns { display: flex; gap: 10px; flex-wrap: wrap; max-width: 580px; }
+.hero-btns .btn { text-align: center; flex: 1; min-width: 140px; padding: 10px 14px; font-size: 0.92rem; white-space: nowrap; }
 .hero-right { display: flex; flex-direction: column; gap: 14px; }
 .hero-card {
   background: rgba(255,255,255,0.06);
@@ -1700,6 +1700,17 @@ img { max-width: 100%; height: auto; }
   background: var(--gold);
   transform: scale(1.3);
 }
+.hs-pause-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: #fff; font-size: 0.7rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0; margin-left: 4px;
+}
+.hs-pause-btn:hover { background: var(--gold); border-color: var(--gold); color: #000; }
 
 /* ── Progress bar ── */
 .hs-progress {

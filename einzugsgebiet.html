@@ -146,16 +146,6 @@
       <li><a href="/#faq">FAQ</a></li>
       <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
     </ul>
-    <div class="lang-dropdown" id="langDropdown">
-      <button class="lang-dropdown-btn" id="langBtn" type="button">
-        <span id="langLabel" data-notranslate="1">🇩🇪 DE</span>
-        <span class="lang-chevron" data-notranslate="1">▾</span>
-      </button>
-      <div class="lang-dropdown-menu" id="langMenu">
-        <button type="button" onclick="chooseLang('de')" data-notranslate="1">🇩🇪 Deutsch</button>
-        <button type="button" onclick="chooseLang('en')" data-notranslate="1">🇬🇧 English</button>
-        <button type="button" onclick="chooseLang('ru')" data-notranslate="1">🇷🇺 Русский</button>
-      </div>
     </div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
@@ -262,18 +252,31 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18
 }).addTo(map);
 
-// Custom Marker Icons – BV Logo
+// Custom Marker Icons – BV Logo als CSS Marker (kein externes Bild nötig)
 function makeIcon(hauptort) {
-  var size = hauptort ? 36 : 28;
+  var size = hauptort ? 40 : 32;
   var half = size / 2;
-  var imgPath = window.location.origin + '/images/marker-logo.png';
+  var fontSize = hauptort ? '13px' : '11px';
+  var html =
+    '<div style="' +
+      'width:' + size + 'px;height:' + size + 'px;' +
+      'border-radius:50%;' +
+      'background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);' +
+      'border:2px solid #C49A2A;' +
+      'box-shadow:0 2px 8px rgba(0,0,0,0.5);' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'font-family:Arial Black,Arial,sans-serif;' +
+      'font-weight:900;font-size:' + fontSize + ';' +
+      'color:#C49A2A;' +
+      'cursor:pointer;' +
+      'user-select:none;' +
+    '">BV</div>';
   return L.divIcon({
     className: '',
-    html: '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.5);background:#fff;display:flex;align-items:center;justify-content:center;">' +
-          '<img src="' + imgPath + '" style="width:' + (size - 4) + 'px;height:' + (size - 4) + 'px;object-fit:contain;" /></div>',
+    html: html,
     iconSize: [size, size],
     iconAnchor: [half, half],
-    popupAnchor: [0, -(half + 4)]
+    popupAnchor: [0, -(half + 6)]
   });
 }
 
