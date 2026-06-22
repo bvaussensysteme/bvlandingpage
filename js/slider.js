@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var INTERVAL = 5000; // ms between slides
+  var INTERVAL = 6500; // ms between slides
   var slider, slides, dots, progress;
   var current = 0;
   var timer = null;
@@ -58,9 +58,12 @@
       if (e.key === 'ArrowRight') go(current + 1, true);
     });
 
-    // Pause on hover
-    slider.addEventListener('mouseenter', pauseAuto);
-    slider.addEventListener('mouseleave', startAuto);
+    // Pause nur auf Navigations-Elementen (Pfeile + Punkte), nicht gesamter Slider
+    var navEls = Array.from(slider.querySelectorAll('.hs-arrow, .hs-dots'));
+    navEls.forEach(function(el) {
+      el.addEventListener('mouseenter', pauseAuto);
+      el.addEventListener('mouseleave', startAuto);
+    });
 
     // Pause on focus (accessibility)
     slider.addEventListener('focusin',  pauseAuto);

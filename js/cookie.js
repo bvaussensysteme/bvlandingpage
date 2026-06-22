@@ -7,19 +7,33 @@
   var COOKIE_KEY  = 'bv_cookie_consent';
   var COOKIE_DAYS = 365;
 
-  /* ── Helpers ── */
+  /* ── Helpers – localStorage + Cookie (doppelt abgesichert) ── */
   function setCookie(name, value, days) {
-    var d = new Date();
-    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+    try {
+      // localStorage als primärer Speicher (funktioniert immer)
+      localStorage.setItem(name, value);
+    } catch(e) {}
+    try {
+      var d = new Date();
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
+    } catch(e) {}
   }
   function getCookie(name) {
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i].trim();
-      if (c.indexOf(name + '=') === 0)
-        return decodeURIComponent(c.substring(name.length + 1));
-    }
+    // Erst localStorage prüfen
+    try {
+      var ls = localStorage.getItem(name);
+      if (ls) return ls;
+    } catch(e) {}
+    // Fallback: Browser-Cookie
+    try {
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(name + '=') === 0)
+          return decodeURIComponent(c.substring(name.length + 1));
+      }
+    } catch(e) {}
     return null;
   }
 
