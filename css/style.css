@@ -1553,3 +1553,188 @@ img { max-width: 100%; height: auto; }
   .google-review-btn__stars { display: none; }
   .google-review-btn__text { font-size: 0.88rem; padding: 12px 12px; }
 }
+
+/* ============================================
+   HERO SLIDER
+   ============================================ */
+.hero-slider {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  background: var(--dark);
+  padding: 0;
+}
+
+/* ── Slides ── */
+.hs-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+  display: flex;
+  align-items: center;
+}
+.hs-slide--active {
+  opacity: 1;
+  pointer-events: all;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* ── Background Image ── */
+.hs-slide-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: scale(1.04);
+  transition: transform 6s ease;
+}
+.hs-slide--active .hs-slide-bg {
+  transform: scale(1);
+}
+
+/* ── Dark overlay ── */
+.hs-slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0,0,0,0.78) 0%,
+    rgba(0,0,0,0.45) 60%,
+    rgba(0,0,0,0.3) 100%
+  );
+}
+
+/* ── Content ── */
+.hs-content {
+  position: relative;
+  z-index: 2;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+.hs-content--split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.hs-content--centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Text ── */
+.hs-text { max-width: 560px; }
+.hs-text--center { text-align: center; max-width: 680px; }
+
+.hs-heading {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+.hs-desc {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.65;
+  margin-bottom: 32px;
+  max-width: 560px;
+}
+.hs-text--center .hs-desc { margin-left: auto; margin-right: auto; }
+
+.hs-slide-btns {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hs-text--center .hs-slide-btns { justify-content: center; }
+
+/* ── Navigation Arrows ── */
+.hs-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  color: #fff;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(4px);
+  line-height: 1;
+}
+.hs-arrow:hover { background: var(--gold); border-color: var(--gold); color: #000; }
+.hs-arrow--prev { left: 20px; }
+.hs-arrow--next { right: 20px; }
+
+/* ── Dots ── */
+.hs-dots {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.hs-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  border: none; cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  padding: 0;
+}
+.hs-dot--active {
+  background: var(--gold);
+  transform: scale(1.3);
+}
+
+/* ── Progress bar ── */
+.hs-progress {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 3px;
+  background: var(--gold);
+  z-index: 10;
+  width: 0%;
+  transition: width linear;
+}
+
+/* ── Mobile ── */
+@media (max-width: 900px) {
+  .hs-content--split { grid-template-columns: 1fr; gap: 24px; }
+  .hero-right { display: none; }
+  .hs-content { padding-top: 80px; padding-bottom: 80px; }
+}
+@media (max-width: 600px) {
+  .hs-arrow { display: none; }
+  .hs-heading { font-size: clamp(1.8rem, 7vw, 2.6rem); }
+  .hs-desc { font-size: 0.92rem; }
+  .hs-dots { bottom: 20px; }
+  .hs-slide-btns { flex-direction: column; }
+  .hs-slide-btns .btn { text-align: center; }
+}
+
+/* ── Barrierefreiheit: Animationen stoppen ── */
+#bv-page-wrapper.a11y-pause-animations .hs-slide,
+#bv-page-wrapper.a11y-pause-animations .hs-slide-bg,
+#bv-page-wrapper.a11y-pause-animations .hs-progress {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* btn-dark fix */
+.btn-dark { background: var(--black); color: var(--white) !important; border: 1.5px solid rgba(255,255,255,0.2); }
+.btn-dark:hover { background: #222; color: var(--white) !important; }
