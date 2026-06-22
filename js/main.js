@@ -73,6 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      var datenschutzCheck = document.getElementById('datenschutz-consent');
+      if (datenschutzCheck && !datenschutzCheck.checked) {
+        msgBox.textContent = 'Bitte stimmen Sie der Datenschutzerklärung zu.';
+        msgBox.style.color = '#e05555';
+        return;
+      }
+
       formSubmit.disabled = true;
       formSubmit.textContent = 'Wird gesendet …';
       msgBox.textContent = '';

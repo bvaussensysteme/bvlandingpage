@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>BV AussenSysteme – Lokale Vorschau</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: #1a1a1a; display: flex; flex-direction: column; height: 100vh; }
+
+.toolbar {
+  background: #111; border-bottom: 2px solid #C49A2A;
+  padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+}
+.toolbar span { color: #C49A2A; font-weight: bold; font-size: 0.9rem; }
+
+.page-btn {
+  background: #222; color: #ccc; border: 1px solid #444;
+  padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  font-size: 0.78rem; transition: all 0.15s;
+}
+.page-btn:hover, .page-btn.active { background: #C49A2A; color: #000; border-color: #C49A2A; }
+
+.device-btn {
+  background: #333; color: #aaa; border: 1px solid #555;
+  padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.78rem;
+}
+.device-btn:hover, .device-btn.active { background: #555; color: #fff; }
+
+.sep { color: #555; }
+
+.frame-wrap {
+  flex: 1; display: flex; justify-content: center; align-items: flex-start;
+  overflow: auto; padding: 8px; background: #2a2a2a;
+  transition: all 0.3s;
+}
+iframe {
+  border: none; background: white;
+  width: 100%; height: 100%;
+  transition: width 0.3s;
+}
+.frame-wrap.mobile iframe { width: 390px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+.frame-wrap.tablet iframe { width: 768px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+
+.url-bar {
+  background: #333; border: 1px solid #555; color: #fff;
+  padding: 3px 8px; border-radius: 4px; font-size: 0.78rem;
+  width: 200px;
+}
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <span>🔍 BV Vorschau</span>
+  <div class="sep">|</div>
+  <button class="page-btn active" onclick="loadPage('index.html', this)">Start</button>
+  <button class="page-btn" onclick="loadPage('konfigurator.html', this)">Konfigurator</button>
+  <button class="page-btn" onclick="loadPage('einzugsgebiet.html', this)">Einzugsgebiet</button>
+  <button class="page-btn" onclick="loadPage('partner.html', this)">Partner</button>
+  <button class="page-btn" onclick="loadPage('pflege.html', this)">Pflege</button>
+  <button class="page-btn" onclick="loadPage('agb.html', this)">AGB</button>
+  <button class="page-btn" onclick="loadPage('impressum.html', this)">Impressum</button>
+  <button class="page-btn" onclick="loadPage('datenschutz.html', this)">Datenschutz</button>
+  <button class="page-btn" onclick="loadPage('produkte/terrassenueberdachung.html', this)">Terrasse</button>
+  <button class="page-btn" onclick="loadPage('produkte/carport.html', this)">Carport</button>
+  <div class="sep">|</div>
+  <button class="device-btn active" onclick="setDevice('desktop', this)">🖥 Desktop</button>
+  <button class="device-btn" onclick="setDevice('tablet', this)">📱 Tablet</button>
+  <button class="device-btn" onclick="setDevice('mobile', this)">📱 Mobile</button>
+</div>
+<div class="frame-wrap" id="frameWrap">
+  <iframe id="preview" src="index.html"></iframe>
+</div>
+
+<script>
+function loadPage(url, btn) {
+  document.getElementById("preview").src = url;
+  document.querySelectorAll(".page-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+function setDevice(mode, btn) {
+  document.getElementById("frameWrap").className = "frame-wrap " + (mode === "desktop" ? "" : mode);
+  document.querySelectorAll(".device-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+</script>
+</body>
+</html>

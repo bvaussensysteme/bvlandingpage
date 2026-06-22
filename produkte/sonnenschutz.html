@@ -18,8 +18,30 @@
   <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/sonnenschutz.html" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <meta name="theme-color" content="#C49A2A" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    // Listen for consent being given
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+})();
+</script>
   <link rel="stylesheet" href="../css/style.css" />
   <style>
     .produkt-hero {

@@ -15,7 +15,7 @@
 
   <!-- ===== SEO: TITLE & META ===== -->
   <title>Terrassenüberdachung & Carport Westerwald | BV AussenSysteme</title>
-  <meta name="description" content="Terrassenüberdachung & Carport im Westerwald – BV AussenSysteme. Aluminium, Maßanfertigung, 10 J. Garantie. Kostenlose Beratung vor Ort. ☎ 015678696609" />
+  <meta name="description" content="Terrassenüberdachung & Carport im Westerwald – BV AussenSysteme. Aluminium, Maßanfertigung, 10 J. Herstellergarantie. Kostenlose Beratung vor Ort. ☎ 015678696609" />
   <meta name="keywords" content="Terrassenüberdachung Westerwald, Carport Westerwald, Terrassendach Montabaur, Pergola Neuwied, Sonnenschutz Altenkirchen, Kaltwintergarten Limburg, Überdachung Koblenz, Terrassenüberdachung Aluminium, Carport Aluminium, Außensysteme Westerwald" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="BV AussenSysteme – Alexander Becker" />
@@ -33,7 +33,7 @@
   <!-- ===== TWITTER / X CARD ===== -->
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content="Terrassenüberdachung & Carport Westerwald | BV AussenSysteme" />
-  <meta name="twitter:description" content="Maßgefertigte Aluminium-Überdachungen, Carports und Pergolen im Westerwald. Direkt vom Herstellerpartner. 10 Jahre Garantie." />
+  <meta name="twitter:description" content="Maßgefertigte Aluminium-Überdachungen, Carports und Pergolen im Westerwald. Direkt vom Herstellerpartner. 10 Jahre Herstellergarantie." />
   <meta name="twitter:image"       content="https://www.bv-aussensysteme.de/images/og-preview.jpg" />
 
   <!-- ===== PERFORMANCE: Preload LCP Image ===== -->
@@ -41,7 +41,7 @@
 
   <!-- ===== OPEN GRAPH (Social Media) ===== -->
   <meta property="og:title"       content="Terrassenüberdachung & Carport Westerwald | BV AussenSysteme" />
-  <meta property="og:description" content="Terrassenüberdachung & Carport im Westerwald – maßgefertigt, CE-zertifiziert, 10 J. Garantie. Kostenlose Beratung vor Ort." />
+  <meta property="og:description" content="Terrassenüberdachung & Carport im Westerwald – maßgefertigt, CE-zertifiziert, 10 J. Herstellergarantie. Kostenlose Beratung vor Ort." />
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content="https://www.bv-aussensysteme.de/" />
   <meta property="og:image"       content="https://www.bv-aussensysteme.de/images/og-preview.jpg" />
@@ -234,9 +234,28 @@
   </script>
 
   <!-- ===== FONTS ===== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); }
+})();
+</script>
 
   <!-- ===== STYLESHEET ===== -->
   <link rel="stylesheet" href="css/style.css" />
@@ -300,7 +319,7 @@
         <p class="hero-eyebrow">Ihr Spezialist im Westerwald</p>
         <h1>Ihr Traumplatz draußen –<br>das ganze Jahr.</h1>
         <p class="hero-slogan">Überdacht. Durchdacht. Zuverlässig.</p>
-        <p class="hero-sub">Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz – maßgefertigt, professionell montiert, 10 Jahre Garantie.</p>
+        <p class="hero-sub">Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz – maßgefertigt, professionell montiert, 10 Jahre Herstellergarantie.</p>
         <div class="hero-btns">
           <a href="#kontakt" class="btn btn-gold">Kostenlose Beratung</a>
           <a href="#leistungen" class="btn btn-outline-white">Alle Leistungen →</a>
@@ -640,9 +659,9 @@
         <li class="why-item">
           <div class="why-icon" aria-hidden="true">✅</div>
           <div>
-            <strong>10 Jahre Garantie auf Alu · 5 Jahre auf Elektro</strong>
+            <strong>10 Jahre Herstellergarantie auf Alu · 5 Jahre auf Elektro</strong>
             <p>Auf alle Aluminium-Produkte von unserem Hersteller gewähren wir
-               10 Jahre Garantie. Auf elektrische Markisen und Antriebe 5 Jahre.</p>
+               10 Jahre Herstellergarantie. Auf elektrische Markisen und Antriebe 5 Jahre.</p>
           </div>
         </li>
         <li class="why-item">
@@ -1187,6 +1206,12 @@
           <label for="nachricht" data-i18n="kontakt_nachricht">Nachricht</label>
           <textarea id="nachricht" name="nachricht"
             placeholder="Beschreiben Sie kurz Ihr Vorhaben, z.B. Terrassengröße, gewünschte Verglasung, Region …"></textarea>
+        </div>
+        <div class="form-group form-group--checkbox">
+          <label class="checkbox-label">
+            <input type="checkbox" id="datenschutz-consent" name="datenschutz" required />
+            <span>Ich habe die <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten zur Bearbeitung meiner Anfrage einverstanden. *</span>
+          </label>
         </div>
         <button type="button" class="form-submit" id="formSubmit" data-i18n="kontakt_btn">
           Kostenlose Beratung anfordern →

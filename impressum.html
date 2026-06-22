@@ -17,8 +17,30 @@
   <meta name="robots" content="noindex, follow" />
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
   <meta name="theme-color" content="#C49A2A" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    // Listen for consent being given
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+})();
+</script>
   <link rel="stylesheet" href="css/style.css" />
   <style>
     .legal-page { max-width: 720px; margin: 0 auto; }
@@ -124,9 +146,9 @@
     <div class="legal-block">
       <h3>Haftung für Inhalte</h3>
       <p>
-        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf
+        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf
         diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis
-        10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte
+        10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte
         oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu
         forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
       </p>

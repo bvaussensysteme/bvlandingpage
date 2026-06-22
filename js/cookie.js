@@ -93,10 +93,12 @@
 
   window.acceptAll = function () {
     setCookie(COOKIE_KEY, 'all', COOKIE_DAYS);
+    window.dispatchEvent(new Event('bv_consent_given'));
     hideBanner();
   };
   window.acceptNecessary = function () {
     setCookie(COOKIE_KEY, 'necessary', COOKIE_DAYS);
+    window.dispatchEvent(new Event('bv_consent_given'));
     hideBanner();
   };
   window.rejectAll = function () {
@@ -109,6 +111,7 @@
     var analytics = cbA ? cbA.checked : false;
     var external  = cbE ? cbE.checked : true;
     setCookie(COOKIE_KEY, serializeCustom(analytics, external), COOKIE_DAYS);
+    window.dispatchEvent(new Event('bv_consent_given'));
     hideBanner();
   };
   window.showCookieDetails = function () {

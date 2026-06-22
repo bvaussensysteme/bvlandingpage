@@ -1738,3 +1738,16 @@ img { max-width: 100%; height: auto; }
 /* btn-dark fix */
 .btn-dark { background: var(--black); color: var(--white) !important; border: 1.5px solid rgba(255,255,255,0.2); }
 .btn-dark:hover { background: #222; color: var(--white) !important; }
+
+/* ── Formular Datenschutz-Checkbox ── */
+.form-group--checkbox { margin-top: 4px; }
+.checkbox-label {
+  display: flex; align-items: flex-start; gap: 10px;
+  cursor: pointer; font-size: 0.85rem; color: var(--muted); line-height: 1.5;
+}
+.checkbox-label input[type="checkbox"] {
+  width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+  accent-color: var(--gold); cursor: pointer;
+}
+.checkbox-label a { color: var(--gold-dark); text-decoration: underline; }
+.checkbox-label a:hover { color: var(--gold); }

@@ -156,6 +156,17 @@ bv-aussensysteme/
 
 ---
 
+## RECHTLICHER STATUS (Stand 22.06.2026)
+- ✅ Impressum: § 5 DDG korrekt (DDG löst TMG ab seit 14.3.2024)
+- ✅ Datenschutzerklärung: Cloudflare + Formspree + sipgate (AI Flow) + IONOS dokumentiert
+- ✅ Google Fonts: DSGVO-konform – werden erst nach Cookie-Einwilligung geladen
+- ✅ Kontaktformular: Datenschutz-Checkbox mit Pflichtfeld-Validierung
+- ✅ Garantieaussagen: Als "Herstellergarantie (VD AluSysteme)" gekennzeichnet
+- ✅ AGB: Straße in Widerrufsbelehrung ergänzt, TMG → DDG
+- ✅ Cookie-Banner: Feuert bv_consent_given Event → lädt dann Google Fonts
+- ⚠️ Impressum: Straße fehlt noch (Am Driesch 1 – wird nach Gründung eingetragen)
+- ⚠️ USt-ID: Fehlt noch (nach Gewerbeanmeldung nachtragen)
+
 ## OFFENE AUFGABEN
 
 ### Nach Gründung (Pflicht)
