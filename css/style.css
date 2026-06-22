@@ -595,10 +595,20 @@ footer h4 {
 .sticky-cta {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--black); border-top: 2px solid var(--gold);
-  z-index: 200; padding: 12px 20px;
+  z-index: 200; padding: 10px 20px;
   display: flex; align-items: center; justify-content: center;
-  gap: 20px; flex-wrap: wrap;
 }
+.sticky-btns {
+  display: flex; gap: 12px; align-items: center; justify-content: center;
+}
+.sticky-btns .btn { white-space: nowrap; padding: 10px 20px; font-size: 0.95rem; }
+.btn-whatsapp {
+  background: #25D366 !important; color: #fff !important;
+  border-color: #25D366 !important;
+  display: flex; align-items: center; gap: 7px;
+}
+.btn-whatsapp:hover { background: #1ebe5d !important; border-color: #1ebe5d !important; }
+.btn-whatsapp svg { width: 18px; height: 18px; flex-shrink: 0; }
 .sticky-cta p { font-size: 0.9rem; color: rgba(255,255,255,0.85); }
 .sticky-cta strong { color: var(--gold); }
 .sticky-close {
@@ -1676,17 +1686,7 @@ img { max-width: 100%; height: auto; }
 .hs-arrow--prev { left: 20px; }
 .hs-arrow--next { right: 20px; }
 
-/* ── Dots ── */
-.hs-dots {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
+/* ── Dots (inline, neben Buttons) ── */
 .hs-dot {
   width: 10px; height: 10px;
   border-radius: 50%;

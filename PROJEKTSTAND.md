@@ -156,6 +156,56 @@ bv-aussensysteme/
 
 ---
 
+## ERSTER ABSCHLUSS-CHECK (22.06.2026)
+
+### ✅ SEO
+- Canonical URLs: alle 15 Seiten haben korrekte canonical Tags
+- Sitemap: 15 Seiten, partner.html ergänzt, lastmod aktualisiert
+- robots.txt: Alle Seiten indexierbar (impressum/datenschutz nicht mehr gesperrt)
+- Schema.org LocalBusiness: korrekt mit areaServed, openingHours, sameAs
+- aggregateRating aus Schema entfernt (keine verifizierten Bewertungen vorhanden)
+- Meta-Descriptions: alle Seiten mit korrekten Beschreibungen
+- Canonical + robots auf allen Produktseiten vorhanden
+
+### ✅ RECHTLICH (Deutschland)
+- Impressum: § 5 DDG korrekt, Hinweis auf Gründungsphase
+- Datenschutz: Cloudflare, Formspree, sipgate, Google Fonts (consent-gated) dokumentiert
+- Cookie-Banner: DSGVO-konform, localStorage + Cookie Fallback
+- Kontaktformular: Pflicht-Checkbox Datenschutz eingebunden
+- AGB: Widerrufsbelehrung mit vollständiger Adresse (Am Driesch 1)
+- Google Fonts: DSGVO-konform – erst nach Einwilligung geladen
+- TMG → DDG: überall korrekt aktualisiert
+
+### ✅ VD ALUSYSTEME VERTRAG
+- Garantieaussagen korrekt: 10 J. Alu-Produkte, 5 J. Markisen & Antriebe
+- Bilder als vd_* gekennzeichnet → bei Vertragsende einfach löschbar
+- Keine Preisangaben auf der Website (korrekt laut Vertrag § 3)
+- VD als Partner korrekt genannt mit Quellenangabe
+
+### ✅ AUTO-BUGFIX (22.06.2026)
+- i18n.js aus allen 12 Seiten entfernt (war noch geladen, unnötig)
+- datenschutz.html#telefon-ki Anchor-Link gefixt
+- Meta-Descriptions auf 4 Seiten gekürzt (war >160 Zeichen)
+- viewport Meta auf kontakt.html ergänzt
+- cookie.js auf datenschutz, partner, impressum ergänzt
+- .hs-dots absolut-CSS bereinigt (wird nicht mehr verwendet)
+- canonical URLs auf agb, datenschutz, impressum, partner ergänzt
+- sitemap.xml: partner.html ergänzt, lastmod aktualisiert
+- robots.txt: impressum/datenschutz wieder indexierbar
+- VD-Bilder als vd_* gekennzeichnet
+
+### ⚠️ NACH GRÜNDUNG UNBEDINGT ERLEDIGEN
+- Impressum: Straße "Am Driesch 1" + USt-ID + ggf. HRB-Nummer ergänzen
+- AGB: Straße ist drin ✓ – USt-ID ergänzen wenn vorhanden
+- Google Business: Verifizierung via Google Meet abschließen
+- aggregateRating in Schema.org wieder eintragen sobald erste echte Bewertung da ist
+- Öffnungszeiten in Schema.org prüfen (Mo-Fr 08-17, Sa 09-13 – stimmt das?)
+
+### ✅ GOOGLE / SEARCH
+- Search Console: verifiziert, Sitemap eingereicht (14→15 Seiten)
+- Bereits in Google-Suchergebnissen sichtbar
+- Schema.org: LocalBusiness, FAQ, HowTo, Service
+
 ## RECHTLICHER STATUS (Stand 22.06.2026)
 - ✅ Impressum: § 5 DDG korrekt (DDG löst TMG ab seit 14.3.2024)
 - ✅ Datenschutzerklärung: Cloudflare + Formspree + sipgate (AI Flow) + IONOS dokumentiert
