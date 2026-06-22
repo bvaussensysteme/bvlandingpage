@@ -13,9 +13,10 @@
   var progressRaf = null;
 
   function animationsPaused() {
-    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Nur durch a11y-Widget stoppen, NICHT durch prefers-reduced-motion
+    // (sonst stoppt der Slider bei vielen Windows-PCs automatisch)
     var wrapper = document.getElementById('bv-page-wrapper');
-    return prefersReduced || (wrapper && wrapper.classList.contains('a11y-pause-animations'));
+    return wrapper && wrapper.classList.contains('a11y-pause-animations');
   }
 
   function goTo(index) {
