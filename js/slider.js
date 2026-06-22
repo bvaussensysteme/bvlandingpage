@@ -8,20 +8,16 @@
   var slider, slides, dots, progress, pauseBtn;
   var current = 0;
   var timer = null;
-  var paused = false;
-  var touchStartX = 0;
-  var touchStartY = 0;
+  var manualPause = false; // nur durch Pause-Button, NICHT durch Hover
   var progressStart = null;
   var progressRaf = null;
 
-  /* ── Animationen pausiert? ── */
   function animationsPaused() {
     var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var wrapper = document.getElementById('bv-page-wrapper');
     return prefersReduced || (wrapper && wrapper.classList.contains('a11y-pause-animations'));
   }
 
-  /* ── Slide wechseln ── */
   function goTo(index) {
     var total = slides.length;
     index = ((index % total) + total) % total;
@@ -36,65 +32,49 @@
 
   function go(index) {
     goTo(index);
-    if (!paused) {
-      resetTimer();
-    }
+    resetTimer();
   }
 
-  /* ── Timer ── */
   function resetTimer() {
     clearTimeout(timer);
     cancelAnimationFrame(progressRaf);
-    if (paused || animationsPaused()) return;
+    if (manualPause || animationsPaused()) return;
     startProgress();
     timer = setTimeout(function () {
       go(current + 1);
     }, INTERVAL);
   }
 
-  /* ── Progress Bar ── */
   function startProgress() {
     if (!progress || animationsPaused()) {
-      if (progress) { progress.style.width = '0%'; }
+      if (progress) progress.style.width = '0%';
       return;
     }
     progressStart = performance.now();
-    progress.style.transition = 'none';
     progress.style.width = '0%';
-
     function tick(now) {
-      var elapsed = now - progressStart;
-      var pct = Math.min(elapsed / INTERVAL * 100, 100);
-      progress.style.transition = 'none';
+      if (manualPause) return;
+      var pct = Math.min((now - progressStart) / INTERVAL * 100, 100);
       progress.style.width = pct + '%';
-      if (pct < 100 && !paused) {
-        progressRaf = requestAnimationFrame(tick);
-      }
+      if (pct < 100) progressRaf = requestAnimationFrame(tick);
     }
     progressRaf = requestAnimationFrame(tick);
   }
 
-  /* ── Pause/Resume ── */
-  function pause() {
-    if (paused) return;
-    paused = true;
-    clearTimeout(timer);
-    cancelAnimationFrame(progressRaf);
-    if (pauseBtn) { pauseBtn.innerHTML = '▶'; pauseBtn.setAttribute('aria-label', 'Slider fortsetzen'); }
+  function toggleManualPause() {
+    manualPause = !manualPause;
+    if (pauseBtn) {
+      pauseBtn.innerHTML = manualPause ? '▶' : '⏸';
+      pauseBtn.setAttribute('aria-label', manualPause ? 'Slider fortsetzen' : 'Slider pausieren');
+    }
+    if (manualPause) {
+      clearTimeout(timer);
+      cancelAnimationFrame(progressRaf);
+    } else {
+      resetTimer();
+    }
   }
 
-  function resume() {
-    if (!paused) return;
-    paused = false;
-    if (pauseBtn) { pauseBtn.innerHTML = '⏸'; pauseBtn.setAttribute('aria-label', 'Slider pausieren'); }
-    resetTimer();
-  }
-
-  function togglePause() {
-    paused ? resume() : pause();
-  }
-
-  /* ── Init ── */
   function init() {
     slider = document.getElementById('heroSlider');
     if (!slider) return;
@@ -107,16 +87,15 @@
     progress.className = 'hs-progress';
     slider.appendChild(progress);
 
-    // Pause button neben den Punkten
+    // Pause button
     pauseBtn = document.createElement('button');
     pauseBtn.className = 'hs-pause-btn';
     pauseBtn.innerHTML = '⏸';
     pauseBtn.setAttribute('aria-label', 'Slider pausieren');
     pauseBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      togglePause();
+      toggleManualPause();
     });
-    // Insert pause button into dots container
     var dotsEl = slider.querySelector('.hs-dots');
     if (dotsEl) dotsEl.appendChild(pauseBtn);
 
@@ -134,25 +113,16 @@
       });
     });
 
-    // Pause ONLY when hovering clickable elements (arrows, dots, pause btn, slide buttons)
-    var clickables = Array.from(slider.querySelectorAll('.hs-arrow, .hs-dots, .hs-slide-btns, .hero-btns'));
-    clickables.forEach(function(el) {
-      el.addEventListener('mouseenter', pause);
-      el.addEventListener('mouseleave', resume);
-    });
-
     // Touch swipe
     slider.addEventListener('touchstart', function(e) {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
     }, { passive: true });
-
+    var touchStartX = 0, touchStartY = 0;
     slider.addEventListener('touchend', function(e) {
       var dx = e.changedTouches[0].clientX - touchStartX;
       var dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-        go(dx < 0 ? current + 1 : current - 1);
-      }
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) go(dx < 0 ? current + 1 : current - 1);
     }, { passive: true });
 
     // Keyboard
@@ -160,19 +130,18 @@
     slider.addEventListener('keydown', function(e) {
       if (e.key === 'ArrowLeft')  go(current - 1);
       if (e.key === 'ArrowRight') go(current + 1);
-      if (e.key === ' ') { e.preventDefault(); togglePause(); }
+      if (e.key === ' ') { e.preventDefault(); toggleManualPause(); }
     });
 
-    // Watch a11y widget pause toggle
+    // a11y widget
     var wrapper = document.getElementById('bv-page-wrapper');
     if (wrapper) {
       new MutationObserver(function() {
-        if (animationsPaused()) pause();
-        else resume();
+        if (animationsPaused()) { clearTimeout(timer); cancelAnimationFrame(progressRaf); }
+        else if (!manualPause) resetTimer();
       }).observe(wrapper, { attributes: true, attributeFilter: ['class'] });
     }
 
-    // Start
     goTo(0);
     resetTimer();
   }

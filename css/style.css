@@ -198,7 +198,7 @@ h3 { font-size: 1.4rem; color: var(--black); }
   margin-bottom: 30px; max-width: 460px; line-height: 1.65;
 }
 .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; max-width: 580px; }
-.hero-btns .btn { text-align: center; flex: 1; min-width: 140px; padding: 10px 14px; font-size: 0.92rem; white-space: nowrap; }
+.hero-btns .btn { text-align: center; flex: 1; min-width: 140px; padding: 10px 14px; font-size: 0.92rem; white-space: nowrap; justify-content: center; display: flex; align-items: center; }
 .hero-right { display: flex; flex-direction: column; gap: 14px; }
 .hero-card {
   background: rgba(255,255,255,0.06);
@@ -1560,7 +1560,8 @@ img { max-width: 100%; height: auto; }
 .hero-slider {
   position: relative;
   overflow: hidden;
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 600px;
   background: var(--dark);
   padding: 0;
 }
@@ -1578,8 +1579,6 @@ img { max-width: 100%; height: auto; }
 .hs-slide--active {
   opacity: 1;
   pointer-events: all;
-  position: relative;
-  min-height: 100vh;
 }
 
 /* ── Background Image ── */
