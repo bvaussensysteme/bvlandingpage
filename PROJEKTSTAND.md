@@ -267,3 +267,118 @@ bv-aussensysteme/
 5. **PROJEKTSTAND.md nach jeder Änderung aktualisieren**
 6. Auf GitHub: Dateien direkt ins Repository hochladen (kein Git nötig, Upload via Web-UI)
 7. Nach GitHub-Upload: Cloudflare Purge Everything (Cache leeren)
+
+---
+
+## PRODUKTTEXTE (eigene Formulierungen – nicht von VD kopiert)
+
+### Terrassenüberdachung
+**Terrassendach TDS**
+Das TDS ist unser Bestseller – und das aus gutem Grund. Klare Linien, robuste Aluminiumprofile, verfügbar mit Polycarbonat- oder Glasdach. Passt an jede Wand, steht freistehend, lässt sich erweitern. Wir fertigen exakt auf Ihr Maß – keine Standardlösungen vom Regal.
+
+**Flachdach SkyView**
+Flach, modern, beeindruckend. Das SkyView gibt Ihrer Terrasse einen Charakter der bleibt. Innenliegendes Gefälle – von außen unsichtbar, technisch perfekt. 8 mm VSG-Sicherheitsglas ist Standard. LED und Lautsprecher auf Wunsch. Für alle die etwas Besonderes wollen.
+
+---
+
+### Carport
+**Carport TDS**
+Unser robustester Carport für den Alltag. Wandanbau oder freistehend, mit Glas- oder Polycarbonatdach – er hält, was er verspricht. Witterungsbeständig, wartungsfrei, in allen RAL-Farben erhältlich. Für ein Auto oder mehrere.
+
+**Flat Line**
+Flache Optik, starke Technik. Die Flat Line ist ideal wenn moderne Architektur gefragt ist – und eignet sich perfekt als Untergrund für eine PV-Anlage oder Dachbegrünung. Klar in der Linie, stark in der Funktion.
+
+**Flat Box (Garage)**
+Wenn der Carport zur Garage werden soll. Die Flat Box schließt die Flat Line mit Sandwichplatten, Rolltor, Tür und Fenster – vollständig wetterdicht, individuell konfigurierbar, keine separate Baugenehmigung in vielen Fällen.
+
+---
+
+### Pergola & Lamellendach
+**SunPro Plus**
+Das SunPro Plus ist unser meistgefragtes Lamellendach. Motorisierte Lamellen die sich per Fernbedienung oder App steuern lassen, wetterfest bis Windstärke 8, in allen RAL-Farben. Ideal für private Terrassen und gastronomische Außenbereiche.
+
+**Warema L50**
+Das Warema L50 kombiniert deutsches Qualitätshandwerk mit elegantem Design. Breite Lamellen, präzise Mechanik, langlebig. Ideal wenn es auf Details ankommt.
+
+---
+
+### Velaris
+Einstellbare Aluminium-Lamellen die Licht, Sichtschutz und Belüftung auf einmal steuern – per Knopfdruck. Als Seitenelement, als Dach oder beides. Mehrere Elemente kombinierbar, platzsparendes Kaskadensystem.
+
+---
+
+### Kaltwintergarten TDS
+Mehr Wohnraum ohne Anbau. Ein Kaltwintergarten verlängert Ihre Terrasse in die kühleren Monate – ohne Heizung, ohne Baugenehmigung in den meisten Fällen. Das TDS nutzt dasselbe bewährte Aluminium-Profil wie unsere Terrassenüberdachungen. Sicherheitsglas rundum, winddicht, individuell zugeschnitten.
+
+---
+
+### Sonnenschutz & Markisen
+**Aufdachbeschattung (Linea, Solara, Rolax)**
+Die Markise liegt direkt auf Ihrem Glasdach – eingezogen unsichtbar, ausgefahren wirkungsvoll. Linea für kompakte Flächen, Solara für große Dächer, Rolax als Aluminiumrollo mit Dämmwirkung. Alle Systeme elektrisch steuerbar, mit optionalem Wettersensor.
+
+**Unterdachbeschattung (Linea, Solara, Plissee, Sonnensegel)**
+Wenn die Sonne von oben blendet, hilft die Unterdachmarkise von innen. Dezent montiert unter dem Glasdach, schützt sie vor Aufheizung und Blendung. Vom Plissee bis zum eleganten Sonnensegel.
+
+**Senkrechtbeschattung (Standard & Solar)**
+Seitlicher Schutz der alles verändert. Die Senkrechtmarkise blockiert Sonne, Wind und Blicke – und zieht sich lautlos ein wenn Sie sie nicht brauchen. Die Solar-Variante kommt mit eigenem Akku und integrierten LED für Abendstimmung inklusive.
+
+---
+
+### Geländer & Glasgeländer
+**Aluminiumgeländer mit VSG-Glas**
+Unser Aluminiumgeländer mit VSG-Glasfüllung ist die klassische Wahl: robust, witterungsbeständig, pulverbeschichtet in Ihrer Wunschfarbe. Mit 8 oder 10 mm Verbundsicherheitsglas, klar oder opal.
+
+**Easy Rail Ganzglasgeländer**
+Easy Rail ist das Geländer das verschwindet. Nur Glas, fast kein Rahmen, maximale Transparenz. Das Aluminiumprofil sitzt unten und oben – der Rest ist freie Sicht. Für alle die ihren Ausblick nicht einrahmen wollen.
+
+---
+
+### Eingang & Vordächer
+**Vordach FLY**
+Schlanker Aluminiumträger, 17 mm ESG-Glas – mehr braucht es nicht. Das FLY macht jeden Eingang moderner ohne aufzufallen. Ab 100 cm Breite, bis 90 cm Tiefe. Pulverbeschichtet in Ihrer Wunschfarbe.
+
+**Vordach Front Line**
+Front Line ist unser flexibelstes Vordachsystem – als reines Vordach, mit Seitenteil, oder in der Plus-Variante mit 125 cm Tiefe und zwei Pfosten. Immer mit LED-Beleuchtung, auf Wunsch mit Bewegungsmelder und Briefkasten.
+
+**Eingangsüberdachung TDS**
+Die Eingangsüberdachung TDS fügt sich nahtlos in die Architektur ein – dieselbe Profilsprache wie Ihre Terrassenüberdachung, dieselbe Qualität, aber für den Eingangsbereich.
+
+---
+
+### Balkon & Fassade
+**Balkonüberdachung**
+Robustes Aluminium, individuelle Maßanfertigung, wartungsfrei. Ob kleiner Stadtbalkon oder große Dachterrasse – wir finden die passende Lösung. Glas oder Polycarbonat, in Ihrer Wunschfarbe.
+
+**Fassadenverkleidung Deco Wall**
+Klare Linien, unsichtbare Befestigung, null Pflegeaufwand. Deco Wall ist ein Aluminium-Klicksystem das schnell sitzt und dauerhaft modern aussieht. Vertikal oder horizontal, in vier Standardfarben oder jeder RAL-Farbe.
+
+**Sichtschutz Aluminium**
+Privatsphäre ohne Plastikzaun oder Betonmauer. Unsere Aluminium-Sichtschutzpaneele (14 cm Höhe) lassen sich frei kombinieren – Sicht-, Sonnen- und Windschutz in einem. In vier Standardfarben oder jeder RAL-Farbe.
+
+---
+
+### Garten & Außenbereich
+**Gartenhaus TDS**
+Das Gartenhaus TDS aus Aluminium ist die wartungsfreie Alternative zum klassischen Holzhaus. Stabiles Profil-System, Sicherheitsglas, in Ihrer Wunschfarbe. Jederzeit erweiterbar, schnell montiert, jahrzehntelang haltbar.
+
+**Fahrradüberdachung**
+Robuste Aluminiumkonstruktion, einfache Montage, beliebig erweiterbar. Für private Haushalte, Wohnanlagen, Betriebe oder öffentliche Einrichtungen. Glas- oder Polycarbonat-Eindeckung, in Standard- und Sonderfarben.
+
+**Bushaltestelle**
+Klare Linien, robuste Aluminiumkonstruktion, pflegeleichte Materialien. Verkleidung wahlweise mit Glaselementen oder Aluminiumpaneelen in Holzoptik. Vier Standardfarben, Maßanfertigung für jeden Standort.
+
+**Faltdach OpenAir**
+Jedes Modul hat sein eigenes Dach mit automatischer Steuerung. Das patentierte Wasserableitungssystem verhindert Spritzwasser. Modularer Aufbau – ideal für Gastronomie und große Terrassen. Mit optionaler ZIP-Seitenmarkise, Heizstrahler und LED.
+
+---
+
+### Weitere Einzelseiten
+**Velaris** → produkte/velaris.html
+**Faltdach** → produkte/faltdach.html
+**Balkonüberdachung** → produkte/balkonueberdachung.html
+**Fassade** → produkte/fassade.html
+**Sichtschutz** → produkte/sichtschutz.html
+**Fahrradüberdachung** → produkte/fahrradueberdachung.html
+**Gartenhaus** → produkte/gartenhaus.html
+**Bushaltestelle** → produkte/bushaltestelle.html
+**Sonnenschutz-Beschattung** → produkte/sonnenschutz-beschattung.html
