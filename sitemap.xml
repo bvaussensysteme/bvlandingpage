@@ -90,45 +90,57 @@
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
-<url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/sonnenschutz-beschattung.html</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.bv-aussensysteme.de/produkte/velaris.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/produkte/faltdach.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-<url>
+  <url>
+    <loc>https://www.bv-aussensysteme.de/produkte/balkonueberdachung.html</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.bv-aussensysteme.de/produkte/fassade.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/produkte/sichtschutz.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/produkte/fahrradueberdachung.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/produkte/gartenhaus.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.bv-aussensysteme.de/produkte/bushaltestelle.html</loc>
-    <lastmod>2026-06-24</lastmod>
+    <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<script>
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
+(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
+</script>
+<style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Wind- &amp; Schneelastzonen ermitteln | BV AussenSysteme Westerwald</title>
+  <meta name="description" content="Wind- und Schneelastzone für Ihre Adresse in Deutschland ermitteln – kostenlos, schnell, für Terrassenüberdachung, Carport & Pergola. BV AussenSysteme Westerwald." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.bv-aussensysteme.de/windzonen.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/windzonen.html" />
+  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/windzonen.html" />
+  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/windzonen.html" />
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+  <meta name="theme-color" content="#C49A2A" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Wind- &amp; Schneelastzonen ermitteln | BV AussenSysteme" />
+  <meta property="og:description" content="Windzone und Schneelastzone für Ihren Standort in Deutschland kostenfrei ermitteln – für Terrassenüberdachung, Carport und Pergola." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.bv-aussensysteme.de/windzonen.html" />
+  <meta property="og:locale" content="de_DE" />
+
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Wind- & Schneelastzonen Ermittlung",
+    "url": "https://www.bv-aussensysteme.de/windzonen.html",
+    "description": "Kostenloses Tool zur Ermittlung von Wind- und Schneelastzonen für jeden Standort in Deutschland.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "BV AussenSysteme",
+      "url": "https://www.bv-aussensysteme.de"
+    }
+  }
+  </script>
+
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+  </style>
+  <script>
+  (function(){
+    function loadFonts(){
+      if(document.getElementById('gfonts-loaded')) return;
+      var l = document.createElement('link');
+      l.id = 'gfonts-loaded'; l.rel = 'stylesheet';
+      l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+      document.head.appendChild(l);
+    }
+    try {
+      var consent = localStorage.getItem('bv_cookie_consent');
+      if(consent && consent !== 'rejected') loadFonts();
+      window.addEventListener('bv_consent_given', loadFonts);
+    } catch(e){ loadFonts(); }
+  })();
+  </script>
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+  <style>
+    /* ===== PAGE HERO ===== */
+    .wz-hero {
+      background: var(--black); padding: 60px 0 50px;
+      border-bottom: 3px solid var(--gold); position: relative;
+    }
+    .wz-hero::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+      background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+    }
+    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .breadcrumb a { color: var(--gold); text-decoration: none; }
+    .wz-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.2rem); }
+    .wz-hero .hero-sub { color: rgba(255,255,255,0.75); max-width: 620px; font-size: 1rem; line-height: 1.7; }
+
+    /* ===== SEARCH BOX ===== */
+    .wz-search-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      margin-bottom: 32px;
+    }
+    .wz-search-label {
+      display: block; font-size: 0.85rem; font-weight: 600;
+      color: var(--black); margin-bottom: 8px;
+    }
+    .wz-input-row {
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;
+    }
+    .wz-input-wrap {
+      flex: 1; min-width: 220px;
+    }
+    .wz-input {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem; font-family: var(--font-body);
+      color: var(--black); background: var(--white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+    }
+    .wz-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+    }
+    .wz-input.error { border-color: #dc3545; }
+    .wz-btn-search {
+      white-space: nowrap; padding: 13px 28px;
+      background: var(--gold); color: var(--black);
+      border: none; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 700; font-family: var(--font-heading);
+      cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .wz-btn-search:hover { background: var(--gold-dark); color: var(--white); }
+    .wz-btn-search:active { transform: scale(0.97); }
+    .wz-btn-search:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ===== ERROR MESSAGE ===== */
+    .wz-error {
+      display: none; margin-top: 14px;
+      background: #fff3f3; border: 1px solid #f5c6cb;
+      border-radius: var(--radius); padding: 12px 16px;
+      color: #842029; font-size: 0.9rem;
+    }
+    .wz-error.visible { display: block; }
+
+    /* ===== LOADER ===== */
+    .wz-loader {
+      display: none; text-align: center; padding: 40px 0;
+    }
+    .wz-loader.visible { display: block; }
+    .wz-spinner {
+      width: 42px; height: 42px; margin: 0 auto 14px;
+      border: 4px solid rgba(196,154,42,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%; animation: wz-spin 0.8s linear infinite;
+    }
+    @keyframes wz-spin { to { transform: rotate(360deg); } }
+    .wz-loader p { color: var(--muted); font-size: 0.9rem; }
+
+    /* ===== MAP ===== */
+    .wz-map-wrap {
+      display: none; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+      margin-bottom: 28px; position: relative;
+    }
+    .wz-map-wrap.visible { display: block; }
+    #wz-map { height: 380px; width: 100%; }
+    @media (max-width: 600px) { #wz-map { height: 260px; } }
+
+    /* ===== RESULTS ===== */
+    .wz-results {
+      display: none;
+    }
+    .wz-results.visible { display: block; }
+
+    .wz-result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 580px) { .wz-result-grid { grid-template-columns: 1fr; } }
+
+    .wz-result-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+    .wz-result-card.highlight {
+      border-color: var(--gold);
+      border-width: 2px;
+    }
+    .wz-result-card .rc-label {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--gold-dark);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    .wz-result-card .rc-value {
+      font-family: var(--font-heading); font-size: 2rem; font-weight: 800;
+      color: var(--black); line-height: 1.1;
+    }
+    .wz-result-card .rc-sub {
+      font-size: 0.82rem; color: var(--muted); margin-top: 4px; line-height: 1.5;
+    }
+
+    .wz-result-address {
+      background: var(--offwhite, #F5F2EB);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .wz-result-address .addr-label {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+    }
+    .wz-result-address .addr-val {
+      font-size: 0.95rem; color: var(--black); font-weight: 500;
+    }
+    .wz-result-address .addr-coords {
+      font-size: 0.8rem; color: var(--muted); margin-top: 2px;
+    }
+
+    .wz-auto-note {
+      font-size: 0.8rem; color: var(--muted);
+      margin-bottom: 20px; font-style: italic;
+    }
+
+    /* ===== LEGAL DISCLAIMER ===== */
+    .wz-disclaimer {
+      background: #fafaf8;
+      border: 1px solid #e0ddd5;
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex; gap: 12px; align-items: flex-start;
+      margin-top: 8px;
+    }
+    .wz-disclaimer .disc-icon {
+      font-size: 1.1rem; flex-shrink: 0; margin-top: 1px;
+    }
+    .wz-disclaimer p {
+      font-size: 0.8rem; color: #666; line-height: 1.6; margin: 0;
+    }
+
+    /* ===== INFO BOX BELOW ===== */
+    .wz-info-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;
+    }
+    @media (max-width: 700px) { .wz-info-cards { grid-template-columns: 1fr; } }
+    .wz-info-card {
+      background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+      padding: 22px; box-shadow: var(--shadow);
+    }
+    .wz-info-card .ic-icon { font-size: 1.8rem; margin-bottom: 10px; }
+    .wz-info-card h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--black); }
+    .wz-info-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ===== ZONE BADGE ===== */
+    .zone-badge {
+      display: inline-block; padding: 2px 10px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+      vertical-align: middle; margin-left: 4px;
+    }
+    .zone-badge--wind1 { background: rgba(196,154,42,0.12); color: #7a5c0f; }
+    .zone-badge--wind2 { background: rgba(240,173,78,0.2); color: #8a5500; }
+    .zone-badge--wind3 { background: rgba(220,100,30,0.15); color: #8a3000; }
+    .zone-badge--wind4 { background: rgba(200,30,30,0.12); color: #8a0000; }
+    .zone-badge--snow1 { background: rgba(100,150,220,0.12); color: #1a3a6a; }
+    .zone-badge--snow2 { background: rgba(60,120,210,0.15); color: #0a2a5a; }
+    .zone-badge--snow3 { background: rgba(30,80,180,0.15); color: #001a4a; }
+
+    /* section override for light bg section */
+    .wz-section-light { background: var(--offwhite, #F5F2EB); }
+
+    /* CTA section */
+    .wz-cta { background: var(--black); padding: 56px 0; }
+    .wz-cta h2 { color: var(--white); margin-bottom: 12px; }
+    .wz-cta p { color: rgba(255,255,255,0.7); margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  </style>
+</head>
+<body id="bv-page-wrapper">
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
+  <div class="container navbar-inner">
+    <a href="/" aria-label="BV AussenSysteme Startseite">
+      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" fetchpriority="high" width="200" height="200" />
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a href="/#leistungen">Leistungen</a></li>
+      <li><a href="/#galerie">Galerie</a></li>
+      <li><a href="konfigurator.html" class="nav-konfigurator">🛠 Konfigurator</a></li>
+      <li><a href="/#warum-wir">Über uns</a></li>
+      <li><a href="/#prozess">Ablauf</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+      <li><a href="/#kontakt" class="nav-cta">Jetzt anfragen</a></li>
+    </ul>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== MOBILE MENU ===== -->
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+  <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
+  <a href="/" onclick="closeMobile()">Startseite</a>
+  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
+  <a href="konfigurator.html" onclick="closeMobile()" style="color:var(--gold);">🛠 Konfigurator</a>
+  <a href="/#warum-wir" onclick="closeMobile()">Über uns</a>
+  <a href="/#faq" onclick="closeMobile()">FAQ</a>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta">Jetzt anfragen</a>
+</div>
+
+<!-- ===== PAGE HERO ===== -->
+<header class="wz-hero" role="banner">
+  <div class="container">
+    <p class="breadcrumb">
+      <a href="/">Startseite</a> › Wind- &amp; Schneelastzonen
+    </p>
+    <p class="tag">Kostenloser Online-Check</p>
+    <h1>Wind- &amp; Schneelastzonen</h1>
+    <p class="hero-sub">
+      Ermitteln Sie schnell und kostenlos die Wind- und Schneelastzone für Ihren Standort in Deutschland –
+      wichtige Planungsgrundlage für Terrassenüberdachung, Carport und Pergola.
+    </p>
+  </div>
+</header>
+
+<main id="main-content">
+
+<!-- ===== SEARCH SECTION ===== -->
+<section class="section" aria-labelledby="wz-search-heading">
+  <div class="container" style="max-width:860px;">
+
+    <p class="tag">Standort eingeben</p>
+    <h2 id="wz-search-heading" style="margin-bottom:8px;">Ihre Lastzonen ermitteln</h2>
+    <p style="color:var(--muted);margin-bottom:32px;max-width:580px;">
+      Geben Sie Ihre Adresse, Postleitzahl oder Ihren Ort ein. Wir ermitteln automatisch
+      die relevanten Normzonen nach DIN EN 1991 (Eurocodes).
+    </p>
+
+    <div class="wz-search-box">
+      <label for="wz-address-input" class="wz-search-label">Adresse, Postleitzahl oder Ort</label>
+      <div class="wz-input-row">
+        <div class="wz-input-wrap">
+          <input
+            type="text"
+            id="wz-address-input"
+            class="wz-input"
+            placeholder="z. B. 56428 Dernbach oder Montabaur"
+            autocomplete="off"
+            aria-label="Adresse, Postleitzahl oder Ort eingeben"
+          />
+        </div>
+        <button class="wz-btn-search" id="wz-search-btn" onclick="wzSearch()" aria-label="Standort ermitteln">
+          📍 Standort ermitteln
+        </button>
+      </div>
+      <div class="wz-error" id="wz-error" role="alert" aria-live="polite"></div>
+    </div>
+
+    <!-- Loader -->
+    <div class="wz-loader" id="wz-loader" aria-live="polite" aria-label="Suche läuft">
+      <div class="wz-spinner" role="status"></div>
+      <p>Standort wird ermittelt …</p>
+    </div>
+
+    <!-- Map -->
+    <div class="wz-map-wrap" id="wz-map-wrap">
+      <div id="wz-map" aria-label="Karte mit Standortmarkierung"></div>
+    </div>
+
+    <!-- Results -->
+    <div class="wz-results" id="wz-results" aria-live="polite">
+
+      <div class="wz-result-address" id="wz-result-address">
+        <div class="addr-label">Ermittelter Standort</div>
+        <div class="addr-val" id="wz-addr-text">–</div>
+        <div class="addr-coords" id="wz-addr-coords">–</div>
+      </div>
+
+      <p class="wz-auto-note">Die Angaben wurden anhand geografischer Zonendaten automatisiert ermittelt.</p>
+
+      <div class="wz-result-grid">
+        <div class="wz-result-card highlight">
+          <div class="rc-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+            Windzone
+          </div>
+          <div class="rc-value" id="wz-windzone">–</div>
+          <div class="rc-sub" id="wz-windzone-sub">–</div>
+        </div>
+        <div class="wz-result-card highlight">
+          <div class="rc-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg>
+            Schneelastzone
+          </div>
+          <div class="rc-value" id="wz-snowzone">–</div>
+          <div class="rc-sub" id="wz-snowzone-sub">–</div>
+        </div>
+      </div>
+
+      <!-- Legal Disclaimer -->
+      <div class="wz-disclaimer" role="note">
+        <span class="disc-icon" aria-hidden="true">ℹ️</span>
+        <p>
+          <strong>Hinweis:</strong> Alle Angaben erfolgen ohne Gewähr. Die ermittelten Wind- und Schneelastwerte
+          dienen ausschließlich der unverbindlichen Erstinformation und ersetzen keine statische Berechnung
+          oder fachliche Prüfung. Maßgeblich sind ausschließlich die jeweils gültigen Normen, behördlichen
+          Vorgaben sowie die Beurteilung durch einen qualifizierten Statiker oder Fachplaner.
+        </p>
+      </div>
+
+      <div style="margin-top:24px;text-align:center;">
+        <a href="/#kontakt" class="btn btn-gold" style="margin-right:12px;">Kostenlos beraten lassen</a>
+        <button class="btn btn-outline-white" onclick="wzReset()"
+          style="color:var(--black);border-color:var(--border);">
+          Neue Suche
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== INFO SECTION ===== -->
+<section class="section wz-section-light" aria-labelledby="wz-info-heading">
+  <div class="container">
+    <p class="tag">Hintergrundwissen</p>
+    <h2 id="wz-info-heading" style="margin-bottom:8px;">Was bedeuten Wind- und Schneelastzonen?</h2>
+    <p style="color:var(--muted);max-width:660px;margin-bottom:36px;">
+      Für die Planung und statische Auslegung von Terrassenüberdachungen, Carports und Pergolen
+      sind die Lastannahmen entscheidend – sie bestimmen die erforderlichen Profil&shy;querschnitte
+      und Anker&shy;abstände.
+    </p>
+    <div class="wz-info-cards">
+      <div class="wz-info-card">
+        <div class="ic-icon">💨</div>
+        <h3>Windzonen (WZ 1–4)</h3>
+        <p>
+          Deutschland ist in vier Windzonen unterteilt (DIN EN 1991-1-4). WZ 1 gilt für windgeschützte
+          Binnenlagen, WZ 4 für exponierte Küstenregionen. Der Westerwald liegt überwiegend in WZ 1–2.
+        </p>
+      </div>
+      <div class="wz-info-card">
+        <div class="ic-icon">❄️</div>
+        <h3>Schneelastzonen (SLZ 1–3)</h3>
+        <p>
+          Die Schneelastzone bestimmt, wie viel Schneegewicht auf der Konstruktion lasten kann
+          (DIN EN 1991-1-3). In Höhenlagen über 800 m gelten erhöhte Sonderwerte. SLZ 1 ist
+          für Flachland typisch.
+        </p>
+      </div>
+      <div class="wz-info-card">
+        <div class="ic-icon">📐</div>
+        <h3>Relevanz für Ihre Konstruktion</h3>
+        <p>
+          Je nach Zone werden unterschiedliche Profilstärken, Stützweiten und Befestigungsabstände
+          benötigt. Unser Hersteller-Partner VD AluSysteme liefert zertifizierte Systeme für alle
+          deutschen Lastszenarien.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ZONE TABLE SECTION ===== -->
+<section class="section" aria-labelledby="wz-table-heading">
+  <div class="container" style="max-width:860px;">
+    <p class="tag">Normübersicht</p>
+    <h2 id="wz-table-heading" style="margin-bottom:28px;">Zoneneinteilung Deutschland</h2>
+
+    <div style="overflow-x:auto; margin-bottom:36px;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+        <thead>
+          <tr style="background:var(--black);color:var(--white);">
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Zone</th>
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Bezeichnung</th>
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Charakteristik</th>
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Referenz-Windgeschw.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 16px;"><strong>WZ 1</strong> <span class="zone-badge zone-badge--wind1">Gering</span></td>
+            <td style="padding:12px 16px;">Windzone 1</td>
+            <td style="padding:12px 16px;color:var(--muted);">Binnenland, windgeschützte Lagen</td>
+            <td style="padding:12px 16px;">v<sub>b,0</sub> = 22,5 m/s</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:#fafaf8;">
+            <td style="padding:12px 16px;"><strong>WZ 2</strong> <span class="zone-badge zone-badge--wind2">Mittel</span></td>
+            <td style="padding:12px 16px;">Windzone 2</td>
+            <td style="padding:12px 16px;color:var(--muted);">Binnenland, normale Lagen</td>
+            <td style="padding:12px 16px;">v<sub>b,0</sub> = 25,0 m/s</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 16px;"><strong>WZ 3</strong> <span class="zone-badge zone-badge--wind3">Erhöht</span></td>
+            <td style="padding:12px 16px;">Windzone 3</td>
+            <td style="padding:12px 16px;color:var(--muted);">Küstennahe Regionen</td>
+            <td style="padding:12px 16px;">v<sub>b,0</sub> = 27,5 m/s</td>
+          </tr>
+          <tr style="background:#fafaf8;">
+            <td style="padding:12px 16px;"><strong>WZ 4</strong> <span class="zone-badge zone-badge--wind4">Hoch</span></td>
+            <td style="padding:12px 16px;">Windzone 4</td>
+            <td style="padding:12px 16px;color:var(--muted);">Nordsee, Ostsee, Inseln</td>
+            <td style="padding:12px 16px;">v<sub>b,0</sub> = 30,0 m/s</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+        <thead>
+          <tr style="background:var(--black);color:var(--white);">
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Zone</th>
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Bezeichnung</th>
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Charakteristik</th>
+            <th style="padding:12px 16px;text-align:left;font-family:var(--font-heading);">Char. Schneelast s<sub>k</sub></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 16px;"><strong>SLZ 1</strong> <span class="zone-badge zone-badge--snow1">Gering</span></td>
+            <td style="padding:12px 16px;">Schneelastzone 1</td>
+            <td style="padding:12px 16px;color:var(--muted);">Norddeutsches Flachland</td>
+            <td style="padding:12px 16px;">0,65–0,85 kN/m²</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:#fafaf8;">
+            <td style="padding:12px 16px;"><strong>SLZ 2</strong> <span class="zone-badge zone-badge--snow2">Mittel</span></td>
+            <td style="padding:12px 16px;">Schneelastzone 2</td>
+            <td style="padding:12px 16px;color:var(--muted);">Mittelgebirgslagen</td>
+            <td style="padding:12px 16px;">0,85–1,25 kN/m²</td>
+          </tr>
+          <tr style="background:#fafafa;">
+            <td style="padding:12px 16px;"><strong>SLZ 3</strong> <span class="zone-badge zone-badge--snow3">Erhöht</span></td>
+            <td style="padding:12px 16px;">Schneelastzone 3</td>
+            <td style="padding:12px 16px;color:var(--muted);">Hochlagen, Alpen, Mittelgebirge</td>
+            <td style="padding:12px 16px;">1,25–3,00+ kN/m²</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.8rem;color:var(--muted);margin-top:12px;">
+      Quelle: DIN EN 1991-1-3 (Eurocode 1 – Schneelasten) und DIN EN 1991-1-4 (Eurocode 1 – Windlasten),
+      Nationaler Anhang Deutschland. Für Standorte über 1.000 m ü. NN gelten Sonderregelungen.
+    </p>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="wz-cta" aria-label="Beratungsangebot">
+  <div class="container" style="text-align:center;">
+    <p class="tag" style="color:var(--gold);">Ihr nächster Schritt</p>
+    <h2>Jetzt kostenlos beraten lassen</h2>
+    <p>
+      Wir kennen die Lastanforderungen in Ihrem Einzugsgebiet – Montabaur, Neuwied,
+      Altenkirchen und Umgebung. Unverbindlich, persönlich, ohne Wartezeit.
+    </p>
+    <a href="/#kontakt" class="btn btn-gold" style="font-size:1.05rem;padding:15px 36px;">
+      Anfrage starten →
+    </a>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== FOOTER (identisch mit index.html) ===== -->
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="images/logo-dunkel.png" alt="BV AussenSysteme" class="footer-logo" loading="lazy" width="200" height="200" />
+        <p>Ihr regionaler Spezialist für Terrassenüberdachungen, Carports, Pergolen und
+           Sonnenschutz im Westerwald und Umgebung.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/profile.php?id=61590931949818" class="social-btn social-btn--facebook"
+             aria-label="Facebook" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.883v2.27h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/bv.aussensysteme" class="social-btn social-btn--instagram"
+             aria-label="Instagram" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+          <a href="https://www.youtube.com/channel/UCU2_F-qZlN7KyfHY4G2oSFg" class="social-btn social-btn--youtube"
+             aria-label="YouTube" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+          </a>
+          <a href="https://wa.me/4915678696609" class="social-btn social-btn--whatsapp"
+             aria-label="WhatsApp" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4>Leistungen</h4>
+        <ul class="footer-links">
+          <li><a href="/#leistungen">Terrassenüberdachung</a></li>
+          <li><a href="/#leistungen">Carport</a></li>
+          <li><a href="/#leistungen">Pergola &amp; Lamellendach</a></li>
+          <li><a href="/#leistungen">Kaltwintergarten</a></li>
+          <li><a href="/#leistungen">Sonnenschutz &amp; Markisen</a></li>
+          <li><a href="/#leistungen">Geländer &amp; Zubehör</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Regionen</h4>
+        <ul class="footer-links">
+          <li><a href="einzugsgebiet.html">Westerwald</a></li>
+          <li><a href="einzugsgebiet.html">Montabaur</a></li>
+          <li><a href="einzugsgebiet.html">Neuwied</a></li>
+          <li><a href="einzugsgebiet.html">Altenkirchen</a></li>
+          <li><a href="einzugsgebiet.html">Hachenburg</a></li>
+          <li><a href="einzugsgebiet.html">Limburg</a></li>
+          <li><a href="einzugsgebiet.html">Koblenz</a></li>
+          <li><a href="einzugsgebiet.html">Pleckhausen</a></li>
+          <li><a href="einzugsgebiet.html">Horhausen</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Unternehmen</h4>
+        <ul class="footer-links">
+          <li><a href="partner.html">🤝 Partner</a></li>
+          <li><a href="konfigurator.html">🛠 Konfigurator</a></li>
+          <li><a href="/#warum-wir">Über uns</a></li>
+          <li><a href="/#prozess">Unser Ablauf</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+          <li><a href="pflege.html">Pflegehinweise</a></li>
+          <li><a href="einzugsgebiet.html">📍 Einzugsgebiet</a></li>
+          <li><a href="#kontakt">Kontakt</a></li>
+          <li><a href="windzonen.html" style="color:var(--gold);">💨 Wind- &amp; Schneelastzonen</a></li>
+          <li><a href="impressum.html">Impressum</a></li>
+          <li><a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+          <a href="datenschutz.html">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 BV AussenSysteme · Alexander Becker · Westerwaldkreis, Rheinland-Pfalz</p>
+      <p>
+        <a href="impressum.html">Impressum</a> ·
+        <a href="datenschutz.html">Datenschutz</a> ·
+        <a href="#" onclick="openCookieSettings();return false;">Cookie-Einstellungen</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="js/main.js"></script>
+<script src="js/cookie.js"></script>
+<script src="js/accessibility.js"></script>
+
+<!-- Leaflet CSS+JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+/* ===================================================
+   BV AussenSysteme – Wind- & Schneelastzonen Tool
+   Version 3.0 | 2026-06-24
+
+   DATENQUELLEN:
+   ─────────────────────────────────────────────────
+   1) Windzonen:
+      Quelle : Deutsches Institut für Bautechnik (DIBt)
+      Titel  : Zuordnung der Windzonen nach Verwaltungsgrenzen
+      Stand  : 02.06.2022 · DIN EN 1991-1-4/NA
+      URL    : https://www.dibt.de/de/wir-bieten/technische-baubestimmungen/
+      Lizenz : Öffentliche Technische Baubestimmungen (kostenfrei)
+
+   2) Schneelastzonen:
+      Quelle : Deutsches Institut für Bautechnik (DIBt)
+      Titel  : Zuordnung der Schneelastzonen nach Verwaltungsgrenzen
+      Stand  : 07.02.2023 · DIN EN 1991-1-3/NA
+      URL    : https://www.dibt.de/de/wir-bieten/technische-baubestimmungen/
+      Lizenz : Öffentliche Technische Baubestimmungen (kostenfrei)
+
+   3) Kreisgeometrien (Centroide):
+      Quelle : Bundesamt für Kartographie und Geodäsie (BKG)
+      Titel  : Verwaltungsgebiete 1:250.000 (VG250), Stand 01.01.2025
+      URL    : https://daten.gdz.bkg.bund.de/produkte/vg/vg250_ebenen_0101/
+      Lizenz : Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0)
+      Verweis: https://www.govdata.de/dl-de/by-2-0
+      © BKG 2025, dl-de/by-2-0
+
+   GEOCODING:
+      Nominatim / OpenStreetMap – DSGVO-freundlich, kein API-Key
+      © OpenStreetMap-Mitwirkende (ODbL)
+
+   METHODE:
+      Nearest-Neighbor-Suche: Koordinaten → nächster Kreismittelpunkt
+      → DIBt-Zonendaten. Fehlertoleranz: ≤ ~25 km (Kreisdurchmesser/2).
+=================================================== */
+
+// ---- Zonendaten (inline, aus data/lastzonen_deutschland.geojson) ----
+var LASTZONEN_DATA = null;
+
+function wzLoadData() {
+  fetch('data/lastzonen_deutschland.geojson')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) { LASTZONEN_DATA = d; })
+    .catch(function() { LASTZONEN_DATA = null; });
+}
+
+// ---- Nearest-Neighbor-Lookup ----
+function wzFindByCoords(lat, lng) {
+  if (!LASTZONEN_DATA || !LASTZONEN_DATA.features) return null;
+  var best = null, bestDist = Infinity;
+  for (var i = 0; i < LASTZONEN_DATA.features.length; i++) {
+    var f = LASTZONEN_DATA.features[i];
+    var coords = f.geometry.coordinates;
+    var dlat = coords[1] - lat;
+    var dlng = coords[0] - lng;
+    var dist = dlat * dlat + dlng * dlng;
+    if (dist < bestDist) { bestDist = dist; best = f; }
+  }
+  // Sanity check: reject if more than ~50km away (outside Germany)
+  if (bestDist > 0.5) return null; // ~50km in degrees
+  return best;
+}
+
+// ---- Karte ----
+var wzMap = null, wzMarker = null;
+
+function wzInitMap(lat, lng) {
+  if (!wzMap) {
+    wzMap = L.map('wz-map', { scrollWheelZoom: false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende | © <a href="https://www.bkg.bund.de" target="_blank" rel="noopener">BKG</a> 2025 <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener">dl-de/by-2-0</a>',
+      maxZoom: 18
+    }).addTo(wzMap);
+  }
+  var icon = L.divIcon({
+    html: '<div style="width:18px;height:18px;background:#C49A2A;border:3px solid #111;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
+    className: '', iconSize: [18,18], iconAnchor: [9,9]
+  });
+  if (wzMarker) wzMarker.remove();
+  wzMarker = L.marker([lat,lng],{icon:icon}).addTo(wzMap);
+  wzMap.setView([lat,lng], 11);
+  setTimeout(function(){ wzMap.invalidateSize(); }, 100);
+}
+
+// ---- Ergebnisanzeige ----
+var WZ_INFO = {
+  1: {sub: 'Windgeschützte Binnenlagen · v<sub>b,0</sub> = 22,5 m/s', badge: 'wind1'},
+  2: {sub: 'Normale Binnenlagen · v<sub>b,0</sub> = 25,0 m/s', badge: 'wind2'},
+  3: {sub: 'Küstennahe Regionen · v<sub>b,0</sub> = 27,5 m/s', badge: 'wind3'},
+  4: {sub: 'Nordsee/Ostsee/Inseln · v<sub>b,0</sub> = 30,0 m/s', badge: 'wind4'}
+};
+var SLZ_INFO = {
+  '1':  {sub: 'Flachland · s<sub>k</sub> = 0,65 kN/m²', badge: 'snow1'},
+  '1a': {sub: 'Erhöhtes Flachland · s<sub>k</sub> = 0,81 kN/m²', badge: 'snow1'},
+  '2':  {sub: 'Mittelgebirge · s<sub>k</sub> = 0,85 kN/m²', badge: 'snow2'},
+  '2a': {sub: 'Erhöhte Mittelgebirge · s<sub>k</sub> = 1,06 kN/m²', badge: 'snow2'},
+  '3':  {sub: 'Hochlagen/Alpen/Harz · s<sub>k</sub> ab 1,10 kN/m²', badge: 'snow3'}
+};
+
+function wzShowResults(address, lat, lng, props) {
+  var wz = props.windzone, slz = String(props.schneelastzone);
+  var fn = props.sonderhinweis || '';
+  var kreisName = props.name;
+
+  document.getElementById('wz-addr-text').textContent = address;
+  document.getElementById('wz-addr-coords').textContent =
+    'Breite: ' + lat.toFixed(5) + ' | Länge: ' + lng.toFixed(5);
+
+  var wi = WZ_INFO[wz] || WZ_INFO[1];
+  var si = SLZ_INFO[slz] || SLZ_INFO['2'];
+
+  var kreisInfo = '<br><span style="color:#5a7a2e;font-size:0.77rem;">✓ Zugeordnet zu: ' + kreisName + ' · Quelle: DIBt 2022/2023</span>';
+
+  document.getElementById('wz-windzone').innerHTML =
+    'WZ&nbsp;' + wz + ' <span class="zone-badge zone-badge--' + wi.badge + '">Windzone ' + wz + '</span>';
+  document.getElementById('wz-windzone-sub').innerHTML =
+    wi.sub + ' · DIN EN 1991-1-4/NA' + kreisInfo;
+
+  var fnHtml = '';
+  if (fn === 'Nordd.Tiefld.') {
+    fnHtml = '<br><span style="color:#666;font-size:0.77rem;">ℹ Norddeutsches Tiefland: außergewöhnlicher Lastfall 2,3 × s<sub>k</sub> prüfen (DIN EN 1991-1-3/NA 4.3)</span>';
+  } else if (fn === 'Harzinsel') {
+    fnHtml = '<br><span style="color:#666;font-size:0.77rem;">ℹ Harzinsel-Regelung: Mindestlast 5,5 kN/m² beachten (DIBt)</span>';
+  }
+
+  document.getElementById('wz-snowzone').innerHTML =
+    'SLZ&nbsp;' + slz + ' <span class="zone-badge zone-badge--' + si.badge + '">Schneelastzone ' + slz + '</span>';
+  document.getElementById('wz-snowzone-sub').innerHTML =
+    si.sub + ' · DIN EN 1991-1-3/NA' + fnHtml + kreisInfo;
+
+  document.getElementById('wz-results').classList.add('visible');
+  document.getElementById('wz-results').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ---- Suche ----
+function wzSearch() {
+  var input = document.getElementById('wz-address-input');
+  var query = input.value.trim();
+  var errorEl = document.getElementById('wz-error');
+  var loader = document.getElementById('wz-loader');
+  var btn = document.getElementById('wz-search-btn');
+
+  errorEl.classList.remove('visible');
+  input.classList.remove('error');
+  document.getElementById('wz-results').classList.remove('visible');
+  document.getElementById('wz-map-wrap').classList.remove('visible');
+
+  if (!query || query.length < 2) {
+    errorEl.textContent = 'Bitte geben Sie eine Adresse, Postleitzahl oder einen Ort ein.';
+    errorEl.classList.add('visible');
+    input.classList.add('error');
+    input.focus();
+    return;
+  }
+
+  loader.classList.add('visible');
+  btn.disabled = true;
+
+  var url = 'https://nominatim.openstreetmap.org/search'
+    + '?q=' + encodeURIComponent(query + ', Deutschland')
+    + '&format=json&limit=1&addressdetails=1&accept-language=de';
+
+  fetch(url, { headers:{'Accept':'application/json'} })
+  .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+  .then(function(data) {
+    loader.classList.remove('visible');
+    btn.disabled = false;
+
+    if (!data || !data.length) {
+      errorEl.textContent = 'Adresse nicht gefunden. Bitte versuchen Sie es mit einer Postleitzahl oder einem Ortsnamen.';
+      errorEl.classList.add('visible');
+      input.classList.add('error');
+      return;
+    }
+
+    var result = data[0];
+    var lat = parseFloat(result.lat), lng = parseFloat(result.lon);
+    var addr = result.address || {};
+
+    var parts = [];
+    if (addr.road) parts.push(addr.road + (addr.house_number ? ' ' + addr.house_number : ''));
+    if (addr.postcode) parts.push(addr.postcode);
+    var city = addr.city || addr.town || addr.village || addr.municipality || '';
+    if (city) parts.push(city);
+    if (addr.state) parts.push(addr.state);
+    var shortAddr = parts.join(', ') || result.display_name.split(',').slice(0,3).join(',');
+
+    // GeoJSON nearest-neighbor lookup
+    var feature = wzFindByCoords(lat, lng);
+    if (!feature) {
+      errorEl.textContent = 'Standort außerhalb von Deutschland oder Daten nicht geladen. Bitte versuchen Sie es erneut.';
+      errorEl.classList.add('visible');
+      return;
+    }
+
+    document.getElementById('wz-map-wrap').classList.add('visible');
+    wzInitMap(lat, lng);
+    wzShowResults(shortAddr, lat, lng, feature.properties);
+  })
+  .catch(function() {
+    loader.classList.remove('visible');
+    btn.disabled = false;
+    errorEl.textContent = 'Fehler bei der Standortermittlung. Bitte Internetverbindung prüfen und erneut versuchen.';
+    errorEl.classList.add('visible');
+  });
+}
+
+// ---- Reset ----
+function wzReset() {
+  document.getElementById('wz-address-input').value = '';
+  document.getElementById('wz-results').classList.remove('visible');
+  document.getElementById('wz-map-wrap').classList.remove('visible');
+  document.getElementById('wz-error').classList.remove('visible');
+  document.getElementById('wz-address-input').classList.remove('error');
+  document.getElementById('wz-address-input').focus();
+}
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('wz-address-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') wzSearch();
+  });
+  wzLoadData();
+});
+
+function closeMobile() {
+  var m = document.getElementById('mobileMenu');
+  if (m) m.classList.remove('open');
+}
+</script>
+
+</body>
+</html>
