@@ -276,6 +276,12 @@ bv-aussensysteme/
 **Terrassendach TDS**
 Das TDS ist unser Bestseller – und das aus gutem Grund. Klare Linien, robuste Aluminiumprofile, verfügbar mit Polycarbonat- oder Glasdach. Passt an jede Wand, steht freistehend, lässt sich erweitern. Wir fertigen exakt auf Ihr Maß – keine Standardlösungen vom Regal.
 
+**Zusatzelemente für Terrassenüberdachungen** (eigene Sektion auf terrassenueberdachung.html)
+- Feststehende Stirn- & Seitenelemente (Glas/Polycarbonat, mit/ohne Fenster)
+- Glasschiebetür & Schiebeelemente (ESG/VSG, Einzel- oder Mehrfachanlage)
+- Velaris als verschiebbares Seitenelement (einsteuerbar, Kaskadensystem)
+- Festelemente mit Tür (mit/ohne Glas, Einzel- oder Doppelflügel)
+
 **Flachdach SkyView**
 Flach, modern, beeindruckend. Das SkyView gibt Ihrer Terrasse einen Charakter der bleibt. Innenliegendes Gefälle – von außen unsichtbar, technisch perfekt. 8 mm VSG-Sicherheitsglas ist Standard. LED und Lautsprecher auf Wunsch. Für alle die etwas Besonderes wollen.
 

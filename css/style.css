@@ -1780,7 +1780,9 @@ img { max-width: 100%; height: auto; }
   z-index: 10;
 }
 @media (max-width: 600px) {
-  .hero-btns-row { flex-direction: column; align-items: flex-start; }
+  .hero-btns-row { flex-direction: column; align-items: center; width: 100%; }
+  .hero-btns { flex-direction: column; width: 100%; max-width: 100%; }
+  .hero-btns .btn { width: 100%; min-width: unset; text-align: center; }
   .hs-dots-inline { margin-top: 4px; }
 }
 
@@ -1800,3 +1802,27 @@ img { max-width: 100%; height: auto; }
   margin-right: auto;
 }
 .leistung-kategorie-label:first-of-type { margin-top: 0; }
+
+/* ── SEO Intro Section ── */
+.seo-intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.seo-intro-grid h2 { margin-bottom: 16px; }
+.seo-intro-grid p { color: var(--muted); line-height: 1.75; margin-bottom: 14px; }
+.seo-intro-grid strong { color: var(--black); }
+.seo-intro-links h3 { margin-bottom: 16px; font-size: 1.2rem; }
+.seo-link-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.seo-link-list a {
+  display: block; padding: 10px 14px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--black);
+  text-decoration: none; font-size: 0.9rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+.seo-link-list a:hover { border-color: var(--gold); color: var(--gold-dark); }
+@media (max-width: 768px) {
+  .seo-intro-grid { grid-template-columns: 1fr; gap: 32px; }
+}
