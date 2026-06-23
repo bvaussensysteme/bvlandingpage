@@ -300,6 +300,9 @@ Das SunPro Plus ist unser meistgefragtes Lamellendach. Motorisierte Lamellen die
 **Warema L50**
 Das Warema L50 kombiniert deutsches Qualitätshandwerk mit elegantem Design. Breite Lamellen, präzise Mechanik, langlebig. Ideal wenn es auf Details ankommt.
 
+**Lamaxa L50**
+Das Lamaxa L50 ist für alle die nicht irgendein Lamellendach wollen – sondern das richtige. Stil, Funktion und Langlebigkeit in einem System vereint. Ganzjährig nutzbar, individuell anpassbar, ein echter Hingucker für jeden Außenbereich.
+
 ---
 
 ### Velaris
