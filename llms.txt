@@ -80,3 +80,6 @@ Von Auftragsbestätigung bis Montage in der Regel 2–4 Wochen.
 - [Balkon & Fassade](https://www.bv-aussensysteme.de/produkte/balkon-fassade.html)
 - [Garten & Außenbereich](https://www.bv-aussensysteme.de/produkte/garten-aussenbereich.html)
 - [Einzugsgebiet](https://www.bv-aussensysteme.de/einzugsgebiet.html)
+
+# Lastzonentool
+/windzonen.html - Kostenlose Ermittlung von Wind- und Schneelastzonen für Standorte in Deutschland (DIN EN 1991)

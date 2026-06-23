@@ -1,393 +1,322 @@
 # BV AussenSysteme – Projektstand
 
 > **Für neuen Chat:** ZIP hochladen, diese Datei lesen lassen, sofort weitermachen.
-> Letzte Aktualisierung: 22.06.2026
+> Letzte Aktualisierung: 23.06.2026
 
 ---
 
 ## KUNDE
 - **Inhaber:** Alexander Becker + Josef (2. Geschäftsführer, Gründung in Vorbereitung)
 - **Firma:** BV AussenSysteme
-- **Tel:** 015678 696609
+- **Tel:** 015678 696609 | WhatsApp: https://wa.me/4915678696609
 - **E-Mail:** info@bv-aussensysteme.de
-- **Adresse:** Am Driesch 1, 56428 Dernbach (Westerwald) – Heimarbeitsplatz, kein Kundenstandort
-- **Branche:** Terrassenüberdachungen, Carports, Pergolen, Kaltwintergärten, Sonnenschutz, Geländer
-- **Hersteller-Partner:** VD AluSysteme Dietrich GmbH (vd-alusysteme.de)
+- **Adresse Beratung:** Am Driesch 1, 56428 Dernbach (Westerwald)
+- **Adresse Montage:** Pleckhausen (Westerwald) – Josef startet von dort
+- **Branche:** Terrassenüberdachungen, Carports, Pergolen, Lamellendächer, Sonnenschutz, Geländer, Außensysteme
+- **Hersteller-Partner:** VD AluSysteme Dietrich GmbH (vd-alusysteme.de, Viktor Dietrich GF)
+- **Kalender:** Aktuell TimeTree, geplanter Wechsel zu Google Calendar + Cal.com
 
 ---
 
 ## LIVE WEBSITE
-- **URL:** https://bv-aussensysteme.de (ohne www funktioniert sicher)
-- **www:** https://www.bv-aussensysteme.de → leitet weiter via Cloudflare Redirect Rule
-- **Hosting:** Cloudflare Worker „bvlanding" (serviert statische Dateien direkt)
-- **GitHub:** Repository bvaussensysteme/bvlandingpage (Public) – Dateien dort hochladen
-- **DNS:** Cloudflare – nach Änderungen: dash.cloudflare.com → bv-aussensysteme.de → Caching → Purge Everything
-- **Formular:** Formspree ID `xnjkabdv` → geht an info@bv-aussensysteme.de
-- **Google Bewertungslink:** https://g.page/r/CQh4XlvW-1nEEBM/review
+- **URL:** https://bv-aussensysteme.de
+- **www:** https://www.bv-aussensysteme.de → Cloudflare 301 Redirect
+- **Hosting:** Cloudflare Worker „bvlanding"
+- **GitHub:** Repository bvaussensysteme/bvlandingpage (Public)
+- **Deploy:** Dateien auf GitHub hochladen → Cloudflare: Caching → Purge Everything
+- **Formular:** Formspree ID `xnjkabdv` → info@bv-aussensysteme.de
+- **Google Bewertung:** https://g.page/r/CQh4XlvW-1nEEBM/review
 
 ---
 
-## TECHNISCHER AUFBAU
+## UPDATE-ZIP SYSTEM
+Ab 23.06.2026: Nur geänderte Dateien in `BVsite-update-DATUM.zip` packen.
+**Wichtig:** Immer aus dem Ordner `bv-aussensysteme/` heraus packen:
+```
+cd /home/claude/bv-aussensysteme && zip /mnt/user-data/outputs/BVsite-update-DATUM.zip datei1.html datei2.css
+```
+So haben Dateien den richtigen Pfad ohne `bv-aussensysteme/` Prefix.
+
+---
+
+## DATEISTRUKTUR
 ```
 bv-aussensysteme/
-├── index.html                  ← Hauptseite mit Hero-Slider
+├── index.html                    ← Hauptseite mit Hero-Slider (4 Slides)
 ├── agb.html
-├── konfigurator.html           ← Platzhalter „Demnächst verfügbar"
-├── pflege.html                 ← Pflegehinweise für Überdachungen
-├── einzugsgebiet.html          ← Leaflet.js Karte mit BV-Logo als Marker
-├── impressum.html              ← „Gründung in Vorbereitung"
 ├── datenschutz.html
-├── partner.html                ← Partnerseite (VD AluSysteme mit Logo)
-├── kontakt.html                ← Redirect auf /#kontakt
-├── sitemap.xml
-├── robots.txt
-├── css/style.css               ← Alle Styles (~1400 Zeilen)
+├── impressum.html                ← "Gründung in Vorbereitung"
+├── konfigurator.html             ← Platzhalter "Demnächst"
+├── pflege.html
+├── einzugsgebiet.html            ← Leaflet.js Karte mit BV-Marker
+├── partner.html                  ← VD AluSysteme
+├── kontakt.html                  ← Redirect → /#kontakt
+├── sitemap.xml                   ← 24 Seiten
+├── robots.txt                    ← KI-Crawler erlaubt
+├── llms.txt                      ← KI-Optimierung (ChatGPT, Perplexity etc.)
+├── llms-full.txt                 ← Alle Produkttexte für KI
+├── _headers                      ← Cloudflare Security Headers
+├── PROJEKTSTAND.md
+├── README.md
+├── css/style.css
 ├── js/
-│   ├── main.js                 ← FAQ, Hamburger, Sticky CTA, Formspree
-│   ├── i18n.js                 ← ENTFERNT (Sprachauswahl wurde deaktiviert)
-│   ├── cookie.js               ← Cookie-Banner (speichert in localStorage + Cookie)
-│   ├── accessibility.js        ← Barrierefreiheits-Widget (8 Funktionen, rechts unten)
-│   └── slider.js               ← Hero-Slider (4 Slides, 6.5s, Touch/Swipe)
+│   ├── main.js                   ← FAQ, Hamburger, Sticky CTA, Formspree
+│   ├── cookie.js                 ← DSGVO Cookie-Banner (localStorage)
+│   ├── accessibility.js          ← Barrierefreiheits-Widget (8 Funktionen)
+│   └── slider.js                 ← Hero-Slider (4 Slides, 6.5s)
 ├── images/
-│   ├── logo-hell.png           ← Navbar Logo (hell)
-│   ├── logo-dunkel.png         ← Footer Logo (dunkel)
-│   ├── marker-logo.png         ← BV-Logo freigestellt für Kartenmarker (36px)
-│   ├── partner-vd-alusysteme.png ← VD Logo freigestellt (1256x308)
-│   ├── prod_*.jpg              ← 21 Produktbilder (800x600, aus VD-Screenshots)
-│   └── galerie-*.jpg           ← Galeriebilder
+│   ├── logo-hell.png / logo-dunkel.png / favicon.ico etc.
+│   ├── marker-logo.png           ← BV-Logo für Kartenmarker
+│   ├── vd_prod_*.jpg             ← 21 VD-Bilder (Prefix vd_ = bei Vertragsende löschen!)
+│   └── vd_partner-vd-alusysteme.png
 └── produkte/
-    ├── terrassenueberdachung.html
+    ├── terrassenueberdachung.html ← inkl. Stirnseiten, Schiebeelemente, Velaris, Festelemente
     ├── carport.html
-    ├── pergola.html
+    ├── pergola.html               ← SunPro, Warema L50, Lamaxa L50
     ├── kaltwintergarten.html
-    ├── sonnenschutz.html
+    ├── sonnenschutz.html          ← inkl. Velaris als 4. Karte
     ├── gelaender.html
-    └── eingangsüberdachung.html
+    ├── eingangsüberdachung.html   ← alte Seite, Link zeigt jetzt auf eingang.html
+    ├── eingang.html               ← NEU: Vordach FLY, Front Line, TDS
+    ├── balkon-fassade.html        ← NEU: Balkon, Deco Wall, Sichtschutz
+    ├── garten-aussenbereich.html  ← NEU: Gartenhaus, Fahrrad, Bushaltestelle, Faltdach
+    ├── velaris.html
+    ├── faltdach.html
+    ├── balkonueberdachung.html
+    ├── fassade.html
+    ├── sichtschutz.html
+    ├── fahrradueberdachung.html
+    ├── gartenhaus.html
+    ├── bushaltestelle.html
+    └── sonnenschutz-beschattung.html
 ```
 
 ---
 
 ## DESIGN
-- **Primärfarbe:** Gold `#C49A2A`, Gold-Dark `#9A7318`
-- **Hintergrund:** Schwarz `#111111`, Off-White `#F5F2EB`
-- **Fonts:** Barlow Condensed (Überschriften, 700/800) + Inter (Fließtext) via Google Fonts
-- **Logo hell:** logo-hell.png (Navbar auf weißem Hintergrund)
-- **Logo dunkel:** logo-dunkel.png (Footer auf schwarzem Hintergrund)
-- **Border-Radius:** `--radius: 6px`
+- Gold: `#C49A2A` | Gold-Dark: `#9A7318`
+- Schwarz: `#111111` | Off-White: `#F5F2EB`
+- Fonts: Barlow Condensed (Überschriften) + Inter (Text) – erst nach Cookie-Consent geladen
+- Border-Radius: `--radius: 6px`
 
 ---
 
-## FEATURES IM DETAIL
+## FEATURES
 
 ### Hero-Slider (js/slider.js)
-- 4 Slides: 1) Hauptbotschaft+Karten, 2) Terrassendach, 3) Carport, 4) Pergola
-- Auto-Slide alle **6,5 Sekunden** mit goldener Fortschrittsleiste
-- Pause nur beim Hover über Pfeile/Punkte (NICHT bei allgemeinem Hover)
-- Touch/Swipe Mobile, Mausdrag Desktop, Pfeiltasten Keyboard
-- Ken Burns Zoom-Effekt auf Hintergrundbilder
-- Stoppt wenn Barrierefreiheits-Widget „Animationen stoppen" aktiv
+- 4 Slides: 1) Hauptbotschaft zentriert, 2) Terrassendach, 3) Carport, 4) Pergola
+- 6,5 Sekunden Auto-Slide, kein Hover-Pause
+- ⏸ Pause-Button: fixed unten rechts im Slider-Container (auf allen Slides sichtbar)
+- Touch/Swipe Mobile, Mausdrag Desktop
+- Stoppt bei Barrierefreiheits-Widget „Animationen stoppen"
+- Punkte wurden entfernt – nur Pause-Button
+
+### Sticky CTA Banner (index.html)
+- Zwei zentrierte Buttons: „Kostenlos anfragen" (Gold) + „WhatsApp" (Grün #25D366)
+- Schließbar mit ✕
 
 ### Barrierefreiheits-Widget (js/accessibility.js)
-- Button: unten **rechts**, goldener Kreis mit Rollstuhl-Icon
-- 8 Funktionen: Schriftgröße, Hoher Kontrast, Links unterstreichen, Großer Cursor, Lesehilfe, Nachtmodus, Leseschrift, Animationen stoppen
-- Filter (Kontrast/Nachtmodus) werden auf `#bv-page-wrapper` angewendet → Widget bleibt immer sichtbar
-- Einstellungen in localStorage gespeichert
-- Early-Script im `<head>` verhindert Flash beim Laden
+- Button: unten rechts, goldener Kreis
+- Scroll-to-Top Button darüber (erscheint nach 300px Scroll)
+- 8 Funktionen: Schriftgröße, Kontrast, Links, Cursor, Lesehilfe, Nacht, Leseschrift, Animationen
+- Filter auf `#bv-page-wrapper` → Widget bleibt immer sichtbar
+- localStorage gespeichert
 
 ### Cookie-Banner (js/cookie.js)
-- Speichert in **localStorage** (primär) + Browser-Cookie (Fallback)
-- Cloudflare-kompatibel (Browser-Cookies wurden von Cloudflare Worker manchmal blockiert)
-- Optionen: Alle akzeptieren / Nur notwendige / Ablehnen / Einstellungen (mit Toggles)
+- localStorage primär + Browser-Cookie Fallback
+- Feuert `bv_consent_given` Event → lädt dann Google Fonts
+- DSGVO-konform
 
 ### Einzugsgebiet-Karte (einzugsgebiet.html)
-- Leaflet.js mit OpenStreetMap
-- Marker: BV-Logo (marker-logo.png) – Hauptorte 36px, normale Orte 28px
-- Absoluter Bildpfad via `window.location.origin + '/images/marker-logo.png'`
-- Liste rechts: normale Punkte (nicht Logo)
-- Unten: „Ihr Standort nicht dabei? Melden Sie sich trotzdem – wir prüfen individuell..."
+- Leaflet.js + OpenStreetMap
+- BV-Marker: schwarzer Kreis goldener Rand „BV" Text (CSS, kein Bild)
+- Absoluter Bildpfad für Marker
 
-### Beta-Hinweis-Modal
-- Erscheint beim ersten Besuch (einmal pro Session via sessionStorage)
-- Zeigt: Entschuldigung für Baustelle + alle Kontakte (Tel, WhatsApp, E-Mail) als klickbare Kacheln
-- Button „Verstanden – weiter zur Seite"
-
-### Partner-Seite (partner.html)
-- VD AluSysteme Dietrich GmbH mit freigestelltem Logo
-- Link: vd-alusysteme.de
-- Im Footer unter „Unternehmen" verlinkt
-
-### Konfigurator (konfigurator.html)
-- Platzhalter „Demnächst verfügbar"
-- 6 Feature-Karten: Maße, Farben, 3D Vorschau, Preisanfrage, Direkte Anfrage, Mobil & Desktop
-- E-Mail-Benachrichtigungs-Formular (Formspree)
-
-### Kontakt-Redirect (kontakt.html)
-- `bv-aussensysteme.de/kontakt` → leitet direkt zu `/#kontakt`
+### Leistungen Startseite
+- 9 Kacheln: Terrassendach, Carport, Pergola, Kaltwintergarten, Sonnenschutz & Markisen, Geländer, Eingang & Vordächer, Balkon & Fassade, Garten & Außenbereich
+- Alle verlinken auf eigene Produktseiten
 
 ---
 
-## SPRACHAUSWAHL
-- **Status: DEAKTIVIERT** – wurde entfernt weil der TreeWalker den Sprachbutton-Text überschrieben hat („DE DE" Bug) und trotz mehrerer Fixes nicht zuverlässig funktioniert hat
-- i18n.js ist noch im Projekt aber hat keinen Sprachswitcher mehr in der Navbar
+## SEO & KI-OPTIMIERUNG
+
+### Google
+- Search Console: verifiziert, Sitemap eingereicht (24 Seiten)
+- Schema.org: LocalBusiness (erweitert), FAQPage (21 Fragen), HowTo, Service
+- Alle Produkte im OfferCatalog mit Beschreibungen
+- Beide Standorte (Dernbach + Pleckhausen) im Schema
+- hreflang: www + non-www auf allen Seiten
+- Canonical auf allen Seiten
+- Meta-Descriptions: alle unter 155 Zeichen
+
+### KI-Optimierung (GEO/AEO)
+- `llms.txt` – Standard für ChatGPT, Perplexity, Claude
+- `llms-full.txt` – alle Produkttexte
+- `robots.txt` – GPTBot, Claude-Web, PerplexityBot, Google-Extended explizit erlaubt
+- `knowsAbout` im Schema mit allen 16 Fachgebieten
+
+### Lokale Keywords eingebaut
+Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumbach, Wirges, Pleckhausen, Neuwied, Koblenz, Limburg, Diez
 
 ---
 
-## SEO & GOOGLE
-- **Google Search Console:** Verifiziert, Sitemap `sitemap.xml` eingereicht (14 Seiten erkannt, Status: Erfolgreich)
-- **Indexierung:** Seite bereits in Google-Suchergebnissen sichtbar
-- **Schema.org:** LocalBusiness, FAQ, HowTo in index.html
-- **Google Business Profil:** Aktiv, verifiziert via DNS
-  - Adressänderung ausstehend (Wartung/Verifizierung via Google Meet nötig)
-  - Toggle „Unternehmensadresse für Kunden einblenden" = AUS
-- **Google Bewertungs-Button:** Echter Google-Style Button auf Startseite (weiß, G-Logo, Sterne)
+## SOCIAL MEDIA (Metricool verbunden)
+- Instagram: bv.aussensysteme
+- Facebook: verbunden
+- TikTok: BV Aussensysteme
+- YouTube: UCU2_F-qZlN7KyfHY4G2oSFg
+- **Workflow:** Foto/Video hier hochladen → Text schreiben → Canva bearbeiten → Metricool planen
+- **Content-Tipp:** Vorher/Nachher, Montage-Zeitraffer, Kundenreaktionen, Wettervideos
+
+### Konkurrenten für Metricool eintragen:
+- `schweng.eu` (18K Follower) – Marktführer
+- `kd_ueberdachung_official` (21K Follower)
+- `terrassen_und_carports` (10K Follower) – am ähnlichsten
+- `ra_sonnenschutzsysteme` (lokal, 606 Follower)
 
 ---
 
-## CLOUDFLARE SETUP
-- **Worker:** bvlanding → serviert die statische Website
-- **Custom Domain:** bv-aussensysteme.de (direkt am Worker)
-- **www-Redirect:** Redirect Rule „Redirect from WWW to root" (Active) + CNAME www → bv-aussensysteme.de
-- **DNS Records:**
-  - Worker: bv-aussensysteme.de → bvlanding (Proxied)
-  - CNAME: www → bv-aussensysteme.de (Proxied)
-  - MX: mx00/mx01.ionos.de (E-Mail via Ionos)
-  - TXT: google-site-verification + SPF
-- **Wartungsfenster:** 22.06.2026 12:00-13:00 UTC (kurzer Ausfall war normal)
+## RECHTLICHER STATUS
+- Impressum: § 5 DDG ✅, Gründungshinweis ✅
+- Datenschutz: Cloudflare, Formspree, sipgate, Google Fonts (consent) ✅
+- Cookie-Banner: DSGVO-konform ✅
+- Kontaktformular: Datenschutz-Pflichtcheckbox ✅
+- Garantieaussagen: 10 J. Alu, 5 J. Markisen/Antriebe korrekt differenziert ✅
+- AGB: Straße in Widerrufsbelehrung ✅
+- VD-Bilder: alle mit `vd_` Prefix → bei Vertragsende löschen ✅
+- Google Fonts: erst nach Cookie-Einwilligung ✅
 
 ---
 
-## ERSTER ABSCHLUSS-CHECK (22.06.2026)
+## ZULETZT GEÄNDERT (24.06.2026 – v2)
+- `windzonen.html` NEU: Wind- & Schneelastzonen-Tool (Nominatim Geocoding, Leaflet.js, Turf.js)
+- `data/windzonen.geojson` NEU: GeoJSON-Platzhalter Windzonen (WZ 1–4)
+- `data/schneelastzonen.geojson` NEU: GeoJSON-Platzhalter Schneelastzonen (SLZ 1–3)
+- `index.html` GEÄNDERT: Footer → Link „Wind- & Schneelastzonen" ergänzt
+- `sitemap.xml` GEÄNDERT: windzonen.html eingetragen (25 Seiten)
 
-### ✅ SEO
-- Canonical URLs: alle 15 Seiten haben korrekte canonical Tags
-- Sitemap: 15 Seiten, partner.html ergänzt, lastmod aktualisiert
-- robots.txt: Alle Seiten indexierbar (impressum/datenschutz nicht mehr gesperrt)
-- Schema.org LocalBusiness: korrekt mit areaServed, openingHours, sameAs
-- aggregateRating aus Schema entfernt (keine verifizierten Bewertungen vorhanden)
-- Meta-Descriptions: alle Seiten mit korrekten Beschreibungen
-- Canonical + robots auf allen Produktseiten vorhanden
-
-### ✅ RECHTLICH (Deutschland)
-- Impressum: § 5 DDG korrekt, Hinweis auf Gründungsphase
-- Datenschutz: Cloudflare, Formspree, sipgate, Google Fonts (consent-gated) dokumentiert
-- Cookie-Banner: DSGVO-konform, localStorage + Cookie Fallback
-- Kontaktformular: Pflicht-Checkbox Datenschutz eingebunden
-- AGB: Widerrufsbelehrung mit vollständiger Adresse (Am Driesch 1)
-- Google Fonts: DSGVO-konform – erst nach Einwilligung geladen
-- TMG → DDG: überall korrekt aktualisiert
-
-### ✅ VD ALUSYSTEME VERTRAG
-- Garantieaussagen korrekt: 10 J. Alu-Produkte, 5 J. Markisen & Antriebe
-- Bilder als vd_* gekennzeichnet → bei Vertragsende einfach löschbar
-- Keine Preisangaben auf der Website (korrekt laut Vertrag § 3)
-- VD als Partner korrekt genannt mit Quellenangabe
-
-### ✅ AUTO-BUGFIX (22.06.2026)
-- i18n.js aus allen 12 Seiten entfernt (war noch geladen, unnötig)
-- datenschutz.html#telefon-ki Anchor-Link gefixt
-- Meta-Descriptions auf 4 Seiten gekürzt (war >160 Zeichen)
-- viewport Meta auf kontakt.html ergänzt
-- cookie.js auf datenschutz, partner, impressum ergänzt
-- .hs-dots absolut-CSS bereinigt (wird nicht mehr verwendet)
-- canonical URLs auf agb, datenschutz, impressum, partner ergänzt
-- sitemap.xml: partner.html ergänzt, lastmod aktualisiert
-- robots.txt: impressum/datenschutz wieder indexierbar
-- VD-Bilder als vd_* gekennzeichnet
-
-### ⚠️ NACH GRÜNDUNG UNBEDINGT ERLEDIGEN
-- Impressum: Straße "Am Driesch 1" + USt-ID + ggf. HRB-Nummer ergänzen
-- AGB: Straße ist drin ✓ – USt-ID ergänzen wenn vorhanden
-- Google Business: Verifizierung via Google Meet abschließen
-- aggregateRating in Schema.org wieder eintragen sobald erste echte Bewertung da ist
-- Öffnungszeiten in Schema.org prüfen (Mo-Fr 08-17, Sa 09-13 – stimmt das?)
-
-### ✅ GOOGLE / SEARCH
-- Search Console: verifiziert, Sitemap eingereicht (14→15 Seiten)
-- Bereits in Google-Suchergebnissen sichtbar
-- Schema.org: LocalBusiness, FAQ, HowTo, Service
-
-## RECHTLICHER STATUS (Stand 22.06.2026)
-- ✅ Impressum: § 5 DDG korrekt (DDG löst TMG ab seit 14.3.2024)
-- ✅ Datenschutzerklärung: Cloudflare + Formspree + sipgate (AI Flow) + IONOS dokumentiert
-- ✅ Google Fonts: DSGVO-konform – werden erst nach Cookie-Einwilligung geladen
-- ✅ Kontaktformular: Datenschutz-Checkbox mit Pflichtfeld-Validierung
-- ✅ Garantieaussagen: Als "Herstellergarantie (VD AluSysteme)" gekennzeichnet
-- ✅ AGB: Straße in Widerrufsbelehrung ergänzt, TMG → DDG
-- ✅ Cookie-Banner: Feuert bv_consent_given Event → lädt dann Google Fonts
-- ⚠️ Impressum: Straße fehlt noch (Am Driesch 1 – wird nach Gründung eingetragen)
-- ⚠️ USt-ID: Fehlt noch (nach Gewerbeanmeldung nachtragen)
+---
 
 ## OFFENE AUFGABEN
 
 ### Nach Gründung (Pflicht)
-- [ ] Impressum: Straße, USt-ID, Handelsregisternummer nachtragen
-- [ ] AGB: Straße im Widerrufsrecht ergänzen
-- [ ] Google Business: Adress-Verifizierung via Google Meet abschließen
-- [ ] Google Business: „Vorübergehend geschlossen" auf „Geöffnet" stellen
-- [ ] Rahmenliefervertrag VD unterschreiben → Händlerportal-Bilder dürfen dann verwendet werden
+- [ ] Impressum: USt-ID + ggf. HRB ergänzen
+- [ ] AGB: USt-ID ergänzen
+- [ ] Google Business: Meet-Verifizierung abschließen
+- [ ] Google Business: „Geöffnet" stellen
+- [ ] Cloudflare: „Always Use HTTPS" einschalten (SSL/TLS → Edge Certificates)
+- [ ] Google Ads: 400€ + 400€ Guthaben nutzen (ich bereite Anzeigentexte + Keywords vor)
 
-### Geplant / Nice-to-have
-- [ ] Trustindex Widget einbauen (nach erster Google-Bewertung)
-- [ ] Terminbuchung: Cal.com mit Google Calendar (wenn auf Google Calendar umgestellt)
-  - Aktuell: TimeTree (kein Cal.com-Sync möglich)
-  - Plan: Google Calendar testen, dann Cal.com einbinden
-- [ ] Produktbilder: Durch echte Fotos ersetzen (aktuell Platzhalter aus VD-Screenshots)
-- [ ] Galerie: Mit echten Referenzfotos befüllen
-- [ ] 3D Konfigurator: Entwickeln lassen wenn Budget vorhanden
-- [ ] Weitere Partner zur partner.html hinzufügen
-
----
-
-## WAS GUT FUNKTIONIERT
-- ✅ Website live, 100/100 Ionos Score (Präsenz, Gefunden, Abgesichert, Schnell)
-- ✅ Google indexiert, Search Console aktiv
-- ✅ Formspree-Formular funktioniert
-- ✅ Cookie-Banner (localStorage-basiert, Cloudflare-kompatibel)
-- ✅ Beta-Hinweis-Modal beim ersten Besuch
-- ✅ Hero-Slider mit 4 Slides (6,5s, Touch, Swipe, Ken Burns)
-- ✅ Barrierefreiheits-Widget (8 Funktionen, rechts unten)
-- ✅ Partner-Seite mit VD AluSysteme Logo
-- ✅ Einzugsgebiet-Karte mit BV-Logo als Marker
-- ✅ SEO: Schema.org, Sitemap, robots.txt
-- ✅ Mobile-responsive (Audit durchgeführt)
-- ✅ 7 Produktseiten
-- ✅ Pflegehinweise-Seite
-- ✅ Konfigurator-Platzhalter
-- ✅ Google-Style Bewertungsbutton
-- ✅ /kontakt Redirect
-- ✅ Barrierefreiheits-Widget stoppt Hero-Slider bei „Animationen stoppen"
+### Geplant
+- [ ] Terminbuchung: Google Calendar einrichten → Cal.com einbinden
+- [ ] Trustindex Widget (nach erster Bewertung)
+- [ ] aggregateRating im Schema (nach erster echter Bewertung)
+- [ ] Eigene Produktfotos (Händlerportal VD nach Vertragsunterzeichnung)
+- [ ] HeyGen: KI-Avatar-Video testen (heygen.com, kostenlos)
+- [ ] Cloudflare Pages statt Worker (auto-deploy bei GitHub-Push)
 
 ---
 
-## WICHTIG FÜR NEUEN CHAT
-1. ZIP hochladen und entpacken
-2. Diese PROJEKTSTAND.md lesen
-3. Änderungen immer in `/home/claude/bv-aussensysteme/` vornehmen
-4. Am Ende ZIP neu packen: `cd /home/claude && zip -r /mnt/user-data/outputs/bv-aussensysteme.zip bv-aussensysteme/`
-5. **PROJEKTSTAND.md nach jeder Änderung aktualisieren**
-6. Auf GitHub: Dateien direkt ins Repository hochladen (kein Git nötig, Upload via Web-UI)
-7. Nach GitHub-Upload: Cloudflare Purge Everything (Cache leeren)
-
----
-
-## PRODUKTTEXTE (eigene Formulierungen – nicht von VD kopiert)
+## PRODUKTTEXTE (eigene Formulierungen)
 
 ### Terrassenüberdachung
-**Terrassendach TDS**
-Das TDS ist unser Bestseller – und das aus gutem Grund. Klare Linien, robuste Aluminiumprofile, verfügbar mit Polycarbonat- oder Glasdach. Passt an jede Wand, steht freistehend, lässt sich erweitern. Wir fertigen exakt auf Ihr Maß – keine Standardlösungen vom Regal.
-
-**Zusatzelemente für Terrassenüberdachungen** (eigene Sektion auf terrassenueberdachung.html)
-- Feststehende Stirn- & Seitenelemente (Glas/Polycarbonat, mit/ohne Fenster)
-- Glasschiebetür & Schiebeelemente (ESG/VSG, Einzel- oder Mehrfachanlage)
-- Velaris als verschiebbares Seitenelement (einsteuerbar, Kaskadensystem)
-- Festelemente mit Tür (mit/ohne Glas, Einzel- oder Doppelflügel)
-
-**Flachdach SkyView**
-Flach, modern, beeindruckend. Das SkyView gibt Ihrer Terrasse einen Charakter der bleibt. Innenliegendes Gefälle – von außen unsichtbar, technisch perfekt. 8 mm VSG-Sicherheitsglas ist Standard. LED und Lautsprecher auf Wunsch. Für alle die etwas Besonderes wollen.
-
----
+**TDS:** Das TDS ist unser Bestseller – klare Linien, robuste Aluminiumprofile, Polycarbonat oder Glas. Passt an jede Wand, steht freistehend, lässt sich erweitern.
+**SkyView:** Flach, modern, beeindruckend. Innenliegendes Gefälle – von außen unsichtbar. 8mm VSG-Glas Standard. LED und Lautsprecher auf Wunsch.
+**Zusatzelemente:** Feststehende Stirn-/Seitenelemente, Glasschiebetür, Velaris als Seitenelement, Festelemente mit Tür (mit/ohne Glas)
 
 ### Carport
-**Carport TDS**
-Unser robustester Carport für den Alltag. Wandanbau oder freistehend, mit Glas- oder Polycarbonatdach – er hält, was er verspricht. Witterungsbeständig, wartungsfrei, in allen RAL-Farben erhältlich. Für ein Auto oder mehrere.
-
-**Flat Line**
-Flache Optik, starke Technik. Die Flat Line ist ideal wenn moderne Architektur gefragt ist – und eignet sich perfekt als Untergrund für eine PV-Anlage oder Dachbegrünung. Klar in der Linie, stark in der Funktion.
-
-**Flat Box (Garage)**
-Wenn der Carport zur Garage werden soll. Die Flat Box schließt die Flat Line mit Sandwichplatten, Rolltor, Tür und Fenster – vollständig wetterdicht, individuell konfigurierbar, keine separate Baugenehmigung in vielen Fällen.
-
----
+**TDS:** Wandanbau oder freistehend, Glas/Polycarbonat, alle RAL-Farben. Witterungsbeständig, wartungsfrei.
+**Flat Line:** Flach, modern, ideal für PV-Anlage oder Dachbegrünung.
+**Flat Box:** Aus Flat Line wird vollwertige Garage – Sandwichplatten, Rolltor, Tür, Fenster.
 
 ### Pergola & Lamellendach
-**SunPro Plus**
-Das SunPro Plus ist unser meistgefragtes Lamellendach. Motorisierte Lamellen die sich per Fernbedienung oder App steuern lassen, wetterfest bis Windstärke 8, in allen RAL-Farben. Ideal für private Terrassen und gastronomische Außenbereiche.
+**SunPro Plus:** Motorisiert, wetterfest bis Windstärke 8, alle RAL-Farben.
+**Warema L50:** Deutsches Qualitätslamellendach, breite Lamellen, präzise Mechanik.
+**Lamaxa L50:** Premium-Lamellendach. Stil, Funktion, Langlebigkeit. Ganzjährig nutzbar.
+**Velaris:** Einsteuerbare Aluminium-Lamellen – Licht, Sichtschutz & Belüftung gleichzeitig.
 
-**Warema L50**
-Das Warema L50 kombiniert deutsches Qualitätshandwerk mit elegantem Design. Breite Lamellen, präzise Mechanik, langlebig. Ideal wenn es auf Details ankommt.
+### Sonnenschutz
+**Aufdach:** Linea (kompakt), Solara (große Flächen), Rolax (Rollo mit Dämmwirkung).
+**Unterdach:** Linea, Solara, Plissee, Sonnensegel. Dezent unter dem Glasdach.
+**Senkrecht:** Sonne, Wind, Sichtschutz. Solar-Variante mit Akku + LED.
 
-**Lamaxa L50**
-Das Lamaxa L50 ist für alle die nicht irgendein Lamellendach wollen – sondern das richtige. Stil, Funktion und Langlebigkeit in einem System vereint. Ganzjährig nutzbar, individuell anpassbar, ein echter Hingucker für jeden Außenbereich.
-
----
-
-### Velaris
-Einstellbare Aluminium-Lamellen die Licht, Sichtschutz und Belüftung auf einmal steuern – per Knopfdruck. Als Seitenelement, als Dach oder beides. Mehrere Elemente kombinierbar, platzsparendes Kaskadensystem.
-
----
-
-### Kaltwintergarten TDS
-Mehr Wohnraum ohne Anbau. Ein Kaltwintergarten verlängert Ihre Terrasse in die kühleren Monate – ohne Heizung, ohne Baugenehmigung in den meisten Fällen. Das TDS nutzt dasselbe bewährte Aluminium-Profil wie unsere Terrassenüberdachungen. Sicherheitsglas rundum, winddicht, individuell zugeschnitten.
-
----
-
-### Sonnenschutz & Markisen
-**Aufdachbeschattung (Linea, Solara, Rolax)**
-Die Markise liegt direkt auf Ihrem Glasdach – eingezogen unsichtbar, ausgefahren wirkungsvoll. Linea für kompakte Flächen, Solara für große Dächer, Rolax als Aluminiumrollo mit Dämmwirkung. Alle Systeme elektrisch steuerbar, mit optionalem Wettersensor.
-
-**Unterdachbeschattung (Linea, Solara, Plissee, Sonnensegel)**
-Wenn die Sonne von oben blendet, hilft die Unterdachmarkise von innen. Dezent montiert unter dem Glasdach, schützt sie vor Aufheizung und Blendung. Vom Plissee bis zum eleganten Sonnensegel.
-
-**Senkrechtbeschattung (Standard & Solar)**
-Seitlicher Schutz der alles verändert. Die Senkrechtmarkise blockiert Sonne, Wind und Blicke – und zieht sich lautlos ein wenn Sie sie nicht brauchen. Die Solar-Variante kommt mit eigenem Akku und integrierten LED für Abendstimmung inklusive.
-
----
-
-### Geländer & Glasgeländer
-**Aluminiumgeländer mit VSG-Glas**
-Unser Aluminiumgeländer mit VSG-Glasfüllung ist die klassische Wahl: robust, witterungsbeständig, pulverbeschichtet in Ihrer Wunschfarbe. Mit 8 oder 10 mm Verbundsicherheitsglas, klar oder opal.
-
-**Easy Rail Ganzglasgeländer**
-Easy Rail ist das Geländer das verschwindet. Nur Glas, fast kein Rahmen, maximale Transparenz. Das Aluminiumprofil sitzt unten und oben – der Rest ist freie Sicht. Für alle die ihren Ausblick nicht einrahmen wollen.
-
----
+### Geländer
+**Alu + VSG-Glas:** 8 oder 10mm, klar oder opal. Klassisch, robust.
+**Easy Rail:** Fast kein Rahmen, nur Glas. Maximale Transparenz.
 
 ### Eingang & Vordächer
-**Vordach FLY**
-Schlanker Aluminiumträger, 17 mm ESG-Glas – mehr braucht es nicht. Das FLY macht jeden Eingang moderner ohne aufzufallen. Ab 100 cm Breite, bis 90 cm Tiefe. Pulverbeschichtet in Ihrer Wunschfarbe.
-
-**Vordach Front Line**
-Front Line ist unser flexibelstes Vordachsystem – als reines Vordach, mit Seitenteil, oder in der Plus-Variante mit 125 cm Tiefe und zwei Pfosten. Immer mit LED-Beleuchtung, auf Wunsch mit Bewegungsmelder und Briefkasten.
-
-**Eingangsüberdachung TDS**
-Die Eingangsüberdachung TDS fügt sich nahtlos in die Architektur ein – dieselbe Profilsprache wie Ihre Terrassenüberdachung, dieselbe Qualität, aber für den Eingangsbereich.
-
----
+**FLY:** Schlanker Aluminiumträger, 17mm ESG. Ab 100cm Breite, 90cm Tiefe.
+**Front Line:** Mit/ohne Seitenteil, PLUS 125cm, LED standard, Bewegungsmelder optional.
+**TDS:** Gleiche Profilsprache wie Terrassendach.
 
 ### Balkon & Fassade
-**Balkonüberdachung**
-Robustes Aluminium, individuelle Maßanfertigung, wartungsfrei. Ob kleiner Stadtbalkon oder große Dachterrasse – wir finden die passende Lösung. Glas oder Polycarbonat, in Ihrer Wunschfarbe.
-
-**Fassadenverkleidung Deco Wall**
-Klare Linien, unsichtbare Befestigung, null Pflegeaufwand. Deco Wall ist ein Aluminium-Klicksystem das schnell sitzt und dauerhaft modern aussieht. Vertikal oder horizontal, in vier Standardfarben oder jeder RAL-Farbe.
-
-**Sichtschutz Aluminium**
-Privatsphäre ohne Plastikzaun oder Betonmauer. Unsere Aluminium-Sichtschutzpaneele (14 cm Höhe) lassen sich frei kombinieren – Sicht-, Sonnen- und Windschutz in einem. In vier Standardfarben oder jeder RAL-Farbe.
-
----
+**Balkon:** Alu, Maßanfertigung, Glas/Polycarbonat, wartungsfrei.
+**Deco Wall:** Klicksystem, unsichtbare Befestigung, vertikal/horizontal.
+**Sichtschutz:** 14cm Paneele kombinierbar, alle RAL-Farben.
 
 ### Garten & Außenbereich
-**Gartenhaus TDS**
-Das Gartenhaus TDS aus Aluminium ist die wartungsfreie Alternative zum klassischen Holzhaus. Stabiles Profil-System, Sicherheitsglas, in Ihrer Wunschfarbe. Jederzeit erweiterbar, schnell montiert, jahrzehntelang haltbar.
-
-**Fahrradüberdachung**
-Robuste Aluminiumkonstruktion, einfache Montage, beliebig erweiterbar. Für private Haushalte, Wohnanlagen, Betriebe oder öffentliche Einrichtungen. Glas- oder Polycarbonat-Eindeckung, in Standard- und Sonderfarben.
-
-**Bushaltestelle**
-Klare Linien, robuste Aluminiumkonstruktion, pflegeleichte Materialien. Verkleidung wahlweise mit Glaselementen oder Aluminiumpaneelen in Holzoptik. Vier Standardfarben, Maßanfertigung für jeden Standort.
-
-**Faltdach OpenAir**
-Jedes Modul hat sein eigenes Dach mit automatischer Steuerung. Das patentierte Wasserableitungssystem verhindert Spritzwasser. Modularer Aufbau – ideal für Gastronomie und große Terrassen. Mit optionaler ZIP-Seitenmarkise, Heizstrahler und LED.
+**Gartenhaus TDS:** Alu-Profil, Sicherheitsglas, wartungsfrei, erweiterbar.
+**Fahrradüberdachung:** Modular, 2 bis 20+ Räder, Glas/Polycarbonat.
+**Bushaltestelle:** Alu + Glas oder Holzoptik, 4 Standardfarben, Maßanfertigung.
+**Faltdach OpenAir:** Modular, patentiertes Wasserableitungssystem, für Gastronomie.
 
 ---
 
-### Weitere Einzelseiten
-**Velaris** → produkte/velaris.html
-**Faltdach** → produkte/faltdach.html
-**Balkonüberdachung** → produkte/balkonueberdachung.html
-**Fassade** → produkte/fassade.html
-**Sichtschutz** → produkte/sichtschutz.html
-**Fahrradüberdachung** → produkte/fahrradueberdachung.html
-**Gartenhaus** → produkte/gartenhaus.html
-**Bushaltestelle** → produkte/bushaltestelle.html
-**Sonnenschutz-Beschattung** → produkte/sonnenschutz-beschattung.html
+## CLOUDFLARE SETUP
+- Worker: bvlanding → bv-aussensysteme.de
+- www-Redirect: Redirect Rule „Redirect from WWW to root" (301, Active)
+- SSL: „Always Use HTTPS" → MUSS noch aktiviert werden!
+- Nach Änderungen: Caching → Purge Everything
+
+## WICHTIG FÜR NEUEN CHAT
+1. ZIP hochladen und entpacken nach `/home/claude/bv-aussensysteme/`
+2. PROJEKTSTAND.md lesen
+3. Änderungen nur in `/home/claude/bv-aussensysteme/`
+4. Update-ZIP: `cd /home/claude/bv-aussensysteme && zip /mnt/user-data/outputs/BVsite-update-DATUM.zip geänderteDatei.html`
+5. Backup-ZIP: `cd /home/claude && zip -r /mnt/user-data/outputs/backup.zip bv-aussensysteme/`
+6. PROJEKTSTAND.md + README.md nach jeder Änderung aktualisieren
+
+## UPDATE 24.06.2026 – v2: DIBT-Echtdaten integriert
+- `js/dibt-lastzonen.js` NEU: Vollständige DIBt-Lookup-Tabelle
+  - 406 Landkreise/kreisfreie Städte – Windzonen (Stand 02.06.2022, DIN EN 1991-1-4/NA)
+  - 407 Landkreise/kreisfreie Städte – Schneelastzonen (Stand 07.02.2023, DIN EN 1991-1-3/NA)
+  - Quelle: DIBt (Deutsches Institut für Bautechnik), www.dibt.de
+  - Lizenz: Öffentliche Technische Baubestimmungen, freie Nutzung zu Informationszwecken
+- `windzonen.html` AKTUALISIERT: GeoJSON/Turf.js → DIBt-Landkreis-Lookup
+  - Nominatim liefert `county` → normalisierter Name → direkter JS-Lookup
+  - Sonderfußnoten: Norddeutsches Tiefland (2,3-fach), Harzinsel (5,5 kN/m²)
+  - Kein Fallback auf Demo-Daten – immer echte DIBt-Quelle
+- Alte Placeholder-GeoJSON-Dateien (`data/`) vollständig entfernt
+
+## AGENT-RUN 24.06.2026 – Frontend Developer + SEO Specialist
+**Ausgeführt von:** agency-agents (github.com/msitarzewski/agency-agents)
+
+### SEO Specialist – Kannibalisierungs-Fixes (Phase 2.5 – BLOCKER gelöst)
+- `eingangsüberdachung.html` → noindex + JS-Redirect zu `eingang.html`
+- `balkonueberdachung.html` → noindex + JS-Redirect zu `balkon-fassade.html`
+- `sonnenschutz-beschattung.html` → noindex + JS-Redirect zu `sonnenschutz.html`
+
+### SEO Specialist – On-Page Optimierungen
+- `fassade.html` Title + Description auf Long-Tail optimiert
+- `sichtschutz.html` Title + Description auf Long-Tail optimiert
+- `fahrradueberdachung.html` Title + Description auf Long-Tail optimiert
+- `gartenhaus.html` Title + Description auf Long-Tail optimiert
+- `sitemap.xml` bereinigt: redirected Seiten entfernt (23 URLs)
+- `llms.txt` um windzonen.html ergänzt
+- Schema.org `aggregateRating` vorbereitet (reviewCount anpassen nach erster Bewertung!)
+
+### Frontend Developer – Performance & Accessibility
+- `index.html` doppelte Favicon-Links entfernt
+- `index.html` Preconnect/DNS-Prefetch für Google Fonts + Formspree
+- `index.html` alle Scripts auf `defer` umgestellt (CWV-Verbesserung)
+- `index.html` Skip-to-Content Link (WCAG 2.4.1)
+- `index.html` main-Inhalt mit id="main-content" versehen
+
+### Neue Dateien
+- `google-ads-keywords.md` – komplette Kampagnenstruktur für 400€+400€ Guthaben
+
+### Offene Aufgaben (von Agenten identifiziert)
+- [ ] aggregateRating: reviewCount + ratingValue nach erster Bewertung anpassen
+- [ ] Google Ads: Kampagnen nach Anleitung in google-ads-keywords.md anlegen
+- [ ] Trustindex Widget einbinden (nach erster Google-Bewertung)
+- [ ] Cal.com Terminbuchung einbinden
