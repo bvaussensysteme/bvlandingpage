@@ -245,7 +245,7 @@
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <button class="mobile-close" id="mobileClose">✕</button>
+  <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
   <a href="/" onclick="closeMobile()">Startseite</a>
   <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
   <a href="konfigurator.html" style="color:var(--gold)">🛠 Konfigurator</a>
@@ -353,7 +353,7 @@
       <h3>🔔 Benachrichtigung beim Launch</h3>
       <p>Tragen Sie Ihre E-Mail ein – wir informieren Sie sobald der Konfigurator verfügbar ist.</p>
       <div class="kp-notify-row">
-        <input type="email" id="kpEmail" placeholder="ihre@email.de" autocomplete="email" />
+        <input type="email" id="kpEmail" aria-label="E-Mail Adresse" placeholder="ihre@email.de" autocomplete="email" />
         <button onclick="kpNotify()">Benachrichtigen</button>
       </div>
       <div id="kpMsg"></div>

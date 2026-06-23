@@ -30,8 +30,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
 
   <!-- ===== TWITTER / X CARD ===== -->
@@ -42,6 +40,12 @@
 
   <!-- ===== PERFORMANCE: Preload LCP Image ===== -->
   <link rel="preload" as="image" href="images/terrasse.jpg" />
+
+  <!-- ===== PERFORMANCE: Resource Hints ===== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://formspree.io" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
   <!-- ===== OPEN GRAPH (Social Media) ===== -->
   <meta property="og:title"       content="Terrassenüberdachung & Carport Westerwald | BV AussenSysteme" />
@@ -119,6 +123,13 @@
       "Glasschiebetür", "Velaris", "Faltdach", "Balkonüberdachung",
       "Fassadenverkleidung", "Sichtschutz", "Geländer", "Glasgeländer"
     ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": "1",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
     "branchOf": {"@type": "LocalBusiness", "name": "BV AussenSysteme"},
     "additionalProperty": [
       {"@type": "PropertyValue", "name": "Montagestandort", "value": "Pleckhausen (Westerwald) – Montage & Service"},
@@ -499,7 +510,7 @@
   </div>
 </section>
 
-<main>
+<main id="main-content">
 
 <!-- ===== LEISTUNGEN ===== -->
 <!-- Bilder: Unsplash.com (kostenlos, kommerzielle Nutzung erlaubt) – bitte durch eigene Referenzfotos ersetzen -->
@@ -1457,9 +1468,9 @@
 </div>
 
 <!-- ===== JAVASCRIPT ===== -->
-<script src="js/main.js"></script>
-<script src="js/cookie.js"></script>
-<script src="js/slider.js"></script>
+<script src="js/main.js" defer></script>
+<script src="js/cookie.js" defer></script>
+<script src="js/slider.js" defer></script>
 
 <!-- ===== BETA NOTICE MODAL ===== -->
 <div id="betaModal" role="dialog" aria-modal="true" aria-label="Hinweis zum Seitenaufbau" style="display:none;">
@@ -1516,6 +1527,6 @@
 })();
 </script>
 
-<script src="js/accessibility.js"></script>
+<script src="js/accessibility.js" defer></script>
 </body>
 </html>

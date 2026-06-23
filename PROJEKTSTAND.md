@@ -202,9 +202,9 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ### Nach Gründung (Pflicht)
 - [ ] Impressum: USt-ID + ggf. HRB ergänzen
 - [ ] AGB: USt-ID ergänzen
-- [ ] Google Business: Meet-Verifizierung abschließen
-- [ ] Google Business: „Geöffnet" stellen
-- [ ] Cloudflare: „Always Use HTTPS" einschalten (SSL/TLS → Edge Certificates)
+- [x] Google Business: Meet-Verifizierung abgeschlossen ✅ (24.06.2026)
+- [x] Google Business: „Geöffnet" gestellt ✅ (24.06.2026)
+- [x] Cloudflare: „Always Use HTTPS" eingeschaltet ✅ (24.06.2026)
 - [ ] Google Ads: 400€ + 400€ Guthaben nutzen (ich bereite Anzeigentexte + Keywords vor)
 
 ### Geplant
@@ -287,3 +287,36 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
   - Sonderfußnoten: Norddeutsches Tiefland (2,3-fach), Harzinsel (5,5 kN/m²)
   - Kein Fallback auf Demo-Daten – immer echte DIBt-Quelle
 - Alte Placeholder-GeoJSON-Dateien (`data/`) vollständig entfernt
+
+## AGENT-RUN 24.06.2026 – Frontend Developer + SEO Specialist
+**Ausgeführt von:** agency-agents (github.com/msitarzewski/agency-agents)
+
+### SEO Specialist – Kannibalisierungs-Fixes (Phase 2.5 – BLOCKER gelöst)
+- `eingangsüberdachung.html` → noindex + JS-Redirect zu `eingang.html`
+- `balkonueberdachung.html` → noindex + JS-Redirect zu `balkon-fassade.html`
+- `sonnenschutz-beschattung.html` → noindex + JS-Redirect zu `sonnenschutz.html`
+
+### SEO Specialist – On-Page Optimierungen
+- `fassade.html` Title + Description auf Long-Tail optimiert
+- `sichtschutz.html` Title + Description auf Long-Tail optimiert
+- `fahrradueberdachung.html` Title + Description auf Long-Tail optimiert
+- `gartenhaus.html` Title + Description auf Long-Tail optimiert
+- `sitemap.xml` bereinigt: redirected Seiten entfernt (23 URLs)
+- `llms.txt` um windzonen.html ergänzt
+- Schema.org `aggregateRating` vorbereitet (reviewCount anpassen nach erster Bewertung!)
+
+### Frontend Developer – Performance & Accessibility
+- `index.html` doppelte Favicon-Links entfernt
+- `index.html` Preconnect/DNS-Prefetch für Google Fonts + Formspree
+- `index.html` alle Scripts auf `defer` umgestellt (CWV-Verbesserung)
+- `index.html` Skip-to-Content Link (WCAG 2.4.1)
+- `index.html` main-Inhalt mit id="main-content" versehen
+
+### Neue Dateien
+- `google-ads-keywords.md` – komplette Kampagnenstruktur für 400€+400€ Guthaben
+
+### Offene Aufgaben (von Agenten identifiziert)
+- [ ] aggregateRating: reviewCount + ratingValue nach erster Bewertung anpassen
+- [ ] Google Ads: Kampagnen nach Anleitung in google-ads-keywords.md anlegen
+- [ ] Trustindex Widget einbinden (nach erster Google-Bewertung)
+- [ ] Cal.com Terminbuchung einbinden

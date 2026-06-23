@@ -1826,3 +1826,13 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 768px) {
   .seo-intro-grid { grid-template-columns: 1fr; gap: 32px; }
 }
+
+/* ===== ACCESSIBILITY: Reduced Motion (WCAG 2.3.3) ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
