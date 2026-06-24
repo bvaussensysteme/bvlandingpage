@@ -158,10 +158,10 @@
 }
 .bg-bauamt-card h3 { font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .bg-bauamt-card h3 svg { flex-shrink: 0; }
-.bg-contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.bg-contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .bg-contact-item { display: flex; flex-direction: column; }
 .bg-contact-item .ci-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-.bg-contact-item .ci-val { font-size: .9rem; font-weight: 500; color: var(--black); word-break: break-all; }
+.bg-contact-item .ci-val { font-size: .9rem; font-weight: 500; color: var(--black); overflow-wrap: break-word; word-break: break-word; }
 .bg-contact-item .ci-val a { color: var(--gold-dark); text-decoration: none; }
 .bg-contact-item .ci-val a:hover { text-decoration: underline; }
 
@@ -184,11 +184,11 @@
   background: var(--white); border: 1px solid var(--border);
   border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow);
 }
-.bg-produkt-card .pc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bg-produkt-card .pc-top { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 10px; }
 .bg-produkt-card .pc-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 800; flex: 1; }
 .bg-status-badge {
   font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  padding: 3px 9px; border-radius: 100px; white-space: nowrap; flex-shrink: 0;
+  padding: 3px 9px; border-radius: 100px; white-space: normal; flex-shrink: 0; display: inline-block;
 }
 .badge-green  { background: rgba(34,139,34,.12); color: #1a6e1a; border: 1px solid rgba(34,139,34,.2); }
 .badge-yellow { background: rgba(230,160,0,.12); color: #8a5e00; border: 1px solid rgba(230,160,0,.25); }

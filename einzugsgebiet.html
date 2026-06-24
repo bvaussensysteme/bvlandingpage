@@ -124,17 +124,6 @@
     .gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
     .gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
 
-    /* Leaflet Marker */
-    .custom-marker {
-      background: var(--gold); border: 2px solid var(--black);
-      border-radius: 50%; width: 14px; height: 14px;
-    }
-    .bv-marker {
-      background: none !important;
-      border: none !important;
-      width: auto !important;
-      height: auto !important;
-    }
 
     @media (max-width: 860px) {
       .gebiet-layout { grid-template-columns: 1fr; }
@@ -260,39 +249,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18
 }).addTo(map);
 
-// Custom Marker Icons – BV Logo als CSS Marker (kein externes Bild nötig)
-function makeIcon(hauptort) {
-  var size = hauptort ? 40 : 32;
-  var half = size / 2;
-  var fontSize = hauptort ? '13px' : '11px';
-  var html =
-    '<div style="' +
-      'width:' + size + 'px;height:' + size + 'px;' +
-      'border-radius:50%;' +
-      'background:linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%);' +
-      'border:2px solid #C49A2A;' +
-      'box-shadow:0 2px 8px rgba(0,0,0,0.5);' +
-      'display:flex;align-items:center;justify-content:center;' +
-      'font-family:Arial Black,Arial,sans-serif;' +
-      'font-weight:900;font-size:' + fontSize + ';' +
-      'color:#C49A2A;' +
-      'cursor:pointer;' +
-      'user-select:none;' +
-      'box-sizing:border-box;' +
-    '">BV</div>';
-  return L.divIcon({
-    className: 'bv-marker',
-    html: html,
-    iconSize: [size, size],
-    iconAnchor: [half, half],
-    popupAnchor: [0, -(half + 6)]
-  });
-}
 
 // Marker & Popups
 var markers = [];
 orte.forEach(function(ort, idx) {
-  var marker = L.marker([ort.lat, ort.lng], { icon: makeIcon(ort.hauptort) })
+  var marker = L.marker([ort.lat, ort.lng])
     .addTo(map)
     .bindPopup(
       '<div style="font-family:Inter,sans-serif;min-width:160px;">' +
