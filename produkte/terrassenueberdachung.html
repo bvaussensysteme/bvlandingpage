@@ -109,6 +109,47 @@
     .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
     @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Terrassenüberdachung Aluminium",
+    "description": "Maßgefertigte Terrassenüberdachungen aus Aluminium – Glas oder Polycarbonat, 10 Jahre Herstellergarantie.",
+    "category": "Terrassenüberdachung",
+    "brand": {
+      "@type": "Brand",
+      "name": "VD AluSysteme"
+    },
+    "manufacturer": {
+      "@type": "Organization",
+      "name": "VD AluSysteme",
+      "url": "https://www.vd-alusysteme.de"
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "EUR",
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "description": "Preis auf Anfrage – kostenlose Beratung"
+      },
+      "seller": {
+        "@type": "LocalBusiness",
+        "name": "BV AussenSysteme",
+        "url": "https://www.bv-aussensysteme.de"
+      },
+      "areaServed": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": 50.5557,
+          "longitude": 7.9252
+        },
+        "geoRadius": "50000"
+      }
+    }
+  }
+  </script>
 </head>
 <body>
 

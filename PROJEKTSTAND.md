@@ -1,7 +1,86 @@
 # BV AussenSysteme – Projektstand
 
 > **Für neuen Chat:** ZIP hochladen, diese Datei lesen lassen, sofort weitermachen.
-> Letzte Aktualisierung: 23.06.2026
+> Letzte Aktualisierung: 24.06.2026
+
+---
+
+## ⚙️ MULTI-AGENT-SYSTEM — ARBEITSANWEISUNG
+
+> Diese Anweisung gilt für **jeden neuen Chat** und **jede Anfrage** uneingeschränkt.
+
+### Pflicht-Reihenfolge bei jedem Chat-Start
+1. `PROJEKTSTAND.md` vollständig lesen
+2. Gesamtes Projektverzeichnis analysieren
+3. `agency-agents-main` Repository berücksichtigen
+4. Aufgabe bearbeiten
+
+### Kontextquellen (alle berücksichtigen)
+| Quelle | Pfad | Priorität |
+|---|---|---|
+| Projektstand | `PROJEKTSTAND.md` | 🔴 Pflicht |
+| Projektverzeichnis | `bv-aussensysteme/` | 🔴 Pflicht |
+| Agenten-Bibliothek | `agency-agents-main/` | 🔴 Pflicht |
+| Roadmap | `roadmap/MASTER_ROADMAP.md` | 🟠 Bei Planung |
+| Security Audit | `audits/SECURITY_AUDIT.md` | 🟠 Bei Sicherheit |
+| Performance Audit | `audits/PERFORMANCE_AUDIT.md` | 🟠 Bei Performance |
+| SEO Audit | `audits/SEO_AUDIT.md` | 🟠 Bei SEO |
+| UX Audit | `audits/UX_AUDIT.md` | 🟠 Bei Design/UX |
+| Feature Backlog | `roadmap/FEATURE_BACKLOG.md` | 🟡 Bei Features |
+| Technical Debt | `roadmap/TECHNICAL_DEBT.md` | 🟡 Bei Refactoring |
+
+### Agenten-Bibliothek: agency-agents-main
+Das Repository `agency-agents-main` (github.com/msitarzewski/agency-agents) ist **fester Bestandteil der Entwicklungsumgebung**.
+
+**Verfügbare Agenten-Kategorien:**
+| Kategorie | Agenten | Einsatz bei |
+|---|---|---|
+| Engineering | Frontend Developer, Backend Architect, DevOps Automator, Code Reviewer, AI Engineer, Autonomous Optimization Architect | Code, Architektur, Deploy |
+| Design | UX Architect, UI Designer, UX Researcher, Brand Guardian | Design, Usability |
+| Marketing | SEO Specialist, Content Strategist, Growth Hacker, Multi-Platform Publisher | SEO, Content, Ads |
+| Security | Security Architect, AppSec Engineer, Penetration Tester | Sicherheit, DSGVO |
+| Testing | Reality Checker, Accessibility Auditor, Performance Benchmarker, QA Engineer | Qualität, Tests |
+| Product | Product Manager, Business Analyst, Sprint Prioritizer | Planung, Backlog |
+| Strategy | NEXUS Coordinator, Business Strategist, Chief of Staff | Roadmap, Entscheidungen |
+
+### Agenten-Aktivierungsregel
+Bei jeder Anfrage automatisch:
+1. **Relevante Agenten identifizieren** (welche Fachgebiete sind betroffen?)
+2. **Empfehlungen simulieren** (was würde jeder Agent empfehlen?)
+3. **Konflikte lösen** (z. B. Security vs. Performance – Sicherheit hat Vorrang)
+4. **Beste Gesamtstrategie wählen** (Business Impact × Aufwand × Risiko)
+5. **Änderungen dokumentieren** (PROJEKTSTAND.md + relevante Audit-Dateien)
+
+### Prioritätenreihenfolge (verbindlich)
+```
+1. Sicherheit          ← niemals kompromittieren
+2. Stabilität          ← keine Regression, rückwärtskompatibel
+3. Performance         ← Core Web Vitals, LCP < 2.5s
+4. Benutzerfreundlichkeit ← Mobile First, WCAG 2.2 AA
+5. SEO                 ← Lokale SEO, Schema.org, Content
+6. Wartbarkeit         ← Clean Code, Dokumentation
+7. Conversion          ← CTAs, Vertrauen, Buchung
+8. Neue Features       ← nach Prüfung aller obigen Punkte
+```
+
+### Kontinuierliche Optimierung (bei jeder Analyse suchen nach)
+- 🐛 Bugs (funktionale Fehler)
+- 🔒 Sicherheitslücken (XSS, fehlende Header, offene Abhängigkeiten)
+- ⚡ Performance-Probleme (LCP, CLS, INP, Bildgrößen)
+- 🎨 UX-Probleme (Conversion-Hindernisse, Accessibility)
+- 🔍 SEO-Probleme (fehlende Tags, Kannibalisierung, Thin Content)
+- 🏗️ Technische Schulden (Code-Qualität, fehlende Tests)
+- 📈 Skalierungsprobleme (Engpässe, fehlende Automatisierung)
+- 🤖 Automatisierungspotenzial (repetitive Aufgaben, CI/CD)
+
+### Dokumentationspflicht nach größeren Änderungen
+Folgende Dateien automatisch aktualisieren:
+- `PROJEKTSTAND.md` (immer)
+- `roadmap/MASTER_ROADMAP.md` (bei Roadmap-Änderungen)
+- `audits/SECURITY_AUDIT.md` (bei Sicherheitsänderungen)
+- `audits/PERFORMANCE_AUDIT.md` (bei Performance-Änderungen)
+- `roadmap/FEATURE_BACKLOG.md` (bei neuen/erledigten Features)
+- `improvements/IMPROVEMENT-LOG.md` (bei jeder Implementierung)
 
 ---
 
@@ -48,48 +127,86 @@ bv-aussensysteme/
 ├── impressum.html                ← "Gründung in Vorbereitung"
 ├── konfigurator.html             ← Platzhalter "Demnächst"
 ├── pflege.html
+├── windzonen.html                ← Wind- & Schneelastzonen-Tool (DIBt-Daten)
 ├── einzugsgebiet.html            ← Leaflet.js Karte mit BV-Marker
 ├── partner.html                  ← VD AluSysteme
 ├── kontakt.html                  ← Redirect → /#kontakt
-├── sitemap.xml                   ← 24 Seiten
+├── vorschau.html                 ← noindex, intern
+├── sitemap.xml                   ← 26 Seiten (aktuell)
 ├── robots.txt                    ← KI-Crawler erlaubt
-├── llms.txt                      ← KI-Optimierung (ChatGPT, Perplexity etc.)
+├── llms.txt                      ← KI-Optimierung
 ├── llms-full.txt                 ← Alle Produkttexte für KI
-├── _headers                      ← Cloudflare Security Headers
+├── _headers                      ← Cloudflare Security Headers (inkl. CSP)
 ├── PROJEKTSTAND.md
 ├── README.md
-├── css/style.css
+├── google-ads-keywords.md        ← Kampagnenstruktur 400€+400€
+├── css/style.css                 ← 59KB, 35 Media Queries, prefers-reduced-motion
 ├── js/
 │   ├── main.js                   ← FAQ, Hamburger, Sticky CTA, Formspree
 │   ├── cookie.js                 ← DSGVO Cookie-Banner (localStorage)
 │   ├── accessibility.js          ← Barrierefreiheits-Widget (8 Funktionen)
-│   └── slider.js                 ← Hero-Slider (4 Slides, 6.5s)
-├── images/
-│   ├── logo-hell.png / logo-dunkel.png / favicon.ico etc.
-│   ├── marker-logo.png           ← BV-Logo für Kartenmarker
-│   ├── vd_prod_*.jpg             ← 21 VD-Bilder (Prefix vd_ = bei Vertragsende löschen!)
-│   └── vd_partner-vd-alusysteme.png
+│   ├── slider.js                 ← Hero-Slider (4 Slides, 6.5s)
+│   ├── i18n.js                   ← Mehrsprachigkeit (40 data-i18n Tags)
+│   └── dibt-lastzonen.js         ← 406 Landkreise Wind/Schneelast (nur windzonen.html)
+├── data/
+│   └── lastzonen_deutschland.geojson ← 390 Kreise, Nearest-Neighbor-Lookup
+├── images/                       ← 38 JPGs (kein WebP, P0-Aufgabe!)
+├── agents/                       ← Multi-Agenten-System
+│   ├── ceo/CEO-AGENT.md
+│   ├── cto/CTO-AGENT.md
+│   ├── engineering/FRONTEND-DEVELOPER.md
+│   ├── marketing/SEO-SPECIALIST.md + GROWTH-HACKER.md
+│   ├── design/UX-ARCHITECT.md
+│   ├── security/SECURITY-ARCHITECT.md
+│   ├── product/PRODUCT-MANAGER.md
+│   └── testing/REALITY-CHECKER.md
+├── audits/                       ← Audit-Dokumente
+│   ├── SECURITY_AUDIT.md
+│   ├── SEO_AUDIT.md
+│   ├── PERFORMANCE_AUDIT.md
+│   └── UX_AUDIT.md
+├── roadmap/                      ← Strategische Dokumente
+│   ├── MASTER_ROADMAP.md
+│   ├── FEATURE_BACKLOG.md
+│   └── TECHNICAL_DEBT.md
+├── docs/agents/AGENT-INDEX.md    ← Agenten-Übersicht
+├── improvements/IMPROVEMENT-LOG.md ← Änderungsprotokoll
 └── produkte/
-    ├── terrassenueberdachung.html ← inkl. Stirnseiten, Schiebeelemente, Velaris, Festelemente
-    ├── carport.html
-    ├── pergola.html               ← SunPro, Warema L50, Lamaxa L50
-    ├── kaltwintergarten.html
-    ├── sonnenschutz.html          ← inkl. Velaris als 4. Karte
-    ├── gelaender.html
-    ├── eingangsüberdachung.html   ← alte Seite, Link zeigt jetzt auf eingang.html
-    ├── eingang.html               ← NEU: Vordach FLY, Front Line, TDS
-    ├── balkon-fassade.html        ← NEU: Balkon, Deco Wall, Sichtschutz
-    ├── garten-aussenbereich.html  ← NEU: Gartenhaus, Fahrrad, Bushaltestelle, Faltdach
-    ├── velaris.html
-    ├── faltdach.html
-    ├── balkonueberdachung.html
+    ├── terrassenueberdachung.html ← Schema.org Product ✅
+    ├── carport.html               ← Schema.org Product ✅
+    ├── pergola.html               ← Schema.org Product ✅
+    ├── sonnenschutz.html          ← Schema.org Product ✅
+    ├── gelaender.html             ← Schema.org Product ✅
+    ├── kaltwintergarten.html      ← Schema.org Product ✅
+    ├── eingang.html
+    ├── balkon-fassade.html
+    ├── garten-aussenbereich.html
+    ├── velaris.html               ← ⚠️ <300 Wörter
+    ├── faltdach.html              ← ⚠️ <300 Wörter
     ├── fassade.html
     ├── sichtschutz.html
-    ├── fahrradueberdachung.html
-    ├── gartenhaus.html
-    ├── bushaltestelle.html
-    └── sonnenschutz-beschattung.html
+    ├── fahrradueberdachung.html   ← ⚠️ <300 Wörter
+    ├── gartenhaus.html            ← ⚠️ <300 Wörter
+    ├── bushaltestelle.html        ← ⚠️ <300 Wörter
+    ├── eingangsüberdachung.html   ← noindex, Redirect → eingang.html
+    ├── balkonueberdachung.html    ← noindex, Redirect → balkon-fassade.html
+    └── sonnenschutz-beschattung.html ← noindex, Redirect → sonnenschutz.html
 ```
+
+---
+
+## AKTUELLER PROJEKTSTATUS (Reality Checker)
+**Score: 82/100 — CONDITIONAL READY** | Stand: 24.06.2026
+
+| Bereich | Status | Score |
+|---|---|---|
+| Security | ✅ B+ | CSP, HSTS, SRI, DSGVO |
+| Deployment | ✅ | HTTPS, Google Business, GitHub |
+| SEO Technik | ✅ A | Canonical, Sitemap, Schema, hreflang |
+| Accessibility | ✅ B | WCAG 2.2 AA, kein Critical |
+| Performance | ⚠️ C+ | WebP fehlt (4.7MB Bilder!) |
+| Content | ⚠️ B- | 7 Seiten < 300 Wörter |
+| Conversion | ⚠️ C | Keine Buchung, keine Bewertungen |
 
 ---
 
@@ -127,35 +244,35 @@ bv-aussensysteme/
 - Feuert `bv_consent_given` Event → lädt dann Google Fonts
 - DSGVO-konform
 
+### Wind- & Schneelastzonen-Tool (windzonen.html)
+- Nominatim Geocoding (OpenStreetMap, DSGVO-freundlich)
+- Leaflet.js Karte mit BV-Goldmarker
+- Nearest-Neighbor-Lookup gegen 390-Punkte GeoJSON
+- Quellen: DIBt Wind 02.06.2022 (DIN EN 1991-1-4/NA), DIBt Schnee 07.02.2023 (DIN EN 1991-1-3/NA)
+- BKG VG250 Geometrien (dl-de/by-2-0, © BKG 2025)
+
 ### Einzugsgebiet-Karte (einzugsgebiet.html)
 - Leaflet.js + OpenStreetMap
 - BV-Marker: schwarzer Kreis goldener Rand „BV" Text (CSS, kein Bild)
-- Absoluter Bildpfad für Marker
-
-### Leistungen Startseite
-- 9 Kacheln: Terrassendach, Carport, Pergola, Kaltwintergarten, Sonnenschutz & Markisen, Geländer, Eingang & Vordächer, Balkon & Fassade, Garten & Außenbereich
-- Alle verlinken auf eigene Produktseiten
 
 ---
 
 ## SEO & KI-OPTIMIERUNG
 
 ### Google
-- Search Console: verifiziert, Sitemap eingereicht (24 Seiten)
-- Schema.org: LocalBusiness (erweitert), FAQPage (21 Fragen), HowTo, Service
-- Alle Produkte im OfferCatalog mit Beschreibungen
-- Beide Standorte (Dernbach + Pleckhausen) im Schema
+- Search Console: verifiziert, Sitemap eingereicht (26 Seiten)
+- Schema.org: LocalBusiness (erweitert), FAQPage (21 Fragen), HowTo, Service, **Product auf 6 Hauptprodukten**
+- aggregateRating: vorbereitet (reviewCount nach erster Bewertung anpassen!)
 - hreflang: www + non-www auf allen Seiten
 - Canonical auf allen Seiten
-- Meta-Descriptions: alle unter 155 Zeichen
+- Meta-Descriptions: alle unter 160 Zeichen
 
 ### KI-Optimierung (GEO/AEO)
 - `llms.txt` – Standard für ChatGPT, Perplexity, Claude
 - `llms-full.txt` – alle Produkttexte
 - `robots.txt` – GPTBot, Claude-Web, PerplexityBot, Google-Extended explizit erlaubt
-- `knowsAbout` im Schema mit allen 16 Fachgebieten
 
-### Lokale Keywords eingebaut
+### Lokale Keywords
 Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumbach, Wirges, Pleckhausen, Neuwied, Koblenz, Limburg, Diez
 
 ---
@@ -165,55 +282,112 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - Facebook: verbunden
 - TikTok: BV Aussensysteme
 - YouTube: UCU2_F-qZlN7KyfHY4G2oSFg
-- **Workflow:** Foto/Video hier hochladen → Text schreiben → Canva bearbeiten → Metricool planen
-- **Content-Tipp:** Vorher/Nachher, Montage-Zeitraffer, Kundenreaktionen, Wettervideos
+- **Workflow:** Foto/Video → Text → Canva → Metricool planen
 
-### Konkurrenten für Metricool eintragen:
+### Konkurrenten für Metricool:
 - `schweng.eu` (18K Follower) – Marktführer
 - `kd_ueberdachung_official` (21K Follower)
-- `terrassen_und_carports` (10K Follower) – am ähnlichsten
+- `terrassen_und_carports` (10K Follower)
 - `ra_sonnenschutzsysteme` (lokal, 606 Follower)
 
 ---
 
 ## RECHTLICHER STATUS
-- Impressum: § 5 DDG ✅, Gründungshinweis ✅
+- Impressum: § 5 DDG ✅, Gründungshinweis ✅ | **⚠️ USt-ID fehlt noch**
 - Datenschutz: Cloudflare, Formspree, sipgate, Google Fonts (consent) ✅
 - Cookie-Banner: DSGVO-konform ✅
 - Kontaktformular: Datenschutz-Pflichtcheckbox ✅
 - Garantieaussagen: 10 J. Alu, 5 J. Markisen/Antriebe korrekt differenziert ✅
-- AGB: Straße in Widerrufsbelehrung ✅
+- AGB: Straße in Widerrufsbelehrung ✅ | **⚠️ USt-ID fehlt noch**
 - VD-Bilder: alle mit `vd_` Prefix → bei Vertragsende löschen ✅
 - Google Fonts: erst nach Cookie-Einwilligung ✅
 
 ---
 
-## ZULETZT GEÄNDERT (24.06.2026 – v2)
-- `windzonen.html` NEU: Wind- & Schneelastzonen-Tool (Nominatim Geocoding, Leaflet.js, Turf.js)
-- `data/windzonen.geojson` NEU: GeoJSON-Platzhalter Windzonen (WZ 1–4)
-- `data/schneelastzonen.geojson` NEU: GeoJSON-Platzhalter Schneelastzonen (SLZ 1–3)
-- `index.html` GEÄNDERT: Footer → Link „Wind- & Schneelastzonen" ergänzt
-- `sitemap.xml` GEÄNDERT: windzonen.html eingetragen (25 Seiten)
+## CLOUDFLARE SETUP
+- Worker: bvlanding → bv-aussensysteme.de
+- www-Redirect: Redirect Rule „Redirect from WWW to root" (301, Active)
+- SSL: **Always Use HTTPS ✅ (aktiviert 24.06.2026)**
+- Nach Änderungen: Caching → Purge Everything
 
 ---
 
-## OFFENE AUFGABEN
+## OFFENE AUFGABEN (priorisiert)
 
-### Nach Gründung (Pflicht)
-- [ ] Impressum: USt-ID + ggf. HRB ergänzen
-- [ ] AGB: USt-ID ergänzen
-- [x] Google Business: Meet-Verifizierung abgeschlossen ✅ (24.06.2026)
-- [x] Google Business: „Geöffnet" gestellt ✅ (24.06.2026)
-- [x] Cloudflare: „Always Use HTTPS" eingeschaltet ✅ (24.06.2026)
-- [ ] Google Ads: 400€ + 400€ Guthaben nutzen (ich bereite Anzeigentexte + Keywords vor)
+### 🔴 P0 — Sofort (diese Woche)
+- [ ] **Google Ads schalten** – 400€ + 400€ Guthaben → Kampagnen aus `google-ads-keywords.md`
+- [ ] **Erste Google-Bewertung** generieren (Bewertungslink: https://g.page/r/CQh4XlvW-1nEEBM/review)
+- [ ] **aggregateRating aktivieren** – reviewCount + ratingValue nach erster Bewertung eintragen
 
-### Geplant
-- [ ] Terminbuchung: Google Calendar einrichten → Cal.com einbinden
-- [ ] Trustindex Widget (nach erster Bewertung)
-- [ ] aggregateRating im Schema (nach erster echter Bewertung)
-- [ ] Eigene Produktfotos (Händlerportal VD nach Vertragsunterzeichnung)
-- [ ] HeyGen: KI-Avatar-Video testen (heygen.com, kostenlos)
-- [ ] Cloudflare Pages statt Worker (auto-deploy bei GitHub-Push)
+### 🟠 P1 — Kurzfristig (2–4 Wochen)
+- [ ] **WebP-Konvertierung** aller 38 JPGs (~2.8MB Ersparnis, LCP -1-2s)
+- [ ] **Cal.com Terminbuchung** einbinden (+20-40% Conversion)
+- [ ] **7 Unterseiten** auf 300+ Wörter ausbauen (velaris, faltdach, fassade, sichtschutz, bushaltestelle, fahrradueberdachung, gartenhaus)
+- [ ] **Trustindex Widget** einbinden (nach erster Bewertung)
+- [ ] **Impressum + AGB**: USt-ID ergänzen (nach Gründung)
+
+### 🟡 P2 — Mittelfristig (1–2 Monate)
+- [ ] **Lokale Landingpages** (Montabaur, Neuwied, Koblenz, Altenkirchen)
+- [ ] **Blog-Sektion** anlegen (5 Pillar-Artikel)
+- [ ] **Formular-Danke-Seite** mit Erwartungsmanagement
+- [ ] **GitHub Actions CI/CD** (Lighthouse CI automatisch)
+- [ ] **Eigene Produktfotos** (Händlerportal VD nach Vertragsunterzeichnung)
+
+### ✅ Erledigt
+- [x] Cloudflare Always Use HTTPS ✅ (24.06.2026)
+- [x] Google Business freigeschaltet ✅ (24.06.2026)
+- [x] CSP-Header ergänzt ✅ (24.06.2026)
+- [x] Leaflet SRI-Hashes ✅ (24.06.2026)
+- [x] Scripts defer auf allen 16 Produktseiten ✅ (24.06.2026)
+- [x] Hamburger + Mobile-Close aria-label ✅ (24.06.2026)
+- [x] Skip-to-Content Link (WCAG 2.4.1) ✅ (24.06.2026)
+- [x] prefers-reduced-motion CSS ✅ (24.06.2026)
+- [x] Keyword-Kannibalisierung aufgelöst (3 Redirects) ✅ (24.06.2026)
+- [x] Sitemap: 26 URLs vollständig ✅ (24.06.2026)
+- [x] Schema.org Product auf 6 Hauptproduktseiten ✅ (24.06.2026)
+- [x] windzonen.html mit echten DIBt-Daten (390 Kreise) ✅ (24.06.2026)
+- [x] vorschau.html noindex ✅ (24.06.2026)
+- [x] partner.html H1 ergänzt ✅ (24.06.2026)
+- [x] Multi-Agenten-System eingerichtet ✅ (24.06.2026)
+
+---
+
+## ÄNDERUNGSHISTORIE
+
+### 24.06.2026 — Agency System + Multi-Agent Launch
+- Multi-Agenten-System vollständig eingerichtet (9 aktive Agenten)
+- agency-agents-main als Agenten-Bibliothek integriert
+- NEXUS-Strategie (Koordination, Handoff-Templates) aktiv
+- Alle Audit-Dokumente erstellt (Security, SEO, Performance, UX)
+- Roadmap, Feature-Backlog, Technical Debt dokumentiert
+- Schema.org Product auf 6 Hauptproduktseiten
+- dibt-lastzonen.js aus globalem Load entfernt (28KB gespart)
+- Vollständiger Security/Accessibility/SEO/Performance Audit
+- 82/100 Reality Checker Score
+
+### 24.06.2026 — Full Audit & Fixes
+- CSP-Header, SRI-Hashes, Defer-Scripts (16 Produktseiten)
+- WCAG-Fixes: aria-labels, prefers-reduced-motion, Skip-Link
+- Sitemap: 26 URLs, vorschau.html noindex
+- Title-Korrekturen (4 Seiten)
+
+### 24.06.2026 — windzonen.html v3 (Echtdaten)
+- DIBt-GeoJSON: 390 Kreismittelpunkte, Nearest-Neighbor-Lookup
+- Quellen: DIBt + BKG VG250 (dl-de/by-2-0)
+
+### 23.06.2026 — Initiales Launch
+- 24 Seiten live, Hero-Slider, Cookie-Banner, Barrierefreiheits-Widget
+- SEO-Grundstruktur, Schema.org, llms.txt
+
+---
+
+## WICHTIG FÜR NEUEN CHAT
+1. **ZIP hochladen** und entpacken nach `/home/claude/bv-aussensysteme/`
+2. **PROJEKTSTAND.md lesen** (diese Datei)
+3. **agency-agents-main** berücksichtigen (im ZIP oder separat hochladen)
+4. Änderungen nur in `/home/claude/bv-aussensysteme/`
+5. Update-ZIP: `cd /home/claude/bv-aussensysteme && zip /mnt/user-data/outputs/BVsite-update-DATUM.zip geänderteDatei.html`
+6. **PROJEKTSTAND.md + relevante Audit-Dateien** nach jeder Änderung aktualisieren
 
 ---
 
@@ -259,64 +433,3 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 **Fahrradüberdachung:** Modular, 2 bis 20+ Räder, Glas/Polycarbonat.
 **Bushaltestelle:** Alu + Glas oder Holzoptik, 4 Standardfarben, Maßanfertigung.
 **Faltdach OpenAir:** Modular, patentiertes Wasserableitungssystem, für Gastronomie.
-
----
-
-## CLOUDFLARE SETUP
-- Worker: bvlanding → bv-aussensysteme.de
-- www-Redirect: Redirect Rule „Redirect from WWW to root" (301, Active)
-- SSL: „Always Use HTTPS" → MUSS noch aktiviert werden!
-- Nach Änderungen: Caching → Purge Everything
-
-## WICHTIG FÜR NEUEN CHAT
-1. ZIP hochladen und entpacken nach `/home/claude/bv-aussensysteme/`
-2. PROJEKTSTAND.md lesen
-3. Änderungen nur in `/home/claude/bv-aussensysteme/`
-4. Update-ZIP: `cd /home/claude/bv-aussensysteme && zip /mnt/user-data/outputs/BVsite-update-DATUM.zip geänderteDatei.html`
-5. Backup-ZIP: `cd /home/claude && zip -r /mnt/user-data/outputs/backup.zip bv-aussensysteme/`
-6. PROJEKTSTAND.md + README.md nach jeder Änderung aktualisieren
-
-## UPDATE 24.06.2026 – v2: DIBT-Echtdaten integriert
-- `js/dibt-lastzonen.js` NEU: Vollständige DIBt-Lookup-Tabelle
-  - 406 Landkreise/kreisfreie Städte – Windzonen (Stand 02.06.2022, DIN EN 1991-1-4/NA)
-  - 407 Landkreise/kreisfreie Städte – Schneelastzonen (Stand 07.02.2023, DIN EN 1991-1-3/NA)
-  - Quelle: DIBt (Deutsches Institut für Bautechnik), www.dibt.de
-  - Lizenz: Öffentliche Technische Baubestimmungen, freie Nutzung zu Informationszwecken
-- `windzonen.html` AKTUALISIERT: GeoJSON/Turf.js → DIBt-Landkreis-Lookup
-  - Nominatim liefert `county` → normalisierter Name → direkter JS-Lookup
-  - Sonderfußnoten: Norddeutsches Tiefland (2,3-fach), Harzinsel (5,5 kN/m²)
-  - Kein Fallback auf Demo-Daten – immer echte DIBt-Quelle
-- Alte Placeholder-GeoJSON-Dateien (`data/`) vollständig entfernt
-
-## AGENT-RUN 24.06.2026 – Frontend Developer + SEO Specialist
-**Ausgeführt von:** agency-agents (github.com/msitarzewski/agency-agents)
-
-### SEO Specialist – Kannibalisierungs-Fixes (Phase 2.5 – BLOCKER gelöst)
-- `eingangsüberdachung.html` → noindex + JS-Redirect zu `eingang.html`
-- `balkonueberdachung.html` → noindex + JS-Redirect zu `balkon-fassade.html`
-- `sonnenschutz-beschattung.html` → noindex + JS-Redirect zu `sonnenschutz.html`
-
-### SEO Specialist – On-Page Optimierungen
-- `fassade.html` Title + Description auf Long-Tail optimiert
-- `sichtschutz.html` Title + Description auf Long-Tail optimiert
-- `fahrradueberdachung.html` Title + Description auf Long-Tail optimiert
-- `gartenhaus.html` Title + Description auf Long-Tail optimiert
-- `sitemap.xml` bereinigt: redirected Seiten entfernt (23 URLs)
-- `llms.txt` um windzonen.html ergänzt
-- Schema.org `aggregateRating` vorbereitet (reviewCount anpassen nach erster Bewertung!)
-
-### Frontend Developer – Performance & Accessibility
-- `index.html` doppelte Favicon-Links entfernt
-- `index.html` Preconnect/DNS-Prefetch für Google Fonts + Formspree
-- `index.html` alle Scripts auf `defer` umgestellt (CWV-Verbesserung)
-- `index.html` Skip-to-Content Link (WCAG 2.4.1)
-- `index.html` main-Inhalt mit id="main-content" versehen
-
-### Neue Dateien
-- `google-ads-keywords.md` – komplette Kampagnenstruktur für 400€+400€ Guthaben
-
-### Offene Aufgaben (von Agenten identifiziert)
-- [ ] aggregateRating: reviewCount + ratingValue nach erster Bewertung anpassen
-- [ ] Google Ads: Kampagnen nach Anleitung in google-ads-keywords.md anlegen
-- [ ] Trustindex Widget einbinden (nach erster Google-Bewertung)
-- [ ] Cal.com Terminbuchung einbinden
