@@ -217,6 +217,12 @@
     @keyframes wz-spin { to { transform: rotate(360deg); } }
     .wz-loader p { color: var(--muted); font-size: 0.9rem; }
 
+
+    /* Leaflet marker wrapper reset – verhindert Verzerrung */
+    .wz-map-marker {
+      background: none !important;
+      border: none !important;
+    }
     /* ===== MAP ===== */
     .wz-map-wrap {
       display: none; border-radius: 12px; overflow: hidden;
@@ -798,8 +804,10 @@ function wzInitMap(lat, lng) {
     }).addTo(wzMap);
   }
   var icon = L.divIcon({
-    html: '<div style="width:18px;height:18px;background:#C49A2A;border:3px solid #111;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>',
-    className: '', iconSize: [18,18], iconAnchor: [9,9]
+    html: '<div style="width:28px;height:28px;background:#C49A2A;border:3px solid #111111;border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,0.45);box-sizing:border-box;"></div>',
+    className: 'wz-map-marker',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14]
   });
   if (wzMarker) wzMarker.remove();
   wzMarker = L.marker([lat,lng],{icon:icon}).addTo(wzMap);
