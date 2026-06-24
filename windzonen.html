@@ -875,9 +875,16 @@ function wzSearch() {
     var features = (geojson && geojson.features) ? geojson.features : [];
     var deFeature = null;
     for (var i = 0; i < features.length; i++) {
-      var cc = features[i].properties && features[i].properties.country_code;
-      if (cc === 'de') { deFeature = features[i]; break; }
+      var fp = features[i].properties || {};
+      // Photon liefert "countrycode":"DE" (kein Unterstrich, Großbuchstaben)
+      var cc = (fp.countrycode || fp.country_code || '').toLowerCase();
+      var ctry = (fp.country || '').toLowerCase();
+      if (cc === 'de' || ctry === 'deutschland' || ctry === 'germany') {
+        deFeature = features[i]; break;
+      }
     }
+    // Falls kein Land-Feld vorhanden: ersten Treffer nutzen (bbox = Deutschland)
+    if (!deFeature && features.length > 0) { deFeature = features[0]; }
 
     if (!deFeature) {
       errorEl.textContent = 'Adresse nicht gefunden. Bitte Postleitzahl oder Ort eingeben.';
