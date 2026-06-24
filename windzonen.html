@@ -823,58 +823,97 @@ function wzSearch() {
   loader.classList.add('visible');
   btn.disabled = true;
 
-  var url = 'https://nominatim.openstreetmap.org/search'
-    + '?q=' + encodeURIComponent(query + ', Deutschland')
-    + '&format=json&limit=1&addressdetails=1&accept-language=de';
+  // Geocoding: Photon (komoot.io) – OSM-Daten, kein API-Key, deutschlandfokussiert
+  // Bounding Box Deutschland: west=5.866, south=47.270, east=15.042, north=55.058
+  var photonUrl = 'https://photon.komoot.io/api/'
+    + '?q=' + encodeURIComponent(query)
+    + '&lang=de&limit=5'
+    + '&bbox=5.866,47.270,15.042,55.058';
 
-  fetch(url, { headers:{'Accept':'application/json'} })
-  .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
-  .then(function(data) {
+  function wzHandleGeoResult(lat, lng, shortAddr) {
+    var feature = wzFindByCoords(lat, lng);
+    if (!feature) {
+      errorEl.textContent = 'Standort liegt außerhalb Deutschlands oder konnte nicht zugeordnet werden.';
+      errorEl.classList.add('visible');
+      return;
+    }
+    document.getElementById('wz-map-wrap').classList.add('visible');
+    try { wzInitMap(lat, lng); } catch(e) {
+      document.getElementById('wz-map-wrap').classList.remove('visible');
+    }
+    wzShowResults(shortAddr, lat, lng, feature.properties);
+  }
+
+  function wzTryNominatim() {
+    var url = 'https://nominatim.openstreetmap.org/search'
+      + '?q=' + encodeURIComponent(query + ', Deutschland')
+      + '&format=json&limit=1&addressdetails=1&accept-language=de';
+    return fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function(r) { if (!r.ok) throw new Error('nom-fail'); return r.json(); })
+      .then(function(data) {
+        if (!data || !data.length) throw new Error('nom-empty');
+        var r = data[0];
+        var lat = parseFloat(r.lat), lng = parseFloat(r.lon);
+        var a = r.address || {};
+        var parts = [];
+        if (a.road) parts.push(a.road + (a.house_number ? ' ' + a.house_number : ''));
+        if (a.postcode) parts.push(a.postcode);
+        var city = a.city || a.town || a.village || a.municipality || '';
+        if (city) parts.push(city);
+        if (a.state) parts.push(a.state);
+        return { lat: lat, lng: lng, addr: parts.join(', ') || r.display_name.split(',').slice(0,3).join(',') };
+      });
+  }
+
+  fetch(photonUrl, { headers: { 'Accept': 'application/json' } })
+  .then(function(r) { if (!r.ok) throw new Error('photon-fail'); return r.json(); })
+  .then(function(geojson) {
     loader.classList.remove('visible');
     btn.disabled = false;
 
-    if (!data || !data.length) {
-      errorEl.textContent = 'Adresse nicht gefunden. Bitte versuchen Sie es mit einer Postleitzahl oder einem Ortsnamen.';
+    // Photon gibt GeoJSON zurück – nur Deutschland-Treffer verwenden
+    var features = (geojson && geojson.features) ? geojson.features : [];
+    var deFeature = null;
+    for (var i = 0; i < features.length; i++) {
+      var cc = features[i].properties && features[i].properties.country_code;
+      if (cc === 'de') { deFeature = features[i]; break; }
+    }
+
+    if (!deFeature) {
+      errorEl.textContent = 'Adresse nicht gefunden. Bitte Postleitzahl oder Ort eingeben.';
       errorEl.classList.add('visible');
       input.classList.add('error');
       return;
     }
 
-    var result = data[0];
-    var lat = parseFloat(result.lat), lng = parseFloat(result.lon);
-    var addr = result.address || {};
-
+    var coords = deFeature.geometry.coordinates; // [lng, lat]
+    var lat = coords[1], lng = coords[0];
+    var p = deFeature.properties;
     var parts = [];
-    if (addr.road) parts.push(addr.road + (addr.house_number ? ' ' + addr.house_number : ''));
-    if (addr.postcode) parts.push(addr.postcode);
-    var city = addr.city || addr.town || addr.village || addr.municipality || '';
-    if (city) parts.push(city);
-    if (addr.state) parts.push(addr.state);
-    var shortAddr = parts.join(', ') || result.display_name.split(',').slice(0,3).join(',');
+    if (p.name && p.name !== p.city) parts.push(p.name);
+    if (p.postcode) parts.push(p.postcode);
+    if (p.city) parts.push(p.city);
+    else if (p.town) parts.push(p.town);
+    if (p.state) parts.push(p.state);
+    var shortAddr = parts.filter(Boolean).join(', ') || p.name || query;
 
-    // GeoJSON nearest-neighbor lookup
-    var feature = wzFindByCoords(lat, lng);
-    if (!feature) {
-      errorEl.textContent = 'Standort außerhalb von Deutschland oder Daten nicht geladen. Bitte versuchen Sie es erneut.';
-      errorEl.classList.add('visible');
-      return;
-    }
-
-    document.getElementById('wz-map-wrap').classList.add('visible');
-    try {
-      wzInitMap(lat, lng);
-    } catch(mapErr) {
-      // Karte konnte nicht geladen werden (z.B. Leaflet nicht verfügbar)
-      // Ergebnis trotzdem anzeigen
-      document.getElementById('wz-map-wrap').classList.remove('visible');
-    }
-    wzShowResults(shortAddr, lat, lng, feature.properties);
+    wzHandleGeoResult(lat, lng, shortAddr);
   })
-  .catch(function(err) {
-    loader.classList.remove('visible');
-    btn.disabled = false;
-    errorEl.innerHTML = 'Standort konnte nicht ermittelt werden. Bitte erneut versuchen oder eine andere Schreibweise nutzen (z.&nbsp;B. nur PLZ oder nur Ort).';
-    errorEl.classList.add('visible');
+  .catch(function() {
+    // Photon fehlgeschlagen – Nominatim als Fallback versuchen
+    wzTryNominatim()
+      .then(function(res) {
+        loader.classList.remove('visible');
+        btn.disabled = false;
+        wzHandleGeoResult(res.lat, res.lng, res.addr);
+      })
+      .catch(function() {
+        loader.classList.remove('visible');
+        btn.disabled = false;
+        errorEl.textContent = 'Adresse konnte nicht gefunden werden. Bitte Postleitzahl (z.\u00a0B. 56428) oder Ort (z.\u00a0B. Montabaur) eingeben.';
+        errorEl.classList.add('visible');
+        input.classList.add('error');
+      });
   });
 }
 
