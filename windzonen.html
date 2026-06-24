@@ -873,11 +873,7 @@ function wzSearch() {
   .catch(function(err) {
     loader.classList.remove('visible');
     btn.disabled = false;
-    var msg = 'Adresse nicht gefunden. Bitte Postleitzahl oder Ort eingeben und erneut versuchen.';
-    if (err && (err.name === 'TypeError' || err.message === 'Failed to fetch' || String(err).indexOf('fetch') > -1)) {
-      msg = 'Verbindung zu Nominatim fehlgeschlagen. Bitte Internetverbindung prüfen.';
-    }
-    errorEl.textContent = msg;
+    errorEl.innerHTML = 'Standort konnte nicht ermittelt werden. Bitte erneut versuchen oder eine andere Schreibweise nutzen (z.&nbsp;B. nur PLZ oder nur Ort).';
     errorEl.classList.add('visible');
   });
 }
