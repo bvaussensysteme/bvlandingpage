@@ -148,6 +148,60 @@
       color: #842029; font-size: 0.9rem;
     }
     .wz-error.visible { display: block; }
+    /* ===== AUTOCOMPLETE DROPDOWN ===== */
+    .wz-ac-wrap {
+      position: relative;
+    }
+    .wz-suggestions {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--white);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 200;
+      list-style: none;
+      margin: 0; padding: 4px 0;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .wz-suggestions.open { display: block; }
+    .wz-suggestion-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--black);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      transition: background 0.12s;
+    }
+    .wz-suggestion-item:last-child { border-bottom: none; }
+    .wz-suggestion-item:hover,
+    .wz-suggestion-item.active {
+      background: rgba(196,154,42,0.10);
+    }
+    .wz-suggestion-item .sug-plz {
+      font-weight: 700;
+      color: var(--gold-dark, #9A7318);
+      flex-shrink: 0;
+      font-size: 0.88rem;
+    }
+    .wz-suggestion-item .sug-name {
+      font-weight: 600;
+    }
+    .wz-suggestion-item .sug-state {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-left: auto;
+    }
+    @media (max-width: 500px) {
+      .wz-suggestion-item .sug-state { display: none; }
+    }
+
 
     /* ===== LOADER ===== */
     .wz-loader {
@@ -351,7 +405,7 @@
     <div class="wz-search-box">
       <label for="wz-address-input" class="wz-search-label">Adresse, Postleitzahl oder Ort</label>
       <div class="wz-input-row">
-        <div class="wz-input-wrap">
+        <div class="wz-input-wrap wz-ac-wrap">
           <input
             type="text"
             id="wz-address-input"
@@ -359,7 +413,11 @@
             placeholder="z. B. 56428 Dernbach oder Montabaur"
             autocomplete="off"
             aria-label="Adresse, Postleitzahl oder Ort eingeben"
+            aria-autocomplete="list"
+            aria-controls="wz-suggestions"
+            aria-expanded="false"
           />
+          <ul id="wz-suggestions" class="wz-suggestions" role="listbox" aria-label="Ortsvorschläge"></ul>
         </div>
         <button class="wz-btn-search" id="wz-search-btn" onclick="wzSearch()" aria-label="Standort ermitteln">
           📍 Standort ermitteln
@@ -935,10 +993,179 @@ function wzReset() {
 }
 
 // ---- Init ----
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('wz-address-input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') wzSearch();
+/* ===================================================
+   AUTOCOMPLETE – Ortsvorschläge via Photon API
+=================================================== */
+var wzAcTimer   = null;   // Debounce-Timer
+var wzAcIndex   = -1;     // Aktiver Tastatur-Index
+var wzAcItems   = [];     // Aktuelle Vorschläge (Feature-Array)
+
+function wzAcGetList() { return document.getElementById('wz-suggestions'); }
+function wzAcGetInput() { return document.getElementById('wz-address-input'); }
+
+function wzAcBuildLabel(p) {
+  // Aus Photon-Properties einen lesbaren Label bauen
+  var plz  = p.postcode || '';
+  var name = p.name || p.city || p.town || p.village || p.municipality || '';
+  var city = (name !== p.city && p.city) ? p.city : '';
+  var state = p.state || '';
+  return { plz: plz, name: name, city: city, state: state };
+}
+
+function wzAcFillValue(feature) {
+  var p = feature.properties || {};
+  var lbl = wzAcBuildLabel(p);
+  var val = '';
+  if (lbl.plz && lbl.name) val = lbl.plz + ' ' + lbl.name;
+  else if (lbl.plz)         val = lbl.plz;
+  else if (lbl.name)        val = lbl.name;
+  else                      val = p.name || '';
+  wzAcGetInput().value = val;
+}
+
+function wzAcRender(features) {
+  var list = wzAcGetList();
+  var inp  = wzAcGetInput();
+  list.innerHTML = '';
+  wzAcItems = features || [];
+  wzAcIndex = -1;
+
+  if (!wzAcItems.length) {
+    list.classList.remove('open');
+    inp.setAttribute('aria-expanded', 'false');
+    return;
+  }
+
+  wzAcItems.slice(0, 7).forEach(function(f, idx) {
+    var p   = f.properties || {};
+    var lbl = wzAcBuildLabel(p);
+    if (!lbl.plz && !lbl.name) return;
+
+    var li = document.createElement('li');
+    li.className = 'wz-suggestion-item';
+    li.setAttribute('role', 'option');
+    li.setAttribute('data-idx', idx);
+
+    if (lbl.plz) {
+      var sp = document.createElement('span');
+      sp.className = 'sug-plz';
+      sp.textContent = lbl.plz;
+      li.appendChild(sp);
+    }
+    if (lbl.name) {
+      var sn = document.createElement('span');
+      sn.className = 'sug-name';
+      sn.textContent = lbl.name + (lbl.city && lbl.city !== lbl.name ? ' (' + lbl.city + ')' : '');
+      li.appendChild(sn);
+    }
+    if (lbl.state) {
+      var ss = document.createElement('span');
+      ss.className = 'sug-state';
+      ss.textContent = lbl.state;
+      li.appendChild(ss);
+    }
+
+    // Klick: Wert einfüllen + direkt suchen
+    li.addEventListener('mousedown', function(e) {
+      e.preventDefault(); // Blur verhindern
+      wzAcFillValue(f);
+      wzAcClose();
+      wzSearch();
+    });
+    list.appendChild(li);
   });
+
+  list.classList.add('open');
+  inp.setAttribute('aria-expanded', 'true');
+}
+
+function wzAcSetActive(idx) {
+  var items = wzAcGetList().querySelectorAll('.wz-suggestion-item');
+  items.forEach(function(el) { el.classList.remove('active'); });
+  wzAcIndex = idx;
+  if (idx >= 0 && idx < items.length) {
+    items[idx].classList.add('active');
+    items[idx].scrollIntoView({ block: 'nearest' });
+  }
+}
+
+function wzAcClose() {
+  wzAcGetList().classList.remove('open');
+  wzAcGetInput().setAttribute('aria-expanded', 'false');
+  wzAcIndex = -1;
+}
+
+function wzAcFetch(query) {
+  if (query.length < 2) { wzAcClose(); return; }
+  var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(query)
+    + '&lang=de&limit=7&bbox=5.866,47.270,15.042,55.058';
+  fetch(url, { headers: { 'Accept': 'application/json' } })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (!data || !data.features) return;
+      // Nur Deutschland-Treffer
+      var de = data.features.filter(function(f) {
+        var p = f.properties || {};
+        var cc = (p.countrycode || p.country_code || '').toLowerCase();
+        var ctry = (p.country || '').toLowerCase();
+        return cc === 'de' || ctry === 'deutschland' || ctry === 'germany';
+      });
+      // Wenn kein Filter-Treffer → alle nehmen (bbox reicht)
+      wzAcRender(de.length ? de : data.features);
+    })
+    .catch(function() {});
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var inp = wzAcGetInput();
+
+  // Tippen → debounced Vorschläge holen
+  inp.addEventListener('input', function() {
+    clearTimeout(wzAcTimer);
+    var q = inp.value.trim();
+    if (q.length < 2) { wzAcClose(); return; }
+    wzAcTimer = setTimeout(function() { wzAcFetch(q); }, 280);
+  });
+
+  // Tastatur-Navigation
+  inp.addEventListener('keydown', function(e) {
+    var list = wzAcGetList();
+    var items = list.querySelectorAll('.wz-suggestion-item');
+    var open = list.classList.contains('open');
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      wzAcSetActive(Math.min(wzAcIndex + 1, items.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      wzAcSetActive(Math.max(wzAcIndex - 1, -1));
+    } else if (e.key === 'Enter') {
+      if (open && wzAcIndex >= 0 && wzAcItems[wzAcIndex]) {
+        e.preventDefault();
+        wzAcFillValue(wzAcItems[wzAcIndex]);
+        wzAcClose();
+        wzSearch();
+      } else {
+        wzAcClose();
+        wzSearch();
+      }
+    } else if (e.key === 'Escape') {
+      wzAcClose();
+    }
+  });
+
+  // Dropdown schließen wenn Klick außerhalb
+  document.addEventListener('click', function(e) {
+    if (!inp.contains(e.target) && !wzAcGetList().contains(e.target)) {
+      wzAcClose();
+    }
+  });
+
+  // Blur: kurze Verzögerung damit Klick auf Item noch registriert wird
+  inp.addEventListener('blur', function() {
+    setTimeout(wzAcClose, 150);
+  });
+
   wzLoadData();
 });
 
