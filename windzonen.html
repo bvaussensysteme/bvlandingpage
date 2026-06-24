@@ -214,15 +214,7 @@
       border-radius: 50%; animation: wz-spin 0.8s linear infinite;
     }
     @keyframes wz-spin { to { transform: rotate(360deg); } }
-    .wz-loader p { color: var(--muted); font-size: 0.9rem; }
-
-
-    /* Leaflet marker wrapper reset – verhindert Verzerrung */
-    .wz-map-marker {
-      background: none !important;
-      border: none !important;
-    }
-    /* ===== MAP ===== */
+    .wz-loader p { color: var(--muted); font-size: 0.9rem; }    /* ===== MAP ===== */
     .wz-map-wrap {
       display: none; border-radius: 12px; overflow: hidden;
       border: 1px solid var(--border); box-shadow: var(--shadow);
@@ -701,6 +693,7 @@
           <li><a href="einzugsgebiet.html">📍 Einzugsgebiet</a></li>
           <li><a href="#kontakt">Kontakt</a></li>
           <li><a href="windzonen.html" style="color:var(--gold);">💨 Wind- &amp; Schneelastzonen</a></li>
+          <li><a href="baugenehmigung.html">🏛️ Baugenehmigung prüfen</a></li>
           <li><a href="impressum.html">Impressum</a></li>
           <li><a href="agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
           <a href="datenschutz.html">Datenschutz</a></li>
@@ -802,14 +795,8 @@ function wzInitMap(lat, lng) {
       maxZoom: 18
     }).addTo(wzMap);
   }
-  var icon = L.divIcon({
-    html: '<div style="width:28px;height:28px;background:#C49A2A;border:3px solid #111111;border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,0.45);box-sizing:border-box;"></div>',
-    className: 'wz-map-marker',
-    iconSize: [28, 28],
-    iconAnchor: [14, 14]
-  });
   if (wzMarker) wzMarker.remove();
-  wzMarker = L.marker([lat,lng],{icon:icon}).addTo(wzMap);
+  wzMarker = L.marker([lat,lng]).addTo(wzMap);
   wzMap.setView([lat,lng], 11);
   setTimeout(function(){ wzMap.invalidateSize(); }, 100);
 }

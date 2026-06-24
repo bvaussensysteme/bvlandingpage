@@ -83,3 +83,6 @@ Von Auftragsbestätigung bis Montage in der Regel 2–4 Wochen.
 
 # Lastzonentool
 /windzonen.html - Kostenlose Ermittlung von Wind- und Schneelastzonen für Standorte in Deutschland (DIN EN 1991)
+
+# Baugenehmigung-Tool
+/baugenehmigung.html - Kostenloser Online-Check zur Genehmigungspflicht für Terrassenüberdachungen, Carports und Kaltwintergärten in allen 16 deutschen Bundesländern
