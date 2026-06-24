@@ -143,6 +143,10 @@
       .orte-list { max-height: 300px; }
     }
   </style>
+  <meta property="og:title" content="Einzugsgebiet Westerwald & Umgebung | BV AussenSysteme" />
+  <meta property="og:description" content="BV AussenSysteme montiert im Umkreis von 50 km: Montabaur, Neuwied, Koblenz, Altenkirchen und mehr." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="de_DE" />
 </head>
 <body>
 
@@ -228,8 +232,8 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
-<script src="js/cookie.js"></script>
+<script src="js/main.js" defer></script>
+<script src="js/cookie.js" defer></script>
 <script>
 // Orte mit Koordinaten
 var orte = [
@@ -325,6 +329,6 @@ orte.forEach(function(ort, idx) {
 // Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
 var group = L.featureGroup(markers);
 </script>
-<script src="js/accessibility.js"></script>
+<script src="js/accessibility.js" defer></script>
 </body>
 </html>

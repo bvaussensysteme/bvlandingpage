@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
       formData.append('nachricht', nachricht || '–');
       formData.append('_subject',  'Neue Anfrage: ' + vorname + ' ' + nachname + ' – BV AussenSysteme');
       formData.append('_replyto',  email);
+      formData.append('_gotcha',   '');
 
       fetch('https://formspree.io/f/xnjkabdv', {
         method:  'POST',
