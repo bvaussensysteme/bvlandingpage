@@ -226,16 +226,16 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - [ ] Google Ads schalten
 
 ### 🟠 P1 — Kurzfristig
-- [ ] WebP-Konvertierung (galerie-3-full.jpg 871KB, galerie-2-full.jpg 645KB)
-- [ ] Cal.com Terminbuchung einbinden
-- [ ] 7 Produktseiten auf 300+ Wörter (velaris, faltdach, fassade, sichtschutz, bushaltestelle, fahrradueberdachung, gartenhaus)
+- [x] WebP-Konvertierung ✅ 26.06.2026 – 38 Bilder, 1,74MB gespart
+- [x] Cal.com Terminbuchung ✅ 26.06.2026 – termin.html mit cal.com/bv-aussensysteme
+- [x] 7 Produktseiten 300+ Wörter ✅ 26.06.2026 – alle 400-510 Wörter
 - [ ] Trustindex Widget nach erster Bewertung
 - [ ] Impressum + AGB: USt-ID nach Gründung ergänzen
 
 ### 🟡 P2 — Mittelfristig
-- [ ] Lokale Landingpages (Montabaur, Neuwied, Koblenz, Altenkirchen)
-- [ ] Blog-Sektion (5 Pillar-Artikel)
-- [ ] Formular-Danke-Seite
+- [x] Lokale Landingpages ✅ 26.06.2026 – montabaur/neuwied/koblenz/altenkirchen
+- [x] Blog-Sektion ✅ 26.06.2026 – ratgeber/ mit 5 Pillar-Artikeln
+- [x] Danke-Seite ✅ 26.06.2026 – danke.html mit Redirect nach Formular
 - [ ] Eigene Produktfotos nach VD-Vertragsunterzeichnung
 
 ---

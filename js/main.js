@@ -103,8 +103,9 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function(res) { return res.json(); })
       .then(function(data) {
         if (data.ok) {
-          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vorname + '!</strong> Wir melden uns schnellstmöglich bei Ihnen.';
+          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vorname + '!</strong> Sie werden weitergeleitet…';
           msgBox.style.color = '#C49A2A';
+          setTimeout(function(){ window.location.href = '/danke.html'; }, 1500);
           formSubmit.textContent = 'Anfrage gesendet ✓';
           ['vorname','nachname','email','telefon','nachricht'].forEach(function(id) {
             var el = document.getElementById(id);
