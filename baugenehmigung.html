@@ -44,6 +44,22 @@
 .bg-hero h1 { color: var(--white); margin-bottom: 12px; }
 .bg-hero .hero-sub { color: rgba(255,255,255,.75); max-width: 620px; line-height: 1.7; }
 
+/* ── PRODUCT CHIPS ── */
+.bg-product-select { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:20px 32px 18px; box-shadow:var(--shadow); margin-bottom:16px; }
+.bg-product-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.bg-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 14px; border-radius:20px; font-size:.85rem; font-weight:500;
+  border:2px solid var(--border); background:var(--white); color:var(--black);
+  cursor:pointer; transition:all .18s ease; user-select:none;
+}
+.bg-chip:hover { border-color:var(--gold); background:#FEFBF0; color:var(--black); }
+.bg-chip.selected {
+  background:var(--gold); border-color:var(--gold); color:var(--white);
+  box-shadow:0 2px 8px rgba(196,154,42,.35);
+}
+.bg-chip.selected:hover { background:#b8891f; border-color:#b8891f; }
+
 /* ── SEARCH ── */
 .bg-search-box {
   background: var(--white); border: 1px solid var(--border);
@@ -840,10 +856,46 @@ function bgShowResults(addr, lat, lng, bundesland, county, city, lboData) {
   document.getElementById('bg-products-heading').textContent =
     'Genehmigungsregeln für ' + bundesland;
 
-  // Produkt-Karten
+  // Produkt-Karten (gefiltert nach Chip-Auswahl wenn vorhanden)
   var grid = document.getElementById('bg-produkte-grid');
   grid.innerHTML = '';
-  Object.values(lboData.produkte).forEach(function(p) {
+
+  // Chip-Filter: Wenn Produkte ausgewählt → nur diese zeigen
+  var chipMap = {
+    'terrassenueberdachung': ['terrassenueberdachung','terrasse','terrassenüberdachung'],
+    'carport': ['carport'],
+    'kaltwintergarten': ['kaltwintergarten','wintergarten'],
+    'glasschiebeanlage': ['glasschiebeanlage','glasschiebewand','glastrennwand'],
+    'aussenanlage': ['aussenanlage','pergola','markise','sonnensegel']
+  };
+  var aktiveProdukte = lboData.produkte;
+  if (bgSelectedProducts.length > 0) {
+    var allowedKeys = [];
+    bgSelectedProducts.forEach(function(chip) {
+      var aliases = chipMap[chip] || [chip];
+      Object.keys(lboData.produkte).forEach(function(key) {
+        aliases.forEach(function(alias) {
+          if (key.toLowerCase().indexOf(alias) !== -1) allowedKeys.push(key);
+        });
+      });
+    });
+    if (allowedKeys.length > 0) {
+      aktiveProdukte = {};
+      allowedKeys.forEach(function(k) { if (lboData.produkte[k]) aktiveProdukte[k] = lboData.produkte[k]; });
+      // Hinweis anzeigen
+      var filterHint = document.createElement('p');
+      filterHint.style.cssText = 'font-size:.82rem;color:var(--gold);font-weight:600;margin-bottom:12px;';
+      filterHint.textContent = '🔍 Gefiltert nach Ihrer Auswahl · Alle Produkte: Auswahl aufheben';
+      filterHint.style.cursor = 'pointer';
+      filterHint.onclick = function() {
+        document.querySelectorAll('.bg-chip.selected').forEach(function(b){ b.classList.remove('selected'); });
+        bgSelectedProducts = [];
+      };
+      grid.appendChild(filterHint);
+    }
+  }
+
+  Object.values(aktiveProdukte).forEach(function(p) {
     var badgeClass = p.statusClass === 'green' ? 'badge-green' :
                      p.statusClass === 'red'   ? 'badge-red' : 'badge-yellow';
     var card = document.createElement('div');
