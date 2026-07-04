@@ -236,7 +236,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - [ ] Trustindex Widget vollständig aktivieren (Tab vorbereitet, CDN-Script noch auskommentiert)
 - [ ] Impressum + AGB: USt-ID nach Gründung ergänzen
 - [ ] Schema.org `Product` auf `balkonueberdachung.html` + `sonnenschutz-beschattung.html` ergänzen
-- [ ] Verwaiste Datei `produkte/eingangs├╝berdachung.html` löschen (Mojibake-Dateiname, unverlinkt)
+- [x] Verwaiste Datei `produkte/eingangs├╝berdachung.html` gelöscht ✅ 04.07.2026 – war Ursache für 404 in der Sitemap
 - [ ] ~4,8MB unreferenzierte Bild-Duplikate im Repo-Root aufräumen
 
 ### 🟡 P2 — Mittelfristig
@@ -293,6 +293,15 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 04.07.2026 (2) — GSC-Indexierungsproblem behoben
+- Ursache: 36 von 37 URLs nie von Google gecrawlt ("Nicht zutreffend")
+- `garten-aussenbereich.html`: 4 Produktkarten (Gartenhaus, Fahrradüberdachung, Bushaltestelle, Faltdach) verlinkten fälschlich auf `/#kontakt` statt auf die echten Detailseiten – jetzt korrigiert
+- `balkon-fassade.html`: Links zu `fassade.html` (Deco Wall) + `sichtschutz.html` ergänzt
+- `pergola.html`: Querverweis zu `velaris.html` ergänzt (war bisher komplett unverlinkt)
+- Sitemap-Eintrag `produkte/eingangsüberdachung.html` (doppelt-UTF-8-kodierter Dateiname) führte zu 404 – Datei gelöscht, Sitemap-Eintrag entfernt
+- `index.html`-Footer: 4 lokale Landingpages (Montabaur/Neuwied/Koblenz/Altenkirchen) direkt statt nur `einzugsgebiet.html` verlinkt; Ratgeber-Blog erstmals im Footer verlinkt
+- Nächster Schritt (manuell, GSC-Login nötig): Sitemap neu einreichen + Indexierung für Schlüsselseiten beantragen
 
 ### 04.07.2026 — Kompletter Audit (Security, Performance, SEO, UX)
 - Alle 4 Audit-Dateien gegen echten Code verifiziert (nicht nur gegen alte Doku) und aktualisiert
