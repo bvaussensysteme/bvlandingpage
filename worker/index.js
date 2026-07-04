@@ -67,6 +67,10 @@ async function handleChat(request, env) {
     return jsonResponse({ error: 'Bitte eine Nachricht (max. 500 Zeichen) senden.' }, 400);
   }
 
+  if (isZeroDividedByZero(message)) {
+    return jsonResponse({ reply: ZERO_DIVIDE_JOKE });
+  }
+
   const history = Array.isArray(body.history) ? body.history.slice(-6) : [];
   const safeHistory = history
     .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
@@ -93,6 +97,16 @@ async function handleChat(request, env) {
 
 const REAL_PHONE = '015678696609';
 const REAL_PHONE_DISPLAY = '015678696609';
+
+const ZERO_DIVIDE_JOKE = 'Stell dir vor, du hast 0 Kekse und verteilst sie gleichmäßig auf 0 Freunde. Wie viele Kekse bekommt jeder? Siehst du? Das ergibt keinen Sinn. Das Krümelmonster ist traurig, weil es keine Kekse gibt. Und du bist traurig, weil du keine Freunde hast.';
+
+// Fester Sonderfall (Easter Egg), bewusst nicht dem Modell überlassen, damit
+// die Antwort immer exakt gleich kommt - nur bei "0 geteilt durch 0" o.ä.,
+// nicht bei anderen Rechnungen mit einer 0.
+function isZeroDividedByZero(message) {
+  const m = message.toLowerCase().replace(/\s+/g, ' ').trim();
+  return /\b(0|null)\s*(geteilt durch|dividiert durch|durch|:|\/)\s*(0|null)\b/.test(m);
+}
 
 // Modelle erfinden gelegentlich eine Telefonnummer trotz gegenteiliger Anweisung.
 // Als Absicherung: jede erkannte Telefonnummer, die nicht der echten BV-Nummer
