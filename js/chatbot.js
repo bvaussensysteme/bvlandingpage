@@ -60,7 +60,7 @@
     '</div>';
 
   function renderMessageHtml(text) {
-    var wantsContact = /\/#kontakt\b/.test(text);
+    var wantsContact = /\/#kontakt\b|kontaktformular|kontaktieren sie uns|nehmen sie kontakt/i.test(text);
     var html = linkify(escapeHtml(text), wantsContact);
     if (wantsContact) html += contactActionsHtml;
     return html;
