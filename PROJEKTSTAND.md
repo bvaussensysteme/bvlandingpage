@@ -259,6 +259,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 
 ### 🟡 P2 — Mittelfristig
 - [x] Lokale Landingpages ✅ 26.06.2026 – montabaur/neuwied/koblenz/altenkirchen
+- [x] Lokale Landingpages nördlicher Westerwald ✅ 04.07.2026 – westerburg/hachenburg/rennerod (Rank-Grid zeigte schwache Werte 8-10/20+ in diesem Bereich, obwohl innerhalb 60km-Radius)
 - [x] Blog-Sektion ✅ 26.06.2026 – ratgeber/ mit 5 Pillar-Artikeln
 - [x] Danke-Seite ✅ 26.06.2026 – danke.html mit Redirect nach Formular
 - [ ] Eigene Produktfotos nach VD-Vertragsunterzeichnung
@@ -311,6 +312,11 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 04.07.2026 (7) — 3 neue lokale Landingpages für schwachen nördlichen Bereich
+- Anlass: Rank-Grid (lokales Ranking-Tool) zeigte deutlich schwächere Positionen (8-10, teils 20+) im nördlichen Westerwald (Raum Puderbach/Herschbach/Mündersbach/Steimel/Rotenhain), während der Kernbereich um den Standort (Wirges/Nauort) bereits stark rankt (1-3) – dieser nördliche Bereich liegt aber innerhalb des kommunizierten 60km-Radius
+- Neue Seiten nach Vorbild der bestehenden 4 Landingpages: `terrassenueberdachung-westerburg.html`, `terrassenueberdachung-hachenburg.html`, `terrassenueberdachung-rennerod.html` (jeweils mit eigenem Content, LocalBusiness-Schema, lokaler FAQ)
+- Sitemap ergänzt, Footer-Regionen-Liste in `index.html` ergänzt (Hachenburg verlinkte bisher nur auf `einzugsgebiet.html`, jetzt eigene Landingpage)
 
 ### 04.07.2026 (6) — Einzugsgebiet neu definiert: 60 km statt 50 km
 - Mittelpunkt neu berechnet: zwischen Dernbach (Westerwald) und Pleckhausen statt nur Dernbach – liegt nahe Dierdorf/Giershofen
