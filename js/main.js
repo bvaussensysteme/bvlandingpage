@@ -193,6 +193,44 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowRight')  lightboxNav(1);
 });
 
+// Bild-Carousel: Lupen-Icon einfügen + Vollbild-Zoom-Overlay bereitstellen
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.vd-carousel').forEach(function (c) {
+    var hint = document.createElement('span');
+    hint.className = 'vd-carousel-zoom-hint';
+    hint.textContent = '🔍';
+    c.appendChild(hint);
+  });
+  if (document.querySelector('.vd-carousel') && !document.getElementById('vdZoomOverlay')) {
+    var overlay = document.createElement('div');
+    overlay.className = 'vd-zoom-overlay';
+    overlay.id = 'vdZoomOverlay';
+    overlay.innerHTML = '<button class="vd-zoom-close" aria-label="Schließen">✕</button><img src="" alt="" />';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay || e.target.classList.contains('vd-zoom-close')) {
+        overlay.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') overlay.classList.remove('open');
+    });
+  }
+});
+
+document.addEventListener('click', function (e) {
+  var slide = e.target.closest('.vd-carousel-slide');
+  if (slide) {
+    var overlay = document.getElementById('vdZoomOverlay');
+    if (overlay) {
+      overlay.querySelector('img').src = slide.currentSrc || slide.src;
+      overlay.querySelector('img').alt = slide.alt;
+      overlay.classList.add('open');
+    }
+    return;
+  }
+});
+
 // Bild-Carousel: Pfeil-Navigation für Produktvarianten mit mehreren Bildern
 document.addEventListener('click', function (e) {
   var btn = e.target.closest('.vd-carousel-btn');

@@ -1898,8 +1898,8 @@ img { max-width: 100%; height: auto; }
 /* Bild-Carousel (Pfeil-Navigation) für Produktvarianten mit mehreren Bildern */
 .vd-carousel { position: relative; width: 100%; height: 100%; overflow: hidden; background: #1a1a1a; }
 .vd-carousel-slide {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  opacity: 0; transition: opacity .35s ease; pointer-events: none;
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; transition: opacity .35s ease; pointer-events: none; cursor: zoom-in;
 }
 .vd-carousel-slide.active { opacity: 1; pointer-events: auto; }
 .vd-carousel-btn {
@@ -1929,6 +1929,27 @@ img { max-width: 100%; height: auto; }
   color: #fff; font-size: .82rem; font-weight: 600;
   padding: 22px 14px 8px; text-align: center;
 }
+.vd-carousel-zoom-hint {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(0,0,0,.45); color: #fff; font-size: .95rem;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+
+/* Vollbild-Zoom für Carousel- und Produktbilder */
+.vd-zoom-overlay {
+  position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.92);
+  display: none; align-items: center; justify-content: center; padding: 30px;
+}
+.vd-zoom-overlay.open { display: flex; }
+.vd-zoom-overlay img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 6px; }
+.vd-zoom-close {
+  position: absolute; top: 18px; right: 22px; width: 40px; height: 40px;
+  border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,.12); color: #fff; font-size: 1.3rem; line-height: 1;
+}
+.vd-zoom-close:hover { background: rgba(255,255,255,.25); }
 
 /* Kompakte Modell-Galerie (z.B. Markisen-Übersicht) */
 .vd-model-grid {
