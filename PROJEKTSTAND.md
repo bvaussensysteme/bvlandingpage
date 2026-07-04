@@ -65,7 +65,9 @@ Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (z.B. bei 
 
 - **Firma:** BV AussenSysteme
 - **Branche:** Terrassenüberdachungen, Carports, Pergolen, Lamellendächer, Sonnenschutz, Geländer, Außensysteme aus Aluminium
-- **Region:** Westerwaldkreis, 50 km Radius um Dernbach
+- **Region:** Westerwaldkreis, **60 km Radius** um den Mittelpunkt Dernbach ↔ Pleckhausen (nahe Dierdorf/Giershofen, 50.526°N 7.666°E) – so kommuniziert auf der Website. Bei größeren/gewerblichen Aufträgen auch darüber hinaus nach Absprache.
+  - Innerhalb 60 km: Montabaur, Neuwied, Altenkirchen, Hachenburg, Koblenz, Bad Ems, Diez, Limburg, Bad Neuenahr-Ahrweiler, Siegburg, Bonn, Siegen, Bad Schwalbach, Cochem
+  - Knapp außerhalb (bewusst noch bedient, nur nicht als "60 km" beworben): Simmern, Wetzlar (je ~61 km)
 - **Tel:** 015678 696609
 - **E-Mail:** info@bv-aussensysteme.de
 - **WhatsApp:** https://wa.me/4915678696609
@@ -309,6 +311,12 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 04.07.2026 (6) — Einzugsgebiet neu definiert: 60 km statt 50 km
+- Mittelpunkt neu berechnet: zwischen Dernbach (Westerwald) und Pleckhausen statt nur Dernbach – liegt nahe Dierdorf/Giershofen
+- Kommunizierter Radius von 50 km auf 60 km erhöht (echte Koordinaten-Berechnung, siehe UNTERNEHMEN-Sektion für die volle Liste)
+- "50 km" → "60 km" aktualisiert in: `einzugsgebiet.html` (og:description + sichtbarer Text), 4 lokale Landingpages (Montabaur/Neuwied/Koblenz/Altenkirchen, FAQ-Antwort)
+- Bewusst nicht angepasst: `windzonen.html` (unabhängiger Geo-Sanity-Check, kein Einzugsgebiet-Bezug)
 
 ### 04.07.2026 (5) — Automatisches Deployment repariert (Cloudflare Workers Build)
 - Ursache für "nichts ändert sich live" gefunden: Der Cloudflare-Workers-Git-Integration (`bvlanding`) fehlte eine `wrangler.jsonc` → jeder Build brach sofort mit "Missing entry-point to Worker script or to assets directory" ab, unabhängig von unseren Code-Änderungen
