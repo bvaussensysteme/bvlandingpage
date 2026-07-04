@@ -296,6 +296,14 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 
 ## ÄNDERUNGSHISTORIE
 
+### 04.07.2026 (5) — Automatisches Deployment repariert (Cloudflare Workers Build)
+- Ursache für "nichts ändert sich live" gefunden: Der Cloudflare-Workers-Git-Integration (`bvlanding`) fehlte eine `wrangler.jsonc` → jeder Build brach sofort mit "Missing entry-point to Worker script or to assets directory" ab, unabhängig von unseren Code-Änderungen
+- `wrangler.jsonc` angelegt: `assets.directory` = Repo-Root
+- `.assetsignore` angelegt, damit interne Dateien NICHT öffentlich ausgeliefert werden: `PROJEKTSTAND.md`, `google-ads-keywords.md`, `README.md`, `audits/`, `roadmap/`, `agents/`, `docs/`, `improvements/`, `.git/`
+- Lokal mit `npx wrangler deploy --dry-run` verifiziert: Konfiguration wird akzeptiert, alle internen Dateien werden korrekt ausgeschlossen
+- Zweite Datei mit kaputt kodiertem Dateinamen im Repo-Root gefunden und gelöscht (enthielt fälschlich eine veraltete Kopie von `js/slider.js` statt HTML)
+- `.gitignore` ergänzt (`.wrangler/`, `node_modules/`)
+
 ### 04.07.2026 (4) — Cal.com-Terminbuchung entfernt
 - Bewusste Entscheidung: als Nebenerwerb ist ein Online-Buchungstool zu viel Aufwand – Termine werden künftig manuell nach Absprache per Telefon oder WhatsApp vereinbart
 - `termin.html` gelöscht (war noch nicht von Google indexiert, kein SEO-Verlust)

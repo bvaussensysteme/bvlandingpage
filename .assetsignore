@@ -1,0 +1,15 @@
+# Interne Projekt-Dokumentation – nicht öffentlich ausliefern
+PROJEKTSTAND.md
+README.md
+google-ads-keywords.md
+audits/
+roadmap/
+agents/
+docs/
+improvements/
+
+# Build-/Repo-Metadaten
+.git/
+.github/
+wrangler.jsonc
+.assetsignore
