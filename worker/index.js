@@ -98,7 +98,7 @@ async function handleChat(request, env) {
 const REAL_PHONE = '015678696609';
 const REAL_PHONE_DISPLAY = '015678696609';
 
-const ZERO_DIVIDE_JOKE = 'Stell dir vor, du hast 0 Kekse und verteilst sie gleichmäßig auf 0 Freunde. Wie viele Kekse bekommt jeder? Siehst du? Das ergibt keinen Sinn. Das Krümelmonster ist traurig, weil es keine Kekse gibt. Und du bist traurig, weil du keine Freunde hast.';
+const ZERO_DIVIDE_JOKE = 'Stell dir vor, du hast 0 Kekse und verteilst sie gleichmäßig auf 0 Freunde. Wie viele Kekse bekommt jeder? Siehst du? Das ergibt keinen Sinn. Das Krümelmonster ist traurig, weil es keine Kekse gibt. Und du bist traurig, weil du keine Freunde hast. Aber wenn du schon keine Freunde hast, hol dir wenigstens eine Dachterrasse: /produkte/terrassenueberdachung.html';
 
 // Fester Sonderfall (Easter Egg), bewusst nicht dem Modell überlassen, damit
 // die Antwort immer exakt gleich kommt - nur bei "0 geteilt durch 0" o.ä.,
