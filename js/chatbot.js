@@ -95,14 +95,19 @@
     return html;
   }
 
-  // Ladeindikator ("…") soll nie Links/Buttons bekommen.
-  function renderPlainHtml(text) {
-    return escapeHtml(text);
+  function addMessage(text, who) {
+    var wrap = document.getElementById('bvChatMessages');
+    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-' + who }, renderMessageHtml(text));
+    wrap.appendChild(msg);
+    wrap.scrollTop = wrap.scrollHeight;
+    return msg;
   }
 
-  function addMessage(text, who, plain) {
+  var TYPING_HTML = '<span class="bv-typing"><span></span><span></span><span></span></span>';
+
+  function addTypingIndicator() {
     var wrap = document.getElementById('bvChatMessages');
-    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-' + who }, plain ? renderPlainHtml(text) : renderMessageHtml(text));
+    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-bot' }, TYPING_HTML);
     wrap.appendChild(msg);
     wrap.scrollTop = wrap.scrollHeight;
     return msg;
@@ -177,7 +182,7 @@
 
   function send(text) {
     addMessage(text, 'user');
-    var pending = addMessage('…', 'bot', true);
+    var pending = addTypingIndicator();
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
