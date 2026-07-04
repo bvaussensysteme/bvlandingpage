@@ -12,10 +12,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.faq-item.open').forEach(function (el) {
         el.classList.remove('open');
         el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        el.querySelector('.faq-a').style.maxHeight = '';
       });
       if (!isOpen) {
         item.classList.add('open');
         btn.setAttribute('aria-expanded', 'true');
+        var answer = item.querySelector('.faq-a');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
       }
     });
   });
