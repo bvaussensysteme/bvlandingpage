@@ -2013,6 +2013,17 @@ img { max-width: 100%; height: auto; }
 .bv-chat-action-gold.bv-chat-action-gold { background: var(--gold); color: var(--black); }
 .bv-chat-action-whatsapp.bv-chat-action-whatsapp { background: #25D366; color: #fff; }
 .bv-chat-action-mail.bv-chat-action-mail { background: #1a1a1a; color: #fff; border: 1px solid #C49A2A; }
+.bv-chat-product {
+  display: flex; gap: 10px; margin-top: 10px; background: var(--white);
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+.bv-chat-product img { width: 84px; height: 84px; object-fit: cover; flex-shrink: 0; }
+.bv-chat-product-body {
+  padding: 8px 10px 8px 0; display: flex; flex-direction: column; gap: 6px;
+  justify-content: center; min-width: 0;
+}
+.bv-chat-product-body strong { font-size: .82rem; color: var(--black); }
+.bv-chat-product-body .bv-chat-action { padding: 6px 10px; font-size: .78rem; align-self: flex-start; }
 .bv-chat-form { display: flex; border-top: 1px solid var(--border); }
 .bv-chat-form input {
   flex: 1; border: none; padding: 12px; font-size: .85rem; outline: none; font-family: inherit;
