@@ -66,12 +66,42 @@
     return d.innerHTML;
   }
 
+  var LINK_LABELS = {
+    '/produkte/terrasse.html': 'Terrassenüberdachung',
+    '/produkte/carport.html': 'Carport',
+    '/produkte/pergola.html': 'Pergola & Lamellendach',
+    '/produkte/velaris.html': 'Velaris',
+    '/produkte/kaltwintergarten.html': 'Kaltwintergarten',
+    '/produkte/sonnenschutz.html': 'Sonnenschutz & Markisen',
+    '/produkte/gelaender.html': 'Geländer & Glasgeländer',
+    '/produkte/eingang.html': 'Eingang & Vordächer',
+    '/produkte/balkon-fassade.html': 'Balkon & Fassade',
+    '/produkte/garten-aussenbereich.html': 'Garten & Außenbereich',
+    '/ratgeber/': 'Ratgeber',
+    '/ratgeber': 'Ratgeber',
+    '/windzonen.html': 'Wind- & Schneelastzonen-Rechner',
+    '/baugenehmigung.html': 'Baugenehmigungs-Check',
+    '/konfigurator.html': 'Konfigurator',
+    '/#kontakt': 'Kontaktformular',
+    '/#faq': 'FAQ',
+    '/#leistungen': 'Leistungen',
+    '/#galerie': 'Galerie',
+  };
+
+  function humanize(path) {
+    var slug = path.replace(/^\/(produkte\/|ratgeber\/)?/, '').replace(/\.html$/, '').replace(/^#/, '');
+    if (!slug) return 'Startseite';
+    return slug.split('-').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
+  }
+
   // Wandelt interne Pfade (z.B. /windzonen.html, /#kontakt, /produkte/pergola.html)
-  // in klickbare Links um. Läuft nach escapeHtml, daher keine rohen Tags im Input.
+  // in klickbare Links mit lesbarem Seitennamen um. Läuft nach escapeHtml, daher
+  // keine rohen Tags im Input.
   function linkify(escaped) {
     return escaped.replace(/(^|[\s(])(\/[a-zA-Z0-9\-_\/]*(?:\.html)?(?:#[a-zA-Z0-9\-_]+)?)/g, function (m, pre, path) {
       if (path.length < 2) return m;
-      return pre + '<a href="' + path + '" target="_top">' + path + '</a>';
+      var label = LINK_LABELS[path] || humanize(path);
+      return pre + '<a href="' + path + '" target="_top">' + label + '</a>';
     });
   }
 
