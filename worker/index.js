@@ -65,12 +65,26 @@ async function handleChat(request, env) {
     const result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8', {
       messages,
       max_tokens: 400,
+      temperature: 0.2,
     });
-    const reply = result && result.response ? result.response.trim() : 'Entschuldigung, dazu kann ich gerade keine Antwort geben. Bitte nutzen Sie das Kontaktformular.';
+    const reply = result && result.response ? sanitizePhoneNumbers(result.response.trim()) : 'Entschuldigung, dazu kann ich gerade keine Antwort geben. Bitte nutzen Sie das Kontaktformular.';
     return jsonResponse({ reply });
   } catch (err) {
     return jsonResponse({ error: 'Der Assistent ist gerade nicht erreichbar. Bitte nutzen Sie das Kontaktformular.' }, 503);
   }
+}
+
+const REAL_PHONE = '015678696609';
+const REAL_PHONE_DISPLAY = '015678696609';
+
+// Modelle erfinden gelegentlich eine Telefonnummer trotz gegenteiliger Anweisung.
+// Als Absicherung: jede erkannte Telefonnummer im Text, die nicht der echten
+// entspricht, wird durch die echte Nummer ersetzt.
+function sanitizePhoneNumbers(text) {
+  return text.replace(/\b0\d[\d\s/-]{5,14}\d\b/g, function (match) {
+    const digits = match.replace(/\D/g, '');
+    return digits === REAL_PHONE ? match : REAL_PHONE_DISPLAY;
+  });
 }
 
 function jsonResponse(data, status = 200) {
