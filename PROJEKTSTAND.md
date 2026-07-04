@@ -45,6 +45,14 @@
 - `audits/SECURITY_AUDIT.md` (bei Sicherheitsänderungen)
 - `improvements/IMPROVEMENT-LOG.md` (bei jeder Implementierung)
 
+### 💰 Sparsamer Umgang mit Claude-Nutzungsvolumen (permanent, seit 04.07.2026)
+> Der Betreiber nutzt einen begrenzten Claude-Plan – das Guthaben soll möglichst lange reichen. Gilt für **jede Session, dauerhaft**:
+- Keine unnötigen Verifizierungs-Schleifen (nicht jeden Schritt einzeln per `grep`/`curl`/Dry-Run gegenchecken, nur bei wirklich riskanten Änderungen)
+- Änderungen bündeln statt viele kleine Commits/PRs nacheinander
+- Keine Subagenten für Recherchen, die auch direkt schnell selbst erledigt werden können
+- Kurze Zwischen-Updates, nur wenn wirklich relevant
+- Bei größeren Aufgaben erst kurz planen/fragen statt explorativ viele Tool-Calls zu verbrauchen
+
 ---
 
 ## UNTERNEHMEN
