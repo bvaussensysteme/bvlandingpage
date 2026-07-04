@@ -1982,8 +1982,8 @@ img { max-width: 100%; height: auto; }
 #bvChatBubble:hover { background: #C49A2A; color: #000; transform: scale(1.08); }
 @media (max-width: 600px) { #bvChatBubble { bottom: 12px; right: 12px; width: 44px; height: 44px; } }
 #bvChatPanel {
-  position: fixed; bottom: 74px; right: 16px; z-index: 999997;
-  width: 320px; max-width: calc(100vw - 32px); height: 420px; max-height: calc(100vh - 110px);
+  position: fixed; bottom: 74px; right: 80px; z-index: 999997;
+  width: 320px; max-width: calc(100vw - 96px); height: 420px; max-height: calc(100vh - 110px);
   background: var(--white); border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.35);
   display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
 }
@@ -2007,7 +2007,6 @@ img { max-width: 100%; height: auto; }
   border: none; background: var(--gold); color: var(--black); width: 46px; cursor: pointer; font-size: 1rem;
 }
 .bv-chat-form button:hover { background: var(--gold-dark); }
-@media (max-width: 480px) {
-  #bvChatPanel { right: 8px; bottom: 74px; }
-  #bvChatBubble { right: 8px; }
+@media (max-width: 600px) {
+  #bvChatPanel { right: 64px; bottom: 70px; max-width: calc(100vw - 76px); }
 }
