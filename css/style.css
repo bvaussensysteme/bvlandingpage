@@ -1840,6 +1840,11 @@ img { max-width: 100%; height: auto; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  /* Ladepunkte-Animation ist eine funktionale Statusanzeige, keine Bewegungsanimation */
+  .bv-typing span {
+    animation-duration: 1.2s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 /* ── Ratgeber-Artikel (Zeitungsstil) ──────────────────────────── */

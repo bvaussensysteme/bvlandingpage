@@ -83,7 +83,7 @@
   }
 
   function renderMessageHtml(text) {
-    var wantsContact = /#kontakt\b|kontaktformular|kontaktseite|kontaktieren sie uns|nehmen sie kontakt/i.test(text);
+    var wantsContact = /#kontakt\b|kontaktformular|kontaktseite|kontaktier|nehmen sie kontakt|melde(n)? (dich|sie) |ruf(en)? (uns|sie uns)? an|schreib(en)? (uns|sie uns)|whatsapp|015678696609/i.test(text);
     var productPath = null;
     for (var p in PRODUCT_CARDS) {
       if (text.indexOf(p) !== -1) { productPath = p; break; }
