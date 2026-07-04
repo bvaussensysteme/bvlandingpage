@@ -255,10 +255,12 @@ h3 { font-size: 1.4rem; color: var(--black); }
   flex-direction: column;
   align-items: stretch;
 }
-.leistung-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--gold);
+@media (hover: hover) and (pointer: fine) {
+  .leistung-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--gold);
+  }
 }
 .leistung-img {
   height: 200px;
@@ -276,7 +278,7 @@ h3 { font-size: 1.4rem; color: var(--black); }
   width: 100%; height: 100%; object-fit: cover;
   transition: transform 0.4s ease;
 }
-.leistung-card:hover .leistung-img img { transform: scale(1.05); }
+@media (hover: hover) and (pointer: fine) { .leistung-card:hover .leistung-img img { transform: scale(1.05); } }
 .leistung-img::after {
   content: ''; position: absolute;
   bottom: 0; left: 0; right: 0; height: 3px;
