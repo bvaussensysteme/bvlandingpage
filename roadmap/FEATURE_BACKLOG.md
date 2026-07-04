@@ -15,7 +15,7 @@
 ### SHOULD HAVE (P1 — diese Woche/Monat)
 | ID | Feature | Warum | Agent | Status |
 |---|---|---|---|---|
-| F-04 | Cal.com Terminbuchung Widget | Direkte Buchung ohne Formular | Engineering | 🟠 Geplant |
+| F-04 | ~~Cal.com Terminbuchung Widget~~ | War kurz live, 04.07.2026 auf Wunsch wieder entfernt – Termine bewusst manuell per Telefon/WhatsApp | Engineering | ❌ Verworfen |
 | F-05 | Trustindex Bewertungs-Widget | Social Proof sichtbar machen | Engineering | 🟡 Nach F-02 |
 | F-06 | Content-Ausbau 7 Unterseiten (300+ Wörter) | SEO: Dünner Content | Marketing | 🟠 Geplant |
 | F-07 | Schema.org Product auf Produktseiten | Rich Snippets in SERP | Engineering | 🟠 Geplant |
@@ -41,8 +41,8 @@
 
 ## User Stories (Top 5)
 
-**US-01**: Als Heimbesitzer im Westerwald möchte ich sofort einen Beratungstermin buchen können, ohne auf eine E-Mail-Antwort warten zu müssen.
-→ Feature: Cal.com Integration (F-04)
+**US-01**: Als Heimbesitzer im Westerwald möchte ich schnell einen Beratungstermin vereinbaren können.
+→ Gelöst durch Telefon/WhatsApp statt Buchungstool (F-04 verworfen, 04.07.2026)
 
 **US-02**: Als Google-Nutzer möchte ich Bewertungen sehen bevor ich eine Anfrage stelle, um Vertrauen aufzubauen.
 → Feature: Trustindex Widget (F-05)

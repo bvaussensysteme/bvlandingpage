@@ -61,9 +61,11 @@
 
 ## LIVE WEBSITE
 
-- **URL:** https://bv-aussensysteme.de
-- **www:** https://www.bv-aussensysteme.de → Cloudflare 301 Redirect
+- **URL:** https://bv-aussensysteme.de (kanonisch, OHNE www)
+- **www:** https://www.bv-aussensysteme.de → Cloudflare 301 Redirect auf die Version ohne www
 - **Deploy:** Dateien auf GitHub hochladen → Cloudflare: Caching → Purge Everything
+
+> ⚠️ Alle Canonical-Tags, hreflang, og:url, Sitemap, robots.txt und llms.txt MÜSSEN auf `https://bv-aussensysteme.de` (ohne www) zeigen — sonst meldet Google Search Console "Umleitungsfehler" für die Startseite (Vorfall 01.07.2026, behoben 04.07.2026).
 
 ---
 
@@ -115,17 +117,19 @@ bv-aussensysteme/
 ---
 
 ## AKTUELLER PROJEKTSTATUS
-**Score: 82/100** | Stand: 24.06.2026
+**Score: 86/100** | Stand: 04.07.2026 (kompletter Audit gegen echten Code verifiziert)
 
 | Bereich | Status | Score |
 |---|---|---|
-| Security | ✅ B+ | CSP, HSTS, SRI, DSGVO |
+| Security | ⚠️ B- | HSTS/Headers ok, aber **CSP fehlt trotz gegenteiliger Doku**, Leaflet ohne SRI-Hash |
 | Deployment | ✅ | HTTPS, Google Business, GitHub |
-| SEO Technik | ✅ A | Canonical, Sitemap, Schema, hreflang |
+| SEO Technik | ✅ A- | Canonical, Sitemap, Schema, hreflang; 2 von 20 Produktseiten ohne Product-Schema |
 | Accessibility | ✅ B | WCAG 2.2 AA |
-| Performance | ⚠️ C+ | WebP fehlt (4.7MB Bilder) |
-| Content | ⚠️ B- | 7 Seiten < 300 Wörter |
-| Conversion | ⚠️ C | Keine Buchung, keine Bewertungen |
+| Performance | ✅ B | WebP umgesetzt; 4,8MB unreferenzierte Bild-Duplikate im Repo-Root gefunden |
+| Content | ✅ A- | Alle vormals kurzen Seiten jetzt 700+ Wörter, Blog + lokale Landingpages live |
+| Conversion | ✅ B | Bewertung live, Terminvereinbarung bewusst manuell (Telefon/WhatsApp); Preisindikation weiterhin offen |
+
+> Details je Bereich: siehe `audits/SECURITY_AUDIT.md`, `audits/PERFORMANCE_AUDIT.md`, `audits/SEO_AUDIT.md`, `audits/UX_AUDIT.md` (alle Stand 04.07.2026)
 
 ---
 
@@ -222,21 +226,28 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ## OFFENE AUFGABEN (Website)
 
 ### 🔴 P0 — Sofort
-- [ ] aggregateRating aktivieren nach erster Bewertung
+- [x] aggregateRating aktivieren ✅ bereits live (5.0 ⭐, 1 Bewertung) – vorher fälschlich als offen geführt
 - [ ] Google Ads schalten
+- [ ] **CSP-Header ergänzen** (Audit 04.07.: fehlt trotz gegenteiliger Doku, siehe SECURITY_AUDIT.md)
+- [ ] **SRI-Hash für Leaflet-CDN ergänzen** (windzonen.html, einzugsgebiet.html)
 
 ### 🟠 P1 — Kurzfristig
 - [x] WebP-Konvertierung ✅ 26.06.2026 – 38 Bilder, 1,74MB gespart
-- [x] Cal.com Terminbuchung ✅ 26.06.2026 – termin.html mit cal.com/bv-aussensysteme
-- [x] 7 Produktseiten 300+ Wörter ✅ 26.06.2026 – alle 400-510 Wörter
-- [ ] Trustindex Widget nach erster Bewertung
+- [x] Cal.com Terminbuchung wieder entfernt ✅ 04.07.2026 – bewusste Entscheidung: als Nebenerwerb Termine lieber manuell nach Absprache per Telefon/WhatsApp statt über Buchungstool
+- [x] 7 Produktseiten 300+ Wörter ✅ 26.06.2026 – alle jetzt 700+ Wörter
+- [ ] Trustindex Widget vollständig aktivieren (Tab vorbereitet, CDN-Script noch auskommentiert)
 - [ ] Impressum + AGB: USt-ID nach Gründung ergänzen
+- [ ] Schema.org `Product` auf `balkonueberdachung.html` + `sonnenschutz-beschattung.html` ergänzen
+- [x] Verwaiste Datei `produkte/eingangs├╝berdachung.html` gelöscht ✅ 04.07.2026 – war Ursache für 404 in der Sitemap
+- [ ] ~4,8MB unreferenzierte Bild-Duplikate im Repo-Root aufräumen
 
 ### 🟡 P2 — Mittelfristig
 - [x] Lokale Landingpages ✅ 26.06.2026 – montabaur/neuwied/koblenz/altenkirchen
 - [x] Blog-Sektion ✅ 26.06.2026 – ratgeber/ mit 5 Pillar-Artikeln
 - [x] Danke-Seite ✅ 26.06.2026 – danke.html mit Redirect nach Formular
 - [ ] Eigene Produktfotos nach VD-Vertragsunterzeichnung
+- [ ] Preisindikation auf Produktseiten ("ab X €") ergänzen
+- [ ] Mobilmenü: Active/Tap-State CSS ergänzen
 
 ---
 
@@ -284,6 +295,48 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 04.07.2026 (5) — Automatisches Deployment repariert (Cloudflare Workers Build)
+- Ursache für "nichts ändert sich live" gefunden: Der Cloudflare-Workers-Git-Integration (`bvlanding`) fehlte eine `wrangler.jsonc` → jeder Build brach sofort mit "Missing entry-point to Worker script or to assets directory" ab, unabhängig von unseren Code-Änderungen
+- `wrangler.jsonc` angelegt: `assets.directory` = Repo-Root
+- `.assetsignore` angelegt, damit interne Dateien NICHT öffentlich ausgeliefert werden: `PROJEKTSTAND.md`, `google-ads-keywords.md`, `README.md`, `audits/`, `roadmap/`, `agents/`, `docs/`, `improvements/`, `.git/`
+- Lokal mit `npx wrangler deploy --dry-run` verifiziert: Konfiguration wird akzeptiert, alle internen Dateien werden korrekt ausgeschlossen
+- Zweite Datei mit kaputt kodiertem Dateinamen im Repo-Root gefunden und gelöscht (enthielt fälschlich eine veraltete Kopie von `js/slider.js` statt HTML)
+- `.gitignore` ergänzt (`.wrangler/`, `node_modules/`)
+
+### 04.07.2026 (4) — Cal.com-Terminbuchung entfernt
+- Bewusste Entscheidung: als Nebenerwerb ist ein Online-Buchungstool zu viel Aufwand – Termine werden künftig manuell nach Absprache per Telefon oder WhatsApp vereinbart
+- `termin.html` gelöscht (war noch nicht von Google indexiert, kein SEO-Verlust)
+- Link „📅 Termin online buchen" aus dem Kontaktbereich von `index.html` entfernt, durch Hinweistext ersetzt
+- Sitemap-Eintrag entfernt
+
+### 04.07.2026 (3) — GSC "Umleitungsfehler" auf Startseite behoben
+- Ursache: Cloudflare leitet `www.bv-aussensysteme.de` → `bv-aussensysteme.de` (so gewollt, echte Seite läuft ohne www), aber Canonical-Tags, hreflang, og:url, Sitemap, robots.txt und llms.txt zeigten überall auf die `www`-Version
+- Für Google: die als kanonisch deklarierte URL lieferte nur eine Weiterleitung statt Inhalt → "Umleitungsfehler"
+- Fix: 193 Vorkommen in 49 Dateien von `www.bv-aussensysteme.de` auf `bv-aussensysteme.de` umgestellt (Canonical, hreflang, og:url, JSON-LD, Sitemap, robots.txt, llms.txt/llms-full.txt)
+- Sitemap bleibt valides XML, alle Domain-Referenzen jetzt konsistent mit der tatsächlichen Cloudflare-Konfiguration
+- Nächster Schritt (manuell, GSC-Login nötig): Sitemap neu einreichen + Indexierung für die Startseite erneut beantragen
+
+### 04.07.2026 (2) — GSC-Indexierungsproblem behoben
+- Ursache: 36 von 37 URLs nie von Google gecrawlt ("Nicht zutreffend")
+- `garten-aussenbereich.html`: 4 Produktkarten (Gartenhaus, Fahrradüberdachung, Bushaltestelle, Faltdach) verlinkten fälschlich auf `/#kontakt` statt auf die echten Detailseiten – jetzt korrigiert
+- `balkon-fassade.html`: Links zu `fassade.html` (Deco Wall) + `sichtschutz.html` ergänzt
+- `pergola.html`: Querverweis zu `velaris.html` ergänzt (war bisher komplett unverlinkt)
+- Sitemap-Eintrag `produkte/eingangsüberdachung.html` (doppelt-UTF-8-kodierter Dateiname) führte zu 404 – Datei gelöscht, Sitemap-Eintrag entfernt
+- `index.html`-Footer: 4 lokale Landingpages (Montabaur/Neuwied/Koblenz/Altenkirchen) direkt statt nur `einzugsgebiet.html` verlinkt; Ratgeber-Blog erstmals im Footer verlinkt
+- Nächster Schritt (manuell, GSC-Login nötig): Sitemap neu einreichen + Indexierung für Schlüsselseiten beantragen
+
+### 04.07.2026 — Kompletter Audit (Security, Performance, SEO, UX)
+- Alle 4 Audit-Dateien gegen echten Code verifiziert (nicht nur gegen alte Doku) und aktualisiert
+- **Kritisch**: CSP-Header existiert entgegen bisheriger Doku nicht – neuer P0-Punkt
+- **Kritisch**: Leaflet-CDN-Includes ohne SRI-Hash – neuer P0-Punkt
+- aggregateRating war bereits aktiv, aber fälschlich als offen geführt – korrigiert
+- Cal.com-Buchung (damals bestätigt), Danke-Seite, Konfigurator-Feedback als erledigt bestätigt
+- WebP-Umsetzung bestätigt (kein `<picture>`-Fallback, aber unproblematisch)
+- Neu gefunden: ~4,8MB unreferenzierte Bild-Duplikate im Repo-Root
+- Neu gefunden: verwaiste Datei `produkte/eingangs├╝berdachung.html` mit doppelt-kodiertem Dateinamen, nirgends verlinkt
+- 2 von 20 Produktseiten weiterhin ohne Schema.org Product
+- Gesamt-Score: 82 → 86/100
 
 ### 26.06.2026
 - Baugenehmigung-Checker: JS-Bug (kaputte Anführungszeichen) behoben

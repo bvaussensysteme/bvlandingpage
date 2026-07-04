@@ -43,9 +43,7 @@
 
 ### P2: Mittelfristig (1–2 Monate)
 - [ ] **Trustindex Widget** einbinden (nach erster Bewertung)
-- [ ] **Cal.com Terminbuchung** integrieren
-  - Agenten: Engineering (Frontend Developer)
-  - Impact: Conversion +20-40% (direkte Terminvereinbarung)
+- [x] ~~Cal.com Terminbuchung integrieren~~ ❌ Verworfen (04.07.2026) – bewusst manuelle Terminvereinbarung per Telefon/WhatsApp statt Buchungstool (Nebenerwerb)
 - [ ] **Bildergalerie erweitern** (echte Referenzprojekte aus Westerwald)
   - Impact: Social Proof, lokale SEO
 - [ ] **Lokale Landingpages** für Top-Städte (Montabaur, Neuwied, Koblenz, Altenkirchen)
@@ -101,7 +99,7 @@
 | Google Ads schalten | Gering | 🔴 Hoch | P0 |
 | Erste Bewertung | Gering | 🔴 Hoch | P0 |
 | WebP-Konvertierung | Mittel | 🟠 Hoch | P1 |
-| Cal.com Buchung | Mittel | 🟠 Hoch | P1 |
+| Cal.com Buchung | – | – | ❌ Verworfen |
 | Content-Ausbau | Hoch | 🟡 Mittel | P1 |
 | Lokale Landingpages | Hoch | 🔴 Hoch | P2 |
 | Blog/Ratgeber | Sehr hoch | 🔴 Hoch | P2 |
