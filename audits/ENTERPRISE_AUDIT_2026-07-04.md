@@ -3,6 +3,8 @@
 
 > ⚠️ **Transparenz-Hinweis zur Methodik:** Dieser Bericht wurde ursprünglich als 10-Agent-Parallel-Audit mit Einzelbewertung jeder der 49 Seiten in 8 Dimensionen angelegt. Alle 10 Hintergrund-Agents sind an einem harten API-Session-Limit gescheitert (0 Teilberichte gerettet). Auf Wunsch des Betreibers wurde direkt weitergearbeitet — ohne weitere Subagenten, mit Fokus auf **verifizierte, belegbare Fakten** statt Spekulation. Es werden **repräsentative Einzelbewertungen pro Seitentyp** statt aller 49 Einzelseiten geliefert (die meisten Seiten teilen Template/Nav/Footer/CSS — eine 1:1-Wiederholung wäre redundant gewesen). Wo Aussagen auf Schätzung statt Messung beruhen (z.B. Lighthouse-Werte ohne echten Lauf), ist das explizit gekennzeichnet.
 
+> ✅ **Status-Update (04.07.2026, kurz nach Fertigstellung):** Die 6 Root-Produktduplikate (Kritisches Problem #1, Quick Win #1) wurden bereits gelöscht: `carport.html`, `gelaender.html`, `kaltwintergarten.html`, `pergola.html`, `sonnenschutz.html`, `terrassenueberdachung.html`. **Korrektur:** Entgegen der ursprünglichen Annahme im Bericht standen sie nie in `sitemap.xml` (das war ein Substring-Fehler beim ersten Check — nur die `produkte/`-Versionen waren dort gelistet) — es waren reine unverlinkte, nicht indexierte Waisen-Dateien. Alle weiteren Textstellen unten, die "6 Root-Duplikate ... in Sitemap" erwähnen, beziehen sich auf den ursprünglichen (überholten) Befund und sind historisch stehen gelassen.
+
 ---
 
 ## Inhaltsverzeichnis
