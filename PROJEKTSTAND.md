@@ -53,6 +53,12 @@
 - Kurze Zwischen-Updates, nur wenn wirklich relevant
 - Bei größeren Aufgaben erst kurz planen/fragen statt explorativ viele Tool-Calls zu verbrauchen
 
+### ⚠️ VD-Inhalte entfernen – NIEMALS sofort ausführen (permanent, seit 04.07.2026)
+Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (z.B. bei Vertragsende/-änderung mit VD AluSysteme):
+1. **Nicht sofort ausführen** – erst zurückfragen, ob wirklich gewünscht (große, teils irreversible Änderung)
+2. Nach Bestätigung: `docs/VD-INHALTE-INVENTAR.md` als vollständige Grundlage nutzen (alle betroffenen Bilder, Dateien, Markennennungen, VD-Modellnamen)
+3. Darauf hinweisen, dass reines Entfernen Lücken hinterlässt (fehlende Fotos, generische Produktnamen nötig)
+
 ---
 
 ## UNTERNEHMEN
