@@ -60,7 +60,7 @@
     '</div>';
 
   var PRODUCT_CARDS = {
-    '/produkte/terrasse.html': { img: 'vd_prod_terrasse_tds.jpg', label: 'Terrassenüberdachung' },
+    '/produkte/terrassenueberdachung.html': { img: 'vd_prod_terrasse_tds.jpg', label: 'Terrassenüberdachung' },
     '/produkte/carport.html': { img: 'vd_prod_carport_tds.jpg', label: 'Carport' },
     '/produkte/pergola.html': { img: 'vd_prod_pergola_sunpro.jpg', label: 'Pergola & Lamellendach' },
     '/produkte/velaris.html': { img: 'vd_prod_pergola_velaris.jpg', label: 'Velaris' },
@@ -128,7 +128,7 @@
   }
 
   var LINK_LABELS = {
-    '/produkte/terrasse.html': 'Terrassenüberdachung',
+    '/produkte/terrassenueberdachung.html': 'Terrassenüberdachung',
     '/produkte/carport.html': 'Carport',
     '/produkte/pergola.html': 'Pergola & Lamellendach',
     '/produkte/velaris.html': 'Velaris',
