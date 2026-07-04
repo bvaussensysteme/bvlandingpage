@@ -59,9 +59,6 @@
       '<a href="mailto:' + EMAIL_ADDRESS + '" class="bv-chat-action bv-chat-action-mail">✉ E-Mail schreiben</a>' +
     '</div>';
 
-  var genericCtaHtml =
-    '<div class="bv-chat-actions"><a href="/#kontakt" target="_top" class="bv-chat-action bv-chat-action-gold">Jetzt kostenlos anfragen →</a></div>';
-
   var PRODUCT_CARDS = {
     '/produkte/terrasse.html': { img: 'vd_prod_terrasse_tds.jpg', label: 'Terrassenüberdachung' },
     '/produkte/carport.html': { img: 'vd_prod_carport_tds.jpg', label: 'Carport' },
@@ -86,24 +83,26 @@
   }
 
   function renderMessageHtml(text) {
-    var wantsContact = /\/#kontakt\b|kontaktformular|kontaktieren sie uns|nehmen sie kontakt/i.test(text);
+    var wantsContact = /#kontakt\b|kontaktformular|kontaktseite|kontaktieren sie uns|nehmen sie kontakt/i.test(text);
     var productPath = null;
     for (var p in PRODUCT_CARDS) {
       if (text.indexOf(p) !== -1) { productPath = p; break; }
     }
-    var html = linkify(escapeHtml(text), wantsContact, productPath);
+    var html = markdownLinkify(escapeHtml(text));
+    html = linkify(html, wantsContact, productPath);
     if (productPath) html += productCardHtml(productPath, PRODUCT_CARDS[productPath]);
-    if (wantsContact) {
-      html += contactActionsHtml;
-    } else if (!productPath) {
-      html += genericCtaHtml;
-    }
+    if (wantsContact) html += contactActionsHtml;
     return html;
   }
 
-  function addMessage(text, who) {
+  // Ladeindikator ("…") soll nie Links/Buttons bekommen.
+  function renderPlainHtml(text) {
+    return escapeHtml(text);
+  }
+
+  function addMessage(text, who, plain) {
     var wrap = document.getElementById('bvChatMessages');
-    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-' + who }, renderMessageHtml(text));
+    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-' + who }, plain ? renderPlainHtml(text) : renderMessageHtml(text));
     wrap.appendChild(msg);
     wrap.scrollTop = wrap.scrollHeight;
     return msg;
@@ -151,6 +150,18 @@
     return slug.split('-').map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(' ');
   }
 
+  // Falls das Modell Markdown-Links wie "[Kontaktseite](#kontakt)" schreibt,
+  // statt des reinen Pfads: in echte Links umwandeln statt als rohen Text
+  // mit Klammern anzuzeigen.
+  function markdownLinkify(escaped) {
+    return escaped.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (m, label, url) {
+      var path = url.trim();
+      if (path.charAt(0) === '#') path = '/' + path;
+      if (path.charAt(0) !== '/') return label;
+      return '<a href="' + path + '" target="_top">' + label + '</a>';
+    });
+  }
+
   // Wandelt interne Pfade (z.B. /windzonen.html, /#kontakt, /produkte/pergola.html)
   // in klickbare Links mit lesbarem Seitennamen um. Läuft nach escapeHtml, daher
   // keine rohen Tags im Input.
@@ -166,7 +177,7 @@
 
   function send(text) {
     addMessage(text, 'user');
-    var pending = addMessage('…', 'bot');
+    var pending = addMessage('…', 'bot', true);
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
