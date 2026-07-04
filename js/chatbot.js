@@ -59,10 +59,45 @@
       '<a href="mailto:' + EMAIL_ADDRESS + '" class="bv-chat-action bv-chat-action-mail">✉ E-Mail schreiben</a>' +
     '</div>';
 
+  var genericCtaHtml =
+    '<div class="bv-chat-actions"><a href="/#kontakt" target="_top" class="bv-chat-action bv-chat-action-gold">Jetzt kostenlos anfragen →</a></div>';
+
+  var PRODUCT_CARDS = {
+    '/produkte/terrasse.html': { img: 'vd_prod_terrasse_tds.jpg', label: 'Terrassenüberdachung' },
+    '/produkte/carport.html': { img: 'vd_prod_carport_tds.jpg', label: 'Carport' },
+    '/produkte/pergola.html': { img: 'vd_prod_pergola_sunpro.jpg', label: 'Pergola & Lamellendach' },
+    '/produkte/velaris.html': { img: 'vd_prod_pergola_velaris.jpg', label: 'Velaris' },
+    '/produkte/kaltwintergarten.html': { img: 'vd_prod_kaltwintergarten_tds.jpg', label: 'Kaltwintergarten' },
+    '/produkte/sonnenschutz.html': { img: 'vd_prod_sonnenschutz.jpg', label: 'Sonnenschutz & Markisen' },
+    '/produkte/gelaender.html': { img: 'vd_prod_gelaender_glas.jpg', label: 'Geländer & Glasgeländer' },
+    '/produkte/eingang.html': { img: 'vd_prod_eingang_fly.jpg', label: 'Eingang & Vordächer' },
+    '/produkte/balkon-fassade.html': { img: 'vd_prod_decowall_start.jpg', label: 'Balkon & Fassade' },
+    '/produkte/garten-aussenbereich.html': { img: 'vd_prod_gartenhaus.jpg', label: 'Garten & Außenbereich' },
+  };
+
+  function productCardHtml(path, info) {
+    return '<div class="bv-chat-product">' +
+      '<img src="/images/' + info.img + '" alt="' + info.label + '" loading="lazy" />' +
+      '<div class="bv-chat-product-body">' +
+        '<strong>' + info.label + '</strong>' +
+        '<a href="' + path + '" target="_top" class="bv-chat-action bv-chat-action-gold">Jetzt ansehen →</a>' +
+      '</div>' +
+    '</div>';
+  }
+
   function renderMessageHtml(text) {
     var wantsContact = /\/#kontakt\b|kontaktformular|kontaktieren sie uns|nehmen sie kontakt/i.test(text);
-    var html = linkify(escapeHtml(text), wantsContact);
-    if (wantsContact) html += contactActionsHtml;
+    var productPath = null;
+    for (var p in PRODUCT_CARDS) {
+      if (text.indexOf(p) !== -1) { productPath = p; break; }
+    }
+    var html = linkify(escapeHtml(text), wantsContact, productPath);
+    if (productPath) html += productCardHtml(productPath, PRODUCT_CARDS[productPath]);
+    if (wantsContact) {
+      html += contactActionsHtml;
+    } else if (!productPath) {
+      html += genericCtaHtml;
+    }
     return html;
   }
 
@@ -117,10 +152,11 @@
   // Wandelt interne Pfade (z.B. /windzonen.html, /#kontakt, /produkte/pergola.html)
   // in klickbare Links mit lesbarem Seitennamen um. Läuft nach escapeHtml, daher
   // keine rohen Tags im Input.
-  function linkify(escaped, skipKontakt) {
+  function linkify(escaped, skipKontakt, skipPath) {
     return escaped.replace(/(^|[\s(])(\/[a-zA-Z0-9\-_\/]*(?:\.html)?(?:#[a-zA-Z0-9\-_]+)?)/g, function (m, pre, path) {
       if (path.length < 2) return m;
       if (skipKontakt && path === '/#kontakt') return pre;
+      if (skipPath && path === skipPath) return pre;
       var label = LINK_LABELS[path] || humanize(path);
       return pre + '<a href="' + path + '" target="_top">' + label + '</a>';
     });
