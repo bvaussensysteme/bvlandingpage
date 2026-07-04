@@ -2000,6 +2000,17 @@ img { max-width: 100%; height: auto; }
 .bv-chat-msg-bot { background: var(--light-bg); color: var(--black); align-self: flex-start; }
 .bv-chat-msg-user { background: var(--gold); color: var(--black); align-self: flex-end; }
 .bv-chat-msg a { color: var(--gold-dark); font-weight: 700; text-decoration: underline; }
+.bv-chat-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.bv-chat-action {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 14px; border-radius: 8px; font-size: .85rem; font-weight: 700;
+  text-decoration: none !important; transition: filter .15s;
+}
+.bv-chat-action:hover { filter: brightness(1.08); }
+.bv-chat-action svg { width: 16px; height: 16px; flex-shrink: 0; }
+.bv-chat-action-gold { background: var(--gold); color: var(--black); }
+.bv-chat-action-whatsapp { background: #25D366; color: #fff; }
+.bv-chat-action-mail { background: #1a1a1a; color: #C49A2A; border: 1px solid #C49A2A; }
 .bv-chat-form { display: flex; border-top: 1px solid var(--border); }
 .bv-chat-form input {
   flex: 1; border: none; padding: 12px; font-size: .85rem; outline: none; font-family: inherit;
