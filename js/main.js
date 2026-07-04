@@ -139,24 +139,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// ---- REVIEWS TAB SWITCHER ----
-function switchTab(tab) {
-  // hide all panels
-  document.querySelectorAll('.reviews-panel').forEach(function(p) {
-    p.style.display = 'none';
-    p.classList.remove('active');
-  });
-  document.querySelectorAll('.reviews-tab').forEach(function(b) {
-    b.classList.remove('active');
-    b.setAttribute('aria-selected', 'false');
-  });
-
-  var panel = document.getElementById('tab-' + tab);
-  var btn   = document.getElementById('btn-' + tab);
-  if (panel) { panel.style.display = 'block'; panel.classList.add('active'); }
-  if (btn)   { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
-}
-
 // ---- LIGHTBOX ----
 var lightboxImages = [
   { src: 'images/galerie-1-full.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
