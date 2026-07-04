@@ -13,3 +13,4 @@ improvements/
 .github/
 wrangler.jsonc
 .assetsignore
+worker/
