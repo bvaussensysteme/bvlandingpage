@@ -1969,16 +1969,20 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 900px) { .vd-model-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 600px) { .vd-model-grid { grid-template-columns: repeat(2, 1fr); } }
 
-/* KI-Chat-Widget (Beta-Test) */
+/* KI-Chat-Widget (Beta-Test) – gleiches Design wie Barrierefreiheits-/Scroll-Top-Button */
 #bvChatBubble {
   position: fixed; bottom: 16px; right: 16px; z-index: 999997;
-  width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
-  background: var(--gold); color: var(--black); font-size: 1.4rem;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #1a1a1a; color: #C49A2A; border: 2px solid #C49A2A; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
   box-shadow: 0 4px 16px rgba(0,0,0,.3);
+  transition: all 0.2s ease;
 }
-#bvChatBubble:hover { background: var(--gold-dark); }
+#bvChatBubble svg { width: 22px; height: 22px; }
+#bvChatBubble:hover { background: #C49A2A; color: #000; transform: scale(1.08); }
+@media (max-width: 600px) { #bvChatBubble { bottom: 12px; right: 12px; width: 44px; height: 44px; } }
 #bvChatPanel {
-  position: fixed; bottom: 78px; right: 16px; z-index: 999997;
+  position: fixed; bottom: 74px; right: 16px; z-index: 999997;
   width: 320px; max-width: calc(100vw - 32px); height: 420px; max-height: calc(100vh - 110px);
   background: var(--white); border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,.35);
   display: none; flex-direction: column; overflow: hidden; border: 1px solid var(--border);
