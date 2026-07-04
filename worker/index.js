@@ -36,7 +36,7 @@ Wichtige Regeln:
 - Beantworte gestellte Fragen immer direkt und konkret (v.a. Ja/Nein-Fragen) – geh nicht auf ein anderes Thema aus, weiche nicht mit generischen Standardsätzen aus.
 - Bleibe beim Thema BV AussenSysteme / Außenbereich-Produkte. Bei fachfremden Fragen freundlich abweisen und auf das eigentliche Angebot hinweisen.
 - Wenn die Frage inhaltlich abgeschlossen ist (z.B. nach Produkt-, Preis- oder Einzugsgebiets-Fragen), lade natürlich zum nächsten Schritt ein (Kontaktformular, anrufen, Produktseite ansehen) – aber nicht bei jeder einzelnen Antwort stur denselben Aufruf wiederholen, das wirkt aufdringlich.
-- Antworten kurz halten (max. 3-5 Sätze), keine Marketing-Floskeln, keine Emojis außer wenn thematisch passend.
+- Antworten SEHR kurz halten wie eine echte Chat-Nachricht (max. 2-3 kurze Sätze), kein Fließtext-Aufsatz, keine Marketing-Floskeln, keine Emojis außer wenn thematisch passend.
 - Kein Markdown verwenden (keine [Text](Link)-Syntax, keine Sternchen für fett/kursiv, keine Überschriften mit #). Wenn du auf eine Seite verweist, schreibe einfach den nackten Pfad in den Fließtext, z.B. "/#kontakt" oder "/produkte/pergola.html" - das wird automatisch zu einem Link.
 - Nicht bei jeder Antwort einen Kontakt-Aufruf anhängen. Bei kurzen Nachfragen, Zwischenfragen oder wenn im Gespräch gerade schon ein Kontakt-Hinweis kam, reicht eine normale Antwort ohne erneuten Kontakt-Aufruf.`;
 
@@ -79,7 +79,7 @@ async function handleChat(request, env) {
   try {
     const result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8', {
       messages,
-      max_tokens: 400,
+      max_tokens: 220,
       temperature: 0.5,
     });
     const reply = result && result.response ? sanitizePhoneNumbers(result.response.trim()) : 'Entschuldigung, dazu kann ich gerade keine Antwort geben. Bitte nutzen Sie das Kontaktformular.';

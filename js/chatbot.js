@@ -118,7 +118,11 @@
     var wrap = document.getElementById('bvChatMessages');
     // Nicht ans Ende springen (sonst muss man bei langen Antworten zum
     // Anfang zurückscrollen) - stattdessen Anfang der neuen Nachricht zeigen.
-    wrap.scrollTop = Math.max(0, msg.offsetTop - 8);
+    // msg.offsetTop funktioniert hier nicht zuverlässig, da #bvChatPanel
+    // position:fixed hat und dadurch zum offsetParent wird statt wrap -
+    // deshalb Position relativ zu wrap über getBoundingClientRect berechnen.
+    var targetTop = msg.getBoundingClientRect().top - wrap.getBoundingClientRect().top + wrap.scrollTop;
+    wrap.scrollTop = Math.max(0, targetTop - 8);
   }
 
   function escapeHtml(s) {
