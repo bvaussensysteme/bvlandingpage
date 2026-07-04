@@ -1999,6 +1999,7 @@ img { max-width: 100%; height: auto; }
 .bv-chat-msg { font-size: .85rem; line-height: 1.5; padding: 8px 11px; border-radius: 10px; max-width: 88%; white-space: pre-wrap; }
 .bv-chat-msg-bot { background: var(--light-bg); color: var(--black); align-self: flex-start; }
 .bv-chat-msg-user { background: var(--gold); color: var(--black); align-self: flex-end; }
+.bv-chat-msg a { color: var(--gold-dark); font-weight: 700; text-decoration: underline; }
 .bv-chat-form { display: flex; border-top: 1px solid var(--border); }
 .bv-chat-form input {
   flex: 1; border: none; padding: 12px; font-size: .85rem; outline: none; font-family: inherit;

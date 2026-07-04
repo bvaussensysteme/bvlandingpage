@@ -50,16 +50,29 @@
 
   function addMessage(text, who) {
     var wrap = document.getElementById('bvChatMessages');
-    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-' + who }, escapeHtml(text));
+    var msg = el('div', { class: 'bv-chat-msg bv-chat-msg-' + who }, linkify(escapeHtml(text)));
     wrap.appendChild(msg);
     wrap.scrollTop = wrap.scrollHeight;
     return msg;
+  }
+
+  function updateMessage(msg, text) {
+    msg.innerHTML = linkify(escapeHtml(text));
   }
 
   function escapeHtml(s) {
     var d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
+  }
+
+  // Wandelt interne Pfade (z.B. /windzonen.html, /#kontakt, /produkte/pergola.html)
+  // in klickbare Links um. Läuft nach escapeHtml, daher keine rohen Tags im Input.
+  function linkify(escaped) {
+    return escaped.replace(/(^|[\s(])(\/[a-zA-Z0-9\-_\/]*(?:\.html)?(?:#[a-zA-Z0-9\-_]+)?)/g, function (m, pre, path) {
+      if (path.length < 2) return m;
+      return pre + '<a href="' + path + '" target="_top">' + path + '</a>';
+    });
   }
 
   function send(text) {
@@ -73,13 +86,13 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var reply = data.reply || data.error || 'Entschuldigung, das hat nicht funktioniert. Bitte nutzen Sie das Kontaktformular.';
-        pending.textContent = reply;
+        updateMessage(pending, reply);
         history.push({ role: 'user', content: text });
         history.push({ role: 'assistant', content: reply });
         if (history.length > 8) history = history.slice(-8);
       })
       .catch(function () {
-        pending.textContent = 'Der Assistent ist gerade nicht erreichbar. Bitte nutzen Sie das Kontaktformular.';
+        updateMessage(pending, 'Der Assistent ist gerade nicht erreichbar. Bitte nutzen Sie das Kontaktformular.');
       });
   }
 
