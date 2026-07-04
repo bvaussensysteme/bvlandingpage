@@ -29,6 +29,7 @@ Preise (echte, auf der Seite veröffentlichte Richtwerte – nur diese nennen, k
 
 Wichtige Regeln:
 - Erfinde keine technischen Details (Maße, Garantiezeiten, Windlasten), die dir hier nicht genannt wurden. Wenn du unsicher bist, sag das ehrlich und verweise auf die passende Produktseite oder das Kontaktformular.
+- Du kennst KEINE Kontaktdaten (Adresse, Telefon, E-Mail, Ansprechpartner) von Bauämtern, Behörden, Landkreisen oder irgendeiner anderen externen Stelle/Firma. Erfinde solche Daten NIEMALS, auch nicht ungefähr oder als Schätzung, und nenne dafür auch nicht die Telefonnummer oder E-Mail von BV AussenSysteme (das wäre falsch zugeordnet). Verweise bei Fragen zu Bauamt/Baugenehmigung IMMER direkt auf /baugenehmigung.html - dort gibt es eine echte Datenbank mit den passenden Ansprechpartnern je nach Standort. Das gilt genauso für alle anderen Fragen zu externen Institutionen, zu denen du hier keine Informationen hast: ehrlich sagen, dass du das nicht sicher weißt, und auf die passende Seite oder das Kontaktformular verweisen statt zu raten.
 - Wind- und Schneelastzonen sind ortsabhängig und hängen von exakten Koordinaten ab. Nenne dafür NIEMALS eine konkrete Zone oder Zahl (auch nicht als Schätzung) – verweise ausschließlich auf den Rechner /windzonen.html, der den echten Wert für den genauen Standort ermittelt.
 - Kontakt: Anfragen laufen über das Formular /#kontakt auf der Startseite, telefonisch/per WhatsApp unter 015678696609 (dies ist die EINZIGE echte Telefonnummer – erfinde niemals eine andere Nummer, z.B. keine Festnetznummer). Antwortzeit meist innerhalb von 24h.
 - Öffnungszeiten (laut Google-Business-Profil): Mo-Fr 08:00-17:00 Uhr, Sa 09:00-13:00 Uhr, So geschlossen. Nenne NIEMALS andere Zeiten. Konkrete Termine vor Ort laufen trotzdem individuell nach Absprache per Telefon/WhatsApp.
@@ -93,12 +94,20 @@ const REAL_PHONE = '015678696609';
 const REAL_PHONE_DISPLAY = '015678696609';
 
 // Modelle erfinden gelegentlich eine Telefonnummer trotz gegenteiliger Anweisung.
-// Als Absicherung: jede erkannte Telefonnummer im Text, die nicht der echten
-// entspricht, wird durch die echte Nummer ersetzt.
+// Als Absicherung: jede erkannte Telefonnummer, die nicht der echten BV-Nummer
+// entspricht, wird nur dann durch die echte ersetzt, wenn der Kontext klar
+// erkennen lässt, dass es um BV AussenSysteme selbst geht (z.B. "unsere
+// Nummer"). Sonst wird die (mutmaßlich erfundene) Nummer komplett entfernt,
+// statt sie fälschlich als BV-Kontakt auszugeben - z.B. wenn nach der
+// Telefonnummer eines Bauamts o.ä. gefragt wird und das Modell trotzdem eine
+// Nummer erfindet.
 function sanitizePhoneNumbers(text) {
-  return text.replace(/\b0\d[\d\s/-]{5,14}\d\b/g, function (match) {
+  return text.replace(/\b0\d[\d\s/-]{5,14}\d\b/g, function (match, offset, full) {
     const digits = match.replace(/\D/g, '');
-    return digits === REAL_PHONE ? match : REAL_PHONE_DISPLAY;
+    if (digits === REAL_PHONE) return match;
+    const context = full.slice(Math.max(0, offset - 60), offset).toLowerCase();
+    const isAboutUs = /unser|uns\b|bv aussensysteme|erreichen sie uns|rufen sie uns/.test(context);
+    return isAboutUs ? REAL_PHONE_DISPLAY : '';
   });
 }
 
