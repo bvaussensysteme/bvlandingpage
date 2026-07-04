@@ -60,14 +60,14 @@ async function handleChat(request, env) {
   ];
 
   try {
-    const result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+    const result = await env.AI.run('@cf/meta/llama-3.1-8b-instruct-fp8', {
       messages,
       max_tokens: 400,
     });
     const reply = result && result.response ? result.response.trim() : 'Entschuldigung, dazu kann ich gerade keine Antwort geben. Bitte nutzen Sie das Kontaktformular.';
     return jsonResponse({ reply });
   } catch (err) {
-    return jsonResponse({ error: 'Der Assistent ist gerade nicht erreichbar. Bitte nutzen Sie das Kontaktformular.', debug: String(err && err.message ? err.message : err) }, 503);
+    return jsonResponse({ error: 'Der Assistent ist gerade nicht erreichbar. Bitte nutzen Sie das Kontaktformular.' }, 503);
   }
 }
 
