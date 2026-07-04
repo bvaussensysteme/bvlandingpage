@@ -127,7 +127,7 @@ bv-aussensysteme/
 | Accessibility | ✅ B | WCAG 2.2 AA |
 | Performance | ✅ B | WebP umgesetzt; 4,8MB unreferenzierte Bild-Duplikate im Repo-Root gefunden |
 | Content | ✅ A- | Alle vormals kurzen Seiten jetzt 700+ Wörter, Blog + lokale Landingpages live |
-| Conversion | ✅ B+ | Cal.com-Buchung + Bewertung live; Preisindikation weiterhin offen |
+| Conversion | ✅ B | Bewertung live, Terminvereinbarung bewusst manuell (Telefon/WhatsApp); Preisindikation weiterhin offen |
 
 > Details je Bereich: siehe `audits/SECURITY_AUDIT.md`, `audits/PERFORMANCE_AUDIT.md`, `audits/SEO_AUDIT.md`, `audits/UX_AUDIT.md` (alle Stand 04.07.2026)
 
@@ -233,7 +233,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 
 ### 🟠 P1 — Kurzfristig
 - [x] WebP-Konvertierung ✅ 26.06.2026 – 38 Bilder, 1,74MB gespart
-- [x] Cal.com Terminbuchung ✅ 26.06.2026 – termin.html mit cal.com/bv-aussensysteme
+- [x] Cal.com Terminbuchung wieder entfernt ✅ 04.07.2026 – bewusste Entscheidung: als Nebenerwerb Termine lieber manuell nach Absprache per Telefon/WhatsApp statt über Buchungstool
 - [x] 7 Produktseiten 300+ Wörter ✅ 26.06.2026 – alle jetzt 700+ Wörter
 - [ ] Trustindex Widget vollständig aktivieren (Tab vorbereitet, CDN-Script noch auskommentiert)
 - [ ] Impressum + AGB: USt-ID nach Gründung ergänzen
@@ -296,6 +296,12 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 
 ## ÄNDERUNGSHISTORIE
 
+### 04.07.2026 (4) — Cal.com-Terminbuchung entfernt
+- Bewusste Entscheidung: als Nebenerwerb ist ein Online-Buchungstool zu viel Aufwand – Termine werden künftig manuell nach Absprache per Telefon oder WhatsApp vereinbart
+- `termin.html` gelöscht (war noch nicht von Google indexiert, kein SEO-Verlust)
+- Link „📅 Termin online buchen" aus dem Kontaktbereich von `index.html` entfernt, durch Hinweistext ersetzt
+- Sitemap-Eintrag entfernt
+
 ### 04.07.2026 (3) — GSC "Umleitungsfehler" auf Startseite behoben
 - Ursache: Cloudflare leitet `www.bv-aussensysteme.de` → `bv-aussensysteme.de` (so gewollt, echte Seite läuft ohne www), aber Canonical-Tags, hreflang, og:url, Sitemap, robots.txt und llms.txt zeigten überall auf die `www`-Version
 - Für Google: die als kanonisch deklarierte URL lieferte nur eine Weiterleitung statt Inhalt → "Umleitungsfehler"
@@ -317,7 +323,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - **Kritisch**: CSP-Header existiert entgegen bisheriger Doku nicht – neuer P0-Punkt
 - **Kritisch**: Leaflet-CDN-Includes ohne SRI-Hash – neuer P0-Punkt
 - aggregateRating war bereits aktiv, aber fälschlich als offen geführt – korrigiert
-- Cal.com-Buchung, Danke-Seite, Konfigurator-Feedback als erledigt bestätigt
+- Cal.com-Buchung (damals bestätigt), Danke-Seite, Konfigurator-Feedback als erledigt bestätigt
 - WebP-Umsetzung bestätigt (kein `<picture>`-Fallback, aber unproblematisch)
 - Neu gefunden: ~4,8MB unreferenzierte Bild-Duplikate im Repo-Root
 - Neu gefunden: verwaiste Datei `produkte/eingangs├╝berdachung.html` mit doppelt-kodiertem Dateinamen, nirgends verlinkt

@@ -38,7 +38,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' c
 (Muss vor Live-Schaltung gegen alle eingebundenen Drittanbieter getestet werden — Wind-/Baugenehmigungs-Tools nutzen Nominatim/Photon/OSM-Tiles.)
 
 ### Empfehlungen (Priorität)
-1. **Sofort**: CSP-Header in `_headers` ergänzen und gegen alle Tools (windzonen.html, baugenehmigung.html, einzugsgebiet.html, Cal.com-Embed) testen
+1. **Sofort**: CSP-Header in `_headers` ergänzen und gegen alle Tools (windzonen.html, baugenehmigung.html, einzugsgebiet.html) testen
 2. **Sofort**: SRI-Hash für Leaflet CDN-Includes ergänzen
 3. **Kurzfristig**: Inline-JS in externe Dateien auslagern → CSP ohne `unsafe-inline` möglich
 4. **Mittelfristig**: Bei Trustindex-Integration SRI-Hash der eingebundenen CDN-Datei prüfen
