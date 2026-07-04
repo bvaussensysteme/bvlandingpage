@@ -112,7 +112,9 @@
   function updateMessage(msg, text) {
     msg.innerHTML = renderMessageHtml(text);
     var wrap = document.getElementById('bvChatMessages');
-    wrap.scrollTop = wrap.scrollHeight;
+    // Nicht ans Ende springen (sonst muss man bei langen Antworten zum
+    // Anfang zurückscrollen) - stattdessen Anfang der neuen Nachricht zeigen.
+    wrap.scrollTop = Math.max(0, msg.offsetTop - 8);
   }
 
   function escapeHtml(s) {
