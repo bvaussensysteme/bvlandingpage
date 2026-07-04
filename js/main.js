@@ -192,3 +192,28 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowLeft')   lightboxNav(-1);
   if (e.key === 'ArrowRight')  lightboxNav(1);
 });
+
+// Bild-Carousel: Pfeil-Navigation für Produktvarianten mit mehreren Bildern
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.vd-carousel-btn');
+  if (!btn) return;
+  var carousel = btn.closest('.vd-carousel');
+  if (!carousel) return;
+  var slides = carousel.querySelectorAll('.vd-carousel-slide');
+  var dots = carousel.querySelectorAll('.vd-carousel-dot');
+  if (!slides.length) return;
+  var current = 0;
+  slides.forEach(function (s, i) { if (s.classList.contains('active')) current = i; });
+  var dir = btn.classList.contains('vd-carousel-next') ? 1 : -1;
+  var next = (current + dir + slides.length) % slides.length;
+  slides[current].classList.remove('active');
+  slides[next].classList.add('active');
+  if (dots.length) {
+    dots[current].classList.remove('active');
+    dots[next].classList.add('active');
+  }
+  var count = carousel.querySelector('.vd-carousel-count');
+  if (count) count.textContent = (next + 1) + ' / ' + slides.length;
+  var label = carousel.querySelector('.vd-carousel-label');
+  if (label) label.textContent = slides[next].getAttribute('data-label') || '';
+});
