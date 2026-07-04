@@ -10,7 +10,7 @@ BV AussenSysteme ist ein Fachbetrieb mit Sitz in Dernbach (Westerwaldkreis, Rhei
 - **Adresse:** Am Driesch 1, 56428 Dernbach, Rheinland-Pfalz
 - **Telefon:** +49 15678 696609
 - **E-Mail:** info@bv-aussensysteme.de
-- **Website:** https://www.bv-aussensysteme.de
+- **Website:** https://bv-aussensysteme.de
 - **Beratung & Planung:** Dernbach, Westerwaldkreis
 - **Montage & Service:** Pleckhausen und gesamter Westerwald
 - **Einzugsgebiet:** Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumbach, Wirges, Pleckhausen, Horhausen, Neuwied, Koblenz, Limburg an der Lahn, Diez
@@ -69,17 +69,17 @@ Von Auftragsbestätigung bis Montage in der Regel 2–4 Wochen.
 
 ## Produktseiten
 
-- [Terrassenüberdachung](https://www.bv-aussensysteme.de/produkte/terrassenueberdachung.html)
-- [Carport](https://www.bv-aussensysteme.de/produkte/carport.html)
-- [Pergola & Lamellendach](https://www.bv-aussensysteme.de/produkte/pergola.html)
-- [Velaris](https://www.bv-aussensysteme.de/produkte/velaris.html)
-- [Kaltwintergarten](https://www.bv-aussensysteme.de/produkte/kaltwintergarten.html)
-- [Sonnenschutz](https://www.bv-aussensysteme.de/produkte/sonnenschutz.html)
-- [Eingang & Vordächer](https://www.bv-aussensysteme.de/produkte/eingang.html)
-- [Geländer](https://www.bv-aussensysteme.de/produkte/gelaender.html)
-- [Balkon & Fassade](https://www.bv-aussensysteme.de/produkte/balkon-fassade.html)
-- [Garten & Außenbereich](https://www.bv-aussensysteme.de/produkte/garten-aussenbereich.html)
-- [Einzugsgebiet](https://www.bv-aussensysteme.de/einzugsgebiet.html)
+- [Terrassenüberdachung](https://bv-aussensysteme.de/produkte/terrassenueberdachung.html)
+- [Carport](https://bv-aussensysteme.de/produkte/carport.html)
+- [Pergola & Lamellendach](https://bv-aussensysteme.de/produkte/pergola.html)
+- [Velaris](https://bv-aussensysteme.de/produkte/velaris.html)
+- [Kaltwintergarten](https://bv-aussensysteme.de/produkte/kaltwintergarten.html)
+- [Sonnenschutz](https://bv-aussensysteme.de/produkte/sonnenschutz.html)
+- [Eingang & Vordächer](https://bv-aussensysteme.de/produkte/eingang.html)
+- [Geländer](https://bv-aussensysteme.de/produkte/gelaender.html)
+- [Balkon & Fassade](https://bv-aussensysteme.de/produkte/balkon-fassade.html)
+- [Garten & Außenbereich](https://bv-aussensysteme.de/produkte/garten-aussenbereich.html)
+- [Einzugsgebiet](https://bv-aussensysteme.de/einzugsgebiet.html)
 
 # Lastzonentool
 /windzonen.html - Kostenlose Ermittlung von Wind- und Schneelastzonen für Standorte in Deutschland (DIN EN 1991)

@@ -61,9 +61,11 @@
 
 ## LIVE WEBSITE
 
-- **URL:** https://bv-aussensysteme.de
-- **www:** https://www.bv-aussensysteme.de → Cloudflare 301 Redirect
+- **URL:** https://bv-aussensysteme.de (kanonisch, OHNE www)
+- **www:** https://www.bv-aussensysteme.de → Cloudflare 301 Redirect auf die Version ohne www
 - **Deploy:** Dateien auf GitHub hochladen → Cloudflare: Caching → Purge Everything
+
+> ⚠️ Alle Canonical-Tags, hreflang, og:url, Sitemap, robots.txt und llms.txt MÜSSEN auf `https://bv-aussensysteme.de` (ohne www) zeigen — sonst meldet Google Search Console "Umleitungsfehler" für die Startseite (Vorfall 01.07.2026, behoben 04.07.2026).
 
 ---
 
@@ -293,6 +295,13 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 04.07.2026 (3) — GSC "Umleitungsfehler" auf Startseite behoben
+- Ursache: Cloudflare leitet `www.bv-aussensysteme.de` → `bv-aussensysteme.de` (so gewollt, echte Seite läuft ohne www), aber Canonical-Tags, hreflang, og:url, Sitemap, robots.txt und llms.txt zeigten überall auf die `www`-Version
+- Für Google: die als kanonisch deklarierte URL lieferte nur eine Weiterleitung statt Inhalt → "Umleitungsfehler"
+- Fix: 193 Vorkommen in 49 Dateien von `www.bv-aussensysteme.de` auf `bv-aussensysteme.de` umgestellt (Canonical, hreflang, og:url, JSON-LD, Sitemap, robots.txt, llms.txt/llms-full.txt)
+- Sitemap bleibt valides XML, alle Domain-Referenzen jetzt konsistent mit der tatsächlichen Cloudflare-Konfiguration
+- Nächster Schritt (manuell, GSC-Login nötig): Sitemap neu einreichen + Indexierung für die Startseite erneut beantragen
 
 ### 04.07.2026 (2) — GSC-Indexierungsproblem behoben
 - Ursache: 36 von 37 URLs nie von Google gecrawlt ("Nicht zutreffend")
