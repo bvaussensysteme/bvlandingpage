@@ -799,10 +799,39 @@ function bgGetBauamt(county, state, city) {
       email: "poststelle@kreis-mayen-koblenz.de",
       web: "https://www.kreis-mayen-koblenz.de",
       antrag: "https://www.kreis-mayen-koblenz.de/buergerservice"
+    },
+    "Rhein-Lahn-Kreis": {
+      name: "Bauaufsichtsbehörde Rhein-Lahn-Kreis",
+      adresse: "Insel Silberau 1, 56130 Bad Ems",
+      telefon: "02603 972-270",
+      email: "info@rhein-lahn-kreis.de",
+      web: "https://www.rhein-lahn-kreis.de",
+      antrag: "https://www.rhein-lahn-kreis.de/buergerservice-uebersichten/leistungen/RLP:entry:255726/bauaufsicht/"
+    },
+    "Landkreis Limburg-Weilburg": {
+      name: "Fachdienst Bauen und Naturschutz – Landkreis Limburg-Weilburg",
+      adresse: "Schiede 43, 65549 Limburg a. d. Lahn",
+      telefon: "06431 296-494",
+      email: "30.70@limburg-weilburg.de",
+      web: "https://www.landkreis-limburg-weilburg.de",
+      antrag: "https://buergerservice.landkreis-limburg-weilburg.de/buergerservice-2/abteilungen/HES:department:4291/fachdienst-bauen-und-naturschutz/"
+    }
+  };
+
+  // Kreisfreie Städte haben keinen "county"-Wert (z.B. Koblenz) – hier über den Stadtnamen matchen
+  var knownByCity = {
+    "Koblenz": {
+      name: "Bauaufsichtsbehörde Stadt Koblenz",
+      adresse: "Bahnhofstraße 47, 56068 Koblenz",
+      telefon: "0261 129-3302",
+      email: "bauaufsichtsbehoerde@stadt.koblenz.de",
+      web: "https://www.koblenz.de",
+      antrag: "https://www.koblenz.de/buergerservice/leistungen/RLP:entry:65099:ANLR-VLR/bauaufsicht/"
     }
   };
 
   if (county && known[county]) return known[county];
+  if (!county && city && knownByCity[city]) return knownByCity[city];
 
   // Generische Antwort – mit klarem Scope-Hinweis
   var countyName = county || city || state;
