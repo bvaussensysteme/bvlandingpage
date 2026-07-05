@@ -2,45 +2,77 @@
 <html lang="de">
 <head>
 <script>
-(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})(  );
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
+(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
 </script>
-<style>.a11y-pre-links a{text-decoration:underline!important;}.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}</style>
+<style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gartenhaus Aluminium Westerwald – TDS System | BV AussenSysteme</title>
-  <meta name="description" content="Aluminium-Gartenhäuser TDS im Westerwald – Sicherheitsglas, wartungsfrei, erweiterbar. Individuelle Maßanfertigung. BV AussenSysteme, Dernbach." />
-  <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/produkte/gartenhaus.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/gartenhaus.html" />
   <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/gartenhaus.html" />
-  <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
+  <meta name="description" content="Aluminium-Gartenhäuser TDS im Westerwald – Sicherheitsglas, wartungsfrei, erweiterbar. Individuelle Maßanfertigung. BV AussenSysteme, Dernbach." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
-  <style>body{font-family:'Arial',sans-serif;}</style>
-  <script>(function(){function l(){if(document.getElementById('gf'))return;var e=document.createElement('link');e.id='gf';e.rel='stylesheet';e.href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';document.head.appendChild(e);}try{var c=localStorage.getItem('bv_cookie_consent');if(c&&c!=='rejected')l();window.addEventListener('bv_consent_given',l);}catch(e){l();}})(  );</script>
-  <link rel="stylesheet" href="../css/style.css" />
   <style>
-    .produkt-hero{background:var(--black);padding:60px 0 50px;border-bottom:3px solid var(--gold);position:relative;}
-    .produkt-hero::after{content:'';position:absolute;bottom:-1px;left:0;width:100%;height:40px;background:var(--white);clip-path:polygon(0 100%,100% 20%,100% 100%);}
-    .breadcrumb{font-size:.82rem;color:rgba(255,255,255,.5);margin-bottom:16px;}
-    .breadcrumb a{color:var(--gold);text-decoration:none;}
-    .produkt-hero h1{color:var(--white);margin-bottom:12px;font-size:clamp(2rem,5vw,3.5rem);}
-    .produkt-hero p{color:rgba(255,255,255,.75);max-width:600px;font-size:1rem;line-height:1.7;}
-    .produkt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px;}
-    .produkt-card{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;}
-    @media (hover: hover) and (pointer: fine) { .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);} }
-    .produkt-card-img{height:220px;background:linear-gradient(135deg,#1a1a1a,#2d2d2d);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;}
-    .produkt-card-img img{width:100%;height:100%;object-fit:cover;}
-    .produkt-card-body{padding:24px;}
-    .produkt-tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);background:rgba(196,154,42,.1);padding:3px 10px;border-radius:100px;margin-bottom:10px;border:1px solid rgba(196,154,42,.25);}
-    .produkt-features{list-style:none;margin-bottom:18px;}
-    .produkt-features li{font-size:.85rem;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
-    .produkt-features li:last-child{border-bottom:none;}
-    .produkt-features li::before{content:"✓";color:var(--gold);font-weight:700;}
-    @media(max-width:700px){.produkt-grid{grid-template-columns:1fr;}}
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    // Listen for consent being given
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+})();
+</script>
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <style>
+.produkt-hero{background:var(--black);padding:60px 0 50px;border-bottom:3px solid var(--gold);position:relative;}
+.produkt-hero::after{content:'';position:absolute;bottom:-1px;left:0;width:100%;height:40px;background:var(--white);clip-path:polygon(0 100%,100% 20%,100% 100%);}
+.breadcrumb{font-size:.82rem;color:rgba(255,255,255,.5);margin-bottom:16px;}
+.breadcrumb a{color:var(--gold);text-decoration:none;}
+.produkt-hero h1{color:var(--white);margin-bottom:12px;font-size:clamp(2rem,5vw,3.5rem);}
+.produkt-hero p{color:rgba(255,255,255,.75);max-width:600px;font-size:1rem;line-height:1.7;}
+.produkt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px;}
+.produkt-card{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;}
+@media (hover: hover) and (pointer: fine) { .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);} }
+.produkt-card-img{height:220px;background:linear-gradient(135deg,#1a1a1a,#2d2d2d);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;}
+.produkt-card-img img{width:100%;height:100%;object-fit:cover;}
+.produkt-card-body{padding:24px;}
+.produkt-tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);background:rgba(196,154,42,.1);padding:3px 10px;border-radius:100px;margin-bottom:10px;border:1px solid rgba(196,154,42,.25);}
+.produkt-features{list-style:none;margin-bottom:18px;}
+.produkt-features li{font-size:.85rem;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
+.produkt-features li:last-child{border-bottom:none;}
+.produkt-features li::before{content:"✓";color:var(--gold);font-weight:700;}
+@media(max-width:700px){.produkt-grid{grid-template-columns:1fr;}}
+
   </style>
-  <meta property="og:title" content="Gartenhaus Aluminium TDS Westerwald | BV AussenSysteme" />
+
+
+<meta property="og:title" content="Gartenhaus Aluminium TDS Westerwald | BV AussenSysteme" />
   <meta property="og:description" content="Aluminium-Gartenhaus TDS im Westerwald – wartungsfrei, Sicherheitsglas, erweiterbar." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
@@ -88,12 +120,23 @@
     }
   }
   </script>
+
+
+
+  <meta property="og:title" content="Gartenhaus Aluminium TDS Westerwald | BV AussenSysteme" />
+  <meta property="og:description" content="Aluminium-Gartenhaus TDS im Westerwald – wartungsfrei, Sicherheitsglas, erweiterbar." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bv-aussensysteme.de/produkte/gartenhaus.html" />
+  
+  <meta property="og:locale" content="de_DE" />
+
 </head>
 <body>
-<nav class="navbar" role="navigation">
+
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="../images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+      <img src="/images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
@@ -107,12 +150,13 @@
     </button>
   </div>
 </nav>
+
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
-  <a href="/" onclick="closeMobile()">Startseite</a>
-  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
-  <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
-  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta">Jetzt anfragen</a>
+  <a href="/">Startseite</a>
+  <a href="/#leistungen">Leistungen</a>
+  <a href="/konfigurator.html">🛠 Konfigurator</a>
+  <a href="/#kontakt" class="mobile-cta">Jetzt anfragen</a>
 </div>
 
 <header class="produkt-hero">
@@ -170,21 +214,23 @@
 </section>
 </main>
 
+
 <footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
   <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
     <p>© 2026 BV AussenSysteme – Alexander Becker &amp; Josef Voronin (GbR i. Gr.) · Westerwaldkreis</p>
     <p>
-      <a href="../impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
-      <a href="../agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
-      <a href="../datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
+      <a href="/agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+      <a href="/impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="/datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
     </p>
   </div>
 </footer>
-<script src="../js/main.js" defer></script>
-<script src="../js/cookie.js" defer></script>
-<script src="../js/metricool.js" defer></script>
-<script src="../js/accessibility.js" defer></script>
-<script src="../js/chatbot.js" defer></script>
+
+<script src="/js/main.js" defer></script>
+<script src="/js/cookie.js" defer></script>
+<script src="/js/metricool.js" defer></script>
+<script src="/js/accessibility.js" defer></script>
+<script src="/js/chatbot.js" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
