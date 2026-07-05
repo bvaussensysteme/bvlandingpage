@@ -24,18 +24,24 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ---- MOBILE MENU ----
+  // Hinweis: body-Klasse "bv-menu-open" blendet Chat-/A11y-/Scroll-Top-Icons
+  // aus (siehe css/style.css), da diese sonst mit z-index > mobile-menu
+  // über dem Vollbild-Menü schweben und noch anklickbar bleiben.
   var mobileMenu = document.getElementById('mobileMenu');
   document.getElementById('hamburgerBtn').addEventListener('click', function () {
     mobileMenu.classList.add('open');
+    document.body.classList.add('bv-menu-open');
     document.body.style.overflow = 'hidden';
   });
   document.getElementById('mobileClose').addEventListener('click', function () {
     mobileMenu.classList.remove('open');
+    document.body.classList.remove('bv-menu-open');
     document.body.style.overflow = '';
   });
   mobileMenu.querySelectorAll('a').forEach(function (a) {
     a.addEventListener('click', function () {
       mobileMenu.classList.remove('open');
+      document.body.classList.remove('bv-menu-open');
       document.body.style.overflow = '';
     });
   });
@@ -60,6 +66,21 @@ document.addEventListener('DOMContentLoaded', function () {
   // ══════════════════════════════════════════════════════
   var formSubmit = document.getElementById('formSubmit');
   if (formSubmit) {
+    // Kein <form>-Element vorhanden (nur type="button") – daher löst die
+    // Enter-Taste in den Textfeldern bisher kein Absenden aus. Das
+    // erwarten Nutzer aber (v.a. mobil nach dem letzten Feld). Nachbilden:
+    ['vorname', 'nachname', 'email', 'telefon'].forEach(function (id) {
+      var field = document.getElementById(id);
+      if (field) {
+        field.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            formSubmit.click();
+          }
+        });
+      }
+    });
+
     formSubmit.addEventListener('click', function () {
       var vorname   = document.getElementById('vorname').value.trim();
       var nachname  = document.getElementById('nachname').value.trim();
