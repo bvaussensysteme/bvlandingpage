@@ -442,7 +442,14 @@ body.bv-menu-open #bv-scroll-top {
   font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 18px; box-shadow: 0 0 0 6px var(--white);
+  transition: background-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease, transform 0.5s ease;
 }
+.prozess-circle.is-active {
+  background: var(--gold); color: var(--white);
+  box-shadow: 0 0 0 6px var(--white), 0 0 0 9px var(--gold), 0 0 18px rgba(196,154,42,0.5);
+  transform: scale(1.08);
+}
+#bv-page-wrapper.a11y-pause-animations .prozess-circle { transition: none; }
 .prozess-step h3 { font-size: 1.05rem; margin-bottom: 6px; }
 .prozess-step p  { font-size: 0.83rem; color: var(--muted); }
 
