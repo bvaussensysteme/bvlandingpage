@@ -1,6 +1,6 @@
 ---
-layout: layout.njk
-permalink: /produkte/gelaender.html
+layout: "layout.njk"
+permalink: "/produkte/gelaender.html"
 title: "Geländer & Zubehör | BV AussenSysteme Westerwald"
 description: "Aluminium-Geländer im Westerwald – Geländer mit VSG-Glas und Ganzglasgeländer von BV AussenSysteme. Maßgefertigt, langlebig."
 canonical: "https://bv-aussensysteme.de/produkte/gelaender.html"
@@ -9,138 +9,134 @@ ogTitle: "Geländer Aluminium & Glas | BV AussenSysteme Westerwald"
 ogDescription: "EasyRail Glasgeländer und Aluminium-Geländer im Westerwald – stabil, modern, maßgefertigt."
 ogType: "website"
 extraStyles: |
-      .produkt-hero {
-        background: var(--black); padding: 60px 0 50px;
-        border-bottom: 3px solid var(--gold); position: relative;
-      }
-      .produkt-hero::after {
-        content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
-        background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
-      }
-      .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
-      .breadcrumb a { color: var(--gold); text-decoration: none; }
-      .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
-      .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
-      .produkt-grid {
-        display: grid; grid-template-columns: repeat(2,1fr);
-        gap: 28px; margin-top: 48px;
-      }
-      .produkt-card {
-        background: var(--white); border-radius: 12px; overflow: hidden;
-        box-shadow: var(--shadow); border: 1px solid var(--border);
-        transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-      }
-      @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
-        transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-      } }
-      .produkt-card-img {
-        height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 4rem; position: relative;
-      }
-      .produkt-card-img::after {
-        content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-        height: 3px; background: var(--gold);
-      }
-      .produkt-card-img img {
-        width: 100%; height: 100%; object-fit: cover;
-      }
-      .produkt-card-img .img-coming {
-        display: flex; flex-direction: column; align-items: center; gap: 8px;
-      }
-      .produkt-card-img .img-coming span { font-size: 3rem; }
-      .produkt-card-img .img-coming p { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
-      .produkt-card-body { padding: 24px; }
-      .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; color: var(--black); }
-      .produkt-card-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
-      .produkt-tag {
-        display: inline-block; background: rgba(196,154,42,0.1);
-        color: var(--gold-dark); font-size: 0.75rem; font-weight: 700;
-        padding: 3px 10px; border-radius: 100px; margin-bottom: 10px;
-        border: 1px solid rgba(196,154,42,0.25);
-      }
-      .produkt-features { list-style: none; margin-bottom: 18px; }
-      .produkt-features li {
-        font-size: 0.85rem; color: var(--muted); padding: 4px 0;
-        border-bottom: 1px solid var(--border); display: flex; gap: 8px;
-      }
-      .produkt-features li:last-child { border-bottom: none; }
-      .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
-      @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
+  .produkt-hero {
+  background: var(--black); padding: 60px 0 50px;
+  border-bottom: 3px solid var(--gold); position: relative;
+  }
+  .produkt-hero::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+  background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+  }
+  .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+  .breadcrumb a { color: var(--gold); text-decoration: none; }
+  .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
+  .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
+  .produkt-grid {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  gap: 28px; margin-top: 48px;
+  }
+  .produkt-card {
+  background: var(--white); border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  }
+  @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
+  transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
+  } }
+  .produkt-card-img {
+  height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; position: relative;
+  }
+  .produkt-card-img::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: var(--gold);
+  }
+  .produkt-card-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  }
+  .produkt-card-img .img-coming {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .produkt-card-img .img-coming span { font-size: 3rem; }
+  .produkt-card-img .img-coming p { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+  .produkt-card-body { padding: 24px; }
+  .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; color: var(--black); }
+  .produkt-card-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+  .produkt-tag {
+  display: inline-block; background: rgba(196,154,42,0.1);
+  color: var(--gold-dark); font-size: 0.75rem; font-weight: 700;
+  padding: 3px 10px; border-radius: 100px; margin-bottom: 10px;
+  border: 1px solid rgba(196,154,42,0.25);
+  }
+  .produkt-features { list-style: none; margin-bottom: 18px; }
+  .produkt-features li {
+  font-size: 0.85rem; color: var(--muted); padding: 4px 0;
+  border-bottom: 1px solid var(--border); display: flex; gap: 8px;
+  }
+  .produkt-features li:last-child { border-bottom: none; }
+  .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
+  @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
 
 schema: |
   <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
-    <script type="application/ld+json">
+  <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Startseite",
-        "item": "https://bv-aussensysteme.de/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Produkte",
-        "item": "https://bv-aussensysteme.de/#leistungen"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": "Geländer & Zubehör",
-        "item": "https://bv-aussensysteme.de/produkte/gelaender.html"
-      }
-    ]
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+  {
+  "@type": "ListItem",
+  "position": 1,
+  "name": "Startseite",
+  "item": "https://bv-aussensysteme.de/"
+  },
+  {
+  "@type": "ListItem",
+  "position": 2,
+  "name": "Produkte",
+  "item": "https://bv-aussensysteme.de/#leistungen"
+  },
+  {
+  "@type": "ListItem",
+  "position": 3,
+  "name": "Geländer & Zubehör",
+  "item": "https://bv-aussensysteme.de/produkte/gelaender.html"
   }
-    </script>
+  ]
+  }
+  </script>
 
   <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Geländer Aluminium EasyRail",
-      "description": "Aluminium-Geländer EasyRail und Glasgeländer – für Terrassen, Balkone und Treppen.",
-      "category": "Geländer",
-      "brand": {
-        "@type": "Brand",
-        "name": "VD AluSysteme"
-      },
-      "manufacturer": {
-        "@type": "Organization",
-        "name": "VD AluSysteme",
-        "url": "https://www.vd-alusysteme.de"
-      },
-      "offers": {
-        "@type": "Offer",
-        "priceCurrency": "EUR",
-        "priceSpecification": {
-          "@type": "PriceSpecification",
-          "description": "Preis auf Anfrage – kostenlose Beratung"
-        },
-        "seller": {
-          "@type": "LocalBusiness",
-          "name": "BV AussenSysteme",
-          "url": "https://bv-aussensysteme.de"
-        },
-        "areaServed": {
-          "@type": "GeoCircle",
-          "geoMidpoint": {
-            "@type": "GeoCoordinates",
-            "latitude": 50.5557,
-            "longitude": 7.9252
-          },
-          "geoRadius": "60000"
-        }
-      }
-    }
-    </script>
-    <meta property="og:title" content="Geländer Aluminium & Glas | BV AussenSysteme Westerwald" />
-    <meta property="og:description" content="EasyRail Glasgeländer und Aluminium-Geländer im Westerwald – stabil, modern, maßgefertigt." />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="de_DE" />
+  {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Geländer Aluminium EasyRail",
+  "description": "Aluminium-Geländer EasyRail und Glasgeländer – für Terrassen, Balkone und Treppen.",
+  "category": "Geländer",
+  "brand": {
+  "@type": "Brand",
+  "name": "VD AluSysteme"
+  },
+  "manufacturer": {
+  "@type": "Organization",
+  "name": "VD AluSysteme",
+  "url": "https://www.vd-alusysteme.de"
+  },
+  "offers": {
+  "@type": "Offer",
+  "priceCurrency": "EUR",
+  "priceSpecification": {
+  "@type": "PriceSpecification",
+  "description": "Preis auf Anfrage – kostenlose Beratung"
+  },
+  "seller": {
+  "@type": "LocalBusiness",
+  "name": "BV AussenSysteme",
+  "url": "https://bv-aussensysteme.de"
+  },
+  "areaServed": {
+  "@type": "GeoCircle",
+  "geoMidpoint": {
+  "@type": "GeoCoordinates",
+  "latitude": 50.5557,
+  "longitude": 7.9252
+  },
+  "geoRadius": "60000"
+  }
+  }
+  }
+  </script>
 ---
 <header class="produkt-hero">
   <div class="container">
