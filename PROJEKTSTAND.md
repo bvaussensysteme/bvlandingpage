@@ -133,19 +133,24 @@ bv-aussensysteme/
 ---
 
 ## AKTUELLER PROJEKTSTATUS
-**Score: 86/100** | Stand: 04.07.2026 (kompletter Audit gegen echten Code verifiziert)
+**Score: 83/100** | Stand: 05.07.2026 (10-Agenten-Audit Runde 2, gegen echten Code verifiziert)
 
-| Bereich | Status | Score |
+Hinweis: Der Score ist niedriger als am 04.07. (86/100), obwohl an diesem Tag viele echte Bugs behoben wurden. Grund: tiefere Prüfung hat mehrere ernsthafte, vorher übersehene Probleme aufgedeckt (fehlende Sticky-CTA auf 33 Seiten, kaputtes Logo auf 5 Seiten, fehlende Telefonnummer auf 29 Seiten, eine echte XSS-Lücke, öffentlich einsehbare CLAUDE.md). Alle unten aufgeführten Funde sind bereits behoben, der niedrigere Score spiegelt die höhere Prüftiefe wider, nicht eine Verschlechterung.
+
+| Bereich | Score | Wichtigste Funde (bereits behoben) |
 |---|---|---|
-| Security | ⚠️ B- | HSTS/Headers ok, aber **CSP fehlt trotz gegenteiliger Doku**, Leaflet ohne SRI-Hash |
-| Deployment | ✅ | HTTPS, Google Business, GitHub |
-| SEO Technik | ✅ A- | Canonical, Sitemap, Schema, hreflang; 2 von 20 Produktseiten ohne Product-Schema |
-| Accessibility | ✅ B | WCAG 2.2 AA |
-| Performance | ✅ B | WebP umgesetzt; 4,8MB unreferenzierte Bild-Duplikate im Repo-Root gefunden |
-| Content | ✅ A- | Alle vormals kurzen Seiten jetzt 700+ Wörter, Blog + lokale Landingpages live |
-| Conversion | ✅ B | Bewertung live, Terminvereinbarung bewusst manuell (Telefon/WhatsApp); Preisindikation weiterhin offen |
+| Security | 90/100 | CLAUDE.md war öffentlich abrufbar; DOM-XSS im Kontaktformular; SRI-Hashes für Leaflet ergänzt |
+| SEO | 87/100 | Fehlende Verlinkung Ratgeber↔Produkte ergänzt; danke.html aus Sitemap entfernt |
+| Content | 87/100 | Unbelegte "ZDH-zertifiziert"-Behauptung entfernt; Fakten-Inkonsistenzen (Radius, Reaktionszeit) vereinheitlicht |
+| Code-Qualität | 85/100 | Kaputtes HTML in _template.html (Kopiervorlage!) und einem Ratgeber-Artikel behoben |
+| UX/UI | 83/100 | Icon-Überlappung bei geöffnetem Mobilmenü behoben; Enter-Taste im Kontaktformular repariert |
+| Branding | 78/100 | Kaputtes Logo (falscher Dateiname) auf 5 Seiten behoben, u.a. danke.html |
+| Accessibility | 78/100 | BFSG gilt aktuell nicht für die Firma (kein Online-Shop/Buchungstool); fehlender Fokus-Ring behoben |
+| Marketing/Local SEO | 78/100 | Telefonnummer + Social-Links fehlten auf 29 von 44 Seiten komplett |
+| CRO | 75/100 | Sticky-Kontakt-Leiste fehlte auf 33 von 34 Seiten (stiller JS-Fehler) |
+| Performance | B+ | Falsches Bild im LCP-Preload-Hint; 4,1MB unreferenzierte Bild-Duplikate gelöscht; Cache-Control ergänzt |
 
-> Details je Bereich: siehe `audits/SECURITY_AUDIT.md`, `audits/PERFORMANCE_AUDIT.md`, `audits/SEO_AUDIT.md`, `audits/UX_AUDIT.md` (alle Stand 04.07.2026)
+> Details je Bereich: siehe `audits/SECURITY_AUDIT.md`, `audits/PERFORMANCE_AUDIT.md` (alle Stand 05.07.2026)
 
 ---
 
@@ -244,18 +249,28 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ### 🔴 P0 — Sofort
 - [x] aggregateRating aktivieren ✅ bereits live (5.0 ⭐, 1 Bewertung) – vorher fälschlich als offen geführt
 - [ ] Google Ads schalten
-- [ ] **CSP-Header ergänzen** (Audit 04.07.: fehlt trotz gegenteiliger Doku, siehe SECURITY_AUDIT.md)
-- [ ] **SRI-Hash für Leaflet-CDN ergänzen** (windzonen.html, einzugsgebiet.html)
+- [x] **CSP-Header ergänzen** ✅ 05.07.2026 – vollständig, deckt alle aktiven Drittanbieter ab
+- [x] **SRI-Hash für Leaflet-CDN ergänzen** ✅ 05.07.2026 – windzonen.html, einzugsgebiet.html, baugenehmigung.html
+- [x] **DOM-XSS im Kontaktformular** ✅ 05.07.2026 – unescaped Vorname-Ausgabe behoben
+- [x] **CLAUDE.md war öffentlich abrufbar** ✅ 05.07.2026 – in .assetsignore ergänzt
+- [ ] Cloudflare Rate-Limiting für `/api/chat` einrichten (Dashboard → Security → WAF, verhindert Kostenmissbrauch der Workers-AI-Anbindung) — nur der Geschäftsführer kann das im Cloudflare-Dashboard
 
 ### 🟠 P1 — Kurzfristig
 - [x] WebP-Konvertierung ✅ 26.06.2026 – 38 Bilder, 1,74MB gespart
 - [x] Cal.com Terminbuchung wieder entfernt ✅ 04.07.2026 – bewusste Entscheidung: als Nebenerwerb Termine lieber manuell nach Absprache per Telefon/WhatsApp statt über Buchungstool
 - [x] 7 Produktseiten 300+ Wörter ✅ 26.06.2026 – alle jetzt 700+ Wörter
-- [ ] Trustindex Widget vollständig aktivieren (Tab vorbereitet, CDN-Script noch auskommentiert)
-- [ ] Impressum + AGB: USt-ID nach Gründung ergänzen
-- [ ] Schema.org `Product` auf `balkonueberdachung.html` + `sonnenschutz-beschattung.html` ergänzen
+- [ ] Trustindex Widget vollständig aktivieren (Tab vorbereitet, CDN-Script noch auskommentiert) — braucht mehr echte Bewertungen zuerst
+- [ ] Impressum + AGB: USt-ID nach Gründung ergänzen — nur der Geschäftsführer
+- [x] Schema.org `Product` auf `balkonueberdachung.html` + `sonnenschutz-beschattung.html` geprüft ✅ 05.07.2026 – sind noindex-Redirect-Stubs, kein Handlungsbedarf
 - [x] Verwaiste Datei `produkte/eingangs├╝berdachung.html` gelöscht ✅ 04.07.2026 – war Ursache für 404 in der Sitemap
-- [ ] ~4,8MB unreferenzierte Bild-Duplikate im Repo-Root aufräumen
+- [x] ~4,1MB unreferenzierte Bild-Duplikate im Repo-Root gelöscht ✅ 05.07.2026
+- [x] Sticky-Kontakt-Leiste fehlte auf 33 von 34 Seiten ✅ 05.07.2026 – stiller JS-Fehler behoben
+- [x] Telefonnummer/Social-Links fehlten im Footer auf 29 von 44 Seiten ✅ 05.07.2026
+- [x] Kaputtes Logo (`logo-hell.webp` existiert nicht) auf 5 Seiten ✅ 05.07.2026
+- [ ] TikTok-Profil-URL fehlt auf der Website — nur der Geschäftsführer kennt die korrekte URL, dann site-weit ergänzbar
+- [ ] FAQPage-Schema bildet nur 13 von 19 sichtbaren FAQ ab (Rich-Snippet-Potenzial ungenutzt)
+- [ ] Gold-Text (#C49A2A) auf Weiß hat nur 2,6:1 Kontrast (AA verlangt 4,5:1) bei Hover-Zuständen — Marken-Entscheidung ob auf --gold-dark umgestellt wird
+- [ ] `js/newsletter.js` unfertiges Feature (Platzhalter-API-Key) — Entscheidung: fertigstellen oder verwerfen
 
 ### 🟡 P2 — Mittelfristig
 - [x] Lokale Landingpages ✅ 26.06.2026 – montabaur/neuwied/koblenz/altenkirchen
@@ -264,6 +279,10 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - [ ] Eigene Produktfotos nach VD-Vertragsunterzeichnung
 - [ ] Preisindikation auf Produktseiten ("ab X €") ergänzen
 - [ ] Mobilmenü: Active/Tap-State CSS ergänzen
+- [ ] Neuer Ratgeber-Artikel "Förderung & Zuschüsse" (Gliederung steht, braucht Bestätigung zu Förder-Fakten)
+- [ ] Skip-to-Content-Link ergänzen (WCAG 2.4.1, müsste auf allen Seiten einzeln rein)
+- [ ] Mehr hyperlokale Ortsseiten (Konkurrent hat deutlich granularere Ortsseiten als unsere 4)
+- [ ] Doppelte `.mobile-lang-switcher`-CSS-Regel in style.css bereinigen (unklar welcher Wert der gewollte ist)
 
 ---
 
@@ -311,6 +330,17 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 05.07.2026 — 10-Agenten-Audit Runde 2 (Zusammenfassung)
+Zweite komplette Multi-Agenten-Prüfung (SEO, Performance, UX/UI, CRO, Content, Branding, Security, Accessibility, Marketing, Code-Qualität), jeder Agent in eigenem isoliertem Worktree, alle Ergebnisse anschließend manuell zusammengeführt (1 Merge-Konflikt, alle anderen automatisch). Wichtigste Funde (Details siehe Tabelle oben und einzelne History-Einträge):
+- Sticky-Kontakt-Leiste fehlte auf 33 von 34 Seiten (stiller JS-Fehler)
+- Telefonnummer/Social-Links fehlten im Footer auf 29 von 44 Seiten
+- Kaputtes Logo (falscher Dateiname `logo-hell.webp`) auf 5 Seiten inkl. danke.html
+- CLAUDE.md war öffentlich unter /CLAUDE.md abrufbar
+- Eine echte DOM-XSS-Lücke im Kontaktformular
+- Falsches Bild im LCP-Preload-Hint auf der Startseite
+- BFSG-Rechercheergebnis: gilt aktuell nicht für diese Firma (kein Online-Shop/Buchungstool, Kleinstunternehmen-Ausnahme)
+- Alle Funde bereits behoben und auf `main` gemerged, außer den unter P0-P2 als offen markierten Punkten.
 
 ### 05.07.2026 — Content-Audit: Fakt-Konsistenz & FAQ-Redundanz
 - **Fund:** 6 Produktseiten (`carport.html`, `gelaender.html`, `kaltwintergarten.html`, `pergola.html`, `sonnenschutz.html`, `terrassenueberdachung.html`) hatten im Schema.org-Code noch `"geoRadius": "50000"` (50 km) – Rest der Seite wurde am 04.07. auf 60 km umgestellt, diese 6 Dateien wurden dabei übersehen. Jetzt auf `"60000"` korrigiert.
