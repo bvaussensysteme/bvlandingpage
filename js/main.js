@@ -43,9 +43,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // ---- STICKY CTA – hide when contact section visible ----
   var stickyCta = document.getElementById('stickyCta');
   var kontaktSection = document.getElementById('kontakt');
-  document.getElementById('stickyClose').addEventListener('click', function () {
-    stickyCta.style.display = 'none';
-  });
+  var stickyClose = document.getElementById('stickyClose');
+  if (stickyClose) {
+    stickyClose.addEventListener('click', function () {
+      stickyCta.style.display = 'none';
+    });
+  }
   window.addEventListener('scroll', function () {
     if (!stickyCta || !kontaktSection) return;
     if (kontaktSection.getBoundingClientRect().top < window.innerHeight) {
