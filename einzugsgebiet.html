@@ -123,6 +123,13 @@
       margin-left: 2px; cursor: help;
     }
     .info-badge:hover, .info-badge:focus-visible { background: var(--gold); color: #fff; }
+    #gebietTip {
+      display: none; position: fixed; z-index: 1000;
+      background: var(--black); color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 0.76rem; font-style: normal;
+      line-height: 1.5; padding: 9px 13px; border-radius: 8px;
+      max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
 
     /* CTA unter Karte */
     .gebiet-cta {
@@ -311,7 +318,7 @@ orte.forEach(function(ort, idx) {
   btn.innerHTML =
     '<span class="orte-dot' + (ort.hauptort ? ' hauptort' : '') + (ort.fern ? ' fern' : '') + '"></span>' +
     ort.name +
-    (ort.hinweis ? ' <span class="info-badge" title="' + ort.hinweis + '">i</span>' : '');
+    (ort.hinweis ? ' <span class="info-badge" data-tip="' + ort.hinweis + '">i</span>' : '');
   btn.addEventListener('click', function() {
     // Aktiven Button markieren
     liste.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
@@ -326,6 +333,45 @@ orte.forEach(function(ort, idx) {
 
 // Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
 var group = L.featureGroup(markers);
+
+// Info-Tooltip für Randzone-Orte: fixed-positioniert (entkommt dem
+// overflow:hidden/auto der Liste), funktioniert per Klick (Mobil) und Hover (Desktop)
+var gebietTip = document.createElement('div');
+gebietTip.id = 'gebietTip';
+document.body.appendChild(gebietTip);
+
+function showGebietTip(badge) {
+  var text = badge.getAttribute('data-tip');
+  if (!text) return;
+  gebietTip.textContent = text;
+  gebietTip.style.display = 'block';
+  var r = badge.getBoundingClientRect();
+  var top = r.top - gebietTip.offsetHeight - 8;
+  if (top < 8) top = r.bottom + 8;
+  var left = r.left + r.width / 2 - gebietTip.offsetWidth / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - gebietTip.offsetWidth - 8));
+  gebietTip.style.top = top + 'px';
+  gebietTip.style.left = left + 'px';
+  gebietTip._openFor = badge;
+}
+function hideGebietTip() {
+  gebietTip.style.display = 'none';
+  gebietTip._openFor = null;
+}
+document.querySelectorAll('.info-badge').forEach(function(badge) {
+  badge.addEventListener('mouseenter', function() { showGebietTip(badge); });
+  badge.addEventListener('mouseleave', function() { hideGebietTip(); });
+  badge.addEventListener('click', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (gebietTip._openFor === badge) { hideGebietTip(); }
+    else { showGebietTip(badge); }
+  });
+});
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.info-badge')) hideGebietTip();
+});
+document.addEventListener('scroll', hideGebietTip, true);
 </script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/chatbot.js" defer></script>
