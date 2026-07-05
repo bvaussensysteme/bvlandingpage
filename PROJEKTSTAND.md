@@ -312,6 +312,14 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 
 ## ÄNDERUNGSHISTORIE
 
+### 05.07.2026 — Content-Audit: Fakt-Konsistenz & FAQ-Redundanz
+- **Fund:** 6 Produktseiten (`carport.html`, `gelaender.html`, `kaltwintergarten.html`, `pergola.html`, `sonnenschutz.html`, `terrassenueberdachung.html`) hatten im Schema.org-Code noch `"geoRadius": "50000"` (50 km) – Rest der Seite wurde am 04.07. auf 60 km umgestellt, diese 6 Dateien wurden dabei übersehen. Jetzt auf `"60000"` korrigiert.
+- **Fund:** `terrassenueberdachung-montabaur.html` + `terrassenueberdachung-neuwied.html` behaupteten „ZDH-Zertifikat"/„ZDH-zertifiziert" für die VD-AluSysteme-Produkte – dieser Fakt taucht nirgends sonst auf der Website auf (nicht in Koblenz/Altenkirchen-Pendants, nicht in PROJEKTSTAND, nicht im Impressum/AGB-Kontext) und ist nicht verifizierbar (ZDH = Zentralverband des Deutschen Handwerks, keine bekannte Produktzertifizierungsstelle für Aluminium-Außensysteme). Da unbelegte Zertifizierungsaussagen ein Wettbewerbsrecht-Risiko sind, entfernt. Falls es einen echten Nachweis gibt, gerne wieder ergänzen.
+- **Fund:** `terrassenueberdachung-altenkirchen.html` versprach Angebot „innerhalb von 48 Stunden nach dem Aufmaß-Termin" – alle anderen Seiten (Startseite FAQ + Schema.org, 2×) nennen „2–3 Werktage". Auf den durchgängig verwendeten Wert vereinheitlicht.
+- **Fund:** Startseiten-FAQ (`index.html`) enthielt 2 Paar nahezu identischer Fragen: „Kommen Sie auch außerhalb des Westerwaldkreises?" / „Arbeitet ihr auch außerhalb des Westerwalds?" sowie „Was kostet eine Terrassenüberdachung oder ein Carport ungefähr?" / „Was kostet eine Terrassenüberdachung im Westerwald?" (insgesamt 21 statt effektiv 19 unterschiedliche Themen). Jeweils zusammengeführt (die vollständigere Städteliste bzw. die Polycarbonat/Glas-Preisnuance in die verbleibende Frage übernommen), Duplikate entfernt. Sichtbare FAQ hat jetzt 19 statt 21 Einträge – FAQPage-Schema war davon nicht betroffen (hatte ohnehin nur 13 der 21 Fragen abgebildet, siehe offener SEO-Punkt unten).
+- **Neuer P1-Punkt (SEO/Content-Schnittstelle):** FAQPage-Schema.org auf der Startseite bildet nur 13 der jetzt 19 sichtbaren FAQ ab – 6 Fragen (u.a. Freistehend-Montage, Pflege, Erweiterbarkeit, Gewerbe/Gastronomie) fehlen im strukturierten Daten. Für Rich-Snippet-Potenzial nachziehen.
+- Recherchiert (WebSearch, nicht umgesetzt – braucht Betreiber-Entscheidung): Content-Lücken zu Förderung/Zuschüsse und Wertsteigerung Immobilie identifiziert, siehe Audit-Bericht.
+
 ### 04.07.2026 (6) — Einzugsgebiet neu definiert: 60 km statt 50 km
 - Mittelpunkt neu berechnet: zwischen Dernbach (Westerwald) und Pleckhausen statt nur Dernbach – liegt nahe Dierdorf/Giershofen
 - Kommunizierter Radius von 50 km auf 60 km erhöht (echte Koordinaten-Berechnung, siehe UNTERNEHMEN-Sektion für die volle Liste)
