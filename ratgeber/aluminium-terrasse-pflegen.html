@@ -1,14 +1,56 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+<script>
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
+(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
+</script>
+<style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aluminium Terrassenüberdachung pflegen – Tipps & Anleitung | BV AussenSysteme</title>
-  <meta name="description" content="Aluminium-Außensysteme pflegen: So reinigen Sie Terrassenüberdachung, Carport und Pergola richtig. Einfache Tipps für lange Lebensdauer." />
+  <title>Aluminium Terrassenüberdachung pflegen – Tipps &amp; Anleitung | BV AussenSysteme</title>
   <link rel="canonical" href="https://bv-aussensysteme.de/ratgeber/aluminium-terrasse-pflegen.html" />
-  <link rel="icon" href="../images/favicon.ico" />
-  <link rel="stylesheet" href="../css/style.css" />
-  <script src="../js/main.js" defer></script>
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/ratgeber/aluminium-terrasse-pflegen.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/ratgeber/aluminium-terrasse-pflegen.html" />
+  <meta name="description" content="Aluminium-Außensysteme pflegen: So reinigen Sie Terrassenüberdachung, Carport und Pergola richtig. Einfache Tipps für lange Lebensdauer." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+  <meta name="theme-color" content="#C49A2A" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    // Listen for consent being given
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+})();
+</script>
+  <link rel="stylesheet" href="/css/style.css" />
+
+
+<script src="../js/main.js" defer></script>
   <script src="../js/cookie.js" defer></script>
   <script src="../js/metricool.js" defer></script>
   <script src="../js/accessibility.js" defer></script>
@@ -51,12 +93,16 @@
     "publisher":{"@type":"Organization","name":"BV AussenSysteme","url":"https://bv-aussensysteme.de"}
   }
   </script>
+
+
+
 </head>
 <body id="bv-page-wrapper">
+
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="../images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+      <img src="/images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
@@ -71,6 +117,7 @@
     </button>
   </div>
 </nav>
+
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
   <a href="/">Startseite</a>
@@ -79,6 +126,7 @@
   <a href="/ratgeber/">Ratgeber</a>
   <a href="/#kontakt" class="mobile-cta">Jetzt anfragen</a>
 </div>
+
 <main id="main-content" role="main">
   <header class="article-hero" style="background:var(--dark);padding:56px 0 40px;">
     <div class="container" style="max-width:760px;">
@@ -128,12 +176,24 @@
     </div>
   </section>
 </main>
+
+
 <footer role="contentinfo" style="background:var(--dark);padding:24px 0;border-top:3px solid var(--gold);">
-  <div class="container" style="text-align:center;">
-    <p style="color:rgba(255,255,255,0.5);font-size:.8rem;margin:0;">© 2026 BV AussenSysteme – Alexander Becker &amp; Josef Voronin (GbR i. Gr.) · Westerwaldkreis</p>
-    <p style="margin-top:6px;"><a href="../impressum.html" style="color:rgba(255,255,255,0.5);font-size:.8rem;">Impressum</a> · <a href="../datenschutz.html" style="color:rgba(255,255,255,0.5);font-size:.8rem;">Datenschutz</a></p>
+  <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:0.8rem;color:rgba(255,255,255,0.4);">
+    <p>© 2026 BV AussenSysteme – Alexander Becker &amp; Josef Voronin (GbR i. Gr.) · Westerwaldkreis</p>
+    <p>
+      <a href="/agb.html" style="color:rgba(255,255,255,0.5)">AGB</a> ·
+      <a href="/impressum.html" style="color:rgba(255,255,255,0.5)">Impressum</a> ·
+      <a href="/datenschutz.html" style="color:rgba(255,255,255,0.5)">Datenschutz</a>
+    </p>
   </div>
 </footer>
+
+<script src="/js/main.js" defer></script>
+<script src="/js/cookie.js" defer></script>
+<script src="/js/metricool.js" defer></script>
+<script src="/js/accessibility.js" defer></script>
+<script src="/js/chatbot.js" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
