@@ -1,0 +1,4 @@
+# Agent tooling - not part of the deployed website, kept for Claude Code sessions only.
+.agents/
+videos/
+skills-lock.json
