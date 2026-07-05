@@ -132,6 +132,20 @@ h3 { font-size: 1.4rem; color: var(--black); }
   justify-content: center; gap: 32px;
 }
 .mobile-menu.open { display: flex; }
+
+/* Fix: Chat-Bubble/A11y-Widget/Scroll-Top haben absichtlich sehr hohe
+   z-index-Werte (bis 2147483647), damit sie über normalem Seiteninhalt
+   IMMER sichtbar bleiben. Beim geöffneten Vollbild-Mobilmenü führt das
+   aber dazu, dass sie weiterhin sichtbar & anklickbar über dem Menü
+   schweben. Deshalb hier gezielt ausblenden, solange das Menü offen ist. */
+body.bv-menu-open #bvChatBubble,
+body.bv-menu-open #bvChatPanel,
+body.bv-menu-open #bv-a11y-trigger,
+body.bv-menu-open #bv-a11y-panel,
+body.bv-menu-open #bv-scroll-top {
+  display: none !important;
+}
+
 .mobile-menu a {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.8rem; font-weight: 700;
