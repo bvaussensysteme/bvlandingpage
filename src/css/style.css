@@ -564,7 +564,7 @@ body.bv-menu-open #bv-scroll-top {
 }
 .kontakt-card-icon--gold { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); }
 .kontakt-card-icon--whatsapp { background: #25D366; }
-.kontakt-card-icon--whatsapp svg { stroke: none; }
+.kontakt-card-icon--whatsapp svg { stroke: none; fill: currentColor; }
 .kontakt-card strong {
   display: block; font-family: 'Barlow Condensed', sans-serif;
   font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 3px;
