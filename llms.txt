@@ -13,7 +13,8 @@ BV AussenSysteme ist ein Fachbetrieb mit Sitz in Dernbach (Westerwaldkreis, Rhei
 - **Website:** https://bv-aussensysteme.de
 - **Beratung & Planung:** Dernbach, Westerwaldkreis
 - **Montage & Service:** Pleckhausen und gesamter Westerwald
-- **Einzugsgebiet:** Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumbach, Wirges, Pleckhausen, Horhausen, Neuwied, Koblenz, Limburg an der Lahn, Diez
+- **Einzugsgebiet (Kernzone, ca. 60 km um Dernbach):** Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Westerburg, Ransbach-Baumbach, Wirges, Pleckhausen, Horhausen, Neuwied, Koblenz, Limburg an der Lahn, Diez, Höhr-Grenzhausen, Selters (Westerwald), Dierdorf, Bendorf, Vallendar, Bad Ems, Lahnstein, Nassau
+- **Am Rand des Einzugsgebiets (auf Anfrage):** Andernach, Mayen, Remagen, Wetzlar, Betzdorf, Herborn, Idstein, Bonn
 
 ## Leistungen
 

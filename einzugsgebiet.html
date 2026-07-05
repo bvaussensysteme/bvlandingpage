@@ -114,6 +114,15 @@
       box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
     }
     .orte-dot.hauptort { background: var(--black); box-shadow: 0 0 0 3px rgba(196,154,42,0.4); }
+    .orte-dot.fern { background: #fff; border: 2px solid var(--muted); box-shadow: none; }
+    .info-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(0,0,0,0.12); color: var(--muted);
+      font-size: 0.65rem; font-style: italic; font-family: Georgia, 'Times New Roman', serif;
+      margin-left: 2px; cursor: help;
+    }
+    .info-badge:hover, .info-badge:focus-visible { background: var(--gold); color: #fff; }
 
     /* CTA unter Karte */
     .gebiet-cta {
@@ -199,7 +208,7 @@
       <div class="orte-panel">
         <div class="orte-panel-header">
           <h3>📍 Unsere Regionen</h3>
-          <p>Klicken zum Anzeigen auf der Karte</p>
+          <p>Klicken zum Anzeigen auf der Karte · <span class="info-badge" style="margin-left:0;">i</span> = Rand unseres Gebiets, bitte anfragen</p>
         </div>
         <ul class="orte-list" id="orteListe"></ul>
       </div>
@@ -239,6 +248,24 @@ var orte = [
   { name: 'Horhausen',                  lat: 50.610, lng: 7.540,  hauptort: false, info: 'Im Westerwald.' },
   { name: 'Limburg an der Lahn',        lat: 50.385, lng: 8.064,  hauptort: false, info: 'Ca. 35 Min. südlich.' },
   { name: 'Koblenz',                    lat: 50.353, lng: 7.579,  hauptort: false, info: 'Am Rhein-Mosel-Dreieck.' },
+  { name: 'Wirges',                     lat: 50.564, lng: 7.784,  hauptort: false, info: 'Nähe Montabaur.' },
+  { name: 'Höhr-Grenzhausen',           lat: 50.437, lng: 7.658,  hauptort: false, info: 'Die Kannenbäckerstadt.' },
+  { name: 'Selters (Westerwald)',       lat: 50.489, lng: 7.923,  hauptort: false, info: 'Bekannt für sein Mineralwasser.' },
+  { name: 'Dierdorf',                   lat: 50.542, lng: 7.653,  hauptort: false, info: 'Westlicher Westerwald.' },
+  { name: 'Bendorf',                    lat: 50.430, lng: 7.571,  hauptort: false, info: 'Am Rhein bei Koblenz.' },
+  { name: 'Vallendar',                  lat: 50.383, lng: 7.611,  hauptort: false, info: 'Am Rhein bei Koblenz.' },
+  { name: 'Bad Ems',                    lat: 50.337, lng: 7.719,  hauptort: false, info: 'Heilbad an der Lahn.' },
+  { name: 'Lahnstein',                  lat: 50.304, lng: 7.610,  hauptort: false, info: 'Am Zusammenfluss von Rhein und Lahn.' },
+  { name: 'Nassau',                     lat: 50.324, lng: 7.809,  hauptort: false, info: 'An der Lahn.' },
+  { name: 'Diez',                       lat: 50.374, lng: 8.017,  hauptort: false, info: 'An der Lahn, nahe Limburg.' },
+  { name: 'Andernach',                  lat: 50.439, lng: 7.403,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Mayen',                      lat: 50.335, lng: 7.229,  hauptort: false, fern: true, info: 'Nahe der Eifel.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Remagen',                    lat: 50.578, lng: 7.235,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Wetzlar',                    lat: 50.560, lng: 8.505,  hauptort: false, fern: true, info: 'An der Lahn, Hessen.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Betzdorf',                   lat: 50.780, lng: 7.879,  hauptort: false, fern: true, info: 'Nördlicher Westerwald.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Herborn',                    lat: 50.681, lng: 8.303,  hauptort: false, fern: true, info: 'Historische Fachwerkstadt, Hessen.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Idstein',                    lat: 50.219, lng: 8.269,  hauptort: false, fern: true, info: 'Taunus, Hessen.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  { name: 'Bonn',                       lat: 50.735, lng: 7.100,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
 ];
 
 // Karte initialisieren – zentriert auf Westerwald
@@ -251,15 +278,24 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 
+// Eigenes Icon fuer "Rand des Einzugsgebiets" (kein Bild-Request noetig, CSP-sicher)
+var fernIcon = L.divIcon({
+  className: 'orte-fern-marker',
+  html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #8a8a8a;"></span>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7]
+});
+
 // Marker & Popups
 var markers = [];
 orte.forEach(function(ort, idx) {
-  var marker = L.marker([ort.lat, ort.lng])
+  var marker = L.marker([ort.lat, ort.lng], ort.fern ? { icon: fernIcon } : {})
     .addTo(map)
     .bindPopup(
       '<div style="font-family:Inter,sans-serif;min-width:160px;">' +
         '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
         '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
+        (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +
         '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
       '</div>',
       { maxWidth: 220 }
@@ -273,8 +309,9 @@ orte.forEach(function(ort, idx) {
   var li = document.createElement('li');
   var btn = document.createElement('button');
   btn.innerHTML =
-    '<span class="orte-dot' + (ort.hauptort ? ' hauptort' : '') + '"></span>' +
-    ort.name;
+    '<span class="orte-dot' + (ort.hauptort ? ' hauptort' : '') + (ort.fern ? ' fern' : '') + '"></span>' +
+    ort.name +
+    (ort.hinweis ? ' <span class="info-badge" title="' + ort.hinweis + '">i</span>' : '');
   btn.addEventListener('click', function() {
     // Aktiven Button markieren
     liste.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
