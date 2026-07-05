@@ -15,9 +15,9 @@
   <title>Sonnenschutz & Markisen | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Sonnenschutz & Markisen im Westerwald – Aufdach-, Unterdach- und Senkrechtmarkisen von BV AussenSysteme. Elektrisch steuerbar, 5 J. Herstellergarantie." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/sonnenschutz.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/sonnenschutz.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/sonnenschutz.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/sonnenschutz.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/sonnenschutz.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/sonnenschutz.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
@@ -70,9 +70,9 @@
       box-shadow: var(--shadow); border: 1px solid var(--border);
       transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
     }
-    .produkt-card:hover {
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
       transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-    }
+    } }
     .produkt-card-img {
       height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
       display: flex; align-items: center; justify-content: center;
@@ -109,7 +109,35 @@
     @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
 
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Sonnenschutz & Markisen",
+      "item": "https://bv-aussensysteme.de/produkte/sonnenschutz.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -135,7 +163,7 @@
       "seller": {
         "@type": "LocalBusiness",
         "name": "BV AussenSysteme",
-        "url": "https://www.bv-aussensysteme.de"
+        "url": "https://bv-aussensysteme.de"
       },
       "areaServed": {
         "@type": "GeoCircle",
@@ -210,8 +238,8 @@
           <h2>Aufdachbeschattung</h2>
           <p>Die Aufdachmarkise wird oberhalb des Terrassendachs montiert und verhindert, dass sich das Dach aufheizt. Sie bietet zuverlässigen Schutz vor Sonne und Blendung – ohne den Blick nach draußen zu beeinträchtigen. Mit Somfy-Antrieben aus eigener Herstellung.</p>
           <ul class="produkt-features">
-            <li>Montage auf dem Terrassendach</li>
-            <li>Verhindert Aufheizen des Dachs</li>
+            <li>Montage auf dem Terrassendach – bis 6,5 x 6 m (39 m²) je nach Modell</li>
+            <li>Verhindert Aufheizen des Dachs · Windwiderstandsklasse 3</li>
             <li>Somfy-Antrieb, elektrisch steuerbar</li>
             <li>Viele Stoffe und Farben</li>
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
@@ -225,15 +253,15 @@
       </div>
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/vd_prod_sonnenschutz.jpg" alt="Unterdachmarkise – platzsparend und elegant" loading="lazy" width="800" height="500" />
+          <img src="../images/vd_prod_sonnenschutz_unterdach.jpg" alt="Unterdachmarkise – platzsparend und elegant" loading="lazy" width="800" height="500" />
           </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Unterdach</span>
           <h2>Unterdachbeschattung</h2>
           <p>Die Unterdachmarkise wird unterhalb des Terrassendachs montiert – ideal um direktes Sonnenlicht zu filtern und eine angenehme Atmosphäre zu schaffen. Platzsparend, elegant und einfach zu bedienen.</p>
           <ul class="produkt-features">
-            <li>Montage unter dem Terrassendach</li>
-            <li>Filtert direktes Sonnenlicht</li>
+            <li>Montage unter dem Terrassendach – bis 6,5 x 6 m (39 m²) je nach Modell</li>
+            <li>Filtert direktes Sonnenlicht · Windwiderstandsklasse 3</li>
             <li>Elektrisch oder manuell</li>
             <li>Verschiedene Stoffe wählbar</li>
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
@@ -247,15 +275,23 @@
       </div>
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/vd_prod_sonnenschutz.jpg" alt="Senkrechtmarkise – Sichtschutz und Sonnenschutz" loading="lazy" width="800" height="500" />
+          <div class="vd-carousel">
+            <img class="vd-carousel-slide active" data-label="Seitliche Montage" src="../images/vd_prod_sonnenschutz_senkrecht.jpg" alt="Senkrechtmarkise – seitliche Montage" loading="lazy" />
+            <img class="vd-carousel-slide" data-label="Stirnbeschattung (vorne)" src="../images/vd_prod_stirnbeschattung.webp" alt="Senkrechtmarkise – Stirnbeschattung an der Vorderseite" loading="lazy" />
+            <button class="vd-carousel-btn vd-carousel-prev" aria-label="Vorherige Ansicht">‹</button>
+            <button class="vd-carousel-btn vd-carousel-next" aria-label="Nächste Ansicht">›</button>
+            <span class="vd-carousel-count">1 / 2</span>
+            <span class="vd-carousel-label">Seitliche Montage</span>
           </div>
+        </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Senkrecht</span>
           <h2>Senkrechtbeschattung</h2>
-          <p>Senkrechtmarkisen schützen seitlich vor tiefstehender Sonne, Wind und neugierigen Blicken. Sie sind ideal als Sichtschutz und Windschutz – elektrisch steuerbar, stabil und langlebig.</p>
+          <p>Senkrechtmarkisen schützen nicht nur seitlich vor tiefstehender Sonne, Wind und neugierigen Blicken – dieselbe Technik lässt sich ebenso als Stirnbeschattung an der Vorderseite einer Terrassenüberdachung montieren. So schließen Sie auch die offene Front komplett ab, statt nur die Seiten. Elektrisch steuerbar, stabil und langlebig.</p>
           <ul class="produkt-features">
-            <li>Seitlicher Sonnen- und Windschutz</li>
-            <li>Ideal als Sichtschutz</li>
+            <li>Seitlicher Sonnen- und Windschutz – bis 6 x 3 m, ZIP-Variante windstabil bis 150 km/h</li>
+            <li>Stirnbeschattung an der Vorderseite für vollständigen Rundum-Schutz</li>
+            <li>Ideal als Sichtschutz · optional mit Solarantrieb & LED</li>
             <li>Elektrisch steuerbar</li>
             <li>Reißfeste, UV-beständige Stoffe</li>
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
@@ -278,6 +314,7 @@
           <p>Einstellbare Aluminium-Lamellen die Licht, Sichtschutz und Belüftung auf einmal steuern – per Knopfdruck. Als Seitenelement, als Dach oder beides. Mehrere Elemente kombinierbar, platzsparendes Kaskadensystem.</p>
           <ul class="produkt-features">
             <li>Individuell einstellbarer Neigungswinkel</li>
+            <li>Farben: Reinweiß, Graualuminium, Weißaluminium, Anthrazit oder Echtholzoptik</li>
             <li>Einseitig oder symmetrisch öffnendes Kaskadensystem</li>
             <li>Modular erweiterbar für große Flächen</li>
             <li>Als Seitenelement oder eigenständige Konstruktion</li>
@@ -292,6 +329,32 @@
       </div>
 
     </div>
+  </div>
+</section>
+
+<section class="section" style="background:var(--light-bg);">
+  <div class="container">
+    <p class="tag">Markisen und Beschattungen</p>
+    <h2 style="margin-bottom:8px;">Alle Markisen-Modelle im Überblick</h2>
+    <p style="color:var(--muted);max-width:640px;">Ob Kassettenmarkise, Gelenkarmmarkise, Wintergartenmarkise, Senkrechtmarkise oder Sonnensegel – wir bieten Ihnen die komplette Bandbreite an Beschattungslösungen unseres Herstellers VD AluSysteme. Sprechen Sie uns an, welches Modell zu Ihrer Terrasse, Ihrem Wintergarten oder Ihrer Fassade passt.</p>
+    <div class="vd-model-grid">
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terrea580.jpg" alt="Kassettenmarkise Terrea 580" loading="lazy" /><p>Kassettenmarkise Terrea 580</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terrea550.jpg" alt="Kassettenmarkise Terrea 550" loading="lazy" /><p>Kassettenmarkise Terrea 550</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terreak50.jpg" alt="Kassettenmarkise Terrea K50" loading="lazy" /><p>Kassettenmarkise Terrea K50</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terreak70.jpg" alt="Kassettenmarkise Terrea K70" loading="lazy" /><p>Kassettenmarkise Terrea K70</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terreak60.jpg" alt="Kassettenmarkise Terrea K60" loading="lazy" /><p>Kassettenmarkise Terrea K60</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terreah60.jpg" alt="Halbgeschlossene Gelenkarmmarkise Terrea H60" loading="lazy" /><p>Gelenkarmmarkise Terrea H60 (halbgeschlossen)</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terreag60.jpg" alt="Offene Gelenkarmmarkise Terrea G60" loading="lazy" /><p>Gelenkarmmarkise Terrea G60 (offen)</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terrea530.jpg" alt="Offene Gelenkarmmarkise Terrea 530" loading="lazy" /><p>Gelenkarmmarkise Terrea 530</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_terrea700s.jpg" alt="Offene Gelenkarmmarkise Terrea 700S" loading="lazy" /><p>Gelenkarmmarkise Terrea 700S</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_climaraw10.jpg" alt="Wintergartenmarkise Climara W10" loading="lazy" /><p>Wintergartenmarkise Climara W10</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_climaraw20.jpg" alt="Wintergartenmarkise Climara W20" loading="lazy" /><p>Wintergartenmarkise Climara W20</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_climaraw9.jpg" alt="Wintergartenmarkise Climara W9" loading="lazy" /><p>Wintergartenmarkise Climara W9</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_climaraw19.jpg" alt="Wintergartenmarkise Climara W19" loading="lazy" /><p>Wintergartenmarkise Climara W19</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_markise_zip.jpg" alt="Senkrechtmarkise mit easyZIP-Führung" loading="lazy" /><p>Senkrechtmarkise mit easyZIP-Führung</p></div>
+      <div class="vd-model-tile"><img src="../images/vd_prod_sonnensegel.jpg" alt="Sonnensegel nach Maß" loading="lazy" /><p>Sonnensegel nach Maß</p></div>
+    </div>
+    <p style="margin-top:24px;color:var(--muted);font-size:0.95rem;">Alle Modelle werden individuell vermessen und montiert. Lassen Sie sich unverbindlich beraten, welche Markise zu Ihrem Zuhause passt.</p>
   </div>
 </section>
 
@@ -323,6 +386,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>

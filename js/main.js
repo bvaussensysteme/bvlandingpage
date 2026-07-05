@@ -12,10 +12,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.faq-item.open').forEach(function (el) {
         el.classList.remove('open');
         el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        el.querySelector('.faq-a').style.maxHeight = '';
       });
       if (!isOpen) {
         item.classList.add('open');
         btn.setAttribute('aria-expanded', 'true');
+        var answer = item.querySelector('.faq-a');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
       }
     });
   });
@@ -139,24 +142,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// ---- REVIEWS TAB SWITCHER ----
-function switchTab(tab) {
-  // hide all panels
-  document.querySelectorAll('.reviews-panel').forEach(function(p) {
-    p.style.display = 'none';
-    p.classList.remove('active');
-  });
-  document.querySelectorAll('.reviews-tab').forEach(function(b) {
-    b.classList.remove('active');
-    b.setAttribute('aria-selected', 'false');
-  });
-
-  var panel = document.getElementById('tab-' + tab);
-  var btn   = document.getElementById('btn-' + tab);
-  if (panel) { panel.style.display = 'block'; panel.classList.add('active'); }
-  if (btn)   { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
-}
-
 // ---- LIGHTBOX ----
 var lightboxImages = [
   { src: 'images/galerie-1-full.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
@@ -209,4 +194,67 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape')      closeLightbox();
   if (e.key === 'ArrowLeft')   lightboxNav(-1);
   if (e.key === 'ArrowRight')  lightboxNav(1);
+});
+
+// Bild-Carousel: Lupen-Icon einfügen + Vollbild-Zoom-Overlay bereitstellen
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.vd-carousel').forEach(function (c) {
+    var hint = document.createElement('span');
+    hint.className = 'vd-carousel-zoom-hint';
+    hint.textContent = '🔍';
+    c.appendChild(hint);
+  });
+  if (document.querySelector('.vd-carousel') && !document.getElementById('vdZoomOverlay')) {
+    var overlay = document.createElement('div');
+    overlay.className = 'vd-zoom-overlay';
+    overlay.id = 'vdZoomOverlay';
+    overlay.innerHTML = '<button class="vd-zoom-close" aria-label="Schließen">✕</button><img src="" alt="" />';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay || e.target.classList.contains('vd-zoom-close')) {
+        overlay.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') overlay.classList.remove('open');
+    });
+  }
+});
+
+document.addEventListener('click', function (e) {
+  var slide = e.target.closest('.vd-carousel-slide');
+  if (slide) {
+    var overlay = document.getElementById('vdZoomOverlay');
+    if (overlay) {
+      overlay.querySelector('img').src = slide.currentSrc || slide.src;
+      overlay.querySelector('img').alt = slide.alt;
+      overlay.classList.add('open');
+    }
+    return;
+  }
+});
+
+// Bild-Carousel: Pfeil-Navigation für Produktvarianten mit mehreren Bildern
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.vd-carousel-btn');
+  if (!btn) return;
+  var carousel = btn.closest('.vd-carousel');
+  if (!carousel) return;
+  var slides = carousel.querySelectorAll('.vd-carousel-slide');
+  var dots = carousel.querySelectorAll('.vd-carousel-dot');
+  if (!slides.length) return;
+  var current = 0;
+  slides.forEach(function (s, i) { if (s.classList.contains('active')) current = i; });
+  var dir = btn.classList.contains('vd-carousel-next') ? 1 : -1;
+  var next = (current + dir + slides.length) % slides.length;
+  slides[current].classList.remove('active');
+  slides[next].classList.add('active');
+  if (dots.length) {
+    dots[current].classList.remove('active');
+    dots[next].classList.add('active');
+  }
+  var count = carousel.querySelector('.vd-carousel-count');
+  if (count) count.textContent = (next + 1) + ' / ' + slides.length;
+  var label = carousel.querySelector('.vd-carousel-label');
+  if (label) label.textContent = slides[next].getAttribute('data-label') || '';
 });

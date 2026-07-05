@@ -15,9 +15,9 @@
   <title>Pergola & Lamellendach | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Pergola und Lamellendach im Westerwald – Lamellendach SunPro Plus von BV AussenSysteme. Elektrisch steuerbar, CE-zertifiziert." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/pergola.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/pergola.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/pergola.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/pergola.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/pergola.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/pergola.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
@@ -70,9 +70,9 @@
       box-shadow: var(--shadow); border: 1px solid var(--border);
       transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
     }
-    .produkt-card:hover {
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
       transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-    }
+    } }
     .produkt-card-img {
       height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
       display: flex; align-items: center; justify-content: center;
@@ -109,7 +109,35 @@
     @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
 
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Pergola & Lamellendach",
+      "item": "https://bv-aussensysteme.de/produkte/pergola.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -135,7 +163,7 @@
       "seller": {
         "@type": "LocalBusiness",
         "name": "BV AussenSysteme",
-        "url": "https://www.bv-aussensysteme.de"
+        "url": "https://bv-aussensysteme.de"
       },
       "areaServed": {
         "@type": "GeoCircle",
@@ -203,14 +231,15 @@
     <div class="produkt-grid">
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/vd_prod_pergola_velaris.jpg" alt="Pergola Lamellendach – elektrisch steuerbar" loading="lazy" width="800" height="500" />
+          <img src="../images/vd_prod_pergola_sunpro.jpg" alt="Pergola Lamellendach – elektrisch steuerbar" loading="lazy" width="800" height="500" />
           </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Elektrisch steuerbar</span>
           <h2>Lamellendach SunPro Plus</h2>
           <p>Das Lamellendach SunPro Plus bietet mit seinen motorisierten Aluminium-Lamellen maximale Flexibilität. Bei Sonnenschein öffnen, bei Regen schließen – vollautomatisch oder per Fernbedienung. Ideal für Terrassen, Gärten und Gastronomiebetriebe.</p>
           <ul class="produkt-features">
-            <li>Motorisierte Aluminium-Lamellen</li>
+            <li>Motorisierte Aluminium-Lamellen, bis 135° neigbar</li>
+            <li>Bis 5 x 4,5 m (4 Pfosten) oder 7 x 4,5 m (6 Pfosten)</li>
             <li>Fernbedienung oder Smartphone-Steuerung</li>
             <li>Regensensor optional</li>
             <li>Wandanbau oder freistehend</li>
@@ -225,7 +254,7 @@
       </div>
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/vd_prod_pergola_velaris.jpg" alt="Lamellendach Warema – Premium Sonnenschutz" loading="lazy" width="800" height="500" />
+          <img src="../images/vd_prod_pergola_warema.jpg" alt="Lamellendach Warema – Premium Sonnenschutz" loading="lazy" width="800" height="500" />
           </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Premium</span>
@@ -248,21 +277,42 @@
 
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/vd_prod_pergola_warema.jpg" alt="Lamellendach Lamaxa L50" loading="lazy" width="800" height="500" />
+          <img src="../images/vd_prod_lamaxa_lamelle.webp" alt="Lamellendach Lamaxa L50 Lamelle" loading="lazy" width="800" height="500" />
         </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Premium Design</span>
-          <h2>Lamellendach Lamaxa L50</h2>
-          <p>Das Lamaxa L50 ist für alle die nicht irgendein Lamellendach wollen – sondern das richtige. Stil, Funktion und Langlebigkeit in einem System vereint. Ganzjährig nutzbar, individuell anpassbar, ein echter Hingucker für jeden Außenbereich.</p>
+          <h2>Lamaxa L50 Lamelle</h2>
+          <p>Die Lamaxa L50 Lamelle ist unser Modell für alle, die ein Lamellendach nicht nur als Wetterschutz, sondern als Gestaltungselement verstehen. Die drehbaren Lamellen sorgen großflächig für Sonnen- und Wetterschutz, per Smartphone oder Tablet steuern Sie Neigung und Position bequem von der Couch aus. Optional ergänzen wir eine senkrechte Beschattung als Sicht- und Wetterschutz an den offenen Seiten.</p>
           <ul class="produkt-features">
-            <li>50 mm Aluminium-Lamellen, präzise einstellbar</li>
-            <li>Ganzjährig nutzbar – Regen, Wind, Sonne</li>
-            <li>Motorisierung per Fernbedienung oder App</li>
-            <li>Individuelle Maßanfertigung</li>
-            <li>Alle RAL-Farben möglich</li>
-            <li>5 Jahre Herstellergarantie auf Antriebe</li>
+            <li>Großflächiger Sonnen- und Wetterschutz mit drehbaren Lamellen</li>
+            <li>Optionale senkrechte Beschattung für Sicht- und Wetterschutz</li>
+            <li>Komfortable Bedienung per Smartphone oder Tablet</li>
+            <li>Mögliche Größen: max. Länge 600 cm, max. Breite 450 cm</li>
+            <li>5 Jahre Herstellergarantie</li>
           </ul>
-          <a href="/#kontakt"
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Pergola / Lamellendach';return true;"
+             class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
+            Jetzt anfragen →
+          </a>
+        </div>
+      </div>
+
+      <div class="produkt-card">
+        <div class="produkt-card-img">
+          <img src="../images/vd_prod_lamaxa_tex.webp" alt="Lamellendach Lamaxa L50 Tex" loading="lazy" width="800" height="500" />
+        </div>
+        <div class="produkt-card-body">
+          <span class="produkt-tag">Reiner Sonnenschutz</span>
+          <h2>Lamaxa L50 Tex</h2>
+          <p>Wer eine schlankere, rein textile Lösung sucht, entscheidet sich für die Lamaxa L50 Tex. Statt drehbarer Lamellen kommt hier eine hochwertige Bespannung zum Einsatz – mit schmalen Pfosten für ein besonders filigranes Erscheinungsbild. Das System lässt sich bei Bedarf um Glasscheibensysteme, Shutters oder Senkrechtmarkisen erweitern und wächst so mit Ihren Ansprüchen.</p>
+          <ul class="produkt-features">
+            <li>Ausführung als reiner Sonnenschutz</li>
+            <li>Schmale Pfosten für ein filigranes Erscheinungsbild</li>
+            <li>Erweiterbar mit Glasscheibensysteme, Shutters oder Senkrechtmarkisen</li>
+            <li>Mögliche Größen: max. Länge 600 cm, max. Breite 400 cm</li>
+            <li>5 Jahre Herstellergarantie</li>
+          </ul>
+          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Pergola / Lamellendach';return true;"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -270,6 +320,7 @@
       </div>
 
     </div>
+    <p style="margin-top:24px;color:var(--muted);font-size:0.95rem;">Sie suchen ein einsteuerbares Alu-Lamellensystem als Sichtschutz und Windschutz? Entdecken Sie <a href="velaris.html">Velaris</a>.</p>
   </div>
 </section>
 <!-- CTA -->
@@ -300,6 +351,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>

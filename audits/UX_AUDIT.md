@@ -1,7 +1,7 @@
 # 🎨 UX AUDIT — BV AussenSysteme
-**Agent**: UX Architect + UX Researcher + UI Designer | **Stand**: 24.06.2026
+**Agent**: UX Architect + UX Researcher + UI Designer | **Stand**: 04.07.2026
 
-## Overall Score: B (76/100)
+## Overall Score: B+ (82/100)
 
 ### User Journey Analyse
 
@@ -11,65 +11,48 @@ Landing (Google Ads/Organisch)
   ↓
 Hero Section [✅ stark: klarer CTA, Vertrauenssignale]
   ↓
-Produkt-Browse [⚠️ schwach: keine Preisindikation]
+Produkt-Browse [⚠️ weiterhin schwach: keine Preisindikation]
   ↓
 Produktseite [✅ gut: Bilder, Features, CTA]
   ↓
-Kontakt-Formular [✅ vorhanden, ⚠️ kein Fortschrittsbalken]
+Kontakt-Formular / Terminvereinbarung [✅ bewusst manuell per Telefon/WhatsApp]
   ↓
-Bestätigung [⚠️ keine eigene Danke-Seite mit Nächsten-Schritten]
+Bestätigung [✅ danke.html mit "Antwort innerhalb 24h"]
 ```
 
-### Conversion-Hindernisse (nach Priorität)
+### Status der 24.06.-Punkte
 
-#### 🔴 P0: Keine Terminbuchung
-- **Problem**: Einziger Weg: Formular → warten
-- **Auswirkung**: Nutzer mit sofortigem Bedarf springen ab
-- **Lösung**: Cal.com oder Calendly Widget einbinden
-- **Impact**: +20-40% Conversion-Rate
+#### ↩️ Terminbuchung — Cal.com bewusst wieder entfernt (04.07.2026)
+- War kurzzeitig als Cal.com-Embed live, auf Wunsch des Betreibers (Nebenerwerb, zu viel Aufwand) wieder entfernt
+- Terminvereinbarung läuft jetzt bewusst manuell nach Absprache per Telefon/WhatsApp — kein Automatisierungsziel mehr, kein offener Punkt
 
-#### 🔴 P0: Fehlende Bewertungen sichtbar
-- **Problem**: Keine Sterne/Reviews sichtbar
-- **Auswirkung**: Fehlendes Social Proof = Vertrauensbarriere
-- **Lösung**: Nach erster Google-Bewertung: Trustindex Widget
-- **Impact**: +15-25% Vertrauen
+#### ✅ P0 Bewertungen sichtbar — erledigt
+- `aggregateRating` Schema aktiv (5.0 ⭐, 1 Bewertung), Trustindex-Tab in index.html vorbereitet/verlinkt
 
-#### 🟠 P1: Preisindikation fehlt
-- **Problem**: "Preis auf Anfrage" überall
-- **Auswirkung**: Nutzer ohne Preisvorstellung springen früher ab
-- **Lösung**: Richtwerte ("ab 1.800€") + Rechner-Hinweis
-- **Impact**: Qualifiziertere Anfragen, weniger Preisfragen
+#### ✅ P2 Konfigurator-Feedback — erledigt
+- Nach Absenden: `✓ Danke! Wir benachrichtigen Sie...` Success-State vorhanden
 
-#### 🟠 P1: Mobilmenü UX
-- **Problem**: Hamburger öffnet Menü korrekt, aber kein visuelles Feedback beim Tippen
-- **Lösung**: Active-State CSS auf allen Touch-Elementen
+#### 🟠 P1: Preisindikation fehlt — weiterhin offen
+- Weiterhin "Preis auf Anfrage" ohne Richtwerte
+- **Impact bleibt unverändert**: unqualifizierte Anfragen, frühe Absprünge
 
-#### 🟡 P2: Galerie-Lightbox ohne Zoom
-- **Problem**: Vollbild-Bilder nicht zoombar
-- **Lösung**: Pinch-to-Zoom auf Mobile aktivieren
+#### 🟠 P1: Mobilmenü Tap-Feedback — weiterhin offen
+- In `css/style.css` kein `:active`-State für das Hamburger-Menü oder Nav-Links gefunden (nur `.google-review-btn:active` existiert)
+- **Lösung unverändert**: Active-State CSS auf allen Touch-Elementen ergänzen
 
-#### 🟡 P2: Konfigurator Feedback
-- **Problem**: Nach Konfigurator-Absendung keine klare Bestätigung
-- **Lösung**: Success-State mit Erwartungsmanagement ("Wir melden uns innerhalb 24h")
+#### 🟡 P2: Galerie-Lightbox ohne Zoom — weiterhin offen
 
 ### Was gut funktioniert ✅
-- Hero-Section: Gold/Schwarz-Kontrast, klarer CTA
-- Produktkacheln: Einheitliches Layout, gute Bildqualität
-- FAQ-Sektion: 14 Fragen, strukturiert
-- WhatsApp-Button: Immer sichtbar (Floating)
-- Barrierefreiheits-Widget: vorhanden
+- Hero-Section, Produktkacheln, FAQ, WhatsApp-Button, Barrierefreiheits-Widget (unverändert stark)
+- Danke-Seite mit klarer Erwartungshaltung (24h)
 
 ### UI Consistency Check
-- ✅ Farb-Variablen konsistent (--gold, --black, --white)
-- ✅ Schriften: Barlow Condensed + Inter
-- ✅ Border-Radius einheitlich
-- ⚠️ Button-Zustände (hover/active) nicht auf allen CTAs definiert
+- ✅ Farb-Variablen, Schriften, Border-Radius konsistent
+- ⚠️ Weiterhin: Button-Zustände (hover/active) nicht auf allen CTAs definiert — betrifft v.a. mobile Tap-Feedback
 
 ### Mobile-First Check
-- ✅ Viewport meta-Tag gesetzt
-- ✅ Hamburger-Navigation funktional
-- ✅ Bilder responsive
-- ⚠️ Tabellen (Windzonen) scrollen horizontal nicht sichtbar markiert
+- ✅ Viewport, Hamburger-Navigation, responsive Bilder
+- ⚠️ Tabellen (Windzonen) weiterhin ohne sichtbaren Scroll-Hinweis
 
 ---
-*UX Architect + UI Designer + UX Researcher Agents | Nächste Überprüfung: nach Cal.com Integration*
+*UX Architect + UI Designer + UX Researcher Agents | Nächste Überprüfung: nach Preisindikations-Entscheidung*

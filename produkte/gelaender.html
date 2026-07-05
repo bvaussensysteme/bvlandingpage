@@ -15,9 +15,9 @@
   <title>Geländer & Zubehör | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Aluminium-Geländer im Westerwald – Geländer mit VSG-Glas und Ganzglasgeländer von BV AussenSysteme. Maßgefertigt, langlebig." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/gelaender.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/gelaender.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/gelaender.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/gelaender.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/gelaender.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/gelaender.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
@@ -70,9 +70,9 @@
       box-shadow: var(--shadow); border: 1px solid var(--border);
       transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
     }
-    .produkt-card:hover {
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
       transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-    }
+    } }
     .produkt-card-img {
       height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
       display: flex; align-items: center; justify-content: center;
@@ -109,7 +109,35 @@
     @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
 
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Geländer & Zubehör",
+      "item": "https://bv-aussensysteme.de/produkte/gelaender.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -135,7 +163,7 @@
       "seller": {
         "@type": "LocalBusiness",
         "name": "BV AussenSysteme",
-        "url": "https://www.bv-aussensysteme.de"
+        "url": "https://bv-aussensysteme.de"
       },
       "areaServed": {
         "@type": "GeoCircle",
@@ -214,7 +242,8 @@
           <h2>Geländer mit VSG-Glas</h2>
           <p>Unsere Aluminium-Geländer mit VSG-Sicherheitsglas verbinden Stabilität und Eleganz. Das Verbund-Sicherheitsglas bleibt auch bei Bruch in einem Stück und schützt zuverlässig. Ideal für Terrassen, Balkone und Treppen.</p>
           <ul class="produkt-features">
-            <li>Aluminium-Rahmen mit VSG-Glas</li>
+            <li>Aluminium-Rahmen mit VSG-Glas, 8 oder 10 mm, klar oder opal</li>
+            <li>Alternativ mit Edelstahl-Klemmhaltern statt Alu-Rahmen</li>
             <li>Splitterfrei bei Bruch</li>
             <li>Für Terrassen, Balkone, Treppen</li>
             <li>Maßgefertigt</li>
@@ -239,7 +268,7 @@
             <li>Rahmenloses Ganzglas-Design</li>
             <li>Maximale Transparenz</li>
             <li>Modernes, offenes Raumgefühl</li>
-            <li>VSG-Sicherheitsglas</li>
+            <li>VSG-Sicherheitsglas: klar, opal oder getönt für mehr Privatsphäre</li>
             <li>Verschiedene Glasdicken</li>
             <li>Ideal für moderne Architektur</li>
           </ul>
@@ -282,6 +311,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>

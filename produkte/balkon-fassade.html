@@ -10,9 +10,9 @@
   <title>Balkon & Fassade | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Balkonüberdachungen, Fassadenverkleidung Deco Wall & Sichtschutz im Westerwald – Aluminium, maßgefertigt. BV AussenSysteme." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/balkon-fassade.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/balkon-fassade.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/balkon-fassade.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/balkon-fassade.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/balkon-fassade.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/balkon-fassade.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
@@ -29,7 +29,7 @@
     .produkt-hero p{color:rgba(255,255,255,.75);max-width:600px;font-size:1rem;line-height:1.7;}
     .produkt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px;}
     .produkt-card{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;}
-    .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);}
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);} }
     .produkt-card-img{height:220px;background:linear-gradient(135deg,#1a1a1a,#2d2d2d);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;}
     .produkt-card-img img{width:100%;height:100%;object-fit:cover;}
     .produkt-card-body{padding:24px;}
@@ -46,7 +46,35 @@
   <meta property="og:description" content="Balkonüberdachungen, Fassadenverkleidung Deco Wall und Sichtschutz aus Aluminium im Westerwald." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Balkon & Fassade",
+      "item": "https://bv-aussensysteme.de/produkte/balkon-fassade.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -58,7 +86,7 @@
       "@type": "Offer",
       "priceCurrency": "EUR",
       "priceSpecification": {"@type":"PriceSpecification","description":"Preis auf Anfrage"},
-      "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://www.bv-aussensysteme.de"}
+      "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://bv-aussensysteme.de"}
     }
   }
   </script>
@@ -124,13 +152,24 @@
       </div>
       <div class="produkt-card">
         <div class="produkt-card-img">
-          <img src="../images/vd_prod_fassade.jpg" alt="Fassadenverkleidung Deco Wall" loading="lazy" width="800" height="500" />
+          <div class="vd-carousel">
+            <img class="vd-carousel-slide active" data-label="Deco Wall – Gesamtansicht" src="../images/vd_prod_decowall_start.webp" alt="Deco Wall Fassadenverkleidung – Gesamtansicht" loading="lazy" />
+            <img class="vd-carousel-slide" data-label="Deco Wall Aluminium" src="../images/vd_prod_decowall_1.webp" alt="Fassadenverkleidung aus Aluminium" loading="lazy" />
+            <img class="vd-carousel-slide" data-label="Deco Wall Aluminium" src="../images/vd_prod_decowall_2.webp" alt="Aluminium Fassadenverkleidung" loading="lazy" />
+            <img class="vd-carousel-slide" data-label="Deco Wall Aluminium" src="../images/vd_prod_decowall_3.webp" alt="Fassadenverkleidung aus Aluminium – Detailansicht" loading="lazy" />
+            <img class="vd-carousel-slide" data-label="Deco Wall Holzoptik" src="../images/vd_prod_decowall_holzoptik.webp" alt="Deco Wall Fassadenverkleidung in Holzoptik" loading="lazy" />
+            <button class="vd-carousel-btn vd-carousel-prev" aria-label="Vorheriges Bild">‹</button>
+            <button class="vd-carousel-btn vd-carousel-next" aria-label="Nächstes Bild">›</button>
+            <span class="vd-carousel-count">1 / 5</span>
+            <span class="vd-carousel-label">Deco Wall – Gesamtansicht</span>
+          </div>
         </div>
         <div class="produkt-card-body">
           <span class="produkt-tag">Klicksystem</span>
           <h2>Fassadenverkleidung Deco Wall</h2>
           <p>Klare Linien, unsichtbare Befestigung, null Pflegeaufwand. Deco Wall ist ein Aluminium-Klicksystem das schnell sitzt und dauerhaft modern aussieht. Vertikal oder horizontal, in vier Standardfarben oder jeder RAL-Farbe.</p>
           <ul class="produkt-features"><li>Unsichtbare Befestigung via Klicksystem</li><li>Vertikal oder horizontal montierbar</li><li>4 Standardfarben: Anthrazit, Weißalu, Graualuminium, Reinweiß</li><li>Sonderfarben (RAL) gegen Aufpreis</li><li>Witterungsbeständig, wartungsarm</li><li>Für Privat- und Gewerbegebäude</li></ul>
+          <a href="fassade.html" class="btn btn-outline" style="width:100%;text-align:center;display:block;box-sizing:border-box;margin-bottom:8px;">Details zu Deco Wall →</a>
           <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -145,6 +184,7 @@
           <h2>Sichtschutz Aluminium</h2>
           <p>Privatsphäre ohne Plastikzaun oder Betonmauer. Unsere Aluminium-Sichtschutzpaneele (14 cm Höhe) lassen sich frei kombinieren – Sicht-, Sonnen- und Windschutz in einem. In vier Standardfarben oder jeder RAL-Farbe.</p>
           <ul class="produkt-features"><li>Paneelhöhe: 14 cm, beliebig kombinierbar</li><li>4 Standardfarben verfügbar</li><li>Jede RAL-Farbe gegen Aufpreis</li><li>Sicht-, Sonnen- und Windschutz</li><li>Witterungsbeständig, pflegeleicht</li><li>Für Garten, Terrasse und Gewerbe</li></ul>
+          <a href="sichtschutz.html" class="btn btn-outline" style="width:100%;text-align:center;display:block;box-sizing:border-box;margin-bottom:8px;">Details zum Sichtschutz →</a>
           <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -174,6 +214,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>

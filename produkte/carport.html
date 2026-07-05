@@ -15,9 +15,9 @@
   <title>Carport | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Carports im Westerwald – Carport TDS, Flachdach Flat Line und Flat Box von BV AussenSysteme. Aluminium, CE-zertifiziert, 10 Jahre Herstellergarantie." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/carport.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/carport.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/carport.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/carport.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/carport.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/carport.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
@@ -70,9 +70,9 @@
       box-shadow: var(--shadow); border: 1px solid var(--border);
       transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
     }
-    .produkt-card:hover {
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
       transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-    }
+    } }
     .produkt-card-img {
       height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
       display: flex; align-items: center; justify-content: center;
@@ -109,7 +109,35 @@
     @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
 
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Carport",
+      "item": "https://bv-aussensysteme.de/produkte/carport.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -135,7 +163,7 @@
       "seller": {
         "@type": "LocalBusiness",
         "name": "BV AussenSysteme",
-        "url": "https://www.bv-aussensysteme.de"
+        "url": "https://bv-aussensysteme.de"
       },
       "areaServed": {
         "@type": "GeoCircle",
@@ -211,7 +239,7 @@
           <p>Unser robustester Carport für den Alltag. Wandanbau oder freistehend, mit Glas- oder Polycarbonatdach – er hält, was er verspricht. Witterungsbeständig, wartungsfrei, in allen RAL-Farben erhältlich. Für ein Auto oder mehrere.</p>
           <ul class="produkt-features">
             <li>Robuste Aluminium-Konstruktion</li>
-            <li>Verglasung: Polycarbonat oder Glas</li>
+            <li>Verglasung: 8 mm VSG-Glas oder 16 mm Polycarbonat, jeweils klar oder opal</li>
             <li>Einzel- oder Doppelcarport möglich</li>
             <li>Erweiterbar mit Seitenteilen & Beleuchtung</li>
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
@@ -255,7 +283,8 @@
           <p>Die Flat Box kombiniert Carport und Abstellraum in einem – ideal für alle die neben dem Fahrzeugschutz auch Stauraum benötigen. Kompakt, wetterfest, hochwertig verarbeitet.</p>
           <ul class="produkt-features">
             <li>Carport + integrierter Stauraum</li>
-            <li>Wetterfestes Aluminium</li>
+            <li>Wetterfestes Aluminium, seitlich mit Sandwichplatten verkleidet – gute Dämmwerte</li>
+            <li>Dach aus verzinktem, pulverbeschichtetem Trapezblech</li>
             <li>Individuell maßgefertigt</li>
             <li>Verschiedene Farben und Eindeckungen</li>
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
@@ -300,6 +329,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>

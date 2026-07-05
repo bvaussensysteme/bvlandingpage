@@ -229,7 +229,7 @@
       
       
       '#bv-a11y-trigger {',
-        'position: fixed; bottom: 80px; right: 16px; z-index: 999998;',
+        'position: fixed; bottom: 138px; right: 16px; z-index: 999998;',
         'width: 48px; height: 48px; border-radius: 50%;',
         'background: #1a1a1a; color: #C49A2A;',
         'border: 2px solid #C49A2A; cursor: pointer;',
@@ -240,11 +240,11 @@
       '}',
       '#bv-a11y-trigger:hover { background: #C49A2A; color: #000; transform: scale(1.08); }',
       '#bv-a11y-trigger svg { width: 22px; height: 22px; }',
-      '@media (max-width: 600px) { #bv-a11y-trigger { bottom: 74px; right: 12px; width: 44px; height: 44px; } }',
+      '@media (max-width: 600px) { #bv-a11y-trigger { bottom: 128px; right: 12px; width: 44px; height: 44px; } }',
 
       /* ── Scroll-to-Top Button ── */
       '#bv-scroll-top {',
-        'position: fixed; bottom: 138px; right: 16px; z-index: 999998;',
+        'position: fixed; bottom: 196px; right: 16px; z-index: 999998;',
         'width: 48px; height: 48px; border-radius: 50%;',
         'background: #1a1a1a; color: #C49A2A;',
         'border: 2px solid #C49A2A; cursor: pointer;',
@@ -256,7 +256,7 @@
       '#bv-scroll-top.visible { opacity: 1; pointer-events: all; }',
       '#bv-scroll-top:hover { background: #C49A2A; color: #000; transform: scale(1.08); }',
       '#bv-scroll-top svg { width: 20px; height: 20px; stroke-width: 2.5; }',
-      '@media (max-width: 600px) { #bv-scroll-top { bottom: 128px; right: 12px; width: 44px; height: 44px; } }',
+      '@media (max-width: 600px) { #bv-scroll-top { bottom: 182px; right: 12px; width: 44px; height: 44px; } }',
 
       /* ── Panel ── */
       '#bv-a11y-panel {',

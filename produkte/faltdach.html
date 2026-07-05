@@ -10,9 +10,9 @@
   <title>Faltdach OpenAir | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Faltdach OpenAir im Westerwald – flexibles Glasdach für Terrasse und Gastronomie. BV AussenSysteme liefert und montiert." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/faltdach.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/faltdach.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/faltdach.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/faltdach.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/faltdach.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/faltdach.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png" />
@@ -29,7 +29,7 @@
     .produkt-hero p{color:rgba(255,255,255,.75);max-width:600px;font-size:1rem;line-height:1.7;}
     .produkt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px;}
     .produkt-card{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;}
-    .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);}
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);} }
     .produkt-card-img{height:220px;background:linear-gradient(135deg,#1a1a1a,#2d2d2d);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;}
     .produkt-card-img img{width:100%;height:100%;object-fit:cover;}
     .produkt-card-body{padding:24px;}
@@ -44,7 +44,35 @@
   <meta property="og:description" content="Modular erweiterbar, patentiertes Wasserableitungssystem – das Faltdach OpenAir im Westerwald." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Faltdach OpenAir",
+      "item": "https://bv-aussensysteme.de/produkte/faltdach.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -56,7 +84,7 @@
       "@type": "Offer",
       "priceCurrency": "EUR",
       "priceSpecification": {"@type":"PriceSpecification","description":"Preis auf Anfrage"},
-      "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://www.bv-aussensysteme.de"}
+      "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://bv-aussensysteme.de"}
     }
   }
   </script>
@@ -114,7 +142,7 @@
           <span class="produkt-tag">Freistehend oder wandmontiert</span>
           <h2>Faltdach OpenAir</h2>
           <p>Jedes Modul hat sein eigenes Dach mit Doppelschicht-Gewebe und automatischer Steuerung. Das patentierte Wasserableitungssystem verhindert Spritzwasser beim Schließen. Modularer Aufbau – ideal wenn es größer werden soll. Mit optionaler ZIP-Seitenmarkise, Heizstrahler und Beleuchtung.</p>
-          <ul class="produkt-features"><li>Zwei Varianten: freistehend oder wandmontiert</li><li>Modular kombinierbar für beliebige Größen</li><li>Patentiertes Wasserableitungssystem</li><li>Automatische Steuerung je Modul</li><li>Optional: ZIP-Seitenmarkise, Heizstrahler, LED</li><li>Ideal für Gastronomie und große Terrassen</li></ul>
+          <ul class="produkt-features"><li>Zwei Varianten: freistehend oder wandmontiert</li><li>Windbeständig bis 120 km/h</li><li>Modular kombinierbar für beliebige Größen</li><li>Patentiertes Wasserableitungssystem</li><li>Automatische Steuerung je Modul</li><li>Optional: ZIP-Seitenmarkise, Heizstrahler, LED</li><li>Ideal für Gastronomie und große Terrassen</li></ul>
           <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -154,6 +182,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>

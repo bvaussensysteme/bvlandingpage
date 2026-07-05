@@ -15,9 +15,9 @@
   <title>Terrassenüberdachung | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Terrassenüberdachungen im Westerwald – TDS und SkyView von BV AussenSysteme. Aluminium, Maßanfertigung, 10 J. Herstellergarantie. Kostenlose Beratung." />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://www.bv-aussensysteme.de/produkte/terrassenueberdachung.html" />
-  <link rel="alternate" hreflang="de" href="https://www.bv-aussensysteme.de/produkte/terrassenueberdachung.html" />
-  <link rel="alternate" hreflang="x-default" href="https://www.bv-aussensysteme.de/produkte/terrassenueberdachung.html" />
+  <link rel="canonical" href="https://bv-aussensysteme.de/produkte/terrassenueberdachung.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/produkte/terrassenueberdachung.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/produkte/terrassenueberdachung.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png" />
@@ -70,9 +70,9 @@
       box-shadow: var(--shadow); border: 1px solid var(--border);
       transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
     }
-    .produkt-card:hover {
+    @media (hover: hover) and (pointer: fine) { .produkt-card:hover {
       transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--gold);
-    }
+    } }
     .produkt-card-img {
       height: 220px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
       display: flex; align-items: center; justify-content: center;
@@ -109,7 +109,35 @@
     @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
   </style>
 
+    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": "https://bv-aussensysteme.de/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Produkte",
+      "item": "https://bv-aussensysteme.de/#leistungen"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Terrassenüberdachung",
+      "item": "https://bv-aussensysteme.de/produkte/terrassenueberdachung.html"
+    }
+  ]
+}
+  </script>
+
+<script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -135,7 +163,7 @@
       "seller": {
         "@type": "LocalBusiness",
         "name": "BV AussenSysteme",
-        "url": "https://www.bv-aussensysteme.de"
+        "url": "https://bv-aussensysteme.de"
       },
       "areaServed": {
         "@type": "GeoCircle",
@@ -213,7 +241,7 @@
             <li>Aluminium-Profile, pulverbeschichtet</li>
             <li>Standardfarben inklusive: Anthrazit (RAL 7016), Weißaluminium (RAL 9006), Graualuminium (RAL 9007), Reinweiß (RAL 9010)</li>
             <li>Wunschfarbe (weitere RAL-Farben) gegen Aufpreis möglich</li>
-            <li>Verglasung: Polycarbonat oder VSG-Glas</li>
+            <li>Verglasung: 8 mm VSG-Glas (bis 88% Lichtdurchlässigkeit) oder 16 mm Polycarbonat (bis 70% Lichtdurchlässigkeit)</li>
             <li>Wandanbau oder freistehend</li>
             <li>Erweiterbar mit Schiebeelementen & Markisen</li>
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
@@ -234,7 +262,7 @@
           <h2>Flachdach SkyView</h2>
           <p>Flach, modern, beeindruckend. Das SkyView gibt Ihrer Terrasse einen Charakter der bleibt. Innenliegendes Gefälle – von außen unsichtbar, technisch perfekt. 8 mm VSG-Sicherheitsglas ist Standard. LED und Lautsprecher auf Wunsch. Für alle die etwas Besonderes wollen.</p>
           <ul class="produkt-features">
-            <li>8 mm VSG-Sicherheitsglas inklusive</li>
+            <li>8 mm VSG-Sicherheitsglas inklusive – klar (88% Licht, 36dB Schallschutz) oder opal (63% Licht, blickdicht)</li>
             <li>Optional: LED-Beleuchtung & Lautsprecher</li>
             <li>Wandanschluss, Eck-, Nischen- oder XXL-Variante</li>
             <li>Schiebeelemente in Polycarbonat, Glas oder Alu</li>
@@ -253,78 +281,83 @@
 </section>
 
 <!-- Zusatzelemente -->
-<section class="section" style="background:var(--light-bg);">
+<section class="section" id="erweiterungen" style="background:var(--light-bg);">
   <div class="container">
     <p class="tag">Erweiterungen & Abschlüsse</p>
     <h2 style="margin-bottom:8px;">Stirnseiten, Schiebeelemente & Abschlüsse</h2>
-    <p style="color:var(--muted);max-width:680px;margin-bottom:32px;">Ihre Terrassenüberdachung muss nicht offen bleiben. Wir liefern und montieren alle gängigen Seiten- und Stirnabschlüsse – vom einfachen Festelement bis zur motorisierten Glasschiebetür. Alles passend zum Profil Ihrer Überdachung, maßgefertigt.</p>
-    <div class="produkt-grid">
+    <p style="color:var(--muted);max-width:680px;margin-bottom:32px;">Ihre Terrassenüberdachung muss nicht offen bleiben. Wir liefern und montieren alle gängigen Seiten- und Stirnabschlüsse – vom einfachen Festelement bis zur motorisierten Glasschiebetür. Alles passend zum Profil Ihrer Überdachung, maßgefertigt. Zum Aufklappen anklicken:</p>
 
-      <div class="produkt-card">
-        <div class="produkt-card-img" style="font-size:3.5rem;">🪟</div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Seitenschutz</span>
-          <h2>Feststehende Stirn- & Seitenelemente</h2>
-          <p>Der klassische Abschluss – fest montiert, winddicht, in Glas oder Polycarbonat. Schützt vor Wind und Regen von der Seite, ohne die Optik zu beeinträchtigen. Auch mit integrierten Fenstern zum Öffnen erhältlich.</p>
-          <ul class="produkt-features">
+    <div class="faq-list" style="max-width:100%;">
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Feststehende Stirn- & Seitenelemente
+          <span class="faq-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a" style="max-height:0;">
+          <p style="margin-bottom:12px;">Der klassische Abschluss – fest montiert, winddicht, in Glas oder Polycarbonat. Schützt vor Wind und Regen von der Seite, ohne die Optik zu beeinträchtigen. Auch mit integrierten Fenstern zum Öffnen erhältlich.</p>
+          <ul class="produkt-features" style="margin-bottom:16px;">
             <li>Verglasung: Glas oder Polycarbonat</li>
             <li>Mit oder ohne integriertes Fenster</li>
             <li>Passend zu allen Profil-Farben der Überdachung</li>
             <li>Als Stirnseite oder Seitenelement montierbar</li>
             <li>Winddicht, witterungsbeständig</li>
           </ul>
-          <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">Jetzt anfragen →</a>
+          <a href="/#kontakt" class="btn btn-gold" style="display:inline-block;">Jetzt anfragen →</a>
         </div>
       </div>
 
-      <div class="produkt-card">
-        <div class="produkt-card-img" style="font-size:3.5rem;">🚪</div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Zugang & Komfort</span>
-          <h2>Glasschiebetür & Schiebeelemente</h2>
-          <p>Maximale Flexibilität: Die Glasschiebetür lässt sich lautlos zur Seite schieben – für freien Zugang im Sommer und vollständigen Schutz wenn das Wetter umschlägt. Einzeln oder als Mehrfach-Schiebeanlage erhältlich.</p>
-          <ul class="produkt-features">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Glasschiebetür & Schiebeelemente
+          <span class="faq-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a" style="max-height:0;">
+          <p style="margin-bottom:12px;">Maximale Flexibilität: Die Glasschiebetür lässt sich lautlos zur Seite schieben – für freien Zugang im Sommer und vollständigen Schutz wenn das Wetter umschlägt. Einzeln oder als Mehrfach-Schiebeanlage erhältlich.</p>
+          <ul class="produkt-features" style="margin-bottom:16px;">
             <li>Einzel- oder Mehrfach-Schiebeanlage</li>
             <li>Verglasung: ESG-Sicherheitsglas oder VSG</li>
             <li>Leichtgängige Alu-Schiene, wartungsarm</li>
             <li>Passend zu TDS, SkyView und anderen Systemen</li>
             <li>Kompatibel mit allen Profilfarben</li>
           </ul>
-          <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">Jetzt anfragen →</a>
+          <a href="/#kontakt" class="btn btn-gold" style="display:inline-block;">Jetzt anfragen →</a>
         </div>
       </div>
 
-      <div class="produkt-card">
-        <div class="produkt-card-img" style="font-size:3.5rem;">🏛️</div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Design & Funktion</span>
-          <h2>Velaris als Seitenelement</h2>
-          <p>Velaris-Lamellen als verschiebbares Seitenelement – einsteuerbar per Fernbedienung. Steuert Licht, Sichtschutz und Belüftung gleichzeitig. Kann geöffnet, gekippt oder vollständig verschoben werden. Die eleganteste Lösung für den Seitenabschluss.</p>
-          <ul class="produkt-features">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Velaris als Seitenelement
+          <span class="faq-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a" style="max-height:0;">
+          <p style="margin-bottom:12px;">Velaris-Lamellen als verschiebbares Seitenelement – einsteuerbar per Fernbedienung. Steuert Licht, Sichtschutz und Belüftung gleichzeitig. Kann geöffnet, gekippt oder vollständig verschoben werden. Die eleganteste Lösung für den Seitenabschluss.</p>
+          <ul class="produkt-features" style="margin-bottom:16px;">
             <li>Einstellbarer Neigungswinkel der Lamellen</li>
             <li>Verschiebbar: Kaskadensystem platzsparend</li>
             <li>Gleichzeitig Licht-, Sicht- und Windschutz</li>
             <li>Motorisierung auf Wunsch</li>
             <li>Kombinierbar mit Velaris-Dach</li>
           </ul>
-          <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">Jetzt anfragen →</a>
+          <a href="/#kontakt" class="btn btn-gold" style="display:inline-block;">Jetzt anfragen →</a>
         </div>
       </div>
 
-      <div class="produkt-card">
-        <div class="produkt-card-img" style="font-size:3.5rem;">🔑</div>
-        <div class="produkt-card-body">
-          <span class="produkt-tag">Ganzjährige Nutzung</span>
-          <h2>Festelemente mit Tür</h2>
-          <p>Wenn Ihre Terrasse zum echten Außenzimmer werden soll: Festelemente mit eingebauter Tür – mit oder ohne Glas. Schließt die Überdachung vollständig ab und ermöglicht trotzdem einfachen Zugang. Für private Terrassen und gewerbliche Außenbereiche.</p>
-          <ul class="produkt-features">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Festelemente mit Tür
+          <span class="faq-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div class="faq-a" style="max-height:0;">
+          <p style="margin-bottom:12px;">Wenn Ihre Terrasse zum echten Außenzimmer werden soll: Festelemente mit eingebauter Tür – mit oder ohne Glas. Schließt die Überdachung vollständig ab und ermöglicht trotzdem einfachen Zugang. Für private Terrassen und gewerbliche Außenbereiche.</p>
+          <ul class="produkt-features" style="margin-bottom:16px;">
             <li>Tür mit Glas (transparent) oder ohne Glas (Alu-Paneel)</li>
             <li>Einzel- oder Doppelflügeltür möglich</li>
             <li>Profilfarbe passend zur Überdachung</li>
             <li>Für private und gewerbliche Nutzung</li>
             <li>Kombinierbar mit Festelementen und Schiebetüren</li>
           </ul>
-          <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">Jetzt anfragen →</a>
+          <a href="/#kontakt" class="btn btn-gold" style="display:inline-block;">Jetzt anfragen →</a>
         </div>
       </div>
 
@@ -360,6 +393,8 @@
 </footer>
 <script src="../js/main.js" defer></script>
 <script src="../js/cookie.js" defer></script>
+<script src="../js/metricool.js" defer></script>
 <script src="../js/accessibility.js" defer></script>
+<script src="../js/chatbot.js" defer></script>
 </body>
 </html>
