@@ -1,2 +1,5 @@
 .wrangler/
 node_modules/
+
+# Eleventy build tooling
+node_modules/
