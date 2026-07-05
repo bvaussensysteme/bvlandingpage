@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Wind- & Schneelastzonen-Rechner | BV AussenSysteme</title>
-  <meta name="description" content="Kostenloser Windlastzonen-Rechner & Schneelastzonen-Rechner nach PLZ. Ermittelt automatisch die Normzonen nach DIN EN 1991-1-3/-4 für Terrassenüberdachung, Carport und Pergola – für alle Bundesländer." />
+  <meta name="description" content="Kostenloser Wind- &amp; Schneelastzonen-Rechner nach PLZ: Normzone nach DIN EN 1991-1-3/-4 für Terrassenüberdachung, Carport &amp; Pergola – alle Bundesländer." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/windzonen.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/windzonen.html" />
@@ -115,7 +115,7 @@
 
   <style>
   /* Fallback fonts bis Google Fonts geladen */
-  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  :root { --font-heading: 'Barlow Condensed', 'Arial Black', 'Arial', sans-serif; --font-body: 'Inter', 'Arial', sans-serif; }
   body { font-family: 'Arial', sans-serif; }
   </style>
   <script>
@@ -137,8 +137,14 @@
 
   <link rel="stylesheet" href="css/style.css" />
 
+  <!-- Preconnect: Leaflet-CDN wird für die Karte tatsächlich genutzt -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <!-- dns-prefetch: Geocoding-APIs, die bei jeder Adresssuche genutzt werden -->
+  <link rel="dns-prefetch" href="https://photon.komoot.io" />
+  <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
+
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous" />
 
   <style>
     /* ===== PAGE HERO ===== */
@@ -833,7 +839,7 @@
 <script src="js/chatbot.js" defer></script>
 
 <!-- Leaflet CSS+JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 
 <script>
 /* ===================================================
@@ -1284,6 +1290,18 @@ function closeMobile() {
   if (m) m.classList.remove('open');
 }
 </script>
+
+<!-- ===== STICKY CTA ===== -->
+<div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
+  <div class="sticky-btns">
+    <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
+    <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="btn btn-whatsapp">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.526 5.845L.057 23.243a.75.75 0 0 0 .916.916l5.398-1.469A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.696 9.696 0 0 1-4.964-1.366l-.356-.214-3.694 1.004 1.004-3.694-.214-.356A9.696 9.696 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+  <button class="sticky-close" id="stickyClose" aria-label="Banner schließen">✕</button>
+</div>
 
 </body>
 </html>

@@ -17,11 +17,12 @@
         '<span>BV Assistent <small>(Beta)</small></span>' +
         '<button id="bvChatClose" aria-label="Chat schließen">✕</button>' +
       '</div>' +
-      '<div class="bv-chat-messages" id="bvChatMessages">' +
+      '<div class="bv-chat-messages" id="bvChatMessages" role="log" aria-live="polite" aria-label="Chatverlauf">' +
         '<div class="bv-chat-msg bv-chat-msg-bot">Hallo! Ich bin der KI-Assistent von BV AussenSysteme (Beta). Fragen Sie mich zu unseren Produkten, dem Ablauf oder unserem Einzugsgebiet – ich helfe gerne weiter oder verlinke die passende Seite.</div>' +
       '</div>' +
       '<form id="bvChatForm" class="bv-chat-form">' +
-        '<input id="bvChatInput" type="text" maxlength="500" placeholder="Ihre Frage…" autocomplete="off" />' +
+        '<label for="bvChatInput" class="sr-only">Ihre Frage an den BV Assistenten</label>' +
+        '<input id="bvChatInput" type="text" maxlength="500" placeholder="Ihre Frage…" autocomplete="off" aria-label="Ihre Frage an den BV Assistenten" />' +
         '<button type="submit" aria-label="Senden">➤</button>' +
       '</form>'
     );

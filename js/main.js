@@ -24,18 +24,24 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ---- MOBILE MENU ----
+  // Hinweis: body-Klasse "bv-menu-open" blendet Chat-/A11y-/Scroll-Top-Icons
+  // aus (siehe css/style.css), da diese sonst mit z-index > mobile-menu
+  // über dem Vollbild-Menü schweben und noch anklickbar bleiben.
   var mobileMenu = document.getElementById('mobileMenu');
   document.getElementById('hamburgerBtn').addEventListener('click', function () {
     mobileMenu.classList.add('open');
+    document.body.classList.add('bv-menu-open');
     document.body.style.overflow = 'hidden';
   });
   document.getElementById('mobileClose').addEventListener('click', function () {
     mobileMenu.classList.remove('open');
+    document.body.classList.remove('bv-menu-open');
     document.body.style.overflow = '';
   });
   mobileMenu.querySelectorAll('a').forEach(function (a) {
     a.addEventListener('click', function () {
       mobileMenu.classList.remove('open');
+      document.body.classList.remove('bv-menu-open');
       document.body.style.overflow = '';
     });
   });
@@ -43,9 +49,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // ---- STICKY CTA – hide when contact section visible ----
   var stickyCta = document.getElementById('stickyCta');
   var kontaktSection = document.getElementById('kontakt');
-  document.getElementById('stickyClose').addEventListener('click', function () {
-    stickyCta.style.display = 'none';
-  });
+  var stickyClose = document.getElementById('stickyClose');
+  if (stickyClose) {
+    stickyClose.addEventListener('click', function () {
+      stickyCta.style.display = 'none';
+    });
+  }
   window.addEventListener('scroll', function () {
     if (!stickyCta || !kontaktSection) return;
     if (kontaktSection.getBoundingClientRect().top < window.innerHeight) {
@@ -60,6 +69,21 @@ document.addEventListener('DOMContentLoaded', function () {
   // ══════════════════════════════════════════════════════
   var formSubmit = document.getElementById('formSubmit');
   if (formSubmit) {
+    // Kein <form>-Element vorhanden (nur type="button") – daher löst die
+    // Enter-Taste in den Textfeldern bisher kein Absenden aus. Das
+    // erwarten Nutzer aber (v.a. mobil nach dem letzten Feld). Nachbilden:
+    ['vorname', 'nachname', 'email', 'telefon'].forEach(function (id) {
+      var field = document.getElementById(id);
+      if (field) {
+        field.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            formSubmit.click();
+          }
+        });
+      }
+    });
+
     formSubmit.addEventListener('click', function () {
       var vorname   = document.getElementById('vorname').value.trim();
       var nachname  = document.getElementById('nachname').value.trim();
@@ -106,7 +130,16 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function(res) { return res.json(); })
       .then(function(data) {
         if (data.ok) {
-          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vorname + '!</strong> Sie werden weitergeleitet…';
+          // Vorname kommt aus dem eigenen Formularfeld des Nutzers und wird hier
+          // ins DOM zurückgespiegelt – ohne Escaping wäre das eine DOM-XSS-Lücke
+          // (z.B. Name = "<img src=x onerror=...>"). Daher escapen statt roh einsetzen.
+          var vornameEscaped = String(vorname)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vornameEscaped + '!</strong> Sie werden weitergeleitet…';
           msgBox.style.color = '#C49A2A';
           setTimeout(function(){ window.location.href = '/danke.html'; }, 1500);
           formSubmit.textContent = 'Anfrage gesendet ✓';
