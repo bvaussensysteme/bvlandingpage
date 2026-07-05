@@ -106,7 +106,16 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function(res) { return res.json(); })
       .then(function(data) {
         if (data.ok) {
-          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vorname + '!</strong> Sie werden weitergeleitet…';
+          // Vorname kommt aus dem eigenen Formularfeld des Nutzers und wird hier
+          // ins DOM zurückgespiegelt – ohne Escaping wäre das eine DOM-XSS-Lücke
+          // (z.B. Name = "<img src=x onerror=...>"). Daher escapen statt roh einsetzen.
+          var vornameEscaped = String(vorname)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vornameEscaped + '!</strong> Sie werden weitergeleitet…';
           msgBox.style.color = '#C49A2A';
           setTimeout(function(){ window.location.href = '/danke.html'; }, 1500);
           formSubmit.textContent = 'Anfrage gesendet ✓';

@@ -763,11 +763,13 @@ function bgLoadLeaflet(callback) {
   var lcss = document.createElement('link');
   lcss.rel = 'stylesheet';
   lcss.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+  lcss.integrity = 'sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb';
   lcss.crossOrigin = 'anonymous';
   document.head.appendChild(lcss);
   // JS
   var ljs = document.createElement('script');
   ljs.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  ljs.integrity = 'sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO';
   ljs.crossOrigin = 'anonymous';
   ljs.onload = function() { bgLeafletLoaded = true; callback(); };
   ljs.onerror = function() { callback(); }; // Karte überspringen bei Fehler
