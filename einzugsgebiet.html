@@ -131,6 +131,13 @@
       max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
     }
 
+    /* Kartenpopup: eigene Hintergrundfarbe erzwingen, damit der Text
+       auf der Karte immer lesbar ist */
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+      background: #fff !important;
+      color: #333;
+    }
+
     /* CTA unter Karte */
     .gebiet-cta {
       background: var(--black); border-radius: 12px;
@@ -244,7 +251,6 @@
 var orte = [
   { name: 'Dernbach (Westerwald)',      lat: 50.522, lng: 7.764,  hauptort: true,  info: 'Unser Heimatstandort im Westerwaldkreis.' },
   { name: 'Pleckhausen',                lat: 50.600, lng: 7.550,  hauptort: true,  info: 'Im Westerwald.' },
-  { name: 'Mitte Dernbach–Pleckhausen', lat: 50.561, lng: 7.657,  hauptort: true,  info: 'Geografische Mitte zwischen unseren beiden Standort-Orten.' },
   { name: 'Westerwaldkreis (Zentrum)',  lat: 50.570, lng: 7.900,  hauptort: false, info: 'Unser Heimatkreis – wir kennen jeden Winkel.' },
   { name: 'Montabaur',                  lat: 50.434, lng: 7.826,  hauptort: false, info: 'Kreisstadt des Westerwaldkreises.' },
   { name: 'Neuwied',                    lat: 50.428, lng: 7.462,  hauptort: false, info: 'Am Rhein – ca. 30 Min. von uns.' },
