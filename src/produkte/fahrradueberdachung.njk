@@ -1,6 +1,6 @@
 ---
-layout: layout.njk
-permalink: /produkte/fahrradueberdachung.html
+layout: "layout.njk"
+permalink: "/produkte/fahrradueberdachung.html"
 title: "Fahrradüberdachung Aluminium Westerwald | BV AussenSysteme"
 description: "Fahrradüberdachungen aus Aluminium im Westerwald – modular, 2 bis 20+ Räder, Glas oder Polycarbonat. Für Firmen & Privatbedarf. ✓ Montage inklusive."
 canonical: "https://bv-aussensysteme.de/produkte/fahrradueberdachung.html"
@@ -9,74 +9,70 @@ ogTitle: "Fahrradüberdachung Aluminium Westerwald | BV AussenSysteme"
 ogDescription: "Modulare Fahrradüberdachungen aus Aluminium – 2 bis 20+ Räder, Glas oder Polycarbonat."
 ogType: "website"
 extraStyles: |
-      .produkt-hero{background:var(--black);padding:60px 0 50px;border-bottom:3px solid var(--gold);position:relative;}
-      .produkt-hero::after{content:'';position:absolute;bottom:-1px;left:0;width:100%;height:40px;background:var(--white);clip-path:polygon(0 100%,100% 20%,100% 100%);}
-      .breadcrumb{font-size:.82rem;color:rgba(255,255,255,.5);margin-bottom:16px;}
-      .breadcrumb a{color:var(--gold);text-decoration:none;}
-      .produkt-hero h1{color:var(--white);margin-bottom:12px;font-size:clamp(2rem,5vw,3.5rem);}
-      .produkt-hero p{color:rgba(255,255,255,.75);max-width:600px;font-size:1rem;line-height:1.7;}
-      .produkt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px;}
-      .produkt-card{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;}
-      @media (hover: hover) and (pointer: fine) { .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);} }
-      .produkt-card-img{height:220px;background:linear-gradient(135deg,#1a1a1a,#2d2d2d);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;}
-      .produkt-card-img img{width:100%;height:100%;object-fit:cover;}
-      .produkt-card-body{padding:24px;}
-      .produkt-tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);background:rgba(196,154,42,.1);padding:3px 10px;border-radius:100px;margin-bottom:10px;border:1px solid rgba(196,154,42,.25);}
-      .produkt-features{list-style:none;margin-bottom:18px;}
-      .produkt-features li{font-size:.85rem;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
-      .produkt-features li:last-child{border-bottom:none;}
-      .produkt-features li::before{content:"✓";color:var(--gold);font-weight:700;}
-      @media(max-width:700px){.produkt-grid{grid-template-columns:1fr;}}
+  .produkt-hero{background:var(--black);padding:60px 0 50px;border-bottom:3px solid var(--gold);position:relative;}
+  .produkt-hero::after{content:'';position:absolute;bottom:-1px;left:0;width:100%;height:40px;background:var(--white);clip-path:polygon(0 100%,100% 20%,100% 100%);}
+  .breadcrumb{font-size:.82rem;color:rgba(255,255,255,.5);margin-bottom:16px;}
+  .breadcrumb a{color:var(--gold);text-decoration:none;}
+  .produkt-hero h1{color:var(--white);margin-bottom:12px;font-size:clamp(2rem,5vw,3.5rem);}
+  .produkt-hero p{color:rgba(255,255,255,.75);max-width:600px;font-size:1rem;line-height:1.7;}
+  .produkt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;margin-top:48px;}
+  .produkt-card{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;}
+  @media (hover: hover) and (pointer: fine) { .produkt-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--gold);} }
+  .produkt-card-img{height:220px;background:linear-gradient(135deg,#1a1a1a,#2d2d2d);display:flex;align-items:center;justify-content:center;font-size:4rem;overflow:hidden;}
+  .produkt-card-img img{width:100%;height:100%;object-fit:cover;}
+  .produkt-card-body{padding:24px;}
+  .produkt-tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);background:rgba(196,154,42,.1);padding:3px 10px;border-radius:100px;margin-bottom:10px;border:1px solid rgba(196,154,42,.25);}
+  .produkt-features{list-style:none;margin-bottom:18px;}
+  .produkt-features li{font-size:.85rem;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
+  .produkt-features li:last-child{border-bottom:none;}
+  .produkt-features li::before{content:"✓";color:var(--gold);font-weight:700;}
+  @media(max-width:700px){.produkt-grid{grid-template-columns:1fr;}}
 
 schema: |
-  <meta property="og:title" content="Fahrradüberdachung Aluminium Westerwald | BV AussenSysteme" />
-    <meta property="og:description" content="Modulare Fahrradüberdachungen aus Aluminium – 2 bis 20+ Räder, Glas oder Polycarbonat." />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="de_DE" />
-      <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
-    <script type="application/ld+json">
+  <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
+  <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Startseite",
-        "item": "https://bv-aussensysteme.de/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Produkte",
-        "item": "https://bv-aussensysteme.de/#leistungen"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": "Fahrradüberdachung Aluminium Westerwald",
-        "item": "https://bv-aussensysteme.de/produkte/fahrradueberdachung.html"
-      }
-    ]
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+  {
+  "@type": "ListItem",
+  "position": 1,
+  "name": "Startseite",
+  "item": "https://bv-aussensysteme.de/"
+  },
+  {
+  "@type": "ListItem",
+  "position": 2,
+  "name": "Produkte",
+  "item": "https://bv-aussensysteme.de/#leistungen"
+  },
+  {
+  "@type": "ListItem",
+  "position": 3,
+  "name": "Fahrradüberdachung Aluminium Westerwald",
+  "item": "https://bv-aussensysteme.de/produkte/fahrradueberdachung.html"
   }
-    </script>
+  ]
+  }
+  </script>
 
   <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Fahrradüberdachung Aluminium",
-      "description": "Modulare Fahrradüberdachungen für 2 bis 20+ Räder – Glas oder Polycarbonat, maßgefertigt.",
-      "category": "Fahrradüberdachung",
-      "brand": {"@type":"Brand","name":"VD AluSysteme"},
-      "offers": {
-        "@type": "Offer",
-        "priceCurrency": "EUR",
-        "priceSpecification": {"@type":"PriceSpecification","description":"Preis auf Anfrage"},
-        "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://bv-aussensysteme.de"}
-      }
-    }
-    </script>
+  {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Fahrradüberdachung Aluminium",
+  "description": "Modulare Fahrradüberdachungen für 2 bis 20+ Räder – Glas oder Polycarbonat, maßgefertigt.",
+  "category": "Fahrradüberdachung",
+  "brand": {"@type":"Brand","name":"VD AluSysteme"},
+  "offers": {
+  "@type": "Offer",
+  "priceCurrency": "EUR",
+  "priceSpecification": {"@type":"PriceSpecification","description":"Preis auf Anfrage"},
+  "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://bv-aussensysteme.de"}
+  }
+  }
+  </script>
 ---
 <header class="produkt-hero">
   <div class="container">
