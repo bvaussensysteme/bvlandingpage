@@ -131,12 +131,18 @@
       max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
     }
 
-    /* Kartenpopup: eigene Hintergrundfarbe erzwingen, damit der Text
-       auf der Karte immer lesbar ist */
-    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-      background: #fff !important;
-      color: #333;
+    /* Kartenpopup: Hintergrund kommt jetzt direkt vom Inhalt (inline
+       style in bindPopup), da sich Leaflets eigener Wrapper-Hintergrund
+       auf manchen Geräten nicht zuverlässig zeigte. Wrapper hier nur
+       noch transparent/ohne eigenen Schatten, damit kein doppelter
+       Kasten entsteht. */
+    .bv-popup .leaflet-popup-content-wrapper {
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
     }
+    .bv-popup .leaflet-popup-content { margin: 0; }
+    .bv-popup .leaflet-popup-tip { background: #fff; }
 
     /* CTA unter Karte */
     .gebiet-cta {
@@ -306,13 +312,13 @@ orte.forEach(function(ort, idx) {
   var marker = L.marker([ort.lat, ort.lng], ort.fern ? { icon: fernIcon } : {})
     .addTo(map)
     .bindPopup(
-      '<div style="font-family:Inter,sans-serif;min-width:160px;">' +
+      '<div style="font-family:Inter,sans-serif;min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
         '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
         '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
         (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +
         '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
       '</div>',
-      { maxWidth: 220 }
+      { maxWidth: 220, className: 'bv-popup' }
     );
   markers.push(marker);
 });
