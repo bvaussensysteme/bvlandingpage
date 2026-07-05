@@ -543,20 +543,45 @@ body.bv-menu-open #bv-scroll-top {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 56px; margin-top: 44px;
 }
-.kontakt-info { display: flex; flex-direction: column; gap: 18px; }
+.kontakt-info { display: flex; flex-direction: column; gap: 16px; }
 .kontakt-card {
-  background: var(--white); border-radius: 10px; padding: 20px 22px;
-  box-shadow: var(--shadow); display: flex; gap: 14px;
-  align-items: flex-start; border-left: 3px solid var(--gold);
+  background: var(--white); border-radius: 14px; padding: 20px 22px;
+  box-shadow: var(--shadow); display: flex; gap: 16px;
+  align-items: flex-start; border: 1px solid var(--border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.kontakt-card-icon { font-size: 1.6rem; flex-shrink: 0; }
+@media (hover: hover) and (pointer: fine) {
+  .kontakt-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+}
+.kontakt-card--whatsapp { background: rgba(37,211,102,0.05); border-color: rgba(37,211,102,0.3); }
+.kontakt-card-icon {
+  width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color: var(--white);
+}
+.kontakt-card-icon svg {
+  width: 22px; height: 22px; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.kontakt-card-icon--gold { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); }
+.kontakt-card-icon--whatsapp { background: #25D366; }
+.kontakt-card-icon--whatsapp svg { stroke: none; }
 .kontakt-card strong {
   display: block; font-family: 'Barlow Condensed', sans-serif;
   font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 3px;
 }
-.kontakt-card a { color: var(--gold-dark); text-decoration: none; font-weight: 500; }
+.kontakt-card a { color: var(--gold-dark); text-decoration: none; font-weight: 600; }
 .kontakt-card a:hover { color: var(--gold); }
-.kontakt-card p { color: var(--muted); font-size: 0.87rem; }
+.kontakt-card p { color: var(--muted); font-size: 0.87rem; margin: 0; }
+.kontakt-card-meta { font-size: 0.8rem !important; margin-top: 3px !important; }
+.kontakt-card-note { font-size: 0.75rem !important; margin-top: 6px !important; line-height: 1.4; }
+.kontakt-whatsapp-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #25D366; color: #fff !important; font-weight: 700 !important;
+  padding: 9px 18px; border-radius: 100px; margin-top: 10px;
+  font-size: 0.85rem; transition: background 0.2s ease, transform 0.2s ease;
+}
+.kontakt-whatsapp-btn svg { width: 15px; height: 15px; fill: currentColor; }
+.kontakt-whatsapp-btn:hover { background: #1ebe5b; color: #fff !important; transform: translateY(-1px); }
 
 .kontakt-form {
   background: var(--black); border-radius: 10px; padding: 34px;
@@ -1514,8 +1539,9 @@ footer h4 {
 
 /* Kontakt: mobile */
 @media (max-width: 600px) {
-  .kontakt-card { padding: 14px 16px; }
-  .kontakt-card-icon { font-size: 1.3rem; }
+  .kontakt-card { padding: 16px 18px; }
+  .kontakt-card-icon { width: 40px; height: 40px; }
+  .kontakt-card-icon svg { width: 19px; height: 19px; }
   h2 { font-size: clamp(1.6rem, 5vw, 2.4rem); }
 }
 
