@@ -332,6 +332,32 @@ h3 { font-size: 1.4rem; color: var(--black); }
   color: var(--gold-light); padding: 6px 14px;
   border-radius: 100px; font-size: 0.83rem;
 }
+.region-tag--link { cursor: pointer; }
+.region-tag--link:hover, .region-tag--link:focus-visible { background: rgba(196,154,42,0.24); }
+#regionInfoTip {
+  display: none; position: fixed; z-index: 1000;
+  background: #fff; color: #222;
+  font-family: 'Inter', sans-serif; font-size: 0.85rem;
+  line-height: 1.6; padding: 16px 18px; border-radius: 10px;
+  max-width: 260px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+}
+#regionInfoTip .rit-title {
+  display: block; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.15rem; font-weight: 700; color: var(--black); margin-bottom: 8px;
+}
+#regionInfoTip .rit-zone { color: var(--muted); font-size: 0.82rem; margin-bottom: 8px; }
+#regionInfoTip .rit-zone strong { color: var(--black); }
+#regionInfoTip .rit-bau { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
+#regionInfoTip .rit-links a {
+  color: var(--gold-dark); font-weight: 600; font-size: 0.82rem;
+  text-decoration: none; display: inline-block; margin-right: 14px;
+}
+#regionInfoTip .rit-links a:hover { text-decoration: underline; }
+#regionInfoTip .rit-close {
+  position: absolute; top: 8px; right: 10px; background: none; border: none;
+  color: var(--muted); font-size: 1rem; cursor: pointer; line-height: 1;
+}
 
 /* ============================================
    WARUM WIR
