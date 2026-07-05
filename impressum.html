@@ -78,17 +78,31 @@
 </head>
 <body>
 
-<nav class="navbar" role="navigation" aria-label="Navigation">
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+      <img src="/images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
-      <li><a href="/">← Zurück zur Startseite</a></li>
-      <li><a href="#kontakt" style="display:none"></a></li>
+      <li><a href="/#leistungen">Leistungen</a></li>
+      <li><a href="/#galerie">Galerie</a></li>
+      <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+      <li><a href="/#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
+  <a href="/">Startseite</a>
+  <a href="/#leistungen">Leistungen</a>
+  <a href="/konfigurator.html">🛠 Konfigurator</a>
+  <a href="/#kontakt" class="mobile-cta">Jetzt anfragen</a>
+</div>
 
 <main>
 <section class="section">
@@ -274,6 +288,7 @@
   </div>
 </footer>
 
+<script src="/js/main.js" defer></script>
 <script src="js/accessibility.js"></script>
 <script src="js/cookie.js"></script>
 <script src="js/chatbot.js" defer></script>
