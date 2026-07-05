@@ -12,7 +12,7 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Partner | BV AussenSysteme – VD AluSysteme &amp;amp; Hersteller</title>
+  <title>Partner | BV AussenSysteme – VD AluSysteme &amp; Hersteller</title>
   <link rel="canonical" href="https://bv-aussensysteme.de/partner.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/partner.html" />
   <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/partner.html" />
@@ -48,6 +48,118 @@
 })();
 </script>
   <link rel="stylesheet" href="/css/style.css" />
+
+  <style>
+.partner-page { max-width: 860px; margin: 0 auto; }
+.partner-page h2 { margin-bottom: 12px; }
+.partner-page .page-intro {
+  color: var(--muted); font-size: 1rem; line-height: 1.7;
+  margin-bottom: 48px; max-width: 600px;
+}
+.partner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+.partner-card {
+  background: var(--white);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.partner-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.partner-logo-wrap {
+  background: var(--offwhite);
+  border-radius: 10px;
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.partner-logo-img {
+  max-width: 220px;
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.partner-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.partner-icon {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+.partner-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--black);
+  line-height: 1.2;
+}
+.partner-category {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gold-dark);
+  margin-top: 2px;
+}
+.partner-divider {
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+  border-radius: 1px;
+  opacity: 0.4;
+}
+.partner-description {
+  font-size: 0.91rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.partner-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gold-dark);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+  margin-top: auto;
+}
+.partner-link:hover { color: var(--gold); }
+.partner-link svg {
+  width: 14px; height: 14px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+@media (max-width: 600px) {
+  .partner-grid { grid-template-columns: 1fr; }
+  .partner-card { padding: 24px 20px; }
+}
+
+  </style>
+
+
+<meta property="og:title" content="VD AluSysteme – Unser Hersteller-Partner | BV AussenSysteme" />
+  <meta property="og:description" content="BV AussenSysteme ist Partner von VD AluSysteme Dietrich GmbH – Qualitätshersteller für Aluminium-Außensysteme." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="de_DE" />
 
 
 
@@ -233,9 +345,6 @@
 <script src="/js/metricool.js" defer></script>
 <script src="/js/accessibility.js" defer></script>
 <script src="/js/chatbot.js" defer></script>
-
-<!-- ===== STICKY CTA ===== -->
-
 
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">

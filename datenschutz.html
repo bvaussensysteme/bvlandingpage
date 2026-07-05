@@ -49,6 +49,43 @@
 </script>
   <link rel="stylesheet" href="/css/style.css" />
 
+  <style>
+.legal-page { max-width: 720px; margin: 0 auto; }
+.legal-page h2 { margin-bottom: 32px; }
+.legal-block {
+  background: var(--white); border-radius: 10px;
+  border-left: 3px solid var(--gold);
+  padding: 24px 28px; margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.legal-block h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--gold); margin-bottom: 10px;
+}
+.legal-block p, .legal-block ul {
+  font-size: 0.92rem; color: var(--muted); line-height: 1.8;
+}
+.legal-block ul { padding-left: 20px; margin-top: 6px; }
+.legal-block li { margin-bottom: 4px; }
+.legal-block a { color: var(--gold-dark); text-decoration: none; }
+.legal-block a:hover { color: var(--gold); }
+.legal-block strong { color: var(--black); }
+.toc {
+  background: var(--offwhite); border-radius: 10px;
+  padding: 20px 24px; margin-bottom: 28px;
+  border: 1px solid var(--border);
+}
+.toc h3 { font-family: 'Barlow Condensed',sans-serif; font-size:0.9rem; font-weight:700; color:var(--gold); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.toc ol { padding-left:20px; }
+.toc li { font-size:0.88rem; margin-bottom:4px; }
+.toc a { color:var(--muted); text-decoration:none; }
+.toc a:hover { color:var(--gold); }
+.last-updated { font-size:0.8rem; color:var(--muted); margin-bottom:28px; }
+
+  </style>
+
 
 
 
@@ -589,9 +626,6 @@
 <script src="/js/metricool.js" defer></script>
 <script src="/js/accessibility.js" defer></script>
 <script src="/js/chatbot.js" defer></script>
-
-<!-- ===== STICKY CTA ===== -->
-
 
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
