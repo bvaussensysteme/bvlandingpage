@@ -12,6 +12,16 @@
   var progressStart = null;
   var progressRaf = null;
 
+  function loadDeferredBackgrounds() {
+    slides.forEach(function (slide) {
+      var bgEl = slide.querySelector('.hs-slide-bg');
+      if (bgEl && bgEl.dataset.bg) {
+        bgEl.style.backgroundImage = "url('" + bgEl.dataset.bg + "')";
+        delete bgEl.dataset.bg;
+      }
+    });
+  }
+
   function animationsPaused() {
     // Nur durch a11y-Widget stoppen, NICHT durch prefers-reduced-motion
     // (sonst stoppt der Slider bei vielen Windows-PCs automatisch)
@@ -143,6 +153,14 @@
 
     goTo(0);
     resetTimer();
+
+    // restliche Slide-Hintergründe erst laden, wenn der Browser Zeit hat,
+    // statt sie beim ersten Seitenaufruf sofort mit dem LCP-Bild zu konkurrieren
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadDeferredBackgrounds, { timeout: 3000 });
+    } else {
+      setTimeout(loadDeferredBackgrounds, 2000);
+    }
   }
 
   if (document.readyState === 'loading') {
