@@ -1,0 +1,1247 @@
+---
+layout: layout.njk
+permalink: /baugenehmigung.html
+title: "Baugenehmigung Terrassenüberdachung & Carport prüfen – kostenlos | BV AussenSysteme Westerwald"
+description: "Kostenlos prüfen: Braucht meine Terrassenüberdachung oder mein Carport eine Baugenehmigung? PLZ eingeben – alle 16 Bundesländer, Westerwald & Rheinland-Pfalz."
+canonical: "https://bv-aussensysteme.de/baugenehmigung.html"
+robots: "index, follow"
+bodyId: "bv-page-wrapper"
+extendedNav: true
+ogTitle: "Baugenehmigung Terrassenüberdachung & Carport prüfen"
+ogDescription: "PLZ eingeben und sofort prüfen ob Terrassenüberdachung, Carport oder Pergola eine Baugenehmigung braucht. Kostenloser Online-Tool für alle 16 Bundesländer."
+ogType: "website"
+extraStyles: |
+  /* ── PAGE HERO ── */
+  .bg-hero {
+    background: var(--black);
+    padding: 60px 0 50px;
+    border-bottom: 3px solid var(--gold);
+    position: relative;
+  }
+  .bg-hero::after {
+    content: '';
+    position: absolute; bottom: -1px; left: 0; width: 100%; height: 36px;
+    background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+  }
+  .bg-hero .breadcrumb { font-size: .82rem; color: rgba(255,255,255,.5); margin-bottom: 14px; }
+  .bg-hero .breadcrumb a { color: var(--gold); text-decoration: none; }
+  .bg-hero h1 { color: var(--white); margin-bottom: 12px; }
+  .bg-hero .hero-sub { color: rgba(255,255,255,.75); max-width: 620px; line-height: 1.7; }
+
+  /* ── PRODUCT CHIPS ── */
+  .bg-product-select { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:20px 32px 18px; box-shadow:var(--shadow); margin-bottom:16px; }
+  .bg-product-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .bg-chip {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:7px 14px; border-radius:20px; font-size:.85rem; font-weight:500;
+    border:2px solid var(--border); background:var(--white); color:var(--black);
+    cursor:pointer; transition:all .18s ease; user-select:none;
+  }
+  .bg-chip:hover { border-color:var(--gold); background:#FEFBF0; color:var(--black); }
+  .bg-chip.selected {
+    background:var(--gold); border-color:var(--gold); color:var(--white);
+    box-shadow:0 2px 8px rgba(196,154,42,.35);
+  }
+  .bg-chip.selected:hover { background:#b8891f; border-color:#b8891f; }
+
+  /* ── SEARCH ── */
+  .bg-search-box {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 32px; box-shadow: var(--shadow); margin-bottom: 28px;
+  }
+  .bg-search-label { display: block; font-size: .85rem; font-weight: 600; color: var(--black); margin-bottom: 8px; }
+  .bg-input-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+  .bg-input-wrap { flex: 1; min-width: 220px; position: relative; }
+  .bg-input {
+    width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 1rem; font-family: inherit;
+    color: var(--black); background: var(--white); box-sizing: border-box;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .bg-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,154,42,.15); }
+  .bg-input.error { border-color: #dc3545; }
+  .bg-btn {
+    white-space: nowrap; padding: 13px 28px;
+    background: var(--gold); color: var(--black);
+    border: none; border-radius: var(--radius);
+    font-size: 1rem; font-weight: 700; font-family: 'Barlow Condensed', sans-serif;
+    cursor: pointer; letter-spacing: .3px;
+    transition: background .2s, color .2s, transform .15s;
+  }
+  .bg-btn:hover { background: var(--gold-dark); color: var(--white); }
+  .bg-btn:active { transform: scale(.97); }
+  .bg-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+  /* ── AUTOCOMPLETE ── */
+  .bg-suggestions {
+    display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--white); border: 1.5px solid var(--gold);
+    border-radius: var(--radius); box-shadow: var(--shadow-lg);
+    z-index: 200; list-style: none; margin: 0; padding: 4px 0;
+    max-height: 240px; overflow-y: auto;
+  }
+  .bg-suggestions.open { display: block; }
+  .bg-sug-item {
+    padding: 10px 16px; cursor: pointer; font-size: .88rem; color: var(--black);
+    display: flex; gap: 8px; align-items: baseline;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    transition: background .1s;
+  }
+  .bg-sug-item:last-child { border-bottom: none; }
+  .bg-sug-item:hover, .bg-sug-item.active { background: rgba(196,154,42,.10); }
+  .bg-sug-item .s-plz { font-weight: 700; color: var(--gold-dark); flex-shrink: 0; font-size: .82rem; }
+  .bg-sug-item .s-name { font-weight: 600; }
+  .bg-sug-item .s-state { color: var(--muted); font-size: .78rem; margin-left: auto; }
+  @media(max-width:500px){ .bg-sug-item .s-state { display: none; } }
+
+  /* ── ERROR / LOADER ── */
+  .bg-error {
+    display: none; margin-top: 12px;
+    background: #fff3f3; border: 1px solid #f5c6cb;
+    border-radius: var(--radius); padding: 12px 16px; color: #842029; font-size: .9rem;
+  }
+  .bg-error.visible { display: block; }
+  .bg-loader { display: none; text-align: center; padding: 36px 0; }
+  .bg-loader.visible { display: block; }
+  .bg-spinner {
+    width: 40px; height: 40px; margin: 0 auto 12px;
+    border: 4px solid rgba(196,154,42,.2); border-top-color: var(--gold);
+    border-radius: 50%; animation: bgspin .8s linear infinite;
+  }
+  @keyframes bgspin { to { transform: rotate(360deg); } }
+  .bg-loader p { color: var(--muted); font-size: .9rem; }
+
+  /* ── MAP ── */
+  .bg-map-wrap {
+    display: none; border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 24px;
+  }
+  .bg-map-wrap.visible { display: block; }
+  #bg-map { height: 300px; width: 100%; }
+  @media(max-width:600px){ #bg-map { height: 200px; } }
+
+  /* ── RESULTS ── */
+  .bg-results { display: none; }
+  .bg-results.visible { display: block; }
+
+  /* Standort-Header */
+  .bg-location-header {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--black); border-radius: 12px;
+    padding: 22px 26px; margin-bottom: 20px; color: var(--white);
+    border-left: 4px solid var(--gold);
+  }
+  .bg-location-header .lh-icon { font-size: 2rem; flex-shrink: 0; margin-top: 2px; }
+  .bg-location-header .lh-label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+  .bg-location-header .lh-val { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 800; }
+  .bg-location-header .lh-sub { font-size: .82rem; color: rgba(255,255,255,.6); margin-top: 2px; }
+
+  /* Bauamt-Card */
+  .bg-bauamt-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px; margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .bg-bauamt-card h3 { font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .bg-bauamt-card h3 svg { flex-shrink: 0; }
+  .bg-contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .bg-contact-item { display: flex; flex-direction: column; }
+  .bg-contact-item .ci-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .bg-contact-item .ci-val { font-size: .9rem; font-weight: 500; color: var(--black); overflow-wrap: break-word; word-break: break-word; }
+  .bg-contact-item .ci-val a { color: var(--gold-dark); text-decoration: none; }
+  .bg-contact-item .ci-val a:hover { text-decoration: underline; }
+
+  .bg-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .bg-btn-outline {
+    padding: 9px 18px; border: 2px solid var(--gold); border-radius: var(--radius);
+    background: transparent; color: var(--black); font-family: 'Barlow Condensed', sans-serif;
+    font-size: .9rem; font-weight: 700; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background .2s, color .2s;
+  }
+  .bg-btn-outline:hover { background: var(--gold); color: var(--black); }
+
+  /* Genehmigungskarten */
+  .bg-produkte-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px; margin-bottom: 20px;
+  }
+  .bg-produkt-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .bg-produkt-card .pc-top { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 10px; }
+  .bg-produkt-card .pc-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 800; flex: 1; }
+  .bg-status-badge {
+    font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 100px; white-space: normal; flex-shrink: 0; display: inline-block;
+  }
+  .badge-green  { background: rgba(34,139,34,.12); color: #1a6e1a; border: 1px solid rgba(34,139,34,.2); }
+  .badge-yellow { background: rgba(230,160,0,.12); color: #8a5e00; border: 1px solid rgba(230,160,0,.25); }
+  .badge-red    { background: rgba(200,30,30,.10); color: #8a0000; border: 1px solid rgba(200,30,30,.2); }
+  .bg-produkt-card .pc-bedingung { font-size: .83rem; color: var(--black); margin-bottom: 6px; font-weight: 500; }
+  .bg-produkt-card .pc-hinweis { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
+  .bg-produkt-card .pc-abstand { font-size: .78rem; color: #5a6a3a; background: rgba(100,140,50,.08); padding: 5px 9px; border-radius: 4px; }
+  .bg-produkt-card .pc-abstand::before { content: "📐 "; }
+
+  /* LBO-Quelle */
+  .bg-source { font-size: .78rem; color: var(--muted); margin-bottom: 20px; padding: 10px 14px; background: var(--offwhite); border-radius: 6px; }
+  .bg-source a { color: var(--gold-dark); }
+
+
+  /* Disclaimer */
+  .bg-disclaimer {
+    background: #fafaf8; border: 1px solid #e0ddd5;
+    border-radius: 8px; padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 20px;
+  }
+  .bg-disclaimer p { font-size: .8rem; color: #666; line-height: 1.6; margin: 0; }
+
+  /* CTA */
+  .bg-cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* Info-Karten */
+  .bg-info-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+  @media(max-width:720px){ .bg-info-grid { grid-template-columns: 1fr; } }
+  .bg-info-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 22px; box-shadow: var(--shadow);
+  }
+  .bg-info-card .ic-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .bg-info-card h3 { font-size: 1.02rem; margin-bottom: 8px; }
+  .bg-info-card p { font-size: .84rem; color: var(--muted); line-height: 1.6; }
+extraHead: |
+  <link rel="dns-prefetch" href="https://photon.komoot.io" />
+  <link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
+schema: |
+  <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Startseite",
+        "item": "https://bv-aussensysteme.de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Baugenehmigung Terrassenüberdachung & Carport prüfen – kostenlos",
+        "item": "https://bv-aussensysteme.de/baugenehmigung.html"
+      }
+    ]
+  }
+    </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Brauche ich eine Baugenehmigung für meine Terrassenüberdachung in Rheinland-Pfalz?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In Rheinland-Pfalz ist eine Terrassenüberdachung bis 50 m² Grundfläche und bis 4,50 m Wandhöhe genehmigungsfrei (LBO RLP §62 Abs. 1 Nr. 1), sofern sie eingeschossig ist und an ein bestehendes Wohngebäude angebaut wird. Im Außenbereich (§35 BauGB) ist immer eine Genehmigung erforderlich."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ist ein Carport in Rheinland-Pfalz genehmigungspflichtig?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ein Carport bis 50 m² Grundfläche ist in Rheinland-Pfalz genehmigungsfrei (LBO RLP §62). Grenzgaragen sind bis 9 m Länge und 3 m Wandhöhe zulässig. Der Stellplatznachweis ist gesondert zu prüfen."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Brauche ich eine Baugenehmigung für einen Kaltwintergarten?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ein unbeheizter Kaltwintergarten bis 50 m² ist in vielen Bundesländern genehmigungsfrei, sobald er beheizt wird, entsteht Genehmigungspflicht. Die genaue Regelung hängt vom Bundesland ab."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Welchen Abstand muss ich zur Nachbargrenze einhalten?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In den meisten Bundesländern gilt ein Mindestabstand von 3 m zur Grundstücksgrenze. Grenzbau ist oft bis 9 m Länge möglich, erfordert aber besondere Voraussetzungen. Abstandsflächen sind auch bei genehmigungsfreien Vorhaben einzuhalten."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ist eine Pergola oder ein Lamellendach genehmigungspflichtig?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Offene Pergolen ohne festes Dach sind in den meisten Bundesländern genehmigungsfrei. Lamellendächer mit geschlossenen Platten (Glas/Polycarbonat) werden wie Terrassenüberdachungen behandelt und sind bis zur jeweiligen Landesgrenze genehmigungsfrei."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Was gilt im Außenbereich nach §35 BauGB?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Im Außenbereich sind fast alle baulichen Anlagen genehmigungspflichtig – unabhängig von Größe und Bundesland. Klären Sie vor jeder Planung, ob Ihr Grundstück im Innen- oder Außenbereich liegt."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Baugenehmigung-Checker für Terrassenüberdachungen & Carports",
+    "url": "https://bv-aussensysteme.de/baugenehmigung.html",
+    "description": "Kostenfreies Tool zur Prüfung der Genehmigungspflicht für Terrassenüberdachungen, Carports und Kaltwintergärten in Deutschland.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
+    "provider": {"@type": "LocalBusiness", "name": "BV AussenSysteme", "url": "https://bv-aussensysteme.de"},
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://bv-aussensysteme.de/baugenehmigung.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+extraScripts: |
+  <!-- LBO-Datenbasis -->
+  <script src="/js/baugenehmigung-data.js"></script>
+
+  <script>
+  /* ================================================================
+     BV AussenSysteme – Baugenehmigung-Checker
+     Version 1.0 | 2026-06-24
+     Geocoding: Photon (komoot.io) + Nominatim (OpenStreetMap)
+     LBO-Daten: js/baugenehmigung-data.js (alle 16 Bundesländer)
+     KI-Anreicherung: Claude API (optional, konfigurierbar)
+     DSGVO: Keine personenbezogenen Daten gespeichert
+  ================================================================ */
+
+  // Konfiguration
+  var BG_CONFIG = { lang: 'de' };
+
+  // ── STATE ─────────────────────────────────────────────────────
+  var bgMap = null, bgMarker = null;
+  var bgAcTimer = null, bgAcIndex = -1, bgAcItems = [];
+
+  // ── AUTOCOMPLETE ──────────────────────────────────────────────
+  function bgAcGetList()  { return document.getElementById('bg-suggestions'); }
+  function bgAcGetInput() { return document.getElementById('bg-address-input'); }
+
+  function bgAcRender(features) {
+    var list = bgAcGetList(); var inp = bgAcGetInput();
+    list.innerHTML = ''; bgAcItems = features || []; bgAcIndex = -1;
+    if (!bgAcItems.length) { list.classList.remove('open'); inp.setAttribute('aria-expanded','false'); return; }
+
+    bgAcItems.slice(0,7).forEach(function(f, idx) {
+      var p = f.properties || {};
+      var plz  = p.postcode || '';
+      var name = p.name || p.city || p.town || p.village || '';
+      var city = (name !== p.city && p.city) ? p.city : '';
+      var state = p.state || '';
+      if (!plz && !name) return;
+
+      var li = document.createElement('li');
+      li.className = 'bg-sug-item'; li.setAttribute('role','option');
+      if (plz) { var sp = document.createElement('span'); sp.className='s-plz'; sp.textContent=plz; li.appendChild(sp); }
+      var sn = document.createElement('span'); sn.className='s-name';
+      sn.textContent = name + (city && city!==name ? ' ('+city+')' : '');
+      li.appendChild(sn);
+      if (state) { var ss = document.createElement('span'); ss.className='s-state'; ss.textContent=state; li.appendChild(ss); }
+
+      li.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        bgAcGetInput().value = (plz && name) ? plz+' '+name : plz||name;
+        bgAcClose(); bgSearch();
+      });
+      list.appendChild(li);
+    });
+    list.classList.add('open'); inp.setAttribute('aria-expanded','true');
+  }
+
+  function bgAcSetActive(idx) {
+    var items = bgAcGetList().querySelectorAll('.bg-sug-item');
+    items.forEach(function(el){el.classList.remove('active');}); bgAcIndex=idx;
+    if (idx>=0&&idx<items.length) { items[idx].classList.add('active'); items[idx].scrollIntoView({block:'nearest'}); }
+  }
+  function bgAcClose() { bgAcGetList().classList.remove('open'); bgAcGetInput().setAttribute('aria-expanded','false'); bgAcIndex=-1; }
+
+  function bgAcFetch(q) {
+    if (q.length<2) { bgAcClose(); return; }
+    var url = 'https://photon.komoot.io/api/?q='+encodeURIComponent(q)+'&lang=de&limit=7&bbox=5.866,47.270,15.042,55.058';
+    fetch(url, {headers:{'Accept':'application/json'}})
+      .then(function(r){return r.ok?r.json():null;})
+      .then(function(d){
+        if(!d||!d.features) return;
+        var de = d.features.filter(function(f){
+          var p=f.properties||{}; var cc=(p.countrycode||p.country_code||'').toLowerCase();
+          return cc==='de'||(p.country||'').toLowerCase()==='deutschland';
+        });
+        bgAcRender(de.length?de:d.features);
+      }).catch(function(){});
+  }
+
+  // ── KARTE ─────────────────────────────────────────────────────
+  // ── LEAFLET LAZY-LOADER ──────────────────────────────────────
+  var bgLeafletLoaded = false;
+  function bgLoadLeaflet(callback) {
+    if (bgLeafletLoaded && window.L) { callback(); return; }
+    // CSS
+    var lcss = document.createElement('link');
+    lcss.rel = 'stylesheet';
+    lcss.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+    lcss.integrity = 'sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb';
+    lcss.crossOrigin = 'anonymous';
+    document.head.appendChild(lcss);
+    // JS
+    var ljs = document.createElement('script');
+    ljs.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    ljs.integrity = 'sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO';
+    ljs.crossOrigin = 'anonymous';
+    ljs.onload = function() { bgLeafletLoaded = true; callback(); };
+    ljs.onerror = function() { callback(); }; // Karte überspringen bei Fehler
+    document.head.appendChild(ljs);
+  }
+
+  function bgInitMap(lat, lng) {
+    if (!bgMap) {
+      bgMap = L.map('bg-map',{scrollWheelZoom:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
+        maxZoom:18
+      }).addTo(bgMap);
+    }
+    if (bgMarker) bgMarker.remove();
+    bgMarker = L.marker([lat,lng]).addTo(bgMap);
+    bgMap.setView([lat,lng],13);
+    setTimeout(function(){bgMap.invalidateSize();},100);
+  }
+
+  // ── BAUAMT-LOOKUP ─────────────────────────────────────────────
+  function bgGetBauamt(county, state, city) {
+    // Bekannte Bauämter im Einzugsgebiet BV AussenSysteme
+    var known = {
+      "Westerwaldkreis": {
+        name: "Bauaufsichtsbehörde Westerwaldkreis",
+        adresse: "Montabaurer Straße 11–13, 56410 Montabaur",
+        telefon: "02602 124-0",
+        email: "info@westerwaldkreis.de",
+        web: "https://www.westerwaldkreis.de",
+        antrag: "https://www.westerwaldkreis.de/buergerservice/bauen"
+      },
+      "Neuwied": {
+        name: "Bauaufsichtsbehörde Landkreis Neuwied",
+        adresse: "Augustastraße 14–16, 56564 Neuwied",
+        telefon: "02631 803-0",
+        email: "info@kreis-neuwied.de",
+        web: "https://www.kreis-neuwied.de",
+        antrag: "https://www.kreis-neuwied.de/buergerservice/bauen"
+      },
+      "Altenkirchen (Westerwald)": {
+        name: "Bauaufsichtsbehörde Landkreis Altenkirchen",
+        adresse: "Parkstraße 1, 57610 Altenkirchen",
+        telefon: "02681 81-0",
+        email: "post@altenkirchen.de",
+        web: "https://www.kreis-altenkirchen.de",
+        antrag: "https://www.kreis-altenkirchen.de/service/bauen"
+      },
+      "Mayen-Koblenz": {
+        name: "Untere Bauaufsichtsbehörde Mayen-Koblenz",
+        adresse: "Bahnhofstraße 9, 56068 Koblenz",
+        telefon: "0261 108-0",
+        email: "poststelle@kreis-mayen-koblenz.de",
+        web: "https://www.kreis-mayen-koblenz.de",
+        antrag: "https://www.kreis-mayen-koblenz.de/buergerservice"
+      },
+      "Rhein-Lahn-Kreis": {
+        name: "Bauaufsichtsbehörde Rhein-Lahn-Kreis",
+        adresse: "Insel Silberau 1, 56130 Bad Ems",
+        telefon: "02603 972-270",
+        email: "info@rhein-lahn-kreis.de",
+        web: "https://www.rhein-lahn-kreis.de",
+        antrag: "https://www.rhein-lahn-kreis.de/buergerservice-uebersichten/leistungen/RLP:entry:255726/bauaufsicht/"
+      },
+      "Landkreis Limburg-Weilburg": {
+        name: "Fachdienst Bauen und Naturschutz – Landkreis Limburg-Weilburg",
+        adresse: "Schiede 43, 65549 Limburg a. d. Lahn",
+        telefon: "06431 296-494",
+        email: "30.70@limburg-weilburg.de",
+        web: "https://www.landkreis-limburg-weilburg.de",
+        antrag: "https://buergerservice.landkreis-limburg-weilburg.de/buergerservice-2/abteilungen/HES:department:4291/fachdienst-bauen-und-naturschutz/"
+      },
+      // Weitere Landkreise im 60–70km-Umkreis um den Westerwaldkreis
+      "Rhein-Sieg-Kreis": {
+        name: "Bauaufsichtsamt Rhein-Sieg-Kreis",
+        adresse: "Kaiser-Wilhelm-Platz 1, 53721 Siegburg",
+        telefon: "02241 133-396",
+        email: "bauamt@rhein-sieg-kreis.de",
+        web: "https://www.rhein-sieg-kreis.de",
+        antrag: "https://www.rhein-sieg-kreis.de/vv/oe/dezernat_4/Bauaufsicht/index.php"
+      },
+      "Kreis Siegen-Wittgenstein": {
+        name: "Amt für Bauen, Wohnen und Immissionsschutz – Kreis Siegen-Wittgenstein",
+        adresse: "Koblenzer Str. 73, 57072 Siegen",
+        telefon: "0271 333-1902",
+        email: "bauaufsicht@siegen-wittgenstein.de",
+        web: "https://www.siegen-wittgenstein.de",
+        antrag: "https://www.siegen-wittgenstein.de/Kurzmen%C3%BCu/A-bis-Z/index.php?object=tx%7C3417.1&ModID=9&FID=2171.31.1"
+      },
+      "Lahn-Dill-Kreis": {
+        name: "Bauaufsicht Lahn-Dill-Kreis",
+        adresse: "Karl-Kellner-Ring 51, 35576 Wetzlar",
+        telefon: "06441 407-1717",
+        email: "bauaufsicht@lahn-dill-kreis.de",
+        web: "https://www.lahn-dill-kreis.de",
+        antrag: "https://www.lahn-dill-kreis.de/bauen-und-wohnen/bauen/"
+      },
+      "Rheingau-Taunus-Kreis": {
+        name: "Untere Bauaufsichtsbehörde Rheingau-Taunus-Kreis",
+        adresse: "Heimbacher Straße 7, 65307 Bad Schwalbach",
+        telefon: "06124 510-515",
+        email: "bauaufsicht@rheingau-taunus.de",
+        web: "https://www.rheingau-taunus.de",
+        antrag: "https://www.rheingau-taunus.de/informieren-beantragen/bauen-wohnen/baugenehmigung-beratung/kontakte/"
+      },
+      "Rhein-Hunsrück-Kreis": {
+        name: "Fachbereich Bauen und Umwelt – Rhein-Hunsrück-Kreis",
+        adresse: "Ludwigstraße 3–5, 55469 Simmern/Hunsrück",
+        telefon: "06761 82-0",
+        email: "rhk@rheinhunsrueck.de",
+        web: "https://www.kreis-sim.de",
+        antrag: "https://www.kreis-sim.de/B%C3%BCrgerservice/Was-erledige-ich-wo-/Bauen.php"
+      },
+      "Landkreis Cochem-Zell": {
+        name: "Untere Bauaufsichtsbehörde Landkreis Cochem-Zell",
+        adresse: "Endertplatz 2, 56812 Cochem",
+        telefon: "02671 61-411",
+        email: "bauamt@cochem-zell.de",
+        web: "https://www.cochem-zell.de",
+        antrag: "https://www.cochem-zell.de/themen/bauen-wohnen-umwelt/untere-bauaufsichtsbehoerde/"
+      },
+      "Bad Kreuznach": {
+        name: "Bauaufsicht Landkreis Bad Kreuznach",
+        adresse: "Salinenstraße 47, 55543 Bad Kreuznach",
+        telefon: "0671 803-0",
+        email: "info@kreis-badkreuznach.de",
+        web: "https://www.kreis-badkreuznach.de",
+        antrag: "https://www.kreis-badkreuznach.de/kreisverwaltung/organisation/amt-6-bauen-und-umwelt/bauen-und-wohnen/"
+      },
+      "Wetteraukreis": {
+        name: "Bauaufsicht Wetteraukreis",
+        adresse: "Europaplatz, 61169 Friedberg (Hessen)",
+        telefon: "06031 83-4505",
+        email: "Bauaufsicht@wetteraukreis.de",
+        web: "https://wetteraukreis.de",
+        antrag: "https://wetteraukreis.de/verwaltung/organisationsstruktur/fachbereich-regionalentwicklung-und-umwelt/bauordnung"
+      },
+      "Main-Taunus-Kreis": {
+        name: "Amt für Bauen und Umwelt – Main-Taunus-Kreis",
+        adresse: "Am Kreishaus 1–5, 65719 Hofheim am Taunus",
+        telefon: "06192 201-2222",
+        email: "baulastenauskunft@mtk.org",
+        web: "https://www.mtk.org",
+        antrag: "https://www.mtk.org/Bauen-und-Umwelt-753.htm"
+      },
+      "Landkreis Ahrweiler": {
+        name: "Bürgerbüro Bauen – Kreisverwaltung Ahrweiler",
+        adresse: "Wilhelmstraße 24–30, 53474 Bad Neuenahr-Ahrweiler",
+        telefon: "02641 975-505",
+        email: "Bauamt@kreis-ahrweiler.de",
+        web: "https://www.kreis-ahrweiler.de",
+        antrag: "https://kreis-ahrweiler.de/bauen_wohnen/baugenehmigungsverfahren-2/"
+      },
+      "Hochtaunuskreis": {
+        name: "Untere Bauaufsichtsbehörde Hochtaunuskreis",
+        adresse: "Ludwig-Erhard-Anlage 1–5, 61352 Bad Homburg vor der Höhe",
+        telefon: "06172 999-6328",
+        email: "bauaufsicht@hochtaunuskreis.de",
+        web: "https://www.hochtaunuskreis.de",
+        antrag: "https://www.hochtaunuskreis.de/Themenfelder/Bauen-Infrastruktur/Bauaufsicht/"
+      },
+      "Landkreis Gießen": {
+        name: "Bauaufsicht Landkreis Gießen",
+        adresse: "Riversplatz 1–9, 35394 Gießen",
+        telefon: "0641 9390-3571",
+        email: "bauaufsicht@lkgi.de",
+        web: "https://www.lkgi.de",
+        antrag: "https://www.lkgi.de/bauaufsicht-und-baugenehmigungen/"
+      }
+    };
+
+    // Kreisfreie Städte haben keinen "county"-Wert (z.B. Koblenz) – hier über den Stadtnamen matchen
+    var knownByCity = {
+      "Koblenz": {
+        name: "Bauaufsichtsbehörde Stadt Koblenz",
+        adresse: "Bahnhofstraße 47, 56068 Koblenz",
+        telefon: "0261 129-3302",
+        email: "bauaufsichtsbehoerde@stadt.koblenz.de",
+        web: "https://www.koblenz.de",
+        antrag: "https://www.koblenz.de/buergerservice/leistungen/RLP:entry:65099:ANLR-VLR/bauaufsicht/"
+      }
+    };
+
+    if (county && known[county]) return known[county];
+    if (!county && city && knownByCity[city]) return knownByCity[city];
+
+    // Generische Antwort – mit klickbarem Link zur Suche (kein toter Text)
+    var countyName = county || city || state;
+    var bgSearchUrl = "https://www.google.com/search?q=" + encodeURIComponent("Bauamt " + countyName + " Bauaufsichtsbehörde Kontakt");
+    return {
+      name: "Untere Bauaufsichtsbehörde " + countyName,
+      adresse: "<a href=\"" + bgSearchUrl + "\" target=\"_blank\" rel=\"noopener\">🔍 Zuständiges Bauamt für " + countyName + " finden →</a>",
+      telefon: "<a href=\"" + bgSearchUrl + "\" target=\"_blank\" rel=\"noopener\">Telefonnummer online suchen →</a>",
+      email: "–",
+      web: bgGetLandratsamt(county, state),
+      antrag: bgGetBauantragLink(state)
+    };
+  }
+
+  function bgGetLandratsamt(county, state) {
+    var urls = {
+      "Rheinland-Pfalz": "https://www.add.rlp.de",
+      "Nordrhein-Westfalen": "https://www.bauordnung.nrw.de",
+      "Bayern": "https://www.stmb.bayern.de",
+      "Baden-Württemberg": "https://www.landesrecht-bw.de",
+      "Hessen": "https://wirtschaft.hessen.de/bauen",
+      "Niedersachsen": "https://www.bauen-wohnen.niedersachsen.de",
+      "Sachsen": "https://www.smwa.sachsen.de",
+      "Thüringen": "https://www.thueringen.de/bauen"
+    };
+    return urls[state] || "#";
+  }
+
+  function bgGetBauantragLink(state) {
+    var links = {
+      "Rheinland-Pfalz": "https://www.bauen-rlp.de",
+      "Nordrhein-Westfalen": "https://www.bauantrag.nrw.de",
+      "Bayern": "https://www.bauen.bayern.de",
+      "Baden-Württemberg": "https://www.service-bw.de/leistung/-/sbw/Baugenehmigung+beantragen-71-leistung-0",
+      "Hessen": "https://www.digitales-hessen.de/bauen",
+      "Niedersachsen": "https://www.niedersachsen.de/bauen",
+      "Sachsen": "https://www.eba.sachsen.de"
+    };
+    return links[state] || "https://www.bundesregierung.de/breg-de/themen/buerokratieabbau/bauen";
+  }
+
+  // ── ERGEBNIS ANZEIGEN ─────────────────────────────────────────
+  function bgShowResults(addr, lat, lng, bundesland, county, city, lboData) {
+    // Standort
+    document.getElementById('bg-loc-city').textContent = city || county || addr.split(',')[0];
+    document.getElementById('bg-loc-details').textContent =
+      [county, bundesland].filter(Boolean).join(' · ') +
+      ' · ' + lat.toFixed(4) + '°N ' + lng.toFixed(4) + '°E';
+
+    // Bauamt
+    var bauamt = bgGetBauamt(county, bundesland, city);
+    var contactGrid = document.getElementById('bg-contact-grid');
+    contactGrid.innerHTML = [
+      {l:'Behörde', v: bauamt.name},
+      {l:'Adresse', v: bauamt.adresse},
+      {l:'Telefon', v: bauamt.telefon.indexOf('<a ') === 0 ? bauamt.telefon : (bauamt.telefon !== '–' ? '<a href="tel:'+bauamt.telefon.replace(/\s/g,'')+'">' + bauamt.telefon + '</a>' : '–')},
+      {l:'E-Mail',  v: bauamt.email !== '–'   ? '<a href="mailto:'+bauamt.email+'">'+bauamt.email+'</a>' : 'Bitte direkt anfragen'},
+      {l:'Webseite',v: bauamt.web !== '#'      ? '<a href="'+bauamt.web+'" target="_blank" rel="noopener">'+bauamt.web.replace('https://','')+'</a>' : '–'},
+    ].map(function(item){
+      return '<div class="bg-contact-item"><span class="ci-label">'+item.l+'</span><span class="ci-val">'+item.v+'</span></div>';
+    }).join('');
+
+    var btnRow = document.getElementById('bg-btn-row');
+    btnRow.innerHTML = '';
+    if (bauamt.antrag && bauamt.antrag !== '#') {
+      var a1 = document.createElement('a');
+      a1.href = bauamt.antrag; a1.target = '_blank'; a1.rel = 'noopener';
+      a1.className = 'bg-btn-outline'; a1.innerHTML = '📋 Bauantrag / Formulare';
+      btnRow.appendChild(a1);
+    }
+    if (bauamt.web && bauamt.web !== '#') {
+      var a2 = document.createElement('a');
+      a2.href = bauamt.web; a2.target = '_blank'; a2.rel = 'noopener';
+      a2.className = 'bg-btn-outline'; a2.innerHTML = '🏛️ Bauamt-Website';
+      btnRow.appendChild(a2);
+    }
+    var a3 = document.createElement('a');
+    a3.href = lboData.gesetzLink || '#'; a3.target = '_blank'; a3.rel = 'noopener';
+    a3.className = 'bg-btn-outline'; a3.innerHTML = '📖 ' + lboData.gesetz;
+    btnRow.appendChild(a3);
+
+    // LBO-Quelle
+    document.getElementById('bg-source').innerHTML =
+      '📚 Quelle: <strong>' + lboData.gesetz + '</strong> · ' +
+      '<a href="'+lboData.gesetzLink+'" target="_blank" rel="noopener">Volltext Landesrecht</a> · ' +
+      'Stand: 2025/2026 · Ohne Gewähr';
+
+    // Produkt-Heading
+    document.getElementById('bg-products-heading').textContent =
+      'Genehmigungsregeln für ' + bundesland;
+
+    // Produkt-Karten (gefiltert nach Chip-Auswahl wenn vorhanden)
+    var grid = document.getElementById('bg-produkte-grid');
+    grid.innerHTML = '';
+
+    // Chip-Filter: Wenn Produkte ausgewählt → nur diese zeigen
+    var chipMap = {
+      'terrassenueberdachung': ['terrassenueberdachung','terrasse','terrassenüberdachung'],
+      'carport': ['carport'],
+      'kaltwintergarten': ['kaltwintergarten','wintergarten'],
+      'glasschiebeanlage': ['glasschiebeanlage','glasschiebewand','glastrennwand'],
+      'aussenanlage': ['aussenanlage','pergola','markise','sonnensegel']
+    };
+    var aktiveProdukte = lboData.produkte;
+    if (bgSelectedProducts.length > 0) {
+      var allowedKeys = [];
+      bgSelectedProducts.forEach(function(chip) {
+        var aliases = chipMap[chip] || [chip];
+        Object.keys(lboData.produkte).forEach(function(key) {
+          aliases.forEach(function(alias) {
+            if (key.toLowerCase().indexOf(alias) !== -1) allowedKeys.push(key);
+          });
+        });
+      });
+      if (allowedKeys.length > 0) {
+        aktiveProdukte = {};
+        allowedKeys.forEach(function(k) { if (lboData.produkte[k]) aktiveProdukte[k] = lboData.produkte[k]; });
+        // Hinweis anzeigen
+        var filterHint = document.createElement('p');
+        filterHint.style.cssText = 'font-size:.82rem;color:var(--gold);font-weight:600;margin-bottom:12px;';
+        filterHint.textContent = '🔍 Gefiltert nach Ihrer Auswahl · Alle Produkte: Auswahl aufheben';
+        filterHint.style.cursor = 'pointer';
+        filterHint.onclick = function() {
+          document.querySelectorAll('.bg-chip.selected').forEach(function(b){ b.classList.remove('selected'); });
+          bgSelectedProducts = [];
+        };
+        grid.appendChild(filterHint);
+      }
+    }
+
+    Object.values(aktiveProdukte).forEach(function(p) {
+      var badgeClass = p.statusClass === 'green' ? 'badge-green' :
+                       p.statusClass === 'red'   ? 'badge-red' : 'badge-yellow';
+      var card = document.createElement('div');
+      card.className = 'bg-produkt-card';
+      card.innerHTML =
+        '<div class="pc-top">' +
+          '<span class="pc-name">'+p.label+'</span>' +
+          '<span class="bg-status-badge '+badgeClass+'">'+p.status+'</span>' +
+        '</div>' +
+        '<p class="pc-bedingung">'+p.bedingung+'</p>' +
+        (p.hinweis ? '<p class="pc-hinweis">'+p.hinweis+'</p>' : '') +
+        (p.abstand ? '<p class="pc-abstand">'+p.abstand+'</p>' : '');
+      grid.appendChild(card);
+    });
+
+    document.getElementById('bg-results').classList.add('visible');
+
+    // Klare Status-Zusammenfassung für Westerwald-Gebiet
+    var isWesterwald = (county === 'Westerwaldkreis' || county === 'Neuwied' || 
+                        county === 'Altenkirchen (Westerwald)' || county === 'Mayen-Koblenz');
+    if (isWesterwald || bundesland === 'Rheinland-Pfalz') {
+      var ctaText = document.getElementById('bg-cta-text');
+      if (ctaText) {
+        ctaText.innerHTML = '✅ <strong>Gute Nachricht für ' + (county || bundesland) + ':</strong> ' +
+          'Terrassenüberdachungen bis 50 m² und Carports bis 50 m² sind nach LBO RLP §62 <em style="color:#1a6e1a">GENEHMIGUNGSFREI</em>. ' +
+          'Bereit für den nächsten Schritt?';
+      }
+    }
+
+    document.getElementById('bg-results').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+
+  // ── HAUPT-SUCHE ───────────────────────────────────────────────
+  function bgSearch() {
+    var inp = bgAcGetInput();
+    var query = inp.value.trim();
+    var errorEl = document.getElementById('bg-error');
+    var loader  = document.getElementById('bg-loader');
+    var btn     = document.getElementById('bg-search-btn');
+
+    errorEl.classList.remove('visible'); inp.classList.remove('error');
+    document.getElementById('bg-results').classList.remove('visible');
+    document.getElementById('bg-map-wrap').classList.remove('visible');
+    bgAcClose();
+
+    if (!query || query.length < 2) {
+      errorEl.textContent = 'Bitte Postleitzahl oder Ort eingeben.';
+      errorEl.classList.add('visible'); inp.classList.add('error'); inp.focus();
+      return;
+    }
+
+    loader.classList.add('visible'); btn.disabled = true;
+
+    // Photon geocoding
+    var photonUrl = 'https://photon.komoot.io/api/?q='+encodeURIComponent(query)+'&lang=de&limit=5&bbox=5.866,47.270,15.042,55.058';
+
+    function handleGeoResult(lat, lng, shortAddr, stateFromGeo, countyFromGeo, cityFromGeo) {
+      var bundesland = getBundesland(stateFromGeo);
+
+      if (!bundesland) {
+        errorEl.textContent = 'Bundesland konnte nicht ermittelt werden. Bitte genauere Adresse eingeben.';
+        errorEl.classList.add('visible'); return;
+      }
+
+      var lboData = LBO_DATA[bundesland];
+      if (!lboData) {
+        errorEl.textContent = 'Für dieses Bundesland sind noch keine Daten verfügbar.';
+        errorEl.classList.add('visible'); return;
+      }
+
+      document.getElementById('bg-map-wrap').classList.add('visible');
+      bgLoadLeaflet(function() {
+        try { bgInitMap(lat, lng); } catch(e) {
+          document.getElementById('bg-map-wrap').classList.remove('visible');
+        }
+      });
+
+      bgShowResults(shortAddr, lat, lng, bundesland, countyFromGeo, cityFromGeo, lboData);
+    }
+
+    fetch(photonUrl, {headers:{'Accept':'application/json'}})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(geo){
+      loader.classList.remove('visible'); btn.disabled = false;
+
+      var features = geo && geo.features ? geo.features : [];
+      var deF = null;
+      for (var i=0; i<features.length; i++) {
+        var fp = features[i].properties||{};
+        var cc = (fp.countrycode||fp.country_code||'').toLowerCase();
+        var ctry = (fp.country||'').toLowerCase();
+        if (cc==='de'||ctry==='deutschland'||ctry==='germany') { deF=features[i]; break; }
+      }
+      if (!deF && features.length>0) deF=features[0];
+
+      if (!deF) {
+        errorEl.textContent = 'Adresse nicht gefunden. Bitte Postleitzahl oder Ort eingeben.';
+        errorEl.classList.add('visible'); inp.classList.add('error'); return;
+      }
+
+      var coords = deF.geometry.coordinates; // [lng, lat]
+      var lat=coords[1], lng=coords[0];
+      var p = deF.properties||{};
+      var parts = [];
+      if (p.postcode) parts.push(p.postcode);
+      var cityVal = p.city||p.town||p.village||p.name||'';
+      if (cityVal) parts.push(cityVal);
+      var shortAddr = parts.join(' ') || query;
+
+      handleGeoResult(lat, lng, shortAddr, p.state||'', p.county||p.state_district||'', cityVal);
+    })
+    .catch(function(){
+      // Nominatim Fallback
+      var nomUrl = 'https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query+', Deutschland')+'&format=json&limit=1&addressdetails=1&accept-language=de';
+      fetch(nomUrl, {headers:{'Accept':'application/json'}})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(d){
+        loader.classList.remove('visible'); btn.disabled = false;
+        if (!d||!d.length) {
+          errorEl.textContent = 'Adresse nicht gefunden. Bitte PLZ oder Ort eingeben.';
+          errorEl.classList.add('visible'); inp.classList.add('error'); return;
+        }
+        var res=d[0], a=res.address||{};
+        var lat=parseFloat(res.lat), lng=parseFloat(res.lon);
+        var city=a.city||a.town||a.village||a.municipality||'';
+        handleGeoResult(lat, lng, (a.postcode||'')+' '+city, a.state||'', a.county||a.state_district||'', city);
+      })
+      .catch(function(){
+        loader.classList.remove('visible'); btn.disabled = false;
+        errorEl.textContent = 'Standort konnte nicht ermittelt werden. Bitte erneut versuchen.';
+        errorEl.classList.add('visible');
+      });
+    });
+  }
+
+  // ── RESET ─────────────────────────────────────────────────────
+  function bgReset() {
+    bgAcGetInput().value = '';
+    document.getElementById('bg-results').classList.remove('visible');
+    document.getElementById('bg-map-wrap').classList.remove('visible');
+    document.getElementById('bg-error').classList.remove('visible');
+    bgAcGetInput().classList.remove('error');
+    bgAcGetInput().focus();
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    var inp = bgAcGetInput();
+
+    inp.addEventListener('input', function(){
+      clearTimeout(bgAcTimer);
+      var q = inp.value.trim();
+      if (q.length<2) { bgAcClose(); return; }
+      bgAcTimer = setTimeout(function(){ bgAcFetch(q); }, 280);
+    });
+
+    inp.addEventListener('keydown', function(e){
+      var list = bgAcGetList();
+      var items = list.querySelectorAll('.bg-sug-item');
+      var open  = list.classList.contains('open');
+      if      (e.key==='ArrowDown') { e.preventDefault(); bgAcSetActive(Math.min(bgAcIndex+1,items.length-1)); }
+      else if (e.key==='ArrowUp')   { e.preventDefault(); bgAcSetActive(Math.max(bgAcIndex-1,-1)); }
+      else if (e.key==='Enter') {
+        if (open && bgAcIndex>=0 && bgAcItems[bgAcIndex]) {
+          e.preventDefault();
+          var fp=bgAcItems[bgAcIndex].properties||{};
+          inp.value = ((fp.postcode||'') + ' ' + (fp.name||fp.city||fp.town||'')).trim();
+          bgAcClose(); bgSearch();
+        } else { bgAcClose(); bgSearch(); }
+      }
+      else if (e.key==='Escape') { bgAcClose(); }
+    });
+
+    document.addEventListener('click', function(e){
+      if (!inp.contains(e.target) && !bgAcGetList().contains(e.target)) bgAcClose();
+    });
+    inp.addEventListener('blur', function(){ setTimeout(bgAcClose, 150); });
+  });
+
+
+  // ── CHIP-SELEKTION ─────────────────────────────────────────
+  var bgSelectedProducts = [];
+  function bgToggleChip(btn) {
+    btn.classList.toggle('selected');
+    var product = btn.getAttribute('data-product');
+    var idx = bgSelectedProducts.indexOf(product);
+    if (idx > -1) bgSelectedProducts.splice(idx, 1);
+    else bgSelectedProducts.push(product);
+    // CTA-Text dynamisch anpassen
+    var ctaMain = document.getElementById('bg-cta-main');
+    if (ctaMain && bgSelectedProducts.length > 0) {
+      var labels = {'terrassenueberdachung':'Terrassenüberdachung','carport':'Carport',
+                    'kaltwintergarten':'Kaltwintergarten','glasschiebeanlage':'Glasschiebewand',
+                    'aussenanlage':'Pergola'};
+      var first = labels[bgSelectedProducts[0]] || bgSelectedProducts[0];
+      ctaMain.textContent = 'Jetzt ' + first + ' anfragen →';
+      ctaMain.href = '/#kontakt?produkt=' + encodeURIComponent(first);
+    }
+  }
+
+  // ── FAQ ACCORDION ─────────────────────────────────────────
+  function bgFaqToggle(btn) {
+    var item = btn.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    // Alle schließen
+    document.querySelectorAll('#bg-faq-list .faq-item.open').forEach(function(el) {
+      el.classList.remove('open');
+      el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+    });
+    // Dieses öffnen wenn es vorher zu war
+    if (!isOpen) {
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  // Mobile Menu
+  function closeMobile() {
+    var m = document.getElementById('mobileMenu');
+    if (m) m.classList.remove('open');
+  }
+  </script>
+  <!-- ===== STICKY CTA ===== -->
+skipLink: |
+  <a href="#main-content" class="skip-link"
+     style="position:absolute;top:-40px;left:0;background:var(--gold);color:var(--black);padding:8px 16px;text-decoration:none;font-weight:700;z-index:9999;border-radius:0 0 6px 0;transition:top .2s"
+     onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Zum Hauptinhalt springen</a>
+
+  <!-- NAVBAR -->
+---
+<!-- PAGE HERO -->
+<header class="bg-hero">
+  <div class="container">
+    <p class="breadcrumb"><a href="/">Startseite</a> › Baugenehmigung prüfen</p>
+    <p class="tag">Kostenloser Online-Check</p>
+    <h1>Baugenehmigung prüfen – kostenloser Tool</h1>
+    <p class="hero-sub">
+      Brauche ich eine Baugenehmigung für meine Terrassenüberdachung, meinen Carport oder Kaltwintergarten?
+      Geben Sie Ihre PLZ oder Ihren Ort ein – wir zeigen Ihnen die Regeln für Ihr Bundesland.
+    </p>
+  </div>
+</header>
+
+<main id="main-content">
+
+<!-- ── SUCHE ── -->
+<section class="section" aria-labelledby="bg-search-heading">
+  <div class="container" style="max-width:860px">
+
+    <p class="tag">Standort eingeben</p>
+    <h2 id="bg-search-heading" style="margin-bottom:8px">Brauche ich eine Baugenehmigung? – Ihr kostenloser Check</h2>
+    <div class="bg-region-hint">
+      <strong>📍 Im Westerwald & Rheinland-Pfalz</strong> gilt die LBO RLP §62 – hier sind Terrassenüberdachungen bis 50 m² und Carports bis 50 m² <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
+    </div>
+    <p style="color:var(--muted);margin-bottom:28px;max-width:580px">
+      Geben Sie Ihre Postleitzahl oder Ihren Ort ein. Das Tool ermittelt automatisch das zuständige
+      Bundesland und zeigt Ihnen die relevanten Bauordnungs-Regelungen für alle 16 Bundesländer.
+    </p>
+
+
+    <!-- Produkt-Vorauswahl -->
+    <div class="bg-product-select" id="bg-product-select">
+      <p class="bg-search-label" style="margin-bottom:10px">Was planen Sie? <span style="font-weight:400;color:var(--muted)">(optional – für gefilterte Ergebnisse)</span></p>
+      <div class="bg-product-chips" role="group" aria-label="Produktauswahl">
+        <button type="button" class="bg-chip" data-product="terrassenueberdachung" onclick="bgToggleChip(this)">🏠 Terrassenüberdachung</button>
+        <button type="button" class="bg-chip" data-product="carport" onclick="bgToggleChip(this)">🚗 Carport</button>
+        <button type="button" class="bg-chip" data-product="kaltwintergarten" onclick="bgToggleChip(this)">🌿 Kaltwintergarten</button>
+        <button type="button" class="bg-chip" data-product="glasschiebeanlage" onclick="bgToggleChip(this)">🔲 Glasschiebewand</button>
+        <button type="button" class="bg-chip" data-product="aussenanlage" onclick="bgToggleChip(this)">☀️ Pergola / Markise</button>
+      </div>
+    </div>
+
+    <div class="bg-search-box">
+      <label for="bg-address-input" class="bg-search-label">Postleitzahl, Ort oder Adresse</label>
+      <div class="bg-input-row">
+        <div class="bg-input-wrap">
+          <input type="text" id="bg-address-input" class="bg-input"
+            placeholder="z. B. 56428 Dernbach oder Montabaur"
+            autocomplete="off" aria-autocomplete="list"
+            aria-controls="bg-suggestions" aria-expanded="false"
+            aria-label="Postleitzahl, Ort oder Adresse eingeben" />
+          <ul id="bg-suggestions" class="bg-suggestions" role="listbox" aria-label="Ortsvorschläge"></ul>
+        </div>
+        <button class="bg-btn" id="bg-search-btn" onclick="bgSearch()" aria-label="Genehmigung prüfen">
+          🔍 Jetzt prüfen
+        </button>
+      </div>
+      <div class="bg-error" id="bg-error" role="alert" aria-live="polite"></div>
+    </div>
+
+    <!-- Loader -->
+    <div class="bg-loader" id="bg-loader" aria-live="polite">
+      <div class="bg-spinner" role="status"></div>
+      <p>Standort wird ermittelt …</p>
+    </div>
+
+    <!-- Map -->
+    <div class="bg-map-wrap" id="bg-map-wrap">
+      <div id="bg-map" aria-label="Karte mit Standortmarkierung"></div>
+    </div>
+
+    <!-- Results -->
+    <div class="bg-results" id="bg-results" aria-live="polite">
+
+      <!-- Standort-Header -->
+      <div class="bg-location-header" id="bg-location-header">
+        <div class="lh-icon">📍</div>
+        <div>
+          <div class="lh-label">Ermittelter Standort</div>
+          <div class="lh-val" id="bg-loc-city">–</div>
+          <div class="lh-sub" id="bg-loc-details">–</div>
+        </div>
+      </div>
+
+      <!-- Bauamt-Card -->
+      <div class="bg-bauamt-card" id="bg-bauamt-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Zuständige Behörde
+        </h3>
+        <div class="bg-contact-grid" id="bg-contact-grid">
+          <!-- wird per JS befüllt -->
+        </div>
+        <div class="bg-btn-row" id="bg-btn-row"></div>
+      </div>
+
+      <!-- LBO-Quelle -->
+      <p class="bg-source" id="bg-source"></p>
+
+      <!-- Genehmigungskarten -->
+      <p class="tag">Genehmigungspflicht je Produkt</p>
+      <h3 style="margin-bottom:16px" id="bg-products-heading">Regelungen für Ihr Bundesland</h3>
+      <div class="bg-produkte-grid" id="bg-produkte-grid"></div>
+
+
+
+      <!-- Disclaimer -->
+      <div class="bg-disclaimer" role="note">
+        <span aria-hidden="true" style="font-size:1.1rem;flex-shrink:0;margin-top:1px">ℹ️</span>
+        <p>
+          <strong>Hinweis:</strong> Alle Angaben dienen lediglich der Orientierung und erfolgen ohne Gewähr.
+          Bauvorschriften können sich ändern und Gemeinden können abweichende Festsetzungen im Bebauungsplan treffen.
+          Verbindliche Auskünfte erhalten Sie ausschließlich bei der zuständigen Behörde.
+        </p>
+      </div>
+
+      <!-- CTA (dynamisch) -->
+      <div class="bg-cta-box" id="bg-cta-box">
+        <p class="bg-cta-text" id="bg-cta-text" style="font-size:.95rem;font-weight:600;margin-bottom:14px;color:var(--black)">
+          ✅ Sie haben die Infos – jetzt den nächsten Schritt machen:
+        </p>
+        <div class="bg-cta-row">
+          <a href="/#kontakt" class="btn btn-gold" id="bg-cta-main">Kostenlos anfragen →</a>
+          <a href="https://wa.me/4915678696609" target="_blank" rel="noopener"
+            class="btn" style="background:#25D366;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;padding:13px 24px;border-radius:var(--radius);text-decoration:none;display:inline-flex;align-items:center;gap:8px">
+            💬 WhatsApp
+          </a>
+          <button class="btn btn-outline-white" onclick="bgReset()"
+            style="color:var(--black);border-color:var(--border)">Neue Suche</button>
+        </div>
+      </div>
+
+    </div><!-- /bg-results -->
+  </div>
+</section>
+
+<!-- ── INFO-SEKTION ── -->
+<section class="section section--alt" aria-labelledby="bg-info-heading">
+  <div class="container">
+    <p class="tag">Gut zu wissen</p>
+    <h2 id="bg-info-heading" style="margin-bottom:8px">Was Sie über Baugenehmigungen wissen sollten</h2>
+    <p style="color:var(--muted);max-width:600px;margin-bottom:32px">
+      Bauordnungsrecht ist Ländersache – jedes der 16 Bundesländer hat eigene Regeln.
+      Diese wichtigsten Grundsätze gelten überall:
+    </p>
+    <div class="bg-info-grid">
+      <div class="bg-info-card">
+        <div class="ic-icon">🏛️</div>
+        <h3>Verfahrensfreiheit ≠ Planungsfreiheit</h3>
+        <p>Auch genehmigungsfreie Vorhaben müssen alle materiellen Baurechtsvorschriften einhalten –
+           Abstandsflächen, B-Plan, Bebauungstiefe. Im Zweifel immer beim Bauamt nachfragen.</p>
+      </div>
+      <div class="bg-info-card">
+        <div class="ic-icon">📏</div>
+        <h3>Abstandsflächen beachten</h3>
+        <p>Fast überall gilt: mindestens 3 m Abstand zur Nachbargrenze. Bei Grenzbau (bis 9 m Länge)
+           ist oft eine Zustimmung des Nachbarn oder besondere Regelungen erforderlich.</p>
+      </div>
+      <div class="bg-info-card">
+        <div class="ic-icon">🗺️</div>
+        <h3>Bebauungsplan prüfen</h3>
+        <p>Liegt Ihr Grundstück in einem Bebauungsplangebiet, können abweichende Festsetzungen gelten –
+           z. B. zur Dachform, Farbe oder maximalen Grundfläche. Gemeinde anfragen.</p>
+      </div>
+      <div class="bg-info-card">
+        <div class="ic-icon">❄️</div>
+        <h3>Kaltwintergarten vs. Wintergarten</h3>
+        <p>Ein unbeheizter Kaltwintergarten mit Glasschiebewänden gilt in vielen Bundesländern als
+           genehmigungsfreier Anbau. Sobald er beheizt wird, entsteht Genehmigungspflicht.</p>
+      </div>
+      <div class="bg-info-card">
+        <div class="ic-icon">🌳</div>
+        <h3>Außenbereich (§35 BauGB)</h3>
+        <p>Liegt Ihr Grundstück im Außenbereich? Dort sind fast alle baulichen Anlagen
+           genehmigungspflichtig – unabhängig von der Größe. Wichtige Frage vor jeder Planung.</p>
+      </div>
+      <div class="bg-info-card">
+        <div class="ic-icon">📋</div>
+        <h3>Wir übernehmen die Planung</h3>
+        <p>Als erfahrener Fachbetrieb kümmern wir uns um alle relevanten Unterlagen und begleiten Sie
+           bei Bedarf durch den Genehmigungsprozess. Sprechen Sie uns an.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── FAQ SEKTION ── -->
+<section class="section" aria-labelledby="bg-faq-heading" style="padding-top:0">
+  <div class="container" style="max-width:860px">
+    <p class="tag">Häufige Fragen</p>
+    <h2 id="bg-faq-heading" style="margin-bottom:28px">Baugenehmigung – Die wichtigsten Fragen</h2>
+    <div class="faq-list" id="bg-faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Brauche ich in Rheinland-Pfalz eine Baugenehmigung für eine Terrassenüberdachung?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>In Rheinland-Pfalz ist eine Terrassenüberdachung bis <strong>50 m² Grundfläche</strong> und bis 4,50 m Wandhöhe nach <strong>LBO RLP §62 Abs. 1 Nr. 1 genehmigungsfrei</strong>, sofern sie eingeschossig ist und an ein bestehendes Wohngebäude angebaut wird. Im Außenbereich (§35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Ist ein Carport in NRW genehmigungspflichtig?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>In <strong>Nordrhein-Westfalen</strong> ist ein Carport bis <strong>30 m²</strong> Grundfläche nach BauO NRW §62 Abs. 1 genehmigungsfrei. Grenzgaragen sind bis 9 m Länge und 3 m Wandhöhe zulässig. Ab 30 m² ist eine Baugenehmigung erforderlich.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Was kostet eine Baugenehmigung für eine Terrassenüberdachung?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Die Kosten einer Baugenehmigung variieren je nach Bundesland und Gemeinde. Üblich sind <strong>0,5–1 % der Baukosten</strong>, mindestens jedoch 100–200 €. Hinzu kommen Kosten für Bauzeichnungen und die Statik. Genehmigungsfreie Vorhaben sparen diese Kosten komplett.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Welchen Abstand muss meine Terrassenüberdachung zur Grundstücksgrenze haben?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>In den meisten Bundesländern gilt ein <strong>Mindestabstand von 3 m</strong> zur Grundstücksgrenze (Abstandsfläche). Grenzbau ist oft bis 9 m Länge möglich, erfordert aber besondere Voraussetzungen. <strong>Wichtig:</strong> Abstandsflächen müssen auch bei genehmigungsfreien Vorhaben eingehalten werden.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Ist eine Pergola oder ein Lamellendach genehmigungspflichtig?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Offene Pergolen ohne festes Dach sind in den meisten Bundesländern genehmigungsfrei. <strong>Lamellendächer</strong> mit geschlossenen Lamellen (Aluminium, Glas oder Polycarbonat) werden bei geschlossenem Zustand wie Terrassenüberdachungen behandelt – bis zur jeweiligen Landesgrenze genehmigungsfrei.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Brauche ich für einen Kaltwintergarten eine Baugenehmigung?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Ein <strong>unbeheizter Kaltwintergarten</strong> (z. B. mit Glasschiebewänden) ist in Rheinland-Pfalz und vielen anderen Bundesländern bis 50 m² genehmigungsfrei. Sobald er beheizt wird oder Aufenthaltsraumqualität erreicht, entsteht <strong>Genehmigungspflicht</strong>. Im Zweifel immer beim Bauamt nachfragen.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Wie lange dauert eine Baugenehmigung?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Je nach Gemeinde und Arbeitsbelastung des Bauamts dauert eine Baugenehmigung <strong>4–16 Wochen</strong>. In manchen Landkreisen sind es auch bis zu 6 Monate. Genehmigungsfreie Vorhaben (wie die meisten unserer Aluminium-Systeme bis zur gesetzlichen Grenze) können sofort umgesetzt werden.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">
+          Was passiert wenn ich ohne Baugenehmigung baue?
+          <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a">
+          <p>Bauen ohne erforderliche Genehmigung ist eine <strong>Ordnungswidrigkeit</strong> und kann zu Bußgeldern (bis zu 500.000 €), einem Rückbaugebot oder Nutzungsverbot führen. Zudem können Versicherungsleistungen verweigert werden. Unser Tool zeigt Ihnen vorab ob eine Genehmigung nötig ist.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section style="background:var(--black);padding:56px 0" aria-label="Beratungsangebot">
+  <div class="container" style="text-align:center">
+    <p class="tag" style="color:var(--gold)">Ihr nächster Schritt</p>
+    <h2 style="color:var(--white);margin-bottom:12px">Kostenlose Beratung vor Ort</h2>
+    <p style="color:rgba(255,255,255,.7);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto">
+      Wir kennen die Bauregeln im Westerwald und begleiten Sie von der Planung bis zur fertigen Anlage.
+    </p>
+    <a href="/#kontakt" class="btn btn-gold" style="font-size:1.05rem;padding:15px 36px">Anfrage starten →</a>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->

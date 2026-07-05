@@ -2,35 +2,54 @@
 <html lang="de">
 <head>
 <script>
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
 (function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
 </script>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<title>Baugenehmigung Terrassenüberdachung & Carport prüfen – kostenlos | BV AussenSysteme Westerwald</title>
-<meta name="description" content="Kostenlos prüfen: Braucht meine Terrassenüberdachung oder mein Carport eine Baugenehmigung? PLZ eingeben – alle 16 Bundesländer, Westerwald & Rheinland-Pfalz." />
-<meta name="robots" content="index, follow" />
-<link rel="canonical" href="https://bv-aussensysteme.de/baugenehmigung.html" />
-<link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/baugenehmigung.html" />
-<link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/baugenehmigung.html" />
-
-<meta property="og:title" content="Baugenehmigung Terrassenüberdachung & Carport prüfen" />
-<meta property="og:description" content="PLZ eingeben und sofort prüfen ob Terrassenüberdachung, Carport oder Pergola eine Baugenehmigung braucht. Kostenloser Online-Tool für alle 16 Bundesländer." />
-<meta property="og:type" content="website" />
-<meta property="og:locale" content="de_DE" />
-
-
-
-<link rel="icon" href="images/favicon.ico" />
-<meta name="theme-color" content="#C49A2A" />
-
-<link rel="stylesheet" href="css/style.css" />
-
-<!-- dns-prefetch: Geocoding-APIs, die der Baugenehmigung-Checker bei jeder Adresssuche nutzt -->
-<link rel="dns-prefetch" href="https://photon.komoot.io" />
-<link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
-
 <style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baugenehmigung Terrassenüberdachung &amp; Carport prüfen – kostenlos | BV AussenSysteme Westerwald</title>
+  <link rel="canonical" href="https://bv-aussensysteme.de/baugenehmigung.html" />
+  <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/baugenehmigung.html" />
+  <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/baugenehmigung.html" />
+  <meta name="description" content="Kostenlos prüfen: Braucht meine Terrassenüberdachung oder mein Carport eine Baugenehmigung? PLZ eingeben – alle 16 Bundesländer, Westerwald &amp; Rheinland-Pfalz." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+  <meta name="theme-color" content="#C49A2A" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  try {
+    var consent = localStorage.getItem('bv_cookie_consent');
+    if(consent && consent !== 'rejected') loadFonts();
+    // Listen for consent being given
+    window.addEventListener('bv_consent_given', loadFonts);
+  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+})();
+</script>
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <style>
 /* ── PAGE HERO ── */
 .bg-hero {
   background: var(--black);
@@ -230,9 +249,11 @@
 .bg-info-card .ic-icon { font-size: 1.8rem; margin-bottom: 10px; }
 .bg-info-card h3 { font-size: 1.02rem; margin-bottom: 8px; }
 .bg-info-card p { font-size: .84rem; color: var(--muted); line-height: 1.6; }
-</style>
 
-  <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
+  </style>
+
+
+<!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -329,44 +350,60 @@
   }
 }
 </script>
+
+
+
+  <meta property="og:title" content="Baugenehmigung Terrassenüberdachung &amp; Carport prüfen" />
+  <meta property="og:description" content="PLZ eingeben und sofort prüfen ob Terrassenüberdachung, Carport oder Pergola eine Baugenehmigung braucht. Kostenloser Online-Tool für alle 16 Bundesländer." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bv-aussensysteme.de/baugenehmigung.html" />
+  
+  <meta property="og:locale" content="de_DE" />
+
+
+<link rel="dns-prefetch" href="https://photon.komoot.io" />
+<link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
+
+
 </head>
 <body id="bv-page-wrapper">
+
 
 <a href="#main-content" class="skip-link"
    style="position:absolute;top:-40px;left:0;background:var(--gold);color:var(--black);padding:8px 16px;text-decoration:none;font-weight:700;z-index:9999;border-radius:0 0 6px 0;transition:top .2s"
    onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Zum Hauptinhalt springen</a>
 
 <!-- NAVBAR -->
+
+
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" fetchpriority="high" width="200" height="200" />
+      <img src="/images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
-    <ul class="nav-links" role="list">
+    <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
       <li><a href="/#galerie">Galerie</a></li>
-      <li><a href="konfigurator.html" class="nav-konfigurator">🛠 Konfigurator</a></li>
+      <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
       <li><a href="/#warum-wir">Über uns</a></li>
       <li><a href="/#prozess">Ablauf</a></li>
       <li><a href="/#faq">FAQ</a></li>
       <li><a href="/#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
-    <button class="hamburger" id="hamburgerBtn"
-      aria-label="Menü öffnen" aria-expanded="false" aria-controls="mobileMenu">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Navigation">
+<div class="mobile-menu" id="mobileMenu">
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
-  <a href="/" onclick="closeMobile()">Startseite</a>
-  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
-  <a href="konfigurator.html" onclick="closeMobile()" style="color:var(--gold)">🛠 Konfigurator</a>
-  <a href="/#warum-wir" onclick="closeMobile()">Über uns</a>
-  <a href="/#faq" onclick="closeMobile()">FAQ</a>
-  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta">Jetzt anfragen</a>
+  <a href="/">Startseite</a>
+  <a href="/#leistungen">Leistungen</a>
+  <a href="/konfigurator.html">🛠 Konfigurator</a>
+  <a href="/#warum-wir">Über uns</a>
+  <a href="/#prozess">Ablauf</a>
+  <a href="/#kontakt" class="mobile-cta">Jetzt anfragen</a>
 </div>
 
 <!-- PAGE HERO -->
@@ -662,6 +699,8 @@
 </main>
 
 <!-- FOOTER -->
+
+
 <footer role="contentinfo">
   <div class="container">
     <div class="footer-grid">
@@ -751,16 +790,14 @@
   </div>
 </footer>
 
-<!-- SCRIPTS -->
-<script src="js/main.js" defer></script>
-<script src="js/cookie.js" defer></script>
-<script src="js/metricool.js" defer></script>
-<script src="js/accessibility.js" defer></script>
-<script src="js/chatbot.js" defer></script>
-
+<script src="/js/main.js" defer></script>
+<script src="/js/cookie.js" defer></script>
+<script src="/js/metricool.js" defer></script>
+<script src="/js/accessibility.js" defer></script>
+<script src="/js/chatbot.js" defer></script>
 
 <!-- LBO-Datenbasis -->
-<script src="js/baugenehmigung-data.js"></script>
+<script src="/js/baugenehmigung-data.js"></script>
 
 <script>
 /* ================================================================
@@ -1391,6 +1428,9 @@ function closeMobile() {
   if (m) m.classList.remove('open');
 }
 </script>
+<!-- ===== STICKY CTA ===== -->
+
+
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

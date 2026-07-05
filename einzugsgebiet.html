@@ -13,15 +13,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Einzugsgebiet Westerwald | BV AussenSysteme</title>
-  <meta name="description" content="BV AussenSysteme beliefert und montiert im gesamten Westerwaldkreis – Montabaur, Neuwied, Altenkirchen, Hachenburg, Pleckhausen, Horhausen, Limburg und Koblenz." />
-  <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/einzugsgebiet.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/einzugsgebiet.html" />
   <link rel="alternate" hreflang="x-default" href="https://bv-aussensysteme.de/einzugsgebiet.html" />
-  <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+  <meta name="description" content="BV AussenSysteme beliefert und montiert im gesamten Westerwaldkreis – Montabaur, Neuwied, Altenkirchen, Hachenburg, Pleckhausen, Horhausen, Limburg und Koblenz." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
   <style>
   /* Fallback fonts bis Google Fonts geladen */
@@ -47,139 +47,155 @@
   } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
 })();
 </script>
-  <link rel="stylesheet" href="css/style.css" />
-  <!-- Preconnect: Leaflet-CDN wird für die Karte tatsächlich genutzt -->
-  <link rel="preconnect" href="https://unpkg.com" crossorigin />
-  <!-- Leaflet.js – kostenlose Open-Source Kartenbibliothek, keine API-Key nötig -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+
   <style>
-    .gebiet-hero {
-      background: var(--black); padding: 56px 0 48px;
-      border-bottom: 3px solid var(--gold); position: relative;
-    }
-    .gebiet-hero::after {
-      content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
-      background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
-    }
-    .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
-    .breadcrumb a { color: var(--gold); text-decoration: none; }
-    .gebiet-hero h1 { color: var(--white); margin-bottom: 10px; font-size: clamp(1.9rem,5vw,3rem); }
-    .gebiet-hero p  { color: rgba(255,255,255,0.75); max-width: 560px; font-size: 0.97rem; line-height: 1.7; }
+.gebiet-hero {
+  background: var(--black); padding: 56px 0 48px;
+  border-bottom: 3px solid var(--gold); position: relative;
+}
+.gebiet-hero::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+  background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+}
+.breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+.breadcrumb a { color: var(--gold); text-decoration: none; }
+.gebiet-hero h1 { color: var(--white); margin-bottom: 10px; font-size: clamp(1.9rem,5vw,3rem); }
+.gebiet-hero p  { color: rgba(255,255,255,0.75); max-width: 560px; font-size: 0.97rem; line-height: 1.7; }
 
-    /* Layout */
-    .gebiet-layout {
-      display: grid; grid-template-columns: 1fr 340px;
-      gap: 32px; margin-top: 40px; align-items: start;
-    }
+/* Layout */
+.gebiet-layout {
+  display: grid; grid-template-columns: 1fr 340px;
+  gap: 32px; margin-top: 40px; align-items: start;
+}
 
-    /* Karte */
-    #map {
-      height: 540px; border-radius: 12px;
-      box-shadow: var(--shadow-lg);
-      border: 2px solid var(--border);
-      z-index: 0;
-    }
+/* Karte */
+#map {
+  height: 540px; border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--border);
+  z-index: 0;
+}
 
-    /* Ortsliste */
-    .orte-panel {
-      background: var(--white); border-radius: 12px;
-      box-shadow: var(--shadow); border: 1px solid var(--border);
-      overflow: hidden;
-    }
-    .orte-panel-header {
-      background: var(--black); padding: 18px 20px;
-      border-bottom: 3px solid var(--gold);
-    }
-    .orte-panel-header h3 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.1rem; font-weight: 700; color: var(--white); margin: 0;
-    }
-    .orte-panel-header p { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
-    .orte-list { list-style: none; padding: 8px 0; max-height: 460px; overflow-y: auto; }
-    .orte-list li {
-      padding: 0;
-    }
-    .orte-list button {
-      width: 100%; text-align: left; background: none; border: none;
-      padding: 11px 20px; cursor: pointer;
-      display: flex; align-items: center; gap: 10px;
-      font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text);
-      transition: background 0.15s; border-bottom: 1px solid var(--border);
-    }
-    .orte-list li:last-child button { border-bottom: none; }
-    .orte-list button:hover { background: var(--offwhite); color: var(--gold-dark); }
-    .orte-list button.active { background: rgba(196,154,42,0.08); color: var(--gold-dark); font-weight: 600; }
-    .orte-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: var(--gold); flex-shrink: 0;
-      box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
-    }
-    .orte-dot.hauptort { background: var(--black); box-shadow: 0 0 0 3px rgba(196,154,42,0.4); }
-    .orte-dot.fern { background: #fff; border: 2px solid var(--muted); box-shadow: none; }
-    .info-badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
-      background: rgba(0,0,0,0.12); color: var(--muted);
-      font-size: 0.65rem; font-style: italic; font-family: Georgia, 'Times New Roman', serif;
-      margin-left: 2px; cursor: help;
-    }
-    .info-badge:hover, .info-badge:focus-visible { background: var(--gold); color: #fff; }
-    #gebietTip {
-      display: none; position: fixed; z-index: 1000;
-      background: var(--black); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 0.76rem; font-style: normal;
-      line-height: 1.5; padding: 9px 13px; border-radius: 8px;
-      max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-    }
+/* Ortsliste */
+.orte-panel {
+  background: var(--white); border-radius: 12px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  overflow: hidden;
+}
+.orte-panel-header {
+  background: var(--black); padding: 18px 20px;
+  border-bottom: 3px solid var(--gold);
+}
+.orte-panel-header h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem; font-weight: 700; color: var(--white); margin: 0;
+}
+.orte-panel-header p { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
+.orte-list { list-style: none; padding: 8px 0; max-height: 460px; overflow-y: auto; }
+.orte-list li {
+  padding: 0;
+}
+.orte-list button {
+  width: 100%; text-align: left; background: none; border: none;
+  padding: 11px 20px; cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text);
+  transition: background 0.15s; border-bottom: 1px solid var(--border);
+}
+.orte-list li:last-child button { border-bottom: none; }
+.orte-list button:hover { background: var(--offwhite); color: var(--gold-dark); }
+.orte-list button.active { background: rgba(196,154,42,0.08); color: var(--gold-dark); font-weight: 600; }
+.orte-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gold); flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
+}
+.orte-dot.hauptort { background: var(--black); box-shadow: 0 0 0 3px rgba(196,154,42,0.4); }
+.orte-dot.fern { background: #fff; border: 2px solid var(--muted); box-shadow: none; }
+.info-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(0,0,0,0.12); color: var(--muted);
+  font-size: 0.65rem; font-style: italic; font-family: Georgia, 'Times New Roman', serif;
+  margin-left: 2px; cursor: help;
+}
+.info-badge:hover, .info-badge:focus-visible { background: var(--gold); color: #fff; }
+#gebietTip {
+  display: none; position: fixed; z-index: 1000;
+  background: var(--black); color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 0.76rem; font-style: normal;
+  line-height: 1.5; padding: 9px 13px; border-radius: 8px;
+  max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
 
-    /* Kartenpopup: Hintergrund kommt jetzt direkt vom Inhalt (inline
-       style in bindPopup), da sich Leaflets eigener Wrapper-Hintergrund
-       auf manchen Geräten nicht zuverlässig zeigte. Wrapper hier nur
-       noch transparent/ohne eigenen Schatten, damit kein doppelter
-       Kasten entsteht. */
-    .bv-popup .leaflet-popup-content-wrapper {
-      background: transparent;
-      box-shadow: none;
-      padding: 0;
-    }
-    .bv-popup .leaflet-popup-content { margin: 0; }
-    .bv-popup .leaflet-popup-tip { background: #fff; }
+/* Kartenpopup: Hintergrund kommt jetzt direkt vom Inhalt (inline
+   style in bindPopup), da sich Leaflets eigener Wrapper-Hintergrund
+   auf manchen Geräten nicht zuverlässig zeigte. Wrapper hier nur
+   noch transparent/ohne eigenen Schatten, damit kein doppelter
+   Kasten entsteht. */
+.bv-popup .leaflet-popup-content-wrapper {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.bv-popup .leaflet-popup-content { margin: 0; }
+.bv-popup .leaflet-popup-tip { background: #fff; }
 
-    /* CTA unter Karte */
-    .gebiet-cta {
-      background: var(--black); border-radius: 12px;
-      padding: 28px; text-align: center; margin-top: 24px;
-      border: 1px solid rgba(196,154,42,0.25);
-    }
-    .gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
-    .gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+/* CTA unter Karte */
+.gebiet-cta {
+  background: var(--black); border-radius: 12px;
+  padding: 28px; text-align: center; margin-top: 24px;
+  border: 1px solid rgba(196,154,42,0.25);
+}
+.gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
+.gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
 
 
-    @media (max-width: 860px) {
-      .gebiet-layout { grid-template-columns: 1fr; }
-      #map { height: 400px; }
-      .orte-list { max-height: 300px; }
-    }
+@media (max-width: 860px) {
+  .gebiet-layout { grid-template-columns: 1fr; }
+  #map { height: 400px; }
+  .orte-list { max-height: 300px; }
+}
+
   </style>
-  <meta property="og:title" content="Einzugsgebiet Westerwald & Umgebung | BV AussenSysteme" />
+
+
+<meta property="og:title" content="Einzugsgebiet Westerwald & Umgebung | BV AussenSysteme" />
   <meta property="og:description" content="BV AussenSysteme montiert im Umkreis von 60 km: Montabaur, Neuwied, Koblenz, Altenkirchen und mehr." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
+
+
+
+  <meta property="og:title" content="Einzugsgebiet Westerwald &amp; Umgebung | BV AussenSysteme" />
+  <meta property="og:description" content="BV AussenSysteme montiert im Umkreis von 60 km: Montabaur, Neuwied, Koblenz, Altenkirchen und mehr." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bv-aussensysteme.de/einzugsgebiet.html" />
+  
+  <meta property="og:locale" content="de_DE" />
+
+
+<link rel="preconnect" href="https://unpkg.com" crossorigin />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+
+
 </head>
 <body>
 
-<nav class="navbar" role="navigation">
+
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
+      <img src="/images/logo-hell.png" alt="BV AussenSysteme" class="nav-logo" />
     </a>
     <ul class="nav-links">
       <li><a href="/#leistungen">Leistungen</a></li>
       <li><a href="/#galerie">Galerie</a></li>
       <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
       <li><a href="/#faq">FAQ</a></li>
-      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
+      <li><a href="/#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
       <span></span><span></span><span></span>
@@ -189,10 +205,10 @@
 
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
-  <a href="/" onclick="closeMobile()">Startseite</a>
-  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
-  <a href="/konfigurator.html" onclick="closeMobile()">🛠 Konfigurator</a>
-  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+  <a href="/">Startseite</a>
+  <a href="/#leistungen">Leistungen</a>
+  <a href="/konfigurator.html">🛠 Konfigurator</a>
+  <a href="/#kontakt" class="mobile-cta">Jetzt anfragen</a>
 </div>
 
 <header class="gebiet-hero">
@@ -239,6 +255,7 @@
   </div>
 </section>
 </main>
+
 
 <footer role="contentinfo">
   <div class="container">
@@ -329,9 +346,12 @@
   </div>
 </footer>
 
-<script src="js/main.js" defer></script>
-<script src="js/cookie.js" defer></script>
-<script src="js/metricool.js" defer></script>
+<script src="/js/main.js" defer></script>
+<script src="/js/cookie.js" defer></script>
+<script src="/js/metricool.js" defer></script>
+<script src="/js/accessibility.js" defer></script>
+<script src="/js/chatbot.js" defer></script>
+
 <script>
 // Orte mit Koordinaten
 var orte = [
@@ -466,8 +486,9 @@ document.addEventListener('click', function(e) {
 });
 document.addEventListener('scroll', hideGebietTip, true);
 </script>
-<script src="js/accessibility.js" defer></script>
-<script src="js/chatbot.js" defer></script>
+<!-- ===== STICKY CTA ===== -->
+
+
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

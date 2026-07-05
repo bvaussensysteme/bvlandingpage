@@ -64,9 +64,15 @@
   {% if ogImage %}<meta property="og:image" content="{{ ogImage }}" />{% endif %}
   <meta property="og:locale" content="de_DE" />
 {% endif %}
+{% if extraHead %}
+{{ extraHead | safe }}
+{% endif %}
 </head>
 <body{% if bodyId %} id="{{ bodyId }}"{% endif %}>
 
+{% if skipLink %}
+{{ skipLink | safe }}
+{% endif %}
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
@@ -77,6 +83,8 @@
       <li><a href="/#galerie">Galerie</a></li>
       <li><a href="/konfigurator.html">🛠 Konfigurator</a></li>
 {% if ratgeberNav %}      <li><a href="/ratgeber/">Ratgeber</a></li>
+{% endif %}{% if extendedNav %}      <li><a href="/#warum-wir">Über uns</a></li>
+      <li><a href="/#prozess">Ablauf</a></li>
 {% endif %}      <li><a href="/#faq">FAQ</a></li>
       <li><a href="/#kontakt" class="nav-cta">Jetzt anfragen</a></li>
     </ul>
@@ -92,6 +100,8 @@
   <a href="/#leistungen">Leistungen</a>
   <a href="/konfigurator.html">🛠 Konfigurator</a>
 {% if ratgeberNav %}  <a href="/ratgeber/">Ratgeber</a>
+{% endif %}{% if extendedNav %}  <a href="/#warum-wir">Über uns</a>
+  <a href="/#prozess">Ablauf</a>
 {% endif %}  <a href="/#kontakt" class="mobile-cta">Jetzt anfragen</a>
 </div>
 
@@ -191,6 +201,9 @@
 <script src="/js/metricool.js" defer></script>
 <script src="/js/accessibility.js" defer></script>
 <script src="/js/chatbot.js" defer></script>
+{% if extraScripts %}
+{{ extraScripts | safe }}
+{% endif %}
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

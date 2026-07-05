@@ -1,0 +1,309 @@
+---
+layout: layout.njk
+permalink: /einzugsgebiet.html
+title: "Einzugsgebiet Westerwald | BV AussenSysteme"
+description: "BV AussenSysteme beliefert und montiert im gesamten Westerwaldkreis – Montabaur, Neuwied, Altenkirchen, Hachenburg, Pleckhausen, Horhausen, Limburg und Koblenz."
+canonical: "https://bv-aussensysteme.de/einzugsgebiet.html"
+robots: "index, follow"
+ogTitle: "Einzugsgebiet Westerwald & Umgebung | BV AussenSysteme"
+ogDescription: "BV AussenSysteme montiert im Umkreis von 60 km: Montabaur, Neuwied, Koblenz, Altenkirchen und mehr."
+ogType: "website"
+extraStyles: |
+      .gebiet-hero {
+        background: var(--black); padding: 56px 0 48px;
+        border-bottom: 3px solid var(--gold); position: relative;
+      }
+      .gebiet-hero::after {
+        content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+        background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+      }
+      .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+      .breadcrumb a { color: var(--gold); text-decoration: none; }
+      .gebiet-hero h1 { color: var(--white); margin-bottom: 10px; font-size: clamp(1.9rem,5vw,3rem); }
+      .gebiet-hero p  { color: rgba(255,255,255,0.75); max-width: 560px; font-size: 0.97rem; line-height: 1.7; }
+
+      /* Layout */
+      .gebiet-layout {
+        display: grid; grid-template-columns: 1fr 340px;
+        gap: 32px; margin-top: 40px; align-items: start;
+      }
+
+      /* Karte */
+      #map {
+        height: 540px; border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        border: 2px solid var(--border);
+        z-index: 0;
+      }
+
+      /* Ortsliste */
+      .orte-panel {
+        background: var(--white); border-radius: 12px;
+        box-shadow: var(--shadow); border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .orte-panel-header {
+        background: var(--black); padding: 18px 20px;
+        border-bottom: 3px solid var(--gold);
+      }
+      .orte-panel-header h3 {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.1rem; font-weight: 700; color: var(--white); margin: 0;
+      }
+      .orte-panel-header p { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
+      .orte-list { list-style: none; padding: 8px 0; max-height: 460px; overflow-y: auto; }
+      .orte-list li {
+        padding: 0;
+      }
+      .orte-list button {
+        width: 100%; text-align: left; background: none; border: none;
+        padding: 11px 20px; cursor: pointer;
+        display: flex; align-items: center; gap: 10px;
+        font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text);
+        transition: background 0.15s; border-bottom: 1px solid var(--border);
+      }
+      .orte-list li:last-child button { border-bottom: none; }
+      .orte-list button:hover { background: var(--offwhite); color: var(--gold-dark); }
+      .orte-list button.active { background: rgba(196,154,42,0.08); color: var(--gold-dark); font-weight: 600; }
+      .orte-dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: var(--gold); flex-shrink: 0;
+        box-shadow: 0 0 0 3px rgba(196,154,42,0.2);
+      }
+      .orte-dot.hauptort { background: var(--black); box-shadow: 0 0 0 3px rgba(196,154,42,0.4); }
+      .orte-dot.fern { background: #fff; border: 2px solid var(--muted); box-shadow: none; }
+      .info-badge {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0;
+        background: rgba(0,0,0,0.12); color: var(--muted);
+        font-size: 0.65rem; font-style: italic; font-family: Georgia, 'Times New Roman', serif;
+        margin-left: 2px; cursor: help;
+      }
+      .info-badge:hover, .info-badge:focus-visible { background: var(--gold); color: #fff; }
+      #gebietTip {
+        display: none; position: fixed; z-index: 1000;
+        background: var(--black); color: #fff;
+        font-family: 'Inter', sans-serif; font-size: 0.76rem; font-style: normal;
+        line-height: 1.5; padding: 9px 13px; border-radius: 8px;
+        max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      }
+
+      /* Kartenpopup: Hintergrund kommt jetzt direkt vom Inhalt (inline
+         style in bindPopup), da sich Leaflets eigener Wrapper-Hintergrund
+         auf manchen Geräten nicht zuverlässig zeigte. Wrapper hier nur
+         noch transparent/ohne eigenen Schatten, damit kein doppelter
+         Kasten entsteht. */
+      .bv-popup .leaflet-popup-content-wrapper {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+      }
+      .bv-popup .leaflet-popup-content { margin: 0; }
+      .bv-popup .leaflet-popup-tip { background: #fff; }
+
+      /* CTA unter Karte */
+      .gebiet-cta {
+        background: var(--black); border-radius: 12px;
+        padding: 28px; text-align: center; margin-top: 24px;
+        border: 1px solid rgba(196,154,42,0.25);
+      }
+      .gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
+      .gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+
+
+      @media (max-width: 860px) {
+        .gebiet-layout { grid-template-columns: 1fr; }
+        #map { height: 400px; }
+        .orte-list { max-height: 300px; }
+      }
+
+extraHead: |
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+schema: |
+  <meta property="og:title" content="Einzugsgebiet Westerwald & Umgebung | BV AussenSysteme" />
+    <meta property="og:description" content="BV AussenSysteme montiert im Umkreis von 60 km: Montabaur, Neuwied, Koblenz, Altenkirchen und mehr." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+extraScripts: |
+  <script>
+  // Orte mit Koordinaten
+  var orte = [
+    { name: 'Dernbach (Westerwald)',      lat: 50.522, lng: 7.764,  hauptort: true,  info: 'Unser Heimatstandort im Westerwaldkreis.' },
+    { name: 'Pleckhausen',                lat: 50.600, lng: 7.550,  hauptort: true,  info: 'Im Westerwald.' },
+    { name: 'Westerwaldkreis (Zentrum)',  lat: 50.570, lng: 7.900,  hauptort: false, info: 'Unser Heimatkreis – wir kennen jeden Winkel.' },
+    { name: 'Montabaur',                  lat: 50.434, lng: 7.826,  hauptort: false, info: 'Kreisstadt des Westerwaldkreises.' },
+    { name: 'Neuwied',                    lat: 50.428, lng: 7.462,  hauptort: false, info: 'Am Rhein – ca. 30 Min. von uns.' },
+    { name: 'Altenkirchen',               lat: 50.686, lng: 7.647,  hauptort: false, info: 'Nördlicher Westerwald.' },
+    { name: 'Hachenburg',                 lat: 50.659, lng: 7.819,  hauptort: false, info: 'Historische Stadt im Westerwald.' },
+    { name: 'Bad Marienberg',             lat: 50.642, lng: 7.955,  hauptort: false, info: 'Heilbad im Westerwald.' },
+    { name: 'Westerburg',                 lat: 50.553, lng: 7.975,  hauptort: false, info: 'Im östlichen Westerwaldkreis.' },
+    { name: 'Ransbach-Baumbach',          lat: 50.470, lng: 7.729,  hauptort: false, info: 'Nähe Montabaur.' },
+    { name: 'Horhausen',                  lat: 50.610, lng: 7.540,  hauptort: false, info: 'Im Westerwald.' },
+    { name: 'Limburg an der Lahn',        lat: 50.385, lng: 8.064,  hauptort: false, info: 'Ca. 35 Min. südlich.' },
+    { name: 'Koblenz',                    lat: 50.353, lng: 7.579,  hauptort: false, info: 'Am Rhein-Mosel-Dreieck.' },
+    { name: 'Wirges',                     lat: 50.564, lng: 7.784,  hauptort: false, info: 'Nähe Montabaur.' },
+    { name: 'Höhr-Grenzhausen',           lat: 50.437, lng: 7.658,  hauptort: false, info: 'Die Kannenbäckerstadt.' },
+    { name: 'Selters (Westerwald)',       lat: 50.489, lng: 7.923,  hauptort: false, info: 'Bekannt für sein Mineralwasser.' },
+    { name: 'Dierdorf',                   lat: 50.542, lng: 7.653,  hauptort: false, info: 'Westlicher Westerwald.' },
+    { name: 'Bendorf',                    lat: 50.430, lng: 7.571,  hauptort: false, info: 'Am Rhein bei Koblenz.' },
+    { name: 'Vallendar',                  lat: 50.383, lng: 7.611,  hauptort: false, info: 'Am Rhein bei Koblenz.' },
+    { name: 'Bad Ems',                    lat: 50.337, lng: 7.719,  hauptort: false, info: 'Heilbad an der Lahn.' },
+    { name: 'Lahnstein',                  lat: 50.304, lng: 7.610,  hauptort: false, info: 'Am Zusammenfluss von Rhein und Lahn.' },
+    { name: 'Nassau',                     lat: 50.324, lng: 7.809,  hauptort: false, info: 'An der Lahn.' },
+    { name: 'Diez',                       lat: 50.374, lng: 8.017,  hauptort: false, info: 'An der Lahn, nahe Limburg.' },
+    { name: 'Andernach',                  lat: 50.439, lng: 7.403,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Mayen',                      lat: 50.335, lng: 7.229,  hauptort: false, fern: true, info: 'Nahe der Eifel.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Remagen',                    lat: 50.578, lng: 7.235,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Wetzlar',                    lat: 50.560, lng: 8.505,  hauptort: false, fern: true, info: 'An der Lahn, Hessen.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Betzdorf',                   lat: 50.780, lng: 7.879,  hauptort: false, fern: true, info: 'Nördlicher Westerwald.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Herborn',                    lat: 50.681, lng: 8.303,  hauptort: false, fern: true, info: 'Historische Fachwerkstadt, Hessen.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Idstein',                    lat: 50.219, lng: 8.269,  hauptort: false, fern: true, info: 'Taunus, Hessen.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+    { name: 'Bonn',                       lat: 50.735, lng: 7.100,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
+  ];
+
+  // Karte initialisieren – zentriert auf Westerwald
+  var map = L.map('map', { zoomControl: true }).setView([50.520, 7.800], 10);
+
+  // OpenStreetMap Tiles (kostenlos, keine API-Key)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+
+  // Eigenes Icon fuer "Rand des Einzugsgebiets" (kein Bild-Request noetig, CSP-sicher)
+  var fernIcon = L.divIcon({
+    className: 'orte-fern-marker',
+    html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #8a8a8a;"></span>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+
+  // Marker & Popups
+  var markers = [];
+  orte.forEach(function(ort, idx) {
+    var marker = L.marker([ort.lat, ort.lng], ort.fern ? { icon: fernIcon } : {})
+      .addTo(map)
+      .bindPopup(
+        '<div style="font-family:Inter,sans-serif;min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
+          '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
+          '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
+          (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +
+          '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
+        '</div>',
+        { maxWidth: 220, className: 'bv-popup' }
+      );
+    markers.push(marker);
+  });
+
+  // Ortsliste aufbauen
+  var liste = document.getElementById('orteListe');
+  orte.forEach(function(ort, idx) {
+    var li = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.innerHTML =
+      '<span class="orte-dot' + (ort.hauptort ? ' hauptort' : '') + (ort.fern ? ' fern' : '') + '"></span>' +
+      ort.name +
+      (ort.hinweis ? ' <span class="info-badge" data-tip="' + ort.hinweis + '">i</span>' : '');
+    btn.addEventListener('click', function() {
+      // Aktiven Button markieren
+      liste.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      // Zur Position zoomen und Popup öffnen
+      map.setView([ort.lat, ort.lng], 13, { animate: true });
+      markers[idx].openPopup();
+    });
+    li.appendChild(btn);
+    liste.appendChild(li);
+  });
+
+  // Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
+  var group = L.featureGroup(markers);
+
+  // Info-Tooltip für Randzone-Orte: fixed-positioniert (entkommt dem
+  // overflow:hidden/auto der Liste), funktioniert per Klick (Mobil) und Hover (Desktop)
+  var gebietTip = document.createElement('div');
+  gebietTip.id = 'gebietTip';
+  document.body.appendChild(gebietTip);
+
+  function showGebietTip(badge) {
+    var text = badge.getAttribute('data-tip');
+    if (!text) return;
+    gebietTip.textContent = text;
+    gebietTip.style.display = 'block';
+    var r = badge.getBoundingClientRect();
+    var top = r.top - gebietTip.offsetHeight - 8;
+    if (top < 8) top = r.bottom + 8;
+    var left = r.left + r.width / 2 - gebietTip.offsetWidth / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - gebietTip.offsetWidth - 8));
+    gebietTip.style.top = top + 'px';
+    gebietTip.style.left = left + 'px';
+    gebietTip._openFor = badge;
+  }
+  function hideGebietTip() {
+    gebietTip.style.display = 'none';
+    gebietTip._openFor = null;
+  }
+  document.querySelectorAll('.info-badge').forEach(function(badge) {
+    badge.addEventListener('mouseenter', function() { showGebietTip(badge); });
+    badge.addEventListener('mouseleave', function() { hideGebietTip(); });
+    badge.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      if (gebietTip._openFor === badge) { hideGebietTip(); }
+      else { showGebietTip(badge); }
+    });
+  });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.info-badge')) hideGebietTip();
+  });
+  document.addEventListener('scroll', hideGebietTip, true);
+  </script>
+  <!-- ===== STICKY CTA ===== -->
+---
+<header class="gebiet-hero">
+  <div class="container">
+    <p class="breadcrumb"><a href="/">Startseite</a> › Einzugsgebiet</p>
+    <p class="tag">Unser Einzugsgebiet</p>
+    <h1>Wir kommen zu Ihnen –<br>im Westerwald & Umgebung</h1>
+    <p>Als regionaler Spezialist kennen wir die Gegend, die lokalen Bauvorschriften und
+       die Wetterbedingungen im Westerwald. Unser Hauptstandort ist Dernbach – 
+       wir sind in einem Umkreis von ca. <strong style="color:var(--gold)">60 km</strong> unterwegs.
+       Bei größeren Aufträgen kommen wir auch weiter.</p>
+  </div>
+</header>
+
+<main>
+<section class="section">
+  <div class="container">
+
+    <div class="gebiet-layout">
+
+      <!-- KARTE -->
+      <div>
+        <div id="map"></div>
+        <div class="gebiet-cta">
+          <h3>Ihr Standort nicht dabei?</h3>
+          <p>Melden Sie sich trotzdem – wir prüfen individuell ob wir zu Ihnen kommen können und suchen gemeinsam nach einer Lösung.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <a href="/#kontakt" class="btn btn-gold">Anfrage starten</a>
+            <a href="tel:+4915678696609" class="btn btn-dark" style="color:#fff !important;">📞 015678696609</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORTSLISTE -->
+      <div class="orte-panel">
+        <div class="orte-panel-header">
+          <h3>📍 Unsere Regionen</h3>
+          <p>Klicken zum Anzeigen auf der Karte · <span class="info-badge" style="margin-left:0;">i</span> = Rand unseres Gebiets, bitte anfragen</p>
+        </div>
+        <ul class="orte-list" id="orteListe"></ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
