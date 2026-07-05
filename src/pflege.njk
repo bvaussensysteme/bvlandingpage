@@ -8,11 +8,146 @@ robots: "index, follow"
 ogTitle: "Pflegehinweise für Aluminium-Produkte | BV AussenSysteme"
 ogDescription: "Aluminium Terrassenüberdachung, Carport und Pergola richtig pflegen – Tipps vom Fachbetrieb im Westerwald."
 ogType: "website"
-extraScripts: |
-  <!-- ===== STICKY CTA ===== -->
+extraStyles: |
+      .pflege-hero {
+        background: var(--black); padding: 60px 0 50px;
+        border-bottom: 3px solid var(--gold); position: relative;
+      }
+      .pflege-hero::after {
+        content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 40px;
+        background: var(--offwhite); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
+      }
+      .breadcrumb { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+      .breadcrumb a { color: var(--gold); text-decoration: none; }
+      .pflege-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.2rem); }
+      .pflege-hero p { color: rgba(255,255,255,0.75); max-width: 580px; font-size: 1rem; line-height: 1.7; }
 
+      /* Pflege Karten */
+      .pflege-grid {
+        display: grid; grid-template-columns: repeat(3,1fr);
+        gap: 28px; margin-top: 48px;
+      }
+      .pflege-card {
+        background: var(--white); border-radius: 12px;
+        box-shadow: var(--shadow); border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .pflege-card-header {
+        background: var(--black); padding: 24px 28px;
+        border-bottom: 3px solid var(--gold);
+        display: flex; align-items: center; gap: 14px;
+      }
+      .pflege-card-header .icon { font-size: 2.2rem; flex-shrink: 0; }
+      .pflege-card-header h2 {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.4rem; font-weight: 800; color: var(--white);
+        margin: 0;
+      }
+      .pflege-card-header span {
+        font-size: 0.78rem; color: rgba(255,255,255,0.55); display: block; margin-top: 2px;
+      }
+      .pflege-card-body { padding: 24px 28px; }
 
-  <!-- ===== STICKY CTA ===== -->
+      /* Do / Don't Listen */
+      .pflege-list { list-style: none; margin-bottom: 20px; }
+      .pflege-list li {
+        display: flex; gap: 10px; padding: 8px 0;
+        border-bottom: 1px solid var(--border); font-size: 0.88rem;
+        color: var(--text); line-height: 1.5; align-items: flex-start;
+      }
+      .pflege-list li:last-child { border-bottom: none; }
+      .pflege-list li .check { color: #2a9d4e; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+      .pflege-list li .cross  { color: #e05555; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+      .pflege-section-label {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;
+        text-transform: uppercase; color: var(--gold);
+        margin-bottom: 10px; display: block;
+      }
+
+      /* Wartungsintervall Box */
+      .wartung-box {
+        background: rgba(196,154,42,0.08); border: 1px solid rgba(196,154,42,0.25);
+        border-radius: 8px; padding: 14px 16px; margin-top: 16px;
+        display: flex; gap: 10px; align-items: flex-start;
+      }
+      .wartung-box .wi { font-size: 1.3rem; flex-shrink: 0; }
+      .wartung-box p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin: 0; }
+      .wartung-box strong { color: var(--black); }
+
+      /* Hinweisbox */
+      .hinweis-box {
+        background: #fff8e6; border: 1px solid rgba(196,154,42,0.4);
+        border-left: 4px solid var(--gold);
+        border-radius: 8px; padding: 16px 20px;
+        margin-bottom: 32px;
+        display: flex; gap: 12px; align-items: flex-start;
+      }
+      .hinweis-box .hi { font-size: 1.5rem; flex-shrink: 0; }
+      .hinweis-box p { font-size: 0.88rem; color: #6b4f10; line-height: 1.65; margin: 0; }
+
+      /* Saison-Tabelle */
+      .saison-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.88rem; }
+      .saison-table th {
+        background: var(--black); color: var(--gold);
+        font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+        padding: 10px 16px; text-align: left; font-size: 0.9rem;
+      }
+      .saison-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
+      .saison-table tr:last-child td { border-bottom: none; }
+      .saison-table tr:hover td { background: var(--offwhite); }
+
+      @media (max-width: 900px) { .pflege-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 600px) {
+        .pflege-card-body { padding: 18px; }
+        .hints-grid { grid-template-columns: 1fr !important; }
+        .saison-table { font-size: 0.8rem; }
+        .saison-table th, .saison-table td { padding: 8px 10px; }
+      }
+
+schema: |
+  <!-- Schema.org -->
+      <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
+    <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Startseite",
+        "item": "https://bv-aussensysteme.de/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Pflegehinweise Terrassenüberdachung",
+        "item": "https://bv-aussensysteme.de/pflege.html"
+      }
+    ]
+  }
+    </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "Pflegehinweise für Aluminium-Terrassenüberdachungen und Carports",
+      "description": "Anleitung zur Reinigung und Pflege von Aluminium-Profilen, VSG-Glas und Polycarbonat bei Terrassenüberdachungen und Carports.",
+      "step": [
+        { "@type": "HowToStep", "name": "Aluminium reinigen", "text": "Profile mit mildem Spülmittel und Wasser reinigen, mit Mikrofasertuch nachwischen und mit klarem Wasser abspülen." },
+        { "@type": "HowToStep", "name": "Glas reinigen", "text": "Glasreiniger oder mildes Spülmittel mit lauwarmem Wasser verwenden. Mit Gummiabzieher streifenfrei trocknen." },
+        { "@type": "HowToStep", "name": "Polycarbonat reinigen", "text": "Nur mit weichem Tuch und mildem Spülmittel reinigen. Keine Scheuermittel oder scharfe Reiniger verwenden." },
+        { "@type": "HowToStep", "name": "Dichtungen prüfen", "text": "Regelmäßig Dichtungen und Verschraubungen auf festen Sitz prüfen. Entwässerungsschlitze freihalten." }
+      ]
+    }
+    </script>
+    <meta property="og:title" content="Pflegehinweise für Aluminium-Produkte | BV AussenSysteme" />
+    <meta property="og:description" content="Aluminium Terrassenüberdachung, Carport und Pergola richtig pflegen – Tipps vom Fachbetrieb im Westerwald." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
 ---
 <header class="pflege-hero">
   <div class="container">
