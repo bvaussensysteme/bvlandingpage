@@ -480,6 +480,49 @@ body.bv-menu-open #bv-scroll-top {
 .prozess-step p  { font-size: 0.83rem; color: var(--muted); }
 
 /* ============================================
+   SERVICE-BOX (Tool-Verlinkung auf Produktseiten)
+   ============================================ */
+.service-box {
+  display: flex; gap: 18px; align-items: flex-start;
+  background: var(--light-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px;
+  margin: 40px 0; position: relative; overflow: hidden;
+}
+.service-box::before {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dark) 100%);
+}
+.service-box-icon {
+  flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  display: flex; align-items: center; justify-content: center; color: var(--white);
+}
+.service-box-icon svg {
+  width: 22px; height: 22px; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.service-box-body h3 { font-size: 1.05rem; margin-bottom: 6px; color: var(--black); }
+.service-box-body p  { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.service-box-badges  { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.service-box-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; font-weight: 700; color: var(--gold-dark);
+  background: rgba(196,154,42,0.1); border: 1px solid rgba(196,154,42,0.25);
+  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+}
+.service-box-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--gold); color: var(--black); font-weight: 700;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.92rem;
+  padding: 9px 18px; border-radius: 100px; text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.service-box-cta:hover { background: var(--gold-dark); color: var(--white); transform: translateY(-1px); }
+@media (max-width: 560px) {
+  .service-box { flex-direction: column; }
+}
+
+/* ============================================
    GALERIE (Portfolio)
    ============================================ */
 .galerie-grid {
