@@ -8,7 +8,7 @@
   var circles, current = -1, timer = null;
 
   function animationsPaused() {
-    var wrapper = document.getElementById('bv-page-wrapper');
+    var wrapper = document.getElementById('bv-a11y-page-wrap');
     return wrapper && wrapper.classList.contains('a11y-pause-animations');
   }
 

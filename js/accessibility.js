@@ -8,13 +8,20 @@
   var STORAGE_KEY = 'bv_a11y';
   var ROOT = document.documentElement;
 
-  /* ── Page Wrapper für Filter-Effekte (Widget bleibt außerhalb) ── */
+  /* ── Page Wrapper für Filter-Effekte (Widget bleibt außerhalb) ──
+     Eigener, garantiert eindeutiger Bezeichner - manche Seiten setzen
+     aus historischen Gruenden "bv-page-wrapper" direkt als <body>-ID.
+     Wuerde dieses Skript dieselbe ID benutzen, wuerde es faelschlich
+     den <body> selbst als Wrapper wiederverwenden - ein filter (Hoher
+     Kontrast/Nachtmodus) auf <body> macht dann <body> zum Bezugsrahmen
+     fuer alle position:fixed-Kinder, wodurch auch das Widget selbst
+     (ebenfalls ein <body>-Kind) an eine falsche Position springt. */
   function getPageWrapper() {
-    var w = document.getElementById('bv-page-wrapper');
+    var w = document.getElementById('bv-a11y-page-wrap');
     if (w) return w;
     // Wrapper erstellen der alle body-Kinder außer dem Widget einschließt
     w = document.createElement('div');
-    w.id = 'bv-page-wrapper';
+    w.id = 'bv-a11y-page-wrap';
     // Alle bestehenden body-Kinder in den Wrapper verschieben
     while (document.body.firstChild) {
       w.appendChild(document.body.firstChild);
@@ -120,7 +127,17 @@
     }
   ];
 
-  /* ── Lesehilfe (Reading Guide) ── */
+  /* Ein CSS-Cursor ist auf reinen Touch-Geraeten (Handy/Tablet ohne Maus)
+     unsichtbar - kein Bug, sondern eine Eigenschaft von Touchscreens.
+     Toggle dort ausblenden statt scheinbar wirkungslos anzuzeigen. */
+  if (!(window.matchMedia && window.matchMedia('(pointer: fine)').matches)) {
+    features = features.filter(function (f) { return f.id !== 'bigCursor'; });
+  }
+
+  /* ── Lesehilfe (Reading Guide) ──
+     Reagiert sowohl auf Mausbewegung (Desktop) als auch auf Touch-Ziehen
+     (Handy/Tablet - dort gibt es kein "mousemove", ohne Touch-Handler
+     wuerde auf einem Smartphone beim Aktivieren scheinbar nichts passieren). */
   var guideEl = null;
   function toggleReadingGuide(on) {
     if (on) {
@@ -129,17 +146,25 @@
         guideEl.id = 'bv-reading-guide';
         document.body.appendChild(guideEl);
         document.addEventListener('mousemove', moveGuide);
+        document.addEventListener('touchmove', moveGuideTouch, { passive: true });
       }
+      guideEl.style.top = '120px';
       guideEl.style.display = 'block';
     } else {
       if (guideEl) {
         guideEl.style.display = 'none';
         document.removeEventListener('mousemove', moveGuide);
+        document.removeEventListener('touchmove', moveGuideTouch);
       }
     }
   }
   function moveGuide(e) {
     if (guideEl) guideEl.style.top = (e.clientY - 20) + 'px';
+  }
+  function moveGuideTouch(e) {
+    if (guideEl && e.touches && e.touches.length) {
+      guideEl.style.top = (e.touches[0].clientY - 20) + 'px';
+    }
   }
 
   /* ── Einstellungen auf alle Features anwenden ── */
@@ -214,7 +239,7 @@
   /* ── CSS injizieren ── */
   function injectCSS() {
     var css = [
-      '#bv-page-wrapper { min-height: 100vh; }',
+      '#bv-a11y-page-wrap { min-height: 100vh; }',
 
       /* ── Widget immer sichtbar – alle Body-Filter neutralisieren ── */
       '#bv-a11y-widget {',
@@ -370,7 +395,7 @@
       /* ── A11Y-Modi ── */
 
       /* Hoher Kontrast */
-      '#bv-page-wrapper.a11y-high-contrast { filter: contrast(1.5) brightness(1.05); }',
+      '#bv-a11y-page-wrap.a11y-high-contrast { filter: contrast(1.5) brightness(1.05); }',
       
 
       /* Links unterstreichen */
@@ -382,8 +407,8 @@
       '}',
 
       /* Nachtmodus */
-      '#bv-page-wrapper.a11y-night-mode { filter: invert(0.9) hue-rotate(180deg); }',
-      '#bv-page-wrapper.a11y-night-mode img, #bv-page-wrapper.a11y-night-mode video { filter: invert(1) hue-rotate(180deg); }',
+      '#bv-a11y-page-wrap.a11y-night-mode { filter: invert(0.9) hue-rotate(180deg); }',
+      '#bv-a11y-page-wrap.a11y-night-mode img, #bv-a11y-page-wrap.a11y-night-mode video { filter: invert(1) hue-rotate(180deg); }',
       
 
       /* Leseschrift (OpenDyslexic-ähnlich via font-stack) */
@@ -393,7 +418,7 @@
       '}',
 
       /* Animationen stoppen */
-      '#bv-page-wrapper.a11y-pause-animations *, #bv-page-wrapper.a11y-pause-animations *::before, #bv-page-wrapper.a11y-pause-animations *::after {',
+      '#bv-a11y-page-wrap.a11y-pause-animations *, #bv-a11y-page-wrap.a11y-pause-animations *::before, #bv-a11y-page-wrap.a11y-pause-animations *::after {',
         'animation-play-state: paused !important;',
         'transition: none !important;',
       '}',
