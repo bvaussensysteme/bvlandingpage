@@ -77,6 +77,10 @@
       display: block;
       filter: grayscale(0.2);
     }
+    .kp-badge svg {
+      width: 14px; height: 14px; vertical-align: -2px; margin-right: 5px;
+      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
     .kp-title {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: clamp(2rem, 5vw, 3.2rem);
@@ -135,6 +139,11 @@
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 1.4rem; font-weight: 700;
       color: var(--white); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .kp-notify h3 svg {
+      width: 20px; height: 20px; flex-shrink: 0; color: var(--gold);
+      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
     .kp-notify p { font-size: 0.88rem; color: rgba(255,255,255,0.6); margin-bottom: 20px; }
     .kp-notify-row { display: flex; gap: 10px; }
@@ -173,7 +182,11 @@
       gap: 8px; align-items: center;
       border: 1px solid var(--border);
     }
-    .kp-feature span { font-size: 1.8rem; flex-shrink: 0; }
+    .kp-feature span { flex-shrink: 0; color: var(--gold-dark); }
+    .kp-feature span svg {
+      width: 26px; height: 26px; stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
     .kp-feature strong { display: block; font-size: 0.9rem; color: var(--black); margin-bottom: 3px; }
     .kp-feature p { font-size: 0.8rem; color: var(--muted); margin: 0; }
 
@@ -259,11 +272,11 @@
 <div class="konfigurator-page">
   <div class="kp-inner">
 
-    <span class="kp-badge">🚀 In Entwicklung</span>
+    <span class="kp-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>In Entwicklung</span>
 
     <!-- 3D Konfigurator Platzhalter -->
     <div class="kp-sorry-box">
-      <div class="kp-sorry-icon">🏗️</div>
+      <div class="kp-sorry-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg></div>
       <h2 class="kp-sorry-title">Wir arbeiten mit Hochdruck daran!</h2>
       <p class="kp-sorry-text">
         Unser 3D Terrassendach-Konfigurator befindet sich aktuell in der Entwicklung
@@ -309,42 +322,42 @@
     <!-- Features Preview -->
     <div class="kp-features">
       <div class="kp-feature">
-        <span>📐</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg></span>
         <div>
           <strong>Eigene Maße eingeben</strong>
           <p>Breite, Tiefe & Höhe frei wählbar</p>
         </div>
       </div>
       <div class="kp-feature">
-        <span>🎨</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="17.5" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12.5" r="1" fill="currentColor" stroke="none"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1.1a1.6 1.6 0 0 1 1.6-1.6h2c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z"/></svg></span>
         <div>
           <strong>Farben & Materialien</strong>
           <p>Alle RAL-Farben, Glas, Lamellen oder Polycarbonat</p>
         </div>
       </div>
       <div class="kp-feature">
-        <span>🖥️</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
         <div>
           <strong>3D Echtzeit-Vorschau</strong>
           <p>Realistische Darstellung aus allen Blickwinkeln</p>
         </div>
       </div>
       <div class="kp-feature">
-        <span>💶</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12a7.9 7.9 0 0 0 7.8 8 7.7 7.7 0 0 0 5.2-2"/></svg></span>
         <div>
           <strong>Preisanfrage</strong>
           <p>Konfiguration absenden – wir erstellen Ihr individuelles Angebot</p>
         </div>
       </div>
       <div class="kp-feature">
-        <span>📤</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></span>
         <div>
           <strong>Direkte Anfrage</strong>
           <p>Konfiguration als Anfrage senden</p>
         </div>
       </div>
       <div class="kp-feature">
-        <span>📱</span>
+        <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
         <div>
           <strong>Mobil & Desktop</strong>
           <p>Funktioniert auf allen Geräten</p>
@@ -353,7 +366,7 @@
     </div>
     <!-- Notify Form -->
     <div class="kp-notify">
-      <h3>🔔 Benachrichtigung beim Launch</h3>
+      <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>Benachrichtigung beim Launch</h3>
       <p>Tragen Sie Ihre E-Mail ein – wir informieren Sie sobald der Konfigurator verfügbar ist.</p>
       <div class="kp-notify-row">
         <input type="email" id="kpEmail" aria-label="E-Mail Adresse" placeholder="ihre@email.de" autocomplete="email" />

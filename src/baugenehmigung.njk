@@ -37,6 +37,10 @@ extraStyles: |
     border:2px solid var(--border); background:var(--white); color:var(--black);
     cursor:pointer; transition:all .18s ease; user-select:none;
   }
+  .bg-chip svg {
+    width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
   .bg-chip:hover { border-color:var(--gold); background:#FEFBF0; color:var(--black); }
   .bg-chip.selected {
     background:var(--gold); border-color:var(--gold); color:var(--white);
@@ -131,7 +135,11 @@ extraStyles: |
     padding: 22px 26px; margin-bottom: 20px; color: var(--white);
     border-left: 4px solid var(--gold);
   }
-  .bg-location-header .lh-icon { font-size: 2rem; flex-shrink: 0; margin-top: 2px; }
+  .bg-location-header .lh-icon { flex-shrink: 0; margin-top: 2px; color: var(--gold-dark); }
+  .bg-location-header .lh-icon svg {
+    width: 30px; height: 30px; stroke: currentColor; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
   .bg-location-header .lh-label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
   .bg-location-header .lh-val { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 800; }
   .bg-location-header .lh-sub { font-size: .82rem; color: rgba(255,255,255,.6); margin-top: 2px; }
@@ -160,6 +168,10 @@ extraStyles: |
     transition: background .2s, color .2s;
   }
   .bg-btn-outline:hover { background: var(--gold); color: var(--black); }
+  .bg-btn-outline svg {
+    width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
 
   /* Genehmigungskarten */
   .bg-produkte-grid {
@@ -181,8 +193,18 @@ extraStyles: |
   .badge-red    { background: rgba(200,30,30,.10); color: #8a0000; border: 1px solid rgba(200,30,30,.2); }
   .bg-produkt-card .pc-bedingung { font-size: .83rem; color: var(--black); margin-bottom: 6px; font-weight: 500; }
   .bg-produkt-card .pc-hinweis { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: 6px; }
-  .bg-produkt-card .pc-abstand { font-size: .78rem; color: #5a6a3a; background: rgba(100,140,50,.08); padding: 5px 9px; border-radius: 4px; }
-  .bg-produkt-card .pc-abstand::before { content: "📐 "; }
+  .bg-produkt-card .pc-abstand {
+    font-size: .78rem; color: #5a6a3a; background: rgba(100,140,50,.08);
+    padding: 5px 9px 5px 26px; border-radius: 4px; position: relative;
+  }
+  .bg-produkt-card .pc-abstand::before {
+    content: ''; position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+    width: 13px; height: 13px; background-color: #5a6a3a;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z'/%3E%3Cpath d='m14.5 12.5 2-2'/%3E%3Cpath d='m11.5 9.5 2-2'/%3E%3Cpath d='m8.5 6.5 2-2'/%3E%3Cpath d='m17.5 15.5 2-2'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z'/%3E%3Cpath d='m14.5 12.5 2-2'/%3E%3Cpath d='m11.5 9.5 2-2'/%3E%3Cpath d='m8.5 6.5 2-2'/%3E%3Cpath d='m17.5 15.5 2-2'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain; mask-size: contain;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  }
 
   /* LBO-Quelle */
   .bg-source { font-size: .78rem; color: var(--muted); margin-bottom: 20px; padding: 10px 14px; background: var(--offwhite); border-radius: 6px; }
@@ -207,7 +229,11 @@ extraStyles: |
     background: var(--white); border: 1px solid var(--border);
     border-radius: 10px; padding: 22px; box-shadow: var(--shadow);
   }
-  .bg-info-card .ic-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .bg-info-card .ic-icon { margin-bottom: 10px; color: var(--gold-dark); }
+  .bg-info-card .ic-icon svg {
+    width: 30px; height: 30px; stroke: currentColor; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
   .bg-info-card h3 { font-size: 1.02rem; margin-bottom: 8px; }
   .bg-info-card p { font-size: .84rem; color: var(--muted); line-height: 1.6; }
 extraHead: |
@@ -596,7 +622,7 @@ extraScripts: |
     var bgSearchUrl = "https://www.google.com/search?q=" + encodeURIComponent("Bauamt " + countyName + " Bauaufsichtsbehörde Kontakt");
     return {
       name: "Untere Bauaufsichtsbehörde " + countyName,
-      adresse: "<a href=\"" + bgSearchUrl + "\" target=\"_blank\" rel=\"noopener\">🔍 Zuständiges Bauamt für " + countyName + " finden →</a>",
+      adresse: "<a href=\"" + bgSearchUrl + "\" target=\"_blank\" rel=\"noopener\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" style=\"width:14px;height:14px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/></svg>Zuständiges Bauamt für " + countyName + " finden →</a>",
       telefon: "<a href=\"" + bgSearchUrl + "\" target=\"_blank\" rel=\"noopener\">Telefonnummer online suchen →</a>",
       email: "–",
       web: bgGetLandratsamt(county, state),
@@ -657,23 +683,23 @@ extraScripts: |
     if (bauamt.antrag && bauamt.antrag !== '#') {
       var a1 = document.createElement('a');
       a1.href = bauamt.antrag; a1.target = '_blank'; a1.rel = 'noopener';
-      a1.className = 'bg-btn-outline'; a1.innerHTML = '📋 Bauantrag / Formulare';
+      a1.className = 'bg-btn-outline'; a1.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>Bauantrag / Formulare';
       btnRow.appendChild(a1);
     }
     if (bauamt.web && bauamt.web !== '#') {
       var a2 = document.createElement('a');
       a2.href = bauamt.web; a2.target = '_blank'; a2.rel = 'noopener';
-      a2.className = 'bg-btn-outline'; a2.innerHTML = '🏛️ Bauamt-Website';
+      a2.className = 'bg-btn-outline'; a2.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7 12 2"/></svg>Bauamt-Website';
       btnRow.appendChild(a2);
     }
     var a3 = document.createElement('a');
     a3.href = lboData.gesetzLink || '#'; a3.target = '_blank'; a3.rel = 'noopener';
-    a3.className = 'bg-btn-outline'; a3.innerHTML = '📖 ' + lboData.gesetz;
+    a3.className = 'bg-btn-outline'; a3.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' + lboData.gesetz;
     btnRow.appendChild(a3);
 
     // LBO-Quelle
     document.getElementById('bg-source').innerHTML =
-      '📚 Quelle: <strong>' + lboData.gesetz + '</strong> · ' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Quelle: <strong>' + lboData.gesetz + '</strong> · ' +
       '<a href="'+lboData.gesetzLink+'" target="_blank" rel="noopener">Volltext Landesrecht</a> · ' +
       'Stand: 2025/2026 · Ohne Gewähr';
 
@@ -710,7 +736,7 @@ extraScripts: |
         // Hinweis anzeigen
         var filterHint = document.createElement('p');
         filterHint.style.cssText = 'font-size:.82rem;color:var(--gold);font-weight:600;margin-bottom:12px;';
-        filterHint.textContent = '🔍 Gefiltert nach Ihrer Auswahl · Alle Produkte: Auswahl aufheben';
+        filterHint.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Gefiltert nach Ihrer Auswahl · Alle Produkte: Auswahl aufheben';
         filterHint.style.cursor = 'pointer';
         filterHint.onclick = function() {
           document.querySelectorAll('.bg-chip.selected').forEach(function(b){ b.classList.remove('selected'); });
@@ -744,7 +770,7 @@ extraScripts: |
     if (isWesterwald || bundesland === 'Rheinland-Pfalz') {
       var ctaText = document.getElementById('bg-cta-text');
       if (ctaText) {
-        ctaText.innerHTML = '✅ <strong>Gute Nachricht für ' + (county || bundesland) + ':</strong> ' +
+        ctaText.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:#2a9d4e;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Gute Nachricht für ' + (county || bundesland) + ':</strong> ' +
           'Terrassenüberdachungen bis 50 m² und Carports bis 50 m² sind nach LBO RLP §62 <em style="color:#1a6e1a">GENEHMIGUNGSFREI</em>. ' +
           'Bereit für den nächsten Schritt?';
       }
@@ -973,7 +999,7 @@ skipLink: |
     <p class="tag">Standort eingeben</p>
     <h2 id="bg-search-heading" style="margin-bottom:8px">Brauche ich eine Baugenehmigung? – Ihr kostenloser Check</h2>
     <div class="bg-region-hint">
-      <strong>📍 Im Westerwald & Rheinland-Pfalz</strong> gilt die LBO RLP §62 – hier sind Terrassenüberdachungen bis 50 m² und Carports bis 50 m² <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
+      <strong style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Im Westerwald & Rheinland-Pfalz</strong> gilt die LBO RLP §62 – hier sind Terrassenüberdachungen bis 50 m² und Carports bis 50 m² <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
     </div>
     <p style="color:var(--muted);margin-bottom:28px;max-width:580px">
       Geben Sie Ihre Postleitzahl oder Ihren Ort ein. Das Tool ermittelt automatisch das zuständige
@@ -985,11 +1011,11 @@ skipLink: |
     <div class="bg-product-select" id="bg-product-select">
       <p class="bg-search-label" style="margin-bottom:10px">Was planen Sie? <span style="font-weight:400;color:var(--muted)">(optional – für gefilterte Ergebnisse)</span></p>
       <div class="bg-product-chips" role="group" aria-label="Produktauswahl">
-        <button type="button" class="bg-chip" data-product="terrassenueberdachung" onclick="bgToggleChip(this)">🏠 Terrassenüberdachung</button>
-        <button type="button" class="bg-chip" data-product="carport" onclick="bgToggleChip(this)">🚗 Carport</button>
-        <button type="button" class="bg-chip" data-product="kaltwintergarten" onclick="bgToggleChip(this)">🌿 Kaltwintergarten</button>
-        <button type="button" class="bg-chip" data-product="glasschiebeanlage" onclick="bgToggleChip(this)">🔲 Glasschiebewand</button>
-        <button type="button" class="bg-chip" data-product="aussenanlage" onclick="bgToggleChip(this)">☀️ Pergola / Markise</button>
+        <button type="button" class="bg-chip" data-product="terrassenueberdachung" onclick="bgToggleChip(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Terrassenüberdachung</button>
+        <button type="button" class="bg-chip" data-product="carport" onclick="bgToggleChip(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg>Carport</button>
+        <button type="button" class="bg-chip" data-product="kaltwintergarten" onclick="bgToggleChip(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 20A7 7 0 0 1 4 13a1 1 0 0 1 1-1c4 0 7 2 8 5 1-3 4-5 8-5a1 1 0 0 1 1 1 7 7 0 0 1-7 7c-1.5 0-3-.5-4-1.5-1 1-2.5 1.5-4 1.5z"/></svg>Kaltwintergarten</button>
+        <button type="button" class="bg-chip" data-product="glasschiebeanlage" onclick="bgToggleChip(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>Glasschiebewand</button>
+        <button type="button" class="bg-chip" data-product="aussenanlage" onclick="bgToggleChip(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>Pergola / Markise</button>
       </div>
     </div>
 
@@ -1005,7 +1031,7 @@ skipLink: |
           <ul id="bg-suggestions" class="bg-suggestions" role="listbox" aria-label="Ortsvorschläge"></ul>
         </div>
         <button class="bg-btn" id="bg-search-btn" onclick="bgSearch()" aria-label="Genehmigung prüfen">
-          🔍 Jetzt prüfen
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;vertical-align:-3px;margin-right:6px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Jetzt prüfen
         </button>
       </div>
       <div class="bg-error" id="bg-error" role="alert" aria-live="polite"></div>
@@ -1027,7 +1053,7 @@ skipLink: |
 
       <!-- Standort-Header -->
       <div class="bg-location-header" id="bg-location-header">
-        <div class="lh-icon">📍</div>
+        <div class="lh-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div>
           <div class="lh-label">Ermittelter Standort</div>
           <div class="lh-val" id="bg-loc-city">–</div>
@@ -1059,7 +1085,7 @@ skipLink: |
 
       <!-- Disclaimer -->
       <div class="bg-disclaimer" role="note">
-        <span aria-hidden="true" style="font-size:1.1rem;flex-shrink:0;margin-top:1px">ℹ️</span>
+        <span aria-hidden="true" style="flex-shrink:0;margin-top:1px;color:var(--gold-dark);"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
         <p>
           <strong>Hinweis:</strong> Alle Angaben dienen lediglich der Orientierung und erfolgen ohne Gewähr.
           Bauvorschriften können sich ändern und Gemeinden können abweichende Festsetzungen im Bebauungsplan treffen.
@@ -1070,13 +1096,13 @@ skipLink: |
       <!-- CTA (dynamisch) -->
       <div class="bg-cta-box" id="bg-cta-box">
         <p class="bg-cta-text" id="bg-cta-text" style="font-size:.95rem;font-weight:600;margin-bottom:14px;color:var(--black)">
-          ✅ Sie haben die Infos – jetzt den nächsten Schritt machen:
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Sie haben die Infos – jetzt den nächsten Schritt machen:
         </p>
         <div class="bg-cta-row">
           <a href="/#kontakt" class="btn btn-gold" id="bg-cta-main">Kostenlos anfragen →</a>
           <a href="https://wa.me/4915678696609" target="_blank" rel="noopener"
             class="btn" style="background:#25D366;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;padding:13px 24px;border-radius:var(--radius);text-decoration:none;display:inline-flex;align-items:center;gap:8px">
-            💬 WhatsApp
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;flex-shrink:0;fill:currentColor;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>WhatsApp
           </a>
           <button class="btn btn-outline-white" onclick="bgReset()"
             style="color:var(--black);border-color:var(--border)">Neue Suche</button>
@@ -1098,37 +1124,37 @@ skipLink: |
     </p>
     <div class="bg-info-grid">
       <div class="bg-info-card">
-        <div class="ic-icon">🏛️</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7 12 2"/></svg></div>
         <h3>Verfahrensfreiheit ≠ Planungsfreiheit</h3>
         <p>Auch genehmigungsfreie Vorhaben müssen alle materiellen Baurechtsvorschriften einhalten –
            Abstandsflächen, B-Plan, Bebauungstiefe. Im Zweifel immer beim Bauamt nachfragen.</p>
       </div>
       <div class="bg-info-card">
-        <div class="ic-icon">📏</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg></div>
         <h3>Abstandsflächen beachten</h3>
         <p>Fast überall gilt: mindestens 3 m Abstand zur Nachbargrenze. Bei Grenzbau (bis 9 m Länge)
            ist oft eine Zustimmung des Nachbarn oder besondere Regelungen erforderlich.</p>
       </div>
       <div class="bg-info-card">
-        <div class="ic-icon">🗺️</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg></div>
         <h3>Bebauungsplan prüfen</h3>
         <p>Liegt Ihr Grundstück in einem Bebauungsplangebiet, können abweichende Festsetzungen gelten –
            z. B. zur Dachform, Farbe oder maximalen Grundfläche. Gemeinde anfragen.</p>
       </div>
       <div class="bg-info-card">
-        <div class="ic-icon">❄️</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg></div>
         <h3>Kaltwintergarten vs. Wintergarten</h3>
         <p>Ein unbeheizter Kaltwintergarten mit Glasschiebewänden gilt in vielen Bundesländern als
            genehmigungsfreier Anbau. Sobald er beheizt wird, entsteht Genehmigungspflicht.</p>
       </div>
       <div class="bg-info-card">
-        <div class="ic-icon">🌳</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 9h-.2A1 1 0 0 1 8 7.3L12 3l4 4.3a1 1 0 0 1-.8 1.7H15l3 3.3a1 1 0 0 1-.7 1.7H17Z"/><path d="M12 22v-3"/></svg></div>
         <h3>Außenbereich (§35 BauGB)</h3>
         <p>Liegt Ihr Grundstück im Außenbereich? Dort sind fast alle baulichen Anlagen
            genehmigungspflichtig – unabhängig von der Größe. Wichtige Frage vor jeder Planung.</p>
       </div>
       <div class="bg-info-card">
-        <div class="ic-icon">📋</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div>
         <h3>Wir übernehmen die Planung</h3>
         <p>Als erfahrener Fachbetrieb kümmern wir uns um alle relevanten Unterlagen und begleiten Sie
            bei Bedarf durch den Genehmigungsprozess. Sprechen Sie uns an.</p>

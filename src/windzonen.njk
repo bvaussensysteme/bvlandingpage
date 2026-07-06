@@ -227,8 +227,9 @@ extraStyles: |
         margin-top: 8px;
       }
       .wz-disclaimer .disc-icon {
-        font-size: 1.1rem; flex-shrink: 0; margin-top: 1px;
+        flex-shrink: 0; margin-top: 1px; color: var(--gold-dark);
       }
+      .wz-disclaimer .disc-icon svg { width: 18px; height: 18px; display: block; }
       .wz-disclaimer p {
         font-size: 0.8rem; color: #666; line-height: 1.6; margin: 0;
       }
@@ -242,7 +243,8 @@ extraStyles: |
         background: var(--white); border: 1px solid var(--border); border-radius: 10px;
         padding: 22px; box-shadow: var(--shadow);
       }
-      .wz-info-card .ic-icon { font-size: 1.8rem; margin-bottom: 10px; }
+      .wz-info-card .ic-icon { margin-bottom: 10px; color: var(--gold-dark); }
+      .wz-info-card .ic-icon svg { width: 30px; height: 30px; }
       .wz-info-card h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--black); }
       .wz-info-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
 
@@ -775,7 +777,7 @@ skipLink: |
           <ul id="wz-suggestions" class="wz-suggestions" role="listbox" aria-label="Ortsvorschläge"></ul>
         </div>
         <button class="wz-btn-search" id="wz-search-btn" onclick="wzSearch()" aria-label="Standort ermitteln">
-          📍 Standort ermitteln
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Standort ermitteln
         </button>
       </div>
       <div class="wz-error" id="wz-error" role="alert" aria-live="polite"></div>
@@ -824,7 +826,7 @@ skipLink: |
 
       <!-- Legal Disclaimer -->
       <div class="wz-disclaimer" role="note">
-        <span class="disc-icon" aria-hidden="true">ℹ️</span>
+        <span class="disc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
         <p>
           <strong>Hinweis:</strong> Alle Angaben erfolgen ohne Gewähr. Die ermittelten Wind- und Schneelastwerte
           dienen ausschließlich der unverbindlichen Erstinformation und ersetzen keine statische Berechnung
@@ -857,7 +859,7 @@ skipLink: |
     </p>
     <div class="wz-info-cards">
       <div class="wz-info-card">
-        <div class="ic-icon">💨</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg></div>
         <h3>Windzonen (WZ 1–4)</h3>
         <p>
           Deutschland ist in vier Windzonen unterteilt (DIN EN 1991-1-4). WZ 1 gilt für windgeschützte
@@ -865,7 +867,7 @@ skipLink: |
         </p>
       </div>
       <div class="wz-info-card">
-        <div class="ic-icon">❄️</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg></div>
         <h3>Schneelastzonen (SLZ 1–3)</h3>
         <p>
           Die Schneelastzone bestimmt, wie viel Schneegewicht auf der Konstruktion lasten kann
@@ -874,7 +876,7 @@ skipLink: |
         </p>
       </div>
       <div class="wz-info-card">
-        <div class="ic-icon">📐</div>
+        <div class="ic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
         <h3>Relevanz für Ihre Konstruktion</h3>
         <p>
           Je nach Zone werden unterschiedliche Profilstärken, Stützweiten und Befestigungsabstände
