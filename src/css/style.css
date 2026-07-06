@@ -471,7 +471,7 @@ body.bv-menu-open #bv-scroll-top {
   box-shadow: 0 0 0 6px var(--white), 0 0 0 9px var(--gold), 0 0 18px rgba(196,154,42,0.5);
   transform: scale(1.08);
 }
-#bv-page-wrapper.a11y-pause-animations .prozess-circle { transition: none; }
+#bv-a11y-page-wrap.a11y-pause-animations .prozess-circle { transition: none; }
 .prozess-step h3 { font-size: 1.05rem; margin-bottom: 6px; }
 .prozess-step p  { font-size: 0.83rem; color: var(--muted); }
 
@@ -1877,9 +1877,9 @@ img { max-width: 100%; height: auto; }
 }
 
 /* ── Barrierefreiheit: Animationen stoppen ── */
-#bv-page-wrapper.a11y-pause-animations .hs-slide,
-#bv-page-wrapper.a11y-pause-animations .hs-slide-bg,
-#bv-page-wrapper.a11y-pause-animations .hs-progress {
+#bv-a11y-page-wrap.a11y-pause-animations .hs-slide,
+#bv-a11y-page-wrap.a11y-pause-animations .hs-slide-bg,
+#bv-a11y-page-wrap.a11y-pause-animations .hs-progress {
   transition: none !important;
   animation: none !important;
 }

@@ -25,7 +25,7 @@
   function animationsPaused() {
     // Nur durch a11y-Widget stoppen, NICHT durch prefers-reduced-motion
     // (sonst stoppt der Slider bei vielen Windows-PCs automatisch)
-    var wrapper = document.getElementById('bv-page-wrapper');
+    var wrapper = document.getElementById('bv-a11y-page-wrap');
     return wrapper && wrapper.classList.contains('a11y-pause-animations');
   }
 
@@ -143,7 +143,7 @@
     });
 
     // a11y widget
-    var wrapper = document.getElementById('bv-page-wrapper');
+    var wrapper = document.getElementById('bv-a11y-page-wrap');
     if (wrapper) {
       new MutationObserver(function() {
         if (animationsPaused()) { clearTimeout(timer); cancelAnimationFrame(progressRaf); }
