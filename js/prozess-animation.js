@@ -4,9 +4,12 @@
 (function () {
   'use strict';
 
-  var FILL_MS = 1900;
-  var GAP_MS = 450;
-  var HOLD_MS = 2200;
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Bei "Bewegung reduzieren" springt der Ring per CSS sofort auf voll (WCAG 2.3.3) -
+     Timing hier entsprechend verkürzen, damit Ziffer & Ring gemeinsam wechseln statt versetzt. */
+  var FILL_MS = reducedMotion ? 60 : 1900;
+  var GAP_MS = reducedMotion ? 500 : 450;
+  var HOLD_MS = reducedMotion ? 1200 : 2200;
   var POLL_MS = 300;
 
   var steps = [];
