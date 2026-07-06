@@ -39,23 +39,28 @@
     l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
     document.head.appendChild(l);
   }
+  function externalOK(raw){
+    if (!raw) return false;
+    if (raw === 'all') return true;
+    if (raw === 'necessary' || raw === 'rejected') return false;
+    if (raw.indexOf('custom:') === 0) return raw.indexOf('external=1') !== -1;
+    return false;
+  }
   try {
-    var consent = localStorage.getItem('bv_cookie_consent');
-    if(consent && consent !== 'rejected') loadFonts();
-    // Listen for consent being given
-    window.addEventListener('bv_consent_given', loadFonts);
-  } catch(e){ loadFonts(); } // fallback: load anyway if localStorage fails
+    if (externalOK(localStorage.getItem('bv_cookie_consent'))) loadFonts();
+    // Bei jeder neuen Einwilligung erneut pruefen (nicht blind laden -
+    // "Nur notwendige" oder abgewaehlte "Externe Dienste" duerfen
+    // Google Fonts NICHT laden)
+    window.addEventListener('bv_consent_given', function(){
+      if (externalOK(localStorage.getItem('bv_cookie_consent'))) loadFonts();
+    });
+  } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
   <link rel="stylesheet" href="/css/style.css" />
 
 
-<script src="../js/main.js" defer></script>
-  <script src="../js/cookie.js" defer></script>
-  <script src="../js/metricool.js" defer></script>
-  <script src="../js/accessibility.js" defer></script>
-  <script src="../js/chatbot.js" defer></script>
-    <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
+<!-- ===== SCHEMA.ORG - BreadcrumbList ===== -->
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
