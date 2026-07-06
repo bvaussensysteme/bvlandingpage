@@ -1495,6 +1495,11 @@ footer h4 {
   width: 18px; height: 18px; stroke: currentColor; fill: none;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
+.beta-contact-icon--whatsapp {
+  background: #25D366; color: #fff; border-radius: 6px;
+  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+}
+.beta-contact-icon--whatsapp svg { width: 15px; height: 15px; stroke: none; fill: currentColor; }
 .beta-btn {
   background: var(--gold);
   color: var(--black);
