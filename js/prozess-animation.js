@@ -4,9 +4,9 @@
 (function () {
   'use strict';
 
-  var FILL_MS = 1100;
-  var GAP_MS = 250;
-  var HOLD_MS = 1400;
+  var FILL_MS = 1900;
+  var GAP_MS = 450;
+  var HOLD_MS = 2200;
   var POLL_MS = 300;
 
   var steps = [];

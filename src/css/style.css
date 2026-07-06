@@ -467,7 +467,7 @@ body.bv-menu-open #bv-scroll-top {
 .prozess-ring-bg { fill: none; stroke: var(--border); stroke-width: 4; }
 .prozess-ring-fg {
   fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round;
-  transition: stroke-dashoffset 1.1s linear;
+  transition: stroke-dashoffset 1.9s linear;
 }
 #bv-a11y-page-wrap.a11y-pause-animations .prozess-ring-fg { transition: none; }
 .prozess-num {
