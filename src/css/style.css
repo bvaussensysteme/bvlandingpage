@@ -253,7 +253,11 @@ body.bv-menu-open #bv-scroll-top {
   border-right: 1px solid rgba(0,0,0,0.15);
 }
 .gold-item:last-child { border-right: none; }
-.gold-icon { font-size: 1.5rem; flex-shrink: 0; }
+.gold-icon { flex-shrink: 0; color: var(--gold-dark); }
+.gold-icon svg {
+  width: 26px; height: 26px; stroke: currentColor; fill: none;
+  stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+}
 .gold-item strong {
   display: block; font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.95rem; font-weight: 700; color: var(--black);
@@ -355,6 +359,11 @@ body.bv-menu-open #bv-scroll-top {
   border: 1px solid rgba(196,154,42,0.35);
   color: var(--gold-light); padding: 6px 14px;
   border-radius: 100px; font-size: 0.83rem;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.region-tag svg {
+  width: 13px; height: 13px; flex-shrink: 0; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 .region-tag--link { cursor: pointer; }
 .region-tag--link:hover, .region-tag--link:focus-visible { background: rgba(196,154,42,0.24); }
@@ -396,7 +405,11 @@ body.bv-menu-open #bv-scroll-top {
   width: 46px; height: 46px;
   background: var(--black); border: 2px solid var(--gold);
   border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+  justify-content: center; flex-shrink: 0; color: var(--gold);
+}
+.why-icon svg {
+  width: 22px; height: 22px; stroke: currentColor; fill: none;
+  stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
 }
 .why-item strong {
   display: block; font-family: 'Barlow Condensed', sans-serif;
@@ -999,12 +1012,16 @@ footer h4 {
   max-width: 760px; margin: 0 auto; text-align: center;
 }
 .kt-badge {
-  display: inline-block;
+  display: inline-flex; align-items: center; gap: 6px;
   background: rgba(196,154,42,0.12); color: var(--gold);
   font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px;
   text-transform: uppercase; padding: 5px 14px;
   border-radius: 100px; margin-bottom: 18px;
   border: 1px solid rgba(196,154,42,0.3);
+}
+.kt-badge svg {
+  width: 13px; height: 13px; flex-shrink: 0; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 .kt-title {
   font-family: 'Barlow Condensed', sans-serif;
@@ -1027,7 +1044,11 @@ footer h4 {
   border: 1px solid rgba(196,154,42,0.2);
   border-radius: 10px; padding: 18px 14px;
 }
-.kt-feature span { font-size: 1.6rem; display: block; margin-bottom: 8px; }
+.kt-feature span { display: block; margin-bottom: 8px; color: var(--gold); }
+.kt-feature span svg {
+  width: 26px; height: 26px; stroke: currentColor; fill: none;
+  stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+}
 .kt-feature strong { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; color: var(--white); margin-bottom: 4px; }
 .kt-feature p { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin: 0; }
 
@@ -1101,7 +1122,11 @@ footer h4 {
   text-align: center; padding: 24px 20px;
 }
 .galerie-placeholder-inner span {
-  font-size: 2.5rem; display: block; margin-bottom: 12px;
+  display: flex; justify-content: center; margin-bottom: 12px; color: var(--gold);
+}
+.galerie-placeholder-inner span svg {
+  width: 42px; height: 42px; stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }
 .galerie-placeholder-inner strong {
   display: block; font-family: 'Barlow Condensed', sans-serif;
@@ -1413,9 +1438,12 @@ footer h4 {
   opacity: 1;
 }
 .beta-icon {
-  font-size: 2.8rem;
   margin-bottom: 12px;
-  line-height: 1;
+  display: flex; justify-content: center; color: var(--gold-dark);
+}
+.beta-icon svg {
+  width: 48px; height: 48px; stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }
 .beta-title {
   font-family: 'Barlow Condensed', sans-serif;
@@ -1462,7 +1490,11 @@ footer h4 {
   text-align: left;
 }
 .beta-contact-item:hover { background: #e8e4db; }
-.beta-contact-icon { font-size: 1.1rem; flex-shrink: 0; }
+.beta-contact-icon { flex-shrink: 0; color: var(--gold-dark); }
+.beta-contact-icon svg {
+  width: 18px; height: 18px; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
 .beta-btn {
   background: var(--gold);
   color: var(--black);
@@ -1521,7 +1553,8 @@ footer h4 {
 
 /* Why section: better mobile */
 @media (max-width: 600px) {
-  .why-icon { width: 40px; height: 40px; font-size: 1.1rem; flex-shrink: 0; }
+  .why-icon { width: 40px; height: 40px; flex-shrink: 0; }
+  .why-icon svg { width: 19px; height: 19px; }
   .why-item strong { font-size: 0.97rem; }
   .stat-box .num { font-size: 2rem; }
 }
@@ -1553,7 +1586,7 @@ footer h4 {
   .kt-title { font-size: clamp(1.5rem, 6vw, 2rem); }
   .kt-sub { font-size: 0.88rem; }
   .kt-feature { padding: 14px 10px; }
-  .kt-feature span { font-size: 1.4rem; }
+  .kt-feature span svg { width: 22px; height: 22px; }
   .kt-feature strong { font-size: 0.85rem; }
   .kt-feature p { font-size: 0.72rem; }
   .konfigurator-teaser .btn { width: 100%; text-align: center; font-size: 1rem; padding: 14px 20px; }
@@ -1585,7 +1618,7 @@ footer h4 {
 /* Galerie: mobile */
 @media (max-width: 600px) {
   .galerie-item { min-height: 180px; }
-  .galerie-placeholder-inner span { font-size: 2rem; }
+  .galerie-placeholder-inner span svg { width: 34px; height: 34px; }
   .galerie-placeholder-inner strong { font-size: 0.95rem; }
   .galerie-placeholder-inner p { font-size: 0.78rem; }
 }
