@@ -2267,3 +2267,120 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 600px) {
   #bvChatPanel { right: 64px; bottom: 126px; max-width: calc(100vw - 76px); max-height: calc(100vh - 160px); }
 }
+
+/* ============================================
+   NEUER HERO (Split-Layout) – MOBILE FIRST
+   ============================================ */
+.hero-split { background: var(--black); }
+.hero-split-text {
+  padding: 44px 20px 32px;
+  position: relative;
+}
+.hero-split-text::before {
+  content: ''; display: block; width: 48px; height: 4px;
+  background: var(--gold); border-radius: 2px; margin-bottom: 18px;
+}
+.hero-eyebrow { color: var(--gold); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+.hero-split-text h1 {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800; line-height: 1.08;
+  color: #fff; font-size: clamp(2rem, 8vw, 2.6rem); margin-bottom: 16px; letter-spacing: -0.01em;
+}
+.hero-split-text h1 span { color: var(--gold); }
+.hero-split-text p.hero-split-desc { color: rgba(255,255,255,0.72); font-size: 1rem; line-height: 1.65; margin-bottom: 24px; }
+.hero-split .hero-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.hero-split .hero-btns .btn { width: 100%; text-align: center; justify-content: center; }
+.hero-split-img { position: relative; height: 260px; overflow: hidden; }
+.hero-split-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-split-img::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(17,17,17,0.55) 0%, rgba(17,17,17,0) 35%);
+}
+.hero-badge {
+  position: absolute; bottom: 14px; left: 14px; right: 14px; z-index: 2;
+  background: rgba(17,17,17,0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius);
+  padding: 12px 16px; color: #fff; display: flex; align-items: center; gap: 10px;
+}
+.hero-badge svg { width: 24px; height: 24px; stroke: var(--gold); fill: none; stroke-width: 2; flex-shrink: 0; }
+.hero-badge strong { display: block; font-size: 0.88rem; }
+.hero-badge span { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+.hero-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  padding: 22px 20px; border-top: 1px solid rgba(255,255,255,0.12);
+}
+.hero-stat { text-align: center; }
+.hero-stat strong { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; color: var(--gold); font-weight: 800; }
+.hero-stat span { font-size: 0.7rem; color: rgba(255,255,255,0.55); }
+
+@media (min-width: 640px) {
+  .hero-split .hero-btns { flex-direction: row; }
+  .hero-split .hero-btns .btn { width: auto; }
+  .hero-stats { justify-content: flex-start; }
+}
+
+@media (min-width: 900px) {
+  .hero-split { display: grid; grid-template-columns: 42% 58%; min-height: 680px; }
+  .hero-split-text { padding: 60px 56px; display: flex; flex-direction: column; justify-content: center; }
+  .hero-split-text::before { position: absolute; left: 56px; top: 60px; margin: 0; }
+  .hero-eyebrow { margin: 28px 0 18px; }
+  .hero-split-text h1 { font-size: clamp(2.6rem, 3.6vw, 3.6rem); margin-bottom: 22px; }
+  .hero-split-text p.hero-split-desc { font-size: 1.08rem; max-width: 440px; margin-bottom: 34px; }
+  .hero-split .hero-btns { margin-bottom: 48px; }
+  .hero-split-img { height: auto; }
+  .hero-badge { left: auto; right: 32px; bottom: 32px; padding: 16px 22px; }
+  .hero-badge svg { width: 28px; height: 28px; }
+  .hero-badge strong { font-size: 0.95rem; }
+  .hero-badge span { font-size: 0.75rem; }
+  .hero-stats { display: flex; gap: 36px; padding: 28px 0 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .hero-stat { text-align: left; }
+  .hero-stat strong { font-size: 2rem; }
+  .hero-stat span { font-size: 0.8rem; }
+}
+
+/* ============================================
+   BENTO-GRID (Leistungen) – MOBILE FIRST
+   ============================================ */
+.bento-grid { display: flex; flex-direction: column; gap: 16px; margin-top: 36px; }
+.bento-card {
+  position: relative; border-radius: var(--radius); overflow: hidden;
+  height: 240px;
+}
+.bento-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+.bento-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(17,17,17,0.92) 0%, rgba(17,17,17,0.35) 60%, rgba(17,17,17,0.05) 100%);
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 18px;
+  color: #fff;
+}
+.bento-card-overlay h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.2rem; margin-bottom: 6px; }
+.bento-card-overlay p { font-size: 0.85rem; color: rgba(255,255,255,0.85); line-height: 1.5; margin-bottom: 8px; }
+.bento-card-overlay .bento-link { color: var(--gold-light); font-size: 0.82rem; font-weight: 700; text-decoration: none; display: inline-block; }
+.bento-card-tag {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  background: rgba(255,255,255,0.14); backdrop-filter: blur(6px);
+  color: #fff; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.25);
+}
+
+@media (min-width: 640px) {
+  .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .bento-card--feature { grid-column: span 2; height: 320px; }
+}
+
+@media (min-width: 1100px) {
+  .bento-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 260px; gap: 20px; }
+  .bento-card { height: auto; }
+  .bento-card--feature { grid-column: span 2; grid-row: span 2; }
+  .bento-card-overlay h3 { font-size: 1.5rem; }
+  .bento-card--feature .bento-card-overlay h3 { font-size: 1.9rem; }
+  .bento-card-overlay { padding: 26px; }
+  /* Hover-Reveal nur für echte Zeigegeräte (Desktop) – auf Touch bleibt der Text immer sichtbar */
+  .bento-card-overlay p {
+    max-height: 0; opacity: 0; overflow: hidden; margin-bottom: 0;
+    transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.35s ease;
+  }
+  .bento-card-overlay .bento-link { opacity: 0; transform: translateY(6px); transition: opacity 0.3s ease, transform 0.3s ease; }
+  .bento-card:hover img { transform: scale(1.06); }
+  .bento-card:hover .bento-card-overlay p { max-height: 100px; opacity: 1; margin-bottom: 8px; }
+  .bento-card:hover .bento-card-overlay .bento-link { opacity: 1; transform: translateY(0); }
+}
