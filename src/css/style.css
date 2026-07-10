@@ -7,6 +7,7 @@
 :root {
   --gold:       #C49A2A;
   --gold-dark:  #9A7318;
+  --gold-text:  #7A5B12; /* Gold für Text auf hellem Grund, erfüllt 4.5:1 (WCAG AA) */
   --gold-light: #E8B840;
   --black:      #111111;
   --dark:       #1a1a1a;
@@ -44,7 +45,7 @@ body {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px; font-weight: 700;
   letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 10px;
+  color: var(--gold-text); margin-bottom: 10px;
 }
 h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; line-height: 1.08; font-weight: 800; }
 h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); }
@@ -269,7 +270,7 @@ body.bv-menu-open #bv-scroll-top {
   display: block; font-family: 'Barlow Condensed', sans-serif;
   font-size: 0.95rem; font-weight: 700; color: var(--black);
 }
-.gold-item span { font-size: 0.75rem; color: rgba(0,0,0,0.65); }
+.gold-item span { font-size: 0.75rem; color: rgba(0,0,0,0.72); }
 
 /* ============================================
    LEISTUNGEN (Services)
@@ -342,7 +343,7 @@ body.bv-menu-open #bv-scroll-top {
 .leistung-body p { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin-bottom: 14px; flex: 1; }
 .leistung-link {
   font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; color: var(--gold); font-size: 0.9rem;
+  font-weight: 700; color: var(--gold-text); font-size: 0.9rem;
   margin-top: auto;
   display: block;
   text-decoration: none;
@@ -645,7 +646,7 @@ body.bv-menu-open #bv-scroll-top {
   display: block; font-family: 'Barlow Condensed', sans-serif;
   font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 3px;
 }
-.kontakt-card a { color: var(--gold-dark); text-decoration: none; font-weight: 600; }
+.kontakt-card a { color: var(--gold-text); text-decoration: none; font-weight: 600; }
 .kontakt-card a:hover { color: var(--gold); }
 .kontakt-card p { color: var(--muted); font-size: 0.87rem; margin: 0; }
 .kontakt-card-meta { font-size: 0.8rem !important; margin-top: 3px !important; }
@@ -691,7 +692,8 @@ body.bv-menu-open #bv-scroll-top {
   transition: background 0.2s; letter-spacing: 0.3px;
 }
 .form-submit:hover { background: var(--gold-dark); color: var(--white); }
-.form-note { font-size: 0.78rem; color: rgba(255,255,255,0.4); text-align: center; margin-top: 10px; }
+.form-note { font-size: 0.78rem; color: rgba(255,255,255,0.62); text-align: center; margin-top: 10px; }
+.form-note a { color: var(--gold-light); }
 
 /* ============================================
    FOOTER
@@ -750,9 +752,9 @@ footer h4 {
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px;
   display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 10px; font-size: 0.78rem; color: rgba(255,255,255,0.35);
+  flex-wrap: wrap; gap: 10px; font-size: 0.78rem; color: rgba(255,255,255,0.6);
 }
-.footer-bottom a { color: rgba(255,255,255,0.45); text-decoration: none; }
+.footer-bottom a { color: rgba(255,255,255,0.65); text-decoration: none; }
 .footer-bottom a:hover { color: var(--gold); }
 
 /* ============================================
@@ -1046,7 +1048,7 @@ footer h4 {
    ============================================ */
 .nav-konfigurator {
   background: rgba(196,154,42,0.1) !important;
-  color: var(--gold) !important;
+  color: #7A5B12 !important; /* dunkleres Gold: 4.5:1-Kontrast auf hellem Button-Hintergrund (WCAG AA) */
   padding: 8px 14px !important;
   border-radius: var(--radius) !important;
   border: 1px solid rgba(196,154,42,0.3) !important;
@@ -1844,7 +1846,7 @@ img { max-width: 100%; height: auto; }
   width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
   accent-color: var(--gold); cursor: pointer;
 }
-.checkbox-label a { color: var(--gold-dark); text-decoration: underline; }
+.checkbox-label a { color: var(--gold-light); text-decoration: underline; }
 .checkbox-label a:hover { color: var(--gold); }
 
 /* ── Hero Buttons + Dots inline ── */
