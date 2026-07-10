@@ -21,4 +21,3 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://bv-aussensysteme.de/sitemap.xml
-LLMs: https://bv-aussensysteme.de/llms.txt
