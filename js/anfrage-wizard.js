@@ -43,6 +43,8 @@
     klinker:  '<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v6M15 9v6M9 15v6"/>',
     glas:     '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18"/>',
     steg:     '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 4v16M11 4v16M15 4v16"/>',
+    flach:    '<path d="M3 8h18"/><path d="M3 8l2-2h14l2 2"/><line x1="5" y1="8" x2="5" y2="19"/><line x1="19" y1="8" x2="19" y2="19"/><line x1="12" y1="8" x2="12" y2="19"/>',
+    pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
     frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>'
   };
   function svg(paths) {
@@ -52,10 +54,15 @@
   /* ---------- Ablauf je nach Produkt ---------- */
   function computeFlow() {
     var p = answers.produkt;
-    if (p === 'Terrassenüberdachung' || p === 'Sommergarten / Kaltwintergarten')
+    // Terrassendach TDS/SkyView & Kaltwintergarten: voller Detailablauf
+    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView' || p === 'Kaltwintergarten')
       return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'extras', 'kontakt', 'summary'];
+    // Carport: ohne Fassade/Extras
     if (p === 'Carport')
       return ['produkt', 'aufbau', 'masse', 'verglasung', 'kontakt', 'summary'];
+    // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Extras
+    if (p === 'Pergola / Lamellendach')
+      return ['produkt', 'aufbau', 'fassade', 'masse', 'extras', 'kontakt', 'summary'];
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'kontakt', 'summary'];
     return ['produkt'];
@@ -82,10 +89,12 @@
       title: 'Was möchten Sie anfragen?',
       render: function () {
         return optionCards('produkt', [
-          { value: 'Terrassenüberdachung', icon: I.terrasse },
-          { value: 'Carport', icon: I.carport },
-          { value: 'Sommergarten / Kaltwintergarten', icon: I.sommer },
-          { value: 'Sonstiges', icon: I.sonst }
+          { value: 'Terrassendach TDS', icon: I.terrasse, hint: 'Klassiker – Glas oder Polycarbonat' },
+          { value: 'Flachdach SkyView', icon: I.flach, hint: 'Modernes Flachdach-Design' },
+          { value: 'Carport', icon: I.carport, hint: 'TDS · Flat Line · Flat Box' },
+          { value: 'Pergola / Lamellendach', icon: I.pergola, hint: 'SunPro · Velaris' },
+          { value: 'Kaltwintergarten', icon: I.sommer, hint: 'Wettergeschützt, ungeheizt' },
+          { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' }
         ]);
       },
       valid: function () { return answers.produkt ? null : 'Bitte wählen Sie ein Produkt.'; }
