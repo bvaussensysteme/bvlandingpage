@@ -2165,7 +2165,7 @@ img { max-width: 100%; height: auto; }
   background: var(--black); border-radius: 10px;
   border: 1px solid rgba(196,154,42,0.25);
   display: flex; flex-direction: column;
-  height: 600px; max-height: 78vh; overflow: hidden;
+  height: 686px; max-height: 90vh; overflow: hidden;
 }
 .aw-head { padding: 22px 26px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .aw-head h3 { font-size: 1.4rem; color: var(--white); margin: 0 0 4px; }
@@ -2192,15 +2192,25 @@ img { max-width: 100%; height: auto; }
 .aw-option {
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
   background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.14);
-  border-radius: 12px; padding: 18px 12px; cursor: pointer; color: #fff;
+  border-radius: 12px; padding: 10px 10px 12px; cursor: pointer; color: #fff;
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
 }
 .aw-option:hover { border-color: rgba(196,154,42,0.6); transform: translateY(-2px); }
 .aw-option.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); }
-.aw-option-ic { width: 42px; height: 42px; color: var(--gold-light); }
-.aw-option-ic svg { width: 100%; height: 100%; }
-.aw-option-lbl { font-weight: 700; font-size: 0.95rem; font-family: 'Barlow Condensed', sans-serif; }
-.aw-option-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+/* Bild-Kachel (echte Produktgrafiken) */
+.aw-option-img {
+  width: 100%; height: 78px; background: #fff; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.aw-option-img img { max-width: 92%; max-height: 88%; object-fit: contain; display: block; }
+/* Icon-Fallback – gleiche weiße Kachel, damit alle Karten einheitlich wirken */
+.aw-option-ic {
+  width: 100%; height: 78px; background: #fff; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; color: var(--gold-dark);
+}
+.aw-option-ic svg { width: 40px; height: 40px; }
+.aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
+.aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.25; }
 
 /* Maße */
 .aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
@@ -2263,8 +2273,9 @@ img { max-width: 100%; height: auto; }
 .aw-photo-btn--mail { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 
 @media (max-width: 560px) {
+  /* Mobil: Assistent wächst mit dem Inhalt, Seite scrollt normal – kein inneres Scrollen */
   .anfrage-wizard { height: auto; max-height: none; }
-  .aw-body { max-height: 60vh; }
+  .aw-body { overflow: visible; }
   .aw-head, .aw-body, .aw-nav { padding-left: 18px; padding-right: 18px; }
   .aw-row { grid-template-columns: 1fr; }
 }

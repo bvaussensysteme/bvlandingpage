@@ -73,8 +73,11 @@
     var html = '<div class="aw-options">';
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
+      var media = o.img
+        ? '<span class="aw-option-img"><img src="images/wizard/wz_' + o.img + '.webp" alt="" loading="lazy"></span>'
+        : '<span class="aw-option-ic">' + svg(o.icon) + '</span>';
       html += '<button type="button" class="aw-option' + active + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
-        '<span class="aw-option-ic">' + svg(o.icon) + '</span>' +
+        media +
         '<span class="aw-option-lbl">' + esc(o.value) + '</span>' +
         (o.hint ? '<span class="aw-option-hint">' + esc(o.hint) + '</span>' : '') +
         '</button>';
@@ -89,11 +92,11 @@
       title: 'Was möchten Sie anfragen?',
       render: function () {
         return optionCards('produkt', [
-          { value: 'Terrassendach TDS', icon: I.terrasse, hint: 'Klassiker – Glas oder Polycarbonat' },
-          { value: 'Flachdach SkyView', icon: I.flach, hint: 'Modernes Flachdach-Design' },
-          { value: 'Carport', icon: I.carport, hint: 'TDS · Flat Line · Flat Box' },
-          { value: 'Pergola / Lamellendach', icon: I.pergola, hint: 'SunPro · Velaris' },
-          { value: 'Kaltwintergarten', icon: I.sommer, hint: 'Wettergeschützt, ungeheizt' },
+          { value: 'Terrassendach TDS', img: 'terrasse', hint: 'Klassiker – Glas oder Polycarbonat' },
+          { value: 'Flachdach SkyView', img: 'flach', hint: 'Modernes Flachdach-Design' },
+          { value: 'Carport', img: 'carport', hint: 'TDS · Flat Line · Flat Box' },
+          { value: 'Pergola / Lamellendach', img: 'pergola', hint: 'SunPro · Velaris' },
+          { value: 'Kaltwintergarten', img: 'kaltwinter', hint: 'Wettergeschützt, ungeheizt' },
           { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' }
         ]);
       },
@@ -104,8 +107,8 @@
       title: 'Art des Aufbaus',
       render: function () {
         return optionCards('aufbau', [
-          { value: 'Wandmontage', icon: I.wand, hint: 'Am Haus befestigt' },
-          { value: 'Freistehend', icon: I.frei, hint: 'Auf eigenen Stützen' }
+          { value: 'Wandmontage', img: 'wand', hint: 'Am Haus befestigt' },
+          { value: 'Freistehend', img: 'frei', hint: 'Auf eigenen Stützen' }
         ]);
       },
       valid: function () { return answers.aufbau ? null : 'Bitte wählen Sie die Art des Aufbaus.'; }
@@ -116,8 +119,8 @@
       sub: 'Wichtig für die passende Befestigung',
       render: function () {
         return optionCards('fassade', [
-          { value: 'Rauputz', icon: I.putz },
-          { value: 'Verklinkert', icon: I.klinker },
+          { value: 'Rauputz', img: 'rauputz' },
+          { value: 'Verklinkert', img: 'verklinkert' },
           { value: 'Sonstiges / weiß nicht', icon: I.frage }
         ]);
       },
@@ -147,8 +150,8 @@
       title: 'Welche Eindeckung wünschen Sie?',
       render: function () {
         return optionCards('verglasung', [
-          { value: 'VSG-Glas 8 mm', icon: I.glas, hint: 'Klar, edel, pflegeleicht' },
-          { value: 'Stegplatten (Polycarbonat) 16 mm', icon: I.steg, hint: 'Leicht & günstiger' },
+          { value: 'VSG-Glas 8 mm', img: 'glas', hint: 'Klar, edel, pflegeleicht' },
+          { value: 'Stegplatten (Polycarbonat) 16 mm', img: 'steg', hint: 'Leicht & günstiger' },
           { value: 'Noch unsicher – bitte beraten', icon: I.frage }
         ]);
       },
