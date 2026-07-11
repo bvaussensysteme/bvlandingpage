@@ -294,7 +294,7 @@
     barEl.style.width = pct + '%';
 
     // Buttons
-    backBtn.style.visibility = idx === 0 ? 'hidden' : 'visible';
+    backBtn.style.display = idx === 0 ? 'none' : '';
     if (currentId() === 'summary') {
       nextBtn.textContent = 'Anfrage absenden ✓';
       nextBtn.classList.add('aw-btn--send');
