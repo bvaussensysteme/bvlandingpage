@@ -2156,3 +2156,115 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 600px) {
   #bvChatPanel { right: 64px; bottom: 126px; max-width: calc(100vw - 76px); max-height: calc(100vh - 160px); }
 }
+
+/* ============================================
+   ANFRAGE-ASSISTENT (geführtes Kundenleitsystem)
+   Ersetzt das Kontaktformular, dunkles Layout, feste Höhe
+   ============================================ */
+.anfrage-wizard {
+  background: var(--black); border-radius: 10px;
+  border: 1px solid rgba(196,154,42,0.25);
+  display: flex; flex-direction: column;
+  height: 600px; max-height: 78vh; overflow: hidden;
+}
+.aw-head { padding: 22px 26px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.aw-head h3 { font-size: 1.4rem; color: var(--white); margin: 0 0 4px; }
+.aw-sub { font-size: 0.85rem; color: rgba(255,255,255,0.55); margin: 0 0 12px; }
+.aw-progress { height: 5px; background: rgba(255,255,255,0.12); border-radius: 100px; overflow: hidden; }
+.aw-progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 100px; transition: width 0.35s ease; }
+.aw-body { flex: 1; overflow-y: auto; padding: 22px 26px; -webkit-overflow-scrolling: touch; }
+.aw-nav { display: flex; gap: 12px; padding: 14px 26px 18px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.aw-btn {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
+  padding: 12px 22px; border-radius: var(--radius); cursor: pointer; border: 2px solid transparent;
+  transition: background 0.2s, color 0.2s, transform 0.2s; letter-spacing: 0.3px;
+}
+.aw-btn--back { background: transparent; color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
+.aw-btn--back:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.aw-btn--next { flex: 1; background: var(--gold); color: var(--black); }
+.aw-btn--next:hover { background: var(--gold-dark); color: #fff; }
+.aw-btn--send { background: #2a9d4e !important; color: #fff !important; }
+.aw-btn--send:hover { background: #23823f !important; }
+.aw-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* Option-Karten */
+.aw-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.aw-option {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.14);
+  border-radius: 12px; padding: 18px 12px; cursor: pointer; color: #fff;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.aw-option:hover { border-color: rgba(196,154,42,0.6); transform: translateY(-2px); }
+.aw-option.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); }
+.aw-option-ic { width: 42px; height: 42px; color: var(--gold-light); }
+.aw-option-ic svg { width: 100%; height: 100%; }
+.aw-option-lbl { font-weight: 700; font-size: 0.95rem; font-family: 'Barlow Condensed', sans-serif; }
+.aw-option-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+/* Maße */
+.aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.aw-dim label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; }
+.aw-dim-in { display: flex; align-items: center; }
+.aw-dim-in input {
+  flex: 1; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius) 0 0 var(--radius);
+  background: rgba(255,255,255,0.07); color: #fff; font-size: 0.95rem; font-family: inherit;
+}
+.aw-dim-in span { padding: 11px 14px; background: rgba(196,154,42,0.18); color: var(--gold-light); border: 1.5px solid rgba(255,255,255,0.15); border-left: none; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.85rem; font-weight: 700; }
+.aw-dim-in input:focus { outline: none; border-color: var(--gold); }
+
+/* Checkboxen (Extras) */
+.aw-group-h { font-size: 0.82rem; font-weight: 700; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 10px; }
+.aw-group-h + .aw-checks { margin-bottom: 18px; }
+.aw-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.aw-check {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.14);
+  border-radius: 100px; padding: 8px 14px; color: rgba(255,255,255,0.85); font-size: 0.85rem;
+  transition: all 0.15s;
+}
+.aw-check:hover { border-color: rgba(196,154,42,0.6); }
+.aw-check-box { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; flex-shrink: 0; }
+.aw-check.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); color: #fff; }
+.aw-check.is-active .aw-check-box { background: var(--gold); border-color: var(--gold); color: var(--black); }
+
+/* Textarea / Kontaktfelder */
+.aw-textarea { width: 100%; min-height: 140px; resize: vertical; padding: 12px 14px; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius); background: rgba(255,255,255,0.07); color: #fff; font-family: inherit; font-size: 0.95rem; }
+.aw-textarea:focus { outline: none; border-color: var(--gold); }
+.aw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.aw-field { margin-bottom: 12px; }
+.aw-field label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; }
+.aw-field input { width: 100%; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.95rem; font-family: inherit; }
+.aw-field input:focus { outline: none; border-color: var(--gold); }
+.aw-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 0.82rem; color: rgba(255,255,255,0.75); line-height: 1.5; margin-top: 6px; cursor: pointer; }
+.aw-consent input { margin-top: 3px; flex-shrink: 0; width: 16px; height: 16px; accent-color: var(--gold); }
+.aw-consent a { color: var(--gold-light); }
+.aw-note { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 12px; }
+.aw-error { margin-top: 14px; background: rgba(224,85,85,0.15); border: 1px solid rgba(224,85,85,0.5); color: #ffb3b3; font-size: 0.85rem; padding: 10px 14px; border-radius: var(--radius); }
+
+/* Zusammenfassung */
+.aw-summary { display: flex; flex-direction: column; gap: 1px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+.aw-sum-row { display: flex; justify-content: space-between; gap: 16px; background: rgba(0,0,0,0.35); padding: 11px 16px; }
+.aw-sum-k { color: rgba(255,255,255,0.6); font-size: 0.85rem; flex-shrink: 0; }
+.aw-sum-v { color: #fff; font-size: 0.9rem; font-weight: 600; text-align: right; }
+
+/* Erfolg / Fotos */
+.aw-done { text-align: center; padding: 8px 0; }
+.aw-done-ic { width: 60px; height: 60px; margin: 0 auto 16px; border-radius: 50%; background: #2a9d4e; color: #fff; font-size: 2rem; display: flex; align-items: center; justify-content: center; }
+.aw-done-lead { color: #fff; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; font-family: 'Barlow Condensed', sans-serif; }
+.aw-done-ref { color: var(--gold-light); font-size: 0.95rem; margin-bottom: 8px; }
+.aw-done-txt { color: rgba(255,255,255,0.65); font-size: 0.88rem; margin-bottom: 20px; }
+.aw-photo-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(196,154,42,0.25); border-radius: 12px; padding: 18px; }
+.aw-photo-h { color: #fff; font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+.aw-photo-sub { color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-bottom: 14px; }
+.aw-photo-btn { display: block; padding: 12px; border-radius: var(--radius); font-weight: 700; font-family: 'Barlow Condensed', sans-serif; text-decoration: none; margin-bottom: 8px; transition: filter 0.15s; }
+.aw-photo-btn:hover { filter: brightness(1.08); }
+.aw-photo-btn--wa { background: var(--gold); color: var(--black); }
+.aw-photo-btn--mail { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+@media (max-width: 560px) {
+  .anfrage-wizard { height: auto; max-height: none; }
+  .aw-body { max-height: 60vh; }
+  .aw-head, .aw-body, .aw-nav { padding-left: 18px; padding-right: 18px; }
+  .aw-row { grid-template-columns: 1fr; }
+}

@@ -1316,56 +1316,19 @@
         </div>
       </div>
 
-      <div class="kontakt-form">
-        <h3>Jetzt anfragen – kostenlos & unverbindlich</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="vorname" data-i18n="kontakt_vorname">Vorname</label> *
-            <input type="text" id="vorname" name="vorname" placeholder="Max" data-i18n-placeholder="kontakt_vorname" required autocomplete="given-name" />
-          </div>
-          <div class="form-group">
-            <label for="nachname" data-i18n="kontakt_nachname">Nachname</label> *
-            <input type="text" id="nachname" name="nachname" placeholder="Mustermann" data-i18n-placeholder="kontakt_nachname" required autocomplete="family-name" />
-          </div>
+      <div class="anfrage-wizard" id="anfrageWizard" aria-label="Anfrage-Assistent">
+        <div class="aw-head">
+          <h3 id="awTitle">Kostenlose Anfrage</h3>
+          <p class="aw-sub" id="awSub">In wenigen Schritten zu Ihrem individuellen Angebot</p>
+          <div class="aw-progress" aria-hidden="true"><div class="aw-progress-bar" id="awProgressBar"></div></div>
         </div>
-        <div class="form-group">
-          <label for="email" data-i18n="kontakt_email">E-Mail-Adresse</label> *
-          <input type="email" id="email" name="email" placeholder="max@beispiel.de" data-i18n-placeholder="kontakt_email" required autocomplete="email" />
+        <div class="aw-body" id="awBody">
+          <noscript><p style="color:#fff;">Bitte aktivieren Sie JavaScript, oder kontaktieren Sie uns direkt telefonisch unter 015678696609.</p></noscript>
         </div>
-        <div class="form-group">
-          <label for="telefon" data-i18n="kontakt_telefon">Telefon / WhatsApp</label>
-          <input type="tel" id="telefon" name="telefon" placeholder="0156 …" data-i18n-placeholder="kontakt_telefon" autocomplete="tel" />
+        <div class="aw-nav" id="awNav">
+          <button type="button" class="aw-btn aw-btn--back" id="awBack">← Zurück</button>
+          <button type="button" class="aw-btn aw-btn--next" id="awNext">Weiter →</button>
         </div>
-        <div class="form-group">
-          <label for="produkt" data-i18n="kontakt_produkt">Ich interessiere mich für</label>
-          <select id="produkt" name="produkt">
-            <option value="">Bitte wählen …</option>
-            <option>Terrassenüberdachung</option>
-            <option>Carport</option>
-            <option>Pergola / Lamellendach</option>
-            <option>Kaltwintergarten</option>
-            <option>Sonnenschutz / Markise</option>
-            <option>Geländer</option>
-            <option>Sonstiges / allgemeine Beratung</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="nachricht" data-i18n="kontakt_nachricht">Nachricht</label>
-          <textarea id="nachricht" name="nachricht"
-            placeholder="Beschreiben Sie kurz Ihr Vorhaben, z.B. Terrassengröße, gewünschte Verglasung, Region …"></textarea>
-        </div>
-        <div class="form-group form-group--checkbox">
-          <label class="checkbox-label">
-            <input aria-labelledby="datenschutz-label" type="checkbox" id="datenschutz-consent" name="datenschutz" required />
-            <span>Ich habe die <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten zur Bearbeitung meiner Anfrage einverstanden. *</span>
-          </label>
-        </div>
-        <button type="button" class="form-submit" id="formSubmit" data-i18n="kontakt_btn">
-          Kostenlose Beratung anfordern →
-        </button>
-        <div id="formMsg" style="margin-top:10px;min-height:20px;font-size:0.88rem;text-align:center;"></div>
-        <p class="form-note" style="text-align:center;color:var(--gold-light);font-weight:600;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Antwort in der Regel innerhalb von 24 Stunden</p>
-        <p class="form-note" data-i18n="kontakt_note">* Pflichtfelder. Ihre Daten werden vertraulich behandelt und nicht weitergegeben.</p>
       </div>
 
     </div>
@@ -1487,6 +1450,7 @@
 
 <!-- ===== JAVASCRIPT ===== -->
 <script src="js/main.js" defer></script>
+<script src="js/anfrage-wizard.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/slider.js" defer></script>
