@@ -134,12 +134,12 @@
         var opt = answers.produkt === 'Sonstiges';
         var tds = answers.produkt === 'Terrassendach TDS';
         return '<div class="aw-dims">' +
-          dimField('breite', 'Breite', 'z. B. 4000') +
-          dimField('tiefe', 'Tiefe', 'z. B. 3000') +
-          dimField('hoehe', 'Höhe', 'z. B. 2500') +
+          dimField('breite', 'Breite', 'z. B. 400', 'cm') +
+          dimField('tiefe', 'Tiefe', 'z. B. 300', 'cm') +
+          dimField('hoehe', 'Höhe (optional)', 'z. B. 250', 'cm') +
           (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 30', 'cm') : '') +
           '</div>' +
-          '<p class="aw-note">Maße in Millimeter (mm)' + (tds ? ', Dachvorsprung in cm' : '') + '.' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
+          '<p class="aw-note">Alle Maße in Zentimeter (cm).' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
       },
       valid: function () {
         if (answers.produkt === 'Sonstiges') return null; // optional
@@ -306,7 +306,7 @@
     if (answers.aufbau) p.push(['Aufbau', answers.aufbau]);
     if (answers.fassade) p.push(['Fassade', answers.fassade]);
     var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
-    if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
+    if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
     if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
