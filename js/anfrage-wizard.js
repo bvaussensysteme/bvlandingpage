@@ -119,8 +119,8 @@
       sub: 'Wichtig für die passende Befestigung',
       render: function () {
         return optionCards('fassade', [
-          { value: 'Rauputz', img: 'rauputz' },
-          { value: 'Verklinkert', img: 'verklinkert' },
+          { value: 'Rauputz', img: 'rauputz', photo: true },
+          { value: 'Verklinkert', img: 'verklinkert', photo: true },
           { value: 'Sonstiges / weiß nicht', icon: I.frage }
         ]);
       },
