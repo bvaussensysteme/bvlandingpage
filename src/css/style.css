@@ -2165,15 +2165,15 @@ img { max-width: 100%; height: auto; }
   background: var(--black); border-radius: 10px;
   border: 1px solid rgba(196,154,42,0.25);
   display: flex; flex-direction: column;
-  height: 720px; max-height: 92vh; overflow: hidden;
+  height: 680px; max-height: 92vh; overflow: hidden;
 }
-.aw-head { padding: 22px 26px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
-.aw-head h3 { font-size: 1.4rem; color: var(--white); margin: 0 0 4px; }
-.aw-sub { font-size: 0.85rem; color: rgba(255,255,255,0.55); margin: 0 0 12px; }
+.aw-head { padding: 18px 26px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.aw-head h3 { font-size: 1.35rem; color: var(--white); margin: 0 0 3px; }
+.aw-sub { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin: 0 0 10px; }
 .aw-progress { height: 5px; background: rgba(255,255,255,0.12); border-radius: 100px; overflow: hidden; }
 .aw-progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 100px; transition: width 0.35s ease; }
-.aw-body { flex: 1; overflow-y: auto; padding: 22px 26px; -webkit-overflow-scrolling: touch; }
-.aw-nav { display: flex; gap: 12px; padding: 14px 26px 18px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+.aw-body { flex: 1; overflow-y: auto; padding: 18px 26px; -webkit-overflow-scrolling: touch; }
+.aw-nav { display: flex; gap: 12px; padding: 12px 26px 16px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .aw-btn {
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
   padding: 12px 22px; border-radius: var(--radius); cursor: pointer; border: 2px solid transparent;
@@ -2188,34 +2188,35 @@ img { max-width: 100%; height: auto; }
 .aw-btn:disabled { opacity: 0.6; cursor: default; }
 
 /* Option-Karten */
-.aw-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.aw-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 /* Einzelne letzte Karte bei ungerader Anzahl über volle Breite (z. B. „Sonstiges") */
 .aw-options .aw-option:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .aw-option {
-  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
   background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.14);
-  border-radius: 12px; padding: 10px 10px 12px; cursor: pointer; color: #fff;
+  border-radius: 12px; padding: 8px 8px 10px; cursor: pointer; color: #fff;
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
 }
 .aw-option:hover { border-color: rgba(196,154,42,0.6); transform: translateY(-2px); }
 .aw-option.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); }
 /* Bild-Kachel (Produktgrafiken auf weißem Grund – object-fit contain) */
 .aw-option-img {
-  width: 100%; height: 92px; background: #fff; border-radius: 8px;
+  width: 100%; height: 84px; background: #fff; border-radius: 8px;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 .aw-option-img img { max-width: 92%; max-height: 88%; object-fit: contain; display: block; }
-/* Lifestyle-Fotos – bildfüllend (object-fit cover), kein weißer Rand */
-.aw-option-img--photo { background: none; }
-.aw-option-img--photo img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+/* Lifestyle-Fotos – festes Seitenverhältnis 1.9:1 = Bildverhältnis, damit „cover" das
+   Produkt nie anschneidet und es immer zentriert komplett sichtbar bleibt */
+.aw-option-img--photo { background: none; height: auto; aspect-ratio: 1.9 / 1; }
+.aw-option-img--photo img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; object-position: center; }
 /* Icon-Fallback – gleiche weiße Kachel, damit alle Karten einheitlich wirken */
 .aw-option-ic {
-  width: 100%; height: 78px; background: #fff; border-radius: 8px;
+  width: 100%; height: 72px; background: #fff; border-radius: 8px;
   display: flex; align-items: center; justify-content: center; color: var(--gold-dark);
 }
-.aw-option-ic svg { width: 40px; height: 40px; }
+.aw-option-ic svg { width: 38px; height: 38px; }
 .aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
-.aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.25; }
+.aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.2; }
 
 /* Maße */
 .aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
