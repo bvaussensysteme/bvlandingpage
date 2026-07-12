@@ -2228,6 +2228,9 @@ img { max-width: 100%; height: auto; }
   display: flex; align-items: center; justify-content: center; color: var(--gold-light);
 }
 .aw-option-ic svg { width: 38px; height: 38px; }
+/* Großes Icon-Feld – gleiche Größe wie eine Foto-Kachel (z. B. LED „Nein") */
+.aw-option-ic--big { height: auto; aspect-ratio: 1.9 / 1; }
+.aw-option-ic--big svg { width: 52px; height: 52px; }
 .aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
 .aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.2; }
 
@@ -2242,6 +2245,24 @@ img { max-width: 100%; height: auto; }
 }
 .aw-pill:hover { border-color: rgba(196,154,42,0.6); }
 .aw-pill.is-active { border-color: var(--gold); background: rgba(196,154,42,0.16); color: #fff; }
+/* Rundes Eingabefeld für freie Spot-Anzahl (gleiche Optik wie ein Pill) */
+.aw-pill-input {
+  display: inline-flex; align-items: center; gap: 2px;
+  border: 1.5px solid rgba(255,255,255,0.16); border-radius: 100px;
+  background: rgba(255,255,255,0.05); padding: 0 16px 0 8px;
+  transition: border-color 0.15s;
+}
+.aw-pill-input:focus-within { border-color: var(--gold); }
+.aw-pill-input input {
+  width: 4.6em; background: transparent; border: none; color: #fff; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem; padding: 9px 4px;
+  -webkit-appearance: none; -moz-appearance: textfield; appearance: none;
+}
+.aw-pill-input input::-webkit-outer-spin-button,
+.aw-pill-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.aw-pill-input input:focus { outline: none; }
+.aw-pill-input input::placeholder { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+.aw-pill-input > span { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
 
 /* Tipp-/Nutzen-Banner (sanfter Upsell-Nudge) */
 .aw-tip {
