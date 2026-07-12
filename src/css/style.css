@@ -2343,6 +2343,7 @@ img { max-width: 100%; height: auto; }
 
 /* Textarea / Kontaktfelder */
 .aw-textarea { width: 100%; min-height: 140px; resize: vertical; padding: 12px 14px; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius); background: rgba(255,255,255,0.07); color: #fff; font-family: inherit; font-size: 0.95rem; }
+.aw-textarea--sm { min-height: 90px; margin-top: 6px; }
 .aw-textarea:focus { outline: none; border-color: var(--gold); }
 .aw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .aw-field { margin-bottom: 12px; }
