@@ -13,7 +13,7 @@
 
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
-    { value: 'Keine Angabe', img: 'keine' },
+    { value: 'Keine Angabe' },
     { value: 'Keil', img: 'keil' },
     { value: 'Rahmenwand', img: 'rahmenwand' },
     { value: 'Schiebetür', img: 'schiebetuer' },
