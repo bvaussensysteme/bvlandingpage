@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="css/style.css"><style>body{background:#333;margin:0;padding:10px}</style>
 </head><body>
-<div style="max-width:400px;margin:0 auto">
+<div style="max-width:390px;margin:0 auto">
   <div class="anfrage-wizard" id="anfrageWizard">
     <div class="aw-head"><h3 id="awTitle">x</h3><p class="aw-sub" id="awSub">…</p>
       <div class="aw-progress"><div class="aw-progress-bar" id="awProgressBar"></div></div></div>
@@ -10,12 +10,12 @@
     <div class="aw-nav" id="awNav"><button class="aw-btn aw-btn--back" id="awBack">←</button><button class="aw-btn aw-btn--next" id="awNext">Weiter</button></div>
   </div></div>
 <script src="js/anfrage-wizard.js"></script>
-<script>window.__go=function(target){var nx=document.getElementById('awNext');
+<script>setTimeout(function(){var nx=document.getElementById('awNext');
  document.querySelector('.aw-option[data-value="Terrassendach TDS"]').click(); nx.click();
  document.querySelector('.aw-option[data-value="Wandmontage"]').click(); nx.click();
  document.querySelector('.aw-option[data-value="Rauputz"]').click(); nx.click();
  document.getElementById('aw_breite').value='400'; document.getElementById('aw_tiefe').value='300'; nx.click();
  document.querySelector('.aw-option[data-value="Polycarbonat klar"]').click(); nx.click();
- if(target==='erw'){ document.querySelector('.aw-option[data-value="Keine Markise"]').click(); nx.click(); }
-};setTimeout(function(){window.__go(location.hash==='#erw'?'erw':'markise');},300);</script>
-</body></html>
+ document.querySelector('.aw-option[data-value="Keine Markise"]').click(); nx.click();
+ if(location.hash==='#open'){ document.querySelector('.aw-dd-toggle[data-dd-toggle="erw_links"]').click(); }
+},300);</script></body></html>

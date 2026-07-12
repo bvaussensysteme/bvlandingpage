@@ -11,9 +11,16 @@
   var MAIL = 'info@bv-aussensysteme.de';
   var ASSET_VER = '20260712e'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
-  /* Dropdown-Optionen für die Erweiterungen (Platzhalter – vom Betreiber final festgelegt) */
-  var ERW_SEITE = ['Keine', 'Festelement', 'Glasschiebetür', 'Senkrechtmarkise', 'Velaris-Seitenelement'];
-  var ERW_VORNE = ['Keine', 'Festelement', 'Glasschiebetür', 'Senkrechtmarkise', 'Velaris-Seitenelement'];
+  /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
+  var ERW_OPTS = [
+    { value: 'Keine Angabe' },                        // ohne Foto → Icon
+    { value: 'Rahmenwand', img: 'rahmenwand' },
+    { value: 'Schiebetür', img: 'schiebetuer' },
+    { value: 'Plankenwand', img: 'plankenwand' },
+    { value: 'Senkrechtmarkise', img: 'senkrechtmarkise' },
+    { value: 'Velaris', img: 'velaris' }
+  ];
+  function erwOpt(v) { for (var i = 0; i < ERW_OPTS.length; i++) if (ERW_OPTS[i].value === v) return ERW_OPTS[i]; return null; }
 
   var wizard = document.getElementById('anfrageWizard');
   if (!wizard) return;
@@ -198,16 +205,12 @@
       sub: 'Seiten und Stirnseite optional schließen – alles optional',
       render: function () {
         return '<div class="aw-erws">' +
-          selectField('erw_links', 'Erweiterung links', ERW_SEITE) +
-          selectField('erw_rechts', 'Erweiterung rechts', ERW_SEITE) +
-          selectField('erw_vorne', 'Erweiterung vorne (Stirnseite)', ERW_VORNE) +
+          ddField('erw_links', 'Erweiterung links') +
+          ddField('erw_rechts', 'Erweiterung rechts') +
+          ddField('erw_vorne', 'Erweiterung vorne (Stirnseite)') +
           '</div>';
       },
-      collect: function () {
-        ['erw_links', 'erw_rechts', 'erw_vorne'].forEach(function (k) {
-          var e = document.getElementById(k); if (e) answers[k] = e.value;
-        });
-      },
+      collect: function () {}, // Auswahl wird direkt beim Klick gesetzt
       valid: function () { return null; } // optional
     },
 
@@ -295,13 +298,25 @@
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
   }
-  function selectField(id, label, opts) {
-    var cur = answers[id] || opts[0];
-    var o = opts.map(function (v) {
-      return '<option value="' + esc(v) + '"' + (cur === v ? ' selected' : '') + '>' + esc(v) + '</option>';
+  function ddThumb(value) {
+    var o = erwOpt(value);
+    if (o && o.img) return '<span class="aw-dd-thumb"><img src="images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>';
+    return '<span class="aw-dd-thumb aw-dd-thumb--none">' + svg(I.aus) + '</span>';
+  }
+  function ddField(id, label) {
+    var cur = answers[id] || 'Keine Angabe';
+    var opts = ERW_OPTS.map(function (o) {
+      var active = cur === o.value ? ' is-active' : '';
+      return '<button type="button" class="aw-dd-opt' + active + '" data-dd-pick="' + id + '" data-value="' + esc(o.value) + '">' +
+        ddThumb(o.value) + '<span>' + esc(o.value) + '</span></button>';
     }).join('');
-    return '<div class="aw-erw"><label class="aw-erw-lbl" for="' + id + '">' + esc(label) + '</label>' +
-      '<div class="aw-select-wrap"><select id="' + id + '" class="aw-select">' + o + '</select></div></div>';
+    return '<div class="aw-dd" data-dd="' + id + '">' +
+      '<span class="aw-erw-lbl">' + esc(label) + '</span>' +
+      '<button type="button" class="aw-dd-toggle" data-dd-toggle="' + id + '">' +
+        ddThumb(cur) + '<span class="aw-dd-cur">' + esc(cur) + '</span><span class="aw-dd-arrow"></span>' +
+      '</button>' +
+      '<div class="aw-dd-panel" data-dd-panel="' + id + '" hidden>' + opts + '</div>' +
+      '</div>';
   }
   function dimField(id, label, ph, unit) {
     return '<div class="aw-dim"><label for="aw_' + id + '">' + label + '</label>' +
@@ -405,6 +420,24 @@
         Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="' + f + '"]'), function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
         clearError();
+      });
+    });
+    // Erweiterungs-Dropdowns: Auf-/Zuklappen
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-dd-toggle');
+        var panel = bodyEl.querySelector('.aw-dd-panel[data-dd-panel="' + id + '"]');
+        var open = panel && !panel.hidden;
+        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-panel'), function (p) { p.hidden = true; });
+        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (t) { t.classList.remove('is-open'); });
+        if (!open && panel) { panel.hidden = false; btn.classList.add('is-open'); }
+      });
+    });
+    // Erweiterungs-Dropdowns: Option wählen
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-opt'), function (btn) {
+      btn.addEventListener('click', function () {
+        answers[btn.getAttribute('data-dd-pick')] = btn.getAttribute('data-value');
+        render();
       });
     });
     // Checkboxen (Mehrfach)
