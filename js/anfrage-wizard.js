@@ -45,7 +45,8 @@
     steg:     '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 4v16M11 4v16M15 4v16"/>',
     flach:    '<path d="M3 8h18"/><path d="M3 8l2-2h14l2 2"/><line x1="5" y1="8" x2="5" y2="19"/><line x1="19" y1="8" x2="19" y2="19"/><line x1="12" y1="8" x2="12" y2="19"/>',
     pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
-    frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>'
+    frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>',
+    aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -56,13 +57,13 @@
     var p = answers.produkt;
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'extras', 'kontakt', 'summary'];
+      return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'extras', 'led', 'kontakt', 'summary'];
     // Carport: ohne Fassade/Extras
     if (p === 'Carport')
-      return ['produkt', 'aufbau', 'masse', 'verglasung', 'kontakt', 'summary'];
+      return ['produkt', 'aufbau', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
     // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Extras
     if (p === 'Pergola / Lamellendach')
-      return ['produkt', 'aufbau', 'fassade', 'masse', 'extras', 'kontakt', 'summary'];
+      return ['produkt', 'aufbau', 'fassade', 'masse', 'extras', 'led', 'kontakt', 'summary'];
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'kontakt', 'summary'];
     return ['produkt'];
@@ -195,6 +196,28 @@
       valid: function () { return null; } // optional
     },
 
+    led: {
+      title: 'LED-Beleuchtung im Dach?',
+      sub: 'Dimmbare Spots, direkt ins Profil integriert',
+      render: function () {
+        var cards = optionCards('led', [
+          { value: 'Ja, mit LED-Spots', img: 'led', photo: true, hint: 'Stimmungsvolles Licht am Abend' },
+          { value: 'Nein, ohne Beleuchtung', icon: I.aus }
+        ]);
+        // Set-Größe nur bei „Ja" (2, 4 oder 6 Spots)
+        if (hasLed(answers.led)) {
+          cards += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
+            pill('ledset', '2er-Set') + pill('ledset', '4er-Set') + pill('ledset', '6er-Set') + '</div></div>';
+        }
+        return cards;
+      },
+      valid: function () {
+        if (!answers.led) return 'Bitte wählen Sie, ob Sie LED-Beleuchtung wünschen.';
+        if (hasLed(answers.led) && !answers.ledset) return 'Bitte wählen Sie die Anzahl der Spots.';
+        return null;
+      }
+    },
+
     wunsch: {
       title: 'Was können wir für Sie tun?',
       render: function () {
@@ -252,6 +275,7 @@
 
   /* ---------- Feld-Helfer ---------- */
   function isGlas(v) { return v && v.indexOf('VSG-Glas') === 0; }
+  function hasLed(v) { return v && v.indexOf('Ja') === 0; }
   function pill(field, value) {
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
@@ -282,6 +306,7 @@
     var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
+    if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
     if (answers.wunsch) p.push(['Wunsch', answers.wunsch]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
@@ -340,6 +365,8 @@
         if (f === 'produkt') flow = computeFlow();
         // Eindeckung neu rendern, damit die Glasstärke-Auswahl ein-/ausblendet
         if (f === 'verglasung') { if (!isGlas(btn.getAttribute('data-value'))) answers.glasstaerke = ''; render(); }
+        // LED neu rendern, damit die Set-Auswahl ein-/ausblendet
+        if (f === 'led') { if (!hasLed(btn.getAttribute('data-value'))) answers.ledset = ''; render(); }
       });
     });
     // Glasstärke-Pills (Einfachauswahl)
