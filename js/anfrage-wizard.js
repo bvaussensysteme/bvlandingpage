@@ -132,12 +132,14 @@
       sub: 'Grobe Angaben genügen – wir messen später vor Ort exakt nach',
       render: function () {
         var opt = answers.produkt === 'Sonstiges';
+        var tds = answers.produkt === 'Terrassendach TDS';
         return '<div class="aw-dims">' +
           dimField('breite', 'Breite', 'z. B. 4000') +
           dimField('tiefe', 'Tiefe', 'z. B. 3000') +
           dimField('hoehe', 'Höhe', 'z. B. 2500') +
+          (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 30', 'cm') : '') +
           '</div>' +
-          '<p class="aw-note">Angaben in Millimeter (mm).' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : '') + '</p>';
+          '<p class="aw-note">Maße in Millimeter (mm)' + (tds ? ', Dachvorsprung in cm' : '') + '.' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
       },
       valid: function () {
         if (answers.produkt === 'Sonstiges') return null; // optional
@@ -280,9 +282,9 @@
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
   }
-  function dimField(id, label, ph) {
+  function dimField(id, label, ph, unit) {
     return '<div class="aw-dim"><label for="aw_' + id + '">' + label + '</label>' +
-      '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>mm</span></div></div>';
+      '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>' + (unit || 'mm') + '</span></div></div>';
   }
   function txtField(id, label, v, ph, type, ac) {
     return '<div class="aw-field"><label for="' + id + '">' + label + '</label>' +
@@ -291,7 +293,7 @@
   function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
   function collectMasse() {
-    ['breite', 'tiefe', 'hoehe'].forEach(function (k) {
+    ['breite', 'tiefe', 'hoehe', 'vorsprung'].forEach(function (k) {
       var e = document.getElementById('aw_' + k);
       if (e) answers[k] = e.value.trim();
     });
@@ -305,6 +307,7 @@
     if (answers.fassade) p.push(['Fassade', answers.fassade]);
     var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
+    if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
