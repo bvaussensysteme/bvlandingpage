@@ -11,6 +11,17 @@
   var MAIL = 'info@bv-aussensysteme.de';
   var ASSET_VER = '20260712e'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
+  /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
+  var ERW_OPTS = [
+    { value: 'Keine Angabe' },                        // ohne Foto → Icon
+    { value: 'Rahmenwand', img: 'rahmenwand' },
+    { value: 'Schiebetür', img: 'schiebetuer' },
+    { value: 'Plankenwand', img: 'plankenwand' },
+    { value: 'Senkrechtmarkise', img: 'senkrechtmarkise' },
+    { value: 'Velaris', img: 'velaris' }
+  ];
+  function erwOpt(v) { for (var i = 0; i < ERW_OPTS.length; i++) if (ERW_OPTS[i].value === v) return ERW_OPTS[i]; return null; }
+
   var wizard = document.getElementById('anfrageWizard');
   if (!wizard) return;
 
@@ -47,7 +58,8 @@
     flach:    '<path d="M3 8h18"/><path d="M3 8l2-2h14l2 2"/><line x1="5" y1="8" x2="5" y2="19"/><line x1="19" y1="8" x2="19" y2="19"/><line x1="12" y1="8" x2="12" y2="19"/>',
     pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
     frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>',
-    aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>'
+    aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -58,13 +70,13 @@
     var p = answers.produkt;
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'extras', 'led', 'kontakt', 'summary'];
-    // Carport: ohne Fassade/Extras
+      return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary'];
+    // Carport: ohne Fassade/Markise/Erweiterungen
     if (p === 'Carport')
       return ['produkt', 'aufbau', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
-    // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Extras
+    // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Markise/Erweiterungen
     if (p === 'Pergola / Lamellendach')
-      return ['produkt', 'aufbau', 'fassade', 'masse', 'extras', 'led', 'kontakt', 'summary'];
+      return ['produkt', 'aufbau', 'fassade', 'masse', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary'];
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'kontakt', 'summary'];
     return ['produkt'];
@@ -175,27 +187,30 @@
       }
     },
 
-    extras: {
-      title: 'Möchten Sie Extras? (Mehrfachauswahl)',
-      sub: 'Alles optional – einfach anklicken, was Sie interessiert',
+    markise: {
+      title: 'Möchten Sie eine Markise?',
+      sub: 'Sonnenschutz direkt am Terrassendach',
       render: function () {
-        answers.extras = answers.extras || [];
-        var groups = [
-          { h: 'Beschattung / Markisen', items: ['Aufdach-Markise', 'Unterdach-Markise', 'Senkrechtmarkise (Seite)', 'Senkrechtmarkise (Stirnseite)'] },
-          { h: 'Seitenelemente & Abschlüsse', items: ['Festelement (Seite)', 'Festelement (Stirnseite)', 'Glasschiebetür', 'Velaris als Seitenelement'] }
-        ];
-        var html = '';
-        groups.forEach(function (g) {
-          html += '<p class="aw-group-h">' + g.h + '</p><div class="aw-checks">';
-          g.items.forEach(function (it) {
-            var on = answers.extras.indexOf(it) !== -1 ? ' is-active' : '';
-            html += '<button type="button" class="aw-check' + on + '" data-extra="' + esc(it) + '">' +
-              '<span class="aw-check-box">✓</span>' + esc(it) + '</button>';
-          });
-          html += '</div>';
-        });
-        return html;
+        return optionCards('markise', [
+          { value: 'Aufdachmarkise', icon: I.markise, hint: 'Beschattung oberhalb der Dachfläche' },
+          { value: 'Unterdachmarkise', icon: I.markise, hint: 'Beschattung unter dem Glasdach' },
+          { value: 'Keine Markise', icon: I.aus }
+        ]);
       },
+      valid: function () { return answers.markise ? null : 'Bitte wählen Sie eine Option.'; }
+    },
+
+    erweiterungen: {
+      title: 'Erweiterungen',
+      sub: 'Seiten und Stirnseite optional schließen – alles optional',
+      render: function () {
+        return '<div class="aw-erws">' +
+          ddField('erw_links', 'Erweiterung links') +
+          ddField('erw_rechts', 'Erweiterung rechts') +
+          ddField('erw_vorne', 'Erweiterung vorne (Stirnseite)') +
+          '</div>';
+      },
+      collect: function () {}, // Auswahl wird direkt beim Klick gesetzt
       valid: function () { return null; } // optional
     },
 
@@ -283,6 +298,26 @@
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
   }
+  function ddThumb(value) {
+    var o = erwOpt(value);
+    if (o && o.img) return '<span class="aw-dd-thumb"><img src="images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>';
+    return '<span class="aw-dd-thumb aw-dd-thumb--none">' + svg(I.aus) + '</span>';
+  }
+  function ddField(id, label) {
+    var cur = answers[id] || 'Keine Angabe';
+    var opts = ERW_OPTS.map(function (o) {
+      var active = cur === o.value ? ' is-active' : '';
+      return '<button type="button" class="aw-dd-opt' + active + '" data-dd-pick="' + id + '" data-value="' + esc(o.value) + '">' +
+        ddThumb(o.value) + '<span>' + esc(o.value) + '</span></button>';
+    }).join('');
+    return '<div class="aw-dd" data-dd="' + id + '">' +
+      '<span class="aw-erw-lbl">' + esc(label) + '</span>' +
+      '<button type="button" class="aw-dd-toggle" data-dd-toggle="' + id + '">' +
+        ddThumb(cur) + '<span class="aw-dd-cur">' + esc(cur) + '</span><span class="aw-dd-arrow"></span>' +
+      '</button>' +
+      '<div class="aw-dd-panel" data-dd-panel="' + id + '" hidden>' + opts + '</div>' +
+      '</div>';
+  }
   function dimField(id, label, ph, unit) {
     return '<div class="aw-dim"><label for="aw_' + id + '">' + label + '</label>' +
       '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>' + (unit || 'mm') + '</span></div></div>';
@@ -310,6 +345,10 @@
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
     if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
+    if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Markise', answers.markise]);
+    [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
+      if (answers[e[0]] && answers[e[0]] !== 'Keine') p.push([e[1], answers[e[0]]]);
+    });
     if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
     if (answers.wunsch) p.push(['Wunsch', answers.wunsch]);
@@ -383,6 +422,24 @@
         clearError();
       });
     });
+    // Erweiterungs-Dropdowns: Auf-/Zuklappen
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-dd-toggle');
+        var panel = bodyEl.querySelector('.aw-dd-panel[data-dd-panel="' + id + '"]');
+        var open = panel && !panel.hidden;
+        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-panel'), function (p) { p.hidden = true; });
+        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (t) { t.classList.remove('is-open'); });
+        if (!open && panel) { panel.hidden = false; btn.classList.add('is-open'); }
+      });
+    });
+    // Erweiterungs-Dropdowns: Option wählen
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-opt'), function (btn) {
+      btn.addEventListener('click', function () {
+        answers[btn.getAttribute('data-dd-pick')] = btn.getAttribute('data-value');
+        render();
+      });
+    });
     // Checkboxen (Mehrfach)
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-check'), function (btn) {
       btn.addEventListener('click', function () {
@@ -411,6 +468,7 @@
   function goNext() {
     var id = currentId();
     if (id === 'masse') collectMasse();
+    if (id === 'erweiterungen') STEPS.erweiterungen.collect();
     var step = STEPS[id];
     var err = step.valid ? step.valid() : null;
     if (err) { showError(err); return; }
@@ -424,6 +482,7 @@
 
   function goBack() {
     if (currentId() === 'masse') collectMasse();
+    if (currentId() === 'erweiterungen') STEPS.erweiterungen.collect();
     if (idx > 0) { idx--; render(); }
   }
 
