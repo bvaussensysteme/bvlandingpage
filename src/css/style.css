@@ -2230,6 +2230,25 @@ img { max-width: 100%; height: auto; }
 .aw-pill:hover { border-color: rgba(196,154,42,0.6); }
 .aw-pill.is-active { border-color: var(--gold); background: rgba(196,154,42,0.16); color: #fff; }
 
+/* Erweiterungen – Dropdowns (Design in dunkel/gold) */
+.aw-erws { display: flex; flex-direction: column; gap: 16px; }
+.aw-erw-lbl { display: block; font-size: 1rem; color: #fff; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; margin-bottom: 7px; letter-spacing: 0.2px; }
+.aw-select-wrap { position: relative; }
+.aw-select-wrap::after {
+  content: ''; position: absolute; right: 16px; top: 50%; width: 9px; height: 9px;
+  border-right: 2px solid var(--gold-light); border-bottom: 2px solid var(--gold-light);
+  transform: translateY(-70%) rotate(45deg); pointer-events: none;
+}
+.aw-select {
+  width: 100%; appearance: none; -webkit-appearance: none;
+  padding: 14px 40px 14px 16px; border: 1.5px solid rgba(255,255,255,0.16); border-radius: var(--radius);
+  background: rgba(255,255,255,0.07); color: #fff; font-size: 0.95rem; font-family: inherit; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.aw-select:hover { border-color: rgba(196,154,42,0.6); }
+.aw-select:focus { outline: none; border-color: var(--gold); }
+.aw-select option { background: #1a1a1a; color: #fff; }
+
 /* Maße */
 .aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
 .aw-dim label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; }
