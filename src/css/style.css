@@ -2192,11 +2192,24 @@ img { max-width: 100%; height: auto; }
 /* Einzelne letzte Karte bei ungerader Anzahl über volle Breite (z. B. „Sonstiges") */
 .aw-options .aw-option:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .aw-option {
+  position: relative;
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
   background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.14);
   border-radius: 12px; padding: 8px 8px 10px; cursor: pointer; color: #fff;
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
 }
+/* „Beliebt"-Badge auf attraktiven Zusatzoptionen */
+.aw-badge {
+  position: absolute; top: 7px; right: 7px; z-index: 2;
+  background: var(--gold); color: var(--black);
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem;
+  letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 100px;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.35);
+}
+/* Opt-out („Keine …" / „Nein …") bewusst dezenter */
+.aw-option--muted { background: rgba(255,255,255,0.02); border-style: dashed; }
+.aw-option--muted .aw-option-lbl { color: rgba(255,255,255,0.6); font-weight: 600; }
+.aw-option--muted .aw-option-hint { color: rgba(255,255,255,0.35); }
 .aw-option:hover { border-color: rgba(196,154,42,0.6); transform: translateY(-2px); }
 .aw-option.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); }
 /* Bild-Kachel (Produktgrafiken auf weißem Grund – object-fit contain) */
@@ -2229,6 +2242,17 @@ img { max-width: 100%; height: auto; }
 }
 .aw-pill:hover { border-color: rgba(196,154,42,0.6); }
 .aw-pill.is-active { border-color: var(--gold); background: rgba(196,154,42,0.16); color: #fff; }
+
+/* Tipp-/Nutzen-Banner (sanfter Upsell-Nudge) */
+.aw-tip {
+  display: flex; gap: 10px; align-items: center;
+  background: rgba(196,154,42,0.1); border: 1px solid rgba(196,154,42,0.3);
+  border-radius: 10px; padding: 11px 13px; margin-bottom: 16px;
+  color: rgba(255,255,255,0.82); font-size: 0.82rem; line-height: 1.4;
+}
+.aw-tip strong { color: var(--gold-light); }
+.aw-tip-ic { flex-shrink: 0; color: var(--gold-light); display: flex; }
+.aw-tip-ic svg { width: 22px; height: 22px; }
 
 /* Erweiterungen – Foto-Dropdowns (Design in dunkel/gold) */
 .aw-erws { display: flex; flex-direction: column; gap: 16px; }
