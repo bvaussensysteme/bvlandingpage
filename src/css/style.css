@@ -2218,6 +2218,18 @@ img { max-width: 100%; height: auto; }
 .aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
 .aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.2; }
 
+/* Unterauswahl (z. B. Glasstärke bei VSG-Glas) */
+.aw-subchoice { margin-top: 14px; }
+.aw-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+.aw-pill {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.95rem;
+  padding: 9px 20px; border-radius: 100px; cursor: pointer; color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.16);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.aw-pill:hover { border-color: rgba(196,154,42,0.6); }
+.aw-pill.is-active { border-color: var(--gold); background: rgba(196,154,42,0.16); color: #fff; }
+
 /* Maße */
 .aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
 .aw-dim label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; }

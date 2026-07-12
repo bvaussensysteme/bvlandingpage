@@ -148,13 +148,25 @@
     verglasung: {
       title: 'Welche Eindeckung wünschen Sie?',
       render: function () {
-        return optionCards('verglasung', [
-          { value: 'VSG-Glas 8 mm', img: 'glas', hint: 'Klar, edel, pflegeleicht' },
-          { value: 'Stegplatten (Polycarbonat) 16 mm', img: 'steg', hint: 'Leicht & günstiger' },
+        var cards = optionCards('verglasung', [
+          { value: 'VSG-Glas klar', img: 'vsg_klar', photo: true, hint: 'Durchsichtig, edel' },
+          { value: 'VSG-Glas Opal (milchig)', img: 'vsg_opal', photo: true, hint: 'Blickdicht, sanftes Licht' },
+          { value: 'Polycarbonat klar', img: 'poly_klar', photo: true, hint: 'Leicht & günstiger' },
+          { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' },
           { value: 'Noch unsicher – bitte beraten', icon: I.frage }
         ]);
+        // Glasstärke nur bei den VSG-Glas-Varianten (8 oder 10 mm)
+        if (isGlas(answers.verglasung)) {
+          cards += '<div class="aw-subchoice"><p class="aw-group-h">Glasstärke</p><div class="aw-pills">' +
+            pill('glasstaerke', '8 mm') + pill('glasstaerke', '10 mm') + '</div></div>';
+        }
+        return cards;
       },
-      valid: function () { return answers.verglasung ? null : 'Bitte wählen Sie eine Eindeckung.'; }
+      valid: function () {
+        if (!answers.verglasung) return 'Bitte wählen Sie eine Eindeckung.';
+        if (isGlas(answers.verglasung) && !answers.glasstaerke) return 'Bitte wählen Sie die Glasstärke (8 oder 10 mm).';
+        return null;
+      }
     },
 
     extras: {
@@ -237,6 +249,11 @@
   };
 
   /* ---------- Feld-Helfer ---------- */
+  function isGlas(v) { return v && v.indexOf('VSG-Glas') === 0; }
+  function pill(field, value) {
+    var active = answers[field] === value ? ' is-active' : '';
+    return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
+  }
   function dimField(id, label, ph) {
     return '<div class="aw-dim"><label for="aw_' + id + '">' + label + '</label>' +
       '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>mm</span></div></div>';
@@ -262,7 +279,7 @@
     if (answers.fassade) p.push(['Fassade', answers.fassade]);
     var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
-    if (answers.verglasung) p.push(['Eindeckung', answers.verglasung]);
+    if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
     if (answers.wunsch) p.push(['Wunsch', answers.wunsch]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
@@ -319,6 +336,18 @@
         clearError();
         // Produkt-Auswahl aktualisiert den Ablauf sofort
         if (f === 'produkt') flow = computeFlow();
+        // Eindeckung neu rendern, damit die Glasstärke-Auswahl ein-/ausblendet
+        if (f === 'verglasung') { if (!isGlas(btn.getAttribute('data-value'))) answers.glasstaerke = ''; render(); }
+      });
+    });
+    // Glasstärke-Pills (Einfachauswahl)
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill'), function (btn) {
+      btn.addEventListener('click', function () {
+        var f = btn.getAttribute('data-pill');
+        answers[f] = btn.getAttribute('data-value');
+        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="' + f + '"]'), function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        clearError();
       });
     });
     // Checkboxen (Mehrfach)
