@@ -9,7 +9,7 @@
   var FORMSPREE = 'https://formspree.io/f/xnjkabdv';
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
-  var ASSET_VER = '20260712h'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
+  var ASSET_VER = '20260712j'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
@@ -193,8 +193,8 @@
       sub: 'Sonnenschutz direkt am Terrassendach',
       render: function () {
         return optionCards('markise', [
-          { value: 'Aufdachmarkise', icon: I.markise, hint: 'Beschattung oberhalb der Dachfläche' },
-          { value: 'Unterdachmarkise', icon: I.markise, hint: 'Beschattung unter dem Glasdach' },
+          { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, hint: 'Beschattung oberhalb der Dachfläche' },
+          { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, hint: 'Beschattung unter dem Glasdach' },
           { value: 'Keine Markise', icon: I.aus }
         ]);
       },

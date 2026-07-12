@@ -2209,10 +2209,10 @@ img { max-width: 100%; height: auto; }
    Produkt nie anschneidet und es immer zentriert komplett sichtbar bleibt */
 .aw-option-img--photo { background: none; height: auto; aspect-ratio: 1.9 / 1; }
 .aw-option-img--photo img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; object-position: center; }
-/* Icon-Fallback – gleiche weiße Kachel, damit alle Karten einheitlich wirken */
+/* Icon-Fallback – dezente graue Kachel (kein Weiß, passt ins dunkle Design) */
 .aw-option-ic {
-  width: 100%; height: 72px; background: #fff; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center; color: var(--gold-dark);
+  width: 100%; height: 72px; background: rgba(255,255,255,0.08); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; color: var(--gold-light);
 }
 .aw-option-ic svg { width: 38px; height: 38px; }
 .aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
