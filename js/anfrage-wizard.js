@@ -88,10 +88,10 @@
     var html = '<div class="aw-options">';
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
-      var muted = /^(Kein|Nein)/.test(o.value) ? ' aw-option--muted' : '';
+      var muted = o.muted ? ' aw-option--muted' : '';
       var media = o.img
         ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>'
-        : '<span class="aw-option-ic">' + svg(o.icon) + '</span>';
+        : '<span class="aw-option-ic' + (o.iconBig ? ' aw-option-ic--big' : '') + '">' + svg(o.icon) + '</span>';
       var badge = o.badge ? '<span class="aw-badge">' + esc(o.badge) + '</span>' : '';
       html += '<button type="button" class="aw-option' + active + muted + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
         badge + media +
@@ -197,7 +197,7 @@
         return optionCards('markise', [
           { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' },
           { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, hint: 'Sanftes, blendfreies Licht – elegant integriert' },
-          { value: 'Keine Markise', icon: I.aus }
+          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
         ]);
       },
       valid: function () { return answers.markise ? null : 'Bitte wählen Sie eine Option.'; }
@@ -225,12 +225,14 @@
       render: function () {
         var cards = optionCards('led', [
           { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
-          { value: 'Nein, ohne Beleuchtung', icon: I.aus }
+          { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true }
         ]);
-        // Set-Größe nur bei „Ja" (2, 4 oder 6 Spots)
+        // Anzahl Spots nur bei „Ja": Sets 2/4/6 oder freie Eingabe
         if (hasLed(answers.led)) {
           cards += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
-            pill('ledset', '2er-Set') + pill('ledset', '4er-Set') + pill('ledset', '6er-Set') + pill('ledset', '8er-Set') + '</div></div>';
+            pill('ledset', '2er-Set') + pill('ledset', '4er-Set') + pill('ledset', '6er-Set') +
+            '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="1" max="99" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
+            '</div></div>';
         }
         return cards;
       },
@@ -302,6 +304,11 @@
   function pill(field, value) {
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
+  }
+  // Freie Spot-Anzahl (z. B. „10 Spots") → Ziffer für das Eingabefeld
+  function ledCustomVal() {
+    var m = /^(\d+) Spots$/.exec(answers.ledset || '');
+    return m ? m[1] : '';
   }
   function ddThumb(value) {
     var o = erwOpt(value);
@@ -417,16 +424,32 @@
         if (f === 'led') { if (!hasLed(btn.getAttribute('data-value'))) answers.ledset = ''; render(); }
       });
     });
-    // Glasstärke-Pills (Einfachauswahl)
-    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill'), function (btn) {
+    // Pills (Glasstärke, LED-Set – Einfachauswahl)
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill]'), function (btn) {
       btn.addEventListener('click', function () {
         var f = btn.getAttribute('data-pill');
         answers[f] = btn.getAttribute('data-value');
         Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="' + f + '"]'), function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
+        var lc = bodyEl.querySelector('#ledCustom'); if (lc) lc.value = ''; // freie Eingabe zurücksetzen
         clearError();
       });
     });
+    // Freie Spot-Anzahl
+    var ledCustom = bodyEl.querySelector('#ledCustom');
+    if (ledCustom) {
+      ledCustom.addEventListener('input', function () {
+        var v = ledCustom.value.replace(/[^0-9]/g, '').slice(0, 2);
+        ledCustom.value = v;
+        if (v) {
+          answers.ledset = v + ' Spots';
+          Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="ledset"]'), function (b) { b.classList.remove('is-active'); });
+        } else {
+          answers.ledset = '';
+        }
+        clearError();
+      });
+    }
     // Erweiterungs-Dropdowns: Auf-/Zuklappen
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (btn) {
       btn.addEventListener('click', function () {
