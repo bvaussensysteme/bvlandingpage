@@ -180,8 +180,8 @@
       render: function () {
         answers.extras = answers.extras || [];
         var groups = [
-          { h: 'Beschattung / Markisen', items: ['Aufdach-Markise', 'Unterdach-Markise', 'Seitenmarkise', 'Stirnseiten-Markise'] },
-          { h: 'Seiten & Abschlüsse', items: ['Festelement seitlich', 'Festelement Stirnseite', 'ESG-Glas-Schiebetüren', 'Velaris-Lamellen'] }
+          { h: 'Beschattung / Markisen', items: ['Aufdach-Markise', 'Unterdach-Markise', 'Senkrechtmarkise (Seite)', 'Senkrechtmarkise (Stirnseite)'] },
+          { h: 'Seitenelemente & Abschlüsse', items: ['Festelement (Seite)', 'Festelement (Stirnseite)', 'Glasschiebetür', 'Velaris als Seitenelement'] }
         ];
         var html = '';
         groups.forEach(function (g) {
