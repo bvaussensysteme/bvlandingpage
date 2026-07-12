@@ -88,11 +88,13 @@
     var html = '<div class="aw-options">';
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
+      var muted = /^(Kein|Nein)/.test(o.value) ? ' aw-option--muted' : '';
       var media = o.img
         ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>'
         : '<span class="aw-option-ic">' + svg(o.icon) + '</span>';
-      html += '<button type="button" class="aw-option' + active + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
-        media +
+      var badge = o.badge ? '<span class="aw-badge">' + esc(o.badge) + '</span>' : '';
+      html += '<button type="button" class="aw-option' + active + muted + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
+        badge + media +
         '<span class="aw-option-lbl">' + esc(o.value) + '</span>' +
         (o.hint ? '<span class="aw-option-hint">' + esc(o.hint) + '</span>' : '') +
         '</button>';
@@ -189,12 +191,12 @@
     },
 
     markise: {
-      title: 'Möchten Sie eine Markise?',
-      sub: 'Sonnenschutz direkt am Terrassendach',
+      title: 'Mehr Schatten & Komfort?',
+      sub: 'Eine Markise hält Ihre Terrasse an heißen Tagen spürbar kühler – perfekt für lange Sommerabende.',
       render: function () {
         return optionCards('markise', [
-          { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, hint: 'Beschattung oberhalb der Dachfläche' },
-          { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, hint: 'Beschattung unter dem Glasdach' },
+          { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' },
+          { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, hint: 'Sanftes, blendfreies Licht – elegant integriert' },
           { value: 'Keine Markise', icon: I.aus }
         ]);
       },
@@ -202,10 +204,12 @@
     },
 
     erweiterungen: {
-      title: 'Erweiterungen',
-      sub: 'Seiten und Stirnseite optional schließen – alles optional',
+      title: 'Machen Sie mehr aus Ihrer Terrasse',
+      sub: 'Schon eine geschlossene Seite bringt Wind-, Sicht- und Wetterschutz – aus der Terrasse wird ein Freiluftzimmer.',
       render: function () {
-        return '<div class="aw-erws">' +
+        return '<div class="aw-tip"><span class="aw-tip-ic">' + svg(I.sommer) + '</span>' +
+          '<span><strong>Beliebt:</strong> Die meisten Kunden schließen mindestens eine Seite – für mehr Schutz und ganzjährige Nutzung.</span></div>' +
+          '<div class="aw-erws">' +
           ddField('erw_links', 'Erweiterung links') +
           ddField('erw_rechts', 'Erweiterung rechts') +
           ddField('erw_vorne', 'Erweiterung vorne (Stirnseite)') +
@@ -216,11 +220,11 @@
     },
 
     led: {
-      title: 'LED-Beleuchtung im Dach?',
-      sub: 'Dimmbare Spots, direkt ins Profil integriert',
+      title: 'Stimmungsvolles Licht am Abend?',
+      sub: 'Dimmbare LED-Spots direkt im Profil – für gemütliche Abende lange nach Sonnenuntergang.',
       render: function () {
         var cards = optionCards('led', [
-          { value: 'Ja, mit LED-Spots', img: 'led', photo: true, hint: 'Stimmungsvolles Licht am Abend' },
+          { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
           { value: 'Nein, ohne Beleuchtung', icon: I.aus }
         ]);
         // Set-Größe nur bei „Ja" (2, 4 oder 6 Spots)
