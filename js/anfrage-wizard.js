@@ -74,7 +74,7 @@
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
       var media = o.img
-        ? '<span class="aw-option-img"><img src="images/wizard/wz_' + o.img + '.webp" alt="" loading="lazy"></span>'
+        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp" alt="" loading="lazy"></span>'
         : '<span class="aw-option-ic">' + svg(o.icon) + '</span>';
       html += '<button type="button" class="aw-option' + active + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
         media +
@@ -92,10 +92,10 @@
       title: 'Was möchten Sie anfragen?',
       render: function () {
         return optionCards('produkt', [
-          { value: 'Terrassendach TDS', img: 'terrasse', hint: 'Klassiker – Glas oder Polycarbonat' },
-          { value: 'Flachdach SkyView', img: 'flach', hint: 'Modernes Flachdach-Design' },
-          { value: 'Carport', img: 'carport', hint: 'TDS · Flat Line · Flat Box' },
-          { value: 'Pergola / Lamellendach', img: 'pergola', hint: 'SunPro · Velaris' },
+          { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },
+          { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
+          { value: 'Carport', img: 'carport', photo: true, hint: 'TDS · Flat Line · Flat Box' },
+          { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'SunPro · Velaris' },
           { value: 'Kaltwintergarten', img: 'kaltwinter', hint: 'Wettergeschützt, ungeheizt' },
           { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' }
         ]);

@@ -2165,7 +2165,7 @@ img { max-width: 100%; height: auto; }
   background: var(--black); border-radius: 10px;
   border: 1px solid rgba(196,154,42,0.25);
   display: flex; flex-direction: column;
-  height: 686px; max-height: 90vh; overflow: hidden;
+  height: 720px; max-height: 92vh; overflow: hidden;
 }
 .aw-head { padding: 22px 26px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .aw-head h3 { font-size: 1.4rem; color: var(--white); margin: 0 0 4px; }
@@ -2197,12 +2197,15 @@ img { max-width: 100%; height: auto; }
 }
 .aw-option:hover { border-color: rgba(196,154,42,0.6); transform: translateY(-2px); }
 .aw-option.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); }
-/* Bild-Kachel (echte Produktgrafiken) */
+/* Bild-Kachel (Produktgrafiken auf weißem Grund – object-fit contain) */
 .aw-option-img {
-  width: 100%; height: 78px; background: #fff; border-radius: 8px;
+  width: 100%; height: 92px; background: #fff; border-radius: 8px;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
 .aw-option-img img { max-width: 92%; max-height: 88%; object-fit: contain; display: block; }
+/* Lifestyle-Fotos – bildfüllend (object-fit cover), kein weißer Rand */
+.aw-option-img--photo { background: none; }
+.aw-option-img--photo img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
 /* Icon-Fallback – gleiche weiße Kachel, damit alle Karten einheitlich wirken */
 .aw-option-ic {
   width: 100%; height: 78px; background: #fff; border-radius: 8px;
