@@ -9,6 +9,7 @@
   var FORMSPREE = 'https://formspree.io/f/xnjkabdv';
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
+  var ASSET_VER = '20260712e'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   var wizard = document.getElementById('anfrageWizard');
   if (!wizard) return;
@@ -75,7 +76,7 @@
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
       var media = o.img
-        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp" alt="" loading="lazy"></span>'
+        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>'
         : '<span class="aw-option-ic">' + svg(o.icon) + '</span>';
       html += '<button type="button" class="aw-option' + active + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
         media +
