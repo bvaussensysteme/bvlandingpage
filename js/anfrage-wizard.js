@@ -9,11 +9,12 @@
   var FORMSPREE = 'https://formspree.io/f/xnjkabdv';
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
-  var ASSET_VER = '20260712e'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
+  var ASSET_VER = '20260712g'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
-    { value: 'Keine Angabe' },                        // ohne Foto → Icon
+    { value: 'Keine Angabe', img: 'keine' },
+    { value: 'Keil', img: 'keil' },
     { value: 'Rahmenwand', img: 'rahmenwand' },
     { value: 'Schiebetür', img: 'schiebetuer' },
     { value: 'Plankenwand', img: 'plankenwand' },
@@ -347,7 +348,7 @@
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Markise', answers.markise]);
     [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
-      if (answers[e[0]] && answers[e[0]] !== 'Keine') p.push([e[1], answers[e[0]]]);
+      if (answers[e[0]] && answers[e[0]] !== 'Keine Angabe') p.push([e[1], answers[e[0]]]);
     });
     if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
