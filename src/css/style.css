@@ -2189,6 +2189,8 @@ img { max-width: 100%; height: auto; }
 
 /* Option-Karten */
 .aw-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+/* Einzelne letzte Karte bei ungerader Anzahl über volle Breite (z. B. „Sonstiges") */
+.aw-options .aw-option:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .aw-option {
   display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
   background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.14);

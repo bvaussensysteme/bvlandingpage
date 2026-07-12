@@ -54,8 +54,8 @@
   /* ---------- Ablauf je nach Produkt ---------- */
   function computeFlow() {
     var p = answers.produkt;
-    // Terrassendach TDS/SkyView & Kaltwintergarten: voller Detailablauf
-    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView' || p === 'Kaltwintergarten')
+    // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
+    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
       return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'extras', 'kontakt', 'summary'];
     // Carport: ohne Fassade/Extras
     if (p === 'Carport')
@@ -96,7 +96,6 @@
           { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
           { value: 'Carport', img: 'carport', photo: true, hint: 'TDS · Flat Line · Flat Box' },
           { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'SunPro · Velaris' },
-          { value: 'Kaltwintergarten', img: 'kaltwinter', hint: 'Wettergeschützt, ungeheizt' },
           { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' }
         ]);
       },
