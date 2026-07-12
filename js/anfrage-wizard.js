@@ -207,7 +207,7 @@
         // Set-Größe nur bei „Ja" (2, 4 oder 6 Spots)
         if (hasLed(answers.led)) {
           cards += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
-            pill('ledset', '2er-Set') + pill('ledset', '4er-Set') + pill('ledset', '6er-Set') + '</div></div>';
+            pill('ledset', '2er-Set') + pill('ledset', '4er-Set') + pill('ledset', '6er-Set') + pill('ledset', '8er-Set') + '</div></div>';
         }
         return cards;
       },
