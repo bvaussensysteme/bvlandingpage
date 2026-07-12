@@ -148,14 +148,16 @@
     verglasung: {
       title: 'Welche Eindeckung wünschen Sie?',
       render: function () {
-        var cards = optionCards('verglasung', [
+        var opts = [
           { value: 'VSG-Glas klar', img: 'vsg_klar', photo: true, hint: 'Durchsichtig, edel' },
           { value: 'VSG-Glas Opal (milchig)', img: 'vsg_opal', photo: true, hint: 'Blickdicht, sanftes Licht' },
           { value: 'Polycarbonat klar', img: 'poly_klar', photo: true, hint: 'Leicht & günstiger' },
-          { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' },
-          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
-        ]);
-        // Glasstärke nur bei den VSG-Glas-Varianten (8 oder 10 mm)
+          { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' }
+        ];
+        // „Noch unsicher" nur zeigen, solange keine VSG-Glas-Variante gewählt ist
+        if (!isGlas(answers.verglasung)) opts.push({ value: 'Noch unsicher – bitte beraten', icon: I.frage });
+        var cards = optionCards('verglasung', opts);
+        // An seiner Stelle: Glasstärke-Auswahl bei den VSG-Glas-Varianten (8 oder 10 mm)
         if (isGlas(answers.verglasung)) {
           cards += '<div class="aw-subchoice"><p class="aw-group-h">Glasstärke</p><div class="aw-pills">' +
             pill('glasstaerke', '8 mm') + pill('glasstaerke', '10 mm') + '</div></div>';
