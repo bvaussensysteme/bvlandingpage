@@ -134,16 +134,13 @@
       title: 'Wie ist Ihre Hauswand?',
       sub: 'Wichtig für die passende Befestigung',
       render: function () {
-        var html = optionCards('fassade', [
+        return optionCards('fassade', [
           { value: 'Rauputz', img: 'rauputz', photo: true },
           { value: 'Verklinkert', img: 'verklinkert', photo: true },
           { value: 'Sonstiges / weiß nicht', icon: I.frage }
-        ]);
-        if (answers.fassade === 'Sonstiges / weiß nicht') {
-          html += '<div class="aw-subchoice"><label class="aw-group-h" for="fassadeText">Ihre Fassade (optional)</label>' +
-            '<textarea class="aw-textarea aw-textarea--sm" id="fassadeText" placeholder="z. B. Fassadenart, Dämmung (z. B. WDVS), Dämmstärke in cm …">' + esc(answers.fassade_text || '') + '</textarea></div>';
-        }
-        return html;
+        ]) +
+          '<div class="aw-subchoice"><label class="aw-group-h" for="fassadeText">Ergänzung zur Fassade (optional)</label>' +
+          '<textarea class="aw-textarea aw-textarea--sm" id="fassadeText" placeholder="z. B. Fassadenart, Dämmung (z. B. WDVS), Dämmstärke in cm …">' + esc(answers.fassade_text || '') + '</textarea></div>';
       },
       collect: function () { var e = document.getElementById('fassadeText'); if (e) answers.fassade_text = e.value; },
       valid: function () { return answers.fassade ? null : 'Bitte wählen Sie Ihre Fassade.'; }
@@ -358,7 +355,7 @@
     var p = [];
     p.push(['Produkt', answers.produkt]);
     if (answers.aufbau) p.push(['Aufbau', answers.aufbau]);
-    if (answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade === 'Sonstiges / weiß nicht' && answers.fassade_text ? ' – ' + answers.fassade_text : '')]);
+    if (answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade_text ? ' – ' + answers.fassade_text : '')]);
     var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
     if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
@@ -428,8 +425,6 @@
         if (f === 'verglasung') { if (!isGlas(btn.getAttribute('data-value'))) answers.glasstaerke = ''; render(); }
         // LED neu rendern, damit die Set-Auswahl ein-/ausblendet
         if (f === 'led') { if (!hasLed(btn.getAttribute('data-value'))) answers.ledset = ''; render(); }
-        // Fassade neu rendern, damit das optionale Textfeld ein-/ausblendet
-        if (f === 'fassade') { STEPS.fassade.collect(); render(); }
       });
     });
     // Pills (Glasstärke, LED-Set – Einfachauswahl)
