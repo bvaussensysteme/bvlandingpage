@@ -245,11 +245,18 @@
       title: 'Mehr Schatten & Komfort?',
       sub: 'Eine Markise hält Ihre Terrasse an heißen Tagen spürbar kühler – perfekt für lange Sommerabende.',
       render: function () {
-        return optionCards('markise', [
-          { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' },
-          { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, hint: 'Sanftes, blendfreies Licht – elegant integriert' },
-          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
-        ]);
+        return '<p class="aw-group-h">Unsere Empfehlung</p>' +
+          optionCards('markise', [
+            { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' },
+            { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, badge: 'Empfohlen', hint: 'Sanftes, blendfreies Licht – elegant integriert' }
+          ]) +
+          '<p class="aw-group-h aw-group-h--sep">Weitere Sonnenschutz-Varianten</p>' +
+          optionCards('markise', [
+            { value: 'Plissees', img: 'plissee', photo: true, hint: 'Faltbar, moderne Optik' },
+            { value: 'Sonnensegel', img: 'sonnensegel', photo: true, hint: 'Leichter, textiler Schattenspender' },
+            { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+          ]) +
+          '<p class="aw-note">Alle Varianten in vielen Farben erhältlich – den Farbwunsch klären wir persönlich.</p>';
       },
       valid: function () { return answers.markise ? null : 'Bitte wählen Sie eine Option.'; }
     },
@@ -444,7 +451,7 @@
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
     if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
-    if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Markise', answers.markise]);
+    if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Sonnenschutz', answers.markise]);
     [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
       var v = answers[e[0]];
       if (v && v.length) p.push([e[1], v.join(', ')]);
