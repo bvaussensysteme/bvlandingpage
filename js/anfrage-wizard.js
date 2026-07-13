@@ -22,6 +22,52 @@
     { value: 'Velaris', img: 'velaris' }
   ];
   function erwOpt(v) { for (var i = 0; i < ERW_OPTS.length; i++) if (ERW_OPTS[i].value === v) return ERW_OPTS[i]; return null; }
+  function erwIndex(v) { for (var i = 0; i < ERW_OPTS.length; i++) if (ERW_OPTS[i].value === v) return i; return 99; }
+
+  /* Kompatibilitäts-Logik der seitlichen Erweiterungen */
+  var ERW_REQUIRES_KEIL = ['Velaris', 'Senkrechtmarkise', 'Schiebetür']; // wählt Keil automatisch + sperrt ihn
+  // Unverträglichkeiten (Velaris nur mit Plankenwand/Keil kombinierbar)
+  var ERW_INCOMPAT = {
+    'Velaris': ['Senkrechtmarkise', 'Schiebetür', 'Rahmenwand'],
+    'Senkrechtmarkise': ['Velaris'],
+    'Schiebetür': ['Velaris'],
+    'Rahmenwand': ['Velaris']
+  };
+  function erwIsVorne(id) { return id === 'erw_vorne'; } // Stirnseite: kein Keil, keine Auto-Keil-Regeln
+  function erwOptsFor(id) {
+    return erwIsVorne(id) ? ERW_OPTS.filter(function (o) { return o.value !== 'Keil'; }) : ERW_OPTS;
+  }
+  // bereits gewählte Option, die 'value' blockiert – oder null
+  function erwBlocker(value, sel) {
+    for (var i = 0; i < sel.length; i++) {
+      var s = sel[i];
+      if ((ERW_INCOMPAT[value] || []).indexOf(s) > -1) return s;
+      if ((ERW_INCOMPAT[s] || []).indexOf(value) > -1) return s;
+    }
+    return null;
+  }
+  // Keil gesperrt (nicht abwählbar), solange eine keilpflichtige Option aktiv ist
+  function erwKeilLocked(id, sel) {
+    if (erwIsVorne(id)) return false;
+    for (var i = 0; i < ERW_REQUIRES_KEIL.length; i++) if (sel.indexOf(ERW_REQUIRES_KEIL[i]) > -1) return true;
+    return false;
+  }
+  // Umschalten einer Erweiterung mit allen Automatik-/Sperr-Regeln
+  function erwToggle(id, value) {
+    var sel = (answers[id] || []).slice();
+    if (value === 'Keine Angabe') { answers[id] = []; return; }
+    var pos = sel.indexOf(value);
+    if (pos > -1) {
+      if (value === 'Keil' && erwKeilLocked(id, sel)) return; // gesperrt – nicht abwählbar
+      sel.splice(pos, 1);
+    } else {
+      if (erwBlocker(value, sel)) return; // inkompatibel – ignorieren
+      sel.push(value);
+      if (!erwIsVorne(id) && ERW_REQUIRES_KEIL.indexOf(value) > -1 && sel.indexOf('Keil') === -1) sel.push('Keil');
+    }
+    sel.sort(function (a, b) { return erwIndex(a) - erwIndex(b); });
+    answers[id] = sel;
+  }
 
   var wizard = document.getElementById('anfrageWizard');
   if (!wizard) return;
@@ -35,6 +81,7 @@
   var answers = {};
   var flow = ['produkt'];
   var idx = 0;
+  var openDd = null; // aktuell geöffnetes Erweiterungs-Dropdown
   var ref = 'BV-' + Date.now().toString(36).slice(-5).toUpperCase();
 
   /* ---------- Escaping für sichere Anzeige von Nutzereingaben ---------- */
@@ -319,18 +366,31 @@
     return '<span class="aw-dd-thumb aw-dd-thumb--none">' + svg(I.aus) + '</span>';
   }
   function ddField(id, label) {
-    var cur = answers[id] || 'Keine Angabe';
-    var opts = ERW_OPTS.map(function (o) {
-      var active = cur === o.value ? ' is-active' : '';
-      return '<button type="button" class="aw-dd-opt' + active + '" data-dd-pick="' + id + '" data-value="' + esc(o.value) + '">' +
-        ddThumb(o.value) + '<span>' + esc(o.value) + '</span></button>';
+    var sel = answers[id] || [];
+    var opts = erwOptsFor(id).map(function (o) {
+      var isNone = o.value === 'Keine Angabe';
+      var selected = isNone ? sel.length === 0 : sel.indexOf(o.value) > -1;
+      var locked = o.value === 'Keil' && erwKeilLocked(id, sel);
+      var blocker = (!isNone && !selected) ? erwBlocker(o.value, sel) : null;
+      var disabled = !!blocker;
+      var cls = 'aw-dd-opt' + (selected ? ' is-active' : '') + (disabled ? ' is-disabled' : '');
+      var pick = disabled ? '' : ' data-dd-pick="' + id + '" data-value="' + esc(o.value) + '"';
+      var note = disabled ? '<span class="aw-dd-note">nicht mit ' + esc(blocker) + '</span>'
+               : (locked ? '<span class="aw-dd-note">erforderlich</span>' : '');
+      return '<button type="button" class="' + cls + '"' + pick + '>' +
+        ddThumb(o.value) + '<span class="aw-dd-lbl">' + esc(o.value) + '</span>' + note +
+        '<span class="aw-dd-check">' + (selected ? '✓' : '') + '</span></button>';
     }).join('');
+    var hint = (sel.indexOf('Rahmenwand') > -1 && sel.indexOf('Schiebetür') > -1)
+      ? '<p class="aw-dd-hint">Rahmenwand unten, Schiebetür darüber montiert.</p>' : '';
+    var summary = sel.length ? sel.join(' · ') : 'Keine Angabe';
+    var isOpen = openDd === id;
     return '<div class="aw-dd" data-dd="' + id + '">' +
       '<span class="aw-erw-lbl">' + esc(label) + '</span>' +
-      '<button type="button" class="aw-dd-toggle" data-dd-toggle="' + id + '">' +
-        ddThumb(cur) + '<span class="aw-dd-cur">' + esc(cur) + '</span><span class="aw-dd-arrow"></span>' +
+      '<button type="button" class="aw-dd-toggle' + (isOpen ? ' is-open' : '') + '" data-dd-toggle="' + id + '">' +
+        ddThumb(sel.length ? sel[0] : 'Keine Angabe') + '<span class="aw-dd-cur">' + esc(summary) + '</span><span class="aw-dd-arrow"></span>' +
       '</button>' +
-      '<div class="aw-dd-panel" data-dd-panel="' + id + '" hidden>' + opts + '</div>' +
+      '<div class="aw-dd-panel" data-dd-panel="' + id + '"' + (isOpen ? '' : ' hidden') + '>' + opts + hint + '</div>' +
       '</div>';
   }
   function dimField(id, label, ph, unit) {
@@ -362,7 +422,8 @@
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Markise', answers.markise]);
     [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
-      if (answers[e[0]] && answers[e[0]] !== 'Keine Angabe') p.push([e[1], answers[e[0]]]);
+      var v = answers[e[0]];
+      if (v && v.length) p.push([e[1], v.join(', ')]);
     });
     if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
@@ -410,6 +471,9 @@
     bindStep();
   }
 
+  // Neu rendern ohne Scroll-Sprung (für Multi-Select in den Erweiterungen)
+  function rerenderKeepScroll() { var st = bodyEl.scrollTop; render(); bodyEl.scrollTop = st; }
+
   function bindStep() {
     // Option-Karten (Einfachauswahl)
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-option'), function (btn) {
@@ -453,22 +517,19 @@
         clearError();
       });
     }
-    // Erweiterungs-Dropdowns: Auf-/Zuklappen
+    // Erweiterungs-Dropdowns: Auf-/Zuklappen (nur eines offen)
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (btn) {
       btn.addEventListener('click', function () {
         var id = btn.getAttribute('data-dd-toggle');
-        var panel = bodyEl.querySelector('.aw-dd-panel[data-dd-panel="' + id + '"]');
-        var open = panel && !panel.hidden;
-        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-panel'), function (p) { p.hidden = true; });
-        Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (t) { t.classList.remove('is-open'); });
-        if (!open && panel) { panel.hidden = false; btn.classList.add('is-open'); }
+        openDd = (openDd === id) ? null : id;
+        rerenderKeepScroll();
       });
     });
-    // Erweiterungs-Dropdowns: Option wählen
-    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-opt'), function (btn) {
+    // Erweiterungs-Optionen: Mehrfachauswahl (Panel bleibt offen)
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-opt[data-dd-pick]'), function (btn) {
       btn.addEventListener('click', function () {
-        answers[btn.getAttribute('data-dd-pick')] = btn.getAttribute('data-value');
-        render();
+        erwToggle(btn.getAttribute('data-dd-pick'), btn.getAttribute('data-value'));
+        rerenderKeepScroll();
       });
     });
     // Checkboxen (Mehrfach)

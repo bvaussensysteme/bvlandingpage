@@ -2312,8 +2312,20 @@ img { max-width: 100%; height: auto; }
 }
 .aw-dd-opt:hover { border-color: rgba(196,154,42,0.6); }
 .aw-dd-opt.is-active { border-color: var(--gold); background: rgba(196,154,42,0.14); }
+.aw-dd-opt.is-disabled { opacity: 0.4; cursor: default; }
+.aw-dd-opt.is-disabled:hover { border-color: rgba(255,255,255,0.14); }
 .aw-dd-opt .aw-dd-thumb { width: 72px; height: 72px; border-radius: 8px; }
-.aw-dd-opt > span { font-size: 0.98rem; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.2px; }
+.aw-dd-lbl { flex: 1; font-size: 0.98rem; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.2px; }
+.aw-dd-note { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.5); text-align: right; flex-shrink: 0; }
+/* Häkchen-Kästchen (Mehrfachauswahl) */
+.aw-dd-check {
+  width: 24px; height: 24px; flex-shrink: 0; border-radius: 6px;
+  border: 1.5px solid rgba(255,255,255,0.35); background: transparent;
+  display: flex; align-items: center; justify-content: center; color: var(--black); font-size: 15px; font-weight: 700;
+}
+.aw-dd-opt.is-active .aw-dd-check { background: var(--gold); border-color: var(--gold); }
+/* Hinweis (z. B. Rahmenwand + Schiebetür) */
+.aw-dd-hint { font-size: 0.78rem; color: var(--gold-light); margin-top: 4px; padding: 9px 12px; background: rgba(196,154,42,0.1); border: 1px solid rgba(196,154,42,0.3); border-radius: 8px; }
 
 /* Maße */
 .aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
