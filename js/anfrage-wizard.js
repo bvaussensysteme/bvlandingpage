@@ -121,8 +121,12 @@
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
       return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary'];
     // Carport: eigener Ablauf (Typ → Ausführung), ohne Fassade/Markise/Erweiterungen
-    if (p === 'Carport')
+    if (p === 'Carport') {
+      // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
+      if (answers.carporttyp === 'Noch unsicher – bitte beraten')
+        return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
       return ['produkt', 'carporttyp', 'carportvariante', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
+    }
     // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Markise/Erweiterungen
     if (p === 'Pergola / Lamellendach')
       return ['produkt', 'aufbau', 'fassade', 'masse', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary'];
@@ -185,7 +189,8 @@
         return optionCards('carporttyp', [
           { value: 'Carport TDS', img: 'cp_tds', photo: true, hint: 'Klassiker mit Profildach' },
           { value: 'Flachdach Flat Line', img: 'cp_flatline', photo: true, hint: 'Modernes, flaches Design' },
-          { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' }
+          { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' },
+          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
         ], 'aw-options--equal');
       },
       valid: function () { return answers.carporttyp ? null : 'Bitte wählen Sie einen Carport-Typ.'; }
@@ -571,8 +576,8 @@
         clearError();
         // Produkt-Auswahl aktualisiert den Ablauf sofort
         if (f === 'produkt') flow = computeFlow();
-        // Carport-Typ gewechselt → Ausführung zurücksetzen
-        if (f === 'carporttyp') answers.carportvariante = '';
+        // Carport-Typ gewechselt → Ausführung zurücksetzen + Ablauf neu berechnen
+        if (f === 'carporttyp') { answers.carportvariante = ''; flow = computeFlow(); }
         // Eindeckung neu rendern, damit die Glasstärke-Auswahl ein-/ausblendet
         if (f === 'verglasung') { if (!isGlas(btn.getAttribute('data-value'))) answers.glasstaerke = ''; render(); }
         // LED neu rendern, damit die Set-Auswahl ein-/ausblendet
@@ -663,7 +668,7 @@
     var err = step.valid ? step.valid() : null;
     if (err) { showError(err); return; }
 
-    if (id === 'produkt') flow = computeFlow();
+    if (id === 'produkt' || id === 'carporttyp') flow = computeFlow();
 
     if (id === 'summary') { submit(); return; }
 
