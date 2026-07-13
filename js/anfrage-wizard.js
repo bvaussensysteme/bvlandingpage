@@ -202,12 +202,12 @@
           { value: 'Carport mit Überstand', icon: I.carport, hint: 'Mit überstehendem Dach' }
         ];
         else if (t === 'Flachdach Flat Line') opts = [
-          { value: 'Flat Line', img: 'cp_flatline', photo: true, hint: 'Reines Flachdach' },
-          { value: 'Flat Line mit Nebenraum', img: 'cp_flatline', photo: true, hint: 'Mit integriertem Abstellraum' }
+          { value: 'Flat Line', img: 'cp_fl_plain', photo: true, hint: 'Reines Flachdach' },
+          { value: 'Flat Line mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
         else opts = [
-          { value: 'Flat Box – Seiten & Hinterwand verkleidet', img: 'cp_flatbox', photo: true, hint: 'Teilverkleidet' },
-          { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_flatbox', photo: true, hint: 'Wie eine Garage' }
+          { value: 'Flat Box – Seiten & Hinterwand verkleidet', img: 'cp_fb_offen', photo: true, hint: 'Teilverkleidet, vorne offen' },
+          { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' }
         ];
         return optionCards('carportvariante', opts, true);
       },
