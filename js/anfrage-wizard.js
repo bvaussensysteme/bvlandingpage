@@ -117,19 +117,21 @@
   /* ---------- Ablauf je nach Produkt ---------- */
   function computeFlow() {
     var p = answers.produkt;
+    var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau', 'fassade', 'masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary'];
-    // Carport: eigener Ablauf (Typ → Ausführung), ohne Fassade/Markise/Erweiterungen
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary']);
+    // Carport: eigener Ablauf (Typ → Ausführung)
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
         return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
-      return ['produkt', 'carporttyp', 'carportvariante', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
+      var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse', 'verglasung', 'led', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Markise/Erweiterungen
     if (p === 'Pergola / Lamellendach')
-      return ['produkt', 'aufbau', 'fassade', 'masse', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary'];
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary']);
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'kontakt', 'summary'];
     return ['produkt'];
@@ -242,11 +244,13 @@
       render: function () {
         var opt = answers.produkt === 'Sonstiges';
         var tds = answers.produkt === 'Terrassendach TDS';
+        var cpUeber = answers.carportvariante === 'Carport mit Überstand';
         return '<div class="aw-dims">' +
           dimField('breite', 'Breite', 'z. B. 400', 'cm') +
           dimField('tiefe', 'Tiefe', 'z. B. 300', 'cm') +
           dimField('hoehe', 'Höhe (optional)', 'z. B. 250', 'cm') +
           (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 30', 'cm') : '') +
+          (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 100', 'cm') : '') +
           '</div>' +
           '<p class="aw-note">Alle Maße in Zentimeter (cm).' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
       },
@@ -477,7 +481,7 @@
   function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
   function collectMasse() {
-    ['breite', 'tiefe', 'hoehe', 'vorsprung'].forEach(function (k) {
+    ['breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand'].forEach(function (k) {
       var e = document.getElementById('aw_' + k);
       if (e) answers[k] = e.value.trim();
     });
@@ -494,6 +498,7 @@
     var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
     if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
     if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
+    if (answers.ueberstand) p.push(['Überstand', answers.ueberstand + ' cm']);
     if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Sonnenschutz', answers.markise]);
     [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
@@ -578,6 +583,18 @@
         if (f === 'produkt') flow = computeFlow();
         // Carport-Typ gewechselt → Ausführung zurücksetzen + Ablauf neu berechnen
         if (f === 'carporttyp') { answers.carportvariante = ''; flow = computeFlow(); }
+        // Aufbau: Fassade-Schritt nur bei Wandmontage
+        if (f === 'aufbau') {
+          if (btn.getAttribute('data-value') !== 'Wandmontage') { answers.fassade = ''; answers.fassade_text = ''; }
+          flow = computeFlow();
+        }
+        // Carport-Ausführung: Fassade nur bei Wandmontage, Überstand nur bei „mit Überstand"
+        if (f === 'carportvariante') {
+          var cv = btn.getAttribute('data-value');
+          if (cv !== 'Carport mit Wandmontage') { answers.fassade = ''; answers.fassade_text = ''; }
+          if (cv !== 'Carport mit Überstand') answers.ueberstand = '';
+          flow = computeFlow();
+        }
         // Eindeckung neu rendern, damit die Glasstärke-Auswahl ein-/ausblendet
         if (f === 'verglasung') { if (!isGlas(btn.getAttribute('data-value'))) answers.glasstaerke = ''; render(); }
         // LED neu rendern, damit die Set-Auswahl ein-/ausblendet
@@ -668,7 +685,7 @@
     var err = step.valid ? step.valid() : null;
     if (err) { showError(err); return; }
 
-    if (id === 'produkt' || id === 'carporttyp') flow = computeFlow();
+    if (id === 'produkt' || id === 'carporttyp' || id === 'aufbau' || id === 'carportvariante') flow = computeFlow();
 
     if (id === 'summary') { submit(); return; }
 
