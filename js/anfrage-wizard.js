@@ -197,9 +197,9 @@
       render: function () {
         var t = answers.carporttyp, opts;
         if (t === 'Carport TDS') opts = [
-          { value: 'Carport mit Wandmontage', icon: I.wand, hint: 'Am Haus befestigt' },
-          { value: 'Freistehender Carport', icon: I.frei, hint: 'Auf eigenen Stützen' },
-          { value: 'Carport mit Überstand', icon: I.carport, hint: 'Mit überstehendem Dach' }
+          { value: 'Carport mit Wandmontage', img: 'cp_tds_wand', photo: true, hint: 'Am Haus befestigt' },
+          { value: 'Freistehender Carport', img: 'cp_tds_frei', photo: true, hint: 'Auf eigenen Stützen' },
+          { value: 'Carport mit Überstand', img: 'cp_tds_ueberstand', photo: true, hint: 'Mit überstehendem Dach' }
         ];
         else if (t === 'Flachdach Flat Line') opts = [
           { value: 'Flat Line', img: 'cp_fl_plain', photo: true, hint: 'Reines Flachdach' },
