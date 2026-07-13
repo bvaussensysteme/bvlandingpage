@@ -2153,6 +2153,12 @@ img { max-width: 100%; height: auto; }
   border: none; background: var(--gold); color: var(--black); width: 46px; cursor: pointer; font-size: 1rem;
 }
 .bv-chat-form button:hover { background: var(--gold-dark); }
+.bv-chat-disclaimer {
+  padding: 7px 12px; font-size: .68rem; line-height: 1.35;
+  color: rgba(255,255,255,.55); background: rgba(0,0,0,.25);
+  border-top: 1px solid var(--border); text-align: center;
+}
+.bv-chat-disclaimer a { color: var(--gold); text-decoration: underline; }
 @media (max-width: 600px) {
   #bvChatPanel { right: 64px; bottom: 126px; max-width: calc(100vw - 76px); max-height: calc(100vh - 160px); }
 }
