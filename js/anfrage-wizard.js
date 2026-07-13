@@ -278,18 +278,22 @@
           { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
           { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true }
         ]);
-        // Anzahl Spots nur bei „Ja": Sets 2/4/6 oder freie Eingabe
+        // Anzahl Spots nur bei „Ja": Sets 6/8/12 oder freie (gerade) Eingabe
         if (hasLed(answers.led)) {
           cards += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
-            pill('ledset', '2er-Set') + pill('ledset', '4er-Set') + pill('ledset', '6er-Set') +
-            '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="1" max="99" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
-            '</div></div>';
+            pill('ledset', '6er-Set') + pill('ledset', '8er-Set') + pill('ledset', '12er-Set') +
+            '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="2" max="98" step="2" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
+            '</div><p class="aw-note">Freie Eingabe: nur gerade Anzahl (z. B. 6, 8, 10 …).</p></div>';
         }
         return cards;
       },
       valid: function () {
         if (!answers.led) return 'Bitte wählen Sie, ob Sie LED-Beleuchtung wünschen.';
-        if (hasLed(answers.led) && !answers.ledset) return 'Bitte wählen Sie die Anzahl der Spots.';
+        if (hasLed(answers.led)) {
+          if (!answers.ledset) return 'Bitte wählen Sie die Anzahl der Spots.';
+          var m = /^(\d+) Spots$/.exec(answers.ledset);
+          if (m && parseInt(m[1], 10) % 2 !== 0) return 'Bitte eine gerade Anzahl Spots angeben (z. B. 6, 8, 12 …).';
+        }
         return null;
       }
     },
