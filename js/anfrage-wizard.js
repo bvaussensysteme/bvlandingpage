@@ -9,7 +9,7 @@
   var FORMSPREE = 'https://formspree.io/f/xnjkabdv';
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
-  var ASSET_VER = '20260712j'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
+  var ASSET_VER = '20260712p'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
@@ -107,7 +107,8 @@
     pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
     frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>',
     aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>',
-    markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>'
+    markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>',
+    lupe:     '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -360,9 +361,13 @@
     var m = /^(\d+) Spots$/.exec(answers.ledset || '');
     return m ? m[1] : '';
   }
-  function ddThumb(value) {
+  function ddThumb(value, zoomable) {
     var o = erwOpt(value);
-    if (o && o.img) return '<span class="aw-dd-thumb"><img src="images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>';
+    if (o && o.img) {
+      var zoom = zoomable ? ' data-zoom="' + o.img + '" data-zoom-label="' + esc(value) + '"' : '';
+      var lupe = zoomable ? '<span class="aw-dd-zoom">' + svg(I.lupe) + '</span>' : '';
+      return '<span class="aw-dd-thumb"' + zoom + '><img src="images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + lupe + '</span>';
+    }
     return '<span class="aw-dd-thumb aw-dd-thumb--none">' + svg(I.aus) + '</span>';
   }
   function ddField(id, label) {
@@ -378,7 +383,7 @@
       var note = disabled ? '<span class="aw-dd-note">nicht mit ' + esc(blocker) + '</span>'
                : (locked ? '<span class="aw-dd-note">erforderlich</span>' : '');
       return '<button type="button" class="' + cls + '"' + pick + '>' +
-        ddThumb(o.value) + '<span class="aw-dd-lbl">' + esc(o.value) + '</span>' + note +
+        ddThumb(o.value, true) + '<span class="aw-dd-lbl">' + esc(o.value) + '</span>' + note +
         '<span class="aw-dd-check">' + (selected ? '✓' : '') + '</span></button>';
     }).join('');
     var hint = (sel.indexOf('Rahmenwand') > -1 && sel.indexOf('Schiebetür') > -1)
@@ -474,6 +479,21 @@
   // Neu rendern ohne Scroll-Sprung (für Multi-Select in den Erweiterungen)
   function rerenderKeepScroll() { var st = bodyEl.scrollTop; render(); bodyEl.scrollTop = st; }
 
+  // Bild-Großansicht (Lightbox) für die Erweiterungs-Fotos
+  function openLightbox(imgSlug, label) {
+    var lb = document.createElement('div');
+    lb.className = 'aw-lightbox';
+    lb.innerHTML = '<div class="aw-lightbox-inner">' +
+      '<img src="images/wizard/erw_' + imgSlug + '.webp?v=' + ASSET_VER + '" alt="' + esc(label) + '">' +
+      '<p>' + esc(label) + '</p>' +
+      '<button type="button" class="aw-lightbox-close" aria-label="Schließen">✕</button></div>';
+    function close() { if (lb.parentNode) lb.parentNode.removeChild(lb); document.removeEventListener('keydown', onKey); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    lb.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(lb);
+  }
+
   function bindStep() {
     // Option-Karten (Einfachauswahl)
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-option'), function (btn) {
@@ -530,6 +550,13 @@
       btn.addEventListener('click', function () {
         erwToggle(btn.getAttribute('data-dd-pick'), btn.getAttribute('data-value'));
         rerenderKeepScroll();
+      });
+    });
+    // Klick auf ein Erweiterungs-Foto → Großansicht (statt Auswahl umzuschalten)
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-thumb[data-zoom]'), function (t) {
+      t.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openLightbox(t.getAttribute('data-zoom'), t.getAttribute('data-zoom-label'));
       });
     });
     // Checkboxen (Mehrfach)
