@@ -11,20 +11,21 @@
 
   function build() {
     var bubbleIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
-    var bubble = el('button', { id: 'bvChatBubble', 'aria-label': 'Chat öffnen' }, bubbleIcon);
+    var bubble = el('button', { id: 'bvChatBubble', 'aria-label': 'KI-Chat-Assistent öffnen' }, bubbleIcon);
     var panel = el('div', { id: 'bvChatPanel' },
       '<div class="bv-chat-header">' +
-        '<span>BV Assistent <small>(Beta)</small></span>' +
+        '<span>BV KI-Assistent <small>(Beta)</small></span>' +
         '<button id="bvChatClose" aria-label="Chat schließen">✕</button>' +
       '</div>' +
       '<div class="bv-chat-messages" id="bvChatMessages" role="log" aria-live="polite" aria-label="Chatverlauf">' +
-        '<div class="bv-chat-msg bv-chat-msg-bot">Hallo! Ich bin der KI-Assistent von BV AussenSysteme (Beta). Fragen Sie mich zu unseren Produkten, dem Ablauf oder unserem Einzugsgebiet – ich helfe gerne weiter oder verlinke die passende Seite.</div>' +
+        '<div class="bv-chat-msg bv-chat-msg-bot"><strong>🤖 Hinweis:</strong> Sie schreiben mit einem automatisierten KI-Assistenten (Künstliche Intelligenz), nicht mit einem Menschen.<br><br>Hallo! Ich bin der KI-Assistent von BV AussenSysteme (Beta). Fragen Sie mich zu unseren Produkten, dem Ablauf oder unserem Einzugsgebiet – ich helfe gerne weiter oder verlinke die passende Seite. Meine Antworten können Fehler enthalten und sind unverbindlich (keine Rechts- oder Fachberatung).</div>' +
       '</div>' +
       '<form id="bvChatForm" class="bv-chat-form">' +
-        '<label for="bvChatInput" class="sr-only">Ihre Frage an den BV Assistenten</label>' +
-        '<input id="bvChatInput" type="text" maxlength="500" placeholder="Ihre Frage…" autocomplete="off" aria-label="Ihre Frage an den BV Assistenten" />' +
+        '<label for="bvChatInput" class="sr-only">Ihre Frage an den BV KI-Assistenten</label>' +
+        '<input id="bvChatInput" type="text" maxlength="500" placeholder="Ihre Frage…" autocomplete="off" aria-label="Ihre Frage an den BV KI-Assistenten" />' +
         '<button type="submit" aria-label="Senden">➤</button>' +
-      '</form>'
+      '</form>' +
+      '<div class="bv-chat-disclaimer">Automatisierter KI-Assistent · kann Fehler machen · unverbindlich. <a href="/datenschutz.html#ki-assistent" target="_top">Datenschutz &amp; KI-Hinweise</a></div>'
     );
     document.body.appendChild(bubble);
     document.body.appendChild(panel);
