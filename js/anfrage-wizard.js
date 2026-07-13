@@ -207,7 +207,8 @@
         ];
         else opts = [
           { value: 'Flat Box – Seiten & Hinterwand verkleidet', img: 'cp_fb_offen', photo: true, hint: 'Teilverkleidet, vorne offen' },
-          { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' }
+          { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' },
+          { value: 'Flat Box – mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
         return optionCards('carportvariante', opts, true);
       },
