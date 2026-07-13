@@ -271,29 +271,43 @@
     },
 
     led: {
-      title: 'Stimmungsvolles Licht am Abend?',
-      sub: 'Dimmbare LED-Spots direkt im Profil – für gemütliche Abende lange nach Sonnenuntergang.',
+      title: 'Licht & Sound?',
+      sub: 'Dezent ins Dachprofil integriert – für stimmungsvolle Abende auf der Terrasse.',
       render: function () {
-        var cards = optionCards('led', [
-          { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
-          { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true }
-        ]);
-        // Anzahl Spots nur bei „Ja": Sets 6/8/12 oder freie (gerade) Eingabe
+        // LED-Spots
+        var html = '<p class="aw-group-h">LED-Spots</p>' +
+          optionCards('led', [
+            { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
+            { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true }
+          ]);
         if (hasLed(answers.led)) {
-          cards += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
+          html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
             pill('ledset', '6er-Set') + pill('ledset', '8er-Set') + pill('ledset', '12er-Set') +
             '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="2" max="98" step="2" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
             '</div><p class="aw-note">Freie Eingabe: nur gerade Anzahl (z. B. 6, 8, 10 …).</p></div>';
         }
-        return cards;
+        // Lautsprecher
+        html += '<p class="aw-group-h aw-group-h--sep">Lautsprecher</p>' +
+          optionCards('sound', [
+            { value: 'Ja, mit Lautsprechern', img: 'lautsprecher', photo: true, hint: 'Musik direkt aus dem Dachprofil' },
+            { value: 'Nein, ohne Lautsprecher', icon: I.aus, iconBig: true }
+          ]);
+        if (isJa(answers.sound)) {
+          html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Lautsprecher?</p><div class="aw-pills">' +
+            pill('soundset', '2er-Set') + pill('soundset', '4er-Set') +
+            '</div></div>';
+        }
+        return html;
       },
       valid: function () {
-        if (!answers.led) return 'Bitte wählen Sie, ob Sie LED-Beleuchtung wünschen.';
+        if (!answers.led) return 'Bitte wählen Sie, ob Sie LED-Spots wünschen.';
         if (hasLed(answers.led)) {
           if (!answers.ledset) return 'Bitte wählen Sie die Anzahl der Spots.';
           var m = /^(\d+) Spots$/.exec(answers.ledset);
           if (m && parseInt(m[1], 10) % 2 !== 0) return 'Bitte eine gerade Anzahl Spots angeben (z. B. 6, 8, 12 …).';
         }
+        if (!answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
+        if (isJa(answers.sound) && !answers.soundset) return 'Bitte wählen Sie die Anzahl der Lautsprecher.';
         return null;
       }
     },
@@ -356,6 +370,7 @@
   /* ---------- Feld-Helfer ---------- */
   function isGlas(v) { return v && v.indexOf('VSG-Glas') === 0; }
   function hasLed(v) { return v && v.indexOf('Ja') === 0; }
+  function isJa(v) { return v && v.indexOf('Ja') === 0; }
   function pill(field, value) {
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
@@ -435,6 +450,7 @@
       if (v && v.length) p.push([e[1], v.join(', ')]);
     });
     if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
+    if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
     if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
     if (answers.wunsch) p.push(['Wunsch', answers.wunsch]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
@@ -512,7 +528,9 @@
         // Eindeckung neu rendern, damit die Glasstärke-Auswahl ein-/ausblendet
         if (f === 'verglasung') { if (!isGlas(btn.getAttribute('data-value'))) answers.glasstaerke = ''; render(); }
         // LED neu rendern, damit die Set-Auswahl ein-/ausblendet
-        if (f === 'led') { if (!hasLed(btn.getAttribute('data-value'))) answers.ledset = ''; render(); }
+        if (f === 'led') { if (!hasLed(btn.getAttribute('data-value'))) answers.ledset = ''; rerenderKeepScroll(); }
+        // Lautsprecher neu rendern, damit die Set-Auswahl ein-/ausblendet
+        if (f === 'sound') { if (!isJa(btn.getAttribute('data-value'))) answers.soundset = ''; rerenderKeepScroll(); }
       });
     });
     // Pills (Glasstärke, LED-Set – Einfachauswahl)
@@ -522,7 +540,7 @@
         answers[f] = btn.getAttribute('data-value');
         Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="' + f + '"]'), function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
-        var lc = bodyEl.querySelector('#ledCustom'); if (lc) lc.value = ''; // freie Eingabe zurücksetzen
+        if (f === 'ledset') { var lc = bodyEl.querySelector('#ledCustom'); if (lc) lc.value = ''; } // freie Eingabe zurücksetzen
         clearError();
       });
     });
