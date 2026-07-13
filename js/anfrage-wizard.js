@@ -171,8 +171,8 @@
       title: 'Art des Aufbaus',
       render: function () {
         return optionCards('aufbau', [
-          { value: 'Wandmontage', img: 'wand', hint: 'Am Haus befestigt' },
-          { value: 'Freistehend', img: 'frei', hint: 'Auf eigenen Stützen' }
+          { value: 'Wandmontage', img: 'wand', photo: true, hint: 'Am Haus befestigt' },
+          { value: 'Freistehend', img: 'frei', photo: true, hint: 'Auf eigenen Stützen' }
         ]);
       },
       valid: function () { return answers.aufbau ? null : 'Bitte wählen Sie die Art des Aufbaus.'; }
