@@ -132,8 +132,8 @@
   }
 
   /* ---------- Wiederverwendbare Bausteine ---------- */
-  function optionCards(field, opts, stack) {
-    var html = '<div class="aw-options' + (stack ? ' aw-options--stack' : '') + '">';
+  function optionCards(field, opts, modClass) {
+    var html = '<div class="aw-options' + (modClass ? ' ' + modClass : '') + '">';
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
       var muted = o.muted ? ' aw-option--muted' : '';
@@ -186,7 +186,7 @@
           { value: 'Carport TDS', img: 'cp_tds', photo: true, hint: 'Klassiker mit Profildach' },
           { value: 'Flachdach Flat Line', img: 'cp_flatline', photo: true, hint: 'Modernes, flaches Design' },
           { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' }
-        ]);
+        ], 'aw-options--equal');
       },
       valid: function () { return answers.carporttyp ? null : 'Bitte wählen Sie einen Carport-Typ.'; }
     },
@@ -210,7 +210,7 @@
           { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' },
           { value: 'Flat Box – mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
-        return optionCards('carportvariante', opts);
+        return optionCards('carportvariante', opts, 'aw-options--equal');
       },
       valid: function () { return answers.carportvariante ? null : 'Bitte wählen Sie eine Ausführung.'; }
     },
