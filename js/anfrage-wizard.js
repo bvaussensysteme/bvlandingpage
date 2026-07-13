@@ -186,7 +186,7 @@
           { value: 'Carport TDS', img: 'cp_tds', photo: true, hint: 'Klassiker mit Profildach' },
           { value: 'Flachdach Flat Line', img: 'cp_flatline', photo: true, hint: 'Modernes, flaches Design' },
           { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' }
-        ], true);
+        ]);
       },
       valid: function () { return answers.carporttyp ? null : 'Bitte wählen Sie einen Carport-Typ.'; }
     },
@@ -210,7 +210,7 @@
           { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' },
           { value: 'Flat Box – mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
-        return optionCards('carportvariante', opts, true);
+        return optionCards('carportvariante', opts);
       },
       valid: function () { return answers.carportvariante ? null : 'Bitte wählen Sie eine Ausführung.'; }
     },
