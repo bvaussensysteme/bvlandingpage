@@ -108,7 +108,8 @@
     frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>',
     aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>',
     markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>',
-    lupe:     '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'
+    lupe:     '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+    brief:    '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -134,6 +135,9 @@
       return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary']);
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'kontakt', 'summary'];
+    // Direktkontakt: ohne Fragen – nur Nachricht + Kontaktdaten
+    if (p === 'Direkt anfragen')
+      return ['produkt', 'wunsch', 'kontakt', 'summary'];
     return ['produkt'];
   }
 
@@ -176,8 +180,9 @@
           { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
           { value: 'Carport', img: 'carport', photo: true, hint: 'TDS · Flat Line · Flat Box' },
           { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'SunPro · Velaris' },
-          { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' }
-        ]);
+          { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' },
+          { value: 'Direkt anfragen', icon: I.brief, hint: 'Ohne Fragen – kurze Nachricht senden' }
+        ], 'aw-options--equal');
       },
       valid: function () { return answers.produkt ? null : 'Bitte wählen Sie ein Produkt.'; }
     },
