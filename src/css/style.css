@@ -2315,6 +2315,31 @@ img { max-width: 100%; height: auto; }
 .aw-dd-opt.is-disabled { opacity: 0.4; cursor: default; }
 .aw-dd-opt.is-disabled:hover { border-color: rgba(255,255,255,0.14); }
 .aw-dd-opt .aw-dd-thumb { width: 72px; height: 72px; border-radius: 8px; }
+/* Zoombares Thumbnail: Lupen-Badge + dezenter Hover-Zoom */
+.aw-dd-thumb[data-zoom] { position: relative; cursor: zoom-in; }
+.aw-dd-thumb[data-zoom] img { transition: transform 0.2s ease; }
+.aw-dd-thumb[data-zoom]:hover img { transform: scale(1.12); }
+.aw-dd-zoom {
+  position: absolute; right: 3px; bottom: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(0,0,0,0.6); color: #fff; display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.aw-dd-zoom svg { width: 12px; height: 12px; }
+/* Großansicht */
+.aw-lightbox {
+  position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  animation: awFade 0.15s ease;
+}
+@keyframes awFade { from { opacity: 0; } to { opacity: 1; } }
+.aw-lightbox-inner { position: relative; max-width: 92vw; text-align: center; }
+.aw-lightbox img { max-width: 100%; max-height: 78vh; border-radius: 12px; box-shadow: 0 12px 44px rgba(0,0,0,0.55); }
+.aw-lightbox p { color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.25rem; margin-top: 12px; letter-spacing: 0.3px; }
+.aw-lightbox-close {
+  position: absolute; top: -16px; right: -16px; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--gold); color: var(--black); border: none; font-size: 19px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.45);
+}
 .aw-dd-lbl { flex: 1; font-size: 0.98rem; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.2px; }
 .aw-dd-note { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.5); text-align: right; flex-shrink: 0; }
 /* Häkchen-Kästchen (Mehrfachauswahl) */
