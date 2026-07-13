@@ -2191,6 +2191,8 @@ img { max-width: 100%; height: auto; }
 .aw-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 /* Karten untereinander (z. B. Carport-Typ / Ausführung) */
 .aw-options--stack { grid-template-columns: 1fr; }
+/* Letzte (ungerade) Karte NICHT über volle Breite – gleiche Größe (z. B. Carport) */
+.aw-options.aw-options--equal .aw-option:last-child:nth-child(odd) { grid-column: auto; }
 /* Einzelne letzte Karte bei ungerader Anzahl über volle Breite (z. B. „Sonstiges") */
 .aw-options .aw-option:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .aw-option {
