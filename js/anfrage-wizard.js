@@ -183,9 +183,9 @@
       sub: 'Wählen Sie Ihren Carport-Typ',
       render: function () {
         return optionCards('carporttyp', [
-          { value: 'Carport TDS', icon: I.carport, hint: 'Klassiker mit Profildach' },
-          { value: 'Flachdach Flat Line', icon: I.flach, hint: 'Modernes, flaches Design' },
-          { value: 'Flachdach Flat Box', icon: I.flach, hint: 'Geschlossene Kubus-Optik' }
+          { value: 'Carport TDS', img: 'cp_tds', photo: true, hint: 'Klassiker mit Profildach' },
+          { value: 'Flachdach Flat Line', img: 'cp_flatline', photo: true, hint: 'Modernes, flaches Design' },
+          { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' }
         ], true);
       },
       valid: function () { return answers.carporttyp ? null : 'Bitte wählen Sie einen Carport-Typ.'; }
@@ -202,12 +202,12 @@
           { value: 'Carport mit Überstand', icon: I.carport, hint: 'Mit überstehendem Dach' }
         ];
         else if (t === 'Flachdach Flat Line') opts = [
-          { value: 'Flat Line', icon: I.flach, hint: 'Reines Flachdach' },
-          { value: 'Flat Line mit Nebenraum', icon: I.flach, hint: 'Mit integriertem Abstellraum' }
+          { value: 'Flat Line', img: 'cp_flatline', photo: true, hint: 'Reines Flachdach' },
+          { value: 'Flat Line mit Nebenraum', img: 'cp_flatline', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
         else opts = [
-          { value: 'Flat Box – Seiten & Hinterwand verkleidet', icon: I.flach, hint: 'Teilverkleidet' },
-          { value: 'Flat Box – rundum verkleidet mit Garagentor', icon: I.flach, hint: 'Wie eine Garage' }
+          { value: 'Flat Box – Seiten & Hinterwand verkleidet', img: 'cp_flatbox', photo: true, hint: 'Teilverkleidet' },
+          { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_flatbox', photo: true, hint: 'Wie eine Garage' }
         ];
         return optionCards('carportvariante', opts, true);
       },
