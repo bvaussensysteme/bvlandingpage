@@ -2365,6 +2365,7 @@ img { max-width: 100%; height: auto; }
 
 /* Checkboxen (Extras) */
 .aw-group-h { font-size: 0.82rem; font-weight: 700; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 10px; }
+.aw-group-h--sep { margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
 .aw-group-h + .aw-checks { margin-bottom: 18px; }
 .aw-checks { display: flex; flex-wrap: wrap; gap: 8px; }
 .aw-check {
