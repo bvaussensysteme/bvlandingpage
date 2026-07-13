@@ -137,12 +137,12 @@
     opts.forEach(function (o) {
       var active = answers[field] === o.value ? ' is-active' : '';
       var muted = o.muted ? ' aw-option--muted' : '';
-      var media = o.img
-        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy"></span>'
-        : '<span class="aw-option-ic' + (o.iconBig ? ' aw-option-ic--big' : '') + '">' + svg(o.icon) + '</span>';
       var badge = o.badge ? '<span class="aw-badge">' + esc(o.badge) + '</span>' : '';
+      var media = o.img
+        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + badge + '</span>'
+        : '<span class="aw-option-ic' + (o.iconBig ? ' aw-option-ic--big' : '') + '">' + svg(o.icon) + '</span>';
       html += '<button type="button" class="aw-option' + active + muted + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
-        badge + media +
+        media +
         '<span class="aw-option-lbl">' + esc(o.value) + '</span>' +
         (o.hint ? '<span class="aw-option-hint">' + esc(o.hint) + '</span>' : '') +
         '</button>';
