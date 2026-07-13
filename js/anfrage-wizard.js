@@ -137,6 +137,15 @@
     return ['produkt'];
   }
 
+  // Beim Produktwechsel alle Konfigurations-Antworten löschen (Kontaktdaten bleiben)
+  function resetConfig() {
+    ['aufbau', 'fassade', 'fassade_text', 'carporttyp', 'carportvariante',
+     'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
+     'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'sound', 'soundset',
+     'erw_links', 'erw_rechts', 'erw_vorne', 'wunsch', 'extras']
+      .forEach(function (k) { delete answers[k]; });
+  }
+
   /* ---------- Wiederverwendbare Bausteine ---------- */
   function optionCards(field, opts, modClass) {
     var html = '<div class="aw-options' + (modClass ? ' ' + modClass : '') + '">';
@@ -489,26 +498,32 @@
 
   /* ---------- Zusammenfassung ---------- */
   function summaryPairs() {
+    function inFlow(s) { return flow.indexOf(s) > -1; } // nur Schritte des aktuellen Ablaufs zeigen
     var p = [];
     p.push(['Produkt', answers.produkt]);
-    if (answers.carporttyp) p.push(['Carport-Typ', answers.carporttyp]);
-    if (answers.carportvariante) p.push(['Ausführung', answers.carportvariante]);
-    if (answers.aufbau) p.push(['Aufbau', answers.aufbau]);
-    if (answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade_text ? ' – ' + answers.fassade_text : '')]);
-    var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
-    if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
-    if (answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
-    if (answers.ueberstand) p.push(['Überstand', answers.ueberstand + ' cm']);
-    if (answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
-    if (answers.markise && answers.markise !== 'Keine Markise') p.push(['Sonnenschutz', answers.markise]);
-    [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
-      var v = answers[e[0]];
-      if (v && v.length) p.push([e[1], v.join(', ')]);
-    });
-    if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
-    if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
-    if (answers.extras && answers.extras.length) p.push(['Extras', answers.extras.join(', ')]);
-    if (answers.wunsch) p.push(['Wunsch', answers.wunsch]);
+    if (inFlow('carporttyp') && answers.carporttyp) p.push(['Carport-Typ', answers.carporttyp]);
+    if (inFlow('carportvariante') && answers.carportvariante) p.push(['Ausführung', answers.carportvariante]);
+    if (inFlow('aufbau') && answers.aufbau) p.push(['Aufbau', answers.aufbau]);
+    if (inFlow('fassade') && answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade_text ? ' – ' + answers.fassade_text : '')]);
+    if (inFlow('masse')) {
+      var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
+      if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
+      if (answers.produkt === 'Terrassendach TDS' && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
+      if (answers.carportvariante === 'Carport mit Überstand' && answers.ueberstand) p.push(['Überstand', answers.ueberstand + ' cm']);
+    }
+    if (inFlow('verglasung') && answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
+    if (inFlow('markise') && answers.markise && answers.markise !== 'Keine Markise') p.push(['Sonnenschutz', answers.markise]);
+    if (inFlow('erweiterungen')) {
+      [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
+        var v = answers[e[0]];
+        if (v && v.length) p.push([e[1], v.join(', ')]);
+      });
+    }
+    if (inFlow('led')) {
+      if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
+      if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
+    }
+    if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
     if (name) p.push(['Name', name]);
     if (answers.k_email) p.push(['E-Mail', answers.k_email]);
@@ -575,7 +590,10 @@
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-option'), function (btn) {
       btn.addEventListener('click', function () {
         var f = btn.getAttribute('data-field');
-        answers[f] = btn.getAttribute('data-value');
+        var v = btn.getAttribute('data-value');
+        // Produktwechsel → gesamte bisherige Konfiguration verwerfen (keine Vermischung)
+        if (f === 'produkt' && answers.produkt !== v) resetConfig();
+        answers[f] = v;
         Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-option[data-field="' + f + '"]'), function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
         clearError();
