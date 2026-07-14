@@ -368,7 +368,7 @@
         var html = '<p class="aw-group-h">LED-Spots</p>' +
           optionCards('led', [
             { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
-            { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true }
+            { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true, muted: true }
           ]);
         if (hasLed(answers.led)) {
           html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
@@ -380,7 +380,7 @@
         html += '<p class="aw-group-h aw-group-h--sep">Lautsprecher</p>' +
           optionCards('sound', [
             { value: 'Ja, mit Lautsprechern', img: 'lautsprecher', photo: true, hint: 'Musik direkt aus dem Dachprofil' },
-            { value: 'Nein, ohne Lautsprecher', icon: I.aus, iconBig: true }
+            { value: 'Nein, ohne Lautsprecher', icon: I.aus, iconBig: true, muted: true }
           ]);
         if (isJa(answers.sound)) {
           html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Lautsprecher?</p><div class="aw-pills">' +
