@@ -144,9 +144,9 @@
       return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'markise', 'erweiterungen', 'led', 'montage', 'kontakt', 'summary']);
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'montage', 'kontakt', 'summary'];
-    // Direktkontakt: ohne Fragen – nur Nachricht + Kontaktdaten
+    // Direktkontakt: kurze Nachricht + Montagefrage vor den Kontaktdaten
     if (p === 'Direkt anfragen')
-      return ['produkt', 'wunsch', 'kontakt', 'summary'];
+      return ['produkt', 'wunsch', 'montage', 'kontakt', 'summary'];
     return ['produkt'];
   }
 
