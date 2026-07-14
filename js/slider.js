@@ -91,6 +91,9 @@
     slides = Array.from(slider.querySelectorAll('.hs-slide'));
     dots   = Array.from(document.querySelectorAll('.hs-dot'));
 
+    // Statischer Hero (nur eine Slide) → kein Slider, keine Auto-Rotation
+    if (slides.length < 2) return;
+
     // Progress bar
     progress = document.createElement('div');
     progress.className = 'hs-progress';
