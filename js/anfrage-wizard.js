@@ -116,7 +116,9 @@
     aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>',
     markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>',
     lupe:     '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
-    brief:    '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>'
+    brief:    '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+    werkzeug: '<path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
+    schild:   '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -128,20 +130,20 @@
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary']);
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'montage', 'kontakt', 'summary']);
     // Carport: eigener Ablauf (Typ → Ausführung)
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
-        return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'kontakt', 'summary'];
+        return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
-      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse', 'verglasung', 'led', 'kontakt', 'summary']);
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse', 'verglasung', 'led', 'montage', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: ohne Verglasung (Lamellen), mit Markise/Erweiterungen
     if (p === 'Pergola / Lamellendach')
-      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'markise', 'erweiterungen', 'led', 'kontakt', 'summary']);
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'markise', 'erweiterungen', 'led', 'montage', 'kontakt', 'summary']);
     if (p === 'Sonstiges')
-      return ['produkt', 'wunsch', 'masse', 'kontakt', 'summary'];
+      return ['produkt', 'wunsch', 'masse', 'montage', 'kontakt', 'summary'];
     // Direktkontakt: ohne Fragen – nur Nachricht + Kontaktdaten
     if (p === 'Direkt anfragen')
       return ['produkt', 'wunsch', 'kontakt', 'summary'];
@@ -153,7 +155,7 @@
     ['aufbau', 'fassade', 'fassade_text', 'carporttyp', 'carportvariante',
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'sound', 'soundset',
-     'erw_links', 'erw_rechts', 'erw_vorne', 'wunsch', 'extras']
+     'erw_links', 'erw_rechts', 'erw_vorne', 'montage', 'wunsch', 'extras']
       .forEach(function (k) { delete answers[k]; });
   }
 
@@ -166,7 +168,7 @@
       var badge = o.badge ? '<span class="aw-badge">' + esc(o.badge) + '</span>' : '';
       var media = o.img
         ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + badge + '</span>'
-        : '<span class="aw-option-ic' + (o.iconBig ? ' aw-option-ic--big' : '') + '">' + svg(o.icon) + '</span>';
+        : '<span class="aw-option-ic' + (o.iconBig ? ' aw-option-ic--big' : '') + '">' + svg(o.icon) + badge + '</span>';
       html += '<button type="button" class="aw-option' + active + muted + '" data-field="' + field + '" data-value="' + esc(o.value) + '">' +
         media +
         '<span class="aw-option-lbl">' + esc(o.value) + '</span>' +
@@ -398,6 +400,23 @@
       }
     },
 
+    montage: {
+      title: 'Montage durch unser Fachteam?',
+      sub: 'Fachgerechter Aufbau – damit Ihre volle Herstellergarantie erhalten bleibt.',
+      render: function () {
+        return optionCards('montage', [
+          { value: 'Ja, mit Fachmontage', icon: I.werkzeug, iconBig: true, badge: 'Empfohlen', hint: 'Fachgerechter Aufbau durch unser Team' },
+          { value: 'Nein, Selbstmontage', icon: I.aus, iconBig: true, muted: true, hint: 'Lieferung ohne Aufbau' }
+        ], 'aw-options--equal') +
+          '<div class="aw-tip"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
+          '<span><strong>Warum wir die Montage empfehlen:</strong> Die volle Herstellergarantie – ' +
+          '<strong>10 Jahre auf Aluminium-Produkte</strong> und <strong>5 Jahre auf Markisen, Antriebe & Elektro</strong> – ' +
+          'setzt eine fachgerechte Montage voraus. Bei Selbstmontage können Garantie- und Gewährleistungsansprüche ' +
+          'eingeschränkt sein. Unser Team baut millimetergenau und wetterfest auf.</span></div>';
+      },
+      valid: function () { return answers.montage ? null : 'Bitte wählen Sie, ob Sie eine Montage wünschen.'; }
+    },
+
     kontakt: {
       title: 'Ihre Kontaktdaten',
       sub: 'Damit wir Ihnen Ihr persönliches Angebot zusenden können',
@@ -536,6 +555,7 @@
       if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
     }
     if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
+    if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
     if (name) p.push(['Name', name]);
     if (answers.k_email) p.push(['E-Mail', answers.k_email]);
