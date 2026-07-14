@@ -2245,6 +2245,8 @@ img { max-width: 100%; height: auto; }
 .aw-option-ic--big svg { width: 52px; height: 52px; }
 /* Badge auf Icon-Kacheln oben rechts (Text steht darunter → keine Überlappung) */
 .aw-option-ic .aw-badge { top: 6px; bottom: auto; }
+/* Farb-Kachel (RAL-Farbfeld statt Icon) */
+.aw-option-sw { border: 1px solid rgba(255,255,255,0.25); }
 .aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
 .aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.2; }
 
