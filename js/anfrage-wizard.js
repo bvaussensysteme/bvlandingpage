@@ -134,14 +134,14 @@
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'montage', 'kontakt', 'summary']);
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'montage', 'kontakt', 'summary']);
     // Carport: eigener Ablauf (Typ → Ausführung)
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
-        return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'montage', 'kontakt', 'summary'];
+        return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'farbe', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
-      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse', 'verglasung', 'led', 'montage', 'kontakt', 'summary']);
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse', 'verglasung', 'led', 'farbe', 'montage', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: eigener Ablauf (Dachart → Ausführung), kein Glasdach.
     // Seitlicher Schutz statt Aufdach-Markise, Komfort-Schritt mit Heizung/Sensorik.
@@ -485,14 +485,23 @@
 
     farbe: {
       title: 'Wunschfarbe (optional)',
-      sub: 'Die häufigsten Farben – viele weitere auf Anfrage.',
+      sub: 'Die Standardfarben – jede weitere RAL-Farbe auf Anfrage.',
       render: function () {
-        return optionCards('farbe', [
-          { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' },
-          { value: 'Graualuminium (RAL 9007)', swatch: '#8f9091' },
-          { value: 'Creme-Weiß (RAL 9010)', swatch: '#f1ece1' },
-          { value: 'Andere / Beratung', icon: I.frage }
-        ], 'aw-options--equal');
+        // Lamellendach: VD-Standardtrio; alle anderen Alu-Produkte: 4 Standardfarben
+        var opts = answers.produkt === 'Pergola / Lamellendach'
+          ? [
+              { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' },
+              { value: 'Graualuminium (RAL 9007)', swatch: '#83878a' },
+              { value: 'Creme-Weiß (RAL 9010)', swatch: '#f1ece1' }
+            ]
+          : [
+              { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' },
+              { value: 'Weißaluminium (RAL 9006)', swatch: '#a9aca9' },
+              { value: 'Graualuminium (RAL 9007)', swatch: '#83878a' },
+              { value: 'Reinweiß (RAL 9010)', swatch: '#f4f4ef' }
+            ];
+        opts.push({ value: 'Andere / Beratung', icon: I.frage });
+        return optionCards('farbe', opts, 'aw-options--equal');
       },
       valid: function () { return null; } // optional
     },
