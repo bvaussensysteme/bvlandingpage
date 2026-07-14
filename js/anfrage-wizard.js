@@ -408,7 +408,7 @@
           { value: 'Ja, mit Fachmontage', icon: I.werkzeug, iconBig: true, badge: 'Empfohlen', hint: 'Fachgerechter Aufbau durch unser Team' },
           { value: 'Nein, Selbstmontage', icon: I.aus, iconBig: true, muted: true, hint: 'Lieferung ohne Aufbau' }
         ], 'aw-options--equal') +
-          '<div class="aw-tip"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
+          '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
           '<span><strong>Warum wir die Montage empfehlen:</strong> Die volle Herstellergarantie – ' +
           '<strong>10 Jahre auf Aluminium-Produkte</strong> und <strong>5 Jahre auf Markisen, Antriebe & Elektro</strong> – ' +
           'setzt eine fachgerechte Montage voraus. Bei Selbstmontage können Garantie- und Gewährleistungsansprüche ' +
