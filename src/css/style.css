@@ -1725,7 +1725,9 @@ img { max-width: 100%; height: auto; }
 
 /* ── Text ── */
 .hs-text { max-width: 560px; }
-.hs-text--center { text-align: center; max-width: 680px; }
+.hs-text--center { text-align: center; max-width: 760px; }
+/* Autoritative Hero-Überschrift (verhindert Umbruch mit einzelnem „–" bzw. Überlauf mobil) */
+.hero .hs-heading { font-size: clamp(1.8rem, 4.6vw, 3.1rem); line-height: 1.12; }
 
 .hs-heading {
   font-family: 'Barlow Condensed', sans-serif;
@@ -1750,6 +1752,32 @@ img { max-width: 100%; height: auto; }
   flex-wrap: wrap;
 }
 .hs-text--center .hs-slide-btns { justify-content: center; }
+
+/* Trust-Zeile unter den Hero-CTAs (Risiko-Umkehr, Vertrauen früh) */
+.hero-trust {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px;
+  margin-top: 22px; font-size: 0.86rem; color: rgba(255,255,255,0.82);
+}
+.hero-trust span { white-space: nowrap; }
+.hero-trust span::before { content: '✓'; color: var(--gold); font-weight: 700; margin-right: 6px; }
+
+/* Scroll-Hinweis unten im Hero */
+.hero-scroll {
+  position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%);
+  z-index: 3; display: inline-flex; flex-direction: column; align-items: center; gap: 9px;
+  color: rgba(255,255,255,0.72); font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase;
+  text-decoration: none; transition: color 0.2s;
+}
+.hero-scroll:hover { color: var(--gold); }
+.hero-scroll-arrow {
+  width: 18px; height: 18px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-scroll-arrow { animation: heroScrollBounce 1.8s ease-in-out infinite; }
+}
+@keyframes heroScrollBounce { 0%,100%{transform:rotate(45deg) translate(0,0);opacity:.7;} 50%{transform:rotate(45deg) translate(3px,3px);opacity:1;} }
+@media (max-width: 680px) { .hero-scroll { display: none; } }
 
 /* ── Navigation Arrows ── */
 .hs-arrow {

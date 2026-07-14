@@ -46,21 +46,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ---- STICKY CTA – hide when contact section visible ----
+  // ---- STICKY CTA – erst nach dem Hero einblenden (nicht redundant zum Hero-CTA),
+  //      bei Erreichen der Kontakt-Sektion wieder ausblenden ----
   var stickyCta = document.getElementById('stickyCta');
   var kontaktSection = document.getElementById('kontakt');
   var stickyClose = document.getElementById('stickyClose');
+  var heroEl = document.getElementById('heroSlider');
+  var stickyClosed = false;
   if (stickyClose) {
     stickyClose.addEventListener('click', function () {
-      stickyCta.style.display = 'none';
+      stickyClosed = true;
+      if (stickyCta) stickyCta.style.display = 'none';
     });
   }
-  window.addEventListener('scroll', function () {
-    if (!stickyCta || !kontaktSection) return;
-    if (kontaktSection.getBoundingClientRect().top < window.innerHeight) {
-      stickyCta.style.display = 'none';
-    }
-  }, { passive: true });
+  function updateSticky() {
+    if (!stickyCta || stickyClosed) return;
+    var pastHero = window.pageYOffset > (heroEl ? heroEl.offsetHeight - 120 : 560);
+    var kontaktVisible = kontaktSection && kontaktSection.getBoundingClientRect().top < window.innerHeight;
+    stickyCta.style.display = (pastHero && !kontaktVisible) ? 'flex' : 'none';
+  }
+  window.addEventListener('scroll', updateSticky, { passive: true });
+  updateSticky();
 
   // ---- KONTAKT FORM ----
   // ══════════════════════════════════════════════════════
