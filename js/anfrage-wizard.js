@@ -141,10 +141,12 @@
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
-        return ['produkt', 'carporttyp', 'masse', 'led', 'solar', 'farbe', 'montage', 'kontakt', 'summary'];
+        return ['produkt', 'carporttyp', 'masse', 'led', 'farbe', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
-      var cpTds = answers.carporttyp === 'Carport TDS'; // Eindeckung nur beim Glas-/Poly-Dach
-      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(cpTds ? ['verglasung'] : []).concat(['led', 'solar', 'farbe', 'montage', 'kontakt', 'summary']);
+      var cpTds = answers.carporttyp === 'Carport TDS';
+      // Carport TDS: Glas-/Poly-Eindeckung. Flat Line/Box: Dach-Ausführung (Trapezblech/Solar/Gründach)
+      var roof = cpTds ? ['verglasung'] : ['dach'];
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(roof).concat(['led', 'farbe', 'montage', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: eigener Ablauf (Dachart → Ausführung), kein Glasdach.
     // Seitlicher Schutz statt Aufdach-Markise, Komfort-Schritt mit Heizung/Sensorik.
@@ -169,7 +171,7 @@
     ['aufbau', 'fassade', 'fassade_text', 'carporttyp', 'carportvariante',
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'sound', 'soundset',
-     'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'solar',
+     'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
      'erw_links', 'erw_rechts', 'erw_vorne', 'montage', 'wunsch', 'extras']
       .forEach(function (k) { delete answers[k]; });
   }
@@ -490,36 +492,38 @@
       }
     },
 
-    solar: {
-      title: 'Solar-Carport?',
-      sub: 'Eigenen Strom vom Carport-Dach – ideal fürs E-Auto.',
+    dach: {
+      title: 'Welches Dach möchten Sie?',
+      sub: 'Das Flachdach – klassisch, stromerzeugend oder begrünt.',
       render: function () {
-        return optionCards('solar', [
-          { value: 'Ja, mit PV-Anlage', icon: I.solar, iconBig: true, badge: 'Beliebt', hint: 'Solarstrom vom eigenen Dach' },
-          { value: 'Nein, ohne Solar', icon: I.aus, iconBig: true, muted: true }
-        ]) +
-          '<p class="aw-note">Details (Modulanzahl, Speicher, Wallbox) klären wir persönlich in der Beratung.</p>';
+        return optionCards('dach', [
+          { value: 'Trapezblech (Standard)', img: 'dach_trapez', photo: true, badge: 'Beliebt', hint: 'Robustes, pflegeleichtes Flachdach' },
+          { value: 'Solar (PV-Anlage)', img: 'dach_solar', photo: true, hint: 'Eigener Strom – ideal fürs E-Auto' },
+          { value: 'Dachbegrünung', img: 'dach_gruen', photo: true, hint: 'Begrüntes Dach – natürlich & dämmend' },
+          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+        ], 'aw-options--equal') +
+          '<p class="aw-note">Details (z. B. Modulanzahl, Speicher, Wallbox) klären wir persönlich in der Beratung.</p>';
       },
-      valid: function () { return answers.solar ? null : 'Bitte wählen Sie, ob Sie eine PV-Anlage wünschen.'; }
+      valid: function () { return answers.dach ? null : 'Bitte wählen Sie eine Dach-Ausführung.'; }
     },
 
     farbe: {
       title: 'Wunschfarbe (optional)',
       sub: 'Die Standardfarben – jede weitere RAL-Farbe auf Anfrage.',
       render: function () {
-        // Lamellendach: VD-Standardtrio; alle anderen Alu-Produkte: 4 Standardfarben
-        var opts = answers.produkt === 'Pergola / Lamellendach'
-          ? [
-              { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' },
-              { value: 'Graualuminium (RAL 9007)', swatch: '#83878a' },
-              { value: 'Creme-Weiß (RAL 9010)', swatch: '#f1ece1' }
-            ]
-          : [
-              { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' },
-              { value: 'Weißaluminium (RAL 9006)', swatch: '#a9aca9' },
-              { value: 'Graualuminium (RAL 9007)', swatch: '#83878a' },
-              { value: 'Reinweiß (RAL 9010)', swatch: '#f4f4ef' }
-            ];
+        var ANTHRAZIT = { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' };
+        var WEISSALU = { value: 'Weißaluminium (RAL 9006)', swatch: '#a9aca9' };
+        var GRAUALU = { value: 'Graualuminium (RAL 9007)', swatch: '#83878a' };
+        var CREME = { value: 'Creme-Weiß (RAL 9010)', swatch: '#f1ece1' };
+        var REINWEISS = { value: 'Reinweiß (RAL 9010)', swatch: '#f4f4ef' };
+        var opts;
+        if (answers.produkt === 'Pergola / Lamellendach') {
+          opts = [ANTHRAZIT, GRAUALU, CREME]; // VD-Standardtrio Lamellendach
+        } else if (answers.produkt === 'Carport' && answers.carporttyp === 'Flachdach Flat Line') {
+          opts = [ANTHRAZIT, WEISSALU, GRAUALU]; // Flat Line: nur 3 Standardfarben (ohne Reinweiß)
+        } else {
+          opts = [ANTHRAZIT, WEISSALU, GRAUALU, REINWEISS]; // TDS/SkyView/Flat Box: 4 Standardfarben
+        }
         opts.push({ value: 'Andere / Beratung', icon: I.frage });
         return optionCards('farbe', opts, 'aw-options--equal');
       },
@@ -700,7 +704,7 @@
       if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? 'Ja' : 'Nein']);
       if (answers.wettersensor) p.push(['Wetter-Automatik', isJa(answers.wettersensor) ? 'Ja' : 'Nein']);
     }
-    if (inFlow('solar') && answers.solar) p.push(['Solar-Carport', isJa(answers.solar) ? 'Ja (PV-Anlage)' : 'Nein']);
+    if (inFlow('dach') && answers.dach) p.push(['Dach', answers.dach]);
     if (inFlow('farbe') && answers.farbe) p.push(['Farbe', answers.farbe]);
     if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
