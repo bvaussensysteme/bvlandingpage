@@ -34,8 +34,15 @@
     'Rahmenwand': ['Velaris']
   };
   function erwIsVorne(id) { return id === 'erw_vorne'; } // Stirnseite: kein Keil, keine Auto-Keil-Regeln
+  // Keil (Gefälle-Ausgleich) nur bei TDS-Systemen mit Außengefälle – nicht bei
+  // Flachdach SkyView oder Pergola (kein Außengefälle → kein Keil nötig).
+  function keilAllowed() {
+    if (answers.produkt === 'Terrassendach TDS') return true;
+    if (answers.produkt === 'Carport' && answers.carporttyp === 'Carport TDS') return true;
+    return false;
+  }
   function erwOptsFor(id) {
-    return erwIsVorne(id) ? ERW_OPTS.filter(function (o) { return o.value !== 'Keil'; }) : ERW_OPTS;
+    return (erwIsVorne(id) || !keilAllowed()) ? ERW_OPTS.filter(function (o) { return o.value !== 'Keil'; }) : ERW_OPTS;
   }
   // bereits gewählte Option, die 'value' blockiert – oder null
   function erwBlocker(value, sel) {
@@ -48,7 +55,7 @@
   }
   // Keil gesperrt (nicht abwählbar), solange eine keilpflichtige Option aktiv ist
   function erwKeilLocked(id, sel) {
-    if (erwIsVorne(id)) return false;
+    if (erwIsVorne(id) || !keilAllowed()) return false;
     for (var i = 0; i < ERW_REQUIRES_KEIL.length; i++) if (sel.indexOf(ERW_REQUIRES_KEIL[i]) > -1) return true;
     return false;
   }
@@ -63,7 +70,7 @@
     } else {
       if (erwBlocker(value, sel)) return; // inkompatibel – ignorieren
       sel.push(value);
-      if (!erwIsVorne(id) && ERW_REQUIRES_KEIL.indexOf(value) > -1 && sel.indexOf('Keil') === -1) sel.push('Keil');
+      if (!erwIsVorne(id) && keilAllowed() && ERW_REQUIRES_KEIL.indexOf(value) > -1 && sel.indexOf('Keil') === -1) sel.push('Keil');
     }
     sel.sort(function (a, b) { return erwIndex(a) - erwIndex(b); });
     answers[id] = sel;
