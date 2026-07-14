@@ -122,7 +122,8 @@
     flamme:   '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
     sensor:   '<path d="M9.59 4.59A2 2 0 1 1 11 8H2M12.59 19.41A2 2 0 1 0 14 16H2M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/>',
     licht:    '<path d="M15 14c.2-1 .7-1.7 1.5-2.5A5.7 5.7 0 0 0 18 7.5 6 6 0 0 0 6 7.5c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/>',
-    speaker:  '<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><line x1="12" y1="6" x2="12" y2="6"/>'
+    speaker:  '<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><line x1="12" y1="6" x2="12" y2="6"/>',
+    solar:    '<rect x="2" y="5" width="20" height="11" rx="1"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="12.5" x2="22" y2="12.5"/><line x1="8.5" y1="5" x2="8.5" y2="16"/><line x1="15" y1="5" x2="15" y2="16"/><path d="M9 20h6M12 16v4"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -135,13 +136,15 @@
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
       return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'montage', 'kontakt', 'summary']);
-    // Carport: eigener Ablauf (Typ → Ausführung)
+    // Carport: eigener Ablauf (Typ → Ausführung). Glas/Poly-Eindeckung nur beim
+    // Carport TDS – Flat Line & Flat Box haben ein Trapezblech-Flachdach.
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
-        return ['produkt', 'carporttyp', 'masse', 'verglasung', 'led', 'farbe', 'montage', 'kontakt', 'summary'];
+        return ['produkt', 'carporttyp', 'masse', 'led', 'solar', 'farbe', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
-      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse', 'verglasung', 'led', 'farbe', 'montage', 'kontakt', 'summary']);
+      var cpTds = answers.carporttyp === 'Carport TDS'; // Eindeckung nur beim Glas-/Poly-Dach
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(cpTds ? ['verglasung'] : []).concat(['led', 'solar', 'farbe', 'montage', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: eigener Ablauf (Dachart → Ausführung), kein Glasdach.
     // Seitlicher Schutz statt Aufdach-Markise, Komfort-Schritt mit Heizung/Sensorik.
@@ -166,7 +169,7 @@
     ['aufbau', 'fassade', 'fassade_text', 'carporttyp', 'carportvariante',
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'sound', 'soundset',
-     'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe',
+     'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'solar',
      'erw_links', 'erw_rechts', 'erw_vorne', 'montage', 'wunsch', 'extras']
       .forEach(function (k) { delete answers[k]; });
   }
@@ -361,9 +364,10 @@
     },
 
     led: {
-      title: 'Licht & Sound?',
-      sub: 'Dezent ins Dachprofil integriert – für stimmungsvolle Abende auf der Terrasse.',
+      title: function () { return answers.produkt === 'Carport' ? 'Beleuchtung?' : 'Licht & Sound?'; },
+      sub: 'Dezent ins Dachprofil integriert – für stimmungsvolle Abende.',
       render: function () {
+        var noSound = answers.produkt === 'Carport'; // Carport: keine Lautsprecher (VD bietet sie nicht)
         // LED-Spots
         var html = '<p class="aw-group-h">LED-Spots</p>' +
           optionCards('led', [
@@ -376,16 +380,18 @@
             '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="2" max="98" step="2" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
             '</div><p class="aw-note">Freie Eingabe: nur gerade Anzahl (z. B. 6, 8, 10 …).</p></div>';
         }
-        // Lautsprecher
-        html += '<p class="aw-group-h aw-group-h--sep">Lautsprecher</p>' +
-          optionCards('sound', [
-            { value: 'Ja, mit Lautsprechern', img: 'lautsprecher', photo: true, hint: 'Musik direkt aus dem Dachprofil' },
-            { value: 'Nein, ohne Lautsprecher', icon: I.aus, iconBig: true, muted: true }
-          ]);
-        if (isJa(answers.sound)) {
-          html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Lautsprecher?</p><div class="aw-pills">' +
-            pill('soundset', '2er-Set') + pill('soundset', '4er-Set') +
-            '</div></div>';
+        // Lautsprecher (nicht beim Carport)
+        if (!noSound) {
+          html += '<p class="aw-group-h aw-group-h--sep">Lautsprecher</p>' +
+            optionCards('sound', [
+              { value: 'Ja, mit Lautsprechern', img: 'lautsprecher', photo: true, hint: 'Musik direkt aus dem Dachprofil' },
+              { value: 'Nein, ohne Lautsprecher', icon: I.aus, iconBig: true, muted: true }
+            ]);
+          if (isJa(answers.sound)) {
+            html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Lautsprecher?</p><div class="aw-pills">' +
+              pill('soundset', '2er-Set') + pill('soundset', '4er-Set') +
+              '</div></div>';
+          }
         }
         return html;
       },
@@ -396,6 +402,7 @@
           var m = /^(\d+) Spots$/.exec(answers.ledset);
           if (m && parseInt(m[1], 10) % 2 !== 0) return 'Bitte eine gerade Anzahl Spots angeben (z. B. 6, 8, 12 …).';
         }
+        if (answers.produkt === 'Carport') return null; // Carport: keine Lautsprecher-Abfrage
         if (!answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
         if (isJa(answers.sound) && !answers.soundset) return 'Bitte wählen Sie die Anzahl der Lautsprecher.';
         return null;
@@ -481,6 +488,19 @@
         if (!answers.wettersensor) return 'Bitte wählen Sie, ob Sie die Wetter-Automatik wünschen.';
         return null;
       }
+    },
+
+    solar: {
+      title: 'Solar-Carport?',
+      sub: 'Eigenen Strom vom Carport-Dach – ideal fürs E-Auto.',
+      render: function () {
+        return optionCards('solar', [
+          { value: 'Ja, mit PV-Anlage', icon: I.solar, iconBig: true, badge: 'Beliebt', hint: 'Solarstrom vom eigenen Dach' },
+          { value: 'Nein, ohne Solar', icon: I.aus, iconBig: true, muted: true }
+        ]) +
+          '<p class="aw-note">Details (Modulanzahl, Speicher, Wallbox) klären wir persönlich in der Beratung.</p>';
+      },
+      valid: function () { return answers.solar ? null : 'Bitte wählen Sie, ob Sie eine PV-Anlage wünschen.'; }
     },
 
     farbe: {
@@ -680,6 +700,7 @@
       if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? 'Ja' : 'Nein']);
       if (answers.wettersensor) p.push(['Wetter-Automatik', isJa(answers.wettersensor) ? 'Ja' : 'Nein']);
     }
+    if (inFlow('solar') && answers.solar) p.push(['Solar-Carport', isJa(answers.solar) ? 'Ja (PV-Anlage)' : 'Nein']);
     if (inFlow('farbe') && answers.farbe) p.push(['Farbe', answers.farbe]);
     if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
@@ -703,7 +724,7 @@
 
   function render() {
     var step = STEPS[currentId()];
-    document.getElementById('awTitle').textContent = step.title;
+    document.getElementById('awTitle').textContent = typeof step.title === 'function' ? step.title() : step.title;
     subEl.textContent = step.sub || 'Anfrage-Nr. ' + ref;
     subEl.style.display = '';
     bodyEl.innerHTML = step.render();
