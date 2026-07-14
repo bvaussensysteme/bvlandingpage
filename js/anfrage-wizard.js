@@ -120,7 +120,9 @@
     werkzeug: '<path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
     schild:   '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
     flamme:   '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
-    sensor:   '<path d="M9.59 4.59A2 2 0 1 1 11 8H2M12.59 19.41A2 2 0 1 0 14 16H2M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/>'
+    sensor:   '<path d="M9.59 4.59A2 2 0 1 1 11 8H2M12.59 19.41A2 2 0 1 0 14 16H2M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/>',
+    licht:    '<path d="M15 14c.2-1 .7-1.7 1.5-2.5A5.7 5.7 0 0 0 18 7.5 6 6 0 0 0 6 7.5c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/>',
+    speaker:  '<rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><line x1="12" y1="6" x2="12" y2="6"/>'
   };
   function svg(paths) {
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
@@ -444,18 +446,12 @@
       sub: 'Alles später bequem per Fernbedienung oder App steuerbar.',
       render: function () {
         var isPremium = answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)';
-        // Beleuchtung
+        // Beleuchtung (Art/Anzahl wird persönlich in der Beratung geklärt)
         var html = '<p class="aw-group-h">Beleuchtung</p>' +
           optionCards('led', [
-            { value: 'Ja, mit LED-Spots', img: 'led', photo: true, badge: 'Beliebt', hint: 'Warmes Licht, unsichtbar integriert' },
-            { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true }
+            { value: 'Ja, mit Beleuchtung', icon: I.licht, iconBig: true, badge: 'Beliebt', hint: 'Spots oder Streifen – klären wir persönlich' },
+            { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true, muted: true }
           ]);
-        if (hasLed(answers.led)) {
-          html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
-            pill('ledset', '6er-Set') + pill('ledset', '8er-Set') + pill('ledset', '12er-Set') +
-            '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="2" max="98" step="2" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
-            '</div><p class="aw-note">Freie Eingabe: nur gerade Anzahl (z. B. 6, 8, 10 …).</p></div>';
-        }
         // Heizstrahler
         html += '<p class="aw-group-h aw-group-h--sep">Heizstrahler</p>' +
           optionCards('heizung', [
@@ -466,14 +462,9 @@
         if (isPremium) {
           html += '<p class="aw-group-h aw-group-h--sep">Lautsprecher</p>' +
             optionCards('sound', [
-              { value: 'Ja, mit Lautsprechern', img: 'lautsprecher', photo: true, hint: 'Musik direkt aus dem Dachprofil' },
+              { value: 'Ja, mit Lautsprechern', icon: I.speaker, iconBig: true, hint: 'Musik direkt aus dem Dachprofil' },
               { value: 'Nein, ohne Lautsprecher', icon: I.aus, iconBig: true, muted: true }
             ]);
-          if (isJa(answers.sound)) {
-            html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Lautsprecher?</p><div class="aw-pills">' +
-              pill('soundset', '2er-Set') + pill('soundset', '4er-Set') +
-              '</div></div>';
-          }
         }
         // Wetter-Automatik
         html += '<p class="aw-group-h aw-group-h--sep">Wetter-Automatik</p>' +
@@ -484,17 +475,9 @@
         return html;
       },
       valid: function () {
-        if (!answers.led) return 'Bitte wählen Sie, ob Sie LED-Beleuchtung wünschen.';
-        if (hasLed(answers.led)) {
-          if (!answers.ledset) return 'Bitte wählen Sie die Anzahl der Spots.';
-          var m = /^(\d+) Spots$/.exec(answers.ledset);
-          if (m && parseInt(m[1], 10) % 2 !== 0) return 'Bitte eine gerade Anzahl Spots angeben (z. B. 6, 8, 12 …).';
-        }
+        if (!answers.led) return 'Bitte wählen Sie, ob Sie Beleuchtung wünschen.';
         if (!answers.heizung) return 'Bitte wählen Sie, ob Sie einen Heizstrahler wünschen.';
-        if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)') {
-          if (!answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
-          if (isJa(answers.sound) && !answers.soundset) return 'Bitte wählen Sie die Anzahl der Lautsprecher.';
-        }
+        if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && !answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
         if (!answers.wettersensor) return 'Bitte wählen Sie, ob Sie die Wetter-Automatik wünschen.';
         return null;
       }
@@ -683,9 +666,9 @@
     }
     if (inFlow('seitenschutz') && answers.seitenschutz) p.push(['Seitenschutz', answers.seitenschutz]);
     if (inFlow('komfort')) {
-      if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
+      if (answers.led) p.push(['Beleuchtung', isJa(answers.led) ? 'Ja' : 'Nein']);
       if (answers.heizung) p.push(['Heizstrahler', isJa(answers.heizung) ? 'Ja' : 'Nein']);
-      if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
+      if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? 'Ja' : 'Nein']);
       if (answers.wettersensor) p.push(['Wetter-Automatik', isJa(answers.wettersensor) ? 'Ja' : 'Nein']);
     }
     if (inFlow('farbe') && answers.farbe) p.push(['Farbe', answers.farbe]);
