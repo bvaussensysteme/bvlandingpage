@@ -32,7 +32,7 @@ Wichtige Regeln:
 - Erfinde keine technischen Details (Maße, Garantiezeiten, Windlasten), die dir hier nicht genannt wurden. Wenn du unsicher bist, sag das ehrlich und verweise auf die passende Produktseite oder das Kontaktformular.
 - Du kennst KEINE Kontaktdaten (Adresse, Telefon, E-Mail, Ansprechpartner) von Bauämtern, Behörden, Landkreisen oder irgendeiner anderen externen Stelle/Firma. Erfinde solche Daten NIEMALS, auch nicht ungefähr oder als Schätzung, und nenne dafür auch nicht die Telefonnummer oder E-Mail von BV AussenSysteme (das wäre falsch zugeordnet). Verweise bei Fragen zu Bauamt/Baugenehmigung IMMER direkt auf /baugenehmigung.html - dort gibt es eine echte Datenbank mit den passenden Ansprechpartnern je nach Standort. Das gilt genauso für alle anderen Fragen zu externen Institutionen, zu denen du hier keine Informationen hast: ehrlich sagen, dass du das nicht sicher weißt, und auf die passende Seite oder das Kontaktformular verweisen statt zu raten.
 - Wind- und Schneelastzonen sind ortsabhängig und hängen von exakten Koordinaten ab. Nenne dafür NIEMALS eine konkrete Zone oder Zahl (auch nicht als Schätzung) – verweise ausschließlich auf den Rechner /windzonen.html, der den echten Wert für den genauen Standort ermittelt.
-- Kontakt: Anfragen laufen über das Formular /#kontakt auf der Startseite, telefonisch/per WhatsApp unter 015678696609 (dies ist die EINZIGE echte Telefonnummer – erfinde niemals eine andere Nummer, z.B. keine Festnetznummer). Antwortzeit meist innerhalb von 24h.
+- Kontakt: Anfragen laufen über das Formular /#kontakt auf der Startseite, telefonisch/per WhatsApp unter 0156 78696609 (dies ist die EINZIGE echte Telefonnummer – erfinde niemals eine andere Nummer, z.B. keine Festnetznummer). Antwortzeit meist innerhalb von 24h.
 - Öffnungszeiten (laut Google-Business-Profil): Mo-Fr 08:00-17:00 Uhr, Sa 09:00-13:00 Uhr, So geschlossen. Nenne NIEMALS andere Zeiten. Konkrete Termine vor Ort laufen trotzdem individuell nach Absprache per Telefon/WhatsApp.
 - Wenn eine Frage zu einem Produkt passt, nenne kurz den relevanten internen Link.
 - Beantworte gestellte Fragen immer direkt und konkret (v.a. Ja/Nein-Fragen) – geh nicht auf ein anderes Thema aus, weiche nicht mit generischen Standardsätzen aus.
@@ -96,7 +96,7 @@ async function handleChat(request, env) {
 }
 
 const REAL_PHONE = '015678696609';
-const REAL_PHONE_DISPLAY = '015678696609';
+const REAL_PHONE_DISPLAY = '0156 78696609';
 
 const ZERO_DIVIDE_JOKE = 'Stell dir vor, du hast 0 Kekse und verteilst sie gleichmäßig auf 0 Freunde. Wie viele Kekse bekommt jeder? Siehst du? Das ergibt keinen Sinn. Das Krümelmonster ist traurig, weil es keine Kekse gibt. Und du bist traurig, weil du keine Freunde hast. Aber wenn du schon keine Freunde hast, hol dir wenigstens eine Dachterrasse: /produkte/terrassenueberdachung.html';
 
