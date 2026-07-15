@@ -160,9 +160,9 @@
     }
     if (p === 'Sonstiges')
       return ['produkt', 'wunsch', 'masse', 'montage', 'kontakt', 'summary'];
-    // Direktkontakt: kurze Nachricht + Montagefrage vor den Kontaktdaten
+    // Direktkontakt: nur kurze Nachricht, keine Montagefrage
     if (p === 'Direkt anfragen')
-      return ['produkt', 'wunsch', 'montage', 'kontakt', 'summary'];
+      return ['produkt', 'wunsch', 'kontakt', 'summary'];
     return ['produkt'];
   }
 
