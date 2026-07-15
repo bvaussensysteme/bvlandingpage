@@ -170,7 +170,7 @@
   function resetConfig() {
     ['aufbau', 'fassade', 'fassade_text', 'carporttyp', 'carportvariante',
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
-     'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'sound', 'soundset',
+     'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'ledsetzahl', 'sound', 'soundset',
      'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
      'erw_links', 'erw_rechts', 'erw_vorne', 'montage', 'wunsch', 'extras']
       .forEach(function (k) { delete answers[k]; });
@@ -377,10 +377,16 @@
             { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true, muted: true }
           ]);
         if (hasLed(answers.led)) {
-          html += '<div class="aw-subchoice"><p class="aw-group-h">Wie viele Spots?</p><div class="aw-pills">' +
+          html += '<div class="aw-subchoice"><p class="aw-group-h">Welche LED-Spots?</p><div class="aw-pills">' +
             pill('ledset', '6er-Set') + pill('ledset', '8er-Set') + pill('ledset', '12er-Set') +
-            '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="2" max="98" step="2" id="ledCustom" placeholder="Anzahl" value="' + esc(ledCustomVal()) + '"><span>Spots</span></span>' +
-            '</div><p class="aw-note">Freie Eingabe: nur gerade Anzahl (z. B. 6, 8, 10 …).</p></div>';
+            '</div>';
+          // Anzahl der Sets erst nach Auswahl eines Sets – optional (Standard: 1 Set)
+          if (answers.ledset) {
+            html += '<p class="aw-group-h aw-group-h--sep">Wie viele Sets? (optional)</p><div class="aw-pills">' +
+              '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="1" max="20" id="ledSets" placeholder="1" value="' + esc(answers.ledsetzahl || '') + '"><span>Sets</span></span>' +
+              '</div><p class="aw-note">Standard: 1 Set. Für mehrere einfach die Anzahl eintragen (z. B. 2 × ' + esc(answers.ledset) + ').</p>';
+          }
+          html += '</div>';
         }
         // Lautsprecher (nicht beim Carport)
         if (!noSound) {
@@ -399,11 +405,8 @@
       },
       valid: function () {
         if (!answers.led) return 'Bitte wählen Sie, ob Sie LED-Spots wünschen.';
-        if (hasLed(answers.led)) {
-          if (!answers.ledset) return 'Bitte wählen Sie die Anzahl der Spots.';
-          var m = /^(\d+) Spots$/.exec(answers.ledset);
-          if (m && parseInt(m[1], 10) % 2 !== 0) return 'Bitte eine gerade Anzahl Spots angeben (z. B. 6, 8, 12 …).';
-        }
+        if (hasLed(answers.led) && !answers.ledset) return 'Bitte wählen Sie ein LED-Set (6er, 8er oder 12er).';
+        // Anzahl der Sets (ledsetzahl) ist optional – keine Pflichtangabe
         if (answers.produkt === 'Carport') return null; // Carport: keine Lautsprecher-Abfrage
         if (!answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
         if (isJa(answers.sound) && !answers.soundset) return 'Bitte wählen Sie die Anzahl der Lautsprecher.';
@@ -610,11 +613,6 @@
     var active = answers[field] === value ? ' is-active' : '';
     return '<button type="button" class="aw-pill' + active + '" data-pill="' + field + '" data-value="' + esc(value) + '">' + esc(value) + '</button>';
   }
-  // Freie Spot-Anzahl (z. B. „10 Spots") → Ziffer für das Eingabefeld
-  function ledCustomVal() {
-    var m = /^(\d+) Spots$/.exec(answers.ledset || '');
-    return m ? m[1] : '';
-  }
   function ddThumb(value, zoomable) {
     var o = erwOpt(value);
     if (o && o.img) {
@@ -694,7 +692,10 @@
       });
     }
     if (inFlow('led')) {
-      if (answers.led) p.push(['LED-Beleuchtung', hasLed(answers.led) ? answers.ledset : 'Nein']);
+      if (answers.led) {
+        var ledZ = parseInt(answers.ledsetzahl, 10);
+        p.push(['LED-Beleuchtung', hasLed(answers.led) ? ((ledZ > 1 ? ledZ + ' × ' : '') + (answers.ledset || '')) : 'Nein']);
+      }
       if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
     }
     if (inFlow('seitenschutz') && answers.seitenschutz) p.push(['Seitenschutz', answers.seitenschutz]);
@@ -814,23 +815,18 @@
         answers[f] = btn.getAttribute('data-value');
         Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="' + f + '"]'), function (b) { b.classList.remove('is-active'); });
         btn.classList.add('is-active');
-        if (f === 'ledset') { var lc = bodyEl.querySelector('#ledCustom'); if (lc) lc.value = ''; } // freie Eingabe zurücksetzen
         clearError();
+        // LED-Set gewählt → neu rendern, damit das optionale „Wie viele Sets?"-Feld erscheint
+        if (f === 'ledset') rerenderKeepScroll();
       });
     });
-    // Freie Spot-Anzahl
-    var ledCustom = bodyEl.querySelector('#ledCustom');
-    if (ledCustom) {
-      ledCustom.addEventListener('input', function () {
-        var v = ledCustom.value.replace(/[^0-9]/g, '').slice(0, 2);
-        ledCustom.value = v;
-        if (v) {
-          answers.ledset = v + ' Spots';
-          Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-pill[data-pill="ledset"]'), function (b) { b.classList.remove('is-active'); });
-        } else {
-          answers.ledset = '';
-        }
-        clearError();
+    // Anzahl der Sets (optional, Standard 1)
+    var ledSets = bodyEl.querySelector('#ledSets');
+    if (ledSets) {
+      ledSets.addEventListener('input', function () {
+        var v = ledSets.value.replace(/[^0-9]/g, '').slice(0, 2);
+        ledSets.value = v;
+        answers.ledsetzahl = v;
       });
     }
     // Erweiterungs-Dropdowns: Auf-/Zuklappen (nur eines offen)
