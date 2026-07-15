@@ -9,7 +9,7 @@
   var FORMSPREE = 'https://formspree.io/f/xnjkabdv';
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
-  var ASSET_VER = '20260713a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
+  var ASSET_VER = '20260715a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
