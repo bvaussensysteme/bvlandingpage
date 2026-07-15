@@ -662,6 +662,32 @@ body.bv-menu-open #bv-scroll-top {
 .kontakt-whatsapp-btn svg { width: 15px; height: 15px; fill: currentColor; }
 .kontakt-whatsapp-btn:hover { background: var(--gold-dark); color: var(--white) !important; transform: translateY(-1px); }
 
+/* Direktkontakt-Leiste – nur mobil, erscheint unter dem Konfigurator */
+.kontakt-quick { display: none; }
+.kontakt-quick-lead {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.05rem; letter-spacing: .3px; color: var(--black);
+  text-align: center; margin: 0 0 14px;
+}
+.kontakt-quick-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.kontakt-quick-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+  min-height: 78px; padding: 12px 6px; border-radius: 14px;
+  background: var(--white); border: 1px solid rgba(196,154,42,0.35);
+  color: var(--black) !important; font-weight: 700; font-size: 0.82rem;
+  text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kontakt-quick-btn:active { transform: translateY(1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.kontakt-quick-btn svg {
+  width: 25px; height: 25px; stroke: var(--gold-dark); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.kontakt-quick-btn--wa { background: var(--gold); border-color: var(--gold); }
+.kontakt-quick-btn--wa svg { stroke: none; fill: var(--black); }
+.kontakt-quick-meta { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 14px 0 0; }
+.kontakt-quick-meta a { color: var(--gold-text); text-decoration: none; font-weight: 700; }
+
 .kontakt-form {
   background: var(--black); border-radius: 10px; padding: 34px;
   border: 1px solid rgba(196,154,42,0.25);
@@ -803,7 +829,10 @@ footer h4 {
   .prozess-grid       { grid-template-columns: 1fr 1fr; gap: 28px; }
   .prozess-grid::before { display: none; }
   .reviews-grid       { grid-template-columns: 1fr 1fr; }
-  .kontakt-grid       { grid-template-columns: 1fr; }
+  .kontakt-grid       { grid-template-columns: 1fr; gap: 28px; }
+  .kontakt-grid .anfrage-wizard { order: 1; }
+  .kontakt-grid .kontakt-quick  { display: block; order: 2; }
+  .kontakt-grid .kontakt-info   { display: none; }
   .footer-grid        { grid-template-columns: 1fr 1fr; }
   .regionen-inner     { flex-direction: column; align-items: flex-start; }
   .galerie-grid       { grid-template-columns: 1fr 1fr; }
