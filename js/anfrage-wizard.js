@@ -76,7 +76,7 @@
     answers[id] = sel;
   }
 
-  var wizard = document.getElementById('anfrageWizard');
+  var wizard = document.querySelector('.anfrage-wizard');
   if (!wizard) return;
 
   var bodyEl = document.getElementById('awBody');
