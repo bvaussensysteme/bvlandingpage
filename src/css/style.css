@@ -124,6 +124,8 @@ h3 { font-size: 1.4rem; color: var(--black); }
   font-weight: 700 !important; font-size: 1rem !important;
 }
 .nav-cta:hover { background: var(--gold-dark) !important; color: var(--white) !important; }
+/* „Jetzt anfragen" ist als Gold-Button abgegrenzt – keine zusätzliche Unterstreichung */
+.nav-cta::after { display: none !important; }
 .navbar .navbar-inner {
   padding-left: 20px;
   padding-right: 12px;
