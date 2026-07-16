@@ -201,7 +201,8 @@
   /* ---------- Schritt-Definitionen ---------- */
   var STEPS = {
     produkt: {
-      title: 'Was möchten Sie anfragen?',
+      title: 'Was möchten Sie kostenlos konfigurieren?',
+      sub: 'Kostenlos & unverbindlich – Sie stellen sich Ihr Wunschprodukt zusammen und erhalten ein individuelles Angebot.',
       render: function () {
         return optionCards('produkt', [
           { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },
