@@ -1787,6 +1787,16 @@ img { max-width: 100%; height: auto; }
   flex-wrap: wrap;
 }
 .hs-text--center .hs-slide-btns { justify-content: center; }
+/* Telefon + WhatsApp als gleich große Buttons nebeneinander (eigene Zeile) */
+.hero-contact-row {
+  display: flex; gap: 12px;
+  flex-basis: 100%; width: 100%; max-width: 520px; margin: 0 auto;
+}
+.hero-contact-btn {
+  flex: 1 1 0; display: inline-flex; align-items: center;
+  justify-content: center; gap: 8px;
+}
+.hero-contact-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* Trust-Zeile unter den Hero-CTAs (Risiko-Umkehr, Vertrauen früh) */
 .hero-trust {
