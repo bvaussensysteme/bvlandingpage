@@ -18,7 +18,7 @@
         '<button id="bvChatClose" aria-label="Chat schließen">✕</button>' +
       '</div>' +
       '<div class="bv-chat-messages" id="bvChatMessages" role="log" aria-live="polite" aria-label="Chatverlauf">' +
-        '<div class="bv-chat-msg bv-chat-msg-bot"><strong>🤖 Hinweis:</strong> Sie schreiben mit einem automatisierten KI-Assistenten (Künstliche Intelligenz), nicht mit einem Menschen.<br><br>Hallo! Ich bin der KI-Assistent von BV AussenSysteme (Beta). Fragen Sie mich zu unseren Produkten, dem Ablauf oder unserem Einzugsgebiet – ich helfe gerne weiter oder verlinke die passende Seite. Meine Antworten können Fehler enthalten und sind unverbindlich (keine Rechts- oder Fachberatung).</div>' +
+        '<div class="bv-chat-msg bv-chat-msg-bot">Hallo! Ich bin der KI-Assistent von BV AussenSysteme (Beta). Fragen Sie mich zu unseren Produkten, dem Ablauf oder unserem Einzugsgebiet – ich helfe gerne weiter oder verlinke die passende Seite. Meine Antworten können Fehler enthalten und sind unverbindlich (keine Rechts- oder Fachberatung).</div>' +
       '</div>' +
       '<form id="bvChatForm" class="bv-chat-form">' +
         '<label for="bvChatInput" class="sr-only">Ihre Frage an den BV KI-Assistenten</label>' +
