@@ -67,6 +67,8 @@ h3 { font-size: 1.4rem; color: var(--black); }
 .btn-outline-white:hover  { background: rgba(255,255,255,0.1); border-color: var(--white); }
 .btn-outline        { background: transparent; color: var(--gold-dark); border-color: var(--gold); }
 .btn-outline:hover  { background: var(--gold); color: var(--black); }
+/* E-Mail-/Telefon-Angaben nicht mitten im Wort/an der Ziffer umbrechen */
+a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 
 /* ============================================
    TOPBAR
