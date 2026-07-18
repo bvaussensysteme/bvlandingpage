@@ -1717,11 +1717,15 @@ img { max-width: 100%; height: auto; }
 .hs-slide-bg {
   position: absolute;
   inset: 0;
+  background-image: url('/images/vd_prod_terrasse_tds_m.webp?v=20260718a'); /* Mobil: kleine Version (~78 KB) */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   transform: scale(1.04);
   transition: transform 6s ease;
+}
+@media (min-width: 768px) {
+  .hs-slide-bg { background-image: url('/images/vd_prod_terrasse_tds.webp?v=20260715a'); } /* Desktop: volle Auflösung */
 }
 .hs-slide--active .hs-slide-bg {
   transform: scale(1);
