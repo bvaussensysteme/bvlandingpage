@@ -568,6 +568,30 @@ body.bv-menu-open #bv-scroll-top {
   opacity: 0; transition: opacity 0.3s;
 }
 .galerie-item:hover .galerie-label { opacity: 1; }
+/* VD-Referenz Info-Badge – dezent unten links (geringste Aufmerksamkeit) */
+.vd-badge {
+  position: absolute; left: 10px; bottom: 10px; z-index: 4;
+  width: 22px; height: 22px; padding: 0; border: none; border-radius: 50%;
+  background: rgba(110,110,110,0.68); color: #fff;
+  font-family: Georgia, 'Times New Roman', serif; font-style: italic;
+  font-weight: 700; font-size: 13px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background .2s ease, box-shadow .2s ease, color .2s ease;
+}
+.vd-badge:hover, .vd-badge:focus-visible, .vd-badge.vd-badge--open {
+  background: var(--gold); color: var(--black); outline: none;
+  box-shadow: 0 0 0 4px rgba(196,154,42,0.35);
+}
+.vd-badge-tip {
+  position: absolute; left: 0; bottom: calc(100% + 8px);
+  background: rgba(20,20,20,0.95); color: #fff;
+  font-family: 'Inter', sans-serif; font-style: normal; font-weight: 600;
+  font-size: 11px; white-space: nowrap; padding: 5px 9px; border-radius: 6px;
+  opacity: 0; transform: translateY(4px); pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.vd-badge--open .vd-badge-tip { opacity: 1; transform: translateY(0); }
 
 /* Placeholder for missing images */
 .img-placeholder {

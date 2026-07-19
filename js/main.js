@@ -186,6 +186,15 @@ var lightboxImages = [
   { src: 'images/galerie-1-full.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
   { src: 'images/galerie-2-full.jpg', caption: 'Detailansicht · Aluminium-Profile & Verglasung' },
   { src: 'images/galerie-3-full.jpg', caption: 'Gesamtansicht · Terrassenüberdachung Westerwaldkreis' },
+  { src: 'images/vd_ref_1-full.webp', caption: 'Terrassenüberdachung mit Glasdach · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_2-full.webp', caption: 'Große Aluminium-Terrassenüberdachung · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_3-full.webp', caption: 'Terrassenüberdachung mit Lounge · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_4-full.webp', caption: 'Glas-Terrassendach über Holzterrasse · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_5-full.webp', caption: 'Freistehender Glasanbau / Kaltwintergarten · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_6-full.webp', caption: 'Freistehende Terrassenüberdachung · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_7-full.webp', caption: 'Aluminium-Carport · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_8-full.webp', caption: 'Carport mit Flachdach · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_9-full.webp', caption: 'Eingangsüberdachung / Vordach · Referenz VD AluSysteme' },
 ];
 var lightboxIndex = 0;
 
