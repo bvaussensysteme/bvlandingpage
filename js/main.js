@@ -192,7 +192,7 @@ var lightboxImages = [
   { src: 'images/vd_ref_4-full.webp', caption: 'Glas-Terrassendach über Holzterrasse · Referenz VD AluSysteme' },
   { src: 'images/vd_ref_5-full.webp', caption: 'Freistehender Glasanbau / Kaltwintergarten · Referenz VD AluSysteme' },
   { src: 'images/vd_ref_6-full.webp', caption: 'Freistehende Terrassenüberdachung · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_7-full.webp', caption: 'Aluminium-Carport · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_7-full.webp?v=b', caption: 'Aluminium-Carport · Referenz VD AluSysteme' },
   { src: 'images/vd_ref_8-full.webp', caption: 'Carport mit Flachdach · Referenz VD AluSysteme' },
   { src: 'images/vd_ref_9-full.webp', caption: 'Eingangsüberdachung / Vordach · Referenz VD AluSysteme' },
 ];

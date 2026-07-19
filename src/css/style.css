@@ -570,18 +570,19 @@ body.bv-menu-open #bv-scroll-top {
 .galerie-item:hover .galerie-label { opacity: 1; }
 /* VD-Referenz Info-Badge – dezent unten links (geringste Aufmerksamkeit) */
 .vd-badge {
-  position: absolute; left: 10px; bottom: 10px; z-index: 4;
-  width: 22px; height: 22px; padding: 0; border: none; border-radius: 50%;
-  background: rgba(110,110,110,0.68); color: #fff;
+  position: absolute; left: 9px; bottom: 9px; z-index: 4;
+  width: 17px; height: 17px; padding: 0; border: none; border-radius: 50%;
+  background: rgba(70,70,70,0.4); color: rgba(255,255,255,0.85);
   font-family: Georgia, 'Times New Roman', serif; font-style: italic;
-  font-weight: 700; font-size: 13px; line-height: 1;
+  font-weight: 700; font-size: 10px; line-height: 1;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: background .2s ease, box-shadow .2s ease, color .2s ease;
+  cursor: pointer; opacity: 0.55; -webkit-tap-highlight-color: transparent;
+  transition: opacity .2s ease, background .2s ease, box-shadow .2s ease, color .2s ease;
 }
+.galerie-item:hover .vd-badge { opacity: 1; }
 .vd-badge:hover, .vd-badge:focus-visible, .vd-badge.vd-badge--open {
-  background: var(--gold); color: var(--black); outline: none;
-  box-shadow: 0 0 0 4px rgba(196,154,42,0.35);
+  opacity: 1; background: var(--gold); color: var(--black); outline: none;
+  box-shadow: 0 0 0 3px rgba(196,154,42,0.30);
 }
 .vd-badge-tip {
   position: absolute; left: 0; bottom: calc(100% + 8px);
