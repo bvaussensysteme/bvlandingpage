@@ -11,6 +11,10 @@
   var MAIL = 'info@bv-aussensysteme.de';
   var ASSET_VER = '20260715a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
+  /* „Wie sind Sie auf uns aufmerksam geworden?" – optionale Herkunftsfrage */
+  var QUELLE_OPTS = ['Empfehlung', 'Google', 'Website', 'Social Media', 'Messe',
+    'Fahrzeugwerbung', 'Zeitung/Anzeige', 'Bestandskunde', 'Sonstiges'];
+
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
     { value: 'Keine Angabe' },
@@ -574,6 +578,11 @@
           '</div>' +
           txtField('k_email', 'E-Mail *', answers.k_email, 'max@beispiel.de', 'email', 'email') +
           txtField('k_telefon', 'Telefon / WhatsApp', answers.k_telefon, '0156 …', 'tel', 'tel') +
+          '<div class="aw-row">' +
+          txtField('k_plz', 'PLZ (optional)', answers.k_plz, 'z. B. 56410', 'text', 'postal-code') +
+          txtField('k_ort', 'Ort (optional)', answers.k_ort, 'z. B. Montabaur', 'text', 'address-level2') +
+          '</div>' +
+          selectField('k_quelle', 'Wie sind Sie auf uns aufmerksam geworden? (optional)', answers.k_quelle, QUELLE_OPTS) +
           '<label class="aw-consent"><input type="checkbox" id="k_consent"' + (answers.k_consent ? ' checked' : '') + '> ' +
           '<span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *</span></label>' +
           '</div>';
@@ -583,6 +592,9 @@
         answers.k_nachname = val('k_nachname');
         answers.k_email = val('k_email');
         answers.k_telefon = val('k_telefon');
+        answers.k_plz = val('k_plz');
+        answers.k_ort = val('k_ort');
+        answers.k_quelle = val('k_quelle');
         var c = document.getElementById('k_consent');
         answers.k_consent = c ? c.checked : false;
       },
@@ -659,6 +671,14 @@
     return '<div class="aw-field"><label for="' + id + '">' + label + '</label>' +
       '<input type="' + (type || 'text') + '" id="' + id + '" value="' + esc(v || '') + '" placeholder="' + ph + '"' + (ac ? ' autocomplete="' + ac + '"' : '') + '></div>';
   }
+  function selectField(id, label, v, opts) {
+    var o = '<option value=""' + (v ? '' : ' selected') + '>Bitte wählen …</option>';
+    opts.forEach(function (opt) {
+      o += '<option value="' + esc(opt) + '"' + (v === opt ? ' selected' : '') + '>' + esc(opt) + '</option>';
+    });
+    return '<div class="aw-field"><label for="' + id + '">' + label + '</label>' +
+      '<select id="' + id + '" class="aw-select">' + o + '</select></div>';
+  }
   function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
   function collectMasse() {
@@ -714,6 +734,9 @@
     if (name) p.push(['Name', name]);
     if (answers.k_email) p.push(['E-Mail', answers.k_email]);
     if (answers.k_telefon) p.push(['Telefon', answers.k_telefon]);
+    var ort = [answers.k_plz, answers.k_ort].filter(Boolean).join(' ');
+    if (ort) p.push(['Ort', ort]);
+    if (answers.k_quelle) p.push(['Aufmerksam geworden durch', answers.k_quelle]);
     return p;
   }
   function summaryRows() {
