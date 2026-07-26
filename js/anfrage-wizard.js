@@ -15,6 +15,49 @@
   var QUELLE_OPTS = ['Empfehlung', 'Google', 'Website', 'Social Media', 'Messe',
     'Fahrzeugwerbung', 'Zeitung/Anzeige', 'Bestandskunde', 'Sonstiges'];
 
+  /* ---- Milde Spam-/Fake-Erkennung (bewusst tolerant, blockt nur Offensichtliches) ----
+     Ziel: Test-/Platzhaltereingaben abfangen, ohne echte Kunden zu verlieren. */
+  // Eindeutig unechte Einzel-Namen (Vor- oder Nachname). Keine echten Vornamen hier!
+  var FAKE_NAME_TOKENS = ['test', 'tester', 'testtest', 'testkunde', 'test test',
+    'asdf', 'asdfasdf', 'asd', 'asddd', 'qwer', 'qwert', 'qwertz', 'qwerty',
+    'xxx', 'xyz', 'abc', 'abcabc', 'fake', 'spam', 'blabla', 'bla', 'lol',
+    'mustermann', 'musterfrau', 'vorname', 'nachname', 'keineangabe',
+    'none', 'null', 'kein', 'unbekannt', 'fdsa', 'yxcv'];
+  // Eindeutig unechte vollständige Namen (Vorname + Nachname zusammen)
+  var FAKE_FULL_NAMES = ['max mustermann', 'erika mustermann', 'erika musterfrau',
+    'max muster', 'john doe', 'jane doe', 'test test', 'max test'];
+  // Wegwerf-/Testmail-Domains
+  var DISPOSABLE_MAIL = ['example.com', 'example.de', 'example.org', 'test.de',
+    'test.com', 'test.test', 'mail.com', 'mailinator.com', 'trashmail.com',
+    'trashmail.de', 'wegwerfmail.de', 'tempmail.com', 'temp-mail.org',
+    '10minutemail.com', 'guerrillamail.com', 'yopmail.com', 'sharklasers.com',
+    'byom.de', 'mail.ru', 'muster.de', 'firma.de', 'domain.de'];
+  // Vollständige Tastaturreihen (klassisches Geklimper)
+  var KEYBOARD_ROWS = ['qwertzuiop', 'asdfghjkl', 'yxcvbnm', 'qwertyuiop'];
+
+  function normName(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+  function looksFakeName(vor, nach) {
+    var v = normName(vor), n = normName(nach);
+    var full = (v + (n ? ' ' + n : '')).trim();
+    if (FAKE_FULL_NAMES.indexOf(full) > -1) return true;
+    if (FAKE_NAME_TOKENS.indexOf(v) > -1) return true;
+    if (n && FAKE_NAME_TOKENS.indexOf(n) > -1) return true;
+    var vj = v.replace(/\s/g, '');
+    if (/^(.)\1{3,}$/.test(vj)) return true;                 // aaaa, xxxx (4+ gleiche)
+    if (KEYBOARD_ROWS.indexOf(vj) > -1) return true;          // ganze Tastaturreihe
+    return false;
+  }
+  function looksFakeEmail(email) {
+    var m = normName(email).replace(/\s/g, '');
+    var at = m.indexOf('@');
+    if (at < 1) return false; // Format wird separat geprüft
+    var local = m.slice(0, at), domain = m.slice(at + 1);
+    if (DISPOSABLE_MAIL.indexOf(domain) > -1) return true;
+    if (/^(.)\1{2,}$/.test(local)) return true;               // aaa@…, xxx@…
+    if (FAKE_NAME_TOKENS.indexOf(local) > -1 && /^(test|abc|xyz|muster|firma|domain)\./.test(domain)) return true;
+    return false;
+  }
+
   /* Optionen für die Erweiterungs-Dropdowns (in allen 3 Positionen identisch) */
   var ERW_OPTS = [
     { value: 'Keine Angabe' },
@@ -600,8 +643,13 @@
       },
       valid: function () {
         this.collect();
-        if (!answers.k_vorname.trim()) return 'Bitte geben Sie Ihren Vornamen an.';
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(answers.k_email.trim())) return 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
+        var vorname = answers.k_vorname.trim(), nachname = answers.k_nachname.trim();
+        var email = answers.k_email.trim();
+        if (!vorname) return 'Bitte geben Sie Ihren Vornamen an.';
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
+        // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
+        if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein – so können wir Sie persönlich ansprechen.';
+        if (looksFakeEmail(email)) return 'Diese E-Mail-Adresse sieht nicht gültig aus. Bitte geben Sie eine Adresse an, unter der wir Sie erreichen können.';
         if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
         return null;
       }
