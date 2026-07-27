@@ -6,7 +6,10 @@
 (function () {
   'use strict';
 
-  var FORMSPREE = 'https://formspree.io/f/xnjkabdv';
+  var FORMSPREE = 'https://formspree.io/f/xnjkabdv'; // nur noch Notfall-Backup
+  var WEB3FORMS = 'https://api.web3forms.com/submit'; // primärer E-Mail-Weg (kostenlos)
+  var WEB3FORMS_KEY = '7c268c76-c83b-4011-87de-5a843195ac0d'; // öffentlicher Access Key
+  var KONTAKT_API = '/api/kontakt'; // Worker → Neon-Datenbank
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
   var ASSET_VER = '20260715a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
@@ -971,32 +974,82 @@
     if (idx > 0) { idx--; render(); }
   }
 
-  /* ---------- Absenden ---------- */
+  /* ---------- Absenden ----------
+     Zwei voneinander unabhängige Wege, damit keine Anfrage verloren geht:
+       1. Datenbank: POST an den eigenen Worker (/api/kontakt → Neon). Best
+          effort – ein Fehler hier blockiert das Absenden NICHT.
+       2. E-Mail an info@: primär über Web3Forms (kostenlos), und falls das
+          scheitert automatisch über Formspree (bisheriger, bewährter Weg).
+     Erst wenn KEIN E-Mail-Weg funktioniert, sieht der Nutzer einen Fehler. */
   function submit() {
     nextBtn.disabled = true;
     backBtn.disabled = true;
     nextBtn.textContent = 'Wird gesendet …';
 
+    var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
+    var subject = 'Anfrage ' + ref + ': ' + (answers.produkt || '') + ' – ' + name;
+
+    // 1) Datenbank (parallel, Fehler werden bewusst ignoriert)
+    try {
+      fetch(KONTAKT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          name: name,
+          email: answers.k_email || '',
+          telefon: answers.k_telefon || '',
+          plz: answers.k_plz || '',
+          ort: answers.k_ort || '',
+          produkt: answers.produkt || '',
+          betreff: subject,
+          nachricht: summaryText(),
+          quelle_detail: answers.k_quelle || ''
+        })
+      }).catch(function () {});
+    } catch (e) {}
+
+    // 2) E-Mail: Web3Forms primär → Formspree als Fallback
+    sendWeb3(subject).then(function (okW3) {
+      if (okW3) { showSuccess(); return; }
+      return sendFormspree(subject).then(function (okFs) {
+        if (okFs) { showSuccess(); return; }
+        throw new Error('kein E-Mail-Weg erfolgreich');
+      });
+    }).catch(function () {
+      nextBtn.disabled = false;
+      backBtn.disabled = false;
+      nextBtn.textContent = 'Erneut senden';
+      showError('Senden fehlgeschlagen. Bitte rufen Sie uns direkt an: 015678696609');
+    });
+  }
+
+  // E-Mail über Web3Forms (client-seitig, kostenlos). Gibt true bei Erfolg.
+  function sendWeb3(subject) {
+    var payload = { access_key: WEB3FORMS_KEY, subject: subject, from_name: 'BV AussenSysteme Website', 'Anfrage-Nr': ref };
+    summaryPairs().forEach(function (r) { payload[r[0]] = r[1]; });
+    payload.replyto = answers.k_email || '';
+    return fetch(WEB3FORMS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json(); })
+      .then(function (d) { return !!(d && d.success); })
+      .catch(function () { return false; });
+  }
+
+  // E-Mail über Formspree (Notfall-Backup). Gibt true bei Erfolg.
+  function sendFormspree(subject) {
     var fd = new FormData();
-    fd.append('_subject', 'Anfrage ' + ref + ': ' + (answers.produkt || '') + ' – ' + [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' '));
+    fd.append('_subject', subject);
     fd.append('_replyto', answers.k_email || '');
     fd.append('_gotcha', '');
     fd.append('Anfrage-Nr', ref);
     summaryPairs().forEach(function (r) { fd.append(r[0], r[1]); });
     fd.append('Zusammenfassung', summaryText());
-
-    fetch(FORMSPREE, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
+    return fetch(FORMSPREE, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
       .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data.ok) throw new Error('nok');
-        showSuccess();
-      })
-      .catch(function () {
-        nextBtn.disabled = false;
-        backBtn.disabled = false;
-        nextBtn.textContent = 'Erneut senden';
-        showError('Senden fehlgeschlagen. Bitte rufen Sie uns direkt an: 015678696609');
-      });
+      .then(function (d) { return !!(d && d.ok); })
+      .catch(function () { return false; });
   }
 
   function showSuccess() {
