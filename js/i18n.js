@@ -175,9 +175,9 @@ var T = [
    'Our aluminium profiles are available in numerous RAL colours – from classic white and anthracite to individual custom colours. For glazing, choose between clear glass, frosted glass, polycarbonate, louvres or solid panel.',
    'Наши алюминиевые профили доступны во множестве цветов RAL – от классического белого и антрацитового до индивидуальных цветов на заказ. Для остекления выбирайте между прозрачным стеклом, матовым стеклом, поликарбонатом, жалюзи или сплошной панелью.'],
 
-  ['Die Preise hängen von Größe, Material, Verglasung und Montageaufwand ab. Eine einfache Terrassenüberdachung beginnt ab ca. 3.000 €, ein Carport ab ca. 2.500 €. Wir erstellen Ihnen kostenlos und unverbindlich ein Angebot nach Ihren genauen Wünschen.',
-   'Prices depend on size, material, glazing and installation effort. A simple patio cover starts from around €3,000, a carport from around €2,500. We will create a free, non-binding quote tailored to your exact wishes.',
-   'Цены зависят от размера, материала, остекления и объёма монтажных работ. Простой навес для террасы начинается от около 3 000 €, карпорт – от около 2 500 €. Мы составим для вас бесплатное предложение.'],
+  ['Die Preise hängen von Größe, Material, Verglasung und Montageaufwand ab und sind daher individuell – einen Pauschalpreis nennen wir bewusst nicht. Wir erstellen Ihnen kostenlos und unverbindlich ein Angebot nach Ihren genauen Wünschen.',
+   'Prices depend on size, material, glazing and installation effort and are therefore individual – we deliberately do not quote a flat price. We will create a free, non-binding quote tailored to your exact wishes.',
+   'Цены зависят от размера, материала, остекления и объёма монтажных работ и поэтому индивидуальны — мы сознательно не называем фиксированную цену. Мы бесплатно и ни к чему не обязывающе составим для вас предложение.'],
 
   ['Ja! Wir betreuen Kunden im gesamten Raum Westerwald, Montabaur, Neuwied, Altenkirchen, Hachenburg, Limburg und Koblenz. Sprechen Sie uns einfach an – wir finden gemeinsam eine Lösung.',
    'Yes! We serve customers throughout the Westerwald area, Montabaur, Neuwied, Altenkirchen, Hachenburg, Limburg and Koblenz. Simply contact us – we will find a solution together.',
