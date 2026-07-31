@@ -83,9 +83,10 @@ Sicherheit des CRM – das zählt für den Datenschutz **mehr als der Serverstan
 | **IONOS** | Server (VPS), Domain, E-Mail | AVV holen |
 | **Web3Forms** | E-Mail-Weiterleitung Formular (primär) | Datenschutz/Terms prüfen |
 | **Formspree, Inc.** (US, DPF) | E-Mail-Weiterleitung (Backup) | AVV/DPA holen |
-| **Cloudflare, Inc.** (US, DPF) | Hosting/DNS/CDN Website | AVV/DPA holen |
+| **Cloudflare, Inc.** (US, DPF) | Hosting/DNS/CDN Website **+ R2 (Kundenfotos, EU)** | AVV/DPA holen (deckt auch R2 ab) |
+| **Google** (Kalender/Workspace) | **Termine mit Kundenadressen** ⚠️ | **Google-Workspace-DPA** nötig – privates Konto reicht NICHT |
 | **Google** (falls Ads/Business Profile) | Werbung / Profil | AVV vorhanden (im Konto) |
-| **Metricool / sipgate** (falls genutzt) | Statistik / Telefonie | AVV holen |
+| **Metricool / sipgate** (falls genutzt) | Statistik / Telefonie / **SMS-2FA** | AVV holen |
 
 > Tipp: Bei allen genannten Anbietern gibt es den AVV/DPA als **Download oder Klick-Zustimmung**
 > im jeweiligen Konto. Einmal machen, abspeichern, fertig.
