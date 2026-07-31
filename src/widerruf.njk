@@ -1,0 +1,101 @@
+---
+layout: layout.njk
+permalink: /widerruf.html
+title: "Widerruf – Muster-Widerrufsformular | BV AussenSysteme"
+description: "Online-Widerrufsformular von BV AussenSysteme nach dem amtlichen Muster (Art. 246a EGBGB). Ausfüllen und direkt absenden."
+canonical: "https://bv-aussensysteme.de/widerruf.html"
+robots: "noindex, follow"
+---
+<main id="main-content" role="main">
+  <section class="section">
+    <div class="container" style="max-width:720px;">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:8px;"><a href="/" style="color:var(--gold-dark);">Startseite</a> › Widerruf</p>
+      <h1 style="margin-bottom:16px;">Widerruf</h1>
+
+      <p>Verbraucherinnen und Verbraucher können einen Vertrag unter den gesetzlichen Voraussetzungen
+        widerrufen. Sie können uns dafür <strong>formlos</strong> (z. B. per Brief oder E-Mail an
+        <a href="mailto:info@bv-aussensysteme.de">info@bv-aussensysteme.de</a>) informieren – oder
+        einfach das folgende Formular ausfüllen und absenden. Die Verwendung dieses Formulars ist
+        <strong>nicht vorgeschrieben</strong>.</p>
+
+      <p style="background:var(--light-bg);border-radius:var(--radius);padding:14px 16px;font-size:.9rem;color:var(--muted);">
+        ℹ️ <strong>Hinweis:</strong> Für Waren, die nach Ihren individuellen Vorgaben maßgefertigt werden,
+        kann das Widerrufsrecht gesetzlich ausgeschlossen sein (§ 312g Abs. 2 Nr. 1 BGB). Ob und welches
+        Widerrufsrecht in Ihrem Fall besteht, richtet sich nach der
+        <a href="/agb.html#widerruf" style="color:var(--gold-dark);">Widerrufsbelehrung in unseren AGB</a>
+        und den gesetzlichen Vorschriften.
+      </p>
+
+      <h2 style="margin-top:28px;">Muster-Widerrufsformular</h2>
+      <p style="font-style:italic;color:var(--muted);margin-bottom:8px;">(Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es ab.)</p>
+
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;">
+        <p style="margin-bottom:16px;"><strong>An:</strong><br>
+          BV AussenSysteme – Alexander Becker &amp; Josef Voronin GbR<br>
+          Am Driesch 1, 56428 Dernbach (Westerwald)<br>
+          E-Mail: info@bv-aussensysteme.de</p>
+
+        <form action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="7c268c76-c83b-4011-87de-5a843195ac0d">
+          <input type="hidden" name="subject" value="Widerruf über die Website – BV AussenSysteme">
+          <input type="hidden" name="from_name" value="Widerrufsformular BV AussenSysteme">
+          <input type="hidden" name="redirect" value="https://bv-aussensysteme.de/danke.html">
+          <!-- Honeypot gegen Spam -->
+          <input type="checkbox" name="botcheck" style="display:none !important;" tabindex="-1" autocomplete="off">
+
+          <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Hiermit widerrufe ich / widerrufen wir den abgeschlossenen Vertrag über *</label>
+          <textarea name="Widerruf betrifft" rows="3" required placeholder="z. B. den Kauf der folgenden Waren / die Erbringung der folgenden Dienstleistung" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;"></textarea>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Bestellt am</label>
+              <input type="text" name="Bestellt am" placeholder="TT.MM.JJJJ" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+            </div>
+            <div>
+              <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Erhalten am</label>
+              <input type="text" name="Erhalten am" placeholder="TT.MM.JJJJ" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+            </div>
+          </div>
+
+          <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Name des / der Verbraucher(s) *</label>
+          <input type="text" name="Name" required style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+
+          <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Anschrift des / der Verbraucher(s) *</label>
+          <textarea name="Anschrift" rows="2" required style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;"></textarea>
+
+          <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Ihre E-Mail (für unsere Bestätigung)</label>
+          <input type="email" name="email" placeholder="max@beispiel.de" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+
+          <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Datum</label>
+          <input type="text" name="Datum" id="wr-datum" placeholder="TT.MM.JJJJ" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:16px;">
+
+          <label style="display:flex;gap:10px;align-items:flex-start;font-size:.88rem;color:var(--muted);margin-bottom:18px;">
+            <input type="checkbox" required style="margin-top:3px;">
+            <span>Ich habe die <a href="/datenschutz.html" target="_blank" rel="noopener" style="color:var(--gold-dark);">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Angaben zur Bearbeitung des Widerrufs einverstanden. *</span>
+          </label>
+
+          <button type="submit" class="btn btn-gold" style="width:100%;">Widerruf absenden</button>
+          <p style="font-size:.8rem;color:var(--muted);margin-top:10px;">* Pflichtfeld. Nach dem Absenden erhalten wir Ihren Widerruf per E-Mail. Bitte bewahren Sie zu Ihrer Sicherheit eine Kopie auf.</p>
+        </form>
+      </div>
+
+      <p style="margin-top:20px;font-size:.9rem;color:var(--muted);">
+        Alternativ können Sie den Widerruf jederzeit direkt per E-Mail an
+        <a href="mailto:info@bv-aussensysteme.de?subject=Widerruf" style="color:var(--gold-dark);">info@bv-aussensysteme.de</a>
+        oder per Post an die oben genannte Adresse senden.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Datum-Feld mit heutigem Datum vorbelegen (rein optional, funktioniert auch ohne JS)
+  (function () {
+    var d = document.getElementById('wr-datum');
+    if (d && !d.value) {
+      var t = new Date();
+      var p = function (n) { return (n < 10 ? '0' : '') + n; };
+      d.value = p(t.getDate()) + '.' + p(t.getMonth() + 1) + '.' + t.getFullYear();
+    }
+  })();
+</script>
