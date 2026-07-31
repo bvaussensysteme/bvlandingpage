@@ -907,8 +907,9 @@ function wzShowResults(address, lat, lng, props) {
 
   document.getElementById('wz-snowzone').innerHTML =
     'SLZ&nbsp;' + slz + ' <span class="zone-badge zone-badge--' + si.badge + '">Schneelastzone ' + slz + '</span>';
+  var hoehenHinweis = '<br><span style="color:#666;font-size:0.77rem;">ℹ Innerhalb der Zone steigt die Schneelast mit der Höhenlage (über NN). Mögliche Unterzonen (z. B. 2a) und der exakte Wert (kN/m²) werden in der Statik bestimmt.</span>';
   document.getElementById('wz-snowzone-sub').innerHTML =
-    si.sub + ' · DIN EN 1991-1-3/NA' + fnHtml + kreisInfo;
+    si.sub + ' · DIN EN 1991-1-3/NA' + fnHtml + hoehenHinweis + kreisInfo;
 
   document.getElementById('wz-results').classList.add('visible');
   document.getElementById('wz-results').scrollIntoView({ behavior:'smooth', block:'nearest' });
