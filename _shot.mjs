@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+const p = await b.newPage({ viewport:{width:1200,height:1600}, deviceScaleFactor:1 });
+await p.goto('file://'+process.cwd()+'/stoffe.html', { waitUntil:'load' });
+await p.evaluate(()=>window.scrollTo(0,520));
+await new Promise(r=>setTimeout(r,400));
+await p.screenshot({ path:'_stoffe_ac.png' });
+await p.evaluate(()=>{const el=document.querySelector('.zip-grid'); if(el) el.scrollIntoView();});
+await new Promise(r=>setTimeout(r,400));
+await p.screenshot({ path:'_stoffe_zip.png' });
+await b.close();
+console.log('done');
