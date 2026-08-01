@@ -99,14 +99,15 @@
   .stoff-block-h h2 { margin:0; }
   .stoff-block-sub { color:var(--muted); font-size:.92rem; margin:4px 0 0; }
 
-  /* AC/PA – große Zeilen */
-  .stoff-row { display:grid; grid-template-columns:210px 1fr; gap:28px; align-items:center; padding:24px 0; border-bottom:1px solid var(--border); }
+  /* AC/PA – große Zeilen: Label | flaches Muster | Markisen-Ansicht */
+  .stoff-row { display:grid; grid-template-columns:200px 1fr 1fr; gap:26px; align-items:center; padding:26px 0; border-bottom:1px solid var(--border); }
   .stoff-dessin { font-size:1.05rem; font-weight:600; margin:0 0 14px; }
   .stoff-props { display:flex; gap:8px; }
   .stoff-props .ic { position:relative; width:48px; height:48px; border:1.5px solid var(--dark); border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--dark); }
   .stoff-props .ic .burst { position:absolute; inset:6px; width:auto; height:auto; }
   .stoff-props .ic b { position:relative; font-weight:700; font-size:.66rem; letter-spacing:.01em; background:#fff; padding:0 1px; }
-  .stoff-row img { width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border); }
+  .stoff-flat { width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border); }
+  .stoff-markise-img { width:100%; height:auto; display:block; }
 
   /* T-Serie – 2-spaltiges Raster */
   .zip-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:30px 44px; margin-top:8px; }
@@ -119,8 +120,12 @@
   .stoffe-note { background:var(--light-bg); border-radius:var(--radius); padding:16px 18px; font-size:.88rem; color:var(--muted); margin-top:40px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
   .stoffe-note img { height:28px; width:auto; }
 
-  @media (max-width:640px) {
-    .stoff-row { grid-template-columns:1fr; gap:14px; }
+  @media (max-width:820px) {
+    .stoff-row { grid-template-columns:1fr 1fr; }
+    .stoff-meta { grid-column:1 / -1; }
+  }
+  @media (max-width:560px) {
+    .stoff-row { grid-template-columns:1fr; gap:16px; }
     .zip-grid { grid-template-columns:1fr; gap:24px; }
   }
 </style>
@@ -157,7 +162,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC112.jpg" alt="Markisenstoff Dessin AC112" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC112-flat.png" alt="Markisenstoff Dessin AC112" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC112.jpg" alt="Markise mit Stoff AC112" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -170,7 +176,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC117.jpg" alt="Markisenstoff Dessin AC117" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC117-flat.png" alt="Markisenstoff Dessin AC117" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC117.jpg" alt="Markise mit Stoff AC117" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -183,7 +190,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC118.jpg" alt="Markisenstoff Dessin AC118" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC118-flat.png" alt="Markisenstoff Dessin AC118" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC118.jpg" alt="Markise mit Stoff AC118" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -196,7 +204,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC119.jpg" alt="Markisenstoff Dessin AC119" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC119-flat.png" alt="Markisenstoff Dessin AC119" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC119.jpg" alt="Markise mit Stoff AC119" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -209,7 +218,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC121.jpg" alt="Markisenstoff Dessin AC121" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC121-flat.png" alt="Markisenstoff Dessin AC121" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC121.jpg" alt="Markise mit Stoff AC121" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -222,7 +232,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC212.jpg" alt="Markisenstoff Dessin AC212" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC212-flat.png" alt="Markisenstoff Dessin AC212" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC212.jpg" alt="Markise mit Stoff AC212" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -235,7 +246,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC218.jpg" alt="Markisenstoff Dessin AC218" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC218-flat.png" alt="Markisenstoff Dessin AC218" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC218.jpg" alt="Markise mit Stoff AC218" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -248,7 +260,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC219.jpg" alt="Markisenstoff Dessin AC219" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC219-flat.png" alt="Markisenstoff Dessin AC219" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC219.jpg" alt="Markise mit Stoff AC219" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -261,7 +274,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC220.jpg" alt="Markisenstoff Dessin AC220" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC220-flat.png" alt="Markisenstoff Dessin AC220" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC220.jpg" alt="Markise mit Stoff AC220" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -274,7 +288,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC221.jpg" alt="Markisenstoff Dessin AC221" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC221-flat.png" alt="Markisenstoff Dessin AC221" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC221.jpg" alt="Markise mit Stoff AC221" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -287,7 +302,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC223.jpg" alt="Markisenstoff Dessin AC223" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC223-flat.png" alt="Markisenstoff Dessin AC223" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC223.jpg" alt="Markise mit Stoff AC223" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -300,7 +316,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC318.jpg" alt="Markisenstoff Dessin AC318" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC318-flat.png" alt="Markisenstoff Dessin AC318" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC318.jpg" alt="Markise mit Stoff AC318" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -313,7 +330,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC320.jpg" alt="Markisenstoff Dessin AC320" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC320-flat.png" alt="Markisenstoff Dessin AC320" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC320.jpg" alt="Markise mit Stoff AC320" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -326,7 +344,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC321.jpg" alt="Markisenstoff Dessin AC321" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC321-flat.png" alt="Markisenstoff Dessin AC321" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC321.jpg" alt="Markise mit Stoff AC321" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -339,7 +358,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC322.jpg" alt="Markisenstoff Dessin AC322" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC322-flat.png" alt="Markisenstoff Dessin AC322" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC322.jpg" alt="Markise mit Stoff AC322" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -352,7 +372,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC323.jpg" alt="Markisenstoff Dessin AC323" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC323-flat.png" alt="Markisenstoff Dessin AC323" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC323.jpg" alt="Markise mit Stoff AC323" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -365,7 +386,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC324.jpg" alt="Markisenstoff Dessin AC324" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC324-flat.png" alt="Markisenstoff Dessin AC324" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC324.jpg" alt="Markise mit Stoff AC324" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -378,7 +400,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC420.jpg" alt="Markisenstoff Dessin AC420" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC420-flat.png" alt="Markisenstoff Dessin AC420" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC420.jpg" alt="Markise mit Stoff AC420" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -391,7 +414,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC421.jpg" alt="Markisenstoff Dessin AC421" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC421-flat.png" alt="Markisenstoff Dessin AC421" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC421.jpg" alt="Markise mit Stoff AC421" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -404,7 +428,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC423.jpg" alt="Markisenstoff Dessin AC423" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC423-flat.png" alt="Markisenstoff Dessin AC423" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC423.jpg" alt="Markise mit Stoff AC423" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -417,7 +442,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC512.jpg" alt="Markisenstoff Dessin AC512" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC512-flat.png" alt="Markisenstoff Dessin AC512" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC512.jpg" alt="Markise mit Stoff AC512" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -430,7 +456,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC517.jpg" alt="Markisenstoff Dessin AC517" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC517-flat.png" alt="Markisenstoff Dessin AC517" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC517.jpg" alt="Markise mit Stoff AC517" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -443,7 +470,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC518.jpg" alt="Markisenstoff Dessin AC518" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC518-flat.png" alt="Markisenstoff Dessin AC518" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC518.jpg" alt="Markise mit Stoff AC518" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -456,7 +484,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC519.jpg" alt="Markisenstoff Dessin AC519" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC519-flat.png" alt="Markisenstoff Dessin AC519" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC519.jpg" alt="Markise mit Stoff AC519" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -469,7 +498,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC521.jpg" alt="Markisenstoff Dessin AC521" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC521-flat.png" alt="Markisenstoff Dessin AC521" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC521.jpg" alt="Markise mit Stoff AC521" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -482,7 +512,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC522.jpg" alt="Markisenstoff Dessin AC522" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC522-flat.png" alt="Markisenstoff Dessin AC522" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC522.jpg" alt="Markise mit Stoff AC522" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -495,7 +526,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC523.jpg" alt="Markisenstoff Dessin AC523" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC523-flat.png" alt="Markisenstoff Dessin AC523" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC523.jpg" alt="Markise mit Stoff AC523" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -508,7 +540,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC524.jpg" alt="Markisenstoff Dessin AC524" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC524-flat.png" alt="Markisenstoff Dessin AC524" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC524.jpg" alt="Markise mit Stoff AC524" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -521,7 +554,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC626.jpg" alt="Markisenstoff Dessin AC626" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC626-flat.png" alt="Markisenstoff Dessin AC626" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC626.jpg" alt="Markise mit Stoff AC626" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -534,7 +568,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC627.jpg" alt="Markisenstoff Dessin AC627" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC627-flat.png" alt="Markisenstoff Dessin AC627" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC627.jpg" alt="Markise mit Stoff AC627" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -547,7 +582,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC630.jpg" alt="Markisenstoff Dessin AC630" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC630-flat.png" alt="Markisenstoff Dessin AC630" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC630.jpg" alt="Markise mit Stoff AC630" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -560,7 +596,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC631.jpg" alt="Markisenstoff Dessin AC631" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC631-flat.png" alt="Markisenstoff Dessin AC631" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC631.jpg" alt="Markise mit Stoff AC631" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -573,7 +610,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/AC632.jpg" alt="Markisenstoff Dessin AC632" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/AC632-flat.png" alt="Markisenstoff Dessin AC632" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/AC632.jpg" alt="Markise mit Stoff AC632" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -586,7 +624,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA425.jpg" alt="Markisenstoff Dessin PA425" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA425-flat.png" alt="Markisenstoff Dessin PA425" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA425.jpg" alt="Markise mit Stoff PA425" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -599,7 +638,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA522.jpg" alt="Markisenstoff Dessin PA522" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA522-flat.png" alt="Markisenstoff Dessin PA522" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA522.jpg" alt="Markise mit Stoff PA522" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -612,7 +652,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA524.jpg" alt="Markisenstoff Dessin PA524" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA524-flat.png" alt="Markisenstoff Dessin PA524" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA524.jpg" alt="Markise mit Stoff PA524" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -625,7 +666,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA528.png" alt="Markisenstoff Dessin PA528" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA528-flat.png" alt="Markisenstoff Dessin PA528" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA528.png" alt="Markise mit Stoff PA528" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -638,7 +680,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA532.jpg" alt="Markisenstoff Dessin PA532" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA532-flat.png" alt="Markisenstoff Dessin PA532" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA532.jpg" alt="Markise mit Stoff PA532" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -651,7 +694,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA612.jpg" alt="Markisenstoff Dessin PA612" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA612-flat.png" alt="Markisenstoff Dessin PA612" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA612.jpg" alt="Markise mit Stoff PA612" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -664,7 +708,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA614.jpg" alt="Markisenstoff Dessin PA614" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA614-flat.png" alt="Markisenstoff Dessin PA614" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA614.jpg" alt="Markise mit Stoff PA614" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -677,7 +722,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA616.jpg" alt="Markisenstoff Dessin PA616" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA616-flat.png" alt="Markisenstoff Dessin PA616" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA616.jpg" alt="Markise mit Stoff PA616" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -690,7 +736,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA617.jpg" alt="Markisenstoff Dessin PA617" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA617-flat.png" alt="Markisenstoff Dessin PA617" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA617.jpg" alt="Markise mit Stoff PA617" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -703,7 +750,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA626.jpg" alt="Markisenstoff Dessin PA626" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA626-flat.png" alt="Markisenstoff Dessin PA626" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA626.jpg" alt="Markise mit Stoff PA626" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -716,7 +764,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA627.jpg" alt="Markisenstoff Dessin PA627" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA627-flat.png" alt="Markisenstoff Dessin PA627" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA627.jpg" alt="Markise mit Stoff PA627" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -729,7 +778,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA630.jpg" alt="Markisenstoff Dessin PA630" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA630-flat.png" alt="Markisenstoff Dessin PA630" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA630.jpg" alt="Markise mit Stoff PA630" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -742,7 +792,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA632.jpg" alt="Markisenstoff Dessin PA632" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA632-flat.png" alt="Markisenstoff Dessin PA632" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA632.jpg" alt="Markise mit Stoff PA632" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -755,7 +806,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA633.jpg" alt="Markisenstoff Dessin PA633" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA633-flat.png" alt="Markisenstoff Dessin PA633" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA633.jpg" alt="Markise mit Stoff PA633" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -768,7 +820,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA636.jpg" alt="Markisenstoff Dessin PA636" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA636-flat.png" alt="Markisenstoff Dessin PA636" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA636.jpg" alt="Markise mit Stoff PA636" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -781,7 +834,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA637.jpg" alt="Markisenstoff Dessin PA637" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA637-flat.png" alt="Markisenstoff Dessin PA637" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA637.jpg" alt="Markise mit Stoff PA637" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -794,7 +848,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA639.jpg" alt="Markisenstoff Dessin PA639" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA639-flat.png" alt="Markisenstoff Dessin PA639" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA639.jpg" alt="Markise mit Stoff PA639" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -807,7 +862,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA642.jpg" alt="Markisenstoff Dessin PA642" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA642-flat.png" alt="Markisenstoff Dessin PA642" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA642.jpg" alt="Markise mit Stoff PA642" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -820,7 +876,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA643.jpg" alt="Markisenstoff Dessin PA643" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA643-flat.png" alt="Markisenstoff Dessin PA643" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA643.jpg" alt="Markise mit Stoff PA643" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
@@ -833,7 +890,8 @@
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img src="/images/stoffe/PA645.jpg" alt="Markisenstoff Dessin PA645" loading="lazy" width="1024" height="410">
+        <img class="stoff-flat" src="/images/stoffe/PA645-flat.png" alt="Markisenstoff Dessin PA645" loading="lazy">
+        <img class="stoff-markise-img" src="/images/stoffe/PA645.jpg" alt="Markise mit Stoff PA645" loading="lazy">
       </div>
 
       <div class="stoff-block-h">
