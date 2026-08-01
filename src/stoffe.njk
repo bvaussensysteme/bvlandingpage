@@ -21,6 +21,7 @@ robots: "index, follow"
   .stoff-props .ic .burst { position:absolute; inset:6px; width:auto; height:auto; }
   .stoff-props .ic b { position:relative; font-weight:700; font-size:.66rem; letter-spacing:.01em; background:#fff; padding:0 1px; }
   .stoff-flat { width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border); }
+  .stoff-flat.span2 { grid-column:2 / -1; }
   .stoff-markise-img { width:100%; height:auto; display:block; }
 
   /* T-Serie – 2-spaltiges Raster */
@@ -37,6 +38,7 @@ robots: "index, follow"
   @media (max-width:820px) {
     .stoff-row { grid-template-columns:1fr 1fr; }
     .stoff-meta { grid-column:1 / -1; }
+    .stoff-flat.span2 { grid-column:1 / -1; }
   }
   @media (max-width:560px) {
     .stoff-row { grid-template-columns:1fr; gap:16px; }
@@ -580,8 +582,7 @@ robots: "index, follow"
           <span class="ic" title="Hoher UV-Schutz (UPF)"><svg class="burst" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="31.0" y1="20.0" x2="37.0" y2="20.0"/><line x1="30.6" y1="22.8" x2="36.4" y2="24.4"/><line x1="29.5" y1="25.5" x2="34.7" y2="28.5"/><line x1="27.8" y1="27.8" x2="32.0" y2="32.0"/><line x1="25.5" y1="29.5" x2="28.5" y2="34.7"/><line x1="22.8" y1="30.6" x2="24.4" y2="36.4"/><line x1="20.0" y1="31.0" x2="20.0" y2="37.0"/><line x1="17.2" y1="30.6" x2="15.6" y2="36.4"/><line x1="14.5" y1="29.5" x2="11.5" y2="34.7"/><line x1="12.2" y1="27.8" x2="8.0" y2="32.0"/><line x1="10.5" y1="25.5" x2="5.3" y2="28.5"/><line x1="9.4" y1="22.8" x2="3.6" y2="24.4"/><line x1="9.0" y1="20.0" x2="3.0" y2="20.0"/><line x1="9.4" y1="17.2" x2="3.6" y2="15.6"/><line x1="10.5" y1="14.5" x2="5.3" y2="11.5"/><line x1="12.2" y1="12.2" x2="8.0" y2="8.0"/><line x1="14.5" y1="10.5" x2="11.5" y2="5.3"/><line x1="17.2" y1="9.4" x2="15.6" y2="3.6"/><line x1="20.0" y1="9.0" x2="20.0" y2="3.0"/><line x1="22.8" y1="9.4" x2="24.4" y2="3.6"/><line x1="25.5" y1="10.5" x2="28.5" y2="5.3"/><line x1="27.8" y1="12.2" x2="32.0" y2="8.0"/><line x1="29.5" y1="14.5" x2="34.7" y2="11.5"/><line x1="30.6" y1="17.2" x2="36.4" y2="15.6"/></g></svg><b>UPF</b></span>
         </div>
         </div>
-        <img class="stoff-flat" src="/images/stoffe/PA528-flat.png" alt="Markisenstoff Dessin PA528" loading="lazy">
-        <img class="stoff-markise-img" src="/images/stoffe/PA528.png" alt="Markise mit Stoff PA528" loading="lazy">
+        <img class="stoff-flat span2" src="/images/stoffe/PA528-flat.png" alt="Markisenstoff Dessin PA528" loading="lazy">
       </div>
       <div class="stoff-row">
         <div class="stoff-meta">
