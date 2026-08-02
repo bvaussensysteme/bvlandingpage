@@ -1840,6 +1840,7 @@ img { max-width: 100%; height: auto; }
 }
 .hero-trust span { white-space: nowrap; }
 .hero-trust span::before { content: '✓'; color: var(--gold); font-weight: 700; margin-right: 6px; }
+.hero-trust--wrap span { white-space: normal; }
 
 /* Scroll-Hinweis unten im Hero */
 .hero-scroll {
