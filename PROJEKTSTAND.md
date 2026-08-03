@@ -59,6 +59,19 @@ Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (z.B. bei 
 2. Nach Bestätigung: `docs/VD-INHALTE-INVENTAR.md` als vollständige Grundlage nutzen (alle betroffenen Bilder, Dateien, Markennennungen, VD-Modellnamen)
 3. Darauf hinweisen, dass reines Entfernen Lücken hinterlässt (fehlende Fotos, generische Produktnamen nötig)
 
+### 🤖 KI-Kennzeichnungspflicht (EU AI Act Art. 50) – permanent, seit 02.08.2026
+> Seit 2. August 2026 gilt Art. 50 der EU-KI-Verordnung ((EU) 2024/1689) unmittelbar auch in Deutschland (EU-Verordnung, keine nationale Umsetzung nötig). Bußgeldrahmen bei Verstoß: bis 15 Mio. € bzw. 3 % des weltweiten Jahresumsatzes.
+
+**Regel für jede zukünftige Session / Content-Erstellung:**
+1. **KI-generierte Bilder/Videos/Audio, die echt wirkende Personen, Orte oder Ereignisse zeigen** (deepfake-artig, könnten für echt gehalten werden) → **müssen vor Veröffentlichung** (Website, Social Media, Anzeigen, Flyer) gut wahrnehmbar als KI-generiert gekennzeichnet werden. Keine feste Formulierung vorgeschrieben, z. B. sichtbarer Hinweis „KI-generiertes Bild".
+2. **Rein grafische/ikonografische KI-Bilder** (Icons, Logos, stilisierte Illustrationen ohne Realitätsanspruch) → keine Kennzeichnungspflicht.
+3. **Chatbots/KI-Systeme mit direkter Nutzerinteraktion** → müssen immer eindeutig als KI offengelegt sein (auf dieser Seite bereits erfüllt, siehe Status unten).
+4. Im Zweifel kennzeichnen – Kennzeichnung ist praktisch risikolos, das Weglassen kann teuer werden (Bußgeld) und den Betreiber persönlich treffen.
+
+**Status-Check (Stand 02.08.2026):**
+- Chatbot (`js/chatbot.js`): ✅ bereits mehrfach als KI gekennzeichnet (Button-Label „KI-Chat-Assistent öffnen", Panel-Titel „BV KI-Assistent (Beta)", Begrüßungsnachricht, permanenter Disclaimer) + eigener Datenschutz-Abschnitt „KI-Assistent / Chatbot" (`datenschutz.html#ki-assistent`)
+- Bilder (`images/`): ✅ ausschließlich echte Fotos (VD-Produktfotos, Galeriefotos, Zertifikate, Stoffmuster) – keine KI-generierten realistischen Bilder im Einsatz, Kennzeichnungspflicht entfällt aktuell
+
 ---
 
 ## UNTERNEHMEN
@@ -241,6 +254,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - Cookie-Banner: DSGVO-konform ✅
 - Garantie: 10 J. Alu, 5 J. Markisen/Antriebe ✅
 - AGB: Widerrufsrecht §312g BGB (Maßanfertigung) ✅ | ⚠️ USt-ID fehlt
+- KI-Kennzeichnungspflicht (EU AI Act Art. 50, seit 02.08.2026): ✅ Chatbot als KI gekennzeichnet, keine deepfake-artigen KI-Bilder im Einsatz (Regel siehe oben)
 
 ---
 
