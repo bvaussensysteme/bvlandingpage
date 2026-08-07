@@ -1,0 +1,37 @@
+{
+  "category": "logo-reveal",
+  "duration_s": 4,
+  "fps": 30,
+  "canvas": { "w": 1080, "h": 1920, "aspect": "9:16" },
+  "style": "elegant, minimal, premium aluminium/architecture brand — dark stage, single gold accent sweep, confident hold, soft exit. No clutter.",
+  "palette": ["#111111", "#C49A2A", "#9A7318", "#F5F2EB"],
+  "font": "Inter",
+  "beats": [1.2, 2.0, 3.4],
+  "export": "mp4",
+
+  "asset_needs": [
+    {
+      "role": "hero",
+      "kind": "logo",
+      "source": "/home/user/bvlandingpage/images/logo-hell.png",
+      "treatment": "none"
+    }
+  ],
+
+  "block": "logo-outro",
+  "customize": {
+    "logo": "/home/user/bvlandingpage/images/logo-hell.png",
+    "tagline": "ALUMINIUM-AUSSENSYSTEME",
+    "url": "bv-aussensysteme.de",
+    "background": "#111111",
+    "accent": "#C49A2A",
+    "accent_dark": "#9A7318",
+    "text": "#F5F2EB"
+  },
+
+  "content": {
+    "logo": "/home/user/bvlandingpage/images/logo-hell.png",
+    "tagline": "ALUMINIUM-AUSSENSYSTEME",
+    "url": "bv-aussensysteme.de"
+  }
+}
