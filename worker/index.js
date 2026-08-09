@@ -41,9 +41,26 @@ Wichtige Regeln:
 - Kein Markdown verwenden (keine [Text](Link)-Syntax, keine Sternchen für fett/kursiv, keine Überschriften mit #). Wenn du auf eine Seite verweist, schreibe einfach den nackten Pfad in den Fließtext, z.B. "/#kontakt" oder "/produkte/pergola.html" - das wird automatisch zu einem Link.
 - Nicht bei jeder Antwort einen Kontakt-Aufruf anhängen. Bei kurzen Nachfragen, Zwischenfragen oder wenn im Gespräch gerade schon ein Kontakt-Hinweis kam, reicht eine normale Antwort ohne erneuten Kontakt-Aufruf.`;
 
+// Alte URLs, die früher nur per <meta http-equiv="refresh"> + JS
+// weitergeleitet wurden (von der Search Console als "Seite mit
+// Weiterleitung" mit fehlgeschlagener Validierung gemeldet, da kein
+// echter HTTP-Statuscode gesendet wurde). Hier als serverseitiger
+// 301 (dauerhaft verschoben), damit Google die Weiterleitung sauber
+// validieren und den Linkwert auf das Ziel übertragen kann.
+const REDIRECTS = {
+  '/produkte/balkonueberdachung.html': '/produkte/balkon-fassade.html',
+  '/produkte/sonnenschutz-beschattung.html': '/produkte/sonnenschutz.html',
+  '/termin.html': '/#kontakt',
+  '/kontakt.html': '/#kontakt',
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    if (Object.prototype.hasOwnProperty.call(REDIRECTS, url.pathname)) {
+      return Response.redirect(new URL(REDIRECTS[url.pathname], url).toString(), 301);
+    }
 
     if (url.pathname === '/api/chat' && request.method === 'POST') {
       return handleChat(request, env);
