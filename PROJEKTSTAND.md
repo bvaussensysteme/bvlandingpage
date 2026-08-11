@@ -249,11 +249,11 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## RECHTLICHER STATUS
-- Impressum: § 5 DDG ✅ | ⚠️ USt-ID fehlt noch
+- Impressum: § 5 DDG ✅ | USt-ID ✅ (DE464174681, ergänzt 11.08.2026)
 - Datenschutz: Cloudflare, Formspree, Google Fonts (consent) ✅
 - Cookie-Banner: DSGVO-konform ✅
 - Garantie: 10 J. Alu, 5 J. Markisen/Antriebe ✅
-- AGB: Widerrufsrecht §312g BGB (Maßanfertigung) ✅ | ⚠️ USt-ID fehlt
+- AGB: Widerrufsrecht §312g BGB (Maßanfertigung) ✅
 - KI-Kennzeichnungspflicht (EU AI Act Art. 50, seit 02.08.2026): ✅ Chatbot als KI gekennzeichnet, keine deepfake-artigen KI-Bilder im Einsatz (Regel siehe oben)
 
 ---
@@ -274,7 +274,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - [x] Cal.com Terminbuchung wieder entfernt ✅ 04.07.2026 – bewusste Entscheidung: als Nebenerwerb Termine lieber manuell nach Absprache per Telefon/WhatsApp statt über Buchungstool
 - [x] 7 Produktseiten 300+ Wörter ✅ 26.06.2026 – alle jetzt 700+ Wörter
 - [ ] Trustindex Widget vollständig aktivieren (Tab vorbereitet, CDN-Script noch auskommentiert) — braucht mehr echte Bewertungen zuerst
-- [ ] Impressum + AGB: USt-ID nach Gründung ergänzen — nur der Geschäftsführer
+- [x] Impressum: USt-ID ergänzen ✅ 11.08.2026 – DE464174681
 - [x] Schema.org `Product` auf `balkonueberdachung.html` + `sonnenschutz-beschattung.html` geprüft ✅ 05.07.2026 – sind noindex-Redirect-Stubs, kein Handlungsbedarf
 - [x] Verwaiste Datei `produkte/eingangs├╝berdachung.html` gelöscht ✅ 04.07.2026 – war Ursache für 404 in der Sitemap
 - [x] ~4,1MB unreferenzierte Bild-Duplikate im Repo-Root gelöscht ✅ 05.07.2026
