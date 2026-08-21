@@ -2274,13 +2274,18 @@ img { max-width: 100%; height: auto; }
 
 /* ============================================
    ANFRAGE-ASSISTENT (geführtes Kundenleitsystem)
-   Ersetzt das Kontaktformular, dunkles Layout, feste Höhe
+   Ersetzt das Kontaktformular, dunkles Layout
    ============================================ */
 .anfrage-wizard {
   background: var(--black); border-radius: 10px;
   border: 1px solid rgba(196,154,42,0.25);
   display: flex; flex-direction: column;
-  height: 680px; max-height: 92vh; overflow: hidden;
+  /* Höhe richtet sich nach dem aktuellen Schritt: kein innerer Scrollbalken,
+     solange der Inhalt auf den Bildschirm passt. max-height deckelt die Karte,
+     damit sie nie über den sichtbaren Bereich hinausläuft. align-self verhindert,
+     dass das Kontakt-Grid die Karte auf die Höhe der Nachbarspalte streckt. */
+  height: auto; max-height: 95vh; overflow: hidden;
+  align-self: start;
   scroll-margin-top: 90px; /* Sprungziel unter der Sticky-Navbar freihalten */
 }
 .aw-head { padding: 18px 26px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
