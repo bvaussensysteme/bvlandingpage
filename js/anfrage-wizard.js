@@ -603,8 +603,8 @@
       sub: 'Wichtig für Statik und Kalkulation – wenn Sie unsicher sind, klären wir das beim Aufmaß.',
       render: function () {
         return optionCards('untergrund', [
-          { value: 'Tragender Untergrund vorhanden', icon: I.platte, iconBig: true, hint: 'z. B. Betonplatte, Streifenfundament, tragfähiges Pflaster' },
-          { value: 'Punktfundamente nötig', icon: I.fundament, iconBig: true, hint: 'z. B. Rasen, Kies oder Erdreich – Fundamente werden gesetzt' },
+          { value: 'Tragender Untergrund vorhanden', icon: I.platte, iconBig: true, hint: 'z. B. Betonplatte oder Streifenfundament' },
+          { value: 'Punktfundamente nötig', icon: I.fundament, iconBig: true, hint: 'z. B. Rasen, Kies, Erdreich oder Pflaster' },
           { value: 'Weiß nicht – Beratung', icon: I.frage, iconBig: true, hint: 'Wir prüfen den Untergrund beim Aufmaß-Termin' }
         ], 'aw-options--equal') +
           '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
