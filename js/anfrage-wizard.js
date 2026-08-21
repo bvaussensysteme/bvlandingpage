@@ -163,6 +163,8 @@
     flach:    '<path d="M3 8h18"/><path d="M3 8l2-2h14l2 2"/><line x1="5" y1="8" x2="5" y2="19"/><line x1="19" y1="8" x2="19" y2="19"/><line x1="12" y1="8" x2="12" y2="19"/>',
     pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
     frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>',
+    platte:   '<rect x="2" y="11" width="20" height="6" rx="1"/><path d="M4 20l2-3M9 20l2-3M14 20l2-3M19 20l2-3"/>',
+    fundament:'<line x1="2" y1="12" x2="22" y2="12"/><rect x="4" y="12" width="5" height="7" rx="1"/><rect x="15" y="12" width="5" height="7" rx="1"/><path d="M6.5 12V4M17.5 12V4"/>',
     aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>',
     markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>',
     lupe:     '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
@@ -185,18 +187,18 @@
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'montage', 'kontakt', 'summary']);
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
     // Carport: eigener Ablauf (Typ → Ausführung). Glas/Poly-Eindeckung nur beim
     // Carport TDS – Flat Line & Flat Box haben ein Trapezblech-Flachdach.
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
-        return ['produkt', 'carporttyp', 'masse', 'led', 'farbe', 'montage', 'kontakt', 'summary'];
+        return ['produkt', 'carporttyp', 'masse', 'led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
       var cpTds = answers.carporttyp === 'Carport TDS';
       // Carport TDS: Glas-/Poly-Eindeckung. Flat Line/Box: Dach-Ausführung (Trapezblech/Solar/Gründach)
       var roof = cpTds ? ['verglasung'] : ['dach'];
-      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(roof).concat(['led', 'farbe', 'montage', 'kontakt', 'summary']);
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(roof).concat(['led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: eigener Ablauf (Dachart → Ausführung), kein Glasdach.
     // Seitlicher Schutz statt Aufdach-Markise, Komfort-Schritt mit Heizung/Sensorik.
@@ -205,7 +207,7 @@
       if (answers.dachart === 'Lamellendach') steps.push('dachausfuehrung'); // Ausführung nur beim Lamellendach
       steps.push('aufbau');
       if (wand) steps.push('fassade');
-      steps.push('masse', 'seitenschutz', 'komfort', 'farbe', 'montage', 'kontakt', 'summary');
+      steps.push('masse', 'seitenschutz', 'komfort', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary');
       return steps;
     }
     if (p === 'Sonstiges')
@@ -222,7 +224,7 @@
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'ledsetzahl', 'sound', 'soundset',
      'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
-     'erw_links', 'erw_rechts', 'erw_vorne', 'montage', 'wunsch', 'extras']
+     'erw_links', 'erw_rechts', 'erw_vorne', 'untergrund', 'montage', 'wunsch', 'extras']
       .forEach(function (k) { delete answers[k]; });
   }
 
@@ -596,6 +598,23 @@
       }
     },
 
+    untergrund: {
+      title: 'Wie ist der Untergrund vor Ort?',
+      sub: 'Wichtig für Statik und Kalkulation – wenn Sie unsicher sind, klären wir das beim Aufmaß.',
+      render: function () {
+        return optionCards('untergrund', [
+          { value: 'Tragender Untergrund vorhanden', icon: I.platte, iconBig: true, hint: 'z. B. Betonplatte, Streifenfundament, tragfähiges Pflaster' },
+          { value: 'Punktfundamente nötig', icon: I.fundament, iconBig: true, hint: 'z. B. Rasen, Kies oder Erdreich – Fundamente werden gesetzt' },
+          { value: 'Weiß nicht – Beratung', icon: I.frage, iconBig: true, hint: 'Wir prüfen den Untergrund beim Aufmaß-Termin' }
+        ], 'aw-options--equal') +
+          '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
+          '<span><strong>Unsicher? Kein Problem.</strong> Den Untergrund prüfen wir ohnehin beim ' +
+          'kostenlosen Aufmaß-Termin vor Ort. Ihre Angabe hilft uns nur, das Angebot von Anfang an ' +
+          'realistisch zu kalkulieren.</span></div>';
+      },
+      valid: function () { return answers.untergrund ? null : 'Bitte wählen Sie den Untergrund aus.'; }
+    },
+
     montage: {
       title: 'Montage durch unser Fachteam?',
       sub: 'Fachgerechter Aufbau – damit Ihre volle Herstellergarantie erhalten bleibt.',
@@ -780,6 +799,7 @@
     if (inFlow('dach') && answers.dach) p.push(['Dach', answers.dach]);
     if (inFlow('farbe') && answers.farbe) p.push(['Farbe', answers.farbe]);
     if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
+    if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
     if (name) p.push(['Name', name]);
