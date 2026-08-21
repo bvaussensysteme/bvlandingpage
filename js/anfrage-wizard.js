@@ -185,18 +185,18 @@
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'montage', 'kontakt', 'summary']);
+      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
     // Carport: eigener Ablauf (Typ → Ausführung). Glas/Poly-Eindeckung nur beim
     // Carport TDS – Flat Line & Flat Box haben ein Trapezblech-Flachdach.
     if (p === 'Carport') {
       // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
       if (answers.carporttyp === 'Noch unsicher – bitte beraten')
-        return ['produkt', 'carporttyp', 'masse', 'led', 'farbe', 'montage', 'kontakt', 'summary'];
+        return ['produkt', 'carporttyp', 'masse', 'led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
       var cpTds = answers.carporttyp === 'Carport TDS';
       // Carport TDS: Glas-/Poly-Eindeckung. Flat Line/Box: Dach-Ausführung (Trapezblech/Solar/Gründach)
       var roof = cpTds ? ['verglasung'] : ['dach'];
-      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(roof).concat(['led', 'farbe', 'montage', 'kontakt', 'summary']);
+      return ['produkt', 'carporttyp', 'carportvariante'].concat(cpWand ? ['fassade'] : []).concat(['masse']).concat(roof).concat(['led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
     }
     // Pergola/Lamellendach: eigener Ablauf (Dachart → Ausführung), kein Glasdach.
     // Seitlicher Schutz statt Aufdach-Markise, Komfort-Schritt mit Heizung/Sensorik.
@@ -205,7 +205,7 @@
       if (answers.dachart === 'Lamellendach') steps.push('dachausfuehrung'); // Ausführung nur beim Lamellendach
       steps.push('aufbau');
       if (wand) steps.push('fassade');
-      steps.push('masse', 'seitenschutz', 'komfort', 'farbe', 'montage', 'kontakt', 'summary');
+      steps.push('masse', 'seitenschutz', 'komfort', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary');
       return steps;
     }
     if (p === 'Sonstiges')
@@ -222,7 +222,7 @@
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'ledsetzahl', 'sound', 'soundset',
      'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
-     'erw_links', 'erw_rechts', 'erw_vorne', 'montage', 'wunsch', 'extras']
+     'erw_links', 'erw_rechts', 'erw_vorne', 'untergrund', 'montage', 'wunsch', 'extras']
       .forEach(function (k) { delete answers[k]; });
   }
 
@@ -596,6 +596,23 @@
       }
     },
 
+    untergrund: {
+      title: 'Wie ist der Untergrund vor Ort?',
+      sub: 'Wichtig für Statik und Kalkulation – wenn Sie unsicher sind, klären wir das beim Aufmaß.',
+      render: function () {
+        return optionCards('untergrund', [
+          { value: 'Tragender Untergrund vorhanden', img: 'untergrund_platte', photo: true, hint: 'z. B. Betonplatte oder Streifenfundament' },
+          { value: 'Punktfundamente nötig', img: 'untergrund_fundament', photo: true, hint: 'z. B. Rasen, Kies, Erdreich oder Pflaster' },
+          { value: 'Weiß nicht – Beratung', icon: I.frage, iconBig: true, hint: 'Wir prüfen den Untergrund beim Aufmaß-Termin' }
+        ], 'aw-options--equal') +
+          '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
+          '<span><strong>Unsicher? Kein Problem.</strong> Den Untergrund prüfen wir ohnehin beim ' +
+          'kostenlosen Aufmaß-Termin vor Ort. Ihre Angabe hilft uns nur, das Angebot von Anfang an ' +
+          'realistisch zu kalkulieren.</span></div>';
+      },
+      valid: function () { return answers.untergrund ? null : 'Bitte wählen Sie den Untergrund aus.'; }
+    },
+
     montage: {
       title: 'Montage durch unser Fachteam?',
       sub: 'Fachgerechter Aufbau – damit Ihre volle Herstellergarantie erhalten bleibt.',
@@ -780,6 +797,7 @@
     if (inFlow('dach') && answers.dach) p.push(['Dach', answers.dach]);
     if (inFlow('farbe') && answers.farbe) p.push(['Farbe', answers.farbe]);
     if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
+    if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
     if (name) p.push(['Name', name]);
