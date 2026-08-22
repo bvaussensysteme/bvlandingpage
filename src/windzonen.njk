@@ -221,6 +221,11 @@ extraStyles: |
       .wz-hoehe-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
       .wz-hoehe-field { display: flex; flex-direction: column; gap: 5px; }
       .wz-hoehe-field label { font-size: 0.78rem; font-weight: 700; color: var(--black); }
+      .wz-optional {
+        font-weight: 600; font-size: 0.72rem; color: var(--muted);
+        background: var(--offwhite, #F5F2EB); border: 1px solid var(--border);
+        border-radius: 100px; padding: 1px 7px; margin-left: 3px;
+      }
       .wz-hoehe-input-wrap { position: relative; }
       .wz-hoehe-input-wrap input {
         width: 150px; padding: 11px 34px 11px 13px;
@@ -241,9 +246,23 @@ extraStyles: |
         background: var(--offwhite, #F5F2EB); border-left: 3px solid var(--gold);
         border-radius: 8px; padding: 14px 16px;
       }
+      .wz-hoehe-result .hr-dach {
+        margin-top: 14px; padding-top: 13px;
+        border-top: 1px dashed var(--border);
+      }
+      .wz-hoehe-result .hr-val-tag {
+        font-family: var(--font-body, inherit); font-size: 0.72rem; font-weight: 700;
+        letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-dark);
+        vertical-align: middle; margin-left: 4px;
+      }
       .wz-hoehe-result .hr-note { color: var(--muted); font-size: 0.79rem; margin-top: 6px; }
       .wz-hoehe-result .hr-warn { color: #8a6d1f; font-size: 0.79rem; margin-top: 6px; }
       .wz-hoehe-result .hr-err { color: #a33; }
+      .wz-hoehe-result .hr-gewaehr {
+        margin-top: 12px; padding-top: 10px;
+        border-top: 1px solid var(--border);
+        font-size: 0.76rem; color: var(--muted); font-style: italic; line-height: 1.5;
+      }
       @media (max-width: 600px) {
         .wz-hoehe-row { flex-direction: column; align-items: stretch; }
         .wz-hoehe-input-wrap input { width: 100%; }
@@ -451,6 +470,11 @@ extraScripts: |
     return Math.max(wert, min);
   }
 
+  // Steht direkt unter jedem berechneten Wert, nicht nur im Kasten weiter unten.
+  var WZ_OHNE_GEWAEHR = '<div class="hr-gewaehr">Alle Angaben ohne Gewähr. Unverbindliche ' +
+    'Orientierung nach DIN EN 1991-1-3/NA – ersetzt keine statische Berechnung und keine ' +
+    'Prüfung durch einen Statiker oder Fachplaner.</div>';
+
   function wzBerechneSchneelast() {
     var out = document.getElementById('wz-hoehe-result');
     var raw = document.getElementById('wz-hoehe-input').value.trim();
@@ -475,7 +499,7 @@ extraScripts: |
       out.innerHTML = '<div class="hr-box"><div class="hr-warn" style="margin-top:0;">' +
         '⚠ Über 1500 m über NN gilt die Berechnungsformel der DIN EN 1991-1-3/NA nicht mehr. ' +
         'Für solche Lagen legen die Länder eigene Sonderwerte fest – bitte bei der zuständigen ' +
-        'Baubehörde oder beim Statiker erfragen.</div></div>';
+        'Baubehörde oder beim Statiker erfragen.</div>' + WZ_OHNE_GEWAEHR + '</div>';
       return;
     }
 
@@ -495,9 +519,47 @@ extraScripts: |
       html += '<div class="hr-warn">⚠ Über 1000 m ü. NN sind zusätzliche Sonderregelungen möglich. ' +
         'Bitte vom Statiker bestätigen lassen.</div>';
     }
-    html += '<div class="hr-note">Das ist die Last auf dem Boden. Die maßgebende Dachschneelast ergibt ' +
-      'sich daraus über den Formbeiwert der Dachneigung und wird in der Statik bestimmt.</div>' +
-      '</div>';
+
+    /* ---- Optional: Dachschneelast aus der Dachneigung -----------------------
+       DIN EN 1991-1-3, Gl. 5.1: s = µ1 · Ce · Ct · sk, mit Ce = Ct = 1,0 im
+       Regelfall. Formbeiwert µ1 für Pult- und Satteldächer (Tabelle 5.2):
+         0° bis 30°  : µ1 = 0,8
+         30° bis 60° : µ1 = 0,8 · (60 - a) / 30
+         ab 60°      : µ1 = 0   (Schnee rutscht vollständig ab)
+       Die Abminderung über 30° gilt nur, wenn der Schnee frei abrutschen kann –
+       bei Schneefanggittern o. Ä. bleibt µ1 = 0,8 (DIN EN 1991-1-3, 5.3.3).
+       ---------------------------------------------------------------------- */
+    var nRaw = document.getElementById('wz-neigung-input').value.trim();
+    if (nRaw !== '' && !isNaN(parseFloat(nRaw))) {
+      var alpha = parseFloat(nRaw);
+      if (alpha < 0 || alpha > 75) {
+        html += '<div class="hr-warn">⚠ Dachneigung bitte zwischen 0° und 75° angeben – ' +
+          'der Wert oben gilt weiterhin für den Boden.</div>';
+      } else {
+        var mu = alpha <= 30 ? 0.8 : (alpha >= 60 ? 0 : 0.8 * (60 - alpha) / 30);
+        var s = mu * sk;
+        html += '<div class="hr-dach">' +
+          '<div class="hr-val">s = ' + nk(s, 2) + ' kN/m² <span class="hr-val-tag">auf dem Dach</span></div>' +
+          '<div>Bei ' + nk(alpha, alpha % 1 === 0 ? 0 : 1) + '° Dachneigung · Formbeiwert µ<sub>1</sub> = ' +
+          nk(mu, 2) + ' · entspricht rund <strong>' + Math.round(s * 101.97) + ' kg pro m²</strong></div>';
+        if (alpha >= 60) {
+          html += '<div class="hr-warn">⚠ Ab 60° setzt die Norm rechnerisch keine Schneelast mehr an, ' +
+            'weil der Schnee vollständig abrutscht. In der Praxis muss der Statiker prüfen, ob das ' +
+            'wirklich zutrifft.</div>';
+        } else if (alpha > 30) {
+          html += '<div class="hr-warn">⚠ Diese Abminderung gilt nur, wenn der Schnee frei abrutschen kann. ' +
+            'Mit Schneefanggitter oder Hindernissen unterhalb der Dachkante bleibt µ<sub>1</sub> = 0,80.</div>';
+        }
+        html += '<div class="hr-note">Gerechnet mit s = µ<sub>1</sub> · s<sub>k</sub> ' +
+          '(Umgebungs- und Temperaturbeiwert je 1,0, Regelfall nach DIN EN 1991-1-3). ' +
+          'Schneeanhäufungen, z. B. vor einer höheren Hauswand, sind darin nicht enthalten.</div>' +
+          '</div>';
+      }
+    } else {
+      html += '<div class="hr-note">Das ist die Last auf dem Boden. Wenn Sie oben zusätzlich die ' +
+        'Dachneigung eintragen, rechnen wir daraus die Schneelast auf dem Dach aus.</div>';
+    }
+    html += WZ_OHNE_GEWAEHR + '</div>';
     out.innerHTML = html;
   }
 
@@ -671,6 +733,7 @@ extraScripts: |
   function wzReset() {
     document.getElementById('wz-address-input').value = '';
     document.getElementById('wz-hoehe-input').value = '';
+    document.getElementById('wz-neigung-input').value = '';
     document.getElementById('wz-hoehe-result').innerHTML = '';
     document.getElementById('wz-hoehe-box').open = false;
     wzAktuelleSlz = null;
@@ -976,6 +1039,14 @@ skipLink: |
                 <input type="number" id="wz-hoehe-input" min="0" max="3000" step="1"
                        placeholder="z. B. 320" inputmode="numeric">
                 <span class="wz-hoehe-unit">m</span>
+              </div>
+            </div>
+            <div class="wz-hoehe-field">
+              <label for="wz-neigung-input">Dachneigung <span class="wz-optional">optional</span></label>
+              <div class="wz-hoehe-input-wrap">
+                <input type="number" id="wz-neigung-input" min="0" max="75" step="0.5"
+                       placeholder="z. B. 7" inputmode="decimal">
+                <span class="wz-hoehe-unit">°</span>
               </div>
             </div>
             <button type="button" class="btn btn-gold" onclick="wzBerechneSchneelast()">Ausrechnen</button>
