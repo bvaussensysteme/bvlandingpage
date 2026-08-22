@@ -193,6 +193,62 @@ extraStyles: |
         font-size: 0.82rem; color: var(--muted); margin-top: 4px; line-height: 1.5;
       }
 
+      /* Ausklappbare Höhenangabe für den genauen s_k-Wert */
+      .wz-hoehe {
+        margin-top: 16px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .wz-hoehe > summary {
+        cursor: pointer; list-style: none;
+        padding: 14px 20px;
+        font-family: var(--font-heading); font-weight: 700;
+        color: var(--gold-dark); font-size: 0.95rem;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .wz-hoehe > summary::-webkit-details-marker { display: none; }
+      .wz-hoehe > summary::before {
+        content: '+'; font-size: 1.15rem; line-height: 1;
+        width: 20px; height: 20px; flex-shrink: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        border: 1.5px solid var(--gold); border-radius: 50%; color: var(--gold-dark);
+      }
+      .wz-hoehe[open] > summary::before { content: '–'; }
+      .wz-hoehe > summary:hover { background: var(--offwhite, #F5F2EB); border-radius: 10px; }
+      .wz-hoehe-body { padding: 0 20px 18px; }
+      .wz-hoehe-intro { font-size: 0.84rem; color: var(--muted); line-height: 1.6; margin: 0 0 14px; }
+      .wz-hoehe-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+      .wz-hoehe-field { display: flex; flex-direction: column; gap: 5px; }
+      .wz-hoehe-field label { font-size: 0.78rem; font-weight: 700; color: var(--black); }
+      .wz-hoehe-input-wrap { position: relative; }
+      .wz-hoehe-input-wrap input {
+        width: 150px; padding: 11px 34px 11px 13px;
+        border: 1px solid var(--border); border-radius: var(--radius);
+        font-size: 0.95rem; font-family: inherit; color: var(--black);
+      }
+      .wz-hoehe-input-wrap input:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
+      .wz-hoehe-unit {
+        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+        font-size: 0.88rem; color: var(--muted); pointer-events: none;
+      }
+      .wz-hoehe-result { margin-top: 14px; font-size: 0.88rem; line-height: 1.6; }
+      .wz-hoehe-result .hr-val {
+        font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800;
+        color: var(--black); line-height: 1.2;
+      }
+      .wz-hoehe-result .hr-box {
+        background: var(--offwhite, #F5F2EB); border-left: 3px solid var(--gold);
+        border-radius: 8px; padding: 14px 16px;
+      }
+      .wz-hoehe-result .hr-note { color: var(--muted); font-size: 0.79rem; margin-top: 6px; }
+      .wz-hoehe-result .hr-warn { color: #8a6d1f; font-size: 0.79rem; margin-top: 6px; }
+      .wz-hoehe-result .hr-err { color: #a33; }
+      @media (max-width: 600px) {
+        .wz-hoehe-row { flex-direction: column; align-items: stretch; }
+        .wz-hoehe-input-wrap input { width: 100%; }
+      }
+
       .wz-result-address {
         background: var(--offwhite, #F5F2EB);
         border: 1px solid var(--border);
@@ -375,6 +431,76 @@ extraScripts: |
     '3':  {sub: 'Hochlagen/Alpen/Harz · s<sub>k</sub> ab 1,10 kN/m²', badge: 'snow3'}
   };
 
+  /* ---- Charakteristische Schneelast s_k nach Höhenlage ----------------------
+     DIN EN 1991-1-3/NA, Gleichungen NA.1-NA.3 (A = Geländehöhe über NN in m):
+       Zone 1: s_k = 0,19 + 0,91·((A+140)/760)²   Mindestwert 0,65 kN/m²
+       Zone 2: s_k = 0,25 + 1,91·((A+140)/760)²   Mindestwert 0,85 kN/m²
+       Zone 3: s_k = 0,31 + 2,91·((A+140)/760)²   Mindestwert 1,10 kN/m²
+     Die Unterzonen 1a/2a sind eigene Gebiete (keine Höhenstufen); dort gilt der
+     jeweilige Zonenwert × 1,25. Oberhalb 1500 m gelten Sonderwerte der Länder.
+     ------------------------------------------------------------------------ */
+  var wzAktuelleSlz = null; // von wzShowResults gesetzt
+
+  function wzSkFuerHoehe(zone, a) {
+    var t = Math.pow((a + 140) / 760, 2), wert;
+    if (zone === '1' || zone === '1a')      wert = 0.19 + 0.91 * t;
+    else if (zone === '2' || zone === '2a') wert = 0.25 + 1.91 * t;
+    else                                    wert = 0.31 + 2.91 * t;
+    if (zone.charAt(zone.length - 1) === 'a') wert *= 1.25;
+    var min = { '1': 0.65, '1a': 0.81, '2': 0.85, '2a': 1.06, '3': 1.10 }[zone] || 0.65;
+    return Math.max(wert, min);
+  }
+
+  function wzBerechneSchneelast() {
+    var out = document.getElementById('wz-hoehe-result');
+    var raw = document.getElementById('wz-hoehe-input').value.trim();
+    if (!wzAktuelleSlz) {
+      out.innerHTML = '<span class="hr-err">Bitte zuerst oben eine Adresse oder PLZ suchen.</span>';
+      return;
+    }
+    if (raw === '' || isNaN(parseFloat(raw))) {
+      out.innerHTML = '<span class="hr-err">Bitte eine Höhe in Metern eingeben (z. B. 320).</span>';
+      return;
+    }
+    var a = parseFloat(raw);
+    if (a < 0 || a > 3000) {
+      out.innerHTML = '<span class="hr-err">Bitte eine Höhe zwischen 0 und 3000 m eingeben.</span>';
+      return;
+    }
+    var zone = wzAktuelleSlz;
+
+    // Oberhalb 1500 m gilt die Formel der Norm nicht mehr – dort wäre jede
+    // ausgerechnete Zahl irreführend, deshalb nur der Verweis auf die Behörde.
+    if (a > 1500) {
+      out.innerHTML = '<div class="hr-box"><div class="hr-warn" style="margin-top:0;">' +
+        '⚠ Über 1500 m über NN gilt die Berechnungsformel der DIN EN 1991-1-3/NA nicht mehr. ' +
+        'Für solche Lagen legen die Länder eigene Sonderwerte fest – bitte bei der zuständigen ' +
+        'Baubehörde oder beim Statiker erfragen.</div></div>';
+      return;
+    }
+
+    var sk = wzSkFuerHoehe(zone, a);
+    var kg = sk * 101.97;                       // 1 kN/m² entspricht rund 102 kg/m²
+    var basis = wzSkFuerHoehe(zone, 0);
+    var nk = function (x, d) { return x.toFixed(d).replace('.', ','); };
+
+    var html = '<div class="hr-box">' +
+      '<div class="hr-val">s<sub>k</sub> = ' + nk(sk, 2) + ' kN/m²</div>' +
+      '<div>Schneelastzone ' + zone + ' auf ' + nk(a, 0) + ' m über NN' +
+      ' · entspricht rund <strong>' + Math.round(kg) + ' kg pro m²</strong> Schneelast auf dem Boden</div>' +
+      '<div class="hr-note">Zum Vergleich: der Mindestwert Ihrer Zone liegt bei ' + nk(basis, 2) + ' kN/m². ' +
+      'Die Zone bleibt unverändert ' + zone + ' – die Höhe verändert nur den Lastwert, nicht die Zonennummer.</div>';
+
+    if (a > 1000) {
+      html += '<div class="hr-warn">⚠ Über 1000 m ü. NN sind zusätzliche Sonderregelungen möglich. ' +
+        'Bitte vom Statiker bestätigen lassen.</div>';
+    }
+    html += '<div class="hr-note">Das ist die Last auf dem Boden. Die maßgebende Dachschneelast ergibt ' +
+      'sich daraus über den Formbeiwert der Dachneigung und wird in der Statik bestimmt.</div>' +
+      '</div>';
+    out.innerHTML = html;
+  }
+
   function wzShowResults(address, lat, lng, props) {
     var wz = props.windzone, slz = String(props.schneelastzone);
     var fn = props.sonderhinweis || '';
@@ -403,9 +529,14 @@ extraScripts: |
 
     document.getElementById('wz-snowzone').innerHTML =
       'SLZ&nbsp;' + slz + ' <span class="zone-badge zone-badge--' + si.badge + '">Schneelastzone ' + slz + '</span>';
-    var hoehenHinweis = '<br><span style="color:#666;font-size:0.77rem;">ℹ Innerhalb der Zone steigt die Schneelast mit der Höhenlage (über NN). Mögliche Unterzonen (z. B. 2a) und der exakte Wert (kN/m²) werden in der Statik bestimmt.</span>';
+    var hoehenHinweis = '<br><span style="color:#666;font-size:0.77rem;">ℹ Innerhalb der Zone steigt die Schneelast mit der Höhenlage (über NN). Den genauen Wert für Ihre Höhe können Sie unten ausrechnen.</span>';
     document.getElementById('wz-snowzone-sub').innerHTML =
       si.sub + ' · DIN EN 1991-1-3/NA' + fnHtml + hoehenHinweis + kreisInfo;
+
+    // Zone für die Höhen-Berechnung merken, alte Berechnung zurücksetzen
+    wzAktuelleSlz = SLZ_INFO[slz] ? slz : '2';
+    document.getElementById('wz-hoehe-result').innerHTML = '';
+    document.getElementById('wz-hoehe-box').open = false;
 
     document.getElementById('wz-results').classList.add('visible');
     document.getElementById('wz-results').scrollIntoView({ behavior:'smooth', block:'nearest' });
@@ -539,6 +670,10 @@ extraScripts: |
   // ---- Reset ----
   function wzReset() {
     document.getElementById('wz-address-input').value = '';
+    document.getElementById('wz-hoehe-input').value = '';
+    document.getElementById('wz-hoehe-result').innerHTML = '';
+    document.getElementById('wz-hoehe-box').open = false;
+    wzAktuelleSlz = null;
     document.getElementById('wz-results').classList.remove('visible');
     document.getElementById('wz-map-wrap').classList.remove('visible');
     document.getElementById('wz-error').classList.remove('visible');
@@ -823,6 +958,31 @@ skipLink: |
           <div class="rc-sub" id="wz-snowzone-sub">–</div>
         </div>
       </div>
+
+      <!-- Genauer Schneelastwert nach Höhenlage (DIN EN 1991-1-3/NA, Anhang NA.A) -->
+      <details class="wz-hoehe" id="wz-hoehe-box">
+        <summary>Höhe über NN angeben – genauen Schneelastwert berechnen</summary>
+        <div class="wz-hoehe-body">
+          <p class="wz-hoehe-intro">
+            Die Schneelastzone selbst hängt <strong>nicht</strong> von der Höhenlage ab – sie ist fest nach
+            Verwaltungsgrenzen zugeordnet (die Unterzonen 1a und 2a sind eigene Gebiete, keine Höhenstufen).
+            Mit der Höhe steigt aber der charakteristische Schneelastwert s<sub>k</sub> innerhalb Ihrer Zone.
+            Genau diesen Wert rechnet das Feld hier nach DIN EN 1991-1-3/NA aus.
+          </p>
+          <div class="wz-hoehe-row">
+            <div class="wz-hoehe-field">
+              <label for="wz-hoehe-input">Geländehöhe über NN</label>
+              <div class="wz-hoehe-input-wrap">
+                <input type="number" id="wz-hoehe-input" min="0" max="3000" step="1"
+                       placeholder="z. B. 320" inputmode="numeric">
+                <span class="wz-hoehe-unit">m</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-gold" onclick="wzBerechneSchneelast()">Ausrechnen</button>
+          </div>
+          <div class="wz-hoehe-result" id="wz-hoehe-result" role="status" aria-live="polite"></div>
+        </div>
+      </details>
 
       <!-- Legal Disclaimer -->
       <div class="wz-disclaimer" role="note">
