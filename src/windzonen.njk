@@ -258,6 +258,23 @@ extraStyles: |
       .wz-hoehe-result .hr-note { color: var(--muted); font-size: 0.79rem; margin-top: 6px; }
       .wz-hoehe-result .hr-warn { color: #8a6d1f; font-size: 0.79rem; margin-top: 6px; }
       .wz-hoehe-result .hr-err { color: #a33; }
+      .wz-hoehe-select {
+        padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--radius);
+        font-size: 0.95rem; font-family: inherit; color: var(--black);
+        background: var(--white); min-width: 190px; cursor: pointer;
+      }
+      .wz-hoehe-select:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
+      .wz-hoehe-result .hr-pruef {
+        margin-top: 14px; padding: 12px 14px; border-radius: 8px;
+        border-left: 3px solid var(--gold);
+      }
+      .wz-hoehe-result .hr-pruef.is-ok   { background: #f0f6e9; border-left-color: #5a7a2e; }
+      .wz-hoehe-result .hr-pruef.is-krit { background: #fdf1ef; border-left-color: #b4462f; }
+      .wz-hoehe-result .hr-pruef.is-offen { background: var(--offwhite, #F5F2EB); border-left-color: var(--border); }
+      .wz-hoehe-result .hr-pruef.is-offen .hr-pruef-kopf { color: var(--muted); }
+      .wz-hoehe-result .hr-pruef-kopf { font-weight: 700; margin-bottom: 4px; }
+      .wz-hoehe-result .hr-pruef.is-ok   .hr-pruef-kopf { color: #47651f; }
+      .wz-hoehe-result .hr-pruef.is-krit .hr-pruef-kopf { color: #a33c27; }
       .wz-hoehe-result .hr-gewaehr {
         margin-top: 12px; padding-top: 10px;
         border-top: 1px solid var(--border);
@@ -475,6 +492,15 @@ extraScripts: |
     'Orientierung nach DIN EN 1991-1-3/NA – ersetzt keine statische Berechnung und keine ' +
     'Prüfung durch einen Statiker oder Fachplaner.</div>';
 
+  /* Zulässige Schneelasten der Eindeckungen – Herstellerangaben von
+     VD AluSysteme ("Schneelastinformation", Polycarbonat und VSG).
+     Die Werte gelten jeweils für die angegebene Plattenbreite. */
+  var WZ_EINDECKUNG = {
+    vsg8:  { name: '8 mm Verbundsicherheitsglas',  max: 85, breite: 700 },
+    vsg10: { name: '10 mm Verbundsicherheitsglas', max: 95, breite: 700 },
+    pc16:  { name: '16 mm Polycarbonatplatte',     max: 75, breite: 1000 }
+  };
+
   function wzBerechneSchneelast() {
     var out = document.getElementById('wz-hoehe-result');
     var raw = document.getElementById('wz-hoehe-input').value.trim();
@@ -529,6 +555,7 @@ extraScripts: |
        Die Abminderung über 30° gilt nur, wenn der Schnee frei abrutschen kann –
        bei Schneefanggittern o. Ä. bleibt µ1 = 0,8 (DIN EN 1991-1-3, 5.3.3).
        ---------------------------------------------------------------------- */
+    var sDach = null;   // Dachschneelast, sofern eine Neigung angegeben wurde
     var nRaw = document.getElementById('wz-neigung-input').value.trim();
     if (nRaw !== '' && !isNaN(parseFloat(nRaw))) {
       var alpha = parseFloat(nRaw);
@@ -537,11 +564,11 @@ extraScripts: |
           'der Wert oben gilt weiterhin für den Boden.</div>';
       } else {
         var mu = alpha <= 30 ? 0.8 : (alpha >= 60 ? 0 : 0.8 * (60 - alpha) / 30);
-        var s = mu * sk;
+        sDach = mu * sk;
         html += '<div class="hr-dach">' +
-          '<div class="hr-val">s = ' + nk(s, 2) + ' kN/m² <span class="hr-val-tag">auf dem Dach</span></div>' +
+          '<div class="hr-val">s = ' + nk(sDach, 2) + ' kN/m² <span class="hr-val-tag">auf dem Dach</span></div>' +
           '<div>Bei ' + nk(alpha, alpha % 1 === 0 ? 0 : 1) + '° Dachneigung · Formbeiwert µ<sub>1</sub> = ' +
-          nk(mu, 2) + ' · entspricht rund <strong>' + Math.round(s * 101.97) + ' kg pro m²</strong></div>';
+          nk(mu, 2) + ' · entspricht rund <strong>' + Math.round(sDach * 101.97) + ' kg pro m²</strong></div>';
         if (alpha >= 60) {
           html += '<div class="hr-warn">⚠ Ab 60° setzt die Norm rechnerisch keine Schneelast mehr an, ' +
             'weil der Schnee vollständig abrutscht. In der Praxis muss der Statiker prüfen, ob das ' +
@@ -559,6 +586,41 @@ extraScripts: |
       html += '<div class="hr-note">Das ist die Last auf dem Boden. Wenn Sie oben zusätzlich die ' +
         'Dachneigung eintragen, rechnen wir daraus die Schneelast auf dem Dach aus.</div>';
     }
+
+    /* ---- Optional: Prüfung gegen die gewählte Eindeckung --------------------
+       Verglichen wird die Dachschneelast mit der zulässigen Schneelast laut
+       Herstellerangabe von VD AluSysteme. Ohne Neigungsangabe wird bewusst
+       NICHT geprüft: der Bodenwert liegt rund 25 % über der Dachlast und würde
+       eine Eindeckung als "nicht ausreichend" abstempeln, die tatsächlich passt.
+       ---------------------------------------------------------------------- */
+    var eSel = document.getElementById('wz-eindeckung-input').value;
+    var e = WZ_EINDECKUNG[eSel];
+    if (e && typeof sDach !== 'number') {
+      html += '<div class="hr-pruef is-offen">' +
+        '<div class="hr-pruef-kopf">' + e.name + ' – Dachneigung fehlt</div>' +
+        '<div>Für die Prüfung brauchen wir die Schneelast auf dem Dach, nicht die auf dem Boden. ' +
+        'Bitte oben die Dachneigung eintragen, dann rechnen wir es aus.</div></div>';
+    } else if (e) {
+      var lastKg = Math.round(sDach * 101.97);
+      var reserve = e.max - lastKg;
+      var reicht = lastKg <= e.max;
+      html += '<div class="hr-pruef ' + (reicht ? 'is-ok' : 'is-krit') + '">' +
+        '<div class="hr-pruef-kopf">' + (reicht ? '✓' : '⚠') + ' ' + e.name + ': ' +
+        (reicht ? 'rechnerisch ausreichend' : 'rechnerisch nicht ausreichend') + '</div>' +
+        '<div>Benötigt an Ihrem Standort <strong>' + lastKg + ' kg/m²</strong>' +
+        ' · zulässig laut Hersteller <strong>ca. ' + e.max + ' kg/m²</strong>' +
+        ' bei ' + e.breite + ' mm Plattenbreite' +
+        ' · ' + (reicht ? 'Reserve rund ' + reserve : 'Fehlbetrag rund ' + Math.abs(reserve)) + ' kg/m²</div>';
+      if (!reicht) {
+        html += '<div class="hr-note">Möglich sind dann z. B. eine stärkere Eindeckung, ' +
+          'eine geringere Plattenbreite oder zusätzliche Unterstützung – das klären wir in der Beratung.</div>';
+      }
+      html += '<div class="hr-note">Zulässige Werte: Herstellerangabe VD AluSysteme ' +
+        '(Schneelastinformation, Polycarbonat und VSG), gültig für die genannte Plattenbreite. ' +
+        'Verbindlich ist die Statik für Ihre konkrete Konstruktion.</div>' +
+        '</div>';
+    }
+
     html += WZ_OHNE_GEWAEHR + '</div>';
     out.innerHTML = html;
   }
@@ -598,6 +660,7 @@ extraScripts: |
     // Zone für die Höhen-Berechnung merken, alte Berechnung zurücksetzen
     wzAktuelleSlz = SLZ_INFO[slz] ? slz : '2';
     document.getElementById('wz-hoehe-result').innerHTML = '';
+    document.getElementById('wz-eindeckung-input').value = '';
     document.getElementById('wz-hoehe-box').open = false;
 
     document.getElementById('wz-results').classList.add('visible');
@@ -734,6 +797,7 @@ extraScripts: |
     document.getElementById('wz-address-input').value = '';
     document.getElementById('wz-hoehe-input').value = '';
     document.getElementById('wz-neigung-input').value = '';
+    document.getElementById('wz-eindeckung-input').value = '';
     document.getElementById('wz-hoehe-result').innerHTML = '';
     document.getElementById('wz-hoehe-box').open = false;
     wzAktuelleSlz = null;
@@ -1048,6 +1112,15 @@ skipLink: |
                        placeholder="z. B. 7" inputmode="decimal">
                 <span class="wz-hoehe-unit">°</span>
               </div>
+            </div>
+            <div class="wz-hoehe-field">
+              <label for="wz-eindeckung-input">Eindeckung <span class="wz-optional">optional</span></label>
+              <select id="wz-eindeckung-input" class="wz-hoehe-select">
+                <option value="">– nicht prüfen –</option>
+                <option value="vsg8">8 mm VSG</option>
+                <option value="vsg10">10 mm VSG</option>
+                <option value="pc16">16 mm Polycarbonat</option>
+              </select>
             </div>
             <button type="button" class="btn btn-gold" onclick="wzBerechneSchneelast()">Ausrechnen</button>
           </div>
