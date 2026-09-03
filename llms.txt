@@ -54,7 +54,7 @@ BV AussenSysteme ist ein Fachbetrieb mit Sitz in Dernbach (Westerwaldkreis, Rhei
 ## Häufige Fragen
 
 **Was kostet eine Terrassenüberdachung im Westerwald?**
-Eine Aluminium-Terrassenüberdachung mit Polycarbonat startet ab ca. 3.000–5.000 €. Glasüberdachungen liegen höher. Kostenloses Angebot nach Maßaufnahme vor Ort.
+Wir nennen bewusst keinen Pauschalpreis. Der Preis hängt von Größe, Verglasung, Ausstattung und Montageaufwand ab und wird für jedes Projekt einzeln berechnet. Kostenloses, unverbindliches Angebot nach Maßaufnahme vor Ort – in der Regel innerhalb von 2–3 Werktagen.
 
 **Brauche ich eine Baugenehmigung?**
 In Rheinland-Pfalz ab bestimmter Größe ja. Wir kennen die lokalen Vorschriften und unterstützen bei der Beantragung.
@@ -81,6 +81,30 @@ Von Auftragsbestätigung bis Montage in der Regel 2–4 Wochen.
 - [Balkon & Fassade](https://bv-aussensysteme.de/produkte/balkon-fassade.html)
 - [Garten & Außenbereich](https://bv-aussensysteme.de/produkte/garten-aussenbereich.html)
 - [Einzugsgebiet](https://bv-aussensysteme.de/einzugsgebiet.html)
+
+## Regionale Seiten
+
+Seiten zu einzelnen Orten im Einzugsgebiet, jeweils mit Angaben zu Anfahrt, örtlichen Gegebenheiten und Beispielprojekten.
+
+Terrassenüberdachung:
+- [Terrassenüberdachung Montabaur](https://bv-aussensysteme.de/terrassenueberdachung-montabaur.html)
+- [Terrassenüberdachung Koblenz](https://bv-aussensysteme.de/terrassenueberdachung-koblenz.html)
+- [Terrassenüberdachung Neuwied](https://bv-aussensysteme.de/terrassenueberdachung-neuwied.html)
+- [Terrassenüberdachung Limburg an der Lahn](https://bv-aussensysteme.de/terrassenueberdachung-limburg.html)
+- [Terrassenüberdachung Altenkirchen](https://bv-aussensysteme.de/terrassenueberdachung-altenkirchen.html)
+- [Terrassenüberdachung Hachenburg](https://bv-aussensysteme.de/terrassenueberdachung-hachenburg.html)
+- [Terrassenüberdachung Ransbach-Baumbach](https://bv-aussensysteme.de/terrassenueberdachung-ransbach-baumbach.html)
+
+Carport:
+- [Carport Montabaur](https://bv-aussensysteme.de/carport-montabaur.html)
+- [Carport Koblenz](https://bv-aussensysteme.de/carport-koblenz.html)
+- [Carport Neuwied](https://bv-aussensysteme.de/carport-neuwied.html)
+- [Carport Limburg an der Lahn](https://bv-aussensysteme.de/carport-limburg.html)
+
+Pergola & Lamellendach:
+- [Pergola Montabaur](https://bv-aussensysteme.de/pergola-montabaur.html)
+- [Pergola Koblenz](https://bv-aussensysteme.de/pergola-koblenz.html)
+- [Pergola Neuwied](https://bv-aussensysteme.de/pergola-neuwied.html)
 
 # Lastzonentool
 /windzonen.html - Kostenlose Ermittlung von Wind- und Schneelastzonen für Standorte in Deutschland (DIN EN 1991)
