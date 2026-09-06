@@ -1,23 +1,51 @@
 User-agent: *
 Allow: /
 
-# KI-Crawler explizit erlauben
+# ---------------------------------------------------------------
+# KI-Crawler explizit erlauben.
+# Hinweis: Durch "User-agent: * / Allow: /" oben sind ohnehin alle
+# Bots zugelassen. Die folgenden Einträge sind bewusst redundant –
+# sie dokumentieren die Absicht und stellen sicher, dass diese Bots
+# erlaubt bleiben, falls oben je Disallow-Regeln ergänzt werden.
+# ---------------------------------------------------------------
+
+# OpenAI
 User-agent: GPTBot
 Allow: /
 
+# OpenAI – Indexierung für die ChatGPT-Suche
+User-agent: OAI-SearchBot
+Allow: /
+
+# OpenAI – Abruf, wenn ein Nutzer in ChatGPT einen Link öffnet
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic – aktueller Crawler
+User-agent: ClaudeBot
+Allow: /
+
+# Anthropic – ältere Namen, aus Bestandsschutz belassen
 User-agent: Claude-Web
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: cohere-ai
 Allow: /
 
 User-agent: anthropic-ai
 Allow: /
 
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+# Google – Gemini und KI-Übersichten
 User-agent: Google-Extended
+Allow: /
+
+# Apple – Apple Intelligence und Siri
+User-agent: Applebot-Extended
+Allow: /
+
+# Cohere
+User-agent: cohere-ai
 Allow: /
 
 Sitemap: https://bv-aussensysteme.de/sitemap.xml
