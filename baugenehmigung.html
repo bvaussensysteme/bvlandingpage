@@ -937,6 +937,8 @@
 
 <!-- LBO-Datenbasis -->
 <script src="/js/baugenehmigung-data.js"></script>
+<!-- Erzeugt das Ergebnis-PDF ohne externe Bibliothek -->
+<script src="/js/bg-pdf.js?v=20260909a" defer></script>
 
 <script>
 /* ================================================================
@@ -1294,9 +1296,9 @@ function bgShowResults(addr, lat, lng, bundesland, county, city, lboData) {
   a3.className = 'bg-btn-outline'; a3.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' + lboData.gesetz;
   btnRow.appendChild(a3);
 
-  // Ergebnis als PDF sichern. Bewusst ueber den Druckdialog des Browsers
-  // statt ueber eine PDF-Bibliothek: keine zusaetzliche externe
-  // Abhaengigkeit, keine ~150 KB Ladelast, funktioniert auf jedem Geraet.
+  // Ergebnis als PDF sichern (js/bg-pdf.js erzeugt die Datei selbst,
+  // siehe dort zur Begruendung: Safari auf dem iPhone ignoriert
+  // window.print(), eine PDF-Bibliothek waere unnoetig schwer).
   var aPdf = document.createElement('button');
   aPdf.type = 'button';
   aPdf.className = 'bg-btn-outline bg-btn-pdf';
@@ -1493,22 +1495,88 @@ function bgSearch() {
 // ── RESET ─────────────────────────────────────────────────────
 /* Ergebnis als PDF: Datum setzen und den Druckdialog oeffnen.
    Das Druck-Layout steckt im @media-print-Block des Stylesheets. */
+/* Ergebnis als PDF-Datei herunterladen.
+   Erzeugt wird die Datei von js/bg-pdf.js direkt im Browser. Fehlt das
+   Skript (z. B. wenn es nicht geladen werden konnte), bleibt der
+   Druckdialog als Rueckfallebene. */
 function bgAlsPdf() {
+  var stadt = (document.getElementById('bg-loc-city') || {}).textContent || '';
+  var details = (document.getElementById('bg-loc-details') || {}).textContent || '';
   var d = new Date();
   var stand = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
               ' um ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+
+  if (!window.bvBgPdf) { bgDruckenAlsNotloesung(stadt, details, stand); return; }
+
+  function sauber(el) {
+    if (!el) return '';
+    return (el.textContent || '').replace(/\s+/g, ' ').replace(/\s*→/g, '').trim();
+  }
+
+  var behoerde = [];
+  Array.prototype.forEach.call(document.querySelectorAll('#bg-contact-grid .bg-contact-item'), function (item) {
+    var feld = sauber(item.querySelector('.ci-label'));
+    var wert = sauber(item.querySelector('.ci-val'));
+    if (feld && wert) behoerde.push({ feld: feld, wert: wert });
+  });
+
+  var karten = [];
+  Array.prototype.forEach.call(document.querySelectorAll('#bg-produkte-grid .bg-produkt-card'), function (card) {
+    var badge = card.querySelector('.bg-status-badge');
+    var klasse = badge && badge.className.indexOf('badge-green') !== -1 ? 'gruen' :
+                 badge && badge.className.indexOf('badge-red') !== -1 ? 'rot' : 'gelb';
+    karten.push({
+      name: sauber(card.querySelector('.pc-name')),
+      status: klasse,
+      statusText: sauber(badge),
+      bedingung: sauber(card.querySelector('.pc-bedingung')),
+      hinweis: sauber(card.querySelector('.pc-hinweis')),
+      abstand: sauber(card.querySelector('.pc-abstand'))
+    });
+  });
+
+  var fuss = [];
+  Array.prototype.forEach.call(document.querySelectorAll('.bg-print-foot p'), function (p) {
+    if (!p.classList.contains('bg-print-kontakt')) fuss.push(sauber(p));
+  });
+
+  var daten = {
+    titel: 'Baugenehmigungs-Check' + (stadt ? ' – ' + stadt : ''),
+    standort: [stadt, details].filter(Boolean).join(' · '),
+    erstellt: 'Erstellt am ' + stand + ' über bv-aussensysteme.de/baugenehmigung.html',
+    behoerde: behoerde,
+    quelle: sauber(document.getElementById('bg-source')),
+    ueberschrift: sauber(document.getElementById('bg-products-heading')),
+    karten: karten,
+    hinweis: sauber(document.querySelector('.bg-disclaimer p')),
+    fuss: fuss,
+    kontakt: sauber(document.querySelector('.bg-print-kontakt'))
+  };
+
+  var name = 'Baugenehmigungs-Check' + (stadt ? '-' + stadt : '');
+  name = name.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
+             .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue').replace(/ß/g, 'ss')
+             .replace(/[^A-Za-z0-9\-]+/g, '-').replace(/-+/g, '-').replace(/-$/, '');
+
+  try {
+    window.bvBgPdf.speichern(daten, name + '.pdf');
+  } catch (e) {
+    bgDruckenAlsNotloesung(stadt, details, stand);
+  }
+}
+
+/* Rueckfallebene: Browser-Druckdialog mit der Druckansicht der Seite.
+   Der Ergebnisbereich steckt tief verschachtelt
+   (body > #bv-a11y-page-wrap > main > section > .container). Ihn per CSS
+   freizustellen waere fragil - jede Layoutaenderung koennte den Ausdruck
+   leeren. Deshalb wird er fuer den Druck in einen eigenen Container direkt
+   unter <body> verschoben und danach exakt zurueckgesetzt. */
+function bgDruckenAlsNotloesung(stadt, details, stand) {
   var el = document.getElementById('bg-print-datum');
   if (el) el.textContent = stand;
-  var ort = (document.getElementById('bg-loc-city') || {}).textContent || '';
-  var det = (document.getElementById('bg-loc-details') || {}).textContent || '';
   var t = document.getElementById('bg-print-standort');
-  if (t) t.textContent = ort + (det ? ' · ' + det : '');
+  if (t) t.textContent = stadt + (details ? ' · ' + details : '');
 
-  /* Der Ergebnisbereich steckt tief verschachtelt
-     (body > #bv-a11y-page-wrap > main > section > .container). Ihn per CSS
-     freizustellen waere fragil - jede Layoutaenderung koennte den Ausdruck
-     leeren. Deshalb wird er fuer den Druck in einen eigenen Container direkt
-     unter <body> verschoben und danach exakt zurueckgesetzt. */
   var ergebnis = document.getElementById('bg-results');
   var wurzel = document.getElementById('bv-print-root');
   if (!ergebnis || !wurzel) { window.print(); return; }
