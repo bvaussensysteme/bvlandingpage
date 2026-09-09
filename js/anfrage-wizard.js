@@ -234,7 +234,7 @@
       var muted = o.muted ? ' aw-option--muted' : '';
       var badge = o.badge ? '<span class="aw-badge">' + esc(o.badge) + '</span>' : '';
       var media = o.img
-        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + badge + '</span>'
+        ? '<span class="aw-option-img' + (o.photo ? ' aw-option-img--photo' : '') + '"><img src="/images/wizard/wz_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + badge + '</span>'
         : o.swatch
           ? '<span class="aw-option-ic aw-option-sw" style="background:' + o.swatch + '">' + badge + '</span>'
           : '<span class="aw-option-ic' + (o.iconBig ? ' aw-option-ic--big' : '') + '">' + svg(o.icon) + badge + '</span>';
@@ -699,7 +699,7 @@
     if (o && o.img) {
       var zoom = zoomable ? ' data-zoom="' + o.img + '" data-zoom-label="' + esc(value) + '"' : '';
       var lupe = zoomable ? '<span class="aw-dd-zoom">' + svg(I.lupe) + '</span>' : '';
-      return '<span class="aw-dd-thumb"' + zoom + '><img src="images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + lupe + '</span>';
+      return '<span class="aw-dd-thumb"' + zoom + '><img src="/images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + lupe + '</span>';
     }
     return '<span class="aw-dd-thumb aw-dd-thumb--none">' + svg(I.aus) + '</span>';
   }
@@ -853,7 +853,7 @@
     var lb = document.createElement('div');
     lb.className = 'aw-lightbox';
     lb.innerHTML = '<div class="aw-lightbox-inner">' +
-      '<img src="images/wizard/erw_' + imgSlug + '.webp?v=' + ASSET_VER + '" alt="' + esc(label) + '">' +
+      '<img src="/images/wizard/erw_' + imgSlug + '.webp?v=' + ASSET_VER + '" alt="' + esc(label) + '">' +
       '<p>' + esc(label) + '</p>' +
       '<button type="button" class="aw-lightbox-close" aria-label="Schließen">✕</button></div>';
     function close() { if (lb.parentNode) lb.parentNode.removeChild(lb); document.removeEventListener('keydown', onKey); }
