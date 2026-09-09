@@ -347,7 +347,7 @@ schema: |
         "name": "Brauche ich eine Baugenehmigung für meine Terrassenüberdachung in Rheinland-Pfalz?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "In Rheinland-Pfalz ist eine Terrassenüberdachung bis 50 m² Grundfläche und bis 4,50 m Wandhöhe genehmigungsfrei (LBO RLP §62 Abs. 1 Nr. 1), sofern sie eingeschossig ist und an ein bestehendes Wohngebäude angebaut wird. Im Außenbereich (§35 BauGB) ist immer eine Genehmigung erforderlich."
+          "text": "In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis 50 m³ umbautem Raum genehmigungsfrei (§ 62 Abs. 2 Nr. 2 LBauO), wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche: 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich."
         }
       },
       {
@@ -355,7 +355,7 @@ schema: |
         "name": "Ist ein Carport in Rheinland-Pfalz genehmigungspflichtig?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Ein Carport bis 50 m² Grundfläche ist in Rheinland-Pfalz genehmigungsfrei (LBO RLP §62). Grenzgaragen sind bis 9 m Länge und 3 m Wandhöhe zulässig. Der Stellplatznachweis ist gesondert zu prüfen."
+          "text": "Ein Carport bis 50 m² Grundfläche und 3,20 m mittlerer Wandhöhe ist in Rheinland-Pfalz genehmigungsfrei (§ 62 Abs. 1 Nr. 1 f LBauO), außer im Außenbereich. An der Grundstücksgrenze ist er ohne eigene Abstandsfläche zulässig bis 3,20 m mittlerer Wandhöhe und 12 m Länge je Grenze (§ 8 Abs. 9 LBauO). Der Stellplatznachweis ist gesondert zu prüfen."
         }
       },
       {
@@ -363,7 +363,7 @@ schema: |
         "name": "Brauche ich eine Baugenehmigung für einen Kaltwintergarten?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Ein unbeheizter Kaltwintergarten bis 50 m² ist in vielen Bundesländern genehmigungsfrei, sobald er beheizt wird, entsteht Genehmigungspflicht. Die genaue Regelung hängt vom Bundesland ab."
+          "text": "Ein unbeheizter Kaltwintergarten ist in Rheinland-Pfalz bis 50 m³ umbautem Raum genehmigungsfrei (§ 62 Abs. 2 Nr. 2 LBauO), in Hessen bis 30 m² Grundfläche (Anlage zu § 63 HBO Nr. 1.12). Sobald er beheizt wird, entsteht Genehmigungspflicht. Die genaue Regelung hängt vom Bundesland ab."
         }
       },
       {
@@ -788,7 +788,10 @@ extraScripts: |
     document.getElementById('bg-source').innerHTML =
       '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Quelle: <strong>' + lboData.gesetz + '</strong> · ' +
       '<a href="'+lboData.gesetzLink+'" target="_blank" rel="noopener">Volltext Landesrecht</a> · ' +
-      'Stand: 2025/2026 · Ohne Gewähr';
+      (lboData.geprueft
+        ? 'am Gesetzestext geprüft ' + lboData.geprueft
+        : 'Übersichtsangabe ohne Einzelprüfung – bitte beim Bauamt bestätigen lassen') +
+      ' · Ohne Gewähr';
 
     // Produkt-Heading
     document.getElementById('bg-products-heading').textContent =
@@ -858,8 +861,8 @@ extraScripts: |
       var ctaText = document.getElementById('bg-cta-text');
       if (ctaText) {
         ctaText.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:#2a9d4e;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Gute Nachricht für ' + (county || bundesland) + ':</strong> ' +
-          'Terrassenüberdachungen bis 50 m² und Carports bis 50 m² sind nach LBO RLP §62 <em style="color:#1a6e1a">GENEHMIGUNGSFREI</em>. ' +
-          'Bereit für den nächsten Schritt?';
+          'Unbeheizte Terrassenüberdachungen bis 50 m³ umbautem Raum und Carports bis 50 m² Grundfläche sind nach § 62 LBauO RLP in der Regel ' +
+          '<em style="color:#1a6e1a">genehmigungsfrei</em>. Bereit für den nächsten Schritt?';
       }
     }
 
@@ -1199,7 +1202,7 @@ skipLink: |
     <p class="tag">Standort eingeben</p>
     <h2 id="bg-search-heading" style="margin-bottom:8px">Brauche ich eine Baugenehmigung? – Ihr kostenloser Check</h2>
     <div class="bg-region-hint">
-      <strong style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Im Westerwald & Rheinland-Pfalz</strong> gilt die LBO RLP §62 – hier sind Terrassenüberdachungen bis 50 m² und Carports bis 50 m² <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
+      <strong style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Im Westerwald & Rheinland-Pfalz</strong> gilt § 62 LBauO – hier sind unbeheizte Terrassenüberdachungen bis 50 m³ umbautem Raum und Carports bis 50 m² Grundfläche <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
     </div>
     <p style="color:var(--muted);margin-bottom:28px;max-width:580px">
       Geben Sie Ihre Postleitzahl oder Ihren Ort ein. Das Tool ermittelt automatisch das zuständige
@@ -1403,7 +1406,7 @@ skipLink: |
           <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a">
-          <p>In Rheinland-Pfalz ist eine Terrassenüberdachung bis <strong>50 m² Grundfläche</strong> und bis 4,50 m Wandhöhe nach <strong>LBO RLP §62 Abs. 1 Nr. 1 genehmigungsfrei</strong>, sofern sie eingeschossig ist und an ein bestehendes Wohngebäude angebaut wird. Im Außenbereich (§35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
+          <p>In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis <strong>50 m³ umbautem Raum</strong> nach <strong>§ 62 Abs. 2 Nr. 2 LBauO genehmigungsfrei</strong>, wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche – 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
         </div>
       </div>
 
@@ -1453,7 +1456,7 @@ skipLink: |
           <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a">
-          <p>Ein <strong>unbeheizter Kaltwintergarten</strong> (z. B. mit Glasschiebewänden) ist in Rheinland-Pfalz und vielen anderen Bundesländern bis 50 m² genehmigungsfrei. Sobald er beheizt wird oder Aufenthaltsraumqualität erreicht, entsteht <strong>Genehmigungspflicht</strong>. Im Zweifel immer beim Bauamt nachfragen.</p>
+          <p>Ein <strong>unbeheizter Kaltwintergarten</strong> (z. B. mit Glasschiebewänden) ist in Rheinland-Pfalz bis 50 m³ umbautem Raum genehmigungsfrei (§ 62 Abs. 2 Nr. 2 LBauO); andere Bundesländer haben eigene Grenzwerte, Hessen zum Beispiel 30 m² Grundfläche. Sobald er beheizt wird oder Aufenthaltsraumqualität erreicht, entsteht <strong>Genehmigungspflicht</strong>. Im Zweifel immer beim Bauamt nachfragen.</p>
         </div>
       </div>
 
