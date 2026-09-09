@@ -1,23 +1,133 @@
 User-agent: *
 Allow: /
 
-# KI-Crawler explizit erlauben
+# ===============================================================
+# KI-Crawler
+# ---------------------------------------------------------------
+# WICHTIG ZUM VERSTAENDNIS:
+# Durch "User-agent: * / Allow: /" ganz oben sind bereits ALLE Bots
+# zugelassen - auch solche, die es heute noch gar nicht gibt. Die
+# folgenden Eintraege erlauben also nichts zusaetzlich. Sie haben
+# zwei andere Zwecke:
+#   1. Sie dokumentieren die Absicht, KI-Zugriff ausdruecklich zu
+#      wollen (nachvollziehbar fuer jeden, der die Datei liest).
+#   2. Sie stellen sicher, dass diese Bots erlaubt bleiben, falls
+#      oben spaeter Disallow-Regeln ergaenzt werden. Ein Bot, der
+#      eine eigene Gruppe findet, wertet NUR diese aus und ignoriert
+#      die *-Gruppe.
+#
+# Eine Liste kann nie vollstaendig sein - neue Crawler kommen
+# laufend dazu. Die *-Regel oben deckt sie alle ab.
+#
+# Zuletzt gegen oeffentliche Crawler-Referenzen abgeglichen: 09/2026
+# ===============================================================
+
+# ---------- OpenAI ----------
+# Modelltraining
 User-agent: GPTBot
 Allow: /
 
+# Index fuer die ChatGPT-Suche
+User-agent: OAI-SearchBot
+Allow: /
+
+# Abruf, wenn ein Nutzer in ChatGPT einen Link oeffnet
+User-agent: ChatGPT-User
+Allow: /
+
+# Landingpages fuer Anzeigen
+User-agent: OAI-AdsBot
+Allow: /
+
+# ---------- Anthropic (Claude) ----------
+# Modelltraining, aktueller Crawler
+User-agent: ClaudeBot
+Allow: /
+
+# Suchindex
+User-agent: Claude-SearchBot
+Allow: /
+
+# Abruf auf Nutzeranfrage
+User-agent: Claude-User
+Allow: /
+
+# Aeltere Namen, aus Bestandsschutz belassen
 User-agent: Claude-Web
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: cohere-ai
 Allow: /
 
 User-agent: anthropic-ai
 Allow: /
 
+# ---------- Google ----------
+# Gemini und KI-Uebersichten
 User-agent: Google-Extended
+Allow: /
+
+# Weitere Google-Crawls (Forschung, Produktentwicklung)
+User-agent: GoogleOther
+Allow: /
+
+# ---------- Microsoft / Bing ----------
+# Speist auch Copilot
+User-agent: bingbot
+Allow: /
+
+# ---------- Apple ----------
+# Spotlight, Siri, Safari
+User-agent: Applebot
+Allow: /
+
+# Apple Intelligence, Modelltraining
+User-agent: Applebot-Extended
+Allow: /
+
+# ---------- Meta ----------
+# Modelltraining und Indexierung
+User-agent: meta-externalagent
+Allow: /
+
+# Meta-AI-Suche
+User-agent: meta-webindexer
+Allow: /
+
+# Abruf auf Nutzeranfrage
+User-agent: meta-externalfetcher
+Allow: /
+
+# ---------- Perplexity ----------
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# ---------- Mistral ----------
+User-agent: MistralAI-Index
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+# ---------- Weitere ----------
+# Amazon (Alexa, Produktsuche)
+User-agent: Amazonbot
+Allow: /
+
+# DuckDuckGo (DuckAssist)
+User-agent: DuckAssistBot
+Allow: /
+
+# ByteDance / TikTok
+User-agent: Bytespider
+Allow: /
+
+# Common Crawl - Datensatz, auf dem viele Modelle trainiert werden
+User-agent: CCBot
+Allow: /
+
+# Cohere
+User-agent: cohere-ai
 Allow: /
 
 Sitemap: https://bv-aussensysteme.de/sitemap.xml

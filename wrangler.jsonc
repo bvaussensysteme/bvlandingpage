@@ -16,9 +16,6 @@
       "/kontakt.html"
     ]
   },
-  "ai": {
-    "binding": "AI"
-  },
   "observability": {
     "logs": {
       "enabled": true,

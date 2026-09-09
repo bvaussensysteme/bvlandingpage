@@ -69,7 +69,7 @@ Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (z.B. bei 
 4. Im Zweifel kennzeichnen – Kennzeichnung ist praktisch risikolos, das Weglassen kann teuer werden (Bußgeld) und den Betreiber persönlich treffen.
 
 **Status-Check (Stand 02.08.2026):**
-- Chatbot (`js/chatbot.js`): ✅ bereits mehrfach als KI gekennzeichnet (Button-Label „KI-Chat-Assistent öffnen", Panel-Titel „BV KI-Assistent (Beta)", Begrüßungsnachricht, permanenter Disclaimer) + eigener Datenschutz-Abschnitt „KI-Assistent / Chatbot" (`datenschutz.html#ki-assistent`)
+- Chatbot: ⚪ **seit 09.09.2026 vollständig entfernt** – der schwebende Button öffnet jetzt den Anfrage-Assistenten (`js/konfigurator-widget.js`) statt eines KI-Chats. Zurückgebaut wurden: `js/chatbot.js`, das Chat-CSS, die Worker-Route `/api/chat` samt System-Prompt und Workers-AI-Aufruf, die `ai`-Bindung in `wrangler.jsonc` sowie der Datenschutz-Abschnitt „KI-Assistent / Chatbot". Damit entfällt die Kennzeichnungspflicht nach Art. 50 für diesen Punkt – auf der Website läuft kein KI-System mit direkter Nutzerinteraktion mehr.
 - Bilder (`images/`): ✅ ausschließlich echte Fotos (VD-Produktfotos, Galeriefotos, Zertifikate, Stoffmuster) – keine KI-generierten realistischen Bilder im Einsatz, Kennzeichnungspflicht entfällt aktuell
 
 ---
@@ -267,7 +267,7 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 - [x] **SRI-Hash für Leaflet-CDN ergänzen** ✅ 05.07.2026 – windzonen.html, einzugsgebiet.html, baugenehmigung.html
 - [x] **DOM-XSS im Kontaktformular** ✅ 05.07.2026 – unescaped Vorname-Ausgabe behoben
 - [x] **CLAUDE.md war öffentlich abrufbar** ✅ 05.07.2026 – in .assetsignore ergänzt
-- [ ] Cloudflare Rate-Limiting für `/api/chat` einrichten (Dashboard → Security → WAF, verhindert Kostenmissbrauch der Workers-AI-Anbindung) — nur der Geschäftsführer kann das im Cloudflare-Dashboard
+- [x] `/api/chat` abgeschaltet ✅ 09.09.2026 – Route samt Workers-AI-Anbindung aus `worker/index.js` entfernt, `ai`-Bindung aus `wrangler.jsonc` gestrichen. Damit ist das Kostenrisiko der Workers-AI-Anbindung beseitigt, ein Rate-Limiting im Dashboard ist dafür nicht mehr nötig
 
 ### 🟠 P1 — Kurzfristig
 - [x] WebP-Konvertierung ✅ 26.06.2026 – 38 Bilder, 1,74MB gespart
