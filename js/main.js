@@ -24,27 +24,35 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ---- MOBILE MENU ----
-  // Hinweis: body-Klasse "bv-menu-open" blendet Chat-/A11y-/Scroll-Top-Icons
+  // Hinweis: body-Klasse "bv-menu-open" blendet Konfigurator-/A11y-/Scroll-Top-Icons
   // aus (siehe css/style.css), da diese sonst mit z-index > mobile-menu
   // über dem Vollbild-Menü schweben und noch anklickbar bleiben.
+  // Die 14 Ortsseiten haben kein Mobilmenue. Ohne diese Pruefung brach
+  // main.js hier mit "Cannot read properties of null" ab und ALLES
+  // danach lief dort nie: Sticky-Kontaktleiste, Formular-Logik,
+  // Navbar-Schatten.
   var mobileMenu = document.getElementById('mobileMenu');
-  document.getElementById('hamburgerBtn').addEventListener('click', function () {
-    mobileMenu.classList.add('open');
-    document.body.classList.add('bv-menu-open');
-    document.body.style.overflow = 'hidden';
-  });
-  document.getElementById('mobileClose').addEventListener('click', function () {
-    mobileMenu.classList.remove('open');
-    document.body.classList.remove('bv-menu-open');
-    document.body.style.overflow = '';
-  });
-  mobileMenu.querySelectorAll('a').forEach(function (a) {
-    a.addEventListener('click', function () {
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var mobileClose = document.getElementById('mobileClose');
+  if (mobileMenu && hamburgerBtn && mobileClose) {
+    hamburgerBtn.addEventListener('click', function () {
+      mobileMenu.classList.add('open');
+      document.body.classList.add('bv-menu-open');
+      document.body.style.overflow = 'hidden';
+    });
+    mobileClose.addEventListener('click', function () {
       mobileMenu.classList.remove('open');
       document.body.classList.remove('bv-menu-open');
       document.body.style.overflow = '';
     });
-  });
+    mobileMenu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        mobileMenu.classList.remove('open');
+        document.body.classList.remove('bv-menu-open');
+        document.body.style.overflow = '';
+      });
+    });
+  }
 
   // ---- STICKY CTA – erst nach dem Hero einblenden (nicht redundant zum Hero-CTA),
   //      bei Erreichen der Kontakt-Sektion wieder ausblenden ----
@@ -170,14 +178,19 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ---- SMOOTH NAVBAR SHADOW ON SCROLL ----
+  // Auch hier pruefen: die Ortsseiten haben eine eigene, schlanke
+  // Kopfzeile ohne .navbar - ohne Pruefung feuerte bei jedem
+  // Scroll-Ereignis ein Fehler.
   var navbar = document.querySelector('.navbar');
-  window.addEventListener('scroll', function () {
-    if (window.scrollY > 20) {
-      navbar.style.boxShadow = '0 4px 24px rgba(0,0,0,0.15)';
-    } else {
-      navbar.style.boxShadow = '0 2px 16px rgba(0,0,0,0.08)';
-    }
-  }, { passive: true });
+  if (navbar) {
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 20) {
+        navbar.style.boxShadow = '0 4px 24px rgba(0,0,0,0.15)';
+      } else {
+        navbar.style.boxShadow = '0 2px 16px rgba(0,0,0,0.08)';
+      }
+    }, { passive: true });
+  }
 
 });
 
