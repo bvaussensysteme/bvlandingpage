@@ -2299,7 +2299,9 @@ body.bv-konfig-open #bvKonfigBubble {
   #bvKonfigPanel.open { transform: none; opacity: 1; }
   #bvKonfigPanel::before { display: none; }
   #bvKonfigPanel .aw-head { padding-top: 18px; }
-  body.bv-konfig-open { overflow: auto; }
+  /* Auf dem Desktop schwebt das Fenster - die Seite dahinter darf wie bisher
+     scrollen. Das Fixieren des Body gilt nur fuer das Sheet auf dem Handy. */
+  body.bv-konfig-open { overflow: auto; position: static; }
 }
 
 @media (prefers-reduced-motion: reduce) {
