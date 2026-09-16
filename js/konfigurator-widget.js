@@ -121,6 +121,32 @@
     platzhalter = null;
   }
 
+  /* ---------- Hintergrund festhalten ----------
+     body { overflow: hidden } reicht auf iOS Safari nicht: die Seite hinter
+     dem Sheet scrollt trotzdem mit. Der Body wird deshalb fixiert und um die
+     aktuelle Scrollposition nach oben versetzt, sodass optisch nichts springt.
+     Beim Schliessen wird beides zurueckgenommen. */
+  var scrollStand = 0;
+
+  function seiteSperren() {
+    scrollStand = window.pageYOffset || document.documentElement.scrollTop || 0;
+    document.body.style.top = (-scrollStand) + 'px';
+    document.body.classList.add('bv-konfig-open');
+  }
+
+  function seiteFreigeben() {
+    if (!document.body.classList.contains('bv-konfig-open')) return;
+    document.body.classList.remove('bv-konfig-open');
+    document.body.style.top = '';
+    // Ohne 'auto' wuerde das globale scroll-behavior: smooth die Rueckkehr
+    // sichtbar animieren.
+    var wurzel = document.documentElement;
+    var vorher = wurzel.style.scrollBehavior;
+    wurzel.style.scrollBehavior = 'auto';
+    window.scrollTo(0, scrollStand);
+    wurzel.style.scrollBehavior = vorher;
+  }
+
   /* ---------- Öffnen / Schließen ---------- */
   function focusables() {
     return Array.prototype.filter.call(
@@ -140,7 +166,7 @@
       overlay.classList.add('open');
       panel.classList.add('open');
     });
-    document.body.classList.add('bv-konfig-open');
+    seiteSperren();
     bubble.setAttribute('aria-expanded', 'true');
     var f = focusables();
     (f.length ? f[0] : panel).focus();
@@ -151,7 +177,7 @@
     isOpen = false;
     overlay.classList.remove('open');
     panel.classList.remove('open');
-    document.body.classList.remove('bv-konfig-open');
+    seiteFreigeben();
     bubble.setAttribute('aria-expanded', 'false');
     // Overlay erst nach der Animation aus dem Zugriff nehmen
     // Erst nach der Schliess-Animation zuruecksetzen, sonst springt der Inhalt

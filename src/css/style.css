@@ -2239,14 +2239,30 @@ img { max-width: 100%; height: auto; }
   border: 0; border-radius: 0; box-shadow: none;
 }
 #bvKonfigPanel .aw-head { padding-top: 20px; padding-right: 58px; }
-#bvKonfigPanel .aw-body { min-height: 0; }
+#bvKonfigPanel .aw-body {
+  min-height: 0;
+  /* Muss die Mobil-Regel .aw-body { overflow: visible } ueberschreiben: im
+     Sheet scrollt der Inhalt selbst, nicht die Seite dahinter. */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Am Listenende nicht auf die Seite dahinter durchreichen */
+  overscroll-behavior: contain;
+}
 /* Platzhalter haelt waehrenddessen die Luecke im Kontaktbereich */
 [data-bv-platzhalter] { visibility: hidden; }
 /* Home-Indicator auf iPhones nicht überdecken */
 #bvKonfigPanel .aw-nav { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 
-/* Hintergrund nicht mitscrollen, solange das Sheet offen ist */
-body.bv-konfig-open { overflow: hidden; }
+/* Hintergrund nicht mitscrollen, solange das Sheet offen ist.
+   overflow: hidden allein reicht auf iOS Safari nicht - dort scrollt die Seite
+   hinter dem Sheet weiter. Erst das Fixieren des Body haelt sie fest. Die
+   Scrollposition setzt konfigurator-widget.js beim Schliessen zurueck. */
+body.bv-konfig-open {
+  overflow: hidden;
+  position: fixed;
+  left: 0; right: 0; width: 100%;
+}
+#bvKonfigPanel, #bvKonfigOverlay { overscroll-behavior: contain; }
 
 /* Die übrigen Schwebe-Buttons haben teils z-index 2147483647 und würden
    sonst über dem Panel liegen. Solange der Konfigurator offen ist,
