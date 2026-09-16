@@ -218,6 +218,82 @@ extraStyles: |
   }
   .bg-disclaimer p { font-size: .8rem; color: #666; line-height: 1.6; margin: 0; }
 
+  /* Druck-Kopf und -Fuss: am Bildschirm unsichtbar, nur im PDF */
+  .bg-print-head, .bg-print-foot { display: none; }
+
+  /* ============================================================
+     DRUCKANSICHT / PDF
+     Ziel ist eine kompakte Seite: alles ausser dem Ergebnis wird
+     ausgeblendet, Abstaende und Schriftgroessen werden verkleinert.
+     Bei sehr vielen Produktkarten koennen es zwei Seiten werden -
+     Karten werden dann wenigstens nicht mitten durchgeschnitten.
+     ============================================================ */
+  @media print {
+    @page { size: A4 portrait; margin: 10mm 12mm 8mm; }
+
+    /* Der Ergebnisbereich haengt beim Drucken in #bv-print-root direkt unter
+       <body> (siehe bgAlsPdf). Damit genuegt eine einzige Regel. */
+    body > *:not(#bv-print-root) { display: none !important; }
+    #bv-print-root { display: block !important; }
+    #bg-results { display: block !important; margin: 0; padding: 0; box-shadow: none; }
+
+    /* Im PDF unerwuenscht: Karte, Aktions-Buttons, Kontakt-Aufruf */
+    #bg-map-wrap, #bg-cta-box, .bg-btn-row { display: none !important; }
+
+    html, body {
+      background: #fff !important; color: #000;
+      font-size: 9.5pt; line-height: 1.4;
+    }
+
+    .bg-print-head { display: block; border-bottom: 2px solid #C49A2A; padding-bottom: 5px; margin-bottom: 9px; }
+    .bg-print-firma { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 11pt; letter-spacing: .02em; }
+    .bg-print-titel { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14pt; line-height: 1.08; }
+    .bg-print-meta { font-size: 7pt; color: #444; margin-top: 2px; line-height: 1.35; }
+
+    /* Standort steht bereits im Kopf des Ausdrucks - die Kachel waere
+       eine Dopplung und kostet knapp 2 cm Hoehe. */
+    .bg-location-header { display: none !important; }
+
+    /* Behoerde */
+    .bg-bauamt-card {
+      border: 1px solid #d8d4cb; border-radius: 6px; padding: 7px 10px;
+      margin-bottom: 6px; box-shadow: none; break-inside: avoid;
+    }
+    .bg-bauamt-card h3 { font-size: 10pt; margin: 0 0 4px; }
+    .bg-contact-grid { gap: 4px 14px !important; }
+    .bg-contact-grid * { font-size: 7.5pt !important; line-height: 1.3; }
+    .bg-source { font-size: 7.5pt; color: #444; margin: 0 0 7px; padding: 5px 8px; }
+
+    /* Produktkarten: zweispaltig, nie mitten durchgeschnitten */
+    .tag, #bg-products-heading { break-after: avoid; }
+    .tag { font-size: 7pt; margin-bottom: 1px; }
+    #bg-products-heading { font-size: 11pt; margin: 0 0 5px !important; }
+    .bg-produkte-grid {
+      display: grid !important; grid-template-columns: 1fr 1fr;
+      gap: 6px; margin-bottom: 0 !important;
+    }
+    .bg-produkte-grid > * {
+      border: 1px solid #d8d4cb; border-radius: 6px; padding: 5px 7px;
+      box-shadow: none; break-inside: avoid; font-size: 7.5pt; line-height: 1.28;
+    }
+    .bg-produkte-grid h4, .bg-produkte-grid h3 { font-size: 9pt; margin: 0 0 2px; }
+    /* Ungerade Kartenzahl: die letzte Karte fuellt die Zeile aus. Das spart
+       Hoehe (Text laeuft breiter) und vermeidet eine halb leere Reihe. */
+    .bg-produkte-grid > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .bg-produkte-grid p { margin: 0 0 2px; line-height: 1.3; }
+    .bg-produkte-grid .pk-badge, .bg-produkte-grid .badge { margin: 0 0 3px; }
+
+    /* Hinweise */
+    .bg-disclaimer { border: 1px solid #d8d4cb; background: #faf9f6 !important; padding: 5px 8px; margin: 7px 0 5px; break-inside: avoid; }
+    .bg-disclaimer p { font-size: 6.6pt; line-height: 1.38; }
+    .bg-print-foot { display: block; border-top: 1px solid #d8d4cb; padding-top: 5px; break-inside: avoid; }
+    .bg-print-foot p { font-size: 6.2pt; color: #444; line-height: 1.3; margin: 0 0 2px; }
+    .bg-print-kontakt { color: #000 !important; font-weight: 600; }
+
+    /* Links im PDF ohne Unterstreichung, Farbe sparen */
+    #bg-results a { color: #000 !important; text-decoration: none; }
+  }
+
   /* CTA */
   .bg-cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
 
@@ -271,7 +347,7 @@ schema: |
         "name": "Brauche ich eine Baugenehmigung für meine Terrassenüberdachung in Rheinland-Pfalz?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "In Rheinland-Pfalz ist eine Terrassenüberdachung bis 50 m² Grundfläche und bis 4,50 m Wandhöhe genehmigungsfrei (LBO RLP §62 Abs. 1 Nr. 1), sofern sie eingeschossig ist und an ein bestehendes Wohngebäude angebaut wird. Im Außenbereich (§35 BauGB) ist immer eine Genehmigung erforderlich."
+          "text": "In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis 50 m³ umbautem Raum genehmigungsfrei (§ 62 Abs. 2 Nr. 2 LBauO), wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche: 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich."
         }
       },
       {
@@ -279,7 +355,7 @@ schema: |
         "name": "Ist ein Carport in Rheinland-Pfalz genehmigungspflichtig?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Ein Carport bis 50 m² Grundfläche ist in Rheinland-Pfalz genehmigungsfrei (LBO RLP §62). Grenzgaragen sind bis 9 m Länge und 3 m Wandhöhe zulässig. Der Stellplatznachweis ist gesondert zu prüfen."
+          "text": "Ein Carport bis 50 m² Grundfläche und 3,20 m mittlerer Wandhöhe ist in Rheinland-Pfalz genehmigungsfrei (§ 62 Abs. 1 Nr. 1 f LBauO), außer im Außenbereich. An der Grundstücksgrenze ist er ohne eigene Abstandsfläche zulässig bis 3,20 m mittlerer Wandhöhe und 12 m Länge je Grenze (§ 8 Abs. 9 LBauO). Der Stellplatznachweis ist gesondert zu prüfen."
         }
       },
       {
@@ -287,7 +363,7 @@ schema: |
         "name": "Brauche ich eine Baugenehmigung für einen Kaltwintergarten?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Ein unbeheizter Kaltwintergarten bis 50 m² ist in vielen Bundesländern genehmigungsfrei, sobald er beheizt wird, entsteht Genehmigungspflicht. Die genaue Regelung hängt vom Bundesland ab."
+          "text": "Ein unbeheizter Kaltwintergarten ist in Rheinland-Pfalz bis 50 m³ umbautem Raum genehmigungsfrei (§ 62 Abs. 2 Nr. 2 LBauO), in Hessen bis 30 m² Grundfläche (Anlage zu § 63 HBO Nr. 1.12). Sobald er beheizt wird, entsteht Genehmigungspflicht. Die genaue Regelung hängt vom Bundesland ab."
         }
       },
       {
@@ -339,6 +415,8 @@ schema: |
 extraScripts: |
   <!-- LBO-Datenbasis -->
   <script src="/js/baugenehmigung-data.js"></script>
+  <!-- Erzeugt das Ergebnis-PDF ohne externe Bibliothek -->
+  <script src="/js/bg-pdf.js?v=20260909a" defer></script>
 
   <script>
   /* ================================================================
@@ -696,11 +774,24 @@ extraScripts: |
     a3.className = 'bg-btn-outline'; a3.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>' + lboData.gesetz;
     btnRow.appendChild(a3);
 
+    // Ergebnis als PDF sichern (js/bg-pdf.js erzeugt die Datei selbst,
+    // siehe dort zur Begruendung: Safari auf dem iPhone ignoriert
+    // window.print(), eine PDF-Bibliothek waere unnoetig schwer).
+    var aPdf = document.createElement('button');
+    aPdf.type = 'button';
+    aPdf.className = 'bg-btn-outline bg-btn-pdf';
+    aPdf.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Als PDF speichern';
+    aPdf.addEventListener('click', bgAlsPdf);
+    btnRow.appendChild(aPdf);
+
     // LBO-Quelle
     document.getElementById('bg-source').innerHTML =
       '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Quelle: <strong>' + lboData.gesetz + '</strong> · ' +
       '<a href="'+lboData.gesetzLink+'" target="_blank" rel="noopener">Volltext Landesrecht</a> · ' +
-      'Stand: 2025/2026 · Ohne Gewähr';
+      (lboData.geprueft
+        ? 'am Gesetzestext geprüft ' + lboData.geprueft
+        : 'Übersichtsangabe ohne Einzelprüfung – bitte beim Bauamt bestätigen lassen') +
+      ' · Ohne Gewähr';
 
     // Produkt-Heading
     document.getElementById('bg-products-heading').textContent =
@@ -770,8 +861,8 @@ extraScripts: |
       var ctaText = document.getElementById('bg-cta-text');
       if (ctaText) {
         ctaText.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;vertical-align:-2px;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:#2a9d4e;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Gute Nachricht für ' + (county || bundesland) + ':</strong> ' +
-          'Terrassenüberdachungen bis 50 m² und Carports bis 50 m² sind nach LBO RLP §62 <em style="color:#1a6e1a">GENEHMIGUNGSFREI</em>. ' +
-          'Bereit für den nächsten Schritt?';
+          'Unbeheizte Terrassenüberdachungen bis 50 m³ umbautem Raum und Carports bis 50 m² Grundfläche sind nach § 62 LBauO RLP in der Regel ' +
+          '<em style="color:#1a6e1a">genehmigungsfrei</em>. Bereit für den nächsten Schritt?';
       }
     }
 
@@ -883,6 +974,119 @@ extraScripts: |
   }
 
   // ── RESET ─────────────────────────────────────────────────────
+  /* Ergebnis als PDF: Datum setzen und den Druckdialog oeffnen.
+     Das Druck-Layout steckt im @media-print-Block des Stylesheets. */
+  /* Ergebnis als PDF-Datei herunterladen.
+     Erzeugt wird die Datei von js/bg-pdf.js direkt im Browser. Fehlt das
+     Skript (z. B. wenn es nicht geladen werden konnte), bleibt der
+     Druckdialog als Rueckfallebene. */
+  function bgAlsPdf() {
+    var stadt = (document.getElementById('bg-loc-city') || {}).textContent || '';
+    var details = (document.getElementById('bg-loc-details') || {}).textContent || '';
+    var d = new Date();
+    var stand = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+                ' um ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+
+    if (!window.bvBgPdf) { bgDruckenAlsNotloesung(stadt, details, stand); return; }
+
+    function sauber(el) {
+      if (!el) return '';
+      return (el.textContent || '').replace(/\s+/g, ' ').replace(/\s*→/g, '').trim();
+    }
+
+    var behoerde = [];
+    Array.prototype.forEach.call(document.querySelectorAll('#bg-contact-grid .bg-contact-item'), function (item) {
+      var feld = sauber(item.querySelector('.ci-label'));
+      var wert = sauber(item.querySelector('.ci-val'));
+      if (feld && wert) behoerde.push({ feld: feld, wert: wert });
+    });
+
+    var karten = [];
+    Array.prototype.forEach.call(document.querySelectorAll('#bg-produkte-grid .bg-produkt-card'), function (card) {
+      var badge = card.querySelector('.bg-status-badge');
+      var klasse = badge && badge.className.indexOf('badge-green') !== -1 ? 'gruen' :
+                   badge && badge.className.indexOf('badge-red') !== -1 ? 'rot' : 'gelb';
+      karten.push({
+        name: sauber(card.querySelector('.pc-name')),
+        status: klasse,
+        statusText: sauber(badge),
+        bedingung: sauber(card.querySelector('.pc-bedingung')),
+        hinweis: sauber(card.querySelector('.pc-hinweis')),
+        abstand: sauber(card.querySelector('.pc-abstand'))
+      });
+    });
+
+    var fuss = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.bg-print-foot p'), function (p) {
+      if (!p.classList.contains('bg-print-kontakt')) fuss.push(sauber(p));
+    });
+
+    var daten = {
+      titel: 'Baugenehmigungs-Check' + (stadt ? ' – ' + stadt : ''),
+      standort: [stadt, details].filter(Boolean).join(' · '),
+      erstellt: 'Erstellt am ' + stand + ' über bv-aussensysteme.de/baugenehmigung.html',
+      behoerde: behoerde,
+      quelle: sauber(document.getElementById('bg-source')),
+      ueberschrift: sauber(document.getElementById('bg-products-heading')),
+      karten: karten,
+      hinweis: sauber(document.querySelector('.bg-disclaimer p')),
+      fuss: fuss,
+      kontakt: sauber(document.querySelector('.bg-print-kontakt'))
+    };
+
+    var name = 'Baugenehmigungs-Check' + (stadt ? '-' + stadt : '');
+    name = name.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
+               .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue').replace(/ß/g, 'ss')
+               .replace(/[^A-Za-z0-9\-]+/g, '-').replace(/-+/g, '-').replace(/-$/, '');
+
+    try {
+      window.bvBgPdf.speichern(daten, name + '.pdf');
+    } catch (e) {
+      bgDruckenAlsNotloesung(stadt, details, stand);
+    }
+  }
+
+  /* Rueckfallebene: Browser-Druckdialog mit der Druckansicht der Seite.
+     Der Ergebnisbereich steckt tief verschachtelt
+     (body > #bv-a11y-page-wrap > main > section > .container). Ihn per CSS
+     freizustellen waere fragil - jede Layoutaenderung koennte den Ausdruck
+     leeren. Deshalb wird er fuer den Druck in einen eigenen Container direkt
+     unter <body> verschoben und danach exakt zurueckgesetzt. */
+  function bgDruckenAlsNotloesung(stadt, details, stand) {
+    var el = document.getElementById('bg-print-datum');
+    if (el) el.textContent = stand;
+    var t = document.getElementById('bg-print-standort');
+    if (t) t.textContent = stadt + (details ? ' · ' + details : '');
+
+    var ergebnis = document.getElementById('bg-results');
+    var wurzel = document.getElementById('bv-print-root');
+    if (!ergebnis || !wurzel) { window.print(); return; }
+
+    /* Das Bedienhilfen-Skript haengt nachtraeglich einen Wrapper um den
+       Seiteninhalt - der Druckcontainer landet dabei mit darin. Damit die
+       Regel "body > *:not(#bv-print-root)" ihn nicht mit ausblendet, wird er
+       vor dem Druck direkt unter <body> gehaengt. */
+    if (wurzel.parentNode !== document.body) document.body.appendChild(wurzel);
+
+    var platz = document.createElement('div');
+    ergebnis.parentNode.insertBefore(platz, ergebnis);
+    wurzel.appendChild(ergebnis);
+    document.body.classList.add('bv-druckt');
+
+    var zurueck = function () {
+      if (!platz.parentNode) return;
+      document.body.classList.remove('bv-druckt');
+      platz.parentNode.insertBefore(ergebnis, platz);
+      platz.remove();
+      window.removeEventListener('afterprint', zurueck);
+    };
+    window.addEventListener('afterprint', zurueck);
+    // Sicherheitsnetz: manche Browser melden afterprint nicht zuverlaessig
+    setTimeout(zurueck, 3000);
+
+    window.print();
+  }
+
   function bgReset() {
     bgAcGetInput().value = '';
     document.getElementById('bg-results').classList.remove('visible');
@@ -998,7 +1202,7 @@ skipLink: |
     <p class="tag">Standort eingeben</p>
     <h2 id="bg-search-heading" style="margin-bottom:8px">Brauche ich eine Baugenehmigung? – Ihr kostenloser Check</h2>
     <div class="bg-region-hint">
-      <strong style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Im Westerwald & Rheinland-Pfalz</strong> gilt die LBO RLP §62 – hier sind Terrassenüberdachungen bis 50 m² und Carports bis 50 m² <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
+      <strong style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Im Westerwald & Rheinland-Pfalz</strong> gilt § 62 LBauO – hier sind unbeheizte Terrassenüberdachungen bis 50 m³ umbautem Raum und Carports bis 50 m² Grundfläche <em>genehmigungsfrei</em>. Für andere Bundesländer geben Sie einfach Ihre PLZ ein.
     </div>
     <p style="color:var(--muted);margin-bottom:28px;max-width:580px">
       Geben Sie Ihre Postleitzahl oder Ihren Ort ein. Das Tool ermittelt automatisch das zuständige
@@ -1050,6 +1254,16 @@ skipLink: |
     <!-- Results -->
     <div class="bg-results" id="bg-results" aria-live="polite">
 
+      <!-- Nur im Ausdruck/PDF sichtbar -->
+      <div class="bg-print-head" aria-hidden="true">
+        <div class="bg-print-firma">BV AussenSysteme</div>
+        <div class="bg-print-titel">Baugenehmigungs-Check</div>
+        <div class="bg-print-meta">
+          <span id="bg-print-standort"></span><br>
+          Erstellt am <span id="bg-print-datum"></span> über bv-aussensysteme.de/baugenehmigung.html
+        </div>
+      </div>
+
       <!-- Standort-Header -->
       <div class="bg-location-header" id="bg-location-header">
         <div class="lh-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
@@ -1090,6 +1304,22 @@ skipLink: |
           Bauvorschriften können sich ändern und Gemeinden können abweichende Festsetzungen im Bebauungsplan treffen.
           Verbindliche Auskünfte erhalten Sie ausschließlich bei der zuständigen Behörde.
         </p>
+      </div>
+
+      <!-- Nur im Ausdruck/PDF sichtbar: vollstaendiger Rechtshinweis -->
+      <div class="bg-print-foot" aria-hidden="true">
+        <p><strong>Rechtlicher Hinweis – ohne Gewähr.</strong>
+        Dieses Dokument wurde automatisiert erzeugt und dient ausschließlich der
+        unverbindlichen Erstinformation. Es ersetzt weder eine Bauvoranfrage noch eine
+        verbindliche Auskunft der zuständigen Behörde und stellt keine Rechtsberatung dar.</p>
+        <p>Bauvorschriften ändern sich, und Gemeinden können im Bebauungsplan abweichende
+        Festsetzungen treffen, die den hier genannten Regelungen vorgehen. Maßgeblich sind
+        allein die jeweils gültige Landesbauordnung, der örtliche Bebauungsplan und die
+        Auskunft der oben genannten Behörde. Für Richtigkeit, Vollständigkeit und Aktualität
+        wird keine Haftung übernommen.</p>
+        <p class="bg-print-kontakt">BV AussenSysteme · Alexander Becker &amp; Josef Voronin GbR ·
+        Am Driesch 1, 56428 Dernbach (Westerwald) · Telefon 0156 78696609 ·
+        info@bv-aussensysteme.de · bv-aussensysteme.de</p>
       </div>
 
       <!-- CTA (dynamisch) -->
@@ -1176,7 +1406,7 @@ skipLink: |
           <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a">
-          <p>In Rheinland-Pfalz ist eine Terrassenüberdachung bis <strong>50 m² Grundfläche</strong> und bis 4,50 m Wandhöhe nach <strong>LBO RLP §62 Abs. 1 Nr. 1 genehmigungsfrei</strong>, sofern sie eingeschossig ist und an ein bestehendes Wohngebäude angebaut wird. Im Außenbereich (§35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
+          <p>In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis <strong>50 m³ umbautem Raum</strong> nach <strong>§ 62 Abs. 2 Nr. 2 LBauO genehmigungsfrei</strong>, wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche – 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
         </div>
       </div>
 
@@ -1226,7 +1456,7 @@ skipLink: |
           <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a">
-          <p>Ein <strong>unbeheizter Kaltwintergarten</strong> (z. B. mit Glasschiebewänden) ist in Rheinland-Pfalz und vielen anderen Bundesländern bis 50 m² genehmigungsfrei. Sobald er beheizt wird oder Aufenthaltsraumqualität erreicht, entsteht <strong>Genehmigungspflicht</strong>. Im Zweifel immer beim Bauamt nachfragen.</p>
+          <p>Ein <strong>unbeheizter Kaltwintergarten</strong> (z. B. mit Glasschiebewänden) ist in Rheinland-Pfalz bis 50 m³ umbautem Raum genehmigungsfrei (§ 62 Abs. 2 Nr. 2 LBauO); andere Bundesländer haben eigene Grenzwerte, Hessen zum Beispiel 30 m² Grundfläche. Sobald er beheizt wird oder Aufenthaltsraumqualität erreicht, entsteht <strong>Genehmigungspflicht</strong>. Im Zweifel immer beim Bauamt nachfragen.</p>
         </div>
       </div>
 

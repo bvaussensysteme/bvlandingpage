@@ -2240,6 +2240,8 @@ img { max-width: 100%; height: auto; }
 }
 #bvKonfigPanel .aw-head { padding-top: 20px; padding-right: 58px; }
 #bvKonfigPanel .aw-body { min-height: 0; }
+/* Platzhalter haelt waehrenddessen die Luecke im Kontaktbereich */
+[data-bv-platzhalter] { visibility: hidden; }
 /* Home-Indicator auf iPhones nicht überdecken */
 #bvKonfigPanel .aw-nav { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 
@@ -2288,13 +2290,6 @@ body.bv-konfig-open #bvKonfigBubble {
   #bvKonfigPanel, #bvKonfigOverlay, #bvKonfigBubble { transition: none; }
 }
 
-/* Kurzes Hervorheben, wenn der Button auf der Startseite zum
-   bereits eingebauten Assistenten scrollt */
-.anfrage-wizard--pulse { animation: bvKonfigPulse 1.8s ease; }
-@keyframes bvKonfigPulse {
-  0%, 100% { box-shadow: var(--shadow); }
-  25%, 75% { box-shadow: 0 0 0 4px rgba(196,154,42,.55); }
-}
 
 /* ============================================
    ANFRAGE-ASSISTENT (geführtes Kundenleitsystem)
