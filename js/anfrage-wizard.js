@@ -636,7 +636,7 @@
       sub: 'Damit wir Ihnen Ihr persönliches Angebot zusenden können',
       render: function () {
         return '<div class="aw-contact">' +
-          '<div class="aw-field"><label id="k_anrede_lbl">Anrede (optional)</label>' +
+          '<div class="aw-field"><label id="k_anrede_lbl">Anrede *</label>' +
             '<div class="aw-pills" role="group" aria-labelledby="k_anrede_lbl">' +
             ANREDE_OPTS.map(function (a) { return pill('k_anrede', a); }).join('') +
             '</div></div>' +
@@ -670,6 +670,7 @@
         this.collect();
         var vorname = answers.k_vorname.trim(), nachname = answers.k_nachname.trim();
         var email = answers.k_email.trim();
+        if (!answers.k_anrede) return 'Bitte wählen Sie eine Anrede.';
         if (!vorname) return 'Bitte geben Sie Ihren Vornamen an.';
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
         // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
