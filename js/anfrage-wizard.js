@@ -44,12 +44,15 @@
     var v = normName(vor), n = normName(nach);
     var full = (v + (n ? ' ' + n : '')).trim();
     if (FAKE_FULL_NAMES.indexOf(full) > -1) return true;
-    if (FAKE_NAME_TOKENS.indexOf(v) > -1) return true;
+    if (v && FAKE_NAME_TOKENS.indexOf(v) > -1) return true;
     if (n && FAKE_NAME_TOKENS.indexOf(n) > -1) return true;
-    var vj = v.replace(/\s/g, '');
-    if (/^(.)\1{3,}$/.test(vj)) return true;                 // aaaa, xxxx (4+ gleiche)
-    if (KEYBOARD_ROWS.indexOf(vj) > -1) return true;          // ganze Tastaturreihe
-    return false;
+    // Zeichenmuster in beiden Feldern pruefen – der Nachname ist das Pflichtfeld
+    return [v, n].some(function (teil) {
+      var t = teil.replace(/\s/g, '');
+      if (!t) return false;
+      if (/^(.)\1{3,}$/.test(t)) return true;                // aaaa, xxxx (4+ gleiche)
+      return KEYBOARD_ROWS.indexOf(t) > -1;                   // ganze Tastaturreihe
+    });
   }
   function looksFakeEmail(email) {
     var m = normName(email).replace(/\s/g, '');
@@ -641,8 +644,8 @@
             ANREDE_OPTS.map(function (a) { return pill('k_anrede', a); }).join('') +
             '</div></div>' +
           '<div class="aw-row">' +
-          txtField('k_vorname', 'Vorname *', answers.k_vorname, 'Max', 'given-name') +
-          txtField('k_nachname', 'Nachname', answers.k_nachname, 'Mustermann', 'family-name') +
+          txtField('k_vorname', 'Vorname', answers.k_vorname, 'Max', 'given-name') +
+          txtField('k_nachname', 'Nachname *', answers.k_nachname, 'Mustermann', 'family-name') +
           '</div>' +
           txtField('k_email', 'E-Mail *', answers.k_email, 'max@beispiel.de', 'email', 'email') +
           txtField('k_telefon', 'Telefon / WhatsApp', answers.k_telefon, '0156 …', 'tel', 'tel') +
@@ -671,7 +674,7 @@
         var vorname = answers.k_vorname.trim(), nachname = answers.k_nachname.trim();
         var email = answers.k_email.trim();
         if (!answers.k_anrede) return 'Bitte wählen Sie eine Anrede.';
-        if (!vorname) return 'Bitte geben Sie Ihren Vornamen an.';
+        if (!nachname) return 'Bitte geben Sie Ihren Nachnamen an.';
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
         // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
         if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein – so können wir Sie persönlich ansprechen.';
