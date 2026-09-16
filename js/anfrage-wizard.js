@@ -15,6 +15,7 @@
   var ASSET_VER = '20260715a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* „Wie sind Sie auf uns aufmerksam geworden?" – optionale Herkunftsfrage */
+  var ANREDE_OPTS = ['Frau', 'Herr', 'Divers'];
   var QUELLE_OPTS = ['Empfehlung', 'Google', 'Website', 'Social Media', 'Messe',
     'Fahrzeugwerbung', 'Zeitung/Anzeige', 'Bestandskunde', 'Sonstiges'];
 
@@ -635,6 +636,10 @@
       sub: 'Damit wir Ihnen Ihr persönliches Angebot zusenden können',
       render: function () {
         return '<div class="aw-contact">' +
+          '<div class="aw-field"><label id="k_anrede_lbl">Anrede (optional)</label>' +
+            '<div class="aw-pills" role="group" aria-labelledby="k_anrede_lbl">' +
+            ANREDE_OPTS.map(function (a) { return pill('k_anrede', a); }).join('') +
+            '</div></div>' +
           '<div class="aw-row">' +
           txtField('k_vorname', 'Vorname *', answers.k_vorname, 'Max', 'given-name') +
           txtField('k_nachname', 'Nachname', answers.k_nachname, 'Mustermann', 'family-name') +
@@ -800,6 +805,7 @@
     if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
+    if (answers.k_anrede) p.push(['Anrede', answers.k_anrede]);
     if (name) p.push(['Name', name]);
     if (answers.k_email) p.push(['E-Mail', answers.k_email]);
     if (answers.k_telefon) p.push(['Telefon', answers.k_telefon]);
@@ -1013,6 +1019,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
+          anrede: answers.k_anrede || '',
           name: name,
           email: answers.k_email || '',
           telefon: answers.k_telefon || '',
