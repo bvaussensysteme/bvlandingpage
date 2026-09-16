@@ -127,10 +127,22 @@
      aktuelle Scrollposition nach oben versetzt, sodass optisch nichts springt.
      Beim Schliessen wird beides zurueckgenommen. */
   var scrollStand = 0;
+  var gesperrt = false;
+
+  // Nur das Sheet auf dem Handy haelt die Seite fest. Auf dem Desktop schwebt
+  // das Fenster und die Seite dahinter darf wie bisher scrollen.
+  function istSheet() {
+    return !window.matchMedia || window.matchMedia(MOBILE).matches;
+  }
 
   function seiteSperren() {
-    scrollStand = window.pageYOffset || document.documentElement.scrollTop || 0;
-    document.body.style.top = (-scrollStand) + 'px';
+    // Die Klasse blendet auch die uebrigen Schwebe-Buttons aus, sie wird
+    // deshalb immer gesetzt - unabhaengig vom Festhalten der Seite.
+    gesperrt = istSheet();
+    if (gesperrt) {
+      scrollStand = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.top = (-scrollStand) + 'px';
+    }
     document.body.classList.add('bv-konfig-open');
   }
 
@@ -138,6 +150,8 @@
     if (!document.body.classList.contains('bv-konfig-open')) return;
     document.body.classList.remove('bv-konfig-open');
     document.body.style.top = '';
+    if (!gesperrt) return;   // Desktop: nichts zurueckzusetzen
+    gesperrt = false;
     // Ohne 'auto' wuerde das globale scroll-behavior: smooth die Rueckkehr
     // sichtbar animieren.
     var wurzel = document.documentElement;
