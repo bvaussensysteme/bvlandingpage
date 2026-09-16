@@ -15,6 +15,7 @@
   var ASSET_VER = '20260715a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* „Wie sind Sie auf uns aufmerksam geworden?" – optionale Herkunftsfrage */
+  var ANREDE_OPTS = ['Frau', 'Herr', 'Divers'];
   var QUELLE_OPTS = ['Empfehlung', 'Google', 'Website', 'Social Media', 'Messe',
     'Fahrzeugwerbung', 'Zeitung/Anzeige', 'Bestandskunde', 'Sonstiges'];
 
@@ -635,6 +636,10 @@
       sub: 'Damit wir Ihnen Ihr persönliches Angebot zusenden können',
       render: function () {
         return '<div class="aw-contact">' +
+          '<div class="aw-field"><label id="k_anrede_lbl">Anrede (optional)</label>' +
+            '<div class="aw-pills" role="group" aria-labelledby="k_anrede_lbl">' +
+            ANREDE_OPTS.map(function (a) { return pill('k_anrede', a); }).join('') +
+            '</div></div>' +
           '<div class="aw-row">' +
           txtField('k_vorname', 'Vorname *', answers.k_vorname, 'Max', 'given-name') +
           txtField('k_nachname', 'Nachname', answers.k_nachname, 'Mustermann', 'family-name') +
@@ -642,8 +647,8 @@
           txtField('k_email', 'E-Mail *', answers.k_email, 'max@beispiel.de', 'email', 'email') +
           txtField('k_telefon', 'Telefon / WhatsApp', answers.k_telefon, '0156 …', 'tel', 'tel') +
           '<div class="aw-row">' +
-          txtField('k_plz', 'PLZ (optional)', answers.k_plz, 'z. B. 56410', 'text', 'postal-code') +
-          txtField('k_ort', 'Ort (optional)', answers.k_ort, 'z. B. Montabaur', 'text', 'address-level2') +
+          txtField('k_plz', 'PLZ *', answers.k_plz, 'z. B. 56410', 'text', 'postal-code', 'inputmode="numeric" maxlength="5"') +
+          txtField('k_ort', 'Ort *', answers.k_ort, 'z. B. Montabaur', 'text', 'address-level2') +
           '</div>' +
           selectField('k_quelle', 'Wie sind Sie auf uns aufmerksam geworden? (optional)', answers.k_quelle, QUELLE_OPTS) +
           '<label class="aw-consent"><input type="checkbox" id="k_consent"' + (answers.k_consent ? ' checked' : '') + '> ' +
@@ -670,6 +675,12 @@
         // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
         if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein – so können wir Sie persönlich ansprechen.';
         if (looksFakeEmail(email)) return 'Diese E-Mail-Adresse sieht nicht gültig aus. Bitte geben Sie eine Adresse an, unter der wir Sie erreichen können.';
+        // Standort ist Pflicht: ohne ihn koennen wir weder Aufmass-Termin noch
+        // Anfahrt einschaetzen und auch die Lastzonen nicht bestimmen.
+        var plz = answers.k_plz.trim();
+        if (!plz) return 'Bitte geben Sie Ihre PLZ an – wir brauchen sie für Aufmaß und Anfahrt.';
+        if (!/^[0-9]{5}$/.test(plz)) return 'Bitte geben Sie eine gültige PLZ mit fünf Ziffern an.';
+        if (!answers.k_ort.trim()) return 'Bitte geben Sie Ihren Ort an.';
         if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
         return null;
       }
@@ -735,9 +746,9 @@
     return '<div class="aw-dim"><label for="aw_' + id + '">' + label + '</label>' +
       '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>' + (unit || 'mm') + '</span></div></div>';
   }
-  function txtField(id, label, v, ph, type, ac) {
+  function txtField(id, label, v, ph, type, ac, extra) {
     return '<div class="aw-field"><label for="' + id + '">' + label + '</label>' +
-      '<input type="' + (type || 'text') + '" id="' + id + '" value="' + esc(v || '') + '" placeholder="' + ph + '"' + (ac ? ' autocomplete="' + ac + '"' : '') + '></div>';
+      '<input type="' + (type || 'text') + '" id="' + id + '" value="' + esc(v || '') + '" placeholder="' + ph + '"' + (ac ? ' autocomplete="' + ac + '"' : '') + (extra ? ' ' + extra : '') + '></div>';
   }
   function selectField(id, label, v, opts) {
     var o = '<option value=""' + (v ? '' : ' selected') + '>Bitte wählen …</option>';
@@ -800,6 +811,7 @@
     if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
+    if (answers.k_anrede) p.push(['Anrede', answers.k_anrede]);
     if (name) p.push(['Name', name]);
     if (answers.k_email) p.push(['E-Mail', answers.k_email]);
     if (answers.k_telefon) p.push(['Telefon', answers.k_telefon]);
@@ -1013,6 +1025,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
+          anrede: answers.k_anrede || '',
           name: name,
           email: answers.k_email || '',
           telefon: answers.k_telefon || '',
