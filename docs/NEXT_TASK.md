@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026 · zuletzt bearbeitet: Carport und SkyView im 3D-Konfigurator
+> Stand: 10.10.2026 · zuletzt bearbeitet: Konfigurator als Vollbild-Anwendung
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -21,9 +21,16 @@ Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView, Carport**
 (TDS, Flat Line, Flat Box) und **Pergola / Lamellendach** (Lamellendach mit
 drehbaren Lamellen, Faltdach, Velaris).
 
-Offen bleibt nur noch Zubehör: Markise, Verkleidung, Terrassenboden. Das
-wären eigene Produkte, keine Erweiterung der vorhandenen – der
-Anfrage-Assistent führt sie unter „Sonstiges“.
+Seit dem Umbau auf das Vollbild-Layout (10.10.2026) dazu: **Sonnenschutz**
+(Aufdach, Unterdach, Senkrechtmarkisen mit Ausfahr-Regler), **Seitenelemente
+als einzelne Schiebeflügel** mit Öffnen-Regler, **Carport-Verkleidung** aus
+Sichtschutzpaneelen, **Terrassenboden**, **zuschaltbare Maßlinien**,
+Vollbild, Ansicht „Darunter“, Zahlenfeld neben jedem Regler.
+
+Bewusst **nicht** gebaut (Begründung in `docs/entscheidungen.md`, 10.10.2026):
+Richtpreis, Markisenstoff-Kollektionen, Plissee, Zaunpaneele, Holzdekore –
+für die Stoff- und Dekornamen fehlt uns die Grundlage. Wenn der Betreiber sie
+liefert, ist der Rahmen dafür da.
 
 **Wenn ein Produkt dazukommt:** Zweig in `bauen()`, Eintrag in `MASSE` und im
 Auswahlfeld `k3dProdukt`, Bedienfelder mit `data-k3d-fuer` kennzeichnen und
@@ -121,6 +128,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
 | `scripts/pruefe-konfigurator.js` | Kennt der Anfrage-Assistent jeden Wert, den der 3D-Konfigurator übergibt? |
+| `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |

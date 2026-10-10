@@ -44,14 +44,27 @@ function wizardWerte(quelle) {
 }
 
 // <option value="…"> eines Auswahlfeldes der Seite
+/* Auswahlwerte eines Bedienelements. Produkt, Aufbau, Eindeckung und Boden
+   stehen seit dem Umbau auf das Vollbild-Layout als Knopfreihe im HTML
+   (versteckes Feld + <button data-wert>), die übrigen weiterhin als
+   Auswahlfeld. Beide Formen werden hier gelesen – sonst prüft das Skript
+   nach einem Umbau stillschweigend nichts mehr. */
 function optionen(html, id) {
-  const block = new RegExp('<select id="' + id + '"[^>]*>([\\s\\S]*?)</select>').exec(html);
-  if (!block) return null;
+  const feld = new RegExp('<select id="' + id + '"[^>]*>([\\s\\S]*?)</select>').exec(html);
+  if (feld) {
+    const werte = [];
+    const re = /<option value="([^"]*)"/g;
+    let m;
+    while ((m = re.exec(feld[1]))) werte.push(m[1]);
+    return werte;
+  }
+  const reihe = new RegExp('data-k3d-seg="' + id + '"[^>]*>([\\s\\S]*?)</div>').exec(html);
+  if (!reihe) return null;
   const werte = [];
-  const re = /<option value="([^"]*)"/g;
-  let m;
-  while ((m = re.exec(block[1]))) werte.push(m[1]);
-  return werte;
+  const re2 = /data-wert="([^"]*)"/g;
+  let m2;
+  while ((m2 = re2.exec(reihe[1]))) werte.push(m2[1]);
+  return werte.length ? werte : null;
 }
 
 // Rechte Seite einer Zuordnung im Konfigurator-Skript, z. B. VORGABE_VERGLASUNG
