@@ -288,3 +288,63 @@ alle – vierzehn von vierzehn eingebauten Fehlern. Der Browsertest prüft
 zusätzlich das Verhalten: Keil wird mitgewählt, Stirnseite bietet keinen an,
 Keil fällt beim Wechsel zum Flachdach weg, die Schiebetür bleibt stehen.
 58 Prüfungen.
+
+## 10.10.2026 – TDS nach den echten Profilen modelliert
+
+**Anlass.** „jz arbeiten wir das modell tds nochmal besser aus das es fast wie
+real aussieht“. Dazu vom Betreiber: zwei Querschnittszeichnungen (Regenrinne
+und Dachsparren) und die VD-Montageanleitung als PDF.
+
+**Was aus den Zeichnungen kommt (BELEGT).**
+
+| Bauteil | Maß |
+|---|---|
+| Regenrinne 2 TD | 186,3 mm breit, 136,7 mm hoch, innen 130 × 82,2 mm |
+| Dachsparren (Träger TD) | 61 mm breit, 120 mm hoch, davon 96,7 mm Hauptkörper, darüber der schmale Steg für die Eindeckung |
+| Pfosten | 110 × 110 mm (deckt sich mit der Einzelteileliste) |
+
+**Was aus der Montageanleitung kommt (BELEGT).**
+
+* Sparrenraster: *(Dachbreite − 60 mm) ÷ Anzahl der Felder* = Abstand Mitte zu
+  Mitte (S. 33). Damit liegen die äußeren Sparrenachsen 30 mm vom Rand – die
+  bisherige Annahme „Randsparren außen bündig“ ist damit erledigt.
+* Breite der Eindeckung = *Abstand zwischen den Trägern + 40 mm* (S. 9). Die
+  Scheibe liegt also beidseitig 20 mm auf dem Sparren auf. Vorher war sie
+  schmaler als der lichte Abstand und lag damit auf nichts.
+* LED-Spots: Bohrungen **44 mm** in den Sparren (S. 17). Der Spot im Modell
+  war mit 56–68 mm zu groß geraten.
+* Pfostenmitte 55 mm hinter der Vorderkante (S. 25) – bestätigt die vorhandene
+  Angabe, gilt jetzt auch in der geschätzten Zeichnung.
+* Auf jedem Sparren sitzt nach dem Verlegen ein Abdeckprofil („Rundleiste“,
+  außen „Seitenabdeckleiste“, S. 34/35). Dass es da ist, ist belegt; Breite und
+  Höhe nicht – 50 × 12 mm halbrund sind GESCHÄTZT.
+
+**Zwei Fehler, die dabei auffielen.**
+
+1. **Die Rinne saß um ihre eigene Breite zu weit innen.** Vom Betreiber im Bild
+   bemerkt. Ursache: Das Profil entsteht in der XY-Ebene und wird in z gezogen;
+   bei einer Drehung um +90° wandert die Querschnittsbreite in −z, und die
+   gerundete Vorderkante zeigt nach hinten. Mit −90° stimmt beides.
+2. **Anthrazit sah aus wie Mittelgrau.** Der Renderer gibt in sRGB aus, rechnet
+   aber linear, und three.js r128 wandelt Materialfarben nicht automatisch um.
+   Jede Oberflächenfarbe läuft jetzt durch `rgb()` (sRGB → linear); gezeichnete
+   Farbtexturen bekommen `encoding = sRGBEncoding`. Erst dadurch sieht RAL 7016
+   aus wie RAL 7016.
+
+**Weiter gebaut:** Umgebung für Spiegelungen (ein gezeichneter Verlauf, kein
+HDRI von einem Fremdserver – kein neuer Drittanbieter), Pulverbeschichtung als
+Lack statt als blankes Metall, Schattenauflösung 2048, Sparren enden an der
+Rinnenrückwand und die Eindeckung reicht in die Kehle.
+
+**Nur für TDS.** SkyView ist ein anderes System; dafür liegt keine Zeichnung
+vor und die geschätzten Kästen bleiben stehen, im Code so benannt.
+
+**Noch offen (weitere Querschnitte willkommen):** Wandanschlussprofil,
+Pfostenfuß/U-Profil, Seitenglasleiste, Abdeckleiste. Die Maße stehen gebündelt
+in `js/konfigurator-3d.js` in den Tabellen `RINNE` und `SPARREN` – eine neue
+Zeichnung ist dort in wenigen Zeilen nachgetragen.
+
+**Nicht geprüft:** Dieser Stand ist **nicht** durch den Browsertest gelaufen –
+der Betreiber prüft selbst im Browser. Die statischen Prüfungen
+(`pruefe-konfigurator.js` mit Gegenprobe, `pruefe-keine-preise.sh`,
+`pruefe-cache-buster.sh`) sind bestanden.
