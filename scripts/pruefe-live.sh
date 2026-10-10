@@ -28,6 +28,10 @@ MARKER='
 /datenschutz.html|Vertragsabwicklung, Angebote und Anfragen|Abschnitt Vertragsabwicklung
 /ratgeber/terrassenueberdachung-kosten.html|stammen nicht von uns|Preis-Klarstellung
 /js/anfrage-wizard.js|Telefon / WhatsApp \*|Telefon ist Pflichtfeld
+/konfigurator.html|k3d-app-seite|Konfigurator im Vollbild-Layout
+/js/konfigurator-3d.js|bauenTerrasseGeschaetzt|Terrassendach wird als Terrassendach gezeichnet
+/js/konfigurator-3d.js|function sonnenschutz|Sonnenschutz im Konfigurator
+/js/anfrage-wizard.js|Aus dem 3D-Konfigurator|Notiz des Konfigurators geht in die Anfrage
 '
 
 holen() { curl -sL --max-time 25 "$1"; }
