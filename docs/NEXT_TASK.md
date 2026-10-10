@@ -42,6 +42,60 @@ dachausfuehrung, seitenschutz) – `scripts/pruefe-konfigurator.js` prüft das.
 Danach `scripts/pruefe-cache-buster.sh`: die Versionsnummer muss in allen
 HTML-Dateien hochgezogen werden.
 
+### Aufgabe A2 — Konfigurator auf die echten Herstellerdaten stellen *(blockiert)*
+
+**Erst klären, dann weiterbauen.** Die Datenschicht ist fertig und geprüft,
+die Oberfläche steht – aber die Zahlen dürfen so nicht auf die Website.
+
+#### Warum es blockiert ist
+
+`bv-crm/docs/konfigurator-daten/README.md` (privat) sagt ausdrücklich: Die
+Matrix ist eine systematische Übernahme aus den VD-Preislisten, daran besteht
+ein **Datenbankherstellerrecht (§§ 87a ff. UrhG)**. Vor einer
+Veröffentlichung – auch in einem öffentlichen Repository oder in einem
+öffentlich erreichbaren Konfigurator – **gehört die Zustimmung von VD
+eingeholt**. Ausdrücklich erlaubt ist dagegen ein Konfigurator, der nur
+**Ergebnisse** zeigt, ohne die Matrix mitzuliefern.
+
+`bvlandingpage` ist ein **öffentliches** Repository. Die Daten lagen am
+10.10.2026 vorübergehend in zwei Commits dieses Branches und wurden wieder
+entfernt (siehe Bericht). `daten/` und `js/dachmatrix-daten.js` stehen jetzt
+in `.gitignore` und `.assetsignore`.
+
+#### Was fertig ist
+
+| Datei | Rolle |
+|---|---|
+| `js/bauteile.js` | `bauteile(system, material, breite, tiefe, optionen)` → Sparren, Pfosten, Statikträger, geteilte Eindeckung, Rasterhinweise, Farben je System. **Enthält selbst keine Herstellerdaten.** Ohne Matrix liefert es `fehler` – der Konfigurator zeigt dann die geschätzte Skizze |
+| `scripts/baue-dachmatrix.js` | erzeugt `js/dachmatrix-daten.js` aus `daten/dachmatrix.json` |
+| `scripts/pruefe-bauteile.js` | rechnet jede der 2.240 CSV-Zeilen und die belegten Einzelregeln nach |
+| `js/konfigurator-3d.js`, `konfigurator.html` | Rasterauswahl, Neigungsfeld nur bei TDS, Farben je System, Block „Was daraus folgt" samt Hinweisen |
+
+#### Zum Arbeiten
+
+```bash
+mkdir -p daten && cp /pfad/zu/bv-crm/docs/konfigurator-daten/* daten/
+node scripts/baue-dachmatrix.js      # erzeugt js/dachmatrix-daten.js
+node scripts/pruefe-bauteile.js      # muss bestehen
+```
+Beide Ziele sind in `.gitignore` – sie können nicht versehentlich mitgehen.
+Für den Browser fehlt dann noch das Skript-Tag in `konfigurator.html`; es
+wurde bewusst entfernt.
+
+#### Drei Wege, die zur Entscheidung anstehen
+
+1. **Rechnen auf dem Server.** Ein Worker-Endpunkt (`/api/bauteile`) liefert
+   je Anfrage nur das Ergebnis einer Zelle. Die Matrix bleibt auf dem Server.
+   Deckt sich mit dem, was die Quelle ausdrücklich erlaubt. Aufwand: der
+   Worker existiert bereits für `/api/kontakt`.
+2. **Zustimmung von VD einholen** und die Matrix ausliefern. Dann bleibt
+   alles wie gebaut.
+3. **Ohne Herstellerzahlen weitermachen** – der Konfigurator bleibt die
+   geschätzte Skizze, die er vorher war.
+
+Bis dahin läuft der Konfigurator in der geschätzten Fassung weiter; es fehlt
+nichts, was vorher da war.
+
 ### Aufgabe B — Baugenehmigungs-Check: weitere Bundesländer prüfen
 
 13 der 16 Länder sind **Übersichtsangaben ohne Prüfung am Gesetzestext**.
@@ -89,9 +143,10 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
 | `scripts/pruefe-konfigurator.js` | Kennt der Anfrage-Assistent jeden Wert, den der 3D-Konfigurator übergibt? |
+| `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 
-Alle sechs mit Gegenprobe am 10.10.2026 geprüft: bestanden.
+Alle sieben mit Gegenprobe am 10.10.2026 geprüft: bestanden.
 
 ---
 
@@ -178,6 +233,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 10.10.2026 | Datenschicht für den Konfigurator: echte Maß- und Stückzahlen aus den VD-Preislisten | **nur Daten, Oberfläche noch nicht angeschlossen** |
 | 10.10.2026 | 3D-Konfigurator: Carport (TDS, Flat Line, Flat Box) und Flachdach SkyView; Übergabewerte an den Assistenten korrigiert | **in Arbeit** |
 | 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | live |
 | 10.10.2026 | 3D-Konfigurator Terrassendach TDS | **live** |

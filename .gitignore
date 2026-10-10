@@ -3,3 +3,14 @@ node_modules/
 
 # Eleventy build tooling
 node_modules/
+
+# ---------------------------------------------------------------
+# Herstellerdaten (VD-Preislisten) gehoeren NICHT in dieses Repo.
+# bvlandingpage ist OEFFENTLICH. Die Sparren- und Stuetzfussmatrix
+# ist eine systematische Uebernahme aus den Preislisten des
+# Herstellers; daran besteht ein Datenbankherstellerrecht
+# (§§ 87a ff. UrhG). Quelle und Begruendung:
+# bv-crm (privat), docs/konfigurator-daten/README.md
+# ---------------------------------------------------------------
+daten/
+js/dachmatrix-daten.js

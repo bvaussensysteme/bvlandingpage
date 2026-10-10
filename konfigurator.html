@@ -210,6 +210,16 @@
     .k3d-schalter input { width: 18px; height: 18px; accent-color: var(--gold-dark); }
 
     .k3d-zus { background: var(--light-bg); border-radius: 10px; padding: 14px 16px; margin: 18px 0 14px; }
+    .k3d-zus--folgt { background: #fbf7ec; border: 1px solid rgba(196,154,42,0.25); }
+    .k3d-mini { font-size: .74rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
+    .k3d-folgt li { display: flex; gap: 8px; align-items: baseline; }
+    .k3d-folgt li span { min-width: 108px; color: var(--muted); font-size: .78rem; }
+    .k3d-hinweise { list-style: none; padding: 0; margin: 10px 0 0; }
+    .k3d-hin {
+      font-size: .74rem; line-height: 1.45; color: var(--muted);
+      border-left: 3px solid rgba(196,154,42,0.5); padding: 4px 0 4px 9px; margin-top: 7px;
+    }
+    .k3d-hin--statik, .k3d-hin--grenze { border-left-color: #b4532a; color: #6d3a22; }
     .k3d-zus h2 {
       font-size: .78rem; letter-spacing: 1px; text-transform: uppercase;
       color: var(--gold-dark); margin: 0 0 8px;
@@ -442,12 +452,23 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-fuer="raster">
+          <label class="k3d-label" for="k3dBreiteR">Breite</label>
+          <select id="k3dBreiteR" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="raster">
+          <label class="k3d-label" for="k3dTiefeR">Tiefe</label>
+          <select id="k3dTiefeR" class="k3d-select"></select>
+          <p class="k3d-mini">Nur diese Maße gibt es beim Hersteller – Zwischenmaße werden nicht gebaut.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="frei" hidden>
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
           <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-fuer="frei" hidden>
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
         </div>
@@ -455,6 +476,12 @@
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
           <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="neigung">
+          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
+          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
+          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="cp-ueberstand" hidden>
@@ -486,7 +513,7 @@
             <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu</span></button>
-            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" data-k3d-fuer="ohne-flatline" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß</span></button>
           </div>
         </div>
 
@@ -529,6 +556,16 @@
           </select>
         </div>
 
+        <div class="k3d-zus k3d-zus--folgt">
+          <h2>Was daraus folgt</h2>
+          <ul id="k3dFolgt" class="k3d-folgt"></ul>
+          <ul id="k3dHinweise" class="k3d-hinweise"></ul>
+          <p class="k3d-mini" data-k3d-fuer="geschaetzt" hidden>
+            Für dieses Produkt liegen uns noch keine Herstellerzahlen vor –
+            Sparren, Pfosten und Profilmaße sind hier geschätzt.
+          </p>
+        </div>
+
         <div class="k3d-zus">
           <h2>Ihre Konfiguration</h2>
           <ul id="k3dZusammenfassung"></ul>
@@ -538,7 +575,9 @@
           Konfiguration anfragen →
         </button>
         <p class="k3d-fuss">
-          Die Darstellung ist eine maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
+          Maße, Sparren- und Pfostenzahlen stammen aus den Herstellerunterlagen.
+          Die Profilquerschnitte im Bild sind noch geschätzt – die Darstellung ist
+          eine maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
           Das verbindliche Angebot erstellen wir nach dem kostenlosen Aufmaß vor Ort.
         </p>
 
@@ -641,13 +680,14 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261010j" defer></script>
+<script src="js/bauteile.js?v=20261010k" defer></script>
+<script src="js/konfigurator-3d.js?v=20261010k" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261010j" defer></script>
+<script src="js/anfrage-wizard.js?v=20261010k" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
