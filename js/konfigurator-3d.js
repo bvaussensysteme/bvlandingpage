@@ -1197,6 +1197,10 @@
      Element darunter entsprechend kürzer – nicht der Keil schmaler. */
   var KEIL_MIN_VORNE = 15;    // cm, BELEGT durch den Betreiber
 
+  /* Je angefangene 1,5 m Tiefe bekommt der Keil eine Unterteilung: bei
+     3 m also eine, bei 4,5 m zwei. Angabe des Betreibers. */
+  var KEIL_FELD_MAX = 150;    // cm, BELEGT durch den Betreiber
+
   function fluegelAnzahl(laenge) {
     return Math.max(2, Math.round(laenge / FLUEGEL_BREITE));
   }
@@ -1226,7 +1230,7 @@
     return new THREE.Mesh(g, material);
   }
 
-  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk) {
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne) {
     var mGlas = seitenglas();
     var rahmen = alu();
     var offen = Z.glasOffen / 100;
@@ -1309,7 +1313,13 @@
          an die Wand, freistehend bis an den hinteren Pfosten (Angabe des
          Betreibers). Das Element darunter endet dagegen zwischen den
          Pfosten – Keil und Element sind deshalb nicht gleich lang. */
-      var zVorneK = mitte + laenge / 2;
+      /* Vorne endet der Keil an der DACHVORDERKANTE, nicht am Ende des
+         Seitenelements: Davor sitzt die Rinne, dort ist kein Dach mehr,
+         an das er anschließen könnte. Vorher ragte er darüber hinaus und
+         stand frei in der Luft – vom Betreiber bemerkt („was gucken da
+         für Stangen raus"). */
+      var zVorneK = Math.min(mitte + laenge / 2,
+                             dachVorne != null ? dachVorne : mitte + laenge / 2);
       var zHintenK = (Z.aufbau === 'Freistehend') ? PROFIL : 0;
       var keilLaenge = zVorneK - zHintenK;
       var keilMitte = (zVorneK + zHintenK) / 2;
@@ -1380,10 +1390,18 @@
              beanstandet. Rahmenbreite 40 mm GESCHÄTZT. */
           var rb = 4;
           platte(rahmen, keilLaenge, rb, achse, keilMitte, yKeil + rb / 2, quer, 0, rb);
-          [[zHintenK + rb / 2, hH], [zVorneK - rb / 2, hV]].forEach(function (pf) {
-            if (pf[1] < 1) return;
-            var sr = new THREE.Mesh(new THREE.BoxGeometry(rb, pf[1], rb), rahmen);
-            sr.position.set(achse, yKeil + pf[1] / 2, pf[0]);
+          /* Stirnseiten und Unterteilungen: je angefangene 1,5 m Tiefe
+             ein Pfosten im Keil (KEIL_FELD_MAX). */
+          var felderK = Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX));
+          var stiele = [zHintenK + rb / 2, zVorneK - rb / 2];
+          for (var fk = 1; fk < felderK; fk++) {
+            stiele.push(zHintenK + (keilLaenge / felderK) * fk);
+          }
+          stiele.forEach(function (zs) {
+            var hs = Math.max(0, dachUk(zs) - yKeil);
+            if (hs < 1) return;
+            var sr = new THREE.Mesh(new THREE.BoxGeometry(rb, hs, rb), rahmen);
+            sr.position.set(achse, yKeil + hs / 2, zs);
             sr.castShadow = true;
             bau.add(sr);
           });
@@ -1921,7 +1939,7 @@
        Dachsystem – deshalb auch freistehend. */
     seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
-    });
+    }, dachTiefe);
     sonnenschutz(B, T, hVorn, neig, PF);
 
     if (Z.led) {
