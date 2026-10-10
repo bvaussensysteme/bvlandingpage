@@ -15,3 +15,6 @@ node_modules/
 daten/
 js/dachmatrix-daten.js
 js/dachmatrix-daten.json
+
+# Bilder aus scripts/pruefe-konfigurator-oberflaeche.mjs
+pruefbilder/

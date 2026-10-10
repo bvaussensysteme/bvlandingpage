@@ -29,7 +29,7 @@
    ============================================================ */
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, mkdirSync } from 'node:fs';
 
 const GEGENPROBE = process.argv.includes('--gegenprobe');
 const PORT = 8783 + (GEGENPROBE ? 1 : 0);
@@ -42,6 +42,10 @@ function chromiumPfad() {
   const letzter = ordner[ordner.length - 1];
   return letzter ? `${basis}/${letzter}/chrome-linux/chrome` : undefined;
 }
+
+/* Bilder des Durchlaufs landen in pruefbilder/ – der Ordner ist in
+   .gitignore, Prüfbilder gehören nicht ins Repository. */
+mkdirSync(new URL('../pruefbilder', import.meta.url).pathname, { recursive: true });
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT)], {
   cwd: new URL('..', import.meta.url).pathname, stdio: 'ignore'
@@ -275,7 +279,7 @@ pruef('Sonnenschutz steht in der Anfrage', /Aufdachmarkise/.test(zus));
 pruef('Senkrechtmarkise steht in der Anfrage', /Senkrechtmarkise/.test(zus));
 pruef('Notiz des Konfigurators geht mit', /Aus dem 3D-Konfigurator/.test(zus));
 
-if (!GEGENPROBE) await page.screenshot({ path: 'k3d-desktop.png' });
+if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
 
 // ---------- Handy ----------
 const mctx = await browser.newContext({
@@ -311,7 +315,7 @@ const leiste = await m.locator('.k3d-leiste').boundingBox();
 pruef('Handy: Werkzeugleiste lässt rechts Platz', leiste.x + leiste.width < 330,
   `endet bei x=${Math.round(leiste.x + leiste.width)}`);
 
-if (!GEGENPROBE) await m.screenshot({ path: 'k3d-handy.png' });
+if (!GEGENPROBE) await m.screenshot({ path: 'pruefbilder/k3d-handy.png' });
 
 await browser.close();
 server.kill();
