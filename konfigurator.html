@@ -13,7 +13,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>3D Terrassendach Konfigurator | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Unser 3D Terrassendach-Konfigurator ist in Entwicklung und bald hier verfügbar. Bis dahin beraten wir Sie gerne kostenlos und persönlich vor Ort – BV AussenSysteme im Westerwald." />
+  <meta name="description" content="Terrassendach TDS in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Seitenelemente wählen und das Ergebnis sofort von allen Seiten ansehen. Kostenlos und unverbindlich – BV AussenSysteme im Westerwald." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/konfigurator.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/konfigurator.html" />
@@ -134,6 +134,106 @@
     .kp-step-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
     .kp-step-label.active { color: var(--black); font-weight: 600; }
 
+
+    /* ===== 3D-Konfigurator ===== */
+    .kp-title span { color: var(--gold-dark); }
+    .kp-sub { max-width: 720px; margin: 0 auto 26px; color: var(--muted); line-height: 1.6; }
+
+    .k3d-wrap { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,1fr); gap: 22px; text-align: left; }
+    @media (max-width: 900px) { .k3d-wrap { grid-template-columns: 1fr; } }
+
+    .k3d-buehne { display: flex; flex-direction: column; gap: 10px; }
+    .k3d-canvas-box {
+      position: relative; background: #d9e7f2; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--border); aspect-ratio: 4 / 3; min-height: 280px;
+    }
+    @media (max-width: 900px) { .k3d-canvas-box { aspect-ratio: 1 / 1; } }
+    #k3dCanvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+    #k3dCanvas:active { cursor: grabbing; }
+    .k3d-laden {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: #4a5a68; font-size: .9rem; margin: 0;
+    }
+    .k3d-hinweis {
+      position: absolute; left: 10px; bottom: 8px; margin: 0;
+      font-size: .72rem; color: rgba(0,0,0,.5); background: rgba(255,255,255,.65);
+      padding: 3px 9px; border-radius: 100px; pointer-events: none;
+    }
+    .k3d-werkzeug { display: flex; flex-wrap: wrap; gap: 7px; }
+    .k3d-wz {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: .88rem;
+      padding: 7px 14px; border-radius: 100px; cursor: pointer;
+      border: 1.5px solid var(--border); background: var(--white); color: var(--black);
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .k3d-wz:hover { border-color: var(--gold); }
+    .k3d-wz.is-active { background: var(--black); color: var(--gold); border-color: var(--black); }
+
+    .k3d-panel {
+      background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+      padding: 20px; box-shadow: var(--shadow); align-self: start;
+    }
+    .k3d-gruppe { margin-bottom: 16px; }
+    .k3d-label {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+      font-size: .82rem; font-weight: 700; color: var(--black); margin-bottom: 6px;
+    }
+    .k3d-label output { font-weight: 600; color: var(--gold-dark); font-variant-numeric: tabular-nums; }
+    .k3d-select {
+      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+      border-radius: var(--radius); background: var(--white); color: var(--black);
+      font-family: inherit; font-size: .92rem;
+    }
+    .k3d-select:focus { outline: none; border-color: var(--gold); }
+    .k3d-range { width: 100%; accent-color: var(--gold-dark); height: 26px; }
+
+    .k3d-farben { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .k3d-farbe {
+      border: 2px solid var(--border); border-radius: 10px; background: var(--white);
+      padding: 6px 4px 5px; cursor: pointer; display: flex; flex-direction: column;
+      align-items: center; gap: 5px; transition: border-color .15s;
+    }
+    .k3d-farbe::before {
+      content: ''; width: 100%; height: 26px; border-radius: 6px;
+      background: var(--f); border: 1px solid rgba(0,0,0,.12);
+    }
+    .k3d-farbe span { font-size: .68rem; color: var(--muted); line-height: 1.2; }
+    .k3d-farbe.is-active { border-color: var(--gold); }
+    .k3d-farbe.is-active span { color: var(--black); font-weight: 600; }
+
+    .k3d-seiten { display: grid; gap: 8px; }
+    .k3d-seite { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 10px; }
+    .k3d-seite > span { font-size: .82rem; color: var(--muted); }
+
+    .k3d-schalter { display: flex; align-items: center; gap: 10px; font-size: .88rem; cursor: pointer; }
+    .k3d-schalter input { width: 18px; height: 18px; accent-color: var(--gold-dark); }
+
+    .k3d-zus { background: var(--light-bg); border-radius: 10px; padding: 14px 16px; margin: 18px 0 14px; }
+    .k3d-zus h2 {
+      font-size: .78rem; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--gold-dark); margin: 0 0 8px;
+    }
+    .k3d-zus ul { list-style: none; padding: 0; margin: 0; }
+    .k3d-zus li {
+      font-size: .85rem; color: var(--black); padding: 3px 0 3px 16px; position: relative;
+    }
+    .k3d-zus li::before { content: '·'; position: absolute; left: 4px; color: var(--gold-dark); font-weight: 700; }
+
+    .k3d-anfrage { width: 100%; justify-content: center; }
+    .k3d-fuss { font-size: .76rem; color: var(--muted); line-height: 1.5; margin: 12px 0 0; }
+    .k3d-weitere { font-size: .88rem; color: var(--muted); margin-top: 26px; }
+    .k3d-weitere a { color: var(--gold-dark); }
+
+    @media (max-width: 600px) {
+      /* Rechts sitzen die Schwebe-Buttons (nach oben, Bedienhilfen,
+         Konfigurator). Der Zahlenwert wandert deshalb neben die
+         Beschriftung statt an den rechten Rand. */
+      .k3d-label { justify-content: flex-start; gap: 8px; }
+      .k3d-hinweis { font-size: .68rem; left: 8px; right: 8px; text-align: center; }
+      .k3d-farben { grid-template-columns: repeat(2, 1fr); }
+      .k3d-panel { padding: 16px; }
+    }
+
     /* Notify form */
     .kp-notify {
       background: var(--black);
@@ -243,7 +343,7 @@
     }
   </style>
   <meta property="og:title" content="Produkt-Konfigurator | BV AussenSysteme Westerwald" />
-  <meta property="og:description" content="Unser 3D-Konfigurator ist in Entwicklung. Bis dahin: kostenlose, persönliche Beratung vor Ort." />
+  <meta property="og:description" content="Terrassendach TDS in 3D zusammenstellen – Maße, Eindeckung, Farbe und Seitenelemente live ansehen. Kostenlos und unverbindlich." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
 </head>
@@ -279,115 +379,137 @@
 <div class="konfigurator-page">
   <div class="kp-inner">
 
-    <span class="kp-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>In Entwicklung</span>
-
-    <!-- 3D Konfigurator Platzhalter -->
-    <div class="kp-sorry-box">
-      <div class="kp-sorry-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg></div>
-      <h2 class="kp-sorry-title">Wir arbeiten mit Hochdruck daran!</h2>
-      <p class="kp-sorry-text">
-        Unser 3D Terrassendach-Konfigurator befindet sich aktuell in der Entwicklung
-        und steht leider noch nicht zur Verfügung. Wir bitten Sie um etwas Geduld –
-        er wird schon bald hier verfügbar sein.
-      </p>
-      <p class="kp-sorry-text">
-        In der Zwischenzeit beraten wir Sie gerne <strong>persönlich und kostenlos</strong>
-        direkt vor Ort – individuell, schnell und ohne Wartezeit.
-      </p>
-      <a href="/#kontakt" class="btn btn-gold" style="margin-top:8px;">
-        Jetzt kostenlos beraten lassen →
-      </a>
-    </div>
-
-    <h1 class="kp-title">3D Terrassendach<br>Konfigurator</h1>
+    <span class="kp-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> 3D-Konfigurator</span>
+    <h1 class="kp-title">Terrassendach TDS<br><span>selbst zusammenstellen</span></h1>
     <p class="kp-sub">
-      Planen Sie Ihre Traumterrasse direkt online – Maße eingeben, Material wählen,
-      Farbe bestimmen und sofort in 3D sehen wie es aussieht.
-      Mit direkter Anfragefunktion.
+      Maße, Eindeckung, Farbe und Seitenelemente wählen – das Dach dreht sich dabei live mit.
+      Am Ende übernehmen wir Ihre Konfiguration direkt in die Anfrage. Kostenlos und unverbindlich.
     </p>
 
-    <!-- Roadmap Timeline -->
-    <div class="kp-timeline">
-      <div class="kp-step">
-        <div class="kp-step-dot done">✓</div>
-        <div class="kp-step-label">Website live</div>
+    <div class="k3d-wrap">
+
+      <!-- Ansicht -->
+      <div class="k3d-buehne">
+        <div class="k3d-canvas-box">
+          <canvas id="k3dCanvas" aria-label="3D-Ansicht des konfigurierten Terrassendachs" role="img"></canvas>
+          <p id="k3dLaden" class="k3d-laden">3D-Ansicht wird geladen …</p>
+          <p class="k3d-hinweis" aria-hidden="true">Ziehen zum Drehen · Zwei Finger zum Zoomen</p>
+        </div>
+        <div class="k3d-werkzeug" role="group" aria-label="Ansicht steuern">
+          <button type="button" class="k3d-wz is-active" data-k3d-ansicht="Perspektive">Perspektive</button>
+          <button type="button" class="k3d-wz" data-k3d-ansicht="Vorne">Vorne</button>
+          <button type="button" class="k3d-wz" data-k3d-ansicht="Seite">Seite</button>
+          <button type="button" class="k3d-wz" data-k3d-ansicht="Von oben">Von oben</button>
+          <button type="button" class="k3d-wz" id="k3dAbend" aria-pressed="false"><span>Abend</span></button>
+          <button type="button" class="k3d-wz" id="k3dDrehen" aria-pressed="false">Drehen</button>
+          <button type="button" class="k3d-wz" id="k3dBild">Bild speichern</button>
+        </div>
       </div>
-      <div class="kp-step">
-        <div class="kp-step-dot done">✓</div>
-        <div class="kp-step-label">Produkte & Beratung</div>
-      </div>
-      <div class="kp-step">
-        <div class="kp-step-dot active">3</div>
-        <div class="kp-step-label active">3D Konfigurator</div>
-      </div>
-      <div class="kp-step">
-        <div class="kp-step-dot todo">4</div>
-        <div class="kp-step-label">Online-Bestellung</div>
+
+      <!-- Auswahl -->
+      <div class="k3d-panel">
+
+        <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dAufbau">Aufbau</label>
+          <select id="k3dAufbau" class="k3d-select">
+            <option value="Wandmontage">An der Hauswand</option>
+            <option value="Freistehend">Freistehend</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
+          <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
+          <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dHoehe">Durchgangshöhe vorne <output id="k3dHoeheWert">2300 mm</output></label>
+          <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dEindeckung">Eindeckung</label>
+          <select id="k3dEindeckung" class="k3d-select">
+            <option value="VSG klar">VSG-Glas klar</option>
+            <option value="VSG opal">VSG-Glas opal (satiniert)</option>
+            <option value="Polycarbonat">Polycarbonat-Stegplatten</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe">
+          <span class="k3d-label" id="k3dFarbeLabel">Farbe</span>
+          <div class="k3d-farben" role="group" aria-labelledby="k3dFarbeLabel">
+            <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß</span></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe">
+          <span class="k3d-label">Seitenelemente</span>
+          <div class="k3d-seiten">
+            <label class="k3d-seite"><span>Links</span>
+              <select id="k3dLinks" class="k3d-select">
+                <option value="offen">offen</option>
+                <option value="Festelement">Festverglasung</option>
+                <option value="Schiebeelement">Schiebeelement</option>
+              </select>
+            </label>
+            <label class="k3d-seite"><span>Rechts</span>
+              <select id="k3dRechts" class="k3d-select">
+                <option value="offen">offen</option>
+                <option value="Festelement">Festverglasung</option>
+                <option value="Schiebeelement">Schiebeelement</option>
+              </select>
+            </label>
+            <label class="k3d-seite"><span>Vorne</span>
+              <select id="k3dFront" class="k3d-select">
+                <option value="offen">offen</option>
+                <option value="Festelement">Festverglasung</option>
+                <option value="Schiebeelement">Glas-Schiebeanlage</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span>LED-Beleuchtung in den Sparren</span></label>
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dMontage">Montage</label>
+          <select id="k3dMontage" class="k3d-select">
+            <option value="Ja, mit Fachmontage">Durch unser Fachteam</option>
+            <option value="Nein, Selbstmontage">Selbstmontage</option>
+          </select>
+        </div>
+
+        <div class="k3d-zus">
+          <h2>Ihre Konfiguration</h2>
+          <ul id="k3dZusammenfassung"></ul>
+        </div>
+
+        <button type="button" class="btn btn-gold k3d-anfrage" id="k3dAnfrage">
+          Konfiguration anfragen →
+        </button>
+        <p class="k3d-fuss">
+          Die Darstellung ist eine maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
+          Das verbindliche Angebot erstellen wir nach dem kostenlosen Aufmaß vor Ort.
+        </p>
+
       </div>
     </div>
 
-    <!-- Features Preview -->
-    <div class="kp-features">
-      <div class="kp-feature">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg></span>
-        <div>
-          <strong>Eigene Maße eingeben</strong>
-          <p>Breite, Tiefe & Höhe frei wählbar</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1" fill="currentColor" stroke="none"/><circle cx="17.5" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12.5" r="1" fill="currentColor" stroke="none"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1.1a1.6 1.6 0 0 1 1.6-1.6h2c3 0 5.5-2.5 5.5-5.5C22 6 17.5 2 12 2z"/></svg></span>
-        <div>
-          <strong>Farben & Materialien</strong>
-          <p>Alle RAL-Farben, Glas, Lamellen oder Polycarbonat</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
-        <div>
-          <strong>3D Echtzeit-Vorschau</strong>
-          <p>Realistische Darstellung aus allen Blickwinkeln</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12a7.9 7.9 0 0 0 7.8 8 7.7 7.7 0 0 0 5.2-2"/></svg></span>
-        <div>
-          <strong>Preisanfrage</strong>
-          <p>Konfiguration absenden – wir erstellen Ihr individuelles Angebot</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></span>
-        <div>
-          <strong>Direkte Anfrage</strong>
-          <p>Konfiguration als Anfrage senden</p>
-        </div>
-      </div>
-      <div class="kp-feature">
-        <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
-        <div>
-          <strong>Mobil & Desktop</strong>
-          <p>Funktioniert auf allen Geräten</p>
-        </div>
-      </div>
-    </div>
-    <!-- Notify Form -->
-    <div class="kp-notify">
-      <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>Benachrichtigung beim Launch</h3>
-      <p>Tragen Sie Ihre E-Mail ein – wir informieren Sie sobald der Konfigurator verfügbar ist.</p>
-      <div class="kp-notify-row">
-        <input type="email" id="kpEmail" aria-label="E-Mail Adresse" placeholder="ihre@email.de" autocomplete="email" />
-        <button onclick="kpNotify()">Benachrichtigen</button>
-      </div>
-      <div id="kpMsg"></div>
-    </div>
-
-    <a href="/#kontakt" class="btn btn-gold" style="font-size:1rem; padding:13px 28px; margin-right:10px;">
-      Jetzt persönlich beraten lassen
-    </a>
-    <a href="/" style="font-size:0.9rem; color:var(--muted); text-decoration:none;">
-      ← Zurück zur Startseite
-    </a>
+    <p class="k3d-weitere">
+      Carport, Flachdach SkyView und Lamellendach folgen als Nächstes.
+      Für diese Systeme hilft Ihnen der <a href="/#kontakt">Anfrage-Assistent</a> schon heute weiter.
+    </p>
 
   </div>
 </div>
@@ -479,57 +601,14 @@
   </div>
 </footer>
 
+<script src="js/vendor/three.min.js" defer></script>
+<script src="js/konfigurator-3d.js?v=20261010i" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
-<script>
-  function kpNotify() {
-    var email  = document.getElementById('kpEmail').value.trim();
-    var msg    = document.getElementById('kpMsg');
-    var btn    = document.querySelector('.kp-notify-row button');
-
-    if (!email || !email.includes('@')) {
-      msg.style.color = '#e05555';
-      msg.textContent = 'Bitte gib eine gültige E-Mail-Adresse ein.';
-      return;
-    }
-
-    btn.disabled    = true;
-    btn.textContent = 'Wird gesendet …';
-    msg.textContent = '';
-
-    var formData = new FormData();
-    formData.append('email',     email);
-    formData.append('_subject',  'Konfigurator Launch-Benachrichtigung – ' + email);
-    formData.append('nachricht', 'Diese E-Mail möchte beim Launch des 3D Konfigurators benachrichtigt werden.');
-
-    fetch('https://formspree.io/f/xnjkabdv', {
-      method:  'POST',
-      body:    formData,
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data.ok) {
-        msg.style.color = '#C49A2A';
-        msg.textContent = '✓ Danke! Wir benachrichtigen Sie sobald der Konfigurator verfügbar ist.';
-        btn.textContent = 'Eingetragen ✓';
-        document.getElementById('kpEmail').value = '';
-      } else {
-        throw new Error('Fehler');
-      }
-    })
-    .catch(function() {
-      msg.style.color = '#e05555';
-      msg.textContent = 'Fehler beim Senden. Bitte schreiben Sie uns: info@bv-aussensysteme.de';
-      btn.disabled    = false;
-      btn.textContent = 'Benachrichtigen';
-    });
-  }
-</script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261010a" defer></script>
+<script src="js/anfrage-wizard.js?v=20261010i" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
