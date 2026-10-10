@@ -190,6 +190,13 @@
     .k3d-farbe.is-active { border-color: var(--gold); }
     .k3d-farbe.is-active span { color: var(--black); font-weight: 600; }
 
+    /* Erweiterungen: mehrere je Seite, gesperrte bleiben sichtbar und sagen,
+       woran es liegt – wegnehmen würde die Frage aufwerfen, wo sie hin sind. */
+    .k3d-erw button small { min-height: 0; color: #9a6a3a; }
+    .k3d-erw button.ist-gesperrt { opacity: .55; }
+    .k3d-erw button:disabled { cursor: not-allowed; }
+    .k3d-erw-wert { font-weight: 600; color: var(--gold-text); font-size: .74rem; }
+
     .k3d-seiten { display: grid; gap: 8px; }
     .k3d-seite { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 10px; }
     .k3d-seite > span { font-size: .8rem; color: var(--muted); }
@@ -413,6 +420,17 @@
           </div>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-fuer="fassade" hidden>
+          <span class="k3d-label" id="k3dFassadeLabel">Wie ist Ihre Hauswand?</span>
+          <input type="hidden" id="k3dFassade" value="Rauputz">
+          <div class="k3d-seg" data-k3d-seg="k3dFassade" role="group" aria-labelledby="k3dFassadeLabel">
+            <button type="button" data-wert="Rauputz">Rauputz</button>
+            <button type="button" data-wert="Verklinkert">Verklinkert</button>
+            <button type="button" data-wert="Sonstiges / weiß nicht">Weiß nicht</button>
+          </div>
+          <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
+        </div>
+
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
           <div class="k3d-regler">
@@ -437,6 +455,14 @@
           <div class="k3d-regler">
             <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
             <input type="number" id="k3dHoeheZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Höhe in Millimeter">
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="vorsprung">
+          <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">300 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="300">
+            <input type="number" id="k3dVorsprungZahl" class="k3d-zahl" inputmode="numeric" value="300" aria-label="Dachvorsprung in Millimeter">
           </div>
         </div>
 
@@ -504,17 +530,16 @@
             <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu<br>RAL 9006</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu<br>RAL 9007</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß<br>RAL 9010</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Andere / Beratung" aria-pressed="false" style="--f:linear-gradient(135deg,#c9a24a,#8fa2ab)"><span>Andere<br>Beratung</span></button>
           </div>
-        </div>
-
-        <div class="k3d-gruppe">
-          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Beleuchtung in den Sparren</span></label>
+          <p class="k3d-mini">Alle Systeme sind auch in anderen RAL-Farben lieferbar – im Modell
+            zeigen wir dann Anthrazit.</p>
         </div>
       </details>
 
-      <!-- ---------- Seiten & Verglasung ---------- -->
+      <!-- ---------- Seiten & Erweiterungen ---------- -->
       <details class="k3d-sek" data-k3d-fuer="terrasse pergola">
-        <summary><span class="k3d-sek-t">Seiten &amp; Verglasung</span><span class="k3d-sek-s" id="k3dSumSeiten"></span></summary>
+        <summary><span class="k3d-sek-t">Seiten &amp; Erweiterungen</span><span class="k3d-sek-s" id="k3dSumSeiten"></span></summary>
 
         <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
           <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
@@ -526,41 +551,55 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="terrasse">
-          <div class="k3d-seiten">
-            <label class="k3d-seite"><span>Links</span>
-              <select id="k3dLinks" class="k3d-select">
-                <option value="offen">offen</option>
-                <option value="Festelement">Festverglasung</option>
-                <option value="Schiebeelement">Schiebeelement</option>
-              </select>
-            </label>
-            <label class="k3d-seite"><span>Rechts</span>
-              <select id="k3dRechts" class="k3d-select">
-                <option value="offen">offen</option>
-                <option value="Festelement">Festverglasung</option>
-                <option value="Schiebeelement">Schiebeelement</option>
-              </select>
-            </label>
-            <label class="k3d-seite"><span>Vorne</span>
-              <select id="k3dFront" class="k3d-select">
-                <option value="offen">offen</option>
-                <option value="Festelement">Festverglasung</option>
-                <option value="Schiebeelement">Glas-Schiebeanlage</option>
-              </select>
-            </label>
+          <p class="k3d-mini">Schon eine geschlossene Seite bringt Wind-, Sicht- und
+            Wetterschutz. Mehrfachauswahl – Rahmenwand unten, Schiebetür darüber.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+          <span class="k3d-label">Links <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="links" role="group" aria-label="Erweiterung links">
+            <button type="button" data-erw="Keil">Keil<small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+          <span class="k3d-label">Rechts <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="rechts" role="group" aria-label="Erweiterung rechts">
+            <button type="button" data-erw="Keil">Keil<small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+          <span class="k3d-label">Vorne (Stirnseite) <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="vorne" role="group" aria-label="Erweiterung vorne">
+            <button type="button" data-erw="Keil" hidden><small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
           </div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="schiebe" hidden>
-          <label class="k3d-label" for="k3dGlasOffen">Schiebeelemente geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
+          <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
           <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dGlasZu">◀ Schließen</button>
             <button type="button" id="k3dGlasAuf">Öffnen ▶</button>
           </div>
           <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
-            immer ein Flügel stehen. Wie viele Flügel es werden, entscheidet die Breite
-            des Elements; das legt das Aufmaß fest.</p>
+            immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
         </div>
       </details>
 
@@ -569,24 +608,18 @@
         <summary><span class="k3d-sek-t">Sonnenschutz</span><span class="k3d-sek-s" id="k3dSumSonne"></span></summary>
 
         <div class="k3d-gruppe">
-          <span class="k3d-label" id="k3dSonneLabel">Am Dach</span>
-          <input type="hidden" id="k3dSonne" value="keine">
-          <div class="k3d-seg" data-k3d-seg="k3dSonne" role="group" aria-labelledby="k3dSonneLabel">
-            <button type="button" data-wert="keine">Keine</button>
-            <button type="button" data-wert="Aufdachmarkise">Aufdach</button>
-            <button type="button" data-wert="Unterdachmarkise">Unterdach</button>
+          <span class="k3d-label" id="k3dMarkiseLabel">Mehr Schatten &amp; Komfort?</span>
+          <input type="hidden" id="k3dMarkise" value="Ohne">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMarkise" role="group" aria-labelledby="k3dMarkiseLabel">
+            <button type="button" data-wert="Ohne">Ohne</button>
+            <button type="button" data-wert="Aufdachmarkise">Aufdachmarkise<small>auf dem Glas, hält Hitze davor</small></button>
+            <button type="button" data-wert="Unterdachmarkise">Unterdachmarkise<small>darunter, bleibt im Trockenen</small></button>
+            <button type="button" data-wert="Plissees">Plissees<small>zwischen den Sparren</small></button>
+            <button type="button" data-wert="Sonnensegel">Sonnensegel<small>frei gespannt</small></button>
+            <button type="button" data-wert="Noch unsicher – bitte beraten">Noch unsicher<small>wir beraten Sie</small></button>
           </div>
-          <p class="k3d-mini">Aufdach liegt auf der Verglasung und hält die Hitze schon
-            vor dem Glas ab. Unterdach läuft zwischen den Sparren und bleibt im Trockenen.</p>
-        </div>
-
-        <div class="k3d-gruppe">
-          <span class="k3d-label">Senkrechtmarkisen</span>
-          <div class="k3d-drei">
-            <label class="k3d-schalter"><input type="checkbox" id="k3dZipV"> <span>Vorne</span></label>
-            <label class="k3d-schalter"><input type="checkbox" id="k3dZipL"> <span>Links</span></label>
-            <label class="k3d-schalter"><input type="checkbox" id="k3dZipR"> <span>Rechts</span></label>
-          </div>
+          <p class="k3d-mini">Senkrechtmarkisen an den Seiten wählen Sie oben
+            bei den Erweiterungen.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="sonne-aus" hidden>
@@ -596,6 +629,45 @@
             <button type="button" id="k3dSonneEin">◀ Einfahren</button>
             <button type="button" id="k3dSonneRaus">Ausfahren ▶</button>
           </div>
+        </div>
+      </details>
+
+      <!-- ---------- Licht & Technik ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Licht &amp; Technik</span><span class="k3d-sek-s" id="k3dSumLicht"></span></summary>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Spots in den Sparren</span></label>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="led-detail" hidden>
+          <span class="k3d-label" id="k3dLedSetLabel">Welche LED-Spots?</span>
+          <input type="hidden" id="k3dLedSet" value="8er-Set">
+          <div class="k3d-seg" data-k3d-seg="k3dLedSet" role="group" aria-labelledby="k3dLedSetLabel">
+            <button type="button" data-wert="6er-Set">6er-Set</button>
+            <button type="button" data-wert="8er-Set">8er-Set</button>
+            <button type="button" data-wert="12er-Set">12er-Set</button>
+          </div>
+          <label class="k3d-label" for="k3dLedAnzahl" style="margin-top:10px">Wie viele Sets?</label>
+          <input type="number" id="k3dLedAnzahl" class="k3d-zahl" inputmode="numeric" min="1" max="20" value="1" style="width:90px">
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="sound">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dSound"> <span>Lautsprecher im Dachprofil</span></label>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="sound-detail" hidden>
+          <span class="k3d-label" id="k3dSoundSetLabel">Wie viele Lautsprecher?</span>
+          <input type="hidden" id="k3dSoundSet" value="2er-Set">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dSoundSet" role="group" aria-labelledby="k3dSoundSetLabel">
+            <button type="button" data-wert="2er-Set">2er-Set</button>
+            <button type="button" data-wert="4er-Set">4er-Set</button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="komfort" hidden>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dHeizung"> <span>Heizstrahler</span></label>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dWetter"> <span>Wetter-Automatik (Wind- und Regensensor)</span></label>
         </div>
       </details>
 
@@ -621,6 +693,30 @@
           </div>
           <p class="k3d-mini">Aluminium-Sichtschutzpaneele, 140 mm hoch, in der Farbe
             des Gestells. Fugenbild und Höhe der Wand legt das Aufmaß fest.</p>
+        </div>
+      </details>
+
+      <!-- ---------- Untergrund & Montage ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Untergrund &amp; Montage</span><span class="k3d-sek-s" id="k3dSumUnterbau"></span></summary>
+
+        <div class="k3d-gruppe">
+          <span class="k3d-label" id="k3dUntergrundLabel">Wie ist der Untergrund vor Ort?</span>
+          <input type="hidden" id="k3dUntergrund" value="Tragender Untergrund vorhanden">
+          <div class="k3d-seg" data-k3d-seg="k3dUntergrund" role="group" aria-labelledby="k3dUntergrundLabel">
+            <button type="button" data-wert="Tragender Untergrund vorhanden">Tragend vorhanden<small>Beton, Platten, Streifenfundament</small></button>
+            <button type="button" data-wert="Punktfundamente nötig">Punktfundamente nötig<small>Rasen, Kies, Erdreich</small></button>
+            <button type="button" data-wert="Weiß nicht – Beratung">Weiß nicht<small>wir sehen uns das an</small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe">
+          <span class="k3d-label" id="k3dMontageLabel">Montage durch unser Fachteam?</span>
+          <input type="hidden" id="k3dMontage" value="Ja, mit Fachmontage">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMontage" role="group" aria-labelledby="k3dMontageLabel">
+            <button type="button" data-wert="Ja, mit Fachmontage">Durch unser Fachteam</button>
+            <button type="button" data-wert="Nein, Selbstmontage">Selbstmontage</button>
+          </div>
         </div>
       </details>
 
@@ -797,13 +893,13 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261011b" defer></script>
+<script src="js/konfigurator-3d.js?v=20261011c" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261011b" defer></script>
+<script src="js/anfrage-wizard.js?v=20261011c" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

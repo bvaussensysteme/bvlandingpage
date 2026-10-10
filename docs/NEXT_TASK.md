@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026 · zuletzt bearbeitet: Flat Box ohne Gefälle, Polycarbonat in vier Ausführungen
+> Stand: 10.10.2026 · zuletzt bearbeitet: gemeinsamer Fragensatz für beide Konfiguratoren
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),

@@ -97,6 +97,18 @@ if (GEGENPROBE) {
 
 await page.goto(BASIS, { waitUntil: 'networkidle' });
 await page.waitForTimeout(1600);
+
+/* Alle Abschnitte aufklappen und offen lassen. Vorher hat der Test sie per
+   Klick auf die Überschrift geöffnet – und beim zweiten Klick wieder
+   zugeklappt, worauf die nächste Prüfung ins Leere lief. */
+async function alleAufklappen(ziel = page) {
+  await ziel.evaluate(() => {
+    document.querySelectorAll('details.k3d-sek').forEach(d => { d.open = true; });
+  });
+  await ziel.waitForTimeout(150);
+}
+await alleAufklappen();
+
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
   await page.waitForTimeout(300);
@@ -175,7 +187,7 @@ pruef('Seiten-Abschnitt beim Carport weg', !seitenSichtbar);
 
 // Verkleidung einschalten -> Ausrichtung erscheint, Bild ändert sich
 const vorVerk = await page.locator('#k3dCanvas').screenshot();
-await page.locator('details[data-k3d-fuer="verkleidung"] summary').click();
+await alleAufklappen();
 await page.check('#k3dVerkLinks');
 await page.waitForTimeout(800);
 const nachVerk = await page.locator('#k3dCanvas').screenshot();
@@ -188,10 +200,26 @@ pruef('Kurzfassung Verkleidung',
 // Zurück zum Terrassendach: Sonnenschutz und Schiebeelemente
 await page.click('[data-k3d-seg="k3dProdukt"] button[data-wert="Terrassendach TDS"]');
 await page.waitForTimeout(900);
-await page.locator('details[data-k3d-fuer="terrasse pergola"] summary').click();
-await page.selectOption('#k3dLinks', 'Schiebeelement');
+await alleAufklappen();
+await page.click('[data-k3d-erw="links"] button[data-erw="Schiebetür"]');
 await page.waitForTimeout(700);
 pruef('Schiebe-Regler erscheint', await page.locator('[data-k3d-fuer="schiebe"]').isVisible());
+
+/* Regeln aus dem Anfrage-Assistenten müssen auch hier gelten:
+   Schiebetür zieht den Keil mit (Außengefälle), und Velaris verträgt sich
+   nicht mit Senkrechtmarkise. */
+const keilAktiv = await page.locator('[data-k3d-erw="links"] button[data-erw="Keil"]')
+  .evaluate(e => e.classList.contains('is-active'));
+pruef('Schiebetür zieht den Keil mit', keilAktiv);
+await page.click('[data-k3d-erw="rechts"] button[data-erw="Velaris"]');
+await page.waitForTimeout(400);
+const zipGesperrt = await page.locator('[data-k3d-erw="rechts"] button[data-erw="Senkrechtmarkise"]')
+  .evaluate(e => e.disabled);
+pruef('Velaris sperrt die Senkrechtmarkise', zipGesperrt);
+pruef('Gesperrtes sagt, woran es liegt',
+  /nicht mit Velaris/.test(await page.locator('[data-k3d-erw="rechts"] button[data-erw="Senkrechtmarkise"] small').innerText()));
+await page.click('[data-k3d-erw="rechts"] button[data-erw="Velaris"]');
+await page.waitForTimeout(400);
 const zu = await page.locator('#k3dCanvas').screenshot();
 await page.click('#k3dGlasAuf');
 await page.waitForTimeout(800);
@@ -203,7 +231,7 @@ pruef('Schiebeelemente öffnen sich sichtbar', !zu.equals(auf),
    Betreiber – vorher war es dieselbe Glasfläche. Geprüft wird, dass jede
    Ausführung ein anderes Bild ergibt. */
 const dachDetails = page.locator('details').filter({ hasText: 'Dach & Farbe' }).first();
-await dachDetails.locator('summary').click();
+await alleAufklappen();
 const bilder = {};
 for (const art of ['VSG klar', 'Polycarbonat klar', 'Polycarbonat opal',
                    'Polycarbonat graphit', 'Polycarbonat bronze']) {
@@ -219,18 +247,19 @@ pruef('Opal unterscheidet sich von klar',
   !bilder['Polycarbonat klar'].equals(bilder['Polycarbonat opal']));
 await page.click('[data-k3d-seg="k3dEindeckung"] button[data-wert="VSG klar"]');
 await page.waitForTimeout(400);
-await dachDetails.locator('summary').click();
+await alleAufklappen();
 
 // Sonnenschutz
 const sonneDetails = page.locator('details').filter({ hasText: 'Sonnenschutz' }).first();
-await sonneDetails.locator('summary').click();
+await alleAufklappen();
 const ohneMarkise = await page.locator('#k3dCanvas').screenshot();
-await page.click('[data-k3d-seg="k3dSonne"] button[data-wert="Aufdachmarkise"]');
+await page.click('[data-k3d-seg="k3dMarkise"] button[data-wert="Aufdachmarkise"]');
 await page.waitForTimeout(800);
 pruef('Ausfahr-Regler erscheint', await page.locator('[data-k3d-fuer="sonne-aus"]').isVisible());
 const mitMarkise = await page.locator('#k3dCanvas').screenshot();
 pruef('Markise ist im Modell zu sehen', !ohneMarkise.equals(mitMarkise));
-await page.check('#k3dZipV');
+await alleAufklappen();
+await page.click('[data-k3d-erw="vorne"] button[data-erw="Senkrechtmarkise"]');
 await page.waitForTimeout(700);
 const mitZip = await page.locator('#k3dCanvas').screenshot();
 pruef('Senkrechtmarkise ist zu sehen', !mitMarkise.equals(mitZip));
@@ -238,9 +267,37 @@ pruef('Kurzfassung Sonnenschutz',
   /Senkrechtmarkise/.test(await page.locator('#k3dSumSonne').innerText()),
   await page.locator('#k3dSumSonne').innerText());
 
+/* Licht & Technik: Set-Größe und Lautsprecher gibt es im Assistenten,
+   also muss es sie hier auch geben. */
+const lichtDetails = page.locator('details').filter({ hasText: 'Licht & Technik' }).first();
+await alleAufklappen();
+const ohneLed = await page.locator('#k3dCanvas').screenshot();
+await page.check('#k3dLed');
+await page.waitForTimeout(700);
+pruef('LED verändert das Modell', !ohneLed.equals(await page.locator('#k3dCanvas').screenshot()));
+pruef('LED-Set erscheint', await page.locator('[data-k3d-fuer="led-detail"]').isVisible());
+await page.click('[data-k3d-seg="k3dLedSet"] button[data-wert="12er-Set"]');
+await page.fill('#k3dLedAnzahl', '2');
+await page.check('#k3dSound');
+await page.waitForTimeout(600);
+pruef('Lautsprecher-Set erscheint', await page.locator('[data-k3d-fuer="sound-detail"]').isVisible());
+pruef('Kurzfassung Licht', /12er-Set/.test(await page.locator('#k3dSumLicht').innerText()),
+  await page.locator('#k3dSumLicht').innerText());
+
+/* Untergrund und Montage: im Assistenten Pflichtfragen – beim Umbau auf das
+   Vollbild-Layout war die Montage-Frage ganz verschwunden. */
+const unterDetails = page.locator('details').filter({ hasText: 'Untergrund & Montage' }).first();
+await alleAufklappen();
+await page.click('[data-k3d-seg="k3dUntergrund"] button[data-wert="Punktfundamente nötig"]');
+await page.click('[data-k3d-seg="k3dMontage"] button[data-wert="Nein, Selbstmontage"]');
+await page.waitForTimeout(500);
+pruef('Montage ist wählbar',
+  /Selbstmontage/.test(await page.locator('#k3dSumUnterbau').innerText()),
+  await page.locator('#k3dSumUnterbau').innerText());
+
 // Anzeige: Boden und Maße
 const anzeige = page.locator('details').filter({ hasText: 'Anzeige' }).first();
-await anzeige.locator('summary').click();
+await alleAufklappen();
 const steinBild = await page.locator('#k3dCanvas').screenshot();
 await page.click('[data-k3d-seg="k3dBoden"] button[data-wert="Holzdielen"]');
 await page.waitForTimeout(700);
@@ -300,6 +357,11 @@ pruef('Maß ist im Assistenten angekommen',
 pruef('Sonnenschutz steht in der Anfrage', /Aufdachmarkise/.test(zus));
 pruef('Senkrechtmarkise steht in der Anfrage', /Senkrechtmarkise/.test(zus));
 pruef('Notiz des Konfigurators geht mit', /Aus dem 3D-Konfigurator/.test(zus));
+pruef('Erweiterungen kommen im Assistenten an', /Schiebetür/.test(zus),
+  (zus.match(/Erweiterung[^\n]*\n[^\n]*/) || ['nicht gefunden'])[0].replace(/\n/g, ' '));
+pruef('LED-Set kommt an', /12er-Set/.test(zus));
+pruef('Untergrund kommt an', /Punktfundamente/.test(zus));
+pruef('Montage kommt an', /Selbstmontage/.test(zus));
 
 if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
 

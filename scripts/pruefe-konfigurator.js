@@ -37,6 +37,32 @@ const BAUTEILE = path.join(WURZEL, 'js', 'bauteile.js');
    die Prüfung ausdrücklich übersprungen – nicht stillschweigend bestanden. */
 const EINDECKUNG_CSV = path.join(WURZEL, 'daten', 'profile-und-eindeckung.csv');
 
+/* Auswahlwerte eines einzelnen Schrittes im Anfrage-Assistenten.
+   Gelesen wird der Block von "<name>: {" bis zum nächsten Schritt. */
+function wizardSchritt(quelle, name) {
+  const anfang = quelle.indexOf('\n    ' + name + ': {');
+  if (anfang === -1) return null;
+  const rest = quelle.slice(anfang + 8);
+  const ende = rest.search(/\n    [a-z_]+: \{\n      title:/);
+  const block = ende === -1 ? rest : rest.slice(0, ende);
+  const werte = [];
+  const re = /value: '((?:[^'\\]|\\.)*)'/g;
+  let m;
+  while ((m = re.exec(block))) werte.push(m[1].replace(/\\'/g, "'"));
+  return werte;
+}
+
+/* Werte einer Knopfreihe im 3D-Konfigurator (data-k3d-seg) */
+function segWerte(html, id) {
+  const reihe = new RegExp('data-k3d-seg="' + id + '"[^>]*>([\\s\\S]*?)</div>').exec(html);
+  if (!reihe) return null;
+  const werte = [];
+  const re = /data-wert="([^"]*)"/g;
+  let m;
+  while ((m = re.exec(reihe[1]))) werte.push(m[1]);
+  return werte;
+}
+
 /* ---------- Lesen ---------- */
 
 // Alle Auswahlwerte des Assistenten: { value: 'Carport TDS', … }
@@ -224,6 +250,66 @@ function pruefen(k3d, wizard, html, bauteile, csv) {
     if (!gefunden.size) fehler.push('Artikelliste: keine Sechsfachstegplatten gefunden');
   }
 
+  /* 7. Fragen einander angleichen.
+     Der Betreiber will einen gemeinsamen Fragensatz: was der eine fragt,
+     fragt der andere auch, mit denselben Worten. Zwei getrennte Listen sind
+     dafür die Gefahr – also wird hier verglichen, Wert für Wert.
+
+     Zwei Abweichungen sind gewollt und stehen deshalb als Ausnahme hier:
+       · Eindeckung: der 3D-Konfigurator kennt kein „Noch unsicher", weil
+         das Modell immer etwas zeichnen muss. Die Übersetzung prüft
+         VORGABE_VERGLASUNG weiter oben.
+       · Erweiterungen „Keine Angabe": im 3D-Konfigurator ist das einfach
+         eine leere Auswahl, kein eigener Knopf. */
+  const paare = [
+    ['k3dMarkise', 'markise', 'Sonnenschutz'],
+    ['k3dUntergrund', 'untergrund', 'Untergrund'],
+    ['k3dFassade', 'fassade', 'Fassade'],
+    ['k3dMontage', 'montage', 'Montage'],
+    ['k3dAufbau', 'aufbau', 'Aufbau']
+  ];
+  paare.forEach(function (pr) {
+    const imModell = segWerte(html, pr[0]);
+    const imAssistenten = wizardSchritt(wizard, pr[1]);
+    if (!imModell) { fehler.push(pr[2] + ': Knopfreihe ' + pr[0] + ' fehlt im Konfigurator'); return; }
+    if (!imAssistenten) { fehler.push(pr[2] + ': Schritt ' + pr[1] + ' fehlt im Assistenten'); return; }
+    imModell.forEach(function (w) {
+      if (imAssistenten.indexOf(w) === -1) {
+        fehler.push(pr[2] + ': "' + w + '" steht im 3D-Konfigurator, im Assistenten aber nicht');
+      }
+    });
+    imAssistenten.forEach(function (w) {
+      if (imModell.indexOf(w) === -1) {
+        fehler.push(pr[2] + ': "' + w + '" steht im Assistenten, im 3D-Konfigurator aber nicht');
+      }
+    });
+  });
+
+  // Seitliche Erweiterungen: dieselben sechs Möglichkeiten in beiden
+  const erwWizard = (/var ERW_OPTS = \[([\s\S]*?)\];/.exec(wizard) || [])[1];
+  const erw3d = (/var ERW_OPTS = \[([\s\S]*?)\];/.exec(k3d) || [])[1];
+  if (!erwWizard || !erw3d) {
+    fehler.push('Erweiterungen: ERW_OPTS fehlt im Assistenten oder im Konfigurator');
+  } else {
+    /* Im Assistenten stehen Objekte ({ value: 'Keil', img: 'keil' }), im
+       Konfigurator nur die Werte. Ohne diese Unterscheidung zählt der
+       Bilddateiname als eigene Erweiterung. */
+    const liste = function (t, nurValue) {
+      const w = [];
+      const re = nurValue ? /value: '((?:[^'\\]|\\.)*)'/g : /'((?:[^'\\]|\\.)*)'/g;
+      let m;
+      while ((m = re.exec(t))) if (m[1] !== 'Keine Angabe') w.push(m[1].replace(/\\'/g, "'"));
+      return w;
+    };
+    const a = liste(erwWizard, true), b = liste(erw3d, false);
+    a.forEach(function (w) {
+      if (b.indexOf(w) === -1) fehler.push('Erweiterung "' + w + '" fehlt im 3D-Konfigurator');
+    });
+    b.forEach(function (w) {
+      if (a.indexOf(w) === -1) fehler.push('Erweiterung "' + w + '" fehlt im Anfrage-Assistenten');
+    });
+  }
+
   return { fehler: fehler, produkte: produkte || [], auswahl: auswahl.size,
            stichworte: stichworte.size, csvGeprueft: !!csv };
 }
@@ -265,6 +351,19 @@ function gegenprobe() {
                wizard, html, bauteile, csv];
      },
      /Gefälle|Gef\u00e4lle/],
+    ['Sonnenschutz-Angebot laeuft auseinander',
+     function () {
+       return [k3d, wizard,
+               html.replace('data-wert="Sonnensegel"', 'data-wert="Sonnensegel XL"'),
+               bauteile, csv];
+     },
+     /Sonnenschutz: "Sonnensegel/],
+    ['Erweiterung nur in einem der beiden',
+     function () {
+       return [k3d.replace("'Schiebetür', 'Plankenwand'", "'Schiebetür', 'Plankenwand2'"),
+               wizard, html, bauteile, csv];
+     },
+     /Erweiterung "Plankenwand"/],
     ['Stegplatte aus der Artikelliste fehlt im Konfigurator',
      function () {
        return [k3d, wizard,

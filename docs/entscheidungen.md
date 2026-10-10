@@ -194,3 +194,59 @@ verlangt, dass jede dort geführte Stegplatten-Ausführung im Konfigurator
 wählbar ist (übersprungen mit Hinweis, wenn die Liste nicht vorliegt – sie
 gehört nicht ins Repository). Der Browsertest prüft, dass Glas, klar, opal,
 graphit und bronze jeweils ein anderes Bild ergeben.
+
+## 10.10.2026 – Ein gemeinsamer Fragensatz für beide Konfiguratoren
+
+**Anlass.** Zwei Beanstandungen des Betreibers: „wenn man led beleuchtung in
+den sparren auswählt, ist diese im modell nicht in den sparren sondern miten
+in der eindeckung“ und „generell die abfragen sollen ähnlich sein wie in
+unsem nicht 3d konfigurator“. Danach: „finde den besten sweetspot zwischen den
+2 konfiguratoren und passe beide dann gleich an“.
+
+**LED-Fehler.** `ledSpots()` bekam die Mitten ZWISCHEN den Sparren – die Spots
+saßen mitten in der Verglasung, wo nichts sie halten könnte. Jetzt bekommt die
+Funktion die Sparrenachsen und die Unterkante des Sparrenprofils. Der
+Spotdurchmesser ist auf 56–68 mm gesetzt, damit er in ein 70-mm-Profil passt.
+
+**Der gemeinsame Fragensatz.** Maßgeblich ist, was der Anfrage-Assistent
+fragt – dort steht die gewachsene Produktlogik. Der 3D-Konfigurator hat
+übernommen:
+
+| Frage | vorher im 3D | jetzt |
+|---|---|---|
+| Seitliche Erweiterungen | „offen / Festverglasung / Schiebeelement“ | dieselben sechs Möglichkeiten wie im Assistenten (Keil, Rahmenwand, Schiebetür, Plankenwand, Senkrechtmarkise, Velaris), mehrere je Seite, mit denselben Regeln |
+| Sonnenschutz | Aufdach / Unterdach | dazu Plissees, Sonnensegel, „Noch unsicher“ |
+| LED | nur ja/nein | Set 6er/8er/12er, Anzahl der Sets, Lautsprecher mit 2er/4er-Set |
+| Komfort (Lamellendach) | – | Heizstrahler, Wetter-Automatik |
+| Hauswand | – | Rauputz / Verklinkert / weiß nicht – im Modell sichtbar |
+| Untergrund | – | tragend / Punktfundamente / weiß nicht |
+| Dachvorsprung (TDS) | – | Regler, wie im Assistenten |
+| Farbe | vier Felder | dazu „Andere / Beratung“ |
+| Montage | **fehlte** | wieder da |
+
+Die Montage-Frage war beim Umbau auf das Vollbild-Layout aus dem Bedienfeld
+gefallen – jeder Besucher hätte stillschweigend „mit Fachmontage“ angefragt.
+Gefunden beim Abgleich der beiden Fragensätze.
+
+**Was der Assistent übernommen hat.** „Ohne“ beim Sonnenschutz: Wer keine
+Markise will, musste bisher „Noch unsicher – bitte beraten“ wählen und bekam
+einen Rückruf zu etwas, das er gar nicht möchte. Dazu die vier
+Polycarbonat-Ausführungen (siehe Eintrag davor).
+
+**Zwei Abweichungen bleiben, bewusst.** Der 3D-Konfigurator kennt bei der
+Eindeckung kein „Noch unsicher“ – das Modell muss immer etwas zeichnen. Und
+Bodenbelag, Maßlinien, Ansichten und Tag/Abend gibt es nur im 3D; das sind
+Darstellungsfragen, keine Produktfragen, und sie gehören nicht in die Anfrage.
+
+**Abgesichert.** `scripts/pruefe-konfigurator.js` vergleicht jetzt Wert für
+Wert, ob beide dasselbe fragen (Sonnenschutz, Untergrund, Fassade, Montage,
+Aufbau und die sechs Erweiterungen). Die Gegenprobe lässt die Listen
+absichtlich auseinanderlaufen und erkennt es – elf von elf eingebauten
+Fehlern. Der Browsertest prüft dazu die Regeln: Schiebetür zieht den Keil
+mit, Velaris sperrt die Senkrechtmarkise, und am Ende wird aus der
+Zusammenfassung des Assistenten zurückgelesen, dass Erweiterungen, LED-Set,
+Untergrund und Montage dort wirklich ankommen – 54 Prüfungen.
+
+**Gegenzulesen.** Ob „Rahmenwand unten, Schiebetür darüber“ auch im Modell
+richtig proportioniert ist (38 % der Höhe ist geschätzt), und ob die
+Velaris-Lamellen senkrecht stehend richtig dargestellt sind.

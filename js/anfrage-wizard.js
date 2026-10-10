@@ -402,6 +402,11 @@
           optionCards('markise', [
             { value: 'Plissees', img: 'plissee', photo: true, hint: 'Faltbar, moderne Optik' },
             { value: 'Sonnensegel', img: 'sonnensegel', photo: true, hint: 'Leichter, textiler Schattenspender' },
+            /* „Ohne" fehlte hier: Wer keine Markise will, musste bisher
+               „Noch unsicher" wählen – und bekam einen Rückruf zu etwas,
+               das er gar nicht möchte. Derselbe Wert steht im
+               3D-Konfigurator. */
+            { value: 'Ohne', icon: I.aus, iconBig: true, muted: true },
             { value: 'Noch unsicher – bitte beraten', icon: I.frage }
           ]) +
           '<p class="aw-note">Alle Varianten in vielen Farben erhältlich – den Farbwunsch klären wir persönlich.</p>';
@@ -1149,11 +1154,22 @@
     var v = window.bvKonfigVorgabe;
     if (!v || typeof v !== 'object') return;
 
+    /* Jedes Feld, das der 3D-Konfigurator schickt, muss hier stehen – sonst
+       kommt es nie an, ohne dass irgendwo eine Meldung erscheint. Genau das
+       war schon einmal passiert (dachausfuehrung). Welche Felder es gibt,
+       prüft scripts/pruefe-konfigurator.js. */
     var felder = ['produkt', 'aufbau', 'breite', 'tiefe', 'hoehe', 'verglasung',
                   'farbe', 'led', 'montage', 'dachart', 'carporttyp', 'carportvariante',
-                  'dach', 'ueberstand', 'seitenschutz', 'dachausfuehrung'];
+                  'dach', 'ueberstand', 'seitenschutz', 'dachausfuehrung',
+                  'fassade', 'untergrund', 'vorsprung', 'markise',
+                  'ledset', 'ledsetzahl', 'sound', 'soundset',
+                  'heizung', 'wettersensor'];
     felder.forEach(function (k) {
       if (v[k] != null && v[k] !== '') answers[k] = String(v[k]);
+    });
+    // Die seitlichen Erweiterungen sind Listen, keine einzelnen Werte
+    ['erw_links', 'erw_rechts', 'erw_vorne'].forEach(function (k) {
+      if (Array.isArray(v[k]) && v[k].length) answers[k] = v[k].slice();
     });
     if (v.notiz) answers.wunsch = v.notiz;
 
