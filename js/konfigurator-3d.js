@@ -709,13 +709,21 @@
        Gefälle ist der Grund, warum das Wasser in die Kehle läuft. Der
        Wert steht nicht in der Zeichnung – GESCHÄTZT. */
     wangeAb: 3.4,      // GESCHÄTZT
+    /* Um so viel liegt die Oberkante des Sparrens – und damit die
+       Unterseite der Eindeckung – unter der Nase der Rinne. Daraus
+       ergibt sich, dass das Glas ÜBER der Kehle endet und das Wasser
+       hineinläuft statt gegen die Rinnenwand zu laufen. Zusammen mit
+       wangeAb steht die Scheibe damit 18 mm über der hinteren Wange.
+       GESCHÄTZT; vom Betreiber beanstandet, dass die Rinne vorher zu
+       hoch stand. */
+    sparrenUnterNase: 1.6,   // GESCHÄTZT
     wand: 0.25         // GESCHÄTZT
   };
 
   /* Querschnitt der Rinne in der XY-Ebene: x läuft nach vorne (vom Haus
      weg), y nach oben. Gezeichnet wird der volle Umriss, die Rinnenkehle
      ist als Aussparung darin ausgeführt. */
-  function rinneQuerschnitt() {
+  function rinneQuerschnitt(mitKehle) {
     var B = RINNE.breite, H = RINNE.hoehe;
     var iB = RINNE.innenBreite, iT = RINNE.innenTiefe;
     var hinten = RINNE.rueckwand;
@@ -786,14 +794,14 @@
     kehle.quadraticCurveTo(hinten + iB, unten, hinten + iB, unten + r);
     kehle.lineTo(hinten + iB, H + 1);
     kehle.closePath();
-    f.holes.push(kehle);
+    if (mitKehle !== false) f.holes.push(kehle);
     return f;
   }
 
   /* Rinne über die volle Breite. laenge = Breite der Anlage in x,
      zVorne = Lage der Vorderkante in der Tiefe. */
   function rinneBauen(laenge, zVorne, yUnten, material) {
-    var g = new THREE.ExtrudeGeometry(rinneQuerschnitt(),
+    var g = new THREE.ExtrudeGeometry(rinneQuerschnitt(true),
       { depth: laenge, bevelEnabled: false, curveSegments: 6 });
     /* Das Profil entsteht in der XY-Ebene und wird in z gezogen. Gedreht
        liegt es quer: Querschnitt in der ZY-Ebene, Länge in x.
@@ -809,6 +817,27 @@
     m.castShadow = true; m.receiveShadow = true;
     bau.add(m);
     return m;
+  }
+
+  /* Seitendeckel der Rinne („Seitendeckel Rinne 2 TD beidseitig", Art.
+     6017 in der Teileliste der Montageanleitung). Sie schließen das
+     Profil an beiden Enden ab – ohne sie sieht man in ein offenes
+     Strangpressprofil, und genau das fiel dem Betreiber auf.
+
+     Der Deckel hat denselben Umriss wie die Rinne, aber ohne Kehle: er
+     deckt sie ja zu. Stärke 4 mm, GESCHÄTZT. */
+  function rinnenblenden(laenge, zVorne, yUnten, material) {
+    var dicke = 0.4;
+    [-1, 1].forEach(function (seite) {
+      var g = new THREE.ExtrudeGeometry(rinneQuerschnitt(false),
+        { depth: dicke, bevelEnabled: false, curveSegments: 6 });
+      g.rotateY(-Math.PI / 2);
+      g.translate(seite * (laenge / 2 + dicke) + (seite > 0 ? 0 : dicke),
+                  yUnten, zVorne - RINNE.breite);
+      var m = new THREE.Mesh(g, material);
+      m.castShadow = true; m.receiveShadow = true;
+      bau.add(m);
+    });
   }
 
   /* ---------- Dachsparren des TDS-Systems ----------
@@ -1726,6 +1755,7 @@
       balken(B, riH, riT, 0, hVorn + riH / 2, T - riT / 2, mAlu);
     } else {
       rinneBauen(B, T, hVorn, mAlu);
+      rinnenblenden(B, T, hVorn, mAlu);
     }
     balken(B, sky ? 20 : 14, frei ? 12 : 9, 0,
            hHinten + (sky ? 10 : 7), frei ? 6 : 4.5, mAlu);              // Wandprofil/Träger
@@ -1749,7 +1779,10 @@
     var dachTiefe = sky ? T : T - RINNE.breite;
     var laenge = dachTiefe / Math.cos(neig);
     var zMitte = dachTiefe / 2;
-    var glasUeber = sky ? 0 : 6;        // GESCHÄTZT: bis in die Kehle
+    /* Die Eindeckung ragt über das Sparrenende hinaus, bis etwa in die
+       Mitte der Kehle – sonst tropft das Wasser auf die Rinnenrückwand
+       statt in die Rinne. GESCHÄTZT. */
+    var glasUeber = sky ? 0 : RINNE.rueckwand + RINNE.innenBreite * 0.55;
 
     /* Der Sparren liegt in der Rinne: seine Oberkante schließt vorne mit
        der Rinnenoberkante ab, damit das Wasser von der Eindeckung in die
@@ -1758,7 +1791,7 @@
     /* Der Sparren endet auf der HINTEREN Wange der Rinne, die tiefer
        liegt als die Vorderkante – sonst entwässert das Dach nach außen
        über die Nase statt in die Kehle. */
-    var ukVorn = hVorn + (sky ? riH * 0.25 : riH - RINNE.wangeAb - spH);
+    var ukVorn = hVorn + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
     var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe / 2);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
