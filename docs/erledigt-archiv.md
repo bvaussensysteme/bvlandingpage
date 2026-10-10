@@ -6,6 +6,79 @@
 
 ---
 
+## 10.10.2026 – Carport und Flachdach SkyView im 3D-Konfigurator
+
+**Was war falsch.** Der Konfigurator konnte nur das Terrassendach TDS. Für
+Carport, Flachdach und Pergola stand unter dem Fenster nur der Hinweis, diese
+Systeme kämen später – obwohl der Carport das zweitstärkste Produkt ist und im
+Anfrage-Assistenten längst den ausführlichsten Ablauf hat (Typ, Ausführung,
+Dach, Nebenraum).
+
+Beim Abgleich mit dem Assistenten fielen drei stille Übergabefehler auf, die
+seit dem Bau des Konfigurators bestanden: Übergeben wurde `verglasung:
+"VSG-Glas"`, `led: "Ja"` und `farbe: "Anthrazit"`. Der Assistent kennt dort
+aber nur `"VSG-Glas Opal (milchig)"`, `"Ja, mit LED-Spots"` und
+`"Anthrazit (RAL 7016)"`. Folge: Wer zurückblätterte, fand keine Auswahl
+markiert – und in der E-Mail an den Betrieb stand bei der Beleuchtung eine
+**leere Zeile** (`LED-Beleuchtung: `), weil die Set-Größe fehlte. Der
+Kundenwunsch „mit LED" ging damit verloren, ohne dass irgendwo eine
+Fehlermeldung kam.
+
+**Was jetzt gilt.** Oben im Bedienfeld steht die Produktauswahl mit drei
+Einträgen:
+
+- **Terrassendach TDS** – wie bisher
+- **Flachdach SkyView** – flachere Neigung (2,5° statt 6°), schmalere Profile,
+  hohe gerade Frontblende
+- **Carport** – mit Carport-Typ (Carport TDS, Flat Line, Flat Box) und der
+  dazu passenden Ausführung; bei Flat Line und Flat Box tritt an die Stelle
+  der Eindeckung die Dachauswahl (Trapezblech, Solar, Dachbegrünung)
+
+Je Produkt gelten eigene Maßbereiche: ein Carport ist tiefer (4,5–8 m) und
+niedriger (2,0–2,6 m) als ein Terrassendach. Beim Produktwechsel springen die
+Schieberegler auf die Voreinstellung des neuen Produkts. Nicht passende
+Bedienfelder blenden sich aus (`data-k3d-fuer` in der Seite, ausgewertet in
+`gruppeGilt()`).
+
+Neu in der Geometrie: vier Pfosten statt zwei Reihen an der Wand, Längsträger,
+Dachüberstand (eigener Regler, 500–1500 mm), umlaufende waagerechte Blende mit
+innenliegendem Gefälle bei den Flachdächern, Solarmodule beziehungsweise
+Gründachaufbau, Seiten- und Hinterwandverkleidung, Sektionaltor und der
+abgetrennte Nebenraum im hinteren Drittel.
+
+Die Übergabe an den Anfrage-Assistenten verwendet jetzt durchgehend dessen
+eigene Auswahlwerte (`VORGABE_VERGLASUNG`, `VORGABE_LED`, `VORGABE_FARBE`,
+Carport-Typ und Ausführung wörtlich). Der Assistent nimmt zusätzlich die
+Felder `dach` und `ueberstand` entgegen. Steht „Ja" bei LED ohne gewählte
+Set-Größe, schreibt der Assistent „Ja – Set noch offen" statt einer leeren
+Zeile.
+
+**Was geprüft wurde.** `scripts/pruefe-konfigurator.js` (neu) liest aus den
+fertigen Dateien zurück und vergleicht jeden Übergabewert mit den
+Auswahlwerten des Assistenten – bewusst nicht über eine gemeinsame Liste, die
+den Fehler mitwandern ließe. Gegenprobe mit fünf eingebauten Fehlern:
+bestanden. Dazu ein Browser-Durchlauf (Playwright, SwiftShader) über sieben
+Produkt- und Ausführungskombinationen: jede erzeugt ein anderes Bild
+(Bildsignaturen alle verschieden), keine JS-Fehler, Querscrollen auf dem
+iPhone-Format nein. Nach der Übergabe wurde im Assistenten zurückgeblättert
+und abgelesen, welche Karten als gewählt markiert sind – Produkt, Carport-Typ,
+Ausführung, Dach, Eindeckung, LED, Farbe und Montage standen alle richtig.
+
+**Was gegengelesen werden soll.** Ob die Carport-Darstellung dem entspricht,
+was tatsächlich gebaut wird: Pfostenmaß (angenommen 14 cm), Tiefe des
+Nebenraums (gedeckelt auf 1,6 m), Höhe der Flachdach-Blende (26 cm) und die
+Standardmaße, die beim Umschalten erscheinen (3200 × 5500 mm, Durchfahrt
+2200 mm). Außerdem: Darf Flat Box wirklich alle vier Standardfarben (nur Flat
+Line ist auf drei beschränkt)?
+
+**Was verworfen wurde.** Eine eigene Konfigurator-Seite je Produkt – vier
+Seiten mit fast gleichem Inhalt hätten sich gegenseitig Konkurrenz gemacht und
+viermal gepflegt werden müssen. Ebenso die Idee, die Maße beim Produktwechsel
+umzurechnen statt zurückzusetzen: ein 3 m tiefes Terrassendach ergibt als
+Carport keinen sinnvollen Startwert.
+
+---
+
 ## 10.10.2026 – 3D-Konfigurator Terrassendach TDS (PR #256, live)
 
 **Was war falsch.** `konfigurator.html` war eine „Kommt bald"-Seite mit

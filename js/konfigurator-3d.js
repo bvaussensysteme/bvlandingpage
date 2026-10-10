@@ -1,9 +1,17 @@
 /* ============================================================
-   BV AussenSysteme – 3D-Konfigurator Terrassendach TDS
+   BV AussenSysteme – 3D-Konfigurator
 
    Zeigt die gewählte Konfiguration als dreidimensionales Modell:
-   Maße, Aufbau, Eindeckung, Farbe und Seitenelemente wirken sich
-   sofort auf das Bild aus.
+   Produkt, Maße, Aufbau, Eindeckung, Farbe und Seitenelemente
+   wirken sich sofort auf das Bild aus.
+
+   Produkte:
+     · Terrassendach TDS   – klassisch geneigtes Profildach
+     · Flachdach SkyView   – flachere Neigung, schmalere Profile,
+                             hohe gerade Frontblende
+     · Carport             – Carport TDS (geneigt, Glas/Polycarbonat),
+                             Flat Line und Flat Box (Flachdach mit
+                             umlaufender Blende, optional verkleidet)
 
    Warum eigene Kamerasteuerung statt OrbitControls?
    OrbitControls liegt nicht im Kern von three.js und käme von einem
@@ -19,6 +27,11 @@
    Der Zustand führt alle Maße in Millimeter – so, wie im Aufmaß
    gearbeitet wird. Für die Geometrie wird intern durch zehn geteilt,
    weil sich in Zentimetern angenehmer mit den Profilmaßen rechnen lässt.
+
+   Die Werte, die an den Anfrage-Assistenten gehen (VORGABE_* weiter
+   unten), müssen wörtlich den Auswahlmöglichkeiten im Assistenten
+   entsprechen. Sonst steht im Angebot eine Angabe, die der Assistent
+   nicht kennt – geprüft von scripts/pruefe-konfigurator.js.
    ============================================================ */
 (function () {
   'use strict';
@@ -28,6 +41,12 @@
 
   /* ---------- Zustand ---------- */
   var Z = {
+    produkt: 'Terrassendach TDS',
+    cpTyp: 'Carport TDS',
+    cpVariante: 'Freistehender Carport',
+    cpDach: 'Trapezblech (Standard)',
+    ueberstand: 1000,
+    neigung: 8,            // Grad; BELEGT als Standard, nur bei TDS einstellbar
     aufbau: 'Wandmontage',
     breite: 5000,
     tiefe: 3000,
@@ -49,10 +68,138 @@
     'Reinweiß':       0xf1f1ec
   };
 
-  /* Dachneigung: klassisch rund 6 Grad, damit Regen sicher abläuft */
-  var NEIGUNG = 6 * Math.PI / 180;
-  var PROFIL = 12;          // Kantenlänge der Aluminiumprofile
-  var SPARREN_ABSTAND = 110; // Richtwert, wird gleichmäßig verteilt
+  /* Maßbereiche je Produkt: [min, max, Schrittweite, Voreinstellung].
+     Ein Carport ist deutlich tiefer als ein Terrassendach (Fahrzeuglänge
+     plus Bewegungsraum), dafür niedriger – deshalb eigene Bereiche. */
+  var MASSE = {
+    'Terrassendach TDS': {
+      breite: [2500, 7000, 100, 5000],
+      tiefe:  [2000, 4500, 100, 3000],
+      hoehe:  [2000, 2700,  50, 2300]
+    },
+    'Flachdach SkyView': {
+      breite: [2500, 7000, 100, 5000],
+      tiefe:  [2000, 4500, 100, 3000],
+      hoehe:  [2000, 2700,  50, 2400]
+    },
+    'Carport': {
+      breite: [2700, 6500, 100, 3200],
+      tiefe:  [4500, 8000, 100, 5500],
+      hoehe:  [2000, 2600,  50, 2200]
+    }
+  };
+
+  /* Ausführungen je Carport-Typ – wörtlich wie im Anfrage-Assistenten */
+  var CP_VARIANTEN = {
+    'Carport TDS': [
+      ['Freistehender Carport', 'Freistehend'],
+      ['Carport mit Wandmontage', 'An der Hauswand'],
+      ['Carport mit Überstand', 'Mit Dachüberstand']
+    ],
+    'Flachdach Flat Line': [
+      ['Flat Line', 'Reines Flachdach'],
+      ['Flat Line mit Nebenraum', 'Mit Abstellraum']
+    ],
+    'Flachdach Flat Box': [
+      ['Flat Box – Seiten & Hinterwand verkleidet', 'Teilverkleidet'],
+      ['Flat Box – rundum verkleidet mit Garagentor', 'Mit Garagentor'],
+      ['Flat Box – mit Nebenraum', 'Mit Abstellraum']
+    ]
+  };
+
+  /* Übersetzung in die Auswahlwerte des Anfrage-Assistenten.
+     Die Eindeckung heißt dort ausführlicher ("VSG-Glas Opal (milchig)").
+     Vorher ging nur "VSG-Glas" hinüber – die Unterscheidung klar/opal
+     ging damit auf dem Weg in die Anfrage verloren. */
+  var VORGABE_VERGLASUNG = {
+    'VSG klar':     'VSG-Glas klar',
+    'VSG opal':     'VSG-Glas Opal (milchig)',
+    'Polycarbonat': 'Polycarbonat klar'
+  };
+  var VORGABE_LED = {
+    ja:   'Ja, mit LED-Spots',
+    nein: 'Nein, ohne Beleuchtung'
+  };
+  /* Die Farben führen im Assistenten die RAL-Nummer mit. Ohne Übersetzung
+     war im Assistenten keine Farbe markiert, obwohl eine gewählt war. */
+  var VORGABE_FARBE = {
+    'Anthrazit':     'Anthrazit (RAL 7016)',
+    'Weißaluminium': 'Weißaluminium (RAL 9006)',
+    'Graualuminium': 'Graualuminium (RAL 9007)',
+    'Reinweiß':      'Reinweiß (RAL 9010)'
+  };
+
+  var SPARREN_ABSTAND = 110; // Richtwert, nur für die geschätzten Carports
+
+  /* Welches Produkt steht in welcher Preisliste? Was hier null liefert, hat
+     keine Herstellerdaten und wird geschätzt gebaut. Carport Flat Line läuft
+     über die Flat-Line-Matrix – dort ist das System als freistehendes
+     Flachdach mit Trapezblech geführt, unabhängig davon, dass der Betrieb es
+     als Carport verkauft. */
+  function datenSystem() {
+    if (!RASTER) return null;        // ohne Serverantwort: geschätzte Skizze
+    var mat = Z.eindeckung === 'Polycarbonat' ? 'Polycarbonat' : 'Glas';
+    var d = null;
+    if (Z.produkt === 'Terrassendach TDS') d = { system: 'TDS', material: mat };
+    else if (Z.produkt === 'Flachdach SkyView') d = { system: 'SkyView', material: mat };
+    else if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
+      d = { system: 'Flat Line', material: 'Trapezblech' };
+    }
+    if (!d || !RASTER[d.system + '|' + d.material]) return null;
+    return d;
+  }
+
+  /* ---------- Stückliste: der Server rechnet ----------
+     Die Sparren- und Stützfußmatrix des Herstellers bleibt auf dem Server.
+     Der Browser schickt ein Maß an /api/bauteile und bekommt genau eine
+     Stückliste zurück – nie die Tabelle. Das ist keine Vorsichtsmaßnahme
+     aus Bequemlichkeit: An der Matrix besteht ein Datenbankherstellerrecht,
+     und die Quelle erlaubt ausdrücklich nur, Ergebnisse zu zeigen.
+
+     Antwortet der Server nicht, bleibt der Konfigurator benutzbar – dann
+     zeigt er die geschätzte Skizze statt falscher Zahlen. */
+  var RASTER = null;          // welche Maße es gibt, einmal beim Laden geholt
+  var LETZTE = null;          // zuletzt geholte Stückliste
+  var LETZTER_SCHLUESSEL = null;
+  var laufendeNr = 0;
+
+  function stueckliste() { return LETZTE; }
+
+  function anfrageSchluessel(d) {
+    return [d.system, d.material, Z.breite, Z.tiefe,
+            Z.aufbau === 'Freistehend' ? 1 : 0].join('|');
+  }
+
+  function rasterHolen(fertig) {
+    fetch('/api/bauteile?raster=1', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { RASTER = (j && j.raster) ? j.raster : null; fertig(); })
+      .catch(function () { RASTER = null; fertig(); });
+  }
+
+  function stuecklisteHolen(fertig) {
+    var d = datenSystem();
+    if (!d) { LETZTE = null; LETZTER_SCHLUESSEL = null; fertig(); return; }
+    var schl = anfrageSchluessel(d);
+    if (schl === LETZTER_SCHLUESSEL && LETZTE) { fertig(); return; }
+    var nr = ++laufendeNr;
+    var frage = '/api/bauteile?system=' + encodeURIComponent(d.system) +
+                '&material=' + encodeURIComponent(d.material) +
+                '&breite=' + Z.breite + '&tiefe=' + Z.tiefe +
+                (Z.aufbau === 'Freistehend' ? '&freistehend=1' : '');
+    fetch(frage, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (nr !== laufendeNr) return;        // überholte Antwort verwerfen
+        LETZTE = (j && !j.fehler) ? j : null;
+        LETZTER_SCHLUESSEL = LETZTE ? schl : null;
+        fertig();
+      })
+      .catch(function () {
+        if (nr !== laufendeNr) return;
+        LETZTE = null; LETZTER_SCHLUESSEL = null; fertig();
+      });
+  }
 
   /* ---------- Szene ---------- */
   var renderer = new THREE.WebGLRenderer({
@@ -84,7 +231,7 @@
   fuell.position.set(400, 300, -300);
   szene.add(fuell);
 
-  /* Boden: angedeutete Terrassenfläche auf Rasen */
+  /* Boden: angedeutete Terrassen- bzw. Stellfläche auf Rasen */
   var rasen = new THREE.Mesh(
     new THREE.PlaneGeometry(4000, 4000),
     new THREE.MeshStandardMaterial({ color: 0x5f7544, roughness: 1 })
@@ -94,12 +241,12 @@
   rasen.receiveShadow = true;
   szene.add(rasen);
 
-  var terrasse = new THREE.Mesh(
+  var belag = new THREE.Mesh(
     new THREE.BoxGeometry(1, 2, 1),
     new THREE.MeshStandardMaterial({ color: 0x8e867a, roughness: 0.85 })
   );
-  terrasse.receiveShadow = true;
-  szene.add(terrasse);
+  belag.receiveShadow = true;
+  szene.add(belag);
 
   /* Hauswand – nur bei Wandmontage sichtbar */
   var wand = new THREE.Mesh(
@@ -120,6 +267,14 @@
     });
   }
 
+  /* Verkleidungsbleche sind matter als die tragenden Profile */
+  function blech() {
+    return new THREE.MeshStandardMaterial({
+      color: FARBEN[Z.farbe] || FARBEN['Anthrazit'],
+      metalness: 0.4, roughness: 0.68
+    });
+  }
+
   function dachfuellung() {
     if (Z.eindeckung === 'VSG opal') {
       return new THREE.MeshPhysicalMaterial({
@@ -136,6 +291,16 @@
     return new THREE.MeshPhysicalMaterial({        // VSG klar
       color: 0xd8ecf2, transparent: true, opacity: 0.26,
       roughness: 0.05, metalness: 0, side: THREE.DoubleSide
+    });
+  }
+
+  /* Trapezblech T35M-0,75 – blickdicht. Rippenabstand und Deckbreite sind
+     nicht belegt (offene-punkte.md, Punkt F), deshalb eine glatte Fläche
+     statt einer falschen Welle. */
+  function trapezblechMaterial() {
+    return new THREE.MeshStandardMaterial({
+      color: FARBEN[Z.farbe] || FARBEN['Anthrazit'],
+      metalness: 0.45, roughness: 0.62
     });
   }
 
@@ -167,86 +332,192 @@
     }
   }
 
+  /* Gleichmäßig verteilte x-Positionen für Pfosten oder Sparren */
+  function verteilen(anzahl, B, rand) {
+    var xs = [];
+    for (var i = 0; i < anzahl; i++) {
+      xs.push(-B / 2 + rand + (B - 2 * rand) * (anzahl === 1 ? 0.5 : i / (anzahl - 1)));
+    }
+    return xs;
+  }
+
+  /* LED-Spots an der Dachunterseite. hoeheBei(z) liefert die Unterkante
+     an der jeweiligen Stelle, damit die Spots auch im Gefälle sitzen. */
+  function ledSpots(xs, zs, hoeheBei) {
+    var mLicht = new THREE.MeshBasicMaterial({ color: Z.abend ? 0xfff2cd : 0xe9e4d6 });
+    var r = Z.abend ? 4.2 : 3.2;
+    xs.forEach(function (x) {
+      zs.forEach(function (z) {
+        var spot = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1.2, 12), mLicht);
+        spot.position.set(x, hoeheBei(z) - 2, z);
+        bau.add(spot);
+      });
+    });
+    if (Z.abend) {
+      var mitteZ = zs.length ? zs.reduce(function (a, b) { return a + b; }, 0) / zs.length : 0;
+      var schein = new THREE.PointLight(0xffd79a, 0.9, 900, 2);
+      schein.position.set(0, hoeheBei(mitteZ) - 20, mitteZ);
+      bau.add(schein);
+    }
+  }
+
   /* ---------- Modell aufbauen ----------
      Nullpunkt liegt mittig an der Wand auf Bodenhöhe. Die Tiefe läuft
      nach +z (vom Haus weg), die Breite nach +/-x. */
   function bauen() {
+    var e = stueckliste();
+    /* Gehört das Produkt in die Preisliste, liegt die Antwort aber noch
+       nicht vor, bleibt die vorige Zeichnung stehen. Sonst zeichnete hier
+       kurz ein Carport, wo ein Terrassendach hingehört. */
+    if (!e && datenSystem()) return;
     leeren(bau);
+    if (e && !e.fehler) bauenAusDaten(e);
+    else bauenGeschaetzt();
+    stimmung();
+    kameraAnpassen();
+  }
 
-    var B = Z.breite / 10, T = Z.tiefe / 10;   // Millimeter -> Zentimeter
-    var hVorn = Z.hoehe / 10;                  // Durchgangshöhe vorne
-    var hHinten = hVorn + Math.tan(NEIGUNG) * T;
+  /* ---------- Modell aus der Stückliste ----------
+     Für TDS, SkyView und Flat Line. Jede Stückzahl kommt aus bauteile();
+     hier wird nichts gezählt und nichts gerundet. Die Querschnitte sind bis
+     auf Pfosten und Statikträger geschätzt – siehe daten/offene-punkte.md. */
+  function bauenAusDaten(e) {
+    var m = e.masse, g = m.geschaetzt;
+    /* Gezeichnet wird das KUNDENMASS – gebaut wird danach. Aus dem
+       Rasterfeld kommen nur die Stückzahlen (Sparren, Pfosten) und die
+       Statik, weil danach abgerechnet wird. Die beiden nicht verwechseln. */
+    var B = Z.breite / 10, T = Z.tiefe / 10;                 // mm -> cm
+    var pf = m.pfosten.breite / 10;                          // 110 mm, BELEGT
+    var spB = g.sparren.breite / 10, spH = g.sparren.hoehe / 10;   // GESCHÄTZT
+    var riH = g.rinne.hoehe / 10, riT = g.rinne.tiefe / 10;        // GESCHÄTZT
+    var wpH = g.wandprofil.hoehe / 10, wpA = g.wandprofil.ausladung / 10;
+    var stH = m.statiktraeger.hoehe / 10, stB = m.statiktraeger.breite / 10;
+
+    // BELEGT (Montageanleitung S. 25): Pfostenachse 55 mm hinter der Vorderkante
+    var zPfosten = T - e.pfostenachseVonVorderkante / 10;
+    var neig = e.geneigt ? Z.neigung * Math.PI / 180 : 0;
+    var hVorn = Z.hoehe / 10;                                // UK Rinne
+    var hHinten = hVorn + Math.tan(neig) * T;
     var mAlu = alu();
+    var trapez = e.material === 'Trapezblech';
 
-    /* Umgebung an die Größe anpassen */
-    terrasse.scale.set(B + 160, 1, T + 120);
-    terrasse.position.set(0, -1, (T + 120) / 2 - 60);
-    wand.visible = (Z.aufbau === 'Wandmontage');
+    /* Umgebung */
+    belag.scale.set(B + 180, 1, T + (e.freistehend ? 240 : 120));
+    belag.position.set(0, -1, (T + 120) / 2 - 60);
+    wand.visible = !e.freistehend;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
 
-    /* Pfosten */
-    var pfostenPaare = B > 600 ? 3 : 2;
-    var xPos = [];
-    for (var i = 0; i < pfostenPaare; i++) {
-      xPos.push(-B / 2 + PROFIL / 2 + (B - PROFIL) * (i / (pfostenPaare - 1)));
-    }
-    xPos.forEach(function (x) {
-      balken(PROFIL, hVorn, PROFIL, x, hVorn / 2, T - PROFIL / 2, mAlu);
-      if (Z.aufbau === 'Freistehend') {
-        balken(PROFIL, hHinten, PROFIL, x, hHinten / 2, PROFIL / 2, mAlu);
-      }
+    /* Pfosten. Die Verteilung über die Breite ist NICHT belegt
+       (offene-punkte.md, Punkt D) – hier gleichmäßig, Eckpfosten bündig. */
+    var xP = verteilen(e.pfostenJeReihe, B, pf / 2);
+    xP.forEach(function (x) {
+      balken(pf, hVorn, pf, x, hVorn / 2, zPfosten, mAlu);
+      if (e.freistehend) balken(pf, hHinten, pf, x, hHinten / 2, pf / 2, mAlu);
     });
 
-    /* Vorderes Profil mit Regenrinne, hinteres Wand- bzw. Trägerprofil */
-    balken(B, PROFIL * 1.6, PROFIL * 1.3, 0, hVorn + PROFIL * 0.8, T - PROFIL / 2, mAlu);
-    balken(B, PROFIL * 1.4, PROFIL, 0, hHinten + PROFIL * 0.7, PROFIL / 2, mAlu);
+    /* Rinne vorne über die volle Breite */
+    balken(B, riH, riT, 0, hVorn + riH / 2, T - riT / 2, mAlu);
 
-    /* Sparren samt Dachfüllung dazwischen */
-    var felder = Math.max(2, Math.round(B / SPARREN_ABSTAND));
-    var sparrenX = [];
-    for (var s = 0; s <= felder; s++) sparrenX.push(-B / 2 + (B * s / felder));
+    /* Hinten: Wandprofil bei Wandmontage, sonst Statikträger plus Blende.
+       BELEGT (technische-daten.md 11): freistehend ersetzt das Wandprofil
+       durch einen Statikträger über die volle Breite samt Blende. */
+    if (e.freistehend) {
+      balken(B, stH, stB, 0, hHinten + stH / 2, stB / 2, mAlu);
+    } else {
+      balken(B, wpH, wpA, 0, hHinten + wpH / 2, wpA / 2, mAlu);
+    }
 
-    var laenge = Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2));
-    var mitteY = (hVorn + hHinten) / 2 + PROFIL * 0.9;
-    var mitteZ = T / 2;
-
-    sparrenX.forEach(function (x) {
-      var sp = new THREE.Mesh(new THREE.BoxGeometry(PROFIL * 0.75, PROFIL, laenge), mAlu);
-      sp.position.set(x, mitteY, mitteZ);
-      sp.rotation.x = NEIGUNG;
+    /* Sparren: genau e.sparren Stück. Randsparren außen bündig – ANNAHME
+       (offene-punkte.md, Punkt C). Länge = Tiefe / cos(Neigung), weil die
+       Tiefe das waagerechte Grundrissmaß ist (BELEGT). */
+    var xS = verteilen(e.sparren, B, spB / 2);
+    var laenge = T / Math.cos(neig);
+    var mitteY = (hVorn + hHinten) / 2 + riH * 0.25 + spH / 2;
+    xS.forEach(function (x) {
+      var sp = new THREE.Mesh(new THREE.BoxGeometry(spB, spH, laenge), mAlu);
+      sp.position.set(x, mitteY, T / 2);
+      sp.rotation.x = neig;
       sp.castShadow = true; sp.receiveShadow = true;
       bau.add(sp);
     });
 
-    var mFuellung = dachfuellung();
-    for (var f = 0; f < felder; f++) {
-      var feldBreite = (B / felder) - PROFIL * 0.75;
-      var platte = new THREE.Mesh(new THREE.BoxGeometry(feldBreite, 1.6, laenge - 2), mFuellung);
-      platte.position.set((sparrenX[f] + sparrenX[f + 1]) / 2, mitteY + PROFIL * 0.35, mitteZ);
-      platte.rotation.x = NEIGUNG;
-      bau.add(platte);
+    /* Statikträger als Unterzug quer unter den Sparren.
+       GESCHÄTZT ist seine Lage in der Tiefe: Die Quelle sagt nur, dass die
+       Eindeckung an ihm quer geteilt wird – also muss er dort liegen, wo die
+       Fuge sitzt. Mittig ist die einzige Lage, bei der beide Hälften gleich
+       lang werden. „unter Rinne" oder „überstehend" sind die belegten
+       Varianten; welche hier gilt, ist offen (offene-punkte.md, Punkt F). */
+    var zUnterzug = T / 2;
+    if (e.eindeckungGeteilt) {
+      var yU = hVorn + Math.tan(neig) * (T - zUnterzug) - stH / 2 + 2;
+      balken(B, stH, stB, 0, yU, zUnterzug, mAlu);
+      balken(B, g.traegerblende.hoehe / 10, g.traegerblende.staerke / 10,
+             0, yU + stH / 2 + g.traegerblende.hoehe / 20, zUnterzug + stB / 2, mAlu);
     }
 
-    /* Seitenelemente */
-    function seite(art, x, drehen) {
+    /* Eindeckung: ein Feld je Sparrenzwischenraum. Bei geteilter Eindeckung
+       zwei Platten übereinander mit Fuge am Unterzug. */
+    var mFuell = trapez ? trapezblechMaterial() : dachfuellung();
+    var yDach = mitteY + spH / 2;
+    for (var f = 0; f < xS.length - 1; f++) {
+      var mitteX = (xS[f] + xS[f + 1]) / 2;
+      var feldB = (xS[f + 1] - xS[f]) - spB;
+      if (feldB <= 0) continue;
+      if (e.eindeckungGeteilt) {
+        [[0, zUnterzug], [zUnterzug, T]].forEach(function (ab) {
+          var l = (ab[1] - ab[0]) / Math.cos(neig) - 1.5;
+          var zm = (ab[0] + ab[1]) / 2;
+          var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, 1.6, l), mFuell);
+          pl.position.set(mitteX, yDach + Math.tan(neig) * (T / 2 - zm), zm);
+          pl.rotation.x = neig;
+          bau.add(pl);
+        });
+      } else {
+        var platte = new THREE.Mesh(new THREE.BoxGeometry(feldB, 1.6, laenge - 2), mFuell);
+        platte.position.set(mitteX, yDach, T / 2);
+        platte.rotation.x = neig;
+        bau.add(platte);
+      }
+    }
+
+    /* Flat Line: blickdichtes Blech, dazu die umlaufende Blende */
+    if (trapez) {
+      var bl = g.blende.hoehe / 10, bs = g.blende.staerke / 10;
+      [-B / 2 - bs / 2, B / 2 + bs / 2].forEach(function (x) {
+        balken(bs, bl, T, x, hVorn + bl / 2, T / 2, mAlu);
+      });
+    }
+
+    /* Seitenelemente nur bei den Wandsystemen */
+    if (!e.freistehend) seitenelemente(B, T, hVorn, pf);
+
+    if (Z.led) {
+      var mitten = [];
+      for (var i = 0; i < xS.length - 1; i++) mitten.push((xS[i] + xS[i + 1]) / 2);
+      ledSpots(mitten, [T * 0.3, T * 0.72], function (z) {
+        return hVorn + Math.tan(neig) * (T - z) + riH * 0.2;
+      });
+    }
+  }
+
+  /* Seitliche und vordere Glaselemente – unverändert, sie hängen nicht an
+     der Preisliste, sondern sind Zubehör. */
+  function seitenelemente(B, T, hVorn, PROFIL) {
+    function seite(art, x) {
       if (art === 'offen') return;
       var hoch = hVorn - PROFIL;
       var breiteEl = T - PROFIL * 2;
       var mGlas = seitenglas();
       var rahmen = alu();
-
       var scheibe = new THREE.Mesh(new THREE.BoxGeometry(breiteEl, hoch, 1.4), mGlas);
       scheibe.position.set(x, hoch / 2 + PROFIL / 2, T / 2);
       scheibe.rotation.y = Math.PI / 2;
       bau.add(scheibe);
-
-      // Rahmen oben und unten, bei Schiebeelementen zusätzlich die Teilung
       var r1 = new THREE.Mesh(new THREE.BoxGeometry(6, 5, breiteEl), rahmen);
       r1.position.set(x, PROFIL / 2, T / 2); r1.castShadow = true; bau.add(r1);
       var r2 = new THREE.Mesh(new THREE.BoxGeometry(6, 5, breiteEl), rahmen);
       r2.position.set(x, hoch + PROFIL / 2, T / 2); r2.castShadow = true; bau.add(r2);
-
       if (art === 'Schiebeelement') {
         for (var t = 1; t <= 2; t++) {
           var teiler = new THREE.Mesh(new THREE.BoxGeometry(6, hoch, 4), rahmen);
@@ -255,13 +526,12 @@
         }
       }
     }
-    seite(Z.links, -B / 2 + PROFIL / 2, false);
-    seite(Z.rechts, B / 2 - PROFIL / 2, false);
+    seite(Z.links, -B / 2 + PROFIL / 2);
+    seite(Z.rechts, B / 2 - PROFIL / 2);
 
     if (Z.front !== 'offen') {
       var hochF = hVorn - PROFIL;
-      var mGlasF = seitenglas();
-      var scheibeF = new THREE.Mesh(new THREE.BoxGeometry(B - PROFIL * 2, hochF, 1.4), mGlasF);
+      var scheibeF = new THREE.Mesh(new THREE.BoxGeometry(B - PROFIL * 2, hochF, 1.4), seitenglas());
       scheibeF.position.set(0, hochF / 2 + PROFIL / 2, T - PROFIL);
       bau.add(scheibeF);
       var rahmenF = alu();
@@ -276,32 +546,197 @@
         }
       }
     }
+  }
 
-    /* LED-Spots in den Sparren – am Abend sichtbar */
-    if (Z.led) {
-      var mLicht = new THREE.MeshBasicMaterial({ color: Z.abend ? 0xfff2cd : 0xe9e4d6 });
-      for (var g = 0; g < felder; g++) {
-        for (var r = 0; r < 2; r++) {
-          var spot = new THREE.Mesh(new THREE.CylinderGeometry(Z.abend ? 4.2 : 3.2, Z.abend ? 4.2 : 3.2, 1.2, 12), mLicht);
-          var zz = T * (0.3 + r * 0.42);
-          spot.position.set((sparrenX[g] + sparrenX[g + 1]) / 2,
-                            hVorn + PROFIL * 0.8 + Math.tan(NEIGUNG) * (T - zz) - 2, zz);
-          bau.add(spot);
-        }
+  /* ---------- Modell ohne Herstellerdaten ----------
+     Carport TDS und Flat Box kommen in der gelieferten Preismatrix nicht
+     vor. Bis die Zahlen da sind, bleibt hier die maßstäbliche Skizze von
+     vorher: Sparrenabstand als Richtwert, Pfostenmaß 140 mm, Blendenhöhe
+     260 mm – alles GESCHÄTZT. Die Oberfläche weist darauf hin.
+     Flat Line läuft NICHT hierüber, dafür gibt es Daten. */
+  function bauenGeschaetzt() {
+    var tds = Z.cpTyp === 'Carport TDS';
+    var variante = Z.cpVariante;
+    var anWand = variante === 'Carport mit Wandmontage';
+    var ueberstand = (variante === 'Carport mit Überstand') ? Z.ueberstand / 10 : 0;
+    var verkleidet = variante.indexOf('verkleidet') > -1;
+    var garagentor = variante.indexOf('Garagentor') > -1;
+    var nebenraum = variante.indexOf('Nebenraum') > -1;
+
+    var PROFIL = 14;                                   // Carport-Stützen sind kräftiger
+    var NEIGUNG = (tds ? 6 : 1.5) * Math.PI / 180;
+    var B = Z.breite / 10, T = Z.tiefe / 10;
+    var hVorn = Z.hoehe / 10;                          // Durchfahrtshöhe vorne
+    var hHinten = hVorn + Math.tan(NEIGUNG) * T;
+    var mAlu = alu();
+
+    /* Umgebung: gepflasterte Zufahrt statt Terrassenbelag */
+    belag.scale.set(B + 200, 1, T + 260);
+    belag.position.set(0, -1, (T + 260) / 2 - 130);
+    wand.visible = anWand;
+    wand.scale.set(B + 420, hHinten + 190, 1);
+    wand.position.set(0, (hHinten + 190) / 2, -12);
+
+    /* Pfosten: vorne immer, hinten nur ohne Wandmontage */
+    var paare = B > 450 ? 3 : 2;
+    var xPos = verteilen(paare, B, PROFIL / 2);
+    xPos.forEach(function (x) {
+      balken(PROFIL, hVorn, PROFIL, x, hVorn / 2, T - PROFIL / 2, mAlu);
+      if (!anWand) balken(PROFIL, hHinten, PROFIL, x, hHinten / 2, PROFIL / 2, mAlu);
+    });
+
+    /* Längsträger links und rechts – tragen die Dachlast zwischen den Pfosten */
+    var traegerL = Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2));
+    [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2].forEach(function (x) {
+      var tr = new THREE.Mesh(new THREE.BoxGeometry(PROFIL * 0.8, PROFIL * 1.3, traegerL), mAlu);
+      tr.position.set(x, (hVorn + hHinten) / 2 + PROFIL * 0.65, T / 2);
+      tr.rotation.x = NEIGUNG;
+      tr.castShadow = true; tr.receiveShadow = true;
+      bau.add(tr);
+    });
+
+    if (tds) {
+      /* Geneigtes Profildach wie beim Terrassendach, auf Wunsch mit
+         Dachüberstand über die vorderen Pfosten hinaus. */
+      var TD = T + ueberstand;
+      var hKante = hHinten - Math.tan(NEIGUNG) * TD;   // Dachkante vorne
+      balken(B, PROFIL * 1.6, PROFIL * 1.3, 0, hKante + PROFIL * 0.8, TD - PROFIL / 2, mAlu);
+      balken(B, PROFIL * 1.4, PROFIL, 0, hHinten + PROFIL * 0.7, PROFIL / 2, mAlu);
+
+      var felder = Math.max(2, Math.round(B / SPARREN_ABSTAND));
+      var sparrenX = [];
+      for (var s = 0; s <= felder; s++) sparrenX.push(-B / 2 + (B * s / felder));
+      var laenge = Math.sqrt(TD * TD + Math.pow(hHinten - hKante, 2));
+      var mitteY = (hKante + hHinten) / 2 + PROFIL * 0.9;
+      var mitteZ = TD / 2;
+
+      sparrenX.forEach(function (x) {
+        var sp = new THREE.Mesh(new THREE.BoxGeometry(PROFIL * 0.7, PROFIL, laenge), mAlu);
+        sp.position.set(x, mitteY, mitteZ);
+        sp.rotation.x = NEIGUNG;
+        sp.castShadow = true; sp.receiveShadow = true;
+        bau.add(sp);
+      });
+
+      var mFuellung = dachfuellung();
+      for (var f = 0; f < felder; f++) {
+        var platte = new THREE.Mesh(
+          new THREE.BoxGeometry((B / felder) - PROFIL * 0.7, 1.6, laenge - 2), mFuellung);
+        platte.position.set((sparrenX[f] + sparrenX[f + 1]) / 2, mitteY + PROFIL * 0.35, mitteZ);
+        platte.rotation.x = NEIGUNG;
+        bau.add(platte);
       }
-      if (Z.abend) {
-        var schein = new THREE.PointLight(0xffd79a, 0.9, 900, 2);
-        schein.position.set(0, hVorn - 20, T * 0.5);
-        bau.add(schein);
+
+      if (Z.led) {
+        var mittenX = [];
+        for (var g = 0; g < felder; g++) mittenX.push((sparrenX[g] + sparrenX[g + 1]) / 2);
+        ledSpots(mittenX, [T * 0.25, T * 0.6, T * 0.92], function (z) {
+          return hHinten + PROFIL * 0.8 - Math.tan(NEIGUNG) * z;
+        });
+      }
+    } else {
+      /* Flachdach hinter umlaufender Blende (Attika). Die Blende bleibt
+         waagerecht; das Dachblech darin fällt nach vorne ab, die Rinne
+         liegt verdeckt dahinter – genau das macht die Flat-Line-Optik. */
+      var blendeH = 26;
+      var oben = hVorn + blendeH;
+      var mBlech = blech();
+
+      balken(B + 4, blendeH, 5, 0, hVorn + blendeH / 2, T + 1, mBlech);   // vorne
+      balken(B + 4, blendeH, 5, 0, hVorn + blendeH / 2, -1, mBlech);      // hinten
+      [-B / 2 - 1, B / 2 + 1].forEach(function (x) {
+        balken(5, blendeH, T + 4, x, hVorn + blendeH / 2, T / 2, mBlech);
+      });
+
+      var gefaelle = Math.tan(NEIGUNG) * T;
+      var deckL = Math.sqrt(T * T + gefaelle * gefaelle);
+      var deck = new THREE.Mesh(
+        new THREE.BoxGeometry(B - 2, 4, deckL),
+        new THREE.MeshStandardMaterial({
+          color: 0x6f7377, metalness: 0.45, roughness: 0.62   // Trapezblech
+        })
+      );
+      deck.position.set(0, oben - 6 - gefaelle / 2, T / 2);
+      deck.rotation.x = NEIGUNG;
+      deck.castShadow = true; deck.receiveShadow = true;
+      bau.add(deck);
+
+      if (Z.cpDach === 'Solar (PV-Anlage)') {
+        var mModul = new THREE.MeshStandardMaterial({
+          color: 0x1d2a40, metalness: 0.3, roughness: 0.35
+        });
+        var reihen = Math.max(2, Math.floor((T - 40) / 100));
+        var spalten = Math.max(2, Math.floor((B - 30) / 100));
+        for (var r = 0; r < reihen; r++) {
+          for (var c = 0; c < spalten; c++) {
+            var zm = 30 + ((T - 60) / reihen) * (r + 0.5);
+            var modul = new THREE.Mesh(new THREE.BoxGeometry((B - 30) / spalten - 6, 2, (T - 60) / reihen - 6), mModul);
+            modul.position.set(-B / 2 + 15 + ((B - 30) / spalten) * (c + 0.5),
+                               oben - 3 - gefaelle * (zm / T), zm);
+            modul.rotation.x = NEIGUNG;
+            bau.add(modul);
+          }
+        }
+      } else if (Z.cpDach === 'Dachbegrünung') {
+        var gruen = new THREE.Mesh(
+          new THREE.BoxGeometry(B - 10, 6, T - 10),
+          new THREE.MeshStandardMaterial({ color: 0x5c7a3f, roughness: 0.95 })
+        );
+        gruen.position.set(0, oben - 6 - gefaelle / 2, T / 2);
+        gruen.rotation.x = NEIGUNG;
+        bau.add(gruen);
+      }
+
+      if (Z.led) {
+        ledSpots(verteilen(Math.max(2, Math.round(B / 130)), B, 40),
+                 [T * 0.25, T * 0.6, T * 0.92],
+                 function () { return hVorn - 1; });
       }
     }
 
-    stimmung();
-    kameraAnpassen();
+    /* Verkleidung der Flat Box: Seitenwände und Hinterwand, auf Wunsch
+       vorne ein Sektionaltor. Die Felder reichen von der Bodenplatte bis
+       unter die Blende. */
+    var hWand = hVorn - 1;
+    var mVerkl = blech();
+    if (verkleidet) {
+      [-B / 2 + 2, B / 2 - 2].forEach(function (x) {
+        balken(4, hWand, T - 4, x, hWand / 2, T / 2, mVerkl);
+      });
+      if (!anWand) balken(B - 8, hWand, 4, 0, hWand / 2, 2, mVerkl);
+      if (garagentor) {
+        balken(B - 10, hWand - 2, 5, 0, (hWand - 2) / 2, T - 4, mVerkl);
+        var mFuge = alu();
+        for (var s2 = 1; s2 <= 5; s2++) {
+          var fuge = new THREE.Mesh(new THREE.BoxGeometry(B - 12, 1.2, 2), mFuge);
+          fuge.position.set(0, (hWand - 2) * s2 / 6, T - 7);
+          bau.add(fuge);
+        }
+      }
+    }
+
+    /* Nebenraum: abgetrennter Abstellraum im hinteren Teil, unter demselben
+       Dach. Tiefe bewusst gedeckelt – mehr als etwa 1,6 m nimmt dem
+       Fahrzeug den Platz. */
+    if (nebenraum) {
+      var tNR = Math.min(160, T * 0.3);
+      if (!verkleidet) {
+        [-B / 2 + 2, B / 2 - 2].forEach(function (x) {
+          balken(4, hWand, tNR, x, hWand / 2, tNR / 2, mVerkl);
+        });
+        if (!anWand) balken(B - 8, hWand, 4, 0, hWand / 2, 2, mVerkl);
+      }
+      balken(B - 8, hWand, 4, 0, hWand / 2, tNR, mVerkl);          // Trennwand
+      var mTuer = alu();
+      balken(Math.min(100, B * 0.45), hWand - 8, 3, -B * 0.18, (hWand - 8) / 2, tNR + 3.5, mTuer);
+    }
   }
 
   /* ---------- Tag und Abend ---------- */
   function stimmung() {
+    /* Zufahrt grauer als Terrassenbelag – sonst wirkt der Carport,
+       als stünde er auf einer Holzterrasse. */
+    var belagTag = Z.produkt === 'Carport' ? 0x9c968d : 0x8e867a;
     if (Z.abend) {
       szene.background = new THREE.Color(0x1b2430);
       szene.fog = new THREE.Fog(0x1b2430, 1400, 3400);
@@ -310,7 +745,7 @@
       fuell.intensity = 0.12;
       renderer.toneMappingExposure = 0.95;
       rasen.material.color.setHex(0x3c4733);
-      terrasse.material.color.setHex(0x6d6a64);
+      belag.material.color.setHex(0x6d6a64);
       wand.material.color.setHex(0x8e8b85);
     } else {
       szene.background = new THREE.Color(0xbcd3e6);
@@ -320,7 +755,7 @@
       fuell.intensity = 0.3;
       renderer.toneMappingExposure = 0.72;
       rasen.material.color.setHex(0x5f7544);
-      terrasse.material.color.setHex(0x8e867a);
+      belag.material.color.setHex(belagTag);
       wand.material.color.setHex(0xcfc7b8);
     }
   }
@@ -330,10 +765,11 @@
   var autoDreht = false;
 
   function kameraAnpassen() {
-    /* Der Abstand haengt an der Groesse des Daches, damit auch 7 m Breite
-       vollstaendig ins Bild passen. Eine selbst gewaehlte Zoomstufe bleibt
-       erhalten, solange das Modell dabei nicht angeschnitten wird - erst
-       wenn es aus dem Bild laufen wuerde, rueckt die Kamera nach. */
+    /* Der Abstand haengt an der Groesse des Bauwerks, damit auch ein 8 m
+       tiefer Carport vollstaendig ins Bild passt. Eine selbst gewaehlte
+       Zoomstufe bleibt erhalten, solange das Modell dabei nicht
+       angeschnitten wird - erst wenn es aus dem Bild laufen wuerde,
+       rueckt die Kamera nach. */
     var spanne = Math.max(Z.breite / 10 * 1.12, (Z.tiefe / 10 + 120) * 1.3, Z.hoehe / 10 * 2.4);
     var passend = spanne / (2 * Math.tan(kamera3.fov * Math.PI / 360)) * 1.18;
     if (kamera3.aspect < 1) passend /= Math.max(0.62, kamera3.aspect);  // Hochformat
@@ -435,20 +871,146 @@
 
   /* ---------- Oberfläche ---------- */
   function wert(id) { var e = document.getElementById(id); return e ? e.value : null; }
+  function istCarport() { return Z.produkt === 'Carport'; }
+  function istCarportTds() { return istCarport() && Z.cpTyp === 'Carport TDS'; }
+
+  /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
+     HTML tragen dazu data-k3d-fuer mit einem oder mehreren Stichworten. */
+  function gruppeGilt(stichwort) {
+    var d = datenSystem();
+    switch (stichwort) {
+      case 'terrasse':       return !istCarport();
+      case 'carport':        return istCarport();
+      case 'glas':           return !istCarport() || istCarportTds();
+      case 'cp-flachdach':   return istCarport() && !istCarportTds() &&
+                                    Z.cpTyp !== 'Flachdach Flat Line';
+      case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
+      // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
+      // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
+      case 'geschaetzt':     return !d;
+      // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
+      // haben laut Hersteller kein Neigungsfeld (BELEGT).
+      case 'neigung':        return !!d && d.system === 'TDS';
+      default:               return true;
+    }
+  }
+
+  function panelAnpassen() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-fuer]'), function (el) {
+      var gilt = el.getAttribute('data-k3d-fuer').split(/\s+/).some(gruppeGilt);
+      el.hidden = !gilt;
+    });
+
+    /* Farbfelder: welche Farben das System führt, steht in der Stückliste.
+       Belegt ist, dass nur TDS Reinweiß 9010 führt – SkyView und Flat Line
+       nicht. Ohne Herstellerdaten bleiben alle vier stehen. */
+    var e = stueckliste();
+    var erlaubt = (e && e.farben && e.farben.length)
+      ? e.farben.map(function (f) { return f.name; }) : null;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
+      b.hidden = !!erlaubt && erlaubt.indexOf(b.getAttribute('data-k3d-farbe')) === -1;
+    });
+    // Ist die gewählte Farbe beim neuen Produkt nicht lieferbar, zurück auf
+    // Anthrazit – sonst stünde in der Anfrage eine Farbe, die es nicht gibt.
+    var aktiv = document.querySelector('[data-k3d-farbe="' + Z.farbe + '"]');
+    if (aktiv && aktiv.hidden) farbeSetzen('Anthrazit');
+  }
+
+  function farbeSetzen(name) {
+    Z.farbe = name;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (x) {
+      var ist = x.getAttribute('data-k3d-farbe') === name;
+      x.classList.toggle('is-active', ist);
+      x.setAttribute('aria-pressed', ist ? 'true' : 'false');
+    });
+  }
+
+  /* Ausführungen des gewählten Carport-Typs in das Auswahlfeld schreiben */
+  function cpVariantenSetzen() {
+    var sel = document.getElementById('k3dCpVariante');
+    if (!sel) return;
+    var liste = CP_VARIANTEN[Z.cpTyp] || [];
+    sel.innerHTML = liste.map(function (v) {
+      return '<option value="' + v[0] + '">' + v[1] + '</option>';
+    }).join('');
+    var vorhanden = liste.some(function (v) { return v[0] === Z.cpVariante; });
+    Z.cpVariante = vorhanden ? Z.cpVariante : (liste[0] ? liste[0][0] : '');
+    sel.value = Z.cpVariante;
+  }
+
+  /* Schieberegler auf die Maßbereiche des Produkts stellen. Beim Wechsel
+     greift die Voreinstellung – ein 3 m tiefes Terrassendach wäre als
+     Carport nicht nutzbar, eine stille Umrechnung wäre irritierender. */
+  function masseSetzen() {
+    var m = MASSE[Z.produkt] || MASSE['Terrassendach TDS'];
+    [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe']].forEach(function (paar) {
+      var el = document.getElementById(paar[0]);
+      var b = m[paar[1]];
+      if (!el || !b) return;
+      el.min = b[0]; el.max = b[1]; el.step = b[2]; el.value = b[3];
+      Z[paar[1]] = b[3];
+    });
+    kameraAnpassen.einmal = false;   // neues Produkt, neuer Bildausschnitt
+  }
+
+  /* Die Schieberegler laufen über den Maßbereich des Systems. Die Grenzen
+     kommen aus dem Herstellerraster – nicht, weil nur diese Maße baubar
+     wären (gebaut wird nach Kundenmaß), sondern weil darüber hinaus keine
+     Abrechnungsgrundlage existiert. Schrittweite 10 mm: so wird aufgemessen. */
+  function reglerGrenzenSetzen() {
+    var d = datenSystem();
+    if (!d) return;
+    var listen = RASTER[d.system + '|' + d.material];
+    if (!listen) return;
+    [['k3dBreite', 'breiten', 'breite'], ['k3dTiefe', 'tiefen', 'tiefe']].forEach(function (p) {
+      var el = document.getElementById(p[0]);
+      var liste = listen[p[1]] || [];
+      if (!el || !liste.length) return;
+      el.min = liste[0];
+      el.max = liste[liste.length - 1];
+      el.step = 10;
+      if (Z[p[2]] < liste[0]) Z[p[2]] = liste[0];
+      if (Z[p[2]] > liste[liste.length - 1]) Z[p[2]] = liste[liste.length - 1];
+      el.value = Z[p[2]];
+    });
+  }
+
+  function produktName() {
+    if (!istCarport()) return Z.produkt;
+    return Z.cpTyp === 'Carport TDS' ? 'Carport TDS' : 'Carport ' + Z.cpTyp.replace('Flachdach ', '');
+  }
 
   function zusammenfassung() {
-    var teile = [
-      'Terrassendach TDS',
-      Z.aufbau,
-      Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm',
-      'Eindeckung: ' + Z.eindeckung,
-      'Farbe: ' + Z.farbe
-    ];
-    var seiten = [];
-    if (Z.links !== 'offen') seiten.push('links ' + Z.links);
-    if (Z.rechts !== 'offen') seiten.push('rechts ' + Z.rechts);
-    if (Z.front !== 'offen') seiten.push('vorne ' + Z.front);
-    teile.push(seiten.length ? 'Seiten: ' + seiten.join(', ') : 'Seiten: offen');
+    var teile = [produktName()];
+    if (istCarport()) {
+      teile.push('Ausführung: ' + Z.cpVariante);
+      teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchfahrtshöhe ' + Z.hoehe + ' mm');
+      if (Z.cpVariante === 'Carport mit Überstand') teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
+      var ec = stueckliste();
+      if (ec && !ec.fehler) {
+        teile.push(ec.sparren + ' Sparren, ' + ec.pfosten + ' Pfosten in zwei Reihen');
+        teile.push('Dach: ' + ec.eindeckung);
+      } else {
+        teile.push(istCarportTds() ? 'Eindeckung: ' + Z.eindeckung : 'Dach: ' + Z.cpDach);
+      }
+      teile.push('Farbe: ' + Z.farbe);
+    } else {
+      teile.push(Z.aufbau);
+      teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm');
+      var ed = stueckliste();
+      if (ed && !ed.fehler) {
+        teile.push(ed.sparren + ' Sparren, ' + ed.pfosten + ' Pfosten' +
+                   (ed.statiktraeger ? ', mit Statikträger' : ''));
+        if (ed.geneigt) teile.push('Dachneigung: ' + Z.neigung + '°');
+      }
+      teile.push('Eindeckung: ' + Z.eindeckung);
+      teile.push('Farbe: ' + Z.farbe);
+      var seiten = [];
+      if (Z.links !== 'offen') seiten.push('links ' + Z.links);
+      if (Z.rechts !== 'offen') seiten.push('rechts ' + Z.rechts);
+      if (Z.front !== 'offen') seiten.push('vorne ' + Z.front);
+      teile.push(seiten.length ? 'Seiten: ' + seiten.join(', ') : 'Seiten: offen');
+    }
     if (Z.led) teile.push('mit LED-Beleuchtung');
     teile.push(Z.montage === 'Ja, mit Fachmontage' ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
     return teile;
@@ -463,10 +1025,34 @@
   }
 
   function aendern() {
+    var neuProdukt = wert('k3dProdukt') || Z.produkt;
+    var produktWechsel = neuProdukt !== Z.produkt;
+    Z.produkt = neuProdukt;
+
+    var neuTyp = wert('k3dCpTyp') || Z.cpTyp;
+    var typWechsel = neuTyp !== Z.cpTyp;
+    Z.cpTyp = neuTyp;
+    if (typWechsel || produktWechsel) cpVariantenSetzen();
+    Z.cpVariante = wert('k3dCpVariante') || Z.cpVariante;
+    Z.cpDach = wert('k3dCpDach') || Z.cpDach;
+
+    if (produktWechsel) masseSetzen();
+
     Z.aufbau = wert('k3dAufbau') || Z.aufbau;
+    /* Die Reglergrenzen hängen am System, nicht nur am Produkt: Ein Wechsel
+       des Carport-Typs oder der Eindeckung bringt ein anderes Maßraster mit.
+       Deshalb wird der Systemschlüssel verglichen, nicht nur das Produkt. */
+    var dJetzt = datenSystem();
+    var systemSchl = dJetzt ? dJetzt.system + '|' + dJetzt.material : 'geschaetzt';
+    if (systemSchl !== letztesSystem) {
+      if (dJetzt) reglerGrenzenSetzen();
+      letztesSystem = systemSchl;
+    }
     Z.breite = parseInt(wert('k3dBreite'), 10) || Z.breite;
     Z.tiefe = parseInt(wert('k3dTiefe'), 10) || Z.tiefe;
     Z.hoehe = parseInt(wert('k3dHoehe'), 10) || Z.hoehe;
+    Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
+    Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.links = wert('k3dLinks') || Z.links;
     Z.rechts = wert('k3dRechts') || Z.rechts;
@@ -474,15 +1060,109 @@
     var ledEl = document.getElementById('k3dLed');
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
-    ['k3dBreite', 'k3dTiefe', 'k3dHoehe'].forEach(function (id) {
-      var a = document.getElementById(id + 'Wert');
-      if (a) a.textContent = document.getElementById(id).value + ' mm';
+
+    [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe'],
+     ['k3dUeberstand', 'ueberstand']].forEach(function (paar) {
+      var a = document.getElementById(paar[0] + 'Wert');
+      if (a) a.textContent = Z[paar[1]] + ' mm';
     });
+    var nw = document.getElementById('k3dNeigungWert');
+    if (nw) nw.textContent = Z.neigung + '°';
+
+    panelAnpassen();
+    titelAnpassen();
+    /* Sofort zeichnen – mit den Stückzahlen, die gerade vorliegen. Beim
+       Ziehen am Regler ändert sich das Maß stetig, die Sparrenzahl aber nur
+       an den Rasterkanten. Die genaue Antwort kommt gebremst nach, sonst
+       feuert jeder Pixel eine Abfrage. */
     bauen();
     textAktualisieren();
+    folgtAktualisieren();
+    gebremstHolen();
   }
 
-  ['k3dAufbau', 'k3dBreite', 'k3dTiefe', 'k3dHoehe', 'k3dEindeckung',
+  var letztesSystem = null;
+  var bremse = null;
+  function gebremstHolen() {
+    if (bremse) clearTimeout(bremse);
+    bremse = setTimeout(function () {
+      bremse = null;
+      stuecklisteHolen(function () {
+        panelAnpassen();      // Farbpalette hängt an der Stückliste
+        bauen();
+        textAktualisieren();
+        folgtAktualisieren();
+        var ladeHinweis = document.getElementById('k3dLaden');
+        if (ladeHinweis) ladeHinweis.remove();
+      });
+    }, 220);
+  }
+
+  /* „Was daraus folgt" – die Zahlen aus der Preisliste, sichtbar gemacht.
+     Nicht Zierde: Der Kunde soll sehen, dass die Sparrenzahl keine Schätzung
+     ist, und der Betrieb erkennt beim Gegenlesen sofort einen Fehler. */
+  function folgtAktualisieren() {
+    var box = document.getElementById('k3dFolgt');
+    var hinBox = document.getElementById('k3dHinweise');
+    if (!box) return;
+    var e = stueckliste();
+    if (!e || e.fehler) {
+      box.innerHTML = '<li>Für dieses Produkt liegen uns noch keine ' +
+        'Herstellerzahlen vor. Die Darstellung ist eine Skizze.</li>';
+      if (hinBox) hinBox.innerHTML = '';
+      return;
+    }
+    var z = [];
+    z.push(['Ihr Maß', e.angefragt.breite + ' × ' + e.angefragt.tiefe + ' mm']);
+    if (!e.imRaster) {
+      z.push(['Abrechnung nach', e.raster.breite + ' × ' + e.raster.tiefe +
+              ' mm (nächstes Rasterfeld)']);
+    }
+    z.push(['Sparren', e.sparren + (e.feldbreite ? ' · Achsabstand ' +
+            e.feldbreite.achsabstand + ' mm' : '')]);
+    z.push(['Pfosten', e.pfosten + (e.pfostenReihen > 1
+            ? ' (zwei Reihen zu je ' + e.pfostenJeReihe + ')' : '')]);
+    if (e.statiktraeger) z.push(['Statikträger', '189 × 117 mm über die volle Breite']);
+    if (e.eindeckungGeteilt) z.push(['Teilung', 'Eindeckung quer geteilt, mit Querfuge']);
+    if (e.innenkernSparren) {
+      z.push(['Innenkern-Sparren', 'erforderlich' +
+              (e.innenkernImPreis === false ? ', nicht im Preis enthalten' : '')]);
+    }
+    z.push(['Eindeckung', e.eindeckung]);
+    box.innerHTML = z.map(function (r) {
+      return '<li><span>' + esc(r[0]) + '</span> ' + esc(r[1]) + '</li>';
+    }).join('');
+
+    if (hinBox) {
+      // Der Rasterhinweis steht schon als eigene Zeile darüber – nicht doppelt
+      hinBox.innerHTML = e.hinweise.filter(function (h) { return h.art !== 'raster'; }).map(function (h) {
+        return '<li class="k3d-hin k3d-hin--' + esc(h.art) + '">' + esc(h.text) + '</li>';
+      }).join('');
+    }
+  }
+
+  function esc(t) {
+    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* Überschrift und Hinweistext folgen dem Produkt – sonst stünde über
+     einem Carport weiterhin „Terrassendach TDS“. */
+  function titelAnpassen() {
+    var t = document.getElementById('k3dTitel');
+    if (t) t.textContent = produktName();
+    var c = document.getElementById('k3dCanvas');
+    if (c) c.setAttribute('aria-label', '3D-Ansicht des konfigurierten Produkts: ' + produktName());
+    // Flat Line und Flat Box haben keine sichtbaren Sparren – dort sitzen die
+    // Spots im umlaufenden Dachrand.
+    var l = document.getElementById('k3dLedText');
+    if (l) l.textContent = (istCarport() && !istCarportTds())
+      ? 'LED-Beleuchtung im Dachrand'
+      : 'LED-Beleuchtung in den Sparren';
+  }
+
+  ['k3dProdukt', 'k3dCpTyp', 'k3dCpVariante', 'k3dCpDach', 'k3dAufbau',
+   'k3dBreite', 'k3dTiefe', 'k3dHoehe',
+   'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
@@ -493,13 +1173,7 @@
   // Farbfelder
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
     b.addEventListener('click', function () {
-      Z.farbe = b.getAttribute('data-k3d-farbe');
-      Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (x) {
-        x.classList.remove('is-active');
-        x.setAttribute('aria-pressed', 'false');
-      });
-      b.classList.add('is-active');
-      b.setAttribute('aria-pressed', 'true');
+      farbeSetzen(b.getAttribute('data-k3d-farbe'));
       bauen();
       textAktualisieren();
     });
@@ -546,7 +1220,8 @@
       renderer.render(szene, kamera3);   // sicherstellen, dass der Puffer gefüllt ist
       var a = document.createElement('a');
       a.href = renderer.domElement.toDataURL('image/png');
-      a.download = 'Terrassendach-TDS-' + Z.breite + 'x' + Z.tiefe + 'mm.png';
+      a.download = produktName().replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-').replace(/^-|-$/g, '') +
+                   '-' + Z.breite + 'x' + Z.tiefe + 'mm.png';
       a.target = '_blank'; a.rel = 'noopener';
       document.body.appendChild(a);
       a.click();
@@ -555,22 +1230,35 @@
   }
 
   /* Übergabe an den Anfrage-Assistenten: die Konfiguration wandert als
-     Vorgabe in den Assistenten, damit niemand alles zweimal eingibt. */
+     Vorgabe in den Assistenten, damit niemand alles zweimal eingibt.
+     Die Werte müssen wörtlich zu den Auswahlmöglichkeiten dort passen –
+     sonst erscheint im Assistenten keine Auswahl als gewählt und die
+     Angabe fehlt später in der E-Mail. */
   var anfrageBtn = document.getElementById('k3dAnfrage');
   if (anfrageBtn) {
     anfrageBtn.addEventListener('click', function () {
-      window.bvKonfigVorgabe = {
-        produkt: 'Terrassendach TDS',
-        aufbau: Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend',
+      var v = {
         breite: String(Z.breite),            // der Assistent rechnet ebenfalls in Millimetern
         tiefe: String(Z.tiefe),
         hoehe: String(Z.hoehe),
-        verglasung: Z.eindeckung === 'Polycarbonat' ? 'Polycarbonat' : 'VSG-Glas',
-        farbe: Z.farbe,
-        led: Z.led ? 'Ja' : 'Nein',
+        farbe: VORGABE_FARBE[Z.farbe] || Z.farbe,
+        led: Z.led ? VORGABE_LED.ja : VORGABE_LED.nein,
         montage: Z.montage,
         notiz: zusammenfassung().join(' · ')
       };
+      if (istCarport()) {
+        v.produkt = 'Carport';
+        v.carporttyp = Z.cpTyp;
+        v.carportvariante = Z.cpVariante;
+        if (Z.cpVariante === 'Carport mit Überstand') v.ueberstand = String(Z.ueberstand);
+        if (istCarportTds()) v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+        else v.dach = Z.cpDach;
+      } else {
+        v.produkt = Z.produkt;
+        v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
+        v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+      }
+      window.bvKonfigVorgabe = v;
       var bubble = document.getElementById('bvKonfigBubble');
       if (bubble) bubble.click();
       // Der Assistent hoert darauf und springt direkt zu den Kontaktdaten
@@ -580,10 +1268,14 @@
 
   /* ---------- Start ---------- */
   groesseAnpassen();
-  aendern();
+  cpVariantenSetzen();
   kameraSetzen();
   zeichnen();
 
-  var ladeHinweis = document.getElementById('k3dLaden');
-  if (ladeHinweis) ladeHinweis.remove();
+  /* Zuerst fragen, welche Maße es überhaupt gibt. Erst danach steht fest,
+     ob die Rasterauswahl oder die geschätzte Skizze gilt. */
+  rasterHolen(function () {
+    reglerGrenzenSetzen();
+    aendern();   // entfernt den Ladehinweis, sobald die erste Antwort da ist
+  });
 })();

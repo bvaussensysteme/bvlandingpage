@@ -16,6 +16,14 @@
       "/kontakt.html"
     ]
   },
+  // Die VD-Matrix liegt bewusst NICHT in diesem oeffentlichen Repository,
+  // sondern im KV-Speicher. Das Binding fehlt hier absichtlich, solange der
+  // Namensraum nicht angelegt ist - eine erfundene id wuerde jeden Deploy
+  // scheitern lassen. Anlegen und eintragen: siehe worker/index.js.
+  // Danach hier ergaenzen:
+  //   "kv_namespaces": [{ "binding": "DACHMATRIX", "id": "<id>" }],
+  // Ohne Binding antwortet /api/bauteile mit 503 und der Konfigurator zeigt
+  // die geschaetzte Skizze - die Seite bleibt benutzbar.
   "observability": {
     "logs": {
       "enabled": true,

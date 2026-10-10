@@ -9,6 +9,11 @@ agents/
 docs/
 improvements/
 
+# Herstellerdaten - duerfen nicht ausgeliefert werden (siehe .gitignore)
+daten/
+js/dachmatrix-daten.js
+js/dachmatrix-daten.json
+
 # Build-/Repo-Metadaten
 .git/
 .github/

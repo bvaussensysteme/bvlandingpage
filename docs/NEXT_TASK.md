@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026 · letzter Chat wurde hier beendet (`/clear`)
+> Stand: 10.10.2026 · zuletzt bearbeitet: Carport und SkyView im 3D-Konfigurator
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -15,30 +15,74 @@
 
 ## 1. Was als Nächstes ansteht
 
-### Aufgabe A — Weitere Produkte im 3D-Konfigurator *(direkte Fortsetzung)*
+### Aufgabe A — Pergola / Lamellendach im 3D-Konfigurator *(direkte Fortsetzung)*
 
-Der Konfigurator kann bisher nur das **Terrassendach TDS**. Die Seite weist
-selbst darauf hin und verlinkt für die übrigen Systeme auf den
-Anfrage-Assistenten. Als Nächstes, in dieser Reihenfolge sinnvoll:
+Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView und Carport**
+(Carport TDS, Flat Line, Flat Box). Offen ist noch:
 
-1. **Carport** (TDS, Flat Line, Flat Box) – freistehend, vier Pfosten
-2. **Flachdach SkyView** – schmalere Profile, flachere Neigung
-3. **Pergola / Lamellendach** – drehbare Lamellen als eigene Geometrie
-4. Danach optional: Markise, Verkleidung, Terrassenboden
+1. **Pergola / Lamellendach** – drehbare Lamellen als eigene Geometrie; im
+   Assistenten gibt es dazu bereits Dachart (Lamellendach, Faltdach, Velaris),
+   Ausführung, Seitenschutz und einen Komfort-Schritt (Heizung, Wettersensor)
+2. Danach optional: Markise, Verkleidung, Terrassenboden
 
 **Wegweiser – diese Dateien braucht genau diese Aufgabe:**
 
 | Datei | Wofür |
 |---|---|
-| `js/konfigurator-3d.js` | Modell, Kamera, Bedienung. Einstieg: `bauen()` – hier nach Produkt verzweigen |
-| `konfigurator.html` | Oberfläche und Stile (eigenständige Datei, **keine** njk-Vorlage) |
-| `js/anfrage-wizard.js` | nimmt die Konfiguration entgegen: `vorgabeUebernehmen()` am Dateiende |
+| `js/konfigurator-3d.js` | Modell, Kamera, Bedienung. Einstieg: `bauen()` verzweigt nach Produkt; Sichtbarkeit der Bedienfelder über `gruppeGilt()` |
+| `konfigurator.html` | Oberfläche und Stile (eigenständige Datei, **keine** njk-Vorlage). Bedienfelder tragen `data-k3d-fuer` |
+| `js/anfrage-wizard.js` | nimmt die Konfiguration entgegen: `vorgabeUebernehmen()` am Dateiende; der Pergola-Ablauf steht in `computeFlow()` |
 | `js/vendor/three.min.js` | three.js r128, liegt bewusst im Projekt (siehe `docs/entscheidungen.md`) |
 
-**Vorgehen:** Geometrie in `bauen()` nach Produkt verzweigen, Produktauswahl
-oben ins Panel, Übergabe an den Assistenten um die neuen Felder erweitern.
-Danach `scripts/pruefe-cache-buster.sh` laufen lassen – die Versionsnummer in
-allen 50 HTML-Dateien muss hochgezogen werden.
+**Vorgehen:** neuen Zweig in `bauen()`, Produkt in `MASSE` und in das
+Auswahlfeld `k3dProdukt` eintragen, Bedienfelder mit `data-k3d-fuer`
+kennzeichnen und das Stichwort in `gruppeGilt()` auswerten. Übergabewerte
+**wörtlich** aus `js/anfrage-wizard.js` übernehmen (dachart,
+dachausfuehrung, seitenschutz) – `scripts/pruefe-konfigurator.js` prüft das.
+Danach `scripts/pruefe-cache-buster.sh`: die Versionsnummer muss in allen
+HTML-Dateien hochgezogen werden.
+
+### Aufgabe A2 — Konfigurator auf die echten Herstellerdaten *(gebaut, wartet auf einen Handgriff)*
+
+Fertig und geprüft. **Es fehlt nur noch, die Matrix in den KV-Speicher zu
+legen** – das geht nur mit Cloudflare-Zugang.
+
+#### Die drei Befehle
+
+```bash
+npx wrangler kv namespace create DACHMATRIX
+# die ausgegebene id in wrangler.jsonc eintragen (Vorlage steht dort als Kommentar)
+
+mkdir -p daten && cp /pfad/zu/bv-crm/docs/konfigurator-daten/* daten/
+node scripts/baue-dachmatrix.js        # erzeugt js/dachmatrix-daten.json
+
+npx wrangler kv key put --binding DACHMATRIX matrix \
+  --path js/dachmatrix-daten.json --remote
+```
+
+Vorher passiert nichts Schlimmes: `/api/bauteile` antwortet mit 503 und der
+Konfigurator zeigt dieselbe geschätzte Skizze wie bisher.
+
+#### Wie es gebaut ist
+
+| Teil | Rolle |
+|---|---|
+| `js/bauteile.js` | die Regeln. **Enthält keine Herstellerdaten**, bekommt die Matrix über `matrixSetzen()`. Läuft im Browser, unter Node und im Worker |
+| `worker/index.js` → `/api/bauteile` | nimmt ein Maß, gibt eine Stückliste. Holt die Matrix aus KV, nie an den Browser |
+| `js/konfigurator-3d.js` | freie Schieberegler (gebaut wird nach Kundenmaß), fragt den Endpunkt gebremst, zeichnet das Kundenmaß und zeigt das Rasterfeld als Abrechnungsgrundlage daneben. Ohne Antwort: geschätzte Skizze, Seite bleibt benutzbar |
+| `daten/` | die Quelle – **nicht im Repository**, siehe `.gitignore` |
+
+#### Was offen bleibt
+
+- **Beim Hersteller:** `daten/rueckfragen-an-vd.md` (liegt lokal, nicht im
+  Repo) listet neun Punkte. Die zwei wirksamsten: Systemschnitte oder
+  DXF-Dateien der Profile, und die Seiten 10, 25 und 32 der
+  VD-Montageanleitung abfotografieren.
+- **Carport TDS und Flat Box** haben keine Matrix – sie bleiben die
+  geschätzte Skizze, bis es eine Preisliste dafür gibt.
+- **Profilquerschnitte** sind bis auf Pfosten und Statikträger geschätzt
+  (`PROFILE_GESCHAETZT` in `js/bauteile.js`). Das Modell ist deshalb in den
+  Stückzahlen richtig, in den Proportionen noch nicht.
 
 ### Aufgabe B — Baugenehmigungs-Check: weitere Bundesländer prüfen
 
@@ -86,9 +130,15 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
+| `scripts/pruefe-konfigurator.js` | Kennt der Anfrage-Assistent jeden Wert, den der 3D-Konfigurator übergibt? |
+| `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
+| `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 
-Alle fünf mit Gegenprobe am 10.10.2026 geprüft: bestanden.
+Alle acht mit Gegenprobe am 10.10.2026 geprüft: bestanden.
+
+Die beiden Datenprüfungen überspringen sich selbst, wenn `daten/` fehlt –
+das ist der Normalfall in einem frischen Klon.
 
 ---
 
@@ -175,6 +225,8 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 10.10.2026 | Konfigurator rechnet serverseitig (`/api/bauteile`), Rasterauswahl, Matrix bleibt auf dem Server | **fertig, wartet auf den KV-Namensraum** |
+| 10.10.2026 | 3D-Konfigurator: Carport (TDS, Flat Line, Flat Box) und Flachdach SkyView; Übergabewerte an den Assistenten korrigiert | **in Arbeit** |
 | 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | live |
 | 10.10.2026 | 3D-Konfigurator Terrassendach TDS | **live** |
 | 10.10.2026 | Telefonnummer als Pflichtangabe | live |

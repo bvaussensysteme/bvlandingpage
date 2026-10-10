@@ -12,8 +12,8 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Terrassendach Konfigurator | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Terrassendach TDS in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Seitenelemente wählen und das Ergebnis sofort von allen Seiten ansehen. Kostenlos und unverbindlich – BV AussenSysteme im Westerwald." />
+  <title>3D Konfigurator: Terrassendach &amp; Carport | BV AussenSysteme</title>
+  <meta name="description" content="Terrassendach, Flachdach SkyView oder Carport in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Ausführung wählen und sofort von allen Seiten ansehen. Kostenlos und unverbindlich." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/konfigurator.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/konfigurator.html" />
@@ -137,6 +137,7 @@
 
     /* ===== 3D-Konfigurator ===== */
     .kp-title span { color: var(--gold-dark); }
+    .kp-title .kp-produkt { color: inherit; }
     .kp-sub { max-width: 720px; margin: 0 auto 26px; color: var(--muted); line-height: 1.6; }
 
     .k3d-wrap { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,1fr); gap: 22px; text-align: left; }
@@ -209,6 +210,16 @@
     .k3d-schalter input { width: 18px; height: 18px; accent-color: var(--gold-dark); }
 
     .k3d-zus { background: var(--light-bg); border-radius: 10px; padding: 14px 16px; margin: 18px 0 14px; }
+    .k3d-zus--folgt { background: #fbf7ec; border: 1px solid rgba(196,154,42,0.25); }
+    .k3d-mini { font-size: .74rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
+    .k3d-folgt li { display: flex; gap: 8px; align-items: baseline; }
+    .k3d-folgt li span { min-width: 108px; color: var(--muted); font-size: .78rem; }
+    .k3d-hinweise { list-style: none; padding: 0; margin: 10px 0 0; }
+    .k3d-hin {
+      font-size: .74rem; line-height: 1.45; color: var(--muted);
+      border-left: 3px solid rgba(196,154,42,0.5); padding: 4px 0 4px 9px; margin-top: 7px;
+    }
+    .k3d-hin--statik, .k3d-hin--grenze { border-left-color: #b4532a; color: #6d3a22; }
     .k3d-zus h2 {
       font-size: .78rem; letter-spacing: 1px; text-transform: uppercase;
       color: var(--gold-dark); margin: 0 0 8px;
@@ -343,7 +354,7 @@
     }
   </style>
   <meta property="og:title" content="Produkt-Konfigurator | BV AussenSysteme Westerwald" />
-  <meta property="og:description" content="Terrassendach TDS in 3D zusammenstellen – Maße, Eindeckung, Farbe und Seitenelemente live ansehen. Kostenlos und unverbindlich." />
+  <meta property="og:description" content="Terrassendach, Flachdach SkyView oder Carport in 3D zusammenstellen – Maße, Eindeckung, Farbe und Ausführung live ansehen. Kostenlos und unverbindlich." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
 </head>
@@ -380,10 +391,11 @@
   <div class="kp-inner">
 
     <span class="kp-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> 3D-Konfigurator</span>
-    <h1 class="kp-title">Terrassendach TDS<br><span>selbst zusammenstellen</span></h1>
+    <h1 class="kp-title"><span class="kp-produkt" id="k3dTitel">Terrassendach TDS</span><br><span>selbst zusammenstellen</span></h1>
     <p class="kp-sub">
-      Maße, Eindeckung, Farbe und Seitenelemente wählen – das Dach dreht sich dabei live mit.
-      Am Ende übernehmen wir Ihre Konfiguration direkt in die Anfrage. Kostenlos und unverbindlich.
+      Terrassendach, Flachdach oder Carport: Maße, Eindeckung, Farbe und Ausführung wählen –
+      das Modell dreht sich dabei live mit. Am Ende übernehmen wir Ihre Konfiguration direkt
+      in die Anfrage. Kostenlos und unverbindlich.
     </p>
 
     <div class="k3d-wrap">
@@ -410,6 +422,29 @@
       <div class="k3d-panel">
 
         <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dProdukt">Produkt</label>
+          <select id="k3dProdukt" class="k3d-select">
+            <option value="Terrassendach TDS">Terrassendach TDS</option>
+            <option value="Flachdach SkyView">Flachdach SkyView</option>
+            <option value="Carport">Carport</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
+          <label class="k3d-label" for="k3dCpTyp">Carport-Typ</label>
+          <select id="k3dCpTyp" class="k3d-select">
+            <option value="Carport TDS">Carport TDS – Profildach</option>
+            <option value="Flachdach Flat Line">Flat Line – Flachdach</option>
+            <option value="Flachdach Flat Box">Flat Box – Kubus-Optik</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
+          <label class="k3d-label" for="k3dCpVariante">Ausführung</label>
+          <select id="k3dCpVariante" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
           <label class="k3d-label" for="k3dAufbau">Aufbau</label>
           <select id="k3dAufbau" class="k3d-select">
             <option value="Wandmontage">An der Hauswand</option>
@@ -425,19 +460,42 @@
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
+          <p class="k3d-mini">Gebaut wird nach Ihrem Maß. Für Preis und Stückzahl
+            zählt das nächste Rasterfeld des Herstellers – es steht unten bei
+            „Was daraus folgt“.</p>
         </div>
 
         <div class="k3d-gruppe">
-          <label class="k3d-label" for="k3dHoehe">Durchgangshöhe vorne <output id="k3dHoeheWert">2300 mm</output></label>
+          <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
           <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-fuer="neigung">
+          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
+          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
+          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="cp-ueberstand" hidden>
+          <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
+          <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="glas">
           <label class="k3d-label" for="k3dEindeckung">Eindeckung</label>
           <select id="k3dEindeckung" class="k3d-select">
             <option value="VSG klar">VSG-Glas klar</option>
             <option value="VSG opal">VSG-Glas opal (satiniert)</option>
             <option value="Polycarbonat">Polycarbonat-Stegplatten</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="cp-flachdach" hidden>
+          <label class="k3d-label" for="k3dCpDach">Dach</label>
+          <select id="k3dCpDach" class="k3d-select">
+            <option value="Trapezblech (Standard)">Trapezblech (Standard)</option>
+            <option value="Solar (PV-Anlage)">Solar (PV-Anlage)</option>
+            <option value="Dachbegrünung">Dachbegrünung</option>
           </select>
         </div>
 
@@ -451,7 +509,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
           <span class="k3d-label">Seitenelemente</span>
           <div class="k3d-seiten">
             <label class="k3d-seite"><span>Links</span>
@@ -479,7 +537,7 @@
         </div>
 
         <div class="k3d-gruppe">
-          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span>LED-Beleuchtung in den Sparren</span></label>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Beleuchtung in den Sparren</span></label>
         </div>
 
         <div class="k3d-gruppe">
@@ -488,6 +546,16 @@
             <option value="Ja, mit Fachmontage">Durch unser Fachteam</option>
             <option value="Nein, Selbstmontage">Selbstmontage</option>
           </select>
+        </div>
+
+        <div class="k3d-zus k3d-zus--folgt">
+          <h2>Was daraus folgt</h2>
+          <ul id="k3dFolgt" class="k3d-folgt"></ul>
+          <ul id="k3dHinweise" class="k3d-hinweise"></ul>
+          <p class="k3d-mini" data-k3d-fuer="geschaetzt" hidden>
+            Für dieses Produkt liegen uns noch keine Herstellerzahlen vor –
+            Sparren, Pfosten und Profilmaße sind hier geschätzt.
+          </p>
         </div>
 
         <div class="k3d-zus">
@@ -499,7 +567,9 @@
           Konfiguration anfragen →
         </button>
         <p class="k3d-fuss">
-          Die Darstellung ist eine maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
+          Maße, Sparren- und Pfostenzahlen stammen aus den Herstellerunterlagen.
+          Die Profilquerschnitte im Bild sind noch geschätzt – die Darstellung ist
+          eine maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
           Das verbindliche Angebot erstellen wir nach dem kostenlosen Aufmaß vor Ort.
         </p>
 
@@ -507,7 +577,7 @@
     </div>
 
     <p class="k3d-weitere">
-      Carport, Flachdach SkyView und Lamellendach folgen als Nächstes.
+      Pergola und Lamellendach folgen als Nächstes.
       Für diese Systeme hilft Ihnen der <a href="/#kontakt">Anfrage-Assistent</a> schon heute weiter.
     </p>
 
@@ -602,13 +672,13 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261010i" defer></script>
+<script src="js/konfigurator-3d.js?v=20261010k" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261010i" defer></script>
+<script src="js/anfrage-wizard.js?v=20261010k" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
