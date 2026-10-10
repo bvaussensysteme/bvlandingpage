@@ -45,6 +45,10 @@
     cpTyp: 'Carport TDS',
     cpVariante: 'Freistehender Carport',
     cpDach: 'Trapezblech (Standard)',
+    pgDachart: 'Lamellendach',
+    pgAusfuehrung: 'SunPro',
+    pgSeitenschutz: 'Nichts / später entscheiden',
+    lamellen: 35,          // Öffnungswinkel der Lamellen in Grad
     ueberstand: 1000,
     neigung: 8,            // Grad; BELEGT als Standard, nur bei TDS einstellbar
     aufbau: 'Wandmontage',
@@ -86,6 +90,14 @@
       breite: [2700, 6500, 100, 3200],
       tiefe:  [4500, 8000, 100, 5500],
       hoehe:  [2000, 2600,  50, 2200]
+    },
+    /* GESCHÄTZT bis auf die Obergrenze: „Bis 7 × 4,5 m" steht als
+       Produktangabe zu SunPro im Anfrage-Assistenten. Eine Preismatrix für
+       Lamellendächer liegt nicht vor. */
+    'Pergola / Lamellendach': {
+      breite: [2500, 7000, 100, 4000],
+      tiefe:  [2000, 4500, 100, 3500],
+      hoehe:  [2200, 2800,  50, 2500]
     }
   };
 
@@ -128,6 +140,15 @@
     'Graualuminium': 'Graualuminium (RAL 9007)',
     'Reinweiß':      'Reinweiß (RAL 9010)'
   };
+  /* Beim Lamellendach heißt dieselbe RAL-Nummer 9010 im Assistenten
+     „Creme-Weiß", und Weißaluminium gibt es dort nicht. Das ist kein
+     Schreibfehler, sondern das VD-Standardtrio für Lamellendächer. */
+  var VORGABE_FARBE_PERGOLA = { 'Reinweiß': 'Creme-Weiß (RAL 9010)' };
+  var FARBEN_PERGOLA = ['Anthrazit', 'Graualuminium', 'Reinweiß'];
+
+  /* Beim Lamellendach heißt die Beleuchtung im Assistenten anders als beim
+     Terrassendach – dort „LED-Spots", hier allgemein „Beleuchtung". */
+  var VORGABE_LED_PERGOLA = { ja: 'Ja, mit Beleuchtung', nein: 'Nein, ohne Beleuchtung' };
 
   var SPARREN_ABSTAND = 110; // Richtwert, nur für die geschätzten Carports
 
@@ -372,6 +393,7 @@
     if (!e && datenSystem()) return;
     leeren(bau);
     if (e && !e.fehler) bauenAusDaten(e);
+    else if (istPergola()) bauenPergola();
     else bauenGeschaetzt();
     stimmung();
     kameraAnpassen();
@@ -732,6 +754,122 @@
     }
   }
 
+  /* ---------- Pergola und Lamellendach ----------
+     Für dieses System gibt es KEINE Herstellermatrix. Jede Zahl hier ist
+     GESCHÄTZT: Pfosten 120 mm, Rahmen 160 mm hoch, Lamellenabstand 200 mm,
+     Lamelle 180 × 25 mm. Die Obergrenze 7 × 4,5 m stammt aus der
+     Produktangabe zu SunPro. Die Oberfläche weist darauf hin.
+
+     Die drehbaren Lamellen sind das Kennzeichen des Systems – deshalb
+     bekommen sie einen eigenen Regler. 0° steht für geschlossen (Regen
+     läuft ab), 90° für senkrecht offen. */
+  function bauenPergola() {
+    var PFOSTEN = 12;        // GESCHÄTZT
+    var RAHMEN_H = 16;       // GESCHÄTZT, Höhe des umlaufenden Profils
+    var RAHMEN_B = 10;       // GESCHÄTZT, Dicke des umlaufenden Profils
+    var LAM_ABSTAND = 20;    // GESCHÄTZT, Achsabstand der Lamellen
+    var LAM_DICKE = 2.5;     // GESCHÄTZT
+    /* Die Lamellenbreite leitet sich aus dem Abstand ab, mit Überlappung:
+       Ein Lamellendach ist geschlossen regendicht, die Lamellen greifen
+       ineinander. Eine feste Breite ließe bei 0° Lücken stehen. GESCHÄTZT. */
+    var LAM_UEBERLAPPUNG = 1.08;
+
+    var B = Z.breite / 10, T = Z.tiefe / 10;
+    var h = Z.hoehe / 10;                       // lichte Höhe unter dem Rahmen
+    var frei = Z.aufbau === 'Freistehend';
+    var mAlu = alu();
+
+    belag.scale.set(B + 160, 1, T + 140);
+    belag.position.set(0, -1, (T + 140) / 2 - 70);
+    wand.visible = !frei;
+    wand.scale.set(B + 420, h + RAHMEN_H + 190, 1);
+    wand.position.set(0, (h + RAHMEN_H + 190) / 2, -12);
+
+    /* Pfosten: vorne immer zwei, hinten nur freistehend. Breite Anlagen
+       bekommen einen dritten – GESCHÄTZT, keine Herstellerregel. */
+    var anzahl = B > 500 ? 3 : 2;
+    var xP = verteilen(anzahl, B, PFOSTEN / 2);
+    xP.forEach(function (x) {
+      balken(PFOSTEN, h, PFOSTEN, x, h / 2, T - PFOSTEN / 2, mAlu);
+      if (frei) balken(PFOSTEN, h, PFOSTEN, x, h / 2, PFOSTEN / 2, mAlu);
+    });
+
+    /* Umlaufender Rahmen – beim Lamellendach trägt er die Lamellenachsen */
+    var yR = h + RAHMEN_H / 2;
+    balken(B, RAHMEN_H, RAHMEN_B, 0, yR, T - RAHMEN_B / 2, mAlu);      // vorne
+    balken(B, RAHMEN_H, RAHMEN_B, 0, yR, RAHMEN_B / 2, mAlu);          // hinten
+    [-B / 2 + RAHMEN_B / 2, B / 2 - RAHMEN_B / 2].forEach(function (x) {
+      balken(RAHMEN_B, RAHMEN_H, T, x, yR, T / 2, mAlu);
+    });
+
+    var innenB = B - RAHMEN_B * 2;
+    var innenT = T - RAHMEN_B * 2;
+
+    if (Z.pgDachart === 'Lamellendach') {
+      var n = Math.max(3, Math.round(innenT / LAM_ABSTAND));
+      var winkel = Z.lamellen * Math.PI / 180;
+      var mLam = alu();
+      var lamBreite = (innenT / n) * LAM_UEBERLAPPUNG;
+      for (var i = 0; i < n; i++) {
+        var z = RAHMEN_B + (innenT / n) * (i + 0.5);
+        var lam = new THREE.Mesh(
+          new THREE.BoxGeometry(innenB, LAM_DICKE, lamBreite), mLam);
+        lam.position.set(0, yR, z);
+        lam.rotation.x = winkel;      // 0 = geschlossen, 90 = senkrecht offen
+        lam.castShadow = true; lam.receiveShadow = true;
+        bau.add(lam);
+      }
+    } else if (Z.pgDachart === 'Faltdach') {
+      /* Textiles Dach: angedeutete Falten statt einer glatten Fläche */
+      var mTuch = new THREE.MeshStandardMaterial({
+        color: 0xded8c9, roughness: 0.95, metalness: 0, side: THREE.DoubleSide
+      });
+      var falten = Math.max(4, Math.round(innenT / 45));
+      for (var f = 0; f < falten; f++) {
+        var zf = RAHMEN_B + (innenT / falten) * (f + 0.5);
+        var tuch = new THREE.Mesh(
+          new THREE.BoxGeometry(innenB, 3, innenT / falten - 1.5), mTuch);
+        tuch.position.set(0, yR + (f % 2 ? 2.5 : 0), zf);
+        tuch.castShadow = true;
+        bau.add(tuch);
+      }
+    } else {
+      /* Velaris: verschiebbare Elemente – drei Felder, eines übergeschoben */
+      var mEl = new THREE.MeshStandardMaterial({
+        color: 0xe6e3dc, roughness: 0.6, metalness: 0.15, side: THREE.DoubleSide
+      });
+      for (var e = 0; e < 3; e++) {
+        var tiefeEl = innenT / 3;
+        var ze = RAHMEN_B + tiefeEl * (e + 0.5) - (e === 2 ? tiefeEl * 0.45 : 0);
+        var el = new THREE.Mesh(
+          new THREE.BoxGeometry(innenB - 2, 4, tiefeEl - 1), mEl);
+        el.position.set(0, yR + (e === 2 ? 5 : 0), ze);
+        el.castShadow = true;
+        bau.add(el);
+      }
+    }
+
+    /* Seitlicher Schutz an beiden Seiten – ZIP-Markise oder Glas */
+    if (Z.pgSeitenschutz === 'ZIP-Senkrechtmarkise') {
+      var mZip = new THREE.MeshStandardMaterial({
+        color: 0x4a4f52, roughness: 0.95, side: THREE.DoubleSide
+      });
+      [-B / 2 + RAHMEN_B, B / 2 - RAHMEN_B].forEach(function (x) {
+        var zip = new THREE.Mesh(new THREE.BoxGeometry(T - RAHMEN_B * 2, h - 4, 1.2), mZip);
+        zip.position.set(x, (h - 4) / 2 + 2, T / 2);
+        zip.rotation.y = Math.PI / 2;
+        bau.add(zip);
+      });
+    } else if (Z.pgSeitenschutz === 'Glas-Schiebeelemente') {
+      seitenelemente(B, T, h, PFOSTEN);
+    }
+
+    if (Z.led) {
+      ledSpots(verteilen(Math.max(2, Math.round(B / 150)), B, 40),
+               [T * 0.3, T * 0.72], function () { return h - 1; });
+    }
+  }
+
   /* ---------- Tag und Abend ---------- */
   function stimmung() {
     /* Zufahrt grauer als Terrassenbelag – sonst wirkt der Carport,
@@ -873,15 +1011,22 @@
   function wert(id) { var e = document.getElementById(id); return e ? e.value : null; }
   function istCarport() { return Z.produkt === 'Carport'; }
   function istCarportTds() { return istCarport() && Z.cpTyp === 'Carport TDS'; }
+  function istPergola() { return Z.produkt === 'Pergola / Lamellendach'; }
+  function istLamellen() { return istPergola() && Z.pgDachart === 'Lamellendach'; }
 
   /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
      HTML tragen dazu data-k3d-fuer mit einem oder mehreren Stichworten. */
   function gruppeGilt(stichwort) {
     var d = datenSystem();
     switch (stichwort) {
-      case 'terrasse':       return !istCarport();
+      case 'terrasse':       return !istCarport() && !istPergola();
       case 'carport':        return istCarport();
-      case 'glas':           return !istCarport() || istCarportTds();
+      case 'pergola':        return istPergola();
+      case 'pg-lamellen':    return istLamellen();
+      // Aufbau (Wand oder freistehend) gibt es überall außer beim Carport,
+      // dort steckt die Montageart in der Ausführung
+      case 'aufbau':         return !istCarport();
+      case 'glas':           return (!istCarport() && !istPergola()) || istCarportTds();
       case 'cp-flachdach':   return istCarport() && !istCarportTds() &&
                                     Z.cpTyp !== 'Flachdach Flat Line';
       case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
@@ -906,7 +1051,8 @@
        nicht. Ohne Herstellerdaten bleiben alle vier stehen. */
     var e = stueckliste();
     var erlaubt = (e && e.farben && e.farben.length)
-      ? e.farben.map(function (f) { return f.name; }) : null;
+      ? e.farben.map(function (f) { return f.name; })
+      : (istPergola() ? FARBEN_PERGOLA : null);
     Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
       b.hidden = !!erlaubt && erlaubt.indexOf(b.getAttribute('data-k3d-farbe')) === -1;
     });
@@ -976,12 +1122,28 @@
   }
 
   function produktName() {
+    if (istPergola()) return Z.pgDachart === 'Lamellendach'
+      ? 'Lamellendach ' + Z.pgAusfuehrung : Z.pgDachart;
     if (!istCarport()) return Z.produkt;
     return Z.cpTyp === 'Carport TDS' ? 'Carport TDS' : 'Carport ' + Z.cpTyp.replace('Flachdach ', '');
   }
 
   function zusammenfassung() {
     var teile = [produktName()];
+    if (istPergola()) {
+      teile.push(Z.aufbau);
+      teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm');
+      if (istLamellen()) teile.push('Lamellen ' + Z.lamellen + '° geöffnet');
+      if (Z.pgSeitenschutz !== 'Nichts / später entscheiden') {
+        teile.push('Seitenschutz: ' + Z.pgSeitenschutz);
+      }
+      // Beim Lamellendach heißt RAL 9010 „Creme-Weiß" – so steht es später
+      // auch im Angebot, deshalb hier schon derselbe Name.
+      teile.push('Farbe: ' + (Z.farbe === 'Reinweiß' ? 'Creme-Weiß' : Z.farbe));
+      if (Z.led) teile.push('mit Beleuchtung');
+      teile.push(Z.montage === 'Ja, mit Fachmontage' ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
+      return teile;
+    }
     if (istCarport()) {
       teile.push('Ausführung: ' + Z.cpVariante);
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchfahrtshöhe ' + Z.hoehe + ' mm');
@@ -1035,6 +1197,11 @@
     if (typWechsel || produktWechsel) cpVariantenSetzen();
     Z.cpVariante = wert('k3dCpVariante') || Z.cpVariante;
     Z.cpDach = wert('k3dCpDach') || Z.cpDach;
+    Z.pgDachart = wert('k3dPgDachart') || Z.pgDachart;
+    Z.pgAusfuehrung = wert('k3dPgAusfuehrung') || Z.pgAusfuehrung;
+    Z.pgSeitenschutz = wert('k3dPgSeitenschutz') || Z.pgSeitenschutz;
+    Z.lamellen = parseInt(wert('k3dLamellen'), 10);
+    if (isNaN(Z.lamellen)) Z.lamellen = 35;
 
     if (produktWechsel) masseSetzen();
 
@@ -1068,6 +1235,8 @@
     });
     var nw = document.getElementById('k3dNeigungWert');
     if (nw) nw.textContent = Z.neigung + '°';
+    var lw = document.getElementById('k3dLamellenWert');
+    if (lw) lw.textContent = Z.lamellen + '° geöffnet';
 
     panelAnpassen();
     titelAnpassen();
@@ -1161,6 +1330,7 @@
   }
 
   ['k3dProdukt', 'k3dCpTyp', 'k3dCpVariante', 'k3dCpDach', 'k3dAufbau',
+   'k3dPgDachart', 'k3dPgAusfuehrung', 'k3dPgSeitenschutz', 'k3dLamellen',
    'k3dBreite', 'k3dTiefe', 'k3dHoehe',
    'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage'].forEach(function (id) {
@@ -1246,7 +1416,15 @@
         montage: Z.montage,
         notiz: zusammenfassung().join(' · ')
       };
-      if (istCarport()) {
+      if (istPergola()) {
+        v.produkt = 'Pergola / Lamellendach';
+        v.dachart = Z.pgDachart;
+        if (istLamellen()) v.dachausfuehrung = Z.pgAusfuehrung;
+        v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
+        v.seitenschutz = Z.pgSeitenschutz;
+        v.farbe = VORGABE_FARBE_PERGOLA[Z.farbe] || VORGABE_FARBE[Z.farbe] || Z.farbe;
+        v.led = Z.led ? VORGABE_LED_PERGOLA.ja : VORGABE_LED_PERGOLA.nein;
+      } else if (istCarport()) {
         v.produkt = 'Carport';
         v.carporttyp = Z.cpTyp;
         v.carportvariante = Z.cpVariante;

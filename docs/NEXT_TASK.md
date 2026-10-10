@@ -15,32 +15,22 @@
 
 ## 1. Was als Nächstes ansteht
 
-### Aufgabe A — Pergola / Lamellendach im 3D-Konfigurator *(direkte Fortsetzung)*
+### Aufgabe A — Konfigurator-Produkte *(erledigt bis auf Zubehör)*
 
-Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView und Carport**
-(Carport TDS, Flat Line, Flat Box). Offen ist noch:
+Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView, Carport**
+(TDS, Flat Line, Flat Box) und **Pergola / Lamellendach** (Lamellendach mit
+drehbaren Lamellen, Faltdach, Velaris).
 
-1. **Pergola / Lamellendach** – drehbare Lamellen als eigene Geometrie; im
-   Assistenten gibt es dazu bereits Dachart (Lamellendach, Faltdach, Velaris),
-   Ausführung, Seitenschutz und einen Komfort-Schritt (Heizung, Wettersensor)
-2. Danach optional: Markise, Verkleidung, Terrassenboden
+Offen bleibt nur noch Zubehör: Markise, Verkleidung, Terrassenboden. Das
+wären eigene Produkte, keine Erweiterung der vorhandenen – der
+Anfrage-Assistent führt sie unter „Sonstiges“.
 
-**Wegweiser – diese Dateien braucht genau diese Aufgabe:**
-
-| Datei | Wofür |
-|---|---|
-| `js/konfigurator-3d.js` | Modell, Kamera, Bedienung. Einstieg: `bauen()` verzweigt nach Produkt; Sichtbarkeit der Bedienfelder über `gruppeGilt()` |
-| `konfigurator.html` | Oberfläche und Stile (eigenständige Datei, **keine** njk-Vorlage). Bedienfelder tragen `data-k3d-fuer` |
-| `js/anfrage-wizard.js` | nimmt die Konfiguration entgegen: `vorgabeUebernehmen()` am Dateiende; der Pergola-Ablauf steht in `computeFlow()` |
-| `js/vendor/three.min.js` | three.js r128, liegt bewusst im Projekt (siehe `docs/entscheidungen.md`) |
-
-**Vorgehen:** neuen Zweig in `bauen()`, Produkt in `MASSE` und in das
-Auswahlfeld `k3dProdukt` eintragen, Bedienfelder mit `data-k3d-fuer`
-kennzeichnen und das Stichwort in `gruppeGilt()` auswerten. Übergabewerte
-**wörtlich** aus `js/anfrage-wizard.js` übernehmen (dachart,
-dachausfuehrung, seitenschutz) – `scripts/pruefe-konfigurator.js` prüft das.
-Danach `scripts/pruefe-cache-buster.sh`: die Versionsnummer muss in allen
-HTML-Dateien hochgezogen werden.
+**Wenn ein Produkt dazukommt:** Zweig in `bauen()`, Eintrag in `MASSE` und im
+Auswahlfeld `k3dProdukt`, Bedienfelder mit `data-k3d-fuer` kennzeichnen und
+das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
+`js/anfrage-wizard.js` übernehmen und in `vorgabeUebernehmen()` in die
+`felder`-Liste eintragen – sonst kommt der Wert dort nie an.
+`scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
 
 ### Aufgabe A2 — Konfigurator auf die echten Herstellerdaten *(gebaut, wartet auf einen Handgriff)*
 

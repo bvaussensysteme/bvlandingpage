@@ -427,6 +427,7 @@
             <option value="Terrassendach TDS">Terrassendach TDS</option>
             <option value="Flachdach SkyView">Flachdach SkyView</option>
             <option value="Carport">Carport</option>
+            <option value="Pergola / Lamellendach">Pergola / Lamellendach</option>
           </select>
         </div>
 
@@ -444,7 +445,24 @@
           <select id="k3dCpVariante" class="k3d-select"></select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
+          <label class="k3d-label" for="k3dPgDachart">Dachart</label>
+          <select id="k3dPgDachart" class="k3d-select">
+            <option value="Lamellendach">Lamellendach – drehbare Alu-Lamellen</option>
+            <option value="Faltdach">Faltdach – textil, komplett öffenbar</option>
+            <option value="Velaris">Velaris – verschiebbare Elemente</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="pg-lamellen" hidden>
+          <label class="k3d-label" for="k3dPgAusfuehrung">Ausführung</label>
+          <select id="k3dPgAusfuehrung" class="k3d-select">
+            <option value="SunPro">SunPro – bis 7 × 4,5 m</option>
+            <option value="Premium (Warema Lamaxa L50)">Premium – Warema Lamaxa L50</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="aufbau">
           <label class="k3d-label" for="k3dAufbau">Aufbau</label>
           <select id="k3dAufbau" class="k3d-select">
             <option value="Wandmontage">An der Hauswand</option>
@@ -468,6 +486,21 @@
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
           <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="pg-lamellen" hidden>
+          <label class="k3d-label" for="k3dLamellen">Lamellen <output id="k3dLamellenWert">35° geöffnet</output></label>
+          <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
+          <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
+          <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
+          <select id="k3dPgSeitenschutz" class="k3d-select">
+            <option value="Nichts / später entscheiden">ohne</option>
+            <option value="ZIP-Senkrechtmarkise">ZIP-Senkrechtmarkise</option>
+            <option value="Glas-Schiebeelemente">Glas-Schiebeelemente</option>
+          </select>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="neigung">
@@ -577,8 +610,8 @@
     </div>
 
     <p class="k3d-weitere">
-      Pergola und Lamellendach folgen als Nächstes.
-      Für diese Systeme hilft Ihnen der <a href="/#kontakt">Anfrage-Assistent</a> schon heute weiter.
+      Markise, Verkleidung und Terrassenboden sind noch nicht dabei.
+      Dafür hilft Ihnen der <a href="/#kontakt">Anfrage-Assistent</a> weiter.
     </p>
 
   </div>
@@ -672,13 +705,13 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261010k" defer></script>
+<script src="js/konfigurator-3d.js?v=20261010m" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261010k" defer></script>
+<script src="js/anfrage-wizard.js?v=20261010m" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
