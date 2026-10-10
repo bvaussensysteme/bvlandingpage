@@ -187,9 +187,11 @@
     return b ? b.tiefen.slice() : [];
   }
 
-  /* Nächstgrößeres Rastermaß. Zwischenmaße gibt es nicht; wer 5300 mm will,
-     bekommt 5900 mm angezeigt – und sieht beides. Über dem größten Maß wird
-     auf das größte begrenzt und das gemeldet. */
+  /* Nächstgrößeres Rasterfeld. Es sagt NICHT, wie breit gebaut wird – das
+     richtet sich nach dem Kundenmaß –, sondern welcher Preis gilt und wie
+     viele Pfosten und Sparren hineingehen. Wer 5300 mm bestellt, bekommt
+     5300 mm und wird nach dem Feld 5900 mm abgerechnet. Über dem größten
+     Maß wird auf das größte begrenzt und das gemeldet. */
   function naechstesRaster(liste, wunsch) {
     for (var i = 0; i < liste.length; i++) if (liste[i] >= wunsch) return liste[i];
     return liste[liste.length - 1];
@@ -247,10 +249,14 @@
     var hinweise = [];
     function hin(art, text) { hinweise.push({ art: art, text: text }); }
 
+    /* Gebaut wird nach Kundenmaß. Das Raster ist die Abrechnungsgrundlage:
+       Das nächstgrößere Rasterfeld bestimmt Preis, Pfosten- und
+       Sparrenzahl. Deshalb steht hier kein „gibt es nicht", sondern wofür
+       das Rastermaß zählt. */
     if (breite !== breiteWunsch || tiefe !== tiefeWunsch) {
-      hin('raster', 'Zwischenmaße gibt es nicht. Gewünscht ' + breiteWunsch + ' × ' +
-          tiefeWunsch + ' mm, gezeigt wird das nächste Rastermaß ' +
-          breite + ' × ' + tiefe + ' mm.');
+      hin('raster', 'Gebaut wird nach Ihrem Maß ' + breiteWunsch + ' × ' +
+          tiefeWunsch + ' mm. Für Preis und Stückzahl zählt das nächste ' +
+          'Rasterfeld: ' + breite + ' × ' + tiefe + ' mm.');
     }
     if (breiteWunsch > bL[bL.length - 1] || tiefeWunsch > tL[tL.length - 1]) {
       hin('grenze', 'Größer als das Raster des Systems (max. ' + bL[bL.length - 1] +
@@ -387,6 +393,8 @@
       system: system,
       material: material,
       montageart: freistehend ? 'freistehend' : b.montageart,
+      // angefragt = das Kundenmaß, danach wird gebaut
+      // raster    = das Abrechnungsfeld, daraus kommen Preis und Stückzahl
       angefragt: { breite: breiteWunsch, tiefe: tiefeWunsch },
       raster:    { breite: breite, tiefe: tiefe },
       imRaster:  breite === breiteWunsch && tiefe === tiefeWunsch,

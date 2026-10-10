@@ -365,8 +365,12 @@
      Nullpunkt liegt mittig an der Wand auf Bodenhöhe. Die Tiefe läuft
      nach +z (vom Haus weg), die Breite nach +/-x. */
   function bauen() {
-    leeren(bau);
     var e = stueckliste();
+    /* Gehört das Produkt in die Preisliste, liegt die Antwort aber noch
+       nicht vor, bleibt die vorige Zeichnung stehen. Sonst zeichnete hier
+       kurz ein Carport, wo ein Terrassendach hingehört. */
+    if (!e && datenSystem()) return;
+    leeren(bau);
     if (e && !e.fehler) bauenAusDaten(e);
     else bauenGeschaetzt();
     stimmung();
@@ -379,7 +383,10 @@
      auf Pfosten und Statikträger geschätzt – siehe daten/offene-punkte.md. */
   function bauenAusDaten(e) {
     var m = e.masse, g = m.geschaetzt;
-    var B = e.raster.breite / 10, T = e.raster.tiefe / 10;   // mm -> cm
+    /* Gezeichnet wird das KUNDENMASS – gebaut wird danach. Aus dem
+       Rasterfeld kommen nur die Stückzahlen (Sparren, Pfosten) und die
+       Statik, weil danach abgerechnet wird. Die beiden nicht verwechseln. */
+    var B = Z.breite / 10, T = Z.tiefe / 10;                 // mm -> cm
     var pf = m.pfosten.breite / 10;                          // 110 mm, BELEGT
     var spB = g.sparren.breite / 10, spH = g.sparren.hoehe / 10;   // GESCHÄTZT
     var riH = g.rinne.hoehe / 10, riT = g.rinne.tiefe / 10;        // GESCHÄTZT
@@ -878,9 +885,8 @@
       case 'cp-flachdach':   return istCarport() && !istCarportTds() &&
                                     Z.cpTyp !== 'Flachdach Flat Line';
       case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
-      // Maße: Rasterauswahl, wo es Herstellerdaten gibt – sonst Schieberegler
-      case 'raster':         return !!d;
-      case 'frei':           return !d;
+      // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
+      // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
       case 'geschaetzt':     return !d;
       // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
       // haben laut Hersteller kein Neigungsfeld (BELEGT).
@@ -947,30 +953,25 @@
     kameraAnpassen.einmal = false;   // neues Produkt, neuer Bildausschnitt
   }
 
-  /* Rasterauswahl füllen. Zwischenmaße gibt es nicht – deshalb eine Liste
-     der echten Maße statt eines Schiebereglers. Die Liste hängt am Material:
-     Polycarbonat hat bei TDS nur 14 Breiten, Glas 30. */
-  function rasterSetzen() {
+  /* Die Schieberegler laufen über den Maßbereich des Systems. Die Grenzen
+     kommen aus dem Herstellerraster – nicht, weil nur diese Maße baubar
+     wären (gebaut wird nach Kundenmaß), sondern weil darüber hinaus keine
+     Abrechnungsgrundlage existiert. Schrittweite 10 mm: so wird aufgemessen. */
+  function reglerGrenzenSetzen() {
     var d = datenSystem();
     if (!d) return;
     var listen = RASTER[d.system + '|' + d.material];
     if (!listen) return;
-    [['k3dBreiteR', 'breiten', 'breite'], ['k3dTiefeR', 'tiefen', 'tiefe']].forEach(function (p) {
-      var sel = document.getElementById(p[0]);
-      if (!sel) return;
+    [['k3dBreite', 'breiten', 'breite'], ['k3dTiefe', 'tiefen', 'tiefe']].forEach(function (p) {
+      var el = document.getElementById(p[0]);
       var liste = listen[p[1]] || [];
-      if (!liste.length) return;
-      sel.setAttribute('data-k3d-liste', d.system + '|' + d.material);
-      sel.innerHTML = liste.map(function (v) {
-        return '<option value="' + v + '">' + (v / 1000).toFixed(v % 1000 ? 2 : 1).replace('.', ',') +
-               ' m  ·  ' + v + ' mm</option>';
-      }).join('');
-      // nächstliegendes Maß beibehalten, damit ein Materialwechsel nicht springt
-      var ziel = liste.reduce(function (a, b2) {
-        return Math.abs(b2 - Z[p[2]]) < Math.abs(a - Z[p[2]]) ? b2 : a;
-      }, liste[0]);
-      Z[p[2]] = ziel;
-      sel.value = String(ziel);
+      if (!el || !liste.length) return;
+      el.min = liste[0];
+      el.max = liste[liste.length - 1];
+      el.step = 10;
+      if (Z[p[2]] < liste[0]) Z[p[2]] = liste[0];
+      if (Z[p[2]] > liste[liste.length - 1]) Z[p[2]] = liste[liste.length - 1];
+      el.value = Z[p[2]];
     });
   }
 
@@ -1038,24 +1039,17 @@
     if (produktWechsel) masseSetzen();
 
     Z.aufbau = wert('k3dAufbau') || Z.aufbau;
-    var d = datenSystem();
-    var ausDaten = !!d;
-    if (ausDaten) {
-      /* Rasterauswahl: nur Maße, die es in der Preisliste gibt. Die Liste
-         trägt, für welches System sie gebaut wurde – steht dort noch das
-         vorige System, ist ihr Wert nichts wert und das zuletzt gewählte Maß
-         wird stattdessen auf das neue Raster eingerastet. */
-      var passt = document.getElementById('k3dBreiteR');
-      passt = passt && passt.getAttribute('data-k3d-liste') === d.system + '|' + d.material;
-      if (passt) {
-        Z.breite = parseInt(wert('k3dBreiteR'), 10) || Z.breite;
-        Z.tiefe = parseInt(wert('k3dTiefeR'), 10) || Z.tiefe;
-      }
-      rasterSetzen();
-    } else {
-      Z.breite = parseInt(wert('k3dBreite'), 10) || Z.breite;
-      Z.tiefe = parseInt(wert('k3dTiefe'), 10) || Z.tiefe;
+    /* Die Reglergrenzen hängen am System, nicht nur am Produkt: Ein Wechsel
+       des Carport-Typs oder der Eindeckung bringt ein anderes Maßraster mit.
+       Deshalb wird der Systemschlüssel verglichen, nicht nur das Produkt. */
+    var dJetzt = datenSystem();
+    var systemSchl = dJetzt ? dJetzt.system + '|' + dJetzt.material : 'geschaetzt';
+    if (systemSchl !== letztesSystem) {
+      if (dJetzt) reglerGrenzenSetzen();
+      letztesSystem = systemSchl;
     }
+    Z.breite = parseInt(wert('k3dBreite'), 10) || Z.breite;
+    Z.tiefe = parseInt(wert('k3dTiefe'), 10) || Z.tiefe;
     Z.hoehe = parseInt(wert('k3dHoehe'), 10) || Z.hoehe;
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
@@ -1077,14 +1071,31 @@
 
     panelAnpassen();
     titelAnpassen();
-    // Das Modell wartet auf die Stückliste vom Server. Solange nichts da
-    // ist, steht die vorige Zeichnung – kein Flackern, keine Zwischenzahlen.
-    stuecklisteHolen(function () {
-      panelAnpassen();        // Farbpalette hängt an der Stückliste
-      bauen();
-      textAktualisieren();
-      folgtAktualisieren();
-    });
+    /* Sofort zeichnen – mit den Stückzahlen, die gerade vorliegen. Beim
+       Ziehen am Regler ändert sich das Maß stetig, die Sparrenzahl aber nur
+       an den Rasterkanten. Die genaue Antwort kommt gebremst nach, sonst
+       feuert jeder Pixel eine Abfrage. */
+    bauen();
+    textAktualisieren();
+    folgtAktualisieren();
+    gebremstHolen();
+  }
+
+  var letztesSystem = null;
+  var bremse = null;
+  function gebremstHolen() {
+    if (bremse) clearTimeout(bremse);
+    bremse = setTimeout(function () {
+      bremse = null;
+      stuecklisteHolen(function () {
+        panelAnpassen();      // Farbpalette hängt an der Stückliste
+        bauen();
+        textAktualisieren();
+        folgtAktualisieren();
+        var ladeHinweis = document.getElementById('k3dLaden');
+        if (ladeHinweis) ladeHinweis.remove();
+      });
+    }, 220);
   }
 
   /* „Was daraus folgt" – die Zahlen aus der Preisliste, sichtbar gemacht.
@@ -1102,14 +1113,17 @@
       return;
     }
     var z = [];
-    z.push(['Maß', e.raster.breite + ' × ' + e.raster.tiefe + ' mm' +
-            (e.imRaster ? '' : ' (nächstes lieferbares Maß)')]);
+    z.push(['Ihr Maß', e.angefragt.breite + ' × ' + e.angefragt.tiefe + ' mm']);
+    if (!e.imRaster) {
+      z.push(['Abrechnung nach', e.raster.breite + ' × ' + e.raster.tiefe +
+              ' mm (nächstes Rasterfeld)']);
+    }
     z.push(['Sparren', e.sparren + (e.feldbreite ? ' · Achsabstand ' +
             e.feldbreite.achsabstand + ' mm' : '')]);
     z.push(['Pfosten', e.pfosten + (e.pfostenReihen > 1
             ? ' (zwei Reihen zu je ' + e.pfostenJeReihe + ')' : '')]);
     if (e.statiktraeger) z.push(['Statikträger', '189 × 117 mm über die volle Breite']);
-    if (e.eindeckungGeteilt) z.push(['Eindeckung', 'quer geteilt, mit Querfuge']);
+    if (e.eindeckungGeteilt) z.push(['Teilung', 'Eindeckung quer geteilt, mit Querfuge']);
     if (e.innenkernSparren) {
       z.push(['Innenkern-Sparren', 'erforderlich' +
               (e.innenkernImPreis === false ? ', nicht im Preis enthalten' : '')]);
@@ -1120,7 +1134,8 @@
     }).join('');
 
     if (hinBox) {
-      hinBox.innerHTML = e.hinweise.map(function (h) {
+      // Der Rasterhinweis steht schon als eigene Zeile darüber – nicht doppelt
+      hinBox.innerHTML = e.hinweise.filter(function (h) { return h.art !== 'raster'; }).map(function (h) {
         return '<li class="k3d-hin k3d-hin--' + esc(h.art) + '">' + esc(h.text) + '</li>';
       }).join('');
     }
@@ -1146,7 +1161,7 @@
   }
 
   ['k3dProdukt', 'k3dCpTyp', 'k3dCpVariante', 'k3dCpDach', 'k3dAufbau',
-   'k3dBreite', 'k3dTiefe', 'k3dBreiteR', 'k3dTiefeR', 'k3dHoehe',
+   'k3dBreite', 'k3dTiefe', 'k3dHoehe',
    'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage'].forEach(function (id) {
     var e = document.getElementById(id);
@@ -1260,8 +1275,7 @@
   /* Zuerst fragen, welche Maße es überhaupt gibt. Erst danach steht fest,
      ob die Rasterauswahl oder die geschätzte Skizze gilt. */
   rasterHolen(function () {
-    aendern();
-    var ladeHinweis = document.getElementById('k3dLaden');
-    if (ladeHinweis) ladeHinweis.remove();
+    reglerGrenzenSetzen();
+    aendern();   // entfernt den Ladehinweis, sobald die erste Antwort da ist
   });
 })();

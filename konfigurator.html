@@ -452,25 +452,17 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="raster">
-          <label class="k3d-label" for="k3dBreiteR">Breite</label>
-          <select id="k3dBreiteR" class="k3d-select"></select>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-fuer="raster">
-          <label class="k3d-label" for="k3dTiefeR">Tiefe</label>
-          <select id="k3dTiefeR" class="k3d-select"></select>
-          <p class="k3d-mini">Nur diese Maße gibt es beim Hersteller – Zwischenmaße werden nicht gebaut.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-fuer="frei" hidden>
+        <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
           <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="frei" hidden>
+        <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
+          <p class="k3d-mini">Gebaut wird nach Ihrem Maß. Für Preis und Stückzahl
+            zählt das nächste Rasterfeld des Herstellers – es steht unten bei
+            „Was daraus folgt“.</p>
         </div>
 
         <div class="k3d-gruppe">

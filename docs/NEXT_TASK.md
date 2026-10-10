@@ -69,7 +69,7 @@ Konfigurator zeigt dieselbe geschätzte Skizze wie bisher.
 |---|---|
 | `js/bauteile.js` | die Regeln. **Enthält keine Herstellerdaten**, bekommt die Matrix über `matrixSetzen()`. Läuft im Browser, unter Node und im Worker |
 | `worker/index.js` → `/api/bauteile` | nimmt ein Maß, gibt eine Stückliste. Holt die Matrix aus KV, nie an den Browser |
-| `js/konfigurator-3d.js` | fragt den Endpunkt, zeichnet das Ergebnis. Ohne Antwort: geschätzte Skizze, Seite bleibt benutzbar |
+| `js/konfigurator-3d.js` | freie Schieberegler (gebaut wird nach Kundenmaß), fragt den Endpunkt gebremst, zeichnet das Kundenmaß und zeigt das Rasterfeld als Abrechnungsgrundlage daneben. Ohne Antwort: geschätzte Skizze, Seite bleibt benutzbar |
 | `daten/` | die Quelle – **nicht im Repository**, siehe `.gitignore` |
 
 #### Was offen bleibt
