@@ -32,6 +32,9 @@ MARKER='
 /js/konfigurator-3d.js|bauenTerrasseGeschaetzt|Terrassendach wird als Terrassendach gezeichnet
 /js/konfigurator-3d.js|function sonnenschutz|Sonnenschutz im Konfigurator
 /js/anfrage-wizard.js|Aus dem 3D-Konfigurator|Notiz des Konfigurators geht in die Anfrage
+/konfigurator.html|Polycarbonat graphit|Vier Polycarbonat-Ausführungen
+/js/anfrage-wizard.js|Polycarbonat Bronze|Bronze auch im Anfrage-Assistenten
+/js/konfigurator-3d.js|var NEIGUNG = (tds ? 6 : 0)|Flat Box ohne Gefälle
 '
 
 holen() { curl -sL --max-time 25 "$1"; }
