@@ -1,5 +1,17 @@
 import { neon } from '@neondatabase/serverless';
 
+/* Die Rechenregeln liegen in js/bauteile.js – derselben Datei, die auch die
+   Prüfskripte verwenden. Sie wird hier mitgebündelt und setzt sich auf
+   globalThis.BVBauteile. Zwei Kopien derselben Regeln würden auseinander
+   laufen; deshalb eine Datei für Browser, Prüfung und Worker. */
+import bauteileModul from '../js/bauteile.js';
+
+/* js/bauteile.js läuft in drei Umgebungen: im Browser setzt es sich auf
+   window, unter Node liefert es module.exports, und der Worker-Bundler
+   behandelt es als CommonJS – dann kommt es als Default-Export an. Deshalb
+   beide Wege. */
+const BV = bauteileModul || globalThis.BVBauteile;
+
 // Alte URLs, die früher nur per <meta http-equiv="refresh"> + JS
 // weitergeleitet wurden (von der Search Console als "Seite mit
 // Weiterleitung" mit fehlgeschlagener Validierung gemeldet, da kein
@@ -23,6 +35,10 @@ export default {
 
     if (url.pathname === '/api/kontakt' && request.method === 'POST') {
       return handleKontakt(request, env);
+    }
+
+    if (url.pathname === '/api/bauteile' && request.method === 'GET') {
+      return handleBauteile(url, env);
     }
 
     return env.ASSETS.fetch(request);
@@ -160,4 +176,118 @@ async function handleKontakt(request, env) {
   }
 
   return kontaktOk(request);
+}
+
+
+/* ============================================================
+   Stückliste  →  GET /api/bauteile
+
+   Warum überhaupt serverseitig?
+   Die Sparren- und Stützfußmatrix der VD-Preislisten darf nicht an den
+   Browser ausgeliefert werden: Sie ist eine systematische Übernahme aus den
+   Preislisten des Herstellers, daran besteht ein Datenbankherstellerrecht
+   (§§ 87a ff. UrhG). Die Quelle (privates Repository bv-crm,
+   docs/konfigurator-daten/README.md) hält ausdrücklich fest, dass ein
+   Konfigurator zulässig ist, der nur **Ergebnisse** zeigt – „dann liegen die
+   Daten auf dem Server, nicht beim Besucher". Genau das macht dieser
+   Endpunkt: Er bekommt ein Maß und antwortet mit einer Stückliste, nie mit
+   der Tabelle.
+
+   Die Matrix steht deshalb NICHT im Repository, sondern im KV-Speicher
+   (Binding DACHMATRIX, Schlüssel "matrix"). Einspielen:
+
+     npx wrangler kv namespace create DACHMATRIX
+     # die ausgegebene id in wrangler.jsonc eintragen
+     node scripts/baue-dachmatrix.js
+     npx wrangler kv key put --binding DACHMATRIX matrix \
+       --path js/dachmatrix-daten.json --remote
+
+   Fehlt das Binding oder der Schlüssel, antwortet der Endpunkt mit 503 und
+   einer verständlichen Meldung. Der Konfigurator zeigt dann die geschätzte
+   Skizze – die Seite bleibt benutzbar.
+   ============================================================ */
+
+let matrixGeladen = false;
+
+async function matrixLaden(env) {
+  const B = BV;
+  if (!B) return false;
+  /* Erst das Binding prüfen, dann den Zwischenspeicher. Fehlt der
+     KV-Speicher, soll der Endpunkt das sagen und nicht aus einem alten
+     Stand antworten – sonst bliebe ein kaputter Deploy unbemerkt. */
+  if (!env.DACHMATRIX) return false;
+  if (matrixGeladen && B.matrixVorhanden()) return true;
+  try {
+    const roh = await env.DACHMATRIX.get('matrix', { type: 'json' });
+    if (!roh) return false;
+    B.matrixSetzen(roh);
+    matrixGeladen = true;
+    return B.matrixVorhanden();
+  } catch (e) {
+    return false;
+  }
+}
+
+function zahl(wert, min, max) {
+  const n = parseInt(wert, 10);
+  if (!Number.isFinite(n) || n < min || n > max) return null;
+  return n;
+}
+
+async function handleBauteile(url, env) {
+  const B = BV;
+  const da = await matrixLaden(env);
+  if (!B || !da) {
+    return jsonResponse({
+      fehler: 'Herstellerdaten nicht verfügbar',
+      hinweis: 'Der Konfigurator zeigt so lange eine geschätzte Darstellung.',
+    }, 503);
+  }
+
+  const p = url.searchParams;
+
+  /* Welche Maße es überhaupt gibt – einmal beim Laden der Seite.
+     Das sind die lieferbaren Größen, nicht die Stückzahlen. */
+  if (p.get('raster') === '1') {
+    const aus = {};
+    B.systeme().forEach((system) => {
+      B.materialien(system).forEach((material) => {
+        aus[system + '|' + material] = {
+          breiten: B.breiten(system, material),
+          tiefen: B.tiefen(system, material),
+        };
+      });
+    });
+    return cacheAntwort({ raster: aus, neigung: B.NEIGUNG });
+  }
+
+  const system = String(p.get('system') || '').slice(0, 20);
+  const material = String(p.get('material') || '').slice(0, 20);
+  const breite = zahl(p.get('breite'), 100, 20000);
+  const tiefe = zahl(p.get('tiefe'), 100, 20000);
+  if (!system || !material || breite === null || tiefe === null) {
+    return jsonResponse({ fehler: 'system, material, breite und tiefe werden gebraucht' }, 400);
+  }
+
+  const optionen = {};
+  if (p.get('freistehend') === '1') optionen.freistehend = true;
+  if (p.get('statiktraeger') === '0') optionen.statiktraeger = false;
+  if (p.get('statiktraeger') === '1') optionen.statiktraeger = true;
+
+  const e = B.bauteile(system, material, breite, tiefe, optionen);
+  if (e.fehler) return jsonResponse(e, 404);
+  return cacheAntwort(e);
+}
+
+/* Die Antworten hängen nur an den Eingabewerten und ändern sich erst mit
+   einer neuen Preisliste – eine Stunde Cache spart Aufrufe und macht die
+   Bedienung flüssig. */
+function cacheAntwort(daten) {
+  return new Response(JSON.stringify(daten), {
+    status: 200,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'public, max-age=3600',
+    },
+  });
 }

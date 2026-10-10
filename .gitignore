@@ -14,3 +14,4 @@ node_modules/
 # ---------------------------------------------------------------
 daten/
 js/dachmatrix-daten.js
+js/dachmatrix-daten.json

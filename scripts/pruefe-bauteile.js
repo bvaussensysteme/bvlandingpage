@@ -23,6 +23,8 @@ const CSV = path.join(WURZEL, 'daten', 'dachmatrix.csv');
 let MATRIX = [];
 try { MATRIX = require(path.join(WURZEL, 'js', 'dachmatrix-daten.js')); } catch (e) { MATRIX = []; }
 const B = require(path.join(WURZEL, 'js', 'bauteile.js'));
+// js/bauteile.js enthält selbst keine Daten – die Matrix wird hereingereicht
+B.matrixSetzen(MATRIX);
 
 /* Der Datenordner liegt nicht im Repository – bvlandingpage ist öffentlich,
    die Herstellermatrix darf dort nicht liegen (siehe .gitignore). Zum

@@ -137,23 +137,68 @@
      Flachdach mit Trapezblech geführt, unabhängig davon, dass der Betrieb es
      als Carport verkauft. */
   function datenSystem() {
+    if (!RASTER) return null;        // ohne Serverantwort: geschätzte Skizze
     var mat = Z.eindeckung === 'Polycarbonat' ? 'Polycarbonat' : 'Glas';
-    if (Z.produkt === 'Terrassendach TDS') return { system: 'TDS', material: mat };
-    if (Z.produkt === 'Flachdach SkyView') return { system: 'SkyView', material: mat };
-    if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
-      return { system: 'Flat Line', material: 'Trapezblech' };
+    var d = null;
+    if (Z.produkt === 'Terrassendach TDS') d = { system: 'TDS', material: mat };
+    else if (Z.produkt === 'Flachdach SkyView') d = { system: 'SkyView', material: mat };
+    else if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
+      d = { system: 'Flat Line', material: 'Trapezblech' };
     }
-    return null;   // Carport TDS und Flat Box: keine Matrix vorhanden
+    if (!d || !RASTER[d.system + '|' + d.material]) return null;
+    return d;
   }
 
-  /* Die Stückliste. Einzige Stelle, an der das Modell Zahlen bekommt. */
-  function stueckliste() {
-    if (!window.BVBauteile) return null;
+  /* ---------- Stückliste: der Server rechnet ----------
+     Die Sparren- und Stützfußmatrix des Herstellers bleibt auf dem Server.
+     Der Browser schickt ein Maß an /api/bauteile und bekommt genau eine
+     Stückliste zurück – nie die Tabelle. Das ist keine Vorsichtsmaßnahme
+     aus Bequemlichkeit: An der Matrix besteht ein Datenbankherstellerrecht,
+     und die Quelle erlaubt ausdrücklich nur, Ergebnisse zu zeigen.
+
+     Antwortet der Server nicht, bleibt der Konfigurator benutzbar – dann
+     zeigt er die geschätzte Skizze statt falscher Zahlen. */
+  var RASTER = null;          // welche Maße es gibt, einmal beim Laden geholt
+  var LETZTE = null;          // zuletzt geholte Stückliste
+  var LETZTER_SCHLUESSEL = null;
+  var laufendeNr = 0;
+
+  function stueckliste() { return LETZTE; }
+
+  function anfrageSchluessel(d) {
+    return [d.system, d.material, Z.breite, Z.tiefe,
+            Z.aufbau === 'Freistehend' ? 1 : 0].join('|');
+  }
+
+  function rasterHolen(fertig) {
+    fetch('/api/bauteile?raster=1', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { RASTER = (j && j.raster) ? j.raster : null; fertig(); })
+      .catch(function () { RASTER = null; fertig(); });
+  }
+
+  function stuecklisteHolen(fertig) {
     var d = datenSystem();
-    if (!d) return null;
-    return window.BVBauteile.bauteile(d.system, d.material, Z.breite, Z.tiefe, {
-      freistehend: Z.aufbau === 'Freistehend'
-    });
+    if (!d) { LETZTE = null; LETZTER_SCHLUESSEL = null; fertig(); return; }
+    var schl = anfrageSchluessel(d);
+    if (schl === LETZTER_SCHLUESSEL && LETZTE) { fertig(); return; }
+    var nr = ++laufendeNr;
+    var frage = '/api/bauteile?system=' + encodeURIComponent(d.system) +
+                '&material=' + encodeURIComponent(d.material) +
+                '&breite=' + Z.breite + '&tiefe=' + Z.tiefe +
+                (Z.aufbau === 'Freistehend' ? '&freistehend=1' : '');
+    fetch(frage, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (nr !== laufendeNr) return;        // überholte Antwort verwerfen
+        LETZTE = (j && !j.fehler) ? j : null;
+        LETZTER_SCHLUESSEL = LETZTE ? schl : null;
+        fertig();
+      })
+      .catch(function () {
+        if (nr !== laufendeNr) return;
+        LETZTE = null; LETZTER_SCHLUESSEL = null; fertig();
+      });
   }
 
   /* ---------- Szene ---------- */
@@ -907,11 +952,13 @@
      Polycarbonat hat bei TDS nur 14 Breiten, Glas 30. */
   function rasterSetzen() {
     var d = datenSystem();
-    if (!d || !window.BVBauteile) return;
+    if (!d) return;
+    var listen = RASTER[d.system + '|' + d.material];
+    if (!listen) return;
     [['k3dBreiteR', 'breiten', 'breite'], ['k3dTiefeR', 'tiefen', 'tiefe']].forEach(function (p) {
       var sel = document.getElementById(p[0]);
       if (!sel) return;
-      var liste = window.BVBauteile[p[1]](d.system, d.material);
+      var liste = listen[p[1]] || [];
       if (!liste.length) return;
       sel.setAttribute('data-k3d-liste', d.system + '|' + d.material);
       sel.innerHTML = liste.map(function (v) {
@@ -1030,9 +1077,14 @@
 
     panelAnpassen();
     titelAnpassen();
-    bauen();
-    textAktualisieren();
-    folgtAktualisieren();
+    // Das Modell wartet auf die Stückliste vom Server. Solange nichts da
+    // ist, steht die vorige Zeichnung – kein Flackern, keine Zwischenzahlen.
+    stuecklisteHolen(function () {
+      panelAnpassen();        // Farbpalette hängt an der Stückliste
+      bauen();
+      textAktualisieren();
+      folgtAktualisieren();
+    });
   }
 
   /* „Was daraus folgt" – die Zahlen aus der Preisliste, sichtbar gemacht.
@@ -1202,11 +1254,14 @@
   /* ---------- Start ---------- */
   groesseAnpassen();
   cpVariantenSetzen();
-  rasterSetzen();
-  aendern();
   kameraSetzen();
   zeichnen();
 
-  var ladeHinweis = document.getElementById('k3dLaden');
-  if (ladeHinweis) ladeHinweis.remove();
+  /* Zuerst fragen, welche Maße es überhaupt gibt. Erst danach steht fest,
+     ob die Rasterauswahl oder die geschätzte Skizze gilt. */
+  rasterHolen(function () {
+    aendern();
+    var ladeHinweis = document.getElementById('k3dLaden');
+    if (ladeHinweis) ladeHinweis.remove();
+  });
 })();

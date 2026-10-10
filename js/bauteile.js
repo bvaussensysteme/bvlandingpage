@@ -27,13 +27,13 @@
      bv-crm unter docs/konfigurator-daten/README.md.
      Fehlt sie, liefert bauteile() null – der Konfigurator zeigt dann die
      geschätzte Skizze statt falscher Zahlen. */
-  var MATRIX = null;
-  try {
-    MATRIX = (typeof module !== 'undefined' && module.exports)
-      ? require('./dachmatrix-daten.js')
-      : global.BV_DACHMATRIX;
-  } catch (e) { MATRIX = null; }
-  if (!MATRIX || !MATRIX.length) MATRIX = [];
+  /* Diese Datei enthält selbst KEINE Herstellerdaten und lädt auch keine.
+     Wer sie benutzt, reicht die Matrix über matrixSetzen() herein:
+       · der Worker aus dem KV-Speicher (siehe worker/index.js)
+       · die Prüfskripte aus daten/ (lokal, nicht im Repository)
+       · der Browser gar nicht – dort kommt nur das fertige Ergebnis an
+     Ohne Matrix liefert bauteile() einen Fehler statt falscher Zahlen. */
+  var MATRIX = [];
 
   /* ---------- Belegte Konstanten ---------- */
 
@@ -459,8 +459,18 @@
     return Math.round(tiefeMm * prozent / 100);
   }
 
+  /* Die Matrix kann auch zur Laufzeit gesetzt werden. Der Worker lädt sie
+     aus dem KV-Speicher und reicht sie hier herein; im Browser bleibt sie
+     leer, dort kommt nur das fertige Ergebnis über /api/bauteile an. */
+  function matrixSetzen(daten) {
+    MATRIX = (daten && daten.length) ? daten : [];
+    return MATRIX.length;
+  }
+  function matrixVorhanden() { return MATRIX.length > 0; }
+
   var API = {
     bauteile: bauteile, feldbreite: feldbreite,
+    matrixSetzen: matrixSetzen, matrixVorhanden: matrixVorhanden,
     systeme: systeme, materialien: materialien,
     breiten: breiten, tiefen: tiefen,
     NEIGUNG: NEIGUNG, GENEIGT: GENEIGT,
@@ -477,4 +487,4 @@
 
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else global.BVBauteile = API;
-})(typeof window !== 'undefined' ? window : this);
+})(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -89,6 +89,10 @@ const inhalt = kopf +
   '})(typeof window !== \'undefined\' ? window : this);\n';
 
 fs.writeFileSync(ZIEL, inhalt);
+/* Zusätzlich als reines JSON – das ist, was in den KV-Speicher geht:
+   npx wrangler kv key put --binding DACHMATRIX matrix --path js/dachmatrix-daten.json --remote */
+const ZIEL_JSON = path.join(WURZEL, 'js', 'dachmatrix-daten.json');
+fs.writeFileSync(ZIEL_JSON, JSON.stringify(kompakt));
 const zellen = kompakt.reduce(function (n, b) {
   return n + Object.keys(b.sparrenJeBreite).length;
 }, 0);
