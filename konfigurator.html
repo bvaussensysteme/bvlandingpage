@@ -56,309 +56,265 @@
 </script>
   <link rel="stylesheet" href="css/style.css?v=20260916e" />
   <style>
-    .konfigurator-page {
-      min-height: 70vh;
+    /* ===========================================================
+       3D-Konfigurator – Aufbau als Anwendung
+
+       Links das Bedienfeld, rechts das Modell über die ganze Fläche.
+       Der Grund für diese Teilung: Wer eine Maßangabe ändert, will die
+       Wirkung sehen, ohne zu scrollen. Bedienfeld und Modell müssen
+       deshalb gleichzeitig im Bild stehen.
+
+       Auf dem Handy ist das nicht möglich – dort liegt das Modell oben
+       (feste Höhe) und das Bedienfeld darunter im normalen Seitenfluss.
+       Bewusst KEIN eigener Scrollbereich im Bedienfeld: genau daran ist
+       die erste Fassung gescheitert (zwei verschachtelte Scrollflächen,
+       der Finger traf die falsche). Die Seite scrollt, das Modell nicht.
+       =========================================================== */
+
+    /* Der Klassenname ist bewusst k3d-app-seite und nicht k3d-seite:
+       .k3d-seite ist schon die Zeile „Links / Rechts / Vorne" im Bedienfeld
+       (ein Raster mit 62-px-Spalte). Als Klasse am body hat genau das die
+       ganze Anwendung auf 62 px zusammengezogen – gefunden im Browsertest. */
+    body.k3d-app-seite .sticky-cta { display: none; }   /* eigener Abschlussknopf im Bedienfeld */
+
+    /* Die Seite zentriert ihre Inhalte; die Anwendung soll die ganze Breite
+       haben. #bv-a11y-page-wrap legt das Barrierefreiheits-Skript zur
+       Laufzeit um den Inhalt. */
+    body.k3d-app-seite main,
+    body.k3d-app-seite #bv-a11y-page-wrap { width: 100%; }
+
+    .k3d-app {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-    }
-    .kp-inner {
-      max-width: 700px;
       width: 100%;
-      text-align: center;
+      height: calc(100svh - var(--k3d-nav, 72px));
+      min-height: 560px;
+      background: var(--light-bg);
+      border-bottom: 1px solid var(--border);
     }
-    .kp-badge {
+
+    /* ---------- Bedienfeld ---------- */
+    .k3d-sl {
+      width: 352px; flex: none;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: margin-left .25s ease;
+    }
+    .k3d-sl.ist-zu { margin-left: -352px; }
+    .k3d-sl-kopf { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
+    .k3d-badge {
       display: inline-block;
-      background: rgba(196,154,42,0.12);
-      color: var(--gold-dark);
-      font-size: 0.8rem; font-weight: 700;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      padding: 5px 14px; border-radius: 100px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(196,154,42,0.3);
+      background: rgba(196,154,42,0.12); color: var(--gold-text);
+      font-size: .68rem; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 100px; border: 1px solid rgba(196,154,42,0.3);
     }
-    .kp-icon {
-      font-size: 5rem;
-      margin-bottom: 20px;
-      display: block;
-      filter: grayscale(0.2);
-    }
-    .kp-badge svg {
-      width: 14px; height: 14px; vertical-align: -2px; margin-right: 5px;
-      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .kp-title {
+    .k3d-h1 {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 800; color: var(--black);
-      margin-bottom: 16px; line-height: 1.1;
+      font-size: 1.5rem; font-weight: 800; color: var(--black);
+      line-height: 1.1; margin: 8px 0 4px;
     }
-    .kp-sub {
-      font-size: 1rem; color: var(--muted);
-      line-height: 1.7; margin-bottom: 36px;
-      max-width: 540px; margin-left: auto; margin-right: auto;
+    .k3d-sl-sub { font-size: .78rem; color: var(--muted); line-height: 1.5; margin: 0; }
+    .k3d-sl-rollen { flex: 1; overflow-y: auto; padding: 12px 14px 4px; min-height: 0; }
+    .k3d-sl-fuss { padding: 12px 16px 16px; border-top: 1px solid var(--border); background: var(--offwhite); }
+
+    /* ---------- Abschnitte ---------- */
+    .k3d-sek { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 9px; background: #fff; }
+    .k3d-sek > summary {
+      list-style: none; cursor: pointer;
+      padding: 11px 13px; display: flex; align-items: center; gap: 9px;
     }
-    /* Progress timeline */
-    .kp-timeline {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      margin-bottom: 44px;
-      position: relative;
-    }
-    .kp-timeline::before {
-      content: '';
-      position: absolute;
-      top: 20px; left: 15%; right: 15%;
-      height: 2px;
-      background: var(--border);
-    }
-    .kp-step {
-      flex: 1; max-width: 160px;
-      text-align: center;
-      position: relative;
-      z-index: 1;
-    }
-    .kp-step-dot {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; margin: 0 auto 10px;
+    .k3d-sek > summary::-webkit-details-marker { display: none; }
+    .k3d-sek > summary::after { content: '›'; color: var(--muted); font-size: 1.1rem; line-height: 1; transition: transform .2s; }
+    .k3d-sek[open] > summary::after { transform: rotate(90deg); }
+    .k3d-sek[open] > summary { border-bottom: 1px solid var(--border); }
+    .k3d-sek > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .k3d-sek-t {
       font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800; font-size: 1.1rem;
+      font-weight: 700; font-size: 1rem; color: var(--black);
+      letter-spacing: .3px; white-space: nowrap;
     }
-    .kp-step-dot.done   { background: var(--gold); color: var(--black); }
-    .kp-step-dot.active { background: var(--black); color: var(--gold); border: 2px solid var(--gold); }
-    .kp-step-dot.todo   { background: var(--border); color: var(--muted); }
-    .kp-step-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
-    .kp-step-label.active { color: var(--black); font-weight: 600; }
+    .k3d-sek-s {
+      flex: 1; text-align: right; font-size: .7rem; color: var(--gold-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .k3d-sek > .k3d-gruppe, .k3d-sek > .k3d-mini { padding-left: 13px; padding-right: 13px; }
+    .k3d-sek > .k3d-gruppe:first-of-type { margin-top: 12px; }
+    .k3d-sek > :last-child { margin-bottom: 13px; }
 
-
-    /* ===== 3D-Konfigurator ===== */
-    .kp-title span { color: var(--gold-dark); }
-    .kp-title .kp-produkt { color: inherit; }
-    .kp-sub { max-width: 720px; margin: 0 auto 26px; color: var(--muted); line-height: 1.6; }
-
-    .k3d-wrap { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,1fr); gap: 22px; text-align: left; }
-    @media (max-width: 900px) { .k3d-wrap { grid-template-columns: 1fr; } }
-
-    .k3d-buehne { display: flex; flex-direction: column; gap: 10px; }
-    .k3d-canvas-box {
-      position: relative; background: #d9e7f2; border-radius: 14px; overflow: hidden;
-      border: 1px solid var(--border); aspect-ratio: 4 / 3; min-height: 280px;
-    }
-    @media (max-width: 900px) { .k3d-canvas-box { aspect-ratio: 1 / 1; } }
-    #k3dCanvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
-    #k3dCanvas:active { cursor: grabbing; }
-    .k3d-laden {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: #4a5a68; font-size: .9rem; margin: 0;
-    }
-    .k3d-hinweis {
-      position: absolute; left: 10px; bottom: 8px; margin: 0;
-      font-size: .72rem; color: rgba(0,0,0,.5); background: rgba(255,255,255,.65);
-      padding: 3px 9px; border-radius: 100px; pointer-events: none;
-    }
-    .k3d-werkzeug { display: flex; flex-wrap: wrap; gap: 7px; }
-    .k3d-wz {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: .88rem;
-      padding: 7px 14px; border-radius: 100px; cursor: pointer;
-      border: 1.5px solid var(--border); background: var(--white); color: var(--black);
-      transition: border-color .15s, background .15s, color .15s;
-    }
-    .k3d-wz:hover { border-color: var(--gold); }
-    .k3d-wz.is-active { background: var(--black); color: var(--gold); border-color: var(--black); }
-
-    .k3d-panel {
-      background: var(--white); border: 1px solid var(--border); border-radius: 14px;
-      padding: 20px; box-shadow: var(--shadow); align-self: start;
-    }
-    .k3d-gruppe { margin-bottom: 16px; }
+    .k3d-gruppe { margin-bottom: 14px; }
     .k3d-label {
-      display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
-      font-size: .82rem; font-weight: 700; color: var(--black); margin-bottom: 6px;
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+      font-size: .8rem; font-weight: 600; color: var(--black); margin-bottom: 6px;
     }
-    .k3d-label output { font-weight: 600; color: var(--gold-dark); font-variant-numeric: tabular-nums; }
+    .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
     .k3d-select {
-      width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
-      border-radius: var(--radius); background: var(--white); color: var(--black);
-      font-family: inherit; font-size: .92rem;
+      width: 100%; padding: 9px 11px; font: inherit; font-size: .86rem;
+      border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--black);
     }
     .k3d-select:focus { outline: none; border-color: var(--gold); }
+
+    /* Regler und Zahlenfeld nebeneinander: ziehen für das Gefühl,
+       tippen für das genaue Maß. Beide schreiben denselben Wert. */
+    .k3d-regler { display: grid; grid-template-columns: 1fr 78px; gap: 9px; align-items: center; }
     .k3d-range { width: 100%; accent-color: var(--gold-dark); height: 26px; }
+    .k3d-zahl {
+      width: 100%; padding: 7px 8px; font: inherit; font-size: .82rem; text-align: right;
+      border: 1px solid var(--border); border-radius: 8px; font-variant-numeric: tabular-nums;
+    }
+    .k3d-zahl:focus { outline: none; border-color: var(--gold); }
+    .k3d-zahl.ist-ausserhalb { border-color: #b4532a; background: #fdf3ef; }
+
+    /* ---------- Knopfreihen ---------- */
+    .k3d-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; }
+    .k3d-seg--2 { grid-template-columns: 1fr 1fr; }
+    .k3d-seg button {
+      padding: 8px 6px; font: inherit; font-size: .78rem; line-height: 1.25;
+      background: #fff; color: var(--black);
+      border: 1px solid var(--border); border-radius: 8px; cursor: pointer; text-align: center;
+    }
+    .k3d-seg button small { display: block; font-size: .66rem; color: var(--muted); margin-top: 2px; }
+    .k3d-seg button:hover { border-color: var(--gold); }
+    .k3d-seg button.is-active { background: var(--black); color: #fff; border-color: var(--black); }
+    .k3d-seg button.is-active small { color: rgba(255,255,255,.72); }
 
     .k3d-farben { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .k3d-farbe {
-      border: 2px solid var(--border); border-radius: 10px; background: var(--white);
-      padding: 6px 4px 5px; cursor: pointer; display: flex; flex-direction: column;
-      align-items: center; gap: 5px; transition: border-color .15s;
+      border: 2px solid var(--border); border-radius: 8px; background: #fff;
+      padding: 6px 2px 5px; cursor: pointer; text-align: center;
     }
     .k3d-farbe::before {
-      content: ''; width: 100%; height: 26px; border-radius: 6px;
-      background: var(--f); border: 1px solid rgba(0,0,0,.12);
+      content: ''; display: block; height: 22px; border-radius: 4px;
+      background: var(--f); margin: 0 4px 4px; border: 1px solid rgba(0,0,0,.12);
     }
-    .k3d-farbe span { font-size: .68rem; color: var(--muted); line-height: 1.2; }
+    .k3d-farbe span { font-size: .66rem; color: var(--muted); line-height: 1.2; }
     .k3d-farbe.is-active { border-color: var(--gold); }
     .k3d-farbe.is-active span { color: var(--black); font-weight: 600; }
 
     .k3d-seiten { display: grid; gap: 8px; }
     .k3d-seite { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 10px; }
-    .k3d-seite > span { font-size: .82rem; color: var(--muted); }
+    .k3d-seite > span { font-size: .8rem; color: var(--muted); }
 
-    .k3d-schalter { display: flex; align-items: center; gap: 10px; font-size: .88rem; cursor: pointer; }
-    .k3d-schalter input { width: 18px; height: 18px; accent-color: var(--gold-dark); }
+    .k3d-schalter { display: flex; align-items: center; gap: 10px; font-size: .84rem; cursor: pointer; margin-bottom: 7px; }
+    .k3d-schalter input { width: 18px; height: 18px; flex: none; accent-color: var(--gold-dark); }
+    .k3d-schalter:last-child { margin-bottom: 0; }
+    .k3d-drei { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .k3d-drei .k3d-schalter { margin-bottom: 0; font-size: .78rem; gap: 6px; }
 
-    .k3d-zus { background: var(--light-bg); border-radius: 10px; padding: 14px 16px; margin: 18px 0 14px; }
+    /* ---------- Ergebnis ---------- */
+    .k3d-zus { background: var(--light-bg); border-radius: var(--radius); padding: 13px 15px; margin: 4px 0 10px; }
     .k3d-zus--folgt { background: #fbf7ec; border: 1px solid rgba(196,154,42,0.25); }
-    .k3d-mini { font-size: .74rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
-    .k3d-folgt li { display: flex; gap: 8px; align-items: baseline; }
-    .k3d-folgt li span { min-width: 108px; color: var(--muted); font-size: .78rem; }
-    .k3d-hinweise { list-style: none; padding: 0; margin: 10px 0 0; }
-    .k3d-hin {
-      font-size: .74rem; line-height: 1.45; color: var(--muted);
-      border-left: 3px solid rgba(196,154,42,0.5); padding: 4px 0 4px 9px; margin-top: 7px;
-    }
-    .k3d-hin--statik, .k3d-hin--grenze { border-left-color: #b4532a; color: #6d3a22; }
     .k3d-zus h2 {
-      font-size: .78rem; letter-spacing: 1px; text-transform: uppercase;
-      color: var(--gold-dark); margin: 0 0 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .98rem; font-weight: 700; color: var(--black);
+      letter-spacing: .3px; margin: 0 0 8px;
     }
     .k3d-zus ul { list-style: none; padding: 0; margin: 0; }
-    .k3d-zus li {
-      font-size: .85rem; color: var(--black); padding: 3px 0 3px 16px; position: relative;
+    .k3d-zus li { font-size: .78rem; color: var(--black); line-height: 1.5; padding-left: 13px; position: relative; }
+    .k3d-zus li::before { content: '·'; position: absolute; left: 3px; color: var(--gold-dark); font-weight: 700; }
+    .k3d-folgt li { display: flex; gap: 8px; align-items: baseline; padding-left: 0; }
+    .k3d-folgt li::before { content: none; }
+    .k3d-folgt li span { min-width: 104px; color: var(--muted); font-size: .74rem; }
+    .k3d-mini { font-size: .72rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
+    .k3d-hinweise { list-style: none; padding: 0; margin: 9px 0 0; }
+    .k3d-hin {
+      font-size: .74rem; line-height: 1.45; padding: 5px 0 5px 9px;
+      border-left: 3px solid var(--gold); color: var(--black); margin-bottom: 5px;
     }
-    .k3d-zus li::before { content: '·'; position: absolute; left: 4px; color: var(--gold-dark); font-weight: 700; }
-
+    .k3d-hin--statik, .k3d-hin--grenze { border-left-color: #b4532a; color: #6d3a22; }
     .k3d-anfrage { width: 100%; justify-content: center; }
-    .k3d-fuss { font-size: .76rem; color: var(--muted); line-height: 1.5; margin: 12px 0 0; }
-    .k3d-weitere { font-size: .88rem; color: var(--muted); margin-top: 26px; }
-    .k3d-weitere a { color: var(--gold-dark); }
+    .k3d-fuss { font-size: .68rem; color: var(--muted); line-height: 1.45; margin: 9px 0 0; }
+    .k3d-rechtslinks { font-size: .7rem; margin: 9px 0 0; color: var(--muted); }
+    .k3d-rechtslinks a { color: var(--muted); }
 
-    @media (max-width: 600px) {
-      /* Rechts sitzen die Schwebe-Buttons (nach oben, Bedienhilfen,
-         Konfigurator). Der Zahlenwert wandert deshalb neben die
-         Beschriftung statt an den rechten Rand. */
-      .k3d-label { justify-content: flex-start; gap: 8px; }
-      .k3d-hinweis { font-size: .68rem; left: 8px; right: 8px; text-align: center; }
+    /* ---------- Bühne ---------- */
+    .k3d-buehne { flex: 1; position: relative; min-width: 0; background: #bcd3e6; }
+    #k3dCanvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      display: block; touch-action: none; cursor: grab;
+    }
+    #k3dCanvas:active { cursor: grabbing; }
+    .k3d-laden {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      font-size: .9rem; color: #2d3b46; margin: 0;
+    }
+    .k3d-info {
+      position: absolute; left: 16px; top: 14px; max-width: 46%;
+      pointer-events: none;
+    }
+    .k3d-info h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.25rem; font-weight: 800; color: #16232c;
+      margin: 0; line-height: 1.1; text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    }
+    .k3d-info p { font-size: .76rem; color: #2d3b46; margin: 3px 0 0; line-height: 1.4; }
+    .k3d-oben { position: absolute; right: 14px; top: 12px; display: flex; gap: 7px; }
+    .k3d-oben button {
+      background: rgba(17,17,17,.82); color: #fff;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 9px;
+      padding: 8px 12px; font: inherit; font-size: .78rem; cursor: pointer;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .k3d-oben button:hover { border-color: var(--gold); }
+    .k3d-oben button.ist-gold { background: var(--gold); color: #111; font-weight: 700; border-color: var(--gold); }
+    .k3d-leiste {
+      position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+      display: flex; gap: 6px; align-items: center;
+      background: rgba(17,17,17,.82); padding: 7px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      max-width: calc(100% - 28px);
+    }
+    .k3d-leiste button {
+      background: transparent; color: #fff; border: 1px solid transparent; border-radius: 8px;
+      padding: 7px 10px; font: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap;
+    }
+    .k3d-leiste button:hover { background: #2c3034; }
+    .k3d-leiste button.is-active { background: var(--gold); color: #111; font-weight: 700; }
+    .k3d-leiste .k3d-trenn { width: 1px; align-self: stretch; background: rgba(255,255,255,.18); margin: 0 2px; }
+    .k3d-maushinweis {
+      position: absolute; left: 16px; bottom: 18px;
+      font-size: .7rem; color: #2d3b46; margin: 0; pointer-events: none;
+    }
+
+    /* ---------- Handy und Tablet ---------- */
+    @media (max-width: 900px) {
+      .k3d-app { flex-direction: column; height: auto; min-height: 0; }
+      .k3d-buehne { order: 0; flex: none; height: 54svh; min-height: 300px; }
+      .k3d-sl {
+        order: 1; width: 100%; border-right: 0; border-top: 1px solid var(--border);
+        margin-left: 0 !important;
+      }
+      /* Kein eigener Scrollbereich: die Seite scrollt, nicht das Bedienfeld */
+      .k3d-sl-rollen { overflow: visible; flex: none; }
+      .k3d-info { max-width: 60%; left: 12px; top: 10px; }
+      .k3d-info h2 { font-size: 1.05rem; }
+      .k3d-oben { right: 8px; top: 8px; gap: 5px; }
+      .k3d-oben button { padding: 7px 9px; font-size: .72rem; }
+      .k3d-oben .k3d-nurgross { display: none; }
+      /* Rechts bleibt Platz für die Sprechblase des Anfrage-Assistenten */
+      .k3d-leiste {
+        left: 6px; right: 74px; bottom: 6px; transform: none; max-width: none;
+        overflow-x: auto; padding: 5px; scrollbar-width: none;
+      }
+      .k3d-leiste::-webkit-scrollbar { display: none; }
+      .k3d-leiste button { padding: 7px 8px; font-size: .72rem; flex: none; }
+      .k3d-maushinweis { display: none; }
+    }
+    @media (max-width: 420px) {
       .k3d-farben { grid-template-columns: repeat(2, 1fr); }
-      .k3d-panel { padding: 16px; }
+      .k3d-regler { grid-template-columns: 1fr 66px; }
     }
 
-    /* Notify form */
-    .kp-notify {
-      background: var(--black);
-      border-radius: 14px;
-      padding: 32px 36px;
-      border: 1px solid rgba(196,154,42,0.25);
-      margin-bottom: 28px;
-    }
-    .kp-notify h3 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.4rem; font-weight: 700;
-      color: var(--white); margin-bottom: 8px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .kp-notify h3 svg {
-      width: 20px; height: 20px; flex-shrink: 0; color: var(--gold);
-      stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .kp-notify p { font-size: 0.88rem; color: rgba(255,255,255,0.6); margin-bottom: 20px; }
-    .kp-notify-row { display: flex; gap: 10px; }
-    .kp-notify-row input {
-      flex: 1; padding: 12px 16px;
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
-      border-radius: var(--radius);
-      color: var(--white); font-family: 'Inter', sans-serif;
-      font-size: 0.93rem; outline: none;
-      transition: border-color 0.2s;
-    }
-    .kp-notify-row input:focus { border-color: var(--gold); }
-    .kp-notify-row button {
-      padding: 12px 22px;
-      background: var(--gold); color: var(--black);
-      border: none; border-radius: var(--radius);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700; font-size: 1rem;
-      cursor: pointer; white-space: nowrap;
-      transition: background 0.2s;
-    }
-    .kp-notify-row button:hover { background: var(--gold-dark); color: var(--white); }
-    #kpMsg { font-size: 0.82rem; margin-top: 10px; min-height: 18px; color: var(--gold); }
-
-    /* Preview features */
-    .kp-features {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 14px; margin-bottom: 28px;
-      max-width: 700px; margin-left: auto; margin-right: auto;
-    }
-    .kp-feature {
-      background: var(--offwhite);
-      border-radius: 10px; padding: 18px;
-      text-align: center; display: flex; flex-direction: column;
-      gap: 8px; align-items: center;
-      border: 1px solid var(--border);
-    }
-    .kp-feature span { flex-shrink: 0; color: var(--gold-dark); }
-    .kp-feature span svg {
-      width: 26px; height: 26px; stroke: currentColor; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .kp-feature strong { display: block; font-size: 0.9rem; color: var(--black); margin-bottom: 3px; }
-    .kp-feature p { font-size: 0.8rem; color: var(--muted); margin: 0; }
-
-    /* 3D Preview mockup */
-    .kp-preview-box {
-      background: linear-gradient(135deg, var(--black) 0%, #2a2a2a 100%);
-      border-radius: 14px; padding: 48px 20px;
-      margin-bottom: 32px;
-      border: 1px solid rgba(196,154,42,0.2);
-      position: relative; overflow: hidden;
-    }
-    .kp-preview-box::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 20px,
-        rgba(196,154,42,0.03) 20px,
-        rgba(196,154,42,0.03) 40px
-      );
-    }
-    .kp-preview-content { position: relative; z-index: 1; }
-    .kp-preview-content .big-icon { font-size: 5rem; display: block; margin-bottom: 12px; }
-    .kp-preview-content p { color: rgba(255,255,255,0.5); font-size: 0.88rem; }
-    .kp-coming-tag {
-      display: inline-block;
-      background: rgba(196,154,42,0.15);
-      color: var(--gold);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700; font-size: 0.85rem;
-      letter-spacing: 1px; padding: 6px 14px;
-      border-radius: 100px; margin-top: 12px;
-      border: 1px solid rgba(196,154,42,0.3);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.6; }
-    }
-
-    @media (max-width: 500px) {
-      .kp-features { grid-template-columns: 1fr; }
-      .kp-notify { padding: 22px 18px; }
-      .kp-notify-row { flex-direction: column; }
-      .kp-timeline { display: none; }
-    }
+    /* Vollbild: im Vollbildmodus trägt die Anwendung die ganze Fläche */
+    .k3d-app:fullscreen { height: 100vh; min-height: 0; }
+    .k3d-app:fullscreen .k3d-sl-rollen { overflow-y: auto; }
   </style>
   <meta property="og:title" content="Produkt-Konfigurator | BV AussenSysteme Westerwald" />
   <meta property="og:description" content="Terrassendach, Flachdach SkyView oder Carport in 3D zusammenstellen – Maße, Eindeckung, Farbe und Ausführung live ansehen. Kostenlos und unverbindlich." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
 </head>
-<body>
+<body class="k3d-app-seite">
 
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
@@ -387,48 +343,34 @@
 </div>
 
 <main>
-<div class="konfigurator-page">
-  <div class="kp-inner">
+<div class="k3d-app" id="k3dApp">
 
-    <span class="kp-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> 3D-Konfigurator</span>
-    <h1 class="kp-title"><span class="kp-produkt" id="k3dTitel">Terrassendach TDS</span><br><span>selbst zusammenstellen</span></h1>
-    <p class="kp-sub">
-      Terrassendach, Flachdach oder Carport: Maße, Eindeckung, Farbe und Ausführung wählen –
-      das Modell dreht sich dabei live mit. Am Ende übernehmen wir Ihre Konfiguration direkt
-      in die Anfrage. Kostenlos und unverbindlich.
-    </p>
+  <!-- ===== Bedienfeld ===== -->
+  <aside class="k3d-sl" id="k3dPanel" aria-label="Konfiguration">
 
-    <div class="k3d-wrap">
+    <div class="k3d-sl-kopf">
+      <span class="k3d-badge">3D-Konfigurator</span>
+      <h1 class="k3d-h1"><span id="k3dTitel">Terrassendach TDS</span> zusammenstellen</h1>
+      <p class="k3d-sl-sub">Maße, Dach, Farbe, Seiten und Sonnenschutz wählen –
+        das Modell rechts ändert sich sofort mit. Preise nennen wir persönlich,
+        nach dem kostenlosen Aufmaß.</p>
+    </div>
 
-      <!-- Ansicht -->
-      <div class="k3d-buehne">
-        <div class="k3d-canvas-box">
-          <canvas id="k3dCanvas" aria-label="3D-Ansicht des konfigurierten Terrassendachs" role="img"></canvas>
-          <p id="k3dLaden" class="k3d-laden">3D-Ansicht wird geladen …</p>
-          <p class="k3d-hinweis" aria-hidden="true">Ziehen zum Drehen · Zwei Finger zum Zoomen</p>
-        </div>
-        <div class="k3d-werkzeug" role="group" aria-label="Ansicht steuern">
-          <button type="button" class="k3d-wz is-active" data-k3d-ansicht="Perspektive">Perspektive</button>
-          <button type="button" class="k3d-wz" data-k3d-ansicht="Vorne">Vorne</button>
-          <button type="button" class="k3d-wz" data-k3d-ansicht="Seite">Seite</button>
-          <button type="button" class="k3d-wz" data-k3d-ansicht="Von oben">Von oben</button>
-          <button type="button" class="k3d-wz" id="k3dAbend" aria-pressed="false"><span>Abend</span></button>
-          <button type="button" class="k3d-wz" id="k3dDrehen" aria-pressed="false">Drehen</button>
-          <button type="button" class="k3d-wz" id="k3dBild">Bild speichern</button>
-        </div>
-      </div>
+    <div class="k3d-sl-rollen">
 
-      <!-- Auswahl -->
-      <div class="k3d-panel">
+      <!-- ---------- Produkt & Maße ---------- -->
+      <details class="k3d-sek" open>
+        <summary><span class="k3d-sek-t">Produkt &amp; Maße</span><span class="k3d-sek-s" id="k3dSumProdukt"></span></summary>
 
         <div class="k3d-gruppe">
-          <label class="k3d-label" for="k3dProdukt">Produkt</label>
-          <select id="k3dProdukt" class="k3d-select">
-            <option value="Terrassendach TDS">Terrassendach TDS</option>
-            <option value="Flachdach SkyView">Flachdach SkyView</option>
-            <option value="Carport">Carport</option>
-            <option value="Pergola / Lamellendach">Pergola / Lamellendach</option>
-          </select>
+          <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
+          <input type="hidden" id="k3dProdukt" value="Terrassendach TDS">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
+            <button type="button" data-wert="Terrassendach TDS">Terrassendach TDS<small>geneigt, Glas oder Polycarbonat</small></button>
+            <button type="button" data-wert="Flachdach SkyView">Flachdach SkyView<small>kubisch, flache Neigung</small></button>
+            <button type="button" data-wert="Carport">Carport<small>TDS, Flat Line oder Flat Box</small></button>
+            <button type="button" data-wert="Pergola / Lamellendach">Pergola / Lamellendach<small>drehbare Lamellen, Faltdach, Velaris</small></button>
+          </div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
@@ -463,64 +405,62 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="aufbau">
-          <label class="k3d-label" for="k3dAufbau">Aufbau</label>
-          <select id="k3dAufbau" class="k3d-select">
-            <option value="Wandmontage">An der Hauswand</option>
-            <option value="Freistehend">Freistehend</option>
-          </select>
+          <span class="k3d-label" id="k3dAufbauLabel">Aufbau</span>
+          <input type="hidden" id="k3dAufbau" value="Wandmontage">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dAufbau" role="group" aria-labelledby="k3dAufbauLabel">
+            <button type="button" data-wert="Wandmontage">An der Hauswand</button>
+            <button type="button" data-wert="Freistehend">Freistehend</button>
+          </div>
         </div>
 
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
-          <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
+          <div class="k3d-regler">
+            <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
+            <input type="number" id="k3dBreiteZahl" class="k3d-zahl" inputmode="numeric" value="5000" aria-label="Breite in Millimeter">
+          </div>
         </div>
 
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
-          <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
-          <p class="k3d-mini">Gebaut wird nach Ihrem Maß. Für Preis und Stückzahl
-            zählt das nächste Rasterfeld des Herstellers – es steht unten bei
-            „Was daraus folgt“.</p>
+          <div class="k3d-regler">
+            <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
+            <input type="number" id="k3dTiefeZahl" class="k3d-zahl" inputmode="numeric" value="3000" aria-label="Tiefe in Millimeter">
+          </div>
+          <p class="k3d-mini">Alle Maße in Millimeter – so wird aufgemessen. Gebaut wird
+            nach Ihrem Maß; für Stückzahl und Abrechnung zählt das nächste Rasterfeld
+            des Herstellers, siehe „Was daraus folgt“.</p>
         </div>
 
         <div class="k3d-gruppe">
           <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
-          <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-fuer="pg-lamellen" hidden>
-          <label class="k3d-label" for="k3dLamellen">Lamellen <output id="k3dLamellenWert">35° geöffnet</output></label>
-          <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
-          <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
-          <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
-          <select id="k3dPgSeitenschutz" class="k3d-select">
-            <option value="Nichts / später entscheiden">ohne</option>
-            <option value="ZIP-Senkrechtmarkise">ZIP-Senkrechtmarkise</option>
-            <option value="Glas-Schiebeelemente">Glas-Schiebeelemente</option>
-          </select>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-fuer="neigung">
-          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
-          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
-          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
+          <div class="k3d-regler">
+            <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
+            <input type="number" id="k3dHoeheZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Höhe in Millimeter">
+          </div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="cp-ueberstand" hidden>
           <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
-          <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
+          <div class="k3d-regler">
+            <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
+            <input type="number" id="k3dUeberstandZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Dachüberstand in Millimeter">
+          </div>
         </div>
+      </details>
+
+      <!-- ---------- Dach & Farbe ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Dach &amp; Farbe</span><span class="k3d-sek-s" id="k3dSumDach"></span></summary>
 
         <div class="k3d-gruppe" data-k3d-fuer="glas">
-          <label class="k3d-label" for="k3dEindeckung">Eindeckung</label>
-          <select id="k3dEindeckung" class="k3d-select">
-            <option value="VSG klar">VSG-Glas klar</option>
-            <option value="VSG opal">VSG-Glas opal (satiniert)</option>
-            <option value="Polycarbonat">Polycarbonat-Stegplatten</option>
-          </select>
+          <span class="k3d-label" id="k3dEindeckungLabel">Dacheindeckung</span>
+          <input type="hidden" id="k3dEindeckung" value="VSG klar">
+          <div class="k3d-seg" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
+            <button type="button" data-wert="VSG klar">Glas klar</button>
+            <button type="button" data-wert="VSG opal">Glas opal</button>
+            <button type="button" data-wert="Polycarbonat">Polycarbonat</button>
+          </div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="cp-flachdach" hidden>
@@ -532,18 +472,51 @@
           </select>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-fuer="neigung">
+          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
+          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
+          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="pg-lamellen" hidden>
+          <label class="k3d-label" for="k3dLamellen">Lamellenstellung <output id="k3dLamellenWert">35° geöffnet</output></label>
+          <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dLamZu">◀ Schließen</button>
+            <button type="button" id="k3dLamAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
+        </div>
+
         <div class="k3d-gruppe">
-          <span class="k3d-label" id="k3dFarbeLabel">Farbe</span>
+          <span class="k3d-label" id="k3dFarbeLabel">Farbe Aluminium</span>
           <div class="k3d-farben" role="group" aria-labelledby="k3dFarbeLabel">
-            <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit</span></button>
-            <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu</span></button>
-            <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu</span></button>
-            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß</span></button>
+            <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit<br>RAL 7016</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu<br>RAL 9006</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu<br>RAL 9007</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß<br>RAL 9010</span></button>
           </div>
         </div>
 
+        <div class="k3d-gruppe">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Beleuchtung in den Sparren</span></label>
+        </div>
+      </details>
+
+      <!-- ---------- Seiten & Verglasung ---------- -->
+      <details class="k3d-sek" data-k3d-fuer="terrasse pergola">
+        <summary><span class="k3d-sek-t">Seiten &amp; Verglasung</span><span class="k3d-sek-s" id="k3dSumSeiten"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
+          <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
+          <select id="k3dPgSeitenschutz" class="k3d-select">
+            <option value="Nichts / später entscheiden">ohne</option>
+            <option value="ZIP-Senkrechtmarkise">ZIP-Senkrechtmarkise</option>
+            <option value="Glas-Schiebeelemente">Glas-Schiebeelemente</option>
+          </select>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-fuer="terrasse">
-          <span class="k3d-label">Seitenelemente</span>
           <div class="k3d-seiten">
             <label class="k3d-seite"><span>Links</span>
               <select id="k3dLinks" class="k3d-select">
@@ -569,51 +542,161 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe">
-          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Beleuchtung in den Sparren</span></label>
+        <div class="k3d-gruppe" data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dGlasOffen">Schiebeelemente geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
+          <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dGlasZu">◀ Schließen</button>
+            <button type="button" id="k3dGlasAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
+            immer ein Flügel stehen. Wie viele Flügel es werden, entscheidet die Breite
+            des Elements; das legt das Aufmaß fest.</p>
         </div>
+      </details>
+
+      <!-- ---------- Sonnenschutz ---------- -->
+      <details class="k3d-sek" data-k3d-fuer="terrasse">
+        <summary><span class="k3d-sek-t">Sonnenschutz</span><span class="k3d-sek-s" id="k3dSumSonne"></span></summary>
 
         <div class="k3d-gruppe">
-          <label class="k3d-label" for="k3dMontage">Montage</label>
-          <select id="k3dMontage" class="k3d-select">
-            <option value="Ja, mit Fachmontage">Durch unser Fachteam</option>
-            <option value="Nein, Selbstmontage">Selbstmontage</option>
-          </select>
+          <span class="k3d-label" id="k3dSonneLabel">Am Dach</span>
+          <input type="hidden" id="k3dSonne" value="keine">
+          <div class="k3d-seg" data-k3d-seg="k3dSonne" role="group" aria-labelledby="k3dSonneLabel">
+            <button type="button" data-wert="keine">Keine</button>
+            <button type="button" data-wert="Aufdachmarkise">Aufdach</button>
+            <button type="button" data-wert="Unterdachmarkise">Unterdach</button>
+          </div>
+          <p class="k3d-mini">Aufdach liegt auf der Verglasung und hält die Hitze schon
+            vor dem Glas ab. Unterdach läuft zwischen den Sparren und bleibt im Trockenen.</p>
         </div>
 
-        <div class="k3d-zus k3d-zus--folgt">
-          <h2>Was daraus folgt</h2>
-          <ul id="k3dFolgt" class="k3d-folgt"></ul>
-          <ul id="k3dHinweise" class="k3d-hinweise"></ul>
-          <p class="k3d-mini" data-k3d-fuer="geschaetzt" hidden>
-            Für dieses Produkt liegen uns noch keine Herstellerzahlen vor –
-            Sparren, Pfosten und Profilmaße sind hier geschätzt.
-          </p>
+        <div class="k3d-gruppe">
+          <span class="k3d-label">Senkrechtmarkisen</span>
+          <div class="k3d-drei">
+            <label class="k3d-schalter"><input type="checkbox" id="k3dZipV"> <span>Vorne</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dZipL"> <span>Links</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dZipR"> <span>Rechts</span></label>
+          </div>
         </div>
 
-        <div class="k3d-zus">
-          <h2>Ihre Konfiguration</h2>
-          <ul id="k3dZusammenfassung"></ul>
+        <div class="k3d-gruppe" data-k3d-fuer="sonne-aus" hidden>
+          <label class="k3d-label" for="k3dSonneAus">Ausgefahren <output id="k3dSonneAusWert">85 %</output></label>
+          <input type="range" id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dSonneEin">◀ Einfahren</button>
+            <button type="button" id="k3dSonneRaus">Ausfahren ▶</button>
+          </div>
+        </div>
+      </details>
+
+      <!-- ---------- Verkleidung ---------- -->
+      <details class="k3d-sek" data-k3d-fuer="verkleidung" hidden>
+        <summary><span class="k3d-sek-t">Verkleidung</span><span class="k3d-sek-s" id="k3dSumVerk"></span></summary>
+
+        <div class="k3d-gruppe">
+          <span class="k3d-label">Welche Wände</span>
+          <div class="k3d-drei">
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRueck"> <span>Hinten</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkLinks"> <span>Links</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRechts"> <span>Rechts</span></label>
+          </div>
         </div>
 
-        <button type="button" class="btn btn-gold k3d-anfrage" id="k3dAnfrage">
-          Konfiguration anfragen →
-        </button>
-        <p class="k3d-fuss">
-          Maße, Sparren- und Pfostenzahlen stammen aus den Herstellerunterlagen.
-          Die Profilquerschnitte im Bild sind noch geschätzt – die Darstellung ist
-          eine maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
-          Das verbindliche Angebot erstellen wir nach dem kostenlosen Aufmaß vor Ort.
+        <div class="k3d-gruppe" data-k3d-fuer="verk-richtung" hidden>
+          <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
+          <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
+            <button type="button" data-wert="waagerecht">Waagerecht</button>
+            <button type="button" data-wert="senkrecht">Senkrecht</button>
+          </div>
+          <p class="k3d-mini">Aluminium-Sichtschutzpaneele, 140 mm hoch, in der Farbe
+            des Gestells. Fugenbild und Höhe der Wand legt das Aufmaß fest.</p>
+        </div>
+      </details>
+
+      <!-- ---------- Anzeige ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Anzeige</span><span class="k3d-sek-s" id="k3dSumAnzeige"></span></summary>
+
+        <div class="k3d-gruppe">
+          <span class="k3d-label" id="k3dBodenLabel">Boden</span>
+          <input type="hidden" id="k3dBoden" value="Steinplatten">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dBoden" role="group" aria-labelledby="k3dBodenLabel">
+            <button type="button" data-wert="Steinplatten">Steinplatten</button>
+            <button type="button" data-wert="Holzdielen">Holzdielen</button>
+          </div>
+          <p class="k3d-mini">Nur für die Darstellung – den Bodenbelag bringen Sie selbst mit.</p>
+        </div>
+
+        <div class="k3d-gruppe">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dMasse"> <span>Maße im Modell anzeigen</span></label>
+        </div>
+      </details>
+
+      <!-- ---------- Ergebnis ---------- -->
+      <div class="k3d-zus k3d-zus--folgt">
+        <h2>Was daraus folgt</h2>
+        <ul id="k3dFolgt" class="k3d-folgt"></ul>
+        <ul id="k3dHinweise" class="k3d-hinweise"></ul>
+        <p class="k3d-mini" data-k3d-fuer="geschaetzt" hidden>
+          Für dieses Produkt liegen uns noch keine Herstellerzahlen vor –
+          Sparren, Pfosten und Profilmaße sind hier geschätzt.
         </p>
+      </div>
 
+      <div class="k3d-zus">
+        <h2>Ihre Konfiguration</h2>
+        <ul id="k3dZusammenfassung"></ul>
       </div>
     </div>
 
-    <p class="k3d-weitere">
-      Markise, Verkleidung und Terrassenboden sind noch nicht dabei.
-      Dafür hilft Ihnen der <a href="/#kontakt">Anfrage-Assistent</a> weiter.
-    </p>
+    <div class="k3d-sl-fuss">
+      <button type="button" class="btn btn-gold k3d-anfrage" id="k3dAnfrage">
+        Konfiguration anfragen →
+      </button>
+      <p class="k3d-fuss">
+        Sparren- und Pfostenzahlen stammen aus den Herstellerunterlagen, die
+        Profilquerschnitte im Bild sind geschätzt. Die Darstellung ist eine
+        maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
+        Das verbindliche Angebot erstellen wir nach dem kostenlosen Aufmaß vor Ort.
+      </p>
+      <p class="k3d-rechtslinks">
+        <a href="/">← Zur Website</a> ·
+        <a href="/impressum.html">Impressum</a> ·
+        <a href="/datenschutz.html">Datenschutz</a>
+      </p>
+    </div>
+  </aside>
 
+  <!-- ===== Bühne ===== -->
+  <div class="k3d-buehne">
+    <canvas id="k3dCanvas" aria-label="3D-Ansicht des konfigurierten Terrassendachs" role="img"></canvas>
+    <p id="k3dLaden" class="k3d-laden">3D-Ansicht wird geladen …</p>
+
+    <div class="k3d-info">
+      <h2 id="k3dTitelBuehne">Terrassendach TDS</h2>
+      <p id="k3dSpec"></p>
+    </div>
+
+    <div class="k3d-oben">
+      <button type="button" id="k3dPanelAn" aria-expanded="true">☰ <span class="k3d-nurgross">Bedienfeld</span></button>
+      <button type="button" id="k3dVollbild" aria-pressed="false">⛶ <span class="k3d-nurgross">Vollbild</span></button>
+      <button type="button" id="k3dBild" class="ist-gold">↓ <span class="k3d-nurgross">Bild speichern</span></button>
+    </div>
+
+    <div class="k3d-leiste" role="group" aria-label="Ansicht steuern">
+      <button type="button" class="is-active" data-k3d-ansicht="Perspektive">Perspektive</button>
+      <button type="button" data-k3d-ansicht="Vorne">Vorne</button>
+      <button type="button" data-k3d-ansicht="Seite">Seite</button>
+      <button type="button" data-k3d-ansicht="Von oben">Von oben</button>
+      <button type="button" data-k3d-ansicht="Darunter">Darunter</button>
+      <span class="k3d-trenn"></span>
+      <button type="button" id="k3dAbend" aria-pressed="false"><span>Abend</span></button>
+      <button type="button" id="k3dDrehen" aria-pressed="false">⟳ Drehen</button>
+    </div>
+
+    <p class="k3d-maushinweis">Ziehen zum Drehen · Mausrad zoomen · zwei Finger zum Zoomen</p>
   </div>
 </div>
 </main>
@@ -705,13 +788,13 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261010m" defer></script>
+<script src="js/konfigurator-3d.js?v=20261011a" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261010m" defer></script>
+<script src="js/anfrage-wizard.js?v=20261011a" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

@@ -74,3 +74,61 @@
 | 2D-Vorschau als Zwischenschritt | Betreiber entschied sich direkt für echtes 3D | three.js-Modell |
 | Richtpreise im Konfigurator (wie beim Wettbewerb) | widerspricht der Preis-Linie | Übergabe an den Anfrage-Assistenten |
 | Hochladen der Rechtstext-PDFs ins Repository | sie werden aus den Seiten erzeugt; zwei Fassungen desselben Textes laufen auseinander | bei Bedarf neu erzeugen, siehe `docs/NEXT_TASK.md` |
+
+## 10.10.2026 – Konfigurator als Vollbild-Anwendung, nach dem Vorbild von antonov-outdoor.de
+
+**Anlass.** Der Betreiber: „analysiere die komplette seite, den code und baue
+den konfigurator ähnlich nur in meinem seitendesign“ (antonov-outdoor.de/konfigurator).
+Vorher war unser Konfigurator eine normale Seite mit Überschrift, Bühne und
+einer Spalte Auswahlfelder daneben.
+
+**Was analysiert wurde.** Seite (36 KB HTML, 15 KB CSS inline) und Bundle
+(905 KB, esbuild, three.js plus App, minifiziert). Aufbau dort: 340-px-Seitenleiste
+mit aufklappbaren Abschnitten, jeder mit Kurzfassung der Auswahl im Kopf;
+Modell daneben bildschirmfüllend; Werkzeugleiste unten über dem Modell,
+Aktionsknöpfe oben rechts; auf dem Handy Modell oben (48 svh), Bedienfeld
+darunter. Texturen werden dort wie hier per Canvas erzeugt, keine Bilddateien.
+
+**Was übernommen wurde** (Entscheidung des Betreibers: „Layout + belegte Optionen“):
+Vollbild-Layout, Abschnitte mit Kurzfassung, Zahlenfeld neben jedem Regler,
+zuschaltbare Maßlinien, Terrassenboden, Vollbild-Knopf, Ansicht „Darunter“,
+Taste R, Schiebeelemente als einzelne Flügel mit Öffnen-Regler, Sonnenschutz
+(Aufdach, Unterdach, Senkrechtmarkisen mit Ausfahr-Regler), Carport-Verkleidung
+aus Sichtschutzpaneelen.
+
+**Was NICHT übernommen wurde und warum.**
+* **Richtpreis.** Antonovs ganzer Ablauf endet im Richtpreis nach dem Absenden
+  des Formulars – das ist ihr Köder. Dem Betreiber vorgelegt, Antwort: bleibt
+  ohne Preis. Kein Preis im Code, nichts Auslesbares.
+* **Markisenstoff-Kollektionen, Plissee, Zaunpaneele, Holzdekore.** Dafür
+  liegen uns keine echten Stoff- und Dekornamen vor. Erfinden wäre eine
+  Produktaussage, die im Angebot nicht haltbar ist.
+* **Maße in Zentimetern.** Antonov rechnet in cm, hier bleibt alles in mm –
+  so wird aufgemessen.
+
+**Zwei Fehler, die dabei auffielen** (beide vom Browsertest gefunden, nicht beim Lesen):
+1. Die Klasse `k3d-seite` am `body` traf die vorhandene CSS-Regel `.k3d-seite`
+   (die Zeile „Links / Rechts / Vorne“, ein Raster mit 62-px-Spalte) und zog
+   die ganze Anwendung auf 62 px zusammen. Klasse heißt jetzt `k3d-app-seite`,
+   mit Begründung als Kommentar an der Regel.
+2. Die Notiz aus dem Konfigurator (`answers.wunsch`) fiel komplett aus der
+   E-Mail: `summaryPairs()` prüfte `inFlow('wunsch')`, und der Schritt „wunsch“
+   gehört bei den Standardprodukten nicht zum Ablauf. Genau darin stehen die
+   Angaben ohne eigenes Feld – Sonnenschutz, Verkleidung, Bodenbelag. Jetzt
+   wird sie mitgeschickt, sobald sie da ist, unter „Aus dem 3D-Konfigurator“.
+
+**Dritter Fund: das Terrassendach wurde als Carport gezeichnet.**
+`/api/bauteile` antwortet mit 503, solange die Herstellermatrix nicht im
+KV-Speicher liegt (bekannt, siehe NEXT_TASK Aufgabe A2). Der Rückfall lief
+aber für *alle* Produkte in `bauenGeschaetzt()` – und das ist die
+Carport-Skizze. Über der Überschrift „Terrassendach TDS“ stand also ein
+Carport, und Seitenelemente erschienen überhaupt nicht, weil sie nur im
+Datenpfad gezeichnet wurden. Neu: `bauenTerrasseGeschaetzt()` mit eigenen
+Proportionen (Pfosten 110 mm BELEGT, Sparrenabstand 1100 mm Richtwert, alles
+übrige GESCHÄTZT und so markiert). Sobald die Matrix angebunden ist,
+übernimmt wieder `bauenAusDaten()`.
+
+**Gegenzulesen.** Ob die Sichtschutzpaneele (140 mm, von unserer eigenen
+Produktseite) so angeboten werden; ob „Aufdach“ und „Unterdach“ die richtigen
+Bezeichnungen für unsere Beschattungen sind; die geschätzten Proportionen des
+Terrassendachs im Vergleich zu einem echten Foto.

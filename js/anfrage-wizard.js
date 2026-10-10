@@ -823,7 +823,17 @@
     }
     if (inFlow('dach') && answers.dach) p.push(['Dach', answers.dach]);
     if (inFlow('farbe') && answers.farbe) p.push(['Farbe', answers.farbe]);
-    if (inFlow('wunsch') && answers.wunsch) p.push(['Wunsch', answers.wunsch]);
+    /* Die Notiz aus dem 3D-Konfigurator landet in answers.wunsch (siehe
+       vorgabeUebernehmen). Der Schritt „wunsch" gehört bei den
+       Standardprodukten aber nicht zum Ablauf – mit der alten Bedingung fiel
+       die Notiz damit komplett aus der E-Mail. Genau darin stehen die
+       Angaben, für die es im Assistenten kein eigenes Feld gibt:
+       Sonnenschutz, Verkleidung, Bodenbelag, Stellung der Schiebeelemente.
+       Deshalb: mitschicken, sobald sie da ist. Gefunden vom Rückleseteil des
+       Browsertests zum Konfigurator. */
+    if (answers.wunsch) {
+      p.push([inFlow('wunsch') ? 'Wunsch' : 'Aus dem 3D-Konfigurator', answers.wunsch]);
+    }
     if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
