@@ -1423,9 +1423,20 @@
        Vorher war es umgekehrt: Der Besucher wählte „links" und im Modell
        erschien die rechte Seite – und genau so wäre es auch in die
        Anfrage und ins Angebot gegangen. Vom Betreiber bemerkt. */
-    eineSeite('links',   B / 2 - PROFIL / 2, T / 2, T - PROFIL * 2, true);
-    eineSeite('rechts', -B / 2 + PROFIL / 2, T / 2, T - PROFIL * 2, true);
-    eineSeite('vorne',   T - PROFIL,         0,     B - PROFIL * 2, false);
+    /* Vorne enden Seitenelement UND Keil an derselben Stelle: an der
+       RÜCKSEITE DES VORDEREN PFOSTENS. Der Pfosten steht mittig unter der
+       Rinne, das Element läuft bis an ihn heran und hört dort auf.
+
+       Vorher reichte das Element bis T − Pfostenbreite, der Keil aber nur
+       bis zur Dachvorderkante – die Differenz von gut 7 cm stand als
+       Stange frei in der Luft. Vom Betreiber zweimal bemängelt. */
+    var vorne = (dachVorne != null) ? dachVorne : T - PROFIL;
+    var seitenMitte = (PROFIL + vorne) / 2;
+    var seitenLaenge = vorne - PROFIL;
+
+    eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
+    eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
+    eineSeite('vorne',   vorne,              0,           B - PROFIL * 2, false);
   }
 
   /* ---------- Sonnenschutz ----------
@@ -1939,7 +1950,7 @@
        Dachsystem – deshalb auch freistehend. */
     seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
-    }, dachTiefe);
+    }, zPf - PF / 2);
     sonnenschutz(B, T, hVorn, neig, PF);
 
     if (Z.led) {
