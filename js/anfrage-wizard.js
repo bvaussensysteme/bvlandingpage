@@ -648,7 +648,7 @@
           txtField('k_nachname', 'Nachname *', answers.k_nachname, 'Mustermann', 'family-name') +
           '</div>' +
           txtField('k_email', 'E-Mail *', answers.k_email, 'max@beispiel.de', 'email', 'email') +
-          txtField('k_telefon', 'Telefon / WhatsApp', answers.k_telefon, '0156 …', 'tel', 'tel') +
+          txtField('k_telefon', 'Telefon / WhatsApp *', answers.k_telefon, '0156 …', 'tel', 'tel') +
           '<div class="aw-row">' +
           txtField('k_plz', 'PLZ *', answers.k_plz, 'z. B. 56410', 'text', 'postal-code', 'inputmode="numeric" maxlength="5"') +
           txtField('k_ort', 'Ort *', answers.k_ort, 'z. B. Montabaur', 'text', 'address-level2') +
@@ -679,6 +679,14 @@
         // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
         if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein – so können wir Sie persönlich ansprechen.';
         if (looksFakeEmail(email)) return 'Diese E-Mail-Adresse sieht nicht gültig aus. Bitte geben Sie eine Adresse an, unter der wir Sie erreichen können.';
+        // Telefon ist Pflicht: Rueckfragen zu Massen und Untergrund lassen sich
+        // am Telefon in Minuten klaeren statt in mehreren E-Mails.
+        var telefon = answers.k_telefon.trim();
+        if (!telefon) return 'Bitte geben Sie eine Telefonnummer an – für Rückfragen geht das am schnellsten.';
+        // Bewusst tolerant: Schreibweisen wie +49, 0049, Klammern, Schraegstriche
+        // und Leerzeichen sind alle in Ordnung, nur die Ziffernzahl zaehlt.
+        if (telefon.replace(/[^0-9]/g, '').length < 6) return 'Diese Telefonnummer sieht zu kurz aus. Bitte prüfen Sie Ihre Eingabe.';
+
         // Standort ist Pflicht: ohne ihn koennen wir weder Aufmass-Termin noch
         // Anfahrt einschaetzen und auch die Lastzonen nicht bestimmen.
         var plz = answers.k_plz.trim();
