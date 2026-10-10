@@ -62,7 +62,7 @@
     breite: 5000,
     tiefe: 3000,
     hoehe: 2300,
-    eindeckung: 'VSG klar',
+    eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     farbe: 'Anthrazit',
     links: 'offen',
     rechts: 'offen',
@@ -169,14 +169,43 @@
     ]
   };
 
+  /* ---------- Eindeckungen ----------
+     BELEGT (daten/technische-daten.md, Abschnitt Profile; Artikelliste
+     daten/profile-und-eindeckung.csv, Art. 6077/6025/6126/6127):
+     Polycarbonat ist eine SECHSFACHSTEGPLATTE 16 mm in vier Ausführungen –
+     klar, opal, graphit, bronce. Die Artikelliste schreibt „Bronce", im
+     Sprachgebrauch heißt es Bronze; sichtbar steht hier Bronze.
+
+     Vorher gab es im Konfigurator nur „Polycarbonat" – und das sah im
+     Modell aus wie Glas. Beanstandet vom Betreiber, 10.10.2026.
+
+     lichtRest ist der Anteil Licht, der NICHT durchkommt, also die
+     Deckkraft im Modell. Grundlage sind die Lichtdurchlässigkeiten aus
+     Händler-Datenblättern (klar ca. 76 %, opal ca. 48 %, bronze ca. 35 %).
+     Für GRAPHIT war nichts zu finden – der Wert ist GESCHÄTZT und steht als
+     Rückfrage in daten/rueckfragen-an-vd.md. */
+  var EINDECKUNGEN = {
+    'VSG klar':             { art: 'glas', farbe: 0xd8ecf2, deckkraft: 0.26, rauheit: 0.05 },
+    'VSG opal':             { art: 'glas', farbe: 0xeff3f5, deckkraft: 0.72, rauheit: 0.35 },
+    'Polycarbonat klar':    { art: 'steg', farbe: 0xdfe9ea, deckkraft: 0.42, rauheit: 0.3 },
+    'Polycarbonat opal':    { art: 'steg', farbe: 0xeef0ec, deckkraft: 0.84, rauheit: 0.55 },
+    'Polycarbonat graphit': { art: 'steg', farbe: 0x4e5356, deckkraft: 0.9,  rauheit: 0.42 },
+    'Polycarbonat bronze':  { art: 'steg', farbe: 0x8d6a3f, deckkraft: 0.82, rauheit: 0.38 }
+  };
+
+  function istPolycarbonat() { return Z.eindeckung.indexOf('Polycarbonat') === 0; }
+
   /* Übersetzung in die Auswahlwerte des Anfrage-Assistenten.
      Die Eindeckung heißt dort ausführlicher ("VSG-Glas Opal (milchig)").
      Vorher ging nur "VSG-Glas" hinüber – die Unterscheidung klar/opal
      ging damit auf dem Weg in die Anfrage verloren. */
   var VORGABE_VERGLASUNG = {
-    'VSG klar':     'VSG-Glas klar',
-    'VSG opal':     'VSG-Glas Opal (milchig)',
-    'Polycarbonat': 'Polycarbonat klar'
+    'VSG klar':             'VSG-Glas klar',
+    'VSG opal':             'VSG-Glas Opal (milchig)',
+    'Polycarbonat klar':    'Polycarbonat klar',
+    'Polycarbonat opal':    'Polycarbonat Opal (milchig)',
+    'Polycarbonat graphit': 'Polycarbonat Graphit',
+    'Polycarbonat bronze':  'Polycarbonat Bronze'
   };
   var VORGABE_LED = {
     ja:   'Ja, mit LED-Spots',
@@ -209,7 +238,7 @@
      als Carport verkauft. */
   function datenSystem() {
     if (!RASTER) return null;        // ohne Serverantwort: geschätzte Skizze
-    var mat = Z.eindeckung === 'Polycarbonat' ? 'Polycarbonat' : 'Glas';
+    var mat = istPolycarbonat() ? 'Polycarbonat' : 'Glas';
     var d = null;
     if (Z.produkt === 'Terrassendach TDS') d = { system: 'TDS', material: mat };
     else if (Z.produkt === 'Flachdach SkyView') d = { system: 'SkyView', material: mat };
@@ -348,23 +377,50 @@
     });
   }
 
+  /* Stegplatten-Textur: feine Längsstreifen.
+     Eine Stegplatte ist innen durch Stege unterteilt; von außen sieht man
+     deshalb ein regelmäßiges Streifenmuster und keine spiegelnde Fläche.
+     Genau daran erkennt man Polycarbonat – und genau das fehlte, weshalb
+     es im Modell wie Glas aussah. Der Streifenabstand ist zeichnerisch
+     gewählt; der echte Stegabstand einer 16-mm-Sechsfachplatte liegt weit
+     unter dem, was in dieser Darstellung sichtbar wäre. */
+  var STEG_TEXTUR = null;
+  function stegTextur() {
+    if (STEG_TEXTUR) return STEG_TEXTUR;
+    var c = document.createElement('canvas');
+    c.width = 32; c.height = 4;
+    var g = c.getContext('2d');
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, 32, 4);
+    g.fillStyle = 'rgba(120,130,135,.55)';   // Steg
+    g.fillRect(0, 0, 3, 4);
+    g.fillStyle = 'rgba(255,255,255,.75)';   // Lichtkante neben dem Steg
+    g.fillRect(3, 0, 2, 4);
+    var t = new THREE.Texture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(10, 1);
+    t.needsUpdate = true;
+    STEG_TEXTUR = t;
+    return t;
+  }
+
   function dachfuellung() {
-    if (Z.eindeckung === 'VSG opal') {
-      return new THREE.MeshPhysicalMaterial({
-        color: 0xeff3f5, transparent: true, opacity: 0.72,
-        roughness: 0.35, metalness: 0, side: THREE.DoubleSide
-      });
+    var e = EINDECKUNGEN[Z.eindeckung] || EINDECKUNGEN['VSG klar'];
+    var werte = {
+      color: e.farbe,
+      transparent: true,
+      opacity: e.deckkraft,
+      roughness: e.rauheit,
+      metalness: 0,
+      side: THREE.DoubleSide
+    };
+    /* Glas bleibt spiegelnd, Polycarbonat nicht: eine Stegplatte wirkt
+       matter und zeigt das Stegmuster. */
+    if (e.art === 'steg') {
+      werte.map = stegTextur();
+      werte.clearcoat = 0;
     }
-    if (Z.eindeckung === 'Polycarbonat') {
-      return new THREE.MeshPhysicalMaterial({
-        color: 0xdbe6ea, transparent: true, opacity: 0.45,
-        roughness: 0.3, metalness: 0, side: THREE.DoubleSide
-      });
-    }
-    return new THREE.MeshPhysicalMaterial({        // VSG klar
-      color: 0xd8ecf2, transparent: true, opacity: 0.26,
-      roughness: 0.05, metalness: 0, side: THREE.DoubleSide
-    });
+    return new THREE.MeshPhysicalMaterial(werte);
   }
 
   /* Trapezblech T35M-0,75 – blickdicht. Rippenabstand und Deckbreite sind
@@ -800,7 +856,13 @@
     var nebenraum = variante.indexOf('Nebenraum') > -1;
 
     var PROFIL = 14;                                   // Carport-Stützen sind kräftiger
-    var NEIGUNG = (tds ? 6 : 1.5) * Math.PI / 180;
+    /* BELEGT (technische-daten.md 1, dieselbe Quelle wie GENEIGT in
+       js/bauteile.js): Flat Line ist ein Flachdach ohne Neigungsfeld, und
+       Flat Box ist Flat Line mit Wänden. Hier standen vorher 1,5° – damit
+       stand die Zeichnung im Widerspruch zu unseren eigenen Daten, und das
+       Dach kippte sichtbar nach vorn. Vom Betreiber beanstandet, 10.10.2026.
+       Nur der Carport TDS ist geneigt. */
+    var NEIGUNG = (tds ? 6 : 0) * Math.PI / 180;
     var B = Z.breite / 10, T = Z.tiefe / 10;
     var hVorn = Z.hoehe / 10;                          // Durchfahrtshöhe vorne
     var hHinten = hVorn + Math.tan(NEIGUNG) * T;
@@ -871,9 +933,12 @@
         });
       }
     } else {
-      /* Flachdach hinter umlaufender Blende (Attika). Die Blende bleibt
-         waagerecht; das Dachblech darin fällt nach vorne ab, die Rinne
-         liegt verdeckt dahinter – genau das macht die Flat-Line-Optik. */
+      /* Flachdach hinter umlaufender Blende (Attika).
+         Das Dach liegt WAAGERECHT – kein Gefälle, auch keins nach innen.
+         Vorher fiel das Blech hier nach vorne ab; das war eine Annahme von
+         uns und falsch (siehe NEIGUNG oben). Entwässert wird über die
+         Attika, wo genau, ist nicht belegt und wird deshalb nicht
+         gezeichnet. */
       var blendeH = 26;
       var oben = hVorn + blendeH;
       var mBlech = blech();
@@ -884,19 +949,42 @@
         balken(5, blendeH, T + 4, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
 
-      var gefaelle = Math.tan(NEIGUNG) * T;
-      var deckL = Math.sqrt(T * T + gefaelle * gefaelle);
-      var deck = new THREE.Mesh(
-        new THREE.BoxGeometry(B - 2, 4, deckL),
-        new THREE.MeshStandardMaterial({
-          color: 0x6f7377, metalness: 0.45, roughness: 0.62   // Trapezblech
-        })
-      );
-      deck.position.set(0, oben - 6 - gefaelle / 2, T / 2);
-      deck.rotation.x = NEIGUNG;
-      deck.castShadow = true; deck.receiveShadow = true;
-      bau.add(deck);
+      /* Eindeckung ist Trapezblech – und soll auch danach aussehen.
+         BELEGT ist das Profil T35M-0,75: 35 mm Profilhöhe, 0,75 mm Blech
+         (technische-daten.md, Abschnitt Profile). GESCHÄTZT ist der
+         Rippenabstand; er ist der einzige fehlende Wert und steht als
+         Rückfrage 5 in daten/rueckfragen-an-vd.md. Sobald er da ist, nur
+         RIPPE_ABSTAND ändern.
 
+         Das Blech läuft in der Farbe des Gestells, wie im Datenpfad
+         (trapezblechMaterial). Ob der Hersteller das Blech wirklich in der
+         RAL-Farbe liefert, ist nicht belegt – gegenzulesen. */
+      var BLECH_DICKE = 0.9;        // Grundblech, zeichnerisch
+      var RIPPE_HOCH = 3.5;         // 35 mm, BELEGT
+      var RIPPE_ABSTAND = 20;       // GESCHÄTZT, Rückfrage 5 an VD
+      var yDeck = oben - 5;
+      var mTrapez = trapezblechMaterial();
+
+      var grund = new THREE.Mesh(new THREE.BoxGeometry(B - 2, BLECH_DICKE, T), mTrapez);
+      grund.position.set(0, yDeck, T / 2);
+      grund.castShadow = true; grund.receiveShadow = true;
+      bau.add(grund);
+
+      /* Rippen laufen in Gefällerichtung, also in der Tiefe – so liegt ein
+         Trapezblech, damit Wasser in den Tälern abläuft. */
+      var rippen = Math.max(3, Math.floor((B - 4) / RIPPE_ABSTAND));
+      for (var ri = 0; ri < rippen; ri++) {
+        var xr = -B / 2 + 2 + ((B - 4) / rippen) * (ri + 0.5);
+        var rippe = new THREE.Mesh(
+          new THREE.BoxGeometry(RIPPE_ABSTAND * 0.45, RIPPE_HOCH, T), mTrapez);
+        rippe.position.set(xr, yDeck + RIPPE_HOCH / 2, T / 2);
+        rippe.castShadow = true; rippe.receiveShadow = true;
+        bau.add(rippe);
+      }
+      var obenBlech = yDeck + RIPPE_HOCH;
+
+      /* Solar und Dachbegrünung liegen AUF dem Trapezblech, sie ersetzen es
+         nicht – deshalb bleibt das Blech darunter sichtbar. */
       if (Z.cpDach === 'Solar (PV-Anlage)') {
         var mModul = new THREE.MeshStandardMaterial({
           color: 0x1d2a40, metalness: 0.3, roughness: 0.35
@@ -906,10 +994,10 @@
         for (var r = 0; r < reihen; r++) {
           for (var c = 0; c < spalten; c++) {
             var zm = 30 + ((T - 60) / reihen) * (r + 0.5);
-            var modul = new THREE.Mesh(new THREE.BoxGeometry((B - 30) / spalten - 6, 2, (T - 60) / reihen - 6), mModul);
+            var modul = new THREE.Mesh(new THREE.BoxGeometry(
+              (B - 30) / spalten - 6, 2, (T - 60) / reihen - 6), mModul);
             modul.position.set(-B / 2 + 15 + ((B - 30) / spalten) * (c + 0.5),
-                               oben - 3 - gefaelle * (zm / T), zm);
-            modul.rotation.x = NEIGUNG;
+                               obenBlech + 1.5, zm);
             bau.add(modul);
           }
         }
@@ -918,8 +1006,7 @@
           new THREE.BoxGeometry(B - 10, 6, T - 10),
           new THREE.MeshStandardMaterial({ color: 0x5c7a3f, roughness: 0.95 })
         );
-        gruen.position.set(0, oben - 6 - gefaelle / 2, T / 2);
-        gruen.rotation.x = NEIGUNG;
+        gruen.position.set(0, obenBlech + 3, T / 2);
         bau.add(gruen);
       }
 
@@ -1523,7 +1610,13 @@
         teile.push(ec.sparren + ' Sparren, ' + ec.pfosten + ' Pfosten in zwei Reihen');
         teile.push('Dach: ' + ec.eindeckung);
       } else {
-        teile.push(istCarportTds() ? 'Eindeckung: ' + Z.eindeckung : 'Dach: ' + Z.cpDach);
+        /* Beim Flachdach-Carport ist die Eindeckung immer Trapezblech;
+           Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
+           was wie eine Alternative zum Blech klang. */
+        teile.push(istCarportTds()
+          ? 'Eindeckung: ' + Z.eindeckung
+          : 'Eindeckung: Trapezblech' +
+            (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
       }
       teile.push('Farbe: ' + Z.farbe);
     } else {

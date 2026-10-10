@@ -132,3 +132,65 @@ Proportionen (Pfosten 110 mm BELEGT, Sparrenabstand 1100 mm Richtwert, alles
 Produktseite) so angeboten werden; ob „Aufdach“ und „Unterdach“ die richtigen
 Bezeichnungen für unsere Beschattungen sind; die geschätzten Proportionen des
 Terrassendachs im Vergleich zu einem echten Foto.
+
+## 10.10.2026 – Flat Box: Dach ohne Gefälle, Eindeckung sichtbar als Trapezblech
+
+**Anlass.** Der Betreiber: „Flatbox hat auf dach kein gefälle und eindeckung
+is trapezblech“.
+
+**Was falsch war.** Die geschätzte Carport-Zeichnung gab dem Flachdach 1,5°
+Neigung (`NEIGUNG = (tds ? 6 : 1.5)`). Das widersprach unseren eigenen Daten:
+`js/bauteile.js` führt `GENEIGT = { 'TDS': true, 'SkyView': false, 'Flat Line':
+false }` mit dem Vermerk BELEGT (technische-daten.md 1). Flat Box ist Flat Line
+mit Wänden, also ebenfalls ohne Gefälle. Sichtbar war es an der nach vorn
+kippenden Dachfläche und an den hinteren Pfosten, die 144 mm länger wurden.
+
+**Was jetzt gilt.** Nur der Carport TDS ist geneigt (6°). Flat Line und Flat Box
+liegen waagerecht. Die Eindeckung wird als echtes Trapezblech gezeichnet:
+Grundblech plus Rippen, Profilhöhe 35 mm (BELEGT, T35M-0,75), Rippenabstand
+200 mm (GESCHÄTZT – der Wert steht als Rückfrage 5 an VD). Solarmodule und
+Dachbegrünung liegen jetzt **auf** dem Blech, sie ersetzen es nicht; die
+Oberfläche sagt das auch.
+
+**Eine frühere Entscheidung wird damit widerrufen.** Der Eintrag vom selben
+Tag – „Blende waagerecht, Gefälle liegt innen (verdeckte Entwässerung)“ – war
+eine Annahme von mir, keine Herstellerangabe. Sie gilt nicht mehr. Wo genau
+ein Flat-Line-Dach entwässert, ist nicht belegt und wird deshalb nicht
+gezeichnet.
+
+**Abgesichert.** `scripts/pruefe-konfigurator.js` vergleicht jetzt die
+GENEIGT-Tabelle aus `js/bauteile.js` mit der Neigung im Konfigurator; die
+Gegenprobe baut genau diesen Fehler wieder ein und erkennt ihn.
+
+## 10.10.2026 – Polycarbonat sieht aus wie Polycarbonat, und alle vier Ausführungen sind wählbar
+
+**Anlass.** Der Betreiber: „Polycarbonat sieht aus wie glas […] wir haben,
+klar, opal (milchig), graphit und bronze“.
+
+**Was falsch war.** Der Konfigurator kannte eine einzige Eindeckung
+„Polycarbonat“ und zeichnete sie als transparente, spiegelnde Fläche – optisch
+identisch zu Glas. Im Anfrage-Assistenten gab es nur klar und opal.
+
+**Was jetzt gilt.** Vier Ausführungen, so wie sie in der Artikelliste stehen
+(`daten/profile-und-eindeckung.csv`, Art. 6077 klar, 6025 opal, 6126 graphit,
+6127 bronce – Sechsfachstegplatten 16 mm): klar, opal, graphit, bronze. Die
+Artikelliste schreibt „Bronce“, sichtbar steht Bronze. Dieselben vier stehen
+jetzt auch im Anfrage-Assistenten.
+
+Im Modell bekommt Polycarbonat eine eigene Darstellung: matter als Glas, dazu
+eine gezeichnete Streifentextur für die Stege. Genau daran erkennt man eine
+Stegplatte; der echte Stegabstand einer 16-mm-Platte wäre in dieser
+Darstellung nicht sichtbar, die Streifen sind also ein Hinweis, kein Maß.
+
+**Woher die Lichtwerte kommen.** Händler-Datenblätter (dwz-shop.de,
+baustoffshop.de): klar ca. 76 %, opal ca. 48 %, bronze ca. 35–38 %. Es sind
+Werte für Dreifach- und Fünffachplatten, nicht für die Sechsfachplatte – als
+Richtwert gekennzeichnet. **Für Graphit war nichts zu finden**; die Deckkraft
+im Modell ist geschätzt, und die Oberfläche sagt, dass uns dazu noch eine
+Angabe fehlt. Beim Hersteller nachfragen.
+
+**Abgesichert.** `scripts/pruefe-konfigurator.js` liest die Artikelliste und
+verlangt, dass jede dort geführte Stegplatten-Ausführung im Konfigurator
+wählbar ist (übersprungen mit Hinweis, wenn die Liste nicht vorliegt – sie
+gehört nicht ins Repository). Der Browsertest prüft, dass Glas, klar, opal,
+graphit und bronze jeweils ein anderes Bild ergeben.

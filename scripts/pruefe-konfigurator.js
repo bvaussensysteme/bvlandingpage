@@ -31,6 +31,11 @@ const WURZEL = path.dirname(__dirname);
 const K3D = path.join(WURZEL, 'js', 'konfigurator-3d.js');
 const WIZARD = path.join(WURZEL, 'js', 'anfrage-wizard.js');
 const SEITE = path.join(WURZEL, 'konfigurator.html');
+const BAUTEILE = path.join(WURZEL, 'js', 'bauteile.js');
+/* Die Artikelliste des Herstellers liegt bewusst NICHT im Repository
+   (.gitignore). Ist sie da, wird gegen sie geprüft; ist sie nicht da, wird
+   die Prüfung ausdrücklich übersprungen – nicht stillschweigend bestanden. */
+const EINDECKUNG_CSV = path.join(WURZEL, 'daten', 'profile-und-eindeckung.csv');
 
 /* ---------- Lesen ---------- */
 
@@ -101,7 +106,7 @@ function cpVariantenWerte(quelle) {
 }
 
 /* ---------- Prüfen ---------- */
-function pruefen(k3d, wizard, html) {
+function pruefen(k3d, wizard, html, bauteile, csv) {
   const fehler = [];
   const auswahl = wizardWerte(wizard);
   function mussKennen(was, wert) {
@@ -180,7 +185,47 @@ function pruefen(k3d, wizard, html) {
   });
   if (!stichworte.size) fehler.push('Seite: kein data-k3d-fuer gefunden – Produktumschaltung wirkungslos?');
 
-  return { fehler: fehler, produkte: produkte || [], auswahl: auswahl.size, stichworte: stichworte.size };
+  /* 5. Neigung: zeichnet der Konfigurator genau die Systeme geneigt, die die
+     Herstellerdaten als geneigt führen? js/bauteile.js führt dazu GENEIGT
+     (BELEGT, technische-daten.md 1). Die geschätzte Carport-Zeichnung hatte
+     dort 1,5° für das Flachdach – im Widerspruch zu den eigenen Daten, und
+     sichtbar als nach vorn kippendes Dach. Vom Betreiber beanstandet. */
+  if (bauteile) {
+    const g = /var GENEIGT = \{([^}]*)\}/.exec(bauteile);
+    const flachUndGeneigt = g && /'Flat Line':\s*true/.test(g[1]);
+    const ausdruck = /var NEIGUNG = \(tds \? ([0-9.]+) : ([0-9.]+)\)/.exec(k3d);
+    if (!g) {
+      fehler.push('js/bauteile.js: GENEIGT nicht gefunden – Neigung nicht prüfbar');
+    } else if (!ausdruck) {
+      fehler.push('Konfigurator: Neigung des Flachdach-Carports nicht gefunden');
+    } else if (!flachUndGeneigt && parseFloat(ausdruck[2]) !== 0) {
+      fehler.push('Neigung: Flat Line/Flat Box gelten laut GENEIGT als Flachdach, ' +
+                  'der Konfigurator zeichnet sie aber mit ' + ausdruck[2] + '° Gefälle');
+    }
+  }
+
+  /* 6. Eindeckungen: jede Ausführung der Stegplatte aus der Artikelliste des
+     Herstellers muss im Konfigurator wählbar sein. Zweiter, anders gebauter
+     Weg: gelesen wird die CSV, nicht unsere eigene Tabelle. */
+  if (csv) {
+    const gefunden = new Set();
+    const re = /Sechsfachstegplatten[^,"]*\s(\w+)"/g;
+    let mc;
+    while ((mc = re.exec(csv))) gefunden.add(mc[1].toLowerCase());
+    const uebersetzt = { bronce: 'bronze' };
+    const angeboten = (optionen(html, 'k3dEindeckung') || []).join(' ').toLowerCase();
+    gefunden.forEach(function (a) {
+      const name = uebersetzt[a] || a;
+      if (angeboten.indexOf('polycarbonat ' + name) === -1) {
+        fehler.push('Eindeckung: Stegplatte "' + a + '" steht in der Artikelliste, ' +
+                    'ist im Konfigurator aber nicht wählbar');
+      }
+    });
+    if (!gefunden.size) fehler.push('Artikelliste: keine Sechsfachstegplatten gefunden');
+  }
+
+  return { fehler: fehler, produkte: produkte || [], auswahl: auswahl.size,
+           stichworte: stichworte.size, csvGeprueft: !!csv };
 }
 
 /* ---------- Gegenprobe ---------- */
@@ -188,6 +233,8 @@ function gegenprobe() {
   const k3d = fs.readFileSync(K3D, 'utf8');
   const wizard = fs.readFileSync(WIZARD, 'utf8');
   const html = fs.readFileSync(SEITE, 'utf8');
+  const bauteile = fs.existsSync(BAUTEILE) ? fs.readFileSync(BAUTEILE, 'utf8') : '';
+  const csv = fs.existsSync(EINDECKUNG_CSV) ? fs.readFileSync(EINDECKUNG_CSV, 'utf8') : '';
 
   const faelle = [
     ['alte, kurze Eindeckungs-Angabe',
@@ -210,14 +257,29 @@ function gegenprobe() {
      /Farbe: "Anthrazit"/],
     ['Stichwort ohne Auswertung',
      function () { return [k3d, wizard, html.replace('data-k3d-fuer="carport"', 'data-k3d-fuer="veranda"')]; },
-     /data-k3d-fuer="veranda"/]
+     /data-k3d-fuer="veranda"/],
+    /* Genau der Fehler, den der Betreiber am Flat-Box-Dach gesehen hat */
+    ['Flachdach-Carport wieder mit Gefälle',
+     function () {
+       return [k3d.replace('var NEIGUNG = (tds ? 6 : 0)', 'var NEIGUNG = (tds ? 6 : 1.5)'),
+               wizard, html, bauteile, csv];
+     },
+     /Gefälle|Gef\u00e4lle/],
+    ['Stegplatte aus der Artikelliste fehlt im Konfigurator',
+     function () {
+       return [k3d, wizard,
+               html.replace('data-wert="Polycarbonat graphit"', 'data-wert="Polycarbonat grafit"'),
+               bauteile, csv];
+     },
+     /Artikelliste|Stegplatte/]
   ];
 
-  console.log('Gegenprobe: sieben absichtliche Fehler einbauen');
+  console.log('Gegenprobe: ' + faelle.length + ' absichtliche Fehler einbauen');
   let schlecht = 0;
   faelle.forEach(function (f) {
     const q = f[1]();
-    const fehler = pruefen(q[0], q[1], q[2]).fehler;
+    const fehler = pruefen(q[0], q[1], q[2], q[3] !== undefined ? q[3] : bauteile,
+                           q[4] !== undefined ? q[4] : csv).fehler;
     const erkannt = fehler.some(function (x) { return f[2].test(x); });
     console.log('  ' + (erkannt ? 'erkannt      ' : 'NICHT ERKANNT') + '  ' + f[0]);
     if (!erkannt) schlecht++;
@@ -232,10 +294,16 @@ function main() {
 
   const e = pruefen(fs.readFileSync(K3D, 'utf8'),
                     fs.readFileSync(WIZARD, 'utf8'),
-                    fs.readFileSync(SEITE, 'utf8'));
+                    fs.readFileSync(SEITE, 'utf8'),
+                    fs.existsSync(BAUTEILE) ? fs.readFileSync(BAUTEILE, 'utf8') : '',
+                    fs.existsSync(EINDECKUNG_CSV) ? fs.readFileSync(EINDECKUNG_CSV, 'utf8') : '');
   console.log('3D-Konfigurator: ' + e.produkte.length + ' Produkte (' + e.produkte.join(', ') + '), ' +
               e.stichworte + ' Sichtbarkeits-Stichworte, ' +
               e.auswahl + ' Auswahlwerte im Assistenten');
+  if (!e.csvGeprueft) {
+    console.log('  übersprungen  Eindeckungen gegen die Artikelliste – ' +
+                'daten/profile-und-eindeckung.csv liegt nicht vor (gehört nicht ins Repo)');
+  }
   if (!e.fehler.length) {
     console.log('  ok      alle Übergabewerte kennt der Anfrage-Assistent');
     console.log('Ergebnis: bestanden');

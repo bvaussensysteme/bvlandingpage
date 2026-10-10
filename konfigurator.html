@@ -456,20 +456,29 @@
         <div class="k3d-gruppe" data-k3d-fuer="glas">
           <span class="k3d-label" id="k3dEindeckungLabel">Dacheindeckung</span>
           <input type="hidden" id="k3dEindeckung" value="VSG klar">
-          <div class="k3d-seg" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
-            <button type="button" data-wert="VSG klar">Glas klar</button>
-            <button type="button" data-wert="VSG opal">Glas opal</button>
-            <button type="button" data-wert="Polycarbonat">Polycarbonat</button>
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
+            <button type="button" data-wert="VSG klar">Glas klar<small>VSG 8 mm, durchsichtig</small></button>
+            <button type="button" data-wert="VSG opal">Glas opal<small>VSG 8 mm, milchig</small></button>
+            <button type="button" data-wert="Polycarbonat klar">Polycarbonat klar<small>Stegplatte, ca. 76 % Licht</small></button>
+            <button type="button" data-wert="Polycarbonat opal">Polycarbonat opal<small>milchig, ca. 48 % Licht</small></button>
+            <button type="button" data-wert="Polycarbonat graphit">Polycarbonat graphit<small>dunkel getönt, viel Schatten</small></button>
+            <button type="button" data-wert="Polycarbonat bronze">Polycarbonat bronze<small>bronzefarben, ca. 35 % Licht</small></button>
           </div>
+          <p class="k3d-mini">Polycarbonat ist eine Sechsfachstegplatte, 16 mm.
+            Die Lichtwerte stammen aus Händler-Datenblättern und sind Richtwerte;
+            für Graphit liegt uns noch keine Angabe vor.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="cp-flachdach" hidden>
-          <label class="k3d-label" for="k3dCpDach">Dach</label>
+          <label class="k3d-label" for="k3dCpDach">Dacheindeckung</label>
           <select id="k3dCpDach" class="k3d-select">
-            <option value="Trapezblech (Standard)">Trapezblech (Standard)</option>
-            <option value="Solar (PV-Anlage)">Solar (PV-Anlage)</option>
-            <option value="Dachbegrünung">Dachbegrünung</option>
+            <option value="Trapezblech (Standard)">Trapezblech – nur Blech</option>
+            <option value="Solar (PV-Anlage)">Trapezblech + Solar (PV-Anlage)</option>
+            <option value="Dachbegrünung">Trapezblech + Dachbegrünung</option>
           </select>
+          <p class="k3d-mini">Eingedeckt wird immer mit Trapezblech. Solarmodule
+            und Begrünung liegen darauf, sie ersetzen es nicht. Das Dach liegt
+            waagerecht – ohne sichtbares Gefälle.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-fuer="neigung">
@@ -788,13 +797,13 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261011a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261011b" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261011a" defer></script>
+<script src="js/anfrage-wizard.js?v=20261011b" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

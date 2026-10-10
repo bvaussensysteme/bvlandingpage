@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026 · zuletzt bearbeitet: Konfigurator als Vollbild-Anwendung
+> Stand: 10.10.2026 · zuletzt bearbeitet: Flat Box ohne Gefälle, Polycarbonat in vier Ausführungen
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -38,6 +38,15 @@ das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
 `js/anfrage-wizard.js` übernehmen und in `vorgabeUebernehmen()` in die
 `felder`-Liste eintragen – sonst kommt der Wert dort nie an.
 `scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
+
+### Offene Rückfragen an VD (aus dem Konfigurator)
+
+| Frage | Warum sie zählt |
+|---|---|
+| **Lichtdurchlässigkeit der Sechsfachstegplatte Graphit** | Für klar (76 %), opal (48 %) und bronze (35 %) gibt es Händlerangaben, für Graphit nichts. Im Modell ist die Deckkraft geschätzt |
+| **Rippenabstand des Trapezblechs T35M-0,75** | Profilhöhe 35 mm ist belegt, der Abstand nicht. Im Modell 200 mm geschätzt (steht auch als Rückfrage 5 in `daten/rueckfragen-an-vd.md`) |
+| **Liefert der Hersteller das Trapezblech in der RAL-Farbe des Gestells?** | Der Konfigurator zeichnet es so. Nicht belegt |
+| **Werden die Aluminium-Sichtschutzpaneele (140 mm) als Carport-Verkleidung angeboten?** | Die 140 mm stammen von unserer eigenen Produktseite, die Anwendung am Carport ist eine Annahme |
 
 ### Aufgabe A2 — Konfigurator auf die echten Herstellerdaten *(gebaut, wartet auf einen Handgriff)*
 
