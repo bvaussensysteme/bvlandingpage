@@ -310,6 +310,86 @@ function pruefen(k3d, wizard, html, bauteile, csv) {
     });
   }
 
+  /* 8. Die REGELN beim Schließen der Seiten müssen in beiden dieselben
+     sein – nicht nur die Auswahlmöglichkeiten. Falsch wäre hier nicht
+     bloß unschön: Wer im Konfigurator eine Schiebetür ohne Keil zusammen-
+     stellt, bekäme ein Angebot über etwas, das so nicht gebaut wird.
+
+     Verglichen werden drei Dinge:
+       · welche Erweiterungen den Keil erzwingen
+       · welche sich gegenseitig ausschließen
+       · bei welchen Produkten es den Keil überhaupt gibt */
+  function werteAusListe(quelle, name) {
+    const m = new RegExp('var ' + name + ' = \\[([^\\]]*)\\]').exec(quelle);
+    if (!m) return null;
+    const w = [];
+    const re = /'((?:[^'\\]|\\.)*)'/g;
+    let x;
+    while ((x = re.exec(m[1]))) w.push(x[1].replace(/\\'/g, "'"));
+    return w;
+  }
+  function unvertraeglich(quelle, name) {
+    const m = new RegExp('var ' + name + ' = \\{([\\s\\S]*?)\\n  \\};').exec(quelle)
+           || new RegExp('var ' + name + ' = \\{([\\s\\S]*?)\\};').exec(quelle);
+    if (!m) return null;
+    const karte = {};
+    const re = /'((?:[^'\\]|\\.)*)':\s*\[([^\]]*)\]/g;
+    let x;
+    while ((x = re.exec(m[1]))) {
+      const w = [];
+      const re2 = /'((?:[^'\\]|\\.)*)'/g;
+      let y;
+      while ((y = re2.exec(x[2]))) w.push(y[1]);
+      karte[x[1]] = w.sort().join(',');
+    }
+    return karte;
+  }
+
+  const keilW = werteAusListe(wizard, 'ERW_REQUIRES_KEIL');
+  const keil3 = werteAusListe(k3d, 'ERW_BRAUCHT_KEIL');
+  if (!keilW || !keil3) {
+    fehler.push('Keil-Regel: Liste fehlt im Assistenten oder im Konfigurator');
+  } else if (keilW.slice().sort().join(',') !== keil3.slice().sort().join(',')) {
+    fehler.push('Keil-Regel: "' + keilW.join(', ') + '" im Assistenten, "' +
+                keil3.join(', ') + '" im Konfigurator');
+  }
+
+  const inkW = unvertraeglich(wizard, 'ERW_INCOMPAT');
+  const ink3 = unvertraeglich(k3d, 'ERW_UNVERTRAEGLICH');
+  if (!inkW || !ink3) {
+    fehler.push('Unverträglichkeiten: Tabelle fehlt im Assistenten oder im Konfigurator');
+  } else {
+    Object.keys(inkW).forEach(function (k) {
+      if (ink3[k] !== inkW[k]) {
+        fehler.push('Unverträglichkeit "' + k + '": Assistent sagt [' + inkW[k] +
+                    '], Konfigurator sagt [' + (ink3[k] === undefined ? 'nichts' : ink3[k]) + ']');
+      }
+    });
+    Object.keys(ink3).forEach(function (k) {
+      if (inkW[k] === undefined) {
+        fehler.push('Unverträglichkeit "' + k + '" kennt nur der Konfigurator');
+      }
+    });
+  }
+
+  // Bei welchen Produkten gibt es den Keil? (Funktionsrumpf vergleichen)
+  function keilProdukte(quelle, name) {
+    const m = new RegExp('function ' + name + '\\(\\) \\{([\\s\\S]*?)\\n  \\}').exec(quelle);
+    if (!m) return null;
+    const w = [];
+    const re = /'((?:[^'\\]|\\.)*)'/g;
+    let x;
+    while ((x = re.exec(m[1]))) w.push(x[1]);
+    return w.sort().join(',');
+  }
+  const kpW = keilProdukte(wizard, 'keilAllowed');
+  const kp3 = keilProdukte(k3d, 'keilErlaubt');
+  if (kpW === null || kp3 === null) {
+    fehler.push('Keil-Produkte: keilAllowed/keilErlaubt nicht gefunden');
+  } else if (kpW !== kp3) {
+    fehler.push('Keil gibt es laut Assistent bei [' + kpW + '], laut Konfigurator bei [' + kp3 + ']');
+  }
+
   return { fehler: fehler, produkte: produkte || [], auswahl: auswahl.size,
            stichworte: stichworte.size, csvGeprueft: !!csv };
 }
@@ -364,6 +444,26 @@ function gegenprobe() {
                wizard, html, bauteile, csv];
      },
      /Erweiterung "Plankenwand"/],
+    ['Keil-Pflicht laeuft auseinander',
+     function () {
+       return [k3d.replace("var ERW_BRAUCHT_KEIL = ['Velaris', 'Senkrechtmarkise', 'Schiebetür'];",
+                           "var ERW_BRAUCHT_KEIL = ['Velaris', 'Senkrechtmarkise'];"),
+               wizard, html, bauteile, csv];
+     },
+     /Keil-Regel/],
+    ['Unvertraeglichkeit nur in einem der beiden',
+     function () {
+       return [k3d.replace("'Rahmenwand':       ['Velaris']", "'Rahmenwand':       []"),
+               wizard, html, bauteile, csv];
+     },
+     /Unverträglichkeit "Rahmenwand"/],
+    ['Keil bei einem anderen Produkt erlaubt',
+     function () {
+       return [k3d.replace("if (Z.produkt === 'Terrassendach TDS') return true;",
+                           "if (Z.produkt === 'Flachdach SkyView') return true;"),
+               wizard, html, bauteile, csv];
+     },
+     /Keil gibt es laut/],
     ['Stegplatte aus der Artikelliste fehlt im Konfigurator',
      function () {
        return [k3d, wizard,

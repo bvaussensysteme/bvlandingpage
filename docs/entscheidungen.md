@@ -250,3 +250,41 @@ Untergrund und Montage dort wirklich ankommen – 54 Prüfungen.
 **Gegenzulesen.** Ob „Rahmenwand unten, Schiebetür darüber“ auch im Modell
 richtig proportioniert ist (38 % der Höhe ist geschätzt), und ob die
 Velaris-Lamellen senkrecht stehend richtig dargestellt sind.
+
+## 10.10.2026 – Die Regeln beim Schließen der Seiten, nachgeprüft
+
+**Anlass.** Rückfrage des Betreibers: „hast du die regeln beim verschließen
+der seiten auch beachtet? wo keil notwendig is wo nicht etc“. Nachgesehen
+statt behauptet – und dabei zwei Lücken gefunden.
+
+**Was schon stimmte.** Velaris, Senkrechtmarkise und Schiebetür ziehen den
+Keil mit und sperren ihn; Velaris verträgt sich nicht mit Senkrechtmarkise,
+Schiebetür und Rahmenwand; an der Stirnseite gibt es keinen Keil; den Keil
+gibt es nur dort, wo es ein Außengefälle gibt (Terrassendach TDS und
+Carport TDS). Das war aus `js/anfrage-wizard.js` übernommen.
+
+**Lücke 1: Der Keil überlebte den Produktwechsel.** Wer auf dem
+Terrassendach TDS eine Schiebetür wählte (und damit den Keil bekam) und dann
+auf das Flachdach SkyView wechselte, behielt den Keil in der Auswahl. SkyView
+hat ein innenliegendes Gefälle, der Assistent kennt die Möglichkeit dort gar
+nicht – und im Modell stand ein Dreieck, das niemand bestellt hatte. Der
+Assistent löscht beim Produktwechsel die ganze Konfiguration (`resetConfig`);
+hier wird nur das Unmögliche entfernt (`erwAufraeumen`), weil ein kompletter
+Reset den Besucher seine Maße kosten würde. Dazu eine zweite Sicherung beim
+Zeichnen: der Keil wird nur dort gezeichnet, wo er erlaubt ist.
+
+**Lücke 2: Zwei Schreibweisen derselben Auswahl.** Der Assistent sortiert die
+Erweiterungen (`erwToggle` nach `erwIndex`), der Konfigurator hängte sie in
+Klickreihenfolge an. In der Anfrage stand „Schiebetür, Keil“, im Assistenten
+„Keil, Schiebetür“ – dieselbe Auswahl, und niemand hätte gewusst, welche
+gilt. Jetzt sortieren beide nach derselben Reihenfolge.
+
+**Abgesichert – und zwar die Regeln selbst, nicht nur die Auswahl.**
+`scripts/pruefe-konfigurator.js` vergleicht jetzt die drei Regeltabellen
+zwischen Assistent und Konfigurator: welche Erweiterungen den Keil erzwingen,
+welche sich gegenseitig ausschließen, und bei welchen Produkten es den Keil
+überhaupt gibt. Die Gegenprobe verändert jede der drei einzeln und erkennt
+alle – vierzehn von vierzehn eingebauten Fehlern. Der Browsertest prüft
+zusätzlich das Verhalten: Keil wird mitgewählt, Stirnseite bietet keinen an,
+Keil fällt beim Wechsel zum Flachdach weg, die Schiebetür bleibt stehen.
+58 Prüfungen.

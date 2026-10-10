@@ -306,6 +306,31 @@
         liste.push('Keil');
       }
     }
+    /* Reihenfolge wie im Anfrage-Assistenten (dort sortiert erwToggle nach
+       erwIndex). Ohne das stünde in der Anfrage „Schiebetür, Keil“, im
+       Assistenten aber „Keil, Schiebetür“ – dieselbe Auswahl in zwei
+       Schreibweisen, und niemand wüsste, welche stimmt. */
+    liste.sort(function (a, b) { return ERW_OPTS.indexOf(a) - ERW_OPTS.indexOf(b); });
+  }
+
+  /* Beim Produktwechsel fällt weg, was es beim neuen Produkt nicht gibt.
+     Der Assistent löscht beim Produktwechsel die ganze Konfiguration
+     (resetConfig); hier genügt es, das Unmögliche zu entfernen, weil das
+     Modell sichtbar stehen bleibt und ein kompletter Reset den Besucher
+     seine Maße kosten würde.
+
+     Ohne diese Reinigung überlebte ein auf dem Terrassendach TDS gewählter
+     Keil den Wechsel zum Flachdach SkyView: dort gibt es kein
+     Außengefälle, der Assistent kennt die Möglichkeit gar nicht – und im
+     Modell stand ein Dreieck, das niemand bestellt hatte. */
+  function erwAufraeumen() {
+    ['links', 'rechts', 'vorne'].forEach(function (seite) {
+      var liste = erwListe(seite);
+      var moeglich = erwMoeglich(seite);
+      for (var i = liste.length - 1; i >= 0; i--) {
+        if (moeglich.indexOf(liste[i]) === -1) liste.splice(i, 1);
+      }
+    });
   }
 
   /* Übersetzung in die Auswahlwerte des Anfrage-Assistenten.
@@ -961,7 +986,11 @@
 
       /* Keil: das Dreieck zwischen waagerechter Oberkante des Elements und
          dem geneigten Dach. Ohne Außengefälle gibt es ihn nicht. */
-      if (liste.indexOf('Keil') > -1 && neig > 0.001) {
+      /* Doppelt gesichert: der Keil wird nur dort gezeichnet, wo es ihn
+         geben darf. Die Auswahlliste wird beim Produktwechsel gereinigt –
+         diese zweite Bedingung fängt den Fall ab, dass das einmal nicht
+         greift. Ein Dreieck im Bild wäre eine Zusage. */
+      if (liste.indexOf('Keil') > -1 && keilErlaubt() && seite !== 'vorne' && neig > 0.001) {
         var hoeheKeil = Math.tan(neig) * laenge;
         var k = keilNetz(laenge, hoeheKeil, 1.4, mGlas);
         k.position.set(quer ? achse : mitte, yUnten + hoch, quer ? mitte : achse);
@@ -1985,6 +2014,8 @@
     if (isNaN(Z.lamellen)) Z.lamellen = 35;
 
     if (produktWechsel) masseSetzen();
+    // keilErlaubt() hängt am Produkt UND am Carport-Typ
+    if (produktWechsel || typWechsel) erwAufraeumen();
 
     Z.aufbau = wert('k3dAufbau') || Z.aufbau;
     /* Die Reglergrenzen hängen am System, nicht nur am Produkt: Ein Wechsel
