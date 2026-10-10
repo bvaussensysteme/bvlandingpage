@@ -1,7 +1,12 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026
+> Stand: 10.10.2026 · letzter Chat wurde hier beendet (`/clear`)
+>
+> **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
+> (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
+> dann Abschnitt 1 lesen. Nichts ist halbfertig liegen geblieben – alle
+> Änderungen sind veröffentlicht.
 >
 > **Kurz halten.** Wird diese Datei länger als etwa 400 Zeilen, wandern die
 > ältesten erledigten Einträge nach `docs/erledigt-archiv.md`.
@@ -170,7 +175,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
-| 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | offen im PR |
+| 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | live |
 | 10.10.2026 | 3D-Konfigurator Terrassendach TDS | **live** |
 | 10.10.2026 | Telefonnummer als Pflichtangabe | live |
 | 16.09.2026 | Scrollen im Konfigurator-Fenster auf dem Handy repariert | live |
