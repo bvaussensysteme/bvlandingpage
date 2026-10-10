@@ -1191,6 +1191,12 @@
      Aufmaß. */
   var FLUEGEL_BREITE = 150;   // cm, GESCHÄTZT
 
+  /* Die Vorderseite des Keils darf nicht kleiner als 150 mm sein,
+     Rahmen eingerechnet (Angabe des Betreibers, 10.10.2026). Ist der
+     Spalt zwischen Elementoberkante und Dach vorne kleiner, wird das
+     Element darunter entsprechend kürzer – nicht der Keil schmaler. */
+  var KEIL_MIN_VORNE = 15;    // cm, BELEGT durch den Betreiber
+
   function fluegelAnzahl(laenge) {
     return Math.max(2, Math.round(laenge / FLUEGEL_BREITE));
   }
@@ -1198,18 +1204,29 @@
   /* Ein Dreieck als Keil. Die Form wird in der XY-Ebene gebaut und dann in
      die Ebene der Seite gedreht – so braucht es nur eine Geometrie für
      Seiten und Stirnseite. */
-  function keilNetz(laenge, hoehe, dicke, material) {
+  /* Keil: die Fläche zwischen der waagerechten Oberkante des
+     Seitenelements und der geneigten Dachunterkante.
+
+     Kein Dreieck, sondern ein TRAPEZ: Vorne bleibt zwischen Element und
+     Dach ebenfalls ein Spalt, nur ein kleinerer. Als Dreieck gebaut ragte
+     der Keil oben über das Dach hinaus – im Bild gut zu sehen, vom
+     Betreiber bemerkt.
+
+     Die hohe Seite liegt bei +x; beide Seiten werden gleich gedreht
+     (+90° bildet lokal +x auf −z ab, also nach hinten zur Wand). */
+  function keilNetz(laenge, hVorne, hHinten, dicke, material) {
     var form = new THREE.Shape();
     form.moveTo(-laenge / 2, 0);
     form.lineTo(laenge / 2, 0);
-    form.lineTo(-laenge / 2, hoehe);
+    form.lineTo(laenge / 2, hHinten);
+    form.lineTo(-laenge / 2, hVorne);
     form.closePath();
     var g = new THREE.ExtrudeGeometry(form, { depth: dicke, bevelEnabled: false });
     g.translate(0, 0, -dicke / 2);
     return new THREE.Mesh(g, material);
   }
 
-  function seitenErweiterungen(B, T, hVorn, PROFIL, neig) {
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk) {
     var mGlas = seitenglas();
     var rahmen = alu();
     var offen = Z.glasOffen / 100;
@@ -1288,6 +1305,21 @@
       if (!liste.length) return;
       var hoch = hVorn - PROFIL;
       var yUnten = PROFIL / 2;
+      /* Der Keil läuft IMMER bis nach hinten durch: bei Wandmontage bis
+         an die Wand, freistehend bis an den hinteren Pfosten (Angabe des
+         Betreibers). Das Element darunter endet dagegen zwischen den
+         Pfosten – Keil und Element sind deshalb nicht gleich lang. */
+      var zVorneK = mitte + laenge / 2;
+      var zHintenK = (Z.aufbau === 'Freistehend') ? PROFIL : 0;
+      var keilLaenge = zVorneK - zHintenK;
+      var keilMitte = (zVorneK + zHintenK) / 2;
+      var hatKeil = liste.indexOf('Keil') > -1 && keilErlaubt() &&
+                    seite !== 'vorne' && neig > 0.001 && !!dachUk;
+      if (hatKeil) {
+        // Mindesthöhe des Keils vorne einhalten, siehe KEIL_MIN_VORNE
+        var hoechstens = dachUk(zVorneK) - KEIL_MIN_VORNE - yUnten;
+        if (hoch > hoechstens) hoch = Math.max(20, hoechstens);
+      }
       var hatRahmen = liste.indexOf('Rahmenwand') > -1;
       var hatSchiebe = liste.indexOf('Schiebetür') > -1;
       var hatPlanken = liste.indexOf('Plankenwand') > -1;
@@ -1314,8 +1346,8 @@
       }
 
       // Zubehör VOR der Fläche
-      var aussen = (seite === 'links' ? -1 : 1) * 4;
-      if (seite === 'vorne') aussen = 4;
+      // nach außen, also vom Mittelpunkt weg – unabhängig vom Namen der Seite
+      var aussen = (seite === 'vorne' || achse >= 0) ? 4 : -4;
       if (liste.indexOf('Senkrechtmarkise') > -1) {
         var h = hoch * (Z.sonneAus / 100);
         if (h > 5) {
@@ -1332,18 +1364,49 @@
          geben darf. Die Auswahlliste wird beim Produktwechsel gereinigt –
          diese zweite Bedingung fängt den Fall ab, dass das einmal nicht
          greift. Ein Dreieck im Bild wäre eine Zusage. */
-      if (liste.indexOf('Keil') > -1 && keilErlaubt() && seite !== 'vorne' && neig > 0.001) {
-        var hoeheKeil = Math.tan(neig) * laenge;
-        var k = keilNetz(laenge, hoeheKeil, 1.4, mGlas);
-        k.position.set(quer ? achse : mitte, yUnten + hoch, quer ? mitte : achse);
-        if (quer) k.rotation.y = Math.PI / 2 * (seite === 'links' ? 1 : -1);
-        k.castShadow = true;
-        bau.add(k);
+      if (hatKeil) {
+        var yKeil = yUnten + hoch;
+        var hV = Math.max(0, dachUk(zVorneK) - yKeil);
+        var hH = Math.max(0, dachUk(zHintenK) - yKeil);
+        if (hH > 1) {
+          var k = keilNetz(keilLaenge, hV, hH, 1.4, mGlas);
+          k.position.set(achse, yKeil, keilMitte);
+          k.rotation.y = Math.PI / 2;   // beide Seiten gleich: hoch zur Wand
+          k.castShadow = true;
+          bau.add(k);
+
+          /* Der Keil ist kein nacktes Glasdreieck: er sitzt in einem
+             Rahmen in der Farbe der Überdachung. Vom Betreiber
+             beanstandet. Rahmenbreite 40 mm GESCHÄTZT. */
+          var rb = 4;
+          platte(rahmen, keilLaenge, rb, achse, keilMitte, yKeil + rb / 2, quer, 0, rb);
+          [[zHintenK + rb / 2, hH], [zVorneK - rb / 2, hV]].forEach(function (pf) {
+            if (pf[1] < 1) return;
+            var sr = new THREE.Mesh(new THREE.BoxGeometry(rb, pf[1], rb), rahmen);
+            sr.position.set(achse, yKeil + pf[1] / 2, pf[0]);
+            sr.castShadow = true;
+            bau.add(sr);
+          });
+          var schraegL = Math.sqrt(keilLaenge * keilLaenge + (hH - hV) * (hH - hV));
+          var sg = new THREE.Mesh(new THREE.BoxGeometry(rb, rb, schraegL), rahmen);
+          sg.position.set(achse, yKeil + (hV + hH) / 2 - rb / 2, keilMitte);
+          sg.rotation.x = -Math.atan2(hH - hV, keilLaenge);
+          sg.castShadow = true;
+          bau.add(sg);
+        }
       }
     }
 
-    eineSeite('links',  -B / 2 + PROFIL / 2, T / 2, T - PROFIL * 2, true);
-    eineSeite('rechts',  B / 2 - PROFIL / 2, T / 2, T - PROFIL * 2, true);
+    /* ---------- Welche Seite ist links? ----------
+       Links und rechts werden so bestimmt, wie man auf der Terrasse mit
+       dem Rücken zur Wand steht und nach draußen schaut. Wer so steht,
+       blickt in +z; links liegt dann bei +x.
+
+       Vorher war es umgekehrt: Der Besucher wählte „links" und im Modell
+       erschien die rechte Seite – und genau so wäre es auch in die
+       Anfrage und ins Angebot gegangen. Vom Betreiber bemerkt. */
+    eineSeite('links',   B / 2 - PROFIL / 2, T / 2, T - PROFIL * 2, true);
+    eineSeite('rechts', -B / 2 + PROFIL / 2, T / 2, T - PROFIL * 2, true);
     eineSeite('vorne',   T - PROFIL,         0,     B - PROFIL * 2, false);
   }
 
@@ -1475,9 +1538,11 @@
         }
       }
     }
+    /* Links und rechts wie bei den Seitenelementen: mit dem Rücken zur
+       Wand nach draußen geschaut, also links bei +x. */
     if (Z.verkRueck)  flaeche(B - PROFIL,  0,              PROFIL / 2, false);
-    if (Z.verkLinks)  flaeche(T - PROFIL, -B / 2 + 2,      T / 2,      true);
-    if (Z.verkRechts) flaeche(T - PROFIL,  B / 2 - 2,      T / 2,      true);
+    if (Z.verkLinks)  flaeche(T - PROFIL,  B / 2 - 2,      T / 2,      true);
+    if (Z.verkRechts) flaeche(T - PROFIL, -B / 2 + 2,      T / 2,      true);
   }
 
   /* ---------- Modell ohne Herstellerdaten ----------
@@ -1739,11 +1804,16 @@
     wand.position.set(0, (hHinten + 190) / 2, -12);
 
     /* Pfosten: zwei, bei breiten Anlagen drei. Die Verteilung über die
-       BREITE ist GESCHÄTZT – die steht in der Herstellermatrix. Die Lage in
-       der TIEFE ist BELEGT (Montageanleitung S. 25): „Der Mittelpunkt des
-       Alupfostens wird entsprechend der Dachtiefe platziert, zum Beispiel
-       bei 300 cm = 294,5 cm (-5,5 cm)" – also 55 mm hinter der Vorderkante. */
-    var zPf = T - 5.5;
+       BREITE ist GESCHÄTZT – die steht in der Herstellermatrix.
+
+       Die Lage in der TIEFE: Der Pfosten steht MITTIG UNTER DER RINNE
+       (Angabe des Betreibers, 10.10.2026) – also 93 mm hinter der
+       Vorderkante, bei 186,3 mm Rinnenbreite. Vorher standen hier 55 mm
+       aus der Montageanleitung S. 25 („bei 300 cm = 294,5 cm"); damit
+       stand der Pfosten vorne an der Rinnenkante statt darunter. Die
+       55 mm beziehen sich offenbar auf einen anderen Bezugspunkt als die
+       Vorderkante der Rinne – GEGENZULESEN, siehe docs/NEXT_TASK.md. */
+    var zPf = sky ? T - 5.5 : T - RINNE.breite / 2;
     verteilen(B > 500 ? 3 : 2, B, PF / 2).forEach(function (x) {
       balken(PF, hVorn, PF, x, hVorn / 2, zPf, mAlu);
       if (frei) balken(PF, hHinten, PF, x, hHinten / 2, PF / 2, mAlu);
@@ -1849,7 +1919,9 @@
 
     /* Seitenelemente und Sonnenschutz sind Zubehör und hängen nicht am
        Dachsystem – deshalb auch freistehend. */
-    seitenErweiterungen(B, T, hVorn, PF, neig);
+    seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
+      return ukMitte + Math.tan(neig) * (zMitte - z);
+    });
     sonnenschutz(B, T, hVorn, neig, PF);
 
     if (Z.led) {
