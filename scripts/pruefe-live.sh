@@ -35,6 +35,10 @@ MARKER='
 /konfigurator.html|Polycarbonat graphit|Vier Polycarbonat-Ausführungen
 /js/anfrage-wizard.js|Polycarbonat Bronze|Bronze auch im Anfrage-Assistenten
 /js/konfigurator-3d.js|var NEIGUNG = (tds ? 6 : 0)|Flat Box ohne Gefälle
+/konfigurator.html|data-k3d-erw=|Erweiterungen wie im Anfrage-Assistenten
+/konfigurator.html|k3dMontage|Montage-Frage wieder im Bedienfeld
+/konfigurator.html|k3dUntergrund|Untergrund-Frage im Konfigurator
+/js/anfrage-wizard.js|erw_links|Erweiterungen kommen im Assistenten an
 '
 
 holen() { curl -sL --max-time 25 "$1"; }
