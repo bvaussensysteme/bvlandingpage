@@ -700,6 +700,15 @@
     hoehe: 13.67,      // 136,7 mm, Zeichnung
     innenBreite: 13.0, // 130 mm, Zeichnung
     innenTiefe: 8.22,  // 82,2 mm, Zeichnung
+    /* Wie sich die Differenz 186,3 − 130 = 56,3 mm auf Vorder- und
+       Rückwange verteilt, steht nicht in der Zeichnung. Hinten liegen
+       Sparren und Eindeckung auf, vorne genügt eine schmale Wange –
+       deshalb 36 zu 20 mm. GESCHÄTZT. */
+    rueckwand: 3.6,    // GESCHÄTZT
+    /* Um so viel liegt die hintere Wange unter der Vorderkante. Dieses
+       Gefälle ist der Grund, warum das Wasser in die Kehle läuft. Der
+       Wert steht nicht in der Zeichnung – GESCHÄTZT. */
+    wangeAb: 3.4,      // GESCHÄTZT
     wand: 0.25         // GESCHÄTZT
   };
 
@@ -709,28 +718,73 @@
   function rinneQuerschnitt() {
     var B = RINNE.breite, H = RINNE.hoehe;
     var iB = RINNE.innenBreite, iT = RINNE.innenTiefe;
-    var w = RINNE.wand;
+    var hinten = RINNE.rueckwand;
+    var hHinten = H - RINNE.wangeAb;      // Oberkante der hinteren Wange
     var f = new THREE.Shape();
-    f.moveTo(0, 0);
-    f.lineTo(B - 2.2, 0);
-    f.quadraticCurveTo(B, 0, B, 2.2);          // gerundete Vorderkante unten
-    f.lineTo(B, H - 2.2);
-    f.quadraticCurveTo(B, H, B - 2.2, H);      // gerundete Vorderkante oben
-    f.lineTo(0, H);
+
+    /* Umriss, gegen den Uhrzeigersinn. x = 0 ist die RÜCKSEITE (zum
+       Haus), x = B die Vorderkante, y = 0 die Unterkante.
+
+       Drei Dinge, die das Profil ausmachen und vorher fehlten:
+
+       · Die hintere Wange ist NIEDRIGER als die Vorderkante. Nur deshalb
+         läuft das Wasser von der Eindeckung in die Kehle und nicht über
+         die Nase nach außen. Der Sparren endet ebenfalls auf dieser
+         Höhe – vorher lag er bündig mit der Vorderkante, das Dach hätte
+         nach außen entwässert.
+       · Die Vorderkante läuft oben in einer Nase aus und ist unten
+         zurückgesetzt. Das ist das, was man von der Terrasse aus sieht;
+         ein durchgehender Quader wirkt dort wie ein Balken.
+       · Zwei schmale Schattenfugen in der Vorderfläche. Sie kosten vier
+         Linien und nehmen dem Profil optisch die Hälfte der Höhe.
+
+       Die vier Hauptmaße stehen in der Zeichnung des Betreibers. Nase,
+       Fase, Fugen und die Aufteilung der Wangen sind GESCHÄTZT. */
+    var rU = 0.8, rO = 2.8;
+    var faseH = 2.6, faseT = 1.4;         // zurückgesetzter Fuß, GESCHÄTZT
+    var fuge = 0.35;                      // Tiefe der Schattenfuge, GESCHÄTZT
+
+    f.moveTo(0, rU);
+    f.quadraticCurveTo(0, 0, rU, 0);
+    f.lineTo(B - faseT - rU, 0);
+    f.quadraticCurveTo(B - faseT, 0, B - faseT, rU);
+    f.lineTo(B - faseT, faseH - 0.6);
+    f.lineTo(B, faseH + 0.4);             // Fase läuft nach außen aus
+
+    /* Untere Schattenfuge */
+    f.lineTo(B, faseH + 1.3);
+    f.lineTo(B - fuge, faseH + 1.5);
+    f.lineTo(B - fuge, faseH + 2.1);
+    f.lineTo(B, faseH + 2.3);
+
+    /* Flache Vorderfläche bis zur oberen Fuge */
+    f.lineTo(B, H - rO - 1.6);
+    f.lineTo(B - fuge, H - rO - 1.4);
+    f.lineTo(B - fuge, H - rO - 0.8);
+    f.lineTo(B, H - rO - 0.6);
+
+    /* Nase */
+    f.lineTo(B, H - rO);
+    f.quadraticCurveTo(B, H, B - rO, H);
+    f.lineTo(hinten + iB, H);
+
+    /* Hintere Wange, niedriger – hier liegt die Eindeckung auf */
+    f.lineTo(hinten + iB, hHinten);
+    f.lineTo(0, hHinten);
     f.closePath();
 
-    /* Die Kehle: offen nach oben, deshalb reicht die Aussparung bis über
-       die Oberkante hinaus. Sie sitzt mittig zwischen Vorder- und
-       Rückwand. */
-    var links = (B - iB) / 2;
+    /* Die Kehle liegt nicht mittig: hinten bleibt eine breitere Wange
+       stehen, auf der Sparren und Eindeckung aufliegen. Nach oben offen,
+       deshalb reicht die Aussparung über die Oberkante hinaus. */
     var unten = H - iT;
+    var r = 0.9;
     var kehle = new THREE.Path();
-    kehle.moveTo(links, unten + 0.8);
-    kehle.quadraticCurveTo(links, unten, links + 0.8, unten);
-    kehle.lineTo(links + iB - 0.8, unten);
-    kehle.quadraticCurveTo(links + iB, unten, links + iB, unten + 0.8);
-    kehle.lineTo(links + iB, H + 1);
-    kehle.lineTo(links, H + 1);
+    kehle.moveTo(hinten, H + 1);
+    kehle.lineTo(hinten, unten + r);
+    kehle.quadraticCurveTo(hinten, unten, hinten + r, unten);
+    kehle.lineTo(hinten + iB - r, unten);
+    kehle.quadraticCurveTo(hinten + iB, unten, hinten + iB, unten + r);
+    kehle.lineTo(hinten + iB, H + 1);
     kehle.closePath();
     f.holes.push(kehle);
     return f;
@@ -1701,7 +1755,10 @@
        der Rinnenoberkante ab, damit das Wasser von der Eindeckung in die
        Rinnenkehle läuft. Daraus folgt die Unterkante vorne – und mit dem
        Gefälle die Unterkante in der Mitte. */
-    var ukVorn = hVorn + (sky ? riH * 0.25 : riH - spH);
+    /* Der Sparren endet auf der HINTEREN Wange der Rinne, die tiefer
+       liegt als die Vorderkante – sonst entwässert das Dach nach außen
+       über die Nase statt in die Kehle. */
+    var ukVorn = hVorn + (sky ? riH * 0.25 : riH - RINNE.wangeAb - spH);
     var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe / 2);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
