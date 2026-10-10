@@ -220,6 +220,36 @@ pruef('Gesperrtes sagt, woran es liegt',
   /nicht mit Velaris/.test(await page.locator('[data-k3d-erw="rechts"] button[data-erw="Senkrechtmarkise"] small').innerText()));
 await page.click('[data-k3d-erw="rechts"] button[data-erw="Velaris"]');
 await page.waitForTimeout(400);
+
+/* Reihenfolge wie im Assistenten: Keil steht vorn. Sonst stünde dieselbe
+   Auswahl in der Anfrage und im Assistenten in zwei Schreibweisen. */
+const erwText = await page.locator('[data-k3d-erw-wert]').first().innerText();
+pruef('Erweiterungen in derselben Reihenfolge wie im Assistenten',
+  /^Keil · Schiebetür/.test(erwText), erwText);
+
+/* An der Stirnseite gibt es keinen Keil – dort ist die Kante waagerecht. */
+pruef('Vorne wird kein Keil angeboten',
+  await page.locator('[data-k3d-erw="vorne"] button[data-erw="Keil"]').evaluate(e => e.hidden));
+
+/* Beim Wechsel auf ein Flachdach ohne Außengefälle muss der Keil weg sein.
+   Er überlebte den Produktwechsel und stand als Dreieck im Modell, obwohl
+   der Anfrage-Assistent die Möglichkeit dort gar nicht kennt. */
+await page.click('[data-k3d-seg="k3dProdukt"] button[data-wert="Flachdach SkyView"]');
+await page.waitForTimeout(900);
+await alleAufklappen();
+const keilWeg = await page.locator('[data-k3d-erw="links"] button[data-erw="Keil"]')
+  .evaluate(e => e.hidden && !e.classList.contains('is-active'));
+pruef('Keil faellt beim Wechsel zum Flachdach weg', keilWeg,
+  await page.locator('[data-k3d-erw-wert]').first().innerText());
+await page.click('[data-k3d-seg="k3dProdukt"] button[data-wert="Terrassendach TDS"]');
+await page.waitForTimeout(900);
+await alleAufklappen();
+/* Die Schiebetür bleibt beim Produktwechsel stehen – nur der Keil fällt
+   weg. Sie hier erneut anzuklicken würde sie abwählen. */
+pruef('Schiebetür übersteht den Produktwechsel',
+  await page.locator('[data-k3d-erw="links"] button[data-erw="Schiebetür"]')
+    .evaluate(e => e.classList.contains('is-active')));
+
 const zu = await page.locator('#k3dCanvas').screenshot();
 await page.click('#k3dGlasAuf');
 await page.waitForTimeout(800);
