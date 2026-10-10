@@ -365,7 +365,12 @@
           { value: 'VSG-Glas klar', img: 'vsg_klar', photo: true, hint: 'Durchsichtig, edel' },
           { value: 'VSG-Glas Opal (milchig)', img: 'vsg_opal', photo: true, hint: 'Blickdicht, sanftes Licht' },
           { value: 'Polycarbonat klar', img: 'poly_klar', photo: true, hint: 'Leicht & günstiger' },
-          { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' }
+          { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' },
+          /* Graphit und Bronze fehlten hier, obwohl die Artikelliste alle
+             vier Ausführungen der Sechsfachstegplatte führt (Art. 6126 und
+             6127). Noch ohne Foto – deshalb das Stegplatten-Zeichen. */
+          { value: 'Polycarbonat Graphit', icon: I.steg, hint: 'Dunkel getönt, starker Schatten' },
+          { value: 'Polycarbonat Bronze', icon: I.steg, hint: 'Bronzefarben, warmes Licht' }
         ];
         // „Noch unsicher" nur zeigen, solange keine VSG-Glas-Variante gewählt ist
         if (!isGlas(answers.verglasung)) opts.push({ value: 'Noch unsicher – bitte beraten', icon: I.frage });

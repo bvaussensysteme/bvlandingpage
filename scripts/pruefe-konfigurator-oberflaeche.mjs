@@ -199,6 +199,28 @@ const auf = await page.locator('#k3dCanvas').screenshot();
 pruef('Schiebeelemente öffnen sich sichtbar', !zu.equals(auf),
   'Regler: ' + await page.inputValue('#k3dGlasOffen') + ' %');
 
+/* Eindeckung: Polycarbonat darf nicht aussehen wie Glas. Beanstandet vom
+   Betreiber – vorher war es dieselbe Glasfläche. Geprüft wird, dass jede
+   Ausführung ein anderes Bild ergibt. */
+const dachDetails = page.locator('details').filter({ hasText: 'Dach & Farbe' }).first();
+await dachDetails.locator('summary').click();
+const bilder = {};
+for (const art of ['VSG klar', 'Polycarbonat klar', 'Polycarbonat opal',
+                   'Polycarbonat graphit', 'Polycarbonat bronze']) {
+  await page.click(`[data-k3d-seg="k3dEindeckung"] button[data-wert="${art}"]`);
+  await page.waitForTimeout(650);
+  bilder[art] = await page.locator('#k3dCanvas').screenshot();
+}
+pruef('Polycarbonat sieht anders aus als Glas',
+  !bilder['VSG klar'].equals(bilder['Polycarbonat klar']));
+pruef('Graphit und Bronze unterscheiden sich',
+  !bilder['Polycarbonat graphit'].equals(bilder['Polycarbonat bronze']));
+pruef('Opal unterscheidet sich von klar',
+  !bilder['Polycarbonat klar'].equals(bilder['Polycarbonat opal']));
+await page.click('[data-k3d-seg="k3dEindeckung"] button[data-wert="VSG klar"]');
+await page.waitForTimeout(400);
+await dachDetails.locator('summary').click();
+
 // Sonnenschutz
 const sonneDetails = page.locator('details').filter({ hasText: 'Sonnenschutz' }).first();
 await sonneDetails.locator('summary').click();
