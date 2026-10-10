@@ -129,6 +129,7 @@
     }
     var t = new THREE.Texture(c);
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.encoding = THREE.sRGBEncoding;     // gezeichnete Farben sind sRGB
     t.needsUpdate = true;
     BODEN_TEXTUR[art] = t;
     return t;
@@ -155,6 +156,7 @@
     }
     var t = new THREE.Texture(c);
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.encoding = THREE.sRGBEncoding;
     t.needsUpdate = true;
     WAND_TEXTUR[art] = t;
     return t;
@@ -223,7 +225,7 @@
      Für GRAPHIT war nichts zu finden – der Wert ist GESCHÄTZT und steht als
      Rückfrage in daten/rueckfragen-an-vd.md. */
   var EINDECKUNGEN = {
-    'VSG klar':             { art: 'glas', farbe: 0xd8ecf2, deckkraft: 0.26, rauheit: 0.05 },
+    'VSG klar':             { art: 'glas', farbe: 0xd8ecf2, deckkraft: 0.34, rauheit: 0.04 },
     'VSG opal':             { art: 'glas', farbe: 0xeff3f5, deckkraft: 0.72, rauheit: 0.35 },
     'Polycarbonat klar':    { art: 'steg', farbe: 0xdfe9ea, deckkraft: 0.42, rauheit: 0.3 },
     'Polycarbonat opal':    { art: 'steg', farbe: 0xeef0ec, deckkraft: 0.84, rauheit: 0.55 },
@@ -464,19 +466,73 @@
   var sonne = new THREE.DirectionalLight(0xfff1d6, 1.45);
   sonne.position.set(-420, 620, 380);
   sonne.castShadow = true;
-  sonne.shadow.mapSize.set(1024, 1024);
+  /* 2048 statt 1024: bei 1024 franst der Schatten eines 70 mm breiten
+     Sparrens über 5 m Breite sichtbar aus. normalBias verhindert die
+     Streifen auf den Profilen (Schattenakne). */
+  sonne.shadow.mapSize.set(2048, 2048);
   sonne.shadow.camera.left = -700; sonne.shadow.camera.right = 700;
   sonne.shadow.camera.top = 700;  sonne.shadow.camera.bottom = -700;
   sonne.shadow.camera.far = 2200;
+  sonne.shadow.bias = -0.0004;
+  sonne.shadow.normalBias = 0.6;
   szene.add(sonne);
   var fuell = new THREE.DirectionalLight(0xdce8f2, 0.3);
   fuell.position.set(400, 300, -300);
   szene.add(fuell);
 
+  /* ---------- Umgebung für Spiegelungen ----------
+     Aluminium ohne Umgebung sieht aus wie grauer Kunststoff: Metall lebt
+     davon, dass sich etwas darin spiegelt. Statt eine HDRI-Datei von einem
+     Fremdserver zu laden (neuer Drittanbieter, neue Ladezeit, neuer Punkt
+     in der Datenschutzerklärung), wird hier ein einfacher Verlauf gezeichnet
+     – oben Himmel, unten Boden – und daraus eine Umgebung gerechnet. Das
+     genügt: man sieht keine Spiegelbilder, sondern den Helligkeitsverlauf
+     auf den Kanten, und genau der macht den Unterschied.
+
+     Der Verlauf wird bei Tag und Abend neu gebaut (siehe stimmung). */
+  var pmrem = new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  var umgebungJetzt = null;
+
+  function verlaufsTextur(obenFarbe, mitteFarbe, untenFarbe) {
+    var c = document.createElement('canvas');
+    c.width = 16; c.height = 256;
+    var g = c.getContext('2d');
+    var v = g.createLinearGradient(0, 0, 0, 256);
+    v.addColorStop(0, obenFarbe);
+    v.addColorStop(0.48, mitteFarbe);
+    v.addColorStop(0.52, untenFarbe);
+    v.addColorStop(1, untenFarbe);
+    g.fillStyle = v;
+    g.fillRect(0, 0, 16, 256);
+    var t = new THREE.Texture(c);
+    t.mapping = THREE.EquirectangularReflectionMapping;
+    t.needsUpdate = true;
+    return t;
+  }
+
+  /* Die Umgebung wird NUR beim Wechsel Tag/Abend neu gerechnet.
+     stimmung() läuft bei jeder Änderung – also auch bei jedem Pixel, den
+     man am Maßregler zieht. Eine PMREM-Berechnung je Reglerschritt würde
+     das Bild zum Ruckeln bringen; gerechnet wird deshalb nur, wenn sich
+     die Lichtstimmung wirklich geändert hat. */
+  var umgebungZustand = null;
+  function umgebungSetzen(oben, mitte, unten) {
+    var schluessel = oben + mitte + unten;
+    if (schluessel === umgebungZustand) return;
+    var quelle = verlaufsTextur(oben, mitte, unten);
+    var ziel = pmrem.fromEquirectangular(quelle);
+    if (umgebungJetzt) umgebungJetzt.dispose();
+    umgebungJetzt = ziel.texture;
+    szene.environment = umgebungJetzt;
+    umgebungZustand = schluessel;
+    quelle.dispose();
+  }
+
   /* Boden: angedeutete Terrassen- bzw. Stellfläche auf Rasen */
   var rasen = new THREE.Mesh(
     new THREE.PlaneGeometry(4000, 4000),
-    new THREE.MeshStandardMaterial({ color: 0x5f7544, roughness: 1 })
+    new THREE.MeshStandardMaterial({ color: rgb(0x6d7a5c), roughness: 1 })
   );
   rasen.rotation.x = -Math.PI / 2;
   rasen.position.y = -0.6;
@@ -485,7 +541,7 @@
 
   var belag = new THREE.Mesh(
     new THREE.BoxGeometry(1, 2, 1),
-    new THREE.MeshStandardMaterial({ color: 0x8e867a, roughness: 0.85 })
+    new THREE.MeshStandardMaterial({ color: rgb(0x8e867a), roughness: 0.85 })
   );
   belag.receiveShadow = true;
   szene.add(belag);
@@ -493,7 +549,7 @@
   /* Hauswand – nur bei Wandmontage sichtbar */
   var wand = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 24),
-    new THREE.MeshStandardMaterial({ color: 0xcfc7b8, roughness: 0.95 })
+    new THREE.MeshStandardMaterial({ color: rgb(0xcfc7b8), roughness: 0.95 })
   );
   wand.castShadow = true; wand.receiveShadow = true;
   szene.add(wand);
@@ -503,20 +559,50 @@
   var masseGruppe = new THREE.Group();   // Maßbänder, getrennt vom Bauwerk
   szene.add(masseGruppe);
 
+  /* ---------- Werkstoffe ----------
+     ACHTUNG Farbraum: Der Renderer gibt in sRGB aus
+     (outputEncoding = sRGBEncoding), rechnet intern aber linear. three.js
+     r128 wandelt Materialfarben NICHT automatisch um – ein als 0x383b3d
+     angegebenes Anthrazit wird als linearer Wert gelesen und kommt im Bild
+     als Mittelgrau heraus. Genau das war zu sehen: RAL 7016 sah aus wie
+     ein helles Grau.
+
+     Deshalb läuft jede Oberflächenfarbe durch rgb(): einmal von sRGB nach
+     linear. Lichtfarben bleiben unverändert – die sind keine Oberflächen. */
+  function rgb(hex) {
+    return new THREE.Color(hex).convertSRGBToLinear();
+  }
+
   /* ---------- Werkstoffe ---------- */
+  /* Pulverbeschichtetes Aluminium: nicht blank, aber auch nicht matt.
+     metalness hoch und roughness mittel ergibt zusammen mit der Umgebung
+     den typischen weichen Glanz auf den Kanten; vorher war es ohne
+     Umgebung ein flaches Grau. envMapIntensity dosiert, wie stark sich der
+     Himmel darin zeigt – zu viel und das Profil wirkt verchromt. */
+  /* Pulverbeschichtetes Aluminium ist physikalisch LACK, kein blankes
+     Metall: eine dünne, farbige Schicht auf dem Profil. Deshalb niedrige
+     metalness – sonst spiegelt das Profil den Himmel und Anthrazit wird
+     hellgrau (im ersten Versuch genau passiert). Der typische seidige
+     Glanz kommt aus dem clearcoat, nicht aus der Metallität. */
   function alu() {
-    return new THREE.MeshStandardMaterial({
-      color: FARBEN[Z.farbe] || FARBEN['Anthrazit'],
-      metalness: 0.55, roughness: 0.45
+    var m = new THREE.MeshPhysicalMaterial({
+      color: rgb(FARBEN[Z.farbe] || FARBEN['Anthrazit']),
+      metalness: 0.1, roughness: 0.52,
+      clearcoat: 0.12, clearcoatRoughness: 0.4
     });
+    m.envMapIntensity = 0.25;
+    return m;
   }
 
   /* Verkleidungsbleche sind matter als die tragenden Profile */
   function blech() {
-    return new THREE.MeshStandardMaterial({
-      color: FARBEN[Z.farbe] || FARBEN['Anthrazit'],
-      metalness: 0.4, roughness: 0.68
+    var m = new THREE.MeshPhysicalMaterial({
+      color: rgb(FARBEN[Z.farbe] || FARBEN['Anthrazit']),
+      metalness: 0.1, roughness: 0.65,
+      clearcoat: 0.1, clearcoatRoughness: 0.5
     });
+    m.envMapIntensity = 0.45;
+    return m;
   }
 
   /* Stegplatten-Textur: feine Längsstreifen.
@@ -549,7 +635,7 @@
   function dachfuellung() {
     var e = EINDECKUNGEN[Z.eindeckung] || EINDECKUNGEN['VSG klar'];
     var werte = {
-      color: e.farbe,
+      color: rgb(e.farbe),
       transparent: true,
       opacity: e.deckkraft,
       roughness: e.rauheit,
@@ -561,25 +647,249 @@
     if (e.art === 'steg') {
       werte.map = stegTextur();
       werte.clearcoat = 0;
+    } else {
+      /* Klares Glas ist fast unsichtbar, solange sich nichts darin
+         spiegelt – erst der Himmel im Glas macht es im Bild sichtbar. */
+      werte.clearcoat = 0.6;
+      werte.clearcoatRoughness = 0.05;
     }
-    return new THREE.MeshPhysicalMaterial(werte);
+    var mat = new THREE.MeshPhysicalMaterial(werte);
+    mat.envMapIntensity = e.art === 'steg' ? 0.35 : 1.1;
+    return mat;
   }
 
   /* Trapezblech T35M-0,75 – blickdicht. Rippenabstand und Deckbreite sind
      nicht belegt (offene-punkte.md, Punkt F), deshalb eine glatte Fläche
      statt einer falschen Welle. */
   function trapezblechMaterial() {
-    return new THREE.MeshStandardMaterial({
-      color: FARBEN[Z.farbe] || FARBEN['Anthrazit'],
-      metalness: 0.45, roughness: 0.62
+    var m = new THREE.MeshStandardMaterial({
+      color: rgb(FARBEN[Z.farbe] || FARBEN['Anthrazit']),
+      metalness: 0.2, roughness: 0.55
     });
+    m.envMapIntensity = 0.4;
+    return m;
   }
 
   function seitenglas() {
-    return new THREE.MeshPhysicalMaterial({
-      color: 0xd8ecf2, transparent: true, opacity: 0.3,
-      roughness: 0.05, metalness: 0, side: THREE.DoubleSide
+    var m = new THREE.MeshPhysicalMaterial({
+      color: rgb(0xd8ecf2), transparent: true, opacity: 0.3,
+      roughness: 0.04, metalness: 0, side: THREE.DoubleSide,
+      clearcoat: 0.6, clearcoatRoughness: 0.05
     });
+    m.envMapIntensity = 1.1;
+    return m;
+  }
+
+  /* ---------- Regenrinne des TDS-Systems ----------
+     Maße aus der Querschnittszeichnung des Betreibers (10.10.2026):
+     Gesamtbreite 186,3 mm, Gesamthöhe 136,7 mm, innen 130 mm breit und
+     82,2 mm tief. Alles in Millimetern; hier wird wie überall in
+     Zentimetern gerechnet.
+
+     ZU BESTÄTIGEN: Die Zuordnung der vier Maße ist aus einer kleinen
+     Abbildung gelesen. Welche Zahl wofür steht, muss der Betreiber noch
+     bestätigen – siehe docs/NEXT_TASK.md. Die Wandstärke 2,5 mm und die
+     Rundung der Vorderkante sind GESCHÄTZT.
+
+     Warum ein echtes Profil und kein Kasten: Die Rinne ist das, was man
+     von einem Terrassendach als Erstes sieht. Ein glatter Quader sieht
+     aus wie ein Balken; erst die offene Rinnenform mit der hochgezogenen
+     Vorderkante macht daraus ein Terrassendach. */
+  var RINNE = {
+    breite: 18.63,     // 186,3 mm, Zeichnung
+    hoehe: 13.67,      // 136,7 mm, Zeichnung
+    innenBreite: 13.0, // 130 mm, Zeichnung
+    innenTiefe: 8.22,  // 82,2 mm, Zeichnung
+    /* Wie sich die Differenz 186,3 − 130 = 56,3 mm auf Vorder- und
+       Rückwange verteilt, steht nicht in der Zeichnung. Hinten liegen
+       Sparren und Eindeckung auf, vorne genügt eine schmale Wange –
+       deshalb 36 zu 20 mm. GESCHÄTZT. */
+    rueckwand: 3.6,    // GESCHÄTZT
+    /* Um so viel liegt die hintere Wange unter der Vorderkante. Dieses
+       Gefälle ist der Grund, warum das Wasser in die Kehle läuft. Der
+       Wert steht nicht in der Zeichnung – GESCHÄTZT. */
+    wangeAb: 3.4,      // GESCHÄTZT
+    wand: 0.25         // GESCHÄTZT
+  };
+
+  /* Querschnitt der Rinne in der XY-Ebene: x läuft nach vorne (vom Haus
+     weg), y nach oben. Gezeichnet wird der volle Umriss, die Rinnenkehle
+     ist als Aussparung darin ausgeführt. */
+  function rinneQuerschnitt() {
+    var B = RINNE.breite, H = RINNE.hoehe;
+    var iB = RINNE.innenBreite, iT = RINNE.innenTiefe;
+    var hinten = RINNE.rueckwand;
+    var hHinten = H - RINNE.wangeAb;      // Oberkante der hinteren Wange
+    var f = new THREE.Shape();
+
+    /* Umriss, gegen den Uhrzeigersinn. x = 0 ist die RÜCKSEITE (zum
+       Haus), x = B die Vorderkante, y = 0 die Unterkante.
+
+       Drei Dinge, die das Profil ausmachen und vorher fehlten:
+
+       · Die hintere Wange ist NIEDRIGER als die Vorderkante. Nur deshalb
+         läuft das Wasser von der Eindeckung in die Kehle und nicht über
+         die Nase nach außen. Der Sparren endet ebenfalls auf dieser
+         Höhe – vorher lag er bündig mit der Vorderkante, das Dach hätte
+         nach außen entwässert.
+       · Die Vorderkante läuft oben in einer Nase aus und ist unten
+         zurückgesetzt. Das ist das, was man von der Terrasse aus sieht;
+         ein durchgehender Quader wirkt dort wie ein Balken.
+       · Zwei schmale Schattenfugen in der Vorderfläche. Sie kosten vier
+         Linien und nehmen dem Profil optisch die Hälfte der Höhe.
+
+       Die vier Hauptmaße stehen in der Zeichnung des Betreibers. Nase,
+       Fase, Fugen und die Aufteilung der Wangen sind GESCHÄTZT. */
+    var rU = 0.8, rO = 2.8;
+    var faseH = 2.6, faseT = 1.4;         // zurückgesetzter Fuß, GESCHÄTZT
+    var fuge = 0.35;                      // Tiefe der Schattenfuge, GESCHÄTZT
+
+    f.moveTo(0, rU);
+    f.quadraticCurveTo(0, 0, rU, 0);
+    f.lineTo(B - faseT - rU, 0);
+    f.quadraticCurveTo(B - faseT, 0, B - faseT, rU);
+    f.lineTo(B - faseT, faseH - 0.6);
+    f.lineTo(B, faseH + 0.4);             // Fase läuft nach außen aus
+
+    /* Untere Schattenfuge */
+    f.lineTo(B, faseH + 1.3);
+    f.lineTo(B - fuge, faseH + 1.5);
+    f.lineTo(B - fuge, faseH + 2.1);
+    f.lineTo(B, faseH + 2.3);
+
+    /* Flache Vorderfläche bis zur oberen Fuge */
+    f.lineTo(B, H - rO - 1.6);
+    f.lineTo(B - fuge, H - rO - 1.4);
+    f.lineTo(B - fuge, H - rO - 0.8);
+    f.lineTo(B, H - rO - 0.6);
+
+    /* Nase */
+    f.lineTo(B, H - rO);
+    f.quadraticCurveTo(B, H, B - rO, H);
+    f.lineTo(hinten + iB, H);
+
+    /* Hintere Wange, niedriger – hier liegt die Eindeckung auf */
+    f.lineTo(hinten + iB, hHinten);
+    f.lineTo(0, hHinten);
+    f.closePath();
+
+    /* Die Kehle liegt nicht mittig: hinten bleibt eine breitere Wange
+       stehen, auf der Sparren und Eindeckung aufliegen. Nach oben offen,
+       deshalb reicht die Aussparung über die Oberkante hinaus. */
+    var unten = H - iT;
+    var r = 0.9;
+    var kehle = new THREE.Path();
+    kehle.moveTo(hinten, H + 1);
+    kehle.lineTo(hinten, unten + r);
+    kehle.quadraticCurveTo(hinten, unten, hinten + r, unten);
+    kehle.lineTo(hinten + iB - r, unten);
+    kehle.quadraticCurveTo(hinten + iB, unten, hinten + iB, unten + r);
+    kehle.lineTo(hinten + iB, H + 1);
+    kehle.closePath();
+    f.holes.push(kehle);
+    return f;
+  }
+
+  /* Rinne über die volle Breite. laenge = Breite der Anlage in x,
+     zVorne = Lage der Vorderkante in der Tiefe. */
+  function rinneBauen(laenge, zVorne, yUnten, material) {
+    var g = new THREE.ExtrudeGeometry(rinneQuerschnitt(),
+      { depth: laenge, bevelEnabled: false, curveSegments: 6 });
+    /* Das Profil entsteht in der XY-Ebene und wird in z gezogen. Gedreht
+       liegt es quer: Querschnitt in der ZY-Ebene, Länge in x.
+
+       Die Drehrichtung ist wichtig: Bei +90° zeigt die gerundete
+       Vorderkante nach HINTEN, und das Profil landet um seine eigene
+       Breite zu weit innen – im Bild stand die Rinne dann hinter den
+       Pfosten. Vom Betreiber bemerkt. Mit −90° läuft die Querschnitts-
+       breite in +z, die Vorderkante liegt vorne. */
+    g.rotateY(-Math.PI / 2);
+    g.translate(laenge / 2, yUnten, zVorne - RINNE.breite);
+    var m = new THREE.Mesh(g, material);
+    m.castShadow = true; m.receiveShadow = true;
+    bau.add(m);
+    return m;
+  }
+
+  /* ---------- Dachsparren des TDS-Systems ----------
+     Maße aus der Querschnittszeichnung des Betreibers (10.10.2026):
+     61 mm breit, 120 mm hoch insgesamt, davon 96,7 mm Hauptkörper. Auf der
+     Zeichnung liegt das Profil auf der Seite; der schmale Steg gehört nach
+     OBEN – dort liegt die Eindeckung auf.
+
+     GESCHÄTZT ist allein die Breite des oberen Stegs (26 mm) und die
+     Wandstärke – beides steht nicht in der Zeichnung.
+
+     Vorher waren hier 70 × 130 mm angenommen. Der Sparren ist das Bauteil,
+     das man unter einem Terrassendach am häufigsten ansieht; ein zu
+     klobiges Profil lässt die ganze Anlage schwer wirken. */
+  var SPARREN = {
+    breite: 6.1,       // 61 mm, Zeichnung
+    hoehe: 12.0,       // 120 mm gesamt, Zeichnung
+    koerper: 9.67,     // 96,7 mm Hauptkörper, Zeichnung
+    stegBreite: 2.6    // GESCHÄTZT – steht nicht in der Zeichnung
+  };
+
+  /* Querschnitt des Sparrens in der XY-Ebene: x quer, y nach oben.
+     Unten der Hauptkörper mit leicht gebrochenen Kanten, darüber der
+     schmale Steg, auf dem die Eindeckung aufliegt. */
+  function sparrenQuerschnitt() {
+    var b = SPARREN.breite, h = SPARREN.koerper;
+    var sb = SPARREN.stegBreite, sh = SPARREN.hoehe - SPARREN.koerper;
+    var r = 0.35;                       // gebrochene Kante, GESCHÄTZT
+    var f = new THREE.Shape();
+    f.moveTo(-b / 2 + r, 0);
+    f.lineTo(b / 2 - r, 0);
+    f.quadraticCurveTo(b / 2, 0, b / 2, r);
+    f.lineTo(b / 2, h - r);
+    f.quadraticCurveTo(b / 2, h, b / 2 - r, h);
+    f.lineTo(sb / 2, h);
+    f.lineTo(sb / 2, h + sh);           // Steg nach oben
+    f.lineTo(-sb / 2, h + sh);
+    f.lineTo(-sb / 2, h);
+    f.lineTo(-b / 2 + r, h);
+    f.quadraticCurveTo(-b / 2, h, -b / 2, h - r);
+    f.lineTo(-b / 2, r);
+    f.quadraticCurveTo(-b / 2, 0, -b / 2 + r, 0);
+    f.closePath();
+    return f;
+  }
+
+  /* Ein Sparren. laenge = Länge in Dachrichtung, (x, y, z) = Mitte,
+     neig = Dachneigung. Der Nullpunkt des Querschnitts liegt an der
+     UNTERKANTE des Profils – so lässt sich die Lage direkt aus der
+     Durchgangshöhe ableiten. */
+  function sparrenBauen(laenge, x, yUnten, z, neig, material) {
+    var g = new THREE.ExtrudeGeometry(sparrenQuerschnitt(),
+      { depth: laenge, bevelEnabled: false, curveSegments: 3 });
+    g.translate(0, 0, -laenge / 2);
+    var m = new THREE.Mesh(g, material);
+    m.position.set(x, yUnten, z);
+    m.rotation.x = neig;
+    m.castShadow = true; m.receiveShadow = true;
+    bau.add(m);
+    return m;
+  }
+
+  /* Abdeckprofil („Rundleiste", Montageanleitung S. 34/35): Auf jedem
+     Sparren sitzt nach dem Verlegen der Eindeckung eine Abdeckleiste, an
+     den äußeren Trägern eine Seitenabdeckleiste. Sie hält die Scheiben und
+     ist das, was man von unten und von der Seite sieht – ohne sie wirkt
+     das Dach wie eine lose aufgelegte Glasplatte.
+
+     BELEGT ist, DASS sie da ist. Breite und Höhe stehen nicht in der
+     Anleitung und sind GESCHÄTZT (50 × 12 mm, halbrund). */
+  function abdeckleiste(laenge, x, y, z, neig, material) {
+    var g = new THREE.CylinderGeometry(2.5, 2.5, laenge, 12, 1, false, 0, Math.PI);
+    g.rotateZ(Math.PI / 2);          // Achse entlang z legen
+    g.rotateY(Math.PI / 2);
+    g.scale(1, 0.48, 1);             // flach gedrückt: 50 mm breit, 12 mm hoch
+    var m = new THREE.Mesh(g, material);
+    m.position.set(x, y, z);
+    m.rotation.x = neig;
+    m.castShadow = true; m.receiveShadow = true;
+    bau.add(m);
+    return m;
   }
 
   /* ---------- Hilfsfunktionen ---------- */
@@ -625,7 +935,10 @@
      verschwindet er im Profil und man sieht gar kein Licht. */
   function ledSpots(xs, zs, unterkante) {
     var mLicht = new THREE.MeshBasicMaterial({ color: Z.abend ? 0xfff2cd : 0xe9e4d6 });
-    var r = Z.abend ? 3.4 : 2.8;        // 56–68 mm, passt in ein 70-mm-Sparrenprofil
+    /* BELEGT (Montageanleitung S. 17): Bohrungen mit 44 mm Durchmesser
+       an den Sparren. Abends minimal groesser, damit der Lichtfleck
+       ueberhaupt zu sehen ist. */
+    var r = Z.abend ? 2.6 : 2.2;        // 44 mm, BELEGT
     xs.forEach(function (x) {
       zs.forEach(function (z) {
         var spot = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1.2, 12), mLicht);
@@ -1381,8 +1694,14 @@
     var hHinten = hVorn + Math.tan(neig) * T;
     var frei = Z.aufbau === 'Freistehend';
     var mAlu = alu();
-    var riH = sky ? 22 : 16, riT = 9;              // Rinne, GESCHÄTZT
-    var spB = 7, spH = sky ? 11 : 13;              // Sparren, GESCHÄTZT
+    /* TDS bekommt die echten Profile aus den Querschnittszeichnungen des
+       Betreibers. SkyView ist ein anderes System – dafür liegt keine
+       Zeichnung vor, dort bleiben die geschätzten Kästen stehen und sind
+       hier als solche benannt. */
+    var riH = sky ? 22 : RINNE.hoehe;
+    var riT = sky ? 9 : RINNE.breite;
+    var spB = sky ? 7 : SPARREN.breite;
+    var spH = sky ? 11 : SPARREN.hoehe;
 
     belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
     belag.position.set(0, -1, (T + 120) / 2 - 60);
@@ -1390,40 +1709,99 @@
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
 
-    /* Pfosten: zwei, bei breiten Anlagen drei. GESCHÄTZT – die echte
-       Verteilung steht in der Herstellermatrix. */
-    var zPf = T - PF / 2 - 0.5;
+    /* Pfosten: zwei, bei breiten Anlagen drei. Die Verteilung über die
+       BREITE ist GESCHÄTZT – die steht in der Herstellermatrix. Die Lage in
+       der TIEFE ist BELEGT (Montageanleitung S. 25): „Der Mittelpunkt des
+       Alupfostens wird entsprechend der Dachtiefe platziert, zum Beispiel
+       bei 300 cm = 294,5 cm (-5,5 cm)" – also 55 mm hinter der Vorderkante. */
+    var zPf = T - 5.5;
     verteilen(B > 500 ? 3 : 2, B, PF / 2).forEach(function (x) {
       balken(PF, hVorn, PF, x, hVorn / 2, zPf, mAlu);
       if (frei) balken(PF, hHinten, PF, x, hHinten / 2, PF / 2, mAlu);
     });
 
-    balken(B, riH, riT, 0, hVorn + riH / 2, T - riT / 2, mAlu);          // Rinne vorne
+    /* Rinne vorne. hVorn ist die Durchgangshöhe, also die UNTERKANTE der
+       Rinne – so wird aufgemessen und so steht es auch im Datenpfad. */
+    if (sky) {
+      balken(B, riH, riT, 0, hVorn + riH / 2, T - riT / 2, mAlu);
+    } else {
+      rinneBauen(B, T, hVorn, mAlu);
+    }
     balken(B, sky ? 20 : 14, frei ? 12 : 9, 0,
            hHinten + (sky ? 10 : 7), frei ? 6 : 4.5, mAlu);              // Wandprofil/Träger
 
+    /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus
+       60 mm, geteilt durch die Anzahl der Felder" ergibt den Abstand von
+       Sparrenmitte zu Sparrenmitte. Die äußeren Sparrenachsen liegen damit
+       30 mm vom Rand – bisher stand hier die Annahme „Randsparren außen
+       bündig". Die ANZAHL der Felder bleibt geschätzt; sie steht in der
+       Herstellermatrix. */
     var felder = Math.max(2, Math.round(B / SPARREN_ABSTAND));
+    var randAchse = sky ? spB / 2 : 3;
     var xs = [], i;
-    for (i = 0; i <= felder; i++) xs.push(-B / 2 + spB / 2 + (B - spB) * i / felder);
-    var laenge = T / Math.cos(neig);
-    var mitteY = (hVorn + hHinten) / 2 + riH * 0.25 + spH / 2;
+    for (i = 0; i <= felder; i++) {
+      xs.push(-B / 2 + randAchse + (B - 2 * randAchse) * i / felder);
+    }
+    /* Die Sparren enden an der Rückwand der Rinne, nicht an der
+       Vorderkante – dahinter liegt die Rinne selbst. Die Eindeckung reicht
+       ein Stück weiter, damit das Wasser in die Kehle läuft und nicht auf
+       die Rinnenrückwand tropft. */
+    var dachTiefe = sky ? T : T - RINNE.breite;
+    var laenge = dachTiefe / Math.cos(neig);
+    var zMitte = dachTiefe / 2;
+    var glasUeber = sky ? 0 : 6;        // GESCHÄTZT: bis in die Kehle
+
+    /* Der Sparren liegt in der Rinne: seine Oberkante schließt vorne mit
+       der Rinnenoberkante ab, damit das Wasser von der Eindeckung in die
+       Rinnenkehle läuft. Daraus folgt die Unterkante vorne – und mit dem
+       Gefälle die Unterkante in der Mitte. */
+    /* Der Sparren endet auf der HINTEREN Wange der Rinne, die tiefer
+       liegt als die Vorderkante – sonst entwässert das Dach nach außen
+       über die Nase statt in die Kehle. */
+    var ukVorn = hVorn + (sky ? riH * 0.25 : riH - RINNE.wangeAb - spH);
+    var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe / 2);
+    var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
+
     xs.forEach(function (x) {
-      var sp = new THREE.Mesh(new THREE.BoxGeometry(spB, spH, laenge), mAlu);
-      sp.position.set(x, mitteY, T / 2);
-      sp.rotation.x = neig;
-      sp.castShadow = true; sp.receiveShadow = true;
-      bau.add(sp);
+      if (sky) {
+        var sp = new THREE.Mesh(new THREE.BoxGeometry(spB, spH, laenge), mAlu);
+        sp.position.set(x, mitteY, zMitte);
+        sp.rotation.x = neig;
+        sp.castShadow = true; sp.receiveShadow = true;
+        bau.add(sp);
+      } else {
+        sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
+      }
     });
 
+    /* Die Eindeckung liegt AUF dem schmalen Steg des Sparrens – bei TDS
+       also 120 mm über dessen Unterkante. VSG 8 mm ist BELEGT
+       (technische-daten.md); Polycarbonat ist mit 16 mm dicker. */
+    var glasDicke = istPolycarbonat() ? 1.6 : 0.8;
     var mF = dachfuellung();
-    var yDach = mitteY + spH / 2;
+    var yDach = ukMitte + spH + glasDicke / 2;
     for (i = 0; i < xs.length - 1; i++) {
-      var feldB = (xs[i + 1] - xs[i]) - spB;
+      /* BELEGT (Montageanleitung S. 9): „Breite der Eindeckung = Abstand
+         zwischen Träger + 40 mm" – die Scheibe liegt also beidseitig
+         20 mm auf dem Sparren auf. Vorher war sie um den Steg schmaler
+         und lag damit auf nichts. */
+      var lichteWeite = (xs[i + 1] - xs[i]) - spB;
+      var feldB = sky ? lichteWeite : lichteWeite + 4;
       if (feldB <= 0) continue;
-      var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, 1.6, laenge - 2), mF);
-      pl.position.set((xs[i] + xs[i + 1]) / 2, yDach, T / 2);
+      var pl = new THREE.Mesh(
+        new THREE.BoxGeometry(feldB, glasDicke, laenge - 2 + glasUeber), mF);
+      pl.position.set((xs[i] + xs[i + 1]) / 2, yDach, zMitte + glasUeber / 2);
       pl.rotation.x = neig;
+      pl.receiveShadow = true;
       bau.add(pl);
+    }
+
+    /* Abdeckleisten auf den Sparren – erst nach der Eindeckung, sie halten
+       die Scheiben (Montageanleitung S. 34/35). */
+    if (!sky) {
+      xs.forEach(function (x) {
+        abdeckleiste(laenge - 2, x, ukMitte + spH + glasDicke, zMitte, neig, mAlu);
+      });
     }
 
     /* SkyView ist das kubische System: hohe gerade Blende rundum, die
@@ -1444,7 +1822,7 @@
     if (Z.led) {
       // in die Sparren (xs sind die Sparrenachsen), nicht in die Verglasung
       ledSpots(xs, [T * 0.3, T * 0.72], function (z) {
-        return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
+        return ukMitte + Math.tan(neig) * (T / 2 - z);
       });
     }
   }
@@ -1575,31 +1953,60 @@
     }
   }
 
+  /* Hintergrund als Verlauf statt Volltonfläche. Ein einfarbiger Himmel
+     wirkt wie eine Wand hinter dem Modell; ein Verlauf gibt dem Bild
+     Tiefe – und dieselbe Textur dient als Spiegelungsvorlage. */
+  var HIMMEL_CACHE = {};
+  function himmelsVerlauf(oben, mitte, unten) {
+    var schluessel = oben + mitte + unten;
+    if (HIMMEL_CACHE[schluessel]) return HIMMEL_CACHE[schluessel];
+    var c = document.createElement('canvas');
+    c.width = 8; c.height = 256;
+    var g = c.getContext('2d');
+    var v = g.createLinearGradient(0, 0, 0, 256);
+    v.addColorStop(0, oben);
+    v.addColorStop(0.55, mitte);
+    v.addColorStop(0.62, unten);
+    v.addColorStop(1, unten);
+    g.fillStyle = v;
+    g.fillRect(0, 0, 8, 256);
+    var t = new THREE.Texture(c);
+    t.needsUpdate = true;
+    HIMMEL_CACHE[schluessel] = t;
+    return t;
+  }
+
   /* ---------- Tag und Abend ---------- */
   function stimmung() {
     /* Zufahrt grauer als Terrassenbelag – sonst wirkt der Carport,
        als stünde er auf einer Holzterrasse. */
     var belagTag = Z.produkt === 'Carport' ? 0x9c968d : 0x8e867a;
     if (Z.abend) {
+      /* Der Verlauf als Hintergrundbild wird von three je nach Seiten-
+         verhältnis gestreckt und zeigte eine sichtbare Kante. Hintergrund
+         bleibt deshalb einfarbig; der Verlauf dient nur noch als Vorlage
+         für die Spiegelungen, und genau dort wirkt er. */
       szene.background = new THREE.Color(0x1b2430);
       szene.fog = new THREE.Fog(0x1b2430, 1400, 3400);
+      umgebungSetzen('#2b3a52', '#3d4a5c', '#2a2b26');
       himmel.intensity = 0.35; himmel.color.setHex(0x6f86a8); himmel.groundColor.setHex(0x2a2f36);
       sonne.intensity = 0.5; sonne.color.setHex(0xaec4e8);
       fuell.intensity = 0.12;
       renderer.toneMappingExposure = 0.95;
-      rasen.material.color.setHex(0x3c4733);
-      belag.material.color.setHex(0x8f8c87);
-      wand.material.color.setHex(0x8e8b85);
+      rasen.material.color.copy(rgb(0x47503c));
+      belag.material.color.copy(rgb(0x8f8c87));
+      wand.material.color.copy(rgb(0x8e8b85));
     } else {
       szene.background = new THREE.Color(0xbcd3e6);
       szene.fog = new THREE.Fog(0xbcd3e6, 1800, 4200);
+      umgebungSetzen('#9ac4e8', '#dfeaf3', '#8d9478');
       himmel.intensity = 0.5; himmel.color.setHex(0xdfeaf5); himmel.groundColor.setHex(0x8d8268);
       sonne.intensity = 1.45; sonne.color.setHex(0xfff1d6);
       fuell.intensity = 0.3;
       renderer.toneMappingExposure = 0.72;
-      rasen.material.color.setHex(0x5f7544);
-      belag.material.color.setHex(belagTag);
-      wand.material.color.setHex(0xcfc7b8);
+      rasen.material.color.copy(rgb(0x6d7a5c));
+      belag.material.color.copy(rgb(belagTag));
+      wand.material.color.copy(rgb(0xcfc7b8));
     }
 
     /* Hauswand nach der Fassadenart */
@@ -1623,7 +2030,7 @@
       tex.repeat.set(Math.max(1, Math.round(belag.scale.x / 90)),
                      Math.max(1, Math.round(belag.scale.z / 90)));
       belag.material.map = tex;
-      if (!Z.abend) belag.material.color.setHex(0xffffff);
+      if (!Z.abend) belag.material.color.copy(rgb(0xffffff));
     }
     belag.material.needsUpdate = true;
   }
