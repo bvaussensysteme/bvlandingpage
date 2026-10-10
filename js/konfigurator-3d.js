@@ -1408,7 +1408,12 @@
           var schraegL = Math.sqrt(keilLaenge * keilLaenge + (hH - hV) * (hH - hV));
           var sg = new THREE.Mesh(new THREE.BoxGeometry(rb, rb, schraegL), rahmen);
           sg.position.set(achse, yKeil + (hV + hH) / 2 - rb / 2, keilMitte);
-          sg.rotation.x = -Math.atan2(hH - hV, keilLaenge);
+          /* Vorzeichen: Eine POSITIVE Drehung um x senkt das Ende bei +z –
+             und +z ist vorne. Die Schräge muss vorne tief und hinten hoch
+             sein, also positiv. Mit dem Minus davor stieg sie nach vorne
+             an, schnitt durch die Dachfläche und ragte vorne heraus: die
+             „gespiegelte" Stange, die der Betreiber dreimal gemeldet hat. */
+          sg.rotation.x = Math.atan2(hH - hV, keilLaenge);
           sg.castShadow = true;
           bau.add(sg);
         }
@@ -1424,12 +1429,20 @@
        erschien die rechte Seite – und genau so wäre es auch in die
        Anfrage und ins Angebot gegangen. Vom Betreiber bemerkt. */
     /* Vorne enden Seitenelement UND Keil an derselben Stelle: an der
-       RÜCKSEITE DES VORDEREN PFOSTENS. Der Pfosten steht mittig unter der
-       Rinne, das Element läuft bis an ihn heran und hört dort auf.
+       DACHVORDERKANTE, also an der Rückwand der Rinne.
 
-       Vorher reichte das Element bis T − Pfostenbreite, der Keil aber nur
-       bis zur Dachvorderkante – die Differenz von gut 7 cm stand als
-       Stange frei in der Luft. Vom Betreiber zweimal bemängelt. */
+       Genau hier steckte die Stange, die der Betreiber dreimal bemängelt
+       hat. Zwei Anläufe lagen daneben:
+         · Element bis T − Pfostenbreite, Keil bis zur Dachkante: die
+           Oberkante des Elements ragte gut 7 cm über den Keil hinaus.
+         · Beide bis zur Rückseite des vorderen Pfostens: der Pfosten
+           steht mittig unter der Rinne, seine Rückseite liegt damit
+           38 mm VOR der Dachkante – dort ist kein Dach mehr, an das der
+           Keil anschließen könnte, und die Schräge hing frei.
+
+       Maßgeblich ist die Dachkante: weiter vorne gibt es nur noch die
+       Rinne. Der Pfosten steht dann ein Stück vor dem Element, so wie in
+       Wirklichkeit auch. */
     var vorne = (dachVorne != null) ? dachVorne : T - PROFIL;
     var seitenMitte = (PROFIL + vorne) / 2;
     var seitenLaenge = vorne - PROFIL;
@@ -1950,7 +1963,7 @@
        Dachsystem – deshalb auch freistehend. */
     seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
-    }, zPf - PF / 2);
+    }, dachTiefe);
     sonnenschutz(B, T, hVorn, neig, PF);
 
     if (Z.led) {
