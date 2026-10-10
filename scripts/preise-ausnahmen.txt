@@ -1,0 +1,6 @@
+# Freigegebene Geldangaben. Das sind FREMDKOSTEN (Gebühren, Bußgelder), keine
+# Preise für unsere Leistungen. Jede Zeile wird als Teilstring verglichen.
+# Neue Zeile nur eintragen, wenn es sich nachweislich nicht um einen eigenen
+# Preis handelt - sonst ist die Prüfung wertlos.
+mindestens jedoch 100–200 €
+Bußgeldern (bis zu 500.000 €)
