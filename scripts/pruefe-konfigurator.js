@@ -114,6 +114,13 @@ function pruefen(k3d, wizard, html) {
   (zuordnungsZiele(k3d, 'VORGABE_VERGLASUNG') || []).forEach(function (v) { mussKennen('Eindeckung', v); });
   (zuordnungsZiele(k3d, 'VORGABE_LED') || []).forEach(function (v) { mussKennen('LED', v); });
   (zuordnungsZiele(k3d, 'VORGABE_FARBE') || []).forEach(function (v) { mussKennen('Farbe', v); });
+  /* Beim Lamellendach heißen Farbe und Beleuchtung im Assistenten anders als
+     beim Terrassendach. Genau solche Doppelungen gehen sonst unter. */
+  (zuordnungsZiele(k3d, 'VORGABE_FARBE_PERGOLA') || []).forEach(function (v) { mussKennen('Farbe (Pergola)', v); });
+  (zuordnungsZiele(k3d, 'VORGABE_LED_PERGOLA') || []).forEach(function (v) { mussKennen('LED (Pergola)', v); });
+  ['k3dPgDachart', 'k3dPgAusfuehrung', 'k3dPgSeitenschutz'].forEach(function (id) {
+    (optionen(html, id) || []).forEach(function (v) { mussKennen(id.replace('k3dPg', 'Pergola '), v); });
+  });
 
   // Jede Farbfläche der Seite braucht eine Übersetzung mit RAL-Nummer
   const farbBlock = /var VORGABE_FARBE\s*=\s*\{([\s\S]*?)\};/.exec(k3d);
@@ -179,6 +186,12 @@ function gegenprobe() {
     ['Produkt ohne Maßbereiche',
      function () { return [k3d.replace("    'Flachdach SkyView': {", "    'Flachdach SkyViewX': {"), wizard, html]; },
      /Maßbereiche in MASSE/],
+    ['Lamellendach-Ausführung verfälscht',
+     function () { return [k3d, wizard, html.replace('value="SunPro"', 'value="SunProX"')]; },
+     /Pergola Ausfuehrung: "SunProX"|Pergola Ausf\u00fchrung: "SunProX"/],
+    ['Creme-Weiß durch Reinweiß ersetzt',
+     function () { return [k3d.replace("'Creme-Weiß (RAL 9010)'", "'Cremeweiß'"), wizard, html]; },
+     /Farbe \(Pergola\): "Cremeweiß"/],
     ['Farbe ohne RAL-Nummer',
      function () { return [k3d.replace("'Anthrazit (RAL 7016)'", "'Anthrazit'"), wizard, html]; },
      /Farbe: "Anthrazit"/],
@@ -187,7 +200,7 @@ function gegenprobe() {
      /data-k3d-fuer="veranda"/]
   ];
 
-  console.log('Gegenprobe: fünf absichtliche Fehler einbauen');
+  console.log('Gegenprobe: sieben absichtliche Fehler einbauen');
   let schlecht = 0;
   faelle.forEach(function (f) {
     const q = f[1]();

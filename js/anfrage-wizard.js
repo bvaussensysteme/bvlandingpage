@@ -1136,7 +1136,7 @@
 
     var felder = ['produkt', 'aufbau', 'breite', 'tiefe', 'hoehe', 'verglasung',
                   'farbe', 'led', 'montage', 'dachart', 'carporttyp', 'carportvariante',
-                  'dach', 'ueberstand'];
+                  'dach', 'ueberstand', 'seitenschutz', 'dachausfuehrung'];
     felder.forEach(function (k) {
       if (v[k] != null && v[k] !== '') answers[k] = String(v[k]);
     });
