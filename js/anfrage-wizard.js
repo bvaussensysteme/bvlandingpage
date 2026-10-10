@@ -329,7 +329,7 @@
           { value: 'Sonstiges / weiß nicht', icon: I.frage }
         ]) +
           '<div class="aw-subchoice"><label class="aw-group-h" for="fassadeText">Ergänzung zur Fassade (optional)</label>' +
-          '<textarea class="aw-textarea aw-textarea--sm" id="fassadeText" placeholder="z. B. Fassadenart, Dämmung (z. B. WDVS), Dämmstärke in cm …">' + esc(answers.fassade_text || '') + '</textarea></div>';
+          '<textarea class="aw-textarea aw-textarea--sm" id="fassadeText" placeholder="z. B. Fassadenart, Dämmung (z. B. WDVS), Dämmstärke in mm …">' + esc(answers.fassade_text || '') + '</textarea></div>';
       },
       collect: function () { var e = document.getElementById('fassadeText'); if (e) answers.fassade_text = e.value; },
       valid: function () { return answers.fassade ? null : 'Bitte wählen Sie Ihre Fassade.'; }
@@ -343,13 +343,13 @@
         var tds = answers.produkt === 'Terrassendach TDS';
         var cpUeber = answers.carportvariante === 'Carport mit Überstand';
         return '<div class="aw-dims">' +
-          dimField('breite', 'Breite', 'z. B. 400', 'cm') +
-          dimField('tiefe', 'Tiefe', 'z. B. 300', 'cm') +
-          dimField('hoehe', 'Höhe (optional)', 'z. B. 250', 'cm') +
-          (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 30', 'cm') : '') +
-          (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 100', 'cm') : '') +
+          dimField('breite', 'Breite', 'z. B. 4000', 'mm') +
+          dimField('tiefe', 'Tiefe', 'z. B. 3000', 'mm') +
+          dimField('hoehe', 'Höhe (optional)', 'z. B. 2500', 'mm') +
+          (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 300', 'mm') : '') +
+          (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 1000', 'mm') : '') +
           '</div>' +
-          '<p class="aw-note">Alle Maße in Zentimeter (cm).' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
+          '<p class="aw-note">Alle Maße in Millimeter (mm).' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
       },
       valid: function () {
         if (answers.produkt === 'Sonstiges') return null; // optional
@@ -791,9 +791,9 @@
     if (inFlow('fassade') && answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade_text ? ' – ' + answers.fassade_text : '')]);
     if (inFlow('masse')) {
       var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
-      if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' cm']);
-      if (answers.produkt === 'Terrassendach TDS' && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' cm']);
-      if (answers.carportvariante === 'Carport mit Überstand' && answers.ueberstand) p.push(['Überstand', answers.ueberstand + ' cm']);
+      if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
+      if (answers.produkt === 'Terrassendach TDS' && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' mm']);
+      if (answers.carportvariante === 'Carport mit Überstand' && answers.ueberstand) p.push(['Überstand', answers.ueberstand + ' mm']);
     }
     if (inFlow('verglasung') && answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (inFlow('markise') && answers.markise && answers.markise !== 'Keine Markise') p.push(['Sonnenschutz', answers.markise]);
@@ -1120,8 +1120,36 @@
       '</div>';
   }
 
+  /* ---------- Vorgabe aus dem 3D-Konfigurator ----------
+     Wer sein Dach dort zusammengestellt hat, soll die Angaben nicht noch
+     einmal eintippen. Die Konfiguration kommt als window.bvKonfigVorgabe,
+     wird in die Antworten uebernommen und der Assistent springt direkt zu
+     den Kontaktdaten. Zurueckblaettern bleibt moeglich, falls jemand doch
+     noch etwas aendern will. */
+  function vorgabeUebernehmen() {
+    var v = window.bvKonfigVorgabe;
+    if (!v || typeof v !== 'object') return;
+
+    var felder = ['produkt', 'aufbau', 'breite', 'tiefe', 'hoehe', 'verglasung',
+                  'farbe', 'led', 'montage', 'dachart', 'carporttyp', 'carportvariante'];
+    felder.forEach(function (k) {
+      if (v[k] != null && v[k] !== '') answers[k] = String(v[k]);
+    });
+    if (v.notiz) answers.wunsch = v.notiz;
+
+    flow = computeFlow();
+    var ziel = flow.indexOf('kontakt');
+    idx = ziel > -1 ? ziel : 0;
+    render();
+    window.bvKonfigVorgabe = null;
+  }
+
+  document.addEventListener('bv-konfig-vorgabe', vorgabeUebernehmen);
+
   /* ---------- Start ---------- */
   nextBtn.addEventListener('click', goNext);
   backBtn.addEventListener('click', goBack);
   render();
+  // Falls die Vorgabe schon vor dem Laden dieses Skripts gesetzt wurde
+  vorgabeUebernehmen();
 })();
