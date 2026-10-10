@@ -64,10 +64,23 @@
     hoehe: 2300,
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     farbe: 'Anthrazit',
-    links: 'offen',
-    rechts: 'offen',
-    front: 'offen',
+    fassade: 'Rauputz',        // nur bei Wandmontage
+    vorsprung: 300,            // Dachvorsprung, nur TDS
+    untergrund: 'Tragender Untergrund vorhanden',
+
+    /* Seitliche Erweiterungen – dieselben Möglichkeiten wie im
+       Anfrage-Assistenten, je Seite mehrere gleichzeitig. */
+    erwLinks: [],
+    erwRechts: [],
+    erwVorne: [],
+
     led: false,
+    ledset: '8er-Set',
+    ledsetzahl: 1,
+    sound: false,
+    soundset: '2er-Set',
+    heizung: false,
+    wettersensor: false,
     montage: 'Ja, mit Fachmontage',
     abend: false,
 
@@ -75,9 +88,8 @@
     boden: 'Steinplatten',
     masseZeigen: false,
     glasOffen: 0,            // Schiebeelemente: 0 = geschlossen, 100 = ganz offen
-    sonne: 'keine',          // Beschattung am Dach
+    markise: 'Ohne',         // Beschattung am Dach, Werte wie im Assistenten
     sonneAus: 85,            // wie weit Markisen ausgefahren sind, in Prozent
-    zipV: false, zipL: false, zipR: false,       // Senkrechtmarkisen
     verkRueck: false, verkLinks: false, verkRechts: false,
     verkRichtung: 'waagerecht'
   };
@@ -119,6 +131,32 @@
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.needsUpdate = true;
     BODEN_TEXTUR[art] = t;
+    return t;
+  }
+
+  /* Hauswand: Rauputz oder Klinker. Die Frage steht so im
+     Anfrage-Assistenten – im Modell beantwortet sie sich von selbst, wenn
+     man die Wand sieht, an die gebaut wird. */
+  var WAND_TEXTUR = {};
+  function wandTextur(art) {
+    if (art !== 'Verklinkert') return null;          // Putz bleibt glatt
+    if (WAND_TEXTUR[art]) return WAND_TEXTUR[art];
+    var c = document.createElement('canvas');
+    c.width = 128; c.height = 64;
+    var g = c.getContext('2d');
+    g.fillStyle = '#9d6a52'; g.fillRect(0, 0, 128, 64);
+    g.fillStyle = 'rgba(60,35,25,.35)';
+    for (var r = 0; r < 4; r++) {
+      g.fillRect(0, r * 16 + 14, 128, 2);            // Lagerfuge
+      for (var k = 0; k < 4; k++) {
+        var x = k * 32 + (r % 2 ? 16 : 0);
+        g.fillRect(x % 128, r * 16, 2, 14);          // Stoßfuge
+      }
+    }
+    var t = new THREE.Texture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.needsUpdate = true;
+    WAND_TEXTUR[art] = t;
     return t;
   }
 
@@ -195,6 +233,81 @@
 
   function istPolycarbonat() { return Z.eindeckung.indexOf('Polycarbonat') === 0; }
 
+  /* ---------- Seitliche Erweiterungen ----------
+     Dieselben sechs Möglichkeiten und dieselben Regeln wie im
+     Anfrage-Assistenten (js/anfrage-wizard.js, ERW_OPTS). Zwei Listen an
+     zwei Stellen sind eine Gefahr – deshalb prüft
+     scripts/pruefe-konfigurator.js, dass sie übereinstimmen.
+
+     Die Regeln stammen aus dem Assistenten:
+     · Velaris, Senkrechtmarkise und Schiebetür brauchen den Keil und
+       sperren ihn (nur wo es ein Außengefälle gibt, also bei TDS).
+     · Velaris verträgt sich nicht mit Senkrechtmarkise, Schiebetür und
+       Rahmenwand.
+     · An der Stirnseite (vorne) gibt es keinen Keil. */
+  var ERW_OPTS = ['Keil', 'Rahmenwand', 'Schiebetür', 'Plankenwand',
+                  'Senkrechtmarkise', 'Velaris'];
+  var ERW_BRAUCHT_KEIL = ['Velaris', 'Senkrechtmarkise', 'Schiebetür'];
+  var ERW_UNVERTRAEGLICH = {
+    'Velaris':          ['Senkrechtmarkise', 'Schiebetür', 'Rahmenwand'],
+    'Senkrechtmarkise': ['Velaris'],
+    'Schiebetür':       ['Velaris'],
+    'Rahmenwand':       ['Velaris']
+  };
+
+  /* Keil gleicht das Außengefälle aus – nur dort nötig, wo es eines gibt.
+     SkyView und Pergola haben innenliegendes bzw. gar kein Gefälle. */
+  function keilErlaubt() {
+    if (Z.produkt === 'Terrassendach TDS') return true;
+    if (Z.produkt === 'Carport' && Z.cpTyp === 'Carport TDS') return true;
+    return false;
+  }
+  function erwIrgendwo(wert) {
+    return Z.erwLinks.indexOf(wert) > -1 || Z.erwRechts.indexOf(wert) > -1 ||
+           Z.erwVorne.indexOf(wert) > -1;
+  }
+  function erwListe(seite) {
+    return seite === 'links' ? Z.erwLinks : (seite === 'rechts' ? Z.erwRechts : Z.erwVorne);
+  }
+  function erwMoeglich(seite) {
+    return (seite === 'vorne' || !keilErlaubt())
+      ? ERW_OPTS.filter(function (o) { return o !== 'Keil'; })
+      : ERW_OPTS;
+  }
+  // Welche bereits gewählte Option blockiert diese hier? sonst null
+  function erwBlocker(wert, liste) {
+    for (var i = 0; i < liste.length; i++) {
+      var g = liste[i];
+      if ((ERW_UNVERTRAEGLICH[wert] || []).indexOf(g) > -1) return g;
+      if ((ERW_UNVERTRAEGLICH[g] || []).indexOf(wert) > -1) return g;
+    }
+    return null;
+  }
+  function erwKeilGesperrt(seite, liste) {
+    if (seite === 'vorne' || !keilErlaubt()) return false;
+    for (var i = 0; i < ERW_BRAUCHT_KEIL.length; i++) {
+      if (liste.indexOf(ERW_BRAUCHT_KEIL[i]) > -1) return true;
+    }
+    return false;
+  }
+  /* Umschalten mit denselben Folgen wie im Assistenten: keilpflichtige
+     Auswahl zieht den Keil mit, und ohne sie fällt er wieder weg. */
+  function erwUmschalten(seite, wert) {
+    var liste = erwListe(seite);
+    var drin = liste.indexOf(wert);
+    if (drin > -1) {
+      if (wert === 'Keil' && erwKeilGesperrt(seite, liste)) return;   // gesperrt
+      liste.splice(drin, 1);
+    } else {
+      if (erwBlocker(wert, liste)) return;
+      liste.push(wert);
+      if (seite !== 'vorne' && keilErlaubt() &&
+          ERW_BRAUCHT_KEIL.indexOf(wert) > -1 && liste.indexOf('Keil') === -1) {
+        liste.push('Keil');
+      }
+    }
+  }
+
   /* Übersetzung in die Auswahlwerte des Anfrage-Assistenten.
      Die Eindeckung heißt dort ausführlicher ("VSG-Glas Opal (milchig)").
      Vorher ging nur "VSG-Glas" hinüber – die Unterscheidung klar/opal
@@ -217,13 +330,17 @@
     'Anthrazit':     'Anthrazit (RAL 7016)',
     'Weißaluminium': 'Weißaluminium (RAL 9006)',
     'Graualuminium': 'Graualuminium (RAL 9007)',
-    'Reinweiß':      'Reinweiß (RAL 9010)'
+    'Reinweiß':      'Reinweiß (RAL 9010)',
+    /* „Andere / Beratung" ist im Assistenten eine echte Auswahl – wer eine
+       Sonderfarbe will, soll das hier sagen können. Im Modell wird dann
+       Anthrazit gezeigt (FARBEN kennt den Wert nicht und fällt zurück). */
+    'Andere / Beratung': 'Andere / Beratung'
   };
   /* Beim Lamellendach heißt dieselbe RAL-Nummer 9010 im Assistenten
      „Creme-Weiß", und Weißaluminium gibt es dort nicht. Das ist kein
      Schreibfehler, sondern das VD-Standardtrio für Lamellendächer. */
   var VORGABE_FARBE_PERGOLA = { 'Reinweiß': 'Creme-Weiß (RAL 9010)' };
-  var FARBEN_PERGOLA = ['Anthrazit', 'Graualuminium', 'Reinweiß'];
+  var FARBEN_PERGOLA = ['Anthrazit', 'Graualuminium', 'Reinweiß', 'Andere / Beratung'];
 
   /* Beim Lamellendach heißt die Beleuchtung im Assistenten anders als beim
      Terrassendach – dort „LED-Spots", hier allgemein „Beleuchtung". */
@@ -470,22 +587,31 @@
     return xs;
   }
 
-  /* LED-Spots an der Dachunterseite. hoeheBei(z) liefert die Unterkante
-     an der jeweiligen Stelle, damit die Spots auch im Gefälle sitzen. */
-  function ledSpots(xs, zs, hoeheBei) {
+  /* LED-Spots. unterkante(z) liefert die Unterkante des Bauteils, in das
+     die Spots eingelassen sind – beim Terrassendach ist das die Unterseite
+     der SPARREN, nicht die Dachfläche.
+
+     Vorher standen hier die Mitten ZWISCHEN den Sparren: die Spots saßen
+     mitten in der Verglasung, wo nichts sie halten könnte. Beanstandet vom
+     Betreiber. Eingelassen werden sie in das Sparrenprofil – deshalb
+     bekommt diese Funktion jetzt die Sparrenpositionen.
+
+     Der Spot ragt bewusst ein Stück heraus (halbe Bauhöhe), sonst
+     verschwindet er im Profil und man sieht gar kein Licht. */
+  function ledSpots(xs, zs, unterkante) {
     var mLicht = new THREE.MeshBasicMaterial({ color: Z.abend ? 0xfff2cd : 0xe9e4d6 });
-    var r = Z.abend ? 4.2 : 3.2;
+    var r = Z.abend ? 3.4 : 2.8;        // 56–68 mm, passt in ein 70-mm-Sparrenprofil
     xs.forEach(function (x) {
       zs.forEach(function (z) {
         var spot = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1.2, 12), mLicht);
-        spot.position.set(x, hoeheBei(z) - 2, z);
+        spot.position.set(x, unterkante(z) - 0.4, z);
         bau.add(spot);
       });
     });
     if (Z.abend) {
       var mitteZ = zs.length ? zs.reduce(function (a, b) { return a + b; }, 0) / zs.length : 0;
       var schein = new THREE.PointLight(0xffd79a, 0.9, 900, 2);
-      schein.position.set(0, hoeheBei(mitteZ) - 20, mitteZ);
+      schein.position.set(0, unterkante(mitteZ) - 20, mitteZ);
       bau.add(schein);
     }
   }
@@ -670,88 +796,184 @@
     }
 
     /* Seitenelemente nur bei den Wandsystemen */
-    if (!e.freistehend) seitenelemente(B, T, hVorn, pf);
+    if (!e.freistehend) seitenErweiterungen(B, T, hVorn, pf, neig);
     if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf);
     else verkleidung(B, T, hVorn - 1, pf);
 
     if (Z.led) {
-      var mitten = [];
-      for (var i = 0; i < xS.length - 1; i++) mitten.push((xS[i] + xS[i + 1]) / 2);
-      ledSpots(mitten, [T * 0.3, T * 0.72], function (z) {
-        return hVorn + Math.tan(neig) * (T - z) + riH * 0.2;
+      /* In die Sparren, nicht dazwischen: xS sind die Sparrenachsen.
+         Die Unterkante des Sparrens liegt spH unter seiner Mitte und folgt
+         dem Gefälle. */
+      ledSpots(xS, [T * 0.3, T * 0.72], function (z) {
+        return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
       });
     }
   }
 
-  /* ---------- Seitliche und vordere Elemente ----------
-     Ein Festelement ist eine Scheibe im Rahmen. Eine Schiebeanlage besteht
-     aus mehreren Flügeln, die sich hintereinander schieben – deshalb wird
-     sie hier auch aus Flügeln gebaut und nicht als eine große Scheibe mit
-     aufgemalten Teilern. Nur so zeigt der Regler „geöffnet" etwas Echtes:
-     die Flügel wandern übereinander, einer bleibt stehen.
+  /* ---------- Seitliche und vordere Erweiterungen ----------
+     Gezeichnet wird, was im Anfrage-Assistenten wählbar ist. Jede Seite
+     kann mehrere Teile tragen; sie liegen übereinander, so wie sie auch
+     montiert werden:
 
-     Die Flügelbreite von 1500 mm ist eine ANNAHME für die Darstellung –
-     wie viele Flügel es wirklich werden, entscheidet das Aufmaß. */
+       Rahmenwand unten, Schiebetür darüber  (Hinweis im Assistenten)
+       Keil als Dreieck oben, gleicht das Außengefälle aus
+       Senkrechtmarkise und Velaris sitzen VOR der Fläche, sie sind Zubehör
+
+     Die Flügelbreite von 1500 mm für Schiebetüren ist eine ANNAHME für die
+     Darstellung – wie viele Flügel es wirklich werden, entscheidet das
+     Aufmaß. */
   var FLUEGEL_BREITE = 150;   // cm, GESCHÄTZT
 
   function fluegelAnzahl(laenge) {
     return Math.max(2, Math.round(laenge / FLUEGEL_BREITE));
   }
 
-  /* vorgabe überschreibt die Seitenauswahl. Gebraucht wird das vom
-     Lamellendach: dort gibt es keine Auswahl je Seite, sondern nur
-     „mit Glas-Schiebeelementen" – dann sind beide Seiten gemeint. */
-  function seitenelemente(B, T, hVorn, PROFIL, vorgabe) {
-    var w = vorgabe || Z;
+  /* Ein Dreieck als Keil. Die Form wird in der XY-Ebene gebaut und dann in
+     die Ebene der Seite gedreht – so braucht es nur eine Geometrie für
+     Seiten und Stirnseite. */
+  function keilNetz(laenge, hoehe, dicke, material) {
+    var form = new THREE.Shape();
+    form.moveTo(-laenge / 2, 0);
+    form.lineTo(laenge / 2, 0);
+    form.lineTo(-laenge / 2, hoehe);
+    form.closePath();
+    var g = new THREE.ExtrudeGeometry(form, { depth: dicke, bevelEnabled: false });
+    g.translate(0, 0, -dicke / 2);
+    return new THREE.Mesh(g, material);
+  }
+
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig) {
     var mGlas = seitenglas();
     var rahmen = alu();
     var offen = Z.glasOffen / 100;
+    var mPlanke = blech();
+    var mStoff = new THREE.MeshStandardMaterial({
+      color: 0x4a4f52, roughness: 0.95, metalness: 0, side: THREE.DoubleSide
+    });
 
-    /* Ein Flügel: Scheibe mit schmalem Rahmen. quer = Element läuft in
-       z-Richtung (linke und rechte Seite), sonst in x-Richtung (vorne). */
-    function fluegel(breite, hoch, x, y, z, quer, versatz) {
-      var g = quer ? [1.4, hoch, breite] : [breite, hoch, 1.4];
-      var sch = new THREE.Mesh(new THREE.BoxGeometry(g[0], g[1], g[2]), mGlas);
-      sch.position.set(x + (quer ? versatz : 0), y, z + (quer ? 0 : versatz));
-      bau.add(sch);
-      /* Rahmen oben und unten – bei einer Schiebeanlage sieht man daran,
-         dass es mehrere Flügel sind, auch wenn sie geschlossen stehen. */
-      [y - hoch / 2 + 2.5, y + hoch / 2 - 2.5].forEach(function (ry) {
-        var r = new THREE.Mesh(
-          new THREE.BoxGeometry(quer ? 5 : breite, 5, quer ? breite : 5), rahmen);
-        r.position.set(x + (quer ? versatz : 0), ry, z + (quer ? 0 : versatz));
-        r.castShadow = true;
-        bau.add(r);
-      });
+    /* Eine Scheibe oder Platte in der Ebene einer Seite.
+       quer = Seite läuft in z-Richtung (links/rechts), sonst in x (vorne). */
+    function platte(material, laenge, hoehe, achse, mitte, yMitte, quer, versatz, dicke) {
+      var d = dicke || 1.4;
+      var g = quer ? [d, hoehe, laenge] : [laenge, hoehe, d];
+      var m = new THREE.Mesh(new THREE.BoxGeometry(g[0], g[1], g[2]), material);
+      m.position.set(quer ? achse + (versatz || 0) : mitte,
+                     yMitte,
+                     quer ? mitte : achse + (versatz || 0));
+      m.castShadow = true; m.receiveShadow = true;
+      bau.add(m);
+      return m;
     }
 
-    /* Eine Seite oder die Front. mitte = Lage der Ebene, laenge = nutzbare
-       Länge, quer = läuft in z-Richtung. */
-    function element(art, achse, mitte, laenge, quer) {
-      if (art === 'offen') return;
-      var hoch = hVorn - PROFIL;
-      var y = hoch / 2 + PROFIL / 2;
-      if (art !== 'Schiebeelement') {
-        fluegel(laenge, hoch, quer ? achse : 0, y, quer ? mitte : achse, quer, 0);
-        return;
-      }
+    function rahmenKante(laenge, achse, mitte, y, quer, versatz) {
+      platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
+    }
+
+    /* Schiebetür: einzelne Flügel, die sich übereinander schieben. Nur so
+       zeigt der Regler „geöffnet" etwas Echtes – einer bleibt stehen. */
+    function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer) {
       var n = fluegelAnzahl(laenge);
       var flB = laenge / n;
       var start = mitte - laenge / 2 + flB / 2;
       for (var i = 0; i < n; i++) {
-        /* Flügel 0 bleibt stehen, die anderen schieben sich darüber.
-           Der kleine Versatz je Flügel ist die Laufschiene – ohne ihn
-           steckten die Flügel geöffnet in derselben Ebene. */
         var lage = start + flB * i - offen * flB * i;
-        var spur = (i % 2) * 2.4;
-        if (quer) fluegel(flB, hoch, achse, y, lage, true, spur);
-        else fluegel(flB, hoch, lage, y, achse, false, spur);
+        var spur = (i % 2) * 2.4;                       // zwei Laufschienen
+        platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2, quer, spur);
+        rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur);
+        rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur);
       }
     }
 
-    element(w.links,  -B / 2 + PROFIL / 2, T / 2, T - PROFIL * 2, true);
-    element(w.rechts,  B / 2 - PROFIL / 2, T / 2, T - PROFIL * 2, true);
-    element(w.front,   T - PROFIL,         0,     B - PROFIL * 2, false);
+    /* Plankenwand: waagerechte Alu-Planken mit Fuge. 140 mm Paneelhöhe wie
+       bei den Sichtschutzpaneelen auf unserer Produktseite. */
+    function planken(laenge, hoehe, achse, mitte, yUnten, quer) {
+      var PAN = 14, FUGE = 1.2;
+      var n = Math.max(1, Math.floor(hoehe / (PAN + FUGE)));
+      for (var i = 0; i < n; i++) {
+        platte(mPlanke, laenge, PAN, achse, mitte, yUnten + (i + 0.5) * (PAN + FUGE),
+               quer, 0, 4);
+      }
+    }
+
+    /* Velaris: senkrecht stehende, drehbare Lamellen. Der Winkel folgt dem
+       Lamellenregler, damit sichtbar wird, was das System kann. */
+    function velaris(laenge, hoehe, achse, mitte, yUnten, quer) {
+      var LAM = 16, FUGE = 1.5;
+      var n = Math.max(2, Math.floor(laenge / (LAM + FUGE)));
+      var winkel = (Z.lamellen || 35) * Math.PI / 180;
+      for (var i = 0; i < n; i++) {
+        var d = -laenge / 2 + (i + 0.5) * (laenge / n);
+        var lam = new THREE.Mesh(new THREE.BoxGeometry(LAM, hoehe, 2.4), blech());
+        if (quer) {
+          lam.position.set(achse, yUnten + hoehe / 2, mitte + d);
+          lam.rotation.y = Math.PI / 2 + winkel;
+        } else {
+          lam.position.set(mitte + d, yUnten + hoehe / 2, achse);
+          lam.rotation.y = winkel;
+        }
+        lam.castShadow = true;
+        bau.add(lam);
+      }
+    }
+
+    function eineSeite(seite, achse, mitte, laenge, quer) {
+      var liste = erwListe(seite);
+      if (!liste.length) return;
+      var hoch = hVorn - PROFIL;
+      var yUnten = PROFIL / 2;
+      var hatRahmen = liste.indexOf('Rahmenwand') > -1;
+      var hatSchiebe = liste.indexOf('Schiebetür') > -1;
+      var hatPlanken = liste.indexOf('Plankenwand') > -1;
+
+      /* Rahmenwand unten, Schiebetür darüber – so steht es als Hinweis im
+         Anfrage-Assistenten, und so wird es montiert. */
+      if (hatRahmen && hatSchiebe) {
+        var unten = hoch * 0.38;
+        platte(mPlanke, laenge, unten, achse, mitte, yUnten + unten / 2, quer, 0, 5);
+        rahmenKante(laenge, achse, mitte, yUnten + unten, quer, 0);
+        schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer);
+      } else if (hatSchiebe) {
+        schiebetuer(laenge, hoch, achse, mitte, yUnten, quer);
+      } else if (hatRahmen) {
+        platte(mPlanke, laenge, hoch, achse, mitte, yUnten + hoch / 2, quer, 0, 5);
+        rahmenKante(laenge, achse, mitte, yUnten + 2.5, quer, 0);
+        rahmenKante(laenge, achse, mitte, yUnten + hoch - 2.5, quer, 0);
+      } else if (hatPlanken) {
+        planken(laenge, hoch, achse, mitte, yUnten, quer);
+      }
+      // Plankenwand zusätzlich zu Rahmen/Schiebe: als unteres Drittel davor
+      if (hatPlanken && (hatRahmen || hatSchiebe)) {
+        planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer);
+      }
+
+      // Zubehör VOR der Fläche
+      var aussen = (seite === 'links' ? -1 : 1) * 4;
+      if (seite === 'vorne') aussen = 4;
+      if (liste.indexOf('Senkrechtmarkise') > -1) {
+        var h = hoch * (Z.sonneAus / 100);
+        if (h > 5) {
+          platte(mStoff, laenge, h, achse, mitte, yUnten + hoch - h / 2, quer, aussen, 1.2);
+        }
+      }
+      if (liste.indexOf('Velaris') > -1) {
+        velaris(laenge, hoch, achse + aussen * 1.6, mitte, yUnten, quer);
+      }
+
+      /* Keil: das Dreieck zwischen waagerechter Oberkante des Elements und
+         dem geneigten Dach. Ohne Außengefälle gibt es ihn nicht. */
+      if (liste.indexOf('Keil') > -1 && neig > 0.001) {
+        var hoeheKeil = Math.tan(neig) * laenge;
+        var k = keilNetz(laenge, hoeheKeil, 1.4, mGlas);
+        k.position.set(quer ? achse : mitte, yUnten + hoch, quer ? mitte : achse);
+        if (quer) k.rotation.y = Math.PI / 2 * (seite === 'links' ? 1 : -1);
+        k.castShadow = true;
+        bau.add(k);
+      }
+    }
+
+    eineSeite('links',  -B / 2 + PROFIL / 2, T / 2, T - PROFIL * 2, true);
+    eineSeite('rechts',  B / 2 - PROFIL / 2, T / 2, T - PROFIL * 2, true);
+    eineSeite('vorne',   T - PROFIL,         0,     B - PROFIL * 2, false);
   }
 
   /* ---------- Sonnenschutz ----------
@@ -770,9 +992,14 @@
       color: 0xd9d3c5, roughness: 0.95, metalness: 0, side: THREE.DoubleSide
     });
     var hHinten = hVorn + Math.tan(neig) * T;
+    var m = Z.markise;
 
-    if (Z.sonne !== 'keine' && aus > 0.02) {
-      var oben = Z.sonne === 'Aufdachmarkise';
+    /* Aufdach liegt auf der Eindeckung, Unterdach darunter – im Modell ist
+       das der Unterschied. Plissees laufen zwischen den Sparren, das
+       Sonnensegel spannt frei darüber. „Noch unsicher" zeichnet nichts;
+       die Angabe geht trotzdem in die Anfrage. */
+    if ((m === 'Aufdachmarkise' || m === 'Unterdachmarkise') && aus > 0.02) {
+      var oben = m === 'Aufdachmarkise';
       var laenge = (T - PROFIL) * aus;
       var zm = PROFIL / 2 + laenge / 2;
       var y = hHinten - Math.tan(neig) * zm + (oben ? 8 : -7);
@@ -783,29 +1010,71 @@
       tuch.castShadow = oben;
       tuch.receiveShadow = true;
       bau.add(tuch);
-      // Kassette an der Wandseite, dort sitzt die Welle
       balken(B - PROFIL * 2, 13, 13, 0,
              hHinten + (oben ? 14 : -14), PROFIL + 5, alu());
+    } else if (m === 'Plissees' && aus > 0.02) {
+      /* Plissee: gerafftes Tuch zwischen den Sparren, von Hand bedient.
+         Gezeichnet als Falten – daran erkennt man es vom Glas. */
+      var felder = Math.max(2, Math.round(B / SPARREN_ABSTAND));
+      var lp = (T - PROFIL) * aus;
+      var falten = Math.max(3, Math.round(lp / 24));
+      for (var f = 0; f < felder; f++) {
+        var xm = -B / 2 + (B / felder) * (f + 0.5);
+        for (var q = 0; q < falten; q++) {
+          var zq = PROFIL / 2 + (lp / falten) * (q + 0.5);
+          var yq = hHinten - Math.tan(neig) * zq - 8;
+          var fa = new THREE.Mesh(
+            new THREE.BoxGeometry(B / felder - 8, 2.6, lp / falten - 1.2), mStoff);
+          fa.position.set(xm, yq + (q % 2 ? 1.6 : 0), zq);
+          fa.rotation.x = neig;
+          bau.add(fa);
+        }
+      }
+    } else if (m === 'Sonnensegel' && aus > 0.02) {
+      /* Sonnensegel: frei gespanntes Tuch, leicht durchhängend. Es gehört
+         nicht zum Dach – deshalb sitzt es darüber und in anderer Farbe. */
+      var mSegel = new THREE.MeshStandardMaterial({
+        color: 0xc9bca4, roughness: 1, metalness: 0, side: THREE.DoubleSide
+      });
+      var ls = (T - PROFIL) * aus;
+      var bahnen = 5;
+      for (var i = 0; i < bahnen; i++) {
+        var zi = PROFIL / 2 + (ls / bahnen) * (i + 0.5);
+        var durchhang = Math.sin(Math.PI * (i + 0.5) / bahnen) * 6;
+        var bahn = new THREE.Mesh(
+          new THREE.BoxGeometry(B - PROFIL, 2, ls / bahnen - 0.8), mSegel);
+        bahn.position.set(0, hHinten - Math.tan(neig) * zi + 16 - durchhang, zi);
+        bahn.rotation.x = neig;
+        bahn.castShadow = true;
+        bau.add(bahn);
+      }
     }
 
-    var hoch = (hVorn - PROFIL) * aus;
-    if (hoch < 5) return;
-    var yZ = hVorn - PROFIL / 2 - hoch / 2;
-    if (Z.zipV) {
-      var v = new THREE.Mesh(
-        new THREE.BoxGeometry(B - PROFIL * 2, hoch, 1.2), mStoff);
-      v.position.set(0, yZ, T - PROFIL - 4);
-      v.castShadow = true;
-      bau.add(v);
+    /* Heizstrahler und Lautsprecher sitzen am Wandprofil bzw. in den
+       Sparren – kleine Teile, aber sie beantworten die Frage „sieht man
+       das?". Maße sind GESCHÄTZT. */
+    if (Z.heizung) {
+      var mHeiz = new THREE.MeshStandardMaterial({
+        color: Z.abend ? 0x8c2f1c : 0x3a3d3f, roughness: 0.5, metalness: 0.4
+      });
+      var anzahlH = Math.max(1, Math.round(B / 250));
+      verteilen(anzahlH, B - PROFIL * 2, 30).forEach(function (x) {
+        var hz = new THREE.Mesh(new THREE.BoxGeometry(92, 9, 11), mHeiz);
+        hz.position.set(x, hHinten - 22, PROFIL + 14);
+        bau.add(hz);
+      });
     }
-    [[Z.zipL, -B / 2 + PROFIL + 2], [Z.zipR, B / 2 - PROFIL - 2]].forEach(function (seite) {
-      if (!seite[0]) return;
-      var m = new THREE.Mesh(
-        new THREE.BoxGeometry(1.2, hoch, T - PROFIL * 2), mStoff);
-      m.position.set(seite[1], yZ, T / 2);
-      m.castShadow = true;
-      bau.add(m);
-    });
+    if (Z.sound) {
+      var mBox = new THREE.MeshStandardMaterial({
+        color: 0x2b2e30, roughness: 0.7, metalness: 0.2
+      });
+      var anzahlL = Z.soundset === '4er-Set' ? 4 : 2;
+      verteilen(anzahlL, B - PROFIL * 4, 40).forEach(function (x) {
+        var lb = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 2.4, 14), mBox);
+        lb.position.set(x, hHinten - Math.tan(neig) * (T * 0.45) - 6, T * 0.45);
+        bau.add(lb);
+      });
+    }
   }
 
   /* ---------- Verkleidung aus Sichtschutzpaneelen ----------
@@ -926,10 +1195,9 @@
       }
 
       if (Z.led) {
-        var mittenX = [];
-        for (var g = 0; g < felder; g++) mittenX.push((sparrenX[g] + sparrenX[g + 1]) / 2);
-        ledSpots(mittenX, [T * 0.25, T * 0.6, T * 0.92], function (z) {
-          return hHinten + PROFIL * 0.8 - Math.tan(NEIGUNG) * z;
+        // in die Sparren (sparrenX), nicht in die Felder dazwischen
+        ledSpots(sparrenX, [T * 0.25, T * 0.6, T * 0.92], function (z) {
+          return mitteY + Math.tan(NEIGUNG) * (mitteZ - z) - PROFIL / 2;
         });
       }
     } else {
@@ -1141,14 +1409,13 @@
 
     /* Seitenelemente und Sonnenschutz sind Zubehör und hängen nicht am
        Dachsystem – deshalb auch freistehend. */
-    seitenelemente(B, T, hVorn, PF);
+    seitenErweiterungen(B, T, hVorn, PF, neig);
     sonnenschutz(B, T, hVorn, neig, PF);
 
     if (Z.led) {
-      var mitten = [];
-      for (i = 0; i < xs.length - 1; i++) mitten.push((xs[i] + xs[i + 1]) / 2);
-      ledSpots(mitten, [T * 0.3, T * 0.72], function (z) {
-        return hVorn + Math.tan(neig) * (T - z) + riH * 0.2;
+      // in die Sparren (xs sind die Sparrenachsen), nicht in die Verglasung
+      ledSpots(xs, [T * 0.3, T * 0.72], function (z) {
+        return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
       });
     }
   }
@@ -1264,8 +1531,13 @@
          Seitenauswahl des Terrassendachs, die beim Lamellendach gar nicht
          zu sehen ist und auf „offen" steht. Ergebnis: Man wählte Glas und
          im Bild änderte sich nichts. */
-      seitenelemente(B, T, h, PFOSTEN,
-        { links: 'Schiebeelement', rechts: 'Schiebeelement', front: 'offen' });
+      /* Beim Lamellendach gibt es keine Auswahl je Seite, sondern nur
+         „mit Glas" oder „ohne" – gezeichnet werden deshalb beide Seiten als
+         Schiebetür. Die eigentliche Seitenauswahl bleibt unberührt. */
+      var merkL = Z.erwLinks, merkR = Z.erwRechts, merkV = Z.erwVorne;
+      Z.erwLinks = ['Schiebetür']; Z.erwRechts = ['Schiebetür']; Z.erwVorne = [];
+      seitenErweiterungen(B, T, h, PFOSTEN, 0);
+      Z.erwLinks = merkL; Z.erwRechts = merkR; Z.erwVorne = merkV;
     }
 
     if (Z.led) {
@@ -1299,6 +1571,18 @@
       rasen.material.color.setHex(0x5f7544);
       belag.material.color.setHex(belagTag);
       wand.material.color.setHex(0xcfc7b8);
+    }
+
+    /* Hauswand nach der Fassadenart */
+    if (wand.visible) {
+      var wt = wandTextur(Z.fassade);
+      wand.material.map = wt;
+      if (wt) {
+        wt.repeat.set(Math.max(1, Math.round(wand.scale.x / 110)),
+                      Math.max(1, Math.round(wand.scale.y / 55)));
+        wand.material.color.setHex(Z.abend ? 0x9a938c : 0xffffff);
+      }
+      wand.material.needsUpdate = true;
     }
 
     /* Bodenbelag. Vor dem Carport liegt eine Zufahrt, kein Terrassenbelag –
@@ -1459,11 +1743,22 @@
                                     Z.cpTyp !== 'Flachdach Flat Line';
       case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
       // Der Regler „geöffnet" erscheint nur, wenn es etwas zu schieben gibt
-      case 'schiebe':        return Z.links === 'Schiebeelement' ||
-                                    Z.rechts === 'Schiebeelement' ||
-                                    Z.front === 'Schiebeelement' ||
+      case 'schiebe':        return erwIrgendwo('Schiebetür') ||
                                     (istPergola() && Z.pgSeitenschutz === 'Glas-Schiebeelemente');
-      case 'sonne-aus':      return Z.sonne !== 'keine' || Z.zipV || Z.zipL || Z.zipR;
+      case 'sonne-aus':      return Z.markise !== 'Ohne' || erwIrgendwo('Senkrechtmarkise');
+      // Fassadenart interessiert nur, wenn an eine Wand montiert wird
+      case 'fassade':        return istCarport()
+                                    ? Z.cpVariante === 'Carport mit Wandmontage'
+                                    : Z.aufbau === 'Wandmontage';
+      // Dachvorsprung gibt es nur beim TDS (so auch im Anfrage-Assistenten)
+      case 'vorsprung':      return Z.produkt === 'Terrassendach TDS';
+      case 'led-detail':     return Z.led;
+      // Lautsprecher bietet VD beim Carport nicht an
+      case 'sound':          return !istCarport();
+      case 'sound-detail':   return !istCarport() && Z.sound;
+      // Heizstrahler und Wetter-Automatik stehen im Assistenten im Schritt
+      // „Komfort & Technik" – dort nur beim Lamellendach
+      case 'komfort':        return istPergola();
       // Flat Box ist in manchen Ausführungen schon verkleidet – dann würden
       // Paneele und Blechwand übereinander liegen
       case 'verkleidung':    return istCarport() && Z.cpVariante.indexOf('verkleidet') === -1;
@@ -1631,19 +1926,17 @@
       teile.push('Eindeckung: ' + Z.eindeckung);
       teile.push('Farbe: ' + Z.farbe);
       var seiten = [];
-      if (Z.links !== 'offen') seiten.push('links ' + Z.links);
-      if (Z.rechts !== 'offen') seiten.push('rechts ' + Z.rechts);
-      if (Z.front !== 'offen') seiten.push('vorne ' + Z.front);
-      teile.push(seiten.length ? 'Seiten: ' + seiten.join(', ') : 'Seiten: offen');
-      if (seiten.length && Z.glasOffen > 0) {
-        teile.push('Schiebeelemente im Bild ' + Z.glasOffen + ' % geöffnet');
+      if (Z.erwLinks.length) seiten.push('links: ' + Z.erwLinks.join(' + '));
+      if (Z.erwRechts.length) seiten.push('rechts: ' + Z.erwRechts.join(' + '));
+      if (Z.erwVorne.length) seiten.push('vorne: ' + Z.erwVorne.join(' + '));
+      teile.push(seiten.length ? 'Erweiterungen – ' + seiten.join(' · ') : 'Seiten: offen');
+      if (erwIrgendwo('Schiebetür') && Z.glasOffen > 0) {
+        teile.push('Schiebetür im Bild ' + Z.glasOffen + ' % geöffnet');
       }
-      if (Z.sonne !== 'keine') teile.push('Beschattung: ' + Z.sonne);
-      var zips = [];
-      if (Z.zipV) zips.push('vorne');
-      if (Z.zipL) zips.push('links');
-      if (Z.zipR) zips.push('rechts');
-      if (zips.length) teile.push('Senkrechtmarkise: ' + zips.join(', '));
+      if (Z.markise !== 'Ohne') teile.push('Beschattung: ' + Z.markise);
+      if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
+        teile.push('Dachvorsprung: ' + Z.vorsprung + ' mm');
+      }
     }
     if (istCarport()) {
       var vk = [];
@@ -1654,7 +1947,14 @@
         teile.push('Sichtschutzpaneele ' + Z.verkRichtung + ': ' + vk.join(', '));
       }
     }
-    if (Z.led) teile.push('mit LED-Beleuchtung');
+    if (Z.led) {
+      teile.push('LED-Spots: ' + (Z.ledsetzahl > 1 ? Z.ledsetzahl + ' × ' : '') + Z.ledset);
+    }
+    if (!istCarport() && Z.sound) teile.push('Lautsprecher: ' + Z.soundset);
+    if (istPergola() && Z.heizung) teile.push('mit Heizstrahler');
+    if (istPergola() && Z.wettersensor) teile.push('mit Wetter-Automatik');
+    if (gruppeGilt('fassade')) teile.push('Hauswand: ' + Z.fassade);
+    teile.push('Untergrund: ' + Z.untergrund);
     teile.push(Z.montage === 'Ja, mit Fachmontage' ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
     return teile;
   }
@@ -1702,21 +2002,25 @@
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
-    Z.links = wert('k3dLinks') || Z.links;
-    Z.rechts = wert('k3dRechts') || Z.rechts;
-    Z.front = wert('k3dFront') || Z.front;
     var ledEl = document.getElementById('k3dLed');
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
 
     Z.glasOffen = zahl('k3dGlasOffen', Z.glasOffen);
-    Z.sonne = wert('k3dSonne') || Z.sonne;
+    Z.markise = wert('k3dMarkise') || Z.markise;
     Z.sonneAus = zahl('k3dSonneAus', Z.sonneAus);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
-    [['zipV', 'k3dZipV'], ['zipL', 'k3dZipL'], ['zipR', 'k3dZipR'],
-     ['verkRueck', 'k3dVerkRueck'], ['verkLinks', 'k3dVerkLinks'],
-     ['verkRechts', 'k3dVerkRechts'], ['masseZeigen', 'k3dMasse']].forEach(function (pr) {
+    Z.fassade = wert('k3dFassade') || Z.fassade;
+    Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
+    Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
+    Z.ledset = wert('k3dLedSet') || Z.ledset;
+    Z.ledsetzahl = Math.min(20, Math.max(1, zahl('k3dLedAnzahl', Z.ledsetzahl)));
+    Z.soundset = wert('k3dSoundSet') || Z.soundset;
+    [['verkRueck', 'k3dVerkRueck'], ['verkLinks', 'k3dVerkLinks'],
+     ['verkRechts', 'k3dVerkRechts'], ['masseZeigen', 'k3dMasse'],
+     ['sound', 'k3dSound'], ['heizung', 'k3dHeizung'],
+     ['wettersensor', 'k3dWetter']].forEach(function (pr) {
       var el = document.getElementById(pr[1]);
       if (el) Z[pr[0]] = el.checked;
     });
@@ -1740,6 +2044,7 @@
     if (sw) sw.textContent = Z.sonneAus + ' %';
 
     panelAnpassen();
+    erwAnzeigen();
     titelAnpassen();
     summenSetzen();
     /* Sofort zeichnen – mit den Stückzahlen, die gerade vorliegen. Beim
@@ -1850,16 +2155,26 @@
         ? 'offen' : Z.pgSeitenschutz);
     } else {
       var se = [];
-      if (Z.links !== 'offen') se.push('links');
-      if (Z.rechts !== 'offen') se.push('rechts');
-      if (Z.front !== 'offen') se.push('vorne');
+      if (Z.erwLinks.length) se.push('links');
+      if (Z.erwRechts.length) se.push('rechts');
+      if (Z.erwVorne.length) se.push('vorne');
       text('k3dSumSeiten', se.length ? se.join(', ') : 'offen');
     }
 
     var so = [];
-    if (Z.sonne !== 'keine') so.push(Z.sonne.replace('markise', ''));
-    if (Z.zipV || Z.zipL || Z.zipR) so.push('Senkrechtmarkise');
+    if (Z.markise !== 'Ohne') so.push(Z.markise.replace('markise', ''));
+    if (erwIrgendwo('Senkrechtmarkise')) so.push('Senkrechtmarkise');
     text('k3dSumSonne', so.length ? so.join(' · ') : 'keiner');
+
+    var lt = [];
+    if (Z.led) lt.push('LED ' + Z.ledset);
+    if (!istCarport() && Z.sound) lt.push('Lautsprecher');
+    if (istPergola() && Z.heizung) lt.push('Heizung');
+    if (istPergola() && Z.wettersensor) lt.push('Wetter-Automatik');
+    text('k3dSumLicht', lt.length ? lt.join(' · ') : 'ohne');
+    text('k3dSumUnterbau',
+         (gruppeGilt('fassade') ? Z.fassade + ' · ' : '') +
+         (Z.montage === 'Ja, mit Fachmontage' ? 'Fachmontage' : 'Selbstmontage'));
 
     var vk = [];
     if (Z.verkRueck) vk.push('hinten');
@@ -1898,9 +2213,11 @@
    'k3dBreite', 'k3dTiefe', 'k3dHoehe',
    'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage',
-   'k3dGlasOffen', 'k3dSonne', 'k3dSonneAus', 'k3dZipV', 'k3dZipL', 'k3dZipR',
+   'k3dGlasOffen', 'k3dMarkise', 'k3dSonneAus',
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
-   'k3dBoden', 'k3dMasse'].forEach(function (id) {
+   'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
+   'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
+   'k3dHeizung', 'k3dWetter'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendern);
@@ -1960,6 +2277,48 @@
       aendern();
     });
   });
+
+  /* Erweiterungen je Seite: mehrere gleichzeitig, mit denselben Regeln wie
+     im Anfrage-Assistenten. Gesperrte Möglichkeiten bleiben sichtbar und
+     sagen, woran es liegt – wegnehmen würde die Frage aufwerfen, wo sie
+     hin sind. */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-erw]'), function (reihe) {
+    var seite = reihe.getAttribute('data-k3d-erw');
+    reihe.addEventListener('click', function (ev) {
+      var b = ev.target;
+      while (b && b !== reihe && b.tagName !== 'BUTTON') b = b.parentNode;
+      if (!b || b === reihe) return;
+      var wert = b.getAttribute('data-erw');
+      if (!wert) return;
+      erwUmschalten(seite, wert);
+      aendern();
+    });
+  });
+
+  function erwAnzeigen() {
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-erw]'), function (reihe) {
+      var seite = reihe.getAttribute('data-k3d-erw');
+      var liste = erwListe(seite);
+      var moeglich = erwMoeglich(seite);
+      Array.prototype.forEach.call(reihe.querySelectorAll('button[data-erw]'), function (b) {
+        var wert = b.getAttribute('data-erw');
+        var drin = liste.indexOf(wert) > -1;
+        b.hidden = moeglich.indexOf(wert) === -1;
+        b.classList.toggle('is-active', drin);
+        b.setAttribute('aria-pressed', drin ? 'true' : 'false');
+        var blocker = drin ? null : erwBlocker(wert, liste);
+        var gesperrt = drin && wert === 'Keil' && erwKeilGesperrt(seite, liste);
+        b.disabled = !!blocker;
+        b.classList.toggle('ist-gesperrt', !!blocker || gesperrt);
+        var note = b.querySelector('small');
+        if (note) {
+          note.textContent = blocker ? 'nicht mit ' + blocker : (gesperrt ? 'erforderlich' : '');
+        }
+      });
+      var zeile = reihe.parentNode.querySelector('[data-k3d-erw-wert]');
+      if (zeile) zeile.textContent = liste.length ? liste.join(' · ') : 'offen';
+    });
+  }
 
   // Farbfelder
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
@@ -2084,8 +2443,22 @@
         farbe: VORGABE_FARBE[Z.farbe] || Z.farbe,
         led: Z.led ? VORGABE_LED.ja : VORGABE_LED.nein,
         montage: Z.montage,
+        untergrund: Z.untergrund,
         notiz: zusammenfassung().join(' · ')
       };
+      /* Alles, was der Assistent als eigenes Feld kennt, geht auch als
+         eigenes Feld hinüber – nicht nur als Text in der Notiz. Sonst
+         steht es zwar in der E-Mail, aber im Assistenten ist nichts
+         markiert, und beim Zurückblättern ist die Angabe weg. */
+      if (gruppeGilt('fassade')) v.fassade = Z.fassade;
+      if (Z.led) {
+        v.ledset = Z.ledset;
+        if (Z.ledsetzahl > 1) v.ledsetzahl = String(Z.ledsetzahl);
+      }
+      if (!istCarport()) {
+        v.sound = Z.sound ? 'Ja, mit Lautsprechern' : 'Nein, ohne Lautsprecher';
+        if (Z.sound) v.soundset = Z.soundset;
+      }
       if (istPergola()) {
         v.produkt = 'Pergola / Lamellendach';
         v.dachart = Z.pgDachart;
@@ -2094,6 +2467,8 @@
         v.seitenschutz = Z.pgSeitenschutz;
         v.farbe = VORGABE_FARBE_PERGOLA[Z.farbe] || VORGABE_FARBE[Z.farbe] || Z.farbe;
         v.led = Z.led ? VORGABE_LED_PERGOLA.ja : VORGABE_LED_PERGOLA.nein;
+        v.heizung = Z.heizung ? 'Ja, mit Heizstrahler' : 'Nein, ohne Heizung';
+        v.wettersensor = Z.wettersensor ? 'Ja, mit Wetter-Automatik' : 'Nein';
       } else if (istCarport()) {
         v.produkt = 'Carport';
         v.carporttyp = Z.cpTyp;
@@ -2105,6 +2480,14 @@
         v.produkt = Z.produkt;
         v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
         v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+        if (Z.markise !== 'Ohne') v.markise = Z.markise;
+        if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
+          v.vorsprung = String(Z.vorsprung);
+        }
+        // Die Erweiterungen sind Listen – der Assistent führt sie ebenso
+        if (Z.erwLinks.length) v.erw_links = Z.erwLinks.slice();
+        if (Z.erwRechts.length) v.erw_rechts = Z.erwRechts.slice();
+        if (Z.erwVorne.length) v.erw_vorne = Z.erwVorne.slice();
       }
       window.bvKonfigVorgabe = v;
       var bubble = document.getElementById('bvKonfigBubble');
