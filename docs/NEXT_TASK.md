@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026 · letzter Chat wurde hier beendet (`/clear`)
+> Stand: 10.10.2026 · zuletzt bearbeitet: Carport und SkyView im 3D-Konfigurator
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -15,30 +15,32 @@
 
 ## 1. Was als Nächstes ansteht
 
-### Aufgabe A — Weitere Produkte im 3D-Konfigurator *(direkte Fortsetzung)*
+### Aufgabe A — Pergola / Lamellendach im 3D-Konfigurator *(direkte Fortsetzung)*
 
-Der Konfigurator kann bisher nur das **Terrassendach TDS**. Die Seite weist
-selbst darauf hin und verlinkt für die übrigen Systeme auf den
-Anfrage-Assistenten. Als Nächstes, in dieser Reihenfolge sinnvoll:
+Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView und Carport**
+(Carport TDS, Flat Line, Flat Box). Offen ist noch:
 
-1. **Carport** (TDS, Flat Line, Flat Box) – freistehend, vier Pfosten
-2. **Flachdach SkyView** – schmalere Profile, flachere Neigung
-3. **Pergola / Lamellendach** – drehbare Lamellen als eigene Geometrie
-4. Danach optional: Markise, Verkleidung, Terrassenboden
+1. **Pergola / Lamellendach** – drehbare Lamellen als eigene Geometrie; im
+   Assistenten gibt es dazu bereits Dachart (Lamellendach, Faltdach, Velaris),
+   Ausführung, Seitenschutz und einen Komfort-Schritt (Heizung, Wettersensor)
+2. Danach optional: Markise, Verkleidung, Terrassenboden
 
 **Wegweiser – diese Dateien braucht genau diese Aufgabe:**
 
 | Datei | Wofür |
 |---|---|
-| `js/konfigurator-3d.js` | Modell, Kamera, Bedienung. Einstieg: `bauen()` – hier nach Produkt verzweigen |
-| `konfigurator.html` | Oberfläche und Stile (eigenständige Datei, **keine** njk-Vorlage) |
-| `js/anfrage-wizard.js` | nimmt die Konfiguration entgegen: `vorgabeUebernehmen()` am Dateiende |
+| `js/konfigurator-3d.js` | Modell, Kamera, Bedienung. Einstieg: `bauen()` verzweigt nach Produkt; Sichtbarkeit der Bedienfelder über `gruppeGilt()` |
+| `konfigurator.html` | Oberfläche und Stile (eigenständige Datei, **keine** njk-Vorlage). Bedienfelder tragen `data-k3d-fuer` |
+| `js/anfrage-wizard.js` | nimmt die Konfiguration entgegen: `vorgabeUebernehmen()` am Dateiende; der Pergola-Ablauf steht in `computeFlow()` |
 | `js/vendor/three.min.js` | three.js r128, liegt bewusst im Projekt (siehe `docs/entscheidungen.md`) |
 
-**Vorgehen:** Geometrie in `bauen()` nach Produkt verzweigen, Produktauswahl
-oben ins Panel, Übergabe an den Assistenten um die neuen Felder erweitern.
-Danach `scripts/pruefe-cache-buster.sh` laufen lassen – die Versionsnummer in
-allen 50 HTML-Dateien muss hochgezogen werden.
+**Vorgehen:** neuen Zweig in `bauen()`, Produkt in `MASSE` und in das
+Auswahlfeld `k3dProdukt` eintragen, Bedienfelder mit `data-k3d-fuer`
+kennzeichnen und das Stichwort in `gruppeGilt()` auswerten. Übergabewerte
+**wörtlich** aus `js/anfrage-wizard.js` übernehmen (dachart,
+dachausfuehrung, seitenschutz) – `scripts/pruefe-konfigurator.js` prüft das.
+Danach `scripts/pruefe-cache-buster.sh`: die Versionsnummer muss in allen
+HTML-Dateien hochgezogen werden.
 
 ### Aufgabe B — Baugenehmigungs-Check: weitere Bundesländer prüfen
 
@@ -86,9 +88,10 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
+| `scripts/pruefe-konfigurator.js` | Kennt der Anfrage-Assistent jeden Wert, den der 3D-Konfigurator übergibt? |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 
-Alle fünf mit Gegenprobe am 10.10.2026 geprüft: bestanden.
+Alle sechs mit Gegenprobe am 10.10.2026 geprüft: bestanden.
 
 ---
 
@@ -175,6 +178,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 10.10.2026 | 3D-Konfigurator: Carport (TDS, Flat Line, Flat Box) und Flachdach SkyView; Übergabewerte an den Assistenten korrigiert | **in Arbeit** |
 | 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | live |
 | 10.10.2026 | 3D-Konfigurator Terrassendach TDS | **live** |
 | 10.10.2026 | Telefonnummer als Pflichtangabe | live |

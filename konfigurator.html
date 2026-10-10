@@ -12,8 +12,8 @@
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Terrassendach Konfigurator | BV AussenSysteme Westerwald</title>
-  <meta name="description" content="Terrassendach TDS in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Seitenelemente wählen und das Ergebnis sofort von allen Seiten ansehen. Kostenlos und unverbindlich – BV AussenSysteme im Westerwald." />
+  <title>3D Konfigurator: Terrassendach &amp; Carport | BV AussenSysteme</title>
+  <meta name="description" content="Terrassendach, Flachdach SkyView oder Carport in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Ausführung wählen und sofort von allen Seiten ansehen. Kostenlos und unverbindlich." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/konfigurator.html" />
   <link rel="alternate" hreflang="de" href="https://bv-aussensysteme.de/konfigurator.html" />
@@ -137,6 +137,7 @@
 
     /* ===== 3D-Konfigurator ===== */
     .kp-title span { color: var(--gold-dark); }
+    .kp-title .kp-produkt { color: inherit; }
     .kp-sub { max-width: 720px; margin: 0 auto 26px; color: var(--muted); line-height: 1.6; }
 
     .k3d-wrap { display: grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,1fr); gap: 22px; text-align: left; }
@@ -343,7 +344,7 @@
     }
   </style>
   <meta property="og:title" content="Produkt-Konfigurator | BV AussenSysteme Westerwald" />
-  <meta property="og:description" content="Terrassendach TDS in 3D zusammenstellen – Maße, Eindeckung, Farbe und Seitenelemente live ansehen. Kostenlos und unverbindlich." />
+  <meta property="og:description" content="Terrassendach, Flachdach SkyView oder Carport in 3D zusammenstellen – Maße, Eindeckung, Farbe und Ausführung live ansehen. Kostenlos und unverbindlich." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="de_DE" />
 </head>
@@ -380,10 +381,11 @@
   <div class="kp-inner">
 
     <span class="kp-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> 3D-Konfigurator</span>
-    <h1 class="kp-title">Terrassendach TDS<br><span>selbst zusammenstellen</span></h1>
+    <h1 class="kp-title"><span class="kp-produkt" id="k3dTitel">Terrassendach TDS</span><br><span>selbst zusammenstellen</span></h1>
     <p class="kp-sub">
-      Maße, Eindeckung, Farbe und Seitenelemente wählen – das Dach dreht sich dabei live mit.
-      Am Ende übernehmen wir Ihre Konfiguration direkt in die Anfrage. Kostenlos und unverbindlich.
+      Terrassendach, Flachdach oder Carport: Maße, Eindeckung, Farbe und Ausführung wählen –
+      das Modell dreht sich dabei live mit. Am Ende übernehmen wir Ihre Konfiguration direkt
+      in die Anfrage. Kostenlos und unverbindlich.
     </p>
 
     <div class="k3d-wrap">
@@ -410,6 +412,29 @@
       <div class="k3d-panel">
 
         <div class="k3d-gruppe">
+          <label class="k3d-label" for="k3dProdukt">Produkt</label>
+          <select id="k3dProdukt" class="k3d-select">
+            <option value="Terrassendach TDS">Terrassendach TDS</option>
+            <option value="Flachdach SkyView">Flachdach SkyView</option>
+            <option value="Carport">Carport</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
+          <label class="k3d-label" for="k3dCpTyp">Carport-Typ</label>
+          <select id="k3dCpTyp" class="k3d-select">
+            <option value="Carport TDS">Carport TDS – Profildach</option>
+            <option value="Flachdach Flat Line">Flat Line – Flachdach</option>
+            <option value="Flachdach Flat Box">Flat Box – Kubus-Optik</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
+          <label class="k3d-label" for="k3dCpVariante">Ausführung</label>
+          <select id="k3dCpVariante" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
           <label class="k3d-label" for="k3dAufbau">Aufbau</label>
           <select id="k3dAufbau" class="k3d-select">
             <option value="Wandmontage">An der Hauswand</option>
@@ -428,16 +453,30 @@
         </div>
 
         <div class="k3d-gruppe">
-          <label class="k3d-label" for="k3dHoehe">Durchgangshöhe vorne <output id="k3dHoeheWert">2300 mm</output></label>
+          <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
           <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-fuer="cp-ueberstand" hidden>
+          <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
+          <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="glas">
           <label class="k3d-label" for="k3dEindeckung">Eindeckung</label>
           <select id="k3dEindeckung" class="k3d-select">
             <option value="VSG klar">VSG-Glas klar</option>
             <option value="VSG opal">VSG-Glas opal (satiniert)</option>
             <option value="Polycarbonat">Polycarbonat-Stegplatten</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="cp-flachdach" hidden>
+          <label class="k3d-label" for="k3dCpDach">Dach</label>
+          <select id="k3dCpDach" class="k3d-select">
+            <option value="Trapezblech (Standard)">Trapezblech (Standard)</option>
+            <option value="Solar (PV-Anlage)">Solar (PV-Anlage)</option>
+            <option value="Dachbegrünung">Dachbegrünung</option>
           </select>
         </div>
 
@@ -447,11 +486,11 @@
             <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu</span></button>
-            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" data-k3d-fuer="ohne-flatline" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß</span></button>
           </div>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
           <span class="k3d-label">Seitenelemente</span>
           <div class="k3d-seiten">
             <label class="k3d-seite"><span>Links</span>
@@ -479,7 +518,7 @@
         </div>
 
         <div class="k3d-gruppe">
-          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span>LED-Beleuchtung in den Sparren</span></label>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Beleuchtung in den Sparren</span></label>
         </div>
 
         <div class="k3d-gruppe">
@@ -507,7 +546,7 @@
     </div>
 
     <p class="k3d-weitere">
-      Carport, Flachdach SkyView und Lamellendach folgen als Nächstes.
+      Pergola und Lamellendach folgen als Nächstes.
       Für diese Systeme hilft Ihnen der <a href="/#kontakt">Anfrage-Assistent</a> schon heute weiter.
     </p>
 
@@ -602,13 +641,13 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261010i" defer></script>
+<script src="js/konfigurator-3d.js?v=20261010j" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261010i" defer></script>
+<script src="js/anfrage-wizard.js?v=20261010j" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

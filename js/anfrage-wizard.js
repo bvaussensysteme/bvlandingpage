@@ -806,7 +806,11 @@
     if (inFlow('led')) {
       if (answers.led) {
         var ledZ = parseInt(answers.ledsetzahl, 10);
-        p.push(['LED-Beleuchtung', hasLed(answers.led) ? ((ledZ > 1 ? ledZ + ' × ' : '') + (answers.ledset || '')) : 'Nein']);
+        // Kommt die Angabe aus dem 3D-Konfigurator, ist noch kein Set gewaehlt –
+        // dann stand hier vorher eine leere Zeile und der LED-Wunsch fiel aus der E-Mail.
+        p.push(['LED-Beleuchtung', hasLed(answers.led)
+          ? (answers.ledset ? (ledZ > 1 ? ledZ + ' × ' : '') + answers.ledset : 'Ja – Set noch offen')
+          : 'Nein']);
       }
       if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
     }
@@ -1131,7 +1135,8 @@
     if (!v || typeof v !== 'object') return;
 
     var felder = ['produkt', 'aufbau', 'breite', 'tiefe', 'hoehe', 'verglasung',
-                  'farbe', 'led', 'montage', 'dachart', 'carporttyp', 'carportvariante'];
+                  'farbe', 'led', 'montage', 'dachart', 'carporttyp', 'carportvariante',
+                  'dach', 'ueberstand'];
     felder.forEach(function (k) {
       if (v[k] != null && v[k] !== '') answers[k] = String(v[k]);
     });
