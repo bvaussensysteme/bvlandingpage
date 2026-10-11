@@ -2982,7 +2982,19 @@
          dazwischen läuft der Flügel. Vorher war oben nichts, die Höhe
          reichte bis unter das Dach. */
       var gl = gleise(seite, laenge);
-      var okOben = hVorn - PROFIL / 2;
+      /* Oberkante = Rinnenunterkante. Hier stand einmal
+         `hVorn - PROFIL / 2`, also eine halbe PFOSTENBREITE abgezogen –
+         ein Maß aus der Breite, von einer Höhe abgezogen. Zusammen mit
+         der Schiebetürführung blieb dadurch an der Stirnseite ein Spalt
+         von rund 90 mm zum Dach: „wieso gehen die glasschiebetüren an
+         den stirnseiten nicht oben bis zur rinnenunterkante so entsteht
+         sonst ein spalt" (Betreiber, 11.10.2026, mit Bild).
+
+         hVorn ist an dieser Stelle die Rinnenunterkante (der Aufrufer
+         übergibt hRinne). Element und Führung zusammen reichen jetzt
+         genau bis dorthin. An den Seiten ist das zugleich der tiefste
+         Punkt des Daches – darüber schließt der Keil an. */
+      var okOben = hVorn;
       /* Die Elemente stehen jetzt praktisch auf dem Belag – die Schwelle
          liegt darin, nicht darauf. Die Durchgangshöhe darunter bleibt
          damit die eingestellte. */
