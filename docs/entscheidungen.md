@@ -3849,3 +3849,26 @@ alten Stand festschreibt, ist schlimmer als keine.
 
 **Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 170, Gegenprobe
 170 von 170.
+
+## 11.10.2026 – Kopfzeile und Bild-Knopf so flach wie die Leiste unten
+
+**Anlass.** „die beiden sachen in der höhe bissl schmaler ähnlich wie
+die leiste unten wo maße tag abend steht" (Betreiber, mit
+Bildschirmfoto).
+
+**Was jetzt gilt.** Am Handy sind Produktzeile und Bild-Knopf auf
+dasselbe Maß wie die Ansichtsleiste gebracht: Polster 4 bis 5 px statt 7
+bis 8, engere Zeilenhöhe in der Infozeile. Die Schrift bleibt
+unangetastet – der Produktname ist weiter die größte Schrift im Bild,
+die Maßzeile liegt bei 0,72 rem wie die Knöpfe unten.
+
+**Eine Prüfung festigte eine Zahl statt einer Form.** Sie verlangte für
+den Bild-Knopf wörtlich `padding: 8px 14px`. Beim Flachermachen schlug
+sie an, obwohl nichts kaputt war. Jetzt prüft sie, was wirklich gemeint
+ist: Das seitliche Polster muss mindestens doppelt so groß sein wie das
+obere – der Knopf soll breit wirken, nicht hoch. Die Zahlen dürfen sich
+ändern, die Form nicht.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 171, Gegenprobe
+171 von 171. Die neue vergleicht die Polster von Kopfzeile und Leiste
+miteinander und hält die Schrift bei mindestens 0,7 rem.

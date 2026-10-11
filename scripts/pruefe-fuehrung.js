@@ -1228,7 +1228,11 @@ pruefe('Beschriftung wird am eigenen Feld gesetzt',
 (function () {
   var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
   var weg = /\.k3d-nurgross-knopf \{ display: none; \}/.test(block);
-  var label = /#k3dBild \{ padding: 8px 14px/.test(block);
+  /* Breiter, nicht hoeher: Das Polster an den Seiten muss deutlich
+     groesser sein als oben und unten - die Zahl selbst darf sich
+     aendern, die Form nicht. */
+  var p = block.match(/#k3dBild \{ padding: (\d+)px (\d+)px/);
+  var label = !!p && Number(p[2]) >= Number(p[1]) * 2;
   if (gegen) { weg = !weg; label = !label; }
   pruefe('Am Handy nur der Bild-Knopf, mit Beschriftung', weg && label,
          weg ? (label ? 'Bedienfeld und Vollbild weg, Knopf breiter'
@@ -1356,6 +1360,31 @@ pruefe('Bodenschatten geht mit aus',
   pruefe('Man kommt wirklich unter das Dach', falsch === 0,
          falsch === 0 ? 'Kamera bis ' + kameraY.toFixed(0) + ' cm unter dem Ziel, Boden ' +
          Math.round(o * 100) + ' %' : meld.join('; '));
+})();
+
+(function () {
+  /* Kopfzeile und Bild-Knopf so flach wie die Leiste unten - aber die
+     Schrift bleibt lesbar. „die beiden sachen in der hoehe bissl
+     schmaler aehnlich wie die leiste unten" (Betreiber, 11.10.2026). */
+  var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
+  function zahl(muster) {
+    var m = block.match(muster);
+    return m ? parseFloat(m[1]) : NaN;
+  }
+  var polsterLeiste = zahl(/\.k3d-leiste button \{ padding: (\d+)px/);
+  var polsterOben = zahl(/\.k3d-oben button \{ padding: (\d+)px/);
+  var polsterBild = zahl(/#k3dBild \{ padding: (\d+)px/);
+  var schriftBild = zahl(/#k3dBild \{ padding: \d+px \d+px; font-size: ([\d.]+)rem/);
+  var schriftInfo = zahl(/\.k3d-info p \{ font-size: ([\d.]+)rem/);
+  if (gegen) { polsterOben = 7; polsterBild = 8; }
+  var falsch = 0, meld = [];
+  if (!(polsterOben <= polsterLeiste + 1)) { falsch++; meld.push('Kopfknoepfe ' + polsterOben + 'px gegen ' + polsterLeiste + 'px unten'); }
+  if (!(polsterBild <= polsterLeiste + 2)) { falsch++; meld.push('Bild-Knopf ' + polsterBild + 'px'); }
+  if (!(schriftBild >= 0.7) || !(schriftInfo >= 0.7)) { falsch++; meld.push('Schrift unter 0,7rem'); }
+  pruefe('Kopfzeile so flach wie die Leiste unten', falsch === 0,
+         falsch === 0 ? 'Polster ' + polsterOben + '/' + polsterBild + 'px, Leiste ' +
+         polsterLeiste + 'px, Schrift ' + schriftInfo + '/' + schriftBild + 'rem'
+         : meld.join('; '));
 })();
 
 console.log(gegen
