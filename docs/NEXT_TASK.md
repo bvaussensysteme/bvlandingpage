@@ -311,6 +311,13 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   ungeprüfte Annahmen
 - **SkyView: Querschnittszeichnungen der Profile.** Die Montageanleitung
   (07.11.2025) ist jetzt eingearbeitet, sie bemaßt aber keine
+  Profilquerschnitte. Sparren und Glasleisten sind laut Betreiber
+  dieselben wie bei TDS und damit belegt. GESCHÄTZT bleiben: die
+  Blendendicke und der Platz, den die Rinne unter dem Dach braucht
+  (55 mm). **Offene Frage:** Wie hoch ist der Rahmen wirklich, und wie
+  wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
+  wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
+  44 cm) – das ist eine Modellregel, kein Herstellermaß.
   Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
   Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
   ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und

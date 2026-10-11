@@ -4584,3 +4584,60 @@ Neigung lässt sich bei SkyView nicht einstellen (gilt nur für TDS) – das war
 schon vorher so und passt jetzt zum Modell. Prüfung:
 `node scripts/pruefe-masstabelle.js` (229, Gegenprobe 229/229), davon 15 neue
 zu SkyView.
+
+## 2026-10-11 – SkyView: Sparren und Glasleisten sind die des TDS-Systems
+
+**Was war falsch.** „sparren, glasleiste etc is wie bei tds" (Betreiber,
+11.10.2026). Im SkyView-Zweig standen geschätzte 70 × 110 mm für den Sparren
+und eine selbst erfundene flache Glasleiste – beides daneben.
+
+**Was jetzt gilt.** Es gibt nur noch **einen** Sparrenbau und **einen**
+Leistenbau für beide Systeme: der TDS-Sparren 61 × 120 mm mit seinem Steg, die
+halbrunde Abdeckleiste 55,3 × 22,6 mm und außen die Seitenglasleiste mit der
+Abschlusszunge. Daraus folgt auch die Scheibenbreite: Sie liegt jetzt in beiden
+Systemen beidseitig 20 mm auf dem Sparrensteg auf (TDS-Anleitung S. 9), vorher
+lag sie bei SkyView nur zwischen den Sparren.
+
+**Warum das zusammenpasst.** Die SkyView-Anleitung verlangt an den Sparrenenden
+eine Ausklinkung von 86 mm Höhe. Beim TDS-Sparren mit 120 mm Gesamthöhe bleiben
+darüber genau 34 mm – der obere Steg, auf dem die Eindeckung liegt. Zwei
+unabhängige Quellen, die dasselbe sagen; die Prüfung rechnet diesen Rest aus
+und zeigt ihn an.
+
+**Was gegengelesen werden soll.** SkyView: Sparrenprofil und Glasleisten sehen
+aus wie beim Terrassendach TDS, außen die Seitenglasleiste mit Abschluss.
+Prüfung: `node scripts/pruefe-masstabelle.js` (230, Gegenprobe 230/230).
+
+## 2026-10-11 – SkyView: außen Flachdach, innen 2° Gefälle
+
+**Korrektur meiner eigenen Lesart.** Ich hatte „Die Oberkante des Daches muss
+an allen Punkten in WAAGE sitzen" (Montageanleitung S. 8) als „die Dachfläche
+ist waagerecht" gelesen und das Gefälle auf 0 gesetzt. Richtig ist: „das sky
+view sieht von außen aus wie flachdach hat aber ein innenliegendes gefälle von
+immer 2 grad" (Betreiber, 11.10.2026). Die WAAGE gilt dem **Rahmen**, nicht der
+Dachfläche.
+
+**Was jetzt gilt.** Rinne, Träger und Seitenblende bilden ein waagerechtes Band
+mit gleicher Ober- und Unterkante rundum. Die Sparren und die Eindeckung darin
+fallen mit festen 2° zur Rinne. Von außen sieht man nur das Band – genau das
+beschreibt die Anleitung, und genau so war es im Modell vor dem Umbau.
+
+**Neu daraus: die Rahmenhöhe wächst mit der Tiefe.** Das Band muss die geneigte
+Dachfläche an ihrer höchsten Stelle noch überdecken, sonst stünde das Glas
+hinten darüber hinaus. Rahmenhöhe = Gefälle über die Tiefe + Sparren +
+Eindeckung + Rinnenplatz: bei 3 m rund 33 cm, bei 6 m rund 44 cm. Das ist eine
+**Modellregel, kein Herstellermaß** – wie das echte System das bei großen
+Tiefen löst, steht in keiner Unterlage und ist als Frage in
+`docs/NEXT_TASK.md` vermerkt.
+
+**Was die Prüfung gefunden hat.** Beim Schreiben des zweiten Wegs fiel auf: Der
+Träger hinten behielt seine feste Höhe, während die Rinne mit der Tiefe wuchs –
+oben bündig, unten 11 cm auseinander. Das Band wäre nur auf einer Seite gerade
+gewesen. Behoben; die Prüfung rechnet jetzt alle vier Kanten (Rinne, Träger,
+Blende) gegeneinander.
+
+**Was gegengelesen werden soll.** SkyView von der Seite: ein gerades Band,
+oben und unten waagerecht, rundum gleich hoch. Von innen/unten: die Dachfläche
+fällt sichtbar nach vorne zur Rinne. Mehrere Tiefen durchfahren (2 m bis 7 m) –
+das Band wird höher, aber das Glas bleibt immer darin. Prüfung:
+`node scripts/pruefe-masstabelle.js` (232, Gegenprobe 232/232).
