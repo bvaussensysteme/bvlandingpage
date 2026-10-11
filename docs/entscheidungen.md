@@ -1865,3 +1865,61 @@ man gerade geschrieben hat. Jetzt rechnet die Prüfung Stapelseite und
 Griffseite für ein linkes und ein rechtes Feld aus und vergleicht sie mit
 der Feldmitte; dazu kommt eine Prüfung, dass der Griff nie außerhalb
 seines Flügels liegt.
+
+## 2026-10-11 – Zwei Fehler aus einer Korrektur
+
+**Anlass:** „du hast jetzt die ganze schiebetür gespiegelt nicht nur den
+griff sie geht jz zur falschen seite auf" und, aus einem früheren Bild,
+„auf der vorderseite hast du die anlage nicht aufgeteilt wie besprochen".
+
+### 1. Eine Änderung zu viel
+
+Beim Griff-Fehler habe ich ZWEI Vorzeichen gedreht: das des Griffs – das
+war richtig – und das der Laufrichtung. Letzteres war aber nur für
+geteilte Felder falsch, und geteilte Felder hatte der Betreiber nie zu
+sehen bekommen (siehe Punkt 2). Für das EINZELNE Feld über die ganze
+Breite war die alte Richtung richtig, und die habe ich mit derselben
+Zeile umgedreht.
+
+Die Abfrage lautet jetzt `feldMitte > 0 ? -1 : 1` statt `< 0 ? 1 : -1`.
+Der Unterschied betrifft genau den Fall `feldMitte === 0`, also das
+einzelne Feld: Es bleibt bei „öffnet nach links", wie vorher.
+
+**Lehre:** Wenn eine Rückmeldung einen Fehler nennt, gehört genau dieser
+eine Fehler behoben. Die zweite Änderung war meine eigene Idee, mitten in
+einer Korrektur, und niemand hat sie gegengelesen.
+
+### 2. Die Aufteilung kam nie an
+
+Die Vorderseite wird seit dem 11.10.2026 je Pfostenfach geteilt – aber
+nur im GESCHÄTZTEN Baupfad. Der Datenpfad (`bauenAusDaten`) ruft dieselbe
+Funktion auf und gab die Pfostenachsen nicht mit; der eingebaute Rückfall
+auf zwei Eckpfosten sieht dann aus wie „nicht aufgeteilt". Dasselbe galt
+für die Dachunterkante: ohne sie fehlt dort der Keil ganz.
+
+Beide Argumente werden jetzt übergeben. Eine Prüfung schlägt an, sobald
+irgendwo wieder ein Aufruf ohne Pfostenachsen steht.
+
+**Zum Zeitpunkt der Beanstandung war der Datenpfad allerdings gar nicht
+aktiv** – `/api/bauteile` antwortet weiterhin mit 503, nachgeprüft am
+11.10.2026. Die Bilder stammen also vermutlich von einem Stand vor dem
+Einbau der Aufteilung. Der Fehler im Datenpfad war trotzdem echt und
+wäre genau dann aufgeschlagen, wenn die Schnittstelle endlich
+angebunden wird.
+
+**Nicht geändert:** Der Pergola-Pfad ruft `seitenErweiterungen` ebenfalls
+ohne Achsen auf. Dort sind die Seitenelemente ein anderes System
+(SunPro / Velaris), nicht SG23 – bewusst unangetastet, bis der Betreiber
+sagt, ob dort dasselbe gelten soll.
+
+### 3. Fahrdauer langsamer und an einer Stelle
+
+„kannst du überall die öffnungs und schließ animation nen ticken
+langsamer machen" (Betreiber). 650 → **950 ms**, gut ein Drittel
+langsamer, aber noch keine Wartezeit.
+
+Dabei ist aufgefallen, dass die 650 zweimal im Code stand – einmal für
+die Markise, einmal für die Schiebeanlage. Jetzt gibt es dafür eine
+Konstante `FAHRDAUER`, und eine Prüfung achtet darauf, dass keine zweite
+feste Dauer danebenwächst. Sonst heißt „überall" beim nächsten Mal
+wieder nur „an einer Stelle".

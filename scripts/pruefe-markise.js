@@ -199,7 +199,19 @@ pruefe('Schiebeteile tragen ihre Seite',
 pruefe('Klick erkennt die getroffene Seite',
        new RegExp(q || 'function schiebeSeiteVon\\(objekt\\)').test(src), '');
 pruefe('Schiebeanlage faehrt weich, nicht springend',
-       new RegExp(q || 'function schiebeFahren\\(seite, ziel\\)').test(src) && new RegExp(q || 'dauer = 650').test(src), 'wie die Markise');
+       new RegExp(q || 'function schiebeFahren\\(seite, ziel\\)').test(src), 'wie die Markise');
+/* Eine Zahl fuer beide Bewegungen - vorher stand die Dauer zweimal im
+   Code und konnte auseinanderlaufen. */
+(function () {
+  var m = src.match(/var FAHRDAUER = (\d+);/);
+  if (!m) { pruefe('Fahrdauer zentral', false, 'FAHRDAUER fehlt'); return; }
+  var ms = parseInt(m[1], 10) + (gegen ? 2000 : 0);
+  pruefe('Fahrdauer spuerbar, aber keine Wartezeit', ms >= 800 && ms <= 1400, ms + ' ms');
+  var feste = (src.match(/dauer = \d+/g) || []).length + (gegen ? 1 : 0);
+  pruefe('Keine zweite, feste Fahrdauer im Code', feste === 0, feste + ' gefunden');
+  var genutzt = (src.match(/dauer = FAHRDAUER/g) || []).length - (gegen ? 1 : 0);
+  pruefe('Beide Bewegungen nutzen dieselbe Dauer', genutzt === 2, genutzt + ' Stellen');
+})();
 pruefe('Klick schaltet auf oder zu',
        new RegExp(q || "schiebeFahren\\(seite, Z\\[feld\\] > 50 \\? 0 : 100\\)").test(src), '');
 pruefe('Markise hat Vorrang vor dem Glas dahinter',
@@ -321,11 +333,24 @@ pruefe('Lichtes Mass zwischen den Pfosten',
        new RegExp(q || 'lichtBis = achsen\\[f \\+ 1\\] - PROFIL / 2').test(src),
        'Achse plus/minus halbe Pfostenbreite');
 pruefe('Felder oeffnen von der Mitte nach aussen',
-       new RegExp(q || 'feldMitte < 0 \\? 1 : -1').test(src), 'rk +1 stapelt nach links');
+       new RegExp(q || 'feldMitte > 0 \\? -1 : 1').test(src),
+       'einzelnes Feld bleibt bei links');
 pruefe('Laufrichtung spiegelbar',
        new RegExp(q || 'var rk = \\(richtung === 1\\) \\? 1 : -1;').test(src), '');
-pruefe('Pfostenachsen werden durchgereicht',
+pruefe('Pfostenachsen werden durchgereicht (geschaetzter Pfad)',
        new RegExp(q || 'zPf - PF / 2, xPfVorne').test(src), '');
+/* BEIDE Baupfade muessen die Achsen mitgeben. Der Datenpfad tat es
+   nicht - dort lief die Anlage ueber die ganze Vorderseite, obwohl die
+   Aufteilung laengst eingebaut war (Betreiber im Bild, 11.10.2026). */
+pruefe('Pfostenachsen werden durchgereicht (Datenpfad)',
+       new RegExp(q || 'zPfosten - pf / 2, xP\\)').test(src), '');
+pruefe('Datenpfad kennt die Dachunterkante',
+       new RegExp(q || 'seitenErweiterungen\\(B, T, hVorn, pf, neig, dachUkDaten').test(src),
+       'sonst fehlt der Keil ganz');
+pruefe('Kein seitenErweiterungen-Aufruf ohne Pfostenachsen',
+       gegen ? /seitenErweiterungen\(B, T, hVorn, pf, neig\);/.test(src)
+             : !/seitenErweiterungen\([^)]*neig\);/.test(src),
+       'sonst faellt es still auf zwei Eckpfosten zurueck');
 /* Zweiter Weg: die Felder wirklich ausrechnen. */
 (function () {
   var B = 600, PF = 11;
@@ -369,6 +394,15 @@ pruefe('Griff an der Schliesskante',
   }
   var n = 3, laenge = 280;
   /* Linkes Feld: Mitte -150, Grenzen -290 bis -10. */
+  /* Das EINZELNE Feld (keine Mittelpfosten, Mitte = 0) muss nach links
+     stapeln wie bisher - eine Abfrage auf "< 0" schickt es nach rechts
+     und dreht damit still das Verhalten um. */
+  function rkVon(m) { return m > 0 ? -1 : 1; }
+  var sEin = start(rkVon(0), n, 0, 580) + (gegen ? 580 : 0);
+  pruefe('Einzelnes Feld stapelt nach links', sEin < 0,
+         'Stapel bei x = ' + sEin.toFixed(0));
+  pruefe('Regel schickt das einzelne Feld nach links',
+         gegen ? rkVon(0) === -1 : rkVon(0) === 1, 'rk = ' + rkVon(0));
   var sL = start(1, n, -150, laenge) + (gegen ? 280 : 0);
   pruefe('Linkes Feld stapelt nach links (zum Rand)', sL < -150,
          'Stapel bei x = ' + sL.toFixed(0));
