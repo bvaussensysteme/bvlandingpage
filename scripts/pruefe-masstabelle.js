@@ -163,10 +163,48 @@ else {
            ist + ' Pfosten (erwartet ' + f[1] + ')');
   });
 }
-pruefe('Modell nutzt die 7-m-Regel unter dem Träger',
-       new RegExp(q || 'hatTraeger \\? pfostenUnterTraeger').test(k3d), '');
-pruefe('Hinweis nennt dieselbe Pfostenzahl wie das Modell',
-       new RegExp(q || 'mitTraeger \\? pfostenUnterTraeger').test(k3d), '');
+/* ---------- Die Regel gilt JE SEITE ----------
+   „und das gilt immer nur für die seite wo der sttikträger ist" – vorne
+   also nur bei Träger vorne, hinten (nur freistehend) immer. Die beiden
+   Reihen duerfen deshalb nicht aus einer gemeinsamen Zahl kommen. */
+pruefe('Vordere Reihe haengt am vorderen Träger',
+       new RegExp(q || 'pfVorne = traegerH > 0 \\? pfostenUnterTraeger').test(k3d), '');
+pruefe('Hintere Reihe immer nach der 7-m-Regel',
+       new RegExp(q || 'pfHinten = pfostenUnterTraeger\\(Z\\.breite\\)').test(k3d), '');
+pruefe('Keine gemeinsame Pfostenzahl mehr',
+       gegen ? /hatTraeger/.test(k3d) : !/hatTraeger/.test(k3d), 'hatTraeger entfernt');
+pruefe('Hintere Reihe nur freistehend gezeichnet',
+       new RegExp(q || 'if \\(frei\\) \\{\\s*verteilen\\(pfHinten').test(k3d), '');
+
+/* Zweiter Weg: die Entscheidung aus dem Code herausloesen und mit
+   eigenen Zahlen rechnen, statt den Text nur zu lesen. */
+var mV = k3d.match(/var pfVorne = (traegerH > 0 [^;]+);/);
+if (!mV || !mRegel) { pruefe('Entscheidung je Seite rechenbar', false, 'Zeile nicht gefunden'); }
+else {
+  var fV = new Function('traegerH', 'Z', 'pfTabelle', 'pfostenUnterTraeger',
+                        'return ' + mV[1] + ';');
+  // Breite 8080: Tabelle sagt 4 Stuetzfuesse, die 7-m-Regel sagt 3.
+  [ // Träger vorne?, Tabelle, erwartet vorne
+    [0, 4, 4],        // kein Träger vorne  -> Tabelle
+    [18.9, 4, 3]      // Träger vorne       -> 7-m-Regel
+  ].forEach(function (f) {
+    var ist = fV(f[0], { breite: 8080 }, f[1], fn) + (gegen ? 1 : 0);
+    pruefe('Vorne bei ' + (f[0] ? 'Träger' : 'ohne Träger') + ': ' + f[2] + ' Pfosten',
+           ist === f[2], ist + ' Pfosten');
+  });
+  var istH = fn(8080) + (gegen ? 1 : 0);
+  pruefe('Hinten (freistehend) 3 Pfosten nach der 7-m-Regel', istH === 3, istH + ' Pfosten');
+  /* Rohwerte ohne Gegenprobe-Versatz, sonst hebt sich der Versatz in
+     beiden Reihen gegenseitig auf und die Pruefung schlaegt nie an. */
+  var rohV = fV(0, { breite: 8080 }, 4, fn), rohH = fn(8080);
+  pruefe('Reihen duerfen sich unterscheiden',
+         gegen ? rohV === rohH : rohV !== rohH,
+         'freistehend ohne Vorsprung: ' + rohV + ' vorne / ' + rohH + ' hinten');
+}
+pruefe('Hinweis trennt die Reihen genauso',
+       new RegExp(q || "pfV \\+ ' Pfosten vorne und ' \\+ pfH \\+ ' hinten'").test(k3d), '');
+pruefe('Hinweis: vordere Zahl aus dem vorderen Träger',
+       new RegExp(q || 'pfV = \\(tb\\.unterzug \\|\\| vsHin > 0\\) \\? pfostenUnterTraeger').test(k3d), '');
 
 /* Freistehend traegt hinten ein Statiktraeger das Wandprofil. */
 pruefe('Freistehend: Statikträger statt Wand',

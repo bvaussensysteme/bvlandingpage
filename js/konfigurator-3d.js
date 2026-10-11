@@ -2586,16 +2586,34 @@
     var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
     var hPfostenHinten = frei ? Math.max(100, ukHinten - 18.9) : hHinten;
 
-    /* Pfostenzahl: unter einem Statikträger die 7-m-Regel, sonst die
-       Stützfüße aus der Maßtabelle (und ohne Tabelle die Faustregel). */
+    /* Pfostenzahl – JE REIHE getrennt.
+
+       „und das gilt immer nur für die seite wo der sttikträger ist, ist
+       er auf beiden seiten z.b bei freistehend und dachvorsprung dann
+       gilts für beide seiten" (Betreiber, 11.10.2026).
+
+       Die 7-m-Regel hängt also nicht am Bauwerk, sondern am einzelnen
+       Träger. Vorne gilt sie, wenn dort einer liegt (Tiefe über 4500 mm
+       oder Dachvorsprung). Hinten gibt es eine Reihe nur freistehend –
+       und dort liegt immer einer, also gilt sie dort immer.
+
+       Beide Reihen mit derselben Zahl zu zeichnen wäre der bequeme
+       Fehler: Bei freistehend OHNE Vorsprung und unter 4,5 m Tiefe
+       stünden vorne nach Tabelle drei Pfosten, hinten nach der 7-m-Regel
+       zwei. */
     var pfTab = tbMass;
-    var hatTraeger = traegerH > 0 || frei;
-    var pfAnzahl = hatTraeger ? pfostenUnterTraeger(Z.breite)
-      : (pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2));
-    verteilen(pfAnzahl, B, PF / 2).forEach(function (x) {
+    var pfTabelle = pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2);
+    var pfVorne = traegerH > 0 ? pfostenUnterTraeger(Z.breite) : pfTabelle;
+    var pfHinten = pfostenUnterTraeger(Z.breite);
+
+    verteilen(pfVorne, B, PF / 2).forEach(function (x) {
       balken(PF, hPfosten, PF, x, hPfosten / 2, zPf, mAlu);
-      if (frei) balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zHinten, mAlu);
     });
+    if (frei) {
+      verteilen(pfHinten, B, PF / 2).forEach(function (x) {
+        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zHinten, mAlu);
+      });
+    }
 
     /* Rinne vorne. hRinne ist die Unterkante der Rinne. Ohne Statikträger
        ist das die Durchgangshöhe; mit Träger liegt sie um dessen Höhe
@@ -3869,15 +3887,21 @@
            Stützfußspalte der Tabelle – siehe pfostenUnterTraeger(). Der
            Hinweis muss dieselbe Zahl nennen wie das Modell. */
         var vsHin = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
-        var mitTraeger = tb.unterzug || vsHin > 0 || Z.aufbau === 'Freistehend';
-        var pf = mitTraeger ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
+        var freiHin = Z.aufbau === 'Freistehend';
+        /* Dieselbe Trennung wie im Modell: vorne nach dem Träger dort,
+           hinten nur freistehend und dann immer nach der 7-m-Regel. */
+        var pfV = (tb.unterzug || vsHin > 0) ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
+        var pfH = pfostenUnterTraeger(Z.breite);
+        var pf = (freiHin && pfH !== pfV)
+          ? pfV + ' Pfosten vorne und ' + pfH + ' hinten'
+          : pfV + ' Pfosten je Reihe';
         if (tb.breiteTabelle !== Z.breite) {
           saetze.push('Gerechnet wird mit der nächsten lieferbaren Breite: <b>' +
             tb.breiteTabelle + ' mm</b> – daraus folgen ' + tb.sparren +
-            ' Sparren und ' + pf + ' Pfosten je Reihe.');
+            ' Sparren und ' + pf + '.');
         } else {
           saetze.push('<b>' + tb.sparren + ' Sparren</b> und <b>' + pf +
-            ' Pfosten je Reihe</b> bei diesem Maß.');
+            '</b> bei diesem Maß.');
         }
         var vs = vsHin;
         if (tb.unterzug || vs > 0) {

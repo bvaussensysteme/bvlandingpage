@@ -1289,3 +1289,40 @@ der Kunde sieht und wir nicht.
 **Prüfung.** `scripts/pruefe-masstabelle.js` – 35 Prüfungen, alle
 bestanden; Gegenprobe 35 von 35. Die Regel wird im Prüfskript noch einmal
 aufgeschrieben und gegen die Umsetzung gerechnet, an fünf Stützstellen.
+
+## 2026-10-11 – 7-m-Regel gilt je Pfostenreihe, nicht je Bauwerk
+
+**Anlass:** Betreiber nach dem ersten Einbau der 7-m-Regel: „und das gilt
+immer nur für die seite wo der sttikträger ist, ist er auf beiden seiten
+z.b bei freistehend und dachvorsprung dann gilts für beide seiten".
+
+**Was falsch war:** Die Regel hing an einer gemeinsamen Variablen
+(`hatTraeger = traegerH > 0 || frei`). Sobald irgendwo ein Statikträger
+lag, wurden *beide* Reihen nach der 7-m-Regel gezeichnet. Konkret bei
+8080 mm Breite, 3000 mm Tiefe, freistehend, ohne Dachvorsprung: vorne
+liegt dort kein Träger, also gelten die 4 Stützfüße aus der Maßtabelle –
+gezeichnet wurden aber 3 nach der 7-m-Regel.
+
+**Was jetzt gilt:** Die Pfostenzahl wird für jede Reihe einzeln bestimmt.
+Vorne greift die 7-m-Regel nur, wenn dort wirklich ein Träger liegt
+(Tiefe über 4500 mm oder Dachvorsprung); sonst zählt die Maßtabelle.
+Hinten gibt es eine Reihe nur freistehend, und dort liegt immer ein
+Träger – also dort immer die 7-m-Regel. Liegt auf beiden Seiten einer
+(freistehend *und* Dachvorsprung), kommen beide Reihen auf dieselbe Zahl,
+aber aus zwei getrennten Rechnungen.
+
+**Warum so:** Der Träger ist das tragende Teil, nicht das Bauwerk. Welche
+Stützweite gilt, entscheidet sich an dem Balken, der über den Pfosten
+liegt – und der kann vorne da sein und hinten fehlen oder umgekehrt.
+
+**Verworfen:** Beide Reihen gleich zu zählen („der höhere Wert gewinnt")
+wäre einfacher gewesen, hätte aber genau den Fall oben falsch gezeichnet
+und bei der Anfrage-Mail eine Stückzahl genannt, die TDS nicht so baut.
+
+**Der Maßhinweis** nennt die Reihen jetzt getrennt, wenn sie sich
+unterscheiden: „9 Sparren und 4 Pfosten vorne und 3 hinten".
+
+**Gegenzulesen:** Bei freistehend ohne Dachvorsprung und unter 4,5 m
+Tiefe stehen vorne mehr Pfosten als hinten – bitte am Modell prüfen, ob
+das der TDS-Praxis entspricht. Prüfung: `node scripts/pruefe-masstabelle.js`
+(43 Prüfungen, Gegenprobe 43/43).
