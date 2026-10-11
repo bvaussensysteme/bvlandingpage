@@ -72,13 +72,17 @@
     sg23Links: '', sg23Rechts: '', sg23Vorne: '',
     sg23Glas: 'ESG 10 mm klar',   // laut VD-Formular gibt es nur diese zwei
     sg23Schloss: 'ohne',          // ohne | links | rechts
-    velarisWinkel: 45,            // Lamellenstellung des Velaris, 0 = zu
+    /* Beide Hälften haben ihre EIGENE Stellung: „man kann obere hälfte
+       und untere hälfte seprat öffnen/schließen" (Betreiber,
+       11.10.2026). Ein gemeinsamer Winkel mit Auswahlfeld daneben
+       wäre nur die halbe Wahrheit – zu ist nicht dasselbe wie
+       „gehört gerade nicht dazu". */
+    velarisWinkelOben: 45,        // Lamellenstellung oben, 0 = zu
+    velarisWinkelUnten: 45,       // Lamellenstellung unten, 0 = zu
     velarisArt: 'feststehend',    // feststehend | verschiebbar
-    velarisTeil: 'alles',         // alles | oben | unten
     velarisBreite: 'gleich',      // gleich | wunsch (Formularfeld Elementbreite)
     velarisAnzahl: '',            // '' = automatisch, sonst gewünschte Elementzahl
     velarisOffen: 0,              // Prozent, nur verschiebbar
-    velarisAnteil: 50,            // Prozent, nur bei oben/unten
     velarisFarbe: 'Anthrazit RAL 7016',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
@@ -2582,15 +2586,21 @@
          zeigt es auch das Produktbild „teilgeöffnet": oben offen, unten
          zu. Die Grenze liegt bei einem Anteil der Lamellenzahl, nicht
          der Höhe: Eine Lamelle lässt sich nicht halb kippen. */
-      var offenGrad = Math.min(90, Math.max(0, Z.velarisWinkel));
-      var grenze = Z.velarisTeil === 'alles' ? -1
-        : Math.round(n * Math.min(90, Math.max(10, Z.velarisAnteil)) / 100);
+      var gradOben = Math.min(90, Math.max(0, Z.velarisWinkelOben));
+      var gradUnten = Math.min(90, Math.max(0, Z.velarisWinkelUnten));
+      /* Die Anlage teilt sich IMMER in zwei Hälften – „die velaris sind
+         immer in 2 hälften geteilt also 50/50" (Betreiber, 11.10.2026).
+         Ein Regler für den Anteil stand hier und ist raus: Er bot eine
+         Einstellung an, die es am Bauteil nicht gibt. Bei ungerader
+         Lamellenzahl bekommt die untere Hälfte die eine mehr. */
+      /* Die Anlage teilt sich IMMER in zwei Hälften (Betreiber,
+         11.10.2026). Bei ungerader Lamellenzahl bekommt die untere die
+         eine mehr. */
+      var grenze = Math.round(n / 2);
       for (var i = 0; i < n; i++) {
         var y = ukEl + R + (i + 0.5) * schritt;
-        /* i zählt von UNTEN. „unten" öffnet die ersten, „oben" die letzten. */
-        var faehrt = Z.velarisTeil === 'alles'
-          || (Z.velarisTeil === 'unten' ? i < grenze : i >= n - grenze);
-        var kipp = (90 - (faehrt ? offenGrad : 0)) * Math.PI / 180;
+        /* i zählt von UNTEN: die ersten gehören zur unteren Hälfte. */
+        var kipp = (90 - (i < grenze ? gradUnten : gradOben)) * Math.PI / 180;
         var lam = new THREE.Mesh(
           new THREE.BoxGeometry(lamLaenge, VELARIS.dicke, VELARIS.lamelle), mLam);
         lam.rotation.x = kipp;
@@ -4822,16 +4832,20 @@
       if (p >= 1) { clearInterval(velarisSchiebtLaeuft); velarisSchiebtLaeuft = null; }
     }, 40);
   }
-  function velarisFahren(ziel) {
+  /* Jede Hälfte faehrt fuer sich – deshalb nimmt die Funktion das Feld
+     entgegen, das sie bewegt, statt eines festen. */
+  function velarisFahren(ziel, feld) {
     if (velarisLaeuft) clearInterval(velarisLaeuft);
-    var start = Z.velarisWinkel, t0 = Date.now();
-    var regler = document.getElementById('k3dVelarisWinkel');
+    var schluessel = feld === 'unten' ? 'velarisWinkelUnten' : 'velarisWinkelOben';
+    var id = feld === 'unten' ? 'k3dVelarisWinkelUnten' : 'k3dVelarisWinkelOben';
+    var start = Z[schluessel], t0 = Date.now();
+    var regler = document.getElementById(id);
     velarisLaeuft = setInterval(function () {
       var p = Math.min(1, (Date.now() - t0) / FAHRDAUER);
       var w = Math.round(start + (ziel - start) * (p < 0.5
         ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
       if (regler) regler.value = w;
-      Z.velarisWinkel = w;
+      Z[schluessel] = w;
       aendern();
       if (p >= 1) { clearInterval(velarisLaeuft); velarisLaeuft = null; }
     }, 40);
@@ -5615,13 +5629,14 @@
                    String(VELARIS.tiefeOben[VELARIS_IST.schienen] * 10 || '')
                      .replace('.', ',') + ' mm)');
         teile.push('Velaris: waagerechte Alu-Lamellen im Rahmen, Stellung im Bild ' +
-                   (Z.velarisWinkel <= 0 ? 'geschlossen' : Z.velarisWinkel + '° offen') +
+                   'obere Hälfte ' + (Z.velarisWinkelOben <= 0 ? 'geschlossen'
+                     : Z.velarisWinkelOben + '° offen') +
+                   ', untere Hälfte ' + (Z.velarisWinkelUnten <= 0 ? 'geschlossen'
+                     : Z.velarisWinkelUnten + '° offen') +
                    ', Lamellenfarbe ' + Z.velarisFarbe +
                    (Z.velarisFarbe.indexOf('Sonderfarbe') > -1
                      ? ' – RAL-Nummer noch offen, Aufpreis' : '') +
                    ', Rahmenfarbe ' + Z.farbe +
-                   (Z.velarisTeil === 'alles' ? ', ganze Anlage'
-                     : ', nur ' + Z.velarisTeil + ' rund ' + Z.velarisAnteil + ' %') +
                    ' – Lamellen- und Rahmenmaße nach Herstellerangabe');
       }
       if (erwIrgendwo('Schiebetür')) {
@@ -5744,14 +5759,13 @@
     Z.plankenAnteil = zahl('k3dPlankenAnteil', Z.plankenAnteil);
     Z.sg23Glas = wert('k3dSg23Glas') || Z.sg23Glas;
     Z.sg23Schloss = wert('k3dSg23Schloss') || Z.sg23Schloss;
-    Z.velarisWinkel = zahl('k3dVelarisWinkel', Z.velarisWinkel);
+    Z.velarisWinkelOben = zahl('k3dVelarisWinkelOben', Z.velarisWinkelOben);
+    Z.velarisWinkelUnten = zahl('k3dVelarisWinkelUnten', Z.velarisWinkelUnten);
     Z.velarisFarbe = wert('k3dVelarisFarbe') || Z.velarisFarbe;
     Z.velarisArt = wert('k3dVelarisArt') || Z.velarisArt;
-    Z.velarisTeil = wert('k3dVelarisTeil') || Z.velarisTeil;
     Z.velarisBreite = wert('k3dVelarisBreite') || Z.velarisBreite;
     Z.velarisAnzahl = wert('k3dVelarisAnzahl') || '';
     Z.velarisOffen = zahl('k3dVelarisOffen', Z.velarisOffen);
-    Z.velarisAnteil = zahl('k3dVelarisAnteil', Z.velarisAnteil);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
@@ -5929,19 +5943,15 @@
       aw.textContent = (Z.plankenHoeheAuto || !Z.plankenAnteil) ? 'volle Höhe'
                      : (Z.plankenAnteil < 0 ? 'von unten' : 'von oben');
     }
-    var vw = document.getElementById('k3dVelarisWinkelWert');
-    if (vw) {
-      vw.textContent = (Z.velarisWinkel <= 0 ? 'geschlossen'
-                     : Z.velarisWinkel + '° offen') +
-                     (Z.velarisTeil === 'alles' ? ''
-                       : ' · nur ' + Z.velarisTeil + ' (' + Z.velarisAnteil + ' %)');
-    }
+    [['k3dVelarisWinkelObenWert', Z.velarisWinkelOben],
+     ['k3dVelarisWinkelUntenWert', Z.velarisWinkelUnten]].forEach(function (pr) {
+      var el = document.getElementById(pr[0]);
+      if (el) el.textContent = pr[1] <= 0 ? 'geschlossen' : pr[1] + '° offen';
+    });
     var vo = document.getElementById('k3dVelarisOffenWert');
     if (vo) vo.textContent = Z.velarisOffen + ' %';
     var vor = document.getElementById('k3dVelarisOffen');
     if (vor) vor.disabled = Z.velarisArt !== 'verschiebbar';
-    var va = document.getElementById('k3dVelarisAnteilWert');
-    if (va) va.textContent = Z.velarisAnteil + ' %';
     var ar = document.getElementById('k3dPlankenAnteil');
     if (ar) ar.disabled = Z.plankenHoeheAuto;
     var fr = document.getElementById('k3dPlankenFuge');
@@ -6170,8 +6180,8 @@
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
-   'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkel', 'k3dVelarisFarbe',
-   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil', 'k3dVelarisBreite',
+   'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
+   'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
@@ -6229,6 +6239,13 @@
   /* Knöpfe, die einen Regler auf einen Endwert stellen. 85 statt 100 beim
      Ausfahren, weil eine Markise im Bild ganz ausgefahren wie ein Brett
      aussieht – 85 % zeigt, dass sie beweglich ist. */
+  [['k3dVelarisObenZu', 'oben', 0], ['k3dVelarisObenAuf', 'oben', 90],
+   ['k3dVelarisUntenZu', 'unten', 0], ['k3dVelarisUntenAuf', 'unten', 90]
+  ].forEach(function (pr) {
+    var k = document.getElementById(pr[0]);
+    if (k) k.addEventListener('click', function () { velarisFahren(pr[2], pr[1]); });
+  });
+
   [['k3dVelarisSchiebenZu', 'k3dVelarisOffen', 0],
    ['k3dVelarisSchiebenAuf', 'k3dVelarisOffen', 100],
    ['k3dVelarisZu', 'k3dVelarisWinkel', 0], ['k3dVelarisAuf', 'k3dVelarisWinkel', 90],

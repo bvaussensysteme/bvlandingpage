@@ -2833,3 +2833,24 @@ darauf, gleiche Dauer und Kurve wie überall.
 Dabei fiel auf: **Kopfprofil und Bodenschiene gehören zur Anlage, nicht
 zum Element.** Sie wurden je Element gezeichnet und wären beim Fahren
 mitgewandert. Jetzt zeichnet sie die Anlage einmal über die ganze Länge.
+
+## 2026-10-11 – Velaris teilt sich immer 50/50
+
+**Anlass:** „das kann weg, die velaris sind immer in 2 hälften geteilt
+also 50/50" (Betreiber, zum Regler „Anteil davon").
+
+Der Regler ließ 10 bis 90 % einstellen. Das war meine Erfindung – am
+Bauteil gibt es nur zwei Hälften. Eine Einstellung anzubieten, die der
+Hersteller nicht baut, ist schlimmer als keine: Sie landet über die
+Anfrage in einer Bestellung, die so nicht geht.
+
+**Was jetzt gilt:** Zwei Hälften mit je **eigener Stellung** – „man kann
+obere hälfte und untere hälfte seprat öffnen/schließen" (Betreiber,
+unmittelbar danach). Also zwei Regler mit je eigenen Knöpfen statt eines
+Reglers mit Auswahlfeld daneben. Das Auswahlfeld „Was soll sich öffnen?"
+ist damit auch weg: Es konnte nur sagen, welche Hälfte gemeint ist –
+nicht, dass die andere zu ist. Bei ungerader Lamellenzahl bekommt die
+untere Hälfte die eine mehr.
+
+Die Prüfung sieht beides nach: dass der Regler **weg** ist und dass die
+Hälfte über alle Lamellenzahlen von 1 bis 60 wirklich die Hälfte ist.

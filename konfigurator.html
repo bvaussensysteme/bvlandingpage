@@ -855,14 +855,20 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="velaris" hidden>
-          <label class="k3d-label" for="k3dVelarisWinkel">Velaris-Lamellen <output id="k3dVelarisWinkelWert">45° offen</output></label>
-          <div class="k3d-regler">
-            <input type="range" id="k3dVelarisWinkel" class="k3d-range" min="0" max="90" step="5" value="45">
-          </div>
+          <label class="k3d-label" for="k3dVelarisWinkelOben">Obere Hälfte <output id="k3dVelarisWinkelObenWert">45° offen</output></label>
+          <input type="range" id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dVelarisZu">◀ Schließen</button>
-            <button type="button" id="k3dVelarisAuf">Öffnen ▶</button>
+            <button type="button" id="k3dVelarisObenZu">◀ Schließen</button>
+            <button type="button" id="k3dVelarisObenAuf">Öffnen ▶</button>
           </div>
+          <label class="k3d-label" for="k3dVelarisWinkelUnten">Untere Hälfte <output id="k3dVelarisWinkelUntenWert">45° offen</output></label>
+          <input type="range" id="k3dVelarisWinkelUnten" class="k3d-range" min="0" max="90" step="5" value="45">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dVelarisUntenZu">◀ Schließen</button>
+            <button type="button" id="k3dVelarisUntenAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">Beide Hälften lassen sich getrennt stellen – oben
+            offen für Licht und Luft, unten zu für den Sichtschutz.</p>
           <label class="k3d-label" for="k3dVelarisOffen">Elemente verschoben <output id="k3dVelarisOffenWert">0 %</output></label>
           <input type="range" id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
@@ -872,14 +878,6 @@
           <p class="k3d-mini">Nur bei der verschiebbaren Ausführung: Die Elemente
             fahren zur Seite und schieben sich übereinander – das erste bleibt
             stehen.</p>
-          <label class="k3d-label" for="k3dVelarisTeil">Was soll sich öffnen?</label>
-          <select id="k3dVelarisTeil" class="k3d-select">
-            <option value="alles">die ganze Wand</option>
-            <option value="oben">nur der obere Teil</option>
-            <option value="unten">nur der untere Teil</option>
-          </select>
-          <label class="k3d-label" for="k3dVelarisAnteil">Anteil davon <output id="k3dVelarisAnteilWert">50 %</output></label>
-          <input type="range" id="k3dVelarisAnteil" class="k3d-range" min="10" max="90" step="5" value="50">
           <label class="k3d-label" for="k3dVelarisArt">Ausführung</label>
           <select id="k3dVelarisArt" class="k3d-select">
             <option value="feststehend">feststehend</option>
@@ -1314,7 +1312,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261014k" defer></script>
+<script src="js/konfigurator-3d.js?v=20261014m" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
