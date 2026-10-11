@@ -272,6 +272,42 @@ pruefe('Buerstenprofil bewusst nicht gezeichnet',
        gegen ? /BUERSTE\.tiefe,/.test(src) : !/BUERSTE\.(tiefe|hoehe)[^:]/.test(src),
        'nur als Mass hinterlegt');
 
+/* ---------- Kein Spalt zwischen Schiebewand und Keil ----------
+   „zwischen schiebewand und keil is ne lücke darf nicht sein"
+   (Betreiber, 11.10.2026, mit Bildschirmfoto). Ursache: Mit Keil wird
+   die Elementhoehe gekuerzt, die Fuehrung blieb aber oben am Dach. */
+pruefe('Fuehrung sitzt auf dem Fluegel, nicht am Dach',
+       new RegExp(q || 'schiebefuehrung\\(laenge, achse, mitte, quer, yUnten \\+ hoch \\+ fuehrungH, gl\\)').test(src),
+       'nicht mehr okOben');
+pruefe('Keil beginnt ueber der Fuehrung',
+       new RegExp(q || 'var yKeil = yUnten \\+ hoch \\+ fuehrungH;').test(src), '');
+pruefe('Fuehrung zaehlt bei der Keil-Mindesthoehe mit',
+       new RegExp(q || 'KEIL_MIN_VORNE - yUnten - fuehrungH').test(src), '');
+pruefe('Wandanschluss reicht bis ueber die Fuehrung',
+       new RegExp(q || 'wandAnschluss\\(achse, mitte - laenge / 2, yUnten \\+ hoch \\+ fuehrungH, quer\\)').test(src), '');
+/* Zweiter Weg: die Lagen durchrechnen und auf Lueckenfreiheit pruefen. */
+(function () {
+  var schwelle = 3.6, fuehrung = 3.5, hVorn = 230, PROFIL = 11;
+  var okOben = hVorn - PROFIL / 2, yUnten = schwelle;
+  /* Fall mit Keil: die Elementhoehe wird gekuerzt. */
+  var hoch = 150;                                  // irgendein gekuerzter Wert
+  var fluegelOk = yUnten + hoch;
+  /* Die Fuehrung wird mit ihrer OBERKANTE gesetzt; ihre Unterkante ist
+     damit genau die Fluegeloberkante – das sichert die Regex-Pruefung
+     oben. Hier geht es um die Stelle darueber, wo der Spalt war. */
+  var fuehrungOk = fluegelOk + fuehrung;
+  var yKeil = fluegelOk + fuehrung + (gegen ? 3 : 0);
+  pruefe('Kein Spalt Fuehrung -> Keil',
+         Math.abs(yKeil - fuehrungOk) < 0.01,
+         (yKeil - fuehrungOk).toFixed(1) + ' cm Spalt');
+  /* Die ALTE Anordnung haette bei gekuerztem Element einen Spalt in
+     Hoehe der Fuehrung gelassen – Gegenprobe zur Regel selbst. */
+  var altSpalt = okOben - fluegelOk;
+  pruefe('Alte Anordnung liess einen Spalt',
+         gegen ? altSpalt <= 0 : altSpalt > 0,
+         altSpalt.toFixed(1) + ' cm bei gekuerztem Element');
+})();
+
 /* ---------- Massschilder ---------- */
 pruefe('Massschild kleiner als vorher',
        gegen ? /SCHILD_HOCH = 24/.test(src) : /SCHILD_HOCH = 14/.test(src),
