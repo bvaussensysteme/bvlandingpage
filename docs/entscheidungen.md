@@ -3756,3 +3756,34 @@ eine Prüfung verbietet den alten Zugriff.
 **Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 153, Gegenprobe
 153 von 153. Die Reihenfolge wird wirklich aus dem HTML gelesen, nicht
 nur das Vorhandensein geprüft.
+
+## 11.10.2026 – Bild speichern: am Handy ein Knopf, dafür mehrere Ansichten
+
+**Anlass.** „bei mobile klappen auf handy die ersten 2 symbole nicht
+deswegen lass sie auf handy weg, mach den download button bissl breiter
+das man sieht bild download, und wenn man draufdrückt kann man direkt
+mehrere perspektiven in bilder runterladen" (Betreiber).
+
+**Was jetzt gilt.** Am Handy sind „Bedienfeld" und „Vollbild"
+ausgeblendet – das Zuklappen bringt dort nichts, weil das Bedienfeld
+unter der Bühne steht statt daneben, und Vollbild gibt es auf iPhones
+gar nicht. Der Bild-Knopf wird dafür breiter und behält seine
+Beschriftung.
+
+Ein Druck öffnet ein kleines Menü: aktuelle Ansicht, jede der fünf
+Ansichten einzeln – oder **alle fünf in einem Bild**, als Blatt mit
+Beschriftung und der Konfigurationszeile darunter.
+
+**Warum ein Blatt und nicht fünf Dateien.** Handy-Browser lassen in der
+Regel nur einen Download je Tipp zu; der Rest wird still verworfen. Fünf
+Downloads hintereinander hätten also so ausgesehen, als funktioniere es
+– und vier Bilder wären verschwunden. Das Blatt kommt immer an und lässt
+sich als Ganzes weiterschicken.
+
+**Nach dem Speichern steht die Kamera wieder, wo sie war** – auch beim
+Sammelbild, das dafür durch alle fünf Ansichten fährt.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 159, Gegenprobe
+159 von 159. Darunter: Die Beschriftung darf nicht die Klasse tragen,
+die am Handy ausgeblendet wird (sonst ist der Knopf breiter, aber leer),
+und im Zweig „alle" darf genau EIN Download stehen.

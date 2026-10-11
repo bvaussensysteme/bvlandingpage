@@ -7779,18 +7779,119 @@
     });
   }
 
+  /* ---------- Bild speichern ----------
+     „mach den download button bissl breiter das man sieht bild download,
+     und wenn man draufdrückt kann man direkt mehrere perspektiven in
+     bilder runterladen" (Betreiber, 11.10.2026).
+
+     Der Knopf öffnet jetzt ein kleines Menü: die aktuelle Ansicht, jede
+     der fünf Ansichten einzeln – oder alle fünf in EINEM Bild.
+
+     Warum alle fünf in einem Bild und nicht fünf Dateien nacheinander:
+     Handy-Browser lassen in der Regel nur einen Download je Tipp zu, der
+     Rest wird still verworfen. Ein Blatt mit fünf Ansichten kommt immer
+     an und lässt sich außerdem als Ganzes weiterschicken. */
+  function bildName(zusatz) {
+    return produktName().replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-').replace(/^-|-$/g, '') +
+           '-' + Z.breite + 'x' + Z.tiefe + 'mm' +
+           (zusatz ? '-' + zusatz.replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-') : '') + '.png';
+  }
+
+  function bildLaden(datenUrl, name) {
+    var a = document.createElement('a');
+    a.href = datenUrl;
+    a.download = name;
+    a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 4000);
+  }
+
+  /* Eine Ansicht einstellen, zeichnen, Bild zurückgeben. Die vorherige
+     Ansicht wird danach wiederhergestellt – wer ein Bild speichert, will
+     nicht woanders stehen als vorher. */
+  function bildVonAnsicht(name) {
+    var vorher = kam.ansicht;
+    if (name && ANSICHTEN[name]) ansichtAnwenden(name);
+    renderer.render(szene, kamera3);
+    var bild = renderer.domElement.toDataURL('image/png');
+    if (name && ANSICHTEN[name] && vorher && vorher !== name) ansichtAnwenden(vorher);
+    return bild;
+  }
+
+  function bildAlle(fertig) {
+    var namen = ['Perspektive', 'Vorne', 'Seite', 'Von oben', 'Darunter'];
+    var lw = renderer.domElement;
+    var breit = 900, hoch = Math.round(breit * lw.height / lw.width);
+    var rand = 14, kopf = 26;
+    var blatt = document.createElement('canvas');
+    blatt.width = breit * 2 + rand * 3;
+    blatt.height = (hoch + kopf) * 3 + rand * 4;
+    var c = blatt.getContext('2d');
+    c.fillStyle = '#111'; c.fillRect(0, 0, blatt.width, blatt.height);
+    var vorher = kam.ansicht, offen = namen.length;
+    namen.forEach(function (name, i) {
+      ansichtAnwenden(name);
+      renderer.render(szene, kamera3);
+      var bild = new Image();
+      bild.onload = function () {
+        var sp = i % 2, ze = Math.floor(i / 2);
+        var x = rand + sp * (breit + rand);
+        var y = rand + ze * (hoch + kopf + rand);
+        c.fillStyle = '#fff';
+        c.font = '600 20px Inter, Arial, sans-serif';
+        c.fillText(name, x + 2, y + 19);
+        c.drawImage(bild, x, y + kopf, breit, hoch);
+        if (--offen === 0) {
+          c.fillStyle = 'rgba(255,255,255,.75)';
+          c.font = '16px Inter, Arial, sans-serif';
+          c.fillText(zusammenfassung(), rand + 2, blatt.height - rand / 2);
+          if (vorher) ansichtAnwenden(vorher);
+          neuZeichnen();
+          fertig(blatt.toDataURL('image/png'));
+        }
+      };
+      bild.src = renderer.domElement.toDataURL('image/png');
+    });
+  }
+
   var bildBtn = document.getElementById('k3dBild');
-  if (bildBtn) {
-    bildBtn.addEventListener('click', function () {
-      renderer.render(szene, kamera3);   // sicherstellen, dass der Puffer gefüllt ist
-      var a = document.createElement('a');
-      a.href = renderer.domElement.toDataURL('image/png');
-      a.download = produktName().replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-').replace(/^-|-$/g, '') +
-                   '-' + Z.breite + 'x' + Z.tiefe + 'mm.png';
-      a.target = '_blank'; a.rel = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 4000);
+  var bildMenu = document.getElementById('k3dBildMenu');
+  if (bildBtn && bildMenu) {
+    var menuZeigen = function (auf) {
+      bildMenu.hidden = !auf;
+      bildBtn.setAttribute('aria-expanded', auf ? 'true' : 'false');
+    };
+    bildBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menuZeigen(bildMenu.hidden);
+    });
+    document.addEventListener('click', function (e) {
+      if (!bildMenu.hidden && !bildMenu.contains(e.target)) menuZeigen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !bildMenu.hidden) menuZeigen(false);
+    });
+    Array.prototype.forEach.call(bildMenu.querySelectorAll('[data-k3d-bild]'), function (b) {
+      b.addEventListener('click', function () {
+        var was = b.getAttribute('data-k3d-bild');
+        autoDreht = false;
+        if (was === 'alle') {
+          b.classList.add('ist-laeuft');
+          b.textContent = 'Wird erstellt …';
+          bildAlle(function (url) {
+            bildLaden(url, bildName('alle-Ansichten'));
+            b.classList.remove('ist-laeuft');
+            b.textContent = 'Alle fünf in einem Bild';
+            menuZeigen(false);
+          });
+          return;
+        }
+        var name = was === 'jetzt' ? null : was;
+        bildLaden(bildVonAnsicht(name), bildName(name || kam.ansicht));
+        neuZeichnen();
+        menuZeigen(false);
+      });
     });
   }
 

@@ -1203,6 +1203,60 @@ pruefe('Beschriftung wird am eigenen Feld gesetzt',
              : !/abendBtn\.querySelector\('span'\)/.test(js),
        'nicht mehr am ersten span');
 
+
+/* ---------- Bild speichern am Handy ----------
+   „bei mobile klappen auf handy die ersten 2 symbole nicht deswegen lass
+   sie auf handy weg, mach den download button bissl breiter ... und wenn
+   man draufdrueckt kann man direkt mehrere perspektiven in bilder
+   runterladen" (Betreiber, 11.10.2026). */
+(function () {
+  var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
+  var weg = /\.k3d-nurgross-knopf \{ display: none; \}/.test(block);
+  var label = /#k3dBild \{ padding: 8px 14px/.test(block);
+  if (gegen) { weg = !weg; label = !label; }
+  pruefe('Am Handy nur der Bild-Knopf, mit Beschriftung', weg && label,
+         weg ? (label ? 'Bedienfeld und Vollbild weg, Knopf breiter'
+                      : 'Knopf nicht breiter') : 'die beiden stehen noch da');
+  /* Die Beschriftung darf NICHT die Klasse tragen, die am Handy
+     ausgeblendet wird - sonst ist der Knopf breiter, aber leer. */
+  var btn = (html.match(/id="k3dBild"[^>]*>[\s\S]*?<\/button>/) || [''])[0];
+  var sichtbar = /class="k3d-immer"/.test(btn) && !/k3d-nurgross/.test(btn);
+  if (gegen) sichtbar = !sichtbar;
+  pruefe('Beschriftung bleibt am Handy sichtbar', sichtbar, '');
+})();
+(function () {
+  var menu = (html.match(/<div class="k3d-bildmenu"[\s\S]*?<\/div>/) || [''])[0];
+  var soll = ['jetzt', 'Perspektive', 'Vorne', 'Seite', 'Von oben', 'Darunter', 'alle'];
+  var ist = (menu.match(/data-k3d-bild="([^"]+)"/g) || []).map(function (x) {
+    return x.replace(/data-k3d-bild="|"/g, ''); });
+  if (gegen) soll.push('gibtsnicht');
+  var fehlt = soll.filter(function (x) { return ist.indexOf(x) === -1; });
+  pruefe('Menue bietet jede Ansicht an', !fehlt.length,
+         fehlt.length ? 'fehlt: ' + fehlt.join(', ') : ist.length + ' Einträge');
+})();
+/* Alle fuenf in EINEM Bild statt fuenf Downloads: Handy-Browser lassen
+   nur einen Download je Tipp zu, der Rest geht still verloren. */
+pruefe('Alle Ansichten kommen als ein Blatt',
+       new RegExp(q || 'blatt\\.toDataURL').test(js) &&
+       new RegExp(q || "bildLaden\\(url, bildName\\('alle-Ansichten'\\)\\)").test(js), '');
+(function () {
+  /* Zweiter Weg: zaehlen, wie oft beim Sammelbild wirklich geladen wird.
+     Mehr als einmal waere genau der Fehler, den das Blatt vermeiden soll
+     - Handy-Browser verwerfen den Rest still. Gezaehlt wird im Zweig
+     'alle' des Knopfes, nicht in bildAlle: die Funktion baut nur das
+     Blatt und gibt es weiter. */
+  var zweig = (js.match(/if \(was === 'alle'\) \{[\s\S]*?return;\n        \}/) || [''])[0];
+  var fn = (js.match(/function bildAlle\([\s\S]*?\n  \}/) || [''])[0];
+  var male = (zweig.match(/bildLaden\(/g) || []).length + (gegen ? 1 : 0);
+  var inFn = (fn.match(/bildLaden\(/g) || []).length;
+  pruefe('Sammelbild laedt genau einmal', male === 1 && inFn === 0,
+         male + ' Download(s) im Zweig, ' + inFn + ' in bildAlle');
+})();
+pruefe('Nach dem Speichern steht die Ansicht wie vorher',
+       new RegExp(q || 'if \\(vorher\\) ansichtAnwenden\\(vorher\\)').test(js) &&
+       new RegExp(q || 'vorher && vorher !== name\\) ansichtAnwenden\\(vorher\\)').test(js),
+       'kein Sprung in eine andere Ansicht');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
