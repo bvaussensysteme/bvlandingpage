@@ -721,6 +721,39 @@ pruefe('Die Art steckt in der Aufteilung',
   pruefe('Maserung wird nicht gestaucht', falsch === 0, falsch + ' von 4 verzerrt');
 })();
 
+(function () {
+  /* Schienenlage am Pfosten (Betreiber, 11.10.2026): schmaler als der
+     Pfosten -> mittig auf ihm; breiter -> aussen buendig, der Ueberstand
+     geht nach innen. Nachgerechnet an den drei belegten Bautiefen gegen
+     den 110-mm-Pfosten: Keine Schiene darf nach AUSSEN ueber den Pfosten
+     hinausstehen. Gegenprobe: die alte Lage ohne Versatz. */
+  var PROFIL = 11.0;      // cm, Pfosten
+  var tiefen = [6.13, 11.26, 16.39, 5.12, 10.25, 15.38];
+  var raus = 0, mittig = 0;
+  tiefen.forEach(function (t) {
+    var versatz = gegen ? 0 : (t <= PROFIL ? 0 : (t - PROFIL) / 2);
+    /* vz = +1 nach innen. Aussenkante der Schiene: versatz - t/2,
+       Aussenkante des Pfostens: -PROFIL/2. */
+    if (versatz - t / 2 < -PROFIL / 2 - 0.001) raus++;
+    if (t <= PROFIL && Math.abs(versatz) < 0.001) mittig++;
+  });
+  /* Wie viele MUESSEN mittig sitzen, wird gezaehlt statt angenommen -
+     die erste Fassung dieser Pruefung hatte zwei erwartet und drei
+     bekommen (102,5 mm passen auch noch auf den 110er Pfosten). */
+  var schmal = tiefen.filter(function (t) { return t <= PROFIL; }).length;
+  pruefe('Keine Schiene steht aussen ueber den Pfosten', raus === 0,
+         raus + ' von ' + tiefen.length + ' stehen ueber');
+  pruefe('Schmale Schienen sitzen mittig',
+         gegen ? !(mittig === schmal && schmal > 0) : mittig === schmal,
+         mittig + ' von ' + schmal + ' mittig');
+})();
+pruefe('Schienenlage steht so im Code',
+       new RegExp(q || 'function velarisVersatz').test(js) &&
+       new RegExp(q || 'tiefe <= PROFIL \\? 0 : vz \\* \\(tiefe - PROFIL\\) / 2').test(js), '');
+pruefe('Bodenschiene liegt im Boden',
+       new RegExp(q || 'yUnten - VELARIS\\.bodenSchiene / 2').test(js) &&
+       !/yUnten \+ VELARIS\.bodenSchiene \/ 2/.test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

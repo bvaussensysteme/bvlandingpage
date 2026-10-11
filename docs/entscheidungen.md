@@ -2966,3 +2966,38 @@ Bedienfeld („maßgeblich bleibt das Muster").
 Die Textur kommt verzögert. Wer vorher fragt, landet in einer
 Warteliste und wird beim Eintreffen nachgetragen – ohne Neubau des
 Modells.
+
+## 2026-10-11 – Velaris: Schienen auf den Pfosten, Bodenschiene in den Boden
+
+**Anlass:** „noch gucken die schienen aus den pfosten raus mach es bei
+schienen die schmaler als der pfosten sind vermittelt im pfosten und bei
+breiteren schienen als der pfosten pfosten außen bündig, bodenschiene ist
+im boden barrierefrei eingelassen" (Betreiber).
+
+**Was war:** Kopfprofil und Bodenschiene lagen auf der Elementebene,
+16 mm außerhalb der Pfostenachse – sie schauten seitlich heraus. Die
+Bodenschiene stand außerdem AUF dem Belag.
+
+**Was jetzt gilt:**
+
+| Schiene | Lage |
+|---|---|
+| schmaler als der Pfosten (61,3 · 102,5 · 51,2 mm) | mittig auf dem Pfosten |
+| breiter (112,6 · 163,9 · 153,8 mm) | außen bündig, der Überstand geht nach innen |
+
+Die Bodenschiene liegt **im** Boden: Oberkante bündig mit dem Belag,
+barrierefrei – wie die Bodenschiene der Glasschiebeelemente.
+
+**Mitgezogen:** Die Laufwege werden jetzt ab der **Schienenmitte**
+gemessen und liegen symmetrisch um sie herum. Vorher zählten sie ab der
+Elementebene – sobald die Schiene versetzt sitzt, hinge das Element
+neben seiner eigenen Schiene.
+
+**ACHTUNG, zwei verschiedene Regeln:** Für die **SG23-Schiebeanlagen**
+gilt die umgekehrte („schmaler = bündig innen, breiter = mittig",
+Betreiber am selben Tag). Beide stehen so im Code, jede mit ihrer
+Begründung. Nicht vereinheitlichen, ohne zu fragen.
+
+**Eine Prüfung, die sich selbst korrigiert hat:** Die erste Fassung
+erwartete zwei mittige Schienen und bekam drei – 102,5 mm passen auch
+noch auf den 110er Pfosten. Jetzt wird gezählt statt angenommen.
