@@ -362,6 +362,27 @@ pruefe('Zwischenprofil bei langer Wand',
          falsch + ' Faelle falsch, ' + geteilt + ' Laengen geteilt');
 })();
 
+pruefe('Hoehe hat ein Standard-Haekchen',
+       /id="k3dPlankenHoeheAuto"/.test(html) &&
+       new RegExp(q || 'Z\\.plankenHoeheAuto \\? 0').test(js) &&
+       new RegExp(q || 'ar\\.disabled = Z\\.plankenHoeheAuto').test(js), '');
+/* Der Winkel darf nie hoeher stehen als die Planken. Sichergestellt wird
+   das nicht durch eine zweite Rechnung, sondern dadurch, dass Unter- und
+   Oberkante beim Zeichnen mitgeschrieben und genau so weitergegeben
+   werden. Genau das wird hier festgehalten. */
+pruefe('Winkel endet an der Planke',
+       new RegExp(q || 'plankenWinkel\\(laenge, ok - uk, achse, mitte, uk, quer\\)').test(js) &&
+       new RegExp(q || 'ok = yM \\+ PLANKE\\.hoehe / 2').test(js), '');
+
+/* Das Mass gehoert an BEIDE Stellen: neben den Regler und in die
+   Standzeile - und zwar beides aus dem fertigen Modell. Dazu die freie
+   Resthoehe, die sonst niemand ausrechnet. */
+pruefe('Hoehe in mm neben dem Regler',
+       new RegExp(q || "aw\\.textContent = PLANKEN_IST\\.lage === 'voll'").test(js), '');
+pruefe('Freie Resthoehe wird mitgerechnet',
+       new RegExp(q || 'frei: Math\\.max\\(0, Math\\.round\\(\\(hoehe - hoch\\) \\* 10\\)\\)').test(js) &&
+       new RegExp(q || "' mm bleiben '").test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

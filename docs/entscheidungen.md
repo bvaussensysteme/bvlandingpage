@@ -2613,3 +2613,29 @@ des Winkels, damit es im Bild zusammenpasst. Als Rückfrage notiert.
 
 **In der Anfrage-Mail** steht bei geteilter Wand, in wie viele Felder zu
 welcher Länge geteilt wird.
+
+## 2026-10-11 – Teilhöhe: Standard-Häkchen, Maßangabe, Winkel an der Planke
+
+**Anlass (drei Dinge in einem):** „mach bei höhe auch ein häckchen für
+standart (automatisch), und die winkel sollen auch nur so hoch gehen wie
+die planken nicht höher, niedriger" sowie „und natürlch auch maß anzeigen
+wv mm die entweder von unten sind die planken bis zur ausgewählten höhe
+und von oben andersherum auch".
+
+**1. Häkchen „Standard: ganz zugesetzt"** – wie bei der Fuge. Gesetzt ist
+es volle Höhe, der Regler ist gesperrt.
+
+**2. Maßangabe.** Neben dem Regler steht jetzt die Höhe in Millimetern
+(„1240 mm ab Boden"), nicht mehr nur „von unten". In der Zeile darunter
+zusätzlich, **was offen bleibt**: „980 mm hoch ab Boden (1020 mm bleiben
+oben frei)". Beide Zahlen kommen aus dem fertigen Modell, nicht aus der
+Eingabe.
+
+**3. Winkel.** Sie standen schon seit der Teilhöhe auf Plankenhöhe – aber
+über eine **zweite Rechnung** daneben. Das läuft früher oder später
+auseinander. Jetzt werden Unter- und Oberkante beim Zeichnen der Planken
+**mitgeschrieben** und genau so an den Winkel weitergegeben: Er kann gar
+nicht mehr höher stehen als die Planke, die er trägt.
+
+**Gegenzulesen:** Bei halbhoher Wand darf über der obersten Planke kein
+Winkelstück stehenbleiben – von schräg oben schauen.

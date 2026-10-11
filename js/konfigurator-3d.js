@@ -129,7 +129,8 @@
     plankenFarbe: 'Wie das Gestell',
     plankenFuge: 10,         // Luft zwischen zwei Planken in mm, 0 = bündig
     plankenAuto: true,       // true = das System rechnet die Fuge aus
-    plankenAnteil: 0         // 0 = volle Höhe, <0 wächst von unten, >0 hängt oben
+    plankenAnteil: 0,        // 0 = volle Höhe, <0 wächst von unten, >0 hängt oben
+    plankenHoeheAuto: true   // true = volle Höhe, Regler gesperrt
   };
 
   var FARBEN = {
@@ -2191,7 +2192,7 @@
        Minus heißt: oben weglassen, die Wand wächst von unten.
        Plus heißt: unten weglassen, die Wand hängt oben. */
     function plankenAnteil(n) {
-      var a = Z.plankenAnteil || 0;
+      var a = Z.plankenHoeheAuto ? 0 : (Z.plankenAnteil || 0);
       if (!a) return { von: 0, anzahl: n, lage: 'voll' };
       var bleibt = Math.max(1, n - Math.round(Math.abs(a) / 100 * n));
       return a < 0 ? { von: 0, anzahl: bleibt, lage: 'unten' }
@@ -2251,14 +2252,30 @@
       var hoch = a.anzahl * schritt - t.fuge;
       PLANKEN_IST = { anzahl: a.anzahl, gesamt: t.anzahl,
                       fuge: Math.round(t.fuge * 100) / 10,
-                      hoehe: Math.round(hoch * 10), lage: a.lage };
+                      hoehe: Math.round(hoch * 10), lage: a.lage,
+                      /* Was offen bleibt, gehört genauso ins Bedienfeld wie
+                         das, was zugesetzt ist: „auch maß anzeigen wv mm die
+                         entweder von unten sind die planken bis zur
+                         ausgewählten höhe und von oben andersherum auch"
+                         (Betreiber, 11.10.2026). Gerechnet aus der lichten
+                         Höhe, die wirklich gebaut wurde. */
+                      frei: Math.max(0, Math.round((hoehe - hoch) * 10)),
+                      licht: Math.round(hoehe * 10) };
+      /* Unter- und Oberkante werden beim Zeichnen MITGESCHRIEBEN, nicht
+         zweimal gerechnet. Der Winkel bekommt genau diese Werte, damit er
+         nie höher stehen kann als die Planken, die er trägt – „die winkel
+         sollen auch nur so hoch gehen wie die planken nicht höher"
+         (Betreiber, 11.10.2026). Eine zweite Rechnung daneben würde
+         früher oder später auseinanderlaufen. */
+      var uk = null, ok = null;
       for (var i = 0; i < a.anzahl; i++) {
-        platte(mPlankeWand, laenge, PLANKE.hoehe, achse, mitte,
-               yUnten + PLANKE.hoehe / 2 + (a.von + i) * schritt, quer, 0, PLANKE.dicke);
+        var yM = yUnten + PLANKE.hoehe / 2 + (a.von + i) * schritt;
+        platte(mPlankeWand, laenge, PLANKE.hoehe, achse, mitte, yM, quer, 0, PLANKE.dicke);
+        if (uk === null) uk = yM - PLANKE.hoehe / 2;
+        ok = yM + PLANKE.hoehe / 2;
       }
-      /* Die Winkel stehen nur dort, wo auch Planken hängen – sie tragen
-         sie ja. Ein Winkel über der letzten Planke hätte nichts zu halten. */
-      plankenWinkel(laenge, hoch, achse, mitte, yUnten + a.von * schritt, quer);
+      if (uk === null) return;
+      plankenWinkel(laenge, ok - uk, achse, mitte, uk, quer);
     }
 
     /* Der Winkel läuft senkrecht am Pfosten hoch; die Planken werden an
@@ -4309,12 +4326,23 @@
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
     if (!PLANKEN_IST.anzahl) { e.textContent = ''; return; }
+    /* Dieselbe Zahl auch neben den Regler – dort wird sie gesucht. */
+    var aw = document.getElementById('k3dPlankenAnteilWert');
+    if (aw) {
+      aw.textContent = PLANKEN_IST.lage === 'voll'
+        ? 'volle Höhe, ' + PLANKEN_IST.hoehe + ' mm'
+        : PLANKEN_IST.hoehe + ' mm ' +
+          (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach');
+    }
     e.textContent = 'Gebaut: ' + PLANKEN_IST.anzahl +
       (PLANKEN_IST.lage === 'voll' ? '' : ' von ' + PLANKEN_IST.gesamt) +
       ' Planken, Fuge ' + String(PLANKEN_IST.fuge).replace('.', ',') + ' mm' +
-      (PLANKEN_IST.lage === 'voll'
-        ? '' : ', ' + PLANKEN_IST.hoehe + ' mm hoch ' +
-               (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach')) +
+      ', ' + PLANKEN_IST.hoehe + ' mm hoch ' +
+      (PLANKEN_IST.lage === 'oben' ? 'unter dem Dach' : 'ab Boden') +
+      (PLANKEN_IST.frei > 0
+        ? ' (' + PLANKEN_IST.frei + ' mm bleiben ' +
+          (PLANKEN_IST.lage === 'oben' ? 'unten' : 'oben') + ' frei)'
+        : '') +
       (PLANKEN_IST.felder > 1
         ? '. Über 7 m nicht am Stück lieferbar: ' + PLANKEN_IST.felder +
           ' gleiche Felder zu je ' + PLANKEN_IST.feldLaenge +
@@ -5190,7 +5218,8 @@
                    (PLANKEN_IST.lage === 'voll' ? ', volle Höhe'
                      : ', nur ' + PLANKEN_IST.anzahl + ' von ' + PLANKEN_IST.gesamt +
                        ' Planken (rund ' + PLANKEN_IST.hoehe + ' mm, ' +
-                       (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach') + ')') +
+                       (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach') +
+                       ', ' + PLANKEN_IST.frei + ' mm offen)') +
                    (PLANKEN_IST.felder > 1
                      ? '; über 7 m gestoßen: ' + PLANKEN_IST.felder +
                        ' Felder zu je ' + PLANKEN_IST.feldLaenge + ' mm mit Zwischenprofil'
@@ -5338,7 +5367,8 @@
      ['wettersensor', 'k3dWetter'],
      ['traegerWunsch', 'k3dTraeger'],
      ['hoeheGetrennt', 'k3dHoeheGetrennt'],
-     ['plankenAuto', 'k3dPlankenAuto']].forEach(function (pr) {
+     ['plankenAuto', 'k3dPlankenAuto'],
+     ['plankenHoeheAuto', 'k3dPlankenHoeheAuto']].forEach(function (pr) {
       var el = document.getElementById(pr[1]);
       if (el) Z[pr[0]] = el.checked;
     });
@@ -5493,9 +5523,11 @@
     }
     var aw = document.getElementById('k3dPlankenAnteilWert');
     if (aw) {
-      aw.textContent = !Z.plankenAnteil ? 'volle Höhe'
+      aw.textContent = (Z.plankenHoeheAuto || !Z.plankenAnteil) ? 'volle Höhe'
                      : (Z.plankenAnteil < 0 ? 'von unten' : 'von oben');
     }
+    var ar = document.getElementById('k3dPlankenAnteil');
+    if (ar) ar.disabled = Z.plankenHoeheAuto;
     var fr = document.getElementById('k3dPlankenFuge');
     if (fr) fr.disabled = Z.plankenAuto;
     var fz = document.getElementById('k3dPlankenFugeZahl');
@@ -5722,7 +5754,7 @@
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
-   'k3dPlankenAnteil'].forEach(function (id) {
+   'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendernGebremst);
