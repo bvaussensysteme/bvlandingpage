@@ -209,6 +209,38 @@ pruefe('Jede Seite hat ihren eigenen Oeffnungsstand',
 pruefe('Regler setzt weiterhin alle drei Seiten',
        new RegExp(q || 'Z\\.offenLinks = Z\\.offenRechts = Z\\.offenVorne = offenNeu').test(src), '');
 
+/* ---------- Tuerschwelle und Schiebetuerfuehrung ----------
+   BELEGT: SG23-Profilschnitte. Je Gleiszahl ein eigenes Mass – mit jedem
+   Gleis wird das Profil tiefer. Vorher stand hier eine erfundene
+   Bodenschiene 55 x 60 mm, oben gar nichts. */
+var SG23_PROFIL = {
+  schwelle: { hoehe: 36, tiefe: { 3: 76.2, 4: 100.2, 5: 115.5 } },
+  fuehrung: { hoehe: 35, tiefe: { 3: 78.4, 4: 104.0, 5: 129.6 } }
+};
+(function () {
+  var mS = src.match(/var SCHWELLE = \{ hoehe: ([\d.]+), tiefe: \{ 3: ([\d.]+), 4: ([\d.]+), 5: ([\d.]+) \} \};/);
+  var mF = src.match(/var FUEHRUNG = \{ hoehe: ([\d.]+), tiefe: \{ 3: ([\d.]+), 4: ([\d.]+), 5: ([\d.]+) \} \};/);
+  if (!mS || !mF) { pruefe('Profilmasse lesbar', false, 'Zeilen nicht gefunden'); return; }
+  [['Türschwelle', mS, SG23_PROFIL.schwelle], ['Schiebetürführung', mF, SG23_PROFIL.fuehrung]]
+    .forEach(function (f) {
+      var h = parseFloat(f[1][1]) * 10 + (gegen ? 7 : 0);
+      pruefe(f[0] + ' Hoehe', Math.abs(h - f[2].hoehe) < 0.5, h + ' mm (erwartet ' + f[2].hoehe + ')');
+      [3, 4, 5].forEach(function (g, i) {
+        var t = parseFloat(f[1][i + 2]) * 10 + (gegen ? 7 : 0);
+        pruefe(f[0] + ' ' + g + '-gleisig', Math.abs(t - f[2].tiefe[g]) < 0.5,
+               t + ' mm (erwartet ' + f[2].tiefe[g] + ')');
+      });
+    });
+})();
+pruefe('Gleiszahl kommt aus der gewaehlten Bauart',
+       new RegExp(q || 'function gleise\\(seite, laenge\\)').test(src), 'nicht fest 3-gleisig');
+pruefe('Fluegel stehen auf der Schwelle',
+       new RegExp(q || 'var yUnten = SCHWELLE\\.hoehe;').test(src), '');
+pruefe('Fluegel enden unter der Fuehrung',
+       new RegExp(q || "hatSchiebeHier \\? FUEHRUNG\\.hoehe : 0").test(src), '');
+pruefe('Erfundene Bodenschiene ist weg',
+       gegen ? /SCHIENE_H = 5\.5/.test(src) : !/SCHIENE_H/.test(src), '55 x 60 mm geschaetzt');
+
 /* ---------- Massschilder ---------- */
 pruefe('Massschild kleiner als vorher',
        gegen ? /SCHILD_HOCH = 24/.test(src) : /SCHILD_HOCH = 14/.test(src),
