@@ -1153,6 +1153,32 @@ pruefe('Ohne Beobachter bleibt alles sichtbar',
        new RegExp(q || "if \\(!app \\|\\| !\\('IntersectionObserver' in window\\)\\) return;").test(html),
        'alte Browser sehen die Knoepfe');
 
+
+/* ---------- Ansichtsleiste am Handy ----------
+   „in der breite bitte von bildschirmrand zu bildschirmrand" und „etwas
+   schmaler in der hoehe, aber alles gut lesbar" (Betreiber, 11.10.2026). */
+(function () {
+  var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
+  var leiste = (block.match(/\.k3d-leiste \{[\s\S]*?\}/) || [''])[0];
+  var knopf = (block.match(/\.k3d-leiste button \{[^}]*\}/) || [''])[0];
+  var falsch = 0, meld = [];
+  if (!/left: 0; right: 0/.test(leiste)) { falsch++; meld.push('nicht randlos'); }
+  if (!/border-radius: 0/.test(leiste)) { falsch++; meld.push('noch abgerundet'); }
+  if (/right: 74px/.test(leiste)) { falsch++; meld.push('alter Abstand fuer die Knoepfe'); }
+  /* Flacher ueber die Polster, nicht ueber die Schrift: die Schriftgroesse
+     muss bleiben, sonst wird es unleserlich. */
+  var fs = (knopf.match(/font-size: ([\d.]+)rem/) || [])[1];
+  var pad = (knopf.match(/padding: (\d+)px/) || [])[1];
+  if (gegen) { fs = '0.6'; pad = '7'; }
+  if (!fs || parseFloat(fs) < 0.7) { falsch++; meld.push('Schrift zu klein (' + fs + 'rem)'); }
+  if (!pad || parseInt(pad, 10) > 5) { falsch++; meld.push('Polster noch ' + pad + 'px'); }
+  pruefe('Ansichtsleiste randlos und flacher', falsch === 0,
+         falsch === 0 ? 'Schrift ' + fs + 'rem, Polster ' + pad + 'px' : meld.join('; '));
+})();
+pruefe('Platz fuer die Streifenleiste des iPhones',
+       new RegExp(q || 'env\\(safe-area-inset-bottom').test(html),
+       'sonst liegt sie ueber den Knoepfen');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

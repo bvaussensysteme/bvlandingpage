@@ -465,15 +465,29 @@
       .k3d-oben { right: 8px; top: 8px; gap: 5px; }
       .k3d-oben button { padding: 7px 9px; font-size: .72rem; }
       .k3d-oben .k3d-nurgross { display: none; }
-      /* Rechts bleibt Platz für die Sprechblase des Anfrage-Assistenten */
+      /* Von Rand zu Rand und flacher: „die anzeige bitte etwas schmaler
+         machen in der höhe aber das alles gut lesbar bleibt, aber in der
+         breite bitte von bildschirmrand zu bildschirmrand" (Betreiber,
+         11.10.2026).
+
+         Der frühere Abstand rechts (74 px) hielt die Schwebe-Knöpfe frei.
+         Die sind im Bereich des Konfigurators jetzt ausgeblendet, also
+         ist der Platz frei. Die Schriftgröße bleibt bei 0,72 rem – flacher
+         wird die Leiste über die Polster, nicht über die Lesbarkeit.
+         Unten kommt der Platz für die Streifenleiste des iPhones dazu,
+         sonst liegt sie über den Knöpfen. */
       .k3d-leiste {
-        left: 6px; right: 74px; bottom: 6px; transform: none; max-width: none;
-        overflow-x: auto; padding: 5px; scrollbar-width: none;
+        left: 0; right: 0; bottom: 0; transform: none; max-width: none;
+        overflow-x: auto; scrollbar-width: none;
+        padding: 3px 6px;
+        padding-bottom: calc(3px + env(safe-area-inset-bottom, 0px));
+        border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0;
+        justify-content: flex-start;
       }
       .k3d-leiste::-webkit-scrollbar { display: none; }
-      .k3d-leiste button { padding: 7px 8px; font-size: .72rem; flex: none; }
+      .k3d-leiste button { padding: 4px 9px; font-size: .72rem; flex: none; }
       .k3d-maushinweis { display: none; }
-      .k3d-klickhinweis { bottom: 46px; font-size: .68rem; padding: 4px 8px; }
+      .k3d-klickhinweis { bottom: 40px; font-size: .68rem; padding: 4px 8px; }
     }
     @media (max-width: 420px) {
       .k3d-farben { grid-template-columns: repeat(2, 1fr); }
@@ -1422,7 +1436,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015t" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015u" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

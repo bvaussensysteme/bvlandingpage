@@ -3708,3 +3708,28 @@ störender Knopf als ein verschwundener.
 **Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 148, Gegenprobe
 148 von 148. Darunter eine, die verbietet, den Knopf später doch
 dauerhaft auszublenden.
+
+## 11.10.2026 – Ansichtsleiste am Handy: randlos und flacher
+
+**Anlass.** „die anzeige bitte etwas schmaler machen in der höhe aber
+das alles gut lesbar bleibt, aber in der breite bitte von bildschirmrand
+zu bildschirmrand" (Betreiber, mit Bildschirmfoto der Leiste
+Perspektive / Vorne / Seite / Von oben / Darunter).
+
+**Was jetzt gilt.** Die Leiste läuft am Handy von Rand zu Rand (links
+und rechts 0, keine Rundung) und sitzt bündig unten. Der frühere Abstand
+von 74 px rechts hielt die Schwebe-Knöpfe frei – die sind im Bereich des
+Konfigurators jetzt ausgeblendet, also ist der Platz frei.
+
+**Flacher über die Polster, nicht über die Schrift.** Die Schriftgröße
+bleibt bei 0,72 rem; gespart wird an den Polstern (Knopf 7 → 4 px,
+Leiste 5 → 3 px). Das ist etwa ein Viertel weniger Höhe, ohne dass etwas
+schlechter zu lesen ist. Eine Prüfung hält beides zusammen: randlos UND
+Schrift nicht unter 0,7 rem.
+
+**Dazu der Platz für die Streifenleiste des iPhones**
+(`env(safe-area-inset-bottom)`) – ohne den liegt sie bei randlosen
+Geräten über den Knöpfen.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 150, Gegenprobe
+150 von 150.
