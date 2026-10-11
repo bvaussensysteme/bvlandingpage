@@ -782,3 +782,42 @@ Kunden.
 bestanden; Gegenprobe 9 von 9. Sie fängt vor allem den Fall ab, dass eine
 neue Bedieneinheit ohne `data-k3d-schritt` eingebaut wird: die wäre im
 geführten Modus unsichtbar, und es würde niemandem auffallen.
+
+## 2026-10-11 – Bedienfeld wächst mit der Bildschirmbreite
+
+**Anlass.** Der Betreiber mit zwei Bildschirmfotos: „man kann diesen
+einstellungsbereich ja noch etwas verbreitern halt ausgeglichen das man
+3d noch gut sieht aber auch vernünftig konfigurieren kann, so im goldenen
+schnitt goldene mitte."
+
+**Was falsch war.** Das Bedienfeld war fest 352 px breit. Auf dem
+Bildschirmfoto sieht man die Folge: „Streifenfundament" bricht mitten im
+Wort ab, „Punktfundament" ebenso – und daneben stehen auf einem 1900 px
+breiten Bildschirm 1500 px Rasen.
+
+**Was jetzt gilt.** `--k3d-sl-breite: clamp(360px, 30vw, 520px)`.
+
+| Bildschirm | Bedienfeld | Anteil |
+|---|---|---|
+| 1900 px | 520 px | 27 % |
+| 1600 px | 480 px | 30 % |
+| 1280 px | 384 px | 30 % |
+| 1100 px | 360 px | 33 % |
+
+**Warum nicht der echte goldene Schnitt.** 38 % von 1900 px wären 722 px –
+so breit wird eine Spalte aus Knöpfen unruhig, und das Modell verliert
+genau die Fläche, wegen der es da ist. Ein knappes Viertel bis Drittel ist
+die Mitte, die der Betreiber meint: genug Platz für zweizeilige
+Beschriftungen, das Modell bleibt die Hauptsache.
+
+Dazu `overflow-wrap: break-word; hyphens: auto` auf den Knöpfen – damit
+ein langes Wort umbricht statt abgeschnitten zu werden, auch wenn jemand
+später einen längeren Text einträgt.
+
+Die zugeklappte Stellung rechnet jetzt mit derselben Variablen
+(`margin-left: calc(var(--k3d-sl-breite) * -1)`); vorher standen die
+352 px an zwei Stellen und wären beim nächsten Mal auseinandergelaufen.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` – 10 Prüfungen, Gegenprobe
+10 von 10. Eine davon schlägt an, wenn jemand wieder eine feste Breite
+einträgt.

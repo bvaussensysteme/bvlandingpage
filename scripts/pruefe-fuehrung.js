@@ -57,6 +57,10 @@ pruefe('Selten Gebrauchtes liegt hinter „Mehr Einstellungen"',
 
 /* Die Anfrage muss ALLE drei Seiten nennen, auch die offenen – sonst
    steht in der Mail nicht, dass eine Seite offen bleiben SOLL. */
+/* Feste Panelbreite liess lange Knopftexte mitten im Wort abbrechen. */
+pruefe('Bedienfeld waechst mit der Bildschirmbreite',
+       new RegExp(q || '--k3d-sl-breite: clamp\\(').test(html) &&
+       !/width: 352px/.test(html), 'clamp statt feste 352px');
 pruefe('Anfrage nennt auch die offenen Seiten',
        new RegExp(q || "'offen'\\)\\);").test(js) &&
        new RegExp(q || "'Seitenelemente – '").test(js), 'textAktualisieren()');
