@@ -253,13 +253,29 @@
      SEINEM Weg davor liegt. Dieselbe Rechnung braucht das Modell
      beim Bauen und die Animation beim Fahren – deshalb steht sie
      hier einmal und nicht zweimal. */
-  function velarisLagen(links, elLaenge, anzahl, schienen, offen) {
-    var lagen = [];
-    for (var e = 0; e < anzahl; e++) {
-      var frei = links + (e + 0.5) * elLaenge - offen * e * elLaenge;
-      var vorher = e - schienen;
-      if (vorher >= 0) frei = Math.max(frei, lagen[vorher] + elLaenge);
-      lagen.push(frei);
+  function velarisLagen(links, elLaenge, anzahl, schienen, offen, rk) {
+    var lagen = new Array(anzahl), e, frei, nachbar;
+    if (rk !== -1) {
+      /* Öffnet nach links: Das erste Element bleibt stehen, die übrigen
+         fahren darauf zu und werden an dem gebremst, das auf IHREM
+         Laufweg davor liegt. */
+      for (e = 0; e < anzahl; e++) {
+        frei = links + (e + 0.5) * elLaenge - offen * e * elLaenge;
+        nachbar = e - schienen;
+        if (nachbar >= 0) frei = Math.max(frei, lagen[nachbar] + elLaenge);
+        lagen[e] = frei;
+      }
+      return lagen;
+    }
+    /* Öffnet nach rechts – dasselbe spiegelbildlich: Das LETZTE Element
+       bleibt stehen, gerechnet wird von hinten nach vorn. Gebraucht
+       wird das an der Stirnseite mit Zwischenpfosten, wo jedes Feld
+       nach außen aufgehen soll. */
+    for (e = anzahl - 1; e >= 0; e--) {
+      frei = links + (e + 0.5) * elLaenge + offen * (anzahl - 1 - e) * elLaenge;
+      nachbar = e + schienen;
+      if (nachbar <= anzahl - 1) frei = Math.min(frei, lagen[nachbar] - elLaenge);
+      lagen[e] = frei;
     }
     return lagen;
   }
@@ -2608,7 +2624,7 @@
       return Z.velarisArt === 'verschiebbar' && n <= VELARIS.schiebbarMax;
     }
 
-    function velaris(laenge, hoehe, achse, mitte, yUnten, quer) {
+    function velaris(laenge, hoehe, achse, mitte, yUnten, quer, richtung) {
       if (laenge <= 0 || hoehe <= VELARIS.rahmen * 2) return;
       var anzahl = velarisElemente(laenge);
       if (!anzahl) { VELARIS_IST = { elemente: 0, breite: 0, schienen: 0 }; return; }
@@ -2656,11 +2672,18 @@
       var offen = velarisSchiebbar(anzahl) ? Math.min(100, Math.max(0, Z.velarisOffen)) / 100 : 0;
       if (anzahl > 1) {
         var links = mitte - laenge / 2;
-        var lagen = velarisLagen(links, elLaenge, anzahl, schienen, offen);
-        var zu = velarisLagen(links, elLaenge, anzahl, schienen, 0);
+        /* Laufrichtung wie bei den Glasschiebewänden: An der Stirnseite
+           mit Zwischenpfosten geht jedes Feld nach AUSSEN auf, also vom
+           Pfosten in der Mitte weg („auf der stirnseite soll es wie bei
+           glasschiebewände sein bei zwischenpfosten gehen die module von
+           der mitte nach außen auf", Betreiber, 11.10.2026). An den
+           Seiten bleibt es bei der bisherigen Richtung. */
+        var rk = (richtung === -1) ? -1 : 1;
+        var lagen = velarisLagen(links, elLaenge, anzahl, schienen, offen, rk);
+        var zu = velarisLagen(links, elLaenge, anzahl, schienen, 0, rk);
         VELARIS_FAHRT = { gruppen: [], lagenZu: zu, links: links,
                           elLaenge: elLaenge, anzahl: anzahl,
-                          schienen: schienen, quer: quer };
+                          schienen: schienen, quer: quer, rk: rk };
         for (var e = 0; e < anzahl; e++) {
           /* Jedes Element in eine eigene Gruppe: Dann verschiebt die
              Animation nur noch deren Position statt alles neu zu bauen. */
@@ -2920,7 +2943,7 @@
       if (liste.indexOf('Velaris') > -1) {
         /* Die Pfostenachse, nicht die Elementebene: Wo die Schienen
            liegen, hängt am Pfosten – siehe velarisVersatz(). */
-        velaris(laenge, hoch, achse, mitte, yUnten, quer);
+        velaris(laenge, hoch, achse, mitte, yUnten, quer, richtung);
       }
 
       /* Keil: das Dreieck zwischen waagerechter Oberkante des Elements und
@@ -5021,7 +5044,8 @@
          Zusammenfassung und Anfrage wieder stimmen. */
       var f = VELARIS_FAHRT;
       if (f) {
-        var jetzt = velarisLagen(f.links, f.elLaenge, f.anzahl, f.schienen, w / 100);
+        var jetzt = velarisLagen(f.links, f.elLaenge, f.anzahl, f.schienen,
+                                 w / 100, f.rk);
         for (var i = 0; i < f.gruppen.length; i++) {
           velarisSchieben(f.gruppen[i], f.quer, jetzt[i] - f.lagenZu[i]);
         }

@@ -585,8 +585,10 @@ pruefe('Elementzahl automatisch oder selbst gewaehlt',
 })();
 
 pruefe('Laufweg bremst das Element davor',
-       new RegExp(q || 'var vorher = e - schienen').test(js) &&
-       new RegExp(q || 'frei = Math\\.max\\(frei, lagen\\[vorher\\] \\+ elLaenge\\)').test(js), '');
+       new RegExp(q || 'nachbar = e - schienen').test(js) &&
+       new RegExp(q || 'frei = Math\\.max\\(frei, lagen\\[nachbar\\] \\+ elLaenge\\)').test(js) &&
+       new RegExp(q || 'nachbar = e \\+ schienen').test(js) &&
+       new RegExp(q || 'frei = Math\\.min\\(frei, lagen\\[nachbar\\] - elLaenge\\)').test(js), '');
 pruefe('Verschiebbare Velaris fahren wie die Glaswaende',
        new RegExp(q || 'function velarisSchiebenFahren').test(js) &&
        new RegExp(q || "\\['k3dVelarisSchiebenAuf', 'k3dVelarisOffen', 100\\]").test(js) &&
@@ -777,9 +779,61 @@ pruefe('Velaris laesst sich anklicken',
            (schieb.match(/aendern\(\)/g) || []).length <= 3;
   pruefe('Animation baut das Modell nicht neu', gegen ? !ok : ok, '');
 })();
-pruefe('Lagenrechnung steht nur einmal da',
-       new RegExp(q || 'function velarisLagen').test(js) &&
-       (js.match(/vorher >= 0\) frei = Math\.max/g) || []).length === 1, '');
+(function () {
+  /* Die Lagenrechnung darf es nur EINMAL geben - Modell und Animation
+     benutzen dieselbe. Gezaehlt werden die Bremsen: je eine Richtung,
+     mehr nicht. */
+  var bremsen = (js.match(/lagen\[nachbar\]/g) || []).length;
+  pruefe('Lagenrechnung steht nur einmal da',
+         new RegExp(q || 'function velarisLagen').test(js) &&
+         (gegen ? bremsen !== 2 : bremsen === 2),
+         bremsen + ' Bremsen im Code');
+})();
+
+(function () {
+  /* Stirnseite mit Zwischenpfosten: Jedes Feld geht nach AUSSEN auf, wie
+     bei den Glasschiebewaenden (Betreiber, 11.10.2026). Geprueft wird
+     nicht die Absicht, sondern die Spiegelsymmetrie: Nach rechts
+     geoeffnet muss genau das Spiegelbild von "nach links" sein - und
+     geschlossen muessen beide gleich sein. */
+  function lagen(links, el, n, s, offen, rk) {
+    var L = new Array(n), e, f, nb;
+    if (rk !== -1) {
+      for (e = 0; e < n; e++) {
+        f = links + (e + 0.5) * el - offen * e * el;
+        nb = e - s;
+        if (nb >= 0) f = Math.max(f, L[nb] + el);
+        L[e] = f;
+      }
+      return L;
+    }
+    for (e = n - 1; e >= 0; e--) {
+      f = links + (e + 0.5) * el + (gegen ? -offen : offen) * (n - 1 - e) * el;
+      nb = e + s;
+      if (nb <= n - 1) f = Math.min(f, L[nb] - el);
+      L[e] = f;
+    }
+    return L;
+  }
+  var el = 100, falsch = 0;
+  [[2, 3], [2, 4], [3, 3], [1, 2]].forEach(function (k) {
+    var s = k[0], n = k[1], laenge = n * el;
+    for (var p10 = 0; p10 <= 10; p10++) {
+      var o = p10 / 10;
+      var li = lagen(0, el, n, s, o, 1), re = lagen(0, el, n, s, o, -1);
+      for (var i = 0; i < n; i++) {
+        /* Spiegelbild: Element i rechts entspricht Element n-1-i links. */
+        if (Math.abs(re[i] - (laenge - li[n - 1 - i])) > 0.001) falsch++;
+        if (re[i] - el / 2 < -0.001 || re[i] + el / 2 > laenge + 0.001) falsch++;
+      }
+    }
+  });
+  pruefe('Nach aussen oeffnen ist das Spiegelbild', falsch === 0,
+         falsch + ' Abweichungen');
+})();
+pruefe('Die Richtung kommt von der Seite',
+       new RegExp(q || 'velaris\\(laenge, hoch, achse, mitte, yUnten, quer, richtung\\)').test(js) &&
+       new RegExp(q || "var rk = \\(richtung === -1\\) \\? -1 : 1").test(js), '');
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
