@@ -2432,3 +2432,30 @@ vorsichtig gebaut:
 Bildschirmen wären das viermal so viele Bildpunkte, und ein Absenken
 beim Ziehen würde man sehen. Das wäre der nächste Hebel, wenn es immer
 noch hakt – aber nicht ungefragt, weil es die Bildschärfe kostet.
+
+## 2026-10-11 – „Was daraus folgt" verschwindet, statt sich zu entschuldigen
+
+**Anlass:** „lass das weg" (Betreiber, mit Bildschirmfoto des Kastens).
+
+**Was war:** Bei Produkten ohne Herstellerzahlen stand der Kasten da und
+sagte zweimal dasselbe – einmal als Listenzeile, einmal als Kleingedrucktes
+darunter: es lägen keine Zahlen vor, die Darstellung sei eine Skizze.
+
+**Was jetzt gilt:** Ohne Zahlen ist der Kasten **ganz weg**. Mit Zahlen
+erscheint er wie bisher.
+
+**Warum so:** Ein Kasten, der nur erklärt, dass er nichts zu sagen hat,
+verunsichert beim Produkt, statt zu informieren – und das zu Unrecht: Das
+3D-Modell ist auch ohne Matrix nach den Regeln gezeichnet, und für TDS,
+SkyView und Flat Line kommen die Stückzahlen seit dem 11.10. ohnehin aus
+`js/masstabelle.js`. Der Kasten fehlt nur dort, wo es wirklich nichts
+Belegtes zu zeigen gibt.
+
+**Mitgeändert:** Der Satz unter den Maßreglern verwies auf „siehe ‚Was
+daraus folgt'" – ein Verweis auf etwas, das fehlen kann. Der Verweis ist
+raus, die Aussage (abgerechnet wird nach dem nächsten Rasterfeld) bleibt.
+Die Gruppenregel `geschaetzt` wird nicht mehr gebraucht und ist entfernt.
+
+**Gegenzulesen:** Bei einem Produkt **ohne** Matrix (Carport TDS, Flat Box)
+darf rechts kein leerer gelber Kasten stehen; bei TDS mit Maßen muss er
+vollständig erscheinen.
