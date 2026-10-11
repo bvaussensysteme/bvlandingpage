@@ -1829,7 +1829,19 @@
        Höhen: Schwelle 36 mm (Stege über dem Grundkörper), Führung 35 mm.
        Die Gleiszahl kommt aus der gewählten Bauart – eine 8-türige Anlage
        läuft 4-gleisig und braucht deshalb die tiefere Schwelle. */
-    var SCHWELLE = { hoehe: 3.6, tiefe: { 3: 7.62, 4: 10.02, 5: 11.55 } };
+    /* Die Schwelle wird EINGELASSEN, nicht aufgesetzt: „das wird ja
+       eingelassen in den boden das es barrierefrei is" (Betreiber,
+       11.10.2026). Vorher stand sie mit ihren vollen 36 mm auf dem Belag
+       – eine Stolperkante, die es in echt nicht gibt, und sie hätte die
+       Barrierefreiheit zunichte gemacht, für die das System gebaut wird.
+
+       Gezeichnet wird sie deshalb bis auf einen Hauch unter Belagsniveau.
+       Die 2 mm Überstand sind kein Bauteilmaß, sondern Zeichentechnik:
+       Läge die Oberfläche exakt auf dem Belag, flimmerten beide Flächen
+       ineinander (z-fighting). Sichtbar bleibt damit die Laufschiene als
+       Linie im Boden – genau wie in Wirklichkeit. */
+    var SCHWELLE = { hoehe: 3.6, ueberstand: 0.2,
+                     tiefe: { 3: 7.62, 4: 10.02, 5: 11.55 } };
     var FUEHRUNG = { hoehe: 3.5, tiefe: { 3: 7.84, 4: 10.40, 5: 12.96 } };
 
     /* ---------- Profile des Flügels ----------
@@ -1943,7 +1955,8 @@
 
     function tuerschwelle(laenge, achse, mitte, quer, g) {
       var t = SCHWELLE.tiefe[g] || SCHWELLE.tiefe[3];
-      platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte, SCHWELLE.hoehe / 2,
+      platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte,
+             SCHWELLE.ueberstand - SCHWELLE.hoehe / 2,
              quer, schienenVersatz(achse, quer, t), t);
     }
 
@@ -1959,7 +1972,8 @@
        direkt auf dem Belag; dafür genügt die Schwellenhöhe als Sockel. */
     function bodenschiene(laenge, achse, mitte, quer) {
       var t = SCHWELLE.tiefe[3];
-      platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte, SCHWELLE.hoehe / 2,
+      platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte,
+             SCHWELLE.ueberstand - SCHWELLE.hoehe / 2,
              quer, schienenVersatz(achse, quer, t), t);
     }
 
@@ -2085,7 +2099,10 @@
          reichte bis unter das Dach. */
       var gl = gleise(seite, laenge);
       var okOben = hVorn - PROFIL / 2;
-      var yUnten = SCHWELLE.hoehe;
+      /* Die Elemente stehen jetzt praktisch auf dem Belag – die Schwelle
+         liegt darin, nicht darauf. Die Durchgangshöhe darunter bleibt
+         damit die eingestellte. */
+      var yUnten = SCHWELLE.ueberstand;
       var hatSchiebeHier = erwListe(seite).indexOf('Schiebetür') > -1;
       var fuehrungH = hatSchiebeHier ? FUEHRUNG.hoehe : 0;
       var hoch = okOben - yUnten - fuehrungH;
