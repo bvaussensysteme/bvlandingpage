@@ -7728,7 +7728,14 @@
       Z.abend = !Z.abend;
       abendBtn.classList.toggle('is-active', Z.abend);
       abendBtn.setAttribute('aria-pressed', Z.abend ? 'true' : 'false');
-      abendBtn.querySelector('span').textContent = Z.abend ? 'Tag' : 'Abend';
+      /* Beschriftung UND Symbol: Mond, solange der Abend erst kommt,
+         Sonne, wenn man zurück in den Tag schalten kann. Vorher wurde
+         mit querySelector('span') das erste span beschrieben – seit dort
+         das Symbol steht, wäre es damit überschrieben worden. */
+      var txt = abendBtn.querySelector('.k3d-txt');
+      var sym = abendBtn.querySelector('.k3d-sym');
+      if (txt) txt.textContent = Z.abend ? 'Tag' : 'Abend';
+      if (sym) sym.textContent = Z.abend ? '☀' : '☾';
       bauen();
     });
   }
