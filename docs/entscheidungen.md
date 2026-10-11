@@ -4748,3 +4748,49 @@ Die Entscheidung ist gefallen: schlanke Sparren, höherer Kasten.
 **Offen.** Wie hoch die Blende beim echten System wirklich ist – gestaffelte
 Profilhöhen? Flacheres Gefälle bei großen Tiefen? Steht in
 `docs/NEXT_TASK.md`.
+
+## 2026-10-11 – Maßtabelle gegen die Preislisten-PDF geprüft
+
+**Anlass.** Frage des Betreibers, ob für SkyView andere Pfostenabstände gelten;
+dazu die PDF „Masstabelle Terrassendaecher" (Stand 2026-10-11, Quelle
+VD-Preislisten, ohne Preise), 1316 Datensätze für TDS, SkyView und Flat Line.
+
+**Geprüft, alles in Ordnung.** Alle Breiten-, Sparren- und Pfostenzahlen in
+`js/masstabelle.js` stimmen mit der PDF überein – auch die 616 SkyView-Sätze.
+Die beiden verdichteten Regeln halten über **alle 1316 Datensätze ohne eine
+einzige Abweichung**: Pfosten = Liste + (Tiefe > 4500 bzw. > 7000 ? 1 : 0),
+Unterzug ab Tiefe > 4500.
+
+Die Pfostenzahlen für SkyView unterscheiden sich tatsächlich von TDS – bei
+10 m Breite 3 statt 5 Stützfüße, bei 12–14 m 4 statt 5. Das Modell nimmt die
+richtige Spalte, weil es nach Produkt unterscheidet.
+
+**Zwei Widersprüche, die der Betreiber entscheiden muss.**
+1. **TDS-Tiefe 7050 mm.** Die PDF führt diese Tiefe in **allen 30 Breiten** als
+   `LIEFERBAR=nein` (= über dem Maximum); letzte lieferbare Tiefe wäre 6550 mm.
+   Am 11.10.2026 hieß es dagegen: „bei tds is die maximale tiefe 7050mm".
+   Im Modell steht jetzt 7050. Das hat Außenwirkung: Wer 7050 einstellt und
+   ein Angebot bekommt, erwartet eine Lieferung.
+2. **Pfostenachse in der Tiefe.** Die PDF nennt belegt
+   `PFOSTENACHSE_AB_VORDERKANTE_MM=55`. Im Modell steht die Achse mittig unter
+   der Rinne (93 mm) – nach der Angabe vom 10.10.2026. Beides kann nicht
+   stimmen.
+
+**Was die PDF ausdrücklich NICHT belegt** (eigener Abschnitt „nicht raten,
+sondern nachfragen"): Profilquerschnitte, **Pfostenverteilung über die
+Breite**, ob B/T Außen- oder Achsmaß ist, Lage der Querfuge, Trapezblech-Details.
+Die gleichmäßige Verteilung im Modell bleibt also eine Annahme.
+
+**Weitere belegte Werte aus dem Kopf der PDF, noch nicht eingebaut.**
+Pfostenlänge Standard je System (TDS 2500, SkyView 3000, Flat Line 3000),
+Pfostenquerschnitt 110 × 110 × 2,5, Feldbreite Glas 680–770 mm, Polycarbonat
+1016–1080 mm, Scheibenbreite max. VSG8 720 mm / VSG10 980 mm, Rinnenkopplung
+ab 7000 mm Breite, Durchgangshöhe min. 2000 mm, Neigung 2–14° (Standard 8°),
+Terrassengefälle 2 %, Glasanteil am Rohmaß TDS 96,9–98,5 % / SkyView
+95,0–95,9 %, Einbindung Punktfundament 550/600 mm bei 60 × 60 × 80 cm.
+**Farben je System:** TDS 7016/9006/9007/9010, **SkyView nur
+7016/9006/9007** – der Konfigurator bietet Reinweiß 9010 derzeit für alle
+Systeme an.
+
+Die PDF selbst bleibt außerhalb des Repos (Datenbankherstellerrecht); geprüft
+wurde im Scratchpad.
