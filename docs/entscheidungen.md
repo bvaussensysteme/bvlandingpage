@@ -4641,3 +4641,37 @@ oben und unten waagerecht, rundum gleich hoch. Von innen/unten: die Dachfläche
 fällt sichtbar nach vorne zur Rinne. Mehrere Tiefen durchfahren (2 m bis 7 m) –
 das Band wird höher, aber das Glas bleibt immer darin. Prüfung:
 `node scripts/pruefe-masstabelle.js` (232, Gegenprobe 232/232).
+
+## 2026-10-11 – SkyView: nur die Sparren sind geneigt, der Kasten nicht
+
+**Klarstellung des Betreibers.** „nur die sparren sind 2grad geneigt, der
+kasten außen die verblendung ist wie flachdach, da is nix geneigt"
+(11.10.2026). Dazwischen hatte ich kurz den Träger hinten der Dachfläche folgen
+lassen – damit wäre der Kasten hinten höher gewesen als vorne, also schief.
+Zurückgenommen.
+
+**Was jetzt gilt.** Rinne, Träger und Seitenblende bilden einen waagerechten
+Kasten: gleiche Oberkante, gleiche Unterkante, rundum. Darin liegen die Sparren
+mit 2° und tragen die Eindeckung. Von außen ist nichts geneigt.
+
+**Was daraus folgt – und was offen bleibt.** Das Gefälle über die ganze Tiefe
+muss irgendwo hin. Im Modell steckt es jetzt in der Kastenhöhe: Der Kasten
+wächst mit der Tiefe (3 m → rund 33 cm, 7 m → rund 48 cm). Die Alternative wäre
+ein **keilförmiger Sparren** – und genau so sieht das Profil auf Seite 22 der
+Montageanleitung aus: vorne niedrig, nach hinten höher. Dann bliebe der Kasten
+immer gleich hoch. Beides erfüllt „außen Flachdach"; welches davon stimmt,
+entscheidet, wie hoch die Blende beim Kunden wirklich wirkt. **Frage an den
+Hersteller**, vermerkt in `docs/NEXT_TASK.md`.
+
+**Was gegengelesen werden soll.** SkyView von vorne, von der Seite und von
+hinten: Der Kasten ist überall gleich hoch, oben und unten waagerecht. Von
+unten: die Sparren fallen sichtbar nach vorne zur Rinne.
+
+**Nachtrag am selben Tag: der Kasten ist gerillt.** „hier siehst du es doch so
+perfekt, einfach 1:1 nachbauen" (Betreiber, mit dem Querschnittsbild). Auf dem
+Bild ist der Außenkasten nicht glatt, sondern fein waagerecht gerillt –
+dieselbe Oberfläche wie die TDS-Rinnenfront. Er wird deshalb als gezogenes
+Profil mit gerillter Außenseite gebaut, rundum dasselbe Profil (vorne, hinten,
+beide Seiten), mit derselben Rillenteilung wie die Rinne; ein zweiter Wert
+daneben liefe über kurz oder lang davon weg. Die Prüfung zeichnet den
+Querschnitt und misst nach, dass die Rillen die Außenmaße nicht verändern.

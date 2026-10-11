@@ -408,6 +408,49 @@ pruefe('SkyView – Seitenblende über die volle Rahmenhöhe',
 pruefe('Eindeckung liegt in beiden Systemen auf dem Sparren auf',
        new RegExp(q || 'var feldB = lichteWeite \\+ 4;').test(k3d) &&
        !/feldB = sky \?/.test(k3d), 'Anleitung TDS S. 9: + 40 mm');
+(function () {
+  /* Der Kasten ist rundum dasselbe gerillte Profil - vorne, hinten und
+     an beiden Seiten. Zweiter Weg: den Querschnitt wirklich zeichnen
+     und ausmessen; die Rillen duerfen die Aussenmasse nicht antasten. */
+  var fn = (k3d.match(/function blendeProfil\([\s\S]*?\n  \}/) || [''])[0];
+  if (!fn) { pruefe('Blendenprofil lesbar', false, 'nicht gefunden'); return; }
+  var stellen = (k3d.match(/blendeProfil\(/g) || []).length;
+  pruefe('SkyView – Kasten rundum aus demselben Profil',
+         gegen ? stellen !== 4 : stellen === 4,
+         stellen + ' Stellen (Definition, vorne, hinten, Seite)');
+
+  var punkte = [];
+  function Form() { this.holes = []; }
+  Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.lineTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.closePath = function () {};
+  /* Nur der Querschnitt wird gebraucht - alles danach (Extrude, Mesh,
+     Szene) wird mit Attrappen bedient. */
+  function Leer() { return { translate: function () { return this; },
+                             rotateY: function () { return this; } }; }
+  var THREE = { Shape: Form,
+                ExtrudeGeometry: function () { return Leer(); },
+                Mesh: function () { return { position: { set: function () {} },
+                                             castShadow: 0, receiveShadow: 0 }; } };
+  var RINNE = { rilleTeilung: parseFloat((k3d.match(/rilleTeilung:\s*([\d.]+)/) || [])[1]) };
+  var bau = { add: function () {} };
+  var hoehe = 33.4, tiefe = 14.0;
+  eval('(' + fn + ')')(500, hoehe, tiefe, 0, 100, 0, 0, null);
+  var xs2 = punkte.map(function (pp) { return pp[0]; });
+  var ys2 = punkte.map(function (pp) { return pp[1]; });
+  var breit = Math.max.apply(null, xs2) - Math.min.apply(null, xs2);
+  var hoch = Math.max.apply(null, ys2) - Math.min.apply(null, ys2);
+  if (gegen) breit += 1;
+  pruefe('SkyView – Rillen ändern die Kastenmaße nicht',
+         Math.abs(breit - tiefe) < 0.02 && Math.abs(hoch - hoehe) < 0.02,
+         breit.toFixed(1) + ' x ' + hoch.toFixed(1) + ' cm');
+  var tief = punkte.filter(function (pp) {
+    return pp[0] < tiefe - 0.1 && pp[0] > tiefe - 1.0;
+  }).length;
+  if (gegen) tief = 0;
+  pruefe('SkyView – Kasten ist gerillt, nicht glatt', tief >= 8,
+         tief + ' zurueckgesetzte Punkte');
+})();
 pruefe('SkyView – Sparren und Glasleisten wie bei TDS',
        new RegExp(q || 'var spB = SPARREN\\.breite;').test(k3d) &&
        new RegExp(q || 'var spH = SPARREN\\.hoehe;').test(k3d) &&

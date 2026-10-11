@@ -314,10 +314,14 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   Profilquerschnitte. Sparren und Glasleisten sind laut Betreiber
   dieselben wie bei TDS und damit belegt. GESCHÄTZT bleiben: die
   Blendendicke und der Platz, den die Rinne unter dem Dach braucht
-  (55 mm). **Offene Frage:** Wie hoch ist der Rahmen wirklich, und wie
-  wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
-  wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
-  44 cm) – das ist eine Modellregel, kein Herstellermaß.
+  (55 mm). **Offene Frage, bitte beim Hersteller klären:** Das
+  2°-Gefälle der Sparren muss irgendwo hin. Entweder wächst der
+  Außenkasten mit der Tiefe (so steht es jetzt im Modell: 3 m → rund
+  33 cm, 7 m → rund 48 cm hoch), oder der SPARREN ist keilförmig –
+  Montageanleitung S. 22 zeigt ein Profil, das nach hinten höher wird;
+  dann bliebe der Kasten immer gleich hoch. Beides erfüllt „außen
+  Flachdach, nur die Sparren geneigt"; welches stimmt, entscheidet, wie
+  hoch die Blende beim Kunden wirklich aussieht.
   Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
   Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
   ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
