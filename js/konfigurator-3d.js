@@ -7431,8 +7431,9 @@
   /* Überschrift und Hinweistext folgen dem Produkt – sonst stünde über
      einem Carport weiterhin „Terrassendach TDS“. */
   function titelAnpassen() {
-    var t = document.getElementById('k3dTitel');
-    if (t) t.textContent = produktName();
+    /* Die Überschrift steht seit dem 11.10.2026 im Bild statt über dem
+       Bedienfeld; k3dTitelBuehne wird in textAktualisieren() gesetzt.
+       Der alte Platz existiert nicht mehr. */
     var c = document.getElementById('k3dCanvas');
     if (c) c.setAttribute('aria-label', '3D-Ansicht des konfigurierten Produkts: ' + produktName());
     // Flat Line und Flat Box haben keine sichtbaren Sparren – dort sitzen die

@@ -3953,3 +3953,33 @@ Abstand steht man wieder mitten darunter.
 (Gegenprobe schiebt es hinaus), und die sichtbare Breite der Ansicht
 „Darunter" wird aus Bildwinkel und Abstand ausgerechnet – die Gegenprobe
 setzt den alten Abstand ein und muss anschlagen.
+
+## 11.10.2026 – Ansichtsleiste wieder etwas höher, Kopfblock entfällt
+
+**1. Die Leiste war zu flach geworden.** „mach diese leiste in der höhe
+doch etwas breiter, auf iphone 17 pro is es leicht zu schmal"
+(Betreiber). Erst war sie zu hoch, dann auf Wunsch flacher – jetzt der
+Mittelweg: 6 px Polster am Knopf statt 4, Leiste 4 statt 3. Das sind
+rund 38 px Gesamthöhe, nah an den 44 px, die Apple als Mindestmaß für
+eine Fläche zum Antippen nennt. Die Prüfung verlangt jetzt einen
+BEREICH (5 bis 7 px) statt einer Zahl: zu flach ist genauso falsch wie
+zu hoch.
+
+**2. Der Kopfblock im Bedienfeld ist weg.** „dieser bereich kann weg
+damit mehr platz für den konfigurator entsteht … weil is
+selbsterklärend, die leute sehen was es is" (Betreiber). Kennzeichnung,
+Überschrift und Erklärtext sind entfallen, ebenso ihre CSS-Regeln.
+
+**Die Überschrift ist dabei NICHT verschwunden, sondern umgezogen.** Sie
+steht jetzt im Bild selbst (`k3dTitelBuehne`) und nennt dort dasselbe
+Produkt. Ohne eine sichtbare Hauptüberschrift ordnet Google die Seite
+schlechter ein, und Screenreader verlieren den Einstieg – das wäre ein
+stiller Preis für den Platzgewinn gewesen. Verstecken statt umziehen
+kam nicht in Frage: Text, den nur Suchmaschinen sehen, ist
+Verschleierung und verstößt gegen Googles Richtlinien.
+
+Zwei Prüfungen halten das fest: genau eine Hauptüberschrift, und sie
+darf nicht per CSS unsichtbar gemacht werden.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 186, Gegenprobe
+186 von 186.

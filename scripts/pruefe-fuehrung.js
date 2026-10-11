@@ -1185,9 +1185,13 @@ pruefe('Ohne Beobachter bleibt alles sichtbar',
      muss bleiben, sonst wird es unleserlich. */
   var fs = (knopf.match(/font-size: ([\d.]+)rem/) || [])[1];
   var pad = (knopf.match(/padding: (\d+)px/) || [])[1];
-  if (gegen) { fs = '0.6'; pad = '7'; }
+  if (gegen) { fs = '0.6'; pad = '14'; }
   if (!fs || parseFloat(fs) < 0.7) { falsch++; meld.push('Schrift zu klein (' + fs + 'rem)'); }
-  if (!pad || parseInt(pad, 10) > 5) { falsch++; meld.push('Polster noch ' + pad + 'px'); }
+  /* Ein Bereich statt einer Zahl: zu flach ist genauso falsch wie zu
+     hoch. Unter 5 px wird die Flaeche zum Antippen zu klein (Betreiber
+     am iPhone 17 Pro), ueber 7 px ragt die Leiste wieder ins Bild. */
+  var pz = parseInt(pad, 10);
+  if (!pad || pz < 5 || pz > 7) { falsch++; meld.push('Polster ' + pad + 'px, erlaubt 5 bis 7'); }
   pruefe('Ansichtsleiste randlos und flacher', falsch === 0,
          falsch === 0 ? 'Schrift ' + fs + 'rem, Polster ' + pad + 'px' : meld.join('; '));
 })();
@@ -1376,7 +1380,9 @@ pruefe('Bodenschatten geht mit aus',
   var polsterBild = zahl(/#k3dBild \{ padding: (\d+)px/);
   var schriftBild = zahl(/#k3dBild \{ padding: \d+px \d+px; font-size: ([\d.]+)rem/);
   var schriftInfo = zahl(/\.k3d-info p \{ font-size: ([\d.]+)rem/);
-  if (gegen) { polsterOben = 7; polsterBild = 8; }
+  /* Gegenprobe mit deutlich hoeheren Polstern - knapp daneben wuerde
+     die Pruefung nicht anschlagen, seit die Leiste selbst 6 px hat. */
+  if (gegen) { polsterOben = 14; polsterBild = 18; }
   var falsch = 0, meld = [];
   if (!(polsterOben <= polsterLeiste + 1)) { falsch++; meld.push('Kopfknoepfe ' + polsterOben + 'px gegen ' + polsterLeiste + 'px unten'); }
   if (!(polsterBild <= polsterLeiste + 2)) { falsch++; meld.push('Bild-Knopf ' + polsterBild + 'px'); }
@@ -1483,6 +1489,31 @@ pruefe('Vorbehalt steht auf dem Blatt',
 pruefe('Hineinzoomen bleibt moeglich',
        new RegExp(q || 'kam\\.radiusMin = r \\* 0\\.45').test(js),
        'bei halbem Abstand steht man wieder darunter');
+
+(function () {
+  /* „dieser bereich kann weg damit mehr platz fuer den konfigurator
+     entsteht ... weil is selbsterklaerend" (Betreiber, 11.10.2026).
+     Der Kopfblock ist weg - die Seite braucht aber weiter GENAU EINE
+     sichtbare Hauptueberschrift: ohne sie ordnet Google die Seite
+     schlechter ein und Screenreader haben keinen Einstieg. */
+  var h1 = (html.match(/<h1[^>]*>/g) || []);
+  var kopfWeg = !/k3d-sl-kopf/.test(html);
+  var imBild = /<h1 id="k3dTitelBuehne"/.test(html);
+  if (gegen) { kopfWeg = !kopfWeg; }
+  var falsch = 0, meld = [];
+  if (!kopfWeg) { falsch++; meld.push('Kopfblock steht noch da'); }
+  if (h1.length !== 1) { falsch++; meld.push(h1.length + ' Hauptueberschriften'); }
+  if (!imBild) { falsch++; meld.push('Ueberschrift nicht im Bild'); }
+  pruefe('Kopfblock weg, Ueberschrift sichtbar im Bild', falsch === 0,
+         falsch === 0 ? 'eine h1, im Bild' : meld.join('; '));
+  /* Verstecken statt umziehen waere Verschleierung - die Ueberschrift
+     darf nicht per CSS unsichtbar gemacht werden. */
+  var versteckt = /#k3dTitelBuehne[^}]*display:\s*none/.test(html) ||
+                  /\.k3d-info[^}]*visibility:\s*hidden/.test(html);
+  if (gegen) versteckt = !versteckt;
+  pruefe('Ueberschrift ist nicht versteckt', !versteckt,
+         'kein Text nur fuer Suchmaschinen');
+})();
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
