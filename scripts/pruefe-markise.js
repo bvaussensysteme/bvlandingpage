@@ -73,6 +73,12 @@ pruefe('Markise nutzt die volle Dachtiefe',
        'L = Tiefe / cos(Neigung)');
 pruefe('Schienen schließen außen bündig ab',
        new RegExp(q || 'B / 2 - M\\.schieneB / 2').test(src), 'Achse = B/2 − 61/2');
+/* Die Markise muss bis an die Rinne laufen, nicht nur bis zum Sparrenende.
+   Deshalb bekommt sie T und nicht dachTiefe. */
+pruefe('Markise bekommt die volle Dachtiefe bis zur Rinne',
+       new RegExp(q || 'tiefe: T,').test(src) &&
+       !new RegExp('tiefe: dachTiefe').test(src),
+       'tiefe: T statt dachTiefe');
 pruefe('Hardware steht auch bei eingefahrenem Tuch',
        new RegExp(q || "if \\(m === 'Aufdachmarkise'\\) \\{").test(src),
        'kein aus > 0.02 davor');
