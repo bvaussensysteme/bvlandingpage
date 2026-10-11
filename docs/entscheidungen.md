@@ -4093,3 +4093,27 @@ Prüfung zählt sie – vier Stellen laufen beim nächsten Mal auseinander.
 195 von 195. Die neue lässt die echte Funktion laufen: vier
 Schreibweisen, eine unbekannte Nummer, und der Fall, dass eine normale
 Farbe gewählt ist.
+
+## 11.10.2026 – Satinato auch im Keil
+
+**Anlass.** „die glasschiebetüren gibts ja in satinato, hab vergessen
+das glas bei den keilen auch" (Betreiber).
+
+**Was jetzt gilt.** Unter „Seiten" gibt es, sobald irgendwo ein Keil
+sitzt, die Wahl „Glas im Keil: klar oder satinato". Sie geht ins Modell
+und in die Anfrage – satinato ist eine andere Scheibe, nicht nur eine
+andere Ansicht.
+
+**Eigene Wahl, nicht an die Schiebeelemente gekoppelt.** Der Keil sitzt
+oben: dort geht es um Sonne und Einblick von der Seite. Unten will man
+oft klare Sicht in den Garten. Beides zusammenzulegen hieße, dem Kunden
+eine Entscheidung abzunehmen, die er so nicht träfe. Eine Prüfung hält
+fest, dass die Wahl der Schiebeelemente NICHT auf den Keil abfärbt.
+
+**Nebenbei.** Die Satinato-Rechnung (Deckkraft, Rauheit, keine
+Spiegelung) stand nur im Schiebeglas; jetzt steht sie in `satiniert()`
+und wird von beiden benutzt. Eine Prüfung zählt die Stelle – zwei
+Fassungen desselben Tons würden beim nächsten Mal auseinanderlaufen.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 200, Gegenprobe
+200 von 200; die neue lässt die echte Funktion in drei Fällen laufen.

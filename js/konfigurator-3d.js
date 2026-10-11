@@ -70,7 +70,8 @@
        rechts laufen über die TIEFE, vorne über die BREITE. Das sind zwei
        verschiedene Maße, zu denen oft gar nicht dieselbe Bauart passt. */
     sg23Links: '', sg23Rechts: '', sg23Vorne: '',
-    sg23Glas: 'ESG 10 mm klar',   // laut VD-Formular gibt es nur diese zwei
+    sg23Glas: 'ESG 10 mm klar',
+    keilGlas: 'ESG klar',   // laut VD-Formular gibt es nur diese zwei
     sg23Schloss: 'ohne',          // ohne | links | rechts
     /* Beide Hälften haben ihre EIGENE Stellung: „man kann obere hälfte
        und untere hälfte seprat öffnen/schließen" (Betreiber,
@@ -1402,9 +1403,7 @@
      Im Modell heißt das: deutlich weniger durchsichtig, viel rauer und
      keine Spiegelung – sonst sähe es aus wie klares Glas mit Schleier.
      Laut VD-Anfrageformular gibt es für SG23 NUR klar und satinato. */
-  function schiebeGlas() {
-    var m = seitenglas();
-    if (Z.sg23Glas.indexOf('satinato') === -1) return m;
+  function satiniert(m) {
     m.color = rgb(0xe8eef0);
     m.opacity = 0.62;
     m.roughness = 0.55;
@@ -1412,6 +1411,25 @@
     m.clearcoatRoughness = 0.5;
     m.envMapIntensity = 0.35;
     return m;
+  }
+
+  function schiebeGlas() {
+    var m = seitenglas();
+    return Z.sg23Glas.indexOf('satinato') === -1 ? m : satiniert(m);
+  }
+
+  /* Das Glas im KEIL – dem Dreieck über einer Wand oder Schiebeanlage.
+     „die glasschiebetüren gibts ja in satinato, hab vergessen das glas
+     bei den keilen auch" (Betreiber, 11.10.2026).
+
+     Eigene Wahl und nicht an die Schiebeelemente gekoppelt: Der Keil
+     sitzt oben, da geht es um Sonne und Einblick von der Seite; unten
+     will man oft klare Sicht in den Garten. Beides zusammenzulegen
+     hieße, dem Kunden eine Entscheidung abzunehmen, die er so nicht
+     treffen würde. */
+  function keilGlas() {
+    var m = seitenglas();
+    return String(Z.keilGlas || '').indexOf('satinato') === -1 ? m : satiniert(m);
   }
 
   function seitenglas() {
@@ -2503,6 +2521,7 @@
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX) {
     var mGlas = seitenglas();
     var mSchiebe = schiebeGlas();
+    var mKeil = keilGlas();
     var rahmen = alu();
     function offenSeite(seite) {
       if (seite === 'links') return Z.offenLinks / 100;
@@ -3423,7 +3442,7 @@
           var hVo = Math.max(0, dachUk(zVorneK) - yO);
           var hHi = Math.max(0, dachUk(zHintenK) - yO);
           if (hHi > 1) {
-            var gl = keilNetz(keilLaenge, hVo, hHi, RAHMENW.glas, mGlas);
+            var gl = keilNetz(keilLaenge, hVo, hHi, RAHMENW.glas, mKeil);
             gl.position.set(achse, yO, keilMitte);
             gl.rotation.y = Math.PI / 2;
             gl.castShadow = true; gl.receiveShadow = true;
@@ -3524,7 +3543,7 @@
         var hV = Math.max(0, dachUk(zVorneK) - yKeil);
         var hH = Math.max(0, dachUk(zHintenK) - yKeil);
         if (hH > 1) {
-          var k = keilNetz(keilLaenge, hV, hH, 1.4, mGlas);
+          var k = keilNetz(keilLaenge, hV, hH, 1.4, mKeil);
           k.position.set(achse, yKeil, keilMitte);
           k.rotation.y = Math.PI / 2;   // beide Seiten gleich: hoch zur Wand
           k.castShadow = true;
@@ -6555,6 +6574,8 @@
          Bestellformularen, nicht die der Markisenstoffe. */
       /* Das Feld für den RAL-Ton erscheint nur bei „Andere / Beratung“. */
       case 'ral-sonder':     return Z.farbe === 'Andere / Beratung';
+      /* Glas im Keil fragen wir nur, wenn irgendwo ein Keil sitzt. */
+      case 'keil-glas':      return erwIrgendwo('Keil');
       case 'stoff-segel':    return Z.markise === 'Sonnensegel';
       case 'stoff-plissee':  return Z.markise === 'Plissees';
       case 'stoff-zip':      return erwIrgendwo('Senkrechtmarkise') ||
@@ -6874,6 +6895,9 @@
         seiten.push(pr[0] + ': ' + (pr[1].length ? pr[1].join(' + ') : 'offen'));
       });
       teile.push('Seitenelemente – ' + seiten.join(' · '));
+      /* Das Keilglas gehört in die Bestellung: satinato ist eine andere
+         Scheibe, nicht nur eine andere Ansicht. */
+      if (erwIrgendwo('Keil')) teile.push('Glas im Keil: ' + Z.keilGlas);
       /* Die Planken haben eine eigene Farbe – sie muss in die Mail, sonst
          wird im Zweifel in der Gestellfarbe bestellt. Profil und Winkel
          gehören fachlich dazu: Danach wird kalkuliert. */
@@ -7113,6 +7137,7 @@
     Z.plankenAnteil = zahl('k3dPlankenAnteil', Z.plankenAnteil);
     Z.rahmenTeilung = wert('k3dRahmenTeilung') || '';
     Z.sg23Glas = wert('k3dSg23Glas') || Z.sg23Glas;
+    Z.keilGlas = wert('k3dKeilGlas') || Z.keilGlas;
     Z.sg23Schloss = wert('k3dSg23Schloss') || Z.sg23Schloss;
     Z.velarisWinkelOben = zahl('k3dVelarisWinkelOben', Z.velarisWinkelOben);
     Z.velarisWinkelUnten = zahl('k3dVelarisWinkelUnten', Z.velarisWinkelUnten);
@@ -7544,7 +7569,7 @@
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
-   'k3dSg23Glas', 'k3dSg23Schloss', 'k3dRahmenTeilung', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
+   'k3dSg23Glas', 'k3dKeilGlas', 'k3dSg23Schloss', 'k3dRahmenTeilung', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dRalCode', 'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',

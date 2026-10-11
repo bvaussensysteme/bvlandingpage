@@ -1623,6 +1623,46 @@ pruefe('Aufpreis steht im Bedienfeld und in der Anfrage',
          falsch === 0 ? Object.keys(RAL).length + ' Toene hinterlegt' : meld.join('; '));
 })();
 
+/* ---------- Glas im Keil ----------
+   „die glasschiebetueren gibts ja in satinato, hab vergessen das glas
+   bei den keilen auch" (Betreiber, 11.10.2026). */
+pruefe('Keilglas ist waehlbar und erscheint nur mit Keil',
+       new RegExp(q || 'id="k3dKeilGlas"').test(html) &&
+       new RegExp(q || "case 'keil-glas':      return erwIrgendwo\\('Keil'\\)").test(js), '');
+pruefe('Keil nimmt sein eigenes Glas',
+       new RegExp(q || 'var mKeil = keilGlas\\(\\);').test(js) &&
+       (gegen || !/keilNetz\([^)]*mGlas\)/.test(js)),
+       'nicht mehr das Standardglas');
+pruefe('Satinato steht an EINER Stelle',
+       new RegExp(q || 'function satiniert\\(m\\)').test(js) &&
+       (js.match(/m\.opacity = 0\.62;/g) || []).length === (gegen ? 2 : 1),
+       'Schiebeelement und Keil teilen die Rechnung');
+pruefe('Keilglas geht in die Anfrage',
+       new RegExp(q || "teile\\.push\\('Glas im Keil: ' \\+ Z\\.keilGlas\\)").test(js),
+       'satinato ist eine andere Scheibe, nicht nur eine Ansicht');
+(function () {
+  /* Zweiter Weg: die echte Funktion laufen lassen - klar bleibt klar,
+     satinato wird matt, und die Wahl der Schiebeelemente faerbt NICHT
+     auf den Keil ab. */
+  var fn = (js.match(/function keilGlas\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var sat = (js.match(/function satiniert\(m\)[\s\S]*?\n  \}/) || [''])[0];
+  if (!fn || !sat) { pruefe('Keilglas lesbar', false, 'nicht gefunden'); return; }
+  var Z = { keilGlas: 'ESG klar', sg23Glas: 'ESG 10 mm satinato' };
+  function rgb(x) { return x; }
+  function seitenglas() { return { opacity: 0.3, roughness: 0.04 }; }
+  var satiniert = eval('(' + sat + ')');
+  var keilGlas = eval('(' + fn + ')');
+  var falsch = 0, meld = [];
+  if (keilGlas().opacity !== 0.3) { falsch++; meld.push('klar ist nicht klar'); }
+  Z.keilGlas = 'ESG satinato';
+  if (keilGlas().opacity !== 0.62) { falsch++; meld.push('satinato wirkt nicht'); }
+  Z.keilGlas = 'ESG klar'; Z.sg23Glas = 'ESG 10 mm satinato';
+  if (keilGlas().opacity !== 0.3) { falsch++; meld.push('Schiebewahl faerbt auf den Keil ab'); }
+  if (gegen) falsch = falsch ? 0 : 1;
+  pruefe('Keilglas rechnet unabhaengig', falsch === 0,
+         falsch === 0 ? 'drei Faelle' : meld.join('; '));
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

@@ -1081,6 +1081,20 @@
             beides 10 mm Einscheiben-Sicherheitsglas.</p>
         </div>
 
+        <!-- „die glasschiebetüren gibts ja in satinato, hab vergessen das
+             glas bei den keilen auch" (Betreiber, 11.10.2026). Eigene
+             Wahl, nicht an die Schiebeelemente gekoppelt: oben geht es um
+             Einblick von der Seite, unten oft um freie Sicht. -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="keil-glas" hidden>
+          <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
+          <select id="k3dKeilGlas" class="k3d-select">
+            <option value="ESG klar">klar – freie Sicht</option>
+            <option value="ESG satinato">satinato – matt, blickdicht</option>
+          </select>
+          <p class="k3d-mini">Das Dreieck über der Wand oder der Schiebeanlage.
+            Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dSg23Schloss">Abschließbar?</label>
           <select id="k3dSg23Schloss" class="k3d-select">
@@ -1548,7 +1562,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016h" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016i" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
