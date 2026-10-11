@@ -1771,6 +1771,24 @@
     var SCHWELLE = { hoehe: 3.6, tiefe: { 3: 7.62, 4: 10.02, 5: 11.55 } };
     var FUEHRUNG = { hoehe: 3.5, tiefe: { 3: 7.84, 4: 10.40, 5: 12.96 } };
 
+    /* ---------- Profile des Flügels ----------
+       BELEGT: SG23-Profilschnitte des Herstellers.
+
+         Tür-Einfaßprofil     25 × 35 mm     – Rahmen um den Flügel
+         H-Glaseinfaßprofil   19,2 × 61,4 mm – senkrechtes Stoßprofil
+         Bürstenprofil        12 × 15,7 mm   – Dichtung
+
+       Vorher lag um die Scheibe eine erfundene Kante von 50 × 50 mm.
+       25 mm Tiefe passt auch rechnerisch: 10 mm Glas plus beidseitig
+       7,5 mm Profilwange.
+
+       Das Bürstenprofil wird NICHT gezeichnet. Mit 12 mm Breite wäre es
+       im Bild kleiner als ein Pixel und kostet nur Rechenzeit; das Maß
+       steht hier, damit es nicht verlorengeht. */
+    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };     // Tür-Einfaßprofil
+    var H_GLAS_PR = { tiefe: 1.92, breite: 6.14 }; // H-Glaseinfaßprofil
+    var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // nicht gezeichnet
+
     function gleise(seite, laenge) {
       var b = sg23Bauart(laenge * 10, seite);
       return b ? b[0] : 3;
@@ -1827,8 +1845,21 @@
            erkennt der Klick spaeter, welche Anlage gemeint ist. */
         schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
                            quer, spur, SG23.glasDicke), seite);
-        schiebeTeil(rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur), seite);
-        schiebeTeil(rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur), seite);
+        /* Rahmen um den Flügel: oben und unten das Tür-Einfaßprofil,
+           an den beiden senkrechten Kanten das H-Glaseinfaßprofil.
+           ANNAHME, dass es so umläuft – die Schnitte zeigen nur die
+           Querschnitte, nicht, an welcher Kante welches Profil sitzt.
+           GEGENZULESEN. */
+        schiebeTeil(platte(rahmen, flB, TUER_PR.hoehe, achse, lage,
+                           yUnten + TUER_PR.hoehe / 2, quer, spur, TUER_PR.tiefe), seite);
+        schiebeTeil(platte(rahmen, flB, TUER_PR.hoehe, achse, lage,
+                           yUnten + hoehe - TUER_PR.hoehe / 2, quer, spur,
+                           TUER_PR.tiefe), seite);
+        [-1, 1].forEach(function (vz) {
+          schiebeTeil(platte(rahmen, H_GLAS_PR.breite, hoehe - 2 * TUER_PR.hoehe,
+                             achse, lage + vz * (flB - H_GLAS_PR.breite) / 2,
+                             yUnten + hoehe / 2, quer, spur, H_GLAS_PR.tiefe), seite);
+        });
       }
     }
 
