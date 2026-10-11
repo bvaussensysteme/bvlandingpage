@@ -4002,3 +4002,30 @@ wenn der Konfigurator oben noch hereinragt.
 188 von 188. Darunter eine, die die Bedingung in allen vier Fällen
 durchspielt (oben im Konfigurator, Logo im Bild, weit darunter,
 Fußzeile) – nicht nur prüft, dass sie dasteht.
+
+## 11.10.2026 – 3D-Bild bleibt am Handy oben stehen
+
+**Anlass.** „ich hätte ganz gerne auf dem handy das die 3d ansicht immer
+stehen bleibt, weil wenn man z.b runterscrollt oder weitere
+einstellungen öffnet … muss man wieder komplett hoch scrollen um die
+änderung zu sehen" (Betreiber).
+
+**Was jetzt gilt.** Am Handy klebt die Bühne oben (`position: sticky`),
+45 svh hoch – etwa die obere Hälfte. Darunter scrollt das Bedienfeld.
+Wer eine Einstellung ändert, sieht die Änderung sofort, ohne
+hochzuscrollen. Die Ansichtsleiste liegt im Bild und bleibt damit
+ebenfalls immer erreichbar.
+
+**Warum sticky und nicht fixed.** Sticky klebt nur innerhalb des
+Konfigurators. Unterhalb davon – Hinweise, Fußzeile, Impressum – gibt es
+die Seite wieder frei. Mit `fixed` läge das Bild über allem, auch über
+den Pflichtangaben.
+
+**Warum 45 svh und nicht mehr.** Nimmt das Bild zwei Drittel, bleibt für
+das Bedienfeld ein Schlitz von wenigen Zentimetern – dann scrollt man
+sich dort zu Tode, und genau das sollte die Änderung ja abstellen. Die
+Prüfung lässt deshalb nur 30 bis 50 svh zu. `svh` statt `vh`, weil die
+Adressleiste des Handys sonst Teile abschneidet.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 190, Gegenprobe
+190 von 190; darunter eine, die `fixed` ausdrücklich verbietet.

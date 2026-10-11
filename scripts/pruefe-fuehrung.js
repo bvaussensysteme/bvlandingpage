@@ -1533,6 +1533,30 @@ pruefe('Hineinzoomen bleibt moeglich',
          'kein Text nur fuer Suchmaschinen');
 })();
 
+(function () {
+  /* „das 3d modell soll obere bildschirmhälfte bzw. bildschirmdrittel
+     ... stehen bleiben und unten der konfigurator soll sich scrollen
+     lassen" (Betreiber, 11.10.2026). */
+  var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
+  var buehne = (block.match(/\.k3d-buehne \{[\s\S]*?\}/) || [''])[0];
+  var klebt = /position: sticky/.test(buehne) && /top: 0/.test(buehne);
+  var hoehe = parseFloat((buehne.match(/height: ([\d.]+)svh/) || [])[1]);
+  if (gegen) { klebt = !klebt; hoehe = 80; }
+  var falsch = 0, meld = [];
+  if (!klebt) { falsch++; meld.push('Bild bleibt nicht stehen'); }
+  /* Nicht mehr als die Haelfte: sonst bleibt fuer das Bedienfeld nur ein
+     Schlitz, und genau das sollte die Aenderung ja verhindern. */
+  if (!(hoehe >= 30 && hoehe <= 50)) { falsch++; meld.push(hoehe + ' svh hoch'); }
+  pruefe('3D-Bild bleibt am Handy oben stehen', falsch === 0,
+         falsch === 0 ? hoehe + ' svh, klebt oben' : meld.join('; '));
+  /* fixed waere falsch: Dann laege das Bild auch ueber Fusszeile und
+     Impressum. */
+  pruefe('Nicht fest ueber der ganzen Seite',
+         gegen ? /\.k3d-buehne \{[^}]*position: fixed/.test(block)
+               : !/\.k3d-buehne \{[^}]*position: fixed/.test(block),
+         'sticky, nicht fixed');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
