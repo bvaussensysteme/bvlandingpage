@@ -1605,27 +1605,41 @@
   function seitenleisteQuerschnitt() {
     var b = SEITENLEISTE.breite, h = SEITENLEISTE.hoehe, t = SEITENLEISTE.staerke;
     var a = b / 2;
-    var f = new THREE.Shape();
-    /* Deckfläche von innen (auf dem Glas) nach außen. */
-    f.moveTo(-a, 0);
-    f.lineTo(a - 0.6, 0);
-    f.quadraticCurveTo(a, 0, a, -0.6);          // Außenkante gerundet
-    /* DIE LANGE ZUNGE. „an den äußeren sparren sieht man immer noch den
-       spalt zwischen sparren und glasleiste, das sollte eig mit diesen
-       endleisten behoben werden, dafür war in der zeichnung diese lange
-       zunge" (Betreiber, 11.10.2026).
+    /* KORREKTUR 11.10.2026: „du hast die äußeren glasleisten jz komplett
+       verändert, die sehen aus wie die anderen nur mit dieser
+       abschlusszunge, abschlussprofil was den spalt schließt"
+       (Betreiber).
 
-       Der erste Versuch ließ die Zunge nach INNEN einbiegen – sie endete
-       in der Luft über dem Sparren, und der Spalt zwischen Sparrenflanke
-       und Leiste blieb offen. Die Zunge muss an der Flanke anliegen und
-       senkrecht nach unten laufen, bis sie den Sparren überdeckt. Nur
-       dann schließt sie den Spalt, und genau dafür ist sie so lang. */
-    f.lineTo(a, -h);                            // Zunge, bündig an der Flanke
-    f.lineTo(a - t, -h);
-    f.quadraticCurveTo(a - t, -t, a - 0.6, -t);
+       Richtig: Es ist DIESELBE Leiste wie auf den anderen Sparren – das
+       halbrunde Profil, 55,3 × 22,6 mm – nur außen um die Zunge
+       verlängert. Der erste Versuch hatte daraus ein eigenes, flaches
+       Kastenprofil gemacht; im Bild fiel die Dachkante dadurch aus der
+       Reihe.
+
+       Die 63,1 × 59,4 mm aus dem Teilebild sind das Umrissmaß des
+       GANZEN Teils: in der Breite das Halbrund plus die Außenwange, in
+       der Höhe vom Scheitel des Halbrunds bis zur Zungenspitze. */
+    var rund = GLASLEISTE.hoehe;                 // 22,6 mm, wie die anderen
+    var r = GLASLEISTE.breite / 2;               // 27,65 mm
+    var xm = -a + r;                             // Mitte des Halbrunds
+    var f = new THREE.Shape();
+    f.moveTo(-a, 0);
+    /* Halbrund von innen nach außen, als Polygonzug – damit es sich
+       nachrechnen lässt. */
+    var i, n = 12, w;
+    for (i = 1; i <= n; i++) {
+      w = Math.PI - Math.PI * i / n;
+      f.lineTo(xm + r * Math.cos(w), rund * Math.sin(w));
+    }
+    /* Außen weiter auf die Wange und als Zunge nach unten. */
+    f.lineTo(a - 0.3, 0);
+    f.quadraticCurveTo(a, 0, a, -0.4);
+    f.lineTo(a, rund - h);                       // Zungenspitze
+    f.lineTo(a - t, rund - h);
+    f.quadraticCurveTo(a - t, -0.4, a - 0.3, -t);
     f.lineTo(-a + 0.9, -t);
-    f.lineTo(-a + 0.9, -t - 0.7);               // Nase, die aufs Glas greift
-    f.lineTo(-a, -t - 0.7);
+    f.lineTo(-a + 0.9, -t - 0.6);                // Nase, die aufs Glas greift
+    f.lineTo(-a, -t - 0.6);
     f.closePath();
     return f;
   }

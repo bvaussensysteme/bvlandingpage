@@ -914,59 +914,6 @@ pruefe('Gespiegeltes Teil behaelt seine Aussenseite',
        new RegExp(q || 'idx\\.setX\\(i, idx\\.getX\\(i \\+ 2\\)\\)').test(k3d) &&
        new RegExp(q || 'g\\.computeVertexNormals\\(\\);\\n    return g;').test(k3d),
        'Eckenreihenfolge wird getauscht');
-(function () {
-  /* Die Zunge muss an der Flanke anliegen und bis unten durchlaufen -
-     sonst bleibt der Spalt zwischen Sparren und Leiste offen, genau das
-     war beanstandet. Gerechnet mit den Punkten aus dem Code. */
-  var form = (k3d.match(/function seitenleisteQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var b = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: ([\d.]+)/) || [])[1]);
-  var h = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: [\d.]+, hoehe: ([\d.]+)/) || [])[1]);
-  var m = form.match(/lineTo\(a(?: - ([\d.]+))?, -h\)/);
-  if (!m || !b || !h) { pruefe('Zunge lesbar', false, 'nicht gefunden'); return; }
-  var einzug = (m[1] ? parseFloat(m[1]) : 0) * 10;   // mm, um die sie einwaerts geht
-  if (gegen) einzug = 14;                      // der alte, eingebogene Wert
-  var sparrenHalb = 61 / 2;                    // Sparrenbreite BELEGT
-  var aussen = b * 10 / 2 - einzug;            // Lage der Zungenspitze, mm
-  var falsch = 0, meld = [];
-  if (einzug > 5) { falsch++; meld.push('Zunge biegt ' + einzug + ' mm nach innen'); }
-  if (aussen < sparrenHalb) {
-    falsch++; meld.push('Spitze liegt ' + (sparrenHalb - aussen).toFixed(1) +
-                        ' mm innerhalb der Sparrenflanke');
-  }
-  pruefe('Zunge liegt an der Sparrenflanke an', falsch === 0,
-         falsch === 0 ? 'Spitze ' + (aussen - sparrenHalb).toFixed(1) +
-         ' mm ausserhalb der Flanke' : meld.join('; '));
-})();
-(function () {
-  /* Zweiter Weg: den Querschnitt wirklich ausmessen - der groesste
-     Abstand in x und y muss das Teilebild ergeben. Gerechnet wird mit
-     den Punkten aus dem Code, nicht mit abgeschriebenen. */
-  var b = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: ([\d.]+)/) || [])[1]);
-  var h = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: [\d.]+, hoehe: ([\d.]+)/) || [])[1]);
-  if (!b || !h) { pruefe('Masse der Seitenleiste lesbar', false, 'nicht gefunden'); return; }
-  var form = (k3d.match(/function seitenleisteQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  /* Alle Koordinaten aus den Linien- und Kurvenbefehlen einsammeln. */
-  var xs = [], ys = [], m, re = /(?:moveTo|lineTo|quadraticCurveTo)\(([^)]*)\)/g;
-  while ((m = re.exec(form))) {
-    var teile = m[1].split(',').map(function (t) {
-      /* b, h und t durch ihre Zahlen ersetzen und ausrechnen. */
-      return Function('b', 'h', 't', 'a', 'return (' + t + ');')(b, h, 0.3, b / 2);
-    });
-    for (var i = 0; i + 1 < teile.length; i += 2) { xs.push(teile[i]); ys.push(teile[i + 1]); }
-  }
-  var breit = Math.max.apply(null, xs) - Math.min.apply(null, xs);
-  var hoch = Math.max.apply(null, ys) - Math.min.apply(null, ys);
-  if (gegen) { breit += 1; }
-  var falsch = 0, meld = [];
-  if (Math.abs(breit - b) > 0.01) { falsch++; meld.push('Breite ' + breit.toFixed(2) + ' statt ' + b); }
-  if (Math.abs(hoch - h) > 0.8) { falsch++; meld.push('Hoehe ' + hoch.toFixed(2) + ' statt ' + h); }
-  /* Der Schenkel muss NACH UNTEN gehen - sonst steht die Leiste auf dem
-     Glas statt ueber den Sparren zu greifen. */
-  if (Math.min.apply(null, ys) > -h * 0.9) { falsch++; meld.push('Schenkel zeigt nicht nach unten'); }
-  pruefe('Querschnitt ergibt das Umrissmass', falsch === 0,
-         falsch === 0 ? breit.toFixed(2) + ' x ' + hoch.toFixed(2) + ' cm'
-                      : meld.join('; '));
-})();
 
 
 /* Die Glasleisten halten die Scheibe - also laufen sie so weit wie sie.
@@ -987,6 +934,82 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
   if (gegen) fehlt = 0;
   pruefe('Leiste war vorne zu kurz', fehlt > 50,
          fehlt.toFixed(0) + ' mm Unterschied');
+})();
+(function () {
+  /* Zweiter Weg: den ECHTEN Querschnitt laufen lassen und ausmessen.
+     Statt die Punkte aus dem Text zu klauben, wird die Funktion aus dem
+     Code mit einem Mini-Shape aufgerufen - dann rechnet diese Pruefung
+     dasselbe wie der Browser. */
+  var quer = (k3d.match(/function seitenleisteQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var zahlen = k3d.match(/SEITENLEISTE = \{ breite: ([\d.]+), hoehe: ([\d.]+), staerke: ([\d.]+)/);
+  var glas = k3d.match(/GLASLEISTE = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
+  if (!quer || !zahlen || !glas) {
+    pruefe('Seitenleisten-Querschnitt lesbar', false, 'nicht gefunden'); return;
+  }
+  var SEITENLEISTE = { breite: +zahlen[1], hoehe: +zahlen[2], staerke: +zahlen[3] };
+  var GLASLEISTE = { breite: +glas[1], hoehe: +glas[2] };
+  var punkte = [];
+  function Form() {}
+  Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.lineTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.quadraticCurveTo = function (cx, cy, x, y) { punkte.push([x, y]); };
+  Form.prototype.closePath = function () {};
+  var THREE = { Shape: Form };
+  var fn = eval('(' + quer + ')');
+  fn();
+  var xs2 = punkte.map(function (p) { return p[0]; });
+  var ys2 = punkte.map(function (p) { return p[1]; });
+  var breit = Math.max.apply(null, xs2) - Math.min.apply(null, xs2);
+  var hoch = Math.max.apply(null, ys2) - Math.min.apply(null, ys2);
+  var falsch = 0, meld = [];
+  if (gegen) breit += 1;
+  if (Math.abs(breit - SEITENLEISTE.breite) > 0.02) {
+    falsch++; meld.push('Breite ' + breit.toFixed(2) + ' statt ' + SEITENLEISTE.breite);
+  }
+  if (Math.abs(hoch - SEITENLEISTE.hoehe) > 0.02) {
+    falsch++; meld.push('Hoehe ' + hoch.toFixed(2) + ' statt ' + SEITENLEISTE.hoehe);
+  }
+  pruefe('Querschnitt ergibt das Umrissmass', falsch === 0,
+         falsch === 0 ? breit.toFixed(2) + ' x ' + hoch.toFixed(2) + ' cm' : meld.join('; '));
+
+  /* Es muss DIESELBE Leiste sein wie auf den anderen Sparren - also oben
+     dasselbe Halbrund, 55,3 x 22,6 mm. „die sehen aus wie die anderen nur
+     mit dieser abschlusszunge" (Betreiber, 11.10.2026). */
+  var scheitel = Math.max.apply(null, ys2);
+  var rundPunkte = punkte.filter(function (p) { return p[1] > 0.01; });
+  var rundBreit = rundPunkte.length
+    ? Math.max.apply(null, rundPunkte.map(function (p) { return p[0]; })) -
+      Math.min.apply(null, rundPunkte.map(function (p) { return p[0]; })) : 0;
+  var f2 = 0, m2 = [];
+  if (gegen) { scheitel = 0; }
+  if (Math.abs(scheitel - GLASLEISTE.hoehe) > 0.02) {
+    f2++; m2.push('Scheitel ' + scheitel.toFixed(2) + ' statt ' + GLASLEISTE.hoehe);
+  }
+  if (rundBreit < GLASLEISTE.breite * 0.85) {
+    f2++; m2.push('Halbrund nur ' + rundBreit.toFixed(2) + ' breit');
+  }
+  pruefe('Oben dasselbe Halbrund wie die anderen Leisten', f2 === 0,
+         f2 === 0 ? 'Scheitel ' + scheitel.toFixed(2) + ' cm, Halbrund ' +
+         rundBreit.toFixed(2) + ' cm breit' : m2.join('; '));
+
+  /* Die Zunge muss an der Sparrenflanke anliegen und tiefer reichen als
+     das Halbrund - sonst bleibt der Spalt offen, genau das war
+     beanstandet. */
+  var tiefster = Math.min.apply(null, ys2);
+  var aussen = Math.max.apply(null, xs2) * 10;        // mm ab Sparrenachse
+  var sparrenHalb = 61 / 2;                           // BELEGT
+  if (gegen) { aussen = sparrenHalb - 1.5; }
+  var f3 = 0, m3 = [];
+  if (aussen < sparrenHalb) {
+    f3++; m3.push('Zunge liegt ' + (sparrenHalb - aussen).toFixed(1) + ' mm innerhalb der Flanke');
+  }
+  if (tiefster > -GLASLEISTE.hoehe) {
+    f3++; m3.push('Zunge reicht nicht unter das Halbrund');
+  }
+  pruefe('Zunge liegt an der Sparrenflanke an', f3 === 0,
+         f3 === 0 ? 'Spitze ' + (aussen - sparrenHalb).toFixed(1) +
+         ' mm ausserhalb, ' + (-tiefster * 10).toFixed(0) + ' mm unter der Glasebene'
+         : m3.join('; '));
 })();
 
 console.log(gegen

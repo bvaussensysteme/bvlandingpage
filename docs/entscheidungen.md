@@ -3622,3 +3622,29 @@ Jetzt wird zusätzlich die Reihenfolge der Dreiecksecken getauscht.
 198 von 198. Neu: Die Zungenspitze wird gegen die belegte Sparrenbreite
 gerechnet (Gegenprobe mit dem alten, eingebogenen Wert), und der
 Längenunterschied zur Scheibe wird beziffert statt behauptet.
+
+## 11.10.2026 – Die Seitenglasleiste ist dieselbe Leiste, nur mit Zunge
+
+**Anlass.** „ne du hast die äußeren glasleisten jz komplett verändert,
+die sehen aus wie die anderen nur mit dieser abschlusszunge,
+abschlussprofil was den spalt schließt" (Betreiber).
+
+**Was falsch war.** Aus dem Teilebild war ein eigenes, flaches
+Kastenprofil geworden. Dadurch fiel die Dachkante aus der Reihe: innen
+halbrunde Leisten, außen ein Kasten.
+
+**Was jetzt gilt.** Außen liegt DIESELBE halbrunde Leiste wie überall
+(55,3 × 22,6 mm), nur nach außen um die Zunge verlängert, die den Spalt
+zum Sparren schließt. Das Umrissmaß aus dem Teilebild – 63,1 × 59,4 mm –
+ist das Maß des GANZEN Teils: in der Breite Halbrund plus Außenwange, in
+der Höhe vom Scheitel des Halbrunds bis zur Zungenspitze. Die Zunge
+reicht damit 37 mm unter die Glasebene und liegt 1,0 mm außerhalb der
+Sparrenflanke.
+
+**Prüfung umgebaut, und das war nötig.** Vorher klaubte sie die Punkte
+als Text aus dem Code – das ging schief, sobald im Querschnitt gerechnet
+wird (`Math.cos`). Jetzt wird die echte Querschnittsfunktion mit einem
+Mini-Shape aufgerufen und ausgemessen: Umrissmaß, Scheitelhöhe und
+Breite des Halbrunds, Lage und Tiefe der Zunge. Die Prüfung rechnet
+damit dasselbe wie der Browser. `scripts/pruefe-masstabelle.js` 199,
+Gegenprobe 199 von 199.
