@@ -145,7 +145,12 @@
     /* Farben aus den VD-Bestellformularen, siehe SEGEL_FARBEN /
        PLISSEE_STOFF. Vorgabe ist je die hellste gängige. */
     segelStoff: 'Perlmutt',
+    segelArt: 'Ohne Verstärkung',
+    segelMontage: 'Aluminium oder Stahl',
+    segelStange: true,
     plisseeStoff: 'Hellgrau',
+    plisseeGestell: 'Alu',
+    plisseeStab: 'Schwarz',
     plankenFuge: 10,         // Luft zwischen zwei Planken in mm, 0 = bündig
     plankenAuto: true,       // true = das System rechnet die Fuge aus
     plankenAnteil: 0,        // 0 = volle Höhe, <0 wächst von unten, >0 hängt oben
@@ -3753,6 +3758,10 @@
      deutlich: Er erklärt dem Kunden die Bedienung, ohne dass ein Satz
      dazu nötig wäre. */
   var SONNE_BAHNEN = [];
+  /* Was gebaut wurde – für die Standzeile und für die Anfrage. Die Zahl
+     der Bahnen fragt das Bestellformular ab; hier ergibt sie sich aus dem
+     Dach (je Sparrenfeld eine), also wird sie berechnet statt erfragt. */
+  var SONNE_IST = { bahnen: 0, breite: 0, laenge: 0 };
   var SONNE_P = 1;                 // zuletzt gezeichneter Stand, 0 bis 1
   /* KORREKTUR 11.10.2026: „plissees und sonnensegel öffnen in der
      animation alle noch gleichzeitig, mach es etwas versetzt"
@@ -3914,6 +3923,7 @@
          verschwinden nicht. Und es erspart der Animation den Neubau des
          Modells, der sie früher zäh gemacht hat. */
       SONNE_BAHNEN = [];
+      SONNE_IST = { bahnen: 0, breite: 0, laenge: Math.round(lMax * 10) };
       felder.forEach(function (fe) {
         if (fe.b <= 2) return;
         var hoch, tuch;
@@ -3948,16 +3958,18 @@
         bau.add(tuch);
         SONNE_BAHNEN.push({ mesh: tuch, x: fe.x, zAb: zAb, lMax: lMax,
                             hoch: hoch, uk: ukZ });
+        SONNE_IST.bahnen++;
+        SONNE_IST.breite = Math.round(fe.b * 10);
       });
 
       if (!segel) {
         /* Die Schienen gehören zum Gestell: Sie sind montiert und bleiben
            stehen, auch wenn der Stoff ganz zurückgeschoben ist. Sie
            sitzen an den Sparrenflanken, links und rechts der Bahn.
-           Querschnitt GESCHÄTZT. Gestellfarbe steht noch nicht zur Wahl –
-           im Modell Alu. */
+           Querschnitt GESCHÄTZT. */
         var mGest = new THREE.MeshStandardMaterial({
-          color: rgb(PLISSEE_GESTELL['Alu']), roughness: 0.4, metalness: 0.75
+          color: rgb(PLISSEE_GESTELL[Z.plisseeGestell] || PLISSEE_GESTELL['Alu']),
+          roughness: 0.4, metalness: 0.75
         });
         var schB = 2.4, kanten = [];
         felder.forEach(function (fe) {
@@ -5472,6 +5484,18 @@
         : '');
   }
 
+  /* Was gebaut wurde – dieselbe Zahl, die in der Anfrage steht. */
+  function sonneStandZeigen() {
+    ['k3dSegelStand', 'k3dPlisseeStand'].forEach(function (id) {
+      var e = document.getElementById(id);
+      if (!e) return;
+      e.textContent = SONNE_IST.bahnen
+        ? 'Gebaut: ' + SONNE_IST.bahnen + ' Bahnen à ca. ' + SONNE_IST.breite +
+          ' × ' + SONNE_IST.laenge + ' mm – je Sparrenfeld eine.'
+        : '';
+    });
+  }
+
   function plankenStandZeigen() {
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
@@ -6606,11 +6630,24 @@
       if (Z.stoff && gruppeGilt('stoff-dach')) teile.push('Markisenstoff: ' + stoffText(Z.stoff));
       if (gruppeGilt('stoff-segel')) {
         teile.push('Sonnensegel-Stofffarbe: ' + Z.segelStoff);
-        teile.push('Sonnensegel: je Sparrenfeld eine Bahn, von Hand mit Bedienstange');
+        teile.push('Sonnensegel-Ausführung: ' + Z.segelArt);
+        teile.push('Befestigung: ' + Z.segelMontage);
+        teile.push('Teleskopstange: ' + (Z.segelStange ? 'ja' : 'nein'));
+        if (SONNE_IST.bahnen) {
+          teile.push('Bahnen: ' + SONNE_IST.bahnen + ' Stück, je ca. ' +
+            SONNE_IST.breite + ' × ' + SONNE_IST.laenge +
+            ' mm (je Sparrenfeld eine, Aufmaß vor Ort)');
+        }
       }
       if (gruppeGilt('stoff-plissee')) {
         teile.push('Plissee-Stofffarbe: ' + Z.plisseeStoff);
-        teile.push('Plissee: je Sparrenfeld eine Bahn, von Hand mit Bedienstab 120 cm');
+        teile.push('Plissee-Gestellfarbe: ' + Z.plisseeGestell);
+        teile.push('Bedienstab 120 cm: ' + Z.plisseeStab);
+        if (SONNE_IST.bahnen) {
+          teile.push('Bahnen: ' + SONNE_IST.bahnen + ' Stück, je ca. ' +
+            SONNE_IST.breite + ' × ' + SONNE_IST.laenge +
+            ' mm (je Sparrenfeld eine, Aufmaß vor Ort)');
+        }
       }
       if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
       if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
@@ -6662,7 +6699,13 @@
     Z.pgSeitenschutz = wert('k3dPgSeitenschutz') || Z.pgSeitenschutz;
     Z.plankenFarbe = wert('k3dPlankenFarbe') || Z.plankenFarbe;
     Z.segelStoff = wert('k3dSegelStoff') || Z.segelStoff;
+    Z.segelArt = wert('k3dSegelArt') || Z.segelArt;
+    Z.segelMontage = wert('k3dSegelMontage') || Z.segelMontage;
+    var stangeEl = document.getElementById('k3dSegelStange');
+    Z.segelStange = stangeEl ? stangeEl.checked : Z.segelStange;
     Z.plisseeStoff = wert('k3dPlisseeStoff') || Z.plisseeStoff;
+    Z.plisseeGestell = wert('k3dPlisseeGestell') || Z.plisseeGestell;
+    Z.plisseeStab = wert('k3dPlisseeStab') || Z.plisseeStab;
     Z.lamellen = parseInt(wert('k3dLamellen'), 10);
     if (isNaN(Z.lamellen)) Z.lamellen = 35;
 
@@ -6938,6 +6981,7 @@
     sg23FeldFuellen();
     plankenStandZeigen();
     ledStandZeigen();
+    sonneStandZeigen();
     velarisStandZeigen();
     rahmenStandZeigen();
     textAktualisieren();
@@ -7147,7 +7191,8 @@
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
-   'k3dSegelStoff', 'k3dPlisseeStoff',
+   'k3dSegelStoff', 'k3dSegelArt', 'k3dSegelMontage', 'k3dSegelStange',
+   'k3dPlisseeStoff', 'k3dPlisseeGestell', 'k3dPlisseeStab',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
@@ -7703,8 +7748,20 @@
            die richtige Kachel. Den lesbaren Satz baut er selbst aus
            derselben Liste. */
         if (Z.stoff && gruppeGilt('stoff-dach')) v.stoff = Z.stoff;
-        if (gruppeGilt('stoff-segel')) v.segelstoff = Z.segelStoff;
-        if (gruppeGilt('stoff-plissee')) v.plisseestoff = Z.plisseeStoff;
+        if (gruppeGilt('stoff-segel')) {
+          v.segelstoff = Z.segelStoff;
+          v.segelart = Z.segelArt;
+          v.segelmontage = Z.segelMontage;
+          v.segelstange = Z.segelStange ? 'ja' : 'nein';
+        }
+        if (gruppeGilt('stoff-plissee')) {
+          v.plisseestoff = Z.plisseeStoff;
+          v.plisseegestell = Z.plisseeGestell;
+          v.plisseestab = Z.plisseeStab;
+        }
+        if (SONNE_IST.bahnen && (gruppeGilt('stoff-segel') || gruppeGilt('stoff-plissee'))) {
+          v.bahnen = String(SONNE_IST.bahnen);
+        }
         if (Z.stoffZip && gruppeGilt('stoff-zip')) v.stoffzip = Z.stoffZip;
         if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
           v.vorsprung = String(Z.vorsprung);

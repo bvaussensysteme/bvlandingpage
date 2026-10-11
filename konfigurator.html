@@ -1091,6 +1091,18 @@
           <p class="k3d-mini"><strong>Bedienung:</strong> Jede Bahn wird einzeln
             von Hand bedient – mit einer Stange, die dafür gedacht ist. Im Modell
             laufen die Bahnen deshalb nacheinander auf und zu.</p>
+          <label class="k3d-label" for="k3dSegelArt" style="margin-top:10px">Ausführung</label>
+          <select id="k3dSegelArt" class="k3d-select">
+            <option value="Ohne Verstärkung" selected>ohne Verstärkung</option>
+            <option value="Mit Verstärkung">mit Verstärkung</option>
+          </select>
+          <label class="k3d-label" for="k3dSegelMontage" style="margin-top:10px">Woran wird befestigt?</label>
+          <select id="k3dSegelMontage" class="k3d-select">
+            <option value="Aluminium oder Stahl" selected>Aluminium oder Stahl</option>
+            <option value="Holz">Holz</option>
+          </select>
+          <label class="k3d-schalter" style="margin-top:10px"><input type="checkbox" id="k3dSegelStange" checked> <span>Teleskopstange zum Bedienen mitbestellen</span></label>
+          <p class="k3d-mini" id="k3dSegelStand"></p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-plissee" hidden>
@@ -1103,11 +1115,22 @@
             <option value="Hellbeige">Hellbeige</option>
             <option value="Braun">Braun</option>
           </select>
-          <p class="k3d-mini">Gestellfarbe (Weiß, Alu, Anthrazit, Schwarz) und
-            Bedienstab legen wir im Gespräch fest – im Modell steht Alu.</p>
+          <label class="k3d-label" for="k3dPlisseeGestell" style="margin-top:10px">Farbe der Schienen</label>
+          <select id="k3dPlisseeGestell" class="k3d-select">
+            <option value="Weiss">Weiß</option>
+            <option value="Alu" selected>Alu</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Schwarz">Schwarz</option>
+          </select>
+          <label class="k3d-label" for="k3dPlisseeStab" style="margin-top:10px">Bedienstab (120 cm)</label>
+          <select id="k3dPlisseeStab" class="k3d-select">
+            <option value="Weiss">Weiß</option>
+            <option value="Schwarz" selected>Schwarz</option>
+          </select>
           <p class="k3d-mini"><strong>Bedienung:</strong> Jedes Feld zwischen zwei
             Sparren wird einzeln von Hand bedient – mit dem Bedienstab (120 cm).
             Im Modell laufen die Bahnen deshalb nacheinander auf und zu.</p>
+          <p class="k3d-mini" id="k3dPlisseeStand"></p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-dach" hidden>
@@ -1385,7 +1408,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015l" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015m" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

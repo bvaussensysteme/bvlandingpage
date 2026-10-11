@@ -766,6 +766,55 @@ pruefe('Eine Flaeche je Bahn',
        new RegExp(q || 'function tuchFlaeche\\(breite, laenge, segmente, verformen\\)').test(src) &&
        (gegen || !/new THREE\.BoxGeometry\(B \/ felder - 8/.test(src)), '');
 
+
+/* ---------- Restliche Angaben aus den Bestellformularen ----------
+   „ja bau restliche" (Betreiber, 11.10.2026). Alles, was auf den beiden
+   Formularen angekreuzt wird, muss waehlbar sein UND in der Anfrage
+   stehen - sonst kann VD nicht bestellen. */
+(function () {
+  var htmlQ = fs.readFileSync('konfigurator.html', 'utf8');
+  /* Gestellfarben: Feld und Code muessen sich decken. */
+  var feld = (htmlQ.match(/id="k3dPlisseeGestell"[\s\S]*?<\/select>/) || [''])[0];
+  var werte = (feld.match(/value="([^"]+)"/g) || []).map(function (v) {
+    return v.replace(/value="|"/g, ''); });
+  var block = (src.match(/var PLISSEE_GESTELL = \{[\s\S]*?\};/) || [''])[0];
+  if (gegen) werte.push('Knallrot');
+  var fehlen = werte.filter(function (w) { return block.indexOf("'" + w + "'") === -1; });
+  pruefe('Gestellfarben: jede Option ist im Code bekannt',
+         werte.length > 0 && !fehlen.length,
+         werte.length + ' Optionen' + (fehlen.length ? ', unbekannt: ' + fehlen.join(', ') : ''));
+  pruefe('Gestellfarbe wirkt auf die Schienen',
+         new RegExp(q || 'PLISSEE_GESTELL\\[Z\\.plisseeGestell\\]').test(src),
+         'nicht mehr fest Alu');
+  /* Jede Formularangabe muss in der Anfrage landen. */
+  var pflicht = ['Sonnensegel-Ausführung', 'Befestigung: ', 'Teleskopstange: ',
+                 'Plissee-Gestellfarbe', 'Bedienstab 120 cm: ', 'Bahnen: '];
+  var fehltMail = pflicht.filter(function (t) { return src.indexOf("'" + t) === -1; });
+  if (gegen) fehltMail.push('kuenstlich');
+  pruefe('Jede Formularangabe steht in der Anfrage', !fehltMail.length,
+         fehltMail.length ? 'fehlt: ' + fehltMail.join(', ')
+                          : pflicht.length + ' Angaben');
+  /* Die Bahnenzahl wird NICHT erfragt, sondern aus dem Dach gerechnet -
+     je Sparrenfeld eine. Sie muss also aus dem gebauten Modell kommen. */
+  pruefe('Bahnenzahl kommt aus dem Modell',
+         new RegExp(q || 'SONNE_IST\\.bahnen\\+\\+').test(src) &&
+         new RegExp(q || 'v\\.bahnen = String\\(SONNE_IST\\.bahnen\\)').test(src),
+         'nicht vom Kunden erfragt');
+  /* Jedes neue Feld muss auch gelesen werden - ein Feld ohne Zeile in
+     zustandLesen() bleibt stumm (derselbe Fehler wie bei den
+     Velaris-Lamellen). */
+  var ids = ['k3dSegelArt', 'k3dSegelMontage', 'k3dSegelStange',
+             'k3dPlisseeGestell', 'k3dPlisseeStab'];
+  var stumm = ids.filter(function (id) {
+    return htmlQ.indexOf('id="' + id + '"') === -1 ||
+           src.indexOf("'" + id + "'") === -1 ||
+           src.indexOf('"' + id + '"') + src.indexOf("'" + id + "'") < 0;
+  });
+  if (gegen) stumm.push('k3dGibtsNicht');
+  pruefe('Jedes neue Feld wird auch gelesen', !stumm.length,
+         stumm.length ? 'stumm: ' + stumm.join(', ') : ids.length + ' Felder');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
