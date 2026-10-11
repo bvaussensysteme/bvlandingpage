@@ -286,20 +286,6 @@
       tiefe:  [4500, 8000, 100, 5500],
       hoehe:  [2000, 2600,  50, 2200]
     },
-    /* Der Carport TDS teilt die Grenzen des Terrassendachs – es ist
-       dasselbe System, und die Maßtabelle weitet sie ohnehin auf
-       14080 × 7050 mm. Abweichend nur die VOREINSTELLUNG: ein Carport
-       ist schmaler und tiefer als eine Terrasse.
-
-       Die alte Obergrenze von 8000 mm Tiefe war eine Schätzung aus der
-       Zeit vor der Tabelle; über 7050 mm gibt es keine Stückzahlen. Der
-       Betreiber hat das Kappen ausdrücklich gewählt: „Auf die Tabelle
-       begrenzen". */
-    'Carport TDS': {
-      breite: [2500, 7000, 100, 3200],
-      tiefe:  [2000, 7000, 100, 5500],
-      hoehe:  [2000, 2700,  50, 2300]
-    },
     /* GESCHÄTZT bis auf die Obergrenze: „Bis 7 × 4,5 m" steht als
        Produktangabe zu SunPro im Anfrage-Assistenten. Eine Preismatrix für
        Lamellendächer liegt nicht vor. */
@@ -4468,7 +4454,17 @@
      greift die Voreinstellung – ein 3 m tiefes Terrassendach wäre als
      Carport nicht nutzbar, eine stille Umrechnung wäre irritierender. */
   function masseSetzen() {
-    var m = MASSE[istCarportTds() ? 'Carport TDS' : Z.produkt] ||
+    /* Der Carport TDS IST das Terrassendach TDS – „du hast dafür aber was
+       komplett neues gemacht obwohl sich eig nur der name zu carport
+       ändert mehr nicht" (Betreiber, 11.10.2026).
+
+       Ich hatte ihm einen eigenen Maßblock mit eigenen Voreinstellungen
+       gegeben (3200 × 5500 mm, Höhe 2300). Das ist genau die zweite
+       Wahrheit, die beim nächsten Umbau auseinanderläuft. Es gibt keinen
+       eigenen Block mehr: Er greift auf den des Terrassendachs zu,
+       Grenzen und Voreinstellungen inbegriffen. Was bleibt, ist der
+       Name – und der steckt in produktName() und in der Anfrage-Mail. */
+    var m = MASSE[istCarportTds() ? 'Terrassendach TDS' : Z.produkt] ||
             MASSE['Terrassendach TDS'];
     [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe']].forEach(function (paar) {
       var el = document.getElementById(paar[0]);

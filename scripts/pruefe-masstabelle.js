@@ -309,14 +309,20 @@ pruefe('Carport-Fachbegriffe bleiben in der Anfrage',
        new RegExp(q || 'function cpVarianteJetzt\\(\\)').test(k3d), '');
 /* Zweiter Weg: Masse und Begriffe wirklich ausrechnen. */
 (function () {
-  var mM = k3d.match(/'Carport TDS': \{\s*breite: \[(\d+), (\d+),[^\]]*\],\s*tiefe:\s*\[(\d+), (\d+),/);
-  if (!mM) { pruefe('Carport-TDS-Masse lesbar', false, 'Block nicht gefunden'); return; }
-  var tMax = parseInt(mM[4], 10) + (gegen ? 1000 : 0);
-  pruefe('Tiefe auf die Tabelle begrenzt', tMax <= M.regeln.tiefeMaxMitUnterzug,
-         tMax + ' mm (Tabelle bis ' + M.regeln.tiefeMaxMitUnterzug + ')');
-  /* Der Gegenprobe-Versatz hebt die Tiefe auf genau die alte Schaetzung –
-     die Pruefung muss dann anschlagen, nicht umgekehrt. */
-  pruefe('Alte Schaetzung von 8000 mm ist weg', tMax !== 8000, tMax + ' mm');
+  /* Der Carport TDS hat KEINEN eigenen Massblock: Er ist das
+     Terrassendach TDS, nur unter anderem Namen. Ein eigener Block waere
+     eine zweite Wahrheit, die auseinanderlaeuft. */
+  pruefe('Kein eigener Massblock fuer den Carport TDS',
+         gegen ? /'Carport TDS': \{\s*\n\s*breite:/.test(k3d)
+               : !/'Carport TDS': \{\s*\n\s*breite:/.test(k3d), '');
+  pruefe('Carport TDS nutzt die Masse des Terrassendachs',
+         new RegExp(q || "MASSE\\[istCarportTds\\(\\) \\? 'Terrassendach TDS' : Z\\.produkt\\]").test(k3d), '');
+  /* Die wirkliche Tiefengrenze kommt NICHT aus MASSE, sondern aus
+     grenzenAusTabelle() - MASSE ist nur der Rueckfall, bevor die Tabelle
+     greift. Eine Pruefung auf MASSE waere deshalb irrefuehrend; dass die
+     Regler aus der Tabelle kommen, prueft weiter oben schon eine eigene
+     Zeile, und die gilt fuer den Carport TDS jetzt mit. */
+
   /* Die Ausfuehrung muss sich aus Aufbau und Vorsprung ergeben. */
   var mV = k3d.match(/function cpVarianteJetzt\(\)[\s\S]*?\n  \}/);
   if (!mV) { pruefe('Variantenableitung lesbar', false, ''); return; }
