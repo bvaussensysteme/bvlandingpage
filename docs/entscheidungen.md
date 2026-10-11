@@ -2105,3 +2105,28 @@ der Fachbegriff an.
    Plankenwand, Senkrechtmarkise) oder nur Glas und Schiebetüren.
 3. Flat Line und Flat Box sind unverändert – sie laufen weiter über den
    geschätzten Pfad.
+
+## 2026-10-11 – Nachtrag: kein eigener Maßblock für den Carport TDS
+
+**Anlass:** „guckmal das tds carport is eig das tds dach, du hast dafür
+aber was komplett neues gemacht obwohl sich eig nur der name zu carport
+ändert mehr nicht" (Betreiber).
+
+**Was falsch war:** Ich hatte dem Carport TDS beim Vereinheitlichen einen
+EIGENEN Maßblock gegeben – mit eigenen Grenzen und eigenen
+Voreinstellungen (3200 × 5500 mm, Höhe 2300). Das war gut gemeint („ein
+Carport ist schmaler und tiefer"), aber es ist genau die zweite Wahrheit,
+die beim nächsten Umbau auseinanderläuft. Und es widerspricht dem, was
+der Betreiber gesagt hat: Es ist dasselbe Dach.
+
+**Was jetzt gilt:** Es gibt keinen eigenen Block mehr. Der Carport TDS
+greift auf den des Terrassendachs zu – Grenzen UND Voreinstellungen.
+Damit sind auch die beiden Punkte erledigt, die ich zum Gegenlesen
+gestellt hatte: Die Durchfahrtshöhe ist dieselbe wie die Durchgangshöhe,
+weil es dieselbe Höhe ist.
+
+Was bleibt, ist der Name – in `produktName()` und in der Anfrage-Mail.
+
+**Lehre, dieselbe wie heute schon zweimal:** Beim Vereinheitlichen nicht
+nebenbei etwas Neues einführen. „Gleich" heißt gleich, nicht
+„gleich, aber mit eigenen Werten".
