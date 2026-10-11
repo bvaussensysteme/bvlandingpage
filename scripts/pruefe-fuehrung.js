@@ -104,6 +104,27 @@ pruefe('Testhinweis wartet auf den Cookie-Hinweis',
 pruefe('Testhinweis ist mit Tastatur bedienbar',
        new RegExp(q || "'Escape'").test(js) && /role="dialog"/.test(html), '');
 
+/* ---------- Jeder Regler muss seine Anzeige nachfuehren ----------
+   Der Dachvorsprung-Regler stand in keiner der beiden Listen: die
+   Anzeige blieb auf „0 mm", waehrend sich im Modell sehr wohl etwas
+   bewegte. Das faellt nicht auf, weil nichts kaputtgeht - es stimmt nur
+   nicht. Deshalb wird es hier fuer ALLE Regler geprueft, nicht nur fuer
+   den einen. */
+var regler = (html.match(/id="(k3d[A-Za-z]+)" class="k3d-range"/g) || [])
+  .map(function (x) { return x.match(/id="(k3d[A-Za-z]+)"/)[1]; });
+var ohneAnzeige = [], ohneZahl = [];
+regler.forEach(function (r) {
+  if (html.indexOf('id="' + r + 'Wert"') > -1 && !new RegExp(r + 'Wert').test(js) &&
+      !new RegExp("\\['" + r + "', '").test(js)) ohneAnzeige.push(r);
+  if (html.indexOf('id="' + r + 'Zahl"') > -1 &&
+      !new RegExp("\\['" + r + "', '" + r + "Zahl'\\]").test(js)) ohneZahl.push(r);
+});
+if (gegen) { ohneAnzeige = ['kuenstlich']; ohneZahl = ['kuenstlich']; }
+pruefe('Jeder Regler führt seine Anzeige nach', ohneAnzeige.length === 0,
+       ohneAnzeige.length ? ohneAnzeige.join(', ') : regler.length + ' Regler geprüft');
+pruefe('Jedes Zahlenfeld ist an seinen Regler gekoppelt', ohneZahl.length === 0,
+       ohneZahl.length ? ohneZahl.join(', ') : 'alle gekoppelt');
+
 /* Feste Panelbreite liess lange Knopftexte mitten im Wort abbrechen. */
 pruefe('Bedienfeld waechst mit der Bildschirmbreite',
        new RegExp(q || '--k3d-sl-breite: clamp\\(').test(html) &&
