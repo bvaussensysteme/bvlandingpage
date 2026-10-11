@@ -4726,3 +4726,25 @@ geschlossene Fläche, kein Flackern, keine Sparren mehr sichtbar. Bei TDS und
 bei SkyView. Prüfung: `node scripts/pruefe-masstabelle.js` (240, Gegenprobe
 240/240) – zwei davon rechnen für beide Systeme nach, dass die Blendenaußenkante
 wirklich vor der Sparrenaußenkante liegt.
+
+## 2026-10-11 – SkyView: Keilsparren zurückgenommen
+
+**Was falsch war.** Ich hatte aus „die blende außen is immer gleich" geschlossen,
+das Gefälle müsse im Sparren stecken, und einen Keilsparren gebaut – vorne spitz
+auslaufend, hinten 18 cm hoch. Antwort des Betreibers mit Bildschirmfoto:
+„ehhhhm wasn da passiert", und danach klar: „die sparren haben keine keilform,
+die sind normal wie bei tds nur eben 2 grad geneigt".
+
+**Was jetzt gilt.** Die Sparren sind dieselben schlanken TDS-Profile
+(61 × 120 mm), um 2° geneigt eingebaut. Der Kasten außen bleibt rechteckig und
+rundum gleich hoch; seine Höhe ergibt sich aus der Geometrie, weil das Gefälle
+irgendwo hin muss: 2,5 m → 285 mm, 4 m → 338 mm, 6 m → 408 mm.
+
+**Die Geometrie, in einem Satz.** Bei 4 m Tiefe sind 2° genau 14 cm
+Höhenunterschied. Entweder nimmt sie der Sparren auf (dann ist er hinten hoch
+und vorne spitz) oder der Kasten (dann ist er höher). Beides klein geht nicht.
+Die Entscheidung ist gefallen: schlanke Sparren, höherer Kasten.
+
+**Offen.** Wie hoch die Blende beim echten System wirklich ist – gestaffelte
+Profilhöhen? Flacheres Gefälle bei großen Tiefen? Steht in
+`docs/NEXT_TASK.md`.

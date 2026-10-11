@@ -2197,38 +2197,6 @@
     sparrenMin: 4.0
   };
 
-  /* ---------- Keilsparren des SkyView ----------
-     „die blende außen is immer gleich, einfach rechteckig" (Betreiber,
-     11.10.2026) – und trotzdem fällt das Dach innen mit 2°. Beides geht
-     nur, wenn der SPARREN das Gefälle aufnimmt: unten waagerecht auf
-     Rinne und Träger, oben nach hinten ansteigend. Genau so zeigt es
-     Seite 22 der Montageanleitung, und genau deshalb steht dort „wenn
-     diese vor Ort gefertigt werden sollen" – der Keil wird zugeschnitten.
-
-     Vorher lag hier ein gerader Sparren schräg im Kasten; dann musste
-     der Kasten mit der Tiefe mitwachsen, um ihn zu überdecken. Jetzt
-     bleibt der Kasten, und der Sparren ändert seine Form.
-
-     hVorn/hHinten sind die Höhen an den beiden Enden, yUnten die
-     waagerechte Unterkante. */
-  function keilsparren(laenge, breite, x, yUnten, zMitte, hVorn, hHinten, material) {
-    var f = new THREE.Shape();
-    f.moveTo(0, 0);
-    f.lineTo(laenge, 0);
-    f.lineTo(laenge, hVorn);          // vorne liegt bei +z, siehe Drehung
-    f.lineTo(0, hHinten);
-    f.closePath();
-    var g = new THREE.ExtrudeGeometry(f, { depth: breite, bevelEnabled: false });
-    g.translate(-laenge / 2, 0, -breite / 2);
-    g.rotateY(Math.PI / 2);
-    var m = new THREE.Mesh(g, material);
-    m.position.set(x, yUnten, zMitte);
-    m.castShadow = true; m.receiveShadow = true;
-    dachTeil(m);
-    bau.add(m);
-    return m;
-  }
-
   function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
     var m = new THREE.Mesh(
       new THREE.BoxGeometry(RANDBLENDE.dicke, hoehe, laenge), material);
@@ -5183,7 +5151,7 @@
     var skyGlas = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var riH = sky
       ? Math.max(SKY.rahmenH,
-                 SKY.sparrenAb + SKY.sparrenMin + Math.tan(neig) * T +
+                 SKY.sparrenAb + SPARREN.hoehe + Math.tan(neig) * T +
                  skyGlas + SKY.ueber)
       : RINNE.hoehe;
     var riT = sky ? SKY.rinneT : RINNE.breite;
@@ -5489,31 +5457,24 @@
     var ukVorn = sky ? hRinne + SKY.sparrenAb
                      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
 
-    /* SkyView: Der Sparren liegt mit waagerechter Unterkante im Kasten
-       und wird nach hinten höher – vorne am dünnsten. Daraus die beiden
-       Endhöhen; die Oberkante ist die Ebene, auf der die Eindeckung
-       liegt. Bei TDS bleibt es beim geraden, geneigten Sparren. */
-    var skySpVorn = 0, skySpHinten = 0, skyOkVorn = 0;
-    if (sky) {
-      skyOkVorn = hRinne + riH - SKY.ueber - skyGlas - Math.tan(neig) * laenge;
-      skySpVorn = Math.max(SKY.sparrenMin, skyOkVorn - ukVorn);
-      skySpHinten = skySpVorn + Math.tan(neig) * laenge;
-    }
-    /* Gedachte Sparrenunterkante in der Mitte: So gerechnet, dass
-       ukMitte + spH wie gewohnt die Glasebene ergibt – damit Glas,
-       Glasleisten, LED und Markisen unverändert weiterrechnen. */
-    var ukMitte = sky
-      ? ukVorn + skySpVorn + Math.tan(neig) * (laenge / 2) - spH
-      : ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
+    /* KORREKTUR 11.10.2026, zweiter Anlauf. Zwischendurch stand hier ein
+       KEILSPARREN: unten waagerecht, nach hinten ansteigend, damit das
+       Gefälle in einen 26 cm hohen Kasten passt. Im Bild war das Ergebnis
+       eindeutig: „ehhhhm wasn da passiert" (Betreiber, mit
+       Bildschirmfoto). Vorne liefen die Sparren spitz aus, hinten waren
+       sie 18 cm hoch – das sieht nach allem aus, nur nicht nach einem
+       Dach.
+
+       Deshalb wieder das, was ein Sparren ist: ein schlankes Profil von
+       120 mm, geneigt eingebaut. Das Gefälle liegt dann zwangsläufig im
+       Kasten, und der wird bei tiefen Anlagen höher – siehe riH. Beides
+       zusammen (schlanke Sparren UND niedriger Kasten) geht nicht: Bei
+       4 m Tiefe sind 2° genau 14 cm, die müssen irgendwo hin. */
+    var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
     xs.forEach(function (x) {
-      if (sky) {
-        keilsparren(laenge, spB, x, ukVorn, zMitte,
-                    skySpVorn, skySpHinten, mAlu);
-      } else {
-        sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
-      }
+      sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
     });
 
     /* Seitliche Randblende – siehe RANDBLENDE. Sie liegt außen am
