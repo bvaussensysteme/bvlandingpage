@@ -2094,6 +2094,10 @@
      dann die Rechengenauigkeit, und zwar Pixel für Pixel neu: Die
      Sparren blitzen durch die Blende. Mit dem Vorsprung liegt die
      Blende eindeutig davor. */
+  /* BELEGT (Maßtabelle, Kopfzeile PFOSTENACHSE_AB_VORDERKANTE_MM=55):
+     Abstand der Pfostenachse von der Vorderkante der Rinne, in cm. */
+  var PFOSTENACHSE = 5.5;
+
   var RANDBLENDE = { dicke: 3.0, vor: 0.25 };
 
   /* ---------- Gerillte Blende des SkyView ----------
@@ -4071,10 +4075,9 @@
        hat. Zwei Anläufe lagen daneben:
          · Element bis T − Pfostenbreite, Keil bis zur Dachkante: die
            Oberkante des Elements ragte gut 7 cm über den Keil hinaus.
-         · Beide bis zur Rückseite des vorderen Pfostens: der Pfosten
-           steht mittig unter der Rinne, seine Rückseite liegt damit
-           38 mm VOR der Dachkante – dort ist kein Dach mehr, an das der
-           Keil anschließen könnte, und die Schräge hing frei.
+         · Beide bis zur Rückseite des vorderen Pfostens: Die liegt vor
+           der Dachkante – dort ist kein Dach mehr, an das der Keil
+           anschließen könnte, und die Schräge hing frei.
 
        Beides ist überholt: Seit dem 11.10.2026 endet das Element an der
        HINTEREN PFOSTENFLÄCHE, nicht an der Dachkante. Über dem Stück
@@ -5163,17 +5166,21 @@
     wand.position.set(0, (hHinten + 190) / 2, -12);
 
     /* Pfosten: zwei, bei breiten Anlagen drei. Die Verteilung über die
-       BREITE ist GESCHÄTZT – die steht in der Herstellermatrix.
+       BREITE bleibt GESCHÄTZT – die Maßtabelle führt sie ausdrücklich
+       unter „nicht belegt, nicht raten, sondern nachfragen".
 
-       Die Lage in der TIEFE: Der Pfosten steht MITTIG UNTER DER RINNE
-       (Angabe des Betreibers, 10.10.2026) – also 93 mm hinter der
-       Vorderkante, bei 186,3 mm Rinnenbreite. Vorher standen hier 55 mm
-       aus der Montageanleitung S. 25 („bei 300 cm = 294,5 cm"); damit
-       stand der Pfosten vorne an der Rinnenkante statt darunter. Die
-       55 mm beziehen sich offenbar auf einen anderen Bezugspunkt als die
-       Vorderkante der Rinne – GEGENZULESEN, siehe docs/NEXT_TASK.md. */
+       Die Lage in der TIEFE ist dagegen BELEGT: Die Maßtabelle
+       (Stand 11.10.2026, Quelle VD-Preislisten) nennt im Kopf
+       PFOSTENACHSE_AB_VORDERKANTE_MM=55. Hier standen zwischendurch
+       93 mm („mittig unter der Rinne", Angabe vom 10.10.2026); auf
+       Vorlage des Tabellenbefunds hat der Betreiber am 11.10.2026
+       entschieden: „dann mach es nach liste".
+
+       Die Pfostenvorderkante steht damit bündig mit der Rinnenvorder-
+       kante (55 mm Achse bei 110 mm Pfosten). Das gilt für alle
+       Systeme – die Tabelle trennt dort nicht. */
     /* Mit Vorsprung wandert der Pfosten um genau dieses Maß nach innen. */
-    var zPf = (sky ? T - SKY.rinneT / 2 : T - RINNE.breite / 2) - vorspr;
+    var zPf = T - PFOSTENACHSE - vorspr;
 
     /* Unterkante der Sparren an der Pfostenachse – nur mit Vorsprung
        gebraucht, dort endet der Pfosten unter dem Träger. ukVorn wird
@@ -5645,9 +5652,9 @@
        Dachsystem – deshalb auch freistehend. */
     /* Vorderes Ende der Seitenelemente: die HINTERE Pfostenfläche, nicht
        die Dachkante. Die Dachkante liegt 186 mm hinter der Rinnenvorder-
-       kante, der Pfosten steht mittig unter der Rinne – dazwischen blieben
-       38 mm Luft, und genau die war im Bild als Spalt zwischen Keil bzw.
-       Senkrechtmarkise und Pfosten zu sehen. Vom Betreiber beanstandet:
+       kante, die Pfostenachse 55 mm – dazwischen blieb Luft, und genau
+       die war im Bild als Spalt zwischen Keil bzw. Senkrechtmarkise und
+       Pfosten zu sehen. Vom Betreiber beanstandet:
        „die markise und keil haben lücke zum pfosten die müssen bündig
        sein". Jetzt stossen sie an den Pfosten.
 
@@ -7262,19 +7269,47 @@
     }
   }
 
+  /* Serienfarben des Systems aus der Maßtabelle, als Namen der
+     Bedienfeld-Knöpfe. Die Tabelle führt RAL-Nummern; hier werden sie
+     übersetzt. „Andere / Beratung" (die Sonderfarbe) steht immer zur
+     Verfügung und kommt deshalb unabhängig davon dazu. Gibt die Tabelle
+     für ein Produkt nichts her, bleibt alles stehen wie bisher. */
+  var RAL_ZU_NAME = {
+    '7016': 'Anthrazit', '9006': 'Weißaluminium',
+    '9007': 'Graualuminium', '9010': 'Reinweiß'
+  };
+
+  function farbenAusTabelle() {
+    var M = window.BV_MASSTABELLE;
+    if (!M || !M.farben) return null;
+    var sys = (Z.produkt === 'Terrassendach TDS' || istCarportTds()) ? 'TDS'
+            : (Z.produkt === 'Flachdach SkyView') ? 'SkyView'
+            : (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') ? 'Flat_Line'
+            : null;
+    var liste = sys ? M.farben[sys] : null;
+    if (!liste) return null;
+    return liste.map(function (r) { return RAL_ZU_NAME[r] || r; })
+                .concat(['Andere / Beratung']);
+  }
+
   function panelAnpassen() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-fuer]'), function (el) {
       var gilt = el.getAttribute('data-k3d-fuer').split(/\s+/).some(gruppeGilt);
       el.hidden = !gilt;
     });
 
-    /* Farbfelder: welche Farben das System führt, steht in der Stückliste.
-       Belegt ist, dass nur TDS Reinweiß 9010 führt – SkyView und Flat Line
-       nicht. Ohne Herstellerdaten bleiben alle vier stehen. */
+    /* Farbfelder: welche Farben das System führt. Erste Quelle ist die
+       Stückliste des Herstellers; liefert die nichts – zurzeit immer,
+       weil /api/bauteile 503 antwortet –, greift die Maßtabelle.
+
+       Dort ist belegt, dass Reinweiß 9010 NUR bei TDS geführt wird.
+       „korregieren" (Betreiber, 11.10.2026): Vorher blieben bei SkyView
+       und Flat Line alle vier Farben stehen, und der Kunde konnte eine
+       Farbe anfragen, die es für sein System nicht gibt. */
     var e = stueckliste();
     var erlaubt = (e && e.farben && e.farben.length)
       ? e.farben.map(function (f) { return f.name; })
-      : (istPergola() ? FARBEN_PERGOLA : null);
+      : (istPergola() ? FARBEN_PERGOLA : farbenAusTabelle());
     Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
       b.hidden = !!erlaubt && erlaubt.indexOf(b.getAttribute('data-k3d-farbe')) === -1;
     });

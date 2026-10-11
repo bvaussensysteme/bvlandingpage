@@ -4802,3 +4802,35 @@ Hinweis steht jetzt auch in `js/masstabelle.js` an der Zahl selbst, damit
 niemand sie später „nach der Tabelle korrigiert". Offen bleibt der zweite
 Punkt: Pfostenachse 55 mm hinter der Vorderkante (PDF) gegen mittig unter der
 Rinne, 93 mm (Angabe vom 10.10.2026).
+
+## 2026-10-11 – Pfostenachse nach Liste, Reinweiß nur bei TDS
+
+Zwei Entscheidungen des Betreibers zum Prüfbericht von eben.
+
+**Pfostenachse: „dann mach es nach liste".** Die Achse liegt jetzt 55 mm hinter
+der Vorderkante der Rinne (`PFOSTENACHSE`), nicht mehr 93 mm („mittig unter der
+Rinne", Angabe vom 10.10.2026). Bei 110 mm Pfosten steht seine Vorderkante
+damit bündig mit der Rinnenvorderkante. Gilt für alle Systeme – die Tabelle
+trennt dort nicht. Die Seitenelemente enden weiter an der hinteren
+Pfostenfläche und wandern automatisch mit.
+
+**Reinweiß 9010: „korregieren".** Die Serienfarben stehen jetzt in
+`js/masstabelle.js` (`farben`), je System aus dem Kopf der Preisliste: TDS
+führt 7016/9006/9007/9010, SkyView und Flat Line nur 7016/9006/9007. Der
+Konfigurator liest sie von dort, sobald die Herstellerschnittstelle nichts
+liefert – also zurzeit immer. Vorher standen bei SkyView und Flat Line alle
+vier Farben zur Wahl, und ein Kunde konnte eine Farbe anfragen, die es für sein
+System nicht gibt. „Andere / Beratung" (Sonderfarbe) bleibt überall.
+
+**Nicht eingebaut, auf Ansage: „nein".** Die übrigen belegten Kopfwerte der
+Preisliste (Pfostenlänge je System, Feldbreiten, Scheibenbreiten,
+Rinnenkopplung, Durchgangshöhe, Neigungsbereich, Glasanteil, Fundamentmaße)
+bleiben draußen. Sie stehen im Prüfbericht weiter oben, falls sie später
+gebraucht werden.
+
+**Was gegengelesen werden soll.** Produkt auf SkyView stellen: Reinweiß ist
+weg, die anderen drei und „Andere / Beratung" bleiben. War Reinweiß vorher
+gewählt, springt die Farbe auf Anthrazit. Bei Terrassendach TDS und Carport TDS
+bleibt Reinweiß. Pfosten: steht jetzt weiter vorne, bündig unter der
+Rinnenvorderkante. Prüfung: `node scripts/pruefe-masstabelle.js` (242,
+Gegenprobe 242/242).
