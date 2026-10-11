@@ -3680,3 +3680,31 @@ nachgezogen.
 Werte bleiben (Gegenprobe setzt sie gleich), die Reglergrenzen werden
 aus der Tabelle nachgerechnet (muss 14080 × 7050 ergeben), und bei
 7050 mm muss ein Pfosten dazukommen.
+
+## 11.10.2026 – Schwebende Knöpfe nur über dem Konfigurator ausblenden
+
+**Anlass.** „beim konfigurator stören diese buttons, kannst du es so
+umschreiben das diese NUR im bereich des konfigurators ausgeblendet
+werden, sobald man aber z.b weiter runter scrollt z.b ab dem footer
+sollen die wieder auftauchen" (Betreiber, mit Bildschirmfoto).
+
+**Was jetzt gilt.** Ein Beobachter (`IntersectionObserver`) meldet, ob
+der Konfigurator im Bild ist, und setzt dann die Klasse `k3d-im-bild`
+auf den Body. Solange sie steht, sind Barrierefreiheits-Knopf,
+Konfigurator-Blase und Nach-oben-Knopf ausgeblendet. Scrollt man unter
+den Konfigurator – Hinweise, Fußzeile –, kommen sie zurück.
+
+**Warum nicht einfach dauerhaft auf dieser Seite ausblenden.** Der
+Barrierefreiheits-Knopf ist die einzige Stelle, an der Schriftgröße,
+Kontrast und Bewegung umgestellt werden können. Ihn auf einer ganzen
+Seite zu entfernen wäre ein Rückschritt für genau die Besucher, die ihn
+brauchen – und bei einer Seite mit öffentlichem Angebot auch rechtlich
+kein guter Platz zum Sparen. Deshalb nur im Bereich des 3D-Bildes, wo er
+das Drehen und Tippen stört.
+
+**Ohne Beobachter** (sehr alte Browser) bleibt alles sichtbar: lieber ein
+störender Knopf als ein verschwundener.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 148, Gegenprobe
+148 von 148. Darunter eine, die verbietet, den Knopf später doch
+dauerhaft auszublenden.

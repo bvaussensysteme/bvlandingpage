@@ -432,6 +432,25 @@
     }
 
     /* ---------- Handy und Tablet ---------- */
+    /* Schwebende Knöpfe (Barrierefreiheit, Konfigurator-Blase, Nach-oben)
+       liegen über dem 3D-Bild und stören dort beim Drehen und Tippen:
+       „beim konfigurator stören diese buttons … NUR im bereich des
+       konfigurators ausgeblendet werden, sobald man aber z.b weiter
+       runter scrollt z.b ab dem footer sollen die wieder auftauchen"
+       (Betreiber, 11.10.2026).
+
+       Deshalb KEIN dauerhaftes Ausblenden auf dieser Seite: Die Klasse
+       setzt und entfernt ein Beobachter, je nachdem ob der Konfigurator
+       gerade im Bild ist. Unter dem Konfigurator – Hinweise, Fußzeile –
+       sind die Knöpfe wieder da, und damit bleibt auch die
+       Barrierefreiheits-Hilfe auf jeder Seite erreichbar. */
+    body.k3d-im-bild #bv-a11y-trigger,
+    body.k3d-im-bild #bv-a11y-panel,
+    body.k3d-im-bild #bv-scroll-top,
+    body.k3d-im-bild #bvKonfigBubble {
+      display: none !important;
+    }
+
     @media (max-width: 900px) {
       .k3d-app { flex-direction: column; height: auto; min-height: 0; }
       .k3d-buehne { order: 0; flex: none; height: 54svh; min-height: 300px; }
@@ -1403,7 +1422,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015s" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015t" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
@@ -1446,5 +1465,23 @@
   </div>
 </div>
 
+<script>
+/* Schwebende Knöpfe nur im Bereich des Konfigurators ausblenden.
+   Der Beobachter meldet, sobald der Konfigurator das Bild verlässt –
+   dann kommen die Knöpfe zurück. Ohne Beobachter (sehr alte Browser)
+   bleibt alles wie vorher sichtbar: lieber ein störender Knopf als ein
+   verschwundener. */
+(function () {
+  var app = document.getElementById('k3dApp');
+  if (!app || !('IntersectionObserver' in window)) return;
+  var setzen = function (drin) {
+    document.body.classList.toggle('k3d-im-bild', drin);
+  };
+  setzen(true);
+  new IntersectionObserver(function (eintraege) {
+    setzen(eintraege[0].isIntersecting);
+  }, { threshold: 0 }).observe(app);
+})();
+</script>
 </body>
 </html>

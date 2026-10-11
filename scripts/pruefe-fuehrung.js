@@ -1125,6 +1125,34 @@ pruefe('Bezugspunkt der Sparrenunterkante berichtigt',
          unsym + ' schiefe, ' + doppelt + ' doppelt belegte Aufteilungen bis 9 Sparren');
 })();
 
+
+/* ---------- Schwebende Knoepfe ueber dem 3D-Bild ----------
+   „beim konfigurator stoeren diese buttons ... NUR im bereich des
+   konfigurators ausgeblendet werden, sobald man aber z.b weiter runter
+   scrollt z.b ab dem footer sollen die wieder auftauchen" (Betreiber,
+   11.10.2026). */
+pruefe('Schwebeknoepfe werden nur im Konfigurator ausgeblendet',
+       new RegExp(q || 'body\\.k3d-im-bild #bv-a11y-trigger').test(html) &&
+       new RegExp(q || 'body\\.k3d-im-bild #bvKonfigBubble').test(html), '');
+pruefe('Ein Beobachter blendet sie wieder ein',
+       new RegExp(q || 'IntersectionObserver').test(html) &&
+       new RegExp(q || "classList\\.toggle\\('k3d-im-bild', drin\\)").test(html),
+       'nicht dauerhaft versteckt');
+(function () {
+  /* Dauerhaft verstecken waere der bequeme Fehler: Die
+     Barrierefreiheits-Hilfe muss auf jeder Seite erreichbar bleiben.
+     Geprueft wird deshalb, dass es KEINE Regel gibt, die sie auf dieser
+     Seite ohne Bedingung ausblendet. */
+  var dauerhaft = /body\.k3d-app-seite\s+#bv-a11y-trigger\s*\{[^}]*display:\s*none/.test(html) ||
+                  /#bv-a11y-trigger\s*\{[^}]*display:\s*none/.test(html);
+  if (gegen) dauerhaft = !dauerhaft;
+  pruefe('Barrierefreiheits-Knopf nicht dauerhaft versteckt', !dauerhaft,
+         'nur solange der Konfigurator im Bild ist');
+})();
+pruefe('Ohne Beobachter bleibt alles sichtbar',
+       new RegExp(q || "if \\(!app \\|\\| !\\('IntersectionObserver' in window\\)\\) return;").test(html),
+       'alte Browser sehen die Knoepfe');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
