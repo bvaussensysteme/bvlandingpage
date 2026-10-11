@@ -301,6 +301,96 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
+/* ---------- Werkbilder vom 11.10.2026: Rillen und Randblende ----------
+   „hier ein perfekter querschnitt unserer überdachung kannst du es so
+   neu modellieren" – „nicht 100% 1:1 aber ähnlich und einfach"
+   (Betreiber, mit fuenf Werkbildern). Zwei Dinge daraus: die fein
+   gerillte Rinnenfront und der seitlich geschlossene Dachrand. */
+(function () {
+  /* Zweiter Weg: den ECHTEN Rinnenquerschnitt laufen lassen. Die Rillen
+     duerfen die vier belegten Hauptmasse NICHT antasten – genau das ist
+     die Gefahr, wenn man an einem Profil nur „die Optik" aendert. */
+  var quer = (k3d.match(/function rinneQuerschnitt\(mitKehle\)[\s\S]*?\n  \}/) || [''])[0];
+  var blockR = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!quer || !blockR) { pruefe('Rinnenquerschnitt lesbar', false, 'nicht gefunden'); return; }
+  function zahl(name) {
+    var m = blockR.match(new RegExp(name + ':\\s*([\\d.]+)'));
+    return m ? parseFloat(m[1]) : null;
+  }
+  var RINNE = { breite: zahl('breite'), hoehe: zahl('hoehe'),
+                innenBreite: zahl('innenBreite'), innenTiefe: zahl('innenTiefe'),
+                rueckwand: zahl('rueckwand'), wangeAb: zahl('wangeAb'),
+                rilleTeilung: zahl('rilleTeilung') };
+  var punkte = [];
+  function Form() { this.holes = []; }
+  Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.lineTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.quadraticCurveTo = function (cx, cy, x, y) { punkte.push([x, y]); };
+  Form.prototype.closePath = function () {};
+  /* Die Kehle wird als eigener Pfad gezeichnet und reicht bewusst ueber
+     die Oberkante hinaus. Sie gehoert NICHT zum Umriss – deshalb ein
+     eigener, stummer Stub dafuer, sonst misst diese Pruefung 1 cm zu
+     viel und beschuldigt die Rillen. */
+  function Pfad() {}
+  Pfad.prototype.moveTo = function () {};
+  Pfad.prototype.lineTo = function () {};
+  Pfad.prototype.quadraticCurveTo = function () {};
+  Pfad.prototype.closePath = function () {};
+  var THREE = { Shape: Form, Path: Pfad };
+  var fn = eval('(' + quer + ')');
+  fn(false);
+  var xs2 = punkte.map(function (p) { return p[0]; });
+  var ys2 = punkte.map(function (p) { return p[1]; });
+  var breit = Math.max.apply(null, xs2) - Math.min.apply(null, xs2);
+  var hoch = Math.max.apply(null, ys2) - Math.min.apply(null, ys2);
+  if (gegen) breit += 1;
+  pruefe('Rillen aendern die Rinnenmasse nicht',
+         Math.abs(breit - RINNE.breite) < 0.02 && Math.abs(hoch - RINNE.hoehe) < 0.02,
+         breit.toFixed(2) + ' x ' + hoch.toFixed(2) + ' cm (Zeichnung ' +
+         RINNE.breite + ' x ' + RINNE.hoehe + ')');
+  /* Die Rillen liegen zurueckgesetzt – gezaehlt werden die Punkte, die
+     NICHT an der Vorderkante stehen, aber in der Vorderflaeche liegen. */
+  var tief = punkte.filter(function (p) {
+    return p[0] < RINNE.breite - 0.1 && p[0] > RINNE.breite - 1.0;
+  }).length;
+  if (gegen) tief = 0;
+  pruefe('Rinnenfront ist gerillt, nicht glatt', tief >= 8,
+         tief + ' zurueckgesetzte Punkte, Teilung ' + RINNE.rilleTeilung + ' cm');
+})();
+(function () {
+  /* Die Randblende ist VERKLEIDUNG. Geprueft wird, dass sie aussen
+     buendig mit der Dachkante sitzt und genau von der Sparrenunterkante
+     bis an die Glasoberseite reicht – und dass sie keine Sparrenachse
+     verschiebt (die Achsformel muss unveraendert sein). */
+  var fx = (k3d.match(/vz \* \(B \/ 2 - RANDBLENDE\.dicke \/ 2\)/) || [])[0];
+  /* spH… – es gibt noch ein blendeH bei der Markise. */
+  var fh = (k3d.match(/var blendeH = (spH[^;]+);/) || [])[1];
+  var dicke = parseFloat((k3d.match(/RANDBLENDE = \{ dicke: ([\d.]+)/) || [])[1]);
+  if (!fx || !fh || !dicke) { pruefe('Randblende lesbar', false, 'nicht gefunden'); return; }
+  var B = 500, spH = 12.0, glas = 0.8, ukMitte = 200;
+  var istPolycarbonat = function () { return false; };
+  var Z = { glasstaerke: 8 };
+  var blendeH = eval(fh);
+  var xMitte = (gegen ? 0.5 : 1) * (B / 2 - dicke / 2);
+  var aussen = xMitte + dicke / 2;
+  var yMitte = ukMitte + blendeH / 2;
+  var falsch = 0, meld = [];
+  if (Math.abs(aussen - B / 2) > 0.001) {
+    falsch++; meld.push('Aussenkante ' + aussen.toFixed(1) + ' statt ' + B / 2);
+  }
+  if (Math.abs((yMitte - blendeH / 2) - ukMitte) > 0.001) {
+    falsch++; meld.push('Unterkante nicht am Sparren');
+  }
+  if (Math.abs((yMitte + blendeH / 2) - (ukMitte + spH + glas)) > 0.001) {
+    falsch++; meld.push('Oberkante nicht an der Glasoberseite');
+  }
+  pruefe('Randblende sitzt buendig am Dachrand', falsch === 0,
+         falsch === 0 ? blendeH.toFixed(1) + ' cm hoch, aussen buendig' : meld.join('; '));
+  pruefe('Randblende verschiebt keine Sparrenachse',
+         new RegExp(q || "xs\\.push\\(-B / 2 \\+ randAchse \\+ \\(B - 2 \\* randAchse\\) \\* i / felder\\)").test(k3d),
+         'Achsformel unveraendert');
+})();
+
 /* ---------- Statiktraeger: unten buendig mit den Sparren ----------
    „der statikträger ist tiefer als der sparren, mach ihn unten bündig
    mit sparren und oben bündig mit glasleiste" (Betreiber, 11.10.2026,

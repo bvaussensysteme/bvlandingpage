@@ -1639,6 +1639,9 @@
        GESCHÄTZT; vom Betreiber beanstandet, dass die Rinne vorher zu
        hoch stand. */
     sparrenUnterNase: 1.6,   // GESCHÄTZT
+    /* Abstand der waagerechten Rillen in der Vorderfläche, GESCHÄTZT
+       nach den Werkbildern des Betreibers (11.10.2026). */
+    rilleTeilung: 1.5,
     wand: 0.25         // GESCHÄTZT
   };
 
@@ -1681,17 +1684,31 @@
     f.lineTo(B - faseT, faseH - 0.6);
     f.lineTo(B, faseH + 0.4);             // Fase läuft nach außen aus
 
-    /* Untere Schattenfuge */
-    f.lineTo(B, faseH + 1.3);
-    f.lineTo(B - fuge, faseH + 1.5);
-    f.lineTo(B - fuge, faseH + 2.1);
-    f.lineTo(B, faseH + 2.3);
+    /* ---------- Rillenband in der Vorderfläche ----------
+       „hier ein perfekter querschnitt unserer überdachung kannst du es
+       so neu modellieren … nicht 100% 1:1 aber ähnlich und einfach"
+       (Betreiber, 11.10.2026, mit fünf Werkbildern).
 
-    /* Flache Vorderfläche bis zur oberen Fuge */
-    f.lineTo(B, H - rO - 1.6);
-    f.lineTo(B - fuge, H - rO - 1.4);
-    f.lineTo(B - fuge, H - rO - 0.8);
-    f.lineTo(B, H - rO - 0.6);
+       Auf den Bildern ist die Rinnenfront nicht glatt, sondern fein
+       waagerecht gerillt – das ist das Erste, was man von der Terrasse
+       aus sieht. Vorher standen hier zwei einzelne Schattenfugen; jetzt
+       läuft ein gleichmäßiges Band über die ganze Höhe. Es kostet nur
+       Linien im Querschnitt, keine zusätzlichen Teile: Die Rinne wird
+       weiter in EINEM Zug gezogen.
+
+       Teilung und Tiefe sind GESCHÄTZT – auf den Bildern ist nichts
+       bemaßt. Die vier Hauptmaße des Profils bleiben unangetastet. */
+    var vonY = faseH + 1.0, bisY = H - rO - 0.5;
+    var rillen = Math.max(2, Math.round((bisY - vonY) / RINNE.rilleTeilung));
+    var schritt = (bisY - vonY) / rillen;
+    for (var k = 0; k < rillen; k++) {
+      var y0 = vonY + k * schritt;
+      f.lineTo(B, y0 + schritt * 0.30);
+      f.lineTo(B - fuge, y0 + schritt * 0.45);
+      f.lineTo(B - fuge, y0 + schritt * 0.70);
+      f.lineTo(B, y0 + schritt * 0.85);
+    }
+    f.lineTo(B, bisY);
 
     /* Nase */
     f.lineTo(B, H - rO);
@@ -1983,6 +2000,38 @@
     if (links) spiegelnX(g);
     var m = new THREE.Mesh(g, material);
     m.position.set(x, y, z);
+    m.rotation.x = neig;
+    m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
+    bau.add(m);
+    return m;
+  }
+
+  /* ---------- Seitliche Randblende ----------
+     „hier ein perfekter querschnitt unserer überdachung kannst du es so
+     neu modellieren" – „nicht 100% 1:1 aber ähnlich und einfach"
+     (Betreiber, 11.10.2026, mit fünf Werkbildern).
+
+     Auf den Bildern ist der Dachrand SEITLICH geschlossen: Die Anlage
+     hat einen umlaufenden Rahmen – vorne die Rinne, hinten das
+     Wandprofil, und an beiden Seiten ein ebenso hohes, glattes Profil.
+     Im Modell endete das Dach seitlich bisher mit dem nackten
+     Sparrenprofil; man sah von außen in die Sparrenkammer.
+
+     Gebaut wird deshalb eine Blende, die außen am Randsparren liegt und
+     mit ihm läuft: von der Sparrenunterkante bis an die Glasoberseite,
+     bündig mit der Dachkante. Sie ist VERKLEIDUNG, kein tragendes Teil –
+     die Sparrenachsen, die Statik und alle daran hängenden Rechnungen
+     bleiben unberührt. Das war die Bedingung dafür, dass sich aus einer
+     Optikänderung kein Maßfehler einschleicht.
+
+     Die Dicke ist GESCHÄTZT; auf den Bildern ist nichts bemaßt. */
+  var RANDBLENDE = { dicke: 3.0 };
+
+  function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
+    var m = new THREE.Mesh(
+      new THREE.BoxGeometry(RANDBLENDE.dicke, hoehe, laenge), material);
+    m.position.set(x, yMitte, z);
     m.rotation.x = neig;
     m.castShadow = true; m.receiveShadow = true;
     dachTeil(m);
@@ -5180,6 +5229,17 @@
       } else {
         sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
       }
+    });
+
+    /* Seitliche Randblende – siehe RANDBLENDE. Sie liegt außen am
+       Randsparren und schließt oben an der Glasoberseite ab, so dass
+       der Dachrand rundum geschlossen wirkt. Die Außenkante ist die
+       Dachkante; nach innen überlappt sie den Sparren. */
+    var blendeH = spH + (istPolycarbonat() ? 1.6 : Z.glasstaerke / 10);
+    [-1, 1].forEach(function (vz) {
+      randblende(laenge, blendeH,
+                 vz * (B / 2 - RANDBLENDE.dicke / 2),
+                 ukMitte + blendeH / 2, zMitte, neig, mAlu);
     });
 
     /* Die Eindeckung liegt AUF dem schmalen Steg des Sparrens – bei TDS

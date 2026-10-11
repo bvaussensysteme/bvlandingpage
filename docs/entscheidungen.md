@@ -4425,3 +4425,46 @@ Sparrenunterkante, keine Stufe mehr. Mit hinterem Dachvorsprung (Carport TDS):
 Träger unter den Sparren, wieder in voller Höhe. Prüfung:
 `node scripts/pruefe-masstabelle.js` (207 Prüfungen, Gegenprobe 207/207) – die
 beiden neuen rechnen die Lage nach, nicht nur den Text.
+
+## 2026-10-11 – Werkbilder: gerillte Rinnenfront und geschlossener Dachrand
+
+**Anlass.** „hier ein perfekter querschnitt unserer überdachung kannst du es so
+neu modellieren" – auf Rückfrage: „nicht 100% 1:1 aber ähnlich und einfach"
+(Betreiber, 11.10.2026, fünf Werkbilder des Eckausschnitts).
+
+**Was aus den Bildern übernommen wurde.** Zwei Dinge, die das Bild prägen und
+ohne Maße auskommen:
+1. **Die Rinnenfront ist fein waagerecht gerillt**, nicht glatt. Statt der
+   zwei einzelnen Schattenfugen läuft jetzt ein gleichmäßiges Rillenband über
+   die Vorderfläche. Es kostet nur Linien im Querschnitt – die Rinne wird
+   weiter in einem Zug gezogen, kein zusätzliches Teil.
+2. **Der Dachrand ist seitlich geschlossen.** Die Anlage hat einen umlaufenden
+   Rahmen: vorne Rinne, hinten Wandprofil, an beiden Seiten ein ebenso hohes
+   Profil. Im Modell endete das Dach seitlich mit dem nackten Sparrenprofil –
+   man sah von außen in die Sparrenkammer. Jetzt liegt dort eine Blende, außen
+   bündig mit der Dachkante, von der Sparrenunterkante bis an die Glasoberseite.
+
+**Warum als Verkleidung und nicht als neues Tragprofil.** Die Blende ist
+bewusst nur Optik: Sparrenachsen, Sparrenzahl aus der Maßtabelle, Statik und
+alles, was daran hängt, bleiben unberührt. Ein echter umlaufender Rahmen hätte
+die Achsrechnung angefasst – aus einer Optikänderung wäre ein Maßfehler
+geworden. Eine Prüfung hält die Achsformel ausdrücklich fest.
+
+**Was NICHT übernommen wurde.** Die Bilder sind Renderings ohne eine einzige
+Bemaßung. Nicht gebaut sind deshalb: die Eckkappen in Gehrung, der
+Wasserablauf-Deckel am Pfostenkopf, die Glasauflagen und Dichtungen aus dem
+Schnittbild, die genaue Form des seitlichen Trägerprofils. Rillenteilung
+(15 mm) und Blendendicke (30 mm) sind **GESCHÄTZT**.
+
+**Zwei Funde der eigenen Prüfungen** (beide in der Prüfung, nicht im Modell):
+Die Rinnenkehle reicht bewusst über die Oberkante hinaus; der erste Messstub
+zählte sie zum Umriss und warf den Rillen 10 mm zu viel Höhe vor. Und ein
+Regex griff ein gleichnamiges `blendeH` der Markise. Beides zeigt, wofür die
+Gegenprobe da ist – und dass eine Prüfung auch selbst falsch sein kann.
+
+**Was gegengelesen werden soll.** Dach von vorne: Rinnenfront gerillt, Maße
+unverändert (186,3 × 136,7 mm). Von der Seite und von schräg oben: Dachrand
+geschlossen, keine offene Sparrenkammer, Blende bündig mit der Dachkante, oben
+an der Glasoberseite. Polycarbonat (16 mm) und VSG 10 mm gegenprüfen – die
+Blende wächst mit der Scheibendicke. Prüfung:
+`node scripts/pruefe-masstabelle.js` (211, Gegenprobe 211/211).
