@@ -277,6 +277,38 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Hoehe hinten: gekoppelt, aber entkoppelbar ----------
+   „das soll gekopplt sein an vorne aber man soll es entkoppeln können
+   und getrennt einstellen" (Betreiber, 11.10.2026). */
+pruefe('Voreingestellt gekoppelt',
+       gegen ? !/hoeheGetrennt: false,/.test(k3d) : /hoeheGetrennt: false,/.test(k3d), '');
+pruefe('Haekchen zum Entkoppeln vorhanden',
+       gegen ? !/id="k3dHoeheGetrennt"/.test(html) : /id="k3dHoeheGetrennt"/.test(html), '');
+pruefe('Gekoppelt wird die Hoehe hinten gerechnet',
+       new RegExp(q || 'Z\\.hoeheHinten = Z\\.hoehe \\+ Math\\.round\\(Z\\.tiefe \\* neigungProzent').test(k3d), '');
+pruefe('Gekoppelt ist der Regler gesperrt',
+       new RegExp(q || 'el\\.disabled = !frei').test(k3d), 'man sieht ihn, verstellt ihn aber nicht');
+pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
+       new RegExp(q || "if \\(!hoehenGetrennt\\(\\) \\|\\| !Z\\.hoeheGetrennt\\) return Z\\.neigung").test(k3d), '');
+/* Zweiter Weg: Kopplung und Prozentanzeige nachrechnen. */
+(function () {
+  var tab = {}; (k3d.match(/var NEIGUNG_PROZENT = \{([\s\S]*?)\};/) || ['',''])[1]
+    .replace(/(\d+):\s*([\d.]+)/g, function (_, g, p) { tab[+g] = +p; return ''; });
+  function prozent(grad) {
+    if (tab[grad] != null) return tab[grad];
+    return Math.round(Math.tan(grad * Math.PI / 180) * 1000) / 10;
+  }
+  /* Gemeldet war „9,100712926493951 %" - mehr als eine Nachkommastelle
+     darf nie herauskommen. */
+  var p = prozent(5.2) + (gegen ? 0.04 : 0);
+  var stellen = String(p).split('.')[1];
+  pruefe('Prozentwert hat hoechstens eine Nachkommastelle',
+         !stellen || stellen.length <= 1, p + ' %');
+  /* Gekoppelt: 2300 mm vorne, 3000 mm tief, 8 Grad -> 2300 + 14 % */
+  var hinten = 2300 + Math.round(3000 * prozent(8) / 100) + (gegen ? 100 : 0);
+  pruefe('Gekoppelte Hoehe hinten stimmt', hinten === 2720, hinten + ' mm');
+})();
+
 /* ---------- Dachvorsprung beim Carport bis 1500 mm ----------
    „dachvorsprung bei carport ruhig machen möglich bis 1500mm nicht nur
    800mm" (Betreiber, 11.10.2026). */
@@ -284,7 +316,7 @@ pruefe('Hoechstmass je Produkt hinterlegt',
        gegen ? !/carport: 1500, standard: 800/.test(k3d)
              : /carport: 1500, standard: 800/.test(k3d), '');
 pruefe('Grenze wird vor dem Auslesen gesetzt',
-       new RegExp(q || 'vorsprungGrenzeSetzen\\(\\);\\s*\\n\\s*Z\\.vorsprung = zahl').test(k3d),
+       new RegExp(q || 'vorsprungGrenzeSetzen\\(\\);[\\s\\S]{0,80}Z\\.vorsprung = zahl').test(k3d),
        'sonst bleibt der alte Wert stehen');
 pruefe('Wert wird beim Produktwechsel mitgezogen',
        new RegExp(q || 'if \\(Z\\[pr\\[1\\]\\] > max\\)').test(k3d),
@@ -313,7 +345,7 @@ pruefe('Getrennte Hoehen nur freistehend',
 pruefe('Hoehe hinten liegt unter „Mehr Einstellungen"',
        new RegExp(q || 'data-k3d-mehr data-k3d-fuer="hoehe-hinten"').test(html), '');
 pruefe('Neigungsfeld verschwindet dafuer',
-       new RegExp(q || "case 'neigung':\\s*return !!d && d\\.system === 'TDS' && !hoehenGetrennt\\(\\)").test(k3d),
+       new RegExp(q || "!\\(hoehenGetrennt\\(\\) && Z\\.hoeheGetrennt\\)").test(k3d),
        'nicht zwei Regler fuer dieselbe Sache');
 pruefe('Hinterer Vorsprung an derselben Bedingung',
        new RegExp(q || "case 'vorsprung-hinten': return hoehenGetrennt\\(\\)").test(k3d), '');
