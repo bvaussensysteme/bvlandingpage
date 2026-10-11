@@ -1652,3 +1652,34 @@ GESCHÄTZT) – dazu liegt kein Schnitt vor.
 **Gegenzulesen:** Ob die Führung oben im Bild sichtbar ist oder hinter
 dem Rahmen verschwindet, und ob der Flügel jetzt die richtige Höhe hat
 (Schwelle 36 + Flügel + Führung 35 = lichte Höhe).
+
+## 2026-10-11 – Flügelprofile der Schiebeanlage mit echten Maßen
+
+**Anlass:** Weitere SG23-Profilschnitte vom Betreiber.
+
+**Was falsch war:** Um jede Scheibe lag eine von mir erfundene Kante von
+50 × 50 mm, und zwar nur oben und unten. Senkrecht war gar nichts.
+
+**Was jetzt gilt – BELEGT durch die Schnitte:**
+
+| Profil | Maß | im Modell |
+|---|---|---|
+| Tür-Einfaßprofil | 25 × 35 mm | Rahmen oben und unten am Flügel |
+| H-Glaseinfaßprofil | 19,2 × 61,4 mm | senkrechte Kanten des Flügels |
+| Bürstenprofil | 12 × 15,7 mm | **nicht gezeichnet** |
+
+Die 25 mm Tiefe des Türprofils passen rechnerisch zur Verglasung:
+10 mm Glas plus beidseitig 7,5 mm Profilwange.
+
+**Das Bürstenprofil wird bewusst nicht gezeichnet.** Mit 12 mm Breite
+wäre es im Bild kleiner als ein Pixel und kostet nur Rechenzeit – der
+Konfigurator soll auf einem älteren Rechner laufen. Das Maß steht im
+Code, damit es nicht verlorengeht, und eine Prüfung achtet darauf, dass
+es nicht versehentlich doch gezeichnet wird.
+
+**ANNAHME, GEGENZULESEN:** Welches Profil an welcher Kante sitzt. Die
+Schnitte zeigen die Querschnitte, nicht die Einbaulage. Ich habe das
+Türprofil waagerecht (oben/unten) und das H-Profil senkrecht gesetzt –
+das ist die übliche Anordnung, aber nicht belegt. Beim H-Profil spricht
+die Breite von 61,4 mm dafür: das ist der breite senkrechte Steg, den man
+zwischen zwei Scheiben sieht.

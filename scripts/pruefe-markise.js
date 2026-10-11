@@ -241,6 +241,37 @@ pruefe('Fluegel enden unter der Fuehrung',
 pruefe('Erfundene Bodenschiene ist weg',
        gegen ? /SCHIENE_H = 5\.5/.test(src) : !/SCHIENE_H/.test(src), '55 x 60 mm geschaetzt');
 
+/* ---------- Profile des Fluegels ----------
+   BELEGT: SG23-Profilschnitte. Vorher lag um die Scheibe eine erfundene
+   Kante von 50 x 50 mm. */
+(function () {
+  var faelle = [
+    ['Tuer-Einfassprofil Tiefe',   /var TUER_PR = \{ tiefe: ([\d.]+)/,          25],
+    ['Tuer-Einfassprofil Hoehe',   /var TUER_PR = \{ tiefe: [\d.]+, hoehe: ([\d.]+)/, 35],
+    ['H-Glaseinfassprofil Tiefe',  /var H_GLAS_PR = \{ tiefe: ([\d.]+)/,        19.2],
+    ['H-Glaseinfassprofil Breite', /var H_GLAS_PR = \{ tiefe: [\d.]+, breite: ([\d.]+)/, 61.4],
+    ['Buerstenprofil Tiefe',       /var BUERSTE = \{ tiefe: ([\d.]+)/,          12],
+    ['Buerstenprofil Hoehe',       /var BUERSTE = \{ tiefe: [\d.]+, hoehe: ([\d.]+)/, 15.7]
+  ];
+  faelle.forEach(function (f) {
+    var m = src.match(f[1]);
+    if (!m) { pruefe(f[0], false, 'nicht gefunden'); return; }
+    var ist = parseFloat(m[1]) * 10 + (gegen ? 7 : 0);
+    pruefe(f[0], Math.abs(ist - f[2]) < 0.5, ist + ' mm (erwartet ' + f[2] + ')');
+  });
+})();
+pruefe('Glas passt in das Tuerprofil',
+       gegen ? !/glasDicke: 1\.0,/.test(src) : /glasDicke: 1\.0,/.test(src),
+       '10 mm Glas in 25 mm Profil');
+pruefe('Erfundene Rahmenkante am Fluegel ist weg',
+       gegen ? /schiebeTeil\(rahmenKante\(flB/.test(src)
+             : !/schiebeTeil\(rahmenKante\(flB/.test(src), '50 x 50 mm geschaetzt');
+pruefe('Senkrechte Kanten bekommen das H-Profil',
+       new RegExp(q || 'H_GLAS_PR\\.breite, hoehe - 2 \\* TUER_PR\\.hoehe').test(src), '');
+pruefe('Buerstenprofil bewusst nicht gezeichnet',
+       gegen ? /BUERSTE\.tiefe,/.test(src) : !/BUERSTE\.(tiefe|hoehe)[^:]/.test(src),
+       'nur als Mass hinterlegt');
+
 /* ---------- Massschilder ---------- */
 pruefe('Massschild kleiner als vorher',
        gegen ? /SCHILD_HOCH = 24/.test(src) : /SCHILD_HOCH = 14/.test(src),
