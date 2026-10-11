@@ -2459,3 +2459,37 @@ Die Gruppenregel `geschaetzt` wird nicht mehr gebraucht und ist entfernt.
 **Gegenzulesen:** Bei einem Produkt **ohne** Matrix (Carport TDS, Flat Box)
 darf rechts kein leerer gelber Kasten stehen; bei TDS mit Maßen muss er
 vollständig erscheinen.
+
+## 2026-10-11 – „Wände verkleiden?" war ein leerer Schritt an der falschen Stelle
+
+**Anlass:** „diese seite macht nix und ist ohnehin da falsch, das gehört zu
+der abteilung wo man auch senkrechtmarkise etc auswählt" (Betreiber, mit
+Bildschirmfoto von Schritt 9 von 11 – Überschrift, Untertitel, sonst nichts).
+
+**Warum sie leer war:** Das Überspringen leerer Schritte hängt an den
+**Gruppen**, nicht am Abschnitt. Der Abschnitt „Verkleidung" war beim
+Terrassendach ausgeblendet, die Gruppe darin hatte aber **kein eigenes
+`data-k3d-fuer`** – sie galt damit als sichtbar, der Schritt als „hat
+Inhalt" und wurde angezeigt. Zu sehen war trotzdem nichts, weil der
+Abschnitt drumherum weg war.
+
+**Was jetzt gilt:** Die Verkleidung steht im Abschnitt **„Seiten &
+Erweiterungen"** und im Schritt „Sollen Seiten geschlossen werden?" – dort,
+wo auch Senkrechtmarkise und Schiebeelemente gewählt werden. Es ist
+dieselbe Frage: was passiert mit den Seiten. Der eigene Schritt ist weg,
+die Führung hat noch zehn statt elf Schritte.
+
+Der Abschnitt zeigt sich jetzt auch beim Carport (`data-k3d-fuer="terrasse
+pergola verkleidung"`), und im zugeklappten Kopf steht **nur das, was zum
+Produkt gehört** – sonst stünde beim Carport „offen" (Seiten) neben der
+Verkleidung.
+
+**Die eigentliche Lehre** steckt in der neuen Prüfung: *In einem
+produktabhängigen Abschnitt braucht jede Gruppe ihr eigenes Stichwort.*
+Sonst entsteht wieder ein Schritt, der sich nicht überspringen lässt und
+leer dasteht. `scripts/pruefe-fuehrung.js` prüft das jetzt für **alle**
+Abschnitte, nicht nur für diesen einen Fall.
+
+**Gegenzulesen:** Beim Carport müssen die Verkleidungs-Häkchen in „Seiten &
+Erweiterungen" stehen und wirken; beim Terrassendach darf es den Schritt
+„Wände verkleiden?" nicht mehr geben.

@@ -781,8 +781,8 @@
       </details>
 
       <!-- ---------- Seiten & Erweiterungen ---------- -->
-      <details class="k3d-sek" data-k3d-fuer="terrasse pergola">
-        <summary><span class="k3d-sek-t">Seiten &amp; Erweiterungen</span><span class="k3d-sek-s" id="k3dSumSeiten"></span></summary>
+      <details class="k3d-sek" data-k3d-fuer="terrasse pergola verkleidung">
+        <summary><span class="k3d-sek-t">Seiten &amp; Erweiterungen</span><span class="k3d-sek-s" id="k3dSumSeiten"></span><span class="k3d-sek-s" id="k3dSumVerk"></span></summary>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="pergola" hidden>
           <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
@@ -871,6 +871,31 @@
           <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
             immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
         </div>
+        <!-- Die Verkleidung stand bis 11.10.2026 als eigener Abschnitt und
+             eigener Schritt da. Sie gehoert hierher: Es ist dieselbe Frage
+             wie Seitenelemente und Senkrechtmarkise – was passiert mit den
+             Seiten. Als eigener Schritt war sie ausserdem beim
+             Terrassendach leer, weil die Gruppe kein data-k3d-fuer hatte
+             und der Schritt deshalb nie uebersprungen wurde. -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="verkleidung" hidden>
+          <span class="k3d-label">Welche Wände verkleiden?</span>
+          <div class="k3d-drei">
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRueck"> <span>Hinten</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkLinks"> <span>Links</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRechts"> <span>Rechts</span></label>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="verk-richtung" hidden>
+          <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
+          <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
+            <button type="button" data-wert="waagerecht">Waagerecht</button>
+            <button type="button" data-wert="senkrecht">Senkrecht</button>
+          </div>
+          <p class="k3d-mini">Aluminium-Sichtschutzpaneele, 140 mm hoch, in der Farbe
+            des Gestells. Fugenbild und Höhe der Wand legt das Aufmaß fest.</p>
+        </div>
       </details>
 
       <!-- ---------- Sonnenschutz ---------- -->
@@ -957,31 +982,6 @@
         <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="komfort" hidden>
           <label class="k3d-schalter"><input type="checkbox" id="k3dHeizung"> <span>Heizstrahler</span></label>
           <label class="k3d-schalter"><input type="checkbox" id="k3dWetter"> <span>Wetter-Automatik (Wind- und Regensensor)</span></label>
-        </div>
-      </details>
-
-      <!-- ---------- Verkleidung ---------- -->
-      <details class="k3d-sek" data-k3d-fuer="verkleidung" hidden>
-        <summary><span class="k3d-sek-t">Verkleidung</span><span class="k3d-sek-s" id="k3dSumVerk"></span></summary>
-
-        <div class="k3d-gruppe" data-k3d-schritt="verkleidung">
-          <span class="k3d-label">Welche Wände</span>
-          <div class="k3d-drei">
-            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRueck"> <span>Hinten</span></label>
-            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkLinks"> <span>Links</span></label>
-            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRechts"> <span>Rechts</span></label>
-          </div>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="verkleidung" data-k3d-fuer="verk-richtung" hidden>
-          <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
-          <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
-          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
-            <button type="button" data-wert="waagerecht">Waagerecht</button>
-            <button type="button" data-wert="senkrecht">Senkrecht</button>
-          </div>
-          <p class="k3d-mini">Aluminium-Sichtschutzpaneele, 140 mm hoch, in der Farbe
-            des Gestells. Fugenbild und Höhe der Wand legt das Aufmaß fest.</p>
         </div>
       </details>
 
@@ -1190,7 +1190,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261013t" defer></script>
+<script src="js/konfigurator-3d.js?v=20261013u" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

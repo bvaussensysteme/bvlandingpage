@@ -222,6 +222,28 @@ pruefe('Kasten wird ohne Zahlen ausgeblendet',
        new RegExp(q || 'kasten\\.hidden = true').test(js) &&
        new RegExp(q || 'kasten\\.hidden = false').test(js), '');
 
+/* Der Fehler vom 11.10.2026: Die Verkleidungs-Gruppe hatte kein eigenes
+   Stichwort. Ihr Abschnitt war beim Terrassendach ausgeblendet, die
+   Gruppe selbst aber nicht - und weil das Ueberspringen an der GRUPPE
+   haengt, stand man vor einem leeren Schritt "Waende verkleiden?".
+   Deshalb: In einem produktabhaengigen Abschnitt braucht jede Gruppe ihr
+   eigenes data-k3d-fuer. */
+(function () {
+  var offen = [];
+  (html.split('<details class="k3d-sek"').slice(1)).forEach(function (a) {
+    var kopf = a.slice(0, a.indexOf('>'));
+    if (kopf.indexOf('data-k3d-fuer') < 0) return;
+    (a.split('</details>')[0].match(/<div class="k3d-gruppe"[^>]*>/g) || [])
+      .forEach(function (g) { if (g.indexOf('data-k3d-fuer') < 0) offen.push(g); });
+  });
+  pruefe('Kein leerer Schritt moeglich',
+         gegen ? offen.length > 0 : offen.length === 0,
+         offen.length + ' Gruppe(n) ohne eigenes Stichwort');
+})();
+pruefe('Verkleidung steht im Schritt "seiten"',
+       new RegExp(q || 'data-k3d-schritt="seiten" data-k3d-fuer="verkleidung"').test(html) &&
+       !/id: 'verkleidung'/.test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
