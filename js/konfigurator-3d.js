@@ -2107,6 +2107,22 @@
     return new THREE.Mesh(g, material);
   }
 
+  /* Ein schmales Band entlang der Dachschräge – die Oberkante der
+     Rahmenwand, wenn sie bis ans Dach geht. Gebaut wie der Keil und mit
+     derselben Lage und Drehung eingesetzt: So kann die Schräge nicht in
+     die falsche Richtung zeigen, ohne dass es auch beim Keil auffiele. */
+  function keilBandNetz(laenge, hVorne, hHinten, band, dicke, material) {
+    var form = new THREE.Shape();
+    form.moveTo(-laenge / 2, hVorne - band);
+    form.lineTo(laenge / 2, hHinten - band);
+    form.lineTo(laenge / 2, hHinten);
+    form.lineTo(-laenge / 2, hVorne);
+    form.closePath();
+    var g = new THREE.ExtrudeGeometry(form, { depth: dicke, bevelEnabled: false });
+    g.translate(0, 0, -dicke / 2);
+    return new THREE.Mesh(g, material);
+  }
+
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX) {
     var mGlas = seitenglas();
     var mSchiebe = schiebeGlas();
@@ -2422,27 +2438,32 @@
     function rahmenwandTeilung(laengeCm, hoeheCm) {
       var wunsch = parseInt(Z.rahmenTeilung, 10);
       if (!isNaN(wunsch) && RAHMENW_TEILUNGEN[wunsch]) return RAHMENW_TEILUNGEN[wunsch];
-      /* Automatik: so wenige Sprossen wie möglich, aber keine Scheibe
-         breiter bzw. höher als der Richtwert. */
-      var innenB = laengeCm - 2 * RAHMENW.profil;
-      var innenH = hoeheCm - 2 * RAHMENW.profil;
-      var sv = 0, sh = 0;
-      while (sv < 3 && (innenB - sv * RAHMENW.sprosse) / (sv + 1) > RAHMENW.scheibeBreitMax) sv++;
-      if ((innenH - RAHMENW.sprosse) / 2 > 0 && innenH > RAHMENW.scheibeHochMax) sh = 1;
-      /* Nur belegte Kombinationen: 2 waagerechte oder 0 senkrechte mit
-         waagerechter gibt es nur als [0,1]. */
-      var gefunden = RAHMENW_TEILUNGEN.some(function (t) {
-        return t[0] === sv && t[1] === sh;
-      });
-      return gefunden ? [sv, sh] : [sv, 0];
+      /* Automatik (Betreiber, 11.10.2026): „bei der automatischen
+         auswahl soll keine wagrechte sprosse sein und die senkrechten
+         sollen sich nach den selben maßen orientieren wie der keil".
+
+         Der Keil bekommt alle KEIL_FELD_MAX (1500 mm, BELEGT) einen
+         Pfosten. Die Rahmenwand teilt sich nach derselben Zahl – dann
+         stehen Sprosse und Keilpfosten übereinander statt versetzt.
+         Waagerechte Sprossen setzt die Automatik keine; von Hand lassen
+         sie sich weiterhin wählen.
+
+         Mehr als drei senkrechte Sprossen gibt es beim Hersteller
+         nicht. Bei sehr langen Seiten bleibt es deshalb bei vier
+         Feldern, auch wenn sie dann breiter als 1500 mm werden – das
+         ist eine Grenze der dokumentierten Aufteilungen, keine
+         Rechenschwäche. */
+      var felder = Math.max(1, Math.ceil(laengeCm / KEIL_FELD_MAX));
+      return [Math.min(3, felder - 1), 0];
     }
 
-    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer) {
+    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil) {
       if (laenge <= 2 * RAHMENW.profil || hoehe <= 2 * RAHMENW.profil) return;
       var P = RAHMENW.profil, S = RAHMENW.sprosse, T = RAHMENW.tiefe;
       var t = rahmenwandTeilung(laenge, hoehe);
       var sv = t[0], sh = t[1];
-      RAHMENW_IST = { senkrecht: sv, waagerecht: sh, teile: (sv + 1) * (sh + 1) };
+      RAHMENW_IST = { senkrecht: sv, waagerecht: sh, teile: (sv + 1) * (sh + 1),
+                      bisDach: false };
 
       /* Rahmen: links, rechts, oben, unten. */
       platte(rahmen, P, hoehe, achse, mitte - laenge / 2 + P / 2,
@@ -2450,7 +2471,13 @@
       platte(rahmen, P, hoehe, achse, mitte + laenge / 2 - P / 2,
              yUnten + hoehe / 2, quer, 0, T);
       platte(rahmen, laenge, P, achse, mitte, yUnten + P / 2, quer, 0, T);
-      platte(rahmen, laenge, P, achse, mitte, yUnten + hoehe - P / 2, quer, 0, T);
+      /* Das obere Profil entfällt, wenn die Wand ohne Keil bis ans Dach
+         geht: Dort schließt das Band entlang der Schräge ab, und ein
+         waagerechtes Profil wäre genau die Sprosse, die nicht sein
+         soll. */
+      if (obenProfil !== false) {
+        platte(rahmen, laenge, P, achse, mitte, yUnten + hoehe - P / 2, quer, 0, T);
+      }
 
       /* Lichte Fläche und die Felder darin. */
       var innenB = laenge - 2 * P, innenH = hoehe - 2 * P;
@@ -2973,7 +3000,33 @@
       } else if (hatSchiebe) {
         schiebetuer(laenge, hoch, achse, mitte, yUnten, quer, seite, richtung);
       } else if (hatRahmen) {
-        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer);
+        /* Ohne Keil geht die Wand bis ans Dach – „wie mit keil nur ohne
+           waagrechte sprosse" (Betreiber, 11.10.2026, mit Bild). Vorher
+           endete sie waagerecht, darüber blieb das Dreieck offen.
+           Deshalb: kein oberes Rahmenprofil, stattdessen Glas bis zur
+           Schräge und das Rahmenband obendrauf. */
+        var bisDach = !hatKeil && quer && seite !== 'vorne' &&
+                      neig > 0.001 && !!dachUk;
+        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer, !bisDach);
+        if (bisDach) {
+          var yO = yUnten + hoch;
+          var hVo = Math.max(0, dachUk(zVorneK) - yO);
+          var hHi = Math.max(0, dachUk(zHintenK) - yO);
+          if (hHi > 1) {
+            var gl = keilNetz(keilLaenge, hVo, hHi, RAHMENW.glas, mGlas);
+            gl.position.set(achse, yO, keilMitte);
+            gl.rotation.y = Math.PI / 2;
+            gl.castShadow = true; gl.receiveShadow = true;
+            bau.add(gl);
+            var bd = keilBandNetz(keilLaenge, hVo, hHi, RAHMENW.profil,
+                                  RAHMENW.tiefe, rahmen);
+            bd.position.set(achse, yO, keilMitte);
+            bd.rotation.y = Math.PI / 2;
+            bd.castShadow = true; bd.receiveShadow = true;
+            bau.add(bd);
+            RAHMENW_IST.bisDach = true;
+          }
+        }
       } else if (hatPlanken) {
         planken(laenge, hoch, achse, mitte, yUnten, quer);
       }

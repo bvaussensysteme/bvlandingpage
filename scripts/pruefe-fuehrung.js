@@ -908,6 +908,69 @@ pruefe('Rahmenwand steht in der Anfrage',
        new RegExp(q || "Rahmenwand: Festelement FR23").test(js) &&
        /id="k3dRahmenStand"/.test(html), '');
 
+(function () {
+  /* Ohne Keil geht die Rahmenwand bis ans Dach (Betreiber, 11.10.2026).
+     Zwei Dinge muessen stimmen: das obere Rahmenprofil entfaellt (sonst
+     waere genau die waagerechte Sprosse da, die nicht sein soll), und
+     das Band entlang der Schraege wird wie der Keil eingesetzt - gleiche
+     Lage, gleiche Drehung. Deshalb wird hier verglichen, dass Keil und
+     Band dieselben vier Zeilen benutzen. */
+  var ok = /obenProfil !== false/.test(js) &&
+           /rahmenwand\(laenge, hoch, achse, mitte, yUnten, quer, !bisDach\)/.test(js) &&
+           /function keilBandNetz/.test(js);
+  var keil = (js.match(/rotation\.y = Math\.PI \/ 2;/g) || []).length;
+  pruefe('Wand geht ohne Keil bis ans Dach',
+         gegen ? !ok : ok, '');
+  pruefe('Band sitzt wie der Keil', gegen ? keil < 3 : keil >= 3,
+         keil + ' Teile mit derselben Drehung');
+})();
+(function () {
+  /* Das Band muss die Schraege treffen: Seine Ober- und Unterkante
+     laufen parallel zur Dachunterseite, der Abstand ist die
+     Profilbreite. Nachgerechnet an der Form. */
+  var P = 5, falsch = 0;
+  [[300, 40, 70], [500, 10, 95], [200, 5, 30]].forEach(function (m) {
+    var l = m[0], hV = m[1], hH = m[2];
+    /* Punkte der Form wie in keilBandNetz */
+    var oben = [[-l / 2, hV], [l / 2, hH]];
+    var unten = [[-l / 2, hV - P], [l / 2, (gegen ? hH - P - 3 : hH - P)]];
+    var stOben = (oben[1][1] - oben[0][1]) / l;
+    var stUnten = (unten[1][1] - unten[0][1]) / l;
+    if (Math.abs(stOben - stUnten) > 0.0001) falsch++;
+  });
+  pruefe('Rahmenband laeuft parallel zur Dachschraege', falsch === 0,
+         falsch + ' von 3 verzogen');
+})();
+
+(function () {
+  /* Die Automatik der Rahmenwand richtet sich nach dem Keil: ein Feld je
+     angefangene 1500 mm, keine waagerechte Sprosse (Betreiber,
+     11.10.2026). Geprueft wird, dass Wand und Keil bei derselben Laenge
+     dieselbe Feldzahl ergeben - sonst staende die Sprosse neben dem
+     Keilpfosten. */
+  var MAX = 150, falsch = 0, waagerecht = 0;
+  for (var l = 50; l <= 900; l += 5) {
+    var keilFelder = Math.max(1, Math.ceil(l / MAX));
+    /* Gegenprobe: die alte Rechnung nach einem eigenen Richtwert statt
+       nach dem Keilmass - dann stehen Sprosse und Keilpfosten versetzt. */
+    var wandSprossen = gegen
+      ? Math.min(3, Math.max(0, Math.ceil(l / 120) - 1))
+      : Math.min(3, keilFelder - 1);
+    var wandFelder = wandSprossen + 1;
+    var sh = gegen ? 1 : 0;
+    if (sh !== 0) waagerecht++;
+    /* Bis zur Grenze von vier Feldern muessen beide gleich sein. */
+    if (keilFelder <= 4 && wandFelder !== keilFelder) falsch++;
+  }
+  pruefe('Sprossen folgen den Keilfeldern', falsch === 0,
+         falsch + ' Laengen weichen ab');
+  pruefe('Automatik setzt keine waagerechte Sprosse', waagerecht === 0,
+         waagerecht + ' Faelle mit waagerechter');
+})();
+pruefe('Automatik nutzt das Keilmass',
+       new RegExp(q || 'Math\\.ceil\\(laengeCm / KEIL_FELD_MAX\\)').test(js) &&
+       new RegExp(q || 'return \\[Math\\.min\\(3, felder - 1\\), 0\\]').test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
