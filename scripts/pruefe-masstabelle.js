@@ -283,10 +283,18 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
    11.10.2026). Schwelle ist die Tiefe, bei der die Masstabelle einen
    Innenkern fuehrt. */
 pruefe('Querstoss nur bei Glas',
-       new RegExp(q || 'return !istPolycarbonat\\(\\) && Z\\.tiefe >= koppelTiefe\\(\\)').test(k3d),
+       new RegExp(q || 'return !istPolycarbonat\\(\\) && Z\\.tiefe > SCHEIBE_LANG').test(k3d),
        'Stegplatten kommen in langen Bahnen');
-pruefe('Schwelle kommt aus der Masstabelle',
-       new RegExp(q || 'M\\.regeln\\.innenkernTiefe').test(k3d), 'nicht fest im Code');
+/* Der Innenkern ist KEINE Glaskopplung - die Schwelle darf nicht mehr
+   daran haengen (Betreiber, 11.10.2026). */
+pruefe('Schwelle haengt nicht mehr am Innenkern',
+       gegen ? /innenkernTiefe/.test(k3d) : !/M\.regeln\.innenkernTiefe/.test(k3d), '');
+pruefe('Groesste Scheibe als eigene Zahl',
+       gegen ? !/SCHEIBE_LANG = 4500;/.test(k3d) : /SCHEIBE_LANG = 4500;/.test(k3d),
+       'Angabe des Betreibers');
+pruefe('Innenkern wird nicht mehr angezeigt',
+       gegen ? /z\.push\(\['Innenkern-Sparren'/.test(k3d)
+             : !/z\.push\(\['Innenkern-Sparren'/.test(k3d), '');
 pruefe('Zwei Scheiben statt einer',
        new RegExp(q || 'koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL\\.breite / 2').test(k3d), '');
 /* ---------- Lage des Stosses einstellbar ----------
@@ -325,13 +333,28 @@ pruefe('Stossprofil folgt der Einstellung',
   pruefe('Keine Scheibe laenger als 4500 mm', schlimm <= LANG,
          'laengste Scheibe ' + schlimm + ' mm bei ' + t + ' mm Tiefe');
 })();
+/* Querschnitt des Glaskopplungsprofils - BELEGT durch die
+   Herstellerzeichnung (28 x 6 mm). Vorher 60 x 30 mm geschaetzt. */
+(function () {
+  var m = k3d.match(/var KOPPEL = \{ breite: ([\d.]+), hoehe: ([\d.]+) \};/);
+  if (!m) { pruefe('Kopplungsmass lesbar', false, 'Zeile nicht gefunden'); return; }
+  var b = parseFloat(m[1]) * 10 + (gegen ? 7 : 0);
+  var h = parseFloat(m[2]) * 10 + (gegen ? 7 : 0);
+  pruefe('Glaskopplungsprofil 28 mm breit', Math.abs(b - 28) < 0.5, b + ' mm');
+  pruefe('Glaskopplungsprofil 6 mm hoch', Math.abs(h - 6) < 0.5, h + ' mm');
+  /* Es darf nicht hoeher bauen als die Scheibe dick ist - sonst stuende
+     es wie eine Schwelle auf dem Dach. VSG 8 oder 10 mm. */
+  pruefe('Profil nicht hoeher als die duennste Scheibe', h <= 8, h + ' mm gegen 8 mm Glas');
+})();
 pruefe('Kopplungsprofil ueber die volle Breite',
        new RegExp(q || 'BoxGeometry\\(B, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d), '');
 pruefe('Hinweis im Bedienfeld',
        gegen ? !/quer gestoßen und gekoppelt/.test(k3d) : /quer gestoßen und gekoppelt/.test(k3d), '');
-pruefe('Anfrage nennt den Innenkern',
-       new RegExp(q || "glasGeteilt\\(\\) \\? ', quer gestoßen und gekoppelt \\(Innenkern\\)'").test(k3d),
+pruefe('Anfrage nennt den Stoss mit seiner Lage',
+       new RegExp(q || "quer gestoßen und gekoppelt bei ' \\+\\s*\\n?\\s*koppelAbstand\\(\\)").test(k3d),
        'in eindeckungFach, also an EINER Stelle');
+pruefe('Wort „Innenkern" nicht mehr in der Anfrage',
+       gegen ? /gekoppelt \(Innenkern\)/.test(k3d) : !/gekoppelt \(Innenkern\)/.test(k3d), '');
 /* Zweiter Weg: die Schwelle gegen die Tabelle rechnen. */
 (function () {
   /* Die groesste Scheibe am Stueck ist die letzte Tiefe VOR dem

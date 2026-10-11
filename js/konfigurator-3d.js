@@ -3773,21 +3773,35 @@
      Das betrifft nur GLAS. Polycarbonat-Stegplatten kommen in langen
      Bahnen und werden nicht gestoßen.
 
-     GRÖSSTE SCHEIBE AM STÜCK: 4500 mm. Der Betreiber schätzte „4,50
-     oder 5m am stück" – die Maßtabelle stützt die 4,50: Sie führt einen
-     „Innenkern" ausschließlich ab der Tiefe 4600 mm, die letzte Tiefe
-     ohne ihn ist also 4500 mm. Zwei unabhängige Quellen, dieselbe Zahl.
+     GRÖSSTE SCHEIBE AM STÜCK: 4500 mm – ANGABE DES BETREIBERS, nicht
+     belegt. Er schätzte „4,50 oder 5m am stück".
 
-     Der Querschnitt des Kopplungsprofils ist GESCHÄTZT. */
-  var KOPPEL = { breite: 6, hoehe: 3 };     // cm, GESCHÄTZT
+     KORREKTUR 11.10.2026: Ich hatte die Zahl zusätzlich aus dem
+     „Innenkern" der Maßtabelle hergeleitet (dort ab Tiefe 4600 mm) und
+     das als zweite, unabhängige Quelle ausgegeben. Der Betreiber:
+     „innenkern is keine glaskopplung das is für das 3d modell egal".
+     Die Herleitung war also falsch – zwei Dinge, die zufällig in
+     derselben Gegend liegen, sind nicht dasselbe. Es bleibt die
+     Schätzung des Betreibers, und zwar der niedrigere seiner beiden
+     Werte: Lieber einmal zu früh stoßen als eine Scheibe zeichnen, die
+     es nicht gibt. GEGENZULESEN: 4,50 oder 5,00 m?
 
-  function koppelTiefe() {
-    var M = window.BV_MASSTABELLE;
-    return (M && M.regeln && M.regeln.innenkernTiefe) || 4600;
-  }
+     Der Querschnitt des Kopplungsprofils ist BELEGT – siehe KOPPEL. */
+  /* BELEGT: Querschnittszeichnung „Glaskopplungsprofil" des Herstellers
+     (Betreiber, 11.10.2026) – 28 mm breit, 6 mm hoch. Vorher standen
+     hier geschätzte 60 × 30 mm; das war mehr als doppelt so breit und
+     fünfmal so hoch wie das echte Teil. Die Zeichnung zeigt ein flaches
+     T-Profil: oben die 28 mm breite Auflage, darunter ein schmaler Steg
+     zwischen den Scheiben. Modelliert wird nur die sichtbare Auflage –
+     der Steg liegt im Stoß und ist von außen nicht zu sehen. */
+  var KOPPEL = { breite: 2.8, hoehe: 0.6 };   // cm, BELEGT
+  var SCHEIBE_LANG = 4500;                  // mm, größte Scheibe am Stück
 
+  /* Gestoßen wird, sobald die Tiefe die größte Scheibe übersteigt.
+     Früher hing das an der Innenkerntiefe der Maßtabelle – der Innenkern
+     ist aber etwas anderes und hat mit der Verglasung nichts zu tun. */
   function glasGeteilt() {
-    return !istPolycarbonat() && Z.tiefe >= koppelTiefe();
+    return !istPolycarbonat() && Z.tiefe > SCHEIBE_LANG;
   }
 
   /* Wo darf der Stoß liegen? Beide Scheiben müssen für sich am Stück
@@ -3799,8 +3813,6 @@
 
      Bei 7000 mm Tiefe bleibt damit der Bereich 2500 bis 4500 mm; bei
      4600 mm ist er mit 100 bis 4500 mm fast frei. */
-  var SCHEIBE_LANG = 4500;   // mm, größte Scheibe am Stück
-
   function koppelBereich() {
     return { min: Math.max(100, Z.tiefe - SCHEIBE_LANG),
              max: Math.min(SCHEIBE_LANG, Z.tiefe - 100) };
@@ -5176,10 +5188,12 @@
             ? ' (zwei Reihen zu je ' + e.pfostenJeReihe + ')' : '')]);
     if (e.statiktraeger) z.push(['Statikträger', '189 × 117 mm über die volle Breite']);
     if (e.eindeckungGeteilt) z.push(['Teilung', 'Eindeckung quer geteilt, mit Querfuge']);
-    if (e.innenkernSparren) {
-      z.push(['Innenkern-Sparren', 'erforderlich' +
-              (e.innenkernImPreis === false ? ', nicht im Preis enthalten' : '')]);
-    }
+    /* Der Innenkern stand hier als eigene Zeile. Er hat mit der
+       Verglasung und mit dem 3D-Modell nichts zu tun – „innenkern is
+       keine glaskopplung das is für das 3d modell egal … das kann raus"
+       (Betreiber, 11.10.2026). Die Felder innenkernSparren und
+       innenkernImPreis kommen weiterhin aus der Matrix; sie werden hier
+       nur nicht mehr angezeigt. */
     z.push(['Eindeckung', e.eindeckung]);
     box.innerHTML = z.map(function (r) {
       return '<li><span>' + esc(r[0]) + '</span> ' + esc(r[1]) + '</li>';
@@ -5215,10 +5229,12 @@
      kommt natürlich in fachbegriffen etc haben") */
   function eindeckungFach() {
     if (istPolycarbonat()) return Z.eindeckung + ', Sechsfachstegplatte 16 mm';
-    /* Der Querstoß gehört in die Anfrage, nicht nur ins Bild: Er ist ein
-       eigenes Bauteil (Innenkern) und wird bei TDS getrennt geführt. */
+    /* Der Querstoß gehört in die Anfrage, nicht nur ins Bild – er ist
+       eine Kopplung mit eigenem Profil. NICHT „Innenkern" nennen: Das
+       ist bei TDS etwas anderes (Betreiber, 11.10.2026). */
     return Z.eindeckung.replace('VSG ', 'VSG ' + Z.glasstaerke + ' mm ') +
-           (glasGeteilt() ? ', quer gestoßen und gekoppelt (Innenkern)' : '');
+           (glasGeteilt() ? ', quer gestoßen und gekoppelt bei ' +
+                            koppelAbstand() + ' mm ab Rinne' : '');
   }
 
   function eindeckungKurz() {
