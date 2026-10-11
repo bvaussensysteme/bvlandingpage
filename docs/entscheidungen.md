@@ -4394,3 +4394,34 @@ beim Drittel. Nach rechts: Planken oben, Rahmenwand darunter bis zum Boden.
 Die Zeile „Gebaut: …" darunter muss zur gebauten Höhe passen. Prüfungen:
 `node scripts/pruefe-markise.js` (179, Gegenprobe 179/179),
 `node scripts/pruefe-fuehrung.js` (220, Gegenprobe 220/220).
+
+## 2026-10-11 – Statikträger: unten bündig mit den Sparren
+
+**Was war falsch.** „der statikträger ist tiefer als der sparren mach ihn unten
+bündig mit sparren und oben bündig mit glasleiste" (Betreiber, 11.10.2026, mit
+Bild). Der Träger wurde mit seinem belegten Querschnittsmaß von 189 mm
+gezeichnet. Oben schloss er richtig mit der Glasleiste ab – unten stand er
+damit rund 60 mm unter der Sparrenunterkante hervor, als Stufe über die ganze
+Breite.
+
+**Was jetzt gilt.** Steht der Träger **hinter** den Sparren (freistehend ohne
+hinteren Dachvorsprung), ist er die Wand: Seine Höhe ergibt sich aus dem Dach –
+Sparrenhöhe plus Eindeckung, rund 128 mm bei TDS. Oben Glasleiste, unten
+Sparrenunterkante. Liegt er dagegen **unter** den Sparren (hinterer
+Dachvorsprung), trägt er wirklich und behält seine vollen 189 mm. Die hinteren
+Pfosten enden weiter genau unter dem Träger und werden dadurch etwas länger.
+
+**Bewusste Abweichung vom belegten Maß – bitte prüfen.** Die Maßtabelle nennt
+den Statikträger mit 189 × 117 mm. Hinter den Sparren wird er jetzt flacher
+gezeichnet, als die Tabelle sagt. **Offene Frage an den Hersteller:** Ist an
+dieser Stelle ein anderes, flacheres Profil verbaut, oder liegen die Sparren
+tiefer im Träger? Steht in `docs/NEXT_TASK.md`. Die **Tiefe** (117 mm) bleibt
+unangetastet – an ihr hängt das Tiefenmaß der ganzen Anlage („bei freistehend
+das tiefe maß is immer inkl. statikträger").
+
+**Was gegengelesen werden soll.** Freistehend, von hinten und von der Seite
+anschauen: Träger oben bündig mit der Glasleiste, unten bündig mit der
+Sparrenunterkante, keine Stufe mehr. Mit hinterem Dachvorsprung (Carport TDS):
+Träger unter den Sparren, wieder in voller Höhe. Prüfung:
+`node scripts/pruefe-masstabelle.js` (207 Prüfungen, Gegenprobe 207/207) – die
+beiden neuen rechnen die Lage nach, nicht nur den Text.

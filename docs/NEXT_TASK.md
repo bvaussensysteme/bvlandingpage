@@ -309,6 +309,15 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   Der Widerspruch im Maß selbst bleibt
 - **Pfostenachse 55 mm**, **EZIP-Stoffbilder in CMYK ohne Profil** –
   ungeprüfte Annahmen
+- **Statikträger hinter den Sparren: welches Profil ist das wirklich?**
+  Die Maßtabelle nennt 189 × 117 mm. Steht er freistehend hinter den
+  Sparren (an Stelle der Wand), stand er damit 6 cm unter den Sparren
+  hervor – „mach ihn unten bündig mit sparren und oben bündig mit
+  glasleiste" (Betreiber, 11.10.2026). Gezeichnet wird er dort jetzt so
+  hoch wie Sparren + Eindeckung (rund 128 mm). **Frage an den
+  Hersteller:** Ist das an dieser Stelle ein anderes, flacheres Profil,
+  oder liegen die Sparren tiefer im Träger? Die Tiefe 117 mm bleibt
+  unangetastet – an ihr hängt das Tiefenmaß der Anlage
 - **eZIP-Kassettenform: erledigt.** „Z-E Eckig" (Betreiber, 11.10.2026) –
   die quaderförmige Kassette, nicht das Halbrund der Serie Z-R
 - **Offen: Schiebetür zusammen mit Plankenwand.** Geometrisch sitzt die

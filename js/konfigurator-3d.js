@@ -5045,7 +5045,28 @@
     var wpOk = sky ? dachOk : dachOk + wpGlasD;
     var wpMitte = wpOk - wpH / 2;
     var trOk = vorsprH > 0 ? ukAmTraeger : wpOk;
-    var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
+    /* KORREKTUR 11.10.2026: „der statikträger ist tiefer als der
+       sparren, mach ihn unten bündig mit sparren und oben bündig mit
+       glasleiste" (Betreiber, mit Bildschirmfoto).
+
+       Steht der Träger HINTER den Sparren (freistehend ohne hinteren
+       Vorsprung), ist er die Wand – dann darf er unten nicht unter den
+       Sparren hervorstehen. Oben schließt er mit der Glasleiste ab, das
+       war schon so; unten endet er jetzt an der Sparrenunterkante. Seine
+       Höhe ergibt sich damit aus dem Dach: Sparrenhöhe plus Eindeckung,
+       nicht mehr aus dem festen Querschnittsmaß.
+
+       ABWEICHUNG VOM BELEGTEN MASS, bewusst: Die Maßtabelle nennt den
+       Träger mit 189 mm Höhe. Hier wird er flacher gezeichnet, weil er
+       sonst im Bild 6 cm unter den Sparren heraussteht. Welches Profil
+       an dieser Stelle wirklich sitzt, ist eine Frage an den Hersteller
+       – sie steht in docs/NEXT_TASK.md. Die TIEFE (117 mm) bleibt
+       unangetastet; an ihr hängt das Tiefenmaß der ganzen Anlage.
+
+       Liegt der Träger dagegen UNTER den Sparren (hinterer Vorsprung),
+       trägt er wirklich und behält seine vollen 189 mm. */
+    var trH = (frei && vorsprH <= 0) ? Math.max(spH, trOk - ukHinten) : TR_H;
+    var hPfostenHinten = frei ? Math.max(100, trOk - trH) : hHinten;
 
     /* Pfostenzahl – JE REIHE getrennt.
 
@@ -5101,7 +5122,7 @@
        (z = 0), die Schenkel ragen von dort nach vorne. */
     balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
     if (frei) {
-      balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTrHinten, mAlu);
+      balken(B, trH, TR_T, 0, trOk - trH / 2, zTrHinten, mAlu);
     }
 
     /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus
