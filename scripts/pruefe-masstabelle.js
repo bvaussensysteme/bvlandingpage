@@ -181,7 +181,25 @@ pruefe('Dachvorsprung ist voreingestellt auf 0',
        /id="k3dVorsprung"[^>]*value="0"/.test(html),
        'kein Statikträger im Standardfall');
 pruefe('Dachvorsprung bewegt die Pfosten',
-       new RegExp(q || 'RINNE\\.breite / 2\\) - vorspr').test(k3d), 'zPf minus Vorsprung');
+       new RegExp(q || 'zPf = T - PFOSTENACHSE - vorspr').test(k3d), 'zPf minus Vorsprung');
+/* BELEGT (Masstabelle, Kopf): PFOSTENACHSE_AB_VORDERKANTE_MM=55. Hier
+   standen zwischendurch 93 mm („mittig unter der Rinne"); auf Vorlage
+   des Tabellenbefunds entschied der Betreiber am 11.10.2026: „dann mach
+   es nach liste". */
+(function () {
+  var m = k3d.match(/var PFOSTENACHSE = ([\d.]+);/);
+  var ist = m ? Math.round(parseFloat(m[1]) * 10) : null;
+  var soll = 55 + (gegen ? 7 : 0);
+  pruefe('Pfostenachse 55 mm hinter der Vorderkante', ist === soll,
+         ist + ' mm (Masstabelle ' + 55 + ')');
+  /* Zweiter Weg: Daraus muss die Pfostenvorderkante buendig mit der
+     Rinnenvorderkante liegen - 55 mm Achse bei 110 mm Pfosten. */
+  var PF = 11;
+  var vorne = (m ? parseFloat(m[1]) : 0) - PF / 2;
+  pruefe('Pfosten steht vorne bündig mit der Rinne',
+         gegen ? Math.abs(vorne) > 0.001 : Math.abs(vorne) < 0.001,
+         (vorne * 10).toFixed(0) + ' mm Versatz');
+})();
 pruefe('Träger kommt auch mit Vorsprung',
        new RegExp(q || 'unterzugGilt\\(tbMass\\) \\|\\| vorspr > 0').test(k3d), '');
 /* Die Rinne wird nie angehoben – technisch unmöglich. Der Träger nimmt
@@ -301,6 +319,49 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
+/* ---------- Serienfarben je System ----------
+   BELEGT aus dem Kopf der Preislisten-Masstabelle: Reinweiss 9010 gibt
+   es NUR bei TDS. „korregieren" (Betreiber, 11.10.2026) - vorher
+   standen bei SkyView und Flat Line alle vier Farben zur Wahl. */
+(function () {
+  var M = require('path').resolve('js/masstabelle.js');
+  delete require.cache[M];
+  global.window = global.window || {};
+  require(M);
+  var f = window.BV_MASSTABELLE.farben;
+  if (!f) { pruefe('Farben je System vorhanden', false, 'kein farben-Block'); return; }
+  var SOLL = { 'TDS': '7016,9006,9007,9010', 'SkyView': '7016,9006,9007',
+               'Flat_Line': '7016,9006,9007' };
+  var falsch = [];
+  Object.keys(SOLL).forEach(function (sys) {
+    var ist = (f[sys] || []).join(',');
+    var soll = SOLL[sys] + (gegen ? ',9999' : '');
+    if (ist !== soll) falsch.push(sys + ': ' + ist);
+  });
+  pruefe('Serienfarben je System wie in der Preisliste', !falsch.length,
+         falsch.length ? falsch.join('; ') : 'nur TDS führt 9010');
+
+  /* Zweiter Weg: die Uebersetzung im Konfigurator wirklich laufen
+     lassen - fuer SkyView darf Reinweiss nicht herauskommen, fuer TDS
+     schon. */
+  var fn = (k3d.match(/function farbenAusTabelle\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var map = (k3d.match(/var RAL_ZU_NAME = \{[\s\S]*?\};/) || [''])[0];
+  if (!fn || !map) { pruefe('Farbuebersetzung lesbar', false, 'nicht gefunden'); return; }
+  var Z = {}, istCarportTds = function () { return false; };
+  /* Das Objektliteral herausloesen - ein eval('var ...') in strict mode
+     legt die Variable nur in seinem eigenen Scope an. */
+  var RAL_ZU_NAME = eval('(' + map.replace('var RAL_ZU_NAME = ', '').replace(/;\s*$/, '') + ')');
+  var farbenAusTabelle = eval('(' + fn.replace('function farbenAusTabelle()', 'function ()') + ')');
+  Z.produkt = 'Terrassendach TDS';
+  var tds = farbenAusTabelle() || [];
+  Z.produkt = 'Flachdach SkyView';
+  var sky = farbenAusTabelle() || [];
+  var ok = tds.indexOf('Reinweiß') > -1 && sky.indexOf('Reinweiß') === -1 &&
+           sky.indexOf('Andere / Beratung') > -1;
+  pruefe('SkyView bekommt kein Reinweiß, TDS schon', gegen ? !ok : ok,
+         'TDS ' + tds.length + ' Farben, SkyView ' + sky.length);
+})();
+
 /* ---------- VD Flachdach Glas SKY VIEW ----------
    Montageanleitung „VD FLACHDACH GLAS SKY VIEW", Stand 07.11.2025.
    Zweiter Weg: Die Sollwerte stehen HIER noch einmal, aus der Anleitung

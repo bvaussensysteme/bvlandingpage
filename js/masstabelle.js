@@ -54,6 +54,16 @@ window.BV_MASSTABELLE = {
     tiefeMaxLieferbar: 7050,
     innenkernTiefe: 4600
   },
+  /* Welche Serienfarben ein System führt – BELEGT aus dem Kopf der
+     Preislisten-Maßtabelle (FARBEN_TDS, FARBEN_SKYVIEW,
+     FARBEN_FLATLINE). Reinweiß 9010 gibt es NUR bei TDS. „sonderfarbe"
+     ist im Konfigurator der Knopf „Andere / Beratung" und steht überall
+     zur Verfügung, deshalb hier nicht aufgeführt. */
+  farben: {
+    'TDS':       ['7016', '9006', '9007', '9010'],
+    'SkyView':   ['7016', '9006', '9007'],
+    'Flat_Line': ['7016', '9006', '9007']
+  },
   systeme: {
     'Flat_Line|Trapezblech': {
       montage: 'freistehend',
