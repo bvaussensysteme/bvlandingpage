@@ -1696,7 +1696,7 @@
     return new THREE.Mesh(g, material);
   }
 
-  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne) {
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX) {
     var mGlas = seitenglas();
     var rahmen = alu();
     function offenSeite(seite) {
@@ -1785,13 +1785,15 @@
        Das Bürstenprofil wird NICHT gezeichnet. Mit 12 mm Breite wäre es
        im Bild kleiner als ein Pixel und kostet nur Rechenzeit; das Maß
        steht hier, damit es nicht verlorengeht. */
-    /* ALLE DREI sind nur hinterlegt, nicht gezeichnet. Die Schnitte
-       geben den Querschnitt, nicht die Einbaulage – und SG23 ist
-       rahmenlos, die Flügel sind reines Glas. Wo diese Profile sitzen
-       (Festfelder? Anschluss an Wand und Pfosten?), ist offen. */
-    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };      // Tür-Einfaßprofil
-    var H_GLAS_PR = { tiefe: 1.92, breite: 6.14 }; // H-Glaseinfaßprofil
-    var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // Bürstenprofil
+    /* Das Tür-Einfaßprofil ist das Profil AN DER WAND – aufgelöst vom
+       Betreiber (11.10.2026): „das tür einfassprofil war ja das an der
+       wand und die anderen kannst du weglasen".
+
+       Es wird deshalb beim Wandanschluss gebraucht (siehe WANDPR unten)
+       und nicht am Flügel. H-Glaseinfaßprofil und Bürstenprofil sind
+       damit erledigt und stehen hier nicht mehr – ein Maß ohne Einbauort
+       ist kein Wissen, sondern nur Ballast. */
+    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };      // 25 × 35 mm, BELEGT
 
     /* ---------- Muschelgriff ----------
        „an die vorderste tür an der mn quasi zieht zum aufmachen nen
@@ -1804,9 +1806,21 @@
        Edelstahlschale, die IN der Scheibe sitzt und mit ihr bündig
        abschließt.
 
-       Durchmesser 50 mm, Höhe 1050 mm über der Schwelle: beides
-       GESCHÄTZT. In der Unterlage steht nur „inklusive 2 Griff", ohne
-       Maß – GEGENZULESEN. */
+       RECHERCHIERT (11.10.2026), weil die Unterlage nur „inklusive
+       2 Griff" ohne Maß nennt:
+         · Durchmesser 50 mm – das ist das übliche Bohrungsmaß für
+           Griffmuscheln in Glas (Handelsangaben OBI, Hornbach).
+         · Höhe 1050 mm über OFF – die übliche Drückerhöhe. Eine Norm
+           für Muschelgriffe gibt es nicht; DIN 18040 nennt für
+           barrierefreie Bedienung 850 mm bei einem zulässigen Band von
+           750 bis 1200 mm (HEWI-Datenblätter). 1050 mm liegt darin.
+       Wer barrierefrei bauen muss, bekommt den Griff tiefer – das ist
+       eine Beratungsfrage und steht nicht im Konfigurator.
+
+       Die SEITE des Griffs ergibt sich aus der Laufrichtung: Er sitzt an
+       der Kante, die im geschlossenen Zustand außen liegt, also auf der
+       dem Stapel abgewandten Seite. Vorher saß er an der Innenkante –
+       dort greift niemand. */
     var GRIFF = { durchmesser: 5.0, hoehe: 105, randAbstand: 9 };
 
     function muschelgriff(achse, lage, yUnten, quer, versatz, dicke) {
@@ -1861,8 +1875,11 @@
        vor der Mauer. Es läuft von der Bodenschiene bis zur Oberkante des
        Elements und gibt es nur an den Seiten (links/rechts), nicht vorne.
 
-       Querschnitt GESCHÄTZT: 50 mm breit, 25 mm tief – GEGENZULESEN. */
-    var WANDPR_B = 5, WANDPR_T = 2.5;
+       BELEGT: Es ist das SG23 Tür-Einfaßprofil, 25 × 35 mm (Betreiber,
+       11.10.2026). Vorher standen hier geschätzte 50 × 25 mm.
+       Die 35 mm laufen in der Fläche der Wand, die 25 mm stehen davor –
+       dieselbe Tiefe wie die Scheibe samt Luft. */
+    var WANDPR_B = TUER_PR.hoehe, WANDPR_T = TUER_PR.tiefe;
 
     function wandAnschluss(achse, zWand, hOben, quer) {
       if (!quer) return;                       // vorne gibt es keine Wand
@@ -1872,13 +1889,18 @@
 
     /* Schiebetür: einzelne Flügel, die sich übereinander schieben. Nur so
        zeigt der Regler „geöffnet" etwas Echtes – einer bleibt stehen. */
-    function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer, seite) {
+    function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer, seite, richtung) {
       var n = fluegelAnzahl(laenge, seite);
       var flB = laenge / n;
-      var start = mitte - laenge / 2 + flB / 2;
       var offen = offenSeite(seite);
+      /* richtung = -1: die Flügel stapeln sich am linken Ende (Standard,
+         so war es immer). richtung = +1: spiegelbildlich am rechten.
+         Gebraucht wird das, seit die Vorderseite je Pfostenfach eine
+         eigene Anlage ist und von der Mitte nach außen öffnen soll. */
+      var rk = (richtung === 1) ? 1 : -1;
+      var start = mitte - rk * (laenge / 2 - flB / 2);
       for (var i = 0; i < n; i++) {
-        var lage = start + flB * i - offen * flB * i;
+        var lage = start + rk * flB * i - rk * offen * flB * i;
         var spur = (i % 2) * 2.4;                       // zwei Laufschienen
         /* Die Scheibe traegt die Seite, zu der sie gehoert – daran
            erkennt der Klick spaeter, welche Anlage gemeint ist. */
@@ -1892,9 +1914,8 @@
            sichtbar sind nur Schwelle unten und Führung oben. Ich hatte
            aus den Profilschnitten geschlossen, die Profile lägen um
            jeden Flügel – ein Schluss aus einem Querschnitt auf eine
-           Einbaulage, die dort gar nicht steht. Die Maße bleiben in
-           TUER_PR / H_GLAS_PR hinterlegt, bis geklärt ist, wo sie
-           wirklich sitzen (siehe docs/entscheidungen.md). */
+           Einbaulage, die dort gar nicht steht. Das Tür-Einfaßprofil
+           sitzt an der WAND, nicht am Flügel (siehe WANDPR). */
 
         /* Griff nur am Flügel, der am weitesten fährt – das ist der,
            an dem gezogen wird. i = 0 steht fest, i = n-1 bewegt sich am
@@ -1902,7 +1923,7 @@
            derselbe. Der Griff sitzt an der ZIEHKANTE, also der vom
            Stapel abgewandten Seite. */
         if (i === n - 1 && hoehe > GRIFF.hoehe + 20) {
-          var kante = lage + (flB / 2 - GRIFF.randAbstand) * (n > 1 ? -1 : 1);
+          var kante = lage - rk * (flB / 2 - GRIFF.randAbstand) * (n > 1 ? 1 : -1);
           schiebeTeil(muschelgriff(achse, kante, yUnten, quer, spur,
                                    SG23.glasDicke), seite);
         }
@@ -1941,7 +1962,7 @@
       }
     }
 
-    function eineSeite(seite, achse, mitte, laenge, quer) {
+    function eineSeite(seite, achse, mitte, laenge, quer, richtung, feldNr) {
       var liste = erwListe(seite);
       if (!liste.length) return;
       /* Die Elemente stehen jetzt IN der Bodenschiene – Unterkante also
@@ -1995,9 +2016,9 @@
         var unten = hoch * 0.38;
         platte(mPlanke, laenge, unten, achse, mitte, yUnten + unten / 2, quer, 0, 5);
         rahmenKante(laenge, achse, mitte, yUnten + unten, quer, 0);
-        schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer, seite);
+        schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer, seite, richtung);
       } else if (hatSchiebe) {
-        schiebetuer(laenge, hoch, achse, mitte, yUnten, quer, seite);
+        schiebetuer(laenge, hoch, achse, mitte, yUnten, quer, seite, richtung);
       } else if (hatRahmen) {
         platte(mPlanke, laenge, hoch, achse, mitte, yUnten + hoch / 2, quer, 0, 5);
         rahmenKante(laenge, achse, mitte, yUnten + 2.5, quer, 0);
@@ -2160,7 +2181,43 @@
 
     eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
     eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
-    eineSeite('vorne',   vorne,              0,           B - PROFIL * 2, false);
+
+    /* ---------- Vorderseite: ein Feld je Pfostenfach ----------
+       „wenn wir ein mittelpfosten haben wie hier oder mehrre pfosten,
+       müssen für die schiebeanlage jeweils die lichten maße von pfosten
+       zu pfosten genommen werden, also werden es quasi mehrere
+       schibeanlagen. und die sollen dann von innen nach außen öffnen
+       also von dermitte zu den rändern links und rechts sliden"
+       (Betreiber, 11.10.2026).
+
+       Vorher lief über die ganze Vorderseite EINE Anlage – über die
+       Mittelpfosten hinweg, was baulich nicht geht. Jetzt wird je Fach
+       zwischen zwei Pfosten eine eigene Anlage gerechnet, mit dem
+       LICHTEN Maß: Pfostenachsen minus je eine halbe Pfostenbreite.
+
+       Das ändert auch die Stückzahlen: Aus 6000 mm in einem Stück
+       (8-türig) werden zwei Felder à rund 2890 mm (je 3-türig). Genau
+       so wird es auch bestellt – die Anfrage-Mail nennt deshalb jedes
+       Feld einzeln.
+
+       Öffnungsrichtung: von der Mitte nach außen. Felder links der Mitte
+       schieben nach links, Felder rechts der Mitte nach rechts. Ein Feld
+       GENAU in der Mitte (ungerade Pfostenzahl gibt es nicht, aber ein
+       einzelnes Feld über die volle Breite schon) behält die
+       Voreinstellung. */
+    var achsen = (pfostenX && pfostenX.length > 1)
+      ? pfostenX.slice().sort(function (a, b) { return a - b; })
+      : [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2];
+    for (var f = 0; f < achsen.length - 1; f++) {
+      var lichtVon = achsen[f] + PROFIL / 2;
+      var lichtBis = achsen[f + 1] - PROFIL / 2;
+      var feldMitte = (lichtVon + lichtBis) / 2;
+      var feldLaenge = lichtBis - lichtVon;
+      if (feldLaenge <= 0) continue;
+      /* Nach AUSSEN heißt: weg von der Mitte der Anlage. */
+      eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
+                feldMitte < 0 ? -1 : 1, f);
+    }
   }
 
   /* ---------- Aufdachmarkise TDS Linea A / Linea AZ ----------
@@ -3025,7 +3082,10 @@
     var pfVorne = traegerH > 0 ? pfostenUnterTraeger(Z.breite) : pfTabelle;
     var pfHinten = pfostenUnterTraeger(Z.breite);
 
-    verteilen(pfVorne, B, PF / 2).forEach(function (x) {
+    /* Die Achsen der VORDEREN Pfosten werden unten noch gebraucht: Die
+       Schiebeanlage läuft je Pfostenfach, nicht über die ganze Breite. */
+    var xPfVorne = verteilen(pfVorne, B, PF / 2);
+    xPfVorne.forEach(function (x) {
       balken(PF, hPfosten, PF, x, hPfosten / 2, zPf, mAlu);
     });
     if (frei) {
@@ -3169,7 +3229,7 @@
        bliebe oben ein Spalt. */
     seitenErweiterungen(B, T, hRinne, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
-    }, zPf - PF / 2);
+    }, zPf - PF / 2, xPfVorne);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und
