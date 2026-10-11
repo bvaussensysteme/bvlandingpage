@@ -2536,6 +2536,22 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-group-h { font-size: 0.82rem; font-weight: 700; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.05em; margin: 4px 0 10px; }
 .aw-group-h--sep { margin-top: 22px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
 .aw-group-h + .aw-checks { margin-bottom: 18px; }
+
+/* Stoffauswahl im Assistenten. 97 Muster passen nicht als grosse Karten –
+   deshalb ein Raster aus Musterstreifen, nach Farbfamilie gegliedert.
+   Die Bilder laden verzoegert, sonst zieht der Schritt beim Oeffnen
+   hundert Dateien auf einmal. */
+.aw-stoffe { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.aw-stoffe--leer { grid-template-columns: 1fr; margin-top: 18px; }
+.aw-stoff { background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.14); border-radius: 8px; padding: 5px 4px 4px; cursor: pointer; text-align: center; color: inherit; font: inherit; }
+.aw-stoff img { display: block; width: 100%; height: 22px; object-fit: cover; border-radius: 3px; }
+.aw-stoff span { display: block; font-size: 0.66rem; line-height: 1.2; margin-top: 4px; color: rgba(255,255,255,0.72); word-break: break-all; }
+.aw-stoff:hover { border-color: var(--gold); }
+.aw-stoff.is-active { border-color: var(--gold); background: rgba(196,154,42,0.16); }
+.aw-stoff.is-active span { color: #fff; font-weight: 600; }
+.aw-stoffe--leer .aw-stoff { padding: 12px; }
+.aw-stoffe--leer .aw-stoff img { display: none; }
+.aw-stoffe--leer .aw-stoff span { font-size: 0.86rem; margin-top: 0; word-break: normal; }
 .aw-checks { display: flex; flex-wrap: wrap; gap: 8px; }
 .aw-check {
   display: inline-flex; align-items: center; gap: 7px; cursor: pointer;

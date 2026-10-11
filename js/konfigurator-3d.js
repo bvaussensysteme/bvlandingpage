@@ -89,6 +89,8 @@
     masseZeigen: false,
     glasOffen: 0,            // Schiebeelemente: 0 = geschlossen, 100 = ganz offen
     markise: 'Ohne',         // Beschattung am Dach, Werte wie im Assistenten
+    stoff: '',               // Markisenstoff der Dachmarkise, z. B. 'AC420'
+    stoffZip: '',            // Stoff der Senkrechtmarkise, z. B. 'T30812-A'
     sonneAus: 85,            // wie weit Markisen ausgefahren sind, in Prozent
     verkRueck: false, verkLinks: false, verkRechts: false,
     verkRichtung: 'waagerecht'
@@ -639,6 +641,51 @@
   );
   wand.castShadow = true; wand.receiveShadow = true;
   szene.add(wand);
+
+  /* ---------- Terrassentür an der Hauswand ----------
+     Der Betreiber am 11.10.2026: „vllt. noch so ne terassentür/balkontür
+     einfach als bild nix 3d modelieren das macht den ganzen konfigurator
+     langsamer". Genau so gebaut: EINE Fläche aus zwei Dreiecken mit einer
+     gezeichneten Textur. Eine echte Tür mit Rahmen, zwei Flügeln, Sprossen
+     und Griffen wären schnell 60 Flächen – und sie würde nichts erklären,
+     was das Bild nicht auch zeigt.
+
+     Maße 180 × 220 cm: gängige zweiflügelige Terrassentür. GESCHÄTZT, es
+     geht um den Maßstabsvergleich, nicht um ein Bauteil. */
+  function tuerTextur() {
+    var c = document.createElement('canvas');
+    c.width = 360; c.height = 440;
+    var g = c.getContext('2d');
+    var rahmen = '#3a3d3f';
+    g.clearRect(0, 0, 360, 440);
+    g.fillStyle = rahmen; g.fillRect(0, 0, 360, 440);          // Blendrahmen
+    [[14, 14], [186, 14]].forEach(function (p) {               // zwei Flügel
+      var x = p[0], y = p[1], b = 160, h = 412;
+      g.fillStyle = rahmen; g.fillRect(x, y, b, h);
+      var gl = g.createLinearGradient(x, y, x + b, y + h);
+      gl.addColorStop(0, '#cfe0ec'); gl.addColorStop(0.45, '#9fb6c6');
+      gl.addColorStop(0.55, '#b8cedd'); gl.addColorStop(1, '#6d8597');
+      g.fillStyle = gl; g.fillRect(x + 12, y + 12, b - 24, h - 24);
+      g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(x + 20, y + h - 30); g.lineTo(x + b - 24, y + 40); g.stroke();
+    });
+    g.fillStyle = '#d6d8d9';                                   // Griffe
+    g.fillRect(168, 210, 7, 56); g.fillRect(185, 210, 7, 56);
+    var t = new THREE.Texture(c);
+    t.encoding = THREE.sRGBEncoding;
+    t.anisotropy = texMaxAniso;
+    t.needsUpdate = true;
+    return t;
+  }
+  var tuer = new THREE.Mesh(
+    new THREE.PlaneGeometry(180, 220),
+    new THREE.MeshStandardMaterial({
+      map: tuerTextur(), roughness: 0.45, metalness: 0.15
+    })
+  );
+  tuer.position.set(0, 111, 0.8);
+  tuer.receiveShadow = true;
+  szene.add(tuer);
 
   var bau = new THREE.Group();   // alles, was sich bei Änderungen neu aufbaut
   szene.add(bau);
@@ -1329,8 +1376,11 @@
     var offen = Z.glasOffen / 100;
     var mPlanke = blech();
     var mStoff = new THREE.MeshStandardMaterial({
-      color: 0x4a4f52, roughness: 0.95, metalness: 0, side: THREE.DoubleSide
+      color: rgb(0x4a4f52), roughness: 0.95, metalness: 0, side: THREE.DoubleSide
     });
+    /* Der Senkrechtmarkise liegt die EZIP-Stoffliste zugrunde, nicht die
+       der Dachmarkise – siehe js/markisenstoffe.js. */
+    stoffAuftragen(mStoff, Z.stoffZip, B);
 
     /* Eine Scheibe oder Platte in der Ebene einer Seite.
        quer = Seite läuft in z-Richtung (links/rechts), sonst in x (vorne). */
@@ -1452,9 +1502,28 @@
       // nach außen, also vom Mittelpunkt weg – unabhängig vom Namen der Seite
       var aussen = (seite === 'vorne' || achse >= 0) ? 4 : -4;
       if (liste.indexOf('Senkrechtmarkise') > -1) {
+        /* Eine Senkrechtmarkise ist mehr als ein Tuch: oben die Kassette,
+           an beiden Seiten die Fuehrungsschienen, unten das Ausfallprofil.
+           Ohne sie schwebte bisher ein Rechteck in der Luft – im Produkt-
+           foto der Stoffkarte (VD EZIP 105 / 125) sieht man den Aufbau.
+
+           KASSETTE 10,5 cm: aus dem Produktnamen EZIP 105 abgeleitet
+           (EZIP 125 waere 12,5 cm). Das ist eine ANNAHME, keine Zeichnung
+           – eine Masszeichnung zur EZIP liegt uns nicht vor. Schienen- und
+           Ausfallprofilmasse sind GESCHAETZT. */
+        var zipK = 10.5, zipS = 5.0;
         var h = hoch * (Z.sonneAus / 100);
+        platte(rahmen, laenge, zipK, achse, mitte,
+               yUnten + hoch + zipK / 2, quer, aussen, zipK);
+        [-1, 1].forEach(function (v) {
+          var m = mitte + v * (laenge - zipS) / 2;
+          platte(rahmen, zipS, hoch, achse, m, yUnten + hoch / 2, quer, aussen, zipS);
+        });
         if (h > 5) {
-          platte(mStoff, laenge, h, achse, mitte, yUnten + hoch - h / 2, quer, aussen, 1.2);
+          platte(mStoff, laenge - zipS * 2, h, achse, mitte,
+                 yUnten + hoch - h / 2, quer, aussen, 1.2);
+          platte(rahmen, laenge - zipS * 2, 4.5, achse, mitte,
+                 yUnten + hoch - h + 2.2, quer, aussen, 3.2);
         }
       }
       if (liste.indexOf('Velaris') > -1) {
@@ -1845,8 +1914,12 @@
   function sonnenschutz(B, T, hVorn, neig, PROFIL, dach) {
     var aus = Z.sonneAus / 100;
     var mStoff = new THREE.MeshStandardMaterial({
-      color: 0xd9d3c5, roughness: 0.95, metalness: 0, side: THREE.DoubleSide
+      color: rgb(0xd9d3c5), roughness: 0.95, metalness: 0, side: THREE.DoubleSide
     });
+    /* Gewaehlter Stoff schlaegt die Standardfarbe. Ohne Wahl bleibt das
+       neutrale Beige – es soll nicht so aussehen, als sei schon etwas
+       bestellt. */
+    stoffAuftragen(mStoff, Z.stoff, B);
     var hHinten = hVorn + Math.tan(neig) * T;
     var m = Z.markise;
 
@@ -2470,8 +2543,9 @@
     /* Seitlicher Schutz an beiden Seiten – ZIP-Markise oder Glas */
     if (Z.pgSeitenschutz === 'ZIP-Senkrechtmarkise') {
       var mZip = new THREE.MeshStandardMaterial({
-        color: 0x4a4f52, roughness: 0.95, side: THREE.DoubleSide
+        color: rgb(0x4a4f52), roughness: 0.95, side: THREE.DoubleSide
       });
+      stoffAuftragen(mZip, Z.stoffZip, T);
       [-B / 2 + RAHMEN_B, B / 2 - RAHMEN_B].forEach(function (x) {
         var zip = new THREE.Mesh(new THREE.BoxGeometry(T - RAHMEN_B * 2, h - 4, 1.2), mZip);
         zip.position.set(x, (h - 4) / 2 + 2, T / 2);
@@ -2553,6 +2627,9 @@
       belag.material.color.copy(rgb(belagTag));
       wand.material.color.copy(rgb(0xcfc7b8));
     }
+
+    /* Die Tuer gehoert zur Hauswand – ohne Wand steht sie frei im Raum. */
+    tuer.visible = wand.visible;
 
     /* Rasen: die Wiese ist die groesste Flaeche im Bild. Eine Volltonfarbe
        verraet sofort, dass es eine Zeichnung ist. */
@@ -2744,6 +2821,12 @@
       case 'schiebe':        return erwIrgendwo('Schiebetür') ||
                                     (istPergola() && Z.pgSeitenschutz === 'Glas-Schiebeelemente');
       case 'sonne-aus':      return Z.markise !== 'Ohne' || erwIrgendwo('Senkrechtmarkise');
+      /* Stoff nur fragen, wenn es ein Tuch gibt, das einen braucht.
+         Plissee und Sonnensegel gehoeren NICHT zur Stoffgruppe der
+         Stoffkarte – dort steht LINEA / SOLARA / PERGOLA / LUNA / LUXORA. */
+      case 'stoff-dach':     return STOFF_DACH_MARKISEN.indexOf(Z.markise) > -1;
+      case 'stoff-zip':      return erwIrgendwo('Senkrechtmarkise') ||
+                                    Z.pgSeitenschutz === 'ZIP-Senkrechtmarkise';
       // Fassadenart interessiert nur, wenn an eine Wand montiert wird
       case 'fassade':        return istCarport()
                                     ? Z.cpVariante === 'Carport mit Wandmontage'
@@ -2932,6 +3015,8 @@
         teile.push('Schiebetür im Bild ' + Z.glasOffen + ' % geöffnet');
       }
       if (Z.markise !== 'Ohne') teile.push('Beschattung: ' + Z.markise);
+      if (Z.stoff && gruppeGilt('stoff-dach')) teile.push('Markisenstoff: ' + stoffText(Z.stoff));
+      if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
       if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
         teile.push('Dachvorsprung: ' + Z.vorsprung + ' mm');
       }
@@ -3008,6 +3093,10 @@
 
     Z.glasOffen = zahl('k3dGlasOffen', Z.glasOffen);
     Z.markise = wert('k3dMarkise') || Z.markise;
+    var sf = document.getElementById('k3dStoff');
+    if (sf) Z.stoff = sf.value || '';
+    var sz = document.getElementById('k3dStoffZip');
+    if (sz) Z.stoffZip = sz.value || '';
     Z.sonneAus = zahl('k3dSonneAus', Z.sonneAus);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
@@ -3045,6 +3134,7 @@
 
     panelAnpassen();
     markiseAnzeigen();
+    stoffAnzeigen();
     erwAnzeigen();
     titelAnpassen();
     summenSetzen();
@@ -3296,6 +3386,144 @@
     });
   });
 
+  /* ---------- Markisenstoffe ----------
+     Die Liste steht in js/markisenstoffe.js – dort auch die Begruendung,
+     warum die beiden Gruppen streng getrennt bleiben muessen. Kurz: Ein
+     Serge-Stoff ist fuer eine Aufdachmarkise nicht bestellbar. Wer ihn
+     trotzdem waehlen koennte, schickt eine Anfrage los, die erst beim
+     Angebot auffliegt – nach Rueckruf und Aufmass.
+
+     Plissee und Sonnensegel stehen bewusst NICHT in STOFF_DACH_MARKISEN:
+     Die Stoffkarte nennt als Produktgruppe LINEA / SOLARA / PERGOLA /
+     LUNA / LUXORA, und diese beiden gehoeren nicht dazu. */
+  var STOFF_DACH_MARKISEN = ['Aufdachmarkise', 'Unterdachmarkise'];
+
+  function stoffListe(gruppe) {
+    var q = window.BV_STOFFE;
+    return (q && q[gruppe]) ? q[gruppe] : [];
+  }
+
+  /* Findet den Datensatz zu einem Wert. Bei zip steht hinter dem Code noch
+     die Konfektion ('T30812-A'). */
+  function stoffDaten(wert) {
+    if (!wert) return null;
+    var code = wert.split('-')[0], i;
+    var alle = stoffListe('dach').concat(stoffListe('zip'));
+    for (i = 0; i < alle.length; i++) if (alle[i].c === code) return alle[i];
+    return null;
+  }
+
+  function stoffText(wert) {
+    var d = stoffDaten(wert);
+    if (!d) return '';
+    var t = d.c + (d.n ? ' ' + d.n : '') + ' · ' + d.f;
+    if (d.w) t += ' · Wassersäule ' + d.w + ' mm · Lichtechtheit 4/5';
+    if (wert.indexOf('-') > -1) t += ' · Konfektion ' + wert.split('-')[1];
+    return t;
+  }
+
+  function stoffKachel(wert, bild, beschriftung) {
+    return '<button type="button" class="k3d-stoff" data-stoff="' + wert +
+           '" aria-pressed="false" title="' + beschriftung + '">' +
+           '<img src="images/stoffe/mini/' + bild + '.webp" alt="" loading="lazy" ' +
+           'width="96" height="24"><span>' + beschriftung + '</span></button>';
+  }
+
+  /* Baut das Bildraster einmal auf – 53 bzw. 88 Kacheln. Die Bilder laden
+     verzoegert (loading="lazy"), sonst zieht das Bedienfeld beim Oeffnen
+     hundert Dateien auf einmal. */
+  function stoffRasterBauen(behaelter, gruppe) {
+    if (!behaelter || behaelter.getAttribute('data-fertig')) return;
+    var liste = stoffListe(gruppe);
+    if (!liste.length) return;
+    var html = '<div class="k3d-stoffe">' +
+      '<button type="button" class="k3d-stoff k3d-stoff--leer" data-stoff="" ' +
+      'aria-pressed="false"><span>Noch offen – bitte beraten</span></button></div>';
+    var fam = null;
+    liste.forEach(function (st) {
+      if (st.f !== fam) {
+        if (fam !== null) html += '</div>';
+        html += '<p class="k3d-stoff-fam">' + st.f + '</p><div class="k3d-stoffe">';
+        fam = st.f;
+      }
+      if (gruppe === 'zip') {
+        ['A', 'B'].forEach(function (k) {
+          html += stoffKachel(st.c + '-' + k, st.c + '-' + k, st.c + ' ' + k);
+        });
+      } else {
+        html += stoffKachel(st.c, st.c, st.c);
+      }
+    });
+    if (fam !== null) html += '</div>';
+    behaelter.innerHTML = html;
+    behaelter.setAttribute('data-fertig', '1');
+    behaelter.addEventListener('click', function (ev) {
+      var b = ev.target;
+      while (b && b !== behaelter && b.tagName !== 'BUTTON') b = b.parentNode;
+      if (!b || b === behaelter) return;
+      var feld = document.getElementById(
+        gruppe === 'zip' ? 'k3dStoffZip' : 'k3dStoff');
+      if (feld) feld.value = b.getAttribute('data-stoff') || '';
+      aendern();
+    });
+  }
+
+  function stoffMarkieren(behaelter, wert) {
+    if (!behaelter) return;
+    Array.prototype.forEach.call(behaelter.querySelectorAll('.k3d-stoff'),
+      function (b) {
+        var ist = (b.getAttribute('data-stoff') || '') === (wert || '');
+        b.classList.toggle('is-active', ist);
+        b.setAttribute('aria-pressed', ist ? 'true' : 'false');
+      });
+  }
+
+  function stoffAnzeigen() {
+    var d = document.getElementById('k3dStoffeDach');
+    var z = document.getElementById('k3dStoffeZip');
+    if (gruppeGilt('stoff-dach')) stoffRasterBauen(d, 'dach');
+    if (gruppeGilt('stoff-zip')) stoffRasterBauen(z, 'zip');
+    stoffMarkieren(d, Z.stoff);
+    stoffMarkieren(z, Z.stoffZip);
+    var i1 = document.getElementById('k3dStoffInfo');
+    if (i1) i1.textContent = Z.stoff ? stoffText(Z.stoff)
+      : 'Ohne Angabe schlagen wir im Angebot etwas Passendes vor.';
+    var i2 = document.getElementById('k3dStoffZipInfo');
+    if (i2) i2.textContent = Z.stoffZip ? stoffText(Z.stoffZip)
+      : 'Jeder Stoff gibt es in zwei Mustern – Konfektion A und B.';
+  }
+
+  /* Das Tuch im Modell bekommt das echte Muster. Geladen wird erst, wenn
+     jemand einen Stoff waehlt – 97 Texturen im Voraus waeren unsinnig. */
+  var STOFF_TEX = {};
+  function stoffTextur(wert) {
+    if (!wert) return null;
+    if (STOFF_TEX[wert] !== undefined) return STOFF_TEX[wert] || null;
+    STOFF_TEX[wert] = null;
+    if (!texLader) return null;
+    texLader.load('images/stoffe/tex/' + wert + '.webp', function (t) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.encoding = THREE.sRGBEncoding;
+      t.anisotropy = texMaxAniso;
+      STOFF_TEX[wert] = t;
+      bauen();            // Tuch neu aufbauen, damit das Muster sitzt
+    }, undefined, function () { STOFF_TEX[wert] = false; });
+    return null;
+  }
+
+  /* Legt das Muster auf ein Stoffmaterial. breiteCm bestimmt, wie oft sich
+     die Bahn ueber die Breite wiederholt – eine Musterbahn ist rund
+     120 cm breit (GESCHAETZT, die Stoffkarte nennt keine Bahnbreite). */
+  function stoffAuftragen(material, wert, breiteCm) {
+    var t = stoffTextur(wert);
+    if (!t) return false;
+    t.repeat.set(Math.max(1, Math.round((breiteCm || 300) / 120)), 1);
+    material.map = t;
+    material.color.copy(rgb(0xffffff));
+    material.needsUpdate = true;
+    return true;
+  }
+
   /* ---------- Welche Beschattung zu welchem Dach passt ----------
      Die Aufdachmarkise liegt mit Schienen und Stuetzen AUF der Eindeckung
      und wird auf die aeusseren Sparren der geneigten Dachflaeche
@@ -3518,6 +3746,11 @@
         v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
         v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
         if (Z.markise !== 'Ohne') v.markise = Z.markise;
+        /* Roher Code, nicht der Fliesstext: Der Assistent markiert damit
+           die richtige Kachel. Den lesbaren Satz baut er selbst aus
+           derselben Liste. */
+        if (Z.stoff && gruppeGilt('stoff-dach')) v.stoff = Z.stoff;
+        if (Z.stoffZip && gruppeGilt('stoff-zip')) v.stoffzip = Z.stoffZip;
         if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
           v.vorsprung = String(Z.vorsprung);
         }

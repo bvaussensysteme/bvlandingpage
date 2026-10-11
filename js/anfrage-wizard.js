@@ -188,8 +188,21 @@
     var p = answers.produkt;
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
-    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView')
-      return ['produkt', 'aufbau'].concat(wand ? ['fassade'] : []).concat(['masse', 'verglasung', 'markise', 'erweiterungen', 'led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
+    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView') {
+      /* Der Stoffschritt haengt an der Bauart: Die Stoffkarte fuehrt nur
+         LINEA / SOLARA / PERGOLA / LUNA / LUXORA – Plissee und Sonnensegel
+         gehoeren nicht dazu und bekommen deshalb keine Stoffwahl. Die
+         Senkrechtmarkise hat eine EIGENE Liste (EZIP). */
+      var tdsSchritte = ['produkt', 'aufbau'].concat(wand ? ['fassade'] : [])
+        .concat(['masse', 'verglasung', 'markise']);
+      if (answers.markise === 'Aufdachmarkise' || answers.markise === 'Unterdachmarkise')
+        tdsSchritte.push('stoff');
+      tdsSchritte.push('erweiterungen');
+      if (['erw_links', 'erw_rechts', 'erw_vorne'].some(function (k) {
+        return (answers[k] || []).indexOf('Senkrechtmarkise') > -1;
+      })) tdsSchritte.push('stoffzip');
+      return tdsSchritte.concat(['led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
+    }
     // Carport: eigener Ablauf (Typ → Ausführung). Glas/Poly-Eindeckung nur beim
     // Carport TDS – Flat Line & Flat Box haben ein Trapezblech-Flachdach.
     if (p === 'Carport') {
@@ -209,7 +222,9 @@
       if (answers.dachart === 'Lamellendach') steps.push('dachausfuehrung'); // Ausführung nur beim Lamellendach
       steps.push('aufbau');
       if (wand) steps.push('fassade');
-      steps.push('masse', 'seitenschutz', 'komfort', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary');
+      steps.push('masse', 'seitenschutz');
+      if (answers.seitenschutz === 'ZIP-Senkrechtmarkise') steps.push('stoffzip');
+      steps.push('komfort', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary');
       return steps;
     }
     if (p === 'Sonstiges')
@@ -226,7 +241,8 @@
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'ledsetzahl', 'sound', 'soundset',
      'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
-     'erw_links', 'erw_rechts', 'erw_vorne', 'untergrund', 'montage', 'wunsch', 'extras']
+     'erw_links', 'erw_rechts', 'erw_vorne', 'untergrund', 'montage', 'wunsch', 'extras',
+     'stoff', 'stoffzip']
       .forEach(function (k) { delete answers[k]; });
   }
 
@@ -249,6 +265,67 @@
         '</button>';
     });
     html += '</div>';
+    return html;
+  }
+
+  /* ---------- Markisenstoffe ----------
+     Die Liste steht in js/markisenstoffe.js, dort auch die Begruendung.
+     Zwei getrennte Welten: 53 Stoffe fuer die Dachmarkisen (LINEA /
+     SOLARA / PERGOLA / LUNA / LUXORA), 44 fuer die Senkrechtmarkisen
+     (EZIP 105 / 125). Kein Code kommt in beiden vor. Wer das vermischt,
+     schickt eine Anfrage los, die nicht bestellbar ist.
+
+     Keine optionCards: 97 grosse Karten waeren unbedienbar. Stattdessen
+     ein Musterraster, nach Farbfamilie gegliedert. */
+  /* Macht aus 'AC420' bzw. 'T30812-A' den Satz, der in der Anfrage steht. */
+  function stoffText(wert) {
+    if (!wert) return '';
+    var code = String(wert).split('-')[0];
+    var alle = ((window.BV_STOFFE && window.BV_STOFFE.dach) || [])
+      .concat((window.BV_STOFFE && window.BV_STOFFE.zip) || []);
+    for (var i = 0; i < alle.length; i++) {
+      if (alle[i].c !== code) continue;
+      var d = alle[i];
+      var t = d.c + (d.n ? ' ' + d.n : '') + ' · ' + d.f;
+      if (d.w) t += ' · Wassersäule ' + d.w + ' mm · Lichtechtheit 4/5';
+      if (String(wert).indexOf('-') > -1) t += ' · Konfektion ' + String(wert).split('-')[1];
+      return t;
+    }
+    return String(wert);
+  }
+
+  function stoffRaster(gruppe, field) {
+    var liste = (window.BV_STOFFE && window.BV_STOFFE[gruppe]) || [];
+    if (!liste.length) {
+      return '<p class="aw-note">Die Stoffauswahl konnte nicht geladen ' +
+             'werden – wir besprechen den Stoff gern persoenlich.</p>';
+    }
+    function kachel(wert, bild, text) {
+      var aktiv = answers[field] === wert ? ' is-active' : '';
+      return '<button type="button" class="aw-stoff' + aktiv +
+        '" data-field="' + field + '" data-value="' + esc(wert) + '" title="' +
+        esc(text) + '"><img src="/images/stoffe/mini/' + bild +
+        '.webp" alt="" loading="lazy" width="96" height="24">' +
+        '<span>' + esc(text) + '</span></button>';
+    }
+    var html = '', fam = null;
+    liste.forEach(function (st) {
+      if (st.f !== fam) {
+        if (fam !== null) html += '</div>';
+        html += '<p class="aw-group-h">' + esc(st.f) + '</p><div class="aw-stoffe">';
+        fam = st.f;
+      }
+      if (gruppe === 'zip') {
+        html += kachel(st.c + '-A', st.c + '-A', st.c + ' A');
+        html += kachel(st.c + '-B', st.c + '-B', st.c + ' B');
+      } else {
+        html += kachel(st.c, st.c, st.c);
+      }
+    });
+    if (fam !== null) html += '</div>';
+    html += '<div class="aw-stoffe aw-stoffe--leer">' +
+      kachel('Noch offen – bitte beraten', '', 'Noch offen – bitte beraten') +
+      '</div>';
     return html;
   }
 
@@ -387,6 +464,18 @@
         if (isGlas(answers.verglasung) && !answers.glasstaerke) return 'Bitte wählen Sie die Glasstärke (8 oder 10 mm).';
         return null;
       }
+    },
+
+    stoff: {
+      title: 'Welcher Markisenstoff?',
+      sub: 'Alle Stoffe mit Lichtechtheit 4/5. Die Abbildung dient nur der Orientierung – die Farbe am Bildschirm weicht vom echten Stoff ab.',
+      render: function () { return stoffRaster('dach', 'stoff'); }
+    },
+
+    stoffzip: {
+      title: 'Welcher Stoff für die Senkrechtmarkise?',
+      sub: 'Jeder Stoff gibt es in zwei Mustern – Konfektion A und B. Die Abbildung dient nur der Orientierung.',
+      render: function () { return stoffRaster('zip', 'stoffzip'); }
     },
 
     markise: {
@@ -817,6 +906,8 @@
     }
     if (inFlow('verglasung') && answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);
     if (inFlow('markise') && answers.markise && answers.markise !== 'Keine Markise') p.push(['Sonnenschutz', answers.markise]);
+    if (inFlow('stoff') && answers.stoff) p.push(['Markisenstoff', stoffText(answers.stoff)]);
+    if (inFlow('stoffzip') && answers.stoffzip) p.push(['Stoff Senkrechtmarkise', stoffText(answers.stoffzip)]);
     if (inFlow('erweiterungen')) {
       [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
         var v = answers[e[0]];
@@ -1173,7 +1264,7 @@
                   'dach', 'ueberstand', 'seitenschutz', 'dachausfuehrung',
                   'fassade', 'untergrund', 'vorsprung', 'markise',
                   'ledset', 'ledsetzahl', 'sound', 'soundset',
-                  'heizung', 'wettersensor'];
+                  'heizung', 'wettersensor', 'stoff', 'stoffzip'];
     felder.forEach(function (k) {
       if (v[k] != null && v[k] !== '') answers[k] = String(v[k]);
     });

@@ -54,7 +54,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="css/style.css?v=20260916e" />
+  <link rel="stylesheet" href="css/style.css?v=20261011a" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -189,6 +189,28 @@
     .k3d-farbe span { font-size: .66rem; color: var(--muted); line-height: 1.2; }
     .k3d-farbe.is-active { border-color: var(--gold); }
     .k3d-farbe.is-active span { color: var(--black); font-weight: 600; }
+
+    /* Stoffauswahl: 97 Muster passen nur als Bildraster ins Bedienfeld.
+       Die Familienzeile gliedert sie, damit man nicht 53 Kacheln am Stück
+       absucht. Bilder laden verzögert – sonst zieht das Panel beim Öffnen
+       hundert Dateien. */
+    .k3d-stoff-fam { font-size: .68rem; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); margin: 10px 0 4px; }
+    .k3d-stoff-fam:first-child { margin-top: 0; }
+    .k3d-stoffe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .k3d-stoff {
+      border: 2px solid var(--border); border-radius: 8px; background: #fff;
+      padding: 4px 2px 3px; cursor: pointer; text-align: center; overflow: hidden;
+    }
+    .k3d-stoff img { display: block; width: 100%; height: 20px; object-fit: cover;
+      border-radius: 3px; border: 1px solid rgba(0,0,0,.12); }
+    .k3d-stoff span { display: block; font-size: .6rem; color: var(--muted);
+      line-height: 1.15; margin-top: 3px; word-break: break-all; }
+    .k3d-stoff:hover { border-color: var(--gold); }
+    .k3d-stoff.is-active { border-color: var(--gold); }
+    .k3d-stoff.is-active span { color: var(--black); font-weight: 600; }
+    .k3d-stoff--leer { grid-column: 1 / -1; }
+    .k3d-stoff--leer span { font-size: .72rem; }
 
     /* Erweiterungen: mehrere je Seite, gesperrte bleiben sichtbar und sagen,
        woran es liegt – wegnehmen würde die Frage aufwerfen, wo sie hin sind. */
@@ -622,6 +644,23 @@
             bei den Erweiterungen.</p>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-fuer="stoff-dach" hidden>
+          <span class="k3d-label" id="k3dStoffLabel">Markisenstoff</span>
+          <input type="hidden" id="k3dStoff" value="">
+          <div class="k3d-stoff-liste" id="k3dStoffeDach" role="group"
+               aria-labelledby="k3dStoffLabel"></div>
+          <p class="k3d-mini" id="k3dStoffInfo"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-fuer="stoff-zip" hidden>
+          <span class="k3d-label" id="k3dStoffZipLabel">Stoff der Senkrechtmarkise</span>
+          <input type="hidden" id="k3dStoffZip" value="">
+          <div class="k3d-stoff-liste" id="k3dStoffeZip" role="group"
+               aria-labelledby="k3dStoffZipLabel"></div>
+          <p class="k3d-mini" id="k3dStoffZipInfo">Jeder Stoff gibt es in zwei
+            Mustern – Konfektion A und B.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-fuer="sonne-aus" hidden>
           <label class="k3d-label" for="k3dSonneAus">Ausgefahren <output id="k3dSonneAusWert">85 %</output></label>
           <input type="range" id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
@@ -761,10 +800,9 @@
         Konfiguration anfragen →
       </button>
       <p class="k3d-fuss">
-        Sparren- und Pfostenzahlen stammen aus den Herstellerunterlagen, die
-        Profilquerschnitte im Bild sind geschätzt. Die Darstellung ist eine
-        maßstäbliche Skizze zur Orientierung, keine Fertigungszeichnung.
-        Das verbindliche Angebot erstellen wir nach dem kostenlosen Aufmaß vor Ort.
+        Die Darstellung dient nur der Orientierung und bildet Farben, Materialien
+        und Details nicht verbindlich ab. Maßgeblich ist unser Angebot nach dem
+        kostenlosen Aufmaß vor Ort.
       </p>
       <p class="k3d-rechtslinks">
         <a href="/">← Zur Website</a> ·
@@ -893,7 +931,8 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/konfigurator-3d.js?v=20261011r" defer></script>
+<script src="js/markisenstoffe.js?v=20261011a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261011s" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
