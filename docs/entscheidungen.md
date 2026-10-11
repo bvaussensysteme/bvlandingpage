@@ -1163,12 +1163,11 @@ zwei Bilder.
 **Wann der Träger kommt:** wenn die Maßtabelle ihn verlangt (Tiefe über
 4500 mm) **oder** wenn ein Vorsprung eingestellt ist.
 
-**GEGENZULESEN – das betrifft jede Standardkonfiguration:** Der Regler
-steht voreingestellt auf **300 mm**. Damit bekommt ab sofort jedes
-Terrassendach TDS einen Statikträger. Wenn der Standard-TDS in
-Wirklichkeit keinen hat, ist entweder die Voreinstellung falsch (dann
-gehört sie auf 0) oder die Regel „Vorsprung ⇒ Träger" gilt erst ab einem
-größeren Maß.
+**Voreinstellung geklärt (Betreiber, 11.10.2026): 0.** Der Regler stand
+auf 300 mm – damit hätte jedes Terrassendach TDS einen Statikträger
+bekommen, auch das kleinste. Der Vorsprung ist eine **Option, nicht die
+Normalausführung**. Im Bedienfeld steht jetzt ein Satz dazu, was er
+bewirkt: Pfosten rücken nach innen, Statikträger kommt dazu.
 
 **Prüfung.** `scripts/pruefe-masstabelle.js` – 22 Prüfungen, alle
 bestanden; Gegenprobe 22 von 22. Drei davon sichern genau diesen Fehler

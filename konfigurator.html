@@ -647,11 +647,13 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
-          <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">300 mm</output></label>
+          <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
           <div class="k3d-regler">
-            <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="300">
-            <input type="number" id="k3dVorsprungZahl" class="k3d-zahl" inputmode="numeric" value="300" aria-label="Dachvorsprung in Millimeter">
+            <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="0">
+            <input type="number" id="k3dVorsprungZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Dachvorsprung in Millimeter">
           </div>
+          <p class="k3d-mini">Ohne Vorsprung stehen die Pfosten unter der Rinne.
+            Mit Vorsprung rücken sie nach innen, und ein Statikträger kommt dazu.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="cp-ueberstand" hidden>
@@ -1110,7 +1112,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261012e" defer></script>
+<script src="js/konfigurator-3d.js?v=20261012f" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

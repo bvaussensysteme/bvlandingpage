@@ -65,7 +65,12 @@
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
-    vorsprung: 300,            // Dachvorsprung, nur TDS
+    /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
+       bauenTerrasseGeschaetzt). Bei 300 mm bekam damit JEDES Terrassendach
+       einen Träger, auch das kleinste. Angabe des Betreibers am
+       11.10.2026: Voreinstellung 0 – der Vorsprung ist eine Option, nicht
+       die Normalausführung. */
+    vorsprung: 0,              // Dachvorsprung in mm, nur TDS
     untergrund: 'Tragender Untergrund vorhanden',
 
     /* Seitliche Erweiterungen – dieselben Möglichkeiten wie im
