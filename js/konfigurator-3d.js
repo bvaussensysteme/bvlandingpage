@@ -309,14 +309,22 @@
     holzdielen:   'images/textur/holzdielen.webp',
     putz:         'images/textur/putz.webp',
     klinker:      'images/textur/klinker.webp',
-    zufahrt:      'images/textur/zufahrt.webp'
+    zufahrt:      'images/textur/zufahrt.webp',
+    /* Holzmaserung für die Dekore (Golden OAK, Eiche Mocca,
+       Rovere Pechino). Quelle: ambientCG.com Wood049, Lizenz CC0 –
+       Eiche, feine WAAGERECHTE Maserung, nahtlos kachelbar.
+       Für uns entsättigt und aufgehellt, damit die Dekorfarbe
+       darübergelegt werden kann: Die Maserung bringt die Struktur,
+       die Farbe kommt aus dem Dekor. Ein Dekorbild des Herstellers
+       ist das NICHT – das bleibt Rückfrage. */
+    holzmaserung: 'images/textur/holzmaserung.webp'
   };
   /* Kantenlaenge einer Kachel in cm. GESCHAETZT nach Augenmass an der
      Vorlage – davon haengt ab, ob eine Platte wie 40 cm oder wie 2 m
      wirkt. Wer das aendert, aendert den Massstab im Bild. */
   var TEXTUR_KACHEL = {
     rasen: 200, steinplatten: 240, holzdielen: 120,
-    putz: 220, klinker: 180, zufahrt: 220
+    putz: 220, klinker: 180, zufahrt: 220, holzmaserung: 120
   };
   var texLader = null, texMaxAniso = 1;
   var FOTO_TEXTUR = {};
@@ -333,6 +341,7 @@
       t.encoding = THREE.sRGBEncoding;      // Farbbild, kein Datenbild
       t.anisotropy = texMaxAniso;           // sonst matscht der flache Boden
       eintrag.map = t;
+      if (name === 'holzmaserung') maserungNachtragen();
       /* Ohne diesen Anstoss erschiene die Textur erst, wenn jemand das
          naechste Mal etwas umstellt – stimmung() laeuft nur bei
          Aenderungen, der Zeichen-Takt dagegen staendig. */
@@ -351,6 +360,47 @@
   /* Legt Farb- und Normalmap auf ein Material und stellt die Kachelung
      auf die tatsaechliche Flaechengroesse ein. Gibt false zurueck, wenn
      das Foto (noch) nicht da ist – dann greift der Canvas-Notnagel. */
+  /* ---------- Holzmaserung auf ein Bauteil legen ----------
+     Die Maserung liegt als EIN Bild vor und wird je Bauteil anders
+     wiederholt – deshalb bekommt jedes Material seine eigene Kopie der
+     Textur. Ohne Kopie teilten sich Planke und Lamelle eine
+     Wiederholung, und eine von beiden sähe gestaucht aus.
+
+     Die Textur kommt verzögert. Wer vorher fragt, landet in der
+     Warteliste und wird beim Eintreffen nachträglich bedient – ein
+     Neubau des Modells ist dafür nicht nötig. */
+  var MASERUNG_WARTET = [];
+
+  function maserungNachtragen() {
+    var liste = MASERUNG_WARTET;
+    MASERUNG_WARTET = [];
+    liste.forEach(function (a) { maserungAuftragen(a[0], a[1], a[2]); });
+    neuZeichnen();
+  }
+
+  function maserungAuftragen(material, laengeCm, hoeheCm) {
+    var f = fotoTextur('holzmaserung');
+    if (!f) return;
+    if (!f.map) { MASERUNG_WARTET.push([material, laengeCm, hoeheCm]); return; }
+    var k = TEXTUR_KACHEL.holzmaserung;
+    /* Seitenverhältnis beibehalten: Die Maserung darf nicht mitwachsen,
+       sonst wird sie auf einer langen Planke zu Streifen gezogen. */
+    var t = f.map.clone();
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(Math.max(0.05, laengeCm / k), Math.max(0.02, hoeheCm / k));
+    t.needsUpdate = true;
+    material.map = t;
+    if (f.normal) {
+      var n = f.normal.clone();
+      n.wrapS = n.wrapT = THREE.RepeatWrapping;
+      n.repeat.copy(t.repeat);
+      n.needsUpdate = true;
+      material.normalMap = n;
+      if (material.normalScale) material.normalScale.set(0.45, 0.45);
+    }
+    material.needsUpdate = true;
+  }
+
   function fotoAuftragen(material, name, breiteCm, tiefeCm, abend) {
     var f = fotoTextur(name);
     if (!f || !f.map) return false;
@@ -1034,7 +1084,7 @@
   /* Planken: dasselbe pulverbeschichtete Aluminium, aber in eigener
      Farbe – sie darf vom Gestell abweichen. Holzdekore sind matter als
      eine Pulverbeschichtung, deshalb die höhere Rauheit. */
-  function plankeMaterial() {
+  function plankeMaterial(laengeCm) {
     var dekor = PLANKEN_FARBEN[Z.plankenFarbe];
     var hex = dekor !== undefined ? dekor
             : FARBEN[Z.plankenFarbe] || FARBEN[Z.farbe] || FARBEN['Anthrazit'];
@@ -1045,6 +1095,9 @@
       clearcoat: 0.1, clearcoatRoughness: 0.5
     });
     m.envMapIntensity = dekor !== undefined ? 0.2 : 0.45;
+    /* Nur die Holzdekore bekommen eine Maserung – ein RAL-Ton ist
+       pulverbeschichtetes Aluminium und hat keine. */
+    if (dekor !== undefined) maserungAuftragen(m, laengeCm || 300, PLANKE.hoehe);
     return m;
   }
 
@@ -1983,7 +2036,7 @@
       return Z.glasOffen / 100;
     }
     var mPlanke = blech();
-    var mPlankeWand = plankeMaterial();
+
     var mStoff = new THREE.MeshStandardMaterial({
       color: rgb(0x4a4f52), roughness: 0.95, metalness: 0, side: THREE.DoubleSide
     });
@@ -2362,11 +2415,12 @@
       var a = teilbar === false ? { von: 0, anzahl: t.anzahl }
                                 : plankenAnteil(t.anzahl);
       var hoch = a.anzahl * schritt - t.fuge;
-      platte(mPlankeWand, ZWISCHEN.breite, hoch, achse, lage,
+      platte(plankeMaterial(ZWISCHEN.breite), ZWISCHEN.breite, hoch, achse, lage,
              yUnten + a.von * schritt + hoch / 2, quer, 0, PLANKE.dicke);
     }
 
     function plankenFeld(laenge, hoehe, achse, mitte, yUnten, quer, teilbar) {
+      var mPlankeWand = plankeMaterial(laenge);
       var t = plankenTeilung(hoehe);
       var schritt = PLANKE.hoehe + t.fuge;
       var a = teilbar === false ? { von: 0, anzahl: t.anzahl, lage: 'voll' }
@@ -2397,7 +2451,7 @@
         ok = yM + PLANKE.hoehe / 2;
       }
       if (uk === null) return;
-      plankenWinkel(laenge, ok - uk, achse, mitte, uk, quer);
+      plankenWinkel(laenge, ok - uk, achse, mitte, uk, quer, mPlankeWand);
     }
 
     /* Der Winkel läuft senkrecht am Pfosten hoch; die Planken werden an
@@ -2405,7 +2459,7 @@
        Zeichnung nicht hervor – hier liegt der lange (40 mm) am Pfosten in
        der Wandebene, der kurze (20 mm) zeigt nach innen hinter die
        Planken. ANNAHME, gegenzulesen. */
-    function plankenWinkel(laenge, hoehe, achse, mitte, yUnten, quer) {
+    function plankenWinkel(laenge, hoehe, achse, mitte, yUnten, quer, mPlankeWand) {
       var rIn = innenRichtung(achse, quer);
       var yM = yUnten + hoehe / 2;
       var tief = PLANKE.dicke / 2 + WINKEL.staerke / 2;
@@ -2431,7 +2485,7 @@
        Trennung kippen sie beim Seitenelement um die falsche Achse – genau
        das war vorher der Fehler, nur fiel es nicht auf, weil sie dort
        senkrecht standen. */
-    function velarisMaterial() {
+    function velarisMaterial(laengeCm) {
       var dekor = VELARIS_FARBEN[Z.velarisFarbe];
       var hex = dekor !== undefined ? dekor
               : (Z.velarisFarbe.indexOf('Anthrazit') > -1 ? FARBEN['Anthrazit']
@@ -2443,6 +2497,7 @@
         clearcoat: 0.1, clearcoatRoughness: 0.5
       });
       m.envMapIntensity = dekor !== undefined ? 0.2 : 0.4;
+      if (dekor !== undefined) maserungAuftragen(m, laengeCm || 100, VELARIS.lamelle);
       return m;
     }
 
@@ -2549,7 +2604,7 @@
 
     function velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, nr,
                             erstes) {
-      var mLam = velarisMaterial();
+      var mLam = velarisMaterial(laenge);
       var R = VELARIS.rahmen;
       /* Verschiebbare Elemente laufen in getrennten Schienen – im Bild
          ist das der Versatz in der Tiefe. Feststehend liegen alle in

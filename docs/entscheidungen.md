@@ -2926,3 +2926,43 @@ Anfrage.
 angebotene Aufteilung wird der Fahrweg bis 100 % gerechnet und
 festgestellt, ob sich überhaupt etwas bewegt. Eine Liste gegen eine
 Liste zu prüfen hätte nur meine eigene Annahme bestätigt.
+
+## 2026-10-11 – Holzmaserung für die Dekore
+
+**Anlass:** „finde im netz gutaufösende lizenzfreie texturen für golden
+oak und die anderen holzarten z.b bei planken in waagrechter maserung und
+baue diese ein" – dazu: „also nur holzarten die wir anbieten keine
+andere".
+
+**Was jetzt gilt:** Die Holzdekore sind keine flachen Farbflächen mehr,
+sondern haben eine echte Maserung. **Es kommt keine einzige neue Holzart
+dazu** – wählbar bleiben genau die drei, die wir führen:
+
+| Bauteil | Dekor |
+|---|---|
+| Plankenwand | Eiche Mocca · Rovere Pechino hell |
+| Velaris | Holzoptik Golden OAK |
+
+**Wie es gebaut ist:** EIN Maserungsbild für alle drei. Quelle
+ambientCG.com **Wood049**, Lizenz **CC0** (Eiche, feine waagerechte
+Maserung, nahtlos kachelbar, 2K). Für uns entsättigt und aufgehellt
+(Mittelwert 0,83), damit die Dekorfarbe darübergelegt werden kann: Die
+Maserung bringt die Struktur, die Farbe kommt aus dem Dekor.
+
+**Warum ein Bild und nicht drei:** Drei Bilder wären drei
+Behauptungen – wir haben keine Dekorbilder des Herstellers. Ein
+neutrales Maserungsbild plus der jeweilige Farbton sagt genau das, was
+wir wissen, und nicht mehr. Dass es kein Herstellerdekor ist, steht im
+Bedienfeld („maßgeblich bleibt das Muster").
+
+**Zwei Fallen, die dabei lauerten:**
+1. **Gestauchte Maserung.** Die Wiederholung folgt dem Seitenverhältnis
+   des Bauteils, nicht dessen Fläche. Sonst zöge sie sich auf einer 7 m
+   langen Planke zu Streifen. Geprüft über vier Bauteilmaße.
+2. **Eine Textur für alle.** Jedes Bauteil bekommt seine **eigene
+   Kopie**; sonst teilten sich Planke und Lamelle eine Wiederholung, und
+   eine von beiden sähe falsch aus.
+
+Die Textur kommt verzögert. Wer vorher fragt, landet in einer
+Warteliste und wird beim Eintreffen nachgetragen – ohne Neubau des
+Modells.
