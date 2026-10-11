@@ -311,8 +311,9 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   ungeprüfte Annahmen
 - **SkyView: Querschnittszeichnungen der Profile.** Die Montageanleitung
   (07.11.2025) ist jetzt eingearbeitet, sie bemaßt aber keine
-  Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
-  Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
+  Profilquerschnitte. Sparren und Glasleisten sind laut Betreiber
+  dieselben wie bei TDS und damit belegt. GESCHÄTZT bleiben nur noch:
+  Rahmenhöhe 220 mm und Blendendicke.
   ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
   Träger je 140 mm tief. Mit den Zeichnungen zu Rinne Flat (16553),
   Träger TD (15698), Seitenblende Sky (6069) und Glasleiste (15184)

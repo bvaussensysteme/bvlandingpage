@@ -2115,22 +2115,24 @@
      je Seite ergibt für Rinne und Träger zusammen 280 mm Bautiefe,
      also je 140 mm. Vorher standen hier 90 mm als reine Schätzung.
 
-     GESCHÄTZT bleiben: Rahmenhöhe (220 mm), Sparrenquerschnitt
-     (70 × 110 mm – die Anleitung fordert nur mehr als die 86 mm
-     Ausklinkung), Blendendicke und die Glasleiste. Querschnitts-
-     zeichnungen gibt es zu diesem System noch nicht; sie stehen als
-     offener Punkt in docs/NEXT_TASK.md. */
+     SPARREN UND GLASLEISTEN SIND DIE DES TDS-SYSTEMS: „sparren,
+     glasleiste etc is wie bei tds" (Betreiber, 11.10.2026). Hier
+     standen vorher geschätzte 70 × 110 mm und eine erfundene flache
+     Leiste. Die Angabe passt zur Anleitung: Der TDS-Sparren ist 120 mm
+     hoch, die Ausklinkung 86 mm – es bleiben 34 mm, genau der obere
+     Steg, auf dem die Eindeckung liegt. Zwei unabhängige Quellen, die
+     dasselbe sagen.
+
+     GESCHÄTZT bleiben nur noch: Rahmenhöhe (220 mm) und Blendendicke.
+     Querschnittszeichnungen zu Rinne, Träger und Seitenblende gibt es
+     noch nicht; sie stehen als offener Punkt in docs/NEXT_TASK.md. */
   var SKY = {
     rahmenH: 22.0,      // GESCHÄTZT
     rinneT: 14.0,       // ABGELEITET (siehe oben)
     traegerT: 14.0,     // ABGELEITET
     sparrenAbzug: 15.0, // BELEGT: Spannweite - 150 mm
     auflager: 6.5,      // BELEGT: Ausschnitt 65 mm tief
-    auflagerH: 8.6,     // BELEGT: Ausschnitt 86 mm hoch
-    sparrenB: 7.0,      // GESCHÄTZT
-    sparrenH: 11.0,     // GESCHÄTZT, muss über der Ausklinkung liegen
-    leisteB: 5.5,       // GESCHÄTZT
-    leisteH: 1.2        // GESCHÄTZT
+    auflagerH: 8.6      // BELEGT: Ausschnitt 86 mm hoch
   };
 
   function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
@@ -5057,8 +5059,10 @@
        hier als solche benannt. */
     var riH = sky ? SKY.rahmenH : RINNE.hoehe;
     var riT = sky ? SKY.rinneT : RINNE.breite;
-    var spB = sky ? SKY.sparrenB : SPARREN.breite;
-    var spH = sky ? SKY.sparrenH : SPARREN.hoehe;
+    /* Sparren und Glasleisten sind bei beiden Systemen dieselben Teile
+       (Betreiber, 11.10.2026). */
+    var spB = SPARREN.breite;
+    var spH = SPARREN.hoehe;
 
     belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
     belag.position.set(0, -1, (T + 120) / 2 - 60);
@@ -5351,16 +5355,7 @@
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
     xs.forEach(function (x) {
-      if (sky) {
-        var sp = new THREE.Mesh(new THREE.BoxGeometry(spB, spH, laenge), mAlu);
-        sp.position.set(x, mitteY, zMitte);
-        sp.rotation.x = neig;
-        sp.castShadow = true; sp.receiveShadow = true;
-        dachTeil(sp);
-        bau.add(sp);
-      } else {
-        sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
-      }
+      sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
     });
 
     /* Seitliche Randblende – siehe RANDBLENDE. Sie liegt außen am
@@ -5401,6 +5396,8 @@
        Rücksprung von 10 mm – solange die Sparren im Profil steckten, fiel
        das nicht auf; seit sie davor beginnen, wäre es ein offener Schlitz
        unter der Glasleiste. Vorne bleibt der Rücksprung von 10 mm. */
+    /* Nur für TDS: Bei SkyView bekommt die Scheibe ihre Lage weiter
+       unten aus der Rahmentiefe, dort spielt dieser Wert keine Rolle. */
     var glasRueck = sky ? 1 : 0;              // Rücksprung hinten, cm
     /* SkyView: Die Scheibe liegt zwischen Rinne und Träger und ruht auf
        beiden auf – zwei Zentimeter Auflage je Seite (GESCHÄTZT; die
@@ -5420,8 +5417,11 @@
          zwischen Träger + 40 mm" – die Scheibe liegt also beidseitig
          20 mm auf dem Sparren auf. Vorher war sie um den Steg schmaler
          und lag damit auf nichts. */
+      /* Gilt für beide Systeme, seit die Sparren dieselben sind: Die
+         Scheibe liegt auf dem Sparrensteg auf, nicht zwischen den
+         Sparren. Vorher war sie bei SkyView um die Auflage schmaler. */
       var lichteWeite = (xs[i + 1] - xs[i]) - spB;
-      var feldB = sky ? lichteWeite : lichteWeite + 4;
+      var feldB = lichteWeite + 4;
       if (feldB <= 0) continue;
       var xMitte = (xs[i] + xs[i + 1]) / 2;
       if (!glasGeteilt()) {
@@ -5483,7 +5483,7 @@
 
     /* Abdeckleisten auf den Sparren – erst nach der Eindeckung, sie halten
        die Scheiben (Montageanleitung S. 34/35). */
-    if (!sky) {
+    {
       xs.forEach(function (x, i) {
         /* Außen links und rechts sitzt die SEITENglasleiste: Sie schließt
            das Dach zur Seite ab, statt nur zwischen zwei Scheiben zu
@@ -5507,24 +5507,12 @@
       });
     }
 
-    /* Glasleisten (15184) auf den Sparren – auch bei SkyView. Sie halten
-       die Scheiben an ihren Stößen; die Anleitung schreibt sie
-       ausdrücklich vor (S. 32: erste Schraube 100 mm vom Rand, dann alle
-       300 mm). Flach statt halbrund wie bei TDS, siehe das Teilebild auf
-       S. 5 – Maße GESCHÄTZT.
-
-       Die frühere Attika-Blende rundum entfällt: Sie war der Versuch,
-       das kubische Aussehen ohne die echten Profile nachzustellen, und
-       stand 26 cm hoch ÜBER dem Dach. Nach der Anleitung bilden Rinne,
+    /* Die frühere Attika-Blende rundum entfällt: Sie war der Versuch, das
+       kubische Aussehen ohne die echten Profile nachzustellen, und stand
+       26 cm hoch ÜBER dem Dach. Nach der Montageanleitung bilden Rinne,
        Träger und Seitenblende den Rahmen – alle mit derselben Oberkante
-       in WAAGE. */
-    if (sky) {
-      var yLeiste = ukMitte + spH + skyGlasD + SKY.leisteH / 2;
-      xs.forEach(function (x) {
-        dachTeil(balken(SKY.leisteB, SKY.leisteH, vollGlas,
-                        x, yLeiste, zGlasMitte, mAlu));
-      });
-    }
+       in WAAGE. Die Glasleisten darauf sind dieselben wie bei TDS und
+       werden deshalb oben für beide Systeme gebaut. */
 
     /* Seitenelemente und Sonnenschutz sind Zubehör und hängen nicht am
        Dachsystem – deshalb auch freistehend. */

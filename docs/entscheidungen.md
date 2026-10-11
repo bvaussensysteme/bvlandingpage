@@ -4584,3 +4584,26 @@ Neigung lässt sich bei SkyView nicht einstellen (gilt nur für TDS) – das war
 schon vorher so und passt jetzt zum Modell. Prüfung:
 `node scripts/pruefe-masstabelle.js` (229, Gegenprobe 229/229), davon 15 neue
 zu SkyView.
+
+## 2026-10-11 – SkyView: Sparren und Glasleisten sind die des TDS-Systems
+
+**Was war falsch.** „sparren, glasleiste etc is wie bei tds" (Betreiber,
+11.10.2026). Im SkyView-Zweig standen geschätzte 70 × 110 mm für den Sparren
+und eine selbst erfundene flache Glasleiste – beides daneben.
+
+**Was jetzt gilt.** Es gibt nur noch **einen** Sparrenbau und **einen**
+Leistenbau für beide Systeme: der TDS-Sparren 61 × 120 mm mit seinem Steg, die
+halbrunde Abdeckleiste 55,3 × 22,6 mm und außen die Seitenglasleiste mit der
+Abschlusszunge. Daraus folgt auch die Scheibenbreite: Sie liegt jetzt in beiden
+Systemen beidseitig 20 mm auf dem Sparrensteg auf (TDS-Anleitung S. 9), vorher
+lag sie bei SkyView nur zwischen den Sparren.
+
+**Warum das zusammenpasst.** Die SkyView-Anleitung verlangt an den Sparrenenden
+eine Ausklinkung von 86 mm Höhe. Beim TDS-Sparren mit 120 mm Gesamthöhe bleiben
+darüber genau 34 mm – der obere Steg, auf dem die Eindeckung liegt. Zwei
+unabhängige Quellen, die dasselbe sagen; die Prüfung rechnet diesen Rest aus
+und zeigt ihn an.
+
+**Was gegengelesen werden soll.** SkyView: Sparrenprofil und Glasleisten sehen
+aus wie beim Terrassendach TDS, außen die Seitenglasleiste mit Abschluss.
+Prüfung: `node scripts/pruefe-masstabelle.js` (230, Gegenprobe 230/230).

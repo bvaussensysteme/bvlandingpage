@@ -315,8 +315,10 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   }
   var SKY = { rinneT: zahl('rinneT'), traegerT: zahl('traegerT'),
               sparrenAbzug: zahl('sparrenAbzug'), auflager: zahl('auflager'),
-              auflagerH: zahl('auflagerH'), sparrenH: zahl('sparrenH'),
-              rahmenH: zahl('rahmenH') };
+              auflagerH: zahl('auflagerH'), rahmenH: zahl('rahmenH') };
+  /* „sparren, glasleiste etc is wie bei tds" (Betreiber, 11.10.2026) –
+     die Sparrenhoehe kommt deshalb aus dem TDS-Block, nicht aus SKY. */
+  var spTds = parseFloat((k3d.match(/var SPARREN = \{[\s\S]*?hoehe:\s*([\d.]+)/) || [])[1]);
 
   /* BELEGT, S. 22: Sparrenlaenge = Spannweite - 150 mm, Ausschnitt
      65 x 86 mm. */
@@ -339,10 +341,15 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
          (summe * 10).toFixed(0) + ' mm gegen ' + (soll * 10).toFixed(0) + ' mm');
 
   /* Der Sparren muss hoeher sein als seine Ausklinkung, sonst waere er
-     an den Enden durchgeschnitten. */
-  var hoch = SKY.sparrenH - (gegen ? 5 : 0);
-  pruefe('SkyView – Sparren höher als die Ausklinkung', hoch > SKY.auflagerH,
-         (hoch * 10).toFixed(0) + ' mm gegen ' + (SKY.auflagerH * 10).toFixed(0) + ' mm');
+     an den Enden durchgeschnitten. Mit dem TDS-Sparren (120 mm) bleiben
+     ueber der Ausklinkung genau 34 mm – der obere Steg, auf dem die
+     Eindeckung liegt. Zwei Quellen, die dasselbe sagen: die Anleitung
+     und die Angabe des Betreibers. */
+  var hoch = spTds - (gegen ? 5 : 0);
+  var rest = hoch - SKY.auflagerH;
+  pruefe('SkyView – Sparren höher als die Ausklinkung', rest > 0,
+         (hoch * 10).toFixed(0) + ' mm Sparren, ' + (rest * 10).toFixed(0) +
+         ' mm über der Ausklinkung');
 })();
 pruefe('SkyView steht in WAAGE',
        new RegExp(q || 'var neig = sky \\? 0 : neigungGrad\\(\\) \\* Math\\.PI / 180;').test(k3d) &&
@@ -363,9 +370,17 @@ pruefe('SkyView – Sparrenlänge aus der Anleitung',
 pruefe('SkyView – Seitenblende über die volle Rahmenhöhe',
        new RegExp(q || 'blendeH = sky \\? riH').test(k3d) &&
        new RegExp(q || 'blendeL = sky \\? T').test(k3d), 'Seitenblende Sky 6069');
-pruefe('SkyView – Glasleisten auf den Sparren',
-       new RegExp(q || 'SKY\\.leisteB, SKY\\.leisteH, vollGlas').test(k3d),
-       'Glasleiste 15184');
+/* „sparren, glasleiste etc is wie bei tds" (Betreiber, 11.10.2026):
+   Es gibt nur EINEN Sparren- und EINEN Leistenbau, fuer beide Systeme.
+   Geprueft wird, dass die sky-Sonderwege weg sind. */
+pruefe('Eindeckung liegt in beiden Systemen auf dem Sparren auf',
+       new RegExp(q || 'var feldB = lichteWeite \\+ 4;').test(k3d) &&
+       !/feldB = sky \?/.test(k3d), 'Anleitung TDS S. 9: + 40 mm');
+pruefe('SkyView – Sparren und Glasleisten wie bei TDS',
+       new RegExp(q || 'var spB = SPARREN\\.breite;').test(k3d) &&
+       new RegExp(q || 'var spH = SPARREN\\.hoehe;').test(k3d) &&
+       !/if \(sky\) \{\s*var sp = new THREE\.Mesh/.test(k3d) &&
+       !/SKY\.leiste/.test(k3d), 'keine eigenen Profile mehr');
 pruefe('SkyView – die alte Attika-Blende ist weg',
        gegen ? /balken\(B \+ 3, 26, 4,/.test(k3d) : !/balken\(B \+ 3, 26, 4,/.test(k3d),
        'Rahmen aus Rinne, Träger und Seitenblende');
