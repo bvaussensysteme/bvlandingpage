@@ -3173,3 +3173,28 @@ Rechenschwäche.
 Bis zur Vierfeld-Grenze muss die Feldzahl übereinstimmen. Die Gegenprobe
 rechnet die Wand nach einem eigenen Richtwert – dann stehen die Sprossen
 versetzt, und sie schlägt an.
+
+## 2026-10-11 – Vierfeld-Grenze gilt jetzt auch für den Keil
+
+**Anlass:** „dann mach beim keil bei 7000 auch 4 felder wenn der
+hersteller mehr nicht hergibt" (Betreiber).
+
+**Was jetzt gilt:** Keil und Rahmenwand teilen sich gleich – ein Feld je
+angefangene 1,5 m, höchstens aber **vier**. Damit stehen Keilpfosten und
+Sprossen über die ganze Seitenlänge übereinander, auch bei 7 m.
+
+**⚠️ Hier stoßen zwei Angaben aneinander**, und das soll nicht untergehen:
+
+| | |
+|---|---|
+| früher (Betreiber, belegt) | Keil bekommt **je angefangene 1,5 m** eine Unterteilung |
+| jetzt (Betreiber) | höchstens **vier Felder**, weil der Hersteller nicht mehr hergibt |
+
+Bei 7 m Tiefe wird ein Keilfeld dadurch **1750 mm** breit, bei 9 m sogar
+2250 mm – beides über den früher genannten 1,5 m. Gewollt ist die
+gemeinsame Teilung; **ob die breiteren Felder zulässig sind, muss VD
+bestätigen.** Der Hinweis steht als Kommentar an der Konstante, damit er
+beim nächsten Anfassen auffällt.
+
+Die Vierfeld-Grenze selbst stammt aus den acht Festelement-Zeichnungen:
+Mehr als drei senkrechte Sprossen zeigt keine davon.

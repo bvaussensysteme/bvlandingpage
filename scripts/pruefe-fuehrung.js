@@ -950,7 +950,7 @@ pruefe('Rahmenwand steht in der Anfrage',
      Keilpfosten. */
   var MAX = 150, falsch = 0, waagerecht = 0;
   for (var l = 50; l <= 900; l += 5) {
-    var keilFelder = Math.max(1, Math.ceil(l / MAX));
+    var keilFelder = Math.min(4, Math.max(1, Math.ceil(l / MAX)));
     /* Gegenprobe: die alte Rechnung nach einem eigenen Richtwert statt
        nach dem Keilmass - dann stehen Sprosse und Keilpfosten versetzt. */
     var wandSprossen = gegen
@@ -959,8 +959,9 @@ pruefe('Rahmenwand steht in der Anfrage',
     var wandFelder = wandSprossen + 1;
     var sh = gegen ? 1 : 0;
     if (sh !== 0) waagerecht++;
-    /* Bis zur Grenze von vier Feldern muessen beide gleich sein. */
-    if (keilFelder <= 4 && wandFelder !== keilFelder) falsch++;
+    /* Jetzt gilt die Vierfeld-Grenze fuer BEIDE - sie muessen ueber den
+       ganzen Bereich uebereinstimmen, nicht nur bis zur Grenze. */
+    if (wandFelder !== keilFelder) falsch++;
   }
   pruefe('Sprossen folgen den Keilfeldern', falsch === 0,
          falsch + ' Laengen weichen ab');
@@ -969,7 +970,11 @@ pruefe('Rahmenwand steht in der Anfrage',
 })();
 pruefe('Automatik nutzt das Keilmass',
        new RegExp(q || 'Math\\.ceil\\(laengeCm / KEIL_FELD_MAX\\)').test(js) &&
-       new RegExp(q || 'return \\[Math\\.min\\(3, felder - 1\\), 0\\]').test(js), '');
+       new RegExp(q || 'return \\[felder - 1, 0\\]').test(js), '');
+
+pruefe('Vierfeld-Grenze gilt fuer Keil und Wand',
+       new RegExp(q || 'KEIL_FELD_ZAHL_MAX = 4').test(js) &&
+       (js.match(/KEIL_FELD_ZAHL_MAX,/g) || []).length === 2, '');
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'

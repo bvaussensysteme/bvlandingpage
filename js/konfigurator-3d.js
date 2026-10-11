@@ -2073,6 +2073,18 @@
      3 m also eine, bei 4,5 m zwei. Angabe des Betreibers. */
   var KEIL_FELD_MAX = 150;    // cm, BELEGT durch den Betreiber
 
+  /* Mehr als vier Felder gibt es beim Hersteller nicht – mehr als drei
+     Sprossen zeigt keine der acht Festelement-Zeichnungen. Damit Keil
+     und Rahmenwand übereinanderstehen, gilt die Grenze für beide:
+     „dann mach beim keil bei 7000 auch 4 felder wenn der hersteller
+     mehr nicht hergibt" (Betreiber, 11.10.2026).
+
+     ACHTUNG, hier stoßen zwei Angaben des Betreibers aneinander: Bei
+     7 m Tiefe wird ein Keilfeld damit 1750 mm breit und überschreitet
+     die 1,5 m von oben. Gewollt ist die gemeinsame Teilung; ob die
+     breiteren Felder zulässig sind, muss VD bestätigen. */
+  var KEIL_FELD_ZAHL_MAX = 4;
+
   function fluegelAnzahl(laenge, seite) {
     var b = sg23Bauart(laenge * 10, seite);    // cm -> mm
     if (b) return b[1];
@@ -2453,8 +2465,9 @@
          Feldern, auch wenn sie dann breiter als 1500 mm werden – das
          ist eine Grenze der dokumentierten Aufteilungen, keine
          Rechenschwäche. */
-      var felder = Math.max(1, Math.ceil(laengeCm / KEIL_FELD_MAX));
-      return [Math.min(3, felder - 1), 0];
+      var felder = Math.min(KEIL_FELD_ZAHL_MAX,
+                            Math.max(1, Math.ceil(laengeCm / KEIL_FELD_MAX)));
+      return [felder - 1, 0];
     }
 
     function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil) {
@@ -3127,7 +3140,8 @@
           platte(rahmen, keilLaenge, rb, achse, keilMitte, yKeil + rb / 2, quer, 0, rb);
           /* Stirnseiten und Unterteilungen: je angefangene 1,5 m Tiefe
              ein Pfosten im Keil (KEIL_FELD_MAX). */
-          var felderK = Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX));
+          var felderK = Math.min(KEIL_FELD_ZAHL_MAX,
+                                 Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX)));
           var stiele = [zHintenK + rb / 2, zVorneK - rb / 2];
           for (var fk = 1; fk < felderK; fk++) {
             stiele.push(zHintenK + (keilLaenge / felderK) * fk);
