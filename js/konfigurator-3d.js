@@ -1785,9 +1785,48 @@
        Das Bürstenprofil wird NICHT gezeichnet. Mit 12 mm Breite wäre es
        im Bild kleiner als ein Pixel und kostet nur Rechenzeit; das Maß
        steht hier, damit es nicht verlorengeht. */
-    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };     // Tür-Einfaßprofil
+    /* ALLE DREI sind nur hinterlegt, nicht gezeichnet. Die Schnitte
+       geben den Querschnitt, nicht die Einbaulage – und SG23 ist
+       rahmenlos, die Flügel sind reines Glas. Wo diese Profile sitzen
+       (Festfelder? Anschluss an Wand und Pfosten?), ist offen. */
+    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };      // Tür-Einfaßprofil
     var H_GLAS_PR = { tiefe: 1.92, breite: 6.14 }; // H-Glaseinfaßprofil
-    var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // nicht gezeichnet
+    var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // Bürstenprofil
+
+    /* ---------- Muschelgriff ----------
+       „an die vorderste tür an der mn quasi zieht zum aufmachen nen
+       runden eingelassenen edelstahlgriff machen also keinen
+       herausstehenden wäre ja unlogisch" (Betreiber, 11.10.2026).
+
+       Der Einwand trifft die Bauart: Die Flügel laufen dicht
+       aneinander vorbei, ein vorstehender Griff würde am nächsten
+       Flügel anschlagen. Deshalb ein Muschelgriff – eine runde
+       Edelstahlschale, die IN der Scheibe sitzt und mit ihr bündig
+       abschließt.
+
+       Durchmesser 50 mm, Höhe 1050 mm über der Schwelle: beides
+       GESCHÄTZT. In der Unterlage steht nur „inklusive 2 Griff", ohne
+       Maß – GEGENZULESEN. */
+    var GRIFF = { durchmesser: 5.0, hoehe: 105, randAbstand: 9 };
+
+    function muschelgriff(achse, lage, yUnten, quer, versatz, dicke) {
+      var g = new THREE.Mesh(
+        new THREE.CylinderGeometry(GRIFF.durchmesser / 2, GRIFF.durchmesser / 2,
+                                   dicke * 1.02, 20),
+        new THREE.MeshStandardMaterial({
+          color: rgb(0xc9cdd0), roughness: 0.28, metalness: 0.9
+        }));
+      /* Die Scheibenebene entscheidet, wohin die Zylinderachse zeigt:
+         links/rechts steht die Scheibe in der x-Ebene, vorne in der z. */
+      if (quer) g.rotation.z = Math.PI / 2;
+      else g.rotation.x = Math.PI / 2;
+      g.position.set(quer ? achse + (versatz || 0) : lage,
+                     yUnten + GRIFF.hoehe,
+                     quer ? lage : achse + (versatz || 0));
+      g.castShadow = true;
+      bau.add(g);
+      return g;
+    }
 
     function gleise(seite, laenge) {
       var b = sg23Bauart(laenge * 10, seite);
@@ -1845,21 +1884,28 @@
            erkennt der Klick spaeter, welche Anlage gemeint ist. */
         schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
                            quer, spur, SG23.glasDicke), seite);
-        /* Rahmen um den Flügel: oben und unten das Tür-Einfaßprofil,
-           an den beiden senkrechten Kanten das H-Glaseinfaßprofil.
-           ANNAHME, dass es so umläuft – die Schnitte zeigen nur die
-           Querschnitte, nicht, an welcher Kante welches Profil sitzt.
-           GEGENZULESEN. */
-        schiebeTeil(platte(rahmen, flB, TUER_PR.hoehe, achse, lage,
-                           yUnten + TUER_PR.hoehe / 2, quer, spur, TUER_PR.tiefe), seite);
-        schiebeTeil(platte(rahmen, flB, TUER_PR.hoehe, achse, lage,
-                           yUnten + hoehe - TUER_PR.hoehe / 2, quer, spur,
-                           TUER_PR.tiefe), seite);
-        [-1, 1].forEach(function (vz) {
-          schiebeTeil(platte(rahmen, H_GLAS_PR.breite, hoehe - 2 * TUER_PR.hoehe,
-                             achse, lage + vz * (flB - H_GLAS_PR.breite) / 2,
-                             yUnten + hoehe / 2, quer, spur, H_GLAS_PR.tiefe), seite);
-        });
+        /* KEIN Rahmen um den Flügel. „bei dem sg23 modell sind nur
+           glasschiebetüren du hast da jz aber rahmen dran gemacht das
+           ist so falsch" (Betreiber, 11.10.2026, mit Bildschirmfoto).
+
+           Das ist der Punkt des Systems: Die Scheibe läuft rahmenlos,
+           sichtbar sind nur Schwelle unten und Führung oben. Ich hatte
+           aus den Profilschnitten geschlossen, die Profile lägen um
+           jeden Flügel – ein Schluss aus einem Querschnitt auf eine
+           Einbaulage, die dort gar nicht steht. Die Maße bleiben in
+           TUER_PR / H_GLAS_PR hinterlegt, bis geklärt ist, wo sie
+           wirklich sitzen (siehe docs/entscheidungen.md). */
+
+        /* Griff nur am Flügel, der am weitesten fährt – das ist der,
+           an dem gezogen wird. i = 0 steht fest, i = n-1 bewegt sich am
+           meisten (siehe lage oben). Bei nur einem Flügel ist es
+           derselbe. Der Griff sitzt an der ZIEHKANTE, also der vom
+           Stapel abgewandten Seite. */
+        if (i === n - 1 && hoehe > GRIFF.hoehe + 20) {
+          var kante = lage + (flB / 2 - GRIFF.randAbstand) * (n > 1 ? -1 : 1);
+          schiebeTeil(muschelgriff(achse, kante, yUnten, quer, spur,
+                                   SG23.glasDicke), seite);
+        }
       }
     }
 

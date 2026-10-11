@@ -260,17 +260,48 @@ pruefe('Erfundene Bodenschiene ist weg',
     pruefe(f[0], Math.abs(ist - f[2]) < 0.5, ist + ' mm (erwartet ' + f[2] + ')');
   });
 })();
-pruefe('Glas passt in das Tuerprofil',
-       gegen ? !/glasDicke: 1\.0,/.test(src) : /glasDicke: 1\.0,/.test(src),
-       '10 mm Glas in 25 mm Profil');
+pruefe('Zehn-Millimeter-Glas',
+       gegen ? !/glasDicke: 1\.0,/.test(src) : /glasDicke: 1\.0,/.test(src), '10 mm ESG');
+/* SG23 ist RAHMENLOS – der Fluegel ist reines Glas. Weder meine alte
+   erfundene Kante noch die Profile duerfen um ihn herum liegen. */
 pruefe('Erfundene Rahmenkante am Fluegel ist weg',
        gegen ? /schiebeTeil\(rahmenKante\(flB/.test(src)
              : !/schiebeTeil\(rahmenKante\(flB/.test(src), '50 x 50 mm geschaetzt');
-pruefe('Senkrechte Kanten bekommen das H-Profil',
-       new RegExp(q || 'H_GLAS_PR\\.breite, hoehe - 2 \\* TUER_PR\\.hoehe').test(src), '');
-pruefe('Buerstenprofil bewusst nicht gezeichnet',
-       gegen ? /BUERSTE\.tiefe,/.test(src) : !/BUERSTE\.(tiefe|hoehe)[^:]/.test(src),
-       'nur als Mass hinterlegt');
+['TUER_PR', 'H_GLAS_PR', 'BUERSTE'].forEach(function (name) {
+  var hinterlegt = new RegExp('var ' + name + ' = \\{').test(src);
+  var gezeichnet = new RegExp(name + '\\.(tiefe|hoehe|breite)[,)]').test(src);
+  pruefe(name + ' hinterlegt, aber nicht gezeichnet',
+         gegen ? (!hinterlegt || gezeichnet) : (hinterlegt && !gezeichnet),
+         hinterlegt ? (gezeichnet ? 'wird gezeichnet' : 'nur Mass') : 'fehlt');
+});
+
+/* ---------- Muschelgriff ----------
+   „nen runden eingelassenen edelstahlgriff … also keinen
+   herausstehenden wäre ja unlogisch" (Betreiber, 11.10.2026). */
+pruefe('Griff ist rund',
+       new RegExp(q || 'new THREE\\.CylinderGeometry\\(GRIFF\\.durchmesser / 2').test(src), '');
+pruefe('Griff steht nicht ueber das Glas hinaus',
+       new RegExp(q || 'dicke \\* 1\\.02').test(src), 'Tiefe = Glasdicke');
+pruefe('Griff sieht nach Edelstahl aus',
+       new RegExp(q || 'metalness: 0\\.9').test(src), 'metallisch, wenig rau');
+pruefe('Griff nur am ziehenden Fluegel',
+       new RegExp(q || 'i === n - 1 && hoehe > GRIFF\\.hoehe').test(src), '');
+pruefe('Griff an der Ziehkante, nicht in der Mitte',
+       new RegExp(q || 'flB / 2 - GRIFF\\.randAbstand').test(src), '');
+/* Zweiter Weg: die Masse nachrechnen. */
+(function () {
+  var m = src.match(/var GRIFF = \{ durchmesser: ([\d.]+), hoehe: ([\d.]+), randAbstand: ([\d.]+) \};/);
+  if (!m) { pruefe('Griffmasse lesbar', false, 'Zeile nicht gefunden'); return; }
+  var d = parseFloat(m[1]) * 10, h = parseFloat(m[2]) * 10;
+  if (gegen) { d += 90; h += 900; }
+  pruefe('Griff-Durchmesser handgerecht', d >= 40 && d <= 70, d + ' mm');
+  pruefe('Griffhoehe handgerecht', h >= 900 && h <= 1200, h + ' mm');
+  /* Die Scheibe ist 10 mm dick – ein Griff, der tiefer baut als das
+     Glas, stuende vor und schlaege am Nachbarfluegel an. */
+  var glas = 10, tief = glas * 1.02 + (gegen ? 20 : 0);
+  pruefe('Griff baut nicht tiefer als das Glas', tief <= glas * 1.1,
+         tief.toFixed(1) + ' mm bei ' + glas + ' mm Glas');
+})();
 
 /* ---------- Kein Spalt zwischen Schiebewand und Keil ----------
    „zwischen schiebewand und keil is ne lücke darf nicht sein"
