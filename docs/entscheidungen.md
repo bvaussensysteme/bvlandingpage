@@ -348,3 +348,71 @@ Zeichnung ist dort in wenigen Zeilen nachgetragen.
 der Betreiber prüft selbst im Browser. Die statischen Prüfungen
 (`pruefe-konfigurator.js` mit Gegenprobe, `pruefe-keine-preise.sh`,
 `pruefe-cache-buster.sh`) sind bestanden.
+
+## 2026-10-11 – Aufdachmarkise TDS Linea A / Linea AZ nach Herstellerzeichnung modelliert
+
+**Anlass.** Der Betreiber hat die technische Zeichnung „TDS_Linea A - Linea AZ"
+(Stand 01.07.2025) geschickt mit der Frage, ob sich das so im 3D-Modell
+umsetzen lässt, und dann: „erst alle seiten, bilder, texte lesen analysieren"
+und „baue dann die aufdachmarkise".
+
+**Was falsch war.** Die Aufdachmarkise bestand aus zwei Boxen: einem flachen
+Tuch über der Eindeckung und einem 130 × 130 mm Balken als „Kassette", beides
+frei schwebend über dem Dach. Es gab keine Führungsschienen, keine Stützen,
+keine Kassettenform – und bei eingefahrenem Tuch (Regler auf 0) wurde gar
+nichts gezeichnet, ein Dach mit Markise sah also aus wie eines ohne. Die
+Markise ist aber montiert, nicht ausgefahren.
+
+**Was jetzt gilt.** `aufdachmarkise()` in `js/konfigurator-3d.js` baut die
+Markise als eigene, um die Dachneigung gedrehte Gruppe über der Eindeckung.
+Aus der Zeichnung BELEGT übernommen (Konstante `MARKISE`):
+
+| Maß | Wert | Fundstelle in der Zeichnung |
+|---|---|---|
+| Bestellmaß Breite | = Dachbreite | Überschrift |
+| Bestellmaß Tiefe | = Terrassendach-Tiefe | Unterschrift |
+| Kassettenhöhe | 158 mm (Korpus 150) | Seitenansicht links |
+| Führungsschiene | 87 mm hoch | Seitenansicht |
+| Seitensparren | 61 mm breit | Vorderansicht unten |
+| Außenkante → Befestigungsachse | 37 mm | Vorderansicht, rot |
+| Stütze Dachfläche → Schienen-UK | 75 mm | Seitenansicht |
+| Säule / Fußplatte / Plattendicke | 80 / 100 / 6 mm | Seitenansicht |
+| erste Stütze hinter der Kassette | min. 345, max. 395 mm | Seitenansicht |
+| letzte Stütze vor dem Ende | min. 150, max. 1000 mm | Seitenansicht |
+| Stützen dazwischen | gleichmäßig („=") | Seitenansicht |
+
+GESCHÄTZT bleibt nur die **Kassettentiefe** (~230 mm) – sie ist in der
+Zeichnung nicht bemaßt und wurde über den Maßstab der bemaßten Teile
+abgegriffen. Ebenso Tuchdicke und Tuchfarbe.
+
+**Warum so und nicht anders.**
+- *Eigene gedrehte Gruppe* statt Einzelteile mit Gefälle-Rechnung: Nur so
+  bleiben Stützenhöhe (75 mm) und Schienenlage genau die Maße der Zeichnung.
+  Sonst müsste jedes Teil einzeln mit `tan(neig)` verrechnet werden, und jeder
+  Fehler darin fällt erst im Bild auf.
+- *Kassette als ExtrudeGeometry* statt Box: Die Seitenansicht zeigt eine runde,
+  tropfenförmige Kassette mit fast senkrechter Vorderseite, aus der das Tuch
+  austritt. Eine Box sieht an dieser Stelle falsch aus, weil die Rundung
+  genau das ist, was man vom Dach aus sieht.
+- *Schienen auf den äußeren Sparren*: Die Sparrenachse liegt 30 mm vom Rand
+  (Montageanleitung S. 33), die Schiene ist 61 mm breit – sie schließt damit
+  außen bündig ab. Das deckt sich mit „Bestellmaß Breite = Dachbreite".
+- *Hardware immer sichtbar*: siehe oben, Regler auf 0 heißt eingefahren,
+  nicht abwesend.
+
+**Verworfen.** Die 37 mm der Zeichnung als Schienenachse zu nehmen. Sie geben
+die **Befestigungsachse** an, nicht die Schienenmitte; die Schiene selbst
+sitzt auf dem Sparren. Hätte die Schienen 7 mm nach innen gerückt und außen
+einen Spalt gelassen.
+
+**Was gegengelesen werden soll.**
+1. Sitzt die Kassette an der **Wand** (hinten) und fährt das Tuch nach vorne
+   zur Rinne aus? So steht es in der Zeichnung (Kassette am Ende mit
+   min. 345/395) und so ist es gebaut – bitte am Modell prüfen.
+2. Stößt die Kassette bei flachen Dächern an das Wandprofil? Rechnerisch
+   bleiben 4 mm Luft zwischen Kassettenunterkante und Eindeckung.
+3. Kassettentiefe 230 mm – falls das Datenblatt eine andere Zahl nennt,
+   gehört sie in `MARKISE.kasTiefe`.
+
+**Prüfung.** `node scripts/pruefe-markise.js` – 15 Prüfungen, alle bestanden.
+`node scripts/pruefe-markise.js --gegenprobe` – 15 von 15 schlagen an.

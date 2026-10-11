@@ -1164,7 +1164,10 @@
 
     /* Seitenelemente nur bei den Wandsystemen */
     if (!e.freistehend) seitenErweiterungen(B, T, hVorn, pf, neig);
-    if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf);
+    if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf, {
+      tiefe: T,
+      ok: function (z) { return yDach + Math.tan(neig) * (T / 2 - z) + 0.8; }
+    });
     else verkleidung(B, T, hVorn - 1, pf);
 
     if (Z.led) {
@@ -1452,6 +1455,138 @@
     eineSeite('vorne',   vorne,              0,           B - PROFIL * 2, false);
   }
 
+  /* ---------- Aufdachmarkise TDS Linea A / Linea AZ ----------
+     Maße aus der technischen Zeichnung des Herstellers
+     („TDS_Linea A - Linea AZ", Stand 01.07.2025), vom Betreiber am
+     10.10.2026 geschickt. BELEGT sind daraus:
+       · Bestellmaß Breite = Dachbreite, Bestellmaß Tiefe = Dachtiefe –
+         die Markise läuft also über die ganze Dachfläche, nicht nur über
+         einen Teil davon
+       · Kassette 158 mm hoch, Korpus 150 mm
+       · Führungsschiene 87 mm hoch; die Seitensparren darunter 61 mm
+       · 37 mm von der Außenkante bis zur Befestigungsachse
+       · Stütze: 75 mm von der Dachfläche bis zur Schienenunterkante,
+         Säule 80 mm, Fußplatte 100 mm breit, 6 mm dick
+       · erste Stütze 345–395 mm hinter dem Kassettenende, letzte
+         150–1000 mm vor dem vorderen Ende, dazwischen gleichmäßig („=")
+
+     GESCHÄTZT ist allein die Kassettentiefe (~230 mm, aus der Zeichnung
+     abgegriffen – sie ist dort nicht bemaßt) sowie Tuchdicke und Farbe.
+
+     Warum eine eigene Gruppe: Die Markise liegt AUF der Dachfläche und
+     folgt deren Gefälle. Alles in einer um `neig` gedrehten Gruppe zu
+     rechnen ist der einzige Weg, bei dem Stützenhöhe und Schienenlage
+     Maße der Zeichnung bleiben und nicht jedes Mal neu mit dem Gefälle
+     verrechnet werden müssen. */
+  var MARKISE = {
+    kasHoehe:      15.8,   // 158 mm BELEGT
+    kasTiefe:      23.0,   // ~230 mm GESCHÄTZT (in der Zeichnung ohne Maß)
+    schieneH:       8.7,   // 87 mm BELEGT
+    schieneB:       6.1,   // 61 mm BELEGT (Breite des Seitensparrens)
+    stuetzeH:       7.5,   // 75 mm BELEGT
+    saeuleB:        8.0,   // 80 mm BELEGT
+    platteB:       10.0,   // 100 mm BELEGT
+    platteD:        0.6,   // 6 mm BELEGT
+    ersteStuetze:  37.0,   // min. 345 / max. 395 mm BELEGT – Mitte genommen
+    letzteStuetze: 25.0,   // min. 150 / max. 1000 mm BELEGT – innerhalb
+    feldMax:      100.0    // max. 1000 mm BELEGT zwischen zwei Stützen
+  };
+
+  /* Querschnitt der Kassette in der XY-Ebene: x = Tiefe ab der Wandseite,
+     y = Höhe ab Kassettenunterkante. Die Form ist aus der Seitenansicht
+     der Zeichnung abgezeichnet: hinten rund, vorne fast senkrecht – dort
+     tritt das Tuch aus. Eine Box sähe an dieser Stelle falsch aus, weil
+     die runde Kassette das ist, was man vom Dach aus sieht. */
+  function markisenKassette() {
+    var t = MARKISE.kasTiefe, h = MARKISE.kasHoehe;
+    var f = new THREE.Shape();
+    f.moveTo(t, h);
+    f.lineTo(t * 0.34, h);
+    f.quadraticCurveTo(t * 0.06, h * 0.97, t * 0.035, h * 0.66);
+    f.quadraticCurveTo(t * 0.012, h * 0.34, t * 0.14, h * 0.13);
+    f.quadraticCurveTo(t * 0.27, h * -0.03, t * 0.47, h * 0.06);
+    f.quadraticCurveTo(t * 0.66, h * 0.16, t * 0.81, h * 0.33);
+    f.lineTo(t, h * 0.45);
+    f.closePath();
+    return f;
+  }
+
+  /* B = Dachbreite, neig = Dachneigung, aus = Ausfahrgrad 0..1,
+     dach.ok(z) = Oberkante der Eindeckung bei der Tiefe z,
+     dach.tiefe = überdachte Tiefe (waagerecht gemessen). */
+  function aufdachmarkise(B, neig, aus, mStoff, dach) {
+    var M = MARKISE, mAlu = alu();
+    var L = dach.tiefe / Math.cos(neig);        // Länge IN der Dachebene
+    var mk = new THREE.Group();
+    mk.position.set(0, dach.ok(0), 0);
+    mk.rotation.x = neig;
+    bau.add(mk);
+
+    function teil(mesh) {
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      mk.add(mesh);
+      return mesh;
+    }
+
+    var ukSchiene = M.stuetzeH;                 // über der Dachfläche
+    var okSchiene = ukSchiene + M.schieneH;
+    /* Die Schienen sitzen auf den äußeren Sparren – deren Achse liegt
+       30 mm vom Rand (Montageanleitung S. 33), die Schiene ist 61 mm
+       breit und schließt damit außen bündig ab. */
+    var xS = [B / 2 - M.schieneB / 2, -B / 2 + M.schieneB / 2];
+    var schieneL = L - 1;
+
+    xS.forEach(function (x) {
+      teil(new THREE.Mesh(
+        new THREE.BoxGeometry(M.schieneB, M.schieneH, schieneL), mAlu))
+        .position.set(x, ukSchiene + M.schieneH / 2, schieneL / 2 + 0.5);
+    });
+
+    /* Kassette über die volle Dachbreite. Ihre Oberkante schließt mit der
+       Schienenoberkante ab (Zeichnung: 158 mm Kassette, 87 mm Schiene auf
+       75 mm Stütze – die Unterkante bleibt knapp über dem Glas). */
+    var gk = new THREE.ExtrudeGeometry(markisenKassette(),
+      { depth: B, bevelEnabled: false, curveSegments: 8 });
+    gk.rotateY(-Math.PI / 2);
+    gk.translate(B / 2, okSchiene - M.kasHoehe, 0.5);
+    teil(new THREE.Mesh(gk, mAlu));
+
+    /* Stützen gleichmäßig zwischen erster und letzter Lage */
+    var z1 = M.kasTiefe + M.ersteStuetze;
+    var z2 = Math.max(z1 + 1, L - M.letzteStuetze);
+    var felder = Math.max(1, Math.ceil((z2 - z1) / M.feldMax));
+    for (var i = 0; i <= felder; i++) {
+      var z = z1 + (z2 - z1) * i / felder;
+      xS.forEach(function (x) {
+        teil(new THREE.Mesh(new THREE.BoxGeometry(
+          M.platteB, M.platteD, M.platteB), mAlu))
+          .position.set(x, M.platteD / 2, z);
+        teil(new THREE.Mesh(new THREE.BoxGeometry(
+          M.saeuleB, ukSchiene - M.platteD, M.saeuleB * 0.55), mAlu))
+          .position.set(x, M.platteD + (ukSchiene - M.platteD) / 2, z);
+      });
+    }
+
+    /* Das Tuch läuft zwischen den Schienen aus der Kassette nach vorne.
+       Es sitzt IN der Schiene, nicht darüber – deshalb liegt es auf
+       knapp zwei Dritteln der Schienenhöhe. */
+    if (aus > 0.02) {
+      var start = M.kasTiefe * 0.95;
+      var lang = Math.max(1, (L - start - 2) * aus);
+      var tuchB = Math.max(1, B - M.schieneB * 2 - 0.6);
+      var yTuch = ukSchiene + M.schieneH * 0.62;
+      var tuch = new THREE.Mesh(
+        new THREE.BoxGeometry(tuchB, 0.3, lang), mStoff);
+      tuch.position.set(0, yTuch, start + lang / 2);
+      tuch.castShadow = true; tuch.receiveShadow = true;
+      mk.add(tuch);
+      /* Ausfallprofil am vorderen Tuchende */
+      teil(new THREE.Mesh(
+        new THREE.BoxGeometry(tuchB + 1.2, 5.4, 3.2), mAlu))
+        .position.set(0, yTuch - 1.6, start + lang);
+    }
+  }
+
   /* ---------- Sonnenschutz ----------
      Die Aufdachmarkise liegt auf der Eindeckung und hält die Hitze vor dem
      Glas ab, die Unterdachmarkise läuft darunter und bleibt im Trockenen –
@@ -1462,7 +1597,7 @@
 
      Tuchdicke, Kassettenmaß und der Abstand zur Eindeckung sind GESCHÄTZT.
      Es geht um das Bild, nicht um ein Fertigungsmaß. */
-  function sonnenschutz(B, T, hVorn, neig, PROFIL) {
+  function sonnenschutz(B, T, hVorn, neig, PROFIL, dach) {
     var aus = Z.sonneAus / 100;
     var mStoff = new THREE.MeshStandardMaterial({
       color: 0xd9d3c5, roughness: 0.95, metalness: 0, side: THREE.DoubleSide
@@ -1474,20 +1609,26 @@
        das der Unterschied. Plissees laufen zwischen den Sparren, das
        Sonnensegel spannt frei darüber. „Noch unsicher" zeichnet nichts;
        die Angabe geht trotzdem in die Anfrage. */
-    if ((m === 'Aufdachmarkise' || m === 'Unterdachmarkise') && aus > 0.02) {
-      var oben = m === 'Aufdachmarkise';
+    if (m === 'Aufdachmarkise') {
+      /* Kassette, Schienen und Stuetzen stehen auch bei eingefahrenem
+         Tuch da - sie sind montiert, nicht ausgefahren. Vorher wurde bei
+         0 % gar nichts gezeichnet; dann sah ein Dach mit Markise aus wie
+         eines ohne. */
+      aufdachmarkise(B, neig, aus, mStoff, dach || {
+        tiefe: T - PROFIL,
+        ok: function (z) { return hHinten - Math.tan(neig) * z + 13; }
+      });
+    } else if (m === 'Unterdachmarkise' && aus > 0.02) {
       var laenge = (T - PROFIL) * aus;
       var zm = PROFIL / 2 + laenge / 2;
-      var y = hHinten - Math.tan(neig) * zm + (oben ? 8 : -7);
+      var y = hHinten - Math.tan(neig) * zm - 7;
       var tuch = new THREE.Mesh(
         new THREE.BoxGeometry(B - PROFIL * 2, 2.2, laenge), mStoff);
       tuch.position.set(0, y, zm);
       tuch.rotation.x = neig;
-      tuch.castShadow = oben;
       tuch.receiveShadow = true;
       bau.add(tuch);
-      balken(B - PROFIL * 2, 13, 13, 0,
-             hHinten + (oben ? 14 : -14), PROFIL + 5, alu());
+      balken(B - PROFIL * 2, 13, 13, 0, hHinten - 14, PROFIL + 5, alu());
     } else if (m === 'Plissees' && aus > 0.02) {
       /* Plissee: gerafftes Tuch zwischen den Sparren, von Hand bedient.
          Gezeichnet als Falten – daran erkennt man es vom Glas. */
@@ -1964,7 +2105,12 @@
     seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
     }, dachTiefe);
-    sonnenschutz(B, T, hVorn, neig, PF);
+    sonnenschutz(B, T, hVorn, neig, PF, {
+      tiefe: dachTiefe,
+      ok: function (z) {
+        return ukMitte + spH + glasDicke + Math.tan(neig) * (zMitte - z);
+      }
+    });
 
     if (Z.led) {
       // in die Sparren (xs sind die Sparrenachsen), nicht in die Verglasung
