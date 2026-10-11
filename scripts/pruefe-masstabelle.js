@@ -271,8 +271,11 @@ pruefe('Wandprofil steht mit 143,6 mm an der Wand',
   pruefe('Wandprofil wird nicht ersetzt', gegen ? zahl !== 1 : zahl === 1,
          zahl + ' Mal gezeichnet');
 })();
+/* Seit 11.10.2026 richtet sich die Traegerhoehe nach dem Dach (trH),
+   nicht mehr nach dem festen Mass – der Pfosten endet weiter genau
+   darunter. */
 pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
-       new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - TR_H\\)').test(k3d), '');
+       new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - trH\\)').test(k3d), '');
 pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
        new RegExp(q || 'hPfostenHinten / 2, zTrHinten').test(k3d), 'nicht mehr bei zHinten');
 /* Traeger und Wandprofil duerfen nicht ueber die Sparren hinausragen –
@@ -298,6 +301,37 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
+/* ---------- Statiktraeger: unten buendig mit den Sparren ----------
+   „der statikträger ist tiefer als der sparren, mach ihn unten bündig
+   mit sparren und oben bündig mit glasleiste" (Betreiber, 11.10.2026,
+   mit Bild). Steht er HINTER den Sparren, ist er die Wand und darf
+   unten nicht hervorstehen. Liegt er UNTER den Sparren (hinterer
+   Dachvorsprung), traegt er wirklich und behaelt seine vollen 189 mm. */
+pruefe('Traegerhoehe folgt dem Dach, nicht dem festen Mass',
+       new RegExp(q || 'var trH = \\(frei && vorsprH <= 0\\) \\? Math\\.max\\(spH, trOk - ukHinten\\) : TR_H;').test(k3d) &&
+       new RegExp(q || 'balken\\(B, trH, TR_T, 0, trOk - trH / 2').test(k3d) &&
+       !/balken\(B, TR_H, TR_T/.test(k3d), '');
+(function () {
+  /* Zweiter Weg: die Lagen ausrechnen. Oben muss der Traeger mit der
+     Glasleiste abschliessen, unten mit der Sparrenunterkante. */
+  var fTr = (k3d.match(/var trH = ([^;]+);/) || [])[1];
+  if (gegen) fTr = 'TR_H';                 // der alte Zustand
+  var TR_H = 18.9, spH = 12.0, glas = 0.8;
+  var ukHinten = 200, dachOk = ukHinten + spH, trOk = dachOk + glas;
+  var frei = true, vorsprH = 0;
+  var trH = eval(fTr);
+  var trUk = trOk - trH;
+  pruefe('Traeger steht unten nicht unter den Sparren',
+         Math.abs(trUk - ukHinten) < 0.001,
+         'Unterkante ' + ((trUk - ukHinten) * 10).toFixed(0) + ' mm unter dem Sparren');
+  /* Mit hinterem Vorsprung bleibt das belegte Mass stehen. */
+  var fTr2 = (k3d.match(/var trH = ([^;]+);/) || [])[1];
+  vorsprH = gegen ? 0 : 100;
+  var trH2 = eval(fTr2);
+  pruefe('Unter den Sparren behaelt er die belegten 189 mm',
+         Math.abs(trH2 - TR_H) < 0.001, trH2.toFixed(1) + ' cm');
+})();
+
 /* Die Sparren beginnen VOR dem Profil, nicht an der Wand. Davor steckte
    ihr Anfang 31 mm im Profil, und sichtbar blieb nur der Rand, der unten
    heraussteht - ein waagerechtes Band unter den Sparren ueber die ganze
