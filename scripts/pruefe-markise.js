@@ -374,6 +374,79 @@ pruefe('Kein seitenErweiterungen-Aufruf ohne Pfostenachsen',
          Math.abs(gesamt - B) < 0.01, gesamt.toFixed(1) + ' von ' + B + ' cm');
 })();
 
+/* ---------- Schienen buendig zur Pfosteninnenseite ----------
+   „die führungsleisten unten und oben müssen mit der pfosten innenseite
+   bündig sein" (Betreiber, 11.10.2026). Vorher sassen Schwelle und
+   Fuehrung mittig auf der Achse - die halbe Profiltiefe stand nach
+   aussen ueber den Pfosten hinaus. */
+pruefe('Innenrichtung je Seite bestimmt',
+       new RegExp(q || 'function innenRichtung\\(achse, quer\\)').test(src), '');
+pruefe('Schienen nutzen die gemeinsame Lagefunktion',
+       new RegExp(q || 'function schienenVersatz\\(achse, quer, tiefe\\)').test(src) &&
+       (src.match(/schienenVersatz\(achse, quer, t\)/g) || []).length === 3,
+       'Schwelle, Fuehrung und Sockel');
+pruefe('Keine Schiene mehr mittig auf der Achse',
+       gegen ? /innenRichtung\(achse, quer\) \* t \/ 2/.test(src)
+             : !/innenRichtung\(achse, quer\) \* t \/ 2/.test(src), '');
+pruefe('Tiefe Schiene wird vermittelt',
+       new RegExp(q || '\\(tiefe <= PROFIL\\) \\? vz \\* tiefe / 2 : -vz \\* PROFIL / 2').test(src),
+       'nur wenn sie dicker ist als der Pfosten');
+pruefe('Fluegelspur laeuft nach innen',
+       new RegExp(q || 'spur = innenRichtung\\(achse, quer\\) \\* \\(1\\.5').test(src),
+       'nicht mehr vor den Pfosten');
+/* Zweiter Weg: nachrechnen, dass nichts nach aussen uebersteht. */
+(function () {
+  var m = src.match(/return quer \? \(achse > 0 \? (-?1) : (-?1)\) : (-?1);/);
+  if (!m) { pruefe('Innenrichtung rechenbar', false, 'Zeile nicht gefunden'); return; }
+  function innen(achse, quer) {
+    return quer ? (achse > 0 ? parseInt(m[1], 10) : parseInt(m[2], 10)) : parseInt(m[3], 10);
+  }
+  var PF = 11, B = 600, tiefe = 10.02;          // 4-gleisige Schwelle, schmaler als der Pfosten
+  /* Links: Achse auf der Pfosteninnenseite bei +x, innen heisst -x. */
+  var achseL = B / 2 - PF / 2;
+  var aussenkanteL = achseL + innen(achseL, true) * tiefe / 2 + tiefe / 2;
+  if (gegen) aussenkanteL += 3;
+  pruefe('Links: Schiene steht nicht nach aussen ueber',
+         aussenkanteL <= achseL + 0.01,
+         'Aussenkante ' + aussenkanteL.toFixed(2) + ', Pfosteninnenseite ' + achseL.toFixed(2));
+  /* Vorne: Achse auf der Pfosteninnenseite, innen heisst -z. */
+  var achseV = 290;
+  var aussenkanteV = achseV + innen(achseV, false) * tiefe / 2 + tiefe / 2;
+  if (gegen) aussenkanteV += 3;
+  pruefe('Vorne: Schiene steht nicht nach aussen ueber',
+         aussenkanteV <= achseV + 0.01,
+         'Aussenkante ' + aussenkanteV.toFixed(2) + ', Pfosteninnenseite ' + achseV.toFixed(2));
+  /* Die ALTE Lage (mittig auf der Achse) stand um die halbe Profiltiefe
+     nach aussen ueber. */
+  var altUeber = tiefe / 2;
+  pruefe('Alte Lage stand ueber',
+         gegen ? altUeber <= 0 : altUeber > 4,
+         altUeber.toFixed(2) + ' cm bei 4 Gleisen');
+  /* Ist die Schiene TIEFER als der Pfosten, wird vermittelt - dann steht
+     sie beidseitig gleich weit ueber, nicht einseitig nach aussen. */
+  function versatz(a, q, t) {
+    var vz = innen(a, q);
+    return (t <= PF) ? vz * t / 2 : -vz * PF / 2;
+  }
+  var tief = 12.96;                              // 5-gleisige Fuehrung
+  var mitteSchiene = achseV + versatz(achseV, false, tief);
+  var mittePfosten = achseV - innen(achseV, false) * PF / 2;
+  var ab = Math.abs(mitteSchiene - mittePfosten) + (gegen ? 2 : 0);
+  pruefe('Tiefe Schiene sitzt mittig auf dem Pfosten', ab < 0.01,
+         ab.toFixed(2) + ' cm Versatz');
+  /* Der Ueberstand wird aus den LAGEN zurueckgerechnet, nicht aus der
+     Formel wiederholt - sonst vergliche man einen Ausdruck mit sich
+     selbst. Innen = Richtung Terrasse, aussen = vor den Pfosten. */
+  var von = mitteSchiene - tief / 2, bis = mitteSchiene + tief / 2;
+  var pfVon = Math.min(achseV, achseV - innen(achseV, false) * PF);
+  var pfBis = Math.max(achseV, achseV - innen(achseV, false) * PF);
+  var ueberA = (bis - pfBis) + (gegen ? 2 : 0);
+  var ueberI = pfVon - von;
+  pruefe('Tiefe Schiene steht beidseitig gleich ueber',
+         Math.abs(ueberA - ueberI) < 0.01,
+         'aussen ' + ueberA.toFixed(2) + ', innen ' + ueberI.toFixed(2) + ' cm');
+})();
+
 /* ---------- Handauswahl gegen das ECHTE Mass ----------
    „das funktioniert nicht auf stirnseite prüfe alle seiten" (Betreiber,
    11.10.2026). Das Bedienfeld fuellte die Auswahl gegen Z.breite bzw.

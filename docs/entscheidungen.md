@@ -1993,3 +1993,36 @@ mindestens 400 mm breit sein muss.
 mein Schluss stützt sich auf das Wort „bis" in der Spaltenüberschrift,
 nicht auf eine ausdrückliche Zusage. Falls es doch eine Mindestbreite je
 Bauart gibt, ist `sg23Passt()` die eine Stelle dafür.
+
+## 2026-10-11 – Schienen bündig zur Pfosteninnenseite
+
+**Anlass:** „die führungsleisten unten und oben müssen mit der pfosten
+innenseite bündig sein", ergänzt um „nur wenn die schiene dicker wird als
+der pfosten dann vermitteln" (Betreiber, mit Bild).
+
+**Was falsch war:** Schwelle und Führung saßen MITTIG auf der
+Elementachse. Die Achse liegt auf der Pfosteninnenseite – also stand die
+halbe Profiltiefe nach außen über den Pfosten hinaus, bei der
+5-gleisigen Führung knapp 65 mm.
+
+**Was jetzt gilt:**
+
+| Fall | Lage |
+|---|---|
+| Schiene schmaler als der Pfosten (110 mm) | bündig zur Innenseite, verschwindet vollständig dahinter |
+| Schiene tiefer als der Pfosten | mittig auf dem Pfosten, steht beidseitig gleich weit über |
+
+Betroffen von der Vermittlung sind genau zwei Profile: die 5-gleisige
+Schwelle (115,5 mm) und die 5-gleisige Führung (129,6 mm). Die
+4-gleisige Führung (104 mm) bleibt knapp darunter und sitzt bündig.
+
+**Mitgezogen:** Die Laufspur der Flügel folgt derselben Richtung. Vorher
+stand der zweite Flügel um 24 mm nach AUSSEN versetzt, also vor dem
+Pfosten statt in der Schiene.
+
+**Zur Absicherung:** Eine erste Fassung der Prüfung verglich für den
+Überstand einen Ausdruck mit sich selbst und hätte nie angeschlagen – in
+der Gegenprobe nur durch ein angehängtes `&& false` „gerettet". Das ist
+genau die Attrappe, vor der die Projektanweisung warnt. Sie rechnet den
+Überstand jetzt aus den fertigen Lagen zurück: Schienenkanten gegen
+Pfostenkanten.

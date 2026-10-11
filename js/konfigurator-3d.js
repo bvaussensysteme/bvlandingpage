@@ -1908,23 +1908,59 @@
       return b ? b[0] : 3;
     }
 
+    /* Wohin ist „innen"? Die Achse jeder Seite liegt auf der INNENSEITE
+       der Pfosten; von dort aus baut die Schiene nach innen auf.
+
+       „die führungsleisten unten und oben müssen mit der pfosten
+       innenseite bündig sein" (Betreiber, 11.10.2026, mit Bild). Vorher
+       saßen Schwelle und Führung mittig auf der Achse – die halbe
+       Profiltiefe, bei 5 Gleisen also knapp 58 mm, stand nach außen über
+       den Pfosten hinaus.
+
+       Vorne läuft „innen" nach -z (zur Hauswand), an den Seiten zur
+       Mitte hin, also entgegen dem Vorzeichen der Achse. */
+    function innenRichtung(achse, quer) {
+      return quer ? (achse > 0 ? -1 : 1) : -1;
+    }
+
+    /* Wo genau liegt die Schiene quer zur Seite?
+
+       „nur wenn die schiene dicker wird als der pfosten dann vermitteln"
+       (Betreiber, 11.10.2026). Also:
+
+         Schiene schmaler als der Pfosten -> bündig zur Innenseite, sie
+         verschwindet damit vollständig hinter dem Pfosten.
+         Schiene tiefer als der Pfosten  -> mittig auf dem Pfosten, dann
+         steht sie beidseitig gleich weit über statt nur nach außen.
+
+       Betroffen sind die tiefen Profile: die 5-gleisige Schwelle
+       (115,5 mm) und die 4- wie 5-gleisige Führung (104 bzw. 129,6 mm)
+       gegen 110 mm Pfosten. */
+    function schienenVersatz(achse, quer, tiefe) {
+      var vz = innenRichtung(achse, quer);
+      return (tiefe <= PROFIL) ? vz * tiefe / 2 : -vz * PROFIL / 2;
+    }
+
     function tuerschwelle(laenge, achse, mitte, quer, g) {
+      var t = SCHWELLE.tiefe[g] || SCHWELLE.tiefe[3];
       platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte, SCHWELLE.hoehe / 2,
-             quer, 0, SCHWELLE.tiefe[g] || SCHWELLE.tiefe[3]);
+             quer, schienenVersatz(achse, quer, t), t);
     }
 
     function schiebefuehrung(laenge, achse, mitte, quer, okOben, g) {
+      var t = FUEHRUNG.tiefe[g] || FUEHRUNG.tiefe[3];
       platte(rahmen, laenge, FUEHRUNG.hoehe, achse, mitte,
-             okOben - FUEHRUNG.hoehe / 2, quer, 0,
-             FUEHRUNG.tiefe[g] || FUEHRUNG.tiefe[3]);
+             okOben - FUEHRUNG.hoehe / 2, quer,
+             schienenVersatz(achse, quer, t), t);
     }
 
     /* Rahmen- und Plankenwand sind keine Schiebeanlage – sie laufen in
        keiner Schwelle. Damit unten trotzdem kein Spalt bleibt, stehen sie
        direkt auf dem Belag; dafür genügt die Schwellenhöhe als Sockel. */
     function bodenschiene(laenge, achse, mitte, quer) {
+      var t = SCHWELLE.tiefe[3];
       platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte, SCHWELLE.hoehe / 2,
-             quer, 0, SCHWELLE.tiefe[3]);
+             quer, schienenVersatz(achse, quer, t), t);
     }
 
     /* ---------- Wandanschlussprofil ----------
@@ -1962,7 +1998,10 @@
       var start = mitte - rk * (laenge / 2 - flB / 2);
       for (var i = 0; i < n; i++) {
         var lage = start + rk * flB * i - rk * offen * flB * i;
-        var spur = (i % 2) * 2.4;                       // zwei Laufschienen
+        /* Die Flügel laufen IN der Schiene. Seit diese nach innen
+           aufbaut, muss auch die Spur dorthin: vorher stand der zweite
+           Flügel um 24 mm NACH AUSSEN versetzt, also vor dem Pfosten. */
+        var spur = innenRichtung(achse, quer) * (1.5 + (i % 2) * 2.4);
         /* Die Scheibe traegt die Seite, zu der sie gehoert – daran
            erkennt der Klick spaeter, welche Anlage gemeint ist. */
         schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
