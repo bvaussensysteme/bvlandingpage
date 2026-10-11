@@ -213,13 +213,20 @@ pruefe('Freistehend: Träger steht hochkant',
 pruefe('Freistehend: Träger hinter dem Wandprofil',
        new RegExp(q || 'zTrHinten = -TR_T / 2 \\+ vorsprH').test(k3d),
        'an der Stelle der Wand, mit Vorsprung nach innen');
-pruefe('Wandprofil immer gleich tief',
-       gegen ? /wpT = frei \?/.test(k3d) : /wpH = sky \? 20 : 14, wpT = 9;/.test(k3d),
-       'kein Sonderfall mehr fuer freistehend');
-pruefe('Wandprofil wird nicht ersetzt',
-       gegen ? !/balken\(B, wpH, wpT, 0, wpMitte, zHinten, mAlu\);/.test(k3d)
-             : /balken\(B, wpH, wpT, 0, wpMitte, zHinten, mAlu\);/.test(k3d),
-       'steht ausserhalb der frei-Verzweigung');
+/* Wandprofil TD: liegendes Profil, Ausladung 143,6 mm BELEGT
+   (Querschnitt vom Betreiber, 11.10.2026). Kein Sonderfall fuer
+   freistehend - dort sitzt es am Traeger statt an der Wand. */
+pruefe('Wandprofil mit der belegten Ausladung',
+       gegen ? /wpT = frei \?/.test(k3d)
+             : /wpT = sky \? 9 : 14\.36/.test(k3d),
+       '143,6 mm, fuer beide Montagearten gleich');
+(function () {
+  /* Das Wandprofil wird genau EINMAL gezeichnet, ausserhalb der
+     frei-Verzweigung - sonst gaebe es zwei Fassungen davon. */
+  var zahl = (k3d.match(/balken\(B, wpH, wpT, 0, wpMitte,/g) || []).length;
+  pruefe('Wandprofil wird nicht ersetzt', gegen ? zahl !== 1 : zahl === 1,
+         zahl + ' Mal gezeichnet');
+})();
 pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
        new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - TR_H\\)').test(k3d), '');
 pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
@@ -228,8 +235,11 @@ pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
    genau das sah von aussen aus wie ein waagrecht liegender Balken. */
 pruefe('Oberkante haengt an der Sparrenoberkante',
        new RegExp(q || 'dachOk = ukHinten \\+ spH').test(k3d), 'nicht mehr an hHinten');
-pruefe('Wandprofil endet buendig mit dem Dach',
-       new RegExp(q || 'wpMitte = dachOk - wpH / 2').test(k3d), '');
+/* Es liegt jetzt UNTER den Sparren, nicht buendig mit der
+   Dachoberkante: Ein 26,5 mm flaches Profil waere dort verschwunden.
+   Die Lage ist GESCHAETZT und als Rueckfrage notiert. */
+pruefe('Wandprofil liegt unter den Sparren',
+       new RegExp(q || 'wpMitte = sky \\? dachOk - wpH / 2 : ukHinten - wpH / 2').test(k3d), '');
 pruefe('Träger endet buendig mit dem Dach',
        new RegExp(q || 'trOk = vorsprH > 0 \\? ukAmTraeger : dachOk;').test(k3d),
        'mit hinterem Vorsprung unter den Sparren');
@@ -241,14 +251,14 @@ pruefe('Keine Hoehe mehr aus hHinten abgeleitet',
   var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
   if (!sun) { pruefe('Rinnenmass lesbar', false, 'sparrenUnterNase fehlt'); return; }
   var spH = 12.0, hVorn = 230, neig = 8 * Math.PI / 180, T = 300 - 11.7;
-  var riH = 13.67, rinneB = 18.63, zH = 4.5, TR_H = 18.9, wpH = 14;
+  var riH = 13.67, rinneB = 18.63, zH = 4.5, TR_H = 18.9, wpH = 2.65;
   var ukVorn = hVorn + (riH - sun - spH);
   var ukHinten = ukVorn + Math.tan(neig) * ((T - rinneB) - zH);
   var dachOk = ukHinten + spH;
   var ueber = dachOk - dachOk + (gegen ? 5.2 : 0);     // soll 0 sein
   pruefe('Träger ragt nicht ueber das Dach', Math.abs(ueber) < 0.01,
          ueber.toFixed(1) + ' cm Ueberstand');
-  pruefe('Träger haengt sichtbar unter dem Wandprofil',
+  pruefe('Träger ist deutlich hoeher als das Wandprofil',
          (gegen ? 0 : (TR_H - wpH)) > 4, (TR_H - wpH).toFixed(1) + ' cm');
   /* Die ALTE Formel haette ueberstanden – Gegenprobe zur Regel selbst. */
   var hHinten = hVorn + Math.tan(neig) * T;
