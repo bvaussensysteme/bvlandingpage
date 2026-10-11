@@ -2084,6 +2084,47 @@
      Die Dicke ist GESCHÄTZT; auf den Bildern ist nichts bemaßt. */
   var RANDBLENDE = { dicke: 3.0 };
 
+  /* ---------- Gerillte Blende des SkyView ----------
+     Auf dem Querschnittsbild des Betreibers (11.10.2026) ist der
+     Außenkasten nicht glatt, sondern fein waagerecht gerillt – dieselbe
+     Oberfläche wie bei der TDS-Rinnenfront. Es ist das Erste, was man
+     an der Anlage sieht.
+
+     Gebaut wird der Kasten deshalb als gezogenes Profil mit gerillter
+     AUSSENseite statt als glatter Balken. Die Rillenteilung ist
+     dieselbe wie an der Rinne (RINNE.rilleTeilung) – auf den Bildern
+     sehen beide gleich aus, und ein zweiter Wert, den niemand pflegt,
+     liefe davon weg.
+
+     dreh: 0 = Außenseite nach +z (vorne), Math.PI = nach -z (hinten),
+     ±Math.PI/2 = zur Seite. */
+  function blendeProfil(laenge, hoehe, tiefe, x, yMitte, z, dreh, material) {
+    var f = new THREE.Shape();
+    f.moveTo(0, 0);
+    f.lineTo(tiefe, 0);
+    var vonY = 0.8, bisY = hoehe - 0.8;
+    var n = Math.max(2, Math.round((bisY - vonY) / RINNE.rilleTeilung));
+    var schritt = (bisY - vonY) / n, fuge = 0.3, k;
+    for (k = 0; k < n; k++) {
+      var y0 = vonY + k * schritt;
+      f.lineTo(tiefe, y0 + schritt * 0.30);
+      f.lineTo(tiefe - fuge, y0 + schritt * 0.45);
+      f.lineTo(tiefe - fuge, y0 + schritt * 0.70);
+      f.lineTo(tiefe, y0 + schritt * 0.85);
+    }
+    f.lineTo(tiefe, hoehe);
+    f.lineTo(0, hoehe);
+    f.closePath();
+    var g = new THREE.ExtrudeGeometry(f, { depth: laenge, bevelEnabled: false });
+    g.translate(-tiefe / 2, -hoehe / 2, -laenge / 2);
+    g.rotateY(dreh);
+    var m = new THREE.Mesh(g, material);
+    m.position.set(x, yMitte, z);
+    m.castShadow = true; m.receiveShadow = true;
+    bau.add(m);
+    return m;
+  }
+
   /* ---------- VD FLACHDACH GLAS SKY VIEW ----------
      Quelle: Montageanleitung „VD FLACHDACH GLAS SKY VIEW", VD
      AluSysteme, Stand 07.11.2025, vom Betreiber am 11.10.2026
@@ -5077,19 +5118,26 @@
     var spB = SPARREN.breite;
     var spH = SPARREN.hoehe;
 
-    /* ---------- Rahmenhöhe bei SkyView ----------
-       Der Rahmen ist außen ein waagerechtes Band. Innen steigt die
-       Dachfläche mit 2° nach hinten – das Band muss sie also an ihrer
-       höchsten Stelle noch überdecken, sonst stünde das Glas hinten
-       darüber hinaus.
+    /* ---------- SkyView: außen Flachdach, innen Gefälle ----------
+       „nur die sparren sind 2grad geneigt, der kasten außen die
+       verblendung ist wie flachdach, da is nix geneigt" (Betreiber,
+       11.10.2026).
 
-       Daraus folgt: Rahmenhöhe = Gefälle über die ganze Tiefe + Sparren
-       + Eindeckung + der Platz, den die Rinne vorne unter dem Dach
-       braucht. Sie wächst damit mit der Anlagentiefe – bei 3 m rund
-       33 cm, bei 6 m rund 44 cm. Das ist eine MODELLREGEL, kein
-       Herstellermaß: Wie hoch das Profil wirklich ist und wie das
-       Gefälle bei großen Tiefen untergebracht wird, steht in keiner
-       Unterlage und ist als Frage in docs/NEXT_TASK.md vermerkt. */
+       Also: Rinne, Träger und Seitenblende bilden einen waagerechten
+       Kasten – gleiche Oberkante, gleiche Unterkante, rundum. Darin
+       liegen die Sparren mit 2° und tragen die Eindeckung.
+
+       Daraus folgt die Kastenhöhe: Er muss die Dachfläche an ihrer
+       höchsten Stelle noch überdecken, sonst stünde das Glas hinten
+       darüber hinaus. Das Gefälle über die ganze Tiefe steckt also im
+       Kasten – bei 3 m rund 33 cm, bei 7 m rund 48 cm hoch.
+
+       OFFEN und in docs/NEXT_TASK.md vermerkt: Ob der Kasten beim
+       echten System wirklich mit der Tiefe wächst, oder ob dort der
+       SPARREN keilförmig ist (Montageanleitung S. 22 zeigt ein Profil,
+       das nach hinten höher wird) und der Kasten deshalb immer gleich
+       hoch bleibt. Beides erfüllt „außen Flachdach"; das Gefälle muss
+       aber irgendwo hin. */
     var skyGlas = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var riH = sky
       ? Math.max(SKY.rahmenH,
@@ -5172,10 +5220,8 @@
     /* Bei SkyView steht hinten der Träger TD (15698) an Stelle des
        Wandprofils: genauso hoch und tief wie die Rinne, damit die
        Oberkante rundum in WAAGE liegt. */
-    /* riH, nicht SKY.rahmenH: Die Rahmenhöhe wächst mit der Tiefe (siehe
-       oben). Stünde hier das feste Maß, läge der Träger hinten zwar oben
-       bündig, unten aber höher als die Rinne – das Band wäre nur auf
-       einer Seite gerade. */
+    /* riH, nicht das feste Maß: Rinne und Träger müssen gleich hoch sein,
+       sonst wäre der Kasten nur oben gerade und unten versetzt. */
     var wpH = sky ? riH : 14.36, wpT = sky ? SKY.traegerT : 3.1;
 
     /* KORREKTUR 11.10.2026, dritter Anlauf. „jetzt liegt es waagrecht im
@@ -5250,9 +5296,9 @@
        Höhe: an der Oberkante des Wandprofils, das die Glasleiste
        verdeckt. Der Träger steht damit genau so hoch wie das Profil
        davor, keinen Millimeter höher. */
-    /* Bei SkyView ist die Rahmenoberkante überall dieselbe – sie folgt
-       NICHT der geneigten Dachfläche, sonst stünde der Träger hinten
-       höher als die Rinne und das Band wäre schief. */
+    /* Der Kasten ist rundum waagerecht: Der Träger hinten endet auf
+       derselben Höhe wie die Rinne vorne, er folgt NICHT der geneigten
+       Dachfläche. */
     var wpOk = sky ? hRinne + riH : dachOk + wpGlasD;
     var wpMitte = wpOk - wpH / 2;
     var trOk = vorsprH > 0 ? ukAmTraeger : wpOk;
@@ -5315,7 +5361,10 @@
        ist das die Durchgangshöhe; mit Träger liegt sie um dessen Höhe
        darüber, weil er zwischen Pfosten und Rinne sitzt. */
     if (sky) {
-      balken(B, riH, riT, 0, hRinne + riH / 2, T - riT / 2, mAlu);
+      /* Der Kasten vorne: gerillte Außenseite nach vorne (+z). Die
+         Drehung legt die Profillänge in x, deshalb Math.PI / 2. */
+      blendeProfil(B, riH, riT, 0, hRinne + riH / 2, T - riT / 2,
+                   Math.PI / 2, mAlu);
     } else {
       rinneBauen(B, T, hRinne, mAlu);
       rinnenblenden(B, T, hRinne, mAlu);
@@ -5331,7 +5380,12 @@
        sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
     /* Der geschlossene Rücken steht an der Wand bzw. am Statikträger
        (z = 0), die Schenkel ragen von dort nach vorne. */
-    balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
+    if (sky) {
+      /* Hinten dieselbe Blende, Außenseite nach hinten (-z). */
+      blendeProfil(B, wpH, wpT, 0, wpMitte, wpT / 2, -Math.PI / 2, mAlu);
+    } else {
+      balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
+    }
     /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
        wandkappeQuerschnitt. */
     wandprofilKappen(B, wpOk, mAlu);
@@ -5412,9 +5466,16 @@
     var blendeY = sky ? hRinne + riH / 2 : ukMitte + blendeH / 2;
     var blendeZ = sky ? T / 2 : zMitte;
     [-1, 1].forEach(function (vz) {
-      randblende(blendeL, blendeH,
-                 vz * (B / 2 - RANDBLENDE.dicke / 2),
-                 blendeY, blendeZ, neig, mAlu);
+      if (sky) {
+        /* Seitlich dieselbe gerillte Blende, Außenseite nach außen. */
+        blendeProfil(blendeL, blendeH, RANDBLENDE.dicke,
+                     vz * (B / 2 - RANDBLENDE.dicke / 2), blendeY, blendeZ,
+                     vz > 0 ? 0 : Math.PI, mAlu);
+      } else {
+        randblende(blendeL, blendeH,
+                   vz * (B / 2 - RANDBLENDE.dicke / 2),
+                   blendeY, blendeZ, neig, mAlu);
+      }
     });
 
     /* Die Eindeckung liegt AUF dem schmalen Steg des Sparrens – bei TDS
