@@ -159,8 +159,15 @@
   /* Was im Modell wirklich gebaut wurde – das Bedienfeld liest es
      zurück, statt dieselbe Rechnung ein zweites Mal zu machen.
      Zweiter Weg zum selben Ergebnis, wie bei den Schiebeanlagen. */
-  var PLANKEN_IST = { anzahl: 0, gesamt: 0, fuge: 0, hoehe: 0, lage: 'voll' };
+  var PLANKEN_IST = { anzahl: 0, gesamt: 0, fuge: 0, hoehe: 0, lage: 'voll',
+                      felder: 1, feldLaenge: 0 };
   var WINKEL = { lang: 4.0, kurz: 2.0, staerke: 0.2 };
+  /* Längstes lieferbares Plankenmaß: 7 m (Betreiber, 11.10.2026).
+     Darüber wird gleichmäßig geteilt, an der Stoßstelle steht ein
+     Zwischenprofil. Dessen Breite ist GESCHÄTZT – 40 mm, wie der
+     Schenkel des Winkels, damit es im Bild zusammenpasst. */
+  var PLANKE_MAX = 700;    // cm
+  var ZWISCHEN = { breite: 4.0 };
 
   /* Dekore und RAL-Töne der Planken (Betreiber, 11.10.2026). Die vier
      RAL-Töne sind dieselben wie beim Gestell, deshalb stehen sie unter
@@ -2191,8 +2198,52 @@
                    : { von: n - bleibt, anzahl: bleibt, lage: 'oben' };
     }
 
+    /* Über 7 m gibt es keine Planke am Stück. Geteilt wird GLEICHMÄSSIG -
+       zwei Felder zu 3,8 m sehen richtig aus, 7 m plus 0,6 m nicht. Die
+       Stoßstelle bekommt ein Zwischenprofil, an dem beide Plankenenden
+       sitzen; ohne das hinge das Ende frei in der Luft. */
+    function plankenFelder(laenge) {
+      var n = Math.max(1, Math.ceil(laenge / PLANKE_MAX));
+      if (n === 1) return { anzahl: 1, laenge: laenge };
+      return { anzahl: n, laenge: (laenge - (n - 1) * ZWISCHEN.breite) / n };
+    }
+
     function planken(laenge, hoehe, achse, mitte, yUnten, quer, teilbar) {
       if (laenge <= 0 || hoehe < PLANKE.hoehe) return;
+      var fe = plankenFelder(laenge);
+      if (fe.anzahl > 1) {
+        var schrittF = fe.laenge + ZWISCHEN.breite;
+        var start = mitte - laenge / 2 + fe.laenge / 2;
+        for (var k = 0; k < fe.anzahl; k++) {
+          plankenFeld(fe.laenge, hoehe, achse, start + k * schrittF, yUnten, quer, teilbar);
+          /* Zwischenprofil in jede Fuge zwischen zwei Feldern */
+          if (k < fe.anzahl - 1) {
+            zwischenprofil(hoehe, achse, start + k * schrittF + schrittF / 2,
+                           yUnten, quer, teilbar);
+          }
+        }
+        PLANKEN_IST.felder = fe.anzahl;
+        PLANKEN_IST.feldLaenge = Math.round(fe.laenge * 10);
+        return;
+      }
+      plankenFeld(laenge, hoehe, achse, mitte, yUnten, quer, teilbar);
+      PLANKEN_IST.felder = 1;
+      PLANKEN_IST.feldLaenge = Math.round(laenge * 10);
+    }
+
+    /* Das Zwischenprofil steht senkrecht und geht über die Höhe, die die
+       Planken wirklich einnehmen – bei halbhoher Wand also nicht weiter. */
+    function zwischenprofil(hoehe, achse, lage, yUnten, quer, teilbar) {
+      var t = plankenTeilung(hoehe);
+      var schritt = PLANKE.hoehe + t.fuge;
+      var a = teilbar === false ? { von: 0, anzahl: t.anzahl }
+                                : plankenAnteil(t.anzahl);
+      var hoch = a.anzahl * schritt - t.fuge;
+      platte(mPlankeWand, ZWISCHEN.breite, hoch, achse, lage,
+             yUnten + a.von * schritt + hoch / 2, quer, 0, PLANKE.dicke);
+    }
+
+    function plankenFeld(laenge, hoehe, achse, mitte, yUnten, quer, teilbar) {
       var t = plankenTeilung(hoehe);
       var schritt = PLANKE.hoehe + t.fuge;
       var a = teilbar === false ? { von: 0, anzahl: t.anzahl, lage: 'voll' }
@@ -4263,7 +4314,12 @@
       ' Planken, Fuge ' + String(PLANKEN_IST.fuge).replace('.', ',') + ' mm' +
       (PLANKEN_IST.lage === 'voll'
         ? '' : ', ' + PLANKEN_IST.hoehe + ' mm hoch ' +
-               (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach')) + '.';
+               (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach')) +
+      (PLANKEN_IST.felder > 1
+        ? '. Über 7 m nicht am Stück lieferbar: ' + PLANKEN_IST.felder +
+          ' gleiche Felder zu je ' + PLANKEN_IST.feldLaenge +
+          ' mm mit Zwischenprofil.'
+        : '.');
   }
 
   function sg23FeldFuellen() {
@@ -5134,7 +5190,11 @@
                    (PLANKEN_IST.lage === 'voll' ? ', volle Höhe'
                      : ', nur ' + PLANKEN_IST.anzahl + ' von ' + PLANKEN_IST.gesamt +
                        ' Planken (rund ' + PLANKEN_IST.hoehe + ' mm, ' +
-                       (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach') + ')'));
+                       (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach') + ')') +
+                   (PLANKEN_IST.felder > 1
+                     ? '; über 7 m gestoßen: ' + PLANKEN_IST.felder +
+                       ' Felder zu je ' + PLANKEN_IST.feldLaenge + ' mm mit Zwischenprofil'
+                     : ''));
       }
       var offenTeile = [];
       [['links', Z.offenLinks], ['rechts', Z.offenRechts],
