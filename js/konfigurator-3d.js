@@ -72,6 +72,11 @@
     sg23Links: '', sg23Rechts: '', sg23Vorne: '',
     sg23Glas: 'ESG 10 mm klar',   // laut VD-Formular gibt es nur diese zwei
     sg23Schloss: 'ohne',          // ohne | links | rechts
+    velarisWinkel: 45,            // Lamellenstellung des Velaris, 0 = zu
+    velarisArt: 'feststehend',    // feststehend | verschiebbar
+    velarisTeil: 'alles',         // alles | oben | unten
+    velarisAnteil: 50,            // Prozent, nur bei oben/unten
+    velarisFarbe: 'Wie das Gestell',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
     /* Nur Carport TDS: Höhe hinten wird DIREKT eingestellt, die Neigung
@@ -169,6 +174,49 @@
      Darüber wird gleichmäßig geteilt, an der Stoßstelle steht ein
      Zwischenprofil. Dessen Breite ist GESCHÄTZT – 40 mm, wie der
      Schenkel des Winkels, damit es im Bild zusammenpasst. */
+  /* ---------- Velaris ----------
+     Quelle: VD-Bestellformular Velaris (Betreiber, 11.10.2026) und die
+     Produktbilder. Ein Rahmen aus Aluminium mit WAAGERECHTEN, kippbaren
+     Lamellen, oben ein überstehendes Kopfprofil. Das Modell zeigte
+     vorher senkrechte Lamellen ohne Rahmen – in der Hauptachse falsch.
+
+     BELEGT aus dem Formular:
+     - Element mindestens 500 mm, höchstens 1500 mm breit
+     - Anlage höchstens 7000 mm breit
+     - feststehend 1 bis 5 Elemente
+     - verschiebbar: 1 Schiene/1 Element, 1/2, 2 Schienen/2, 2/3, 2/4, 3/3
+     - Lamellenfarbe NUR Anthrazit RAL 7016 oder Holzoptik Golden OAK
+     - Rahmenfarbe in den vier bekannten RAL-Tönen
+     - Bautiefen je Schienenzahl (Querschnitte im Formular):
+         1 Schiene  oben 61,3 mm   unten 51,2 mm
+         2 Schienen oben 112,6 mm  unten 102,5 mm
+         3 Schienen oben 163,9 mm  unten 153,8 mm
+
+     GESCHÄTZT bleibt die Ansichtshöhe einer Lamelle (70 mm) und die
+     Ansichtsbreite der Rahmenprofile (45 mm) – beides steht im Formular
+     nicht und ist an den Bildern abgegriffen. Rückfrage notiert. */
+  var VELARIS = {
+    elMin: 500, elMax: 1500, anlageMax: 7000,   // mm, BELEGT
+    tiefeOben: { 1: 6.13, 2: 11.26, 3: 16.39 }, // cm, BELEGT
+    tiefeUnten: { 1: 5.12, 2: 10.25, 3: 15.38 },// cm, BELEGT
+    rahmen: 4.5,      // GESCHÄTZT: Ansichtsbreite der Rahmenprofile
+    kopf: 6.0,        // GESCHÄTZT: Höhe des Kopfprofils
+    lamelle: 7.0,     // GESCHÄTZT: Ansichtshöhe einer Lamelle
+    dicke: 1.6,       // GESCHÄTZT
+    teilung: 6.0      // Achsabstand, kleiner als die Lamelle: geschlossen
+                      // überlappen sie sich (so zeigen es die Bilder)
+  };
+  /* Oberflächen laut Farbtafel auf vd-alusysteme.de/produkt/velaris:
+     die vier RAL-Standardtöne, dazu Echtholzoptik gegen Aufpreis
+     (im Bestellformular „Holzoptik Golden OAK" genannt). Der
+     Farbwert ist am Musterfeld abgegriffen – GESCHÄTZT.
+     ACHTUNG Widerspruch: Das Bestellformular lässt für die
+     LAMELLEN nur Anthrazit oder Holzoptik zu, die Farbtafel nennt
+     alle vier RAL-Töne. Hier stehen alle fünf zur Wahl; die Frage
+     ist als Rückfrage notiert. */
+  var VELARIS_IST = { elemente: 0, breite: 0, schienen: 0 };
+  var VELARIS_FARBEN = { 'Echtholzoptik (Golden OAK)': 0x9c6a46 };
+
   var PLANKE_MAX = 700;    // cm
   var ZWISCHEN = { breite: 4.0 };
 
@@ -2323,22 +2371,128 @@
 
     /* Velaris: senkrecht stehende, drehbare Lamellen. Der Winkel folgt dem
        Lamellenregler, damit sichtbar wird, was das System kann. */
+    /* Velaris: Rahmen mit waagerechten, kippbaren Lamellen.
+
+       Die Lamellen drehen um ihre LÄNGSACHSE, und die liegt in der Ebene
+       des Elements. Beim Seitenelement (quer) zeigt sie in z, vorne in x.
+       Deshalb hängt jede Lamelle in einer Gruppe: Die Gruppe dreht das
+       Element in die Wandebene, die Lamelle kippt darin. Ohne diese
+       Trennung kippen sie beim Seitenelement um die falsche Achse – genau
+       das war vorher der Fehler, nur fiel es nicht auf, weil sie dort
+       senkrecht standen. */
+    function velarisMaterial() {
+      var dekor = VELARIS_FARBEN[Z.velarisFarbe];
+      var hex = dekor !== undefined ? dekor
+              : FARBEN[Z.velarisFarbe] || FARBEN[Z.farbe] || FARBEN['Anthrazit'];
+      var m = new THREE.MeshPhysicalMaterial({
+        color: rgb(hex),
+        metalness: dekor !== undefined ? 0 : 0.1,
+        roughness: dekor !== undefined ? 0.78 : 0.6,
+        clearcoat: 0.1, clearcoatRoughness: 0.5
+      });
+      m.envMapIntensity = dekor !== undefined ? 0.2 : 0.4;
+      return m;
+    }
+
+    /* Aufteilung der Anlage in Elemente. BELEGT: ein Element ist
+       mindestens 500 und höchstens 1500 mm breit. Also so wenige
+       Elemente wie möglich, aber keines breiter als 1500 mm – und
+       untereinander gleich breit, so wie die Bilder im Formular es
+       zeigen. Unter 500 mm lichter Breite gibt es kein Velaris. */
+    function velarisElemente(laengeCm) {
+      var mm = laengeCm * 10;
+      if (mm < VELARIS.elMin) return 0;
+      return Math.max(1, Math.ceil(mm / VELARIS.elMax));
+    }
+
+    /* Schienen: feststehend braucht keine, dort steht das 1-Schienen-Profil.
+       Verschiebbar folgt der Liste im Formular - bis 2 Elemente eine
+       Schiene, bis 4 zwei, darüber drei. */
+    function velarisSchienen(n) {
+      if (Z.velarisArt !== 'verschiebbar') return 1;
+      if (n <= 2) return 1;
+      return n <= 4 ? 2 : 3;
+    }
+
     function velaris(laenge, hoehe, achse, mitte, yUnten, quer) {
-      var LAM = 16, FUGE = 1.5;
-      var n = Math.max(2, Math.floor(laenge / (LAM + FUGE)));
-      var winkel = (Z.lamellen || 35) * Math.PI / 180;
-      for (var i = 0; i < n; i++) {
-        var d = -laenge / 2 + (i + 0.5) * (laenge / n);
-        var lam = new THREE.Mesh(new THREE.BoxGeometry(LAM, hoehe, 2.4), blech());
-        if (quer) {
-          lam.position.set(achse, yUnten + hoehe / 2, mitte + d);
-          lam.rotation.y = Math.PI / 2 + winkel;
-        } else {
-          lam.position.set(mitte + d, yUnten + hoehe / 2, achse);
-          lam.rotation.y = winkel;
+      if (laenge <= 0 || hoehe <= VELARIS.rahmen * 2) return;
+      var anzahl = velarisElemente(laenge);
+      if (!anzahl) { VELARIS_IST = { elemente: 0, breite: 0, schienen: 0 }; return; }
+      var schienen = velarisSchienen(anzahl);
+      VELARIS_IST = { elemente: anzahl,
+                      breite: Math.round(laenge * 10 / anzahl),
+                      schienen: schienen };
+      var elLaenge = laenge / anzahl;
+      if (anzahl > 1) {
+        for (var e = 0; e < anzahl; e++) {
+          velarisElement(elLaenge, hoehe,
+                         achse, mitte - laenge / 2 + (e + 0.5) * elLaenge,
+                         yUnten, quer, schienen, e);
         }
-        lam.castShadow = true;
-        bau.add(lam);
+        return;
+      }
+      velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, 0);
+    }
+
+    function velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, nr) {
+      var mLam = velarisMaterial();
+      var R = VELARIS.rahmen;
+      /* Verschiebbare Elemente laufen in getrennten Schienen – im Bild
+         ist das der Versatz in der Tiefe. Feststehend liegen alle in
+         einer Ebene. */
+      var spur = Z.velarisArt === 'verschiebbar' && schienen > 1
+        ? innenRichtung(achse, quer) * (nr % schienen) * 5.1 : 0;
+      achse = achse + spur;
+
+      /* Rahmen: zwei senkrechte Profile an den Seiten, je eines oben und
+         unten. Alle vier liegen in der Ebene des Elements. */
+      platte(rahmen, R, hoehe, achse, mitte - laenge / 2 + R / 2,
+             yUnten + hoehe / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      platte(rahmen, R, hoehe, achse, mitte + laenge / 2 - R / 2,
+             yUnten + hoehe / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      platte(rahmen, laenge, R, achse, mitte, yUnten + R / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      platte(rahmen, laenge, R, achse, mitte, yUnten + hoehe - R / 2, quer, 0,
+             VELARIS.tiefeUnten[1]);
+      /* Kopfprofil oben und Bodenschiene unten. Ihre BAUTIEFE steht im
+         Bestellformular und hängt an der Schienenzahl – bei drei
+         Schienen ist das Kopfprofil fast dreimal so tief wie bei einer.
+         Genau daran sieht man im Bild, was man bestellt. */
+      platte(rahmen, laenge, VELARIS.kopf, achse, mitte,
+             yUnten + hoehe + VELARIS.kopf / 2, quer, -spur,
+             VELARIS.tiefeOben[schienen] || VELARIS.tiefeOben[1]);
+      platte(rahmen, laenge, 1.2, achse, mitte, yUnten + 0.6, quer, -spur,
+             VELARIS.tiefeUnten[schienen] || VELARIS.tiefeUnten[1]);
+
+      /* Lamellen im Lichten des Rahmens. Die Zahl folgt aus der lichten
+         Höhe und der Teilung – gleichmäßig, wie bei der Plankenwand. */
+      var licht = hoehe - 2 * R;
+      var lamLaenge = laenge - 2 * R;
+      var n = Math.max(1, Math.floor(licht / VELARIS.teilung));
+      if (n < 1 || lamLaenge <= 0) return;
+      var schritt = licht / n;
+      /* Teilöffnung: „man kann velars teilöffnen also den unteren oder
+         oberen teil oder alles auf oder zu" (Betreiber, 11.10.2026) – so
+         zeigt es auch das Produktbild „teilgeöffnet": oben offen, unten
+         zu. Die Grenze liegt bei einem Anteil der Lamellenzahl, nicht
+         der Höhe: Eine Lamelle lässt sich nicht halb kippen. */
+      var offenGrad = Math.min(90, Math.max(0, Z.velarisWinkel));
+      var grenze = Z.velarisTeil === 'alles' ? -1
+        : Math.round(n * Math.min(90, Math.max(10, Z.velarisAnteil)) / 100);
+      for (var i = 0; i < n; i++) {
+        var y = yUnten + R + (i + 0.5) * schritt;
+        /* i zählt von UNTEN. „unten" öffnet die ersten, „oben" die letzten. */
+        var faehrt = Z.velarisTeil === 'alles'
+          || (Z.velarisTeil === 'unten' ? i < grenze : i >= n - grenze);
+        var kipp = (90 - (faehrt ? offenGrad : 0)) * Math.PI / 180;
+        var lam = new THREE.Mesh(
+          new THREE.BoxGeometry(lamLaenge, VELARIS.dicke, VELARIS.lamelle), mLam);
+        lam.rotation.x = kipp;
+        lam.castShadow = true; lam.receiveShadow = true;
+        var g = new THREE.Group();
+        g.add(lam);
+        if (quer) { g.rotation.y = Math.PI / 2; g.position.set(achse, y, mitte); }
+        else { g.position.set(mitte, y, achse); }
+        bau.add(g);
       }
     }
 
@@ -4345,6 +4499,18 @@
      Millimetern. Gelesen wird aus PLANKEN_IST, also aus dem fertigen
      Modell – nicht aus der Eingabe. Sonst stünde dort der Wunsch und
      nicht das Ergebnis. */
+  /* Wie bei den Planken: zurueckgelesen aus dem fertigen Modell. Die
+     Zeile steht deshalb NACH dem Bauen, nicht in summenSetzen - dort
+     waere sie immer einen Schritt hinterher. */
+  function velarisStandZeigen() {
+    var e = document.getElementById('k3dVelarisStand');
+    if (!e) return;
+    e.textContent = VELARIS_IST.elemente
+      ? 'Gebaut: ' + VELARIS_IST.elemente + ' Element(e) à ' +
+        VELARIS_IST.breite + ' mm, ' + VELARIS_IST.schienen + ' Schiene(n).'
+      : '';
+  }
+
   function plankenStandZeigen() {
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
@@ -4503,6 +4669,24 @@
      das Ausfahren IST die Bewegung, um die es geht. Der Takt entspricht
      dem, was beim Ziehen am Regler ohnehin passiert. */
   var sonneLaeuft = null;
+  /* Lamellen fahren lassen – dieselbe Dauer und dieselbe weiche Kurve
+     wie bei Markise und Schiebetür, damit sich alles gleich anfühlt. */
+  var velarisLaeuft = null;
+  function velarisFahren(ziel) {
+    if (velarisLaeuft) clearInterval(velarisLaeuft);
+    var start = Z.velarisWinkel, t0 = Date.now();
+    var regler = document.getElementById('k3dVelarisWinkel');
+    velarisLaeuft = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / FAHRDAUER);
+      var w = Math.round(start + (ziel - start) * (p < 0.5
+        ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      if (regler) regler.value = w;
+      Z.velarisWinkel = w;
+      aendern();
+      if (p >= 1) { clearInterval(velarisLaeuft); velarisLaeuft = null; }
+    }, 40);
+  }
+
   function sonneFahren(ziel) {
     if (sonneLaeuft) clearInterval(sonneLaeuft);
     var start = Z.sonneAus, t0 = Date.now(), dauer = FAHRDAUER;
@@ -4972,6 +5156,7 @@
       case 'verk-richtung':  return Z.verkRueck || Z.verkLinks || Z.verkRechts;
       /* Die Farbe der Planken fragen wir nur, wenn es Planken gibt. */
       case 'planken':        return erwIrgendwo('Plankenwand');
+      case 'velaris':        return erwIrgendwo('Velaris');
       // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
       // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
       // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
@@ -5268,6 +5453,21 @@
          rot hervorgehoben: „Ansicht der Elemente von Innen gesehen!"
          Ohne diesen Satz kann dieselbe Angabe spiegelverkehrt gelesen
          werden – und das merkt niemand vor der Montage. */
+      if (erwIrgendwo('Velaris')) {
+        teile.push('Velaris ' + Z.velarisArt + ': ' +
+                   (VELARIS_IST.elemente || '–') + ' Element(e) à ca. ' +
+                   VELARIS_IST.breite + ' mm, ' + VELARIS_IST.schienen +
+                   ' Schiene(n) (Bautiefe oben ' +
+                   String(VELARIS.tiefeOben[VELARIS_IST.schienen] * 10 || '')
+                     .replace('.', ',') + ' mm)');
+        teile.push('Velaris: waagerechte Alu-Lamellen im Rahmen, Stellung im Bild ' +
+                   (Z.velarisWinkel <= 0 ? 'geschlossen' : Z.velarisWinkel + '° offen') +
+                   ', Oberfläche ' + (Z.velarisFarbe === 'Wie das Gestell'
+                     ? 'wie Gestell (' + Z.farbe + ')' : Z.velarisFarbe) +
+                   (Z.velarisTeil === 'alles' ? ', ganze Anlage'
+                     : ', nur ' + Z.velarisTeil + ' rund ' + Z.velarisAnteil + ' %') +
+                   ' – Lamellen- und Rahmenmaße nach Herstellerangabe');
+      }
       if (erwIrgendwo('Schiebetür')) {
         teile.push('SG23 Richtungsangaben: von INNEN gesehen (links/rechts ' +
                    'wie im VD-Anfrageformular)');
@@ -5388,6 +5588,11 @@
     Z.plankenAnteil = zahl('k3dPlankenAnteil', Z.plankenAnteil);
     Z.sg23Glas = wert('k3dSg23Glas') || Z.sg23Glas;
     Z.sg23Schloss = wert('k3dSg23Schloss') || Z.sg23Schloss;
+    Z.velarisWinkel = zahl('k3dVelarisWinkel', Z.velarisWinkel);
+    Z.velarisFarbe = wert('k3dVelarisFarbe') || Z.velarisFarbe;
+    Z.velarisArt = wert('k3dVelarisArt') || Z.velarisArt;
+    Z.velarisTeil = wert('k3dVelarisTeil') || Z.velarisTeil;
+    Z.velarisAnteil = zahl('k3dVelarisAnteil', Z.velarisAnteil);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
@@ -5565,6 +5770,15 @@
       aw.textContent = (Z.plankenHoeheAuto || !Z.plankenAnteil) ? 'volle Höhe'
                      : (Z.plankenAnteil < 0 ? 'von unten' : 'von oben');
     }
+    var vw = document.getElementById('k3dVelarisWinkelWert');
+    if (vw) {
+      vw.textContent = (Z.velarisWinkel <= 0 ? 'geschlossen'
+                     : Z.velarisWinkel + '° offen') +
+                     (Z.velarisTeil === 'alles' ? ''
+                       : ' · nur ' + Z.velarisTeil + ' (' + Z.velarisAnteil + ' %)');
+    }
+    var va = document.getElementById('k3dVelarisAnteilWert');
+    if (va) va.textContent = Z.velarisAnteil + ' %';
     var ar = document.getElementById('k3dPlankenAnteil');
     if (ar) ar.disabled = Z.plankenHoeheAuto;
     var fr = document.getElementById('k3dPlankenFuge');
@@ -5589,6 +5803,7 @@
        tatsaechlich gebauten Mass, und das meldet erst bauen(). */
     sg23FeldFuellen();
     plankenStandZeigen();
+    velarisStandZeigen();
     textAktualisieren();
     folgtAktualisieren();
     gebremstHolen();
@@ -5792,7 +6007,8 @@
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
-   'k3dSg23Glas', 'k3dSg23Schloss',
+   'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkel', 'k3dVelarisFarbe',
+   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);
@@ -5849,7 +6065,8 @@
   /* Knöpfe, die einen Regler auf einen Endwert stellen. 85 statt 100 beim
      Ausfahren, weil eine Markise im Bild ganz ausgefahren wie ein Brett
      aussieht – 85 % zeigt, dass sie beweglich ist. */
-  [['k3dLamZu', 'k3dLamellen', 0], ['k3dLamAuf', 'k3dLamellen', 85],
+  [['k3dVelarisZu', 'k3dVelarisWinkel', 0], ['k3dVelarisAuf', 'k3dVelarisWinkel', 90],
+   ['k3dLamZu', 'k3dLamellen', 0], ['k3dLamAuf', 'k3dLamellen', 85],
    ['k3dGlasZu', 'k3dGlasOffen', 0], ['k3dGlasAuf', 'k3dGlasOffen', 100],
    ['k3dSonneEin', 'k3dSonneAus', 0], ['k3dSonneRaus', 'k3dSonneAus', 85]
   ].forEach(function (pr) {

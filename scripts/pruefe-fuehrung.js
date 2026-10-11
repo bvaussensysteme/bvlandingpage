@@ -415,6 +415,48 @@ pruefe('Schloss und Buerstendichtung in der Anfrage',
          'Scheibe ' + kleinste * 10 + ' mm, Griff bis ' + (griff + puffer) * 10 + ' mm');
 })();
 
+/* Velaris, nach VD-Bestellformular und Produktbildern (11.10.2026).
+   Vorher: senkrechte Lamellen ohne Rahmen - in der Hauptachse falsch.
+   Jetzt: Rahmen mit WAAGERECHTEN, kippbaren Lamellen. */
+pruefe('Velaris hat waagerechte Lamellen im Rahmen',
+       new RegExp(q || 'function velarisElement').test(js) &&
+       new RegExp(q || 'lam\\.rotation\\.x = kipp').test(js) &&
+       !/lam\.rotation\.y = Math\.PI \/ 2 \+ winkel/.test(js), '');
+pruefe('Bautiefen je Schienenzahl aus dem Formular',
+       new RegExp(q || 'tiefeOben: \\{ 1: 6\\.13, 2: 11\\.26, 3: 16\\.39 \\}').test(js) &&
+       new RegExp(q || 'tiefeUnten: \\{ 1: 5\\.12, 2: 10\\.25, 3: 15\\.38 \\}').test(js), '');
+pruefe('Teiloeffnung oben/unten',
+       new RegExp(q || "Z\\.velarisTeil === 'unten' \\? i < grenze : i >= n - grenze").test(js) &&
+       /id="k3dVelarisTeil"/.test(html), '');
+pruefe('Lamellen fahren mit Animation',
+       new RegExp(q || 'function velarisFahren').test(js) &&
+       new RegExp(q || "\\['k3dVelarisAuf', 'k3dVelarisWinkel', 90\\]").test(js), '');
+(function () {
+  /* Die Plankendekore (Eiche Mocca, Rovere Pechino) gibt es beim Velaris
+     NICHT - dort heisst es Echtholzoptik Golden OAK. Gegenprobe: genau
+     die umgekehrte Erwartung. */
+  var richtig = /Echtholzoptik \(Golden OAK\)/.test(html) &&
+                !/k3dVelarisFarbe[\s\S]{0,800}Rovere Pechino/.test(html);
+  pruefe('Echtholzoptik statt Plankendekore', gegen ? !richtig : richtig, '');
+})();
+(function () {
+  /* Elementaufteilung: BELEGT ist 500 mm Mindestbreite, 1500 mm
+     Hoechstbreite je Element und 7000 mm je Anlage. Nachgerechnet. */
+  var MIN = 500, MAX = 1500, falsch = 0;
+  function teile(mm) { return mm < MIN ? 0 : Math.max(1, Math.ceil(mm / MAX)); }
+  for (var mm = 500; mm <= 7000; mm += 10) {
+    var n = gegen ? Math.max(1, Math.floor(mm / MAX)) : teile(mm);
+    if (!n) { falsch++; continue; }
+    var b = mm / n;
+    if (b > MAX + 0.001) falsch++;
+    if (b < MIN - 0.001 && n > 1) falsch++;
+  }
+  pruefe('Kein Velaris-Element breiter als 1500 mm',
+         falsch === 0, falsch + ' von 651 Breiten falsch');
+  pruefe('Unter 500 mm kein Velaris',
+         gegen ? teile(490) !== 0 : teile(490) === 0, '');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

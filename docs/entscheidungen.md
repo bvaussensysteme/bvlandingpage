@@ -2678,3 +2678,47 @@ Kundendaten-Felder gehen uns nichts an.
 **Was ich NICHT sicher lesen konnte:** die genauen Flügelzahlen je
 Ausführungsbild. Unsere Bauartentabelle stammt aus der Preisliste und
 sieht stimmig aus – geprüft ist sie damit nicht. Bleibt offen.
+
+## 2026-10-11 – Velaris war in der Hauptachse falsch
+
+**Anlass:** „velaris haben wir noch garnicht modeliert" (Betreiber), dazu
+das VD-Bestellformular Velaris und die Produktseite.
+
+**Was war:** Der Konfigurator zeichnete **senkrechte** Lamellen ohne
+Rahmen, die sich um die Hochachse drehten. Die Produktbilder zeigen das
+Gegenteil: einen Aluminiumrahmen mit **waagerechten** Lamellen, die um
+ihre Längsachse kippen, und oben ein Kopfprofil.
+
+**Was jetzt gilt – BELEGT aus dem Bestellformular:**
+
+| | |
+|---|---|
+| Element | 500 bis 1500 mm breit |
+| Anlage | höchstens 7000 mm |
+| feststehend | 1 bis 5 Elemente |
+| verschiebbar | 1 Schiene/1 Element, 1/2, 2 Schienen/2, 2/3, 2/4, 3/3 |
+| Bautiefe oben | 61,3 / 112,6 / 163,9 mm bei 1 / 2 / 3 Schienen |
+| Bautiefe unten | 51,2 / 102,5 / 153,8 mm |
+| Rahmenfarbe | die vier bekannten RAL-Töne |
+| Lamellenfarbe | Anthrazit oder Holzoptik Golden OAK |
+
+Breitere Seiten teilt der Konfigurator in gleich breite Elemente – so
+wenige wie möglich, keines über 1500 mm. Unter 500 mm lichter Breite gibt
+es kein Velaris; das Modell zeichnet dann nichts.
+
+**Teilöffnung** („man kann velars teilöffnen also den unteren oder oberen
+teil oder alles auf oder zu"): Auswahl ganze Wand / oben / unten, dazu der
+Anteil. Die Grenze läuft über die **Lamellenzahl**, nicht über die Höhe –
+eine Lamelle lässt sich nicht halb kippen.
+
+**Animation:** Öffnen und Schließen laufen mit derselben Dauer und
+derselben weichen Kurve wie Markise und Schiebetür.
+
+**Widerspruch, der offen bleibt:** Das Bestellformular lässt für die
+**Lamellen** nur Anthrazit oder Holzoptik zu, die Farbtafel auf der
+Produktseite nennt alle vier RAL-Töne („Echtholzoptik gegen Aufpreis").
+Im Konfigurator stehen alle fünf zur Wahl. Zu klären.
+
+**GESCHÄTZT bleiben:** Ansichtshöhe einer Lamelle (70 mm), Ansichtsbreite
+der Rahmenprofile (45 mm), Höhe des Kopfprofils (60 mm) und der Farbwert
+der Echtholzoptik. Keines davon steht im Formular.
