@@ -4178,3 +4178,24 @@ die Eingabe wirkungslos.
 **Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 203, Gegenprobe
 203 von 203; neu: Das Feld muss IM Farbraster hinter dem Knopf stehen,
 und der Hinweis muss als Warnung hervorgehoben werden.
+
+## 11.10.2026 – Der RAL-Ton zeigt seinen Namen
+
+**Anlass.** „wenn man ein code eingetragen hat und der erkannt wurde
+sollte daneben auftauchen wie er heißt z.b bei 9005 Tiefschwarz"
+(Betreiber).
+
+**Was jetzt gilt.** Die Tabelle hält zu jeder Nummer Farbwert UND Namen;
+der Name steht unter dem Eingabefeld, sobald die Nummer erkannt ist, und
+geht mit in die Anfrage: „RAL 9005 Tiefschwarz (Sonderfarbe,
+aufpreispflichtig)".
+
+**Warum das mehr ist als Beiwerk.** Der Name ist die Kontrolle. Eine
+vertippte Ziffer fällt am Namen sofort auf – „7106" gibt es nicht,
+„7016 Anthrazitgrau" schon. Am Farbfleck allein sieht man das nicht,
+und in der Werkstatt wird nach der Nummer beschichtet.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 206, Gegenprobe
+206 von 206. Neu: Jeder hinterlegte Ton MUSS einen Namen haben (sonst
+steht irgendwann ein leeres Feld da), 9005 heißt Tiefschwarz, und der
+Name muss im Bedienfeld wie in der Anfrage auftauchen.

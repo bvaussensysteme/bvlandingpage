@@ -1612,7 +1612,8 @@ pruefe('Aufpreis steht im Bedienfeld und in der Anfrage',
   var falsch = 0, meld = [];
   ['7016', 'RAL 7016', 'ral7016', ' 7016 '].forEach(function (eingabe) {
     Z.ralCode = eingabe;
-    if (gestellFarbe() !== RAL['7016']) { falsch++; meld.push('„' + eingabe + '" nicht erkannt'); }
+    /* RAL haelt jetzt [Farbwert, Name] - der Farbwert steht an [0]. */
+    if (gestellFarbe() !== RAL['7016'][0]) { falsch++; meld.push('„' + eingabe + '" nicht erkannt'); }
   });
   Z.ralCode = '1234';                       // gibt es nicht
   if (gestellFarbe() !== FARBEN['Anthrazit']) { falsch++; meld.push('unbekannte Nummer wird geraten'); }
@@ -1703,6 +1704,31 @@ pruefe('Unbekannter Ton faellt auf',
        new RegExp(q || "classList\\.toggle\\('ist-warnung', warnt\\)").test(js) &&
        new RegExp(q || 'k3d-mini\\.ist-warnung').test(html),
        'sonst wirkt die Eingabe wirkungslos');
+
+(function () {
+  /* „wenn man ein code eingetragen hat und der erkannt wurde sollte
+     daneben auftauchen wie er heisst z.b bei 9005 Tiefschwarz"
+     (Betreiber, 11.10.2026). Der Name ist die Kontrolle: Eine vertippte
+     Ziffer faellt am Namen auf, am Farbfleck nicht. */
+  var tab = (js.match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
+  var RAL = eval('(' + tab.replace(/^\s*var RAL = /, '').replace(/;\s*$/, '') + ')');
+  var ohneNamen = Object.keys(RAL).filter(function (k) {
+    return !Array.isArray(RAL[k]) || typeof RAL[k][1] !== 'string' || !RAL[k][1];
+  });
+  if (gegen) ohneNamen.push('kuenstlich');
+  pruefe('Jeder hinterlegte Ton hat einen Namen', !ohneNamen.length,
+         ohneNamen.length ? 'ohne Namen: ' + ohneNamen.join(', ')
+                          : Object.keys(RAL).length + ' Toene');
+  var probe = RAL['9005'];
+  pruefe('9005 heisst Tiefschwarz',
+         gegen ? !(probe && probe[1] === 'Tiefschwarz')
+               : !!(probe && probe[1] === 'Tiefschwarz'),
+         probe ? probe[1] : 'fehlt');
+  pruefe('Name steht im Bedienfeld und in der Anfrage',
+         new RegExp(q || 'id="k3dRalName"').test(html) &&
+         new RegExp(q || "nameEl\\.textContent = \\(n && RAL\\[n\\]\\) \\? RAL\\[n\\]\\[1\\] : ''").test(js) &&
+         new RegExp(q || "RAL\\[n\\] \\? ' ' \\+ RAL\\[n\\]\\[1\\] : ''").test(js), '');
+})();
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'

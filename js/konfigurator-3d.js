@@ -187,23 +187,65 @@
      unbekannte Nummer wird NICHT geraten – dann bleibt das Modell
      anthrazit und sagt das auch. Ein falscher Ton wäre schlimmer als
      keiner: Der Kunde bestellt nach dem, was er gesehen hat. */
+  /* Nummer -> [Farbwert, Name]. Der Name gehört dazu: „wenn man ein
+     code eingetragen hat und der erkannt wurde sollte daneben
+     auftauchen wie er heißt z.b bei 9005 Tiefschwarz" (Betreiber,
+     11.10.2026). Er zeigt sofort, ob die Nummer die gemeinte ist –
+     eine vertippte Ziffer fällt am Namen auf, am Farbfleck nicht. */
   var RAL = {
-    '1013': 0xe3d9c6, '1015': 0xe6d2b5, '1021': 0xf0ca00,
-    '2004': 0xe25303,
-    '3000': 0xa72920, '3004': 0x6b1c23, '3005': 0x59191f, '3020': 0xc1121c,
-    '5010': 0x0e294b, '5014': 0x606e8c, '5024': 0x5d9b9b,
-    '6005': 0x0f4336, '6009': 0x27352a, '6011': 0x587246, '6021': 0x89ac76,
-    '7001': 0x8f999f, '7004': 0x969992, '7012': 0x4e5452, '7015': 0x434b4d,
-    '7016': 0x383e42, '7021': 0x2f3234, '7022': 0x4c4a44, '7024': 0x45494e,
-    '7030': 0x939388, '7031': 0x5d6970, '7035': 0xd7d7d7, '7036': 0x9c9c9c,
-    '7037': 0x7d7f7d, '7038': 0xb5b8b1, '7039': 0x6c6960, '7040': 0x9da3a6,
-    '7042': 0x8d948d, '7043': 0x4e5452, '7044': 0xc5c7c4, '7045': 0x91969a,
-    '7046': 0x82898f,
-    '8014': 0x4a3526, '8017': 0x442f29, '8019': 0x3d3635, '8022': 0x1a1718,
-    '9001': 0xe9e0d2, '9002': 0xd7d5c9, '9003': 0xf4f4f4, '9004': 0x282828,
-    '9005': 0x0a0a0a, '9006': 0xa5a5a5, '9007': 0x8f8f8c, '9010': 0xf1f0ea,
-    '9011': 0x1c1c1c, '9016': 0xf1f1f1, '9017': 0x1e1e1e, '9018': 0xcfd3cd,
-    '9023': 0x787b7a
+    '1013': [0xe3d9c6, 'Perlweiß'],
+    '1015': [0xe6d2b5, 'Hellelfenbein'],
+    '1021': [0xf0ca00, 'Rapsgelb'],
+    '2004': [0xe25303, 'Reinorange'],
+    '3000': [0xa72920, 'Feuerrot'],
+    '3004': [0x6b1c23, 'Purpurrot'],
+    '3005': [0x59191f, 'Weinrot'],
+    '3020': [0xc1121c, 'Verkehrsrot'],
+    '5010': [0x0e294b, 'Enzianblau'],
+    '5014': [0x606e8c, 'Taubenblau'],
+    '5024': [0x5d9b9b, 'Pastellblau'],
+    '6005': [0x0f4336, 'Moosgrün'],
+    '6009': [0x27352a, 'Tannengrün'],
+    '6011': [0x587246, 'Resedagrün'],
+    '6021': [0x89ac76, 'Blassgrün'],
+    '7001': [0x8f999f, 'Silbergrau'],
+    '7004': [0x969992, 'Signalgrau'],
+    '7012': [0x4e5452, 'Basaltgrau'],
+    '7015': [0x434b4d, 'Schiefergrau'],
+    '7016': [0x383e42, 'Anthrazitgrau'],
+    '7021': [0x2f3234, 'Schwarzgrau'],
+    '7022': [0x4c4a44, 'Umbragrau'],
+    '7024': [0x45494e, 'Graphitgrau'],
+    '7030': [0x939388, 'Steingrau'],
+    '7031': [0x5d6970, 'Blaugrau'],
+    '7035': [0xd7d7d7, 'Lichtgrau'],
+    '7036': [0x9c9c9c, 'Platingrau'],
+    '7037': [0x7d7f7d, 'Staubgrau'],
+    '7038': [0xb5b8b1, 'Achatgrau'],
+    '7039': [0x6c6960, 'Quarzgrau'],
+    '7040': [0x9da3a6, 'Fenstergrau'],
+    '7042': [0x8d948d, 'Verkehrsgrau A'],
+    '7043': [0x4e5452, 'Verkehrsgrau B'],
+    '7044': [0xc5c7c4, 'Seidengrau'],
+    '7045': [0x91969a, 'Telegrau 1'],
+    '7046': [0x82898f, 'Telegrau 2'],
+    '8014': [0x4a3526, 'Sepiabraun'],
+    '8017': [0x442f29, 'Schokoladenbraun'],
+    '8019': [0x3d3635, 'Graubraun'],
+    '8022': [0x1a1718, 'Schwarzbraun'],
+    '9001': [0xe9e0d2, 'Cremeweiß'],
+    '9002': [0xd7d5c9, 'Grauweiß'],
+    '9003': [0xf4f4f4, 'Signalweiß'],
+    '9004': [0x282828, 'Signalschwarz'],
+    '9005': [0x0a0a0a, 'Tiefschwarz'],
+    '9006': [0xa5a5a5, 'Weißaluminium'],
+    '9007': [0x8f8f8c, 'Graualuminium'],
+    '9010': [0xf1f0ea, 'Reinweiß'],
+    '9011': [0x1c1c1c, 'Graphitschwarz'],
+    '9016': [0xf1f1f1, 'Verkehrsweiß'],
+    '9017': [0x1e1e1e, 'Verkehrsschwarz'],
+    '9018': [0xcfd3cd, 'Papyrusweiß'],
+    '9023': [0x787b7a, 'Perldunkelgrau']
   };
 
   /* Aus „RAL 7016", „ral7016" oder „7016" die Nummer herausziehen. */
@@ -218,7 +260,7 @@
   function gestellFarbe() {
     if (Z.farbe === 'Andere / Beratung') {
       var n = ralNummer();
-      if (RAL[n]) return RAL[n];
+      if (RAL[n]) return RAL[n][0];
     }
     return FARBEN[Z.farbe] || FARBEN['Anthrazit'];
   }
@@ -6682,7 +6724,8 @@
        Sonderfarbe durch, als wäre sie zum Standardpreis zu haben. Eine
        Zahl steht hier bewusst nicht – die hängt von Menge und
        Oberfläche ab und wird im Angebot genannt. */
-    return n ? 'RAL ' + n + ' (Sonderfarbe, aufpreispflichtig)'
+    return n ? 'RAL ' + n + (RAL[n] ? ' ' + RAL[n][1] : '') +
+                 ' (Sonderfarbe, aufpreispflichtig)'
              : 'Andere / Beratung (Sonderfarbe, aufpreispflichtig)';
   }
 
@@ -6693,11 +6736,16 @@
     if (Z.farbe !== 'Andere / Beratung') { e.textContent = ''; return; }
     var n = ralNummer();
     var warnt = false;
+    var nameEl = document.getElementById('k3dRalName');
+    if (nameEl) {
+      nameEl.textContent = (n && RAL[n]) ? RAL[n][1] : '';
+      nameEl.hidden = !(n && RAL[n]);
+    }
     if (!n) {
       e.textContent = 'Ohne Nummer zeigen wir Anthrazit. Wir beraten Sie gern.';
     } else if (RAL[n]) {
-      e.textContent = 'RAL ' + n + ' wird angezeigt – der Ton am Bildschirm ist' +
-        ' angenähert, verbindlich ist der RAL-Fächer.';
+      e.textContent = 'RAL ' + n + ' ' + RAL[n][1] + ' wird angezeigt – der Ton' +
+        ' am Bildschirm ist angenähert, verbindlich ist der RAL-Fächer.';
     } else {
       /* Deutlich sichtbar: Sonst sieht es aus, als wäre die Eingabe
          wirkungslos – und genau so kam es beim Betreiber an. */
