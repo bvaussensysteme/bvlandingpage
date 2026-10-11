@@ -3243,3 +3243,32 @@ zusammen reichen bis dorthin.
 **Die Prüfung rechnet nach**, statt die Zeile zu lesen: Unterkante plus
 Elementhöhe plus Führung muss die Rinnenunterkante treffen. Die
 Gegenprobe setzt den alten Wert ein und meldet den 55-mm-Spalt.
+
+## 2026-10-11 – Wandprofil TD: liegend, nicht stehend
+
+**Anlass:** Der Betreiber hatte das Rechteck hinter dem äußeren Sparren
+bemerkt und dazu den Querschnitt geschickt: „das wandprofil sieht in
+wirklichkeit so aus, es ist jetzt liegend abgebildet, die geschlossene
+seite is eig an der wand, oder bei freistehend am statikträger, und es
+ist ein querschnitt waagrecht".
+
+**Was war:** Ein stehender Balken **140 × 90 mm**, Oberkante bündig mit
+der Sparrenoberkante. In Form und Lage falsch.
+
+**Was jetzt gilt:** Ein **liegendes** Profil mit **143,6 mm Ausladung**
+(BELEGT aus der Zeichnung) – es steht so weit von der Wand ab, die
+geschlossene Seite liegt an der Wand bzw. freistehend am Statikträger.
+
+**GESCHÄTZT und als Rückfrage notiert:**
+1. die **Höhe** (26,5 mm, am Maßbild abgegriffen – die beiden kleinen
+   Maße sind in der geschickten Auflösung nicht sicher zu lesen);
+2. die **Lage in der Höhe**: Hier liegt die Oberkante an der
+   Sparnunterkante, die Sparren liegen also darauf. Bündig mit der
+   Sparrenoberkante wie bisher kann es nicht sein – ein 26,5 mm flaches
+   Profil wäre dort verschwunden.
+
+**Drei Prüfungen mussten mitwandern**, weil sie den alten Balken
+festhielten (gleiche Tiefe, einmaliges Zeichnen, Oberkante am Dach). Sie
+prüfen jetzt dasselbe an der neuen Form; die Begründung steht jeweils
+dabei. Eine Prüfung, die den Fehler festschreibt, ist schlimmer als
+keine.
