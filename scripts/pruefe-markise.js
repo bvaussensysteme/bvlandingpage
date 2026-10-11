@@ -158,6 +158,16 @@ pruefe('eZIP – Kastenunterstützung ab 400 cm',
        new RegExp(q || 'laenge > ZIP\\.stuetzeAb').test(src), 'Anleitung S. 5');
 pruefe('eZIP – Hinweis bei über 5 m Breite',
        new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
+/* Glasleiste TD, Teilebild: 55,3 x 22,6 mm */
+var gl = (src.match(/var GLASLEISTE = \{[^}]*\}/) || [''])[0];
+[['breite', 55.3], ['hoehe', 22.6]].forEach(function (p) {
+  var m = gl.match(new RegExp(p[0] + ':\\s*([\\d.]+)'));
+  var ist = m ? parseFloat(m[1]) * 10 : null;
+  var soll = p[1] + (gegen ? 7 : 0);
+  pruefe('Glasleiste ' + p[0], ist !== null && Math.abs(ist - soll) < 0.5,
+         ist + ' mm (Teilebild ' + p[1] + ')');
+});
+
 pruefe('Markise laesst sich im Bild anklicken',
        new RegExp(q || 'userData\\.sonne').test(src) &&
        new RegExp(q || 'markiseGeklickt').test(src), 'Raycast auf sonneTeil');
