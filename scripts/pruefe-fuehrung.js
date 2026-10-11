@@ -435,9 +435,16 @@ pruefe('Lamellen fahren mit Animation',
   /* Die Plankendekore (Eiche Mocca, Rovere Pechino) gibt es beim Velaris
      NICHT - dort heisst es Echtholzoptik Golden OAK. Gegenprobe: genau
      die umgekehrte Erwartung. */
-  var richtig = /Echtholzoptik \(Golden OAK\)/.test(html) &&
-                !/k3dVelarisFarbe[\s\S]{0,800}Rovere Pechino/.test(html);
-  pruefe('Echtholzoptik statt Plankendekore', gegen ? !richtig : richtig, '');
+  /* Lamellenfarbe: genau drei, und die RAL-Standardtoene gehoeren NICHT
+     dazu - die gelten fuer den Rahmen (Auswahlseite, 11.10.2026). */
+  var block = (html.split('id="k3dVelarisFarbe"')[1] || '').split('</select>')[0];
+  var richtig = /Holzoptik Golden OAK/.test(block) &&
+                /RAL-Sonderfarbe/.test(block) &&
+                !/9006|9007|9010|Rovere Pechino|Eiche Mocca/.test(block) &&
+                (block.match(/<option/g) || []).length === 3;
+  pruefe('Lamellenfarbe: genau die drei aus dem Formular',
+         gegen ? !richtig : richtig,
+         (block.match(/<option/g) || []).length + ' Auswahlmoeglichkeiten');
 })();
 (function () {
   /* Elementaufteilung: BELEGT ist 500 mm Mindestbreite, 1500 mm
@@ -456,6 +463,54 @@ pruefe('Lamellen fahren mit Animation',
   pruefe('Unter 500 mm kein Velaris',
          gegen ? teile(490) !== 0 : teile(490) === 0, '');
 })();
+
+(function () {
+  /* Der Schienenabstand ist NICHT geraten: Er faellt aus den belegten
+     Bautiefen heraus, und zwar oben wie unten derselbe Wert. Genau das
+     wird hier nachgerechnet - zwei unabhaengige Wege zum selben
+     Ergebnis. Gegenprobe: ein erfundener Abstand. */
+  var o = { 1: 6.13, 2: 11.26, 3: 16.39 }, u = { 1: 5.12, 2: 10.25, 3: 15.38 };
+  var a1 = o[2] - o[1], a2 = o[3] - o[2], a3 = u[2] - u[1], a4 = u[3] - u[2];
+  var soll = gegen ? 4.8 : 5.13;
+  var gleich = [a1, a2, a3, a4].every(function (x) {
+    return Math.abs(x - soll) < 0.005;
+  });
+  pruefe('Schienenabstand faellt aus den Bautiefen', gleich,
+         'oben ' + a1.toFixed(2) + '/' + a2.toFixed(2) +
+         ', unten ' + a3.toFixed(2) + '/' + a4.toFixed(2) + ' cm');
+})();
+pruefe('Schienenabstand steht so im Code',
+       new RegExp(q || 'schienenAbstand: 5\\.13').test(js) &&
+       !/\* 5\.1 : 0/.test(js), '');
+pruefe('Element haengt im Kopfprofil',
+       new RegExp(q || 'var hEl = hoehe - VELARIS\\.bodenSchiene - VELARIS\\.aufhaengung').test(js), '');
+
+(function () {
+  /* Verschiebbar gibt es nur in den sechs Kombinationen des Formulars -
+     hoechstens VIER Elemente. Fuenf nur feststehend. Nachgerechnet ueber
+     alle Breiten: Wo mehr als vier Elemente noetig sind, darf nicht
+     verschiebbar gebaut werden. */
+  var MAX = 1500, SCHIEB = 4, falsch = 0, umgestellt = 0;
+  for (var mm = 500; mm <= 7000; mm += 10) {
+    var n = Math.max(1, Math.ceil(mm / MAX));
+    var schiebbar = gegen ? true : n <= SCHIEB;
+    if (!schiebbar) umgestellt++;
+    if (schiebbar && n > SCHIEB) falsch++;
+    if (n > 5) falsch++;                 // mehr als fuenf gibt es nie
+  }
+  pruefe('Verschiebbar hoechstens vier Elemente', falsch === 0,
+         falsch + ' Faelle falsch, ' + umgestellt + ' Breiten feststehend');
+})();
+pruefe('Grenzen stehen so im Code',
+       new RegExp(q || 'festMax: 5, schiebbarMax: 4').test(js) &&
+       new RegExp(q || 'function velarisSchiebbar').test(js), '');
+
+pruefe('Feststehend teilen sich den Pfosten',
+       new RegExp(q || "if \\(erstes \\|\\| Z\\.velarisArt === 'verschiebbar'\\)").test(js), '');
+
+pruefe('Elementbreite gleich oder Wunsch',
+       /id="k3dVelarisBreite"/.test(html) &&
+       new RegExp(q || "Z\\.velarisBreite === 'wunsch'").test(js), '');
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'

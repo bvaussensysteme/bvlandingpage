@@ -75,8 +75,9 @@
     velarisWinkel: 45,            // Lamellenstellung des Velaris, 0 = zu
     velarisArt: 'feststehend',    // feststehend | verschiebbar
     velarisTeil: 'alles',         // alles | oben | unten
+    velarisBreite: 'gleich',      // gleich | wunsch (Formularfeld Elementbreite)
     velarisAnteil: 50,            // Prozent, nur bei oben/unten
-    velarisFarbe: 'Wie das Gestell',
+    velarisFarbe: 'Anthrazit RAL 7016',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
     /* Nur Carport TDS: Höhe hinten wird DIREKT eingestellt, die Neigung
@@ -197,8 +198,24 @@
      nicht und ist an den Bildern abgegriffen. Rückfrage notiert. */
   var VELARIS = {
     elMin: 500, elMax: 1500, anlageMax: 7000,   // mm, BELEGT
+    festMax: 5, schiebbarMax: 4,                // Elemente, BELEGT
     tiefeOben: { 1: 6.13, 2: 11.26, 3: 16.39 }, // cm, BELEGT
     tiefeUnten: { 1: 5.12, 2: 10.25, 3: 15.38 },// cm, BELEGT
+    /* Achsabstand zweier Schienen – nachgerechnet aus den belegten
+       Bautiefen, nicht geraten: (112,6 − 61,3) = 51,3 mm, und
+       (163,9 − 112,6) = 51,3 mm. Beide Male derselbe Wert, das stützt
+       die Rechnung. */
+    schienenAbstand: 5.13,
+    /* Die Elemente HÄNGEN im Kopfprofil – in der Querschnittzeichnung
+       sitzt über jedem Element ein kurzer Träger, darunter beginnt erst
+       der Rahmen. Deshalb ein sichtbarer Spalt oben; auf den
+       Produktbildern ist das der dunkle Streifen unter dem Kopfprofil.
+       Höhe GESCHÄTZT. */
+    aufhaengung: 3.0,
+    /* Die Bodenschiene ist nur FÜHRUNG, nicht Auflager: In der
+       Zeichnung steht das Element nicht darauf, sondern läuft darin.
+       Sie ist flach. Höhe GESCHÄTZT. */
+    bodenSchiene: 1.0,
     rahmen: 4.5,      // GESCHÄTZT: Ansichtsbreite der Rahmenprofile
     kopf: 6.0,        // GESCHÄTZT: Höhe des Kopfprofils
     lamelle: 7.0,     // GESCHÄTZT: Ansichtshöhe einer Lamelle
@@ -2383,7 +2400,8 @@
     function velarisMaterial() {
       var dekor = VELARIS_FARBEN[Z.velarisFarbe];
       var hex = dekor !== undefined ? dekor
-              : FARBEN[Z.velarisFarbe] || FARBEN[Z.farbe] || FARBEN['Anthrazit'];
+              : (Z.velarisFarbe.indexOf('Anthrazit') > -1 ? FARBEN['Anthrazit']
+                 : FARBEN[Z.farbe] || FARBEN['Anthrazit']);
       var m = new THREE.MeshPhysicalMaterial({
         color: rgb(hex),
         metalness: dekor !== undefined ? 0 : 0.1,
@@ -2408,10 +2426,19 @@
     /* Schienen: feststehend braucht keine, dort steht das 1-Schienen-Profil.
        Verschiebbar folgt der Liste im Formular - bis 2 Elemente eine
        Schiene, bis 4 zwei, darüber drei. */
+    /* BELEGT aus dem Formular: verschiebbar gibt es nur in diesen sechs
+       Kombinationen – 1 Schiene/1, 1/2, 2 Schienen/2, 2/3, 2/4 und
+       3 Schienen/3. Fünf Elemente gibt es NUR feststehend (Betreiber,
+       11.10.2026: „5 elemente möglich nur bei feststehend, bei schiebbar
+       nur so"). Verschiebbar endet damit bei vier Elementen, also bei
+       4 × 1500 = 6000 mm Anlagenbreite. */
     function velarisSchienen(n) {
-      if (Z.velarisArt !== 'verschiebbar') return 1;
-      if (n <= 2) return 1;
-      return n <= 4 ? 2 : 3;
+      if (!velarisSchiebbar(n)) return 1;
+      return n <= 2 ? 1 : 2;
+    }
+
+    function velarisSchiebbar(n) {
+      return Z.velarisArt === 'verschiebbar' && n <= VELARIS.schiebbarMax;
     }
 
     function velaris(laenge, hoehe, achse, mitte, yUnten, quer) {
@@ -2421,38 +2448,65 @@
       var schienen = velarisSchienen(anzahl);
       VELARIS_IST = { elemente: anzahl,
                       breite: Math.round(laenge * 10 / anzahl),
-                      schienen: schienen };
+                      schienen: schienen,
+                      /* Gewünscht ist nicht immer möglich: Über vier
+                         Elementen gibt es verschiebbar nicht. Was wirklich
+                         gebaut wurde, steht hier – daraus liest das
+                         Bedienfeld den Hinweis. */
+                      art: velarisSchiebbar(anzahl) ? 'verschiebbar' : 'feststehend',
+                      gewuenscht: Z.velarisArt };
       var elLaenge = laenge / anzahl;
       if (anzahl > 1) {
         for (var e = 0; e < anzahl; e++) {
           velarisElement(elLaenge, hoehe,
                          achse, mitte - laenge / 2 + (e + 0.5) * elLaenge,
-                         yUnten, quer, schienen, e);
+                         yUnten, quer, schienen, e, e === 0);
         }
         return;
       }
-      velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, 0);
+      velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, 0, true);
     }
 
-    function velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, nr) {
+    function velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, nr,
+                            erstes) {
       var mLam = velarisMaterial();
       var R = VELARIS.rahmen;
       /* Verschiebbare Elemente laufen in getrennten Schienen – im Bild
          ist das der Versatz in der Tiefe. Feststehend liegen alle in
          einer Ebene. */
-      var spur = Z.velarisArt === 'verschiebbar' && schienen > 1
-        ? innenRichtung(achse, quer) * (nr % schienen) * 5.1 : 0;
+      var spur = schienen > 1
+        ? innenRichtung(achse, quer) * (nr % schienen) * VELARIS.schienenAbstand : 0;
       achse = achse + spur;
+
+      /* Das Element hängt: Es beginnt über der Bodenschiene und endet
+         unter dem Kopfprofil. Was dazwischen fehlt, ist die Aufhängung –
+         genau der Streifen, den die Querschnittzeichnung und die
+         Produktbilder oben zeigen. */
+      var ukEl = yUnten + VELARIS.bodenSchiene;
+      var hEl = hoehe - VELARIS.bodenSchiene - VELARIS.aufhaengung;
+      if (hEl <= R * 2) return;
 
       /* Rahmen: zwei senkrechte Profile an den Seiten, je eines oben und
          unten. Alle vier liegen in der Ebene des Elements. */
-      platte(rahmen, R, hoehe, achse, mitte - laenge / 2 + R / 2,
-             yUnten + hoehe / 2, quer, 0, VELARIS.tiefeUnten[1]);
-      platte(rahmen, R, hoehe, achse, mitte + laenge / 2 - R / 2,
-             yUnten + hoehe / 2, quer, 0, VELARIS.tiefeUnten[1]);
-      platte(rahmen, laenge, R, achse, mitte, yUnten + R / 2, quer, 0, VELARIS.tiefeUnten[1]);
-      platte(rahmen, laenge, R, achse, mitte, yUnten + hoehe - R / 2, quer, 0,
+      /* Feststehend teilen sich zwei Elemente EINEN Pfosten – so zeigt es
+         die Zeichnung im Formular: zwischen zwei Feldern steht ein
+         Profil, nicht zwei nebeneinander. Deshalb bekommt nur das erste
+         Element sein linkes Profil, die übrigen schließen am rechten des
+         Nachbarn an. Verschiebbar laufen die Elemente in eigenen
+         Schienen und haben jedes seinen eigenen Rahmen. */
+      if (erstes || Z.velarisArt === 'verschiebbar') {
+        platte(rahmen, R, hEl, achse, mitte - laenge / 2 + R / 2,
+               ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      }
+      platte(rahmen, R, hEl, achse, mitte + laenge / 2 - R / 2,
+             ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      platte(rahmen, laenge, R, achse, mitte, ukEl + R / 2, quer, 0,
              VELARIS.tiefeUnten[1]);
+      platte(rahmen, laenge, R, achse, mitte, ukEl + hEl - R / 2, quer, 0,
+             VELARIS.tiefeUnten[1]);
+      /* Der kurze Träger, an dem das Element im Kopfprofil hängt. */
+      platte(rahmen, Math.min(laenge * 0.5, 20), VELARIS.aufhaengung, achse, mitte,
+             ukEl + hEl + VELARIS.aufhaengung / 2, quer, 0, 1.2);
       /* Kopfprofil oben und Bodenschiene unten. Ihre BAUTIEFE steht im
          Bestellformular und hängt an der Schienenzahl – bei drei
          Schienen ist das Kopfprofil fast dreimal so tief wie bei einer.
@@ -2460,12 +2514,13 @@
       platte(rahmen, laenge, VELARIS.kopf, achse, mitte,
              yUnten + hoehe + VELARIS.kopf / 2, quer, -spur,
              VELARIS.tiefeOben[schienen] || VELARIS.tiefeOben[1]);
-      platte(rahmen, laenge, 1.2, achse, mitte, yUnten + 0.6, quer, -spur,
+      platte(rahmen, laenge, VELARIS.bodenSchiene, achse, mitte,
+             yUnten + VELARIS.bodenSchiene / 2, quer, -spur,
              VELARIS.tiefeUnten[schienen] || VELARIS.tiefeUnten[1]);
 
       /* Lamellen im Lichten des Rahmens. Die Zahl folgt aus der lichten
          Höhe und der Teilung – gleichmäßig, wie bei der Plankenwand. */
-      var licht = hoehe - 2 * R;
+      var licht = hEl - 2 * R;
       var lamLaenge = laenge - 2 * R;
       var n = Math.max(1, Math.floor(licht / VELARIS.teilung));
       if (n < 1 || lamLaenge <= 0) return;
@@ -2479,7 +2534,7 @@
       var grenze = Z.velarisTeil === 'alles' ? -1
         : Math.round(n * Math.min(90, Math.max(10, Z.velarisAnteil)) / 100);
       for (var i = 0; i < n; i++) {
-        var y = yUnten + R + (i + 0.5) * schritt;
+        var y = ukEl + R + (i + 0.5) * schritt;
         /* i zählt von UNTEN. „unten" öffnet die ersten, „oben" die letzten. */
         var faehrt = Z.velarisTeil === 'alles'
           || (Z.velarisTeil === 'unten' ? i < grenze : i >= n - grenze);
@@ -4505,10 +4560,15 @@
   function velarisStandZeigen() {
     var e = document.getElementById('k3dVelarisStand');
     if (!e) return;
-    e.textContent = VELARIS_IST.elemente
-      ? 'Gebaut: ' + VELARIS_IST.elemente + ' Element(e) à ' +
-        VELARIS_IST.breite + ' mm, ' + VELARIS_IST.schienen + ' Schiene(n).'
-      : '';
+    if (!VELARIS_IST.elemente) { e.textContent = ''; return; }
+    e.textContent = 'Gebaut: ' + VELARIS_IST.elemente + ' Element(e) à ' +
+      VELARIS_IST.breite + ' mm, ' + VELARIS_IST.art +
+      (VELARIS_IST.art === 'verschiebbar'
+        ? ' in ' + VELARIS_IST.schienen + ' Schiene(n).' : '.') +
+      (VELARIS_IST.gewuenscht === 'verschiebbar' && VELARIS_IST.art !== 'verschiebbar'
+        ? ' Verschiebbar gibt es nur bis vier Elemente (6000 mm) – diese Seite' +
+          ' ist breiter, deshalb feststehend.'
+        : '');
   }
 
   function plankenStandZeigen() {
@@ -5454,16 +5514,22 @@
          Ohne diesen Satz kann dieselbe Angabe spiegelverkehrt gelesen
          werden – und das merkt niemand vor der Montage. */
       if (erwIrgendwo('Velaris')) {
-        teile.push('Velaris ' + Z.velarisArt + ': ' +
+        teile.push('Velaris ' + VELARIS_IST.art + ': ' +
                    (VELARIS_IST.elemente || '–') + ' Element(e) à ca. ' +
                    VELARIS_IST.breite + ' mm, ' + VELARIS_IST.schienen +
-                   ' Schiene(n) (Bautiefe oben ' +
+                   ' Schiene(n), Elementbreite ' +
+                   (Z.velarisBreite === 'wunsch'
+                     ? 'WUNSCH-BREITE individuell nach Aufmaß (Modell zeigt die gleichmäßige Aufteilung)'
+                     : 'gleichmäßige Aufteilung') +
+                   ' (Bautiefe oben ' +
                    String(VELARIS.tiefeOben[VELARIS_IST.schienen] * 10 || '')
                      .replace('.', ',') + ' mm)');
         teile.push('Velaris: waagerechte Alu-Lamellen im Rahmen, Stellung im Bild ' +
                    (Z.velarisWinkel <= 0 ? 'geschlossen' : Z.velarisWinkel + '° offen') +
-                   ', Oberfläche ' + (Z.velarisFarbe === 'Wie das Gestell'
-                     ? 'wie Gestell (' + Z.farbe + ')' : Z.velarisFarbe) +
+                   ', Lamellenfarbe ' + Z.velarisFarbe +
+                   (Z.velarisFarbe.indexOf('Sonderfarbe') > -1
+                     ? ' – RAL-Nummer noch offen, Aufpreis' : '') +
+                   ', Rahmenfarbe ' + Z.farbe +
                    (Z.velarisTeil === 'alles' ? ', ganze Anlage'
                      : ', nur ' + Z.velarisTeil + ' rund ' + Z.velarisAnteil + ' %') +
                    ' – Lamellen- und Rahmenmaße nach Herstellerangabe');
@@ -5592,6 +5658,7 @@
     Z.velarisFarbe = wert('k3dVelarisFarbe') || Z.velarisFarbe;
     Z.velarisArt = wert('k3dVelarisArt') || Z.velarisArt;
     Z.velarisTeil = wert('k3dVelarisTeil') || Z.velarisTeil;
+    Z.velarisBreite = wert('k3dVelarisBreite') || Z.velarisBreite;
     Z.velarisAnteil = zahl('k3dVelarisAnteil', Z.velarisAnteil);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
@@ -6008,7 +6075,7 @@
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
    'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkel', 'k3dVelarisFarbe',
-   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil',
+   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil', 'k3dVelarisBreite',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);

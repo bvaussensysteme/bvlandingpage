@@ -2714,11 +2714,69 @@ eine Lamelle lässt sich nicht halb kippen.
 **Animation:** Öffnen und Schließen laufen mit derselben Dauer und
 derselben weichen Kurve wie Markise und Schiebetür.
 
-**Widerspruch, der offen bleibt:** Das Bestellformular lässt für die
-**Lamellen** nur Anthrazit oder Holzoptik zu, die Farbtafel auf der
-Produktseite nennt alle vier RAL-Töne („Echtholzoptik gegen Aufpreis").
-Im Konfigurator stehen alle fünf zur Wahl. Zu klären.
+**Widerspruch – noch am selben Tag geklärt** (Betreiber mit der
+Auswahlseite): Die vier RAL-Standardtöne gelten für den **Rahmen**. Für
+die **Lamellen** gibt es genau drei Möglichkeiten: Anthrazit RAL 7016,
+Holzoptik Golden OAK oder eine RAL-Sonderfarbe gegen Aufpreis. Im
+Konfigurator standen zwischenzeitlich alle vier RAL-Töne zur Wahl – das
+war falsch und ist korrigiert. Die Sonderfarbe zeigt das Modell in der
+Rahmenfarbe, weil niemand weiß, welche es wird; in der Anfrage steht sie
+als offener Punkt mit Aufpreis-Hinweis.
 
 **GESCHÄTZT bleiben:** Ansichtshöhe einer Lamelle (70 mm), Ansichtsbreite
 der Rahmenprofile (45 mm), Höhe des Kopfprofils (60 mm) und der Farbwert
 der Echtholzoptik. Keines davon steht im Formular.
+
+## 2026-10-11 – Velaris: die Querschnittzeichnung gelesen
+
+**Anlass:** Der Betreiber hat die Maßzeichnung in groß geschickt, dazu
+den Satz „Element min 50 cm max. Breite 150 cm" für die schiebbare
+Ausführung – was wir schon so hatten.
+
+**Drei Dinge stehen in der Zeichnung, die im Formulartext nicht stehen:**
+
+**1. Der Schienenabstand ist nicht zu raten, er fällt heraus.**
+61,3 → 112,6 → 163,9 mm oben und 51,2 → 102,5 → 153,8 mm unten: jeder
+Schritt ist **51,3 mm**, oben wie unten derselbe Wert. Zwei unabhängige
+Wege zum selben Ergebnis – stärker als jede einzelne Angabe. Das Modell
+hatte 51 mm angenommen; jetzt steht die gerechnete Zahl drin, mit der
+Rechnung als Prüfung daneben.
+
+**2. Die Elemente hängen.** Über jedem Element sitzt ein kurzer Träger im
+Kopfprofil, darunter beginnt erst der Rahmen. Auf den Produktbildern ist
+das der dunkle Streifen oben. Das Modell zog den Rahmen bisher bis unter
+das Kopfprofil durch.
+
+**3. Die Bodenschiene ist Führung, kein Auflager.** Das Element steht
+nicht darauf, es läuft darin. Sie ist flach.
+
+**GESCHÄTZT bleiben** die Höhe der Aufhängung (30 mm) und die Höhe der
+Bodenschiene (10 mm) – beides ist in der Zeichnung nicht bemaßt.
+
+## 2026-10-11 – Velaris: die Aufteilungsbilder gelesen
+
+**Anlass:** Die Bilder „Schiebbar" und „Feststehend" von der Produktseite,
+dazu der Betreiber: „5 elemente möglich nur bei feststehend, bei schiebbar
+nur so".
+
+**1. Verschiebbar endet bei vier Elementen.** Es gibt genau sechs
+Kombinationen: 1 Schiene/1 Element, 1/2, 2 Schienen/2, 2/3, 2/4 und
+3 Schienen/3. **Fünf Elemente nur feststehend.** Verschiebbar reicht
+damit bis 4 × 1500 = 6000 mm Anlagenbreite.
+
+Wer eine breitere Seite verschiebbar wählt, bekommt sie **feststehend**
+gebaut und liest den Grund unter dem Regler. Das Modell baut nichts, was
+es nicht gibt, aber es verschweigt auch nicht, dass es den Wunsch
+geändert hat – und in der Anfrage steht die GEBAUTE Art, nicht die
+gewünschte.
+
+**2. Feststehend teilen sich zwei Elemente einen Pfosten.** In der
+Zeichnung steht zwischen zwei Feldern ein Profil, nicht zwei
+nebeneinander. Vorher zeichnete das Modell beide Rahmen voll – an jeder
+Stoßstelle doppelt so breit wie richtig. Verschiebbar hat jedes Element
+seinen eigenen Rahmen; dort stimmte es.
+
+**3. Elementbreite: gleichmäßig oder Wunsch.** Das Bestellformular hat
+dieses Feld, der Konfigurator jetzt auch. Bei Wunsch-Breite zeigt das
+Modell weiter die gleichmäßige Aufteilung – in der Anfrage steht dann
+ausdrücklich, dass die Einzelbreiten beim Aufmaß festgelegt werden.
