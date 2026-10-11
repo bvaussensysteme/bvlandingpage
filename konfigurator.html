@@ -854,6 +854,44 @@
           <select id="k3dSg23Vorne" class="k3d-select"></select>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="velaris" hidden>
+          <label class="k3d-label" for="k3dVelarisWinkel">Velaris-Lamellen <output id="k3dVelarisWinkelWert">45° offen</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dVelarisWinkel" class="k3d-range" min="0" max="90" step="5" value="45">
+          </div>
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dVelarisZu">◀ Schließen</button>
+            <button type="button" id="k3dVelarisAuf">Öffnen ▶</button>
+          </div>
+          <label class="k3d-label" for="k3dVelarisTeil">Was soll sich öffnen?</label>
+          <select id="k3dVelarisTeil" class="k3d-select">
+            <option value="alles">die ganze Wand</option>
+            <option value="oben">nur der obere Teil</option>
+            <option value="unten">nur der untere Teil</option>
+          </select>
+          <label class="k3d-label" for="k3dVelarisAnteil">Anteil davon <output id="k3dVelarisAnteilWert">50 %</output></label>
+          <input type="range" id="k3dVelarisAnteil" class="k3d-range" min="10" max="90" step="5" value="50">
+          <label class="k3d-label" for="k3dVelarisArt">Ausführung</label>
+          <select id="k3dVelarisArt" class="k3d-select">
+            <option value="feststehend">feststehend</option>
+            <option value="verschiebbar">verschiebbar (in Schienen)</option>
+          </select>
+          <label class="k3d-label" for="k3dVelarisFarbe">Oberfläche der Lamellen</label>
+          <select id="k3dVelarisFarbe" class="k3d-select">
+            <option value="Wie das Gestell">wie der Rahmen</option>
+            <option value="Anthrazit">Anthrazit (RAL 7016)</option>
+            <option value="Weißaluminium">Weißaluminium (RAL 9006)</option>
+            <option value="Graualuminium">Graualuminium (RAL 9007)</option>
+            <option value="Reinweiß">Reinweiß (RAL 9010)</option>
+            <option value="Echtholzoptik (Golden OAK)">Echtholzoptik (Aufpreis)</option>
+          </select>
+          <p class="k3d-mini" id="k3dVelarisStand"></p>
+          <p class="k3d-mini">Waagerechte Lamellen in einem Rahmen, stufenlos
+            verstellbar – zu für vollen Sichtschutz, offen für Licht und Luft.
+            Ein Element ist 500 bis 1500 mm breit, die Anlage höchstens 7000 mm;
+            breitere Seiten teilt der Konfigurator gleichmäßig auf.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dSg23Glas">Glas der Schiebeelemente</label>
           <select id="k3dSg23Glas" class="k3d-select">
@@ -1254,7 +1292,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261014b" defer></script>
+<script src="js/konfigurator-3d.js?v=20261014d" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
