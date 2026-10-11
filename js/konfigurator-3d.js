@@ -7910,6 +7910,20 @@
   }
 
   function bildAlle(fertig) {
+    /* KORREKTUR 11.10.2026: „das erstellen alles 5 bilder in einem bild
+       funktioniert nicht, steht nur wird erstellt, passiert nix"
+       (Betreiber, mit Bildschirmfoto).
+
+       Der erste Versuch ging über fünf Image-Objekte: je Ansicht ein
+       Datenbild erzeugen, dessen onload abwarten und erst beim fünften
+       fertig melden. Bleibt auch nur ein onload aus – und bei mehreren
+       Megabyte großen Datenbildern passiert genau das –, wartet der
+       Knopf für immer.
+
+       Jetzt wird gar nichts abgewartet: Eine Leinwand lässt sich direkt
+       in eine andere zeichnen. Fünfmal Ansicht einstellen, zeichnen,
+       hineinkopieren – alles in einem Durchgang, ohne Rückruf, der
+       verloren gehen kann. */
     var namen = ['Perspektive', 'Vorne', 'Seite', 'Von oben', 'Darunter'];
     var lw = renderer.domElement;
     var breit = 900, hoch = Math.round(breit * lw.height / lw.width);
@@ -7918,31 +7932,28 @@
     blatt.width = breit * 2 + rand * 3;
     blatt.height = (hoch + kopf) * 3 + rand * 4;
     var c = blatt.getContext('2d');
-    c.fillStyle = '#111'; c.fillRect(0, 0, blatt.width, blatt.height);
-    var vorher = kam.ansicht, offen = namen.length;
+    c.fillStyle = '#111';
+    c.fillRect(0, 0, blatt.width, blatt.height);
+    var vorher = kam.ansicht;
     namen.forEach(function (name, i) {
       ansichtAnwenden(name);
       renderer.render(szene, kamera3);
-      var bild = new Image();
-      bild.onload = function () {
-        var sp = i % 2, ze = Math.floor(i / 2);
-        var x = rand + sp * (breit + rand);
-        var y = rand + ze * (hoch + kopf + rand);
-        c.fillStyle = '#fff';
-        c.font = '600 20px Inter, Arial, sans-serif';
-        c.fillText(name, x + 2, y + 19);
-        c.drawImage(bild, x, y + kopf, breit, hoch);
-        if (--offen === 0) {
-          c.fillStyle = 'rgba(255,255,255,.75)';
-          c.font = '16px Inter, Arial, sans-serif';
-          c.fillText(zusammenfassung(), rand + 2, blatt.height - rand / 2);
-          if (vorher) ansichtAnwenden(vorher);
-          neuZeichnen();
-          fertig(blatt.toDataURL('image/png'));
-        }
-      };
-      bild.src = renderer.domElement.toDataURL('image/png');
+      var sp = i % 2, ze = Math.floor(i / 2);
+      var x = rand + sp * (breit + rand);
+      var y = rand + ze * (hoch + kopf + rand);
+      c.fillStyle = '#fff';
+      c.font = '600 20px Inter, Arial, sans-serif';
+      c.fillText(name, x + 2, y + 19);
+      c.drawImage(lw, x, y + kopf, breit, hoch);
     });
+    c.fillStyle = 'rgba(255,255,255,.75)';
+    c.font = '16px Inter, Arial, sans-serif';
+    /* zusammenfassung() liefert eine Liste – als Zeile zusammensetzen,
+       sonst stünde dort das Komma-Gestammel des Umwandelns. */
+    c.fillText(zusammenfassung().join(' · '), rand + 2, blatt.height - rand);
+    if (vorher) ansichtAnwenden(vorher);
+    neuZeichnen();
+    fertig(blatt.toDataURL('image/png'));
   }
 
   var bildBtn = document.getElementById('k3dBild');
@@ -7967,13 +7978,27 @@
         var was = b.getAttribute('data-k3d-bild');
         autoDreht = false;
         if (was === 'alle') {
+          /* Das Blatt entsteht in einem Durchgang und blockiert dabei
+             kurz. Damit „Wird erstellt …" vorher auch wirklich auf dem
+             Schirm steht, wird erst nach zwei Bildern losgelegt – sonst
+             rechnet der Browser, bevor er den neuen Text gezeichnet hat.
+             Und falls unterwegs etwas schiefgeht, steht am Knopf wieder
+             die Beschriftung statt für immer „Wird erstellt". */
           b.classList.add('ist-laeuft');
           b.textContent = 'Wird erstellt …';
-          bildAlle(function (url) {
-            bildLaden(url, bildName('alle-Ansichten'));
+          var zurueck = function () {
             b.classList.remove('ist-laeuft');
             b.textContent = 'Alle fünf in einem Bild';
-            menuZeigen(false);
+          };
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              try {
+                bildAlle(function (url) {
+                  bildLaden(url, bildName('alle-Ansichten'));
+                  menuZeigen(false);
+                });
+              } finally { zurueck(); }
+            });
           });
           return;
         }

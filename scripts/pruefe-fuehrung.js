@@ -1387,6 +1387,19 @@ pruefe('Bodenschatten geht mit aus',
          : meld.join('; '));
 })();
 
+/* „das erstellen alles 5 bilder in einem bild funktioniert nicht, steht
+   nur wird erstellt, passiert nix" (Betreiber, 11.10.2026): Der erste
+   Versuch wartete auf fuenf Image-onload. Bleibt eines aus, wartet der
+   Knopf fuer immer. */
+pruefe('Sammelbild kommt ohne Rueckruf aus',
+       gegen ? /bild\.onload = function/.test(js) : !/bild\.onload = function/.test(js),
+       'Leinwand direkt in Leinwand gezeichnet');
+pruefe('Leinwand wird direkt kopiert',
+       new RegExp(q || 'c\\.drawImage\\(lw, x, y \\+ kopf, breit, hoch\\)').test(js), '');
+pruefe('Knopf faellt auch bei einem Fehler zurueck',
+       new RegExp(q || 'finally \\{ zurueck\\(\\); \\}').test(js),
+       'nicht fuer immer „Wird erstellt"');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
