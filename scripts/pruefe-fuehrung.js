@@ -90,6 +90,20 @@ pruefe('Höhe an der Wand steht in der Anfrage',
 pruefe('Neigung steht direkt unter der Durchgangshöhe',
        new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="neigung"').test(html), '');
 
+/* ---------- Hinweis auf den Testbetrieb ---------- */
+pruefe('Testhinweis ist vorhanden',
+       /id="k3dTestHinweis"/.test(html) && new RegExp(q || 'k3dTestHinweis').test(js), '');
+pruefe('Testhinweis startet verborgen',
+       !gegen && /<div class="k3d-hinw" id="k3dTestHinweis" hidden>/.test(html),
+       'ohne JS kein Dialog vor dem Inhalt');
+pruefe('Testhinweis kommt einmal je Sitzung',
+       new RegExp(q || 'sessionStorage').test(js) &&
+       !new RegExp('localStorage.*bvTestHinweis').test(js), 'sessionStorage');
+pruefe('Testhinweis wartet auf den Cookie-Hinweis',
+       new RegExp(q || "cb-visible").test(js), 'keine zwei Dialoge');
+pruefe('Testhinweis ist mit Tastatur bedienbar',
+       new RegExp(q || "'Escape'").test(js) && /role="dialog"/.test(html), '');
+
 /* Feste Panelbreite liess lange Knopftexte mitten im Wort abbrechen. */
 pruefe('Bedienfeld waechst mit der Bildschirmbreite',
        new RegExp(q || '--k3d-sl-breite: clamp\\(').test(html) &&

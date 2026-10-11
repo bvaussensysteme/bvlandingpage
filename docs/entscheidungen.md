@@ -866,3 +866,43 @@ sie selbst ausrechnen muss, rechnet sie irgendwann falsch – und ein um
 die Anleitung auf einem zweiten Weg: die vier Werte der Skizze (140, 280,
 420, 560 mm bei 1 bis 4 m) und das Rechenbeispiel (200 cm innen, 3 m
 Ausfall → 242 cm). Alle fünf stimmen. 18 Prüfungen, Gegenprobe 18 von 18.
+
+## 2026-10-11 – Hinweis auf den Testbetrieb im 3D-Konfigurator
+
+**Anlass.** Der Betreiber: „kannst du wenn man auf den 3d konfigurator
+geht so ein pop up bauen … das der 3d konfigurator noch im bau ist und
+getestet wird und somit noch fehler sein könten bevor das jemand für
+fertige version hält".
+
+**Was jetzt gilt.** Beim Öffnen erscheint einmal ein Hinweis: Der
+Konfigurator wird gebaut und getestet, die Darstellung kann noch
+abweichen, verbindlich ist das Angebot nach dem Aufmaß. Dazu die Bitte
+um Rückmeldung, wenn etwas auffällt.
+
+**Die Entscheidungen dahinter:**
+
+- **Einmal je Browser-Sitzung**, nicht bei jedem Aufruf (`sessionStorage`,
+  nicht `localStorage`). Wer zwischen Website und Konfigurator hin- und
+  herspringt, soll nicht jedes Mal wegklicken. Beim nächsten Besuch kommt
+  er wieder – solange er stimmt, soll er auch gesehen werden.
+- **Erst nach dem Cookie-Hinweis.** Zwei Dialoge übereinander sind keiner.
+  Gewartet wird auf das Verschwinden von `cb-visible`, höchstens
+  20 Sekunden – lieber einmal übereinander als gar nicht.
+- **Ohne JavaScript kein Dialog.** Das Markup startet mit `hidden`;
+  eingeblendet wird nur per Skript. Sonst stünde bei abgeschaltetem
+  JavaScript ein nicht schließbarer Kasten über der Seite.
+- **Schlägt `sessionStorage` fehl** (privates Fenster, gesperrte Daten),
+  wird der Hinweis gezeigt. Das ist die sichere Richtung.
+- Bedienbar mit Escape und Klick daneben, Fokus springt auf den Knopf und
+  danach dorthin zurück, wo er war.
+
+**Rechtlich.** Der Hinweis ersetzt den Vorbehalt im Fußtext nicht, er
+verstärkt ihn: Im Dialog steht ausdrücklich, dass das Angebot nach dem
+Aufmaß verbindlich ist und nicht das Bild auf dem Bildschirm.
+
+**Wenn der Konfigurator fertig ist:** Den Block `k3dTestHinweis` aus
+`konfigurator.html` und die zugehörige Funktion aus
+`js/konfigurator-3d.js` entfernen. Die Prüfungen in
+`scripts/pruefe-fuehrung.js` dann ebenfalls.
+
+**Prüfung.** 25 Prüfungen, alle bestanden; Gegenprobe 25 von 25.
