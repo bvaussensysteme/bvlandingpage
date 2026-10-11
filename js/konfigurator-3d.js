@@ -70,6 +70,8 @@
        rechts laufen über die TIEFE, vorne über die BREITE. Das sind zwei
        verschiedene Maße, zu denen oft gar nicht dieselbe Bauart passt. */
     sg23Links: '', sg23Rechts: '', sg23Vorne: '',
+    sg23Glas: 'ESG 10 mm klar',   // laut VD-Formular gibt es nur diese zwei
+    sg23Schloss: 'ohne',          // ohne | links | rechts
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
     /* Nur Carport TDS: Höhe hinten wird DIREKT eingestellt, die Neigung
@@ -1023,6 +1025,22 @@
     return m;
   }
 
+  /* Satinato ist geätztes ESG: Es lässt das Licht durch, aber kein Bild.
+     Im Modell heißt das: deutlich weniger durchsichtig, viel rauer und
+     keine Spiegelung – sonst sähe es aus wie klares Glas mit Schleier.
+     Laut VD-Anfrageformular gibt es für SG23 NUR klar und satinato. */
+  function schiebeGlas() {
+    var m = seitenglas();
+    if (Z.sg23Glas.indexOf('satinato') === -1) return m;
+    m.color = rgb(0xe8eef0);
+    m.opacity = 0.62;
+    m.roughness = 0.55;
+    m.clearcoat = 0.1;
+    m.clearcoatRoughness = 0.5;
+    m.envMapIntensity = 0.35;
+    return m;
+  }
+
   function seitenglas() {
     var m = new THREE.MeshPhysicalMaterial({
       color: rgb(0xd8ecf2), transparent: true, opacity: 0.3,
@@ -1857,6 +1875,7 @@
 
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX) {
     var mGlas = seitenglas();
+    var mSchiebe = schiebeGlas();
     var rahmen = alu();
     function offenSeite(seite) {
       if (seite === 'links') return Z.offenLinks / 100;
@@ -1993,7 +2012,11 @@
        der Kante, die im geschlossenen Zustand außen liegt, also auf der
        dem Stapel abgewandten Seite. Vorher saß er an der Innenkante –
        dort greift niemand. */
-    var GRIFF = { durchmesser: 5.0, hoehe: 105, randAbstand: 9 };
+    /* Griffhöhe 1100 mm: BELEGT aus dem VD-Anfrageformular SG23
+       („Griffhöhe: ☐ 1100 mm Standard, ☐ andere Höhe ___ mm").
+       Vorher standen hier 1050 mm aus einer Netzrecherche zur üblichen
+       Drückerhöhe – das war eine Annahme und 50 mm daneben. */
+    var GRIFF = { durchmesser: 5.0, hoehe: 110, randAbstand: 9 };
 
     function muschelgriff(achse, lage, yUnten, quer, versatz, dicke) {
       var g = new THREE.Mesh(
@@ -2117,7 +2140,7 @@
         var spur = innenRichtung(achse, quer) * (1.5 + (i % 2) * 2.4);
         /* Die Scheibe traegt die Seite, zu der sie gehoert – daran
            erkennt der Klick spaeter, welche Anlage gemeint ist. */
-        schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
+        schiebeTeil(platte(mSchiebe, flB, hoehe, achse, lage, yUnten + hoehe / 2,
                            quer, spur, SG23.glasDicke), seite);
         /* KEIN Rahmen um den Flügel. „bei dem sg23 modell sind nur
            glasschiebetüren du hast da jz aber rahmen dran gemacht das
@@ -4389,7 +4412,7 @@
         return;
       }
       zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] + ' mm licht' + zusatz +
-        ' – SG23, ' + b[0] + '-rails, ' + b[1] + '-türig, 10 mm ESG, Scheiben je ca. ' +
+        ' – SG23, ' + b[0] + '-rails, ' + b[1] + '-türig, ' + Z.sg23Glas + ', Scheiben je ca. ' +
         Math.round(p[1] / b[1]) + ' mm (Vorschlag, Aufteilung nach Aufmaß)');
     });
     return zeilen;
@@ -5240,6 +5263,20 @@
          (Betreiber) – besprechen kann man aber nur, was dasteht. Ohne
          diese Zeile müsste man die Aufteilung aus dem Bild abzählen. */
       sg23Zeilen().forEach(function (zeile) { teile.push(zeile); });
+      /* Drei Angaben, die das VD-Anfrageformular verlangt und die wir
+         bisher nirgends festgehalten haben. Die Blickrichtung steht dort
+         rot hervorgehoben: „Ansicht der Elemente von Innen gesehen!"
+         Ohne diesen Satz kann dieselbe Angabe spiegelverkehrt gelesen
+         werden – und das merkt niemand vor der Montage. */
+      if (erwIrgendwo('Schiebetür')) {
+        teile.push('SG23 Richtungsangaben: von INNEN gesehen (links/rechts ' +
+                   'wie im VD-Anfrageformular)');
+        teile.push('SG23 Griffhöhe: 1100 mm (Standard), runder eingelassener Griff');
+        teile.push('SG23 Schloss: ' + (Z.sg23Schloss === 'ohne'
+          ? 'nicht vorgesehen' : Z.sg23Schloss + ' (Stückzahl nach Aufmaß)'));
+        teile.push('SG23 Bürstendichtung: Bürstenprofil inkl. Bürsten, ' +
+                   'Lieferlänge 2500 mm – Bedarf nach Aufmaß');
+      }
       if (gruppeGilt('traeger-wunsch') && Z.traegerWunsch) {
         teile.push('Statikträger 189 × 117 mm unter der Dachrinne auf Kundenwunsch ' +
           '(weniger Pfosten, Durchgangshöhe darunter ' + (Z.hoehe - 189) + ' mm)');
@@ -5349,6 +5386,8 @@
     Z.sonneAus = zahl('k3dSonneAus', Z.sonneAus);
     Z.plankenFuge = zahl('k3dPlankenFuge', Z.plankenFuge);
     Z.plankenAnteil = zahl('k3dPlankenAnteil', Z.plankenAnteil);
+    Z.sg23Glas = wert('k3dSg23Glas') || Z.sg23Glas;
+    Z.sg23Schloss = wert('k3dSg23Schloss') || Z.sg23Schloss;
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
@@ -5753,6 +5792,7 @@
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
+   'k3dSg23Glas', 'k3dSg23Schloss',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);
