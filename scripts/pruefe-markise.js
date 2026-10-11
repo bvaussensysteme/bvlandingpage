@@ -158,6 +158,9 @@ pruefe('eZIP – Kastenunterstützung ab 400 cm',
        new RegExp(q || 'laenge > ZIP\\.stuetzeAb').test(src), 'Anleitung S. 5');
 pruefe('eZIP – Hinweis bei über 5 m Breite',
        new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
+pruefe('Markise laesst sich im Bild anklicken',
+       new RegExp(q || 'userData\\.sonne').test(src) &&
+       new RegExp(q || 'markiseGeklickt').test(src), 'Raycast auf sonneTeil');
 pruefe('Seitenelemente reichen hinten bis zur Wand',
        new RegExp(q || 'var hinten = 0;').test(src), 'kein Spalt zur Hauswand');
 pruefe('Seitenelemente stoßen an den Pfosten',

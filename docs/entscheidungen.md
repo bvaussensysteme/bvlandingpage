@@ -694,3 +694,26 @@ passt für beide Fälle.
 **Prüfung.** `scripts/pruefe-markise.js` – 43 Prüfungen, alle bestanden;
 Gegenprobe 43 von 43. Beide Spalte haben eine eigene Prüfung, damit sie
 nicht zurückkommen.
+
+## 2026-10-11 – Markise im Bild anklickbar
+
+**Wunsch des Betreibers.** „wenn man die markise anklickt egal ob aufdah,
+unterdach oder senkrecht, soll diese öffnen/schließen".
+
+**Was jetzt gilt.** Jedes Markisenteil trägt `userData.sonne`. Beim Klick
+geht ein Strahl durch das Bild; am Treffer wird nach oben durch die Eltern
+gelaufen, damit auch ein Teil zählt, das in einer Gruppe steckt (Auf- und
+Unterdachmarkise sind Gruppen). Getroffen zählt nur das **vorderste**
+Teil – sonst würde ein Klick auf den Pfosten die Markise hinter ihm
+bedienen.
+
+Die Markise fährt **weich** aus oder ein (650 ms), statt zu springen. Das
+Ausfahren ist die Bewegung, um die es geht; ein Sprung zeigt sie nicht.
+Der Rechenaufwand entspricht dem Ziehen am Regler.
+
+**Klick oder Drehen?** Wer die Kamera dreht, bewegt den Zeiger. Erst unter
+6 Pixel Weg und unter einer halben Sekunde gilt es als Klick. Ohne diese
+Unterscheidung würde jede Drehbewegung die Markise umschalten.
+
+Im Bedienfeld steht jetzt ein Satz dazu – eine Klickfläche, von der
+niemand weiß, gibt es praktisch nicht.
