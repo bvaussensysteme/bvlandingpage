@@ -210,7 +210,11 @@ pruefe('Schiebeanlage faehrt weich, nicht springend',
   var feste = (src.match(/dauer = \d+/g) || []).length + (gegen ? 1 : 0);
   pruefe('Keine zweite, feste Fahrdauer im Code', feste === 0, feste + ' gefunden');
   var genutzt = (src.match(/dauer = FAHRDAUER/g) || []).length - (gegen ? 1 : 0);
-  pruefe('Beide Bewegungen nutzen dieselbe Dauer', genutzt === 2, genutzt + ' Stellen');
+  /* Drei Stellen: Markise, Schiebeanlage und die Bahnen von Plissee und
+     Sonnensegel. Die Bahnen brauchen laenger, weil sie nacheinander
+     laufen - aber als Vielfaches derselben Zahl, nicht als zweite. */
+  pruefe('Alle Bewegungen rechnen mit derselben Zahl', genutzt === 3,
+         genutzt + ' Stellen');
 })();
 pruefe('Klick schaltet auf oder zu',
        new RegExp(q || "schiebeFahren\\(seite, Z\\[feld\\] > 50 \\? 0 : 100\\)").test(src), '');
@@ -641,9 +645,35 @@ pruefe('Eingefahrene Bahn wird gestaucht, nicht gekuerzt',
 /* „diese einzeln pro sparrenzwischenraum handbetrieben sind mit einer
    stange ... deswegen wuerde ich bei der animation es so machen das sie
    nacheinander versetzt schliessen und oeffnen" (Betreiber). */
-pruefe('Bahnen fahren nacheinander',
-       new RegExp(q || 't - i \\* SONNE_VERSATZ').test(src) &&
-       new RegExp(q || 'SONNE_VERSATZ = \\d+').test(src), '');
+pruefe('Versatz steckt in der Aufteilung, nicht nur in der Animation',
+       new RegExp(q || 'bahnStellen\\(b, bahnAnteil\\(i, n, p\\)\\)').test(src),
+       'sonst bewegt sich am Regler alles gemeinsam');
+(function () {
+  /* Zweiter Weg: die ECHTE Funktion laufen lassen. „plissees und
+     sonnensegel oeffnen in der animation alle noch gleichzeitig, mach es
+     etwas versetzt" (Betreiber, 11.10.2026) - der erste Anlauf hatte den
+     Versatz nur in der Zeit, der Regler setzte weiter alles gleich. */
+  var fn = (src.match(/function bahnAnteil\([\s\S]*?\n  \}/) || [''])[0];
+  var lag = parseFloat((src.match(/SONNE_LAG = ([\d.]+)/) || [])[1]);
+  if (!fn || !lag) { pruefe('Versatzfunktion lesbar', false, 'nicht gefunden'); return; }
+  var SONNE_LAG = gegen ? 0 : lag;                 // gegen: alles gleichzeitig
+  var bahnAnteil = eval('(' + fn + ')');
+  var n = 6, i, werte = [], falsch = 0, meld = [];
+  for (i = 0; i < n; i++) werte.push(bahnAnteil(i, n, 0.5));
+  var verschieden = werte.filter(function (w, k) { return werte.indexOf(w) === k; }).length;
+  if (verschieden < 3) { falsch++; meld.push('nur ' + verschieden + ' verschiedene Staende'); }
+  for (i = 1; i < n; i++) {
+    if (werte[i] > werte[i - 1] + 1e-9) { falsch++; meld.push('Bahn ' + i + ' eilt vor'); }
+  }
+  /* Die Enden muessen trotzdem sauber sein: ganz zu und ganz offen. */
+  for (i = 0; i < n; i++) {
+    if (bahnAnteil(i, n, 0) !== 0) { falsch++; meld.push('bei 0 % nicht zu'); }
+    if (bahnAnteil(i, n, 1) !== 1) { falsch++; meld.push('bei 100 % nicht offen'); }
+  }
+  pruefe('Bahnen laufen nacheinander', falsch === 0,
+         falsch === 0 ? 'bei 50 %: ' + werte.map(function (w) {
+           return Math.round(w * 100) + '%'; }).join(' ') : meld.join('; '));
+})();
 pruefe('Animation baut das Modell nicht neu',
        gegen ? /bahnLaeuft[\s\S]{0,500}aendern\(\);/.test(src)
              : !/bahnLaeuft[\s\S]{0,500}aendern\(\);/.test(src),
@@ -660,22 +690,6 @@ pruefe('Klick auf Plissee/Segel nutzt die versetzte Fahrt',
 pruefe('Hinweis auf die Handbedienung steht im Bedienfeld',
        new RegExp(q || 'von Hand bedient').test(fs.readFileSync('konfigurator.html', 'utf8')),
        'bei beiden Stofffeldern');
-(function () {
-  /* Zweiter Weg: die Fahrzeit wirklich ausrechnen. Bei fuenf Bahnen muss
-     die letzte sichtbar spaeter losfahren als die erste - sonst sieht es
-     aus wie eine gemeinsame Mechanik. */
-  var versatz = parseFloat((src.match(/SONNE_VERSATZ = (\d+)/) || [])[1]);
-  var dauer = parseFloat((src.match(/FAHRDAUER = (\d+)/) || [])[1]);
-  if (gegen) versatz = 0;
-  var bahnen = 5;
-  var letzte = versatz * (bahnen - 1);
-  var gesamt = dauer + letzte;
-  var falsch = 0;
-  if (!(letzte >= 400)) falsch++;          // sonst nicht zu erkennen
-  if (gesamt > 3500) falsch++;             // sonst wartet der Kunde
-  pruefe('Versatz sichtbar, Gesamtzeit ertraeglich', falsch === 0,
-         'letzte Bahn startet nach ' + letzte + ' ms, fertig nach ' + gesamt + ' ms');
-})();
 (function () {
   /* Zweiter Weg: die Tuchflaeche wirklich ausrechnen - mit den Zahlen,
      die im Code stehen, nicht mit abgeschriebenen.

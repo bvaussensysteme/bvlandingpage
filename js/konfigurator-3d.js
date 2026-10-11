@@ -3754,7 +3754,21 @@
      dazu nötig wäre. */
   var SONNE_BAHNEN = [];
   var SONNE_P = 1;                 // zuletzt gezeichneter Stand, 0 bis 1
-  var SONNE_VERSATZ = 220;         // ms je Bahn
+  /* KORREKTUR 11.10.2026: „plissees und sonnensegel öffnen in der
+     animation alle noch gleichzeitig, mach es etwas versetzt"
+     (Betreiber).
+
+     Der erste Versuch verschob nur die ANIMATION um 220 ms je Bahn. Das
+     greift aber nur, wenn überhaupt animiert wird – am Regler wurde
+     jeder kleine Schritt sofort gesetzt, und dort bewegte sich alles
+     gemeinsam.
+
+     Jetzt steckt der Versatz in der Aufteilung selbst: Jede Bahn hat
+     ihren eigenen Anteil am Weg. Bahn 1 ist schon offen, während Bahn 3
+     noch anfängt – egal ob am Regler gezogen oder angeklickt wird. Das
+     ist auch das richtige Bild: Man geht mit der Stange die Felder
+     nacheinander durch, nicht alle auf einmal. */
+  var SONNE_LAG = 0.35;            // Versatz je Bahn, als Anteil einer Bahn
   /* NICHT sonneLaeuft nennen – so heißt schon die Fahrt der Markise.
      Zwei var mit demselben Namen im selben Gültigkeitsbereich: die
      zweite gewinnt, und eine der beiden Animationen läuft ins Leere.
@@ -3769,24 +3783,29 @@
     b.mesh.scale.z = p;
     b.mesh.position.set(b.x, b.uk(b.zAb + l / 2) + b.hoch, b.zAb + l / 2);
   }
+  /* Anteil der Bahn i am Gesamtweg p. Bei 0 sind alle zu, bei 1 alle
+     offen – dazwischen laufen sie nacheinander. */
+  function bahnAnteil(i, n, p) {
+    var weg = 1 + Math.max(0, n - 1) * SONNE_LAG;
+    return Math.max(0, Math.min(1, p * weg - i * SONNE_LAG));
+  }
   function bahnenSetzen(p) {
-    SONNE_BAHNEN.forEach(function (b) { bahnStellen(b, p); });
+    var n = SONNE_BAHNEN.length;
+    SONNE_BAHNEN.forEach(function (b, i) { bahnStellen(b, bahnAnteil(i, n, p)); });
   }
   function bahnenFahren(ziel) {
     if (bahnLaeuft) clearInterval(bahnLaeuft);
     var von = SONNE_P, t0 = Date.now();
-    var gesamt = FAHRDAUER + SONNE_VERSATZ * Math.max(0, SONNE_BAHNEN.length - 1);
+    /* Länger als eine Markisenfahrt: Der Weg ist durch den Versatz
+       länger geworden, sonst wirkt es gehetzt. */
+    var dauer = FAHRDAUER * 1.8;
     bahnLaeuft = setInterval(function () {
-      var t = Date.now() - t0;
-      SONNE_BAHNEN.forEach(function (b, i) {
-        var p = Math.max(0, Math.min(1, (t - i * SONNE_VERSATZ) / FAHRDAUER));
-        bahnStellen(b, von + (ziel - von) * weich(p));
-      });
+      var t = Math.min(1, (Date.now() - t0) / dauer);
+      bahnenSetzen(von + (ziel - von) * weich(t));
       neuZeichnen();
-      if (t >= gesamt) {
+      if (t >= 1) {
         clearInterval(bahnLaeuft); bahnLaeuft = null;
         SONNE_P = ziel;
-        bahnenSetzen(ziel);
         neuZeichnen();
       }
     }, 40);

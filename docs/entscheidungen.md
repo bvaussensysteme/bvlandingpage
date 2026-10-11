@@ -3457,3 +3457,29 @@ der beiden Animationen wäre ins Leere gelaufen. Jetzt `bahnenFahren` /
 **Noch offen beim Betreiber:** Gestellfarbe des Plissees, Bedienstab in
 Weiß oder Schwarz, Verstärkung und Installationsart des Segels, die
 Bahnenmaße. Dafür gibt es noch kein Feld.
+
+## 11.10.2026 – Versatz der Bahnen gehört in die Aufteilung, nicht in die Animation
+
+**Anlass.** „plissees und sonnensegel öffnen in der animation alle noch
+gleichzeitig, mach es etwas versetzt" (Betreiber, mit Bildschirmfoto) –
+obwohl der Versatz schon eingebaut war.
+
+**Warum er nicht zu sehen war.** Er steckte nur in der ANIMATION: 220 ms
+je Bahn, wenn gefahren wird. Gefahren wird aber nur bei einem großen
+Sprung. Am Regler kommt der Wert in kleinen Schritten an, und jeder
+Schritt wurde sofort für alle Bahnen gleich gesetzt – also bewegte sich
+alles gemeinsam, genau wie vorher.
+
+**Was jetzt gilt.** Der Versatz steckt in der Aufteilung selbst: Jede
+Bahn hat ihren eigenen Anteil am Gesamtweg (`bahnAnteil`, 0,35 Bahnen
+Versatz zur nächsten). Bei 50 % steht Bahn 1 und 2 offen, Bahn 3 bei
+68 %, Bahn 4 bei 33 %, Bahn 5 und 6 noch zu. Das gilt am Regler genauso
+wie beim Klick – und es ist das richtige Bild: Man geht mit der Stange
+die Felder nacheinander durch. Bei 0 % sind alle zu, bei 100 % alle
+offen; nur dazwischen laufen sie versetzt.
+
+**Lehre.** Ein Versatz, der nur in der Animation liegt, verschwindet,
+sobald nicht animiert wird. Gehört er zum Zustand, muss er in den
+Zustand. Die Prüfung läuft jetzt die echte Funktion und verlangt bei
+50 % mindestens drei verschiedene Stände – die Gegenprobe setzt den
+Versatz auf 0 und muss anschlagen.
