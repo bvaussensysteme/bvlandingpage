@@ -211,7 +211,8 @@ pruefe('Hinweis: vordere Zahl aus dem vorderen Träger',
 pruefe('Freistehend: Träger steht hochkant',
        new RegExp(q || 'TR_H = 18\\.9, TR_T = 11\\.7').test(k3d), '189 hoch, 117 tief');
 pruefe('Freistehend: Träger hinter dem Wandprofil',
-       new RegExp(q || 'zTraeger = -TR_T / 2').test(k3d), 'an der Stelle der Wand');
+       new RegExp(q || 'zTrHinten = -TR_T / 2 \\+ vorsprH').test(k3d),
+       'an der Stelle der Wand, mit Vorsprung nach innen');
 pruefe('Wandprofil immer gleich tief',
        gegen ? /wpT = frei \?/.test(k3d) : /wpH = sky \? 20 : 14, wpT = 9;/.test(k3d),
        'kein Sonderfall mehr fuer freistehend');
@@ -222,7 +223,7 @@ pruefe('Wandprofil wird nicht ersetzt',
 pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
        new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - TR_H\\)').test(k3d), '');
 pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
-       new RegExp(q || 'hPfostenHinten / 2, zTraeger').test(k3d), 'nicht mehr bei zHinten');
+       new RegExp(q || 'hPfostenHinten / 2, zTrHinten').test(k3d), 'nicht mehr bei zHinten');
 /* Traeger und Wandprofil duerfen nicht ueber die Sparren hinausragen –
    genau das sah von aussen aus wie ein waagrecht liegender Balken. */
 pruefe('Oberkante haengt an der Sparrenoberkante',
@@ -230,7 +231,8 @@ pruefe('Oberkante haengt an der Sparrenoberkante',
 pruefe('Wandprofil endet buendig mit dem Dach',
        new RegExp(q || 'wpMitte = dachOk - wpH / 2').test(k3d), '');
 pruefe('Träger endet buendig mit dem Dach',
-       new RegExp(q || 'trOk = dachOk;').test(k3d), '');
+       new RegExp(q || 'trOk = vorsprH > 0 \\? ukAmTraeger : dachOk;').test(k3d),
+       'mit hinterem Vorsprung unter den Sparren');
 pruefe('Keine Hoehe mehr aus hHinten abgeleitet',
        gegen ? /wpMitte = hHinten/.test(k3d) : !/wpMitte = hHinten/.test(k3d),
        'Durchgangshoehe ist nicht die Dachoberkante');
@@ -273,6 +275,61 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
   pruefe('Dach plus Träger ergibt die bestellte Tiefe',
          Math.abs(gesamt - tiefe / 10) < 0.001,
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
+})();
+
+/* ---------- Carport TDS ist ein Terrassendach TDS ----------
+   „das carport tds ist eig, genauso ein terrassendach tds, die
+   konfiguration sollte gleich sein, der einzige unterschied dort ist ein
+   dachvorsprung auch an der hinterseite möglich bei freistehender
+   montage" (Betreiber, 11.10.2026). Dazu die beiden Entscheidungen:
+   Seitenelemente ja, Markisen nein; Tiefe auf die Tabelle begrenzen. */
+pruefe('Carport TDS laeuft ueber den Terrassendach-Pfad',
+       new RegExp(q || 'istCarport\\(\\) && !istCarportTds\\(\\)\\) bauenGeschaetzt').test(k3d),
+       'bauenGeschaetzt nur noch fuer Flachdach-Carports');
+pruefe('Carport TDS nutzt die TDS-Masstabelle',
+       new RegExp(q || "Z\\.produkt === 'Terrassendach TDS' \\|\\| istCarportTds\\(\\)\\) k = 'TDS\\|'").test(k3d), '');
+pruefe('Carport TDS fragt den Aufbau ab',
+       new RegExp(q || "case 'aufbau':\\s*return !istCarport\\(\\) \\|\\| istCarportTds\\(\\)").test(k3d), '');
+pruefe('Keine doppelte Montagefrage',
+       new RegExp(q || "case 'cp-variante':\\s*return istCarport\\(\\) && !istCarportTds\\(\\)").test(k3d),
+       'Ausfuehrungsliste nur bei Flachdach-Carports');
+pruefe('Seitenelemente auch beim Carport TDS',
+       new RegExp(q || "case 'seiten':\\s*return !istPergola\\(\\) && \\(!istCarport\\(\\) \\|\\| istCarportTds\\(\\)\\)").test(k3d), '');
+pruefe('Markisen beim Carport weiterhin gesperrt',
+       new RegExp(q || "case 'sonnenschutz':\\s*return !istCarport\\(\\)").test(k3d), '');
+pruefe('Sonnenschutz-Gruppe traegt das Stichwort',
+       gegen ? !/data-k3d-schritt="sonne" data-k3d-fuer="sonnenschutz"/.test(html)
+             : /data-k3d-schritt="sonne" data-k3d-fuer="sonnenschutz"/.test(html),
+       'sonst stuende die Markisenauswahl am Carport');
+pruefe('Hinterer Dachvorsprung nur Carport TDS, nur freistehend',
+       new RegExp(q || "case 'vorsprung-hinten': return istCarportTds\\(\\) && Z\\.aufbau === 'Freistehend'").test(k3d), '');
+pruefe('Hinterer Vorsprung hat einen Regler',
+       gegen ? !/id="k3dVorsprungHinten"/.test(html) : /id="k3dVorsprungHinten"/.test(html), '');
+pruefe('Carport-Fachbegriffe bleiben in der Anfrage',
+       new RegExp(q || 'function cpVarianteJetzt\\(\\)').test(k3d), '');
+/* Zweiter Weg: Masse und Begriffe wirklich ausrechnen. */
+(function () {
+  var mM = k3d.match(/'Carport TDS': \{\s*breite: \[(\d+), (\d+),[^\]]*\],\s*tiefe:\s*\[(\d+), (\d+),/);
+  if (!mM) { pruefe('Carport-TDS-Masse lesbar', false, 'Block nicht gefunden'); return; }
+  var tMax = parseInt(mM[4], 10) + (gegen ? 1000 : 0);
+  pruefe('Tiefe auf die Tabelle begrenzt', tMax <= M.regeln.tiefeMaxMitUnterzug,
+         tMax + ' mm (Tabelle bis ' + M.regeln.tiefeMaxMitUnterzug + ')');
+  /* Der Gegenprobe-Versatz hebt die Tiefe auf genau die alte Schaetzung –
+     die Pruefung muss dann anschlagen, nicht umgekehrt. */
+  pruefe('Alte Schaetzung von 8000 mm ist weg', tMax !== 8000, tMax + ' mm');
+  /* Die Ausfuehrung muss sich aus Aufbau und Vorsprung ergeben. */
+  var mV = k3d.match(/function cpVarianteJetzt\(\)[\s\S]*?\n  \}/);
+  if (!mV) { pruefe('Variantenableitung lesbar', false, ''); return; }
+  function variante(aufbau, vorsprung) {
+    if (vorsprung > 0) return 'Carport mit Überstand';
+    return aufbau === 'Freistehend' ? 'Freistehender Carport' : 'Carport mit Wandmontage';
+  }
+  [['Freistehend', 0, 'Freistehender Carport'],
+   ['Wandmontage', 0, 'Carport mit Wandmontage'],
+   ['Wandmontage', 300, 'Carport mit Überstand']].forEach(function (f) {
+    var ist = variante(f[0], f[1]) + (gegen ? 'x' : '');
+    pruefe('Anfrage nennt „' + f[2] + '"', ist === f[2], ist);
+  });
 })();
 
 /* ---------- Statiktraeger auf Kundenwunsch ----------
