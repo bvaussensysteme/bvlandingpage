@@ -2073,6 +2073,18 @@
      3 m also eine, bei 4,5 m zwei. Angabe des Betreibers. */
   var KEIL_FELD_MAX = 150;    // cm, BELEGT durch den Betreiber
 
+  /* Mehr als vier Felder gibt es beim Hersteller nicht – mehr als drei
+     Sprossen zeigt keine der acht Festelement-Zeichnungen. Damit Keil
+     und Rahmenwand übereinanderstehen, gilt die Grenze für beide:
+     „dann mach beim keil bei 7000 auch 4 felder wenn der hersteller
+     mehr nicht hergibt" (Betreiber, 11.10.2026).
+
+     ACHTUNG, hier stoßen zwei Angaben des Betreibers aneinander: Bei
+     7 m Tiefe wird ein Keilfeld damit 1750 mm breit und überschreitet
+     die 1,5 m von oben. Gewollt ist die gemeinsame Teilung; ob die
+     breiteren Felder zulässig sind, muss VD bestätigen. */
+  var KEIL_FELD_ZAHL_MAX = 4;
+
   function fluegelAnzahl(laenge, seite) {
     var b = sg23Bauart(laenge * 10, seite);    // cm -> mm
     if (b) return b[1];
@@ -2453,11 +2465,18 @@
          Feldern, auch wenn sie dann breiter als 1500 mm werden – das
          ist eine Grenze der dokumentierten Aufteilungen, keine
          Rechenschwäche. */
-      var felder = Math.max(1, Math.ceil(laengeCm / KEIL_FELD_MAX));
-      return [Math.min(3, felder - 1), 0];
+      var felder = Math.min(KEIL_FELD_ZAHL_MAX,
+                            Math.max(1, Math.ceil(laengeCm / KEIL_FELD_MAX)));
+      return [felder - 1, 0];
     }
 
-    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil) {
+    /* extraOben(pos) sagt, wie weit es an dieser Stelle noch bis zum Dach
+       ist. Damit laufen die senkrechten Profile und die Sprossen bis zur
+       Schräge weiter, statt an der Oberkante des Rechtecks aufzuhören –
+       „da oben beim dreieck is kein rahmen und der mittelsprossen geht
+       nicht bis hoch" (Betreiber, 11.10.2026, mit Bild). */
+    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil,
+                        extraOben) {
       if (laenge <= 2 * RAHMENW.profil || hoehe <= 2 * RAHMENW.profil) return;
       var P = RAHMENW.profil, S = RAHMENW.sprosse, T = RAHMENW.tiefe;
       var t = rahmenwandTeilung(laenge, hoehe);
@@ -2465,11 +2484,16 @@
       RAHMENW_IST = { senkrecht: sv, waagerecht: sh, teile: (sv + 1) * (sh + 1),
                       bisDach: false };
 
-      /* Rahmen: links, rechts, oben, unten. */
-      platte(rahmen, P, hoehe, achse, mitte - laenge / 2 + P / 2,
-             yUnten + hoehe / 2, quer, 0, T);
-      platte(rahmen, P, hoehe, achse, mitte + laenge / 2 - P / 2,
-             yUnten + hoehe / 2, quer, 0, T);
+      /* Rahmen: links, rechts, oben, unten. Die senkrechten Profile gehen
+         bis ans Dach, wo die Wand bis ans Dach geht. */
+      function hochBis(pos, grund) {
+        var zu = extraOben ? Math.max(0, extraOben(pos)) : 0;
+        return grund + zu;
+      }
+      var xL = mitte - laenge / 2 + P / 2, xR = mitte + laenge / 2 - P / 2;
+      var hL = hochBis(xL, hoehe), hR = hochBis(xR, hoehe);
+      platte(rahmen, P, hL, achse, xL, yUnten + hL / 2, quer, 0, T);
+      platte(rahmen, P, hR, achse, xR, yUnten + hR / 2, quer, 0, T);
       platte(rahmen, laenge, P, achse, mitte, yUnten + P / 2, quer, 0, T);
       /* Das obere Profil entfällt, wenn die Wand ohne Keil bis ans Dach
          geht: Dort schließt das Band entlang der Schräge ab, und ein
@@ -2480,7 +2504,12 @@
       }
 
       /* Lichte Fläche und die Felder darin. */
-      var innenB = laenge - 2 * P, innenH = hoehe - 2 * P;
+      /* Ohne oberes Profil reicht die lichte Fläche eine Profilbreite
+         höher – dort sitzt kein Rahmen, sondern die Wand läuft weiter
+         bis zur Schräge. Sonst endeten Glas und Sprossen 50 mm zu
+         tief, und genau das war im Bild zu sehen. */
+      var innenB = laenge - 2 * P;
+      var innenH = hoehe - P - (obenProfil === false ? 0 : P);
       var feldB = (innenB - sv * S) / (sv + 1);
       var feldH = (innenH - sh * S) / (sh + 1);
       if (feldB <= 0 || feldH <= 0) return;
@@ -2498,7 +2527,10 @@
       /* Sprossen zwischen den Feldern. */
       for (i = 1; i <= sv; i++) {
         x = mitte - laenge / 2 + P + i * feldB + (i - 0.5) * S;
-        platte(rahmen, S, innenH, achse, x, yUnten + P + innenH / 2, quer, 0, T);
+        /* Die Sprosse läuft bis zur Dachschräge durch – sonst hört sie
+           mitten in der Fläche auf. */
+        var hs = hochBis(x, innenH);
+        platte(rahmen, S, hs, achse, x, yUnten + P + hs / 2, quer, 0, T);
       }
       for (j = 1; j <= sh; j++) {
         y = yUnten + P + j * feldH + (j - 0.5) * S;
@@ -3007,9 +3039,10 @@
            Schräge und das Rahmenband obendrauf. */
         var bisDach = !hatKeil && quer && seite !== 'vorne' &&
                       neig > 0.001 && !!dachUk;
-        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer, !bisDach);
+        var yO = yUnten + hoch;
+        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer, !bisDach,
+                   bisDach ? function (pos) { return dachUk(pos) - yO; } : null);
         if (bisDach) {
-          var yO = yUnten + hoch;
           var hVo = Math.max(0, dachUk(zVorneK) - yO);
           var hHi = Math.max(0, dachUk(zHintenK) - yO);
           if (hHi > 1) {
@@ -3127,7 +3160,8 @@
           platte(rahmen, keilLaenge, rb, achse, keilMitte, yKeil + rb / 2, quer, 0, rb);
           /* Stirnseiten und Unterteilungen: je angefangene 1,5 m Tiefe
              ein Pfosten im Keil (KEIL_FELD_MAX). */
-          var felderK = Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX));
+          var felderK = Math.min(KEIL_FELD_ZAHL_MAX,
+                                 Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX)));
           var stiele = [zHintenK + rb / 2, zVorneK - rb / 2];
           for (var fk = 1; fk < felderK; fk++) {
             stiele.push(zHintenK + (keilLaenge / felderK) * fk);

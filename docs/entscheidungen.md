@@ -3173,3 +3173,50 @@ Rechenschwäche.
 Bis zur Vierfeld-Grenze muss die Feldzahl übereinstimmen. Die Gegenprobe
 rechnet die Wand nach einem eigenen Richtwert – dann stehen die Sprossen
 versetzt, und sie schlägt an.
+
+## 2026-10-11 – Vierfeld-Grenze gilt jetzt auch für den Keil
+
+**Anlass:** „dann mach beim keil bei 7000 auch 4 felder wenn der
+hersteller mehr nicht hergibt" (Betreiber).
+
+**Was jetzt gilt:** Keil und Rahmenwand teilen sich gleich – ein Feld je
+angefangene 1,5 m, höchstens aber **vier**. Damit stehen Keilpfosten und
+Sprossen über die ganze Seitenlänge übereinander, auch bei 7 m.
+
+**⚠️ Hier stoßen zwei Angaben aneinander**, und das soll nicht untergehen:
+
+| | |
+|---|---|
+| früher (Betreiber, belegt) | Keil bekommt **je angefangene 1,5 m** eine Unterteilung |
+| jetzt (Betreiber) | höchstens **vier Felder**, weil der Hersteller nicht mehr hergibt |
+
+Bei 7 m Tiefe wird ein Keilfeld dadurch **1750 mm** breit, bei 9 m sogar
+2250 mm – beides über den früher genannten 1,5 m. Gewollt ist die
+gemeinsame Teilung; **ob die breiteren Felder zulässig sind, muss VD
+bestätigen.** Der Hinweis steht als Kommentar an der Konstante, damit er
+beim nächsten Anfassen auffällt.
+
+Die Vierfeld-Grenze selbst stammt aus den acht Festelement-Zeichnungen:
+Mehr als drei senkrechte Sprossen zeigt keine davon.
+
+## 2026-10-11 – Rahmen und Sprossen bis ans Dach, nicht nur das Glas
+
+**Anlass:** „da oben beim dreieck is kein rahmen und der mitelsprossen
+geht nicht bis hoch" (Betreiber, mit Bild).
+
+**Was war:** Beim Schritt davor ging nur das **Glas** bis zur
+Dachschräge. Die senkrechten Rahmenprofile und die Sprossen hörten dort
+auf, wo vorher die Oberkante des Rechtecks lag – im Dreieck stand die
+Scheibe ohne Rahmen.
+
+**Was jetzt gilt:** Die senkrechten Profile und jede Sprosse laufen bis
+zur Dachunterkante durch. Ihre Höhe wird **an ihrer eigenen Stelle** aus
+derselben Funktion geholt, die auch das Dach zeichnet (`dachUk`) – nicht
+aus einer zweiten Rechnung. Deshalb treffen sie die Schräge exakt, egal
+wie geneigt sie ist.
+
+**Dabei gefunden:** Ohne oberes Profil war die lichte Fläche um eine
+Profilbreite zu niedrig angesetzt – Glas und Sprossen endeten 50 mm
+unter der Schräge. Die neue Prüfung rechnet mit einer geneigten
+Dachunterkante nach und vergleicht Oberkante gegen Dach an fünf Stellen;
+sie hat genau diesen Fehler gemeldet, bevor er im Browser auffiel.

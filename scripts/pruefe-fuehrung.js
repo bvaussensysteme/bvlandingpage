@@ -916,8 +916,10 @@ pruefe('Rahmenwand steht in der Anfrage',
      Lage, gleiche Drehung. Deshalb wird hier verglichen, dass Keil und
      Band dieselben vier Zeilen benutzen. */
   var ok = /obenProfil !== false/.test(js) &&
-           /rahmenwand\(laenge, hoch, achse, mitte, yUnten, quer, !bisDach\)/.test(js) &&
-           /function keilBandNetz/.test(js);
+           /rahmenwand\(laenge, hoch, achse, mitte, yUnten, quer, !bisDach,/.test(js) &&
+           /function keilBandNetz/.test(js) &&
+           /hochBis\(x, innenH\)/.test(js) &&          // Sprosse bis zur Schraege
+           /hochBis\(xL, hoehe\)/.test(js);            // Rahmen bis zur Schraege
   var keil = (js.match(/rotation\.y = Math\.PI \/ 2;/g) || []).length;
   pruefe('Wand geht ohne Keil bis ans Dach',
          gegen ? !ok : ok, '');
@@ -950,7 +952,7 @@ pruefe('Rahmenwand steht in der Anfrage',
      Keilpfosten. */
   var MAX = 150, falsch = 0, waagerecht = 0;
   for (var l = 50; l <= 900; l += 5) {
-    var keilFelder = Math.max(1, Math.ceil(l / MAX));
+    var keilFelder = Math.min(4, Math.max(1, Math.ceil(l / MAX)));
     /* Gegenprobe: die alte Rechnung nach einem eigenen Richtwert statt
        nach dem Keilmass - dann stehen Sprosse und Keilpfosten versetzt. */
     var wandSprossen = gegen
@@ -959,8 +961,9 @@ pruefe('Rahmenwand steht in der Anfrage',
     var wandFelder = wandSprossen + 1;
     var sh = gegen ? 1 : 0;
     if (sh !== 0) waagerecht++;
-    /* Bis zur Grenze von vier Feldern muessen beide gleich sein. */
-    if (keilFelder <= 4 && wandFelder !== keilFelder) falsch++;
+    /* Jetzt gilt die Vierfeld-Grenze fuer BEIDE - sie muessen ueber den
+       ganzen Bereich uebereinstimmen, nicht nur bis zur Grenze. */
+    if (wandFelder !== keilFelder) falsch++;
   }
   pruefe('Sprossen folgen den Keilfeldern', falsch === 0,
          falsch + ' Laengen weichen ab');
@@ -969,7 +972,36 @@ pruefe('Rahmenwand steht in der Anfrage',
 })();
 pruefe('Automatik nutzt das Keilmass',
        new RegExp(q || 'Math\\.ceil\\(laengeCm / KEIL_FELD_MAX\\)').test(js) &&
-       new RegExp(q || 'return \\[Math\\.min\\(3, felder - 1\\), 0\\]').test(js), '');
+       new RegExp(q || 'return \\[felder - 1, 0\\]').test(js), '');
+
+pruefe('Vierfeld-Grenze gilt fuer Keil und Wand',
+       new RegExp(q || 'KEIL_FELD_ZAHL_MAX = 4').test(js) &&
+       (js.match(/KEIL_FELD_ZAHL_MAX,/g) || []).length === 2, '');
+
+(function () {
+  /* Rahmen und Sprossen muessen die Dachschraege WIRKLICH erreichen -
+     nicht ungefaehr. Nachgerechnet mit einer geneigten Dachunterkante:
+     Oberkante des Profils gleich Dachunterkante, an beiden Enden und an
+     jeder Sprossenstelle. */
+  var yU = 0, hoch = 200, P = 5, S = 4, laenge = 450, falsch = 0;
+  function dachUk(pos) { return 240 + 0.1 * pos; }      // geneigt
+  var yO = yU + hoch;
+  function extra(pos) { return dachUk(pos) - yO; }
+  function hochBis(pos, grund) {
+    return grund + Math.max(0, gegen ? 0 : extra(pos));
+  }
+  [[-laenge / 2 + P / 2, hoch], [laenge / 2 - P / 2, hoch]].forEach(function (e) {
+    var h = hochBis(e[0], e[1]);
+    if (Math.abs((yU + h) - dachUk(e[0])) > 0.001) falsch++;
+  });
+  for (var i = 1; i <= 3; i++) {
+    var x = -laenge / 2 + P + i * ((laenge - 2 * P - 3 * S) / 4) + (i - 0.5) * S;
+    var hs = hochBis(x, hoch - P);    // ohne oberes Profil
+    if (Math.abs((yU + P + hs) - dachUk(x)) > 0.001) falsch++;
+  }
+  pruefe('Rahmen und Sprossen erreichen die Schraege', falsch === 0,
+         falsch + ' von 5 Stellen zu kurz');
+})();
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
