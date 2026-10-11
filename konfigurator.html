@@ -421,6 +421,15 @@
       position: absolute; left: 16px; bottom: 18px;
       font-size: .7rem; color: #2d3b46; margin: 0; pointer-events: none;
     }
+    /* Was der nächste Klick tut. Steht ÜBER der Ansichtsleiste und bleibt
+       am Handy sichtbar – dort ist der Hinweis am nötigsten, weil es
+       keinen Mauszeiger gibt, der etwas verrät. */
+    .k3d-klickhinweis {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: 52px; margin: 0; pointer-events: none;
+      background: rgba(17,17,17,.72); color: #fff;
+      font-size: .74rem; padding: 5px 10px; border-radius: 999px;
+    }
 
     /* ---------- Handy und Tablet ---------- */
     @media (max-width: 900px) {
@@ -445,6 +454,7 @@
       .k3d-leiste::-webkit-scrollbar { display: none; }
       .k3d-leiste button { padding: 7px 8px; font-size: .72rem; flex: none; }
       .k3d-maushinweis { display: none; }
+      .k3d-klickhinweis { bottom: 46px; font-size: .68rem; padding: 4px 8px; }
     }
     @media (max-width: 420px) {
       .k3d-farben { grid-template-columns: repeat(2, 1fr); }
@@ -869,8 +879,9 @@
           </div>
           <p class="k3d-mini">Beide Hälften lassen sich getrennt stellen – oben
             offen für Licht und Luft, unten zu für den Sichtschutz. Im Bild
-            genügt ein Klick auf die Lamellen: Die angeklickte Hälfte öffnet
-            oder schließt sich.</p>
+            genügt ein Klick auf die Lamellen: Jeder Klick schaltet einen
+            Schritt weiter – Lamellen öffnen, Element zur Seite schieben,
+            schließen. Was als Nächstes kommt, steht unter dem Modell.</p>
           <label class="k3d-label" for="k3dVelarisOffen">Elemente verschoben <output id="k3dVelarisOffenWert">0 %</output></label>
           <input type="range" id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
@@ -1225,6 +1236,7 @@
     </div>
 
     <p class="k3d-maushinweis">Ziehen zum Drehen · Mausrad zoomen · zwei Finger zum Zoomen</p>
+    <p class="k3d-klickhinweis" id="k3dKlickHinweis" hidden></p>
   </div>
 </div>
 </main>
@@ -1318,7 +1330,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261014u" defer></script>
+<script src="js/konfigurator-3d.js?v=20261014w" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

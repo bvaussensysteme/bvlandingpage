@@ -3059,3 +3059,39 @@ rechts geöffnet muss exakt das Spiegelbild von „nach links" sein, und
 geschlossen müssen beide gleich sein. Über vier Schienen-Element-
 Kombinationen und den ganzen Fahrweg. Die Gegenprobe dreht das
 Vorzeichen der Fahrt um.
+
+## 2026-10-11 – Velaris anklicken: ein Ziel, feste Reihenfolge
+
+**Anlass:** „das mit anklicken klappt aber es steuert nur die gradzahl
+der lamellen nicht die schiebewand schlag mir eine vernünftige für
+kunden verständliche lösung vor" – der Betreiber wählte aus drei
+Vorschlägen Variante **B**.
+
+**Verworfen wurde (A):** Lamellen anklicken kippt, Rahmen anklicken
+schiebt. Das entspricht zwar der Wirklichkeit, ist aber am Handy nicht
+zu treffen – der Rahmen ist 45 mm breit. Wer danebentippt, kippt
+stattdessen die Lamellen und wundert sich. Zwei Bedeutungen auf engem
+Raum sind keine gute Nachahmung der Glasschiebewand, wo ein Klick nur
+eine Bedeutung hat.
+
+**Was jetzt gilt:** Ein Ziel, eine Reihenfolge – so, wie man das Bauteil
+auch bedient:
+
+| verschiebbar | feststehend |
+|---|---|
+| zu → Lamellen offen → Element zur Seite → zu | zu → offen → zu |
+
+Bei feststehenden Anlagen entfällt der Schiebeschritt von selbst, es gibt
+also keinen toten Klick. Unter dem Modell steht, was der nächste Klick
+tut – in einer eigenen Zeile, die am Handy **sichtbar bleibt**: Die
+vorhandene Maus-Zeile wird dort ausgeblendet, und gerade am Handy gibt
+es keinen Mauszeiger, der etwas verrät.
+
+**Eine Feinheit:** „Schließen" räumt beides auf – Lamellen zu UND
+Elemente zurück. Sonst bliebe die Anlage halb geschoben stehen und der
+nächste Klick öffnete wieder; in den Ausgangszustand käme man nie
+zurück.
+
+**Die Prüfung spielt die Reihenfolge nach**, statt nur nachzusehen, ob
+es sie gibt. Die Gegenprobe behandelt ein feststehendes Element als
+schiebbar – dann entsteht der tote Klick, und sie schlägt an.

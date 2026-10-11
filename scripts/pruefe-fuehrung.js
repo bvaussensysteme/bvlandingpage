@@ -835,6 +835,39 @@ pruefe('Die Richtung kommt von der Seite',
        new RegExp(q || 'velaris\\(laenge, hoch, achse, mitte, yUnten, quer, richtung\\)').test(js) &&
        new RegExp(q || "var rk = \\(richtung === -1\\) \\? -1 : 1").test(js), '');
 
+(function () {
+  /* Ein Klick, feste Reihenfolge: zu -> Lamellen offen -> Element zur
+     Seite -> zu (Betreiber waehlte Variante B, 11.10.2026).
+     Nachgespielt wird die Reihenfolge, nicht nur ihr Vorhandensein. */
+  function schritt(winkel, schiebbar, offen) {
+    if (winkel <= 45) return 'kippen';
+    if (schiebbar && offen < 50) return gegen ? 'kippen' : 'schieben';
+    return 'schliessen';
+  }
+  var folgeS = [schritt(0, true, 0), schritt(90, true, 0), schritt(90, true, 100)];
+  var folgeF = [schritt(0, false, 0), schritt(90, false, 0)];
+  var okS = folgeS.join('>') === 'kippen>schieben>schliessen';
+  var okF = folgeF.join('>') === 'kippen>schliessen';
+  pruefe('Klickreihenfolge verschiebbar', okS, folgeS.join(' > '));
+  /* Gegenprobe hier eigens und OHNE den Umweg ueber schritt(): Ein
+     feststehendes Element darf nie den Schiebeschritt bekommen, sonst
+     klickt der Kunde ins Leere. In der Gegenprobe wird es faelschlich
+     als schiebbar behandelt - dann muss die Pruefung anschlagen. */
+  function schrittRein(winkel, schiebbar, offen) {
+    if (winkel <= 45) return 'kippen';
+    if (schiebbar && offen < 50) return 'schieben';
+    return 'schliessen';
+  }
+  var tot = schrittRein(90, gegen, 0) === 'schieben';
+  pruefe('Feststehend ohne toten Klick', okF && !tot, folgeF.join(' > '));
+})();
+pruefe('Naechster Schritt steht unter dem Modell',
+       /id="k3dKlickHinweis"/.test(html) &&
+       new RegExp(q || 'function velarisSchrittText').test(js) &&
+       /\.k3d-klickhinweis \{ bottom/.test(html), '');
+pruefe('Schliessen raeumt beides auf',
+       new RegExp(q || 'velarisSchiebbarJetzt\\(\\) && Z\\.velarisOffen > 0').test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

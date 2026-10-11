@@ -4848,6 +4848,12 @@
 
   function velarisStandZeigen() {
     velarisFeldFuellen();
+    var hin = document.getElementById('k3dKlickHinweis');
+    if (hin) {
+      var t = velarisSchrittText();
+      hin.textContent = t;
+      hin.hidden = !t;
+    }
     var e = document.getElementById('k3dVelarisStand');
     if (!e) return;
     if (!VELARIS_IST.elemente) { e.textContent = ''; return; }
@@ -5167,6 +5173,40 @@
     return null;
   }
 
+  /* Ein Klick, feste Reihenfolge – so, wie man das Bauteil auch bedient:
+
+       zu  ->  Lamellen offen  ->  Element zur Seite  ->  zu
+
+     Zwei Bedeutungen auf dieselbe Fläche zu legen (Lamelle kippen,
+     Rahmen schieben) wäre am Handy nicht zu treffen: Der Rahmen ist
+     45 mm breit. Deshalb EIN Ziel und eine Reihenfolge, und unter dem
+     Modell steht, was der nächste Klick tut. Bei feststehenden Anlagen
+     entfällt der Schiebeschritt von selbst – kein toter Klick. */
+  function velarisSchiebbarJetzt() {
+    return Z.velarisArt === 'verschiebbar' &&
+           VELARIS_IST.art === 'verschiebbar' && VELARIS_IST.elemente > 1;
+  }
+
+  function velarisSchritt(h) {
+    var winkel = h === 'unten' ? Z.velarisWinkelUnten : Z.velarisWinkelOben;
+    if (winkel <= 45) return 'kippen';
+    if (velarisSchiebbarJetzt() && Z.velarisOffen < 50) return 'schieben';
+    return 'schliessen';
+  }
+
+  /* Für die Zeile unter dem Modell: Welcher Schritt steht an? Gefragt
+     wird die Hälfte, die als Nächstes dran wäre – geschlossen vor
+     offen, damit der Hinweis zum sichtbaren Zustand passt. */
+  function velarisSchrittText() {
+    if (!erwIrgendwo('Velaris')) return '';
+    var h = (Z.velarisWinkelOben <= 45) ? 'oben'
+          : (Z.velarisWinkelUnten <= 45 ? 'unten' : 'oben');
+    var schritt = velarisSchritt(h);
+    if (schritt === 'kippen') return 'Velaris anklicken: Lamellen öffnen';
+    if (schritt === 'schieben') return 'Velaris anklicken: Element zur Seite schieben';
+    return 'Velaris anklicken: schließen';
+  }
+
   function velarisGeklickt(e) {
     if (!erwIrgendwo('Velaris')) return false;
     var r = leinwand.getBoundingClientRect();
@@ -5177,8 +5217,16 @@
     for (var i = 0; i < treffer.length; i++) {
       var h = velarisHaelfteVon(treffer[i].object);
       if (h) {
-        var jetzt = h === 'unten' ? Z.velarisWinkelUnten : Z.velarisWinkelOben;
-        velarisFahren(jetzt > 45 ? 0 : 90, h);
+        var schritt = velarisSchritt(h);
+        if (schritt === 'kippen') velarisFahren(90, h);
+        else if (schritt === 'schieben') velarisSchiebenFahren(100);
+        else {
+          /* Schließen heißt: beides zu. Sonst bliebe die Anlage
+             halb geschoben stehen und der nächste Klick öffnete
+             wieder – man käme nie in den Ausgangszustand zurück. */
+          velarisFahren(0, h);
+          if (velarisSchiebbarJetzt() && Z.velarisOffen > 0) velarisSchiebenFahren(0);
+        }
         return true;
       }
       break;                         // nur das vorderste Teil zaehlt
