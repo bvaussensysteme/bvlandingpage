@@ -2130,3 +2130,31 @@ Was bleibt, ist der Name – in `produktName()` und in der Anfrage-Mail.
 **Lehre, dieselbe wie heute schon zweimal:** Beim Vereinheitlichen nicht
 nebenbei etwas Neues einführen. „Gleich" heißt gleich, nicht
 „gleich, aber mit eigenen Werten".
+
+## 2026-10-11 – Beim Carport kein automatischer Statikträger
+
+**Anlass:** „du machst beim carport automatisch nen statikträger ab
+bestimmte maß. lass das. mach es mit häckchen wie bei tds normal"
+(Betreiber).
+
+**Was war:** Der Carport TDS erbte mit dem Terrassendach-Pfad auch dessen
+Tiefenregel – ab 4500 mm Tiefe kommt laut Maßtabelle ein Unterzug. Ein
+Carport ist aber von Haus aus tief (Voreinstellung 5500 mm, Fahrzeuglänge
+plus Bewegungsraum), die Regel hätte dort also praktisch immer gegriffen
+und dem Kunden die Wahl genommen.
+
+**Was jetzt gilt:** Beim Carport TDS entscheidet allein das Häkchen
+„Statikträger unter der Rinne" bzw. ein Dachvorsprung. Beim
+Terrassendach bleibt die Tiefenregel unverändert.
+
+Die Abfrage steckt in einer Funktion `unterzugGilt(tb)`; Modell,
+Pfostenzahl und Maßhinweis fragen alle dort. Eine Prüfung schlägt an,
+sobald wieder irgendwo roh `tb.unterzug` abgefragt wird.
+
+**OFFEN und dem Betreiber vorgelegt:** Die Maßtabelle sieht den Unterzug
+ab 4500 mm Tiefe vor – das ist eine Statikangabe, keine Ausstattung. Wer
+jetzt einen 5,5 m tiefen Carport ohne Häkchen bestellt, bekommt
+möglicherweise eine Rückfrage von VD. Ob im Bedienfeld ein Hinweis
+darauf stehen soll, habe ich NICHT entschieden, sondern gefragt –
+nachdem ich heute dreimal bei einer Korrektur ungefragt etwas
+mitgeändert hatte.
