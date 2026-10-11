@@ -791,6 +791,13 @@ pruefe('Eine Flaeche je Bahn',
                  'Plissee-Gestellfarbe', 'Bedienstab 120 cm: ', 'Bahnen: '];
   var fehltMail = pflicht.filter(function (t) { return src.indexOf("'" + t) === -1; });
   if (gegen) fehltMail.push('kuenstlich');
+  /* Die Befestigungsart wird NICHT gefragt - sie folgt aus unserem
+     eigenen Dach (Aluminium) und steht trotzdem in der Anfrage. */
+  pruefe('Befestigungsart nicht gefragt, aber gemeldet',
+         (gegen ? htmlQ.indexOf('k3dSegelMontage') > -1
+                : htmlQ.indexOf('k3dSegelMontage') === -1) &&
+         src.indexOf("'Befestigung: '") > -1,
+         'intern, kein Feld im Bedienfeld');
   pruefe('Jede Formularangabe steht in der Anfrage', !fehltMail.length,
          fehltMail.length ? 'fehlt: ' + fehltMail.join(', ')
                           : pflicht.length + ' Angaben');
@@ -803,7 +810,7 @@ pruefe('Eine Flaeche je Bahn',
   /* Jedes neue Feld muss auch gelesen werden - ein Feld ohne Zeile in
      zustandLesen() bleibt stumm (derselbe Fehler wie bei den
      Velaris-Lamellen). */
-  var ids = ['k3dSegelArt', 'k3dSegelMontage', 'k3dSegelStange',
+  var ids = ['k3dSegelArt', 'k3dSegelStange',
              'k3dPlisseeGestell', 'k3dPlisseeStab'];
   var stumm = ids.filter(function (id) {
     return htmlQ.indexOf('id="' + id + '"') === -1 ||
