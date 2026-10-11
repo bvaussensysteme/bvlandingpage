@@ -569,3 +569,75 @@ bild ist das ein schlechter Tausch.
 breit eine Kachel in Wirklichkeit ist, und diese Zahlen sind nach
 Augenmaß geschätzt. Wirken die Platten zu groß oder zu klein, ist das die
 Stellschraube.
+
+## 2026-10-11 – Stoffauswahl, Terrassentür, Senkrechtmarkise, kürzerer Hinweistext
+
+### Stoffauswahl in beiden Konfiguratoren
+
+Der Betreiber hat die Stoffkarte geschickt mit dem Hinweis: „es is wichtig
+die bauarten zu unterscheiden da es nicht alle stoffarten für alle
+markisenarten gibt."
+
+**Was war.** `stoffe.html` listet seit je alle 97 Stoffe korrekt getrennt.
+Die **Konfiguratoren fragten den Stoff gar nicht ab** – der Assistent sagte
+nur „den Farbwunsch klären wir persönlich", das 3D-Modell zeichnete jedes
+Tuch in demselben Beige.
+
+**Was jetzt gilt.** Beide Konfiguratoren haben eine Stoffauswahl, strikt
+nach Bauart getrennt. Die Liste steht **einmal** in
+`js/markisenstoffe.js`; Regel, Eigenschaften und Bildpfade in
+`docs/markisenstoffe.md`. Das Tuch im 3D-Modell bekommt das echte Muster.
+
+**Eine Korrektur, die der Betreiber angebracht hat:** Ich hatte Konfektion
+A/B als Außen- und Innenseite desselben Tuchs gelesen. Falsch – es sind
+**zwei Muster, der Kunde wählt eins**. Die Datenstruktur hängt daran:
+jeder EZIP-Stoff ist zwei wählbare Einträge, nicht einer.
+
+**Verworfen:** `optionCards` wie bei den übrigen Schritten. 97 große
+Karten mit Foto sind unbedienbar. Stattdessen ein Musterraster nach
+Farbfamilie, Bilder verzögert geladen.
+
+**Offen und in `docs/markisenstoffe.md` ausführlich beschrieben:** Die
+EZIP-Stoffbilder liegen als **CMYK ohne Farbprofil** vor. Jede Umrechnung
+nach sRGB ist eine Schätzung, und die Farben weichen sichtbar ab – auch
+auf `stoffe.html`, wo dieselben Dateien direkt eingebunden sind.
+Abgesichert ist das derzeit nur durch den Hinweistext. **Der saubere Weg
+wäre, die Bilder beim Lieferanten als sRGB anzufordern.**
+
+### Terrassentür an der Hauswand
+
+Wunsch des Betreibers: „vllt. noch so ne terassentür/balkontür einfach als
+bild nix 3d modelieren das macht den ganzen konfigurator langsamer."
+
+Genau so gebaut: **eine Fläche aus zwei Dreiecken** mit einer auf Canvas
+gezeichneten Tür (Blendrahmen, zwei Flügel, Glasverlauf, Griffe). Eine
+echte Tür wären schnell 60 Flächen – und sie würde nichts zeigen, was das
+Bild nicht auch zeigt. Maße 180 × 220 cm sind GESCHÄTZT; es geht um den
+Maßstabsvergleich, nicht um ein Bauteil. Sichtbar nur bei Wandmontage.
+
+### Senkrechtmarkise bekommt einen Aufbau
+
+Bisher war sie ein Rechteck, das in der Luft hing. Jetzt: Kassette oben,
+Führungsschienen an beiden Seiten, Ausfallprofil am unteren Tuchende – so
+wie im Produktfoto der Stoffkarte (VD EZIP 105 / 125).
+
+**Kassette 10,5 cm ist aus dem Produktnamen abgeleitet** (EZIP 105 →
+105 mm, EZIP 125 → 125 mm). Das ist eine ANNAHME; eine Maßzeichnung zur
+EZIP liegt uns nicht vor. Schienen (50 mm) und Ausfallprofil sind
+GESCHÄTZT. **GEGENZULESEN**, und falls es eine EZIP-Zeichnung gibt, gehört
+sie hier hin – so wie bei Linea A und Linea U.
+
+### Hinweistext im Konfigurator gekürzt
+
+Vorher nannte der Fußtext Herstellerunterlagen, geschätzte
+Profilquerschnitte und Fertigungszeichnungen. Auf Wunsch des Betreibers
+jetzt kurz und ohne Herstellerbezug:
+
+> Die Darstellung dient nur der Orientierung und bildet Farben, Materialien
+> und Details nicht verbindlich ab. Maßgeblich ist unser Angebot nach dem
+> kostenlosen Aufmaß vor Ort.
+
+Das deckt zugleich die Farbabweichung der Stoffbilder ab.
+
+**Prüfung.** `node scripts/pruefe-stoffe.js` – 12 Prüfungen, alle
+bestanden; Gegenprobe 12 von 12.
