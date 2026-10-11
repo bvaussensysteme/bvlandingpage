@@ -2557,3 +2557,31 @@ Fachbegriffen – danach wird kalkuliert.
    baut.
 4. **Dekorbilder** Eiche Mocca und Rovere Pechino hell, damit die Maserung
    ins Modell kommt.
+
+## 2026-10-11 – Plankenwand nur halb hoch
+
+**Anlass:** „noch nen schieberegler normal steht er genau in der mitte, und
+man kann ihn nach links oder rechts ziehen und dadurch werden entweder von
+unten oder von oben planken entfernt, also quasi wenn jemand nur zur hälfte
+planken will oder nur 2/3 etc."
+
+**Was jetzt gilt:** Ein zweiter Regler unter den erweiterten Einstellungen,
+in der Mitte auf „volle Höhe". Nach links bleiben die **unteren** Planken
+stehen und oben wird frei, nach rechts umgekehrt. Ganz außen bleibt immer
+mindestens eine Planke.
+
+**Der Kniff, der leicht falsch gemacht wird:** Die Teilung bleibt die der
+**vollen** Höhe. Es werden nur Planken weggelassen, die übrigen werden
+nicht gestreckt. Sonst änderte sich mit dem Regler auch die Fuge – die
+halbe Wand sähe anders aus als die ganze, und zwei Seiten mit
+unterschiedlicher Höhe hätten unterschiedliche Fugen.
+
+Die Winkel stehen nur dort, wo auch Planken hängen – sie tragen sie ja.
+
+**Gegenprobe:** Die Prüfung rechnet in der Gegenprobe mit vertauschtem
+Vorzeichen. Das ist genau der Fehler, der sonst durchginge: Die Zahl der
+Planken stimmt, nur die Seite ist falsch.
+
+**In der Anfrage-Mail** steht bei Teilhöhe, wie viele von wie vielen
+Planken gebaut werden, die Höhe in Millimetern und ob ab Boden oder unter
+dem Dach.

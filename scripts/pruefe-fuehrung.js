@@ -291,7 +291,7 @@ pruefe('Fuge automatisch, Umschalter vorhanden',
 pruefe('Regler gesperrt, solange automatisch',
        new RegExp(q || 'fr\\.disabled = Z\\.plankenAuto').test(js), '');
 pruefe('Gebaute Fuge wird zurueckgelesen',
-       new RegExp(q || 'PLANKEN_IST = \\{ anzahl: t\\.anzahl').test(js) &&
+       new RegExp(q || 'PLANKEN_IST = \\{ anzahl: a\\.anzahl, gesamt: t\\.anzahl').test(js) &&
        new RegExp(q || 'function plankenStandZeigen').test(js), '');
 (function () {
   /* Buendig ist ein eigener Fall und darf NICHT durch die Verteilung
@@ -299,6 +299,40 @@ pruefe('Gebaute Fuge wird zurueckgelesen',
   var treffer = /if \(ziel <= 0\) \{[\s\S]{0,160}?fuge: 0/.test(js);
   pruefe('Buendig bleibt buendig', gegen ? !treffer : treffer, '');
 })();
+
+/* Teilhohe Plankenwand (Betreiber, 11.10.2026): Regler in der Mitte =
+   ganz zu, nach links bleibt unten stehen, nach rechts oben. Wichtig
+   dabei: Die FUGE darf sich nicht mitaendern - sonst saehe die halbe
+   Wand anders aus als die ganze. */
+pruefe('Teilhoehe: Regler und Zustand',
+       new RegExp(q || 'function plankenAnteil').test(js) &&
+       /id="k3dPlankenAnteil"/.test(html), '');
+pruefe('Regler steht in der Mitte auf voll',
+       new RegExp(q || 'id="k3dPlankenAnteil"[^>]*min="-90"[^>]*value="0"').test(html), '');
+(function () {
+  /* Gegenprobe: dieselbe Rechnung mit vertauschtem Vorzeichen - also
+     genau der Fehler, der sonst niemandem auffiele, weil die Zahl der
+     Planken stimmt und nur die Seite falsch ist. */
+  function anteil(a, n) {
+    if (!a) return { von: 0, anzahl: n, lage: 'voll' };
+    var bleibt = Math.max(1, n - Math.round(Math.abs(a) / 100 * n));
+    return (gegen ? a > 0 : a < 0)
+      ? { von: 0, anzahl: bleibt, lage: 'unten' }
+      : { von: n - bleibt, anzahl: bleibt, lage: 'oben' };
+  }
+  var n = 24, falsch = 0, haelfte = anteil(-50, n);
+  /* Die Haelfte muss die Haelfte sein - nachgerechnet, nicht geglaubt. */
+  if (haelfte.anzahl !== 12) falsch++;
+  /* Links beginnt unten, rechts endet oben. Beides pruefen, sonst faellt
+     ein vertauschtes Vorzeichen nicht auf. */
+  if (anteil(-50, n).von !== 0) falsch++;
+  if (anteil(50, n).von + anteil(50, n).anzahl !== n) falsch++;
+  /* Ganz aussen bleibt mindestens eine Planke stehen. */
+  if (anteil(90, n).anzahl < 1) falsch++;
+  pruefe('Teilhoehe rechnet richtig', falsch === 0, falsch + ' Faelle falsch');
+})();
+pruefe('Teilhoehe steht in der Anfrage',
+       new RegExp(q || "PLANKEN_IST\\.lage === 'voll' \\? ', volle Höhe'").test(js), '');
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
