@@ -125,7 +125,10 @@
     stoffZip: '',            // Stoff der Senkrechtmarkise, z. B. 'T30812-A'
     sonneAus: 85,            // wie weit Markisen ausgefahren sind, in Prozent
     verkRueck: false, verkLinks: false, verkRechts: false,
-    verkRichtung: 'waagerecht'
+    verkRichtung: 'waagerecht',
+    plankenFarbe: 'Wie das Gestell',
+    plankenFuge: 10,         // Luft zwischen zwei Planken in mm, 0 = bündig
+    plankenAuto: true        // true = das System rechnet die Fuge aus
   };
 
   var FARBEN = {
@@ -134,6 +137,42 @@
     'Graualuminium':  0x9a9c9b,
     'Reinweiß':       0xf1f1ec
   };
+
+  /* ---------- Plankenwand ----------
+     Rechteckprofil 25 x 70: nach der Herstellerzeichnung 70,4 mm breit
+     und 25,3 mm hoch (BELEGT, Betreiber 11.10.2026). Waagerecht verbaut
+     zeigt es die 70,4 mm als sichtbare Plankenhöhe; 25,3 mm ist die
+     Dicke. Dazu der Winkel 40 x 20, der an den Pfosten geschraubt wird –
+     an ihm hängen die Planken (BELEGT in den Schenkellängen).
+
+     GESCHÄTZT bleiben zwei Dinge, beide als Rückfrage notiert:
+     die Materialstärke des Winkels (hier 2 mm) und die Fugenbreite.
+     Die Fuge ist allerdings kein fester Wert mehr, siehe planken(). */
+  var PLANKE = { hoehe: 7.04, dicke: 2.53 };
+  var FUGE_MAX = 60;       // mm; darüber ist es kein Sichtschutz mehr
+  /* Zielwert, auf den die automatische Teilung zugeht. 10 mm ist der
+     Wert, mit dem Alu-Plankenwände üblicherweise gesetzt werden –
+     GESCHÄTZT, als Rückfrage notiert. Die tatsächliche Fuge weicht
+     davon ab, weil die Wand oben und unten bündig schließen soll. */
+  var FUGE_AUTO = 10;
+  /* Was im Modell wirklich gebaut wurde – das Bedienfeld liest es
+     zurück, statt dieselbe Rechnung ein zweites Mal zu machen.
+     Zweiter Weg zum selben Ergebnis, wie bei den Schiebeanlagen. */
+  var PLANKEN_IST = { anzahl: 0, fuge: 0 };
+  var WINKEL = { lang: 4.0, kurz: 2.0, staerke: 0.2 };
+
+  /* Dekore und RAL-Töne der Planken (Betreiber, 11.10.2026). Die vier
+     RAL-Töne sind dieselben wie beim Gestell, deshalb stehen sie unter
+     ihren Namen. Die beiden Holzdekore sind nach den Produktbildern
+     GESCHÄTZTE Farbwerte – ein Dekorbild des Herstellers haben wir
+     nicht, die Maserung fehlt im Modell deshalb. */
+  var PLANKEN_FARBEN = {
+    'Eiche Mocca':           0x8a5a30,
+    'Rovere Pechino – Hell': 0xbe7120
+  };
+  var PLANKEN_WAHL = ['Wie das Gestell', 'Anthrazit', 'Weißaluminium',
+                      'Graualuminium', 'Reinweiß',
+                      'Eiche Mocca', 'Rovere Pechino – Hell'];
 
   /* ---------- Fotorealistische Texturen (CC0) ----------
      Rasen, Bodenbelag und Hauswand waren einfarbige Flaechen bzw. grob
@@ -879,6 +918,23 @@
       clearcoat: 0.12, clearcoatRoughness: 0.4
     });
     m.envMapIntensity = 0.25;
+    return m;
+  }
+
+  /* Planken: dasselbe pulverbeschichtete Aluminium, aber in eigener
+     Farbe – sie darf vom Gestell abweichen. Holzdekore sind matter als
+     eine Pulverbeschichtung, deshalb die höhere Rauheit. */
+  function plankeMaterial() {
+    var dekor = PLANKEN_FARBEN[Z.plankenFarbe];
+    var hex = dekor !== undefined ? dekor
+            : FARBEN[Z.plankenFarbe] || FARBEN[Z.farbe] || FARBEN['Anthrazit'];
+    var m = new THREE.MeshPhysicalMaterial({
+      color: rgb(hex),
+      metalness: dekor !== undefined ? 0 : 0.1,
+      roughness: dekor !== undefined ? 0.78 : 0.65,
+      clearcoat: 0.1, clearcoatRoughness: 0.5
+    });
+    m.envMapIntensity = dekor !== undefined ? 0.2 : 0.45;
     return m;
   }
 
@@ -1800,6 +1856,7 @@
       return Z.glasOffen / 100;
     }
     var mPlanke = blech();
+    var mPlankeWand = plankeMaterial();
     var mStoff = new THREE.MeshStandardMaterial({
       color: rgb(0x4a4f52), roughness: 0.95, metalness: 0, side: THREE.DoubleSide
     });
@@ -2089,15 +2146,65 @@
       }
     }
 
-    /* Plankenwand: waagerechte Alu-Planken mit Fuge. 140 mm Paneelhöhe wie
-       bei den Sichtschutzpaneelen auf unserer Produktseite. */
-    function planken(laenge, hoehe, achse, mitte, yUnten, quer) {
-      var PAN = 14, FUGE = 1.2;
-      var n = Math.max(1, Math.floor(hoehe / (PAN + FUGE)));
-      for (var i = 0; i < n; i++) {
-        platte(mPlanke, laenge, PAN, achse, mitte, yUnten + (i + 0.5) * (PAN + FUGE),
-               quer, 0, 4);
+    /* Plankenwand: waagerechte Rechteckprofile 25 x 70 an Winkeln 40 x 20,
+       die an den Pfosten sitzen.
+
+       „anhand der terrassenüberdachung lichten maße wo die planken
+       hinkommen, und an den maßen der planken sollen sie gleichmäßig
+       verteilt werden" (Betreiber, 11.10.2026): Die Fuge ist deshalb
+       KEIN fester Wert. Gerechnet wird andersherum – wie viele Planken
+       passen in das lichte Maß, wenn die Fuge ungefähr 10 mm sein soll?
+       Diese Zahl wird gerundet, danach ergibt sich die Fuge aus dem Rest.
+       Unterste und oberste Planke liegen damit immer bündig am Rand, und
+       alle Fugen sind gleich breit. Bliebe die Fuge fest, stünde oben je
+       nach Höhe ein unterschiedlich breiter Streifen offen – genau das
+       war vorher zu sehen. */
+    function plankenTeilung(hoehe) {
+      var ziel = (Z.plankenAuto ? FUGE_AUTO : (Z.plankenFuge || 0)) / 10;
+      /* Bündig ist ein eigener Fall: Dann gibt es nichts zu verteilen,
+         die Planken liegen aufeinander und oben bleibt der Rest offen.
+         Alles andere wäre erfunden – ohne Fuge kann man nicht strecken. */
+      if (ziel <= 0) {
+        return { anzahl: Math.max(1, Math.floor(hoehe / PLANKE.hoehe)), fuge: 0 };
       }
+      var n = Math.round((hoehe + ziel) / (PLANKE.hoehe + ziel));
+      n = Math.max(1, n);
+      /* Mehr Planken als Platz ist unmöglich - lieber eine weniger. */
+      while (n > 1 && n * PLANKE.hoehe > hoehe) n--;
+      var fuge = n > 1 ? (hoehe - n * PLANKE.hoehe) / (n - 1) : 0;
+      return { anzahl: n, fuge: fuge };
+    }
+
+    function planken(laenge, hoehe, achse, mitte, yUnten, quer) {
+      if (laenge <= 0 || hoehe < PLANKE.hoehe) return;
+      var t = plankenTeilung(hoehe);
+      PLANKEN_IST = { anzahl: t.anzahl, fuge: Math.round(t.fuge * 100) / 10 };
+      var schritt = PLANKE.hoehe + t.fuge;
+      for (var i = 0; i < t.anzahl; i++) {
+        platte(mPlankeWand, laenge, PLANKE.hoehe, achse, mitte,
+               yUnten + PLANKE.hoehe / 2 + i * schritt, quer, 0, PLANKE.dicke);
+      }
+      plankenWinkel(laenge, t.anzahl * schritt - t.fuge, achse, mitte, yUnten, quer);
+    }
+
+    /* Der Winkel läuft senkrecht am Pfosten hoch; die Planken werden an
+       ihn geschraubt. Welcher Schenkel am Pfosten liegt, geht aus der
+       Zeichnung nicht hervor – hier liegt der lange (40 mm) am Pfosten in
+       der Wandebene, der kurze (20 mm) zeigt nach innen hinter die
+       Planken. ANNAHME, gegenzulesen. */
+    function plankenWinkel(laenge, hoehe, achse, mitte, yUnten, quer) {
+      var rIn = innenRichtung(achse, quer);
+      var yM = yUnten + hoehe / 2;
+      var tief = PLANKE.dicke / 2 + WINKEL.staerke / 2;
+      [-1, 1].forEach(function (s) {
+        if (laenge < WINKEL.lang * 2.5) return;
+        platte(mPlankeWand, WINKEL.lang, hoehe, achse,
+               mitte + s * (laenge / 2 - WINKEL.lang / 2), yM, quer,
+               rIn * tief, WINKEL.staerke);
+        platte(mPlankeWand, WINKEL.staerke, hoehe, achse,
+               mitte + s * (laenge / 2 - WINKEL.staerke / 2), yM, quer,
+               rIn * (tief + WINKEL.staerke / 2 + WINKEL.kurz / 2), WINKEL.kurz);
+      });
     }
 
     /* Velaris: senkrecht stehende, drehbare Lamellen. Der Winkel folgt dem
@@ -4120,6 +4227,18 @@
      gibt – sonst stünden dort Bauarten, die der Hersteller für diese
      Breite nicht liefert. Ist die Seite offen, bleibt das Feld leer und
      wird ausgeblendet. */
+  /* Zeigt, was wirklich gebaut wurde: Zahl der Planken und die Fuge in
+     Millimetern. Gelesen wird aus PLANKEN_IST, also aus dem fertigen
+     Modell – nicht aus der Eingabe. Sonst stünde dort der Wunsch und
+     nicht das Ergebnis. */
+  function plankenStandZeigen() {
+    var e = document.getElementById('k3dPlankenStand');
+    if (!e) return;
+    if (!PLANKEN_IST.anzahl) { e.textContent = ''; return; }
+    e.textContent = 'Gebaut: ' + PLANKEN_IST.anzahl + ' Planken, Fuge ' +
+      String(PLANKEN_IST.fuge).replace('.', ',') + ' mm.';
+  }
+
   function sg23FeldFuellen() {
     SG23_SEITEN.forEach(function (p) {
       var sel = document.getElementById(p[2]);
@@ -4717,6 +4836,8 @@
       case 'verkleidung':    return istCarport() && !istCarportTds() &&
                                     Z.cpVariante.indexOf('verkleidet') === -1;
       case 'verk-richtung':  return Z.verkRueck || Z.verkLinks || Z.verkRechts;
+      /* Die Farbe der Planken fragen wir nur, wenn es Planken gibt. */
+      case 'planken':        return erwIrgendwo('Plankenwand');
       // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
       // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
       // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
@@ -4968,6 +5089,22 @@
         seiten.push(pr[0] + ': ' + (pr[1].length ? pr[1].join(' + ') : 'offen'));
       });
       teile.push('Seitenelemente – ' + seiten.join(' · '));
+      /* Die Planken haben eine eigene Farbe – sie muss in die Mail, sonst
+         wird im Zweifel in der Gestellfarbe bestellt. Profil und Winkel
+         gehören fachlich dazu: Danach wird kalkuliert. */
+      if (erwIrgendwo('Plankenwand')) {
+        teile.push('Plankenwand: Rechteckprofil 25 × 70 (70,4 × 25,3 mm) ' +
+                   'an Winkel 40 × 20, Oberfläche ' +
+                   (Z.plankenFarbe === 'Wie das Gestell'
+                     ? 'wie Gestell (' + Z.farbe + ')' : Z.plankenFarbe) +
+                   ', Fuge ' + (Z.plankenAuto
+                     ? 'nach Aufteilung (' + String(PLANKEN_IST.fuge).replace('.', ',') +
+                       ' mm bei ' + PLANKEN_IST.anzahl + ' Planken im Modell)'
+                     : (Z.plankenFuge > 0
+                         ? 'Kundenwunsch rund ' + Z.plankenFuge + ' mm'
+                         : 'bündig ohne Fuge')) +
+                   ', gleichmäßig auf das lichte Maß verteilt');
+      }
       var offenTeile = [];
       [['links', Z.offenLinks], ['rechts', Z.offenRechts],
        ['vorne', Z.offenVorne]].forEach(function (pr) {
@@ -5037,6 +5174,7 @@
     Z.pgDachart = wert('k3dPgDachart') || Z.pgDachart;
     Z.pgAusfuehrung = wert('k3dPgAusfuehrung') || Z.pgAusfuehrung;
     Z.pgSeitenschutz = wert('k3dPgSeitenschutz') || Z.pgSeitenschutz;
+    Z.plankenFarbe = wert('k3dPlankenFarbe') || Z.plankenFarbe;
     Z.lamellen = parseInt(wert('k3dLamellen'), 10);
     if (isNaN(Z.lamellen)) Z.lamellen = 35;
 
@@ -5089,6 +5227,7 @@
     var sz = document.getElementById('k3dStoffZip');
     if (sz) Z.stoffZip = sz.value || '';
     Z.sonneAus = zahl('k3dSonneAus', Z.sonneAus);
+    Z.plankenFuge = zahl('k3dPlankenFuge', Z.plankenFuge);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
@@ -5106,7 +5245,8 @@
      ['sound', 'k3dSound'], ['heizung', 'k3dHeizung'],
      ['wettersensor', 'k3dWetter'],
      ['traegerWunsch', 'k3dTraeger'],
-     ['hoeheGetrennt', 'k3dHoeheGetrennt']].forEach(function (pr) {
+     ['hoeheGetrennt', 'k3dHoeheGetrennt'],
+     ['plankenAuto', 'k3dPlankenAuto']].forEach(function (pr) {
       var el = document.getElementById(pr[1]);
       if (el) Z[pr[0]] = el.checked;
     });
@@ -5254,6 +5394,15 @@
     if (gw) gw.textContent = Z.glasOffen + ' %';
     var sw = document.getElementById('k3dSonneAusWert');
     if (sw) sw.textContent = Z.sonneAus + ' %';
+    var fw = document.getElementById('k3dPlankenFugeWert');
+    if (fw) {
+      fw.textContent = Z.plankenAuto ? 'automatisch'
+                     : (Z.plankenFuge > 0 ? Z.plankenFuge + ' mm' : 'bündig');
+    }
+    var fr = document.getElementById('k3dPlankenFuge');
+    if (fr) fr.disabled = Z.plankenAuto;
+    var fz = document.getElementById('k3dPlankenFugeZahl');
+    if (fz) { fz.disabled = Z.plankenAuto; if (Z.plankenAuto) fz.value = Z.plankenFuge; }
 
     panelAnpassen();
     markiseAnzeigen();
@@ -5271,6 +5420,7 @@
     /* ERST nach dem Bauen: Die Auswahlfelder zeigen die Bauarten zum
        tatsaechlich gebauten Mass, und das meldet erst bauen(). */
     sg23FeldFuellen();
+    plankenStandZeigen();
     textAktualisieren();
     folgtAktualisieren();
     gebremstHolen();
@@ -5401,6 +5551,9 @@
       if (Z.erwLinks.length) se.push('links');
       if (Z.erwRechts.length) se.push('rechts');
       if (Z.erwVorne.length) se.push('vorne');
+      if (erwIrgendwo('Plankenwand') && Z.plankenFarbe !== 'Wie das Gestell') {
+        se.push(Z.plankenFarbe);
+      }
       text('k3dSumSeiten', se.length ? se.join(', ') : 'offen');
     }
 
@@ -5470,7 +5623,8 @@
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
-   'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
+   'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
+   'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendernGebremst);
@@ -5500,7 +5654,8 @@
    ['k3dVorsprung', 'k3dVorsprungZahl'],
    ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl'],
    ['k3dHoeheHinten', 'k3dHoeheHintenZahl'],
-   ['k3dKoppel', 'k3dKoppelZahl']].forEach(function (pr) {
+   ['k3dKoppel', 'k3dKoppelZahl'],
+   ['k3dPlankenFuge', 'k3dPlankenFugeZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
     n.addEventListener('input', function () {

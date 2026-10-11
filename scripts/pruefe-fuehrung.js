@@ -244,6 +244,62 @@ pruefe('Verkleidung steht im Schritt "seiten"',
        new RegExp(q || 'data-k3d-schritt="seiten" data-k3d-fuer="verkleidung"').test(html) &&
        !/id: 'verkleidung'/.test(js), '');
 
+/* Plankenwand (Betreiber, 11.10.2026): Rechteckprofil 25 x 70 misst
+   70,4 x 25,3 mm, der Winkel 40 x 20. Und: Die Planken fuellen das
+   lichte Mass vollstaendig und gleichmaessig - oben und unten buendig,
+   alle Fugen gleich. Nachgerechnet wird das hier an der Formel selbst,
+   nicht an der Absicht. */
+pruefe('Plankenmass aus der Zeichnung',
+       new RegExp(q || 'hoehe: 7\\.04, dicke: 2\\.53').test(js), '');
+pruefe('Winkel 40 x 20',
+       new RegExp(q || 'lang: 4\\.0, kurz: 2\\.0').test(js), '');
+(function () {
+  var H = { hoehe: 7.04, fugeZiel: 1.0 };
+  function teilung(h) {
+    var n = Math.round((h + H.fugeZiel) / (H.hoehe + H.fugeZiel));
+    n = Math.max(1, n);
+    while (n > 1 && n * H.hoehe > h) n--;
+    return { n: n, f: n > 1 ? (h - n * H.hoehe) / (n - 1) : 0 };
+  }
+  var schlecht = 0, engste = 99;
+  for (var h = 60; h <= 260; h += 1) {
+    var t = teilung(h);
+    /* Gegenprobe: so, wie es vorher war - feste Fuge. Dann bleibt oben
+       ein Rest stehen, und genau das muss auffallen. */
+    var summe = gegen ? t.n * H.hoehe + (t.n - 1) * H.fugeZiel
+                      : t.n * H.hoehe + (t.n - 1) * t.f;
+    if (Math.abs(summe - h) > 0.001) schlecht++;
+    if (t.f < engste) engste = t.f;
+  }
+  pruefe('Planken fuellen das lichte Mass genau',
+         schlecht === 0, schlecht + ' von 201 Hoehen gehen nicht auf');
+  pruefe('Fuge bleibt eine Fuge',
+         gegen ? !(engste > 0.2) : engste > 0.2,
+         'engste Fuge ' + Math.round(engste * 10) + ' mm');
+})();
+pruefe('Plankenfarbe geht in die Anfrage',
+       new RegExp(q || "teile\\.push\\('Plankenwand: ").test(js) &&
+       /id="k3dPlankenFarbe"/.test(html), '');
+
+/* Die Fuge rechnet das System aus, laesst sich aber selbst einstellen -
+   wie bei den Schiebeanlagen (Betreiber, 11.10.2026). Dazu gehoert, dass
+   das Bedienfeld die GEBAUTE Fuge zurueckliest und nicht die Eingabe
+   wiederholt: zweiter Weg zum selben Ergebnis. */
+pruefe('Fuge automatisch, Umschalter vorhanden',
+       new RegExp(q || "Z\\.plankenAuto \\? FUGE_AUTO").test(js) &&
+       /id="k3dPlankenAuto"/.test(html), '');
+pruefe('Regler gesperrt, solange automatisch',
+       new RegExp(q || 'fr\\.disabled = Z\\.plankenAuto').test(js), '');
+pruefe('Gebaute Fuge wird zurueckgelesen',
+       new RegExp(q || 'PLANKEN_IST = \\{ anzahl: t\\.anzahl').test(js) &&
+       new RegExp(q || 'function plankenStandZeigen').test(js), '');
+(function () {
+  /* Buendig ist ein eigener Fall und darf NICHT durch die Verteilung
+     laufen - sonst zoege sie die Planken wieder auseinander. */
+  var treffer = /if \(ziel <= 0\) \{[\s\S]{0,160}?fuge: 0/.test(js);
+  pruefe('Buendig bleibt buendig', gegen ? !treffer : treffer, '');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

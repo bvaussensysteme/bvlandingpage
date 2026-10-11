@@ -861,6 +861,40 @@
             Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="planken" hidden>
+          <label class="k3d-label" for="k3dPlankenFarbe">Oberfläche der Planken</label>
+          <select id="k3dPlankenFarbe" class="k3d-select">
+            <option value="Wie das Gestell">wie das Gestell</option>
+            <option value="Anthrazit">Anthrazit (RAL 7016)</option>
+            <option value="Weißaluminium">Weißaluminium (RAL 9006)</option>
+            <option value="Graualuminium">Graualuminium (RAL 9007)</option>
+            <option value="Reinweiß">Reinweiß (RAL 9010)</option>
+            <option value="Eiche Mocca">Eiche Mocca (Holzdekor)</option>
+            <option value="Rovere Pechino – Hell">Rovere Pechino hell (Holzdekor)</option>
+          </select>
+          <p class="k3d-mini">Rechteckprofile 25 × 70 mm, waagerecht an Winkeln
+            an den Pfosten. Die Zahl der Planken ergibt sich aus der lichten
+            Höhe – sie werden gleichmäßig verteilt, oben und unten bündig.
+            Die Holzdekore zeigt das Modell als Farbe, die Maserung sehen Sie
+            am Muster.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="planken" hidden>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dPlankenAuto" checked> <span>Fuge automatisch berechnen</span></label>
+          <label class="k3d-label" for="k3dPlankenFuge">Luft zwischen den Planken <output id="k3dPlankenFugeWert">automatisch</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dPlankenFuge" class="k3d-range" min="0" max="60" step="1" value="10">
+            <input type="number" id="k3dPlankenFugeZahl" class="k3d-zahl" inputmode="numeric" value="10" aria-label="Fuge in Millimeter">
+          </div>
+          <p class="k3d-mini" id="k3dPlankenStand"></p>
+          <p class="k3d-mini">Normalerweise rechnet das System die Fuge aus, so
+            dass die Wand oben und unten bündig abschließt. Haken weg, und Sie
+            stellen sie selbst ein: ganz links liegen die Planken bündig
+            aufeinander – voller Sichtschutz –, nach rechts wird die Wand
+            luftiger. Auch dann bleibt Ihr Wert der Wunsch und die gebaute Fuge
+            weicht um wenige Millimeter ab, damit es oben und unten aufgeht.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
           <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
@@ -1190,7 +1224,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261013u" defer></script>
+<script src="js/konfigurator-3d.js?v=20261013x" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
