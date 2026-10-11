@@ -191,6 +191,35 @@ pruefe('Seitenelemente reichen hinten bis zur Wand',
 pruefe('Seitenelemente stoßen an den Pfosten',
        new RegExp(q || 'zPf - PF / 2').test(src), 'kein Spalt zur Dachkante');
 
+/* ---------- Schiebeanlage anklicken ----------
+   „wie bei den markisen, die jeweilige schiebeanlage die man im
+   3dmodell anklickt geht auf oder zu" (Betreiber, 11.10.2026). */
+pruefe('Schiebeteile tragen ihre Seite',
+       new RegExp(q || 'function schiebeTeil\\(m, seite\\)').test(src), 'userData.schiebe');
+pruefe('Klick erkennt die getroffene Seite',
+       new RegExp(q || 'function schiebeSeiteVon\\(objekt\\)').test(src), '');
+pruefe('Schiebeanlage faehrt weich, nicht springend',
+       new RegExp(q || 'function schiebeFahren\\(seite, ziel\\)').test(src) && new RegExp(q || 'dauer = 650').test(src), 'wie die Markise');
+pruefe('Klick schaltet auf oder zu',
+       new RegExp(q || "schiebeFahren\\(seite, Z\\[feld\\] > 50 \\? 0 : 100\\)").test(src), '');
+pruefe('Markise hat Vorrang vor dem Glas dahinter',
+       new RegExp(q || '!markiseGeklickt\\(e\\)\\) schiebeGeklickt\\(e\\)').test(src), 'nur eines reagiert');
+pruefe('Jede Seite hat ihren eigenen Oeffnungsstand',
+       new RegExp(q || 'offenLinks: 0, offenRechts: 0, offenVorne: 0').test(src), '');
+pruefe('Regler setzt weiterhin alle drei Seiten',
+       new RegExp(q || 'Z\\.offenLinks = Z\\.offenRechts = Z\\.offenVorne = offenNeu').test(src), '');
+
+/* ---------- Massschilder ---------- */
+pruefe('Massschild kleiner als vorher',
+       gegen ? /SCHILD_HOCH = 24/.test(src) : /SCHILD_HOCH = 14/.test(src),
+       'Sprite-Hoehe 24 -> 14');
+pruefe('Schrift nicht mehr fett',
+       gegen ? /bold 40px Arial/.test(src) : !/bold 40px Arial/.test(src), '');
+pruefe('Kasten weniger deckend',
+       new RegExp(q || "rgba\\(17,17,17,\\.62\\)").test(src), 'vorher .86');
+pruefe('Masslinie duenner',
+       new RegExp(q || 'opacity: 0\\.55').test(src), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

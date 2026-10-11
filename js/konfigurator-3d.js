@@ -64,7 +64,13 @@
     hoehe: 2300,
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     glasstaerke: 8,           // mm, nur bei Glas – 8 oder 10 (VSG)
-    sg23Wahl: '',             // '' = automatisch, sonst 'Schienen|Flügel'
+    /* Aufteilung der Schiebeanlage JE SEITE – '' heißt automatisch.
+       „soll pro seite sein, also für links,rechts und vorne" (Betreiber,
+       11.10.2026). Eine gemeinsame Wahl war falsch gedacht: links und
+       rechts laufen über die TIEFE, vorne über die BREITE. Das sind zwei
+       verschiedene Maße, zu denen oft gar nicht dieselbe Bauart passt. */
+    sg23Links: '', sg23Rechts: '', sg23Vorne: '',
+    traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -94,7 +100,12 @@
     /* Darstellung und Zubehör */
     boden: 'Steinplatten',
     masseZeigen: false,
-    glasOffen: 0,            // Schiebeelemente: 0 = geschlossen, 100 = ganz offen
+    glasOffen: 0,            // Regler: setzt alle drei Seiten auf einmal
+    /* Je Seite, damit sich eine Anlage im Bild einzeln öffnen lässt:
+       „wie bei den markisen, die jeweilige schiebeanlage die man im
+       3dmodell anklickt geht auf oder zu" (Betreiber, 11.10.2026).
+       Der Regler bleibt – er setzt beim Ziehen alle drei gleich. */
+    offenLinks: 0, offenRechts: 0, offenVorne: 0,
     markise: 'Ohne',         // Beschattung am Dach, Werte wie im Assistenten
     stoff: '',               // Markisenstoff der Dachmarkise, z. B. 'AC420'
     stoffZip: '',            // Stoff der Senkrechtmarkise, z. B. 'T30812-A'
@@ -1283,31 +1294,61 @@
      Die Zahl im Bild ist dieselbe Zahl wie im Bedienfeld und später im
      Aufmaß – in Millimetern, ohne Umrechnung und ohne Rundung. Sobald hier
      gerundet würde, stünden zwei verschiedene Maße auf demselben Bild. */
+  /* Maßschilder: filigran, nicht plakativ.
+
+     „die maßangaben etwas kleiner filigraner machen das es nicht so
+     stört" (Betreiber, 11.10.2026, mit Bildschirmfoto). Vorher: fette
+     40-px-Schrift auf einem fast deckenden schwarzen Kasten, im Bild
+     40 % so hoch wie das ganze Seitenelement. Die Maße sollen abzulesen
+     sein, nicht die Hauptsache.
+
+     Geändert: normale statt fetter Schrift, abgerundeter Kasten mit
+     weniger Deckkraft und schmalerem Rand, und die Sprite-Höhe von 24
+     auf 14 – das Schild wird damit im Bild gut zwei Fünftel kleiner.
+     Die Leinwand bleibt hochaufgelöst (40 px Schrift), damit der Text
+     auch beim Heranzoomen scharf bleibt; verkleinert wird erst beim
+     Anzeigen. */
+  var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
+
   function schild(text) {
     var c = document.createElement('canvas');
     var g = c.getContext('2d');
-    var schrift = 'bold 40px Arial, Helvetica, sans-serif';
+    var schrift = '40px Arial, Helvetica, sans-serif';
     g.font = schrift;
-    var breit = Math.ceil(g.measureText(text).width) + 26;
-    c.width = breit; c.height = 58;
+    var hoch = 54, rund = 10;
+    var breit = Math.ceil(g.measureText(text).width) + 22;
+    c.width = breit; c.height = hoch;
     g = c.getContext('2d');
     g.font = schrift;
-    g.fillStyle = 'rgba(17,17,17,.86)';
-    g.fillRect(0, 0, breit, 58);
+    g.fillStyle = 'rgba(17,17,17,.62)';
+    /* Abgerundete Ecken von Hand – roundRect kennen aeltere Browser
+       nicht, und ein eckiger Kasten wirkt schwerer als er ist. */
+    g.beginPath();
+    g.moveTo(rund, 0);
+    g.lineTo(breit - rund, 0);
+    g.quadraticCurveTo(breit, 0, breit, rund);
+    g.lineTo(breit, hoch - rund);
+    g.quadraticCurveTo(breit, hoch, breit - rund, hoch);
+    g.lineTo(rund, hoch);
+    g.quadraticCurveTo(0, hoch, 0, hoch - rund);
+    g.lineTo(0, rund);
+    g.quadraticCurveTo(0, 0, rund, 0);
+    g.closePath();
+    g.fill();
     g.fillStyle = '#ffffff';
     g.textBaseline = 'middle';
-    g.fillText(text, 13, 30);
+    g.fillText(text, 11, hoch / 2 + 1);
     var t = new THREE.Texture(c);
     t.needsUpdate = true;
     var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }));
-    s.scale.set(breit / 58 * 24, 24, 1);
+    s.scale.set(breit / hoch * SCHILD_HOCH, SCHILD_HOCH, 1);
     return s;
   }
 
   function masslinie(a, b, text) {
     var linie = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([a, b]),
-      new THREE.LineBasicMaterial({ color: 0x1a1a1a })
+      new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.55 })
     );
     masseGruppe.add(linie);
     var s = schild(text);
@@ -1573,9 +1614,19 @@
      verschiedene Maße), greift für DIESE Seite wieder die Automatik.
      Eine Bauart zu zeichnen, die es in dieser Breite nicht gibt, wäre
      die schlechtere Antwort als eine Seite anders aufzuteilen. */
-  function sg23Gewaehlt(breiteMm) {
-    if (!Z.sg23Wahl) return null;
-    var teile = Z.sg23Wahl.split('|');
+  var SG23_SEITEN = [['links', 'sg23Links', 'k3dSg23Links'],
+                     ['rechts', 'sg23Rechts', 'k3dSg23Rechts'],
+                     ['vorne', 'sg23Vorne', 'k3dSg23Vorne']];
+
+  /* Welches Maß läuft auf welcher Seite? Links und rechts über die Tiefe,
+     vorne über die Breite. */
+  function sg23Mass(seite) { return seite === 'vorne' ? Z.breite : Z.tiefe; }
+
+  function sg23Gewaehlt(breiteMm, seite) {
+    var wahl = '';
+    SG23_SEITEN.forEach(function (p) { if (p[0] === seite) wahl = Z[p[1]]; });
+    if (!wahl) return null;
+    var teile = wahl.split('|');
     var sch = parseInt(teile[0], 10), fl = parseInt(teile[1], 10);
     var hit = null;
     SG23.bauarten.forEach(function (b) {
@@ -1584,8 +1635,8 @@
     return hit;
   }
 
-  function sg23Bauart(breiteMm) {
-    var hand = sg23Gewaehlt(breiteMm);
+  function sg23Bauart(breiteMm, seite) {
+    var hand = sg23Gewaehlt(breiteMm, seite);
     if (hand) return hand;
     var treffer = null, bestAbstand = Infinity;
     SG23.bauarten.forEach(function (b) {
@@ -1611,8 +1662,8 @@
      3 m also eine, bei 4,5 m zwei. Angabe des Betreibers. */
   var KEIL_FELD_MAX = 150;    // cm, BELEGT durch den Betreiber
 
-  function fluegelAnzahl(laenge) {
-    var b = sg23Bauart(laenge * 10);           // cm -> mm
+  function fluegelAnzahl(laenge, seite) {
+    var b = sg23Bauart(laenge * 10, seite);    // cm -> mm
     if (b) return b[1];
     /* Außerhalb der lieferbaren Breiten (unter 1500, über 7000 mm):
        die alte Schätzung, damit überhaupt etwas gezeichnet wird. Der
@@ -1648,7 +1699,12 @@
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne) {
     var mGlas = seitenglas();
     var rahmen = alu();
-    var offen = Z.glasOffen / 100;
+    function offenSeite(seite) {
+      if (seite === 'links') return Z.offenLinks / 100;
+      if (seite === 'rechts') return Z.offenRechts / 100;
+      if (seite === 'vorne') return Z.offenVorne / 100;
+      return Z.glasOffen / 100;
+    }
     var mPlanke = blech();
     var mStoff = new THREE.MeshStandardMaterial({
       color: rgb(0x4a4f52), roughness: 0.95, metalness: 0, side: THREE.DoubleSide
@@ -1693,7 +1749,7 @@
     }
 
     function rahmenKante(laenge, achse, mitte, y, quer, versatz) {
-      platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
+      return platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
     }
 
     /* ---------- Bodenschiene ----------
@@ -1735,17 +1791,20 @@
 
     /* Schiebetür: einzelne Flügel, die sich übereinander schieben. Nur so
        zeigt der Regler „geöffnet" etwas Echtes – einer bleibt stehen. */
-    function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer) {
-      var n = fluegelAnzahl(laenge);
+    function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer, seite) {
+      var n = fluegelAnzahl(laenge, seite);
       var flB = laenge / n;
       var start = mitte - laenge / 2 + flB / 2;
+      var offen = offenSeite(seite);
       for (var i = 0; i < n; i++) {
         var lage = start + flB * i - offen * flB * i;
         var spur = (i % 2) * 2.4;                       // zwei Laufschienen
-        platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2, quer, spur,
-               SG23.glasDicke);
-        rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur);
-        rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur);
+        /* Die Scheibe traegt die Seite, zu der sie gehoert – daran
+           erkennt der Klick spaeter, welche Anlage gemeint ist. */
+        schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
+                           quer, spur, SG23.glasDicke), seite);
+        schiebeTeil(rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur), seite);
+        schiebeTeil(rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur), seite);
       }
     }
 
@@ -1826,9 +1885,9 @@
         var unten = hoch * 0.38;
         platte(mPlanke, laenge, unten, achse, mitte, yUnten + unten / 2, quer, 0, 5);
         rahmenKante(laenge, achse, mitte, yUnten + unten, quer, 0);
-        schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer);
+        schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer, seite);
       } else if (hatSchiebe) {
-        schiebetuer(laenge, hoch, achse, mitte, yUnten, quer);
+        schiebetuer(laenge, hoch, achse, mitte, yUnten, quer, seite);
       } else if (hatRahmen) {
         platte(mPlanke, laenge, hoch, achse, mitte, yUnten + hoch / 2, quer, 0, 5);
         rahmenKante(laenge, achse, mitte, yUnten + 2.5, quer, 0);
@@ -2715,7 +2774,19 @@
        Rinne frei und braucht ihn. */
     var tbMass = tabelleBauteile(Z.breite, Z.tiefe);
     var vorspr = gruppeGilt('vorsprung') ? Z.vorsprung / 10 : 0;   // cm
-    var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0) ? 18.9 : 0;
+    /* Ein Statikträger entsteht auf drei Wegen: ab 4500 mm Tiefe
+       zwingend (Tabelle), mit Dachvorsprung bauartbedingt – oder weil der
+       Kunde ihn WILL.
+
+       „wenn ein kunde z.b 2 pfosten anstatt 3 nur möchte" (Betreiber,
+       11.10.2026). Unter dem Träger gilt die 7-m-Regel statt der
+       Stützfußspalte, es stehen also weniger Pfosten. Bezahlt wird das
+       mit Durchgangshöhe: der Träger sitzt zwischen Pfostenkopf und
+       Rinne und nimmt dort 189 mm weg. Deshalb steht neben dem Häkchen
+       der Hinweis – wer ihn nicht liest, plant mit 2,30 m und hat
+       2,11 m. */
+    var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0 ||
+                    Z.traegerWunsch) ? 18.9 : 0;
     var traegerT = 11.7;
     /* Die Rinne liegt immer auf der eingestellten Höhe – sie rückt nie
        nach oben. Der Träger nimmt dem PFOSTEN seine Höhe weg. */
@@ -2786,9 +2857,29 @@
        Wandprofil wird nicht ersetzt, es bekommt nur eine andere
        Schraubfläche. */
     var zHinten = 4.5;                          // Wandprofil – frei wie an der Wand
-    var wpMitte = hHinten + (sky ? 10 : 7);     // Höhenmitte des Wandprofils
     var zTraeger = -TR_T / 2;                   // steht an der Stelle der Wand
-    var trOk = wpMitte + (sky ? 20 : 14) / 2;   // Oberkante bündig mit dem Wandprofil
+
+    /* KORREKTUR 11.10.2026, zweiter Anlauf. „der statikträger hochkant
+       hinter den sparren is richtig als wäre er die wand, aber er darf
+       nicht höher sein als die sparren bzw. wandprofil" (Betreiber).
+
+       Nachgerechnet bei 5000 × 3000 mm, 8°, Durchgangshöhe 2300:
+         Sparren hinten   Oberkante 279,3 cm
+         Wandprofil       Oberkante 284,5 cm   ← 52 mm zu hoch
+         Statikträger     Oberkante 284,5 cm   ← 52 mm zu hoch
+       Beide standen über das Dach hinaus und sahen von außen aus wie ein
+       Balken, der oben AUF dem Dach liegt – daher „waagrecht".
+
+       Die alte Formel hing an hHinten, also an der Durchgangshöhe. Die
+       hat mit der Dachoberkante nichts zu tun: dazwischen liegt das
+       Gefälle über die ganze Tiefe, bei 3 m und 8° sind das 42 cm. Jetzt
+       hängt beides an der SPARRENOBERKANTE – und zwar in beiden
+       Montagearten, denn an der Wand stand das Profil genauso über. */
+    var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
+    var dachOk = ukHinten + spH;                // Sparrenoberkante hinten
+    var wpH = sky ? 20 : 14, wpT = 9;
+    var wpMitte = dachOk - wpH / 2;             // Oberkante bündig, nie darüber
+    var trOk = dachOk;                          // Träger ebenso
     var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 
     /* Pfostenzahl – JE REIHE getrennt.
@@ -2838,7 +2929,6 @@
     }
     /* Wandprofil – IMMER dasselbe Teil an derselben Stelle. Freistehend
        sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
-    var wpH = sky ? 20 : 14, wpT = 9;
     balken(B, wpH, wpT, 0, wpMitte, zHinten, mAlu);
     if (frei) {
       balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTraeger, mAlu);
@@ -3454,38 +3544,39 @@
      die der Konfigurator gewählt hat, mit Scheibenbreite. Das ist der
      Vorschlag des Hauses – der Kunde kann im Aufmaß eine andere Bauart
      bekommen, dann steht hier, wovon abgewichen wird. */
-  /* Das Auswahlfeld zeigt nur, was es in diesem Maß wirklich gibt –
-     sonst stünden dort Bauarten, die der Hersteller für diese Breite
-     nicht liefert. Maßgeblich ist die LÄNGSTE geschlossene Seite. */
+  /* Jedes der drei Felder zeigt nur, was es im Maß DIESER Seite wirklich
+     gibt – sonst stünden dort Bauarten, die der Hersteller für diese
+     Breite nicht liefert. Ist die Seite offen, bleibt das Feld leer und
+     wird ausgeblendet. */
   function sg23FeldFuellen() {
-    var sel = document.getElementById('k3dSg23');
-    if (!sel) return;
-    var laengen = [];
-    if (erwListe('links').indexOf('Schiebetür') > -1 ||
-        erwListe('rechts').indexOf('Schiebetür') > -1) laengen.push(Z.tiefe);
-    if (erwListe('vorne').indexOf('Schiebetür') > -1) laengen.push(Z.breite);
-    var mass = Math.max.apply(null, laengen.concat([0]));
-    var auto = mass ? sg23Bauart(mass) : null;
-    var html = '<option value="">Automatisch' +
-      (auto ? ' – ' + auto[1] + '-türig' : '') + '</option>';
-    SG23.bauarten.forEach(function (b) {
-      if (!mass || mass < b[2] || mass > b[3]) return;
-      html += '<option value="' + b[0] + '|' + b[1] + '">' + b[1] +
-        '-türig, ' + b[0] + ' Schienen – Scheiben je ca. ' +
-        Math.round(mass / b[1]) + ' mm</option>';
+    SG23_SEITEN.forEach(function (p) {
+      var sel = document.getElementById(p[2]);
+      if (!sel) return;
+      var mass = sg23Mass(p[0]);
+      var zu = erwListe(p[0]).indexOf('Schiebetür') > -1;
+      if (!zu) { sel.innerHTML = ''; return; }
+      var auto = sg23Bauart(mass, null);
+      var html = '<option value="">Automatisch' +
+        (auto ? ' – ' + auto[1] + '-türig' : '') + '</option>';
+      SG23.bauarten.forEach(function (b) {
+        if (mass < b[2] || mass > b[3]) return;
+        html += '<option value="' + b[0] + '|' + b[1] + '">' + b[1] +
+          '-türig, ' + b[0] + ' Schienen – Scheiben je ca. ' +
+          Math.round(mass / b[1]) + ' mm</option>';
+      });
+      sel.innerHTML = html;
+      /* Passt die gespeicherte Wahl zum neuen Maß nicht mehr, zurück auf
+         Automatik – sonst zeigt das Feld etwas anderes als das Modell. */
+      if (Z[p[1]] && !sg23Gewaehlt(mass, p[0])) Z[p[1]] = '';
+      sel.value = Z[p[1]];
     });
-    sel.innerHTML = html;
-    /* Passt die gespeicherte Wahl zum neuen Maß nicht mehr, zurück auf
-       Automatik – sonst zeigt das Feld etwas anderes als das Modell. */
-    if (Z.sg23Wahl && !sg23Gewaehlt(mass)) Z.sg23Wahl = '';
-    sel.value = Z.sg23Wahl;
   }
 
   function sg23Zeilen() {
     var zeilen = [];
     [['links', Z.tiefe], ['rechts', Z.tiefe], ['vorne', Z.breite]].forEach(function (p) {
       if (erwListe(p[0]).indexOf('Schiebetür') === -1) return;
-      var b = sg23Bauart(p[1]);
+      var b = sg23Bauart(p[1], p[0]);
       if (!b) {
         zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +
           ' mm – außerhalb der Standardbreiten (1500–7000 mm), Aufteilung nach Aufmaß');
@@ -3518,10 +3609,15 @@
       saetze.push('Für <b>' + maxL + ' mm</b> gibt es keine Standard-Bauart ' +
         '(lieferbar 1500 bis 7000 mm) – die Seite wird geteilt.');
     }
-    var b = sg23Bauart(Math.max.apply(null, laengen.concat([0])));
-    if (b) {
-      saetze.push('Vorgeschlagen sind <b>' + b[1] + ' Schiebeflügel</b> ' +
-        'je Seite. Die genaue Aufteilung besprechen wir beim Aufmaß.');
+    var teile = [];
+    SG23_SEITEN.forEach(function (p) {
+      if (erwListe(p[0]).indexOf('Schiebetür') === -1) return;
+      var bb = sg23Bauart(sg23Mass(p[0]), p[0]);
+      if (bb) teile.push(p[0] + ' ' + bb[1] + '-türig');
+    });
+    if (teile.length) {
+      saetze.push('Vorgeschlagen: <b>' + teile.join(', ') +
+        '</b>. Die genaue Aufteilung besprechen wir beim Aufmaß.');
     }
     if (!saetze.length) return '';
     return '<br><span class="hinweis">' + saetze.join(' ') + '</span>';
@@ -3578,6 +3674,56 @@
       aendern();
       if (p >= 1) { clearInterval(sonneLaeuft); sonneLaeuft = null; }
     }, 40);
+  }
+
+  /* ---------- Schiebeanlage anklicken ----------
+     Dasselbe Verhalten wie bei der Markise, nur je Seite. Geklickt wird
+     auf eine Scheibe oder ihren Rahmen; welche Anlage gemeint ist, steht
+     am Teil selbst, nicht an der Klickposition – sonst würde eine Seite
+     mitgeöffnet, nur weil sie zufällig dahinter liegt. */
+  function schiebeTeil(m, seite) { if (m) m.userData.schiebe = seite; return m; }
+
+  function schiebeSeiteVon(objekt) {
+    for (var o = objekt; o; o = o.parent) {
+      if (o.userData && o.userData.schiebe) return o.userData.schiebe;
+    }
+    return null;
+  }
+
+  var schiebeLaeuft = {};
+  function schiebeFahren(seite, ziel) {
+    var feld = seite === 'links' ? 'offenLinks'
+             : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
+    if (schiebeLaeuft[seite]) clearInterval(schiebeLaeuft[seite]);
+    var start = Z[feld], t0 = Date.now(), dauer = 650;
+    schiebeLaeuft[seite] = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / dauer);
+      Z[feld] = Math.round(start + (ziel - start) * (p < 0.5
+        ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      bauen();
+      zusammenfassung();
+      if (p >= 1) { clearInterval(schiebeLaeuft[seite]); schiebeLaeuft[seite] = null; }
+    }, 40);
+  }
+
+  function schiebeGeklickt(e) {
+    if (!erwIrgendwo('Schiebetür')) return false;
+    var r = leinwand.getBoundingClientRect();
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects(bau.children, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var seite = schiebeSeiteVon(treffer[i].object);
+      if (seite) {
+        var feld = seite === 'links' ? 'offenLinks'
+                 : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
+        schiebeFahren(seite, Z[feld] > 50 ? 0 : 100);
+        return true;
+      }
+      break;                         // nur das vorderste Teil zaehlt
+    }
+    return false;
   }
 
   function markiseGeklickt(e) {
@@ -3713,7 +3859,9 @@
     var weg = Math.abs(e.clientX - klickStart.x) + Math.abs(e.clientY - klickStart.y);
     var zeit = Date.now() - klickStart.t;
     klickStart = null;
-    if (weg < 6 && zeit < 500) markiseGeklickt(e);
+    /* Erst die Markise, dann die Schiebeanlage: Liegt eine Markise vor
+       dem Glas, ist sie gemeint. Beide duerfen nicht zugleich reagieren. */
+    if (weg < 6 && zeit < 500 && !markiseGeklickt(e)) schiebeGeklickt(e);
   });
   window.addEventListener('pointercancel', function () { zieht = false; });
 
@@ -3769,6 +3917,13 @@
   function istCarport() { return Z.produkt === 'Carport'; }
   function istCarportTds() { return istCarport() && Z.cpTyp === 'Carport TDS'; }
   function istPergola() { return Z.produkt === 'Pergola / Lamellendach'; }
+
+  /* Liegt der Träger schon aus Tiefe oder Dachvorsprung fest? */
+  function traegerSchonNoetig() {
+    var tb = tabelleBauteile(Z.breite, Z.tiefe);
+    if (tb && tb.unterzug) return true;
+    return Z.produkt === 'Terrassendach TDS' && Z.vorsprung > 0;
+  }
   function istLamellen() { return istPergola() && Z.pgDachart === 'Lamellendach'; }
 
   /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
@@ -3791,6 +3946,9 @@
                                     Z.cpTyp !== 'Flachdach Flat Line';
       case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
       // Der Regler „geöffnet" erscheint nur, wenn es etwas zu schieben gibt
+      case 'schiebe-links':  return erwListe('links').indexOf('Schiebetür') > -1;
+      case 'schiebe-rechts': return erwListe('rechts').indexOf('Schiebetür') > -1;
+      case 'schiebe-vorne':  return erwListe('vorne').indexOf('Schiebetür') > -1;
       case 'schiebe':        return erwIrgendwo('Schiebetür') ||
                                     (istPergola() && Z.pgSeitenschutz === 'Glas-Schiebeelemente');
       case 'sonne-aus':      return Z.markise !== 'Ohne' || erwIrgendwo('Senkrechtmarkise');
@@ -3806,6 +3964,12 @@
                                     : Z.aufbau === 'Wandmontage';
       // Dachvorsprung gibt es nur beim TDS (so auch im Anfrage-Assistenten)
       case 'vorsprung':      return Z.produkt === 'Terrassendach TDS';
+      /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
+         da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
+         hilft. Beim Carport und bei der Pergola gibt es die Bauweise
+         nicht. */
+      case 'traeger-wunsch': return !istCarport() && !istPergola() &&
+                                    !traegerSchonNoetig();
       case 'led-detail':     return Z.led;
       // Lautsprecher bietet VD beim Carport nicht an
       case 'sound':          return !istCarport();
@@ -4023,14 +4187,25 @@
         seiten.push(pr[0] + ': ' + (pr[1].length ? pr[1].join(' + ') : 'offen'));
       });
       teile.push('Seitenelemente – ' + seiten.join(' · '));
-      if (erwIrgendwo('Schiebetür') && Z.glasOffen > 0) {
-        teile.push('Schiebetür im Bild ' + Z.glasOffen + ' % geöffnet');
+      var offenTeile = [];
+      [['links', Z.offenLinks], ['rechts', Z.offenRechts],
+       ['vorne', Z.offenVorne]].forEach(function (pr) {
+        if (erwListe(pr[0]).indexOf('Schiebetür') > -1 && pr[1] > 0) {
+          offenTeile.push(pr[0] + ' ' + pr[1] + ' %');
+        }
+      });
+      if (offenTeile.length) {
+        teile.push('Schiebetür im Bild geöffnet: ' + offenTeile.join(', '));
       }
       /* Die gewählte Bauart gehört in die Mail, nicht nur ins Bild.
          „man kann es später mim kunden eh nochmal besprechen und ändern"
          (Betreiber) – besprechen kann man aber nur, was dasteht. Ohne
          diese Zeile müsste man die Aufteilung aus dem Bild abzählen. */
       sg23Zeilen().forEach(function (zeile) { teile.push(zeile); });
+      if (gruppeGilt('traeger-wunsch') && Z.traegerWunsch) {
+        teile.push('Statikträger 189 × 117 mm unter der Dachrinne auf Kundenwunsch ' +
+          '(weniger Pfosten, Durchgangshöhe darunter ' + (Z.hoehe - 189) + ' mm)');
+      }
       if (Z.markise !== 'Ohne') teile.push('Beschattung: ' + Z.markise);
       if (Z.stoff && gruppeGilt('stoff-dach')) teile.push('Markisenstoff: ' + stoffText(Z.stoff));
       if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
@@ -4110,13 +4285,21 @@
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
-    var selSg = document.getElementById('k3dSg23');
-    if (selSg) Z.sg23Wahl = selSg.value;
+    SG23_SEITEN.forEach(function (p) {
+      var sel = document.getElementById(p[2]);
+      if (sel && sel.options.length) Z[p[1]] = sel.value;
+    });
     var ledEl = document.getElementById('k3dLed');
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
 
-    Z.glasOffen = zahl('k3dGlasOffen', Z.glasOffen);
+    var offenNeu = zahl('k3dGlasOffen', Z.glasOffen);
+    if (offenNeu !== Z.glasOffen) {
+      /* Am Regler gezogen: Er gilt fuer die ganze Anlage, also alle drei
+         Seiten gleich. Nur so bleibt er das, was er vorher war. */
+      Z.glasOffen = offenNeu;
+      Z.offenLinks = Z.offenRechts = Z.offenVorne = offenNeu;
+    }
     Z.markise = wert('k3dMarkise') || Z.markise;
     var sf = document.getElementById('k3dStoff');
     if (sf) Z.stoff = sf.value || '';
@@ -4134,7 +4317,8 @@
     [['verkRueck', 'k3dVerkRueck'], ['verkLinks', 'k3dVerkLinks'],
      ['verkRechts', 'k3dVerkRechts'], ['masseZeigen', 'k3dMasse'],
      ['sound', 'k3dSound'], ['heizung', 'k3dHeizung'],
-     ['wettersensor', 'k3dWetter']].forEach(function (pr) {
+     ['wettersensor', 'k3dWetter'],
+     ['traegerWunsch', 'k3dTraeger']].forEach(function (pr) {
       var el = document.getElementById(pr[1]);
       if (el) Z[pr[0]] = el.checked;
     });
@@ -4194,7 +4378,9 @@
         var freiHin = Z.aufbau === 'Freistehend';
         /* Dieselbe Trennung wie im Modell: vorne nach dem Träger dort,
            hinten nur freistehend und dann immer nach der 7-m-Regel. */
-        var pfV = (tb.unterzug || vsHin > 0) ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
+        var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
+        var pfV = (tb.unterzug || vsHin > 0 || wunsch)
+          ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
         var pfH = pfostenUnterTraeger(Z.breite);
         var pf = (freiHin && pfH !== pfV)
           ? pfV + ' Pfosten vorne und ' + pfH + ' hinten'
@@ -4208,11 +4394,14 @@
             '</b> bei diesem Maß.');
         }
         var vs = vsHin;
-        if (tb.unterzug || vs > 0) {
+        if (tb.unterzug || vs > 0 || wunsch) {
           var grund = tb.unterzug
             ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
               ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
-            : 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.';
+            : (vs > 0
+              ? 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
+              : 'Sie haben den <b>Statikträger</b> (189 × 117 mm) gewählt – er läuft über ' +
+                'die volle Breite und spart ' + (tb.pfosten - pfV) + ' Pfosten.');
           var lage = vs > 0
             ? ' Die Pfosten stehen ' + vs + ' mm weiter innen; der Träger liegt ' +
               'über ihnen unter den Sparren, weil die Rinne dort auskragt.'
@@ -4451,7 +4640,8 @@
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
-   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dSg23'].forEach(function (id) {
+   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger',
+   'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendern);

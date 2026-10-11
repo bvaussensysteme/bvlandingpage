@@ -646,6 +646,13 @@
           <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="traeger-wunsch">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dTraeger"> <span>Statikträger unter der Rinne – für weniger Pfosten</span></label>
+          <p class="k3d-mini">Ein durchgehender Träger über den Pfosten trägt mehr, dadurch
+            brauchen Sie weniger Pfosten (alle 7 m statt alle 4 m). <b>Dafür ist der
+            Durchgang unter dem Träger 189 mm niedriger</b> als die eingestellte Höhe.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
           <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
           <div class="k3d-regler">
@@ -793,11 +800,25 @@
           </div>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-links" hidden>
+          <label class="k3d-label" for="k3dSg23Links">Aufteilung der Schiebeanlage links</label>
+          <select id="k3dSg23Links" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-rechts" hidden>
+          <label class="k3d-label" for="k3dSg23Rechts">Aufteilung der Schiebeanlage rechts</label>
+          <select id="k3dSg23Rechts" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-vorne" hidden>
+          <label class="k3d-label" for="k3dSg23Vorne">Aufteilung der Schiebeanlage vorne (Stirnseite)</label>
+          <select id="k3dSg23Vorne" class="k3d-select"></select>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
-          <label class="k3d-label" for="k3dSg23">Aufteilung der Schiebeanlage</label>
-          <select id="k3dSg23" class="k3d-select"></select>
           <p class="k3d-mini">Normalerweise wählt der Konfigurator die Aufteilung,
-            die zu Ihrem Maß am besten aussieht. Hier können Sie selbst bestimmen.
+            die zu Ihrem Maß am besten aussieht. Links und rechts laufen über die
+            Tiefe, vorne über die Breite – deshalb steht jede Seite für sich.
             Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
         </div>
 
@@ -1134,7 +1155,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261012o" defer></script>
+<script src="js/konfigurator-3d.js?v=20261012r" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
