@@ -241,11 +241,19 @@
   /* Welche Elementzahlen für ein lichtes Maß überhaupt gehen. Steht
      auf Modulebene, weil Modell UND Bedienfeld dieselbe Antwort
      brauchen – zwei Rechnungen wären zwei Wahrheiten. */
-  function velarisMoeglich(mm) {
+  function velarisMoeglich(mm, art) {
     var liste = [];
     for (var n = 1; n <= VELARIS.festMax; n++) {
       var b = mm / n;
-      if (b >= VELARIS.elMin && b <= VELARIS.elMax) liste.push(n);
+      if (b < VELARIS.elMin || b > VELARIS.elMax) continue;
+      /* Verschiebbar: nur anbieten, was sich auch wirklich schieben
+         lässt (Betreiber, 11.10.2026). Bei einem Laufweg stehen die
+         Elemente aneinander und können nirgendwohin – erst ab zwei
+         Laufwegen fährt eines am anderen vorbei. Zwei Laufwege gibt es
+         ab drei Elementen, mehr als vier Elemente gibt es verschiebbar
+         nicht. Also bleiben drei und vier. */
+      if (art === 'verschiebbar' && (n < 3 || n > VELARIS.schiebbarMax)) continue;
+      liste.push(n);
     }
     return liste;
   }
@@ -2446,7 +2454,13 @@
     function velarisElemente(laengeCm) {
       var mm = laengeCm * 10;
       if (mm < VELARIS.elMin) return 0;
-      var auto = Math.max(1, Math.ceil(mm / VELARIS.elMax));
+      var moeglich = velarisMoeglich(mm, Z.velarisArt);
+      /* Die Automatik nimmt die wenigsten Elemente, die gehen. Bei
+         verschiebbar sind das die wenigsten, die sich auch bewegen
+         lassen; geht dort gar keines, fällt die Anlage auf feststehend
+         zurück – das steht dann unter dem Feld und in der Anfrage. */
+      var auto = moeglich.length ? moeglich[0]
+               : Math.max(1, Math.ceil(mm / VELARIS.elMax));
       /* Wie bei den Schiebeanlagen: Das System rechnet die Aufteilung
          aus, in den erweiterten Einstellungen lässt sie sich selbst
          wählen – aber nur im Bereich, den der Hersteller zulässt. Ein
@@ -2455,9 +2469,7 @@
          gebaut wurde, steht unter dem Feld. */
       var wunsch = parseInt(Z.velarisAnzahl, 10);
       if (!wunsch || isNaN(wunsch)) return auto;
-      var breite = mm / wunsch;
-      if (breite < VELARIS.elMin || breite > VELARIS.elMax) return auto;
-      return wunsch;
+      return moeglich.indexOf(wunsch) > -1 ? wunsch : auto;
     }
 
 
@@ -4648,7 +4660,8 @@
   function velarisFeldFuellen() {
     var sel = document.getElementById('k3dVelarisAnzahl');
     if (!sel) return;
-    var moeglich = VELARIS_IST.licht ? velarisMoeglich(VELARIS_IST.licht) : [];
+    var moeglich = VELARIS_IST.licht
+      ? velarisMoeglich(VELARIS_IST.licht, Z.velarisArt) : [];
     var neu = ['<option value="">automatisch (' +
                (VELARIS_IST.elemente || '–') + ')</option>'];
     moeglich.forEach(function (n) {
@@ -4672,8 +4685,8 @@
       (VELARIS_IST.art === 'verschiebbar'
         ? ' in ' + VELARIS_IST.schienen + ' Schiene(n).' : '.') +
       (VELARIS_IST.gewuenscht === 'verschiebbar' && VELARIS_IST.art !== 'verschiebbar'
-        ? ' Verschiebbar gibt es nur bis vier Elemente (6000 mm) – diese Seite' +
-          ' ist breiter, deshalb feststehend.'
+        ? ' Verschiebbar braucht drei oder vier Elemente (1500 bis 6000 mm' +
+          ' lichte Breite) – hier geht das nicht, deshalb feststehend.'
         : '');
   }
 

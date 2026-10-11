@@ -653,6 +653,41 @@ pruefe('Aufhaengung laeuft durch',
 pruefe('Schiene gehoert zur Anlage, nicht zum Element',
        new RegExp(q || 'platte\\(rahmen, laenge, VELARIS\\.kopf, achse, mitte,\\s*\\n\\s*yUnten \\+ hoehe').test(js), '');
 
+(function () {
+  /* Verschiebbar darf nur angeboten werden, was sich auch WIRKLICH
+     schieben laesst (Betreiber, 11.10.2026). Mit einem Laufweg stehen
+     die Elemente aneinander - erst ab zwei faehrt eines vorbei, und das
+     gibt es ab drei Elementen. Geprueft wird nicht die Liste, sondern
+     dass jede angebotene Zahl im Fahrversuch auch Bewegung ergibt. */
+  var MIN = 500, MAX = 1500, SCHIEB = 4, stumm = 0, angeboten = 0;
+  function schienen(n) { return n <= 2 ? 1 : 2; }
+  for (var mm = 500; mm <= 7500; mm += 10) {
+    for (var n = 1; n <= 5; n++) {
+      var b = mm / n;
+      if (b < MIN || b > MAX) continue;
+      if (!gegen && (n < 3 || n > SCHIEB)) continue;   // Gegenprobe: alles anbieten
+      if (gegen && n > SCHIEB) continue;
+      angeboten++;
+      /* Fahrversuch bei 100 Prozent: bewegt sich ueberhaupt etwas? */
+      var s = schienen(n), lagen = [], bewegt = false;
+      for (var e = 0; e < n; e++) {
+        var zu = (e + 0.5) * b;
+        var f = zu - 1 * e * b;
+        var v = e - s;
+        if (v >= 0) f = Math.max(f, lagen[v] + b);
+        lagen.push(f);
+        if (Math.abs(f - zu) > 0.001) bewegt = true;
+      }
+      if (!bewegt) stumm++;
+    }
+  }
+  pruefe('Verschiebbar: nur Aufteilungen, die sich bewegen', stumm === 0,
+         stumm + ' von ' + angeboten + ' Angeboten ohne Bewegung');
+})();
+pruefe('Die Art steckt in der Aufteilung',
+       new RegExp(q || 'function velarisMoeglich\\(mm, art\\)').test(js) &&
+       new RegExp(q || "art === 'verschiebbar' && \\(n < 3").test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
