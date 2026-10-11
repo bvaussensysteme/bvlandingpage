@@ -4705,3 +4705,24 @@ gelegt; dann musste der Kasten mit jeder Tiefe mitwachsen, um ihn zu
 Blende ist jeweils gleich hoch. Von unten: Der Sparren ist vorne schmal und
 hinten hoch, die Eindeckung fällt zur Rinne. Prüfung:
 `node scripts/pruefe-masstabelle.js` (238, Gegenprobe 238/238).
+
+## 2026-10-11 – Seitenblende: die Sparren blitzten hindurch
+
+**Was war falsch.** „an den außenblenden links und rechts sieht man die sparren
+durch, die blende sind ja dafür da um die sparren eben nicht zu sehen"
+(Betreiber, 11.10.2026). Der Randsparren endet bündig an der Dachkante, und die
+Blende lag genau davor – beide Außenflächen auf **derselben Ebene**. Welche von
+zwei exakt gleich weit entfernten Flächen der Bildschirm zeigt, entscheidet
+dann die Rechengenauigkeit, Pixel für Pixel neu: Die Sparren blitzen durch die
+Blende, und beim Drehen flackert es.
+
+**Was jetzt gilt.** Die Blende liegt 2,5 mm vor der Dachkante (`RANDBLENDE.vor`)
+und damit eindeutig vor dem Sparren. Das ist **kein Bauteilmaß, sondern
+Zeichentechnik** – es steht so im Code kommentiert, damit es niemand später als
+„unsauberes Maß" wegräumt.
+
+**Was gegengelesen werden soll.** Links und rechts am Dach entlangdrehen: eine
+geschlossene Fläche, kein Flackern, keine Sparren mehr sichtbar. Bei TDS und
+bei SkyView. Prüfung: `node scripts/pruefe-masstabelle.js` (240, Gegenprobe
+240/240) – zwei davon rechnen für beide Systeme nach, dass die Blendenaußenkante
+wirklich vor der Sparrenaußenkante liegt.
