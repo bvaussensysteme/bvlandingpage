@@ -1153,6 +1153,10 @@
      im Bild. Der Schattenwurf der Wand geht in dieser Lage aus – eine
      durchsichtige Wand, die einen vollen Schatten wirft, sieht aus wie
      ein Fehler. */
+  /* Rund 26° unter den Horizont – genug, um unter das Dach zu schauen,
+     ohne dass das Bild kippt. */
+  var PHI_MAX_UNTEN = Math.PI / 2 + 0.45;
+
   var WAND_DURCHSICHT = 0.18;
   var wandDurchsichtig = null;            // noch nichts gesetzt
 
@@ -1171,6 +1175,36 @@
       m.needsUpdate = true;
     });
     wand.castShadow = !dahinter;
+    renderer.shadowMap.needsUpdate = true;
+    neuZeichnen();
+  }
+
+  /* ---------- Blick von unten ----------
+     Sobald die Kamera unter die Bodenebene fährt, liegt der Belag
+     zwischen Auge und Bauwerk – man sähe eine graue Fläche statt der
+     Dachunterseite. Für diesen Moment wird der Boden fast durchsichtig;
+     kommt die Kamera wieder hoch, ist er sofort wieder da.
+
+     Der Rasen ist eine einseitige Fläche und von unten ohnehin
+     unsichtbar; der Belag ist ein Körper und muss ausgeblendet werden.
+     Beide werden gleich behandelt, damit es am Rand keinen Bruch gibt. */
+  var BODEN_DURCHSICHT = 0.12;
+  var bodenDurchsichtig = null;
+
+  function bodenDurchsicht() {
+    var drunter = kamera3.position.y < 0;
+    if (drunter === bodenDurchsichtig) return;
+    bodenDurchsichtig = drunter;
+    [rasen.material, belag.material].forEach(function (m) {
+      m.transparent = drunter;
+      m.opacity = drunter ? BODEN_DURCHSICHT : 1;
+      m.depthWrite = !drunter;
+      m.needsUpdate = true;
+    });
+    /* Der Schatten auf dem Boden gehört zum Boden: Ohne ihn auszuschalten
+       läge er als dunkler Fleck in der Luft. */
+    rasen.receiveShadow = !drunter;
+    belag.receiveShadow = !drunter;
     renderer.shadowMap.needsUpdate = true;
     neuZeichnen();
   }
@@ -2013,6 +2047,8 @@
        dann muss die Durchsicht neu entschieden werden. */
     wandDurchsichtig = null;
     wandDurchsicht();
+    bodenDurchsichtig = null;
+    bodenDurchsicht();
     neuZeichnen();
   }
 
@@ -5236,18 +5272,25 @@
   }
 
   function kameraSetzen() {
-    /* Normalerweise endet die Kamera auf Augenhöhe des Modells – über
-       90° stünde sie unter dem Ziel und das Bild auf dem Kopf. Für die
-       Innenansicht ist genau das erwünscht: von unten nach oben schauen.
-       Deshalb darf diese eine Ansicht die Grenze anheben. */
+    /* Wie weit darf die Kamera heruntergehen? „man kann momentan nicht
+       unter die überdachung scrollen oder mit der kamera fahren weil der
+       boden blockiert, das soll gehen … das man gut drunter gucken kann"
+       (Betreiber, 11.10.2026).
+
+       Vorher endete sie knapp über dem Horizont (90° minus ein Haar) –
+       von unten an die Dachunterseite kam man damit nicht. Jetzt geht es
+       bis gut 25° darunter; der Boden wird dabei durchsichtig (siehe
+       bodenDurchsicht). Weiter als das nicht: Bei 90° plus einem rechten
+       Winkel stünde das Bild auf dem Kopf. */
     kam.phi = Math.min(Math.max(kam.phi, 0.18),
-                       kam.phiMax || (Math.PI / 2 - 0.04));
+                       kam.phiMax || PHI_MAX_UNTEN);
     var x = kam.radius * Math.sin(kam.phi) * Math.sin(kam.theta);
     var y = kam.radius * Math.cos(kam.phi);
     var z = kam.radius * Math.sin(kam.phi) * Math.cos(kam.theta);
     kamera3.position.set(kam.ziel.x + x, kam.ziel.y + y, kam.ziel.z + z);
     kamera3.lookAt(kam.ziel);
     wandDurchsicht();
+    bodenDurchsicht();
     neuZeichnen();
   }
 
