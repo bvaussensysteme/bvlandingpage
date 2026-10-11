@@ -886,6 +886,12 @@
             <input type="range" id="k3dPlankenFuge" class="k3d-range" min="0" max="60" step="1" value="10">
             <input type="number" id="k3dPlankenFugeZahl" class="k3d-zahl" inputmode="numeric" value="10" aria-label="Fuge in Millimeter">
           </div>
+          <label class="k3d-label" for="k3dPlankenAnteil">Wie hoch zugesetzt <output id="k3dPlankenAnteilWert">volle Höhe</output></label>
+          <input type="range" id="k3dPlankenAnteil" class="k3d-range" min="-90" max="90" step="5" value="0">
+          <p class="k3d-mini">In der Mitte ist die Seite ganz zu. Nach links
+            bleiben die unteren Planken stehen und oben wird frei, nach rechts
+            umgekehrt – für halbhohe Wände, zwei Drittel und alles dazwischen.
+            Die Fuge bleibt dabei dieselbe wie bei der vollen Wand.</p>
           <p class="k3d-mini" id="k3dPlankenStand"></p>
           <p class="k3d-mini">Normalerweise rechnet das System die Fuge aus, so
             dass die Wand oben und unten bündig abschließt. Haken weg, und Sie
@@ -1224,7 +1230,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261013x" defer></script>
+<script src="js/konfigurator-3d.js?v=20261013y" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

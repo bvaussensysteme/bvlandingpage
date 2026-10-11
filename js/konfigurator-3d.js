@@ -128,7 +128,8 @@
     verkRichtung: 'waagerecht',
     plankenFarbe: 'Wie das Gestell',
     plankenFuge: 10,         // Luft zwischen zwei Planken in mm, 0 = bündig
-    plankenAuto: true        // true = das System rechnet die Fuge aus
+    plankenAuto: true,       // true = das System rechnet die Fuge aus
+    plankenAnteil: 0         // 0 = volle Höhe, <0 wächst von unten, >0 hängt oben
   };
 
   var FARBEN = {
@@ -158,7 +159,7 @@
   /* Was im Modell wirklich gebaut wurde – das Bedienfeld liest es
      zurück, statt dieselbe Rechnung ein zweites Mal zu machen.
      Zweiter Weg zum selben Ergebnis, wie bei den Schiebeanlagen. */
-  var PLANKEN_IST = { anzahl: 0, fuge: 0 };
+  var PLANKEN_IST = { anzahl: 0, gesamt: 0, fuge: 0, hoehe: 0, lage: 'voll' };
   var WINKEL = { lang: 4.0, kurz: 2.0, staerke: 0.2 };
 
   /* Dekore und RAL-Töne der Planken (Betreiber, 11.10.2026). Die vier
@@ -2175,16 +2176,38 @@
       return { anzahl: n, fuge: fuge };
     }
 
-    function planken(laenge, hoehe, achse, mitte, yUnten, quer) {
+    /* Teilhohe Wand („wenn jemand nur zur hälfte planken will oder nur 2/3
+       etc.", Betreiber 11.10.2026): Die Teilung bleibt die der VOLLEN
+       Höhe – es werden nur Planken weggelassen, nicht die übrigen
+       gestreckt. Sonst änderte sich mit dem Regler auch die Fuge, und die
+       halbe Wand sähe anders aus als die ganze.
+       Minus heißt: oben weglassen, die Wand wächst von unten.
+       Plus heißt: unten weglassen, die Wand hängt oben. */
+    function plankenAnteil(n) {
+      var a = Z.plankenAnteil || 0;
+      if (!a) return { von: 0, anzahl: n, lage: 'voll' };
+      var bleibt = Math.max(1, n - Math.round(Math.abs(a) / 100 * n));
+      return a < 0 ? { von: 0, anzahl: bleibt, lage: 'unten' }
+                   : { von: n - bleibt, anzahl: bleibt, lage: 'oben' };
+    }
+
+    function planken(laenge, hoehe, achse, mitte, yUnten, quer, teilbar) {
       if (laenge <= 0 || hoehe < PLANKE.hoehe) return;
       var t = plankenTeilung(hoehe);
-      PLANKEN_IST = { anzahl: t.anzahl, fuge: Math.round(t.fuge * 100) / 10 };
       var schritt = PLANKE.hoehe + t.fuge;
-      for (var i = 0; i < t.anzahl; i++) {
+      var a = teilbar === false ? { von: 0, anzahl: t.anzahl, lage: 'voll' }
+                                : plankenAnteil(t.anzahl);
+      var hoch = a.anzahl * schritt - t.fuge;
+      PLANKEN_IST = { anzahl: a.anzahl, gesamt: t.anzahl,
+                      fuge: Math.round(t.fuge * 100) / 10,
+                      hoehe: Math.round(hoch * 10), lage: a.lage };
+      for (var i = 0; i < a.anzahl; i++) {
         platte(mPlankeWand, laenge, PLANKE.hoehe, achse, mitte,
-               yUnten + PLANKE.hoehe / 2 + i * schritt, quer, 0, PLANKE.dicke);
+               yUnten + PLANKE.hoehe / 2 + (a.von + i) * schritt, quer, 0, PLANKE.dicke);
       }
-      plankenWinkel(laenge, t.anzahl * schritt - t.fuge, achse, mitte, yUnten, quer);
+      /* Die Winkel stehen nur dort, wo auch Planken hängen – sie tragen
+         sie ja. Ein Winkel über der letzten Planke hätte nichts zu halten. */
+      plankenWinkel(laenge, hoch, achse, mitte, yUnten + a.von * schritt, quer);
     }
 
     /* Der Winkel läuft senkrecht am Pfosten hoch; die Planken werden an
@@ -2297,7 +2320,7 @@
       }
       // Plankenwand zusätzlich zu Rahmen/Schiebe: als unteres Drittel davor
       if (hatPlanken && (hatRahmen || hatSchiebe)) {
-        planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer);
+        planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer, false);
       }
 
       /* Bodenschiene und Wandanschluss gehören zu jedem geschlossenen
@@ -4235,8 +4258,12 @@
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
     if (!PLANKEN_IST.anzahl) { e.textContent = ''; return; }
-    e.textContent = 'Gebaut: ' + PLANKEN_IST.anzahl + ' Planken, Fuge ' +
-      String(PLANKEN_IST.fuge).replace('.', ',') + ' mm.';
+    e.textContent = 'Gebaut: ' + PLANKEN_IST.anzahl +
+      (PLANKEN_IST.lage === 'voll' ? '' : ' von ' + PLANKEN_IST.gesamt) +
+      ' Planken, Fuge ' + String(PLANKEN_IST.fuge).replace('.', ',') + ' mm' +
+      (PLANKEN_IST.lage === 'voll'
+        ? '' : ', ' + PLANKEN_IST.hoehe + ' mm hoch ' +
+               (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach')) + '.';
   }
 
   function sg23FeldFuellen() {
@@ -5103,7 +5130,11 @@
                      : (Z.plankenFuge > 0
                          ? 'Kundenwunsch rund ' + Z.plankenFuge + ' mm'
                          : 'bündig ohne Fuge')) +
-                   ', gleichmäßig auf das lichte Maß verteilt');
+                   ', gleichmäßig auf das lichte Maß verteilt' +
+                   (PLANKEN_IST.lage === 'voll' ? ', volle Höhe'
+                     : ', nur ' + PLANKEN_IST.anzahl + ' von ' + PLANKEN_IST.gesamt +
+                       ' Planken (rund ' + PLANKEN_IST.hoehe + ' mm, ' +
+                       (PLANKEN_IST.lage === 'unten' ? 'ab Boden' : 'unter dem Dach') + ')'));
       }
       var offenTeile = [];
       [['links', Z.offenLinks], ['rechts', Z.offenRechts],
@@ -5228,6 +5259,7 @@
     if (sz) Z.stoffZip = sz.value || '';
     Z.sonneAus = zahl('k3dSonneAus', Z.sonneAus);
     Z.plankenFuge = zahl('k3dPlankenFuge', Z.plankenFuge);
+    Z.plankenAnteil = zahl('k3dPlankenAnteil', Z.plankenAnteil);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
@@ -5398,6 +5430,11 @@
     if (fw) {
       fw.textContent = Z.plankenAuto ? 'automatisch'
                      : (Z.plankenFuge > 0 ? Z.plankenFuge + ' mm' : 'bündig');
+    }
+    var aw = document.getElementById('k3dPlankenAnteilWert');
+    if (aw) {
+      aw.textContent = !Z.plankenAnteil ? 'volle Höhe'
+                     : (Z.plankenAnteil < 0 ? 'von unten' : 'von oben');
     }
     var fr = document.getElementById('k3dPlankenFuge');
     if (fr) fr.disabled = Z.plankenAuto;
@@ -5624,7 +5661,8 @@
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
-   'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto'].forEach(function (id) {
+   'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
+   'k3dPlankenAnteil'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendernGebremst);
