@@ -334,6 +334,34 @@ pruefe('Regler steht in der Mitte auf voll',
 pruefe('Teilhoehe steht in der Anfrage',
        new RegExp(q || "PLANKEN_IST\\.lage === 'voll' \\? ', volle Höhe'").test(js), '');
 
+/* Planken gibt es nur bis 7 m am Stueck (Betreiber, 11.10.2026).
+   Darueber GLEICHMAESSIG teilen - nicht 7 m plus Rest - und an den Stoss
+   ein Zwischenprofil. Nachgerechnet an der Formel: Kein Feld laenger als
+   7 m, alle gleich lang, und die Felder plus Profile ergeben wieder die
+   volle Laenge. */
+pruefe('Zwischenprofil bei langer Wand',
+       new RegExp(q || 'function plankenFelder').test(js) &&
+       new RegExp(q || 'function zwischenprofil').test(js), '');
+(function () {
+  var MAX = 700, ZW = 4.0, falsch = 0, geteilt = 0;
+  function felder(l) {
+    var n = Math.max(1, Math.ceil(l / MAX));
+    if (n === 1) return { anzahl: 1, laenge: l };
+    /* Gegenprobe: so, wie man es falsch machen wuerde - volle 7 m und
+       der Rest hinten dran. */
+    if (gegen) return { anzahl: n, laenge: MAX };
+    return { anzahl: n, laenge: (l - (n - 1) * ZW) / n };
+  }
+  for (var l = 100; l <= 2400; l += 10) {
+    var f = felder(l);
+    if (f.laenge > MAX + 0.001) falsch++;
+    if (Math.abs(f.anzahl * f.laenge + (f.anzahl - 1) * ZW - l) > 0.001) falsch++;
+    if (f.anzahl > 1) geteilt++;
+  }
+  pruefe('Teilung ueber 7 m geht auf', falsch === 0,
+         falsch + ' Faelle falsch, ' + geteilt + ' Laengen geteilt');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

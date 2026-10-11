@@ -2585,3 +2585,31 @@ Planken stimmt, nur die Seite ist falsch.
 **In der Anfrage-Mail** steht bei Teilhöhe, wie viele von wie vielen
 Planken gebaut werden, die Höhe in Millimetern und ob ab Boden oder unter
 dem Dach.
+
+## 2026-10-11 – Planken gibt es nur bis 7 m am Stück
+
+**Anlass:** „maximale länge einer planke sind 7m mximales lieferbares maß,
+geht es darüber muss es gleich aufgeteilt werden mit zwischenprofil"
+(Betreiber).
+
+**Was jetzt gilt:** Über 7 m lichter Länge wird die Wand in **gleich lange**
+Felder geteilt, an jeder Stoßstelle steht ein senkrechtes Zwischenprofil.
+Bei 9 m sind das zwei Felder zu 4480 mm, nicht 7000 + 2000.
+
+**Warum gleichmäßig und nicht „volle Planke plus Rest":** Zwei gleiche
+Felder sehen aus wie gewollt, ein schmaler Reststreifen am Ende wie ein
+Fehler. Technisch ginge beides.
+
+Das Zwischenprofil geht nur über die Höhe, die die Planken wirklich
+einnehmen – bei halbhoher Wand also nicht weiter.
+
+**Nachgerechnet** über alle Längen von 1 bis 24 m in 10-cm-Schritten: kein
+Feld länger als 7 m, alle Felder gleich lang, und Felder plus Profile
+ergeben wieder genau die lichte Länge. Die Gegenprobe rechnet mit „volle
+7 m, Rest hinten dran" – und schlägt an.
+
+**GESCHÄTZT:** die Breite des Zwischenprofils, hier 40 mm wie der Schenkel
+des Winkels, damit es im Bild zusammenpasst. Als Rückfrage notiert.
+
+**In der Anfrage-Mail** steht bei geteilter Wand, in wie viele Felder zu
+welcher Länge geteilt wird.
