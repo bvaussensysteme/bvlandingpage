@@ -584,25 +584,48 @@ pruefe('Elementzahl automatisch oder selbst gewaehlt',
          falsch + ' Angebote ausserhalb der Grenzen');
 })();
 
+pruefe('Laufweg bremst das Element davor',
+       new RegExp(q || 'var vorher = e - schienen').test(js) &&
+       new RegExp(q || 'frei = Math\\.max\\(frei, lagen\\[vorher\\] \\+ elLaenge\\)').test(js), '');
 pruefe('Verschiebbare Velaris fahren wie die Glaswaende',
        new RegExp(q || 'function velarisSchiebenFahren').test(js) &&
        new RegExp(q || "\\['k3dVelarisSchiebenAuf', 'k3dVelarisOffen', 100\\]").test(js) &&
        /id="k3dVelarisOffen"/.test(html), '');
 (function () {
-  /* Beim Aufschieben bleibt das erste Element stehen und die uebrigen
-     fahren darauf zu - genau wie bei den Glasschiebewaenden. Bei 100 %
-     liegen alle uebereinander, keines steht ausserhalb der Anlage. */
-  var L = 450, n = 3, el = L / n, falsch = 0;
-  [0, 0.5, 1].forEach(function (offen) {
-    for (var e = 0; e < n; e++) {
-      var lage = -L / 2 + (e + 0.5) * el - (gegen ? -offen : offen) * e * el;
-      if (lage - el / 2 < -L / 2 - 0.001) falsch++;      // links hinaus
-      if (lage + el / 2 > L / 2 + 0.001) falsch++;       // rechts hinaus
-      if (offen === 0 && Math.abs(lage - (-L / 2 + (e + 0.5) * el)) > 0.001) falsch++;
+  /* Zwei Elemente auf DEMSELBEN Laufweg koennen nicht ineinander fahren -
+     sie stossen aneinander (Betreiber, 11.10.2026). An anderen Elementen
+     duerfen sie vorbei. Nachgerechnet ueber alle Kombinationen des
+     Formulars und ueber den ganzen Fahrweg.
+     Gegenprobe: der alte Stand, in dem jedes Element um denselben Betrag
+     fuhr - dann ueberlappen sich Elemente auf einem Laufweg. */
+  var el = 100, stoss = 0, raus = 0, bewegt = 0;
+  [[1, 1], [1, 2], [2, 2], [2, 3], [2, 4], [3, 3]].forEach(function (k) {
+    var schienen = k[0], n = k[1], laenge = n * el;
+    for (var p10 = 0; p10 <= 10; p10++) {
+      var offen = p10 / 10, lagen = [];
+      for (var e = 0; e < n; e++) {
+        var f = (e + 0.5) * el - offen * e * el;
+        var v = e - schienen;
+        if (!gegen && v >= 0) f = Math.max(f, lagen[v] + el);
+        lagen.push(f);
+      }
+      for (var i = 0; i < n; i++) {
+        if (lagen[i] - el / 2 < -0.001) raus++;
+        if (lagen[i] + el / 2 > laenge + 0.001) raus++;
+        for (var j = i + 1; j < n; j++) {
+          if ((j - i) % schienen !== 0) continue;        // anderer Laufweg
+          if (Math.abs(lagen[j] - lagen[i]) < el - 0.001) stoss++;
+        }
+      }
+      if (offen === 1 && schienen > 1 && Math.abs(lagen[1] - (0.5 * el)) < 0.001) bewegt++;
     }
   });
-  pruefe('Kein Element faehrt aus der Anlage', falsch === 0,
-         falsch + ' Lagen ausserhalb');
+  pruefe('Elemente auf einem Laufweg fahren nicht ineinander', stoss === 0,
+         stoss + ' Ueberschneidungen');
+  pruefe('Kein Element faehrt aus der Anlage',
+         gegen ? !(raus === 0) : raus === 0, raus + ' Lagen ausserhalb');
+  pruefe('Mit mehreren Laufwegen bewegt sich auch etwas',
+         gegen ? bewegt === 0 : bewegt > 0, bewegt + ' Faelle mit Bewegung');
 })();
 
 (function () {

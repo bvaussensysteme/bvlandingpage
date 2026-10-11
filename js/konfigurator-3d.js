@@ -2502,15 +2502,32 @@
              yUnten + VELARIS.bodenSchiene / 2, quer, 0,
              VELARIS.tiefeUnten[schienen] || VELARIS.tiefeUnten[1]);
       var elLaenge = laenge / anzahl;
-      /* Verschiebbar laufen die Elemente wie die Glasschiebewände: Das
-         erste bleibt stehen, die übrigen fahren darauf zu und stapeln
-         sich. Weiter als bis an das vorige kann keines – sonst stünde
-         das letzte außerhalb der Anlage. */
+      /* Verschiebbar: Die Elemente fahren wie die Glasschiebewände zur
+         Seite – ABER nur, soweit die Schienen es zulassen.
+
+         „wenn 2 elemente auf 1 laufweg sind kann man die ja nicht
+         ineinander schieben die stoßen ja gegeneinander" (Betreiber,
+         11.10.2026). Genau das war falsch: Bisher fuhr jedes Element um
+         denselben Betrag, egal auf welchem Laufweg – zwei Elemente auf
+         demselben Weg schoben sich glatt ineinander.
+
+         Richtig ist: Element i läuft auf Laufweg i % Schienenzahl.
+         Vorbei darf es nur an Elementen auf ANDEREN Wegen. Deshalb wird
+         die Lage der Reihe nach gerechnet und jedes Element an dem
+         gebremst, das auf SEINEM Weg davor liegt – es darf höchstens
+         bündig anstoßen. Daraus folgt von selbst: Auf einem einzigen
+         Laufweg bewegt sich nichts, zwei Laufwege lassen je ein Element
+         vorbeifahren. */
       var offen = velarisSchiebbar(anzahl) ? Math.min(100, Math.max(0, Z.velarisOffen)) / 100 : 0;
       if (anzahl > 1) {
+        var links = mitte - laenge / 2;
+        var lagen = [];
         for (var e = 0; e < anzahl; e++) {
-          var lage = mitte - laenge / 2 + (e + 0.5) * elLaenge - offen * e * elLaenge;
-          velarisElement(elLaenge, hoehe, achse, lage,
+          var frei = links + (e + 0.5) * elLaenge - offen * e * elLaenge;
+          var vorher = e - schienen;        // das Element davor auf DIESEM Laufweg
+          if (vorher >= 0) frei = Math.max(frei, lagen[vorher] + elLaenge);
+          lagen.push(frei);
+          velarisElement(elLaenge, hoehe, achse, frei,
                          yUnten, quer, schienen, e, e === 0 || offen > 0);
         }
         return;

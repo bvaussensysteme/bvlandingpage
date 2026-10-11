@@ -2874,3 +2874,32 @@ zur Anlage und wird dort gezeichnet, nicht je Element.
 **Die Lehre:** Aus einem Querschnitt lässt sich die Länge eines Teils
 nicht ablesen. Derselbe Fehler steckte schon einmal in den
 SG23-Profilen, die ich aus Querschnitten um jeden Flügel gelegt hatte.
+
+## 2026-10-11 – Velaris: zwei Elemente auf einem Laufweg stoßen aneinander
+
+**Anlass:** „wenn 2 elemente auf 1 laufweg sind kann man die ja nicht
+ineinander schieben die stoßen ja gegeneinander das is noch falsch in der
+animation" (Betreiber). Dazu die Bestätigung, dass die drei Querschnitte
+die **1er-, 2er- und 3er-Schiene** zeigen – also die Laufwege im Schnitt.
+
+**Was war:** Beim Aufschieben fuhr jedes Element um denselben Betrag,
+unabhängig vom Laufweg. Zwei Elemente auf demselben Weg schoben sich
+glatt ineinander – im Bild hübsch, in Wirklichkeit unmöglich.
+
+**Was jetzt gilt:** Element i läuft auf Laufweg `i % Schienenzahl`.
+Gerechnet wird der Reihe nach, und jedes Element wird an dem gebremst,
+das auf **seinem** Weg davor liegt – bündig anstoßen ja, überlappen nein.
+An Elementen auf anderen Wegen fährt es vorbei.
+
+Daraus folgt von selbst, ohne Sonderfall:
+
+| | |
+|---|---|
+| 1 Schiene | nichts bewegt sich – die Elemente stehen schon aneinander |
+| 2 Schienen, 3 Elemente | zwei stapeln sich, das dritte stößt an das erste |
+| 3 Schienen, 3 Elemente | alle drei stapeln sich |
+
+**Nachgerechnet** über alle sechs Kombinationen des Formulars und den
+ganzen Fahrweg in Zehntelschritten: keine Überschneidung auf einem
+Laufweg, kein Element außerhalb der Anlage. Die Gegenprobe rechnet ohne
+die Bremse – und meldet die Überschneidungen.
