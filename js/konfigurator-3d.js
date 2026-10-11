@@ -2105,8 +2105,14 @@
     seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
     }, dachTiefe);
+    /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
+       endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
+       diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und
+       hingen in der Luft; vom Betreiber beanstandet. Die Zeichnung sagt
+       „Bestellmaß Tiefe = Terrassendach Tiefe", die Markise läuft also
+       über die ganze Dachtiefe bis an die Rinne. */
     sonnenschutz(B, T, hVorn, neig, PF, {
-      tiefe: dachTiefe,
+      tiefe: T,
       ok: function (z) {
         return ukMitte + spH + glasDicke + Math.tan(neig) * (zMitte - z);
       }

@@ -416,3 +416,26 @@ einen Spalt gelassen.
 
 **Prüfung.** `node scripts/pruefe-markise.js` – 15 Prüfungen, alle bestanden.
 `node scripts/pruefe-markise.js --gegenprobe` – 15 von 15 schlagen an.
+
+## 2026-10-11 – Aufdachmarkise endete vor der Rinne
+
+**Was falsch war.** Der Betreiber mit Bild: „hört zu früh auf mus bis zur
+rinne gehen". Schiene und Tuch endeten rund 19 cm vor der Rinne und hingen
+in der Luft.
+
+**Ursache.** `sonnenschutz()` bekam `dachTiefe` übergeben – das ist die Tiefe
+bis zum SPARRENENDE, und die Sparren enden an der Rückwand der Rinne
+(`T − RINNE.breite`, also 186,3 mm vor der Dachkante). Für Sparren und
+Eindeckung stimmt das Maß; für die Markise nicht.
+
+**Was jetzt gilt.** Die Markise bekommt die volle Tiefe `T`. Das deckt sich
+mit der Herstellerzeichnung: „Bestellmaß Tiefe = Terrassendach Tiefe" – die
+Markise läuft über die ganze Dachtiefe bis an die Rinne.
+
+**Was gegengelesen werden soll.** Ob das vordere Schienenende optisch
+richtig auf der Rinne aufsetzt oder noch darüber hinausragt. Die Schiene
+liegt rechnerisch rund 5 cm über der Rinnenoberkante.
+
+**Prüfung.** `scripts/pruefe-markise.js` hat dafür eine eigene Prüfung
+(„Markise bekommt die volle Dachtiefe bis zur Rinne"); 16 Prüfungen, alle
+bestanden, Gegenprobe 16 von 16.
