@@ -3541,3 +3541,35 @@ melden.
 **Prüfung.** `scripts/pruefe-masstabelle.js` jetzt 190, Gegenprobe
 190 von 190; die neue vergleicht beide Oberkanten rechnerisch und
 rechnet in der Gegenprobe mit der alten Formel.
+
+## 11.10.2026 – Seitenglasleiste TD an den äußersten Sparren
+
+**Anlass.** „die glasleisten an den sparren ganz links und rechts haben
+so einen abschluss das man einen sauberen übergang außen hat … hier auf
+dem bild is sie liegend, einmal nach rechts drehen, dann is sie richtig
+für die rechte seite und gespiegelt für die linke seite" (Betreiber, mit
+Teilebild „Seitenglasleiste TD").
+
+**Was falsch war.** Auf allen Sparren lag dieselbe runde Abdeckleiste
+(55,3 × 22,6 mm). Außen braucht es ein anderes Teil: eines, das über die
+Sparrenflanke herunterreicht und das Dach zur Seite abschließt.
+
+**Was jetzt gilt.** Die beiden äußersten Sparren bekommen die
+Seitenglasleiste, 63,1 mm breit und 59,4 mm hoch (BELEGT aus dem
+Teilebild). Der Schenkel reicht außen über den Sparren herunter, innen
+greift eine Nase aufs Glas. Links ist dieselbe Form, gespiegelt.
+Dazwischen bleibt die runde Abdeckleiste.
+
+**GESCHÄTZT bleibt die Form zwischen den Maßen** – Wandstärke, Radius
+und die Nase. Das Teilebild ist dafür zu klein; das Umrissmaß stimmt,
+die Rundung ist nachempfunden.
+
+**Der Querschnitt steht im Code in der EINBAULAGE**, nicht so, wie er
+auf dem Blatt liegt – mit einem Kommentar dazu. Genau diese
+Verwechslung ist heute schon dreimal passiert (SG23-Profile,
+Velaris-Aufhängung, Wandprofil).
+
+**Prüfung.** `scripts/pruefe-masstabelle.js` jetzt 194, Gegenprobe
+194 von 194. Die neue misst den Querschnitt wirklich aus: Sie liest die
+Punkte aus dem Code, rechnet den größten Abstand in x und y und
+vergleicht ihn mit dem Teilebild – statt nur die Konstante zu lesen.
