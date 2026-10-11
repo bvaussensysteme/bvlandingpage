@@ -371,7 +371,7 @@ pruefe('Hoehe hat ein Standard-Haekchen',
    Oberkante beim Zeichnen mitgeschrieben und genau so weitergegeben
    werden. Genau das wird hier festgehalten. */
 pruefe('Winkel endet an der Planke',
-       new RegExp(q || 'plankenWinkel\\(laenge, ok - uk, achse, mitte, uk, quer\\)').test(js) &&
+       new RegExp(q || 'plankenWinkel\\(laenge, ok - uk, achse, mitte, uk, quer, mPlankeWand\\)').test(js) &&
        new RegExp(q || 'ok = yM \\+ PLANKE\\.hoehe / 2').test(js), '');
 
 /* Das Mass gehoert an BEIDE Stellen: neben den Regler und in die
@@ -687,6 +687,39 @@ pruefe('Schiene gehoert zur Anlage, nicht zum Element',
 pruefe('Die Art steckt in der Aufteilung',
        new RegExp(q || 'function velarisMoeglich\\(mm, art\\)').test(js) &&
        new RegExp(q || "art === 'verschiebbar' && \\(n < 3").test(js), '');
+
+(function () {
+  /* Holzmaserung fuer die Dekore (ambientCG Wood049, CC0). Geprueft
+     wird, dass die Bilder DA sind, dass sie eingebunden werden und dass
+     jedes Bauteil seine eigene Kopie der Textur bekommt - sonst teilten
+     sich Planke und Lamelle eine Wiederholung und eine von beiden saehe
+     gestaucht aus. */
+  var fs2 = require('fs');
+  var da = fs2.existsSync('images/textur/holzmaserung.webp') &&
+           fs2.existsSync('images/textur/holzmaserung-normal.webp');
+  pruefe('Maserungsbilder liegen im Projekt', gegen ? !da : da, '');
+  pruefe('Maserung nur auf den Dekoren',
+         new RegExp(q || 'if \\(dekor !== undefined\\) maserungAuftragen').test(js) &&
+         (js.match(/if \(dekor !== undefined\) maserungAuftragen/g) || []).length === 2, '');
+  pruefe('Jedes Bauteil bekommt seine eigene Kopie',
+         new RegExp(q || 'var t = f\\.map\\.clone\\(\\)').test(js) &&
+         new RegExp(q || 'var n = f\\.normal\\.clone\\(\\)').test(js), '');
+  pruefe('Verspaetete Textur wird nachgetragen',
+         new RegExp(q || 'function maserungNachtragen').test(js) &&
+         new RegExp(q || "name === 'holzmaserung'").test(js), '');
+})();
+(function () {
+  /* Die Maserung darf nicht mitwachsen: Auf einer langen Planke muesste
+     sie sonst zu Streifen gezogen werden. Geprueft am Seitenverhaeltnis
+     der Wiederholung - es muss dem des Bauteils entsprechen. */
+  var k = 120, falsch = 0;
+  [[300, 7.04], [700, 7.04], [100, 7.0], [45, 7.0]].forEach(function (b) {
+    var rx = Math.max(0.05, b[0] / k), ry = Math.max(0.02, b[1] / (gegen ? k * 2 : k));
+    var verhaeltnisBauteil = b[0] / b[1], verhaeltnisTextur = rx / ry;
+    if (Math.abs(verhaeltnisBauteil - verhaeltnisTextur) > 0.001) falsch++;
+  });
+  pruefe('Maserung wird nicht gestaucht', falsch === 0, falsch + ' von 4 verzerrt');
+})();
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
