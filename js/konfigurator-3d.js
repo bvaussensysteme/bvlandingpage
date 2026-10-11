@@ -1511,15 +1511,31 @@
       });
     }
 
-    /* Seitenelemente nur bei den Wandsystemen */
-    if (!e.freistehend) seitenErweiterungen(B, T, hVorn, pf, neig);
+    /* Seitenelemente nur bei den Wandsystemen.
+
+       Die Pfostenachsen MÜSSEN mit – sonst läuft die Schiebeanlage über
+       die ganze Vorderseite statt je Pfostenfach. Genau das ist hier
+       passiert: Die Aufteilung war nur im geschätzten Pfad eingebaut,
+       und dieser Datenpfad rief dieselbe Funktion ohne die Achsen auf.
+       Der Rückfall in seitenErweiterungen (zwei Eckpfosten) sieht dann
+       aus wie „nicht aufgeteilt" – vom Betreiber im Bild bemerkt
+       (11.10.2026). Dasselbe gilt für dachUk und dachVorne: ohne sie
+       fehlt der Keil ganz. */
+    /* Dachunterkante – dieselbe Rechnung, die unten schon der
+       Sonnenschutz und die LED-Spots verwenden. Eine zweite Formel
+       daneben würde beim nächsten Umbau auseinanderlaufen. */
+    function dachUkDaten(z) {
+      return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
+    }
+    if (!e.freistehend) {
+      seitenErweiterungen(B, T, hVorn, pf, neig, dachUkDaten,
+                          zPfosten - pf / 2, xP);
+    }
     if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf, {
       tiefe: T,
       ok: function (z) { return yDach + Math.tan(neig) * (T / 2 - z) + 0.8; },
       sparrenL: laenge,
-      uk: function (z) {
-        return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
-      }
+      uk: dachUkDaten
     });
     else verkleidung(B, T, hVorn - 1, pf);
 
@@ -2226,12 +2242,22 @@
       var feldMitte = (lichtVon + lichtBis) / 2;
       var feldLaenge = lichtBis - lichtVon;
       if (feldLaenge <= 0) continue;
-      /* Nach AUSSEN heißt: weg von der Mitte der Anlage. Welche
-         Kennzahl wohin stapelt, war ebenfalls invertiert –
-         rk = +1 stapelt nach -x (links), rk = -1 nach +x (rechts).
-         Ein Feld links der Mitte braucht also die +1. */
+      /* Laufrichtung. rk = +1 stapelt nach -x (links), rk = -1 nach +x
+         (rechts) – nachgerechnet, nicht geschätzt.
+
+           Feld links der Mitte  -> nach links   -> +1
+           Feld rechts der Mitte -> nach rechts  -> -1
+           EIN Feld über die ganze Breite (kein Mittelpfosten, feldMitte
+           liegt dann bei 0) -> nach links, wie es vorher auch war.
+
+         Der letzte Fall ist der Grund für „> 0" statt „< 0": Bei einer
+         Abfrage auf „< 0" fiele das einzelne Feld in den rechten Zweig
+         und öffnete auf einmal andersherum als bisher. Genau das ist am
+         11.10.2026 passiert („sie geht jz zur falschen seite auf") – ich
+         hatte beim Griff-Fehler zwei Dinge geändert, obwohl nur eines
+         falsch war. */
       eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
-                feldMitte < 0 ? 1 : -1, f);
+                feldMitte > 0 ? -1 : 1, f);
     }
   }
 
