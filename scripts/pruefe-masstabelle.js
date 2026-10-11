@@ -150,6 +150,24 @@ pruefe('Rinne bleibt auf der eingestellten Höhe',
        !/hRinne = hVorn \+ /.test(k3d), 'kein Anheben');
 pruefe('Träger kürzt den Pfosten, nicht die Rinne',
        new RegExp(q || 'traegerOk - traegerH').test(k3d), 'hPfosten aus traegerOk');
+/* ---------- 7-m-Regel unter dem Statiktraeger ----------
+   Zweiter Weg: Die Regel wird hier noch einmal aufgeschrieben und gegen
+   die Umsetzung im Code gerechnet. */
+var mRegel = k3d.match(/function pfostenUnterTraeger\(breiteMm\) \{\s*return ([^;]+);/);
+if (!mRegel) { pruefe('7-m-Regel vorhanden', false, 'pfostenUnterTraeger fehlt'); }
+else {
+  var fn = new Function('breiteMm', 'return ' + mRegel[1] + ';');
+  [[3000, 2], [7000, 2], [7001, 3], [14000, 3], [14001, 4]].forEach(function (f) {
+    var ist = fn(f[0]) + (gegen ? 1 : 0);
+    pruefe('7-m-Regel bei ' + f[0] + ' mm', ist === f[1],
+           ist + ' Pfosten (erwartet ' + f[1] + ')');
+  });
+}
+pruefe('Modell nutzt die 7-m-Regel unter dem Träger',
+       new RegExp(q || 'hatTraeger \\? pfostenUnterTraeger').test(k3d), '');
+pruefe('Hinweis nennt dieselbe Pfostenzahl wie das Modell',
+       new RegExp(q || 'mitTraeger \\? pfostenUnterTraeger').test(k3d), '');
+
 /* Freistehend traegt hinten ein Statiktraeger das Wandprofil. */
 pruefe('Freistehend: Statikträger statt Wand',
        new RegExp(q || 'ukHinten - 18\\.9 / 2, zHinten').test(k3d), 'volle Breite');

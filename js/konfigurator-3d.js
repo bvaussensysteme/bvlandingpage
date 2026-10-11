@@ -498,6 +498,26 @@
     return k ? (M.systeme[k] || null) : null;
   }
 
+  /* ---------- Pfostenzahl unter einem Statikträger ----------
+     Vorgabe des Betreibers (11.10.2026): „unter einem statikträger gilt
+     nicht mehr die 4000mm regel mit 3, 4, 5 pfosten etc, sondern da
+     greift die 7000mm regel also alle 7000mm 3,4,5 pfosten".
+
+     Ohne Träger kommen die Stützfüße aus der Maßtabelle; dort springt
+     die Zahl bei 4500, 8080 und 10080 mm – also grob alle 4 m. Trägt ein
+     Statikträger die Last über die volle Breite, braucht es weniger
+     Pfosten: erst alle 7 m einen mehr.
+
+     Das ist die Breitenregel. Die TIEFENregel („ab 4500 mm ein dritter,
+     mit Unterzug erst ab 7000 mm") steckt getrennt davon in
+     tabelleBauteile() und bleibt unberührt.
+
+     Gilt für alles, was einen Träger hat: Tiefe über 4500 mm,
+     Dachvorsprung oder freistehend. */
+  function pfostenUnterTraeger(breiteMm) {
+    return 2 + Math.floor((breiteMm - 1) / 7000);
+  }
+
   /* Liefert { sparren, pfosten, unterzug, lieferbar } oder null. */
   function tabelleBauteile(breiteMm, tiefeMm) {
     var g = tabelleGruppe();
@@ -2566,9 +2586,13 @@
     var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
     var hPfostenHinten = frei ? Math.max(100, ukHinten - 18.9) : hHinten;
 
-    /* Pfostenzahl aus der Maßtabelle, sonst die alte Faustregel. */
+    /* Pfostenzahl: unter einem Statikträger die 7-m-Regel, sonst die
+       Stützfüße aus der Maßtabelle (und ohne Tabelle die Faustregel). */
     var pfTab = tbMass;
-    verteilen(pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2), B, PF / 2).forEach(function (x) {
+    var hatTraeger = traegerH > 0 || frei;
+    var pfAnzahl = hatTraeger ? pfostenUnterTraeger(Z.breite)
+      : (pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2));
+    verteilen(pfAnzahl, B, PF / 2).forEach(function (x) {
       balken(PF, hPfosten, PF, x, hPfosten / 2, zPf, mAlu);
       if (frei) balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zHinten, mAlu);
     });
@@ -3841,15 +3865,21 @@
       var M = window.BV_MASSTABELLE;
       var saetze = [], warnung = false;
       if (tb) {
+        /* Unter einem Statikträger gilt die 7-m-Regel, nicht die
+           Stützfußspalte der Tabelle – siehe pfostenUnterTraeger(). Der
+           Hinweis muss dieselbe Zahl nennen wie das Modell. */
+        var vsHin = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
+        var mitTraeger = tb.unterzug || vsHin > 0 || Z.aufbau === 'Freistehend';
+        var pf = mitTraeger ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
         if (tb.breiteTabelle !== Z.breite) {
           saetze.push('Gerechnet wird mit der nächsten lieferbaren Breite: <b>' +
             tb.breiteTabelle + ' mm</b> – daraus folgen ' + tb.sparren +
-            ' Sparren und ' + tb.pfosten + ' Pfosten.');
+            ' Sparren und ' + pf + ' Pfosten je Reihe.');
         } else {
-          saetze.push('<b>' + tb.sparren + ' Sparren</b> und <b>' + tb.pfosten +
-            ' Pfosten</b> bei diesem Maß.');
+          saetze.push('<b>' + tb.sparren + ' Sparren</b> und <b>' + pf +
+            ' Pfosten je Reihe</b> bei diesem Maß.');
         }
-        var vs = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
+        var vs = vsHin;
         if (tb.unterzug || vs > 0) {
           var grund = tb.unterzug
             ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +

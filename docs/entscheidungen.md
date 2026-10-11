@@ -1251,3 +1251,41 @@ also mehr Luft als vorne, weil das Dach ansteigt.
 **Prüfung.** `scripts/pruefe-masstabelle.js` – 28 Prüfungen, alle
 bestanden; Gegenprobe 28 von 28. Drei davon betreffen die freistehende
 Ausführung.
+
+## 2026-10-11 – Unter einem Statikträger gilt die 7-m-Regel für die Pfosten
+
+**Vorgabe des Betreibers.** „unter einem statikträger gilt nicht mehr die
+4000mm regel mit 3, 4, 5 pfosten etc, sondern da greift die 7000mm regel
+also alle 7000mm 3,4,5 pfosten."
+
+**Was das ändert.** Ohne Träger kommen die Stützfüße aus der Maßtabelle;
+dort springt die Zahl bei 4500, 8080 und 10080 mm – also grob alle 4 m.
+Trägt ein Statikträger die Last über die volle Breite, braucht es
+weniger Pfosten: erst alle 7 m einen mehr.
+
+| Breite | ohne Träger | mit Träger |
+|---:|---:|---:|
+| 3000 mm | 2 | 2 |
+| 4500 mm | 3 | **2** |
+| 7000 mm | 3 | **2** |
+| 7001 mm | 3 | 3 |
+| 8080 mm | 4 | **3** |
+| 10080 mm | 5 | **3** |
+| 14080 mm | 5 | **4** |
+
+**Nicht zu verwechseln mit der Tiefenregel.** Die sagt „ab 4500 mm Tiefe
+ein dritter Pfosten, mit Unterzug erst ab 7000 mm" und steckt getrennt in
+`tabelleBauteile()`. Die hier ist die **Breiten**regel. Beide nennen die
+Zahl 7000, meinen aber verschiedene Richtungen – deshalb stehen sie an
+verschiedenen Stellen und der Kommentar sagt es an beiden ausdrücklich.
+
+**Wann der Träger da ist:** Tiefe über 4500 mm, Dachvorsprung eingestellt,
+oder freistehend.
+
+**Auch der Maßhinweis rechnet mit derselben Regel.** Er nennt sonst eine
+andere Pfostenzahl als das Modell daneben zeichnet – ein Widerspruch, den
+der Kunde sieht und wir nicht.
+
+**Prüfung.** `scripts/pruefe-masstabelle.js` – 35 Prüfungen, alle
+bestanden; Gegenprobe 35 von 35. Die Regel wird im Prüfskript noch einmal
+aufgeschrieben und gegen die Umsetzung gerechnet, an fünf Stützstellen.
