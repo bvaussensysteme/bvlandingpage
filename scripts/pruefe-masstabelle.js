@@ -301,6 +301,70 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
+/* ---------- Seitliche Abdeckungen: Rinne und Wandprofil gleich --------
+   „miir is wichtig das die abdeckungen links rechts von rinne und von
+   wandprofil abdeckung links rechts identisch sind aber ohne vd
+   gravur" (Betreiber, 11.10.2026, mit beiden Werkbildern). */
+(function () {
+  var quer = (k3d.match(/function kappeQuerschnitt\(b, h, fase\)[\s\S]*?\n  \}/) || [''])[0];
+  var rin = (k3d.match(/function rinnenblenden\([\s\S]*?\n  \}/) || [''])[0];
+  var wand = (k3d.match(/function wandprofilKappen\([\s\S]*?\n  \}/) || [''])[0];
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+)/);
+  if (!quer || !rin || !wand || !masse) {
+    pruefe('Kappen lesbar', false, 'Funktion oder Mass nicht gefunden'); return;
+  }
+  var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2], fase: +masse[3] };
+
+  /* Beide Seiten holen ihre Masse aus demselben Satz – gezaehlt wird,
+     dass in beiden Funktionen dieselben drei Felder stehen. */
+  function felder(txt) {
+    return ['RINNENDECKEL.breite', 'RINNENDECKEL.hoehe', 'RINNENDECKEL.fase']
+      .filter(function (f) { return txt.indexOf(f) > -1; }).length;
+  }
+  var gleich = felder(rin) === 3 && felder(wand) === 3;
+  pruefe('Rinne und Wandprofil benutzen dasselbe Mass',
+         gegen ? !gleich : gleich,
+         felder(rin) + ' bzw. ' + felder(wand) + ' von 3 Massen');
+  pruefe('Es gibt nur EINE Kappenform',
+         new RegExp(q || 'function kappeQuerschnitt').test(k3d) &&
+         (k3d.match(/function profilKappen/g) || []).length === 1 &&
+         !/function rinnenblendeQuerschnitt/.test(k3d), '');
+
+  /* Zweiter Weg: die Form wirklich zeichnen und ausmessen – mit den
+     Massen, die beide Aufrufe uebergeben. Kommt zweimal derselbe Umriss
+     heraus, sind die Kappen identisch. */
+  var punkte = [];
+  function Form() { this.holes = []; }
+  Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.lineTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.closePath = function () {};
+  var THREE = { Shape: Form };
+  var fn = eval('(' + quer + ')');
+  fn(RINNENDECKEL.breite, RINNENDECKEL.hoehe, RINNENDECKEL.fase);
+  var a = JSON.stringify(punkte);
+  punkte = [];
+  /* Die Gegenprobe schrumpft die Wandprofilkappe auf die Profiltiefe –
+     genau der Fehler, den der Betreiber nicht will. */
+  fn(gegen ? 3.1 : RINNENDECKEL.breite, RINNENDECKEL.hoehe, RINNENDECKEL.fase);
+  var b = JSON.stringify(punkte);
+  pruefe('Beide Kappen ergeben denselben Umriss', a === b,
+         a === b ? '172 x 175 mm, Fase 34 mm' : 'unterschiedlich');
+})();
+pruefe('Wandprofilkappe sitzt oben buendig und hinten an der Wand',
+       new RegExp(q || 'profilKappen\\(laenge, 0, wpOk - RINNENDECKEL\\.hoehe').test(k3d) &&
+       new RegExp(q || 'wandprofilKappen\\(B, wpOk, mAlu\\)').test(k3d), '');
+(function () {
+  /* KEINE Gravur: Die Kappe bekommt dasselbe Alu wie alle anderen
+     Profile – kein eigenes Material, keine Textur, kein Schriftzug. Das
+     Zeichen auf dem Werkbild ist die Marke des HERSTELLERS; sie gehoert
+     nicht in ein Bild, das wir verantworten. */
+  var fn = (k3d.match(/function profilKappen\([\s\S]*?\n  \}/) || [''])[0];
+  var sauber = fn.indexOf('material') > -1 &&
+               !/map|Texture|canvas|fillText/.test(fn) && !gegen;
+  pruefe('Kappen tragen keine Gravur', sauber,
+         sauber ? 'nur Material, keine Beschriftung' : 'Textur oder Schrift gefunden');
+})();
+
 /* ---------- Werkbilder vom 11.10.2026: Rillen und Randblende ----------
    „hier ein perfekter querschnitt unserer überdachung kannst du es so
    neu modellieren" – „nicht 100% 1:1 aber ähnlich und einfach"

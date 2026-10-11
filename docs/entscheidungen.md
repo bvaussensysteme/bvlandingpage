@@ -4468,3 +4468,37 @@ geschlossen, keine offene Sparrenkammer, Blende bündig mit der Dachkante, oben
 an der Glasoberseite. Polycarbonat (16 mm) und VSG 10 mm gegenprüfen – die
 Blende wächst mit der Scheibendicke. Prüfung:
 `node scripts/pruefe-masstabelle.js` (211, Gegenprobe 211/211).
+
+## 2026-10-11 – Seitliche Abdeckungen: Rinne und Wandprofil identisch
+
+**Anlass.** „miir is wichtig das die abdeckungen links rechts von rinne und von
+wandprofil abdeckung links rechts identisch sind aber ohne vd gravur"
+(Betreiber, 11.10.2026, mit beiden Werkbildern).
+
+**Was jetzt gilt.** Es gibt nur noch **eine** Kappenform im Code
+(`kappeQuerschnitt`): ein Rechteck mit abgeschrägter oberer Vorderecke,
+172 × 175 mm, Fase 34 mm (belegtes Maß des Rinnendeckels). Rinne und
+Wandprofil bauen beide darüber; die frühere Sonderfassung für die Rinne ist
+weg. Am Wandprofil ist die Kappe **nicht** auf die 31 mm Profiltiefe
+geschrumpft – das zweite Werkbild zeigt, dass sie dort die ganze Stirnseite
+des Dachanschlusses abdeckt und unten über das Profil hinaussteht.
+
+**Drei Annahmen zur Lage am Wandprofil – bitte prüfen.** Belegt ist nur die
+Lage an der Rinne („gleich den deckel mittig aus huptsache vorne is bündig").
+Für das Wandprofil wurde angenommen: hinten bündig mit der Wand (z = 0) und
+nach vorne unter das Dach reichend; oben bündig mit der Profiloberkante statt
+mittig (mittig stünde sie über die Glasleiste hinaus); Fase oben an der freien
+Kante, also vorne.
+
+**Keine Gravur – und das bleibt so.** Auf dem Werkbild trägt die Kappe das
+Zeichen des Herstellers. Das ist dessen Marke; wir sind Verarbeiter. Ein
+fremdes Markenzeichen im eigenen Konfigurator nachzubilden wäre weder
+rechtlich sauber noch sachlich richtig, denn es stünde an einem Bild, das
+**wir** verantworten. Eine Prüfung hält fest, dass die Kappen nur Material und
+keine Beschriftung tragen.
+
+**Was gegengelesen werden soll.** Links und rechts an Rinne und Wandprofil:
+gleiche Form, gleiche Größe, gleiche Farbe. Am Wandprofil prüfen, ob Lage und
+Überstand so stimmen – das sind die drei Annahmen oben. Prüfung:
+`node scripts/pruefe-masstabelle.js` (216, Gegenprobe 216/216); eine davon
+zeichnet beide Umrisse und vergleicht sie Punkt für Punkt.
