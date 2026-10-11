@@ -100,7 +100,12 @@
     /* Darstellung und Zubehör */
     boden: 'Steinplatten',
     masseZeigen: false,
-    glasOffen: 0,            // Schiebeelemente: 0 = geschlossen, 100 = ganz offen
+    glasOffen: 0,            // Regler: setzt alle drei Seiten auf einmal
+    /* Je Seite, damit sich eine Anlage im Bild einzeln öffnen lässt:
+       „wie bei den markisen, die jeweilige schiebeanlage die man im
+       3dmodell anklickt geht auf oder zu" (Betreiber, 11.10.2026).
+       Der Regler bleibt – er setzt beim Ziehen alle drei gleich. */
+    offenLinks: 0, offenRechts: 0, offenVorne: 0,
     markise: 'Ohne',         // Beschattung am Dach, Werte wie im Assistenten
     stoff: '',               // Markisenstoff der Dachmarkise, z. B. 'AC420'
     stoffZip: '',            // Stoff der Senkrechtmarkise, z. B. 'T30812-A'
@@ -1289,31 +1294,61 @@
      Die Zahl im Bild ist dieselbe Zahl wie im Bedienfeld und später im
      Aufmaß – in Millimetern, ohne Umrechnung und ohne Rundung. Sobald hier
      gerundet würde, stünden zwei verschiedene Maße auf demselben Bild. */
+  /* Maßschilder: filigran, nicht plakativ.
+
+     „die maßangaben etwas kleiner filigraner machen das es nicht so
+     stört" (Betreiber, 11.10.2026, mit Bildschirmfoto). Vorher: fette
+     40-px-Schrift auf einem fast deckenden schwarzen Kasten, im Bild
+     40 % so hoch wie das ganze Seitenelement. Die Maße sollen abzulesen
+     sein, nicht die Hauptsache.
+
+     Geändert: normale statt fetter Schrift, abgerundeter Kasten mit
+     weniger Deckkraft und schmalerem Rand, und die Sprite-Höhe von 24
+     auf 14 – das Schild wird damit im Bild gut zwei Fünftel kleiner.
+     Die Leinwand bleibt hochaufgelöst (40 px Schrift), damit der Text
+     auch beim Heranzoomen scharf bleibt; verkleinert wird erst beim
+     Anzeigen. */
+  var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
+
   function schild(text) {
     var c = document.createElement('canvas');
     var g = c.getContext('2d');
-    var schrift = 'bold 40px Arial, Helvetica, sans-serif';
+    var schrift = '40px Arial, Helvetica, sans-serif';
     g.font = schrift;
-    var breit = Math.ceil(g.measureText(text).width) + 26;
-    c.width = breit; c.height = 58;
+    var hoch = 54, rund = 10;
+    var breit = Math.ceil(g.measureText(text).width) + 22;
+    c.width = breit; c.height = hoch;
     g = c.getContext('2d');
     g.font = schrift;
-    g.fillStyle = 'rgba(17,17,17,.86)';
-    g.fillRect(0, 0, breit, 58);
+    g.fillStyle = 'rgba(17,17,17,.62)';
+    /* Abgerundete Ecken von Hand – roundRect kennen aeltere Browser
+       nicht, und ein eckiger Kasten wirkt schwerer als er ist. */
+    g.beginPath();
+    g.moveTo(rund, 0);
+    g.lineTo(breit - rund, 0);
+    g.quadraticCurveTo(breit, 0, breit, rund);
+    g.lineTo(breit, hoch - rund);
+    g.quadraticCurveTo(breit, hoch, breit - rund, hoch);
+    g.lineTo(rund, hoch);
+    g.quadraticCurveTo(0, hoch, 0, hoch - rund);
+    g.lineTo(0, rund);
+    g.quadraticCurveTo(0, 0, rund, 0);
+    g.closePath();
+    g.fill();
     g.fillStyle = '#ffffff';
     g.textBaseline = 'middle';
-    g.fillText(text, 13, 30);
+    g.fillText(text, 11, hoch / 2 + 1);
     var t = new THREE.Texture(c);
     t.needsUpdate = true;
     var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }));
-    s.scale.set(breit / 58 * 24, 24, 1);
+    s.scale.set(breit / hoch * SCHILD_HOCH, SCHILD_HOCH, 1);
     return s;
   }
 
   function masslinie(a, b, text) {
     var linie = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([a, b]),
-      new THREE.LineBasicMaterial({ color: 0x1a1a1a })
+      new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.55 })
     );
     masseGruppe.add(linie);
     var s = schild(text);
@@ -1664,7 +1699,12 @@
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne) {
     var mGlas = seitenglas();
     var rahmen = alu();
-    var offen = Z.glasOffen / 100;
+    function offenSeite(seite) {
+      if (seite === 'links') return Z.offenLinks / 100;
+      if (seite === 'rechts') return Z.offenRechts / 100;
+      if (seite === 'vorne') return Z.offenVorne / 100;
+      return Z.glasOffen / 100;
+    }
     var mPlanke = blech();
     var mStoff = new THREE.MeshStandardMaterial({
       color: rgb(0x4a4f52), roughness: 0.95, metalness: 0, side: THREE.DoubleSide
@@ -1709,7 +1749,7 @@
     }
 
     function rahmenKante(laenge, achse, mitte, y, quer, versatz) {
-      platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
+      return platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
     }
 
     /* ---------- Bodenschiene ----------
@@ -1755,13 +1795,16 @@
       var n = fluegelAnzahl(laenge, seite);
       var flB = laenge / n;
       var start = mitte - laenge / 2 + flB / 2;
+      var offen = offenSeite(seite);
       for (var i = 0; i < n; i++) {
         var lage = start + flB * i - offen * flB * i;
         var spur = (i % 2) * 2.4;                       // zwei Laufschienen
-        platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2, quer, spur,
-               SG23.glasDicke);
-        rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur);
-        rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur);
+        /* Die Scheibe traegt die Seite, zu der sie gehoert – daran
+           erkennt der Klick spaeter, welche Anlage gemeint ist. */
+        schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
+                           quer, spur, SG23.glasDicke), seite);
+        schiebeTeil(rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur), seite);
+        schiebeTeil(rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur), seite);
       }
     }
 
@@ -3633,6 +3676,56 @@
     }, 40);
   }
 
+  /* ---------- Schiebeanlage anklicken ----------
+     Dasselbe Verhalten wie bei der Markise, nur je Seite. Geklickt wird
+     auf eine Scheibe oder ihren Rahmen; welche Anlage gemeint ist, steht
+     am Teil selbst, nicht an der Klickposition – sonst würde eine Seite
+     mitgeöffnet, nur weil sie zufällig dahinter liegt. */
+  function schiebeTeil(m, seite) { if (m) m.userData.schiebe = seite; return m; }
+
+  function schiebeSeiteVon(objekt) {
+    for (var o = objekt; o; o = o.parent) {
+      if (o.userData && o.userData.schiebe) return o.userData.schiebe;
+    }
+    return null;
+  }
+
+  var schiebeLaeuft = {};
+  function schiebeFahren(seite, ziel) {
+    var feld = seite === 'links' ? 'offenLinks'
+             : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
+    if (schiebeLaeuft[seite]) clearInterval(schiebeLaeuft[seite]);
+    var start = Z[feld], t0 = Date.now(), dauer = 650;
+    schiebeLaeuft[seite] = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / dauer);
+      Z[feld] = Math.round(start + (ziel - start) * (p < 0.5
+        ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      bauen();
+      zusammenfassung();
+      if (p >= 1) { clearInterval(schiebeLaeuft[seite]); schiebeLaeuft[seite] = null; }
+    }, 40);
+  }
+
+  function schiebeGeklickt(e) {
+    if (!erwIrgendwo('Schiebetür')) return false;
+    var r = leinwand.getBoundingClientRect();
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects(bau.children, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var seite = schiebeSeiteVon(treffer[i].object);
+      if (seite) {
+        var feld = seite === 'links' ? 'offenLinks'
+                 : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
+        schiebeFahren(seite, Z[feld] > 50 ? 0 : 100);
+        return true;
+      }
+      break;                         // nur das vorderste Teil zaehlt
+    }
+    return false;
+  }
+
   function markiseGeklickt(e) {
     if (!gruppeGilt('sonne-aus')) return false;
     var r = leinwand.getBoundingClientRect();
@@ -3766,7 +3859,9 @@
     var weg = Math.abs(e.clientX - klickStart.x) + Math.abs(e.clientY - klickStart.y);
     var zeit = Date.now() - klickStart.t;
     klickStart = null;
-    if (weg < 6 && zeit < 500) markiseGeklickt(e);
+    /* Erst die Markise, dann die Schiebeanlage: Liegt eine Markise vor
+       dem Glas, ist sie gemeint. Beide duerfen nicht zugleich reagieren. */
+    if (weg < 6 && zeit < 500 && !markiseGeklickt(e)) schiebeGeklickt(e);
   });
   window.addEventListener('pointercancel', function () { zieht = false; });
 
@@ -4092,8 +4187,15 @@
         seiten.push(pr[0] + ': ' + (pr[1].length ? pr[1].join(' + ') : 'offen'));
       });
       teile.push('Seitenelemente – ' + seiten.join(' · '));
-      if (erwIrgendwo('Schiebetür') && Z.glasOffen > 0) {
-        teile.push('Schiebetür im Bild ' + Z.glasOffen + ' % geöffnet');
+      var offenTeile = [];
+      [['links', Z.offenLinks], ['rechts', Z.offenRechts],
+       ['vorne', Z.offenVorne]].forEach(function (pr) {
+        if (erwListe(pr[0]).indexOf('Schiebetür') > -1 && pr[1] > 0) {
+          offenTeile.push(pr[0] + ' ' + pr[1] + ' %');
+        }
+      });
+      if (offenTeile.length) {
+        teile.push('Schiebetür im Bild geöffnet: ' + offenTeile.join(', '));
       }
       /* Die gewählte Bauart gehört in die Mail, nicht nur ins Bild.
          „man kann es später mim kunden eh nochmal besprechen und ändern"
@@ -4191,7 +4293,13 @@
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
 
-    Z.glasOffen = zahl('k3dGlasOffen', Z.glasOffen);
+    var offenNeu = zahl('k3dGlasOffen', Z.glasOffen);
+    if (offenNeu !== Z.glasOffen) {
+      /* Am Regler gezogen: Er gilt fuer die ganze Anlage, also alle drei
+         Seiten gleich. Nur so bleibt er das, was er vorher war. */
+      Z.glasOffen = offenNeu;
+      Z.offenLinks = Z.offenRechts = Z.offenVorne = offenNeu;
+    }
     Z.markise = wert('k3dMarkise') || Z.markise;
     var sf = document.getElementById('k3dStoff');
     if (sf) Z.stoff = sf.value || '';

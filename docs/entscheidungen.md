@@ -1585,3 +1585,31 @@ blenden ihr Feld aus. Voreinstellung bleibt überall Automatik.
 einer Seite eine andere Bauart wählt – und ob das Feld bei einer
 Maßänderung korrekt auf „Automatisch" zurückspringt, wenn die gewählte
 Bauart nicht mehr lieferbar ist.
+
+## 2026-10-11 – Schiebeanlage anklicken, Maßschilder filigraner
+
+**Schiebeanlage anklicken:** „wie bei den markisen, die jeweilige
+schiebeanlage die man im 3dmodell anklickt geht auf oder zu". Umgesetzt
+mit derselben Mechanik wie bei der Markise (Raycast, weiches Fahren über
+650 ms). Jede Scheibe und jeder Flügelrahmen trägt die Seite, zu der er
+gehört – erkannt wird also am getroffenen TEIL, nicht an der
+Klickposition. Sonst öffnete sich eine Seite mit, nur weil sie zufällig
+dahinter liegt.
+
+Dafür hat jede Seite jetzt einen eigenen Öffnungsstand. Der Regler
+„geöffnet" bleibt und setzt beim Ziehen alle drei gleich – er ist damit
+genau das, was er vorher war. Liegt eine Markise vor dem Glas, hat sie
+Vorrang; sonst würden beide auf denselben Klick reagieren.
+
+**Maßschilder:** „die maßangaben etwas kleiner filigraner machen das es
+nicht so stört" (mit Bildschirmfoto). Vorher fette 40-px-Schrift auf
+einem zu 86 % deckenden schwarzen Kasten – im Bild etwa 40 % so hoch wie
+das ganze Seitenelement. Jetzt normale Schrift, abgerundeter Kasten mit
+62 % Deckkraft, Maßlinie halbtransparent, und die Sprite-Höhe von 24 auf
+14 Welteinheiten. Die Leinwand bleibt bei 40 px Schriftgröße, damit der
+Text beim Heranzoomen scharf bleibt – verkleinert wird erst beim
+Anzeigen.
+
+**Gegenzulesen:** Ob die Schilder jetzt auf dem Handy noch lesbar sind.
+Kleiner geht erfahrungsgemäß schnell zu weit; 14 ist ein erster Wert,
+`SCHILD_HOCH` in js/konfigurator-3d.js ist die eine Stelle dafür.
