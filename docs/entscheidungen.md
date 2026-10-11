@@ -3244,7 +3244,7 @@ zusammen reichen bis dorthin.
 Elementhöhe plus Führung muss die Rinnenunterkante treffen. Die
 Gegenprobe setzt den alten Wert ein und meldet den 55-mm-Spalt.
 
-## 2026-10-11 – Wandprofil TD: liegend, nicht stehend
+## 2026-10-11 – Wandprofil TD (zwei Anläufe, der zweite stimmt)
 
 **Anlass:** Der Betreiber hatte das Rechteck hinter dem äußeren Sparren
 bemerkt und dazu den Querschnitt geschickt: „das wandprofil sieht in
@@ -3272,3 +3272,29 @@ festhielten (gleiche Tiefe, einmaliges Zeichnen, Oberkante am Dach). Sie
 prüfen jetzt dasselbe an der neuen Form; die Begründung steht jeweils
 dabei. Eine Prüfung, die den Fehler festschreibt, ist schlimmer als
 keine.
+
+### Nachtrag am selben Tag: der Querschnitt war falsch herum gelesen
+
+Der Betreiber hat die Zeichnung **aufrecht** gestellt: „so wäre es quasi
+richtig wenn links die wand wäre." Damit ist klar, was das lange Maß ist:
+
+| | |
+|---|---|
+| **143,6 mm** | **Höhe** des geschlossenen Rückens an der Wand (BELEGT) |
+| rund 31 mm | Ausladung der Schenkel nach vorne (GESCHÄTZT) |
+
+Meine erste Lesart hatte die Zeichnung genommen, **wie sie auf dem Blatt
+lag** – 143,6 mm waagerecht als Ausladung, 26,5 mm hoch. Die Oberkante
+hatte ich dafür extra unter die Sparren gelegt, weil ein so flaches
+Profil oben verschwunden wäre. Beides zurückgenommen: Das Profil steht
+wieder aufrecht, Oberkante bündig mit der Sparrenoberkante, der Rücken
+an der Wand bzw. am Statikträger.
+
+**Was daraus zu lernen ist:** Ein Querschnitt sagt nichts über die
+Einbaulage. Genau dieser Fehler steckte vorher schon in den
+SG23-Profilen und in der Velaris-Aufhängung. Das Maßbild zeigt die Form,
+die Montage zeigt die Lage – und nur der Betreiber kennt beide.
+
+Die Prüfungen wurden ein zweites Mal nachgezogen; sie halten jetzt die
+aufrechte Lage fest. Der Statikträger (189 mm) steht damit noch 45 mm
+unter dem Wandprofil hervor.

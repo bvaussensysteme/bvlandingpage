@@ -4149,23 +4149,21 @@
        Vorsprung. Ohne Vorsprung bleibt alles wie bisher. */
     var zTrHinten = -TR_T / 2 + vorsprH;
     var ukAmTraeger = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zTrHinten);
-    /* Wandprofil TD: ein LIEGENDES Profil, kein stehender Balken.
-       Querschnitt vom Betreiber (11.10.2026): „das wandprofil sieht in
-       wirklichkeit so aus, es ist jetzt liegend abgebildet, die
-       geschlossene seite is eig an der wand, oder bei freistehend am
-       statikträger, und es ist ein querschnitt waagrecht".
+    /* Wandprofil TD – der Querschnitt AUFRECHT gestellt, Wand links
+       (Betreiber, 11.10.2026: „so wäre es quasi richtig wenn links die
+       wand wäre"). Also: ein hoher, geschlossener Rücken an der Wand,
+       aus dem drei kurze Schenkel nach vorne stehen.
 
-       BELEGT ist die Ausladung: 143,6 mm – so weit steht es von der Wand
-       ab. GESCHÄTZT ist die Höhe (26,5 mm, am Maßbild abgegriffen) und
-       die Lage in der Höhe: Hier liegt die Oberkante an der
-       Sparrenunterkante, die Sparren liegen also darauf. Beides als
-       Rückfrage notiert.
+       BELEGT: 143,6 mm Höhe – das lange Maß liegt an der Wand.
+       GESCHÄTZT: 31 mm Ausladung, am Maßbild abgegriffen.
 
-       Vorher stand hier ein Balken 140 × 90 mm, hochkant und mit der
-       Oberkante an der Sparrenoberkante – das war in Form und Lage
-       falsch. */
-    var wpH = sky ? 20 : 2.65, wpT = sky ? 9 : 14.36;
-    var wpMitte = sky ? dachOk - wpH / 2 : ukHinten - wpH / 2;
+       Die Fassung davor hatte den Querschnitt FALSCH HERUM gelesen:
+       143,6 mm waagerecht als Ausladung, 26,5 mm hoch. Das war die
+       Zeichnung so, wie sie auf dem Blatt lag, nicht so, wie das Profil
+       montiert wird. Der Rücken steht an der Wand bzw. freistehend am
+       Statikträger, die Oberkante bündig mit der Sparrenoberkante. */
+    var wpH = sky ? 20 : 14.36, wpT = sky ? 9 : 3.1;
+    var wpMitte = dachOk - wpH / 2;             // Oberkante bündig, nie darüber
     var trOk = vorsprH > 0 ? ukAmTraeger : dachOk;
     var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 
@@ -4219,10 +4217,9 @@
     }
     /* Wandprofil – IMMER dasselbe Teil an derselben Stelle. Freistehend
        sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
-    /* Die geschlossene Seite liegt an der Wand bzw. am Statikträger,
-       das Profil ragt von dort nach vorne – deshalb beginnt es bei
-       zHinten und nicht mittig darauf. */
-    balken(B, wpH, wpT, 0, wpMitte, sky ? zHinten : zHinten + wpT / 2 - 4.5, mAlu);
+    /* Der geschlossene Rücken steht an der Wand bzw. am Statikträger
+       (z = 0), die Schenkel ragen von dort nach vorne. */
+    balken(B, wpH, wpT, 0, wpMitte, sky ? zHinten : wpT / 2, mAlu);
     if (frei) {
       balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTrHinten, mAlu);
     }
