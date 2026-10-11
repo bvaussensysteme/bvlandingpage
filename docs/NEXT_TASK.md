@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 11.10.2026 · zuletzt bearbeitet: Glasschiebeelemente SG23, Carport TDS, Glaskopplung, Innenansicht
+> Stand: 11.10.2026 (nachmittags) · zuletzt bearbeitet: Velaris, Plankenwand, Rahmenwand, Wandprofil
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -253,38 +253,70 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 09.09.2026 | PDF-Download im Baugenehmigungs-Check | live |
 | 09.09.2026 | Konfigurator-Fenster auch auf der Startseite | live |
 
-## Stand 11.10.2026 — was in dieser Sitzung dazukam
+## Stand 11.10.2026, nachmittags — Seitenelemente und Profile
 
-Alles veröffentlicht (PRs #310–#319), nichts liegt halbfertig.
+Alles veröffentlicht (PRs bis #346), nichts liegt halbfertig. Die
+Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
+(`pruefe-fuehrung.js` 136/136, `pruefe-masstabelle.js` 183/183,
+`pruefe-markise.js` 141/141).
+
+### Was heute am Konfigurator entstanden ist
 
 | Bereich | Was jetzt gilt |
 |---|---|
-| **Statikträger** | Hochkant **hinter** den Sparren, nicht darunter. Bei freistehend wirkt er wie eine Wand (Wandprofil daran verschraubt), und das Tiefenmaß ist **inklusive** Träger – bei Wandmontage nicht. Pfostenregel „alle 7 m" gilt **je Seite** |
-| **Carport TDS** | Ist dasselbe Dach wie Terrassendach TDS, nur anders benannt. Statikträger per Häkchen, nicht automatisch. Nur bei **freistehend**: Höhe hinten getrennt verstellbar (an vorne gekoppelt, entkoppelbar) und Dachvorsprung hinten – Vorsprung bis **1500 mm** (sonst 800 mm) |
-| **Glasschiebeelemente SG23** | Maße und Bauarten aus der SG23-Unterlage, **ohne jeden Preis**. Das System wählt die optisch passendste Variante selbst, in den erweiterten Einstellungen ist sie frei wählbar. Bei Mittel- oder Mehrfachpfosten wird **je lichtes Feld eine eigene Anlage** gebaut, die von der Mitte nach außen öffnet. Griff: runder eingelassener Muschelgriff auf 1050 mm. Bodenschiene **bündig mit dem Boden** (barrierefrei eingelassen), Führungen bündig mit der Pfosteninnenseite, nur bei dickerer Schiene vermittelt |
-| **VSG-Kopplung** | Über **4,50 m** Tiefe wird VSG gestoßen; die Kopplung (28 × 6 mm, leicht mattes Gummi) ist im Modell sichtbar und im erlaubten Bereich verschiebbar. **Polycarbonat nicht** – das geht immer in einem Stück. Der Innenkern der Maßtabelle hat damit nichts zu tun (war ein Irrtum von mir, korrigiert) |
-| **Glas** | VSG jetzt 8 **und** 10 mm, dazu **VSG graphit (getönt)** – auch im Anfrage-Assistenten |
-| **Ansicht/Bedienung** | „Darunter" steht jetzt **drin** (Augenhöhe 160 cm, Blick nach draußen und leicht nach oben) und überlebt eine Maßänderung. Maßangaben filigraner. Öffnungsanimationen langsamer. Gezeichnet wird nur bei Bedarf, Schattenkarte nur nach Änderung, Regler baut höchstens einmal je Bild |
+| **Glasschiebeelemente SG23** | Aufteilung je lichtes Feld, von der Mitte nach außen öffnend, runder Muschelgriff auf **1100 mm** (aus dem VD-Anfrageformular, vorher 1050 geraten). Glas **ESG klar oder satinato**, mehr gibt es nicht. Schloss und Bürstendichtung stehen als Bestellpositionen in der Mail, ebenso der Satz **„Richtungsangaben von INNEN gesehen"** – im Formular rot hervorgehoben |
+| **Plankenwand** | Rechteckprofil **70,4 × 25,3 mm** an Winkeln 40 × 20 an den Pfosten. Fuge wird automatisch so gerechnet, dass die Wand oben und unten bündig schließt; von Hand 0–60 mm. Teilhöhe oben/unten mit Maßangabe. Über **7 m** geteilt mit Zwischenprofil |
+| **Velaris** | Komplett neu: Rahmen mit **waagerechten** Lamellen (vorher senkrecht – in der Hauptachse falsch). Element 500–1500 mm, Anlage bis 7 m, feststehend 1–5, verschiebbar nur 3–4 Elemente (sonst bewegt sich nichts). Beide Hälften getrennt bedienbar, Klick schaltet zu → offen → zur Seite → zu |
+| **Rahmenwand** | Von der Blechwand zum **Glas im Rahmen** (System FR23) mit bis zu drei senkrechten Sprossen. Ohne Keil geht sie bis ans Dach, Rahmen und Sprossen folgen der Schräge |
+| **Wandprofil TD** | **143,6 mm hoch** an der Wand (Querschnitt), unten die Sparren, oben Glas und Glasleiste. Zweimal falsch gelesen, bevor es stimmte |
+| **Bedienung** | Ansicht „Darunter" steht jetzt drinnen; Animationen bauen das Modell nicht mehr je Bild neu; Maßlinien filigraner |
 
 ### Was gegengelesen werden soll
 
-- **Bleibt irgendwo das Bild stehen?** Nur-bei-Bedarf-Zeichnen ist die eine riskante Optimierung. Angemeldet sind Kamera, Modellneubau, Fenstergröße und alle drei Texturpfade, plus vier Sicherheitsbilder. Falls das Bild einmal nicht nachzieht: notieren, was gerade verstellt wurde
-- Glasschiebeelemente auf **allen drei Seiten** und mit **mehreren Pfosten** durchklicken
-- Carport TDS freistehend: Höhe hinten entkoppeln, Dachvorsprung vorne/hinten
+- **Wandprofil und Statikträger** von schräg hinten: Profil 143,6 mm hoch,
+  Träger steht 45 mm darunter hervor
+- **Velaris verschiebbar** mit 3 und 4 Elementen: Es darf nichts
+  ineinanderfahren, und an der Stirnseite muss jedes Feld nach außen
+  aufgehen
+- **Rahmenwand ohne Keil** an der Seite: kein offenes Dreieck, keine
+  waagerechte Sprosse
+- **Plankenwand** mit Teilhöhe: Winkel dürfen nicht über die oberste
+  Planke stehen
 
 ### Fragen, die beim Betreiber liegen
 
 | Frage | Warum sie zählt |
 |---|---|
-| Ist **Dachvorsprung 1500 mm** statisch gedeckt? | Der Wert kam vom Betreiber („ruhig bis 1500mm"), eine Statikfreigabe liegt nicht vor |
-| Ist die **Höhe hinten 2000–3200 mm** der richtige Bereich? | Von mir gesetzt, nicht belegt |
-| Sind **Keil, Plankenwand und Senkrechtmarkise** an einem Carport sinnvoll? | Technisch anwählbar – ob es verkauft wird, weiß nur der Betrieb |
-| **Hinweis**, wenn ein Carport über 4,5 m tief ist, ohne Statikträger-Häkchen? | Könnte eine Fehlbestellung verhindern, kann aber auch gängelnd wirken |
-| Sollen die **SG23-Glasarten** (ESG klar, Satinato, Grau) wählbar sein? | Stehen in der Unterlage, sind im Konfigurator noch nicht angeboten |
-| Fertigt VD auch **unter der kleinsten Tabellenspalte**? | Der Konfigurator lässt kleinere Maße zu und rechnet dort hoch |
+| **Keilfelder über 1500 mm** – bei 7 m Tiefe sind es jetzt 1750 mm, weil höchstens vier Felder gehen | Das widerspricht der früheren Angabe „je angefangene 1,5 m eine Unterteilung". Von VD bestätigen lassen |
+| **Höchstmaß einer Scheibe** in der Rahmenwand | Bestimmt, wann eine Sprosse nötig wird; im Modell geraten |
+| **Profilmaße FR23** (Rahmen, Sprosse, Bautiefe, Glas) | Alle geschätzt – die Anleitung zeigt die Profile, bemaßt sie nicht |
+| **Velaris:** Lamellenhöhe, Rahmenbreite, Kopfprofilhöhe, Aufhängung, Bodenschiene | Fünf geschätzte Maße; die Verhältnisse stimmen, die Millimeter nicht |
+| **Wandprofil:** die beiden kleinen Maße am Querschnitt | Ausladung mit 31 mm angenommen |
+| **Plankenwand:** Materialstärke des Winkels, Fugenbreite, welcher Schenkel am Pfosten liegt | Drei Annahmen |
+| **Dekorbilder** Eiche Mocca, Rovere Pechino hell, Golden OAK | Im Modell liegt eine neutrale Eichenmaserung (ambientCG Wood049, CC0) unter der Dekorfarbe |
+| Ältere: **Dachvorsprung 1500 mm** statisch gedeckt? **Höhe hinten 2000–3200 mm**? Seitenelemente am Carport sinnvoll? | stehen seit dem Vormittag offen |
+
+### Noch nicht gebaut, steht aber in den Unterlagen
+
+- **Fenster FRF23** mit Griff als Teil der Rahmenwand
+- Rahmenwand **„mit Neigung"** als eigene Ausführung (die Anleitung zeigt
+  beide Varianten)
 
 ### Ältere offene Punkte
 
-- **Rinnen-Seitendeckel:** Teilebild nennt 172 × 175 mm, die Rinne ist nach Querschnittszeichnung 186,3 × 136,7 mm – eine der beiden Angaben hat einen anderen Bezugspunkt. **Entschieden** (Betreiber, 11.10.2026): „gleich den deckel mittig aus huptsache vorne is bündig." Der Deckel hat sein echtes Maß, liegt vorne bündig, in der Höhe mittig; hinten bleiben ~14 mm frei, oben/unten steht er je ~19 mm über. Der Widerspruch im Maß selbst bleibt offen – Klärung gehört in `RINNENDECKEL` in `js/konfigurator-3d.js`
-- **Pfostenachse 55 mm**, **eZIP-Kassette rund statt eckig**, **EZIP-Stoffbilder in CMYK ohne Profil** – alles ungeprüfte Annahmen
-- **`/api/bauteile` antwortet weiter 503** (KV-Namensraum `DACHMATRIX` nicht gebunden). **Kein Blocker:** `js/masstabelle.js` liefert die echten Zahlen für TDS, SkyView und Flat Line, gegengerechnet 1316 von 1316 identisch. Das Binden bleibt eine Verbesserung ohne Dringlichkeit; Schritte in `worker/index.js`
+- **Rinnen-Seitendeckel:** Teilebild 172 × 175 mm gegen Rinne 186,3 ×
+  136,7 mm – entschieden: echtes Maß, vorne bündig, in der Höhe mittig.
+  Der Widerspruch im Maß selbst bleibt
+- **Pfostenachse 55 mm**, **eZIP-Kassette rund statt eckig**,
+  **EZIP-Stoffbilder in CMYK ohne Profil** – ungeprüfte Annahmen
+- **`/api/bauteile` antwortet 503** (KV-Namensraum nicht gebunden). Kein
+  Blocker: `js/masstabelle.js` liefert die echten Zahlen, gegengerechnet
+  1316 von 1316
+
+### Eine Lehre aus diesem Nachmittag
+
+**Ein Querschnitt sagt nichts über die Einbaulage.** Dreimal derselbe
+Fehler: SG23-Profile um jeden Flügel gelegt, Velaris-Aufhängung als
+kurzer Träger, Wandprofil liegend statt stehend. Das Maßbild zeigt die
+Form – wie das Teil eingebaut wird, weiß nur der Betreiber. Im Zweifel
+fragen, bevor es ins Modell geht.
