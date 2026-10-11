@@ -2482,13 +2482,21 @@
 
        Daraus folgen ZWEI Lagen für denselben Träger:
          · OHNE Vorsprung steht der Pfosten unter der Rinne. Der Träger
-           liegt dann zwischen Pfostenkopf und Rinne; die Rinne rückt um
-           seine Höhe nach oben, die Durchgangshöhe bleibt.
+           liegt dann zwischen Pfostenkopf und Rinne.
          · MIT Vorsprung steht der Pfosten weiter innen, die Rinne kragt
            aus. Ein Träger unter der Rinne trüge dort nichts – er liegt
-           über den Pfosten UNTER DEN SPARREN. Die Rinne bleibt, wo sie
-           ist; der Durchgang unter dem Träger wird um dessen Höhe
-           niedriger.
+           über den Pfosten UNTER DEN SPARREN.
+
+       IN BEIDEN FÄLLEN bleibt die Rinne, wo sie ist, und der Pfosten
+       wird um die Trägerhöhe kürzer. Der Durchgang unter dem Träger ist
+       also 189 mm niedriger als die eingestellte Höhe.
+
+       Hier stand vorher, die Rinne rücke um die Trägerhöhe nach oben und
+       die Durchgangshöhe bleibe. Beides falsch, vom Betreiber
+       richtiggestellt: „rinne rückt nicht hoch", „geht technisch nicht",
+       „auch da wird die durchgangshöhe um 189mm niedriger". Die Rinne
+       sitzt auf dem Dach, nicht auf einem Stapel – sie lässt sich nicht
+       anheben, nur der Pfosten darunter kürzen.
 
        Der Träger kommt, wenn die Maßtabelle ihn verlangt (Tiefe über
        4500 mm) ODER wenn ein Vorsprung eingestellt ist – dann hängt die
@@ -2497,8 +2505,9 @@
     var vorspr = gruppeGilt('vorsprung') ? Z.vorsprung / 10 : 0;   // cm
     var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0) ? 18.9 : 0;
     var traegerT = 11.7;
-    /* Nur ohne Vorsprung sitzt der Träger UNTER der Rinne und hebt sie an. */
-    var hRinne = hVorn + (vorspr > 0 ? 0 : traegerH);
+    /* Die Rinne liegt immer auf der eingestellten Höhe – sie rückt nie
+       nach oben. Der Träger nimmt dem PFOSTEN seine Höhe weg. */
+    var hRinne = hVorn;
     var hHinten = hRinne + Math.tan(neig) * T;
     var frei = Z.aufbau === 'Freistehend';
     var mAlu = alu();
@@ -2536,7 +2545,11 @@
     var ukVornJetzt = hRinne + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
     var dachTiefeJetzt = sky ? T : T - RINNE.breite;
     var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
-    var hPfosten = vorspr > 0 ? Math.max(100, ukAnPfosten - traegerH) : hVorn;
+    /* Oberkante des Trägers: ohne Vorsprung die Rinnenunterkante, mit
+       Vorsprung die Sparrenunterkante an der Pfostenachse. Der Pfosten
+       endet jeweils darunter – eine Rechnung für beide Fälle. */
+    var traegerOk = vorspr > 0 ? ukAnPfosten : hVorn;
+    var hPfosten = traegerH ? Math.max(100, traegerOk - traegerH) : hVorn;
 
     /* Pfostenzahl aus der Maßtabelle, sonst die alte Faustregel. */
     var pfTab = tbMass;
@@ -3818,9 +3831,20 @@
           var lage = vs > 0
             ? ' Die Pfosten stehen ' + vs + ' mm weiter innen; der Träger liegt ' +
               'über ihnen unter den Sparren, weil die Rinne dort auskragt.'
-            : ' Er sitzt unter der Rinne auf den Pfosten – die Durchgangshöhe ' +
-              'bleibt dieselbe, Dach und Rinne rücken um die Trägerhöhe nach oben.';
-          saetze.push(grund + lage);
+            : ' Er sitzt zwischen Pfostenkopf und Rinne.';
+          /* Der Träger nimmt dem Pfosten seine Höhe weg – darunter ist
+             weniger Durchgang als eingestellt. Das muss dastehen, sonst
+             plant jemand mit 2,30 m und hat 2,11 m.
+
+             Ohne Vorsprung ist es genau die Trägerhöhe. Mit Vorsprung
+             sitzt der Träger weiter innen und damit etwas höher, weil
+             das Dach ansteigt – dann ist „rund" ehrlicher als eine Zahl,
+             die hier nur grob nachgerechnet wäre. */
+          saetze.push(grund + lage + (vs > 0
+            ? ' <b>Unter dem Träger ist der Durchgang rund 189 mm niedriger</b> ' +
+              'als die eingestellten ' + Z.hoehe + ' mm.'
+            : ' <b>Unter dem Träger bleiben ' + (Z.hoehe - 189) + ' mm</b> ' +
+              'statt der eingestellten ' + Z.hoehe + ' mm.'));
           warnung = true;
         }
         if (!tb.lieferbar) {

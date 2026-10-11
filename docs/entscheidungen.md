@@ -1146,10 +1146,25 @@ unlogisch, sondern über den pfosten unter den sparren."
 
 **Daraus folgen zwei Lagen für denselben Träger:**
 
-| | Pfosten | Träger | Durchgangshöhe |
+| | Pfosten | Träger | Durchgang darunter |
 |---|---|---|---|
-| **ohne Vorsprung** | unter der Rinne | zwischen Pfostenkopf und Rinne | bleibt; Rinne rückt nach oben |
-| **mit Vorsprung** | um das Maß nach innen | über den Pfosten, unter den Sparren | wird um die Trägerhöhe niedriger |
+| **ohne Vorsprung** | unter der Rinne | zwischen Pfostenkopf und Rinne | 189 mm niedriger |
+| **mit Vorsprung** | um das Maß nach innen | über den Pfosten, unter den Sparren | rund 189 mm niedriger |
+
+**Korrektur vom selben Tag.** Hier stand zuerst, ohne Vorsprung rücke die
+Rinne um die Trägerhöhe nach oben und die Durchgangshöhe bleibe. Der
+Betreiber: „rinne rückt nicht hoch", „geht technisch nicht", „auch da wird
+die durchgangshöhe um 189mm niedriger". Er hat recht – die Rinne sitzt am
+Dach, nicht auf einem Stapel. Sie lässt sich nicht anheben; was sich
+ändert, ist die Pfostenlänge.
+
+Im Code ist das jetzt **eine** Rechnung für beide Lagen: `traegerOk` ist
+ohne Vorsprung die Rinnenunterkante, mit Vorsprung die Sparrenunterkante
+an der Pfostenachse; der Pfosten endet jeweils eine Trägerhöhe darunter.
+
+**Im Bedienfeld steht die Zahl.** Wer 2300 mm einstellt und einen Träger
+bekommt, liest: „Unter dem Träger bleiben 2111 mm statt der eingestellten
+2300 mm." Ohne diesen Satz plant jemand mit 2,30 m und steht vor 2,11 m.
 
 Die Begründung für die zweite Lage ist die des Betreibers und sie trägt:
 Mit Vorsprung kragt die Rinne über die Pfosten hinaus. Ein Träger unter

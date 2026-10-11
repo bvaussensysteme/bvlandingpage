@@ -143,9 +143,15 @@ pruefe('Dachvorsprung bewegt die Pfosten',
        new RegExp(q || 'RINNE\\.breite / 2\\) - vorspr').test(k3d), 'zPf minus Vorsprung');
 pruefe('Träger kommt auch mit Vorsprung',
        new RegExp(q || 'unterzug\\) \\|\\| vorspr > 0').test(k3d), '');
-pruefe('Ohne Vorsprung hebt der Träger die Rinne an',
-       new RegExp(q || "var hRinne = hVorn \\+ \\(vorspr > 0 \\? 0 : traegerH\\)").test(k3d),
-       'Durchgangshöhe bleibt');
+/* Die Rinne wird nie angehoben – technisch unmöglich. Der Träger nimmt
+   dem Pfosten seine Höhe weg, in BEIDEN Lagen. */
+pruefe('Rinne bleibt auf der eingestellten Höhe',
+       new RegExp(q || 'var hRinne = hVorn;').test(k3d) &&
+       !/hRinne = hVorn \+ /.test(k3d), 'kein Anheben');
+pruefe('Träger kürzt den Pfosten, nicht die Rinne',
+       new RegExp(q || 'traegerOk - traegerH').test(k3d), 'hPfosten aus traegerOk');
+pruefe('Hinweis nennt die geringere Durchgangshöhe',
+       new RegExp(q || 'Unter dem Träger').test(k3d), '189 mm weniger');
 pruefe('Reglergrenzen kommen aus der Tabelle',
        new RegExp(q || 'grenzenAusTabelle').test(k3d), 'statt fester Werte');
 pruefe('Maßhinweis im Bedienfeld',
