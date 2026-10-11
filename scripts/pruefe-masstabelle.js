@@ -277,6 +277,41 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Carport freistehend: beide Hoehen getrennt ----------
+   „bei carport tds will ich nur höhe vorne und höhe hinten unabhängig
+   voneinander verstellen können in erweiterte einstellungen, und
+   dachvorsprung vorne machen können und hinten auch" – ergaenzt um
+   „also nur bei der freistehenden version" (Betreiber, 11.10.2026). */
+pruefe('Getrennte Hoehen nur freistehend',
+       new RegExp(q || "return istCarportTds\\(\\) && Z\\.aufbau === 'Freistehend'").test(k3d), '');
+pruefe('Hoehe hinten liegt unter „Mehr Einstellungen"',
+       new RegExp(q || 'data-k3d-mehr data-k3d-fuer="hoehe-hinten"').test(html), '');
+pruefe('Neigungsfeld verschwindet dafuer',
+       new RegExp(q || "case 'neigung':\\s*return !!d && d\\.system === 'TDS' && !hoehenGetrennt\\(\\)").test(k3d),
+       'nicht zwei Regler fuer dieselbe Sache');
+pruefe('Hinterer Vorsprung an derselben Bedingung',
+       new RegExp(q || "case 'vorsprung-hinten': return hoehenGetrennt\\(\\)").test(k3d), '');
+pruefe('Beide Hoehen stehen in der Anfrage',
+       new RegExp(q || "teile\\.push\\('Höhe hinten: '").test(k3d), '');
+/* Zweiter Weg: die Neigung aus zwei Hoehen wirklich ausrechnen. */
+(function () {
+  function grad(vorn, hinten, tiefe) {
+    var g = Math.atan((hinten - vorn) / Math.max(1, tiefe)) * 180 / Math.PI;
+    return Math.min(14, Math.max(2, Math.round(g * 10) / 10));
+  }
+  [[2250, 2650, 3000, 7.6], [2250, 2250, 3000, 2], [2000, 3200, 3000, 14]]
+    .forEach(function (f) {
+      var ist = grad(f[0], f[1], f[2]) + (gegen ? 3 : 0);
+      pruefe('Hoehe ' + f[0] + '/' + f[1] + ' bei ' + f[2] + ' mm -> ' + f[3] + '°',
+             Math.abs(ist - f[3]) < 0.11, ist + '°');
+    });
+  /* Gekappt wird auf das zulaessige Band 2 bis 14 Grad. */
+  var flach = grad(2250, 2250, 3000), steil = grad(2000, 4000, 3000);
+  pruefe('Neigung bleibt im Band 2 bis 14 Grad',
+         (gegen ? 0 : flach) >= 2 && (gegen ? 20 : steil) <= 14,
+         flach + '° bis ' + steil + '°');
+})();
+
 /* ---------- Carport: Traeger nur ueber das Haekchen ----------
    „du machst beim carport automatisch nen statikträger ab bestimmte maß.
    lass das. mach es mit häckchen wie bei tds normal" (Betreiber). */
@@ -335,7 +370,8 @@ pruefe('Sonnenschutz-Gruppe traegt das Stichwort',
              : /data-k3d-schritt="sonne" data-k3d-fuer="sonnenschutz"/.test(html),
        'sonst stuende die Markisenauswahl am Carport');
 pruefe('Hinterer Dachvorsprung nur Carport TDS, nur freistehend',
-       new RegExp(q || "case 'vorsprung-hinten': return istCarportTds\\(\\) && Z\\.aufbau === 'Freistehend'").test(k3d), '');
+       new RegExp(q || "function hoehenGetrennt\\(\\)").test(k3d),
+       'gemeinsame Bedingung mit den getrennten Hoehen');
 pruefe('Hinterer Vorsprung hat einen Regler',
        gegen ? !/id="k3dVorsprungHinten"/.test(html) : /id="k3dVorsprungHinten"/.test(html), '');
 pruefe('Carport-Fachbegriffe bleiben in der Anfrage',

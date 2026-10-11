@@ -2158,3 +2158,37 @@ möglicherweise eine Rückfrage von VD. Ob im Bedienfeld ein Hinweis
 darauf stehen soll, habe ich NICHT entschieden, sondern gefragt –
 nachdem ich heute dreimal bei einer Korrektur ungefragt etwas
 mitgeändert hatte.
+
+## 2026-10-11 – Freistehender Carport: beide Höhen getrennt einstellbar
+
+**Anlass:** „bei carport tds will ich nur höhe vorne und höhe hinten
+unabhängig voneinander verstellen können in erweiterte einstellungen,
+und dachvorsprung vorne machen können und hinten auch" – auf Rückfrage
+präzisiert: „also nur bei der freistehenden version" (Betreiber).
+
+**Was jetzt gilt:** Beim **freistehenden** Carport TDS steht unter „Mehr
+Einstellungen" ein Regler „Höhe hinten". Die Dachneigung ist dort ein
+ERGEBNIS und wird nur noch angezeigt; das Neigungsfeld verschwindet
+dafür. Zwei Regler für dieselbe Sache wären ein Widerspruch – wer am
+einen dreht, verstellte den anderen.
+
+| | Terrassendach / Carport an der Wand | Carport freistehend |
+|---|---|---|
+| Eingabe | Höhe vorne + Neigung | Höhe vorne + Höhe hinten |
+| Ergebnis | Höhe an der Wand | Dachneigung |
+| Dachvorsprung | vorne | vorne und hinten |
+
+**Warum nur freistehend:** An der Hauswand bestimmt die Wand die hintere
+Höhe, und nach hinten auskragen kann das Dach dort nicht. Beides hängt
+deshalb an einer gemeinsamen Bedingung `hoehenGetrennt()`, damit die
+zwei Felder nicht auseinanderlaufen können.
+
+**Gekappt auf 2 bis 14°** – das zulässige Band des Systems. Extremere
+Höhen zeigt die Zeichnung gekappt; die eingegebene Höhe hinten steht
+trotzdem in der Anfrage, damit das Aufmaß sie sieht.
+
+**In der Anfrage** stehen freistehend beide Höhen und die daraus
+folgende Neigung.
+
+**Gegenzulesen:** Ob der Bereich 2000–3200 mm für die hintere Höhe
+passt. Er ist von mir gesetzt, nicht belegt.
