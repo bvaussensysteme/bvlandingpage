@@ -2903,3 +2903,26 @@ Daraus folgt von selbst, ohne Sonderfall:
 ganzen Fahrweg in Zehntelschritten: keine Überschneidung auf einem
 Laufweg, kein Element außerhalb der Anlage. Die Gegenprobe rechnet ohne
 die Bremse – und meldet die Überschneidungen.
+
+## 2026-10-11 – Verschiebbar: nur anbieten, was sich bewegen lässt
+
+**Anlass:** „bei der aufteilung der elemente darfst du bei der
+verschiebbaren version nur soviel anbieten wie sich auch wirklich
+schieben lassen" (Betreiber, mit „4 Elemente à 713 mm" im Bild).
+
+**Was war:** Das Auswahlfeld bot alles an, was von der Breite her passt –
+auch ein oder zwei Elemente. Die stehen aber auf **einem** Laufweg
+aneinander und können nirgendwohin. Man hätte „verschiebbar" bestellt
+und etwas bekommen, das sich nicht verschieben lässt.
+
+**Was jetzt gilt:** Bei verschiebbar stehen nur **drei oder vier**
+Elemente zur Wahl – erst ab drei gibt es zwei Laufwege, und mehr als vier
+gibt es nicht. Das ergibt eine lichte Breite von 1500 bis 6000 mm.
+Außerhalb davon ist verschiebbar nicht möglich; die Anlage wird
+feststehend gebaut, und der Grund steht unter dem Feld und in der
+Anfrage.
+
+**Die Prüfung sieht nicht die Liste nach, sondern fährt.** Für jede
+angebotene Aufteilung wird der Fahrweg bis 100 % gerechnet und
+festgestellt, ob sich überhaupt etwas bewegt. Eine Liste gegen eine
+Liste zu prüfen hätte nur meine eigene Annahme bestätigt.
