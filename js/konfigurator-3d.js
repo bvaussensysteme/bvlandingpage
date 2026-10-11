@@ -1752,23 +1752,47 @@
       return platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
     }
 
-    /* ---------- Bodenschiene ----------
-       „die glassschiebeelemente gehen nicht bis zum boden es is eine
-       lücke vorhanden" (Betreiber, 11.10.2026).
+    /* ---------- Türschwelle und Schiebetürführung ----------
+       BELEGT: SG23-Profilschnitte des Herstellers (Betreiber,
+       11.10.2026): „Türschwelle sind die laufschienen unten,
+       schiebetürführung ist das was oben ist wo die tür drin läuft".
 
-       Die Elemente standen auf yUnten = PROFIL / 2, also 55 mm über dem
-       Boden – darunter war nichts. In Wirklichkeit laufen sie in einer
-       Bodenschiene, die auf dem Belag verschraubt wird. Statt die
-       Elemente nach unten zu ziehen (dann liefen sie im Boden), kommt das
-       Bauteil dazu, das die Lücke in echt auch füllt.
+       Vorher stand hier eine erfundene „Bodenschiene" mit 55 × 60 mm und
+       oben gar nichts – die Flügel hingen an einer Rahmenkante in der
+       Luft. Jetzt beide Profile mit ihren echten Maßen, und zwar je nach
+       Gleiszahl, denn mit jedem Gleis wird das Profil tiefer:
 
-       Querschnitt GESCHÄTZT: 55 mm hoch, 60 mm tief. Eine Zeichnung der
-       Schiene liegt nicht vor – GEGENZULESEN. */
-    var SCHIENE_H = 5.5, SCHIENE_T = 6;
+         Türschwelle (unten)      3-fach  76,2 · 4-fach 100,2 · 5-fach 115,5 mm
+         Schiebetürführung (oben) 3-gl.   78,4 · 4-gl.  104,0 · 5-gl.  129,6 mm
 
+       Höhen: Schwelle 36 mm (Stege über dem Grundkörper), Führung 35 mm.
+       Die Gleiszahl kommt aus der gewählten Bauart – eine 8-türige Anlage
+       läuft 4-gleisig und braucht deshalb die tiefere Schwelle. */
+    var SCHWELLE = { hoehe: 3.6, tiefe: { 3: 7.62, 4: 10.02, 5: 11.55 } };
+    var FUEHRUNG = { hoehe: 3.5, tiefe: { 3: 7.84, 4: 10.40, 5: 12.96 } };
+
+    function gleise(seite, laenge) {
+      var b = sg23Bauart(laenge * 10, seite);
+      return b ? b[0] : 3;
+    }
+
+    function tuerschwelle(laenge, achse, mitte, quer, g) {
+      platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte, SCHWELLE.hoehe / 2,
+             quer, 0, SCHWELLE.tiefe[g] || SCHWELLE.tiefe[3]);
+    }
+
+    function schiebefuehrung(laenge, achse, mitte, quer, okOben, g) {
+      platte(rahmen, laenge, FUEHRUNG.hoehe, achse, mitte,
+             okOben - FUEHRUNG.hoehe / 2, quer, 0,
+             FUEHRUNG.tiefe[g] || FUEHRUNG.tiefe[3]);
+    }
+
+    /* Rahmen- und Plankenwand sind keine Schiebeanlage – sie laufen in
+       keiner Schwelle. Damit unten trotzdem kein Spalt bleibt, stehen sie
+       direkt auf dem Belag; dafür genügt die Schwellenhöhe als Sockel. */
     function bodenschiene(laenge, achse, mitte, quer) {
-      platte(rahmen, laenge, SCHIENE_H, achse, mitte, SCHIENE_H / 2,
-             quer, 0, SCHIENE_T);
+      platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte, SCHWELLE.hoehe / 2,
+             quer, 0, SCHWELLE.tiefe[3]);
     }
 
     /* ---------- Wandanschlussprofil ----------
@@ -1846,8 +1870,14 @@
       /* Die Elemente stehen jetzt IN der Bodenschiene – Unterkante also
          auf deren Oberkante, nicht frei in der Luft. Die Gesamthöhe
          bleibt unverändert, es verschiebt sich nur, was unten sitzt. */
-      var yUnten = SCHIENE_H;
-      var hoch = hVorn - PROFIL / 2 - yUnten;
+      /* Unterkante auf der Schwelle, Oberkante unter der Führung –
+         dazwischen läuft der Flügel. Vorher war oben nichts, die Höhe
+         reichte bis unter das Dach. */
+      var gl = gleise(seite, laenge);
+      var okOben = hVorn - PROFIL / 2;
+      var yUnten = SCHWELLE.hoehe;
+      var hatSchiebeHier = erwListe(seite).indexOf('Schiebetür') > -1;
+      var hoch = okOben - yUnten - (hatSchiebeHier ? FUEHRUNG.hoehe : 0);
       /* Der Keil läuft IMMER bis nach hinten durch: bei Wandmontage bis
          an die Wand, freistehend bis an den hinteren Pfosten (Angabe des
          Betreibers). Das Element darunter endet dagegen zwischen den
@@ -1905,8 +1935,14 @@
          vor der Mauer. Eine Senkrechtmarkise bekommt beides NICHT: sie
          läuft in eigenen Führungsschienen und hat unten eine Fallstange. */
       if (hatRahmen || hatSchiebe || hatPlanken) {
-        bodenschiene(laenge, achse, mitte, quer);
-        wandAnschluss(achse, mitte - laenge / 2, yUnten + hoch, quer);
+        if (hatSchiebe) {
+          tuerschwelle(laenge, achse, mitte, quer, gl);
+          schiebefuehrung(laenge, achse, mitte, quer, okOben, gl);
+        } else {
+          bodenschiene(laenge, achse, mitte, quer);
+        }
+        wandAnschluss(achse, mitte - laenge / 2,
+                      hatSchiebe ? okOben : yUnten + hoch, quer);
       }
 
       // Zubehör VOR der Fläche

@@ -1613,3 +1613,42 @@ Anzeigen.
 **Gegenzulesen:** Ob die Schilder jetzt auf dem Handy noch lesbar sind.
 Kleiner geht erfahrungsgemäß schnell zu weit; 14 ist ein erster Wert,
 `SCHILD_HOCH` in js/konfigurator-3d.js ist die eine Stelle dafür.
+
+## 2026-10-11 – Türschwelle und Schiebetürführung mit echten Maßen
+
+**Anlass:** Der Betreiber hat die SG23-Profilschnitte geschickt:
+„Türschwelle sind die laufschienen unten, schiebetürführung ist das was
+oben ist wo die tür drin läuft, bitte neu modellieren maße anpassen".
+
+**Was falsch war:** Unten stand eine von mir erfundene „Bodenschiene"
+mit 55 × 60 mm, und **oben war gar nichts** – die Flügel hingen an einer
+dekorativen Rahmenkante in der Luft. Dass sie oben in einer Führung
+laufen, hatte ich schlicht nicht modelliert.
+
+**Was jetzt gilt – BELEGT durch die Profilschnitte:**
+
+| Profil | Höhe | 3 Gleise | 4 Gleise | 5 Gleise |
+|---|---|---|---|---|
+| Türschwelle (unten) | 36 mm | 76,2 mm | 100,2 mm | 115,5 mm |
+| Schiebetürführung (oben) | 35 mm | 78,4 mm | 104,0 mm | 129,6 mm |
+
+Die Tiefe hängt an der **Gleiszahl**, nicht an der Flügelzahl: Eine
+8-türige Anlage läuft 4-gleisig und braucht die 100,2-mm-Schwelle. Die
+Gleiszahl kommt aus der Bauart, die der Konfigurator oder der Kunde
+gewählt hat – damit zieht sich die Entscheidung bis ins Profil durch.
+
+Der Flügel steht jetzt auf der Schwelle und endet unter der Führung;
+seine Höhe ergibt sich daraus, statt bis unters Dach zu reichen.
+
+**Rahmen- und Plankenwand** sind keine Schiebeanlage und laufen in keiner
+Schwelle. Damit unten kein Spalt bleibt, stehen sie auf einem Sockel in
+Schwellenhöhe – das ist weiterhin eine Vereinfachung, aber eine
+sichtbare, keine erfundene Maßangabe.
+
+**Damit erledigt sich** die offene Rückfrage nach dem Querschnitt der
+Bodenschiene. Offen bleibt das **Wandanschlussprofil** (50 × 25 mm,
+GESCHÄTZT) – dazu liegt kein Schnitt vor.
+
+**Gegenzulesen:** Ob die Führung oben im Bild sichtbar ist oder hinter
+dem Rahmen verschwindet, und ob der Flügel jetzt die richtige Höhe hat
+(Schwelle 36 + Flügel + Führung 35 = lichte Höhe).
