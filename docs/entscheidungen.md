@@ -3397,3 +3397,63 @@ Regler auf 0 %: nur das Paket hinten und (beim Plissee) die Schienen.
 Gegenprobe 151 von 151. Die Farblisten werden gegen die aus dem Formular
 abgeschriebenen Listen gehalten (Gegenprobe: eine Farbe, die es nicht
 gibt), die Tuchform wird ausgerechnet statt behauptet.
+
+## 11.10.2026 – LED-Spots: sichtbar, ohne die äußersten Sparren, nach Set verteilt
+
+**Anlass.** „die ledspots werden in den sparren leider nicht angezeigt, an
+die äußersten sparren sind keine led spots möglich, die led spots müssen je
+nach kundenwahl 6,8,12 perfekt wie es schön aussehen würde in den sparren
+aufgeteilt werden, geht das nicht kann man dem kunden einen kleinen hinweis
+anzeigen z.b welche set oder wieviele von welchem led set besser wären."
+
+**Warum man sie nicht sah.** Die Sparrenunterkante wurde ab `T / 2`
+gerechnet, die Sparren liegen aber zwischen Wandprofil und Rinne – ihre
+Mitte ist `zMitte`. Bei 3 m Tiefe und 8° saß der Spot dadurch 11 mm zu
+hoch, also IM Profil. Nachgerechnet in `scripts/pruefe-fuehrung.js`.
+
+**Was jetzt gilt.** Die äußersten beiden Sparren bleiben frei. Die Zahl
+der Spots kommt aus dem bestellten Set (6, 8 oder 12 × Anzahl) – vorher
+waren es immer zwei je Sparren, unabhängig von der Bestellung. Verteilt
+wird gleich viele je Sparren; von mehreren Möglichkeiten gewinnt das
+quadratischste Raster, und die genutzten Sparren liegen gespiegelt um die
+Mitte. Geht die Zahl nicht auf, steht unter der Set-Auswahl, was gebaut
+wurde und welches Set gleichmäßig aufginge.
+
+**Verworfen:** krumme Verteilung (ein Sparren mehr als die anderen). Dann
+zeigt das Bild eine Aufteilung, die es nicht gibt. Lieber das nächste
+gleichmäßige Raster und ein ehrlicher Hinweis.
+
+## 11.10.2026 – Plissee und Sonnensegel: Lage, Stoffe, versetzte Fahrt
+
+**Anlass.** Drei Rückmeldungen des Betreibers am selben Nachmittag:
+„sind in der 3d ansicht zu tief sie sitzen genau zwischen den sparren
+sind quasi an den sparren links und rechts jeweils befestigt" (mit zwei
+Bildschirmfotos), „fehlen ebenfalls die stoffe aus der bestell pdf
+jeweils", und „einzeln pro sparrenzwischenraum handbetrieben … deswegen
+würde ich bei der animation es so machen das sie nacheinander versetzt
+schließen und öffnen".
+
+**Was jetzt gilt.**
+*Lage:* Beide hängen nicht mehr unter den Sparren, sondern dazwischen –
+oben an den Flanken befestigt, tiefster Punkt über der Sparrenunterkante.
+Unter dem Dach ragt nichts heraus.
+*Stoffe:* Die Farben aus den Bestellformularen sind wählbar und gehen in
+die Anfrage: Segel Platin/Perlmutt/Gold/Taupe/Grau, Plissee
+Weiß/Hellgrau/Grau/Anthrazit/Hellbeige/Braun. Geprüft wird, dass jede
+Option im Feld auch im Code bekannt ist – derselbe Fehler wie bei den
+Velaris-Lamellen, wo eine unbekannte Farbe still auf die Vorgabe fiel.
+*Bedienung:* Jede Bahn fährt einzeln, mit 220 ms Versatz zur nächsten.
+Das erklärt die Handbedienung ohne Worte; zusätzlich steht der Satz im
+Bedienfeld und in der Anfrage-Mail. Gestaucht statt neu gebaut: Falten
+und Wellen rücken zusammen, das Modell wird während der Fahrt nicht neu
+aufgebaut.
+
+**Was die Prüfung gefunden hat, nicht das Auge.** Die neue Fahrt hieß
+`sonneFahren`/`sonneLaeuft` – genau wie die der Markise. Zwei `var` mit
+demselben Namen im selben Gültigkeitsbereich: die zweite gewinnt, eine
+der beiden Animationen wäre ins Leere gelaufen. Jetzt `bahnenFahren` /
+`bahnLaeuft`, und eine Prüfung zählt die Deklarationen.
+
+**Noch offen beim Betreiber:** Gestellfarbe des Plissees, Bedienstab in
+Weiß oder Schwarz, Verstärkung und Installationsart des Segels, die
+Bahnenmaße. Dafür gibt es noch kein Feld.
