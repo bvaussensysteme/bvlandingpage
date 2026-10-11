@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="k3d-html">
 <head>
 <script>
 /* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
@@ -82,6 +82,22 @@
        Laufzeit um den Inhalt. */
     body.k3d-app-seite main,
     body.k3d-app-seite #bv-a11y-page-wrap { width: 100%; }
+
+    /* WARUM position: sticky vorher nicht wirkte (Betreiber: „scheint
+       nicht zu klappen", 11.10.2026):
+
+       In css/style.css steht für die ganze Seite
+       `html, body { overflow-x: hidden }` – gegen waagerechtes
+       Verrutschen einzelner Abschnitte. Genau das macht aus html und
+       body einen eigenen Scrollbehälter, und ein klebendes Element
+       orientiert sich dann an diesem statt am Fenster: Es klebt nie.
+       Ein Dauerbrenner, der von außen aussieht, als sei sticky kaputt.
+
+       `clip` schneidet genauso ab, erzeugt aber KEINEN Scrollbehälter.
+       Nur auf dieser Seite gesetzt, damit die übrigen Seiten unberührt
+       bleiben. Browser, die clip nicht kennen, ignorieren die Zeile und
+       verhalten sich wie bisher. */
+    html.k3d-html, body.k3d-app-seite { overflow-x: clip; }
 
     .k3d-app {
       display: flex;
@@ -1517,7 +1533,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016f" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016g" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

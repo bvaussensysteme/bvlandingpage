@@ -4029,3 +4029,28 @@ Adressleiste des Handys sonst Teile abschneidet.
 
 **Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 190, Gegenprobe
 190 von 190; darunter eine, die `fixed` ausdrücklich verbietet.
+
+## 11.10.2026 – Warum das klebende Bild nicht klebte
+
+**Anlass.** „scheint nicht zu klappen" (Betreiber, mit Bildschirmfoto:
+das Bedienfeld gescrollt, kein 3D-Bild oben).
+
+**Der Grund.** In `css/style.css` steht für die ganze Seite
+`html, body { overflow-x: hidden }` – eine alte Vorsichtsmaßnahme gegen
+waagerechtes Verrutschen einzelner Abschnitte. Genau das macht aus
+`html` und `body` einen eigenen Scrollbehälter. Ein Element mit
+`position: sticky` orientiert sich dann an diesem Behälter statt am
+Fenster – und klebt nie. Von außen sieht es aus, als sei `sticky`
+kaputt; tatsächlich hat es nie eine Chance bekommen.
+
+**Was jetzt gilt.** Auf dieser Seite steht `overflow-x: clip` statt
+`hidden`. Clip schneidet genauso ab, erzeugt aber keinen
+Scrollbehälter. Gesetzt wird es nur hier (`html.k3d-html`,
+`body.k3d-app-seite`), damit die übrigen 50 Seiten unberührt bleiben.
+Browser, die `clip` nicht kennen, ignorieren die Zeile und verhalten
+sich wie bisher – schlimmstenfalls klebt das Bild dort nicht.
+
+**Prüfung.** Eine neue liest `css/style.css` mit: Steht dort die globale
+Regel, MUSS auf dieser Seite die Gegenregel stehen. So fällt es auf,
+wenn jemand später das eine ändert und das andere vergisst.
+`scripts/pruefe-fuehrung.js` jetzt 191, Gegenprobe 191 von 191.

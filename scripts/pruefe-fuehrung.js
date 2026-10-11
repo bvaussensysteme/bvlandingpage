@@ -1557,6 +1557,22 @@ pruefe('Hineinzoomen bleibt moeglich',
          'sticky, nicht fixed');
 })();
 
+(function () {
+  /* Der haeufigste Grund, warum position: sticky nicht wirkt: ein
+     Vorfahr mit overflow-x: hidden. Genau das steht in css/style.css
+     fuer html und body. */
+  var css = fs.readFileSync('css/style.css', 'utf8');
+  var global = /body,html\{overflow-x:hidden/.test(css) || /html,body\{overflow-x:hidden/.test(css);
+  var geheilt = /html\.k3d-html, body\.k3d-app-seite \{ overflow-x: clip; \}/.test(html) &&
+                /<html lang="de" class="k3d-html">/.test(html);
+  if (gegen) geheilt = !geheilt;
+  pruefe('Kein Scrollbehaelter bricht das klebende Bild',
+         !global || geheilt,
+         global ? (geheilt ? 'overflow-x: clip auf dieser Seite'
+                           : 'html/body haben overflow-x: hidden')
+                : 'keine globale Regel');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
