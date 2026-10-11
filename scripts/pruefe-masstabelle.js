@@ -346,6 +346,16 @@ pruefe('Stossprofil folgt der Einstellung',
      es wie eine Schwelle auf dem Dach. VSG 8 oder 10 mm. */
   pruefe('Profil nicht hoeher als die duennste Scheibe', h <= 8, h + ' mm gegen 8 mm Glas');
 })();
+/* Durchsichtiges Gummi, kein Alu (Betreiber, 11.10.2026). */
+pruefe('Kopplungsprofil ist durchsichtig',
+       new RegExp(q || 'var mKoppel = new THREE\\.MeshPhysicalMaterial').test(k3d) &&
+       /transparent: true, opacity: 0\.4,/.test(k3d), 'Gummi, nicht Alu');
+pruefe('Kopplungsprofil ohne Metallanteil, nur leicht matt',
+       new RegExp(q || 'roughness: 0\\.28, metalness: 0,').test(k3d),
+       'glatter als mein erster Wert 0,55');
+pruefe('Kopplungsprofil wirft keinen Schatten',
+       gegen ? /kq\.castShadow = true/.test(k3d) : !/kq\.castShadow/.test(k3d),
+       'sonst ein dunkler Streifen quer ueber die Terrasse');
 pruefe('Kopplungsprofil ueber die volle Breite',
        new RegExp(q || 'BoxGeometry\\(B, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d), '');
 pruefe('Hinweis im Bedienfeld',

@@ -3409,13 +3409,23 @@
     }
     /* Kopplungsprofil quer über die ganze Dachbreite, auf Scheibenhöhe. */
     if (glasGeteilt()) {
+      /* Durchsichtiges Gummi, kein Alu (Betreiber, 11.10.2026). Deshalb
+         halbtransparent, GANZ LEICHT matt (Betreiber: „also ganz leicht
+         matt", also deutlich glatter als mein erster Wert 0,55) und ohne
+         Metallanteil – und es wirft
+         keinen Schatten, sonst läge ein dunkler Streifen quer über die
+         Terrasse, den es in echt nicht gibt. */
+      var mKoppel = new THREE.MeshPhysicalMaterial({
+        color: rgb(0xe8edef), roughness: 0.28, metalness: 0,
+        transparent: true, opacity: 0.4, side: THREE.DoubleSide
+      });
       var kq = new THREE.Mesh(
-        new THREE.BoxGeometry(B, KOPPEL.hoehe, KOPPEL.breite), mAlu);
+        new THREE.BoxGeometry(B, KOPPEL.hoehe, KOPPEL.breite), mKoppel);
       kq.position.set(0,
                       yDach + KOPPEL.hoehe / 2 - glasDicke / 2 - Math.sin(neig) * koppelLokal,
                       zGlasMitte + Math.cos(neig) * koppelLokal);
       kq.rotation.x = neig;
-      kq.castShadow = true; kq.receiveShadow = true;
+      kq.receiveShadow = true;
       bau.add(kq);
     }
 

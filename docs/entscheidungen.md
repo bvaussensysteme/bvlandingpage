@@ -2345,3 +2345,12 @@ die Auflage; der Steg liegt im Stoß und ist von außen nicht zu sehen.
 Eine Prüfung achtet zusätzlich darauf, dass das Profil nie höher baut
 als die dünnste Scheibe (VSG 8 mm) – sonst stünde es wie eine Schwelle
 auf dem Dach.
+
+**Nachtrag Material:** „und das is durchsichtiges gummi … also ganz
+leicht matt" (Betreiber). Das Profil ist deshalb kein Alu, sondern ein
+halbtransparentes, nur leicht mattes Material ohne Metallanteil. Es
+wirft außerdem KEINEN Schatten – sonst läge ein dunkler Streifen quer
+über die Terrasse, den es in echt nicht gibt.
+
+Mein erster Rauheitswert (0,55) war zu matt; auf Hinweis des Betreibers
+auf 0,28 gesetzt.
