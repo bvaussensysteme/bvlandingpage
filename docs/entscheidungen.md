@@ -1834,3 +1834,34 @@ Laufrichtung des Feldes.
 Griff auf 850 mm. Das steht bewusst NICHT im Konfigurator – es ist eine
 Beratungsfrage, und ein zusätzliches Feld dafür würde den Hauptweg für
 alle anderen verlängern. Beim Aufmaß abfragen.
+
+## 2026-10-11 – Laufrichtung und Griffseite waren beide invertiert
+
+**Anlass:** „der griff sitzt auf der falschen seite" und, als Bestätigung
+meiner Rechnung: „er muss einmal gegenüber" (Betreiber, mit
+Bildschirmfoto).
+
+**Was falsch war:** Gleich zwei Vorzeichen, und ich hatte sie beide aus
+dem Kopf gesetzt statt nachgerechnet. Nachgerechnet sieht es so aus:
+
+| Kennzahl | Stapel | der ziehende Flügel schließt bei | Griff |
+|---|---|---|---|
+| `rk = -1` | nach +x (rechts) | −x (links) | linke Kante |
+| `rk = +1` | nach −x (links) | +x (rechts) | rechte Kante |
+
+Daraus folgt: `kante = lage + rk * (...)`, nicht minus. Und ein Feld
+links der Mitte, das nach außen – also nach links – öffnen soll, braucht
+`rk = +1`, nicht −1. Beides war genau andersherum.
+
+**Was jetzt stimmt:** Beim linken Feld stapeln sich die Flügel am
+äußeren Rand, der ziehende Flügel schließt am Mittelpfosten, und dort
+sitzt auch der Griff – also genau da, wo man steht, wenn man aufmacht.
+Rechts spiegelbildlich.
+
+**Absicherung – und warum die alte Prüfung nichts taugte:** Bisher prüfte
+eine Zeile nur, ob der erwartete Ausdruck im Quelltext steht. Damit lässt
+sich ein Vorzeichenfehler nicht finden, denn sie bestätigt genau das, was
+man gerade geschrieben hat. Jetzt rechnet die Prüfung Stapelseite und
+Griffseite für ein linkes und ein rechtes Feld aus und vergleicht sie mit
+der Feldmitte; dazu kommt eine Prüfung, dass der Griff nie außerhalb
+seines Flügels liegt.

@@ -1923,7 +1923,19 @@
            derselbe. Der Griff sitzt an der ZIEHKANTE, also der vom
            Stapel abgewandten Seite. */
         if (i === n - 1 && hoehe > GRIFF.hoehe + 20) {
-          var kante = lage - rk * (flB / 2 - GRIFF.randAbstand) * (n > 1 ? 1 : -1);
+          /* Der Griff sitzt an der SCHLIESSKANTE – der Kante, die im
+             geschlossenen Zustand am Pfosten bzw. an der Wand anliegt.
+             Welche das ist, folgt aus der Laufrichtung und war zweimal
+             falsch herum; nachgerechnet am 11.10.2026:
+
+               rk = -1  stapelt nach +x, der ziehende Flügel schließt
+                        bei -x  -> Griff an der linken Kante
+               rk = +1  stapelt nach -x, er schließt bei +x
+                        -> Griff an der rechten Kante
+
+             Also plus rk, nicht minus. „er muss einmal gegenüber"
+             (Betreiber). */
+          var kante = lage + rk * (flB / 2 - GRIFF.randAbstand);
           schiebeTeil(muschelgriff(achse, kante, yUnten, quer, spur,
                                    SG23.glasDicke), seite);
         }
@@ -2214,9 +2226,12 @@
       var feldMitte = (lichtVon + lichtBis) / 2;
       var feldLaenge = lichtBis - lichtVon;
       if (feldLaenge <= 0) continue;
-      /* Nach AUSSEN heißt: weg von der Mitte der Anlage. */
+      /* Nach AUSSEN heißt: weg von der Mitte der Anlage. Welche
+         Kennzahl wohin stapelt, war ebenfalls invertiert –
+         rk = +1 stapelt nach -x (links), rk = -1 nach +x (rechts).
+         Ein Feld links der Mitte braucht also die +1. */
       eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
-                feldMitte < 0 ? -1 : 1, f);
+                feldMitte < 0 ? 1 : -1, f);
     }
   }
 
