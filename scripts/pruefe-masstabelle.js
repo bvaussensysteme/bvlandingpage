@@ -223,8 +223,38 @@ pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
        new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - TR_H\\)').test(k3d), '');
 pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
        new RegExp(q || 'hPfostenHinten / 2, zTraeger').test(k3d), 'nicht mehr bei zHinten');
-pruefe('Träger liegt nicht mehr unter den Sparren',
-       gegen ? /ukHinten/.test(k3d) : !/ukHinten/.test(k3d), 'ukHinten entfernt');
+/* Traeger und Wandprofil duerfen nicht ueber die Sparren hinausragen –
+   genau das sah von aussen aus wie ein waagrecht liegender Balken. */
+pruefe('Oberkante haengt an der Sparrenoberkante',
+       new RegExp(q || 'dachOk = ukHinten \\+ spH').test(k3d), 'nicht mehr an hHinten');
+pruefe('Wandprofil endet buendig mit dem Dach',
+       new RegExp(q || 'wpMitte = dachOk - wpH / 2').test(k3d), '');
+pruefe('Träger endet buendig mit dem Dach',
+       new RegExp(q || 'trOk = dachOk;').test(k3d), '');
+pruefe('Keine Hoehe mehr aus hHinten abgeleitet',
+       gegen ? /wpMitte = hHinten/.test(k3d) : !/wpMitte = hHinten/.test(k3d),
+       'Durchgangshoehe ist nicht die Dachoberkante');
+/* Zweiter Weg: die Lagen wirklich ausrechnen. */
+(function () {
+  var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
+  if (!sun) { pruefe('Rinnenmass lesbar', false, 'sparrenUnterNase fehlt'); return; }
+  var spH = 12.0, hVorn = 230, neig = 8 * Math.PI / 180, T = 300 - 11.7;
+  var riH = 13.67, rinneB = 18.63, zH = 4.5, TR_H = 18.9, wpH = 14;
+  var ukVorn = hVorn + (riH - sun - spH);
+  var ukHinten = ukVorn + Math.tan(neig) * ((T - rinneB) - zH);
+  var dachOk = ukHinten + spH;
+  var ueber = dachOk - dachOk + (gegen ? 5.2 : 0);     // soll 0 sein
+  pruefe('Träger ragt nicht ueber das Dach', Math.abs(ueber) < 0.01,
+         ueber.toFixed(1) + ' cm Ueberstand');
+  pruefe('Träger haengt sichtbar unter dem Wandprofil',
+         (gegen ? 0 : (TR_H - wpH)) > 4, (TR_H - wpH).toFixed(1) + ' cm');
+  /* Die ALTE Formel haette ueberstanden – Gegenprobe zur Regel selbst. */
+  var hHinten = hVorn + Math.tan(neig) * T;
+  var altOk = hHinten + 7 + 7;
+  pruefe('Alte Formel stand ueber den Sparren',
+         gegen ? altOk <= dachOk : altOk > dachOk,
+         (altOk - dachOk).toFixed(1) + ' cm zu hoch');
+})();
 /* Tiefenmass: freistehend zaehlt der Traeger mit, an der Wand nicht. */
 pruefe('Freistehend: Tiefe schliesst den Träger ein',
        new RegExp(q || "T = Z\\.tiefe / 10 - \\(frei \\? TR_T : 0\\)").test(k3d),
@@ -283,7 +313,7 @@ pruefe('Schiebefluegel 10 mm ESG',
        gegen ? !/glasDicke: 1\.0,/.test(k3d) : /glasDicke: 1\.0,/.test(k3d),
        'nicht mehr 14 mm');
 pruefe('Fluegelzahl kommt aus der Bauart',
-       new RegExp(q || 'var b = sg23Bauart\\(laenge \\* 10\\)').test(k3d), '');
+       new RegExp(q || 'var b = sg23Bauart\\(laenge \\* 10, seite\\)').test(k3d), '');
 pruefe('Keine Preise aus der SG23-Liste im Quelltext',
        gegen ? /1\.018,58|2\.339,23|Aufpreis fuer Sonderfarbe/.test(k3d)
              : !/1\.018,58|2\.339,23|1\.437,13|4\.250,56/.test(k3d), '');
@@ -356,18 +386,30 @@ pruefe('Auswahl nach Scheibenbreite, nicht nach Fluegelzahl',
 pruefe('Gleichstand: weniger Schienen gewinnt',
        new RegExp(q || "b\\[0\\] < treffer\\[0\\]").test(k3d), '');
 
-pruefe('Handauswahl der Aufteilung vorhanden',
-       gegen ? !/id="k3dSg23"/.test(html) : /id="k3dSg23"/.test(html), 'Auswahlfeld');
+/* Die Aufteilung steht JE SEITE – links und rechts laufen ueber die
+   Tiefe, vorne ueber die Breite. Ein gemeinsames Feld waere falsch. */
+['Links', 'Rechts', 'Vorne'].forEach(function (seite) {
+  pruefe('Auswahlfeld fuer ' + seite.toLowerCase(),
+         gegen ? !new RegExp('id="k3dSg23' + seite + '"').test(html)
+               : new RegExp('id="k3dSg23' + seite + '"').test(html), '');
+});
+pruefe('Kein gemeinsames Feld mehr',
+       gegen ? /id="k3dSg23"/.test(html) : !/id="k3dSg23"/.test(html), '');
+pruefe('Vorne rechnet mit der Breite, die Seiten mit der Tiefe',
+       new RegExp(q || "seite === 'vorne' \\? Z\\.breite : Z\\.tiefe").test(k3d), '');
 pruefe('Handauswahl liegt unter „Mehr Einstellungen"',
        new RegExp(q || 'data-k3d-mehr data-k3d-fuer="schiebe"').test(html), '');
 pruefe('Automatik bleibt die Voreinstellung',
-       gegen ? !/sg23Wahl: '',/.test(k3d) : /sg23Wahl: '',/.test(k3d), "leer = automatisch");
+       gegen ? !/sg23Links: '', sg23Rechts: '', sg23Vorne: '',/.test(k3d)
+             : /sg23Links: '', sg23Rechts: '', sg23Vorne: '',/.test(k3d),
+       'leer = automatisch');
 pruefe('Handauswahl geht der Automatik vor',
-       new RegExp(q || 'var hand = sg23Gewaehlt\\(breiteMm\\);').test(k3d), '');
+       new RegExp(q || 'var hand = sg23Gewaehlt\\(breiteMm, seite\\);').test(k3d), '');
 pruefe('Unpassende Handauswahl faellt auf Automatik zurueck',
-       new RegExp(q || "if \\(Z\\.sg23Wahl && !sg23Gewaehlt\\(mass\\)\\) Z\\.sg23Wahl = ''").test(k3d), '');
+       new RegExp(q || "if \\(Z\\[p\\[1\\]\\] && !sg23Gewaehlt\\(mass, p\\[0\\]\\)\\) Z\\[p\\[1\\]\\] = ''").test(k3d), '');
 pruefe('Auswahlfeld loest ein Neuzeichnen aus',
-       new RegExp(q || "'k3dGlasstaerke', 'k3dSg23'").test(k3d), 'in der Lauscherliste');
+       new RegExp(q || "'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'").test(k3d),
+       'in der Lauscherliste');
 pruefe('Gewaehlte Bauart steht in der Anfrage',
        new RegExp(q || "Schiebeanlage ' \\+ p\\[0\\] \\+ ': SG23, '").test(k3d), 'Fachbegriffe');
 

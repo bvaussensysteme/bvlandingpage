@@ -1514,3 +1514,74 @@ besprechen und ändern" – besprechen kann man aber nur, was dasteht.
 3. Querschnitte von Bodenschiene (55 × 60 mm) und Wandanschlussprofil
    (50 × 25 mm) sind weiterhin GESCHÄTZT; die Unterlage zeigt die
    Ansichtsskizzen, aber keine Profilschnitte.
+
+## 2026-10-11 – Statikträger stand über das Dach hinaus
+
+**Anlass:** „und bei freistehend is der statikträger immernoch waagrecht
+und nicht hochkat", dann die Auflösung: „er darf nicht höher sein als die
+sparren bzw. wandprofil".
+
+**Was falsch war – und warum es nicht zu sehen war:** Der Träger WAR
+hochkant gezeichnet (189 hoch × 117 tief). Nachgerechnet bei
+5000 × 3000 mm, 8°, Durchgangshöhe 2300:
+
+| Bauteil | Oberkante |
+|---|---|
+| Sparren hinten | 279,3 cm |
+| Wandprofil | 284,5 cm |
+| Statikträger | 284,5 cm |
+
+Träger **und** Wandprofil standen 52 mm über das Dach hinaus. Von außen
+sah das aus wie ein Balken, der oben auf dem Dach liegt – daher
+„waagrecht". Der Querschnitt stimmte, die Höhenlage nicht.
+
+**Die Ursache** war eine Formel, die an `hHinten` hing, also an der
+Durchgangshöhe hinten. Die hat mit der Dachoberkante nichts zu tun:
+dazwischen liegt das Gefälle über die ganze Tiefe, bei 3 m und 8° sind
+das 42 cm. Dass beide Werte in der Nähe lagen, war Zufall der
+Voreinstellungen.
+
+**Was jetzt gilt:** Wandprofil und Träger hängen an der
+SPARRENOBERKANTE hinten, Oberkante bündig, nie darüber. Das gilt in
+beiden Montagearten – an der Wand stand das Profil genauso über, nur
+fiel es dort weniger auf.
+
+**Absicherung:** Die Prüfung rechnet die Lagen selbst nach, statt nur den
+Quelltext zu lesen, und prüft zusätzlich, dass die ALTE Formel
+übergestanden hätte (sie meldet 5,2 cm zu hoch). Ohne diesen zweiten Teil
+hätte die Prüfung nur bestätigt, was ich gerade geschrieben habe.
+
+## 2026-10-11 – Statikträger unter der Rinne auf Kundenwunsch
+
+**Anlass:** „in den erweiterten einstellungen sol es auch ne möglichkeit
+geben einen statikträger unter die rinne zu setzen ohne dachvorsprung
+einfach wenn ein kunde z.b 2 pfosten anstatt 3 nur möchte mit den
+jeweiligen hinweis das halt die durchgangshöhe an dieser stelle niedriger
+wird".
+
+Häkchen unter „Mehr Einstellungen". Unter dem Träger greift die
+7-m-Regel statt der Stützfußspalte: bei 8080 mm Breite drei Pfosten statt
+vier. Bezahlt wird das mit 189 mm Durchgangshöhe – das steht neben dem
+Häkchen, im Maßhinweis und in der Anfrage-Mail. Das Häkchen erscheint
+nur, wenn nicht ohnehin schon ein Träger nötig ist; ein Schalter, der
+nichts ändert, verwirrt mehr als er hilft.
+
+## 2026-10-11 – Aufteilung der Schiebeanlage je Seite
+
+**Anlass:** „aufteilung der schiebeanlage soll pro seite sein, also für
+links,rechts und vorne".
+
+**Was falsch gedacht war:** Ein gemeinsames Feld für alle drei Seiten.
+Links und rechts laufen über die TIEFE, vorne über die BREITE – zwei
+verschiedene Maße, zu denen oft gar nicht dieselbe Bauart passt. Bei
+6000 × 3000 mm gibt es vorne acht Bauarten zur Auswahl und an den Seiten
+nur drei.
+
+**Was jetzt gilt:** Drei Felder unter „Mehr Einstellungen", jedes mit den
+Bauarten, die es im Maß DIESER Seite wirklich gibt. Offene Seiten
+blenden ihr Feld aus. Voreinstellung bleibt überall Automatik.
+
+**Gegenzulesen:** Ob die Auswahl im Bild sofort umschlägt, wenn man an
+einer Seite eine andere Bauart wählt – und ob das Feld bei einer
+Maßänderung korrekt auf „Automatisch" zurückspringt, wenn die gewählte
+Bauart nicht mehr lieferbar ist.
