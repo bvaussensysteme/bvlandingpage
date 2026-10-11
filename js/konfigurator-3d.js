@@ -1379,10 +1379,13 @@
     /* Hinten: Wandprofil bei Wandmontage, sonst Statikträger plus Blende.
        BELEGT (technische-daten.md 11): freistehend ersetzt das Wandprofil
        durch einen Statikträger über die volle Breite samt Blende. */
+    /* Das Wandprofil bleibt in BEIDEN Fällen – freistehend wird es an den
+       Statikträger geschraubt statt an die Mauer, nicht durch ihn ersetzt
+       (Betreiber 11.10.2026). Der Träger steht hochkant an der Stelle der
+       Wand, also hinter dem Wandprofil bei negativem z. */
+    balken(B, wpH, wpA, 0, hHinten + wpH / 2, wpA / 2, mAlu);
     if (e.freistehend) {
-      balken(B, stH, stB, 0, hHinten + stH / 2, stB / 2, mAlu);
-    } else {
-      balken(B, wpH, wpA, 0, hHinten + wpH / 2, wpA / 2, mAlu);
+      balken(B, stH, stB, 0, hHinten + wpH - stH / 2, -stB / 2, mAlu);
     }
 
     /* Sparren: genau e.sparren Stück. Randsparren außen bündig – ANNAHME
@@ -1635,7 +1638,13 @@
          für Stangen raus"). */
       var zVorneK = Math.min(mitte + laenge / 2,
                              dachVorne != null ? dachVorne : mitte + laenge / 2);
-      var zHintenK = (Z.aufbau === 'Freistehend') ? PROFIL : 0;
+      /* Hinten endet der Keil jetzt in BEIDEN Fällen bündig bei z = 0.
+         Die frühere Ausnahme („freistehend bis an den hinteren Pfosten",
+         zHintenK = PROFIL) stammt aus der Zeit, als der hintere Pfosten
+         noch unter dem Dach stand. Seit der Statikträger die Wand ersetzt,
+         steht er dahinter – ein Versatz nach vorne hinterließe genau die
+         Lücke, die der Betreiber an der Wandseite schon beanstandet hat. */
+      var zHintenK = 0;
       var keilLaenge = zVorneK - zHintenK;
       var keilMitte = (zVorneK + zHintenK) / 2;
       var hatKeil = liste.indexOf('Keil') > -1 && keilErlaubt() &&
@@ -2582,9 +2591,24 @@
        darunter die Pfosten. Das Wandprofil hängt an der Vorderseite des
        Trägers – es verschwindet nicht, es bekommt nur einen anderen
        Halt. */
-    var zHinten = frei ? PF / 2 : 4.5;
-    var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
-    var hPfostenHinten = frei ? Math.max(100, ukHinten - 18.9) : hHinten;
+    /* KORREKTUR 11.10.2026. Vorher lag der Träger WAAGERECHT UNTER den
+       Sparren, das Wandprofil davor. Betreiber am Bild: „der statikträger
+       is immer hochkant nicht wagrecht wie hier und er ist nicht unter den
+       sparren sondern hinter den sparren … quasi du machst es 1:1 als
+       wäre der statikträger die wand, wandprofil ist am statikträger
+       festgeschraubt".
+
+       Also: Alles vor dem Wandprofil bleibt Zeile für Zeile so wie bei
+       Wandmontage. Der Träger steht hochkant GENAU DORT, WO SONST DIE
+       MAUER IST – hinter dem Wandprofil, also bei negativem z. Das
+       Wandprofil wird nicht ersetzt, es bekommt nur eine andere
+       Schraubfläche. */
+    var TR_H = 18.9, TR_T = 11.7;              // Statikträger hochkant
+    var zHinten = 4.5;                          // Wandprofil – frei wie an der Wand
+    var wpMitte = hHinten + (sky ? 10 : 7);     // Höhenmitte des Wandprofils
+    var zTraeger = -TR_T / 2;                   // steht an der Stelle der Wand
+    var trOk = wpMitte + (sky ? 20 : 14) / 2;   // Oberkante bündig mit dem Wandprofil
+    var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 
     /* Pfostenzahl – JE REIHE getrennt.
 
@@ -2611,7 +2635,7 @@
     });
     if (frei) {
       verteilen(pfHinten, B, PF / 2).forEach(function (x) {
-        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zHinten, mAlu);
+        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zTraeger, mAlu);
       });
     }
 
@@ -2631,15 +2655,12 @@
          Regel. */
       balken(B, traegerH, traegerT, 0, hPfosten + traegerH / 2, zPf, mAlu);
     }
-    var wpH = sky ? 20 : 14, wpT = frei ? 12 : 9;
+    /* Wandprofil – IMMER dasselbe Teil an derselben Stelle. Freistehend
+       sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
+    var wpH = sky ? 20 : 14, wpT = 9;
+    balken(B, wpH, wpT, 0, wpMitte, zHinten, mAlu);
     if (frei) {
-      /* Statikträger über die volle Breite, Oberkante an der
-         Sparrenunterkante – dieselbe Lage wie vorne mit Vorsprung. */
-      balken(B, 18.9, 11.7, 0, ukHinten - 18.9 / 2, zHinten, mAlu);
-      /* Wandprofil an der Vorderseite des Trägers, auf gleicher Höhe. */
-      balken(B, wpH, wpT, 0, ukHinten - 18.9 / 2, zHinten + (11.7 + wpT) / 2, mAlu);
-    } else {
-      balken(B, wpH, wpT, 0, hHinten + (sky ? 10 : 7), zHinten, mAlu);
+      balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTraeger, mAlu);
     }
 
     /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus

@@ -1326,3 +1326,43 @@ unterscheiden: „9 Sparren und 4 Pfosten vorne und 3 hinten".
 Tiefe stehen vorne mehr Pfosten als hinten – bitte am Modell prüfen, ob
 das der TDS-Praxis entspricht. Prüfung: `node scripts/pruefe-masstabelle.js`
 (43 Prüfungen, Gegenprobe 43/43).
+
+## 2026-10-11 – Statikträger steht an der Stelle der Wand, nicht unter den Sparren
+
+**Anlass:** Betreiber am Bildschirmfoto eines freistehenden TDS: „der
+statikträger is immer hochkant nicht wagrecht wie hier und er ist nicht
+unter den sparren sondern hinter den sparren" und dann die Auflösung:
+„quasi du machst es 1:1 als wäre der statikträger die wand, wandprofil
+ist am statikträger festgeschraubt … bei freistehend".
+
+**Was falsch war:** Ich hatte den Träger waagerecht unter die Sparren
+gelegt und das Wandprofil davorgehängt – an der Rückseite entstand damit
+eine dreilagige Konstruktion, die es so nicht gibt. Die Vorlage dafür war
+meine eigene Auslegung des früheren Satzes „das wandprofil kommt anstatt
+an die wand an den statikträger": Ich hatte „an den Träger" als „unter den
+Träger gehängt" gelesen, gemeint war „auf den Träger geschraubt".
+
+**Was jetzt gilt:** Freistehend ändert an allem vor dem Wandprofil nichts.
+Das Wandprofil sitzt auf derselben Höhe, in derselben Tiefe (90 mm) und an
+derselben Stelle wie bei Wandmontage. Dahinter – dort, wo sonst die Mauer
+steht, also bei negativem z – steht der Statikträger hochkant,
+189 mm hoch und 117 mm tief, mit der Oberkante bündig zum Wandprofil. Die
+hinteren Pfosten stehen unter dem Träger, nicht mehr unter dem Dach.
+
+**Folge für die Durchgangshöhe:** Hinten liegt die Unterkante des Trägers
+49 mm unter der Oberkante des Wandprofils. Die früher genannten 189 mm
+betrafen den VORDEREN Träger beim Dachvorsprung – dort gilt sie weiter.
+
+**Mitgezogen:** Der Keil endet hinten jetzt in beiden Fällen bündig bei
+z = 0. Die Ausnahme „freistehend bis an den hinteren Pfosten" stammte aus
+der Zeit, als dieser Pfosten noch unter dem Dach stand.
+
+**Auch im Datenpfad korrigiert:** Dort ersetzte `e.freistehend` das
+Wandprofil durch den Träger. Das Profil bleibt jetzt, der Träger kommt
+dahinter. Der Pfad ist zurzeit inaktiv (die Schnittstelle antwortet 503),
+würde sonst aber denselben Fehler zeigen.
+
+**Gegenzulesen:** Ob die Oberkante des Trägers wirklich bündig mit der
+Oberkante des Wandprofils liegt oder das Profil mittig auf dem Träger
+sitzt – beides ist schraubbar, ich habe bündig gewählt. Prüfung:
+`node scripts/pruefe-masstabelle.js` (48 Prüfungen, Gegenprobe 48/48).

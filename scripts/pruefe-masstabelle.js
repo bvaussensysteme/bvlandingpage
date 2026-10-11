@@ -206,13 +206,27 @@ pruefe('Hinweis trennt die Reihen genauso',
 pruefe('Hinweis: vordere Zahl aus dem vorderen Träger',
        new RegExp(q || 'pfV = \\(tb\\.unterzug \\|\\| vsHin > 0\\) \\? pfostenUnterTraeger').test(k3d), '');
 
-/* Freistehend traegt hinten ein Statiktraeger das Wandprofil. */
-pruefe('Freistehend: Statikträger statt Wand',
-       new RegExp(q || 'ukHinten - 18\\.9 / 2, zHinten').test(k3d), 'volle Breite');
+/* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
+   Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
+pruefe('Freistehend: Träger steht hochkant',
+       new RegExp(q || 'TR_H = 18\\.9, TR_T = 11\\.7').test(k3d), '189 hoch, 117 tief');
+pruefe('Freistehend: Träger hinter dem Wandprofil',
+       new RegExp(q || 'zTraeger = -TR_T / 2').test(k3d), 'an der Stelle der Wand');
+pruefe('Wandprofil immer gleich tief',
+       gegen ? /wpT = frei \?/.test(k3d) : /wpH = sky \? 20 : 14, wpT = 9;/.test(k3d),
+       'kein Sonderfall mehr fuer freistehend');
+pruefe('Wandprofil wird nicht ersetzt',
+       gegen ? !/balken\(B, wpH, wpT, 0, wpMitte, zHinten, mAlu\);/.test(k3d)
+             : /balken\(B, wpH, wpT, 0, wpMitte, zHinten, mAlu\);/.test(k3d),
+       'steht ausserhalb der frei-Verzweigung');
 pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
-       new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, ukHinten - 18\\.9\\)').test(k3d), '');
-pruefe('Freistehend: Wandprofil haengt am Träger',
-       new RegExp(q || 'zHinten \\+ \\(11\\.7 \\+ wpT\\) / 2').test(k3d), 'vor dem Träger');
+       new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - TR_H\\)').test(k3d), '');
+pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
+       new RegExp(q || 'hPfostenHinten / 2, zTraeger').test(k3d), 'nicht mehr bei zHinten');
+pruefe('Träger liegt nicht mehr unter den Sparren',
+       gegen ? /ukHinten/.test(k3d) : !/ukHinten/.test(k3d), 'ukHinten entfernt');
+pruefe('Datenpfad: Wandprofil bleibt, Träger dahinter',
+       new RegExp(q || 'hHinten \\+ wpH - stH / 2, -stB / 2').test(k3d), '');
 
 pruefe('Hinweis nennt die geringere Durchgangshöhe',
        new RegExp(q || 'Unter dem Träger').test(k3d), '189 mm weniger');
