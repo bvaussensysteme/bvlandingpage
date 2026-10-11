@@ -93,14 +93,23 @@
     }
 
     /* ---------- Bedienfeld ---------- */
+    /* Breite des Bedienfelds: mitwachsend statt fest.
+       Mit festen 352 px brachen Knopfbeschriftungen wie
+       „Streifenfundament" mitten im Wort um – auf einem 1900 px breiten
+       Bildschirm standen daneben 1500 px Rasen. Jetzt wächst das Feld
+       mit, bleibt aber gedeckelt: Auf einem 24-Zöller sind es rund 520 px
+       (gut ein Viertel), der Rest gehört dem Modell. Vom Betreiber so
+       gewünscht – „ausgeglichen, dass man 3D noch gut sieht, aber auch
+       vernünftig konfigurieren kann". */
     .k3d-sl {
-      width: 352px; flex: none;
+      --k3d-sl-breite: clamp(360px, 30vw, 520px);
+      width: var(--k3d-sl-breite); flex: none;
       background: #fff;
       border-right: 1px solid var(--border);
       display: flex; flex-direction: column;
       transition: margin-left .25s ease;
     }
-    .k3d-sl.ist-zu { margin-left: -352px; }
+    .k3d-sl.ist-zu { margin-left: calc(var(--k3d-sl-breite) * -1); }
     .k3d-sl-kopf { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
     .k3d-badge {
       display: inline-block;
@@ -171,6 +180,9 @@
       padding: 8px 6px; font: inherit; font-size: .78rem; line-height: 1.25;
       background: #fff; color: var(--black);
       border: 1px solid var(--border); border-radius: 8px; cursor: pointer; text-align: center;
+    }
+    .k3d-seg button, .k3d-farbe span, .k3d-erw button {
+      overflow-wrap: break-word; hyphens: auto;
     }
     .k3d-seg button small { display: block; font-size: .66rem; color: var(--muted); margin-top: 2px; }
     .k3d-seg button:hover { border-color: var(--gold); }
