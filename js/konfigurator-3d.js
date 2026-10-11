@@ -6692,15 +6692,21 @@
     if (!e) return;
     if (Z.farbe !== 'Andere / Beratung') { e.textContent = ''; return; }
     var n = ralNummer();
+    var warnt = false;
     if (!n) {
       e.textContent = 'Ohne Nummer zeigen wir Anthrazit. Wir beraten Sie gern.';
     } else if (RAL[n]) {
       e.textContent = 'RAL ' + n + ' wird angezeigt – der Ton am Bildschirm ist' +
         ' angenähert, verbindlich ist der RAL-Fächer.';
     } else {
-      e.textContent = 'RAL ' + n + ' ist bei uns nicht hinterlegt. Das Modell' +
-        ' bleibt anthrazit; Ihre Farbe steht trotzdem in der Anfrage.';
+      /* Deutlich sichtbar: Sonst sieht es aus, als wäre die Eingabe
+         wirkungslos – und genau so kam es beim Betreiber an. */
+      e.textContent = 'RAL ' + n + ' können wir im Modell noch nicht darstellen.' +
+        ' Das Bild bleibt anthrazit – lieferbar ist die Farbe trotzdem, sie' +
+        ' steht in Ihrer Anfrage.';
+      warnt = true;
     }
+    e.classList.toggle('ist-warnung', warnt);
   }
 
   function farbeSetzen(name) {
