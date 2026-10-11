@@ -3095,3 +3095,44 @@ zurück.
 **Die Prüfung spielt die Reihenfolge nach**, statt nur nachzusehen, ob
 es sie gibt. Die Gegenprobe behandelt ein feststehendes Element als
 schiebbar – dann entsteht der tote Klick, und sie schlägt an.
+
+## 2026-10-11 – Rahmenwand: Glas im Rahmen, mit Sprossen
+
+**Anlass:** „dann machen wir weiter mit rahmenwand" – dazu die
+VD-Montageanleitung FR23/FRF23 und die Übersicht der Festelemente.
+
+**Was war:** Die Rahmenwand war eine **undurchsichtige Platte** mit zwei
+Kantenprofilen. Die Unterlagen zeigen etwas anderes: einen
+Aluminiumrahmen mit **Glasfüllung** – Rahmenprofil, Sprossenprofil,
+Glasleiste stehen so in der Teileliste.
+
+**Was jetzt gilt:** Rahmen aus vier Profilen, darin Glas, bei Bedarf
+durch Sprossen geteilt. Es gibt genau **acht belegte Aufteilungen**:
+
+| | |
+|---|---|
+| 1-teilig | ohne Sprosse |
+| 2-teilig | 1 waagerechte **oder** 1 senkrechte |
+| 3-teilig | 2 senkrechte |
+| 4-teilig | 3 senkrechte **oder** 1 senkrechte + 1 waagerechte |
+| 6-teilig | 2 senkrechte + 1 waagerechte |
+| 8-teilig | 3 senkrechte + 1 waagerechte |
+
+Die Automatik wählt die wenigsten Sprossen, mit denen keine Scheibe zu
+groß wird; in den erweiterten Einstellungen lässt sich eine der acht
+vorgeben – wie bei den Schiebeanlagen.
+
+**GESCHÄTZT sind alle Profilmaße** (Rahmen 50 mm, Sprosse 40 mm, Bautiefe
+50 mm, Glas 8 mm): Die Anleitung **zeigt** die Profile, bemaßt sie aber
+nicht.
+
+**Die wichtigste offene Frage:** das **Höchstmaß einer Scheibe**. Meine
+Richtwerte (1200 × 1600 mm) sind geraten, und sie bestimmen, wann die
+Automatik eine Sprosse setzt. Bei 6 m Feldbreite reicht die größte
+dokumentierte Aufteilung ohnehin nicht aus, um darunter zu bleiben –
+dort entstehen Scheiben von rund 1480 mm. Ob das zulässig ist, weiß nur
+der Hersteller.
+
+**Noch nicht gebaut** (steht in der Anleitung, wäre der nächste Schritt):
+das **Fenster FRF23** mit Griff als Teil der Wand und die Ausführung
+**mit Neigung**, bei der der Rahmen dem Dachgefälle folgt.

@@ -83,6 +83,7 @@
     velarisBreite: 'gleich',      // gleich | wunsch (Formularfeld Elementbreite)
     velarisAnzahl: '',            // '' = automatisch, sonst gewünschte Elementzahl
     velarisOffen: 0,              // Prozent, nur verschiebbar
+    rahmenTeilung: '',            // '' = automatisch, sonst Nummer der Aufteilung
     velarisFarbe: 'Anthrazit RAL 7016',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
@@ -237,6 +238,7 @@
      LAMELLEN nur Anthrazit oder Holzoptik zu, die Farbtafel nennt
      alle vier RAL-Töne. Hier stehen alle fünf zur Wahl; die Frage
      ist als Rückfrage notiert. */
+  var RAHMENW_IST = { senkrecht: 0, waagerecht: 0, teile: 1 };
   var VELARIS_IST = { elemente: 0, breite: 0, schienen: 0, licht: 0 };
   /* ---------- Velaris: bewegliche Teile merken ----------
      Die Animation baute bisher das GANZE Modell neu, 25-mal je
@@ -313,6 +315,40 @@
      ändert sich beim Umstellen nichts. Genau das war am 11.10.2026 zu
      sehen. Eine Prüfung vergleicht jetzt Feld und Code. */
   var VELARIS_FARBEN = { 'Holzoptik Golden OAK': 0x9c6a46 };
+
+  /* ---------- Rahmenwand FR23 / FRF23 ----------
+     Quelle: VD-Montageanleitung FR23/FRF23 und die Übersicht der
+     Festelemente (Betreiber, 11.10.2026). Es ist KEINE Blechwand,
+     sondern ein Aluminiumrahmen mit Glasfüllung – genau das zeigen die
+     Zeichnungen: Rahmenprofil, Sprossenprofil, Glasleiste.
+
+     Geteilt wird mit Sprossen. Belegt sind diese Aufteilungen:
+       1-teilig ohne Sprosse
+       2-teilig mit 1 waagerechter Sprosse
+       2-teilig mit 1 senkrechten Sprosse
+       3-teilig mit 2 senkrechten
+       4-teilig mit 3 senkrechten
+       4-teilig mit 1 senkrechten und 1 waagerechten
+       6-teilig mit 2 senkrechten und 1 waagerechten
+       8-teilig mit 3 senkrechten und 1 waagerechten
+
+     GESCHÄTZT sind alle Profilmaße: Die Anleitung zeigt die Profile,
+     bemaßt sie aber nicht. Rückfrage notiert. */
+  var RAHMENW = {
+    profil: 5.0,     // cm Ansichtsbreite des Rahmenprofils, GESCHÄTZT
+    sprosse: 4.0,    // cm Ansichtsbreite des Sprossenprofils, GESCHÄTZT
+    tiefe: 5.0,      // cm Bautiefe, GESCHÄTZT
+    glas: 0.8,       // cm Glasstärke, GESCHÄTZT
+    /* Richtwerte für die automatische Aufteilung. Höchstmaße einer
+       Scheibe stehen in keiner Unterlage – diese Werte sind GESCHÄTZT
+       und die wichtigste offene Frage an den Hersteller. */
+    scheibeBreitMax: 120,
+    scheibeHochMax: 160
+  };
+  /* Die acht belegten Aufteilungen: [senkrechte Sprossen, waagerechte]. */
+  var RAHMENW_TEILUNGEN = [
+    [0, 0], [0, 1], [1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1]
+  ];
 
   var PLANKE_MAX = 700;    // cm
   var ZWISCHEN = { breite: 4.0 };
@@ -2130,9 +2166,6 @@
       return m;
     }
 
-    function rahmenKante(laenge, achse, mitte, y, quer, versatz) {
-      return platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
-    }
 
     /* ---------- Türschwelle und Schiebetürführung ----------
        BELEGT: SG23-Profilschnitte des Herstellers (Betreiber,
@@ -2378,6 +2411,71 @@
           schiebeTeil(muschelgriff(achse, kante, yUnten, quer, spur,
                                    SG23.glasDicke), seite);
         }
+      }
+    }
+
+    /* ---------- Rahmenwand ----------
+       Rahmen aus vier Profilen, darin Glas, bei Bedarf durch Sprossen
+       geteilt. Welche der acht belegten Aufteilungen genommen wird,
+       rechnet das System aus dem lichten Maß aus; in den erweiterten
+       Einstellungen lässt sie sich wählen – wie bei den Schiebeanlagen. */
+    function rahmenwandTeilung(laengeCm, hoeheCm) {
+      var wunsch = parseInt(Z.rahmenTeilung, 10);
+      if (!isNaN(wunsch) && RAHMENW_TEILUNGEN[wunsch]) return RAHMENW_TEILUNGEN[wunsch];
+      /* Automatik: so wenige Sprossen wie möglich, aber keine Scheibe
+         breiter bzw. höher als der Richtwert. */
+      var innenB = laengeCm - 2 * RAHMENW.profil;
+      var innenH = hoeheCm - 2 * RAHMENW.profil;
+      var sv = 0, sh = 0;
+      while (sv < 3 && (innenB - sv * RAHMENW.sprosse) / (sv + 1) > RAHMENW.scheibeBreitMax) sv++;
+      if ((innenH - RAHMENW.sprosse) / 2 > 0 && innenH > RAHMENW.scheibeHochMax) sh = 1;
+      /* Nur belegte Kombinationen: 2 waagerechte oder 0 senkrechte mit
+         waagerechter gibt es nur als [0,1]. */
+      var gefunden = RAHMENW_TEILUNGEN.some(function (t) {
+        return t[0] === sv && t[1] === sh;
+      });
+      return gefunden ? [sv, sh] : [sv, 0];
+    }
+
+    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer) {
+      if (laenge <= 2 * RAHMENW.profil || hoehe <= 2 * RAHMENW.profil) return;
+      var P = RAHMENW.profil, S = RAHMENW.sprosse, T = RAHMENW.tiefe;
+      var t = rahmenwandTeilung(laenge, hoehe);
+      var sv = t[0], sh = t[1];
+      RAHMENW_IST = { senkrecht: sv, waagerecht: sh, teile: (sv + 1) * (sh + 1) };
+
+      /* Rahmen: links, rechts, oben, unten. */
+      platte(rahmen, P, hoehe, achse, mitte - laenge / 2 + P / 2,
+             yUnten + hoehe / 2, quer, 0, T);
+      platte(rahmen, P, hoehe, achse, mitte + laenge / 2 - P / 2,
+             yUnten + hoehe / 2, quer, 0, T);
+      platte(rahmen, laenge, P, achse, mitte, yUnten + P / 2, quer, 0, T);
+      platte(rahmen, laenge, P, achse, mitte, yUnten + hoehe - P / 2, quer, 0, T);
+
+      /* Lichte Fläche und die Felder darin. */
+      var innenB = laenge - 2 * P, innenH = hoehe - 2 * P;
+      var feldB = (innenB - sv * S) / (sv + 1);
+      var feldH = (innenH - sh * S) / (sh + 1);
+      if (feldB <= 0 || feldH <= 0) return;
+
+      var i, j, x, y;
+      for (i = 0; i <= sv; i++) {
+        for (j = 0; j <= sh; j++) {
+          x = mitte - laenge / 2 + P + i * (feldB + S) + feldB / 2;
+          y = yUnten + P + j * (feldH + S) + feldH / 2;
+          /* Das Glas sitzt in der Mitte der Bautiefe, nicht vorne auf –
+             sonst klebte die Scheibe außen am Rahmen. */
+          platte(mGlas, feldB, feldH, achse, x, y, quer, 0, RAHMENW.glas);
+        }
+      }
+      /* Sprossen zwischen den Feldern. */
+      for (i = 1; i <= sv; i++) {
+        x = mitte - laenge / 2 + P + i * feldB + (i - 0.5) * S;
+        platte(rahmen, S, innenH, achse, x, yUnten + P + innenH / 2, quer, 0, T);
+      }
+      for (j = 1; j <= sh; j++) {
+        y = yUnten + P + j * feldH + (j - 0.5) * S;
+        platte(rahmen, innenB, S, achse, mitte, y, quer, 0, T);
       }
     }
 
@@ -2870,19 +2968,20 @@
          Anfrage-Assistenten, und so wird es montiert. */
       if (hatRahmen && hatSchiebe) {
         var unten = hoch * 0.38;
-        platte(mPlanke, laenge, unten, achse, mitte, yUnten + unten / 2, quer, 0, 5);
-        rahmenKante(laenge, achse, mitte, yUnten + unten, quer, 0);
+        rahmenwand(laenge, unten, achse, mitte, yUnten, quer);
         schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer, seite, richtung);
       } else if (hatSchiebe) {
         schiebetuer(laenge, hoch, achse, mitte, yUnten, quer, seite, richtung);
       } else if (hatRahmen) {
-        platte(mPlanke, laenge, hoch, achse, mitte, yUnten + hoch / 2, quer, 0, 5);
-        rahmenKante(laenge, achse, mitte, yUnten + 2.5, quer, 0);
-        rahmenKante(laenge, achse, mitte, yUnten + hoch - 2.5, quer, 0);
+        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer);
       } else if (hatPlanken) {
         planken(laenge, hoch, achse, mitte, yUnten, quer);
       }
       // Plankenwand zusätzlich zu Rahmen/Schiebe: als unteres Drittel davor
+      if (hatRahmen && hatSchiebe) {
+        /* Rahmenwand unten, Schiebetür darüber – das untere Band ist
+           ebenfalls ein Rahmenelement, kein Blech. */
+      }
       if (hatPlanken && (hatRahmen || hatSchiebe)) {
         planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer, false);
       }
@@ -4846,6 +4945,18 @@
     sel.disabled = moeglich.length < 2;
   }
 
+  /* Was wirklich gebaut wurde – aus dem fertigen Modell gelesen. */
+  function rahmenStandZeigen() {
+    var e = document.getElementById('k3dRahmenStand');
+    if (!e) return;
+    if (!erwIrgendwo('Rahmenwand')) { e.textContent = ''; return; }
+    var sv = RAHMENW_IST.senkrecht, sh = RAHMENW_IST.waagerecht;
+    e.textContent = 'Gebaut: ' + RAHMENW_IST.teile + '-teilig' +
+      (sv + sh === 0 ? ' ohne Sprosse'
+        : ' mit ' + (sv ? sv + ' senkrechten' : '') +
+          (sv && sh ? ' und ' : '') + (sh ? sh + ' waagerechten' : '') + ' Sprossen') + '.';
+  }
+
   function velarisStandZeigen() {
     velarisFeldFuellen();
     var hin = document.getElementById('k3dKlickHinweis');
@@ -5641,6 +5752,7 @@
       /* Die Farbe der Planken fragen wir nur, wenn es Planken gibt. */
       case 'planken':        return erwIrgendwo('Plankenwand');
       case 'velaris':        return erwIrgendwo('Velaris');
+      case 'rahmenwand':     return erwIrgendwo('Rahmenwand');
       // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
       // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
       // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
@@ -5937,6 +6049,14 @@
          rot hervorgehoben: „Ansicht der Elemente von Innen gesehen!"
          Ohne diesen Satz kann dieselbe Angabe spiegelverkehrt gelesen
          werden – und das merkt niemand vor der Montage. */
+      if (erwIrgendwo('Rahmenwand')) {
+        teile.push('Rahmenwand: Festelement FR23 (Rahmenprofil, Glasleiste), ' +
+                   RAHMENW_IST.teile + '-teilig' +
+                   (RAHMENW_IST.senkrecht ? ', ' + RAHMENW_IST.senkrecht + ' senkrechte' : '') +
+                   (RAHMENW_IST.waagerecht ? ', ' + RAHMENW_IST.waagerecht + ' waagerechte' : '') +
+                   (RAHMENW_IST.senkrecht + RAHMENW_IST.waagerecht ? ' Sprosse(n)' : ' ohne Sprosse') +
+                   ' – Aufteilung nach Aufmaß');
+      }
       if (erwIrgendwo('Velaris')) {
         teile.push('Velaris ' + VELARIS_IST.art + ': ' +
                    (VELARIS_IST.elemente || '–') + ' Element(e) à ca. ' +
@@ -6077,6 +6197,7 @@
     Z.sonneAus = zahl('k3dSonneAus', Z.sonneAus);
     Z.plankenFuge = zahl('k3dPlankenFuge', Z.plankenFuge);
     Z.plankenAnteil = zahl('k3dPlankenAnteil', Z.plankenAnteil);
+    Z.rahmenTeilung = wert('k3dRahmenTeilung') || '';
     Z.sg23Glas = wert('k3dSg23Glas') || Z.sg23Glas;
     Z.sg23Schloss = wert('k3dSg23Schloss') || Z.sg23Schloss;
     Z.velarisWinkelOben = zahl('k3dVelarisWinkelOben', Z.velarisWinkelOben);
@@ -6297,6 +6418,7 @@
     sg23FeldFuellen();
     plankenStandZeigen();
     velarisStandZeigen();
+    rahmenStandZeigen();
     textAktualisieren();
     folgtAktualisieren();
     gebremstHolen();
@@ -6500,7 +6622,7 @@
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
-   'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
+   'k3dSg23Glas', 'k3dSg23Schloss', 'k3dRahmenTeilung', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
