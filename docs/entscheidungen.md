@@ -4794,3 +4794,11 @@ Systeme an.
 
 Die PDF selbst bleibt außerhalb des Repos (Datenbankherstellerrecht); geprüft
 wurde im Scratchpad.
+
+**Entschieden am 11.10.2026:** Zum ersten Widerspruch – „7m war schon richtig,
+tiefe wie ich gesagt hab" (Betreiber). Es bleibt bei **7050 mm** Höchsttiefe
+für TDS; die `LIEFERBAR=nein`-Spalte der PDF ist an dieser Stelle überholt. Der
+Hinweis steht jetzt auch in `js/masstabelle.js` an der Zahl selbst, damit
+niemand sie später „nach der Tabelle korrigiert". Offen bleibt der zweite
+Punkt: Pfostenachse 55 mm hinter der Vorderkante (PDF) gegen mittig unter der
+Rinne, 93 mm (Angabe vom 10.10.2026).

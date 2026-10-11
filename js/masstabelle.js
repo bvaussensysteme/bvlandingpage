@@ -29,6 +29,14 @@
  *     (Betreiber, 11.10.2026). Die 7000 waren der Punkt, ab dem ein
  *     Pfosten DAZUKOMMT – nicht das Höchstmaß. Zwei verschiedene Dinge,
  *     die in einem Wert steckten; deshalb stehen sie jetzt getrennt.
+ *
+ *     ACHTUNG, NICHT „KORRIGIEREN": Die Preislisten-PDF führt die Tiefe
+ *     7050 bei TDS in allen 30 Breiten als LIEFERBAR=nein. Der Betreiber
+ *     hat zweimal das Gegenteil gesagt – am 11.10.2026 zuerst
+ *     („bei tds is die maximale tiefe 7050mm") und nach ausdrücklicher
+ *     Rückfrage mit genau diesem Befund noch einmal: „7m war schon
+ *     richtig, tiefe wie ich gesagt hab". Es gilt die Angabe des
+ *     Betreibers; die PDF-Spalte ist an dieser Stelle überholt.
  *   · Innenkern nur bei Tiefe 4600
  * Deshalb stehen hier nur Breite → [Sparren, Stützfüße] und die
  * Liste der lieferbaren Tiefen. scripts/pruefe-masstabelle.js rechnet
