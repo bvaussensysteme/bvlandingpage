@@ -63,6 +63,7 @@
     tiefe: 3000,
     hoehe: 2300,
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
+    glasstaerke: 8,           // mm, nur bei Glas – 8 oder 10 (VSG)
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -318,6 +319,11 @@
   var EINDECKUNGEN = {
     'VSG klar':             { art: 'glas', farbe: 0xd8ecf2, deckkraft: 0.34, rauheit: 0.04 },
     'VSG opal':             { art: 'glas', farbe: 0xeff3f5, deckkraft: 0.72, rauheit: 0.35 },
+    /* Getöntes VSG, „graphit" – vom Betreiber nachgereicht (11.10.2026):
+       „gls gibts auch in getönt also graphit". Farbe und Deckkraft sind
+       GESCHÄTZT, angelehnt an das graphitfarbene Polycarbonat, aber
+       klarer (Glas streut nicht). Ein Lichtwert liegt nicht vor. */
+    'VSG graphit':          { art: 'glas', farbe: 0x5b6165, deckkraft: 0.78, rauheit: 0.06 },
     'Polycarbonat klar':    { art: 'steg', farbe: 0xdfe9ea, deckkraft: 0.42, rauheit: 0.3 },
     'Polycarbonat opal':    { art: 'steg', farbe: 0xeef0ec, deckkraft: 0.84, rauheit: 0.55 },
     'Polycarbonat graphit': { art: 'steg', farbe: 0x4e5356, deckkraft: 0.9,  rauheit: 0.42 },
@@ -433,6 +439,11 @@
   var VORGABE_VERGLASUNG = {
     'VSG klar':             'VSG-Glas klar',
     'VSG opal':             'VSG-Glas Opal (milchig)',
+    /* GEGENZULESEN: Ob der Anfrage-Assistent diese Option schon kennt, ist
+       offen – getöntes Glas kam erst am 11.10.2026 dazu. Kennt er sie
+       nicht, bleibt das Feld dort leer und die Angabe steht nur im
+       Freitext der Anfrage. */
+    'VSG graphit':          'VSG-Glas Graphit (getönt)',
     'Polycarbonat klar':    'Polycarbonat klar',
     'Polycarbonat opal':    'Polycarbonat Opal (milchig)',
     'Polycarbonat graphit': 'Polycarbonat Graphit',
@@ -1307,11 +1318,17 @@
     leeren(masseGruppe);
     if (!Z.masseZeigen) return;
     var V = THREE.Vector3;
-    var B = Z.breite / 10, T = Z.tiefe / 10, H = Z.hoehe / 10;
+    var B = Z.breite / 10, H = Z.hoehe / 10;
+    /* Freistehend zaehlt der Statiktraeger zur Tiefe (siehe
+       bauenTerrasseGeschaetzt). Die Masslinie beginnt deshalb an seiner
+       Rueckseite bei negativem z, nicht an der Dachkante. */
+    var hintenZ = (Z.aufbau === 'Freistehend' && !istCarport() && !istPergola())
+      ? -11.7 : 0;
+    var T = hintenZ + Z.tiefe / 10;
     var vorn = T + 30;
     masslinie(new V(-B / 2, 2, vorn), new V(B / 2, 2, vorn), Z.breite + ' mm');
     var seite = B / 2 + 30;
-    masslinie(new V(seite, 2, 0), new V(seite, 2, T), Z.tiefe + ' mm');
+    masslinie(new V(seite, 2, hintenZ), new V(seite, 2, T), Z.tiefe + ' mm');
     masslinie(new V(-B / 2 - 16, 0, T + 6), new V(-B / 2 - 16, H, T + 6), Z.hoehe + ' mm');
   }
 
@@ -1343,12 +1360,15 @@
     /* Gezeichnet wird das KUNDENMASS – gebaut wird danach. Aus dem
        Rasterfeld kommen nur die Stückzahlen (Sparren, Pfosten) und die
        Statik, weil danach abgerechnet wird. Die beiden nicht verwechseln. */
-    var B = Z.breite / 10, T = Z.tiefe / 10;                 // mm -> cm
     var pf = m.pfosten.breite / 10;                          // 110 mm, BELEGT
     var spB = g.sparren.breite / 10, spH = g.sparren.hoehe / 10;   // GESCHÄTZT
     var riH = g.rinne.hoehe / 10, riT = g.rinne.tiefe / 10;        // GESCHÄTZT
     var wpH = g.wandprofil.hoehe / 10, wpA = g.wandprofil.ausladung / 10;
     var stH = m.statiktraeger.hoehe / 10, stB = m.statiktraeger.breite / 10;
+    /* Freistehend zaehlt der Statiktraeger zur bestellten Tiefe mit, bei
+       Wandmontage nicht – dieselbe Regel wie in bauenTerrasseGeschaetzt. */
+    var B = Z.breite / 10;                                   // mm -> cm
+    var T = Z.tiefe / 10 - (e.freistehend ? stB : 0);
 
     // BELEGT (Montageanleitung S. 25): Pfostenachse 55 mm hinter der Vorderkante
     var zPfosten = T - e.pfostenachseVonVorderkante / 10;
@@ -1379,10 +1399,13 @@
     /* Hinten: Wandprofil bei Wandmontage, sonst Statikträger plus Blende.
        BELEGT (technische-daten.md 11): freistehend ersetzt das Wandprofil
        durch einen Statikträger über die volle Breite samt Blende. */
+    /* Das Wandprofil bleibt in BEIDEN Fällen – freistehend wird es an den
+       Statikträger geschraubt statt an die Mauer, nicht durch ihn ersetzt
+       (Betreiber 11.10.2026). Der Träger steht hochkant an der Stelle der
+       Wand, also hinter dem Wandprofil bei negativem z. */
+    balken(B, wpH, wpA, 0, hHinten + wpH / 2, wpA / 2, mAlu);
     if (e.freistehend) {
-      balken(B, stH, stB, 0, hHinten + stH / 2, stB / 2, mAlu);
-    } else {
-      balken(B, wpH, wpA, 0, hHinten + wpH / 2, wpA / 2, mAlu);
+      balken(B, stH, stB, 0, hHinten + wpH - stH / 2, -stB / 2, mAlu);
     }
 
     /* Sparren: genau e.sparren Stück. Randsparren außen bündig – ANNAHME
@@ -1635,7 +1658,13 @@
          für Stangen raus"). */
       var zVorneK = Math.min(mitte + laenge / 2,
                              dachVorne != null ? dachVorne : mitte + laenge / 2);
-      var zHintenK = (Z.aufbau === 'Freistehend') ? PROFIL : 0;
+      /* Hinten endet der Keil jetzt in BEIDEN Fällen bündig bei z = 0.
+         Die frühere Ausnahme („freistehend bis an den hinteren Pfosten",
+         zHintenK = PROFIL) stammt aus der Zeit, als der hintere Pfosten
+         noch unter dem Dach stand. Seit der Statikträger die Wand ersetzt,
+         steht er dahinter – ein Versatz nach vorne hinterließe genau die
+         Lücke, die der Betreiber an der Wandseite schon beanstandet hat. */
+      var zHintenK = 0;
       var keilLaenge = zVorneK - zHintenK;
       var keilMitte = (zVorneK + zHintenK) / 2;
       var hatKeil = liste.indexOf('Keil') > -1 && keilErlaubt() &&
@@ -2472,7 +2501,19 @@
     var sky = Z.produkt === 'Flachdach SkyView';
     var PF = 11;                                   // Pfosten 110 mm, BELEGT
     var neig = (sky ? 2 : Z.neigung) * Math.PI / 180;
-    var B = Z.breite / 10, T = Z.tiefe / 10;
+    var frei = Z.aufbau === 'Freistehend';
+    var TR_H = 18.9, TR_T = 11.7;              // Statikträger, BELEGT (Maßtabelle)
+
+    /* TIEFENMASS: „bei freistehend das tiefe maß is immer inkl.
+       statikträger, bei wandmontage ja nicht" (Betreiber, 11.10.2026).
+
+       An der Wand misst die Tiefe ab der Mauer – das Wandprofil liegt
+       innerhalb. Freistehend tritt der Träger an die Stelle der Mauer und
+       zählt MIT. Das Dach wird also um die Trägertiefe kürzer, statt dass
+       der Träger hinten angebaut wird; sonst stünde die Anlage 117 mm
+       tiefer da als bestellt. Der Nullpunkt bleibt die Rückseite des
+       Trägers bzw. die Mauerflucht. */
+    var B = Z.breite / 10, T = Z.tiefe / 10 - (frei ? TR_T : 0);
     var hVorn = Z.hoehe / 10;
 
     /* ---------- Statikträger unter der Rinne ----------
@@ -2529,7 +2570,6 @@
        nach oben. Der Träger nimmt dem PFOSTEN seine Höhe weg. */
     var hRinne = hVorn;
     var hHinten = hRinne + Math.tan(neig) * T;
-    var frei = Z.aufbau === 'Freistehend';
     var mAlu = alu();
     /* TDS bekommt die echten Profile aus den Querschnittszeichnungen des
        Betreibers. SkyView ist ein anderes System – dafür liegt keine
@@ -2582,9 +2622,23 @@
        darunter die Pfosten. Das Wandprofil hängt an der Vorderseite des
        Trägers – es verschwindet nicht, es bekommt nur einen anderen
        Halt. */
-    var zHinten = frei ? PF / 2 : 4.5;
-    var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
-    var hPfostenHinten = frei ? Math.max(100, ukHinten - 18.9) : hHinten;
+    /* KORREKTUR 11.10.2026. Vorher lag der Träger WAAGERECHT UNTER den
+       Sparren, das Wandprofil davor. Betreiber am Bild: „der statikträger
+       is immer hochkant nicht wagrecht wie hier und er ist nicht unter den
+       sparren sondern hinter den sparren … quasi du machst es 1:1 als
+       wäre der statikträger die wand, wandprofil ist am statikträger
+       festgeschraubt".
+
+       Also: Alles vor dem Wandprofil bleibt Zeile für Zeile so wie bei
+       Wandmontage. Der Träger steht hochkant GENAU DORT, WO SONST DIE
+       MAUER IST – hinter dem Wandprofil, also bei negativem z. Das
+       Wandprofil wird nicht ersetzt, es bekommt nur eine andere
+       Schraubfläche. */
+    var zHinten = 4.5;                          // Wandprofil – frei wie an der Wand
+    var wpMitte = hHinten + (sky ? 10 : 7);     // Höhenmitte des Wandprofils
+    var zTraeger = -TR_T / 2;                   // steht an der Stelle der Wand
+    var trOk = wpMitte + (sky ? 20 : 14) / 2;   // Oberkante bündig mit dem Wandprofil
+    var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 
     /* Pfostenzahl – JE REIHE getrennt.
 
@@ -2611,7 +2665,7 @@
     });
     if (frei) {
       verteilen(pfHinten, B, PF / 2).forEach(function (x) {
-        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zHinten, mAlu);
+        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zTraeger, mAlu);
       });
     }
 
@@ -2631,15 +2685,12 @@
          Regel. */
       balken(B, traegerH, traegerT, 0, hPfosten + traegerH / 2, zPf, mAlu);
     }
-    var wpH = sky ? 20 : 14, wpT = frei ? 12 : 9;
+    /* Wandprofil – IMMER dasselbe Teil an derselben Stelle. Freistehend
+       sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
+    var wpH = sky ? 20 : 14, wpT = 9;
+    balken(B, wpH, wpT, 0, wpMitte, zHinten, mAlu);
     if (frei) {
-      /* Statikträger über die volle Breite, Oberkante an der
-         Sparrenunterkante – dieselbe Lage wie vorne mit Vorsprung. */
-      balken(B, 18.9, 11.7, 0, ukHinten - 18.9 / 2, zHinten, mAlu);
-      /* Wandprofil an der Vorderseite des Trägers, auf gleicher Höhe. */
-      balken(B, wpH, wpT, 0, ukHinten - 18.9 / 2, zHinten + (11.7 + wpT) / 2, mAlu);
-    } else {
-      balken(B, wpH, wpT, 0, hHinten + (sky ? 10 : 7), zHinten, mAlu);
+      balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTraeger, mAlu);
     }
 
     /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus
@@ -2698,7 +2749,9 @@
     /* Die Eindeckung liegt AUF dem schmalen Steg des Sparrens – bei TDS
        also 120 mm über dessen Unterkante. VSG 8 mm ist BELEGT
        (technische-daten.md); Polycarbonat ist mit 16 mm dicker. */
-    var glasDicke = istPolycarbonat() ? 1.6 : 0.8;
+    /* Scheibendicke in cm. Polycarbonat ist die 16-mm-Stegplatte; Glas
+       gibt es als VSG 8 und VSG 10 mm (Betreiber, 11.10.2026). */
+    var glasDicke = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var mF = dachfuellung();
     var yDach = ukMitte + spH + glasDicke / 2;
     for (i = 0; i < xs.length - 1; i++) {
@@ -3491,6 +3544,9 @@
       // dort steckt die Montageart in der Ausführung
       case 'aufbau':         return !istCarport();
       case 'glas':           return (!istCarport() && !istPergola()) || istCarportTds();
+      // Glasstärke nur fragen, wenn auch Glas gewählt ist
+      case 'glasstaerke':    return !istPolycarbonat() &&
+                                    ((!istCarport() && !istPergola()) || istCarportTds());
       case 'cp-flachdach':   return istCarport() && !istCarportTds() &&
                                     Z.cpTyp !== 'Flachdach Flat Line';
       case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
@@ -3689,7 +3745,7 @@
            Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
            was wie eine Alternative zum Blech klang. */
         teile.push(istCarportTds()
-          ? 'Eindeckung: ' + Z.eindeckung
+          ? 'Eindeckung: ' + eindeckungFach()
           : 'Eindeckung: Trapezblech' +
             (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
       }
@@ -3711,7 +3767,7 @@
             (Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100)) + ' mm');
         }
       }
-      teile.push('Eindeckung: ' + Z.eindeckung);
+      teile.push('Eindeckung: ' + eindeckungFach());
       teile.push('Farbe: ' + Z.farbe);
       /* ALLE drei Seiten nennen, auch die offenen. Vorher standen nur
          die geschlossenen in der Anfrage – ein Kunde hatte nur links
@@ -3808,6 +3864,7 @@
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
+    Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
     var ledEl = document.getElementById('k3dLed');
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
@@ -4053,9 +4110,19 @@
     return (istPergola() && Z.farbe === 'Reinweiß') ? 'Creme-Weiß' : Z.farbe;
   }
 
+  /* Fachbezeichnung für die Anfrage-Mail – dort muss die Glasstärke
+     mitstehen, im Bedienfeld interessiert sie den Kunden kaum.
+     („mach es schlau aber einfach, wir müssen die anfrage die per mail
+     kommt natürlich in fachbegriffen etc haben") */
+  function eindeckungFach() {
+    if (istPolycarbonat()) return Z.eindeckung + ', Sechsfachstegplatte 16 mm';
+    return Z.eindeckung.replace('VSG ', 'VSG ' + Z.glasstaerke + ' mm ');
+  }
+
   function eindeckungKurz() {
     if (Z.eindeckung === 'VSG klar') return 'Glas klar';
     if (Z.eindeckung === 'VSG opal') return 'Glas opal';
+    if (Z.eindeckung === 'VSG graphit') return 'Glas graphit';
     return 'Polycarbonat';
   }
 
@@ -4629,11 +4696,19 @@
         v.carportvariante = Z.cpVariante;
         if (Z.cpVariante === 'Carport mit Überstand') v.ueberstand = String(Z.ueberstand);
         if (istCarportTds()) v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+        /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
+           (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
+           und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
+        if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
         else v.dach = Z.cpDach;
       } else {
         v.produkt = Z.produkt;
         v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
         v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+        /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
+           (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
+           und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
+        if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
         if (Z.markise !== 'Ohne') v.markise = Z.markise;
         /* Roher Code, nicht der Fliesstext: Der Assistent markiert damit
            die richtige Kachel. Den lesbaren Satz baut er selbst aus

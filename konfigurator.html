@@ -673,8 +673,9 @@
           <span class="k3d-label" id="k3dEindeckungLabel">Dacheindeckung</span>
           <input type="hidden" id="k3dEindeckung" value="VSG klar">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
-            <button type="button" data-wert="VSG klar">Glas klar<small>VSG 8 mm, durchsichtig</small></button>
-            <button type="button" data-wert="VSG opal">Glas opal<small>VSG 8 mm, milchig</small></button>
+            <button type="button" data-wert="VSG klar">Glas klar<small>durchsichtig</small></button>
+            <button type="button" data-wert="VSG opal">Glas opal<small>milchig, blickdicht</small></button>
+            <button type="button" data-wert="VSG graphit">Glas graphit<small>getönt, viel Schatten</small></button>
             <button type="button" data-wert="Polycarbonat klar">Polycarbonat klar<small>Stegplatte, ca. 76 % Licht</small></button>
             <button type="button" data-wert="Polycarbonat opal">Polycarbonat opal<small>milchig, ca. 48 % Licht</small></button>
             <button type="button" data-wert="Polycarbonat graphit">Polycarbonat graphit<small>dunkel getönt, viel Schatten</small></button>
@@ -683,6 +684,18 @@
           <p class="k3d-mini">Polycarbonat ist eine Sechsfachstegplatte, 16 mm.
             Die Lichtwerte stammen aus Händler-Datenblättern und sind Richtwerte;
             für Graphit liegt uns noch keine Angabe vor.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="glasstaerke">
+          <span class="k3d-label" id="k3dGlasstaerkeLabel">Glasstärke</span>
+          <input type="hidden" id="k3dGlasstaerke" value="8">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dGlasstaerke" role="group" aria-labelledby="k3dGlasstaerkeLabel">
+            <button type="button" data-wert="8">8 mm<small>Standard</small></button>
+            <button type="button" data-wert="10">10 mm<small>dickeres Sicherheitsglas</small></button>
+          </div>
+          <p class="k3d-mini">Verbund-Sicherheitsglas (VSG). Die Zeichnung rechnet
+            bei beiden Stärken mit dem Sparrenabstand für 8 mm – das ist die
+            sichere Annahme. Das endgültige Raster legt das Aufmaß fest.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="cp-flachdach" hidden>
@@ -1112,7 +1125,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261012k" defer></script>
+<script src="js/konfigurator-3d.js?v=20261012n" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

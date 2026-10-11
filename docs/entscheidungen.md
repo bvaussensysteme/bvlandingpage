@@ -1326,3 +1326,112 @@ unterscheiden: „9 Sparren und 4 Pfosten vorne und 3 hinten".
 Tiefe stehen vorne mehr Pfosten als hinten – bitte am Modell prüfen, ob
 das der TDS-Praxis entspricht. Prüfung: `node scripts/pruefe-masstabelle.js`
 (43 Prüfungen, Gegenprobe 43/43).
+
+## 2026-10-11 – Statikträger steht an der Stelle der Wand, nicht unter den Sparren
+
+**Anlass:** Betreiber am Bildschirmfoto eines freistehenden TDS: „der
+statikträger is immer hochkant nicht wagrecht wie hier und er ist nicht
+unter den sparren sondern hinter den sparren" und dann die Auflösung:
+„quasi du machst es 1:1 als wäre der statikträger die wand, wandprofil
+ist am statikträger festgeschraubt … bei freistehend".
+
+**Was falsch war:** Ich hatte den Träger waagerecht unter die Sparren
+gelegt und das Wandprofil davorgehängt – an der Rückseite entstand damit
+eine dreilagige Konstruktion, die es so nicht gibt. Die Vorlage dafür war
+meine eigene Auslegung des früheren Satzes „das wandprofil kommt anstatt
+an die wand an den statikträger": Ich hatte „an den Träger" als „unter den
+Träger gehängt" gelesen, gemeint war „auf den Träger geschraubt".
+
+**Was jetzt gilt:** Freistehend ändert an allem vor dem Wandprofil nichts.
+Das Wandprofil sitzt auf derselben Höhe, in derselben Tiefe (90 mm) und an
+derselben Stelle wie bei Wandmontage. Dahinter – dort, wo sonst die Mauer
+steht, also bei negativem z – steht der Statikträger hochkant,
+189 mm hoch und 117 mm tief, mit der Oberkante bündig zum Wandprofil. Die
+hinteren Pfosten stehen unter dem Träger, nicht mehr unter dem Dach.
+
+**Folge für die Durchgangshöhe:** Hinten liegt die Unterkante des Trägers
+49 mm unter der Oberkante des Wandprofils. Die früher genannten 189 mm
+betrafen den VORDEREN Träger beim Dachvorsprung – dort gilt sie weiter.
+
+**Mitgezogen:** Der Keil endet hinten jetzt in beiden Fällen bündig bei
+z = 0. Die Ausnahme „freistehend bis an den hinteren Pfosten" stammte aus
+der Zeit, als dieser Pfosten noch unter dem Dach stand.
+
+**Auch im Datenpfad korrigiert:** Dort ersetzte `e.freistehend` das
+Wandprofil durch den Träger. Das Profil bleibt jetzt, der Träger kommt
+dahinter. Der Pfad ist zurzeit inaktiv (die Schnittstelle antwortet 503),
+würde sonst aber denselben Fehler zeigen.
+
+**Gegenzulesen:** Ob die Oberkante des Trägers wirklich bündig mit der
+Oberkante des Wandprofils liegt oder das Profil mittig auf dem Träger
+sitzt – beides ist schraubbar, ich habe bündig gewählt. Prüfung:
+`node scripts/pruefe-masstabelle.js` (48 Prüfungen, Gegenprobe 48/48).
+
+## 2026-10-11 – Freistehend zählt der Statikträger zur Tiefe
+
+**Anlass:** „und bei freistehend das tiefe maß is immer inkl.
+statikträger, bei wandmontage ja nicht" (Betreiber, 11.10.2026).
+
+**Was falsch war:** Nachdem der Träger an die Stelle der Wand gerückt war,
+hing er HINTER dem bisherigen Dach – die Anlage wurde dadurch 117 mm
+tiefer als bestellt. Bei 4000 mm Bestellmaß standen 4117 mm im Bild.
+
+**Was jetzt gilt:** An der Wand misst die Tiefe ab der Mauerflucht, das
+Wandprofil liegt innerhalb. Freistehend tritt der Träger an die Stelle der
+Mauer und zählt mit – das Dach wird also um 117 mm kürzer, statt dass der
+Träger hinten angebaut wird. Der Nullpunkt bleibt die Rückseite des
+Trägers bzw. die Mauerflucht. Die Maßlinie im Bild beginnt freistehend
+entsprechend an der Trägerrückseite, nicht an der Dachkante.
+
+**Warum das zählt:** Das Tiefenmaß ist das Bestellmaß. Würde die Zeichnung
+117 mm mehr zeigen als die Anfrage-Mail nennt, stünde beim Aufmaß ein
+anderes Dach als im Konfigurator – und zwar zu Lasten der Marge, weil die
+Mehrtiefe niemand berechnet hat.
+
+**Auch im Datenpfad:** dieselbe Regel, dort mit dem Trägermaß aus der
+Matrix statt der festen 117 mm.
+
+**Gegenzulesen:** Ob die Rinne bei freistehend wirklich 117 mm weiter
+hinten steht als bei gleicher Bestelltiefe an der Wand – das ist die
+sichtbare Folge und sollte im Bild stimmen. Prüfung:
+`node scripts/pruefe-masstabelle.js` (52 Prüfungen, Gegenprobe 52/52);
+eine davon rechnet Dach + Träger zurück auf das Bestellmaß.
+
+## 2026-10-11 – VSG 10 mm und getöntes Glas im 3D-Konfigurator
+
+**Anlass:** „bei vsg glas hast du vergessen die 10mm variante
+hinzuzufügen und gls gibts auch in getönt also graphit" (Betreiber).
+
+**Was falsch war:** Der 3D-Konfigurator kannte nur VSG klar und VSG opal
+und rechnete fest mit 8 mm Scheibendicke. Der **Anfrage-Assistent fragt
+die Glasstärke längst ab** (js/anfrage-wizard.js, Schritt „verglasung",
+Werte „8 mm" / „10 mm") – der 3D-Konfigurator hat dieses Feld nie
+übergeben. Wer dort konfigurierte, landete im Assistenten vor einer
+leeren Pflichtauswahl.
+
+**Was jetzt gilt:** Eigenes Feld „Glasstärke" (8 / 10 mm), das nur bei
+Glas erscheint. Die Scheibe im Modell wird entsprechend dick. Dazu die
+dritte Glasvariante „Glas graphit". Die Anfrage-Mail bekommt die
+Fachbezeichnung mit Stärke, etwa „VSG 10 mm klar", und zusätzlich das
+Feld `glasstaerke`, das der Assistent erwartet.
+
+**Im Assistenten nachgezogen:** „VSG-Glas Graphit (getönt)" fehlte dort
+als Auswahl. Gefunden hat das `scripts/pruefe-konfigurator.js` – die
+Prüfung vergleicht die Vorgabewerte des 3D-Konfigurators gegen die
+Auswahlmöglichkeiten des Assistenten und meldete: „ist im
+Anfrage-Assistenten keine Auswahlmöglichkeit". Genau dafür ist sie da.
+
+**Bewusst NICHT geändert – wichtig:** Der Sparrenabstand bleibt auch bei
+10 mm das Band für **VSG 8 mm** (680–770 mm). Für 10 mm liegt keine
+Herstellerangabe vor. Dickeres Glas trägt weiter, also wären WENIGER
+Sparren möglich – die Zeichnung zeigt damit eher zu viele. Das ist die
+sichere Richtung: zu wenige Sparren wären Glasbruch, zu viele nur ein zu
+hoher Preis in der Anfrage. Steht als Hinweis unter dem Feld.
+
+**Offen beim Betreiber:**
+1. Sparrenabstand für VSG 10 mm bei TDS erfragen – sonst rechnen wir
+   dauerhaft zu teuer.
+2. Gibt es getöntes Glas in beiden Stärken, und gibt es VSG 10 auch opal?
+   Zurzeit sind alle sechs Kombinationen wählbar – ANNAHME.
+3. Lichtdurchlässigkeit von getöntem VSG; Farbe und Deckkraft im Modell
+   sind GESCHÄTZT, angelehnt an graphitfarbenes Polycarbonat.
