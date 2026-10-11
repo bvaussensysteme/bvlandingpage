@@ -2748,3 +2748,31 @@ nicht darauf, es läuft darin. Sie ist flach.
 
 **GESCHÄTZT bleiben** die Höhe der Aufhängung (30 mm) und die Höhe der
 Bodenschiene (10 mm) – beides ist in der Zeichnung nicht bemaßt.
+
+## 2026-10-11 – Velaris: die Aufteilungsbilder gelesen
+
+**Anlass:** Die Bilder „Schiebbar" und „Feststehend" von der Produktseite,
+dazu der Betreiber: „5 elemente möglich nur bei feststehend, bei schiebbar
+nur so".
+
+**1. Verschiebbar endet bei vier Elementen.** Es gibt genau sechs
+Kombinationen: 1 Schiene/1 Element, 1/2, 2 Schienen/2, 2/3, 2/4 und
+3 Schienen/3. **Fünf Elemente nur feststehend.** Verschiebbar reicht
+damit bis 4 × 1500 = 6000 mm Anlagenbreite.
+
+Wer eine breitere Seite verschiebbar wählt, bekommt sie **feststehend**
+gebaut und liest den Grund unter dem Regler. Das Modell baut nichts, was
+es nicht gibt, aber es verschweigt auch nicht, dass es den Wunsch
+geändert hat – und in der Anfrage steht die GEBAUTE Art, nicht die
+gewünschte.
+
+**2. Feststehend teilen sich zwei Elemente einen Pfosten.** In der
+Zeichnung steht zwischen zwei Feldern ein Profil, nicht zwei
+nebeneinander. Vorher zeichnete das Modell beide Rahmen voll – an jeder
+Stoßstelle doppelt so breit wie richtig. Verschiebbar hat jedes Element
+seinen eigenen Rahmen; dort stimmte es.
+
+**3. Elementbreite: gleichmäßig oder Wunsch.** Das Bestellformular hat
+dieses Feld, der Konfigurator jetzt auch. Bei Wunsch-Breite zeigt das
+Modell weiter die gleichmäßige Aufteilung – in der Anfrage steht dann
+ausdrücklich, dass die Einzelbreiten beim Aufmaß festgelegt werden.

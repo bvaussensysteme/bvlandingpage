@@ -478,6 +478,33 @@ pruefe('Schienenabstand steht so im Code',
 pruefe('Element haengt im Kopfprofil',
        new RegExp(q || 'var hEl = hoehe - VELARIS\\.bodenSchiene - VELARIS\\.aufhaengung').test(js), '');
 
+(function () {
+  /* Verschiebbar gibt es nur in den sechs Kombinationen des Formulars -
+     hoechstens VIER Elemente. Fuenf nur feststehend. Nachgerechnet ueber
+     alle Breiten: Wo mehr als vier Elemente noetig sind, darf nicht
+     verschiebbar gebaut werden. */
+  var MAX = 1500, SCHIEB = 4, falsch = 0, umgestellt = 0;
+  for (var mm = 500; mm <= 7000; mm += 10) {
+    var n = Math.max(1, Math.ceil(mm / MAX));
+    var schiebbar = gegen ? true : n <= SCHIEB;
+    if (!schiebbar) umgestellt++;
+    if (schiebbar && n > SCHIEB) falsch++;
+    if (n > 5) falsch++;                 // mehr als fuenf gibt es nie
+  }
+  pruefe('Verschiebbar hoechstens vier Elemente', falsch === 0,
+         falsch + ' Faelle falsch, ' + umgestellt + ' Breiten feststehend');
+})();
+pruefe('Grenzen stehen so im Code',
+       new RegExp(q || 'festMax: 5, schiebbarMax: 4').test(js) &&
+       new RegExp(q || 'function velarisSchiebbar').test(js), '');
+
+pruefe('Feststehend teilen sich den Pfosten',
+       new RegExp(q || "if \\(erstes \\|\\| Z\\.velarisArt === 'verschiebbar'\\)").test(js), '');
+
+pruefe('Elementbreite gleich oder Wunsch',
+       /id="k3dVelarisBreite"/.test(html) &&
+       new RegExp(q || "Z\\.velarisBreite === 'wunsch'").test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

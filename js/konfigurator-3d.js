@@ -75,6 +75,7 @@
     velarisWinkel: 45,            // Lamellenstellung des Velaris, 0 = zu
     velarisArt: 'feststehend',    // feststehend | verschiebbar
     velarisTeil: 'alles',         // alles | oben | unten
+    velarisBreite: 'gleich',      // gleich | wunsch (Formularfeld Elementbreite)
     velarisAnteil: 50,            // Prozent, nur bei oben/unten
     velarisFarbe: 'Wie das Gestell',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
@@ -197,6 +198,7 @@
      nicht und ist an den Bildern abgegriffen. Rückfrage notiert. */
   var VELARIS = {
     elMin: 500, elMax: 1500, anlageMax: 7000,   // mm, BELEGT
+    festMax: 5, schiebbarMax: 4,                // Elemente, BELEGT
     tiefeOben: { 1: 6.13, 2: 11.26, 3: 16.39 }, // cm, BELEGT
     tiefeUnten: { 1: 5.12, 2: 10.25, 3: 15.38 },// cm, BELEGT
     /* Achsabstand zweier Schienen – nachgerechnet aus den belegten
@@ -2423,10 +2425,19 @@
     /* Schienen: feststehend braucht keine, dort steht das 1-Schienen-Profil.
        Verschiebbar folgt der Liste im Formular - bis 2 Elemente eine
        Schiene, bis 4 zwei, darüber drei. */
+    /* BELEGT aus dem Formular: verschiebbar gibt es nur in diesen sechs
+       Kombinationen – 1 Schiene/1, 1/2, 2 Schienen/2, 2/3, 2/4 und
+       3 Schienen/3. Fünf Elemente gibt es NUR feststehend (Betreiber,
+       11.10.2026: „5 elemente möglich nur bei feststehend, bei schiebbar
+       nur so"). Verschiebbar endet damit bei vier Elementen, also bei
+       4 × 1500 = 6000 mm Anlagenbreite. */
     function velarisSchienen(n) {
-      if (Z.velarisArt !== 'verschiebbar') return 1;
-      if (n <= 2) return 1;
-      return n <= 4 ? 2 : 3;
+      if (!velarisSchiebbar(n)) return 1;
+      return n <= 2 ? 1 : 2;
+    }
+
+    function velarisSchiebbar(n) {
+      return Z.velarisArt === 'verschiebbar' && n <= VELARIS.schiebbarMax;
     }
 
     function velaris(laenge, hoehe, achse, mitte, yUnten, quer) {
@@ -2436,26 +2447,33 @@
       var schienen = velarisSchienen(anzahl);
       VELARIS_IST = { elemente: anzahl,
                       breite: Math.round(laenge * 10 / anzahl),
-                      schienen: schienen };
+                      schienen: schienen,
+                      /* Gewünscht ist nicht immer möglich: Über vier
+                         Elementen gibt es verschiebbar nicht. Was wirklich
+                         gebaut wurde, steht hier – daraus liest das
+                         Bedienfeld den Hinweis. */
+                      art: velarisSchiebbar(anzahl) ? 'verschiebbar' : 'feststehend',
+                      gewuenscht: Z.velarisArt };
       var elLaenge = laenge / anzahl;
       if (anzahl > 1) {
         for (var e = 0; e < anzahl; e++) {
           velarisElement(elLaenge, hoehe,
                          achse, mitte - laenge / 2 + (e + 0.5) * elLaenge,
-                         yUnten, quer, schienen, e);
+                         yUnten, quer, schienen, e, e === 0);
         }
         return;
       }
-      velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, 0);
+      velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, 0, true);
     }
 
-    function velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, nr) {
+    function velarisElement(laenge, hoehe, achse, mitte, yUnten, quer, schienen, nr,
+                            erstes) {
       var mLam = velarisMaterial();
       var R = VELARIS.rahmen;
       /* Verschiebbare Elemente laufen in getrennten Schienen – im Bild
          ist das der Versatz in der Tiefe. Feststehend liegen alle in
          einer Ebene. */
-      var spur = Z.velarisArt === 'verschiebbar' && schienen > 1
+      var spur = schienen > 1
         ? innenRichtung(achse, quer) * (nr % schienen) * VELARIS.schienenAbstand : 0;
       achse = achse + spur;
 
@@ -2469,8 +2487,16 @@
 
       /* Rahmen: zwei senkrechte Profile an den Seiten, je eines oben und
          unten. Alle vier liegen in der Ebene des Elements. */
-      platte(rahmen, R, hEl, achse, mitte - laenge / 2 + R / 2,
-             ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      /* Feststehend teilen sich zwei Elemente EINEN Pfosten – so zeigt es
+         die Zeichnung im Formular: zwischen zwei Feldern steht ein
+         Profil, nicht zwei nebeneinander. Deshalb bekommt nur das erste
+         Element sein linkes Profil, die übrigen schließen am rechten des
+         Nachbarn an. Verschiebbar laufen die Elemente in eigenen
+         Schienen und haben jedes seinen eigenen Rahmen. */
+      if (erstes || Z.velarisArt === 'verschiebbar') {
+        platte(rahmen, R, hEl, achse, mitte - laenge / 2 + R / 2,
+               ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      }
       platte(rahmen, R, hEl, achse, mitte + laenge / 2 - R / 2,
              ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
       platte(rahmen, laenge, R, achse, mitte, ukEl + R / 2, quer, 0,
@@ -4533,10 +4559,15 @@
   function velarisStandZeigen() {
     var e = document.getElementById('k3dVelarisStand');
     if (!e) return;
-    e.textContent = VELARIS_IST.elemente
-      ? 'Gebaut: ' + VELARIS_IST.elemente + ' Element(e) à ' +
-        VELARIS_IST.breite + ' mm, ' + VELARIS_IST.schienen + ' Schiene(n).'
-      : '';
+    if (!VELARIS_IST.elemente) { e.textContent = ''; return; }
+    e.textContent = 'Gebaut: ' + VELARIS_IST.elemente + ' Element(e) à ' +
+      VELARIS_IST.breite + ' mm, ' + VELARIS_IST.art +
+      (VELARIS_IST.art === 'verschiebbar'
+        ? ' in ' + VELARIS_IST.schienen + ' Schiene(n).' : '.') +
+      (VELARIS_IST.gewuenscht === 'verschiebbar' && VELARIS_IST.art !== 'verschiebbar'
+        ? ' Verschiebbar gibt es nur bis vier Elemente (6000 mm) – diese Seite' +
+          ' ist breiter, deshalb feststehend.'
+        : '');
   }
 
   function plankenStandZeigen() {
@@ -5482,10 +5513,14 @@
          Ohne diesen Satz kann dieselbe Angabe spiegelverkehrt gelesen
          werden – und das merkt niemand vor der Montage. */
       if (erwIrgendwo('Velaris')) {
-        teile.push('Velaris ' + Z.velarisArt + ': ' +
+        teile.push('Velaris ' + VELARIS_IST.art + ': ' +
                    (VELARIS_IST.elemente || '–') + ' Element(e) à ca. ' +
                    VELARIS_IST.breite + ' mm, ' + VELARIS_IST.schienen +
-                   ' Schiene(n) (Bautiefe oben ' +
+                   ' Schiene(n), Elementbreite ' +
+                   (Z.velarisBreite === 'wunsch'
+                     ? 'WUNSCH-BREITE individuell nach Aufmaß (Modell zeigt die gleichmäßige Aufteilung)'
+                     : 'gleichmäßige Aufteilung') +
+                   ' (Bautiefe oben ' +
                    String(VELARIS.tiefeOben[VELARIS_IST.schienen] * 10 || '')
                      .replace('.', ',') + ' mm)');
         teile.push('Velaris: waagerechte Alu-Lamellen im Rahmen, Stellung im Bild ' +
@@ -5620,6 +5655,7 @@
     Z.velarisFarbe = wert('k3dVelarisFarbe') || Z.velarisFarbe;
     Z.velarisArt = wert('k3dVelarisArt') || Z.velarisArt;
     Z.velarisTeil = wert('k3dVelarisTeil') || Z.velarisTeil;
+    Z.velarisBreite = wert('k3dVelarisBreite') || Z.velarisBreite;
     Z.velarisAnteil = zahl('k3dVelarisAnteil', Z.velarisAnteil);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
@@ -6036,7 +6072,7 @@
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
    'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkel', 'k3dVelarisFarbe',
-   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil',
+   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil', 'k3dVelarisBreite',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);

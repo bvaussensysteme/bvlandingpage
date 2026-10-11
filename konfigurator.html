@@ -874,8 +874,16 @@
           <label class="k3d-label" for="k3dVelarisArt">Ausführung</label>
           <select id="k3dVelarisArt" class="k3d-select">
             <option value="feststehend">feststehend</option>
-            <option value="verschiebbar">verschiebbar (in Schienen)</option>
+            <option value="verschiebbar">verschiebbar (bis 4 Elemente)</option>
           </select>
+          <label class="k3d-label" for="k3dVelarisBreite">Elementbreite</label>
+          <select id="k3dVelarisBreite" class="k3d-select">
+            <option value="gleich">gleichmäßige Aufteilung</option>
+            <option value="wunsch">Wunsch-Breite (individuell)</option>
+          </select>
+          <p class="k3d-mini">Bei Wunsch-Breite legen wir die einzelnen Breiten
+            beim Aufmaß mit Ihnen fest – das Modell zeigt so lange die
+            gleichmäßige Aufteilung.</p>
           <label class="k3d-label" for="k3dVelarisFarbe">Oberfläche der Lamellen</label>
           <select id="k3dVelarisFarbe" class="k3d-select">
             <option value="Wie das Gestell">wie der Rahmen</option>
@@ -1292,7 +1300,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261014e" defer></script>
+<script src="js/konfigurator-3d.js?v=20261014g" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
