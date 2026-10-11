@@ -395,8 +395,9 @@ pruefe('Gleichstand: weniger Schienen gewinnt',
 });
 pruefe('Kein gemeinsames Feld mehr',
        gegen ? /id="k3dSg23"/.test(html) : !/id="k3dSg23"/.test(html), '');
-pruefe('Vorne rechnet mit der Breite, die Seiten mit der Tiefe',
-       new RegExp(q || "seite === 'vorne' \\? Z\\.breite : Z\\.tiefe").test(k3d), '');
+pruefe('Mass kommt aus dem Modell, nicht aus Z.breite/Z.tiefe',
+       new RegExp(q || "SG23_LAENGE\\[seite\\] \\|\\|").test(k3d),
+       'Rueckfall nur vor dem ersten Bauen');
 pruefe('Handauswahl liegt unter „Mehr Einstellungen"',
        new RegExp(q || 'data-k3d-mehr data-k3d-fuer="schiebe"').test(html), '');
 pruefe('Automatik bleibt die Voreinstellung',
@@ -411,7 +412,8 @@ pruefe('Auswahlfeld loest ein Neuzeichnen aus',
        new RegExp(q || "'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'").test(k3d),
        'in der Lauscherliste');
 pruefe('Gewaehlte Bauart steht in der Anfrage',
-       new RegExp(q || "Schiebeanlage ' \\+ p\\[0\\] \\+ ': SG23, '").test(k3d), 'Fachbegriffe');
+       new RegExp(q || "Schiebeanlage ' \\+ p\\[0\\] \\+ ': ' \\+ p\\[1\\] \\+ ' mm licht'").test(k3d),
+       'mit lichtem Mass und Fachbegriffen');
 
 /* ---------- Verglasung: VSG 8/10 mm und getöntes Glas ----------
    „bei vsg glas hast du vergessen die 10mm variante hinzuzufügen und gls

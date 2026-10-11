@@ -1923,3 +1923,39 @@ die Markise, einmal für die Schiebeanlage. Jetzt gibt es dafür eine
 Konstante `FAHRDAUER`, und eine Prüfung achtet darauf, dass keine zweite
 feste Dauer danebenwächst. Sonst heißt „überall" beim nächsten Mal
 wieder nur „an einer Stelle".
+
+## 2026-10-11 – Handauswahl rechnete gegen das falsche Maß
+
+**Anlass:** „das funktioniert nicht auf stirnseite prüfe alle seiten"
+(Betreiber, mit Bildschirmfoto: vorne war „6-türig, 3 Schienen" gewählt,
+gezeichnet wurde trotzdem automatisch).
+
+**Was falsch war:** Das Bedienfeld rechnete die Auswahl selbst aus –
+vorne gegen `Z.breite`, an den Seiten gegen `Z.tiefe`. Beides stimmte
+nicht mit dem überein, was das Modell baut:
+
+| Seite | Bedienfeld | Modell |
+|---|---|---|
+| vorne | volle Breite, z. B. 6000 mm | lichtes Maß je Pfostenfach, z. B. 2835 mm |
+| links/rechts | volle Tiefe | Wand bis Dachvorderkante, also Tiefe minus Rinne minus halber Pfosten, bei Dachvorsprung noch weniger |
+
+Eine Bauart, die nur zum vollen Maß passt, findet sich beim Zeichnen im
+Feldmaß nicht wieder – und fällt dann **still** auf Automatik zurück.
+Für den Bediener sieht das aus, als tue die Auswahl nichts.
+
+**Was jetzt gilt:** Das Modell meldet beim Bauen, mit welchem Maß es je
+Seite wirklich gerechnet hat (`SG23_LAENGE`). Auswahlfeld, Hinweis und
+Anfrage-Mail lesen dieses Maß. Damit gibt es nur noch eine Wahrheit; die
+Rechnung im Bedienfeld ist ersatzlos weg.
+
+**Reihenfolge:** `sg23FeldFuellen()` wird jetzt NACH `bauen()` aufgerufen.
+Vorher lief es in `seitenStandZeigen()`, also davor – das Feld hätte sonst
+dauerhaft die Maße des vorigen Standes gezeigt.
+
+**In der Anfrage** steht ab jetzt das lichte Maß und bei mehreren Feldern
+deren Anzahl, etwa „Schiebeanlage vorne: 2835 mm licht · 2 Felder
+zwischen den Pfosten, Maß je Feld – SG23, 3-rails, 3-türig …".
+
+**Gegenzulesen:** Alle drei Felder einzeln durchprobieren – eine Bauart
+wählen, Maß ändern, und prüfen, ob die Zeichnung folgt bzw. das Feld
+sauber auf „Automatisch" zurückspringt, wenn die Bauart nicht mehr passt.

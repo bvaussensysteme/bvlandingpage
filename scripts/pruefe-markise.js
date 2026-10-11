@@ -374,6 +374,30 @@ pruefe('Kein seitenErweiterungen-Aufruf ohne Pfostenachsen',
          Math.abs(gesamt - B) < 0.01, gesamt.toFixed(1) + ' von ' + B + ' cm');
 })();
 
+/* ---------- Handauswahl gegen das ECHTE Mass ----------
+   „das funktioniert nicht auf stirnseite prüfe alle seiten" (Betreiber,
+   11.10.2026). Das Bedienfeld fuellte die Auswahl gegen Z.breite bzw.
+   Z.tiefe, gezeichnet wurde aber je Pfostenfach und an den Seiten nur
+   bis zur Dachvorderkante. Eine Bauart, die nur zum vollen Mass passt,
+   fiel beim Zeichnen still auf Automatik zurueck. */
+pruefe('Modell meldet die gebauten Masse',
+       new RegExp(q || 'if \\(hatSchiebe\\) SG23_LAENGE\\[seite\\] = Math\\.round\\(laenge \\* 10\\)').test(src), '');
+pruefe('Auswahlfeld nutzt das gemeldete Mass',
+       new RegExp(q || 'return SG23_LAENGE\\[seite\\] \\|\\|').test(src), 'nicht mehr Z.breite/Z.tiefe');
+pruefe('Masse werden je Bauvorgang zurueckgesetzt',
+       new RegExp(q || 'SG23_LAENGE\\.links = SG23_LAENGE\\.rechts = SG23_LAENGE\\.vorne = 0').test(src),
+       'sonst bleibt eine geoeffnete Seite stehen');
+pruefe('Auswahlfeld wird erst NACH dem Bauen gefuellt',
+       /bauen\(\);[\s\S]{0,260}sg23FeldFuellen\(\);/.test(src) && !gegen ||
+       gegen && /sg23FeldFuellen\(\);[\s\S]{0,80}if \(!el\) return;/.test(src),
+       'sonst haengt es einen Schritt hinterher');
+pruefe('Hinweis rechnet mit denselben Massen',
+       new RegExp(q || "laengen\\.push\\(sg23Mass\\(st\\)\\)").test(src), '');
+pruefe('Anfrage nennt das lichte Mass',
+       new RegExp(q || "p\\[1\\] \\+ ' mm licht'").test(src), '');
+pruefe('Anfrage nennt die Zahl der Felder',
+       new RegExp(q || 'SG23_FELDER > 1').test(src), '');
+
 /* ---------- Griff an der ueblichen Stelle ----------
    RECHERCHIERT: 1050 mm ist die uebliche Drueckerhoehe; DIN 18040 nennt
    fuer barrierefreie Bedienung 850 mm im Band 750 bis 1200 mm. Fuer
