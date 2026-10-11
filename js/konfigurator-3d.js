@@ -1731,6 +1731,7 @@
     m.position.set(x, yUnten, z);
     m.rotation.x = neig;
     m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
     bau.add(m);
     return m;
   }
@@ -1761,6 +1762,7 @@
     m.position.set(x, y, z);
     m.rotation.x = neig;
     m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
     bau.add(m);
     return m;
   }
@@ -1865,6 +1867,7 @@
     m.position.set(x, y, z);
     m.rotation.x = neig;
     m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
     bau.add(m);
     return m;
   }
@@ -4429,6 +4432,7 @@
         sp.position.set(x, mitteY, mitteZ);
         sp.rotation.x = NEIGUNG;
         sp.castShadow = true; sp.receiveShadow = true;
+        dachTeil(sp);
         bau.add(sp);
       });
 
@@ -4942,6 +4946,7 @@
         sp.position.set(x, mitteY, zMitte);
         sp.rotation.x = neig;
         sp.castShadow = true; sp.receiveShadow = true;
+        dachTeil(sp);
         bau.add(sp);
       } else {
         sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
@@ -4988,6 +4993,7 @@
         pl.position.set(xMitte, yDach, zGlasMitte);
         pl.rotation.x = neig;
         pl.receiveShadow = true;
+        dachTeil(pl);
         bau.add(pl);
       } else {
         /* Zwei Scheiben hintereinander, dazwischen die Kopplung. Die
@@ -5003,6 +5009,7 @@
                             zGlasMitte + Math.cos(neig) * o);
           teil.rotation.x = neig;
           teil.receiveShadow = true;
+          dachTeil(teil);
           bau.add(teil);
         });
       }
@@ -5996,6 +6003,22 @@
      gilt es als Klick. */
   function sonneTeil(m) { if (m) m.userData.sonne = true; return m; }
 
+  /* Dachteile – Sparren, Eindeckung, Leisten. Sie sind die Fläche, die
+     man anklickt, um die Beschattung zu öffnen oder zu schließen:
+     „ändere es so man muss, wenn eine davon ausgewählt is, nur das dach
+     also sparren oder glas anklicken damit die animation öffnen /
+     schließen stattfindet" (Betreiber, 11.10.2026).
+
+     Vorher musste man das Tuch selbst treffen. Bei eingefahrener Markise
+     ist das ein Streifen von wenigen Zentimetern – am Handy mit dem
+     Finger kaum zu treffen, und wer ihn verfehlt, denkt, es sei kaputt. */
+  function dachTeil(m) { if (m) m.userData.dach = true; return m; }
+
+  function istDach(objekt) {
+    for (var o = objekt; o; o = o.parent) if (o.userData && o.userData.dach) return true;
+    return false;
+  }
+
   /* Wie lange Markise und Schiebeanlage zum Auf- und Zufahren brauchen.
      EINE Zahl für beide, damit sie nicht auseinanderlaufen – vorher
      stand die 650 zweimal im Code.
@@ -6235,7 +6258,9 @@
       -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
     var treffer = strahl.intersectObjects(bau.children, true);
     for (var i = 0; i < treffer.length; i++) {
-      if (istMarkise(treffer[i].object)) {
+      /* Das Dach gilt als Schalter: Tuch, Sparren oder Glas – alles
+         löst dieselbe Bewegung aus. */
+      if (istMarkise(treffer[i].object) || istDach(treffer[i].object)) {
         /* Plissee und Sonnensegel fahren NICHT ueber die Markisenfahrt:
            Die rechnet das Modell je Bild neu und laesst alle Bahnen
            gemeinsam laufen. Hier wird einmal umgestellt – den Versatz
