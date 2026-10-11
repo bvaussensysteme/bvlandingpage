@@ -2459,7 +2459,6 @@ Die Gruppenregel `geschaetzt` wird nicht mehr gebraucht und ist entfernt.
 **Gegenzulesen:** Bei einem Produkt **ohne** Matrix (Carport TDS, Flat Box)
 darf rechts kein leerer gelber Kasten stehen; bei TDS mit Maßen muss er
 vollständig erscheinen.
-<<<<<<< HEAD
 
 ## 2026-10-11 – „Wände verkleiden?" war ein leerer Schritt an der falschen Stelle
 
@@ -2494,8 +2493,6 @@ Abschnitte, nicht nur für diesen einen Fall.
 **Gegenzulesen:** Beim Carport müssen die Verkleidungs-Häkchen in „Seiten &
 Erweiterungen" stehen und wirken; beim Terrassendach darf es den Schritt
 „Wände verkleiden?" nicht mehr geben.
-=======
->>>>>>> origin/main
 
 ## 2026-10-11 – Plankenwand nach den echten Profilen
 
