@@ -63,6 +63,7 @@
     tiefe: 3000,
     hoehe: 2300,
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
+    glasstaerke: 8,           // mm, nur bei Glas – 8 oder 10 (VSG)
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -318,6 +319,11 @@
   var EINDECKUNGEN = {
     'VSG klar':             { art: 'glas', farbe: 0xd8ecf2, deckkraft: 0.34, rauheit: 0.04 },
     'VSG opal':             { art: 'glas', farbe: 0xeff3f5, deckkraft: 0.72, rauheit: 0.35 },
+    /* Getöntes VSG, „graphit" – vom Betreiber nachgereicht (11.10.2026):
+       „gls gibts auch in getönt also graphit". Farbe und Deckkraft sind
+       GESCHÄTZT, angelehnt an das graphitfarbene Polycarbonat, aber
+       klarer (Glas streut nicht). Ein Lichtwert liegt nicht vor. */
+    'VSG graphit':          { art: 'glas', farbe: 0x5b6165, deckkraft: 0.78, rauheit: 0.06 },
     'Polycarbonat klar':    { art: 'steg', farbe: 0xdfe9ea, deckkraft: 0.42, rauheit: 0.3 },
     'Polycarbonat opal':    { art: 'steg', farbe: 0xeef0ec, deckkraft: 0.84, rauheit: 0.55 },
     'Polycarbonat graphit': { art: 'steg', farbe: 0x4e5356, deckkraft: 0.9,  rauheit: 0.42 },
@@ -433,6 +439,11 @@
   var VORGABE_VERGLASUNG = {
     'VSG klar':             'VSG-Glas klar',
     'VSG opal':             'VSG-Glas Opal (milchig)',
+    /* GEGENZULESEN: Ob der Anfrage-Assistent diese Option schon kennt, ist
+       offen – getöntes Glas kam erst am 11.10.2026 dazu. Kennt er sie
+       nicht, bleibt das Feld dort leer und die Angabe steht nur im
+       Freitext der Anfrage. */
+    'VSG graphit':          'VSG-Glas Graphit (getönt)',
     'Polycarbonat klar':    'Polycarbonat klar',
     'Polycarbonat opal':    'Polycarbonat Opal (milchig)',
     'Polycarbonat graphit': 'Polycarbonat Graphit',
@@ -2738,7 +2749,9 @@
     /* Die Eindeckung liegt AUF dem schmalen Steg des Sparrens – bei TDS
        also 120 mm über dessen Unterkante. VSG 8 mm ist BELEGT
        (technische-daten.md); Polycarbonat ist mit 16 mm dicker. */
-    var glasDicke = istPolycarbonat() ? 1.6 : 0.8;
+    /* Scheibendicke in cm. Polycarbonat ist die 16-mm-Stegplatte; Glas
+       gibt es als VSG 8 und VSG 10 mm (Betreiber, 11.10.2026). */
+    var glasDicke = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var mF = dachfuellung();
     var yDach = ukMitte + spH + glasDicke / 2;
     for (i = 0; i < xs.length - 1; i++) {
@@ -3531,6 +3544,9 @@
       // dort steckt die Montageart in der Ausführung
       case 'aufbau':         return !istCarport();
       case 'glas':           return (!istCarport() && !istPergola()) || istCarportTds();
+      // Glasstärke nur fragen, wenn auch Glas gewählt ist
+      case 'glasstaerke':    return !istPolycarbonat() &&
+                                    ((!istCarport() && !istPergola()) || istCarportTds());
       case 'cp-flachdach':   return istCarport() && !istCarportTds() &&
                                     Z.cpTyp !== 'Flachdach Flat Line';
       case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
@@ -3729,7 +3745,7 @@
            Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
            was wie eine Alternative zum Blech klang. */
         teile.push(istCarportTds()
-          ? 'Eindeckung: ' + Z.eindeckung
+          ? 'Eindeckung: ' + eindeckungFach()
           : 'Eindeckung: Trapezblech' +
             (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
       }
@@ -3751,7 +3767,7 @@
             (Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100)) + ' mm');
         }
       }
-      teile.push('Eindeckung: ' + Z.eindeckung);
+      teile.push('Eindeckung: ' + eindeckungFach());
       teile.push('Farbe: ' + Z.farbe);
       /* ALLE drei Seiten nennen, auch die offenen. Vorher standen nur
          die geschlossenen in der Anfrage – ein Kunde hatte nur links
@@ -3848,6 +3864,7 @@
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
+    Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
     var ledEl = document.getElementById('k3dLed');
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
@@ -4093,9 +4110,19 @@
     return (istPergola() && Z.farbe === 'Reinweiß') ? 'Creme-Weiß' : Z.farbe;
   }
 
+  /* Fachbezeichnung für die Anfrage-Mail – dort muss die Glasstärke
+     mitstehen, im Bedienfeld interessiert sie den Kunden kaum.
+     („mach es schlau aber einfach, wir müssen die anfrage die per mail
+     kommt natürlich in fachbegriffen etc haben") */
+  function eindeckungFach() {
+    if (istPolycarbonat()) return Z.eindeckung + ', Sechsfachstegplatte 16 mm';
+    return Z.eindeckung.replace('VSG ', 'VSG ' + Z.glasstaerke + ' mm ');
+  }
+
   function eindeckungKurz() {
     if (Z.eindeckung === 'VSG klar') return 'Glas klar';
     if (Z.eindeckung === 'VSG opal') return 'Glas opal';
+    if (Z.eindeckung === 'VSG graphit') return 'Glas graphit';
     return 'Polycarbonat';
   }
 
@@ -4669,11 +4696,19 @@
         v.carportvariante = Z.cpVariante;
         if (Z.cpVariante === 'Carport mit Überstand') v.ueberstand = String(Z.ueberstand);
         if (istCarportTds()) v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+        /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
+           (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
+           und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
+        if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
         else v.dach = Z.cpDach;
       } else {
         v.produkt = Z.produkt;
         v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
         v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+        /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
+           (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
+           und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
+        if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
         if (Z.markise !== 'Ohne') v.markise = Z.markise;
         /* Roher Code, nicht der Fliesstext: Der Assistent markiert damit
            die richtige Kachel. Den lesbaren Satz baut er selbst aus

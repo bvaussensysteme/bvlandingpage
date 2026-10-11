@@ -245,6 +245,39 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Verglasung: VSG 8/10 mm und getöntes Glas ----------
+   „bei vsg glas hast du vergessen die 10mm variante hinzuzufügen und gls
+   gibts auch in getönt also graphit" (Betreiber, 11.10.2026). */
+pruefe('Getöntes Glas als Eindeckung',
+       gegen ? !/'VSG graphit':\s*\{ art: 'glas'/.test(k3d)
+             : /'VSG graphit':\s*\{ art: 'glas'/.test(k3d), 'graphit');
+pruefe('Getöntes Glas im Bedienfeld',
+       gegen ? !/data-wert="VSG graphit"/.test(html)
+             : /data-wert="VSG graphit"/.test(html), 'Schaltflaeche');
+pruefe('Glasstärke 8 und 10 mm waehlbar',
+       gegen ? !/data-wert="10">10 mm/.test(html)
+             : /data-wert="8">8 mm/.test(html) && /data-wert="10">10 mm/.test(html), '');
+pruefe('Scheibendicke folgt der Auswahl',
+       gegen ? /glasDicke = istPolycarbonat\(\) \? 1\.6 : 0\.8;/.test(k3d)
+             : /glasDicke = istPolycarbonat\(\) \? 1\.6 : Z\.glasstaerke \/ 10;/.test(k3d),
+       'nicht mehr fest 8 mm');
+pruefe('Glasstärke wird ausgelesen',
+       gegen ? !/Z\.glasstaerke = parseInt\(wert\('k3dGlasstaerke'\)/.test(k3d)
+             : /Z\.glasstaerke = parseInt\(wert\('k3dGlasstaerke'\)/.test(k3d), '');
+pruefe('Glasstärke nur bei Glas gefragt',
+       gegen ? !/case 'glasstaerke':\s*return !istPolycarbonat\(\)/.test(k3d)
+             : /case 'glasstaerke':\s*return !istPolycarbonat\(\)/.test(k3d), '');
+/* Zweiter Weg: die Fachbezeichnung fuer die Mail wirklich ausrechnen. */
+(function () {
+  var mF = k3d.match(/return Z\.eindeckung\.replace\('VSG ', 'VSG ' \+ Z\.glasstaerke \+ ' mm '\);/);
+  if (!mF) { pruefe('Fachbezeichnung rechenbar', false, 'Zeile nicht gefunden'); return; }
+  function fach(e, d) { return e.replace('VSG ', 'VSG ' + d + ' mm '); }
+  [['VSG klar', 10, 'VSG 10 mm klar'], ['VSG graphit', 8, 'VSG 8 mm graphit']].forEach(function (f) {
+    var ist = fach(f[0], f[1]) + (gegen ? 'x' : '');
+    pruefe('Mail nennt \u201e' + f[2] + '\u201c', ist === f[2], ist);
+  });
+})();
+
 pruefe('Datenpfad: Wandprofil bleibt, Träger dahinter',
        new RegExp(q || 'hHinten \\+ wpH - stH / 2, -stB / 2').test(k3d), '');
 

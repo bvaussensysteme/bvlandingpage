@@ -1396,3 +1396,42 @@ hinten steht als bei gleicher Bestelltiefe an der Wand – das ist die
 sichtbare Folge und sollte im Bild stimmen. Prüfung:
 `node scripts/pruefe-masstabelle.js` (52 Prüfungen, Gegenprobe 52/52);
 eine davon rechnet Dach + Träger zurück auf das Bestellmaß.
+
+## 2026-10-11 – VSG 10 mm und getöntes Glas im 3D-Konfigurator
+
+**Anlass:** „bei vsg glas hast du vergessen die 10mm variante
+hinzuzufügen und gls gibts auch in getönt also graphit" (Betreiber).
+
+**Was falsch war:** Der 3D-Konfigurator kannte nur VSG klar und VSG opal
+und rechnete fest mit 8 mm Scheibendicke. Der **Anfrage-Assistent fragt
+die Glasstärke längst ab** (js/anfrage-wizard.js, Schritt „verglasung",
+Werte „8 mm" / „10 mm") – der 3D-Konfigurator hat dieses Feld nie
+übergeben. Wer dort konfigurierte, landete im Assistenten vor einer
+leeren Pflichtauswahl.
+
+**Was jetzt gilt:** Eigenes Feld „Glasstärke" (8 / 10 mm), das nur bei
+Glas erscheint. Die Scheibe im Modell wird entsprechend dick. Dazu die
+dritte Glasvariante „Glas graphit". Die Anfrage-Mail bekommt die
+Fachbezeichnung mit Stärke, etwa „VSG 10 mm klar", und zusätzlich das
+Feld `glasstaerke`, das der Assistent erwartet.
+
+**Im Assistenten nachgezogen:** „VSG-Glas Graphit (getönt)" fehlte dort
+als Auswahl. Gefunden hat das `scripts/pruefe-konfigurator.js` – die
+Prüfung vergleicht die Vorgabewerte des 3D-Konfigurators gegen die
+Auswahlmöglichkeiten des Assistenten und meldete: „ist im
+Anfrage-Assistenten keine Auswahlmöglichkeit". Genau dafür ist sie da.
+
+**Bewusst NICHT geändert – wichtig:** Der Sparrenabstand bleibt auch bei
+10 mm das Band für **VSG 8 mm** (680–770 mm). Für 10 mm liegt keine
+Herstellerangabe vor. Dickeres Glas trägt weiter, also wären WENIGER
+Sparren möglich – die Zeichnung zeigt damit eher zu viele. Das ist die
+sichere Richtung: zu wenige Sparren wären Glasbruch, zu viele nur ein zu
+hoher Preis in der Anfrage. Steht als Hinweis unter dem Feld.
+
+**Offen beim Betreiber:**
+1. Sparrenabstand für VSG 10 mm bei TDS erfragen – sonst rechnen wir
+   dauerhaft zu teuer.
+2. Gibt es getöntes Glas in beiden Stärken, und gibt es VSG 10 auch opal?
+   Zurzeit sind alle sechs Kombinationen wählbar – ANNAHME.
+3. Lichtdurchlässigkeit von getöntem VSG; Farbe und Deckkraft im Modell
+   sind GESCHÄTZT, angelehnt an graphitfarbenes Polycarbonat.
