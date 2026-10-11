@@ -1683,3 +1683,32 @@ Türprofil waagerecht (oben/unten) und das H-Profil senkrecht gesetzt –
 das ist die übliche Anordnung, aber nicht belegt. Beim H-Profil spricht
 die Breite von 61,4 mm dafür: das ist der breite senkrechte Steg, den man
 zwischen zwei Scheiben sieht.
+
+## 2026-10-11 – Spalt zwischen Schiebewand und Keil
+
+**Anlass:** „zwischen schiebewand und keil is ne lücke darf nicht sein"
+(Betreiber, mit Bildschirmfoto).
+
+**Was falsch war:** Die Schiebetürführung wurde an einen FESTEN Platz
+oben unter dem Dach gesetzt (`okOben`). Sobald ein Keil dazukommt, wird
+die Elementhöhe aber gekürzt, damit der Keil vorne seine Mindesthöhe von
+150 mm behält. Der Flügel rutschte also nach unten, die Führung blieb
+oben – dazwischen klaffte genau deren Höhe.
+
+Eingeschleppt habe ich das beim Einbau der Führung selbst: Ich hatte nur
+den Fall ohne Keil im Kopf, in dem beide Werte zusammenfallen.
+
+**Was jetzt gilt:** Die Führung sitzt direkt auf dem Flügel, der Keil
+beginnt über der Führung. Die Führungshöhe zählt außerdem bei der
+Keil-Mindesthöhe mit – sie nimmt von der Höhe weg, die dem Keil bleibt.
+
+**Absicherung:** Eine Prüfung rechnet die Lagen für den Fall mit
+gekürztem Element durch und prüft, dass die ALTE Anordnung dort einen
+Spalt gelassen hätte. Eine erste Fassung verglich zwei per Konstruktion
+gleiche Werte – die konnte gar nicht anschlagen und ist wieder raus. Die
+Gegenprobe hat das gefunden (89 von 90 statt 90 von 90); genau dafür ist
+sie da.
+
+**Gegenzulesen:** Ob der Übergang auch bei flacher Neigung (2°) und bei
+sehr niedrigem Durchgang dicht bleibt – dort wird der Keil am
+schmalsten.

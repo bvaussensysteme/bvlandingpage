@@ -1908,7 +1908,8 @@
       var okOben = hVorn - PROFIL / 2;
       var yUnten = SCHWELLE.hoehe;
       var hatSchiebeHier = erwListe(seite).indexOf('Schiebetür') > -1;
-      var hoch = okOben - yUnten - (hatSchiebeHier ? FUEHRUNG.hoehe : 0);
+      var fuehrungH = hatSchiebeHier ? FUEHRUNG.hoehe : 0;
+      var hoch = okOben - yUnten - fuehrungH;
       /* Der Keil läuft IMMER bis nach hinten durch: bei Wandmontage bis
          an die Wand, freistehend bis an den hinteren Pfosten (Angabe des
          Betreibers). Das Element darunter endet dagegen zwischen den
@@ -1932,8 +1933,10 @@
       var hatKeil = liste.indexOf('Keil') > -1 && keilErlaubt() &&
                     seite !== 'vorne' && neig > 0.001 && !!dachUk;
       if (hatKeil) {
-        // Mindesthöhe des Keils vorne einhalten, siehe KEIL_MIN_VORNE
-        var hoechstens = dachUk(zVorneK) - KEIL_MIN_VORNE - yUnten;
+        /* Mindesthöhe des Keils vorne einhalten, siehe KEIL_MIN_VORNE.
+           Die Schiebetürführung zählt mit: Sie sitzt zwischen Flügel und
+           Keil, nimmt also von der Höhe weg, die dem Keil bleibt. */
+        var hoechstens = dachUk(zVorneK) - KEIL_MIN_VORNE - yUnten - fuehrungH;
         if (hoch > hoechstens) hoch = Math.max(20, hoechstens);
       }
       var hatRahmen = liste.indexOf('Rahmenwand') > -1;
@@ -1968,12 +1971,14 @@
       if (hatRahmen || hatSchiebe || hatPlanken) {
         if (hatSchiebe) {
           tuerschwelle(laenge, achse, mitte, quer, gl);
-          schiebefuehrung(laenge, achse, mitte, quer, okOben, gl);
+          /* Die Führung sitzt DIREKT auf dem Flügel. Ein fester Platz
+             oben am Dach wäre falsch, sobald ein Keil die Elementhöhe
+             kürzt – dann hinge sie frei in der Luft. */
+          schiebefuehrung(laenge, achse, mitte, quer, yUnten + hoch + fuehrungH, gl);
         } else {
           bodenschiene(laenge, achse, mitte, quer);
         }
-        wandAnschluss(achse, mitte - laenge / 2,
-                      hatSchiebe ? okOben : yUnten + hoch, quer);
+        wandAnschluss(achse, mitte - laenge / 2, yUnten + hoch + fuehrungH, quer);
       }
 
       // Zubehör VOR der Fläche
@@ -2020,7 +2025,12 @@
          diese zweite Bedingung fängt den Fall ab, dass das einmal nicht
          greift. Ein Dreieck im Bild wäre eine Zusage. */
       if (hatKeil) {
-        var yKeil = yUnten + hoch;
+        /* Der Keil beginnt ÜBER der Schiebetürführung, nicht über dem
+           Flügel. Vorher lag er direkt auf dem Flügel, während die
+           Führung weiter oben am Dach hing – dazwischen klaffte der
+           Spalt, den der Betreiber im Bild gezeigt hat (11.10.2026:
+           „zwischen schiebewand und keil is ne lücke darf nicht sein"). */
+        var yKeil = yUnten + hoch + fuehrungH;
         var hV = Math.max(0, dachUk(zVorneK) - yKeil);
         var hH = Math.max(0, dachUk(zHintenK) - yKeil);
         if (hH > 1) {
