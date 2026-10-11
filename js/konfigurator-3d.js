@@ -78,7 +78,6 @@
     velarisBreite: 'gleich',      // gleich | wunsch (Formularfeld Elementbreite)
     velarisAnzahl: '',            // '' = automatisch, sonst gewünschte Elementzahl
     velarisOffen: 0,              // Prozent, nur verschiebbar
-    velarisAnteil: 50,            // Prozent, nur bei oben/unten
     velarisFarbe: 'Anthrazit RAL 7016',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
@@ -2583,8 +2582,12 @@
          zu. Die Grenze liegt bei einem Anteil der Lamellenzahl, nicht
          der Höhe: Eine Lamelle lässt sich nicht halb kippen. */
       var offenGrad = Math.min(90, Math.max(0, Z.velarisWinkel));
-      var grenze = Z.velarisTeil === 'alles' ? -1
-        : Math.round(n * Math.min(90, Math.max(10, Z.velarisAnteil)) / 100);
+      /* Die Anlage teilt sich IMMER in zwei Hälften – „die velaris sind
+         immer in 2 hälften geteilt also 50/50" (Betreiber, 11.10.2026).
+         Ein Regler für den Anteil stand hier und ist raus: Er bot eine
+         Einstellung an, die es am Bauteil nicht gibt. Bei ungerader
+         Lamellenzahl bekommt die untere Hälfte die eine mehr. */
+      var grenze = Z.velarisTeil === 'alles' ? -1 : Math.round(n / 2);
       for (var i = 0; i < n; i++) {
         var y = ukEl + R + (i + 0.5) * schritt;
         /* i zählt von UNTEN. „unten" öffnet die ersten, „oben" die letzten. */
@@ -5621,7 +5624,8 @@
                      ? ' – RAL-Nummer noch offen, Aufpreis' : '') +
                    ', Rahmenfarbe ' + Z.farbe +
                    (Z.velarisTeil === 'alles' ? ', ganze Anlage'
-                     : ', nur ' + Z.velarisTeil + ' rund ' + Z.velarisAnteil + ' %') +
+                     : ', nur die ' + (Z.velarisTeil === 'oben' ? 'obere' : 'untere') +
+                       ' Hälfte') +
                    ' – Lamellen- und Rahmenmaße nach Herstellerangabe');
       }
       if (erwIrgendwo('Schiebetür')) {
@@ -5751,7 +5755,6 @@
     Z.velarisBreite = wert('k3dVelarisBreite') || Z.velarisBreite;
     Z.velarisAnzahl = wert('k3dVelarisAnzahl') || '';
     Z.velarisOffen = zahl('k3dVelarisOffen', Z.velarisOffen);
-    Z.velarisAnteil = zahl('k3dVelarisAnteil', Z.velarisAnteil);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
@@ -5934,14 +5937,12 @@
       vw.textContent = (Z.velarisWinkel <= 0 ? 'geschlossen'
                      : Z.velarisWinkel + '° offen') +
                      (Z.velarisTeil === 'alles' ? ''
-                       : ' · nur ' + Z.velarisTeil + ' (' + Z.velarisAnteil + ' %)');
+                       : ' · nur ' + Z.velarisTeil + ' (halbe Anlage)');
     }
     var vo = document.getElementById('k3dVelarisOffenWert');
     if (vo) vo.textContent = Z.velarisOffen + ' %';
     var vor = document.getElementById('k3dVelarisOffen');
     if (vor) vor.disabled = Z.velarisArt !== 'verschiebbar';
-    var va = document.getElementById('k3dVelarisAnteilWert');
-    if (va) va.textContent = Z.velarisAnteil + ' %';
     var ar = document.getElementById('k3dPlankenAnteil');
     if (ar) ar.disabled = Z.plankenHoeheAuto;
     var fr = document.getElementById('k3dPlankenFuge');
@@ -6171,7 +6172,7 @@
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
    'k3dSg23Glas', 'k3dSg23Schloss', 'k3dVelarisWinkel', 'k3dVelarisFarbe',
-   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisAnteil', 'k3dVelarisBreite',
+   'k3dVelarisArt', 'k3dVelarisTeil', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {

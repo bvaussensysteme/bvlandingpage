@@ -602,6 +602,24 @@ pruefe('Verschiebbare Velaris fahren wie die Glaswaende',
          falsch + ' Lagen ausserhalb');
 })();
 
+(function () {
+  /* Velaris teilt sich IMMER 50/50 (Betreiber, 11.10.2026). Der Regler
+     fuer den Anteil ist raus - er bot etwas an, das es am Bauteil nicht
+     gibt. Geprueft wird beides: dass er weg ist UND dass die Haelfte
+     wirklich die Haelfte ist, auch bei ungerader Lamellenzahl. */
+  var weg = !/k3dVelarisAnteil/.test(html) && !/velarisAnteil/.test(js);
+  pruefe('Anteil-Regler ist raus', gegen ? !weg : weg, '');
+  var falsch = 0;
+  for (var n = 1; n <= 60; n++) {
+    var grenze = gegen ? Math.round(n * 0.55) : Math.round(n / 2);
+    var unten = grenze, oben = n - (n - grenze);
+    if (Math.abs(unten - n / 2) > 0.5) falsch++;
+    if (Math.abs(oben - n / 2) > 0.5) falsch++;
+  }
+  pruefe('Haelfte ist wirklich die Haelfte', falsch === 0,
+         falsch + ' von 120 Faellen daneben');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
