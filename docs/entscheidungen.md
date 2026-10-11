@@ -3035,3 +3035,27 @@ Wahrheiten – und beim Fahren sähe man es sofort.
 gibt es nur eine Schiene, und bündig sieht man von außen nur den
 Pfosten. Verschiebbar bleibt es bei der Regel von vorhin: schmaler als
 der Pfosten mittig, breiter außen bündig.
+
+## 2026-10-11 – Velaris an der Stirnseite: von der Mitte nach außen
+
+**Anlass:** „auf der stirnseite soll es wie bei glasschiebewände sein bei
+zwischenpfosten gehen die module von der mitte nach außen auf"
+(Betreiber).
+
+**Was war:** Die Elemente fuhren immer nach links – egal, in welchem Feld
+sie standen. An der Stirnseite mit Zwischenpfosten lief damit das rechte
+Feld zum Mittelpfosten hin statt von ihm weg.
+
+**Was jetzt gilt:** Die Laufrichtung kommt von der Seite, genau wie bei
+den Glasschiebeanlagen: Links vom Mittelpfosten öffnet nach links,
+rechts davon nach rechts. An den Seiten bleibt es, wie es war.
+
+**Wie es gebaut ist:** Dieselbe Rechnung, spiegelbildlich – nach rechts
+bleibt das LETZTE Element stehen und gerechnet wird von hinten nach
+vorn, mit der Bremse auf demselben Laufweg. Kein zweiter Satz Regeln.
+
+**Die Prüfung prüft nicht die Absicht, sondern die Symmetrie:** Nach
+rechts geöffnet muss exakt das Spiegelbild von „nach links" sein, und
+geschlossen müssen beide gleich sein. Über vier Schienen-Element-
+Kombinationen und den ganzen Fahrweg. Die Gegenprobe dreht das
+Vorzeichen der Fahrt um.
