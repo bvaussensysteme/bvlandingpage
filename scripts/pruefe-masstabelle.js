@@ -277,6 +277,43 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Querstoss in der Verglasung ----------
+   „und vsg glas kann ja ab ner bestimmten länge nict am stück verbaut
+   werden sondern is dann getrennt und muss gekopelt werden" (Betreiber,
+   11.10.2026). Schwelle ist die Tiefe, bei der die Masstabelle einen
+   Innenkern fuehrt. */
+pruefe('Querstoss nur bei Glas',
+       new RegExp(q || 'return !istPolycarbonat\\(\\) && Z\\.tiefe >= koppelTiefe\\(\\)').test(k3d),
+       'Stegplatten kommen in langen Bahnen');
+pruefe('Schwelle kommt aus der Masstabelle',
+       new RegExp(q || 'M\\.regeln\\.innenkernTiefe').test(k3d), 'nicht fest im Code');
+pruefe('Zwei Scheiben statt einer',
+       new RegExp(q || 'var halb = \\(voll - KOPPEL\\.breite\\) / 2').test(k3d), '');
+pruefe('Kopplungsprofil ueber die volle Breite',
+       new RegExp(q || 'BoxGeometry\\(B, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d), '');
+pruefe('Hinweis im Bedienfeld',
+       gegen ? !/quer gestoßen und gekoppelt/.test(k3d) : /quer gestoßen und gekoppelt/.test(k3d), '');
+pruefe('Anfrage nennt den Innenkern',
+       new RegExp(q || "glasGeteilt\\(\\) \\? ', quer gestoßen und gekoppelt \\(Innenkern\\)'").test(k3d),
+       'in eindeckungFach, also an EINER Stelle');
+/* Zweiter Weg: die Schwelle gegen die Tabelle rechnen. */
+(function () {
+  /* Die groesste Scheibe am Stueck ist die letzte Tiefe VOR dem
+     Innenkern. Der Betreiber schaetzt „4,50 oder 5 m" - die Tabelle
+     stuetzt die 4,50: ab 4600 mm fuehrt sie einen Innenkern. */
+  var amStueck = M.regeln.innenkernTiefe - 100 + (gegen ? 600 : 0);
+  pruefe('Groesste Scheibe am Stueck ist 4500 mm', amStueck === 4500,
+         amStueck + ' mm');
+  function geteilt(tiefe, poly) { return !poly && tiefe >= M.regeln.innenkernTiefe; }
+  [[3000, false, false], [4600, false, true], [7000, false, true],
+   [7000, true, false]].forEach(function (f) {
+    var ist = geteilt(f[0], f[1]);
+    if (gegen) ist = !ist;
+    pruefe(f[0] + ' mm ' + (f[1] ? 'Polycarbonat' : 'Glas') + ' -> ' +
+           (f[2] ? 'gestossen' : 'am Stueck'), ist === f[2], ist ? 'gestossen' : 'am Stueck');
+  });
+})();
+
 /* ---------- Hoehe hinten: gekoppelt, aber entkoppelbar ----------
    „das soll gekopplt sein an vorne aber man soll es entkoppeln können
    und getrennt einstellen" (Betreiber, 11.10.2026). */
@@ -658,7 +695,7 @@ pruefe('Glasstärke nur bei Glas gefragt',
              : /case 'glasstaerke':\s*return !istPolycarbonat\(\)/.test(k3d), '');
 /* Zweiter Weg: die Fachbezeichnung fuer die Mail wirklich ausrechnen. */
 (function () {
-  var mF = k3d.match(/return Z\.eindeckung\.replace\('VSG ', 'VSG ' \+ Z\.glasstaerke \+ ' mm '\);/);
+  var mF = k3d.match(/return Z\.eindeckung\.replace\('VSG ', 'VSG ' \+ Z\.glasstaerke \+ ' mm '\) \+/);
   if (!mF) { pruefe('Fachbezeichnung rechenbar', false, 'Zeile nicht gefunden'); return; }
   function fach(e, d) { return e.replace('VSG ', 'VSG ' + d + ' mm '); }
   [['VSG klar', 10, 'VSG 10 mm klar'], ['VSG graphit', 8, 'VSG 8 mm graphit']].forEach(function (f) {

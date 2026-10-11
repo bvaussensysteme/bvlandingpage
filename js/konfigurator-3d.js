@@ -3368,12 +3368,38 @@
       var lichteWeite = (xs[i + 1] - xs[i]) - spB;
       var feldB = sky ? lichteWeite : lichteWeite + 4;
       if (feldB <= 0) continue;
-      var pl = new THREE.Mesh(
-        new THREE.BoxGeometry(feldB, glasDicke, laenge - 2 + glasUeber), mF);
-      pl.position.set((xs[i] + xs[i + 1]) / 2, yDach, zMitte + glasUeber / 2);
-      pl.rotation.x = neig;
-      pl.receiveShadow = true;
-      bau.add(pl);
+      var xMitte = (xs[i] + xs[i + 1]) / 2;
+      var voll = laenge - 2 + glasUeber;
+      if (!glasGeteilt()) {
+        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, voll), mF);
+        pl.position.set(xMitte, yDach, zMitte + glasUeber / 2);
+        pl.rotation.x = neig;
+        pl.receiveShadow = true;
+        bau.add(pl);
+      } else {
+        /* Zwei Scheiben hintereinander, dazwischen die Kopplung. */
+        var halb = (voll - KOPPEL.breite) / 2;
+        [-1, 1].forEach(function (vz) {
+          var teil = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, halb), mF);
+          var versatz = vz * (halb + KOPPEL.breite) / 2;
+          teil.position.set(xMitte,
+                            yDach + Math.sin(neig) * versatz * -1,
+                            zMitte + glasUeber / 2 + Math.cos(neig) * versatz);
+          teil.rotation.x = neig;
+          teil.receiveShadow = true;
+          bau.add(teil);
+        });
+      }
+    }
+    /* Kopplungsprofil quer über die ganze Dachbreite, auf Scheibenhöhe. */
+    if (glasGeteilt()) {
+      var kq = new THREE.Mesh(
+        new THREE.BoxGeometry(B, KOPPEL.hoehe, KOPPEL.breite), mAlu);
+      kq.position.set(0, yDach + KOPPEL.hoehe / 2 - glasDicke / 2,
+                      zMitte + glasUeber / 2);
+      kq.rotation.x = neig;
+      kq.castShadow = true; kq.receiveShadow = true;
+      bau.add(kq);
     }
 
     /* Abdeckleisten auf den Sparren – erst nach der Eindeckung, sie halten
@@ -3722,6 +3748,31 @@
     2: 3.4, 3: 5.2, 4: 7, 5: 8.8, 6: 10.5, 7: 12.3, 8: 14,
     9: 15.8, 10: 17.6, 11: 19.4, 12: 21.2, 13: 23, 14: 24.9
   };
+  /* ---------- Querstoß in der Verglasung ----------
+     „und vsg glas kann ja ab ner bestimmten länge nict am stück verbaut
+     werden sondern is dann getrennt und muss gekopelt werden"
+     (Betreiber, 11.10.2026).
+
+     Das betrifft nur GLAS. Polycarbonat-Stegplatten kommen in langen
+     Bahnen und werden nicht gestoßen.
+
+     GRÖSSTE SCHEIBE AM STÜCK: 4500 mm. Der Betreiber schätzte „4,50
+     oder 5m am stück" – die Maßtabelle stützt die 4,50: Sie führt einen
+     „Innenkern" ausschließlich ab der Tiefe 4600 mm, die letzte Tiefe
+     ohne ihn ist also 4500 mm. Zwei unabhängige Quellen, dieselbe Zahl.
+
+     Der Querschnitt des Kopplungsprofils ist GESCHÄTZT. */
+  var KOPPEL = { breite: 6, hoehe: 3 };     // cm, GESCHÄTZT
+
+  function koppelTiefe() {
+    var M = window.BV_MASSTABELLE;
+    return (M && M.regeln && M.regeln.innenkernTiefe) || 4600;
+  }
+
+  function glasGeteilt() {
+    return !istPolycarbonat() && Z.tiefe >= koppelTiefe();
+  }
+
   function neigungProzent(grad) {
     var p = NEIGUNG_PROZENT[grad];
     /* Die Tabelle kennt nur ganze Grad. Seit der Carport die Neigung aus
@@ -4958,6 +5009,11 @@
               'statt der eingestellten ' + Z.hoehe + ' mm.'));
           warnung = true;
         }
+        if (glasGeteilt()) {
+          saetze.push('VSG-Glas gibt es bis <b>4,50 m</b> am Stück. Bei dieser ' +
+            'Tiefe werden die Scheiben <b>quer gestoßen und gekoppelt</b> – im ' +
+            'Bild als Querprofil zu sehen.');
+        }
         if (!tb.lieferbar) {
           saetze.push('Diese Tiefe liegt über dem Höchstmaß von ' +
             (M.regeln.tiefeMaxMitUnterzug / 1000).toFixed(1).replace('.', ',') +
@@ -5099,7 +5155,10 @@
      kommt natürlich in fachbegriffen etc haben") */
   function eindeckungFach() {
     if (istPolycarbonat()) return Z.eindeckung + ', Sechsfachstegplatte 16 mm';
-    return Z.eindeckung.replace('VSG ', 'VSG ' + Z.glasstaerke + ' mm ');
+    /* Der Querstoß gehört in die Anfrage, nicht nur ins Bild: Er ist ein
+       eigenes Bauteil (Innenkern) und wird bei TDS getrennt geführt. */
+    return Z.eindeckung.replace('VSG ', 'VSG ' + Z.glasstaerke + ' mm ') +
+           (glasGeteilt() ? ', quer gestoßen und gekoppelt (Innenkern)' : '');
   }
 
   function eindeckungKurz() {

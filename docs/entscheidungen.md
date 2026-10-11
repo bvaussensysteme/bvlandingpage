@@ -2235,3 +2235,33 @@ das nachrechnet.
 
 **Gegenzulesen:** Ob die gekoppelte Höhe hinten im Bedienfeld sofort
 mitläuft, wenn man vorne oder an der Neigung dreht.
+
+## 2026-10-11 – VSG-Glas wird ab 4,50 m quer gestoßen
+
+**Anlass:** „und vsg glas kann ja ab ner bestimmten länge nict am stück
+verbaut werden sondern is dann getrennt und muss gekopelt werden" –
+auf die Rückfrage nach dem Maß: „ich glaube geht nur bis 4,50 oder 5m am
+stück" (Betreiber).
+
+**Die Zahl ist belegt, nicht geschätzt.** Die Maßtabelle führt einen
+„Innenkern" ausschließlich ab der Tiefe **4600 mm**; die letzte Tiefe
+ohne ihn ist damit 4500 mm. Das deckt sich mit der unteren der beiden
+Schätzungen des Betreibers – zwei unabhängige Quellen, dieselbe Zahl.
+Deshalb: größte Scheibe am Stück 4500 mm.
+
+**Was jetzt gezeichnet wird:** Ab 4600 mm Tiefe zwei Scheiben
+hintereinander statt einer, dazwischen ein Kopplungsprofil über die
+volle Dachbreite. Der Querschnitt des Profils ist GESCHÄTZT (60 × 30 mm)
+– die Lage und das Vorhandensein sind es nicht.
+
+**Nur bei Glas.** Polycarbonat-Stegplatten kommen in langen Bahnen und
+werden nicht gestoßen.
+
+**Im Bedienfeld und in der Anfrage:** Der Hinweis nennt die 4,50 m im
+Klartext, die Anfrage-Mail hängt „quer gestoßen und gekoppelt
+(Innenkern)" an die Eindeckung. Das steht in `eindeckungFach()`, also an
+EINER Stelle – die Zeile wird an zwei Orten gebraucht.
+
+**Warum das zählt:** Der Innenkern ist bei TDS ein eigenes Bauteil und
+wird getrennt geführt (im Datenpfad gibt es dafür `innenkernImPreis`).
+Fehlt er in der Anfrage, fehlt er im Angebot.
