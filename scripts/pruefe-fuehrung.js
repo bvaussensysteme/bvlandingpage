@@ -1663,6 +1663,30 @@ pruefe('Keilglas geht in die Anfrage',
          falsch === 0 ? 'drei Faelle' : meld.join('; '));
 })();
 
+(function () {
+  /* „das mit den ralfarben von eben klappt noch nicht" (Betreiber,
+     11.10.2026): Der Klick auf ein Farbfeld rief nur bauen() und
+     textAktualisieren(). Welche Bedienfelder sichtbar sind, entscheidet
+     aber panelAnpassen() - und das steckt in aendern(). Das Feld fuer
+     den RAL-Ton erschien deshalb nie.
+
+     Geprueft wird die Kette: Klick -> aendern -> panelAnpassen. */
+  /* Der Klick-Behandler, nicht die gleichnamige Schleife in
+     panelAnpassen: gesucht wird der Block um farbeSetzen(...). */
+  var i = js.indexOf("farbeSetzen(b.getAttribute('data-k3d-farbe'))");
+  var klick = i > -1 ? js.slice(i, i + 900) : '';
+  var ruftAendern = /aendern\(\);/.test(klick);
+  var alteKette = /bauen\(\);\s*\n\s*textAktualisieren\(\);/.test(klick);
+  var panelInAendern = /function aendern\(\)[\s\S]*?panelAnpassen\(\);/.test(js);
+  if (gegen) { ruftAendern = alteKette; }
+  var falsch = 0, meld = [];
+  if (!ruftAendern) { falsch++; meld.push('Klick ruft aendern() nicht'); }
+  if (alteKette && !gegen) { falsch++; meld.push('alte Kette steht noch da'); }
+  if (!panelInAendern) { falsch++; meld.push('panelAnpassen nicht in aendern'); }
+  pruefe('Farbklick stellt auch das Bedienfeld nach', falsch === 0,
+         falsch === 0 ? 'Klick → aendern → panelAnpassen' : meld.join('; '));
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

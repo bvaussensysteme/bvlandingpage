@@ -4117,3 +4117,28 @@ Fassungen desselben Tons würden beim nächsten Mal auseinanderlaufen.
 
 **Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 200, Gegenprobe
 200 von 200; die neue lässt die echte Funktion in drei Fällen laufen.
+
+## 11.10.2026 – Warum das RAL-Feld nicht erschien
+
+**Anlass.** „das mit den ralfarben von eben klappt noch nicht"
+(Betreiber).
+
+**Der Fehler.** Der Klick auf ein Farbfeld rief `bauen()` und
+`textAktualisieren()`. Beide zeichnen neu – aber KEINES von beiden
+entscheidet, welche Bedienfelder sichtbar sind. Das macht
+`panelAnpassen()`, und das steckt in `aendern()`. Das Feld für den
+RAL-Ton tauchte nach dem Klick auf „Andere / Beratung" deshalb gar
+nicht erst auf; die ganze Mechanik dahinter war richtig und lief nur
+ins Leere.
+
+**Was jetzt gilt.** Der Farbklick ruft `aendern()`. Das zeichnet, liest
+die Felder und stellt das Bedienfeld nach – die gewählte Farbe steht in
+`Z` und wird dabei nicht überschrieben.
+
+**Lehre.** Eine neue Bedingung in `gruppeGilt()` nützt nichts, wenn der
+auslösende Klick die Sichtbarkeit nie neu berechnet. Beim nächsten
+optionalen Feld zuerst prüfen: Ruft der Auslöser `aendern()`?
+
+**Prüfung.** Die neue verfolgt die Kette Klick → `aendern` →
+`panelAnpassen` und verbietet die alte Abkürzung.
+`scripts/pruefe-fuehrung.js` jetzt 201, Gegenprobe 201 von 201.
