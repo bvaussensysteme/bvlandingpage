@@ -199,6 +199,21 @@
     elMin: 500, elMax: 1500, anlageMax: 7000,   // mm, BELEGT
     tiefeOben: { 1: 6.13, 2: 11.26, 3: 16.39 }, // cm, BELEGT
     tiefeUnten: { 1: 5.12, 2: 10.25, 3: 15.38 },// cm, BELEGT
+    /* Achsabstand zweier Schienen – nachgerechnet aus den belegten
+       Bautiefen, nicht geraten: (112,6 − 61,3) = 51,3 mm, und
+       (163,9 − 112,6) = 51,3 mm. Beide Male derselbe Wert, das stützt
+       die Rechnung. */
+    schienenAbstand: 5.13,
+    /* Die Elemente HÄNGEN im Kopfprofil – in der Querschnittzeichnung
+       sitzt über jedem Element ein kurzer Träger, darunter beginnt erst
+       der Rahmen. Deshalb ein sichtbarer Spalt oben; auf den
+       Produktbildern ist das der dunkle Streifen unter dem Kopfprofil.
+       Höhe GESCHÄTZT. */
+    aufhaengung: 3.0,
+    /* Die Bodenschiene ist nur FÜHRUNG, nicht Auflager: In der
+       Zeichnung steht das Element nicht darauf, sondern läuft darin.
+       Sie ist flach. Höhe GESCHÄTZT. */
+    bodenSchiene: 1.0,
     rahmen: 4.5,      // GESCHÄTZT: Ansichtsbreite der Rahmenprofile
     kopf: 6.0,        // GESCHÄTZT: Höhe des Kopfprofils
     lamelle: 7.0,     // GESCHÄTZT: Ansichtshöhe einer Lamelle
@@ -2441,18 +2456,30 @@
          ist das der Versatz in der Tiefe. Feststehend liegen alle in
          einer Ebene. */
       var spur = Z.velarisArt === 'verschiebbar' && schienen > 1
-        ? innenRichtung(achse, quer) * (nr % schienen) * 5.1 : 0;
+        ? innenRichtung(achse, quer) * (nr % schienen) * VELARIS.schienenAbstand : 0;
       achse = achse + spur;
+
+      /* Das Element hängt: Es beginnt über der Bodenschiene und endet
+         unter dem Kopfprofil. Was dazwischen fehlt, ist die Aufhängung –
+         genau der Streifen, den die Querschnittzeichnung und die
+         Produktbilder oben zeigen. */
+      var ukEl = yUnten + VELARIS.bodenSchiene;
+      var hEl = hoehe - VELARIS.bodenSchiene - VELARIS.aufhaengung;
+      if (hEl <= R * 2) return;
 
       /* Rahmen: zwei senkrechte Profile an den Seiten, je eines oben und
          unten. Alle vier liegen in der Ebene des Elements. */
-      platte(rahmen, R, hoehe, achse, mitte - laenge / 2 + R / 2,
-             yUnten + hoehe / 2, quer, 0, VELARIS.tiefeUnten[1]);
-      platte(rahmen, R, hoehe, achse, mitte + laenge / 2 - R / 2,
-             yUnten + hoehe / 2, quer, 0, VELARIS.tiefeUnten[1]);
-      platte(rahmen, laenge, R, achse, mitte, yUnten + R / 2, quer, 0, VELARIS.tiefeUnten[1]);
-      platte(rahmen, laenge, R, achse, mitte, yUnten + hoehe - R / 2, quer, 0,
+      platte(rahmen, R, hEl, achse, mitte - laenge / 2 + R / 2,
+             ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      platte(rahmen, R, hEl, achse, mitte + laenge / 2 - R / 2,
+             ukEl + hEl / 2, quer, 0, VELARIS.tiefeUnten[1]);
+      platte(rahmen, laenge, R, achse, mitte, ukEl + R / 2, quer, 0,
              VELARIS.tiefeUnten[1]);
+      platte(rahmen, laenge, R, achse, mitte, ukEl + hEl - R / 2, quer, 0,
+             VELARIS.tiefeUnten[1]);
+      /* Der kurze Träger, an dem das Element im Kopfprofil hängt. */
+      platte(rahmen, Math.min(laenge * 0.5, 20), VELARIS.aufhaengung, achse, mitte,
+             ukEl + hEl + VELARIS.aufhaengung / 2, quer, 0, 1.2);
       /* Kopfprofil oben und Bodenschiene unten. Ihre BAUTIEFE steht im
          Bestellformular und hängt an der Schienenzahl – bei drei
          Schienen ist das Kopfprofil fast dreimal so tief wie bei einer.
@@ -2460,12 +2487,13 @@
       platte(rahmen, laenge, VELARIS.kopf, achse, mitte,
              yUnten + hoehe + VELARIS.kopf / 2, quer, -spur,
              VELARIS.tiefeOben[schienen] || VELARIS.tiefeOben[1]);
-      platte(rahmen, laenge, 1.2, achse, mitte, yUnten + 0.6, quer, -spur,
+      platte(rahmen, laenge, VELARIS.bodenSchiene, achse, mitte,
+             yUnten + VELARIS.bodenSchiene / 2, quer, -spur,
              VELARIS.tiefeUnten[schienen] || VELARIS.tiefeUnten[1]);
 
       /* Lamellen im Lichten des Rahmens. Die Zahl folgt aus der lichten
          Höhe und der Teilung – gleichmäßig, wie bei der Plankenwand. */
-      var licht = hoehe - 2 * R;
+      var licht = hEl - 2 * R;
       var lamLaenge = laenge - 2 * R;
       var n = Math.max(1, Math.floor(licht / VELARIS.teilung));
       if (n < 1 || lamLaenge <= 0) return;
@@ -2479,7 +2507,7 @@
       var grenze = Z.velarisTeil === 'alles' ? -1
         : Math.round(n * Math.min(90, Math.max(10, Z.velarisAnteil)) / 100);
       for (var i = 0; i < n; i++) {
-        var y = yUnten + R + (i + 0.5) * schritt;
+        var y = ukEl + R + (i + 0.5) * schritt;
         /* i zählt von UNTEN. „unten" öffnet die ersten, „oben" die letzten. */
         var faehrt = Z.velarisTeil === 'alles'
           || (Z.velarisTeil === 'unten' ? i < grenze : i >= n - grenze);

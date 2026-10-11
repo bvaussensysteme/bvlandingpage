@@ -457,6 +457,27 @@ pruefe('Lamellen fahren mit Animation',
          gegen ? teile(490) !== 0 : teile(490) === 0, '');
 })();
 
+(function () {
+  /* Der Schienenabstand ist NICHT geraten: Er faellt aus den belegten
+     Bautiefen heraus, und zwar oben wie unten derselbe Wert. Genau das
+     wird hier nachgerechnet - zwei unabhaengige Wege zum selben
+     Ergebnis. Gegenprobe: ein erfundener Abstand. */
+  var o = { 1: 6.13, 2: 11.26, 3: 16.39 }, u = { 1: 5.12, 2: 10.25, 3: 15.38 };
+  var a1 = o[2] - o[1], a2 = o[3] - o[2], a3 = u[2] - u[1], a4 = u[3] - u[2];
+  var soll = gegen ? 4.8 : 5.13;
+  var gleich = [a1, a2, a3, a4].every(function (x) {
+    return Math.abs(x - soll) < 0.005;
+  });
+  pruefe('Schienenabstand faellt aus den Bautiefen', gleich,
+         'oben ' + a1.toFixed(2) + '/' + a2.toFixed(2) +
+         ', unten ' + a3.toFixed(2) + '/' + a4.toFixed(2) + ' cm');
+})();
+pruefe('Schienenabstand steht so im Code',
+       new RegExp(q || 'schienenAbstand: 5\\.13').test(js) &&
+       !/\* 5\.1 : 0/.test(js), '');
+pruefe('Element haengt im Kopfprofil',
+       new RegExp(q || 'var hEl = hoehe - VELARIS\\.bodenSchiene - VELARIS\\.aufhaengung').test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

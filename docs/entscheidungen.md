@@ -2722,3 +2722,29 @@ Im Konfigurator stehen alle fünf zur Wahl. Zu klären.
 **GESCHÄTZT bleiben:** Ansichtshöhe einer Lamelle (70 mm), Ansichtsbreite
 der Rahmenprofile (45 mm), Höhe des Kopfprofils (60 mm) und der Farbwert
 der Echtholzoptik. Keines davon steht im Formular.
+
+## 2026-10-11 – Velaris: die Querschnittzeichnung gelesen
+
+**Anlass:** Der Betreiber hat die Maßzeichnung in groß geschickt, dazu
+den Satz „Element min 50 cm max. Breite 150 cm" für die schiebbare
+Ausführung – was wir schon so hatten.
+
+**Drei Dinge stehen in der Zeichnung, die im Formulartext nicht stehen:**
+
+**1. Der Schienenabstand ist nicht zu raten, er fällt heraus.**
+61,3 → 112,6 → 163,9 mm oben und 51,2 → 102,5 → 153,8 mm unten: jeder
+Schritt ist **51,3 mm**, oben wie unten derselbe Wert. Zwei unabhängige
+Wege zum selben Ergebnis – stärker als jede einzelne Angabe. Das Modell
+hatte 51 mm angenommen; jetzt steht die gerechnete Zahl drin, mit der
+Rechnung als Prüfung daneben.
+
+**2. Die Elemente hängen.** Über jedem Element sitzt ein kurzer Träger im
+Kopfprofil, darunter beginnt erst der Rahmen. Auf den Produktbildern ist
+das der dunkle Streifen oben. Das Modell zog den Rahmen bisher bis unter
+das Kopfprofil durch.
+
+**3. Die Bodenschiene ist Führung, kein Auflager.** Das Element steht
+nicht darauf, es läuft darin. Sie ist flach.
+
+**GESCHÄTZT bleiben** die Höhe der Aufhängung (30 mm) und die Höhe der
+Bodenschiene (10 mm) – beides ist in der Zeichnung nicht bemaßt.
