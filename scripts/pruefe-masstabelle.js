@@ -245,6 +245,103 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Glas-Schiebeanlage SG23 ----------
+   Maße aus der Herstellerunterlage, Stand 01.08.2026. PREISE DUERFEN
+   NICHT IN DEN QUELLTEXT – das prueft zusaetzlich pruefe-keine-preise.sh. */
+pruefe('SG23-Bauarten hinterlegt',
+       gegen ? !/bauarten: \[/.test(k3d) : /bauarten: \[/.test(k3d), '8 Bauarten');
+pruefe('Schiebefluegel 10 mm ESG',
+       gegen ? !/glasDicke: 1\.0,/.test(k3d) : /glasDicke: 1\.0,/.test(k3d),
+       'nicht mehr 14 mm');
+pruefe('Fluegelzahl kommt aus der Bauart',
+       new RegExp(q || 'var b = sg23Bauart\\(laenge \\* 10\\)').test(k3d), '');
+pruefe('Keine Preise aus der SG23-Liste im Quelltext',
+       gegen ? /1\.018,58|2\.339,23|Aufpreis fuer Sonderfarbe/.test(k3d)
+             : !/1\.018,58|2\.339,23|1\.437,13|4\.250,56/.test(k3d), '');
+/* Zweiter Weg: die Bauartwahl wirklich rechnen und die Scheibenbreite
+   gegen die breiteste lieferbare Scheibe halten. */
+(function () {
+  var mB = k3d.match(/bauarten: \[([\s\S]*?)\]\s*\};/);
+  if (!mB) { pruefe('SG23-Tabelle lesbar', false, 'nicht gefunden'); return; }
+  var arten = [];
+  mB[1].replace(/\[\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\s*\]/g,
+    function (_, sch, fl, von, bis) {
+      arten.push([+sch, +fl, +von, +bis]); return '';
+    });
+  pruefe('Acht Bauarten eingelesen', arten.length === (gegen ? 7 : 8), arten.length + '');
+  function waehle(b) {
+    var t = null;
+    arten.forEach(function (a) {
+      if (b >= a[2] && b <= a[3] && (!t || a[1] < t[1])) t = a;
+    });
+    return t;
+  }
+  /* Belegte Eckwerte aus der Unterlage: unterste und oberste Breite je
+     Bauart muessen eine Bauart finden, 1400 und 7500 keine. */
+  [[1500, true], [3000, true], [4000, true], [7000, true],
+   [1400, false], [7500, false]].forEach(function (f) {
+    var hat = !!waehle(f[0]);
+    if (gegen) hat = !hat;
+    pruefe('Breite ' + f[0] + ' mm ' + (f[1] ? 'lieferbar' : 'nicht lieferbar'),
+           hat === f[1], hat ? 'Bauart gefunden' : 'keine Bauart');
+  });
+  /* Die Auswahl erfolgt nach der SCHEIBENBREITE („was von der optik am
+     besten aussieht"). Belegt wird das hier nicht ueber den Quelltext,
+     sondern ueber das Ergebnis: Keine lieferbare Anlagenbreite darf eine
+     Scheibe unter 750 oder ueber 1250 mm erzeugen. Die Faustregel
+     „Breite / 150 cm" riss diese Grenze bei 3500 mm mit 1750 mm. */
+  var ZIEL = 1050, schmalste = 9999, breiteste = 0, beiSchmal = 0, beiBreit = 0;
+  function waehleOptik(b) {
+    var t = null, best = Infinity;
+    arten.forEach(function (a) {
+      if (b < a[2] || b > a[3]) return;
+      var ab = Math.abs(b / a[1] - ZIEL);
+      if (ab < best - 0.5 || (Math.abs(ab - best) <= 0.5 && t && a[0] < t[0])) {
+        t = a; best = ab;
+      }
+    });
+    return t;
+  }
+  for (var b = 1500; b <= 7000; b += 100) {
+    var a = waehleOptik(b);
+    if (!a) continue;
+    var scheibe = b / a[1];
+    if (scheibe > breiteste) { breiteste = scheibe; beiBreit = b; }
+    if (scheibe < schmalste) { schmalste = scheibe; beiSchmal = b; }
+  }
+  if (gegen) breiteste += 100;
+  pruefe('Scheibenbreite bleibt im Band 750 bis 1250 mm',
+         breiteste <= 1250 && schmalste >= 750,
+         Math.round(schmalste) + ' mm (' + beiSchmal + ') bis ' +
+         Math.round(breiteste) + ' mm (' + beiBreit + ')');
+  /* Die alte Faustregel haette das Band gerissen – Gegenprobe zur Regel
+     selbst, nicht nur zur Umsetzung. */
+  var alteRegel = 3500 / Math.max(2, Math.round(350 / 150));
+  pruefe('Alte Faustregel haette das Band gerissen',
+         gegen ? alteRegel <= 1250 : alteRegel > 1250,
+         Math.round(alteRegel) + ' mm bei 3500 mm Anlage');
+})();
+
+pruefe('Auswahl nach Scheibenbreite, nicht nach Fluegelzahl',
+       new RegExp(q || 'ZIEL_SCHEIBE = 1050').test(k3d), 'gestalterisch gesetzt');
+pruefe('Gleichstand: weniger Schienen gewinnt',
+       new RegExp(q || "b\\[0\\] < treffer\\[0\\]").test(k3d), '');
+
+pruefe('Handauswahl der Aufteilung vorhanden',
+       gegen ? !/id="k3dSg23"/.test(html) : /id="k3dSg23"/.test(html), 'Auswahlfeld');
+pruefe('Handauswahl liegt unter „Mehr Einstellungen"',
+       new RegExp(q || 'data-k3d-mehr data-k3d-fuer="schiebe"').test(html), '');
+pruefe('Automatik bleibt die Voreinstellung',
+       gegen ? !/sg23Wahl: '',/.test(k3d) : /sg23Wahl: '',/.test(k3d), "leer = automatisch");
+pruefe('Handauswahl geht der Automatik vor',
+       new RegExp(q || 'var hand = sg23Gewaehlt\\(breiteMm\\);').test(k3d), '');
+pruefe('Unpassende Handauswahl faellt auf Automatik zurueck',
+       new RegExp(q || "if \\(Z\\.sg23Wahl && !sg23Gewaehlt\\(mass\\)\\) Z\\.sg23Wahl = ''").test(k3d), '');
+pruefe('Auswahlfeld loest ein Neuzeichnen aus',
+       new RegExp(q || "'k3dGlasstaerke', 'k3dSg23'").test(k3d), 'in der Lauscherliste');
+pruefe('Gewaehlte Bauart steht in der Anfrage',
+       new RegExp(q || "Schiebeanlage ' \\+ p\\[0\\] \\+ ': SG23, '").test(k3d), 'Fachbegriffe');
+
 /* ---------- Verglasung: VSG 8/10 mm und getöntes Glas ----------
    „bei vsg glas hast du vergessen die 10mm variante hinzuzufügen und gls
    gibts auch in getönt also graphit" (Betreiber, 11.10.2026). */

@@ -1435,3 +1435,82 @@ hoher Preis in der Anfrage. Steht als Hinweis unter dem Feld.
    Zurzeit sind alle sechs Kombinationen wählbar – ANNAHME.
 3. Lichtdurchlässigkeit von getöntem VSG; Farbe und Deckkraft im Modell
    sind GESCHÄTZT, angelehnt an graphitfarbenes Polycarbonat.
+
+## 2026-10-11 – Glas-Schiebeanlage SG23: echte Bauarten statt Faustregel
+
+**Anlass:** Der Betreiber hat die SG23-Unterlage (Stand 01.08.2026)
+bereitgestellt: „du kannst hiervon die maße und skizzen für die
+glasschiebeelemente nehmen, nur bitte die preise nirgendwo übernehmen
+oder sichtbar machen".
+
+**Preise:** Übernommen sind ausschließlich Maße und Bauarten. Im
+Quelltext steht keine Zahl aus den Preistabellen; die PDF selbst liegt
+nicht im Repo. `scripts/pruefe-keine-preise.sh` prüft die Seite weiterhin,
+zusätzlich sucht `scripts/pruefe-masstabelle.js` gezielt nach vier Beträgen
+aus dieser Liste.
+
+**Was falsch war:** Die Flügelzahl kam aus „Breite / 150 cm, gerundet"
+(GESCHÄTZT). Bei 3500 mm ergab das 2 Flügel à 1750 mm – so breit baut der
+Hersteller keinen einzigen Flügel. Die breiteste Scheibe der Unterlage
+misst 1500 mm (2-türig bei 3000 mm Anlagenbreite).
+
+**Was jetzt gilt:** Acht Bauarten aus Schienen- und Flügelzahl mit je
+eigenem Breitenbereich, von 3 Schienen / 2 Flügeln (1500–3000 mm) bis
+4 Schienen / 8 Flügel (3000–7000 mm). Überlappen sich mehrere, gewinnt
+die mit den WENIGSTEN Flügeln: breitere Scheiben, weniger Profile im
+Blick, und das ist die Bauart, die der Kunde meint, wenn er nichts
+weiter sagt. Eine Prüfung rechnet alle Breiten von 1500 bis 7000 mm durch
+und belegt, dass keine Scheibe über 1500 mm herauskommt.
+
+**Scheibendicke:** 10 mm ESG (unisoliertes Kaltelement), vorher 14 mm
+geschätzt.
+
+**Neuer Hinweis im Bedienfeld:** Die Anlage ist im Freien bis **2450 mm**
+hoch lieferbar (Windlast; innen 2600 mm). Die Durchgangshöhe im
+Konfigurator geht bis 2700 mm. Wer 2700 einstellt und Schiebetüren wählt,
+bekam bisher ein Bild, das so nicht baubar ist – und eine Anfrage, auf die
+VD mit „geht nicht" antwortet, nachdem der Kunde sich entschieden hat.
+Dasselbe für Breiten außerhalb 1500–7000 mm.
+
+**Noch nicht eingebaut, bewusst:** Die Unterlage nennt drei Glasarten
+(ESG klar, Satinato, Grau) und die Rechnung in 500-mm-Schritten. Beides
+ist eine Produktentscheidung, keine Zeichenfrage – siehe Rückfrage unten.
+
+**Auswahlregel – nach Optik, nicht nach Flügelzahl:** „der konfigurator
+soll immer das am besten passendste für das maß was der kunde auswählt
+nehmen. was von der optik am besten aussieht" (Betreiber). Entschieden
+wird deshalb nach der SCHEIBENBREITE: Zielwert 1050 mm, also etwa
+Terrassentürbreite. Damit liegt jede lieferbare Anlagenbreite zwischen
+750 und 1250 mm Scheibenbreite. Bei Gleichstand (4000 mm: 3-rails-4-türig
+und 4-rails-4-türig ergeben beide 1000 mm) gewinnt die Variante mit
+weniger Schienen – schmalere Bodenschiene, weniger Stolperkante.
+
+Verworfen: „die wenigsten Flügel". Das hätte bei 3000 mm zwei Scheiben à
+1500 mm ergeben – schwer und plump. Der Zielwert 1050 mm ist die eine
+Zahl, an der man dreht, wenn im Verkauf eine andere Aufteilung üblich
+ist; er ist eine gestalterische Festlegung, KEINE Herstellerangabe.
+
+**Handauswahl:** „system machts automatisch, aber bei erweiterte
+einstellungen kann man es selbst wählen" (Betreiber). Unter „Mehr
+Einstellungen" steht ein Feld „Aufteilung der Schiebeanlage"; es listet
+nur Bauarten, die es in diesem Maß wirklich gibt, mit der jeweiligen
+Scheibenbreite. Voreinstellung bleibt Automatik. Ändert sich das Maß so,
+dass die gewählte Bauart nicht mehr lieferbar ist, springt das Feld
+zurück auf Automatik – sonst zeigte es etwas anderes als das Modell.
+Links/rechts laufen über die Tiefe, vorne über die Breite: passt die
+Handauswahl zu einer Seite nicht, gilt dort wieder die Automatik.
+
+**In der Anfrage-Mail** steht ab jetzt je geschlossener Seite die Bauart
+im Fachjargon, etwa „Schiebeanlage links: SG23, 3-rails, 4-türig, 10 mm
+ESG, Scheiben je ca. 1000 mm (Vorschlag, Aufteilung nach Aufmaß)".
+Begründung des Betreibers: „man kann es später mim kunden eh nochmal
+besprechen und ändern" – besprechen kann man aber nur, was dasteht.
+
+**Gegenzulesen:**
+1. Soll der Kunde die Glasart der Schiebeanlage wählen (klar / Satinato /
+   Grau)? Dann gehört sie auch in den Anfrage-Assistenten.
+2. Zielwert 1050 mm Scheibenbreite – passt das zu dem, was im Verkauf
+   üblich ist?
+3. Querschnitte von Bodenschiene (55 × 60 mm) und Wandanschlussprofil
+   (50 × 25 mm) sind weiterhin GESCHÄTZT; die Unterlage zeigt die
+   Ansichtsskizzen, aber keine Profilschnitte.
