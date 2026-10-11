@@ -4318,6 +4318,33 @@
     return istCarportTds() && Z.aufbau === 'Freistehend';
   }
 
+  /* ---------- Höchstmaß des Dachvorsprungs ----------
+     „dachvorsprung bei carport ruhig machen möglich bis 1500mm nicht nur
+     800mm" (Betreiber, 11.10.2026). Beim Terrassendach bleibt es bei
+     800 mm.
+
+     Die Grenze wird am Regler gesetzt und der Wert mitgezogen: Wer am
+     Carport 1400 mm einstellt und dann auf Terrassendach wechselt,
+     bekäme sonst ein Maß, das der Regler gar nicht mehr hergibt – und
+     es stünde trotzdem in der Anfrage. */
+  var VORSPRUNG_MAX = { carport: 1500, standard: 800 };
+
+  function vorsprungGrenzeSetzen() {
+    var max = istCarportTds() ? VORSPRUNG_MAX.carport : VORSPRUNG_MAX.standard;
+    [['k3dVorsprung', 'vorsprung'],
+     ['k3dVorsprungHinten', 'vorsprungHinten']].forEach(function (pr) {
+      var el = document.getElementById(pr[0]);
+      if (!el) return;
+      el.max = max;
+      if (Z[pr[1]] > max) {
+        Z[pr[1]] = max;
+        el.value = max;
+        var zf = document.getElementById(pr[0] + 'Zahl');
+        if (zf) zf.value = max;
+      }
+    });
+  }
+
   function neigungGrad() {
     if (!hoehenGetrennt()) return Z.neigung;
     var grad = Math.atan((Z.hoeheHinten - Z.hoehe) / Math.max(1, Z.tiefe))
@@ -4782,6 +4809,7 @@
     Z.boden = wert('k3dBoden') || Z.boden;
     Z.fassade = wert('k3dFassade') || Z.fassade;
     Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
+    vorsprungGrenzeSetzen();
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
