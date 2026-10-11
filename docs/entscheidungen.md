@@ -906,3 +906,24 @@ Aufmaß verbindlich ist und nicht das Bild auf dem Bildschirm.
 `scripts/pruefe-fuehrung.js` dann ebenfalls.
 
 **Prüfung.** 25 Prüfungen, alle bestanden; Gegenprobe 25 von 25.
+
+## 2026-10-11 – Rinnen-Seitendeckel als flache Platte mit Schräge
+
+**Anlass.** Der Betreiber hat das Teilebild geschickt: „so sehen die
+seitendeckel für die rinne aus bei tds" – und nachgeschoben: „die
+niedrigere seite is die vorderseite".
+
+**Was war.** Der Seitendeckel war die SILHOUETTE des Rinnenprofils,
+4 mm dick extrudiert. Er folgte also jeder Rundung der Rinne.
+
+**Was jetzt gilt.** Eine **flache Platte mit geraden Kanten und einer
+abgeschrägten Ecke** – so sieht das Teil aus. Die Schräge sitzt an der
+**Vorderkante oben**, damit die Vorderseite die niedrigere ist.
+
+**Offen, steht in `docs/NEXT_TASK.md`.** Das Teilebild nennt
+**172 × 175 mm**. Unsere Rinne ist nach der Querschnittszeichnung des
+Betreibers **186,3 mm breit und 136,7 mm hoch**. Der Deckel wäre damit in
+der einen Richtung schmaler, in der anderen deutlich höher als die
+Öffnung, die er schließen soll. Eine der beiden Angaben hat einen anderen
+Bezugspunkt. Bis das geklärt ist, wird der Deckel auf die **tatsächliche
+Rinnenöffnung** gezeichnet: lieber bündig als maßhaltig falsch.

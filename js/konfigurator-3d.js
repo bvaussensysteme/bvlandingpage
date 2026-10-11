@@ -959,11 +959,46 @@
 
      Der Deckel hat denselben Umriss wie die Rinne, aber ohne Kehle: er
      deckt sie ja zu. Stärke 4 mm, GESCHÄTZT. */
+  /* Seitendeckel der Rinne („Seitendeckel Rinne 2 TD beidseitig",
+     Teileliste der Montageanleitung S. 6). Der Betreiber hat am
+     11.10.2026 das Teilebild geschickt: eine FLACHE PLATTE mit geraden
+     Kanten und einer abgeschrägten Ecke – nicht die Silhouette des
+     Rinnenprofils, wie hier vorher gezeichnet war.
+
+     OFFEN, GEGENZULESEN: Das Teilebild nennt 172 × 175 mm. Unsere Rinne
+     ist nach der Querschnittszeichnung des Betreibers 186,3 mm breit und
+     136,7 mm hoch – der Deckel wäre damit in der einen Richtung
+     schmaler, in der anderen deutlich höher als die Öffnung, die er
+     verschließen soll. Eine der beiden Angaben bezieht sich offenbar auf
+     etwas anderes (anderer Bezugspunkt, anderes Rinnenprofil, oder das
+     Maß schließt einen Aufkantung über dem Sparren ein). Bis das geklärt
+     ist, wird der Deckel auf die TATSÄCHLICHE Rinnenöffnung gezeichnet:
+     lieber bündig als maßhaltig falsch. Die 172 × 175 stehen in
+     docs/NEXT_TASK.md unter den offenen Punkten. */
+  function rinnenblendeQuerschnitt() {
+    var b = RINNE.breite, h = RINNE.hoehe;
+    /* Die Schräge liegt an der VORDERKANTE oben – „die niedrigere seite
+       is die vorderseite" (Betreiber, 11.10.2026). Dadurch ist die
+       Vorderseite des Deckels die kürzere.
+
+       x = 0 ist hinten (Wandseite), x = b vorne; nach dem rotateY unten
+       läuft die Querschnittsbreite in +z, und +z ist vorne. */
+    var fase = 3.4;                 // Schräge, aus dem Teilebild abgegriffen
+    var f = new THREE.Shape();
+    f.moveTo(0, 0);
+    f.lineTo(b, 0);
+    f.lineTo(b, h - fase);
+    f.lineTo(b - fase, h);
+    f.lineTo(0, h);
+    f.closePath();
+    return f;
+  }
+
   function rinnenblenden(laenge, zVorne, yUnten, material) {
     var dicke = 0.4;
     [-1, 1].forEach(function (seite) {
-      var g = new THREE.ExtrudeGeometry(rinneQuerschnitt(false),
-        { depth: dicke, bevelEnabled: false, curveSegments: 6 });
+      var g = new THREE.ExtrudeGeometry(rinnenblendeQuerschnitt(),
+        { depth: dicke, bevelEnabled: false, curveSegments: 2 });
       g.rotateY(-Math.PI / 2);
       g.translate(seite * (laenge / 2 + dicke) + (seite > 0 ? 0 : dicke),
                   yUnten, zVorne - RINNE.breite);
@@ -972,6 +1007,7 @@
       bau.add(m);
     });
   }
+
 
   /* ---------- Dachsparren des TDS-Systems ----------
      Maße aus der Querschnittszeichnung des Betreibers (10.10.2026):
