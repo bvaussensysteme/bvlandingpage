@@ -3872,3 +3872,32 @@ obere – der Knopf soll breit wirken, nicht hoch. Die Zahlen dürfen sich
 **Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 171, Gegenprobe
 171 von 171. Die neue vergleicht die Polster von Kopfzeile und Leiste
 miteinander und hält die Schrift bei mindestens 0,7 rem.
+
+## 11.10.2026 – Sammelbild hing: fünf Rückrufe, von denen einer ausblieb
+
+**Anlass.** „das erstellen alles 5 bilder in einem bild funktioniert
+nicht, steht nur wird erstellt, passiert nix" (Betreiber, mit
+Bildschirmfoto).
+
+**Was falsch war.** Das Blatt entstand über fünf `Image`-Objekte: je
+Ansicht ein Datenbild erzeugen, dessen `onload` abwarten, und erst beim
+fünften fertig melden. Bleibt auch nur ein `onload` aus – und bei
+Datenbildern von mehreren Megabyte passiert genau das –, zählt der
+Zähler nie auf null und der Knopf wartet für immer. Ein Fehler, der sich
+nicht meldet, sondern stehen bleibt.
+
+**Was jetzt gilt.** Es wird gar nichts mehr abgewartet: Eine Leinwand
+lässt sich direkt in eine andere zeichnen (`drawImage` mit der
+WebGL-Leinwand als Quelle). Fünfmal Ansicht einstellen, zeichnen,
+hineinkopieren – alles in einem Durchgang. Damit „Wird erstellt …"
+vorher auch wirklich auf dem Schirm steht, startet die Arbeit zwei
+Bilder später; und ein `finally` setzt die Beschriftung zurück, falls
+unterwegs doch etwas schiefgeht.
+
+**Lehre.** Fünf Rückrufe abzuwarten, von denen jeder ausbleiben kann,
+ist fünfmal die Gelegenheit zu hängen. Geht es ohne Rückruf, geht es
+ohne Rückruf.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 174, Gegenprobe
+174 von 174. Neu: kein `onload` mehr im Sammelbild, die Leinwand wird
+direkt kopiert, und der Knopf fällt auch bei einem Fehler zurück.
