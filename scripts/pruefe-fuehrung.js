@@ -211,6 +211,17 @@ pruefe('Loslassen bleibt ungebremst',
          new RegExp(q || f[1]).test(js), '');
 });
 
+/* Ohne Herstellerzahlen bleibt der Kasten "Was daraus folgt" ganz weg
+   (Betreiber, 11.10.2026: "lass das weg"). Zwei Dinge muessen dafuer
+   stimmen: im Markup darf kein Ersatztext mehr stehen, und der Code
+   muss den Kasten wirklich ausblenden. */
+pruefe('Kein Skizzen-Hinweis mehr im Markup',
+       gegen ? /keine Herstellerzahlen/.test(html)
+             : !/keine Herstellerzahlen/.test(html), '');
+pruefe('Kasten wird ohne Zahlen ausgeblendet',
+       new RegExp(q || 'kasten\\.hidden = true').test(js) &&
+       new RegExp(q || 'kasten\\.hidden = false').test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

@@ -29,7 +29,7 @@
    angebunden (wrangler.jsonc), die Schnittstelle antwortet mit 503 –
    geprüft am 10.10.2026 gegen die veröffentlichte Seite. Alle Produkte
    laufen deshalb über die geschätzten Zeichnungen. Das ist vorgesehen,
-   darf aber nicht übersehen werden: „Was daraus folgt" bleibt so leer.
+   darf aber nicht übersehen werden: „Was daraus folgt" bleibt dann ganz weg.
 
    Der Zustand führt alle Maße in Millimeter – so, wie im Aufmaß
    gearbeitet wird. Für die Geometrie wird intern durch zehn geteilt,
@@ -4718,7 +4718,6 @@
       case 'verk-richtung':  return Z.verkRueck || Z.verkLinks || Z.verkRechts;
       // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
       // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
-      case 'geschaetzt':     return !d;
       // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
       // haben laut Hersteller kein Neigungsfeld (BELEGT).
       /* Neigung eingeben: nur beim Terrassendach. Beim Carport ergibt
@@ -5300,13 +5299,20 @@
     var box = document.getElementById('k3dFolgt');
     var hinBox = document.getElementById('k3dHinweise');
     if (!box) return;
+    /* Ohne Herstellerzahlen bleibt der ganze Kasten weg – nicht etwa mit
+       einem Hinweis gefüllt. „lass das weg" (Betreiber, 11.10.2026): Ein
+       Kasten, der nur erklärt, dass er nichts zu sagen hat, verunsichert
+       beim Produkt, statt zu informieren. Das Modell ist auch ohne ihn
+       richtig gezeichnet. */
+    var kasten = box.closest ? box.closest('.k3d-zus--folgt') : null;
     var e = stueckliste();
     if (!e || e.fehler) {
-      box.innerHTML = '<li>Für dieses Produkt liegen uns noch keine ' +
-        'Herstellerzahlen vor. Die Darstellung ist eine Skizze.</li>';
+      box.innerHTML = '';
       if (hinBox) hinBox.innerHTML = '';
+      if (kasten) kasten.hidden = true;
       return;
     }
+    if (kasten) kasten.hidden = false;
     var z = [];
     z.push(['Ihr Maß', e.angefragt.breite + ' × ' + e.angefragt.tiefe + ' mm']);
     if (!e.imRaster) {
