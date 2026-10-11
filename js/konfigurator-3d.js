@@ -952,38 +952,30 @@
     return m;
   }
 
-  /* Seitendeckel der Rinne („Seitendeckel Rinne 2 TD beidseitig", Art.
-     6017 in der Teileliste der Montageanleitung). Sie schließen das
-     Profil an beiden Enden ab – ohne sie sieht man in ein offenes
-     Strangpressprofil, und genau das fiel dem Betreiber auf.
-
-     Der Deckel hat denselben Umriss wie die Rinne, aber ohne Kehle: er
-     deckt sie ja zu. Stärke 4 mm, GESCHÄTZT. */
   /* Seitendeckel der Rinne („Seitendeckel Rinne 2 TD beidseitig",
-     Teileliste der Montageanleitung S. 6). Der Betreiber hat am
-     11.10.2026 das Teilebild geschickt: eine FLACHE PLATTE mit geraden
-     Kanten und einer abgeschrägten Ecke – nicht die Silhouette des
-     Rinnenprofils, wie hier vorher gezeichnet war.
+     Teileliste der Montageanleitung S. 6). Teilebild vom Betreiber,
+     11.10.2026: eine FLACHE PLATTE mit geraden Kanten und einer
+     abgeschrägten Ecke – nicht die Silhouette des Rinnenprofils, wie hier
+     ursprünglich gezeichnet war. Maß 172 × 175 mm, BELEGT.
 
-     OFFEN, GEGENZULESEN: Das Teilebild nennt 172 × 175 mm. Unsere Rinne
-     ist nach der Querschnittszeichnung des Betreibers 186,3 mm breit und
-     136,7 mm hoch – der Deckel wäre damit in der einen Richtung
-     schmaler, in der anderen deutlich höher als die Öffnung, die er
-     verschließen soll. Eine der beiden Angaben bezieht sich offenbar auf
-     etwas anderes (anderer Bezugspunkt, anderes Rinnenprofil, oder das
-     Maß schließt einen Aufkantung über dem Sparren ein). Bis das geklärt
-     ist, wird der Deckel auf die TATSÄCHLICHE Rinnenöffnung gezeichnet:
-     lieber bündig als maßhaltig falsch. Die 172 × 175 stehen in
-     docs/NEXT_TASK.md unter den offenen Punkten. */
+     LAGE: Das Teil ist in der einen Richtung schmaler, in der anderen
+     höher als unsere Rinnenöffnung (186,3 × 136,7 mm). Vorgabe des
+     Betreibers dazu: „gleich den deckel mittig aus huptsache vorne is
+     bündig." Also:
+       · vorne BÜNDIG mit der Rinnenvorderkante,
+       · in der Höhe MITTIG zur Rinne.
+     Hinten bleiben dadurch rund 14 mm der Öffnung frei, oben und unten
+     steht der Deckel je rund 19 mm über. Das ist so gewollt und nicht
+     übersehen – die Vorderkante ist das, was man sieht.
+
+     Die Schräge liegt an der Vorderkante oben: „die niedrigere seite is
+     die vorderseite" (Betreiber). */
+  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4 };   // cm, BELEGT
+
   function rinnenblendeQuerschnitt() {
-    var b = RINNE.breite, h = RINNE.hoehe;
-    /* Die Schräge liegt an der VORDERKANTE oben – „die niedrigere seite
-       is die vorderseite" (Betreiber, 11.10.2026). Dadurch ist die
-       Vorderseite des Deckels die kürzere.
-
-       x = 0 ist hinten (Wandseite), x = b vorne; nach dem rotateY unten
-       läuft die Querschnittsbreite in +z, und +z ist vorne. */
-    var fase = 3.4;                 // Schräge, aus dem Teilebild abgegriffen
+    var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe, fase = RINNENDECKEL.fase;
+    /* x = 0 ist hinten, x = b vorne; nach dem rotateY unten läuft die
+       Querschnittsbreite in +z, und +z ist vorne. */
     var f = new THREE.Shape();
     f.moveTo(0, 0);
     f.lineTo(b, 0);
@@ -996,17 +988,20 @@
 
   function rinnenblenden(laenge, zVorne, yUnten, material) {
     var dicke = 0.4;
+    var zHinten = zVorne - RINNENDECKEL.breite;                   // vorne bündig
+    var yStart = yUnten + (RINNE.hoehe - RINNENDECKEL.hoehe) / 2; // mittig
     [-1, 1].forEach(function (seite) {
       var g = new THREE.ExtrudeGeometry(rinnenblendeQuerschnitt(),
         { depth: dicke, bevelEnabled: false, curveSegments: 2 });
       g.rotateY(-Math.PI / 2);
       g.translate(seite * (laenge / 2 + dicke) + (seite > 0 ? 0 : dicke),
-                  yUnten, zVorne - RINNE.breite);
+                  yStart, zHinten);
       var m = new THREE.Mesh(g, material);
       m.castShadow = true; m.receiveShadow = true;
       bau.add(m);
     });
   }
+
 
 
   /* ---------- Dachsparren des TDS-Systems ----------

@@ -158,6 +158,21 @@ pruefe('eZIP – Kastenunterstützung ab 400 cm',
        new RegExp(q || 'laenge > ZIP\\.stuetzeAb').test(src), 'Anleitung S. 5');
 pruefe('eZIP – Hinweis bei über 5 m Breite',
        new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
+/* Seitendeckel Rinne 2 TD, Teilebild: 172 x 175 mm; vorne buendig,
+   in der Hoehe mittig (Vorgabe des Betreibers). */
+var rd = (src.match(/var RINNENDECKEL = \{[^}]*\}/) || [''])[0];
+[['breite', 172], ['hoehe', 175]].forEach(function (p) {
+  var m = rd.match(new RegExp(p[0] + ':\\s*([\\d.]+)'));
+  var ist = m ? Math.round(parseFloat(m[1]) * 10) : null;
+  var soll = p[1] + (gegen ? 7 : 0);
+  pruefe('Rinnendeckel ' + p[0], ist === soll,
+         ist + ' mm (Teilebild ' + p[1] + ')');
+});
+pruefe('Rinnendeckel vorne buendig',
+       new RegExp(q || 'zVorne - RINNENDECKEL\\.breite').test(src), 'Vorderkante');
+pruefe('Rinnendeckel in der Hoehe mittig',
+       new RegExp(q || 'RINNE\\.hoehe - RINNENDECKEL\\.hoehe\\) / 2').test(src), '');
+
 /* Glasleiste TD, Teilebild: 55,3 x 22,6 mm */
 var gl = (src.match(/var GLASLEISTE = \{[^}]*\}/) || [''])[0];
 [['breite', 55.3], ['hoehe', 22.6]].forEach(function (p) {
