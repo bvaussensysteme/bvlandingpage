@@ -1630,13 +1630,37 @@
      verschiedene Maße), greift für DIESE Seite wieder die Automatik.
      Eine Bauart zu zeichnen, die es in dieser Breite nicht gibt, wäre
      die schlechtere Antwort als eine Seite anders aufzuteilen. */
+  /* Was das Modell je Seite TATSAECHLICH gebaut hat, in mm. Vorher
+     rechnete das Bedienfeld selbst: vorne Z.breite, an den Seiten
+     Z.tiefe. Beides stimmte nicht.
+
+     Vorne wird seit dem 11.10.2026 je Pfostenfach geteilt – zu einer
+     Anlage von 5780 mm lichter Breite stand dort die volle Breite von
+     6000 mm, und eine Bauart, die nur zur vollen Breite passt, fiel beim
+     Zeichnen still auf Automatik zurueck. Genau das hat der Betreiber
+     gemeldet: „das funktioniert nicht auf stirnseite prüfe alle seiten".
+
+     An den SEITEN ist Z.tiefe ebenfalls falsch: Das Element laeuft von
+     der Wand bis zur Dachvorderkante, also Tiefe minus Rinne minus
+     halber Pfosten, bei Dachvorsprung noch weniger.
+
+     Statt diese Rechnungen im Bedienfeld zu wiederholen – zwei Wahrheiten,
+     die auseinanderlaufen – meldet das Modell sie beim Bauen. */
+  var SG23_LAENGE = { links: 0, rechts: 0, vorne: 0 };
+  var SG23_FELDER = 1;                 // Anzahl Felder auf der Stirnseite
+
   var SG23_SEITEN = [['links', 'sg23Links', 'k3dSg23Links'],
                      ['rechts', 'sg23Rechts', 'k3dSg23Rechts'],
                      ['vorne', 'sg23Vorne', 'k3dSg23Vorne']];
 
   /* Welches Maß läuft auf welcher Seite? Links und rechts über die Tiefe,
      vorne über die Breite. */
-  function sg23Mass(seite) { return seite === 'vorne' ? Z.breite : Z.tiefe; }
+  /* Das gemeldete Mass gilt. Nur solange noch nichts gebaut wurde,
+     greift die grobe Schaetzung – sonst stuende das Feld beim ersten
+     Aufruf leer. */
+  function sg23Mass(seite) {
+    return SG23_LAENGE[seite] || (seite === 'vorne' ? Z.breite : Z.tiefe);
+  }
 
   function sg23Gewaehlt(breiteMm, seite) {
     var wahl = '';
@@ -2063,6 +2087,9 @@
          Element – ohne sie steht die Scheibe frei in der Luft bzw. frei
          vor der Mauer. Eine Senkrechtmarkise bekommt beides NICHT: sie
          läuft in eigenen Führungsschienen und hat unten eine Fallstange. */
+      /* Dem Bedienfeld melden, womit hier wirklich gerechnet wurde. */
+      if (hatSchiebe) SG23_LAENGE[seite] = Math.round(laenge * 10);
+
       if (hatRahmen || hatSchiebe || hatPlanken) {
         if (hatSchiebe) {
           tuerschwelle(laenge, achse, mitte, quer, gl);
@@ -2207,6 +2234,7 @@
     var seitenMitte = (hinten + vorne) / 2;
     var seitenLaenge = vorne - hinten;
 
+    SG23_LAENGE.links = SG23_LAENGE.rechts = SG23_LAENGE.vorne = 0;
     eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
     eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
 
@@ -2236,6 +2264,7 @@
     var achsen = (pfostenX && pfostenX.length > 1)
       ? pfostenX.slice().sort(function (a, b) { return a - b; })
       : [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2];
+    SG23_FELDER = Math.max(1, achsen.length - 1);
     for (var f = 0; f < achsen.length - 1; f++) {
       var lichtVon = achsen[f] + PROFIL / 2;
       var lichtBis = achsen[f + 1] - PROFIL / 2;
@@ -3732,7 +3761,6 @@
      offene Seiten werden ausdrücklich genannt statt weggelassen. */
   function seitenStandZeigen() {
     var el = document.getElementById('k3dSeitenStand');
-    sg23FeldFuellen();     // auch, wenn gleich unten zurueckgesprungen wird
     if (!el) return;
     var zu = [], offen = [];
     [['links', 'links'], ['rechts', 'rechts'], ['vorne', 'vorne']].forEach(function (p) {
@@ -3798,16 +3826,19 @@
 
   function sg23Zeilen() {
     var zeilen = [];
-    [['links', Z.tiefe], ['rechts', Z.tiefe], ['vorne', Z.breite]].forEach(function (p) {
-      if (erwListe(p[0]).indexOf('Schiebetür') === -1) return;
+    ['links', 'rechts', 'vorne'].forEach(function (seite) {
+      if (erwListe(seite).indexOf('Schiebetür') === -1) return;
+      var p = [seite, sg23Mass(seite)];
+      var zusatz = (seite === 'vorne' && SG23_FELDER > 1)
+        ? ' · ' + SG23_FELDER + ' Felder zwischen den Pfosten, Maß je Feld' : '';
       var b = sg23Bauart(p[1], p[0]);
       if (!b) {
         zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +
           ' mm – außerhalb der Standardbreiten (1500–7000 mm), Aufteilung nach Aufmaß');
         return;
       }
-      zeilen.push('Schiebeanlage ' + p[0] + ': SG23, ' + b[0] + '-rails, ' +
-        b[1] + '-türig, 10 mm ESG, Scheiben je ca. ' +
+      zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] + ' mm licht' + zusatz +
+        ' – SG23, ' + b[0] + '-rails, ' + b[1] + '-türig, 10 mm ESG, Scheiben je ca. ' +
         Math.round(p[1] / b[1]) + ' mm (Vorschlag, Aufteilung nach Aufmaß)');
     });
     return zeilen;
@@ -3825,9 +3856,12 @@
     /* Die Elemente laufen in der Tiefe (links/rechts) bzw. in der Breite
        (vorne) – die längste geschlossene Seite entscheidet. */
     var laengen = [];
-    if (erwListe('links').indexOf('Schiebetür') > -1 ||
-        erwListe('rechts').indexOf('Schiebetür') > -1) laengen.push(Z.tiefe);
-    if (erwListe('vorne').indexOf('Schiebetür') > -1) laengen.push(Z.breite);
+    /* Dieselben Maße wie im Modell, nicht Z.breite/Z.tiefe – an den
+       Seiten ist das Element kürzer als die Tiefe, vorne je Feld
+       schmaler als die Breite. */
+    ['links', 'rechts', 'vorne'].forEach(function (st) {
+      if (erwListe(st).indexOf('Schiebetür') > -1) laengen.push(sg23Mass(st));
+    });
     var maxL = Math.max.apply(null, laengen.concat([0]));
     if (maxL > 0 && !sg23Bauart(maxL)) {
       saetze.push('Für <b>' + maxL + ' mm</b> gibt es keine Standard-Bauart ' +
@@ -4699,6 +4733,9 @@
        an den Rasterkanten. Die genaue Antwort kommt gebremst nach, sonst
        feuert jeder Pixel eine Abfrage. */
     bauen();
+    /* ERST nach dem Bauen: Die Auswahlfelder zeigen die Bauarten zum
+       tatsaechlich gebauten Mass, und das meldet erst bauen(). */
+    sg23FeldFuellen();
     textAktualisieren();
     folgtAktualisieren();
     gebremstHolen();
