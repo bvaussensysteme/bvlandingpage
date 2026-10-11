@@ -321,7 +321,7 @@ pruefe('Lichtes Mass zwischen den Pfosten',
        new RegExp(q || 'lichtBis = achsen\\[f \\+ 1\\] - PROFIL / 2').test(src),
        'Achse plus/minus halbe Pfostenbreite');
 pruefe('Felder oeffnen von der Mitte nach aussen',
-       new RegExp(q || 'feldMitte < 0 \\? -1 : 1').test(src), '');
+       new RegExp(q || 'feldMitte < 0 \\? 1 : -1').test(src), 'rk +1 stapelt nach links');
 pruefe('Laufrichtung spiegelbar',
        new RegExp(q || 'var rk = \\(richtung === 1\\) \\? 1 : -1;').test(src), '');
 pruefe('Pfostenachsen werden durchgereicht',
@@ -354,9 +354,40 @@ pruefe('Pfostenachsen werden durchgereicht',
    fuer barrierefreie Bedienung 850 mm im Band 750 bis 1200 mm. Fuer
    Muschelgriffe gibt es keine eigene Norm. Bohrung 50 mm ist das
    uebliche Handelsmass. */
-pruefe('Griff an der Aussenkante, nicht innen',
-       new RegExp(q || 'kante = lage - rk \\* \\(flB / 2 - GRIFF\\.randAbstand\\)').test(src),
-       'Laufrichtung beachtet');
+pruefe('Griff an der Schliesskante',
+       new RegExp(q || 'kante = lage \\+ rk \\* \\(flB / 2 - GRIFF\\.randAbstand\\)').test(src),
+       'plus rk, nicht minus');
+/* Zweiter Weg: Stapelseite und Griffseite wirklich ausrechnen. Beide
+   Vorzeichen waren invertiert – deshalb hier gerechnet, nicht gelesen. */
+(function () {
+  function start(rk, n, mitte, laenge) { return mitte - rk * (laenge / 2 - laenge / n / 2); }
+  function letzterZu(rk, n, mitte, laenge) {
+    return start(rk, n, mitte, laenge) + rk * (laenge / n) * (n - 1);
+  }
+  function griff(rk, n, mitte, laenge) {
+    return letzterZu(rk, n, mitte, laenge) + rk * (laenge / n / 2 - 9);
+  }
+  var n = 3, laenge = 280;
+  /* Linkes Feld: Mitte -150, Grenzen -290 bis -10. */
+  var sL = start(1, n, -150, laenge) + (gegen ? 280 : 0);
+  pruefe('Linkes Feld stapelt nach links (zum Rand)', sL < -150,
+         'Stapel bei x = ' + sL.toFixed(0));
+  var gL = griff(1, n, -150, laenge) + (gegen ? -280 : 0);
+  pruefe('Linkes Feld: Griff am Mittelpfosten', gL > -150,
+         'Griff bei x = ' + gL.toFixed(0));
+  /* Rechtes Feld spiegelbildlich. */
+  var sR = start(-1, n, 150, laenge) + (gegen ? -280 : 0);
+  pruefe('Rechtes Feld stapelt nach rechts (zum Rand)', sR > 150,
+         'Stapel bei x = ' + sR.toFixed(0));
+  var gR = griff(-1, n, 150, laenge) + (gegen ? 280 : 0);
+  pruefe('Rechtes Feld: Griff am Mittelpfosten', gR < 150,
+         'Griff bei x = ' + gR.toFixed(0));
+  /* Der Griff darf nie ausserhalb seines Fluegels liegen. */
+  var mitteFl = letzterZu(1, n, -150, laenge), halb = laenge / n / 2;
+  var abstand = Math.abs(griff(1, n, -150, laenge) - mitteFl) + (gegen ? 60 : 0);
+  pruefe('Griff liegt innerhalb des Fluegels', abstand < halb,
+         abstand.toFixed(0) + ' cm von der Fluegelmitte, halbe Breite ' + halb.toFixed(0));
+})();
 
 /* ---------- Kein Spalt zwischen Schiebewand und Keil ----------
    „zwischen schiebewand und keil is ne lücke darf nicht sein"
