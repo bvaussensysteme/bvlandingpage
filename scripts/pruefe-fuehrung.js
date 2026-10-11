@@ -1400,6 +1400,28 @@ pruefe('Knopf faellt auch bei einem Fehler zurueck',
        new RegExp(q || 'finally \\{ zurueck\\(\\); \\}').test(js),
        'nicht fuer immer „Wird erstellt"');
 
+/* „die angabe muss im abendmodus weiss werden sonst kann man es nicht
+   lesen" (Betreiber, 11.10.2026). */
+pruefe('Abendmodus schaltet die Schrift ueber dem Bild um',
+       new RegExp(q || "classList\\.toggle\\('ist-abend', !!Z\\.abend\\)").test(js) &&
+       new RegExp(q || '\\.k3d-buehne\\.ist-abend \\.k3d-info h2').test(html) &&
+       new RegExp(q || '\\.k3d-buehne\\.ist-abend \\.k3d-info p').test(html), '');
+(function () {
+  /* Beide Zeilen - Produktname UND Massangabe - muessen hell werden.
+     Eine allein genuegt nicht; genau die Massangabe war beanstandet. */
+  var regel = (html.match(/\.k3d-buehne\.ist-abend[\s\S]*?\}/) || [''])[0];
+  var hell = /color: #fff/.test(regel) && /text-shadow/.test(regel);
+  var beide = /h2,[\s\S]*?\.k3d-info p/.test(regel);
+  if (gegen) hell = !hell;
+  pruefe('Ueberschrift und Massangabe werden beide hell', hell && beide,
+         beide ? '' : 'nur eine der beiden Zeilen');
+})();
+/* Umgeschaltet wird an EINER Stelle - dort, wo der Abend sowieso
+   gesetzt wird. Zwei Stellen laufen beim naechsten Umbau auseinander. */
+pruefe('Nur eine Stelle schaltet den Abend um',
+       (js.match(/classList\.toggle\('ist-abend'/g) || []).length === (gegen ? 2 : 1),
+       'in stimmung()');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

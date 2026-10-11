@@ -3901,3 +3901,24 @@ ohne Rückruf.
 **Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 174, Gegenprobe
 174 von 174. Neu: kein `onload` mehr im Sammelbild, die Leinwand wird
 direkt kopiert, und der Knopf fällt auch bei einem Fehler zurück.
+
+## 11.10.2026 – Schrift über dem Bild wird abends weiß
+
+**Anlass.** „die angabe muss im abendmodus weiß werden sonst kann man es
+nicht lesen" (Betreiber, mit Bildschirmfoto).
+
+**Was jetzt gilt.** Produktname und Maßangabe werden im Abendmodus weiß,
+mit weichem Schatten statt eines harten Kastens – so bleibt das Bild
+ruhig. Umgeschaltet wird mit einer Klasse an der Bühne, gesetzt in
+`stimmung()`: der einen Stelle, an der der Abend ohnehin ein- und
+ausgeht. Die Farben selbst stehen im Stilblatt, nicht im Code.
+
+**Warum nicht zwei Stellen.** Es wäre naheliegend gewesen, die Klasse
+auch am Abend-Knopf zu setzen. Dann gäbe es zwei Wahrheiten, die beim
+nächsten Umbau auseinanderlaufen – eine Prüfung zählt deshalb die
+Umschaltstellen und besteht auf genau einer.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 177, Gegenprobe
+177 von 177. Darunter eine, die verlangt, dass BEIDE Zeilen hell werden:
+Die Maßangabe war die beanstandete, und eine Regel nur für die
+Überschrift hätte wie eine Lösung ausgesehen.
