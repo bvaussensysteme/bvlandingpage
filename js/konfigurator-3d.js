@@ -179,6 +179,7 @@
     var eintrag = { map: null, normal: null };
     FOTO_TEXTUR[name] = eintrag;
     texLader.load(pfad, function (t) {
+      neuZeichnen();          // Textur kommt verzögert – Bild nachziehen
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.encoding = THREE.sRGBEncoding;      // Farbbild, kein Datenbild
       t.anisotropy = texMaxAniso;           // sonst matscht der flache Boden
@@ -189,6 +190,7 @@
       stimmung();
     }, undefined, function () { FOTO_TEXTUR[name] = false; });
     texLader.load(pfad.replace('.webp', '-normal.webp'), function (t) {
+      neuZeichnen();
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.anisotropy = texMaxAniso;           // Normalmap bleibt linear
       eintrag.normal = t;
@@ -689,6 +691,9 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  /* Nur neu rechnen, wenn sich etwas geändert hat – siehe bauen(). */
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
   renderer.outputEncoding = THREE.sRGBEncoding;
   // Ohne Tonwertkurve brennen helle Rahmen und Glasflaechen aus
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -1413,6 +1418,12 @@
     stimmung();
     masseZeichnen();
     kameraAnpassen();
+    /* Die Schattenkarte wird NICHT mehr jedes Bild neu gerechnet – das
+       ist bei 2048 × 2048 und weichen Schatten der teuerste Posten der
+       Schleife. Sie ändert sich nur, wenn sich das Modell oder das Licht
+       ändert, also genau hier. */
+    renderer.shadowMap.needsUpdate = true;
+    neuZeichnen();
   }
 
   /* ---------- Modell aus der Stückliste ----------
@@ -3749,17 +3760,26 @@
       kam.radius = passend;
       kameraAnpassen.einmal = true;
     }
+    /* Eine gewählte Ansicht überlebt die Maßänderung – sie wird mit den
+       neuen Maßen neu gerechnet, statt in die Standardlage zu springen. */
+    if (kam.ansicht === 'Darunter') { ansichtInnen(); kameraSetzen(); return; }
     kam.ziel.set(0, Z.hoehe / 10 * 0.48, Z.tiefe / 10 * 0.42);
     kameraSetzen();
   }
 
   function kameraSetzen() {
-    kam.phi = Math.min(Math.max(kam.phi, 0.18), Math.PI / 2 - 0.04);
+    /* Normalerweise endet die Kamera auf Augenhöhe des Modells – über
+       90° stünde sie unter dem Ziel und das Bild auf dem Kopf. Für die
+       Innenansicht ist genau das erwünscht: von unten nach oben schauen.
+       Deshalb darf diese eine Ansicht die Grenze anheben. */
+    kam.phi = Math.min(Math.max(kam.phi, 0.18),
+                       kam.phiMax || (Math.PI / 2 - 0.04));
     var x = kam.radius * Math.sin(kam.phi) * Math.sin(kam.theta);
     var y = kam.radius * Math.cos(kam.phi);
     var z = kam.radius * Math.sin(kam.phi) * Math.cos(kam.theta);
     kamera3.position.set(kam.ziel.x + x, kam.ziel.y + y, kam.ziel.z + z);
     kamera3.lookAt(kam.ziel);
+    neuZeichnen();
   }
 
   var ANSICHTEN = {
@@ -3772,8 +3792,52 @@
        „Darunter" rückt deshalb flach und nah an die Vorderkante und hebt
        den Blickpunkt unter das Dach: dasselbe Ergebnis, nämlich der Blick
        auf die Dachunterseite. */
-    'Darunter':    { theta: 0.0, phi: 1.5, nah: 0.58, unterDach: true }
+    /* „die ansicht darunter sollte eher aussehen wie hier auf dem bild
+       also quasi als ob man im terrassendach etc drinsteht" (Betreiber,
+       11.10.2026, mit Bildschirmfoto aus dem Lamellendach).
+
+       Vorher stand die Kamera AUSSEN vor der Vorderkante und schaute
+       hinein. Jetzt steht sie DRIN, auf Augenhöhe, und schaut nach
+       draußen und leicht nach oben – die Dachunterseite füllt dabei den
+       oberen Bildrand, so wie wenn man unter der Überdachung steht. */
+    'Darunter':    { innen: true }
   };
+
+  var AUGENHOEHE = 160;      // cm – Augenhöhe eines stehenden Menschen
+
+  /* Kamera INS Bauwerk setzen. Gerechnet, nicht geraten: Das Blickziel
+     liegt draußen vor der Anlage und über Augenhöhe, die Kamera steht
+     dahinter im Inneren. Aus beiden ergeben sich Winkel und Abstand. */
+  function ansichtInnen() {
+    var T = Z.tiefe / 10;
+    var phi = Math.PI / 2 + 0.30;          // leicht nach oben geneigt
+    var zielZ = T + 150;                   // Blickpunkt im Garten
+    var kameraZ = T * 0.25;                // Standort: hinteres Viertel
+    var r = (zielZ - kameraZ) / Math.sin(phi);
+    kam.phiMax = Math.PI / 2 + 0.5;
+    kam.theta = Math.PI;                   // nach vorne hinaus schauen
+    kam.phi = phi;
+    kam.radius = r;
+    kam.radiusMin = r * 0.5;
+    kam.radiusMax = r * 1.8;
+    kam.ziel.set(0, AUGENHOEHE - r * Math.cos(phi), zielZ);
+  }
+
+  /* Eine Ansicht anwenden. Steht hier als eigene Funktion, weil sie auch
+     nach jedem Neubau gebraucht wird: Sonst sprang die Kamera bei jeder
+     Maßänderung in die Standardlage zurück. */
+  function ansichtAnwenden(name) {
+    var a = ANSICHTEN[name];
+    if (!a) return;
+    kam.ansicht = name;
+    if (a.innen) { ansichtInnen(); kameraSetzen(); return; }
+    kam.phiMax = 0;
+    kam.theta = a.theta; kam.phi = a.phi;
+    if (a.nah) kam.radius = Math.max(kam.radiusMin, (kam.passend || kam.radius) * a.nah);
+    else if (kam.passend) kam.radius = kam.passend;
+    kam.ziel.set(0, Z.hoehe / 10 * 0.48, Z.tiefe / 10 * 0.42);
+    kameraSetzen();
+  }
 
   /* ---------- Bedienung ---------- */
   /* Grad zu Prozent, BELEGT aus der Tabelle der Montageanleitung TDS.
@@ -4364,6 +4428,11 @@
   leinwand.addEventListener('pointerdown', function (e) {
     if (e.pointerType === 'touch' && e.isPrimary === false) return;
     zieht = true; autoDreht = false;
+    /* Wer selbst dreht, hat die Ansicht verlassen – sonst spränge die
+       Kamera beim nächsten Neubau in die gespeicherte Lage zurück. Die
+       angehobene Winkelgrenze bleibt, damit der Blick nach oben beim
+       Weiterdrehen nicht plötzlich abschneidet. */
+    kam.ansicht = '';
     letzteX = e.clientX; letzteY = e.clientY;
     klickStart = { x: e.clientX, y: e.clientY, t: Date.now() };
     if (leinwand.setPointerCapture) { try { leinwand.setPointerCapture(e.pointerId); } catch (x) {} }
@@ -4422,17 +4491,60 @@
     renderer.setSize(breite, hoehe, false);
     kamera3.aspect = breite / hoehe;
     kamera3.updateProjectionMatrix();
+    neuZeichnen();
   }
   window.addEventListener('resize', groesseAnpassen);
 
-  /* ---------- Schleife ---------- */
+  /* ---------- Schleife ----------
+     „prüfe was man machen kann das die bewegungen smooother ohne laggs
+     werden, aber ohne was am konfigurator kaputt zu machen" (Betreiber,
+     11.10.2026).
+
+     Vorher wurde JEDE Bildschirmaktualisierung neu gerendert – auch
+     wenn sich nichts bewegte, also 60-mal je Sekunde für ein stehendes
+     Bild. Auf einem älteren Rechner oder Handy frisst das die Leistung,
+     die beim Drehen fehlt.
+
+     Jetzt wird nur gezeichnet, wenn es etwas zu zeigen gibt. `frisch`
+     ist ein Zähler, kein Schalter: Jede Änderung setzt ihn auf mehrere
+     Bilder, damit auch verzögerte Dinge (nachgeladene Texturen, eine
+     noch nicht fertige Schattenkarte) sicher mitkommen. Wer dreht oder
+     zieht, bekommt ohnehin jedes Bild.
+
+     Das ist der vorsichtige Weg: Im Zweifel wird einmal zu viel
+     gezeichnet, nie zu wenig. */
+  var frisch = 6;
+  /* Bewusst ohne Math.max: Sollte neuZeichnen() je aufgerufen werden,
+     bevor frisch gesetzt ist, läge sonst NaN im Zähler – und dann würde
+     NIE wieder gezeichnet. Ein stehendes Bild wäre der schlimmste
+     denkbare Fehler dieser Optimierung. */
+  function neuZeichnen() { if (!(frisch > 4)) frisch = 4; }
+
   function zeichnen() {
     if (autoDreht) { kam.theta += 0.0035; kameraSetzen(); }
-    renderer.render(szene, kamera3);
+    if (frisch > 0 || autoDreht || zieht) {
+      renderer.render(szene, kamera3);
+      if (frisch > 0) frisch--;
+    }
     requestAnimationFrame(zeichnen);
   }
 
-  /* ---------- Oberfläche ---------- */
+  /* ---------- Oberfläche ----------
+     Am Schieberegler feuert „input" mit jeder Mausbewegung, also bis zu
+     mehrmals je Bild. aendern() baut jedes Mal das GANZE Modell neu –
+     beim Ziehen war das der eigentliche Grund für das Haken.
+
+     Gebremst heißt: Es wird höchstens EINMAL je Bild gebaut, mit dem
+     dann aktuellen Reglerstand. Nichts geht verloren, weil aendern()
+     die Werte ohnehin frisch aus den Feldern liest. „change" bleibt
+     ungebremst – das feuert nur beim Loslassen. */
+  var gebremstLaeuft = false;
+  function aendernGebremst() {
+    if (gebremstLaeuft) return;
+    gebremstLaeuft = true;
+    requestAnimationFrame(function () { gebremstLaeuft = false; aendern(); });
+  }
+
   function wert(id) { var e = document.getElementById(id); return e ? e.value : null; }
   function zahl(id, ersatz) {
     var v = parseInt(wert(id), 10);
@@ -5346,7 +5458,7 @@
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
-    e.addEventListener('input', aendern);
+    e.addEventListener('input', aendernGebremst);
     e.addEventListener('change', aendern);
   });
 
@@ -5600,6 +5712,7 @@
     STOFF_TEX[wert] = null;
     if (!texLader) return null;
     texLader.load('images/stoffe/tex/' + wert + '.webp', function (t) {
+      neuZeichnen();
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.encoding = THREE.sRGBEncoding;
       t.anisotropy = texMaxAniso;
@@ -5695,14 +5808,10 @@
   // Ansichten
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-ansicht]'), function (b) {
     b.addEventListener('click', function () {
-      var a = ANSICHTEN[b.getAttribute('data-k3d-ansicht')];
-      if (!a) return;
+      var name = b.getAttribute('data-k3d-ansicht');
+      if (!ANSICHTEN[name]) return;
       autoDreht = false;
-      kam.theta = a.theta; kam.phi = a.phi;
-      if (a.nah) kam.radius = Math.max(kam.radiusMin, (kam.passend || kam.radius) * a.nah);
-      else if (kam.passend) kam.radius = kam.passend;
-      kam.ziel.set(0, Z.hoehe / 10 * (a.unterDach ? 0.94 : 0.48), Z.tiefe / 10 * 0.42);
-      kameraSetzen();
+      ansichtAnwenden(name);
       Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-ansicht]'), function (x) {
         x.classList.remove('is-active');
       });

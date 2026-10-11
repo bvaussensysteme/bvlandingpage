@@ -136,6 +136,81 @@ pruefe('Bedienfeld sagt im Klartext, welche Seite offen bleibt',
        new RegExp(q || 'seitenStandZeigen').test(js) &&
        /id="k3dSeitenStand"/.test(html), '');
 
+/* ---------- Ansicht „Darunter" ----------
+   „die ansicht darunter sollte eher aussehen wie hier auf dem bild also
+   quasi als ob man im terrassendach etc drinsteht" (Betreiber,
+   11.10.2026). Vorher stand die Kamera AUSSEN und schaute hinein. */
+pruefe('Innenansicht als eigene Rechnung',
+       gegen ? !/function ansichtInnen\(\)/.test(js) : /function ansichtInnen\(\)/.test(js), '');
+pruefe('Blick geht nach vorne hinaus',
+       gegen ? !/kam\.theta = Math\.PI;/.test(js) : /kam\.theta = Math\.PI;/.test(js), '');
+pruefe('Winkelgrenze nur fuer diese Ansicht angehoben',
+       /kam\.phiMax \|\| \(Math\.PI \/ 2 - 0\.04\)/.test(js) && !gegen ||
+       gegen && /Math\.min\(Math\.max\(kam\.phi, 0\.18\), Math\.PI \/ 2 - 0\.04\)/.test(js),
+       'sonst stuende das Bild auf dem Kopf');
+pruefe('Ansicht ueberlebt die Massaenderung',
+       gegen ? !/if \(kam\.ansicht === 'Darunter'\)/.test(js)
+             : /if \(kam\.ansicht === 'Darunter'\)/.test(js), '');
+pruefe('Eigenes Drehen verlaesst die Ansicht',
+       gegen ? !/kam\.ansicht = '';/.test(js) : /kam\.ansicht = '';/.test(js), '');
+/* Zweiter Weg: die Kameralage wirklich ausrechnen. */
+(function () {
+  var m = js.match(/var phi = Math\.PI \/ 2 \+ ([\d.]+);/);
+  var ma = js.match(/var AUGENHOEHE = (\d+);/);
+  if (!m || !ma) { pruefe('Kameralage rechenbar', false, 'Zeilen nicht gefunden'); return; }
+  var phi = Math.PI / 2 + parseFloat(m[1]), auge = parseInt(ma[1], 10);
+  var T = 300, zielZ = T + 150, kameraZ = T * 0.25;
+  var r = (zielZ - kameraZ) / Math.sin(phi);
+  var zielY = auge - r * Math.cos(phi);
+  var camY = zielY + r * Math.cos(phi) + (gegen ? 120 : 0);
+  var camZ = zielZ - r * Math.sin(phi);
+  pruefe('Kamera steht auf Augenhoehe', Math.abs(camY - auge) < 1, camY.toFixed(0) + ' cm');
+  /* Der Versatz muss die Kamera NACH DRAUSSEN schieben, damit die
+     Pruefung in der Gegenprobe anschlaegt - ein Versatz an der Grenze
+     macht sie nur noch leichter wahr. */
+  var camZp = camZ + (gegen ? 500 : 0);
+  pruefe('Kamera steht INNEN', camZp > 0 && camZp < T,
+         camZp.toFixed(0) + ' cm von der Wand, Tiefe ' + T);
+  pruefe('Blick geht nach oben', zielY > camY + (gegen ? 500 : 0),
+         'Ziel ' + zielY.toFixed(0) + ' cm gegen Kamera ' + camY.toFixed(0) + ' cm');
+})();
+
+/* ---------- Fluessigkeit ----------
+   „prüfe was man machen kann das die bewegungen smooother ohne laggs
+   werden, aber ohne was am konfigurator kaputt zu machen" (Betreiber,
+   11.10.2026). Drei Stellschrauben, alle ohne sichtbare Folge. */
+pruefe('Gezeichnet wird nur bei Bedarf',
+       gegen ? !/if \(frisch > 0 \|\| autoDreht \|\| zieht\)/.test(js)
+             : /if \(frisch > 0 \|\| autoDreht \|\| zieht\)/.test(js),
+       'nicht mehr 60-mal je Sekunde fuer ein stehendes Bild');
+pruefe('Zaehler statt Schalter',
+       gegen ? !/if \(!\(frisch > 4\)\) frisch = 4;/.test(js)
+             : /if \(!\(frisch > 4\)\) frisch = 4;/.test(js),
+       'verzoegerte Texturen kommen mit');
+pruefe('Schattenkarte nicht mehr jedes Bild',
+       gegen ? !/renderer\.shadowMap\.autoUpdate = false;/.test(js)
+             : /renderer\.shadowMap\.autoUpdate = false;/.test(js), '');
+pruefe('Schattenkarte wird nach jedem Bauen erneuert',
+       gegen ? !/renderer\.shadowMap\.needsUpdate = true;\s*\n\s*neuZeichnen\(\);/.test(js)
+             : /renderer\.shadowMap\.needsUpdate = true;\s*\n\s*neuZeichnen\(\);/.test(js),
+       'sonst bliebe der alte Schatten stehen');
+pruefe('Regler baut hoechstens einmal je Bild',
+       gegen ? !/addEventListener\('input', aendernGebremst\)/.test(js)
+             : /addEventListener\('input', aendernGebremst\)/.test(js), '');
+pruefe('Loslassen bleibt ungebremst',
+       gegen ? !/addEventListener\('change', aendern\)/.test(js)
+             : /addEventListener\('change', aendern\)/.test(js), '');
+/* Die Flagge MUSS an jeder Stelle gesetzt werden, die die Szene
+   aendert - sonst bliebe das Bild stehen. Hier die vier Pflichtstellen. */
+[['Kamerabewegung', 'kamera3\\.lookAt\\(kam\\.ziel\\);\\s*\\n\\s*neuZeichnen\\(\\)'],
+ ['Groessenaenderung', 'kamera3\\.updateProjectionMatrix\\(\\);\\s*\\n\\s*neuZeichnen\\(\\)'],
+ ['Nachgeladene Textur', 'texLader\\.load\\(pfad, function \\(t\\) \\{\\s*\\n\\s*neuZeichnen\\(\\)'],
+ ['Stofftextur', "texLader\\.load\\('images/stoffe/tex/[^']*' \\+ wert \\+ '\\.webp', function \\(t\\) \\{\\s*\\n\\s*neuZeichnen\\(\\)"]
+].forEach(function (f) {
+  pruefe('Bild wird nachgezogen: ' + f[0],
+         new RegExp(q || f[1]).test(js), '');
+});
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
