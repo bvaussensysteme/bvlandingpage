@@ -127,6 +127,17 @@ pruefe('Linea U – Tiefe aus der Sparrenlaenge',
 pruefe('Linea U – Breite aus der Dachbreite',
        new RegExp(q || 'B - M\\.breiteAbzug').test(src), 'Dachbreite − 142 mm');
 
+/* ---------- Regel: Aufdachmarkise nicht beim Flachdach SkyView ----------
+   Sie muss in BEIDEN Konfiguratoren stehen. Bis 11.10.2026 stand sie in
+   keinem von beiden. */
+var wiz = fs.readFileSync('js/anfrage-wizard.js', 'utf8');
+pruefe('SkyView sperrt die Aufdachmarkise im 3D-Konfigurator',
+       new RegExp(q || "'Flachdach SkyView': \\['Aufdachmarkise'\\]").test(src),
+       'MARKISE_NICHT');
+pruefe('SkyView sperrt die Aufdachmarkise im Anfrage-Assistenten',
+       new RegExp(q || "produkt !== 'Flachdach SkyView'").test(wiz),
+       'markise.render');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

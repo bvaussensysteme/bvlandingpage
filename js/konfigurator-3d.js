@@ -101,6 +101,90 @@
     'Reinweiß':       0xf1f1ec
   };
 
+  /* ---------- Fotorealistische Texturen (CC0) ----------
+     Rasen, Bodenbelag und Hauswand waren einfarbige Flaechen bzw. grob
+     gezeichnete Canvas-Muster. Der Betreiber am 11.10.2026: „ich haette
+     gerne fuer den boden, die hauswand die wiese etc. besser aufloesende
+     texturen ... ohne lizenz ... ohne wasserzeichen".
+
+     Quelle: ambientCG.com, Lizenz CC0 1.0 (Public Domain Dedication).
+     Keine Namensnennung noetig, keine Wasserzeichen, kommerzielle
+     Nutzung erlaubt. Welche Datei aus welchem Material stammt, steht in
+     docs/texturen.md.
+
+     Die Dateien liegen IM PROJEKT unter images/textur/ und werden nicht
+     von einem fremden Server geladen – kein neuer Drittanbieter, kein
+     neuer Eintrag in der Datenschutzerklaerung, keine fremde
+     Infrastruktur im Ladepfad.
+
+     Faellt das Laden aus (Datei fehlt, kein WebP, Netz weg), bleibt das
+     bisher gezeichnete Canvas-Muster stehen. Genau deshalb ist der
+     Canvas-Weg unten NICHT entfernt worden – er ist der Notnagel. */
+  var TEXTUR_DATEI = {
+    rasen:        'images/textur/rasen.webp',
+    steinplatten: 'images/textur/steinplatten.webp',
+    holzdielen:   'images/textur/holzdielen.webp',
+    putz:         'images/textur/putz.webp',
+    klinker:      'images/textur/klinker.webp',
+    zufahrt:      'images/textur/zufahrt.webp'
+  };
+  /* Kantenlaenge einer Kachel in cm. GESCHAETZT nach Augenmass an der
+     Vorlage – davon haengt ab, ob eine Platte wie 40 cm oder wie 2 m
+     wirkt. Wer das aendert, aendert den Massstab im Bild. */
+  var TEXTUR_KACHEL = {
+    rasen: 200, steinplatten: 240, holzdielen: 120,
+    putz: 220, klinker: 180, zufahrt: 220
+  };
+  var texLader = null, texMaxAniso = 1;
+  var FOTO_TEXTUR = {};
+
+  function fotoTextur(name) {
+    if (FOTO_TEXTUR[name] !== undefined) return FOTO_TEXTUR[name];
+    var pfad = TEXTUR_DATEI[name];
+    if (!pfad || !texLader) { FOTO_TEXTUR[name] = false; return false; }
+    var eintrag = { map: null, normal: null };
+    FOTO_TEXTUR[name] = eintrag;
+    texLader.load(pfad, function (t) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.encoding = THREE.sRGBEncoding;      // Farbbild, kein Datenbild
+      t.anisotropy = texMaxAniso;           // sonst matscht der flache Boden
+      eintrag.map = t;
+      /* Ohne diesen Anstoss erschiene die Textur erst, wenn jemand das
+         naechste Mal etwas umstellt – stimmung() laeuft nur bei
+         Aenderungen, der Zeichen-Takt dagegen staendig. */
+      stimmung();
+    }, undefined, function () { FOTO_TEXTUR[name] = false; });
+    texLader.load(pfad.replace('.webp', '-normal.webp'), function (t) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.anisotropy = texMaxAniso;           // Normalmap bleibt linear
+      eintrag.normal = t;
+      stimmung();
+    }, undefined, function () { /* ohne Normalmap wirkt es nur flacher */ });
+    return eintrag;
+  }
+
+  /* Legt Farb- und Normalmap auf ein Material und stellt die Kachelung
+     auf die tatsaechliche Flaechengroesse ein. Gibt false zurueck, wenn
+     das Foto (noch) nicht da ist – dann greift der Canvas-Notnagel. */
+  function fotoAuftragen(material, name, breiteCm, tiefeCm, abend) {
+    var f = fotoTextur(name);
+    if (!f || !f.map) return false;
+    var k = TEXTUR_KACHEL[name] || 200;
+    var wx = Math.max(1, breiteCm / k), wy = Math.max(1, tiefeCm / k);
+    f.map.repeat.set(wx, wy);
+    material.map = f.map;
+    if (f.normal) {
+      f.normal.repeat.set(wx, wy);
+      material.normalMap = f.normal;
+      if (material.normalScale) material.normalScale.set(0.85, 0.85);
+    }
+    /* Die Textur bringt ihre eigene Farbe mit – multipliziert wird nur
+       noch die Stimmung. Weiss bei Tag, gedaempft am Abend. */
+    material.color.copy(rgb(abend ? 0x8b9099 : 0xffffff));
+    material.needsUpdate = true;
+    return true;
+  }
+
   /* ---------- Bodenbelag als gezeichnete Textur ----------
      Eine Fläche in Volltonfarbe sieht aus wie Beton, egal was man wählt.
      Das Muster wird deshalb einmal auf ein Canvas gezeichnet und gekachelt:
@@ -457,6 +541,8 @@
   // Ohne Tonwertkurve brennen helle Rahmen und Glasflaechen aus
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.72;
+  texLader = new THREE.TextureLoader();
+  texMaxAniso = renderer.capabilities.getMaxAnisotropy();
 
   var szene = new THREE.Scene();
   var kamera3 = new THREE.PerspectiveCamera(42, 1, 1, 6000);
@@ -1579,8 +1665,14 @@
       var lang = Math.max(1, (L - start - 2) * aus);
       var tuchB = Math.max(1, B - M.schieneB * 2 - 0.6);
       var yTuch = ukSchiene + M.schieneH * 0.62;
+      /* TUCHDICKE 14 mm, nicht 3 mm: Ein 3 mm dünner Körper fällt im
+         Schattenpuffer durch die Tiefenkorrektur (shadow.bias −0,0004 bei
+         far = 2200 entspricht rund 9 mm) und wirft dann keinen Schatten
+         mehr. Der Betreiber hat genau das gemeldet: „die markisen machen
+         iwi keinen schatten in der überdachung". 14 mm sind für ein Tuch
+         mit Saum und Wickelwelle auch realistischer. */
       var tuch = new THREE.Mesh(
-        new THREE.BoxGeometry(tuchB, 0.3, lang), mStoff);
+        new THREE.BoxGeometry(tuchB, 1.4, lang), mStoff);
       tuch.position.set(0, yTuch, start + lang / 2);
       tuch.castShadow = true; tuch.receiveShadow = true;
       mk.add(tuch);
@@ -1725,10 +1817,13 @@
       var lang = Math.max(1, (z0 + L - start - M.endkappe) * aus);
       var tuchB = Math.max(1, breite - M.schieneB * 2 - 0.6);
       var yTuch = ukKasten + M.kastenH * 0.38;
+      /* castShadow hat hier GEFEHLT – das Tuch hing unter dem Dach und
+         warf keinen Schatten auf die Terrasse, obwohl es genau dafür da
+         ist. Zur Tuchdicke siehe die Aufdachmarkise. */
       var tuch = new THREE.Mesh(
-        new THREE.BoxGeometry(tuchB, 0.3, lang), mStoff);
+        new THREE.BoxGeometry(tuchB, 1.4, lang), mStoff);
       tuch.position.set(0, yTuch, start + lang / 2);
-      tuch.receiveShadow = true;
+      tuch.castShadow = true; tuch.receiveShadow = true;
       mu.add(tuch);
       /* Ausfallprofil am vorderen Tuchende */
       teil(new THREE.Mesh(
@@ -1790,6 +1885,7 @@
             new THREE.BoxGeometry(B / felder - 8, 2.6, lp / falten - 1.2), mStoff);
           fa.position.set(xm, yq + (q % 2 ? 1.6 : 0), zq);
           fa.rotation.x = neig;
+          fa.castShadow = true;        // fehlte, wie bei der Unterdachmarkise
           bau.add(fa);
         }
       }
@@ -2458,30 +2554,47 @@
       wand.material.color.copy(rgb(0xcfc7b8));
     }
 
+    /* Rasen: die Wiese ist die groesste Flaeche im Bild. Eine Volltonfarbe
+       verraet sofort, dass es eine Zeichnung ist. */
+    fotoAuftragen(rasen.material, 'rasen', 4000, 4000, Z.abend);
+
     /* Hauswand nach der Fassadenart */
     if (wand.visible) {
-      var wt = wandTextur(Z.fassade);
-      wand.material.map = wt;
-      if (wt) {
-        wt.repeat.set(Math.max(1, Math.round(wand.scale.x / 110)),
-                      Math.max(1, Math.round(wand.scale.y / 55)));
-        wand.material.color.setHex(Z.abend ? 0x9a938c : 0xffffff);
+      var wandFoto = Z.fassade === 'Verklinkert' ? 'klinker' : 'putz';
+      if (!fotoAuftragen(wand.material, wandFoto,
+                         wand.scale.x, wand.scale.y, Z.abend)) {
+        /* Notnagel: das gezeichnete Muster von vorher */
+        var wt = wandTextur(Z.fassade);
+        wand.material.map = wt;
+        wand.material.normalMap = null;
+        if (wt) {
+          wt.repeat.set(Math.max(1, Math.round(wand.scale.x / 110)),
+                        Math.max(1, Math.round(wand.scale.y / 55)));
+          wand.material.color.setHex(Z.abend ? 0x9a938c : 0xffffff);
+        }
+        wand.material.needsUpdate = true;
       }
-      wand.material.needsUpdate = true;
     }
 
     /* Bodenbelag. Vor dem Carport liegt eine Zufahrt, kein Terrassenbelag –
        dort bleibt die graue Fläche ohne Muster stehen. */
-    if (Z.produkt === 'Carport') {
-      belag.material.map = null;
-    } else {
-      var tex = bodenTextur(Z.boden);
-      tex.repeat.set(Math.max(1, Math.round(belag.scale.x / 90)),
-                     Math.max(1, Math.round(belag.scale.z / 90)));
-      belag.material.map = tex;
-      if (!Z.abend) belag.material.color.copy(rgb(0xffffff));
+    var bodenFoto = Z.produkt === 'Carport' ? 'zufahrt'
+                  : (Z.boden === 'Holzdielen' ? 'holzdielen' : 'steinplatten');
+    if (!fotoAuftragen(belag.material, bodenFoto,
+                       belag.scale.x, belag.scale.z, Z.abend)) {
+      /* Notnagel: gezeichnetes Muster, vor dem Carport gar keins */
+      belag.material.normalMap = null;
+      if (Z.produkt === 'Carport') {
+        belag.material.map = null;
+      } else {
+        var tex = bodenTextur(Z.boden);
+        tex.repeat.set(Math.max(1, Math.round(belag.scale.x / 90)),
+                       Math.max(1, Math.round(belag.scale.z / 90)));
+        belag.material.map = tex;
+        if (!Z.abend) belag.material.color.copy(rgb(0xffffff));
+      }
+      belag.material.needsUpdate = true;
     }
-    belag.material.needsUpdate = true;
   }
 
   /* ---------- Kamera ---------- */
@@ -2931,6 +3044,7 @@
     if (sw) sw.textContent = Z.sonneAus + ' %';
 
     panelAnpassen();
+    markiseAnzeigen();
     erwAnzeigen();
     titelAnpassen();
     summenSetzen();
@@ -3181,6 +3295,42 @@
       aendern();
     });
   });
+
+  /* ---------- Welche Beschattung zu welchem Dach passt ----------
+     Die Aufdachmarkise liegt mit Schienen und Stuetzen AUF der Eindeckung
+     und wird auf die aeusseren Sparren der geneigten Dachflaeche
+     geschraubt. Das Flachdach SkyView hat beides nicht: kein Aussen-
+     gefaelle und eine umlaufende hohe Blende, ueber die Kassette und
+     Schienen hinausstuenden.
+
+     Beanstandet vom Betreiber am 11.10.2026: „bei sky view is keine
+     aufdachmarkise moeglich". Die Regel fehlte im 3D-Konfigurator UND im
+     Anfrage-Assistenten – beide boten sie an. Sie steht jetzt an beiden
+     Stellen; scripts/pruefe-konfigurator.js vergleicht die Tabellen. */
+  var MARKISE_NICHT = {
+    'Flachdach SkyView': ['Aufdachmarkise']
+  };
+  function markiseGesperrt(wert) {
+    var liste = MARKISE_NICHT[Z.produkt];
+    return !!(liste && liste.indexOf(wert) > -1);
+  }
+  function markiseAnzeigen() {
+    /* Wer beim TDS eine Aufdachmarkise gewaehlt hat und dann auf SkyView
+       wechselt, haette sie sonst unsichtbar weiter in der Anfrage. */
+    if (markiseGesperrt(Z.markise)) {
+      Z.markise = 'Ohne';
+      segSetzen('k3dMarkise', 'Ohne');
+    }
+    Array.prototype.forEach.call(
+      document.querySelectorAll('[data-k3d-seg="k3dMarkise"] button'),
+      function (b) {
+        var aus = markiseGesperrt(b.getAttribute('data-wert'));
+        b.disabled = aus;
+        b.classList.toggle('ist-gesperrt', aus);
+        if (aus) b.setAttribute('title', 'Beim Flachdach SkyView nicht moeglich');
+        else b.removeAttribute('title');
+      });
+  }
 
   function erwAnzeigen() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-erw]'), function (reihe) {
