@@ -129,12 +129,17 @@ pruefe('Breite wird auf die nächste lieferbare aufgerundet',
 
 /* ---------- Statikträger und Hinweis ---------- */
 pruefe('Statikträger 189 × 117 mm im Modell',
-       new RegExp(q || 'traegerH = \\(tbMass && tbMass\\.unterzug\\) \\? 18\\.9').test(k3d) &&
+       new RegExp(q || 'traegerH = .*18\\.9').test(k3d) &&
        new RegExp(q || 'traegerT = 11\\.7').test(k3d), 'aus der Maßtabelle');
-pruefe('Träger sitzt unter der Rinne, nicht in der Dachmitte',
-       new RegExp(q || 'hVorn \\+ traegerH / 2, zPf').test(k3d), 'zPf = Pfostenachse');
-pruefe('Durchgangshöhe bleibt, Dach rückt nach oben',
-       new RegExp(q || 'var hRinne = hVorn \\+ traegerH').test(k3d), '');
+pruefe('Träger sitzt über den Pfosten, nicht in der Dachmitte',
+       new RegExp(q || 'hPfosten \\+ traegerH / 2, zPf').test(k3d), 'zPf = Pfostenachse');
+pruefe('Dachvorsprung bewegt die Pfosten',
+       new RegExp(q || 'RINNE\\.breite / 2\\) - vorspr').test(k3d), 'zPf minus Vorsprung');
+pruefe('Träger kommt auch mit Vorsprung',
+       new RegExp(q || 'unterzug\\) \\|\\| vorspr > 0').test(k3d), '');
+pruefe('Ohne Vorsprung hebt der Träger die Rinne an',
+       new RegExp(q || "var hRinne = hVorn \\+ \\(vorspr > 0 \\? 0 : traegerH\\)").test(k3d),
+       'Durchgangshöhe bleibt');
 pruefe('Reglergrenzen kommen aus der Tabelle',
        new RegExp(q || 'grenzenAusTabelle').test(k3d), 'statt fester Werte');
 pruefe('Maßhinweis im Bedienfeld',
