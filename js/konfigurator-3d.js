@@ -71,6 +71,7 @@
        verschiedene Maße, zu denen oft gar nicht dieselbe Bauart passt. */
     sg23Links: '', sg23Rechts: '', sg23Vorne: '',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
+    vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -284,6 +285,20 @@
       breite: [2700, 6500, 100, 3200],
       tiefe:  [4500, 8000, 100, 5500],
       hoehe:  [2000, 2600,  50, 2200]
+    },
+    /* Der Carport TDS teilt die Grenzen des Terrassendachs – es ist
+       dasselbe System, und die Maßtabelle weitet sie ohnehin auf
+       14080 × 7050 mm. Abweichend nur die VOREINSTELLUNG: ein Carport
+       ist schmaler und tiefer als eine Terrasse.
+
+       Die alte Obergrenze von 8000 mm Tiefe war eine Schätzung aus der
+       Zeit vor der Tabelle; über 7050 mm gibt es keine Stückzahlen. Der
+       Betreiber hat das Kappen ausdrücklich gewählt: „Auf die Tabelle
+       begrenzen". */
+    'Carport TDS': {
+      breite: [2500, 7000, 100, 3200],
+      tiefe:  [2000, 7000, 100, 5500],
+      hoehe:  [2000, 2700,  50, 2300]
     },
     /* GESCHÄTZT bis auf die Obergrenze: „Bis 7 × 4,5 m" steht als
        Produktangabe zu SunPro im Anfrage-Assistenten. Eine Preismatrix für
@@ -513,7 +528,9 @@
     if (!M || !M.systeme) return null;
     var mat = istPolycarbonat() ? 'Polycarbonat' : 'Glas';
     var k = null;
-    if (Z.produkt === 'Terrassendach TDS') k = 'TDS|' + mat;
+    /* Carport TDS rechnet mit derselben Tabelle wie das Terrassendach –
+       es ist dasselbe System. */
+    if (Z.produkt === 'Terrassendach TDS' || istCarportTds()) k = 'TDS|' + mat;
     else if (Z.produkt === 'Flachdach SkyView') k = 'SkyView|' + mat;
     else if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
       k = 'Flat_Line|Trapezblech';
@@ -1386,7 +1403,13 @@
     leeren(bau);
     if (e && !e.fehler) bauenAusDaten(e);
     else if (istPergola()) bauenPergola();
-    else if (istCarport()) bauenGeschaetzt();
+    /* Der Carport TDS ist baulich dasselbe wie ein Terrassendach TDS –
+       „das carport tds ist eig, genauso ein terrassendach tds, die
+       konfiguration sollte gleich sein" (Betreiber, 11.10.2026). Er läuft
+       deshalb über denselben Pfad und bekommt damit echte Stückzahlen
+       aus der Maßtabelle statt der Faustregel. bauenGeschaetzt() bleibt
+       für die Flachdach-Carports (Flat Line, Flat Box). */
+    else if (istCarport() && !istCarportTds()) bauenGeschaetzt();
     else bauenTerrasseGeschaetzt();
     stimmung();
     masseZeichnen();
@@ -3184,7 +3207,11 @@
        Wandprofil wird nicht ersetzt, es bekommt nur eine andere
        Schraubfläche. */
     var zHinten = 4.5;                          // Wandprofil – frei wie an der Wand
-    var zTraeger = -TR_T / 2;                   // steht an der Stelle der Wand
+    /* Hinterer Dachvorsprung – nur beim freistehenden Carport TDS.
+       Wie vorne wandern die Pfosten um das Maß nach innen, der
+       Statikträger bleibt am Dachrand. Das Dach selbst wird nicht
+       länger: Das Tiefenmaß ist das Bestellmaß. */
+    var vorsprH = gruppeGilt('vorsprung-hinten') ? Z.vorsprungHinten / 10 : 0;
 
     /* KORREKTUR 11.10.2026, zweiter Anlauf. „der statikträger hochkant
        hinter den sparren is richtig als wäre er die wand, aber er darf
@@ -3204,9 +3231,16 @@
        Montagearten, denn an der Wand stand das Profil genauso über. */
     var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
     var dachOk = ukHinten + spH;                // Sparrenoberkante hinten
+
+    /* Mit hinterem Dachvorsprung wandern Pfosten UND Träger nach innen;
+       das Wandprofil bleibt am Dachrand. Der Träger liegt dann unter den
+       SPARREN statt hinter ihnen – dieselbe Lage wie vorne mit
+       Vorsprung. Ohne Vorsprung bleibt alles wie bisher. */
+    var zTrHinten = -TR_T / 2 + vorsprH;
+    var ukAmTraeger = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zTrHinten);
     var wpH = sky ? 20 : 14, wpT = 9;
     var wpMitte = dachOk - wpH / 2;             // Oberkante bündig, nie darüber
-    var trOk = dachOk;                          // Träger ebenso
+    var trOk = vorsprH > 0 ? ukAmTraeger : dachOk;
     var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 
     /* Pfostenzahl – JE REIHE getrennt.
@@ -3237,7 +3271,7 @@
     });
     if (frei) {
       verteilen(pfHinten, B, PF / 2).forEach(function (x) {
-        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zTraeger, mAlu);
+        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zTrHinten, mAlu);
       });
     }
 
@@ -3261,7 +3295,7 @@
        sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
     balken(B, wpH, wpT, 0, wpMitte, zHinten, mAlu);
     if (frei) {
-      balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTraeger, mAlu);
+      balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTrHinten, mAlu);
     }
 
     /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus
@@ -4278,19 +4312,31 @@
     var d = datenSystem();
     switch (stichwort) {
       case 'terrasse':       return !istCarport() && !istPergola();
+      /* Seitenelemente gibt es beim Carport TDS auch – Glaswände und
+         Schiebetüren am Carport sind üblich. Markisen dagegen nicht;
+         die bleiben über 'sonnenschutz' gesperrt (Betreiber). */
+      case 'seiten':         return !istPergola() && (!istCarport() || istCarportTds());
+      case 'sonnenschutz':   return !istCarport();
       case 'carport':        return istCarport();
       case 'pergola':        return istPergola();
       case 'pg-lamellen':    return istLamellen();
       // Aufbau (Wand oder freistehend) gibt es überall außer beim Carport,
       // dort steckt die Montageart in der Ausführung
-      case 'aufbau':         return !istCarport();
+      case 'aufbau':         return !istCarport() || istCarportTds();
       case 'glas':           return (!istCarport() && !istPergola()) || istCarportTds();
       // Glasstärke nur fragen, wenn auch Glas gewählt ist
       case 'glasstaerke':    return !istPolycarbonat() &&
                                     ((!istCarport() && !istPergola()) || istCarportTds());
       case 'cp-flachdach':   return istCarport() && !istCarportTds() &&
                                     Z.cpTyp !== 'Flachdach Flat Line';
-      case 'cp-ueberstand':  return istCarport() && Z.cpVariante === 'Carport mit Überstand';
+      /* Der eigene Überstand-Regler gilt nur noch den Flachdach-Carports.
+         Beim Carport TDS übernimmt der Dachvorsprung des Terrassendachs. */
+      case 'cp-ueberstand':  return istCarport() && !istCarportTds() &&
+                                    Z.cpVariante === 'Carport mit Überstand';
+      /* Die Ausführungs-Auswahl entfällt beim Carport TDS: Ihre drei
+         Einträge sind genau die drei Aufbauarten, und die stehen jetzt
+         im Feld „Aufbau". Zwei Felder für dieselbe Frage verwirren. */
+      case 'cp-variante':    return istCarport() && !istCarportTds();
       // Der Regler „geöffnet" erscheint nur, wenn es etwas zu schieben gibt
       case 'schiebe-links':  return erwListe('links').indexOf('Schiebetür') > -1;
       case 'schiebe-rechts': return erwListe('rechts').indexOf('Schiebetür') > -1;
@@ -4305,11 +4351,15 @@
       case 'stoff-zip':      return erwIrgendwo('Senkrechtmarkise') ||
                                     Z.pgSeitenschutz === 'ZIP-Senkrechtmarkise';
       // Fassadenart interessiert nur, wenn an eine Wand montiert wird
-      case 'fassade':        return istCarport()
+      case 'fassade':        return (istCarport() && !istCarportTds())
                                     ? Z.cpVariante === 'Carport mit Wandmontage'
                                     : Z.aufbau === 'Wandmontage';
       // Dachvorsprung gibt es nur beim TDS (so auch im Anfrage-Assistenten)
-      case 'vorsprung':      return Z.produkt === 'Terrassendach TDS';
+      case 'vorsprung':      return Z.produkt === 'Terrassendach TDS' || istCarportTds();
+      /* NUR beim Carport TDS und nur freistehend: „der einzige
+         unterschied dort ist ein dachvorsprung auch an der hinterseite
+         möglich bei freistehender montage" (Betreiber, 11.10.2026). */
+      case 'vorsprung-hinten': return istCarportTds() && Z.aufbau === 'Freistehend';
       /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
          da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
          hilft. Beim Carport und bei der Pergola gibt es die Bauweise
@@ -4325,7 +4375,9 @@
       case 'komfort':        return istPergola();
       // Flat Box ist in manchen Ausführungen schon verkleidet – dann würden
       // Paneele und Blechwand übereinander liegen
-      case 'verkleidung':    return istCarport() && Z.cpVariante.indexOf('verkleidet') === -1;
+      /* Verkleidung bietet VD nur bei den Flachdach-Carports an. */
+      case 'verkleidung':    return istCarport() && !istCarportTds() &&
+                                    Z.cpVariante.indexOf('verkleidet') === -1;
       case 'verk-richtung':  return Z.verkRueck || Z.verkLinks || Z.verkRechts;
       // Maße sind immer frei – gebaut wird nach Kundenmaß. Das Raster ist
       // nur die Abrechnungsgrundlage und steht als Hinweis im Ergebnis.
@@ -4388,6 +4440,18 @@
   }
 
   /* Ausführungen des gewählten Carport-Typs in das Auswahlfeld schreiben */
+  /* Beim Carport TDS fragt der Konfigurator die Montageart über „Aufbau"
+     ab, nicht mehr über die Ausführungsliste. Für die Anfrage-Mail muss
+     daraus wieder der Begriff des Anfrage-Assistenten werden – „mach es
+     schlau aber einfach, wir müssen die anfrage die per mail kommt
+     natürlich in fachbegriffen etc haben" (Betreiber). */
+  function cpVarianteJetzt() {
+    if (!istCarportTds()) return Z.cpVariante;
+    if (Z.vorsprung > 0) return 'Carport mit Überstand';
+    return Z.aufbau === 'Freistehend' ? 'Freistehender Carport'
+                                      : 'Carport mit Wandmontage';
+  }
+
   function cpVariantenSetzen() {
     var sel = document.getElementById('k3dCpVariante');
     if (!sel) return;
@@ -4404,7 +4468,8 @@
      greift die Voreinstellung – ein 3 m tiefes Terrassendach wäre als
      Carport nicht nutzbar, eine stille Umrechnung wäre irritierender. */
   function masseSetzen() {
-    var m = MASSE[Z.produkt] || MASSE['Terrassendach TDS'];
+    var m = MASSE[istCarportTds() ? 'Carport TDS' : Z.produkt] ||
+            MASSE['Terrassendach TDS'];
     [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe']].forEach(function (paar) {
       var el = document.getElementById(paar[0]);
       var b = m[paar[1]];
@@ -4483,9 +4548,16 @@
       return teile;
     }
     if (istCarport()) {
-      teile.push('Ausführung: ' + Z.cpVariante);
+      teile.push('Ausführung: ' + cpVarianteJetzt());
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchfahrtshöhe ' + Z.hoehe + ' mm');
-      if (Z.cpVariante === 'Carport mit Überstand') teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
+      if (istCarportTds()) {
+        if (Z.vorsprung > 0) teile.push('Dachvorsprung vorne: ' + Z.vorsprung + ' mm');
+        if (gruppeGilt('vorsprung-hinten') && Z.vorsprungHinten > 0) {
+          teile.push('Dachvorsprung hinten: ' + Z.vorsprungHinten + ' mm');
+        }
+      } else if (Z.cpVariante === 'Carport mit Überstand') {
+        teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
+      }
       var ec = stueckliste();
       if (ec && !ec.fehler) {
         teile.push(ec.sparren + ' Sparren, ' + ec.pfosten + ' Pfosten in zwei Reihen');
@@ -4657,6 +4729,7 @@
     Z.fassade = wert('k3dFassade') || Z.fassade;
     Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
+    Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
     Z.ledsetzahl = Math.min(20, Math.max(1, zahl('k3dLedAnzahl', Z.ledsetzahl)));
     Z.soundset = wert('k3dSoundSet') || Z.soundset;
@@ -4674,7 +4747,8 @@
        bewegte. Vom Betreiber bemerkt: „die anzeige bleibt immer bei 0 mm
        stehen aber in 3d passiert die änderung". */
     [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe'],
-     ['k3dUeberstand', 'ueberstand'], ['k3dVorsprung', 'vorsprung']].forEach(function (paar) {
+     ['k3dUeberstand', 'ueberstand'], ['k3dVorsprung', 'vorsprung'],
+     ['k3dVorsprungHinten', 'vorsprungHinten']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
       if (a) a.textContent = Z[paar[1]] + ' mm';
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
@@ -4989,7 +5063,7 @@
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
-   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger',
+   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
@@ -5017,7 +5091,8 @@
   [['k3dBreite', 'k3dBreiteZahl'], ['k3dTiefe', 'k3dTiefeZahl'],
    ['k3dHoehe', 'k3dHoeheZahl'], ['k3dUeberstand', 'k3dUeberstandZahl'],
    ['k3dNeigung', 'k3dNeigungZahl'],
-   ['k3dVorsprung', 'k3dVorsprungZahl']].forEach(function (pr) {
+   ['k3dVorsprung', 'k3dVorsprungZahl'],
+   ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
     n.addEventListener('input', function () {
@@ -5509,8 +5584,12 @@
       } else if (istCarport()) {
         v.produkt = 'Carport';
         v.carporttyp = Z.cpTyp;
-        v.carportvariante = Z.cpVariante;
-        if (Z.cpVariante === 'Carport mit Überstand') v.ueberstand = String(Z.ueberstand);
+        v.carportvariante = cpVarianteJetzt();
+        if (istCarportTds()) {
+          if (Z.vorsprung > 0) v.ueberstand = String(Z.vorsprung);
+        } else if (Z.cpVariante === 'Carport mit Überstand') {
+          v.ueberstand = String(Z.ueberstand);
+        }
         if (istCarportTds()) v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
         /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
            (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"

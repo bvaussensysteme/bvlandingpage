@@ -2056,3 +2056,52 @@ Aufmaßgespräch, weil es den Belag betrifft und nicht die Anlage.
 
 **Gegenzulesen:** Ob die Schiene im Bild noch als Linie erkennbar ist
 oder optisch ganz verschwindet.
+
+## 2026-10-11 – Carport TDS ist ein Terrassendach TDS
+
+**Anlass:** „das carport tds ist eig, genauso ein terrassendach tds, die
+konfiguration sollte gleich sein, der einzige unterschied dort ist ein
+dachvorsprung auch an der hinterseite möglich bei freistehender
+montage" (Betreiber). Dazu zwei Entscheidungen auf Rückfrage:
+Seitenelemente ja / Markisen nein, und die Tiefe auf die Maßtabelle
+begrenzen.
+
+**Was vorher getrennt war:**
+
+| | Terrassendach TDS | Carport TDS (vorher) |
+|---|---|---|
+| Baupfad | echte Stückzahlen aus der Maßtabelle | geschätzt, Faustregel „Breite / 110 cm" |
+| Montage | Feld „Aufbau" | eigenes Feld „Ausführung" – inhaltlich dasselbe |
+| Maße | Grenzen aus der Tabelle (14080 × 7050 mm) | feste Schätzwerte, Tiefe bis 8000 mm |
+| Dachvorsprung | mit Statikträger, Pfosten rücken ein | eigener Regler, wirkte nur aufs Dach |
+| Seitenelemente | ja | gesperrt |
+
+**Was jetzt gilt:** Der Carport TDS läuft über denselben Baupfad und
+bekommt damit echte Stückzahlen. Die drei Ausführungen sind auf „Aufbau"
+abgebildet; das zweite Feld entfällt, weil zwei Felder für dieselbe Frage
+verwirren. Seitenelemente sind freigeschaltet, Markisen bleiben gesperrt.
+
+**Die Tiefe wird bei 7000 mm gekappt.** Die alten 8000 mm waren eine
+Schätzung aus der Zeit vor der Tabelle; darüber gibt es keine
+Stückzahlen, und der Maßhinweis hätte Zahlen genannt, die TDS nicht baut.
+
+**Neu: Dachvorsprung hinten**, nur beim freistehenden Carport TDS. Wie
+vorne rücken die Pfosten um das Maß nach innen, und der Statikträger
+wandert mit – er liegt dann unter den Sparren statt hinter ihnen. Das
+Dach wird dabei nicht länger: Das Tiefenmaß ist das Bestellmaß.
+
+**Die Anfrage-Mail behält die Carport-Begriffe.** Aus Aufbau und
+Vorsprung wird wieder „Freistehender Carport", „Carport mit Wandmontage"
+oder „Carport mit Überstand" – die Wörter, die der Anfrage-Assistent
+kennt. Der Kunde sieht im Bedienfeld die einfache Frage, im Haus kommt
+der Fachbegriff an.
+
+**Gegenzulesen:**
+1. Ob die Voreinstellung 3200 × 5500 mm bei 2300 mm Höhe für einen
+   Carport passt. Die Durchfahrtshöhe lag vorher bei 2200 mm, die
+   Obergrenze bei 2600 statt 2700 mm – ich habe auf die
+   Terrassendach-Werte vereinheitlicht, weil es dasselbe System ist.
+2. Ob am Carport wirklich alle Seitenelemente sinnvoll sind (Keil,
+   Plankenwand, Senkrechtmarkise) oder nur Glas und Schiebetüren.
+3. Flat Line und Flat Box sind unverändert – sie laufen weiter über den
+   geschätzten Pfad.

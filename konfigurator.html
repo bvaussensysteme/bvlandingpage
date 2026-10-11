@@ -542,7 +542,7 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="carport" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="cp-variante" hidden>
           <label class="k3d-label" for="k3dCpVariante">Ausführung</label>
           <select id="k3dCpVariante" class="k3d-select"></select>
         </div>
@@ -653,6 +653,16 @@
             Durchgang unter dem Träger 189 mm niedriger</b> als die eingestellte Höhe.</p>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung-hinten" hidden>
+          <label class="k3d-label" for="k3dVorsprungHinten">Dachvorsprung hinten <output id="k3dVorsprungHintenWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dVorsprungHinten" class="k3d-range" min="0" max="800" step="50" value="0">
+            <input type="number" id="k3dVorsprungHintenZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Dachvorsprung hinten in Millimeter">
+          </div>
+          <p class="k3d-mini">Nur beim freistehenden Carport: Auch hinten rücken die
+            Pfosten um dieses Maß nach innen, der Statikträger wandert mit.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
           <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
           <div class="k3d-regler">
@@ -754,7 +764,7 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
           <p class="k3d-mini">Schon eine geschlossene Seite bringt Wind-, Sicht- und
             Wetterschutz. Mehrfachauswahl – Rahmenwand unten, Schiebetür darüber.</p>
           <!-- Klartext, welche Seite gerade wie steht. Anlass: Ein Kunde
@@ -764,7 +774,7 @@
           <p class="k3d-seiten-stand" id="k3dSeitenStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
           <span class="k3d-label">Links <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
           <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="links" role="group" aria-label="Erweiterung links">
             <button type="button" data-erw="Keil">Keil<small></small></button>
@@ -776,7 +786,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
           <span class="k3d-label">Rechts <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
           <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="rechts" role="group" aria-label="Erweiterung rechts">
             <button type="button" data-erw="Keil">Keil<small></small></button>
@@ -788,7 +798,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
           <span class="k3d-label">Vorne (Stirnseite) <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
           <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="vorne" role="group" aria-label="Erweiterung vorne">
             <button type="button" data-erw="Keil" hidden><small></small></button>
@@ -838,7 +848,7 @@
       <details class="k3d-sek" data-k3d-fuer="terrasse">
         <summary><span class="k3d-sek-t">Sonnenschutz</span><span class="k3d-sek-s" id="k3dSumSonne"></span></summary>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne">
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="sonnenschutz">
           <span class="k3d-label" id="k3dMarkiseLabel">Mehr Schatten &amp; Komfort?</span>
           <input type="hidden" id="k3dMarkise" value="Ohne">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMarkise" role="group" aria-labelledby="k3dMarkiseLabel">
@@ -1155,7 +1165,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261013f" defer></script>
+<script src="js/konfigurator-3d.js?v=20261013g" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
