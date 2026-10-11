@@ -3001,3 +3001,37 @@ Begründung. Nicht vereinheitlichen, ohne zu fragen.
 **Eine Prüfung, die sich selbst korrigiert hat:** Die erste Fassung
 erwartete zwei mittige Schienen und bekam drei – 102,5 mm passen auch
 noch auf den 110er Pfosten. Jetzt wird gezählt statt angenommen.
+
+## 2026-10-11 – Velaris anklicken, und die Animation ohne Neubau
+
+**Anlass:** „wie bei glasschiebeelementen machen, anklicken öffnet/schließt
+das jeweilige modul. und guck was du machen kannst damit die animation
+nicht so laggt" – dazu „bei feststehenden velaris kannst du sie bündig
+pfosten außen machen".
+
+**1. Anklicken.** Ein Klick auf die Lamellen öffnet oder schließt **die
+angeklickte Hälfte**. Welche gemeint ist, steht am Teil selbst, nicht an
+der Klickposition – sonst öffnete sich die falsche, nur weil sie
+zufällig dahinterliegt. Dieselbe Mechanik wie bei den Glasschiebewänden
+und der Markise; in der Klickkette steht Velaris zwischen beiden.
+
+**2. Das Ruckeln.** Die Fahrfunktionen riefen 25-mal je Sekunde
+`aendern()` auf – und das baut das **ganze** Modell neu: Dach, Pfosten,
+Rinne, Texturen, Schatten. Für eine Drehung von ein paar Lamellen.
+
+Jetzt merkt sich das Modell beim Bauen, welche Lamelle zu welcher Hälfte
+gehört und welche Gruppe welches Element ist. Die Animation dreht bzw.
+verschiebt nur noch diese Teile und zeichnet; gebaut wird **einmal am
+Ende**, damit Zusammenfassung und Anfrage wieder stimmen. Dafür liegt
+jedes Element in einer eigenen Gruppe – verschieben heißt dann, eine
+Position zu setzen statt Dutzende Teile neu zu erzeugen.
+
+Die Lagenrechnung (welches Element steht bei welchem Öffnungsgrad wo,
+samt Bremse auf dem eigenen Laufweg) steht jetzt **einmal** da und wird
+von Modell und Animation gemeinsam benutzt. Zwei Kopien wären zwei
+Wahrheiten – und beim Fahren sähe man es sofort.
+
+**3. Feststehend liegt die Schiene immer außen bündig** am Pfosten. Dort
+gibt es nur eine Schiene, und bündig sieht man von außen nur den
+Pfosten. Verschiebbar bleibt es bei der Regel von vorhin: schmaler als
+der Pfosten mittig, breiter außen bündig.

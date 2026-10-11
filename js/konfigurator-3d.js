@@ -238,6 +238,36 @@
      alle vier RAL-Töne. Hier stehen alle fünf zur Wahl; die Frage
      ist als Rückfrage notiert. */
   var VELARIS_IST = { elemente: 0, breite: 0, schienen: 0, licht: 0 };
+  /* ---------- Velaris: bewegliche Teile merken ----------
+     Die Animation baute bisher das GANZE Modell neu, 25-mal je
+     Sekunde – Dach, Pfosten, Texturen, alles. Daher das Ruckeln.
+     Jetzt merkt sich das Modell, welche Lamellen zu welcher Hälfte
+     gehören und welche Gruppe welches Element ist; die Animation
+     dreht bzw. verschiebt nur noch diese Teile. Gebaut wird erst
+     wieder, wenn die Fahrt zu Ende ist. */
+  var VELARIS_LAMELLEN = [];     // {mesh, haelfte}
+  var VELARIS_FAHRT = null;      // {gruppen, lagenZu, elLaenge, schienen, quer}
+
+  /* Wo steht welches Element bei einem Öffnungsgrad? Element i läuft
+     auf Laufweg i % Schienen und wird an dem gebremst, das auf
+     SEINEM Weg davor liegt. Dieselbe Rechnung braucht das Modell
+     beim Bauen und die Animation beim Fahren – deshalb steht sie
+     hier einmal und nicht zweimal. */
+  function velarisLagen(links, elLaenge, anzahl, schienen, offen) {
+    var lagen = [];
+    for (var e = 0; e < anzahl; e++) {
+      var frei = links + (e + 0.5) * elLaenge - offen * e * elLaenge;
+      var vorher = e - schienen;
+      if (vorher >= 0) frei = Math.max(frei, lagen[vorher] + elLaenge);
+      lagen.push(frei);
+    }
+    return lagen;
+  }
+
+  /* Links/rechts laufen über die Tiefe (z), vorne über die Breite (x). */
+  function velarisSchieben(gruppe, quer, weg) {
+    if (quer) gruppe.position.z = weg; else gruppe.position.x = weg;
+  }
   /* Welche Elementzahlen für ein lichtes Maß überhaupt gehen. Steht
      auf Modulebene, weil Modell UND Bedienfeld dieselbe Antwort
      brauchen – zwei Rechnungen wären zwei Wahrheiten. */
@@ -2046,6 +2076,11 @@
 
     /* Eine Scheibe oder Platte in der Ebene einer Seite.
        quer = Seite läuft in z-Richtung (links/rechts), sonst in x (vorne). */
+    /* Wohin die Teile kommen. Normalerweise direkt ins Modell; beim
+       Velaris in die Gruppe des Elements, damit sie sich gemeinsam
+       verschieben lässt, ohne neu gebaut zu werden. */
+    var zielGruppe = null;
+
     function platte(material, laenge, hoehe, achse, mitte, yMitte, quer, versatz, dicke) {
       var d = dicke || 1.4;
       var g = quer ? [d, hoehe, laenge] : [laenge, hoehe, d];
@@ -2054,7 +2089,7 @@
                      yMitte,
                      quer ? mitte : achse + (versatz || 0));
       m.castShadow = true; m.receiveShadow = true;
-      bau.add(m);
+      (zielGruppe || bau).add(m);
       return m;
     }
 
@@ -2075,7 +2110,7 @@
       m.position.set(quer ? achse + (versatz || 0) : mitte, okKas,
                      quer ? mitte : achse + (versatz || 0));
       m.castShadow = true; m.receiveShadow = true;
-      bau.add(m);
+      (zielGruppe || bau).add(m);
       return m;
     }
 
@@ -2559,6 +2594,13 @@
        Bauteile. Nicht vereinheitlichen, ohne zu fragen. */
     function velarisVersatz(achse, quer, tiefe) {
       var vz = innenRichtung(achse, quer);
+      /* Feststehend liegt die Schiene IMMER außen bündig am Pfosten
+         („bei feststehenden velaris kannst du sie bündig pfosten außen
+         machen", Betreiber, 11.10.2026) – dort gibt es nur eine Schiene,
+         und bündig sieht man von außen nur den Pfosten.
+         Verschiebbar bleibt es bei der Regel von vorhin: schmaler als
+         der Pfosten mittig, breiter außen bündig. */
+      if (Z.velarisArt !== 'verschiebbar') return vz * (tiefe - PROFIL) / 2;
       return tiefe <= PROFIL ? 0 : vz * (tiefe - PROFIL) / 2;
     }
 
@@ -2614,14 +2656,22 @@
       var offen = velarisSchiebbar(anzahl) ? Math.min(100, Math.max(0, Z.velarisOffen)) / 100 : 0;
       if (anzahl > 1) {
         var links = mitte - laenge / 2;
-        var lagen = [];
+        var lagen = velarisLagen(links, elLaenge, anzahl, schienen, offen);
+        var zu = velarisLagen(links, elLaenge, anzahl, schienen, 0);
+        VELARIS_FAHRT = { gruppen: [], lagenZu: zu, links: links,
+                          elLaenge: elLaenge, anzahl: anzahl,
+                          schienen: schienen, quer: quer };
         for (var e = 0; e < anzahl; e++) {
-          var frei = links + (e + 0.5) * elLaenge - offen * e * elLaenge;
-          var vorher = e - schienen;        // das Element davor auf DIESEM Laufweg
-          if (vorher >= 0) frei = Math.max(frei, lagen[vorher] + elLaenge);
-          lagen.push(frei);
-          velarisElement(elLaenge, hoehe, achse, frei,
+          /* Jedes Element in eine eigene Gruppe: Dann verschiebt die
+             Animation nur noch deren Position statt alles neu zu bauen. */
+          var g = new THREE.Group();
+          bau.add(g);
+          VELARIS_FAHRT.gruppen.push(g);
+          zielGruppe = g;
+          velarisElement(elLaenge, hoehe, achse, zu[e],
                          yUnten, quer, schienen, e, e === 0 || offen > 0);
+          zielGruppe = null;
+          velarisSchieben(g, quer, lagen[e] - zu[e]);
         }
         return;
       }
@@ -2728,11 +2778,17 @@
           new THREE.BoxGeometry(lamLaenge, VELARIS.dicke, VELARIS.lamelle), mLam);
         lam.rotation.x = kipp;
         lam.castShadow = true; lam.receiveShadow = true;
+        /* Anklickbar: Am Teil selbst steht, zu welcher Hälfte es gehört –
+           nicht an der Klickposition. Sonst öffnete sich die falsche,
+           nur weil sie zufällig dahinterliegt. */
+        var haelfte = i < grenze ? 'unten' : 'oben';
+        lam.userData.velaris = haelfte;
+        VELARIS_LAMELLEN.push({ mesh: lam, haelfte: haelfte });
         var g = new THREE.Group();
         g.add(lam);
         if (quer) { g.rotation.y = Math.PI / 2; g.position.set(achse, y, lamMitte); }
         else { g.position.set(lamMitte, y, achse); }
-        bau.add(g);
+        (zielGruppe || bau).add(g);
       }
     }
 
@@ -2962,6 +3018,8 @@
     var seitenLaenge = vorne - hinten;
 
     SG23_LAENGE.links = SG23_LAENGE.rechts = SG23_LAENGE.vorne = 0;
+    VELARIS_LAMELLEN = [];
+    VELARIS_FAHRT = null;
     eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
     eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
 
@@ -4944,18 +5002,37 @@
   /* Verschieben wie bei den Glasschiebewänden – dieselbe Dauer, dieselbe
      Kurve. „die schiebbaren lassen sich wie die glasschiebewände
      verschieben" (Betreiber, 11.10.2026). */
+  /* Weiche Kurve – einmal, statt in jeder Fahrfunktion neu. */
+  function weich(p) {
+    return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+  }
+
   function velarisSchiebenFahren(ziel) {
     if (velarisSchiebtLaeuft) clearInterval(velarisSchiebtLaeuft);
     var start = Z.velarisOffen, t0 = Date.now();
     var regler = document.getElementById('k3dVelarisOffen');
     velarisSchiebtLaeuft = setInterval(function () {
       var p = Math.min(1, (Date.now() - t0) / FAHRDAUER);
-      var w = Math.round(start + (ziel - start) * (p < 0.5
-        ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      var w = Math.round(start + (ziel - start) * weich(p));
       if (regler) regler.value = w;
       Z.velarisOffen = w;
-      aendern();
-      if (p >= 1) { clearInterval(velarisSchiebtLaeuft); velarisSchiebtLaeuft = null; }
+      /* Während der Fahrt werden nur die Element-Gruppen verschoben –
+         kein Neubau. Erst am Ende läuft aendern() einmal, damit
+         Zusammenfassung und Anfrage wieder stimmen. */
+      var f = VELARIS_FAHRT;
+      if (f) {
+        var jetzt = velarisLagen(f.links, f.elLaenge, f.anzahl, f.schienen, w / 100);
+        for (var i = 0; i < f.gruppen.length; i++) {
+          velarisSchieben(f.gruppen[i], f.quer, jetzt[i] - f.lagenZu[i]);
+        }
+        neuZeichnen();
+      } else {
+        aendern();
+      }
+      if (p >= 1) {
+        clearInterval(velarisSchiebtLaeuft); velarisSchiebtLaeuft = null;
+        aendern();
+      }
     }, 40);
   }
   /* Jede Hälfte faehrt fuer sich – deshalb nimmt die Funktion das Feld
@@ -4968,12 +5045,25 @@
     var regler = document.getElementById(id);
     velarisLaeuft = setInterval(function () {
       var p = Math.min(1, (Date.now() - t0) / FAHRDAUER);
-      var w = Math.round(start + (ziel - start) * (p < 0.5
-        ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      var w = Math.round(start + (ziel - start) * weich(p));
       if (regler) regler.value = w;
       Z[schluessel] = w;
-      aendern();
-      if (p >= 1) { clearInterval(velarisLaeuft); velarisLaeuft = null; }
+      /* Nur die Lamellen dieser Hälfte drehen – kein Neubau. */
+      if (VELARIS_LAMELLEN.length) {
+        var kipp = (90 - w) * Math.PI / 180;
+        for (var i = 0; i < VELARIS_LAMELLEN.length; i++) {
+          if (VELARIS_LAMELLEN[i].haelfte === feld) {
+            VELARIS_LAMELLEN[i].mesh.rotation.x = kipp;
+          }
+        }
+        neuZeichnen();
+      } else {
+        aendern();
+      }
+      if (p >= 1) {
+        clearInterval(velarisLaeuft); velarisLaeuft = null;
+        aendern();
+      }
     }, 40);
   }
 
@@ -5035,6 +5125,36 @@
         var feld = seite === 'links' ? 'offenLinks'
                  : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
         schiebeFahren(seite, Z[feld] > 50 ? 0 : 100);
+        return true;
+      }
+      break;                         // nur das vorderste Teil zaehlt
+    }
+    return false;
+  }
+
+  /* ---------- Velaris anklicken ----------
+     „wie bei glasschiebeelementen machen, anklicken öffnet/schließt das
+     jeweilige modul" (Betreiber, 11.10.2026). Geklickt wird auf eine
+     Lamelle; welche Hälfte gemeint ist, steht am Teil selbst. */
+  function velarisHaelfteVon(objekt) {
+    for (var o = objekt; o; o = o.parent) {
+      if (o.userData && o.userData.velaris) return o.userData.velaris;
+    }
+    return null;
+  }
+
+  function velarisGeklickt(e) {
+    if (!erwIrgendwo('Velaris')) return false;
+    var r = leinwand.getBoundingClientRect();
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects(bau.children, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var h = velarisHaelfteVon(treffer[i].object);
+      if (h) {
+        var jetzt = h === 'unten' ? Z.velarisWinkelUnten : Z.velarisWinkelOben;
+        velarisFahren(jetzt > 45 ? 0 : 90, h);
         return true;
       }
       break;                         // nur das vorderste Teil zaehlt
@@ -5182,7 +5302,9 @@
     klickStart = null;
     /* Erst die Markise, dann die Schiebeanlage: Liegt eine Markise vor
        dem Glas, ist sie gemeint. Beide duerfen nicht zugleich reagieren. */
-    if (weg < 6 && zeit < 500 && !markiseGeklickt(e)) schiebeGeklickt(e);
+    if (weg < 6 && zeit < 500 && !markiseGeklickt(e) && !velarisGeklickt(e)) {
+      schiebeGeklickt(e);
+    }
   });
   window.addEventListener('pointercancel', function () { zieht = false; });
 
