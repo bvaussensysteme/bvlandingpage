@@ -1815,6 +1815,22 @@ pruefe('Der Hinweis nennt das Dach, nicht die Markise',
    BV AussenSysteme Logo mit copyright symbol" (Betreiber, 11.10.2026).
    Es liegt IN der Szene, damit es auf jedem Bildschirmfoto und in jedem
    Download mit drauf ist. */
+(function () {
+  /* „das logo bitte einiges sichtbarer und größer", dann „15%
+     sichtbarer" (Betreiber, 11.10.2026). Gelesen als 15 Prozentpunkte
+     mehr als die ersten 28 %. Die Zahlen stehen an EINER Stelle; hier
+     wird nachgesehen, dass sie nicht versehentlich zurueckfallen. */
+  var blk = (js.match(/var WZ = \{[^}]*\}/) || [''])[0];
+  function w(name) {
+    var t = blk.match(new RegExp(name + ':\\s*([\\d.]+)'));
+    return t ? parseFloat(t[1]) : null;
+  }
+  var d = w('deckkraft'), a = w('anteil'), h = w('hoechstens');
+  var ok = d !== null && Math.abs(d - 0.43) < 0.001 && a >= 0.6 && h >= 400;
+  pruefe('Wasserzeichen ist deutlich sichtbar', gegen ? !ok : ok,
+         'Deckkraft ' + (d === null ? '?' : Math.round(d * 100) + ' %') +
+         ', Breite ' + a + ' der Anlage, hoechstens ' + h + ' cm');
+})();
 pruefe('Wasserzeichen liegt flach auf dem Boden',
        new RegExp(q || 'wasserzeichen\\.rotation\\.x = -Math\\.PI / 2').test(js) &&
        new RegExp(q || 'wasserzeichen\\.position\\.set\\(0, 0\\.4').test(js) &&
