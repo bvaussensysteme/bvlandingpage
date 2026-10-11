@@ -369,33 +369,60 @@ pruefe('SkyView – Rahmen bleibt waagerecht',
          gegen ? n !== 2 : n === 2, n + ' Stellen');
 })();
 (function () {
-  /* Zweiter Weg: Die Rahmenhoehe muss die geneigte Dachflaeche an ihrer
-     hoechsten Stelle noch ueberdecken – sonst stuende das Glas hinten
-     ueber das Band hinaus. Gerechnet mit der Formel aus dem Code, ueber
-     mehrere Tiefen. */
-  var f = (k3d.match(/var riH = sky\s*\n\s*\?([\s\S]*?)\n\s*: RINNE\.hoehe;/) || [])[1];
-  if (!f) { pruefe('SkyView – Rahmenhöhenformel lesbar', false, 'nicht gefunden'); return; }
+  /* Zweiter Weg zum Keilsparren: die vier Formeln aus dem Modellcode
+     holen und ueber mehrere Tiefen durchrechnen. Drei Dinge muessen
+     stimmen:
+       1. Die Eindeckung bleibt IM Kasten (sonst steht Glas darueber).
+       2. Der Sparren behaelt vorne seine Mindesthoehe.
+       3. Bei den ueblichen Tiefen bleibt der Kasten bei seinem festen
+          Mass - „die blende aussen is immer gleich" (Betreiber). */
+  var fRi = (k3d.match(/var riH = sky\s*\n\s*\?([\s\S]*?)\n\s*: RINNE\.hoehe;/) || [])[1];
+  /* Die Zuweisungen IM if-Block, nicht die Initialisierung davor –
+     deshalb an der Einrueckung festgemacht. */
+  var fOk = (k3d.match(/\n {6}skyOkVorn = ([^;]+);/) || [])[1];
+  var fVo = (k3d.match(/\n {6}skySpVorn = ([^;]+);/) || [])[1];
+  var fHi = (k3d.match(/\n {6}skySpHinten = ([^;]+);/) || [])[1];
   var blk = (k3d.match(/var SKY = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!fRi || !fOk || !fVo || !fHi) {
+    pruefe('SkyView - Keilsparnformeln lesbar', false, 'nicht gefunden'); return;
+  }
   function zahl(name) {
     var m = blk.match(new RegExp(name + ':\\s*([\\d.]+)'));
     return m ? parseFloat(m[1]) : null;
   }
   var SKY = { rahmenH: zahl('rahmenH'), sparrenAb: zahl('sparrenAb'),
-              ueber: zahl('ueber') };
-  var neig = 2 * Math.PI / 180, spH = 12.0, skyGlas = 0.8;
-  var schlimmste = 99;
-  [200, 300, 450, 600, 705].forEach(function (T) {
-    var riH = eval(f) - (gegen ? 12 : 0);
-    /* Glasoberseite hinten, gerechnet wie im Modell. */
-    var ukVorn = SKY.sparrenAb;                 // ab Rinnenunterkante
-    var okGlasHinten = ukVorn + Math.tan(neig) * T + spH + skyGlas;
-    var luft = riH - okGlasHinten;
-    if (luft < schlimmste) schlimmste = luft;
+              ueber: zahl('ueber'), sparrenMin: zahl('sparrenMin'),
+              sparrenAbzug: zahl('sparrenAbzug') };
+  var neig = 2 * Math.PI / 180, skyGlas = 0.8, hRinne = 250;
+  var ragt = 0, zuduenn = 0, festBis4m = true;
+  [200, 250, 300, 350, 400, 500, 600, 705].forEach(function (T) {
+    var laenge = T - SKY.sparrenAbzug;
+    /* Je Pruefung eine eigene Verfaelschung: ein zu niedriger Kasten
+       laesst das Glas ueberstehen, ein zu duenner Sparren nicht. Mit
+       nur einer haette eine der beiden nie angeschlagen. */
+    var riH = eval(fRi) - (gegen ? 5 : 0);
+    var ukVorn = hRinne + SKY.sparrenAb;
+    var skyOkVorn = eval(fOk);
+    var skySpVorn = eval(fVo) - (gegen ? 3 : 0);
+    var skySpHinten = eval(fHi) + (gegen ? 5 : 0);
+    var glasOk = ukVorn + skySpHinten + skyGlas;
+    if (glasOk > hRinne + riH + 0.001) ragt++;
+    if (skySpVorn < SKY.sparrenMin - 0.001) zuduenn++;
+    if (T <= 400 && Math.abs(riH - SKY.rahmenH) > 0.001) festBis4m = false;
   });
-  pruefe('SkyView – Rahmen überdeckt die Dachfläche bei jeder Tiefe',
-         schlimmste >= 0,
-         'engste Stelle ' + (schlimmste * 10).toFixed(0) + ' mm Luft');
+  pruefe('SkyView - Eindeckung bleibt im Kasten', ragt === 0,
+         ragt + ' von 8 Tiefen mit Ueberstand');
+  pruefe('SkyView - Sparren behaelt vorne seine Mindesthoehe', zuduenn === 0,
+         zuduenn + ' von 8 Tiefen zu duenn');
+  /* Nicht zusaetzlich invertieren: Die Verfaelschung steckt schon im
+     riH der Schleife. Beides zusammen haette sich aufgehoben. */
+  pruefe('SkyView - Kasten bleibt bei den ueblichen Tiefen gleich',
+         festBis4m, 'bis 4 m immer ' + SKY.rahmenH + ' cm');
 })();
+pruefe('SkyView – Sparren ist ein Keil, nicht schraeg gelegt',
+       new RegExp(q || 'function keilsparren').test(k3d) &&
+       new RegExp(q || 'keilsparren\\(laenge, spB, x, ukVorn, zMitte').test(k3d),
+       'Montageanleitung S. 22');
 pruefe('SkyView – Sparrenlänge aus der Anleitung',
        new RegExp(q || 'laenge = sky \\? T - SKY\\.sparrenAbzug').test(k3d) &&
        new RegExp(q || 'zMitte = sky \\? T / 2').test(k3d), '');

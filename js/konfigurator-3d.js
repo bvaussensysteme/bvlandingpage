@@ -2168,7 +2168,7 @@
      Querschnittszeichnungen zu Rinne, Träger und Seitenblende gibt es
      noch nicht; sie stehen als offener Punkt in docs/NEXT_TASK.md. */
   var SKY = {
-    rahmenH: 22.0,      // GESCHÄTZT
+    rahmenH: 26.0,      // GESCHÄTZT, feste Höhe des Außenkastens
     rinneT: 14.0,       // ABGELEITET (siehe oben)
     traegerT: 14.0,     // ABGELEITET
     sparrenAbzug: 15.0, // BELEGT: Spannweite - 150 mm
@@ -2179,8 +2179,43 @@
     sparrenAb: 5.5,
     /* Wie weit der Rahmen über die Eindeckung hinten hinaussteht.
        GESCHÄTZT. */
-    ueber: 1.5
+    ueber: 1.5,
+    /* Mindesthöhe des Sparrens an seinem dünnen Ende, vorne an der
+       Rinne. GESCHÄTZT. */
+    sparrenMin: 4.0
   };
+
+  /* ---------- Keilsparren des SkyView ----------
+     „die blende außen is immer gleich, einfach rechteckig" (Betreiber,
+     11.10.2026) – und trotzdem fällt das Dach innen mit 2°. Beides geht
+     nur, wenn der SPARREN das Gefälle aufnimmt: unten waagerecht auf
+     Rinne und Träger, oben nach hinten ansteigend. Genau so zeigt es
+     Seite 22 der Montageanleitung, und genau deshalb steht dort „wenn
+     diese vor Ort gefertigt werden sollen" – der Keil wird zugeschnitten.
+
+     Vorher lag hier ein gerader Sparren schräg im Kasten; dann musste
+     der Kasten mit der Tiefe mitwachsen, um ihn zu überdecken. Jetzt
+     bleibt der Kasten, und der Sparren ändert seine Form.
+
+     hVorn/hHinten sind die Höhen an den beiden Enden, yUnten die
+     waagerechte Unterkante. */
+  function keilsparren(laenge, breite, x, yUnten, zMitte, hVorn, hHinten, material) {
+    var f = new THREE.Shape();
+    f.moveTo(0, 0);
+    f.lineTo(laenge, 0);
+    f.lineTo(laenge, hVorn);          // vorne liegt bei +z, siehe Drehung
+    f.lineTo(0, hHinten);
+    f.closePath();
+    var g = new THREE.ExtrudeGeometry(f, { depth: breite, bevelEnabled: false });
+    g.translate(-laenge / 2, 0, -breite / 2);
+    g.rotateY(Math.PI / 2);
+    var m = new THREE.Mesh(g, material);
+    m.position.set(x, yUnten, zMitte);
+    m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
+    bau.add(m);
+    return m;
+  }
 
   function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
     var m = new THREE.Mesh(
@@ -5120,28 +5155,24 @@
 
     /* ---------- SkyView: außen Flachdach, innen Gefälle ----------
        „nur die sparren sind 2grad geneigt, der kasten außen die
-       verblendung ist wie flachdach, da is nix geneigt" (Betreiber,
+       verblendung ist wie flachdach, da is nix geneigt" und „die blende
+       außen is immer gleich, einfach rechteckig" (Betreiber,
        11.10.2026).
 
-       Also: Rinne, Träger und Seitenblende bilden einen waagerechten
-       Kasten – gleiche Oberkante, gleiche Unterkante, rundum. Darin
-       liegen die Sparren mit 2° und tragen die Eindeckung.
+       Der Kasten hat deshalb eine FESTE Höhe und ist rundum dasselbe
+       Rechteckprofil. Das Gefälle steckt im Sparren, der nach hinten
+       höher wird (siehe keilsparren).
 
-       Daraus folgt die Kastenhöhe: Er muss die Dachfläche an ihrer
-       höchsten Stelle noch überdecken, sonst stünde das Glas hinten
-       darüber hinaus. Das Gefälle über die ganze Tiefe steckt also im
-       Kasten – bei 3 m rund 33 cm, bei 7 m rund 48 cm hoch.
-
-       OFFEN und in docs/NEXT_TASK.md vermerkt: Ob der Kasten beim
-       echten System wirklich mit der Tiefe wächst, oder ob dort der
-       SPARREN keilförmig ist (Montageanleitung S. 22 zeigt ein Profil,
-       das nach hinten höher wird) und der Kasten deshalb immer gleich
-       hoch bleibt. Beides erfüllt „außen Flachdach"; das Gefälle muss
-       aber irgendwo hin. */
+       Die Ausnahme steht hier offen: Ab etwa 5 m Tiefe braucht das
+       Gefälle mehr Platz, als der Kasten hat – dann wächst er so weit
+       mit, dass die Eindeckung noch darin liegt. Wie das echte System
+       das löst (höheres Profil? flacheres Gefälle?), ist die offene
+       Frage in docs/NEXT_TASK.md. */
     var skyGlas = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var riH = sky
       ? Math.max(SKY.rahmenH,
-                 Math.tan(neig) * T + SKY.sparrenAb + spH + skyGlas + SKY.ueber)
+                 SKY.sparrenAb + SKY.sparrenMin + Math.tan(neig) * T +
+                 skyGlas + SKY.ueber)
       : RINNE.hoehe;
     var riT = sky ? SKY.rinneT : RINNE.breite;
 
@@ -5445,11 +5476,32 @@
        übereinstimmen, sonst liegt das Dach anders als die Pfosten. */
     var ukVorn = sky ? hRinne + SKY.sparrenAb
                      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
-    var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
+
+    /* SkyView: Der Sparren liegt mit waagerechter Unterkante im Kasten
+       und wird nach hinten höher – vorne am dünnsten. Daraus die beiden
+       Endhöhen; die Oberkante ist die Ebene, auf der die Eindeckung
+       liegt. Bei TDS bleibt es beim geraden, geneigten Sparren. */
+    var skySpVorn = 0, skySpHinten = 0, skyOkVorn = 0;
+    if (sky) {
+      skyOkVorn = hRinne + riH - SKY.ueber - skyGlas - Math.tan(neig) * laenge;
+      skySpVorn = Math.max(SKY.sparrenMin, skyOkVorn - ukVorn);
+      skySpHinten = skySpVorn + Math.tan(neig) * laenge;
+    }
+    /* Gedachte Sparrenunterkante in der Mitte: So gerechnet, dass
+       ukMitte + spH wie gewohnt die Glasebene ergibt – damit Glas,
+       Glasleisten, LED und Markisen unverändert weiterrechnen. */
+    var ukMitte = sky
+      ? ukVorn + skySpVorn + Math.tan(neig) * (laenge / 2) - spH
+      : ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
     xs.forEach(function (x) {
-      sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
+      if (sky) {
+        keilsparren(laenge, spB, x, ukVorn, zMitte,
+                    skySpVorn, skySpHinten, mAlu);
+      } else {
+        sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
+      }
     });
 
     /* Seitliche Randblende – siehe RANDBLENDE. Sie liegt außen am
