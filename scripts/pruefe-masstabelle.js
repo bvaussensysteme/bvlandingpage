@@ -906,8 +906,37 @@ pruefe('Nur die beiden aeusseren Sparren bekommen sie',
        new RegExp(q || 'i === 0 \\|\\| i === xs\\.length - 1').test(k3d),
        'dazwischen die runde Abdeckleiste');
 pruefe('Linke Seite ist gespiegelt',
-       new RegExp(q || 'if \\(links\\) g\\.scale\\(-1, 1, 1\\)').test(k3d),
+       new RegExp(q || 'if \\(links\\) spiegelnX\\(g\\)').test(k3d),
        'nicht zweimal dieselbe Lage');
+/* Ein negativer Massstab allein dreht die Flaechen nach innen - sie
+   werden weggeschnitten und das Teil sieht hohl aus. */
+pruefe('Gespiegeltes Teil behaelt seine Aussenseite',
+       new RegExp(q || 'idx\\.setX\\(i, idx\\.getX\\(i \\+ 2\\)\\)').test(k3d) &&
+       new RegExp(q || 'g\\.computeVertexNormals\\(\\);\\n    return g;').test(k3d),
+       'Eckenreihenfolge wird getauscht');
+(function () {
+  /* Die Zunge muss an der Flanke anliegen und bis unten durchlaufen -
+     sonst bleibt der Spalt zwischen Sparren und Leiste offen, genau das
+     war beanstandet. Gerechnet mit den Punkten aus dem Code. */
+  var form = (k3d.match(/function seitenleisteQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var b = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: ([\d.]+)/) || [])[1]);
+  var h = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: [\d.]+, hoehe: ([\d.]+)/) || [])[1]);
+  var m = form.match(/lineTo\(a(?: - ([\d.]+))?, -h\)/);
+  if (!m || !b || !h) { pruefe('Zunge lesbar', false, 'nicht gefunden'); return; }
+  var einzug = (m[1] ? parseFloat(m[1]) : 0) * 10;   // mm, um die sie einwaerts geht
+  if (gegen) einzug = 14;                      // der alte, eingebogene Wert
+  var sparrenHalb = 61 / 2;                    // Sparrenbreite BELEGT
+  var aussen = b * 10 / 2 - einzug;            // Lage der Zungenspitze, mm
+  var falsch = 0, meld = [];
+  if (einzug > 5) { falsch++; meld.push('Zunge biegt ' + einzug + ' mm nach innen'); }
+  if (aussen < sparrenHalb) {
+    falsch++; meld.push('Spitze liegt ' + (sparrenHalb - aussen).toFixed(1) +
+                        ' mm innerhalb der Sparrenflanke');
+  }
+  pruefe('Zunge liegt an der Sparrenflanke an', falsch === 0,
+         falsch === 0 ? 'Spitze ' + (aussen - sparrenHalb).toFixed(1) +
+         ' mm ausserhalb der Flanke' : meld.join('; '));
+})();
 (function () {
   /* Zweiter Weg: den Querschnitt wirklich ausmessen - der groesste
      Abstand in x und y muss das Teilebild ergeben. Gerechnet wird mit
@@ -921,7 +950,7 @@ pruefe('Linke Seite ist gespiegelt',
   while ((m = re.exec(form))) {
     var teile = m[1].split(',').map(function (t) {
       /* b, h und t durch ihre Zahlen ersetzen und ausrechnen. */
-      return Function('b', 'h', 't', 'return (' + t + ');')(b, h, 0.3);
+      return Function('b', 'h', 't', 'a', 'return (' + t + ');')(b, h, 0.3, b / 2);
     });
     for (var i = 0; i + 1 < teile.length; i += 2) { xs.push(teile[i]); ys.push(teile[i + 1]); }
   }
@@ -937,6 +966,27 @@ pruefe('Linke Seite ist gespiegelt',
   pruefe('Querschnitt ergibt das Umrissmass', falsch === 0,
          falsch === 0 ? breit.toFixed(2) + ' x ' + hoch.toFixed(2) + ' cm'
                       : meld.join('; '));
+})();
+
+
+/* Die Glasleisten halten die Scheibe - also laufen sie so weit wie sie.
+   „die glasleisten sind jz generell alle zu kurz, die gehen bis anfang
+   rinne und glas geht ja noch etwas drueber" (Betreiber, 11.10.2026). */
+pruefe('Glasleisten laufen so weit wie die Scheibe',
+       new RegExp(q || 'abdeckleiste\\(vollGlas, x, ukMitte \\+ spH \\+ glasDicke, zGlasMitte').test(k3d) &&
+       new RegExp(q || 'seitenglasleiste\\(vollGlas, x, ukMitte \\+ spH \\+ glasDicke, zGlasMitte').test(k3d) &&
+       (gegen || !/abdeckleiste\(laenge - 2/.test(k3d)),
+       'nicht mehr auf Sparrenlaenge');
+(function () {
+  /* Zweiter Weg: nachrechnen, wie viel vorne gefehlt hat. */
+  var rinne = 18.63, rueck = 3.6, innen = 13.0;
+  var laenge = 281.37, glasUeber = rueck + innen * 0.55;
+  var vollGlas = laenge + glasUeber - 1;         // glasRueck = 0 beim TDS
+  var alt = laenge - 2;
+  var fehlt = (vollGlas - alt) * 10;             // mm, die die Leiste zu kurz war
+  if (gegen) fehlt = 0;
+  pruefe('Leiste war vorne zu kurz', fehlt > 50,
+         fehlt.toFixed(0) + ' mm Unterschied');
 })();
 
 console.log(gegen

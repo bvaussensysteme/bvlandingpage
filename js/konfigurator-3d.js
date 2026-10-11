@@ -1604,26 +1604,64 @@
      Glasoberkante. Die linke Seite ist dieselbe Form, gespiegelt. */
   function seitenleisteQuerschnitt() {
     var b = SEITENLEISTE.breite, h = SEITENLEISTE.hoehe, t = SEITENLEISTE.staerke;
+    var a = b / 2;
     var f = new THREE.Shape();
-    f.moveTo(-b / 2, 0);                       // innen, auf dem Glas
-    f.lineTo(b / 2 - 1.0, 0);                  // Deckfläche nach außen
-    f.quadraticCurveTo(b / 2, 0, b / 2, -1.0); // Außenkante gerundet
-    f.quadraticCurveTo(b / 2, -h * 0.72, b / 2 - 1.4, -h);   // Schenkel nach unten
-    f.lineTo(b / 2 - 1.4 - t, -h + t * 0.4);
-    f.quadraticCurveTo(b / 2 - t, -h * 0.72, b / 2 - t, -1.0);
-    f.quadraticCurveTo(b / 2 - t, -t, b / 2 - 1.0, -t);
-    f.lineTo(-b / 2 + 0.9, -t);
-    f.lineTo(-b / 2 + 0.9, -t - 0.7);          // Nase, die aufs Glas greift
-    f.lineTo(-b / 2, -t - 0.7);
+    /* Deckfläche von innen (auf dem Glas) nach außen. */
+    f.moveTo(-a, 0);
+    f.lineTo(a - 0.6, 0);
+    f.quadraticCurveTo(a, 0, a, -0.6);          // Außenkante gerundet
+    /* DIE LANGE ZUNGE. „an den äußeren sparren sieht man immer noch den
+       spalt zwischen sparren und glasleiste, das sollte eig mit diesen
+       endleisten behoben werden, dafür war in der zeichnung diese lange
+       zunge" (Betreiber, 11.10.2026).
+
+       Der erste Versuch ließ die Zunge nach INNEN einbiegen – sie endete
+       in der Luft über dem Sparren, und der Spalt zwischen Sparrenflanke
+       und Leiste blieb offen. Die Zunge muss an der Flanke anliegen und
+       senkrecht nach unten laufen, bis sie den Sparren überdeckt. Nur
+       dann schließt sie den Spalt, und genau dafür ist sie so lang. */
+    f.lineTo(a, -h);                            // Zunge, bündig an der Flanke
+    f.lineTo(a - t, -h);
+    f.quadraticCurveTo(a - t, -t, a - 0.6, -t);
+    f.lineTo(-a + 0.9, -t);
+    f.lineTo(-a + 0.9, -t - 0.7);               // Nase, die aufs Glas greift
+    f.lineTo(-a, -t - 0.7);
     f.closePath();
     return f;
+  }
+
+  /* Spiegeln an der x-Achse. Ein negativer Maßstab allein dreht die
+     Flächen nach innen – sie werden dann weggeschnitten und das Teil
+     sieht von außen hohl aus. Deshalb wird zusätzlich die Reihenfolge
+     der Dreiecksecken getauscht. */
+  function spiegelnX(g) {
+    g.scale(-1, 1, 1);
+    var pos = g.attributes.position, i, j, tmp;
+    if (g.index) {
+      var idx = g.index;
+      for (i = 0; i < idx.count; i += 3) {
+        tmp = idx.getX(i); idx.setX(i, idx.getX(i + 2)); idx.setX(i + 2, tmp);
+      }
+      idx.needsUpdate = true;
+    } else {
+      for (i = 0; i < pos.count; i += 3) {
+        for (j = 0; j < 3; j++) {
+          tmp = pos.array[i * 3 + j];
+          pos.array[i * 3 + j] = pos.array[(i + 2) * 3 + j];
+          pos.array[(i + 2) * 3 + j] = tmp;
+        }
+      }
+      pos.needsUpdate = true;
+    }
+    g.computeVertexNormals();
+    return g;
   }
 
   function seitenglasleiste(laenge, x, y, z, neig, links, material) {
     var g = new THREE.ExtrudeGeometry(seitenleisteQuerschnitt(),
       { depth: laenge, bevelEnabled: false, curveSegments: 4 });
     g.translate(0, 0, -laenge / 2);
-    if (links) g.scale(-1, 1, 1);              // gespiegelt für die linke Seite
+    if (links) spiegelnX(g);
     var m = new THREE.Mesh(g, material);
     m.position.set(x, y, z);
     m.rotation.x = neig;
@@ -4801,11 +4839,21 @@
         /* Außen links und rechts sitzt die SEITENglasleiste: Sie schließt
            das Dach zur Seite ab, statt nur zwischen zwei Scheiben zu
            liegen. Dazwischen die runde Abdeckleiste. */
+        /* KORREKTUR 11.10.2026: „die glasleisten sind jz generell alle zu
+           kurz, die gehen bis anfang rinne und glas geht ja noch etwas
+           drüber" (Betreiber, mit Bildschirmfoto).
+
+           Die Leisten hingen an der SPARRENlänge und endeten damit an
+           der hinteren Rinnenwange. Die Eindeckung reicht aber weiter,
+           bis über die Kehle – dort lag sie frei. Jetzt laufen die
+           Leisten genau so weit wie die Scheibe, mit demselben Maß und
+           derselben Mitte: Sie halten das Glas, also gehören sie auf
+           seine Länge, nicht auf die des Sparrens. */
         if (i === 0 || i === xs.length - 1) {
-          seitenglasleiste(laenge - 2, x, ukMitte + spH + glasDicke, zMitte,
+          seitenglasleiste(vollGlas, x, ukMitte + spH + glasDicke, zGlasMitte,
                            neig, i === 0, mAlu);
         } else {
-          abdeckleiste(laenge - 2, x, ukMitte + spH + glasDicke, zMitte, neig, mAlu);
+          abdeckleiste(vollGlas, x, ukMitte + spH + glasDicke, zGlasMitte, neig, mAlu);
         }
       });
     }

@@ -3592,3 +3592,33 @@ nicht erfragen muss. Nur das Feld ist weg.
 **Prüfung.** `scripts/pruefe-markise.js` prüft jetzt beides zusammen:
 kein Feld im Bedienfeld, Angabe aber in der Anfrage. Die Gegenprobe
 verlangt das Feld zurück.
+
+## 11.10.2026 – Glasleisten: lange Zunge an der Flanke, volle Glaslänge
+
+**Zwei Beanstandungen hintereinander, beide an denselben Teilen.**
+
+**1. „an den äußeren sparren sieht man immer noch den spalt zwischen
+sparren und glasleiste, das sollte eig mit diesen endleisten behoben
+werden, dafür war in der zeichnung diese lange zunge."**
+Die Zunge der Seitenglasleiste bog im ersten Versuch nach INNEN ein und
+endete 1,5 mm innerhalb der Sparrenflanke – also in der Luft über dem
+Sparren. Der Spalt blieb offen. Jetzt läuft sie bündig an der Flanke
+senkrecht nach unten; ihre Spitze liegt 1,0 mm außerhalb der Flanke und
+überdeckt den Spalt. Genau dafür ist sie so lang.
+
+**2. „die glasleisten sind jz generell alle zu kurz, die gehen bis
+anfang rinne und glas geht ja noch etwas drüber."**
+Die Leisten hingen an der SPARRENlänge und endeten an der hinteren
+Rinnenwange. Die Eindeckung reicht 118 mm weiter, bis über die Kehle –
+dort lag sie frei. Jetzt bekommen alle Leisten Länge und Mitte der
+Scheibe: Sie halten das Glas, also gehören sie auf dessen Länge.
+
+**Dazu ein Fehler, den niemand gesehen hätte.** Die linke Leiste wurde
+mit einem negativen Maßstab gespiegelt. Das dreht die Flächen nach
+innen – sie werden weggeschnitten, das Teil sieht von außen hohl aus.
+Jetzt wird zusätzlich die Reihenfolge der Dreiecksecken getauscht.
+
+**Prüfungen.** `scripts/pruefe-masstabelle.js` jetzt 198, Gegenprobe
+198 von 198. Neu: Die Zungenspitze wird gegen die belegte Sparrenbreite
+gerechnet (Gegenprobe mit dem alten, eingebogenen Wert), und der
+Längenunterschied zur Scheibe wird beziffert statt behauptet.
