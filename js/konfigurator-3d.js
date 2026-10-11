@@ -3412,12 +3412,21 @@
       /* Durchsichtiges Gummi, kein Alu (Betreiber, 11.10.2026). Deshalb
          halbtransparent, GANZ LEICHT matt (Betreiber: „also ganz leicht
          matt", also deutlich glatter als mein erster Wert 0,55) und ohne
-         Metallanteil – und es wirft
+         Metallanteil.
+
+         Der Farbton ist bewusst dunkler als das echte Gummi: „mach das
+         kopplungsprofil leicht dunkler das man es besser im 3d sieht"
+         (Betreiber). Ein nahezu farbloses Profil auf durchsichtigem Glas
+         verschwindet am Bildschirm – hier geht Erkennbarkeit vor
+         Naturtreue, und das steht hier, damit es niemand später als
+         Farbfehler „korrigiert".
+
+         Es wirft
          keinen Schatten, sonst läge ein dunkler Streifen quer über die
          Terrasse, den es in echt nicht gibt. */
       var mKoppel = new THREE.MeshPhysicalMaterial({
-        color: rgb(0xe8edef), roughness: 0.28, metalness: 0,
-        transparent: true, opacity: 0.4, side: THREE.DoubleSide
+        color: rgb(0x9fa8ad), roughness: 0.28, metalness: 0,
+        transparent: true, opacity: 0.55, side: THREE.DoubleSide
       });
       var kq = new THREE.Mesh(
         new THREE.BoxGeometry(B, KOPPEL.hoehe, KOPPEL.breite), mKoppel);
@@ -3783,18 +3792,18 @@
      Das betrifft nur GLAS. Polycarbonat-Stegplatten kommen in langen
      Bahnen und werden nicht gestoßen.
 
-     GRÖSSTE SCHEIBE AM STÜCK: 4500 mm – ANGABE DES BETREIBERS, nicht
-     belegt. Er schätzte „4,50 oder 5m am stück".
+     GRÖSSTE SCHEIBE AM STÜCK: 4500 mm. Der Betreiber hatte erst „4,50
+     oder 5m am stück" geschätzt und am 11.10.2026 auf Rückfrage
+     entschieden: „4,50". Damit ist die Zahl keine Schätzung mehr,
+     sondern seine Festlegung.
 
-     KORREKTUR 11.10.2026: Ich hatte die Zahl zusätzlich aus dem
+     KORREKTUR aus demselben Tag: Ich hatte sie zuvor zusätzlich aus dem
      „Innenkern" der Maßtabelle hergeleitet (dort ab Tiefe 4600 mm) und
-     das als zweite, unabhängige Quelle ausgegeben. Der Betreiber:
-     „innenkern is keine glaskopplung das is für das 3d modell egal".
-     Die Herleitung war also falsch – zwei Dinge, die zufällig in
-     derselben Gegend liegen, sind nicht dasselbe. Es bleibt die
-     Schätzung des Betreibers, und zwar der niedrigere seiner beiden
-     Werte: Lieber einmal zu früh stoßen als eine Scheibe zeichnen, die
-     es nicht gibt. GEGENZULESEN: 4,50 oder 5,00 m?
+     das als zweite, unabhängige Quelle ausgegeben. „innenkern is keine
+     glaskopplung das is für das 3d modell egal" – die Herleitung war
+     falsch. Zwei Dinge, die zufällig in derselben Gegend liegen, sind
+     nicht dasselbe. Dass die hergeleitete Zahl so gut passte, war
+     Zufall und hätte misstrauisch machen müssen, nicht sicher.
 
      Der Querschnitt des Kopplungsprofils ist BELEGT – siehe KOPPEL. */
   /* BELEGT: Querschnittszeichnung „Glaskopplungsprofil" des Herstellers

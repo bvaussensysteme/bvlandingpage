@@ -349,7 +349,22 @@ pruefe('Stossprofil folgt der Einstellung',
 /* Durchsichtiges Gummi, kein Alu (Betreiber, 11.10.2026). */
 pruefe('Kopplungsprofil ist durchsichtig',
        new RegExp(q || 'var mKoppel = new THREE\\.MeshPhysicalMaterial').test(k3d) &&
-       /transparent: true, opacity: 0\.4,/.test(k3d), 'Gummi, nicht Alu');
+       /transparent: true, opacity: 0\.55,/.test(k3d), 'Gummi, nicht Alu');
+/* Bewusst dunkler als das echte Gummi, sonst sieht man es im Bild
+   nicht (Betreiber, 11.10.2026). */
+(function () {
+  var m = k3d.match(/var mKoppel = new THREE\.MeshPhysicalMaterial\(\{\s*\n\s*color: rgb\(0x([0-9a-f]{6})\)/);
+  if (!m) { pruefe('Farbton des Kopplungsprofils lesbar', false, ''); return; }
+  var n = parseInt(m[1], 16);
+  /* Jede der beiden Schranken braucht ihren EIGENEN Versatz: ein
+     gemeinsamer macht die eine Pruefung falsch und die andere erst
+     recht wahr - sie koennte dann nie anschlagen. */
+  var hell = ((n >> 16 & 255) + (n >> 8 & 255) + (n & 255)) / 3;
+  pruefe('Kopplungsprofil dunkler als das Glas', hell + (gegen ? 70 : 0) < 200,
+         'Helligkeit ' + Math.round(hell) + ' von 255');
+  pruefe('Aber nicht schwarz', hell - (gegen ? 100 : 0) > 100,
+         'Helligkeit ' + Math.round(hell));
+})();
 pruefe('Kopplungsprofil ohne Metallanteil, nur leicht matt',
        new RegExp(q || 'roughness: 0\\.28, metalness: 0,').test(k3d),
        'glatter als mein erster Wert 0,55');
