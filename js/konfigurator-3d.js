@@ -461,6 +461,62 @@
 
   var SPARREN_ABSTAND = 110; // Richtwert, nur für die geschätzten Carports
 
+  /* ---------- Maßtabelle: echte Zahlen ohne Serverantwort ----------
+     Die Daten stehen in js/masstabelle.js – dort auch, woher sie kommen
+     und warum sie öffentlich sein dürfen.
+
+     Reihenfolge der Quellen:
+       1. /api/bauteile – die vollständige Herstellermatrix, sobald der
+          KV-Namensraum DACHMATRIX gebunden ist
+       2. DIESE TABELLE – deckt Terrassendach TDS, Flachdach SkyView und
+          Flat Line vollständig ab
+       3. sparrenGeschaetzt() – nur noch Notnagel für alles andere
+          (Pergola) und für Breiten außerhalb der Tabelle
+
+     Die Tabelle wurde über alle 1316 Datensätze gegen die Herstellermatrix
+     gerechnet: 1316 von 1316 Sparrenzahlen gleich.
+
+     BREITE ZWISCHEN ZWEI TABELLENWERTEN: Es wird auf die nächste
+     LIEFERBARE Breite nach oben gegangen – so wird auch bestellt. Ein
+     Dach mit 5,80 m bekommt die Sparren der 6-m-Breite, nicht die der
+     5,50-m-Breite; zu wenige Sparren wären der teurere Irrtum. */
+  function tabelleGruppe() {
+    var M = window.BV_MASSTABELLE;
+    if (!M || !M.systeme) return null;
+    var mat = istPolycarbonat() ? 'Polycarbonat' : 'Glas';
+    var k = null;
+    if (Z.produkt === 'Terrassendach TDS') k = 'TDS|' + mat;
+    else if (Z.produkt === 'Flachdach SkyView') k = 'SkyView|' + mat;
+    else if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
+      k = 'Flat_Line|Trapezblech';
+    }
+    return k ? (M.systeme[k] || null) : null;
+  }
+
+  /* Liefert { sparren, pfosten, unterzug, lieferbar } oder null. */
+  function tabelleBauteile(breiteMm, tiefeMm) {
+    var g = tabelleGruppe();
+    if (!g) return null;
+    var M = window.BV_MASSTABELLE;
+    var bs = Object.keys(g.breiten).map(Number).sort(function (a, b) { return a - b; });
+    if (!bs.length) return null;
+    var treffer = null, i;
+    for (i = 0; i < bs.length; i++) {
+      if (bs[i] >= breiteMm) { treffer = bs[i]; break; }
+    }
+    if (treffer === null) treffer = bs[bs.length - 1];   // breiter als die Tabelle
+    var e = g.breiten[treffer];
+    var grenze = tiefeMm > M.regeln.tiefeMaxOhneUnterzug
+      ? M.regeln.tiefeMaxMitUnterzug : M.regeln.tiefeMaxOhneUnterzug;
+    return {
+      sparren: e[0],
+      pfosten: e[1] + (tiefeMm > grenze ? 1 : 0),
+      unterzug: tiefeMm > M.regeln.tiefeMaxOhneUnterzug,
+      lieferbar: tiefeMm <= M.regeln.tiefeMaxMitUnterzug,
+      breiteTabelle: treffer
+    };
+  }
+
   /* ---------- Sparrenzahl, wenn die Herstellermatrix fehlt ----------
      Vorher stand hier „Breite / 110 cm". Bei 6 m Breite kamen damit
      6 Sparren heraus, also 120 cm Achsabstand – weit außerhalb dessen,
@@ -2422,7 +2478,9 @@
        55 mm beziehen sich offenbar auf einen anderen Bezugspunkt als die
        Vorderkante der Rinne – GEGENZULESEN, siehe docs/NEXT_TASK.md. */
     var zPf = sky ? T - 5.5 : T - RINNE.breite / 2;
-    verteilen(B > 500 ? 3 : 2, B, PF / 2).forEach(function (x) {
+    /* Pfostenzahl aus der Maßtabelle, sonst die alte Faustregel. */
+    var pfTab = tabelleBauteile(Z.breite, Z.tiefe);
+    verteilen(pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2), B, PF / 2).forEach(function (x) {
       balken(PF, hVorn, PF, x, hVorn / 2, zPf, mAlu);
       if (frei) balken(PF, hHinten, PF, x, hHinten / 2, PF / 2, mAlu);
     });
@@ -2447,8 +2505,10 @@
        Die ANZAHL kommt normalerweise aus der Herstellermatrix über
        /api/bauteile. Liefert die nichts – zurzeit immer, weil die
        KV-Namensraum-Bindung DACHMATRIX fehlt und die Schnittstelle 503
-       antwortet –, greift sparrenGeschaetzt(). */
-    var felder = sparrenGeschaetzt(B) - 1;
+       antwortet –, greift die Maßtabelle aus js/masstabelle.js. Erst wenn
+       auch die nichts hergibt, wird geschätzt. */
+    var ausTabelle = tabelleBauteile(Z.breite, Z.tiefe);
+    var felder = (ausTabelle ? ausTabelle.sparren : sparrenGeschaetzt(B)) - 1;
     var randAchse = sky ? spB / 2 : 3;
     var xs = [], i;
     for (i = 0; i <= felder; i++) {

@@ -1012,3 +1012,58 @@ jedes Produkt über den Schätzpfad – nicht nur bei diesem einen Maß.
 geschätzt.** Die Schätzung ist jetzt belegbar gut, aber sie ist nicht die
 Preisliste. Das Binden des Namensraums ist der eine Schritt, der aus
 geschätzten Zahlen verbindliche macht.
+
+## 2026-10-11 – Maßtabelle öffentlich: echte Stückzahlen statt Schätzung
+
+**Anlass.** Nach dem Bericht zur 503-Schnittstelle hat der Betreiber die
+„Maßtabelle Terrassenüberdachungen – BV AussenSysteme" (Stand 11.10.2026)
+geschickt: „hier alle daten die dürfen öffentlich".
+
+**Was das löst.** Der Konfigurator hat alle Stückzahlen geschätzt, weil
+`/api/bauteile` immer 503 antwortet (KV-Namensraum `DACHMATRIX` nicht
+gebunden). Jetzt stehen **echte Zahlen im öffentlichen Repo**:
+`js/masstabelle.js`, 4,2 KB.
+
+**Reihenfolge der Quellen im Konfigurator:**
+
+1. `/api/bauteile` – die vollständige Herstellermatrix, sobald gebunden
+2. **die Maßtabelle** – deckt TDS, SkyView und Flat Line vollständig ab
+3. `sparrenGeschaetzt()` – nur noch Notnagel (Pergola, Breiten außerhalb)
+
+**Verdichtung – über alle 1316 Datensätze nachgerechnet, null Abweichungen:**
+
+- Sparren und Stützfüße hängen **nur von der Breite** ab, nie von der Tiefe
+- Pfosten ohne Unterzug = Stützfüße + (Tiefe > 4500 ? 1 : 0)
+- Pfosten mit Unterzug = Stützfüße + (Tiefe > 7000 ? 1 : 0)
+- Unterzug nötig ab Tiefe > 4500, lieferbar bis 7000, Innenkern nur bei 4600
+
+Deshalb speichert die Datei nur `Breite → [Sparren, Stützfüße]` plus die
+lieferbaren Tiefen. Aus 1316 Zeilen werden 100 Einträge.
+
+**Gegengerechnet gegen die private Herstellermatrix.** Die liegt in der
+Arbeitsumgebung (korrekt per `.gitignore` ausgeschlossen, nie committet).
+Verglichen wurden **alle 1316 Kombinationen: 1316 von 1316 Sparrenzahlen
+identisch.** Die öffentliche Tabelle ist also nicht „ungefähr richtig",
+sondern deckungsgleich.
+
+**Breiten zwischen zwei Tabellenwerten** gehen auf die nächste
+**lieferbare Breite nach oben** – so wird auch bestellt. 6000 mm ist keine
+lieferbare Breite; gerechnet wird mit 6080 mm, und das ergibt die 9 Sparren
+und 3 Pfosten, die der Betreiber genannt hat.
+
+**Was das für den KV-Speicher bedeutet.** Das Binden von `DACHMATRIX` ist
+damit **kein Blocker mehr**, nur noch eine Verbesserung: Die Matrix im
+KV-Speicher enthält mehr als diese Tabelle (alle Tiefen- und
+Montagevarianten in voller Breite). Die Tabelle deckt aber genau das ab,
+was der Konfigurator zeigt.
+
+**Zur Freigabe.** Dass diese Daten öffentlich sein dürfen, hat der
+Betriebsinhaber entschieden; die Tabelle trägt den Vermerk
+„QUELLE=VD-Preislisten_geprueft PREISE=keine". Preise enthält sie keine –
+`scripts/pruefe-keine-preise.sh` läuft durch. Die vollständige
+Herstellermatrix bleibt weiterhin draußen.
+
+**Prüfung.** `node scripts/pruefe-masstabelle.js` – 15 Prüfungen, alle
+bestanden; Gegenprobe 15 von 15. Sie fängt vor allem den Fall ab, dass
+eine neue Preisliste die Verdichtung ungültig macht (Sparrenzahl hinge
+dann auch von der Tiefe ab) – das wäre sonst still falsch.

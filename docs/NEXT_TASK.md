@@ -137,6 +137,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
 | `scripts/pruefe-konfigurator.js` | Kennt der Anfrage-Assistent jeden Wert, den der 3D-Konfigurator übergibt? |
+| `scripts/pruefe-masstabelle.js` | Stimmt die Maßtabelle mit den Regeln überein, nach denen sie verdichtet wurde? Deckt sie alle 1316 Datensätze ab? |
 | `scripts/pruefe-fuehrung.js` | Gehört jede Bedieneinheit des 3D-Konfigurators zu einem Schritt der geführten Reihenfolge? Nennt die Anfrage alle drei Seiten? |
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
@@ -265,4 +266,14 @@ er je rund 19 mm über. Das ist so gewollt.
 Der Widerspruch im Maß selbst bleibt offen – falls sich klärt, worauf
 sich die 172 × 175 beziehen, gehört das in `RINNENDECKEL` in
 `js/konfigurator-3d.js`.
+
+## Erledigt: Stückzahlen kommen nicht mehr aus der Schätzung (11.10.2026)
+
+`/api/bauteile` antwortet weiterhin 503 (KV-Namensraum `DACHMATRIX` nicht
+gebunden). Das ist aber **kein Blocker mehr**: `js/masstabelle.js` liefert
+die echten Zahlen für TDS, SkyView und Flat Line – gegengerechnet gegen die
+private Matrix, 1316 von 1316 identisch.
+
+Das Binden bleibt eine sinnvolle Verbesserung (die Matrix kann mehr), hat
+aber keine Dringlichkeit mehr. Die Schritte stehen in `worker/index.js`.
 
