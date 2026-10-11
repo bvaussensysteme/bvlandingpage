@@ -1712,3 +1712,36 @@ sie da.
 **Gegenzulesen:** Ob der Übergang auch bei flacher Neigung (2°) und bei
 sehr niedrigem Durchgang dicht bleibt – dort wird der Keil am
 schmalsten.
+
+## 2026-10-11 – SG23 ist rahmenlos (Korrektur des Eintrags von vorhin)
+
+**Anlass:** „bei dem sg23 modell sind nur glasschiebetüren du hast da jz
+aber rahmen dran gemacht das ist so falsch" (Betreiber, mit
+Bildschirmfoto).
+
+**Was falsch war:** Ich hatte aus den Profilschnitten geschlossen, das
+Tür-Einfaßprofil und das H-Glaseinfaßprofil lägen um JEDEN Flügel herum,
+und sie entsprechend gezeichnet. Das war ein Schluss von einem
+Querschnitt auf eine Einbaulage, die in der Zeichnung gar nicht steht –
+genau die Art Annahme, die hier als ANNAHME markiert war und sich jetzt
+als falsch herausgestellt hat.
+
+**Was jetzt gilt:** Der Flügel ist reines Glas. Sichtbar sind nur die
+Türschwelle unten und die Schiebetürführung oben. Das ist der Punkt des
+Systems – rahmenlose Glasschiebetüren; ein Rahmen um jede Scheibe nimmt
+ihm genau das, wofür der Kunde ihn kauft.
+
+**Die drei Profilmaße bleiben hinterlegt**, aber nichts davon wird
+gezeichnet: Tür-Einfaßprofil 25 × 35, H-Glaseinfaßprofil 19,2 × 61,4,
+Bürstenprofil 12 × 15,7 mm. Eine Prüfung achtet für jedes einzeln
+darauf, dass es hinterlegt, aber NICHT gezeichnet ist – so geht das Maß
+nicht verloren und wandert auch nicht versehentlich zurück ins Bild.
+
+**Offene Frage an den Betreiber:** Wo sitzen diese drei Profile dann?
+Vermutlich an den Festfeldern und am Anschluss zu Wand und Pfosten. Ohne
+diese Auskunft wird nichts davon gezeichnet – lieber eine Scheibe ohne
+Profil als ein Profil an der falschen Stelle.
+
+**Lehre für die Doku:** Ein Querschnitt belegt den Querschnitt, nicht den
+Einbauort. Wo der Einbauort nur erschlossen ist, gehört er nicht ins
+Modell, sondern in die Rückfragenliste.

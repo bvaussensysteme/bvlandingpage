@@ -1785,9 +1785,13 @@
        Das Bürstenprofil wird NICHT gezeichnet. Mit 12 mm Breite wäre es
        im Bild kleiner als ein Pixel und kostet nur Rechenzeit; das Maß
        steht hier, damit es nicht verlorengeht. */
-    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };     // Tür-Einfaßprofil
+    /* ALLE DREI sind nur hinterlegt, nicht gezeichnet. Die Schnitte
+       geben den Querschnitt, nicht die Einbaulage – und SG23 ist
+       rahmenlos, die Flügel sind reines Glas. Wo diese Profile sitzen
+       (Festfelder? Anschluss an Wand und Pfosten?), ist offen. */
+    var TUER_PR = { tiefe: 2.5, hoehe: 3.5 };      // Tür-Einfaßprofil
     var H_GLAS_PR = { tiefe: 1.92, breite: 6.14 }; // H-Glaseinfaßprofil
-    var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // nicht gezeichnet
+    var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // Bürstenprofil
 
     function gleise(seite, laenge) {
       var b = sg23Bauart(laenge * 10, seite);
@@ -1845,21 +1849,17 @@
            erkennt der Klick spaeter, welche Anlage gemeint ist. */
         schiebeTeil(platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2,
                            quer, spur, SG23.glasDicke), seite);
-        /* Rahmen um den Flügel: oben und unten das Tür-Einfaßprofil,
-           an den beiden senkrechten Kanten das H-Glaseinfaßprofil.
-           ANNAHME, dass es so umläuft – die Schnitte zeigen nur die
-           Querschnitte, nicht, an welcher Kante welches Profil sitzt.
-           GEGENZULESEN. */
-        schiebeTeil(platte(rahmen, flB, TUER_PR.hoehe, achse, lage,
-                           yUnten + TUER_PR.hoehe / 2, quer, spur, TUER_PR.tiefe), seite);
-        schiebeTeil(platte(rahmen, flB, TUER_PR.hoehe, achse, lage,
-                           yUnten + hoehe - TUER_PR.hoehe / 2, quer, spur,
-                           TUER_PR.tiefe), seite);
-        [-1, 1].forEach(function (vz) {
-          schiebeTeil(platte(rahmen, H_GLAS_PR.breite, hoehe - 2 * TUER_PR.hoehe,
-                             achse, lage + vz * (flB - H_GLAS_PR.breite) / 2,
-                             yUnten + hoehe / 2, quer, spur, H_GLAS_PR.tiefe), seite);
-        });
+        /* KEIN Rahmen um den Flügel. „bei dem sg23 modell sind nur
+           glasschiebetüren du hast da jz aber rahmen dran gemacht das
+           ist so falsch" (Betreiber, 11.10.2026, mit Bildschirmfoto).
+
+           Das ist der Punkt des Systems: Die Scheibe läuft rahmenlos,
+           sichtbar sind nur Schwelle unten und Führung oben. Ich hatte
+           aus den Profilschnitten geschlossen, die Profile lägen um
+           jeden Flügel – ein Schluss aus einem Querschnitt auf eine
+           Einbaulage, die dort gar nicht steht. Die Maße bleiben in
+           TUER_PR / H_GLAS_PR hinterlegt, bis geklärt ist, wo sie
+           wirklich sitzen (siehe docs/entscheidungen.md). */
       }
     }
 
