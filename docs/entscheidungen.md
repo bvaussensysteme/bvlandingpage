@@ -2780,3 +2780,25 @@ seinen eigenen Rahmen; dort stimmte es.
 dieses Feld, der Konfigurator jetzt auch. Bei Wunsch-Breite zeigt das
 Modell weiter die gleichmäßige Aufteilung – in der Anfrage steht dann
 ausdrücklich, dass die Einzelbreiten beim Aufmaß festgelegt werden.
+
+## 2026-10-11 – Lamellenfarbe ohne Wirkung: Feld und Code hießen anders
+
+**Anlass:** „bei oberfläche der lamellen ändert sich nix wenn man es
+ändert" (Betreiber).
+
+**Was war:** Das Auswahlfeld schickte `Holzoptik Golden OAK`, die Tabelle
+im Code kannte den Schlüssel aber noch unter dem alten Namen
+`Echtholzoptik (Golden OAK)` – übriggeblieben aus einer früheren Fassung,
+beim Auflösen eines Merge-Konflikts mitgeschleppt. Ein unbekannter
+Schlüssel fällt stillschweigend auf die Rahmenfarbe zurück. Bei
+Anthrazit-Gestell sahen deshalb **alle drei** Möglichkeiten gleich aus.
+
+**Warum es keine Prüfung gefangen hat:** Die bisherigen Prüfungen haben
+das Feld und den Code **getrennt** angesehen – das Feld hatte die
+richtigen drei Werte, der Code eine plausible Tabelle. Dass beide nicht
+zueinander passen, fiel zwischen die Prüfungen.
+
+**Was jetzt gilt:** Eine Prüfung liest die Werte **aus dem Auswahlfeld**
+und sucht für jeden die Entsprechung **im Code**. Sie prüft damit die
+Verbindung, nicht zwei Absichten nebeneinander. Dieselbe Falle gibt es
+überall, wo ein Feldwert als Schlüssel dient.

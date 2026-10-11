@@ -512,6 +512,24 @@ pruefe('Elementbreite gleich oder Wunsch',
        /id="k3dVelarisBreite"/.test(html) &&
        new RegExp(q || "Z\\.velarisBreite === 'wunsch'").test(js), '');
 
+(function () {
+  /* Jeder Wert im Auswahlfeld muss im Code ankommen. Am 11.10.2026 hiess
+     der Schluessel im Code anders als im Feld - die Holzoptik fiel still
+     auf die Rahmenfarbe zurueck, und am Bild aenderte sich beim
+     Umstellen nichts. Hier wird Feld gegen Code geprueft, nicht Absicht
+     gegen Absicht. */
+  var block = (html.split('id="k3dVelarisFarbe"')[1] || '').split('</select>')[0];
+  var werte = (block.match(/value="([^"]+)"/g) || [])
+    .map(function (v) { return v.slice(7, -1); });
+  var offen = werte.filter(function (w) {
+    if (w.indexOf('Anthrazit') > -1 || w.indexOf('Sonderfarbe') > -1) return false;
+    return js.indexOf("'" + w + "': 0x") < 0;   // Dekor muss im Code stehen
+  });
+  if (gegen) offen = offen.length ? [] : ['erzwungen'];
+  pruefe('Jede Lamellenfarbe kommt im Code an', offen.length === 0,
+         werte.length + ' Werte, ohne Entsprechung: ' + (offen.join(', ') || 'keiner'));
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
