@@ -641,3 +641,56 @@ Das deckt zugleich die Farbabweichung der Stoffbilder ab.
 
 **Prüfung.** `node scripts/pruefe-stoffe.js` – 12 Prüfungen, alle
 bestanden; Gegenprobe 12 von 12.
+
+## 2026-10-11 – Senkrechtmarkise nach Montageanleitung, Spalte zu Pfosten und Wand
+
+### Senkrechtmarkise VD eZIP 105 / 125
+
+Der Betreiber hat die Montageanleitung geschickt. Damit ist die Annahme
+vom selben Tag („Kassette 105 mm aus dem Produktnamen abgeleitet")
+**bestätigt und zugleich präzisiert**:
+
+| Angabe | Quelle |
+|---|---|
+| Serie **Z-R**: halbrunde Kassette, Ø 105 oder 125 mm | Anleitung S. 5 |
+| Serie **Z-E**: quaderförmige Kassette, Kantenlänge 105 oder 125 mm | S. 5 |
+| Ab **400 cm** Markisenbreite zusätzliche Kastenunterstützung | S. 5 |
+| Z-R105 max. 4000 mm breit, **Z-R125 max. 5000 mm** | S. 26 |
+| Aufbau: Kassette, Fallstange, je Seite Einzelführungsschiene aus Rückteil, Z-Schiene und Vorderteil, hinten Schienenblende | Abb. 2, S. 5 |
+
+Die **Kassette ist jetzt halbrund** gezeichnet (Serie Z-R), nicht mehr
+eckig. **GEGENZULESEN:** In unseren Unterlagen steht nirgends, welche der
+beiden Serien wir verkaufen. Umstellen auf die eckige Z-E ist eine Zeile:
+`KASSETTE_RUND`.
+
+**Schienenquerschnitt:** Abb. 3 (S. 13) ist mit 10,7 / 18,9 / 19,9 mm
+bemaßt – das sind die **Bohrkanäle**, nicht die Außenmaße. Die Außenmaße
+(rund 48 × 41 mm) sind über diesen Maßstab aus der Zeichnung
+**abgegriffen**: kein gedrucktes Maß, aber auch nicht geraten.
+
+**Neu im Bedienfeld:** Ist eine Seite mit Senkrechtmarkise breiter als
+5 m, steht das als Hinweis beim Stoff. Breiter gibt es sie nicht am
+Stück – das gehört in die Anfrage und nicht erst ins Angebot.
+
+### Zwei Spalte, die der Betreiber im Bild gefunden hat
+
+**„die markise und keil haben lücke zum pfosten die müssen bündig sein"**
+Die Seitenelemente endeten an der Dachkante. Die liegt 186 mm hinter der
+Rinnenvorderkante, der Pfosten steht mittig unter der Rinne – dazwischen
+blieben **38 mm Luft**. Jetzt enden sie an der hinteren Pfostenfläche.
+Über dem Stück dazwischen liegt die Rinne, das Element hängt dort also
+nicht frei.
+
+Damit ist die Begründung von vorher überholt („Maßgeblich ist die
+Dachkante"). Der Kommentar im Code sagt das ausdrücklich, damit es
+niemand zurückbaut.
+
+**„die senkrechtmarkisen haben spalt zur wand, das muss auch bündig
+sein"** Die Elemente begannen bei `z = PROFIL`, ließen also 11 cm Luft
+zur Hauswand. Jetzt beginnen sie bei `z = 0`. Freistehend steht dort der
+hintere Pfosten, dessen Rückseite ebenfalls bei 0 liegt – derselbe Wert
+passt für beide Fälle.
+
+**Prüfung.** `scripts/pruefe-markise.js` – 43 Prüfungen, alle bestanden;
+Gegenprobe 43 von 43. Beide Spalte haben eine eigene Prüfung, damit sie
+nicht zurückkommen.

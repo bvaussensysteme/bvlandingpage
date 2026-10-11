@@ -138,6 +138,31 @@ pruefe('SkyView sperrt die Aufdachmarkise im Anfrage-Assistenten',
        new RegExp(q || "produkt !== 'Flachdach SkyView'").test(wiz),
        'markise.render');
 
+/* ---------- Senkrechtmarkise VD eZIP 105 / 125 ----------
+   Masse aus der Montageanleitung (VD AluSysteme, 2025). */
+var SOLL_Z = { kassette: 105, stuetzeAb: 4000, maxBreite: 5000 };
+var blockZ = (src.match(/var ZIP = \{[\s\S]*?\};/) || [''])[0];
+if (!blockZ) { console.error('FEHLER  ZIP-Block nicht gefunden'); process.exit(1); }
+function wertZ(name) {
+  var m = blockZ.match(new RegExp(name + ':\\s*([\\d.]+)'));
+  return m ? parseFloat(m[1]) * 10 : null;
+}
+Object.keys(SOLL_Z).forEach(function (k) {
+  var ist = wertZ(k), soll = SOLL_Z[k] + (gegen ? 7 : 0);
+  pruefe('eZIP – Maß ' + k, ist !== null && Math.abs(ist - soll) < 0.5,
+         ist + ' mm (erwartet ' + soll + ')');
+});
+pruefe('eZIP – Kassette als Halbrund gezeichnet (Serie Z-R)',
+       new RegExp(q || 'KASSETTE_RUND = true').test(src), 'Z-R, nicht Z-E');
+pruefe('eZIP – Kastenunterstützung ab 400 cm',
+       new RegExp(q || 'laenge > ZIP\\.stuetzeAb').test(src), 'Anleitung S. 5');
+pruefe('eZIP – Hinweis bei über 5 m Breite',
+       new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
+pruefe('Seitenelemente reichen hinten bis zur Wand',
+       new RegExp(q || 'var hinten = 0;').test(src), 'kein Spalt zur Hauswand');
+pruefe('Seitenelemente stoßen an den Pfosten',
+       new RegExp(q || 'zPf - PF / 2').test(src), 'kein Spalt zur Dachkante');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

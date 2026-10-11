@@ -1396,6 +1396,27 @@
       return m;
     }
 
+    /* Halbrunde Kassette der Serie Z-R: oben flach, unten rund. Der
+       Nullpunkt des Querschnitts liegt in der flachen Oberseite, deshalb
+       ist okKas direkt die Oberkante. */
+    function zipKassette(laenge, achse, mitte, okKas, quer, versatz) {
+      if (!KASSETTE_RUND) {
+        platte(rahmen, laenge, ZIP.kassette, achse, mitte,
+               okKas - ZIP.kassette / 2, quer, versatz, ZIP.kassette);
+        return;
+      }
+      var g = new THREE.ExtrudeGeometry(zipQuerschnitt(ZIP.kassette / 2),
+        { depth: laenge, bevelEnabled: false, curveSegments: 10 });
+      g.translate(0, 0, -laenge / 2);
+      if (!quer) g.rotateY(Math.PI / 2);        // Stirnseite laeuft in x
+      var m = new THREE.Mesh(g, rahmen);
+      m.position.set(quer ? achse + (versatz || 0) : mitte, okKas,
+                     quer ? mitte : achse + (versatz || 0));
+      m.castShadow = true; m.receiveShadow = true;
+      bau.add(m);
+      return m;
+    }
+
     function rahmenKante(laenge, achse, mitte, y, quer, versatz) {
       platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
     }
@@ -1502,28 +1523,33 @@
       // nach außen, also vom Mittelpunkt weg – unabhängig vom Namen der Seite
       var aussen = (seite === 'vorne' || achse >= 0) ? 4 : -4;
       if (liste.indexOf('Senkrechtmarkise') > -1) {
-        /* Eine Senkrechtmarkise ist mehr als ein Tuch: oben die Kassette,
-           an beiden Seiten die Fuehrungsschienen, unten das Ausfallprofil.
-           Ohne sie schwebte bisher ein Rechteck in der Luft – im Produkt-
-           foto der Stoffkarte (VD EZIP 105 / 125) sieht man den Aufbau.
+        /* Aufbau nach der Montageanleitung eZIP 105/125, Abb. 2:
+           Kassette oben, je Seite eine Einzelfuehrungsschiene, unten die
+           Fallstange am Tuchende. Vorher hing hier ein nacktes Rechteck
+           in der Luft. Masse und Herleitung stehen bei ZIP. */
+        var hZ = hoch * (Z.sonneAus / 100);
+        var okKas = yUnten + hoch;                 // unter der Dachkante
+        var ukKas = okKas - ZIP.kassette;
+        zipKassette(laenge, achse, mitte, okKas, quer, aussen);
 
-           KASSETTE 10,5 cm: aus dem Produktnamen EZIP 105 abgeleitet
-           (EZIP 125 waere 12,5 cm). Das ist eine ANNAHME, keine Zeichnung
-           – eine Masszeichnung zur EZIP liegt uns nicht vor. Schienen- und
-           Ausfallprofilmasse sind GESCHAETZT. */
-        var zipK = 10.5, zipS = 5.0;
-        var h = hoch * (Z.sonneAus / 100);
-        platte(rahmen, laenge, zipK, achse, mitte,
-               yUnten + hoch + zipK / 2, quer, aussen, zipK);
         [-1, 1].forEach(function (v) {
-          var m = mitte + v * (laenge - zipS) / 2;
-          platte(rahmen, zipS, hoch, achse, m, yUnten + hoch / 2, quer, aussen, zipS);
+          var m = mitte + v * (laenge - ZIP.schieneB) / 2;
+          platte(rahmen, ZIP.schieneB, hoch, achse, m,
+                 yUnten + hoch / 2, quer, aussen, ZIP.schieneT);
         });
-        if (h > 5) {
-          platte(mStoff, laenge - zipS * 2, h, achse, mitte,
-                 yUnten + hoch - h / 2, quer, aussen, 1.2);
-          platte(rahmen, laenge - zipS * 2, 4.5, achse, mitte,
-                 yUnten + hoch - h + 2.2, quer, aussen, 3.2);
+
+        /* BELEGT (Anleitung S. 5): ab 400 cm Markisenbreite kommt eine
+           Kastenunterstuetzung dazu. */
+        if (laenge > ZIP.stuetzeAb) {
+          platte(rahmen, 6, 6, achse, mitte, okKas + 3, quer, aussen, 6);
+        }
+
+        if (hZ > 5) {
+          var tuchH = Math.max(1, hZ - ZIP.kassette);
+          platte(mStoff, laenge - ZIP.schieneB * 2, tuchH, achse, mitte,
+                 ukKas - tuchH / 2, quer, aussen, 1.2);
+          platte(rahmen, laenge - ZIP.schieneB * 2, ZIP.fallstange, achse,
+                 mitte, ukKas - tuchH + ZIP.fallstange / 2, quer, aussen, 3.2);
         }
       }
       if (liste.indexOf('Velaris') > -1) {
@@ -1602,12 +1628,22 @@
            38 mm VOR der Dachkante – dort ist kein Dach mehr, an das der
            Keil anschließen könnte, und die Schräge hing frei.
 
-       Maßgeblich ist die Dachkante: weiter vorne gibt es nur noch die
-       Rinne. Der Pfosten steht dann ein Stück vor dem Element, so wie in
-       Wirklichkeit auch. */
+       Beides ist überholt: Seit dem 11.10.2026 endet das Element an der
+       HINTEREN PFOSTENFLÄCHE, nicht an der Dachkante. Über dem Stück
+       dazwischen liegt die Rinne, das Element hängt dort also nicht frei
+       – und der Spalt zum Pfosten ist weg. Siehe den Aufruf in
+       bauenTerrasseGeschaetzt.
+
+       HINTEN beginnt das Element bei z = 0, also an der Wand. Vorher
+       begann es bei PROFIL und ließ damit 11 cm Luft zur Hauswand stehen
+       – vom Betreiber beanstandet: „die senkrechtmarkisen haben spalt zur
+       wand, das muss auch bündig sein". Freistehend steht dort der hintere
+       Pfosten, dessen Rückseite ebenfalls bei z = 0 liegt; derselbe Wert
+       passt also für beide Fälle. */
     var vorne = (dachVorne != null) ? dachVorne : T - PROFIL;
-    var seitenMitte = (PROFIL + vorne) / 2;
-    var seitenLaenge = vorne - PROFIL;
+    var hinten = 0;
+    var seitenMitte = (hinten + vorne) / 2;
+    var seitenLaenge = vorne - hinten;
 
     eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
     eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
@@ -2417,9 +2453,19 @@
 
     /* Seitenelemente und Sonnenschutz sind Zubehör und hängen nicht am
        Dachsystem – deshalb auch freistehend. */
+    /* Vorderes Ende der Seitenelemente: die HINTERE Pfostenfläche, nicht
+       die Dachkante. Die Dachkante liegt 186 mm hinter der Rinnenvorder-
+       kante, der Pfosten steht mittig unter der Rinne – dazwischen blieben
+       38 mm Luft, und genau die war im Bild als Spalt zwischen Keil bzw.
+       Senkrechtmarkise und Pfosten zu sehen. Vom Betreiber beanstandet:
+       „die markise und keil haben lücke zum pfosten die müssen bündig
+       sein". Jetzt stossen sie an den Pfosten.
+
+       Über dem Stück zwischen Dachkante und Pfosten ist kein Dach mehr,
+       sondern die Rinne – das Element haengt dort also nicht frei. */
     seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
-    }, dachTiefe);
+    }, zPf - PF / 2);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und
@@ -3386,6 +3432,51 @@
     });
   });
 
+  /* ---------- Senkrechtmarkise VD eZIP 105 / 125 ----------
+     Masse aus der Montageanleitung „Senkrechtmarkise VD EZIP105,
+     VD EZIP125" (VD AluSysteme, 2025), vom Betreiber am 11.10.2026
+     geschickt. BELEGT daraus:
+
+       · Serie Z-R: HALBRUNDE Kassette, Durchmesser 105 oder 125 mm
+         (Seite 5). Serie Z-E: quaderfoermige Kassette, Kantenlaenge
+         105 oder 125 mm. Welche der beiden Serien wir verkaufen, steht
+         nirgends in unseren Unterlagen – hier ist Z-R gezeichnet,
+         GEGENZULESEN. Umstellen ist eine Zeile: KASSETTE_RUND.
+       · Ab 400 cm Markisenbreite kommt eine zusaetzliche
+         Kastenunterstuetzung dazu (Seite 5).
+       · Groesstmasse (Seite 26): Z-R105 max. 4000 mm breit, Z-R125
+         max. 5000 mm. Breiter geht nur geteilt.
+       · Aufbau (Abb. 2, Seite 5): Kassette, Fallstange am unteren
+         Tuchende, je Seite eine Einzelfuehrungsschiene aus Rueckteil,
+         Z-Schiene und Vorderteil, hinten von der Schienenblende
+         verschlossen.
+
+     Der Schienenquerschnitt ist in Abb. 3 (Seite 13) gezeichnet und mit
+     10,7 / 18,9 / 19,9 mm bemasst – das sind die Bohrkanaele, nicht die
+     Aussenmasse. Die Aussenmasse sind ueber diesen Massstab aus der
+     Zeichnung ABGEGRIFFEN: rund 48 mm tief, 41 mm breit. Also kein
+     gedrucktes Mass, aber auch nicht geraten. */
+  var ZIP = {
+    kassette:   10.5,   // 105 mm BELEGT (eZIP 105; eZIP 125 waere 12,5)
+    schieneT:    4.8,   // ~48 mm, aus Abb. 3 abgegriffen
+    schieneB:    4.1,   // ~41 mm, aus Abb. 3 abgegriffen
+    fallstange:  4.5,   // GESCHAETZT, in der Anleitung ohne Mass
+    stuetzeAb: 400,     // cm, BELEGT: ab 400 cm Markisenbreite
+    maxBreite: 500      // cm, BELEGT: Z-R125 max. 5000 mm
+  };
+  var KASSETTE_RUND = true;   // Serie Z-R; false waere die eckige Z-E
+
+  /* Halbrunder Kassettenquerschnitt: oben flach (dort haengt sie am
+     Dach), unten rund. x quer, y nach oben, Nullpunkt in der Achse. */
+  function zipQuerschnitt(r) {
+    var f = new THREE.Shape();
+    f.moveTo(-r, 0);
+    f.lineTo(r, 0);
+    f.absarc(0, 0, r, 0, -Math.PI, true);
+    f.closePath();
+    return f;
+  }
+
   /* ---------- Markisenstoffe ----------
      Die Liste steht in js/markisenstoffe.js – dort auch die Begruendung,
      warum die beiden Gruppen streng getrennt bleiben muessen. Kurz: Ein
@@ -3488,9 +3579,22 @@
     var i1 = document.getElementById('k3dStoffInfo');
     if (i1) i1.textContent = Z.stoff ? stoffText(Z.stoff)
       : 'Ohne Angabe schlagen wir im Angebot etwas Passendes vor.';
+    /* BELEGT (Montageanleitung eZIP, S. 26): eine Senkrechtmarkise gibt
+       es bis 5000 mm Breite (Z-R125). Eine breitere Seite muss geteilt
+       werden – das gehoert in die Anfrage, nicht erst ins Angebot. */
+    var zuBreit = [];
+    if (Z.erwLinks.indexOf('Senkrechtmarkise') > -1 && Z.tiefe > ZIP.maxBreite * 10) zuBreit.push('links');
+    if (Z.erwRechts.indexOf('Senkrechtmarkise') > -1 && Z.tiefe > ZIP.maxBreite * 10) zuBreit.push('rechts');
+    if (Z.erwVorne.indexOf('Senkrechtmarkise') > -1 && Z.breite > ZIP.maxBreite * 10) zuBreit.push('vorne');
+
     var i2 = document.getElementById('k3dStoffZipInfo');
-    if (i2) i2.textContent = Z.stoffZip ? stoffText(Z.stoffZip)
-      : 'Jeder Stoff gibt es in zwei Mustern – Konfektion A und B.';
+    if (i2) {
+      i2.textContent = (zuBreit.length
+        ? 'Hinweis: ' + zuBreit.join(' und ') + ' über 5 m breit – eine '
+          + 'Senkrechtmarkise gibt es bis 5 m am Stück, darüber geteilt. '
+        : '') + (Z.stoffZip ? stoffText(Z.stoffZip)
+          : 'Jeder Stoff gibt es in zwei Mustern – Konfektion A und B.');
+    }
   }
 
   /* Das Tuch im Modell bekommt das echte Muster. Geladen wird erst, wenn
