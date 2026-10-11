@@ -288,7 +288,43 @@ pruefe('Querstoss nur bei Glas',
 pruefe('Schwelle kommt aus der Masstabelle',
        new RegExp(q || 'M\\.regeln\\.innenkernTiefe').test(k3d), 'nicht fest im Code');
 pruefe('Zwei Scheiben statt einer',
-       new RegExp(q || 'var halb = \\(voll - KOPPEL\\.breite\\) / 2').test(k3d), '');
+       new RegExp(q || 'koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL\\.breite / 2').test(k3d), '');
+/* ---------- Lage des Stosses einstellbar ----------
+   „falls eine kopplung nötig is soll diese im 3d modell sichtbar sein
+   und ne einstellung geben das ich sie verschieben kann im erlaubten
+   bereich" (Betreiber, 11.10.2026). */
+pruefe('Regler fuer die Stosslage',
+       gegen ? !/id="k3dKoppel"/.test(html) : /id="k3dKoppel"/.test(html), '');
+pruefe('Regler nur, wenn es einen Stoss gibt',
+       new RegExp(q || "case 'kopplung':       return glasGeteilt\\(\\)").test(k3d), '');
+pruefe('Erlaubter Bereich aus der Scheibenlaenge',
+       new RegExp(q || 'min: Math\\.max\\(100, Z\\.tiefe - SCHEIBE_LANG\\)').test(k3d), '');
+pruefe('Voreingestellt mittig',
+       new RegExp(q || 'if \\(!Z\\.koppelLage\\) return Math\\.round\\(Z\\.tiefe / 2\\)').test(k3d), '');
+pruefe('Stossprofil folgt der Einstellung',
+       new RegExp(q || 'Math\\.cos\\(neig\\) \\* koppelLokal').test(k3d), '');
+/* Zweiter Weg: den erlaubten Bereich rechnen und pruefen, dass beide
+   Scheiben darin nie laenger werden als 4500 mm. */
+(function () {
+  var LANG = 4500;
+  function bereich(t) {
+    return { min: Math.max(100, t - LANG), max: Math.min(LANG, t - 100) };
+  }
+  [[4600, 100, 4500], [5500, 1000, 4500], [7000, 2500, 4500]].forEach(function (f) {
+    var b = bereich(f[0]);
+    var mn = b.min + (gegen ? -200 : 0), mx = b.max + (gegen ? 200 : 0);
+    pruefe('Bereich bei ' + f[0] + ' mm: ' + f[1] + ' bis ' + f[2],
+           mn === f[1] && mx === f[2], mn + ' bis ' + mx);
+  });
+  /* An beiden Enden des Bereichs darf keine Scheibe ueber 4500 mm. */
+  var t = 7000, b = bereich(t), schlimm = 0;
+  [b.min, (b.min + b.max) / 2, b.max].forEach(function (d) {
+    schlimm = Math.max(schlimm, d, t - d);
+  });
+  schlimm += (gegen ? 200 : 0);
+  pruefe('Keine Scheibe laenger als 4500 mm', schlimm <= LANG,
+         'laengste Scheibe ' + schlimm + ' mm bei ' + t + ' mm Tiefe');
+})();
 pruefe('Kopplungsprofil ueber die volle Breite',
        new RegExp(q || 'BoxGeometry\\(B, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d), '');
 pruefe('Hinweis im Bedienfeld',

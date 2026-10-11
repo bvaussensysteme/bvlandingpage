@@ -82,6 +82,9 @@
        sein an vorne aber man soll es entkoppeln können und getrennt
        einstellen" (Betreiber, 11.10.2026). */
     hoeheGetrennt: false,
+    /* Abstand der Glaskopplung von der Rinne, in mm. 0 heißt „mittig" –
+       der Konfigurator setzt dann selbst. Siehe koppelBereich(). */
+    koppelLage: 0,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -3360,6 +3363,17 @@
     var glasDicke = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var mF = dachfuellung();
     var yDach = ukMitte + spH + glasDicke / 2;
+
+    /* Lage des Glasstoßes, in der Ebene der Scheibe gerechnet.
+       zGlasMitte ist die Mitte der ungeteilten Scheibe; koppelLokal der
+       Versatz des Stoßes davon aus, längs der Dachschräge. Positiv
+       heißt: Richtung Rinne. */
+    var zGlasMitte = zMitte + glasUeber / 2;
+    var vollGlas = laenge - 2 + glasUeber;
+    var koppelZ = dachTiefe - koppelAbstand() / 10;      // mm -> cm
+    var koppelLokal = (koppelZ - zGlasMitte) / Math.cos(neig);
+    var koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL.breite / 2;
+    var koppelHinten = vollGlas / 2 + koppelLokal - KOPPEL.breite / 2;
     for (i = 0; i < xs.length - 1; i++) {
       /* BELEGT (Montageanleitung S. 9): „Breite der Eindeckung = Abstand
          zwischen Träger + 40 mm" – die Scheibe liegt also beidseitig
@@ -3369,22 +3383,24 @@
       var feldB = sky ? lichteWeite : lichteWeite + 4;
       if (feldB <= 0) continue;
       var xMitte = (xs[i] + xs[i + 1]) / 2;
-      var voll = laenge - 2 + glasUeber;
       if (!glasGeteilt()) {
-        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, voll), mF);
-        pl.position.set(xMitte, yDach, zMitte + glasUeber / 2);
+        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, vollGlas), mF);
+        pl.position.set(xMitte, yDach, zGlasMitte);
         pl.rotation.x = neig;
         pl.receiveShadow = true;
         bau.add(pl);
       } else {
-        /* Zwei Scheiben hintereinander, dazwischen die Kopplung. */
-        var halb = (voll - KOPPEL.breite) / 2;
-        [-1, 1].forEach(function (vz) {
-          var teil = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, halb), mF);
-          var versatz = vz * (halb + KOPPEL.breite) / 2;
+        /* Zwei Scheiben hintereinander, dazwischen die Kopplung. Die
+           Lage kommt aus koppelAbstand() – voreingestellt mittig, im
+           Bedienfeld im erlaubten Bereich verschiebbar. */
+        [1, -1].forEach(function (vz) {
+          var laengeT = vz > 0 ? koppelVorn : koppelHinten;
+          if (laengeT <= 0) return;
+          var teil = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, laengeT), mF);
+          var o = koppelLokal + vz * (KOPPEL.breite / 2 + laengeT / 2);
           teil.position.set(xMitte,
-                            yDach + Math.sin(neig) * versatz * -1,
-                            zMitte + glasUeber / 2 + Math.cos(neig) * versatz);
+                            yDach - Math.sin(neig) * o,
+                            zGlasMitte + Math.cos(neig) * o);
           teil.rotation.x = neig;
           teil.receiveShadow = true;
           bau.add(teil);
@@ -3395,8 +3411,9 @@
     if (glasGeteilt()) {
       var kq = new THREE.Mesh(
         new THREE.BoxGeometry(B, KOPPEL.hoehe, KOPPEL.breite), mAlu);
-      kq.position.set(0, yDach + KOPPEL.hoehe / 2 - glasDicke / 2,
-                      zMitte + glasUeber / 2);
+      kq.position.set(0,
+                      yDach + KOPPEL.hoehe / 2 - glasDicke / 2 - Math.sin(neig) * koppelLokal,
+                      zGlasMitte + Math.cos(neig) * koppelLokal);
       kq.rotation.x = neig;
       kq.castShadow = true; kq.receiveShadow = true;
       bau.add(kq);
@@ -3771,6 +3788,44 @@
 
   function glasGeteilt() {
     return !istPolycarbonat() && Z.tiefe >= koppelTiefe();
+  }
+
+  /* Wo darf der Stoß liegen? Beide Scheiben müssen für sich am Stück
+     machbar bleiben, also höchstens SCHEIBE_LANG lang. Gemessen wird ab
+     der RINNE – das ist die Kante, die man im Bild sieht.
+
+       Abstand von vorne mindestens  Tiefe − 4500   (hintere Scheibe)
+       Abstand von vorne höchstens   4500           (vordere Scheibe)
+
+     Bei 7000 mm Tiefe bleibt damit der Bereich 2500 bis 4500 mm; bei
+     4600 mm ist er mit 100 bis 4500 mm fast frei. */
+  var SCHEIBE_LANG = 4500;   // mm, größte Scheibe am Stück
+
+  function koppelBereich() {
+    return { min: Math.max(100, Z.tiefe - SCHEIBE_LANG),
+             max: Math.min(SCHEIBE_LANG, Z.tiefe - 100) };
+  }
+
+  /* Der tatsächlich verwendete Abstand: die Einstellung, in den
+     erlaubten Bereich gezwungen. 0 heißt „noch nichts eingestellt" –
+     dann mittig, das ist die Lage mit der größten Reserve nach beiden
+     Seiten. */
+  function koppelAbstand() {
+    var b = koppelBereich();
+    if (!Z.koppelLage) return Math.round(Z.tiefe / 2);
+    return Math.min(b.max, Math.max(b.min, Z.koppelLage));
+  }
+
+  function koppelGrenzeSetzen() {
+    var el = document.getElementById('k3dKoppel');
+    var zf = document.getElementById('k3dKoppelZahl');
+    if (!el) return;
+    var b = koppelBereich();
+    el.min = b.min; el.max = b.max; el.step = 50;
+    var wert = koppelAbstand();
+    if (Z.koppelLage && Z.koppelLage !== wert) Z.koppelLage = wert;
+    el.value = wert;
+    if (zf && document.activeElement !== zf) zf.value = wert;
   }
 
   function neigungProzent(grad) {
@@ -4531,6 +4586,8 @@
       case 'neigung':        return !!d && d.system === 'TDS' &&
                                     !(hoehenGetrennt() && Z.hoeheGetrennt);
       case 'hoehe-hinten':   return hoehenGetrennt();
+      // Die Lage des Glasstoßes nur fragen, wenn es einen gibt
+      case 'kopplung':       return glasGeteilt();
       default:               return true;
     }
   }
@@ -4864,6 +4921,7 @@
     Z.hoehe = parseInt(wert('k3dHoehe'), 10) || Z.hoehe;
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.hoeheHinten = zahl('k3dHoeheHinten', Z.hoeheHinten);
+    Z.koppelLage = zahl('k3dKoppel', Z.koppelLage);
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
@@ -4894,6 +4952,7 @@
     Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
     vorsprungGrenzeSetzen();
     hoeheHintenKoppeln();
+    koppelGrenzeSetzen();
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
@@ -4916,7 +4975,8 @@
     [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe'],
      ['k3dUeberstand', 'ueberstand'], ['k3dVorsprung', 'vorsprung'],
      ['k3dVorsprungHinten', 'vorsprungHinten'],
-     ['k3dHoeheHinten', 'hoeheHinten']].forEach(function (paar) {
+     ['k3dHoeheHinten', 'hoeheHinten'],
+     ['k3dKoppel', 'koppelLage']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
       if (a) a.textContent = Z[paar[1]] + ' mm';
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
@@ -5247,7 +5307,7 @@
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
-   'k3dHoeheHinten', 'k3dHoeheGetrennt',
+   'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
@@ -5277,7 +5337,8 @@
    ['k3dNeigung', 'k3dNeigungZahl'],
    ['k3dVorsprung', 'k3dVorsprungZahl'],
    ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl'],
-   ['k3dHoeheHinten', 'k3dHoeheHintenZahl']].forEach(function (pr) {
+   ['k3dHoeheHinten', 'k3dHoeheHintenZahl'],
+   ['k3dKoppel', 'k3dKoppelZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
     n.addEventListener('input', function () {
