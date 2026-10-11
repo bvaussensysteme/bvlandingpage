@@ -873,7 +873,7 @@
       sparren: e[0],
       pfosten: e[1] + (tiefeMm > grenze ? 1 : 0),
       unterzug: tiefeMm > M.regeln.tiefeMaxOhneUnterzug,
-      lieferbar: tiefeMm <= M.regeln.tiefeMaxMitUnterzug,
+      lieferbar: tiefeMm <= M.regeln.tiefeMaxLieferbar,
       breiteTabelle: treffer
     };
   }
@@ -6566,7 +6566,7 @@
     if (!g) return null;
     var M = window.BV_MASSTABELLE;
     var bs = Object.keys(g.breiten).map(Number).sort(function (a, b) { return a - b; });
-    var ts = g.tiefen.filter(function (t) { return t <= M.regeln.tiefeMaxMitUnterzug; });
+    var ts = g.tiefen.filter(function (t) { return t <= M.regeln.tiefeMaxLieferbar; });
     if (!bs.length || !ts.length) return null;
     return { breiten: bs, tiefen: ts };
   }
@@ -6848,7 +6848,22 @@
     Z.lamellen = parseInt(wert('k3dLamellen'), 10);
     if (isNaN(Z.lamellen)) Z.lamellen = 35;
 
-    if (produktWechsel) masseSetzen();
+    if (produktWechsel) {
+      masseSetzen();
+      /* KORREKTUR 11.10.2026: „warum lässt sich das im konfigurator vor
+         allem bei carport tds nicht einstellen" (Betreiber).
+
+         masseSetzen() stellt die Regler auf den Maßblock des Produkts
+         (7000 × 4500 mm) – aufgezogen auf das echte Raster der Tabelle
+         (14080 × 7050) wurden sie erst unten, und zwar nur, wenn sich
+         der SYSTEMschlüssel ändert. Carport TDS und Terrassendach TDS
+         haben aber denselben Schlüssel (TDS|Glas). Beim Wechsel vom
+         Terrassendach zum Carport blieb es deshalb bei 7000 × 4500 –
+         genau die Beobachtung des Betreibers.
+
+         Beim Produktwechsel werden die Grenzen jetzt immer nachgezogen. */
+      reglerGrenzenSetzen();
+    }
     // keilErlaubt() hängt am Produkt UND am Carport-Typ
     if (produktWechsel || typWechsel) erwAufraeumen();
 
@@ -7041,7 +7056,7 @@
         }
         if (!tb.lieferbar) {
           saetze.push('Diese Tiefe liegt über dem Höchstmaß von ' +
-            (M.regeln.tiefeMaxMitUnterzug / 1000).toFixed(1).replace('.', ',') +
+            (M.regeln.tiefeMaxLieferbar / 1000).toFixed(2).replace('.', ',') +
             ' m – <b>so nicht lieferbar</b>. Sprechen Sie uns an, wir finden eine Lösung.');
           warnung = true;
         }

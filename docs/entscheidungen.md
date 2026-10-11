@@ -3648,3 +3648,35 @@ Mini-Shape aufgerufen und ausgemessen: Umrissmaß, Scheitelhöhe und
 Breite des Halbrunds, Lage und Tiefe der Zunge. Die Prüfung rechnet
 damit dasselbe wie der Browser. `scripts/pruefe-masstabelle.js` 199,
 Gegenprobe 199 von 199.
+
+## 11.10.2026 – Höchstmaße 14080 × 7050 mm sind jetzt einstellbar
+
+**Anlass.** „bei tds is die maximale tiefe 7050mm und maximale breite
+14080mm warum lässt sich das im konfigurator vor allem bei carport tds
+nicht einstellen" (Betreiber).
+
+**Zwei Fehler, die zusammen das Bild ergaben.**
+
+**1. Ein Wert für zwei Dinge.** In der Maßtabelle stand
+`tiefeMaxMitUnterzug: 7000` – gemeint war damit der Punkt, ab dem MIT
+Unterzug ein Pfosten dazukommt. Der Konfigurator hat diesen Wert
+zusätzlich als Höchstmaß benutzt und die Tiefe dort gekappt. Die letzte
+Spalte der Tabelle ist aber 7050. Jetzt stehen beide getrennt:
+`tiefeMaxMitUnterzug: 7000` (Pfosten dazu) und `tiefeMaxLieferbar: 7050`
+(Höchstmaß). Die Regel „Pfosten mit Unterzug = Stützfüße + (Tiefe > 7000
+? 1 : 0)" blieb damit unangetastet – sie hätte ohne lieferbare 7050 gar
+nie greifen können, was schon ein Hinweis auf den Fehler war.
+
+**2. Der Carport bekam die Grenzen nicht.** `masseSetzen()` stellt beim
+Produktwechsel die Regler auf den Maßblock des Produkts (7000 × 4500).
+Aufgezogen auf das echte Raster (14080 × 7050) wurden sie nur, wenn sich
+der SYSTEMschlüssel ändert – und Carport TDS hat denselben Schlüssel wie
+das Terrassendach TDS (`TDS|Glas`). Beim Wechsel blieb es deshalb bei
+7000 × 4500. Jetzt werden die Grenzen bei jedem Produktwechsel
+nachgezogen.
+
+**Prüfungen.** `scripts/pruefe-masstabelle.js` jetzt 204, Gegenprobe
+204 von 204. Neu: Höchstmaß und Pfostengrenze müssen zwei verschiedene
+Werte bleiben (Gegenprobe setzt sie gleich), die Reglergrenzen werden
+aus der Tabelle nachgerechnet (muss 14080 × 7050 ergeben), und bei
+7050 mm muss ein Pfosten dazukommen.

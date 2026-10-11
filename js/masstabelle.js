@@ -21,7 +21,14 @@
  *     der Tiefe (0 Abweichungen)
  *   · Pfosten ohne Unterzug = Stützfüße + (Tiefe > 4500 ? 1 : 0)
  *   · Pfosten mit Unterzug  = Stützfüße + (Tiefe > 7000 ? 1 : 0)
- *   · Unterzug nötig ab Tiefe > 4500, lieferbar bis Tiefe 7000
+ *   · Unterzug nötig ab Tiefe > 4500
+ *   · Lieferbar bis Tiefe 7050 – das ist die letzte Spalte der Tabelle.
+ *     Hier stand vorher 7000, und damit war im Konfigurator bei 7000 mm
+ *     Schluss: „bei tds is die maximale tiefe 7050mm und maximale breite
+ *     14080mm warum lässt sich das im konfigurator nicht einstellen"
+ *     (Betreiber, 11.10.2026). Die 7000 waren der Punkt, ab dem ein
+ *     Pfosten DAZUKOMMT – nicht das Höchstmaß. Zwei verschiedene Dinge,
+ *     die in einem Wert steckten; deshalb stehen sie jetzt getrennt.
  *   · Innenkern nur bei Tiefe 4600
  * Deshalb stehen hier nur Breite → [Sparren, Stützfüße] und die
  * Liste der lieferbaren Tiefen. scripts/pruefe-masstabelle.js rechnet
@@ -33,7 +40,10 @@ window.BV_MASSTABELLE = {
   stand: '2026-10-11',
   regeln: {
     tiefeMaxOhneUnterzug: 4500,
+    /* Ab dieser Tiefe kommt MIT Unterzug ein Pfosten dazu. */
     tiefeMaxMitUnterzug: 7000,
+    /* Größte lieferbare Tiefe – die letzte Spalte der Tabelle. */
+    tiefeMaxLieferbar: 7050,
     innenkernTiefe: 4600
   },
   systeme: {

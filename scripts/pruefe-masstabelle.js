@@ -115,8 +115,49 @@ pruefe('TDS Glas 6000 mm → 9 Sparren, 3 Stützfüße',
 /* Regeln, auf denen die Verdichtung beruht */
 pruefe('Regelwerte hinterlegt',
        !gegen && M.regeln && M.regeln.tiefeMaxOhneUnterzug === 4500 &&
-       M.regeln.tiefeMaxMitUnterzug === 7000,
-       'Unterzug ab 4500, lieferbar bis 7000');
+       M.regeln.tiefeMaxMitUnterzug === 7000 &&
+       M.regeln.tiefeMaxLieferbar === 7050,
+       'Unterzug ab 4500, Pfosten dazu ab 7000, lieferbar bis 7050');
+/* Die beiden duerfen nicht wieder zu einem Wert werden: 7000 ist der
+   Punkt, ab dem ein Pfosten dazukommt, 7050 das Hoechstmass. Genau diese
+   Verwechslung hat den Regler bei 7000 enden lassen. */
+pruefe('Hoechstmass und Pfostengrenze sind zwei Werte',
+       gegen ? M.regeln.tiefeMaxLieferbar === M.regeln.tiefeMaxMitUnterzug
+             : M.regeln.tiefeMaxLieferbar > M.regeln.tiefeMaxMitUnterzug,
+       M.regeln.tiefeMaxMitUnterzug + ' / ' + M.regeln.tiefeMaxLieferbar + ' mm');
+(function () {
+  /* Zweiter Weg: die Reglergrenzen aus der Tabelle wirklich ausrechnen -
+     so, wie grenzenAusTabelle() es tut. Sie muessen die groessten Masse
+     der Tabelle ergeben: 14080 x 7050 mm beim TDS. */
+  var g = M.systeme['TDS|Glas'];
+  var bs = Object.keys(g.breiten).map(Number).sort(function (a, b) { return a - b; });
+  var grenze = gegen ? M.regeln.tiefeMaxMitUnterzug : M.regeln.tiefeMaxLieferbar;
+  var ts = g.tiefen.filter(function (t) { return t <= grenze; });
+  var bMax = bs[bs.length - 1], tMax = ts[ts.length - 1];
+  pruefe('Regler reicht bis zum Hoechstmass der Tabelle',
+         bMax === 14080 && tMax === 7050, bMax + ' x ' + tMax + ' mm');
+})();
+pruefe('Grenzen kommen aus tiefeMaxLieferbar',
+       new RegExp(q || 'return t <= M\\.regeln\\.tiefeMaxLieferbar').test(k3d),
+       'nicht mehr bei der Pfostengrenze gekappt');
+/* Carport TDS und Terrassendach TDS haben denselben Systemschluessel -
+   beim Wechsel muessen die Grenzen trotzdem nachgezogen werden. */
+pruefe('Produktwechsel zieht die Grenzen nach',
+       new RegExp(q || 'if \\(produktWechsel\\) \\{[\\s\\S]{0,1200}reglerGrenzenSetzen\\(\\);').test(k3d),
+       'sonst bleibt der Carport bei 7000 x 4500');
+(function () {
+  /* Zweiter Weg: die Pfostenregel an der Grenze nachrechnen. Bei 7050 mm
+     kommt ein Pfosten dazu - das ist der Sinn der 7000. */
+  var e = M.systeme['TDS|Glas'].breiten[6080] || [0, 4];
+  function pfosten(t) {
+    var grenze = t > M.regeln.tiefeMaxOhneUnterzug
+      ? M.regeln.tiefeMaxMitUnterzug : M.regeln.tiefeMaxOhneUnterzug;
+    return e[1] + (t > grenze ? 1 : 0);
+  }
+  var bei7000 = pfosten(7000), bei7050 = gegen ? pfosten(7000) : pfosten(7050);
+  pruefe('Bei 7050 mm kommt ein Pfosten dazu', bei7050 === bei7000 + 1,
+         bei7000 + ' -> ' + bei7050 + ' Pfosten');
+})();
 
 /* Der Konfigurator muss sie auch benutzen */
 pruefe('Konfigurator liest die Tabelle',
