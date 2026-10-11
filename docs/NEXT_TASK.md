@@ -247,3 +247,17 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 09.09.2026 | Datenschutz: tote Verweise repariert, Vertragsabwicklung ergänzt | live |
 | 09.09.2026 | PDF-Download im Baugenehmigungs-Check | live |
 | 09.09.2026 | Konfigurator-Fenster auch auf der Startseite | live |
+
+## Offen: Maß des Rinnen-Seitendeckels (11.10.2026)
+
+Das Teilebild „Seitendeckel Rinne 2 TD beidseitig" nennt **172 × 175 mm**.
+Unsere Rinne ist nach der Querschnittszeichnung des Betreibers **186,3 mm
+breit und 136,7 mm hoch**. Der Deckel wäre damit in der einen Richtung
+schmaler, in der anderen deutlich höher als die Öffnung, die er schließen
+soll – eine der beiden Angaben hat einen anderen Bezugspunkt.
+
+Im Modell ist der Deckel deshalb auf die **tatsächliche Rinnenöffnung**
+gezeichnet (bündig statt maßhaltig falsch), mit der Schräge an der
+Vorderkante. Sobald das Maß geklärt ist, gehört es in
+`rinnenblendeQuerschnitt()` in `js/konfigurator-3d.js`.
+
