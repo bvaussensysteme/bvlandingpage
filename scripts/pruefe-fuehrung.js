@@ -731,7 +731,12 @@ pruefe('Die Art steckt in der Aufteilung',
   var tiefen = [6.13, 11.26, 16.39, 5.12, 10.25, 15.38];
   var raus = 0, mittig = 0;
   tiefen.forEach(function (t) {
+    /* Verschiebbar: schmal = mittig, breit = aussen buendig.
+       Feststehend: immer aussen buendig. Beide duerfen nach aussen
+       nicht ueberstehen - genau das wird gezaehlt. */
     var versatz = gegen ? 0 : (t <= PROFIL ? 0 : (t - PROFIL) / 2);
+    var fest = gegen ? 0 : (t - PROFIL) / 2;
+    if (fest - t / 2 < -PROFIL / 2 - 0.001) raus++;
     /* vz = +1 nach innen. Aussenkante der Schiene: versatz - t/2,
        Aussenkante des Pfostens: -PROFIL/2. */
     if (versatz - t / 2 < -PROFIL / 2 - 0.001) raus++;
@@ -753,6 +758,28 @@ pruefe('Schienenlage steht so im Code',
 pruefe('Bodenschiene liegt im Boden',
        new RegExp(q || 'yUnten - VELARIS\\.bodenSchiene / 2').test(js) &&
        !/yUnten \+ VELARIS\.bodenSchiene \/ 2/.test(js), '');
+
+pruefe('Velaris laesst sich anklicken',
+       new RegExp(q || 'function velarisGeklickt').test(js) &&
+       new RegExp(q || 'lam\\.userData\\.velaris = haelfte').test(js) &&
+       new RegExp(q || '!markiseGeklickt\\(e\\) && !velarisGeklickt\\(e\\)').test(js), '');
+(function () {
+  /* Die Animation darf das Modell NICHT mehr neu bauen - das war der
+     Grund fuers Ruckeln. Geprueft wird, dass beide Fahrfunktionen die
+     gemerkten Teile bewegen und aendern() nur noch am Ende aufrufen. */
+  var dreh = (js.split('function velarisFahren(')[1] || '').split('\n  }')[0];
+  var schieb = (js.split('function velarisSchiebenFahren(')[1] || '').split('\n  }')[0];
+  var ok = /VELARIS_LAMELLEN\[i\]\.mesh\.rotation\.x = kipp/.test(dreh) &&
+           /velarisSchieben\(f\.gruppen\[i\]/.test(schieb) &&
+           /* aendern() darf nur noch im Notfallzweig und einmal am
+              Ende stehen - nicht mehr in jedem Bild. */
+           (dreh.match(/aendern\(\)/g) || []).length <= 3 &&
+           (schieb.match(/aendern\(\)/g) || []).length <= 3;
+  pruefe('Animation baut das Modell nicht neu', gegen ? !ok : ok, '');
+})();
+pruefe('Lagenrechnung steht nur einmal da',
+       new RegExp(q || 'function velarisLagen').test(js) &&
+       (js.match(/vorher >= 0\) frei = Math\.max/g) || []).length === 1, '');
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'

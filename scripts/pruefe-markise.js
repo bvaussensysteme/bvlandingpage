@@ -215,7 +215,9 @@ pruefe('Schiebeanlage faehrt weich, nicht springend',
 pruefe('Klick schaltet auf oder zu',
        new RegExp(q || "schiebeFahren\\(seite, Z\\[feld\\] > 50 \\? 0 : 100\\)").test(src), '');
 pruefe('Markise hat Vorrang vor dem Glas dahinter',
-       new RegExp(q || '!markiseGeklickt\\(e\\)\\) schiebeGeklickt\\(e\\)').test(src), 'nur eines reagiert');
+       new RegExp(q || '!markiseGeklickt\\(e\\) && !velarisGeklickt\\(e\\)').test(src) &&
+       /markiseGeklickt\(e\)[\s\S]{0,120}schiebeGeklickt\(e\)/.test(src),
+       'nur eines reagiert');
 pruefe('Jede Seite hat ihren eigenen Oeffnungsstand',
        new RegExp(q || 'offenLinks: 0, offenRechts: 0, offenVorne: 0').test(src), '');
 pruefe('Regler setzt weiterhin alle drei Seiten',
