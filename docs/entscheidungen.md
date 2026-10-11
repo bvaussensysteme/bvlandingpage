@@ -2854,3 +2854,23 @@ untere Hälfte die eine mehr.
 
 Die Prüfung sieht beides nach: dass der Regler **weg** ist und dass die
 Hälfte über alle Lamellenzahlen von 1 bis 60 wirklich die Hälfte ist.
+
+## 2026-10-11 – Velaris: die Aufhängung läuft durch
+
+**Anlass:** „du hast oben nur so ein stück gemacht es is ja durchgehende
+schiene pro tür etc, bzw. die 2er 3er schiene is ja durchgehend lichtes
+maß" (Betreiber).
+
+Zwischen Kopfprofil und Rahmen saß ein kurzes Stück von höchstens 20 cm
+in der Mitte – meine Lesart der Querschnittzeichnung, in der über dem
+Element ein schmaler Träger zu sehen ist. Im Querschnitt sieht man aber
+nur den **Schnitt** durch ein Teil, das in die Tiefe weiterläuft. Ein
+Element, das an einem Punkt hängt, gibt es nicht.
+
+**Was jetzt gilt:** Die Aufhängung läuft über die ganze Elementbreite.
+Das Kopfprofil darüber geht ohnehin über die ganze Anlage – es gehört
+zur Anlage und wird dort gezeichnet, nicht je Element.
+
+**Die Lehre:** Aus einem Querschnitt lässt sich die Länge eines Teils
+nicht ablesen. Derselbe Fehler steckte schon einmal in den
+SG23-Profilen, die ich aus Querschnitten um jeden Flügel gelegt hatte.
