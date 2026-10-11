@@ -5167,6 +5167,15 @@
 
   /* ---------- Tag und Abend ---------- */
   function stimmung() {
+    /* Die Schrift über dem Bild gehört zur Stimmung: „die angabe muss im
+       abendmodus weiß werden sonst kann man es nicht lesen" (Betreiber,
+       11.10.2026). Dunkle Schrift auf dunklem Abendhimmel war nicht zu
+       entziffern. Umgeschaltet wird mit einer Klasse an der Bühne – die
+       Farben stehen damit im Stilblatt, nicht im Code, und es gibt nur
+       EINE Stelle, an der der Abend ein- und ausgeht. */
+    var buehne = document.querySelector('.k3d-buehne');
+    if (buehne) buehne.classList.toggle('ist-abend', !!Z.abend);
+
     /* Zufahrt grauer als Terrassenbelag – sonst wirkt der Carport,
        als stünde er auf einer Holzterrasse. */
     var belagTag = Z.produkt === 'Carport' ? 0x9c968d : 0x8e867a;

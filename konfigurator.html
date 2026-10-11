@@ -393,6 +393,13 @@
       margin: 0; line-height: 1.1; text-shadow: 0 1px 0 rgba(255,255,255,.45);
     }
     .k3d-info p { font-size: .76rem; color: #2d3b46; margin: 3px 0 0; line-height: 1.4; }
+    /* Abendmodus: Der Himmel wird dunkel, die dunkle Schrift darauf
+       unlesbar. Weiß mit weichem Schatten statt eines harten Kastens –
+       so bleibt das Bild ruhig. */
+    .k3d-buehne.ist-abend .k3d-info h2,
+    .k3d-buehne.ist-abend .k3d-info p {
+      color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.65);
+    }
     .k3d-oben { position: absolute; right: 14px; top: 12px; display: flex; gap: 7px; }
     .k3d-bildmenu {
       position: absolute; right: 14px; top: 52px; z-index: 6;
@@ -1493,7 +1500,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016b" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
