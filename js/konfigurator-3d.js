@@ -1793,6 +1793,41 @@
     var H_GLAS_PR = { tiefe: 1.92, breite: 6.14 }; // H-Glaseinfaßprofil
     var BUERSTE = { tiefe: 1.2, hoehe: 1.57 };     // Bürstenprofil
 
+    /* ---------- Muschelgriff ----------
+       „an die vorderste tür an der mn quasi zieht zum aufmachen nen
+       runden eingelassenen edelstahlgriff machen also keinen
+       herausstehenden wäre ja unlogisch" (Betreiber, 11.10.2026).
+
+       Der Einwand trifft die Bauart: Die Flügel laufen dicht
+       aneinander vorbei, ein vorstehender Griff würde am nächsten
+       Flügel anschlagen. Deshalb ein Muschelgriff – eine runde
+       Edelstahlschale, die IN der Scheibe sitzt und mit ihr bündig
+       abschließt.
+
+       Durchmesser 50 mm, Höhe 1050 mm über der Schwelle: beides
+       GESCHÄTZT. In der Unterlage steht nur „inklusive 2 Griff", ohne
+       Maß – GEGENZULESEN. */
+    var GRIFF = { durchmesser: 5.0, hoehe: 105, randAbstand: 9 };
+
+    function muschelgriff(achse, lage, yUnten, quer, versatz, dicke) {
+      var g = new THREE.Mesh(
+        new THREE.CylinderGeometry(GRIFF.durchmesser / 2, GRIFF.durchmesser / 2,
+                                   dicke * 1.02, 20),
+        new THREE.MeshStandardMaterial({
+          color: rgb(0xc9cdd0), roughness: 0.28, metalness: 0.9
+        }));
+      /* Die Scheibenebene entscheidet, wohin die Zylinderachse zeigt:
+         links/rechts steht die Scheibe in der x-Ebene, vorne in der z. */
+      if (quer) g.rotation.z = Math.PI / 2;
+      else g.rotation.x = Math.PI / 2;
+      g.position.set(quer ? achse + (versatz || 0) : lage,
+                     yUnten + GRIFF.hoehe,
+                     quer ? lage : achse + (versatz || 0));
+      g.castShadow = true;
+      bau.add(g);
+      return g;
+    }
+
     function gleise(seite, laenge) {
       var b = sg23Bauart(laenge * 10, seite);
       return b ? b[0] : 3;
@@ -1860,6 +1895,17 @@
            Einbaulage, die dort gar nicht steht. Die Maße bleiben in
            TUER_PR / H_GLAS_PR hinterlegt, bis geklärt ist, wo sie
            wirklich sitzen (siehe docs/entscheidungen.md). */
+
+        /* Griff nur am Flügel, der am weitesten fährt – das ist der,
+           an dem gezogen wird. i = 0 steht fest, i = n-1 bewegt sich am
+           meisten (siehe lage oben). Bei nur einem Flügel ist es
+           derselbe. Der Griff sitzt an der ZIEHKANTE, also der vom
+           Stapel abgewandten Seite. */
+        if (i === n - 1 && hoehe > GRIFF.hoehe + 20) {
+          var kante = lage + (flB / 2 - GRIFF.randAbstand) * (n > 1 ? -1 : 1);
+          schiebeTeil(muschelgriff(achse, kante, yUnten, quer, spur,
+                                   SG23.glasDicke), seite);
+        }
       }
     }
 

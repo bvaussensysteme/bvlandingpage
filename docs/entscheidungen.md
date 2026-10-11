@@ -1745,3 +1745,29 @@ Profil als ein Profil an der falschen Stelle.
 **Lehre für die Doku:** Ein Querschnitt belegt den Querschnitt, nicht den
 Einbauort. Wo der Einbauort nur erschlossen ist, gehört er nicht ins
 Modell, sondern in die Rückfragenliste.
+
+## 2026-10-11 – Muschelgriff am ziehenden Flügel
+
+**Anlass:** „an die vorderste tür an der mn quasi zieht zum aufmachen nen
+runden eingelassenen edelstahlgriff machen also keinen herausstehenden
+wäre ja unlogisch" (Betreiber).
+
+Der Einwand trifft die Bauart: Die Flügel laufen dicht aneinander vorbei.
+Ein vorstehender Griff würde am nächsten Flügel anschlagen – er kann
+also gar nicht vorstehen. Umgesetzt als runde Edelstahlschale, die in der
+Scheibe sitzt und mit ihr bündig abschließt.
+
+Der Griff sitzt nur am Flügel, der am weitesten fährt – das ist der, an
+dem gezogen wird – und dort an der Ziehkante, nicht in der Mitte.
+
+**GESCHÄTZT, GEGENZULESEN:** Durchmesser 50 mm und Höhe 1050 mm über der
+Schwelle. In der Unterlage steht nur „inklusive 2 Griff", ohne Maß. Eine
+Prüfung hält beide Werte in einem handgerechten Band (40–70 mm, 900 bis
+1200 mm) und stellt sicher, dass der Griff nicht tiefer baut als das
+10-mm-Glas.
+
+**Zwei Griffe laut Unterlage, einer im Modell:** Der zweite sitzt
+vermutlich auf der Gegenseite derselben Scheibe (innen und außen). Im
+Bild ist immer nur eine Seite zu sehen, deshalb zeichne ich einen. Falls
+die zwei Griffe etwas anderes meinen – etwa zwei verschiedene Flügel –
+bitte sagen.
