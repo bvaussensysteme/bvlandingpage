@@ -4533,3 +4533,54 @@ Wandprofil links/rechts: runde Vorderkante. Ob Größe und Rundung des
 Wandprofil-Deckels passen, lässt sich nur am Bild beurteilen – die Maße sind
 geschätzt. Prüfung: `node scripts/pruefe-masstabelle.js` (216, Gegenprobe
 216/216); sie misst beide Formen und besteht darauf, dass sie verschieden sind.
+
+## 2026-10-11 – Flachdach SkyView nach der Montageanleitung gebaut
+
+**Anlass.** „so dann analysiere das, lies alles durch und wir modellieren jetzt
+das flachdach skyview richtig" (Betreiber, 11.10.2026) – dazu die
+Montageanleitung „VD FLACHDACH GLAS SKY VIEW", Stand 07.11.2025, 33 Seiten,
+vollständig gelesen.
+
+**Was falsch war.** Das SkyView-Dach war bisher ein TDS-Dach mit 2° Neigung,
+über das eine 26 cm hohe Attika-Blende gelegt wurde – ein Versuch, das kubische
+Aussehen ohne die echten Profile nachzustellen. Rinne, Träger und Sparren waren
+reine Schätzungen.
+
+**Was jetzt gilt (BELEGT aus der Anleitung).**
+- **WAAGE statt Gefälle:** „Die Oberkante des Daches muss an allen Punkten in
+  WAAGE sitzen" (S. 8). SkyView hat kein Gefälle in der Konstruktion; das
+  Wasser läuft in der Rinne und durch den Pfosten ab. `neig = 0`.
+- **Sparren:** Länge = Spannweite − 150 mm, an jedem Ende ein Ausschnitt
+  65 mm tief × 86 mm hoch als Auflager (S. 22). Oberkante bündig, waagerecht.
+- **Randsparren bündig:** „an den Seiten jeweils ein Abstand von 0 mm" (S. 25) –
+  anders als bei TDS mit 30 mm.
+- **Rahmen rundum:** Rinne Flat (16553) vorne, Träger TD (15698) hinten,
+  Seitenblende Sky (6069) an den Seiten, alle mit derselben Oberkante.
+  Die Seitenblende wird 5 cm länger geliefert (S. 20) – ein Liefermaß, kein
+  Einbaumaß, deshalb steht sie im Modell nicht über.
+- **Glasleisten (15184)** auf den Sparren, auch bei SkyView.
+- Pfosten 110 × 110, Fallrohr Ø 75 im Pfosten, Rinnenablauf Ø 68, Laubfänger.
+
+**ABGELEITET, nicht gedruckt.** Aus „Sparrenlänge = Spannweite − 150 mm" und
+„Auflager 65 mm je Seite" folgt für Rinne und Träger zusammen 280 mm Bautiefe,
+also je 140 mm. Vorher standen dort 90 mm als reine Schätzung. Eine Prüfung
+rechnet diese Ableitung nach: Ändert jemand eines der drei Maße, schlägt sie
+an.
+
+**GESCHÄTZT bleibt** (die Anleitung bemaßt keine Querschnitte): Rahmenhöhe
+220 mm, Sparren 70 × 110 mm, Blendendicke, Glasleiste. Steht in
+`docs/NEXT_TASK.md`.
+
+**Nebenbefund zum Prüfen.** `js/masstabelle.js` führt SkyView als
+`montage: 'wandmontage'`. Die Anleitung beschreibt durchgehend die
+**freistehende** Anlage mit vier Pfosten und Fundamenten; für die Wand gibt es
+eine eigene Wand-Rinnen-Blende (15185). Beides gibt es also – die Angabe
+gehört geprüft.
+
+**Was gegengelesen werden soll.** SkyView wählen: Das Dach steht waagerecht,
+der Rahmen ist rundum gleich hoch, die Randsparren sitzen bündig an der Kante,
+auf den Sparren liegen Glasleisten, und über dem Dach steht nichts mehr. Eine
+Neigung lässt sich bei SkyView nicht einstellen (gilt nur für TDS) – das war
+schon vorher so und passt jetzt zum Modell. Prüfung:
+`node scripts/pruefe-masstabelle.js` (229, Gegenprobe 229/229), davon 15 neue
+zu SkyView.
