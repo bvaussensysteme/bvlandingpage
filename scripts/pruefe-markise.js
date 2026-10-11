@@ -156,6 +156,56 @@ pruefe('eZIP – Kassette als Halbrund gezeichnet (Serie Z-R)',
        new RegExp(q || 'KASSETTE_RUND = true').test(src), 'Z-R, nicht Z-E');
 pruefe('eZIP – Kastenunterstützung ab 400 cm',
        new RegExp(q || 'laenge > ZIP\\.stuetzeAb').test(src), 'Anleitung S. 5');
+/* Kein durchsichtiger Streifen zwischen Kassette und Tuch.
+   „die senkrechtmarkisen lnks rechts haben oben noch so ne durchsichtige
+   lücke die is falsch" (Betreiber, 11.10.2026). Zweiter Weg: Nicht den
+   Text lesen, sondern die beiden Formeln aus dem Modellcode holen und
+   die Lage wirklich ausrechnen.
+
+   Jede der beiden Prüfungen bekommt ihre EIGENE Verfälschung. Der alte
+   Fehler sass nur oben – unten reichte das Tuch auch damals bis zur
+   Kante. Mit nur einer Gegenprobe haette die zweite Pruefung nie
+   angeschlagen und damit nichts bewiesen. */
+(function () {
+  var blk = (src.split("liste.indexOf('Senkrechtmarkise') > -1")[1] || '')
+    .split('\n      }')[0];
+  var fTuchH = (blk.match(/var tuchH = ([^;]+);/) || [])[1];
+  var fTuchY = (blk.match(/\n\s*([^\n,]+), quer, aussen, 1\.2\)/) || [])[1];
+  var ZIP = eval('(' + (src.match(/var ZIP = \{[\s\S]*?\}/) || [''])[0]
+    .replace('var ZIP = ', '') + ')');
+  var rund = /KASSETTE_RUND = true/.test(src);
+  /* Unterkante der Kassette: das Halbrund reicht nur mit seinem RADIUS
+     nach unten, der Quader mit seiner vollen Hoehe. */
+  var kasUk = -(rund ? ZIP.kassette / 2 : ZIP.kassette);
+  var okKas = 0, hoch = 200;
+
+  function rechne(fH, fY) {
+    var spalt = -99, unten = null;
+    [1, 0.8, 0.5].forEach(function (aus) {
+      var hZ = hoch * aus;
+      var tuchH = eval(fH);
+      var tuchOk = eval(fY) + tuchH / 2;
+      if (kasUk - tuchOk > spalt) spalt = kasUk - tuchOk;
+      if (aus === 1) unten = tuchOk - tuchH;
+    });
+    return { spalt: spalt, unten: unten };
+  }
+
+  /* Gegenprobe 1: der alte Fehler – Tuch beginnt eine volle
+     Kassettenhoehe unter der Oberkante. */
+  var a = gegen ? rechne('Math.max(1, hZ - ZIP.kassette)',
+                         'okKas - ZIP.kassette - tuchH / 2')
+                : rechne(fTuchH, fTuchY);
+  pruefe('eZIP – kein Spalt zwischen Kassette und Tuch', a.spalt <= 0,
+         'groesster Spalt ' + (a.spalt * 10).toFixed(0) + ' mm');
+
+  /* Gegenprobe 2: ein zu kurz gezeichnetes Tuch. */
+  var b = gegen ? rechne('Math.max(1, hZ * 0.8)', fTuchY) : a;
+  pruefe('eZIP – ausgefahren reicht das Tuch bis zur Unterkante',
+         b.unten !== null && Math.abs(b.unten - (okKas - hoch)) < 0.1,
+         'Tuchende bei ' + (b.unten === null ? '?' : b.unten.toFixed(1)) +
+         ' cm (erwartet ' + (okKas - hoch) + ')');
+})();
 pruefe('eZIP – Hinweis bei über 5 m Breite',
        new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
 /* Seitendeckel Rinne 2 TD, Teilebild: 172 x 175 mm; vorne buendig,

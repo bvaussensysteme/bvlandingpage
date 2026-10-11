@@ -4255,3 +4255,34 @@ beim Drehen der Kamera wäre nie klar, ob man gerade schaltet oder dreht.
 auf Glas tippen – beide fahren. Bei Velaris oder Glasschiebetür auf das
 Element tippen: das Element bewegt sich, die Beschattung nicht. Prüfung:
 `node scripts/pruefe-fuehrung.js` (213 Prüfungen, Gegenprobe 213/213).
+
+## 2026-10-11 – Senkrechtmarkise: durchsichtiger Streifen unter der Kassette
+
+**Was war falsch.** „die senkrechtmarkisen lnks rechts haben oben noch so ne
+durchsichtige lücke die is falsch" (Betreiber, 11.10.2026, mit Screenshot).
+Das Tuch begann eine volle Kassettenhöhe (105 mm) unter der Oberkante. Die
+gezeichnete Kassette ist aber die halbrunde der Serie Z-R – die reicht nur mit
+ihrem **Radius** (52,5 mm) nach unten. Die Differenz stand offen: ein
+durchsichtiger Streifen von gut 5 cm zwischen Kassette und Tuch, durch den man
+hindurchsah.
+
+**Was jetzt gilt.** Das Tuch läuft bis zur Kassettenoberkante durch und
+verschwindet oben hinter der Kassette – so wie in echt, wo es auf der Welle im
+Kasten sitzt. Die Fallstange wandert entsprechend mit. Unten ändert sich
+nichts: ausgefahren endet das Tuch weiter genau an der Unterkante des
+Elements.
+
+**Warum so und nicht anders.** Verworfen: das Tuch einfach um den Radius höher
+setzen. Das hätte nur für die runde Kassette gestimmt; schaltet jemand über
+`KASSETTE_RUND` auf die eckige Serie Z-E um (die Serienfrage ist weiter offen
+und steht in `docs/NEXT_TASK.md`), wäre die Lücke wieder da. Mit dem Durchlauf
+bis zur Oberkante kann dort keine Lücke mehr entstehen, gleich welche
+Kassettenform gezeichnet wird.
+
+**Was gegengelesen werden soll.** Senkrechtmarkise links, rechts und vorne,
+jeweils halb und ganz ausgefahren: oben kein heller Streifen mehr, unten
+schließt das Tuch bündig ab. Prüfung: `node scripts/pruefe-markise.js`
+(170 Prüfungen, Gegenprobe 170/170). Die beiden neuen Prüfungen rechnen die
+Lage aus den Formeln des Modellcodes nach und haben **je eine eigene**
+Verfälschung – der alte Fehler saß nur oben, mit einer gemeinsamen Gegenprobe
+hätte die Prüfung der Unterkante nie angeschlagen und nichts bewiesen.

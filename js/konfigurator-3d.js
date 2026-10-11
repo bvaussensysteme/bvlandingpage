@@ -3543,7 +3543,6 @@
            in der Luft. Masse und Herleitung stehen bei ZIP. */
         var hZ = hoch * (Z.sonneAus / 100);
         var okKas = yUnten + hoch;                 // unter der Dachkante
-        var ukKas = okKas - ZIP.kassette;
         sonneTeil(zipKassette(laenge, achse, mitte, okKas, quer, aussen));
 
         [-1, 1].forEach(function (v) {
@@ -3559,11 +3558,24 @@
         }
 
         if (hZ > 5) {
-          var tuchH = Math.max(1, hZ - ZIP.kassette);
+          /* KORREKTUR 11.10.2026: „die senkrechtmarkisen lnks rechts
+             haben oben noch so ne durchsichtige lücke die is falsch"
+             (Betreiber). Das Tuch begann eine volle Kassettenhoehe
+             unter der Oberkante – bei der halbrunden Kassette (Serie
+             Z-R) reicht die aber nur mit ihrem RADIUS nach unten. Die
+             Differenz stand offen: ein durchsichtiger Streifen zwischen
+             Kassette und Tuch.
+
+             Jetzt laeuft das Tuch bis zur Kassettenoberkante durch und
+             verschwindet oben HINTER der Kassette – so wie in echt, wo
+             es auf der Welle im Kasten sitzt. Damit kann dort keine
+             Luecke mehr entstehen, gleich welche Kassettenform
+             gezeichnet wird. */
+          var tuchH = Math.max(1, hZ);
           sonneTeil(platte(mStoff, laenge - ZIP.schieneB * 2, tuchH, achse, mitte,
-                 ukKas - tuchH / 2, quer, aussen, 1.2));
+                 okKas - tuchH / 2, quer, aussen, 1.2));
           sonneTeil(platte(rahmen, laenge - ZIP.schieneB * 2, ZIP.fallstange, achse,
-                 mitte, ukKas - tuchH + ZIP.fallstange / 2, quer, aussen, 3.2));
+                 mitte, okKas - tuchH + ZIP.fallstange / 2, quer, aussen, 3.2));
         }
       }
       if (liste.indexOf('Velaris') > -1) {
