@@ -2301,3 +2301,56 @@ Fall ab: 7000 mm Polycarbonat → am Stück.
 **Absicherung:** Eine Prüfung rechnet für 7000 mm Tiefe an beiden Enden
 und in der Mitte des Bereichs nach, dass keine Scheibe über 4500 mm
 hinausgeht.
+
+## 2026-10-11 – Korrektur: Innenkern ist keine Glaskopplung
+
+**Anlass:** „innenkern is keine glaskopplung das is für das 3d modell
+egal" und „das kann raus" (Betreiber).
+
+**Was falsch war:** Ich hatte die Schwelle für den Glasstoß aus dem
+„Innenkern" der Maßtabelle hergeleitet (dort ab Tiefe 4600 mm) und das
+im vorigen Eintrag als **zweite, unabhängige Quelle** für die 4,50 m
+ausgegeben. Das stimmt nicht: Zwei Dinge, die zufällig in derselben
+Gegend liegen, sind nicht dasselbe. Der Innenkern hat mit der Verglasung
+nichts zu tun.
+
+**Was jetzt gilt:**
+- Die größte Scheibe am Stück ist **4500 mm – Angabe des Betreibers,
+  nicht belegt.** Er schätzte „4,50 oder 5m"; genommen ist der niedrigere
+  Wert, weil einmal zu früh stoßen harmloser ist als eine Scheibe zu
+  zeichnen, die es nicht gibt. **GEGENZULESEN: 4,50 oder 5,00 m?**
+- Gestoßen wird bei Tiefe über 4500 mm, nicht mehr ab 4600 mm.
+- Das Wort „Innenkern" steht nicht mehr in der Anfrage. Dort heißt es
+  jetzt „quer gestoßen und gekoppelt bei X mm ab Rinne" – mit der Lage,
+  die eingestellt ist.
+- Die Innenkern-Zeile in den technischen Angaben ist entfernt. Die
+  Felder kommen weiterhin aus der Matrix, sie werden nur nicht mehr
+  angezeigt.
+
+**Lehre:** Eine Zahl aus einer anderen Spalte herzuleiten, weil sie
+plausibel passt, ist keine Quelle. Sie sah hier sogar besonders
+überzeugend aus, weil sie die Schätzung des Betreibers bestätigte – und
+genau das hätte mich misstrauisch machen müssen.
+
+## 2026-10-11 – Glaskopplungsprofil mit echtem Maß
+
+Der Betreiber hat die Querschnittszeichnung geschickt: **28 mm breit,
+6 mm hoch**. Vorher standen hier geschätzte 60 × 30 mm – mehr als
+doppelt so breit und fünfmal so hoch wie das echte Teil.
+
+Die Zeichnung zeigt ein flaches T-Profil: oben die 28 mm breite Auflage,
+darunter ein schmaler Steg zwischen den Scheiben. Modelliert wird nur
+die Auflage; der Steg liegt im Stoß und ist von außen nicht zu sehen.
+
+Eine Prüfung achtet zusätzlich darauf, dass das Profil nie höher baut
+als die dünnste Scheibe (VSG 8 mm) – sonst stünde es wie eine Schwelle
+auf dem Dach.
+
+**Nachtrag Material:** „und das is durchsichtiges gummi … also ganz
+leicht matt" (Betreiber). Das Profil ist deshalb kein Alu, sondern ein
+halbtransparentes, nur leicht mattes Material ohne Metallanteil. Es
+wirft außerdem KEINEN Schatten – sonst läge ein dunkler Streifen quer
+über die Terrasse, den es in echt nicht gibt.
+
+Mein erster Rauheitswert (0,55) war zu matt; auf Hinweis des Betreibers
+auf 0,28 gesetzt.
