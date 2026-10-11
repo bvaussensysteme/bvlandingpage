@@ -1595,6 +1595,43 @@
       platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
     }
 
+    /* ---------- Bodenschiene ----------
+       „die glassschiebeelemente gehen nicht bis zum boden es is eine
+       lücke vorhanden" (Betreiber, 11.10.2026).
+
+       Die Elemente standen auf yUnten = PROFIL / 2, also 55 mm über dem
+       Boden – darunter war nichts. In Wirklichkeit laufen sie in einer
+       Bodenschiene, die auf dem Belag verschraubt wird. Statt die
+       Elemente nach unten zu ziehen (dann liefen sie im Boden), kommt das
+       Bauteil dazu, das die Lücke in echt auch füllt.
+
+       Querschnitt GESCHÄTZT: 55 mm hoch, 60 mm tief. Eine Zeichnung der
+       Schiene liegt nicht vor – GEGENZULESEN. */
+    var SCHIENE_H = 5.5, SCHIENE_T = 6;
+
+    function bodenschiene(laenge, achse, mitte, quer) {
+      platte(rahmen, laenge, SCHIENE_H, achse, mitte, SCHIENE_H / 2,
+             quer, 0, SCHIENE_T);
+    }
+
+    /* ---------- Wandanschlussprofil ----------
+       „bei glasschiebewänden ich kein abdeckprofil an der wand in
+       terrassenüberdachungsfarbe" (Betreiber, 11.10.2026).
+
+       An der Hauswand deckt ein senkrechtes Profil in der Farbe der
+       Überdachung die Fuge ab. Es fehlte ganz; die Scheiben endeten frei
+       vor der Mauer. Es läuft von der Bodenschiene bis zur Oberkante des
+       Elements und gibt es nur an den Seiten (links/rechts), nicht vorne.
+
+       Querschnitt GESCHÄTZT: 50 mm breit, 25 mm tief – GEGENZULESEN. */
+    var WANDPR_B = 5, WANDPR_T = 2.5;
+
+    function wandAnschluss(achse, zWand, hOben, quer) {
+      if (!quer) return;                       // vorne gibt es keine Wand
+      platte(rahmen, WANDPR_T, hOben, achse, zWand + WANDPR_T / 2,
+             hOben / 2, true, 0, WANDPR_B);
+    }
+
     /* Schiebetür: einzelne Flügel, die sich übereinander schieben. Nur so
        zeigt der Regler „geöffnet" etwas Echtes – einer bleibt stehen. */
     function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer) {
@@ -1645,8 +1682,11 @@
     function eineSeite(seite, achse, mitte, laenge, quer) {
       var liste = erwListe(seite);
       if (!liste.length) return;
-      var hoch = hVorn - PROFIL;
-      var yUnten = PROFIL / 2;
+      /* Die Elemente stehen jetzt IN der Bodenschiene – Unterkante also
+         auf deren Oberkante, nicht frei in der Luft. Die Gesamthöhe
+         bleibt unverändert, es verschiebt sich nur, was unten sitzt. */
+      var yUnten = SCHIENE_H;
+      var hoch = hVorn - PROFIL / 2 - yUnten;
       /* Der Keil läuft IMMER bis nach hinten durch: bei Wandmontage bis
          an die Wand, freistehend bis an den hinteren Pfosten (Angabe des
          Betreibers). Das Element darunter endet dagegen zwischen den
@@ -1697,6 +1737,15 @@
       // Plankenwand zusätzlich zu Rahmen/Schiebe: als unteres Drittel davor
       if (hatPlanken && (hatRahmen || hatSchiebe)) {
         planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer);
+      }
+
+      /* Bodenschiene und Wandanschluss gehören zu jedem geschlossenen
+         Element – ohne sie steht die Scheibe frei in der Luft bzw. frei
+         vor der Mauer. Eine Senkrechtmarkise bekommt beides NICHT: sie
+         läuft in eigenen Führungsschienen und hat unten eine Fallstange. */
+      if (hatRahmen || hatSchiebe || hatPlanken) {
+        bodenschiene(laenge, achse, mitte, quer);
+        wandAnschluss(achse, mitte - laenge / 2, yUnten + hoch, quer);
       }
 
       // Zubehör VOR der Fläche
@@ -4578,6 +4627,36 @@
       bauen();
     });
   }
+
+  /* ---------- Maße ein-/ausblenden ----------
+     „solte man solche einstelungen wie maße im 3d anzeige anzeigen nicht
+     erst am ende vorgeschlagen bekommen, es solte ne einstellung sein wie
+     bei tag/nacht modus etc." (Betreiber, 11.10.2026).
+
+     Das Häkchen im Bedienfeld bleibt, steht aber im letzten Schritt
+     „Umgebung" – wer die Maße während des Konfigurierens sehen will,
+     findet es dort nicht. Der Schalter in der Ansichtsleiste liegt neben
+     Abend und Drehen und wirkt sofort. Beide halten denselben Wert, nicht
+     zwei: Wer hier schaltet, sieht das Häkchen mitgehen und umgekehrt. */
+  var masseBtn = document.getElementById('k3dMasseLeiste');
+  function masseKnopfStand() {
+    if (!masseBtn) return;
+    masseBtn.classList.toggle('is-active', Z.masseZeigen);
+    masseBtn.setAttribute('aria-pressed', Z.masseZeigen ? 'true' : 'false');
+  }
+  if (masseBtn) {
+    masseBtn.addEventListener('click', function () {
+      Z.masseZeigen = !Z.masseZeigen;
+      var haken = document.getElementById('k3dMasse');
+      if (haken) haken.checked = Z.masseZeigen;
+      masseKnopfStand();
+      masseZeichnen();
+      zusammenfassung();
+    });
+  }
+  var hakenMasse = document.getElementById('k3dMasse');
+  if (hakenMasse) hakenMasse.addEventListener('change', masseKnopfStand);
+  masseKnopfStand();
 
   var drehBtn = document.getElementById('k3dDrehen');
   if (drehBtn) {
