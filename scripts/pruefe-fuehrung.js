@@ -932,7 +932,10 @@ pruefe('Rahmenwand steht in der Anfrage',
      Lage, gleiche Drehung. Deshalb wird hier verglichen, dass Keil und
      Band dieselben vier Zeilen benutzen. */
   var ok = /obenProfil !== false/.test(js) &&
-           /rahmenwand\(laenge, hoch, achse, mitte, yUnten, quer, !bisDach,/.test(js) &&
+           /* hAuf/yAuf statt hoch/yUnten seit 11.10.2026: Liegt eine
+              Plankenwand darunter, faengt die Rahmenwand erst auf deren
+              Oberkante an. Ohne Planken sind beide gleich. */
+           /rahmenwand\(laenge, hAuf, achse, mitte, yAuf, quer, !bisDach,/.test(js) &&
            /function keilBandNetz/.test(js) &&
            /hochBis\(x, innenH\)/.test(js) &&          // Sprosse bis zur Schraege
            /hochBis\(xL, hoehe\)/.test(js);            // Rahmen bis zur Schraege

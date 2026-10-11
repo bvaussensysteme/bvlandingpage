@@ -2768,10 +2768,14 @@
       return (tiefe <= PROFIL) ? vz * tiefe / 2 : -vz * PROFIL / 2;
     }
 
-    function tuerschwelle(laenge, achse, mitte, quer, g) {
+    /* ok = Oberkante der Schwelle. Ohne Angabe liegt sie im Belag;
+       steht die Anlage auf einer Plankenwand, wird deren Oberkante
+       uebergeben – sonst bliebe die Schwelle unten liegen, waehrend die
+       Tuer darueber anfaengt. */
+    function tuerschwelle(laenge, achse, mitte, quer, g, ok) {
       var t = SCHWELLE.tiefe[g] || SCHWELLE.tiefe[3];
       platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte,
-             SCHWELLE.ueberstand - SCHWELLE.hoehe / 2,
+             (ok == null ? SCHWELLE.ueberstand : ok) - SCHWELLE.hoehe / 2,
              quer, schienenVersatz(achse, quer, t), t);
     }
 
@@ -2785,10 +2789,10 @@
     /* Rahmen- und Plankenwand sind keine Schiebeanlage – sie laufen in
        keiner Schwelle. Damit unten trotzdem kein Spalt bleibt, stehen sie
        direkt auf dem Belag; dafür genügt die Schwellenhöhe als Sockel. */
-    function bodenschiene(laenge, achse, mitte, quer) {
+    function bodenschiene(laenge, achse, mitte, quer, ok) {
       var t = SCHWELLE.tiefe[3];
       platte(rahmen, laenge, SCHWELLE.hoehe, achse, mitte,
-             SCHWELLE.ueberstand - SCHWELLE.hoehe / 2,
+             (ok == null ? SCHWELLE.ueberstand : ok) - SCHWELLE.hoehe / 2,
              quer, schienenVersatz(achse, quer, t), t);
     }
 
@@ -3464,14 +3468,35 @@
       var hatSchiebe = liste.indexOf('Schiebetür') > -1;
       var hatPlanken = liste.indexOf('Plankenwand') > -1;
 
+      /* ---------- Plankenwand und Rahmenwand liegen nicht ineinander ----
+         „eine rahmenwand und plankenwand dürfen nicht ineinander liegen,
+         wenn eine plankenwand vorhanden is, kann die rahmenwand nur bis
+         zur plankenwand gehen und nicht in sie rein" (Betreiber,
+         11.10.2026, mit Bild).
+
+         Vorher lief die Rahmenwand über die volle Höhe durch, und die
+         Planken standen als unteres Drittel DAVOR – zwei Bauteile im
+         selben Raum, im Bild sah man die Sprossen durch die Planken.
+         Jetzt teilt die Plankenwand die Höhe auf: sie belegt den unteren
+         Teil, Rahmenwand bzw. Schiebetür setzen darauf auf. Die
+         Gesamthöhe bleibt gleich, nur die Aufteilung ändert sich.
+
+         Dasselbe gilt für die Schiebetür: Eine Tür, die in der
+         Plankenwand steckt, ist derselbe Fehler. Ob diese Kombination
+         überhaupt angeboten werden soll, ist eine Produktfrage und steht
+         in docs/NEXT_TASK.md. */
+      var hPlanke = (hatPlanken && (hatRahmen || hatSchiebe)) ? hoch * 0.34 : 0;
+      var yAuf = yUnten + hPlanke;     // Unterkante von Rahmenwand/Tür
+      var hAuf = hoch - hPlanke;       // was darüber bleibt
+
       /* Rahmenwand unten, Schiebetür darüber – so steht es als Hinweis im
          Anfrage-Assistenten, und so wird es montiert. */
       if (hatRahmen && hatSchiebe) {
-        var unten = hoch * 0.38;
-        rahmenwand(laenge, unten, achse, mitte, yUnten, quer);
-        schiebetuer(laenge, hoch - unten, achse, mitte, yUnten + unten, quer, seite, richtung);
+        var unten = hAuf * 0.38;
+        rahmenwand(laenge, unten, achse, mitte, yAuf, quer);
+        schiebetuer(laenge, hAuf - unten, achse, mitte, yAuf + unten, quer, seite, richtung);
       } else if (hatSchiebe) {
-        schiebetuer(laenge, hoch, achse, mitte, yUnten, quer, seite, richtung);
+        schiebetuer(laenge, hAuf, achse, mitte, yAuf, quer, seite, richtung);
       } else if (hatRahmen) {
         /* Ohne Keil geht die Wand bis ans Dach – „wie mit keil nur ohne
            waagrechte sprosse" (Betreiber, 11.10.2026, mit Bild). Vorher
@@ -3481,7 +3506,7 @@
         var bisDach = !hatKeil && quer && seite !== 'vorne' &&
                       neig > 0.001 && !!dachUk;
         var yO = yUnten + hoch;
-        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer, !bisDach,
+        rahmenwand(laenge, hAuf, achse, mitte, yAuf, quer, !bisDach,
                    bisDach ? function (pos) { return dachUk(pos) - yO; } : null);
         if (bisDach) {
           var hVo = Math.max(0, dachUk(zVorneK) - yO);
@@ -3509,9 +3534,7 @@
         /* Rahmenwand unten, Schiebetür darüber – das untere Band ist
            ebenfalls ein Rahmenelement, kein Blech. */
       }
-      if (hatPlanken && (hatRahmen || hatSchiebe)) {
-        planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer, false);
-      }
+      if (hPlanke > 0) planken(laenge, hPlanke, achse, mitte, yUnten, quer, false);
 
       /* Bodenschiene und Wandanschluss gehören zu jedem geschlossenen
          Element – ohne sie steht die Scheibe frei in der Luft bzw. frei
@@ -3522,13 +3545,17 @@
 
       if (hatRahmen || hatSchiebe || hatPlanken) {
         if (hatSchiebe) {
-          tuerschwelle(laenge, achse, mitte, quer, gl);
+          /* Steht die Anlage auf Planken, sitzt die Schwelle auf deren
+             Oberkante – sonst läge sie unter der Plankenwand. */
+          tuerschwelle(laenge, achse, mitte, quer, gl, hPlanke > 0 ? yAuf : null);
           /* Die Führung sitzt DIREKT auf dem Flügel. Ein fester Platz
              oben am Dach wäre falsch, sobald ein Keil die Elementhöhe
              kürzt – dann hinge sie frei in der Luft. */
           schiebefuehrung(laenge, achse, mitte, quer, yUnten + hoch + fuehrungH, gl);
         } else {
-          bodenschiene(laenge, achse, mitte, quer);
+          /* Das untere Abschlussprofil der Rahmenwand – auf dem Belag
+             oder, bei Planken darunter, auf deren Oberkante. */
+          bodenschiene(laenge, achse, mitte, quer, hPlanke > 0 ? yAuf : null);
         }
         wandAnschluss(achse, mitte - laenge / 2, yUnten + hoch + fuehrungH, quer);
       }
@@ -3562,7 +3589,7 @@
              haben oben noch so ne durchsichtige lücke die is falsch"
              (Betreiber). Das Tuch begann eine volle Kassettenhoehe
              unter der Oberkante – bei der halbrunden Kassette (Serie
-             Z-R) reicht die aber nur mit ihrem RADIUS nach unten. Die
+             Z-R) reichte die aber nur mit ihrem RADIUS nach unten. Die
              Differenz stand offen: ein durchsichtiger Streifen zwischen
              Kassette und Tuch.
 
@@ -7767,13 +7794,14 @@
 
        · Serie Z-R: HALBRUNDE Kassette, Durchmesser 105 oder 125 mm
          (Seite 5). Serie Z-E: quaderfoermige Kassette, Kantenlaenge
-         105 oder 125 mm. Welche der beiden Serien wir verkaufen, steht
-         nirgends in unseren Unterlagen – hier ist Z-R gezeichnet,
-         GEGENZULESEN. Umstellen ist eine Zeile: KASSETTE_RUND.
+         105 oder 125 mm. Welche der beiden wir verkaufen, stand nicht
+         in den Unterlagen; der Betreiber hat es am 11.10.2026
+         beantwortet: „Z-E Eckig". Deshalb KASSETTE_RUND = false. Die
+         runde Form bleibt im Code, falls die Serie einmal dazukommt.
        · Ab 400 cm Markisenbreite kommt eine zusaetzliche
          Kastenunterstuetzung dazu (Seite 5).
-       · Groesstmasse (Seite 26): Z-R105 max. 4000 mm breit, Z-R125
-         max. 5000 mm. Breiter geht nur geteilt.
+       · Groesstmasse (Seite 26): die 105er Baugroesse max. 4000 mm
+         breit, die 125er max. 5000 mm. Breiter geht nur geteilt.
        · Aufbau (Abb. 2, Seite 5): Kassette, Fallstange am unteren
          Tuchende, je Seite eine Einzelfuehrungsschiene aus Rueckteil,
          Z-Schiene und Vorderteil, hinten von der Schienenblende
@@ -7790,9 +7818,9 @@
     schieneB:    4.1,   // ~41 mm, aus Abb. 3 abgegriffen
     fallstange:  4.5,   // GESCHAETZT, in der Anleitung ohne Mass
     stuetzeAb: 400,     // cm, BELEGT: ab 400 cm Markisenbreite
-    maxBreite: 500      // cm, BELEGT: Z-R125 max. 5000 mm
+    maxBreite: 500      // cm, BELEGT: Baugroesse 125 max. 5000 mm
   };
-  var KASSETTE_RUND = true;   // Serie Z-R; false waere die eckige Z-E
+  var KASSETTE_RUND = false;  // Serie Z-E (eckig), Angabe des Betreibers
 
   /* Halbrunder Kassettenquerschnitt: oben flach (dort haengt sie am
      Dach), unten rund. x quer, y nach oben, Nullpunkt in der Achse. */
@@ -7908,7 +7936,7 @@
     if (i1) i1.textContent = Z.stoff ? stoffText(Z.stoff)
       : 'Ohne Angabe schlagen wir im Angebot etwas Passendes vor.';
     /* BELEGT (Montageanleitung eZIP, S. 26): eine Senkrechtmarkise gibt
-       es bis 5000 mm Breite (Z-R125). Eine breitere Seite muss geteilt
+       es bis 5000 mm Breite (Baugroesse 125). Eine breitere Seite muss geteilt
        werden – das gehoert in die Anfrage, nicht erst ins Angebot. */
     var zuBreit = [];
     if (Z.erwLinks.indexOf('Senkrechtmarkise') > -1 && Z.tiefe > ZIP.maxBreite * 10) zuBreit.push('links');
