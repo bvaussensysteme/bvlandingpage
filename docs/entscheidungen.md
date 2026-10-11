@@ -499,3 +499,73 @@ Fürs Modell ohne Folgen (13 mm), für ein Aufmaß nicht.
 
 **Prüfung.** `node scripts/pruefe-markise.js` – jetzt 33 Prüfungen für beide
 Markisen, alle bestanden; Gegenprobe 33 von 33.
+
+## 2026-10-11 – Markisen warfen keinen Schatten, SkyView-Regel fehlte, Fototexturen
+
+Drei Punkte aus einer Rückmeldungsrunde des Betreibers, zusammen umgesetzt.
+
+### 1. „die markisen machen iwi keinen schatten in der überdachung"
+
+**Zwei Ursachen, eine davon ein klarer Fehler.**
+
+- Der **Unterdachmarkise fehlte `castShadow` komplett.** Das Tuch hing
+  unter dem Dach und warf nichts – obwohl Schatten spenden sein einziger
+  Zweck ist. Dasselbe galt für die Plissee-Falten.
+- Beide Tücher waren **3 mm dick**. Im Schattenpuffer entspricht
+  `shadow.bias = −0,0004` bei `far = 2200` rund 9 mm Tiefe; ein Körper,
+  der dünner ist als die eigene Tiefenkorrektur, verliert den Schatten.
+  Die Tücher sind jetzt 14 mm dick – was für ein Tuch mit Saum und
+  Wickelwelle ohnehin realistischer ist.
+
+**GEGENZULESEN:** Ob der Schatten jetzt sichtbar ist. Die Dicke ist die
+wahrscheinliche, nicht die bewiesene Ursache – geprüft werden konnte das
+ohne Browser nicht.
+
+### 2. „bei sky view is keine aufdachmarkise möglich"
+
+Der Betreiber ergänzte: „solltest du aber eig. wisen aus unserem nicht 3d
+konfigurator". **Das stimmt nicht – die Regel stand dort auch nicht.**
+Der Anfrage-Assistent hat die Aufdachmarkise beim Flachdach SkyView
+genauso angeboten wie der 3D-Konfigurator. Die Lücke war an beiden
+Stellen und ist jetzt an beiden Stellen geschlossen:
+
+- 3D: `MARKISE_NICHT` sperrt den Knopf und setzt eine bereits getroffene
+  Wahl auf „Ohne" zurück, wenn jemand von TDS auf SkyView wechselt.
+- Assistent: `markise.render` baut die Karte gar nicht erst und löscht
+  eine vorher getroffene Wahl.
+
+**Begründung:** Die Aufdachmarkise wird auf die äußeren Sparren der
+geneigten Dachfläche geschraubt. SkyView hat kein Außengefälle und eine
+umlaufende hohe Blende, über die Kassette und Schienen hinausstünden.
+
+`scripts/pruefe-markise.js` prüft beide Stellen.
+
+### 3. Fotorealistische Texturen für Boden, Wiese und Hauswand
+
+Wunsch des Betreibers: „besser auflösende texturen ... ohne lizenz ...
+ohne wasserzeichen". Umgesetzt mit **CC0-Material von ambientCG**
+(Public Domain, keine Namensnennung nötig, keine Wasserzeichen, geprüft
+am 11.10.2026).
+
+Einzelheiten – welche Datei aus welchem Material, Größen, Maßstab,
+Umwandlungsbefehle – in **`docs/texturen.md`**. Hier nur das Wesentliche:
+
+- Die Dateien liegen **im Projekt** unter `images/textur/`, nicht auf
+  einem fremden Server. Kein neuer Drittanbieter, kein neuer Eintrag in
+  der Datenschutzerklärung.
+- Rund **1,0 MB** für sechs Materialien (Farbe 1024², Normalmap 512²,
+  WebP), geladen nur auf `konfigurator.html`.
+- Das **gezeichnete Canvas-Muster von vorher ist nicht entfernt worden**.
+  Es ist der Notnagel, wenn eine Datei fehlt oder der Browser kein WebP
+  kann. Ein Konfigurator ohne Boden wäre schlimmer als einer mit einem
+  groben Muster.
+
+**Verworfen:** Texturen zur Laufzeit von einem fremden CDN zu laden. Das
+hätte Gewicht aus dem Projekt genommen, aber einen Drittanbieter in den
+Ladepfad und in die Datenschutzerklärung gebracht – für ein Hintergrund-
+bild ist das ein schlechter Tausch.
+
+**Was gegengelesen werden soll.** Der Maßstab: `TEXTUR_KACHEL` sagt, wie
+breit eine Kachel in Wirklichkeit ist, und diese Zahlen sind nach
+Augenmaß geschätzt. Wirken die Platten zu groß oder zu klein, ist das die
+Stellschraube.

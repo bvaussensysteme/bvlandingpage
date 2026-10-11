@@ -393,11 +393,21 @@
       title: 'Mehr Schatten & Komfort?',
       sub: 'Eine Markise hält Ihre Terrasse an heißen Tagen spürbar kühler – perfekt für lange Sommerabende.',
       render: function () {
+        /* Die Aufdachmarkise wird auf die aeusseren Sparren der geneigten
+           Dachflaeche geschraubt. Das Flachdach SkyView hat kein
+           Aussengefaelle und eine umlaufende hohe Blende – dort geht sie
+           nicht. Der Assistent hat sie bis 11.10.2026 trotzdem angeboten;
+           beanstandet vom Betreiber. Dieselbe Regel steht im
+           3D-Konfigurator in MARKISE_NICHT. */
+        var oben = [];
+        if (answers.produkt !== 'Flachdach SkyView') {
+          oben.push({ value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' });
+        } else if (answers.markise === 'Aufdachmarkise') {
+          answers.markise = null;
+        }
+        oben.push({ value: 'Unterdachmarkise', img: 'markise_unter', photo: true, badge: 'Empfohlen', hint: 'Sanftes, blendfreies Licht – elegant integriert' });
         return '<p class="aw-group-h">Unsere Empfehlung</p>' +
-          optionCards('markise', [
-            { value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' },
-            { value: 'Unterdachmarkise', img: 'markise_unter', photo: true, badge: 'Empfohlen', hint: 'Sanftes, blendfreies Licht – elegant integriert' }
-          ]) +
+          optionCards('markise', oben) +
           '<p class="aw-group-h aw-group-h--sep">Weitere Sonnenschutz-Varianten</p>' +
           optionCards('markise', [
             { value: 'Plissees', img: 'plissee', photo: true, hint: 'Faltbar, moderne Optik' },
