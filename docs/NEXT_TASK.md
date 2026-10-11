@@ -322,6 +322,14 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   364 mm). Wie löst das echte System das: höheres Profil, zweite
   Blendenhöhe, oder flacheres Gefälle? Und wie hoch ist die Blende
   wirklich?
+  (55 mm). **Offene Frage, bitte beim Hersteller klären:** Das
+  2°-Gefälle der Sparren muss irgendwo hin. Entweder wächst der
+  Außenkasten mit der Tiefe (so steht es jetzt im Modell: 3 m → rund
+  33 cm, 7 m → rund 48 cm hoch), oder der SPARREN ist keilförmig –
+  Montageanleitung S. 22 zeigt ein Profil, das nach hinten höher wird;
+  dann bliebe der Kasten immer gleich hoch. Beides erfüllt „außen
+  Flachdach, nur die Sparren geneigt"; welches stimmt, entscheidet, wie
+  hoch die Blende beim Kunden wirklich aussieht.
   (55 mm). **Offene Frage:** Wie hoch ist der Rahmen wirklich, und wie
   wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
   wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
