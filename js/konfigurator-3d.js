@@ -4517,8 +4517,21 @@
        Vorher stand sie an der Sparrenoberkante – dort hätte die
        Glasleiste keinen Halt. */
     var wpGlasD = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
-    var wpMitte = (sky ? dachOk : dachOk + wpGlasD) - wpH / 2;
-    var trOk = vorsprH > 0 ? ukAmTraeger : dachOk;
+    /* KORREKTUR 11.10.2026: „das wandprofil muss oben mit dem
+       statikträger bei freistehend bündig sein bzw sogar leicht
+       dahinter, damit die glasleisten nicht überstehen und das
+       wandprofil soll die glasleisten abdecken also selbe höhe bis zu
+       den glasleisten" (Betreiber, mit Bildschirmfoto).
+
+       Vorher endete der Träger an der SPARRENOBERKANTE, das Wandprofil
+       aber eine Glasdicke höher – es stand also über den Träger hinaus
+       und gab die Glasleiste frei. Jetzt enden beide auf derselben
+       Höhe: an der Oberkante des Wandprofils, das die Glasleiste
+       verdeckt. Der Träger steht damit genau so hoch wie das Profil
+       davor, keinen Millimeter höher. */
+    var wpOk = sky ? dachOk : dachOk + wpGlasD;
+    var wpMitte = wpOk - wpH / 2;
+    var trOk = vorsprH > 0 ? ukAmTraeger : wpOk;
     var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 
     /* Pfostenzahl – JE REIHE getrennt.

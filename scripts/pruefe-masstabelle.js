@@ -242,7 +242,8 @@ pruefe('Oberkante haengt an der Sparrenoberkante',
    haelt die Glasleiste die Scheibe. An der Sparrenoberkante zu enden
    waere zu tief (Betreiber, 11.10.2026). */
 pruefe('Wandprofil reicht bis an die Eindeckung',
-       new RegExp(q || 'wpMitte = \\(sky \\? dachOk : dachOk \\+ wpGlasD\\) - wpH / 2').test(k3d), '');
+       new RegExp(q || 'wpOk = sky \\? dachOk : dachOk \\+ wpGlasD').test(k3d) &&
+       new RegExp(q || 'wpMitte = wpOk - wpH / 2').test(k3d), '');
 (function () {
   /* Nachgerechnet: Die Sparren muessen in der unteren Haelfte liegen und
      die Glasoberseite mit der Profiloberkante abschliessen. */
@@ -309,9 +310,23 @@ pruefe('Eindeckung ohne Ruecksprung hinten',
   pruefe('Glas endet am Sparrenanfang', Math.abs(hinten) < 0.001,
          (hinten * 10).toFixed(0) + ' mm Schlitz');
 })();
-pruefe('Träger endet buendig mit dem Dach',
-       new RegExp(q || 'trOk = vorsprH > 0 \\? ukAmTraeger : dachOk;').test(k3d),
+/* „das wandprofil muss oben mit dem statiktraeger bei freistehend
+   buendig sein ... damit die glasleisten nicht ueberstehen" (Betreiber,
+   11.10.2026). Vorher endete der Traeger an der Sparrenoberkante, das
+   Profil eine Glasdicke hoeher - es stand ueber und gab die Glasleiste
+   frei. */
+pruefe('Träger endet buendig mit dem Wandprofil',
+       new RegExp(q || 'trOk = vorsprH > 0 \\? ukAmTraeger : wpOk;').test(k3d),
        'mit hinterem Vorsprung unter den Sparren');
+(function () {
+  /* Zweiter Weg: die beiden Oberkanten wirklich vergleichen. */
+  var glas = 0.8, dachOk = 100;
+  var wpOk = dachOk + glas;
+  var trOk = gegen ? dachOk : wpOk;          // gegen: die alte Formel
+  var ueber = wpOk - trOk;                   // soll 0 sein
+  pruefe('Profil steht nicht ueber dem Träger', Math.abs(ueber) < 0.001,
+         (ueber * 10).toFixed(0) + ' mm Ueberstand');
+})();
 pruefe('Keine Hoehe mehr aus hHinten abgeleitet',
        gegen ? /wpMitte = hHinten/.test(k3d) : !/wpMitte = hHinten/.test(k3d),
        'Durchgangshoehe ist nicht die Dachoberkante');

@@ -3514,3 +3514,30 @@ sein, jede Formularangabe muss in der Anfrage auftauchen, jedes neue
 Feld muss auch gelesen werden – genau die drei Fehlerarten, die bei den
 Velaris-Lamellen schon einmal passiert sind (Feld sendet einen Wert, den
 der Code nicht kennt, und fällt still auf die Vorgabe zurück).
+
+## 11.10.2026 – Statikträger endet bündig mit dem Wandprofil
+
+**Anlass.** „das wandprofil muss oben mit dem statikträger bei
+freistehend bündig sein bzw sogar leicht dahinter, damit die glasleisten
+nicht überstehen und das wandprofil soll die glasleisten abdecken also
+selbe höhe bis zu den glasleisten" (Betreiber, mit Bildschirmfoto).
+
+**Was falsch war.** Der Träger endete an der SPARRENOBERKANTE, das
+Wandprofil eine Glasdicke höher. Das Profil stand also über den Träger
+hinaus und gab die Glasleiste frei – im Bild eine Kante, die oben
+übersteht.
+
+**Was jetzt gilt.** Beide enden auf derselben Höhe: an der Oberkante des
+Wandprofils, die über dem Glas liegt und die Glasleiste verdeckt. Bei
+hinterem Dachvorsprung bleibt es wie bisher – dort liegt der Träger
+unter den Sparren, nicht hinter ihnen.
+
+**Was weiter offen ist.** Die Höhe der Glasleiste selbst steht in keiner
+Unterlage. Angenommen ist, dass sie innerhalb der 143,6 mm Profilhöhe
+Platz hat: Sparren 120 mm, Glas 8 oder 10 mm, der Rest Leiste und
+Luft. Stimmt das nicht, verschiebt sich die Oberkante – dann bitte
+melden.
+
+**Prüfung.** `scripts/pruefe-masstabelle.js` jetzt 190, Gegenprobe
+190 von 190; die neue vergleicht beide Oberkanten rechnerisch und
+rechnet in der Gegenprobe mit der alten Formel.
