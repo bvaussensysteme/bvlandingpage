@@ -3136,3 +3136,40 @@ der Hersteller.
 **Noch nicht gebaut** (steht in der Anleitung, wäre der nächste Schritt):
 das **Fenster FRF23** mit Griff als Teil der Wand und die Ausführung
 **mit Neigung**, bei der der Rahmen dem Dachgefälle folgt.
+
+## 2026-10-11 – Rahmenwand ohne Keil geht bis ans Dach
+
+**Anlass:** „wenn kein keil ausgewählt is soll das die wand normal bis
+ganz oben gehen also quasi wie mit keil nur ohne waagrechte sprosse"
+(Betreiber, mit Bild: Wand endete waagerecht, darüber blieb das Dreieck
+offen). Danach: „bei der automatischen auswahl soll keine wagrechte
+sprosse sein und die senkrechten sollen sich nach den selben maßen
+orientieren wie der keil".
+
+**1. Bis ans Dach.** An den Seiten ohne Keil hört die Rahmenwand nicht
+mehr waagerecht auf: Das obere Rahmenprofil entfällt – es wäre genau die
+Sprosse, die nicht sein soll –, das Glas geht bis zur Dachschräge, und
+darauf liegt ein Rahmenband, das der Schräge folgt.
+
+Das Band wird **wie der Keil** gebaut und mit **derselben Lage und
+Drehung** eingesetzt. Damit kann die Schräge nicht in die falsche
+Richtung zeigen, ohne dass es auch beim Keil auffiele – eine eigene
+Drehung hätte ich nicht nachrechnen können, ohne im Browser zu schauen.
+
+**2. Die Automatik richtet sich nach dem Keil.** Der bekommt alle
+**1500 mm** (KEIL_FELD_MAX, belegt) einen Pfosten. Die Wand teilt sich
+jetzt nach derselben Zahl – dann stehen Sprosse und Keilpfosten
+übereinander statt versetzt. Waagerechte Sprossen setzt die Automatik
+keine mehr; von Hand bleiben alle acht Varianten wählbar.
+
+Meine geratenen Richtwerte „Scheibe höchstens 1200 × 1600 mm" sind damit
+aus der Automatik verschwunden. Übrig bleibt eine Grenze des
+Herstellers: mehr als drei senkrechte Sprossen gibt es nicht, also
+höchstens vier Felder. Ab 6 m Seitenlänge wird ein Feld deshalb breiter
+als 1500 mm – das ist eine Grenze der dokumentierten Aufteilungen, keine
+Rechenschwäche.
+
+**Die Prüfung vergleicht Wand und Keil** bei jeder Länge von 0,5 bis 9 m:
+Bis zur Vierfeld-Grenze muss die Feldzahl übereinstimmen. Die Gegenprobe
+rechnet die Wand nach einem eigenen Richtwert – dann stehen die Sprossen
+versetzt, und sie schlägt an.
