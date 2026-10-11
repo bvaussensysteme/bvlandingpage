@@ -277,6 +277,79 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Querstoss in der Verglasung ----------
+   „und vsg glas kann ja ab ner bestimmten länge nict am stück verbaut
+   werden sondern is dann getrennt und muss gekopelt werden" (Betreiber,
+   11.10.2026). Schwelle ist die Tiefe, bei der die Masstabelle einen
+   Innenkern fuehrt. */
+pruefe('Querstoss nur bei Glas',
+       new RegExp(q || 'return !istPolycarbonat\\(\\) && Z\\.tiefe >= koppelTiefe\\(\\)').test(k3d),
+       'Stegplatten kommen in langen Bahnen');
+pruefe('Schwelle kommt aus der Masstabelle',
+       new RegExp(q || 'M\\.regeln\\.innenkernTiefe').test(k3d), 'nicht fest im Code');
+pruefe('Zwei Scheiben statt einer',
+       new RegExp(q || 'koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL\\.breite / 2').test(k3d), '');
+/* ---------- Lage des Stosses einstellbar ----------
+   „falls eine kopplung nötig is soll diese im 3d modell sichtbar sein
+   und ne einstellung geben das ich sie verschieben kann im erlaubten
+   bereich" (Betreiber, 11.10.2026). */
+pruefe('Regler fuer die Stosslage',
+       gegen ? !/id="k3dKoppel"/.test(html) : /id="k3dKoppel"/.test(html), '');
+pruefe('Regler nur, wenn es einen Stoss gibt',
+       new RegExp(q || "case 'kopplung':       return glasGeteilt\\(\\)").test(k3d), '');
+pruefe('Erlaubter Bereich aus der Scheibenlaenge',
+       new RegExp(q || 'min: Math\\.max\\(100, Z\\.tiefe - SCHEIBE_LANG\\)').test(k3d), '');
+pruefe('Voreingestellt mittig',
+       new RegExp(q || 'if \\(!Z\\.koppelLage\\) return Math\\.round\\(Z\\.tiefe / 2\\)').test(k3d), '');
+pruefe('Stossprofil folgt der Einstellung',
+       new RegExp(q || 'Math\\.cos\\(neig\\) \\* koppelLokal').test(k3d), '');
+/* Zweiter Weg: den erlaubten Bereich rechnen und pruefen, dass beide
+   Scheiben darin nie laenger werden als 4500 mm. */
+(function () {
+  var LANG = 4500;
+  function bereich(t) {
+    return { min: Math.max(100, t - LANG), max: Math.min(LANG, t - 100) };
+  }
+  [[4600, 100, 4500], [5500, 1000, 4500], [7000, 2500, 4500]].forEach(function (f) {
+    var b = bereich(f[0]);
+    var mn = b.min + (gegen ? -200 : 0), mx = b.max + (gegen ? 200 : 0);
+    pruefe('Bereich bei ' + f[0] + ' mm: ' + f[1] + ' bis ' + f[2],
+           mn === f[1] && mx === f[2], mn + ' bis ' + mx);
+  });
+  /* An beiden Enden des Bereichs darf keine Scheibe ueber 4500 mm. */
+  var t = 7000, b = bereich(t), schlimm = 0;
+  [b.min, (b.min + b.max) / 2, b.max].forEach(function (d) {
+    schlimm = Math.max(schlimm, d, t - d);
+  });
+  schlimm += (gegen ? 200 : 0);
+  pruefe('Keine Scheibe laenger als 4500 mm', schlimm <= LANG,
+         'laengste Scheibe ' + schlimm + ' mm bei ' + t + ' mm Tiefe');
+})();
+pruefe('Kopplungsprofil ueber die volle Breite',
+       new RegExp(q || 'BoxGeometry\\(B, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d), '');
+pruefe('Hinweis im Bedienfeld',
+       gegen ? !/quer gestoßen und gekoppelt/.test(k3d) : /quer gestoßen und gekoppelt/.test(k3d), '');
+pruefe('Anfrage nennt den Innenkern',
+       new RegExp(q || "glasGeteilt\\(\\) \\? ', quer gestoßen und gekoppelt \\(Innenkern\\)'").test(k3d),
+       'in eindeckungFach, also an EINER Stelle');
+/* Zweiter Weg: die Schwelle gegen die Tabelle rechnen. */
+(function () {
+  /* Die groesste Scheibe am Stueck ist die letzte Tiefe VOR dem
+     Innenkern. Der Betreiber schaetzt „4,50 oder 5 m" - die Tabelle
+     stuetzt die 4,50: ab 4600 mm fuehrt sie einen Innenkern. */
+  var amStueck = M.regeln.innenkernTiefe - 100 + (gegen ? 600 : 0);
+  pruefe('Groesste Scheibe am Stueck ist 4500 mm', amStueck === 4500,
+         amStueck + ' mm');
+  function geteilt(tiefe, poly) { return !poly && tiefe >= M.regeln.innenkernTiefe; }
+  [[3000, false, false], [4600, false, true], [7000, false, true],
+   [7000, true, false]].forEach(function (f) {
+    var ist = geteilt(f[0], f[1]);
+    if (gegen) ist = !ist;
+    pruefe(f[0] + ' mm ' + (f[1] ? 'Polycarbonat' : 'Glas') + ' -> ' +
+           (f[2] ? 'gestossen' : 'am Stueck'), ist === f[2], ist ? 'gestossen' : 'am Stueck');
+  });
+})();
+
 /* ---------- Hoehe hinten: gekoppelt, aber entkoppelbar ----------
    „das soll gekopplt sein an vorne aber man soll es entkoppeln können
    und getrennt einstellen" (Betreiber, 11.10.2026). */
@@ -658,7 +731,7 @@ pruefe('Glasstärke nur bei Glas gefragt',
              : /case 'glasstaerke':\s*return !istPolycarbonat\(\)/.test(k3d), '');
 /* Zweiter Weg: die Fachbezeichnung fuer die Mail wirklich ausrechnen. */
 (function () {
-  var mF = k3d.match(/return Z\.eindeckung\.replace\('VSG ', 'VSG ' \+ Z\.glasstaerke \+ ' mm '\);/);
+  var mF = k3d.match(/return Z\.eindeckung\.replace\('VSG ', 'VSG ' \+ Z\.glasstaerke \+ ' mm '\) \+/);
   if (!mF) { pruefe('Fachbezeichnung rechenbar', false, 'Zeile nicht gefunden'); return; }
   function fach(e, d) { return e.replace('VSG ', 'VSG ' + d + ' mm '); }
   [['VSG klar', 10, 'VSG 10 mm klar'], ['VSG graphit', 8, 'VSG 8 mm graphit']].forEach(function (f) {

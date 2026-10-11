@@ -2235,3 +2235,69 @@ das nachrechnet.
 
 **Gegenzulesen:** Ob die gekoppelte Höhe hinten im Bedienfeld sofort
 mitläuft, wenn man vorne oder an der Neigung dreht.
+
+## 2026-10-11 – VSG-Glas wird ab 4,50 m quer gestoßen
+
+**Anlass:** „und vsg glas kann ja ab ner bestimmten länge nict am stück
+verbaut werden sondern is dann getrennt und muss gekopelt werden" –
+auf die Rückfrage nach dem Maß: „ich glaube geht nur bis 4,50 oder 5m am
+stück" (Betreiber).
+
+**Die Zahl ist belegt, nicht geschätzt.** Die Maßtabelle führt einen
+„Innenkern" ausschließlich ab der Tiefe **4600 mm**; die letzte Tiefe
+ohne ihn ist damit 4500 mm. Das deckt sich mit der unteren der beiden
+Schätzungen des Betreibers – zwei unabhängige Quellen, dieselbe Zahl.
+Deshalb: größte Scheibe am Stück 4500 mm.
+
+**Was jetzt gezeichnet wird:** Ab 4600 mm Tiefe zwei Scheiben
+hintereinander statt einer, dazwischen ein Kopplungsprofil über die
+volle Dachbreite. Der Querschnitt des Profils ist GESCHÄTZT (60 × 30 mm)
+– die Lage und das Vorhandensein sind es nicht.
+
+**Nur bei Glas.** Polycarbonat-Stegplatten kommen in langen Bahnen und
+werden nicht gestoßen.
+
+**Im Bedienfeld und in der Anfrage:** Der Hinweis nennt die 4,50 m im
+Klartext, die Anfrage-Mail hängt „quer gestoßen und gekoppelt
+(Innenkern)" an die Eindeckung. Das steht in `eindeckungFach()`, also an
+EINER Stelle – die Zeile wird an zwei Orten gebraucht.
+
+**Warum das zählt:** Der Innenkern ist bei TDS ein eigenes Bauteil und
+wird getrennt geführt (im Datenpfad gibt es dafür `innenkernImPreis`).
+Fehlt er in der Anfrage, fehlt er im Angebot.
+
+## 2026-10-11 – Glasstoß sichtbar und verschiebbar
+
+**Anlass:** „falls eine kopplung nötig is soll diese im 3d modell
+sichtbar sein und ne einstellung geben das ich sie verschieben kann im
+erlaubten bereich" (Betreiber). Dazu die Bestätigung: „bei polycarbonat
+zählt das nicht das geht immer in einem stück".
+
+**Sichtbar:** Das Kopplungsprofil läuft quer über die volle Dachbreite,
+auf Scheibenhöhe und in der Dachneigung mitgedreht.
+
+**Verschiebbar:** Neuer Regler unter „Mehr Einstellungen" – „Glasstoß,
+Abstand von der Rinne". Gemessen wird ab der Rinne, weil das die Kante
+ist, die man im Bild sieht.
+
+**Der erlaubte Bereich ergibt sich, er wird nicht gesetzt.** Beide
+Scheiben müssen für sich am Stück machbar bleiben, also höchstens
+4500 mm:
+
+| Tiefe | erlaubter Bereich |
+|---|---|
+| 4600 mm | 100 bis 4500 mm |
+| 5500 mm | 1000 bis 4500 mm |
+| 7000 mm | 2500 bis 4500 mm |
+
+Voreingestellt mittig – das ist die Lage mit der größten Reserve nach
+beiden Seiten. Verändert man die Tiefe, wird die Einstellung in den neuen
+Bereich gezwungen, statt still ein unmögliches Maß stehen zu lassen.
+
+**Polycarbonat:** unverändert ohne Stoß. Das war schon so gebaut
+(`glasGeteilt()` prüft `!istPolycarbonat()`), und eine Prüfung deckt den
+Fall ab: 7000 mm Polycarbonat → am Stück.
+
+**Absicherung:** Eine Prüfung rechnet für 7000 mm Tiefe an beiden Enden
+und in der Mitte des Bereichs nach, dass keine Scheibe über 4500 mm
+hinausgeht.

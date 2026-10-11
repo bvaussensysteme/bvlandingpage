@@ -681,6 +681,17 @@
             Pfosten um dieses Maß nach innen, der Statikträger wandert mit.</p>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="kopplung" hidden>
+          <label class="k3d-label" for="k3dKoppel">Glasstoß – Abstand von der Rinne <output id="k3dKoppelWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dKoppel" class="k3d-range" min="100" max="4500" step="50" value="2300">
+            <input type="number" id="k3dKoppelZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Abstand des Glasstoßes von der Rinne in Millimeter">
+          </div>
+          <p class="k3d-mini">VSG-Glas gibt es bis 4,50 m am Stück. Bei größerer Tiefe
+            werden die Scheiben quer gestoßen; hier verschieben Sie den Stoß. Der
+            Regler lässt nur Lagen zu, bei denen beide Scheiben machbar bleiben.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
           <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
           <div class="k3d-regler">
@@ -1183,7 +1194,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261013l" defer></script>
+<script src="js/konfigurator-3d.js?v=20261013n" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
