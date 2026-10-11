@@ -390,6 +390,37 @@ function pruefen(k3d, wizard, html, bauteile, csv) {
     fehler.push('Keil gibt es laut Assistent bei [' + kpW + '], laut Konfigurator bei [' + kp3 + ']');
   }
 
+  /* ---------- Sparrenzahl der geschätzten Skizze ----------
+     Zweiter Weg: Die Regel aus dem Code wird hier gegen die
+     Beispieltabelle „TDS · Glas" aus daten/technische-daten.md
+     nachgerechnet – und gegen die Angabe des Betreibers vom 11.10.2026
+     (6000 mm Breite, VSG 8 mm → 9 Sparren).
+
+     Warum das zählt: Die Zahl bestimmt, wie viele Sparren im Bild stehen.
+     Lag sie daneben, sah ein 6-m-Dach aus wie eines mit 1,20 m
+     Achsabstand – ein Maß, das es mit VSG 8 mm nicht gibt. */
+  const feldMax = k3d.match(/var FELD_MAX = \{\s*glas:\s*([\d.]+)/);
+  if (!feldMax) {
+    fehler.push('Sparrenregel: FELD_MAX nicht gefunden');
+  } else {
+    const maxGlas = parseFloat(feldMax[1]) * 10;      // cm -> mm
+    const regel = function (b) { return Math.max(3, Math.ceil(b / maxGlas) + 1); };
+    const tabelle = [[1080, 3], [1500, 3], [2080, 4], [2200, 4],
+                     [3080, 5], [3700, 6], [4080, 7], [6000, 9]];
+    tabelle.forEach(function (r) {
+      const ist = regel(r[0]);
+      if (ist !== r[1]) {
+        fehler.push('Sparren bei ' + r[0] + ' mm: Regel sagt ' + ist +
+                    ', belegt sind ' + r[1]);
+      }
+      const achse = Math.round(r[0] / (ist - 1));
+      if (r[0] >= 1500 && (achse < 680 || achse > 770)) {
+        fehler.push('Achsabstand bei ' + r[0] + ' mm: ' + achse +
+                    ' mm liegt nicht im Band 680–770 mm');
+      }
+    });
+  }
+
   return { fehler: fehler, produkte: produkte || [], auswahl: auswahl.size,
            stichworte: stichworte.size, csvGeprueft: !!csv };
 }
@@ -403,6 +434,9 @@ function gegenprobe() {
   const csv = fs.existsSync(EINDECKUNG_CSV) ? fs.readFileSync(EINDECKUNG_CSV, 'utf8') : '';
 
   const faelle = [
+    ['Sparren-Hoechstmass verfaelscht',
+     function () { return [k3d.replace('glas: 77', 'glas: 110'), wizard, html]; },
+     /Sparren bei \d+ mm: Regel sagt|Achsabstand bei \d+ mm/],
     ['alte, kurze Eindeckungs-Angabe',
      function () { return [k3d.replace("'VSG-Glas Opal (milchig)'", "'VSG-Glas'"), wizard, html]; },
      /Eindeckung: "VSG-Glas"/],

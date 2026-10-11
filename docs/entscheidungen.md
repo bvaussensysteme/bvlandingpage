@@ -957,3 +957,58 @@ greifbar sind, lohnt derselbe Abgleich.
 
 **Prüfung.** `scripts/pruefe-markise.js` prüft beide Maße gegen das
 Teilebild. 46 Prüfungen, Gegenprobe 46 von 46.
+
+## 2026-10-11 – Sparrenzahl der geschätzten Skizze war deutlich zu niedrig
+
+**Anlass.** Der Betreiber mit Bildschirmfoto: „hier ist ein fehler, bei
+vsg glas 8mm, wären es bei breite 6000mm und tiefe 3000mm, 3pfoten und
+9 sparren". Im Bild standen 6 Sparren.
+
+**Was falsch war.** Die geschätzte Skizze rechnete `Breite / 110 cm`.
+Bei 6 m Breite kamen damit 6 Sparren heraus, also **120 cm Achsabstand** –
+ein Maß, das es mit VSG 8 mm überhaupt nicht gibt.
+
+**Was belegt ist.** `daten/technische-daten.md`, Abschnitt 3: Der
+Achsabstand liegt bei **VSG 8 mm zwischen 680 und 770 mm** (max.
+Scheibenbreite 720 mm), bei **Polycarbonat zwischen 1016 und 1080 mm**
+(Stegplattenbreite). Daraus folgt die kleinste Sparrenzahl, deren
+Achsabstand das Höchstmaß nicht reißt.
+
+**Gegengerechnet.** Die Regel trifft alle sieben Zeilen der
+Beispieltabelle „TDS · Glas" derselben Quelle – und zusätzlich die Angabe
+des Betreibers:
+
+| Breite | belegt | Regel | Achsabstand |
+|---:|---:|---:|---:|
+| 1080 | 3 | 3 | 540 mm |
+| 1500 | 3 | 3 | 750 mm |
+| 2080 | 4 | 4 | 693 mm |
+| 2200 | 4 | 4 | 733 mm |
+| 3080 | 5 | 5 | 770 mm |
+| 3700 | 6 | 6 | 740 mm |
+| 4080 | 7 | 7 | 680 mm |
+| **6000** | **9** (Betreiber) | **9** | **750 mm** |
+
+`scripts/pruefe-konfigurator.js` rechnet alle acht Zeilen bei jedem Lauf
+nach und prüft zusätzlich, dass der Achsabstand im Band 680–770 mm
+landet. Die Gegenprobe verfälscht das Höchstmaß und erwartet, dass es
+auffällt.
+
+**Die Pfosten waren schon richtig:** 3 ab 5 m Breite, das deckt sich mit
+der Regel aus `daten/technische-daten.md` Abschnitt 4 („bis 4500 mm zwei
+Pfosten, ab 4500 mm ein dritter") und mit der Angabe des Betreibers.
+
+**Das bleibt eine Schätzung.** Die echte Matrix springt unregelmäßig
+(siehe Kopf von `js/bauteile.js`). Sie liegt bewusst nicht in diesem
+Repository und kommt über `/api/bauteile`.
+
+### Die eigentliche Ursache: `/api/bauteile` antwortet 503
+
+Die Schnittstelle liefert **derzeit immer 503**, weil der KV-Namensraum
+**`DACHMATRIX` in `wrangler.jsonc` nicht gebunden** ist. Deshalb läuft
+jedes Produkt über den Schätzpfad – nicht nur bei diesem einen Maß.
+
+**Solange das so bleibt, sind alle Stückzahlen im Konfigurator
+geschätzt.** Die Schätzung ist jetzt belegbar gut, aber sie ist nicht die
+Preisliste. Das Binden des Namensraums ist der eine Schritt, der aus
+geschätzten Zahlen verbindliche macht.

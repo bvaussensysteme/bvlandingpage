@@ -461,6 +461,36 @@
 
   var SPARREN_ABSTAND = 110; // Richtwert, nur für die geschätzten Carports
 
+  /* ---------- Sparrenzahl, wenn die Herstellermatrix fehlt ----------
+     Vorher stand hier „Breite / 110 cm". Bei 6 m Breite kamen damit
+     6 Sparren heraus, also 120 cm Achsabstand – weit außerhalb dessen,
+     was mit VSG 8 mm überhaupt geht. Vom Betreiber beanstandet: „bei vsg
+     glas 8mm, wären es bei breite 6000mm und tiefe 3000mm, 3pfoten und
+     9 sparren".
+
+     BELEGT (daten/technische-daten.md, Abschnitt 3): Der Achsabstand
+     liegt bei **VSG 8 mm zwischen 680 und 770 mm** (max. Scheibenbreite
+     720 mm) und bei **Polycarbonat zwischen 1016 und 1080 mm**
+     (Stegplattenbreite). Daraus folgt die kleinste Sparrenzahl, deren
+     Achsabstand das Höchstmaß nicht reißt.
+
+     GEGENGERECHNET an der Beispieltabelle „TDS · Glas" derselben Quelle –
+     die Regel trifft alle sieben Zeilen:
+       1080→3, 1500→3, 2080→4, 2200→4, 3080→5, 3700→6, 4080→7
+     und zusätzlich die Angabe des Betreibers: 6000→9 (750 mm Achsabstand).
+     scripts/pruefe-konfigurator.js rechnet das jedes Mal nach.
+
+     Das bleibt trotzdem eine SCHÄTZUNG: Die echte Matrix springt
+     unregelmäßig (siehe Kopf von js/bauteile.js). Sobald DACHMATRIX
+     gebunden ist, liefert /api/bauteile die verbindlichen Zahlen und
+     diese Funktion wird nicht mehr aufgerufen. */
+  var FELD_MAX = { glas: 77, poly: 108 };    // cm, BELEGT (Obergrenze)
+
+  function sparrenGeschaetzt(B) {
+    var max = istPolycarbonat() ? FELD_MAX.poly : FELD_MAX.glas;
+    return Math.max(3, Math.ceil(B / max) + 1);
+  }
+
   /* Welches Produkt steht in welcher Preisliste? Was hier null liefert, hat
      keine Herstellerdaten und wird geschätzt gebaut. Carport Flat Line läuft
      über die Flat-Line-Matrix – dort ist das System als freistehendes
@@ -2412,9 +2442,13 @@
        60 mm, geteilt durch die Anzahl der Felder" ergibt den Abstand von
        Sparrenmitte zu Sparrenmitte. Die äußeren Sparrenachsen liegen damit
        30 mm vom Rand – bisher stand hier die Annahme „Randsparren außen
-       bündig". Die ANZAHL der Felder bleibt geschätzt; sie steht in der
-       Herstellermatrix. */
-    var felder = Math.max(2, Math.round(B / SPARREN_ABSTAND));
+       bündig".
+
+       Die ANZAHL kommt normalerweise aus der Herstellermatrix über
+       /api/bauteile. Liefert die nichts – zurzeit immer, weil die
+       KV-Namensraum-Bindung DACHMATRIX fehlt und die Schnittstelle 503
+       antwortet –, greift sparrenGeschaetzt(). */
+    var felder = sparrenGeschaetzt(B) - 1;
     var randAchse = sky ? spB / 2 : 3;
     var xs = [], i;
     for (i = 0; i <= felder; i++) {
