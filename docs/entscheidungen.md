@@ -2192,3 +2192,23 @@ folgende Neigung.
 
 **Gegenzulesen:** Ob der Bereich 2000–3200 mm für die hintere Höhe
 passt. Er ist von mir gesetzt, nicht belegt.
+
+## 2026-10-11 – Dachvorsprung beim Carport bis 1500 mm
+
+**Anlass:** „dachvorsprung bei carport ruhig machen möglich bis 1500mm
+nicht nur 800mm" (Betreiber).
+
+Beim Carport TDS gehen beide Vorsprünge – vorne und hinten – jetzt bis
+1500 mm. Beim Terrassendach bleibt es bei 800 mm.
+
+**Mitgedacht:** Die Grenze wird am Regler gesetzt und der WERT mitgezogen.
+Wer am Carport 1400 mm einstellt und dann auf Terrassendach wechselt,
+bekäme sonst ein Maß, das der Regler gar nicht mehr hergibt – und es
+stünde trotzdem in der Anfrage. Jetzt wird es auf 800 gekappt, sichtbar
+im Regler und im Zahlenfeld.
+
+**Gegenzulesen:** Ob 1500 mm statisch gedeckt sind. Die Maßtabelle sagt
+zum Vorsprung nichts; ich habe nur die Grenze im Bedienfeld gesetzt, die
+du genannt hast. Bei großem Vorsprung trägt der Statikträger die ganze
+Auskragung – ab welchem Maß TDS einen stärkeren Träger vorsieht, weiß
+ich nicht.

@@ -277,6 +277,32 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
 })();
 
+/* ---------- Dachvorsprung beim Carport bis 1500 mm ----------
+   „dachvorsprung bei carport ruhig machen möglich bis 1500mm nicht nur
+   800mm" (Betreiber, 11.10.2026). */
+pruefe('Hoechstmass je Produkt hinterlegt',
+       gegen ? !/carport: 1500, standard: 800/.test(k3d)
+             : /carport: 1500, standard: 800/.test(k3d), '');
+pruefe('Grenze wird vor dem Auslesen gesetzt',
+       new RegExp(q || 'vorsprungGrenzeSetzen\\(\\);\\s*\\n\\s*Z\\.vorsprung = zahl').test(k3d),
+       'sonst bleibt der alte Wert stehen');
+pruefe('Wert wird beim Produktwechsel mitgezogen',
+       new RegExp(q || 'if \\(Z\\[pr\\[1\\]\\] > max\\)').test(k3d),
+       'kein Mass in der Anfrage, das der Regler nicht hergibt');
+pruefe('Beide Vorspruenge betroffen',
+       new RegExp(q || "\\['k3dVorsprungHinten', 'vorsprungHinten'\\]\\].forEach").test(k3d), '');
+(function () {
+  var mx = k3d.match(/carport: (\d+), standard: (\d+)/);
+  if (!mx) { pruefe('Grenzen lesbar', false, ''); return; }
+  var cp = parseInt(mx[1], 10), st = parseInt(mx[2], 10) + (gegen ? 800 : 0);
+  pruefe('Carport darf weiter auskragen als das Terrassendach', cp > st,
+         cp + ' mm gegen ' + st + ' mm');
+  /* Beim Wechsel zurueck muss gekappt werden. */
+  var wert = 1400, gekappt = Math.min(wert, st) + (gegen ? 800 : 0);
+  pruefe('1400 mm wird beim Wechsel auf Terrassendach gekappt',
+         gekappt <= 800, gekappt + ' mm');
+})();
+
 /* ---------- Carport freistehend: beide Hoehen getrennt ----------
    „bei carport tds will ich nur höhe vorne und höhe hinten unabhängig
    voneinander verstellen können in erweiterte einstellungen, und
