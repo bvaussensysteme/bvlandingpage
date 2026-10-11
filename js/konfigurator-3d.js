@@ -3770,8 +3770,12 @@
       if (el) Z[pr[0]] = el.checked;
     });
 
+    /* k3dVorsprung gehört hier mit hinein. Es fehlte – deshalb blieb die
+       Anzeige auf „0 mm" stehen, während sich im Modell sehr wohl etwas
+       bewegte. Vom Betreiber bemerkt: „die anzeige bleibt immer bei 0 mm
+       stehen aber in 3d passiert die änderung". */
     [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe'],
-     ['k3dUeberstand', 'ueberstand']].forEach(function (paar) {
+     ['k3dUeberstand', 'ueberstand'], ['k3dVorsprung', 'vorsprung']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
       if (a) a.textContent = Z[paar[1]] + ' mm';
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
@@ -4082,7 +4086,8 @@
      würde sofort begrenzt, stünde dort gleich die Untergrenze. */
   [['k3dBreite', 'k3dBreiteZahl'], ['k3dTiefe', 'k3dTiefeZahl'],
    ['k3dHoehe', 'k3dHoeheZahl'], ['k3dUeberstand', 'k3dUeberstandZahl'],
-   ['k3dNeigung', 'k3dNeigungZahl']].forEach(function (pr) {
+   ['k3dNeigung', 'k3dNeigungZahl'],
+   ['k3dVorsprung', 'k3dVorsprungZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
     n.addEventListener('input', function () {

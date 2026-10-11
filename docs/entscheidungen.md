@@ -1188,3 +1188,30 @@ bewirkt: Pfosten rücken nach innen, Statikträger kommt dazu.
 bestanden; Gegenprobe 22 von 22. Drei davon sichern genau diesen Fehler
 ab: dass der Vorsprung die Pfosten bewegt, dass der Träger über den
 Pfosten sitzt und dass er auch ohne Tiefenregel kommt.
+
+## 2026-10-11 – Anzeige des Dachvorsprungs blieb auf 0 stehen
+
+**Anlass.** Der Betreiber nach dem Einbau: „jetzt klappt es allerdings
+bleibt die anzeige immer bei 0 mm stehen aber in 3d passiert die
+änderung".
+
+**Was falsch war.** `k3dVorsprung` stand in **keiner** der beiden Listen,
+die in `aendern()` die Reglerausgabe und das Zahlenfeld nachführen. Das
+Modell reagierte korrekt, nur die Anzeige log – und das Zahlenfeld
+daneben war wirkungslos.
+
+Das ist dieselbe Fehlerart wie die vorherige, nur umgekehrt: Vorher stand
+der Wert richtig im Bedienfeld und falsch im Modell, jetzt richtig im
+Modell und falsch im Bedienfeld. Beide Male geht nichts kaputt, es
+stimmt nur nicht.
+
+**Was jetzt gilt.** `k3dVorsprung` steht in beiden Listen.
+
+**Und die Prüfung ist allgemein, nicht auf diesen einen Regler gemünzt.**
+`scripts/pruefe-fuehrung.js` liest alle `k3d-range`-Regler aus dem HTML
+und prüft für **jeden**, ob eine vorhandene `…Wert`-Ausgabe im Code
+nachgeführt und ein vorhandenes `…Zahl`-Feld gekoppelt wird. Aktuell
+neun Regler, alle vollständig. Wer den nächsten einbaut und das Verdrahten
+vergisst, bekommt es beim nächsten Lauf gesagt.
+
+**Prüfung.** 27 Prüfungen, alle bestanden; Gegenprobe 27 von 27.
