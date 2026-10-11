@@ -1778,38 +1778,33 @@
      die vorderseite" (Betreiber). */
   var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4 };   // cm, BELEGT
 
-  /* ---------- Seitliche Abdeckung – EINE Form für beide Profile ----------
+  /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
      wandprofil abdeckung links rechts identisch sind aber ohne vd
-     gravur" (Betreiber, 11.10.2026, mit Bild der Rinnenkappe).
+     gravur" (Betreiber, 11.10.2026) – und auf Nachfrage, nachdem die
+     erste Fassung beide gleich baute: „du hast die deckel nicht richtig
+     abgebildet sondern selbst modeliert", Rinne und Wandprofil sind
+     DOCH VERSCHIEDEN (Betreiber, 11.10.2026).
 
-     Die Form: ein Rechteck, dessen obere VORDERE Ecke abgeschrägt ist –
-     „die niedrigere seite is die vorderseite" (Betreiber). Rinne und
-     Wandprofil benutzen jetzt genau diese eine Funktion; es gibt keine
-     zweite Fassung, die auseinanderlaufen könnte.
+     Deshalb zwei Formen, jede nach ihrem Bild:
 
-     IDENTISCH heißt: dasselbe Teil, 172 × 175 mm mit 34 mm Fase – auch
-     am Wandprofil. Das zweite Werkbild zeigt es: Die Kappe dort ist
-     NICHT auf die 31 mm Profiltiefe geschrumpft, sie deckt die ganze
-     Stirnseite des Dachanschlusses ab und steht unten über das Profil
-     hinaus. Genau so wird sie hier gebaut.
+       · RINNE: eckig, mit gerader Schräge an der oberen Vorderecke.
+         172 × 175 mm, Fase 34 mm – das ist BELEGT aus dem Teilebild.
+       · WANDPROFIL: rund. Die vordere Kante läuft in einem großen Bogen
+         aus, statt in einer Schräge. Maße GESCHÄTZT, das Werkbild ist
+         nicht bemaßt.
 
-     DREI ANNAHMEN zur Lage am Wandprofil, nicht belegt, bitte prüfen:
-       · hinten bündig mit der Wand (z = 0), die Kappe reicht nach vorne
-         unter das Dach – bei der Rinne ist es umgekehrt die Vorderkante,
-         weil man dort vorne draufschaut;
-       · oben bündig mit der Profiloberkante, nicht mittig wie an der
-         Rinne – mittig stünde sie über die Glasleiste hinaus;
-       · die Fase liegt oben an der freien Kante, also vorne.
-
-     KEINE GRAVUR, und das bleibt so: Auf dem Werkbild trägt die Kappe
-     das Zeichen des Herstellers. Das ist dessen Marke – wir sind
+     Was beide teilen, ist die Machart: dieselbe Bauweise, dasselbe
+     Material – und KEINE GRAVUR. Auf den Werkbildern trägt die Kappe
+     das Zeichen des Herstellers. Das ist dessen Marke; wir sind
      Verarbeiter. Ein fremdes Markenzeichen im eigenen Konfigurator
-     nachzubilden wäre weder rechtlich sauber noch sachlich richtig, denn
-     es stünde an einem Bild, das WIR verantworten. */
-  function kappeQuerschnitt(b, h, fase) {
-    /* x = 0 ist hinten, x = b vorne; nach dem rotateY beim Bauen läuft
-       die Querschnittsbreite in +z, und +z ist vorne. */
+     nachzubilden wäre weder rechtlich sauber noch sachlich richtig,
+     denn es stünde an einem Bild, das WIR verantworten. */
+
+  /* x = 0 ist hinten, x = b vorne; nach dem rotateY beim Bauen läuft die
+     Querschnittsbreite in +z, und +z ist vorne. */
+  function rinnenkappeQuerschnitt() {
+    var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe, fase = RINNENDECKEL.fase;
     var f = new THREE.Shape();
     f.moveTo(0, 0);
     f.lineTo(b, 0);
@@ -1820,11 +1815,31 @@
     return f;
   }
 
-  function profilKappen(laenge, zHinten, yStart, b, h, fase, material) {
+  /* Der Deckel am Wandprofil: vorne ein großer Bogen statt der Schräge.
+     Alle drei Maße sind GESCHÄTZT – am Werkbild abgeschätzt, nicht
+     abgelesen. Sobald ein Teilebild dazu da ist, gehören sie ersetzt. */
+  var WANDDECKEL = { tiefe: 14.0, hoehe: 17.5, radius: 7.0 };
+
+  function wandkappeQuerschnitt() {
+    var b = WANDDECKEL.tiefe, h = WANDDECKEL.hoehe, r = WANDDECKEL.radius;
+    var f = new THREE.Shape();
+    f.moveTo(0, 0);
+    f.lineTo(b, 0);
+    f.lineTo(b, h - r);
+    /* Der Bogen über die ganze vordere obere Ecke – zwei Stützpunkte
+       machen daraus eine runde Kante statt eines Knicks. */
+    f.quadraticCurveTo(b, h - r * 0.45, b - r * 0.3, h - r * 0.12);
+    f.quadraticCurveTo(b - r * 0.6, h, b - r, h);
+    f.lineTo(0, h);
+    f.closePath();
+    return f;
+  }
+
+  function profilKappen(laenge, zHinten, yStart, form, material) {
     var dicke = 0.4;
     [-1, 1].forEach(function (seite) {
-      var g = new THREE.ExtrudeGeometry(kappeQuerschnitt(b, h, fase),
-        { depth: dicke, bevelEnabled: false, curveSegments: 2 });
+      var g = new THREE.ExtrudeGeometry(form,
+        { depth: dicke, bevelEnabled: false, curveSegments: 8 });
       g.rotateY(-Math.PI / 2);
       g.translate(seite * (laenge / 2 + dicke) + (seite > 0 ? 0 : dicke),
                   yStart, zHinten);
@@ -1834,21 +1849,19 @@
     });
   }
 
+  /* Der Deckel am Wandprofil sitzt hinten an der Wand und reicht nach
+     vorne unter das Dach; oben schließt er mit der Profiloberkante ab.
+     Beides ist ANGENOMMEN – belegt ist nur die Lage an der Rinne. */
+  function wandprofilKappen(laenge, wpOk, material) {
+    profilKappen(laenge, 0, wpOk - WANDDECKEL.hoehe,
+                 wandkappeQuerschnitt(), material);
+  }
+
   function rinnenblenden(laenge, zVorne, yUnten, material) {
     profilKappen(laenge,
                  zVorne - RINNENDECKEL.breite,                    // vorne bündig
                  yUnten + (RINNE.hoehe - RINNENDECKEL.hoehe) / 2, // mittig
-                 RINNENDECKEL.breite, RINNENDECKEL.hoehe,
-                 RINNENDECKEL.fase, material);
-  }
-
-  /* Dieselbe Kappe am Wandprofil – gleiches Maß, gleiche Form. Hinten an
-     der Wand, nach vorne unter das Dach reichend, oben bündig mit der
-     Profiloberkante. */
-  function wandprofilKappen(laenge, wpOk, material) {
-    profilKappen(laenge, 0, wpOk - RINNENDECKEL.hoehe,
-                 RINNENDECKEL.breite, RINNENDECKEL.hoehe,
-                 RINNENDECKEL.fase, material);
+                 rinnenkappeQuerschnitt(), material);
   }
 
 
@@ -5213,8 +5226,8 @@
     /* Der geschlossene Rücken steht an der Wand bzw. am Statikträger
        (z = 0), die Schenkel ragen von dort nach vorne. */
     balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
-    /* Seitliche Abdeckung links und rechts – dieselbe Form wie an der
-       Rinne (siehe kappeQuerschnitt). */
+    /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
+       wandkappeQuerschnitt. */
     wandprofilKappen(B, wpOk, mAlu);
     if (frei) {
       balken(B, trH, TR_T, 0, trOk - trH / 2, zTrHinten, mAlu);

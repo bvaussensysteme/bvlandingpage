@@ -309,6 +309,11 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   Der Widerspruch im Maß selbst bleibt
 - **Pfostenachse 55 mm**, **EZIP-Stoffbilder in CMYK ohne Profil** –
   ungeprüfte Annahmen
+- **Teilebild für den Deckel am Wandprofil.** Für den Rinnendeckel gibt
+  es eines (172 × 175 mm, Fase 34 mm, BELEGT). Der Deckel am Wandprofil
+  ist eine andere, runde Form – seine drei Maße (140 mm tief, 175 mm
+  hoch, Bogenradius 70 mm) sind am Werkbild ABGESCHÄTZT. Mit einem
+  bemaßten Blatt sind sie in einer Zeile ersetzt
 - **Statikträger hinter den Sparren: welches Profil ist das wirklich?**
   Die Maßtabelle nennt 189 × 117 mm. Steht er freistehend hinter den
   Sparren (an Stelle der Wand), stand er damit 6 cm unter den Sparren

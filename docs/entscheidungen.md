@@ -4502,3 +4502,34 @@ gleiche Form, gleiche Größe, gleiche Farbe. Am Wandprofil prüfen, ob Lage und
 Überstand so stimmen – das sind die drei Annahmen oben. Prüfung:
 `node scripts/pruefe-masstabelle.js` (216, Gegenprobe 216/216); eine davon
 zeichnet beide Umrisse und vergleicht sie Punkt für Punkt.
+
+## 2026-10-11 – Korrektur: die beiden Deckel sind NICHT dieselbe Form
+
+**Was falsch war.** Auf „die abdeckungen … identisch" hin hatte ich beide
+Deckel aus einer Form gebaut – der des Rinnendeckels. Rückmeldung des
+Betreibers: „du hast die deckel nicht richtig abgebildet sondern selbst
+modeliert", und auf Nachfrage: Rinne und Wandprofil sind **doch verschieden**.
+Gemeint war mit „identisch" offenbar links/rechts je Profil, nicht Rinne gegen
+Wandprofil.
+
+**Was jetzt gilt.** Zwei Formen, jede nach ihrem Werkbild:
+- **Rinne:** eckig, gerade Schräge an der oberen Vorderecke, 172 × 175 mm,
+  Fase 34 mm – BELEGT aus dem Teilebild, unverändert.
+- **Wandprofil:** rund. Die vordere Kante läuft in einem großen Bogen aus.
+  140 mm tief, 175 mm hoch, Radius 70 mm – alle drei **GESCHÄTZT** am
+  unbemaßten Werkbild. Steht als offener Punkt in `docs/NEXT_TASK.md`.
+
+Gemeinsam bleibt die Machart: eine Bauweise (`profilKappen`), ein Material,
+links und rechts gleich – und keine Gravur.
+
+**Lehre.** „Identisch" war zweideutig, und ich habe die für mich bequemere
+Lesart genommen, statt zu fragen. Eine Prüfung hat das dann sogar noch
+festgeschrieben („beide ergeben denselben Umriss") – die Prüfung war genauso
+falsch wie das Modell und ist ersetzt. **Eine Prüfung, die eine ungeprüfte
+Annahme zementiert, ist schlimmer als keine.**
+
+**Was gegengelesen werden soll.** Rinne links/rechts: eckig mit Schräge.
+Wandprofil links/rechts: runde Vorderkante. Ob Größe und Rundung des
+Wandprofil-Deckels passen, lässt sich nur am Bild beurteilen – die Maße sind
+geschätzt. Prüfung: `node scripts/pruefe-masstabelle.js` (216, Gegenprobe
+216/216); sie misst beide Formen und besteht darauf, dass sie verschieden sind.

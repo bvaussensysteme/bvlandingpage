@@ -301,60 +301,68 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
-/* ---------- Seitliche Abdeckungen: Rinne und Wandprofil gleich --------
-   „miir is wichtig das die abdeckungen links rechts von rinne und von
-   wandprofil abdeckung links rechts identisch sind aber ohne vd
-   gravur" (Betreiber, 11.10.2026, mit beiden Werkbildern). */
+/* ---------- Seitliche Abdeckungen: zwei verschiedene Formen ----------
+   Erst hiess es „identisch", dann, nachdem beide gleich gebaut waren:
+   „du hast die deckel nicht richtig abgebildet sondern selbst
+   modeliert" – Rinne und Wandprofil sind DOCH VERSCHIEDEN (Betreiber,
+   11.10.2026). Die Pruefung von vorhin schrieb die alte Wahrheit fest
+   („beide ergeben denselben Umriss") und ist deshalb ersetzt. */
 (function () {
-  var quer = (k3d.match(/function kappeQuerschnitt\(b, h, fase\)[\s\S]*?\n  \}/) || [''])[0];
-  var rin = (k3d.match(/function rinnenblenden\([\s\S]*?\n  \}/) || [''])[0];
-  var wand = (k3d.match(/function wandprofilKappen\([\s\S]*?\n  \}/) || [''])[0];
+  var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+)/);
-  if (!quer || !rin || !wand || !masse) {
-    pruefe('Kappen lesbar', false, 'Funktion oder Mass nicht gefunden'); return;
+  var wd = k3d.match(/WANDDECKEL = \{ tiefe: ([\d.]+), hoehe: ([\d.]+), radius: ([\d.]+)/);
+  if (!rinQ || !wandQ || !masse || !wd) {
+    pruefe('Beide Kappenformen lesbar', false, 'nicht gefunden'); return;
   }
   var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2], fase: +masse[3] };
+  var WANDDECKEL = { tiefe: +wd[1], hoehe: +wd[2], radius: +wd[3] };
 
-  /* Beide Seiten holen ihre Masse aus demselben Satz – gezaehlt wird,
-     dass in beiden Funktionen dieselben drei Felder stehen. */
-  function felder(txt) {
-    return ['RINNENDECKEL.breite', 'RINNENDECKEL.hoehe', 'RINNENDECKEL.fase']
-      .filter(function (f) { return txt.indexOf(f) > -1; }).length;
-  }
-  var gleich = felder(rin) === 3 && felder(wand) === 3;
-  pruefe('Rinne und Wandprofil benutzen dasselbe Mass',
-         gegen ? !gleich : gleich,
-         felder(rin) + ' bzw. ' + felder(wand) + ' von 3 Massen');
-  pruefe('Es gibt nur EINE Kappenform',
-         new RegExp(q || 'function kappeQuerschnitt').test(k3d) &&
-         (k3d.match(/function profilKappen/g) || []).length === 1 &&
-         !/function rinnenblendeQuerschnitt/.test(k3d), '');
-
-  /* Zweiter Weg: die Form wirklich zeichnen und ausmessen – mit den
-     Massen, die beide Aufrufe uebergeben. Kommt zweimal derselbe Umriss
-     heraus, sind die Kappen identisch. */
-  var punkte = [];
+  var punkte = [], bogen = 0;
   function Form() { this.holes = []; }
   Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
   Form.prototype.lineTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.quadraticCurveTo = function (cx, cy, x, y) {
+    bogen++; punkte.push([x, y]);
+  };
   Form.prototype.closePath = function () {};
   var THREE = { Shape: Form };
-  var fn = eval('(' + quer + ')');
-  fn(RINNENDECKEL.breite, RINNENDECKEL.hoehe, RINNENDECKEL.fase);
-  var a = JSON.stringify(punkte);
-  punkte = [];
-  /* Die Gegenprobe schrumpft die Wandprofilkappe auf die Profiltiefe –
-     genau der Fehler, den der Betreiber nicht will. */
-  fn(gegen ? 3.1 : RINNENDECKEL.breite, RINNENDECKEL.hoehe, RINNENDECKEL.fase);
-  var b = JSON.stringify(punkte);
-  pruefe('Beide Kappen ergeben denselben Umriss', a === b,
-         a === b ? '172 x 175 mm, Fase 34 mm' : 'unterschiedlich');
+
+  function mess(quelle) {
+    punkte = []; bogen = 0;
+    eval('(' + quelle + ')')();
+    var xs2 = punkte.map(function (p) { return p[0]; });
+    var ys2 = punkte.map(function (p) { return p[1]; });
+    return { breit: Math.max.apply(null, xs2) - Math.min.apply(null, xs2),
+             hoch: Math.max.apply(null, ys2) - Math.min.apply(null, ys2),
+             bogen: bogen, umriss: JSON.stringify(punkte) };
+  }
+  var r = mess(rinQ), w = mess(wandQ);
+
+  /* Die Rinnenkappe ist BELEGT – 172 x 175 mm, Fase 34 mm, keine
+     Rundung. Hier darf sich nichts verschieben. */
+  var rOk = Math.abs(r.breit - RINNENDECKEL.breite) < 0.02 &&
+            Math.abs(r.hoch - RINNENDECKEL.hoehe) < 0.02 && r.bogen === 0;
+  pruefe('Rinnenkappe bleibt beim belegten Mass', gegen ? !rOk : rOk,
+         r.breit.toFixed(1) + ' x ' + r.hoch.toFixed(1) + ' cm, ' +
+         r.bogen + ' Bogen');
+  /* Die Wandprofilkappe ist RUND – daran haengt der Unterschied. */
+  var wOk = w.bogen >= 2 &&
+            Math.abs(w.breit - WANDDECKEL.tiefe) < 0.02 &&
+            Math.abs(w.hoch - WANDDECKEL.hoehe) < 0.02;
+  pruefe('Wandprofilkappe laeuft vorne rund aus', gegen ? !wOk : wOk,
+         w.breit.toFixed(1) + ' x ' + w.hoch.toFixed(1) + ' cm, ' +
+         w.bogen + ' Bogenstuecke');
+  pruefe('Die beiden Deckel sind NICHT dieselbe Form',
+         gegen ? r.umriss === w.umriss : r.umriss !== w.umriss, '');
 })();
-pruefe('Wandprofilkappe sitzt oben buendig und hinten an der Wand',
-       new RegExp(q || 'profilKappen\\(laenge, 0, wpOk - RINNENDECKEL\\.hoehe').test(k3d) &&
-       new RegExp(q || 'wandprofilKappen\\(B, wpOk, mAlu\\)').test(k3d), '');
+pruefe('Beide Deckel werden gleich gebaut und gesetzt',
+       (k3d.match(/function profilKappen/g) || []).length === 1 &&
+       new RegExp(q || 'profilKappen\\(laenge, 0, wpOk - WANDDECKEL\\.hoehe').test(k3d) &&
+       new RegExp(q || 'wandprofilKappen\\(B, wpOk, mAlu\\)').test(k3d),
+       'eine Bauweise, zwei Formen');
 (function () {
-  /* KEINE Gravur: Die Kappe bekommt dasselbe Alu wie alle anderen
+  /* KEINE Gravur: Die Kappen bekommen dasselbe Alu wie alle anderen
      Profile – kein eigenes Material, keine Textur, kein Schriftzug. Das
      Zeichen auf dem Werkbild ist die Marke des HERSTELLERS; sie gehoert
      nicht in ein Bild, das wir verantworten. */
