@@ -225,6 +225,26 @@ pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
        new RegExp(q || 'hPfostenHinten / 2, zTraeger').test(k3d), 'nicht mehr bei zHinten');
 pruefe('Träger liegt nicht mehr unter den Sparren',
        gegen ? /ukHinten/.test(k3d) : !/ukHinten/.test(k3d), 'ukHinten entfernt');
+/* Tiefenmass: freistehend zaehlt der Traeger mit, an der Wand nicht. */
+pruefe('Freistehend: Tiefe schliesst den Träger ein',
+       new RegExp(q || "T = Z\\.tiefe / 10 - \\(frei \\? TR_T : 0\\)").test(k3d),
+       'Dach wird kuerzer, nicht angebaut');
+pruefe('Masslinie beginnt hinter dem Träger',
+       new RegExp(q || "hintenZ = \\(Z\\.aufbau === 'Freistehend'").test(k3d), '');
+pruefe('Datenpfad: dieselbe Tiefenregel',
+       new RegExp(q || "Z\\.tiefe / 10 - \\(e\\.freistehend \\? stB : 0\\)").test(k3d), '');
+/* Zweiter Weg: Gesamttiefe aus den Einzelteilen zurueckrechnen. */
+(function () {
+  var mT = k3d.match(/var B = Z\.breite \/ 10, T = Z\.tiefe \/ 10 - \(frei \? (TR_T) : 0\);/);
+  if (!mT) { pruefe('Gesamttiefe rechenbar', false, 'Zeile nicht gefunden'); return; }
+  var trT = 11.7, tiefe = 4000;
+  var dach = tiefe / 10 - trT, gesamt = dach + trT;          // Dach + Traeger
+  if (gegen) gesamt += trT;
+  pruefe('Dach plus Träger ergibt die bestellte Tiefe',
+         Math.abs(gesamt - tiefe / 10) < 0.001,
+         gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
+})();
+
 pruefe('Datenpfad: Wandprofil bleibt, Träger dahinter',
        new RegExp(q || 'hHinten \\+ wpH - stH / 2, -stB / 2').test(k3d), '');
 

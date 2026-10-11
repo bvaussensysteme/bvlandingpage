@@ -1307,11 +1307,17 @@
     leeren(masseGruppe);
     if (!Z.masseZeigen) return;
     var V = THREE.Vector3;
-    var B = Z.breite / 10, T = Z.tiefe / 10, H = Z.hoehe / 10;
+    var B = Z.breite / 10, H = Z.hoehe / 10;
+    /* Freistehend zaehlt der Statiktraeger zur Tiefe (siehe
+       bauenTerrasseGeschaetzt). Die Masslinie beginnt deshalb an seiner
+       Rueckseite bei negativem z, nicht an der Dachkante. */
+    var hintenZ = (Z.aufbau === 'Freistehend' && !istCarport() && !istPergola())
+      ? -11.7 : 0;
+    var T = hintenZ + Z.tiefe / 10;
     var vorn = T + 30;
     masslinie(new V(-B / 2, 2, vorn), new V(B / 2, 2, vorn), Z.breite + ' mm');
     var seite = B / 2 + 30;
-    masslinie(new V(seite, 2, 0), new V(seite, 2, T), Z.tiefe + ' mm');
+    masslinie(new V(seite, 2, hintenZ), new V(seite, 2, T), Z.tiefe + ' mm');
     masslinie(new V(-B / 2 - 16, 0, T + 6), new V(-B / 2 - 16, H, T + 6), Z.hoehe + ' mm');
   }
 
@@ -1343,12 +1349,15 @@
     /* Gezeichnet wird das KUNDENMASS – gebaut wird danach. Aus dem
        Rasterfeld kommen nur die Stückzahlen (Sparren, Pfosten) und die
        Statik, weil danach abgerechnet wird. Die beiden nicht verwechseln. */
-    var B = Z.breite / 10, T = Z.tiefe / 10;                 // mm -> cm
     var pf = m.pfosten.breite / 10;                          // 110 mm, BELEGT
     var spB = g.sparren.breite / 10, spH = g.sparren.hoehe / 10;   // GESCHÄTZT
     var riH = g.rinne.hoehe / 10, riT = g.rinne.tiefe / 10;        // GESCHÄTZT
     var wpH = g.wandprofil.hoehe / 10, wpA = g.wandprofil.ausladung / 10;
     var stH = m.statiktraeger.hoehe / 10, stB = m.statiktraeger.breite / 10;
+    /* Freistehend zaehlt der Statiktraeger zur bestellten Tiefe mit, bei
+       Wandmontage nicht – dieselbe Regel wie in bauenTerrasseGeschaetzt. */
+    var B = Z.breite / 10;                                   // mm -> cm
+    var T = Z.tiefe / 10 - (e.freistehend ? stB : 0);
 
     // BELEGT (Montageanleitung S. 25): Pfostenachse 55 mm hinter der Vorderkante
     var zPfosten = T - e.pfostenachseVonVorderkante / 10;
@@ -2481,7 +2490,19 @@
     var sky = Z.produkt === 'Flachdach SkyView';
     var PF = 11;                                   // Pfosten 110 mm, BELEGT
     var neig = (sky ? 2 : Z.neigung) * Math.PI / 180;
-    var B = Z.breite / 10, T = Z.tiefe / 10;
+    var frei = Z.aufbau === 'Freistehend';
+    var TR_H = 18.9, TR_T = 11.7;              // Statikträger, BELEGT (Maßtabelle)
+
+    /* TIEFENMASS: „bei freistehend das tiefe maß is immer inkl.
+       statikträger, bei wandmontage ja nicht" (Betreiber, 11.10.2026).
+
+       An der Wand misst die Tiefe ab der Mauer – das Wandprofil liegt
+       innerhalb. Freistehend tritt der Träger an die Stelle der Mauer und
+       zählt MIT. Das Dach wird also um die Trägertiefe kürzer, statt dass
+       der Träger hinten angebaut wird; sonst stünde die Anlage 117 mm
+       tiefer da als bestellt. Der Nullpunkt bleibt die Rückseite des
+       Trägers bzw. die Mauerflucht. */
+    var B = Z.breite / 10, T = Z.tiefe / 10 - (frei ? TR_T : 0);
     var hVorn = Z.hoehe / 10;
 
     /* ---------- Statikträger unter der Rinne ----------
@@ -2538,7 +2559,6 @@
        nach oben. Der Träger nimmt dem PFOSTEN seine Höhe weg. */
     var hRinne = hVorn;
     var hHinten = hRinne + Math.tan(neig) * T;
-    var frei = Z.aufbau === 'Freistehend';
     var mAlu = alu();
     /* TDS bekommt die echten Profile aus den Querschnittszeichnungen des
        Betreibers. SkyView ist ein anderes System – dafür liegt keine
@@ -2603,7 +2623,6 @@
        MAUER IST – hinter dem Wandprofil, also bei negativem z. Das
        Wandprofil wird nicht ersetzt, es bekommt nur eine andere
        Schraubfläche. */
-    var TR_H = 18.9, TR_T = 11.7;              // Statikträger hochkant
     var zHinten = 4.5;                          // Wandprofil – frei wie an der Wand
     var wpMitte = hHinten + (sky ? 10 : 7);     // Höhenmitte des Wandprofils
     var zTraeger = -TR_T / 2;                   // steht an der Stelle der Wand

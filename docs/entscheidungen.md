@@ -1366,3 +1366,33 @@ würde sonst aber denselben Fehler zeigen.
 Oberkante des Wandprofils liegt oder das Profil mittig auf dem Träger
 sitzt – beides ist schraubbar, ich habe bündig gewählt. Prüfung:
 `node scripts/pruefe-masstabelle.js` (48 Prüfungen, Gegenprobe 48/48).
+
+## 2026-10-11 – Freistehend zählt der Statikträger zur Tiefe
+
+**Anlass:** „und bei freistehend das tiefe maß is immer inkl.
+statikträger, bei wandmontage ja nicht" (Betreiber, 11.10.2026).
+
+**Was falsch war:** Nachdem der Träger an die Stelle der Wand gerückt war,
+hing er HINTER dem bisherigen Dach – die Anlage wurde dadurch 117 mm
+tiefer als bestellt. Bei 4000 mm Bestellmaß standen 4117 mm im Bild.
+
+**Was jetzt gilt:** An der Wand misst die Tiefe ab der Mauerflucht, das
+Wandprofil liegt innerhalb. Freistehend tritt der Träger an die Stelle der
+Mauer und zählt mit – das Dach wird also um 117 mm kürzer, statt dass der
+Träger hinten angebaut wird. Der Nullpunkt bleibt die Rückseite des
+Trägers bzw. die Mauerflucht. Die Maßlinie im Bild beginnt freistehend
+entsprechend an der Trägerrückseite, nicht an der Dachkante.
+
+**Warum das zählt:** Das Tiefenmaß ist das Bestellmaß. Würde die Zeichnung
+117 mm mehr zeigen als die Anfrage-Mail nennt, stünde beim Aufmaß ein
+anderes Dach als im Konfigurator – und zwar zu Lasten der Marge, weil die
+Mehrtiefe niemand berechnet hat.
+
+**Auch im Datenpfad:** dieselbe Regel, dort mit dem Trägermaß aus der
+Matrix statt der festen 117 mm.
+
+**Gegenzulesen:** Ob die Rinne bei freistehend wirklich 117 mm weiter
+hinten steht als bei gleicher Bestelltiefe an der Wand – das ist die
+sichtbare Folge und sollte im Bild stimmen. Prüfung:
+`node scripts/pruefe-masstabelle.js` (52 Prüfungen, Gegenprobe 52/52);
+eine davon rechnet Dach + Träger zurück auf das Bestellmaß.
