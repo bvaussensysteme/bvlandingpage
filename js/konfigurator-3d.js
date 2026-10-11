@@ -1180,6 +1180,118 @@
   belag.receiveShadow = true;
   szene.add(belag);
 
+  /* ---------- Wasserzeichen auf dem Terrassenboden ----------
+     Wunsch des Betreibers (11.10.2026): „ich hätte gerne auf dem
+     terassenboden indirekt aber trz gut sichtbar unser BV AussenSysteme
+     Logo mit copyright symbol falls erlaubt quasi als waserzeichen das
+     keine andere firma unsern konfigurator ausnutzt".
+
+     RECHTLICHES, kurz: Das ©-Zeichen darf jeder an eigene Werke setzen.
+     In Deutschland ist es keine Voraussetzung für den Schutz (der
+     entsteht mit dem Werk), aber es ist zulässig und macht die
+     Urheberschaft sichtbar. Ein ® wäre etwas ANDERES: Das steht nur
+     einer eingetragenen Marke zu; ohne Eintrag ist es irreführend und
+     abmahnfähig (§ 5 UWG). Deshalb hier © und kein ®. Ist
+     „BV AussenSysteme" als Marke eingetragen, kann das ® dazu – das
+     weiß der Betreiber.
+
+     Das Zeichen liegt IN der Szene, nicht als Rahmen um das Bild: So
+     ist es auf jedem Bildschirmfoto und in jedem Download mit drauf,
+     gleich aus welcher Richtung geschaut wird, und lässt sich nicht
+     wegschneiden, ohne das Bild zu zerstören.
+
+     „bei tag logo hell bei abend logo dunkel" (Betreiber) – gemeint
+     sind die beiden Logodateien: images/logo-hell.png (dunkle Schrift,
+     für den hellen Belag am Tag), images/logo-dunkel.png (weiße
+     Schrift, für den dunklen Abend). */
+  var WZ = { deckkraft: 0.28, anteil: 0.46, hoechstens: 320 };
+
+  var WZ_TEXTUR = {};
+  function wasserzeichenTextur(abend) {
+    var schl = abend ? 'dunkel' : 'hell';
+    if (WZ_TEXTUR[schl]) return WZ_TEXTUR[schl];
+    var lw = document.createElement('canvas');
+    lw.width = 1024; lw.height = 320;
+    var c = lw.getContext('2d');
+    var t = new THREE.CanvasTexture(lw);
+    t.anisotropy = renderer.capabilities.getMaxAnisotropy
+      ? renderer.capabilities.getMaxAnisotropy() : 1;
+    WZ_TEXTUR[schl] = t;
+
+    function zeile() {
+      c.textAlign = 'center';
+      c.fillStyle = abend ? '#ffffff' : '#111111';
+      c.font = '600 54px Inter, Arial, sans-serif';
+      c.fillText('© ' + new Date().getFullYear() + ' BV AussenSysteme',
+                 512, 296);
+      t.needsUpdate = true;
+      neuZeichnen();
+    }
+
+    var bild = new Image();
+    bild.onload = function () {
+      /* Beide Logodateien sind JPEG-artige PNG OHNE Alphakanal – sie
+         haben einen weißen bzw. schwarzen Hintergrund. Als Rechteck auf
+         dem Belag sähe das aus wie ein aufgeklebtes Schild. Deshalb
+         wird der Hintergrund hier freigestellt: Beim hellen Logo zählt
+         die Dunkelheit als Deckung, beim dunklen die Helligkeit.
+         Schlägt das fehl (gesperrter Canvas), bleibt die Textzeile –
+         lieber ein schlichtes Wasserzeichen als gar keins. */
+      var h = document.createElement('canvas');
+      h.width = bild.width; h.height = bild.height;
+      var hc = h.getContext('2d');
+      hc.drawImage(bild, 0, 0);
+      try {
+        var d = hc.getImageData(0, 0, h.width, h.height), p = d.data, i;
+        for (i = 0; i < p.length; i += 4) {
+          var dunkel = 255 - Math.min(p[i], p[i + 1], p[i + 2]);
+          var hell = Math.max(p[i], p[i + 1], p[i + 2]);
+          p[i + 3] = abend ? hell : dunkel;
+        }
+        hc.putImageData(d, 0, 0);
+      } catch (e) { /* ohne Freistellung weiter */ }
+      var br = 900, ho = br * bild.height / bild.width;
+      c.drawImage(h, (1024 - br) / 2, 40, br, ho);
+      zeile();
+    };
+    bild.onerror = function () {
+      c.textAlign = 'center';
+      c.fillStyle = abend ? '#ffffff' : '#111111';
+      c.font = '700 110px Inter, Arial, sans-serif';
+      c.fillText('BV AussenSysteme', 512, 170);
+      zeile();
+    };
+    bild.src = 'images/logo-' + schl + '.png';
+    return t;
+  }
+
+  var wasserzeichen = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    /* Basic, nicht Standard: Das Zeichen soll am Abend genauso lesbar
+       bleiben wie am Tag – es ist eine Kennzeichnung, kein Bauteil.
+       depthWrite aus, damit es den Belag nicht aussticht. */
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: WZ.deckkraft,
+                                  depthWrite: false })
+  );
+  wasserzeichen.rotation.x = -Math.PI / 2;
+  wasserzeichen.renderOrder = 2;
+  szene.add(wasserzeichen);
+
+  /* Liegt mittig unter der Überdachung, etwas vor der Mitte – dort ist
+     es aus den üblichen Blickrichtungen zu sehen und steht nicht im
+     Schatten der Rückwand. Die Größe wächst mit der Anlage, hat aber
+     eine Obergrenze: Es soll das Bild kennzeichnen, nicht beherrschen. */
+  function wasserzeichenSetzen() {
+    var br = Math.min(Z.breite / 10 * WZ.anteil, WZ.hoechstens);
+    wasserzeichen.scale.set(br, br * 320 / 1024, 1);
+    wasserzeichen.position.set(0, 0.4, Z.tiefe / 10 * 0.55);
+    var t = wasserzeichenTextur(!!Z.abend);
+    if (wasserzeichen.material.map !== t) {
+      wasserzeichen.material.map = t;
+      wasserzeichen.material.needsUpdate = true;
+    }
+  }
+
   /* Hauswand – nur bei Wandmontage sichtbar */
   var wand = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 24),
@@ -5411,6 +5523,10 @@
       }
       belag.material.needsUpdate = true;
     }
+
+    /* Das Wasserzeichen gehört zum Boden und wechselt mit der Stimmung
+       die Fassung – deshalb steht es hier und nicht im Modellaufbau. */
+    wasserzeichenSetzen();
   }
 
   /* ---------- Kamera ---------- */
@@ -8256,7 +8372,8 @@
     c.font = '17px Inter, Arial, sans-serif';
     c.fillText('Unverbindliche Darstellung – verbindlich ist unser Angebot',
                ex + innen, ey + hoch - innen - 20);
-    c.fillText('nach dem kostenlosen Aufmaß vor Ort. BV AussenSysteme',
+    c.fillText('nach dem kostenlosen Aufmaß vor Ort. © ' +
+               new Date().getFullYear() + ' BV AussenSysteme',
                ex + innen, ey + hoch - innen + 2);
     if (vorher) ansichtAnwenden(vorher);
     neuZeichnen();

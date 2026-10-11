@@ -4322,3 +4322,42 @@ allein: unverändert. Prüfungen: `node scripts/pruefe-markise.js` (176,
 Gegenprobe 176/176), `node scripts/pruefe-fuehrung.js` (213, Gegenprobe
 213/213). Die drei neuen Lageprüfungen haben **je eine eigene** Verfälschung –
 die alte Anordnung war nur oben falsch, an der Gesamthöhe stimmte sie.
+
+## 2026-10-11 – Wasserzeichen auf dem Terrassenboden
+
+**Anlass.** „ich hätte gerne auf dem terassenboden indirekt aber trz gut
+sichtbar unser BV AussenSysteme Logo mit copyright symbol falls erlaubt quasi
+als waserzeichen das keine andere firma unsern konfigurator ausnutzt"
+(Betreiber, 11.10.2026).
+
+**Was jetzt gilt.** Auf dem Belag liegt flach das Firmenlogo mit der Zeile
+„© <laufendes Jahr> BV AussenSysteme", mit 28 % Deckkraft und halb so breit wie
+die Anlage (höchstens 3,2 m). Es liegt **in der Szene**, nicht als Rahmen um
+das Bild: So ist es auf jedem Bildschirmfoto und in jedem Download mit drauf,
+aus jeder Blickrichtung, und lässt sich nicht wegschneiden, ohne das Bild zu
+zerstören. „bei tag logo hell bei abend logo dunkel" (Betreiber) – gemeint sind
+`images/logo-hell.png` (dunkle Schrift, heller Belag am Tag) und
+`images/logo-dunkel.png` (weiße Schrift, Abend). Die Fußzeile des Sammelbilds
+trägt jetzt ebenfalls das ©.
+
+**Recht – bitte lesen.** Das **©** darf jeder an eigene Werke setzen; in
+Deutschland ist es keine Voraussetzung für den Schutz (der entsteht mit dem
+Werk), aber zulässig und macht die Urheberschaft sichtbar. Ein **®** ist etwas
+anderes: Es steht nur einer **eingetragenen** Marke zu. Ohne Eintrag ist es
+irreführend und abmahnfähig (§ 5 UWG). Deshalb steht im Konfigurator **kein ®**,
+und eine Prüfung verhindert, dass versehentlich eines hineinrutscht. **Offen:
+Ist „BV AussenSysteme" als Wort- oder Wort-/Bildmarke beim DPMA eingetragen?**
+Wenn ja, kann das ® ergänzt werden – das ist eine Zeile.
+
+**Grenzen, die genannt sein müssen.** Ein Wasserzeichen schreckt ab, es schützt
+nicht technisch: Wer will, schneidet es weg oder retuschiert es. Und es wirkt
+nur auf Bilder, nicht auf den Konfigurator selbst – wer die Seite nachbaut,
+kopiert Code, nicht Screenshots. Beides ist hier nicht Thema, sollte aber nicht
+mit „jetzt ist es geschützt" verwechselt werden.
+
+**Was gegengelesen werden soll.** Tag und Abend umschalten: Logo wechselt die
+Fassung und bleibt in beiden gut lesbar, ohne aufdringlich zu sein. Schmale und
+sehr breite Anlagen: Das Zeichen wächst mit, aber nicht über 3,2 m. Ansicht
+„Darunter": Von unten ist es unsichtbar (einseitige Fläche) – dort trägt das
+gespeicherte Bild die ©-Zeile in der Fußzeile. Prüfung:
+`node scripts/pruefe-fuehrung.js` (219 Prüfungen, Gegenprobe 219/219).

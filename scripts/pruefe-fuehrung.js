@@ -1418,9 +1418,15 @@ pruefe('Bodenschatten geht mit aus',
    nur wird erstellt, passiert nix" (Betreiber, 11.10.2026): Der erste
    Versuch wartete auf fuenf Image-onload. Bleibt eines aus, wartet der
    Knopf fuer immer. */
-pruefe('Sammelbild kommt ohne Rueckruf aus',
-       gegen ? /bild\.onload = function/.test(js) : !/bild\.onload = function/.test(js),
-       'Leinwand direkt in Leinwand gezeichnet');
+(function () {
+  /* Geprueft wird der SAMMELBILD-Block, nicht die ganze Datei: Ein
+     Image.onload an anderer Stelle (das Logo im Wasserzeichen) ist
+     harmlos – dort wartet kein Knopf darauf. */
+  var blk = (js.split('function bildAlle(')[1] || '').split('\n  }')[0];
+  var hat = /onload = function/.test(blk) || gegen;
+  pruefe('Sammelbild kommt ohne Rueckruf aus', !hat,
+         'Leinwand direkt in Leinwand gezeichnet');
+})();
 pruefe('Leinwand wird direkt kopiert',
        new RegExp(q || 'c\\.drawImage\\(lw, x, y \\+ kopf, breit, hoch\\)').test(js), '');
 pruefe('Knopf faellt auch bei einem Fehler zurueck',
@@ -1804,6 +1810,56 @@ pruefe('Klick auf das Dach fährt die Beschattung',
 pruefe('Der Hinweis nennt das Dach, nicht die Markise',
        new RegExp(q || 'direkt im Bild auf das Dach').test(html) &&
        !/Sie können die Markise auch direkt im Bild/.test(html), '');
+/* ---------- Wasserzeichen auf dem Boden ----------
+   „auf dem terassenboden indirekt aber trz gut sichtbar unser
+   BV AussenSysteme Logo mit copyright symbol" (Betreiber, 11.10.2026).
+   Es liegt IN der Szene, damit es auf jedem Bildschirmfoto und in jedem
+   Download mit drauf ist. */
+pruefe('Wasserzeichen liegt flach auf dem Boden',
+       new RegExp(q || 'wasserzeichen\\.rotation\\.x = -Math\\.PI / 2').test(js) &&
+       new RegExp(q || 'wasserzeichen\\.position\\.set\\(0, 0\\.4').test(js) &&
+       new RegExp(q || 'depthWrite: false').test(js), '');
+pruefe('Wasserzeichen wird bei jeder Stimmung neu gesetzt',
+       new RegExp(q || 'wasserzeichenSetzen\\(\\);').test(js) &&
+       /function stimmung\(\)[\s\S]*?wasserzeichenSetzen\(\);/.test(js), '');
+(function () {
+  /* „bei tag logo hell bei abend logo dunkel" (Betreiber). Zweiter Weg:
+     die Zuordnung aus dem Code holen und mit beiden Werten ausrechnen,
+     statt den Dateinamen nur zu lesen. */
+  var blk = (js.split('function wasserzeichenTextur(')[1] || '').split('\n  }')[0];
+  var f = (blk.match(/var schl = ([^;]+);/) || [])[1];
+  if (gegen) f = "abend ? 'hell' : 'dunkel'";
+  var abend = false, tag = f ? eval(f) : null;
+  abend = true;
+  var nacht = f ? eval(f) : null;
+  pruefe('Tag helles Logo, Abend dunkles', tag === 'hell' && nacht === 'dunkel',
+         'Tag ' + tag + ', Abend ' + nacht);
+})();
+(function () {
+  /* Betrieb: Fehlt die Datei, zeichnet der Konfigurator nur die
+     Textzeile – das faellt niemandem auf. Deshalb hier nachsehen. */
+  var fehlt = ['hell', 'dunkel'].filter(function (k) {
+    return !fs.existsSync('images/logo-' + k + (gegen ? '-gibtsnicht' : '') + '.png');
+  });
+  pruefe('Beide Logodateien sind da', !fehlt.length,
+         fehlt.length ? 'fehlt: ' + fehlt.join(', ') : 'logo-hell, logo-dunkel');
+})();
+(function () {
+  /* RECHT: Das ©-Zeichen darf an eigene Werke. Ein ® steht NUR einer
+     eingetragenen Marke zu – ohne Eintrag ist es irrefuehrend und
+     abmahnfaehig (§ 5 UWG). Solange der Eintrag nicht belegt ist, darf
+     im Konfigurator kein ® auftauchen. */
+  /* Gesucht wird in dem, was ANGEZEIGT wird: Zeichenketten im Code und
+     der HTML-Text. Die Begruendung im Quelltext nennt das ® selbst –
+     sie darf die Pruefung nicht ausloesen. */
+  var sichtbar = (js.match(/'[^'\n]*'|"[^"\n]*"/g) || []).join('\n');
+  var hat = /®/.test(sichtbar) || /®/.test(html) || gegen;
+  pruefe('Kein ® ohne belegte Markeneintragung', !hat,
+         hat ? 'irgendwo steht ein ®' : 'nur ©');
+  pruefe('Das © steht am Wasserzeichen',
+         new RegExp(q || "'© ' \\+ new Date\\(\\)\\.getFullYear\\(\\)").test(js),
+         'mit laufendem Jahr');
+})();
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&
        new RegExp(q || 'placeholder="7016"').test(html),
