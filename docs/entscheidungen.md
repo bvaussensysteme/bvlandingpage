@@ -2376,3 +2376,59 @@ Schranken (nicht zu hell, nicht zu dunkel) denselben Gegenprobe-Versatz.
 Der macht die eine Prüfung falsch und die andere erst recht wahr – sie
 hätte nie anschlagen können. Jede Schranke hat jetzt ihren eigenen
 Versatz. Die Gegenprobe hat das gemeldet (181 von 182).
+
+## 2026-10-11 – Ansicht „Darunter": von drinnen statt von draußen
+
+**Anlass:** „die ansicht darunter sollte eher aussehen wie hier auf dem
+bild also quasi als ob man im terrassendach etc drinsteht" (Betreiber,
+mit Bildschirmfoto aus dem Lamellendach).
+
+**Was war:** Die Kamera stand AUSSEN vor der Vorderkante und schaute
+hinein. Der Grund stand als Kommentar im Code: Die Kugelkamera kann
+nicht über 90° hinaus, sonst stünde das Bild auf dem Kopf.
+
+**Was jetzt gilt:** Die Kamera steht DRIN – bei 3 m Tiefe 75 cm vor der
+Wand, auf 1,60 m Augenhöhe – und schaut nach draußen und leicht nach
+oben. Die Dachunterseite füllt den oberen Bildrand, wie wenn man
+darunter steht.
+
+Möglich wird das, weil die Winkelgrenze jetzt **je Ansicht** gilt statt
+fest im Code zu stehen. Für diese eine Ansicht darf sie über 90° gehen;
+überall sonst bleibt alles wie bisher.
+
+**Zwei Dinge, die vorher auch kaputt waren und jetzt mitgelöst sind:**
+Die gewählte Ansicht überlebt eine Maßänderung – sie wird mit den neuen
+Maßen neu gerechnet, statt in die Standardlage zu springen. Und wer
+selbst dreht, verlässt die Ansicht, damit die Kamera beim nächsten
+Neubau nicht zurückspringt.
+
+## 2026-10-11 – Flüssigere Bewegungen ohne sichtbare Änderung
+
+**Anlass:** „prüfe was man machen kann das die bewegungen smooother ohne
+laggs werden, aber ohne was am konfigurator kaputt zu machen".
+
+Drei Stellschrauben, alle ohne Folge für das Bild:
+
+| | vorher | jetzt |
+|---|---|---|
+| Zeichnen | jedes Bild, auch im Stillstand | nur, wenn es etwas zu zeigen gibt |
+| Schattenkarte 2048 × 2048, weich | jedes Bild neu gerechnet | nur nach Modell- oder Lichtwechsel |
+| Regler ziehen | ganzes Modell je `input`-Ereignis | höchstens einmal je Bild |
+
+Der teuerste Posten war die Schattenkarte: weiche Schatten in 2048 ×
+2048 jedes Bild neu, obwohl sich zwischen zwei Änderungen nichts bewegt.
+
+**Das Risiko dieser Optimierung ist ein stehendes Bild** – deshalb
+vorsichtig gebaut:
+- `frisch` ist ein ZÄHLER, kein Schalter. Jede Änderung setzt ihn auf
+  mehrere Bilder, damit auch verzögert eintreffende Texturen mitkommen.
+- `neuZeichnen()` verwendet bewusst kein `Math.max`: Läge dort je NaN,
+  würde nie wieder gezeichnet.
+- Beim Ziehen und beim Drehen wird immer gezeichnet.
+- Vier Prüfungen halten die Pflichtstellen fest, an denen die Flagge
+  gesetzt sein MUSS (Kamera, Größenänderung, zwei Texturpfade).
+
+**Nicht angefasst:** `setPixelRatio` bis 2. Auf hochauflösenden
+Bildschirmen wären das viermal so viele Bildpunkte, und ein Absenken
+beim Ziehen würde man sehen. Das wäre der nächste Hebel, wenn es immer
+noch hakt – aber nicht ungefragt, weil es die Bildschärfe kostet.
