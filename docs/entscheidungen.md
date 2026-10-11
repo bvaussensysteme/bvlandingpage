@@ -3220,3 +3220,26 @@ Profilbreite zu niedrig angesetzt – Glas und Sprossen endeten 50 mm
 unter der Schräge. Die neue Prüfung rechnet mit einer geneigten
 Dachunterkante nach und vergleicht Oberkante gegen Dach an fünf Stellen;
 sie hat genau diesen Fehler gemeldet, bevor er im Browser auffiel.
+
+## 2026-10-11 – Spalt über den Schiebetüren an der Stirnseite
+
+**Anlass:** „wieso gehen die glaschibetüren an den stirnseiten nicht oben
+bis zur rinnenunterknte so entsteht sonst ein spalt" (Betreiber, mit
+Bild).
+
+**Der Fehler, in einer Zeile:** Die Oberkante der Seitenelemente war
+`hVorn - PROFIL / 2` – also eine **halbe Pfostenbreite**, abgezogen von
+einer **Höhe**. Ein Maß aus der Breite in einer Höhenrechnung. Zusammen
+mit der Schiebetürführung (35 mm) blieb an der Stirnseite ein Spalt von
+rund **90 mm** zum Dach.
+
+An den Seiten fiel es nicht auf: Dort sitzt der Keil darüber und füllt
+alles bis zur Schräge.
+
+**Was jetzt gilt:** Oberkante = Rinnenunterkante. `hVorn` ist an dieser
+Stelle genau das (der Aufrufer übergibt `hRinne`). Element und Führung
+zusammen reichen bis dorthin.
+
+**Die Prüfung rechnet nach**, statt die Zeile zu lesen: Unterkante plus
+Elementhöhe plus Führung muss die Rinnenunterkante treffen. Die
+Gegenprobe setzt den alten Wert ein und meldet den 55-mm-Spalt.

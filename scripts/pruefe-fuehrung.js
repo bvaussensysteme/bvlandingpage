@@ -1003,6 +1003,21 @@ pruefe('Vierfeld-Grenze gilt fuer Keil und Wand',
          falsch + ' von 5 Stellen zu kurz');
 })();
 
+(function () {
+  /* Oberkante der Seitenelemente = Rinnenunterkante. Element plus
+     Fuehrung muessen diese Hoehe GENAU erreichen - ein Spalt dazwischen
+     war der Fehler vom 11.10.2026. Nachgerechnet, nicht nur gelesen. */
+  var hRinne = 250, yUnten = 0.2, fuehrung = 3.5, PROFIL = 11;
+  var okOben = gegen ? hRinne - PROFIL / 2 : hRinne;    // Gegenprobe: der alte Wert
+  var hoch = okOben - yUnten - fuehrung;
+  var oben = yUnten + hoch + fuehrung;
+  pruefe('Seitenelement schliesst an der Rinne an',
+         Math.abs(oben - hRinne) < 0.001,
+         'Spalt ' + Math.round((hRinne - oben) * 10) + ' mm');
+})();
+pruefe('Keine Pfostenbreite in der Hoehenrechnung',
+       gegen ? /okOben = hVorn - PROFIL \/ 2/.test(js) : !/okOben = hVorn - PROFIL \/ 2/.test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
