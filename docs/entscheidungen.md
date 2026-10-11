@@ -3244,6 +3244,7 @@ zusammen reichen bis dorthin.
 Elementhöhe plus Führung muss die Rinnenunterkante treffen. Die
 Gegenprobe setzt den alten Wert ein und meldet den 55-mm-Spalt.
 
+## 2026-10-11 – Wandprofil TD: liegend, nicht stehend
 ## 2026-10-11 – Wandprofil TD (zwei Anläufe, der zweite stimmt)
 
 **Anlass:** Der Betreiber hatte das Rechteck hinter dem äußeren Sparren
