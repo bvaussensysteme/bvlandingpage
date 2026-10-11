@@ -1573,6 +1573,56 @@ pruefe('Hineinzoomen bleibt moeglich',
                 : 'keine globale Regel');
 })();
 
+/* ---------- Sonderfarbe nach RAL ----------
+   „wenn man das waehlt soll ... nen feld (optionales feld) auftauchen wo
+   man einen anderen RAL code eintragen kann, der 3d konfi soll diesen
+   dann berechnen und anzeigen ... und aufpreis hinweis" (Betreiber,
+   11.10.2026). */
+pruefe('Feld erscheint nur bei „Andere / Beratung"',
+       new RegExp(q || "case 'ral-sonder':     return Z\\.farbe === 'Andere / Beratung'").test(js) &&
+       new RegExp(q || 'data-k3d-fuer="ral-sonder"').test(html), '');
+pruefe('Aufpreis steht im Bedienfeld und in der Anfrage',
+       new RegExp(q || 'Sonderfarben sind aufpreispflichtig').test(html) &&
+       new RegExp(q || 'Sonderfarbe, aufpreispflichtig').test(js),
+       'ohne Zahl - die haengt von Menge und Oberflaeche ab');
+(function () {
+  /* Die Nachschlagezeile darf es nur noch EINMAL geben: in
+     gestellFarbe(). Vorher stand sie an vier Stellen - vier Stellen, die
+     beim naechsten Mal auseinanderlaufen. */
+  var male = (js.match(/FARBEN\[Z\.farbe\] \|\| FARBEN\['Anthrazit'\]/g) || []).length + (gegen ? 1 : 0);
+  var drin = /function gestellFarbe\(\)[\s\S]{0,400}FARBEN\[Z\.farbe\] \|\| FARBEN\['Anthrazit'\]/.test(js);
+  pruefe('Alle Bauteile nehmen dieselbe Farbquelle', male === 1 && drin,
+         male + ' Nachschlagezeile(n), in gestellFarbe: ' + drin);
+})();
+(function () {
+  /* Zweiter Weg: die ECHTE Funktion laufen lassen. Bekannte Nummer ->
+     deren Ton, unbekannte -> Anthrazit (nicht geraten), Schreibweise
+     egal. */
+  var tab = (js.match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
+  var fn = (js.match(/function ralNummer\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var gf = (js.match(/function gestellFarbe\(\)[\s\S]*?\n  \}/) || [''])[0];
+  if (!tab || !fn || !gf) { pruefe('RAL-Teile lesbar', false, 'nicht gefunden'); return; }
+  var FARBEN = { 'Anthrazit': 0x383b3d, 'Reinweiß': 0xf1f1ec };
+  var Z = { farbe: 'Andere / Beratung', ralCode: '' };
+  /* In strict mode legt eval() nichts in diesen Gueltigkeitsbereich -
+     deshalb als Ausdruck auswerten und zuweisen. */
+  var RAL = eval('(' + tab.replace(/^var RAL = /, '').replace(/;\s*$/, '') + ')');
+  var ralNummer = eval('(' + fn + ')');
+  var gestellFarbe = eval('(' + gf + ')');
+  var falsch = 0, meld = [];
+  ['7016', 'RAL 7016', 'ral7016', ' 7016 '].forEach(function (eingabe) {
+    Z.ralCode = eingabe;
+    if (gestellFarbe() !== RAL['7016']) { falsch++; meld.push('„' + eingabe + '" nicht erkannt'); }
+  });
+  Z.ralCode = '1234';                       // gibt es nicht
+  if (gestellFarbe() !== FARBEN['Anthrazit']) { falsch++; meld.push('unbekannte Nummer wird geraten'); }
+  Z.farbe = 'Reinweiß'; Z.ralCode = '7016';
+  if (gestellFarbe() !== FARBEN['Reinweiß']) { falsch++; meld.push('RAL schlaegt die gewaehlte Farbe'); }
+  if (gegen) falsch = falsch ? 0 : 1;
+  pruefe('RAL-Eingabe wird richtig umgesetzt', falsch === 0,
+         falsch === 0 ? Object.keys(RAL).length + ' Toene hinterlegt' : meld.join('; '));
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
