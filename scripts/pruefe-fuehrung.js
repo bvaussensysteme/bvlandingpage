@@ -1730,6 +1730,39 @@ pruefe('Unbekannter Ton faellt auf',
          new RegExp(q || "RAL\\[n\\] \\? ' ' \\+ RAL\\[n\\]\\[1\\] : ''").test(js), '');
 })();
 
+(function () {
+  /* „es sollte erst angezeigt werden wenn man andere ausgewaehlt hat
+     nicht immer" (Betreiber, 11.10.2026): Eine eigene display-Angabe
+     schlaegt das Attribut hidden - dann steht das Feld immer da. Wer
+     display setzt, MUSS die [hidden]-Regel mitliefern.
+
+     Geprueft wird das fuer jede Bedieneinheit mit eigener
+     display-Angabe, nicht nur fuer die RAL-Zelle. */
+  /* Der erste <style>-Block ist nur der Vorab-Stil; gesucht wird im
+     ganzen Dokument. */
+  var stil = html;
+  var regeln = stil.match(/\.[a-z0-9-]*k3d-[a-z0-9-]*\s*\{[^}]*display:\s*(flex|grid|block|inline-flex)[^}]*\}/g) || [];
+  var fehlt = [];
+  regeln.forEach(function (r) {
+    var name = (r.match(/^\.([a-z0-9-]+)/) || [])[1];
+    if (!name) return;
+    /* Nur Bedieneinheiten, die ueber hidden gesteuert werden. */
+    /* \shidden, nicht einfach hidden: sonst zaehlt aria-hidden mit. */
+    if (!new RegExp('class="[^"]*' + name + '[^"]*"[^>]*\\shidden[\\s>=]').test(html) &&
+        !new RegExp('class="[^"]*' + name + '[^"]*"[^>]*data-k3d-fuer').test(html)) return;
+    if (!new RegExp('\\.' + name + '\\[hidden\\]\\s*\\{[^}]*display:\\s*none').test(stil)) {
+      fehlt.push(name);
+    }
+  });
+  if (gegen) fehlt.push('kuenstlich');
+  pruefe('Jede versteckbare Einheit hat ihre [hidden]-Regel', !fehlt.length,
+         fehlt.length ? 'fehlt bei: ' + fehlt.join(', ') : regeln.length + ' Regeln geprueft');
+})();
+pruefe('RAL-Feld ist breit genug',
+       new RegExp(q || 'grid-column: span 2').test(html) &&
+       new RegExp(q || 'placeholder="7016"').test(html),
+       'zwei Spalten, kurzer Platzhalter');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

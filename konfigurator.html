@@ -201,11 +201,19 @@
     }
     /* Die RAL-Zelle sitzt im Farbraster und soll wie ein Farbfeld wirken:
        gleiche Höhe, gleicher Rahmen, kein Außenabstand einer Gruppe. */
+    /* ACHTUNG: display gehört hier mit einer [hidden]-Regel zusammen.
+       Das Attribut hidden wirkt über die Standardregel display:none – eine
+       eigene display-Angabe schlägt sie und das Feld steht IMMER da.
+       Genau das ist passiert: „es sollte erst angezeigt werden wenn man
+       andere ausgewählt hat nicht immer" (Betreiber, 11.10.2026). */
     .k3d-ral-zelle {
       margin: 0; display: flex; flex-direction: column; justify-content: center;
       gap: 3px; border: 2px dashed var(--border); border-radius: 8px;
       padding: 5px 7px;
+      /* Über zwei Spalten, sonst passt „7016" kaum ins Feld. */
+      grid-column: span 2;
     }
+    .k3d-ral-zelle[hidden] { display: none; }
     .k3d-ral-zelle .k3d-label { margin: 0; font-size: .7rem; }
     .k3d-ral-zelle input { width: 100%; }
     /* Der Name des erkannten Tons – die Bestätigung, dass die Nummer die
@@ -577,6 +585,9 @@
     }
     @media (max-width: 420px) {
       .k3d-farben { grid-template-columns: repeat(2, 1fr); }
+      /* Bei zwei Spalten würde span 2 das Feld in eine eigene Zeile
+         schieben – also wieder darunter statt daneben. */
+      .k3d-ral-zelle { grid-column: span 1; }
       .k3d-regler { grid-template-columns: 1fr 66px; }
     }
 
@@ -916,7 +927,7 @@
             <div class="k3d-gruppe k3d-ral-zelle" data-k3d-schritt="farbe" data-k3d-fuer="ral-sonder" hidden>
               <label class="k3d-label" for="k3dRalCode">RAL-Ton</label>
               <input type="text" id="k3dRalCode" class="k3d-zahl"
-                     inputmode="numeric" maxlength="9" placeholder="z. B. 7016"
+                     inputmode="numeric" maxlength="9" placeholder="7016"
                      aria-describedby="k3dRalStand">
               <span class="k3d-ral-name" id="k3dRalName" hidden></span>
             </div>
@@ -1589,7 +1600,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016l" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016m" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

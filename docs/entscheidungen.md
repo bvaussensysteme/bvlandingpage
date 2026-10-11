@@ -4199,3 +4199,30 @@ und in der Werkstatt wird nach der Nummer beschichtet.
 206 von 206. Neu: Jeder hinterlegte Ton MUSS einen Namen haben (sonst
 steht irgendwann ein leeres Feld da), 9005 heißt Tiefschwarz, und der
 Name muss im Bedienfeld wie in der Anfrage auftauchen.
+
+## 11.10.2026 – Warum das RAL-Feld immer dastand
+
+**Anlass.** „das feld etwas breiter und es sollte erst angezeigt werden
+wenn man andere ausgewählt hat nicht immer" (Betreiber).
+
+**Der Fehler.** Das Attribut `hidden` wirkt über die Standardregel
+`display: none`. Die Zelle hatte eine eigene Regel `display: flex` –
+und eine eigene Regel schlägt die Standardregel. Das Feld war also
+immer sichtbar, obwohl `hidden` korrekt gesetzt und wieder entfernt
+wurde. Dazu kam `.k3d-ral-zelle[hidden] { display: none; }` – damit
+greift das Verstecken wieder.
+
+**Breiter.** Die Zelle geht jetzt über zwei Spalten des Farbrasters, und
+der Platzhalter heißt nur noch „7016" statt „z. B. 7016" – der war
+abgeschnitten. Bei zwei Spalten (sehr schmale Handys) bleibt es bei
+einer Spalte, sonst rutscht das Feld wieder unter den Knopf.
+
+**Die Prüfung ist allgemein geworden.** Sie sucht ALLE Bedieneinheiten
+mit eigener `display`-Angabe, die über `hidden` gesteuert werden, und
+verlangt für jede die `[hidden]`-Regel. Der Fehler kann sich damit nicht
+an anderer Stelle wiederholen. Nebenbei hat sie sich selbst korrigiert:
+Der erste Entwurf zählte `aria-hidden` mit und meldete einen Balken, der
+gar nicht versteckt wird.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 208, Gegenprobe
+208 von 208.
