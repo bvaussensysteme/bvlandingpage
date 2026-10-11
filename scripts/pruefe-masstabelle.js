@@ -894,6 +894,51 @@ pruefe('Reglergrenzen kommen aus der Tabelle',
 pruefe('Maßhinweis im Bedienfeld',
        /id="k3dMassHinweis"/.test(html) && new RegExp(q || 'k3dMassHinweis').test(k3d), '');
 
+
+/* ---------- Seitenglasleiste TD ----------
+   Teilebild (Betreiber, 11.10.2026): 63,1 × 59,4 mm. „die glasleisten an
+   den sparren ganz links und rechts haben so einen abschluss das man
+   einen sauberen uebergang aussen hat". */
+pruefe('Seitenglasleiste mit den Massen aus dem Teilebild',
+       new RegExp(q || 'SEITENLEISTE = \\{ breite: 6\\.31, hoehe: 5\\.94').test(k3d),
+       '63,1 x 59,4 mm');
+pruefe('Nur die beiden aeusseren Sparren bekommen sie',
+       new RegExp(q || 'i === 0 \\|\\| i === xs\\.length - 1').test(k3d),
+       'dazwischen die runde Abdeckleiste');
+pruefe('Linke Seite ist gespiegelt',
+       new RegExp(q || 'if \\(links\\) g\\.scale\\(-1, 1, 1\\)').test(k3d),
+       'nicht zweimal dieselbe Lage');
+(function () {
+  /* Zweiter Weg: den Querschnitt wirklich ausmessen - der groesste
+     Abstand in x und y muss das Teilebild ergeben. Gerechnet wird mit
+     den Punkten aus dem Code, nicht mit abgeschriebenen. */
+  var b = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: ([\d.]+)/) || [])[1]);
+  var h = parseFloat((k3d.match(/SEITENLEISTE = \{ breite: [\d.]+, hoehe: ([\d.]+)/) || [])[1]);
+  if (!b || !h) { pruefe('Masse der Seitenleiste lesbar', false, 'nicht gefunden'); return; }
+  var form = (k3d.match(/function seitenleisteQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  /* Alle Koordinaten aus den Linien- und Kurvenbefehlen einsammeln. */
+  var xs = [], ys = [], m, re = /(?:moveTo|lineTo|quadraticCurveTo)\(([^)]*)\)/g;
+  while ((m = re.exec(form))) {
+    var teile = m[1].split(',').map(function (t) {
+      /* b, h und t durch ihre Zahlen ersetzen und ausrechnen. */
+      return Function('b', 'h', 't', 'return (' + t + ');')(b, h, 0.3);
+    });
+    for (var i = 0; i + 1 < teile.length; i += 2) { xs.push(teile[i]); ys.push(teile[i + 1]); }
+  }
+  var breit = Math.max.apply(null, xs) - Math.min.apply(null, xs);
+  var hoch = Math.max.apply(null, ys) - Math.min.apply(null, ys);
+  if (gegen) { breit += 1; }
+  var falsch = 0, meld = [];
+  if (Math.abs(breit - b) > 0.01) { falsch++; meld.push('Breite ' + breit.toFixed(2) + ' statt ' + b); }
+  if (Math.abs(hoch - h) > 0.8) { falsch++; meld.push('Hoehe ' + hoch.toFixed(2) + ' statt ' + h); }
+  /* Der Schenkel muss NACH UNTEN gehen - sonst steht die Leiste auf dem
+     Glas statt ueber den Sparren zu greifen. */
+  if (Math.min.apply(null, ys) > -h * 0.9) { falsch++; meld.push('Schenkel zeigt nicht nach unten'); }
+  pruefe('Querschnitt ergibt das Umrissmass', falsch === 0,
+         falsch === 0 ? breit.toFixed(2) + ' x ' + hoch.toFixed(2) + ' cm'
+                      : meld.join('; '));
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

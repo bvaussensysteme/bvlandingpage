@@ -1575,6 +1575,58 @@
     return m;
   }
 
+  /* Seitenglasleiste TD – die Leiste auf dem ÄUSSERSTEN Sparren links
+     und rechts. „die glasleisten an den sparren ganz links und rechts
+     haben so einen abschluss das man einen sauberen übergang außen hat
+     … hier auf dem bild is sie liegend, einmal nach rechts drehen, dann
+     is sie richtig für die rechte seite und gespiegelt für die linke
+     seite" (Betreiber, 11.10.2026, mit Teilebild).
+
+     BELEGT aus dem Teilebild: 63,1 × 59,4 mm. Das Bild zeigt den
+     Querschnitt LIEGEND – aufgestellt ist die 63,1 die Breite quer zum
+     Dach, die 59,4 die Höhe des Schenkels, der außen über den Sparren
+     herunterreicht. Genau diese Verwechslung ist heute schon dreimal
+     passiert (SG23-Profile, Velaris-Aufhängung, Wandprofil), deshalb
+     steht der Querschnitt hier gleich in der EINBAULAGE, nicht so, wie
+     er auf dem Blatt liegt.
+
+     GESCHÄTZT ist die Form dazwischen: Wandstärke, Radius und die Nase,
+     die ins Glas greift – das Teilebild ist dafür zu klein. Das
+     Umrissmaß stimmt, die Rundung ist nachempfunden. */
+  var SEITENLEISTE = { breite: 6.31, hoehe: 5.94, staerke: 0.3 };  // cm
+
+  /* Querschnitt für die RECHTE Seite: x nach außen (+), y nach unten ab
+     Glasoberkante. Die linke Seite ist dieselbe Form, gespiegelt. */
+  function seitenleisteQuerschnitt() {
+    var b = SEITENLEISTE.breite, h = SEITENLEISTE.hoehe, t = SEITENLEISTE.staerke;
+    var f = new THREE.Shape();
+    f.moveTo(-b / 2, 0);                       // innen, auf dem Glas
+    f.lineTo(b / 2 - 1.0, 0);                  // Deckfläche nach außen
+    f.quadraticCurveTo(b / 2, 0, b / 2, -1.0); // Außenkante gerundet
+    f.quadraticCurveTo(b / 2, -h * 0.72, b / 2 - 1.4, -h);   // Schenkel nach unten
+    f.lineTo(b / 2 - 1.4 - t, -h + t * 0.4);
+    f.quadraticCurveTo(b / 2 - t, -h * 0.72, b / 2 - t, -1.0);
+    f.quadraticCurveTo(b / 2 - t, -t, b / 2 - 1.0, -t);
+    f.lineTo(-b / 2 + 0.9, -t);
+    f.lineTo(-b / 2 + 0.9, -t - 0.7);          // Nase, die aufs Glas greift
+    f.lineTo(-b / 2, -t - 0.7);
+    f.closePath();
+    return f;
+  }
+
+  function seitenglasleiste(laenge, x, y, z, neig, links, material) {
+    var g = new THREE.ExtrudeGeometry(seitenleisteQuerschnitt(),
+      { depth: laenge, bevelEnabled: false, curveSegments: 4 });
+    g.translate(0, 0, -laenge / 2);
+    if (links) g.scale(-1, 1, 1);              // gespiegelt für die linke Seite
+    var m = new THREE.Mesh(g, material);
+    m.position.set(x, y, z);
+    m.rotation.x = neig;
+    m.castShadow = true; m.receiveShadow = true;
+    bau.add(m);
+    return m;
+  }
+
   /* ---------- Hilfsfunktionen ---------- */
   function balken(breite, hoehe, tiefe, x, y, z, material) {
     var m = new THREE.Mesh(new THREE.BoxGeometry(breite, hoehe, tiefe), material);
@@ -4740,8 +4792,16 @@
     /* Abdeckleisten auf den Sparren – erst nach der Eindeckung, sie halten
        die Scheiben (Montageanleitung S. 34/35). */
     if (!sky) {
-      xs.forEach(function (x) {
-        abdeckleiste(laenge - 2, x, ukMitte + spH + glasDicke, zMitte, neig, mAlu);
+      xs.forEach(function (x, i) {
+        /* Außen links und rechts sitzt die SEITENglasleiste: Sie schließt
+           das Dach zur Seite ab, statt nur zwischen zwei Scheiben zu
+           liegen. Dazwischen die runde Abdeckleiste. */
+        if (i === 0 || i === xs.length - 1) {
+          seitenglasleiste(laenge - 2, x, ukMitte + spH + glasDicke, zMitte,
+                           neig, i === 0, mAlu);
+        } else {
+          abdeckleiste(laenge - 2, x, ukMitte + spH + glasDicke, zMitte, neig, mAlu);
+        }
       });
     }
 
