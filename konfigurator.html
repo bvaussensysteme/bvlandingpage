@@ -416,6 +416,7 @@
     }
     .k3d-leiste button:hover { background: #2c3034; }
     .k3d-leiste button.is-active { background: var(--gold); color: #111; font-weight: 700; }
+    .k3d-leiste .k3d-sym { font-size: 1.05em; line-height: 1; margin-right: 4px; }
     .k3d-leiste .k3d-trenn { width: 1px; align-self: stretch; background: rgba(255,255,255,.18); margin: 0 2px; }
     .k3d-maushinweis {
       position: absolute; left: 16px; bottom: 18px;
@@ -1329,16 +1330,21 @@
       <button type="button" id="k3dBild" class="ist-gold">↓ <span class="k3d-nurgross">Bild speichern</span></button>
     </div>
 
+    <!-- Reihenfolge: erst die Schalter (Maße, Abend, Drehen), dann der
+         Trennstrich, dann die Blickrichtungen. „die angaben maße, abend,
+         drehen bitte vor der angabe perspektive mit trennstrich"
+         (Betreiber, 11.10.2026). Am Handy ist die Leiste seitlich
+         scrollbar – was vorne steht, sieht man ohne Wischen. -->
     <div class="k3d-leiste" role="group" aria-label="Ansicht steuern">
+      <button type="button" id="k3dMasseLeiste" aria-pressed="false">↔ Maße</button>
+      <button type="button" id="k3dAbend" aria-pressed="false"><span class="k3d-sym" aria-hidden="true">☾</span><span class="k3d-txt">Abend</span></button>
+      <button type="button" id="k3dDrehen" aria-pressed="false">⟳ Drehen</button>
+      <span class="k3d-trenn"></span>
       <button type="button" class="is-active" data-k3d-ansicht="Perspektive">Perspektive</button>
       <button type="button" data-k3d-ansicht="Vorne">Vorne</button>
       <button type="button" data-k3d-ansicht="Seite">Seite</button>
       <button type="button" data-k3d-ansicht="Von oben">Von oben</button>
       <button type="button" data-k3d-ansicht="Darunter">Darunter</button>
-      <span class="k3d-trenn"></span>
-      <button type="button" id="k3dMasseLeiste" aria-pressed="false">↔ Maße</button>
-      <button type="button" id="k3dAbend" aria-pressed="false"><span>Abend</span></button>
-      <button type="button" id="k3dDrehen" aria-pressed="false">⟳ Drehen</button>
     </div>
 
     <p class="k3d-maushinweis">Ziehen zum Drehen · Mausrad zoomen · zwei Finger zum Zoomen</p>
@@ -1436,7 +1442,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015u" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015v" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

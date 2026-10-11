@@ -1179,6 +1179,30 @@ pruefe('Platz fuer die Streifenleiste des iPhones',
        new RegExp(q || 'env\\(safe-area-inset-bottom').test(html),
        'sonst liegt sie ueber den Knoepfen');
 
+
+/* ---------- Reihenfolge in der Ansichtsleiste ----------
+   „die angaben maße, abend, drehen bitte vor der angabe perspektive mit
+   trennstrich ... sonne und mond symbol davor" (Betreiber, 11.10.2026). */
+(function () {
+  var leiste = (html.match(/<div class="k3d-leiste"[\s\S]*?<\/div>/) || [''])[0];
+  var folge = [];
+  var re = /id="(k3dMasseLeiste|k3dAbend|k3dDrehen)"|class="k3d-trenn"|data-k3d-ansicht="Perspektive"/g, m;
+  while ((m = re.exec(leiste))) folge.push(m[1] || (m[0].indexOf('trenn') > -1 ? 'trenn' : 'perspektive'));
+  var soll = ['k3dMasseLeiste', 'k3dAbend', 'k3dDrehen', 'trenn', 'perspektive'];
+  if (gegen) soll.reverse();
+  var gleich = folge.length === soll.length && soll.every(function (x, i) { return folge[i] === x; });
+  pruefe('Schalter stehen vor den Blickrichtungen', gleich, folge.join(' → '));
+})();
+pruefe('Sonne und Mond am Abend-Schalter',
+       new RegExp(q || 'class="k3d-sym" aria-hidden="true">☾').test(html) &&
+       new RegExp(q || "sym\\.textContent = Z\\.abend \\? '☀' : '☾'").test(js), '');
+/* Das Symbol steht VOR der Beschriftung - wer weiter mit
+   querySelector('span') schreibt, loescht es. */
+pruefe('Beschriftung wird am eigenen Feld gesetzt',
+       gegen ? /abendBtn\.querySelector\('span'\)/.test(js)
+             : !/abendBtn\.querySelector\('span'\)/.test(js),
+       'nicht mehr am ersten span');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

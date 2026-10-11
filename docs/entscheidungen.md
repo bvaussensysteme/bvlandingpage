@@ -3733,3 +3733,26 @@ Geräten über den Knöpfen.
 
 **Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 150, Gegenprobe
 150 von 150.
+
+## 11.10.2026 – Ansichtsleiste: Schalter nach vorn, Sonne und Mond
+
+**Anlass.** „die angaben maße, abend, drehen bitte vor der angabe
+perspektive mit trennstrich wie es jetzt schon is, bei Tag/abend sonne
+und mond symbol davor" (Betreiber).
+
+**Was jetzt gilt.** Reihenfolge: Maße, Abend, Drehen – Trennstrich –
+Perspektive, Vorne, Seite, Von oben, Darunter. Am Handy ist die Leiste
+seitlich scrollbar; was vorne steht, sieht man ohne Wischen, und das
+sind jetzt die Schalter. Der Abend-Schalter trägt ein Symbol:
+Mond, solange der Abend erst kommt, Sonne, wenn man zurück in den Tag
+schalten kann.
+
+**Eine Falle dabei.** Die Beschriftung wurde mit
+`querySelector('span')` gesetzt – also am ERSTEN span im Knopf. Seit
+dort das Symbol steht, hätte das den Mond mit dem Wort „Abend"
+überschrieben. Beschriftung und Symbol haben jetzt eigene Klassen, und
+eine Prüfung verbietet den alten Zugriff.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 153, Gegenprobe
+153 von 153. Die Reihenfolge wird wirklich aus dem HTML gelesen, nicht
+nur das Vorhandensein geprüft.
