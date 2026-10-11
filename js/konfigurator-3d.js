@@ -232,7 +232,16 @@
      alle vier RAL-Töne. Hier stehen alle fünf zur Wahl; die Frage
      ist als Rückfrage notiert. */
   var VELARIS_IST = { elemente: 0, breite: 0, schienen: 0 };
-  var VELARIS_FARBEN = { 'Echtholzoptik (Golden OAK)': 0x9c6a46 };
+  /* LAMELLENFARBE: genau drei, so wie das Formular sie führt – Anthrazit
+     RAL 7016, Holzoptik Golden OAK oder eine RAL-Sonderfarbe gegen
+     Aufpreis. Die vier RAL-Standardtöne gelten für den RAHMEN.
+
+     ACHTUNG: Der Schlüssel muss WÖRTLICH dem Wert im Auswahlfeld
+     entsprechen. Er hieß hier einmal anders als im Feld – dann fällt die
+     Holzoptik stillschweigend auf die Rahmenfarbe zurück und am Bild
+     ändert sich beim Umstellen nichts. Genau das war am 11.10.2026 zu
+     sehen. Eine Prüfung vergleicht jetzt Feld und Code. */
+  var VELARIS_FARBEN = { 'Holzoptik Golden OAK': 0x9c6a46 };
 
   var PLANKE_MAX = 700;    // cm
   var ZWISCHEN = { breite: 4.0 };
