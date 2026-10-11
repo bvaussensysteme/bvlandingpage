@@ -4163,7 +4163,15 @@
        montiert wird. Der Rücken steht an der Wand bzw. freistehend am
        Statikträger, die Oberkante bündig mit der Sparrenoberkante. */
     var wpH = sky ? 20 : 14.36, wpT = sky ? 9 : 3.1;
-    var wpMitte = dachOk - wpH / 2;             // Oberkante bündig, nie darüber
+    /* „in die untere hälfte kommen die sparren und oben drüber halt
+       glas, glasleisten etc." (Betreiber, 11.10.2026). Das Profil endet
+       also NICHT an der Sparrenoberkante, sondern reicht über die
+       Eindeckung: Unten liegen die Sparren darin, darüber das Glas mit
+       seiner Leiste. Deshalb hängt die Oberkante an der GLASOBERSEITE.
+       Vorher stand sie an der Sparrenoberkante – dort hätte die
+       Glasleiste keinen Halt. */
+    var wpGlasD = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
+    var wpMitte = (sky ? dachOk : dachOk + wpGlasD) - wpH / 2;
     var trOk = vorsprH > 0 ? ukAmTraeger : dachOk;
     var hPfostenHinten = frei ? Math.max(100, trOk - TR_H) : hHinten;
 

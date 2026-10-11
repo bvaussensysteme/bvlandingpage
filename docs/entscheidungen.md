@@ -3298,3 +3298,18 @@ die Montage zeigt die Lage – und nur der Betreiber kennt beide.
 Die Prüfungen wurden ein zweites Mal nachgezogen; sie halten jetzt die
 aufrechte Lage fest. Der Statikträger (189 mm) steht damit noch 45 mm
 unter dem Wandprofil hervor.
+
+### Und noch ein Nachtrag: das Profil endet an der Eindeckung
+
+„in die untere hälfte kommen die sparren und oben drüber halt glas,
+glasleisten etc." (Betreiber).
+
+Das Profil hört also **nicht** an der Sparrenoberkante auf: Unten liegen
+die Sparren darin, darüber das Glas mit seiner Leiste. Die Oberkante
+hängt jetzt an der **Glasoberseite**.
+
+Nachgerechnet mit den Maßen, die im Modell stehen: 143,6 mm Profil,
+120 mm Sparren, 8 mm Glas – bleiben **16 mm** für Glasleiste und Luft.
+Das passt zur Beschreibung, bestätigt sie aber nicht: Wie hoch die
+Glasleiste wirklich baut, steht in keiner Unterlage. Falls die Sparren
+in Wahrheit niedriger sind, verschiebt sich das.

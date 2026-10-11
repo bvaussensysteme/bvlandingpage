@@ -238,8 +238,24 @@ pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
    genau das sah von aussen aus wie ein waagrecht liegender Balken. */
 pruefe('Oberkante haengt an der Sparrenoberkante',
        new RegExp(q || 'dachOk = ukHinten \\+ spH').test(k3d), 'nicht mehr an hHinten');
-pruefe('Wandprofil endet buendig mit dem Dach',
-       new RegExp(q || 'wpMitte = dachOk - wpH / 2').test(k3d), '');
+/* Das Profil reicht ueber die Sparren bis an die Glasoberseite - dort
+   haelt die Glasleiste die Scheibe. An der Sparrenoberkante zu enden
+   waere zu tief (Betreiber, 11.10.2026). */
+pruefe('Wandprofil reicht bis an die Eindeckung',
+       new RegExp(q || 'wpMitte = \\(sky \\? dachOk : dachOk \\+ wpGlasD\\) - wpH / 2').test(k3d), '');
+(function () {
+  /* Nachgerechnet: Die Sparren muessen in der unteren Haelfte liegen und
+     die Glasoberseite mit der Profiloberkante abschliessen. */
+  var wpH = 14.36, spH = 12.0, glas = 0.8, dachOk = 100;
+  var ok = dachOk + (gegen ? 0 : glas);
+  var uk = ok - wpH;
+  var sparrenUk = dachOk - spH;
+  var falsch = 0;
+  if (Math.abs(ok - (dachOk + glas)) > 0.001) falsch++;   // Glas buendig
+  if (sparrenUk < uk - 0.001) falsch++;                   // Sparren im Profil
+  pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
+         falsch + ' von 2 Lagen falsch');
+})();
 pruefe('Träger endet buendig mit dem Dach',
        new RegExp(q || 'trOk = vorsprH > 0 \\? ukAmTraeger : dachOk;').test(k3d),
        'mit hinterem Vorsprung unter den Sparren');
