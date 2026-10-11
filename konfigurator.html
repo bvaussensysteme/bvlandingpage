@@ -394,6 +394,26 @@
     }
     .k3d-info p { font-size: .76rem; color: #2d3b46; margin: 3px 0 0; line-height: 1.4; }
     .k3d-oben { position: absolute; right: 14px; top: 12px; display: flex; gap: 7px; }
+    .k3d-bildmenu {
+      position: absolute; right: 14px; top: 52px; z-index: 6;
+      display: flex; flex-direction: column; gap: 2px;
+      background: rgba(17,17,17,.94); color: #fff;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 10px;
+      padding: 6px; min-width: 190px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .k3d-bildmenu[hidden] { display: none; }
+    .k3d-bildmenu button {
+      background: 0 0; color: #fff; border: 0; border-radius: 7px;
+      padding: 9px 11px; font: inherit; font-size: .8rem; text-align: left;
+      cursor: pointer;
+    }
+    .k3d-bildmenu button:hover { background: #2c3034; }
+    .k3d-bildmenu button.ist-gold { background: var(--gold); color: #111; font-weight: 700; }
+    .k3d-bildmenu button.ist-gold:hover { background: var(--gold-light); }
+    .k3d-bildmenu-trenn { height: 1px; background: rgba(255,255,255,.14); margin: 3px 0; }
+    .k3d-bildmenu .ist-laeuft { opacity: .6; }
+
     .k3d-oben button {
       background: rgba(17,17,17,.82); color: #fff;
       border: 1px solid rgba(255,255,255,.14); border-radius: 9px;
@@ -466,6 +486,11 @@
       .k3d-oben { right: 8px; top: 8px; gap: 5px; }
       .k3d-oben button { padding: 7px 9px; font-size: .72rem; }
       .k3d-oben .k3d-nurgross { display: none; }
+      /* Die beiden linken Knöpfe wirken am Handy nicht – weg damit. Der
+         Bild-Knopf behält dafür seine Beschriftung und wird breiter. */
+      .k3d-oben .k3d-nurgross-knopf { display: none; }
+      .k3d-oben #k3dBild { padding: 8px 14px; font-size: .78rem; }
+      .k3d-bildmenu { right: 8px; top: 46px; left: 8px; min-width: 0; }
       /* Von Rand zu Rand und flacher: „die anzeige bitte etwas schmaler
          machen in der höhe aber das alles gut lesbar bleibt, aber in der
          breite bitte von bildschirmrand zu bildschirmrand" (Betreiber,
@@ -1324,10 +1349,30 @@
       <p id="k3dSpec"></p>
     </div>
 
+    <!-- Am Handy bleiben nur der Bild-Knopf und seine Beschriftung:
+         „bei mobile klappen auf handy die ersten 2 symbole nicht deswegen
+         lass sie auf handy weg, mach den download button bissl breiter das
+         man sieht bild download" (Betreiber, 11.10.2026). Zuklappen bringt
+         dort nichts (das Bedienfeld steht unter der Bühne, nicht daneben)
+         und Vollbild gibt es auf iPhones gar nicht. -->
     <div class="k3d-oben">
-      <button type="button" id="k3dPanelAn" aria-expanded="true">☰ <span class="k3d-nurgross">Bedienfeld</span></button>
-      <button type="button" id="k3dVollbild" aria-pressed="false">⛶ <span class="k3d-nurgross">Vollbild</span></button>
-      <button type="button" id="k3dBild" class="ist-gold">↓ <span class="k3d-nurgross">Bild speichern</span></button>
+      <button type="button" id="k3dPanelAn" aria-expanded="true" class="k3d-nurgross-knopf">☰ <span class="k3d-nurgross">Bedienfeld</span></button>
+      <button type="button" id="k3dVollbild" aria-pressed="false" class="k3d-nurgross-knopf">⛶ <span class="k3d-nurgross">Vollbild</span></button>
+      <button type="button" id="k3dBild" class="ist-gold" aria-expanded="false" aria-haspopup="true">↓ <span class="k3d-immer">Bild speichern</span></button>
+    </div>
+
+    <!-- Ein Druck, mehrere Ansichten: „wenn man draufdrückt kann man
+         direkt mehrere perspektiven in bilder runterladen". -->
+    <div class="k3d-bildmenu" id="k3dBildMenu" role="menu" aria-label="Welches Bild?" hidden>
+      <button type="button" role="menuitem" data-k3d-bild="jetzt">Aktuelle Ansicht</button>
+      <span class="k3d-bildmenu-trenn"></span>
+      <button type="button" role="menuitem" data-k3d-bild="Perspektive">Perspektive</button>
+      <button type="button" role="menuitem" data-k3d-bild="Vorne">Vorne</button>
+      <button type="button" role="menuitem" data-k3d-bild="Seite">Seite</button>
+      <button type="button" role="menuitem" data-k3d-bild="Von oben">Von oben</button>
+      <button type="button" role="menuitem" data-k3d-bild="Darunter">Darunter</button>
+      <span class="k3d-bildmenu-trenn"></span>
+      <button type="button" role="menuitem" data-k3d-bild="alle" class="ist-gold">Alle fünf in einem Bild</button>
     </div>
 
     <!-- Reihenfolge: erst die Schalter (Maße, Abend, Drehen), dann der
@@ -1442,7 +1487,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015v" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015w" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
