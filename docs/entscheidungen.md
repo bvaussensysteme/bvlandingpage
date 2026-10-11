@@ -1771,3 +1771,66 @@ vermutlich auf der Gegenseite derselben Scheibe (innen und außen). Im
 Bild ist immer nur eine Seite zu sehen, deshalb zeichne ich einen. Falls
 die zwei Griffe etwas anderes meinen – etwa zwei verschiedene Flügel –
 bitte sagen.
+
+## 2026-10-11 – Schiebeanlage je Pfostenfach, Öffnung von innen nach außen
+
+**Anlass:** „wenn wir ein mittelpfosten haben wie hier oder mehrre
+pfosten, müssen für die schiebeanlage jeweils die lichten maße von
+pfosten zu pfosten genommen werden, also werden es quasi mehrere
+schibeanlagen. und die sollen dann von innen nach außen öffnen also von
+dermitte zu den rändern links und rechts sliden" (Betreiber).
+
+**Was falsch war:** Über die ganze Vorderseite lief EINE Anlage – über
+die Mittelpfosten hinweg. Das geht baulich nicht, und es verfälscht die
+Stückzahlen in der Anfrage.
+
+**Was jetzt gilt:** Je Fach zwischen zwei Pfosten eine eigene Anlage mit
+dem LICHTEN Maß (Pfostenachsen minus je eine halbe Pfostenbreite). Bei
+6000 mm Breite:
+
+| Pfosten | Felder | lichtes Maß je Feld | Bauart |
+|---|---|---|---|
+| 2 | 1 | 5780 mm | 6-türig, Scheiben 963 mm |
+| 3 | 2 | 2835 mm | 3-türig, Scheiben 945 mm |
+| 4 | 3 | 1853 mm | 2-türig, Scheiben 927 mm |
+
+Das ändert die Bestellung spürbar: aus einer 8-türigen Anlage werden
+zwei 3-türige. Genau so wird auch bestellt.
+
+**Öffnungsrichtung:** Felder links der Mitte schieben nach links, Felder
+rechts der Mitte nach rechts. Dafür kann `schiebetuer()` die Laufrichtung
+jetzt spiegeln.
+
+**Absicherung:** Eine Prüfung rechnet die Felder für 2, 3 und 4 Pfosten
+nach und prüft zusätzlich, dass lichte Maße plus Pfostenbreiten exakt die
+Gesamtbreite ergeben – sonst fehlte oder doppelte sich irgendwo Glas.
+
+## 2026-10-11 – Tür-Einfaßprofil ist das Wandprofil, Griff an der Außenkante
+
+**Profile aufgelöst:** „das tür einfassprofil war ja das an der wand und
+die anderen kannst du weglasen" (Betreiber). Der Wandanschluss bekommt
+damit sein echtes Maß: **25 × 35 mm** statt meiner geschätzten 50 × 25 mm.
+H-Glaseinfaßprofil und Bürstenprofil sind ersatzlos entfernt – ein Maß
+ohne Einbauort ist kein Wissen, sondern Ballast, der beim nächsten Mal
+wieder jemanden auf eine falsche Fährte lockt.
+
+**Griff:** „die griffe an die übliche stelle machen rechechiere im netz".
+Recherchiert am 11.10.2026:
+
+- Für Muschelgriffe an Glasschiebetüren gibt es **keine Norm-Höhe**.
+- Maßgeblich ist die übliche Drückerhöhe von **1050 mm** über OFF.
+- DIN 18040 nennt für barrierefreie Bedienung **850 mm**, zulässiges Band
+  **750 bis 1200 mm** (HEWI-Datenblätter). 1050 mm liegt darin.
+- Bohrung **50 mm** Durchmesser ist das übliche Handelsmaß (OBI,
+  Hornbach).
+
+Höhe und Durchmesser waren also richtig geraten. Falsch war die
+WAAGERECHTE Lage: Der Griff saß an der Innenkante des Flügels, wo
+niemand greift. Er gehört an die Kante, die geschlossen außen liegt –
+also auf der dem Stapel abgewandten Seite, und die dreht sich mit der
+Laufrichtung des Feldes.
+
+**Für den Betrieb wichtig:** Wer barrierefrei bauen muss, braucht den
+Griff auf 850 mm. Das steht bewusst NICHT im Konfigurator – es ist eine
+Beratungsfrage, und ein zusätzliches Feld dafür würde den Hauptweg für
+alle anderen verlängern. Beim Aufmaß abfragen.

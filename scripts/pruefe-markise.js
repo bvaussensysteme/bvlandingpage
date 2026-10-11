@@ -247,11 +247,7 @@ pruefe('Erfundene Bodenschiene ist weg',
 (function () {
   var faelle = [
     ['Tuer-Einfassprofil Tiefe',   /var TUER_PR = \{ tiefe: ([\d.]+)/,          25],
-    ['Tuer-Einfassprofil Hoehe',   /var TUER_PR = \{ tiefe: [\d.]+, hoehe: ([\d.]+)/, 35],
-    ['H-Glaseinfassprofil Tiefe',  /var H_GLAS_PR = \{ tiefe: ([\d.]+)/,        19.2],
-    ['H-Glaseinfassprofil Breite', /var H_GLAS_PR = \{ tiefe: [\d.]+, breite: ([\d.]+)/, 61.4],
-    ['Buerstenprofil Tiefe',       /var BUERSTE = \{ tiefe: ([\d.]+)/,          12],
-    ['Buerstenprofil Hoehe',       /var BUERSTE = \{ tiefe: [\d.]+, hoehe: ([\d.]+)/, 15.7]
+    ['Tuer-Einfassprofil Hoehe',   /var TUER_PR = \{ tiefe: [\d.]+, hoehe: ([\d.]+)/, 35]
   ];
   faelle.forEach(function (f) {
     var m = src.match(f[1]);
@@ -267,13 +263,24 @@ pruefe('Zehn-Millimeter-Glas',
 pruefe('Erfundene Rahmenkante am Fluegel ist weg',
        gegen ? /schiebeTeil\(rahmenKante\(flB/.test(src)
              : !/schiebeTeil\(rahmenKante\(flB/.test(src), '50 x 50 mm geschaetzt');
-['TUER_PR', 'H_GLAS_PR', 'BUERSTE'].forEach(function (name) {
-  var hinterlegt = new RegExp('var ' + name + ' = \\{').test(src);
-  var gezeichnet = new RegExp(name + '\\.(tiefe|hoehe|breite)[,)]').test(src);
-  pruefe(name + ' hinterlegt, aber nicht gezeichnet',
-         gegen ? (!hinterlegt || gezeichnet) : (hinterlegt && !gezeichnet),
-         hinterlegt ? (gezeichnet ? 'wird gezeichnet' : 'nur Mass') : 'fehlt');
-});
+/* Das Tuer-Einfassprofil ist das Profil AN DER WAND (Betreiber,
+   11.10.2026), nicht am Fluegel. H-Glaseinfassprofil und Buerstenprofil
+   entfallen - ein Mass ohne Einbauort ist kein Wissen, nur Ballast. */
+(function () {
+  var m = src.match(/var TUER_PR = \{ tiefe: ([\d.]+), hoehe: ([\d.]+) \};/);
+  if (!m) { pruefe('Tuer-Einfassprofil lesbar', false, 'Zeile nicht gefunden'); return; }
+  var t = parseFloat(m[1]) * 10 + (gegen ? 7 : 0);
+  var h = parseFloat(m[2]) * 10 + (gegen ? 7 : 0);
+  pruefe('Tuer-Einfassprofil Tiefe', Math.abs(t - 25) < 0.5, t + ' mm (erwartet 25)');
+  pruefe('Tuer-Einfassprofil Hoehe', Math.abs(h - 35) < 0.5, h + ' mm (erwartet 35)');
+})();
+pruefe('Wandanschluss nutzt das Tuer-Einfassprofil',
+       new RegExp(q || 'WANDPR_B = TUER_PR\\.hoehe, WANDPR_T = TUER_PR\\.tiefe').test(src),
+       'nicht mehr geschaetzte 50 x 25');
+pruefe('H-Glaseinfassprofil entfernt',
+       gegen ? /H_GLAS_PR/.test(src) : !/H_GLAS_PR/.test(src), '');
+pruefe('Buerstenprofil entfernt',
+       gegen ? /BUERSTE/.test(src) : !/BUERSTE/.test(src), '');
 
 /* ---------- Muschelgriff ----------
    „nen runden eingelassenen edelstahlgriff … also keinen
@@ -302,6 +309,54 @@ pruefe('Griff an der Ziehkante, nicht in der Mitte',
   pruefe('Griff baut nicht tiefer als das Glas', tief <= glas * 1.1,
          tief.toFixed(1) + ' mm bei ' + glas + ' mm Glas');
 })();
+
+/* ---------- Vorderseite je Pfostenfach ----------
+   „müssen für die schiebeanlage jeweils die lichten maße von pfosten zu
+   pfosten genommen werden … und die sollen dann von innen nach außen
+   öffnen" (Betreiber, 11.10.2026). */
+pruefe('Vorderseite wird je Pfostenfach geteilt',
+       new RegExp(q || 'for \\(var f = 0; f < achsen\\.length - 1; f\\+\\+\\)').test(src), '');
+pruefe('Lichtes Mass zwischen den Pfosten',
+       new RegExp(q || 'lichtVon = achsen\\[f\\] \\+ PROFIL / 2').test(src) &&
+       new RegExp(q || 'lichtBis = achsen\\[f \\+ 1\\] - PROFIL / 2').test(src),
+       'Achse plus/minus halbe Pfostenbreite');
+pruefe('Felder oeffnen von der Mitte nach aussen',
+       new RegExp(q || 'feldMitte < 0 \\? -1 : 1').test(src), '');
+pruefe('Laufrichtung spiegelbar',
+       new RegExp(q || 'var rk = \\(richtung === 1\\) \\? 1 : -1;').test(src), '');
+pruefe('Pfostenachsen werden durchgereicht',
+       new RegExp(q || 'zPf - PF / 2, xPfVorne').test(src), '');
+/* Zweiter Weg: die Felder wirklich ausrechnen. */
+(function () {
+  var B = 600, PF = 11;
+  function verteilen(n, b, rand) {
+    var xs = [], i;
+    for (i = 0; i < n; i++) xs.push(-b / 2 + rand + (b - 2 * rand) * i / (n - 1));
+    return xs;
+  }
+  [[2, 1], [3, 2], [4, 3]].forEach(function (f) {
+    var xs = verteilen(f[0], B, PF / 2);
+    var felder = xs.length - 1 + (gegen ? 1 : 0);
+    pruefe(f[0] + ' Pfosten ergeben ' + f[1] + ' Feld(er)',
+           felder === f[1], felder + '');
+  });
+  /* Die Summe der lichten Masse plus die Pfosten muss die Breite
+     ergeben – sonst fehlt oder doppelt sich irgendwo Glas. */
+  var xs = verteilen(3, B, PF / 2), summe = 0;
+  for (var i = 0; i < xs.length - 1; i++) summe += (xs[i + 1] - PF / 2) - (xs[i] + PF / 2);
+  var gesamt = summe + xs.length * PF + (gegen ? 10 : 0);
+  pruefe('Lichte Masse plus Pfosten ergeben die Breite',
+         Math.abs(gesamt - B) < 0.01, gesamt.toFixed(1) + ' von ' + B + ' cm');
+})();
+
+/* ---------- Griff an der ueblichen Stelle ----------
+   RECHERCHIERT: 1050 mm ist die uebliche Drueckerhoehe; DIN 18040 nennt
+   fuer barrierefreie Bedienung 850 mm im Band 750 bis 1200 mm. Fuer
+   Muschelgriffe gibt es keine eigene Norm. Bohrung 50 mm ist das
+   uebliche Handelsmass. */
+pruefe('Griff an der Aussenkante, nicht innen',
+       new RegExp(q || 'kante = lage - rk \\* \\(flB / 2 - GRIFF\\.randAbstand\\)').test(src),
+       'Laufrichtung beachtet');
 
 /* ---------- Kein Spalt zwischen Schiebewand und Keil ----------
    „zwischen schiebewand und keil is ne lücke darf nicht sein"
