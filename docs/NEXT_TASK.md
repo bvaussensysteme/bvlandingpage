@@ -322,6 +322,10 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   dann bliebe der Kasten immer gleich hoch. Beides erfüllt „außen
   Flachdach, nur die Sparren geneigt"; welches stimmt, entscheidet, wie
   hoch die Blende beim Kunden wirklich aussieht.
+  (55 mm). **Offene Frage:** Wie hoch ist der Rahmen wirklich, und wie
+  wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
+  wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
+  44 cm) – das ist eine Modellregel, kein Herstellermaß.
   Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
   Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
   ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
