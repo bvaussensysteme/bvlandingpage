@@ -3348,3 +3348,52 @@ Gegenprobe 189 von 189. Neu darin, jeweils gegen die ALTE Rechnung
 gegengeprobt: Sparrenanfang an der Profilvorderkante, Profiloberkante
 gleich Glasoberseite am Sparrenende, Glashinterkante ohne Schlitz
 (Zahl aus der gebauten Formel zurückgelesen, nicht aus der Absicht).
+
+## 11.10.2026 – Sonnensegel und Plissee nach den Bestellformularen
+
+**Anlass.** „sonnensegel und plisees sind noch falsch abgebildet hier die
+bestellformulare dort sind maße und bilder" (Betreiber), dazu die beiden
+VD-Bestellformulare.
+
+**Was die Formulare sagen.**
+*Sonnensegel:* bestellt wird je Bahn Breite und Länge in cm, bis zu 15
+Bahnen. Stofffarben: Platin, Perlmutt, Gold, Taupe, Grau. Dazu „ohne /
+mit Verstärkung", die Installationsart (Holz oder Aluminium/Stahl) und
+eine Teleskopstange (ja/nein). Die Fotos zeigen Bahnen UNTER dem Glas,
+die zwischen den Aufhängungen in Wellen durchhängen.
+*Plissee:* Breite × Tiefe in mm, Anzahl der Bahnen, Bedienstab 120 cm in
+Weiß oder Schwarz. Gestellfarben Weiss, Alu, Anthrazit, Schwarz;
+Stofffarben Weiss, Hellgrau, Grau, Anthrazit, Hellbeige, Braun. Die
+Zeichnung zeigt Falten quer über die Breite, gestapelt über die Tiefe,
+zwischen zwei seitlichen Schienen.
+
+**Was falsch war.** Das Sonnensegel lag ÜBER dem Dach (16 cm über der
+Sparrenoberkante) und bestand aus fünf geraden Streifen über die ganze
+Breite – gespannt statt durchhängend und auf der falschen Seite des
+Glases. Das Plissee bestand aus versetzten Kästchen ohne Schienen. Beide
+rechneten ihre Felder aus dem Richtwert 110 cm Sparrenabstand statt aus
+den wirklichen Sparren.
+
+**Was jetzt gilt.** Beide sitzen in den echten Sparrenfeldern (die
+Achsen kommen aus dem Dachbau), hängen an der Sparrenunterkante und sind
+je Bahn EINE verformte Fläche statt bis zu zwanzig Kästen – das ist auch
+im Bild schneller. Das Segel hängt in Wellen durch (Wellenlänge 65 cm,
+Durchhang 11 cm, beides GESCHÄTZT aus den Fotos), das Plissee hat Falten
+quer zur Tiefe und je Sparren eine Schiene in Gestellfarbe. Wie bei den
+Markisen bleibt bei 0 % das zusammengeschobene Paket hinten stehen –
+montiert ist es ja trotzdem.
+
+**Nicht gebaut, bewusst.** Die Auswahlfelder aus den Formularen
+(Stofffarbe, Gestellfarbe, Bedienstab, Verstärkung, Installationsart,
+Teleskopstange, Bahnenzahl) gibt es im Bedienfeld noch nicht. Im Modell
+steht solange Perlmutt (Segel), Hellgrau auf Alu (Plissee). Das ist ein
+Vorschlag an den Betreiber, keine stillschweigende Lücke.
+
+**Was gegengelesen werden soll.** Von unten unter das Dach schauen:
+Segel in Wellen unter dem Glas, Plissee flach mit sichtbaren Schienen.
+Regler auf 0 %: nur das Paket hinten und (beim Plissee) die Schienen.
+
+**Prüfungen.** `scripts/pruefe-markise.js` jetzt 151 Prüfungen,
+Gegenprobe 151 von 151. Die Farblisten werden gegen die aus dem Formular
+abgeschriebenen Listen gehalten (Gegenprobe: eine Farbe, die es nicht
+gibt), die Tuchform wird ausgerechnet statt behauptet.

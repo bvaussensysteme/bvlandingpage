@@ -595,6 +595,75 @@ pruefe('Kasten weniger deckend',
 pruefe('Masslinie duenner',
        new RegExp(q || 'opacity: 0\\.55').test(src), '');
 
+
+/* ---------- Sonnensegel und Plissee ----------
+   Quelle: die beiden Bestellformulare von VD AluSysteme (Betreiber,
+   11.10.2026). Hier stehen die Farben noch einmal aus dem Formular
+   abgeschrieben - weicht der Code ab, schlaegt es an. */
+(function () {
+  var SOLL_SEGEL = ['Platin', 'Perlmutt', 'Gold', 'Taupe', 'Grau'];
+  var SOLL_STOFF = ['Weiss', 'Hellgrau', 'Grau', 'Anthrazit', 'Hellbeige', 'Braun'];
+  var SOLL_GEST  = ['Weiss', 'Alu', 'Anthrazit', 'Schwarz'];
+  function keys(name) {
+    var b = (src.match(new RegExp('var ' + name + ' = \\{[\\s\\S]*?\\};')) || [''])[0];
+    return (b.match(/'[A-Za-zÄÖÜäöü]+':/g) || []).map(function (k) {
+      return k.replace(/['":]/g, ''); });
+  }
+  [['SEGEL_FARBEN', SOLL_SEGEL], ['PLISSEE_STOFF', SOLL_STOFF],
+   ['PLISSEE_GESTELL', SOLL_GEST]].forEach(function (paar) {
+    var ist = keys(paar[0]), soll = paar[1].slice();
+    if (gegen) soll.push('Knallrot');          // Farbe, die es nicht gibt
+    var gleich = ist.length === soll.length &&
+                 soll.every(function (f) { return ist.indexOf(f) > -1; });
+    pruefe(paar[0] + ' genau wie im Formular', gleich,
+           ist.length + ' Farben: ' + ist.join(', '));
+  });
+})();
+/* Das Segel haengt UNTER dem Glas, nicht darueber - das war der Fehler.
+   Die alte Fassung setzte es um 16 cm nach oben. */
+pruefe('Sonnensegel liegt nicht mehr ueber dem Dach',
+       gegen ? /\+ 16 - durchhang/.test(src) : !/\+ 16 - durchhang/.test(src),
+       'alte Hochsetzung ist weg');
+pruefe('Beide haengen an der Sparrenunterkante',
+       new RegExp(q || 'dach && dach\\.uk \\? dach\\.uk\\(z\\)').test(src), '');
+pruefe('Felder kommen aus den echten Sparrenachsen',
+       new RegExp(q || 'achsen = dach && dach\\.sparren').test(src) &&
+       new RegExp(q || 'sparren: xs').test(src), 'nicht mehr Richtwert 110 cm');
+pruefe('Plissee bekommt seitliche Schienen',
+       new RegExp(q || 'PLISSEE_GESTELL\\[.Alu.\\]').test(src), 'Gestell aus dem Formular');
+pruefe('Eingefahrenes Paket bleibt stehen',
+       new RegExp(q || 'paketT = Math\\.min\\(14').test(src),
+       'bei 0 % war vorher nichts zu sehen');
+(function () {
+  /* Zweiter Weg: die Tuchflaeche wirklich ausrechnen. Das Segel muss
+     zwischen den Aufhaengungen durchhaengen und darf nie ueber die
+     Sparrenunterkante steigen; das Plissee muss Falten haben. */
+  var wellen = 2, falten = 8, falsch = 0, meld = [];
+  function segel(t) { return 1.5 + 11 * (1 - Math.cos(2 * Math.PI * wellen * t)) / 2; }
+  function plissee(t) {
+    var fr = (t * falten) % 1;
+    return 1.2 + 2.6 * (fr < 0.5 ? fr * 2 : (1 - fr) * 2);
+  }
+  var minS = Infinity, maxS = -Infinity, minP = Infinity, maxP = -Infinity, i, t;
+  for (i = 0; i <= 200; i++) {
+    t = i / 200;
+    minS = Math.min(minS, segel(t)); maxS = Math.max(maxS, segel(t));
+    minP = Math.min(minP, plissee(t)); maxP = Math.max(maxP, plissee(t));
+  }
+  if (gegen) { minS = -2; maxP = minP; }       // ueber dem Sparren, keine Falte
+  if (minS <= 0) { falsch++; meld.push('Segel steigt ueber die Sparren'); }
+  if (maxS - minS < 5) { falsch++; meld.push('Segel haengt nicht durch'); }
+  if (maxP - minP < 1) { falsch++; meld.push('Plissee hat keine Falten'); }
+  pruefe('Tuchform nachgerechnet', falsch === 0,
+         falsch === 0 ? 'Durchhang ' + (maxS - minS).toFixed(1) +
+         ' cm, Falte ' + (maxP - minP).toFixed(1) + ' cm' : meld.join('; '));
+})();
+/* Eine Flaeche je Bahn statt bis zu zwanzig Kaesten - das war auch eine
+   Bremse im Bild, nicht nur haesslich. */
+pruefe('Eine Flaeche je Bahn',
+       new RegExp(q || 'function tuchFlaeche\\(breite, laenge, segmente, verformen\\)').test(src) &&
+       (gegen || !/new THREE\.BoxGeometry\(B \/ felder - 8/.test(src)), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
