@@ -1075,13 +1075,22 @@
      ist das, was man von unten und von der Seite sieht – ohne sie wirkt
      das Dach wie eine lose aufgelegte Glasplatte.
 
-     BELEGT ist, DASS sie da ist. Breite und Höhe stehen nicht in der
-     Anleitung und sind GESCHÄTZT (50 × 12 mm, halbrund). */
+     Maße BELEGT: Das Teilebild „Glasleiste TD" (Betreiber, 11.10.2026)
+     nennt 55,3 mm Breite und 22,6 mm Höhe. Vorher standen hier
+     geschätzte 50 × 12 mm – vom Betreiber beanstandet: „die hast du
+     bissl zu klein modelliert". Vor allem die Höhe war nur halb so groß,
+     und das sieht man: Die Leiste ist das, was man auf dem Dach zwischen
+     den Scheiben erkennt. */
+  var GLASLEISTE = { breite: 5.53, hoehe: 2.26 };   // cm, BELEGT
+
   function abdeckleiste(laenge, x, y, z, neig, material) {
-    var g = new THREE.CylinderGeometry(2.5, 2.5, laenge, 12, 1, false, 0, Math.PI);
+    /* Halbzylinder: Der Radius gibt die halbe Breite, die Stauchung in y
+       die Höhe. r = 55,3/2 = 2,765; 2,765 × 0,8174 = 2,26. */
+    var r = GLASLEISTE.breite / 2;
+    var g = new THREE.CylinderGeometry(r, r, laenge, 14, 1, false, 0, Math.PI);
     g.rotateZ(Math.PI / 2);          // Achse entlang z legen
     g.rotateY(Math.PI / 2);
-    g.scale(1, 0.48, 1);             // flach gedrückt: 50 mm breit, 12 mm hoch
+    g.scale(1, GLASLEISTE.hoehe / r, 1);
     var m = new THREE.Mesh(g, material);
     m.position.set(x, y, z);
     m.rotation.x = neig;

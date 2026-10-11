@@ -927,3 +927,25 @@ der einen Richtung schmaler, in der anderen deutlich höher als die
 Öffnung, die er schließen soll. Eine der beiden Angaben hat einen anderen
 Bezugspunkt. Bis das geklärt ist, wird der Deckel auf die **tatsächliche
 Rinnenöffnung** gezeichnet: lieber bündig als maßhaltig falsch.
+
+## 2026-10-11 – Glasleiste war zu klein
+
+**Anlass.** Der Betreiber mit dem Teilebild „Glasleiste TD": „die hast du
+bissl zu klein modelliert".
+
+**Was falsch war.** 50 × 12 mm, GESCHÄTZT – so stand es auch im
+Kommentar. Das Teilebild nennt **55,3 × 22,6 mm**. Vor allem die **Höhe
+war nur halb so groß**, und das sieht man: Die Glasleiste ist das, was
+man auf dem Dach zwischen den Scheiben überhaupt erkennt.
+
+**Was jetzt gilt.** `GLASLEISTE = { breite: 5.53, hoehe: 2.26 }`, aus dem
+Teilebild BELEGT. Der Halbzylinder wird daraus gerechnet: Radius ist die
+halbe Breite, die Stauchung in y ergibt die Höhe.
+
+**Was das zeigt.** Von den geschätzten Maßen im Modell war dieses das
+sichtbarste – und es war um den Faktor zwei daneben. Die übrigen
+GESCHÄTZT-Stellen stehen in `docs/NEXT_TASK.md`; wenn dazu Teilebilder
+greifbar sind, lohnt derselbe Abgleich.
+
+**Prüfung.** `scripts/pruefe-markise.js` prüft beide Maße gegen das
+Teilebild. 46 Prüfungen, Gegenprobe 46 von 46.
