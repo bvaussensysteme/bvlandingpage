@@ -64,6 +64,7 @@
     hoehe: 2300,
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     glasstaerke: 8,           // mm, nur bei Glas – 8 oder 10 (VSG)
+    sg23Wahl: '',             // '' = automatisch, sonst 'Schienen|Flügel'
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -1503,7 +1504,102 @@
      Die Flügelbreite von 1500 mm für Schiebetüren ist eine ANNAHME für die
      Darstellung – wie viele Flügel es wirklich werden, entscheidet das
      Aufmaß. */
-  var FLUEGEL_BREITE = 150;   // cm, GESCHÄTZT
+  /* ---------- Glas-Schiebeanlage „Slide Glas 23" (SG23) ----------
+     BELEGT: Herstellerunterlage zu SG23, Stand 01.08.2026. Entnommen sind
+     ausschließlich Maße und Bauarten – PREISE STEHEN HIER BEWUSST NICHT
+     und dürfen auch nicht nachgetragen werden („nur bitte die preise
+     nirgendwo übernehmen oder sichtbar machen", Betreiber 11.10.2026).
+     Zur Preisfreiheit der Seite siehe scripts/pruefe-keine-preise.sh.
+
+     Vorher stand hier FLUEGEL_BREITE = 150 cm und „Breite / 150,
+     gerundet" – GESCHÄTZT. Bei 3500 mm kamen damit 2 Flügel à 1750 mm
+     heraus; so breit baut der Hersteller keinen einzigen Flügel.
+
+     Die Anlage gibt es in acht Bauarten, je aus Schienenzahl und
+     Flügelzahl. Jede deckt einen eigenen Breitenbereich ab: */
+  var SG23 = {
+    glasDicke: 1.0,            // cm – 10 mm ESG, unisoliertes Kaltelement
+    hoeheMaxAussen: 2450,      // mm – Grenze durch Windlast
+    hoeheMaxInnen: 2600,       // mm – ohne Windlast
+    breiteSchritt: 500,        // mm – „immer in Schritten von 500 mm"
+    /* [Schienen, Flügel, Breite von, Breite bis] in mm */
+    bauarten: [
+      [3,  2, 1500, 3000],
+      [3,  3, 2500, 4000],
+      [3,  4, 3000, 5000],
+      [4,  4, 3000, 5000],
+      [5,  5, 4000, 6000],
+      [3,  6, 4000, 6500],
+      [4,  8, 3000, 7000],
+      [5, 10, 4000, 6000]
+    ]
+  };
+
+  /* Die Bereiche überlappen sich – zu 4000 mm passen 3-, 4-, 6- und
+     8-türig. Welche nehmen?
+
+     „der konfigurator soll immer das am besten passendste für das maß was
+     der kunde auswählt nehmen. was von der optik am besten aussieht"
+     (Betreiber, 11.10.2026).
+
+     Entschieden wird also nach der SCHEIBENBREITE, nicht nach der Zahl
+     der Flügel. Eine 1500 mm breite Scheibe (2-türig bei 3000 mm) wirkt
+     schwer und plump, eine 500 mm schmale (10-türig bei 5000 mm) macht
+     die Front zum Lamellenvorhang. Dazwischen liegt das, was wie eine
+     Tür aussieht.
+
+     ZIEL_SCHEIBE ist eine gestalterische Festlegung, keine
+     Herstellerangabe – 1050 mm, also etwa Terrassentürbreite. Mit ihr
+     landet jede lieferbare Anlagenbreite zwischen 750 und 1250 mm
+     Scheibenbreite; scripts/pruefe-masstabelle.js rechnet das Band für
+     alle Breiten von 1500 bis 7000 mm nach. GEGENZULESEN: Wenn im Verkauf
+     eine andere Aufteilung üblich ist, ist das die eine Zahl, die man
+     dafür ändert.
+
+     Gleichstand (bei 4000 mm liefern 3-rails-4-türig und
+     4-rails-4-türig beide 1000 mm): weniger Schienen gewinnt. Die
+     Bodenschiene wird dadurch schmaler, man stolpert über weniger. */
+  var ZIEL_SCHEIBE = 1050;   // mm, gestalterisch gesetzt
+
+  /* HANDAUSWAHL. „system machts automatisch, aber bei erweiterte
+     einstellungen kann man es selbst wählen" (Betreiber, 11.10.2026).
+
+     Die Automatik bleibt der Standard – der Laie soll nichts entscheiden
+     müssen, was er nicht beurteilen kann. Wer die Aufteilung kennt,
+     findet sie unter „Mehr Einstellungen".
+
+     Passt die Handauswahl zur jeweiligen Seite nicht (links/rechts
+     laufen über die Tiefe, vorne über die Breite – das sind zwei
+     verschiedene Maße), greift für DIESE Seite wieder die Automatik.
+     Eine Bauart zu zeichnen, die es in dieser Breite nicht gibt, wäre
+     die schlechtere Antwort als eine Seite anders aufzuteilen. */
+  function sg23Gewaehlt(breiteMm) {
+    if (!Z.sg23Wahl) return null;
+    var teile = Z.sg23Wahl.split('|');
+    var sch = parseInt(teile[0], 10), fl = parseInt(teile[1], 10);
+    var hit = null;
+    SG23.bauarten.forEach(function (b) {
+      if (b[0] === sch && b[1] === fl && breiteMm >= b[2] && breiteMm <= b[3]) hit = b;
+    });
+    return hit;
+  }
+
+  function sg23Bauart(breiteMm) {
+    var hand = sg23Gewaehlt(breiteMm);
+    if (hand) return hand;
+    var treffer = null, bestAbstand = Infinity;
+    SG23.bauarten.forEach(function (b) {
+      if (breiteMm < b[2] || breiteMm > b[3]) return;
+      var abstand = Math.abs(breiteMm / b[1] - ZIEL_SCHEIBE);
+      if (abstand < bestAbstand - 0.5 ||
+          (Math.abs(abstand - bestAbstand) <= 0.5 && treffer && b[0] < treffer[0])) {
+        treffer = b; bestAbstand = abstand;
+      }
+    });
+    return treffer;
+  }
+
+  var FLUEGEL_BREITE = 150;   // cm, nur noch Rückfall ohne passende Bauart
 
   /* Die Vorderseite des Keils darf nicht kleiner als 150 mm sein,
      Rahmen eingerechnet (Angabe des Betreibers, 10.10.2026). Ist der
@@ -1516,6 +1612,11 @@
   var KEIL_FELD_MAX = 150;    // cm, BELEGT durch den Betreiber
 
   function fluegelAnzahl(laenge) {
+    var b = sg23Bauart(laenge * 10);           // cm -> mm
+    if (b) return b[1];
+    /* Außerhalb der lieferbaren Breiten (unter 1500, über 7000 mm):
+       die alte Schätzung, damit überhaupt etwas gezeichnet wird. Der
+       Hinweis im Bedienfeld sagt dann, dass das Maß nicht lieferbar ist. */
     return Math.max(2, Math.round(laenge / FLUEGEL_BREITE));
   }
 
@@ -1595,6 +1696,43 @@
       platte(rahmen, laenge, 5, achse, mitte, y, quer, versatz, 5);
     }
 
+    /* ---------- Bodenschiene ----------
+       „die glassschiebeelemente gehen nicht bis zum boden es is eine
+       lücke vorhanden" (Betreiber, 11.10.2026).
+
+       Die Elemente standen auf yUnten = PROFIL / 2, also 55 mm über dem
+       Boden – darunter war nichts. In Wirklichkeit laufen sie in einer
+       Bodenschiene, die auf dem Belag verschraubt wird. Statt die
+       Elemente nach unten zu ziehen (dann liefen sie im Boden), kommt das
+       Bauteil dazu, das die Lücke in echt auch füllt.
+
+       Querschnitt GESCHÄTZT: 55 mm hoch, 60 mm tief. Eine Zeichnung der
+       Schiene liegt nicht vor – GEGENZULESEN. */
+    var SCHIENE_H = 5.5, SCHIENE_T = 6;
+
+    function bodenschiene(laenge, achse, mitte, quer) {
+      platte(rahmen, laenge, SCHIENE_H, achse, mitte, SCHIENE_H / 2,
+             quer, 0, SCHIENE_T);
+    }
+
+    /* ---------- Wandanschlussprofil ----------
+       „bei glasschiebewänden ich kein abdeckprofil an der wand in
+       terrassenüberdachungsfarbe" (Betreiber, 11.10.2026).
+
+       An der Hauswand deckt ein senkrechtes Profil in der Farbe der
+       Überdachung die Fuge ab. Es fehlte ganz; die Scheiben endeten frei
+       vor der Mauer. Es läuft von der Bodenschiene bis zur Oberkante des
+       Elements und gibt es nur an den Seiten (links/rechts), nicht vorne.
+
+       Querschnitt GESCHÄTZT: 50 mm breit, 25 mm tief – GEGENZULESEN. */
+    var WANDPR_B = 5, WANDPR_T = 2.5;
+
+    function wandAnschluss(achse, zWand, hOben, quer) {
+      if (!quer) return;                       // vorne gibt es keine Wand
+      platte(rahmen, WANDPR_T, hOben, achse, zWand + WANDPR_T / 2,
+             hOben / 2, true, 0, WANDPR_B);
+    }
+
     /* Schiebetür: einzelne Flügel, die sich übereinander schieben. Nur so
        zeigt der Regler „geöffnet" etwas Echtes – einer bleibt stehen. */
     function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer) {
@@ -1604,7 +1742,8 @@
       for (var i = 0; i < n; i++) {
         var lage = start + flB * i - offen * flB * i;
         var spur = (i % 2) * 2.4;                       // zwei Laufschienen
-        platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2, quer, spur);
+        platte(mGlas, flB, hoehe, achse, lage, yUnten + hoehe / 2, quer, spur,
+               SG23.glasDicke);
         rahmenKante(flB, achse, lage, yUnten + 2.5, quer, spur);
         rahmenKante(flB, achse, lage, yUnten + hoehe - 2.5, quer, spur);
       }
@@ -1645,8 +1784,11 @@
     function eineSeite(seite, achse, mitte, laenge, quer) {
       var liste = erwListe(seite);
       if (!liste.length) return;
-      var hoch = hVorn - PROFIL;
-      var yUnten = PROFIL / 2;
+      /* Die Elemente stehen jetzt IN der Bodenschiene – Unterkante also
+         auf deren Oberkante, nicht frei in der Luft. Die Gesamthöhe
+         bleibt unverändert, es verschiebt sich nur, was unten sitzt. */
+      var yUnten = SCHIENE_H;
+      var hoch = hVorn - PROFIL / 2 - yUnten;
       /* Der Keil läuft IMMER bis nach hinten durch: bei Wandmontage bis
          an die Wand, freistehend bis an den hinteren Pfosten (Angabe des
          Betreibers). Das Element darunter endet dagegen zwischen den
@@ -1697,6 +1839,15 @@
       // Plankenwand zusätzlich zu Rahmen/Schiebe: als unteres Drittel davor
       if (hatPlanken && (hatRahmen || hatSchiebe)) {
         planken(laenge, hoch * 0.34, achse, mitte, yUnten, quer);
+      }
+
+      /* Bodenschiene und Wandanschluss gehören zu jedem geschlossenen
+         Element – ohne sie steht die Scheibe frei in der Luft bzw. frei
+         vor der Mauer. Eine Senkrechtmarkise bekommt beides NICHT: sie
+         läuft in eigenen Führungsschienen und hat unten eine Fallstange. */
+      if (hatRahmen || hatSchiebe || hatPlanken) {
+        bodenschiene(laenge, achse, mitte, quer);
+        wandAnschluss(achse, mitte - laenge / 2, yUnten + hoch, quer);
       }
 
       // Zubehör VOR der Fläche
@@ -3267,6 +3418,7 @@
      offene Seiten werden ausdrücklich genannt statt weggelassen. */
   function seitenStandZeigen() {
     var el = document.getElementById('k3dSeitenStand');
+    sg23FeldFuellen();     // auch, wenn gleich unten zurueckgesprungen wird
     if (!el) return;
     var zu = [], offen = [];
     [['links', 'links'], ['rechts', 'rechts'], ['vorne', 'vorne']].forEach(function (p) {
@@ -3284,7 +3436,95 @@
         ? '.<br><span class="offen">' +
           (offen.length === 1 ? 'Offen bleibt: ' : 'Offen bleiben: ') +
           offen.join(' und ') + '.</span>'
-        : '.<br><span class="offen">Damit sind alle drei Seiten geschlossen.</span>');
+        : '.<br><span class="offen">Damit sind alle drei Seiten geschlossen.</span>') +
+      sg23Hinweis();
+  }
+
+  /* ---------- Grenzen der Schiebeanlage ----------
+     BELEGT (SG23-Unterlage, Stand 01.08.2026): außen höchstens 2450 mm
+     hoch (Windlast), lieferbar von 1500 bis 7000 mm Breite, gerechnet in
+     Schritten von 500 mm.
+
+     Das ist keine Spielerei: Die Durchgangshöhe geht im Konfigurator bis
+     2700 mm. Wer 2700 einstellt und rundum Schiebetüren wählt, bekommt
+     ein Bild, das so nicht baubar ist – und eine Anfrage, auf die VD mit
+     „geht nicht" antwortet, nachdem der Kunde sich schon entschieden hat.
+     Lieber steht es vorher da. */
+  /* Fachzeilen für die Anfrage-Mail: je geschlossener Seite die Bauart,
+     die der Konfigurator gewählt hat, mit Scheibenbreite. Das ist der
+     Vorschlag des Hauses – der Kunde kann im Aufmaß eine andere Bauart
+     bekommen, dann steht hier, wovon abgewichen wird. */
+  /* Das Auswahlfeld zeigt nur, was es in diesem Maß wirklich gibt –
+     sonst stünden dort Bauarten, die der Hersteller für diese Breite
+     nicht liefert. Maßgeblich ist die LÄNGSTE geschlossene Seite. */
+  function sg23FeldFuellen() {
+    var sel = document.getElementById('k3dSg23');
+    if (!sel) return;
+    var laengen = [];
+    if (erwListe('links').indexOf('Schiebetür') > -1 ||
+        erwListe('rechts').indexOf('Schiebetür') > -1) laengen.push(Z.tiefe);
+    if (erwListe('vorne').indexOf('Schiebetür') > -1) laengen.push(Z.breite);
+    var mass = Math.max.apply(null, laengen.concat([0]));
+    var auto = mass ? sg23Bauart(mass) : null;
+    var html = '<option value="">Automatisch' +
+      (auto ? ' – ' + auto[1] + '-türig' : '') + '</option>';
+    SG23.bauarten.forEach(function (b) {
+      if (!mass || mass < b[2] || mass > b[3]) return;
+      html += '<option value="' + b[0] + '|' + b[1] + '">' + b[1] +
+        '-türig, ' + b[0] + ' Schienen – Scheiben je ca. ' +
+        Math.round(mass / b[1]) + ' mm</option>';
+    });
+    sel.innerHTML = html;
+    /* Passt die gespeicherte Wahl zum neuen Maß nicht mehr, zurück auf
+       Automatik – sonst zeigt das Feld etwas anderes als das Modell. */
+    if (Z.sg23Wahl && !sg23Gewaehlt(mass)) Z.sg23Wahl = '';
+    sel.value = Z.sg23Wahl;
+  }
+
+  function sg23Zeilen() {
+    var zeilen = [];
+    [['links', Z.tiefe], ['rechts', Z.tiefe], ['vorne', Z.breite]].forEach(function (p) {
+      if (erwListe(p[0]).indexOf('Schiebetür') === -1) return;
+      var b = sg23Bauart(p[1]);
+      if (!b) {
+        zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +
+          ' mm – außerhalb der Standardbreiten (1500–7000 mm), Aufteilung nach Aufmaß');
+        return;
+      }
+      zeilen.push('Schiebeanlage ' + p[0] + ': SG23, ' + b[0] + '-rails, ' +
+        b[1] + '-türig, 10 mm ESG, Scheiben je ca. ' +
+        Math.round(p[1] / b[1]) + ' mm (Vorschlag, Aufteilung nach Aufmaß)');
+    });
+    return zeilen;
+  }
+
+  function sg23Hinweis() {
+    if (!erwIrgendwo('Schiebetür')) return '';
+    var saetze = [];
+    var hoehe = Z.hoehe;
+    if (hoehe > SG23.hoeheMaxAussen) {
+      saetze.push('Die Schiebeanlage ist im Freien bis <b>' +
+        SG23.hoeheMaxAussen + ' mm</b> hoch lieferbar – eingestellt sind ' +
+        hoehe + ' mm. Das Aufmaß klärt, wie die Fläche aufgeteilt wird.');
+    }
+    /* Die Elemente laufen in der Tiefe (links/rechts) bzw. in der Breite
+       (vorne) – die längste geschlossene Seite entscheidet. */
+    var laengen = [];
+    if (erwListe('links').indexOf('Schiebetür') > -1 ||
+        erwListe('rechts').indexOf('Schiebetür') > -1) laengen.push(Z.tiefe);
+    if (erwListe('vorne').indexOf('Schiebetür') > -1) laengen.push(Z.breite);
+    var maxL = Math.max.apply(null, laengen.concat([0]));
+    if (maxL > 0 && !sg23Bauart(maxL)) {
+      saetze.push('Für <b>' + maxL + ' mm</b> gibt es keine Standard-Bauart ' +
+        '(lieferbar 1500 bis 7000 mm) – die Seite wird geteilt.');
+    }
+    var b = sg23Bauart(Math.max.apply(null, laengen.concat([0])));
+    if (b) {
+      saetze.push('Vorgeschlagen sind <b>' + b[1] + ' Schiebeflügel</b> ' +
+        'je Seite. Die genaue Aufteilung besprechen wir beim Aufmaß.');
+    }
+    if (!saetze.length) return '';
+    return '<br><span class="hinweis">' + saetze.join(' ') + '</span>';
   }
 
   function schrittWechseln(richtung) {
@@ -3786,6 +4026,11 @@
       if (erwIrgendwo('Schiebetür') && Z.glasOffen > 0) {
         teile.push('Schiebetür im Bild ' + Z.glasOffen + ' % geöffnet');
       }
+      /* Die gewählte Bauart gehört in die Mail, nicht nur ins Bild.
+         „man kann es später mim kunden eh nochmal besprechen und ändern"
+         (Betreiber) – besprechen kann man aber nur, was dasteht. Ohne
+         diese Zeile müsste man die Aufteilung aus dem Bild abzählen. */
+      sg23Zeilen().forEach(function (zeile) { teile.push(zeile); });
       if (Z.markise !== 'Ohne') teile.push('Beschattung: ' + Z.markise);
       if (Z.stoff && gruppeGilt('stoff-dach')) teile.push('Markisenstoff: ' + stoffText(Z.stoff));
       if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
@@ -3865,6 +4110,8 @@
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
+    var selSg = document.getElementById('k3dSg23');
+    if (selSg) Z.sg23Wahl = selSg.value;
     var ledEl = document.getElementById('k3dLed');
     Z.led = ledEl ? ledEl.checked : Z.led;
     Z.montage = wert('k3dMontage') || Z.montage;
@@ -4204,7 +4451,7 @@
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
-   'k3dHeizung', 'k3dWetter'].forEach(function (id) {
+   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dSg23'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendern);
@@ -4578,6 +4825,36 @@
       bauen();
     });
   }
+
+  /* ---------- Maße ein-/ausblenden ----------
+     „solte man solche einstelungen wie maße im 3d anzeige anzeigen nicht
+     erst am ende vorgeschlagen bekommen, es solte ne einstellung sein wie
+     bei tag/nacht modus etc." (Betreiber, 11.10.2026).
+
+     Das Häkchen im Bedienfeld bleibt, steht aber im letzten Schritt
+     „Umgebung" – wer die Maße während des Konfigurierens sehen will,
+     findet es dort nicht. Der Schalter in der Ansichtsleiste liegt neben
+     Abend und Drehen und wirkt sofort. Beide halten denselben Wert, nicht
+     zwei: Wer hier schaltet, sieht das Häkchen mitgehen und umgekehrt. */
+  var masseBtn = document.getElementById('k3dMasseLeiste');
+  function masseKnopfStand() {
+    if (!masseBtn) return;
+    masseBtn.classList.toggle('is-active', Z.masseZeigen);
+    masseBtn.setAttribute('aria-pressed', Z.masseZeigen ? 'true' : 'false');
+  }
+  if (masseBtn) {
+    masseBtn.addEventListener('click', function () {
+      Z.masseZeigen = !Z.masseZeigen;
+      var haken = document.getElementById('k3dMasse');
+      if (haken) haken.checked = Z.masseZeigen;
+      masseKnopfStand();
+      masseZeichnen();
+      zusammenfassung();
+    });
+  }
+  var hakenMasse = document.getElementById('k3dMasse');
+  if (hakenMasse) hakenMasse.addEventListener('change', masseKnopfStand);
+  masseKnopfStand();
 
   var drehBtn = document.getElementById('k3dDrehen');
   if (drehBtn) {

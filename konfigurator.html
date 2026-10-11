@@ -794,6 +794,14 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dSg23">Aufteilung der Schiebeanlage</label>
+          <select id="k3dSg23" class="k3d-select"></select>
+          <p class="k3d-mini">Normalerweise wählt der Konfigurator die Aufteilung,
+            die zu Ihrem Maß am besten aussieht. Hier können Sie selbst bestimmen.
+            Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
           <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
@@ -1027,6 +1035,7 @@
       <button type="button" data-k3d-ansicht="Von oben">Von oben</button>
       <button type="button" data-k3d-ansicht="Darunter">Darunter</button>
       <span class="k3d-trenn"></span>
+      <button type="button" id="k3dMasseLeiste" aria-pressed="false">↔ Maße</button>
       <button type="button" id="k3dAbend" aria-pressed="false"><span>Abend</span></button>
       <button type="button" id="k3dDrehen" aria-pressed="false">⟳ Drehen</button>
     </div>
@@ -1125,7 +1134,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261012n" defer></script>
+<script src="js/konfigurator-3d.js?v=20261012o" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
