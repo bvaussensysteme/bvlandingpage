@@ -717,3 +717,68 @@ Unterscheidung würde jede Drehbewegung die Markise umschalten.
 
 Im Bedienfeld steht jetzt ein Satz dazu – eine Klickfläche, von der
 niemand weiß, gibt es praktisch nicht.
+
+## 2026-10-11 – 3D-Konfigurator fragt Schritt für Schritt ab
+
+**Anlass.** Der Betreiber: „jetzt ist es kompliziert. du musst dir
+vorstellen da sitzt nen 60 jähriger ahnungsloser opa am pc oder handy.
+der konfigurator muss für jeden leihen einfach bedienbar sein" – und auf
+Nachfrage: „quasi genauso wie jetzt schon im nicht 3d konfigurator".
+
+**Was war.** Acht aufklappbare Abschnitte mit 38 Bedieneinheiten, alle
+gleichzeitig sichtbar. Wer weiß, was er sucht, findet alles. Wer nicht
+weiß, was eine Eindeckung oder ein Keil ist, sieht eine Wand aus
+Fachbegriffen.
+
+**Was jetzt gilt.** Dieselbe Reihenfolge wie im Anfrage-Assistenten:
+eine Frage nach der anderen, Weiter und Zurück, Fortschrittsbalken.
+Elf Schritte von „Was möchten Sie bauen?" bis „Fertig".
+
+**Warum so und nicht anders – der wichtigste Punkt:** Die Bedienelemente
+wurden **nicht neu gebaut**. Jede Gruppe trägt `data-k3d-schritt` und
+gehört damit zu genau einem Schritt; gesteuert wird nur, welche gerade
+sichtbar ist. Dadurch
+
+- bleibt „Alles auf einen Blick" ohne Zusatzaufwand möglich (ein Schalter
+  oben rechts – gedacht für den Betreiber selbst beim Kundentermin),
+- gibt es **keine zweite Stelle**, an der dieselbe Einstellung lebt und
+  auseinanderlaufen könnte,
+- gelten alle bestehenden Sichtbarkeitsregeln (`gruppeGilt`) unverändert
+  weiter.
+
+**Leere Schritte werden übersprungen.** Beim Carport gibt es keine
+Seitenelemente, beim Terrassendach keine Verkleidung. Ohne das
+Überspringen stünde man vor einer leeren Seite. Der Fortschritt zählt
+deshalb nur Schritte, die es in dieser Konfiguration wirklich gibt –
+„Schritt 7 von 11" wäre gelogen, wenn vier übersprungen werden.
+
+**Selten Gebrauchtes liegt hinter „Mehr Einstellungen":** Dachneigung,
+Dachvorsprung, Dachüberstand, Lamellenstellung, Schiebe-Regler,
+Ausfahrgrad, Bodenbelag, Maßanzeige. Acht von 38 Gruppen.
+
+### Der Fall, der das ausgelöst hat
+
+Der Betreiber: „ich hatte z.b auch schon fälle da hat einer nur links
+schiebetüren ausgewählt und später gefragt ob es rundherum is."
+
+Die Knöpfe zeigen, was man ANKLICKEN kann – nicht, was am Ende steht.
+Zwei Stellen sagen es jetzt in Worten:
+
+1. **Im Bedienfeld** eine Klartextzeile: „So steht es gerade: links:
+   Schiebetür. Offen bleiben: rechts und vorne."
+2. **In der Anfrage-Mail** werden jetzt **alle drei Seiten genannt**,
+   auch die offenen (`links: Schiebetür · rechts: offen · vorne: offen`).
+   Vorher standen dort nur die geschlossenen – damit war auch für uns
+   nicht festgehalten, ob eine Seite offen bleiben SOLL oder nur
+   vergessen wurde.
+
+**Laiensprache im Bedienfeld, Fachbegriffe in der Anfrage** (Vorgabe des
+Betreibers). Die gespeicherten Werte sind unverändert technisch
+(`Aufdachmarkise`, `Keil`, `VSG 8 mm`); vereinfacht wurden nur
+Schritttitel und Erklärsätze. Die Mail ist für den Betrieb, nicht für den
+Kunden.
+
+**Prüfung.** `node scripts/pruefe-fuehrung.js` – 9 Prüfungen, alle
+bestanden; Gegenprobe 9 von 9. Sie fängt vor allem den Fall ab, dass eine
+neue Bedieneinheit ohne `data-k3d-schritt` eingebaut wird: die wäre im
+geführten Modus unsichtbar, und es würde niemandem auffallen.

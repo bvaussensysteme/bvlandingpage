@@ -212,6 +212,53 @@
     .k3d-stoff--leer { grid-column: 1 / -1; }
     .k3d-stoff--leer span { font-size: .72rem; }
 
+    /* ---------- Geführte Reihenfolge ----------
+       Eine Frage nach der anderen, wie im Anfrage-Assistenten. Die
+       Bedienelemente selbst bleiben dieselben – es wird nur gesteuert,
+       welche gerade sichtbar sind. Deshalb geht hier nichts verloren,
+       wenn jemand auf „Alles auf einen Blick" umschaltet. */
+    .k3d-fuehrung, .k3d-nav { display: none; }
+    .k3d-gefuehrt .k3d-fuehrung { display: block; margin-bottom: 16px; }
+    .k3d-fuehrung-kopf { display: flex; justify-content: space-between;
+      align-items: center; gap: 10px; }
+    .k3d-fortschritt { font-size: .7rem; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--muted); }
+    .k3d-modus { background: none; border: 0; padding: 2px; cursor: pointer;
+      font-size: .72rem; color: var(--gold-dark); text-decoration: underline; }
+    .k3d-balken { display: block; height: 4px; border-radius: 2px;
+      background: var(--border); margin: 9px 0 14px; overflow: hidden; }
+    .k3d-balken i { display: block; height: 100%; background: var(--gold);
+      width: 0; transition: width .25s ease; }
+    .k3d-schritt-t { font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.5rem; line-height: 1.1; margin: 0 0 5px; }
+    .k3d-schritt-s { font-size: .84rem; color: var(--muted); margin: 0; }
+
+    .k3d-gefuehrt .k3d-nav { display: block; margin: 18px 0 6px; }
+    .k3d-nav-zeile { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; }
+    .k3d-nav-zeile button { padding: 14px 10px; border-radius: 10px;
+      border: 2px solid var(--border); background: #fff; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1.05rem; }
+    .k3d-nav-zeile #k3dWeiter { border-color: var(--gold); }
+    .k3d-nav-zeile button[disabled] { opacity: .38; cursor: default; }
+    .k3d-mehr-knopf { width: 100%; margin-bottom: 12px; padding: 10px;
+      border-radius: 9px; border: 1px dashed var(--border); background: none;
+      font-size: .8rem; color: var(--muted); cursor: pointer; }
+
+    .k3d-gefuehrt .k3d-sek > summary { display: none; }
+    .k3d-gefuehrt .k3d-sek { border: 0; margin: 0; padding: 0; }
+    .k3d-gefuehrt .k3d-gruppe:not(.ist-schritt) { display: none; }
+    .k3d-gefuehrt .k3d-zus { display: none; }
+    .k3d-gefuehrt.ist-letzter .k3d-zus { display: block; }
+    /* Klartextzeile zu den Seiten: welche ist zu, welche offen. */
+    .k3d-seiten-stand { margin: 10px 0 0; padding: 10px 12px; border-radius: 9px;
+      background: var(--light-bg, #F1EFEA); font-size: .82rem; line-height: 1.45; }
+    .k3d-seiten-stand b { font-weight: 700; }
+    .k3d-seiten-stand .offen { color: var(--muted); }
+
+    .k3d-gefuehrt .k3d-anfrage { display: none; }
+    .k3d-gefuehrt.ist-letzter .k3d-anfrage { display: block; }
+
     /* Erweiterungen: mehrere je Seite, gesperrte bleiben sichtbar und sagen,
        woran es liegt – wegnehmen würde die Frage aufwerfen, wo sie hin sind. */
     .k3d-erw button small { min-height: 0; color: #9a6a3a; }
@@ -387,11 +434,25 @@
 
     <div class="k3d-sl-rollen">
 
+      <!-- ---------- Geführte Reihenfolge ----------
+           Eine Frage nach der anderen, wie im Anfrage-Assistenten. Wer
+           lieber alles gleichzeitig sieht, schaltet oben rechts um. -->
+      <div class="k3d-fuehrung" id="k3dFuehrung">
+        <div class="k3d-fuehrung-kopf">
+          <span class="k3d-fortschritt" id="k3dSchrittZahl">Schritt 1 von 9</span>
+          <button type="button" class="k3d-modus" id="k3dModus"
+                  aria-pressed="false">Alles auf einen Blick</button>
+        </div>
+        <span class="k3d-balken" aria-hidden="true"><i id="k3dBalken"></i></span>
+        <h2 class="k3d-schritt-t" id="k3dSchrittTitel"></h2>
+        <p class="k3d-schritt-s" id="k3dSchrittUnter"></p>
+      </div>
+
       <!-- ---------- Produkt & Maße ---------- -->
       <details class="k3d-sek" open>
         <summary><span class="k3d-sek-t">Produkt &amp; Maße</span><span class="k3d-sek-s" id="k3dSumProdukt"></span></summary>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="produkt">
           <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
           <input type="hidden" id="k3dProdukt" value="Terrassendach TDS">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
@@ -402,7 +463,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="carport" hidden>
           <label class="k3d-label" for="k3dCpTyp">Carport-Typ</label>
           <select id="k3dCpTyp" class="k3d-select">
             <option value="Carport TDS">Carport TDS – Profildach</option>
@@ -411,12 +472,12 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="carport" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="carport" hidden>
           <label class="k3d-label" for="k3dCpVariante">Ausführung</label>
           <select id="k3dCpVariante" class="k3d-select"></select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="pergola" hidden>
           <label class="k3d-label" for="k3dPgDachart">Dachart</label>
           <select id="k3dPgDachart" class="k3d-select">
             <option value="Lamellendach">Lamellendach – drehbare Alu-Lamellen</option>
@@ -425,7 +486,7 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="pg-lamellen" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="pg-lamellen" hidden>
           <label class="k3d-label" for="k3dPgAusfuehrung">Ausführung</label>
           <select id="k3dPgAusfuehrung" class="k3d-select">
             <option value="SunPro">SunPro – bis 7 × 4,5 m</option>
@@ -433,7 +494,7 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="aufbau">
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="aufbau">
           <span class="k3d-label" id="k3dAufbauLabel">Aufbau</span>
           <input type="hidden" id="k3dAufbau" value="Wandmontage">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dAufbau" role="group" aria-labelledby="k3dAufbauLabel">
@@ -442,7 +503,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="fassade" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="fassade" hidden>
           <span class="k3d-label" id="k3dFassadeLabel">Wie ist Ihre Hauswand?</span>
           <input type="hidden" id="k3dFassade" value="Rauputz">
           <div class="k3d-seg" data-k3d-seg="k3dFassade" role="group" aria-labelledby="k3dFassadeLabel">
@@ -453,7 +514,7 @@
           <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
@@ -461,7 +522,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
@@ -472,7 +533,7 @@
             des Herstellers, siehe „Was daraus folgt“.</p>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
           <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
@@ -480,7 +541,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="vorsprung">
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
           <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">300 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="300">
@@ -488,7 +549,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="cp-ueberstand" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="cp-ueberstand" hidden>
           <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
@@ -501,7 +562,7 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Dach &amp; Farbe</span><span class="k3d-sek-s" id="k3dSumDach"></span></summary>
 
-        <div class="k3d-gruppe" data-k3d-fuer="glas">
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="glas">
           <span class="k3d-label" id="k3dEindeckungLabel">Dacheindeckung</span>
           <input type="hidden" id="k3dEindeckung" value="VSG klar">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
@@ -517,7 +578,7 @@
             für Graphit liegt uns noch keine Angabe vor.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="cp-flachdach" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="cp-flachdach" hidden>
           <label class="k3d-label" for="k3dCpDach">Dacheindeckung</label>
           <select id="k3dCpDach" class="k3d-select">
             <option value="Trapezblech (Standard)">Trapezblech – nur Blech</option>
@@ -529,13 +590,13 @@
             waagerecht – ohne sichtbares Gefälle.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="neigung">
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="neigung">
           <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
           <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
           <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="pg-lamellen" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="pg-lamellen" hidden>
           <label class="k3d-label" for="k3dLamellen">Lamellenstellung <output id="k3dLamellenWert">35° geöffnet</output></label>
           <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
           <div class="k3d-seg k3d-seg--2">
@@ -545,7 +606,7 @@
           <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="farbe">
           <span class="k3d-label" id="k3dFarbeLabel">Farbe Aluminium</span>
           <div class="k3d-farben" role="group" aria-labelledby="k3dFarbeLabel">
             <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit<br>RAL 7016</span></button>
@@ -563,7 +624,7 @@
       <details class="k3d-sek" data-k3d-fuer="terrasse pergola">
         <summary><span class="k3d-sek-t">Seiten &amp; Erweiterungen</span><span class="k3d-sek-s" id="k3dSumSeiten"></span></summary>
 
-        <div class="k3d-gruppe" data-k3d-fuer="pergola" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="pergola" hidden>
           <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
           <select id="k3dPgSeitenschutz" class="k3d-select">
             <option value="Nichts / später entscheiden">ohne</option>
@@ -572,12 +633,17 @@
           </select>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
           <p class="k3d-mini">Schon eine geschlossene Seite bringt Wind-, Sicht- und
             Wetterschutz. Mehrfachauswahl – Rahmenwand unten, Schiebetür darüber.</p>
+          <!-- Klartext, welche Seite gerade wie steht. Anlass: Ein Kunde
+               hatte nur links Schiebetüren gewählt und später gefragt, ob
+               es rundherum sei. Die Knöpfe allein haben das nicht
+               beantwortet. -->
+          <p class="k3d-seiten-stand" id="k3dSeitenStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
           <span class="k3d-label">Links <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
           <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="links" role="group" aria-label="Erweiterung links">
             <button type="button" data-erw="Keil">Keil<small></small></button>
@@ -589,7 +655,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
           <span class="k3d-label">Rechts <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
           <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="rechts" role="group" aria-label="Erweiterung rechts">
             <button type="button" data-erw="Keil">Keil<small></small></button>
@@ -601,7 +667,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="terrasse">
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="terrasse">
           <span class="k3d-label">Vorne (Stirnseite) <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
           <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="vorne" role="group" aria-label="Erweiterung vorne">
             <button type="button" data-erw="Keil" hidden><small></small></button>
@@ -613,7 +679,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="schiebe" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
           <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
@@ -629,7 +695,7 @@
       <details class="k3d-sek" data-k3d-fuer="terrasse">
         <summary><span class="k3d-sek-t">Sonnenschutz</span><span class="k3d-sek-s" id="k3dSumSonne"></span></summary>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="sonne">
           <span class="k3d-label" id="k3dMarkiseLabel">Mehr Schatten &amp; Komfort?</span>
           <input type="hidden" id="k3dMarkise" value="Ohne">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMarkise" role="group" aria-labelledby="k3dMarkiseLabel">
@@ -644,7 +710,7 @@
             bei den Erweiterungen.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="stoff-dach" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-dach" hidden>
           <span class="k3d-label" id="k3dStoffLabel">Markisenstoff</span>
           <input type="hidden" id="k3dStoff" value="">
           <div class="k3d-stoff-liste" id="k3dStoffeDach" role="group"
@@ -652,7 +718,7 @@
           <p class="k3d-mini" id="k3dStoffInfo"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="stoff-zip" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-zip" hidden>
           <span class="k3d-label" id="k3dStoffZipLabel">Stoff der Senkrechtmarkise</span>
           <input type="hidden" id="k3dStoffZip" value="">
           <div class="k3d-stoff-liste" id="k3dStoffeZip" role="group"
@@ -661,7 +727,7 @@
             Mustern – Konfektion A und B.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="sonne-aus" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="sonne-aus" hidden>
           <label class="k3d-label" for="k3dSonneAus">Ausgefahren <output id="k3dSonneAusWert">85 %</output></label>
           <input type="range" id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
           <div class="k3d-seg k3d-seg--2">
@@ -677,11 +743,11 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Licht &amp; Technik</span><span class="k3d-sek-s" id="k3dSumLicht"></span></summary>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="technik">
           <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Spots in den Sparren</span></label>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="led-detail" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="led-detail" hidden>
           <span class="k3d-label" id="k3dLedSetLabel">Welche LED-Spots?</span>
           <input type="hidden" id="k3dLedSet" value="8er-Set">
           <div class="k3d-seg" data-k3d-seg="k3dLedSet" role="group" aria-labelledby="k3dLedSetLabel">
@@ -693,11 +759,11 @@
           <input type="number" id="k3dLedAnzahl" class="k3d-zahl" inputmode="numeric" min="1" max="20" value="1" style="width:90px">
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="sound">
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="sound">
           <label class="k3d-schalter"><input type="checkbox" id="k3dSound"> <span>Lautsprecher im Dachprofil</span></label>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="sound-detail" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="sound-detail" hidden>
           <span class="k3d-label" id="k3dSoundSetLabel">Wie viele Lautsprecher?</span>
           <input type="hidden" id="k3dSoundSet" value="2er-Set">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dSoundSet" role="group" aria-labelledby="k3dSoundSetLabel">
@@ -706,7 +772,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="komfort" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="komfort" hidden>
           <label class="k3d-schalter"><input type="checkbox" id="k3dHeizung"> <span>Heizstrahler</span></label>
           <label class="k3d-schalter"><input type="checkbox" id="k3dWetter"> <span>Wetter-Automatik (Wind- und Regensensor)</span></label>
         </div>
@@ -716,7 +782,7 @@
       <details class="k3d-sek" data-k3d-fuer="verkleidung" hidden>
         <summary><span class="k3d-sek-t">Verkleidung</span><span class="k3d-sek-s" id="k3dSumVerk"></span></summary>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="verkleidung">
           <span class="k3d-label">Welche Wände</span>
           <div class="k3d-drei">
             <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRueck"> <span>Hinten</span></label>
@@ -725,7 +791,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-fuer="verk-richtung" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="verkleidung" data-k3d-fuer="verk-richtung" hidden>
           <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
           <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
@@ -741,7 +807,7 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Untergrund &amp; Montage</span><span class="k3d-sek-s" id="k3dSumUnterbau"></span></summary>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung">
           <span class="k3d-label" id="k3dUntergrundLabel">Wie ist der Untergrund vor Ort?</span>
           <input type="hidden" id="k3dUntergrund" value="Tragender Untergrund vorhanden">
           <div class="k3d-seg" data-k3d-seg="k3dUntergrund" role="group" aria-labelledby="k3dUntergrundLabel">
@@ -751,7 +817,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung">
           <span class="k3d-label" id="k3dMontageLabel">Montage durch unser Fachteam?</span>
           <input type="hidden" id="k3dMontage" value="Ja, mit Fachmontage">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMontage" role="group" aria-labelledby="k3dMontageLabel">
@@ -765,7 +831,7 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Anzeige</span><span class="k3d-sek-s" id="k3dSumAnzeige"></span></summary>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
           <span class="k3d-label" id="k3dBodenLabel">Boden</span>
           <input type="hidden" id="k3dBoden" value="Steinplatten">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dBoden" role="group" aria-labelledby="k3dBodenLabel">
@@ -775,10 +841,20 @@
           <p class="k3d-mini">Nur für die Darstellung – den Bodenbelag bringen Sie selbst mit.</p>
         </div>
 
-        <div class="k3d-gruppe">
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
           <label class="k3d-schalter"><input type="checkbox" id="k3dMasse"> <span>Maße im Modell anzeigen</span></label>
         </div>
       </details>
+
+      <!-- ---------- Weiter / Zurück ---------- -->
+      <div class="k3d-nav" id="k3dNav">
+        <button type="button" class="k3d-mehr-knopf" id="k3dMehr" hidden
+                aria-expanded="false">Mehr Einstellungen ▾</button>
+        <div class="k3d-nav-zeile">
+          <button type="button" id="k3dZurueck">◀ Zurück</button>
+          <button type="button" id="k3dWeiter" class="btn btn-gold">Weiter ▶</button>
+        </div>
+      </div>
 
       <!-- ---------- Ergebnis ---------- -->
       <div class="k3d-zus k3d-zus--folgt">
@@ -934,7 +1010,7 @@
 
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261011u" defer></script>
+<script src="js/konfigurator-3d.js?v=20261011v" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
