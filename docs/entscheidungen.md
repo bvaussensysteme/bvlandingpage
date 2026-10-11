@@ -3483,3 +3483,34 @@ sobald nicht animiert wird. Gehört er zum Zustand, muss er in den
 Zustand. Die Prüfung läuft jetzt die echte Funktion und verlangt bei
 50 % mindestens drei verschiedene Stände – die Gegenprobe setzt den
 Versatz auf 0 und muss anschlagen.
+
+## 11.10.2026 – Restliche Bestellangaben für Plissee und Sonnensegel
+
+**Anlass.** „ja bau restliche" (Betreiber) – auf den Vorschlag, die
+übrigen Angaben aus den beiden Bestellformularen einzubauen.
+
+**Was dazugekommen ist.**
+*Sonnensegel:* Ausführung (ohne/mit Verstärkung), Befestigung (Holz oder
+Aluminium/Stahl), Teleskopstange ja/nein.
+*Plissee:* Gestellfarbe (Weiß, Alu, Anthrazit, Schwarz) – sie färbt jetzt
+auch die Schienen im Modell – und der Bedienstab 120 cm in Weiß oder
+Schwarz.
+Alles geht in die Anfrage-Mail und in den Anfrage-Assistenten.
+
+**Die Bahnenzahl wird nicht erfragt.** Das Formular hat ein Feld dafür,
+aber sie ergibt sich aus dem Dach: je Sparrenfeld eine Bahn. Gefragt
+würde eine Zahl, die der Kunde nicht wissen kann und die dann der
+Zeichnung widerspricht. Sie wird deshalb aus dem gebauten Modell
+gelesen (`SONNE_IST`) und als „N Bahnen à ca. B × L mm, Aufmaß vor Ort"
+in die Anfrage geschrieben; dieselbe Zahl steht als Standzeile im
+Bedienfeld.
+
+**Noch nicht abgebildet:** die Verstärkung ist im 3D nicht zu sehen (sie
+sind kleine Dreiecke an den Aufhängungen) – sie steht nur in der Mail.
+
+**Prüfungen.** `scripts/pruefe-markise.js` jetzt 167, Gegenprobe
+167 von 167. Neu: Jede Option der Gestellfarbe muss im Code bekannt
+sein, jede Formularangabe muss in der Anfrage auftauchen, jedes neue
+Feld muss auch gelesen werden – genau die drei Fehlerarten, die bei den
+Velaris-Lamellen schon einmal passiert sind (Feld sendet einen Wert, den
+der Code nicht kennt, und fällt still auf die Vorgabe zurück).
