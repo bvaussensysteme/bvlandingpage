@@ -4117,7 +4117,41 @@
        MAUER IST – hinter dem Wandprofil, also bei negativem z. Das
        Wandprofil wird nicht ersetzt, es bekommt nur eine andere
        Schraubfläche. */
-    var zHinten = 4.5;                          // Wandprofil – frei wie an der Wand
+    /* Wandprofil TD – der Querschnitt AUFRECHT gestellt, Wand links
+       (Betreiber, 11.10.2026: „so wäre es quasi richtig wenn links die
+       wand wäre"). Also: ein hoher, geschlossener Rücken an der Wand,
+       aus dem drei kurze Schenkel nach vorne stehen.
+
+       BELEGT: 143,6 mm Höhe – das lange Maß liegt an der Wand.
+       GESCHÄTZT: 31 mm Ausladung, am Maßbild abgegriffen.
+
+       Die Fassung davor hatte den Querschnitt FALSCH HERUM gelesen:
+       143,6 mm waagerecht als Ausladung, 26,5 mm hoch. Das war die
+       Zeichnung so, wie sie auf dem Blatt lag, nicht so, wie das Profil
+       montiert wird. */
+    var wpH = sky ? 20 : 14.36, wpT = sky ? 9 : 3.1;
+
+    /* KORREKTUR 11.10.2026, dritter Anlauf. „jetzt liegt es waagrecht im
+       3d unter den sparren, es muss ja hinten an den sparren dran sein"
+       (Betreiber).
+
+       Was falsch war: Die Sparren begannen bei z = 0, also an der Wand –
+       GENAU DORT, wo das Wandprofil steht. Die ersten 31 mm jedes
+       Sparrens lagen damit IM Profil, und vom Profil selbst blieb nur
+       der Rand sichtbar, der unten und oben ein Stück heraussteht: ein
+       durchgehendes waagerechtes Band unter den Sparren, über die ganze
+       Breite. Dass das Profil dahinter aufrecht steht, war nicht zu
+       sehen.
+
+       Was jetzt gilt: Das Profil steht an der Wand, die Sparren fangen
+       an seiner VORDERKANTE an und sind mit ihrer Stirnseite daran
+       angeschraubt. Damit liegt es hinter den Sparren statt in ihnen.
+       Die Dachoberkante wird nicht mehr an einer frei gewählten Stelle
+       gerechnet (vorher 45 mm vor der Wand), sondern genau am
+       Sparrenende – nur dort kann die Profiloberkante mit der
+       Glasoberseite abschließen. Vorher stand das Dach dort 6 mm höher
+       als das Profil. */
+    var zSpHinten = wpT;                 // Sparrenanfang = Profilvorderkante
     /* Hinterer Dachvorsprung – nur beim freistehenden Carport TDS.
        Wie vorne wandern die Pfosten um das Maß nach innen, der
        Statikträger bleibt am Dachrand. Das Dach selbst wird nicht
@@ -4140,7 +4174,7 @@
        Gefälle über die ganze Tiefe, bei 3 m und 8° sind das 42 cm. Jetzt
        hängt beides an der SPARRENOBERKANTE – und zwar in beiden
        Montagearten, denn an der Wand stand das Profil genauso über. */
-    var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
+    var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zSpHinten);
     var dachOk = ukHinten + spH;                // Sparrenoberkante hinten
 
     /* Mit hinterem Dachvorsprung wandern Pfosten UND Träger nach innen;
@@ -4149,20 +4183,6 @@
        Vorsprung. Ohne Vorsprung bleibt alles wie bisher. */
     var zTrHinten = -TR_T / 2 + vorsprH;
     var ukAmTraeger = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zTrHinten);
-    /* Wandprofil TD – der Querschnitt AUFRECHT gestellt, Wand links
-       (Betreiber, 11.10.2026: „so wäre es quasi richtig wenn links die
-       wand wäre"). Also: ein hoher, geschlossener Rücken an der Wand,
-       aus dem drei kurze Schenkel nach vorne stehen.
-
-       BELEGT: 143,6 mm Höhe – das lange Maß liegt an der Wand.
-       GESCHÄTZT: 31 mm Ausladung, am Maßbild abgegriffen.
-
-       Die Fassung davor hatte den Querschnitt FALSCH HERUM gelesen:
-       143,6 mm waagerecht als Ausladung, 26,5 mm hoch. Das war die
-       Zeichnung so, wie sie auf dem Blatt lag, nicht so, wie das Profil
-       montiert wird. Der Rücken steht an der Wand bzw. freistehend am
-       Statikträger, die Oberkante bündig mit der Sparrenoberkante. */
-    var wpH = sky ? 20 : 14.36, wpT = sky ? 9 : 3.1;
     /* „in die untere hälfte kommen die sparren und oben drüber halt
        glas, glasleisten etc." (Betreiber, 11.10.2026). Das Profil endet
        also NICHT an der Sparrenoberkante, sondern reicht über die
@@ -4227,7 +4247,7 @@
        sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
     /* Der geschlossene Rücken steht an der Wand bzw. am Statikträger
        (z = 0), die Schenkel ragen von dort nach vorne. */
-    balken(B, wpH, wpT, 0, wpMitte, sky ? zHinten : wpT / 2, mAlu);
+    balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
     if (frei) {
       balken(B, TR_H, TR_T, 0, trOk - TR_H / 2, zTrHinten, mAlu);
     }
@@ -4255,8 +4275,11 @@
        ein Stück weiter, damit das Wasser in die Kehle läuft und nicht auf
        die Rinnenrückwand tropft. */
     var dachTiefe = sky ? T : T - RINNE.breite;
-    var laenge = dachTiefe / Math.cos(neig);
-    var zMitte = dachTiefe / 2;
+    /* Hinten enden die Sparren an der Vorderkante des Wandprofils, nicht
+       an der Wand – sonst steckt ihr Anfang im Profil (siehe die
+       Korrektur oben bei zSpHinten). */
+    var laenge = (dachTiefe - zSpHinten) / Math.cos(neig);
+    var zMitte = (dachTiefe + zSpHinten) / 2;
     /* Die Eindeckung ragt über das Sparrenende hinaus, bis etwa in die
        Mitte der Kehle – sonst tropft das Wasser auf die Rinnenrückwand
        statt in die Rinne. GESCHÄTZT. */
@@ -4270,7 +4293,7 @@
        liegt als die Vorderkante – sonst entwässert das Dach nach außen
        über die Nase statt in die Kehle. */
     var ukVorn = hRinne + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
-    var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe / 2);
+    var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
     xs.forEach(function (x) {
@@ -4298,8 +4321,15 @@
        zGlasMitte ist die Mitte der ungeteilten Scheibe; koppelLokal der
        Versatz des Stoßes davon aus, längs der Dachschräge. Positiv
        heißt: Richtung Rinne. */
-    var zGlasMitte = zMitte + glasUeber / 2;
-    var vollGlas = laenge - 2 + glasUeber;
+    /* Hinten stößt die Scheibe an das Wandprofil, sie endet nicht davor:
+       „in die untere hälfte kommen die sparren und oben drüber halt glas,
+       glasleisten etc." (Betreiber, 11.10.2026). Vorher blieb dort ein
+       Rücksprung von 10 mm – solange die Sparren im Profil steckten, fiel
+       das nicht auf; seit sie davor beginnen, wäre es ein offener Schlitz
+       unter der Glasleiste. Vorne bleibt der Rücksprung von 10 mm. */
+    var glasRueck = sky ? 1 : 0;              // Rücksprung hinten, cm
+    var zGlasMitte = zMitte + (glasRueck + glasUeber - 1) / 2;
+    var vollGlas = laenge + glasUeber - 1 - glasRueck;
     var koppelZ = dachTiefe - koppelAbstand() / 10;      // mm -> cm
     var koppelLokal = (koppelZ - zGlasMitte) / Math.cos(neig);
     var koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL.breite / 2;

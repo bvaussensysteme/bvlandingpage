@@ -3314,3 +3314,37 @@ Nachgerechnet mit den Maßen, die im Modell stehen: 143,6 mm Profil,
 Das passt zur Beschreibung, bestätigt sie aber nicht: Wie hoch die
 Glasleiste wirklich baut, steht in keiner Unterlage. Falls die Sparren
 in Wahrheit niedriger sind, verschiebt sich das.
+
+## 11.10.2026 – Wandprofil: Sparren beginnen vor dem Profil, nicht darin
+
+**Anlass.** „kannst du das wandprofil noch richtig machen jetzt liegt es
+waagrecht im 3d unter den sparren, es muss ja hinten an den sparren dran
+sein" (Betreiber). Die Maße aus dem Querschnitt waren seit PR #346
+richtig – 143,6 mm hoch, Oberkante an der Eindeckung –, die LAGE nicht.
+
+**Was falsch war.** Die Sparren begannen bei z = 0, also an der
+Mauerflucht – genau dort, wo das Profil steht. Die ersten 31 mm jedes
+Sparrens lagen damit im Profil. Sichtbar blieb nur der Rand, der unten
+15,6 mm heraussteht: ein durchgehendes waagerechtes Band unter den
+Sparren über die ganze Breite. Dass dahinter ein aufrechtes Profil
+steht, war nicht zu sehen. Dazu wurde die Dachoberkante an einer frei
+gewählten Stelle gerechnet (45 mm vor der Wand statt am Sparrenende),
+weshalb das Dach dort 6 mm über der Profiloberkante stand.
+
+**Was jetzt gilt.** Das Profil steht an der Wand (z = 0 bis 31 mm), die
+Sparren fangen an seiner Vorderkante an und sind mit der Stirnseite
+daran angeschraubt. Die Dachoberkante hängt am Sparrenende, dadurch
+schließt die Profiloberkante genau mit der Glasoberseite ab. Die
+Scheibe reicht hinten bis an das Profil; der frühere Rücksprung von
+10 mm wäre jetzt ein offener Schlitz unter der Glasleiste (vorne bleibt
+er, dort läuft das Wasser über die Rinne).
+
+**Was gegengelesen werden soll.** Von innen an der Wand entlang: ein
+aufrechtes Profil zwischen Mauer und Sparrenköpfen, kein waagerechtes
+Band unter den Sparren, kein Spalt zwischen Scheibe und Profil.
+
+**Prüfungen.** `scripts/pruefe-masstabelle.js` jetzt 189 Prüfungen,
+Gegenprobe 189 von 189. Neu darin, jeweils gegen die ALTE Rechnung
+gegengeprobt: Sparrenanfang an der Profilvorderkante, Profiloberkante
+gleich Glasoberseite am Sparrenende, Glashinterkante ohne Schlitz
+(Zahl aus der gebauten Formel zurückgelesen, nicht aus der Absicht).

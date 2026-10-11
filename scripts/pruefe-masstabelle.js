@@ -256,6 +256,59 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
+/* Die Sparren beginnen VOR dem Profil, nicht an der Wand. Davor steckte
+   ihr Anfang 31 mm im Profil, und sichtbar blieb nur der Rand, der unten
+   heraussteht - ein waagerechtes Band unter den Sparren ueber die ganze
+   Breite ("jetzt liegt es waagrecht im 3d unter den sparren", Betreiber
+   11.10.2026). */
+pruefe('Sparren beginnen an der Profilvorderkante',
+       new RegExp(q || 'zSpHinten = wpT;').test(k3d), 'nicht mehr bei z = 0');
+pruefe('Sparrenlaenge und -mitte folgen dem Profil',
+       new RegExp(q || 'laenge = \\(dachTiefe - zSpHinten\\) / Math\\.cos\\(neig\\)').test(k3d) &&
+       new RegExp(q || 'zMitte = \\(dachTiefe \\+ zSpHinten\\) / 2').test(k3d), '');
+pruefe('Dachoberkante wird am Sparrenende gerechnet',
+       new RegExp(q || 'dachTiefeJetzt - zSpHinten').test(k3d),
+       'nicht mehr 45 mm vor der Wand');
+(function () {
+  /* Zweiter Weg: die Lagen aus den Zahlen der Datei nachrechnen, nicht
+     aus der Absicht. wpT kommt aus dem Code, nicht aus dieser Datei. */
+  var wpT = parseFloat((k3d.match(/wpT = sky \? 9 : ([\d.]+)/) || [])[1]);
+  var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
+  if (!wpT || !sun) { pruefe('Profilmasse lesbar', false, 'wpT/sparrenUnterNase fehlt'); return; }
+  var spH = 12.0, wpH = 14.36, glas = 0.8, riH = 13.67, rinneB = 18.63;
+  var hVorn = 230, neig = 8 * Math.PI / 180, T = 300, dachTiefe = T - rinneB;
+  /* gegen: die ALTE Rechnung - Sparren ab der Wand, Dachoberkante 45 mm
+     davor, Scheibe 10 mm vor dem Sparrenende. */
+  var zSp = gegen ? 0 : wpT;
+  var zOk  = gegen ? 4.5 : wpT;
+  var ukVorn = hVorn + (riH - sun - spH);
+  var dachOk = ukVorn + Math.tan(neig) * (dachTiefe - zOk) + spH;
+  var falsch = 0, meld = [];
+  /* 1. Profil und Sparren duerfen sich nicht durchdringen. */
+  if (zSp < wpT - 0.001) { falsch++; meld.push('Sparren steckt ' + ((wpT - zSp) * 10).toFixed(0) + ' mm im Profil'); }
+  /* 2. Profiloberkante = Glasoberseite am Sparrenende. */
+  var glasOkHinten = ukVorn + Math.tan(neig) * (dachTiefe - wpT) + spH + glas;
+  var wpOk = dachOk + glas;
+  if (Math.abs(wpOk - glasOkHinten) > 0.01) { falsch++; meld.push('Dach steht ' + ((glasOkHinten - wpOk) * 10).toFixed(0) + ' mm ueber dem Profil'); }
+  /* 3. Das Profil muss die Sparren in der Hoehe fassen. */
+  if (wpOk - wpH > dachOk - spH + 0.001) { falsch++; meld.push('Sparrenunterkante unter dem Profil'); }
+  pruefe('Profil hinter den Sparren, oben buendig', falsch === 0,
+         falsch === 0 ? 'drei Lagen stimmen' : meld.join('; '));
+})();
+/* Die Scheibe stoesst hinten an das Profil - seit die Sparren davor
+   beginnen, waere ein Ruecksprung ein offener Schlitz. */
+pruefe('Eindeckung ohne Ruecksprung hinten',
+       new RegExp(q || 'glasRueck = sky \\? 1 : 0').test(k3d) &&
+       new RegExp(q || 'vollGlas = laenge \\+ glasUeber - 1 - glasRueck').test(k3d), '');
+(function () {
+  /* Zweiter Weg: Glashinterkante aus der gebauten Formel zuruecklesen. */
+  var laenge = 100, glasUeber = 10.75, glasRueck = gegen ? 1 : 0;
+  var zGlasMitte = (laenge / 2) + (glasRueck + glasUeber - 1) / 2;   // zMitte = laenge/2
+  var vollGlas = gegen ? (laenge - 2 + glasUeber) : (laenge + glasUeber - 1 - glasRueck);
+  var hinten = zGlasMitte - vollGlas / 2;                            // 0 = Sparrenanfang
+  pruefe('Glas endet am Sparrenanfang', Math.abs(hinten) < 0.001,
+         (hinten * 10).toFixed(0) + ' mm Schlitz');
+})();
 pruefe('Träger endet buendig mit dem Dach',
        new RegExp(q || 'trOk = vorsprH > 0 \\? ukAmTraeger : dachOk;').test(k3d),
        'mit hinterem Vorsprung unter den Sparren');
@@ -267,7 +320,7 @@ pruefe('Keine Hoehe mehr aus hHinten abgeleitet',
   var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
   if (!sun) { pruefe('Rinnenmass lesbar', false, 'sparrenUnterNase fehlt'); return; }
   var spH = 12.0, hVorn = 230, neig = 8 * Math.PI / 180, T = 300 - 11.7;
-  var riH = 13.67, rinneB = 18.63, zH = 4.5, TR_H = 18.9, wpH = 14.36;
+  var riH = 13.67, rinneB = 18.63, zH = 3.1, TR_H = 18.9, wpH = 14.36;
   var ukVorn = hVorn + (riH - sun - spH);
   var ukHinten = ukVorn + Math.tan(neig) * ((T - rinneB) - zH);
   var dachOk = ukHinten + spH;
