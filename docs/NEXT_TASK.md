@@ -307,8 +307,15 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
 - **Rinnen-Seitendeckel:** Teilebild 172 × 175 mm gegen Rinne 186,3 ×
   136,7 mm – entschieden: echtes Maß, vorne bündig, in der Höhe mittig.
   Der Widerspruch im Maß selbst bleibt
-- **Pfostenachse 55 mm**, **eZIP-Kassette rund statt eckig**,
-  **EZIP-Stoffbilder in CMYK ohne Profil** – ungeprüfte Annahmen
+- **Pfostenachse 55 mm**, **EZIP-Stoffbilder in CMYK ohne Profil** –
+  ungeprüfte Annahmen
+- **eZIP-Kassettenform: erledigt.** „Z-E Eckig" (Betreiber, 11.10.2026) –
+  die quaderförmige Kassette, nicht das Halbrund der Serie Z-R
+- **Offen: Schiebetür zusammen mit Plankenwand.** Geometrisch sitzt die
+  Tür jetzt auf der Plankenwand auf (nichts liegt mehr ineinander). Ob
+  diese Kombination überhaupt angeboten werden soll, ist eine
+  Produktfrage – eine Schiebetür über einer Brüstung von rund einem
+  Drittel der Höhe ist kein Durchgang mehr
 - **`/api/bauteile` antwortet 503** (KV-Namensraum nicht gebunden). Kein
   Blocker: `js/masstabelle.js` liefert die echten Zahlen, gegengerechnet
   1316 von 1316

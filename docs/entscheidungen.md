@@ -4286,3 +4286,39 @@ schließt das Tuch bündig ab. Prüfung: `node scripts/pruefe-markise.js`
 Lage aus den Formeln des Modellcodes nach und haben **je eine eigene**
 Verfälschung – der alte Fehler saß nur oben, mit einer gemeinsamen Gegenprobe
 hätte die Prüfung der Unterkante nie angeschlagen und nichts bewiesen.
+
+## 2026-10-11 – Plankenwand und Rahmenwand liegen nicht mehr ineinander
+
+**Was war falsch.** „eine rahmenwand und plankenwand dürfen nicht ineinander
+liegen, wenn eine plankenwand vorhanden is, kann die rahmenwand nur bis zur
+plankenwand gehen und nicht in sie rein" (Betreiber, 11.10.2026, mit Bild). Die
+Rahmenwand lief über die volle Höhe durch, die Planken standen als unteres
+Drittel im selben Raum davor. Im Bild sah man die Glasfläche und die
+Rahmenprofile durch die Planken hindurch.
+
+**Was jetzt gilt.** Die Plankenwand teilt die Höhe auf: Sie belegt den unteren
+Teil (34 % wie bisher), Rahmenwand bzw. Schiebetür setzen auf deren Oberkante
+auf. Die Gesamthöhe bleibt unverändert, auch Keil und Wandanschluss liegen
+unverändert. Das untere Abschlussprofil der Rahmenwand und – bei Schiebetüren –
+die Türschwelle wandern mit auf die Plankenoberkante; sonst lägen sie unter der
+Plankenwand im Boden, während das Element darüber anfängt.
+
+**Warum auch die Schiebetür.** Eine Tür, die in der Plankenwand steckt, ist
+derselbe Fehler. Geometrisch ist das jetzt sauber – **ob die Kombination
+Schiebetür + Plankenwand überhaupt angeboten werden soll, ist offen**: Eine
+Schiebetür über einer Brüstung von einem Drittel der Höhe ist kein Durchgang
+mehr. Steht in `docs/NEXT_TASK.md`.
+
+**Nebenbei geklärt: Kassettenform der Senkrechtmarkise.** „Z-E Eckig"
+(Betreiber, 11.10.2026). Bisher war die halbrunde Serie Z-R gezeichnet, als
+ungeprüfte Annahme. `KASSETTE_RUND` steht jetzt auf `false`; die runde Form
+bleibt im Code, falls die Serie dazukommt. Die Prüfung der Tuchlage bleibt
+grün – sie war von Anfang an formunabhängig gebaut.
+
+**Was gegengelesen werden soll.** Plankenwand zusammen mit Rahmenwand auf einer
+Seite: Planken unten, darüber die Rahmenwand, keine Sprosse mehr hinter den
+Planken sichtbar. Dasselbe mit Schiebetür. Plankenwand allein und Rahmenwand
+allein: unverändert. Prüfungen: `node scripts/pruefe-markise.js` (176,
+Gegenprobe 176/176), `node scripts/pruefe-fuehrung.js` (213, Gegenprobe
+213/213). Die drei neuen Lageprüfungen haben **je eine eigene** Verfälschung –
+die alte Anordnung war nur oben falsch, an der Gesamthöhe stimmte sie.

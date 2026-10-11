@@ -152,8 +152,10 @@ Object.keys(SOLL_Z).forEach(function (k) {
   pruefe('eZIP – Maß ' + k, ist !== null && Math.abs(ist - soll) < 0.5,
          ist + ' mm (erwartet ' + soll + ')');
 });
-pruefe('eZIP – Kassette als Halbrund gezeichnet (Serie Z-R)',
-       new RegExp(q || 'KASSETTE_RUND = true').test(src), 'Z-R, nicht Z-E');
+/* „Z-E Eckig" (Betreiber, 11.10.2026) – die quaderfoermige Kassette,
+   nicht das Halbrund der Serie Z-R. */
+pruefe('eZIP – Kassette eckig gezeichnet (Serie Z-E)',
+       new RegExp(q || 'KASSETTE_RUND = false').test(src), 'Z-E, nicht Z-R');
 pruefe('eZIP – Kastenunterstützung ab 400 cm',
        new RegExp(q || 'laenge > ZIP\\.stuetzeAb').test(src), 'Anleitung S. 5');
 /* Kein durchsichtiger Streifen zwischen Kassette und Tuch.
@@ -191,10 +193,13 @@ pruefe('eZIP – Kastenunterstützung ab 400 cm',
     return { spalt: spalt, unten: unten };
   }
 
-  /* Gegenprobe 1: der alte Fehler – Tuch beginnt eine volle
-     Kassettenhoehe unter der Oberkante. */
-  var a = gegen ? rechne('Math.max(1, hZ - ZIP.kassette)',
-                         'okKas - ZIP.kassette - tuchH / 2')
+  /* Gegenprobe 1: ein Tuch, das unterhalb der Kassettenunterkante
+     beginnt – genau die Luecke, um die es geht. Nicht einfach der alte
+     Code: der war bei der ECKIGEN Kassette (Serie Z-E) zufaellig
+     buendig, die Pruefung haette nichts bewiesen. Der alte Fehler
+     entstand erst dadurch, dass das Halbrund nur mit seinem Radius nach
+     unten reicht. */
+  var a = gegen ? rechne(fTuchH, 'okKas - ZIP.kassette - 3 - tuchH / 2')
                 : rechne(fTuchH, fTuchY);
   pruefe('eZIP – kein Spalt zwischen Kassette und Tuch', a.spalt <= 0,
          'groesster Spalt ' + (a.spalt * 10).toFixed(0) + ' mm');
@@ -433,8 +438,21 @@ pruefe('Kein seitenErweiterungen-Aufruf ohne Pfostenachsen',
    „das wird ja eingelassen in den boden das es barrierefrei is"
    (Betreiber, 11.10.2026). Vorher stand sie mit 36 mm auf dem Belag -
    eine Stolperkante, die es in echt nicht gibt. */
-pruefe('Schwelle liegt im Boden',
-       new RegExp(q || 'SCHWELLE\\.ueberstand - SCHWELLE\\.hoehe / 2').test(src), '');
+/* Die Schwelle kann seit dem 11.10.2026 auch auf einer Plankenwand
+   sitzen, deshalb steht ihre Oberkante nicht mehr als fester Ausdruck im
+   Code. Geprueft wird jetzt der Regelfall: OHNE Angabe liegt sie im
+   Belag. Dafuer wird die Formel aus dem Code geholt und ausgerechnet. */
+(function () {
+  var f = (src.match(/platte\(rahmen, laenge, SCHWELLE\.hoehe, achse, mitte,\s*\n\s*(.+?),\s*\n/) || [])[1];
+  if (gegen) f = 'SCHWELLE.ueberstand + SCHWELLE.hoehe / 2';
+  var SCHWELLE = { ueberstand: 0.2, hoehe: 3.6 }, ok = null;
+  var yMitte = f ? eval(f) : null;
+  var okIst = yMitte === null ? null : yMitte + SCHWELLE.hoehe / 2;
+  pruefe('Schwelle liegt im Boden',
+         okIst !== null && Math.abs(okIst - SCHWELLE.ueberstand) < 0.001,
+         'Oberkante ' + (okIst === null ? '?' : (okIst * 10).toFixed(0)) +
+         ' mm ueber dem Belag');
+})();
 pruefe('Fluegel stehen auf Belagsniveau',
        new RegExp(q || 'var yUnten = SCHWELLE\\.ueberstand;').test(src),
        'nicht mehr auf der Schwellenhoehe');
@@ -600,6 +618,64 @@ pruefe('Griff an der Schliesskante',
   var abstand = Math.abs(griff(1, n, -150, laenge) - mitteFl) + (gegen ? 60 : 0);
   pruefe('Griff liegt innerhalb des Fluegels', abstand < halb,
          abstand.toFixed(0) + ' cm von der Fluegelmitte, halbe Breite ' + halb.toFixed(0));
+})();
+
+/* ---------- Plankenwand und Rahmenwand liegen nicht ineinander ----------
+   „eine rahmenwand und plankenwand dürfen nicht ineinander liegen, wenn
+   eine plankenwand vorhanden is, kann die rahmenwand nur bis zur
+   plankenwand gehen und nicht in sie rein" (Betreiber, 11.10.2026, mit
+   Bild). Vorher lief die Rahmenwand ueber die volle Hoehe durch und die
+   Planken standen im selben Raum davor. */
+pruefe('Planken teilen die Hoehe auf, statt davor zu stehen',
+       new RegExp(q || 'var hPlanke = \\(hatPlanken && \\(hatRahmen \\|\\| hatSchiebe\\)\\) \\? hoch \\* 0\\.34 : 0;').test(src) &&
+       !/planken\(laenge, hoch \* 0\.34, achse, mitte, yUnten/.test(src), '');
+pruefe('Rahmenwand und Tuer setzen auf der Plankenwand auf',
+       new RegExp(q || 'rahmenwand\\(laenge, hAuf, achse, mitte, yAuf').test(src) &&
+       new RegExp(q || 'schiebetuer\\(laenge, hAuf, achse, mitte, yAuf').test(src), '');
+pruefe('Schwelle und Abschlussprofil wandern mit',
+       new RegExp(q || 'tuerschwelle\\(laenge, achse, mitte, quer, gl, hPlanke > 0 \\? yAuf : null\\)').test(src) &&
+       new RegExp(q || 'bodenschiene\\(laenge, achse, mitte, quer, hPlanke > 0 \\? yAuf : null\\)').test(src), '');
+/* Zweiter Weg: die drei Formeln aus dem Modellcode holen und die Lagen
+   wirklich ausrechnen – ueberlappen die beiden Baender?
+
+   Jede Pruefung bekommt ihre EIGENE Verfaelschung. Die alte Anordnung
+   (Planken davor, Rahmenwand ueber die volle Hoehe) war oben falsch,
+   aber an der Gesamthoehe stimmte sie – eine gemeinsame Gegenprobe
+   haette die anderen beiden Pruefungen nie anschlagen lassen. */
+(function () {
+  var hForm = (src.match(/var hPlanke = ([^;]+);/) || [])[1];
+  var yForm = (src.match(/var yAuf = ([^;]+);/) || [])[1];
+  var aForm = (src.match(/var hAuf = ([^;]+);/) || [])[1];
+  function lagen(fH, fY, fA, hatPlanken, hatRahmen, hatSchiebe) {
+    var hoch = 200, yUnten = 0.2;
+    var hPlanke = eval(fH), yAuf = eval(fY), hAuf = eval(fA);
+    return { plankeOk: yUnten + hPlanke, rahmenUk: yAuf,
+             rahmenOk: yAuf + hAuf, gesamtOk: yUnten + hoch,
+             hPlanke: hPlanke };
+  }
+
+  /* 1. Verfaelschung: die alte Anordnung – Rahmenwand ueber die volle
+     Hoehe, Planken im selben Raum davor. */
+  var a = gegen ? lagen(hForm, 'yUnten', 'hoch', true, true, false)
+                : lagen(hForm, yForm, aForm, true, true, false);
+  pruefe('Mit Planken: kein Ueberschneiden mit der Rahmenwand',
+         a.hPlanke > 0 && a.rahmenUk >= a.plankeOk - 0.001,
+         'Planken bis ' + a.plankeOk.toFixed(1) + ' cm, Rahmen ab ' +
+         a.rahmenUk.toFixed(1) + ' cm');
+
+  /* 2. Verfaelschung: ein zu kurz gerechneter oberer Teil. */
+  var b = gegen ? lagen(hForm, yForm, 'hoch - hPlanke - 5', true, true, false) : a;
+  pruefe('Die Gesamthoehe bleibt gleich',
+         Math.abs(b.rahmenOk - b.gesamtOk) < 0.001,
+         'Oberkante ' + b.rahmenOk.toFixed(1) + ' von ' +
+         b.gesamtOk.toFixed(1) + ' cm');
+
+  /* 3. Verfaelschung: Planken auch dort abziehen, wo gar keine sind. */
+  var c = lagen(gegen ? 'hoch * 0.34' : hForm, yForm, aForm, false, true, false);
+  pruefe('Ohne Planken aendert sich nichts',
+         c.hPlanke === 0 && Math.abs(c.rahmenUk - 0.2) < 0.001 &&
+         Math.abs(c.rahmenOk - c.gesamtOk) < 0.001,
+         'Rahmen ab ' + c.rahmenUk.toFixed(1) + ' cm');
 })();
 
 /* ---------- Kein Spalt zwischen Schiebewand und Keil ----------
