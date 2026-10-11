@@ -2354,3 +2354,25 @@ wirft außerdem KEINEN Schatten – sonst läge ein dunkler Streifen quer
 
 Mein erster Rauheitswert (0,55) war zu matt; auf Hinweis des Betreibers
 auf 0,28 gesetzt.
+
+## 2026-10-11 – 4,50 m bestätigt, Kopplungsprofil dunkler
+
+**Größte Scheibe am Stück:** Auf die Rückfrage „4,50 oder 5,00 m?"
+entschieden: **4,50 m**. Damit ist die Zahl keine Schätzung mehr,
+sondern die Festlegung des Betreibers. Betroffen ist jede Anlage
+zwischen 4,5 und 5 m Tiefe – die bekommt einen Stoß.
+
+**Farbton:** „mach das kopplungsprofil leicht dunkler das man es besser
+im 3d sieht". Das Profil ist jetzt deutlich dunkler und etwas weniger
+durchsichtig als das echte Gummi.
+
+Das ist eine **bewusste Abweichung von der Naturtreue**: Ein nahezu
+farbloses Profil auf durchsichtigem Glas verschwindet am Bildschirm. Hier
+geht Erkennbarkeit vor – und es steht als Kommentar im Code, damit es
+niemand später als Farbfehler „korrigiert".
+
+**Zur Absicherung:** Die erste Fassung der Farbprüfung hatte für beide
+Schranken (nicht zu hell, nicht zu dunkel) denselben Gegenprobe-Versatz.
+Der macht die eine Prüfung falsch und die andere erst recht wahr – sie
+hätte nie anschlagen können. Jede Schranke hat jetzt ihren eigenen
+Versatz. Die Gegenprobe hat das gemeldet (181 von 182).
