@@ -1884,6 +1884,8 @@
     if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf, {
       tiefe: T,
       ok: function (z) { return yDach + Math.tan(neig) * (T / 2 - z) + 0.8; },
+      sparren: xS,
+      sparrenB: spB,
       sparrenL: laenge,
       uk: dachUkDaten
     });
@@ -3585,6 +3587,48 @@
     }
   }
 
+  /* ---------- Sonnensegel und Plissee ----------
+     Farben und Aufbau stammen aus den Bestellformularen von VD
+     AluSysteme (Betreiber, 11.10.2026). Angekreuzt werden kann nur, was
+     hier steht – eine sechste Segelfarbe gibt es nicht.
+
+     Sonnensegel: Bahnen zwischen den Sparren, die in Wellen durchhängen.
+     Bestellt wird je Bahn Breite und Länge, bis zu 15 Bahnen, dazu „ohne
+     oder mit Verstärkung", die Installationsart (Holz / Aluminium oder
+     Stahl) und eine Teleskopstange zum Bedienen.
+
+     Plissee: je Bahn zwei seitliche Schienen auf den Sparren, dazwischen
+     der Stoff in Falten. Bestellt wird Breite × Tiefe in mm, die Zahl
+     der Bahnen, die Gestellfarbe, die Stofffarbe und ein Bedienstab von
+     120 cm in Weiß oder Schwarz. */
+  var SEGEL_FARBEN = {
+    'Platin': 0xc8c6bf, 'Perlmutt': 0xded9ce, 'Gold': 0xc5a654,
+    'Taupe': 0xa38f7d, 'Grau': 0x6d6862
+  };
+  var PLISSEE_STOFF = {
+    'Weiss': 0xe6e4df, 'Hellgrau': 0xc0c0b8, 'Grau': 0x6d6a65,
+    'Anthrazit': 0x3a3a3c, 'Hellbeige': 0xd6c9ab, 'Braun': 0x58422f
+  };
+  var PLISSEE_GESTELL = {
+    'Weiss': 0xeceae6, 'Alu': 0xb6b9bb, 'Anthrazit': 0x3b3f42, 'Schwarz': 0x1d1d1f
+  };
+
+  /* Ein Tuch als EINE Fläche statt als Reihe von Kästen. Das ist nicht
+     nur hübscher, es ist auch billiger: Vorher entstanden je Bahn bis zu
+     zwanzig Meshes, jetzt ist es eines. verformen(t) liefert zu jeder
+     Stelle (t = 0 hinten, 1 vorne) den Abstand nach unten. */
+  function tuchFlaeche(breite, laenge, segmente, verformen) {
+    var g = new THREE.PlaneGeometry(breite, laenge, 1, segmente);
+    g.rotateX(-Math.PI / 2);                  // liegt jetzt waagerecht
+    var pos = g.attributes.position, i;
+    for (i = 0; i < pos.count; i++) {
+      var t = (pos.getZ(i) + laenge / 2) / laenge;
+      pos.setY(i, -verformen(t));
+    }
+    g.computeVertexNormals();
+    return g;
+  }
+
   /* ---------- Sonnenschutz ----------
      Die Aufdachmarkise liegt auf der Eindeckung und hält die Hitze vor dem
      Glas ab, die Unterdachmarkise läuft darunter und bleibt im Trockenen –
@@ -3627,44 +3671,115 @@
         sparrenL: (T - PROFIL) / Math.cos(neig),
         uk: function (z) { return hHinten - Math.tan(neig) * z - 12; }
       });
-    } else if (m === 'Plissees' && aus > 0.02) {
-      /* Plissee: gerafftes Tuch zwischen den Sparren, von Hand bedient.
-         Gezeichnet als Falten – daran erkennt man es vom Glas. */
-      var felder = Math.max(2, Math.round(B / SPARREN_ABSTAND));
-      var lp = (T - PROFIL) * aus;
-      var falten = Math.max(3, Math.round(lp / 24));
-      for (var f = 0; f < felder; f++) {
-        var xm = -B / 2 + (B / felder) * (f + 0.5);
-        for (var q = 0; q < falten; q++) {
-          var zq = PROFIL / 2 + (lp / falten) * (q + 0.5);
-          var yq = hHinten - Math.tan(neig) * zq - 8;
-          var fa = new THREE.Mesh(
-            new THREE.BoxGeometry(B / felder - 8, 2.6, lp / falten - 1.2), mStoff);
-          fa.position.set(xm, yq + (q % 2 ? 1.6 : 0), zq);
-          fa.rotation.x = neig;
-          fa.castShadow = true;        // fehlte, wie bei der Unterdachmarkise
-          sonneTeil(fa);
-          bau.add(fa);
+    } else if (m === 'Plissees' || m === 'Sonnensegel') {
+      /* KORREKTUR 11.10.2026. „sonnensegel und plisees sind noch falsch
+         abgebildet" (Betreiber), dazu die beiden Bestellformulare.
+
+         Falsch war beides: Das Sonnensegel lag ÜBER dem Dach und war
+         fünf gerade Streifen über die ganze Breite. Nach dem Formular
+         hängt es UNTER dem Glas, je Sparrenfeld eine Bahn, und es
+         hängt in Wellen durch – die Fotos zeigen nichts Gespanntes.
+         Das Plissee bestand aus versetzten Kästchen ohne Schienen; nach
+         dem Formular gehören zu jeder Bahn zwei seitliche Schienen in
+         Gestellfarbe, zwischen denen der Stoff in Falten läuft.
+
+         Beide sitzen jetzt in den ECHTEN Sparrenfeldern (die Achsen
+         kommen aus dem Dachbau), nicht mehr im Richtwert von 110 cm. */
+      var segel = m === 'Sonnensegel';
+      var mTuch = new THREE.MeshStandardMaterial({
+        color: rgb(segel ? SEGEL_FARBEN['Perlmutt'] : PLISSEE_STOFF['Hellgrau']),
+        roughness: 0.95, metalness: 0, side: THREE.DoubleSide
+      });
+      /* Die Sparrenachsen aus dem Dachbau. Fehlen sie (Pergola), bleibt
+         der alte Richtwert – dort gibt es keine Sparren. */
+      var achsen = dach && dach.sparren && dach.sparren.length > 1
+        ? dach.sparren : null;
+      var spBr = (dach && dach.sparrenB) || 6.1;
+      var felder = [], fi;
+      if (achsen) {
+        for (fi = 0; fi < achsen.length - 1; fi++) {
+          felder.push({ x: (achsen[fi] + achsen[fi + 1]) / 2,
+                        b: achsen[fi + 1] - achsen[fi] - spBr });
+        }
+      } else {
+        var nF = Math.max(2, Math.round(B / SPARREN_ABSTAND));
+        for (fi = 0; fi < nF; fi++) {
+          felder.push({ x: -B / 2 + (B / nF) * (fi + 0.5), b: B / nF - spBr });
         }
       }
-    } else if (m === 'Sonnensegel' && aus > 0.02) {
-      /* Sonnensegel: frei gespanntes Tuch, leicht durchhängend. Es gehört
-         nicht zum Dach – deshalb sitzt es darüber und in anderer Farbe. */
-      var mSegel = new THREE.MeshStandardMaterial({
-        color: 0xc9bca4, roughness: 1, metalness: 0, side: THREE.DoubleSide
+      var zAb = PROFIL / 2, lMax = Math.max(20, T - PROFIL);
+      var lTuch = Math.max(1, lMax * aus);
+      /* Unterkante der Sparren an der Stelle z – daran hängt beides.
+         Ohne Dachangabe die alte Schätzung. */
+      var ukZ = function (z) {
+        return dach && dach.uk ? dach.uk(z) : hHinten - Math.tan(neig) * z;
+      };
+      /* Das Paket des eingefahrenen Teils bleibt hinten stehen. Vorher
+         war bei 0 % gar nichts zu sehen – wie bei den Markisen ist das
+         falsch: montiert ist es trotzdem. */
+      var paketT = Math.min(14, 2 + (lMax - lTuch) * 0.06);
+
+      felder.forEach(function (fe) {
+        if (fe.b <= 2) return;
+        var yAb = ukZ(zAb + lTuch / 2);
+        if (segel) {
+          /* Die Bahn ist an den Sparren aufgehängt und hängt dazwischen
+             in Wellen durch. Wellenlänge und Durchhang sind GESCHÄTZT,
+             aus den Fotos des Formulars abgegriffen. */
+          var wellen = Math.max(1, Math.round(lTuch / 65));
+          var tuch = new THREE.Mesh(tuchFlaeche(fe.b, lTuch, wellen * 8,
+            function (t) {
+              return 1.5 + 11 * (1 - Math.cos(2 * Math.PI * wellen * t)) / 2;
+            }), mTuch);
+          tuch.position.set(fe.x, yAb, zAb + lTuch / 2);
+          tuch.rotation.x = neig;
+          tuch.castShadow = true; tuch.receiveShadow = true;
+          sonneTeil(tuch);
+          bau.add(tuch);
+        } else {
+          /* Falten quer zur Tiefe, wie in der Zeichnung des Formulars:
+             waagerechte Linien über die Breite, gestapelt über die
+             Tiefe. Faltentiefe GESCHÄTZT. */
+          var falten = Math.max(3, Math.round(lTuch / 9));
+          var pl = new THREE.Mesh(tuchFlaeche(fe.b, lTuch, falten * 2,
+            function (t) {
+              var fr = (t * falten) % 1;
+              return 1.2 + 2.6 * (fr < 0.5 ? fr * 2 : (1 - fr) * 2);
+            }), mTuch);
+          pl.position.set(fe.x, yAb, zAb + lTuch / 2);
+          pl.rotation.x = neig;
+          pl.castShadow = true; pl.receiveShadow = true;
+          sonneTeil(pl);
+          bau.add(pl);
+        }
+        /* Das zusammengeschobene Paket hinten – gerafft beim Segel,
+           gestapelt beim Plissee. */
+        var pak = new THREE.Mesh(
+          new THREE.BoxGeometry(fe.b, segel ? 5 : 4, paketT), mTuch);
+        pak.position.set(fe.x, ukZ(zAb) - (segel ? 3.5 : 3), zAb + paketT / 2);
+        pak.rotation.x = neig;
+        pak.castShadow = true;
+        sonneTeil(pak);
+        bau.add(pak);
       });
-      var ls = (T - PROFIL) * aus;
-      var bahnen = 5;
-      for (var i = 0; i < bahnen; i++) {
-        var zi = PROFIL / 2 + (ls / bahnen) * (i + 0.5);
-        var durchhang = Math.sin(Math.PI * (i + 0.5) / bahnen) * 6;
-        var bahn = new THREE.Mesh(
-          new THREE.BoxGeometry(B - PROFIL, 2, ls / bahnen - 0.8), mSegel);
-        bahn.position.set(0, hHinten - Math.tan(neig) * zi + 16 - durchhang, zi);
-        bahn.rotation.x = neig;
-        bahn.castShadow = true;
-        sonneTeil(bahn);
-        bau.add(bahn);
+
+      if (!segel) {
+        /* Die Schienen gehören zum Gestell: Sie sind montiert und
+           bleiben stehen, auch wenn der Stoff ganz zurückgeschoben ist.
+           Je Sparren eine – zwei Bahnen teilen sich die Schiene auf dem
+           Sparren dazwischen. Querschnitt GESCHÄTZT. */
+        var mGest = new THREE.MeshStandardMaterial({
+          color: rgb(PLISSEE_GESTELL['Alu']), roughness: 0.4, metalness: 0.75
+        });
+        (achsen || felder.map(function (fe) { return fe.x; })).forEach(function (x) {
+          var sch = new THREE.Mesh(
+            new THREE.BoxGeometry(3.0, 3.4, lMax / Math.cos(neig)), mGest);
+          sch.position.set(x, ukZ(zAb + lMax / 2) - 1.7, zAb + lMax / 2);
+          sch.rotation.x = neig;
+          sch.castShadow = true;
+          sonneTeil(sch);
+          bau.add(sch);
+        });
       }
     }
 
@@ -4445,6 +4560,10 @@
       ok: function (z) {
         return ukMitte + spH + glasDicke + Math.tan(neig) * (zMitte - z);
       },
+      /* Plissee und Sonnensegel sitzen in den Sparrenfeldern – dafür
+         brauchen sie die echten Achsen, nicht den Richtwert 110 cm. */
+      sparren: xs,
+      sparrenB: spB,
       /* Die Unterdachmarkise haengt an den SPARREN, nicht auf dem Glas –
          sie braucht deren Unterkante und deren Laenge. */
       sparrenL: laenge,
