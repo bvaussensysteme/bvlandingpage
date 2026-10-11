@@ -624,6 +624,12 @@ pruefe('Verschiebbare Velaris fahren wie die Glaswaende',
          falsch + ' von 120 Faellen daneben');
 })();
 
+pruefe('Aufhaengung laeuft durch',
+       new RegExp(q || 'platte\\(rahmen, laenge, VELARIS\\.aufhaengung').test(js) &&
+       !/Math\.min\(laenge \* 0\.5, 20\)/.test(js), '');
+pruefe('Schiene gehoert zur Anlage, nicht zum Element',
+       new RegExp(q || 'platte\\(rahmen, laenge, VELARIS\\.kopf, achse, mitte,\\s*\\n\\s*yUnten \\+ hoehe').test(js), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

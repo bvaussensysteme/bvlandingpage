@@ -2556,9 +2556,15 @@
              VELARIS.tiefeUnten[1]);
       platte(rahmen, laenge, R, achse, mitte, ukEl + hEl - R / 2, quer, 0,
              VELARIS.tiefeUnten[1]);
-      /* Der kurze Träger, an dem das Element im Kopfprofil hängt. */
-      platte(rahmen, Math.min(laenge * 0.5, 20), VELARIS.aufhaengung, achse, mitte,
-             ukEl + hEl + VELARIS.aufhaengung / 2, quer, 0, 1.2);
+      /* Die Aufhängung läuft über die GANZE Elementbreite, nicht als
+         kurzes Stück in der Mitte: „es is ja durchgehende schiene pro
+         tür etc, bzw. die 2er 3er schiene is ja durchgehend lichtes
+         maß" (Betreiber, 11.10.2026). Ein Stummel hätte ein Element
+         gezeigt, das an einem Punkt hängt – so hängt es an der Schiene
+         über seine volle Länge. Das Kopfprofil darüber geht ohnehin
+         durch; es gehört zur Anlage und wird dort gezeichnet. */
+      platte(rahmen, laenge, VELARIS.aufhaengung, achse, mitte,
+             ukEl + hEl + VELARIS.aufhaengung / 2, quer, 0, 1.6);
       /* Kopfprofil oben und Bodenschiene unten. Ihre BAUTIEFE steht im
          Bestellformular und hängt an der Schienenzahl – bei drei
          Schienen ist das Kopfprofil fast dreimal so tief wie bei einer.
