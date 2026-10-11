@@ -57,6 +57,33 @@ pruefe('Selten Gebrauchtes liegt hinter „Mehr Einstellungen"',
 
 /* Die Anfrage muss ALLE drei Seiten nennen, auch die offenen – sonst
    steht in der Mail nicht, dass eine Seite offen bleiben SOLL. */
+/* ---------- Höhe an der Wand ----------
+   Zweiter Weg: Die Zahlen stehen hier noch einmal aus der
+   Montageanleitung (Skizze S. 9 und Rechenbeispiel) und werden mit der
+   Tabelle im Code nachgerechnet. Weicht eine ab, schlägt es an. */
+var tabelle = {};
+var mTab = js.match(/var NEIGUNG_PROZENT = \{([\s\S]*?)\}/);
+if (mTab) mTab[1].split(',').forEach(function (teil) {
+  var kv = teil.split(':');
+  if (kv.length === 2) tabelle[parseInt(kv[0], 10)] = parseFloat(kv[1]);
+});
+/* Skizze der Anleitung: 8° ergibt 14 cm je Meter, also 140/280/420/560 mm */
+[[1000, 140], [2000, 280], [3000, 420], [4000, 560]].forEach(function (f) {
+  var ist = Math.round(f[0] * (tabelle[8] || 0) / 100) + (gegen ? 5 : 0);
+  pruefe('Anstieg bei ' + (f[0] / 1000) + ' m und 8°', ist === f[1],
+         ist + ' mm (Anleitung ' + f[1] + ')');
+});
+/* Rechenbeispiel der Anleitung: 200 cm innen, 3 m Ausfall -> 242 cm */
+var beispiel = 2000 + Math.round(3000 * (tabelle[8] || 0) / 100) + (gegen ? 5 : 0);
+pruefe('Rechenbeispiel der Anleitung', beispiel === 2420,
+       beispiel + ' mm (Anleitung 2420)');
+pruefe('Höhe an der Wand steht im Bedienfeld',
+       /id="k3dWandHoehe"/.test(html) && new RegExp(q || 'k3dWandHoehe').test(js), '');
+pruefe('Höhe an der Wand steht in der Anfrage',
+       new RegExp(q || 'UK Wandprofil').test(js), 'textAktualisieren()');
+pruefe('Neigung steht direkt unter der Durchgangshöhe',
+       new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="neigung"').test(html), '');
+
 /* Feste Panelbreite liess lange Knopftexte mitten im Wort abbrechen. */
 pruefe('Bedienfeld waechst mit der Bildschirmbreite',
        new RegExp(q || '--k3d-sl-breite: clamp\\(').test(html) &&

@@ -262,6 +262,12 @@
     .k3d-gefuehrt .k3d-gruppe:not(.ist-schritt) { display: none; }
     .k3d-gefuehrt .k3d-zus { display: none; }
     .k3d-gefuehrt.ist-letzter .k3d-zus { display: block; }
+    /* Ausgerechnete Höhe an der Wand – die Zahl, nach der am Bau
+       gemessen wird. Deshalb hervorgehoben und nicht im Kleingedruckten. */
+    .k3d-wandhoehe { margin: 10px 0 6px; padding: 10px 12px; border-radius: 9px;
+      background: var(--light-bg, #F1EFEA); font-size: .84rem; line-height: 1.45; }
+    .k3d-wandhoehe b { font-size: 1.05rem; }
+
     /* Klartextzeile zu den Seiten: welche ist zu, welche offen. */
     .k3d-seiten-stand { margin: 10px 0 0; padding: 10px 12px; border-radius: 9px;
       background: var(--light-bg, #F1EFEA); font-size: .82rem; line-height: 1.45; }
@@ -553,6 +559,17 @@
           </div>
         </div>
 
+        <!-- Die Neigung steht bewusst DIREKT unter der Durchgangshöhe:
+             beide Maße hängen zusammen, und erst aus beiden ergibt sich
+             die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
+             hinten unter „Mehr Einstellungen". -->
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="neigung">
+          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
+          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
+          <p class="k3d-wandhoehe" id="k3dWandHoehe"></p>
+          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
           <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">300 mm</output></label>
           <div class="k3d-regler">
@@ -600,12 +617,6 @@
           <p class="k3d-mini">Eingedeckt wird immer mit Trapezblech. Solarmodule
             und Begrünung liegen darauf, sie ersetzen es nicht. Das Dach liegt
             waagerecht – ohne sichtbares Gefälle.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="neigung">
-          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
-          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
-          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="pg-lamellen" hidden>
@@ -1022,7 +1033,7 @@
 
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261011v" defer></script>
+<script src="js/konfigurator-3d.js?v=20261011w" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

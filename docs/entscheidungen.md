@@ -821,3 +821,41 @@ Die zugeklappte Stellung rechnet jetzt mit derselben Variablen
 **Prüfung.** `scripts/pruefe-fuehrung.js` – 10 Prüfungen, Gegenprobe
 10 von 10. Eine davon schlägt an, wenn jemand wieder eine feste Breite
 einträgt.
+
+## 2026-10-11 – Dachneigung unter der Durchgangshöhe, Höhe an der Wand wird ausgerechnet
+
+**Anlass.** Der Betreiber mit zwei Seiten aus der Montageanleitung: „wenn
+man die durchgngshöhe eingibt dadrunter muss man auch neigung des daches
+in grad einstellen können dann wird auch dadrunter die höhe an der wand
+angezeigt also ausgerechnet."
+
+**Was war.** Die Dachneigung lag zwei Schritte weiter hinten im Schritt
+„Dach", zusätzlich versteckt hinter „Mehr Einstellungen". Die Höhe an der
+Wand wurde nirgends gezeigt – weder im Bedienfeld noch in der Anfrage.
+
+**Was jetzt gilt.** Die Neigung steht direkt unter der Durchgangshöhe,
+nicht mehr versteckt. Darunter erscheint die ausgerechnete Höhe:
+
+> Höhe an der Wand: **2420 mm**
+> 2000 mm Durchgang + 420 mm Anstieg auf 3,00 m Tiefe. Dort kommt die
+> Unterkante des Wandprofils hin.
+
+Dieselbe Zahl steht jetzt auch in der Anfrage-Mail („Höhe an der Wand
+(UK Wandprofil)"), zusammen mit Grad und Prozent.
+
+**Gerechnet wird mit der Tabelle der Anleitung, nicht mit dem Tangens.**
+Der Unterschied ist klein, aber er ist da: tan 8° = 14,05 %, die Tabelle
+sagt 14 %. Auf 3 m Tiefe sind das 422 statt 420 mm – und 420 mm steht im
+Rechenbeispiel der Anleitung. Wer die Zahl im Konfigurator mit der
+Anleitung vergleicht, soll dieselbe sehen. (Bei 2° weicht die Tabelle mit
+3,4 statt 3,5 % sogar etwas mehr ab; auch dort gilt die Tabelle, weil
+danach gebaut wird.)
+
+**Warum das zählt.** Nach dieser Zahl wird an der Wand angerissen. Wer
+sie selbst ausrechnen muss, rechnet sie irgendwann falsch – und ein um
+4 cm falsch gesetztes Wandprofil merkt man erst, wenn das Dach liegt.
+
+**Gegengerechnet.** `scripts/pruefe-fuehrung.js` prüft die Tabelle gegen
+die Anleitung auf einem zweiten Weg: die vier Werte der Skizze (140, 280,
+420, 560 mm bei 1 bis 4 m) und das Rechenbeispiel (200 cm innen, 3 m
+Ausfall → 242 cm). Alle fünf stimmen. 18 Prüfungen, Gegenprobe 18 von 18.

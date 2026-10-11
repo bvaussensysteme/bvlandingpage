@@ -2772,6 +2772,19 @@
   };
 
   /* ---------- Bedienung ---------- */
+  /* Grad zu Prozent, BELEGT aus der Tabelle der Montageanleitung TDS.
+     Abgedeckt ist der einstellbare Bereich 2° bis 14°; alles darüber
+     hinaus rechnet der Tangens, damit die Funktion nicht stillschweigend
+     falsche Zahlen liefert, falls der Regler je erweitert wird. */
+  var NEIGUNG_PROZENT = {
+    2: 3.4, 3: 5.2, 4: 7, 5: 8.8, 6: 10.5, 7: 12.3, 8: 14,
+    9: 15.8, 10: 17.6, 11: 19.4, 12: 21.2, 13: 23, 14: 24.9
+  };
+  function neigungProzent(grad) {
+    var p = NEIGUNG_PROZENT[grad];
+    return p != null ? p : Math.tan(grad * Math.PI / 180) * 100;
+  }
+
   /* ---------- Geführte Reihenfolge ----------
      Der Betreiber am 11.10.2026: „du musst dir vorstellen da sitzt nen
      60 jähriger ahnungsloser opa am pc oder handy. der konfigurator muss
@@ -3319,7 +3332,15 @@
       if (ed && !ed.fehler) {
         teile.push(ed.sparren + ' Sparren, ' + ed.pfosten + ' Pfosten' +
                    (ed.statiktraeger ? ', mit Statikträger' : ''));
-        if (ed.geneigt) teile.push('Dachneigung: ' + Z.neigung + '°');
+        if (ed.geneigt) {
+          /* Die Höhe an der Wand gehört in die Anfrage, nicht nur ins
+             Bild: Danach wird das Wandprofil angerissen, und sie ergibt
+             sich erst aus Durchgangshöhe, Tiefe und Neigung zusammen. */
+          teile.push('Dachneigung: ' + Z.neigung + '° (' +
+            String(neigungProzent(Z.neigung)).replace('.', ',') + ' %)');
+          teile.push('Höhe an der Wand (UK Wandprofil): ' +
+            (Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100)) + ' mm');
+        }
       }
       teile.push('Eindeckung: ' + Z.eindeckung);
       teile.push('Farbe: ' + Z.farbe);
@@ -3451,6 +3472,36 @@
     });
     var nw = document.getElementById('k3dNeigungWert');
     if (nw) nw.textContent = Z.neigung + '°';
+
+    /* Höhe an der Wand aus Durchgangshöhe, Tiefe und Neigung.
+
+       BELEGT (Montageanleitung TDS, S. 9): „Die Überdachung hat einen
+       festen Gefällewinkel von 14 %. Das bedeutet, dass sie von der Rinne
+       aus gesehen um 14 cm pro Meter ansteigt. Wenn der Ausfall 3 m
+       beträgt, dann liegt die Unterkante des Wandanschlussprofils
+       3 × 14 cm höher als die Unterkante der Rinne." Beispiel der
+       Anleitung: 200 cm innen + 42 cm = 242 cm.
+
+       Gerechnet wird mit der GRAD-ZU-PROZENT-TABELLE der Anleitung, nicht
+       mit dem Tangens. Der Unterschied ist klein, aber er ist da: Der
+       Tangens von 8° sind 14,05 %, die Tabelle sagt 14 %. Auf 3 m Tiefe
+       macht das 422 statt 420 mm – und 420 mm steht im Rechenbeispiel der
+       Anleitung. Wer die Zahl im Konfigurator mit der Anleitung
+       vergleicht, soll dieselbe sehen. (Nur bei 2° weicht die Tabelle
+       etwas ab, 3,4 statt 3,5 % – auch dann gilt die Tabelle, weil danach
+       gebaut wird.)
+
+       Warum das hier steht und nicht nur im Kopf des Monteurs: Nach
+       dieser Zahl wird an der Wand angerissen. Wer sie selbst ausrechnen
+       muss, rechnet sie irgendwann falsch. */
+    var wh = document.getElementById('k3dWandHoehe');
+    if (wh) {
+      var anstieg = Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100);
+      wh.innerHTML = 'Höhe an der Wand: <b>' + (Z.hoehe + anstieg) + ' mm</b><br>' +
+        '<span class="k3d-mini">' + Z.hoehe + ' mm Durchgang + ' + anstieg +
+        ' mm Anstieg auf ' + (Z.tiefe / 1000).toFixed(2).replace('.', ',') +
+        ' m Tiefe. Dort kommt die Unterkante des Wandprofils hin.</span>';
+    }
     var lw = document.getElementById('k3dLamellenWert');
     if (lw) lw.textContent = Z.lamellen + '° geöffnet';
     var gw = document.getElementById('k3dGlasOffenWert');
