@@ -481,16 +481,22 @@
       }
       /* Kein eigener Scrollbereich: die Seite scrollt, nicht das Bedienfeld */
       .k3d-sl-rollen { overflow: visible; flex: none; }
-      .k3d-info { max-width: 60%; left: 12px; top: 10px; }
-      .k3d-info h2 { font-size: 1.05rem; }
+      /* Flacher, wie die Leiste unten: „die beiden sachen in der höhe
+         bissl schmaler ähnlich wie die leiste unten wo maße tag abend
+         steht" (Betreiber, 11.10.2026). Gespart wird wieder an den
+         Polstern und an der Zeilenhöhe, nicht an der Schriftgröße – der
+         Produktname bleibt die größte Schrift im Bild. */
+      .k3d-info { max-width: 60%; left: 12px; top: 8px; }
+      .k3d-info h2 { font-size: 1.02rem; line-height: 1.05; }
+      .k3d-info p { font-size: .72rem; margin: 1px 0 0; line-height: 1.25; }
       .k3d-oben { right: 8px; top: 8px; gap: 5px; }
-      .k3d-oben button { padding: 7px 9px; font-size: .72rem; }
+      .k3d-oben button { padding: 4px 9px; font-size: .72rem; }
       .k3d-oben .k3d-nurgross { display: none; }
       /* Die beiden linken Knöpfe wirken am Handy nicht – weg damit. Der
          Bild-Knopf behält dafür seine Beschriftung und wird breiter. */
       .k3d-oben .k3d-nurgross-knopf { display: none; }
-      .k3d-oben #k3dBild { padding: 8px 14px; font-size: .78rem; }
-      .k3d-bildmenu { right: 8px; top: 46px; left: 8px; min-width: 0; }
+      .k3d-oben #k3dBild { padding: 5px 13px; font-size: .74rem; }
+      .k3d-bildmenu { right: 8px; top: 40px; left: 8px; min-width: 0; }
       /* Von Rand zu Rand und flacher: „die anzeige bitte etwas schmaler
          machen in der höhe aber das alles gut lesbar bleibt, aber in der
          breite bitte von bildschirmrand zu bildschirmrand" (Betreiber,
@@ -1487,7 +1493,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015x" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015z" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

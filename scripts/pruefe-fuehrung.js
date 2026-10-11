@@ -144,10 +144,23 @@ pruefe('Innenansicht als eigene Rechnung',
        gegen ? !/function ansichtInnen\(\)/.test(js) : /function ansichtInnen\(\)/.test(js), '');
 pruefe('Blick geht nach vorne hinaus',
        gegen ? !/kam\.theta = Math\.PI;/.test(js) : /kam\.theta = Math\.PI;/.test(js), '');
-pruefe('Winkelgrenze nur fuer diese Ansicht angehoben',
-       /kam\.phiMax \|\| \(Math\.PI \/ 2 - 0\.04\)/.test(js) && !gegen ||
-       gegen && /Math\.min\(Math\.max\(kam\.phi, 0\.18\), Math\.PI \/ 2 - 0\.04\)/.test(js),
-       'sonst stuende das Bild auf dem Kopf');
+(function () {
+  /* FRUEHER stand hier: die Winkelgrenze werde NUR fuer die
+     Innenansicht angehoben. Das gilt nicht mehr - seit dem Wunsch
+     „das man gut drunter gucken kann" darf die Kamera ueberall unter
+     den Horizont. Die Pruefung haelt jetzt fest, was wirklich gilt: Die
+     Innenansicht geht am weitesten, und keine der beiden Grenzen darf so
+     weit gehen, dass das Bild auf dem Kopf steht. */
+  var innen = parseFloat((js.match(/kam\.phiMax = Math\.PI \/ 2 \+ ([\d.]+)/) || [])[1]);
+  var allg = parseFloat((js.match(/PHI_MAX_UNTEN = Math\.PI \/ 2 \+ ([\d.]+)/) || [])[1]);
+  if (gegen) allg = 1.6;                       // weiter als senkrecht nach oben
+  var falsch = 0, meld = [];
+  if (!innen || !allg) { falsch++; meld.push('Grenzen nicht lesbar'); }
+  if (allg >= Math.PI / 2) { falsch++; meld.push('Bild stuende auf dem Kopf'); }
+  if (innen < allg) { falsch++; meld.push('Innenansicht geht weniger weit als der Rest'); }
+  pruefe('Winkelgrenzen bleiben unter dem Ueberschlag', falsch === 0,
+         falsch === 0 ? 'allgemein +' + allg + ', Innenansicht +' + innen : meld.join('; '));
+})();
 pruefe('Ansicht ueberlebt die Massaenderung',
        gegen ? !/if \(kam\.ansicht === 'Darunter'\)/.test(js)
              : /if \(kam\.ansicht === 'Darunter'\)/.test(js), '');
@@ -1215,7 +1228,11 @@ pruefe('Beschriftung wird am eigenen Feld gesetzt',
 (function () {
   var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
   var weg = /\.k3d-nurgross-knopf \{ display: none; \}/.test(block);
-  var label = /#k3dBild \{ padding: 8px 14px/.test(block);
+  /* Breiter, nicht hoeher: Das Polster an den Seiten muss deutlich
+     groesser sein als oben und unten - die Zahl selbst darf sich
+     aendern, die Form nicht. */
+  var p = block.match(/#k3dBild \{ padding: (\d+)px (\d+)px/);
+  var label = !!p && Number(p[2]) >= Number(p[1]) * 2;
   if (gegen) { weg = !weg; label = !label; }
   pruefe('Am Handy nur der Bild-Knopf, mit Beschriftung', weg && label,
          weg ? (label ? 'Bedienfeld und Vollbild weg, Knopf breiter'
@@ -1307,6 +1324,68 @@ pruefe('Infozeile ohne die Worte „ueberdachte Flaeche"',
 pruefe('Mass und Quadratmeter stehen weiter da',
        new RegExp(q || "Z\\.breite \\+ ' × ' \\+ Z\\.tiefe \\+ ' mm · '").test(js) &&
        new RegExp(q || "qm\\.toFixed\\(2\\)\\.replace\\('\\.', ','\\) \\+ ' m²'").test(js), '');
+
+
+/* ---------- Unter das Dach schauen ----------
+   „man kann momentan nicht unter die ueberdachung scrollen oder mit der
+   kamera fahren weil der boden blockiert, das soll gehen und der boden
+   soll nur in diesem kamerabereich fuer diesen moment durchsichtig
+   werden ... das man gut drunter gucken kann" (Betreiber, 11.10.2026). */
+pruefe('Kamera darf unter den Horizont',
+       new RegExp(q || 'PHI_MAX_UNTEN = Math\\.PI / 2 \\+ ').test(js) &&
+       new RegExp(q || 'kam\\.phiMax \\|\\| PHI_MAX_UNTEN').test(js),
+       'nicht mehr bei 90 Grad Schluss');
+pruefe('Boden wird nur in dieser Lage durchsichtig',
+       new RegExp(q || 'function bodenDurchsicht\\(\\)').test(js) &&
+       new RegExp(q || 'kamera3\\.position\\.y < 0').test(js) &&
+       new RegExp(q || 'bodenDurchsicht\\(\\);').test(js), '');
+pruefe('Bodenschatten geht mit aus',
+       new RegExp(q || 'rasen\\.receiveShadow = !drunter').test(js) &&
+       new RegExp(q || 'belag\\.receiveShadow = !drunter').test(js),
+       'sonst liegt er als Fleck in der Luft');
+(function () {
+  /* Zweiter Weg: nachrechnen, ob man damit wirklich unter das Dach
+     kommt. Gerechnet mit den Zahlen aus dem Code und einem Dach von
+     2300 mm Durchgangshoehe. */
+  var phiMax = parseFloat((js.match(/PHI_MAX_UNTEN = Math\.PI \/ 2 \+ ([\d.]+)/) || [])[1]);
+  var o = parseFloat((js.match(/BODEN_DURCHSICHT = ([\d.]+)/) || [])[1]);
+  if (!phiMax || !o) { pruefe('Werte lesbar', false, 'nicht gefunden'); return; }
+  var phi = Math.PI / 2 + (gegen ? -0.04 : phiMax);
+  var zielY = 230 * 0.48, radius = 600;          // cm
+  var kameraY = zielY + radius * Math.cos(phi);
+  var falsch = 0, meld = [];
+  if (kameraY > -50) { falsch++; meld.push('Kamera kommt nur auf ' + kameraY.toFixed(0) + ' cm'); }
+  if (phi >= Math.PI) { falsch++; meld.push('Bild stuende auf dem Kopf'); }
+  if (!(o >= 0.05 && o <= 0.3)) { falsch++; meld.push('Boden zu ' + Math.round(o * 100) + ' % deckend'); }
+  pruefe('Man kommt wirklich unter das Dach', falsch === 0,
+         falsch === 0 ? 'Kamera bis ' + kameraY.toFixed(0) + ' cm unter dem Ziel, Boden ' +
+         Math.round(o * 100) + ' %' : meld.join('; '));
+})();
+
+(function () {
+  /* Kopfzeile und Bild-Knopf so flach wie die Leiste unten - aber die
+     Schrift bleibt lesbar. „die beiden sachen in der hoehe bissl
+     schmaler aehnlich wie die leiste unten" (Betreiber, 11.10.2026). */
+  var block = (html.match(/@media \(max-width: 900px\)[\s\S]*?\n    \}/) || [''])[0];
+  function zahl(muster) {
+    var m = block.match(muster);
+    return m ? parseFloat(m[1]) : NaN;
+  }
+  var polsterLeiste = zahl(/\.k3d-leiste button \{ padding: (\d+)px/);
+  var polsterOben = zahl(/\.k3d-oben button \{ padding: (\d+)px/);
+  var polsterBild = zahl(/#k3dBild \{ padding: (\d+)px/);
+  var schriftBild = zahl(/#k3dBild \{ padding: \d+px \d+px; font-size: ([\d.]+)rem/);
+  var schriftInfo = zahl(/\.k3d-info p \{ font-size: ([\d.]+)rem/);
+  if (gegen) { polsterOben = 7; polsterBild = 8; }
+  var falsch = 0, meld = [];
+  if (!(polsterOben <= polsterLeiste + 1)) { falsch++; meld.push('Kopfknoepfe ' + polsterOben + 'px gegen ' + polsterLeiste + 'px unten'); }
+  if (!(polsterBild <= polsterLeiste + 2)) { falsch++; meld.push('Bild-Knopf ' + polsterBild + 'px'); }
+  if (!(schriftBild >= 0.7) || !(schriftInfo >= 0.7)) { falsch++; meld.push('Schrift unter 0,7rem'); }
+  pruefe('Kopfzeile so flach wie die Leiste unten', falsch === 0,
+         falsch === 0 ? 'Polster ' + polsterOben + '/' + polsterBild + 'px, Leiste ' +
+         polsterLeiste + 'px, Schrift ' + schriftInfo + '/' + schriftBild + 'rem'
+         : meld.join('; '));
+})();
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'

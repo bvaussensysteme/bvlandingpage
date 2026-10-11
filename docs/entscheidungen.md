@@ -3817,3 +3817,58 @@ Platz gekostet, den das Modell besser gebrauchen kann.
 voll, knapp dahinter durchsichtig), und eine, die die Deckkraft zwischen
 10 und 40 % hält – darunter sieht man die Wand nicht mehr, darüber
 verdeckt sie weiter die Anlage.
+
+## 11.10.2026 – Unter das Dach schauen: Kamera darf unter den Horizont
+
+**Anlass.** „man kann momentan nicht unter die überdachung scrollen oder
+mit der kamera fahren weil der boden blockiert, das soll gehen und der
+boden soll nur in diesem kamerabereich für diesen moment durchsichtig
+werden … das man gut drunter gucken kann" (Betreiber).
+
+**Was falsch war.** Die Kamera endete knapp über dem Horizont (90° minus
+ein Haar). Von außen an die Dachunterseite kam man damit nicht – und
+selbst wenn, hätte der Bodenbelag zwischen Auge und Bauwerk gelegen.
+
+**Was jetzt gilt.** Die Kamera darf rund 26° unter den Horizont
+(`PHI_MAX_UNTEN`). Nachgerechnet mit 2300 mm Durchgangshöhe und 6 m
+Abstand steht sie dann 151 cm unter dem Blickziel – weit genug, um unter
+das Dach zu sehen. Weiter nicht: Bei 90° plus einem rechten Winkel
+stünde das Bild auf dem Kopf.
+
+Sobald sie unter die Bodenebene fährt, werden Rasen und Belag auf 12 %
+heruntergesetzt – nur für diesen Moment, beim Hochfahren ist der Boden
+sofort wieder da. Der Bodenschatten geht mit aus; sonst läge er als
+dunkler Fleck in der Luft.
+
+**Eine Prüfung musste korrigiert werden.** Sie hielt fest, die
+Winkelgrenze werde NUR für die Innenansicht angehoben – das war einmal
+richtig und ist es nicht mehr. Statt die Prüfung zu löschen, prüft sie
+jetzt die neue Wahrheit: Die Innenansicht geht am weitesten, und keine
+Grenze darf so weit gehen, dass das Bild kippt. Eine Prüfung, die den
+alten Stand festschreibt, ist schlimmer als keine.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 170, Gegenprobe
+170 von 170.
+
+## 11.10.2026 – Kopfzeile und Bild-Knopf so flach wie die Leiste unten
+
+**Anlass.** „die beiden sachen in der höhe bissl schmaler ähnlich wie
+die leiste unten wo maße tag abend steht" (Betreiber, mit
+Bildschirmfoto).
+
+**Was jetzt gilt.** Am Handy sind Produktzeile und Bild-Knopf auf
+dasselbe Maß wie die Ansichtsleiste gebracht: Polster 4 bis 5 px statt 7
+bis 8, engere Zeilenhöhe in der Infozeile. Die Schrift bleibt
+unangetastet – der Produktname ist weiter die größte Schrift im Bild,
+die Maßzeile liegt bei 0,72 rem wie die Knöpfe unten.
+
+**Eine Prüfung festigte eine Zahl statt einer Form.** Sie verlangte für
+den Bild-Knopf wörtlich `padding: 8px 14px`. Beim Flachermachen schlug
+sie an, obwohl nichts kaputt war. Jetzt prüft sie, was wirklich gemeint
+ist: Das seitliche Polster muss mindestens doppelt so groß sein wie das
+obere – der Knopf soll breit wirken, nicht hoch. Die Zahlen dürfen sich
+ändern, die Form nicht.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 171, Gegenprobe
+171 von 171. Die neue vergleicht die Polster von Kopfzeile und Leiste
+miteinander und hält die Schrift bei mindestens 0,7 rem.
