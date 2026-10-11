@@ -150,6 +150,14 @@ pruefe('Rinne bleibt auf der eingestellten Höhe',
        !/hRinne = hVorn \+ /.test(k3d), 'kein Anheben');
 pruefe('Träger kürzt den Pfosten, nicht die Rinne',
        new RegExp(q || 'traegerOk - traegerH').test(k3d), 'hPfosten aus traegerOk');
+/* Freistehend traegt hinten ein Statiktraeger das Wandprofil. */
+pruefe('Freistehend: Statikträger statt Wand',
+       new RegExp(q || 'ukHinten - 18\\.9 / 2, zHinten').test(k3d), 'volle Breite');
+pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
+       new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, ukHinten - 18\\.9\\)').test(k3d), '');
+pruefe('Freistehend: Wandprofil haengt am Träger',
+       new RegExp(q || 'zHinten \\+ \\(11\\.7 \\+ wpT\\) / 2').test(k3d), 'vor dem Träger');
+
 pruefe('Hinweis nennt die geringere Durchgangshöhe',
        new RegExp(q || 'Unter dem Träger').test(k3d), '189 mm weniger');
 pruefe('Reglergrenzen kommen aus der Tabelle',

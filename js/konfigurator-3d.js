@@ -2551,11 +2551,26 @@
     var traegerOk = vorspr > 0 ? ukAnPfosten : hVorn;
     var hPfosten = traegerH ? Math.max(100, traegerOk - traegerH) : hVorn;
 
+    /* ---------- Freistehend: Statikträger statt Wand ----------
+       Vorgabe des Betreibers (11.10.2026): „bei der freistehenden
+       methode, kommt das wandprofil anstatt an die wand an den
+       statikträger, und die pfosten sind unter dem statiträger ganz
+       normal wie sie es jetzt schon bei dachüberstand sind".
+
+       Hinten gibt es also dieselben drei Lagen wie vorne mit Vorsprung:
+       Sparren oben, darunter der Statikträger über die volle Breite,
+       darunter die Pfosten. Das Wandprofil hängt an der Vorderseite des
+       Trägers – es verschwindet nicht, es bekommt nur einen anderen
+       Halt. */
+    var zHinten = frei ? PF / 2 : 4.5;
+    var ukHinten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zHinten);
+    var hPfostenHinten = frei ? Math.max(100, ukHinten - 18.9) : hHinten;
+
     /* Pfostenzahl aus der Maßtabelle, sonst die alte Faustregel. */
     var pfTab = tbMass;
     verteilen(pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2), B, PF / 2).forEach(function (x) {
       balken(PF, hPfosten, PF, x, hPfosten / 2, zPf, mAlu);
-      if (frei) balken(PF, hHinten, PF, x, hHinten / 2, PF / 2, mAlu);
+      if (frei) balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zHinten, mAlu);
     });
 
     /* Rinne vorne. hRinne ist die Unterkante der Rinne. Ohne Statikträger
@@ -2574,8 +2589,16 @@
          Regel. */
       balken(B, traegerH, traegerT, 0, hPfosten + traegerH / 2, zPf, mAlu);
     }
-    balken(B, sky ? 20 : 14, frei ? 12 : 9, 0,
-           hHinten + (sky ? 10 : 7), frei ? 6 : 4.5, mAlu);              // Wandprofil/Träger
+    var wpH = sky ? 20 : 14, wpT = frei ? 12 : 9;
+    if (frei) {
+      /* Statikträger über die volle Breite, Oberkante an der
+         Sparrenunterkante – dieselbe Lage wie vorne mit Vorsprung. */
+      balken(B, 18.9, 11.7, 0, ukHinten - 18.9 / 2, zHinten, mAlu);
+      /* Wandprofil an der Vorderseite des Trägers, auf gleicher Höhe. */
+      balken(B, wpH, wpT, 0, ukHinten - 18.9 / 2, zHinten + (11.7 + wpT) / 2, mAlu);
+    } else {
+      balken(B, wpH, wpT, 0, hHinten + (sky ? 10 : 7), zHinten, mAlu);
+    }
 
     /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus
        60 mm, geteilt durch die Anzahl der Felder" ergibt den Abstand von

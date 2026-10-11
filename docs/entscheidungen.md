@@ -1215,3 +1215,39 @@ neun Regler, alle vollständig. Wer den nächsten einbaut und das Verdrahten
 vergisst, bekommt es beim nächsten Lauf gesagt.
 
 **Prüfung.** 27 Prüfungen, alle bestanden; Gegenprobe 27 von 27.
+
+## 2026-10-11 – Freistehend: Statikträger trägt das Wandprofil
+
+**Vorgabe des Betreibers.** „bei der freistehenden methode, kommt das
+wandprofil anstatt an die wand an den statikträger, und die pfosten sind
+unter dem statiträger ganz normal wie sie es jetzt schon bei
+dachüberstand sind."
+
+**Was war.** Freistehend wurde hinten nur ein etwas dickerer Balken
+gezeichnet, und die hinteren Pfosten liefen bis auf die volle Höhe
+`hHinten` durch. Ein Statikträger kam dort nicht vor – obwohl ohne Wand
+genau er die Last trägt.
+
+**Was jetzt gilt.** Hinten gibt es dieselben drei Lagen wie vorne mit
+Dachvorsprung:
+
+1. **Sparren** oben
+2. **Statikträger** 189 × 117 mm über die volle Breite, Oberkante an der
+   Sparrenunterkante
+3. **Pfosten** darunter
+
+Das **Wandprofil verschwindet nicht** – es hängt an der Vorderseite des
+Trägers, auf gleicher Höhe. Es bekommt nur einen anderen Halt.
+
+**Dieselbe Rechnung wie vorne.** `ukHinten` ist die Sparrenunterkante an
+der hinteren Pfostenachse; Trägeroberkante liegt dort, der Pfosten endet
+eine Trägerhöhe darunter. Kein Sonderfall, keine zweite Regel – an beiden
+Enden dieselbe Logik.
+
+Bei 6 × 3 m und 2300 mm vorne ergibt das hinten: Sparrenunterkante
+2688 mm, Träger von 2499 bis 2688 mm, hintere Pfosten 2499 mm. Hinten ist
+also mehr Luft als vorne, weil das Dach ansteigt.
+
+**Prüfung.** `scripts/pruefe-masstabelle.js` – 28 Prüfungen, alle
+bestanden; Gegenprobe 28 von 28. Drei davon betreffen die freistehende
+Ausführung.
