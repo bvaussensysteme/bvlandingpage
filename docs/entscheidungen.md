@@ -1067,3 +1067,62 @@ Herstellermatrix bleibt weiterhin draußen.
 bestanden; Gegenprobe 15 von 15. Sie fängt vor allem den Fall ab, dass
 eine neue Preisliste die Verdichtung ungültig macht (Sparrenzahl hinge
 dann auch von der Tiefe ab) – das wäre sonst still falsch.
+
+## 2026-10-11 – Maßgrenzen aus der Tabelle, Statikträger unter der Rinne, Maßhinweis
+
+### Die Grenzen waren zu eng – und zwar deutlich
+
+Der Betreiber: „laut tds maßtabelle sind das aber nicht die maximalmaße
+wieso begrenzt du es so". Die Antwort ist unbequem: Die Werte standen
+**fest im Code** und stammten aus der Zeit vor der Maßtabelle. Sie waren
+eine ANNAHME, keine Grenze des Systems.
+
+| | vorher (fest) | jetzt (aus der Tabelle) |
+|---|---|---|
+| TDS Breite | 2500–7000 mm | **1080–14080 mm** |
+| TDS Tiefe | 2000–4500 mm | **550–6550 mm** |
+| SkyView Breite | 2500–7000 mm | **1000–14000 mm** |
+| SkyView Tiefe | 2000–4500 mm | **500–7000 mm** |
+
+Wer 9 m Breite brauchte, konnte sie **nicht einmal eingeben** – obwohl
+sie lieferbar ist. Das ist nicht nur eine Darstellungsfrage: Eine Anfrage,
+die gar nicht erst gestellt werden kann, kommt auch nicht an.
+
+`reglerGrenzenSetzen()` nimmt die Grenzen jetzt aus der Maßtabelle, wenn
+die Schnittstelle nichts liefert – derselbe Weg wie bei den Stückzahlen.
+Die TDS-Tiefe endet bei 6550 mm, weil die Tabelle zwar 7050 mm führt, sie
+aber als nicht lieferbar markiert.
+
+### Statikträger sitzt jetzt unter der Rinne
+
+Vorgabe des Betreibers: „beachte nur bei den nötigen maßen den
+statikträger unter der dachrinne, die maße vom statikträger stehen ja im
+pdf". BELEGT aus der Maßtabelle: **189 × 117 mm, Länge = volle
+Dachbreite**, nötig ab Tiefe > 4500 mm.
+
+Er sitzt **unter der Rinne und auf den Pfosten**. Daraus folgt eine
+Entscheidung, die man sehen muss: **Die eingestellte Durchgangshöhe bleibt
+das, was man darunter hat** – Rinne und Dachfläche rücken um die
+Trägerhöhe nach oben, statt den Durchgang um 189 mm zu verkleinern. Wer
+2,30 m einstellt, hat auch unter dem Träger 2,30 m.
+
+**ANNAHME, GEGENZULESEN:** Die Tabelle nennt nur „189x117". Ich lese 189
+als Höhe und 117 als Tiefe – andersherum wäre der Träger flacher als
+breit, was für einen tragenden Unterzug wenig Sinn ergibt.
+
+Seitenelemente und Sonnenschutz rechnen mit `hRinne` statt `hVorn`, sonst
+bliebe bei angehobener Dachfläche oben ein Spalt.
+
+### Maßhinweis im Bedienfeld
+
+Unter Breite und Tiefe steht jetzt, was daraus folgt – drei Dinge, die der
+Kunde sonst erst im Angebot erfährt:
+
+1. **nach welcher lieferbaren Breite gerechnet wird** (sein Maß liegt fast
+   immer dazwischen) und wie viele Sparren und Pfosten das ergibt,
+2. dass ab 4,5 m Tiefe ein **Statikträger** dazukommt – mit dem Hinweis,
+   dass die Durchgangshöhe dabei bleibt,
+3. dass über 7 m Tiefe **nichts mehr geht**.
+
+**Prüfung.** `scripts/pruefe-masstabelle.js` – 20 Prüfungen, alle
+bestanden; Gegenprobe 20 von 20.

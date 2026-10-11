@@ -2449,7 +2449,28 @@
     var neig = (sky ? 2 : Z.neigung) * Math.PI / 180;
     var B = Z.breite / 10, T = Z.tiefe / 10;
     var hVorn = Z.hoehe / 10;
-    var hHinten = hVorn + Math.tan(neig) * T;
+
+    /* ---------- Statikträger unter der Rinne ----------
+       Vorgabe des Betreibers (11.10.2026): „beachte nur bei den nötigen
+       maßen den statikträger unter der dachrinne, die maße vom
+       statikträger stehen ja im pdf".
+
+       BELEGT (Maßtabelle): Querschnitt 189 × 117 mm, Länge = volle
+       Dachbreite, nötig ab einer Tiefe von mehr als 4500 mm.
+
+       Er sitzt UNTER der Rinne und AUF den Pfosten. Dadurch bleibt die
+       eingestellte Durchgangshöhe das, was man darunter hat – Rinne und
+       Dach rücken um die Trägerhöhe nach oben, nicht der Durchgang nach
+       unten. ANNAHME: 189 mm ist die Höhe, 117 mm die Tiefe; die Tabelle
+       nennt nur „189x117". Andersherum wäre der Träger flacher als breit,
+       was für einen tragenden Unterzug wenig Sinn ergibt. GEGENZULESEN. */
+    var tbMass = tabelleBauteile(Z.breite, Z.tiefe);
+    var traegerH = (tbMass && tbMass.unterzug) ? 18.9 : 0;
+    var traegerT = 11.7;
+    /* hRinne ist die Unterkante der Rinne. Ohne Träger ist das die
+       Durchgangshöhe, mit Träger liegt sie um dessen Höhe darüber. */
+    var hRinne = hVorn + traegerH;
+    var hHinten = hRinne + Math.tan(neig) * T;
     var frei = Z.aufbau === 'Freistehend';
     var mAlu = alu();
     /* TDS bekommt die echten Profile aus den Querschnittszeichnungen des
@@ -2485,13 +2506,19 @@
       if (frei) balken(PF, hHinten, PF, x, hHinten / 2, PF / 2, mAlu);
     });
 
-    /* Rinne vorne. hVorn ist die Durchgangshöhe, also die UNTERKANTE der
-       Rinne – so wird aufgemessen und so steht es auch im Datenpfad. */
+    /* Rinne vorne. hRinne ist die Unterkante der Rinne. Ohne Statikträger
+       ist das die Durchgangshöhe; mit Träger liegt sie um dessen Höhe
+       darüber, weil er zwischen Pfosten und Rinne sitzt. */
     if (sky) {
-      balken(B, riH, riT, 0, hVorn + riH / 2, T - riT / 2, mAlu);
+      balken(B, riH, riT, 0, hRinne + riH / 2, T - riT / 2, mAlu);
     } else {
-      rinneBauen(B, T, hVorn, mAlu);
-      rinnenblenden(B, T, hVorn, mAlu);
+      rinneBauen(B, T, hRinne, mAlu);
+      rinnenblenden(B, T, hRinne, mAlu);
+    }
+    if (traegerH) {
+      /* Volle Dachbreite, mittig unter der Rinne – dort stehen auch die
+         Pfosten (zPf). */
+      balken(B, traegerH, traegerT, 0, hVorn + traegerH / 2, zPf, mAlu);
     }
     balken(B, sky ? 20 : 14, frei ? 12 : 9, 0,
            hHinten + (sky ? 10 : 7), frei ? 6 : 4.5, mAlu);              // Wandprofil/Träger
@@ -2533,7 +2560,7 @@
     /* Der Sparren endet auf der HINTEREN Wange der Rinne, die tiefer
        liegt als die Vorderkante – sonst entwässert das Dach nach außen
        über die Nase statt in die Kehle. */
-    var ukVorn = hVorn + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
+    var ukVorn = hRinne + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
     var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe / 2);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
@@ -2601,7 +2628,10 @@
 
        Über dem Stück zwischen Dachkante und Pfosten ist kein Dach mehr,
        sondern die Rinne – das Element haengt dort also nicht frei. */
-    seitenErweiterungen(B, T, hVorn, PF, neig, function (z) {
+    /* hRinne statt hVorn: Mit Statikträger liegt die Dachfläche um dessen
+       Höhe höher – die Seitenelemente müssen bis dorthin reichen, sonst
+       bliebe oben ein Spalt. */
+    seitenErweiterungen(B, T, hRinne, PF, neig, function (z) {
       return ukMitte + Math.tan(neig) * (zMitte - z);
     }, zPf - PF / 2);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
@@ -2610,7 +2640,7 @@
        hingen in der Luft; vom Betreiber beanstandet. Die Zeichnung sagt
        „Bestellmaß Tiefe = Terrassendach Tiefe", die Markise läuft also
        über die ganze Dachtiefe bis an die Rinne. */
-    sonnenschutz(B, T, hVorn, neig, PF, {
+    sonnenschutz(B, T, hRinne, neig, PF, {
       tiefe: T,
       ok: function (z) {
         return ukMitte + spH + glasDicke + Math.tan(neig) * (zMitte - z);
@@ -3464,10 +3494,32 @@
      kommen aus dem Herstellerraster – nicht, weil nur diese Maße baubar
      wären (gebaut wird nach Kundenmaß), sondern weil darüber hinaus keine
      Abrechnungsgrundlage existiert. Schrittweite 10 mm: so wird aufgemessen. */
+  /* Grenzen aus der Maßtabelle, wenn die Schnittstelle nichts liefert.
+
+     Vorher standen die Grenzen fest im Code: Terrassendach bis 7000 ×
+     4500 mm. Der Betreiber: „laut tds maßtabelle sind das aber nicht die
+     maximalmaße wieso begrenzt du es so". Zu Recht – die Tabelle geht bei
+     TDS bis 14080 mm Breite und 7000 mm Tiefe. Die festen Werte stammten
+     aus der Zeit vor der Tabelle und waren eine ANNAHME, keine Grenze des
+     Systems. Wer 9 m braucht, konnte es nicht einmal eingeben.
+
+     Die Tiefe wird bei tiefeMaxMitUnterzug gekappt: Die Tabelle führt
+     auch 7050 mm, markiert sie aber als nicht lieferbar. */
+  function grenzenAusTabelle() {
+    var g = tabelleGruppe();
+    if (!g) return null;
+    var M = window.BV_MASSTABELLE;
+    var bs = Object.keys(g.breiten).map(Number).sort(function (a, b) { return a - b; });
+    var ts = g.tiefen.filter(function (t) { return t <= M.regeln.tiefeMaxMitUnterzug; });
+    if (!bs.length || !ts.length) return null;
+    return { breiten: bs, tiefen: ts };
+  }
+
   function reglerGrenzenSetzen() {
+    var listen = null;
     var d = datenSystem();
-    if (!d) return;
-    var listen = RASTER[d.system + '|' + d.material];
+    if (d && RASTER) listen = RASTER[d.system + '|' + d.material];
+    if (!listen) listen = grenzenAusTabelle();
     if (!listen) return;
     [['k3dBreite', 'breiten', 'breite'], ['k3dTiefe', 'tiefen', 'tiefe']].forEach(function (p) {
       var el = document.getElementById(p[0]);
@@ -3621,9 +3673,14 @@
        des Carport-Typs oder der Eindeckung bringt ein anderes Maßraster mit.
        Deshalb wird der Systemschlüssel verglichen, nicht nur das Produkt. */
     var dJetzt = datenSystem();
-    var systemSchl = dJetzt ? dJetzt.system + '|' + dJetzt.material : 'geschaetzt';
+    /* Auch ohne Serverantwort hat die Maßtabelle ein Raster – deshalb
+       zaehlt hier Produkt plus Eindeckung, nicht nur das Serversystem.
+       Vorher wurde ohne Serverantwort gar nicht nachgestellt, und die
+       festen Grenzen aus MASSE blieben stehen. */
+    var systemSchl = dJetzt ? dJetzt.system + '|' + dJetzt.material
+      : Z.produkt + '|' + Z.cpTyp + '|' + (istPolycarbonat() ? 'Poly' : 'Glas');
     if (systemSchl !== letztesSystem) {
-      if (dJetzt) reglerGrenzenSetzen();
+      reglerGrenzenSetzen();
       letztesSystem = systemSchl;
     }
     Z.breite = parseInt(wert('k3dBreite'), 10) || Z.breite;
@@ -3687,6 +3744,49 @@
        angerissen. Wer sie selbst ausrechnen muss, rechnet sie irgendwann
        falsch – und ein um 4 cm falsch gesetztes Wandprofil merkt man
        erst, wenn das Dach liegt. */
+    /* Was aus Breite und Tiefe folgt – in Worten, nicht nur im Bild.
+
+       Drei Dinge, die der Kunde sonst erst im Angebot erfährt:
+         · nach welcher lieferbaren Breite gerechnet wird (sein Maß liegt
+           fast immer dazwischen),
+         · dass ab 4,5 m Tiefe ein Statikträger über die volle Breite
+           dazukommt,
+         · dass über 7 m Tiefe nichts mehr geht.
+       Alles drei steht in der Maßtabelle; es hier zu verschweigen hieße,
+       es im Angebot erklären zu müssen. */
+    var mh = document.getElementById('k3dMassHinweis');
+    if (mh) {
+      var tb = tabelleBauteile(Z.breite, Z.tiefe);
+      var M = window.BV_MASSTABELLE;
+      var saetze = [], warnung = false;
+      if (tb) {
+        if (tb.breiteTabelle !== Z.breite) {
+          saetze.push('Gerechnet wird mit der nächsten lieferbaren Breite: <b>' +
+            tb.breiteTabelle + ' mm</b> – daraus folgen ' + tb.sparren +
+            ' Sparren und ' + tb.pfosten + ' Pfosten.');
+        } else {
+          saetze.push('<b>' + tb.sparren + ' Sparren</b> und <b>' + tb.pfosten +
+            ' Pfosten</b> bei diesem Maß.');
+        }
+        if (tb.unterzug) {
+          saetze.push('Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1)
+            .replace('.', ',') + ' m Tiefe kommt ein <b>Statikträger</b> ' +
+            '(189 × 117 mm) über die volle Breite dazu. Er sitzt unter der ' +
+            'Rinne auf den Pfosten – die Durchgangshöhe bleibt dieselbe, ' +
+            'Dach und Rinne rücken um die Trägerhöhe nach oben.');
+          warnung = true;
+        }
+        if (!tb.lieferbar) {
+          saetze.push('Diese Tiefe liegt über dem Höchstmaß von ' +
+            (M.regeln.tiefeMaxMitUnterzug / 1000).toFixed(1).replace('.', ',') +
+            ' m – <b>so nicht lieferbar</b>. Sprechen Sie uns an, wir finden eine Lösung.');
+          warnung = true;
+        }
+      }
+      mh.innerHTML = saetze.join(' ');
+      mh.classList.toggle('ist-warnung', warnung);
+    }
+
     var nz = document.getElementById('k3dNeigungZahl');
     if (nz && document.activeElement !== nz) nz.value = Z.neigung;
     var prozent = neigungProzent(Z.neigung);

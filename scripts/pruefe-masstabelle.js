@@ -127,6 +127,19 @@ pruefe('Tabelle wird auf der Seite geladen',
 pruefe('Breite wird auf die nächste lieferbare aufgerundet',
        new RegExp(q || 'bs\\[i\\] >= breiteMm').test(k3d), 'nie zu wenige Sparren');
 
+/* ---------- Statikträger und Hinweis ---------- */
+pruefe('Statikträger 189 × 117 mm im Modell',
+       new RegExp(q || 'traegerH = \\(tbMass && tbMass\\.unterzug\\) \\? 18\\.9').test(k3d) &&
+       new RegExp(q || 'traegerT = 11\\.7').test(k3d), 'aus der Maßtabelle');
+pruefe('Träger sitzt unter der Rinne, nicht in der Dachmitte',
+       new RegExp(q || 'hVorn \\+ traegerH / 2, zPf').test(k3d), 'zPf = Pfostenachse');
+pruefe('Durchgangshöhe bleibt, Dach rückt nach oben',
+       new RegExp(q || 'var hRinne = hVorn \\+ traegerH').test(k3d), '');
+pruefe('Reglergrenzen kommen aus der Tabelle',
+       new RegExp(q || 'grenzenAusTabelle').test(k3d), 'statt fester Werte');
+pruefe('Maßhinweis im Bedienfeld',
+       /id="k3dMassHinweis"/.test(html) && new RegExp(q || 'k3dMassHinweis').test(k3d), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
