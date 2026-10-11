@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 10.10.2026 · zuletzt bearbeitet: gemeinsamer Fragensatz für beide Konfiguratoren
+> Stand: 11.10.2026 · zuletzt bearbeitet: Glasschiebeelemente SG23, Carport TDS, Glaskopplung, Innenansicht
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -146,7 +146,11 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 
-Alle acht mit Gegenprobe am 10.10.2026 geprüft: bestanden.
+Am 11.10.2026 liefen alle Skripte außer dem Browsertest durch; die
+Gegenprobe schlug überall vollständig an (`pruefe-fuehrung.js` 45/45,
+`pruefe-masstabelle.js` 182/182, `pruefe-markise.js` 141/141).
+**Der Browsertest wird nicht mehr gefahren** – der Betreiber testet selbst
+im Browser („mach keinen browser test ich teste selber im browse").
 
 Die beiden Datenprüfungen überspringen sich selbst, wenn `daten/` fehlt –
 das ist der Normalfall in einem frischen Klon.
@@ -249,31 +253,38 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 09.09.2026 | PDF-Download im Baugenehmigungs-Check | live |
 | 09.09.2026 | Konfigurator-Fenster auch auf der Startseite | live |
 
-## Offen: Maß des Rinnen-Seitendeckels (11.10.2026)
+## Stand 11.10.2026 — was in dieser Sitzung dazukam
 
-Das Teilebild „Seitendeckel Rinne 2 TD beidseitig" nennt **172 × 175 mm**.
-Unsere Rinne ist nach der Querschnittszeichnung des Betreibers **186,3 mm
-breit und 136,7 mm hoch**. Der Deckel wäre damit in der einen Richtung
-schmaler, in der anderen deutlich höher als die Öffnung, die er schließen
-soll – eine der beiden Angaben hat einen anderen Bezugspunkt.
+Alles veröffentlicht (PRs #310–#319), nichts liegt halbfertig.
 
-**Entschieden am 11.10.2026** (Betreiber): „gleich den deckel mittig aus
-huptsache vorne is bündig." Der Deckel hat jetzt sein **echtes Maß**
-172 × 175 mm, liegt **vorne bündig** und ist **in der Höhe mittig**.
-Hinten bleiben dadurch rund 14 mm der Öffnung frei, oben und unten steht
-er je rund 19 mm über. Das ist so gewollt.
+| Bereich | Was jetzt gilt |
+|---|---|
+| **Statikträger** | Hochkant **hinter** den Sparren, nicht darunter. Bei freistehend wirkt er wie eine Wand (Wandprofil daran verschraubt), und das Tiefenmaß ist **inklusive** Träger – bei Wandmontage nicht. Pfostenregel „alle 7 m" gilt **je Seite** |
+| **Carport TDS** | Ist dasselbe Dach wie Terrassendach TDS, nur anders benannt. Statikträger per Häkchen, nicht automatisch. Nur bei **freistehend**: Höhe hinten getrennt verstellbar (an vorne gekoppelt, entkoppelbar) und Dachvorsprung hinten – Vorsprung bis **1500 mm** (sonst 800 mm) |
+| **Glasschiebeelemente SG23** | Maße und Bauarten aus der SG23-Unterlage, **ohne jeden Preis**. Das System wählt die optisch passendste Variante selbst, in den erweiterten Einstellungen ist sie frei wählbar. Bei Mittel- oder Mehrfachpfosten wird **je lichtes Feld eine eigene Anlage** gebaut, die von der Mitte nach außen öffnet. Griff: runder eingelassener Muschelgriff auf 1050 mm. Bodenschiene **bündig mit dem Boden** (barrierefrei eingelassen), Führungen bündig mit der Pfosteninnenseite, nur bei dickerer Schiene vermittelt |
+| **VSG-Kopplung** | Über **4,50 m** Tiefe wird VSG gestoßen; die Kopplung (28 × 6 mm, leicht mattes Gummi) ist im Modell sichtbar und im erlaubten Bereich verschiebbar. **Polycarbonat nicht** – das geht immer in einem Stück. Der Innenkern der Maßtabelle hat damit nichts zu tun (war ein Irrtum von mir, korrigiert) |
+| **Glas** | VSG jetzt 8 **und** 10 mm, dazu **VSG graphit (getönt)** – auch im Anfrage-Assistenten |
+| **Ansicht/Bedienung** | „Darunter" steht jetzt **drin** (Augenhöhe 160 cm, Blick nach draußen und leicht nach oben) und überlebt eine Maßänderung. Maßangaben filigraner. Öffnungsanimationen langsamer. Gezeichnet wird nur bei Bedarf, Schattenkarte nur nach Änderung, Regler baut höchstens einmal je Bild |
 
-Der Widerspruch im Maß selbst bleibt offen – falls sich klärt, worauf
-sich die 172 × 175 beziehen, gehört das in `RINNENDECKEL` in
-`js/konfigurator-3d.js`.
+### Was gegengelesen werden soll
 
-## Erledigt: Stückzahlen kommen nicht mehr aus der Schätzung (11.10.2026)
+- **Bleibt irgendwo das Bild stehen?** Nur-bei-Bedarf-Zeichnen ist die eine riskante Optimierung. Angemeldet sind Kamera, Modellneubau, Fenstergröße und alle drei Texturpfade, plus vier Sicherheitsbilder. Falls das Bild einmal nicht nachzieht: notieren, was gerade verstellt wurde
+- Glasschiebeelemente auf **allen drei Seiten** und mit **mehreren Pfosten** durchklicken
+- Carport TDS freistehend: Höhe hinten entkoppeln, Dachvorsprung vorne/hinten
 
-`/api/bauteile` antwortet weiterhin 503 (KV-Namensraum `DACHMATRIX` nicht
-gebunden). Das ist aber **kein Blocker mehr**: `js/masstabelle.js` liefert
-die echten Zahlen für TDS, SkyView und Flat Line – gegengerechnet gegen die
-private Matrix, 1316 von 1316 identisch.
+### Fragen, die beim Betreiber liegen
 
-Das Binden bleibt eine sinnvolle Verbesserung (die Matrix kann mehr), hat
-aber keine Dringlichkeit mehr. Die Schritte stehen in `worker/index.js`.
+| Frage | Warum sie zählt |
+|---|---|
+| Ist **Dachvorsprung 1500 mm** statisch gedeckt? | Der Wert kam vom Betreiber („ruhig bis 1500mm"), eine Statikfreigabe liegt nicht vor |
+| Ist die **Höhe hinten 2000–3200 mm** der richtige Bereich? | Von mir gesetzt, nicht belegt |
+| Sind **Keil, Plankenwand und Senkrechtmarkise** an einem Carport sinnvoll? | Technisch anwählbar – ob es verkauft wird, weiß nur der Betrieb |
+| **Hinweis**, wenn ein Carport über 4,5 m tief ist, ohne Statikträger-Häkchen? | Könnte eine Fehlbestellung verhindern, kann aber auch gängelnd wirken |
+| Sollen die **SG23-Glasarten** (ESG klar, Satinato, Grau) wählbar sein? | Stehen in der Unterlage, sind im Konfigurator noch nicht angeboten |
+| Fertigt VD auch **unter der kleinsten Tabellenspalte**? | Der Konfigurator lässt kleinere Maße zu und rechnet dort hoch |
 
+### Ältere offene Punkte
+
+- **Rinnen-Seitendeckel:** Teilebild nennt 172 × 175 mm, die Rinne ist nach Querschnittszeichnung 186,3 × 136,7 mm – eine der beiden Angaben hat einen anderen Bezugspunkt. **Entschieden** (Betreiber, 11.10.2026): „gleich den deckel mittig aus huptsache vorne is bündig." Der Deckel hat sein echtes Maß, liegt vorne bündig, in der Höhe mittig; hinten bleiben ~14 mm frei, oben/unten steht er je ~19 mm über. Der Widerspruch im Maß selbst bleibt offen – Klärung gehört in `RINNENDECKEL` in `js/konfigurator-3d.js`
+- **Pfostenachse 55 mm**, **eZIP-Kassette rund statt eckig**, **EZIP-Stoffbilder in CMYK ohne Profil** – alles ungeprüfte Annahmen
+- **`/api/bauteile` antwortet weiter 503** (KV-Namensraum `DACHMATRIX` nicht gebunden). **Kein Blocker:** `js/masstabelle.js` liefert die echten Zahlen für TDS, SkyView und Flat Line, gegengerechnet 1316 von 1316 identisch. Das Binden bleibt eine Verbesserung ohne Dringlichkeit; Schritte in `worker/index.js`
