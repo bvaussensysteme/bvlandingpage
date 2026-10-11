@@ -2802,3 +2802,34 @@ zueinander passen, fiel zwischen die Prüfungen.
 und sucht für jeden die Entsprechung **im Code**. Sie prüft damit die
 Verbindung, nicht zwei Absichten nebeneinander. Dieselbe Falle gibt es
 überall, wo ein Feldwert als Schlüssel dient.
+
+## 2026-10-11 – Velaris: Lücke an der Stirnseite, Aufteilung wählbar, Verschieben
+
+**Anlass (drei Meldungen):** „bei den velaris für stirnseite entsteht in
+der mitte so ne fslsche lücke die sollte nicht sein, mach am besten bei
+elementbreite genauso wie bei schiebeelemente", „bei ausführung
+verschiebbar gibts keine animation zum öffnen schließen" und „die
+schiebbaren lassen sich wie die glasschiebewände verschieben".
+
+**1. Die Lücke.** Seit die feststehenden Elemente sich einen Pfosten
+teilen, lässt das zweite Element sein linkes Profil weg – **der Platz
+dafür blieb aber reserviert**. Genau dort klaffte die Lücke. Jetzt
+reichen die Lamellen bis an die Elementkante, wenn kein eigenes Profil
+davorsteht. Das ist der typische Fehler beim Weglassen: Das Bauteil ist
+weg, die Rechnung kennt es noch.
+
+**2. Aufteilung wählbar wie bei den Schiebeanlagen.** Das System rechnet
+sie aus, in den erweiterten Einstellungen steht die Liste der
+Möglichkeiten – und darin **nur, was lieferbar ist** (jedes Element
+500 bis 1500 mm). Die Liste wird aus dem **fertigen Modell** gefüllt,
+nicht aus der Eingabe: Erst dort steht das lichte Maß dieser Seite. Ein
+Wunsch, der nicht aufgeht, fällt still auf die Automatik zurück; was
+wirklich gebaut wurde, steht darunter.
+
+**3. Verschieben mit Animation.** Die verschiebbaren Elemente fahren wie
+die Glasschiebewände – erstes bleibt stehen, die übrigen stapeln sich
+darauf, gleiche Dauer und Kurve wie überall.
+
+Dabei fiel auf: **Kopfprofil und Bodenschiene gehören zur Anlage, nicht
+zum Element.** Sie wurden je Element gezeichnet und wären beim Fahren
+mitgewandert. Jetzt zeichnet sie die Anlage einmal über die ganze Länge.

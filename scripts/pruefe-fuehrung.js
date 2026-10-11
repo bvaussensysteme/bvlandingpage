@@ -506,7 +506,7 @@ pruefe('Grenzen stehen so im Code',
        new RegExp(q || 'function velarisSchiebbar').test(js), '');
 
 pruefe('Feststehend teilen sich den Pfosten',
-       new RegExp(q || "if \\(erstes \\|\\| Z\\.velarisArt === 'verschiebbar'\\)").test(js), '');
+       new RegExp(q || "var linksEigen = erstes \\|\\| Z\\.velarisArt === 'verschiebbar'").test(js), '');
 
 pruefe('Elementbreite gleich oder Wunsch',
        /id="k3dVelarisBreite"/.test(html) &&
@@ -528,6 +528,78 @@ pruefe('Elementbreite gleich oder Wunsch',
   if (gegen) offen = offen.length ? [] : ['erzwungen'];
   pruefe('Jede Lamellenfarbe kommt im Code an', offen.length === 0,
          werte.length + ' Werte, ohne Entsprechung: ' + (offen.join(', ') || 'keiner'));
+})();
+
+(function () {
+  /* Die Luecke an der Stirnseite (Betreiber, 11.10.2026): Bei
+     feststehenden Elementen laesst das zweite sein linkes Profil weg -
+     dann muessen die Lamellen bis an die Kante reichen, sonst bleibt
+     genau der Platz des weggelassenen Profils leer. Nachgerechnet:
+     Lamellenlaenge plus die wirklich vorhandenen Profile ergibt die
+     Elementbreite, und die Lamellen sitzen mittig dazwischen. */
+  var R = 4.5, L = 100, falsch = 0;
+  [[true, 'erstes'], [false, 'folgendes']].forEach(function (f) {
+    var linksRand = f[0] ? R : 0;
+    var lam = L - linksRand - R;
+    /* Gegenprobe: der Fehler von vorher - Lamellen immer mittig, egal ob
+       das linke Profil steht. Dann klafft die Luecke wieder. */
+    var mitte = gegen ? 0 : (linksRand - R) / 2;
+    var linkeKante = mitte - lam / 2, rechteKante = mitte + lam / 2;
+    if (Math.abs(linkeKante - (-L / 2 + linksRand)) > 0.001) falsch++;
+    if (Math.abs(rechteKante - (L / 2 - R)) > 0.001) falsch++;
+  });
+  pruefe('Keine Luecke, wo das Profil fehlt', falsch === 0,
+         falsch + ' Kanten falsch');
+})();
+pruefe('Lamellen folgen der Elementkante',
+       new RegExp(q || 'var linksRand = linksEigen \\? R : 0').test(js) &&
+       new RegExp(q || 'var lamMitte = mitte \\+ \\(linksRand - R\\) / 2').test(js), '');
+pruefe('Elementzahl automatisch oder selbst gewaehlt',
+       /id="k3dVelarisAnzahl"/.test(html) &&
+       new RegExp(q || 'function velarisFeldFuellen').test(js) &&
+       new RegExp(q || 'function velarisMoeglich').test(js), '');
+(function () {
+  /* Das Auswahlfeld darf nur anbieten, was der Hersteller zulaesst.
+     Nachgerechnet ueber alle Breiten: Jede angebotene Zahl ergibt
+     Elemente zwischen 500 und 1500 mm, und die Automatik ist immer
+     dabei. */
+  var MIN = 500, MAX = 1500, FEST = 5, falsch = 0;
+  for (var mm = 500; mm <= 7500; mm += 10) {
+    var liste = [];
+    for (var n = 1; n <= FEST; n++) {
+      var b = mm / n;
+      if (gegen ? b <= MAX : (b >= MIN && b <= MAX)) liste.push(n);
+    }
+    liste.forEach(function (n) {
+      var b = mm / n;
+      if (b < MIN - 0.001 || b > MAX + 0.001) falsch++;
+    });
+    var auto = Math.max(1, Math.ceil(mm / MAX));
+    if (mm <= FEST * MAX && liste.indexOf(auto) < 0) falsch++;
+  }
+  pruefe('Angeboten wird nur Lieferbares', falsch === 0,
+         falsch + ' Angebote ausserhalb der Grenzen');
+})();
+
+pruefe('Verschiebbare Velaris fahren wie die Glaswaende',
+       new RegExp(q || 'function velarisSchiebenFahren').test(js) &&
+       new RegExp(q || "\\['k3dVelarisSchiebenAuf', 'k3dVelarisOffen', 100\\]").test(js) &&
+       /id="k3dVelarisOffen"/.test(html), '');
+(function () {
+  /* Beim Aufschieben bleibt das erste Element stehen und die uebrigen
+     fahren darauf zu - genau wie bei den Glasschiebewaenden. Bei 100 %
+     liegen alle uebereinander, keines steht ausserhalb der Anlage. */
+  var L = 450, n = 3, el = L / n, falsch = 0;
+  [0, 0.5, 1].forEach(function (offen) {
+    for (var e = 0; e < n; e++) {
+      var lage = -L / 2 + (e + 0.5) * el - (gegen ? -offen : offen) * e * el;
+      if (lage - el / 2 < -L / 2 - 0.001) falsch++;      // links hinaus
+      if (lage + el / 2 > L / 2 + 0.001) falsch++;       // rechts hinaus
+      if (offen === 0 && Math.abs(lage - (-L / 2 + (e + 0.5) * el)) > 0.001) falsch++;
+    }
+  });
+  pruefe('Kein Element faehrt aus der Anlage', falsch === 0,
+         falsch + ' Lagen ausserhalb');
 })();
 
 console.log(gegen
