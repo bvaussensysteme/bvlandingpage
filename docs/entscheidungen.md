@@ -4361,3 +4361,36 @@ sehr breite Anlagen: Das Zeichen wächst mit, aber nicht über 3,2 m. Ansicht
 „Darunter": Von unten ist es unsichtbar (einseitige Fläche) – dort trägt das
 gespeicherte Bild die ©-Zeile in der Fußzeile. Prüfung:
 `node scripts/pruefe-fuehrung.js` (219 Prüfungen, Gegenprobe 219/219).
+
+## 2026-10-11 – Plankenwand: Höhenregler wirkt auch neben der Rahmenwand
+
+**Was war falsch.** „bei der plankenwnd funktioniert die einstellung der höhe
+etc nicht mehr, das soll funktionieren und die rahmenwand soll sich dazu
+anpassen" (Betreiber, 11.10.2026). In der Kombination nahm die Plankenwand
+starr 34 % der Höhe – der Regler „Wie hoch zugesetzt" lief ins Leere.
+
+**Was jetzt gilt.** Derselbe Regler gilt in beiden Fällen und bedeutet
+dasselbe: Er sagt, wie viel weggelassen wird. Bei −66 bleiben 34 % Planken,
+darüber die Rahmenwand bzw. Tür. Das Vorzeichen bestimmt die Lage: nach links
+wachsen die Planken von unten (Rahmenwand darüber), nach rechts hängen sie oben
+(Rahmenwand darunter) – inklusive Türschwelle und unterem Abschlussprofil, die
+dann wieder am Boden sitzen. Der Standard bleibt das Drittel unten: „ganz
+zugesetzt" kann in der Kombination nicht gelten, sonst bliebe für die
+Rahmenwand nichts. Gerechnet wird über die Plankenzahl der **vollen** Wand,
+damit die Fuge dieselbe bleibt wie bei der ganzen Wand und die Planken bündig
+abschließen. Der Rahmenwand bleibt immer mindestens eine Planke Platz, sonst
+stünde ein Element mit null Höhe im Modell.
+
+**Dazu: Wasserzeichen deutlicher.** „das logo bitte einiges sichtbarer und
+größer", dann genauer „15% sichtbarer" (Betreiber). Gelesen als 15
+Prozentpunkte mehr Deckkraft: 28 % → **43 %**. Dazu zwei Drittel der
+Anlagenbreite statt knapp der Hälfte und 4,6 m statt 3,2 m Obergrenze.
+Feiner stellen heißt: eine Zeile (`var WZ = …`) ändern.
+
+**Was gegengelesen werden soll.** Plankenwand + Rahmenwand auf einer Seite, den
+Regler „Wie hoch zugesetzt" von links nach rechts durchfahren: Das Plankenband
+wird höher und niedriger, die Rahmenwand passt sich an, in der Mitte bleibt es
+beim Drittel. Nach rechts: Planken oben, Rahmenwand darunter bis zum Boden.
+Die Zeile „Gebaut: …" darunter muss zur gebauten Höhe passen. Prüfungen:
+`node scripts/pruefe-markise.js` (179, Gegenprobe 179/179),
+`node scripts/pruefe-fuehrung.js` (220, Gegenprobe 220/220).

@@ -1204,7 +1204,13 @@
      sind die beiden Logodateien: images/logo-hell.png (dunkle Schrift,
      für den hellen Belag am Tag), images/logo-dunkel.png (weiße
      Schrift, für den dunklen Abend). */
-  var WZ = { deckkraft: 0.28, anteil: 0.46, hoechstens: 320 };
+  /* Erste Fassung war zu zurueckhaltend: „das logo bitte einiges
+     sichtbarer und größer", dann genauer: „15% sichtbarer" (Betreiber,
+     11.10.2026, mit Bild). Gelesen als 15 PROZENTPUNKTE mehr Deckkraft:
+     28 % + 15 = 43 %. Dazu zwei Drittel der Breite statt knapp der
+     Haelfte und eine hoehere Obergrenze (4,6 statt 3,2 m).
+     Feiner stellen heisst: diese eine Zeile aendern. */
+  var WZ = { deckkraft: 0.43, anteil: 0.66, hoechstens: 460 };
 
   var WZ_TEXTUR = {};
   function wasserzeichenTextur(abend) {
@@ -3127,6 +3133,39 @@
                    : { von: n - bleibt, anzahl: bleibt, lage: 'oben' };
     }
 
+    /* ---------- Plankenwand ZUSAMMEN mit Rahmenwand/Schiebetür ----------
+       „bei der plankenwnd funktioniert die einstellung der höhe etc
+       nicht mehr, das soll funktionieren und die rahmenwand soll sich
+       dazu anpassen" (Betreiber, 11.10.2026).
+
+       Vorher nahm die Plankenwand in dieser Kombination starr 34 % der
+       Höhe – der Regler „Wie hoch zugesetzt" lief ins Leere.
+
+       Jetzt gilt derselbe Regler wie bei der Plankenwand allein, und er
+       bedeutet dasselbe: Er sagt, wie viel WEGGELASSEN wird. Bei −66
+       bleiben also 34 % Planken, der Rest darüber ist Rahmenwand bzw.
+       Tür. Das Vorzeichen bestimmt wie gewohnt die Lage: nach links
+       wachsen die Planken von unten (Rahmenwand darüber), nach rechts
+       hängen sie oben (Rahmenwand darunter).
+
+       Der Standard bleibt das bisherige Drittel: „ganz zugesetzt" (0
+       bzw. Haken gesetzt) kann hier nicht gelten, sonst bliebe für die
+       Rahmenwand nichts übrig. Gerechnet wird über die Plankenzahl der
+       VOLLEN Wand, nicht über die nackte Höhe – so bleibt die Fuge
+       dieselbe wie bei der ganzen Wand, und die Planken schließen oben
+       und unten bündig ab. */
+    function plankenKombi(hoch) {
+      var a = (Z.plankenHoeheAuto || !Z.plankenAnteil) ? -66 : Z.plankenAnteil;
+      var t = plankenTeilung(hoch);
+      var schritt = PLANKE.hoehe + t.fuge;
+      var bleibt = Math.max(1, t.anzahl - Math.round(Math.abs(a) / 100 * t.anzahl));
+      /* Der Rahmenwand muss ein Rest bleiben, sonst steht ein Element
+         mit null Höhe im Modell. */
+      if (bleibt > t.anzahl - 1) bleibt = Math.max(1, t.anzahl - 1);
+      var h = Math.min(bleibt * schritt - t.fuge, hoch * 0.9);
+      return { hoehe: h, oben: a > 0 };
+    }
+
     /* Über 7 m gibt es keine Planke am Stück. Geteilt wird GLEICHMÄSSIG -
        zwei Felder zu 3,8 m sehen richtig aus, 7 m plus 0,6 m nicht. Die
        Stoßstelle bekommt ein Zwischenprofil, an dem beide Plankenenden
@@ -3597,9 +3636,15 @@
          Plankenwand steckt, ist derselbe Fehler. Ob diese Kombination
          überhaupt angeboten werden soll, ist eine Produktfrage und steht
          in docs/NEXT_TASK.md. */
-      var hPlanke = (hatPlanken && (hatRahmen || hatSchiebe)) ? hoch * 0.34 : 0;
-      var yAuf = yUnten + hPlanke;     // Unterkante von Rahmenwand/Tür
-      var hAuf = hoch - hPlanke;       // was darüber bleibt
+      var kombi = (hatPlanken && (hatRahmen || hatSchiebe))
+        ? plankenKombi(hoch) : null;
+      var hPlanke = kombi ? kombi.hoehe : 0;
+      var plankeOben = !!(kombi && kombi.oben);
+      /* Liegen die Planken oben, beginnt die Rahmenwand unten – sonst
+         umgekehrt. Zusammen ergeben beide immer die volle Höhe. */
+      var yAuf = yUnten + (plankeOben ? 0 : hPlanke);   // Unterkante Rahmen/Tür
+      var hAuf = hoch - hPlanke;                        // was ihr bleibt
+      var yPlanke = yUnten + (plankeOben ? hAuf : 0);
 
       /* Rahmenwand unten, Schiebetür darüber – so steht es als Hinweis im
          Anfrage-Assistenten, und so wird es montiert. */
@@ -3646,7 +3691,17 @@
         /* Rahmenwand unten, Schiebetür darüber – das untere Band ist
            ebenfalls ein Rahmenelement, kein Blech. */
       }
-      if (hPlanke > 0) planken(laenge, hPlanke, achse, mitte, yUnten, quer, false);
+      if (hPlanke > 0) {
+        planken(laenge, hPlanke, achse, mitte, yPlanke, quer, false);
+        /* Dem Bedienfeld die WIRKLICHE Lage melden. planken() baut die
+           zugewiesene Höhe voll aus und meldet deshalb „volle Höhe" –
+           das stimmt für das Plankenband, nicht für die Seite. Was
+           darüber (oder darunter) bleibt, ist nicht frei, sondern
+           Rahmenwand bzw. Tür; das steht in der Zeile daneben. */
+        PLANKEN_IST.lage = plankeOben ? 'oben' : 'unten';
+        PLANKEN_IST.frei = 0;
+        PLANKEN_IST.licht = Math.round(hoch * 10);
+      }
 
       /* Bodenschiene und Wandanschluss gehören zu jedem geschlossenen
          Element – ohne sie steht die Scheibe frei in der Luft bzw. frei
@@ -3659,7 +3714,8 @@
         if (hatSchiebe) {
           /* Steht die Anlage auf Planken, sitzt die Schwelle auf deren
              Oberkante – sonst läge sie unter der Plankenwand. */
-          tuerschwelle(laenge, achse, mitte, quer, gl, hPlanke > 0 ? yAuf : null);
+          tuerschwelle(laenge, achse, mitte, quer, gl,
+                       hPlanke > 0 && !plankeOben ? yAuf : null);
           /* Die Führung sitzt DIREKT auf dem Flügel. Ein fester Platz
              oben am Dach wäre falsch, sobald ein Keil die Elementhöhe
              kürzt – dann hinge sie frei in der Luft. */
@@ -3667,7 +3723,8 @@
         } else {
           /* Das untere Abschlussprofil der Rahmenwand – auf dem Belag
              oder, bei Planken darunter, auf deren Oberkante. */
-          bodenschiene(laenge, achse, mitte, quer, hPlanke > 0 ? yAuf : null);
+          bodenschiene(laenge, achse, mitte, quer,
+                       hPlanke > 0 && !plankeOben ? yAuf : null);
         }
         wandAnschluss(achse, mitte - laenge / 2, yUnten + hoch + fuehrungH, quer);
       }

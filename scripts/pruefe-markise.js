@@ -627,14 +627,67 @@ pruefe('Griff an der Schliesskante',
    Bild). Vorher lief die Rahmenwand ueber die volle Hoehe durch und die
    Planken standen im selben Raum davor. */
 pruefe('Planken teilen die Hoehe auf, statt davor zu stehen',
-       new RegExp(q || 'var hPlanke = \\(hatPlanken && \\(hatRahmen \\|\\| hatSchiebe\\)\\) \\? hoch \\* 0\\.34 : 0;').test(src) &&
+       new RegExp(q || 'var hPlanke = kombi \\? kombi\\.hoehe : 0;').test(src) &&
+       new RegExp(q || 'function plankenKombi').test(src) &&
        !/planken\(laenge, hoch \* 0\.34, achse, mitte, yUnten/.test(src), '');
 pruefe('Rahmenwand und Tuer setzen auf der Plankenwand auf',
        new RegExp(q || 'rahmenwand\\(laenge, hAuf, achse, mitte, yAuf').test(src) &&
        new RegExp(q || 'schiebetuer\\(laenge, hAuf, achse, mitte, yAuf').test(src), '');
+/* Schwelle und Abschlussprofil wandern nur dann nach oben, wenn die
+   Planken UNTEN liegen. Haengen sie oben, faengt die Rahmenwand wieder
+   am Boden an – dann gehoert das Profil auch dorthin. */
 pruefe('Schwelle und Abschlussprofil wandern mit',
-       new RegExp(q || 'tuerschwelle\\(laenge, achse, mitte, quer, gl, hPlanke > 0 \\? yAuf : null\\)').test(src) &&
-       new RegExp(q || 'bodenschiene\\(laenge, achse, mitte, quer, hPlanke > 0 \\? yAuf : null\\)').test(src), '');
+       new RegExp(q || 'hPlanke > 0 && !plankeOben \\? yAuf : null').test(src) &&
+       (src.match(/hPlanke > 0 && !plankeOben \? yAuf : null/g) || []).length === 2, '');
+/* Der Regler „Wie hoch zugesetzt" muss auch in der Kombination wirken:
+   „bei der plankenwnd funktioniert die einstellung der höhe etc nicht
+   mehr, das soll funktionieren und die rahmenwand soll sich dazu
+   anpassen" (Betreiber, 11.10.2026). Zweiter Weg: plankenKombi() wird
+   wirklich ausgefuehrt, mit echten Plankenmassen. */
+(function () {
+  var fn = (src.split('function plankenKombi(')[1] || '').split('\n    }')[0];
+  var PLANKE = { hoehe: 7.04 }, FUGE_AUTO = 20, Z = {};
+  function plankenTeilung(hoehe) {
+    var ziel = (Z.plankenAuto ? FUGE_AUTO : (Z.plankenFuge || 0)) / 10;
+    if (ziel <= 0) return { anzahl: Math.max(1, Math.floor(hoehe / PLANKE.hoehe)), fuge: 0 };
+    var n = Math.max(1, Math.round((hoehe + ziel) / (PLANKE.hoehe + ziel)));
+    while (n > 1 && n * PLANKE.hoehe > hoehe) n--;
+    return { anzahl: n, fuge: n > 1 ? (hoehe - n * PLANKE.hoehe) / (n - 1) : 0 };
+  }
+  var plankenKombi = eval('(function plankenKombi(' + fn + '\n})');
+  var hoch = 200;
+  Z.plankenAuto = true;
+
+  /* Standard (Haken gesetzt): rund ein Drittel Planken unten. */
+  Z.plankenHoeheAuto = true; Z.plankenAnteil = 0;
+  var std = plankenKombi(hoch);
+  /* Regler nach links auf -90: nur noch ein schmales Band unten. */
+  Z.plankenHoeheAuto = false; Z.plankenAnteil = -90;
+  var wenig = plankenKombi(hoch);
+  /* Regler nach rechts: Planken oben, Rahmenwand darunter. */
+  Z.plankenAnteil = 40;
+  var oben = plankenKombi(hoch);
+  /* Regler nach links auf -20: fast die ganze Seite Planken. */
+  Z.plankenAnteil = -20;
+  var viel = plankenKombi(hoch);
+
+  /* Je Pruefung eine eigene Verfaelschung – ein starres Drittel (der
+     alte Zustand) haette die Lage-Pruefung nicht anschlagen lassen, und
+     eine falsche Lage nicht die Hoehen-Pruefung. */
+  var g1 = gegen ? { wenig: std, viel: std } : { wenig: wenig, viel: viel };
+  pruefe('Plankenhoehe folgt dem Regler',
+         g1.wenig.hoehe < std.hoehe && g1.viel.hoehe > std.hoehe,
+         '-90: ' + wenig.hoehe.toFixed(0) + ' cm, Standard: ' +
+         std.hoehe.toFixed(0) + ' cm, -20: ' + viel.hoehe.toFixed(0) + ' cm');
+  var g2 = gegen ? { oben: false } : oben;
+  pruefe('Nach rechts haengen die Planken oben', g2.oben === true,
+         'Lage ' + (oben.oben ? 'oben' : 'unten'));
+  var g3 = [std, wenig, oben, viel].concat(gegen ? [{ hoehe: hoch }] : []);
+  pruefe('Der Rahmenwand bleibt immer etwas uebrig',
+         g3.every(function (k) { return k.hoehe > 0 && hoch - k.hoehe > 1; }),
+         'kein Element mit null Hoehe');
+})();
+
 /* Zweiter Weg: die drei Formeln aus dem Modellcode holen und die Lagen
    wirklich ausrechnen – ueberlappen die beiden Baender?
 
@@ -648,6 +701,12 @@ pruefe('Schwelle und Abschlussprofil wandern mit',
   var aForm = (src.match(/var hAuf = ([^;]+);/) || [])[1];
   function lagen(fH, fY, fA, hatPlanken, hatRahmen, hatSchiebe) {
     var hoch = 200, yUnten = 0.2;
+    /* Wie hoch die Planken genau werden, prueft der Block weiter oben
+       (plankenKombi wird dort wirklich ausgefuehrt). Hier geht es nur um
+       die AUFTEILUNG, deshalb ein fester Stellvertreter. */
+    var kombi = (hatPlanken && (hatRahmen || hatSchiebe))
+      ? { hoehe: hoch * 0.34, oben: false } : null;
+    var plankeOben = !!(kombi && kombi.oben);
     var hPlanke = eval(fH), yAuf = eval(fY), hAuf = eval(fA);
     return { plankeOk: yUnten + hPlanke, rahmenUk: yAuf,
              rahmenOk: yAuf + hAuf, gesamtOk: yUnten + hoch,
