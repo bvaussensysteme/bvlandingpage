@@ -2772,6 +2772,183 @@
   };
 
   /* ---------- Bedienung ---------- */
+  /* ---------- Geführte Reihenfolge ----------
+     Der Betreiber am 11.10.2026: „du musst dir vorstellen da sitzt nen
+     60 jähriger ahnungsloser opa am pc oder handy. der konfigurator muss
+     für jeden leihen einfach bedienbar sein" – und: „quasi genauso wie
+     jetzt schon im nicht 3d konfigurator".
+
+     Deshalb dieselbe Reihenfolge wie im Anfrage-Assistenten: eine Frage
+     nach der anderen, Weiter und Zurück, Fortschrittsbalken.
+
+     Was hier NICHT passiert: die Bedienelemente werden nicht neu gebaut.
+     Jede Gruppe im Bedienfeld trägt data-k3d-schritt und gehört damit zu
+     genau einem Schritt; gesteuert wird nur, welche gerade sichtbar ist.
+     Dadurch bleibt „Alles auf einen Blick" ohne Zusatzaufwand möglich,
+     und es gibt keine zweite Stelle, an der dieselbe Einstellung lebt.
+
+     data-k3d-mehr markiert, was selten gebraucht wird (Dachneigung,
+     Dachvorsprung, Schiebe-Regler, Bodenbelag, Abendansicht). Das liegt
+     hinter „Mehr Einstellungen" und verlängert den Hauptweg nicht.
+
+     Schritte ohne sichtbare Gruppe werden ÜBERSPRUNGEN. Beispiel: Beim
+     Carport gibt es keine Seitenelemente, beim Terrassendach keine
+     Verkleidung. Ohne das Überspringen stünde man vor einer leeren Seite
+     und wüsste nicht, was zu tun ist. */
+  var SCHRITTE = [
+    { id: 'produkt',     t: 'Was möchten Sie bauen?',
+      s: 'Wählen Sie Ihr Produkt – alles Weitere richtet sich danach.' },
+    { id: 'aufbau',      t: 'Wo soll es stehen?',
+      s: 'An der Hauswand oder frei im Garten?' },
+    { id: 'masse',       t: 'Wie groß soll es werden?',
+      s: 'Ungefähre Maße genügen. Das genaue Maß nehmen wir vor Ort.' },
+    { id: 'dach',        t: 'Welches Dach?',
+      s: 'Klares Glas lässt am meisten Licht durch, mattes blendet weniger.' },
+    { id: 'farbe',       t: 'Welche Farbe?',
+      s: 'Die Farbe gilt für alle Profile – Pfosten, Dach und Seiten.' },
+    { id: 'seiten',      t: 'Sollen Seiten geschlossen werden?',
+      s: 'Schon eine geschlossene Seite bringt Wind- und Sichtschutz. Sie dürfen auch alles offen lassen.' },
+    { id: 'sonne',       t: 'Brauchen Sie Sonnenschutz?',
+      s: 'Eine Markise hält die Hitze ab, bevor sie unter dem Dach ankommt.' },
+    { id: 'technik',     t: 'Licht und Technik?',
+      s: 'Alles freiwillig – Sie können jeden Punkt auch später nachrüsten.' },
+    { id: 'verkleidung', t: 'Wände verkleiden?',
+      s: 'Sichtschutzpaneele zwischen den Pfosten.' },
+    { id: 'umgebung',    t: 'Untergrund und Montage',
+      s: 'Zwei Fragen, die wir für das Angebot brauchen.' },
+    { id: 'fertig',      t: 'Fertig – das haben Sie zusammengestellt',
+      s: 'Schicken Sie uns die Konfiguration. Sie bekommen ein Angebot nach dem kostenlosen Aufmaß.' }
+  ];
+
+  var schrittNr = 0;
+  var gefuehrt = true;
+  var zeigtMehr = false;
+
+  function schrittGruppen(id, nurSichtbar) {
+    return Array.prototype.filter.call(
+      document.querySelectorAll('[data-k3d-schritt="' + id + '"]'),
+      function (g) { return !nurSichtbar || !g.hidden; });
+  }
+
+  function schrittHatInhalt(i) {
+    if (!SCHRITTE[i]) return false;
+    if (SCHRITTE[i].id === 'fertig') return true;
+    return schrittGruppen(SCHRITTE[i].id, true).length > 0;
+  }
+
+  function schrittSuchen(von, richtung) {
+    var i = von + richtung;
+    while (i >= 0 && i < SCHRITTE.length && !schrittHatInhalt(i)) i += richtung;
+    if (i < 0 || i >= SCHRITTE.length) return von;
+    return i;
+  }
+
+  function schrittZeigen() {
+    var panel = document.getElementById('k3dPanel');
+    if (!panel) return;
+    panel.classList.toggle('k3d-gefuehrt', gefuehrt);
+
+    if (!gefuehrt) {
+      Array.prototype.forEach.call(document.querySelectorAll('.k3d-gruppe'),
+        function (g) { g.classList.remove('ist-schritt'); });
+      panel.classList.remove('ist-letzter');
+      return;
+    }
+
+    /* Im geführten Modus sind die Abschnitte immer offen – zugeklappt
+       sähe der aktuelle Schritt aus wie eine leere Seite. */
+    Array.prototype.forEach.call(document.querySelectorAll('.k3d-sek'),
+      function (d) { d.open = true; });
+
+    if (!schrittHatInhalt(schrittNr)) {
+      var weiter = schrittSuchen(schrittNr, 1);
+      schrittNr = weiter !== schrittNr ? weiter : schrittSuchen(schrittNr, -1);
+    }
+    var sch = SCHRITTE[schrittNr];
+
+    Array.prototype.forEach.call(document.querySelectorAll('.k3d-gruppe'),
+      function (g) {
+        var dazu = g.getAttribute('data-k3d-schritt') === sch.id;
+        var mehr = g.hasAttribute('data-k3d-mehr');
+        g.classList.toggle('ist-schritt', dazu && (!mehr || zeigtMehr));
+      });
+
+    /* Gezählt werden nur Schritte, die es in dieser Konfiguration gibt –
+       „Schritt 7 von 11" wäre gelogen, wenn vier davon übersprungen
+       werden. */
+    var gueltig = [], i;
+    for (i = 0; i < SCHRITTE.length; i++) if (schrittHatInhalt(i)) gueltig.push(i);
+    var pos = gueltig.indexOf(schrittNr) + 1;
+    var zahl = document.getElementById('k3dSchrittZahl');
+    if (zahl) zahl.textContent = 'Schritt ' + pos + ' von ' + gueltig.length;
+    var balken = document.getElementById('k3dBalken');
+    if (balken) balken.style.width = (pos / gueltig.length * 100) + '%';
+    var tEl = document.getElementById('k3dSchrittTitel');
+    if (tEl) tEl.textContent = sch.t;
+    var sEl = document.getElementById('k3dSchrittUnter');
+    if (sEl) sEl.textContent = sch.s;
+
+    var letzter = sch.id === 'fertig';
+    panel.classList.toggle('ist-letzter', letzter);
+
+    var zurueck = document.getElementById('k3dZurueck');
+    if (zurueck) zurueck.disabled = pos <= 1;
+    var weiterKnopf = document.getElementById('k3dWeiter');
+    if (weiterKnopf) weiterKnopf.hidden = letzter;
+
+    /* „Mehr Einstellungen" nur anbieten, wo es welche gibt. */
+    var mehrKnopf = document.getElementById('k3dMehr');
+    if (mehrKnopf) {
+      var hatMehr = schrittGruppen(sch.id, true).some(function (g) {
+        return g.hasAttribute('data-k3d-mehr');
+      });
+      mehrKnopf.hidden = !hatMehr;
+      mehrKnopf.textContent = zeigtMehr ? 'Weniger Einstellungen ▴'
+                                        : 'Mehr Einstellungen ▾';
+      mehrKnopf.setAttribute('aria-expanded', zeigtMehr ? 'true' : 'false');
+    }
+  }
+
+  /* Klartext, welche Seite zu ist und welche offen bleibt.
+
+     Anlass: Ein Kunde hatte nur links Schiebetüren gewählt und später
+     gefragt, ob es rundherum sei (Betreiber, 11.10.2026). Die Knöpfe
+     allein haben das nicht beantwortet – sie zeigen, was man ANKLICKEN
+     kann, nicht, was am Ende steht. Deshalb hier ein Satz in Worten, und
+     offene Seiten werden ausdrücklich genannt statt weggelassen. */
+  function seitenStandZeigen() {
+    var el = document.getElementById('k3dSeitenStand');
+    if (!el) return;
+    var zu = [], offen = [];
+    [['links', 'links'], ['rechts', 'rechts'], ['vorne', 'vorne']].forEach(function (p) {
+      var l = erwListe(p[0]);
+      if (l && l.length) zu.push('<b>' + p[1] + ':</b> ' + l.join(', '));
+      else offen.push(p[1]);
+    });
+    if (!zu.length) {
+      el.innerHTML = '<span class="offen">Zurzeit bleiben <b>alle drei Seiten '
+        + 'offen</b> – links, rechts und vorne.</span>';
+      return;
+    }
+    el.innerHTML = 'So steht es gerade: ' + zu.join(' · ') +
+      (offen.length
+        ? '.<br><span class="offen">' +
+          (offen.length === 1 ? 'Offen bleibt: ' : 'Offen bleiben: ') +
+          offen.join(' und ') + '.</span>'
+        : '.<br><span class="offen">Damit sind alle drei Seiten geschlossen.</span>');
+  }
+
+  function schrittWechseln(richtung) {
+    var ziel = schrittSuchen(schrittNr, richtung);
+    if (ziel === schrittNr) return;
+    schrittNr = ziel;
+    zeigtMehr = false;            // jeder Schritt beginnt schlank
+    schrittZeigen();
+    var rollen = document.querySelector('.k3d-sl-rollen');
+    if (rollen && rollen.scrollTo) rollen.scrollTo({ top: 0, behavior: 'smooth' });
+    else if (rollen) rollen.scrollTop = 0;
+  }
+
   /* ---------- Markise im Bild anklicken ----------
      Wunsch des Betreibers (11.10.2026): „wenn man die markise anklickt
      egal ob aufdah, unterdach oder senkrecht, soll diese
@@ -2830,6 +3007,28 @@
     }
     return false;
   }
+
+  /* Bedienung der geführten Reihenfolge */
+  (function () {
+    var w = document.getElementById('k3dWeiter');
+    if (w) w.addEventListener('click', function () { schrittWechseln(1); });
+    var z = document.getElementById('k3dZurueck');
+    if (z) z.addEventListener('click', function () { schrittWechseln(-1); });
+    var m = document.getElementById('k3dMehr');
+    if (m) m.addEventListener('click', function () {
+      zeigtMehr = !zeigtMehr;
+      schrittZeigen();
+    });
+    var mo = document.getElementById('k3dModus');
+    if (mo) mo.addEventListener('click', function () {
+      gefuehrt = !gefuehrt;
+      mo.textContent = gefuehrt ? 'Alles auf einen Blick' : 'Schritt für Schritt';
+      mo.setAttribute('aria-pressed', gefuehrt ? 'false' : 'true');
+      /* Beim Umschalten auf „alles" bleiben die Abschnitte offen, sonst
+         stünde man vor acht zugeklappten Überschriften. */
+      schrittZeigen();
+    });
+  })();
 
   var zieht = false, letzteX = 0, letzteY = 0, letzterAbstand = 0;
 
@@ -3124,11 +3323,20 @@
       }
       teile.push('Eindeckung: ' + Z.eindeckung);
       teile.push('Farbe: ' + Z.farbe);
+      /* ALLE drei Seiten nennen, auch die offenen. Vorher standen nur
+         die geschlossenen in der Anfrage – ein Kunde hatte nur links
+         Schiebetüren gewählt und später gefragt, ob es rundherum sei
+         (Betreiber, 11.10.2026). Wenn in der Mail „links: Schiebetür"
+         allein steht, ist auch für uns nicht festgehalten, dass rechts
+         und vorne offen bleiben SOLLEN und nicht bloß vergessen wurden.
+         Die Fachbegriffe bleiben – die Mail ist für uns, nicht für den
+         Kunden. */
       var seiten = [];
-      if (Z.erwLinks.length) seiten.push('links: ' + Z.erwLinks.join(' + '));
-      if (Z.erwRechts.length) seiten.push('rechts: ' + Z.erwRechts.join(' + '));
-      if (Z.erwVorne.length) seiten.push('vorne: ' + Z.erwVorne.join(' + '));
-      teile.push(seiten.length ? 'Erweiterungen – ' + seiten.join(' · ') : 'Seiten: offen');
+      [['links', Z.erwLinks], ['rechts', Z.erwRechts],
+       ['vorne', Z.erwVorne]].forEach(function (pr) {
+        seiten.push(pr[0] + ': ' + (pr[1].length ? pr[1].join(' + ') : 'offen'));
+      });
+      teile.push('Seitenelemente – ' + seiten.join(' · '));
       if (erwIrgendwo('Schiebetür') && Z.glasOffen > 0) {
         teile.push('Schiebetür im Bild ' + Z.glasOffen + ' % geöffnet');
       }
@@ -3253,6 +3461,8 @@
     panelAnpassen();
     markiseAnzeigen();
     stoffAnzeigen();
+    seitenStandZeigen();
+    schrittZeigen();
     erwAnzeigen();
     titelAnpassen();
     summenSetzen();
