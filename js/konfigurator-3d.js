@@ -5335,12 +5335,27 @@
     var zielZ = T + 150;                   // Blickpunkt im Garten
     var kameraZ = T * 0.25;                // Standort: hinteres Viertel
     var r = (zielZ - kameraZ) / Math.sin(phi);
+    /* KORREKTUR 11.10.2026: „bei ansicht ‚darunter' sollte es so
+       aussehen rausgescrollt wie auf meinem screen" (Betreiber, mit
+       Bildschirmfoto: das ganze Dach von unten, beide Pfosten im Bild).
+
+       Mit dem alten Abstand stand die Kamera auf Augenhöhe mitten unter
+       dem Dach – bei 42° Bildwinkel waren davon nur rund 1,7 m Breite zu
+       sehen, also ein Ausschnitt. Der doppelte Abstand rückt sie nach
+       hinten und tiefer; an der Dachvorderkante sind damit gut 4,6 m im
+       Bild, bei breiteren Bildschirmen mehr. Dass sie dabei hinter der
+       Wand und knapp über dem Boden steht, ist kein Problem mehr: beides
+       wird in dieser Lage durchsichtig.
+
+       Hineinzoomen bleibt möglich – bei etwa halbem Abstand steht man
+       wieder mitten darunter. */
+    var WEIT = 2.0;
     kam.phiMax = Math.PI / 2 + 0.5;
     kam.theta = Math.PI;                   // nach vorne hinaus schauen
     kam.phi = phi;
-    kam.radius = r;
-    kam.radiusMin = r * 0.5;
-    kam.radiusMax = r * 1.8;
+    kam.radius = r * WEIT;
+    kam.radiusMin = r * 0.45;
+    kam.radiusMax = r * 3.0;
     kam.ziel.set(0, AUGENHOEHE - r * Math.cos(phi), zielZ);
   }
 
@@ -7955,11 +7970,51 @@
       c.fillText(name, x + 2, y + 19);
       c.drawImage(lw, x, y + kopf, breit, hoch);
     });
-    c.fillStyle = 'rgba(255,255,255,.75)';
-    c.font = '16px Inter, Arial, sans-serif';
-    /* zusammenfassung() liefert eine Liste – als Zeile zusammensetzen,
-       sonst stünde dort das Komma-Gestammel des Umwandelns. */
-    c.fillText(zusammenfassung().join(' · '), rand + 2, blatt.height - rand);
+    /* Das sechste Feld bleibt frei – dort stehen die Eckdaten.
+       „bei dem erstellten bild is ja unten rechts zumindest bei mobile
+       dieses schwarze freie rechteck, dort könnte man z.b die wichtigsten
+       eckdaten schreiben" (Betreiber, 11.10.2026).
+
+       Vorher lief die Konfiguration als eine winzige Zeile über die
+       ganze Breite und war auf dem Handy nicht zu lesen. Jetzt steht sie
+       als Liste im freien Feld, in derselben Schriftgröße wie die
+       Überschriften der Ansichten. Die Angaben kommen aus
+       zusammenfassung() – derselben Liste, die auch in die Anfrage-Mail
+       geht. Keine zweite Quelle, die auseinanderlaufen kann. */
+    var ex = rand + (breit + rand), ey = rand + 2 * (hoch + kopf + rand) + kopf;
+    c.fillStyle = '#fff';
+    c.font = '600 20px Inter, Arial, sans-serif';
+    c.fillText('Ihre Konfiguration', ex + 2, ey - 7);
+    c.fillStyle = '#17191b';
+    c.fillRect(ex, ey, breit, hoch);
+    c.strokeStyle = 'rgba(255,255,255,.18)';
+    c.strokeRect(ex + 0.5, ey + 0.5, breit - 1, hoch - 1);
+
+    var zeilen = zusammenfassung();
+    var innen = 26, zeile = 30, y = ey + innen + 26;
+    c.fillStyle = '#C49A2A';
+    c.font = '700 30px Inter, Arial, sans-serif';
+    c.fillText(zeilen[0], ex + innen, y);
+    y += zeile + 8;
+    c.font = '21px Inter, Arial, sans-serif';
+    zeilen.slice(1).forEach(function (t) {
+      if (y > ey + hoch - innen - 40) return;        // mehr passt nicht
+      c.fillStyle = 'rgba(255,255,255,.88)';
+      /* Zu lange Angaben werden abgeschnitten statt umgebrochen – ein
+         Umbruch mitten im Satz liest sich schlechter als drei Punkte. */
+      var txt = t;
+      while (c.measureText(txt).width > breit - innen * 2 && txt.length > 8) {
+        txt = txt.slice(0, -2);
+      }
+      c.fillText(txt === t ? t : txt + '…', ex + innen, y);
+      y += zeile;
+    });
+    c.fillStyle = 'rgba(255,255,255,.55)';
+    c.font = '17px Inter, Arial, sans-serif';
+    c.fillText('Unverbindliche Darstellung – verbindlich ist unser Angebot',
+               ex + innen, ey + hoch - innen - 20);
+    c.fillText('nach dem kostenlosen Aufmaß vor Ort. BV AussenSysteme',
+               ex + innen, ey + hoch - innen + 2);
     if (vorher) ansichtAnwenden(vorher);
     neuZeichnen();
     fertig(blatt.toDataURL('image/png'));
