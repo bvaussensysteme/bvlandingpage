@@ -425,12 +425,15 @@ pruefe('Velaris hat waagerechte Lamellen im Rahmen',
 pruefe('Bautiefen je Schienenzahl aus dem Formular',
        new RegExp(q || 'tiefeOben: \\{ 1: 6\\.13, 2: 11\\.26, 3: 16\\.39 \\}').test(js) &&
        new RegExp(q || 'tiefeUnten: \\{ 1: 5\\.12, 2: 10\\.25, 3: 15\\.38 \\}').test(js), '');
-pruefe('Teiloeffnung oben/unten',
-       new RegExp(q || "Z\\.velarisTeil === 'unten' \\? i < grenze : i >= n - grenze").test(js) &&
-       /id="k3dVelarisTeil"/.test(html), '');
-pruefe('Lamellen fahren mit Animation',
-       new RegExp(q || 'function velarisFahren').test(js) &&
-       new RegExp(q || "\\['k3dVelarisAuf', 'k3dVelarisWinkel', 90\\]").test(js), '');
+pruefe('Beide Haelften getrennt stellbar',
+       new RegExp(q || 'i < grenze \\? gradUnten : gradOben').test(js) &&
+       /id="k3dVelarisWinkelOben"/.test(html) &&
+       /id="k3dVelarisWinkelUnten"/.test(html) &&
+       !/id="k3dVelarisTeil"/.test(html), '');
+pruefe('Jede Haelfte faehrt fuer sich',
+       new RegExp(q || 'function velarisFahren\\(ziel, feld\\)').test(js) &&
+       new RegExp(q || "\\['k3dVelarisObenAuf', 'oben', 90\\]").test(js) &&
+       new RegExp(q || "\\['k3dVelarisUntenZu', 'unten', 0\\]").test(js), '');
 (function () {
   /* Die Plankendekore (Eiche Mocca, Rovere Pechino) gibt es beim Velaris
      NICHT - dort heisst es Echtholzoptik Golden OAK. Gegenprobe: genau
@@ -607,7 +610,8 @@ pruefe('Verschiebbare Velaris fahren wie die Glaswaende',
      fuer den Anteil ist raus - er bot etwas an, das es am Bauteil nicht
      gibt. Geprueft wird beides: dass er weg ist UND dass die Haelfte
      wirklich die Haelfte ist, auch bei ungerader Lamellenzahl. */
-  var weg = !/k3dVelarisAnteil/.test(html) && !/velarisAnteil/.test(js);
+  var weg = !/k3dVelarisAnteil/.test(html) && !/velarisAnteil/.test(js) &&
+            !/velarisTeil/.test(js);
   pruefe('Anteil-Regler ist raus', gegen ? !weg : weg, '');
   var falsch = 0;
   for (var n = 1; n <= 60; n++) {
