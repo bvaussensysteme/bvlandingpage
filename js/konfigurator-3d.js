@@ -2470,7 +2470,13 @@
       return [felder - 1, 0];
     }
 
-    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil) {
+    /* extraOben(pos) sagt, wie weit es an dieser Stelle noch bis zum Dach
+       ist. Damit laufen die senkrechten Profile und die Sprossen bis zur
+       Schräge weiter, statt an der Oberkante des Rechtecks aufzuhören –
+       „da oben beim dreieck is kein rahmen und der mittelsprossen geht
+       nicht bis hoch" (Betreiber, 11.10.2026, mit Bild). */
+    function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil,
+                        extraOben) {
       if (laenge <= 2 * RAHMENW.profil || hoehe <= 2 * RAHMENW.profil) return;
       var P = RAHMENW.profil, S = RAHMENW.sprosse, T = RAHMENW.tiefe;
       var t = rahmenwandTeilung(laenge, hoehe);
@@ -2478,11 +2484,16 @@
       RAHMENW_IST = { senkrecht: sv, waagerecht: sh, teile: (sv + 1) * (sh + 1),
                       bisDach: false };
 
-      /* Rahmen: links, rechts, oben, unten. */
-      platte(rahmen, P, hoehe, achse, mitte - laenge / 2 + P / 2,
-             yUnten + hoehe / 2, quer, 0, T);
-      platte(rahmen, P, hoehe, achse, mitte + laenge / 2 - P / 2,
-             yUnten + hoehe / 2, quer, 0, T);
+      /* Rahmen: links, rechts, oben, unten. Die senkrechten Profile gehen
+         bis ans Dach, wo die Wand bis ans Dach geht. */
+      function hochBis(pos, grund) {
+        var zu = extraOben ? Math.max(0, extraOben(pos)) : 0;
+        return grund + zu;
+      }
+      var xL = mitte - laenge / 2 + P / 2, xR = mitte + laenge / 2 - P / 2;
+      var hL = hochBis(xL, hoehe), hR = hochBis(xR, hoehe);
+      platte(rahmen, P, hL, achse, xL, yUnten + hL / 2, quer, 0, T);
+      platte(rahmen, P, hR, achse, xR, yUnten + hR / 2, quer, 0, T);
       platte(rahmen, laenge, P, achse, mitte, yUnten + P / 2, quer, 0, T);
       /* Das obere Profil entfällt, wenn die Wand ohne Keil bis ans Dach
          geht: Dort schließt das Band entlang der Schräge ab, und ein
@@ -2493,7 +2504,12 @@
       }
 
       /* Lichte Fläche und die Felder darin. */
-      var innenB = laenge - 2 * P, innenH = hoehe - 2 * P;
+      /* Ohne oberes Profil reicht die lichte Fläche eine Profilbreite
+         höher – dort sitzt kein Rahmen, sondern die Wand läuft weiter
+         bis zur Schräge. Sonst endeten Glas und Sprossen 50 mm zu
+         tief, und genau das war im Bild zu sehen. */
+      var innenB = laenge - 2 * P;
+      var innenH = hoehe - P - (obenProfil === false ? 0 : P);
       var feldB = (innenB - sv * S) / (sv + 1);
       var feldH = (innenH - sh * S) / (sh + 1);
       if (feldB <= 0 || feldH <= 0) return;
@@ -2511,7 +2527,10 @@
       /* Sprossen zwischen den Feldern. */
       for (i = 1; i <= sv; i++) {
         x = mitte - laenge / 2 + P + i * feldB + (i - 0.5) * S;
-        platte(rahmen, S, innenH, achse, x, yUnten + P + innenH / 2, quer, 0, T);
+        /* Die Sprosse läuft bis zur Dachschräge durch – sonst hört sie
+           mitten in der Fläche auf. */
+        var hs = hochBis(x, innenH);
+        platte(rahmen, S, hs, achse, x, yUnten + P + hs / 2, quer, 0, T);
       }
       for (j = 1; j <= sh; j++) {
         y = yUnten + P + j * feldH + (j - 0.5) * S;
@@ -3020,9 +3039,10 @@
            Schräge und das Rahmenband obendrauf. */
         var bisDach = !hatKeil && quer && seite !== 'vorne' &&
                       neig > 0.001 && !!dachUk;
-        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer, !bisDach);
+        var yO = yUnten + hoch;
+        rahmenwand(laenge, hoch, achse, mitte, yUnten, quer, !bisDach,
+                   bisDach ? function (pos) { return dachUk(pos) - yO; } : null);
         if (bisDach) {
-          var yO = yUnten + hoch;
           var hVo = Math.max(0, dachUk(zVorneK) - yO);
           var hHi = Math.max(0, dachUk(zHintenK) - yO);
           if (hHi > 1) {

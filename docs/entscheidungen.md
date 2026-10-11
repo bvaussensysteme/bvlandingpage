@@ -3198,3 +3198,25 @@ beim nächsten Anfassen auffällt.
 
 Die Vierfeld-Grenze selbst stammt aus den acht Festelement-Zeichnungen:
 Mehr als drei senkrechte Sprossen zeigt keine davon.
+
+## 2026-10-11 – Rahmen und Sprossen bis ans Dach, nicht nur das Glas
+
+**Anlass:** „da oben beim dreieck is kein rahmen und der mitelsprossen
+geht nicht bis hoch" (Betreiber, mit Bild).
+
+**Was war:** Beim Schritt davor ging nur das **Glas** bis zur
+Dachschräge. Die senkrechten Rahmenprofile und die Sprossen hörten dort
+auf, wo vorher die Oberkante des Rechtecks lag – im Dreieck stand die
+Scheibe ohne Rahmen.
+
+**Was jetzt gilt:** Die senkrechten Profile und jede Sprosse laufen bis
+zur Dachunterkante durch. Ihre Höhe wird **an ihrer eigenen Stelle** aus
+derselben Funktion geholt, die auch das Dach zeichnet (`dachUk`) – nicht
+aus einer zweiten Rechnung. Deshalb treffen sie die Schräge exakt, egal
+wie geneigt sie ist.
+
+**Dabei gefunden:** Ohne oberes Profil war die lichte Fläche um eine
+Profilbreite zu niedrig angesetzt – Glas und Sprossen endeten 50 mm
+unter der Schräge. Die neue Prüfung rechnet mit einer geneigten
+Dachunterkante nach und vergleicht Oberkante gegen Dach an fünf Stellen;
+sie hat genau diesen Fehler gemeldet, bevor er im Browser auffiel.
