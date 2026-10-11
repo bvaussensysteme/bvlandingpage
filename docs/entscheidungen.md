@@ -3922,3 +3922,34 @@ Umschaltstellen und besteht auf genau einer.
 177 von 177. Darunter eine, die verlangt, dass BEIDE Zeilen hell werden:
 Die Maßangabe war die beanstandete, und eine Regel nur für die
 Überschrift hätte wie eine Lösung ausgesehen.
+
+## 11.10.2026 – Eckdaten ins freie Feld, „Darunter" weiter weg
+
+**1. Das sechste Feld des Sammelbildes.** „bei dem erstellten bild is ja
+unten rechts zumindest bei mobile dieses schwarze freie rechteck, dort
+könnte man z.b die wichtigsten eckdaten schreiben" (Betreiber). Dort
+steht jetzt „Ihre Konfiguration" mit der vollständigen Liste – Produkt,
+Maße, Eindeckung, Farbe, Ausstattung – und darunter der Satz, dass die
+Darstellung unverbindlich ist und das Angebot nach dem Aufmaß gilt.
+
+Die Angaben kommen aus `zusammenfassung()`, derselben Liste, die auch in
+die Anfrage-Mail geht: keine zweite Quelle, die auseinanderlaufen kann.
+Vorher lief sie als winzige Zeile unter dem Blatt und war am Handy nicht
+zu lesen. Zu lange Angaben werden gekürzt statt umgebrochen – ein
+Umbruch mitten im Satz liest sich schlechter als drei Punkte.
+
+**2. Die Ansicht „Darunter" stand zu nah.** „sollte es so aussehen
+rausgescrollt wie auf meinem screen" (Betreiber, mit Bildschirmfoto).
+Nachgerechnet: Auf Augenhöhe mitten unter dem Dach waren bei 42°
+Bildwinkel nur **1,73 m** Breite im Bild – ein Ausschnitt, kein Dach.
+Mit dem doppelten Abstand sind es **4,61 m**, auf breiteren Bildschirmen
+mehr. Die Kamera steht dann hinter der Wand und 44 cm über dem Boden;
+beides ist kein Problem mehr, seit Wand und Boden in dieser Lage
+durchsichtig werden. Hineinzoomen bleibt möglich – bei etwa halbem
+Abstand steht man wieder mitten darunter.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 184, Gegenprobe
+184 von 184. Darunter: Das Eckdatenfeld muss rechnerisch im Blatt liegen
+(Gegenprobe schiebt es hinaus), und die sichtbare Breite der Ansicht
+„Darunter" wird aus Bildwinkel und Abstand ausgerechnet – die Gegenprobe
+setzt den alten Abstand ein und muss anschlagen.

@@ -1422,6 +1422,68 @@ pruefe('Nur eine Stelle schaltet den Abend um',
        (js.match(/classList\.toggle\('ist-abend'/g) || []).length === (gegen ? 2 : 1),
        'in stimmung()');
 
+/* „bei dem erstellten bild is ja unten rechts ... dieses schwarze freie
+   rechteck, dort koennte man z.b die wichtigsten eckdaten schreiben"
+   (Betreiber, 11.10.2026). */
+pruefe('Das sechste Feld traegt die Eckdaten',
+       new RegExp(q || "c\\.fillText\\('Ihre Konfiguration'").test(js) &&
+       new RegExp(q || 'var zeilen = zusammenfassung\\(\\);').test(js), '');
+pruefe('Eckdaten kommen aus derselben Liste wie die Anfrage',
+       gegen ? /zusammenfassung\(\)\.join\(' · '\), rand/.test(js)
+             : !/zusammenfassung\(\)\.join\(' · '\), rand/.test(js),
+       'keine winzige Zeile mehr unter dem Blatt');
+(function () {
+  /* Zweiter Weg: nachrechnen, dass das Feld wirklich im Blatt liegt -
+     mit denselben Formeln wie der Code. */
+  var breit = 900, hoch = 600, rand = 14, kopf = 26;
+  var blattH = (hoch + kopf) * 3 + rand * 4;
+  var blattB = breit * 2 + rand * 3;
+  var ex = rand + (breit + rand);
+  var ey = rand + 2 * (hoch + kopf + rand) + kopf;
+  if (gegen) ey += 200;
+  var falsch = 0, meld = [];
+  if (ex + breit > blattB - rand + 0.001) { falsch++; meld.push('ragt rechts heraus'); }
+  if (ey + hoch > blattH - rand + 0.001) { falsch++; meld.push('ragt unten heraus'); }
+  /* Und es muss das SECHSTE Feld sein, also neben dem fuenften. */
+  var fuenftX = rand + 0 * (breit + rand);
+  if (ex <= fuenftX) { falsch++; meld.push('liegt nicht neben Darunter'); }
+  pruefe('Eckdatenfeld liegt im Blatt, unten rechts', falsch === 0,
+         falsch === 0 ? 'x ' + ex + ', y ' + ey + ' in ' + blattB + ' x ' + blattH
+                      : meld.join('; '));
+})();
+pruefe('Lange Angaben werden gekuerzt, nicht umgebrochen',
+       new RegExp(q || 'c\\.measureText\\(txt\\)\\.width > breit - innen \\* 2').test(js), '');
+pruefe('Vorbehalt steht auf dem Blatt',
+       new RegExp(q || 'Unverbindliche Darstellung').test(js),
+       'verbindlich ist das Angebot nach Aufmass');
+
+(function () {
+  /* „bei ansicht ,darunter' sollte es so aussehen rausgescrollt wie auf
+     meinem screen" (Betreiber, 11.10.2026). Zweiter Weg: die sichtbare
+     Breite an der Dachvorderkante ausrechnen - mit dem Bildwinkel aus
+     dem Code und dem Abstandsfaktor aus ansichtInnen(). */
+  var fov = parseFloat((js.match(/new THREE\.PerspectiveCamera\((\d+)/) || [])[1]);
+  var weit = parseFloat((js.match(/var WEIT = ([\d.]+);/) || [])[1]);
+  var augen = parseFloat((js.match(/AUGENHOEHE = (\d+)/) || [])[1]);
+  if (!fov || !weit || !augen) { pruefe('Werte der Innenansicht lesbar', false, ''); return; }
+  if (gegen) weit = 1.0;                       // der alte, zu nahe Abstand
+  var T = 300, phi = Math.PI / 2 + 0.30;
+  var zielZ = T + 150, kameraZ = T * 0.25;
+  var r = (zielZ - kameraZ) / Math.sin(phi);
+  var kamZ = zielZ - Math.sin(phi) * r * weit;
+  var kamY = (augen + Math.abs(Math.cos(phi)) * r) - Math.abs(Math.cos(phi)) * r * weit;
+  var breiteSicht = 2 * (T - kamZ) * Math.tan(fov / 2 * Math.PI / 180);   // Seitenverhaeltnis 1
+  var falsch = 0, meld = [];
+  if (breiteSicht < 450) { falsch++; meld.push('nur ' + (breiteSicht / 100).toFixed(2) + ' m im Bild'); }
+  if (kamY < -60) { falsch++; meld.push('Kamera ' + kamY.toFixed(0) + ' cm unter dem Boden'); }
+  pruefe('Darunter zeigt das ganze Dach', falsch === 0,
+         falsch === 0 ? (breiteSicht / 100).toFixed(2) + ' m Breite im Bild, Kamera ' +
+         kamY.toFixed(0) + ' cm hoch' : meld.join('; '));
+})();
+pruefe('Hineinzoomen bleibt moeglich',
+       new RegExp(q || 'kam\\.radiusMin = r \\* 0\\.45').test(js),
+       'bei halbem Abstand steht man wieder darunter');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
