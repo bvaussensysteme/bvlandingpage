@@ -311,6 +311,15 @@
     .k3d-feld--breit > output { width: auto; font-size: 1.5rem; }
     .k3d-feld-ein:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
 
+    /* Was aus den eingestellten Maßen folgt. Grau, solange es nur
+       Auskunft ist; gelb, wenn etwas dazukommt oder nicht geht. */
+    .k3d-mass-hinweis { margin: 10px 0 6px; padding: 10px 12px; border-radius: 9px;
+      background: var(--light-bg, #F1EFEA); font-size: .82rem; line-height: 1.5; }
+    .k3d-mass-hinweis:empty { display: none; }
+    .k3d-mass-hinweis.ist-warnung { background: #fdf3dc;
+      border-left: 3px solid var(--gold); }
+    .k3d-mass-hinweis b { font-weight: 700; }
+
     /* Klartextzeile zu den Seiten: welche ist zu, welche offen. */
     .k3d-seiten-stand { margin: 10px 0 0; padding: 10px 12px; border-radius: 9px;
       background: var(--light-bg, #F1EFEA); font-size: .82rem; line-height: 1.45; }
@@ -589,6 +598,9 @@
             <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
             <input type="number" id="k3dTiefeZahl" class="k3d-zahl" inputmode="numeric" value="3000" aria-label="Tiefe in Millimeter">
           </div>
+          <!-- Was aus Breite und Tiefe folgt: lieferbares Rasterfeld,
+               Statikträger, Grenze der Lieferbarkeit. -->
+          <p class="k3d-mass-hinweis" id="k3dMassHinweis"></p>
           <p class="k3d-mini">Alle Maße in Millimeter – so wird aufgemessen. Gebaut wird
             nach Ihrem Maß; für Stückzahl und Abrechnung zählt das nächste Rasterfeld
             des Herstellers, siehe „Was daraus folgt“.</p>
@@ -1098,7 +1110,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261012c" defer></script>
+<script src="js/konfigurator-3d.js?v=20261012d" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
