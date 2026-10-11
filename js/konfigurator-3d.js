@@ -1137,6 +1137,44 @@
   tuer.receiveShadow = true;
   szene.add(tuer);
 
+  /* ---------- Blick von hinten durch die Hauswand ----------
+     „sobald man so hinter die wand scrollt soll die wand durchsichtig
+     werden, man soll aber noch leicht sehen das da ne wand is aber nicht
+     zu krass" (Betreiber, 11.10.2026, mit Bildschirmfoto: Die Wand stand
+     wie eine weiße Platte vor dem ganzen Dach).
+
+     Die Wand liegt zwischen z = -24 und z = 0, die Anlage davor bei
+     positivem z. Steht die Kamera hinter der Wandvorderkante, schaut sie
+     also durch die Wand auf das Bauwerk – dann wird die Wand fast
+     durchsichtig. „Fast": 18 % bleiben stehen, damit man die Mauer noch
+     als Mauer erkennt und nicht meint, die Anlage stehe frei.
+
+     Die Tür gehört zur Wand und verblasst mit, sonst schwebt sie allein
+     im Bild. Der Schattenwurf der Wand geht in dieser Lage aus – eine
+     durchsichtige Wand, die einen vollen Schatten wirft, sieht aus wie
+     ein Fehler. */
+  var WAND_DURCHSICHT = 0.18;
+  var wandDurchsichtig = null;            // noch nichts gesetzt
+
+  function wandDurchsicht() {
+    /* Vorderkante der Wand: Mitte plus halbe Tiefe. Beides kommt aus dem
+       Modell, damit die Grenze mitwandert, wenn die Wand einmal anders
+       steht. */
+    var vorne = wand.position.z + (wand.geometry.parameters.depth * wand.scale.z) / 2;
+    var dahinter = wand.visible && kamera3.position.z < vorne;
+    if (dahinter === wandDurchsichtig) return;
+    wandDurchsichtig = dahinter;
+    [wand.material, tuer.material].forEach(function (m) {
+      m.transparent = dahinter;
+      m.opacity = dahinter ? WAND_DURCHSICHT : 1;
+      m.depthWrite = !dahinter;
+      m.needsUpdate = true;
+    });
+    wand.castShadow = !dahinter;
+    renderer.shadowMap.needsUpdate = true;
+    neuZeichnen();
+  }
+
   var bau = new THREE.Group();   // alles, was sich bei Änderungen neu aufbaut
   szene.add(bau);
   var masseGruppe = new THREE.Group();   // Maßbänder, getrennt vom Bauwerk
@@ -1971,6 +2009,10 @@
        Schleife. Sie ändert sich nur, wenn sich das Modell oder das Licht
        ändert, also genau hier. */
     renderer.shadowMap.needsUpdate = true;
+    /* Nach dem Neubau kann die Wand neu sichtbar oder verschwunden sein –
+       dann muss die Durchsicht neu entschieden werden. */
+    wandDurchsichtig = null;
+    wandDurchsicht();
     neuZeichnen();
   }
 
@@ -5205,6 +5247,7 @@
     var z = kam.radius * Math.sin(kam.phi) * Math.cos(kam.theta);
     kamera3.position.set(kam.ziel.x + x, kam.ziel.y + y, kam.ziel.z + z);
     kamera3.lookAt(kam.ziel);
+    wandDurchsicht();
     neuZeichnen();
   }
 
@@ -7310,8 +7353,12 @@
        Breite und Tiefe – keine zweite Quelle, die auseinanderlaufen kann. */
     text('k3dTitelBuehne', produktName());
     var qm = (Z.breite * Z.tiefe) / 1000000;
+    /* Nur Maß und Quadratmeter: „die wörter überdachte fläche weg, nur
+       maße und qm stehen lassen" (Betreiber, 11.10.2026). Die Zeile stand
+       zweizeilig im Bild und hat oben links Platz gekostet, den das Modell
+       besser gebrauchen kann. */
     text('k3dSpec', Z.breite + ' × ' + Z.tiefe + ' mm · ' +
-         qm.toFixed(2).replace('.', ',') + ' m² überdachte Fläche');
+         qm.toFixed(2).replace('.', ',') + ' m²');
   }
 
   /* Überschrift und Hinweistext folgen dem Produkt – sonst stünde über

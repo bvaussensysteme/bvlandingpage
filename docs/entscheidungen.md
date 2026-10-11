@@ -3787,3 +3787,33 @@ Sammelbild, das dafür durch alle fünf Ansichten fährt.
 159 von 159. Darunter: Die Beschriftung darf nicht die Klasse tragen,
 die am Handy ausgeblendet wird (sonst ist der Knopf breiter, aber leer),
 und im Zweig „alle" darf genau EIN Download stehen.
+
+## 11.10.2026 – Blick von hinten: Hauswand wird durchsichtig
+
+**Anlass.** „sobald man so hinter die wand scrollt soll die wand
+durchsichtig werden, man soll aber noch leicht sehen das da ne wand is
+aber nicht zu krass" (Betreiber, mit Bildschirmfoto: Die Wand stand wie
+eine weiße Platte vor dem ganzen Dach).
+
+**Was jetzt gilt.** Steht die Kamera hinter der Vorderkante der Wand,
+schaut sie durch die Wand auf das Bauwerk – dann bleiben 18 % Deckkraft
+stehen: genug, um die Mauer als Mauer zu erkennen, wenig genug, um das
+Dach zu sehen. Die Grenze kommt aus dem Modell (Wandmitte plus halbe
+Tiefe), nicht aus einer festen Zahl; sie wandert mit, falls die Wand
+einmal anders steht.
+
+**Zwei Dinge gehen mit.** Die Tür gehört zur Wand und verblasst
+ebenfalls, sonst schwebt sie allein im Bild. Und der Schattenwurf der
+Wand geht aus – eine durchsichtige Wand mit vollem Schatten sieht aus
+wie ein Fehler.
+
+**Infozeile gekürzt.** „die wörter überdachte fläche weg, nur maße und
+qm stehen lassen": Oben links steht jetzt nur noch
+`5000 × 3000 mm · 15,00 m²`. Die Zeile lief vorher zweizeilig und hat
+Platz gekostet, den das Modell besser gebrauchen kann.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 166, Gegenprobe
+166 von 166. Darunter eine, die die Grenze nachrechnet (vor der Wand
+voll, knapp dahinter durchsichtig), und eine, die die Deckkraft zwischen
+10 und 40 % hält – darunter sieht man die Wand nicht mehr, darüber
+verdeckt sie weiter die Anlage.

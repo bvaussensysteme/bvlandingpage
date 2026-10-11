@@ -202,7 +202,10 @@ pruefe('Loslassen bleibt ungebremst',
              : /addEventListener\('change', aendern\)/.test(js), '');
 /* Die Flagge MUSS an jeder Stelle gesetzt werden, die die Szene
    aendert - sonst bliebe das Bild stehen. Hier die vier Pflichtstellen. */
-[['Kamerabewegung', 'kamera3\\.lookAt\\(kam\\.ziel\\);\\s*\\n\\s*neuZeichnen\\(\\)'],
+/* Zwischen lookAt und neuZeichnen steht jetzt die Durchsicht der
+   Hauswand - sie darf dazwischen stehen, neuZeichnen aber nicht
+   wegfallen. */
+[['Kamerabewegung', 'kamera3\\.lookAt\\(kam\\.ziel\\);[\\s\\S]{0,60}neuZeichnen\\(\\)'],
  ['Groessenaenderung', 'kamera3\\.updateProjectionMatrix\\(\\);\\s*\\n\\s*neuZeichnen\\(\\)'],
  ['Nachgeladene Textur', 'texLader\\.load\\(pfad, function \\(t\\) \\{\\s*\\n\\s*neuZeichnen\\(\\)'],
  ['Stofftextur', "texLader\\.load\\('images/stoffe/tex/[^']*' \\+ wert \\+ '\\.webp', function \\(t\\) \\{\\s*\\n\\s*neuZeichnen\\(\\)"]
@@ -1256,6 +1259,54 @@ pruefe('Nach dem Speichern steht die Ansicht wie vorher',
        new RegExp(q || 'if \\(vorher\\) ansichtAnwenden\\(vorher\\)').test(js) &&
        new RegExp(q || 'vorher && vorher !== name\\) ansichtAnwenden\\(vorher\\)').test(js),
        'kein Sprung in eine andere Ansicht');
+
+
+/* ---------- Blick von hinten durch die Hauswand ----------
+   „sobald man so hinter die wand scrollt soll die wand durchsichtig
+   werden, man soll aber noch leicht sehen das da ne wand is aber nicht
+   zu krass" (Betreiber, 11.10.2026). */
+pruefe('Wand wird durchsichtig, wenn die Kamera dahinter steht',
+       new RegExp(q || 'function wandDurchsicht\\(\\)').test(js) &&
+       new RegExp(q || 'kamera3\\.position\\.z < vorne').test(js), '');
+pruefe('Bei jeder Kamerabewegung geprueft',
+       (js.match(/wandDurchsicht\(\);/g) || []).length === (gegen ? 1 : 2),
+       'Kamera und Neubau');
+(function () {
+  /* Nicht zu krass: Die Wand muss sichtbar bleiben. Unter 10 % sieht man
+     sie nicht mehr, ueber 40 % verdeckt sie weiter die Anlage. */
+  var o = parseFloat((js.match(/WAND_DURCHSICHT = ([\d.]+)/) || [])[1]);
+  if (gegen) o = 0.02;
+  pruefe('Wand bleibt erkennbar, verdeckt aber nicht', o >= 0.1 && o <= 0.4,
+         Math.round(o * 100) + ' % Deckkraft');
+})();
+(function () {
+  /* Zweiter Weg: die Grenze nachrechnen. Vor der Wand voll, dahinter
+     durchsichtig - gerechnet mit den Zahlen aus dem Modell. */
+  var mitte = -12, tiefe = 24;               // wand.position.z, BoxGeometry-Tiefe
+  var vorne = mitte + tiefe / 2;
+  function durch(z) { return z < vorne; }
+  var falsch = 0;
+  if (durch(300)) falsch++;                  // Standardblick von vorne
+  if (durch(50)) falsch++;                   // schraeg seitlich
+  if (!durch(-40)) falsch++;                 // dahinter
+  if (!durch(-13)) falsch++;                 // knapp dahinter
+  if (gegen) falsch = falsch ? 0 : 1;
+  pruefe('Grenze liegt an der Wandvorderkante', falsch === 0,
+         'Vorderkante z = ' + vorne);
+})();
+/* Eine durchsichtige Wand, die vollen Schatten wirft, sieht aus wie ein
+   Fehler - und die Tuer darf nicht allein im Bild schweben. */
+pruefe('Schatten und Tuer gehen mit',
+       new RegExp(q || 'wand\\.castShadow = !dahinter').test(js) &&
+       new RegExp(q || '\\[wand\\.material, tuer\\.material\\]').test(js), '');
+
+/* Die Zeile im Bild nennt nur noch Mass und Quadratmeter. */
+pruefe('Infozeile ohne die Worte „ueberdachte Flaeche"',
+       gegen ? /m² überdachte Fläche/.test(js) : !/m² überdachte Fläche/.test(js),
+       'nur Mass und m²');
+pruefe('Mass und Quadratmeter stehen weiter da',
+       new RegExp(q || "Z\\.breite \\+ ' × ' \\+ Z\\.tiefe \\+ ' mm · '").test(js) &&
+       new RegExp(q || "qm\\.toFixed\\(2\\)\\.replace\\('\\.', ','\\) \\+ ' m²'").test(js), '');
 
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
