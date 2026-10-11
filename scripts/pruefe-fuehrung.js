@@ -868,6 +868,46 @@ pruefe('Naechster Schritt steht unter dem Modell',
 pruefe('Schliessen raeumt beides auf',
        new RegExp(q || 'velarisSchiebbarJetzt\\(\\) && Z\\.velarisOffen > 0').test(js), '');
 
+(function () {
+  /* Rahmenwand FR23: Rahmen mit GLAS, keine Blechwand - so zeigen es
+     Montageanleitung und Teileliste (Rahmenprofil, Sprossenprofil,
+     Glasleiste). Vorher war es eine undurchsichtige Platte. */
+  var block = (js.split('function rahmenwand(')[1] || '').split('\n    }')[0];
+  var glas = /platte\(mGlas, feldB, feldH/.test(block);
+  var blech = /platte\(mPlanke/.test(block);
+  pruefe('Rahmenwand ist Glas im Rahmen',
+         gegen ? !(glas && !blech) : (glas && !blech), '');
+  /* Die Rechnung muss aufgehen: Rahmen + Sprossen + Scheiben ergeben
+     genau das lichte Mass. Nachgerechnet ueber alle acht Aufteilungen
+     und mehrere Masse. */
+  var P = 5, S = 4, falsch = 0, teilungen = [[0,0],[0,1],[1,0],[2,0],[3,0],[1,1],[2,1],[3,1]];
+  [[150, 200], [300, 220], [600, 250], [80, 100]].forEach(function (m) {
+    teilungen.forEach(function (t) {
+      var innenB = m[0] - 2 * P, innenH = m[1] - 2 * P;
+      var feldB = (innenB - t[0] * S) / (t[0] + 1);
+      var feldH = (innenH - t[1] * S) / (t[1] + 1);
+      if (feldB <= 0 || feldH <= 0) return;
+      var summeB = (t[0] + 1) * feldB + t[0] * (gegen ? S + 1 : S);
+      var summeH = (t[1] + 1) * feldH + t[1] * S;
+      if (Math.abs(summeB - innenB) > 0.001) falsch++;
+      if (Math.abs(summeH - innenH) > 0.001) falsch++;
+    });
+  });
+  pruefe('Felder und Sprossen fuellen den Rahmen', falsch === 0,
+         falsch + ' Aufteilungen gehen nicht auf');
+})();
+(function () {
+  /* Angeboten werden darf nur, was der Hersteller zeichnet: acht
+     Aufteilungen, dazu die Automatik. Gezaehlt im Auswahlfeld. */
+  var block = (html.split('id="k3dRahmenTeilung"')[1] || '').split('</select>')[0];
+  var n = (block.match(/<option/g) || []).length;
+  pruefe('Nur die acht belegten Aufteilungen',
+         gegen ? n !== 9 : n === 9, n + ' Eintraege (8 plus automatisch)');
+})();
+pruefe('Rahmenwand steht in der Anfrage',
+       new RegExp(q || "Rahmenwand: Festelement FR23").test(js) &&
+       /id="k3dRahmenStand"/.test(html), '');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

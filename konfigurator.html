@@ -864,6 +864,25 @@
           <select id="k3dSg23Vorne" class="k3d-select"></select>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="rahmenwand" hidden>
+          <label class="k3d-label" for="k3dRahmenTeilung">Aufteilung der Rahmenwand</label>
+          <select id="k3dRahmenTeilung" class="k3d-select">
+            <option value="">automatisch</option>
+            <option value="0">1-teilig, ohne Sprosse</option>
+            <option value="1">2-teilig, 1 waagerechte Sprosse</option>
+            <option value="2">2-teilig, 1 senkrechte Sprosse</option>
+            <option value="3">3-teilig, 2 senkrechte Sprossen</option>
+            <option value="4">4-teilig, 3 senkrechte Sprossen</option>
+            <option value="5">4-teilig, 1 senkrechte und 1 waagerechte</option>
+            <option value="6">6-teilig, 2 senkrechte und 1 waagerechte</option>
+            <option value="7">8-teilig, 3 senkrechte und 1 waagerechte</option>
+          </select>
+          <p class="k3d-mini" id="k3dRahmenStand"></p>
+          <p class="k3d-mini">Aluminiumrahmen mit Glasfüllung (System FR23).
+            Normalerweise wählt der Konfigurator die Aufteilung nach Ihrem Maß;
+            hier können Sie eine der acht Varianten des Herstellers vorgeben.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="velaris" hidden>
           <label class="k3d-label" for="k3dVelarisWinkelOben">Obere Hälfte <output id="k3dVelarisWinkelObenWert">45° offen</output></label>
           <input type="range" id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
@@ -1330,7 +1349,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261014w" defer></script>
+<script src="js/konfigurator-3d.js?v=20261014x" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
