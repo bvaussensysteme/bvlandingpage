@@ -7931,8 +7931,18 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
     b.addEventListener('click', function () {
       farbeSetzen(b.getAttribute('data-k3d-farbe'));
-      bauen();
-      textAktualisieren();
+      /* KORREKTUR 11.10.2026: „das mit den ralfarben von eben klappt noch
+         nicht" (Betreiber).
+
+         Hier standen bauen() und textAktualisieren(). Beide zeichnen neu,
+         aber KEINES von beiden entscheidet, welche Bedienfelder sichtbar
+         sind – das macht panelAnpassen(), und das steckt in aendern().
+         Folge: Das Feld für den RAL-Ton tauchte nach dem Klick auf
+         „Andere / Beratung" gar nicht erst auf.
+
+         aendern() macht beides und liest zusätzlich die Felder ein; die
+         gewählte Farbe steht in Z und wird dabei nicht überschrieben. */
+      aendern();
     });
   });
 
