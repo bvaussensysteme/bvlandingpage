@@ -2082,7 +2082,19 @@
      Optikänderung kein Maßfehler einschleicht.
 
      Die Dicke ist GESCHÄTZT; auf den Bildern ist nichts bemaßt. */
-  var RANDBLENDE = { dicke: 3.0 };
+  /* dicke: Ansichtsbreite der Blende. vor: wie weit ihre Außenfläche
+     vor der Dachkante liegt.
+
+     Die 2,5 mm sind kein Bauteilmaß, sondern Zeichentechnik und müssen
+     bleiben: „an den außenblenden links und rechts sieht man die
+     sparren durch, die blende sind ja dafür da um die sparren eben
+     nicht zu sehen" (Betreiber, 11.10.2026). Der Randsparren endet
+     bündig an der Dachkante, die Blende lag genau davor – zwei Flächen
+     auf derselben Ebene. Welche davon der Bildschirm zeigt, entscheidet
+     dann die Rechengenauigkeit, und zwar Pixel für Pixel neu: Die
+     Sparren blitzen durch die Blende. Mit dem Vorsprung liegt die
+     Blende eindeutig davor. */
+  var RANDBLENDE = { dicke: 3.0, vor: 0.25 };
 
   /* ---------- Gerillte Blende des SkyView ----------
      Auf dem Querschnittsbild des Betreibers (11.10.2026) ist der
@@ -5521,11 +5533,12 @@
       if (sky) {
         /* Seitlich dieselbe gerillte Blende, Außenseite nach außen. */
         blendeProfil(blendeL, blendeH, RANDBLENDE.dicke,
-                     vz * (B / 2 - RANDBLENDE.dicke / 2), blendeY, blendeZ,
+                     vz * (B / 2 - RANDBLENDE.dicke / 2 + RANDBLENDE.vor),
+                     blendeY, blendeZ,
                      vz > 0 ? 0 : Math.PI, mAlu);
       } else {
         randblende(blendeL, blendeH,
-                   vz * (B / 2 - RANDBLENDE.dicke / 2),
+                   vz * (B / 2 - RANDBLENDE.dicke / 2 + RANDBLENDE.vor),
                    blendeY, blendeZ, neig, mAlu);
       }
     });

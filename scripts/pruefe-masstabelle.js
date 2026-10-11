@@ -658,23 +658,29 @@ pruefe('Beide Deckel werden gleich gebaut und gesetzt',
      buendig mit der Dachkante sitzt und genau von der Sparrenunterkante
      bis an die Glasoberseite reicht – und dass sie keine Sparrenachse
      verschiebt (die Achsformel muss unveraendert sein). */
-  var fx = (k3d.match(/vz \* \(B \/ 2 - RANDBLENDE\.dicke \/ 2\)/) || [])[0];
+  var fx = (k3d.match(/vz \* \(B \/ 2 - RANDBLENDE\.dicke \/ 2 \+ RANDBLENDE\.vor\)/) || [])[0];
   /* spH… – es gibt noch ein blendeH bei der Markise. */
   /* Der TDS-Zweig der Formel – bei SkyView gilt die Rahmenhoehe, das
      prueft der SkyView-Block weiter unten. */
   var fh = (k3d.match(/var blendeH = sky \? riH : (spH[^;]+);/) || [])[1];
   var dicke = parseFloat((k3d.match(/RANDBLENDE = \{ dicke: ([\d.]+)/) || [])[1]);
+  var vor = parseFloat((k3d.match(/RANDBLENDE = \{ dicke: [\d.]+, vor: ([\d.]+)/) || [])[1]);
   if (!fx || !fh || !dicke) { pruefe('Randblende lesbar', false, 'nicht gefunden'); return; }
   var B = 500, spH = 12.0, glas = 0.8, ukMitte = 200;
   var istPolycarbonat = function () { return false; };
   var Z = { glasstaerke: 8 };
   var blendeH = eval(fh);
-  var xMitte = (gegen ? 0.5 : 1) * (B / 2 - dicke / 2);
+  var xMitte = (gegen ? 0.5 : 1) * (B / 2 - dicke / 2 + vor);
   var aussen = xMitte + dicke / 2;
   var yMitte = ukMitte + blendeH / 2;
   var falsch = 0, meld = [];
-  if (Math.abs(aussen - B / 2) > 0.001) {
-    falsch++; meld.push('Aussenkante ' + aussen.toFixed(1) + ' statt ' + B / 2);
+  /* Die Blende liegt VOR der Dachkante, nicht genau darin: sonst
+     teilen sich Blende und Randsparren eine Ebene und der Sparren
+     blitzt durch. Ein paar Millimeter genuegen, mehr soll es auch
+     nicht sein. */
+  var ueberstand = aussen - B / 2;
+  if (!(ueberstand > 0.05 && ueberstand < 0.6)) {
+    falsch++; meld.push('Vorsprung ' + (ueberstand * 10).toFixed(1) + ' mm');
   }
   if (Math.abs((yMitte - blendeH / 2) - ukMitte) > 0.001) {
     falsch++; meld.push('Unterkante nicht am Sparren');
@@ -682,8 +688,22 @@ pruefe('Beide Deckel werden gleich gebaut und gesetzt',
   if (Math.abs((yMitte + blendeH / 2) - (ukMitte + spH + glas)) > 0.001) {
     falsch++; meld.push('Oberkante nicht an der Glasoberseite');
   }
-  pruefe('Randblende sitzt buendig am Dachrand', falsch === 0,
-         falsch === 0 ? blendeH.toFixed(1) + ' cm hoch, aussen buendig' : meld.join('; '));
+  pruefe('Randblende deckt den Randsparren ab', falsch === 0,
+         falsch === 0 ? blendeH.toFixed(1) + ' cm hoch, ' +
+         (ueberstand * 10).toFixed(1) + ' mm vor der Kante' : meld.join('; '));
+  /* Zweiter Weg: Liegt der Randsparren wirklich dahinter? Gerechnet mit
+     der Achsformel und der Sparrenbreite aus dem Code. */
+  (function () {
+    var spB = parseFloat((k3d.match(/var SPARREN = \{\s*\n\s*breite:\s*([\d.]+)/) || [])[1]);
+    [3, spB / 2].forEach(function (randAchse) {       // TDS und SkyView
+      var spAussen = B / 2 - randAchse + spB / 2;
+      var blAussen = B / 2 - dicke / 2 + vor + dicke / 2 - (gegen ? 0.3 : 0);
+      pruefe('Blende liegt vor dem Randsparren (Achse ' +
+             randAchse.toFixed(2) + ' cm)',
+             blAussen > spAussen + 0.01,
+             ((blAussen - spAussen) * 10).toFixed(1) + ' mm davor');
+    });
+  })();
   pruefe('Randblende verschiebt keine Sparrenachse',
          new RegExp(q || "xs\\.push\\(-B / 2 \\+ randAchse \\+ \\(B - 2 \\* randAchse\\) \\* i / felder\\)").test(k3d),
          'Achsformel unveraendert');
