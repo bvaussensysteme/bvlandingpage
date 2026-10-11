@@ -141,6 +141,7 @@
     sonneAus: 85,            // wie weit Markisen ausgefahren sind, in Prozent
     verkRueck: false, verkLinks: false, verkRechts: false,
     verkRichtung: 'waagerecht',
+    ralCode: '',
     plankenFarbe: 'Wie das Gestell',
     /* Farben aus den VD-Bestellformularen, siehe SEGEL_FARBEN /
        PLISSEE_STOFF. Vorgabe ist je die hellste gängige. */
@@ -168,6 +169,58 @@
     'Graualuminium':  0x9a9c9b,
     'Reinweiß':       0xf1f1ec
   };
+
+  /* ---------- Sonderfarbe nach RAL ----------
+     „wenn man das wählt soll in dem freien feld rechts daneben nen feld
+     (optionales feld) auftauchen wo man einen anderen RAL code eintragen
+     kann, der 3d konfi soll diesen dann berechnen und anzeigen"
+     (Betreiber, 11.10.2026).
+
+     Die Zahlen hier sind NÄHERUNGEN. RAL ist in Lab festgelegt, und
+     derselbe Ton sieht matt, glänzend oder in Feinstruktur verschieden
+     aus; ein Bildschirm kann ihn ohnehin nur annähern. Deshalb steht
+     der Vorbehalt auch im Bedienfeld: verbindlich ist der RAL-Fächer,
+     nicht das Bild.
+
+     Hinterlegt sind die Töne, die im Metallbau wirklich vorkommen. Eine
+     unbekannte Nummer wird NICHT geraten – dann bleibt das Modell
+     anthrazit und sagt das auch. Ein falscher Ton wäre schlimmer als
+     keiner: Der Kunde bestellt nach dem, was er gesehen hat. */
+  var RAL = {
+    '1013': 0xe3d9c6, '1015': 0xe6d2b5, '1021': 0xf0ca00,
+    '2004': 0xe25303,
+    '3000': 0xa72920, '3004': 0x6b1c23, '3005': 0x59191f, '3020': 0xc1121c,
+    '5010': 0x0e294b, '5014': 0x606e8c, '5024': 0x5d9b9b,
+    '6005': 0x0f4336, '6009': 0x27352a, '6011': 0x587246, '6021': 0x89ac76,
+    '7001': 0x8f999f, '7004': 0x969992, '7012': 0x4e5452, '7015': 0x434b4d,
+    '7016': 0x383e42, '7021': 0x2f3234, '7022': 0x4c4a44, '7024': 0x45494e,
+    '7030': 0x939388, '7031': 0x5d6970, '7035': 0xd7d7d7, '7036': 0x9c9c9c,
+    '7037': 0x7d7f7d, '7038': 0xb5b8b1, '7039': 0x6c6960, '7040': 0x9da3a6,
+    '7042': 0x8d948d, '7043': 0x4e5452, '7044': 0xc5c7c4, '7045': 0x91969a,
+    '7046': 0x82898f,
+    '8014': 0x4a3526, '8017': 0x442f29, '8019': 0x3d3635, '8022': 0x1a1718,
+    '9001': 0xe9e0d2, '9002': 0xd7d5c9, '9003': 0xf4f4f4, '9004': 0x282828,
+    '9005': 0x0a0a0a, '9006': 0xa5a5a5, '9007': 0x8f8f8c, '9010': 0xf1f0ea,
+    '9011': 0x1c1c1c, '9016': 0xf1f1f1, '9017': 0x1e1e1e, '9018': 0xcfd3cd,
+    '9023': 0x787b7a
+  };
+
+  /* Aus „RAL 7016", „ral7016" oder „7016" die Nummer herausziehen. */
+  function ralNummer() {
+    var m = String(Z.ralCode || '').match(/(\d{4})/);
+    return m ? m[1] : '';
+  }
+
+  /* Die Farbe des Gestells – eine Stelle für alle Bauteile. Ohne
+     Sonderwunsch die gewählte Farbe, mit Sonderwunsch der RAL-Ton,
+     falls er hinterlegt ist. */
+  function gestellFarbe() {
+    if (Z.farbe === 'Andere / Beratung') {
+      var n = ralNummer();
+      if (RAL[n]) return RAL[n];
+    }
+    return FARBEN[Z.farbe] || FARBEN['Anthrazit'];
+  }
 
   /* ---------- Plankenwand ----------
      Rechteckprofil 25 x 70: nach der Herstellerzeichnung 70,4 mm breit
@@ -1241,7 +1294,7 @@
      Glanz kommt aus dem clearcoat, nicht aus der Metallität. */
   function alu() {
     var m = new THREE.MeshPhysicalMaterial({
-      color: rgb(FARBEN[Z.farbe] || FARBEN['Anthrazit']),
+      color: rgb(gestellFarbe()),
       metalness: 0.1, roughness: 0.52,
       clearcoat: 0.12, clearcoatRoughness: 0.4
     });
@@ -1255,7 +1308,7 @@
   function plankeMaterial(laengeCm) {
     var dekor = PLANKEN_FARBEN[Z.plankenFarbe];
     var hex = dekor !== undefined ? dekor
-            : FARBEN[Z.plankenFarbe] || FARBEN[Z.farbe] || FARBEN['Anthrazit'];
+            : FARBEN[Z.plankenFarbe] || gestellFarbe();
     var m = new THREE.MeshPhysicalMaterial({
       color: rgb(hex),
       metalness: dekor !== undefined ? 0 : 0.1,
@@ -1272,7 +1325,7 @@
   /* Verkleidungsbleche sind matter als die tragenden Profile */
   function blech() {
     var m = new THREE.MeshPhysicalMaterial({
-      color: rgb(FARBEN[Z.farbe] || FARBEN['Anthrazit']),
+      color: rgb(gestellFarbe()),
       metalness: 0.1, roughness: 0.65,
       clearcoat: 0.1, clearcoatRoughness: 0.5
     });
@@ -1338,7 +1391,7 @@
      statt einer falschen Welle. */
   function trapezblechMaterial() {
     var m = new THREE.MeshStandardMaterial({
-      color: rgb(FARBEN[Z.farbe] || FARBEN['Anthrazit']),
+      color: rgb(gestellFarbe()),
       metalness: 0.2, roughness: 0.55
     });
     m.envMapIntensity = 0.4;
@@ -3009,7 +3062,7 @@
       var dekor = VELARIS_FARBEN[Z.velarisFarbe];
       var hex = dekor !== undefined ? dekor
               : (Z.velarisFarbe.indexOf('Anthrazit') > -1 ? FARBEN['Anthrazit']
-                 : FARBEN[Z.farbe] || FARBEN['Anthrazit']);
+                 : gestellFarbe());
       var m = new THREE.MeshPhysicalMaterial({
         color: rgb(hex),
         metalness: dekor !== undefined ? 0 : 0.1,
@@ -6500,6 +6553,8 @@
       case 'stoff-dach':     return STOFF_DACH_MARKISEN.indexOf(Z.markise) > -1;
       /* Sonnensegel und Plissee haben eigene Farbkarten – die aus den
          Bestellformularen, nicht die der Markisenstoffe. */
+      /* Das Feld für den RAL-Ton erscheint nur bei „Andere / Beratung“. */
+      case 'ral-sonder':     return Z.farbe === 'Andere / Beratung';
       case 'stoff-segel':    return Z.markise === 'Sonnensegel';
       case 'stoff-plissee':  return Z.markise === 'Plissees';
       case 'stoff-zip':      return erwIrgendwo('Senkrechtmarkise') ||
@@ -6594,6 +6649,37 @@
         b.classList.toggle('is-active', ist);
         b.setAttribute('aria-pressed', ist ? 'true' : 'false');
       });
+  }
+
+  /* Wie die Farbe in der Anfrage heißt. Bei einer Sonderfarbe gehört die
+     RAL-Nummer dazu – sonst steht in der Mail „Andere / Beratung“ und
+     niemand weiß, was der Kunde eingetippt hat. */
+  function farbeText() {
+    if (Z.farbe !== 'Andere / Beratung') return Z.farbe;
+    var n = ralNummer();
+    /* Der Aufpreis gehört in die Mail: Sonst geht eine Anfrage mit
+       Sonderfarbe durch, als wäre sie zum Standardpreis zu haben. Eine
+       Zahl steht hier bewusst nicht – die hängt von Menge und
+       Oberfläche ab und wird im Angebot genannt. */
+    return n ? 'RAL ' + n + ' (Sonderfarbe, aufpreispflichtig)'
+             : 'Andere / Beratung (Sonderfarbe, aufpreispflichtig)';
+  }
+
+  /* Was aus der Eingabe geworden ist – im Bedienfeld, in Worten. */
+  function ralStandZeigen() {
+    var e = document.getElementById('k3dRalStand');
+    if (!e) return;
+    if (Z.farbe !== 'Andere / Beratung') { e.textContent = ''; return; }
+    var n = ralNummer();
+    if (!n) {
+      e.textContent = 'Ohne Nummer zeigen wir Anthrazit. Wir beraten Sie gern.';
+    } else if (RAL[n]) {
+      e.textContent = 'RAL ' + n + ' wird angezeigt – der Ton am Bildschirm ist' +
+        ' angenähert, verbindlich ist der RAL-Fächer.';
+    } else {
+      e.textContent = 'RAL ' + n + ' ist bei uns nicht hinterlegt. Das Modell' +
+        ' bleibt anthrazit; Ihre Farbe steht trotzdem in der Anfrage.';
+    }
   }
 
   function farbeSetzen(name) {
@@ -6718,7 +6804,7 @@
       }
       // Beim Lamellendach heißt RAL 9010 „Creme-Weiß" – so steht es später
       // auch im Angebot, deshalb hier schon derselbe Name.
-      teile.push('Farbe: ' + (Z.farbe === 'Reinweiß' ? 'Creme-Weiß' : Z.farbe));
+      teile.push('Farbe: ' + (Z.farbe === 'Reinweiß' ? 'Creme-Weiß' : farbeText()));
       if (Z.led) teile.push('mit Beleuchtung');
       teile.push(Z.montage === 'Ja, mit Fachmontage' ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
       return teile;
@@ -6754,7 +6840,7 @@
           : 'Eindeckung: Trapezblech' +
             (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
       }
-      teile.push('Farbe: ' + Z.farbe);
+      teile.push('Farbe: ' + farbeText());
     } else {
       teile.push(Z.aufbau);
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm');
@@ -6773,7 +6859,7 @@
         }
       }
       teile.push('Eindeckung: ' + eindeckungFach());
-      teile.push('Farbe: ' + Z.farbe);
+      teile.push('Farbe: ' + farbeText());
       /* ALLE drei Seiten nennen, auch die offenen. Vorher standen nur
          die geschlossenen in der Anfrage – ein Kunde hatte nur links
          Schiebetüren gewählt und später gefragt, ob es rundherum sei
@@ -6947,6 +7033,7 @@
     Z.pgDachart = wert('k3dPgDachart') || Z.pgDachart;
     Z.pgAusfuehrung = wert('k3dPgAusfuehrung') || Z.pgAusfuehrung;
     Z.pgSeitenschutz = wert('k3dPgSeitenschutz') || Z.pgSeitenschutz;
+    Z.ralCode = (wert('k3dRalCode') || '').trim();
     Z.plankenFarbe = wert('k3dPlankenFarbe') || Z.plankenFarbe;
     Z.segelStoff = wert('k3dSegelStoff') || Z.segelStoff;
     Z.segelArt = wert('k3dSegelArt') || Z.segelArt;
@@ -7244,6 +7331,7 @@
        tatsaechlich gebauten Mass, und das meldet erst bauen(). */
     sg23FeldFuellen();
     plankenStandZeigen();
+    ralStandZeigen();
     ledStandZeigen();
     sonneStandZeigen();
     velarisStandZeigen();
@@ -7459,7 +7547,7 @@
    'k3dSg23Glas', 'k3dSg23Schloss', 'k3dRahmenTeilung', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
-   'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
+   'k3dRalCode', 'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
    'k3dSegelStoff', 'k3dSegelArt', 'k3dSegelStange',
    'k3dPlisseeStoff', 'k3dPlisseeGestell', 'k3dPlisseeStab',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {

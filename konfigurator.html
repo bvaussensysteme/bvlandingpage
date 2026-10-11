@@ -890,8 +890,23 @@
             <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß<br>RAL 9010</span></button>
             <button type="button" class="k3d-farbe" data-k3d-farbe="Andere / Beratung" aria-pressed="false" style="--f:linear-gradient(135deg,#c9a24a,#8fa2ab)"><span>Andere<br>Beratung</span></button>
           </div>
-          <p class="k3d-mini">Alle Systeme sind auch in anderen RAL-Farben lieferbar – im Modell
-            zeigen wir dann Anthrazit.</p>
+          <p class="k3d-mini">Alle Systeme sind auch in anderen RAL-Farben lieferbar.</p>
+        </div>
+
+        <!-- Optionales Feld, erscheint nur bei „Andere / Beratung“:
+             „wenn man das wählt soll in dem freien feld rechts daneben nen
+             feld (optionales feld) auftauchen wo man einen anderen RAL code
+             eintragen kann, der 3d konfi soll diesen dann berechnen und
+             anzeigen … und aufpreis hinweis" (Betreiber, 11.10.2026). -->
+        <div class="k3d-gruppe" data-k3d-schritt="farbe" data-k3d-fuer="ral-sonder" hidden>
+          <label class="k3d-label" for="k3dRalCode">Welcher RAL-Ton? (optional)</label>
+          <input type="text" id="k3dRalCode" class="k3d-zahl" style="width:120px"
+                 inputmode="numeric" maxlength="9" placeholder="z. B. 7016"
+                 aria-describedby="k3dRalStand">
+          <p class="k3d-mini"><strong>Sonderfarben sind aufpreispflichtig.</strong>
+            Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen
+            Aufmaß – er hängt von Menge und Oberfläche ab.</p>
+          <p class="k3d-mini" id="k3dRalStand"></p>
         </div>
       </details>
 
@@ -1533,7 +1548,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016g" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016h" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

@@ -4054,3 +4054,42 @@ sich wie bisher – schlimmstenfalls klebt das Bild dort nicht.
 Regel, MUSS auf dieser Seite die Gegenregel stehen. So fällt es auf,
 wenn jemand später das eine ändert und das andere vergisst.
 `scripts/pruefe-fuehrung.js` jetzt 191, Gegenprobe 191 von 191.
+
+## 11.10.2026 – Sonderfarbe: RAL eingeben, sehen, mitschicken
+
+**Anlass.** „wenn man das wählt soll in dem freien feld rechts daneben
+nen feld (optionales feld) auftauchen wo man einen anderen RAL code
+eintragen kann, der 3d konfi soll diesen dann berechnen und anzeigen …
+und aufpreis hinweis" (Betreiber).
+
+**Was jetzt gilt.** Bei „Andere / Beratung" erscheint ein Feld für die
+RAL-Nummer. Erkannt werden „7016", „RAL 7016" und „ral7016". Ist der Ton
+hinterlegt, färbt er das ganze Gestell; sonst bleibt das Modell
+anthrazit und sagt das auch. In der Anfrage steht „RAL 7016
+(Sonderfarbe, aufpreispflichtig)".
+
+**Warum unbekannte Nummern NICHT geraten werden.** Ein falscher Ton ist
+schlimmer als keiner: Der Kunde bestellt nach dem, was er gesehen hat.
+Hinterlegt sind 53 Töne, die im Metallbau wirklich vorkommen – Grau,
+Weiß, Schwarz, dazu die gängigen Bunttöne.
+
+**Die Werte sind Näherungen, und das steht auch da.** RAL ist in Lab
+festgelegt; matt, glänzend und Feinstruktur sehen verschieden aus, und
+ein Bildschirm kann es ohnehin nur annähern. Im Bedienfeld steht
+deshalb: verbindlich ist der RAL-Fächer, nicht das Bild.
+
+**Aufpreis ohne Zahl.** „Sonderfarben sind aufpreispflichtig, den
+Aufpreis nennen wir mit dem Angebot" – eine Zahl steht bewusst nirgends:
+Sie hängt von Menge und Oberfläche ab, und Preise gehören nach der
+Abmachung nicht auf die Seite. Wichtig ist, dass der Hinweis AUCH in der
+Anfrage-Mail steht; sonst geht eine Anfrage mit Sonderfarbe durch, als
+wäre sie zum Standardpreis zu haben.
+
+**Nebenbei aufgeräumt.** Die Zeile `FARBEN[Z.farbe] || FARBEN['Anthrazit']`
+stand an vier Stellen; jetzt steht sie einmal in `gestellFarbe()`. Eine
+Prüfung zählt sie – vier Stellen laufen beim nächsten Mal auseinander.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 195, Gegenprobe
+195 von 195. Die neue lässt die echte Funktion laufen: vier
+Schreibweisen, eine unbekannte Nummer, und der Fall, dass eine normale
+Farbe gewählt ist.
