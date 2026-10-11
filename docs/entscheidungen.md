@@ -2496,3 +2496,67 @@ Erweiterungen" stehen und wirken; beim Terrassendach darf es den Schritt
 „Wände verkleiden?" nicht mehr geben.
 =======
 >>>>>>> origin/main
+
+## 2026-10-11 – Plankenwand nach den echten Profilen
+
+**Anlass:** Der Betreiber hat die Herstellerzeichnungen geschickt:
+Rechteckprofil 25 × 70 (**70,4 × 25,3 mm**, BELEGT) und den **Winkel
+40 × 20**, der an die Pfosten kommt – „an diesen winkeln werden die
+planken bzw rechteckprofile geschraubt". Dazu die Oberflächen: Eiche
+Mocca, Rovere Pechino hell, oder RAL 7016 / 9006 / 9007 / 9010.
+
+**Was war:** Die Planken waren 140 mm hohe Paneele mit 12 mm Fuge – ein
+Wert von unserer eigenen Produktseite, also für ein anderes Bauteil. Die
+Winkel fehlten ganz.
+
+**Was jetzt gilt:**
+
+| | Wert | Grundlage |
+|---|---|---|
+| Sichtbare Plankenhöhe | 70,4 mm | Zeichnung |
+| Plankendicke | 25,3 mm | Zeichnung |
+| Winkel am Pfosten | 40 × 20 mm | Zeichnung |
+| Materialstärke des Winkels | 2 mm | **GESCHÄTZT** |
+| Zielfuge der Automatik | 10 mm | **GESCHÄTZT** |
+
+**Die Teilung** (Betreiber: „anhand der terrassenüberdachung lichten maße
+wo die planken hinkommen, und an den maßen der planken sollen sie
+gleichmäßig verteilt werden"): Die Fuge ist **kein fester Wert**.
+Gerechnet wird andersherum – wie viele Planken passen in das lichte Maß,
+wenn die Fuge ungefähr 10 mm sein soll? Diese Zahl wird gerundet, danach
+ergibt sich die Fuge aus dem Rest. Unterste und oberste Planke liegen
+damit immer bündig am Rand, alle Fugen sind gleich breit. Bei fester Fuge
+bliebe oben je nach Höhe ein unterschiedlich breiter Streifen offen.
+
+Nachgerechnet über 201 lichte Höhen von 600 bis 2600 mm: Jede geht exakt
+auf. Die Gegenprobe rechnet mit fester Fuge – und schlägt an.
+
+**Einstellbar** (Betreiber: „der abstand soll wie bei glasschiebewände der
+perfekte automatisch berechnet werden aber man kann es dann einstellen"):
+Häkchen „Fuge automatisch berechnen" ist gesetzt, der Regler gesperrt.
+Haken weg → Regler 0 bis 60 mm. **0 ist ein eigener Fall:** bündig
+aufeinander, ohne Verteilung – sonst zöge die Verteilung die Planken
+wieder auseinander, obwohl „bündig" gewählt wurde.
+
+Was gebaut wurde (Zahl der Planken und tatsächliche Fuge), liest das
+Bedienfeld aus dem **fertigen Modell** zurück, nicht aus der Eingabe –
+derselbe zweite Weg wie bei den Schiebeanlagen.
+
+**Oberfläche:** eigene Auswahl, unabhängig vom Gestell. Die beiden
+Holzdekore sind im Modell **Farbwerte nach den Produktbildern,
+GESCHÄTZT** – ein Dekorbild des Herstellers haben wir nicht, die Maserung
+fehlt deshalb. Im Bedienfeld steht das als Satz („die Maserung sehen Sie
+am Muster").
+
+**In der Anfrage-Mail** stehen Profil, Winkel, Oberfläche und Fuge in
+Fachbegriffen – danach wird kalkuliert.
+
+**Offene Rückfragen:**
+1. **Materialstärke des Winkels 40 × 20** – 2 mm angenommen.
+2. **Welcher Schenkel liegt am Pfosten?** Im Modell der lange (40 mm) in
+   der Wandebene, der kurze (20 mm) zeigt nach innen hinter die Planken.
+   Aus der Zeichnung geht es nicht hervor.
+3. **Übliche Fuge** – 10 mm angenommen; davon hängt ab, was „automatisch"
+   baut.
+4. **Dekorbilder** Eiche Mocca und Rovere Pechino hell, damit die Maserung
+   ins Modell kommt.
