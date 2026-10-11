@@ -146,6 +146,11 @@
        PLISSEE_STOFF. Vorgabe ist je die hellste gängige. */
     segelStoff: 'Perlmutt',
     segelArt: 'Ohne Verstärkung',
+    /* Die Befestigungsart fragt das Bestellformular ab, der Kunde aber
+       nicht: Das Segel hängt an UNSEREM Terrassendach, und das ist aus
+       Aluminium. „diese frage kann weg es is intern" (Betreiber,
+       11.10.2026). Der Wert steht fest und geht trotzdem in die Anfrage,
+       damit VD ihn nicht erfragen muss. */
     segelMontage: 'Aluminium oder Stahl',
     segelStange: true,
     plisseeStoff: 'Hellgrau',
@@ -6704,7 +6709,7 @@
       if (gruppeGilt('stoff-segel')) {
         teile.push('Sonnensegel-Stofffarbe: ' + Z.segelStoff);
         teile.push('Sonnensegel-Ausführung: ' + Z.segelArt);
-        teile.push('Befestigung: ' + Z.segelMontage);
+        teile.push('Befestigung: ' + Z.segelMontage + ' (unser Dach)');
         teile.push('Teleskopstange: ' + (Z.segelStange ? 'ja' : 'nein'));
         if (SONNE_IST.bahnen) {
           teile.push('Bahnen: ' + SONNE_IST.bahnen + ' Stück, je ca. ' +
@@ -6773,7 +6778,6 @@
     Z.plankenFarbe = wert('k3dPlankenFarbe') || Z.plankenFarbe;
     Z.segelStoff = wert('k3dSegelStoff') || Z.segelStoff;
     Z.segelArt = wert('k3dSegelArt') || Z.segelArt;
-    Z.segelMontage = wert('k3dSegelMontage') || Z.segelMontage;
     var stangeEl = document.getElementById('k3dSegelStange');
     Z.segelStange = stangeEl ? stangeEl.checked : Z.segelStange;
     Z.plisseeStoff = wert('k3dPlisseeStoff') || Z.plisseeStoff;
@@ -7264,7 +7268,7 @@
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
-   'k3dSegelStoff', 'k3dSegelArt', 'k3dSegelMontage', 'k3dSegelStange',
+   'k3dSegelStoff', 'k3dSegelArt', 'k3dSegelStange',
    'k3dPlisseeStoff', 'k3dPlisseeGestell', 'k3dPlisseeStab',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);

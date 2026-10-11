@@ -3573,3 +3573,22 @@ Velaris-Aufhängung, Wandprofil).
 194 von 194. Die neue misst den Querschnitt wirklich aus: Sie liest die
 Punkte aus dem Code, rechnet den größten Abstand in x und y und
 vergleicht ihn mit dem Teilebild – statt nur die Konstante zu lesen.
+
+## 11.10.2026 – „Woran wird befestigt?" fliegt aus dem Bedienfeld
+
+**Anlass.** „diese frage kann weg es is intern" (Betreiber, mit
+Bildschirmfoto der Frage).
+
+**Warum sie weg kann.** Das Sonnensegel hängt an unserem eigenen
+Terrassendach, und das ist aus Aluminium. Die Frage hat genau eine
+richtige Antwort, die der Kunde nicht besser weiß als wir. Jede Frage im
+Bedienfeld, die nur eine richtige Antwort hat, kostet den Kunden Zeit
+und kann falsch beantwortet werden – das ist der schlechtere Tausch.
+
+**Was bleibt.** Der Wert steht fest im Code und geht weiter in die
+Anfrage („Befestigung: Aluminium oder Stahl (unser Dach)"), damit VD ihn
+nicht erfragen muss. Nur das Feld ist weg.
+
+**Prüfung.** `scripts/pruefe-markise.js` prüft jetzt beides zusammen:
+kein Feld im Bedienfeld, Angabe aber in der Anfrage. Die Gegenprobe
+verlangt das Feld zurück.
