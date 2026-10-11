@@ -4675,3 +4675,33 @@ Profil mit gerillter Außenseite gebaut, rundum dasselbe Profil (vorne, hinten,
 beide Seiten), mit derselben Rillenteilung wie die Rinne; ein zweiter Wert
 daneben liefe über kurz oder lang davon weg. Die Prüfung zeichnet den
 Querschnitt und misst nach, dass die Rillen die Außenmaße nicht verändern.
+
+## 2026-10-11 – SkyView: das Gefälle steckt im Keilsparren
+
+**Die Klärung.** „die blende außen is immer gleich, einfach rechteckig"
+(Betreiber, 11.10.2026). Zusammen mit „nur die sparren sind 2grad geneigt"
+folgt daraus zwingend: Das Gefälle kann nicht im Kasten stecken, es muss im
+**Sparren** sein. Genau das zeigt Seite 22 der Montageanleitung – das Profil
+wird nach hinten höher, und dort steht „wenn diese vor Ort gefertigt werden
+sollen": Der Keil wird zugeschnitten.
+
+**Was jetzt gilt.** Der Sparren liegt mit **waagerechter Unterkante** auf Rinne
+und Träger und steigt nach hinten an; darauf die Eindeckung, die mit 2° zur
+Rinne fällt. Der Kasten außen ist ein Rechteckprofil fester Höhe (260 mm),
+rundum gleich. Nachgerechnet über acht Tiefen: Bis 4 m bleibt der Kasten bei
+seinen 260 mm, der Sparren wird vorne dünner (bei 4 m noch 48 mm). Die
+Eindeckung bleibt bei jeder Tiefe im Kasten.
+
+**Was offen bleibt.** Ab etwa 5 m Tiefe braucht das Gefälle mehr Platz, als
+260 mm hergeben; dann wächst der Kasten im Modell mit (bei 7 m auf 364 mm).
+Wie das echte System das löst – höheres Profil, zweite Blendenhöhe oder
+flacheres Gefälle –, ist die verbliebene Frage in `docs/NEXT_TASK.md`.
+
+**Vorher falsch gedacht.** Ich hatte den geraden Sparren schräg in den Kasten
+gelegt; dann musste der Kasten mit jeder Tiefe mitwachsen, um ihn zu
+überdecken. Die Form des Sparrens war die Antwort, nicht die Höhe des Kastens.
+
+**Was gegengelesen werden soll.** SkyView bei 2,5 m, 3,5 m und 4,5 m Tiefe: Die
+Blende ist jeweils gleich hoch. Von unten: Der Sparren ist vorne schmal und
+hinten hoch, die Eindeckung fällt zur Rinne. Prüfung:
+`node scripts/pruefe-masstabelle.js` (238, Gegenprobe 238/238).
