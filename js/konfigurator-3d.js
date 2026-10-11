@@ -72,6 +72,10 @@
     sg23Links: '', sg23Rechts: '', sg23Vorne: '',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
+    /* Nur Carport TDS: Höhe hinten wird DIREKT eingestellt, die Neigung
+       ergibt sich daraus. Beim Terrassendach ist es umgekehrt – dort
+       gibt man die Neigung vor und liest die Wandhöhe ab. */
+    hoeheHinten: 2500,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -1423,7 +1427,7 @@
 
     // BELEGT (Montageanleitung S. 25): Pfostenachse 55 mm hinter der Vorderkante
     var zPfosten = T - e.pfostenachseVonVorderkante / 10;
-    var neig = e.geneigt ? Z.neigung * Math.PI / 180 : 0;
+    var neig = e.geneigt ? neigungGrad() * Math.PI / 180 : 0;
     var hVorn = Z.hoehe / 10;                                // UK Rinne
     var hHinten = hVorn + Math.tan(neig) * T;
     var mAlu = alu();
@@ -3046,7 +3050,7 @@
   function bauenTerrasseGeschaetzt() {
     var sky = Z.produkt === 'Flachdach SkyView';
     var PF = 11;                                   // Pfosten 110 mm, BELEGT
-    var neig = (sky ? 2 : Z.neigung) * Math.PI / 180;
+    var neig = (sky ? 2 : neigungGrad()) * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
     var TR_H = 18.9, TR_T = 11.7;              // Statikträger, BELEGT (Maßtabelle)
 
@@ -4290,6 +4294,37 @@
   function istPergola() { return Z.produkt === 'Pergola / Lamellendach'; }
 
   /* Liegt der Träger schon aus Tiefe oder Dachvorsprung fest? */
+  /* ---------- Dachneigung ----------
+     Beim Carport TDS stellt der Betreiber Höhe vorne UND hinten
+     getrennt ein: „bei carport tds will ich nur höhe vorne und höhe
+     hinten unabhängig voneinander verstellen können" (11.10.2026). Die
+     Neigung ist dort also ein ERGEBNIS, kein Eingabewert.
+
+     Beim Terrassendach bleibt es umgekehrt: Neigung eingeben, Wandhöhe
+     ablesen. Beides gleichzeitig anzubieten wäre zwei Regler für
+     dieselbe Sache – wer an einem dreht, verstellt den anderen.
+
+     Gekappt wird auf 2 bis 14°, das zulässige Band des Systems. Wer
+     extremere Höhen einstellt, sieht das gekappte Dach; die eingegebene
+     Höhe hinten steht trotzdem in der Anfrage, damit das Aufmaß sie
+     sieht. */
+  /* Beide Höhen getrennt gibt es NUR beim freistehenden Carport – „also
+     nur bei der freistehenden version" (Betreiber, 11.10.2026). An der
+     Hauswand bestimmt die Wand die hintere Höhe; dort bleibt es bei
+     Neigung eingeben, Wandhöhe ablesen. Dasselbe gilt für den hinteren
+     Dachvorsprung: An einer Wand kann das Dach nicht nach hinten
+     auskragen. */
+  function hoehenGetrennt() {
+    return istCarportTds() && Z.aufbau === 'Freistehend';
+  }
+
+  function neigungGrad() {
+    if (!hoehenGetrennt()) return Z.neigung;
+    var grad = Math.atan((Z.hoeheHinten - Z.hoehe) / Math.max(1, Z.tiefe))
+               * 180 / Math.PI;
+    return Math.min(14, Math.max(2, Math.round(grad * 10) / 10));
+  }
+
   /* Greift die Tiefenregel der Maßtabelle? Beim Carport TDS nicht – dort
      entscheidet allein das Häkchen bzw. der Dachvorsprung (Betreiber,
      11.10.2026). Ein Carport ist von Haus aus tief; die Regel hätte dort
@@ -4357,7 +4392,7 @@
       /* NUR beim Carport TDS und nur freistehend: „der einzige
          unterschied dort ist ein dachvorsprung auch an der hinterseite
          möglich bei freistehender montage" (Betreiber, 11.10.2026). */
-      case 'vorsprung-hinten': return istCarportTds() && Z.aufbau === 'Freistehend';
+      case 'vorsprung-hinten': return hoehenGetrennt();
       /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
          da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
          hilft. Beim Carport und bei der Pergola gibt es die Bauweise
@@ -4382,7 +4417,10 @@
       case 'geschaetzt':     return !d;
       // Neigung nur bei TDS. SkyView und Flat Line sind Flachdächer und
       // haben laut Hersteller kein Neigungsfeld (BELEGT).
-      case 'neigung':        return !!d && d.system === 'TDS';
+      /* Neigung eingeben: nur beim Terrassendach. Beim Carport ergibt
+         sie sich aus den beiden Höhen. */
+      case 'neigung':        return !!d && d.system === 'TDS' && !hoehenGetrennt();
+      case 'hoehe-hinten':   return hoehenGetrennt();
       default:               return true;
     }
   }
@@ -4560,6 +4598,13 @@
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchfahrtshöhe ' + Z.hoehe + ' mm');
       if (istCarportTds()) {
         if (Z.vorsprung > 0) teile.push('Dachvorsprung vorne: ' + Z.vorsprung + ' mm');
+        /* Freistehend stehen beide Höhen in der Anfrage – aus ihnen
+           ergibt sich die Neigung, nach der gefertigt wird. */
+        if (hoehenGetrennt()) {
+          teile.push('Höhe hinten: ' + Z.hoeheHinten + ' mm');
+          teile.push('Daraus Dachneigung: ' + neigungGrad() + '° (' +
+            String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
+        }
         if (gruppeGilt('vorsprung-hinten') && Z.vorsprungHinten > 0) {
           teile.push('Dachvorsprung hinten: ' + Z.vorsprungHinten + ' mm');
         }
@@ -4591,8 +4636,8 @@
           /* Die Höhe an der Wand gehört in die Anfrage, nicht nur ins
              Bild: Danach wird das Wandprofil angerissen, und sie ergibt
              sich erst aus Durchgangshöhe, Tiefe und Neigung zusammen. */
-          teile.push('Dachneigung: ' + Z.neigung + '° (' +
-            String(neigungProzent(Z.neigung)).replace('.', ',') + ' %)');
+          teile.push('Dachneigung: ' + neigungGrad() + '° (' +
+            String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
           teile.push('Höhe an der Wand (UK Wandprofil): ' +
             (Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100)) + ' mm');
         }
@@ -4708,6 +4753,7 @@
     Z.tiefe = parseInt(wert('k3dTiefe'), 10) || Z.tiefe;
     Z.hoehe = parseInt(wert('k3dHoehe'), 10) || Z.hoehe;
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
+    Z.hoeheHinten = zahl('k3dHoeheHinten', Z.hoeheHinten);
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
@@ -4756,7 +4802,8 @@
        stehen aber in 3d passiert die änderung". */
     [['k3dBreite', 'breite'], ['k3dTiefe', 'tiefe'], ['k3dHoehe', 'hoehe'],
      ['k3dUeberstand', 'ueberstand'], ['k3dVorsprung', 'vorsprung'],
-     ['k3dVorsprungHinten', 'vorsprungHinten']].forEach(function (paar) {
+     ['k3dVorsprungHinten', 'vorsprungHinten'],
+     ['k3dHoeheHinten', 'hoeheHinten']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
       if (a) a.textContent = Z[paar[1]] + ' mm';
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
@@ -4862,7 +4909,14 @@
 
     var nz = document.getElementById('k3dNeigungZahl');
     if (nz && document.activeElement !== nz) nz.value = Z.neigung;
-    var prozent = neigungProzent(Z.neigung);
+    var prozent = neigungProzent(neigungGrad());
+    /* Beim Carport die Neigung ANZEIGEN, nicht abfragen – sie ist dort
+       das Ergebnis der beiden Höhen. */
+    var nh = document.getElementById('k3dNeigungHinten');
+    if (nh) {
+      nh.textContent = String(neigungGrad()).replace('.', ',') + '° (' +
+        String(prozent).replace('.', ',') + ' %)';
+    }
     var np = document.getElementById('k3dNeigungProzent');
     if (np) np.textContent = String(prozent).replace('.', ',');
     var anstieg = Math.round(Z.tiefe * prozent / 100);
@@ -5072,6 +5126,7 @@
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
+   'k3dHoeheHinten',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
@@ -5100,7 +5155,8 @@
    ['k3dHoehe', 'k3dHoeheZahl'], ['k3dUeberstand', 'k3dUeberstandZahl'],
    ['k3dNeigung', 'k3dNeigungZahl'],
    ['k3dVorsprung', 'k3dVorsprungZahl'],
-   ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl']].forEach(function (pr) {
+   ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl'],
+   ['k3dHoeheHinten', 'k3dHoeheHintenZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
     n.addEventListener('input', function () {

@@ -618,6 +618,21 @@
              beide Maße hängen zusammen, und erst aus beiden ergibt sich
              die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
              hinten unter „Mehr Einstellungen". -->
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="hoehe-hinten" hidden>
+          <label class="k3d-label" for="k3dHoeheHinten">Höhe hinten <output id="k3dHoeheHintenWert">2500 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dHoeheHinten" class="k3d-range" min="2000" max="3200" step="50" value="2500">
+            <input type="number" id="k3dHoeheHintenZahl" class="k3d-zahl" inputmode="numeric" value="2500" aria-label="Höhe hinten in Millimeter">
+          </div>
+          <div class="k3d-feld k3d-feld--fest k3d-feld--breit">
+            <span>Daraus folgt die Dachneigung</span>
+            <output id="k3dNeigungHinten">8°</output>
+          </div>
+          <p class="k3d-mini">Beim Carport stellen Sie beide Höhen getrennt ein –
+            die Neigung ergibt sich daraus. Zulässig sind 2° bis 14°; darüber
+            hinaus zeigt die Zeichnung das gekappte Dach.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="neigung">
           <span class="k3d-label" id="k3dNeigungLabel">Dachneigung</span>
           <!-- Links einstellen, rechts ablesen: Grad ist die Eingabe,
@@ -1165,7 +1180,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261013i" defer></script>
+<script src="js/konfigurator-3d.js?v=20261013j" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
