@@ -1126,3 +1126,51 @@ Kunde sonst erst im Angebot erfährt:
 
 **Prüfung.** `scripts/pruefe-masstabelle.js` – 20 Prüfungen, alle
 bestanden; Gegenprobe 20 von 20.
+
+## 2026-10-11 – Dachvorsprung wirkte nicht, Statikträger hat zwei Lagen
+
+**Was falsch war.** Der Betreiber: „der schieberegler für den
+dachüberstand funktioniert nicht". Er hatte recht, und zwar grundlegend:
+`Z.vorsprung` wurde gelesen, in der Zusammenfassung angezeigt und in die
+Anfrage geschrieben – **aber nirgends in der Geometrie verwendet**. Am
+Modell bewegte sich nichts, egal wohin man den Regler zog.
+
+Das ist die unangenehmste Sorte Fehler: Der Wert kam korrekt beim Betrieb
+an, nur das Bild log. Wer am Regler zog und nichts sah, musste annehmen,
+der Vorsprung sei egal.
+
+**Was der Vorsprung bedeutet** (Betreiber): „bei dachüberstand wandern die
+pfosten ja nach innen um die ausgewählten mm und da kommt auch der
+statikträger ins spiel, da ist er nicht unter der rinne wäre ja
+unlogisch, sondern über den pfosten unter den sparren."
+
+**Daraus folgen zwei Lagen für denselben Träger:**
+
+| | Pfosten | Träger | Durchgangshöhe |
+|---|---|---|---|
+| **ohne Vorsprung** | unter der Rinne | zwischen Pfostenkopf und Rinne | bleibt; Rinne rückt nach oben |
+| **mit Vorsprung** | um das Maß nach innen | über den Pfosten, unter den Sparren | wird um die Trägerhöhe niedriger |
+
+Die Begründung für die zweite Lage ist die des Betreibers und sie trägt:
+Mit Vorsprung kragt die Rinne über die Pfosten hinaus. Ein Träger unter
+der Rinne trüge dort nichts.
+
+Im Code ergibt sich die Trägerhöhe deshalb aus der **Pfostenlage**, nicht
+aus einer zweiten Regel: `hPfosten + traegerH / 2`. Ohne Vorsprung ist
+das „unter der Rinne", mit Vorsprung „unter den Sparren" – eine Formel,
+zwei Bilder.
+
+**Wann der Träger kommt:** wenn die Maßtabelle ihn verlangt (Tiefe über
+4500 mm) **oder** wenn ein Vorsprung eingestellt ist.
+
+**GEGENZULESEN – das betrifft jede Standardkonfiguration:** Der Regler
+steht voreingestellt auf **300 mm**. Damit bekommt ab sofort jedes
+Terrassendach TDS einen Statikträger. Wenn der Standard-TDS in
+Wirklichkeit keinen hat, ist entweder die Voreinstellung falsch (dann
+gehört sie auf 0) oder die Regel „Vorsprung ⇒ Träger" gilt erst ab einem
+größeren Maß.
+
+**Prüfung.** `scripts/pruefe-masstabelle.js` – 22 Prüfungen, alle
+bestanden; Gegenprobe 22 von 22. Drei davon sichern genau diesen Fehler
+ab: dass der Vorsprung die Pfosten bewegt, dass der Träger über den
+Pfosten sitzt und dass er auch ohne Tiefenregel kommt.

@@ -2464,12 +2464,36 @@
        unten. ANNAHME: 189 mm ist die Höhe, 117 mm die Tiefe; die Tabelle
        nennt nur „189x117". Andersherum wäre der Träger flacher als breit,
        was für einen tragenden Unterzug wenig Sinn ergibt. GEGENZULESEN. */
+    /* ---------- Dachvorsprung und Statikträger ----------
+       Beanstandet vom Betreiber (11.10.2026): „der schieberegler für den
+       dachüberstand funktioniert nicht". Er hatte recht – Z.vorsprung
+       wurde gelesen und in die Anfrage geschrieben, aber NIRGENDS in der
+       Geometrie verwendet. Am Modell bewegte sich nichts.
+
+       Was der Vorsprung bedeutet: „bei dachüberstand wandern die pfosten
+       ja nach innen um die ausgewählten mm und da kommt auch der
+       statikträger ins spiel, da ist er nicht unter der rinne wäre ja
+       unlogisch, sondern über den pfosten unter den sparren".
+
+       Daraus folgen ZWEI Lagen für denselben Träger:
+         · OHNE Vorsprung steht der Pfosten unter der Rinne. Der Träger
+           liegt dann zwischen Pfostenkopf und Rinne; die Rinne rückt um
+           seine Höhe nach oben, die Durchgangshöhe bleibt.
+         · MIT Vorsprung steht der Pfosten weiter innen, die Rinne kragt
+           aus. Ein Träger unter der Rinne trüge dort nichts – er liegt
+           über den Pfosten UNTER DEN SPARREN. Die Rinne bleibt, wo sie
+           ist; der Durchgang unter dem Träger wird um dessen Höhe
+           niedriger.
+
+       Der Träger kommt, wenn die Maßtabelle ihn verlangt (Tiefe über
+       4500 mm) ODER wenn ein Vorsprung eingestellt ist – dann hängt die
+       Rinne frei und braucht ihn. */
     var tbMass = tabelleBauteile(Z.breite, Z.tiefe);
-    var traegerH = (tbMass && tbMass.unterzug) ? 18.9 : 0;
+    var vorspr = gruppeGilt('vorsprung') ? Z.vorsprung / 10 : 0;   // cm
+    var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0) ? 18.9 : 0;
     var traegerT = 11.7;
-    /* hRinne ist die Unterkante der Rinne. Ohne Träger ist das die
-       Durchgangshöhe, mit Träger liegt sie um dessen Höhe darüber. */
-    var hRinne = hVorn + traegerH;
+    /* Nur ohne Vorsprung sitzt der Träger UNTER der Rinne und hebt sie an. */
+    var hRinne = hVorn + (vorspr > 0 ? 0 : traegerH);
     var hHinten = hRinne + Math.tan(neig) * T;
     var frei = Z.aufbau === 'Freistehend';
     var mAlu = alu();
@@ -2498,11 +2522,21 @@
        stand der Pfosten vorne an der Rinnenkante statt darunter. Die
        55 mm beziehen sich offenbar auf einen anderen Bezugspunkt als die
        Vorderkante der Rinne – GEGENZULESEN, siehe docs/NEXT_TASK.md. */
-    var zPf = sky ? T - 5.5 : T - RINNE.breite / 2;
+    /* Mit Vorsprung wandert der Pfosten um genau dieses Maß nach innen. */
+    var zPf = (sky ? T - 5.5 : T - RINNE.breite / 2) - vorspr;
+
+    /* Unterkante der Sparren an der Pfostenachse – nur mit Vorsprung
+       gebraucht, dort endet der Pfosten unter dem Träger. ukVorn wird
+       weiter unten noch einmal gebraucht und ist dieselbe Rechnung. */
+    var ukVornJetzt = hRinne + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
+    var dachTiefeJetzt = sky ? T : T - RINNE.breite;
+    var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
+    var hPfosten = vorspr > 0 ? Math.max(100, ukAnPfosten - traegerH) : hVorn;
+
     /* Pfostenzahl aus der Maßtabelle, sonst die alte Faustregel. */
-    var pfTab = tabelleBauteile(Z.breite, Z.tiefe);
+    var pfTab = tbMass;
     verteilen(pfTab ? pfTab.pfosten : (B > 500 ? 3 : 2), B, PF / 2).forEach(function (x) {
-      balken(PF, hVorn, PF, x, hVorn / 2, zPf, mAlu);
+      balken(PF, hPfosten, PF, x, hPfosten / 2, zPf, mAlu);
       if (frei) balken(PF, hHinten, PF, x, hHinten / 2, PF / 2, mAlu);
     });
 
@@ -2516,9 +2550,11 @@
       rinnenblenden(B, T, hRinne, mAlu);
     }
     if (traegerH) {
-      /* Volle Dachbreite, mittig unter der Rinne – dort stehen auch die
-         Pfosten (zPf). */
-      balken(B, traegerH, traegerT, 0, hVorn + traegerH / 2, zPf, mAlu);
+      /* Volle Dachbreite, immer über den Pfosten. Ohne Vorsprung heißt
+         das „unter der Rinne", mit Vorsprung „unter den Sparren" – die
+         Höhe ergibt sich aus der Pfostenlage, nicht aus einer zweiten
+         Regel. */
+      balken(B, traegerH, traegerT, 0, hPfosten + traegerH / 2, zPf, mAlu);
     }
     balken(B, sky ? 20 : 14, frei ? 12 : 9, 0,
            hHinten + (sky ? 10 : 7), frei ? 6 : 4.5, mAlu);              // Wandprofil/Träger
@@ -3768,12 +3804,18 @@
           saetze.push('<b>' + tb.sparren + ' Sparren</b> und <b>' + tb.pfosten +
             ' Pfosten</b> bei diesem Maß.');
         }
-        if (tb.unterzug) {
-          saetze.push('Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1)
-            .replace('.', ',') + ' m Tiefe kommt ein <b>Statikträger</b> ' +
-            '(189 × 117 mm) über die volle Breite dazu. Er sitzt unter der ' +
-            'Rinne auf den Pfosten – die Durchgangshöhe bleibt dieselbe, ' +
-            'Dach und Rinne rücken um die Trägerhöhe nach oben.');
+        var vs = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
+        if (tb.unterzug || vs > 0) {
+          var grund = tb.unterzug
+            ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
+              ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
+            : 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.';
+          var lage = vs > 0
+            ? ' Die Pfosten stehen ' + vs + ' mm weiter innen; der Träger liegt ' +
+              'über ihnen unter den Sparren, weil die Rinne dort auskragt.'
+            : ' Er sitzt unter der Rinne auf den Pfosten – die Durchgangshöhe ' +
+              'bleibt dieselbe, Dach und Rinne rücken um die Trägerhöhe nach oben.';
+          saetze.push(grund + lage);
           warnung = true;
         }
         if (!tb.lieferbar) {
