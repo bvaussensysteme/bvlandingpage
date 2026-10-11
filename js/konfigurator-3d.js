@@ -3021,6 +3021,70 @@
     return false;
   }
 
+  /* ---------- Hinweis auf den Testbetrieb ----------
+     Wunsch des Betreibers (11.10.2026): „bevor das jemand für fertige
+     version hält". Der Konfigurator wird gerade gebaut und getestet.
+
+     Einmal je BROWSER-SITZUNG, nicht bei jedem Aufruf: Wer zwischen
+     Konfigurator und Website hin- und herspringt, soll nicht jedes Mal
+     wegklicken müssen. sessionStorage statt localStorage, damit der
+     Hinweis beim nächsten Besuch wieder kommt – solange er stimmt, soll
+     er auch gesehen werden.
+
+     Erst NACH dem Cookie-Hinweis: Zwei Dialoge übereinander sind keiner.
+     Der Cookie-Hinweis wird von js/cookie.js erzeugt und bekommt beim
+     Einblenden die Klasse cb-visible; verschwindet sie, ist er weg.
+     Findet sich nach 20 Sekunden immer noch einer, wird trotzdem
+     gezeigt – lieber einmal übereinander als gar nicht.
+
+     Schlägt sessionStorage fehl (privates Fenster, gesperrte Daten),
+     wird der Hinweis gezeigt. Das ist die sichere Richtung. */
+  (function () {
+    var box = document.getElementById('k3dTestHinweis');
+    var ok = document.getElementById('k3dTestOk');
+    if (!box || !ok) return;
+
+    var SCHLUESSEL = 'bvTestHinweisGesehen';
+    try {
+      if (window.sessionStorage && sessionStorage.getItem(SCHLUESSEL)) return;
+    } catch (e) { /* kein Speicher: zeigen */ }
+
+    var vorher = null;
+
+    function schliessen() {
+      box.hidden = true;
+      document.removeEventListener('keydown', aufTaste);
+      try {
+        if (window.sessionStorage) sessionStorage.setItem(SCHLUESSEL, '1');
+      } catch (e) { /* nicht schlimm, dann kommt er noch einmal */ }
+      if (vorher && vorher.focus) vorher.focus();
+    }
+    function aufTaste(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') schliessen();
+    }
+
+    function zeigen() {
+      vorher = document.activeElement;
+      box.hidden = false;
+      document.addEventListener('keydown', aufTaste);
+      ok.focus();
+    }
+
+    ok.addEventListener('click', schliessen);
+    box.addEventListener('click', function (e) {
+      if (e.target === box) schliessen();      // Klick daneben schließt
+    });
+
+    var versuche = 0;
+    (function warten() {
+      var cb = document.getElementById('cookieBanner');
+      var sichtbar = cb && cb.classList.contains('cb-visible');
+      if (!sichtbar || versuche > 40) { zeigen(); return; }
+      versuche++;
+      setTimeout(warten, 500);
+    })();
+  })();
+
   /* Bedienung der geführten Reihenfolge */
   (function () {
     var w = document.getElementById('k3dWeiter');
