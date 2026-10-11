@@ -3121,7 +3121,12 @@
        Rinne und nimmt dort 189 mm weg. Deshalb steht neben dem Häkchen
        der Hinweis – wer ihn nicht liest, plant mit 2,30 m und hat
        2,11 m. */
-    var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0 ||
+    /* Beim CARPORT entfällt die Tiefenregel: „du machst beim carport
+       automatisch nen statikträger ab bestimmte maß. lass das. mach es
+       mit häckchen wie bei tds normal" (Betreiber, 11.10.2026). Dort
+       kommt der Träger also nur über das Häkchen oder über einen
+       Dachvorsprung. */
+    var traegerH = (unterzugGilt(tbMass) || vorspr > 0 ||
                     Z.traegerWunsch) ? 18.9 : 0;
     var traegerT = 11.7;
     /* Die Rinne liegt immer auf der eingestellten Höhe – sie rückt nie
@@ -4285,10 +4290,17 @@
   function istPergola() { return Z.produkt === 'Pergola / Lamellendach'; }
 
   /* Liegt der Träger schon aus Tiefe oder Dachvorsprung fest? */
+  /* Greift die Tiefenregel der Maßtabelle? Beim Carport TDS nicht – dort
+     entscheidet allein das Häkchen bzw. der Dachvorsprung (Betreiber,
+     11.10.2026). Ein Carport ist von Haus aus tief; die Regel hätte dort
+     praktisch immer gegriffen und dem Kunden die Wahl genommen. */
+  function unterzugGilt(tb) {
+    return !!(tb && tb.unterzug) && !istCarportTds();
+  }
+
   function traegerSchonNoetig() {
-    var tb = tabelleBauteile(Z.breite, Z.tiefe);
-    if (tb && tb.unterzug) return true;
-    return Z.produkt === 'Terrassendach TDS' && Z.vorsprung > 0;
+    if (unterzugGilt(tabelleBauteile(Z.breite, Z.tiefe))) return true;
+    return gruppeGilt('vorsprung') && Z.vorsprung > 0;
   }
   function istLamellen() { return istPergola() && Z.pgDachart === 'Lamellendach'; }
 
@@ -4795,7 +4807,7 @@
         /* Dieselbe Trennung wie im Modell: vorne nach dem Träger dort,
            hinten nur freistehend und dann immer nach der 7-m-Regel. */
         var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
-        var pfV = (tb.unterzug || vsHin > 0 || wunsch)
+        var pfV = (unterzugGilt(tb) || vsHin > 0 || wunsch)
           ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
         var pfH = pfostenUnterTraeger(Z.breite);
         var pf = (freiHin && pfH !== pfV)
@@ -4810,8 +4822,8 @@
             '</b> bei diesem Maß.');
         }
         var vs = vsHin;
-        if (tb.unterzug || vs > 0 || wunsch) {
-          var grund = tb.unterzug
+        if (unterzugGilt(tb) || vs > 0 || wunsch) {
+          var grund = unterzugGilt(tb)
             ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
               ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
             : (vs > 0

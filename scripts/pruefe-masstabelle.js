@@ -142,7 +142,7 @@ pruefe('Dachvorsprung ist voreingestellt auf 0',
 pruefe('Dachvorsprung bewegt die Pfosten',
        new RegExp(q || 'RINNE\\.breite / 2\\) - vorspr').test(k3d), 'zPf minus Vorsprung');
 pruefe('Träger kommt auch mit Vorsprung',
-       new RegExp(q || 'unterzug\\) \\|\\| vorspr > 0').test(k3d), '');
+       new RegExp(q || 'unterzugGilt\\(tbMass\\) \\|\\| vorspr > 0').test(k3d), '');
 /* Die Rinne wird nie angehoben – technisch unmöglich. Der Träger nimmt
    dem Pfosten seine Höhe weg, in BEIDEN Lagen. */
 pruefe('Rinne bleibt auf der eingestellten Höhe',
@@ -204,7 +204,7 @@ else {
 pruefe('Hinweis trennt die Reihen genauso',
        new RegExp(q || "pfV \\+ ' Pfosten vorne und ' \\+ pfH \\+ ' hinten'").test(k3d), '');
 pruefe('Hinweis: vordere Zahl aus dem vorderen Träger',
-       new RegExp(q || 'pfV = \\(tb\\.unterzug \\|\\| vsHin > 0 \\|\\| wunsch\\)').test(k3d), '');
+       new RegExp(q || 'pfV = \\(unterzugGilt\\(tb\\) \\|\\| vsHin > 0 \\|\\| wunsch\\)').test(k3d), '');
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
@@ -275,6 +275,39 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
   pruefe('Dach plus Träger ergibt die bestellte Tiefe',
          Math.abs(gesamt - tiefe / 10) < 0.001,
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
+})();
+
+/* ---------- Carport: Traeger nur ueber das Haekchen ----------
+   „du machst beim carport automatisch nen statikträger ab bestimmte maß.
+   lass das. mach es mit häckchen wie bei tds normal" (Betreiber). */
+pruefe('Tiefenregel gilt beim Carport TDS nicht',
+       new RegExp(q || 'return !!\\(tb && tb\\.unterzug\\) && !istCarportTds\\(\\)').test(k3d), '');
+pruefe('Modell fragt die Regel ueber unterzugGilt ab',
+       new RegExp(q || 'traegerH = \\(unterzugGilt\\(tbMass\\)').test(k3d), '');
+pruefe('Keine rohe Abfrage von unterzug mehr',
+       gegen ? /\(tbMass && tbMass\.unterzug\)/.test(k3d)
+             : !/\(tbMass && tbMass\.unterzug\)/.test(k3d),
+       'alles ueber unterzugGilt');
+pruefe('Haekchen erscheint beim Carport also auch tief',
+       new RegExp(q || 'if \\(unterzugGilt\\(tabelleBauteile').test(k3d), '');
+/* Zweiter Weg: die Entscheidung mit echten Werten durchrechnen. */
+(function () {
+  function unterzugGilt(tb, carport) { return !!(tb && tb.unterzug) && !carport; }
+  function traeger(tb, carport, vorsprung, haken) {
+    return unterzugGilt(tb, carport) || vorsprung > 0 || haken;
+  }
+  var tief = { unterzug: true }, flach = { unterzug: false };
+  [['Terrassendach, 5,5 m tief, kein Haken', tief, false, 0, false, true],
+   ['Carport, 5,5 m tief, kein Haken',       tief, true,  0, false, false],
+   ['Carport, 5,5 m tief, mit Haken',        tief, true,  0, true,  true],
+   ['Carport, 5,5 m tief, mit Vorsprung',    tief, true,  300, false, true],
+   ['Carport, 3 m tief, kein Haken',         flach, true, 0, false, false]
+  ].forEach(function (f) {
+    var ist = traeger(f[1], f[2], f[3], f[4]);
+    if (gegen) ist = !ist;
+    pruefe(f[0] + ' -> ' + (f[5] ? 'Träger' : 'kein Träger'), ist === f[5],
+           ist ? 'Träger' : 'kein Träger');
+  });
 })();
 
 /* ---------- Carport TDS ist ein Terrassendach TDS ----------
@@ -351,7 +384,7 @@ pruefe('Haekchen nennt die geringere Durchgangshoehe',
 pruefe('Wunsch erzeugt den Traeger im Modell',
        new RegExp(q || 'vorspr > 0 \\|\\|\\s*Z\\.traegerWunsch').test(k3d), '');
 pruefe('Wunsch zaehlt auch im Masshinweis',
-       new RegExp(q || 'tb\\.unterzug \\|\\| vsHin > 0 \\|\\| wunsch').test(k3d), '');
+       new RegExp(q || 'unterzugGilt\\(tb\\) \\|\\| vsHin > 0 \\|\\| wunsch').test(k3d), '');
 pruefe('Haekchen entfaellt, wenn der Traeger ohnehin noetig ist',
        new RegExp(q || "case 'traeger-wunsch'").test(k3d) &&
        new RegExp(q || '!traegerSchonNoetig\\(\\)').test(k3d), '');
