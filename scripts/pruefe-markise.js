@@ -631,33 +631,121 @@ pruefe('Felder kommen aus den echten Sparrenachsen',
        new RegExp(q || 'sparren: xs').test(src), 'nicht mehr Richtwert 110 cm');
 pruefe('Plissee bekommt seitliche Schienen',
        new RegExp(q || 'PLISSEE_GESTELL\\[.Alu.\\]').test(src), 'Gestell aus dem Formular');
-pruefe('Eingefahrenes Paket bleibt stehen',
-       new RegExp(q || 'paketT = Math\\.min\\(14').test(src),
-       'bei 0 % war vorher nichts zu sehen');
+/* Das getrennte Paket-Kaestchen ist weg: Zusammengeschoben wird die
+   Bahn jetzt gestaucht - Falten und Wellen ruecken zusammen, statt zu
+   verschwinden. Bei 0 % steht also immer noch etwas da. */
+pruefe('Eingefahrene Bahn wird gestaucht, nicht gekuerzt',
+       new RegExp(q || 'b\\.mesh\\.scale\\.z = p;').test(src) &&
+       (gegen || !/paketT = Math\.min\(14/.test(src)),
+       'kein eigenes Paket-Kaestchen mehr');
+/* „diese einzeln pro sparrenzwischenraum handbetrieben sind mit einer
+   stange ... deswegen wuerde ich bei der animation es so machen das sie
+   nacheinander versetzt schliessen und oeffnen" (Betreiber). */
+pruefe('Bahnen fahren nacheinander',
+       new RegExp(q || 't - i \\* SONNE_VERSATZ').test(src) &&
+       new RegExp(q || 'SONNE_VERSATZ = \\d+').test(src), '');
+pruefe('Animation baut das Modell nicht neu',
+       gegen ? /bahnLaeuft[\s\S]{0,500}aendern\(\);/.test(src)
+             : !/bahnLaeuft[\s\S]{0,500}aendern\(\);/.test(src),
+       'nur neuZeichnen, wie bei Velaris gelernt');
+/* Zwei var mit demselben Namen im selben Gueltigkeitsbereich: die
+   zweite gewinnt. Genau das war hier passiert - die neue Fahrt hiess
+   wie die der Markise. */
+pruefe('Keine zwei Fahrwerke mit demselben Namen',
+       (src.match(/var sonneLaeuft/g) || []).length === (gegen ? 2 : 1),
+       (src.match(/var sonneLaeuft/g) || []).length + ' Mal erklaert');
+pruefe('Klick auf Plissee/Segel nutzt die versetzte Fahrt',
+       new RegExp(q || "Z\\.markise === 'Plissees' \\|\\| Z\\.markise === 'Sonnensegel'").test(src),
+       'nicht die Markisenfahrt mit Neubau je Bild');
+pruefe('Hinweis auf die Handbedienung steht im Bedienfeld',
+       new RegExp(q || 'von Hand bedient').test(fs.readFileSync('konfigurator.html', 'utf8')),
+       'bei beiden Stofffeldern');
 (function () {
-  /* Zweiter Weg: die Tuchflaeche wirklich ausrechnen. Das Segel muss
-     zwischen den Aufhaengungen durchhaengen und darf nie ueber die
-     Sparrenunterkante steigen; das Plissee muss Falten haben. */
-  var wellen = 2, falten = 8, falsch = 0, meld = [];
-  function segel(t) { return 1.5 + 11 * (1 - Math.cos(2 * Math.PI * wellen * t)) / 2; }
-  function plissee(t) {
-    var fr = (t * falten) % 1;
-    return 1.2 + 2.6 * (fr < 0.5 ? fr * 2 : (1 - fr) * 2);
-  }
-  var minS = Infinity, maxS = -Infinity, minP = Infinity, maxP = -Infinity, i, t;
-  for (i = 0; i <= 200; i++) {
-    t = i / 200;
-    minS = Math.min(minS, segel(t)); maxS = Math.max(maxS, segel(t));
-    minP = Math.min(minP, plissee(t)); maxP = Math.max(maxP, plissee(t));
-  }
-  if (gegen) { minS = -2; maxP = minP; }       // ueber dem Sparren, keine Falte
-  if (minS <= 0) { falsch++; meld.push('Segel steigt ueber die Sparren'); }
-  if (maxS - minS < 5) { falsch++; meld.push('Segel haengt nicht durch'); }
-  if (maxP - minP < 1) { falsch++; meld.push('Plissee hat keine Falten'); }
-  pruefe('Tuchform nachgerechnet', falsch === 0,
-         falsch === 0 ? 'Durchhang ' + (maxS - minS).toFixed(1) +
-         ' cm, Falte ' + (maxP - minP).toFixed(1) + ' cm' : meld.join('; '));
+  /* Zweiter Weg: die Fahrzeit wirklich ausrechnen. Bei fuenf Bahnen muss
+     die letzte sichtbar spaeter losfahren als die erste - sonst sieht es
+     aus wie eine gemeinsame Mechanik. */
+  var versatz = parseFloat((src.match(/SONNE_VERSATZ = (\d+)/) || [])[1]);
+  var dauer = parseFloat((src.match(/FAHRDAUER = (\d+)/) || [])[1]);
+  if (gegen) versatz = 0;
+  var bahnen = 5;
+  var letzte = versatz * (bahnen - 1);
+  var gesamt = dauer + letzte;
+  var falsch = 0;
+  if (!(letzte >= 400)) falsch++;          // sonst nicht zu erkennen
+  if (gesamt > 3500) falsch++;             // sonst wartet der Kunde
+  pruefe('Versatz sichtbar, Gesamtzeit ertraeglich', falsch === 0,
+         'letzte Bahn startet nach ' + letzte + ' ms, fertig nach ' + gesamt + ' ms');
 })();
+(function () {
+  /* Zweiter Weg: die Tuchflaeche wirklich ausrechnen - mit den Zahlen,
+     die im Code stehen, nicht mit abgeschriebenen.
+
+     „die plissees und sonnensegel sind in der 3d ansicht zu tief sie
+     sitzen genau zwischen den sparren sind quasi an den sparren links
+     und rechts jeweils befestigt" (Betreiber, 11.10.2026, mit zwei
+     Bildschirmfotos). Vorher hingen beide bis zu 12 cm UNTER der
+     Sparrenunterkante. Geprueft wird deshalb jetzt: Kein Punkt des
+     Tuches darf unter die Sparrenunterkante oder ueber die Oberkante. */
+  function zahlAus(muster) {
+    var m = src.match(muster);
+    return m ? parseFloat(m[1]) : NaN;
+  }
+  var spH = 12.0;                                   // Sparrenhoehe, Zeichnung
+  var hoch  = zahlAus(/hoch = spHoehe \* ([\d.]+)/);
+  var bauch = zahlAus(/bauch = spHoehe \* ([\d.]+)/);
+  var tief  = Math.min(2.4, spH * zahlAus(/tief = Math\.min\(2\.4, spHoehe \* ([\d.]+)\)/));
+  var plLage = zahlAus(/spHoehe \* ([\d.]+) \+ tief \/ 2/);
+  if (gegen) { hoch = 0; bauch = 11 / spH; }        // die alte Lage: unter den Sparren
+  var falsch = 0, meld = [];
+  if (!(hoch > 0) || isNaN(bauch) || isNaN(tief) || isNaN(plLage)) {
+    if (!gegen) { falsch++; meld.push('Zahlen nicht lesbar'); }
+  }
+  /* Segel: oben aufgehaengt, tiefster Punkt noch ueber der Unterkante. */
+  var segelOben = spH * hoch, segelUnten = spH * hoch - spH * bauch;
+  if (segelUnten <= 0) { falsch++; meld.push('Segel haengt ' + (-segelUnten).toFixed(1) + ' cm unter den Sparren'); }
+  if (segelOben >= spH) { falsch++; meld.push('Segel steht ueber die Sparren'); }
+  if (segelOben - segelUnten < 2) { falsch++; meld.push('Segel haengt nicht durch'); }
+  /* Plissee: flach dazwischen, Falte nach unten. */
+  var plOben = spH * plLage + tief / 2, plUnten = plOben - tief;
+  if (plUnten <= 0 || plOben >= spH) { falsch++; meld.push('Plissee nicht zwischen den Sparren'); }
+  if (tief < 1) { falsch++; meld.push('Plissee hat keine Falten'); }
+  pruefe('Tuch liegt zwischen den Sparren', falsch === 0,
+         falsch === 0
+           ? 'Segel ' + segelUnten.toFixed(1) + '-' + segelOben.toFixed(1) +
+             ' cm, Plissee ' + plUnten.toFixed(1) + '-' + plOben.toFixed(1) +
+             ' cm ueber der Sparrenunterkante'
+           : meld.join('; '));
+})();
+pruefe('Sparrenhoehe wird durchgereicht',
+       new RegExp(q || 'sparrenH: spH').test(src) &&
+       new RegExp(q || 'spHoehe = \\(dach && dach\\.sparrenH\\)').test(src), '');
+pruefe('Plissee-Schienen sitzen an den Sparrenflanken',
+       new RegExp(q || 'kanten\\.push\\(fe\\.x - fe\\.b / 2 \\+ schB / 2\\)').test(src),
+       'nicht mehr in der Sparrenachse');
+/* Die Stofffarben aus den Formularen sind jetzt waehlbar - vorher stand
+   im Modell fest Perlmutt bzw. Hellgrau. */
+pruefe('Stofffarben sind waehlbar',
+       new RegExp(q || 'SEGEL_FARBEN\\[Z\\.segelStoff\\]').test(src) &&
+       new RegExp(q || 'PLISSEE_STOFF\\[Z\\.plisseeStoff\\]').test(src), '');
+(function () {
+  /* Die Auswahlfelder muessen GENAU die Farben anbieten, die der Code
+     kennt - sonst waehlt der Kunde etwas, das still auf die Vorgabe
+     zurueckfaellt (derselbe Fehler wie bei den Velaris-Lamellen). */
+  var htmlQ = fs.readFileSync('konfigurator.html', 'utf8');
+  [['k3dSegelStoff', 'SEGEL_FARBEN'], ['k3dPlisseeStoff', 'PLISSEE_STOFF']]
+    .forEach(function (paar) {
+      var feld = (htmlQ.match(new RegExp('id="' + paar[0] + '"[\\s\\S]*?</select>')) || [''])[0];
+      var werte = (feld.match(/value="([^"]+)"/g) || []).map(function (v) {
+        return v.replace(/value="|"/g, ''); });
+      var block = (src.match(new RegExp('var ' + paar[1] + ' = \\{[\\s\\S]*?\\};')) || [''])[0];
+      if (gegen) werte.push('Knallrot');
+      var fehlen = werte.filter(function (w) {
+        return block.indexOf("'" + w + "'") === -1; });
+      pruefe(paar[0] + ': jede Option ist im Code bekannt', werte.length > 0 && !fehlen.length,
+             werte.length + ' Optionen' + (fehlen.length ? ', unbekannt: ' + fehlen.join(', ') : ''));
+    });
+})();
+
 /* Eine Flaeche je Bahn statt bis zu zwanzig Kaesten - das war auch eine
    Bremse im Bild, nicht nur haesslich. */
 pruefe('Eine Flaeche je Bahn',

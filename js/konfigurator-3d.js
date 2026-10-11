@@ -142,6 +142,10 @@
     verkRueck: false, verkLinks: false, verkRechts: false,
     verkRichtung: 'waagerecht',
     plankenFarbe: 'Wie das Gestell',
+    /* Farben aus den VD-Bestellformularen, siehe SEGEL_FARBEN /
+       PLISSEE_STOFF. Vorgabe ist je die hellste gängige. */
+    segelStoff: 'Perlmutt',
+    plisseeStoff: 'Hellgrau',
     plankenFuge: 10,         // Luft zwischen zwei Planken in mm, 0 = bündig
     plankenAuto: true,       // true = das System rechnet die Fuge aus
     plankenAnteil: 0,        // 0 = volle Höhe, <0 wächst von unten, >0 hängt oben
@@ -1628,6 +1632,119 @@
     }
   }
 
+  /* ---------- LED-Spots verteilen ----------
+     Drei Vorgaben des Betreibers (11.10.2026): „an die äußersten sparren
+     sind keine led spots möglich, die led spots müssen je nach kundenwahl
+     6,8,12 perfekt wie es schön aussehen würde in den sparren aufgeteilt
+     werden, geht das nicht kann man dem kunden einen kleinen hinweis
+     anzeigen z.b welche set oder wieviele von welchem led set besser
+     wären".
+
+     Vorher hing die Zahl der gezeichneten Spots an gar nichts: Es waren
+     immer zwei je Sparren, über ALLE Sparren – unabhängig davon, ob ein
+     6er- oder ein 12er-Set bestellt war. Ein Kunde sah also nicht, was er
+     bestellt.
+
+     Jetzt bestimmt die bestellte Zahl das Raster: gleich viele Spots je
+     Sparren, und die genutzten Sparren liegen symmetrisch über dem Dach.
+     Von mehreren Möglichkeiten gewinnt die, deren Abstände quer und in
+     der Tiefe am ähnlichsten sind – das ist es, was „schön aufgeteilt"
+     im Bild bedeutet. */
+  var LED_IST = { spots: 0, reihen: 0, proReihe: 0, nutzbar: 0, rat: '' };
+  /* Mehr als acht Spots in einem Sparren ist keine Beleuchtung mehr,
+     sondern eine Lichterkette. GESCHÄTZT, aus dem Bild. */
+  var LED_PRO_SPARREN_MAX = 8;
+
+  function ledSetGroesse() { return parseInt(Z.ledset, 10) || 8; }
+  function ledSpotZahl() {
+    return ledSetGroesse() * Math.max(1, Z.ledsetzahl || 1);
+  }
+
+  /* Teilt spots auf hoechstens nutzbar Sparren auf – gleich viele je
+     Sparren. Gibt es mehrere Wege, gewinnt das quadratischste Raster.
+     Geht keiner auf, kommt null zurueck; dann entscheidet der Aufrufer. */
+  function ledTeilung(nutzbar, spots, breite, tiefe) {
+    var best = null, r, pro, note;
+    for (r = 1; r <= nutzbar; r++) {
+      if (spots % r) continue;
+      pro = spots / r;
+      if (pro > LED_PRO_SPARREN_MAX) continue;
+      note = Math.abs(breite / r - tiefe / pro);
+      if (!best || note < best.note) best = { reihen: r, proReihe: pro, note: note };
+    }
+    return best;
+  }
+
+  /* Welches Set waere besser? Gesucht wird die Bestellung, die sich auf
+     diesem Dach gleichmaessig verteilen laesst und der gewuenschten Zahl
+     am naechsten kommt. */
+  function ledRat(nutzbar, spots, breite, tiefe) {
+    if (nutzbar < 1) {
+      return 'In die äußersten beiden Sparren kommt kein Spot – bei diesem' +
+             ' Dach bleibt dafür kein Sparren übrig.';
+    }
+    var best = null;
+    [6, 8, 12].forEach(function (satz) {
+      for (var c = 1; c <= 6; c++) {
+        var t = ledTeilung(nutzbar, satz * c, breite, tiefe);
+        if (!t) continue;
+        var weite = Math.abs(satz * c - spots);
+        if (!best || weite < best.weite ||
+            (weite === best.weite && t.reihen > best.t.reihen)) {
+          best = { satz: satz, c: c, t: t, weite: weite };
+        }
+      }
+    });
+    if (!best) return '';
+    return 'Gleichmäßig aufgehen würde ' + (best.c > 1 ? best.c + ' × ' : '') +
+           best.satz + 'er-Set (' + (best.satz * best.c) + ' Spots): ' +
+           best.t.reihen + ' Sparren mit je ' + best.t.proReihe + '.';
+  }
+
+  /* Zeichnet die Spots in die Sparren. xs sind ALLE Sparrenachsen – die
+     beiden äußersten fallen hier heraus, dort ist kein Platz. */
+  function ledInSparren(xs, zAb, zBis, unterkante) {
+    var innen = xs.slice(1, -1);
+    var spots = ledSpotZahl();
+    var breite = xs.length > 1 ? xs[xs.length - 1] - xs[0] : 100;
+    var tiefe = Math.max(10, zBis - zAb);
+    LED_IST = { spots: spots, reihen: 0, proReihe: 0, nutzbar: innen.length, rat: '' };
+    if (!innen.length) { LED_IST.rat = ledRat(0, spots, breite, tiefe); return; }
+    var t = ledTeilung(innen.length, spots, breite, tiefe);
+    if (!t) {
+      /* Geht die bestellte Zahl nicht gleichmäßig auf, wird NICHT
+         krumm verteilt: Gezeichnet wird das nächstkleinere gleichmäßige
+         Raster, und der Hinweis sagt, was besser passt. Lieber ein
+         ehrliches Bild als eines, das eine Aufteilung vortäuscht. */
+      var pro = Math.max(1, Math.min(LED_PRO_SPARREN_MAX,
+                                     Math.floor(spots / innen.length)));
+      t = { reihen: Math.max(1, Math.floor(spots / pro)), proReihe: pro };
+      if (t.reihen > innen.length) t.reihen = innen.length;
+    }
+    var idx = [], i;
+    for (i = 0; i < t.reihen; i++) {
+      idx.push(Math.round((i + 0.5) * innen.length / t.reihen - 0.5));
+    }
+    /* Gespiegelt: Die hintere Hälfte wird aus der vorderen gebildet.
+       Ohne das sitzt das Raster bei ungerader Teilung schief – gerundet
+       wird immer nach oben, und das schiebt alles nach rechts. Genau
+       rechnerisch mittig geht nur, wenn Sparrenzahl und Teilung
+       zusammenpassen; sonst bleibt ein halber Abstand Rest. */
+    for (i = 0; i < Math.floor(t.reihen / 2); i++) {
+      idx[t.reihen - 1 - i] = innen.length - 1 - idx[i];
+    }
+    var zs = [];
+    for (i = 0; i < t.proReihe; i++) {
+      zs.push(zAb + tiefe * (i + 0.5) / t.proReihe);
+    }
+    ledSpots(idx.map(function (j) { return innen[j]; }), zs, unterkante);
+    LED_IST.reihen = t.reihen;
+    LED_IST.proReihe = t.proReihe;
+    if (t.reihen * t.proReihe !== spots) {
+      LED_IST.rat = ledRat(innen.length, spots, breite, tiefe);
+    }
+  }
+
   /* ---------- Maßbänder ----------
      Die Zahl im Bild ist dieselbe Zahl wie im Bedienfeld und später im
      Aufmaß – in Millimetern, ohne Umrechnung und ohne Rundung. Sobald hier
@@ -1886,6 +2003,7 @@
       ok: function (z) { return yDach + Math.tan(neig) * (T / 2 - z) + 0.8; },
       sparren: xS,
       sparrenB: spB,
+      sparrenH: spH,
       sparrenL: laenge,
       uk: dachUkDaten
     });
@@ -1895,7 +2013,7 @@
       /* In die Sparren, nicht dazwischen: xS sind die Sparrenachsen.
          Die Unterkante des Sparrens liegt spH unter seiner Mitte und folgt
          dem Gefälle. */
-      ledSpots(xS, [T * 0.3, T * 0.72], function (z) {
+      ledInSparren(xS, 0, T, function (z) {
         return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
       });
     }
@@ -3629,6 +3747,51 @@
     return g;
   }
 
+  /* Jede Bahn wird einzeln von Hand mit einer Stange bedient. Deshalb
+     fahren sie nicht gemeinsam, sondern nacheinander – von links nach
+     rechts, mit einem Versatz je Bahn. Der Versatz ist absichtlich
+     deutlich: Er erklärt dem Kunden die Bedienung, ohne dass ein Satz
+     dazu nötig wäre. */
+  var SONNE_BAHNEN = [];
+  var SONNE_P = 1;                 // zuletzt gezeichneter Stand, 0 bis 1
+  var SONNE_VERSATZ = 220;         // ms je Bahn
+  /* NICHT sonneLaeuft nennen – so heißt schon die Fahrt der Markise.
+     Zwei var mit demselben Namen im selben Gültigkeitsbereich: die
+     zweite gewinnt, und eine der beiden Animationen läuft ins Leere.
+     Von der Prüfung gefunden, nicht im Bild. */
+  var bahnLaeuft = null;
+
+  /* Zusammenschieben heißt stauchen, nicht kürzen: Falten und Wellen
+     rücken zusammen. Die Bahn bleibt mit ihrer Hinterkante stehen. */
+  function bahnStellen(b, p) {
+    p = Math.max(0.02, Math.min(1, p));
+    var l = b.lMax * p;
+    b.mesh.scale.z = p;
+    b.mesh.position.set(b.x, b.uk(b.zAb + l / 2) + b.hoch, b.zAb + l / 2);
+  }
+  function bahnenSetzen(p) {
+    SONNE_BAHNEN.forEach(function (b) { bahnStellen(b, p); });
+  }
+  function bahnenFahren(ziel) {
+    if (bahnLaeuft) clearInterval(bahnLaeuft);
+    var von = SONNE_P, t0 = Date.now();
+    var gesamt = FAHRDAUER + SONNE_VERSATZ * Math.max(0, SONNE_BAHNEN.length - 1);
+    bahnLaeuft = setInterval(function () {
+      var t = Date.now() - t0;
+      SONNE_BAHNEN.forEach(function (b, i) {
+        var p = Math.max(0, Math.min(1, (t - i * SONNE_VERSATZ) / FAHRDAUER));
+        bahnStellen(b, von + (ziel - von) * weich(p));
+      });
+      neuZeichnen();
+      if (t >= gesamt) {
+        clearInterval(bahnLaeuft); bahnLaeuft = null;
+        SONNE_P = ziel;
+        bahnenSetzen(ziel);
+        neuZeichnen();
+      }
+    }, 40);
+  }
+
   /* ---------- Sonnenschutz ----------
      Die Aufdachmarkise liegt auf der Eindeckung und hält die Hitze vor dem
      Glas ab, die Unterdachmarkise läuft darunter und bleibt im Trockenen –
@@ -3677,17 +3840,20 @@
 
          Falsch war beides: Das Sonnensegel lag ÜBER dem Dach und war
          fünf gerade Streifen über die ganze Breite. Nach dem Formular
-         hängt es UNTER dem Glas, je Sparrenfeld eine Bahn, und es
-         hängt in Wellen durch – die Fotos zeigen nichts Gespanntes.
-         Das Plissee bestand aus versetzten Kästchen ohne Schienen; nach
-         dem Formular gehören zu jeder Bahn zwei seitliche Schienen in
-         Gestellfarbe, zwischen denen der Stoff in Falten läuft.
+         hängt es UNTER dem Glas, je Sparrenfeld eine Bahn, und es hängt
+         in Wellen durch. Das Plissee bestand aus versetzten Kästchen
+         ohne Schienen; zu jeder Bahn gehören zwei seitliche Schienen.
 
-         Beide sitzen jetzt in den ECHTEN Sparrenfeldern (die Achsen
-         kommen aus dem Dachbau), nicht mehr im Richtwert von 110 cm. */
+         Zweite Korrektur am selben Tag: „die plissees und sonnensegel
+         sind in der 3d ansicht zu tief sie sitzen genau zwischen den
+         sparren sind quasi an den sparren links und rechts jeweils
+         befestigt". Beide hingen bis zu 12 cm unter der Sparrenunterkante.
+         Jetzt sitzen sie ZWISCHEN den Sparren: Aufhängung oben an deren
+         Flanken, tiefster Punkt noch über der Unterkante. */
       var segel = m === 'Sonnensegel';
       var mTuch = new THREE.MeshStandardMaterial({
-        color: rgb(segel ? SEGEL_FARBEN['Perlmutt'] : PLISSEE_STOFF['Hellgrau']),
+        color: rgb(segel ? (SEGEL_FARBEN[Z.segelStoff] || SEGEL_FARBEN['Perlmutt'])
+                         : (PLISSEE_STOFF[Z.plisseeStoff] || PLISSEE_STOFF['Hellgrau'])),
         roughness: 0.95, metalness: 0, side: THREE.DoubleSide
       });
       /* Die Sparrenachsen aus dem Dachbau. Fehlen sie (Pergola), bleibt
@@ -3695,6 +3861,7 @@
       var achsen = dach && dach.sparren && dach.sparren.length > 1
         ? dach.sparren : null;
       var spBr = (dach && dach.sparrenB) || 6.1;
+      var spHoehe = (dach && dach.sparrenH) || 12;
       var felder = [], fi;
       if (achsen) {
         for (fi = 0; fi < achsen.length - 1; fi++) {
@@ -3708,79 +3875,92 @@
         }
       }
       var zAb = PROFIL / 2, lMax = Math.max(20, T - PROFIL);
-      var lTuch = Math.max(1, lMax * aus);
-      /* Unterkante der Sparren an der Stelle z – daran hängt beides.
-         Ohne Dachangabe die alte Schätzung. */
+      /* Unterkante der Sparren an der Stelle z. Ohne Dachangabe die alte
+         Schätzung. */
       var ukZ = function (z) {
         return dach && dach.uk ? dach.uk(z) : hHinten - Math.tan(neig) * z;
       };
-      /* Das Paket des eingefahrenen Teils bleibt hinten stehen. Vorher
-         war bei 0 % gar nichts zu sehen – wie bei den Markisen ist das
-         falsch: montiert ist es trotzdem. */
-      var paketT = Math.min(14, 2 + (lMax - lTuch) * 0.06);
 
+      /* GEBAUT WIRD IMMER IN VOLLER LÄNGE, bewegt wird danach.
+
+         „bei plissee und sonnensegel hinweis das diese einzeln pro
+         sparrenzwischenraum handbetrieben sind mit einer stange die dafür
+         gedacht is deswegen würde ich bei der animation es so machen das
+         sie nacheinander versetzt schließen und öffnen" (Betreiber,
+         11.10.2026).
+
+         Deshalb trägt jede Bahn ihren eigenen Stand. Zusammengeschoben
+         wird sie gestaucht statt neu gebaut – das ist auch physikalisch
+         das Richtige: Falten und Wellen rücken zusammen, sie
+         verschwinden nicht. Und es erspart der Animation den Neubau des
+         Modells, der sie früher zäh gemacht hat. */
+      SONNE_BAHNEN = [];
       felder.forEach(function (fe) {
         if (fe.b <= 2) return;
-        var yAb = ukZ(zAb + lTuch / 2);
+        var hoch, tuch;
         if (segel) {
-          /* Die Bahn ist an den Sparren aufgehängt und hängt dazwischen
-             in Wellen durch. Wellenlänge und Durchhang sind GESCHÄTZT,
-             aus den Fotos des Formulars abgegriffen. */
-          var wellen = Math.max(1, Math.round(lTuch / 65));
-          var tuch = new THREE.Mesh(tuchFlaeche(fe.b, lTuch, wellen * 8,
+          /* Befestigt oben an den Sparrenflanken, durchhängend bis knapp
+             über deren Unterkante – mehr Platz ist zwischen den Sparren
+             nicht. Wellenlänge und Durchhang GESCHÄTZT, aus den Fotos
+             des Formulars abgegriffen. */
+          var wellen = Math.max(1, Math.round(lMax / 65));
+          var bauch = spHoehe * 0.55;
+          hoch = spHoehe * 0.78;
+          tuch = new THREE.Mesh(tuchFlaeche(fe.b, lMax, wellen * 8,
             function (t) {
-              return 1.5 + 11 * (1 - Math.cos(2 * Math.PI * wellen * t)) / 2;
+              return bauch * (1 - Math.cos(2 * Math.PI * wellen * t)) / 2;
             }), mTuch);
-          tuch.position.set(fe.x, yAb, zAb + lTuch / 2);
-          tuch.rotation.x = neig;
-          tuch.castShadow = true; tuch.receiveShadow = true;
-          sonneTeil(tuch);
-          bau.add(tuch);
         } else {
           /* Falten quer zur Tiefe, wie in der Zeichnung des Formulars:
-             waagerechte Linien über die Breite, gestapelt über die
-             Tiefe. Faltentiefe GESCHÄTZT. */
-          var falten = Math.max(3, Math.round(lTuch / 9));
-          var pl = new THREE.Mesh(tuchFlaeche(fe.b, lTuch, falten * 2,
+             waagerechte Linien über die Breite, gestapelt über die Tiefe.
+             Faltentiefe GESCHÄTZT, begrenzt durch die Sparrenhöhe. */
+          var falten = Math.max(3, Math.round(lMax / 9));
+          var tief = Math.min(2.4, spHoehe * 0.22);
+          hoch = spHoehe * 0.52 + tief / 2;
+          tuch = new THREE.Mesh(tuchFlaeche(fe.b, lMax, falten * 2,
             function (t) {
               var fr = (t * falten) % 1;
-              return 1.2 + 2.6 * (fr < 0.5 ? fr * 2 : (1 - fr) * 2);
+              return tief * (fr < 0.5 ? fr * 2 : (1 - fr) * 2);
             }), mTuch);
-          pl.position.set(fe.x, yAb, zAb + lTuch / 2);
-          pl.rotation.x = neig;
-          pl.castShadow = true; pl.receiveShadow = true;
-          sonneTeil(pl);
-          bau.add(pl);
         }
-        /* Das zusammengeschobene Paket hinten – gerafft beim Segel,
-           gestapelt beim Plissee. */
-        var pak = new THREE.Mesh(
-          new THREE.BoxGeometry(fe.b, segel ? 5 : 4, paketT), mTuch);
-        pak.position.set(fe.x, ukZ(zAb) - (segel ? 3.5 : 3), zAb + paketT / 2);
-        pak.rotation.x = neig;
-        pak.castShadow = true;
-        sonneTeil(pak);
-        bau.add(pak);
+        tuch.rotation.x = neig;
+        tuch.castShadow = true; tuch.receiveShadow = true;
+        sonneTeil(tuch);
+        bau.add(tuch);
+        SONNE_BAHNEN.push({ mesh: tuch, x: fe.x, zAb: zAb, lMax: lMax,
+                            hoch: hoch, uk: ukZ });
       });
 
       if (!segel) {
-        /* Die Schienen gehören zum Gestell: Sie sind montiert und
-           bleiben stehen, auch wenn der Stoff ganz zurückgeschoben ist.
-           Je Sparren eine – zwei Bahnen teilen sich die Schiene auf dem
-           Sparren dazwischen. Querschnitt GESCHÄTZT. */
+        /* Die Schienen gehören zum Gestell: Sie sind montiert und bleiben
+           stehen, auch wenn der Stoff ganz zurückgeschoben ist. Sie
+           sitzen an den Sparrenflanken, links und rechts der Bahn.
+           Querschnitt GESCHÄTZT. Gestellfarbe steht noch nicht zur Wahl –
+           im Modell Alu. */
         var mGest = new THREE.MeshStandardMaterial({
           color: rgb(PLISSEE_GESTELL['Alu']), roughness: 0.4, metalness: 0.75
         });
-        (achsen || felder.map(function (fe) { return fe.x; })).forEach(function (x) {
+        var schB = 2.4, kanten = [];
+        felder.forEach(function (fe) {
+          if (fe.b <= 2) return;
+          kanten.push(fe.x - fe.b / 2 + schB / 2);
+          kanten.push(fe.x + fe.b / 2 - schB / 2);
+        });
+        kanten.forEach(function (x) {
           var sch = new THREE.Mesh(
-            new THREE.BoxGeometry(3.0, 3.4, lMax / Math.cos(neig)), mGest);
-          sch.position.set(x, ukZ(zAb + lMax / 2) - 1.7, zAb + lMax / 2);
+            new THREE.BoxGeometry(schB, 3.4, lMax / Math.cos(neig)), mGest);
+          sch.position.set(x, ukZ(zAb + lMax / 2) + spHoehe * 0.5, zAb + lMax / 2);
           sch.rotation.x = neig;
           sch.castShadow = true;
           sonneTeil(sch);
           bau.add(sch);
         });
       }
+      /* Die Bahnen auf ihren Stand bringen: entweder sofort oder – bei
+         einem größeren Sprung – nacheinander, wie von Hand mit der
+         Stange. */
+      if (Math.abs(SONNE_P - aus) > 0.2) bahnenFahren(aus);
+      else { SONNE_P = aus; bahnenSetzen(aus); }
     }
 
     /* Heizstrahler und Lautsprecher sitzen am Wandprofil bzw. in den
@@ -4564,6 +4744,7 @@
          brauchen sie die echten Achsen, nicht den Richtwert 110 cm. */
       sparren: xs,
       sparrenB: spB,
+      sparrenH: spH,
       /* Die Unterdachmarkise haengt an den SPARREN, nicht auf dem Glas –
          sie braucht deren Unterkante und deren Laenge. */
       sparrenL: laenge,
@@ -4572,8 +4753,14 @@
 
     if (Z.led) {
       // in die Sparren (xs sind die Sparrenachsen), nicht in die Verglasung
-      ledSpots(xs, [T * 0.3, T * 0.72], function (z) {
-        return ukMitte + Math.tan(neig) * (T / 2 - z);
+      /* Der Bezugspunkt war FALSCH: Die Sparrenunterkante wurde ab
+         T / 2 gerechnet, die Sparren liegen aber zwischen Wandprofil
+         und Rinne – ihre Mitte ist zMitte. Bei 3 m Tiefe und 8° saßen
+         die Spots dadurch 11 mm zu hoch, also IM Profil statt darunter:
+         „die ledspots werden in den sparren leider nicht angezeigt"
+         (Betreiber, 11.10.2026). */
+      ledInSparren(xs, zSpHinten, dachTiefe, function (z) {
+        return ukMitte + Math.tan(neig) * (zMitte - z);
       });
     }
   }
@@ -5249,6 +5436,23 @@
         : '');
   }
 
+  /* Was von den bestellten Spots wirklich im Bild steht – und wenn es
+     nicht aufgeht, welches Set besser passen würde. */
+  function ledStandZeigen() {
+    var e = document.getElementById('k3dLedStand');
+    if (!e) return;
+    if (!Z.led || !LED_IST.spots) { e.textContent = ''; return; }
+    if (!LED_IST.reihen) { e.textContent = LED_IST.rat; return; }
+    var gezeichnet = LED_IST.reihen * LED_IST.proReihe;
+    e.textContent = 'Gebaut: ' + gezeichnet + ' Spots in ' + LED_IST.reihen +
+      ' von ' + LED_IST.nutzbar + ' nutzbaren Sparren, je ' + LED_IST.proReihe +
+      '. In die äußersten beiden Sparren kommt keiner.' +
+      (gezeichnet !== LED_IST.spots
+        ? ' Bestellt sind ' + LED_IST.spots + ' – diese Zahl geht hier nicht' +
+          ' gleichmäßig auf. ' + LED_IST.rat
+        : '');
+  }
+
   function plankenStandZeigen() {
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
@@ -5625,7 +5829,19 @@
     var treffer = strahl.intersectObjects(bau.children, true);
     for (var i = 0; i < treffer.length; i++) {
       if (istMarkise(treffer[i].object)) {
-        sonneFahren(Z.sonneAus > 50 ? 0 : 100);
+        /* Plissee und Sonnensegel fahren NICHT ueber die Markisenfahrt:
+           Die rechnet das Modell je Bild neu und laesst alle Bahnen
+           gemeinsam laufen. Hier wird einmal umgestellt – den Versatz
+           Bahn fuer Bahn macht bahnenFahren beim naechsten Aufbau. */
+        if (Z.markise === 'Plissees' || Z.markise === 'Sonnensegel') {
+          var zielB = Z.sonneAus > 50 ? 0 : 100;
+          var rB = document.getElementById('k3dSonneAus');
+          if (rB) rB.value = zielB;
+          Z.sonneAus = zielB;
+          aendern();
+        } else {
+          sonneFahren(Z.sonneAus > 50 ? 0 : 100);
+        }
         return true;
       }
       break;                       // nur das vorderste Teil zaehlt
@@ -5989,6 +6205,10 @@
          Plissee und Sonnensegel gehoeren NICHT zur Stoffgruppe der
          Stoffkarte – dort steht LINEA / SOLARA / PERGOLA / LUNA / LUXORA. */
       case 'stoff-dach':     return STOFF_DACH_MARKISEN.indexOf(Z.markise) > -1;
+      /* Sonnensegel und Plissee haben eigene Farbkarten – die aus den
+         Bestellformularen, nicht die der Markisenstoffe. */
+      case 'stoff-segel':    return Z.markise === 'Sonnensegel';
+      case 'stoff-plissee':  return Z.markise === 'Plissees';
       case 'stoff-zip':      return erwIrgendwo('Senkrechtmarkise') ||
                                     Z.pgSeitenschutz === 'ZIP-Senkrechtmarkise';
       // Fassadenart interessiert nur, wenn an eine Wand montiert wird
@@ -6365,6 +6585,14 @@
       }
       if (Z.markise !== 'Ohne') teile.push('Beschattung: ' + Z.markise);
       if (Z.stoff && gruppeGilt('stoff-dach')) teile.push('Markisenstoff: ' + stoffText(Z.stoff));
+      if (gruppeGilt('stoff-segel')) {
+        teile.push('Sonnensegel-Stofffarbe: ' + Z.segelStoff);
+        teile.push('Sonnensegel: je Sparrenfeld eine Bahn, von Hand mit Bedienstange');
+      }
+      if (gruppeGilt('stoff-plissee')) {
+        teile.push('Plissee-Stofffarbe: ' + Z.plisseeStoff);
+        teile.push('Plissee: je Sparrenfeld eine Bahn, von Hand mit Bedienstab 120 cm');
+      }
       if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
       if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
         teile.push('Dachvorsprung: ' + Z.vorsprung + ' mm');
@@ -6414,6 +6642,8 @@
     Z.pgAusfuehrung = wert('k3dPgAusfuehrung') || Z.pgAusfuehrung;
     Z.pgSeitenschutz = wert('k3dPgSeitenschutz') || Z.pgSeitenschutz;
     Z.plankenFarbe = wert('k3dPlankenFarbe') || Z.plankenFarbe;
+    Z.segelStoff = wert('k3dSegelStoff') || Z.segelStoff;
+    Z.plisseeStoff = wert('k3dPlisseeStoff') || Z.plisseeStoff;
     Z.lamellen = parseInt(wert('k3dLamellen'), 10);
     if (isNaN(Z.lamellen)) Z.lamellen = 35;
 
@@ -6688,6 +6918,7 @@
        tatsaechlich gebauten Mass, und das meldet erst bauen(). */
     sg23FeldFuellen();
     plankenStandZeigen();
+    ledStandZeigen();
     velarisStandZeigen();
     rahmenStandZeigen();
     textAktualisieren();
@@ -6897,6 +7128,7 @@
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
    'k3dPlankenFarbe', 'k3dPlankenFuge', 'k3dPlankenAuto',
+   'k3dSegelStoff', 'k3dPlisseeStoff',
    'k3dPlankenAnteil', 'k3dPlankenHoeheAuto'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
@@ -7452,6 +7684,8 @@
            die richtige Kachel. Den lesbaren Satz baut er selbst aus
            derselben Liste. */
         if (Z.stoff && gruppeGilt('stoff-dach')) v.stoff = Z.stoff;
+        if (gruppeGilt('stoff-segel')) v.segelstoff = Z.segelStoff;
+        if (gruppeGilt('stoff-plissee')) v.plisseestoff = Z.plisseeStoff;
         if (Z.stoffZip && gruppeGilt('stoff-zip')) v.stoffzip = Z.stoffZip;
         if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
           v.vorsprung = String(Z.vorsprung);

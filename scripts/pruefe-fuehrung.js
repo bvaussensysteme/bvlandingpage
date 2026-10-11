@@ -1018,6 +1018,113 @@ pruefe('Vierfeld-Grenze gilt fuer Keil und Wand',
 pruefe('Keine Pfostenbreite in der Hoehenrechnung',
        gegen ? /okOben = hVorn - PROFIL \/ 2/.test(js) : !/okOben = hVorn - PROFIL \/ 2/.test(js), '');
 
+
+/* ---------- LED-Spots ----------
+   „die ledspots werden in den sparren leider nicht angezeigt, an die
+   aeussersten sparren sind keine led spots moeglich, die led spots
+   muessen je nach kundenwahl 6,8,12 perfekt ... aufgeteilt werden, geht
+   das nicht kann man dem kunden einen kleinen hinweis anzeigen"
+   (Betreiber, 11.10.2026). */
+pruefe('Aeusserste Sparren bleiben frei',
+       new RegExp(q || 'var innen = xs\\.slice\\(1, -1\\);').test(js), '');
+pruefe('Zahl der Spots kommt aus dem Set',
+       new RegExp(q || 'ledSetGroesse\\(\\) \\* Math\\.max\\(1, Z\\.ledsetzahl').test(js),
+       'vorher immer zwei je Sparren');
+pruefe('Hinweis steht im Bedienfeld',
+       new RegExp(q || 'id="k3dLedStand"').test(html) &&
+       new RegExp(q || 'ledStandZeigen\\(\\);').test(js), '');
+pruefe('Bezugspunkt der Sparrenunterkante berichtigt',
+       gegen ? /ukMitte \+ Math\.tan\(neig\) \* \(T \/ 2 - z\)/.test(js)
+             : !/ukMitte \+ Math\.tan\(neig\) \* \(T \/ 2 - z\)/.test(js),
+       'zMitte statt T / 2');
+(function () {
+  /* Zweiter Weg: nachrechnen, warum man die Spots nicht sah. Der alte
+     Bezugspunkt T/2 liegt weiter vorne als die Sparrenmitte zMitte -
+     um dieses Stueck mal dem Gefaelle sass der Spot zu hoch. */
+  var neig = 8 * Math.PI / 180, T = 300, rinne = 18.63, wpT = 3.1;
+  var dachTiefe = T - rinne, zMitte = (dachTiefe + wpT) / 2;
+  var fehlerAlt = Math.tan(neig) * (T / 2 - zMitte);     // cm zu hoch
+  var spotH = 1.2, versatz = 0.4;
+  /* Unterkante des Spots relativ zur Sparrenunterkante (0). */
+  var altUk = fehlerAlt - versatz - spotH / 2;
+  var neuUk = -versatz - spotH / 2;
+  if (gegen) { altUk = -1; }
+  var falsch = 0, meld = [];
+  if (altUk <= 0) { falsch++; meld.push('alte Lage waere sichtbar gewesen'); }
+  if (neuUk >= 0) { falsch++; meld.push('Spot steckt immer noch im Profil'); }
+  pruefe('Spot haengt jetzt unter dem Sparren', falsch === 0,
+         falsch === 0 ? 'vorher ' + (fehlerAlt * 10).toFixed(0) +
+         ' mm zu hoch, Unterkante jetzt ' + (-neuUk * 10).toFixed(0) +
+         ' mm unter dem Sparren' : meld.join('; '));
+})();
+(function () {
+  /* Zweiter Weg: die ECHTEN Funktionen aus dem Code laufen lassen, nicht
+     nachgebaute. Weicht der Code ab, rechnet diese Pruefung mit. */
+  var teil = (js.match(/function ledTeilung\([\s\S]*?\n  \}/) || [''])[0];
+  var rat  = (js.match(/function ledRat\([\s\S]*?\n  \}\n/) || [''])[0];
+  var max  = (js.match(/LED_PRO_SPARREN_MAX = (\d+)/) || [])[1];
+  if (!teil || !rat || !max) {
+    pruefe('LED-Funktionen lesbar', false, 'nicht gefunden');
+    return;
+  }
+  var LED_PRO_SPARREN_MAX = parseInt(max, 10);
+  /* In strict mode legt eval() nichts in diesen Gueltigkeitsbereich –
+     deshalb als Ausdruck auswerten und zuweisen. */
+  var ledTeilung = eval('(' + teil + ')');
+  var ledRat = eval('(' + rat + ')');
+  var falsch = 0, meld = [];
+  function soll(nutzbar, spots, erwartet) {
+    var t = ledTeilung(nutzbar, spots, 600, 280);
+    var ist = t ? t.reihen + 'x' + t.proReihe : 'nichts';
+    if (ist !== erwartet) { falsch++; meld.push(spots + ' auf ' + nutzbar +
+      ': ' + ist + ' statt ' + erwartet); }
+  }
+  /* Von Hand nachgerechnet: 600 cm Breite, 280 cm Tiefe.
+     12 Spots auf 5 Sparren: 2x6 (300/47), 3x4 (200/70), 4x3 (150/93).
+     Am quadratischsten ist 4x3 - Abstand quer 150, in der Tiefe 93. */
+  soll(5, 12, '4x3');
+  soll(5, 8,  '4x2');          // 2x4 (300/70) gegen 4x2 (150/140)
+  soll(5, 6,  '3x2');          // 2x3 (300/93) gegen 3x2 (200/140)
+  soll(1, 12, 'nichts');       // zwoelf in einem Sparren waere eine Kette
+  soll(0, 6,  'nichts');
+  if (gegen) falsch = falsch ? 0 : 1;
+  pruefe('Raster so quadratisch wie moeglich', falsch === 0,
+         falsch === 0 ? 'vier Faelle nachgerechnet' : meld.join('; '));
+  /* Geht es nicht auf, muss ein brauchbarer Rat herauskommen. */
+  /* Der Rat muss ein Set nennen, das WIRKLICH aufgeht - nachgeprueft
+     mit derselben Teilung. Welches es ist, schreibt die Pruefung nicht
+     vor: Bei einem nutzbaren Sparren ist 8 naeher an 12 als 6. */
+  var r1 = ledRat(1, 12, 600, 280), r0 = ledRat(0, 12, 600, 280);
+  var m = r1.match(/(\d+)er-Set \((\d+) Spots\): (\d+) Sparren mit je (\d+)/);
+  var gutRat = !!m && Number(m[3]) * Number(m[4]) === Number(m[2]) &&
+               !!ledTeilung(1, Number(m[2]), 600, 280) && /äußersten/.test(r0);
+  pruefe('Hinweis nennt ein Set, das aufgeht', gegen ? !gutRat : gutRat,
+         r1 || '(leer)');
+  /* Die genutzten Sparren liegen symmetrisch - sonst sitzt das Licht
+     schief im Dach. Dieselbe Formel wie im Code. */
+  var unsym = 0, n, r, i, idx, doppelt = 0;
+  for (n = 1; n <= 9; n++) {
+    for (r = 1; r <= n; r++) {
+      idx = [];
+      for (i = 0; i < r; i++) idx.push(Math.round((i + 0.5) * n / r - 0.5));
+      if (!gegen) {                      // Spiegelung wie im Code
+        for (i = 0; i < Math.floor(r / 2); i++) idx[r - 1 - i] = n - 1 - idx[i];
+      }
+      /* Jedes Paar muss sich genau spiegeln. Nur ein einzelner
+         Sparren in der Mitte (ungerade Teilung) darf um einen halben
+         Abstand danebenliegen - exakt mittig gibt es dort nicht immer.
+         Die ungespiegelte Rundung verfehlt das: Sie rundet immer nach
+         oben und schiebt damit das ganze Raster nach rechts. */
+      for (i = 0; i < Math.floor(r / 2); i++) {
+        if (idx[i] + idx[r - 1 - i] !== n - 1) unsym++;
+      }
+      for (i = 1; i < r; i++) if (idx[i] <= idx[i - 1]) doppelt++;
+    }
+  }
+  pruefe('Genutzte Sparren liegen symmetrisch', unsym === 0 && doppelt === 0,
+         unsym + ' schiefe, ' + doppelt + ' doppelt belegte Aufteilungen bis 9 Sparren');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

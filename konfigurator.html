@@ -1078,6 +1078,38 @@
             bei den Erweiterungen.</p>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-segel" hidden>
+          <label class="k3d-label" for="k3dSegelStoff">Stofffarbe Sonnensegel</label>
+          <select id="k3dSegelStoff" class="k3d-select">
+            <option value="Platin">Platin</option>
+            <option value="Perlmutt" selected>Perlmutt</option>
+            <option value="Gold">Gold</option>
+            <option value="Taupe">Taupe</option>
+            <option value="Grau">Grau</option>
+          </select>
+          <p class="k3d-mini">Die fünf Farben des Sonnensegels. Andere gibt es nicht.</p>
+          <p class="k3d-mini"><strong>Bedienung:</strong> Jede Bahn wird einzeln
+            von Hand bedient – mit einer Stange, die dafür gedacht ist. Im Modell
+            laufen die Bahnen deshalb nacheinander auf und zu.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-plissee" hidden>
+          <label class="k3d-label" for="k3dPlisseeStoff">Stofffarbe Plissee</label>
+          <select id="k3dPlisseeStoff" class="k3d-select">
+            <option value="Weiss">Weiß</option>
+            <option value="Hellgrau" selected>Hellgrau</option>
+            <option value="Grau">Grau</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Hellbeige">Hellbeige</option>
+            <option value="Braun">Braun</option>
+          </select>
+          <p class="k3d-mini">Gestellfarbe (Weiß, Alu, Anthrazit, Schwarz) und
+            Bedienstab legen wir im Gespräch fest – im Modell steht Alu.</p>
+          <p class="k3d-mini"><strong>Bedienung:</strong> Jedes Feld zwischen zwei
+            Sparren wird einzeln von Hand bedient – mit dem Bedienstab (120 cm).
+            Im Modell laufen die Bahnen deshalb nacheinander auf und zu.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-dach" hidden>
           <span class="k3d-label" id="k3dStoffLabel">Markisenstoff</span>
           <input type="hidden" id="k3dStoff" value="">
@@ -1125,6 +1157,7 @@
           </div>
           <label class="k3d-label" for="k3dLedAnzahl" style="margin-top:10px">Wie viele Sets?</label>
           <input type="number" id="k3dLedAnzahl" class="k3d-zahl" inputmode="numeric" min="1" max="20" value="1" style="width:90px">
+          <p class="k3d-mini" id="k3dLedStand"></p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="sound">
@@ -1352,7 +1385,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261012a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261015h" defer></script>
+<script src="js/konfigurator-3d.js?v=20261015k" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
