@@ -129,7 +129,7 @@ pruefe('Breite wird auf die nächste lieferbare aufgerundet',
 
 /* ---------- Statikträger und Hinweis ---------- */
 pruefe('Statikträger 189 × 117 mm im Modell',
-       new RegExp(q || 'traegerH = .*18\\.9').test(k3d) &&
+       new RegExp(q || 'traegerH = [\\s\\S]{0,160}18\\.9').test(k3d) &&
        new RegExp(q || 'traegerT = 11\\.7').test(k3d), 'aus der Maßtabelle');
 pruefe('Träger sitzt über den Pfosten, nicht in der Dachmitte',
        new RegExp(q || 'hPfosten \\+ traegerH / 2, zPf').test(k3d), 'zPf = Pfostenachse');
@@ -204,7 +204,7 @@ else {
 pruefe('Hinweis trennt die Reihen genauso',
        new RegExp(q || "pfV \\+ ' Pfosten vorne und ' \\+ pfH \\+ ' hinten'").test(k3d), '');
 pruefe('Hinweis: vordere Zahl aus dem vorderen Träger',
-       new RegExp(q || 'pfV = \\(tb\\.unterzug \\|\\| vsHin > 0\\) \\? pfostenUnterTraeger').test(k3d), '');
+       new RegExp(q || 'pfV = \\(tb\\.unterzug \\|\\| vsHin > 0 \\|\\| wunsch\\)').test(k3d), '');
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
@@ -243,6 +243,35 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
   pruefe('Dach plus Träger ergibt die bestellte Tiefe',
          Math.abs(gesamt - tiefe / 10) < 0.001,
          gesamt * 10 + ' mm (bestellt ' + tiefe + ' mm)');
+})();
+
+/* ---------- Statiktraeger auf Kundenwunsch ----------
+   „einen statikträger unter die rinne zu setzen ohne dachvorsprung
+   einfach wenn ein kunde z.b 2 pfosten anstatt 3 nur möchte"
+   (Betreiber, 11.10.2026). */
+pruefe('Haekchen fuer den Traeger vorhanden',
+       gegen ? !/id="k3dTraeger"/.test(html) : /id="k3dTraeger"/.test(html), '');
+pruefe('Haekchen liegt unter „Mehr Einstellungen"',
+       new RegExp(q || 'data-k3d-mehr data-k3d-fuer="traeger-wunsch"').test(html), '');
+pruefe('Haekchen nennt die geringere Durchgangshoehe',
+       gegen ? !/189 mm niedriger/.test(html) : /189 mm niedriger/.test(html), 'Warnung');
+pruefe('Wunsch erzeugt den Traeger im Modell',
+       new RegExp(q || 'vorspr > 0 \\|\\|\\s*Z\\.traegerWunsch').test(k3d), '');
+pruefe('Wunsch zaehlt auch im Masshinweis',
+       new RegExp(q || 'tb\\.unterzug \\|\\| vsHin > 0 \\|\\| wunsch').test(k3d), '');
+pruefe('Haekchen entfaellt, wenn der Traeger ohnehin noetig ist',
+       new RegExp(q || "case 'traeger-wunsch'").test(k3d) &&
+       new RegExp(q || '!traegerSchonNoetig\\(\\)').test(k3d), '');
+pruefe('Wunsch steht in der Anfrage',
+       new RegExp(q || 'unter der Dachrinne auf Kundenwunsch').test(k3d), 'Fachbegriff');
+/* Zweiter Weg: die Pfostenersparnis wirklich ausrechnen. */
+(function () {
+  if (!mRegel) return;
+  var breite = 8080;            // Tabelle: 4 Stuetzfuesse
+  var mitTraeger = fn(breite);  // 7-m-Regel
+  if (gegen) mitTraeger = 4;
+  pruefe('Traeger spart bei 8080 mm einen Pfosten',
+         mitTraeger === 3, '4 ohne, ' + mitTraeger + ' mit Träger');
 })();
 
 /* ---------- Glas-Schiebeanlage SG23 ----------

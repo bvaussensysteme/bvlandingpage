@@ -65,6 +65,7 @@
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     glasstaerke: 8,           // mm, nur bei Glas – 8 oder 10 (VSG)
     sg23Wahl: '',             // '' = automatisch, sonst 'Schienen|Flügel'
+    traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -2715,7 +2716,19 @@
        Rinne frei und braucht ihn. */
     var tbMass = tabelleBauteile(Z.breite, Z.tiefe);
     var vorspr = gruppeGilt('vorsprung') ? Z.vorsprung / 10 : 0;   // cm
-    var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0) ? 18.9 : 0;
+    /* Ein Statikträger entsteht auf drei Wegen: ab 4500 mm Tiefe
+       zwingend (Tabelle), mit Dachvorsprung bauartbedingt – oder weil der
+       Kunde ihn WILL.
+
+       „wenn ein kunde z.b 2 pfosten anstatt 3 nur möchte" (Betreiber,
+       11.10.2026). Unter dem Träger gilt die 7-m-Regel statt der
+       Stützfußspalte, es stehen also weniger Pfosten. Bezahlt wird das
+       mit Durchgangshöhe: der Träger sitzt zwischen Pfostenkopf und
+       Rinne und nimmt dort 189 mm weg. Deshalb steht neben dem Häkchen
+       der Hinweis – wer ihn nicht liest, plant mit 2,30 m und hat
+       2,11 m. */
+    var traegerH = ((tbMass && tbMass.unterzug) || vorspr > 0 ||
+                    Z.traegerWunsch) ? 18.9 : 0;
     var traegerT = 11.7;
     /* Die Rinne liegt immer auf der eingestellten Höhe – sie rückt nie
        nach oben. Der Träger nimmt dem PFOSTEN seine Höhe weg. */
@@ -3769,6 +3782,13 @@
   function istCarport() { return Z.produkt === 'Carport'; }
   function istCarportTds() { return istCarport() && Z.cpTyp === 'Carport TDS'; }
   function istPergola() { return Z.produkt === 'Pergola / Lamellendach'; }
+
+  /* Liegt der Träger schon aus Tiefe oder Dachvorsprung fest? */
+  function traegerSchonNoetig() {
+    var tb = tabelleBauteile(Z.breite, Z.tiefe);
+    if (tb && tb.unterzug) return true;
+    return Z.produkt === 'Terrassendach TDS' && Z.vorsprung > 0;
+  }
   function istLamellen() { return istPergola() && Z.pgDachart === 'Lamellendach'; }
 
   /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
@@ -3806,6 +3826,12 @@
                                     : Z.aufbau === 'Wandmontage';
       // Dachvorsprung gibt es nur beim TDS (so auch im Anfrage-Assistenten)
       case 'vorsprung':      return Z.produkt === 'Terrassendach TDS';
+      /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
+         da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
+         hilft. Beim Carport und bei der Pergola gibt es die Bauweise
+         nicht. */
+      case 'traeger-wunsch': return !istCarport() && !istPergola() &&
+                                    !traegerSchonNoetig();
       case 'led-detail':     return Z.led;
       // Lautsprecher bietet VD beim Carport nicht an
       case 'sound':          return !istCarport();
@@ -4031,6 +4057,10 @@
          (Betreiber) – besprechen kann man aber nur, was dasteht. Ohne
          diese Zeile müsste man die Aufteilung aus dem Bild abzählen. */
       sg23Zeilen().forEach(function (zeile) { teile.push(zeile); });
+      if (gruppeGilt('traeger-wunsch') && Z.traegerWunsch) {
+        teile.push('Statikträger 189 × 117 mm unter der Dachrinne auf Kundenwunsch ' +
+          '(weniger Pfosten, Durchgangshöhe darunter ' + (Z.hoehe - 189) + ' mm)');
+      }
       if (Z.markise !== 'Ohne') teile.push('Beschattung: ' + Z.markise);
       if (Z.stoff && gruppeGilt('stoff-dach')) teile.push('Markisenstoff: ' + stoffText(Z.stoff));
       if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
@@ -4134,7 +4164,8 @@
     [['verkRueck', 'k3dVerkRueck'], ['verkLinks', 'k3dVerkLinks'],
      ['verkRechts', 'k3dVerkRechts'], ['masseZeigen', 'k3dMasse'],
      ['sound', 'k3dSound'], ['heizung', 'k3dHeizung'],
-     ['wettersensor', 'k3dWetter']].forEach(function (pr) {
+     ['wettersensor', 'k3dWetter'],
+     ['traegerWunsch', 'k3dTraeger']].forEach(function (pr) {
       var el = document.getElementById(pr[1]);
       if (el) Z[pr[0]] = el.checked;
     });
@@ -4194,7 +4225,9 @@
         var freiHin = Z.aufbau === 'Freistehend';
         /* Dieselbe Trennung wie im Modell: vorne nach dem Träger dort,
            hinten nur freistehend und dann immer nach der 7-m-Regel. */
-        var pfV = (tb.unterzug || vsHin > 0) ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
+        var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
+        var pfV = (tb.unterzug || vsHin > 0 || wunsch)
+          ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
         var pfH = pfostenUnterTraeger(Z.breite);
         var pf = (freiHin && pfH !== pfV)
           ? pfV + ' Pfosten vorne und ' + pfH + ' hinten'
@@ -4208,11 +4241,14 @@
             '</b> bei diesem Maß.');
         }
         var vs = vsHin;
-        if (tb.unterzug || vs > 0) {
+        if (tb.unterzug || vs > 0 || wunsch) {
           var grund = tb.unterzug
             ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
               ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
-            : 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.';
+            : (vs > 0
+              ? 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
+              : 'Sie haben den <b>Statikträger</b> (189 × 117 mm) gewählt – er läuft über ' +
+                'die volle Breite und spart ' + (tb.pfosten - pfV) + ' Pfosten.');
           var lage = vs > 0
             ? ' Die Pfosten stehen ' + vs + ' mm weiter innen; der Träger liegt ' +
               'über ihnen unter den Sparren, weil die Rinne dort auskragt.'
@@ -4451,7 +4487,8 @@
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
-   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dSg23'].forEach(function (id) {
+   'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dSg23',
+   'k3dTraeger'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;
     e.addEventListener('input', aendern);
