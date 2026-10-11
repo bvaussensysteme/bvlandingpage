@@ -470,7 +470,24 @@
 
     @media (max-width: 900px) {
       .k3d-app { flex-direction: column; height: auto; min-height: 0; }
-      .k3d-buehne { order: 0; flex: none; height: 54svh; min-height: 300px; }
+      /* Das 3D-Bild bleibt beim Scrollen oben stehen: „ich hätte ganz
+         gerne auf dem handy das die 3d ansicht immer stehen bleibt, weil
+         wenn man z.b runterscrollt oder weitere einstellungen öffnet …
+         muss man wieder komplett hoch scrollen um die änderung zu sehen"
+         (Betreiber, 11.10.2026).
+
+         sticky statt fixed: Das Bild klebt NUR, solange der Konfigurator
+         läuft, und gibt die Seite unterhalb (Hinweise, Fußzeile) wieder
+         frei. Mit fixed läge es über allem, auch über dem Impressum.
+
+         Höhe 45 svh statt 54: Oben bleibt etwa die Hälfte für das
+         Modell, unten bleibt genug für zwei bis drei Einstellungen –
+         sonst scrollt man im verbleibenden Schlitz. svh statt vh, weil
+         die Adressleiste des Handys sonst Teile abschneidet. */
+      .k3d-buehne {
+        order: 0; flex: none; height: 45svh; min-height: 260px;
+        position: sticky; top: 0; z-index: 5;
+      }
       .k3d-sl {
         order: 1; width: 100%; border-right: 0; border-top: 1px solid var(--border);
         margin-left: 0 !important;
@@ -1500,7 +1517,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016e" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016f" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
