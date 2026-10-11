@@ -3970,12 +3970,13 @@
       s: 'Die Farbe gilt für alle Profile – Pfosten, Dach und Seiten.' },
     { id: 'seiten',      t: 'Sollen Seiten geschlossen werden?',
       s: 'Schon eine geschlossene Seite bringt Wind- und Sichtschutz. Sie dürfen auch alles offen lassen.' },
+    /* Die Verkleidung war bis 11.10.2026 ein eigener Schritt. Sie ist
+       dieselbe Frage wie oben – was passiert mit den Seiten – und steht
+       deshalb jetzt im Schritt „seiten". */
     { id: 'sonne',       t: 'Brauchen Sie Sonnenschutz?',
       s: 'Eine Markise hält die Hitze ab, bevor sie unter dem Dach ankommt.' },
     { id: 'technik',     t: 'Licht und Technik?',
       s: 'Alles freiwillig – Sie können jeden Punkt auch später nachrüsten.' },
-    { id: 'verkleidung', t: 'Wände verkleiden?',
-      s: 'Sichtschutzpaneele zwischen den Pfosten.' },
     { id: 'umgebung',    t: 'Untergrund und Montage',
       s: 'Zwei Fragen, die wir für das Angebot brauchen.' },
     { id: 'fertig',      t: 'Fertig – das haben Sie zusammengestellt',
@@ -5418,11 +5419,19 @@
          (gruppeGilt('fassade') ? Z.fassade + ' · ' : '') +
          (Z.montage === 'Ja, mit Fachmontage' ? 'Fachmontage' : 'Selbstmontage'));
 
-    var vk = [];
-    if (Z.verkRueck) vk.push('hinten');
-    if (Z.verkLinks) vk.push('links');
-    if (Z.verkRechts) vk.push('rechts');
-    text('k3dSumVerk', vk.length ? Z.verkRichtung + ': ' + vk.join(', ') : 'keine');
+    /* Seiten und Verkleidung teilen sich seit 11.10.2026 einen Abschnitt.
+       Im zugeklappten Kopf darf trotzdem nur das stehen, was zum Produkt
+       gehoert – sonst stuende beim Carport „offen" neben der Verkleidung. */
+    if (gruppeGilt('verkleidung')) {
+      var vk = [];
+      if (Z.verkRueck) vk.push('hinten');
+      if (Z.verkLinks) vk.push('links');
+      if (Z.verkRechts) vk.push('rechts');
+      text('k3dSumSeiten', '');
+      text('k3dSumVerk', vk.length ? Z.verkRichtung + ': ' + vk.join(', ') : 'keine');
+    } else {
+      text('k3dSumVerk', '');
+    }
 
     text('k3dSumAnzeige', Z.boden + (Z.masseZeigen ? ' · mit Maßen' : ''));
 
