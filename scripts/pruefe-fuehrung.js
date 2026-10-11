@@ -1758,6 +1758,49 @@ pruefe('Unbekannter Ton faellt auf',
   pruefe('Jede versteckbare Einheit hat ihre [hidden]-Regel', !fehlt.length,
          fehlt.length ? 'fehlt bei: ' + fehlt.join(', ') : regeln.length + ' Regeln geprueft');
 })();
+/* ---------- Dach als Schaltflaeche fuer die Beschattung ----------
+   „nur das dach also sparren oder glas anklicken damit die animation
+   öffnen / schließen stattfindet" (Betreiber, 11.10.2026). Bei
+   eingefahrener Beschattung ist das Tuch wenige Zentimeter breit – am
+   Handy nicht zu treffen. Geprueft wird deshalb dreierlei: dass die
+   Dachteile gekennzeichnet sind, dass der Klick sie annimmt, und dass
+   Velaris und Schiebeanlage NICHT verlieren (nur das vorderste Teil
+   zaehlt – steht ein Element vor dem Dach, gehoert ihm der Klick). */
+(function () {
+  var treffer = (js.match(/dachTeil\(/g) || []).length;
+  /* Sparren (2 Wege), Abdeckleiste, Seitenglasleiste, Eindeckung ganz
+     und geteilt, SkyView-Sparren – plus die zwei Definitionszeilen. */
+  pruefe('Dachteile sind gekennzeichnet', gegen ? treffer < 8 : treffer >= 8,
+         treffer + ' Stellen mit dachTeil()');
+})();
+pruefe('Klick auf das Dach fährt die Beschattung',
+       new RegExp(q || 'istMarkise\\(treffer\\[i\\]\\.object\\) \\|\\| istDach\\(treffer\\[i\\]\\.object\\)').test(js) &&
+       new RegExp(q || 'function istDach').test(js), '');
+(function () {
+  /* Zweiter Weg: die echten Funktionen laufen lassen, statt nur den
+     Text zu lesen. Ein Teil tief in einer Gruppe muss als Dach gelten,
+     ein fremdes Teil nicht. */
+  var dachTeil = eval('(' + (js.match(/function dachTeil\(m\)[^\n]*\n/) || [''])[0]
+    .replace(/^\s*function/, 'function') + ')');
+  var istDach = eval('(' + (js.split('function istDach(')[1] || '')
+    .split('\n  }')[0].replace(/^/, 'function istDach(') + '\n})');
+  var tief = { userData: {} };
+  var gruppe = dachTeil({ userData: {} });
+  tief.parent = gruppe;
+  var fremd = { userData: {} };
+  var ok = istDach(gruppe) === true && istDach(tief) === true &&
+           istDach(fremd) === false;
+  pruefe('istDach findet das Dach auch in einer Gruppe', gegen ? !ok : ok, '');
+})();
+(function () {
+  var klick = (js.split('function markiseGeklickt(')[1] || '').split('\n  }')[0];
+  var ok = /break;/.test(klick);
+  pruefe('Nur das vorderste Teil zählt – Velaris/Schiebe behalten ihren Klick',
+         gegen ? !ok : ok, '');
+})();
+pruefe('Der Hinweis nennt das Dach, nicht die Markise',
+       new RegExp(q || 'direkt im Bild auf das Dach').test(html) &&
+       !/Sie können die Markise auch direkt im Bild/.test(html), '');
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&
        new RegExp(q || 'placeholder="7016"').test(html),

@@ -4226,3 +4226,32 @@ gar nicht versteckt wird.
 
 **Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 208, Gegenprobe
 208 von 208.
+
+## 2026-10-11 – Das Dach schaltet die Beschattung
+
+**Was war falsch.** „bei den ganzen sachen, ändere es so man muss wenn eine
+davon ausgewählt is nur das dach also sparren oder glas anklicken damit die
+animation öffnen / schließen stattfindet" (Betreiber, 11.10.2026). Bis jetzt
+musste man das Tuch selbst treffen. Eingefahren ist das ein Streifen von
+wenigen Zentimetern; am Handy mit dem Finger praktisch nicht zu treffen – und
+wer daneben tippt, hält die Animation für kaputt. Von oben auf das Modell
+geschaut lag ohnehin das Glas davor, der Klick ging also ins Leere.
+
+**Was jetzt gilt.** Jedes Dachteil – Sparren, Eindeckung (ganz und geteilt),
+Abdeck- und Seitenglasleiste – ist gekennzeichnet (`dachTeil()` setzt
+`userData.dach`). Ein Klick auf das Dach fährt die Beschattung aus oder ein,
+genau wie ein Klick auf das Tuch; gilt für alle Beschattungsarten
+(Aufdach-, Unterdach-, Senkrechtmarkise, Plissees, Sonnensegel). Der Hinweis
+unter dem Schieberegler nennt jetzt das Dach statt der Markise.
+
+**Warum so und nicht anders.** Es zählt weiter nur das vorderste getroffene
+Teil (`break` in `markiseGeklickt`). Steht ein Velaris-Element oder eine
+Glasschiebeanlage vor dem Dach, gehört der Klick ihnen – sonst hätte ein Tippen
+auf eine Lamelle nebenbei die Beschattung bewegt. Verworfen: das ganze Modell
+klickbar machen. Dann würde ein Tippen auf Pfosten oder Boden mitschalten, und
+beim Drehen der Kamera wäre nie klar, ob man gerade schaltet oder dreht.
+
+**Was gegengelesen werden soll.** Mit gewählter Beschattung auf Sparren und
+auf Glas tippen – beide fahren. Bei Velaris oder Glasschiebetür auf das
+Element tippen: das Element bewegt sich, die Beschattung nicht. Prüfung:
+`node scripts/pruefe-fuehrung.js` (213 Prüfungen, Gegenprobe 213/213).
