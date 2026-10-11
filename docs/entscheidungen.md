@@ -920,13 +920,21 @@ niedrigere seite is die vorderseite".
 abgeschrägten Ecke** – so sieht das Teil aus. Die Schräge sitzt an der
 **Vorderkante oben**, damit die Vorderseite die niedrigere ist.
 
-**Offen, steht in `docs/NEXT_TASK.md`.** Das Teilebild nennt
-**172 × 175 mm**. Unsere Rinne ist nach der Querschnittszeichnung des
-Betreibers **186,3 mm breit und 136,7 mm hoch**. Der Deckel wäre damit in
-der einen Richtung schmaler, in der anderen deutlich höher als die
-Öffnung, die er schließen soll. Eine der beiden Angaben hat einen anderen
-Bezugspunkt. Bis das geklärt ist, wird der Deckel auf die **tatsächliche
-Rinnenöffnung** gezeichnet: lieber bündig als maßhaltig falsch.
+**Das Maß und seine Lage – entschieden vom Betreiber.** Das Teilebild
+nennt **172 × 175 mm**. Unsere Rinne ist nach der Querschnittszeichnung
+**186,3 mm breit und 136,7 mm hoch**; der Deckel ist also in der einen
+Richtung schmaler, in der anderen höher als die Öffnung. Auf die Frage,
+wie er dann sitzen soll: „gleich den deckel mittig aus huptsache vorne is
+bündig."
+
+Also: **echtes Maß 172 × 175 mm**, **vorne bündig** mit der
+Rinnenvorderkante, **in der Höhe mittig**. Hinten bleiben rund 14 mm der
+Öffnung frei, oben und unten steht der Deckel je rund 19 mm über. Das ist
+so gewollt und nicht übersehen – die Vorderkante ist das, was man sieht.
+
+Warum das trotzdem notiert bleibt: Der Widerspruch im Maß selbst ist
+damit nicht erklärt, nur umgangen. Falls sich klärt, worauf sich die
+172 × 175 beziehen, gehört das in `RINNENDECKEL`.
 
 ## 2026-10-11 – Glasleiste war zu klein
 

@@ -256,8 +256,13 @@ breit und 136,7 mm hoch**. Der Deckel wäre damit in der einen Richtung
 schmaler, in der anderen deutlich höher als die Öffnung, die er schließen
 soll – eine der beiden Angaben hat einen anderen Bezugspunkt.
 
-Im Modell ist der Deckel deshalb auf die **tatsächliche Rinnenöffnung**
-gezeichnet (bündig statt maßhaltig falsch), mit der Schräge an der
-Vorderkante. Sobald das Maß geklärt ist, gehört es in
-`rinnenblendeQuerschnitt()` in `js/konfigurator-3d.js`.
+**Entschieden am 11.10.2026** (Betreiber): „gleich den deckel mittig aus
+huptsache vorne is bündig." Der Deckel hat jetzt sein **echtes Maß**
+172 × 175 mm, liegt **vorne bündig** und ist **in der Höhe mittig**.
+Hinten bleiben dadurch rund 14 mm der Öffnung frei, oben und unten steht
+er je rund 19 mm über. Das ist so gewollt.
+
+Der Widerspruch im Maß selbst bleibt offen – falls sich klärt, worauf
+sich die 172 × 175 beziehen, gehört das in `RINNENDECKEL` in
+`js/konfigurator-3d.js`.
 
