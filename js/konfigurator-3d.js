@@ -76,6 +76,12 @@
        ergibt sich daraus. Beim Terrassendach ist es umgekehrt – dort
        gibt man die Neigung vor und liest die Wandhöhe ab. */
     hoeheHinten: 2500,
+    /* Voreingestellt FOLGT die hintere Höhe der vorderen: Neigung
+       eingeben, Höhe hinten ablesen. Wer das Häkchen setzt, stellt sie
+       frei ein – dann ist die Neigung das Ergebnis. „das soll gekopplt
+       sein an vorne aber man soll es entkoppeln können und getrennt
+       einstellen" (Betreiber, 11.10.2026). */
+    hoeheGetrennt: false,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -3718,7 +3724,13 @@
   };
   function neigungProzent(grad) {
     var p = NEIGUNG_PROZENT[grad];
-    return p != null ? p : Math.tan(grad * Math.PI / 180) * 100;
+    /* Die Tabelle kennt nur ganze Grad. Seit der Carport die Neigung aus
+       zwei Höhen ableitet, kommen auch Zwischenwerte vor – dann wird
+       gerechnet und auf eine Nachkommastelle gerundet. Ohne das Runden
+       stand im Bedienfeld „9,100712926493951 %" (vom Betreiber im Bild
+       gemeldet, 11.10.2026). */
+    if (p != null) return p;
+    return Math.round(Math.tan(grad * Math.PI / 180) * 1000) / 10;
   }
 
   /* ---------- Geführte Reihenfolge ----------
@@ -4329,6 +4341,22 @@
      es stünde trotzdem in der Anfrage. */
   var VORSPRUNG_MAX = { carport: 1500, standard: 800 };
 
+  /* Gekoppelt: Die hintere Höhe wird aus Höhe vorne, Tiefe und Neigung
+     gerechnet und in Regler und Zahlenfeld geschrieben – man sieht also,
+     was herauskommt, kann es aber nicht verstellen. Entkoppelt bleibt
+     der eingestellte Wert stehen. */
+  function hoeheHintenKoppeln() {
+    var el = document.getElementById('k3dHoeheHinten');
+    var zf = document.getElementById('k3dHoeheHintenZahl');
+    var frei = hoehenGetrennt() && Z.hoeheGetrennt;
+    if (el) el.disabled = !frei;
+    if (zf) zf.disabled = !frei;
+    if (frei) return;
+    Z.hoeheHinten = Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100);
+    if (el) el.value = Math.min(el.max, Math.max(el.min, Z.hoeheHinten));
+    if (zf && document.activeElement !== zf) zf.value = Z.hoeheHinten;
+  }
+
   function vorsprungGrenzeSetzen() {
     var max = istCarportTds() ? VORSPRUNG_MAX.carport : VORSPRUNG_MAX.standard;
     [['k3dVorsprung', 'vorsprung'],
@@ -4346,7 +4374,7 @@
   }
 
   function neigungGrad() {
-    if (!hoehenGetrennt()) return Z.neigung;
+    if (!hoehenGetrennt() || !Z.hoeheGetrennt) return Z.neigung;
     var grad = Math.atan((Z.hoeheHinten - Z.hoehe) / Math.max(1, Z.tiefe))
                * 180 / Math.PI;
     return Math.min(14, Math.max(2, Math.round(grad * 10) / 10));
@@ -4446,7 +4474,11 @@
       // haben laut Hersteller kein Neigungsfeld (BELEGT).
       /* Neigung eingeben: nur beim Terrassendach. Beim Carport ergibt
          sie sich aus den beiden Höhen. */
-      case 'neigung':        return !!d && d.system === 'TDS' && !hoehenGetrennt();
+      /* Neigung eingeben, solange die hintere Höhe gekoppelt ist. Nur
+         eines von beidem darf Eingabe sein, sonst verstellen sie sich
+         gegenseitig. */
+      case 'neigung':        return !!d && d.system === 'TDS' &&
+                                    !(hoehenGetrennt() && Z.hoeheGetrennt);
       case 'hoehe-hinten':   return hoehenGetrennt();
       default:               return true;
     }
@@ -4810,6 +4842,7 @@
     Z.fassade = wert('k3dFassade') || Z.fassade;
     Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
     vorsprungGrenzeSetzen();
+    hoeheHintenKoppeln();
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
@@ -4819,7 +4852,8 @@
      ['verkRechts', 'k3dVerkRechts'], ['masseZeigen', 'k3dMasse'],
      ['sound', 'k3dSound'], ['heizung', 'k3dHeizung'],
      ['wettersensor', 'k3dWetter'],
-     ['traegerWunsch', 'k3dTraeger']].forEach(function (pr) {
+     ['traegerWunsch', 'k3dTraeger'],
+     ['hoeheGetrennt', 'k3dHoeheGetrennt']].forEach(function (pr) {
       var el = document.getElementById(pr[1]);
       if (el) Z[pr[0]] = el.checked;
     });
@@ -5154,7 +5188,7 @@
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
-   'k3dHoeheHinten',
+   'k3dHoeheHinten', 'k3dHoeheGetrennt',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne'].forEach(function (id) {
     var e = document.getElementById(id);
     if (!e) return;

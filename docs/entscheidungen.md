@@ -2212,3 +2212,26 @@ zum Vorsprung nichts; ich habe nur die Grenze im Bedienfeld gesetzt, die
 du genannt hast. Bei großem Vorsprung trägt der Statikträger die ganze
 Auskragung – ab welchem Maß TDS einen stärkeren Träger vorsieht, weiß
 ich nicht.
+
+## 2026-10-11 – Höhe hinten: gekoppelt, aber entkoppelbar
+
+**Anlass:** „das soll gekopplt sein an vorne aber man soll es entkoppeln
+können und getrennt einstellen" (Betreiber, mit Bildschirmfoto).
+
+**Was jetzt gilt:** Voreingestellt FOLGT die hintere Höhe der vorderen.
+Man gibt die Dachneigung vor und liest die Höhe hinten ab; ihr Regler ist
+dabei sichtbar, aber gesperrt – man sieht also, was herauskommt. Mit dem
+Häkchen „Höhe hinten getrennt einstellen" wird er frei, und dann ist die
+NEIGUNG das Ergebnis; ihr Eingabefeld verschwindet.
+
+Immer ist genau eines von beidem Eingabe. Beides gleichzeitig wäre ein
+Widerspruch: Wer am einen dreht, verstellte den anderen.
+
+**Nebenbei gefunden – Anzeigefehler:** Im Bild stand „5,2° (9,100712926493951 %)".
+`neigungProzent()` hat eine Tabelle für ganze Grad; seit der Carport
+Zwischenwerte erzeugt, fiel sie auf die Rechnung zurück – ungerundet.
+Jetzt auf eine Nachkommastelle gerundet, mit einer Prüfung, die genau
+das nachrechnet.
+
+**Gegenzulesen:** Ob die gekoppelte Höhe hinten im Bedienfeld sofort
+mitläuft, wenn man vorne oder an der Neigung dreht.
