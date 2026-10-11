@@ -199,7 +199,19 @@ pruefe('Schiebeteile tragen ihre Seite',
 pruefe('Klick erkennt die getroffene Seite',
        new RegExp(q || 'function schiebeSeiteVon\\(objekt\\)').test(src), '');
 pruefe('Schiebeanlage faehrt weich, nicht springend',
-       new RegExp(q || 'function schiebeFahren\\(seite, ziel\\)').test(src) && new RegExp(q || 'dauer = 650').test(src), 'wie die Markise');
+       new RegExp(q || 'function schiebeFahren\\(seite, ziel\\)').test(src), 'wie die Markise');
+/* Eine Zahl fuer beide Bewegungen - vorher stand die Dauer zweimal im
+   Code und konnte auseinanderlaufen. */
+(function () {
+  var m = src.match(/var FAHRDAUER = (\d+);/);
+  if (!m) { pruefe('Fahrdauer zentral', false, 'FAHRDAUER fehlt'); return; }
+  var ms = parseInt(m[1], 10) + (gegen ? 2000 : 0);
+  pruefe('Fahrdauer spuerbar, aber keine Wartezeit', ms >= 800 && ms <= 1400, ms + ' ms');
+  var feste = (src.match(/dauer = \d+/g) || []).length + (gegen ? 1 : 0);
+  pruefe('Keine zweite, feste Fahrdauer im Code', feste === 0, feste + ' gefunden');
+  var genutzt = (src.match(/dauer = FAHRDAUER/g) || []).length - (gegen ? 1 : 0);
+  pruefe('Beide Bewegungen nutzen dieselbe Dauer', genutzt === 2, genutzt + ' Stellen');
+})();
 pruefe('Klick schaltet auf oder zu',
        new RegExp(q || "schiebeFahren\\(seite, Z\\[feld\\] > 50 \\? 0 : 100\\)").test(src), '');
 pruefe('Markise hat Vorrang vor dem Glas dahinter',

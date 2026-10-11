@@ -3873,6 +3873,16 @@
      gilt es als Klick. */
   function sonneTeil(m) { if (m) m.userData.sonne = true; return m; }
 
+  /* Wie lange Markise und Schiebeanlage zum Auf- und Zufahren brauchen.
+     EINE Zahl für beide, damit sie nicht auseinanderlaufen – vorher
+     stand die 650 zweimal im Code.
+
+     „kannst du überall die öffnungs und schließ animation nen ticken
+     langsamer machen" (Betreiber, 11.10.2026). 650 auf 950 ms: gut ein
+     Drittel langsamer, aber noch keine Wartezeit. Die Bewegung IST das,
+     was gezeigt werden soll – zu schnell wirkt sie wie ein Sprung. */
+  var FAHRDAUER = 950;   // ms
+
   var strahl = new THREE.Raycaster();
   var klickStart = null;
 
@@ -3887,7 +3897,7 @@
   var sonneLaeuft = null;
   function sonneFahren(ziel) {
     if (sonneLaeuft) clearInterval(sonneLaeuft);
-    var start = Z.sonneAus, t0 = Date.now(), dauer = 650;
+    var start = Z.sonneAus, t0 = Date.now(), dauer = FAHRDAUER;
     var regler = document.getElementById('k3dSonneAus');
     sonneLaeuft = setInterval(function () {
       var p = Math.min(1, (Date.now() - t0) / dauer);
@@ -3919,7 +3929,7 @@
     var feld = seite === 'links' ? 'offenLinks'
              : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
     if (schiebeLaeuft[seite]) clearInterval(schiebeLaeuft[seite]);
-    var start = Z[feld], t0 = Date.now(), dauer = 650;
+    var start = Z[feld], t0 = Date.now(), dauer = FAHRDAUER;
     schiebeLaeuft[seite] = setInterval(function () {
       var p = Math.min(1, (Date.now() - t0) / dauer);
       Z[feld] = Math.round(start + (ziel - start) * (p < 0.5

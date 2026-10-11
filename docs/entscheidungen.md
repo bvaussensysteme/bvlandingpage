@@ -1911,3 +1911,15 @@ angebunden wird.
 ohne Achsen auf. Dort sind die Seitenelemente ein anderes System
 (SunPro / Velaris), nicht SG23 – bewusst unangetastet, bis der Betreiber
 sagt, ob dort dasselbe gelten soll.
+
+### 3. Fahrdauer langsamer und an einer Stelle
+
+„kannst du überall die öffnungs und schließ animation nen ticken
+langsamer machen" (Betreiber). 650 → **950 ms**, gut ein Drittel
+langsamer, aber noch keine Wartezeit.
+
+Dabei ist aufgefallen, dass die 650 zweimal im Code stand – einmal für
+die Markise, einmal für die Schiebeanlage. Jetzt gibt es dafür eine
+Konstante `FAHRDAUER`, und eine Prüfung achtet darauf, dass keine zweite
+feste Dauer danebenwächst. Sonst heißt „überall" beim nächsten Mal
+wieder nur „an einer Stelle".
