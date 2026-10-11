@@ -318,6 +318,8 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
   wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
   44 cm) – das ist eine Modellregel, kein Herstellermaß.
+  Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
+  Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
   ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
   Träger je 140 mm tief. Mit den Zeichnungen zu Rinne Flat (16553),
   Träger TD (15698), Seitenblende Sky (6069) und Glasleiste (15184)
