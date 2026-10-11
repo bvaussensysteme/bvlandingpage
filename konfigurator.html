@@ -208,6 +208,13 @@
     }
     .k3d-ral-zelle .k3d-label { margin: 0; font-size: .7rem; }
     .k3d-ral-zelle input { width: 100%; }
+    /* Der Name des erkannten Tons – die Bestätigung, dass die Nummer die
+       gemeinte ist. */
+    .k3d-ral-name {
+      font-size: .68rem; font-weight: 700; color: var(--gold-text);
+      text-align: center; line-height: 1.15;
+    }
+    .k3d-ral-name[hidden] { display: none; }
     /* „nicht hinterlegt" darf nicht untergehen – sonst wundert man sich,
        warum sich nichts ändert. */
     .k3d-mini.ist-warnung { color: var(--gold-text); font-weight: 600; }
@@ -911,6 +918,7 @@
               <input type="text" id="k3dRalCode" class="k3d-zahl"
                      inputmode="numeric" maxlength="9" placeholder="z. B. 7016"
                      aria-describedby="k3dRalStand">
+              <span class="k3d-ral-name" id="k3dRalName" hidden></span>
             </div>
           </div>
           <p class="k3d-mini">Alle Systeme sind auch in anderen RAL-Farben lieferbar.</p>
@@ -1581,7 +1589,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016k" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016l" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
