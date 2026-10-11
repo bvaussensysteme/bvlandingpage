@@ -2132,7 +2132,13 @@
     traegerT: 14.0,     // ABGELEITET
     sparrenAbzug: 15.0, // BELEGT: Spannweite - 150 mm
     auflager: 6.5,      // BELEGT: Ausschnitt 65 mm tief
-    auflagerH: 8.6      // BELEGT: Ausschnitt 86 mm hoch
+    auflagerH: 8.6,     // BELEGT: Ausschnitt 86 mm hoch
+    /* Platz zwischen Rinnenunterkante und Sparrenunterkante vorne –
+       dort liegt die Rinnenkehle. GESCHÄTZT. */
+    sparrenAb: 5.5,
+    /* Wie weit der Rahmen über die Eindeckung hinten hinaussteht.
+       GESCHÄTZT. */
+    ueber: 1.5
   };
 
   function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
@@ -4961,11 +4967,20 @@
   function bauenTerrasseGeschaetzt() {
     var sky = Z.produkt === 'Flachdach SkyView';
     var PF = 11;                                   // Pfosten 110 mm, BELEGT
-    /* SkyView steht in WAAGE – BELEGT, Montageanleitung S. 8. Vorher
-       waren hier 2° angenommen; damit stand das Dach schief, und
-       Keil, Markisen und Maßbänder rechneten mit einem Gefälle, das es
-       bei diesem System nicht gibt. */
-    var neig = sky ? 0 : neigungGrad() * Math.PI / 180;
+    /* SkyView: außen Flachdach, innen Gefälle. „das sky view sieht von
+       außen aus wie flachdach hat aber ein innenliegendes gefälle von
+       immer 2 grad" (Betreiber, 11.10.2026).
+
+       Die Montageanleitung sagt „Oberkante des Daches an allen Punkten
+       in WAAGE" (S. 8) – gemeint ist der RAHMEN, nicht die Dachfläche.
+       Beides zusammen ergibt das System: Rinne, Träger und Seitenblende
+       bilden ein waagerechtes Band, die Sparren und die Eindeckung
+       darin fallen mit 2° zur Rinne. Von außen sieht man nur das Band.
+
+       Deshalb steht hier wieder der feste Winkel – aber der Rahmen
+       richtet sich jetzt nicht mehr nach der geneigten Dachfläche,
+       sondern bleibt rundum gleich hoch (siehe riH weiter unten). */
+    var neig = sky ? 2 * Math.PI / 180 : neigungGrad() * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
     var TR_H = 18.9, TR_T = 11.7;              // Statikträger, BELEGT (Maßtabelle)
 
@@ -5057,12 +5072,30 @@
        Betreibers. SkyView ist ein anderes System – dafür liegt keine
        Zeichnung vor, dort bleiben die geschätzten Kästen stehen und sind
        hier als solche benannt. */
-    var riH = sky ? SKY.rahmenH : RINNE.hoehe;
-    var riT = sky ? SKY.rinneT : RINNE.breite;
     /* Sparren und Glasleisten sind bei beiden Systemen dieselben Teile
        (Betreiber, 11.10.2026). */
     var spB = SPARREN.breite;
     var spH = SPARREN.hoehe;
+
+    /* ---------- Rahmenhöhe bei SkyView ----------
+       Der Rahmen ist außen ein waagerechtes Band. Innen steigt die
+       Dachfläche mit 2° nach hinten – das Band muss sie also an ihrer
+       höchsten Stelle noch überdecken, sonst stünde das Glas hinten
+       darüber hinaus.
+
+       Daraus folgt: Rahmenhöhe = Gefälle über die ganze Tiefe + Sparren
+       + Eindeckung + der Platz, den die Rinne vorne unter dem Dach
+       braucht. Sie wächst damit mit der Anlagentiefe – bei 3 m rund
+       33 cm, bei 6 m rund 44 cm. Das ist eine MODELLREGEL, kein
+       Herstellermaß: Wie hoch das Profil wirklich ist und wie das
+       Gefälle bei großen Tiefen untergebracht wird, steht in keiner
+       Unterlage und ist als Frage in docs/NEXT_TASK.md vermerkt. */
+    var skyGlas = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
+    var riH = sky
+      ? Math.max(SKY.rahmenH,
+                 Math.tan(neig) * T + SKY.sparrenAb + spH + skyGlas + SKY.ueber)
+      : RINNE.hoehe;
+    var riT = sky ? SKY.rinneT : RINNE.breite;
 
     belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
     belag.position.set(0, -1, (T + 120) / 2 - 60);
@@ -5090,9 +5123,8 @@
        zweites Mal, weil Pfosten- und Trägerhöhe sie schon brauchen,
        bevor das Dach gebaut wird. Beide müssen übereinstimmen, sonst
        liegt die Rahmenoberkante woanders als die Glasebene. */
-    var skyGlasDJetzt = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var ukVornJetzt = sky
-      ? hRinne + riH - skyGlasDJetzt - spH
+      ? hRinne + SKY.sparrenAb
       : hRinne + (riH - RINNE.sparrenUnterNase - spH);
     var dachTiefeJetzt = sky ? T : T - RINNE.breite;
     var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
@@ -5140,7 +5172,11 @@
     /* Bei SkyView steht hinten der Träger TD (15698) an Stelle des
        Wandprofils: genauso hoch und tief wie die Rinne, damit die
        Oberkante rundum in WAAGE liegt. */
-    var wpH = sky ? SKY.rahmenH : 14.36, wpT = sky ? SKY.traegerT : 3.1;
+    /* riH, nicht SKY.rahmenH: Die Rahmenhöhe wächst mit der Tiefe (siehe
+       oben). Stünde hier das feste Maß, läge der Träger hinten zwar oben
+       bündig, unten aber höher als die Rinne – das Band wäre nur auf
+       einer Seite gerade. */
+    var wpH = sky ? riH : 14.36, wpT = sky ? SKY.traegerT : 3.1;
 
     /* KORREKTUR 11.10.2026, dritter Anlauf. „jetzt liegt es waagrecht im
        3d unter den sparren, es muss ja hinten an den sparren dran sein"
@@ -5214,7 +5250,10 @@
        Höhe: an der Oberkante des Wandprofils, das die Glasleiste
        verdeckt. Der Träger steht damit genau so hoch wie das Profil
        davor, keinen Millimeter höher. */
-    var wpOk = sky ? dachOk : dachOk + wpGlasD;
+    /* Bei SkyView ist die Rahmenoberkante überall dieselbe – sie folgt
+       NICHT der geneigten Dachfläche, sonst stünde der Träger hinten
+       höher als die Rinne und das Band wäre schief. */
+    var wpOk = sky ? hRinne + riH : dachOk + wpGlasD;
     var wpMitte = wpOk - wpH / 2;
     var trOk = vorsprH > 0 ? ukAmTraeger : wpOk;
     /* KORREKTUR 11.10.2026: „der statikträger ist tiefer als der
@@ -5348,8 +5387,9 @@
        Rahmenoberkante steht um die Scheibendicke darüber – sie deckt das
        Glas seitlich ab. Daraus folgt die Sparrenunterkante. Vorher stand
        hier ein Viertel der Rahmenhöhe, also eine reine Schätzung. */
-    var skyGlasD = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
-    var ukVorn = sky ? hRinne + riH - skyGlasD - spH
+    /* Dieselbe Rechnung wie oben bei ukVornJetzt – beide müssen
+       übereinstimmen, sonst liegt das Dach anders als die Pfosten. */
+    var ukVorn = sky ? hRinne + SKY.sparrenAb
                      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
     var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas

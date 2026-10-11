@@ -261,7 +261,7 @@ pruefe('Freistehend: Träger hinter dem Wandprofil',
    freistehend: dort sitzt es am Traeger statt an der Wand. */
 pruefe('Wandprofil steht mit 143,6 mm an der Wand',
        gegen ? /wpT = frei \?/.test(k3d)
-             : (/wpH = sky \? SKY\.rahmenH : 14\.36/.test(k3d) &&
+             : (/wpH = sky \? riH : 14\.36/.test(k3d) &&
                 /wpT = sky \? SKY\.traegerT : 3\.1/.test(k3d)),
        'hoch an der Wand, kurz nach vorne');
 (function () {
@@ -286,7 +286,7 @@ pruefe('Oberkante haengt an der Sparrenoberkante',
    haelt die Glasleiste die Scheibe. An der Sparrenoberkante zu enden
    waere zu tief (Betreiber, 11.10.2026). */
 pruefe('Wandprofil reicht bis an die Eindeckung',
-       new RegExp(q || 'wpOk = sky \\? dachOk : dachOk \\+ wpGlasD').test(k3d) &&
+       new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH : dachOk \\+ wpGlasD').test(k3d) &&
        new RegExp(q || 'wpMitte = wpOk - wpH / 2').test(k3d), '');
 (function () {
   /* Nachgerechnet: Die Sparren muessen in der unteren Haelfte liegen und
@@ -351,18 +351,50 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
          (hoch * 10).toFixed(0) + ' mm Sparren, ' + (rest * 10).toFixed(0) +
          ' mm über der Ausklinkung');
 })();
-pruefe('SkyView steht in WAAGE',
-       new RegExp(q || 'var neig = sky \\? 0 : neigungGrad\\(\\) \\* Math\\.PI / 180;').test(k3d) &&
-       !/sky \? 2 : neigungGrad/.test(k3d),
-       'Anleitung S. 8: Oberkante an allen Punkten in WAAGE');
+/* „aussen aus wie flachdach, innen gefaelle von immer 2 grad"
+   (Betreiber, 11.10.2026): Die Dachflaeche faellt mit 2°, der RAHMEN
+   bleibt waagerecht. Beides muss im Code stehen. */
+pruefe('SkyView – Dachfläche mit 2° Gefälle',
+       new RegExp(q || 'var neig = sky \\? 2 \\* Math\\.PI / 180').test(k3d), '');
+pruefe('SkyView – Rahmen bleibt waagerecht',
+       new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH').test(k3d) &&
+       new RegExp(q || 'blendeY = sky \\? hRinne \\+ riH / 2').test(k3d),
+       'Träger und Blende auf Rinnenhöhe');
 (function () {
-  /* Die Hoehe der Glasebene steht ZWEIMAL im Code – einmal fuer Pfosten
-     und Traeger, einmal fuer das Dach. Laufen sie auseinander, liegt die
-     Rahmenoberkante woanders als das Glas. Gezaehlt wird deshalb, dass
-     es genau zwei gleichlautende Stellen gibt. */
-  var n = (k3d.match(/hRinne \+ riH - skyGlasD(Jetzt)? - spH/g) || []).length;
+  /* Die Sparrenunterkante vorne steht ZWEIMAL im Code – einmal fuer
+     Pfosten und Traeger, einmal fuer das Dach. Laufen sie auseinander,
+     liegt das Dach anders als die Pfosten. */
+  var n = (k3d.match(/sky\s*\n?\s*\? hRinne \+ SKY\.sparrenAb/g) || []).length;
   pruefe('SkyView – beide Höhenrechnungen stimmen überein',
          gegen ? n !== 2 : n === 2, n + ' Stellen');
+})();
+(function () {
+  /* Zweiter Weg: Die Rahmenhoehe muss die geneigte Dachflaeche an ihrer
+     hoechsten Stelle noch ueberdecken – sonst stuende das Glas hinten
+     ueber das Band hinaus. Gerechnet mit der Formel aus dem Code, ueber
+     mehrere Tiefen. */
+  var f = (k3d.match(/var riH = sky\s*\n\s*\?([\s\S]*?)\n\s*: RINNE\.hoehe;/) || [])[1];
+  if (!f) { pruefe('SkyView – Rahmenhöhenformel lesbar', false, 'nicht gefunden'); return; }
+  var blk = (k3d.match(/var SKY = \{[\s\S]*?\n  \};/) || [''])[0];
+  function zahl(name) {
+    var m = blk.match(new RegExp(name + ':\\s*([\\d.]+)'));
+    return m ? parseFloat(m[1]) : null;
+  }
+  var SKY = { rahmenH: zahl('rahmenH'), sparrenAb: zahl('sparrenAb'),
+              ueber: zahl('ueber') };
+  var neig = 2 * Math.PI / 180, spH = 12.0, skyGlas = 0.8;
+  var schlimmste = 99;
+  [200, 300, 450, 600, 705].forEach(function (T) {
+    var riH = eval(f) - (gegen ? 12 : 0);
+    /* Glasoberseite hinten, gerechnet wie im Modell. */
+    var ukVorn = SKY.sparrenAb;                 // ab Rinnenunterkante
+    var okGlasHinten = ukVorn + Math.tan(neig) * T + spH + skyGlas;
+    var luft = riH - okGlasHinten;
+    if (luft < schlimmste) schlimmste = luft;
+  });
+  pruefe('SkyView – Rahmen überdeckt die Dachfläche bei jeder Tiefe',
+         schlimmste >= 0,
+         'engste Stelle ' + (schlimmste * 10).toFixed(0) + ' mm Luft');
 })();
 pruefe('SkyView – Sparrenlänge aus der Anleitung',
        new RegExp(q || 'laenge = sky \\? T - SKY\\.sparrenAbzug').test(k3d) &&
@@ -385,22 +417,30 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
        gegen ? /balken\(B \+ 3, 26, 4,/.test(k3d) : !/balken\(B \+ 3, 26, 4,/.test(k3d),
        'Rahmen aus Rinne, Träger und Seitenblende');
 (function () {
-  /* Zweiter Weg zur WAAGE: die Hoehenformeln des Modells ausrechnen.
-     Rinnenoberkante und Traegeroberkante muessen auf denselben Wert
-     kommen, und zwar unabhaengig von der Tiefe. */
-  var neig = 0, hRinne = 250, riH = 22, spH = 11, glas = 0.8;
-  if (gegen) neig = 2 * Math.PI / 180;
-  var T1 = 300, T2 = 600;
-  function okHinten(T) {
-    var ukVorn = hRinne + riH - glas - spH;
-    return ukVorn + Math.tan(neig) * T + spH + glas;
-  }
-  var vorne = hRinne + riH;
-  var ok = Math.abs(okHinten(T1) - vorne) < 0.001 &&
-           Math.abs(okHinten(T2) - vorne) < 0.001;
-  pruefe('SkyView – Oberkante vorne wie hinten, bei jeder Tiefe', ok,
-         'vorne ' + vorne.toFixed(1) + ', hinten bei 6 m ' +
-         okHinten(T2).toFixed(1) + ' cm');
+  /* Zweiter Weg: Das Band muss rundum dieselbe Ober- UND Unterkante
+     haben – vorne die Rinne, hinten der Träger, seitlich die Blende.
+     Gerechnet mit den Formeln aus dem Code.
+
+     Diese Pruefung hat den Fehler gefunden, dass der Traeger hinten
+     seine feste Hoehe behielt, waehrend die Rinne mit der Tiefe wuchs:
+     oben buendig, unten 11 cm auseinander. */
+  var fw = (k3d.match(/var wpH = sky \? ([^:]+):/) || [])[1];
+  var fo = (k3d.match(/var wpOk = sky \? ([^:]+):/) || [])[1];
+  if (!fw || !fo) { pruefe('Rahmenformeln lesbar', false, 'nicht gefunden'); return; }
+  if (gegen) fw = '22.0';
+  var hRinne = 250, riH = 33.4;
+  var wpH = eval(fw), wpOk = eval(fo);
+  var rinneOk = hRinne + riH, rinneUk = hRinne;
+  var traegerOk = wpOk, traegerUk = wpOk - wpH;
+  /* Die Seitenblende sitzt mittig auf derselben Hoehe. */
+  var blendeOk = hRinne + riH / 2 + riH / 2, blendeUk = hRinne + riH / 2 - riH / 2;
+  var falsch = [];
+  if (Math.abs(traegerOk - rinneOk) > 0.001) falsch.push('Oberkante Träger');
+  if (Math.abs(traegerUk - rinneUk) > 0.001) falsch.push('Unterkante Träger');
+  if (Math.abs(blendeOk - rinneOk) > 0.001) falsch.push('Oberkante Blende');
+  if (Math.abs(blendeUk - rinneUk) > 0.001) falsch.push('Unterkante Blende');
+  pruefe('SkyView – das Band ist rundum gleich hoch', !falsch.length,
+         falsch.length ? falsch.join(', ') : 'Rinne, Träger und Blende bündig');
 })();
 (function () {
   /* BELEGT, S. 25: „an den Seiten jeweils ein Abstand von 0 mm".

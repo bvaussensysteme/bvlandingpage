@@ -312,8 +312,12 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
 - **SkyView: Querschnittszeichnungen der Profile.** Die Montageanleitung
   (07.11.2025) ist jetzt eingearbeitet, sie bemaßt aber keine
   Profilquerschnitte. Sparren und Glasleisten sind laut Betreiber
-  dieselben wie bei TDS und damit belegt. GESCHÄTZT bleiben nur noch:
-  Rahmenhöhe 220 mm und Blendendicke.
+  dieselben wie bei TDS und damit belegt. GESCHÄTZT bleiben: die
+  Blendendicke und der Platz, den die Rinne unter dem Dach braucht
+  (55 mm). **Offene Frage:** Wie hoch ist der Rahmen wirklich, und wie
+  wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
+  wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
+  44 cm) – das ist eine Modellregel, kein Herstellermaß.
   ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
   Träger je 140 mm tief. Mit den Zeichnungen zu Rinne Flat (16553),
   Träger TD (15698), Seitenblende Sky (6069) und Glasleiste (15184)
