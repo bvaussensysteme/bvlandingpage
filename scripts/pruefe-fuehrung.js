@@ -1687,6 +1687,23 @@ pruefe('Keilglas geht in die Anfrage',
          falsch === 0 ? 'Klick → aendern → panelAnpassen' : meld.join('; '));
 })();
 
+(function () {
+  /* „bitte neben den button ,Andere / Beratung' nicht dadrunter"
+     (Betreiber, 11.10.2026): Das Eingabefeld steht als eigene Zelle IM
+     Farbraster, direkt hinter dem Knopf. */
+  var raster = (html.match(/<div class="k3d-farben"[\s\S]*?<\/div>\s*\n/) || [''])[0];
+  var drin = /id="k3dRalCode"/.test(raster);
+  var hinterKnopf = raster.indexOf('data-k3d-farbe="Andere / Beratung"') <
+                    raster.indexOf('id="k3dRalCode"');
+  if (gegen) drin = !drin;
+  pruefe('RAL-Feld steht neben dem Knopf', drin && (gegen || hinterKnopf),
+         drin ? 'im Farbraster, hinter „Andere / Beratung"' : 'steht darunter');
+})();
+pruefe('Unbekannter Ton faellt auf',
+       new RegExp(q || "classList\\.toggle\\('ist-warnung', warnt\\)").test(js) &&
+       new RegExp(q || 'k3d-mini\\.ist-warnung').test(html),
+       'sonst wirkt die Eingabe wirkungslos');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

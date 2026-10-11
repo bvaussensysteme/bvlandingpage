@@ -4142,3 +4142,39 @@ optionalen Feld zuerst prüfen: Ruft der Auslöser `aendern()`?
 **Prüfung.** Die neue verfolgt die Kette Klick → `aendern` →
 `panelAnpassen` und verbietet die alte Abkürzung.
 `scripts/pruefe-fuehrung.js` jetzt 201, Gegenprobe 201 von 201.
+
+## 11.10.2026 – RAL-Feld neben den Knopf, und warum 3015 nichts ändert
+
+**Anlass.** „bitte neben den button ‚Andere / Beratung' nicht dadrunter
+und die farbe des der konstruktion ändert sich nicht" (Betreiber, mit
+Bildschirmfoto: eingetippt war RAL 3015).
+
+**Zur Lage.** Das Feld sitzt jetzt als eigene Zelle IM Farbraster,
+direkt hinter dem Knopf – die Zelle daneben war ohnehin leer. Gestrichelter
+Rahmen, damit man sieht: gehört dazu, ist aber keine Farbe zum Anklicken.
+
+**Zur Farbe: das ist kein Fehler, sondern eine Lücke.** RAL 3015
+(Hellrosa) steht nicht in der Liste der hinterlegten Töne – hinterlegt
+sind 53 Farben, die im Metallbau vorkommen, überwiegend Grau, Weiß,
+Schwarz und ein paar gängige Bunttöne. Für alles andere zeigt das Modell
+weiter Anthrazit.
+
+**Warum ich die fehlenden Werte nicht einfach ergänze.** RAL hat 213
+Farben der Classic-Reihe. Ich könnte Zahlenwerte aus dem Gedächtnis
+hinschreiben – bei den gängigen Grautönen stimmt das, bei Rosa, Oliv
+oder Purpur wäre es geraten. Ein um zwei Nuancen falscher Ton ist
+schlimmer als gar keiner: Der Kunde bestellt nach dem, was er gesehen
+hat, und reklamiert später die Farbe. Deshalb bleibt es bei den belegten
+Werten, bis eine Liste vorliegt (VD-Farbkarte oder die RAL-Werte, mit
+denen beschichtet wird).
+
+**Was stattdessen passiert.** Steht die Nummer nicht in der Liste, sagt
+das Bedienfeld es jetzt deutlich – gold hervorgehoben statt im Kleingedruckten:
+„RAL 3015 können wir im Modell noch nicht darstellen. Das Bild bleibt
+anthrazit – lieferbar ist die Farbe trotzdem, sie steht in Ihrer
+Anfrage." Vorher stand dasselbe grau und unscheinbar da; deshalb wirkte
+die Eingabe wirkungslos.
+
+**Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 203, Gegenprobe
+203 von 203; neu: Das Feld muss IM Farbraster hinter dem Knopf stehen,
+und der Hinweis muss als Warnung hervorgehoben werden.
