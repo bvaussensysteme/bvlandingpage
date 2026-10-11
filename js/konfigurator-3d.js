@@ -1166,7 +1166,11 @@
     if (!e.freistehend) seitenErweiterungen(B, T, hVorn, pf, neig);
     if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf, {
       tiefe: T,
-      ok: function (z) { return yDach + Math.tan(neig) * (T / 2 - z) + 0.8; }
+      ok: function (z) { return yDach + Math.tan(neig) * (T / 2 - z) + 0.8; },
+      sparrenL: laenge,
+      uk: function (z) {
+        return mitteY + Math.tan(neig) * (T / 2 - z) - spH / 2;
+      }
     });
     else verkleidung(B, T, hVorn - 1, pf);
 
@@ -1587,6 +1591,152 @@
     }
   }
 
+  /* ---------- Unterdachmarkise TDS Linea U / Linea UZ ----------
+     Maße aus der technischen Zeichnung des Herstellers
+     („TDS_Linea U - Linea UZ", Stand 01.07.2025), vom Betreiber am
+     11.10.2026 geschickt. BELEGT sind daraus:
+       · Bestellmaß Breite = Dachbreite − 142 mm
+       · Bestellmaß Tiefe  = Sparrenlänge − 45 mm (ausdrücklich „TDS:")
+       · Kassette 162 mm hoch, Korpus 150 mm, Tiefe 238 mm (oben 227 mm)
+       · Kasten/Endkappe vorne 80 mm hoch, Endkappe 41 mm
+       · Konsole 19 mm über der Kastenoberkante, 5 mm Luft zur
+         Sparrenunterkante, Säule 80 mm, Fußplatte 100 mm
+       · 10 mm Luft zwischen Sparren-Innenkante und Markisenkante
+       · 37 mm von der Markisenkante bis zur Befestigungsachse
+       · erste Konsole 345–395 mm hinter der Kassette, letzte
+         150–1000 mm vor dem Ende, dazwischen gleichmäßig („=")
+
+     Die 142 mm sind ein unabhängiger Gegenbeleg für unser Sparrenraster:
+     Achse 30 mm vom Rand (Montageanleitung S. 33) plus halbe Sparren-
+     breite 30,5 mm ergibt die Innenkante bei 60,5 mm, also ein Innenmaß
+     von B − 121 mm; abzüglich zweimal 10 mm Luft bleibt B − 141 mm. Die
+     Zeichnung sagt 142. Zwei Wege, dieselbe Zahl.
+
+     GESCHÄTZT sind: die Breite der seitlichen Führungsschienen (in
+     dieser Zeichnung nicht bemaßt) und die Frage, WO die 45 mm Abzug in
+     der Tiefe sitzen – hier je zur Hälfte vorne und hinten.
+
+     Widerspruch in der Zeichnung, GEGENZULESEN: Von der Sparren-
+     Innenkante bis zur Befestigungsachse wären es 10 + 37 = 47 mm,
+     bemaßt sind 60 mm. Vermutlich meinen die 60 mm die Außenkante der
+     Konsole, nicht die Achse. Fürs Modell ohne Folgen, fürs Aufmaß nicht. */
+  var MARKISE_U = {
+    kasHoehe:      16.2,   // 162 mm BELEGT
+    kasTiefe:      23.8,   // 238 mm BELEGT (oben 227 mm)
+    kastenH:        8.0,   // 80 mm BELEGT
+    endkappe:       4.1,   // 41 mm BELEGT
+    konsoleH:       1.9,   // 19 mm BELEGT
+    luftSparren:    0.5,   // 5 mm BELEGT
+    saeuleB:        8.0,   // 80 mm BELEGT
+    platteB:       10.0,   // 100 mm BELEGT
+    platteD:        0.6,   // GESCHÄTZT, wie bei Linea A
+    schieneB:       6.0,   // GESCHÄTZT, in dieser Zeichnung ohne Maß
+    breiteAbzug:   14.2,   // 142 mm BELEGT
+    tiefeAbzug:     4.5,   // 45 mm BELEGT
+    ersteKonsole:  37.0,   // min. 345 / max. 395 mm BELEGT
+    letzteKonsole: 25.0,   // min. 150 / max. 1000 mm BELEGT
+    feldMax:      100.0    // max. 1000 mm BELEGT
+  };
+
+  /* Querschnitt der Kassette, gespiegelt zur Aufdachmarkise: Sie hängt
+     unter dem Dach, die Rundung zeigt nach unten, die Oberkante ist
+     gerade und liegt an den Konsolen an. x = Tiefe ab der Wandseite,
+     y = Höhe ab Kassettenunterkante. */
+  function markisenKassetteU() {
+    var t = MARKISE_U.kasTiefe, h = MARKISE_U.kasHoehe;
+    var f = new THREE.Shape();
+    f.moveTo(t, h);
+    f.lineTo(t * 0.33, h);
+    f.quadraticCurveTo(t * 0.06, h * 0.97, t * 0.035, h * 0.66);
+    f.quadraticCurveTo(t * 0.012, h * 0.34, t * 0.14, h * 0.13);
+    f.quadraticCurveTo(t * 0.27, h * -0.03, t * 0.47, h * 0.06);
+    f.quadraticCurveTo(t * 0.66, h * 0.16, t * 0.81, h * 0.33);
+    f.lineTo(t, h * 0.45);
+    f.closePath();
+    return f;
+  }
+
+  /* B = Dachbreite, neig = Dachneigung, aus = Ausfahrgrad 0..1,
+     dach.uk(z) = Unterkante der Sparren bei der Tiefe z,
+     dach.sparrenL = Sparrenlänge in der Dachebene. */
+  function unterdachmarkise(B, neig, aus, mStoff, dach) {
+    var M = MARKISE_U, mAlu = alu();
+    var L = Math.max(60, dach.sparrenL - M.tiefeAbzug);   // Bestellmaß Tiefe
+    var z0 = M.tiefeAbzug / 2;                            // GESCHÄTZT: halbe/halbe
+    var breite = Math.max(60, B - M.breiteAbzug);         // Bestellmaß Breite
+
+    var mu = new THREE.Group();
+    mu.position.set(0, dach.uk(0), 0);
+    mu.rotation.x = neig;
+    bau.add(mu);
+
+    function teil(mesh) {
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      mu.add(mesh);
+      return mesh;
+    }
+
+    /* Alles hängt unter der Sparrenunterkante (y = 0), deshalb negativ. */
+    var okKasten = -(M.luftSparren + M.konsoleH);
+    var ukKasten = okKasten - M.kastenH;
+    var xS = [breite / 2 - M.schieneB / 2, -breite / 2 + M.schieneB / 2];
+
+    /* Seitliche Führungsschienen über die ganze Tiefe */
+    xS.forEach(function (x) {
+      teil(new THREE.Mesh(
+        new THREE.BoxGeometry(M.schieneB, M.kastenH, L), mAlu))
+        .position.set(x, ukKasten + M.kastenH / 2, z0 + L / 2);
+    });
+
+    /* Kassette hinten, Oberkante bündig mit der Kastenoberkante */
+    var gk = new THREE.ExtrudeGeometry(markisenKassetteU(),
+      { depth: breite, bevelEnabled: false, curveSegments: 8 });
+    gk.rotateY(-Math.PI / 2);
+    gk.translate(breite / 2, okKasten - M.kasHoehe, z0);
+    teil(new THREE.Mesh(gk, mAlu));
+
+    /* Endkappe vorne, 80 mm hoch */
+    teil(new THREE.Mesh(
+      new THREE.BoxGeometry(breite, M.kastenH, M.endkappe), mAlu))
+      .position.set(0, ukKasten + M.kastenH / 2, z0 + L - M.endkappe / 2);
+
+    /* Konsolen: sie greifen nach OBEN an die Sparren, nicht nach unten
+       auf das Dach – das ist der Unterschied zur Aufdachmarkise. */
+    var z1 = z0 + M.kasTiefe + M.ersteKonsole;
+    var z2 = Math.max(z1 + 1, z0 + L - M.letzteKonsole);
+    var felder = Math.max(1, Math.ceil((z2 - z1) / M.feldMax));
+    for (var i = 0; i <= felder; i++) {
+      var z = z1 + (z2 - z1) * i / felder;
+      xS.forEach(function (x) {
+        teil(new THREE.Mesh(new THREE.BoxGeometry(
+          M.platteB, M.platteD, M.platteB), mAlu))
+          .position.set(x, -M.platteD / 2, z);
+        teil(new THREE.Mesh(new THREE.BoxGeometry(
+          M.saeuleB, M.konsoleH, M.saeuleB * 0.55), mAlu))
+          .position.set(x, okKasten + M.konsoleH / 2, z);
+      });
+    }
+
+    /* Das Tuch läuft im Kasten zwischen den Schienen nach vorne.
+       Von unten sieht man genau das – deshalb liegt es knapp unter der
+       Kastenmitte. */
+    if (aus > 0.02) {
+      var start = z0 + M.kasTiefe * 0.95;
+      var lang = Math.max(1, (z0 + L - start - M.endkappe) * aus);
+      var tuchB = Math.max(1, breite - M.schieneB * 2 - 0.6);
+      var yTuch = ukKasten + M.kastenH * 0.38;
+      var tuch = new THREE.Mesh(
+        new THREE.BoxGeometry(tuchB, 0.3, lang), mStoff);
+      tuch.position.set(0, yTuch, start + lang / 2);
+      tuch.receiveShadow = true;
+      mu.add(tuch);
+      /* Ausfallprofil am vorderen Tuchende */
+      teil(new THREE.Mesh(
+        new THREE.BoxGeometry(tuchB + 1.2, 4.6, 3.2), mAlu))
+        .position.set(0, yTuch - 1.2, start + lang);
+    }
+  }
+
   /* ---------- Sonnenschutz ----------
      Die Aufdachmarkise liegt auf der Eindeckung und hält die Hitze vor dem
      Glas ab, die Unterdachmarkise läuft darunter und bleibt im Trockenen –
@@ -1618,17 +1768,13 @@
         tiefe: T - PROFIL,
         ok: function (z) { return hHinten - Math.tan(neig) * z + 13; }
       });
-    } else if (m === 'Unterdachmarkise' && aus > 0.02) {
-      var laenge = (T - PROFIL) * aus;
-      var zm = PROFIL / 2 + laenge / 2;
-      var y = hHinten - Math.tan(neig) * zm - 7;
-      var tuch = new THREE.Mesh(
-        new THREE.BoxGeometry(B - PROFIL * 2, 2.2, laenge), mStoff);
-      tuch.position.set(0, y, zm);
-      tuch.rotation.x = neig;
-      tuch.receiveShadow = true;
-      bau.add(tuch);
-      balken(B - PROFIL * 2, 13, 13, 0, hHinten - 14, PROFIL + 5, alu());
+    } else if (m === 'Unterdachmarkise') {
+      /* Wie bei der Aufdachmarkise: Kasten und Konsolen stehen auch bei
+         eingefahrenem Tuch da, sie sind montiert. */
+      unterdachmarkise(B, neig, aus, mStoff, dach || {
+        sparrenL: (T - PROFIL) / Math.cos(neig),
+        uk: function (z) { return hHinten - Math.tan(neig) * z - 12; }
+      });
     } else if (m === 'Plissees' && aus > 0.02) {
       /* Plissee: gerafftes Tuch zwischen den Sparren, von Hand bedient.
          Gezeichnet als Falten – daran erkennt man es vom Glas. */
@@ -2115,7 +2261,11 @@
       tiefe: T,
       ok: function (z) {
         return ukMitte + spH + glasDicke + Math.tan(neig) * (zMitte - z);
-      }
+      },
+      /* Die Unterdachmarkise haengt an den SPARREN, nicht auf dem Glas –
+         sie braucht deren Unterkante und deren Laenge. */
+      sparrenL: laenge,
+      uk: function (z) { return ukMitte + Math.tan(neig) * (zMitte - z); }
     });
 
     if (Z.led) {

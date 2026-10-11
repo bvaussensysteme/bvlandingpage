@@ -83,6 +83,50 @@ pruefe('Hardware steht auch bei eingefahrenem Tuch',
        new RegExp(q || "if \\(m === 'Aufdachmarkise'\\) \\{").test(src),
        'kein aus > 0.02 davor');
 
+/* ---------- Unterdachmarkise TDS Linea U / Linea UZ ---------- */
+var SOLL_U = {
+  kasHoehe: 162, kasTiefe: 238, kastenH: 80, endkappe: 41, konsoleH: 19,
+  luftSparren: 5, saeuleB: 80, platteB: 100,
+  breiteAbzug: 142, tiefeAbzug: 45, feldMax: 1000
+};
+var blockU = (src.match(/var MARKISE_U = \{[\s\S]*?\};/) || [''])[0];
+if (!blockU) { console.error('FEHLER  MARKISE_U-Block nicht gefunden'); process.exit(1); }
+function wertU(name) {
+  var m = blockU.match(new RegExp(name + ':\\s*([\\d.]+)'));
+  return m ? parseFloat(m[1]) * 10 : null;
+}
+Object.keys(SOLL_U).forEach(function (k) {
+  var ist = wertU(k), soll = SOLL_U[k] + (gegen ? 7 : 0);
+  pruefe('Linea U – Maß ' + k, ist !== null && Math.abs(ist - soll) < 0.5,
+         ist + ' mm (erwartet ' + soll + ')');
+});
+Object.keys(SPANNE).forEach(function (k) {
+  var n = k === 'ersteStuetze' ? 'ersteKonsole' : 'letzteKonsole';
+  var ist = wertU(n), sp = SPANNE[k];
+  var u = sp[0] + (gegen ? 1e6 : 0), o = sp[1] + (gegen ? 1e6 : 0);
+  pruefe('Linea U – Lage ' + n + ' in der Spanne',
+         ist !== null && ist >= u && ist <= o,
+         ist + ' mm (erwartet ' + u + '–' + o + ')');
+});
+
+/* Gegenbeleg fuer das Sparrenraster: Achse 30 mm vom Rand plus halbe
+   Sparrenbreite 30,5 mm ergibt die Innenkante; abzueglich 2 x 10 mm Luft
+   muss der Breitenabzug der Zeichnung herauskommen. */
+var ausRaster = 2 * (30 + 61 / 2) + 2 * 10 + (gegen ? 30 : 0);
+pruefe('Linea U – 142 mm decken sich mit dem Sparrenraster',
+       Math.abs(ausRaster - wertU('breiteAbzug')) <= 1.5,
+       'aus dem Raster ' + ausRaster + ' mm, Zeichnung ' + wertU('breiteAbzug') + ' mm');
+
+/* Die Unterdachmarkise haengt an den Sparren – sie braucht deren
+   Unterkante, nicht die Oberkante der Eindeckung. */
+pruefe('Linea U – haengt an der Sparrenunterkante',
+       new RegExp(q || 'dach\\.uk\\(0\\)').test(src), 'mu.position aus dach.uk(0)');
+pruefe('Linea U – Tiefe aus der Sparrenlaenge',
+       new RegExp(q || 'dach\\.sparrenL - M\\.tiefeAbzug').test(src),
+       'Sparrenlaenge − 45 mm');
+pruefe('Linea U – Breite aus der Dachbreite',
+       new RegExp(q || 'B - M\\.breiteAbzug').test(src), 'Dachbreite − 142 mm');
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
