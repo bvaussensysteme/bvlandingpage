@@ -2542,6 +2542,26 @@
       return n <= 2 ? 1 : 2;
     }
 
+    /* Wo liegen Kopfprofil und Bodenschiene quer zur Seite?
+
+       „mach es bei schienen die schmaler als der pfosten sind vermittelt
+       im pfosten und bei breiteren schienen als der pfosten pfosten
+       außen bündig" (Betreiber, 11.10.2026) – vorher standen sie auf der
+       Elementebene und schauten seitlich aus dem Pfosten heraus.
+
+         Schiene schmaler als der Pfosten -> mittig auf dem Pfosten
+         Schiene breiter als der Pfosten  -> außen bündig, der Überstand
+                                             geht nach innen
+
+       ACHTUNG: Für die SG23-Schiebeanlagen gilt eine ANDERE Regel
+       (schmaler = bündig innen, breiter = mittig, siehe
+       schienenVersatz). Beide stammen vom Betreiber, für verschiedene
+       Bauteile. Nicht vereinheitlichen, ohne zu fragen. */
+    function velarisVersatz(achse, quer, tiefe) {
+      var vz = innenRichtung(achse, quer);
+      return tiefe <= PROFIL ? 0 : vz * (tiefe - PROFIL) / 2;
+    }
+
     function velarisSchiebbar(n) {
       return Z.velarisArt === 'verschiebbar' && n <= VELARIS.schiebbarMax;
     }
@@ -2561,13 +2581,19 @@
                       art: velarisSchiebbar(anzahl) ? 'verschiebbar' : 'feststehend',
                       gewuenscht: Z.velarisArt,
                       licht: Math.round(laenge * 10) };
-      /* Schiene und Kopfprofil über die ganze Anlage – einmal. */
+      /* Schiene und Kopfprofil über die ganze Anlage – einmal, und auf
+         dem Pfosten statt daneben (siehe velarisVersatz). */
+      var tOben = VELARIS.tiefeOben[schienen] || VELARIS.tiefeOben[1];
+      var tUnten = VELARIS.tiefeUnten[schienen] || VELARIS.tiefeUnten[1];
       platte(rahmen, laenge, VELARIS.kopf, achse, mitte,
-             yUnten + hoehe + VELARIS.kopf / 2, quer, 0,
-             VELARIS.tiefeOben[schienen] || VELARIS.tiefeOben[1]);
+             yUnten + hoehe + VELARIS.kopf / 2, quer,
+             velarisVersatz(achse, quer, tOben), tOben);
+      /* Die Bodenschiene liegt IM Boden, nicht darauf: „bodenschiene ist
+         im boden barrierefrei eingelassen" (Betreiber). Ihre Oberkante
+         schließt mit dem Belag ab, der Rest steckt darin. */
       platte(rahmen, laenge, VELARIS.bodenSchiene, achse, mitte,
-             yUnten + VELARIS.bodenSchiene / 2, quer, 0,
-             VELARIS.tiefeUnten[schienen] || VELARIS.tiefeUnten[1]);
+             yUnten - VELARIS.bodenSchiene / 2, quer,
+             velarisVersatz(achse, quer, tUnten), tUnten);
       var elLaenge = laenge / anzahl;
       /* Verschiebbar: Die Elemente fahren wie die Glasschiebewände zur
          Seite – ABER nur, soweit die Schienen es zulassen.
@@ -2609,8 +2635,15 @@
       /* Verschiebbare Elemente laufen in getrennten Schienen – im Bild
          ist das der Versatz in der Tiefe. Feststehend liegen alle in
          einer Ebene. */
-      var spur = schienen > 1
-        ? innenRichtung(achse, quer) * (nr % schienen) * VELARIS.schienenAbstand : 0;
+      /* Jedes Element hängt in SEINEM Laufweg. Die Laufwege liegen
+         symmetrisch um die Mitte der Schiene, im Abstand von 51,3 mm –
+         der Wert fällt aus den belegten Bautiefen heraus. Gemessen wird
+         ab der Schiene, nicht ab dem Pfosten: Sonst läge das Element
+         neben seiner eigenen Schiene, sobald diese versetzt sitzt. */
+      var vz = innenRichtung(achse, quer);
+      var tSchiene = VELARIS.tiefeOben[schienen] || VELARIS.tiefeOben[1];
+      var spur = velarisVersatz(achse, quer, tSchiene) +
+                 vz * ((nr % schienen) - (schienen - 1) / 2) * VELARIS.schienenAbstand;
       achse = achse + spur;
 
       /* Das Element hängt: Es beginnt über der Bodenschiene und endet
@@ -2829,7 +2862,9 @@
         }
       }
       if (liste.indexOf('Velaris') > -1) {
-        velaris(laenge, hoch, achse + aussen * 1.6, mitte, yUnten, quer);
+        /* Die Pfostenachse, nicht die Elementebene: Wo die Schienen
+           liegen, hängt am Pfosten – siehe velarisVersatz(). */
+        velaris(laenge, hoch, achse, mitte, yUnten, quer);
       }
 
       /* Keil: das Dreieck zwischen waagerechter Oberkante des Elements und
