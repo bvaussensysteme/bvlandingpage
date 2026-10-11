@@ -1530,26 +1530,26 @@
         var hZ = hoch * (Z.sonneAus / 100);
         var okKas = yUnten + hoch;                 // unter der Dachkante
         var ukKas = okKas - ZIP.kassette;
-        zipKassette(laenge, achse, mitte, okKas, quer, aussen);
+        sonneTeil(zipKassette(laenge, achse, mitte, okKas, quer, aussen));
 
         [-1, 1].forEach(function (v) {
           var m = mitte + v * (laenge - ZIP.schieneB) / 2;
-          platte(rahmen, ZIP.schieneB, hoch, achse, m,
-                 yUnten + hoch / 2, quer, aussen, ZIP.schieneT);
+          sonneTeil(platte(rahmen, ZIP.schieneB, hoch, achse, m,
+                 yUnten + hoch / 2, quer, aussen, ZIP.schieneT));
         });
 
         /* BELEGT (Anleitung S. 5): ab 400 cm Markisenbreite kommt eine
            Kastenunterstuetzung dazu. */
         if (laenge > ZIP.stuetzeAb) {
-          platte(rahmen, 6, 6, achse, mitte, okKas + 3, quer, aussen, 6);
+          sonneTeil(platte(rahmen, 6, 6, achse, mitte, okKas + 3, quer, aussen, 6));
         }
 
         if (hZ > 5) {
           var tuchH = Math.max(1, hZ - ZIP.kassette);
-          platte(mStoff, laenge - ZIP.schieneB * 2, tuchH, achse, mitte,
-                 ukKas - tuchH / 2, quer, aussen, 1.2);
-          platte(rahmen, laenge - ZIP.schieneB * 2, ZIP.fallstange, achse,
-                 mitte, ukKas - tuchH + ZIP.fallstange / 2, quer, aussen, 3.2);
+          sonneTeil(platte(mStoff, laenge - ZIP.schieneB * 2, tuchH, achse, mitte,
+                 ukKas - tuchH / 2, quer, aussen, 1.2));
+          sonneTeil(platte(rahmen, laenge - ZIP.schieneB * 2, ZIP.fallstange, achse,
+                 mitte, ukKas - tuchH + ZIP.fallstange / 2, quer, aussen, 3.2));
         }
       }
       if (liste.indexOf('Velaris') > -1) {
@@ -1713,6 +1713,7 @@
     var M = MARKISE, mAlu = alu();
     var L = dach.tiefe / Math.cos(neig);        // Länge IN der Dachebene
     var mk = new THREE.Group();
+    mk.userData.sonne = true;          // im Bild anklickbar
     mk.position.set(0, dach.ok(0), 0);
     mk.rotation.x = neig;
     bau.add(mk);
@@ -1863,6 +1864,7 @@
     var breite = Math.max(60, B - M.breiteAbzug);         // Bestellmaß Breite
 
     var mu = new THREE.Group();
+    mu.userData.sonne = true;          // im Bild anklickbar
     mu.position.set(0, dach.uk(0), 0);
     mu.rotation.x = neig;
     bau.add(mu);
@@ -1995,6 +1997,7 @@
           fa.position.set(xm, yq + (q % 2 ? 1.6 : 0), zq);
           fa.rotation.x = neig;
           fa.castShadow = true;        // fehlte, wie bei der Unterdachmarkise
+          sonneTeil(fa);
           bau.add(fa);
         }
       }
@@ -2014,6 +2017,7 @@
         bahn.position.set(0, hHinten - Math.tan(neig) * zi + 16 - durchhang, zi);
         bahn.rotation.x = neig;
         bahn.castShadow = true;
+        sonneTeil(bahn);
         bau.add(bahn);
       }
     }
@@ -2596,6 +2600,7 @@
         var zip = new THREE.Mesh(new THREE.BoxGeometry(T - RAHMEN_B * 2, h - 4, 1.2), mZip);
         zip.position.set(x, (h - 4) / 2 + 2, T / 2);
         zip.rotation.y = Math.PI / 2;
+        sonneTeil(zip);
         bau.add(zip);
       });
     } else if (Z.pgSeitenschutz === 'Glas-Schiebeelemente') {
@@ -2767,6 +2772,65 @@
   };
 
   /* ---------- Bedienung ---------- */
+  /* ---------- Markise im Bild anklicken ----------
+     Wunsch des Betreibers (11.10.2026): „wenn man die markise anklickt
+     egal ob aufdah, unterdach oder senkrecht, soll diese
+     öffnen/schließen".
+
+     Jedes Markisenteil traegt dafuer userData.sonne. Beim Klick wird der
+     Strahl durch das Bild geschossen und am Treffer nach oben durch die
+     Eltern gelaufen – so zaehlt auch ein Treffer auf ein Teil, das in
+     einer Gruppe steckt (Auf- und Unterdachmarkise sind Gruppen).
+
+     Unterschieden wird Klick von Drehen: Wer die Kamera dreht, bewegt
+     den Zeiger. Erst unter 6 Pixel Weg und unter einer halben Sekunde
+     gilt es als Klick. */
+  function sonneTeil(m) { if (m) m.userData.sonne = true; return m; }
+
+  var strahl = new THREE.Raycaster();
+  var klickStart = null;
+
+  function istMarkise(objekt) {
+    for (var o = objekt; o; o = o.parent) if (o.userData && o.userData.sonne) return true;
+    return false;
+  }
+
+  /* Faehrt die Markise weich aus oder ein, statt sie springen zu lassen –
+     das Ausfahren IST die Bewegung, um die es geht. Der Takt entspricht
+     dem, was beim Ziehen am Regler ohnehin passiert. */
+  var sonneLaeuft = null;
+  function sonneFahren(ziel) {
+    if (sonneLaeuft) clearInterval(sonneLaeuft);
+    var start = Z.sonneAus, t0 = Date.now(), dauer = 650;
+    var regler = document.getElementById('k3dSonneAus');
+    sonneLaeuft = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / dauer);
+      var w = Math.round(start + (ziel - start) * (p < 0.5
+        ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2));
+      if (regler) regler.value = w;
+      Z.sonneAus = w;
+      aendern();
+      if (p >= 1) { clearInterval(sonneLaeuft); sonneLaeuft = null; }
+    }, 40);
+  }
+
+  function markiseGeklickt(e) {
+    if (!gruppeGilt('sonne-aus')) return false;
+    var r = leinwand.getBoundingClientRect();
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects(bau.children, true);
+    for (var i = 0; i < treffer.length; i++) {
+      if (istMarkise(treffer[i].object)) {
+        sonneFahren(Z.sonneAus > 50 ? 0 : 100);
+        return true;
+      }
+      break;                       // nur das vorderste Teil zaehlt
+    }
+    return false;
+  }
+
   var zieht = false, letzteX = 0, letzteY = 0, letzterAbstand = 0;
 
   function abstand(e) {
@@ -2779,6 +2843,7 @@
     if (e.pointerType === 'touch' && e.isPrimary === false) return;
     zieht = true; autoDreht = false;
     letzteX = e.clientX; letzteY = e.clientY;
+    klickStart = { x: e.clientX, y: e.clientY, t: Date.now() };
     if (leinwand.setPointerCapture) { try { leinwand.setPointerCapture(e.pointerId); } catch (x) {} }
   });
 
@@ -2790,7 +2855,14 @@
     kameraSetzen();
   });
 
-  window.addEventListener('pointerup', function () { zieht = false; });
+  window.addEventListener('pointerup', function (e) {
+    zieht = false;
+    if (!klickStart) return;
+    var weg = Math.abs(e.clientX - klickStart.x) + Math.abs(e.clientY - klickStart.y);
+    var zeit = Date.now() - klickStart.t;
+    klickStart = null;
+    if (weg < 6 && zeit < 500) markiseGeklickt(e);
+  });
   window.addEventListener('pointercancel', function () { zieht = false; });
 
   leinwand.addEventListener('wheel', function (e) {
