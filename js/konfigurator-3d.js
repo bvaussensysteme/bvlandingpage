@@ -1609,7 +1609,7 @@
      Herstellerangabe – 1050 mm, also etwa Terrassentürbreite. Mit ihr
      landet jede lieferbare Anlagenbreite zwischen 750 und 1250 mm
      Scheibenbreite; scripts/pruefe-masstabelle.js rechnet das Band für
-     alle Breiten von 1500 bis 7000 mm nach. GEGENZULESEN: Wenn im Verkauf
+     alle Breiten bis 7000 mm nach. GEGENZULESEN: Wenn im Verkauf
      eine andere Aufteilung üblich ist, ist das die eine Zahl, die man
      dafür ändert.
 
@@ -1617,6 +1617,27 @@
      4-rails-4-türig beide 1000 mm): weniger Schienen gewinnt. Die
      Bodenschiene wird dadurch schmaler, man stolpert über weniger. */
   var ZIEL_SCHEIBE = 1050;   // mm, gestalterisch gesetzt
+
+  /* ---------- Welche Bauart ist in einem Maß möglich? ----------
+     KORREKTUR 11.10.2026: „jetzt sind die anderen möglichkeiten weg"
+     (Betreiber). Bei einem schmalen Pfostenfach von 2336 mm stand nur
+     noch eine einzige Bauart zur Auswahl.
+
+     Ursache war meine Leseart der Unterlage. Dort steht über jeder
+     Spalte „Breite bis" – die Spalten sind also OBERGRENZEN, und die
+     kleinste Spalte deckt alles darunter mit ab. Ich hatte die kleinste
+     Spalte als MINDESTBREITE gelesen: 3-türig „ab 2500 mm". Richtig ist:
+     3-türig bis 2500 mm, also auch bei 2336 mm bestellbar.
+
+     Eine untere Grenze gibt es trotzdem, sonst stünden bei 2336 mm auch
+     10 Flügel à 234 mm zur Wahl. Als Grenze dient die SCHMALSTE SCHEIBE,
+     die die Unterlage selbst führt: 5-rails 10-türig bei 4000 mm, also
+     400 mm. Was der Hersteller tabelliert, baut er auch. */
+  var SCHEIBE_MIN = 400;     // mm, schmalste Scheibe der Unterlage
+
+  function sg23Passt(b, breiteMm) {
+    return breiteMm <= b[3] && breiteMm / b[1] >= SCHEIBE_MIN;
+  }
 
   /* HANDAUSWAHL. „system machts automatisch, aber bei erweiterte
      einstellungen kann man es selbst wählen" (Betreiber, 11.10.2026).
@@ -1670,7 +1691,7 @@
     var sch = parseInt(teile[0], 10), fl = parseInt(teile[1], 10);
     var hit = null;
     SG23.bauarten.forEach(function (b) {
-      if (b[0] === sch && b[1] === fl && breiteMm >= b[2] && breiteMm <= b[3]) hit = b;
+      if (b[0] === sch && b[1] === fl && sg23Passt(b, breiteMm)) hit = b;
     });
     return hit;
   }
@@ -1680,7 +1701,7 @@
     if (hand) return hand;
     var treffer = null, bestAbstand = Infinity;
     SG23.bauarten.forEach(function (b) {
-      if (breiteMm < b[2] || breiteMm > b[3]) return;
+      if (!sg23Passt(b, breiteMm)) return;
       var abstand = Math.abs(breiteMm / b[1] - ZIEL_SCHEIBE);
       if (abstand < bestAbstand - 0.5 ||
           (Math.abs(abstand - bestAbstand) <= 0.5 && treffer && b[0] < treffer[0])) {
@@ -3784,7 +3805,7 @@
 
   /* ---------- Grenzen der Schiebeanlage ----------
      BELEGT (SG23-Unterlage, Stand 01.08.2026): außen höchstens 2450 mm
-     hoch (Windlast), lieferbar von 1500 bis 7000 mm Breite, gerechnet in
+     hoch (Windlast), Breite bis 7000 mm, gerechnet in
      Schritten von 500 mm.
 
      Das ist keine Spielerei: Die Durchgangshöhe geht im Konfigurator bis
@@ -3811,7 +3832,7 @@
       var html = '<option value="">Automatisch' +
         (auto ? ' – ' + auto[1] + '-türig' : '') + '</option>';
       SG23.bauarten.forEach(function (b) {
-        if (mass < b[2] || mass > b[3]) return;
+        if (!sg23Passt(b, mass)) return;
         html += '<option value="' + b[0] + '|' + b[1] + '">' + b[1] +
           '-türig, ' + b[0] + ' Schienen – Scheiben je ca. ' +
           Math.round(mass / b[1]) + ' mm</option>';
@@ -3834,7 +3855,8 @@
       var b = sg23Bauart(p[1], p[0]);
       if (!b) {
         zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +
-          ' mm – außerhalb der Standardbreiten (1500–7000 mm), Aufteilung nach Aufmaß');
+          ' mm – außerhalb der Standardbreiten (bis 7000 mm, Scheibe mindestens ' +
+          SCHEIBE_MIN + ' mm), Aufteilung nach Aufmaß');
         return;
       }
       zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] + ' mm licht' + zusatz +
@@ -3865,7 +3887,7 @@
     var maxL = Math.max.apply(null, laengen.concat([0]));
     if (maxL > 0 && !sg23Bauart(maxL)) {
       saetze.push('Für <b>' + maxL + ' mm</b> gibt es keine Standard-Bauart ' +
-        '(lieferbar 1500 bis 7000 mm) – die Seite wird geteilt.');
+        '(lieferbar bis 7000 mm) – die Seite wird geteilt.');
     }
     var teile = [];
     SG23_SEITEN.forEach(function (p) {

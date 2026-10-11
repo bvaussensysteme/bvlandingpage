@@ -1959,3 +1959,37 @@ zwischen den Pfosten, Maß je Feld – SG23, 3-rails, 3-türig …".
 **Gegenzulesen:** Alle drei Felder einzeln durchprobieren – eine Bauart
 wählen, Maß ändern, und prüfen, ob die Zeichnung folgt bzw. das Feld
 sauber auf „Automatisch" zurückspringt, wenn die Bauart nicht mehr passt.
+
+## 2026-10-11 – Die Tabellenspalten sind Obergrenzen, keine Mindestbreiten
+
+**Anlass:** „jetzt sind die anderen möglichkeiten weg" (Betreiber, mit
+Bildschirmfoto: bei einem Pfostenfach von 2336 mm stand nur noch eine
+einzige Bauart zur Auswahl).
+
+**Was falsch war – meine Leseart der Unterlage.** Über jeder Spalte steht
+„Breite **bis**". Die Spalten sind also Obergrenzen, und die kleinste
+Spalte deckt alles darunter mit ab. Ich hatte die kleinste Spalte als
+MINDESTBREITE gelesen: 3-türig „ab 2500 mm". Richtig ist: 3-türig **bis**
+2500 mm – bei 2336 mm also sehr wohl bestellbar.
+
+**Was jetzt gilt:** Eine Bauart passt, wenn die Breite ihr Höchstmaß
+nicht reißt UND die Scheibe nicht schmaler wird als **400 mm**. Diese
+Untergrenze ist nicht erfunden, sondern die schmalste Scheibe, die die
+Unterlage selbst führt (5-rails 10-türig bei 4000 mm). Was der Hersteller
+tabelliert, baut er auch.
+
+Bei 2336 mm stehen damit fünf Bauarten zur Auswahl statt einer, und
+10-türig mit 234-mm-Scheiben bleibt zu Recht draußen.
+
+**Die Automatik ändert sich dadurch kaum** – nachgerechnet für zehn
+Breiten von 1500 bis 7000 mm bleibt dieselbe Bauart; das Scheibenband
+wird sogar etwas enger (750 bis 1168 mm statt 750 bis 1250 mm).
+
+**Mitgeändert:** Die Hinweistexte sagen nicht mehr „lieferbar 1500 bis
+7000 mm", sondern „bis 7000 mm" mit dem Zusatz, dass die Scheibe
+mindestens 400 mm breit sein muss.
+
+**Gegenzulesen:** Ob VD unterhalb der kleinsten Spalte wirklich fertigt –
+mein Schluss stützt sich auf das Wort „bis" in der Spaltenüberschrift,
+nicht auf eine ausdrückliche Zusage. Falls es doch eine Mindestbreite je
+Bauart gibt, ist `sg23Passt()` die eine Stelle dafür.

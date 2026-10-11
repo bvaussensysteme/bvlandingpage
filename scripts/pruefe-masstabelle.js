@@ -328,17 +328,20 @@ pruefe('Keine Preise aus der SG23-Liste im Quelltext',
       arten.push([+sch, +fl, +von, +bis]); return '';
     });
   pruefe('Acht Bauarten eingelesen', arten.length === (gegen ? 7 : 8), arten.length + '');
+  function passt(a, b) { return b <= a[3] && b / a[1] >= 400; }
   function waehle(b) {
     var t = null;
-    arten.forEach(function (a) {
-      if (b >= a[2] && b <= a[3] && (!t || a[1] < t[1])) t = a;
-    });
+    arten.forEach(function (a) { if (passt(a, b) && (!t || a[1] < t[1])) t = a; });
     return t;
   }
   /* Belegte Eckwerte aus der Unterlage: unterste und oberste Breite je
      Bauart muessen eine Bauart finden, 1400 und 7500 keine. */
-  [[1500, true], [3000, true], [4000, true], [7000, true],
-   [1400, false], [7500, false]].forEach(function (f) {
+  /* Die Tabellenspalten sind OBERGRENZEN („Breite bis"), die kleinste
+     Spalte deckt alles darunter mit ab. Untere Grenze ist deshalb nicht
+     die kleinste Spalte, sondern die schmalste Scheibe der Unterlage
+     (400 mm bei 5-rails 10-tuerig und 4000 mm). */
+  [[1500, true], [2336, true], [3000, true], [7000, true],
+   [700, false], [7500, false]].forEach(function (f) {
     var hat = !!waehle(f[0]);
     if (gegen) hat = !hat;
     pruefe('Breite ' + f[0] + ' mm ' + (f[1] ? 'lieferbar' : 'nicht lieferbar'),
@@ -353,7 +356,7 @@ pruefe('Keine Preise aus der SG23-Liste im Quelltext',
   function waehleOptik(b) {
     var t = null, best = Infinity;
     arten.forEach(function (a) {
-      if (b < a[2] || b > a[3]) return;
+      if (!passt(a, b)) return;
       var ab = Math.abs(b / a[1] - ZIEL);
       if (ab < best - 0.5 || (Math.abs(ab - best) <= 0.5 && t && a[0] < t[0])) {
         t = a; best = ab;
@@ -379,6 +382,32 @@ pruefe('Keine Preise aus der SG23-Liste im Quelltext',
   pruefe('Alte Faustregel haette das Band gerissen',
          gegen ? alteRegel <= 1250 : alteRegel > 1250,
          Math.round(alteRegel) + ' mm bei 3500 mm Anlage');
+})();
+
+/* Die kleinste Tabellenspalte ist eine OBERGRENZE, keine Mindestbreite.
+   Vorher stand in einem schmalen Pfostenfach nur eine einzige Bauart zur
+   Auswahl – „jetzt sind die anderen möglichkeiten weg" (Betreiber). */
+pruefe('Untergrenze ist die Scheibenbreite, nicht die Tabellenspalte',
+       new RegExp(q || 'breiteMm <= b\\[3\\] && breiteMm / b\\[1\\] >= SCHEIBE_MIN').test(k3d), '');
+pruefe('Schmalste Scheibe aus der Unterlage',
+       gegen ? !/SCHEIBE_MIN = 400;/.test(k3d) : /SCHEIBE_MIN = 400;/.test(k3d),
+       '5-rails 10-tuerig bei 4000 mm');
+pruefe('Keine Mindestbreite mehr abgefragt',
+       gegen ? /breiteMm >= b\[2\]/.test(k3d) : !/breiteMm >= b\[2\]/.test(k3d), '');
+(function () {
+  /* Ein schmales Pfostenfach muss mehr als eine Bauart anbieten –
+     sonst ist das Auswahlfeld sinnlos. */
+  var arten2 = [[3,2,1500,3000],[3,3,2500,4000],[3,4,3000,5000],[4,4,3000,5000],
+                [5,5,4000,6000],[3,6,4000,6500],[4,8,3000,7000],[5,10,4000,6000]];
+  function passt2(a, b) { return b <= a[3] && b / a[1] >= 400; }
+  var n = arten2.filter(function (a) { return passt2(a, 2336); }).length;
+  if (gegen) n = 1;
+  pruefe('Schmales Feld bietet mehrere Bauarten', n >= 3, n + ' bei 2336 mm');
+  /* Und keine absurd schmalen: 10-tuerig bei 2336 mm waere 234 mm. */
+  var zuSchmal = arten2.filter(function (a) {
+    return passt2(a, 2336) && 2336 / a[1] < 400;
+  }).length + (gegen ? 1 : 0);
+  pruefe('Keine Scheibe unter 400 mm angeboten', zuSchmal === 0, zuSchmal + ' gefunden');
 })();
 
 pruefe('Auswahl nach Scheibenbreite, nicht nach Fluegelzahl',
