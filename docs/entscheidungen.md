@@ -2639,3 +2639,42 @@ nicht mehr höher stehen als die Planke, die er trägt.
 
 **Gegenzulesen:** Bei halbhoher Wand darf über der obersten Planke kein
 Winkelstück stehenbleiben – von schräg oben schauen.
+
+## 2026-10-11 – Was das VD-Anfrageformular SG23 korrigiert hat
+
+**Anlass:** Der Betreiber hat das Bestellformular „SG23 SlideGlas
+Schiebeelemente" geschickt. Vier Dinge daraus, drei davon waren vorher
+falsch oder fehlten ganz.
+
+**1. Griffhöhe 1100 mm, nicht 1050.** Im Formular angekreuzt: „1100 mm
+Standard", daneben ein Feld „andere Höhe ___ mm". Die 1050 mm stammten
+aus einer Netzrecherche zur üblichen Drückerhöhe und waren als Annahme
+gekennzeichnet – 50 mm daneben, und am Modell sichtbar. **BELEGT.**
+
+**2. Es gibt genau zwei Glasarten:** ESG 10 mm klar und ESG 10 mm
+satinato. Damit ist die offene Frage „soll ESG grau wählbar sein?"
+beantwortet: **Grau gibt es nicht.** Beide sind jetzt wählbar; satinato
+ist im Modell deutlich weniger durchsichtig, rauer und ohne Spiegelung –
+sonst sähe es aus wie klares Glas mit Schleier. Die 10 mm im Modell
+waren richtig.
+
+**3. Die Blickrichtung.** Im Formular rot hervorgehoben: **„Ansicht der
+Elemente von Innen gesehen!"** Unser Modell benennt die Seiten ebenso,
+aber in der Anfrage-Mail stand das nirgends. Dieselbe Angabe lässt sich
+spiegelverkehrt lesen, und das merkt niemand vor der Montage. Steht
+jetzt als eigene Zeile in der Mail und als Satz am Schloss-Feld.
+
+**4. Zwei Bestellpositionen fehlten:** das **Schloss** (links oder
+rechts, stückweise) und die **Bürstendichtung** („Bürstenprofil inkl.
+Bürsten 2500 mm", stückweise). Das Schloss ist jetzt wählbar – es wird
+im Modell NICHT gezeigt, das steht auch so im Bedienfeld. Die
+Bürstendichtung steht als Position in der Mail, mit der Lieferlänge
+2500 mm und dem Zusatz „Bedarf nach Aufmaß": Wie viele Stangen gebraucht
+werden, hängt an der Aufteilung und wird hier nicht geraten.
+
+**Nicht übernommen:** Preise stehen keine im Formular, und die
+Kundendaten-Felder gehen uns nichts an.
+
+**Was ich NICHT sicher lesen konnte:** die genauen Flügelzahlen je
+Ausführungsbild. Unsere Bauartentabelle stammt aus der Preisliste und
+sieht stimmig aus – geprüft ist sie damit nicht. Bleibt offen.

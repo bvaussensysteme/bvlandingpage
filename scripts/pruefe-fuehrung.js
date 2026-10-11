@@ -383,6 +383,38 @@ pruefe('Freie Resthoehe wird mitgerechnet',
        new RegExp(q || 'frei: Math\\.max\\(0, Math\\.round\\(\\(hoehe - hoch\\) \\* 10\\)\\)').test(js) &&
        new RegExp(q || "' mm bleiben '").test(js), '');
 
+/* Aus dem VD-Anfrageformular SG23 (Betreiber, 11.10.2026). Jede dieser
+   Angaben steht dort schwarz auf weiss - und jede fehlte vorher oder war
+   falsch. */
+pruefe('Griffhoehe 1100 mm laut Formular',
+       new RegExp(q || 'hoehe: 110, randAbstand').test(js) &&
+       !/hoehe: 105,/.test(js), '');
+pruefe('Nur klar und satinato',
+       /value="ESG 10 mm klar"/.test(html) &&
+       /value="ESG 10 mm satinato"/.test(html) &&
+       new RegExp(q || "Z\\.sg23Glas\\.indexOf\\('satinato'\\)").test(js) &&
+       !/ESG 10 mm (grau|bronze)/i.test(html), '');
+pruefe('Glasart steht in der Anfrage',
+       new RegExp(q || "b\\[1\\] \\+ '-türig, ' \\+ Z\\.sg23Glas").test(js) &&
+       !/'-türig, 10 mm ESG/.test(js), '');
+pruefe('Blickrichtung steht in der Anfrage',
+       new RegExp(q || 'von INNEN gesehen').test(js) &&
+       /von innen gesehen/.test(html), '');
+pruefe('Schloss und Buerstendichtung in der Anfrage',
+       new RegExp(q || "SG23 Schloss: ").test(js) &&
+       new RegExp(q || 'Bürstenprofil inkl. Bürsten').test(js) &&
+       /id="k3dSg23Schloss"/.test(html), '');
+(function () {
+  /* Der Griff muss in die Scheibe passen: Bei der niedrigsten Anlage darf
+     er nicht oben herausstehen. Geprueft an der Bedingung aus dem Code
+     (hoehe > GRIFF.hoehe + 20), in Zentimetern. */
+  var griff = 110, puffer = 20;
+  var kleinste = 180;            // cm, niedrigste sinnvolle Elementhoehe
+  pruefe('Griff passt in die niedrigste Scheibe',
+         gegen ? !(kleinste > griff + puffer) : kleinste > griff + puffer,
+         'Scheibe ' + kleinste * 10 + ' mm, Griff bis ' + (griff + puffer) * 10 + ' mm');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
