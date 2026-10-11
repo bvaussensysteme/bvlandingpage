@@ -3983,3 +3983,22 @@ darf nicht per CSS unsichtbar gemacht werden.
 
 **Prüfungen.** `scripts/pruefe-fuehrung.js` jetzt 186, Gegenprobe
 186 von 186.
+
+## 11.10.2026 – Schwebeknöpfe kommen am Firmenlogo zurück
+
+**Anlass.** „diese 3 buttons können wieder sichtbar werden auf höhe des
+weißen bv firmenlogos" (Betreiber, mit zwei Bildschirmfotos).
+
+**Was falsch war.** Die Knöpfe blieben weg, solange auch nur ein Pixel
+des Konfigurators im Bild war. Auf einem hohen Bildschirm steht man
+damit schon in der Fußzeile und hat trotzdem keine Knöpfe.
+
+**Was jetzt gilt.** Zwei Beobachter, ein Ergebnis: Versteckt wird nur,
+solange der Konfigurator im Bild ist UND das Firmenlogo in der Fußzeile
+noch nicht. Sobald das Logo auftaucht, sind die Knöpfe wieder da – auch
+wenn der Konfigurator oben noch hereinragt.
+
+**Prüfung.** `scripts/pruefe-fuehrung.js` jetzt 188, Gegenprobe
+188 von 188. Darunter eine, die die Bedingung in allen vier Fällen
+durchspielt (oben im Konfigurator, Logo im Bild, weit darunter,
+Fußzeile) – nicht nur prüft, dass sie dasteht.

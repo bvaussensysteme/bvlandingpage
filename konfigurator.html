@@ -1415,7 +1415,7 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <img src="/images/logo-dunkel.png" alt="BV AussenSysteme" class="footer-logo" loading="lazy" width="200" height="200" />
+        <img src="/images/logo-dunkel.png" alt="BV AussenSysteme" class="footer-logo" id="k3dFussLogo" loading="lazy" width="200" height="200" />
         <p>Ihr regionaler Spezialist für Terrassenüberdachungen, Carports, Pergolen und
            Sonnenschutz im Westerwald und Umgebung.</p>
         <div class="footer-social">
@@ -1500,7 +1500,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016d" defer></script>
+<script src="js/konfigurator-3d.js?v=20261016e" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
@@ -1551,14 +1551,31 @@
    verschwundener. */
 (function () {
   var app = document.getElementById('k3dApp');
+  var logo = document.getElementById('k3dFussLogo');
   if (!app || !('IntersectionObserver' in window)) return;
-  var setzen = function (drin) {
-    document.body.classList.toggle('k3d-im-bild', drin);
+  /* Zwei Beobachter, ein Ergebnis: Versteckt wird, solange der
+     Konfigurator im Bild ist – ausser das Firmenlogo in der Fusszeile
+     ist auch schon zu sehen. „diese 3 buttons können wieder sichtbar
+     werden auf höhe des weißen bv firmenlogos" (Betreiber, 11.10.2026).
+
+     Ohne die zweite Bedingung blieben sie bis zum allerletzten Pixel des
+     Konfigurators weg – auf einem hohen Bildschirm steht man dann schon
+     in der Fusszeile und hat trotzdem keine Knöpfe. */
+  var imBild = true, amLogo = false;
+  var setzen = function () {
+    document.body.classList.toggle('k3d-im-bild', imBild && !amLogo);
   };
-  setzen(true);
   new IntersectionObserver(function (eintraege) {
-    setzen(eintraege[0].isIntersecting);
+    imBild = eintraege[0].isIntersecting;
+    setzen();
   }, { threshold: 0 }).observe(app);
+  if (logo) {
+    new IntersectionObserver(function (eintraege) {
+      amLogo = eintraege[0].isIntersecting;
+      setzen();
+    }, { threshold: 0 }).observe(logo);
+  }
+  setzen();
 })();
 </script>
 </body>
