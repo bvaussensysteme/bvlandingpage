@@ -261,8 +261,8 @@ pruefe('Freistehend: Träger hinter dem Wandprofil',
    freistehend: dort sitzt es am Traeger statt an der Wand. */
 pruefe('Wandprofil steht mit 143,6 mm an der Wand',
        gegen ? /wpT = frei \?/.test(k3d)
-             : (/wpH = sky \? 20 : 14\.36/.test(k3d) &&
-                /wpT = sky \? 9 : 3\.1/.test(k3d)),
+             : (/wpH = sky \? SKY\.rahmenH : 14\.36/.test(k3d) &&
+                /wpT = sky \? SKY\.traegerT : 3\.1/.test(k3d)),
        'hoch an der Wand, kurz nach vorne');
 (function () {
   /* Das Wandprofil wird genau EINMAL gezeichnet, ausserhalb der
@@ -301,6 +301,105 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
          falsch + ' von 2 Lagen falsch');
 })();
+/* ---------- VD Flachdach Glas SKY VIEW ----------
+   Montageanleitung „VD FLACHDACH GLAS SKY VIEW", Stand 07.11.2025.
+   Zweiter Weg: Die Sollwerte stehen HIER noch einmal, aus der Anleitung
+   abgeschrieben, und werden mit dem verglichen, was im Modellcode
+   steht. Weicht eines ab, schlaegt die Pruefung an. */
+(function () {
+  var blk = (k3d.match(/var SKY = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!blk) { pruefe('SKY-Block lesbar', false, 'nicht gefunden'); return; }
+  function zahl(name) {
+    var m = blk.match(new RegExp(name + ':\\s*([\\d.]+)'));
+    return m ? parseFloat(m[1]) : null;
+  }
+  var SKY = { rinneT: zahl('rinneT'), traegerT: zahl('traegerT'),
+              sparrenAbzug: zahl('sparrenAbzug'), auflager: zahl('auflager'),
+              auflagerH: zahl('auflagerH'), sparrenH: zahl('sparrenH'),
+              rahmenH: zahl('rahmenH') };
+
+  /* BELEGT, S. 22: Sparrenlaenge = Spannweite - 150 mm, Ausschnitt
+     65 x 86 mm. */
+  [['sparrenAbzug', 150], ['auflager', 65], ['auflagerH', 86]].forEach(function (pp) {
+    var ist = SKY[pp[0]] === null ? null : Math.round(SKY[pp[0]] * 10);
+    var soll = pp[1] + (gegen ? 7 : 0);
+    pruefe('SkyView – Mass ' + pp[0], ist === soll,
+           ist + ' mm (Anleitung ' + pp[1] + ')');
+  });
+
+  /* Die Ableitung selbst nachrechnen: Wenn der Sparren an jedem Ende
+     65 mm aufliegt und insgesamt 150 mm kuerzer ist als die Spannweite,
+     muessen Rinne und Traeger zusammen 150 + 2 x 65 = 280 mm tief sein.
+     Genau daraus stammen die 140 mm je Profil. Stimmt das nicht mehr,
+     haengt der Sparren in der Luft oder steckt im Profil. */
+  var summe = SKY.rinneT + SKY.traegerT + (gegen ? 5 : 0);
+  var soll = SKY.sparrenAbzug + 2 * SKY.auflager;
+  pruefe('SkyView – Rinne und Träger passen zur Sparrenlänge',
+         Math.abs(summe - soll) < 0.01,
+         (summe * 10).toFixed(0) + ' mm gegen ' + (soll * 10).toFixed(0) + ' mm');
+
+  /* Der Sparren muss hoeher sein als seine Ausklinkung, sonst waere er
+     an den Enden durchgeschnitten. */
+  var hoch = SKY.sparrenH - (gegen ? 5 : 0);
+  pruefe('SkyView – Sparren höher als die Ausklinkung', hoch > SKY.auflagerH,
+         (hoch * 10).toFixed(0) + ' mm gegen ' + (SKY.auflagerH * 10).toFixed(0) + ' mm');
+})();
+pruefe('SkyView steht in WAAGE',
+       new RegExp(q || 'var neig = sky \\? 0 : neigungGrad\\(\\) \\* Math\\.PI / 180;').test(k3d) &&
+       !/sky \? 2 : neigungGrad/.test(k3d),
+       'Anleitung S. 8: Oberkante an allen Punkten in WAAGE');
+(function () {
+  /* Die Hoehe der Glasebene steht ZWEIMAL im Code – einmal fuer Pfosten
+     und Traeger, einmal fuer das Dach. Laufen sie auseinander, liegt die
+     Rahmenoberkante woanders als das Glas. Gezaehlt wird deshalb, dass
+     es genau zwei gleichlautende Stellen gibt. */
+  var n = (k3d.match(/hRinne \+ riH - skyGlasD(Jetzt)? - spH/g) || []).length;
+  pruefe('SkyView – beide Höhenrechnungen stimmen überein',
+         gegen ? n !== 2 : n === 2, n + ' Stellen');
+})();
+pruefe('SkyView – Sparrenlänge aus der Anleitung',
+       new RegExp(q || 'laenge = sky \\? T - SKY\\.sparrenAbzug').test(k3d) &&
+       new RegExp(q || 'zMitte = sky \\? T / 2').test(k3d), '');
+pruefe('SkyView – Seitenblende über die volle Rahmenhöhe',
+       new RegExp(q || 'blendeH = sky \\? riH').test(k3d) &&
+       new RegExp(q || 'blendeL = sky \\? T').test(k3d), 'Seitenblende Sky 6069');
+pruefe('SkyView – Glasleisten auf den Sparren',
+       new RegExp(q || 'SKY\\.leisteB, SKY\\.leisteH, vollGlas').test(k3d),
+       'Glasleiste 15184');
+pruefe('SkyView – die alte Attika-Blende ist weg',
+       gegen ? /balken\(B \+ 3, 26, 4,/.test(k3d) : !/balken\(B \+ 3, 26, 4,/.test(k3d),
+       'Rahmen aus Rinne, Träger und Seitenblende');
+(function () {
+  /* Zweiter Weg zur WAAGE: die Hoehenformeln des Modells ausrechnen.
+     Rinnenoberkante und Traegeroberkante muessen auf denselben Wert
+     kommen, und zwar unabhaengig von der Tiefe. */
+  var neig = 0, hRinne = 250, riH = 22, spH = 11, glas = 0.8;
+  if (gegen) neig = 2 * Math.PI / 180;
+  var T1 = 300, T2 = 600;
+  function okHinten(T) {
+    var ukVorn = hRinne + riH - glas - spH;
+    return ukVorn + Math.tan(neig) * T + spH + glas;
+  }
+  var vorne = hRinne + riH;
+  var ok = Math.abs(okHinten(T1) - vorne) < 0.001 &&
+           Math.abs(okHinten(T2) - vorne) < 0.001;
+  pruefe('SkyView – Oberkante vorne wie hinten, bei jeder Tiefe', ok,
+         'vorne ' + vorne.toFixed(1) + ', hinten bei 6 m ' +
+         okHinten(T2).toFixed(1) + ' cm');
+})();
+(function () {
+  /* BELEGT, S. 25: „an den Seiten jeweils ein Abstand von 0 mm".
+     Gerechnet mit der Achsformel aus dem Code. */
+  var f = (k3d.match(/var randAchse = sky \? ([^;]+);/) || [])[1];
+  if (gegen) f = 'spB';
+  var spB = 7, B = 500;
+  var randAchse = eval(f.split(':')[0]);
+  var aussen = (B / 2 - randAchse) + spB / 2;
+  pruefe('SkyView – Randsparren bündig an der Dachkante',
+         Math.abs(aussen - B / 2) < 0.001,
+         'Sparrenaussenkante ' + ((aussen - B / 2) * 10).toFixed(0) + ' mm von der Kante');
+})();
+
 /* ---------- Seitliche Abdeckungen: zwei verschiedene Formen ----------
    Erst hiess es „identisch", dann, nachdem beide gleich gebaut waren:
    „du hast die deckel nicht richtig abgebildet sondern selbst
@@ -436,7 +535,9 @@ pruefe('Beide Deckel werden gleich gebaut und gesetzt',
      verschiebt (die Achsformel muss unveraendert sein). */
   var fx = (k3d.match(/vz \* \(B \/ 2 - RANDBLENDE\.dicke \/ 2\)/) || [])[0];
   /* spH… – es gibt noch ein blendeH bei der Markise. */
-  var fh = (k3d.match(/var blendeH = (spH[^;]+);/) || [])[1];
+  /* Der TDS-Zweig der Formel – bei SkyView gilt die Rahmenhoehe, das
+     prueft der SkyView-Block weiter unten. */
+  var fh = (k3d.match(/var blendeH = sky \? riH : (spH[^;]+);/) || [])[1];
   var dicke = parseFloat((k3d.match(/RANDBLENDE = \{ dicke: ([\d.]+)/) || [])[1]);
   if (!fx || !fh || !dicke) { pruefe('Randblende lesbar', false, 'nicht gefunden'); return; }
   var B = 500, spH = 12.0, glas = 0.8, ukMitte = 200;
@@ -502,15 +603,15 @@ pruefe('Traegerhoehe folgt dem Dach, nicht dem festen Mass',
 pruefe('Sparren beginnen an der Profilvorderkante',
        new RegExp(q || 'zSpHinten = wpT;').test(k3d), 'nicht mehr bei z = 0');
 pruefe('Sparrenlaenge und -mitte folgen dem Profil',
-       new RegExp(q || 'laenge = \\(dachTiefe - zSpHinten\\) / Math\\.cos\\(neig\\)').test(k3d) &&
-       new RegExp(q || 'zMitte = \\(dachTiefe \\+ zSpHinten\\) / 2').test(k3d), '');
+       new RegExp(q || ': \\(dachTiefe - zSpHinten\\) / Math\\.cos\\(neig\\)').test(k3d) &&
+       new RegExp(q || 'zMitte = sky \\? T / 2 : \\(dachTiefe \\+ zSpHinten\\) / 2').test(k3d), '');
 pruefe('Dachoberkante wird am Sparrenende gerechnet',
        new RegExp(q || 'dachTiefeJetzt - zSpHinten').test(k3d),
        'nicht mehr 45 mm vor der Wand');
 (function () {
   /* Zweiter Weg: die Lagen aus den Zahlen der Datei nachrechnen, nicht
      aus der Absicht. wpT kommt aus dem Code, nicht aus dieser Datei. */
-  var wpT = parseFloat((k3d.match(/wpT = sky \? 9 : ([\d.]+)/) || [])[1]);
+  var wpT = parseFloat((k3d.match(/wpT = sky \? SKY\.traegerT : ([\d.]+)/) || [])[1]);
   var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
   if (!wpT || !sun) { pruefe('Profilmasse lesbar', false, 'wpT/sparrenUnterNase fehlt'); return; }
   var spH = 12.0, wpH = 14.36, glas = 0.8, riH = 13.67, rinneB = 18.63;
@@ -537,7 +638,7 @@ pruefe('Dachoberkante wird am Sparrenende gerechnet',
    beginnen, waere ein Ruecksprung ein offener Schlitz. */
 pruefe('Eindeckung ohne Ruecksprung hinten',
        new RegExp(q || 'glasRueck = sky \\? 1 : 0').test(k3d) &&
-       new RegExp(q || 'vollGlas = laenge \\+ glasUeber - 1 - glasRueck').test(k3d), '');
+       new RegExp(q || ': laenge \\+ glasUeber - 1 - glasRueck').test(k3d), '');
 (function () {
   /* Zweiter Weg: Glashinterkante aus der gebauten Formel zuruecklesen. */
   var laenge = 100, glasUeber = 10.75, glasRueck = gegen ? 1 : 0;

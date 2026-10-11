@@ -309,6 +309,20 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   Der Widerspruch im Maß selbst bleibt
 - **Pfostenachse 55 mm**, **EZIP-Stoffbilder in CMYK ohne Profil** –
   ungeprüfte Annahmen
+- **SkyView: Querschnittszeichnungen der Profile.** Die Montageanleitung
+  (07.11.2025) ist jetzt eingearbeitet, sie bemaßt aber keine
+  Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
+  Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
+  ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
+  Träger je 140 mm tief. Mit den Zeichnungen zu Rinne Flat (16553),
+  Träger TD (15698), Seitenblende Sky (6069) und Glasleiste (15184)
+  wären das echte Maße
+- **SkyView freistehend oder Wandmontage?** `js/masstabelle.js` führt
+  SkyView als `montage: 'wandmontage'`. Die Montageanleitung beschreibt
+  durchgehend die FREISTEHENDE Anlage mit vier Pfosten, Fundamenten und
+  Träger TD hinten; für die Wand gibt es eine eigene Wand-Rinnen-Blende
+  (15185). Beides gibt es also – die Angabe in der Maßtabelle sollte
+  geprüft werden
 - **Teilebild für den Deckel am Wandprofil.** Für den Rinnendeckel gibt
   es eines (172 × 175 mm, Fase 34 mm, BELEGT). Der Deckel am Wandprofil
   ist eine andere, runde Form – seine drei Maße (140 mm tief, 175 mm

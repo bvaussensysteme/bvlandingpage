@@ -2084,6 +2084,55 @@
      Die Dicke ist GESCHÄTZT; auf den Bildern ist nichts bemaßt. */
   var RANDBLENDE = { dicke: 3.0 };
 
+  /* ---------- VD FLACHDACH GLAS SKY VIEW ----------
+     Quelle: Montageanleitung „VD FLACHDACH GLAS SKY VIEW", VD
+     AluSysteme, Stand 07.11.2025, vom Betreiber am 11.10.2026
+     geschickt und vollständig gelesen.
+
+     BELEGT daraus:
+       · „Die Oberkante des Daches muss an allen Punkten in WAAGE
+         sitzen" (Seite 8). SkyView hat also KEIN Gefälle in der
+         Konstruktion – das Wasser läuft innen in der Rinne und von dort
+         durch den Pfosten ab. Vorher waren hier 2° angenommen.
+       · Sparrenlänge = Spannweite − 150 mm, an jedem Ende ein
+         rechteckiger Ausschnitt 65 mm tief × 86 mm hoch, mit dem der
+         Sparren auf Rinne bzw. Träger aufliegt (Seite 22).
+       · Die Sparren werden gleichmäßig verteilt, „an den Seiten jeweils
+         ein Abstand von 0 mm" (Seite 25) – die Randsparren liegen also
+         bündig an der Dachkante, anders als bei TDS (dort 30 mm).
+       · Pfosten 110 × 110 mm (15190), Fallrohr Ø 75 mm im Pfosten,
+         Öffnung Ø 92 mm, 100 mm über Unterkante, 55 mm von der Kante.
+       · Rinnenablauf Ø 68 mm, Laubfänger (6020) darin.
+       · Die seitliche Blende (Seitenblende Sky 6069) „wird in der Regel
+         5 cm länger geliefert" (Seite 20) – ein LIEFERMASS, kein
+         Einbaumaß; vor Ort wird sie gekürzt. Deshalb steht sie im
+         Modell nicht über.
+       · Glasleisten (15184) auf den Sparren, erste Schraube 100 mm vom
+         Rand, dann alle 300 mm (Seite 32).
+
+     ABGELEITET (nicht gedruckt, aber aus zwei belegten Maßen
+     gerechnet): Sparrenlänge = Spannweite − 150 mm bei 65 mm Auflager
+     je Seite ergibt für Rinne und Träger zusammen 280 mm Bautiefe,
+     also je 140 mm. Vorher standen hier 90 mm als reine Schätzung.
+
+     GESCHÄTZT bleiben: Rahmenhöhe (220 mm), Sparrenquerschnitt
+     (70 × 110 mm – die Anleitung fordert nur mehr als die 86 mm
+     Ausklinkung), Blendendicke und die Glasleiste. Querschnitts-
+     zeichnungen gibt es zu diesem System noch nicht; sie stehen als
+     offener Punkt in docs/NEXT_TASK.md. */
+  var SKY = {
+    rahmenH: 22.0,      // GESCHÄTZT
+    rinneT: 14.0,       // ABGELEITET (siehe oben)
+    traegerT: 14.0,     // ABGELEITET
+    sparrenAbzug: 15.0, // BELEGT: Spannweite - 150 mm
+    auflager: 6.5,      // BELEGT: Ausschnitt 65 mm tief
+    auflagerH: 8.6,     // BELEGT: Ausschnitt 86 mm hoch
+    sparrenB: 7.0,      // GESCHÄTZT
+    sparrenH: 11.0,     // GESCHÄTZT, muss über der Ausklinkung liegen
+    leisteB: 5.5,       // GESCHÄTZT
+    leisteH: 1.2        // GESCHÄTZT
+  };
+
   function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
     var m = new THREE.Mesh(
       new THREE.BoxGeometry(RANDBLENDE.dicke, hoehe, laenge), material);
@@ -4910,7 +4959,11 @@
   function bauenTerrasseGeschaetzt() {
     var sky = Z.produkt === 'Flachdach SkyView';
     var PF = 11;                                   // Pfosten 110 mm, BELEGT
-    var neig = (sky ? 2 : neigungGrad()) * Math.PI / 180;
+    /* SkyView steht in WAAGE – BELEGT, Montageanleitung S. 8. Vorher
+       waren hier 2° angenommen; damit stand das Dach schief, und
+       Keil, Markisen und Maßbänder rechneten mit einem Gefälle, das es
+       bei diesem System nicht gibt. */
+    var neig = sky ? 0 : neigungGrad() * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
     var TR_H = 18.9, TR_T = 11.7;              // Statikträger, BELEGT (Maßtabelle)
 
@@ -5002,10 +5055,10 @@
        Betreibers. SkyView ist ein anderes System – dafür liegt keine
        Zeichnung vor, dort bleiben die geschätzten Kästen stehen und sind
        hier als solche benannt. */
-    var riH = sky ? 22 : RINNE.hoehe;
-    var riT = sky ? 9 : RINNE.breite;
-    var spB = sky ? 7 : SPARREN.breite;
-    var spH = sky ? 11 : SPARREN.hoehe;
+    var riH = sky ? SKY.rahmenH : RINNE.hoehe;
+    var riT = sky ? SKY.rinneT : RINNE.breite;
+    var spB = sky ? SKY.sparrenB : SPARREN.breite;
+    var spH = sky ? SKY.sparrenH : SPARREN.hoehe;
 
     belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
     belag.position.set(0, -1, (T + 120) / 2 - 60);
@@ -5024,12 +5077,19 @@
        55 mm beziehen sich offenbar auf einen anderen Bezugspunkt als die
        Vorderkante der Rinne – GEGENZULESEN, siehe docs/NEXT_TASK.md. */
     /* Mit Vorsprung wandert der Pfosten um genau dieses Maß nach innen. */
-    var zPf = (sky ? T - 5.5 : T - RINNE.breite / 2) - vorspr;
+    var zPf = (sky ? T - SKY.rinneT / 2 : T - RINNE.breite / 2) - vorspr;
 
     /* Unterkante der Sparren an der Pfostenachse – nur mit Vorsprung
        gebraucht, dort endet der Pfosten unter dem Träger. ukVorn wird
        weiter unten noch einmal gebraucht und ist dieselbe Rechnung. */
-    var ukVornJetzt = hRinne + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
+    /* Dieselbe Rechnung wie weiter unten bei ukVorn – sie steht hier ein
+       zweites Mal, weil Pfosten- und Trägerhöhe sie schon brauchen,
+       bevor das Dach gebaut wird. Beide müssen übereinstimmen, sonst
+       liegt die Rahmenoberkante woanders als die Glasebene. */
+    var skyGlasDJetzt = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
+    var ukVornJetzt = sky
+      ? hRinne + riH - skyGlasDJetzt - spH
+      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
     var dachTiefeJetzt = sky ? T : T - RINNE.breite;
     var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
     /* Oberkante des Trägers: ohne Vorsprung die Rinnenunterkante, mit
@@ -5073,7 +5133,10 @@
        143,6 mm waagerecht als Ausladung, 26,5 mm hoch. Das war die
        Zeichnung so, wie sie auf dem Blatt lag, nicht so, wie das Profil
        montiert wird. */
-    var wpH = sky ? 20 : 14.36, wpT = sky ? 9 : 3.1;
+    /* Bei SkyView steht hinten der Träger TD (15698) an Stelle des
+       Wandprofils: genauso hoch und tief wie die Rinne, damit die
+       Oberkante rundum in WAAGE liegt. */
+    var wpH = sky ? SKY.rahmenH : 14.36, wpT = sky ? SKY.traegerT : 3.1;
 
     /* KORREKTUR 11.10.2026, dritter Anlauf. „jetzt liegt es waagrecht im
        3d unter den sparren, es muss ja hinten an den sparren dran sein"
@@ -5259,8 +5322,12 @@
     /* Hinten enden die Sparren an der Vorderkante des Wandprofils, nicht
        an der Wand – sonst steckt ihr Anfang im Profil (siehe die
        Korrektur oben bei zSpHinten). */
-    var laenge = (dachTiefe - zSpHinten) / Math.cos(neig);
-    var zMitte = (dachTiefe + zSpHinten) / 2;
+    /* SkyView: Die Sparren liegen zwischen Rinne und Träger und greifen
+       mit ihrer Ausklinkung auf beide auf – „Anlagebreite − 150 mm"
+       (Montageanleitung S. 22). Sie laufen waagerecht, nicht geneigt. */
+    var laenge = sky ? T - SKY.sparrenAbzug
+                     : (dachTiefe - zSpHinten) / Math.cos(neig);
+    var zMitte = sky ? T / 2 : (dachTiefe + zSpHinten) / 2;
     /* Die Eindeckung ragt über das Sparrenende hinaus, bis etwa in die
        Mitte der Kehle – sonst tropft das Wasser auf die Rinnenrückwand
        statt in die Rinne. GESCHÄTZT. */
@@ -5273,7 +5340,13 @@
     /* Der Sparren endet auf der HINTEREN Wange der Rinne, die tiefer
        liegt als die Vorderkante – sonst entwässert das Dach nach außen
        über die Nase statt in die Kehle. */
-    var ukVorn = hRinne + (sky ? riH * 0.25 : riH - RINNE.sparrenUnterNase - spH);
+    /* Bei SkyView liegt die Eindeckung auf Rahmen UND Sparren, und die
+       Rahmenoberkante steht um die Scheibendicke darüber – sie deckt das
+       Glas seitlich ab. Daraus folgt die Sparrenunterkante. Vorher stand
+       hier ein Viertel der Rahmenhöhe, also eine reine Schätzung. */
+    var skyGlasD = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
+    var ukVorn = sky ? hRinne + riH - skyGlasD - spH
+                     : hRinne + (riH - RINNE.sparrenUnterNase - spH);
     var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
@@ -5294,11 +5367,19 @@
        Randsparren und schließt oben an der Glasoberseite ab, so dass
        der Dachrand rundum geschlossen wirkt. Die Außenkante ist die
        Dachkante; nach innen überlappt sie den Sparren. */
-    var blendeH = spH + (istPolycarbonat() ? 1.6 : Z.glasstaerke / 10);
+    /* Bei SkyView ist das die Seitenblende Sky (6069): Sie deckt die
+       ganze Rahmenhöhe ab, von der Rinnenunterkante bis zur Oberkante,
+       und läuft über die volle Tiefe – nicht nur über die Sparrenhöhe.
+       Geliefert wird sie 5 cm länger und vor Ort gekürzt (S. 20); im
+       Modell steht sie deshalb nicht über. */
+    var blendeH = sky ? riH : spH + (istPolycarbonat() ? 1.6 : Z.glasstaerke / 10);
+    var blendeL = sky ? T : laenge;
+    var blendeY = sky ? hRinne + riH / 2 : ukMitte + blendeH / 2;
+    var blendeZ = sky ? T / 2 : zMitte;
     [-1, 1].forEach(function (vz) {
-      randblende(laenge, blendeH,
+      randblende(blendeL, blendeH,
                  vz * (B / 2 - RANDBLENDE.dicke / 2),
-                 ukMitte + blendeH / 2, zMitte, neig, mAlu);
+                 blendeY, blendeZ, neig, mAlu);
     });
 
     /* Die Eindeckung liegt AUF dem schmalen Steg des Sparrens – bei TDS
@@ -5321,8 +5402,15 @@
        das nicht auf; seit sie davor beginnen, wäre es ein offener Schlitz
        unter der Glasleiste. Vorne bleibt der Rücksprung von 10 mm. */
     var glasRueck = sky ? 1 : 0;              // Rücksprung hinten, cm
-    var zGlasMitte = zMitte + (glasRueck + glasUeber - 1) / 2;
-    var vollGlas = laenge + glasUeber - 1 - glasRueck;
+    /* SkyView: Die Scheibe liegt zwischen Rinne und Träger und ruht auf
+       beiden auf – zwei Zentimeter Auflage je Seite (GESCHÄTZT; die
+       Anleitung nennt dafür kein Maß). Sie ist damit kürzer als der
+       Sparren, der mit seiner Ausklinkung weiter unter die Profile
+       greift. */
+    var skyAuflage = 2.0;
+    var zGlasMitte = sky ? T / 2 : zMitte + (glasRueck + glasUeber - 1) / 2;
+    var vollGlas = sky ? Math.max(10, T - SKY.rinneT - SKY.traegerT + 2 * skyAuflage)
+                       : laenge + glasUeber - 1 - glasRueck;
     var koppelZ = dachTiefe - koppelAbstand() / 10;      // mm -> cm
     var koppelLokal = (koppelZ - zGlasMitte) / Math.cos(neig);
     var koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL.breite / 2;
@@ -5419,13 +5507,22 @@
       });
     }
 
-    /* SkyView ist das kubische System: hohe gerade Blende rundum, die
-       Neigung liegt innen und ist von außen nicht zu sehen. */
+    /* Glasleisten (15184) auf den Sparren – auch bei SkyView. Sie halten
+       die Scheiben an ihren Stößen; die Anleitung schreibt sie
+       ausdrücklich vor (S. 32: erste Schraube 100 mm vom Rand, dann alle
+       300 mm). Flach statt halbrund wie bei TDS, siehe das Teilebild auf
+       S. 5 – Maße GESCHÄTZT.
+
+       Die frühere Attika-Blende rundum entfällt: Sie war der Versuch,
+       das kubische Aussehen ohne die echten Profile nachzustellen, und
+       stand 26 cm hoch ÜBER dem Dach. Nach der Anleitung bilden Rinne,
+       Träger und Seitenblende den Rahmen – alle mit derselben Oberkante
+       in WAAGE. */
     if (sky) {
-      var mB = blech();
-      balken(B + 3, 26, 4, 0, hVorn + riH + 7, T + 1, mB);
-      [-B / 2 - 1.5, B / 2 + 1.5].forEach(function (x) {
-        balken(4, 26, T, x, hVorn + riH + 7, T / 2, mB);
+      var yLeiste = ukMitte + spH + skyGlasD + SKY.leisteH / 2;
+      xs.forEach(function (x) {
+        dachTeil(balken(SKY.leisteB, SKY.leisteH, vollGlas,
+                        x, yLeiste, zGlasMitte, mAlu));
       });
     }
 
