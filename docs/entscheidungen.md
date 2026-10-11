@@ -439,3 +439,63 @@ liegt rechnerisch rund 5 cm über der Rinnenoberkante.
 **Prüfung.** `scripts/pruefe-markise.js` hat dafür eine eigene Prüfung
 („Markise bekommt die volle Dachtiefe bis zur Rinne"); 16 Prüfungen, alle
 bestanden, Gegenprobe 16 von 16.
+
+## 2026-10-11 – Unterdachmarkise TDS Linea U / Linea UZ nach Herstellerzeichnung modelliert
+
+**Anlass.** Der Betreiber hat die Zeichnung „TDS_Linea U - Linea UZ"
+(Stand 01.07.2025) geschickt: „das is die unterdachmarkise auslesen" und
+dann „bauen mergen".
+
+**Was falsch war.** Die Unterdachmarkise war das, was die Aufdachmarkise vor
+dem 11.10. auch war: ein flaches Tuch plus ein 130 × 130 mm Balken, unter
+die Sparren gehängt. Kein Kasten, keine Kassette, keine Konsolen – und bei
+eingefahrenem Tuch gar nichts.
+
+**Was jetzt gilt.** `unterdachmarkise()` in `js/konfigurator-3d.js`, Maße in
+der Konstante `MARKISE_U`. Aus der Zeichnung BELEGT:
+
+| Maß | Wert |
+|---|---|
+| Bestellmaß Breite | Dachbreite − 142 mm |
+| Bestellmaß Tiefe | Sparrenlänge − 45 mm (ausdrücklich „TDS:") |
+| Kassette | 162 mm hoch, Korpus 150, Tiefe 238 (oben 227) |
+| Kasten / Endkappe vorne | 80 mm hoch, Endkappe 41 mm |
+| Konsole über Kastenoberkante | 19 mm |
+| Luft zur Sparrenunterkante | 5 mm |
+| Säule / Fußplatte | 80 / 100 mm |
+| Sparren-Innenkante → Markisenkante | 10 mm |
+| Markisenkante → Befestigungsachse | 37 mm |
+| erste Konsole hinter der Kassette | min. 345 / max. 395 mm |
+| letzte Konsole vor dem Ende | min. 150 / max. 1000 mm |
+
+**Der Unterschied zur Aufdachmarkise ist nicht kosmetisch.** Linea A läuft
+über die VOLLE Dachbreite und -tiefe und steht auf 75 mm hohen Stützen AUF
+der Eindeckung. Linea U sitzt ZWISCHEN den äußeren Sparren und hängt mit
+19 mm hohen Konsolen DARUNTER. Deshalb bekommt `sonnenschutz()` jetzt zwei
+Bezugsflächen übergeben: `dach.ok(z)` (Oberkante Eindeckung) und
+`dach.uk(z)` plus `dach.sparrenL` (Unterkante und Länge der Sparren).
+
+**Ein Gegenbeleg, der sich gelohnt hat.** Die 142 mm bestätigen unser
+Sparrenraster auf einem zweiten, unabhängigen Weg: Sparrenachse 30 mm vom
+Rand (Montageanleitung S. 33) plus halbe Sparrenbreite 30,5 mm ergibt die
+Innenkante bei 60,5 mm, also ein Innenmaß von B − 121 mm; abzüglich zweimal
+10 mm Luft bleibt B − 141 mm. Die Zeichnung sagt 142. Die Prüfung
+„Linea U – 142 mm decken sich mit dem Sparrenraster" rechnet das jedes Mal
+nach.
+
+**GESCHÄTZT.** Die Breite der seitlichen Führungsschienen (60 mm – in dieser
+Zeichnung nicht bemaßt) und die Frage, WO die 45 mm Tiefenabzug sitzen;
+im Modell je zur Hälfte vorne und hinten.
+
+**Widerspruch in der Zeichnung, GEGENZULESEN.** Von der Sparren-Innenkante
+bis zur Befestigungsachse wären es 10 + 37 = 47 mm, bemaßt sind 60 mm.
+Vermutlich meinen die 60 mm die Außenkante der Konsole, nicht die Achse.
+Fürs Modell ohne Folgen (13 mm), für ein Aufmaß nicht.
+
+**Was gegengelesen werden soll.**
+1. Hängt der Kasten sichtbar unter den Sparren und nicht in ihnen?
+2. Sitzt die Kassette hinten an der Wand, Tuch nach vorne?
+3. Steht der Kasten seitlich weit genug von den Sparren ab (10 mm Luft)?
+
+**Prüfung.** `node scripts/pruefe-markise.js` – jetzt 33 Prüfungen für beide
+Markisen, alle bestanden; Gegenprobe 33 von 33.
