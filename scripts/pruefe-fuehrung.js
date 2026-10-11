@@ -1152,8 +1152,26 @@ pruefe('Schwebeknoepfe werden nur im Konfigurator ausgeblendet',
        new RegExp(q || 'body\\.k3d-im-bild #bvKonfigBubble').test(html), '');
 pruefe('Ein Beobachter blendet sie wieder ein',
        new RegExp(q || 'IntersectionObserver').test(html) &&
-       new RegExp(q || "classList\\.toggle\\('k3d-im-bild', drin\\)").test(html),
+       new RegExp(q || "classList\\.toggle\\('k3d-im-bild', imBild && !amLogo\\)").test(html),
        'nicht dauerhaft versteckt');
+/* Zweite Bedingung: Spaetestens auf Hoehe des Firmenlogos in der
+   Fusszeile sind die Knoepfe wieder da - sonst steht man auf einem
+   hohen Bildschirm schon in der Fusszeile und hat keine. */
+pruefe('Spaetestens am Firmenlogo wieder sichtbar',
+       new RegExp(q || 'id="k3dFussLogo"').test(html) &&
+       new RegExp(q || 'amLogo = eintraege\\[0\\]\\.isIntersecting').test(html), '');
+(function () {
+  /* Zweiter Weg: die Bedingung durchspielen. Versteckt NUR dann, wenn
+     der Konfigurator im Bild ist und das Logo noch nicht. */
+  function versteckt(imBild, amLogo) { return imBild && !amLogo; }
+  var falsch = 0;
+  if (!versteckt(true, false)) falsch++;        // oben im Konfigurator
+  if (versteckt(true, true)) falsch++;          // Logo schon im Bild
+  if (versteckt(false, false)) falsch++;        // weit darunter
+  if (versteckt(false, true)) falsch++;         // Fusszeile
+  if (gegen) falsch = falsch ? 0 : 1;
+  pruefe('Regel durchgespielt', falsch === 0, 'vier Faelle');
+})();
 (function () {
   /* Dauerhaft verstecken waere der bequeme Fehler: Die
      Barrierefreiheits-Hilfe muss auf jeder Seite erreichbar bleiben.
