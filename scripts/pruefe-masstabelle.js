@@ -133,6 +133,12 @@ pruefe('Statikträger 189 × 117 mm im Modell',
        new RegExp(q || 'traegerT = 11\\.7').test(k3d), 'aus der Maßtabelle');
 pruefe('Träger sitzt über den Pfosten, nicht in der Dachmitte',
        new RegExp(q || 'hPfosten \\+ traegerH / 2, zPf').test(k3d), 'zPf = Pfostenachse');
+/* Voreinstellung 0: Mit Vorsprung kommt ein Statiktraeger dazu – bei 300
+   als Voreinstellung bekaeme jedes Terrassendach einen. */
+pruefe('Dachvorsprung ist voreingestellt auf 0',
+       new RegExp(q || 'vorsprung: 0,').test(k3d) &&
+       /id="k3dVorsprung"[^>]*value="0"/.test(html),
+       'kein Statikträger im Standardfall');
 pruefe('Dachvorsprung bewegt die Pfosten',
        new RegExp(q || 'RINNE\\.breite / 2\\) - vorspr').test(k3d), 'zPf minus Vorsprung');
 pruefe('Träger kommt auch mit Vorsprung',
