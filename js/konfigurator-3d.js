@@ -3470,37 +3470,37 @@
       var zf = document.getElementById(paar[0] + 'Zahl');
       if (zf && document.activeElement !== zf) zf.value = Z[paar[1]];
     });
-    var nw = document.getElementById('k3dNeigungWert');
-    if (nw) nw.textContent = Z.neigung + '°';
-
-    /* Höhe an der Wand aus Durchgangshöhe, Tiefe und Neigung.
+    /* Grad links, Prozent rechts, Höhe an der Wand darunter.
 
        BELEGT (Montageanleitung TDS, S. 9): „Die Überdachung hat einen
        festen Gefällewinkel von 14 %. Das bedeutet, dass sie von der Rinne
        aus gesehen um 14 cm pro Meter ansteigt. Wenn der Ausfall 3 m
        beträgt, dann liegt die Unterkante des Wandanschlussprofils
-       3 × 14 cm höher als die Unterkante der Rinne." Beispiel der
+       3 × 14 cm höher als die Unterkante der Rinne." Rechenbeispiel der
        Anleitung: 200 cm innen + 42 cm = 242 cm.
 
        Gerechnet wird mit der GRAD-ZU-PROZENT-TABELLE der Anleitung, nicht
-       mit dem Tangens. Der Unterschied ist klein, aber er ist da: Der
-       Tangens von 8° sind 14,05 %, die Tabelle sagt 14 %. Auf 3 m Tiefe
-       macht das 422 statt 420 mm – und 420 mm steht im Rechenbeispiel der
-       Anleitung. Wer die Zahl im Konfigurator mit der Anleitung
-       vergleicht, soll dieselbe sehen. (Nur bei 2° weicht die Tabelle
-       etwas ab, 3,4 statt 3,5 % – auch dann gilt die Tabelle, weil danach
-       gebaut wird.)
+       mit dem Tangens. Der Unterschied ist klein, aber er ist da: tan 8°
+       sind 14,05 %, die Tabelle sagt 14 %. Auf 3 m Tiefe macht das 422
+       statt 420 mm – und 420 steht im Rechenbeispiel. Wer die Zahl im
+       Konfigurator mit der Anleitung vergleicht, soll dieselbe sehen.
 
-       Warum das hier steht und nicht nur im Kopf des Monteurs: Nach
-       dieser Zahl wird an der Wand angerissen. Wer sie selbst ausrechnen
-       muss, rechnet sie irgendwann falsch. */
+       Warum die Zahl überhaupt hier steht: Danach wird an der Wand
+       angerissen. Wer sie selbst ausrechnen muss, rechnet sie irgendwann
+       falsch – und ein um 4 cm falsch gesetztes Wandprofil merkt man
+       erst, wenn das Dach liegt. */
+    var nz = document.getElementById('k3dNeigungZahl');
+    if (nz && document.activeElement !== nz) nz.value = Z.neigung;
+    var prozent = neigungProzent(Z.neigung);
+    var np = document.getElementById('k3dNeigungProzent');
+    if (np) np.textContent = String(prozent).replace('.', ',');
+    var anstieg = Math.round(Z.tiefe * prozent / 100);
     var wh = document.getElementById('k3dWandHoehe');
-    if (wh) {
-      var anstieg = Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100);
-      wh.innerHTML = 'Höhe an der Wand: <b>' + (Z.hoehe + anstieg) + ' mm</b><br>' +
-        '<span class="k3d-mini">' + Z.hoehe + ' mm Durchgang + ' + anstieg +
-        ' mm Anstieg auf ' + (Z.tiefe / 1000).toFixed(2).replace('.', ',') +
-        ' m Tiefe. Dort kommt die Unterkante des Wandprofils hin.</span>';
+    if (wh) wh.textContent = Z.hoehe + anstieg;
+    var whi = document.getElementById('k3dWandHoeheInfo');
+    if (whi) {
+      whi.textContent = Z.hoehe + ' mm Durchgang + ' + anstieg + ' mm Anstieg auf '
+        + (Z.tiefe / 1000).toFixed(2).replace('.', ',') + ' m Tiefe.';
     }
     var lw = document.getElementById('k3dLamellenWert');
     if (lw) lw.textContent = Z.lamellen + '° geöffnet';
@@ -3712,7 +3712,8 @@
      Feldes: Wer „4000" tippt, hat nach der ersten Ziffer eine 4 im Feld –
      würde sofort begrenzt, stünde dort gleich die Untergrenze. */
   [['k3dBreite', 'k3dBreiteZahl'], ['k3dTiefe', 'k3dTiefeZahl'],
-   ['k3dHoehe', 'k3dHoeheZahl'], ['k3dUeberstand', 'k3dUeberstandZahl']].forEach(function (pr) {
+   ['k3dHoehe', 'k3dHoeheZahl'], ['k3dUeberstand', 'k3dUeberstandZahl'],
+   ['k3dNeigung', 'k3dNeigungZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
     n.addEventListener('input', function () {

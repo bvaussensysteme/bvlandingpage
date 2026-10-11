@@ -79,6 +79,12 @@ pruefe('Rechenbeispiel der Anleitung', beispiel === 2420,
        beispiel + ' mm (Anleitung 2420)');
 pruefe('Höhe an der Wand steht im Bedienfeld',
        /id="k3dWandHoehe"/.test(html) && new RegExp(q || 'k3dWandHoehe').test(js), '');
+pruefe('Grad links, Prozent rechts in zwei Feldern',
+       new RegExp(q || 'id="k3dNeigungZahl"').test(html) &&
+       new RegExp(q || 'id="k3dNeigungProzent"').test(html) &&
+       /class="k3d-felder"/.test(html), '');
+pruefe('Gradfeld ist an den Regler gekoppelt',
+       new RegExp(q || "\\['k3dNeigung', 'k3dNeigungZahl'\\]").test(js), '');
 pruefe('Höhe an der Wand steht in der Anfrage',
        new RegExp(q || 'UK Wandprofil').test(js), 'textAktualisieren()');
 pruefe('Neigung steht direkt unter der Durchgangshöhe',

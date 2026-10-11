@@ -262,11 +262,29 @@
     .k3d-gefuehrt .k3d-gruppe:not(.ist-schritt) { display: none; }
     .k3d-gefuehrt .k3d-zus { display: none; }
     .k3d-gefuehrt.ist-letzter .k3d-zus { display: block; }
-    /* Ausgerechnete Höhe an der Wand – die Zahl, nach der am Bau
-       gemessen wird. Deshalb hervorgehoben und nicht im Kleingedruckten. */
-    .k3d-wandhoehe { margin: 10px 0 6px; padding: 10px 12px; border-radius: 9px;
-      background: var(--light-bg, #F1EFEA); font-size: .84rem; line-height: 1.45; }
-    .k3d-wandhoehe b { font-size: 1.05rem; }
+    /* Zwei kleine Felder nebeneinander: links wird eingestellt, rechts
+       abgelesen. Darunter dasselbe Feld über die ganze Breite für die
+       Höhe an der Wand – die Zahl, nach der am Bau angerissen wird, und
+       deshalb keine Fußnote. */
+    .k3d-felder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 10px; }
+    .k3d-feld { display: block; border: 2px solid var(--border);
+      border-radius: 9px; padding: 7px 10px 6px; background: #fff;
+      position: relative; }
+    .k3d-feld > span { display: block; font-size: .66rem; color: var(--muted);
+      line-height: 1.2; margin-bottom: 2px; }
+    .k3d-feld > span small { display: block; font-size: .62rem; opacity: .8; }
+    .k3d-feld > output, .k3d-feld-ein {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1.3rem; line-height: 1.1; color: var(--black);
+      border: 0; padding: 0; background: none; width: 3.4em;
+    }
+    .k3d-feld > i { font-style: normal; font-weight: 700; font-size: 1rem;
+      color: var(--muted); margin-left: 2px; }
+    .k3d-feld--fest { background: var(--light-bg, #F1EFEA); border-style: dashed; }
+    .k3d-feld--breit { margin: 10px 0 4px; }
+    .k3d-feld--breit > output { width: auto; font-size: 1.5rem; }
+    .k3d-feld-ein:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
 
     /* Klartextzeile zu den Seiten: welche ist zu, welche offen. */
     .k3d-seiten-stand { margin: 10px 0 0; padding: 10px 12px; border-radius: 9px;
@@ -564,9 +582,30 @@
              die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
              hinten unter „Mehr Einstellungen". -->
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="neigung">
-          <label class="k3d-label" for="k3dNeigung">Dachneigung <output id="k3dNeigungWert">8°</output></label>
-          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14" step="1" value="8">
-          <p class="k3d-wandhoehe" id="k3dWandHoehe"></p>
+          <span class="k3d-label" id="k3dNeigungLabel">Dachneigung</span>
+          <!-- Links einstellen, rechts ablesen: Grad ist die Eingabe,
+               Prozent die Übersetzung in die Sprache der Anleitung
+               (8° = 14 %). Darunter die Zahl, nach der an der Wand
+               angerissen wird. -->
+          <div class="k3d-felder">
+            <label class="k3d-feld">
+              <span>Neigung</span>
+              <input type="number" id="k3dNeigungZahl" class="k3d-feld-ein"
+                     min="2" max="14" step="1" value="8" inputmode="numeric"
+                     aria-label="Dachneigung in Grad"><i>°</i>
+            </label>
+            <div class="k3d-feld k3d-feld--fest">
+              <span>Gefälle</span>
+              <output id="k3dNeigungProzent" for="k3dNeigungZahl">14</output><i>%</i>
+            </div>
+          </div>
+          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14"
+                 step="1" value="8" aria-labelledby="k3dNeigungLabel">
+          <div class="k3d-feld k3d-feld--fest k3d-feld--breit">
+            <span>Höhe an der Wand <small>Unterkante Wandprofil</small></span>
+            <output id="k3dWandHoehe">2420</output><i>mm</i>
+          </div>
+          <p class="k3d-mini" id="k3dWandHoeheInfo"></p>
           <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
         </div>
 
