@@ -230,7 +230,7 @@ var SG23_PROFIL = {
   fuehrung: { hoehe: 35, tiefe: { 3: 78.4, 4: 104.0, 5: 129.6 } }
 };
 (function () {
-  var mS = src.match(/var SCHWELLE = \{ hoehe: ([\d.]+), tiefe: \{ 3: ([\d.]+), 4: ([\d.]+), 5: ([\d.]+) \} \};/);
+  var mS = src.match(/var SCHWELLE = \{ hoehe: ([\d.]+), ueberstand: [\d.]+,\s*\n?\s*tiefe: \{ 3: ([\d.]+), 4: ([\d.]+), 5: ([\d.]+) \} \};/);
   var mF = src.match(/var FUEHRUNG = \{ hoehe: ([\d.]+), tiefe: \{ 3: ([\d.]+), 4: ([\d.]+), 5: ([\d.]+) \} \};/);
   if (!mS || !mF) { pruefe('Profilmasse lesbar', false, 'Zeilen nicht gefunden'); return; }
   [['Türschwelle', mS, SG23_PROFIL.schwelle], ['Schiebetürführung', mF, SG23_PROFIL.fuehrung]]
@@ -246,8 +246,7 @@ var SG23_PROFIL = {
 })();
 pruefe('Gleiszahl kommt aus der gewaehlten Bauart',
        new RegExp(q || 'function gleise\\(seite, laenge\\)').test(src), 'nicht fest 3-gleisig');
-pruefe('Fluegel stehen auf der Schwelle',
-       new RegExp(q || 'var yUnten = SCHWELLE\\.hoehe;').test(src), '');
+
 pruefe('Fluegel enden unter der Fuehrung',
        new RegExp(q || "hatSchiebeHier \\? FUEHRUNG\\.hoehe : 0").test(src), '');
 pruefe('Erfundene Bodenschiene ist weg',
@@ -372,6 +371,33 @@ pruefe('Kein seitenErweiterungen-Aufruf ohne Pfostenachsen',
   var gesamt = summe + xs.length * PF + (gegen ? 10 : 0);
   pruefe('Lichte Masse plus Pfosten ergeben die Breite',
          Math.abs(gesamt - B) < 0.01, gesamt.toFixed(1) + ' von ' + B + ' cm');
+})();
+
+/* ---------- Schwelle eingelassen, nicht aufgesetzt ----------
+   „das wird ja eingelassen in den boden das es barrierefrei is"
+   (Betreiber, 11.10.2026). Vorher stand sie mit 36 mm auf dem Belag -
+   eine Stolperkante, die es in echt nicht gibt. */
+pruefe('Schwelle liegt im Boden',
+       new RegExp(q || 'SCHWELLE\\.ueberstand - SCHWELLE\\.hoehe / 2').test(src), '');
+pruefe('Fluegel stehen auf Belagsniveau',
+       new RegExp(q || 'var yUnten = SCHWELLE\\.ueberstand;').test(src),
+       'nicht mehr auf der Schwellenhoehe');
+(function () {
+  var m = src.match(/var SCHWELLE = \{ hoehe: ([\d.]+), ueberstand: ([\d.]+),/);
+  if (!m) { pruefe('Schwellenmass lesbar', false, 'Zeile nicht gefunden'); return; }
+  var h = parseFloat(m[1]) * 10 + (gegen ? 7 : 0);
+  var u = parseFloat(m[2]) * 10;
+  pruefe('Schwellenhoehe unveraendert 36 mm', Math.abs(h - 36) < 0.5, h + ' mm');
+  /* Barrierefrei heisst: praktisch keine Schwelle. DIN 18040 laesst bei
+     Tueren hoechstens 20 mm zu, und auch das nur als Ausnahme. */
+  pruefe('Ueberstand unter der 20-mm-Grenze',
+         u + (gegen ? 34 : 0) <= 20, u + ' mm ueber Belag');
+  pruefe('Ueberstand groesser als null (sonst Flimmern)',
+         (gegen ? 0 : u) > 0, u + ' mm');
+  /* Die ALTE Lage stand mit der vollen Hoehe auf dem Belag. */
+  var alt = 36;
+  pruefe('Alte Lage war eine Stolperkante',
+         gegen ? alt <= 20 : alt > 20, alt + ' mm');
 })();
 
 /* ---------- Schienen buendig zur Pfosteninnenseite ----------

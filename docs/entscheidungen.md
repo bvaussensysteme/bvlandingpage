@@ -2026,3 +2026,33 @@ der Gegenprobe nur durch ein angehängtes `&& false` „gerettet". Das ist
 genau die Attrappe, vor der die Projektanweisung warnt. Sie rechnet den
 Überstand jetzt aus den fertigen Lagen zurück: Schienenkanten gegen
 Pfostenkanten.
+
+## 2026-10-11 – Türschwelle wird eingelassen, nicht aufgesetzt
+
+**Anlass:** „die schiene auf dem boden kannst du bündig mit boden machen
+nicht überstehend, das wird ja eingelassen in den boden das es
+barrierefrei is" (Betreiber).
+
+**Was falsch war:** Die Schwelle stand mit ihren vollen **36 mm** auf dem
+Belag. Das ist eine Stolperkante, die es in echt nicht gibt – und sie
+hätte genau das zunichte gemacht, wofür so ein System gekauft wird. DIN
+18040 lässt an Türen höchstens 20 mm zu, und das nur als Ausnahme.
+
+**Was jetzt gilt:** Die Schwelle liegt bis auf 2 mm unter Belagsniveau,
+die Flügel stehen praktisch auf dem Boden. Die 2 mm sind **kein
+Bauteilmaß**, sondern Zeichentechnik: Läge die Oberfläche exakt auf dem
+Belag, flimmerten beide Flächen ineinander. Sichtbar bleibt die
+Laufschiene als Linie im Boden – wie in Wirklichkeit.
+
+**Nebeneffekt, der stimmt:** Der Muschelgriff sitzt jetzt 1052 statt
+1086 mm über dem Belag und trifft damit die recherchierten 1050 mm
+genauer als vorher.
+
+**Für den Betrieb wichtig:** Eingelassen heißt, dass der Belag unter der
+Anlage vorbereitet sein muss – eine Aussparung von 36 mm Tiefe über die
+ganze Länge. Wird auf einen fertigen Belag montiert, geht das nicht ohne
+Weiteres, und die Schwelle steht doch auf. Das gehört ins
+Aufmaßgespräch, weil es den Belag betrifft und nicht die Anlage.
+
+**Gegenzulesen:** Ob die Schiene im Bild noch als Linie erkennbar ist
+oder optisch ganz verschwindet.
