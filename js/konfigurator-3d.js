@@ -77,7 +77,7 @@
     velarisTeil: 'alles',         // alles | oben | unten
     velarisBreite: 'gleich',      // gleich | wunsch (Formularfeld Elementbreite)
     velarisAnteil: 50,            // Prozent, nur bei oben/unten
-    velarisFarbe: 'Wie das Gestell',
+    velarisFarbe: 'Anthrazit RAL 7016',
     traegerWunsch: false,     // Statikträger unter der Rinne auf Kundenwunsch
     vorsprungHinten: 0,       // mm, nur Carport TDS freistehend
     /* Nur Carport TDS: Höhe hinten wird DIREKT eingestellt, die Neigung
@@ -2400,7 +2400,8 @@
     function velarisMaterial() {
       var dekor = VELARIS_FARBEN[Z.velarisFarbe];
       var hex = dekor !== undefined ? dekor
-              : FARBEN[Z.velarisFarbe] || FARBEN[Z.farbe] || FARBEN['Anthrazit'];
+              : (Z.velarisFarbe.indexOf('Anthrazit') > -1 ? FARBEN['Anthrazit']
+                 : FARBEN[Z.farbe] || FARBEN['Anthrazit']);
       var m = new THREE.MeshPhysicalMaterial({
         color: rgb(hex),
         metalness: dekor !== undefined ? 0 : 0.1,
@@ -5525,8 +5526,10 @@
                      .replace('.', ',') + ' mm)');
         teile.push('Velaris: waagerechte Alu-Lamellen im Rahmen, Stellung im Bild ' +
                    (Z.velarisWinkel <= 0 ? 'geschlossen' : Z.velarisWinkel + '° offen') +
-                   ', Oberfläche ' + (Z.velarisFarbe === 'Wie das Gestell'
-                     ? 'wie Gestell (' + Z.farbe + ')' : Z.velarisFarbe) +
+                   ', Lamellenfarbe ' + Z.velarisFarbe +
+                   (Z.velarisFarbe.indexOf('Sonderfarbe') > -1
+                     ? ' – RAL-Nummer noch offen, Aufpreis' : '') +
+                   ', Rahmenfarbe ' + Z.farbe +
                    (Z.velarisTeil === 'alles' ? ', ganze Anlage'
                      : ', nur ' + Z.velarisTeil + ' rund ' + Z.velarisAnteil + ' %') +
                    ' – Lamellen- und Rahmenmaße nach Herstellerangabe');

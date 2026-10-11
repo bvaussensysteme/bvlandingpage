@@ -435,9 +435,16 @@ pruefe('Lamellen fahren mit Animation',
   /* Die Plankendekore (Eiche Mocca, Rovere Pechino) gibt es beim Velaris
      NICHT - dort heisst es Echtholzoptik Golden OAK. Gegenprobe: genau
      die umgekehrte Erwartung. */
-  var richtig = /Echtholzoptik \(Golden OAK\)/.test(html) &&
-                !/k3dVelarisFarbe[\s\S]{0,800}Rovere Pechino/.test(html);
-  pruefe('Echtholzoptik statt Plankendekore', gegen ? !richtig : richtig, '');
+  /* Lamellenfarbe: genau drei, und die RAL-Standardtoene gehoeren NICHT
+     dazu - die gelten fuer den Rahmen (Auswahlseite, 11.10.2026). */
+  var block = (html.split('id="k3dVelarisFarbe"')[1] || '').split('</select>')[0];
+  var richtig = /Holzoptik Golden OAK/.test(block) &&
+                /RAL-Sonderfarbe/.test(block) &&
+                !/9006|9007|9010|Rovere Pechino|Eiche Mocca/.test(block) &&
+                (block.match(/<option/g) || []).length === 3;
+  pruefe('Lamellenfarbe: genau die drei aus dem Formular',
+         gegen ? !richtig : richtig,
+         (block.match(/<option/g) || []).length + ' Auswahlmoeglichkeiten');
 })();
 (function () {
   /* Elementaufteilung: BELEGT ist 500 mm Mindestbreite, 1500 mm

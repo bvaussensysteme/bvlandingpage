@@ -2714,10 +2714,14 @@ eine Lamelle lässt sich nicht halb kippen.
 **Animation:** Öffnen und Schließen laufen mit derselben Dauer und
 derselben weichen Kurve wie Markise und Schiebetür.
 
-**Widerspruch, der offen bleibt:** Das Bestellformular lässt für die
-**Lamellen** nur Anthrazit oder Holzoptik zu, die Farbtafel auf der
-Produktseite nennt alle vier RAL-Töne („Echtholzoptik gegen Aufpreis").
-Im Konfigurator stehen alle fünf zur Wahl. Zu klären.
+**Widerspruch – noch am selben Tag geklärt** (Betreiber mit der
+Auswahlseite): Die vier RAL-Standardtöne gelten für den **Rahmen**. Für
+die **Lamellen** gibt es genau drei Möglichkeiten: Anthrazit RAL 7016,
+Holzoptik Golden OAK oder eine RAL-Sonderfarbe gegen Aufpreis. Im
+Konfigurator standen zwischenzeitlich alle vier RAL-Töne zur Wahl – das
+war falsch und ist korrigiert. Die Sonderfarbe zeigt das Modell in der
+Rahmenfarbe, weil niemand weiß, welche es wird; in der Anfrage steht sie
+als offener Punkt mit Aufpreis-Hinweis.
 
 **GESCHÄTZT bleiben:** Ansichtshöhe einer Lamelle (70 mm), Ansichtsbreite
 der Rahmenprofile (45 mm), Höhe des Kopfprofils (60 mm) und der Farbwert
