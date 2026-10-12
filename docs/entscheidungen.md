@@ -5139,3 +5139,49 @@ Zeilenumbrüche können dort anders fallen als im Browser.
 `/baugenehmigung.html` durchlaufen lassen und das PDF speichern – es muss
 sich öffnen lassen und wie vorher aussehen. Dann im Konfigurator ein PDF
 erstellen: „Ihre Konfiguration" muss die **letzte** Seite sein.
+
+## 2026-10-12 – Höhe hinten nimmt jeden Millimeter, Neigung in ganzen Grad
+
+**Was falsch war (beides vom Betreiber im Bild gemeldet):**
+
+1. „das übernimmt nicht mein maß habe 2600 eingegeben es macht daraus
+   2602". Der Schieberegler für die Höhe hinten hatte `step="50"`, seine
+   Untergrenze ist aber `wandUkAus(2)` und damit krumm – im Beispiel
+   2402 mm. Der Browser rastet auf **min + n × step**, also auf 2402,
+   2452, 2502, 2552, 2602. Die 2600 gab es in diesem Raster überhaupt
+   nicht; das Zahlenfeld schrieb den Wert in den Regler, und der rückte
+   ihn auf den nächsten Rasterpunkt. Das betraf jede Eingabe, nicht nur
+   diese eine.
+
+2. „kene neigung wie 5,7 oderso angeben runde es nach den richtigen
+   regeln auf oder ab". Angezeigt wurde die auf eine Nachkommastelle
+   gerundete Rechengröße.
+
+**Was jetzt gilt:**
+- `step="1"` am Regler. Damit ist jeder Millimeterwert erreichbar,
+  unabhängig davon, wo die Untergrenze gerade liegt.
+- Neue Funktion `neigungAnzeige()` rundet kaufmännisch auf ganze Grad.
+  Sie wird im Bedienfeld **und** in der Anfrage benutzt; der Prozentwert
+  kommt aus der Tabelle zu genau dieser Gradzahl, sonst stünden dort zwei
+  Zahlen, die nicht zueinander passen.
+
+**Warum nur die Anzeige rundet:** Bindend sind die beiden Höhen, die der
+Kunde eingibt – danach wird gebaut, die Gradzahl ist das abgeleitete Maß.
+Würde das Modell nach der gerundeten Zahl zeichnen, stünde im Bedienfeld
+eine Höhe hinten, die das Bild nicht zeigt. Dass beide dadurch leicht
+auseinanderliegen (2600 mm sind genau 5,7°, angezeigt werden 6°), ist
+dieselbe Ungenauigkeit, die auch das Bestellformular des Herstellers hat.
+Beide Höhen stehen in der Anfrage, damit es nachrechenbar bleibt.
+
+**Absicherung – beide Prüfungen rechnen, statt Text zu lesen:**
+- „Jeder glatte Millimeterwert ist einstellbar" rechnet mit dem `step` aus
+  dem HTML und der echten Untergrenze durch: Ist `(wert − min) % step`
+  für jeden Hunderter null? Mit `step="50"` schlägt sie an – genau der
+  gemeldete Fehler.
+- „Angezeigte Neigung ist eine ganze Zahl" lädt `neigungAnzeige()` und
+  `neigungGrad()` aus dem Code und prüft sechs Höhen durch; dazu der
+  Einzelfall 2600 mm → 6°, damit nicht abgeschnitten statt gerundet wird.
+
+**Was gegengelesen werden soll:** Höhe hinten auf 2600 stellen – es muss
+2600 stehen bleiben, und darunter „6°" ohne Nachkommastelle. Dann einige
+andere Werte durchprobieren, auch krumme wie 2637.

@@ -1936,6 +1936,65 @@ pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
   pruefe('Beide Wege kommen auf dieselbe Neigung', schlimmste <= 0.1,
          faelle + ' Faelle, groesste Abweichung ' + schlimmste.toFixed(2) + '°');
 
+  /* ---------- Jeder Millimeter muss eingebbar sein ----------
+     „das übernimmt nicht mein maß habe 2600 eingegeben es macht daraus
+     2602" (Betreiber, 12.10.2026, mit Bild). Ursache: Der Schieberegler
+     hatte step="50", seine Untergrenze ist aber wandUkAus(2) und damit
+     krumm. Der Browser rastet auf min + n * step – also auf 2402, 2452,
+     2502, 2552, 2602. Die 2600 gab es in diesem Raster gar nicht.
+
+     Geprueft wird deshalb GERECHNET, nicht nur die Zahl im HTML gelesen:
+     Laesst sich mit diesem min und diesem step ein glatter Wert treffen? */
+  (function () {
+    var regler = (html.match(/<input[^>]*id="k3dHoeheHinten"[^>]*>/) || [''])[0];
+    var step = parseInt((regler.match(/step="(\d+)"/) || [0, 0])[1], 10);
+    if (gegen) step = 50;
+    Z.hoehe = 2300; Z.tiefe = 3000;
+    var min = wandUkAus(2);
+    /* Alle glatten Hunderter im zulaessigen Bereich muessen erreichbar sein. */
+    var max = wandUkAus(14), unerreichbar = [], w;
+    for (w = Math.ceil(min / 100) * 100; w <= max; w += 100) {
+      if ((w - min) % step !== 0) unerreichbar.push(w);
+    }
+    pruefe('Jeder glatte Millimeterwert ist einstellbar', unerreichbar.length === 0,
+           'step=' + step + ', min=' + min + (unerreichbar.length
+             ? ', nicht erreichbar: ' + unerreichbar.slice(0, 3).join(', ') + ' …'
+             : ', alle Hunderter erreichbar'));
+  })();
+
+  /* ---------- Angezeigt werden ganze Grad ----------
+     „kene neigung wie 5,7 oderso angeben runde es nach den richtigen
+     regeln auf oder ab" (Betreiber). Gerechnet wird weiter genau – nur
+     die Anzeige rundet, sonst zeichnete das Modell eine andere Hoehe
+     hinten als die eingegebene. */
+  (function () {
+    var f = (js.match(/function neigungAnzeige\(\)[\s\S]*?\n  \}/) || [''])[0];
+    if (!f) { pruefe('Neigungsanzeige lesbar', false, 'nicht gefunden'); return; }
+    var hoehenGetrennt = function () { return true; };
+    /* neigungAnzeige() stuetzt sich auf neigungGrad() – also beide aus dem
+       Code holen, statt die Rundung hier nachzubauen. Nicht ueber hol():
+       das wertet im aeusseren Scope aus, wo das hoehenGetrennt() von hier
+       nicht sichtbar waere. */
+    var qg = (js.match(/function neigungGrad\([\s\S]*?\n  \}/) || [''])[0];
+    var neigungGrad = eval('(' + qg.replace('function neigungGrad', 'function') + ')');
+    var neigungAnzeige = eval('(' + f.replace('function neigungAnzeige', 'function') + ')');
+    Z.hoehe = 2300; Z.tiefe = 3000;
+    var krumm = [], treffer = [];
+    [2400, 2500, 2600, 2700, 2800, 2900].forEach(function (mm) {
+      Z.hoeheGetrennt = true; Z.hoeheHinten = mm;
+      var a = neigungAnzeige() + (gegen ? 0.5 : 0);
+      treffer.push(mm + '->' + a + '°');
+      if (a !== Math.round(a)) krumm.push(mm);
+    });
+    pruefe('Angezeigte Neigung ist eine ganze Zahl', krumm.length === 0,
+           krumm.length ? 'krumm bei ' + krumm.join(', ') : treffer.slice(0, 3).join('  '));
+    /* Kaufmaennisch, nicht immer abwaerts: 5,7° muss 6° werden. */
+    Z.hoeheGetrennt = true; Z.hoeheHinten = 2600;
+    var sechs = neigungAnzeige() + (gegen ? 1 : 0);
+    pruefe('Wird auf- und abgerundet, nicht abgeschnitten', sechs === 6,
+           '2600 mm ergibt genau 5,7° und wird als ' + sechs + '° angezeigt');
+  })();
+
   /* Beleg aus der Montageanleitung (Seite „Standarddachneigung"), woertlich:
      „Nehmen Sie die gewuenschte Hoehe an der Innenseite, zum Beispiel
      200 cm. Die Ueberdachung hat einen festen Gefaellewinkel von 14%.
