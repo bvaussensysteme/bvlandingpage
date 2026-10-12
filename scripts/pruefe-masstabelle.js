@@ -1085,15 +1085,26 @@ pruefe('Beide Vorspruenge betroffen',
    voneinander verstellen können in erweiterte einstellungen, und
    dachvorsprung vorne machen können und hinten auch" – ergaenzt um
    „also nur bei der freistehenden version" (Betreiber, 11.10.2026). */
-pruefe('Getrennte Hoehen nur freistehend',
-       new RegExp(q || "return istCarportTds\\(\\) && Z\\.aufbau === 'Freistehend'").test(k3d), '');
-pruefe('Hoehe hinten liegt unter „Mehr Einstellungen"',
-       new RegExp(q || 'data-k3d-mehr data-k3d-fuer="hoehe-hinten"').test(html), '');
+/* ERWEITERT am 11.10.2026: Die getrennte Hoehe gibt es jetzt bei allen
+   TDS-Anlagen, nicht nur beim freistehenden Carport – „man kann
+   zusaetzlich zur durchgangshoehe die wandprofil unterkante hoehe
+   angeben" (Betreiber). Sie steht ausserdem nicht mehr unter „Mehr
+   Einstellungen", sondern direkt unter der Durchgangshoehe. */
+pruefe('Getrennte Hoehen bei allen TDS-Anlagen',
+       new RegExp(q || 'function hoehenGetrennt\\(\\) \\{\\s*\\n\\s*return neigungMoeglich\\(\\);').test(k3d), '');
+pruefe('Hoehe hinten steht direkt unter der Durchgangshoehe',
+       new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="hoehe-hinten"').test(html) &&
+       !/data-k3d-mehr data-k3d-fuer="hoehe-hinten"/.test(html), '');
 pruefe('Neigungsfeld verschwindet dafuer',
-       new RegExp(q || "!\\(hoehenGetrennt\\(\\) && Z\\.hoeheGetrennt\\)").test(k3d),
+       new RegExp(q || "case 'neigung':        return neigungMoeglich\\(\\) && !Z\\.hoeheGetrennt").test(k3d),
        'nicht zwei Regler fuer dieselbe Sache');
-pruefe('Hinterer Vorsprung an derselben Bedingung',
-       new RegExp(q || "case 'vorsprung-hinten': return hoehenGetrennt\\(\\)").test(k3d), '');
+/* Der HINTERE Vorsprung bleibt dagegen beim freistehenden Carport TDS.
+   Er hing an hoehenGetrennt(); mit der Erweiterung waere er still an
+   Anlagen aufgetaucht, die keinen haben duerfen. */
+pruefe('Hinterer Vorsprung nur beim freistehenden Carport TDS',
+       new RegExp(q || "case 'vorsprung-hinten': return vorsprungHintenMoeglich\\(\\)").test(k3d) &&
+       new RegExp(q || "function vorsprungHintenMoeglich\\(\\) \\{\\s*\\n\\s*return istCarportTds\\(\\) && Z\\.aufbau === 'Freistehend'").test(k3d),
+       'eigene Bedingung, nicht mehr hoehenGetrennt()');
 pruefe('Beide Hoehen stehen in der Anfrage',
        new RegExp(q || "teile\\.push\\('Höhe hinten: '").test(k3d), '');
 /* Zweiter Weg: die Neigung aus zwei Hoehen wirklich ausrechnen. */

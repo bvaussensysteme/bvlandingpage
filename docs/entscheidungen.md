@@ -4834,3 +4834,46 @@ gewählt, springt die Farbe auf Anthrazit. Bei Terrassendach TDS und Carport TDS
 bleibt Reinweiß. Pfosten: steht jetzt weiter vorne, bündig unter der
 Rinnenvorderkante. Prüfung: `node scripts/pruefe-masstabelle.js` (242,
 Gegenprobe 242/242).
+
+## 2026-10-12 – Dachneigung: beide Wege sichtbar und nutzbar
+
+**Was war falsch.** „hier darunter soll man noch die grad der neigung einstellen
+können … Möglichkeit 1: man gibt die grad zahl ein, und es wird nach der
+eingegebenen durchgangshöhe geguckt wie die höhe an der wand ausfällt;
+Möglichkeit 2: man kann zusätzlich zur durchgangshöhe die wandprofil unterkante
+höhe angeben und es wird daraus die grad zahl berechnet" (Betreiber,
+11.10.2026, mit Bildschirmfoto).
+
+Beide Wege waren **gebaut** – aber nicht zu sehen:
+- Die Neigungsgruppe hing an `datenSystem()`, also an der Antwort von
+  `/api/bauteile`. Die kommt nicht (503, KV-Namensraum nicht gebunden). Damit
+  war die Dachneigung beim Terrassendach komplett unsichtbar: Unter „Höhe
+  vorne" kam gleich „Mehr Einstellungen". Ob ein TDS-Dach geneigt ist, weiß das
+  Modell aber auch ohne Server.
+- Weg 2 (Höhe hinten vorgeben) gab es nur beim **freistehenden Carport TDS**
+  und auch dort nur unter „Mehr Einstellungen".
+
+**Was jetzt gilt.** Beide Wege stehen bei allen TDS-Anlagen direkt unter der
+Durchgangshöhe. Ohne Häkchen: Grad eingeben, darunter steht die Höhe an der
+Wand (Unterkante Wandprofil) samt Rechenweg. Mit Häkchen: Höhe an der Wand
+vorgeben, darunter steht die Neigung in Grad und Prozent. Das Neigungsfeld
+verschwindet dann – zwei Regler für dieselbe Sache wären nur verwirrend.
+
+Die Reglergrenzen für die Höhe hinten sind jetzt die zulässigen Neigungen,
+umgerechnet: 2° bis 14° bei der eingestellten Tiefe. Fest eingetragene
+2000–3200 mm reichten nicht – bei 7 m Tiefe sind 14° allein 1745 mm Anstieg.
+
+**Beinahe-Fehler, der dabei aufgefallen ist.** Der **hintere Dachvorsprung**
+hing an derselben Funktion `hoehenGetrennt()`. Mit der Erweiterung auf alle
+TDS-Anlagen wäre er still auch dort aufgetaucht, wo es ihn nicht geben darf –
+„also nur bei der freistehenden version" (Betreiber, 11.10.2026). Er hat jetzt
+seine eigene Bedingung `vorsprungHintenMoeglich()`.
+
+**Was gegengelesen werden soll.** Terrassendach TDS: Unter „Höhe vorne" steht
+jetzt die Dachneigung mit Grad, Prozent und Höhe an der Wand. Häkchen setzen:
+Der Regler zeigt die Höhe an der Wand, darunter die errechnete Neigung. Tiefe
+verstellen – die Werte müssen zusammenbleiben. Carport TDS mit Wandmontage:
+Neigung ja, hinterer Dachvorsprung nein. Prüfungen:
+`node scripts/pruefe-fuehrung.js` (224, Gegenprobe 224/224) und
+`node scripts/pruefe-masstabelle.js` (242, 242/242); eine davon rechnet 20
+Fälle hin und zurück – Grad zu Höhe und wieder zurück, größte Abweichung 0,00°.

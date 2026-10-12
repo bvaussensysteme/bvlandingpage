@@ -7098,7 +7098,40 @@
      Neigung eingeben, Wandhöhe ablesen. Dasselbe gilt für den hinteren
      Dachvorsprung: An einer Wand kann das Dach nicht nach hinten
      auskragen. */
+  /* Welche Produkte überhaupt eine einstellbare Neigung haben: die
+     TDS-Systeme. SkyView liegt fest bei 2°, die Pergola ist waagerecht,
+     Flat Line ist ein Flachdach.
+
+     Das hing vorher an datenSystem(), also an der Antwort von
+     /api/bauteile – und die kommt nicht (503). Damit war die
+     Neigungseinstellung beim Terrassendach UNSICHTBAR; genau das war im
+     Bedienfeld zu sehen: unter „Höhe vorne" kam gleich „Mehr
+     Einstellungen". Ob ein TDS-Dach geneigt ist, weiß das Modell aber
+     auch ohne Server. */
+  function neigungMoeglich() {
+    return Z.produkt === 'Terrassendach TDS' || istCarportTds();
+  }
+
+  /* Zwei Wege zur Neigung, beide vom Betreiber gewünscht (11.10.2026):
+       1. Grad eingeben – daraus folgt die Höhe an der Wand.
+       2. Höhe an der Wand (Unterkante Wandprofil) eingeben – daraus
+          folgt die Gradzahl.
+     Der zweite Weg stand bisher nur beim freistehenden Carport TDS zur
+     Verfügung und auch dort nur unter „Mehr Einstellungen". */
   function hoehenGetrennt() {
+    return neigungMoeglich();
+  }
+
+  /* Der HINTERE Dachvorsprung bleibt, wo er war: nur beim freistehenden
+     Carport TDS. „also nur bei der freistehenden version" (Betreiber,
+     11.10.2026) – an der Wand gibt es hinten nichts, was überstehen
+     könnte.
+
+     Er hing bis eben an hoehenGetrennt(); seit die getrennte Höhe für
+     alle TDS gilt, braucht er seine eigene Bedingung. Sonst wäre aus
+     einer Erweiterung der Neigungseingabe still ein Dachvorsprung an
+     Anlagen geworden, die keinen haben dürfen. */
+  function vorsprungHintenMoeglich() {
     return istCarportTds() && Z.aufbau === 'Freistehend';
   }
 
@@ -7117,15 +7150,44 @@
      gerechnet und in Regler und Zahlenfeld geschrieben – man sieht also,
      was herauskommt, kann es aber nicht verstellen. Entkoppelt bleibt
      der eingestellte Wert stehen. */
+  /* Die Grenzen des Reglers sind die zulässigen Neigungen, umgerechnet
+     in Höhen: 2° bis 14° bei der eingestellten Tiefe. Fest eingetragene
+     2000–3200 mm reichten dafür nicht – bei 7 m Tiefe sind 14° allein
+     1745 mm Anstieg, der Regler hätte bei 3200 dichtgemacht und einen
+     Wert gezeigt, der nicht der gebaute ist. Gerechnet wird mit
+     derselben Funktion wie in der Gegenrichtung, damit beide Wege nicht
+     auseinanderlaufen. */
+  function hoeheHintenGrenzen() {
+    var el = document.getElementById('k3dHoeheHinten');
+    var zf = document.getElementById('k3dHoeheHintenZahl');
+    var min = Z.hoehe + Math.round(Z.tiefe * neigungProzent(2) / 100);
+    var max = Z.hoehe + Math.round(Z.tiefe * neigungProzent(14) / 100);
+    [el, zf].forEach(function (e) {
+      if (!e) return;
+      e.min = min;
+      e.max = max;
+    });
+    if (Z.hoeheHinten < min) Z.hoeheHinten = min;
+    if (Z.hoeheHinten > max) Z.hoeheHinten = max;
+    return { min: min, max: max };
+  }
+
   function hoeheHintenKoppeln() {
     var el = document.getElementById('k3dHoeheHinten');
     var zf = document.getElementById('k3dHoeheHintenZahl');
     var frei = hoehenGetrennt() && Z.hoeheGetrennt;
     if (el) el.disabled = !frei;
     if (zf) zf.disabled = !frei;
-    if (frei) return;
+    var g = hoeheHintenGrenzen();
+    if (frei) {
+      /* Im freien Weg steht der eingestellte Wert; nur die Anzeige wird
+         nachgezogen, falls die Grenzen ihn gerade gekappt haben. */
+      if (el) el.value = Z.hoeheHinten;
+      if (zf && document.activeElement !== zf) zf.value = Z.hoeheHinten;
+      return;
+    }
     Z.hoeheHinten = Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100);
-    if (el) el.value = Math.min(el.max, Math.max(el.min, Z.hoeheHinten));
+    if (el) el.value = Math.min(g.max, Math.max(g.min, Z.hoeheHinten));
     if (zf && document.activeElement !== zf) zf.value = Z.hoeheHinten;
   }
 
@@ -7227,7 +7289,7 @@
       /* NUR beim Carport TDS und nur freistehend: „der einzige
          unterschied dort ist ein dachvorsprung auch an der hinterseite
          möglich bei freistehender montage" (Betreiber, 11.10.2026). */
-      case 'vorsprung-hinten': return hoehenGetrennt();
+      case 'vorsprung-hinten': return vorsprungHintenMoeglich();
       /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
          da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
          hilft. Beim Carport und bei der Pergola gibt es die Bauweise
@@ -7260,8 +7322,8 @@
       /* Neigung eingeben, solange die hintere Höhe gekoppelt ist. Nur
          eines von beidem darf Eingabe sein, sonst verstellen sie sich
          gegenseitig. */
-      case 'neigung':        return !!d && d.system === 'TDS' &&
-                                    !(hoehenGetrennt() && Z.hoeheGetrennt);
+      /* Nicht mehr an datenSystem() gebunden – siehe neigungMoeglich(). */
+      case 'neigung':        return neigungMoeglich() && !Z.hoeheGetrennt;
       case 'hoehe-hinten':   return hoehenGetrennt();
       // Die Lage des Glasstoßes nur fragen, wenn es einen gibt
       case 'kopplung':       return glasGeteilt();
