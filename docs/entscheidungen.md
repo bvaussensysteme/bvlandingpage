@@ -4977,3 +4977,50 @@ Sparrenzahl, Pfostenzahl, Statikträger, Dachneigung und Höhe an der Wand an
 antwortet derzeit 503 (KV-Namensraum DACHMATRIX nicht gebunden). Damit stehen
 diese Angaben aktuell in **keiner** Anfrage. Entscheidung des Betreibers
 abwarten – siehe docs/NEXT_TASK.md.
+
+## 2026-10-12 – Anfrage rechnet mit der Maßtabelle statt mit der toten Schnittstelle
+
+**Was falsch war:** In der Anfrage, die beim Betrieb ankommt, hingen
+Sparrenzahl, Pfostenzahl, Statikträger, Dachneigung und Höhe an der Wand
+allein an `stueckliste()` – also an `/api/bauteile`. Die antwortet 503,
+solange der KV-Namensraum DACHMATRIX nicht gebunden ist. Diese Angaben
+standen damit **in keiner einzigen Anfrage**. Aufgefallen beim Nachsehen,
+nicht durch eine Beschwerde: Die Anfrage sah vollständig aus, es fehlten
+nur Zeilen, die niemand vermisst, solange er sie nie gesehen hat.
+
+Zwei weitere Fehler lagen im selben Block:
+- Die Höhe an der Wand rechnete mit `Z.neigung` statt mit der wirklich
+  geltenden Neigung. Wer den zweiten Weg benutzt (Unterkante Wandprofil
+  eingeben), hätte dort eine Zahl stehen gehabt, die nicht zu seiner
+  Eingabe passt.
+- `ed.geneigt` wird nirgends im Code gesetzt. Die Bedingung war also immer
+  falsch – selbst mit gebundenem KV wäre die Neigung nicht erschienen.
+
+**Was jetzt gilt:** Beide Zahlenquellen laufen über eine neue Funktion
+`bauteileJetzt()`, die aus `js/masstabelle.js` rechnet. Sie bedient den
+Maßhinweis unter den Maßen **und** die Anfrage – vorher rechnete der
+Hinweis richtig und die Anfrage gar nicht. Dazu kommen neu in die Anfrage:
+die nächste lieferbare Breite, wenn das Wunschmaß dazwischen liegt, und
+eine Warnzeile, wenn die Tiefe über dem Höchstmaß liegt. Die Neigung steht
+nur noch beim Terrassendach TDS – SkyView hat ein festes Gefälle von 2°.
+Die Höhe an der Wand ist bei Weg 2 genau die eingegebene Zahl, nicht die
+über gerundete Grad zurückgerechnete.
+
+**Warum so und nicht anders:** Der Betreiber hat Weg 2 gewählt („2") statt
+KV zu binden. Geschätzte Zahlen kommen bewusst **nicht** in die Anfrage:
+Gibt die Maßtabelle nichts her (Pergola, Carport Flat Box), bleiben die
+Zeilen weg. Lieber keine Zahl als eine erfundene in einer Bestellung.
+
+**Was offen bleibt:** Sobald DACHMATRIX gebunden ist, gehört
+`stueckliste()` in `bauteileJetzt()` vorgeschaltet – der Platz dafür ist
+im Kommentar der Funktion benannt. Der Zusammenfassungskasten im Panel
+(`k3dZus`) hängt weiterhin an der Schnittstelle und bleibt leer; das ist
+so gewollt („lass das weg", Betreiber 11.10.2026).
+
+**Was gegengelesen werden soll:** Terrassendach TDS, 5000 × 3000,
+Anfrage-Text aufklappen. Es müssen jetzt Sparrenzahl, Pfosten,
+Dachneigung und Höhe an der Wand dastehen. Dann auf Flachdach SkyView
+umstellen: Sparren und Pfosten bleiben, **die Dachneigung muss
+verschwinden**. Danach Breite auf 5800 stellen – es muss der Hinweis auf
+die nächste lieferbare Breite erscheinen, und die Sparrenzahl muss
+dieselbe sein wie im Kasten unter den Maßen.

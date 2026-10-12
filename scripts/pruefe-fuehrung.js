@@ -2032,6 +2032,51 @@ pruefe('SkyView bietet keine Unterkanten-Eingabe',
        new RegExp(q || 'function hoehenGetrennt\\(\\) \\{\\s*\n\\s*return neigungMoeglich\\(\\);')
          .test(js), 'haengt an derselben Regel');
 
+/* ---------- Was in der Anfrage ankommt ----------
+   Gefunden am 12.10.2026: Sparrenzahl, Pfostenzahl, Statiktraeger,
+   Dachneigung und Hoehe an der Wand hingen allein an stueckliste(), also
+   an /api/bauteile. Die antwortet 503, solange DACHMATRIX nicht gebunden
+   ist – diese Angaben standen damit in KEINER Anfrage. Das faellt nicht
+   auf, weil die Anfrage trotzdem plausibel aussieht. Darum hier festhalten. */
+(function () {
+  var zus = (js.match(/function anfrageTexte?\(|teile\.push\('Eindeckung: '/) || [])[0];
+  var block = js.slice(js.indexOf("if (istCarport()) {\n      teile.push('Ausführung"),
+                       js.indexOf("teile.push('Eindeckung: ' + eindeckungFach());",
+                                  js.indexOf('var ed = ')) + 200);
+  if (!block || block.length < 200) {
+    pruefe('Anfragetext lesbar', false, 'Block nicht gefunden'); return;
+  }
+  /* Abwesenheitspruefung: Die Gegenprobe baut den alten Aufruf wieder
+     ein – schlaegt sie dann nicht an, prueft sie nichts. */
+  var blockGeprueft = gegen ? block + '\n      var ed = stueckliste();' : block;
+  pruefe('Anfrage haengt nicht mehr an /api/bauteile',
+         !/stueckliste\(\)/.test(blockGeprueft),
+         'Sparren, Pfosten und Traeger kommen aus bauteileJetzt()');
+  pruefe('Anfrage nennt Sparren, Pfosten und Traeger',
+         new RegExp(q || "' Sparren, ' \\+ pfostenText\\(ed\\)").test(block) &&
+         new RegExp(q || "ec\\.traeger \\? ', mit Statikträger'").test(block),
+         '');
+  /* Die Neigung darf NUR beim Terrassendach TDS dastehen – SkyView hat
+     ein festes Gefaelle von 2°, das nicht bestellt wird. */
+  pruefe('Neigung steht nur beim Terrassendach TDS in der Anfrage',
+         new RegExp(q || "if \\(Z\\.produkt === 'Terrassendach TDS'\\) \\{\\s*\\n\\s*teile\\.push\\('Dachneigung: ")
+           .test(block), '');
+  /* Alter Fehler: Hier stand neigungProzent(Z.neigung) statt der wirklich
+     geltenden Neigung – bei Weg 2 (Unterkante eingegeben) also die falsche
+     Zahl in der Bestellung. */
+  pruefe('Hoehe an der Wand nimmt die eingegebene Zahl',
+         new RegExp(q || "\\? Z\\.hoeheHinten : wandUkAus\\(neigungGrad\\(\\)\\)").test(block) &&
+         (gegen ? true : !/neigungProzent\(Z\.neigung\)/.test(block)),
+         'nicht aus den gerundeten Grad zurueckgerechnet');
+})();
+/* Keine zwei Wahrheiten: Hinweis unter den Massen und Anfrage muessen
+   dieselbe Pfostenzahl nennen. Beide rechnen in bauteileJetzt(). */
+pruefe('Hinweis und Anfrage rechnen an einer Stelle',
+       new RegExp(q || 'function bauteileJetzt\\(').test(js) &&
+       (js.match(new RegExp(q || 'bauteileJetzt\\(\\)', 'g')) || []).length >= 3 &&
+       (js.match(new RegExp(q || 'pfostenText\\(', 'g')) || []).length >= 3,
+       'bauteileJetzt() und pfostenText() an beiden Stellen');
+
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&
        new RegExp(q || 'placeholder="7016"').test(html),

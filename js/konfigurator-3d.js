@@ -7278,6 +7278,47 @@
     if (unterzugGilt(tabelleBauteile(Z.breite, Z.tiefe))) return true;
     return gruppeGilt('vorsprung') && Z.vorsprung > 0;
   }
+  /* ---------- Sparren, Pfosten, Traeger: EINE Quelle ----------
+     Diese Zahlen stehen an zwei Stellen: im Hinweis unter den Maßen und in
+     der Anfrage, die beim Betrieb ankommt. Bis zum 12.10.2026 rechnete der
+     Hinweis mit der Maßtabelle, die Anfrage dagegen allein mit der Antwort
+     von /api/bauteile. Die antwortet 503, solange der KV-Namensraum
+     DACHMATRIX nicht gebunden ist – also standen Sparrenzahl, Pfostenzahl,
+     Statikträger und Dachneigung in KEINER Anfrage. Aufgefallen beim
+     Nachsehen, nicht durch eine Beschwerde.
+
+     Darum rechnen beide jetzt hier. Reihenfolge der Quellen wie überall:
+     Maßtabelle (js/masstabelle.js), und erst wo die nichts hergibt, gar
+     nichts – lieber keine Zahl in der Anfrage als eine geschätzte.
+     Sobald DACHMATRIX gebunden ist, gehört hier die Antwort von
+     /api/bauteile davorgeschaltet (stueckliste()). */
+  function bauteileJetzt() {
+    var tb = tabelleBauteile(Z.breite, Z.tiefe);
+    if (!tb) return null;
+    var vs = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
+    var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
+    var traeger = unterzugGilt(tb) || vs > 0 || wunsch;
+    return {
+      sparren: tb.sparren,
+      /* Unter einem Träger gilt die 7-m-Regel, sonst die Stützfußspalte
+         der Tabelle – siehe pfostenUnterTraeger(). */
+      pfostenVorne: traeger ? pfostenUnterTraeger(Z.breite) : tb.pfosten,
+      pfostenHinten: pfostenUnterTraeger(Z.breite),
+      traeger: traeger,
+      vorsprung: vs,
+      wunsch: wunsch,
+      lieferbar: tb.lieferbar,
+      breiteTabelle: tb.breiteTabelle
+    };
+  }
+
+  /* Pfosten in Worten, für Hinweis und Anfrage gleich. */
+  function pfostenText(bt) {
+    return (Z.aufbau === 'Freistehend' && bt.pfostenHinten !== bt.pfostenVorne)
+      ? bt.pfostenVorne + ' Pfosten vorne und ' + bt.pfostenHinten + ' hinten'
+      : bt.pfostenVorne + ' Pfosten je Reihe';
+  }
+
   function istLamellen() { return istPergola() && Z.pgDachart === 'Lamellendach'; }
 
   /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
@@ -7640,36 +7681,58 @@
       } else if (Z.cpVariante === 'Carport mit Überstand') {
         teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
       }
-      var ec = stueckliste();
-      if (ec && !ec.fehler) {
-        teile.push(ec.sparren + ' Sparren, ' + ec.pfosten + ' Pfosten in zwei Reihen');
-        teile.push('Dach: ' + ec.eindeckung);
-      } else {
-        /* Beim Flachdach-Carport ist die Eindeckung immer Trapezblech;
-           Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
-           was wie eine Alternative zum Blech klang. */
-        teile.push(istCarportTds()
-          ? 'Eindeckung: ' + eindeckungFach()
-          : 'Eindeckung: Trapezblech' +
-            (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
+      var ec = bauteileJetzt();
+      if (ec) {
+        teile.push(ec.sparren + ' Sparren, ' + ec.pfostenVorne +
+                   ' Pfosten in zwei Reihen' +
+                   (ec.traeger ? ', mit Statikträger' : ''));
+        if (ec.breiteTabelle !== Z.breite) {
+          teile.push('Gerechnet mit der nächsten lieferbaren Breite: ' +
+                     ec.breiteTabelle + ' mm');
+        }
+        if (!ec.lieferbar) {
+          teile.push('ACHTUNG: Tiefe über dem Höchstmaß – so nicht lieferbar');
+        }
       }
+      /* Beim Flachdach-Carport ist die Eindeckung immer Trapezblech;
+         Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
+         was wie eine Alternative zum Blech klang. */
+      teile.push(istCarportTds()
+        ? 'Eindeckung: ' + eindeckungFach()
+        : 'Eindeckung: Trapezblech' +
+          (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
       teile.push('Farbe: ' + farbeText());
     } else {
       teile.push(Z.aufbau);
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm');
-      var ed = stueckliste();
-      if (ed && !ed.fehler) {
-        teile.push(ed.sparren + ' Sparren, ' + ed.pfosten + ' Pfosten' +
-                   (ed.statiktraeger ? ', mit Statikträger' : ''));
-        if (ed.geneigt) {
-          /* Die Höhe an der Wand gehört in die Anfrage, nicht nur ins
-             Bild: Danach wird das Wandprofil angerissen, und sie ergibt
-             sich erst aus Durchgangshöhe, Tiefe und Neigung zusammen. */
-          teile.push('Dachneigung: ' + neigungGrad() + '° (' +
-            String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
-          teile.push('Höhe an der Wand (UK Wandprofil): ' +
-            (Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100)) + ' mm');
+      var ed = bauteileJetzt();
+      if (ed) {
+        teile.push(ed.sparren + ' Sparren, ' + pfostenText(ed) +
+                   (ed.traeger ? ', mit Statikträger' : ''));
+        if (ed.breiteTabelle !== Z.breite) {
+          teile.push('Gerechnet mit der nächsten lieferbaren Breite: ' +
+                     ed.breiteTabelle + ' mm');
         }
+        if (!ed.lieferbar) {
+          teile.push('ACHTUNG: Tiefe über dem Höchstmaß – so nicht lieferbar');
+        }
+      }
+      /* Nur das Terrassendach TDS wird nach Grad gefertigt. SkyView hat
+         ein festes Gefälle von 2° („bei skyview sind es immer 2 grad",
+         Betreiber 12.10.2026) – dort darf keine Neigung in der Anfrage
+         stehen, sonst wird nach einer Zahl bestellt, die es nicht gibt.
+
+         Die Höhe an der Wand gehört mit in die Anfrage, nicht nur ins
+         Bild: Danach wird das Wandprofil angerissen, und sie ergibt sich
+         erst aus Durchgangshöhe, Tiefe und Neigung zusammen. Hat der
+         Kunde sie selbst eingegeben (Weg 2), steht genau seine Zahl da –
+         nicht die über die gerundeten Grad zurückgerechnete. */
+      if (Z.produkt === 'Terrassendach TDS') {
+        teile.push('Dachneigung: ' + neigungGrad() + '° (' +
+          String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
+        teile.push('Höhe an der Wand (UK Wandprofil): ' +
+          ((hoehenGetrennt() && Z.hoeheGetrennt)
+            ? Z.hoeheHinten : wandUkAus(neigungGrad())) + ' mm');
       }
       teile.push('Eindeckung: ' + eindeckungFach());
       teile.push('Farbe: ' + farbeText());
@@ -8016,17 +8079,15 @@
         /* Unter einem Statikträger gilt die 7-m-Regel, nicht die
            Stützfußspalte der Tabelle – siehe pfostenUnterTraeger(). Der
            Hinweis muss dieselbe Zahl nennen wie das Modell. */
-        var vsHin = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
-        var freiHin = Z.aufbau === 'Freistehend';
         /* Dieselbe Trennung wie im Modell: vorne nach dem Träger dort,
-           hinten nur freistehend und dann immer nach der 7-m-Regel. */
-        var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
-        var pfV = (unterzugGilt(tb) || vsHin > 0 || wunsch)
-          ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
-        var pfH = pfostenUnterTraeger(Z.breite);
-        var pf = (freiHin && pfH !== pfV)
-          ? pfV + ' Pfosten vorne und ' + pfH + ' hinten'
-          : pfV + ' Pfosten je Reihe';
+           hinten nur freistehend und dann immer nach der 7-m-Regel.
+           Gerechnet in bauteileJetzt(), damit die Anfrage dieselben
+           Zahlen nennt wie dieser Hinweis. */
+        var bt = bauteileJetzt();
+        var vsHin = bt.vorsprung;
+        var wunsch = bt.wunsch;
+        var pfV = bt.pfostenVorne;
+        var pf = pfostenText(bt);
         if (tb.breiteTabelle !== Z.breite) {
           saetze.push('Gerechnet wird mit der nächsten lieferbaren Breite: <b>' +
             tb.breiteTabelle + ' mm</b> – daraus folgen ' + tb.sparren +
@@ -8036,7 +8097,7 @@
             '</b> bei diesem Maß.');
         }
         var vs = vsHin;
-        if (unterzugGilt(tb) || vs > 0 || wunsch) {
+        if (bt.traeger) {
           var grund = unterzugGilt(tb)
             ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
               ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
