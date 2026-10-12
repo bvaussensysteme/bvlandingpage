@@ -2213,6 +2213,9 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
      im Browser. */
   var fo = (js.match(/function ohneLieferant\([\s\S]*?\n  \}/) || [''])[0];
   var ohneLieferant = eval('(' + fo.replace('function ohneLieferant', 'function') + ')');
+  var fv = (js.match(/function ohneVorbehalt\([\s\S]*?\n  \}/) || [''])[0];
+  var ohneVorbehalt = eval('(' + fv.replace('function ohneVorbehalt', 'function') + ')');
+  var PDF_NUR_INTERN = eval((js.match(/var PDF_NUR_INTERN = (\/.*\/);/) || [])[1]);
   var pdfGruppen = eval('(' + fg.replace('function pdfGruppen', 'function') + ')');
   var liste = [
     'Terrassendach TDS', 'Wandmontage',
@@ -2236,7 +2239,13 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
   var g = pdfGruppen(liste);
   var raus = [];
   g.forEach(function (x) { x.zeilen.forEach(function (z) { raus.push(z); }); });
-  var soll = liste.slice(2).filter(function (z) { return !PDF_IM_KOPF.test(z); });
+  /* Erwartet wird die Liste ohne das, was bewusst wegfaellt (Kopfzeilen,
+     interne Angaben) und in der Form, die der Filter erzeugt. Geprueft
+     bleibt damit das Entscheidende: dass nichts UNBEABSICHTIGT verschwindet
+     und nichts doppelt auftaucht. */
+  var soll = liste.slice(2)
+    .filter(function (z) { return !PDF_IM_KOPF.test(z) && !PDF_NUR_INTERN.test(z); })
+    .map(ohneLieferant).map(ohneVorbehalt);
   if (gegen) soll.push('Diese Zeile hat nie jemand uebergeben');
   var fehlt = soll.filter(function (z) { return raus.indexOf(z) === -1; });
   var doppelt = raus.filter(function (z, i) { return raus.indexOf(z) !== i; });
@@ -2279,6 +2288,49 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
          (gegen ? 0 : glas.length) === 1 &&
          rausVd.indexOf('SG23 Richtungsangaben: von INNEN gesehen (links/rechts)') > -1,
          'Glasart bleibt, Klammerzusatz faellt weg');
+
+  /* ---------- Interne Angaben und Einzel-Vorbehalte ----------
+     „das mit nächste lieferbare breite weglassen … is nur für mich intern
+     wichtig für den preis" und „du musst nicht bei jedem element schreiben
+     (vorschlag, Aufteilung nach aufmaß) reicht wenn es unten im rechtstext
+     einmal alles drinsteht" (Betreiber, 12.10.2026).
+
+     BEIDES NUR IM PDF: In der Anfrage an den Betrieb bleibt die lieferbare
+     Breite stehen – daran haengt der Preis. Geprueft wird deshalb beides:
+     dass es aus dem PDF verschwindet UND dass zusammenfassung() es
+     weiterhin erzeugt. */
+  var mitIntern = liste.concat([
+    'Gerechnet mit der nächsten lieferbaren Breite: 5080 mm',
+    'Schiebeanlage vorne: 2335 mm licht (Vorschlag, Aufteilung nach Aufmaß)',
+    'SG23 Bürstendichtung: Bürstenprofil, Lieferlänge 2500 mm – Bedarf nach Aufmaß'
+  ]);
+  var rausI = [];
+  pdfGruppen(mitIntern).forEach(function (x) {
+    x.zeilen.forEach(function (z) { rausI.push(z); });
+  });
+  var intern = rausI.filter(function (z) { return /lieferbaren Breite/.test(z); });
+  if (gegen) intern.push('erzwungen');
+  pruefe('Die naechste lieferbare Breite steht nicht im PDF', intern.length === 0,
+         'Kalkulationsgroesse, kein Kundenmass');
+  var vorb = rausI.filter(function (z) {
+    return /\(Vorschlag|Bedarf nach Aufmaß/.test(z);
+  });
+  if (gegen) vorb.push('erzwungen');
+  pruefe('Kein Vorbehalt mehr an der einzelnen Angabe', vorb.length === 0,
+         'steht einmal unten im Fusstext');
+  /* Der Filter darf die Angabe nicht verstuemmeln – die Masse muessen
+     vollstaendig bleiben, nur der Zusatz faellt weg. */
+  var bleibt = rausI.filter(function (z) {
+    return z === 'Schiebeanlage vorne: 2335 mm licht';
+  });
+  pruefe('Nur der Zusatz faellt weg, nicht die Angabe',
+         (gegen ? 0 : bleibt.length) === 1, 'Mass bleibt vollstaendig');
+  /* Gegenprobe der anderen Richtung: In der ANFRAGE muss die lieferbare
+     Breite erhalten bleiben. Geprueft am Quelltext, weil zusammenfassung()
+     hier nicht lauffaehig ist. */
+  pruefe('Die lieferbare Breite bleibt in der Anfrage',
+         new RegExp(q || "teile\\.push\\('Gerechnet mit der nächsten lieferbaren Breite: '")
+           .test(js), 'dort haengt der Preis daran');
 
   /* „Weitere Angaben" ist die Auffanggruppe. Steht dort bei einer
      gewoehnlichen Konfiguration etwas drin, fehlt ein Muster – das sah

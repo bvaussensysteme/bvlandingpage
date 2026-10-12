@@ -183,11 +183,13 @@ blob.arrayBuffer().then(function (ab) {
     gruppen: [
       { titel: 'Konstruktion und Masse',
         zeilen: ['8 Sparren, 3 Pfosten je Reihe', 'Dachneigung: 7 Grad (12,3 %)',
-                 'Schiebeanlage links: 2890 mm licht (Vorschlag, Aufteilung nach Aufmass)'] },
+                 'Schiebeanlage links: 2890 mm licht, Scheiben je ca. 963 mm'] },
       { titel: 'Seiten und Verglasung', zeilen: langeZeilen.slice(0, 3) },
       { titel: 'Komfort und Zubehoer', zeilen: [langeZeilen[3], 'LED-Spots: 12er-Set'] }
     ],
-    unten: 'Unverbindliche Darstellung',
+    unten: ['Alle Masse und Aufteilungen sind Vorschlaege und werden beim ' +
+            'kostenlosen Aufmass vor Ort verbindlich festgelegt.',
+            'Unverbindliche Darstellung'],
     ruf: 'Kostenloses Aufmass vor Ort: 0156 78696609'
   };
   var kBlob = PDF.erzeugen([konfSeite], { titel: 'Konfiguration' });
@@ -245,13 +247,23 @@ blob.arrayBuffer().then(function (ab) {
     var zusammen = rohZeilen.filter(function (z) {
       return /7 Grad \(12,3 %\)/.test(z);
     }).length;
-    var abgesetzt = rohZeilen.filter(function (z) {
-      return /^\(Vorschlag/.test(z);
-    }).length;
     pruefe('Praezisierung bleibt in der Zeile', (gegen ? 0 : zusammen) === 1,
            '„7 Grad (12,3 %)" steht zusammen');
-    pruefe('Vorbehalt steht abgesetzt', (gegen ? 0 : abgesetzt) >= 1,
-           '„(Vorschlag …)" beginnt eine eigene Zeile');
+    /* Der Vorbehalt stand bis zum 12.10.2026 hinter JEDER Schiebeanlage.
+       „reicht wenn es unten im rechtstext einmal alles drinsteht"
+       (Betreiber) – also darf er oben nicht mehr auftauchen, und unten
+       muss er stehen. Beides zusammen, sonst faellt er bei einer
+       Umstellung ganz weg. */
+    var fussText = lauf('pdftotext', ['-y', '540', '-x', '0', '-W', '842',
+                                      '-H', '60', '-layout', kDatei, '-']);
+    /* Der Fuss traegt seit dem 12.10.2026 zwei Zeilen: den Vorbehalt fuer
+       alle Masse und den ueblichen Hinweis. Faellt die zweite Zeile beim
+       Zeichnen unter den Seitenrand, sieht man es im Text nicht – darum
+       wird hier der untere Streifen der Seite ausgeschnitten. */
+    pruefe('Beide Fusszeilen stehen auf der Seite',
+           /Vorschlaege/i.test(fussText) &&
+           /Unverbindliche Darstellung/.test(gegen ? 'x' : fussText),
+           'Vorbehalt und Hinweis, beide unten');
 
     pruefe('Der naechste Schritt steht auf dem Blatt',
            kText.indexOf(gegen ? '0800 000000' : '0156 78696609') > -1,
