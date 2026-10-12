@@ -7266,6 +7266,25 @@
     return gradAusWandUk(Z.hoeheHinten);
   }
 
+  /* ---------- Was angezeigt und bestellt wird: ganze Grad ----------
+     „kene neigung wie 5,7 oderso angeben runde es nach den richtigen
+     regeln auf oder ab" (Betreiber, 12.10.2026). Das Bestellformular des
+     Herstellers zeigt ebenfalls ganze Grad.
+
+     GERECHNET wird weiter mit der genauen Neigung: Bindend sind die
+     beiden Höhen, die der Kunde eingibt – danach wird gebaut, die
+     Gradzahl ist das abgeleitete Maß. Würde das Modell nach der
+     gerundeten Zahl zeichnen, stünde im Bedienfeld eine Höhe hinten, die
+     das Bild nicht zeigt. Deshalb rundet NUR die Anzeige.
+
+     Dass die beiden dadurch leicht auseinanderliegen (bei 2600 mm sind es
+     genau 5,7°, angezeigt werden 6°), ist dieselbe Ungenauigkeit, die das
+     Herstellerformular hat. Beide Höhen stehen in der Anfrage, damit es
+     nachrechenbar bleibt. */
+  function neigungAnzeige() {
+    return Math.min(14, Math.max(2, Math.round(neigungGrad())));
+  }
+
   /* Greift die Tiefenregel der Maßtabelle? Beim Carport TDS nicht – dort
      entscheidet allein das Häkchen bzw. der Dachvorsprung (Betreiber,
      11.10.2026). Ein Carport ist von Haus aus tief; die Regel hätte dort
@@ -7672,8 +7691,8 @@
            ergibt sich die Neigung, nach der gefertigt wird. */
         if (hoehenGetrennt()) {
           teile.push('Höhe hinten: ' + Z.hoeheHinten + ' mm');
-          teile.push('Daraus Dachneigung: ' + neigungGrad() + '° (' +
-            String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
+          teile.push('Daraus Dachneigung: ' + neigungAnzeige() + '° (' +
+            String(neigungProzent(neigungAnzeige())).replace('.', ',') + ' %)');
         }
         if (gruppeGilt('vorsprung-hinten') && Z.vorsprungHinten > 0) {
           teile.push('Dachvorsprung hinten: ' + Z.vorsprungHinten + ' mm');
@@ -7728,8 +7747,8 @@
          Kunde sie selbst eingegeben (Weg 2), steht genau seine Zahl da –
          nicht die über die gerundeten Grad zurückgerechnete. */
       if (Z.produkt === 'Terrassendach TDS') {
-        teile.push('Dachneigung: ' + neigungGrad() + '° (' +
-          String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
+        teile.push('Dachneigung: ' + neigungAnzeige() + '° (' +
+          String(neigungProzent(neigungAnzeige())).replace('.', ',') + ' %)');
         teile.push('Höhe an der Wand (UK Wandprofil): ' +
           ((hoehenGetrennt() && Z.hoeheGetrennt)
             ? Z.hoeheHinten : wandUkAus(neigungGrad())) + ' mm');
@@ -8142,12 +8161,14 @@
 
     var nz = document.getElementById('k3dNeigungZahl');
     if (nz && document.activeElement !== nz) nz.value = Z.neigung;
-    var prozent = neigungProzent(neigungGrad());
+    var prozent = neigungProzent(neigungAnzeige());
     /* Beim Carport die Neigung ANZEIGEN, nicht abfragen – sie ist dort
-       das Ergebnis der beiden Höhen. */
+       das Ergebnis der beiden Höhen. Gerundet auf ganze Grad, und der
+       Prozentwert aus der Tabelle zu genau dieser Gradzahl – sonst
+       stünden dort zwei Zahlen, die nicht zueinander passen. */
     var nh = document.getElementById('k3dNeigungHinten');
     if (nh) {
-      nh.textContent = String(neigungGrad()).replace('.', ',') + '° (' +
+      nh.textContent = neigungAnzeige() + '° (' +
         String(prozent).replace('.', ',') + ' %)';
     }
     var np = document.getElementById('k3dNeigungProzent');
