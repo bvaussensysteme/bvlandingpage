@@ -752,7 +752,11 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse">
-          <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <output id="k3dHoeheWert">2300 mm</output></label>
+          <!-- „Unterkante Rinne" ist der Name, unter dem der Hersteller
+               dieses Maß im Bestellformular führt. Beide Bezeichnungen
+               stehen da, damit beim Übertragen in die Bestellung nichts
+               verwechselt wird. -->
+          <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <small>Unterkante Rinne</small> <output id="k3dHoeheWert">2300 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
             <input type="number" id="k3dHoeheZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Höhe in Millimeter">
@@ -763,9 +767,12 @@
              beide Maße hängen zusammen, und erst aus beiden ergibt sich
              die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
              hinten unter „Mehr Einstellungen". -->
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="hoehe-hinten" hidden>
-          <label class="k3d-schalter"><input type="checkbox" id="k3dHoeheGetrennt"> <span>Höhe hinten getrennt einstellen</span></label>
-          <label class="k3d-label" for="k3dHoeheHinten">Höhe hinten <output id="k3dHoeheHintenWert">2500 mm</output></label>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="hoehe-hinten" hidden>
+          <!-- Dieselbe Frage wie im Bestellformular des Herstellers:
+               „Möchten Sie die Dachneigung oder die Unterkante Rinne und
+               die Unterkante Wandprofil angeben?" -->
+          <label class="k3d-schalter"><input type="checkbox" id="k3dHoeheGetrennt"> <span>Statt der Dachneigung die Unterkante Wandprofil angeben</span></label>
+          <label class="k3d-label" for="k3dHoeheHinten">Höhe hinten <small>Unterkante Wandprofil</small> <output id="k3dHoeheHintenWert">2500 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dHoeheHinten" class="k3d-range" min="2000" max="3200" step="50" value="2500">
             <input type="number" id="k3dHoeheHintenZahl" class="k3d-zahl" inputmode="numeric" value="2500" aria-label="Höhe hinten in Millimeter">
@@ -774,11 +781,12 @@
             <span>Daraus folgt die Dachneigung</span>
             <output id="k3dNeigungHinten">8°</output>
           </div>
-          <p class="k3d-mini">Normalerweise folgt die hintere Höhe der vorderen –
-            Sie geben die Dachneigung vor und lesen sie hier ab. Mit dem Häkchen
-            stellen Sie sie frei ein; dann ergibt sich die Neigung daraus.
-            Zulässig sind 2° bis 14°; darüber hinaus zeigt die Zeichnung das
-            gekappte Dach.</p>
+          <p class="k3d-mini">Zwei Wege zum selben Dach – genau die beiden, die auch
+            das Bestellformular des Herstellers anbietet: Ohne Häkchen geben Sie die
+            Dachneigung vor und lesen die Unterkante Wandprofil ab. Mit Häkchen geben
+            Sie Unterkante Rinne (oben) und Unterkante Wandprofil vor – daraus
+            ergibt sich die Neigung. Mindestgefälle 2–3°, Höchstmaß 13–14°; was
+            darüber läge, wird gekappt.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="neigung">
@@ -806,7 +814,9 @@
             <output id="k3dWandHoehe">2420</output><i>mm</i>
           </div>
           <p class="k3d-mini" id="k3dWandHoeheInfo"></p>
-          <p class="k3d-mini">Zulässig 2° bis 14°, Standard 8°. Den genauen Wert legt das Aufmaß fest.</p>
+          <p class="k3d-mini">Mindestgefälle 2–3°, Höchstmaß 13–14° (Angabe des
+            Herstellers im Bestellformular), Standard 8°. Den genauen Wert legt das
+            Aufmaß fest.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="traeger-wunsch">
@@ -1606,7 +1616,7 @@
 <script src="js/vendor/three.min.js" defer></script>
 <script src="js/masstabelle.js?v=20261015a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261017d" defer></script>
+<script src="js/konfigurator-3d.js?v=20261017g" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

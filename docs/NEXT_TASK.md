@@ -345,6 +345,11 @@ Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
   Träger TD hinten; für die Wand gibt es eine eigene Wand-Rinnen-Blende
   (15185). Beides gibt es also – die Angabe in der Maßtabelle sollte
   geprüft werden
+- **Statikträger: dritte Variante „überstehend"?** Das Bestellformular
+  des Herstellers kennt drei Möglichkeiten: „ohne / überstehend / unter
+  Rinne". Im Konfigurator gibt es nur das Häkchen „Statikträger unter
+  der Rinne". Was „überstehend" baulich bedeutet und ob es angeboten
+  werden soll, ist offen
 - **Teilebild für den Deckel am Wandprofil.** Für den Rinnendeckel gibt
   es eines (172 × 175 mm, Fase 34 mm, BELEGT). Der Deckel am Wandprofil
   ist eine andere, runde Form – seine drei Maße (140 mm tief, 175 mm
