@@ -2208,6 +2208,11 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
   /* pdfGruppen() filtert die Kopfzeilen ueber dieses Muster – also auch
      aus dem Code holen, nicht hier nachbauen. */
   var PDF_IM_KOPF = eval((js.match(/var PDF_IM_KOPF = (\/.*\/);/) || [])[1]);
+  /* pdfGruppen() schickt jede Zeile durch ohneLieferant() – also auch das
+     aus dem Code holen, damit hier dieselbe Filterung laeuft wie spaeter
+     im Browser. */
+  var fo = (js.match(/function ohneLieferant\([\s\S]*?\n  \}/) || [''])[0];
+  var ohneLieferant = eval('(' + fo.replace('function ohneLieferant', 'function') + ')');
   var pdfGruppen = eval('(' + fg.replace('function pdfGruppen', 'function') + ')');
   var liste = [
     'Terrassendach TDS', 'Wandmontage',
@@ -2248,6 +2253,46 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
            gegen ? 'Farbe: Anthrazit' : 'Ein Eintrag, den noch kein Muster kennt') > -1,
          auffang ? auffang.zeilen.length + ' Eintrag/Eintraege' : 'Gruppe fehlt');
   /* Produkt und Masse stehen im Kopf – nicht noch einmal in der Liste. */
+  /* ---------- Kein Lieferantenname auf dem Kundenblatt ----------
+     „von VD soll nix drin stehen" (Betreiber, 12.10.2026), auf Rueckfrage
+     eingegrenzt auf die woertliche Nennung und auf das PDF.
+
+     Geprueft wird am ERGEBNIS von pdfGruppen(), nicht an der
+     Filterfunktion allein: Wer spaeter eine neue Zeile mit „VD" einbaut
+     und dabei vergisst, sie durch den Filter zu schicken, faellt hier auf.
+     Zugleich darf der Filter nicht zu viel wegnehmen – „VSG 8 mm" enthaelt
+     die Buchstaben, ist aber die Glasart und muss stehen bleiben. */
+  var mitVd = liste.concat([
+    'SG23 Richtungsangaben: von INNEN gesehen (links/rechts wie im VD-Anfrageformular)',
+    'Keilglas: ESG klar (laut VD-Formular nur diese zwei)'
+  ]);
+  var rausVd = [];
+  pdfGruppen(mitVd).forEach(function (x) {
+    x.zeilen.forEach(function (z) { rausVd.push(z); });
+  });
+  var nennung = rausVd.filter(function (z) { return /\bVD\b/.test(z); });
+  if (gegen) nennung.push('erzwungener Treffer');
+  pruefe('Kein „VD" auf dem Kundenblatt', nennung.length === 0,
+         nennung.length ? 'noch drin: ' + nennung[0].slice(0, 50) : rausVd.length + ' Zeilen geprueft');
+  var glas = rausVd.filter(function (z) { return /VSG 8 mm klar/.test(z); });
+  pruefe('Der Filter nimmt nicht zu viel weg',
+         (gegen ? 0 : glas.length) === 1 &&
+         rausVd.indexOf('SG23 Richtungsangaben: von INNEN gesehen (links/rechts)') > -1,
+         'Glasart bleibt, Klammerzusatz faellt weg');
+
+  /* „Weitere Angaben" ist die Auffanggruppe. Steht dort bei einer
+     gewoehnlichen Konfiguration etwas drin, fehlt ein Muster – das sah
+     der Betreiber am 12.10.2026 im Bild („Stoff Senkrechtmarkise"). */
+  var echt = liste.filter(function (z) {
+    return z !== 'Ein Eintrag, den noch kein Muster kennt';
+  }).concat(['Stoff Senkrechtmarkise: T71813 SCHWARZ BRONZE · Sergé · Konfektion A']);
+  var auffang2 = pdfGruppen(echt).filter(function (x) {
+    return x.titel === 'Weitere Angaben';
+  })[0];
+  pruefe('Gewoehnliche Angaben landen nicht in der Auffanggruppe',
+         gegen ? !!auffang2 : !auffang2,
+         auffang2 ? 'ohne Muster: ' + auffang2.zeilen[0].slice(0, 46) : 'jede Zeile hat ihre Gruppe');
+
   /* Produkt, Montageart UND die Massangabe stehen im Kopf bzw. in den
      Kacheln – in der Liste waeren sie eine Dopplung, die Platz frisst. */
   var dopplung = ['Terrassendach TDS', 'Wandmontage',
