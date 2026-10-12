@@ -18,7 +18,7 @@
      bvBgPdf.erzeugen(daten)  -> Blob
      bvBgPdf.speichern(daten, dateiname)
    ============================================================ */
-(function () {
+(function (global) {
   'use strict';
 
   var SEITE = { breite: 595.28, hoehe: 841.89 };   // A4 in Punkt
@@ -137,45 +137,28 @@
     return y;
   };
 
-  /* ---------- PDF-Datei zusammensetzen ---------- */
+  /* ---------- PDF-Datei zusammensetzen ----------
+     Den eigentlichen Dateiaufbau (Katalog, Seitenbaum, Schriften,
+     xref-Tabelle, Trailer) macht seit dem 12.10.2026 js/pdf-blatt.js.
+
+     WARUM: Hier standen dieselben rund 40 Zeilen ein zweites Mal. Zwei
+     Stellen, die xref-Tabellen bauen, laufen mit der Zeit auseinander,
+     und ein Fehler darin faellt erst beim Kunden auf – die Datei laesst
+     sich dann einfach nicht oeffnen. Das Layout darueber bleibt hier:
+     Der Baugenehmigungs-Check ist A4 HOCH mit Kaesten und Tabellen, die
+     Konfigurator-Seiten sind A4 quer mit je einem Bild.
+
+     Der Strom ist hier bereits durch kodieren() gelaufen, enthaelt also
+     nur Zeichen unter 256 mit escapten Klammern – genau das, was
+     ausStroemen() erwartet. */
   function alsBlob(ops, titel) {
-    var strom = ops.join('\n');
-    var datum = new Date();
-    function zwei(n) { return (n < 10 ? '0' : '') + n; }
-    var pdfDatum = 'D:' + datum.getFullYear() + zwei(datum.getMonth() + 1) + zwei(datum.getDate()) +
-                   zwei(datum.getHours()) + zwei(datum.getMinutes()) + zwei(datum.getSeconds());
-
-    var objekte = [
-      '<< /Type /Catalog /Pages 2 0 R >>',
-      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + SEITE.breite + ' ' + SEITE.hoehe + '] ' +
-        '/Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>',
-      '<< /Length ' + strom.length + ' >>\nstream\n' + strom + '\nendstream',
-      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
-      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
-      '<< /Title (' + kodieren(titel || 'Baugenehmigungs-Check') + ') ' +
-        '/Author (BV AussenSysteme) /Creator (bv-aussensysteme.de) ' +
-        '/CreationDate (' + pdfDatum + ') >>'
-    ];
-
-    var pdf = '%PDF-1.4\n';
-    var stellen = [];
-    for (var i = 0; i < objekte.length; i++) {
-      stellen.push(pdf.length);
-      pdf += (i + 1) + ' 0 obj\n' + objekte[i] + '\nendobj\n';
+    if (!global.BV_PDF || !global.BV_PDF.ausStroemen) {
+      throw new Error('js/pdf-blatt.js fehlt - es muss VOR js/bg-pdf.js geladen werden');
     }
-    var xref = pdf.length;
-    pdf += 'xref\n0 ' + (objekte.length + 1) + '\n0000000000 65535 f \n';
-    for (i = 0; i < stellen.length; i++) {
-      pdf += ('0000000000' + stellen[i]).slice(-10) + ' 00000 n \n';
-    }
-    pdf += 'trailer\n<< /Size ' + (objekte.length + 1) + ' /Root 1 0 R /Info ' + objekte.length + ' 0 R >>\n' +
-           'startxref\n' + xref + '\n%%EOF';
-
-    // Alle Zeichen liegen unter 256, dadurch stimmen die Byte-Offsets
-    var bytes = new Uint8Array(pdf.length);
-    for (i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 0xFF;
-    return new Blob([bytes], { type: 'application/pdf' });
+    return global.BV_PDF.ausStroemen(
+      [{ strom: ops.join('\n'), breite: SEITE.breite, hoehe: SEITE.hoehe }],
+      { titel: titel || 'Baugenehmigungs-Check', erzeuger: 'bv-aussensysteme.de' }
+    );
   }
 
   /* ---------- Layout ----------
@@ -354,4 +337,4 @@
   }
 
   window.bvBgPdf = { erzeugen: erzeugen, speichern: speichern };
-})();
+})(window);
