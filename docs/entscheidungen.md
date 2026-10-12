@@ -4955,3 +4955,25 @@ im Bestellformular des Herstellers.
 
 **Verworfen:** Die profilkorrigierte Rechnung (siehe oben). Nicht noch
 einmal einbauen, auch wenn sie zur Zeichnung besser passt.
+
+## 2026-10-12 – SkyView: festes Gefälle 2°, abgesichert
+
+**Anlass:** „bei skyview sind es immer 2 grad man kann keine unterkante
+rinne und unterkante wandprofil eingeben" (Betreiber).
+
+**Was jetzt gilt:** So war es bereits – SkyView ist ein eigenes Produkt,
+`neigungMoeglich()` deckt nur Terrassendach TDS und Carport TDS, und das
+Modell neigt die SkyView-Sparren fest um 2°. Neu sind drei Prüfungen, die
+beides zusammen festhalten, damit es beim nächsten Umbau der Neigungslogik
+nicht versehentlich auch für SkyView freigeschaltet wird.
+
+**Warum das wichtig ist:** Stünde die Eingabe dort, ginge eine Neigung in
+die Anfrage, die das System gar nicht hat – ein Bestellfehler, der erst beim
+Hersteller auffällt.
+
+**Dabei aufgefallen (nicht geändert):** In der Anfrage-Zusammenfassung hängen
+Sparrenzahl, Pfostenzahl, Statikträger, Dachneigung und Höhe an der Wand an
+`stueckliste()`. Die wird ausschließlich aus `/api/bauteile` gefüllt, und die
+antwortet derzeit 503 (KV-Namensraum DACHMATRIX nicht gebunden). Damit stehen
+diese Angaben aktuell in **keiner** Anfrage. Entscheidung des Betreibers
+abwarten – siehe docs/NEXT_TASK.md.

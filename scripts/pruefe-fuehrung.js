@@ -2014,6 +2014,24 @@ pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
   pruefe('Regler reicht bis 14 Grad bei 7 m Tiefe', g.max === soll,
          g.min + ' bis ' + g.max + ' mm (erwartet bis ' + soll + ')');
 })();
+/* SkyView hat ein festes Gefaelle. „bei skyview sind es immer 2 grad man
+   kann keine unterkante rinne und unterkante wandprofil eingeben"
+   (Betreiber, 12.10.2026). Beides muss zusammen stimmen: Das Modell neigt
+   die Sparren fest um 2°, UND die beiden Eingabewege duerfen dort gar
+   nicht erst auftauchen - sonst steht in der Anfrage eine Neigung, die
+   das System nicht hat. */
+pruefe('SkyView neigt fest um 2 Grad',
+       new RegExp(q || 'var neig = sky \\? 2 \\* Math\\.PI / 180').test(js),
+       'nicht aus Z.neigung gerechnet');
+pruefe('SkyView bietet keine Neigungseingabe',
+       new RegExp(q || "return Z\\.produkt === 'Terrassendach TDS' \\|\\| istCarportTds\\(\\)")
+         .test(js) &&
+       !/neigungMoeglich[\s\S]{0,120}Flachdach SkyView/.test(js),
+       'neigungMoeglich deckt nur TDS');
+pruefe('SkyView bietet keine Unterkanten-Eingabe',
+       new RegExp(q || 'function hoehenGetrennt\\(\\) \\{\\s*\n\\s*return neigungMoeglich\\(\\);')
+         .test(js), 'haengt an derselben Regel');
+
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&
        new RegExp(q || 'placeholder="7016"').test(html),
