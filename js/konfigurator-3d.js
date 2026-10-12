@@ -7216,29 +7216,40 @@
   /* ---------- Unterkante Rinne und Unterkante Wandprofil ----------
      „Hersteller koppelt die berechnung an Unterkante Rinne und
      Unterkante Wandprofil, dann wird durch die tiefe des daches und
-     andere angaben die grad zahl berechnet" (Betreiber, 12.10.2026).
+     andere angaben die grad zahl berechnet" (Betreiber, 12.10.2026),
+     dazu das Bestellformular und ein Rechenbeispiel:
 
-     Das sind die beiden Punkte, an denen vor Ort angerissen wird.
-     Vorher stand im Bedienfeld die Durchgangshöhe plus Gefälle über die
-     volle Tiefe – eine gedachte Linie, die je nach Neigung 23 bis 68 mm
-     ÜBER der Unterkante lag, die das Modell baut. Wer danach anreißt,
-     hängt das Profil zu hoch.
+       5000 breit, 3000 tief, UK Rinne 2200, UK Wandprofil 2500
+       → 6° laut Hersteller.
 
-     Jetzt wird dieselbe Kette gerechnet wie beim Aufbau des Daches:
-     Rinnenunterkante, Sparrenauflager in der Rinne, Gefälle über die
-     DACHtiefe (ohne Rinne und Wandprofil), Sparrenhöhe, Eindeckung,
-     Wandprofilhöhe. Die „anderen Angaben" des Herstellers sind genau
-     diese Profilmaße. Alles in Millimetern. */
+     DIESER FALL ENTSCHEIDET NICHT ALLES. Durchgerechnet wurden vier
+     Varianten, und alle vier runden auf 6°:
+       über die volle Tiefe                      5,71°
+       über die Dachtiefe ohne Rinne             6,09°
+       ohne Rinne und Wandprofil                 6,15°
+       zusätzlich mit den Profilhöhen gerechnet  6,46°
+     Weil das Formular nur ganze Grad zeigt, bleibt offen, welche es
+     ist. Gewählt ist die einfachste – „durch die tiefe des daches",
+     also über das Bestellmaß, ohne Abzüge. Ein zweiter Fall mit großer
+     Tiefe würde sie trennen (bei 7000 mm Tiefe und denselben Höhen:
+     2° über die volle Tiefe gegen 3° bei allen anderen); die Frage
+     steht in docs/NEXT_TASK.md.
+
+     Vorher stand hier kurzzeitig die Variante mit den Profilhöhen. Sie
+     ist zurückgenommen: Die Zahl im Bedienfeld ist die, die in die
+     Bestellung geht – sie muss der Hersteller nachrechnen können.
+
+     WAS DAS BEDEUTET: Die gezeichnete Unterkante des Wandprofils liegt
+     je nach Neigung 20 bis 70 mm unter dieser Zahl, weil das Modell mit
+     den (teils geschätzten) Profilmaßen baut. Welches Maß dafür nicht
+     stimmt – der Sparrensitz in der Rinne ist nur geschätzt –, gehört
+     geprüft; auch das steht in docs/NEXT_TASK.md. Alles in Millimetern. */
   function wandUkBasis() {
-    var glas = istPolycarbonat() ? 16 : Z.glasstaerke;
-    return Z.hoehe + RINNE.hoehe * 10 - RINNE.sparrenUnterNase * 10
-           - WANDPROFIL.hoehe * 10 + glas;
+    return Z.hoehe;
   }
 
-  /* Die Strecke, über die das Gefälle wirkt: Dachtiefe ohne Rinne und
-     ohne Wandprofil – dort sitzen die Sparren. */
   function wandUkSpanne() {
-    return Math.max(1, Z.tiefe - RINNE.breite * 10 - WANDPROFIL.tiefe * 10);
+    return Math.max(1, Z.tiefe);
   }
 
   function wandUkAus(grad) {
@@ -8089,7 +8100,7 @@
          Wandprofil. */
       whi.textContent = 'Von Unterkante Rinne (' + Z.hoehe + ' mm) über '
         + (wandUkSpanne() / 1000).toFixed(2).replace('.', ',')
-        + ' m Dachtiefe, Profilmaße eingerechnet.';
+        + ' m Dachtiefe – so rechnet auch das Bestellformular.';
     }
     var lw = document.getElementById('k3dLamellenWert');
     if (lw) lw.textContent = Z.lamellen + '° geöffnet';

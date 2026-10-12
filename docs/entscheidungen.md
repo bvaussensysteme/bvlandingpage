@@ -4910,3 +4910,48 @@ Bestellung übertragen.
 „ohne / überstehend / unter Rinne". Der Konfigurator hat nur das Häkchen
 „unter der Rinne". Was „überstehend" baulich bedeutet, steht in
 `docs/NEXT_TASK.md`.
+
+## 2026-10-12 – Dachneigung: Rechenweg des Herstellers belegt, eigene Korrektur zurückgenommen
+
+**Anlass:** Der Betreiber lieferte zuerst einen Referenzfall aus dem
+Bestellformular (5000 breit, 3000 tief, Unterkante Rinne 2200, Unterkante
+Wandprofil 2500 → laut Hersteller 6°) und danach die Seite der
+Montageanleitung mit Skizze, Prozenttabelle und Rechenbeispiel.
+
+**Was falsch war:** Ich hatte die Umrechnung zwischen Grad und Unterkante
+Wandprofil um Rinnenbreite, Wandprofiltiefe, Sparrensitz und Glasstärke
+korrigiert, damit die angezeigte Zahl der gezeichneten Kante entspricht.
+Der Referenzfall allein hat das nicht widerlegt – vier durchgerechnete
+Varianten (volle Tiefe 5,71°, ohne Rinne 6,09°, ohne Rinne und Wandprofil
+6,15°, mit Profilhöhen 6,46°) runden alle auf 6°, weil das Formular nur
+ganze Grad zeigt.
+
+**Was jetzt gilt:** Die Montageanleitung entscheidet es wörtlich: *„Nehmen
+Sie die gewünschte Höhe an der Innenseite, zum Beispiel 200 cm. Die
+Überdachung hat einen festen Gefällewinkel von 14%. … Wenn der Ausfall 3 m
+beträgt, dann liegt die Unterkante des Wandanschlussprofils 3 × 14 cm höher
+als die Unterkante der Rinne. In diesem Beispiel würde das
+Wandanschlussprofil also in einer Höhe von 242 cm angebracht."* Also: über
+die **volle Bestelltiefe**, Prozentwert aus der Tabelle, **ohne jeden
+Abzug**. Die Skizze daneben bestätigt es mit 14 / 28 / 42 / 56 cm bei 1 bis
+4 m. Meine Korrektur ist zurückgenommen (`wandUkBasis()` = Höhe vorne,
+`wandUkSpanne()` = Tiefe).
+
+**Warum so und nicht anders:** Die Zahl im Bedienfeld geht in die
+Bestellung. Sie muss die sein, die der Hersteller nachrechnet – nicht die,
+die zum gezeichneten Modell passt. Technisch „genauer" wäre hier falsch.
+
+**Was das kostet:** Die gezeichnete Unterkante des Wandprofils liegt rund
+4 cm unter der angezeigten Zahl (gemessen bei 3,5 m Tiefe und 8°: Bedienfeld
+2790 mm, Modell 2746 mm). Das ist Modellgenauigkeit, kein Bestellfehler. Ein
+Maß der Kette ist geschätzt (`RINNE.sparrenUnterNase`); solange kein
+Profilquerschnitt vorliegt, bleibt der Abstand. Eine Prüfung hält ihn unter
+80 mm, damit er nicht unbemerkt wächst.
+
+**Was gegengelesen werden soll:** Im Konfigurator bei Terrassendach TDS auf
+„Unterkante Rinne und Unterkante Wandprofil" umschalten, Tiefe 3000 und
+Rinne 2200 eingeben und prüfen, dass bei 2500 mm 6° angezeigt werden – wie
+im Bestellformular des Herstellers.
+
+**Verworfen:** Die profilkorrigierte Rechnung (siehe oben). Nicht noch
+einmal einbauen, auch wenn sie zur Zeichnung besser passt.
