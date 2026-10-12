@@ -5024,3 +5024,64 @@ umstellen: Sparren und Pfosten bleiben, **die Dachneigung muss
 verschwinden**. Danach Breite auf 5800 stellen – es muss der Hinweis auf
 die nächste lieferbare Breite erscheinen, und die Sparrenzahl muss
 dieselbe sein wie im Kasten unter den Maßen.
+
+## 2026-10-12 – „Alle fünf in einem Bild" wird ein PDF mit Zustandsseiten
+
+**Anlass:** „wenn man auf alle bilder sichern geht sol anstatt ein bild,
+eine pdf erstell werden mit den wichtigsten ansichten, + wenn so sachen
+gibt wie aufdach ode unterdachmarkisen, etc. auch davon bilder im
+geschlossenen zustand, die normalen ansichtsbilder alles im offenen
+zustnd" (Betreiber).
+
+**Was jetzt gilt:** Der Menüpunkt heißt „Alle Ansichten als PDF" und
+liefert eine mehrseitige Datei: fünf Ansichtsseiten, eine Seite „Ihre
+Konfiguration" in Worten, danach je eine Seite für jedes bewegliche Teil
+im anderen Zustand (Markise ausgefahren, Schiebeelemente geschlossen,
+Lamellen zu, Velaris zu).
+
+**Was „offen" heißt – auf Rückfrage festgelegt:** In den fünf
+Hauptansichten sind die Markisen **eingefahren** (das Dach ist zu sehen)
+und die Schiebeelemente **aufgeschoben**. Die Zusatzseiten zeigen das
+Gegenteil. Der Lamellenwinkel bleibt in den Hauptansichten so, wie der
+Kunde ihn eingestellt hat – er ist Teil der Konfiguration, kein
+Betriebszustand.
+
+**Warum ein eigener PDF-Erzeuger (`js/pdf-blatt.js`, rund 230 Zeilen):**
+jsPDF und pdfmake kämen über ein Fremd-CDN, wiegen mehrere hundert
+Kilobyte und müssten in die Inhaltssicherheitsrichtlinie in `_headers`
+aufgenommen werden. Gebraucht wird nur ein Bruchteil: Seiten mit je einem
+JPEG und ein paar Zeilen Text. Kein Nachladen, keine Abhängigkeit, die
+irgendwann nicht mehr gepflegt wird.
+
+**Zwei Fallen, die beim Bauen aufgefallen sind:**
+- Es reicht **nicht**, `Z.sonneAus` direkt zu setzen. `aendern()` liest
+  die Werte aus den Formularfeldern zurück und überschreibt die Änderung
+  sofort. Darum geht alles über `feldSetzen()` – denselben Weg geht auch
+  `sonneFahren()`.
+- Die Leinwand wird für den Druck kurz auf 1800 Pixel Breite gestellt.
+  Ohne das käme das Bild in Bildschirmgröße ins PDF und wäre auf A4 quer
+  sichtbar grob – auf dem Handy sind das keine 400 Pixel. Dabei muss
+  `pixelRatio` auf 1, sonst rechnet three.js die Zielgröße ein zweites Mal
+  hoch.
+
+**Absicherung:** `scripts/pruefe-pdf.js` erzeugt ein PDF und liest es mit
+**pdfinfo, pdftotext und pdfimages** zurück – Werkzeugen aus poppler, die
+von unseren Annahmen nichts wissen. Geprüft werden Seitenzahl, Format,
+alle Überschriften (mit Umlauten), die Fußzeile auf jeder Seite und die
+Größe der eingebetteten Bilder. 11 Prüfungen, Gegenprobe 11/11.
+
+**Verworfen – und warum das wichtig ist:** Die erste Gegenprobe kippte ein
+Byte in der xref-Tabelle und erwartete, dass alle elf Prüfungen anschlagen.
+Es schlugen nur drei an: **poppler repariert eine kaputte xref
+stillschweigend.** Acht Prüfungen hätten also nichts bewiesen. Jetzt hat
+jede ihre eigene Verfälschung. Auch ein überschriebener `%PDF`-Kopf reicht
+nicht – poppler sucht ihn im ganzen Vorspann; die Datei muss abgeschnitten
+werden.
+
+**Was gegengelesen werden soll:** Ein Terrassendach mit Aufdachmarkise und
+Schiebetüren zusammenstellen, dann „Bild speichern" → „Alle Ansichten als
+PDF". Die Datei muss sich öffnen lassen und enthalten: fünf Ansichten mit
+eingefahrener Markise und offenen Schiebetüren, die Konfigurationsseite,
+dann zwei Seiten mit ausgefahrener Markise bzw. geschlossenen Türen.
+**Wichtig:** Danach muss der Konfigurator genau so dastehen wie vorher –
+gleiche Ansicht, gleiche Reglerstellungen.

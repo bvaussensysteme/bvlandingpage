@@ -1279,29 +1279,31 @@ pruefe('Beschriftung wird am eigenen Feld gesetzt',
   pruefe('Menue bietet jede Ansicht an', !fehlt.length,
          fehlt.length ? 'fehlt: ' + fehlt.join(', ') : ist.length + ' Einträge');
 })();
-/* Alle fuenf in EINEM Bild statt fuenf Downloads: Handy-Browser lassen
-   nur einen Download je Tipp zu, der Rest geht still verloren. */
-pruefe('Alle Ansichten kommen als ein Blatt',
-       new RegExp(q || 'blatt\\.toDataURL').test(js) &&
-       new RegExp(q || "bildLaden\\(url, bildName\\('alle-Ansichten'\\)\\)").test(js), '');
+/* Alles in EINER Datei statt fuenf Downloads: Handy-Browser lassen nur
+   einen Download je Tipp zu, der Rest geht still verloren. Bis zum
+   12.10.2026 war das ein PNG mit fuenf Feldern, seither ein PDF mit einer
+   Seite je Ansicht – geprueft wird das Erzeugen selbst in
+   scripts/pruefe-pdf.js, hier nur der Weg dorthin. */
+pruefe('Alle Ansichten kommen als eine Datei',
+       new RegExp(q || 'window\\.BV_PDF\\.erzeugen\\(seiten').test(js) &&
+       new RegExp(q || "replace\\(/\\\\.png\\$/, '\\.pdf'\\)").test(js), '');
 (function () {
-  /* Zweiter Weg: zaehlen, wie oft beim Sammelbild wirklich geladen wird.
-     Mehr als einmal waere genau der Fehler, den das Blatt vermeiden soll
-     - Handy-Browser verwerfen den Rest still. Gezaehlt wird im Zweig
-     'alle' des Knopfes, nicht in bildAlle: die Funktion baut nur das
-     Blatt und gibt es weiter. */
+  /* Zweiter Weg: zaehlen, wie oft beim Sammeln wirklich geladen wird.
+     Mehr als einmal waere genau der Fehler, den die eine Datei vermeiden
+     soll – Handy-Browser verwerfen den Rest still. Gezaehlt wird im Zweig
+     'alle' des Knopfes und in pdfSeiten(): die Funktion sammelt nur die
+     Seiten und gibt sie weiter, laden darf sie nicht. */
   var zweig = (js.match(/if \(was === 'alle'\) \{[\s\S]*?return;\n        \}/) || [''])[0];
-  var fn = (js.match(/function bildAlle\([\s\S]*?\n  \}/) || [''])[0];
-  var male = (zweig.match(/bildLaden\(/g) || []).length + (gegen ? 1 : 0);
-  var inFn = (fn.match(/bildLaden\(/g) || []).length;
-  pruefe('Sammelbild laedt genau einmal', male === 1 && inFn === 0,
-         male + ' Download(s) im Zweig, ' + inFn + ' in bildAlle');
+  var fn = (js.match(/function pdfSeiten\([\s\S]*?\n  \}/) || [''])[0];
+  var male = (zweig.match(/pdfLaden\(|bildLaden\(/g) || []).length + (gegen ? 1 : 0);
+  var inFn = (fn.match(/pdfLaden\(|bildLaden\(/g) || []).length;
+  pruefe('PDF laedt genau einmal', male === 1 && inFn === 0,
+         male + ' Download(s) im Zweig, ' + inFn + ' in pdfSeiten');
 })();
 pruefe('Nach dem Speichern steht die Ansicht wie vorher',
-       new RegExp(q || 'if \\(vorher\\) ansichtAnwenden\\(vorher\\)').test(js) &&
+       new RegExp(q || 'if \\(vorherAnsicht\\) ansichtAnwenden\\(vorherAnsicht\\)').test(js) &&
        new RegExp(q || 'vorher && vorher !== name\\) ansichtAnwenden\\(vorher\\)').test(js),
        'kein Sprung in eine andere Ansicht');
-
 
 /* ---------- Blick von hinten durch die Hauswand ----------
    „sobald man so hinter die wand scrollt soll die wand durchsichtig
@@ -1427,8 +1429,6 @@ pruefe('Bodenschatten geht mit aus',
   pruefe('Sammelbild kommt ohne Rueckruf aus', !hat,
          'Leinwand direkt in Leinwand gezeichnet');
 })();
-pruefe('Leinwand wird direkt kopiert',
-       new RegExp(q || 'c\\.drawImage\\(lw, x, y \\+ kopf, breit, hoch\\)').test(js), '');
 pruefe('Knopf faellt auch bei einem Fehler zurueck',
        new RegExp(q || 'finally \\{ zurueck\\(\\); \\}').test(js),
        'nicht fuer immer „Wird erstellt"');
@@ -1458,9 +1458,6 @@ pruefe('Nur eine Stelle schaltet den Abend um',
 /* „bei dem erstellten bild is ja unten rechts ... dieses schwarze freie
    rechteck, dort koennte man z.b die wichtigsten eckdaten schreiben"
    (Betreiber, 11.10.2026). */
-pruefe('Das sechste Feld traegt die Eckdaten',
-       new RegExp(q || "c\\.fillText\\('Ihre Konfiguration'").test(js) &&
-       new RegExp(q || 'var zeilen = zusammenfassung\\(\\);').test(js), '');
 pruefe('Eckdaten kommen aus derselben Liste wie die Anfrage',
        gegen ? /zusammenfassung\(\)\.join\(' · '\), rand/.test(js)
              : !/zusammenfassung\(\)\.join\(' · '\), rand/.test(js),
@@ -1484,8 +1481,6 @@ pruefe('Eckdaten kommen aus derselben Liste wie die Anfrage',
          falsch === 0 ? 'x ' + ex + ', y ' + ey + ' in ' + blattB + ' x ' + blattH
                       : meld.join('; '));
 })();
-pruefe('Lange Angaben werden gekuerzt, nicht umgebrochen',
-       new RegExp(q || 'c\\.measureText\\(txt\\)\\.width > breit - innen \\* 2').test(js), '');
 pruefe('Vorbehalt steht auf dem Blatt',
        new RegExp(q || 'Unverbindliche Darstellung').test(js),
        'verbindlich ist das Angebot nach Aufmass');
@@ -2076,6 +2071,51 @@ pruefe('Hinweis und Anfrage rechnen an einer Stelle',
        (js.match(new RegExp(q || 'bauteileJetzt\\(\\)', 'g')) || []).length >= 3 &&
        (js.match(new RegExp(q || 'pfostenText\\(', 'g')) || []).length >= 3,
        'bauteileJetzt() und pfostenText() an beiden Stellen');
+
+/* ---------- Alle Ansichten als PDF (12.10.2026) ----------
+   „wenn man auf alle bilder sichern geht sol anstatt ein bild, eine pdf
+   erstell werden ... die normalen ansichtsbilder alles im offenen zustnd"
+   (Betreiber). Auf Rueckfrage festgelegt: Hauptansichten mit EINGEFAHRENER
+   Markise und AUFGESCHOBENEN Schiebeelementen, Zusatzseiten umgekehrt. */
+pruefe('Menue bietet das PDF an',
+       new RegExp(q || 'Alle Ansichten als PDF').test(html) &&
+       (gegen ? true : !/Alle fünf in einem Bild/.test(html)), '');
+pruefe('PDF-Modul ist eingebunden',
+       new RegExp(q || 'js/pdf-blatt\\.js\\?v=').test(html), '');
+pruefe('Knopf stellt die alte Beschriftung wieder her',
+       new RegExp(q || "b\\.textContent = 'Alle Ansichten als PDF';").test(js),
+       'sonst steht dort fuer immer „Wird erstellt"');
+pruefe('Fehlendes Modul meldet sich, statt stumm zu bleiben',
+       new RegExp(q || 'if \\(!window\\.BV_PDF\\)').test(js), '');
+/* Zustand MUSS ueber die Formularfelder gesetzt werden: aendern() liest
+   die Werte aus den Feldern zurueck und wuerde ein direkt gesetztes Z.*
+   sofort ueberschreiben. */
+pruefe('Zustand wird ueber die Felder gesetzt, nicht ueber Z',
+       new RegExp(q || 'function feldSetzen\\(id, wert\\)').test(js) &&
+       new RegExp(q || 'function zustandSetzen\\(felder\\)').test(js), '');
+pruefe('Hauptansichten: Markise eingefahren, Schiebeelemente offen',
+       new RegExp(q || "grund\\.k3dSonneAus = 0").test(js) &&
+       new RegExp(q || "grund\\.k3dGlasOffen = 100").test(js), '');
+pruefe('Zusatzseite: Markise ausgefahren',
+       new RegExp(q || "felder: \\{ k3dSonneAus: 100 \\}").test(js), '');
+pruefe('Zusatzseite: Schiebeelemente geschlossen',
+       new RegExp(q || "felder: \\{ k3dGlasOffen: 0 \\}").test(js), '');
+pruefe('Zusatzseite: Lamellen geschlossen',
+       new RegExp(q || "felder: \\{ k3dLamellen: 0 \\}").test(js), '');
+/* Wer ein PDF speichert, will danach nicht woanders stehen als vorher –
+   das galt schon fuer das einzelne Bild. */
+pruefe('Ansicht und Zustand werden zurueckgesetzt',
+       new RegExp(q || 'zustandSetzen\\(altGrund\\)').test(js) &&
+       new RegExp(q || 'Z\\.offenLinks = vorherOffen\\.links').test(js) &&
+       new RegExp(q || 'if \\(vorherAnsicht\\) ansichtAnwenden\\(vorherAnsicht\\)').test(js),
+       'auch die Oeffnungsgrade je Seite');
+pruefe('Leinwand wird fuer den Druck vergroessert und zurueckgestellt',
+       new RegExp(q || 'renderer\\.setSize\\(PDF_BREIT').test(js) &&
+       new RegExp(q || 'renderer\\.setPixelRatio\\(altR\\)').test(js) &&
+       new RegExp(q || 'renderer\\.setSize\\(altB, altH, false\\)').test(js), '');
+pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
+       new RegExp(q || "titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung\\(\\)")
+         .test(js), 'keine zweite Quelle');
 
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&
