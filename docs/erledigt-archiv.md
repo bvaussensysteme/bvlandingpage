@@ -215,3 +215,118 @@ Gelöst per DOM-Verschiebung statt Duplikat (doppelte IDs hätten
 `js/main.js` verwendete `#hamburgerBtn` und `.navbar` ungeprüft – auf den 14
 Ortsseiten brach das Skript ab, **alles danach lief dort nie** (Sticky-Leiste,
 Kontaktformular-Logik, Navbar-Schatten).
+
+
+---
+
+# Aus dem Einstieg verschoben am 12.10.2026
+
+## Stand 11.10.2026, nachmittags — Seitenelemente und Profile
+
+Alles veröffentlicht (PRs bis #346), nichts liegt halbfertig. Die
+Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
+(`pruefe-fuehrung.js` 136/136, `pruefe-masstabelle.js` 183/183,
+`pruefe-markise.js` 141/141).
+
+### Was heute am Konfigurator entstanden ist
+
+| Bereich | Was jetzt gilt |
+|---|---|
+| **Glasschiebeelemente SG23** | Aufteilung je lichtes Feld, von der Mitte nach außen öffnend, runder Muschelgriff auf **1100 mm** (aus dem VD-Anfrageformular, vorher 1050 geraten). Glas **ESG klar oder satinato**, mehr gibt es nicht. Schloss und Bürstendichtung stehen als Bestellpositionen in der Mail, ebenso der Satz **„Richtungsangaben von INNEN gesehen"** – im Formular rot hervorgehoben |
+| **Plankenwand** | Rechteckprofil **70,4 × 25,3 mm** an Winkeln 40 × 20 an den Pfosten. Fuge wird automatisch so gerechnet, dass die Wand oben und unten bündig schließt; von Hand 0–60 mm. Teilhöhe oben/unten mit Maßangabe. Über **7 m** geteilt mit Zwischenprofil |
+| **Velaris** | Komplett neu: Rahmen mit **waagerechten** Lamellen (vorher senkrecht – in der Hauptachse falsch). Element 500–1500 mm, Anlage bis 7 m, feststehend 1–5, verschiebbar nur 3–4 Elemente (sonst bewegt sich nichts). Beide Hälften getrennt bedienbar, Klick schaltet zu → offen → zur Seite → zu |
+| **Rahmenwand** | Von der Blechwand zum **Glas im Rahmen** (System FR23) mit bis zu drei senkrechten Sprossen. Ohne Keil geht sie bis ans Dach, Rahmen und Sprossen folgen der Schräge |
+| **Wandprofil TD** | **143,6 mm hoch** an der Wand (Querschnitt), unten die Sparren, oben Glas und Glasleiste. Zweimal falsch gelesen, bevor es stimmte |
+| **Bedienung** | Ansicht „Darunter" steht jetzt drinnen; Animationen bauen das Modell nicht mehr je Bild neu; Maßlinien filigraner |
+
+### Was gegengelesen werden soll
+
+- **Wandprofil und Statikträger** von schräg hinten: Profil 143,6 mm hoch,
+  Träger steht 45 mm darunter hervor
+- **Velaris verschiebbar** mit 3 und 4 Elementen: Es darf nichts
+  ineinanderfahren, und an der Stirnseite muss jedes Feld nach außen
+  aufgehen
+- **Rahmenwand ohne Keil** an der Seite: kein offenes Dreieck, keine
+  waagerechte Sprosse
+- **Plankenwand** mit Teilhöhe: Winkel dürfen nicht über die oberste
+  Planke stehen
+
+### Fragen, die beim Betreiber liegen
+
+| Frage | Warum sie zählt |
+|---|---|
+| **Keilfelder über 1500 mm** – bei 7 m Tiefe sind es jetzt 1750 mm, weil höchstens vier Felder gehen | Das widerspricht der früheren Angabe „je angefangene 1,5 m eine Unterteilung". Von VD bestätigen lassen |
+| **Höchstmaß einer Scheibe** in der Rahmenwand | Bestimmt, wann eine Sprosse nötig wird; im Modell geraten |
+| **Profilmaße FR23** (Rahmen, Sprosse, Bautiefe, Glas) | Alle geschätzt – die Anleitung zeigt die Profile, bemaßt sie nicht |
+| **Velaris:** Lamellenhöhe, Rahmenbreite, Kopfprofilhöhe, Aufhängung, Bodenschiene | Fünf geschätzte Maße; die Verhältnisse stimmen, die Millimeter nicht |
+| **Wandprofil:** die beiden kleinen Maße am Querschnitt | Ausladung mit 31 mm angenommen |
+| **Plankenwand:** Materialstärke des Winkels, Fugenbreite, welcher Schenkel am Pfosten liegt | Drei Annahmen |
+| **Dekorbilder** Eiche Mocca, Rovere Pechino hell, Golden OAK | Im Modell liegt eine neutrale Eichenmaserung (ambientCG Wood049, CC0) unter der Dekorfarbe |
+| Ältere: **Dachvorsprung 1500 mm** statisch gedeckt? **Höhe hinten 2000–3200 mm**? Seitenelemente am Carport sinnvoll? | stehen seit dem Vormittag offen |
+
+### Noch nicht gebaut, steht aber in den Unterlagen
+
+- **Fenster FRF23** mit Griff als Teil der Rahmenwand
+- Rahmenwand **„mit Neigung"** als eigene Ausführung (die Anleitung zeigt
+  beide Varianten)
+
+### Ältere offene Punkte
+
+- **Rinnen-Seitendeckel:** Teilebild 172 × 175 mm gegen Rinne 186,3 ×
+  136,7 mm – entschieden: echtes Maß, vorne bündig, in der Höhe mittig.
+  Der Widerspruch im Maß selbst bleibt
+- **Pfostenachse 55 mm**, **EZIP-Stoffbilder in CMYK ohne Profil** –
+  ungeprüfte Annahmen
+- **SkyView: Querschnittszeichnungen der Profile.** Die Montageanleitung
+  (07.11.2025) ist eingearbeitet, bemaßt aber keine Profilquerschnitte.
+  Sparren und Glasleisten sind laut Betreiber dieselben wie bei TDS und
+  damit belegt; die Sparren sind normale TDS-Profile, nur 2° geneigt –
+  keine Keile. GESCHÄTZT bleiben die Blendendicke und der Platz, den die
+  Rinne unter dem Dach braucht (55 mm).
+  *(An dieser Stelle standen bis zum 12.10.2026 drei sich
+  widersprechende Fassungen übereinander – ein Überbleibsel aus
+  aufgelösten Merge-Konflikten. Der aktuelle Stand steht in
+  `docs/NEXT_TASK.md`.)*
+- **SkyView freistehend oder Wandmontage?** `js/masstabelle.js` führt
+  SkyView als `montage: 'wandmontage'`. Die Montageanleitung beschreibt
+  durchgehend die FREISTEHENDE Anlage mit vier Pfosten, Fundamenten und
+  Träger TD hinten; für die Wand gibt es eine eigene Wand-Rinnen-Blende
+  (15185). Beides gibt es also – die Angabe in der Maßtabelle sollte
+  geprüft werden
+- **Statikträger: dritte Variante „überstehend"?** Das Bestellformular
+  des Herstellers kennt drei Möglichkeiten: „ohne / überstehend / unter
+  Rinne". Im Konfigurator gibt es nur das Häkchen „Statikträger unter
+  der Rinne". Was „überstehend" baulich bedeutet und ob es angeboten
+  werden soll, ist offen
+- **Teilebild für den Deckel am Wandprofil.** Für den Rinnendeckel gibt
+  es eines (172 × 175 mm, Fase 34 mm, BELEGT). Der Deckel am Wandprofil
+  ist eine andere, runde Form – seine drei Maße (140 mm tief, 175 mm
+  hoch, Bogenradius 70 mm) sind am Werkbild ABGESCHÄTZT. Mit einem
+  bemaßten Blatt sind sie in einer Zeile ersetzt
+- **Statikträger hinter den Sparren: welches Profil ist das wirklich?**
+  Die Maßtabelle nennt 189 × 117 mm. Steht er freistehend hinter den
+  Sparren (an Stelle der Wand), stand er damit 6 cm unter den Sparren
+  hervor – „mach ihn unten bündig mit sparren und oben bündig mit
+  glasleiste" (Betreiber, 11.10.2026). Gezeichnet wird er dort jetzt so
+  hoch wie Sparren + Eindeckung (rund 128 mm). **Frage an den
+  Hersteller:** Ist das an dieser Stelle ein anderes, flacheres Profil,
+  oder liegen die Sparren tiefer im Träger? Die Tiefe 117 mm bleibt
+  unangetastet – an ihr hängt das Tiefenmaß der Anlage
+- **eZIP-Kassettenform: erledigt.** „Z-E Eckig" (Betreiber, 11.10.2026) –
+  die quaderförmige Kassette, nicht das Halbrund der Serie Z-R
+- **Offen: Schiebetür zusammen mit Plankenwand.** Geometrisch sitzt die
+  Tür jetzt auf der Plankenwand auf (nichts liegt mehr ineinander). Ob
+  diese Kombination überhaupt angeboten werden soll, ist eine
+  Produktfrage – eine Schiebetür über einer Brüstung von rund einem
+  Drittel der Höhe ist kein Durchgang mehr
+- **`/api/bauteile` antwortet 503** (KV-Namensraum nicht gebunden). Kein
+  Blocker: `js/masstabelle.js` liefert die echten Zahlen, gegengerechnet
+  1316 von 1316
+
+### Eine Lehre aus diesem Nachmittag
+
+**Ein Querschnitt sagt nichts über die Einbaulage.** Dreimal derselbe
+Fehler: SG23-Profile um jeden Flügel gelegt, Velaris-Aufhängung als
+kurzer Träger, Wandprofil liegend statt stehend. Das Maßbild zeigt die
+Form – wie das Teil eingebaut wird, weiß nur der Betreiber. Im Zweifel
+fragen, bevor es ins Modell geht.
