@@ -81,6 +81,77 @@
     return { breit: 16, hoch: 9 };
   }
 
+  /* ---------- Textbreite in Helvetica ----------
+     Die amtlichen Zeichenbreiten der PDF-Standardschrift, in Tausendstel
+     der Schriftgroesse. Damit laesst sich VOR dem Zeichnen ausrechnen,
+     wie breit eine Zeile wird – und zwar hier wie im Pruefskript gleich.
+
+     WARUM NICHT UEBER DIE CANVAS-API messen, wie js/bg-pdf.js es tut:
+     Die gibt es nur im Browser. Eine Tabelle rechnet ueberall dasselbe
+     und ist genauer, weil sie genau die Schrift beschreibt, die im PDF
+     dann wirklich steht.
+
+     Zeichen, die hier fehlen, bekommen den Mittelwert 556 – das sind nur
+     Sonderzeichen, die in Massangaben nicht vorkommen. Umlaute sind so
+     breit wie ihr Grundbuchstabe (so ist Helvetica gebaut). */
+  function breitenTafel(def) {
+    var t = {}, i;
+    def.split('|').forEach(function (gruppe) {
+      var teil = gruppe.split(':');
+      var w = parseInt(teil[1], 10);
+      for (i = 0; i < teil[0].length; i++) t[teil[0].charAt(i)] = w;
+    });
+    return t;
+  }
+  /* Die amtlichen Werte der Adobe-Metriken (AFM) fuer Helvetica und
+     Helvetica-Bold. Der erste Versuch fasste Zeichen grob zu Gruppen
+     zusammen – im fertigen Blatt klafften dann Luecken hinter den
+     Doppelpunkten, weil die geschaetzte Breite groesser war als die
+     wirkliche. Jetzt steht hier jedes Zeichen mit seinem echten Wert.
+     Umlaute sind so breit wie ihr Grundbuchstabe, so ist die Schrift
+     gebaut. */
+  var BREIT_REG = breitenTafel(
+    " ,./:;[\\]ftI·:278|'`ijl:222||:260|()-r\u201a\u201e\u201c\u201d:333|{}:334|" +
+    '":355|*:389|\u00b0:400|^:469|JckKsvxyz:500|' +
+    '#$_0123456789Labdeghnopqu?\u2013\u00df\u00e4\u00f6\u00fc:556|' +
+    '+<=>~\u00d7:584|FTZ:611|&ABEKSVXY\u00c4:667|CDHNRUw\u00dc:722|' +
+    'GOQ\u00d6:778|Mm:833|%:889|W:944|@:1015');
+  var BREIT_FETT = breitenTafel(
+    " ',./ijlI·`:278||:280|!()-:333|:;ft:333|*r{}:389|\":474|\u00b0:400|" +
+    '#$_0123456789JackKsvxy\u2013\u00e4:556|z:500|+<=>^~\u00d7:584|' +
+    'FLTZ?bdghnopqu\u00df\u00f6\u00fc:611|ESVXY:667|' +
+    'ABCDHNRU\u00c4\u00dc:722|GOQ\u00d6:778|M:833|%m:889|W:944|@:975');
+
+  function textBreite(text, groesse, fett) {
+    var t = fett ? BREIT_FETT : BREIT_REG, summe = 0, i;
+    for (i = 0; i < text.length; i++) summe += (t[text.charAt(i)] || 556);
+    return summe * groesse / 1000;
+  }
+
+  /* Zeilenumbruch an Wortgrenzen. Ein Wort, das allein schon zu breit ist
+     (eine lange Massangabe ohne Leerzeichen), wird hart getrennt – lieber
+     getrennt als abgeschnitten: „alle infos sollen lesbar bleiben"
+     (Betreiber, 12.10.2026). */
+  function umbrechen(text, maxBreite, groesse, fett) {
+    var worte = String(text == null ? '' : text).split(/\s+/);
+    var zeilen = [], aktuell = '';
+    worte.forEach(function (wort) {
+      var probe = aktuell ? aktuell + ' ' + wort : wort;
+      if (textBreite(probe, groesse, fett) <= maxBreite) { aktuell = probe; return; }
+      if (aktuell) { zeilen.push(aktuell); aktuell = ''; }
+      while (textBreite(wort, groesse, fett) > maxBreite && wort.length > 1) {
+        var n = 1;
+        while (n < wort.length &&
+               textBreite(wort.slice(0, n + 1), groesse, fett) <= maxBreite) n++;
+        zeilen.push(wort.slice(0, n));
+        wort = wort.slice(n);
+      }
+      aktuell = wort;
+    });
+    if (aktuell) zeilen.push(aktuell);
+    return zeilen.length ? zeilen : [''];
+  }
+
   /* ---------- Seiteninhalt ----------
      Punkt-Koordinaten, Nullpunkt unten links. */
   function inhaltBild(bild, titel, unten, rechts) {
@@ -131,6 +202,252 @@
     t.push('BT /F1 8 Tf 0.45 0.47 0.49 rg ' + RAND + ' ' + RAND +
            ' Td (' + pdfText(unten) + ') Tj ET');
     return t.join('\n');
+  }
+
+  /* ---------- Die Konfigurationsseite ----------
+     „wenn die austattung größer wird, wird diese liste unübersichtlich,
+     mache es übersichtlich, design technisch ansprechend, alle infos
+     sollen lesbar bleiben, verkaufspsychologisch stark" (Betreiber,
+     12.10.2026, mit Bild).
+
+     Vorher: eine Liste in zwei Spalten, zu lange Angaben mit „…"
+     abgeschnitten – gerade bei den Schiebeanlagen, also bei dem, was am
+     meisten kostet und am meisten erklaert werden muss.
+
+     Jetzt:
+     · Kopf mit dem Produkt und den Massen – das Erste, was ins Auge faellt
+     · vier Eckdaten als Kacheln: die Zahlen, nach denen jeder zuerst sucht
+     · darunter die Angaben nach Themen gruppiert, mit Zwischentiteln
+     · Zeilen werden UMGEBROCHEN, nie abgeschnitten; passt es nicht mehr,
+       entsteht eine zweite Seite statt eines „…"
+     · Fuss mit dem naechsten Schritt (kostenloses Aufmass) – der Grund,
+       warum das Blatt ueberhaupt beim Kunden liegt
+
+     Rueckgabe: ein Array von Stroemen, einer je Seite. */
+  function inhaltKonfig(s) {
+    var G = { gold: '0.77 0.60 0.16', text: '0.11 0.12 0.13',
+              grau: '0.42 0.44 0.46', hell: '0.58 0.60 0.62',
+              linie: '0.86 0.86 0.84', kachel: '0.96 0.955 0.94' };
+    var GR = 8.6, ZH = 11.4;              // Schriftgroesse und Zeilenabstand
+    var innen = A4_B - RAND * 2;
+    var spaltenB = (innen - 34) / 2;
+
+    /* ---------- Erst messen, dann zeichnen ----------
+       Der erste Entwurf fuellte die linke Spalte, bis sie voll war, und
+       schob den Rest nach rechts. Ergebnis: links lief eine Gruppe mitten
+       im Satz in die zweite Spalte, rechts blieb die halbe Seite leer.
+
+       Jetzt wird jede Gruppe zuerst vermessen und erst dann verteilt. Das
+       Messen liefert gleich die fertig umbrochenen Zeilen – gezeichnet
+       wird genau das, was gemessen wurde, sonst stimmt die Hoehe nicht. */
+    function gruppeMessen(g) {
+      var zeilen = g.zeilen.map(function (z) {
+        var teile = String(z).split(/:\s(.+)/);
+        var hatLabel = teile.length > 1 &&
+                       textBreite(teile[0], GR, true) < spaltenB * 0.6;
+        var kopfTxt = hatLabel ? teile[0] + ': ' : '';
+        var vorn = textBreite(kopfTxt, GR, true);
+        var rest = hatLabel ? teile[1] : String(z);
+        var erste = umbrechen(rest, spaltenB - vorn, GR, false);
+        var weitere = erste.length > 1
+          ? umbrechen(erste.slice(1).join(' '), spaltenB - 10, GR, false) : [];
+        return { kopf: kopfTxt, vorn: vorn, erste: erste[0], weitere: weitere };
+      });
+      return { titel: g.titel, zeilen: zeilen, hoehe: teilHoehe(zeilen) };
+    }
+
+    /* Hoehe eines Gruppenblocks: Titel und Trennstrich, die Zeilen, der
+       Abstand danach. Wird zum Verteilen UND zum Teilen gebraucht –
+       darum an einer Stelle. */
+    function teilHoehe(zeilen) {
+      var h = 27;
+      zeilen.forEach(function (z) { h += (1 + z.weitere.length) * ZH + 1.6; });
+      return h;
+    }
+
+    /* Eine Gruppe aufteilen, wenn sie nicht ganz in den Rest der Spalte
+       passt. Der zweite Teil traegt den Titel noch einmal mit dem Zusatz
+       „(Fortsetzung)" – ohne ihn staende irgendwo eine Liste ohne
+       Ueberschrift, und niemand wuesste, wozu sie gehoert.
+
+       Geteilt wird nur, wenn BEIDE Teile mindestens zwei Zeilen behalten:
+       eine einzelne Zeile unter einer Ueberschrift sieht nach Fehler aus. */
+    function teilen(g, frei) {
+      var h = 27, n = 0, i;
+      for (i = 0; i < g.zeilen.length; i++) {
+        var zh = (1 + g.zeilen[i].weitere.length) * ZH + 1.6;
+        if (h + zh > frei) break;
+        h += zh; n++;
+      }
+      if (n < 2 || g.zeilen.length - n < 2) return null;
+      var a = g.zeilen.slice(0, n), b = g.zeilen.slice(n);
+      return [
+        { titel: g.titel, zeilen: a, hoehe: teilHoehe(a) },
+        { titel: g.titel + ' (Fortsetzung)', zeilen: b, hoehe: teilHoehe(b) }
+      ];
+    }
+
+    var gemessen = (s.gruppen || []).filter(function (g) { return g.zeilen.length; })
+                                    .map(gruppeMessen);
+
+    /* ---------- Auf Spalten verteilen ----------
+       Ziel ist die Haelfte der Gesamthoehe, damit beide Spalten etwa
+       gleich weit reichen – ein Blatt, dessen rechte Haelfte leer ist,
+       wirkt unfertig. Passt eine Gruppe nicht mehr, faengt die naechste
+       Spalte an; sind beide voll, folgt eine zweite Seite. */
+    var kopfHoehe = 52 + ((s.kacheln && s.kacheln.length) ? 62 : 0);
+    var platzErste = A4_H - RAND - kopfHoehe - (RAND + 26);
+    var platzWeiter = A4_H - RAND - 52 - (RAND + 26);
+
+    function verteilen(liste, platz) {
+      /* Zielhoehe fuer die linke Spalte ist die Haelfte des Ganzen – dann
+         reichen beide etwa gleich weit. Passt alles zusammen nicht mehr
+         auf diese Seite, wird die linke Spalte voll ausgenutzt und der
+         Rest geht auf die naechste.
+
+         Der erste Entwurf suchte nur den besten Schnitt ZWISCHEN zwei
+         Gruppen. Das Ergebnis war rechnerisch optimal und sah trotzdem
+         schief aus: Eine einzelne grosse Gruppe (die Schiebeanlagen)
+         bestimmte alles, links blieb die halbe Spalte leer. Seit die
+         Gruppe geteilt werden darf, geht es auf. */
+      var rest = liste.slice();
+      var ganz = rest.reduce(function (sum, g) { return sum + g.hoehe; }, 0);
+      var spalten = [[], []], i;
+      for (i = 0; i < 2; i++) {
+        var kap = (i === 0 && ganz <= 2 * platz) ? Math.min(platz, ganz / 2) : platz;
+        var h = 0;
+        while (rest.length) {
+          var g = rest[0];
+          /* Die erste Gruppe einer Spalte kommt immer hinein, auch wenn
+             sie das Ziel schon reisst – sonst bliebe die Spalte leer und
+             die Schleife kaeme nicht voran. */
+          if (h + g.hoehe <= kap || !spalten[i].length) {
+            if (h + g.hoehe > platz && spalten[i].length) break;
+            spalten[i].push(g); h += g.hoehe; rest.shift();
+            continue;
+          }
+          var tt = teilen(g, Math.max(kap, h + 40) - h);
+          if (tt) { spalten[i].push(tt[0]); rest[0] = tt[1]; }
+          break;
+        }
+      }
+      return { spalten: spalten, rest: rest };
+    }
+
+    var seiten = [], t = [], y;
+
+    function zeile(txt, gr, fett, farbe, x) {
+      t.push('BT /F' + (fett ? 2 : 1) + ' ' + gr + ' Tf ' + farbe + ' rg ' +
+             x.toFixed(1) + ' ' + y.toFixed(1) + ' Td (' + pdfText(txt) + ') Tj ET');
+    }
+    function strich(x, ys, b, farbe, dick) {
+      t.push(farbe + ' RG ' + (dick || 0.6) + ' w ' + x.toFixed(1) + ' ' +
+             ys.toFixed(1) + ' m ' + (x + b).toFixed(1) + ' ' + ys.toFixed(1) + ' l S');
+    }
+
+    function kopfZeichnen(erste) {
+      y = A4_H - RAND - 8;
+      zeile(erste ? s.titel : s.titel + ' (Fortsetzung)', 19, true, G.text, RAND);
+      y -= 19;
+      if (erste && s.kopf) { zeile(s.kopf, 12, false, G.gold, RAND); y -= 13; }
+      strich(RAND, y, innen, G.gold, 1.6);
+      y -= 20;
+      if (erste && s.kacheln && s.kacheln.length) {
+        var n = s.kacheln.length, kb = innen / n, kh = 46, oben = y;
+        t.push(G.kachel + ' rg ' + RAND + ' ' + (y - kh).toFixed(1) + ' ' +
+               innen.toFixed(1) + ' ' + kh + ' re f');
+        s.kacheln.forEach(function (k, i) {
+          var kx = RAND + i * kb + 13;
+          y = oben - 17;
+          zeile(k.label.toUpperCase(), 7, true, G.hell, kx);
+          y = oben - 33;
+          var wert = k.wert, gr = 13;
+          while (textBreite(wert, gr, true) > kb - 26 && gr > 7.5) gr -= 0.5;
+          zeile(wert, gr, true, G.text, kx);
+        });
+        y = oben - kh - 16;
+      }
+      return y;
+    }
+
+    /* ---------- Was als Naechstes passiert ----------
+       Steht unten auf der letzten Seite, wenn dort Platz ist. „verkaufs-
+       psychologisch stark" (Betreiber, 12.10.2026): Ein Blatt, das nur
+       aufzaehlt, was gewaehlt wurde, endet im Stapel. Hier steht der
+       Ablauf, den der Betrieb ohnehin faehrt – keine Versprechen, die im
+       Angebot dann anders aussehen.
+
+       Fehlt der Platz, entfaellt der Block ersatzlos: Lieber keine
+       Schlusszeile als eine, die in die Tabelle darueber laeuft. */
+    function schlussZeichnen(tiefste) {
+      if (!s.schritte || !s.schritte.length) return;
+      var hoehe = 40, oben = RAND + 24 + hoehe;
+      if (tiefste < oben + 14) return;
+      t.push(G.kachel + ' rg ' + RAND + ' ' + (RAND + 24) + ' ' +
+             innen.toFixed(1) + ' ' + hoehe + ' re f');
+      y = RAND + 24 + hoehe - 15;
+      zeile('SO GEHT ES WEITER', 7.6, true, G.gold, RAND + 13);
+      y -= 16;
+      var x = RAND + 13;
+      s.schritte.forEach(function (schritt, i) {
+        var nr = (i + 1) + '';
+        zeile(nr, 10, true, G.gold, x);
+        x += textBreite(nr, 10, true) + 5;
+        zeile(schritt, 9.4, false, G.text, x);
+        x += textBreite(schritt, 9.4, false) + 22;
+      });
+    }
+
+    function fussZeichnen() {
+      t.push('BT /F1 7.6 Tf ' + G.hell + ' rg ' + RAND + ' ' + (RAND - 4) +
+             ' Td (' + pdfText(s.unten) + ') Tj ET');
+      if (s.ruf) {
+        var b = textBreite(s.ruf, 9, true);
+        t.push('BT /F2 9 Tf ' + G.gold + ' rg ' +
+               (A4_B - RAND - b).toFixed(1) + ' ' + (RAND - 5) +
+               ' Td (' + pdfText(s.ruf) + ') Tj ET');
+      }
+      seiten.push(t.join('\n'));
+      t = [];
+    }
+
+    function gruppeZeichnen(g, x, oben) {
+      y = oben;
+      zeile(g.titel.toUpperCase(), 7.6, true, G.gold, x);
+      y -= 5;
+      strich(x, y, spaltenB, G.linie);
+      y -= 13;
+      g.zeilen.forEach(function (z) {
+        if (z.kopf) zeile(z.kopf, GR, true, G.grau, x);
+        zeile(z.erste, GR, false, G.text, x + z.vorn);
+        y -= ZH;
+        z.weitere.forEach(function (w) {
+          zeile(w, GR, false, G.text, x + 10);
+          y -= ZH;
+        });
+        y -= 1.6;
+      });
+      return y - 9;
+    }
+
+    var offen = gemessen, erste = true;
+    while (offen.length) {
+      var start = kopfZeichnen(erste);
+      var platz = erste ? platzErste : platzWeiter;
+      var v = verteilen(offen, platz);
+      var tiefste = start;
+      v.spalten.forEach(function (sp, i) {
+        var x = RAND + i * (spaltenB + 34), oben = start;
+        sp.forEach(function (g) { oben = gruppeZeichnen(g, x, oben); });
+        if (oben < tiefste) tiefste = oben;
+      });
+      if (!v.rest.length) schlussZeichnen(tiefste);
+      fussZeichnen();
+      offen = v.rest;
+      erste = false;
+    }
+    if (!seiten.length) { kopfZeichnen(true); fussZeichnen(); }
+    return seiten;
   }
 
   /* ---------- Kern: fertige Inhaltsstroeme in eine Datei schreiben ----------
@@ -243,22 +560,34 @@
      seiten: [{ titel, unten, rechts, bild: dataURL } | { titel, unten, zeilen: [] }]
      Rueckgabe: Blob. */
   function erzeugen(seiten, meta) {
-    return ausStroemen(seiten.map(function (s) {
+    var fertig = [];
+    seiten.forEach(function (s) {
       if (s.bild) {
         var bild = { daten: ausDatenUrl(s.bild) };
-        return {
+        fertig.push({
           strom: inhaltBild(bild, s.titel, s.unten, s.rechts),
           bild: bild.daten
-        };
+        });
+        return;
       }
-      return { strom: inhaltText(s.titel, s.zeilen || [], s.unten) };
-    }), meta);
+      /* Eine Seite mit Gruppen kann zu mehreren werden – darum liefert
+         inhaltKonfig() ein Array. Die schlichte Liste bleibt fuer
+         Aufrufer, die keine Gruppen uebergeben. */
+      if (s.gruppen) {
+        inhaltKonfig(s).forEach(function (strom) { fertig.push({ strom: strom }); });
+        return;
+      }
+      fertig.push({ strom: inhaltText(s.titel, s.zeilen || [], s.unten) });
+    });
+    return ausStroemen(fertig, meta);
   }
 
   global.BV_PDF = {
     erzeugen: erzeugen,          // Ansichtsseiten des Konfigurators
     ausStroemen: ausStroemen,    // fertige Stroeme (nutzt js/bg-pdf.js)
     pdfText: pdfText,            // Klammern und Rueckstrich escapen
+    textBreite: textBreite,      // Helvetica-Breite, zum Pruefen
+    umbrechen: umbrechen,
     winAnsi: winAnsi,
     jpegMasse: jpegMasse
   };

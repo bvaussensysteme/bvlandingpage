@@ -5185,3 +5185,67 @@ Beide Höhen stehen in der Anfrage, damit es nachrechenbar bleibt.
 **Was gegengelesen werden soll:** Höhe hinten auf 2600 stellen – es muss
 2600 stehen bleiben, und darunter „6°" ohne Nachkommastelle. Dann einige
 andere Werte durchprobieren, auch krumme wie 2637.
+
+## 2026-10-12 – Die Konfigurationsseite im PDF neu gebaut
+
+**Anlass:** „wenn die austattung größer wird, wird diese liste
+unübersichtlich, mache es übersichtlich, design technisch ansprechend,
+alle infos sollen lesbar bleiben, verkaufspsychologisch stark"
+(Betreiber, mit Bild).
+
+**Was falsch war:** Eine flache Liste in zwei Spalten, und zu lange
+Angaben wurden mit „…" abgeschnitten – ausgerechnet bei den
+Schiebeanlagen, also bei dem, was am meisten kostet und am meisten
+erklärt werden muss. Je mehr der Kunde auswählte, desto unleserlicher
+wurde das Blatt.
+
+**Was jetzt gilt:**
+- Kopf mit Produkt und Montageart, darunter vier Eckdaten als Kacheln
+  (Breite × Tiefe, Durchgangshöhe, Eindeckung, Farbe)
+- die Angaben nach sechs Themen gruppiert, mit Zwischentiteln
+- Zeilen werden **umgebrochen, nie abgeschnitten**; reicht der Platz
+  nicht, entsteht eine weitere Seite
+- unten der Ablauf in drei Schritten (Aufmaß, Angebot, Montage) – der
+  Grund, warum das Blatt beim Kunden liegt. Die Texte stehen in
+  `pdfSeiten()` und sind leicht zu ändern.
+
+**Woher die Gruppen kommen:** `zusammenfassung()` bleibt die einzige
+Quelle – dieselbe Liste, die in die Anfrage geht. `pdfGruppen()` sortiert
+nur um. Was auf kein Muster passt, landet unter „Weitere Angaben"; eine
+Prüfung rechnet nach, dass jede Zeile genau einmal herauskommt. Ohne das
+würde beim nächsten neuen Eintrag still eine Angabe vom Blatt fallen.
+
+**Drei Dinge, die beim Bauen schiefgingen:**
+
+1. *Zeichenbreiten geschätzt.* Erst fasste ich Zeichen grob zu Gruppen
+   zusammen – im fertigen Blatt klafften Lücken hinter den Doppelpunkten.
+   Jetzt stehen die amtlichen Helvetica-Werte in `js/pdf-blatt.js`,
+   nachgerechnet gegen bekannte Sollwerte.
+
+2. *Spalten nur gefüllt statt verteilt.* Die linke Spalte wurde voll,
+   der Rest rutschte nach rechts: links halb leer, rechts überlang. Jetzt
+   werden die Gruppen erst vermessen und dann so verteilt, dass beide
+   Spalten etwa gleich weit reichen; eine zu große Gruppe wird geteilt und
+   trägt dann „(Fortsetzung)" im Titel. Das ist auch nötig, damit eine sehr
+   lange Gruppe nicht unten aus der Seite läuft.
+
+3. *Die Prüfung log.* `pdftotext -layout` liest über **beide** Spalten
+   hinweg; eine umgebrochene Angabe wird vom Text der Nachbarspalte
+   unterbrochen. Die Prüfung meldete 29 von 34 fehlenden Zeilen, obwohl im
+   gerenderten Bild alle dastanden. Hätte ich das geglaubt, hätte ich einen
+   Fehler gesucht, den es nicht gibt – und womöglich das Layout dafür
+   kaputtgemacht. Jetzt wird jede Spalte einzeln ausgeschnitten (`-x/-W`)
+   und erst danach zusammengehängt.
+
+**Absicherung:** `scripts/pruefe-pdf.js` baut zwei Konfigurationsseiten –
+eine normale und eine mit 34 langen Zeilen – schreibt sie als PDF und
+liest sie mit poppler zurück: alle Zeilen vollständig, kein „…", Umbruch
+auf zwei Seiten, „(Fortsetzung)" vorhanden, Abschluss auf der letzten
+Seite. 24 Prüfungen, Gegenprobe 24/24. Zusätzlich habe ich die Seiten als
+Bild gerendert und angesehen – Layoutfehler sieht man nicht im Text.
+
+**Was gegengelesen werden soll:** Ein Dach mit viel Ausstattung
+zusammenstellen (Schiebetüren auf allen Seiten, Markise, LED), PDF
+erstellen und die letzte(n) Seite(n) ansehen: Steht jede Angabe
+vollständig da? Sind die Gruppen sinnvoll? Der Ablauf unten ist ein
+Vorschlag – Wortlaut und Reihenfolge gern anpassen.

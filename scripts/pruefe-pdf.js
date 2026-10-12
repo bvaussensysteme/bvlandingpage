@@ -131,6 +131,144 @@ blob.arrayBuffer().then(function (ab) {
            zeilen.length + ' Bilder, erwartet 3 mit ' + sollB + ' x ' + m.hoch);
   }
 
+  /* ---------- Zweispaltige Seiten richtig zurueckzulesen ----------
+     Der erste Versuch las die Seite mit „pdftotext -layout" am Stueck.
+     Ergebnis: 29 von 34 Zeilen schienen zu fehlen, obwohl sie im Bild
+     alle dastehen. Grund: pdftotext liest ueber BEIDE Spalten hinweg;
+     eine umgebrochene Angabe wird dann vom Text der Nachbarspalte
+     unterbrochen und ist als Ganzes nicht mehr zu finden.
+
+     Darum wird jede Spalte einzeln ausgeschnitten (-x/-W) und erst
+     danach zusammengehaengt. Haette ich dem ersten Ergebnis geglaubt,
+     haette ich einen Fehler gesucht, den es nicht gibt – und womoeglich
+     das Layout dafuer kaputtgemacht. */
+  function textSpaltenweise(datei, anzahlSeiten) {
+    var ganz = '', sp;
+    for (var nr = 1; nr <= anzahlSeiten; nr++) {
+      [[28, 384], [408, 402]].forEach(function (s) {
+        sp = lauf('pdftotext', ['-f', String(nr), '-l', String(nr),
+                                '-x', String(s[0]), '-y', '0',
+                                '-W', String(s[1]), '-H', '595',
+                                '-layout', datei, '-']);
+        ganz += ' ' + sp;
+      });
+    }
+    return ganz.replace(/\s+/g, ' ');
+  }
+
+  /* ---------- Nichts wird abgeschnitten ----------
+     „alle infos sollen lesbar bleiben" (Betreiber, 12.10.2026). Vorher
+     kuerzte die Konfigurationsseite zu lange Angaben mit „…" – betroffen
+     waren ausgerechnet die Schiebeanlagen, also das Teuerste am Dach.
+
+     Geprueft wird deshalb am ENDPRODUKT: Die Seite wird gebaut, als PDF
+     geschrieben und mit pdftotext zurueckgelesen. Jede uebergebene Zeile
+     muss sich darin wiederfinden – ueber Zeilenumbrueche hinweg, darum
+     werden beim Vergleich alle Leerraeume vereinheitlicht. */
+  var langeZeilen = [
+    'Schiebeanlage rechts: 3390 mm licht - SG23, 3-rails, 3-tuerig, ESG 10 mm klar, Griff rund',
+    'SG23 Richtungsangaben: von INNEN gesehen (links/rechts wie im VD-Anfrageformular)',
+    'SG23 Buerstendichtung: Buerstenprofil inkl. Buersten, Lieferlaenge 2500 mm - zwei Stueck',
+    'Markisenstoff: AC219 - Greenery - Wassersaeule 350 mm - Lichtechtheit 4/5'
+  ];
+  var konfSeite = {
+    titel: 'Ihre Konfiguration',
+    kopf: 'Terrassendach TDS  -  Wandmontage',
+    kacheln: [
+      { label: 'Breite x Tiefe', wert: '5000 x 3500 mm' },
+      { label: 'Durchgangshoehe', wert: '2200 mm' },
+      { label: 'Eindeckung', wert: 'VSG 8 mm klar' },
+      { label: 'Farbe', wert: 'Anthrazit' }
+    ],
+    gruppen: [
+      { titel: 'Konstruktion und Masse',
+        zeilen: ['8 Sparren, 3 Pfosten je Reihe', 'Dachneigung: 7 Grad (12,3 %)'] },
+      { titel: 'Seiten und Verglasung', zeilen: langeZeilen.slice(0, 3) },
+      { titel: 'Komfort und Zubehoer', zeilen: [langeZeilen[3], 'LED-Spots: 12er-Set'] }
+    ],
+    unten: 'Unverbindliche Darstellung',
+    ruf: 'Kostenloses Aufmass vor Ort: 0156 78696609'
+  };
+  var kBlob = PDF.erzeugen([konfSeite], { titel: 'Konfiguration' });
+  kBlob.arrayBuffer().then(function (kAb) {
+    var kDatei = path.join(os.tmpdir(), 'bv-pruefe-konf-' + process.pid + '.pdf');
+    fs.writeFileSync(kDatei, Buffer.from(kAb));
+    var kText = textSpaltenweise(kDatei, 1);
+    var suche = langeZeilen.concat(gegen ? ['Diese Angabe wurde nie uebergeben'] : []);
+    var abgeschnitten = suche.filter(function (z) {
+      return kText.indexOf(z.replace(/\s+/g, ' ')) === -1;
+    });
+    pruefe('Lange Angaben stehen vollstaendig im PDF', abgeschnitten.length === 0,
+           abgeschnitten.length ? 'fehlt oder gekuerzt: ' + abgeschnitten[0].slice(0, 46) + '…'
+             : suche.length + ' lange Zeilen vollstaendig');
+    pruefe('Keine Auslassungszeichen mehr',
+           kText.indexOf(gegen ? 'Konfiguration' : '…') === -1,
+           'nichts mit „…" gekuerzt');
+    pruefe('Gruppentitel und Kacheln stehen da',
+           kText.indexOf('SEITEN UND VERGLASUNG') > -1 &&
+           kText.indexOf(gegen ? 'SCHNEELAST' : 'DURCHGANGSHOEHE') > -1, '');
+    pruefe('Der naechste Schritt steht auf dem Blatt',
+           kText.indexOf(gegen ? '0800 000000' : '0156 78696609') > -1,
+           'Aufmass-Hinweis als Abschluss');
+    try { fs.unlinkSync(kDatei); } catch (e) { /* egal */ }
+
+    /* ---------- Der eigentliche Anlass: VIEL Ausstattung ----------
+       „wenn die austattung größer wird, wird diese liste unübersichtlich"
+       (Betreiber). Also genau das pruefen: Eine Konfiguration, die auf
+       eine Seite nicht passt, muss auf mehrere umbrechen – und dabei darf
+       keine einzige Zeile verschwinden. Das ist der Fall, in dem ein
+       Fehler am teuersten waere: Je mehr bestellt ist, desto mehr steht
+       auf dem Spiel. */
+    var vieleZeilen = [];
+    function viel(titel, n) {
+      var z = [];
+      for (var i = 1; i <= n; i++) {
+        var t = titel + ' Position ' + i + ': 3390 mm licht - SG23, 3-rails, ' +
+                '3-tuerig, ESG 10 mm klar, runder eingelassener Griff';
+        z.push(t); vieleZeilen.push(t);
+      }
+      return { titel: titel, zeilen: z };
+    }
+    var grossSeite = {
+      titel: 'Ihre Konfiguration', kopf: 'Terrassendach TDS - Freistehend',
+      kacheln: konfSeite.kacheln,
+      gruppen: [viel('Konstruktion', 6), viel('Seiten und Verglasung', 14),
+                viel('Komfort', 9), viel('Montage', 5)],
+      unten: 'Unverbindliche Darstellung',
+      ruf: 'Kostenloses Aufmass vor Ort: 0156 78696609',
+      schritte: ['Kostenloses Aufmass vor Ort', 'Verbindliches Angebot',
+                 'Fertigung und Montage']
+    };
+    PDF.erzeugen([grossSeite], { titel: 'Viel' }).arrayBuffer().then(function (vAb) {
+      var vDatei = path.join(os.tmpdir(), 'bv-pruefe-viel-' + process.pid + '.pdf');
+      fs.writeFileSync(vDatei, Buffer.from(vAb));
+      var vInfo = lauf('pdfinfo', [vDatei]);
+      var vSeiten = parseInt((vInfo.match(/Pages:\s*(\d+)/) || [0, 0])[1], 10);
+      pruefe('Viel Ausstattung bricht auf mehrere Seiten um',
+             vSeiten >= 2 && !gegen, vSeiten + ' Seiten');
+      var vText = textSpaltenweise(vDatei, vSeiten);
+      var soll = vieleZeilen.slice();
+      if (gegen) soll.push('Eine Zeile, die niemand uebergeben hat');
+      var weg = soll.filter(function (z) {
+        return vText.indexOf(z.replace(/\s+/g, ' ')) === -1;
+      });
+      pruefe('Auch beim Seitenumbruch geht keine Zeile verloren', weg.length === 0,
+             weg.length ? weg.length + ' von ' + soll.length + ' fehlen, z. B. '
+                          + weg[0].slice(0, 40) + '…'
+               : soll.length + ' Zeilen vollstaendig auf ' + vSeiten + ' Seiten');
+      /* Eine geteilte Gruppe muss ihre Ueberschrift mitnehmen, sonst steht
+         irgendwo eine Liste ohne Zusammenhang. */
+      pruefe('Geteilte Gruppen tragen „(Fortsetzung)"',
+             vText.indexOf(gegen ? 'SCHNEELAST' : '(FORTSETZUNG)') > -1, '');
+      pruefe('Der Abschluss steht auf der letzten Seite',
+             vText.indexOf(gegen ? 'SOFORT KAUFEN' : 'SO GEHT ES WEITER') > -1,
+             'Ablauf in drei Schritten');
+      try { fs.unlinkSync(vDatei); } catch (e) { /* egal */ }
+      weiter();
+    });
+  });
+
+  function weiter() {
   /* ---------- Der Baugenehmigungs-Check auf demselben Unterbau ----------
      js/bg-pdf.js hatte bis zum 12.10.2026 seinen eigenen Dateiaufbau und
      war NIRGENDS geprueft. Jetzt baut es auf ausStroemen() auf – also muss
@@ -213,6 +351,7 @@ blob.arrayBuffer().then(function (ab) {
       abschluss();
     });
   } else { abschluss(); }
+  }
 
   function abschluss() {
   try { fs.unlinkSync(datei); } catch (e) { /* egal */ }
