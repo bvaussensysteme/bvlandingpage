@@ -133,10 +133,24 @@
     return t.join('\n');
   }
 
-  /* ---------- Datei zusammensetzen ----------
-     seiten: [{ titel, unten, rechts, bild: dataURL } | { titel, unten, zeilen: [] }]
-     Rueckgabe: Blob. */
-  function erzeugen(seiten, meta) {
+  /* ---------- Kern: fertige Inhaltsstroeme in eine Datei schreiben ----------
+     Das hier ist der Teil, der NICHTS vom Layout weiss. Seit dem
+     12.10.2026 benutzt ihn auch js/bg-pdf.js (Baugenehmigungs-Check);
+     vorher hatte der eine zweite, eigene Fassung derselben 40 Zeilen –
+     zwei Stellen, die xref-Tabellen bauen, laufen mit der Zeit
+     auseinander, und ein Fehler darin faellt erst beim Kunden auf.
+
+     seiten: [{ strom, breite, hoehe, bild }]
+       strom  fertiger Inhaltsstrom (PDF-Operatoren)
+       bild   JPEG-Rohbytes oder nichts; heisst im Strom /Im0
+     meta:   { titel }
+
+     WICHTIG fuer Aufrufer, die ihren Strom selbst zusammensetzen: Die
+     Zeichen darin muessen bereits WinAnsi sein (Code < 256) und Klammern
+     escaped. Hier wird nur noch Zeichen fuer Zeichen zu Bytes gemacht –
+     ein zweites Umkodieren wuerde die Byte-Laengen verschieben und die
+     xref-Tabelle ins Leere zeigen lassen. */
+  function ausStroemen(seiten, meta) {
     var teile = [], laenge = 0, offsets = [];
 
     function schreib(u8) { teile.push(u8); laenge += u8.length; }
@@ -144,7 +158,7 @@
 
     /* Objektnummern vorab festlegen: 1 Katalog, 2 Seitenbaum,
        3 Helvetica, 4 Helvetica-Bold, danach je Seite 2 oder 3. */
-    var erstes = 5, nr = erstes, seitenNr = [], i;
+    var nr = 5, seitenNr = [], i;
     seiten.forEach(function (s) {
       seitenNr.push({ seite: nr++, inhalt: nr++, bild: s.bild ? nr++ : 0 });
     });
@@ -171,18 +185,12 @@
 
     seiten.forEach(function (s, k) {
       var p = seitenNr[k];
-      var bild = null, inhalt;
-      if (s.bild) {
-        bild = { daten: ausDatenUrl(s.bild) };
-        inhalt = inhaltBild(bild, s.titel, s.unten, s.rechts);
-      } else {
-        inhalt = inhaltText(s.titel, s.zeilen || [], s.unten);
-      }
-      var inhaltB = bytes(inhalt);
+      var inhaltB = bytes(s.strom);
+      var br = s.breite || A4_B, ho = s.hoehe || A4_H;
 
       objAuf(p.seite);
       schreibS(p.seite + ' 0 obj\n<< /Type /Page /Parent 2 0 R ' +
-               '/MediaBox [0 0 ' + A4_B + ' ' + A4_H + '] ' +
+               '/MediaBox [0 0 ' + br + ' ' + ho + '] ' +
                '/Resources << /Font << /F1 3 0 R /F2 4 0 R >>' +
                (p.bild ? ' /XObject << /Im0 ' + p.bild + ' 0 R >>' : '') +
                ' >> /Contents ' + p.inhalt + ' 0 R >>\nendobj\n');
@@ -193,7 +201,7 @@
       schreibS('\nendstream\nendobj\n');
 
       if (p.bild) {
-        var m = jpegMasse(bild.daten);
+        var m = jpegMasse(s.bild);
         objAuf(p.bild);
         /* DCTDecode heisst: Die Bytes sind ein JPEG und werden
            unveraendert uebernommen – kein Umkodieren, keine Qualitaets-
@@ -201,17 +209,23 @@
         schreibS(p.bild + ' 0 obj\n<< /Type /XObject /Subtype /Image /Width ' +
                  m.breit + ' /Height ' + m.hoch +
                  ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode ' +
-                 '/Length ' + bild.daten.length + ' >>\nstream\n');
-        schreib(bild.daten);
+                 '/Length ' + s.bild.length + ' >>\nstream\n');
+        schreib(s.bild);
         schreibS('\nendstream\nendobj\n');
       }
     });
 
     /* Angaben, die im Betrachter unter „Dokumenteigenschaften" stehen. */
+    var d = new Date();
+    function zwei(n) { return (n < 10 ? '0' : '') + n; }
+    var pdfDatum = 'D:' + d.getFullYear() + zwei(d.getMonth() + 1) + zwei(d.getDate()) +
+                   zwei(d.getHours()) + zwei(d.getMinutes()) + zwei(d.getSeconds());
     var infoNr = anzahlObj + 1;
     objAuf(infoNr);
     schreibS(infoNr + ' 0 obj\n<< /Title (' + pdfText(meta.titel || 'Konfiguration') +
-             ') /Author (BV AussenSysteme) /Creator (BV AussenSysteme Konfigurator) >>\nendobj\n');
+             ') /Author (BV AussenSysteme) /Creator (' +
+             pdfText(meta.erzeuger || 'BV AussenSysteme Konfigurator') +
+             ') /CreationDate (' + pdfDatum + ') >>\nendobj\n');
 
     var xref = laenge;
     var zeilen = ['xref', '0 ' + (infoNr + 1), '0000000000 65535 f '];
@@ -225,5 +239,27 @@
     return new global.Blob(teile, { type: 'application/pdf' });
   }
 
-  global.BV_PDF = { erzeugen: erzeugen, jpegMasse: jpegMasse, winAnsi: winAnsi };
+  /* ---------- Die Ansichtsseiten des Konfigurators ----------
+     seiten: [{ titel, unten, rechts, bild: dataURL } | { titel, unten, zeilen: [] }]
+     Rueckgabe: Blob. */
+  function erzeugen(seiten, meta) {
+    return ausStroemen(seiten.map(function (s) {
+      if (s.bild) {
+        var bild = { daten: ausDatenUrl(s.bild) };
+        return {
+          strom: inhaltBild(bild, s.titel, s.unten, s.rechts),
+          bild: bild.daten
+        };
+      }
+      return { strom: inhaltText(s.titel, s.zeilen || [], s.unten) };
+    }), meta);
+  }
+
+  global.BV_PDF = {
+    erzeugen: erzeugen,          // Ansichtsseiten des Konfigurators
+    ausStroemen: ausStroemen,    // fertige Stroeme (nutzt js/bg-pdf.js)
+    pdfText: pdfText,            // Klammern und Rueckstrich escapen
+    winAnsi: winAnsi,
+    jpegMasse: jpegMasse
+  };
 })(window);

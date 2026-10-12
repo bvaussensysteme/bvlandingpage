@@ -2113,6 +2113,19 @@ pruefe('Leinwand wird fuer den Druck vergroessert und zurueckgestellt',
        new RegExp(q || 'renderer\\.setSize\\(PDF_BREIT').test(js) &&
        new RegExp(q || 'renderer\\.setPixelRatio\\(altR\\)').test(js) &&
        new RegExp(q || 'renderer\\.setSize\\(altB, altH, false\\)').test(js), '');
+(function () {
+  /* „die seite Ihre Konfiguration also die zusammenfassung soll das letzte
+     blatt sein" (Betreiber, 12.10.2026). Geprueft wird die REIHENFOLGE im
+     Code, nicht nur das Vorkommen: Die Seite muss NACH der Schleife ueber
+     die Zustandsseiten angehaengt werden, sonst rutscht sie wieder in die
+     Mitte, sobald eine Anlage bewegliche Teile hat. */
+  var fn = (js.match(/function pdfSeiten\([\s\S]*?\n  \}/) || [''])[0];
+  var zu = fn.indexOf('zustandsSeiten().forEach');
+  var ko = fn.indexOf("titel: 'Ihre Konfiguration'");
+  var ok = zu > -1 && ko > zu;
+  pruefe('Die Konfiguration ist das letzte Blatt', gegen ? !ok : ok,
+         ok ? 'nach den Zustandsseiten' : 'steht vor den Zustandsseiten');
+})();
 pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
        new RegExp(q || "titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung\\(\\)")
          .test(js), 'keine zweite Quelle');

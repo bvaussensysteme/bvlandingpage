@@ -5085,3 +5085,57 @@ eingefahrener Markise und offenen Schiebetüren, die Konfigurationsseite,
 dann zwei Seiten mit ausgefahrener Markise bzw. geschlossenen Türen.
 **Wichtig:** Danach muss der Konfigurator genau so dastehen wie vorher –
 gleiche Ansicht, gleiche Reglerstellungen.
+
+## 2026-10-12 – Ein PDF-Unterbau statt zwei, Konfigurationsseite ans Ende
+
+**Zwei Änderungen auf einmal, beide vom Betreiber:**
+
+### 1. „die seite Ihre Konfiguration also die zusammenfassung soll das letzte blatt sein"
+
+Die Zusammenfassung stand bisher auf Seite 6, mitten zwischen Ansichten
+und Zustandsseiten. Jetzt wird sie nach den Zustandsseiten angehängt und
+bleibt damit die letzte, auch wenn später weitere Zustände dazukommen.
+Eine Prüfung sichert die **Reihenfolge im Code** ab, nicht nur das
+Vorkommen – sonst rutscht sie beim nächsten Umbau wieder in die Mitte.
+
+### 2. Zwei PDF-Erzeuger zusammengeführt
+
+**Was falsch war:** Beim Bau des Konfigurator-PDFs ist mir `js/bg-pdf.js`
+entgangen – der Baugenehmigungs-Check hatte seit Längerem einen eigenen
+PDF-Erzeuger, mit derselben Begründung geschrieben (keine fremde
+Bibliothek). Damit standen dieselben rund 40 Zeilen Dateiaufbau
+(Katalog, Seitenbaum, Schriften, xref-Tabelle, Trailer) zweimal im
+Projekt.
+
+**Was jetzt gilt:** `js/pdf-blatt.js` enthält mit `ausStroemen()` den
+gemeinsamen Unterbau. Er weiß nichts vom Layout und nimmt fertige
+Inhaltsströme entgegen. Darauf sitzen zwei Layouts:
+- `erzeugen()` – A4 quer, je Seite ein Bild (Konfigurator)
+- `js/bg-pdf.js` – A4 hoch, Kästen und Tabellen (Baugenehmigungs-Check)
+
+`js/pdf-blatt.js` muss in `src/baugenehmigung.njk` **vor** `js/bg-pdf.js`
+geladen werden; fehlt es, wirft `alsBlob()` eine verständliche Meldung,
+statt eine kaputte Datei zu liefern.
+
+**Die Falle dabei:** `bg-pdf.js` schickt seinen Text durch ein eigenes
+`kodieren()`, das WinAnsi und das Escapen von Klammern in einem Schritt
+macht. Der Unterbau macht daraus nur noch Bytes. Würde er ein zweites Mal
+umkodieren, verschöben sich die Byte-Längen und die xref-Tabelle zeigte
+ins Leere – die Datei ließe sich nicht mehr öffnen. Das steht jetzt als
+Warnung am Kopf von `ausStroemen()`.
+
+**Was das wert war:** Der Baugenehmigungs-Check war **nirgends geprüft**.
+`scripts/pruefe-pdf.js` erzeugt jetzt auch sein PDF und liest es mit
+poppler zurück: eine Seite, A4 hoch, Inhalt vorhanden, Umlaute korrekt
+(das fängt genau das doppelte Umkodieren ab). 16 Prüfungen, Gegenprobe
+16/16.
+
+**Grenze, die genannt gehört:** Geprüft wird der Dateiaufbau, nicht die
+Typografie. Die Textbreite misst `bg-pdf.js` über die Canvas-API des
+Browsers; im Prüfskript ersetzt eine grobe Schätzung über die Zeichenzahl.
+Zeilenumbrüche können dort anders fallen als im Browser.
+
+**Was gegengelesen werden soll:** Den Baugenehmigungs-Check auf
+`/baugenehmigung.html` durchlaufen lassen und das PDF speichern – es muss
+sich öffnen lassen und wie vorher aussehen. Dann im Konfigurator ein PDF
+erstellen: „Ihre Konfiguration" muss die **letzte** Seite sein.

@@ -9050,13 +9050,7 @@
       });
     });
 
-    /* 2. Die Konfiguration in Worten – dieselbe Liste wie in der Anfrage,
-       damit beide nicht auseinanderlaufen. */
-    seiten.push({
-      titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung()
-    });
-
-    /* 3. Je bewegliches Teil eine Seite im anderen Zustand. */
+    /* 2. Je bewegliches Teil eine Seite im anderen Zustand. */
     zustandsSeiten().forEach(function (zu) {
       var alt = zustandSetzen(zu.felder);
       seiten.push({
@@ -9064,6 +9058,16 @@
         bild: schuss('Perspektive')
       });
       zustandSetzen(alt);
+    });
+
+    /* 3. Zum Schluss die Konfiguration in Worten – dieselbe Liste wie in
+       der Anfrage, damit beide nicht auseinanderlaufen. „die seite Ihre
+       Konfiguration also die zusammenfassung soll das letzte blatt sein"
+       (Betreiber, 12.10.2026): Wer blättert, sieht erst die Anlage und
+       hat die Angaben am Ende beisammen – auch wenn später noch
+       Zustandsseiten dazukommen, bleibt sie die letzte. */
+    seiten.push({
+      titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung()
     });
 
     /* Alles zurück auf den Stand von vor dem Knopfdruck. */

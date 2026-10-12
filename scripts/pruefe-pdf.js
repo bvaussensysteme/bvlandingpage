@@ -131,10 +131,95 @@ blob.arrayBuffer().then(function (ab) {
            zeilen.length + ' Bilder, erwartet 3 mit ' + sollB + ' x ' + m.hoch);
   }
 
+  /* ---------- Der Baugenehmigungs-Check auf demselben Unterbau ----------
+     js/bg-pdf.js hatte bis zum 12.10.2026 seinen eigenen Dateiaufbau und
+     war NIRGENDS geprueft. Jetzt baut es auf ausStroemen() auf – also muss
+     hier auch sein PDF einmal wirklich entstehen und von poppler lesbar
+     sein, sonst merkt den Bruch niemand.
+
+     EHRLICH DAZU: Geprueft wird der Dateiaufbau, nicht die Typografie.
+     Die Textbreite misst bg-pdf ueber die Canvas-API des Browsers; die
+     gibt es hier nicht, darum misst der Ersatz unten grob ueber die
+     Zeichenzahl. Zeilenumbrueche koennen deshalb anders fallen als im
+     Browser – ob die Datei gueltig ist und ihr Text ankommt, sagt das
+     trotzdem. */
+  var bgQuelle = fs.readFileSync(path.join(__dirname, '..', 'js', 'bg-pdf.js'), 'utf8');
+  var bgFenster = {
+    atob: global.atob, Blob: global.Blob, BV_PDF: PDF,
+    document: {
+      createElement: function () {
+        return { getContext: function () {
+          return { font: '', measureText: function (t) {
+            var gr = parseFloat((this.font.match(/([\d.]+)px/) || [0, 10])[1]);
+            return { width: String(t).length * gr * 0.5 };
+          } };
+        } };
+      }
+    }
+  };
+  bgFenster.window = bgFenster;
+  new Function('window', 'document', 'Blob',
+               bgQuelle)(bgFenster, bgFenster.document, global.Blob);
+  var BG = bgFenster.bvBgPdf;
+  pruefe('Baugenehmigungs-Check meldet sich an', !!(BG && BG.erzeugen) && !gegen,
+         'window.bvBgPdf');
+
+  if (BG && BG.erzeugen) {
+    var bgBlob = BG.erzeugen({
+      titel: 'Baugenehmigungs-Check Montabaur',
+      standort: 'Montabaur, Rheinland-Pfalz',
+      erstellt: 'Erstellt am 12.10.2026',
+      behoerde: [
+        { feld: 'Bauaufsicht', wert: 'Kreisverwaltung Westerwaldkreis' },
+        { feld: 'Anschrift', wert: 'Peter-Altmeier-Platz 1, 56410 Montabaur' }
+      ],
+      quelle: 'LBauO Rheinland-Pfalz, Anlage zu § 62',
+      hinweis: 'Diese Auskunft ersetzt keine Bauvoranfrage.',
+      fuss: ['Unverbindliche Auskunft nach bestem Wissen.'],
+      kontakt: 'BV AussenSysteme, bv-aussensysteme.de'
+    });
+    bgBlob.arrayBuffer().then(function (bgAb) {
+      var bgDatei = path.join(os.tmpdir(), 'bv-pruefe-bg-' + process.pid + '.pdf');
+      var bgBuf = Buffer.from(bgAb);
+      fs.writeFileSync(bgDatei, bgBuf);
+      /* Eigene Verfaelschung, wie oben: eine abgeschnittene Kopie, damit
+         die echte Datei fuer die uebrigen Pruefungen heil bleibt. */
+      var bgPruef = bgDatei;
+      if (gegen) {
+        bgPruef = bgDatei.replace('.pdf', '-kaputt.pdf');
+        fs.writeFileSync(bgPruef, bgBuf.slice(0, 400));
+      }
+      var bgOffen = lauf('pdfinfo', [bgPruef]);
+      pruefe('Baugenehmigungs-PDF laesst sich oeffnen',
+             bgOffen.indexOf('\x00FEHLER') === -1 && /Pages:\s*1\b/.test(bgOffen),
+             (bgOffen.match(/Pages:\s*\d+/) || ['nicht lesbar'])[0]);
+      if (gegen) { try { fs.unlinkSync(bgPruef); } catch (e) { /* egal */ } }
+      var bgInfo = lauf('pdfinfo', [bgDatei]);
+      pruefe('Baugenehmigungs-PDF ist A4 hoch',
+             new RegExp('Page size:\\s*' + (gegen ? '842 x 595' : '595.28 x 841.89'))
+               .test(bgInfo),
+             (bgInfo.match(/Page size:[^\n]*/) || ['keine Angabe'])[0]);
+      var bgText = lauf('pdftotext', [bgDatei, '-']);
+      pruefe('Baugenehmigungs-PDF traegt seinen Inhalt',
+             bgText.indexOf('Westerwaldkreis') > -1 &&
+             bgText.indexOf(gegen ? 'Schneelastzone' : 'Baugenehmigungs-Check') > -1, '');
+      /* Umlaute gehen durch denselben Weg wie beim Konfigurator – hier
+         aber aus bg-pdfs eigenem kodieren(). Laeuft einer der beiden
+         Wege doppelt, steht hier Kauderwelsch. */
+      pruefe('Baugenehmigungs-PDF: Umlaute kommen an',
+             bgText.indexOf(gegen ? 'Zustaendige' : 'Zuständige') > -1,
+             'kein doppeltes Umkodieren');
+      try { fs.unlinkSync(bgDatei); } catch (e) { /* egal */ }
+      abschluss();
+    });
+  } else { abschluss(); }
+
+  function abschluss() {
   try { fs.unlinkSync(datei); } catch (e) { /* egal */ }
 
   console.log(gegen
     ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
     : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
   process.exit(gegen ? (fehler === geprueft ? 0 : 1) : (fehler ? 1 : 0));
+  }
 });
