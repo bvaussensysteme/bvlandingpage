@@ -60,9 +60,12 @@ legen** – das geht nur mit Cloudflare-Zugang.
 > damit **in keiner Anfrage** – auch nicht die Neigung, die der Kunde
 > ausdrücklich eingestellt hat. Das 3D-Modell ist nicht betroffen, es rechnet
 > seit dem 11.10.2026 über `js/masstabelle.js`.
-> **Zwei Wege:** KV binden (dann löst es sich von selbst), oder die
-> Zusammenfassung ebenfalls auf `js/masstabelle.js` umstellen. Entscheidung
-> liegt beim Betreiber.
+> **Erledigt am 12.10.2026:** Der Betreiber hat Weg 2 gewählt. Die Anfrage
+> rechnet jetzt über `bauteileJetzt()` aus `js/masstabelle.js`. Offen bleibt
+> nur: Sobald DACHMATRIX gebunden ist, gehört `stueckliste()` in
+> `bauteileJetzt()` vorgeschaltet – der Platz ist im Kommentar der Funktion
+> benannt. Der Zusammenfassungskasten `k3dZus` bleibt bis dahin leer, so
+> gewollt.
 
 #### Die drei Befehle
 
