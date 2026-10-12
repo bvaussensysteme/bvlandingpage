@@ -259,31 +259,17 @@
                        textBreite(teile[0], GR, true) < spaltenB * 0.6;
         var kopf = hatLabel ? teile[0] + ': ' : '';
         var wert = hatLabel ? teile[1] : String(z);
-        /* ---------- Was unverbindlich ist, steht kursiv ----------
-           „arbeite auch mit dicken schriften und cursiv vllt. wo nötig"
-           (Betreiber, 12.10.2026). Kursiv bekommt hier eine Bedeutung,
-           es ist keine Verzierung: Ein Klammerzusatz am Ende ist immer
-           ein Vorbehalt – „(Vorschlag, Aufteilung nach Aufmaß)",
-           „(Standard)". Der steht abgesetzt in eigener Zeile, damit beim
-           Ueberfliegen sofort klar ist, welche Zahl fest ist und welche
-           erst das Aufmass entscheidet. */
-        var zusatz = '';
-        var m = wert.match(/^(.*\S)\s+(\([^()]{4,}\))$/);
-        /* NICHT jeder Klammerausdruck ist ein Vorbehalt. Der erste
-           Versuch trennte auch „(15,8 %)" hinter der Dachneigung und
-           „(links/rechts)" ab und setzte sie kursiv in eine eigene Zeile –
-           beides sind Praezisierungen derselben Angabe und gehoeren in
-           dieselbe Zeile. Abgesetzt wird nur, was die Angabe wirklich
-           unter Vorbehalt stellt. */
-        if (m && /Vorschlag|Aufma[ßs]|Richtwert|unverbindlich|optional|gesch[äa]tzt/i
-                 .test(m[2])) {
-          wert = m[1]; zusatz = m[2];
-        }
+        /* Vorbehalte wie „(Vorschlag, Aufteilung nach Aufmass)" wurden
+           hier bis zum 12.10.2026 je Zeile abgetrennt und kursiv
+           abgesetzt. „du musst nicht bei jedem element schreiben
+           (vorschlag, Aufteilung nach aufmaß) reicht wenn es unten im
+           rechtstext einmal alles drinsteht" (Betreiber) – sie stehen
+           jetzt einmal im Fuss und gelten fuer alles. Kursiv bleibt die
+           Auszeichnung fuer genau diese Art Aussage, nur eben dort. */
         return {
           kopf: kopf,
           vorn: textBreite(kopf, GR, true),
-          rest: wert,
-          zusatz: zusatz
+          rest: wert
         };
       });
       var labelB = 0;
@@ -315,9 +301,7 @@
         return {
           kopf: r.kopf, kopfEigen: eigen, ein: ein,
           stil: kurz ? 'fett' : false,
-          zeilen: umbr,
-          zusatz: r.zusatz
-            ? umbrechen(r.zusatz, spaltenB - ein, GR, 'kursiv') : []
+          zeilen: umbr
         };
       });
       return { titel: g.titel, zeilen: zeilen, hoehe: teilHoehe(zeilen) };
@@ -333,8 +317,7 @@
     }
 
     function zeilenHoehe(z) {
-      return ((z.kopfEigen ? 1 : 0) + z.zeilen.length +
-              (z.zusatz ? z.zusatz.length : 0)) * ZH + 1.6;
+      return ((z.kopfEigen ? 1 : 0) + z.zeilen.length) * ZH + 1.6;
     }
 
     /* Eine Gruppe aufteilen, wenn sie nicht ganz in den Rest der Spalte
@@ -368,7 +351,7 @@
        wirkt unfertig. Passt eine Gruppe nicht mehr, faengt die naechste
        Spalte an; sind beide voll, folgt eine zweite Seite. */
     var kopfHoehe = 52 + ((s.kacheln && s.kacheln.length) ? 62 : 0);
-    var schlussH = (s.schritte && s.schritte.length) ? 58 : 0;
+    var schlussH = (s.schritte && s.schritte.length) ? 66 : 0;
     var platzErste = A4_H - RAND - kopfHoehe - (RAND + 26);
     var platzWeiter = A4_H - RAND - 52 - (RAND + 26);
 
@@ -460,7 +443,7 @@
       /* Knapp bemessen, mit Absicht: Beim ersten Versuch war der Block
          40 Punkte hoch und fiel deshalb um 0,8 Punkte aus der Seite –
          jede Zugabe hier kostet genau den Platz, an dem es scheitert. */
-      var hoehe = 34, fuss = RAND + 18, oben = fuss + hoehe;
+      var hoehe = 34, fuss = RAND + 26, oben = fuss + hoehe;
       if (tiefste < oben + 8) return;
       t.push(G.kachel + ' rg ' + RAND + ' ' + fuss + ' ' +
              innen.toFixed(1) + ' ' + hoehe + ' re f');
@@ -478,10 +461,16 @@
     }
 
     function fussZeichnen() {
-      /* Der Vorbehalt im Fuss ist selbst ein Vorbehalt – kursiv wie die
-         Zusaetze oben, damit beides als dieselbe Art Aussage lesbar ist. */
-      t.push('BT /F3 7.6 Tf ' + G.hell + ' rg ' + RAND + ' ' + (RAND - 4) +
-             ' Td (' + pdfText(s.unten) + ') Tj ET');
+      /* Der Fuss traegt den Vorbehalt, der fuer ALLE Masse gilt – kursiv,
+         weil er genau die Art Aussage ist, die oben einmal pro Zeile
+         stand. Mehrere Zeilen sind erlaubt; die letzte steht unten,
+         darueber die weiteren. */
+      var fz = (s.unten instanceof Array) ? s.unten : [s.unten];
+      fz.forEach(function (txt, i) {
+        t.push('BT /F3 7.6 Tf ' + G.hell + ' rg ' + RAND + ' ' +
+               (RAND - 4 + (fz.length - 1 - i) * 10) +
+               ' Td (' + pdfText(txt) + ') Tj ET');
+      });
       if (s.ruf) {
         var b = textBreite(s.ruf, 9, true);
         t.push('BT /F2 9 Tf ' + G.gold + ' rg ' +
@@ -505,10 +494,6 @@
         }
         z.zeilen.forEach(function (w) {
           zeile(w, GR, z.stil, G.text, x + z.ein);
-          y -= ZH;
-        });
-        (z.zusatz || []).forEach(function (w) {
-          zeile(w, GR, 'kursiv', G.hell, x + z.ein);
           y -= ZH;
         });
         y -= 1.6;
@@ -538,7 +523,7 @@
         var hoch = Math.max(
           v.spalten[0].reduce(function (a, g) { return a + g.hoehe; }, 0),
           v.spalten[1].reduce(function (a, g) { return a + g.hoehe; }, 0));
-        if (start - hoch < RAND + 18 + 34 + 8) {
+        if (start - hoch < RAND + 26 + 34 + 8) {
           var v2 = verteilen(offen, platz - schlussH);
           if (!v2.rest.length) v = v2;
         }

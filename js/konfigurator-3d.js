@@ -9078,6 +9078,36 @@
      PDF-Text nach „VD" – damit fällt auch eine künftig neu hinzugefügte
      Zeile auf, die den Namen wieder hereinträgt. Hier zu ergänzen reicht
      also nicht, wenn jemand den Text an anderer Stelle neu formuliert. */
+  /* ---------- Was nur den Betrieb angeht ----------
+     „das mit nächste lieferbare breite weglassen, es wird nach kundenmaß
+     gefertig das nächst lieferbare maß is nur für mich intern wichtig für
+     den preis" (Betreiber, 12.10.2026).
+
+     Gefertigt wird nach Kundenmaß – die nächste lieferbare Breite ist
+     eine Kalkulationsgröße. Auf dem Kundenblatt würde sie nur die Frage
+     aufwerfen, warum dort ein anderes Maß steht als bestellt.
+
+     Die Zeile bleibt in der Anfrage an den Betrieb: Dort hängt der Preis
+     daran. */
+  var PDF_NUR_INTERN = /^Gerechnet mit der nächsten lieferbaren Breite/;
+
+  /* ---------- Vorbehalte nur einmal, unten ----------
+     „du musst nicht bei jedem element schreiben (vorschlag, Aufteilung
+     nach aufmaß) reicht wenn es unten im rechtstext einmal alles
+     drinsteht" (Betreiber, 12.10.2026).
+
+     Bei drei Schiebeanlagen stand derselbe Satz dreimal – das liest
+     niemand mehr, und wiederholte Einschränkungen lassen ein Angebot
+     unsicher wirken. Jetzt steht er einmal im Fußtext und gilt für alles. */
+  function ohneVorbehalt(zeile) {
+    return String(zeile)
+      .replace(/\s*\((?:Vorschlag|Bedarf)[^)]*\)/g, '')
+      .replace(/\s*[–-]\s*(?:Bedarf|Aufteilung) nach Aufmaß/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/\s+([,.;])/g, '$1')
+      .trim();
+  }
+
   function ohneLieferant(zeile) {
     return String(zeile)
       /* „(links/rechts wie im VD-Anfrageformular)" -> „(links/rechts)" */
@@ -9094,8 +9124,8 @@
     /* Die ersten beiden Zeilen (Produkt und Montageart bzw. Ausführung)
        stehen im Kopf des Blattes. */
     var rest = zeilen.slice(2).filter(function (z) {
-      return !PDF_IM_KOPF.test(z);
-    }).map(ohneLieferant);
+      return !PDF_IM_KOPF.test(z) && !PDF_NUR_INTERN.test(z);
+    }).map(ohneLieferant).map(ohneVorbehalt);
     var gruppen = PDF_GRUPPEN.map(function (g) {
       return { titel: g[0], muster: g[1], zeilen: [] };
     });
@@ -9172,9 +9202,15 @@
       return renderer.domElement.toDataURL('image/jpeg', 0.9);
     }
 
-    var fuss = 'Unverbindliche Darstellung - verbindlich ist unser Angebot nach dem ' +
-               'kostenlosen Aufmass vor Ort. (C) ' + new Date().getFullYear() +
-               ' BV AussenSysteme';
+    /* Zwei Zeilen: zuerst der Vorbehalt, der für ALLE Maße gilt (er stand
+       vorher hinter jeder einzelnen Schiebeanlage), dann der übliche
+       Hinweis. Beides kursiv – siehe Eintrag vom 12.10.2026. */
+    var fuss = [
+      'Alle Maße und Aufteilungen sind Vorschläge und werden beim kostenlosen ' +
+      'Aufmaß vor Ort verbindlich festgelegt; gefertigt wird nach Ihrem Maß.',
+      'Unverbindliche Darstellung – verbindlich ist unser Angebot. © ' +
+      new Date().getFullYear() + ' BV AussenSysteme'
+    ];
     var kopf = produktName() + ', ' + Z.breite + ' x ' + Z.tiefe + ' mm';
     var seiten = [];
 

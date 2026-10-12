@@ -5353,3 +5353,40 @@ das „bestanden" davor.**
 **Was gegengelesen werden soll:** Im PDF muss „(Vorschlag, Aufteilung
 nach Aufmaß)" kursiv in eigener Zeile stehen, „Dachneigung: 9° (15,8 %)"
 dagegen zusammen in einer.
+
+## 2026-10-12 – Interne Angaben und wiederholte Vorbehalte raus aus dem Kunden-PDF
+
+**Anlass, beides vom Betreiber:**
+- „das mit nächste lieferbare breite weglassen, es wird nach kundenmaß
+  gefertig das nächst lieferbare maß is nur für mich intern wichtig für
+  den preis"
+- „du musst nicht bei jedem element schreiben (vorschlag, Aufteilung nach
+  aufmaß) reicht wenn es unten im rechtstext einmal alles drinsteht"
+
+**Was jetzt gilt – beides nur im PDF:**
+
+1. Die Zeile „Gerechnet mit der nächsten lieferbaren Breite" entfällt auf
+   dem Kundenblatt. Gefertigt wird nach Kundenmaß; die lieferbare Breite
+   ist eine Kalkulationsgröße und hätte nur die Frage aufgeworfen, warum
+   dort ein anderes Maß steht als bestellt. **In der Anfrage an den
+   Betrieb bleibt sie** – daran hängt der Preis. Eine Prüfung hält beide
+   Seiten fest.
+2. Die Zusätze „(Vorschlag, Aufteilung nach Aufmaß)" und „– Bedarf nach
+   Aufmaß" fallen an der einzelnen Angabe weg. Bei drei Schiebeanlagen
+   stand derselbe Satz dreimal; das liest niemand mehr, und wiederholte
+   Einschränkungen lassen ein Angebot unsicher wirken. Stattdessen steht
+   im Fuß, kursiv: *„Alle Maße und Aufteilungen sind Vorschläge und werden
+   beim kostenlosen Aufmaß vor Ort verbindlich festgelegt; gefertigt wird
+   nach Ihrem Maß."*
+
+**Folge im PDF-Modul:** Der Fuß trägt jetzt zwei Zeilen, der Block „So
+geht es weiter" ist entsprechend höher gerückt. Die gestern eingebaute
+Logik, Vorbehalte je Zeile abzutrennen und kursiv abzusetzen, ist wieder
+entfernt – sie hätte keine Eingabe mehr gefunden und wäre toter Code
+geworden. Kursiv bleibt die Auszeichnung für genau diese Art Aussage, nur
+eben im Fuß.
+
+**Was gegengelesen werden soll:** Im PDF darf „Gerechnet mit der nächsten
+lieferbaren Breite" nicht mehr stehen, in der Anfrage-Mail dagegen schon.
+Hinter den Schiebeanlagen darf kein „(Vorschlag …)" mehr stehen; unten
+müssen zwei kursive Zeilen stehen.
