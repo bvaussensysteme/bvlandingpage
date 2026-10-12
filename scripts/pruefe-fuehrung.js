@@ -1890,6 +1890,14 @@ pruefe('Neigung haengt nicht mehr an der Serverantwort',
        new RegExp(q || 'function neigungMoeglich').test(js) &&
        new RegExp(q || "case 'neigung':        return neigungMoeglich\\(\\)").test(js) &&
        !/case 'neigung':\s*return !!d/.test(js), 'ohne /api/bauteile sichtbar');
+/* Die Beschriftungen folgen dem Bestellformular des Herstellers:
+   „Moechten Sie die Dachneigung oder die Unterkante Rinne und die
+   Unterkante Wandprofil angeben?" – damit beim Uebertragen in die
+   Bestellung nichts verwechselt wird. */
+pruefe('Beschriftung wie im Bestellformular',
+       new RegExp(q || 'Unterkante Rinne').test(html) &&
+       new RegExp(q || 'Unterkante Wandprofil').test(html) &&
+       new RegExp(q || 'Mindestgefälle 2–3°').test(html), '');
 pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
        new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="hoehe-hinten"').test(html) &&
        !/data-k3d-mehr data-k3d-fuer="hoehe-hinten"/.test(html), '');

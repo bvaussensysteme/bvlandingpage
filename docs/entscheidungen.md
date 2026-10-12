@@ -4895,3 +4895,18 @@ hat jetzt eine gemeinsame Konstante statt zwei Zahlen an zwei Stellen.
 
 Eine Prüfung rechnet die Kette aus den Einzelmaßen noch einmal nach und
 vergleicht sie mit der Anzeige: 2745 gegen 2746 mm – ein Millimeter Rundung.
+
+**Nachtrag: Beschriftung nach dem Bestellformular.** Der Betreiber hat die
+beiden Formularseiten geschickt. Der Hersteller fragt dort: „Möchten Sie die
+Dachneigung oder die Unterkante Rinne und die Unterkante Wandprofil angeben?" –
+genau die beiden Wege, die der Konfigurator jetzt hat. Die Beschriftungen sind
+daran angeglichen: „Höhe vorne (Durchgang)" trägt zusätzlich „Unterkante
+Rinne", das Häkchen heißt „Statt der Dachneigung die Unterkante Wandprofil
+angeben", und der Hinweis nennt die Grenzen des Formulars („Mindestgefälle
+2–3°, Höchstmaß 13–14°"). So lässt sich die Anfrage ohne Umrechnen in die
+Bestellung übertragen.
+
+**Offen geblieben:** Das Formular kennt beim Statikträger drei Möglichkeiten –
+„ohne / überstehend / unter Rinne". Der Konfigurator hat nur das Häkchen
+„unter der Rinne". Was „überstehend" baulich bedeutet, steht in
+`docs/NEXT_TASK.md`.
