@@ -2186,8 +2186,77 @@ pruefe('Leinwand wird fuer den Druck vergroessert und zurueckgestellt',
          ok ? 'nach den Zustandsseiten' : 'steht vor den Zustandsseiten');
 })();
 pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
-       new RegExp(q || "titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung\\(\\)")
-         .test(js), 'keine zweite Quelle');
+       new RegExp(q || 'var zus = zusammenfassung\\(\\);').test(js) &&
+       new RegExp(q || 'gruppen: pdfGruppen\\(zus\\)').test(js),
+       'keine zweite Quelle');
+(function () {
+  /* ---------- Es darf keine Angabe verschwinden ----------
+     Die PDF-Seite sortiert die Zeilen aus zusammenfassung() nach Themen.
+     Das ist der gefaehrliche Teil: Kommt spaeter eine neue Zeile dazu,
+     die auf kein Muster passt, faellt sie still aus dem Blatt – der Kunde
+     bekaeme ein Angebot ohne seine Schiebetuer.
+
+     Darum wird hier gerechnet, nicht gelesen: pdfGruppen() aus dem Code
+     holen, eine Liste durchschicken und zaehlen, ob jede Zeile genau
+     einmal wieder herauskommt. Die Auffanggruppe „Weitere Angaben" ist
+     dabei ausdruecklich erlaubt – sie ist der Grund, dass nichts
+     verlorengeht. */
+  var fg = (js.match(/function pdfGruppen\([\s\S]*?\n  \}/) || [''])[0];
+  var tab = (js.match(/var PDF_GRUPPEN = (\[[\s\S]*?\n  \]);/) || [])[1];
+  if (!fg || !tab) { pruefe('Gruppierung lesbar', false, 'nicht gefunden'); return; }
+  var PDF_GRUPPEN = eval('(' + tab + ')');
+  /* pdfGruppen() filtert die Kopfzeilen ueber dieses Muster – also auch
+     aus dem Code holen, nicht hier nachbauen. */
+  var PDF_IM_KOPF = eval((js.match(/var PDF_IM_KOPF = (\/.*\/);/) || [])[1]);
+  var pdfGruppen = eval('(' + fg.replace('function pdfGruppen', 'function') + ')');
+  var liste = [
+    'Terrassendach TDS', 'Wandmontage',
+    '5000 × 3500 mm, Durchgangshöhe 2200 mm',
+    '8 Sparren, 3 Pfosten je Reihe',
+    'Gerechnet mit der nächsten lieferbaren Breite: 5080 mm',
+    'Dachneigung: 7° (12,3 %)', 'Höhe an der Wand (UK Wandprofil): 2600 mm',
+    'Eindeckung: VSG 8 mm klar', 'Farbe: Anthrazit',
+    'Seitenelemente – links: Keil + Schiebetür · rechts: Keil',
+    'Glas im Keil: ESG klar',
+    'Schiebetür im Bild geöffnet: links 100 %, rechts 100 %',
+    'Schiebeanlage links: 3390 mm licht – SG23, 3-rails, 3-türig',
+    'SG23 Griffhöhe: 1100 mm (Standard), runder eingelassener Griff',
+    'Beschattung: Aufdachmarkise',
+    'Markisenstoff: AC219 · Greenery · Wassersäule 350 mm',
+    'LED-Spots: 12er-Set', 'Hauswand: Rauputz',
+    'Untergrund: Tragender Untergrund vorhanden',
+    'Montage durch BV AussenSysteme',
+    'Ein Eintrag, den noch kein Muster kennt'
+  ];
+  var g = pdfGruppen(liste);
+  var raus = [];
+  g.forEach(function (x) { x.zeilen.forEach(function (z) { raus.push(z); }); });
+  var soll = liste.slice(2).filter(function (z) { return !PDF_IM_KOPF.test(z); });
+  if (gegen) soll.push('Diese Zeile hat nie jemand uebergeben');
+  var fehlt = soll.filter(function (z) { return raus.indexOf(z) === -1; });
+  var doppelt = raus.filter(function (z, i) { return raus.indexOf(z) !== i; });
+  pruefe('Keine Angabe geht beim Gruppieren verloren',
+         fehlt.length === 0 && doppelt.length === 0,
+         fehlt.length ? 'fehlt: ' + fehlt[0]
+           : (doppelt.length ? 'doppelt: ' + doppelt[0]
+             : soll.length + ' Zeilen in ' + g.length + ' Gruppen'));
+  /* Der unbekannte Eintrag MUSS in der Auffanggruppe landen – sonst ist
+     sie nicht wirksam und der Schutz oben nur zufaellig erfuellt. */
+  var auffang = g.filter(function (x) { return x.titel === 'Weitere Angaben'; })[0];
+  pruefe('Unbekannte Eintraege landen in „Weitere Angaben"',
+         !!auffang && auffang.zeilen.indexOf(
+           gegen ? 'Farbe: Anthrazit' : 'Ein Eintrag, den noch kein Muster kennt') > -1,
+         auffang ? auffang.zeilen.length + ' Eintrag/Eintraege' : 'Gruppe fehlt');
+  /* Produkt und Masse stehen im Kopf – nicht noch einmal in der Liste. */
+  /* Produkt, Montageart UND die Massangabe stehen im Kopf bzw. in den
+     Kacheln – in der Liste waeren sie eine Dopplung, die Platz frisst. */
+  var dopplung = ['Terrassendach TDS', 'Wandmontage',
+                  '5000 × 3500 mm, Durchgangshöhe 2200 mm'];
+  if (gegen) dopplung = ['Farbe: Anthrazit'];
+  var drin = dopplung.filter(function (z) { return raus.indexOf(z) > -1; });
+  pruefe('Kopfzeilen stehen nicht doppelt in der Liste', drin.length === 0,
+         drin.length ? 'doppelt: ' + drin[0] : 'Produkt, Montageart und Masse nur oben');
+})();
 
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&

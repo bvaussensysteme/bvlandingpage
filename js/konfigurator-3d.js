@@ -9018,6 +9018,100 @@
     return erwIrgendwo('Senkrechtmarkise') ? 'Senkrechtmarkise' : 'Sonnenschutz';
   }
 
+  /* ---------- Die Konfiguration fürs PDF gliedern ----------
+     „wenn die austattung größer wird, wird diese liste unübersichtlich"
+     (Betreiber, 12.10.2026). Darum die Angaben nach Themen sortiert.
+
+     QUELLE BLEIBT zusammenfassung() – dieselbe Liste, die in die Anfrage
+     geht. Hier wird NUR umsortiert, nichts umformuliert und nichts
+     weggelassen: Was auf kein Muster passt, landet unter „Weitere
+     Angaben". Eine Prüfung in scripts/pruefe-fuehrung.js rechnet nach,
+     dass jede Zeile genau einmal vorkommt – sonst verschwindet beim
+     nächsten neuen Eintrag still eine Angabe aus dem Blatt.
+
+     Die Reihenfolge der Gruppen ist nicht beliebig: erst das Tragwerk
+     (das ist die Anlage), dann was man sieht (Dach, Seiten), dann der
+     Komfort, zuletzt die Montage. */
+  var PDF_GRUPPEN = [
+    ['Konstruktion und Maße', [
+      /^\d+ Sparren/, /^Gerechnet mit der nächsten/, /^ACHTUNG/,
+      /^Dachneigung/, /^Daraus Dachneigung/, /^Höhe an der Wand/,
+      /^Höhe hinten/, /^Dachvorsprung/, /^Dachüberstand/, /^Lamellen /,
+      /^Statikträger/
+    ]],
+    ['Dach und Farbe', [
+      /^Eindeckung/, /^Dach:/, /^Farbe/, /^Glas im Keil/, /^Keilglas/,
+      /^Glasart/, /^Glaskopplung/
+    ]],
+    ['Seiten und Verglasung', [
+      /^Seitenelemente/, /^Seitenschutz/, /^Schiebeanlage/,
+      /^Schiebetür im Bild/, /^SG23/, /^Rahmenwand/, /^Planken/,
+      /^Teilhöhe/, /^Blickrichtung/, /^Velaris/
+    ]],
+    ['Komfort und Zubehör', [
+      /^Beschattung/, /^Markisenstoff/, /^Sonnensegel/, /^Plissee/,
+      /^LED/, /^mit Beleuchtung$/, /^Sound/, /^Heizung/, /^Wettersensor/
+    ]],
+    ['Aufbau und Montage', [
+      /^Hauswand/, /^Untergrund/, /^Montage/, /^Selbstmontage$/,
+      /^Wandmontage$/, /^Freistehend$/, /^Ausführung/
+    ]]
+  ];
+
+  /* Steht schon im Kopf oder in den Kacheln, darf also nicht noch einmal
+     in der Liste auftauchen. Die Maßzeile wird über ihr Muster erkannt,
+     nicht über ihre Position: Beim Carport steht an zweiter Stelle die
+     Ausführung, beim Terrassendach die Montageart. */
+  var PDF_IM_KOPF = /^[\d\s]+×[\d\s]+mm, Durch(gangs|fahrts)höhe/;
+
+  function pdfGruppen(zeilen) {
+    /* Die ersten beiden Zeilen (Produkt und Montageart bzw. Ausführung)
+       stehen im Kopf des Blattes. */
+    var rest = zeilen.slice(2).filter(function (z) {
+      return !PDF_IM_KOPF.test(z);
+    });
+    var gruppen = PDF_GRUPPEN.map(function (g) {
+      return { titel: g[0], muster: g[1], zeilen: [] };
+    });
+    var weitere = { titel: 'Weitere Angaben', zeilen: [] };
+    rest.forEach(function (z) {
+      var passt = null;
+      gruppen.some(function (g) {
+        if (g.muster.some(function (m) { return m.test(z); })) { passt = g; return true; }
+        return false;
+      });
+      (passt || weitere).zeilen.push(z);
+    });
+    gruppen.push(weitere);
+    return gruppen.filter(function (g) { return g.zeilen.length; })
+                  .map(function (g) { return { titel: g.titel, zeilen: g.zeilen }; });
+  }
+
+  /* Die vier Zahlen, nach denen zuerst gesucht wird. Sie stehen oben als
+     Kacheln – gefunden werden sie in derselben Liste, damit auch hier
+     keine zweite Wahrheit entsteht. */
+  function pdfKacheln(zeilen) {
+    function such(muster, wieVor) {
+      var treffer = null;
+      zeilen.forEach(function (z) {
+        if (treffer === null && muster.test(z)) {
+          treffer = wieVor ? z.replace(muster, '').trim() : z;
+        }
+      });
+      return treffer;
+    }
+    var k = [
+      { label: 'Breite × Tiefe', wert: Z.breite + ' × ' + Z.tiefe + ' mm' },
+      { label: istCarport() ? 'Durchfahrtshöhe' : 'Durchgangshöhe',
+        wert: Z.hoehe + ' mm' }
+    ];
+    var ein = such(/^Eindeckung:\s*/, true) || such(/^Dach:\s*/, true);
+    if (ein) k.push({ label: 'Eindeckung', wert: ein });
+    var fa = such(/^Farbe:\s*/, true);
+    if (fa) k.push({ label: 'Farbe', wert: fa });
+    return k;
+  }
+
   /* ---------- Die Bilder fürs PDF ----------
      Die Leinwand wird dafür kurz auf Druckauflösung gestellt. Ohne das
      käme das Bild in Bildschirmgröße ins PDF und wäre auf A4 quer sichtbar
@@ -9087,8 +9181,24 @@
        (Betreiber, 12.10.2026): Wer blättert, sieht erst die Anlage und
        hat die Angaben am Ende beisammen – auch wenn später noch
        Zustandsseiten dazukommen, bleibt sie die letzte. */
+    var zus = zusammenfassung();
     seiten.push({
-      titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung()
+      titel: 'Ihre Konfiguration',
+      kopf: zus[0] + (zus[1] ? '  ·  ' + zus[1] : ''),
+      kacheln: pdfKacheln(zus),
+      gruppen: pdfGruppen(zus),
+      unten: fuss,
+      /* Der naechste Schritt gehoert aufs Blatt, nicht nur ins Gespraech:
+         Wer es spaeter wieder in die Hand nimmt, soll nicht erst suchen
+         muessen, wie es weitergeht. */
+      ruf: 'Kostenloses Aufmass vor Ort: 0156 78696609',
+      /* Der tatsächliche Ablauf des Betriebs – keine Versprechen, die im
+         Angebot dann anders aussehen. Dieselbe Reihenfolge, die auch der
+         Fußtext voraussetzt („verbindlich ist unser Angebot nach dem
+         kostenlosen Aufmaß vor Ort"). */
+      schritte: ['Kostenloses Aufmass vor Ort',
+                 'Verbindliches Angebot',
+                 'Fertigung und Montage']
     });
 
     /* Alles zurück auf den Stand von vor dem Knopfdruck. */
