@@ -1,7 +1,7 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 11.10.2026 (nachmittags) · zuletzt bearbeitet: Velaris, Plankenwand, Rahmenwand, Wandprofil
+> Stand: 12.10.2026 (abends) · zuletzt bearbeitet: Dachneigung, PDF-Ausgabe, Anfrage-Text
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -157,7 +157,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
-| `scripts/pruefe-pdf.js` | Erzeugt ein PDF mit `js/pdf-blatt.js` und liest es mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Überschriften, Fußzeile auf jeder Seite, Bildgröße |
+| `scripts/pruefe-pdf.js` | Erzeugt die PDFs **beider** Stellen (Konfigurator und Baugenehmigungs-Check) und liest sie mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Bildgröße, Umlaute, und vor allem: Steht jede Angabe **vollständig** da, auch bei 34 langen Zeilen über zwei Seiten? Zweispaltige Seiten werden dafür spaltenweise ausgeschnitten – am Stück gelesen zerreißt pdftotext die umgebrochenen Zeilen |
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 
@@ -255,6 +255,11 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |
+| 12.10.2026 | Anfrage-Text rechnet über `bauteileJetzt()` statt über die tote Schnittstelle | live |
+| 12.10.2026 | Dachneigung: Rechenweg der Montageanleitung belegt, Anzeige in ganzen Grad | live |
+| 12.10.2026 | Beide PDF-Erzeuger auf einen Unterbau, Baugenehmigungs-Check erstmals geprüft | live |
+| 11.10.2026 | Seitenelemente, Velaris, Plankenwand, Rahmenwand, Profilmaße (siehe Archiv) | live |
 | 10.10.2026 | Konfigurator rechnet serverseitig (`/api/bauteile`), Rasterauswahl, Matrix bleibt auf dem Server | **fertig, wartet auf den KV-Namensraum** |
 | 10.10.2026 | 3D-Konfigurator: Carport (TDS, Flat Line, Flat Box) und Flachdach SkyView; Übergabewerte an den Assistenten korrigiert | **in Arbeit** |
 | 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | live |
@@ -268,132 +273,78 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 09.09.2026 | PDF-Download im Baugenehmigungs-Check | live |
 | 09.09.2026 | Konfigurator-Fenster auch auf der Startseite | live |
 
-## Stand 11.10.2026, nachmittags — Seitenelemente und Profile
+## Stand 12.10.2026, abends — Neigung, PDF und die Anfrage
 
-Alles veröffentlicht (PRs bis #346), nichts liegt halbfertig. Die
-Prüfskripte laufen durch, jede Gegenprobe schlägt vollständig an
-(`pruefe-fuehrung.js` 136/136, `pruefe-masstabelle.js` 183/183,
-`pruefe-markise.js` 141/141).
+Alles veröffentlicht (PRs bis #398), nichts liegt halbfertig. Alle
+Prüfskripte laufen durch, jede Gegenprobe schlägt **vollständig** an
+(`pruefe-fuehrung.js` 253/253, `pruefe-masstabelle.js` 243/243,
+`pruefe-pdf.js` 24/24, `pruefe-markise.js` 179/179,
+`pruefe-stoffe.js` 12/12, `pruefe-konfigurator.js`,
+`pruefe-bauteile.js`, `pruefe-lbo-daten.js`, `pruefe-stoffe.js`,
+`pruefe-datenschutz.py`, beide `.sh`-Skripte).
 
-### Was heute am Konfigurator entstanden ist
+### Was heute entstanden ist
 
 | Bereich | Was jetzt gilt |
 |---|---|
-| **Glasschiebeelemente SG23** | Aufteilung je lichtes Feld, von der Mitte nach außen öffnend, runder Muschelgriff auf **1100 mm** (aus dem VD-Anfrageformular, vorher 1050 geraten). Glas **ESG klar oder satinato**, mehr gibt es nicht. Schloss und Bürstendichtung stehen als Bestellpositionen in der Mail, ebenso der Satz **„Richtungsangaben von INNEN gesehen"** – im Formular rot hervorgehoben |
-| **Plankenwand** | Rechteckprofil **70,4 × 25,3 mm** an Winkeln 40 × 20 an den Pfosten. Fuge wird automatisch so gerechnet, dass die Wand oben und unten bündig schließt; von Hand 0–60 mm. Teilhöhe oben/unten mit Maßangabe. Über **7 m** geteilt mit Zwischenprofil |
-| **Velaris** | Komplett neu: Rahmen mit **waagerechten** Lamellen (vorher senkrecht – in der Hauptachse falsch). Element 500–1500 mm, Anlage bis 7 m, feststehend 1–5, verschiebbar nur 3–4 Elemente (sonst bewegt sich nichts). Beide Hälften getrennt bedienbar, Klick schaltet zu → offen → zur Seite → zu |
-| **Rahmenwand** | Von der Blechwand zum **Glas im Rahmen** (System FR23) mit bis zu drei senkrechten Sprossen. Ohne Keil geht sie bis ans Dach, Rahmen und Sprossen folgen der Schräge |
-| **Wandprofil TD** | **143,6 mm hoch** an der Wand (Querschnitt), unten die Sparren, oben Glas und Glasleiste. Zweimal falsch gelesen, bevor es stimmte |
-| **Bedienung** | Ansicht „Darunter" steht jetzt drinnen; Animationen bauen das Modell nicht mehr je Bild neu; Maßlinien filigraner |
+| **Dachneigung** | Der Rechenweg ist jetzt **belegt**: über die volle Bestelltiefe, ohne Abzüge (Montageanleitung, wörtlich: 200 cm + 3 × 14 cm = 242 cm). Eine zwischenzeitliche „Korrektur" um Rinnen- und Profilmaße ist zurückgenommen – die angezeigte Zahl geht in die Bestellung und muss die des Herstellers sein |
+| **Zwei Wege zur Neigung** | Grad eingeben **oder** Unterkante Rinne und Unterkante Wandprofil, wie im Bestellformular. Angezeigt werden **ganze Grad**; gerechnet und gezeichnet wird weiter genau, weil die beiden Höhen bindend sind |
+| **Höhe hinten** | Nimmt jeden Millimeter. Vorher rastete der Regler auf ein 50er-Raster über einer krummen Untergrenze – aus 2600 wurde 2602 |
+| **SkyView** | Festes Gefälle von 2°, keine Neigungseingabe. War schon so, ist jetzt belegt |
+| **Anfrage-Text** | Sparrenzahl, Pfosten, Statikträger, Dachneigung und Höhe an der Wand hingen allein an `/api/bauteile` (503) und standen damit **in keiner Anfrage**. Rechnen jetzt über `bauteileJetzt()` aus `js/masstabelle.js` – dieselbe Quelle wie der Maßhinweis |
+| **„PDF erstellen"** | Statt eines Sammelbilds eine mehrseitige PDF: fünf Ansichten (Markisen eingefahren, Schiebeelemente offen), je eine Seite pro beweglichem Teil im anderen Zustand, zuletzt die Konfiguration |
+| **Konfigurationsseite** | Kopf, vier Eckdaten als Kacheln, Angaben nach Themen gruppiert, Zeilen werden umgebrochen statt abgeschnitten, bei Platzmangel eine weitere Seite, unten der Ablauf in drei Schritten |
+| **PDF-Erzeuger** | `js/pdf-blatt.js` schreibt die Datei für **beide** Stellen; `js/bg-pdf.js` (Baugenehmigungs-Check) hatte einen eigenen, gleichen Dateiaufbau. Der war bis heute nirgends geprüft |
 
 ### Was gegengelesen werden soll
 
-- **Wandprofil und Statikträger** von schräg hinten: Profil 143,6 mm hoch,
-  Träger steht 45 mm darunter hervor
-- **Velaris verschiebbar** mit 3 und 4 Elementen: Es darf nichts
-  ineinanderfahren, und an der Stirnseite muss jedes Feld nach außen
-  aufgehen
-- **Rahmenwand ohne Keil** an der Seite: kein offenes Dreieck, keine
-  waagerechte Sprosse
-- **Plankenwand** mit Teilhöhe: Winkel dürfen nicht über die oberste
-  Planke stehen
+- **PDF mit viel Ausstattung** (Schiebetüren auf allen Seiten, Markise,
+  LED): Steht jede Angabe vollständig da? Ist „Ihre Konfiguration" die
+  letzte Seite? Steht der Konfigurator danach **genau so da wie vorher**
+  (gleiche Ansicht, gleiche Reglerstellungen)?
+- **Baugenehmigungs-Check** auf `/baugenehmigung.html`: PDF speichern –
+  es muss sich öffnen lassen und aussehen wie vorher
+- **Anfrage-Text** bei Terrassendach TDS: Sparren, Pfosten, Dachneigung
+  und Höhe an der Wand müssen dastehen. Bei SkyView muss die
+  Dachneigung **verschwinden**
+- **Neigung:** Tiefe 3000, Unterkante Rinne 2200 – bei 2500 mm müssen 6°
+  erscheinen, wie im Bestellformular des Herstellers
 
-### Fragen, die beim Betreiber liegen
+### Beim Betreiber: Entscheidung offen
+
+| Was | Warum es wartet |
+|---|---|
+| **Ablauftexte im PDF** („Kostenloses Aufmaß · Verbindliches Angebot · Fertigung und Montage") | Von mir vorgeschlagen, nicht abgestimmt. Wortlaut und Reihenfolge sollten zum tatsächlichen Prozess passen |
+| **Zweiter Referenzfall für die Neigung**, am besten mit großer Tiefe | Der Fall 2200/2500/3000 → 6° bestätigt den Rechenweg, trennt ihn aber nicht von drei ähnlichen Varianten. Bei 7 m Tiefe und 300 mm Unterschied lägen sie 1° auseinander |
+
+### Fragen an VD (unverändert offen)
 
 | Frage | Warum sie zählt |
 |---|---|
-| **Keilfelder über 1500 mm** – bei 7 m Tiefe sind es jetzt 1750 mm, weil höchstens vier Felder gehen | Das widerspricht der früheren Angabe „je angefangene 1,5 m eine Unterteilung". Von VD bestätigen lassen |
-| **Höchstmaß einer Scheibe** in der Rahmenwand | Bestimmt, wann eine Sprosse nötig wird; im Modell geraten |
-| **Profilmaße FR23** (Rahmen, Sprosse, Bautiefe, Glas) | Alle geschätzt – die Anleitung zeigt die Profile, bemaßt sie nicht |
-| **Velaris:** Lamellenhöhe, Rahmenbreite, Kopfprofilhöhe, Aufhängung, Bodenschiene | Fünf geschätzte Maße; die Verhältnisse stimmen, die Millimeter nicht |
-| **Wandprofil:** die beiden kleinen Maße am Querschnitt | Ausladung mit 31 mm angenommen |
-| **Plankenwand:** Materialstärke des Winkels, Fugenbreite, welcher Schenkel am Pfosten liegt | Drei Annahmen |
-| **Dekorbilder** Eiche Mocca, Rovere Pechino hell, Golden OAK | Im Modell liegt eine neutrale Eichenmaserung (ambientCG Wood049, CC0) unter der Dekorfarbe |
-| Ältere: **Dachvorsprung 1500 mm** statisch gedeckt? **Höhe hinten 2000–3200 mm**? Seitenelemente am Carport sinnvoll? | stehen seit dem Vormittag offen |
+| **Profilquerschnitte TDS mit Maßen** (Rinne, Wandprofil, Sparren, Glasleiste) | Räumt den Rest an Schätzungen ab. Die gezeichnete Unterkante Wandprofil liegt rund 4 cm unter der angezeigten Zahl, weil ein Maß der Kette (Sparrensitz in der Rinne) geschätzt ist |
+| **SkyView: wirkliche Blendenhöhe** | Die Blende ist außen „immer gleich, einfach rechteckig" (Betreiber, 12.10.2026). Im Modell wächst ihre Höhe mit der Tiefe, weil das 2°-Gefälle innen untergebracht werden muss. Gibt es gestaffelte Profilhöhen? |
+| **SkyView freistehend oder Wandmontage?** | `js/masstabelle.js` führt SkyView als `wandmontage`; die Montageanleitung beschreibt durchgehend die freistehende Anlage. Beides gibt es – die Angabe sollte geprüft werden |
+| **Statikträger „überstehend"** | Das Bestellformular kennt „ohne / überstehend / unter Rinne", der Konfigurator nur das Häkchen „unter der Rinne" |
+| **Teilebild für den Deckel am Wandprofil** | Für den Rinnendeckel gibt es eines (172 × 175 mm, Fase 34, BELEGT). Der Wandprofil-Deckel ist rund; seine drei Maße sind am Werkbild abgeschätzt |
+| **Echte RAL-Liste je Serie** | Aktuell aus der Maßtabelle abgeleitet (7016 / 9006 / 9007, Reinweiß 9010 nur bei TDS) |
+| **Höchstmaß einer Scheibe** in der Rahmenwand · **Profilmaße FR23** · **Velaris-Maße** · **Plankenwand-Winkel** · **Keilfelder über 1500 mm** | Standen schon gestern offen, siehe `docs/erledigt-archiv.md` (Block vom 11.10.2026) |
 
 ### Noch nicht gebaut, steht aber in den Unterlagen
 
 - **Fenster FRF23** mit Griff als Teil der Rahmenwand
-- Rahmenwand **„mit Neigung"** als eigene Ausführung (die Anleitung zeigt
-  beide Varianten)
+- Rahmenwand **„mit Neigung"** als eigene Ausführung
+- **Zubehör** im Konfigurator (Richtpreis, Plissee, Zaunpaneele,
+  Holzdekore) – dafür fehlen die Grundlagen, siehe Abschnitt 1
 
-### Ältere offene Punkte
+### Zwei Lehren aus diesem Tag
 
-- **Rinnen-Seitendeckel:** Teilebild 172 × 175 mm gegen Rinne 186,3 ×
-  136,7 mm – entschieden: echtes Maß, vorne bündig, in der Höhe mittig.
-  Der Widerspruch im Maß selbst bleibt
-- **Pfostenachse 55 mm**, **EZIP-Stoffbilder in CMYK ohne Profil** –
-  ungeprüfte Annahmen
-- **SkyView: Querschnittszeichnungen der Profile.** Die Montageanleitung
-  (07.11.2025) ist jetzt eingearbeitet, sie bemaßt aber keine
-  Profilquerschnitte. Sparren und Glasleisten sind laut Betreiber
-  dieselben wie bei TDS und damit belegt. GESCHÄTZT bleiben: die
-  Blendendicke und der Platz, den die Rinne unter dem Dach braucht
-  (55 mm). **Geklärt:** Die Sparren sind normale TDS-Profile, nur 2°
-  geneigt – keine Keile (Betreiber, 11.10.2026). Das Gefälle liegt
-  damit im Kasten. **Rest-Frage, bitte beim Hersteller klären:** Wie
-  hoch ist die Blende wirklich? Im Modell ergibt sie sich aus der
-  Geometrie und wächst mit der Tiefe: 2,5 m → 285 mm, 4 m → 338 mm,
-  6 m → 408 mm. Gibt es dafür gestaffelte Profilhöhen, oder wird das
-  Gefälle bei tiefen Anlagen flacher?
-  (55 mm). **Offene Frage, bitte beim Hersteller klären:** Das
-  2°-Gefälle der Sparren muss irgendwo hin. Entweder wächst der
-  Außenkasten mit der Tiefe (so steht es jetzt im Modell: 3 m → rund
-  33 cm, 7 m → rund 48 cm hoch), oder der SPARREN ist keilförmig –
-  Montageanleitung S. 22 zeigt ein Profil, das nach hinten höher wird;
-  dann bliebe der Kasten immer gleich hoch. Beides erfüllt „außen
-  Flachdach, nur die Sparren geneigt"; welches stimmt, entscheidet, wie
-  hoch die Blende beim Kunden wirklich aussieht.
-  (55 mm). **Offene Frage:** Wie hoch ist der Rahmen wirklich, und wie
-  wird das 2°-Innengefälle bei großen Tiefen untergebracht? Im Modell
-  wächst das Band mit der Tiefe (bei 3 m rund 33 cm, bei 6 m rund
-  44 cm) – das ist eine Modellregel, kein Herstellermaß.
-  Profilquerschnitte. GESCHÄTZT bleiben: Rahmenhöhe 220 mm,
-  Sparrenquerschnitt 70 × 110 mm, Blendendicke, Glasleiste.
-  ABGELEITET (aus Sparrenlänge −150 mm und Auflager 65 mm): Rinne und
-  Träger je 140 mm tief. Mit den Zeichnungen zu Rinne Flat (16553),
-  Träger TD (15698), Seitenblende Sky (6069) und Glasleiste (15184)
-  wären das echte Maße
-- **SkyView freistehend oder Wandmontage?** `js/masstabelle.js` führt
-  SkyView als `montage: 'wandmontage'`. Die Montageanleitung beschreibt
-  durchgehend die FREISTEHENDE Anlage mit vier Pfosten, Fundamenten und
-  Träger TD hinten; für die Wand gibt es eine eigene Wand-Rinnen-Blende
-  (15185). Beides gibt es also – die Angabe in der Maßtabelle sollte
-  geprüft werden
-- **Statikträger: dritte Variante „überstehend"?** Das Bestellformular
-  des Herstellers kennt drei Möglichkeiten: „ohne / überstehend / unter
-  Rinne". Im Konfigurator gibt es nur das Häkchen „Statikträger unter
-  der Rinne". Was „überstehend" baulich bedeutet und ob es angeboten
-  werden soll, ist offen
-- **Teilebild für den Deckel am Wandprofil.** Für den Rinnendeckel gibt
-  es eines (172 × 175 mm, Fase 34 mm, BELEGT). Der Deckel am Wandprofil
-  ist eine andere, runde Form – seine drei Maße (140 mm tief, 175 mm
-  hoch, Bogenradius 70 mm) sind am Werkbild ABGESCHÄTZT. Mit einem
-  bemaßten Blatt sind sie in einer Zeile ersetzt
-- **Statikträger hinter den Sparren: welches Profil ist das wirklich?**
-  Die Maßtabelle nennt 189 × 117 mm. Steht er freistehend hinter den
-  Sparren (an Stelle der Wand), stand er damit 6 cm unter den Sparren
-  hervor – „mach ihn unten bündig mit sparren und oben bündig mit
-  glasleiste" (Betreiber, 11.10.2026). Gezeichnet wird er dort jetzt so
-  hoch wie Sparren + Eindeckung (rund 128 mm). **Frage an den
-  Hersteller:** Ist das an dieser Stelle ein anderes, flacheres Profil,
-  oder liegen die Sparren tiefer im Träger? Die Tiefe 117 mm bleibt
-  unangetastet – an ihr hängt das Tiefenmaß der Anlage
-- **eZIP-Kassettenform: erledigt.** „Z-E Eckig" (Betreiber, 11.10.2026) –
-  die quaderförmige Kassette, nicht das Halbrund der Serie Z-R
-- **Offen: Schiebetür zusammen mit Plankenwand.** Geometrisch sitzt die
-  Tür jetzt auf der Plankenwand auf (nichts liegt mehr ineinander). Ob
-  diese Kombination überhaupt angeboten werden soll, ist eine
-  Produktfrage – eine Schiebetür über einer Brüstung von rund einem
-  Drittel der Höhe ist kein Durchgang mehr
-- **`/api/bauteile` antwortet 503** (KV-Namensraum nicht gebunden). Kein
-  Blocker: `js/masstabelle.js` liefert die echten Zahlen, gegengerechnet
-  1316 von 1316
+**Eine Prüfung kann lügen.** `pdftotext -layout` liest über beide Spalten
+hinweg und meldete 29 von 34 fehlenden Zeilen, die in Wahrheit alle auf
+dem Blatt standen. Hätte ich das geglaubt, hätte ich einen Fehler
+gesucht, den es nicht gibt. **Wer einem Prüfergebnis nicht traut, rendert
+die Seite und sieht hin.**
 
-### Eine Lehre aus diesem Nachmittag
-
-**Ein Querschnitt sagt nichts über die Einbaulage.** Dreimal derselbe
-Fehler: SG23-Profile um jeden Flügel gelegt, Velaris-Aufhängung als
-kurzer Träger, Wandprofil liegend statt stehend. Das Maßbild zeigt die
-Form – wie das Teil eingebaut wird, weiß nur der Betreiber. Im Zweifel
-fragen, bevor es ins Modell geht.
+**Eine Gegenprobe, die nicht anschlägt, beweist nichts.** Die erste
+Gegenprobe des PDF-Skripts beschädigte die Verweistabelle – poppler
+repariert die stillschweigend, acht von elf Prüfungen liefen trotzdem
+durch. Jede Prüfung braucht ihre **eigene** Verfälschung.
