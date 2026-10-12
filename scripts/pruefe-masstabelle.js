@@ -279,8 +279,8 @@ pruefe('Freistehend: Träger hinter dem Wandprofil',
    freistehend: dort sitzt es am Traeger statt an der Wand. */
 pruefe('Wandprofil steht mit 143,6 mm an der Wand',
        gegen ? /wpT = frei \?/.test(k3d)
-             : (/wpH = sky \? riH : 14\.36/.test(k3d) &&
-                /wpT = sky \? SKY\.traegerT : 3\.1/.test(k3d)),
+             : (/wpH = sky \? riH : WANDPROFIL\.hoehe/.test(k3d) &&
+                /wpT = sky \? SKY\.traegerT : WANDPROFIL\.tiefe/.test(k3d)),
        'hoch an der Wand, kurz nach vorne');
 (function () {
   /* Das Wandprofil wird genau EINMAL gezeichnet, ausserhalb der
@@ -801,7 +801,7 @@ pruefe('Dachoberkante wird am Sparrenende gerechnet',
 (function () {
   /* Zweiter Weg: die Lagen aus den Zahlen der Datei nachrechnen, nicht
      aus der Absicht. wpT kommt aus dem Code, nicht aus dieser Datei. */
-  var wpT = parseFloat((k3d.match(/wpT = sky \? SKY\.traegerT : ([\d.]+)/) || [])[1]);
+  var wpT = parseFloat((k3d.match(/var WANDPROFIL = \{ hoehe: [\d.]+, tiefe: ([\d.]+)/) || [])[1]);
   var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
   if (!wpT || !sun) { pruefe('Profilmasse lesbar', false, 'wpT/sparrenUnterNase fehlt'); return; }
   var spH = 12.0, wpH = 14.36, glas = 0.8, riH = 13.67, rinneB = 18.63;
@@ -1030,7 +1030,8 @@ pruefe('Voreingestellt gekoppelt',
 pruefe('Haekchen zum Entkoppeln vorhanden',
        gegen ? !/id="k3dHoeheGetrennt"/.test(html) : /id="k3dHoeheGetrennt"/.test(html), '');
 pruefe('Gekoppelt wird die Hoehe hinten gerechnet',
-       new RegExp(q || 'Z\\.hoeheHinten = Z\\.hoehe \\+ Math\\.round\\(Z\\.tiefe \\* neigungProzent').test(k3d), '');
+       new RegExp(q || 'Z\\.hoeheHinten = wandUkAus\\(Z\\.neigung\\)').test(k3d),
+       'aus Unterkante Rinne, Dachtiefe und Profilmassen');
 pruefe('Gekoppelt ist der Regler gesperrt',
        new RegExp(q || 'el\\.disabled = !frei').test(k3d), 'man sieht ihn, verstellt ihn aber nicht');
 pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',

@@ -4877,3 +4877,21 @@ Neigung ja, hinterer Dachvorsprung nein. Prüfungen:
 `node scripts/pruefe-fuehrung.js` (224, Gegenprobe 224/224) und
 `node scripts/pruefe-masstabelle.js` (242, 242/242); eine davon rechnet 20
 Fälle hin und zurück – Grad zu Höhe und wieder zurück, größte Abweichung 0,00°.
+
+**Nachtrag am 12.10.2026: gerechnet wird wie beim Hersteller.** „Hersteller
+koppelt die berechnung an Unterkante Rinne und Unterkante Wandprofil, dann wird
+durch die tiefe des daches und andere angaben die grad zahl berechnet"
+(Betreiber). Im Bedienfeld stand bis dahin „Durchgangshöhe + Gefälle über die
+volle Tiefe" – eine gedachte Linie. Nachgerechnet gegen das, was das Modell
+baut, lag sie **23 bis 68 mm zu hoch** (je nach Neigung: 2° → 23 mm, 8° →
+48 mm, 14° → 68 mm). Wer danach anreißt, hängt das Wandprofil zu hoch.
+
+Jetzt rechnet das Bedienfeld dieselbe Kette wie der Dachaufbau:
+Rinnenunterkante → Sparrenauflager in der Rinne → Gefälle über die **Dachtiefe
+ohne Rinne und Wandprofil** → Sparrenhöhe → Eindeckung → Wandprofilhöhe. Die
+„anderen Angaben" des Herstellers sind genau diese Profilmaße. Beide Richtungen
+nutzen dieselben Funktionen (`wandUkAus`, `gradAusWandUk`), und das Wandprofil
+hat jetzt eine gemeinsame Konstante statt zwei Zahlen an zwei Stellen.
+
+Eine Prüfung rechnet die Kette aus den Einzelmaßen noch einmal nach und
+vergleicht sie mit der Anzeige: 2745 gegen 2746 mm – ein Millimeter Rundung.

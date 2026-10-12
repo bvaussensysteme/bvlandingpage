@@ -2096,6 +2096,11 @@
      Blende eindeutig davor. */
   /* BELEGT (Maßtabelle, Kopfzeile PFOSTENACHSE_AB_VORDERKANTE_MM=55):
      Abstand der Pfostenachse von der Vorderkante der Rinne, in cm. */
+  /* Wandprofil TD, cm. Stand bisher nur als Zahl im Modellaufbau; seit
+     die Unterkante im Bedienfeld angezeigt und rückwärts gerechnet
+     wird, brauchen beide dieselbe Quelle. */
+  var WANDPROFIL = { hoehe: 14.36, tiefe: 3.1 };
+
   var PFOSTENACHSE = 5.5;
 
   var RANDBLENDE = { dicke: 3.0, vor: 0.25 };
@@ -5240,7 +5245,8 @@
        Oberkante rundum in WAAGE liegt. */
     /* riH, nicht das feste Maß: Rinne und Träger müssen gleich hoch sein,
        sonst wäre der Kasten nur oben gerade und unten versetzt. */
-    var wpH = sky ? riH : 14.36, wpT = sky ? SKY.traegerT : 3.1;
+    var wpH = sky ? riH : WANDPROFIL.hoehe,
+        wpT = sky ? SKY.traegerT : WANDPROFIL.tiefe;
 
     /* KORREKTUR 11.10.2026, dritter Anlauf. „jetzt liegt es waagrecht im
        3d unter den sparren, es muss ja hinten an den sparren dran sein"
@@ -7160,8 +7166,8 @@
   function hoeheHintenGrenzen() {
     var el = document.getElementById('k3dHoeheHinten');
     var zf = document.getElementById('k3dHoeheHintenZahl');
-    var min = Z.hoehe + Math.round(Z.tiefe * neigungProzent(2) / 100);
-    var max = Z.hoehe + Math.round(Z.tiefe * neigungProzent(14) / 100);
+    var min = wandUkAus(2);
+    var max = wandUkAus(14);
     [el, zf].forEach(function (e) {
       if (!e) return;
       e.min = min;
@@ -7186,7 +7192,7 @@
       if (zf && document.activeElement !== zf) zf.value = Z.hoeheHinten;
       return;
     }
-    Z.hoeheHinten = Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100);
+    Z.hoeheHinten = wandUkAus(Z.neigung);
     if (el) el.value = Math.min(g.max, Math.max(g.min, Z.hoeheHinten));
     if (zf && document.activeElement !== zf) zf.value = Z.hoeheHinten;
   }
@@ -7207,11 +7213,46 @@
     });
   }
 
+  /* ---------- Unterkante Rinne und Unterkante Wandprofil ----------
+     „Hersteller koppelt die berechnung an Unterkante Rinne und
+     Unterkante Wandprofil, dann wird durch die tiefe des daches und
+     andere angaben die grad zahl berechnet" (Betreiber, 12.10.2026).
+
+     Das sind die beiden Punkte, an denen vor Ort angerissen wird.
+     Vorher stand im Bedienfeld die Durchgangshöhe plus Gefälle über die
+     volle Tiefe – eine gedachte Linie, die je nach Neigung 23 bis 68 mm
+     ÜBER der Unterkante lag, die das Modell baut. Wer danach anreißt,
+     hängt das Profil zu hoch.
+
+     Jetzt wird dieselbe Kette gerechnet wie beim Aufbau des Daches:
+     Rinnenunterkante, Sparrenauflager in der Rinne, Gefälle über die
+     DACHtiefe (ohne Rinne und Wandprofil), Sparrenhöhe, Eindeckung,
+     Wandprofilhöhe. Die „anderen Angaben" des Herstellers sind genau
+     diese Profilmaße. Alles in Millimetern. */
+  function wandUkBasis() {
+    var glas = istPolycarbonat() ? 16 : Z.glasstaerke;
+    return Z.hoehe + RINNE.hoehe * 10 - RINNE.sparrenUnterNase * 10
+           - WANDPROFIL.hoehe * 10 + glas;
+  }
+
+  /* Die Strecke, über die das Gefälle wirkt: Dachtiefe ohne Rinne und
+     ohne Wandprofil – dort sitzen die Sparren. */
+  function wandUkSpanne() {
+    return Math.max(1, Z.tiefe - RINNE.breite * 10 - WANDPROFIL.tiefe * 10);
+  }
+
+  function wandUkAus(grad) {
+    return Math.round(wandUkBasis() + wandUkSpanne() * neigungProzent(grad) / 100);
+  }
+
+  function gradAusWandUk(mm) {
+    var grad = Math.atan((mm - wandUkBasis()) / wandUkSpanne()) * 180 / Math.PI;
+    return Math.min(14, Math.max(2, Math.round(grad * 10) / 10));
+  }
+
   function neigungGrad() {
     if (!hoehenGetrennt() || !Z.hoeheGetrennt) return Z.neigung;
-    var grad = Math.atan((Z.hoeheHinten - Z.hoehe) / Math.max(1, Z.tiefe))
-               * 180 / Math.PI;
-    return Math.min(14, Math.max(2, Math.round(grad * 10) / 10));
+    return gradAusWandUk(Z.hoeheHinten);
   }
 
   /* Greift die Tiefenregel der Maßtabelle? Beim Carport TDS nicht – dort
@@ -8039,13 +8080,16 @@
     }
     var np = document.getElementById('k3dNeigungProzent');
     if (np) np.textContent = String(prozent).replace('.', ',');
-    var anstieg = Math.round(Z.tiefe * prozent / 100);
     var wh = document.getElementById('k3dWandHoehe');
-    if (wh) wh.textContent = Z.hoehe + anstieg;
+    if (wh) wh.textContent = wandUkAus(neigungGrad());
     var whi = document.getElementById('k3dWandHoeheInfo');
     if (whi) {
-      whi.textContent = Z.hoehe + ' mm Durchgang + ' + anstieg + ' mm Anstieg auf '
-        + (Z.tiefe / 1000).toFixed(2).replace('.', ',') + ' m Tiefe.';
+      /* Nicht „Durchgang + Anstieg": Gerechnet wird vom selben Punkt aus
+         wie beim Hersteller, über die Dachtiefe ohne Rinne und
+         Wandprofil. */
+      whi.textContent = 'Von Unterkante Rinne (' + Z.hoehe + ' mm) über '
+        + (wandUkSpanne() / 1000).toFixed(2).replace('.', ',')
+        + ' m Dachtiefe, Profilmaße eingerechnet.';
     }
     var lw = document.getElementById('k3dLamellenWert');
     if (lw) lw.textContent = Z.lamellen + '° geöffnet';

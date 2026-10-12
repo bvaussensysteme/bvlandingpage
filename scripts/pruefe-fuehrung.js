@@ -1895,51 +1895,80 @@ pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
        !/data-k3d-mehr data-k3d-fuer="hoehe-hinten"/.test(html), '');
 (function () {
   /* Zweiter Weg: die beiden Rechnungen gegeneinander laufen lassen. Aus
-     Grad die Hoehe hinten, daraus zurueck die Grad – es muss wieder
-     dasselbe herauskommen. Beide Funktionen stammen aus dem Code. */
-  var fp = (js.match(/function neigungProzent\([\s\S]*?\n  \}/) || [''])[0];
-  var fg = (js.match(/function neigungGrad\([\s\S]*?\n  \}/) || [''])[0];
-  if (!fp || !fg) { pruefe('Neigungsrechnungen lesbar', false, 'nicht gefunden'); return; }
-  var Z = {}, hoehenGetrennt = function () { return true; };
-  /* Die Prozenttabelle gehoert zur Funktion – ohne sie rechnet sie nicht. */
+     Grad die Unterkante des Wandprofils, daraus zurueck die Grad - es
+     muss wieder dasselbe herauskommen. Beide Funktionen stammen aus dem
+     Code, samt der Kette aus Rinnen-, Sparren- und Profilmassen. */
+  var teile = ['neigungProzent', 'wandUkBasis', 'wandUkSpanne', 'wandUkAus',
+               'gradAusWandUk'];
+  var fehlt = teile.filter(function (n) {
+    return !new RegExp('function ' + n + '\\(').test(js);
+  });
+  if (fehlt.length) { pruefe('Neigungsrechnungen lesbar', false, fehlt.join(',')); return; }
+  var Z = { glasstaerke: 8 }, istPolycarbonat = function () { return false; };
   var NEIGUNG_PROZENT = eval('(' +
     (js.match(/var NEIGUNG_PROZENT = (\{[\s\S]*?\});/) || [])[1] + ')');
-  /* Funktionsausdruck statt eval('var ...') – in strict mode landet die
-     Variable sonst nur im eval-Scope. */
-  var neigungProzent = eval('(' + fp.replace('function neigungProzent', 'function') + ')');
-  var neigungGrad = eval('(' + fg.replace('function neigungGrad', 'function') + ')');
+  var RINNE = eval('(' + (js.match(/var RINNE = (\{[\s\S]*?\n  \});/) || [])[1] + ')');
+  var WANDPROFIL = eval('(' +
+    (js.match(/var WANDPROFIL = (\{[^}]*\});/) || [])[1] + ')');
+  function hol(n) {
+    var f = (js.match(new RegExp('function ' + n + '\\([\\s\\S]*?\\n  \\}')) || [''])[0];
+    return eval('(' + f.replace('function ' + n, 'function') + ')');
+  }
+  var neigungProzent = hol('neigungProzent');
+  var wandUkBasis = hol('wandUkBasis');
+  var wandUkSpanne = hol('wandUkSpanne');
+  var wandUkAus = hol('wandUkAus');
+  var gradAusWandUk = hol('gradAusWandUk');
   var schlimmste = 0, faelle = 0;
   [2500, 3500, 5000, 7050].forEach(function (T) {
     [2, 5, 8, 11, 14].forEach(function (grad) {
-      Z.tiefe = T; Z.hoehe = 2300; Z.neigung = grad; Z.hoeheGetrennt = false;
-      /* Weg 1: Grad -> Hoehe hinten */
-      Z.hoeheHinten = Z.hoehe + Math.round(T * neigungProzent(grad) / 100);
-      /* Weg 2: Hoehe hinten -> Grad */
-      Z.hoeheGetrennt = true;
-      var zurueck = neigungGrad() + (gegen ? 1.5 : 0);
+      Z.tiefe = T; Z.hoehe = 2300;
+      var mm = wandUkAus(grad);
+      var zurueck = gradAusWandUk(mm) + (gegen ? 1.5 : 0);
       var ab = Math.abs(zurueck - grad);
       if (ab > schlimmste) schlimmste = ab;
       faelle++;
     });
   });
-  /* 0,1° Toleranz: Die Hoehe wird auf ganze Millimeter gerundet. */
   pruefe('Beide Wege kommen auf dieselbe Neigung', schlimmste <= 0.1,
          faelle + ' Faelle, groesste Abweichung ' + schlimmste.toFixed(2) + '°');
+
+  /* Und: Die angezeigte Unterkante muss die sein, die das Modell baut.
+     Dieselbe Kette hier noch einmal aus den Einzelmassen gerechnet. */
+  Z.tiefe = 3500; Z.hoehe = 2300;
+  var spH = parseFloat((js.match(/var SPARREN = \{\s*\n\s*breite:\s*[\d.]+,[^]*?hoehe:\s*([\d.]+)/) || [])[1]);
+  var tan = Math.tan(8 * Math.PI / 180);
+  var ukVorn = Z.hoehe / 10 + (RINNE.hoehe - RINNE.sparrenUnterNase - spH);
+  var ukHinten = ukVorn + tan * (Z.tiefe / 10 - RINNE.breite - WANDPROFIL.tiefe);
+  var modell = Math.round((ukHinten + spH + 0.8 - WANDPROFIL.hoehe) * 10);
+  var feld = wandUkAus(8) + (gegen ? 40 : 0);
+  pruefe('Angezeigte Unterkante ist die gebaute',
+         Math.abs(feld - modell) <= 2,
+         'Bedienfeld ' + feld + ' mm, Modell ' + modell + ' mm');
 })();
 (function () {
-  /* Die Reglergrenzen muessen die zulaessigen 2 bis 14 Grad hergeben –
-     sonst kappt der Regler eine Hoehe, die das Dach trotzdem haette. */
+  /* Die Reglergrenzen muessen die zulaessigen 2 bis 14 Grad hergeben -
+     sonst kappt der Regler eine Hoehe, die das Dach trotzdem haette.
+     Gerechnet mit denselben Funktionen wie oben. */
   var f = (js.match(/function hoeheHintenGrenzen\([\s\S]*?\n  \}/) || [''])[0];
-  var fp = (js.match(/function neigungProzent\([\s\S]*?\n  \}/) || [''])[0];
-  if (!f || !fp) { pruefe('Reglergrenzen lesbar', false, 'nicht gefunden'); return; }
+  if (!f) { pruefe('Reglergrenzen lesbar', false, 'nicht gefunden'); return; }
+  var Z = { hoehe: 2300, tiefe: 7050, hoeheHinten: 2500, glasstaerke: 8 };
+  var istPolycarbonat = function () { return false; };
   var NEIGUNG_PROZENT = eval('(' +
     (js.match(/var NEIGUNG_PROZENT = (\{[\s\S]*?\});/) || [])[1] + ')');
-  var neigungProzent = eval('(' + fp.replace('function neigungProzent', 'function') + ')');
-  var Z = { hoehe: 2300, tiefe: 7050, hoeheHinten: 2500 };
+  var RINNE = eval('(' + (js.match(/var RINNE = (\{[\s\S]*?\n  \});/) || [])[1] + ')');
+  var WANDPROFIL = eval('(' + (js.match(/var WANDPROFIL = (\{[^}]*\});/) || [])[1] + ')');
+  function hol(n) {
+    var q2 = (js.match(new RegExp('function ' + n + '\\([\\s\\S]*?\\n  \\}')) || [''])[0];
+    return eval('(' + q2.replace('function ' + n, 'function') + ')');
+  }
+  var neigungProzent = hol('neigungProzent');
+  var wandUkBasis = hol('wandUkBasis');
+  var wandUkSpanne = hol('wandUkSpanne');
+  var wandUkAus = hol('wandUkAus');
   var document = { getElementById: function () { return null; } };
   var g = eval('(' + f.replace('function hoeheHintenGrenzen()', 'function ()') + ')')();
-  var soll = Z.hoehe + Math.round(Z.tiefe * neigungProzent(14) / 100);
-  if (gegen) soll += 300;
+  var soll = wandUkAus(14) + (gegen ? 300 : 0);
   pruefe('Regler reicht bis 14 Grad bei 7 m Tiefe', g.max === soll,
          g.min + ' bis ' + g.max + ' mm (erwartet bis ' + soll + ')');
 })();
