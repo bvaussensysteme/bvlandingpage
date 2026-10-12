@@ -9126,7 +9126,7 @@
           b.textContent = 'Wird erstellt …';
           var zurueck = function () {
             b.classList.remove('ist-laeuft');
-            b.textContent = 'Alle Ansichten als PDF';
+            b.textContent = 'PDF erstellen';
           };
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {

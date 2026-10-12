@@ -2078,12 +2078,12 @@ pruefe('Hinweis und Anfrage rechnen an einer Stelle',
    (Betreiber). Auf Rueckfrage festgelegt: Hauptansichten mit EINGEFAHRENER
    Markise und AUFGESCHOBENEN Schiebeelementen, Zusatzseiten umgekehrt. */
 pruefe('Menue bietet das PDF an',
-       new RegExp(q || 'Alle Ansichten als PDF').test(html) &&
+       new RegExp(q || '>PDF erstellen<').test(html) &&
        (gegen ? true : !/Alle fünf in einem Bild/.test(html)), '');
 pruefe('PDF-Modul ist eingebunden',
        new RegExp(q || 'js/pdf-blatt\\.js\\?v=').test(html), '');
 pruefe('Knopf stellt die alte Beschriftung wieder her',
-       new RegExp(q || "b\\.textContent = 'Alle Ansichten als PDF';").test(js),
+       new RegExp(q || "b\\.textContent = 'PDF erstellen';").test(js),
        'sonst steht dort fuer immer „Wird erstellt"');
 pruefe('Fehlendes Modul meldet sich, statt stumm zu bleiben',
        new RegExp(q || 'if \\(!window\\.BV_PDF\\)').test(js), '');
