@@ -5249,3 +5249,56 @@ zusammenstellen (Schiebetüren auf allen Seiten, Markise, LED), PDF
 erstellen und die letzte(n) Seite(n) ansehen: Steht jede Angabe
 vollständig da? Sind die Gruppen sinnvoll? Der Ablauf unten ist ein
 Vorschlag – Wortlaut und Reihenfolge gern anpassen.
+
+## 2026-10-12 – Kein Lieferantenname im Kunden-PDF, Layout nachgeschärft
+
+**Anlass:** „verbessere es noch, und von VD soll nix drin stehen"
+(Betreiber, mit Bild).
+
+### Lieferantenname
+
+Auf Rückfrage eingegrenzt: **nur die wörtliche Nennung, und nur im PDF.**
+Die Anfrage-Mail an den Betrieb behält sie – dort wird nach ihr bestellt.
+Die Systembezeichnungen (TDS, SkyView, SG23, FR23) bleiben: Sie sagen
+einem Kunden nichts über den Lieferanten, und mit den Produktnamen wird
+geworben.
+
+Neue Funktion `ohneLieferant()` filtert die Zeilen auf dem Weg ins PDF.
+Betroffen war eine Stelle: „(links/rechts wie im VD-Anfrageformular)".
+Zusätzlich ein Sicherheitsnetz für Klammerzusätze, die den Namen später
+wieder hereintragen.
+
+**Die Prüfung ist hier wichtiger als die Funktion:** Sie sucht im
+Ergebnis von `pdfGruppen()` nach „VD" als eigenständigem Wort. Damit
+fällt auch eine künftig neu formulierte Zeile auf. Gegenprobe: „VSG 8 mm"
+enthält dieselben Buchstaben und **muss** stehen bleiben – auch das wird
+geprüft.
+
+### Drei Verbesserungen am Layout
+
+1. **Einheitliche Label-Spalte je Gruppe.** Vorher begann jeder Wert
+   direkt hinter seinem eigenen Label; bei unterschiedlich langen Labeln
+   sprangen die Werte hin und her und das Auge fand keine Kante zum
+   Entlanglesen. Ein Label über 45 % der Spaltenbreite bekommt seine
+   eigene Zeile.
+
+2. **„Weitere Angaben" war nicht leer.** Im Bild des Betreibers stand
+   dort „Stoff Senkrechtmarkise" – ein fehlendes Muster. Ergänzt, und
+   eine Prüfung hält fest, dass bei einer gewöhnlichen Konfiguration
+   **nichts** mehr in der Auffanggruppe landet. Die Gruppe bleibt als
+   Netz bestehen, sie soll nur leer sein.
+
+3. **Der Abschlussblock fiel um 0,8 Punkte aus der Seite.** Er war 40
+   Punkte hoch und entfiel ersatzlos, wenn der Inhalt knapp zu tief
+   reichte – ausgerechnet der Teil, der sagt, wie es weitergeht.
+   *Verworfen:* ihm den Platz fest zu reservieren – das drückte eine
+   ganze Gruppe auf eine zweite, fast leere Seite. *Jetzt:* zweistufig –
+   erst ohne Reservierung verteilen, reicht es nicht, noch einmal mit;
+   entstünde dadurch eine zusätzliche Seite, bleibt es bei der ersten
+   Verteilung. Dazu ist der Block auf 34 Punkte geschrumpft: Jede Zugabe
+   dort kostet genau den Platz, an dem es scheitert.
+
+**Was gegengelesen werden soll:** PDF erstellen und prüfen, dass nirgends
+„VD" steht (auch nicht bei Schiebetüren mit Senkrechtmarkisen), dass die
+Werte einer Gruppe untereinander auf gleicher Höhe beginnen und dass der
+Block „So geht es weiter" unten steht.

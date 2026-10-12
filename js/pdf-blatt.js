@@ -241,17 +241,37 @@
        Messen liefert gleich die fertig umbrochenen Zeilen – gezeichnet
        wird genau das, was gemessen wurde, sonst stimmt die Hoehe nicht. */
     function gruppeMessen(g) {
-      var zeilen = g.zeilen.map(function (z) {
+      /* ---------- Eine Label-Spalte je Gruppe ----------
+         Vorher begann jeder Wert direkt hinter seinem eigenen Label – bei
+         unterschiedlich langen Labeln sprangen die Werte von Zeile zu
+         Zeile hin und her, und das Auge findet keine Kante zum Entlanglesen.
+         Jetzt beginnen alle Werte einer Gruppe an derselben Stelle.
+
+         Ein Label, das laenger ist als 45 % der Spalte, wuerde die Spalte
+         fuer alle anderen zu schmal machen – so eines bekommt seine eigene
+         Zeile, der Wert steht eingerueckt darunter. */
+      var roh = g.zeilen.map(function (z) {
         var teile = String(z).split(/:\s(.+)/);
         var hatLabel = teile.length > 1 &&
                        textBreite(teile[0], GR, true) < spaltenB * 0.6;
-        var kopfTxt = hatLabel ? teile[0] + ': ' : '';
-        var vorn = textBreite(kopfTxt, GR, true);
-        var rest = hatLabel ? teile[1] : String(z);
-        var erste = umbrechen(rest, spaltenB - vorn, GR, false);
-        var weitere = erste.length > 1
-          ? umbrechen(erste.slice(1).join(' '), spaltenB - 10, GR, false) : [];
-        return { kopf: kopfTxt, vorn: vorn, erste: erste[0], weitere: weitere };
+        var kopf = hatLabel ? teile[0] + ': ' : '';
+        return {
+          kopf: kopf,
+          vorn: textBreite(kopf, GR, true),
+          rest: hatLabel ? teile[1] : String(z)
+        };
+      });
+      var labelB = 0;
+      roh.forEach(function (r) { if (r.kopf && r.vorn > labelB) labelB = r.vorn; });
+      labelB = Math.min(labelB, spaltenB * 0.45);
+
+      var zeilen = roh.map(function (r) {
+        var eigen = !!r.kopf && r.vorn > labelB;
+        var ein = r.kopf ? (eigen ? 10 : labelB) : 0;
+        return {
+          kopf: r.kopf, kopfEigen: eigen, ein: ein,
+          zeilen: umbrechen(r.rest, spaltenB - ein, GR, false)
+        };
       });
       return { titel: g.titel, zeilen: zeilen, hoehe: teilHoehe(zeilen) };
     }
@@ -261,8 +281,12 @@
        darum an einer Stelle. */
     function teilHoehe(zeilen) {
       var h = 27;
-      zeilen.forEach(function (z) { h += (1 + z.weitere.length) * ZH + 1.6; });
+      zeilen.forEach(function (z) { h += zeilenHoehe(z); });
       return h;
+    }
+
+    function zeilenHoehe(z) {
+      return ((z.kopfEigen ? 1 : 0) + z.zeilen.length) * ZH + 1.6;
     }
 
     /* Eine Gruppe aufteilen, wenn sie nicht ganz in den Rest der Spalte
@@ -275,7 +299,7 @@
     function teilen(g, frei) {
       var h = 27, n = 0, i;
       for (i = 0; i < g.zeilen.length; i++) {
-        var zh = (1 + g.zeilen[i].weitere.length) * ZH + 1.6;
+        var zh = zeilenHoehe(g.zeilen[i]);
         if (h + zh > frei) break;
         h += zh; n++;
       }
@@ -296,6 +320,7 @@
        wirkt unfertig. Passt eine Gruppe nicht mehr, faengt die naechste
        Spalte an; sind beide voll, folgt eine zweite Seite. */
     var kopfHoehe = 52 + ((s.kacheln && s.kacheln.length) ? 62 : 0);
+    var schlussH = (s.schritte && s.schritte.length) ? 58 : 0;
     var platzErste = A4_H - RAND - kopfHoehe - (RAND + 26);
     var platzWeiter = A4_H - RAND - 52 - (RAND + 26);
 
@@ -381,13 +406,16 @@
        Schlusszeile als eine, die in die Tabelle darueber laeuft. */
     function schlussZeichnen(tiefste) {
       if (!s.schritte || !s.schritte.length) return;
-      var hoehe = 40, oben = RAND + 24 + hoehe;
-      if (tiefste < oben + 14) return;
-      t.push(G.kachel + ' rg ' + RAND + ' ' + (RAND + 24) + ' ' +
+      /* Knapp bemessen, mit Absicht: Beim ersten Versuch war der Block
+         40 Punkte hoch und fiel deshalb um 0,8 Punkte aus der Seite –
+         jede Zugabe hier kostet genau den Platz, an dem es scheitert. */
+      var hoehe = 34, fuss = RAND + 18, oben = fuss + hoehe;
+      if (tiefste < oben + 8) return;
+      t.push(G.kachel + ' rg ' + RAND + ' ' + fuss + ' ' +
              innen.toFixed(1) + ' ' + hoehe + ' re f');
-      y = RAND + 24 + hoehe - 15;
+      y = oben - 13;
       zeile('SO GEHT ES WEITER', 7.6, true, G.gold, RAND + 13);
-      y -= 16;
+      y -= 15;
       var x = RAND + 13;
       s.schritte.forEach(function (schritt, i) {
         var nr = (i + 1) + '';
@@ -418,11 +446,12 @@
       strich(x, y, spaltenB, G.linie);
       y -= 13;
       g.zeilen.forEach(function (z) {
-        if (z.kopf) zeile(z.kopf, GR, true, G.grau, x);
-        zeile(z.erste, GR, false, G.text, x + z.vorn);
-        y -= ZH;
-        z.weitere.forEach(function (w) {
-          zeile(w, GR, false, G.text, x + 10);
+        if (z.kopf) {
+          zeile(z.kopf, GR, true, G.grau, x);
+          if (z.kopfEigen) y -= ZH;
+        }
+        z.zeilen.forEach(function (w) {
+          zeile(w, GR, false, G.text, x + z.ein);
           y -= ZH;
         });
         y -= 1.6;
@@ -435,6 +464,28 @@
       var start = kopfZeichnen(erste);
       var platz = erste ? platzErste : platzWeiter;
       var v = verteilen(offen, platz);
+      /* ---------- Platz fuer den Abschluss, aber nicht um jeden Preis ----------
+         Der Block unten ist der Teil, der sagt, wie es weitergeht – er
+         soll nicht daran scheitern, dass der Inhalt ein paar Punkte zu
+         tief reicht (so fiel er beim ersten Versuch weg: 107 statt 108
+         Punkte). Ihm den Platz aber fest zu reservieren, drueckte eine
+         ganze Gruppe auf eine zweite, fast leere Seite – auch keine
+         Verbesserung.
+
+         Darum zweistufig: erst ohne Reservierung verteilen; reicht es
+         nicht, noch einmal mit. Entstuende dadurch eine zusaetzliche
+         Seite, bleibt es bei der ersten Verteilung und der Block
+         entfaellt. Eine volle Seite ohne Abschluss ist besser als zwei
+         halbe mit. */
+      if (schlussH && !v.rest.length) {
+        var hoch = Math.max(
+          v.spalten[0].reduce(function (a, g) { return a + g.hoehe; }, 0),
+          v.spalten[1].reduce(function (a, g) { return a + g.hoehe; }, 0));
+        if (start - hoch < RAND + 18 + 34 + 8) {
+          var v2 = verteilen(offen, platz - schlussH);
+          if (!v2.rest.length) v = v2;
+        }
+      }
       var tiefste = start;
       v.spalten.forEach(function (sp, i) {
         var x = RAND + i * (spaltenB + 34), oben = start;

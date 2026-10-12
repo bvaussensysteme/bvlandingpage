@@ -9050,7 +9050,8 @@
     ]],
     ['Komfort und Zubehör', [
       /^Beschattung/, /^Markisenstoff/, /^Sonnensegel/, /^Plissee/,
-      /^LED/, /^mit Beleuchtung$/, /^Sound/, /^Heizung/, /^Wettersensor/
+      /^LED/, /^mit Beleuchtung$/, /^Sound/, /^Heizung/, /^Wettersensor/,
+      /^Stoff /, /^Senkrechtmarkise/, /^Volant/, /^Ausfahr/
     ]],
     ['Aufbau und Montage', [
       /^Hauswand/, /^Untergrund/, /^Montage/, /^Selbstmontage$/,
@@ -9064,12 +9065,37 @@
      Ausführung, beim Terrassendach die Montageart. */
   var PDF_IM_KOPF = /^[\d\s]+×[\d\s]+mm, Durch(gangs|fahrts)höhe/;
 
+  /* ---------- Kein Lieferantenname auf dem Kundenblatt ----------
+     „von VD soll nix drin stehen" (Betreiber, 12.10.2026). Auf Rückfrage
+     festgelegt: nur die wörtliche Nennung, und nur im PDF. Die
+     Anfrage-Mail an den Betrieb behält sie – dort wird nach ihr bestellt.
+
+     Die Systembezeichnungen (TDS, SkyView, SG23, FR23) bleiben: Sie sagen
+     einem Kunden nichts über den Lieferanten, und mit den Produktnamen
+     wird geworben.
+
+     WICHTIG: Die Prüfung in scripts/pruefe-fuehrung.js sucht im fertigen
+     PDF-Text nach „VD" – damit fällt auch eine künftig neu hinzugefügte
+     Zeile auf, die den Namen wieder hereinträgt. Hier zu ergänzen reicht
+     also nicht, wenn jemand den Text an anderer Stelle neu formuliert. */
+  function ohneLieferant(zeile) {
+    return String(zeile)
+      /* „(links/rechts wie im VD-Anfrageformular)" -> „(links/rechts)" */
+      .replace(/\s*wie im VD-[^)]*/g, '')
+      /* Sicherheitsnetz für alles, was später dazukommt: ein Klammerzusatz,
+         in dem VD steht, fällt ganz weg. */
+      .replace(/\s*\((?:[^()]*\bVD\b[^()]*)\)/g, '')
+      .replace(/\s*[–-]\s*(?:laut|nach)\s+VD\b[^,.;]*/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
   function pdfGruppen(zeilen) {
     /* Die ersten beiden Zeilen (Produkt und Montageart bzw. Ausführung)
        stehen im Kopf des Blattes. */
     var rest = zeilen.slice(2).filter(function (z) {
       return !PDF_IM_KOPF.test(z);
-    });
+    }).map(ohneLieferant);
     var gruppen = PDF_GRUPPEN.map(function (g) {
       return { titel: g[0], muster: g[1], zeilen: [] };
     });
@@ -9095,7 +9121,7 @@
       var treffer = null;
       zeilen.forEach(function (z) {
         if (treffer === null && muster.test(z)) {
-          treffer = wieVor ? z.replace(muster, '').trim() : z;
+          treffer = ohneLieferant(wieVor ? z.replace(muster, '').trim() : z);
         }
       });
       return treffer;
@@ -9184,7 +9210,7 @@
     var zus = zusammenfassung();
     seiten.push({
       titel: 'Ihre Konfiguration',
-      kopf: zus[0] + (zus[1] ? '  ·  ' + zus[1] : ''),
+      kopf: ohneLieferant(zus[0] + (zus[1] ? '  ·  ' + zus[1] : '')),
       kacheln: pdfKacheln(zus),
       gruppen: pdfGruppen(zus),
       unten: fuss,
