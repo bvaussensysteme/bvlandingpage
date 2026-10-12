@@ -122,8 +122,11 @@
     'FLTZ?bdghnopqu\u00df\u00f6\u00fc:611|ESVXY:667|' +
     'ABCDHNRU\u00c4\u00dc:722|GOQ\u00d6:778|M:833|%m:889|W:944|@:975');
 
-  function textBreite(text, groesse, fett) {
-    var t = fett ? BREIT_FETT : BREIT_REG, summe = 0, i;
+  /* stil: true oder 'fett' -> Helvetica-Bold, 'kursiv' -> Oblique
+     (gleiche Breiten wie gerade), sonst Helvetica. */
+  function textBreite(text, groesse, stil) {
+    var t = (stil === true || stil === 'fett') ? BREIT_FETT : BREIT_REG;
+    var summe = 0, i;
     for (i = 0; i < text.length; i++) summe += (t[text.charAt(i)] || 556);
     return summe * groesse / 1000;
   }
@@ -132,17 +135,17 @@
      (eine lange Massangabe ohne Leerzeichen), wird hart getrennt – lieber
      getrennt als abgeschnitten: „alle infos sollen lesbar bleiben"
      (Betreiber, 12.10.2026). */
-  function umbrechen(text, maxBreite, groesse, fett) {
+  function umbrechen(text, maxBreite, groesse, stil) {
     var worte = String(text == null ? '' : text).split(/\s+/);
     var zeilen = [], aktuell = '';
     worte.forEach(function (wort) {
       var probe = aktuell ? aktuell + ' ' + wort : wort;
-      if (textBreite(probe, groesse, fett) <= maxBreite) { aktuell = probe; return; }
+      if (textBreite(probe, groesse, stil) <= maxBreite) { aktuell = probe; return; }
       if (aktuell) { zeilen.push(aktuell); aktuell = ''; }
-      while (textBreite(wort, groesse, fett) > maxBreite && wort.length > 1) {
+      while (textBreite(wort, groesse, stil) > maxBreite && wort.length > 1) {
         var n = 1;
         while (n < wort.length &&
-               textBreite(wort.slice(0, n + 1), groesse, fett) <= maxBreite) n++;
+               textBreite(wort.slice(0, n + 1), groesse, stil) <= maxBreite) n++;
         zeilen.push(wort.slice(0, n));
         wort = wort.slice(n);
       }
@@ -255,10 +258,32 @@
         var hatLabel = teile.length > 1 &&
                        textBreite(teile[0], GR, true) < spaltenB * 0.6;
         var kopf = hatLabel ? teile[0] + ': ' : '';
+        var wert = hatLabel ? teile[1] : String(z);
+        /* ---------- Was unverbindlich ist, steht kursiv ----------
+           „arbeite auch mit dicken schriften und cursiv vllt. wo nötig"
+           (Betreiber, 12.10.2026). Kursiv bekommt hier eine Bedeutung,
+           es ist keine Verzierung: Ein Klammerzusatz am Ende ist immer
+           ein Vorbehalt – „(Vorschlag, Aufteilung nach Aufmaß)",
+           „(Standard)". Der steht abgesetzt in eigener Zeile, damit beim
+           Ueberfliegen sofort klar ist, welche Zahl fest ist und welche
+           erst das Aufmass entscheidet. */
+        var zusatz = '';
+        var m = wert.match(/^(.*\S)\s+(\([^()]{4,}\))$/);
+        /* NICHT jeder Klammerausdruck ist ein Vorbehalt. Der erste
+           Versuch trennte auch „(15,8 %)" hinter der Dachneigung und
+           „(links/rechts)" ab und setzte sie kursiv in eine eigene Zeile –
+           beides sind Praezisierungen derselben Angabe und gehoeren in
+           dieselbe Zeile. Abgesetzt wird nur, was die Angabe wirklich
+           unter Vorbehalt stellt. */
+        if (m && /Vorschlag|Aufma[ßs]|Richtwert|unverbindlich|optional|gesch[äa]tzt/i
+                 .test(m[2])) {
+          wert = m[1]; zusatz = m[2];
+        }
         return {
           kopf: kopf,
           vorn: textBreite(kopf, GR, true),
-          rest: hatLabel ? teile[1] : String(z)
+          rest: wert,
+          zusatz: zusatz
         };
       });
       var labelB = 0;
@@ -268,9 +293,31 @@
       var zeilen = roh.map(function (r) {
         var eigen = !!r.kopf && r.vorn > labelB;
         var ein = r.kopf ? (eigen ? 10 : labelB) : 0;
+        /* ---------- Kurze Werte fett ----------
+           Ein Wert, der in eine Zeile passt, ist die Kernangabe
+           („Anthrazit", „2600 mm", „12er-Set") – die darf ins Auge
+           springen. Lange, beschreibende Werte bleiben mager, sonst
+           wird die Spalte zur Bleiwueste und das Hervorheben bedeutet
+           nichts mehr. */
+        var umbr = umbrechen(r.rest, spaltenB - ein, GR, false);
+        /* Nur KNAPPE Werte werden fett. Beim ersten Versuch reichte
+           „passt in eine Zeile" – damit stand fast die halbe Spalte fett
+           und das Hervorheben sagte nichts mehr. 22 Zeichen trennen die
+           Kernangabe („Graualuminium", „2774 mm", „12er-Set") von der
+           Beschreibung („Tragender Untergrund vorhanden"). */
+        var kurz = umbr.length === 1 && !!r.kopf && r.rest.length <= 22 &&
+                   /* Was NICHT gewaehlt wurde, wird nicht hervorgehoben –
+                      „nicht vorgesehen" fett zu setzen betont ausgerechnet
+                      die Luecke im Angebot. */
+                   !/^(nicht|ohne|kein)\b/i.test(r.rest) &&
+                   textBreite(r.rest, GR, true) <= spaltenB - ein;
+        if (kurz) umbr = umbrechen(r.rest, spaltenB - ein, GR, true);
         return {
           kopf: r.kopf, kopfEigen: eigen, ein: ein,
-          zeilen: umbrechen(r.rest, spaltenB - ein, GR, false)
+          stil: kurz ? 'fett' : false,
+          zeilen: umbr,
+          zusatz: r.zusatz
+            ? umbrechen(r.zusatz, spaltenB - ein, GR, 'kursiv') : []
         };
       });
       return { titel: g.titel, zeilen: zeilen, hoehe: teilHoehe(zeilen) };
@@ -286,7 +333,8 @@
     }
 
     function zeilenHoehe(z) {
-      return ((z.kopfEigen ? 1 : 0) + z.zeilen.length) * ZH + 1.6;
+      return ((z.kopfEigen ? 1 : 0) + z.zeilen.length +
+              (z.zusatz ? z.zusatz.length : 0)) * ZH + 1.6;
     }
 
     /* Eine Gruppe aufteilen, wenn sie nicht ganz in den Rest der Spalte
@@ -361,8 +409,11 @@
 
     var seiten = [], t = [], y;
 
-    function zeile(txt, gr, fett, farbe, x) {
-      t.push('BT /F' + (fett ? 2 : 1) + ' ' + gr + ' Tf ' + farbe + ' rg ' +
+    function schriftNr(stil) {
+      return (stil === 'kursiv') ? 3 : ((stil === true || stil === 'fett') ? 2 : 1);
+    }
+    function zeile(txt, gr, stil, farbe, x) {
+      t.push('BT /F' + schriftNr(stil) + ' ' + gr + ' Tf ' + farbe + ' rg ' +
              x.toFixed(1) + ' ' + y.toFixed(1) + ' Td (' + pdfText(txt) + ') Tj ET');
     }
     function strich(x, ys, b, farbe, dick) {
@@ -427,7 +478,9 @@
     }
 
     function fussZeichnen() {
-      t.push('BT /F1 7.6 Tf ' + G.hell + ' rg ' + RAND + ' ' + (RAND - 4) +
+      /* Der Vorbehalt im Fuss ist selbst ein Vorbehalt – kursiv wie die
+         Zusaetze oben, damit beides als dieselbe Art Aussage lesbar ist. */
+      t.push('BT /F3 7.6 Tf ' + G.hell + ' rg ' + RAND + ' ' + (RAND - 4) +
              ' Td (' + pdfText(s.unten) + ') Tj ET');
       if (s.ruf) {
         var b = textBreite(s.ruf, 9, true);
@@ -451,7 +504,11 @@
           if (z.kopfEigen) y -= ZH;
         }
         z.zeilen.forEach(function (w) {
-          zeile(w, GR, false, G.text, x + z.ein);
+          zeile(w, GR, z.stil, G.text, x + z.ein);
+          y -= ZH;
+        });
+        (z.zusatz || []).forEach(function (w) {
+          zeile(w, GR, 'kursiv', G.hell, x + z.ein);
           y -= ZH;
         });
         y -= 1.6;
@@ -526,7 +583,7 @@
 
     /* Objektnummern vorab festlegen: 1 Katalog, 2 Seitenbaum,
        3 Helvetica, 4 Helvetica-Bold, danach je Seite 2 oder 3. */
-    var nr = 5, seitenNr = [], i;
+    var nr = 6, seitenNr = [], i;
     seiten.forEach(function (s) {
       seitenNr.push({ seite: nr++, inhalt: nr++, bild: s.bild ? nr++ : 0 });
     });
@@ -550,6 +607,13 @@
     objAuf(4);
     schreibS('4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold ' +
              '/Encoding /WinAnsiEncoding >>\nendobj\n');
+    /* Kursiv: Helvetica-Oblique gehoert ebenfalls zu den Schriften, die
+       jeder Betrachter mitbringt – sie muss also nicht eingebettet
+       werden. Ihre Zeichenbreiten sind dieselben wie bei der geraden
+       Helvetica (nur geneigt), darum rechnet textBreite() damit. */
+    objAuf(5);
+    schreibS('5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique ' +
+             '/Encoding /WinAnsiEncoding >>\nendobj\n');
 
     seiten.forEach(function (s, k) {
       var p = seitenNr[k];
@@ -559,7 +623,7 @@
       objAuf(p.seite);
       schreibS(p.seite + ' 0 obj\n<< /Type /Page /Parent 2 0 R ' +
                '/MediaBox [0 0 ' + br + ' ' + ho + '] ' +
-               '/Resources << /Font << /F1 3 0 R /F2 4 0 R >>' +
+               '/Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >>' +
                (p.bild ? ' /XObject << /Im0 ' + p.bild + ' 0 R >>' : '') +
                ' >> /Contents ' + p.inhalt + ' 0 R >>\nendobj\n');
 
