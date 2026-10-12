@@ -53,6 +53,17 @@ das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
 Fertig und geprüft. **Es fehlt nur noch, die Matrix in den KV-Speicher zu
 legen** – das geht nur mit Cloudflare-Zugang.
 
+> **Das kostet gerade etwas (gefunden 12.10.2026).** Solange `/api/bauteile`
+> mit 503 antwortet, liefert `stueckliste()` `null`. Daran hängen in der
+> Anfrage-Zusammenfassung: Sparrenzahl, Pfostenzahl, Statikträger,
+> Dachneigung und Höhe an der Wand (UK Wandprofil). Diese Angaben stehen
+> damit **in keiner Anfrage** – auch nicht die Neigung, die der Kunde
+> ausdrücklich eingestellt hat. Das 3D-Modell ist nicht betroffen, es rechnet
+> seit dem 11.10.2026 über `js/masstabelle.js`.
+> **Zwei Wege:** KV binden (dann löst es sich von selbst), oder die
+> Zusammenfassung ebenfalls auf `js/masstabelle.js` umstellen. Entscheidung
+> liegt beim Betreiber.
+
 #### Die drei Befehle
 
 ```bash
