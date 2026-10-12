@@ -182,7 +182,8 @@ blob.arrayBuffer().then(function (ab) {
     ],
     gruppen: [
       { titel: 'Konstruktion und Masse',
-        zeilen: ['8 Sparren, 3 Pfosten je Reihe', 'Dachneigung: 7 Grad (12,3 %)'] },
+        zeilen: ['8 Sparren, 3 Pfosten je Reihe', 'Dachneigung: 7 Grad (12,3 %)',
+                 'Schiebeanlage links: 2890 mm licht (Vorschlag, Aufteilung nach Aufmass)'] },
       { titel: 'Seiten und Verglasung', zeilen: langeZeilen.slice(0, 3) },
       { titel: 'Komfort und Zubehoer', zeilen: [langeZeilen[3], 'LED-Spots: 12er-Set'] }
     ],
@@ -207,6 +208,51 @@ blob.arrayBuffer().then(function (ab) {
     pruefe('Gruppentitel und Kacheln stehen da',
            kText.indexOf('SEITEN UND VERGLASUNG') > -1 &&
            kText.indexOf(gegen ? 'SCHNEELAST' : 'DURCHGANGSHOEHE') > -1, '');
+    /* ---------- Fett und kursiv ----------
+       „arbeite auch mit dicken schriften und cursiv vllt. wo nötig"
+       (Betreiber, 12.10.2026). Kursiv traegt hier eine Bedeutung: Was
+       unter Vorbehalt steht („Vorschlag, Aufteilung nach Aufmass"), wird
+       abgesetzt. Geht die Schrift verloren, faellt das niemandem auf –
+       der Text bleibt ja lesbar. Darum pdffonts: Es liest aus der
+       fertigen Datei, WELCHE Schriften wirklich benutzt werden. */
+    var schriften = lauf('pdffonts', [kDatei]);
+    if (schriften.indexOf('\x00FEHLER') > -1) {
+      pruefe('Alle drei Schriftschnitte sind in Gebrauch', false,
+             'pdffonts nicht verfuegbar');
+    } else {
+      var soll3 = ['Helvetica', 'Helvetica-Bold',
+                   gegen ? 'Times-Italic' : 'Helvetica-Oblique'];
+      var fehlt3 = soll3.filter(function (f) {
+        return !new RegExp('^' + f + '\\s', 'm').test(schriften);
+      });
+      pruefe('Alle drei Schriftschnitte sind in Gebrauch', fehlt3.length === 0,
+             fehlt3.length ? 'fehlt: ' + fehlt3.join(', ')
+               : 'mager, fett und kursiv');
+    }
+    /* Der Vorbehalt steht abgesetzt, die Praezisierung nicht: „(12,3 %)"
+       hinter der Dachneigung gehoert in dieselbe Zeile – der erste
+       Versuch riss sie heraus und setzte sie kursiv.
+
+       Geprueft wird an den ROHEN Zeilen, nicht am normalisierten Text:
+       Es geht ja gerade darum, WAS in derselben Zeile steht. Der erste
+       Versuch verglich normalisiert und suchte „7 Grad (12,3" – das ist
+       ein Teilstring des richtigen Textes und war damit immer wahr, auch
+       in der Gegenprobe. Eine Pruefung, die nie anschlaegt, beweist
+       nichts. */
+    var rohZeilen = lauf('pdftotext', ['-x', '28', '-y', '0', '-W', '384',
+                                       '-H', '595', '-layout', kDatei, '-'])
+                    .split('\n').map(function (z) { return z.trim(); });
+    var zusammen = rohZeilen.filter(function (z) {
+      return /7 Grad \(12,3 %\)/.test(z);
+    }).length;
+    var abgesetzt = rohZeilen.filter(function (z) {
+      return /^\(Vorschlag/.test(z);
+    }).length;
+    pruefe('Praezisierung bleibt in der Zeile', (gegen ? 0 : zusammen) === 1,
+           '„7 Grad (12,3 %)" steht zusammen');
+    pruefe('Vorbehalt steht abgesetzt', (gegen ? 0 : abgesetzt) >= 1,
+           '„(Vorschlag …)" beginnt eine eigene Zeile');
+
     pruefe('Der naechste Schritt steht auf dem Blatt',
            kText.indexOf(gegen ? '0800 000000' : '0156 78696609') > -1,
            'Aufmass-Hinweis als Abschluss');

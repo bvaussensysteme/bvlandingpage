@@ -5302,3 +5302,54 @@ geprüft.
 „VD" steht (auch nicht bei Schiebetüren mit Senkrechtmarkisen), dass die
 Werte einer Gruppe untereinander auf gleicher Höhe beginnen und dass der
 Block „So geht es weiter" unten steht.
+
+## 2026-10-12 – Fett und kursiv mit Bedeutung
+
+**Anlass:** „arbeite auch mit dicken schriften und cursiv vllt. wo nötig"
+(Betreiber).
+
+**Was jetzt gilt:** Das PDF nutzt drei Schnitte. Kursiv ist
+Helvetica-Oblique – wie die beiden anderen eine Schrift, die jeder
+Betrachter mitbringt, also ohne Einbettung und ohne zusätzliche Dateigröße.
+
+Beide Auszeichnungen tragen eine **Bedeutung**, sie sind keine Verzierung:
+
+- **Kursiv = unter Vorbehalt.** Ein Klammerzusatz wie „(Vorschlag,
+  Aufteilung nach Aufmaß)" steht abgesetzt in eigener Zeile. Beim
+  Überfliegen ist damit sofort klar, welche Zahl fest ist und welche erst
+  das Aufmaß entscheidet. Auch die Fußzeile ist kursiv – sie ist selbst
+  ein Vorbehalt.
+- **Fett = die Kernangabe.** Kurze Werte („Graualuminium", „2774 mm",
+  „12er-Set") springen ins Auge, lange Beschreibungen bleiben mager.
+
+**Drei Fehler, die erst das gerenderte Bild gezeigt hat:**
+
+1. *Jeder Klammerausdruck galt als Vorbehalt.* Damit wurden auch
+   „(15,8 %)" hinter der Dachneigung und „(links/rechts)" herausgerissen
+   und kursiv abgesetzt – beides sind Präzisierungen derselben Angabe und
+   gehören in dieselbe Zeile. Jetzt entscheidet der Inhalt: nur
+   „Vorschlag", „Aufmaß", „Richtwert", „unverbindlich", „optional",
+   „geschätzt".
+2. *Zu viel fett.* Das erste Kriterium war „passt in eine Zeile" – damit
+   stand fast die halbe Spalte fett und das Hervorheben sagte nichts mehr.
+   Jetzt: höchstens 22 Zeichen.
+3. *„nicht vorgesehen" war fett.* Fett zu setzen, was der Kunde **nicht**
+   gewählt hat, betont ausgerechnet die Lücke im Angebot. Werte, die mit
+   „nicht", „ohne" oder „kein" beginnen, bleiben mager.
+
+**Absicherung:** `pdffonts` liest aus der fertigen Datei, welche Schriften
+wirklich benutzt werden – fällt eine weg, merkt das sonst niemand, denn
+der Text bleibt ja lesbar. Dazu zwei Prüfungen an den **rohen** Zeilen
+(nicht am normalisierten Text): „7 Grad (12,3 %)" muss zusammenstehen,
+„(Vorschlag …)" muss eine eigene Zeile beginnen.
+
+**Verworfen:** Die erste Fassung dieser Prüfung verglich normalisiert und
+suchte „7 Grad (12,3" – ein Teilstring des richtigen Textes, also immer
+wahr, auch in der Gegenprobe. Schon wieder eine Prüfung, die nichts
+beweist; sie fiel nur auf, weil die Gegenprobe 25 von 26 meldete statt
+26 von 26. **Die Zahl am Ende der Gegenprobe ist deshalb wichtiger als
+das „bestanden" davor.**
+
+**Was gegengelesen werden soll:** Im PDF muss „(Vorschlag, Aufteilung
+nach Aufmaß)" kursiv in eigener Zeile stehen, „Dachneigung: 9° (15,8 %)"
+dagegen zusammen in einer.
