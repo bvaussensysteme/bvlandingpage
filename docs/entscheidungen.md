@@ -4910,3 +4910,178 @@ Bestellung übertragen.
 „ohne / überstehend / unter Rinne". Der Konfigurator hat nur das Häkchen
 „unter der Rinne". Was „überstehend" baulich bedeutet, steht in
 `docs/NEXT_TASK.md`.
+
+## 2026-10-12 – Dachneigung: Rechenweg des Herstellers belegt, eigene Korrektur zurückgenommen
+
+**Anlass:** Der Betreiber lieferte zuerst einen Referenzfall aus dem
+Bestellformular (5000 breit, 3000 tief, Unterkante Rinne 2200, Unterkante
+Wandprofil 2500 → laut Hersteller 6°) und danach die Seite der
+Montageanleitung mit Skizze, Prozenttabelle und Rechenbeispiel.
+
+**Was falsch war:** Ich hatte die Umrechnung zwischen Grad und Unterkante
+Wandprofil um Rinnenbreite, Wandprofiltiefe, Sparrensitz und Glasstärke
+korrigiert, damit die angezeigte Zahl der gezeichneten Kante entspricht.
+Der Referenzfall allein hat das nicht widerlegt – vier durchgerechnete
+Varianten (volle Tiefe 5,71°, ohne Rinne 6,09°, ohne Rinne und Wandprofil
+6,15°, mit Profilhöhen 6,46°) runden alle auf 6°, weil das Formular nur
+ganze Grad zeigt.
+
+**Was jetzt gilt:** Die Montageanleitung entscheidet es wörtlich: *„Nehmen
+Sie die gewünschte Höhe an der Innenseite, zum Beispiel 200 cm. Die
+Überdachung hat einen festen Gefällewinkel von 14%. … Wenn der Ausfall 3 m
+beträgt, dann liegt die Unterkante des Wandanschlussprofils 3 × 14 cm höher
+als die Unterkante der Rinne. In diesem Beispiel würde das
+Wandanschlussprofil also in einer Höhe von 242 cm angebracht."* Also: über
+die **volle Bestelltiefe**, Prozentwert aus der Tabelle, **ohne jeden
+Abzug**. Die Skizze daneben bestätigt es mit 14 / 28 / 42 / 56 cm bei 1 bis
+4 m. Meine Korrektur ist zurückgenommen (`wandUkBasis()` = Höhe vorne,
+`wandUkSpanne()` = Tiefe).
+
+**Warum so und nicht anders:** Die Zahl im Bedienfeld geht in die
+Bestellung. Sie muss die sein, die der Hersteller nachrechnet – nicht die,
+die zum gezeichneten Modell passt. Technisch „genauer" wäre hier falsch.
+
+**Was das kostet:** Die gezeichnete Unterkante des Wandprofils liegt rund
+4 cm unter der angezeigten Zahl (gemessen bei 3,5 m Tiefe und 8°: Bedienfeld
+2790 mm, Modell 2746 mm). Das ist Modellgenauigkeit, kein Bestellfehler. Ein
+Maß der Kette ist geschätzt (`RINNE.sparrenUnterNase`); solange kein
+Profilquerschnitt vorliegt, bleibt der Abstand. Eine Prüfung hält ihn unter
+80 mm, damit er nicht unbemerkt wächst.
+
+**Was gegengelesen werden soll:** Im Konfigurator bei Terrassendach TDS auf
+„Unterkante Rinne und Unterkante Wandprofil" umschalten, Tiefe 3000 und
+Rinne 2200 eingeben und prüfen, dass bei 2500 mm 6° angezeigt werden – wie
+im Bestellformular des Herstellers.
+
+**Verworfen:** Die profilkorrigierte Rechnung (siehe oben). Nicht noch
+einmal einbauen, auch wenn sie zur Zeichnung besser passt.
+
+## 2026-10-12 – SkyView: festes Gefälle 2°, abgesichert
+
+**Anlass:** „bei skyview sind es immer 2 grad man kann keine unterkante
+rinne und unterkante wandprofil eingeben" (Betreiber).
+
+**Was jetzt gilt:** So war es bereits – SkyView ist ein eigenes Produkt,
+`neigungMoeglich()` deckt nur Terrassendach TDS und Carport TDS, und das
+Modell neigt die SkyView-Sparren fest um 2°. Neu sind drei Prüfungen, die
+beides zusammen festhalten, damit es beim nächsten Umbau der Neigungslogik
+nicht versehentlich auch für SkyView freigeschaltet wird.
+
+**Warum das wichtig ist:** Stünde die Eingabe dort, ginge eine Neigung in
+die Anfrage, die das System gar nicht hat – ein Bestellfehler, der erst beim
+Hersteller auffällt.
+
+**Dabei aufgefallen (nicht geändert):** In der Anfrage-Zusammenfassung hängen
+Sparrenzahl, Pfostenzahl, Statikträger, Dachneigung und Höhe an der Wand an
+`stueckliste()`. Die wird ausschließlich aus `/api/bauteile` gefüllt, und die
+antwortet derzeit 503 (KV-Namensraum DACHMATRIX nicht gebunden). Damit stehen
+diese Angaben aktuell in **keiner** Anfrage. Entscheidung des Betreibers
+abwarten – siehe docs/NEXT_TASK.md.
+
+## 2026-10-12 – Anfrage rechnet mit der Maßtabelle statt mit der toten Schnittstelle
+
+**Was falsch war:** In der Anfrage, die beim Betrieb ankommt, hingen
+Sparrenzahl, Pfostenzahl, Statikträger, Dachneigung und Höhe an der Wand
+allein an `stueckliste()` – also an `/api/bauteile`. Die antwortet 503,
+solange der KV-Namensraum DACHMATRIX nicht gebunden ist. Diese Angaben
+standen damit **in keiner einzigen Anfrage**. Aufgefallen beim Nachsehen,
+nicht durch eine Beschwerde: Die Anfrage sah vollständig aus, es fehlten
+nur Zeilen, die niemand vermisst, solange er sie nie gesehen hat.
+
+Zwei weitere Fehler lagen im selben Block:
+- Die Höhe an der Wand rechnete mit `Z.neigung` statt mit der wirklich
+  geltenden Neigung. Wer den zweiten Weg benutzt (Unterkante Wandprofil
+  eingeben), hätte dort eine Zahl stehen gehabt, die nicht zu seiner
+  Eingabe passt.
+- `ed.geneigt` wird nirgends im Code gesetzt. Die Bedingung war also immer
+  falsch – selbst mit gebundenem KV wäre die Neigung nicht erschienen.
+
+**Was jetzt gilt:** Beide Zahlenquellen laufen über eine neue Funktion
+`bauteileJetzt()`, die aus `js/masstabelle.js` rechnet. Sie bedient den
+Maßhinweis unter den Maßen **und** die Anfrage – vorher rechnete der
+Hinweis richtig und die Anfrage gar nicht. Dazu kommen neu in die Anfrage:
+die nächste lieferbare Breite, wenn das Wunschmaß dazwischen liegt, und
+eine Warnzeile, wenn die Tiefe über dem Höchstmaß liegt. Die Neigung steht
+nur noch beim Terrassendach TDS – SkyView hat ein festes Gefälle von 2°.
+Die Höhe an der Wand ist bei Weg 2 genau die eingegebene Zahl, nicht die
+über gerundete Grad zurückgerechnete.
+
+**Warum so und nicht anders:** Der Betreiber hat Weg 2 gewählt („2") statt
+KV zu binden. Geschätzte Zahlen kommen bewusst **nicht** in die Anfrage:
+Gibt die Maßtabelle nichts her (Pergola, Carport Flat Box), bleiben die
+Zeilen weg. Lieber keine Zahl als eine erfundene in einer Bestellung.
+
+**Was offen bleibt:** Sobald DACHMATRIX gebunden ist, gehört
+`stueckliste()` in `bauteileJetzt()` vorgeschaltet – der Platz dafür ist
+im Kommentar der Funktion benannt. Der Zusammenfassungskasten im Panel
+(`k3dZus`) hängt weiterhin an der Schnittstelle und bleibt leer; das ist
+so gewollt („lass das weg", Betreiber 11.10.2026).
+
+**Was gegengelesen werden soll:** Terrassendach TDS, 5000 × 3000,
+Anfrage-Text aufklappen. Es müssen jetzt Sparrenzahl, Pfosten,
+Dachneigung und Höhe an der Wand dastehen. Dann auf Flachdach SkyView
+umstellen: Sparren und Pfosten bleiben, **die Dachneigung muss
+verschwinden**. Danach Breite auf 5800 stellen – es muss der Hinweis auf
+die nächste lieferbare Breite erscheinen, und die Sparrenzahl muss
+dieselbe sein wie im Kasten unter den Maßen.
+
+## 2026-10-12 – „Alle fünf in einem Bild" wird ein PDF mit Zustandsseiten
+
+**Anlass:** „wenn man auf alle bilder sichern geht sol anstatt ein bild,
+eine pdf erstell werden mit den wichtigsten ansichten, + wenn so sachen
+gibt wie aufdach ode unterdachmarkisen, etc. auch davon bilder im
+geschlossenen zustand, die normalen ansichtsbilder alles im offenen
+zustnd" (Betreiber).
+
+**Was jetzt gilt:** Der Menüpunkt heißt „Alle Ansichten als PDF" und
+liefert eine mehrseitige Datei: fünf Ansichtsseiten, eine Seite „Ihre
+Konfiguration" in Worten, danach je eine Seite für jedes bewegliche Teil
+im anderen Zustand (Markise ausgefahren, Schiebeelemente geschlossen,
+Lamellen zu, Velaris zu).
+
+**Was „offen" heißt – auf Rückfrage festgelegt:** In den fünf
+Hauptansichten sind die Markisen **eingefahren** (das Dach ist zu sehen)
+und die Schiebeelemente **aufgeschoben**. Die Zusatzseiten zeigen das
+Gegenteil. Der Lamellenwinkel bleibt in den Hauptansichten so, wie der
+Kunde ihn eingestellt hat – er ist Teil der Konfiguration, kein
+Betriebszustand.
+
+**Warum ein eigener PDF-Erzeuger (`js/pdf-blatt.js`, rund 230 Zeilen):**
+jsPDF und pdfmake kämen über ein Fremd-CDN, wiegen mehrere hundert
+Kilobyte und müssten in die Inhaltssicherheitsrichtlinie in `_headers`
+aufgenommen werden. Gebraucht wird nur ein Bruchteil: Seiten mit je einem
+JPEG und ein paar Zeilen Text. Kein Nachladen, keine Abhängigkeit, die
+irgendwann nicht mehr gepflegt wird.
+
+**Zwei Fallen, die beim Bauen aufgefallen sind:**
+- Es reicht **nicht**, `Z.sonneAus` direkt zu setzen. `aendern()` liest
+  die Werte aus den Formularfeldern zurück und überschreibt die Änderung
+  sofort. Darum geht alles über `feldSetzen()` – denselben Weg geht auch
+  `sonneFahren()`.
+- Die Leinwand wird für den Druck kurz auf 1800 Pixel Breite gestellt.
+  Ohne das käme das Bild in Bildschirmgröße ins PDF und wäre auf A4 quer
+  sichtbar grob – auf dem Handy sind das keine 400 Pixel. Dabei muss
+  `pixelRatio` auf 1, sonst rechnet three.js die Zielgröße ein zweites Mal
+  hoch.
+
+**Absicherung:** `scripts/pruefe-pdf.js` erzeugt ein PDF und liest es mit
+**pdfinfo, pdftotext und pdfimages** zurück – Werkzeugen aus poppler, die
+von unseren Annahmen nichts wissen. Geprüft werden Seitenzahl, Format,
+alle Überschriften (mit Umlauten), die Fußzeile auf jeder Seite und die
+Größe der eingebetteten Bilder. 11 Prüfungen, Gegenprobe 11/11.
+
+**Verworfen – und warum das wichtig ist:** Die erste Gegenprobe kippte ein
+Byte in der xref-Tabelle und erwartete, dass alle elf Prüfungen anschlagen.
+Es schlugen nur drei an: **poppler repariert eine kaputte xref
+stillschweigend.** Acht Prüfungen hätten also nichts bewiesen. Jetzt hat
+jede ihre eigene Verfälschung. Auch ein überschriebener `%PDF`-Kopf reicht
+nicht – poppler sucht ihn im ganzen Vorspann; die Datei muss abgeschnitten
+werden.
+
+**Was gegengelesen werden soll:** Ein Terrassendach mit Aufdachmarkise und
+Schiebetüren zusammenstellen, dann „Bild speichern" → „Alle Ansichten als
+PDF". Die Datei muss sich öffnen lassen und enthalten: fünf Ansichten mit
+eingefahrener Markise und offenen Schiebetüren, die Konfigurationsseite,
+dann zwei Seiten mit ausgefahrener Markise bzw. geschlossenen Türen.
+**Wichtig:** Danach muss der Konfigurator genau so dastehen wie vorher –
+gleiche Ansicht, gleiche Reglerstellungen.

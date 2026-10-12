@@ -53,6 +53,20 @@ das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
 Fertig und geprüft. **Es fehlt nur noch, die Matrix in den KV-Speicher zu
 legen** – das geht nur mit Cloudflare-Zugang.
 
+> **Das kostet gerade etwas (gefunden 12.10.2026).** Solange `/api/bauteile`
+> mit 503 antwortet, liefert `stueckliste()` `null`. Daran hängen in der
+> Anfrage-Zusammenfassung: Sparrenzahl, Pfostenzahl, Statikträger,
+> Dachneigung und Höhe an der Wand (UK Wandprofil). Diese Angaben stehen
+> damit **in keiner Anfrage** – auch nicht die Neigung, die der Kunde
+> ausdrücklich eingestellt hat. Das 3D-Modell ist nicht betroffen, es rechnet
+> seit dem 11.10.2026 über `js/masstabelle.js`.
+> **Erledigt am 12.10.2026:** Der Betreiber hat Weg 2 gewählt. Die Anfrage
+> rechnet jetzt über `bauteileJetzt()` aus `js/masstabelle.js`. Offen bleibt
+> nur: Sobald DACHMATRIX gebunden ist, gehört `stueckliste()` in
+> `bauteileJetzt()` vorgeschaltet – der Platz ist im Kommentar der Funktion
+> benannt. Der Zusammenfassungskasten `k3dZus` bleibt bis dahin leer, so
+> gewollt.
+
 #### Die drei Befehle
 
 ```bash
@@ -143,6 +157,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
+| `scripts/pruefe-pdf.js` | Erzeugt ein PDF mit `js/pdf-blatt.js` und liest es mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Überschriften, Fußzeile auf jeder Seite, Bildgröße |
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 

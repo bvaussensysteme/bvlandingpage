@@ -1279,29 +1279,31 @@ pruefe('Beschriftung wird am eigenen Feld gesetzt',
   pruefe('Menue bietet jede Ansicht an', !fehlt.length,
          fehlt.length ? 'fehlt: ' + fehlt.join(', ') : ist.length + ' Einträge');
 })();
-/* Alle fuenf in EINEM Bild statt fuenf Downloads: Handy-Browser lassen
-   nur einen Download je Tipp zu, der Rest geht still verloren. */
-pruefe('Alle Ansichten kommen als ein Blatt',
-       new RegExp(q || 'blatt\\.toDataURL').test(js) &&
-       new RegExp(q || "bildLaden\\(url, bildName\\('alle-Ansichten'\\)\\)").test(js), '');
+/* Alles in EINER Datei statt fuenf Downloads: Handy-Browser lassen nur
+   einen Download je Tipp zu, der Rest geht still verloren. Bis zum
+   12.10.2026 war das ein PNG mit fuenf Feldern, seither ein PDF mit einer
+   Seite je Ansicht – geprueft wird das Erzeugen selbst in
+   scripts/pruefe-pdf.js, hier nur der Weg dorthin. */
+pruefe('Alle Ansichten kommen als eine Datei',
+       new RegExp(q || 'window\\.BV_PDF\\.erzeugen\\(seiten').test(js) &&
+       new RegExp(q || "replace\\(/\\\\.png\\$/, '\\.pdf'\\)").test(js), '');
 (function () {
-  /* Zweiter Weg: zaehlen, wie oft beim Sammelbild wirklich geladen wird.
-     Mehr als einmal waere genau der Fehler, den das Blatt vermeiden soll
-     - Handy-Browser verwerfen den Rest still. Gezaehlt wird im Zweig
-     'alle' des Knopfes, nicht in bildAlle: die Funktion baut nur das
-     Blatt und gibt es weiter. */
+  /* Zweiter Weg: zaehlen, wie oft beim Sammeln wirklich geladen wird.
+     Mehr als einmal waere genau der Fehler, den die eine Datei vermeiden
+     soll – Handy-Browser verwerfen den Rest still. Gezaehlt wird im Zweig
+     'alle' des Knopfes und in pdfSeiten(): die Funktion sammelt nur die
+     Seiten und gibt sie weiter, laden darf sie nicht. */
   var zweig = (js.match(/if \(was === 'alle'\) \{[\s\S]*?return;\n        \}/) || [''])[0];
-  var fn = (js.match(/function bildAlle\([\s\S]*?\n  \}/) || [''])[0];
-  var male = (zweig.match(/bildLaden\(/g) || []).length + (gegen ? 1 : 0);
-  var inFn = (fn.match(/bildLaden\(/g) || []).length;
-  pruefe('Sammelbild laedt genau einmal', male === 1 && inFn === 0,
-         male + ' Download(s) im Zweig, ' + inFn + ' in bildAlle');
+  var fn = (js.match(/function pdfSeiten\([\s\S]*?\n  \}/) || [''])[0];
+  var male = (zweig.match(/pdfLaden\(|bildLaden\(/g) || []).length + (gegen ? 1 : 0);
+  var inFn = (fn.match(/pdfLaden\(|bildLaden\(/g) || []).length;
+  pruefe('PDF laedt genau einmal', male === 1 && inFn === 0,
+         male + ' Download(s) im Zweig, ' + inFn + ' in pdfSeiten');
 })();
 pruefe('Nach dem Speichern steht die Ansicht wie vorher',
-       new RegExp(q || 'if \\(vorher\\) ansichtAnwenden\\(vorher\\)').test(js) &&
+       new RegExp(q || 'if \\(vorherAnsicht\\) ansichtAnwenden\\(vorherAnsicht\\)').test(js) &&
        new RegExp(q || 'vorher && vorher !== name\\) ansichtAnwenden\\(vorher\\)').test(js),
        'kein Sprung in eine andere Ansicht');
-
 
 /* ---------- Blick von hinten durch die Hauswand ----------
    „sobald man so hinter die wand scrollt soll die wand durchsichtig
@@ -1427,8 +1429,6 @@ pruefe('Bodenschatten geht mit aus',
   pruefe('Sammelbild kommt ohne Rueckruf aus', !hat,
          'Leinwand direkt in Leinwand gezeichnet');
 })();
-pruefe('Leinwand wird direkt kopiert',
-       new RegExp(q || 'c\\.drawImage\\(lw, x, y \\+ kopf, breit, hoch\\)').test(js), '');
 pruefe('Knopf faellt auch bei einem Fehler zurueck',
        new RegExp(q || 'finally \\{ zurueck\\(\\); \\}').test(js),
        'nicht fuer immer „Wird erstellt"');
@@ -1458,9 +1458,6 @@ pruefe('Nur eine Stelle schaltet den Abend um',
 /* „bei dem erstellten bild is ja unten rechts ... dieses schwarze freie
    rechteck, dort koennte man z.b die wichtigsten eckdaten schreiben"
    (Betreiber, 11.10.2026). */
-pruefe('Das sechste Feld traegt die Eckdaten',
-       new RegExp(q || "c\\.fillText\\('Ihre Konfiguration'").test(js) &&
-       new RegExp(q || 'var zeilen = zusammenfassung\\(\\);').test(js), '');
 pruefe('Eckdaten kommen aus derselben Liste wie die Anfrage',
        gegen ? /zusammenfassung\(\)\.join\(' · '\), rand/.test(js)
              : !/zusammenfassung\(\)\.join\(' · '\), rand/.test(js),
@@ -1484,8 +1481,6 @@ pruefe('Eckdaten kommen aus derselben Liste wie die Anfrage',
          falsch === 0 ? 'x ' + ex + ', y ' + ey + ' in ' + blattB + ' x ' + blattH
                       : meld.join('; '));
 })();
-pruefe('Lange Angaben werden gekuerzt, nicht umgebrochen',
-       new RegExp(q || 'c\\.measureText\\(txt\\)\\.width > breit - innen \\* 2').test(js), '');
 pruefe('Vorbehalt steht auf dem Blatt',
        new RegExp(q || 'Unverbindliche Darstellung').test(js),
        'verbindlich ist das Angebot nach Aufmass');
@@ -1941,18 +1936,52 @@ pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
   pruefe('Beide Wege kommen auf dieselbe Neigung', schlimmste <= 0.1,
          faelle + ' Faelle, groesste Abweichung ' + schlimmste.toFixed(2) + '°');
 
-  /* Und: Die angezeigte Unterkante muss die sein, die das Modell baut.
-     Dieselbe Kette hier noch einmal aus den Einzelmassen gerechnet. */
+  /* Beleg aus der Montageanleitung (Seite „Standarddachneigung"), woertlich:
+     „Nehmen Sie die gewuenschte Hoehe an der Innenseite, zum Beispiel
+     200 cm. Die Ueberdachung hat einen festen Gefaellewinkel von 14%.
+     ... Wenn der Ausfall 3 m betraegt, dann liegt die Unterkante des
+     Wandanschlussprofils 3 x 14 cm hoeher als die Unterkante der Rinne.
+     In diesem Beispiel wuerde das Wandanschlussprofil also in einer Hoehe
+     von 242 cm angebracht."
+     Also: ueber die volle Bestelltiefe, ohne Abzug fuer Rinne oder
+     Profile. Genau das muss unsere Rechnung treffen. */
+  Z.hoehe = 2000; Z.tiefe = 3000;
+  var beispiel = wandUkAus(8) + (gegen ? 30 : 0);
+  pruefe('Rechenbeispiel der Montageanleitung trifft zu (200 cm, 3 m, 8°)',
+         beispiel === 2420, 'ergibt ' + beispiel + ' mm, Anleitung sagt 2420 mm');
+
+  /* Die Masskette im selben Bild: 14 / 28 / 42 / 56 cm bei 1 bis 4 m. */
+  var kette = [[1000, 2140], [2000, 2280], [3000, 2420], [4000, 2560]];
+  var trifft = kette.every(function (f) {
+    Z.tiefe = f[0];
+    return wandUkAus(8) + (gegen ? 30 : 0) === f[1];
+  });
+  pruefe('Masskette des Bildes trifft zu (14 cm je Meter)', trifft,
+         '1 bis 4 m gegen 214 / 228 / 242 / 256 cm');
+
+  /* Beleg aus dem Bestellformular (Betreiber, 12.10.2026): 5000 breit,
+     3000 tief, Unterkante Rinne 2200, Unterkante Wandprofil 2500 ergibt
+     laut Hersteller 6°. Das Formular zeigt ganze Grad, darum wird hier
+     gerundet verglichen. */
+  Z.hoehe = 2200; Z.tiefe = 3000;
+  var ref = Math.round(gradAusWandUk(2500)) + (gegen ? 2 : 0);
+  pruefe('Referenzfall des Bestellformulars trifft zu', ref === 6,
+         'ergibt ' + ref + '°, Hersteller sagt 6°');
+
+  /* Ehrlich festhalten, was dabei auseinanderlaeuft: Das Bedienfeld zeigt
+     die Bestellzahl des Herstellers, das Modell zeichnet mit seinen
+     eigenen (teils geschaetzten) Profilmassen. Der Abstand darf klein
+     bleiben - waechst er, stimmt ein Profilmass nicht mehr. */
   Z.tiefe = 3500; Z.hoehe = 2300;
   var spH = parseFloat((js.match(/var SPARREN = \{\s*\n\s*breite:\s*[\d.]+,[^]*?hoehe:\s*([\d.]+)/) || [])[1]);
   var tan = Math.tan(8 * Math.PI / 180);
   var ukVorn = Z.hoehe / 10 + (RINNE.hoehe - RINNE.sparrenUnterNase - spH);
   var ukHinten = ukVorn + tan * (Z.tiefe / 10 - RINNE.breite - WANDPROFIL.tiefe);
   var modell = Math.round((ukHinten + spH + 0.8 - WANDPROFIL.hoehe) * 10);
-  var feld = wandUkAus(8) + (gegen ? 40 : 0);
-  pruefe('Angezeigte Unterkante ist die gebaute',
-         Math.abs(feld - modell) <= 2,
-         'Bedienfeld ' + feld + ' mm, Modell ' + modell + ' mm');
+  var ab = Math.abs(wandUkAus(8) - modell) + (gegen ? 200 : 0);
+  pruefe('Modell bleibt nah an der Bestellzahl', ab <= 80,
+         'Bedienfeld ' + wandUkAus(8) + ' mm, Modell ' + modell
+         + ' mm, Abstand ' + ab + ' mm');
 })();
 (function () {
   /* Die Reglergrenzen muessen die zulaessigen 2 bis 14 Grad hergeben -
@@ -1980,6 +2009,114 @@ pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
   pruefe('Regler reicht bis 14 Grad bei 7 m Tiefe', g.max === soll,
          g.min + ' bis ' + g.max + ' mm (erwartet bis ' + soll + ')');
 })();
+/* SkyView hat ein festes Gefaelle. „bei skyview sind es immer 2 grad man
+   kann keine unterkante rinne und unterkante wandprofil eingeben"
+   (Betreiber, 12.10.2026). Beides muss zusammen stimmen: Das Modell neigt
+   die Sparren fest um 2°, UND die beiden Eingabewege duerfen dort gar
+   nicht erst auftauchen - sonst steht in der Anfrage eine Neigung, die
+   das System nicht hat. */
+pruefe('SkyView neigt fest um 2 Grad',
+       new RegExp(q || 'var neig = sky \\? 2 \\* Math\\.PI / 180').test(js),
+       'nicht aus Z.neigung gerechnet');
+pruefe('SkyView bietet keine Neigungseingabe',
+       new RegExp(q || "return Z\\.produkt === 'Terrassendach TDS' \\|\\| istCarportTds\\(\\)")
+         .test(js) &&
+       !/neigungMoeglich[\s\S]{0,120}Flachdach SkyView/.test(js),
+       'neigungMoeglich deckt nur TDS');
+pruefe('SkyView bietet keine Unterkanten-Eingabe',
+       new RegExp(q || 'function hoehenGetrennt\\(\\) \\{\\s*\n\\s*return neigungMoeglich\\(\\);')
+         .test(js), 'haengt an derselben Regel');
+
+/* ---------- Was in der Anfrage ankommt ----------
+   Gefunden am 12.10.2026: Sparrenzahl, Pfostenzahl, Statiktraeger,
+   Dachneigung und Hoehe an der Wand hingen allein an stueckliste(), also
+   an /api/bauteile. Die antwortet 503, solange DACHMATRIX nicht gebunden
+   ist – diese Angaben standen damit in KEINER Anfrage. Das faellt nicht
+   auf, weil die Anfrage trotzdem plausibel aussieht. Darum hier festhalten. */
+(function () {
+  var zus = (js.match(/function anfrageTexte?\(|teile\.push\('Eindeckung: '/) || [])[0];
+  var block = js.slice(js.indexOf("if (istCarport()) {\n      teile.push('Ausführung"),
+                       js.indexOf("teile.push('Eindeckung: ' + eindeckungFach());",
+                                  js.indexOf('var ed = ')) + 200);
+  if (!block || block.length < 200) {
+    pruefe('Anfragetext lesbar', false, 'Block nicht gefunden'); return;
+  }
+  /* Abwesenheitspruefung: Die Gegenprobe baut den alten Aufruf wieder
+     ein – schlaegt sie dann nicht an, prueft sie nichts. */
+  var blockGeprueft = gegen ? block + '\n      var ed = stueckliste();' : block;
+  pruefe('Anfrage haengt nicht mehr an /api/bauteile',
+         !/stueckliste\(\)/.test(blockGeprueft),
+         'Sparren, Pfosten und Traeger kommen aus bauteileJetzt()');
+  pruefe('Anfrage nennt Sparren, Pfosten und Traeger',
+         new RegExp(q || "' Sparren, ' \\+ pfostenText\\(ed\\)").test(block) &&
+         new RegExp(q || "ec\\.traeger \\? ', mit Statikträger'").test(block),
+         '');
+  /* Die Neigung darf NUR beim Terrassendach TDS dastehen – SkyView hat
+     ein festes Gefaelle von 2°, das nicht bestellt wird. */
+  pruefe('Neigung steht nur beim Terrassendach TDS in der Anfrage',
+         new RegExp(q || "if \\(Z\\.produkt === 'Terrassendach TDS'\\) \\{\\s*\\n\\s*teile\\.push\\('Dachneigung: ")
+           .test(block), '');
+  /* Alter Fehler: Hier stand neigungProzent(Z.neigung) statt der wirklich
+     geltenden Neigung – bei Weg 2 (Unterkante eingegeben) also die falsche
+     Zahl in der Bestellung. */
+  pruefe('Hoehe an der Wand nimmt die eingegebene Zahl',
+         new RegExp(q || "\\? Z\\.hoeheHinten : wandUkAus\\(neigungGrad\\(\\)\\)").test(block) &&
+         (gegen ? true : !/neigungProzent\(Z\.neigung\)/.test(block)),
+         'nicht aus den gerundeten Grad zurueckgerechnet');
+})();
+/* Keine zwei Wahrheiten: Hinweis unter den Massen und Anfrage muessen
+   dieselbe Pfostenzahl nennen. Beide rechnen in bauteileJetzt(). */
+pruefe('Hinweis und Anfrage rechnen an einer Stelle',
+       new RegExp(q || 'function bauteileJetzt\\(').test(js) &&
+       (js.match(new RegExp(q || 'bauteileJetzt\\(\\)', 'g')) || []).length >= 3 &&
+       (js.match(new RegExp(q || 'pfostenText\\(', 'g')) || []).length >= 3,
+       'bauteileJetzt() und pfostenText() an beiden Stellen');
+
+/* ---------- Alle Ansichten als PDF (12.10.2026) ----------
+   „wenn man auf alle bilder sichern geht sol anstatt ein bild, eine pdf
+   erstell werden ... die normalen ansichtsbilder alles im offenen zustnd"
+   (Betreiber). Auf Rueckfrage festgelegt: Hauptansichten mit EINGEFAHRENER
+   Markise und AUFGESCHOBENEN Schiebeelementen, Zusatzseiten umgekehrt. */
+pruefe('Menue bietet das PDF an',
+       new RegExp(q || '>PDF erstellen<').test(html) &&
+       (gegen ? true : !/Alle fünf in einem Bild/.test(html)), '');
+pruefe('PDF-Modul ist eingebunden',
+       new RegExp(q || 'js/pdf-blatt\\.js\\?v=').test(html), '');
+pruefe('Knopf stellt die alte Beschriftung wieder her',
+       new RegExp(q || "b\\.textContent = 'PDF erstellen';").test(js),
+       'sonst steht dort fuer immer „Wird erstellt"');
+pruefe('Fehlendes Modul meldet sich, statt stumm zu bleiben',
+       new RegExp(q || 'if \\(!window\\.BV_PDF\\)').test(js), '');
+/* Zustand MUSS ueber die Formularfelder gesetzt werden: aendern() liest
+   die Werte aus den Feldern zurueck und wuerde ein direkt gesetztes Z.*
+   sofort ueberschreiben. */
+pruefe('Zustand wird ueber die Felder gesetzt, nicht ueber Z',
+       new RegExp(q || 'function feldSetzen\\(id, wert\\)').test(js) &&
+       new RegExp(q || 'function zustandSetzen\\(felder\\)').test(js), '');
+pruefe('Hauptansichten: Markise eingefahren, Schiebeelemente offen',
+       new RegExp(q || "grund\\.k3dSonneAus = 0").test(js) &&
+       new RegExp(q || "grund\\.k3dGlasOffen = 100").test(js), '');
+pruefe('Zusatzseite: Markise ausgefahren',
+       new RegExp(q || "felder: \\{ k3dSonneAus: 100 \\}").test(js), '');
+pruefe('Zusatzseite: Schiebeelemente geschlossen',
+       new RegExp(q || "felder: \\{ k3dGlasOffen: 0 \\}").test(js), '');
+pruefe('Zusatzseite: Lamellen geschlossen',
+       new RegExp(q || "felder: \\{ k3dLamellen: 0 \\}").test(js), '');
+/* Wer ein PDF speichert, will danach nicht woanders stehen als vorher –
+   das galt schon fuer das einzelne Bild. */
+pruefe('Ansicht und Zustand werden zurueckgesetzt',
+       new RegExp(q || 'zustandSetzen\\(altGrund\\)').test(js) &&
+       new RegExp(q || 'Z\\.offenLinks = vorherOffen\\.links').test(js) &&
+       new RegExp(q || 'if \\(vorherAnsicht\\) ansichtAnwenden\\(vorherAnsicht\\)').test(js),
+       'auch die Oeffnungsgrade je Seite');
+pruefe('Leinwand wird fuer den Druck vergroessert und zurueckgestellt',
+       new RegExp(q || 'renderer\\.setSize\\(PDF_BREIT').test(js) &&
+       new RegExp(q || 'renderer\\.setPixelRatio\\(altR\\)').test(js) &&
+       new RegExp(q || 'renderer\\.setSize\\(altB, altH, false\\)').test(js), '');
+pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
+       new RegExp(q || "titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung\\(\\)")
+         .test(js), 'keine zweite Quelle');
+
 pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'grid-column: span 2').test(html) &&
        new RegExp(q || 'placeholder="7016"').test(html),

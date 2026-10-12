@@ -7216,29 +7216,40 @@
   /* ---------- Unterkante Rinne und Unterkante Wandprofil ----------
      „Hersteller koppelt die berechnung an Unterkante Rinne und
      Unterkante Wandprofil, dann wird durch die tiefe des daches und
-     andere angaben die grad zahl berechnet" (Betreiber, 12.10.2026).
+     andere angaben die grad zahl berechnet" (Betreiber, 12.10.2026),
+     dazu das Bestellformular und ein Rechenbeispiel:
 
-     Das sind die beiden Punkte, an denen vor Ort angerissen wird.
-     Vorher stand im Bedienfeld die Durchgangshöhe plus Gefälle über die
-     volle Tiefe – eine gedachte Linie, die je nach Neigung 23 bis 68 mm
-     ÜBER der Unterkante lag, die das Modell baut. Wer danach anreißt,
-     hängt das Profil zu hoch.
+       5000 breit, 3000 tief, UK Rinne 2200, UK Wandprofil 2500
+       → 6° laut Hersteller.
 
-     Jetzt wird dieselbe Kette gerechnet wie beim Aufbau des Daches:
-     Rinnenunterkante, Sparrenauflager in der Rinne, Gefälle über die
-     DACHtiefe (ohne Rinne und Wandprofil), Sparrenhöhe, Eindeckung,
-     Wandprofilhöhe. Die „anderen Angaben" des Herstellers sind genau
-     diese Profilmaße. Alles in Millimetern. */
+     DIESER FALL ENTSCHEIDET NICHT ALLES. Durchgerechnet wurden vier
+     Varianten, und alle vier runden auf 6°:
+       über die volle Tiefe                      5,71°
+       über die Dachtiefe ohne Rinne             6,09°
+       ohne Rinne und Wandprofil                 6,15°
+       zusätzlich mit den Profilhöhen gerechnet  6,46°
+     Weil das Formular nur ganze Grad zeigt, bleibt offen, welche es
+     ist. Gewählt ist die einfachste – „durch die tiefe des daches",
+     also über das Bestellmaß, ohne Abzüge. Ein zweiter Fall mit großer
+     Tiefe würde sie trennen (bei 7000 mm Tiefe und denselben Höhen:
+     2° über die volle Tiefe gegen 3° bei allen anderen); die Frage
+     steht in docs/NEXT_TASK.md.
+
+     Vorher stand hier kurzzeitig die Variante mit den Profilhöhen. Sie
+     ist zurückgenommen: Die Zahl im Bedienfeld ist die, die in die
+     Bestellung geht – sie muss der Hersteller nachrechnen können.
+
+     WAS DAS BEDEUTET: Die gezeichnete Unterkante des Wandprofils liegt
+     je nach Neigung 20 bis 70 mm unter dieser Zahl, weil das Modell mit
+     den (teils geschätzten) Profilmaßen baut. Welches Maß dafür nicht
+     stimmt – der Sparrensitz in der Rinne ist nur geschätzt –, gehört
+     geprüft; auch das steht in docs/NEXT_TASK.md. Alles in Millimetern. */
   function wandUkBasis() {
-    var glas = istPolycarbonat() ? 16 : Z.glasstaerke;
-    return Z.hoehe + RINNE.hoehe * 10 - RINNE.sparrenUnterNase * 10
-           - WANDPROFIL.hoehe * 10 + glas;
+    return Z.hoehe;
   }
 
-  /* Die Strecke, über die das Gefälle wirkt: Dachtiefe ohne Rinne und
-     ohne Wandprofil – dort sitzen die Sparren. */
   function wandUkSpanne() {
-    return Math.max(1, Z.tiefe - RINNE.breite * 10 - WANDPROFIL.tiefe * 10);
+    return Math.max(1, Z.tiefe);
   }
 
   function wandUkAus(grad) {
@@ -7267,6 +7278,47 @@
     if (unterzugGilt(tabelleBauteile(Z.breite, Z.tiefe))) return true;
     return gruppeGilt('vorsprung') && Z.vorsprung > 0;
   }
+  /* ---------- Sparren, Pfosten, Traeger: EINE Quelle ----------
+     Diese Zahlen stehen an zwei Stellen: im Hinweis unter den Maßen und in
+     der Anfrage, die beim Betrieb ankommt. Bis zum 12.10.2026 rechnete der
+     Hinweis mit der Maßtabelle, die Anfrage dagegen allein mit der Antwort
+     von /api/bauteile. Die antwortet 503, solange der KV-Namensraum
+     DACHMATRIX nicht gebunden ist – also standen Sparrenzahl, Pfostenzahl,
+     Statikträger und Dachneigung in KEINER Anfrage. Aufgefallen beim
+     Nachsehen, nicht durch eine Beschwerde.
+
+     Darum rechnen beide jetzt hier. Reihenfolge der Quellen wie überall:
+     Maßtabelle (js/masstabelle.js), und erst wo die nichts hergibt, gar
+     nichts – lieber keine Zahl in der Anfrage als eine geschätzte.
+     Sobald DACHMATRIX gebunden ist, gehört hier die Antwort von
+     /api/bauteile davorgeschaltet (stueckliste()). */
+  function bauteileJetzt() {
+    var tb = tabelleBauteile(Z.breite, Z.tiefe);
+    if (!tb) return null;
+    var vs = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
+    var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
+    var traeger = unterzugGilt(tb) || vs > 0 || wunsch;
+    return {
+      sparren: tb.sparren,
+      /* Unter einem Träger gilt die 7-m-Regel, sonst die Stützfußspalte
+         der Tabelle – siehe pfostenUnterTraeger(). */
+      pfostenVorne: traeger ? pfostenUnterTraeger(Z.breite) : tb.pfosten,
+      pfostenHinten: pfostenUnterTraeger(Z.breite),
+      traeger: traeger,
+      vorsprung: vs,
+      wunsch: wunsch,
+      lieferbar: tb.lieferbar,
+      breiteTabelle: tb.breiteTabelle
+    };
+  }
+
+  /* Pfosten in Worten, für Hinweis und Anfrage gleich. */
+  function pfostenText(bt) {
+    return (Z.aufbau === 'Freistehend' && bt.pfostenHinten !== bt.pfostenVorne)
+      ? bt.pfostenVorne + ' Pfosten vorne und ' + bt.pfostenHinten + ' hinten'
+      : bt.pfostenVorne + ' Pfosten je Reihe';
+  }
+
   function istLamellen() { return istPergola() && Z.pgDachart === 'Lamellendach'; }
 
   /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
@@ -7629,36 +7681,58 @@
       } else if (Z.cpVariante === 'Carport mit Überstand') {
         teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
       }
-      var ec = stueckliste();
-      if (ec && !ec.fehler) {
-        teile.push(ec.sparren + ' Sparren, ' + ec.pfosten + ' Pfosten in zwei Reihen');
-        teile.push('Dach: ' + ec.eindeckung);
-      } else {
-        /* Beim Flachdach-Carport ist die Eindeckung immer Trapezblech;
-           Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
-           was wie eine Alternative zum Blech klang. */
-        teile.push(istCarportTds()
-          ? 'Eindeckung: ' + eindeckungFach()
-          : 'Eindeckung: Trapezblech' +
-            (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
+      var ec = bauteileJetzt();
+      if (ec) {
+        teile.push(ec.sparren + ' Sparren, ' + ec.pfostenVorne +
+                   ' Pfosten in zwei Reihen' +
+                   (ec.traeger ? ', mit Statikträger' : ''));
+        if (ec.breiteTabelle !== Z.breite) {
+          teile.push('Gerechnet mit der nächsten lieferbaren Breite: ' +
+                     ec.breiteTabelle + ' mm');
+        }
+        if (!ec.lieferbar) {
+          teile.push('ACHTUNG: Tiefe über dem Höchstmaß – so nicht lieferbar');
+        }
       }
+      /* Beim Flachdach-Carport ist die Eindeckung immer Trapezblech;
+         Solar und Begrünung kommen darauf. Vorher stand hier „Dach: Solar",
+         was wie eine Alternative zum Blech klang. */
+      teile.push(istCarportTds()
+        ? 'Eindeckung: ' + eindeckungFach()
+        : 'Eindeckung: Trapezblech' +
+          (Z.cpDach === 'Trapezblech (Standard)' ? '' : ', darauf ' + Z.cpDach));
       teile.push('Farbe: ' + farbeText());
     } else {
       teile.push(Z.aufbau);
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm');
-      var ed = stueckliste();
-      if (ed && !ed.fehler) {
-        teile.push(ed.sparren + ' Sparren, ' + ed.pfosten + ' Pfosten' +
-                   (ed.statiktraeger ? ', mit Statikträger' : ''));
-        if (ed.geneigt) {
-          /* Die Höhe an der Wand gehört in die Anfrage, nicht nur ins
-             Bild: Danach wird das Wandprofil angerissen, und sie ergibt
-             sich erst aus Durchgangshöhe, Tiefe und Neigung zusammen. */
-          teile.push('Dachneigung: ' + neigungGrad() + '° (' +
-            String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
-          teile.push('Höhe an der Wand (UK Wandprofil): ' +
-            (Z.hoehe + Math.round(Z.tiefe * neigungProzent(Z.neigung) / 100)) + ' mm');
+      var ed = bauteileJetzt();
+      if (ed) {
+        teile.push(ed.sparren + ' Sparren, ' + pfostenText(ed) +
+                   (ed.traeger ? ', mit Statikträger' : ''));
+        if (ed.breiteTabelle !== Z.breite) {
+          teile.push('Gerechnet mit der nächsten lieferbaren Breite: ' +
+                     ed.breiteTabelle + ' mm');
         }
+        if (!ed.lieferbar) {
+          teile.push('ACHTUNG: Tiefe über dem Höchstmaß – so nicht lieferbar');
+        }
+      }
+      /* Nur das Terrassendach TDS wird nach Grad gefertigt. SkyView hat
+         ein festes Gefälle von 2° („bei skyview sind es immer 2 grad",
+         Betreiber 12.10.2026) – dort darf keine Neigung in der Anfrage
+         stehen, sonst wird nach einer Zahl bestellt, die es nicht gibt.
+
+         Die Höhe an der Wand gehört mit in die Anfrage, nicht nur ins
+         Bild: Danach wird das Wandprofil angerissen, und sie ergibt sich
+         erst aus Durchgangshöhe, Tiefe und Neigung zusammen. Hat der
+         Kunde sie selbst eingegeben (Weg 2), steht genau seine Zahl da –
+         nicht die über die gerundeten Grad zurückgerechnete. */
+      if (Z.produkt === 'Terrassendach TDS') {
+        teile.push('Dachneigung: ' + neigungGrad() + '° (' +
+          String(neigungProzent(neigungGrad())).replace('.', ',') + ' %)');
+        teile.push('Höhe an der Wand (UK Wandprofil): ' +
+          ((hoehenGetrennt() && Z.hoeheGetrennt)
+            ? Z.hoeheHinten : wandUkAus(neigungGrad())) + ' mm');
       }
       teile.push('Eindeckung: ' + eindeckungFach());
       teile.push('Farbe: ' + farbeText());
@@ -8005,17 +8079,15 @@
         /* Unter einem Statikträger gilt die 7-m-Regel, nicht die
            Stützfußspalte der Tabelle – siehe pfostenUnterTraeger(). Der
            Hinweis muss dieselbe Zahl nennen wie das Modell. */
-        var vsHin = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
-        var freiHin = Z.aufbau === 'Freistehend';
         /* Dieselbe Trennung wie im Modell: vorne nach dem Träger dort,
-           hinten nur freistehend und dann immer nach der 7-m-Regel. */
-        var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
-        var pfV = (unterzugGilt(tb) || vsHin > 0 || wunsch)
-          ? pfostenUnterTraeger(Z.breite) : tb.pfosten;
-        var pfH = pfostenUnterTraeger(Z.breite);
-        var pf = (freiHin && pfH !== pfV)
-          ? pfV + ' Pfosten vorne und ' + pfH + ' hinten'
-          : pfV + ' Pfosten je Reihe';
+           hinten nur freistehend und dann immer nach der 7-m-Regel.
+           Gerechnet in bauteileJetzt(), damit die Anfrage dieselben
+           Zahlen nennt wie dieser Hinweis. */
+        var bt = bauteileJetzt();
+        var vsHin = bt.vorsprung;
+        var wunsch = bt.wunsch;
+        var pfV = bt.pfostenVorne;
+        var pf = pfostenText(bt);
         if (tb.breiteTabelle !== Z.breite) {
           saetze.push('Gerechnet wird mit der nächsten lieferbaren Breite: <b>' +
             tb.breiteTabelle + ' mm</b> – daraus folgen ' + tb.sparren +
@@ -8025,7 +8097,7 @@
             '</b> bei diesem Maß.');
         }
         var vs = vsHin;
-        if (unterzugGilt(tb) || vs > 0 || wunsch) {
+        if (bt.traeger) {
           var grund = unterzugGilt(tb)
             ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
               ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
@@ -8089,7 +8161,7 @@
          Wandprofil. */
       whi.textContent = 'Von Unterkante Rinne (' + Z.hoehe + ' mm) über '
         + (wandUkSpanne() / 1000).toFixed(2).replace('.', ',')
-        + ' m Dachtiefe, Profilmaße eingerechnet.';
+        + ' m Dachtiefe – so rechnet auch das Bestellformular.';
     }
     var lw = document.getElementById('k3dLamellenWert');
     if (lw) lw.textContent = Z.lamellen + '° geöffnet';
@@ -8842,92 +8914,184 @@
     return bild;
   }
 
-  function bildAlle(fertig) {
-    /* KORREKTUR 11.10.2026: „das erstellen alles 5 bilder in einem bild
-       funktioniert nicht, steht nur wird erstellt, passiert nix"
-       (Betreiber, mit Bildschirmfoto).
+  /* ---------- Alle Ansichten als PDF ----------
+     Bis zum 12.10.2026 entstand hier EIN PNG mit fünf Ansichten
+     nebeneinander. „wenn man auf alle bilder sichern geht sol anstatt ein
+     bild, eine pdf erstell werden mit den wichtigsten ansichten, + wenn so
+     sachen gibt wie aufdach ode unterdachmarkisen, etc. auch davon bilder
+     im geschlossenen zustand, die normalen ansichtsbilder alles im offenen
+     zustnd" (Betreiber, 12.10.2026).
 
-       Der erste Versuch ging über fünf Image-Objekte: je Ansicht ein
-       Datenbild erzeugen, dessen onload abwarten und erst beim fünften
-       fertig melden. Bleibt auch nur ein onload aus – und bei mehreren
-       Megabyte großen Datenbildern passiert genau das –, wartet der
-       Knopf für immer.
+     Also: eine Seite je Ansicht, dazu Seiten für die beweglichen Teile im
+     jeweils anderen Zustand. Was „offen" heißt, hat der Betreiber auf
+     Rückfrage festgelegt: In den fünf Hauptansichten sind die Markisen
+     EINGEFAHREN (das Dach ist zu sehen) und die Schiebeelemente
+     AUFGESCHOBEN. Die Zusatzseiten zeigen das Gegenteil.
 
-       Jetzt wird gar nichts abgewartet: Eine Leinwand lässt sich direkt
-       in eine andere zeichnen. Fünfmal Ansicht einstellen, zeichnen,
-       hineinkopieren – alles in einem Durchgang, ohne Rückruf, der
-       verloren gehen kann. */
+     Der Lamellenwinkel bleibt in den Hauptansichten so, wie der Kunde ihn
+     eingestellt hat – er ist Teil der Konfiguration, kein Betriebszustand
+     wie eine Markise. Nur die Zusatzseite zeigt ihn geschlossen. */
+
+  /* Ein Formularfeld setzen und den alten Wert zurückgeben. Es reicht
+     NICHT, Z.* direkt zu setzen: aendern() liest die Werte aus den
+     Feldern zurück und würde die Änderung sofort überschreiben – derselbe
+     Weg, den auch sonneFahren() geht. */
+  function feldSetzen(id, wert) {
+    var e = document.getElementById(id);
+    if (!e) return null;
+    var alt = e.value;
+    e.value = wert;
+    return alt;
+  }
+
+  function zustandSetzen(felder) {
+    var alt = {};
+    Object.keys(felder).forEach(function (id) {
+      alt[id] = feldSetzen(id, felder[id]);
+    });
+    aendern();
+    return alt;
+  }
+
+  /* Welche beweglichen Teile hat diese Anlage? Jeder Eintrag wird zu einer
+     zusätzlichen Seite im anderen Zustand. */
+  function zustandsSeiten() {
+    var liste = [];
+    if (gruppeGilt('sonne-aus')) {
+      liste.push({
+        titel: 'Sonnenschutz ausgefahren',
+        hinweis: markiseName() + ' in Betrieb',
+        felder: { k3dSonneAus: 100 }
+      });
+    }
+    if (erwIrgendwo('Schiebetür')) {
+      liste.push({
+        titel: 'Schiebeelemente geschlossen',
+        hinweis: 'Glaswände und Schiebetüren zugeschoben',
+        felder: { k3dGlasOffen: 0 }
+      });
+    }
+    if (gruppeGilt('pg-lamellen')) {
+      liste.push({
+        titel: 'Lamellen geschlossen',
+        hinweis: 'Lamellendach bei Regen',
+        felder: { k3dLamellen: 0 }
+      });
+    }
+    if (istPergola() && Z.pgDachart === 'Velaris') {
+      liste.push({
+        titel: 'Velaris geschlossen',
+        hinweis: 'Lamellen zu' + (Z.velarisArt === 'verschiebbar'
+          ? ', Elemente zusammengeschoben' : ''),
+        felder: {
+          k3dVelarisWinkelOben: 0, k3dVelarisWinkelUnten: 0,
+          k3dVelarisOffen: Z.velarisArt === 'verschiebbar' ? 100 : 0
+        }
+      });
+    }
+    return liste;
+  }
+
+  function markiseName() {
+    if (Z.markise && Z.markise !== 'Ohne') return Z.markise;
+    return erwIrgendwo('Senkrechtmarkise') ? 'Senkrechtmarkise' : 'Sonnenschutz';
+  }
+
+  /* ---------- Die Bilder fürs PDF ----------
+     Die Leinwand wird dafür kurz auf Druckauflösung gestellt. Ohne das
+     käme das Bild in Bildschirmgröße ins PDF und wäre auf A4 quer sichtbar
+     grob – auf dem Handy sind das keine 400 Pixel Breite.
+     pixelRatio geht dabei auf 1, sonst rechnet three.js die Zielgröße ein
+     zweites Mal hoch und die Leinwand kommt in falscher Größe zurück. */
+  var PDF_BREIT = 1800;
+
+  function pdfSeiten() {
     var namen = ['Perspektive', 'Vorne', 'Seite', 'Von oben', 'Darunter'];
     var lw = renderer.domElement;
-    var breit = 900, hoch = Math.round(breit * lw.height / lw.width);
-    var rand = 14, kopf = 26;
-    var blatt = document.createElement('canvas');
-    blatt.width = breit * 2 + rand * 3;
-    blatt.height = (hoch + kopf) * 3 + rand * 4;
-    var c = blatt.getContext('2d');
-    c.fillStyle = '#111';
-    c.fillRect(0, 0, blatt.width, blatt.height);
-    var vorher = kam.ansicht;
-    namen.forEach(function (name, i) {
-      ansichtAnwenden(name);
+    var altB = lw.width, altH = lw.height, altR = renderer.getPixelRatio();
+    var vorherAnsicht = kam.ansicht;
+    /* Die Öffnungsgrade je Seite stehen nur in Z – aendern() setzt sie
+       bloß, wenn sich der gemeinsame Regler ändert. Darum von Hand
+       sichern und am Ende zurückschreiben. */
+    var vorherOffen = {
+      links: Z.offenLinks, rechts: Z.offenRechts, vorne: Z.offenVorne
+    };
+
+    if (altB < PDF_BREIT) {
+      renderer.setPixelRatio(1);
+      renderer.setSize(PDF_BREIT, Math.round(PDF_BREIT * altH / altB), false);
+    }
+
+    function schuss(ansicht) {
+      ansichtAnwenden(ansicht);
       renderer.render(szene, kamera3);
-      var sp = i % 2, ze = Math.floor(i / 2);
-      var x = rand + sp * (breit + rand);
-      var y = rand + ze * (hoch + kopf + rand);
-      c.fillStyle = '#fff';
-      c.font = '600 20px Inter, Arial, sans-serif';
-      c.fillText(name, x + 2, y + 19);
-      c.drawImage(lw, x, y + kopf, breit, hoch);
-    });
-    /* Das sechste Feld bleibt frei – dort stehen die Eckdaten.
-       „bei dem erstellten bild is ja unten rechts zumindest bei mobile
-       dieses schwarze freie rechteck, dort könnte man z.b die wichtigsten
-       eckdaten schreiben" (Betreiber, 11.10.2026).
+      /* JPEG statt PNG: Das PDF übernimmt die JPEG-Bytes unverändert
+         (DCTDecode). Ein PNG müsste erst entpackt und neu verpackt
+         werden – mehr Code und eine deutlich größere Datei. */
+      return renderer.domElement.toDataURL('image/jpeg', 0.9);
+    }
 
-       Vorher lief die Konfiguration als eine winzige Zeile über die
-       ganze Breite und war auf dem Handy nicht zu lesen. Jetzt steht sie
-       als Liste im freien Feld, in derselben Schriftgröße wie die
-       Überschriften der Ansichten. Die Angaben kommen aus
-       zusammenfassung() – derselben Liste, die auch in die Anfrage-Mail
-       geht. Keine zweite Quelle, die auseinanderlaufen kann. */
-    var ex = rand + (breit + rand), ey = rand + 2 * (hoch + kopf + rand) + kopf;
-    c.fillStyle = '#fff';
-    c.font = '600 20px Inter, Arial, sans-serif';
-    c.fillText('Ihre Konfiguration', ex + 2, ey - 7);
-    c.fillStyle = '#17191b';
-    c.fillRect(ex, ey, breit, hoch);
-    c.strokeStyle = 'rgba(255,255,255,.18)';
-    c.strokeRect(ex + 0.5, ey + 0.5, breit - 1, hoch - 1);
+    var fuss = 'Unverbindliche Darstellung - verbindlich ist unser Angebot nach dem ' +
+               'kostenlosen Aufmass vor Ort. (C) ' + new Date().getFullYear() +
+               ' BV AussenSysteme';
+    var kopf = produktName() + ', ' + Z.breite + ' x ' + Z.tiefe + ' mm';
+    var seiten = [];
 
-    var zeilen = zusammenfassung();
-    var innen = 26, zeile = 30, y = ey + innen + 26;
-    c.fillStyle = '#C49A2A';
-    c.font = '700 30px Inter, Arial, sans-serif';
-    c.fillText(zeilen[0], ex + innen, y);
-    y += zeile + 8;
-    c.font = '21px Inter, Arial, sans-serif';
-    zeilen.slice(1).forEach(function (t) {
-      if (y > ey + hoch - innen - 40) return;        // mehr passt nicht
-      c.fillStyle = 'rgba(255,255,255,.88)';
-      /* Zu lange Angaben werden abgeschnitten statt umgebrochen – ein
-         Umbruch mitten im Satz liest sich schlechter als drei Punkte. */
-      var txt = t;
-      while (c.measureText(txt).width > breit - innen * 2 && txt.length > 8) {
-        txt = txt.slice(0, -2);
-      }
-      c.fillText(txt === t ? t : txt + '…', ex + innen, y);
-      y += zeile;
+    /* 1. Grundzustand: Markisen eingefahren, Schiebeelemente offen. */
+    var hatSchiebe = erwIrgendwo('Schiebetür');
+    var grund = {};
+    if (gruppeGilt('sonne-aus')) grund.k3dSonneAus = 0;
+    if (hatSchiebe) grund.k3dGlasOffen = 100;
+    var altGrund = zustandSetzen(grund);
+
+    namen.forEach(function (name) {
+      seiten.push({
+        titel: name, rechts: kopf, unten: fuss, bild: schuss(name)
+      });
     });
-    c.fillStyle = 'rgba(255,255,255,.55)';
-    c.font = '17px Inter, Arial, sans-serif';
-    c.fillText('Unverbindliche Darstellung – verbindlich ist unser Angebot',
-               ex + innen, ey + hoch - innen - 20);
-    c.fillText('nach dem kostenlosen Aufmaß vor Ort. © ' +
-               new Date().getFullYear() + ' BV AussenSysteme',
-               ex + innen, ey + hoch - innen + 2);
-    if (vorher) ansichtAnwenden(vorher);
+
+    /* 2. Die Konfiguration in Worten – dieselbe Liste wie in der Anfrage,
+       damit beide nicht auseinanderlaufen. */
+    seiten.push({
+      titel: 'Ihre Konfiguration', unten: fuss, zeilen: zusammenfassung()
+    });
+
+    /* 3. Je bewegliches Teil eine Seite im anderen Zustand. */
+    zustandsSeiten().forEach(function (zu) {
+      var alt = zustandSetzen(zu.felder);
+      seiten.push({
+        titel: zu.titel, rechts: zu.hinweis, unten: fuss,
+        bild: schuss('Perspektive')
+      });
+      zustandSetzen(alt);
+    });
+
+    /* Alles zurück auf den Stand von vor dem Knopfdruck. */
+    zustandSetzen(altGrund);
+    Z.offenLinks = vorherOffen.links;
+    Z.offenRechts = vorherOffen.rechts;
+    Z.offenVorne = vorherOffen.vorne;
+    if (altB < PDF_BREIT) {
+      renderer.setPixelRatio(altR);
+      renderer.setSize(altB, altH, false);
+    }
+    if (vorherAnsicht) ansichtAnwenden(vorherAnsicht);
+    aendern();
     neuZeichnen();
-    fertig(blatt.toDataURL('image/png'));
+    return seiten;
+  }
+
+  function pdfLaden(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 4000);
   }
 
   var bildBtn = document.getElementById('k3dBild');
@@ -8952,25 +9116,32 @@
         var was = b.getAttribute('data-k3d-bild');
         autoDreht = false;
         if (was === 'alle') {
-          /* Das Blatt entsteht in einem Durchgang und blockiert dabei
-             kurz. Damit „Wird erstellt …" vorher auch wirklich auf dem
-             Schirm steht, wird erst nach zwei Bildern losgelegt – sonst
-             rechnet der Browser, bevor er den neuen Text gezeichnet hat.
-             Und falls unterwegs etwas schiefgeht, steht am Knopf wieder
-             die Beschriftung statt für immer „Wird erstellt". */
+          /* Das PDF entsteht in einem Durchgang und blockiert dabei kurz.
+             Damit „Wird erstellt …" vorher auch wirklich auf dem Schirm
+             steht, wird erst nach zwei Bildern losgelegt – sonst rechnet
+             der Browser, bevor er den neuen Text gezeichnet hat. Und
+             falls unterwegs etwas schiefgeht, steht am Knopf wieder die
+             Beschriftung statt für immer „Wird erstellt". */
           b.classList.add('ist-laeuft');
           b.textContent = 'Wird erstellt …';
           var zurueck = function () {
             b.classList.remove('ist-laeuft');
-            b.textContent = 'Alle fünf in einem Bild';
+            b.textContent = 'PDF erstellen';
           };
           requestAnimationFrame(function () {
             requestAnimationFrame(function () {
               try {
-                bildAlle(function (url) {
-                  bildLaden(url, bildName('alle-Ansichten'));
-                  menuZeigen(false);
-                });
+                /* Fehlt das PDF-Modul (alter Zwischenspeicher im
+                   Browser), bleibt der Knopf nicht stumm stehen. */
+                if (!window.BV_PDF) {
+                  alert('Das PDF konnte nicht erstellt werden. ' +
+                        'Bitte die Seite neu laden und noch einmal versuchen.');
+                  return;
+                }
+                var seiten = pdfSeiten();
+                pdfLaden(window.BV_PDF.erzeugen(seiten, { titel: produktName() }),
+                         bildName('Ansichten').replace(/\.png$/, '.pdf'));
+                menuZeigen(false);
               } finally { zurueck(); }
             });
           });

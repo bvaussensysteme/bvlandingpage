@@ -260,10 +260,20 @@ else {
          gegen ? rohV === rohH : rohV !== rohH,
          'freistehend ohne Vorsprung: ' + rohV + ' vorne / ' + rohH + ' hinten');
 }
-pruefe('Hinweis trennt die Reihen genauso',
-       new RegExp(q || "pfV \\+ ' Pfosten vorne und ' \\+ pfH \\+ ' hinten'").test(k3d), '');
-pruefe('Hinweis: vordere Zahl aus dem vorderen Träger',
-       new RegExp(q || 'pfV = \\(unterzugGilt\\(tb\\) \\|\\| vsHin > 0 \\|\\| wunsch\\)').test(k3d), '');
+/* Seit 12.10.2026 rechnen Masshinweis UND Anfrage in bauteileJetzt() –
+   vorher stand die Pfostenrechnung nur im Hinweis, und die Anfrage hing an
+   /api/bauteile, die 503 antwortet. Die Trennung der Reihen muss also dort
+   stehen, und beide Stellen muessen sie benutzen. */
+pruefe('Reihen werden getrennt gezaehlt',
+       new RegExp(q || "bt\\.pfostenVorne \\+ ' Pfosten vorne und ' \\+ bt\\.pfostenHinten \\+ ' hinten'")
+         .test(k3d), 'in pfostenText()');
+pruefe('Vordere Zahl haengt am vorderen Träger',
+       new RegExp(q || 'pfostenVorne: traeger \\? pfostenUnterTraeger\\(Z\\.breite\\) : tb\\.pfosten')
+         .test(k3d), 'in bauteileJetzt()');
+pruefe('Hinweis rechnet die Pfosten nicht selbst',
+       new RegExp(q || 'var pf = pfostenText\\(bt\\);').test(k3d) &&
+       (gegen ? true : !/var pfH = pfostenUnterTraeger\(Z\.breite\);/.test(k3d)),
+       'nimmt dieselbe Quelle wie die Anfrage');
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
@@ -1235,7 +1245,9 @@ pruefe('Haekchen nennt die geringere Durchgangshoehe',
 pruefe('Wunsch erzeugt den Traeger im Modell',
        new RegExp(q || 'vorspr > 0 \\|\\|\\s*Z\\.traegerWunsch').test(k3d), '');
 pruefe('Wunsch zaehlt auch im Masshinweis',
-       new RegExp(q || 'unterzugGilt\\(tb\\) \\|\\| vsHin > 0 \\|\\| wunsch').test(k3d), '');
+       new RegExp(q || 'traeger = unterzugGilt\\(tb\\) \\|\\| vs > 0 \\|\\| wunsch').test(k3d) &&
+       new RegExp(q || 'if \\(bt\\.traeger\\) \\{').test(k3d),
+       'eine Entscheidung, von Hinweis und Anfrage genutzt');
 pruefe('Haekchen entfaellt, wenn der Traeger ohnehin noetig ist',
        new RegExp(q || "case 'traeger-wunsch'").test(k3d) &&
        new RegExp(q || '!traegerSchonNoetig\\(\\)').test(k3d), '');
