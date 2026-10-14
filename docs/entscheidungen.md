@@ -5801,3 +5801,80 @@ mitgezogen.
 Deckel muss die Rinne oben knapp und unten deutlich überragen, seine
 hintere Kante schräg stehen, und der Rinnenflansch hinten unten darf
 herausschauen.
+
+### 14.10.2026 – Wandprofil: echtes Profil statt Quader, und es deckt die Glasleiste ab
+
+> „das wandprofil is zu tief brudiiiiiii das musst du doch sehen, die
+> glasleiten können dochnicht höher wie das profil sein amk"
+> (Betreiber, mit zwei Bildschirmfotos der Seitenansicht)
+
+Drei Fehler auf einmal, alle im Bild zu sehen.
+
+**1. Der Seitendeckel stand 5 cm frei in der Luft.** Die Einzelteileliste
+nennt den Seitendeckel Wandprofil TD (6013) mit 146,27 × 89,16 mm. Das
+Wandprofil lädt aber nur 38,6 mm aus. Der Deckel ragte damit um gut 5 cm
+vor das Profil hinaus – das ist der schwarze Klotz auf dem Bild. Gezeichnet
+wird er jetzt profilbündig (38,6 + 2 mm Überstand), die Höhe 146,27 bleibt.
+
+*Bewusste Abweichung vom belegten Maß, und sie ist nicht geklärt:* Was die
+89,16 mm am echten Teil sind, weiß ich nicht. Entweder deckt der Deckel
+außer dem Profil noch die Stirnseite des äußeren Sparrens mit ab
+(38,6 + 50 = 88,6 – das käme fast genau hin), oder das Maß ist über den
+Bogen abgewickelt. **Das muss am Teil nachgesehen werden.**
+
+**2. Die Glasleiste stand über dem Profil.** Die Oberkante des Profils hing
+an der Glas*oberseite* – auf dem Glas sitzt aber noch die Abdeckleiste,
+22,6 mm hoch. Genau um dieses Maß stand sie über. Die Vorgabe dazu stand
+seit dem 11.10.2026 im Code („das wandprofil soll die glasleisten abdecken
+also selbe höhe bis zu den glasleisten"), umgesetzt war sie nur bis zur
+Scheibe.
+
+*Dabei wurde ein Konflikt sichtbar, der vorher niemandem auffiel:* Sparren
+(120 mm) + Glas (8) + Abdeckleiste (22,6) sind zusammen 150,6 mm, das
+Profil ist 143,6 mm hoch. **Beides gleichzeitig geht nicht** – entweder
+steht die Leiste oben über oder der Sparren unten vor. Nach der Vorgabe des
+Betreibers schließt das Profil oben ab; der Sparren steht unten um 7 mm
+vor. Die Prüfung rechnet diesen Überstand nach und lässt höchstens 10 mm
+zu – mehr wäre ein Rechenfehler, nicht die Bauart.
+
+**3. Das Profil war ein glatter Quader.** Gebaut wurde es mit
+`balken(...)`, also als massiver Block.
+
+> „die unterseite hier auf dem bild die zwei offenen kammern müssen nach
+> rechts gucken nicht nach unten"
+
+> „links die flache seite muss bündig an der wand anliegen quasi is das
+> profil dann etwas geneigt"
+
+> „ja die vorderseite is geneigt weil die sparren die in der kammer liegen
+> haben ja gefälle nach vorne"
+
+Jetzt ein gezogenes Profil: geschlossene Rückwand an der Wand, drei
+Schenkel nach vorne, dazwischen zwei nach vorne offene Kammern. Die
+Vorderkante läuft keilig – oben 38,6 mm, unten 37 mm, beide Maße aus der
+Zeichnung zu 15188; der Grund dafür steht jetzt als Kommentar an der
+Stelle.
+
+**Was ich falsch gelesen hatte:** Ich hatte zuerst geschlossen, 143,6 sei
+die Tiefe und 38,6 die Höhe – die siebte Auflage derselben Falle. Der
+Betreiber hat sofort widersprochen: „143,6 is höhe, 37 is breite unten,
+38,6 is breite oben". Der Code hatte es an dieser Stelle richtig.
+
+**Absicherung:** vier Prüfungen, jede einzeln mit einer echten
+Verfälschung gegengeprüft:
+
+| Verfälschung | schlägt an |
+|---|---|
+| wieder `balken(...)` statt Profil | „Wandprofil wird nicht ersetzt" |
+| Deckel wieder 89,16 tief | „Seitendeckel steht nicht vor dem Wandprofil" |
+| Oberkante wieder nur bis Glas | „Wandprofil deckt die Glasleiste ab" |
+| Mittelsteg entfernt | „Profil mit zwei Kammern, kein Quader" |
+
+Die letzte rutschte im ersten Anlauf **durch** – sie zählte nur Ecken, und
+ein Profil ohne Mittelsteg hat genauso viele. Sie zählt jetzt die Punkte,
+die vorne an den Schenkeln liegen (sechs: zwei je Schenkel).
+
+**Was gegengelesen werden soll:** TDS von der Seite und von unten. Der
+Deckel darf nicht mehr vor dem Profil schweben, die Glasleisten müssen an
+der Wand unter dem Profil verschwinden, und von unten müssen die zwei
+Kammern zu sehen sein.
