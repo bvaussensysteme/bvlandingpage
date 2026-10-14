@@ -5922,3 +5922,37 @@ nur die zuständige Prüfung rot gemacht.
 muss in der unteren Öffnung stecken und an der Profilrückwand anstoßen, die
 Glasleiste in der oberen Öffnung liegen. Kein Spalt zwischen Sparrenstirn
 und Profil.
+
+### 14.10.2026 – Seitendeckel Wandprofil: die 89,16 mm stimmen doch
+
+> „der seitendeckel für das wandprofil ist unterdeminsioniert bzw. in der
+> höhe ok aber in der breite etwas zu schmal" (Betreiber, mit Bild)
+
+Wenige Stunden vorher war der Deckel (6013) hier von 89,16 mm auf
+Profiltiefe gestutzt worden, weil er im Bild 5 cm frei vor dem Profil zu
+schweben schien. **Das war die falsche Abhilfe für ein echtes Problem.**
+Der Grund für das Schweben war nicht der Deckel, sondern dass die Sparren
+damals erst *vor* dem Profil begannen – der Bereich, den er abdeckt, war
+schlicht leer.
+
+Seit die Sparren in der unteren Kammer stecken und nach vorne weiterlaufen,
+ist klar, was die 89,16 mm sind: **Profil (38,6) + Stirnseite des äußeren
+Sparrens (rund 50).** Beide Maße des Deckels sind damit belegt und bleiben:
+146,27 hoch × 89,16 breit.
+
+**Lehre, schon wieder dieselbe:** Ein Teil, das im Bild falsch aussieht,
+ist nicht automatisch falsch bemaßt. Hier hing es an einem *anderen* Teil,
+das nicht an seinem Platz war. Die Korrektur war eine Woche Arbeit am
+falschen Ende – gerettet nur dadurch, dass der Betreiber sofort
+widersprochen hat.
+
+**Absicherung:** Die Prüfung misst jetzt nicht mehr nur den Deckel, sondern
+auch, ob der Bereich davor überhaupt gefüllt ist (also ob die Sparren im
+Profil beginnen). Gegengeprüft mit zwei Verfälschungen: Deckel wieder
+gestutzt → schlägt an; Sparren wieder vor dem Profil → schlägt ebenfalls
+an, obwohl der Deckel unverändert ist. Genau diese zweite Verfälschung
+hätte den ursprünglichen Fehler gefunden.
+
+**Was gegengelesen werden soll:** TDS schräg von vorne an der Wand. Der
+Deckel muss das Profil UND die Sparrenstirn abdecken und dabei am Sparren
+anliegen, nicht davor schweben.

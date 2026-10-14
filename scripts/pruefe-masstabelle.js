@@ -625,16 +625,26 @@ pruefe('Wandprofil deckt die Glasleiste ab',
          gegen ? !untenOk : untenOk,
          (untenKammer * 10).toFixed(1) + ' mm Kammer für 120 mm Sparren');
 
-  /* Der Seitendeckel darf nicht vor dem Profil in der Luft stehen. Die
-     Liste nennt 89,16 mm – bei 38,6 mm Ausladung waeren das 5 cm frei
-     vorstehendes Blech. Bewusste Abweichung, siehe Kommentar im Code. */
+  /* Der Seitendeckel ist mit 89,16 mm mehr als doppelt so tief wie das
+     Profil (38,6) – er deckt die Stirn des aeusseren Sparrens mit ab.
+     „in der höhe ok aber in der breite etwas zu schmal" (Betreiber,
+     14.10.2026), nachdem er hier kurzzeitig auf Profiltiefe gestutzt
+     war. Das belegte Mass gilt.
+
+     Geprueft wird deshalb BEIDES: das Mass selbst und dass der Bereich
+     davor ueberhaupt gefuellt ist – also dass die Sparren im Profil
+     beginnen. Waeren sie es nicht, stuende der Deckel wieder in der
+     Luft, und genau das war der Fehler, der ihn hat schrumpfen
+     lassen. */
   var deckel = +dl[1];
-  var buendig = deckel >= WANDPROFIL.tiefe &&
-                deckel <= WANDPROFIL.tiefe + 0.3;
-  pruefe('Seitendeckel steht nicht vor dem Wandprofil',
-         gegen ? !buendig : buendig,
-         (deckel * 10).toFixed(1) + ' mm Deckel gegen ' +
-         (WANDPROFIL.tiefe * 10).toFixed(1) + ' mm Profil');
+  var sparrenImProfil = /zSpHinten = sky \? wpT : WANDPROFIL\.wand;/.test(k3d);
+  var deckelOk = Math.abs(deckel - 8.916) < 0.001 &&
+                 deckel > WANDPROFIL.tiefe && sparrenImProfil;
+  pruefe('Seitendeckel deckt Profil und Sparrenstirn ab (89,16 mm)',
+         gegen ? !deckelOk : deckelOk,
+         (deckel * 10).toFixed(2) + ' mm Deckel, Profil ' +
+         (WANDPROFIL.tiefe * 10).toFixed(1) + ' mm, Sparren ' +
+         (sparrenImProfil ? 'im Profil' : 'DAVOR'));
 })();
 
 /* ---------- Serienfarben je System ----------
