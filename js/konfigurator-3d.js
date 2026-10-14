@@ -5626,9 +5626,22 @@
        Sparren, und nach vorne faellt er um die Luft, die uebrig bleibt
        (siehe skyLuft). So bleibt alles im Rahmen – das war der Fehler
        vom 14.10.2026, der die Sparren oben herausstehen liess. */
+    /* KORREKTUR 14.10.2026: „der hintere schenkel der rinne guckt durch
+       das glas und die glasleisten durch" (Betreiber).
+
+       sparrenUnterNase sagt, wie weit die EINDECKUNG unter der Rinnennase
+       liegt. Gerechnet wurde sie bis heute gegen die Sparrenoberkante
+       (spH, 120 mm) – seit die Scheibe auf dem Hauptkoerper liegt
+       (96,7 mm), sind das 23,3 mm zu tief. Die Scheibe lag damit UNTER
+       der Oberkante der hinteren Rinnenwange (die 34 mm unter der Nase
+       liegt), und die Wange stach durch Glas und Leisten.
+
+       Nachgerechnet bei hRinne = 0: Glasunterseite jetzt 120,7 mm,
+       hintere Wange 102,7 mm – 18 mm Luft. Vorher lag die Scheibe bei
+       97,4 mm, also 5,3 mm UNTER der Wange. */
     var ukVornJetzt = sky
       ? hRinne + riH - skyGlas - spH - Math.tan(neig) * T
-      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
+      : hRinne + (riH - RINNE.sparrenUnterNase - SPARREN.koerper);
     var dachTiefeJetzt = sky ? T : T - RINNE.breite;
     var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
     /* Oberkante des Trägers: ohne Vorsprung die Rinnenunterkante, mit
@@ -5963,7 +5976,7 @@
        Glasebene und das Dach anders als die Pfosten. */
     var ukVorn = sky
       ? hRinne + riH - skyGlas - spH - Math.tan(neig) * T
-      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
+      : hRinne + (riH - RINNE.sparrenUnterNase - SPARREN.koerper);
 
     /* KORREKTUR 11.10.2026, zweiter Anlauf. Zwischendurch stand hier ein
        KEILSPARREN: unten waagerecht, nach hinten ansteigend, damit das

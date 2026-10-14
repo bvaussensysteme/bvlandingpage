@@ -6250,3 +6250,40 @@ hält.
 **Was gegengelesen werden soll:** Stirnseite der Rinne von schräg vorne.
 Die Blende muss die Rinne vollständig verdecken; unten eine deutlich
 größere Abschrägung als oben.
+
+### 14.10.2026 – Folgefehler: Die Rinnenwange stach durch Glas und Leisten
+
+> „und der hintere schenkel der rinne guckt durch das glas und die
+> glasleisten durch" (Betreiber)
+
+**Ein Folgefehler meiner eigenen Korrektur vom selben Tag.** Als die
+Scheibe vom Sparrenkopf (120 mm) auf den Hauptkörper (96,7 mm) rutschte,
+ist eine zweite Formel nicht mitgegangen: Die Höhenlage des ganzen Dachs an
+der Rinne (`ukVorn`) rechnete `sparrenUnterNase` weiter gegen die
+**Sparrenoberkante**. Das Dach saß damit 23,3 mm zu tief – und die hintere
+Rinnenwange, die 34 mm unter der Nase liegt, stand im Glas.
+
+Nachgerechnet bei Rinnenunterkante 0:
+
+| | vorher | jetzt |
+|---|---|---|
+| Glasunterseite | 97,4 mm | 120,7 mm |
+| hintere Wange | 102,7 mm | 102,7 mm |
+| Luft | **−5,3 mm** | +18,0 mm |
+
+**Warum es keine Prüfung gefunden hat:** Es gab keine, die Rinne und
+Eindeckung gegeneinander stellte – dieselbe Lücke wie beim Deckel. Die
+neue rechnet die Glasebene aus denselben Maßen nach und verlangt Luft über
+der Wange; ihre Gegenprobe rechnet wieder gegen den Sparrenkopf und trifft
+damit genau den gemeldeten Fehler. Eine zweite hält fest, dass die Formel
+im Code gegen `SPARREN.koerper` rechnet.
+
+**Lehre, die sich an diesem Tag zum dritten Mal zeigt:** Wenn eine
+Bezugsgröße wandert (hier die Glasebene), muss man alle Formeln suchen,
+die daran hingen – nicht nur die, die den Fehler verursacht hat. Beim
+ersten Mal war es der Seitendeckel, beim zweiten die Kammern des
+Wandprofils, jetzt die Höhenlage an der Rinne.
+
+**Was gegengelesen werden soll:** Dachfläche an der Rinne von schräg oben.
+Zwischen Scheibe und Rinnenwange müssen rund 18 mm Luft sein; nichts darf
+durch das Glas stoßen.

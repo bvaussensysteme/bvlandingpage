@@ -692,6 +692,39 @@ pruefe('Wandprofil deckt die Glasleiste ab',
          (sparrenImProfil ? 'im Profil' : 'DAVOR'));
 })();
 
+/* ---------- Die Rinne darf nicht durch die Eindeckung stechen ----------
+   „der hintere schenkel der rinne guckt durch das glas und die glasleisten
+   durch" (Betreiber, 14.10.2026).
+
+   Die hintere Wange der Rinne liegt 34 mm unter der Nase; die Scheibe
+   liegt sparrenUnterNase (16 mm) unter der Nase. Dazwischen muessen
+   mindestens ein paar Millimeter Luft bleiben – sonst steht die Wange im
+   Glas. Der Fehler entstand, als die Glasebene vom Sparrenkopf auf den
+   Sparrenkoerper rutschte und diese Formel nicht mitging. */
+(function () {
+  var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
+  var spLit = (k3d.match(/var SPARREN = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!rinLit || !spLit) { pruefe('Masse für die Glasebene lesbar', false, ''); return; }
+  var RINNE = eval('(' + rinLit.replace(/^var RINNE = /, '').replace(/;$/, '') + ')');
+  var SPARREN = eval('(' + spLit.replace(/^var SPARREN = /, '').replace(/;$/, '') + ')');
+
+  /* Gerechnet wie im Code, nur mit hRinne = 0. gegen: wieder gegen den
+     Sparrenkopf statt den Koerper – genau der gemeldete Fehler. */
+  var auflage = gegen ? SPARREN.hoehe : SPARREN.koerper;
+  var ukVorn = RINNE.hoehe - RINNE.sparrenUnterNase - auflage;
+  var glasUnten = ukVorn + SPARREN.koerper;
+  var wangeOk = RINNE.hoehe - RINNE.wangeAb;
+  var luft = glasUnten - wangeOk;
+  pruefe('Hintere Rinnenwange bleibt unter der Scheibe',
+         luft > 0.5,
+         (luft * 10).toFixed(1) + ' mm Luft (Scheibe ' + (glasUnten * 10).toFixed(1) +
+         ', Wange ' + (wangeOk * 10).toFixed(1) + ' mm)');
+  pruefe('Die Formel rechnet gegen den Sparrenkörper',
+         new RegExp(q || 'riH - RINNE\\.sparrenUnterNase - SPARREN\\.koerper').test(k3d) &&
+         (gegen || !/riH - RINNE\.sparrenUnterNase - spH/.test(k3d)),
+         'nicht gegen die Sparrenoberkante');
+})();
+
 /* ---------- Blende vor der unteren Kammer (16912) ----------
    „und jz kommt zwischen jeden sparrenabstand, ans wandprofil ne blende
    das man das innenleben also die kammern etc nicht sieht … bzw das man
