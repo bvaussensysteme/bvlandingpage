@@ -5654,3 +5654,33 @@ Seite nach außen. Seitlich stimmte es, deshalb fiel es dort nicht auf
 Aufrufs, wohin die Rillen zeigen – vorne nach +z, hinten nach −z,
 seitlich nach außen. Eine Textsuche hätte das nicht gefunden: Im Code
 stand eine plausible Zahl, nur mit falschem Vorzeichen.
+
+## 2026-10-14 – SkyView: Seitenelemente schließen waagerecht an
+
+**Anlass:** „man sieht beim sky das rahmenwand, etc. der rahmen oben
+schief unter die blende geht, beim sky ist alles immer rechtwinklig an
+der blende unterkante" (Betreiber, mit Bildschirmfoto der Unteransicht).
+
+**Was falsch war:** Rahmenwand, Schiebetür und Plankenwand bekamen auch
+beim SkyView die **geneigte Dachunterkante** als Oberkante – dieselbe
+Rechnung wie beim TDS. Dort ist das richtig, weil die Dachunterseite
+wirklich schräg ist. Beim SkyView liegt darüber der waagerechte Rahmen;
+das Gefälle steckt innen und ist verdeckt.
+
+**Was jetzt gilt:** Beim SkyView enden die Seitenelemente an der
+Blendenunterkante, rechtwinklig. Übergeben wird dafür **beides**:
+Neigung 0 und eine Dachunterkante, die für jede Tiefe dieselbe Höhe
+liefert. Nur eines von beiden reicht nicht – die Profile richten sich
+nach der Neigung, ihre Länge nach der Unterkante.
+
+**Kein Problem ist der Keil:** Er ist beim SkyView ohnehin gesperrt
+(`keilErlaubt()` lässt nur TDS und Carport TDS zu) – sonst stünde dort
+jetzt ein Dreieck ohne Schräge.
+
+**Absicherung:** Die Prüfung ruft die übergebene Funktion selbst auf und
+vergleicht vier Tiefen: Sie muss überall dieselbe Höhe liefern. Eine
+Textsuche hätte nicht gezeigt, ob die Höhe wirklich konstant ist.
+
+**Was gegengelesen werden soll:** SkyView mit Rahmenwand oder
+Schiebetüren, Ansicht „Darunter". Die Elemente müssen oben eine gerade,
+waagerechte Kante an der Blende haben.
