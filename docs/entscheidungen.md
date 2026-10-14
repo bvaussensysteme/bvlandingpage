@@ -5390,3 +5390,66 @@ eben im Fuß.
 lieferbaren Breite" nicht mehr stehen, in der Anfrage-Mail dagegen schon.
 Hinter den Schiebeanlagen darf kein „(Vorschlag …)" mehr stehen; unten
 müssen zwei kursive Zeilen stehen.
+
+## 2026-10-14 – SkyView: Profilmaße belegt, Rahmen halb so hoch
+
+**Anlass:** „wieso sind im 3d konfigurator die pfosten von skyview so dünn
+wir haben pfosten die sind 110x110" (Betreiber).
+
+**Was falsch war – und was nicht:** Die Pfosten stimmten. Belegt sind sie
+sogar doppelt: im Modell seit jeher 110 × 110, und die Einzelteile-Liste
+des Herstellers führt „Pfosten 110 × 110 × 2,5 mm" (Artikel 15190).
+Falsch war der **Rahmen darüber**: Er wuchs im Modell mit der Dachtiefe
+auf 268 bis 355 mm – also auf das Zwei- bis Dreifache der Pfostenbreite.
+Dagegen sieht jeder Pfosten schmal aus.
+
+**Woher die neuen Maße kommen:** Der Betreiber hat die Einzelteile-Liste
+geschickt (Stand 07.10.2026). Sie liegt **nicht im Projekt** – sie enthält
+Preise und fällt unter das Datenbankherstellerrecht; verarbeitet wurde sie
+nur im Scratchpad. Übernommen sind ausschließlich die Querschnittsmaße,
+jeweils mit Artikelnummer zum Nachschlagen:
+
+| Profil | Artikel | Belegt | Vorher im Modell |
+|---|---|---|---|
+| Pfosten | 15190 | 110 × 110 × 2,5 | 110 × 110 (richtig) |
+| Rinne 2 TD | 16913 | 186,3 × 136,7 | 186,3 × 136,7 (richtig) |
+| Träger TD | 15698 | Kasten 96,7 × 61, mit Nut 120 | 140 tief (falsch) |
+| Rinnen Blende Sky | 6079 | 89,3 breit, 29,8 / 55 hoch | fehlte |
+| Seitenblende Sky | 6069 | 252 × 38,9 | als hohe Blende modelliert (falsch) |
+
+**Der Grundfehler:** Ich hatte die „Seitenblende Sky" für die hohe
+Außenblende gehalten. Sie ist mit 38,9 mm Schenkel ein flaches
+Winkelprofil, das die Sparrenenden abdeckt. **Im ganzen System gibt es
+kein Profil über 136,7 mm Höhe** – der Rahmen kann also gar nicht höher
+sein.
+
+**Wie das Gefälle hineinpasst:** Das war die Frage, an der ich zweimal
+falsch abgebogen bin. Die Antwort steht in der Montageanleitung und im
+Bild des Betreibers: **Der Sparren ist vorne ausgeklinkt**, 65 mm tief und
+86 mm hoch, und taucht damit in die Rinne ein („die sparren werden beim
+sky lediglich vorne so ausgeschnitten"). Hinten liegt er voll auf dem
+Träger. Seine Unterkante fällt nach vorne also nur um *Gefälle minus
+Ausklinkung* – bei 3 m um 19 mm statt um 105 mm. Deshalb bleibt der Rahmen
+rundum gleich hoch, so wie es der Betreiber beschreibt: „außenrum sieht er
+in echt auch gleich hoch aus."
+
+Die Sparren selbst sind unverändert die des TDS: „sparren sind gleich bis
+auf beim flatline dach da sind sie anders."
+
+**Verhältnis jetzt:** Rahmen 136,7 mm zu Pfosten 110 mm = **1,24 ×**
+(vorher 2,4 bis 3,2 ×). Das entspricht den Produktbildern.
+
+**Was offen bleibt – zwei Punkte, beide dokumentiert:**
+1. Ab etwa 2,6 m Tiefe reicht die Rahmenhöhe rechnerisch nicht mehr für
+   das volle 2°-Gefälle; im Modell wird der Sparren dann vorne stärker
+   ausgeklinkt gezeichnet, als die Anleitung angibt. Ob das echte System
+   dort flacher neigt, tiefer ausklinkt oder die Rinne tiefer hängt, ist
+   nicht belegt.
+2. Die alte Ableitung „Rinne + Träger = 150 + 2 × 65 = 280 mm" stimmt
+   nicht mit den echten Maßen überein (186,3 + 120 = 306,3). Wie der
+   Sparren genau aufliegt, ergibt sich aus diesen Zahlen allein nicht.
+
+**Was gegengelesen werden soll:** Flachdach SkyView im Konfigurator
+aufrufen, Tiefe durchfahren. Der Rahmen muss bei jeder Tiefe gleich hoch
+bleiben und die Pfosten müssen kräftig wirken. Von der Seite darf kein
+Sparren unter dem Rahmen hervorschauen.

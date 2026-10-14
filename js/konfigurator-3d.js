@@ -2188,22 +2188,58 @@
      GESCHÄTZT bleiben nur noch: Rahmenhöhe (220 mm) und Blendendicke.
      Querschnittszeichnungen zu Rinne, Träger und Seitenblende gibt es
      noch nicht; sie stehen als offener Punkt in docs/NEXT_TASK.md. */
+  /* ---------- SkyView: die Profile, jetzt belegt ----------
+     Bis zum 14.10.2026 waren fast alle Masse hier geschaetzt, und der
+     Aussenrahmen wuchs mit der Dachtiefe (bei 4,5 m auf 355 mm). Der
+     Betreiber: „wieso sind im 3d konfigurator die pfosten von skyview so
+     dünn wir haben pfosten die sind 110x110" – die Pfosten stimmten, der
+     Rahmen darueber war doppelt so hoch wie er sein darf.
+
+     Grundlage sind jetzt die Querschnitte aus der Einzelteile-Liste des
+     Herstellers (Stand 07.10.2026). Die Liste selbst liegt NICHT im
+     Projekt (Preise, Datenbankherstellerrecht) – hier stehen nur die
+     Masse, die das Modell braucht, mit Artikelnummer zum Nachschlagen.
+
+     Im ganzen System gibt es KEIN Profil ueber 136,7 mm Hoehe. Der
+     Aussenrahmen kann also nicht hoeher sein.
+
+     WIE DAS GEFAELLE HINEINPASST: „außenrum sieht er in echt auch gleich
+     hoch aus" (Betreiber, 14.10.2026). Der Rahmen ist ringsum gleich
+     hoch gebaut; das Glas liegt hinten dicht unter seiner Oberkante und
+     vorne um das Gefaelle tiefer. Der Rahmen verdeckt genau diesen
+     Unterschied – darum sieht es aussen aus wie ein Flachdach. Bei 3 m
+     Tiefe sind das 105 mm in 136,7 mm Rahmenhoehe.
+
+     Ab etwa 3,9 m Tiefe reicht die Rahmenhoehe dafuer rechnerisch nicht
+     mehr (bei 4,5 m waeren es 157 mm). Dann haengt vorne die Rinne
+     entsprechend tiefer – sie ist das vorderste Teil. Ob der Hersteller
+     das so loest oder dort das Gefaelle flacher ausfuehrt, ist nicht
+     belegt; siehe docs/NEXT_TASK.md. */
   var SKY = {
-    rahmenH: 26.0,      // GESCHÄTZT, feste Höhe des Außenkastens
-    rinneT: 14.0,       // ABGELEITET (siehe oben)
-    traegerT: 14.0,     // ABGELEITET
+    /* Rinne 2 TD (16913): 186,3 breit x 136,7 hoch. BELEGT.
+       Die Rinne bestimmt die Hoehe des umlaufenden Rahmens. */
+    rahmenH: 13.67,
+    rinneT: 18.63,
+    /* Traeger TD (15698): Kasten 96,7 x 61, mit Nut 120 breit. BELEGT.
+       Steht bei SkyView hinten an Stelle des Wandprofils. */
+    traegerT: 12.0,
+    traegerH: 6.1,
+    /* Rinnen Blende Sky (6079): 89,3 breit, 29,8 / 55 hoch. BELEGT.
+       Sitzt aussen vor der Rinne. */
+    blendeT: 8.93,
+    blendeH: 5.5,
+    /* Seitenblende Sky (6069): 252 lang x 38,9 hoch. BELEGT.
+       Ein FLACHES Winkelprofil – bis zum 14.10.2026 war es im Modell
+       faelschlich die hohe Aussenblende. Es deckt die Sparrenenden an
+       der Seite ab. */
+    seitenblendeL: 25.2,
+    seitenblendeH: 3.89,
     sparrenAbzug: 15.0, // BELEGT: Spannweite - 150 mm
     auflager: 6.5,      // BELEGT: Ausschnitt 65 mm tief
     auflagerH: 8.6,     // BELEGT: Ausschnitt 86 mm hoch
-    /* Platz zwischen Rinnenunterkante und Sparrenunterkante vorne –
-       dort liegt die Rinnenkehle. GESCHÄTZT. */
-    sparrenAb: 5.5,
-    /* Wie weit der Rahmen über die Eindeckung hinten hinaussteht.
-       GESCHÄTZT. */
-    ueber: 1.5,
-    /* Mindesthöhe des Sparrens an seinem dünnen Ende, vorne an der
-       Rinne. GESCHÄTZT. */
-    sparrenMin: 4.0
+    /* Wie tief die Glasebene hinten unter der Rahmenoberkante liegt.
+       GESCHAETZT – gross genug, dass die Glasleiste darauf Platz hat. */
+    glasUnter: 2.5
   };
 
   function randblende(laenge, hoehe, x, yMitte, z, neig, material) {
@@ -5157,11 +5193,24 @@
        das löst (höheres Profil? flacheres Gefälle?), ist die offene
        Frage in docs/NEXT_TASK.md. */
     var skyGlas = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
-    var riH = sky
-      ? Math.max(SKY.rahmenH,
-                 SKY.sparrenAb + SPARREN.hoehe + Math.tan(neig) * T +
-                 skyGlas + SKY.ueber)
-      : RINNE.hoehe;
+    /* ---------- Der SkyView-Rahmen hat eine FESTE Hoehe ----------
+       Bis zum 14.10.2026 wuchs er mit der Tiefe (bei 4,5 m auf 355 mm),
+       weil ich das 2°-Gefaelle darin unterbringen wollte. Das war falsch:
+       Im System gibt es kein Profil ueber 136,7 mm, und „außenrum sieht
+       er in echt auch gleich hoch aus" (Betreiber, 14.10.2026).
+
+       Das Gefaelle verschwindet nicht im Rahmen, sondern IM SPARREN: Er
+       ist vorne ausgeklinkt (Ausschnitt 86 mm hoch, 65 mm tief –
+       Montageanleitung) und taucht damit in die Rinne ein. Hinten liegt
+       er voll auf dem Traeger. Seine Unterkante faellt nach vorne also
+       nur um das, was Gefaelle MINUS Ausklinkung uebrig laesst – bei 3 m
+       sind das 19 mm statt 105 mm. So bleibt er im Rahmen, und der
+       Rahmen bleibt rundum gleich hoch.
+
+       Die Sparren selbst sind dieselben wie beim TDS: „sparren sind
+       gleich bis auf beim flatline dach da sind sie anders" (Betreiber,
+       14.10.2026). */
+    var riH = sky ? SKY.rahmenH : RINNE.hoehe;
     var riT = sky ? SKY.rinneT : RINNE.breite;
 
     belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
@@ -5194,8 +5243,17 @@
        zweites Mal, weil Pfosten- und Trägerhöhe sie schon brauchen,
        bevor das Dach gebaut wird. Beide müssen übereinstimmen, sonst
        liegt die Rahmenoberkante woanders als die Glasebene. */
+    /* Sparrenunterkante vorne. Beim SkyView rueckwaerts aus der
+       Rahmenoberkante: Glas liegt darunter, der Sparren darunter, und
+       die Ausklinkung hebt ihn vorne wieder an. Bei grossen Tiefen
+       reicht das rechnerisch nicht – dann wird er vorne staerker
+       ausgeklinkt gezeichnet (die Untergrenze), sonst haengt er unter
+       dem Rahmen heraus. Ob das echte System dort flacher neigt oder
+       tiefer ausklinkt, ist nicht belegt (docs/NEXT_TASK.md). */
     var ukVornJetzt = sky
-      ? hRinne + SKY.sparrenAb
+      ? Math.max(hRinne,
+                 hRinne + riH - skyGlas - Math.tan(neig) * T -
+                 (spH - SKY.auflagerH))
       : hRinne + (riH - RINNE.sparrenUnterNase - spH);
     var dachTiefeJetzt = sky ? T : T - RINNE.breite;
     var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
@@ -5466,9 +5524,13 @@
        Glas seitlich ab. Daraus folgt die Sparrenunterkante. Vorher stand
        hier ein Viertel der Rahmenhöhe, also eine reine Schätzung. */
     /* Dieselbe Rechnung wie oben bei ukVornJetzt – beide müssen
-       übereinstimmen, sonst liegt das Dach anders als die Pfosten. */
-    var ukVorn = sky ? hRinne + SKY.sparrenAb
-                     : hRinne + (riH - RINNE.sparrenUnterNase - spH);
+       übereinstimmen, sonst liegt die Rahmenoberkante woanders als die
+       Glasebene und das Dach anders als die Pfosten. */
+    var ukVorn = sky
+      ? Math.max(hRinne,
+                 hRinne + riH - skyGlas - Math.tan(neig) * T -
+                 (spH - SKY.auflagerH))
+      : hRinne + (riH - RINNE.sparrenUnterNase - spH);
 
     /* KORREKTUR 11.10.2026, zweiter Anlauf. Zwischendurch stand hier ein
        KEILSPARREN: unten waagerecht, nach hinten ansteigend, damit das
