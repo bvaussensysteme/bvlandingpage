@@ -275,6 +275,30 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
        (gegen ? true : !/var pfH = pfostenUnterTraeger\(Z\.breite\);/.test(k3d)),
        'nimmt dieselbe Quelle wie die Anfrage');
 
+/* ---------- Die sichtbare Blende ist ueberall gleich dick ----------
+   „die blenden links und rechts sind gut aber warum is die vorderseite so
+   fett" (Betreiber, 14.10.2026). Vorne wurde die ganze Rinnentiefe
+   (186,3 mm) als gerillter Block gezeichnet, hinten die Traegertiefe
+   (120 mm), seitlich dagegen nur die Blendendicke (30 mm). Von vorne sah
+   das Dach dadurch aus, als haette es eine 19 cm dicke Kante.
+
+   Geprueft wird, dass JEDER blendeProfil-Aufruf die Blendendicke als
+   Tiefe bekommt – und keiner mehr eine Profiltiefe. */
+(function () {
+  /* Die Funktionsdefinition selbst zaehlt nicht mit – ihr drittes
+     Argument heisst „tiefe" und waere sonst immer ein Treffer. */
+  var ohneDef = k3d.replace(/function blendeProfil\([\s\S]*?\n  \}/, '');
+  var rufe = ohneDef.match(/blendeProfil\([^;]*?\);/g) || [];
+  var falsch = rufe.filter(function (r) {
+    var arg = r.replace(/\s+/g, ' ').split(',')[2] || '';
+    return !/RANDBLENDE\.dicke/.test(arg);
+  });
+  if (gegen) falsch.push('erzwungen');
+  pruefe('Blende überall gleich dick', falsch.length === 0,
+         falsch.length ? falsch.length + ' von ' + rufe.length + ' mit Profiltiefe'
+           : rufe.length + ' Aufrufe, alle mit Blendendicke');
+})();
+
 /* Die Blende hat FUENF Rillen – „5 rillen" (Betreiber, 14.10.2026).
    Vorher wurde die Zahl aus der Hoehe geteilt durch 15 mm gerechnet; bei
    der 252 mm hohen Blende ergab das sechzehn, also ein Lamellenprofil.

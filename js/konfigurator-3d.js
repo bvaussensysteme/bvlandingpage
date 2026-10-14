@@ -5528,8 +5528,23 @@
     if (sky) {
       /* Der Kasten vorne: gerillte Außenseite nach vorne (+z). Die
          Drehung legt die Profillänge in x, deshalb Math.PI / 2. */
-      blendeProfil(B, riH, riT, 0, hRinne + riH / 2, T - riT / 2,
-                   Math.PI / 2, mAlu);
+      /* ---------- Sichtbar ist nur die vorderste Schicht ----------
+         „die blenden links und rechts sind gut aber warum is die
+         vorderseite so fett" (Betreiber, 14.10.2026, mit Bildschirmfoto).
+
+         Vorher wurde hier die ganze Rinnentiefe (186,3 mm) als gerillter
+         Block gezeichnet – von vorne sah das Dach damit aus, als haette
+         es eine 19 cm dicke Kante. In Wirklichkeit ist die Blende so
+         duenn wie an den Seiten; die Rinne liegt DAHINTER und ist von
+         aussen nicht zu sehen.
+
+         Darum zwei Teile: vorne die gerillte Blende in Blendendicke,
+         dahinter ein glatter Kasten ueber die restliche Rinnentiefe. Der
+         schliesst die Unteransicht, ohne nach vorne aufzutragen. */
+      blendeProfil(B, riH, RANDBLENDE.dicke, 0, hRinne + riH / 2,
+                   T - RANDBLENDE.dicke / 2, Math.PI / 2, mAlu);
+      balken(B, riH, riT - RANDBLENDE.dicke, 0, hRinne + riH / 2,
+             T - RANDBLENDE.dicke - (riT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
       rinneBauen(B, T, hRinne, mAlu);
       rinnenblenden(B, T, hRinne, mAlu);
@@ -5547,7 +5562,13 @@
        (z = 0), die Schenkel ragen von dort nach vorne. */
     if (sky) {
       /* Hinten dieselbe Blende, Außenseite nach hinten (-z). */
-      blendeProfil(B, wpH, wpT, 0, wpMitte, wpT / 2, -Math.PI / 2, mAlu);
+      /* Hinten dasselbe: gerillte Blende in Blendendicke, der Traeger
+         als glatter Kasten dahinter. Bei Wandmontage sieht man davon
+         nichts, freistehend schon. */
+      blendeProfil(B, wpH, RANDBLENDE.dicke, 0, wpMitte,
+                   RANDBLENDE.dicke / 2, -Math.PI / 2, mAlu);
+      balken(B, wpH, wpT - RANDBLENDE.dicke, 0, wpMitte,
+             RANDBLENDE.dicke + (wpT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
       balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
     }
