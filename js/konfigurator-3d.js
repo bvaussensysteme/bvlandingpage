@@ -1647,11 +1647,22 @@
        Pfosten verschraubt wird: „siehst du die rinne hat unten links nen
        schenkel der grade nach unten geht und an diesem schenkel wird der
        pfosten verschraubt" (Betreiber, 14.10.2026). In der Zeichnung zu
-       16913 ist er zu sehen, aber nicht bemasst – beide Werte am Bild
-       ABGEGRIFFEN. Er haengt UNTER dem Profil, also bei negativem y;
-       die bemassten 136,7 mm Hoehe bleiben davon unberuehrt. */
+       16913 ist er zu sehen, aber nicht bemasst. Er haengt UNTER dem
+       Profil, also bei negativem y; die bemassten 136,7 mm Hoehe
+       bleiben davon unberuehrt.
+
+       Die LAENGE ist seit dem 14.10.2026 nicht mehr geschaetzt, sondern
+       ausgerechnet – und zwar aus dem Seitendeckel: Der ist mit 175 mm
+       bemasst (Skizze 6017), die Rinne mit 136,7. Die Differenz von
+       38,3 mm ist genau der Schenkel, denn der Deckel deckt beides ab,
+       von der Nase bis zum Schenkelfuss. Damit loest sich der letzte
+       Widerspruch zwischen den beiden Zeichnungen auf: „entweder is der
+       seitendeckel rinne zu klein oder die rinne is zu groß oder falsche
+       form" (Betreiber) – keines von beidem, es fehlte der Schenkel in
+       der Rechnung. Vorher standen hier 40 mm, am Bild abgegriffen.
+       Die DICKE bleibt geschaetzt. */
     schenkelDick: 0.7,
-    schenkelLang: 4.0
+    schenkelLang: 3.83
   };
 
   /* Querschnitt der Rinne in der XY-Ebene: x läuft nach vorne (vom Haus
@@ -1814,25 +1825,24 @@
      Die Schraege war bis heute nicht abgebildet – der Deckel hatte eine
      senkrechte Hinterkante. Alle vier Werte sind am markierten Bild
      ABGEMESSEN, Genauigkeit rund +/- 5 mm. */
-  /* KORREKTUR 14.10.2026, nach dem Blick ins fertige Bild: „der rinnen
-     deckel hat noch nicht den richtigen platz, sitzt meiner meinung zu
-     niedrig und könnte etwas nach links, darf nicht über die rinne
-     drübergucken auf der stirnseite" (Betreiber). Auf Rueckfrage, was
-     „nach links" heisst: weiter nach HINTEN, zum Haus.
+  /* ---------- Hoehe und Lage des Seitendeckels ----------
+     Zwei Runden lang passten Deckel (172 x 175) und Rinne (186,3 x 136,7)
+     nicht zusammen. Erst stand der Deckel oben und unten ueber, dann –
+     auf 136,7 gestutzt – deckte er die Rinne nicht mehr ab: „entweder is
+     der seitendeckel rinne zu klein oder die rinne is zu groß oder
+     falsche form" (Betreiber, 14.10.2026).
 
-     Damit gilt an der Stirnseite: oben an der Nase, unten am
-     Rinnenboden, hinten buendig – der Deckel bleibt ueberall INNERHALB
-     des Rinnenumrisses.
+     Es war keines von beidem. In der Rechnung fehlte der SCHENKEL, der
+     hinten unter der Rinne nach unten geht:
 
-     ABWEICHUNG VOM BELEGTEN MASS, bewusst: Die Skizze zu 6017 bemasst
-     den Deckel mit 172 x 175 mm. Die 175 mm Hoehe stehen hier nicht
-     mehr – sie sind groesser als die Rinne hoch ist (136,7), der Deckel
-     ragte damit oben und unten heraus. Die HOEHE kommt jetzt aus der
-     Rinne selbst und kann nicht mehr davonlaufen; die 172 mm Tiefe
-     bleiben. Warum das Teil in Wirklichkeit hoeher ist, weiss ich nicht
-     – moeglicherweise deckt es am Bau auch den Pfostenkopf ab. Im Bild
-     stoert es, und das Bild entscheidet hier. */
-  var RINNENDECKEL = { breite: 17.2, hoehe: RINNE.hoehe, fase: 3.4,
+         136,7 (Rinne) + 38,3 (Schenkel) = 175,0 = Deckelhoehe
+         186,3 (Rinne) − 172,0 (Deckel)  =  14,3 mm bleiben hinten frei
+
+     Beide bemassten Zeichnungen stimmen also, sie beschreiben nur
+     verschiedene Teile desselben Querschnitts. Der Deckel reicht von der
+     Nase bis zum Schenkelfuss und sitzt vorne buendig – genau so, wie der
+     Betreiber ihn am 14.10.2026 in den Querschnitt gezeichnet hat. */
+  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4,
                        fall: 1.1, lehne: 3.2 };
 
   /* ---------- Seitliche Abdeckungen ----------
@@ -1960,15 +1970,16 @@
   }
 
   function rinnenblenden(laenge, zVorne, yUnten, material) {
-    /* HINTEN buendig (nicht mehr vorne) und unten auf dem Rinnenboden:
-       „könnte etwas nach links … darf nicht über die rinne drübergucken"
-       (Betreiber, 14.10.2026). Vorne bleiben damit 14 mm der Rinne frei –
-       das ist die Folge daraus, dass der Deckel mit 172 mm kuerzer ist
-       als die Rinne tief (186,3).
+    /* Unten am SCHENKELFUSS, oben an der Nase – das sind zusammen genau
+       die 175 mm des Teils. Vorne buendig; die 14,3 mm, die hinten frei
+       bleiben, sind die Differenz der beiden bemassten Breiten.
 
-       Der Schenkel unter dem Rinnenboden bleibt frei: Der Deckel sitzt
-       auf dem Boden, nicht davor. */
-    profilKappen(laenge, zVorne - RINNE.breite, yUnten,
+       Vorher stand hier dreimal etwas anderes (mittig / an der Nase mit
+       Ueberstand / hinten buendig auf dem Boden). Alle drei waren
+       Versuche, zwei Masse zusammenzubringen, zwischen denen der
+       Schenkel fehlte. */
+    profilKappen(laenge, zVorne - RINNENDECKEL.breite,
+                 yUnten - RINNE.schenkelLang,
                  rinnenkappeQuerschnitt(), material);
   }
 
