@@ -5878,3 +5878,47 @@ die vorne an den Schenkeln liegen (sechs: zwei je Schenkel).
 Deckel darf nicht mehr vor dem Profil schweben, die Glasleisten müssen an
 der Wand unter dem Profil verschwinden, und von unten müssen die zwei
 Kammern zu sehen sein.
+
+### 14.10.2026 – Sparren in die untere Kammer, Glasleiste in die obere
+
+> „wie ich schon gesagt hatte der sparren muss in dem wandprofil in die
+> untere öffnun reingehen bis an die wandprofilwand, und die glasleiste
+> muss in die obere öffnung" (Betreiber, mit Bild von unten)
+
+Die Sparren begannen an der **Vorderkante** des Wandprofils und stießen
+stumpf davor; Glas und Abdeckleiste hängen an derselben Größe und endeten
+deshalb ebenfalls davor. Jetzt reicht der Sparren bis an die **Rückwand**
+des Profils, also durch die untere Kammer hindurch – Glas und Leiste laufen
+mit in die obere.
+
+**Warum vorher das Gegenteil im Code stand.** Am 11.10.2026 wurde genau
+diese Zeile andersherum gesetzt („Sparrenanfang = Profilvorderkante"), und
+das war damals richtig: Das Wandprofil war ein **massiver Quader**, ein
+Sparren darin wäre spurlos verschwunden und das Profil hätte als
+waagerechtes Band unter den Sparren gewirkt – genau die Rückmeldung von
+damals. Seit das Profil echte Kammern hat (siehe Eintrag davor), gilt
+wieder die Bauart. Beide Entscheidungen sind richtig, nur zu
+verschiedenen Modellen.
+
+**Lage des Mittelstegs.** Die Zeichnung zu 15188 bemaßt ihn nicht. Er wird
+deshalb aus den Teilen abgeleitet, die in die Kammern gehören: oben Scheibe
+(8 mm) und Abdeckleiste (22,6 mm) plus die Blechstärken von Schenkel und
+Steg, zusammen 35,6 mm von 143,6 – also 24,8 % von oben. Der Rest ist die
+große Kammer für den Sparren.
+
+**Was nicht aufgeht, und warum das so bleibt.** Sparren (120) + Scheibe (8)
++ Leiste (22,6) sind 150,6 mm, das Profil ist 143,6 mm hoch. Die obere
+Kammer bekommt ihr volles Maß, dafür ragt der Sparren 2,5 mm in den Steg
+und 7 mm unter die Profilunterkante. Im Bild ist davon nichts zu sehen –
+es sind Bleche, die ineinanderstehen. **Offen bleibt, wie das am echten
+Teil gelöst ist** (Ausklinkung am Sparren? anderes Profil?).
+
+**Absicherung:** drei Prüfungen, jede mit eigener Verfälschung gegengeprüft
+– Sparren wieder vor dem Profil, Steg zu weit oben (obere Kammer 16,5 statt
+30,6 mm), Steg zu weit unten (untere Kammer 76,5 statt 105,5 mm). Jede hat
+nur die zuständige Prüfung rot gemacht.
+
+**Was gegengelesen werden soll:** Blick von unten an die Wand. Der Sparren
+muss in der unteren Öffnung stecken und an der Profilrückwand anstoßen, die
+Glasleiste in der oberen Öffnung liegen. Kein Spalt zwischen Sparrenstirn
+und Profil.

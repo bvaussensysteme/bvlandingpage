@@ -2198,7 +2198,20 @@
     tiefe: 3.86,        // Ausladung OBEN: „38,6 is breite oben"
     tiefeUnten: 3.70,   // Ausladung UNTEN: „37 is breite unten"
     wand: 0.25,         // Blechstaerke, GESCHAETZT
-    stegAb: 0.30,       // Mittelsteg bei 30 % der Hoehe von oben, GESCHAETZT
+    /* Lage des Mittelstegs, von OBEN gemessen. Nicht frei gewaehlt: Die
+       obere Kammer muss Scheibe (8 mm) und Abdeckleiste (22,6 mm)
+       aufnehmen, dazu die Blechstaerken von Schenkel und Steg – zusammen
+       35,6 mm von 143,6, also 24,8 %. Darunter beginnt die grosse
+       Kammer, in der der Sparren liegt. Die Zeichnung bemasst den Steg
+       nicht; diese Aufteilung folgt den Teilen, die hineingehoeren.
+
+       Millimetergenau geht es nicht auf, und das liegt am Profil, nicht
+       an der Rechnung: Sparren (120) + Scheibe (8) + Leiste (22,6) sind
+       150,6 mm, das Profil ist 143,6 mm hoch. Die obere Kammer bekommt
+       ihr volles Mass, der Sparren ragt dafuer 2,5 mm in den Steg und
+       7 mm unter die Profilunterkante. Im Bild ist davon nichts zu
+       sehen – es sind Bleche, die ineinanderstehen. */
+    stegAb: 0.248,
     stegTiefe: 2.90     // Mittelsteg ist kuerzer als die Schenkel, GESCHAETZT
   };
 
@@ -5556,7 +5569,22 @@
        Sparrenende – nur dort kann die Profiloberkante mit der
        Glasoberseite abschließen. Vorher stand das Dach dort 6 mm höher
        als das Profil. */
-    var zSpHinten = wpT;                 // Sparrenanfang = Profilvorderkante
+    /* KORREKTUR 14.10.2026: „wie ich schon gesagt hatte der sparren muss
+       in dem wandprofil in die untere öffnung reingehen bis an die
+       wandprofilwand, und die glasleiste muss in die obere öffnung"
+       (Betreiber, mit Bild von unten).
+
+       Die Sparren begannen an der PROFILVORDERKANTE und stiessen stumpf
+       davor. Das war am 11.10.2026 richtig, solange das Profil ein
+       massiver Quader war – da waere ein Sparren darin verschwunden.
+       Seit es ein echtes Profil mit zwei Kammern ist, gilt wieder, wie
+       es gebaut wird: Der Sparren schiebt sich in die UNTERE Kammer bis
+       an die Rueckwand. Glas und Abdeckleiste haengen an derselben
+       Groesse und laufen damit in die OBERE Kammer.
+
+       Bei SkyView steht hinten der Traeger statt des Wandprofils, dort
+       bleibt es beim bisherigen Anschlag. */
+    var zSpHinten = sky ? wpT : WANDPROFIL.wand;
     /* Hinterer Dachvorsprung – nur beim freistehenden Carport TDS.
        Wie vorne wandern die Pfosten um das Maß nach innen, der
        Statikträger bleibt am Dachrand. Das Dach selbst wird nicht

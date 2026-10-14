@@ -607,6 +607,24 @@ pruefe('Wandprofil deckt die Glasleiste ab',
          (hoch * 10).toFixed(1) + ' hoch, ' + (tiefe * 10).toFixed(1) + '/' +
          (WANDPROFIL.tiefeUnten * 10).toFixed(1) + ' mm tief');
 
+  /* Die Kammern muessen die Teile fassen, die hineingehoeren: oben
+     Scheibe und Abdeckleiste, unten der Sparren. Gerechnet wird aus dem
+     erzeugten Querschnitt, nicht aus der Absicht im Kommentar. */
+  var ys2s = ys2.slice().sort(function (a, b) { return a - b; });
+  var obenKammer = hoch - WANDPROFIL.wand -
+                   (hoch * (1 - WANDPROFIL.stegAb) + WANDPROFIL.wand);
+  var glasLeiste = 0.8 + 2.26;                 // Scheibe + Abdeckleiste
+  var obenOk = obenKammer >= glasLeiste - 0.05;
+  pruefe('Obere Kammer fasst Scheibe und Glasleiste',
+         gegen ? !obenOk : obenOk,
+         (obenKammer * 10).toFixed(1) + ' mm Kammer für ' +
+         (glasLeiste * 10).toFixed(1) + ' mm Eindeckung');
+  var untenKammer = hoch * (1 - WANDPROFIL.stegAb) - WANDPROFIL.wand;
+  var untenOk = untenKammer > 10.0 && untenKammer < 12.1;
+  pruefe('Untere Kammer nimmt den Sparren auf',
+         gegen ? !untenOk : untenOk,
+         (untenKammer * 10).toFixed(1) + ' mm Kammer für 120 mm Sparren');
+
   /* Der Seitendeckel darf nicht vor dem Profil in der Luft stehen. Die
      Liste nennt 89,16 mm – bei 38,6 mm Ausladung waeren das 5 cm frei
      vorstehendes Blech. Bewusste Abweichung, siehe Kommentar im Code. */
@@ -1205,13 +1223,19 @@ pruefe('Traegerhoehe folgt dem Dach, nicht dem festen Mass',
          Math.abs(trH2 - TR_H) < 0.001, trH2.toFixed(1) + ' cm');
 })();
 
-/* Die Sparren beginnen VOR dem Profil, nicht an der Wand. Davor steckte
-   ihr Anfang 31 mm im Profil, und sichtbar blieb nur der Rand, der unten
-   heraussteht - ein waagerechtes Band unter den Sparren ueber die ganze
-   Breite ("jetzt liegt es waagrecht im 3d unter den sparren", Betreiber
-   11.10.2026). */
-pruefe('Sparren beginnen an der Profilvorderkante',
-       new RegExp(q || 'zSpHinten = wpT;').test(k3d), 'nicht mehr bei z = 0');
+/* Die Sparren schieben sich IN die untere Kammer, bis an die Rueckwand:
+   „der sparren muss in dem wandprofil in die untere öffnung reingehen bis
+   an die wandprofilwand, und die glasleiste muss in die obere öffnung"
+   (Betreiber, 14.10.2026).
+
+   Am 11.10.2026 stand hier das Gegenteil (Anschlag an der Vorderkante),
+   und das war damals richtig: Das Profil war ein massiver Quader, ein
+   Sparren darin waere verschwunden. Mit den echten Kammern gilt wieder
+   die Bauart. Glas und Leiste haengen an derselben Groesse und laufen
+   mit in die obere Kammer. */
+pruefe('Sparren reichen bis an die Rückwand des Wandprofils',
+       new RegExp(q || 'zSpHinten = sky \\? wpT : WANDPROFIL\\.wand;').test(k3d),
+       'in die untere Kammer, nicht davor');
 pruefe('Sparrenlaenge und -mitte folgen dem Profil',
        new RegExp(q || ': \\(dachTiefe - zSpHinten\\) / Math\\.cos\\(neig\\)').test(k3d) &&
        new RegExp(q || 'zMitte = sky \\? T / 2 : \\(dachTiefe \\+ zSpHinten\\) / 2').test(k3d), '');
