@@ -6287,3 +6287,45 @@ Wandprofils, jetzt die Höhenlage an der Rinne.
 **Was gegengelesen werden soll:** Dachfläche an der Rinne von schräg oben.
 Zwischen Scheibe und Rinnenwange müssen rund 18 mm Luft sein; nichts darf
 durch das Glas stoßen.
+
+### 14.10.2026 – Die Fasen der Blende saßen auf der falschen Seite
+
+> „ja aber der die rinnenblende is immernoch wie fehl am platz" (Betreiber)
+
+**Diesmal habe ich zuerst hingesehen statt gerechnet.** Die Stirnansicht –
+Rinne, Blende, Pfosten, Sparren, Glas – wurde als Bild gerendert und
+angeschaut (`/tmp/stirn.js`, reines Node, kein Browser). Im Bild war sofort
+zu sehen, was keine Zahl gezeigt hatte: Die Blende saß mit ihren beiden
+Fasen **vorne**, über einem Profil, das dort gerade ist – und ihre lange
+schräge Hinterkante lief quer durch die Rinne.
+
+**Richtig ist: Die Fasen gehören nach HINTEN.** Vorne läuft die Kante
+gerade durch und deckt die Rinnenvorderwand auf ganzer Höhe ab; hinten
+folgt die obere Fase der niedrigeren Wange.
+
+**Der Beleg steckte die ganze Zeit in den Maßen:** Die hintere Wange liegt
+`RINNE.wangeAb` = **34 mm** unter der Nase – und 34 mm ist genau die Fase
+aus der Skizze zu 6017. Die Fase folgt also der Wange. Die Prüfung
+vergleicht jetzt diese beiden Werte miteinander, statt die Fase als eigene
+Zahl zu führen.
+
+**Die „Lehne" ist gestrichen.** Die lange schräge Hinterkante hatte ich aus
+der Handzeichnung des Betreibers abgeleitet; was dort schräg aussah, war
+diese Fase über der niedrigeren Wange. Die bemaßte Skizze zu 6017 zeigt die
+Hinterkante senkrecht – die bemaßte Quelle schlägt meine Deutung der
+Handskizze.
+
+**Was das über die Prüfungen sagt:** Die Punkt-für-Punkt-Prüfung von
+vorhin hat den Fehler **nicht** gefunden, weil sie die hinteren Punkte
+ausnimmt (dort ist die Rinne bewusst frei). Sie meldet jetzt bei
+verdrehten Fasen 8 von 27 Punkten – aber erst, seit die Form stimmt. Eine
+Prüfung, die eine ganze Seite ausklammert, kann dort nichts finden; das
+Bild konnte es.
+
+**Absicherung:** zwei Verfälschungen – Fasen wieder nach vorne (beide
+Prüfungen schlagen an), obere Fase nicht mehr gleich `wangeAb` (die
+Formprüfung schlägt an).
+
+**Was gegengelesen werden soll:** Stirnseite der Rinne. Die Blende muss
+vorne glatt über die ganze Höhe laufen; abgeschrägt ist sie nur hinten,
+oben stärker als unten.
