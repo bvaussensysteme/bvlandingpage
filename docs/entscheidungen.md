@@ -5684,3 +5684,50 @@ Textsuche hätte nicht gezeigt, ob die Höhe wirklich konstant ist.
 **Was gegengelesen werden soll:** SkyView mit Rahmenwand oder
 Schiebetüren, Ansicht „Darunter". Die Elemente müssen oben eine gerade,
 waagerechte Kante an der Blende haben.
+
+## 2026-10-14 – Die richtigen Seitendeckel aus der Einzelteile-Liste
+
+**Anlass:** „beim tds gefallen mir die rinnenblenden und die
+wandprofilblenden links und rechts nicht, suche die richtigen in der
+einzelteileliste: Seitendeckel Wandprofil TD 6013, Seitendeckel Rinne 2
+links 6011, rechts 6012" (Betreiber).
+
+### Seitendeckel Wandprofil TD (6013) – jetzt belegt
+
+| | war | ist |
+|---|---|---|
+| Breite | 140 mm (geschätzt) | **89,16 mm** |
+| Höhe | 175 mm (geschätzt) | **146,27 mm** |
+| Bogen | nur über der oberen Ecke | über die ganze Außenkante |
+
+**Zum sechsten Mal dieselbe Falle:** Die Skizze zeigt den Deckel
+**liegend**, mit dem Bogen oben. Eingebaut steht er: „146,27 is höhe,
+89,16 is breite", „der flache bogen muss nach rechts zeigen, das bild is
+falsch gedreht" (Betreiber). Diesmal hat er es gesagt, **bevor** es im
+Modell stand – bei SG23, Velaris, Wandprofil, Seitenglasleiste und der
+SkyView-Seitenblende war es jedes Mal andersherum.
+
+### Seitendeckel Rinne 2 links/rechts (6011/6012)
+
+Im Modell stand die Form des Artikels **6017** („Seitendeckel Rinne 2 TD
+beidseitig") – ein Rechteck mit **einer** abgeschrägten Ecke. Die
+seitenspezifischen Deckel, die der Betreiber nennt, haben **zwei**: oben
+und unten an der Vorderkante, dazu eine leicht fallende Oberkante.
+
+Die Hauptmaße 172 × 175 bleiben: Sie stammen aus der bemaßten Skizze zu
+6017, und der Betreiber hat ausdrücklich darauf hingewiesen, dass dort
+Maße stehen. Für 6011/6012 selbst gibt es in der Liste nur ein Foto –
+Fasentiefe und Fall der Oberkante sind daran abgeschätzt.
+
+**Der alte Widerspruch bleibt:** Deckel 172 × 175 gegen Rinne 186,3 ×
+136,7. Die Maße passen nicht zueinander, und keine der beiden Quellen
+erklärt es.
+
+**Absicherung:** Die Prüfung misst beide Umrisse am erzeugten Querschnitt
+und zählt die Ecken – sechs bei der Rinnenkappe (zwei Fasen), zwei
+Bogenstücke bei der Wandkappe. Sie prüft zusätzlich, dass die Wandkappe
+**höher als breit** ist; genau das war vorher verdreht.
+
+**Was gegengelesen werden soll:** Terrassendach TDS von der Seite. Am
+Wandprofil muss der Deckel hochkant stehen und außen rund auslaufen, an
+der Rinne oben und unten eine Fase haben.
