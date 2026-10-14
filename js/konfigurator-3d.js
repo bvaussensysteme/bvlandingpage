@@ -1874,26 +1874,22 @@
      abgeschaetzt: zu schmal, zu hoch und mit dem Bogen nur ueber der
      oberen Ecke statt ueber der ganzen Aussenkante.
 
-     ABWEICHUNG VOM BELEGTEN MASS, bewusst (14.10.2026): Die Liste nennt
-     89,16 mm. Das Wandprofil laedt aber nur 38,6 mm aus – der Deckel
-     stand damit 5 cm frei vor dem Profil in der Luft. Genau das hat der
-     Betreiber gemeldet: „das wandprofil is zu tief brudiiiiiii das musst
-     du doch sehen". Gezeichnet wird er deshalb profilbuendig, also
-     Profiltiefe plus 2 mm Ueberstand.
+     WARUM 89,16 MM, OBWOHL DAS PROFIL NUR 38,6 AUSLAEDT (14.10.2026):
+     Am selben Tag war der Deckel kurzzeitig auf Profiltiefe gestutzt,
+     weil er im Bild 5 cm frei vor dem Profil zu schweben schien („das
+     wandprofil is zu tief brudiiiiiii"). Der Betreiber hat das
+     korrigiert: „der seitendeckel für das wandprofil ist
+     unterdeminsioniert bzw. in der höhe ok aber in der breite etwas zu
+     schmal".
 
-     Offen bleibt, was die 89,16 mm am echten Teil sind. Zwei
-     Moeglichkeiten: Der Deckel deckt ausser dem Profil noch die
-     Stirnseite des aeusseren Sparrens mit ab (38,6 + 50 = 88,6 – das
-     kaeme fast genau hin), oder das Mass ist die abgewickelte Laenge
-     ueber den Bogen. Das muss der Betreiber am Teil nachsehen; bis dahin
-     ist profilbuendig die Variante, die im Bild nicht falsch aussieht.
-     Die HOEHE 146,27 mm bleibt unangetastet.
+     Damit ist klar, was die 89,16 mm sind: Der Deckel deckt nicht nur
+     das Profil ab, sondern auch die Stirnseite des aeusseren Sparrens,
+     der seit heute IN der unteren Kammer steckt und nach vorne
+     weiterlaeuft (38,6 + rund 50 = 88,6 – das kommt hin). Frei
+     schwebte er nur, solange die Sparren erst vor dem Profil begannen.
 
-     Die Breite haengt bewusst an einer festen Zahl und nicht an
-     WANDPROFIL.tiefe: Die Konstante steht erst weiter unten in der
-     Datei. Dass beide zusammenpassen, bewacht eine Pruefung in
-     scripts/pruefe-masstabelle.js. */
-  var WANDDECKEL = { breite: 4.06, hoehe: 14.627 };
+     Beide Masse sind damit BELEGT und bleiben unangetastet. */
+  var WANDDECKEL = { breite: 8.916, hoehe: 14.627 };
 
   function wandkappeQuerschnitt() {
     var b = WANDDECKEL.breite, h = WANDDECKEL.hoehe;
