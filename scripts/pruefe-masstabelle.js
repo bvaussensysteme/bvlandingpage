@@ -1098,7 +1098,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 (function () {
   var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: RINNE\.fase,\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: RINNE\.hoehe, fase: RINNE\.fase,\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
   var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
   var wd = k3d.match(/WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
   if (!rinQ || !wandQ || !masse || !wd || !rinLit) {
@@ -1107,8 +1107,8 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   var RINNE = eval('(' + rinLit.replace(/^var RINNE = /, '').replace(/;$/, '') + ')');
   /* Die Hoehe steht im Code als RINNE.hoehe, nicht als Zahl – genau
      darum geht es: Sie kann nicht mehr von der Rinne davonlaufen. */
-  var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2],
-                       fase: RINNE.fase, fall: +masse[3], lehne: +masse[4] };
+  var RINNENDECKEL = { breite: +masse[1], hoehe: RINNE.hoehe,
+                       fase: RINNE.fase, fall: +masse[2], lehne: +masse[3] };
   var WANDDECKEL = { breite: +wd[1], hoehe: +wd[2] };
 
   var punkte = [], bogen = 0;
@@ -1171,67 +1171,46 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
     });
     var ok = vorneDurch.length === 2 && hintenOben &&
              Math.abs(RINNENDECKEL.lehne) < 0.001;
-    /* Die Unterkante steigt nach vorne an: Unter dem Rinnenboden ist nur
-       hinten der Schenkel (und darunter der Pfosten) – waagerecht
-       durchgezogen hinge die Blende vorne frei in der Luft, „wie
-       hingeklatscht" (Betreiber, 14.10.2026). Vorne ist sie damit genau
-       so hoch wie die Rinne. */
-    var vorneHoch = p2.filter(function (q) {
-      return Math.abs(q[0] - RINNENDECKEL.breite) < 0.001;
-    }).map(function (q) { return q[1]; });
-    var vh = vorneHoch.length === 2
-      ? Math.abs(vorneHoch[0] - vorneHoch[1]) : 0;
-    var steigt = Math.abs(vh - RINNE.hoehe) < 0.02;
-    pruefe('Blende ist vorne so hoch wie die Rinne',
-           gegen ? !steigt : steigt,
-           (vh * 10).toFixed(1) + ' mm vorne, Rinne ' +
-           (RINNE.hoehe * 10).toFixed(1) + ' mm (hinten ' +
-           (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm bis zum Schenkelfuß)');
-
     pruefe('Blende: vorne gerade, Fasen hinten an der Wange',
            gegen ? !ok : ok,
            vorneDurch.length + ' Punkte auf der Vorderkante, obere Fase ' +
            (RINNE.wangeAb * 10).toFixed(0) + ' mm = wangeAb');
   })();
 
-  /* ---------- Der Deckel deckt Rinne UND Schenkel ab ----------
-     „entweder is der seitendeckel rinne zu klein oder die rinne is zu groß
-     oder falsche form" (Betreiber, 14.10.2026). Es war keines von beidem:
-     In der Rechnung fehlte der Schenkel unter der Rinne.
+  /* ---------- Die Blende schliesst die Rinne ab ----------
+     Vier Lagen und zwei Hoehen an einem Tag; zuletzt stand die Blende
+     oben UND unten ueber die Rinne hinaus: „alter?" (Betreiber,
+     14.10.2026, mit Bild aus der gedrehten Ansicht).
 
-         136,7 (Rinne) + 38,3 (Schenkel) = 175,0 = Deckelhoehe
-         186,3 (Rinne) − 172,0 (Deckel)  =  14,3 mm hinten frei
+     Verworfen ist damit meine Herleitung „175 = 136,7 + 38,3 (Schenkel)".
+     Sie ging rechnerisch auf, am Bauteil stimmt sie nicht. Woher die
+     175 mm der Skizze kommen, bleibt offen.
 
-     Geprueft wird genau diese Gleichung – nicht die Zahl 175. Laeuft eins
-     der drei Masse weg, schlaegt sie an. Das ist die Pruefung, die in den
-     drei Runden davor gefehlt hat: Jede hat nur ein Teil fuer sich
-     gemessen, nie die Beziehung. */
-  var stapel = RINNE.hoehe + RINNE.schenkelLang;
-  var passt = Math.abs(RINNENDECKEL.hoehe - stapel) < 0.02;
-  pruefe('Deckelhöhe = Rinne + Schenkel (175 = 136,7 + 38,3)',
-         gegen ? !passt : passt,
-         (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm Deckel gegen ' +
-         (RINNE.hoehe * 10).toFixed(1) + ' + ' +
-         (RINNE.schenkelLang * 10).toFixed(1) + ' = ' + (stapel * 10).toFixed(1) + ' mm');
+     Geprueft wird jetzt das, was im Bild zaehlt: Die Blende ist genau so
+     hoch wie die Rinne und steht nirgends vor. */
+  var gleich = Math.abs(RINNENDECKEL.hoehe - RINNE.hoehe) < 0.001;
+  pruefe('Blende ist genau so hoch wie die Rinne',
+         gegen ? !gleich : gleich,
+         (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm gegen ' +
+         (RINNE.hoehe * 10).toFixed(1) + ' mm');
 
   var luecke = RINNE.breite - RINNENDECKEL.breite;
   var lageOk = luecke > 1.0 && luecke < 2.0 &&
-               /profilKappen\(laenge, zVorne - RINNENDECKEL\.breite,/.test(k3d) &&
-               /yUnten - RINNE\.schenkelLang,/.test(k3d);
-  pruefe('Rinnendeckel: vorne bündig, unten am Schenkelfuß',
+               /profilKappen\(laenge, zVorne - RINNENDECKEL\.breite, yUnten,/.test(k3d) &&
+               (gegen || !/yUnten - RINNE\.schenkelLang/.test(k3d));
+  pruefe('Blende sitzt vorne bündig auf dem Rinnenboden',
          gegen ? !lageOk : lageOk,
-         'hinten ' + (luecke * 10).toFixed(1) + ' mm frei');
+         'hinten ' + (luecke * 10).toFixed(1) + ' mm frei, kein Überstand nach unten');
 
-  /* Zweiter Weg: ueber den gezeichneten Umriss statt ueber die Formel.
-     Oben darf er nicht ueber die Nase, unten nicht unter den Schenkel. */
-  var deckelUnten = -RINNE.schenkelLang;
-  var deckelOben = deckelUnten + r.hoch;
-  var buendig = Math.abs(deckelOben - RINNE.hoehe) < 0.02 &&
-                Math.abs(deckelUnten + RINNE.schenkelLang) < 0.001;
-  pruefe('Deckel schließt oben mit der Nase, unten mit dem Schenkel ab',
-         gegen ? !buendig : buendig,
-         'Oberkante ' + (deckelOben * 10).toFixed(1) + ' mm, Rinnennase ' +
-         (RINNE.hoehe * 10).toFixed(1) + ' mm');
+  /* Zweiter Weg: ueber den gezeichneten Umriss statt ueber die Masse. */
+  var ragt = 0;
+  if (r.hoch > RINNE.hoehe + 0.001) ragt++;
+  if (r.breit > RINNE.breite + 0.001) ragt++;
+  pruefe('Blende steht nirgends über die Rinne vor',
+         gegen ? ragt > 0 : ragt === 0,
+         'Blende ' + (r.breit * 10).toFixed(0) + ' x ' + (r.hoch * 10).toFixed(0) +
+         ' mm, Rinne ' + (RINNE.breite * 10).toFixed(0) + ' x ' +
+         (RINNE.hoehe * 10).toFixed(0) + ' mm');
 
   /* ---------- Die Probe aufs Ganze: deckt die Blende die Rinne? ----------
      „die rinnenblende passt auch von der form nicht an die rinne, die
@@ -1262,7 +1241,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
     var pr = eval('(' + rinneQ + ')')(false).p;
 
     var versatzX = RINNE.breite - RINNENDECKEL.breite;   // Deckel sitzt vorne
-    var versatzY = RINNE.schenkelLang;                   // Deckel reicht tiefer
+    var versatzY = 0;                                    // Blende sitzt auf dem Boden
     var deckel = punkteVon(rinQ);
     function drin(poly, x, y) {
       var innen = false;

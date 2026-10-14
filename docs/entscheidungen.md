@@ -6361,3 +6361,41 @@ meldet 175 statt 136,7 mm vorne.
 unten. Die Blende darf unter der Rinne nur hinten herunterreichen, wo
 Schenkel und Pfosten sind; nach vorne läuft ihre Unterkante hoch zur
 Rinnenunterkante.
+
+### 14.10.2026 – Blende endgültig auf Rinnenhöhe; die 175 mm sind verworfen
+
+> „alter?" (Betreiber, mit zwei Bildern aus der 3D-Ansicht)
+
+Im Bild stand die Blende als großes schwarzes Blech **oben und unten über
+die Rinne hinaus** und verdeckte sie, statt sie abzuschließen.
+
+**Damit ist meine eigene Herleitung vom selben Abend widerlegt.** Ich hatte
+aus `175 − 136,7 = 38,3` geschlossen, der Deckel reiche von der Nase bis
+zum Schenkelfuß – und das als Auflösung des Widerspruchs gefeiert. Die
+Rechnung ging auf; am Bauteil stimmt sie nicht. **Zwei Zahlen, deren
+Differenz zufällig zu einer dritten passt, sind kein Beleg.** Woher die
+175 mm der Skizze zu 6017 kommen, bleibt offen – möglicherweise misst sie
+das Rohteil samt Befestigungslasche.
+
+**Was jetzt gilt:** Die Blende hat genau die Rinnenhöhe (136,7 mm) und
+schließt die Stirnseite ab, ohne irgendwo vorzustehen. Form wie gehabt:
+vorne gerade durch, hinten die beiden Fasen, obere = `RINNE.wangeAb`.
+Nicht belegt, aber das Einzige, was im Bild stimmt – und das Bild
+entscheidet, seit sich die beiden Zeichnungen widersprechen.
+
+**Bilanz dieses Bauteils an einem Tag:** vier Lagen (mittig → vorne/Nase →
+hinten/Boden → vorne/Schenkelfuß → vorne/Boden), zwei Höhen (175 → 136,7 →
+175 → 136,7), zweimal die Fasenseite gedreht. Jede Runde hing an einer
+Zahl aus einer Zeichnung, die ich gegen eine andere Zeichnung gerechnet
+habe. **Erst das gerenderte Bild hat die Fehler gezeigt, nicht die
+Rechnung** – dreimal hintereinander.
+
+**Konsequenz fürs Vorgehen:** Bei Bauteilen, die aufeinander passen
+müssen, zuerst den Schnitt rendern und ansehen, dann rechnen. Das Skript
+dafür steht als Muster in diesem Eintrag beschrieben (Querschnitte aus dem
+Code ziehen, in Weltkoordinaten legen, als PPM zeichnen) – es braucht
+keinen Browser und kostet eine Minute.
+
+**Absicherung:** zwei Verfälschungen (Höhe wieder 175 / wieder unter den
+Boden gezogen), beide schlagen an. Dazu unverändert die Punkt-für-Punkt-
+Prüfung und die Formprüfung.

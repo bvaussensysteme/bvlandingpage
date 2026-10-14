@@ -229,16 +229,12 @@ var rd = (src.match(/var RINNENDECKEL = \{[^}]*\}/) || [''])[0];
   var soll = 172 + (gegen ? 7 : 0);
   pruefe('Rinnendeckel Tiefe', ist === soll, ist + ' mm (Teilebild 172)');
 })();
-(function () {
-  var m = rd.match(/hoehe:\s*([\d.]+)/);
-  var ist = m ? Math.round(parseFloat(m[1]) * 10) : null;
-  var soll = 175 + (gegen ? 7 : 0);
-  pruefe('Rinnendeckel Höhe', ist === soll, ist + ' mm (Teilebild 175)');
-})();
-pruefe('Rinnendeckel vorne buendig, unten am Schenkelfuss',
-       new RegExp(q || 'profilKappen\\(laenge, zVorne - RINNENDECKEL\\.breite,').test(src) &&
-       new RegExp(q || 'yUnten - RINNE\\.schenkelLang,').test(src),
-       'deckt Rinne und Schenkel ab');
+pruefe('Rinnendeckel Höhe kommt aus der Rinne',
+       new RegExp(q || 'hoehe: RINNE\\.hoehe').test(rd),
+       'nicht mehr 175 mm aus der Skizze');
+pruefe('Rinnendeckel vorne buendig auf dem Rinnenboden',
+       new RegExp(q || 'profilKappen\\(laenge, zVorne - RINNENDECKEL\\.breite, yUnten,').test(src),
+       'kein Überstand nach unten');
 
 /* Glasleiste TD, Teilebild: 55,3 x 22,6 mm */
 var gl = (src.match(/var GLASLEISTE = \{[^}]*\}/) || [''])[0];

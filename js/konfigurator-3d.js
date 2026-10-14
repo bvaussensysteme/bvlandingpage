@@ -1870,7 +1870,21 @@
      war am Foto von 6011/6012 abgeschaetzt, nicht bemasst – und er gab
      genau die vordere Oberkante der Rinne frei, die der Deckel abdecken
      soll. Was belegt ist (172, 175, Fase 34), bleibt. */
-  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: RINNE.fase,
+  /* KORREKTUR 14.10.2026, nach dem Bild aus der gedrehten Ansicht:
+     „alter?" (Betreiber). Dort steht die Blende als grosses schwarzes
+     Blech oben UND unten ueber die Rinne hinaus und verdeckt sie.
+
+     Damit ist meine Herleitung vom selben Abend widerlegt: Ich hatte aus
+     175 − 136,7 = 38,3 geschlossen, der Deckel reiche von der Nase bis
+     zum Schenkelfuss. Die Rechnung ging auf, am Bauteil stimmt sie
+     nicht. Woher die 175 mm der Skizze zu 6017 kommen, bleibt offen –
+     moeglicherweise misst sie das Rohteil samt Befestigungslasche.
+
+     Was jetzt gilt: Die Blende hat GENAU die Rinnenhoehe und schliesst
+     die Stirnseite ab, ohne irgendwo vorzustehen. Nicht belegt, aber das
+     Einzige, was im Bild stimmt – und das Bild entscheidet, seit die
+     Zeichnungen sich widersprechen. */
+  var RINNENDECKEL = { breite: 17.2, hoehe: RINNE.hoehe, fase: RINNE.fase,
                        fall: 0, lehne: 0 };
 
   /* ---------- Seitliche Abdeckungen ----------
@@ -1948,8 +1962,8 @@
        hoch, also exakt so hoch wie die Rinne. */
     f.moveTo(0, fu);
     f.lineTo(fu, 0);                   // Fase hinten unten
-    f.lineTo(b, RINNE.schenkelLang);   // Unterkante steigt nach vorne an
-    f.lineTo(b, h);                    // Vorderkante ueber die Rinnenhoehe
+    f.lineTo(b, 0);                    // Unterkante auf dem Rinnenboden
+    f.lineTo(b, h);                    // Vorderkante = Rinnenhoehe
     f.lineTo(fo, h);                   // Oberkante nach hinten
     f.lineTo(0, h - fo);               // Fase hinten oben, folgt der Wange
     f.closePath();
@@ -2034,8 +2048,7 @@
        Ueberstand / hinten buendig auf dem Boden). Alle drei waren
        Versuche, zwei Masse zusammenzubringen, zwischen denen der
        Schenkel fehlte. */
-    profilKappen(laenge, zVorne - RINNENDECKEL.breite,
-                 yUnten - RINNE.schenkelLang,
+    profilKappen(laenge, zVorne - RINNENDECKEL.breite, yUnten,
                  rinnenkappeQuerschnitt(), material);
   }
 
