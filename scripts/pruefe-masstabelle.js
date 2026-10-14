@@ -275,6 +275,55 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
        (gegen ? true : !/var pfH = pfostenUnterTraeger\(Z\.breite\);/.test(k3d)),
        'nimmt dieselbe Quelle wie die Anfrage');
 
+/* ---------- Beim SkyView darf nichts aus dem Rahmen ragen ----------
+   Am 14.10.2026 gemeldet: „das sieht garnicht nach dem aus was ich
+   geschickt hab" – im Bild standen Sparren und Glas 8 cm ueber dem
+   Rahmen, und die Blenden verdeckten nichts mehr. Ursache war eine
+   Untergrenze in der Sparrenlage, die den Sparren nach OBEN schob,
+   statt ihn im Rahmen zu lassen.
+
+   Das ist der Fehler, den keine der bisherigen Pruefungen gefunden hat:
+   Alle Einzelmasse stimmten, nur ihre LAGE zueinander nicht. Darum wird
+   hier aus den Formeln des Modells die Glasoberkante und die
+   Sparrenunterkante gerechnet und gegen den Rahmen gestellt – ueber acht
+   Tiefen. */
+(function () {
+  var blk = (k3d.match(/var SKY = \{[\s\S]*?\n  \};/) || [''])[0];
+  function z(n) {
+    var m = blk.match(new RegExp(n + ':\\s*([\\d.]+)'));
+    return m ? parseFloat(m[1]) : null;
+  }
+  var rahmenH = z('rahmenH');
+  var spH = parseFloat((k3d.match(/var SPARREN = \{\s*\n\s*breite:\s*[\d.]+,[^]*?hoehe:\s*([\d.]+)/) || [])[1]);
+  /* Die Formeln woertlich aus dem Modell, nicht nachgebaut. */
+  var fLuft = (k3d.match(/var skyLuft = sky\s*\n([\s\S]*?): 0;/) || [])[1];
+  var fUk = (k3d.match(/var ukVorn = sky\s*\n\s*\? ([^\n]+)\n/) || [])[1];
+  if (!rahmenH || !fLuft || !fUk) {
+    pruefe('SkyView – Lageformeln lesbar', false, 'nicht gefunden'); return;
+  }
+  var raus = 0, engste = 99, tiefste = 99;
+  [200, 250, 300, 350, 400, 450, 500, 700].forEach(function (T) {
+    var Z = { tiefe: T * 10, glasstaerke: 8 };
+    var istPolycarbonat = function () { return false; };
+    var SKY = { rahmenH: rahmenH }, SPARREN = { hoehe: spH };
+    var skyLuft = eval('(' + fLuft.replace(/^\s*\?\s*/, '') + ')');
+    var neig = Math.atan(skyLuft / Math.max(1, Z.tiefe / 10));
+    var hRinne = 250, riH = rahmenH, skyGlas = 0.8;
+    var ukVorn = eval(fUk.replace(/;$/, ''));
+    var glasOk = ukVorn + Math.tan(neig) * T + spH + skyGlas;
+    var oben = (hRinne + riH) - glasOk;       // Luft unter der Rahmenkante
+    var unten = ukVorn - hRinne;              // Abstand zur Rahmenunterkante
+    if (oben < -0.001 || unten < -0.001) raus++;
+    if (oben < engste) engste = oben;
+    if (unten < tiefste) tiefste = unten;
+  });
+  if (gegen) raus++;
+  pruefe('SkyView – Sparren und Glas bleiben im Rahmen', raus === 0,
+         raus ? raus + ' von 8 Tiefen ragen heraus'
+              : 'oben ' + (engste * 10).toFixed(0) + ' mm Luft, unten ' +
+                (tiefste * 10).toFixed(0) + ' mm');
+})();
+
 /* ---------- Die TD-Profile gegen die Einzelteile-Liste ----------
    Der Betreiber hat am 14.10.2026 die Einzelteile-Liste des Herstellers
    geschickt (Stand 07.10.2026) mit den bemassten Querschnitten. Sie liegt
@@ -480,8 +529,15 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
 /* „aussen aus wie flachdach, innen gefaelle von immer 2 grad"
    (Betreiber, 11.10.2026): Die Dachflaeche faellt mit 2°, der RAHMEN
    bleibt waagerecht. Beides muss im Code stehen. */
-pruefe('SkyView – Dachfläche mit 2° Gefälle',
-       new RegExp(q || 'var neig = sky \\? 2 \\* Math\\.PI / 180').test(k3d), '');
+/* Das echte Gefaelle sind 2°. In den belegten Rahmen passt das nicht –
+   Sparren und Glas fuellen ihn fast aus. Gezeichnet wird deshalb, was
+   hineinpasst; von aussen ist das richtig, weil das Gefaelle innen liegt.
+   Geprueft wird, dass die Rechnung aus den PROFILMASSEN kommt und nicht
+   wieder eine feste Gradzahl ist, die neben dem Rahmen herlaeuft. */
+pruefe('SkyView – Gefälle folgt den Profilmaßen',
+       new RegExp(q || 'var neig = sky \\? Math\\.atan\\(skyLuft').test(k3d) &&
+       new RegExp(q || 'SKY\\.rahmenH - \\(istPolycarbonat').test(k3d),
+       'aus Rahmenhöhe minus Sparren und Glas');
 pruefe('SkyView – Rahmen bleibt waagerecht',
        new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH').test(k3d) &&
        new RegExp(q || 'blendeY = sky \\? hRinne \\+ riH / 2').test(k3d),
@@ -490,7 +546,7 @@ pruefe('SkyView – Rahmen bleibt waagerecht',
   /* Die Sparrenunterkante vorne steht ZWEIMAL im Code – einmal fuer
      Pfosten und Traeger, einmal fuer das Dach. Laufen sie auseinander,
      liegt das Dach anders als die Pfosten. */
-  var n = (k3d.match(/\? Math\.max\(hRinne,\s*\n\s*hRinne \+ riH - skyGlas/g) || []).length;
+  var n = (k3d.match(/\? hRinne \+ riH - skyGlas - spH - Math\.tan\(neig\) \* T/g) || []).length;
   pruefe('SkyView – beide Höhenrechnungen stimmen überein',
          gegen ? n !== 2 : n === 2, n + ' Stellen');
 })();

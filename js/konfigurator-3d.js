@@ -5095,7 +5095,34 @@
        Deshalb steht hier wieder der feste Winkel – aber der Rahmen
        richtet sich jetzt nicht mehr nach der geneigten Dachfläche,
        sondern bleibt rundum gleich hoch (siehe riH weiter unten). */
-    var neig = sky ? 2 * Math.PI / 180 : neigungGrad() * Math.PI / 180;
+    /* ---------- Wie flach das Gefaelle gezeichnet wird ----------
+       Das echte SkyView hat 2° Innengefaelle. In den belegten Rahmen
+       passt das NICHT: Sparren (120 mm) und Glas (8 mm) fuellen die
+       136,7 mm fast aus, fuer das Gefaelle bleiben 8,7 mm.
+
+       Bis zum 14.10.2026 schob der Code den Sparren deshalb nach oben
+       aus dem Rahmen heraus – im Bild ragten Sparren und Glas 8 cm
+       darueber, und die Blenden verdeckten nichts mehr: „das sieht
+       garnicht nach dem aus was ich geschickt hab" (Betreiber, mit
+       Bildschirmfoto).
+
+       Gezeichnet wird jetzt das, was in den Rahmen passt. Von aussen
+       ist das richtig – das Gefaelle liegt ohnehin INNEN und ist durch
+       Rahmen und Blenden verdeckt; genau das macht die Optik eines
+       Flachdachs aus.
+
+       OFFEN BLEIBT, welche Angabe fehlt: Entweder hat SkyView ein
+       flacheres Sparrenprofil als das TDS, oder die Sparren haengen
+       unten aus dem Rahmen heraus, oder der Rahmen ist an den Seiten
+       hoeher als die Rinne. Drei Moeglichkeiten, keine belegt – siehe
+       docs/NEXT_TASK.md. Was hier gezeichnet wird, ist die aeussere
+       Erscheinung, nicht die Statik. */
+    var skyLuft = sky
+      ? Math.max(0, SKY.rahmenH - (istPolycarbonat() ? 1.6 : Z.glasstaerke / 10)
+                    - SPARREN.hoehe)
+      : 0;
+    var neig = sky ? Math.atan(skyLuft / Math.max(1, Z.tiefe / 10))
+                   : neigungGrad() * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
     /* Statiktraeger 189 x 117 mm (15187). Die Zeichnung nennt 189,2 x
        117; der Pfostenkopf liegt mit 110,2 darunter. BELEGT (Liste und
@@ -5268,10 +5295,13 @@
        ausgeklinkt gezeichnet (die Untergrenze), sonst haengt er unter
        dem Rahmen heraus. Ob das echte System dort flacher neigt oder
        tiefer ausklinkt, ist nicht belegt (docs/NEXT_TASK.md). */
+    /* Sparrenunterkante vorne. Beim SkyView von der Rahmenoberkante nach
+       unten: Das Glas schliesst oben mit dem Rahmen ab, darunter der
+       Sparren, und nach vorne faellt er um die Luft, die uebrig bleibt
+       (siehe skyLuft). So bleibt alles im Rahmen – das war der Fehler
+       vom 14.10.2026, der die Sparren oben herausstehen liess. */
     var ukVornJetzt = sky
-      ? Math.max(hRinne,
-                 hRinne + riH - skyGlas - Math.tan(neig) * T -
-                 (spH - SKY.auflagerH))
+      ? hRinne + riH - skyGlas - spH - Math.tan(neig) * T
       : hRinne + (riH - RINNE.sparrenUnterNase - spH);
     var dachTiefeJetzt = sky ? T : T - RINNE.breite;
     var ukAnPfosten = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zPf);
@@ -5545,9 +5575,7 @@
        übereinstimmen, sonst liegt die Rahmenoberkante woanders als die
        Glasebene und das Dach anders als die Pfosten. */
     var ukVorn = sky
-      ? Math.max(hRinne,
-                 hRinne + riH - skyGlas - Math.tan(neig) * T -
-                 (spH - SKY.auflagerH))
+      ? hRinne + riH - skyGlas - spH - Math.tan(neig) * T
       : hRinne + (riH - RINNE.sparrenUnterNase - spH);
 
     /* KORREKTUR 11.10.2026, zweiter Anlauf. Zwischendurch stand hier ein

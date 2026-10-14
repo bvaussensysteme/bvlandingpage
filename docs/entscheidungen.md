@@ -5500,3 +5500,47 @@ genau das war mit den 110 statt 110,2 passiert.
 **Was gegengelesen werden soll:** Terrassendach TDS mit Wandmontage, von
 der Seite betrachtet. Das Wandprofil steht jetzt knapp 8 mm weiter von
 der Wand ab.
+
+## 2026-10-14 – SkyView: Sparren standen über dem Rahmen (Folgefehler)
+
+**Anlass:** „ähm was hast du gemacht, das sieht garnicht nach dem aus was
+ich geschickt hab" (Betreiber, mit Bildschirmfoto) und: „du hast die
+rinnenblenden und seitenblenden ausgelassen".
+
+**Was falsch war:** Nicht die Blenden – die wurden gezeichnet. **Sparren
+und Glas standen 8 cm über den Rahmen hinaus**, deshalb verdeckten die
+Blenden nichts mehr und das Dach sah aus wie ein TDS mit aufgelegten
+Sparren.
+
+**Das war ein Folgefehler meiner eigenen Korrektur von heute Vormittag.**
+Mit dem alten, zu hohen Rahmen (268–355 mm) fiel es nicht auf; erst der
+belegte Rahmen von 136,7 mm hat es sichtbar gemacht. In der Sparrenlage
+stand ein `Math.max(hRinne, …)` – eine Untergrenze, die den Sparren nach
+**oben** schob, statt ihn im Rahmen zu lassen.
+
+**Die Rechnung dahinter:** In 136,7 mm Rahmen passen Sparren (120) und
+Glas (8) – für das Gefälle bleiben **8,7 mm**. Das echte 2°-Gefälle
+(bei 3 m sind das 105 mm) passt dort nicht hinein.
+
+**Was jetzt gilt:** Die Sparrenlage wird von der Rahmenoberkante nach
+unten gerechnet – Glas schließt oben mit dem Rahmen ab, der Sparren liegt
+darunter, und das Gefälle ist so flach, wie der Platz es zulässt. Von
+außen ist das richtig: Das Gefälle liegt innen und ist durch Rahmen und
+Blenden verdeckt, genau das macht die Optik eines Flachdachs aus.
+
+**Was offen bleibt – drei Möglichkeiten, keine belegt:** Entweder hat
+SkyView ein flacheres Sparrenprofil als das TDS, oder die Sparren hängen
+unten aus dem Rahmen heraus, oder der Rahmen ist an den Seiten höher als
+die Rinne vorne. Was hier gezeichnet wird, ist die äußere Erscheinung,
+nicht die Statik.
+
+**Die Lehre – und die neue Prüfung:** Alle Einzelmaße waren richtig, nur
+ihre **Lage zueinander** nicht. Keine der 248 bestehenden Prüfungen hat
+das gefunden, weil jede nur einzelne Zahlen gegen die Liste stellte. Neu
+ist deshalb eine Prüfung, die aus den Formeln des Modells die
+Glasoberkante und die Sparrenunterkante rechnet und über acht Tiefen
+gegen den Rahmen stellt. Sie hätte den Fehler gefunden.
+
+**Was gegengelesen werden soll:** SkyView aufrufen und von schräg oben
+ansehen. Es darf kein Sparren über den Rahmen stehen, und die Glasfläche
+muss bündig mit der Rahmenoberkante abschließen.
