@@ -5839,9 +5839,25 @@
     /* hRinne statt hVorn: Mit Statikträger liegt die Dachfläche um dessen
        Höhe höher – die Seitenelemente müssen bis dorthin reichen, sonst
        bliebe oben ein Spalt. */
-    seitenErweiterungen(B, T, hRinne, PF, neig, function (z) {
-      return ukMitte + Math.tan(neig) * (zMitte - z);
-    }, zPf - PF / 2, xPfVorne);
+    /* ---------- Beim SkyView schliessen die Seiten WAAGERECHT an ----------
+       „man sieht beim sky das rahmenwand, etc. der rahmen oben schief
+       unter die blende geht, beim sky ist alles immer rechtwinklig an der
+       blende unterkante" (Betreiber, 14.10.2026, mit Bildschirmfoto).
+
+       Beim TDS folgen Rahmenwand, Schiebetuer und Plankenwand oben der
+       geneigten Dachunterkante – dort IST die Unterseite schraeg. Beim
+       SkyView liegt darueber der waagerechte Rahmen; das Gefaelle steckt
+       innen und ist verdeckt. Die Elemente enden deshalb an der
+       Blendenunterkante (hRinne), und zwar rechtwinklig.
+
+       Uebergeben wird dafuer BEIDES: Neigung 0 und eine Dachunterkante,
+       die fuer jedes z dieselbe Hoehe liefert. Nur eines von beiden
+       reichte nicht – die Profile richten sich nach der Neigung, ihre
+       Laenge nach der Unterkante. */
+    seitenErweiterungen(B, T, hRinne, PF, sky ? 0 : neig,
+      sky ? function () { return hRinne; }
+          : function (z) { return ukMitte + Math.tan(neig) * (zMitte - z); },
+      zPf - PF / 2, xPfVorne);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und

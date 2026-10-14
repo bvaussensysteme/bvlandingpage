@@ -299,6 +299,35 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
            : rufe.length + ' Aufrufe, alle mit Blendendicke');
 })();
 
+/* ---------- Seitenelemente schliessen beim SkyView waagerecht an ----------
+   „beim sky ist alles immer rechtwinklig an der blende unterkante"
+   (Betreiber, 14.10.2026). Beim TDS folgen Rahmenwand, Schiebetuer und
+   Plankenwand oben der geneigten Dachunterkante – dort ist die Unterseite
+   schraeg. Beim SkyView liegt darueber der waagerechte Rahmen.
+
+   Geprueft wird die uebergebene Funktion selbst: Sie muss fuer
+   verschiedene Tiefen DIESELBE Hoehe liefern. Eine Textsuche haette
+   nicht gezeigt, ob die Hoehe wirklich konstant ist. */
+(function () {
+  var ruf = (k3d.match(/seitenErweiterungen\(B, T, hRinne[\s\S]*?xPfVorne\);/) || [''])[0];
+  if (!ruf) { pruefe('Seitenaufruf lesbar', false, 'nicht gefunden'); return; }
+  var mFn = ruf.match(/sky \? (function \(\) \{ return hRinne; \})/);
+  var mNeig = /sky \? 0 : neig/.test(ruf);
+  if (!mFn || !mNeig) {
+    pruefe('SkyView – Seiten schließen waagerecht an', gegen,
+           !mNeig ? 'Neigung wird nicht auf 0 gesetzt' : 'keine feste Höhe');
+    return;
+  }
+  var hRinne = 250;
+  var f = eval('(' + mFn[1] + ')');
+  var hoehen = [0, 100, 200, 300].map(function (z) { return f(z); });
+  if (gegen) hoehen[2] += 5;
+  var gleich = hoehen.every(function (h) { return Math.abs(h - hoehen[0]) < 0.001; });
+  pruefe('SkyView – Seiten schließen waagerecht an', gleich,
+         gleich ? 'gleiche Höhe über die ganze Tiefe, Neigung 0'
+                : 'Höhe schwankt: ' + hoehen.join(', '));
+})();
+
 /* ---------- Die Rillen zeigen nach AUSSEN ----------
    „und von der innenseite is nix geriffelt" (Betreiber, 14.10.2026).
    Im Profil liegt die gerillte Flaeche auf der Seite +x; nach rotateY(d)
