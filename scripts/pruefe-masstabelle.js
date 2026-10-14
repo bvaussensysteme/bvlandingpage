@@ -671,6 +671,41 @@ pruefe('Wandprofil deckt die Glasleiste ab',
          (sparrenImProfil ? 'im Profil' : 'DAVOR'));
 })();
 
+/* ---------- Blende vor der unteren Kammer (16912) ----------
+   „und jz kommt zwischen jeden sparrenabstand, ans wandprofil ne blende
+   das man das innenleben also die kammern etc nicht sieht … bzw das man
+   nur die untere kammer nicht sieht" (Betreiber, 14.10.2026). */
+(function () {
+  var wb = k3d.match(/var WANDBLENDE = \{ hoehe: ([\d.]+), dicke: ([\d.]+) \}/);
+  var spLit = (k3d.match(/var SPARREN = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!wb || !spLit) { pruefe('Wandblende lesbar', false, 'nicht gefunden'); return; }
+  var SPARREN = eval('(' + spLit.replace(/^var SPARREN = /, '').replace(/;$/, '') + ')');
+  var hoehe = +wb[1];
+
+  /* Sie muss die untere Kammer abdecken – also mindestens so hoch sein
+     wie der Sparrenkoerper, der die Kammer ausfuellt, und hoechstens ein
+     paar Millimeter mehr (der Haken). 98,85 gegen 96,7 mm. */
+  var deckt = hoehe >= SPARREN.koerper && hoehe <= SPARREN.koerper + 0.5;
+  pruefe('Blende deckt die untere Kammer ab (98,85 gegen 96,7 mm)',
+         gegen ? !deckt : deckt,
+         (hoehe * 10).toFixed(2) + ' mm Blende, Kammer ' +
+         (SPARREN.koerper * 10).toFixed(1) + ' mm');
+
+  /* Nur ZWISCHEN den Sparren, nicht durchgehend: Sonst stuende sie vor
+     den Sparren, die in derselben Kammer stecken. Und nur vor der
+     unteren – die obere traegt die Scheibe. */
+  var proFeld = /feldB2 = \(xs\[i \+ 1\] - xs\[i\]\) - spB;/.test(k3d) &&
+                /balken\(feldB2, WANDBLENDE\.hoehe, WANDBLENDE\.dicke,/.test(k3d);
+  pruefe('Blende sitzt in den Feldern zwischen den Sparren',
+         gegen ? !proFeld : proFeld, 'nicht durchgehend über die Breite');
+
+  /* Lage: vorne an der Kammeroeffnung und ab der Kammerunterkante. */
+  var lage = /wpUk \+ kam\.blech \+ WANDBLENDE\.hoehe \/ 2/.test(k3d) &&
+             /WANDPROFIL\.tiefeUnten - WANDBLENDE\.dicke \/ 2/.test(k3d);
+  pruefe('Blende steht vorne in der Kammeröffnung',
+         gegen ? !lage : lage, 'bündig mit dem unteren Schenkel');
+})();
+
 /* ---------- Sparren: Scheibe stoesst an die Stegflanke ----------
    „der träger also quasi sparren, ist so aufgebaut wie auf dem bild, das
    bild zeigt 2 sparren und wie das glas (orange) dadrauf liegt"
