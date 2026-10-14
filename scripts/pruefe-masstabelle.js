@@ -1167,19 +1167,35 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
          (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm gegen Rinne ' +
          (RINNE.breite * 10).toFixed(1) + ' x ' + (stapel * 10).toFixed(1) + ' mm');
 
+  /* Zweite Handvorlage (14.10.2026): vorne ZWEI Fasen – oben klein, unten
+     gross bis zum Schenkelfuss. Beide folgen der Rinne, nicht einer
+     eigenen Zahl: oben fase * 0,6 wie die Rinnenvorderkante, unten die
+     Rinnenfase plus die Schenkellaenge. Dadurch liegt die untere
+     Blendenkante GENAU auf der Rinnenfase. */
   var p3 = punkteVon(rinQ);
-  var obenGerade = p3.filter(function (q) {
-    return Math.abs(q[1] - RINNENDECKEL.hoehe) < 0.001;
-  }).length === 2;
-  var faseUnten = p3.some(function (q) {
-    return Math.abs(q[0] - (RINNENDECKEL.breite - RINNENDECKEL.fase)) < 0.001 &&
-           Math.abs(q[1]) < 0.001;
-  });
-  var formOk = obenGerade && faseUnten && p3.length === 5;
-  pruefe('Blende: oben gerade durch, Fase unten vorne',
+  function hatPunkt(x, y) {
+    return p3.some(function (q) {
+      return Math.abs(q[0] - x) < 0.001 && Math.abs(q[1] - y) < 0.001;
+    });
+  }
+  var fo = RINNE.fase * 0.6, fu = RINNE.fase + RINNE.schenkelLang;
+  var B3 = RINNENDECKEL.breite, H3 = RINNENDECKEL.hoehe;
+  var formOk = p3.length === 6 &&
+               hatPunkt(B3 - fu, 0) && hatPunkt(B3, fu) &&      // unten gross
+               hatPunkt(B3, H3 - fo) && hatPunkt(B3 - fo, H3) && // oben klein
+               hatPunkt(0, H3) && hatPunkt(0, 0);                // hinten gerade
+  pruefe('Blende: zwei Fasen vorne, unten die große bis zum Schenkelfuß',
          gegen ? !formOk : formOk,
-         p3.length + ' Ecken, Oberkante ' + (obenGerade ? 'gerade' : 'geknickt') +
-         ', Fase unten vorne ' + (faseUnten ? 'da' : 'fehlt'));
+         p3.length + ' Ecken, Fase unten ' + (fu * 10).toFixed(1) +
+         ' mm, oben ' + (fo * 10).toFixed(1) + ' mm');
+
+  /* Die untere Fase muss dieselbe Neigung haben wie die der Rinne –
+     sonst schneidet sie das Profil an oder laesst es frei. Beide 45°. */
+  var gleicheNeigung = Math.abs(fu - (RINNE.fase + RINNE.schenkelLang)) < 0.001;
+  pruefe('Untere Blendenfase liegt auf der Rinnenfase',
+         gegen ? !gleicheNeigung : gleicheNeigung,
+         'Rinnenfase ' + (RINNE.fase * 10).toFixed(0) + ' mm + Schenkel ' +
+         (RINNE.schenkelLang * 10).toFixed(1) + ' mm');
 
   var lageOk = /profilKappen\(laenge, zVorne - RINNENDECKEL\.breite,/.test(k3d) &&
                /yUnten - RINNE\.schenkelLang,/.test(k3d);

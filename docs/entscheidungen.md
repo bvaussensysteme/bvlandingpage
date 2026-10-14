@@ -6436,3 +6436,32 @@ hinten wieder kürzer. Jede schlägt an; bei „Fase oben" meldet die
 Punkt-für-Punkt-Prüfung zusätzlich 8 von 29 Punkten. Die früheren
 Maßprüfungen (172 × 175, sechs Ecken, Fasen vorne bzw. hinten) sind
 entfallen – sie schrieben überholte Formen fest.
+
+### 14.10.2026 – Blende, zweite Handvorlage: zwei Fasen vorne
+
+Der Betreiber hat ein zweites Mal in den gerenderten Schnitt gezeichnet.
+Gegenüber der ersten Vorlage hat die Blende damit **zwei Fasen an der
+Vorderkante**: oben eine kleine, unten eine große, die bis zum Schenkelfuß
+durchläuft. Hinten und oben läuft die Kante gerade.
+
+**Beide Fasen sind nicht geschätzt, sondern folgen der Rinne:**
+
+| | Maß | woher |
+|---|---|---|
+| oben | 20,4 mm | dieselbe Fase wie die Rinnenvorderkante (`fase × 0,6`) |
+| unten | 72,3 mm | Rinnenfase (34) + Schenkellänge (38,3), beide in 45° |
+
+Dadurch liegt die untere Blendenkante **genau auf der Rinnenfase** und
+läuft von dort bis zum Schenkelfuß weiter – nachgerechnet deckt die Blende
+den Rinnenumriss exakt ab, ohne ihn anzuschneiden. Die Punkt-für-Punkt-
+Prüfung bestätigt das für alle 29 Punkte.
+
+**Zum Vorgehen:** Das war die zweite Runde mit einer Handskizze im
+Schnitt – und die erste, die auf Anhieb saß, weil die Vorlage maßstäblich
+war. Verglichen mit den fünf Runden davor (alle aus Zeichnungsmaßen
+hergeleitet) ist der Unterschied deutlich: Eine Skizze im eigenen Schnitt
+lässt sich direkt in Zahlen umsetzen und gegen die Nachbarteile prüfen.
+
+**Absicherung:** zwei Verfälschungen (untere Fase ohne Schenkelanteil,
+obere Fase entfernt), beide schlagen an. Dazu prüft eine zweite Prüfung,
+dass die untere Fase dieselbe Neigung hat wie die der Rinne.
