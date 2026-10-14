@@ -5453,3 +5453,50 @@ auf beim flatline dach da sind sie anders."
 aufrufen, Tiefe durchfahren. Der Rahmen muss bei jeder Tiefe gleich hoch
 bleiben und die Pfosten müssen kräftig wirken. Von der Seite darf kein
 Sparren unter dem Rahmen hervorschauen.
+
+## 2026-10-14 – TDS gegen die Einzelteile-Liste geprüft
+
+**Auftrag:** „in der preisliste die sachen System TD raussuchen,
+analysieren und das TDS dach dann noch verbessern" (Betreiber).
+
+**Vorgehen:** Alle elf Positionen mit System „TD" aus der Liste gezogen,
+die Querschnittsskizzen in hoher Auflösung ausgelesen und gegen das
+Modell gerechnet. Die Liste bleibt außerhalb des Projekts (Preise,
+Datenbankherstellerrecht); übernommen sind nur Maße mit Artikelnummer.
+
+**Das Erfreuliche:** Die meisten Maße stimmten bereits – sie kamen aus
+den Einzelzeichnungen, die der Betreiber im Oktober geliefert hatte.
+Bestätigt sind damit Sparren (61 × 120, Körper 96,7), Rinne (186,3 ×
+136,7, Kehle 130, Schräge 82,2), Glasleiste (55,3 × 22,6),
+Seitenglasleiste (63,1 × 59,4) und Statikträger (189,2 × 117).
+
+**Korrigiert:**
+
+| Maß | war | ist | Quelle |
+|---|---|---|---|
+| Wandprofil, Ausladung | 31 mm (geschätzt) | **38,6 mm** | 15188 |
+| Pfosten | 110 mm | 110,2 mm | 15190 |
+| Statikträger, Höhe | 189 mm | 189,2 mm | 15187 |
+
+Die Ausladung des Wandprofils ist die einzige sichtbare Änderung – gut
+7 mm mehr. Die beiden anderen sind Zeichnungsmaße, die das Modell bisher
+gerundet hatte.
+
+**Zur Einbaulage, zum vierten Mal:** Die Zeichnung zeigt das Wandprofil
+LIEGEND (143,6 waagerecht, 38,6 senkrecht). Eingebaut steht es aufrecht –
+143,6 hoch an der Wand, 38,6 Ausladung; das hat der Betreiber am
+11.10.2026 bestätigt. Der Querschnitt sagt nichts über die Einbaulage;
+genau das war schon bei SG23, Velaris und der Seitenglasleiste der Fehler.
+
+**Nicht übernommen**, weil im Modell nicht sichtbar: Statikträgerblende
+(117 × 15), Rinnenkopplung (125 × 136,7), Tropfkantenprofil (21,6 × 20),
+Wand-Rinnen Blende (98,85 × 23,1), Innenkerne. Die Maße stehen hier,
+falls eines davon einmal gebraucht wird.
+
+**Absicherung:** Eine neue Prüfung stellt elf Maße gegen die Liste, jedes
+mit Artikelnummer. Sie schlägt an, wenn jemand eine Zahl „glättet" –
+genau das war mit den 110 statt 110,2 passiert.
+
+**Was gegengelesen werden soll:** Terrassendach TDS mit Wandmontage, von
+der Seite betrachtet. Das Wandprofil steht jetzt knapp 8 mm weiter von
+der Wand ab.
