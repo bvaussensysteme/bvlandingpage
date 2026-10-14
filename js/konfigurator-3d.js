@@ -1814,8 +1814,26 @@
      Die Schraege war bis heute nicht abgebildet – der Deckel hatte eine
      senkrechte Hinterkante. Alle vier Werte sind am markierten Bild
      ABGEMESSEN, Genauigkeit rund +/- 5 mm. */
-  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4, fall: 1.1,
-                       lehne: 3.2, ueberNase: 0.5 };
+  /* KORREKTUR 14.10.2026, nach dem Blick ins fertige Bild: „der rinnen
+     deckel hat noch nicht den richtigen platz, sitzt meiner meinung zu
+     niedrig und könnte etwas nach links, darf nicht über die rinne
+     drübergucken auf der stirnseite" (Betreiber). Auf Rueckfrage, was
+     „nach links" heisst: weiter nach HINTEN, zum Haus.
+
+     Damit gilt an der Stirnseite: oben an der Nase, unten am
+     Rinnenboden, hinten buendig – der Deckel bleibt ueberall INNERHALB
+     des Rinnenumrisses.
+
+     ABWEICHUNG VOM BELEGTEN MASS, bewusst: Die Skizze zu 6017 bemasst
+     den Deckel mit 172 x 175 mm. Die 175 mm Hoehe stehen hier nicht
+     mehr – sie sind groesser als die Rinne hoch ist (136,7), der Deckel
+     ragte damit oben und unten heraus. Die HOEHE kommt jetzt aus der
+     Rinne selbst und kann nicht mehr davonlaufen; die 172 mm Tiefe
+     bleiben. Warum das Teil in Wirklichkeit hoeher ist, weiss ich nicht
+     – moeglicherweise deckt es am Bau auch den Pfostenkopf ab. Im Bild
+     stoert es, und das Bild entscheidet hier. */
+  var RINNENDECKEL = { breite: 17.2, hoehe: RINNE.hoehe, fase: 3.4,
+                       fall: 1.1, lehne: 3.2 };
 
   /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
@@ -1942,14 +1960,15 @@
   }
 
   function rinnenblenden(laenge, zVorne, yUnten, material) {
-    /* Vorne buendig, und in der Hoehe NICHT mittig, sondern an der
-       Rinnennase ausgerichtet: Im markierten Bild steht der Deckel oben
-       nur wenige Millimeter ueber der Nase, unten dagegen gut 3 cm unter
-       dem Rinnenboden. Mittig gesetzt stand er oben zu hoch und unten zu
-       kurz – das sah man an der Seitenansicht. */
-    profilKappen(laenge,
-                 zVorne - RINNENDECKEL.breite,
-                 yUnten + RINNE.hoehe + RINNENDECKEL.ueberNase - RINNENDECKEL.hoehe,
+    /* HINTEN buendig (nicht mehr vorne) und unten auf dem Rinnenboden:
+       „könnte etwas nach links … darf nicht über die rinne drübergucken"
+       (Betreiber, 14.10.2026). Vorne bleiben damit 14 mm der Rinne frei –
+       das ist die Folge daraus, dass der Deckel mit 172 mm kuerzer ist
+       als die Rinne tief (186,3).
+
+       Der Schenkel unter dem Rinnenboden bleibt frei: Der Deckel sitzt
+       auf dem Boden, nicht davor. */
+    profilKappen(laenge, zVorne - RINNE.breite, yUnten,
                  rinnenkappeQuerschnitt(), material);
   }
 
