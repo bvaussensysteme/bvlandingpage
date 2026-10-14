@@ -1915,14 +1915,27 @@
      Fasentiefe und der Fall der Oberkante sind daran ABGESCHAETZT. */
   function rinnenkappeQuerschnitt() {
     var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe;
-    var fase = RINNENDECKEL.fase;
+    /* Zweite Handvorlage des Betreibers im gerenderten Schnitt
+       (14.10.2026): vorne ZWEI Fasen – oben eine kleine, unten eine
+       grosse, die bis zum Schenkelfuss durchlaeuft. Hinten und oben
+       laeuft die Kante gerade.
+
+       Die Masse sind nicht geschaetzt, sondern folgen der Rinne:
+         · oben dieselbe Fase wie die Rinnenvorderkante (fase * 0,6),
+         · unten die Rinnenfase PLUS die Schenkellaenge – beide in 45°,
+           damit liegt die Blendenkante genau auf der Rinnenfase und
+           laeuft von dort bis zum Schenkelfuss weiter.
+       Nachgerechnet deckt die Blende den Rinnenumriss damit exakt ab,
+       ohne ihn irgendwo zu schneiden. */
+    var fo = RINNE.fase * 0.6;
+    var fu = RINNE.fase + RINNE.schenkelLang;
     var f = new THREE.Shape();
-    /* x = 0 ist hinten (zum Haus), y = 0 der Schenkelfuss. */
-    f.moveTo(0, 0);
-    f.lineTo(b - fase, 0);             // Unterkante
-    f.lineTo(b, fase);                 // Fase unten vorne
-    f.lineTo(b, h);                    // Vorderkante
-    f.lineTo(0, h);                    // Oberkante, durchgehend gerade
+    f.moveTo(0, 0);                    // hinten unten
+    f.lineTo(b - fu, 0);               // Unterkante
+    f.lineTo(b, fu);                   // grosse Fase unten vorne
+    f.lineTo(b, h - fo);               // Vorderkante
+    f.lineTo(b - fo, h);               // kleine Fase oben vorne
+    f.lineTo(0, h);                    // Oberkante, gerade
     f.closePath();                     // Hinterkante
     return f;
   }
