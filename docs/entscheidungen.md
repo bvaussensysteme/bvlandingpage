@@ -6118,3 +6118,39 @@ sonst hätte der Schenkel sie auf 176,7 mm getrieben.
 **Was gegengelesen werden soll:** TDS von der Seite. Die Rinne muss vorne
 76 mm über den Pfosten überstehen, und unter ihr muss hinten der Schenkel
 zu sehen sein, an dem der Pfosten anliegt.
+
+### 14.10.2026 – Rinnendeckel: Höhe kommt jetzt aus der Rinne
+
+> „der rinnen deckel hat noch nicht den richtigen platz, sitzt meiner
+> meinung zu niedrig und könnte etwas nach links, darf nicht über die rinne
+> drübergucken auf der stirnseite" (Betreiber, nach dem Blick ins fertige
+> Bild; auf Rückfrage zu „nach links": weiter nach hinten, zum Haus)
+
+Die Lage vom Vormittag (vorne bündig, 5 mm über der Nase, 33 mm unter dem
+Boden) stammte aus der markierten Skizze und sah **im fertigen Bild falsch
+aus**. Jetzt: **hinten bündig, unten auf dem Rinnenboden** – der Deckel
+bleibt überall innerhalb des Rinnenumrisses. Vorne bleiben dadurch 14 mm
+der Rinne frei; das ist die Folge daraus, dass der Deckel mit 172 mm
+kürzer ist als die Rinne tief (186,3).
+
+**Abweichung vom belegten Maß, bewusst:** Die Skizze zu 6017 bemaßt
+172 × 175 mm. Die 175 mm Höhe stehen nicht mehr im Code – sie sind größer
+als die Rinne hoch ist (136,7), der Deckel ragte damit oben und unten
+heraus. **Die Höhe kommt jetzt als `RINNE.hoehe` aus der Rinne selbst** und
+kann nicht mehr davonlaufen; die 172 mm Tiefe bleiben. Warum das echte Teil
+höher ist, weiß ich nicht – möglicherweise deckt es am Bau auch den
+Pfostenkopf ab. **Im Bild stört es, und das Bild entscheidet hier.**
+
+**Dritte Lage auch an dieser Stelle** (mittig → vorne bündig/an der Nase →
+hinten bündig/auf dem Boden). Die beiden ersten hingen jeweils an einer
+Zeichnung, die dritte am gerenderten Ergebnis. Lehre daraus: Eine Skizze
+sagt, wie das Teil aussieht – wie es sitzt, zeigt erst das Bild.
+
+**Absicherung:** Die Prüfung vergleicht nicht mehr Zahlen gegen die
+Skizze, sondern Deckel gegen Rinne: Nichts darf über 186,3 × 136,7
+hinausragen. Zwei Verfälschungen (Höhe wieder 175; wieder vorne bündig) –
+beide schlagen an.
+
+**Was gegengelesen werden soll:** Stirnseite der Rinne von schräg vorne.
+Der Deckel darf nirgends über die Rinnenkontur stehen, vorne bleiben 14 mm
+Rinne sichtbar.

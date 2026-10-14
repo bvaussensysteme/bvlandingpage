@@ -213,26 +213,28 @@ pruefe('eZIP – Kastenunterstützung ab 400 cm',
 })();
 pruefe('eZIP – Hinweis bei über 5 m Breite',
        new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
-/* Seitendeckel Rinne 2 TD, Teilebild: 172 x 175 mm; vorne buendig.
-   In der Hoehe stand er bis zum 14.10.2026 MITTIG – das war die
-   Notloesung, solange unklar war, wie Deckel (172 x 175) und Rinne
-   (186,3 x 136,7) zusammengehoeren. Der Betreiber hat den Deckelumriss
-   in den Rinnenquerschnitt eingezeichnet: Er sitzt an der Nase
-   ausgerichtet und haengt unten weit unter den Rinnenboden. */
+/* Seitendeckel Rinne 2 TD (6011/6012). Die Skizze zu 6017 bemasst ihn mit
+   172 x 175 mm. Die TIEFE 172 steht weiter hier; die HOEHE kommt seit dem
+   14.10.2026 aus der Rinne selbst (RINNE.hoehe), weil 175 mm hoeher sind
+   als die Rinne und der Deckel damit oben und unten herausragte:
+   „darf nicht über die rinne drübergucken auf der stirnseite" (Betreiber,
+   nach dem Blick ins fertige Bild).
+
+   Lage: HINTEN buendig und unten auf dem Rinnenboden. Vorher vorne
+   buendig und an der Nase ausgerichtet, davor „in der Hoehe mittig". */
 var rd = (src.match(/var RINNENDECKEL = \{[^}]*\}/) || [''])[0];
-[['breite', 172], ['hoehe', 175]].forEach(function (p) {
-  var m = rd.match(new RegExp(p[0] + ':\\s*([\\d.]+)'));
+(function () {
+  var m = rd.match(/breite:\s*([\d.]+)/);
   var ist = m ? Math.round(parseFloat(m[1]) * 10) : null;
-  var soll = p[1] + (gegen ? 7 : 0);
-  pruefe('Rinnendeckel ' + p[0], ist === soll,
-         ist + ' mm (Teilebild ' + p[1] + ')');
-});
-pruefe('Rinnendeckel vorne buendig',
-       new RegExp(q || 'zVorne - RINNENDECKEL\\.breite').test(src), 'Vorderkante');
-pruefe('Rinnendeckel an der Rinnennase ausgerichtet (nicht mittig)',
-       new RegExp(q || 'RINNE\\.hoehe \\+ RINNENDECKEL\\.ueberNase - RINNENDECKEL\\.hoehe').test(src) &&
-       (gegen || !/RINNE\.hoehe - RINNENDECKEL\.hoehe\) \/ 2/.test(src)),
-       'oben an der Nase, unten ueber den Boden hinaus');
+  var soll = 172 + (gegen ? 7 : 0);
+  pruefe('Rinnendeckel Tiefe', ist === soll, ist + ' mm (Teilebild 172)');
+})();
+pruefe('Rinnendeckel Höhe kommt aus der Rinne',
+       new RegExp(q || 'hoehe: RINNE\\.hoehe').test(rd),
+       'nicht mehr 175 mm als eigene Zahl');
+pruefe('Rinnendeckel hinten buendig, unten auf dem Boden',
+       new RegExp(q || 'profilKappen\\(laenge, zVorne - RINNE\\.breite, yUnten,').test(src),
+       'nicht mehr vorne bündig');
 
 /* Glasleiste TD, Teilebild: 55,3 x 22,6 mm */
 var gl = (src.match(/var GLASLEISTE = \{[^}]*\}/) || [''])[0];
