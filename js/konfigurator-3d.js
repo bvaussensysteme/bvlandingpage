@@ -2099,7 +2099,20 @@
   /* Wandprofil TD, cm. Stand bisher nur als Zahl im Modellaufbau; seit
      die Unterkante im Bedienfeld angezeigt und rückwärts gerechnet
      wird, brauchen beide dieselbe Quelle. */
-  var WANDPROFIL = { hoehe: 14.36, tiefe: 3.1 };
+  /* Wandprofil TD (15188), BELEGT aus der Einzelteile-Liste des
+     Herstellers (Stand 07.10.2026): 143,6 x 38,6/37 mm. Die beiden
+     Hoehenmasse sind die Enden – das Profil laeuft leicht keilig, damit
+     das Dachgefaelle anschliesst; gezeichnet wird mit dem groesseren.
+
+     EINGEBAUT STEHT ES AUFRECHT: 143,6 mm hoch an der Wand, 38,6 mm
+     Ausladung. Die Zeichnung zeigt es liegend – „der Querschnitt sagt
+     nichts ueber die Einbaulage" (Lehre vom 11.10.2026, dort dreimal
+     derselbe Fehler). Die Einbaulage hat der Betreiber am 11.10.2026
+     bestaetigt.
+
+     Die Ausladung stand bis zum 14.10.2026 auf 31 mm – geschaetzt aus
+     einer frueheren Zeichnung. Die Liste nennt 38,6 mm. */
+  var WANDPROFIL = { hoehe: 14.36, tiefe: 3.86 };
 
   var PFOSTENACHSE = 5.5;
 
@@ -5066,7 +5079,9 @@
      Matrix angebunden ist, übernimmt wieder bauenAusDaten(). */
   function bauenTerrasseGeschaetzt() {
     var sky = Z.produkt === 'Flachdach SkyView';
-    var PF = 11;                                   // Pfosten 110 mm, BELEGT
+    /* Pfosten 110 x 110 x 2,5 mm (15190). Das Aussenmass der Zeichnung
+       ist 110,2 – die Produktbezeichnung rundet auf 110. BELEGT. */
+    var PF = 11.02;
     /* SkyView: außen Flachdach, innen Gefälle. „das sky view sieht von
        außen aus wie flachdach hat aber ein innenliegendes gefälle von
        immer 2 grad" (Betreiber, 11.10.2026).
@@ -5082,7 +5097,10 @@
        sondern bleibt rundum gleich hoch (siehe riH weiter unten). */
     var neig = sky ? 2 * Math.PI / 180 : neigungGrad() * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
-    var TR_H = 18.9, TR_T = 11.7;              // Statikträger, BELEGT (Maßtabelle)
+    /* Statiktraeger 189 x 117 mm (15187). Die Zeichnung nennt 189,2 x
+       117; der Pfostenkopf liegt mit 110,2 darunter. BELEGT (Liste und
+       Masstabelle). */
+    var TR_H = 18.92, TR_T = 11.7;
 
     /* TIEFENMASS: „bei freistehend das tiefe maß is immer inkl.
        statikträger, bei wandmontage ja nicht" (Betreiber, 11.10.2026).

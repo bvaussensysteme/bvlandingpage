@@ -275,10 +275,53 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
        (gegen ? true : !/var pfH = pfostenUnterTraeger\(Z\.breite\);/.test(k3d)),
        'nimmt dieselbe Quelle wie die Anfrage');
 
+/* ---------- Die TD-Profile gegen die Einzelteile-Liste ----------
+   Der Betreiber hat am 14.10.2026 die Einzelteile-Liste des Herstellers
+   geschickt (Stand 07.10.2026) mit den bemassten Querschnitten. Sie liegt
+   NICHT im Projekt – sie enthaelt Preise und faellt unter das
+   Datenbankherstellerrecht; verarbeitet wurde sie nur im Scratchpad.
+
+   Hier stehen die Masse mit Artikelnummer, damit jede Zahl nachschlagbar
+   bleibt und auffaellt, wenn jemand sie „glatter" macht. Die meisten
+   stimmten schon (sie kamen aus Zeichnungen); korrigiert wurde die
+   Ausladung des Wandprofils (31 -> 38,6 mm) und zwei Nachkommastellen. */
+(function () {
+  var soll = [
+    ['SPARREN',    'breite',      6.1,   'Träger TD 15698, 61 mm'],
+    ['SPARREN',    'hoehe',      12.0,   'Träger TD 15698, 120 mm gesamt'],
+    ['SPARREN',    'koerper',     9.67,  'Träger TD 15698, Körper 96,7 mm'],
+    ['RINNE',      'breite',     18.63,  'Rinne 2 TD 16913, 186,3 mm'],
+    ['RINNE',      'hoehe',      13.67,  'Rinne 2 TD 16913, 136,7 mm'],
+    ['RINNE',      'innenBreite', 13.0,  'Rinne 2 TD 16913, Kehle 130 mm'],
+    ['RINNE',      'innenTiefe',   8.22, 'Rinne 2 TD 16913, 82,2 mm'],
+    ['GLASLEISTE', 'breite',      5.53,  'Glasleiste TD 15184, 55,3 mm'],
+    ['GLASLEISTE', 'hoehe',       2.26,  'Glasleiste TD 15184, 22,6 mm'],
+    ['WANDPROFIL', 'hoehe',      14.36,  'Wandprofil TD 15188, 143,6 mm'],
+    ['WANDPROFIL', 'tiefe',       3.86,  'Wandprofil TD 15188, 38,6 mm']
+  ];
+  var fehlt = [], falsch = [];
+  soll.forEach(function (z) {
+    var blk = (k3d.match(new RegExp('var ' + z[0] + ' = \\{[\\s\\S]*?\\n  \\};')) ||
+               k3d.match(new RegExp('var ' + z[0] + ' = \\{[^}]*\\};')) || [''])[0];
+    var m = blk.match(new RegExp(z[1] + ':\\s*([\\d.]+)'));
+    if (!m) { fehlt.push(z[0] + '.' + z[1]); return; }
+    var ist = parseFloat(m[1]) + (gegen ? 0.5 : 0);
+    if (Math.abs(ist - z[2]) > 0.001) falsch.push(z[3] + ' -> ' + (ist * 10).toFixed(1) + ' mm');
+  });
+  pruefe('TD-Profile stimmen mit der Einzelteile-Liste überein',
+         fehlt.length === 0 && falsch.length === 0,
+         fehlt.length ? 'nicht gefunden: ' + fehlt.join(', ')
+           : (falsch.length ? falsch[0] : soll.length + ' Masse geprueft'));
+})();
+/* Die Pfostenbreite steht im Modell als Zahl ohne Namen – eigene
+   Pruefung, damit sie nicht durchrutscht. */
+pruefe('Pfosten 110,2 mm (15190)',
+       new RegExp(q || 'var PF = 11\\.02;').test(k3d), 'Zeichnungsmaß, nicht gerundet');
+
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
 pruefe('Freistehend: Träger steht hochkant',
-       new RegExp(q || 'TR_H = 18\\.9, TR_T = 11\\.7').test(k3d), '189 hoch, 117 tief');
+       new RegExp(q || 'TR_H = 18\\.92, TR_T = 11\\.7').test(k3d), '189,2 hoch, 117 tief');
 pruefe('Freistehend: Träger hinter dem Wandprofil',
        new RegExp(q || 'zTrHinten = -TR_T / 2 \\+ vorsprH').test(k3d),
        'an der Stelle der Wand, mit Vorsprung nach innen');
