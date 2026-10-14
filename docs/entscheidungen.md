@@ -6074,3 +6074,47 @@ schlägt an).
 **Was gegengelesen werden soll:** Blick von unten und schräg von vorne an
 die Wand. Zwischen den Sparren darf man nicht mehr in die untere Kammer
 sehen; die obere mit der Scheibe bleibt sichtbar offen.
+
+### 14.10.2026 – Pfosten sitzen hinten, am Schenkel unter der Rinne
+
+> „und die pfosten sitzen bei uns zu weit vorne, die müssen genau an dem
+> hinteren schenkel der rinne sitzen wie in meiner skizze weiter oben, denn
+> dort werden sie von innen verschraubt"
+>
+> „siehst du die rinne hat unten links nen schenkel, der grade nach unten
+> geht und an diesem schenkel wird der pfosten verschraubt"
+> (Betreiber, mit drei Werkbildern und der markierten Skizze)
+
+**Dritte Lage an dieser Stelle** – deshalb hier die ganze Geschichte, damit
+sie nicht ein viertes Mal verschoben wird:
+
+| Datum | Achse ab Vorderkante | Begründung damals |
+|---|---|---|
+| 10.10.2026 | 93 mm | „mittig unter der Rinne" |
+| 11.10.2026 | 55 mm | „dann mach es nach liste" – die Maßtabelle nennt im Kopf `PFOSTENACHSE_AB_VORDERKANTE_MM=55`; Pfostenvorderkante bündig mit der Rinne |
+| 14.10.2026 | **124,2 mm** | am Schenkel unter der Rinne, dort wird verschraubt |
+
+**Warum das die Tabelle schlägt:** Die Maßtabelle ist von mir aus den
+Preislisten zusammengestellt, die 55 mm standen dort ohne Zeichnung. Der
+Betreiber nennt den Grund, den keine Tabelle liefert – der Pfosten wird am
+Schenkel verschraubt, und der sitzt hinten. Auf allen drei Werkbildern
+steht die Rinne vorne deutlich über den Pfosten.
+
+**Der Schenkel fehlte im Modell.** Die Rinne hat hinten unten einen
+Schenkel, der gerade nach unten geht; an seiner Vorderseite steht der
+Pfosten. Er ist jetzt Teil des Rinnenquerschnitts (gezogen, kein eigenes
+Teil), hängt bei negativem y unter dem Profil und lässt die bemaßten
+136,7 mm unberührt. **Beide Werte sind am Bild abgegriffen, nicht bemaßt:**
+7 mm dick, 40 mm lang. Daraus die Achse: 186,3 − 7 − 55 = 124,2 mm.
+
+**Absicherung:** drei Verfälschungen, jede einzeln – Schenkel entfernt;
+Pfosten wieder ganz hinten (ohne Schenkelstärke); Schenkel nach vorne
+gezogen statt hinten. Jede hat nur ihre eigene Prüfung rot gemacht. Dazu
+prüft eine Rechnung, dass der Pfosten unter der Kehle liegt (74 mm
+Überlappung) – sonst träfe die Schraube von innen die Rinnenwange. Die
+Höhenprüfung der Rinne misst jetzt ab dem Boden statt vom tiefsten Punkt,
+sonst hätte der Schenkel sie auf 176,7 mm getrieben.
+
+**Was gegengelesen werden soll:** TDS von der Seite. Die Rinne muss vorne
+76 mm über den Pfosten überstehen, und unter ihr muss hinten der Schenkel
+zu sehen sein, an dem der Pfosten anliegt.

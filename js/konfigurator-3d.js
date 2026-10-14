@@ -1642,7 +1642,16 @@
     /* Abstand der waagerechten Rillen in der Vorderfläche, GESCHÄTZT
        nach den Werkbildern des Betreibers (11.10.2026). */
     rilleTeilung: 1.5,
-    wand: 0.25         // GESCHÄTZT
+    wand: 0.25,        // GESCHÄTZT
+    /* Hinten unten geht ein Schenkel GERADE NACH UNTEN, an dem der
+       Pfosten verschraubt wird: „siehst du die rinne hat unten links nen
+       schenkel der grade nach unten geht und an diesem schenkel wird der
+       pfosten verschraubt" (Betreiber, 14.10.2026). In der Zeichnung zu
+       16913 ist er zu sehen, aber nicht bemasst – beide Werte am Bild
+       ABGEGRIFFEN. Er haengt UNTER dem Profil, also bei negativem y;
+       die bemassten 136,7 mm Hoehe bleiben davon unberuehrt. */
+    schenkelDick: 0.7,
+    schenkelLang: 4.0
   };
 
   /* Querschnitt der Rinne in der XY-Ebene: x läuft nach vorne (vom Haus
@@ -1677,8 +1686,11 @@
     var faseH = 2.6, faseT = 1.4;         // zurückgesetzter Fuß, GESCHÄTZT
     var fuge = 0.35;                      // Tiefe der Schattenfuge, GESCHÄTZT
 
-    f.moveTo(0, rU);
-    f.quadraticCurveTo(0, 0, rU, 0);
+    /* Der Schenkel haengt hinten unter dem Profil. Er wird im selben Zug
+       gezogen, ist also Teil des Querschnitts und kein eigenes Teil. */
+    f.moveTo(0, -RINNE.schenkelLang);
+    f.lineTo(RINNE.schenkelDick, -RINNE.schenkelLang);
+    f.lineTo(RINNE.schenkelDick, 0);
     f.lineTo(B - faseT - rU, 0);
     f.quadraticCurveTo(B - faseT, 0, B - faseT, rU);
     f.lineTo(B - faseT, faseH - 0.6);
@@ -2306,7 +2318,29 @@
      Die Dicke steht nicht in der Zeichnung, 2 mm GESCHAETZT. */
   var WANDBLENDE = { hoehe: 9.885, dicke: 0.2 };
 
-  var PFOSTENACHSE = 5.5;
+  /* KORREKTUR 14.10.2026: „und die pfosten sitzen bei uns zu weit vorne,
+     die müssen genau an dem hinteren schenkel der rinne sitzen wie in
+     meiner skizze weiter oben, denn dort werden sie von innen
+     verschraubt" (Betreiber, mit drei Werkbildern der Rinne auf dem
+     Pfosten – auf allen steht die Rinne vorne deutlich ueber).
+
+     Dritte Lage an dieser Stelle, deshalb die ganze Geschichte:
+       10.10.2026  93 mm – „mittig unter der Rinne"
+       11.10.2026  55 mm – „dann mach es nach liste", nachdem die
+                   Masstabelle im Kopf PFOSTENACHSE_AB_VORDERKANTE_MM=55
+                   nannte. Damit stand die Pfostenvorderkante buendig
+                   mit der Rinnenvorderkante.
+       14.10.2026  124,2 mm – hinten, an dem Schenkel, der unter der
+                   Rinne gerade nach unten geht: „an diesem schenkel wird
+                   der pfosten verschraubt". Der Pfosten steht an dessen
+                   VORDERSEITE, also 186,3 − 7 (Schenkel) − 55 (halber
+                   Pfosten) = 124,2 mm ab Vorderkante.
+
+     Warum das die 55 mm aus der Tabelle schlaegt: Die Tabelle ist von
+     mir aus den Preislisten zusammengestellt, die Zahl stand dort ohne
+     Zeichnung. Der Betreiber nennt den Grund, den keine Tabelle liefert
+     – der Pfosten wird am Schenkel verschraubt, und der sitzt hinten. */
+  var PFOSTENACHSE = 12.42;
 
   var RANDBLENDE = { dicke: 3.0, vor: 0.25 };
 
