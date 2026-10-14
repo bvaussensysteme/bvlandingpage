@@ -849,13 +849,14 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 (function () {
   var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+)/);
-  var wd = k3d.match(/WANDDECKEL = \{ tiefe: ([\d.]+), hoehe: ([\d.]+), radius: ([\d.]+)/);
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+), fall: ([\d.]+)/);
+  var wd = k3d.match(/WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
   if (!rinQ || !wandQ || !masse || !wd) {
     pruefe('Beide Kappenformen lesbar', false, 'nicht gefunden'); return;
   }
-  var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2], fase: +masse[3] };
-  var WANDDECKEL = { tiefe: +wd[1], hoehe: +wd[2], radius: +wd[3] };
+  var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2],
+                       fase: +masse[3], fall: +masse[4] };
+  var WANDDECKEL = { breite: +wd[1], hoehe: +wd[2] };
 
   var punkte = [], bogen = 0;
   function Form() { this.holes = []; }
@@ -876,21 +877,34 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
              hoch: Math.max.apply(null, ys2) - Math.min.apply(null, ys2),
              bogen: bogen, umriss: JSON.stringify(punkte) };
   }
+  function punkteZahl(quelle) {
+    punkte = []; bogen = 0;
+    eval('(' + quelle + ')')();
+    return punkte.length;
+  }
   var r = mess(rinQ), w = mess(wandQ);
 
-  /* Die Rinnenkappe ist BELEGT – 172 x 175 mm, Fase 34 mm, keine
-     Rundung. Hier darf sich nichts verschieben. */
+  /* Die Rinnenkappe ist BELEGT – 172 x 175 mm aus der Skizze zu 6017
+     („Seitendeckel Rinne 2 TD beidseitig"), keine Rundung. Seit dem
+     14.10.2026 hat sie ZWEI Fasen statt einer: Die seitenspezifischen
+     Deckel 6011/6012 sehen so aus, und die hatte der Betreiber genannt. */
   var rOk = Math.abs(r.breit - RINNENDECKEL.breite) < 0.02 &&
-            Math.abs(r.hoch - RINNENDECKEL.hoehe) < 0.02 && r.bogen === 0;
-  pruefe('Rinnenkappe bleibt beim belegten Mass', gegen ? !rOk : rOk,
+            Math.abs(r.hoch - RINNENDECKEL.hoehe) < 0.02 && r.bogen === 0 &&
+            punkteZahl(rinQ) === 6;
+  pruefe('Rinnenkappe: belegtes Maß, zwei Fasen', gegen ? !rOk : rOk,
          r.breit.toFixed(1) + ' x ' + r.hoch.toFixed(1) + ' cm, ' +
-         r.bogen + ' Bogen');
-  /* Die Wandprofilkappe ist RUND – daran haengt der Unterschied. */
+         punkteZahl(rinQ) + ' Ecken, ' + r.bogen + ' Bogen');
+  /* Die Wandprofilkappe (6013) ist BELEGT: 146,27 hoch x 89,16 breit, der
+     flache Bogen an der AUSSENkante. Die Skizze zeigt sie liegend – „der
+     flache bogen muss nach rechts zeigen, das bild is falsch gedreht"
+     (Betreiber, 14.10.2026). Geprueft wird deshalb auch, dass sie hoeher
+     als breit ist; genau das war vorher verdreht. */
   var wOk = w.bogen >= 2 &&
-            Math.abs(w.breit - WANDDECKEL.tiefe) < 0.02 &&
-            Math.abs(w.hoch - WANDDECKEL.hoehe) < 0.02;
-  pruefe('Wandprofilkappe laeuft vorne rund aus', gegen ? !wOk : wOk,
-         w.breit.toFixed(1) + ' x ' + w.hoch.toFixed(1) + ' cm, ' +
+            Math.abs(w.breit - WANDDECKEL.breite) < 0.02 &&
+            Math.abs(w.hoch - WANDDECKEL.hoehe) < 0.02 &&
+            w.hoch > w.breit;
+  pruefe('Wandprofilkappe: 146,27 hoch, Bogen außen', gegen ? !wOk : wOk,
+         (w.breit * 10).toFixed(1) + ' x ' + (w.hoch * 10).toFixed(1) + ' mm, ' +
          w.bogen + ' Bogenstuecke');
   pruefe('Die beiden Deckel sind NICHT dieselbe Form',
          gegen ? r.umriss === w.umriss : r.umriss !== w.umriss, '');

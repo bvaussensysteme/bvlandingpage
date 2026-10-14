@@ -1776,7 +1776,11 @@
 
      Die Schräge liegt an der Vorderkante oben: „die niedrigere seite is
      die vorderseite" (Betreiber). */
-  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4 };   // cm, BELEGT
+  /* 172 x 175 mm und die Fase BELEGT aus der Skizze zu 6017
+     („Seitendeckel Rinne 2 TD beidseitig"). Der Fall der Oberkante ist am
+     Foto von 6011/6012 ABGESCHAETZT – fuer die gibt es keine bemasste
+     Skizze. */
+  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4, fall: 1.1 };
 
   /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
@@ -1803,33 +1807,58 @@
 
   /* x = 0 ist hinten, x = b vorne; nach dem rotateY beim Bauen läuft die
      Querschnittsbreite in +z, und +z ist vorne. */
+  /* ---------- Form nach dem Teilebild von 6011/6012 ----------
+     „beim tds gefallen mir die rinnenblenden und die wandprofilblenden
+     links und rechts nicht, suche die richtigen in der einzelteileliste:
+     Seitendeckel Rinne 2 links 6011, rechts 6012" (Betreiber, 14.10.2026).
+
+     Bis dahin stand hier die Form des Artikels 6017 („Seitendeckel
+     Rinne 2 TD beidseitig") – ein Rechteck mit EINER abgeschraegten Ecke.
+     Die seitenspezifischen Deckel 6011/6012 haben zwei: oben UND unten an
+     der Vorderkante, dazu eine leicht fallende Oberkante.
+
+     Die Hauptmasse 172 x 175 stammen weiter aus der bemassten Skizze von
+     6017 – 6011/6012 sind in der Liste nur als Foto abgebildet. Die
+     Fasentiefe und der Fall der Oberkante sind daran ABGESCHAETZT. */
   function rinnenkappeQuerschnitt() {
     var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe, fase = RINNENDECKEL.fase;
     var f = new THREE.Shape();
     f.moveTo(0, 0);
-    f.lineTo(b, 0);
-    f.lineTo(b, h - fase);
-    f.lineTo(b - fase, h);
+    f.lineTo(b - fase * 0.6, 0);
+    f.lineTo(b, fase * 0.6);
+    f.lineTo(b, h - fase - RINNENDECKEL.fall);
+    f.lineTo(b - fase, h - RINNENDECKEL.fall);
     f.lineTo(0, h);
     f.closePath();
     return f;
   }
 
-  /* Der Deckel am Wandprofil: vorne ein großer Bogen statt der Schräge.
-     Alle drei Maße sind GESCHÄTZT – am Werkbild abgeschätzt, nicht
-     abgelesen. Sobald ein Teilebild dazu da ist, gehören sie ersetzt. */
-  var WANDDECKEL = { tiefe: 14.0, hoehe: 17.5, radius: 7.0 };
+  /* ---------- Seitendeckel Wandprofil TD (6013) ----------
+     BELEGT aus der Einzelteile-Liste: 146,27 x 89,16 mm. Die Skizze zeigt
+     ihn LIEGEND mit dem Bogen oben; eingebaut steht er: „146,27 is höhe,
+     89,16 is breite", „der flache bogen muss nach rechts zeigen, das bild
+     is falsch gedreht" (Betreiber, 14.10.2026).
+
+     Zum sechsten Mal dieselbe Falle – ein Querschnitt sagt nichts ueber
+     die Einbaulage. Diesmal hat der Betreiber es gesagt, bevor es im
+     Modell stand.
+
+     Vorher standen hier 140 x 175 mit Radius 70, alle drei am Werkbild
+     abgeschaetzt: zu schmal, zu hoch und mit dem Bogen nur ueber der
+     oberen Ecke statt ueber der ganzen Aussenkante. */
+  var WANDDECKEL = { breite: 8.916, hoehe: 14.627 };
 
   function wandkappeQuerschnitt() {
-    var b = WANDDECKEL.tiefe, h = WANDDECKEL.hoehe, r = WANDDECKEL.radius;
+    var b = WANDDECKEL.breite, h = WANDDECKEL.hoehe;
     var f = new THREE.Shape();
+    /* Links die gerade Kante an der Wand, rechts der flache Bogen nach
+       aussen. Oben und unten laufen die Kanten leicht ein – so zeigt es
+       die Skizze (dort, um 90° gedreht, als die beiden schraegen Seiten
+       unter dem Bogen). */
     f.moveTo(0, 0);
-    f.lineTo(b, 0);
-    f.lineTo(b, h - r);
-    /* Der Bogen über die ganze vordere obere Ecke – zwei Stützpunkte
-       machen daraus eine runde Kante statt eines Knicks. */
-    f.quadraticCurveTo(b, h - r * 0.45, b - r * 0.3, h - r * 0.12);
-    f.quadraticCurveTo(b - r * 0.6, h, b - r, h);
+    f.lineTo(b * 0.62, 0);
+    f.quadraticCurveTo(b, h * 0.16, b, h * 0.5);
+    f.quadraticCurveTo(b, h * 0.84, b * 0.62, h);
     f.lineTo(0, h);
     f.closePath();
     return f;
