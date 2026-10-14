@@ -299,6 +299,47 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
            : rufe.length + ' Aufrufe, alle mit Blendendicke');
 })();
 
+/* ---------- Die Rillen zeigen nach AUSSEN ----------
+   „und von der innenseite is nix geriffelt" (Betreiber, 14.10.2026).
+   Im Profil liegt die gerillte Flaeche auf der Seite +x; nach rotateY(d)
+   zeigt sie in Richtung -sin(d) auf der z-Achse. Vorne und hinten war
+   die Drehung vertauscht, die Rillen zeigten also ins Dach hinein.
+   Seitlich stimmte es – deshalb fiel es dort nicht auf.
+
+   Geprueft wird gerechnet, nicht gelesen: Aus dem Drehwinkel jedes
+   Aufrufs und seiner Position folgt, wohin die Rillen zeigen. */
+(function () {
+  var ohneDef = k3d.replace(/function blendeProfil\([\s\S]*?\n  \}/, '');
+  var rufe = ohneDef.match(/blendeProfil\([^;]*?\);/g) || [];
+  if (rufe.length < 3) { pruefe('Blendenaufrufe lesbar', false, rufe.length); return; }
+  var falsch = [];
+  rufe.forEach(function (r) {
+    var t = r.replace(/\s+/g, ' ');
+    var args = t.slice(t.indexOf('(') + 1).split(',');
+    var zArg = (args[5] || '').trim();
+    var dreh = (args[6] || '').trim();
+    var d = /-\s*Math\.PI \/ 2/.test(dreh) ? -Math.PI / 2
+          : /Math\.PI \/ 2/.test(dreh) ? Math.PI / 2
+          : /Math\.PI/.test(dreh) ? Math.PI
+          : /^0$/.test(dreh) ? 0 : null;
+    if (d === null) { falsch.push('Drehung unlesbar: ' + dreh); return; }
+    var zRille = -Math.sin(d);          // Richtung der Rillen in z
+    var xRille = Math.cos(d);
+    /* Wohin muesste sie zeigen? Vorne (z nahe T) nach +z, hinten (z nahe
+       0) nach -z, seitlich nach aussen. */
+    if (/^T -/.test(zArg)) {
+      if (zRille < 0.5) falsch.push('vorne zeigen die Rillen nach innen');
+    } else if (/RANDBLENDE\.dicke \/ 2$/.test(zArg)) {
+      if (zRille > -0.5) falsch.push('hinten zeigen die Rillen nach innen');
+    } else {
+      if (Math.abs(xRille) < 0.5) falsch.push('seitlich stehen die Rillen quer');
+    }
+  });
+  if (gegen) falsch.push('erzwungen');
+  pruefe('Rillen zeigen nach außen', falsch.length === 0,
+         falsch.length ? falsch[0] : rufe.length + ' Blenden, alle nach außen');
+})();
+
 /* Die Blende hat FUENF Rillen – „5 rillen" (Betreiber, 14.10.2026).
    Vorher wurde die Zahl aus der Hoehe geteilt durch 15 mm gerechnet; bei
    der 252 mm hohen Blende ergab das sechzehn, also ein Lamellenprofil.

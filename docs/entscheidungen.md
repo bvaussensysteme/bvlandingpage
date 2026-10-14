@@ -5638,3 +5638,19 @@ Prüfung die Funktionsdefinition mitzählte (deren drittes Argument heißt
 
 **Was gegengelesen werden soll:** SkyView von schräg vorne – die vordere
 Kante muss genauso schlank sein wie die seitlichen.
+
+## 2026-10-14 – Die Rillen zeigten nach innen
+
+**Anlass:** „und von der innenseite is nix geriffelt" (Betreiber).
+
+**Was falsch war:** Im Profil liegt die gerillte Fläche auf der Seite +x;
+nach `rotateY(d)` zeigt sie in Richtung −sin(d) auf der z-Achse. Für
+„nach vorne" braucht es also **−90°, nicht +90°**. Vorne und hinten war
+die Drehung vertauscht – die Rillen zeigten ins Dach hinein, die glatte
+Seite nach außen. Seitlich stimmte es, deshalb fiel es dort nicht auf
+(„die blenden links und rechts sind gut").
+
+**Absicherung:** Die Prüfung rechnet aus Drehwinkel und Position jedes
+Aufrufs, wohin die Rillen zeigen – vorne nach +z, hinten nach −z,
+seitlich nach außen. Eine Textsuche hätte das nicht gefunden: Im Code
+stand eine plausible Zahl, nur mit falschem Vorzeichen.

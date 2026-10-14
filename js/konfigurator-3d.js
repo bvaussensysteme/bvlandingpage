@@ -5541,8 +5541,14 @@
          Darum zwei Teile: vorne die gerillte Blende in Blendendicke,
          dahinter ein glatter Kasten ueber die restliche Rinnentiefe. Der
          schliesst die Unteransicht, ohne nach vorne aufzutragen. */
+      /* DREHUNG: Die Rillen liegen im Profil auf der Seite +x. Nach
+         rotateY(d) zeigt diese Flaeche in Richtung -sin(d) auf der
+         z-Achse – fuer „nach vorne" (+z) braucht es also -90°, nicht
+         +90°. „und von der innenseite is nix geriffelt" (Betreiber,
+         14.10.2026): Vorne und hinten waren sie nach innen gedreht,
+         seitlich stimmten sie – deshalb fiel es dort nicht auf. */
       blendeProfil(B, riH, RANDBLENDE.dicke, 0, hRinne + riH / 2,
-                   T - RANDBLENDE.dicke / 2, Math.PI / 2, mAlu);
+                   T - RANDBLENDE.dicke / 2, -Math.PI / 2, mAlu);
       balken(B, riH, riT - RANDBLENDE.dicke, 0, hRinne + riH / 2,
              T - RANDBLENDE.dicke - (riT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
@@ -5566,7 +5572,7 @@
          als glatter Kasten dahinter. Bei Wandmontage sieht man davon
          nichts, freistehend schon. */
       blendeProfil(B, wpH, RANDBLENDE.dicke, 0, wpMitte,
-                   RANDBLENDE.dicke / 2, -Math.PI / 2, mAlu);
+                   RANDBLENDE.dicke / 2, Math.PI / 2, mAlu);
       balken(B, wpH, wpT - RANDBLENDE.dicke, 0, wpMitte,
              RANDBLENDE.dicke + (wpT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
