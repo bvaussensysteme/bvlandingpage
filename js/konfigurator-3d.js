@@ -2204,20 +2204,9 @@
     tiefe: 3.86,        // Ausladung OBEN: „38,6 is breite oben"
     tiefeUnten: 3.70,   // Ausladung UNTEN: „37 is breite unten"
     wand: 0.25,         // Blechstaerke, GESCHAETZT
-    /* Lage des Mittelstegs, von OBEN gemessen. Nicht frei gewaehlt: Die
-       obere Kammer muss Scheibe (8 mm) und Abdeckleiste (22,6 mm)
-       aufnehmen, dazu die Blechstaerken von Schenkel und Steg – zusammen
-       35,6 mm von 143,6, also 24,8 %. Darunter beginnt die grosse
-       Kammer, in der der Sparren liegt. Die Zeichnung bemasst den Steg
-       nicht; diese Aufteilung folgt den Teilen, die hineingehoeren.
-
-       Millimetergenau geht es nicht auf, und das liegt am Profil, nicht
-       an der Rechnung: Sparren (120) + Scheibe (8) + Leiste (22,6) sind
-       150,6 mm, das Profil ist 143,6 mm hoch. Die obere Kammer bekommt
-       ihr volles Mass, der Sparren ragt dafuer 2,5 mm in den Steg und
-       7 mm unter die Profilunterkante. Im Bild ist davon nichts zu
-       sehen – es sind Bleche, die ineinanderstehen. */
-    stegAb: 0.248,
+    /* Die Lage des Mittelstegs steht NICHT mehr hier: Sie wird in
+       wandprofilKammern() aus den Teilen gerechnet, die hineingehoeren.
+       Siehe dort – ein zweiter Wert an dieser Stelle wuerde davonlaufen. */
     stegTiefe: 2.90     // Mittelsteg ist kuerzer als die Schenkel, GESCHAETZT
   };
 
@@ -2244,22 +2233,50 @@
      haben ja gefälle nach vorne" (Betreiber, 14.10.2026). Die flache
      Rueckseite liegt an der Wand, die Vorderkante steht schraeg – die
      grosse Kammer nimmt die Sparren auf, und die haben Gefaelle. */
-  function wandprofilQuerschnitt() {
-    var H = WANDPROFIL.hoehe, w = WANDPROFIL.wand;
+  /* Die beiden Kammern fassen GENAU die Teile, die hineingehoeren:
+     „quasi sparren dürfte nicht tiefer oder höher als die untere kammer
+     des wandprofil sein und glas + glasleiste dürfen nicht tiefer oder
+     höher als die obere kamer sein" (Betreiber, 14.10.2026).
+
+     Deshalb wird hier nichts geschaetzt, sondern gerechnet:
+       untere Kammer = Hauptkoerper des Sparrens (96,7 mm; die Klaue
+                       darueber steht neben der Scheibe und gehoert
+                       nach oben),
+       obere Kammer  = Scheibe + Abdeckleiste,
+       Blechstaerke  = was von den 143,6 mm uebrig bleibt, auf die drei
+                       waagerechten Bleche verteilt (unterer Schenkel,
+                       Mittelsteg, oberer Schenkel).
+
+     Bei 8 mm Glas sind das 5,4 mm je Blech. Die Zeichnung bemasst weder
+     den Steg noch die Blechstaerke – diese ist damit die einzige
+     Unbekannte und faengt den Rest auf. Waere sie in Wirklichkeit
+     duenner, haette das Profil irgendwo Luft; dann sagt der Betreiber,
+     wo. Was NICHT mehr passiert: dass oben die Leiste und unten der
+     Sparren herausschaut. */
+  function wandprofilKammern(glasD) {
+    var unten = SPARREN.koerper;
+    var oben = glasD + GLASLEISTE.hoehe;
+    return { unten: unten, oben: oben,
+             blech: (WANDPROFIL.hoehe - unten - oben) / 3 };
+  }
+
+  function wandprofilQuerschnitt(glasD) {
+    var K = wandprofilKammern(glasD);
+    var H = WANDPROFIL.hoehe, w = WANDPROFIL.wand, t = K.blech;
     var ob = WANDPROFIL.tiefe, ub = WANDPROFIL.tiefeUnten;
     var ms = WANDPROFIL.stegTiefe;
-    var ys = H * (1 - WANDPROFIL.stegAb);        // Unterkante des Mittelstegs
+    var ys = t + K.unten;                        // Unterkante des Mittelstegs
     var f = new THREE.Shape();
     f.moveTo(0, 0);
     f.lineTo(ub, 0);                 // unterer Schenkel nach vorne
-    f.lineTo(ub, w);
-    f.lineTo(w, w);                  // zurueck an die Rueckwand
+    f.lineTo(ub, t);
+    f.lineTo(w, t);                  // zurueck an die Rueckwand
     f.lineTo(w, ys);                 // untere Kammer, nach vorne offen
     f.lineTo(ms, ys);                // Mittelsteg
-    f.lineTo(ms, ys + w);
-    f.lineTo(w, ys + w);
-    f.lineTo(w, H - w);              // obere Kammer, nach vorne offen
-    f.lineTo(ob, H - w);
+    f.lineTo(ms, ys + t);
+    f.lineTo(w, ys + t);
+    f.lineTo(w, H - t);              // obere Kammer, nach vorne offen
+    f.lineTo(ob, H - t);
     f.lineTo(ob, H);                 // oberer Schenkel
     f.lineTo(0, H);
     f.closePath();
@@ -2267,8 +2284,8 @@
   }
 
   /* laenge = Dachbreite in x, yUnten = Unterkante, z = 0 ist die Wand. */
-  function wandprofilBauen(laenge, yUnten, material) {
-    var g = new THREE.ExtrudeGeometry(wandprofilQuerschnitt(),
+  function wandprofilBauen(laenge, yUnten, glasD, material) {
+    var g = new THREE.ExtrudeGeometry(wandprofilQuerschnitt(glasD),
       { depth: laenge, bevelEnabled: false });
     /* Wie bei der Rinne: Mit −90° laeuft die Querschnittstiefe in +z,
        die Kammern zeigen damit nach vorne und nicht zur Wand. */
@@ -5654,7 +5671,14 @@
        11.10.2026 im Code („das wandprofil soll die glasleisten abdecken
        also selbe höhe bis zu den glasleisten") – umgesetzt war sie nur
        bis zur Scheibe. */
-    var wpOk = sky ? hRinne + riH : dachOk + wpGlasD + GLASLEISTE.hoehe;
+    /* Die Scheibe liegt auf dem Sparrenkoerper (96,7), nicht auf der
+       Sparrenoberkante – siehe yDach weiter unten. Darueber die
+       Abdeckleiste, darueber das Blech des oberen Schenkels: Genau dort
+       endet das Profil, und damit liegt die Leiste IN der oberen Kammer
+       statt darueber. */
+    var wpBlech = wandprofilKammern(wpGlasD).blech;
+    var leisteOkHinten = ukHinten + SPARREN.koerper + wpGlasD + GLASLEISTE.hoehe;
+    var wpOk = sky ? hRinne + riH : leisteOkHinten + wpBlech;
     var wpMitte = wpOk - wpH / 2;
     var trOk = vorsprH > 0 ? ukAmTraeger : wpOk;
     /* KORREKTUR 11.10.2026: „der statikträger ist tiefer als der
@@ -5769,7 +5793,7 @@
       /* Kein Quader mehr: das echte Profil mit zwei nach vorne offenen
          Kammern. wpMitte bleibt die Bezugsgroesse der uebrigen Rechnung,
          gebaut wird ab der Unterkante. */
-      wandprofilBauen(B, wpMitte - wpH / 2, mAlu);
+      wandprofilBauen(B, wpMitte - wpH / 2, wpGlasD, mAlu);
     }
     /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
        wandkappeQuerschnitt. */
@@ -5887,7 +5911,17 @@
        gibt es als VSG 8 und VSG 10 mm (Betreiber, 11.10.2026). */
     var glasDicke = istPolycarbonat() ? 1.6 : Z.glasstaerke / 10;
     var mF = dachfuellung();
-    var yDach = ukMitte + spH + glasDicke / 2;
+    /* KORREKTUR 14.10.2026: „der 3d konf macht das falsch somit ist der
+       aufbau sparren + glas + glasleiste im 3d konf zu hoch also höher
+       als real" (Betreiber).
+
+       Die Scheibe lag auf der SPARRENOBERKANTE (120 mm). Sie liegt aber
+       auf dem HAUPTKOERPER (96,7 mm) – die Klaue darueber steht neben
+       der Scheibe hoch und nimmt die Abdeckleiste auf. So zeigt es das
+       Querschnittsbild des Betreibers. Der ganze Aufbau sass damit
+       23,3 mm zu hoch; deshalb schaute oben die Leiste und unten der
+       Sparren aus dem Wandprofil. */
+    var yDach = ukMitte + SPARREN.koerper + glasDicke / 2;
 
     /* Lage des Glasstoßes, in der Ebene der Scheibe gerechnet.
        zGlasMitte ist die Mitte der ungeteilten Scheibe; koppelLokal der
@@ -6002,10 +6036,10 @@
            derselben Mitte: Sie halten das Glas, also gehören sie auf
            seine Länge, nicht auf die des Sparrens. */
         if (i === 0 || i === xs.length - 1) {
-          seitenglasleiste(vollGlas, x, ukMitte + spH + glasDicke, zGlasMitte,
+          seitenglasleiste(vollGlas, x, ukMitte + SPARREN.koerper + glasDicke, zGlasMitte,
                            neig, i === 0, mAlu);
         } else {
-          abdeckleiste(vollGlas, x, ukMitte + spH + glasDicke, zGlasMitte, neig, mAlu);
+          abdeckleiste(vollGlas, x, ukMitte + SPARREN.koerper + glasDicke, zGlasMitte, neig, mAlu);
         }
       });
     }
@@ -6060,7 +6094,7 @@
     sonnenschutz(B, T, hRinne, neig, PF, {
       tiefe: T,
       ok: function (z) {
-        return ukMitte + spH + glasDicke + Math.tan(neig) * (zMitte - z);
+        return ukMitte + SPARREN.koerper + glasDicke + Math.tan(neig) * (zMitte - z);
       },
       /* Plissee und Sonnensegel sitzen in den Sparrenfeldern – dafür
          brauchen sie die echten Achsen, nicht den Richtwert 110 cm. */

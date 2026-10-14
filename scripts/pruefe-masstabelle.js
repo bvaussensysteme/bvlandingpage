@@ -507,7 +507,7 @@ pruefe('Wandprofil steht mit 143,6 mm an der Wand',
 (function () {
   /* Das Wandprofil wird genau EINMAL gezeichnet, ausserhalb der
      frei-Verzweigung - sonst gaebe es zwei Fassungen davon. */
-  var zahl = (k3d.match(/wandprofilBauen\(B, wpMitte - wpH \/ 2, mAlu\)/g) || []).length;
+  var zahl = (k3d.match(/wandprofilBauen\(B, wpMitte - wpH \/ 2, wpGlasD, mAlu\)/g) || []).length;
   pruefe('Wandprofil wird nicht ersetzt', gegen ? zahl !== 1 : zahl === 1,
          zahl + ' Mal gezeichnet');
 })();
@@ -527,31 +527,41 @@ pruefe('Oberkante haengt an der Sparrenoberkante',
    (Betreiber, 14.10.2026). Bis dahin endete es an der Glasoberseite –
    die 22,6 mm hohe Leiste stand darueber. */
 pruefe('Wandprofil deckt die Glasleiste ab',
-       new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH : dachOk \\+ wpGlasD \\+ GLASLEISTE\\.hoehe').test(k3d) &&
+       new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH : leisteOkHinten \\+ wpBlech').test(k3d) &&
+       new RegExp(q || 'leisteOkHinten = ukHinten \\+ SPARREN\\.koerper \\+ wpGlasD \\+ GLASLEISTE\\.hoehe').test(k3d) &&
        new RegExp(q || 'wpMitte = wpOk - wpH / 2').test(k3d), '');
 (function () {
   /* Nachgerechnet: Die Sparren muessen in der unteren Haelfte liegen und
      die Glasoberseite mit der Profiloberkante abschliessen. */
-  /* Beides gleichzeitig geht NICHT: Sparren (120) + Glas (8) +
-     Abdeckleiste (22,6) sind zusammen 150,6 mm, das Profil ist 143,6 mm
-     hoch. Entweder steht die Leiste oben ueber oder der Sparren unten
-     vor. Der Betreiber hat es zweimal entschieden – zuletzt „die
-     glasleisten können dochnicht höher wie das profil sein"
-     (14.10.2026) –, also schliesst das Profil OBEN ab, und der Sparren
-     steht unten um die Differenz vor. Geprueft wird genau das, samt der
-     Groesse dieses Ueberstands: Mehr als 1 cm waere ein Rechenfehler,
-     nicht mehr die Bauart. */
-  var wpH = 14.36, spH = 12.0, glas = 0.8, leiste = 2.26, dachOk = 100;
-  var ok = dachOk + glas + (gegen ? 0 : leiste);
-  var uk = ok - wpH;
-  var sparrenUk = dachOk - spH;
-  var vor = uk - sparrenUk;                  // so weit steht der Sparren vor
+  /* „quasi sparren dürfte nicht tiefer oder höher als die untere kammer
+     des wandprofil sein und glas + glasleiste dürfen nicht tiefer oder
+     höher als die obere kamer sein" (Betreiber, 14.10.2026).
+
+     Bis dahin stand hier die Rechnung, dass es NICHT aufgehen kann:
+     Sparren (120) + Glas (8) + Leiste (22,6) = 150,6 gegen 143,6 mm
+     Profil. Der Fehler lag in der ersten Zahl – die Scheibe liegt auf
+     dem Hauptkoerper (96,7), nicht auf der Sparrenoberkante. 96,7 + 8 +
+     22,6 = 127,3, dazu drei Bleche: genau 143,6.
+
+     Nachgerechnet wird der ganze Stapel von der Sparrenunterkante bis
+     zur Leistenoberkante gegen die Profilhoehe. */
+  var wpH = 14.36, koerper = 9.67, glas = 0.8, leiste = 2.26;
+  var blech = (wpH - koerper - (glas + leiste)) / 3;
+  var ukSparren = 0;                                   // Bezugslinie
+  /* Die Gegenprobe legt die Scheibe wieder auf die SPARRENOBERKANTE –
+     also genau der Fehler, den der Betreiber gemeldet hat. Dann muss
+     die Pruefung anschlagen, sonst taugt sie nichts. */
+  var glasAuf = gegen ? 12.0 : koerper;
+  var leisteOk = ukSparren + glasAuf + glas + leiste;
+  var profilOk = leisteOk + blech;                     // Profil endet ueber der Leiste
+  var profilUk = profilOk - wpH;
   var falsch = 0;
-  if (ok < dachOk + glas + leiste - 0.001) falsch++;      // Leiste verdeckt
-  if (vor > 1.0 || vor < -0.001) falsch++;                // Sparren nur knapp
-  pruefe('Glasleiste oben verdeckt, Sparren steht unten knapp vor',
+  if (leisteOk > profilOk + 0.001) falsch++;           // Leiste guckt oben raus
+  if (ukSparren < profilUk - 0.001) falsch++;          // Sparren guckt unten raus
+  pruefe('Nichts steht oben oder unten aus dem Wandprofil vor',
          falsch === 0,
-         falsch + ' von 2 Lagen falsch, Sparren ' + (vor * 10).toFixed(0) + ' mm vor');
+         falsch + ' von 2 Lagen falsch, Profilunterkante ' +
+         (profilUk * 10).toFixed(1) + ' mm zur Sparrenunterkante');
 })();
 /* ---------- Wandprofil: echtes Profil statt Quader ----------
    „die unterseite hier auf dem bild die zwei offenen kammern müssen nach
@@ -562,13 +572,20 @@ pruefe('Wandprofil deckt die Glasleiste ab',
    muessen nach VORNE offen sein, und die Ausladung muss oben groesser
    sein als unten (38,6 gegen 37 mm, beide aus der Zeichnung). */
 (function () {
-  var q2 = (k3d.match(/function wandprofilQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var q2 = (k3d.match(/function wandprofilQuerschnitt\(glasD\)[\s\S]*?\n  \}/) || [''])[0];
+  var kam = (k3d.match(/function wandprofilKammern\(glasD\)[\s\S]*?\n  \}/) || [''])[0];
+  var spLit = (k3d.match(/var SPARREN = \{[\s\S]*?\n  \};/) || [''])[0];
+  var glLit = (k3d.match(/var GLASLEISTE = \{ breite: [\d.]+, hoehe: ([\d.]+) \}/) || []);
   var lit = (k3d.match(/var WANDPROFIL = \{[\s\S]*?\n  \};/) || [''])[0];
   var dl = k3d.match(/var WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+) \}/);
-  if (!q2 || !lit || !dl) {
+  if (!q2 || !lit || !dl || !kam || !spLit || !glLit[1]) {
     pruefe('Wandprofil-Querschnitt lesbar', false, 'nicht gefunden'); return;
   }
   var WANDPROFIL = eval('(' + lit.replace(/^var WANDPROFIL = /, '').replace(/;$/, '') + ')');
+  var SPARREN = eval('(' + spLit.replace(/^var SPARREN = /, '').replace(/;$/, '') + ')');
+  var GLASLEISTE = { hoehe: +glLit[1] };
+  var wandprofilKammern = eval('(' + kam + ')');
+  var K = wandprofilKammern(0.8);
   var p2 = [];
   function F2() { this.holes = []; }
   F2.prototype.moveTo = function (x, y) { p2.push([x, y]); };
@@ -576,7 +593,7 @@ pruefe('Wandprofil deckt die Glasleiste ab',
   F2.prototype.quadraticCurveTo = function (a, b, x, y) { p2.push([x, y]); };
   F2.prototype.closePath = function () {};
   var THREE = { Shape: F2 };
-  eval('(' + q2 + ')')();
+  eval('(' + q2 + ')')(0.8);
   var xs2 = p2.map(function (e) { return e[0]; });
   var ys2 = p2.map(function (e) { return e[1]; });
   var tiefe = Math.max.apply(null, xs2), hoch = Math.max.apply(null, ys2);
@@ -607,23 +624,30 @@ pruefe('Wandprofil deckt die Glasleiste ab',
          (hoch * 10).toFixed(1) + ' hoch, ' + (tiefe * 10).toFixed(1) + '/' +
          (WANDPROFIL.tiefeUnten * 10).toFixed(1) + ' mm tief');
 
-  /* Die Kammern muessen die Teile fassen, die hineingehoeren: oben
-     Scheibe und Abdeckleiste, unten der Sparren. Gerechnet wird aus dem
-     erzeugten Querschnitt, nicht aus der Absicht im Kommentar. */
-  var ys2s = ys2.slice().sort(function (a, b) { return a - b; });
-  var obenKammer = hoch - WANDPROFIL.wand -
-                   (hoch * (1 - WANDPROFIL.stegAb) + WANDPROFIL.wand);
-  var glasLeiste = 0.8 + 2.26;                 // Scheibe + Abdeckleiste
-  var obenOk = obenKammer >= glasLeiste - 0.05;
-  pruefe('Obere Kammer fasst Scheibe und Glasleiste',
-         gegen ? !obenOk : obenOk,
-         (obenKammer * 10).toFixed(1) + ' mm Kammer für ' +
-         (glasLeiste * 10).toFixed(1) + ' mm Eindeckung');
-  var untenKammer = hoch * (1 - WANDPROFIL.stegAb) - WANDPROFIL.wand;
-  var untenOk = untenKammer > 10.0 && untenKammer < 12.1;
-  pruefe('Untere Kammer nimmt den Sparren auf',
+  /* „quasi sparren dürfte nicht tiefer oder höher als die untere kammer
+     des wandprofil sein und glas + glasleiste dürfen nicht tiefer oder
+     höher als die obere kamer sein" (Betreiber, 14.10.2026). Also nicht
+     mehr „passt hinein", sondern AUF DEN MILLIMETER. Gemessen wird am
+     erzeugten Querschnitt, nicht an der Absicht im Kommentar. */
+  var untenKammer = K.unten, obenKammer = K.oben;
+  var untenOk = Math.abs(untenKammer - SPARREN.koerper) < 0.001;
+  pruefe('Untere Kammer ist genau der Sparrenkörper',
          gegen ? !untenOk : untenOk,
-         (untenKammer * 10).toFixed(1) + ' mm Kammer für 120 mm Sparren');
+         (untenKammer * 10).toFixed(1) + ' mm Kammer, Sparrenkörper ' +
+         (SPARREN.koerper * 10).toFixed(1) + ' mm');
+  var obenOk = Math.abs(obenKammer - (0.8 + GLASLEISTE.hoehe)) < 0.001;
+  pruefe('Obere Kammer ist genau Scheibe plus Glasleiste',
+         gegen ? !obenOk : obenOk,
+         (obenKammer * 10).toFixed(1) + ' mm Kammer, Scheibe + Leiste ' +
+         ((0.8 + GLASLEISTE.hoehe) * 10).toFixed(1) + ' mm');
+  /* Zweiter Weg: Die Summe muss die Profilhoehe ergeben – sonst steht
+     irgendwo etwas vor, und genau das war die Beanstandung. */
+  var summe = K.unten + K.oben + 3 * K.blech;
+  var dicht = Math.abs(summe - WANDPROFIL.hoehe) < 0.001 && K.blech > 0;
+  pruefe('Kammern und Bleche ergeben genau die Profilhöhe',
+         gegen ? !dicht : dicht,
+         (summe * 10).toFixed(1) + ' von ' + (WANDPROFIL.hoehe * 10).toFixed(1) +
+         ' mm, Blech ' + (K.blech * 10).toFixed(1) + ' mm');
 
   /* Der Seitendeckel ist mit 89,16 mm mehr als doppelt so tief wie das
      Profil (38,6) – er deckt die Stirn des aeusseren Sparrens mit ab.
@@ -1945,9 +1969,20 @@ pruefe('Gespiegeltes Teil behaelt seine Aussenseite',
 /* Die Glasleisten halten die Scheibe - also laufen sie so weit wie sie.
    „die glasleisten sind jz generell alle zu kurz, die gehen bis anfang
    rinne und glas geht ja noch etwas drueber" (Betreiber, 11.10.2026). */
+/* Die Scheibe liegt auf dem HAUPTKOERPER des Sparrens (96,7), nicht auf
+   seiner Oberkante (120) – die Klaue steht neben der Scheibe hoch und
+   nimmt die Abdeckleiste auf. Lag sie auf 120, sass der ganze Aufbau
+   23,3 mm zu hoch: „somit ist der aufbau sparren + glas + glasleiste im
+   3d konf zu hoch also höher als real" (Betreiber, 14.10.2026).
+   Geprueft werden alle drei Stellen zusammen – Scheibe, Abdeckleiste,
+   Seitenglasleiste –, denn eine davon allein hilft nicht. */
+pruefe('Scheibe liegt auf dem Sparrenkörper, nicht auf der Klaue',
+       new RegExp(q || 'yDach = ukMitte \\+ SPARREN\\.koerper \\+ glasDicke / 2').test(k3d) &&
+       (gegen || !/yDach = ukMitte \+ spH \+ glasDicke/.test(k3d)),
+       '96,7 statt 120 mm über der Sparrenunterkante');
 pruefe('Glasleisten laufen so weit wie die Scheibe',
-       new RegExp(q || 'abdeckleiste\\(vollGlas, x, ukMitte \\+ spH \\+ glasDicke, zGlasMitte').test(k3d) &&
-       new RegExp(q || 'seitenglasleiste\\(vollGlas, x, ukMitte \\+ spH \\+ glasDicke, zGlasMitte').test(k3d) &&
+       new RegExp(q || 'abdeckleiste\\(vollGlas, x, ukMitte \\+ SPARREN\\.koerper \\+ glasDicke, zGlasMitte').test(k3d) &&
+       new RegExp(q || 'seitenglasleiste\\(vollGlas, x, ukMitte \\+ SPARREN\\.koerper \\+ glasDicke, zGlasMitte').test(k3d) &&
        (gegen || !/abdeckleiste\(laenge - 2/.test(k3d)),
        'nicht mehr auf Sparrenlaenge');
 (function () {
