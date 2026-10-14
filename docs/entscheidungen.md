@@ -5544,3 +5544,47 @@ gegen den Rahmen stellt. Sie hätte den Fehler gefunden.
 **Was gegengelesen werden soll:** SkyView aufrufen und von schräg oben
 ansehen. Es darf kein Sparren über den Rahmen stehen, und die Glasfläche
 muss bündig mit der Rahmenoberkante abschließen.
+
+## 2026-10-14 – SkyView: Rahmen 252 mm, belegt durch die Eckabdeckung
+
+**Anlass:** Der Betreiber nannte zwei Artikel, die ich übersehen hatte:
+„6073 6074 ZBHFLT das sind die eckblenden". Auf die Rückfrage, ob ein
+25-cm-Rahmen über einem 11-cm-Pfosten stimmt: „ja richtig".
+
+**Was die Eckabdeckung beweist:** Eckabdeckung Sky HL/HR (6073/6074) ist
+**124 + 124 mm breit und 252 mm hoch**. Sie steckt über die Rahmenecke –
+also ist der Rahmen dort 252 mm hoch. Die Seitenblende Sky (6069) nennt
+dieselbe 252.
+
+**Zum fünften Mal derselbe Fehler:** Die Skizze der Seitenblende zeigt
+252 waagerecht und 38,9 senkrecht. Ich hatte sie deshalb für ein flaches,
+liegendes Winkelprofil gehalten und die Rinnenhöhe (136,7) für die
+Rahmenhöhe genommen. Mit der Eckabdeckung daneben ist klar: **252 ist die
+Höhe**, 38,9 die Tiefe des Schenkels. Ein Querschnitt sagt nichts über die
+Einbaulage – dasselbe war schon bei SG23, Velaris, Wandprofil und
+Seitenglasleiste passiert.
+
+**Damit geht die Geometrie endlich auf:**
+
+| | |
+|---|---|
+| Rahmen | 252 mm |
+| Sparren (120) + Glas (8) | 128 mm |
+| bleibt fürs Gefälle | **124 mm** |
+| 2° über 3,5 m braucht | 122 mm ✓ |
+
+Die vollen 2° werden jetzt bis 3,5 m Tiefe gezeichnet. Darüber begrenzt
+das Modell auf das, was hineinpasst (bei 4,5 m sind es 1,58°) – sonst
+stünde das Glas wieder über dem Rahmen. Was dort real passiert, ist
+weiterhin nicht belegt.
+
+**Der Weg dorthin, ehrlich:** Heute Vormittag hatte ich den Rahmen von
+268–355 mm (wachsend) auf 136,7 mm gesetzt – zu niedrig. Dann standen die
+Sparren oben heraus, was ich erst nach dem Bildschirmfoto des Betreibers
+bemerkt habe. Richtig ist: Der Rahmen war nie grundsätzlich zu hoch, er
+durfte nur **nicht mit der Tiefe wachsen**. Genau das ließ die Pfosten je
+nach Maß unterschiedlich schlank wirken – der ursprüngliche Anlass.
+
+**Was gegengelesen werden soll:** SkyView bei 2,5 m und bei 4,5 m Tiefe
+ansehen. Der Rahmen muss in beiden Fällen gleich hoch sein, kein Sparren
+darf über- oder unten herausstehen.

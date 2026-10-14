@@ -2075,9 +2075,9 @@ pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
    nicht erst auftauchen - sonst steht in der Anfrage eine Neigung, die
    das System nicht hat. */
 pruefe('SkyView neigt nicht nach Z.neigung',
-       new RegExp(q || 'var neig = sky \\? Math\\.atan\\(skyLuft').test(js) &&
+       new RegExp(q || 'var neig = sky\\s*\\n\\s*\\? Math\\.min\\(2 \\* Math\\.PI / 180,').test(js) &&
        (gegen ? true : !/var neig = sky \? neigungGrad/.test(js)),
-       'eigene Rechnung aus den Profilmaßen');
+       'feste 2°, begrenzt durch die Profilmaße');
 pruefe('SkyView bietet keine Neigungseingabe',
        new RegExp(q || "return Z\\.produkt === 'Terrassendach TDS' \\|\\| istCarportTds\\(\\)")
          .test(js) &&

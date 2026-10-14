@@ -478,7 +478,10 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
   }
   var SKY = { rinneT: zahl('rinneT'), traegerT: zahl('traegerT'),
               sparrenAbzug: zahl('sparrenAbzug'), auflager: zahl('auflager'),
-              auflagerH: zahl('auflagerH'), rahmenH: zahl('rahmenH') };
+              auflagerH: zahl('auflagerH'), rahmenH: zahl('rahmenH'),
+              seitenblendeH: zahl('seitenblendeH'),
+              seitenblendeT: zahl('seitenblendeT'),
+              eckblendeB: zahl('eckblendeB') };
   /* „sparren, glasleiste etc is wie bei tds" (Betreiber, 11.10.2026) –
      die Sparrenhoehe kommt deshalb aus dem TDS-Block, nicht aus SKY. */
   var spTds = parseFloat((k3d.match(/var SPARREN = \{[\s\S]*?hoehe:\s*([\d.]+)/) || [])[1]);
@@ -508,7 +511,15 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
      docs/NEXT_TASK.md. */
   [['rinneT', 186.3, 'Rinne 2 TD (16913)'],
    ['traegerT', 120, 'Träger TD (15698)'],
-   ['rahmenH', 136.7, 'Rinne 2 TD, Höhe']].forEach(function (pp) {
+   /* Die Rahmenhoehe kommt NICHT von der Rinne (136,7), sondern von der
+      Eckabdeckung Sky HL/HR (6073/6074): 124 + 124 breit, 252 hoch. Die
+      Seitenblende Sky (6069) nennt dieselbe 252. Bis zum 14.10.2026
+      stand hier die Rinnenhoehe – der Rahmen war damit nur halb so hoch
+      wie in Wirklichkeit. */
+   ['rahmenH', 252, 'Eckabdeckung Sky 6073/6074, 252 mm hoch'],
+   ['seitenblendeH', 252, 'Seitenblende Sky 6069, aufrecht 252 mm'],
+   ['seitenblendeT', 38.9, 'Seitenblende Sky 6069, 38,9 mm tief'],
+   ['eckblendeB', 124, 'Eckabdeckung Sky, Schenkel 124 mm']].forEach(function (pp) {
     var ist = SKY[pp[0]] === null ? null : Math.round(SKY[pp[0]] * 100) / 10;
     var soll = pp[1] + (gegen ? 7 : 0);
     pruefe('SkyView – ' + pp[2], Math.abs(ist - soll) < 0.05,
@@ -534,10 +545,15 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
    hineinpasst; von aussen ist das richtig, weil das Gefaelle innen liegt.
    Geprueft wird, dass die Rechnung aus den PROFILMASSEN kommt und nicht
    wieder eine feste Gradzahl ist, die neben dem Rahmen herlaeuft. */
-pruefe('SkyView – Gefälle folgt den Profilmaßen',
-       new RegExp(q || 'var neig = sky \\? Math\\.atan\\(skyLuft').test(k3d) &&
+/* Das echte Gefaelle sind 2°. In den 252er Rahmen passt das bis rund
+   3,55 m Tiefe; darueber wird flacher gezeichnet, sonst stuende das Glas
+   ueber dem Rahmen. Geprueft wird, dass BEIDES im Code steht: die festen
+   2° als Obergrenze und die Rechnung aus den Profilmassen. */
+pruefe('SkyView – Gefälle: 2°, begrenzt durch die Profilmaße',
+       new RegExp(q || 'Math\\.min\\(2 \\* Math\\.PI / 180,').test(k3d) &&
+       new RegExp(q || 'Math\\.atan\\(skyLuft / Math\\.max').test(k3d) &&
        new RegExp(q || 'SKY\\.rahmenH - \\(istPolycarbonat').test(k3d),
-       'aus Rahmenhöhe minus Sparren und Glas');
+       '2° bis 3,5 m, darüber flacher');
 pruefe('SkyView – Rahmen bleibt waagerecht',
        new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH').test(k3d) &&
        new RegExp(q || 'blendeY = sky \\? hRinne \\+ riH / 2').test(k3d),

@@ -2229,9 +2229,26 @@
      das so loest oder dort das Gefaelle flacher ausfuehrt, ist nicht
      belegt; siehe docs/NEXT_TASK.md. */
   var SKY = {
-    /* Rinne 2 TD (16913): 186,3 breit x 136,7 hoch. BELEGT.
-       Die Rinne bestimmt die Hoehe des umlaufenden Rahmens. */
-    rahmenH: 13.67,
+    /* ---------- Hoehe des umlaufenden Rahmens: 252 mm ----------
+       BELEGT durch zwei Teile der Einzelteile-Liste, die zusammenpassen:
+         Eckabdeckung Sky HL/HR (6073/6074): 124 + 124 breit, 252 HOCH –
+           sie steckt ueber die Rahmenecke, also ist der Rahmen dort
+           252 mm hoch.
+         Seitenblende Sky (6069): 252 x 38,9 – dieselbe 252.
+       „ja richtig" (Betreiber, 14.10.2026) auf die Rueckfrage, ob ein
+       25-cm-Rahmen ueber einem 11-cm-Pfosten stimmt.
+
+       ZUR SEITENBLENDE: Ihre Skizze zeigt 252 waagerecht und 38,9
+       senkrecht; ich hatte sie deshalb fuer ein flaches, liegendes
+       Winkelprofil gehalten und die 136,7 der Rinne fuer die
+       Rahmenhoehe. Mit der Eckabdeckung daneben ist klar: 252 ist die
+       HOEHE, 38,9 die Tiefe des Schenkels. Zum fuenften Mal derselbe
+       Fehler – ein Querschnitt sagt nichts ueber die Einbaulage (siehe
+       SG23, Velaris, Wandprofil, Seitenglasleiste).
+
+       Die Rinne 2 TD (136,7 hoch) sitzt INNERHALB dieses Rahmens; sie
+       ist nicht seine Aussenkante. */
+    rahmenH: 25.2,
     rinneT: 18.63,
     /* Traeger TD (15698): Kasten 96,7 x 61, mit Nut 120 breit. BELEGT.
        Steht bei SkyView hinten an Stelle des Wandprofils. */
@@ -2241,12 +2258,16 @@
        Sitzt aussen vor der Rinne. */
     blendeT: 8.93,
     blendeH: 5.5,
-    /* Seitenblende Sky (6069): 252 lang x 38,9 hoch. BELEGT.
-       Ein FLACHES Winkelprofil – bis zum 14.10.2026 war es im Modell
-       faelschlich die hohe Aussenblende. Es deckt die Sparrenenden an
-       der Seite ab. */
-    seitenblendeL: 25.2,
-    seitenblendeH: 3.89,
+    /* Seitenblende Sky (6069): 252 hoch x 38,9 tief. BELEGT.
+       Aufrecht eingebaut – sie IST die hohe Aussenblende. */
+    seitenblendeH: 25.2,
+    seitenblendeT: 3.89,
+    /* Eckabdeckung Sky HL/HR (6073/6074): 124 + 124 breit, 252 hoch.
+       BELEGT. Sie deckt die Fuge, wo Seitenblende und Rinnenblende
+       zusammenstossen. Im Modell laufen die Blenden durch, es gibt dort
+       keine Fuge – gezeichnet wird sie deshalb nicht; sie steht hier als
+       Beleg fuer die Rahmenhoehe. */
+    eckblendeB: 12.4,
     sparrenAbzug: 15.0, // BELEGT: Spannweite - 150 mm
     auflager: 6.5,      // BELEGT: Ausschnitt 65 mm tief
     auflagerH: 8.6,     // BELEGT: Ausschnitt 86 mm hoch
@@ -5121,8 +5142,15 @@
       ? Math.max(0, SKY.rahmenH - (istPolycarbonat() ? 1.6 : Z.glasstaerke / 10)
                     - SPARREN.hoehe)
       : 0;
-    var neig = sky ? Math.atan(skyLuft / Math.max(1, Z.tiefe / 10))
-                   : neigungGrad() * Math.PI / 180;
+    /* Das echte Gefaelle sind 2°. In den 252er Rahmen passt das bis rund
+       3,55 m Tiefe (124 mm Luft, 2° brauchen bei 3,5 m 122 mm). Darueber
+       wird im Modell flacher gezeichnet – sonst stuende das Glas wieder
+       ueber dem Rahmen, der Fehler vom 14.10.2026. Was dort real
+       passiert, ist nicht belegt (docs/NEXT_TASK.md). */
+    var neig = sky
+      ? Math.min(2 * Math.PI / 180,
+                 Math.atan(skyLuft / Math.max(1, Z.tiefe / 10)))
+      : neigungGrad() * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
     /* Statiktraeger 189 x 117 mm (15187). Die Zeichnung nennt 189,2 x
        117; der Pfostenkopf liegt mit 110,2 darunter. BELEGT (Liste und
