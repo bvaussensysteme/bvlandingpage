@@ -213,8 +213,12 @@ pruefe('eZIP – Kastenunterstützung ab 400 cm',
 })();
 pruefe('eZIP – Hinweis bei über 5 m Breite',
        new RegExp(q || 'ZIP\\.maxBreite \\* 10').test(src), 'Anleitung S. 26');
-/* Seitendeckel Rinne 2 TD, Teilebild: 172 x 175 mm; vorne buendig,
-   in der Hoehe mittig (Vorgabe des Betreibers). */
+/* Seitendeckel Rinne 2 TD, Teilebild: 172 x 175 mm; vorne buendig.
+   In der Hoehe stand er bis zum 14.10.2026 MITTIG – das war die
+   Notloesung, solange unklar war, wie Deckel (172 x 175) und Rinne
+   (186,3 x 136,7) zusammengehoeren. Der Betreiber hat den Deckelumriss
+   in den Rinnenquerschnitt eingezeichnet: Er sitzt an der Nase
+   ausgerichtet und haengt unten weit unter den Rinnenboden. */
 var rd = (src.match(/var RINNENDECKEL = \{[^}]*\}/) || [''])[0];
 [['breite', 172], ['hoehe', 175]].forEach(function (p) {
   var m = rd.match(new RegExp(p[0] + ':\\s*([\\d.]+)'));
@@ -225,8 +229,10 @@ var rd = (src.match(/var RINNENDECKEL = \{[^}]*\}/) || [''])[0];
 });
 pruefe('Rinnendeckel vorne buendig',
        new RegExp(q || 'zVorne - RINNENDECKEL\\.breite').test(src), 'Vorderkante');
-pruefe('Rinnendeckel in der Hoehe mittig',
-       new RegExp(q || 'RINNE\\.hoehe - RINNENDECKEL\\.hoehe\\) / 2').test(src), '');
+pruefe('Rinnendeckel an der Rinnennase ausgerichtet (nicht mittig)',
+       new RegExp(q || 'RINNE\\.hoehe \\+ RINNENDECKEL\\.ueberNase - RINNENDECKEL\\.hoehe').test(src) &&
+       (gegen || !/RINNE\.hoehe - RINNENDECKEL\.hoehe\) \/ 2/.test(src)),
+       'oben an der Nase, unten ueber den Boden hinaus');
 
 /* Glasleiste TD, Teilebild: 55,3 x 22,6 mm */
 var gl = (src.match(/var GLASLEISTE = \{[^}]*\}/) || [''])[0];
