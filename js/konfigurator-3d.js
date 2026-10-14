@@ -1779,8 +1779,31 @@
   /* 172 x 175 mm und die Fase BELEGT aus der Skizze zu 6017
      („Seitendeckel Rinne 2 TD beidseitig"). Der Fall der Oberkante ist am
      Foto von 6011/6012 ABGESCHAETZT – fuer die gibt es keine bemasste
-     Skizze. */
-  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4, fall: 1.1 };
+     Skizze.
+
+     LEHNE UND LAGE stammen aus der Zeichnung des Betreibers vom
+     14.10.2026: Er hat in den Rinnenquerschnitt (16913) den Umriss des
+     Deckels in Gelb eingezeichnet, dazu Dachsparren, Glas und Pfosten.
+     Nachgemessen ist der gelbe Umriss dort 503 x 522 Pixel, die Rinne
+     186,3 mm breit bei 540 Pixeln – also rund 169 x 176 mm. Das deckt
+     sich mit den 172 x 175 der Skizze und raeumt den Widerspruch aus,
+     der hier zwei Tage als „passt nicht zusammen" stand: Der Deckel ist
+     NICHT so gross wie der Rinnenquerschnitt, sondern
+
+       · vorne buendig mit der Rinnenvorderkante,
+       · oben ueber die Nase hinaus,
+       · unten deutlich unter den Rinnenboden – dort deckt er den
+         Uebergang zum Pfosten ab,
+       · hinten um rund 14 mm kuerzer, der untere Flansch der Rinne
+         schaut heraus (im Bild gut zu sehen),
+       · und seine HINTERE KANTE steht schraeg: oben liegt sie rund
+         32 mm weiter vorne als unten.
+
+     Die Schraege war bis heute nicht abgebildet – der Deckel hatte eine
+     senkrechte Hinterkante. Alle vier Werte sind am markierten Bild
+     ABGEMESSEN, Genauigkeit rund +/- 5 mm. */
+  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4, fall: 1.1,
+                       lehne: 3.2, ueberNase: 0.5 };
 
   /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
@@ -1823,12 +1846,16 @@
   function rinnenkappeQuerschnitt() {
     var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe, fase = RINNENDECKEL.fase;
     var f = new THREE.Shape();
-    f.moveTo(0, 0);
+    f.moveTo(0, 0);                              // hinten unten
     f.lineTo(b - fase * 0.6, 0);
-    f.lineTo(b, fase * 0.6);
+    f.lineTo(b, fase * 0.6);                     // Fase vorne unten
     f.lineTo(b, h - fase - RINNENDECKEL.fall);
-    f.lineTo(b - fase, h - RINNENDECKEL.fall);
-    f.lineTo(0, h);
+    f.lineTo(b - fase, h - RINNENDECKEL.fall);   // Fase vorne oben
+    /* Von hier aus laeuft die Oberkante nach hinten OBEN – und die
+       hintere Kante schraeg zurueck nach unten vorne. Bis zum
+       14.10.2026 stand hier f.lineTo(0, h): eine senkrechte Hinterkante.
+       Im markierten Bild des Betreibers ist sie deutlich geneigt. */
+    f.lineTo(RINNENDECKEL.lehne, h);
     f.closePath();
     return f;
   }
@@ -1887,9 +1914,14 @@
   }
 
   function rinnenblenden(laenge, zVorne, yUnten, material) {
+    /* Vorne buendig, und in der Hoehe NICHT mittig, sondern an der
+       Rinnennase ausgerichtet: Im markierten Bild steht der Deckel oben
+       nur wenige Millimeter ueber der Nase, unten dagegen gut 3 cm unter
+       dem Rinnenboden. Mittig gesetzt stand er oben zu hoch und unten zu
+       kurz – das sah man an der Seitenansicht. */
     profilKappen(laenge,
-                 zVorne - RINNENDECKEL.breite,                    // vorne bündig
-                 yUnten + (RINNE.hoehe - RINNENDECKEL.hoehe) / 2, // mittig
+                 zVorne - RINNENDECKEL.breite,
+                 yUnten + RINNE.hoehe + RINNENDECKEL.ueberNase - RINNENDECKEL.hoehe,
                  rinnenkappeQuerschnitt(), material);
   }
 

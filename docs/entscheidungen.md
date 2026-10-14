@@ -5731,3 +5731,73 @@ Bogenstücke bei der Wandkappe. Sie prüft zusätzlich, dass die Wandkappe
 **Was gegengelesen werden soll:** Terrassendach TDS von der Seite. Am
 Wandprofil muss der Deckel hochkant stehen und außen rund auslaufen, an
 der Rinne oben und unten eine Fase haben.
+
+### 14.10.2026 – Der Widerspruch Deckel/Rinne ist aufgelöst (Bild des Betreibers)
+
+Zwei Tage lang stand hier „**Der alte Widerspruch bleibt:** Deckel
+172 × 175 gegen Rinne 186,3 × 136,7. Die Maße passen nicht zueinander, und
+keine der beiden Quellen erklärt es." Das war die falsche Schlussfolgerung
+aus richtigen Zahlen: Beide Angaben stimmen, sie beschreiben nur nicht
+dieselbe Fläche.
+
+Der Betreiber hat es zweimal gesagt und dann gezeigt:
+
+> „Rinne 2 TD 16913 TD das is der querschnitt der rinne also quasi wenn man
+> die terassenüberdachung die breite in der mitte durchschneidet und dann
+> von der seite draufguckt bzw. so sieht die rinne auf der rechten seite aus
+> wenn man den rinnendeckel weglässt und der rinnendeckel muss damit matchen"
+
+> „du musst nicht nur doof die maße nehmen, du musst dir die technische
+> zeichnung angucken und das design auch nachbauen"
+
+Dazu ein Bild: der Rinnenquerschnitt aus der Einzelteileliste, in den der
+Deckelumriss **gelb eingezeichnet** ist, dazu Dachsparren (grün), Glas
+(blau) und der 110×110-Pfosten (rot). Nachgemessen ist der gelbe Umriss
+dort 503 × 522 Pixel bei 540 Pixeln Rinnenbreite (186,3 mm), also rund
+**169 × 176 mm** – das sind die 172 × 175 der Skizze.
+
+**Was jetzt gilt.** Der Deckel ist nicht so groß wie der Rinnenquerschnitt,
+sondern größer in der Höhe und kürzer in der Tiefe:
+
+* vorne bündig mit der Rinnenvorderkante,
+* oben 5 mm über die Nase hinaus,
+* unten 33 mm unter den Rinnenboden – dort deckt er den Übergang zum
+  Pfosten ab,
+* hinten 14 mm kürzer als die Rinne tief ist; der untere Flansch schaut
+  heraus (im Bild deutlich zu sehen),
+* und seine **hintere Kante steht schräg**: oben rund 32 mm weiter vorne
+  als unten. Diese Schräge fehlte bisher ganz, der Deckel hatte eine
+  senkrechte Hinterkante.
+
+Die vier Lagewerte sind am markierten Bild abgemessen, Genauigkeit rund
+± 5 mm.
+
+**Was verworfen wurde.** Ein erster Versuch an diesem Tag hat den Deckel
+auf den Rinnenumriss geschrumpft (186,3 × 136,7 plus 2,5 mm Überstand),
+weil „muss damit matchen" so gelesen wurde. Das Bild zeigt das Gegenteil.
+Verworfen wurde damit auch die Prüfung „Deckel deckt den Wasserquerschnitt
+der Rinne ab" – sie würde dauerhaft fehlschlagen, denn die 14 mm hinten
+sind gewollt. Ebenso hinfällig: die frühere Notlösung „in der Höhe mittig",
+die nur solange galt, wie unklar war, wie die beiden Teile zueinander
+stehen.
+
+**Absicherung.** Drei neue Prüfungen in `scripts/pruefe-masstabelle.js`,
+jede mit eigener Verfälschung gegengeprüft:
+
+| Prüfung | schlägt an, wenn |
+|---|---|
+| hintere Kante steht schräg | jemand wieder `lineTo(0, h)` schreibt |
+| sitzt wie im markierten Bild | die Lageformel auf „mittig" zurückgedreht wird |
+| übergreift das Profil in der Höhe | der Deckel kleiner wird als die Rinne hoch ist |
+
+Beide Verfälschungen wurden einzeln eingebaut und haben **nur** die
+jeweils zuständige Prüfung rot gemacht – nicht die anderen. Zusätzlich
+wurde der Querschnitt als Bild gerendert (Rinne schwarz, Deckel gelb) und
+mit dem Bild des Betreibers verglichen. In `scripts/pruefe-markise.js`
+stand die alte Lage als eigene Prüfung („in der Höhe mittig") und ist
+mitgezogen.
+
+**Was gegengelesen werden soll:** Terrassendach TDS von der Seite. Der
+Deckel muss die Rinne oben knapp und unten deutlich überragen, seine
+hintere Kante schräg stehen, und der Rinnenflansch hinten unten darf
+herausschauen.

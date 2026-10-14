@@ -849,13 +849,16 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 (function () {
   var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+), fall: ([\d.]+)/);
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+), fall: ([\d.]+),\s*\n?\s*lehne: ([\d.]+), ueberNase: ([\d.]+)/);
+  var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
   var wd = k3d.match(/WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
-  if (!rinQ || !wandQ || !masse || !wd) {
+  if (!rinQ || !wandQ || !masse || !wd || !rinLit) {
     pruefe('Beide Kappenformen lesbar', false, 'nicht gefunden'); return;
   }
   var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2],
-                       fase: +masse[3], fall: +masse[4] };
+                       fase: +masse[3], fall: +masse[4],
+                       lehne: +masse[5], ueberNase: +masse[6] };
+  var RINNE = eval('(' + rinLit.replace(/^var RINNE = /, '').replace(/;$/, '') + ')');
   var WANDDECKEL = { breite: +wd[1], hoehe: +wd[2] };
 
   var punkte = [], bogen = 0;
@@ -877,6 +880,11 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
              hoch: Math.max.apply(null, ys2) - Math.min.apply(null, ys2),
              bogen: bogen, umriss: JSON.stringify(punkte) };
   }
+  function punkteVon(quelle) {
+    punkte = []; bogen = 0;
+    eval('(' + quelle + ')')();
+    return punkte;
+  }
   function punkteZahl(quelle) {
     punkte = []; bogen = 0;
     eval('(' + quelle + ')')();
@@ -894,6 +902,56 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   pruefe('Rinnenkappe: belegtes Maß, zwei Fasen', gegen ? !rOk : rOk,
          r.breit.toFixed(1) + ' x ' + r.hoch.toFixed(1) + ' cm, ' +
          punkteZahl(rinQ) + ' Ecken, ' + r.bogen + ' Bogen');
+
+  /* ---------- Deckel gegen Rinne ----------
+     „der rinnendeckel muss damit matchen" (Betreiber, 14.10.2026), dazu
+     ein Bild, in dem der Deckelumriss in den Rinnenquerschnitt gezeichnet
+     ist. Die Masse allein sagen darueber nichts: 172 x 175 und
+     186,3 x 136,7 stimmten beide und passten trotzdem nicht zueinander,
+     weil die LAGE fehlte. Genau das wird hier geprueft – und nur das.
+
+     Kein Test auf „deckt alles ab": Der Deckel ist hinten absichtlich
+     rund 14 mm kuerzer als die Rinne tief ist, der untere Flansch schaut
+     heraus. Das ist im Bild zu sehen und war die Vorgabe. */
+  var hinterKante = punkteVon(rinQ).filter(function (q) {
+    return Math.abs(q[0]) < 0.001;
+  });
+  var obenHinten = punkteVon(rinQ).filter(function (q) {
+    return Math.abs(q[1] - RINNENDECKEL.hoehe) < 0.001;
+  });
+  var schraeg = hinterKante.length === 1 && obenHinten.length === 1 &&
+                Math.abs(obenHinten[0][0] - RINNENDECKEL.lehne) < 0.001 &&
+                RINNENDECKEL.lehne > 0.5;
+  pruefe('Rinnendeckel: hintere Kante steht schräg (nicht senkrecht)',
+         gegen ? !schraeg : schraeg,
+         'oben ' + (RINNENDECKEL.lehne * 10).toFixed(0) + ' mm weiter vorne als unten');
+
+  /* Die Lage, wie der Code sie setzt – nachgerechnet, nicht abgelesen.
+     yStart ist der Abstand der Deckelunterkante von der Rinnenunterkante. */
+  var yStart = RINNE.hoehe + RINNENDECKEL.ueberNase - RINNENDECKEL.hoehe;
+  var unterBoden = -yStart;                       // so weit haengt er unten vor
+  var ueberNase = yStart + RINNENDECKEL.hoehe - RINNE.hoehe;
+  var luecke = RINNE.breite - RINNENDECKEL.breite;
+  var lageOk = unterBoden > 2.5 && unterBoden < 4.0 &&
+               ueberNase > 0.2 && ueberNase < 1.0 &&
+               luecke > 1.0 && luecke < 2.0 &&
+               /zVorne - RINNENDECKEL\.breite/.test(k3d) &&
+               /yUnten \+ RINNE\.hoehe \+ RINNENDECKEL\.ueberNase - RINNENDECKEL\.hoehe/.test(k3d);
+  pruefe('Rinnendeckel sitzt wie im markierten Bild', gegen ? !lageOk : lageOk,
+         'vorne bündig, ' + (ueberNase * 10).toFixed(0) + ' mm über der Nase, ' +
+         (unterBoden * 10).toFixed(0) + ' mm unter dem Boden, hinten ' +
+         (luecke * 10).toFixed(0) + ' mm frei');
+
+  /* Zweiter Weg zum selben Ergebnis: nicht ueber die Formel, sondern
+     ueber den gezeichneten Umriss. Der Deckel muss das Rinnenprofil in
+     der Hoehe VOLLSTAENDIG uebergreifen – oben wie unten. */
+  var deckelUnten = yStart, deckelOben = yStart + r.hoch;
+  var greiftUeber = deckelUnten < 0 && deckelOben > RINNE.hoehe &&
+                    r.hoch > RINNE.hoehe;
+  pruefe('Rinnendeckel übergreift das Profil in der Höhe',
+         gegen ? !greiftUeber : greiftUeber,
+         'Deckel ' + (r.hoch * 10).toFixed(0) + ' mm, Rinne ' +
+         (RINNE.hoehe * 10).toFixed(0) + ' mm hoch');
   /* Die Wandprofilkappe (6013) ist BELEGT: 146,27 hoch x 89,16 breit, der
      flache Bogen an der AUSSENkante. Die Skizze zeigt sie liegend – „der
      flache bogen muss nach rechts zeigen, das bild is falsch gedreht"
