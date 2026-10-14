@@ -6399,3 +6399,40 @@ keinen Browser und kostet eine Minute.
 **Absicherung:** zwei Verfälschungen (Höhe wieder 175 / wieder unter den
 Boden gezogen), beide schlagen an. Dazu unverändert die Punkt-für-Punkt-
 Prüfung und die Formprüfung.
+
+### 14.10.2026 – Die Blende nach der Handvorlage des Betreibers
+
+Der Betreiber hat den **von mir gerenderten Schnitt** genommen und den
+Umriss der Blende mit der Hand eingezeichnet. Das ist die belastbarste
+Vorlage, die es für dieses Teil gibt – belastbarer als die beiden
+Zeichnungen, die sich widersprechen.
+
+Aus dem Umriss:
+
+* Er deckt den **ganzen Querschnitt** ab: Rinne samt dem Schenkel darunter.
+* Hinten reicht er **bis an die Rinnenkante** – die 14,3-mm-Lücke gibt es
+  nicht.
+* Oben läuft die Kante **durchgehend gerade**, auch über der niedrigeren
+  hinteren Wange – dort also keine Fase.
+* Unten vorne eine **große Fase**.
+
+**Damit stimmen die 175 mm der Skizze wieder** (136,7 + 38,3 = 175,0).
+Die Herleitung war richtig; falsch war zweimal die Form drumherum – erst
+Fasen vorne, dann Fasen hinten, und die Blende hinten zu kurz. Die Tiefe
+nimmt jetzt die Rinnentiefe (186,3) statt der 172 aus der Skizze: Die
+Blende soll die Rinne abdecken, dazu muss sie so tief sein wie diese.
+Woher die 172 kommen, bleibt offen.
+
+**Was dieser Tag über das Vorgehen gezeigt hat.** Fünf Anläufe an einem
+Bauteil, jeder aus Zahlen hergeleitet, jeder vom Bild widerlegt. Was
+schließlich funktioniert hat: den Schnitt rendern, dem Betreiber zeigen,
+ihn **in das Bild zeichnen lassen**. Eine Handskizze im maßstäblichen
+Schnitt schlägt jede Ableitung aus zwei Zeichnungen, die nicht zueinander
+passen. Bei unklaren Formen ist das künftig der erste Schritt, nicht der
+letzte.
+
+**Absicherung:** drei Verfälschungen – nur Rinnenhöhe, Fase wieder oben,
+hinten wieder kürzer. Jede schlägt an; bei „Fase oben" meldet die
+Punkt-für-Punkt-Prüfung zusätzlich 8 von 29 Punkten. Die früheren
+Maßprüfungen (172 × 175, sechs Ecken, Fasen vorne bzw. hinten) sind
+entfallen – sie schrieben überholte Formen fest.

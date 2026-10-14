@@ -1098,7 +1098,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 (function () {
   var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: RINNE\.hoehe, fase: RINNE\.fase,\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: RINNE\.breite,\s*\n?\s*hoehe: RINNE\.hoehe \+ RINNE\.schenkelLang,\s*\n?\s*fase: RINNE\.fase, fall: ([\d.]+), lehne: ([\d.]+)/);
   var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
   var wd = k3d.match(/WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
   if (!rinQ || !wandQ || !masse || !wd || !rinLit) {
@@ -1107,8 +1107,9 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   var RINNE = eval('(' + rinLit.replace(/^var RINNE = /, '').replace(/;$/, '') + ')');
   /* Die Hoehe steht im Code als RINNE.hoehe, nicht als Zahl – genau
      darum geht es: Sie kann nicht mehr von der Rinne davonlaufen. */
-  var RINNENDECKEL = { breite: +masse[1], hoehe: RINNE.hoehe,
-                       fase: RINNE.fase, fall: +masse[2], lehne: +masse[3] };
+  var RINNENDECKEL = { breite: RINNE.breite,
+                       hoehe: RINNE.hoehe + RINNE.schenkelLang,
+                       fase: RINNE.fase, fall: +masse[1], lehne: +masse[2] };
   var WANDDECKEL = { breite: +wd[1], hoehe: +wd[2] };
 
   var punkte = [], bogen = 0;
@@ -1142,92 +1143,48 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   }
   var r = mess(rinQ), w = mess(wandQ);
 
-  /* Die Rinnenkappe ist BELEGT – 172 x 175 mm aus der Skizze zu 6017
-     („Seitendeckel Rinne 2 TD beidseitig"), keine Rundung. Seit dem
-     14.10.2026 hat sie ZWEI Fasen statt einer: Die seitenspezifischen
-     Deckel 6011/6012 sehen so aus, und die hatte der Betreiber genannt. */
-  var rOk = Math.abs(r.breit - RINNENDECKEL.breite) < 0.02 &&
-            Math.abs(r.hoch - RINNENDECKEL.hoehe) < 0.02 && r.bogen === 0 &&
-            punkteZahl(rinQ) === 6;
-  pruefe('Rinnenkappe: belegtes Maß, zwei Fasen', gegen ? !rOk : rOk,
-         r.breit.toFixed(1) + ' x ' + r.hoch.toFixed(1) + ' cm, ' +
-         punkteZahl(rinQ) + ' Ecken, ' + r.bogen + ' Bogen');
+  /* Die frueheren Masspruefungen (172 x 175, sechs Ecken, Fasen vorne
+     bzw. hinten) sind entfallen: Die Blende folgt seit dem 14.10.2026 der
+     Handvorlage des Betreibers im gerenderten Schnitt, und ihre Masse
+     kommen aus der Rinne. Was heute gilt, steht weiter unten. */
 
-  /* Die Fasen des Deckels sitzen HINTEN, nicht vorne: „ja aber die
-     rinnenblende is immernoch wie fehl am platz" (Betreiber, 14.10.2026).
-     Vorne laeuft die Kante gerade durch und deckt die Rinnenvorderwand
-     auf ganzer Hoehe ab; hinten folgt die obere Fase der niedrigeren
-     Wange – und ihr Mass ist genau RINNE.wangeAb (34 mm). Die lange
-     schraege Hinterkante („Lehne") ist damit hinfaellig; was in der
-     Handzeichnung schraeg aussah, war diese Fase. */
-  (function () {
-    var p2 = punkteVon(rinQ);
-    var vorneDurch = p2.filter(function (q) {
-      return Math.abs(q[0] - RINNENDECKEL.breite) < 0.001;
-    });
-    var hintenOben = p2.some(function (q) {
-      return Math.abs(q[0]) < 0.001 &&
-             Math.abs(q[1] - (RINNENDECKEL.hoehe - RINNE.wangeAb)) < 0.001;
-    });
-    var ok = vorneDurch.length === 2 && hintenOben &&
-             Math.abs(RINNENDECKEL.lehne) < 0.001;
-    /* Die Unterkante steigt nach vorne an: Unter dem Rinnenboden ist nur
-       hinten der Schenkel (und darunter der Pfosten) – waagerecht
-       durchgezogen hinge die Blende vorne frei in der Luft, „wie
-       hingeklatscht" (Betreiber, 14.10.2026). Vorne ist sie damit genau
-       so hoch wie die Rinne. */
-    var vorneHoch = p2.filter(function (q) {
-      return Math.abs(q[0] - RINNENDECKEL.breite) < 0.001;
-    }).map(function (q) { return q[1]; });
-    var vh = vorneHoch.length === 2
-      ? Math.abs(vorneHoch[0] - vorneHoch[1]) : 0;
-    var steigt = Math.abs(vh - RINNE.hoehe) < 0.02;
-    pruefe('Blende ist vorne so hoch wie die Rinne',
-           gegen ? !steigt : steigt,
-           (vh * 10).toFixed(1) + ' mm vorne, Rinne ' +
-           (RINNE.hoehe * 10).toFixed(1) + ' mm (hinten ' +
-           (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm bis zum Schenkelfuß)');
+  
 
-    pruefe('Blende: vorne gerade, Fasen hinten an der Wange',
-           gegen ? !ok : ok,
-           vorneDurch.length + ' Punkte auf der Vorderkante, obere Fase ' +
-           (RINNE.wangeAb * 10).toFixed(0) + ' mm = wangeAb');
-  })();
+  /* ---------- Die Blende nach der Handvorlage ----------
+     Der Betreiber hat den gerenderten Schnitt genommen und den Umriss
+     eingezeichnet (14.10.2026). Daraus die drei Bedingungen: Sie deckt
+     Rinne UND Schenkel ab, reicht hinten bis an die Rinnenkante, und hat
+     unten vorne eine grosse Fase – oben laeuft sie gerade durch.
 
-  /* ---------- Die Blende schliesst die Rinne ab ----------
-     Vier Lagen und zwei Hoehen an einem Tag; zuletzt stand die Blende
-     oben UND unten ueber die Rinne hinaus: „alter?" (Betreiber,
-     14.10.2026, mit Bild aus der gedrehten Ansicht).
+     Die 175 mm der Skizze stimmen damit wieder (136,7 + 38,3); falsch
+     war an diesem Abend zweimal die Form drumherum, nicht die Zahl. */
+  var stapel = RINNE.hoehe + RINNE.schenkelLang;
+  var deckt = Math.abs(RINNENDECKEL.hoehe - stapel) < 0.001 &&
+              Math.abs(RINNENDECKEL.breite - RINNE.breite) < 0.001;
+  pruefe('Blende deckt Rinne und Schenkel ganz ab',
+         gegen ? !deckt : deckt,
+         (RINNENDECKEL.breite * 10).toFixed(1) + ' x ' +
+         (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm gegen Rinne ' +
+         (RINNE.breite * 10).toFixed(1) + ' x ' + (stapel * 10).toFixed(1) + ' mm');
 
-     Verworfen ist damit meine Herleitung „175 = 136,7 + 38,3 (Schenkel)".
-     Sie ging rechnerisch auf, am Bauteil stimmt sie nicht. Woher die
-     175 mm der Skizze kommen, bleibt offen.
+  var p3 = punkteVon(rinQ);
+  var obenGerade = p3.filter(function (q) {
+    return Math.abs(q[1] - RINNENDECKEL.hoehe) < 0.001;
+  }).length === 2;
+  var faseUnten = p3.some(function (q) {
+    return Math.abs(q[0] - (RINNENDECKEL.breite - RINNENDECKEL.fase)) < 0.001 &&
+           Math.abs(q[1]) < 0.001;
+  });
+  var formOk = obenGerade && faseUnten && p3.length === 5;
+  pruefe('Blende: oben gerade durch, Fase unten vorne',
+         gegen ? !formOk : formOk,
+         p3.length + ' Ecken, Oberkante ' + (obenGerade ? 'gerade' : 'geknickt') +
+         ', Fase unten vorne ' + (faseUnten ? 'da' : 'fehlt'));
 
-     Geprueft wird jetzt das, was im Bild zaehlt: Die Blende ist genau so
-     hoch wie die Rinne und steht nirgends vor. */
-  var gleich = Math.abs(RINNENDECKEL.hoehe - RINNE.hoehe) < 0.001;
-  pruefe('Blende ist genau so hoch wie die Rinne',
-         gegen ? !gleich : gleich,
-         (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm gegen ' +
-         (RINNE.hoehe * 10).toFixed(1) + ' mm');
-
-  var luecke = RINNE.breite - RINNENDECKEL.breite;
-  var lageOk = luecke > 1.0 && luecke < 2.0 &&
-               /profilKappen\(laenge, zVorne - RINNENDECKEL\.breite, yUnten,/.test(k3d) &&
-               (gegen || !/yUnten - RINNE\.schenkelLang/.test(k3d));
-  pruefe('Blende sitzt vorne bündig auf dem Rinnenboden',
-         gegen ? !lageOk : lageOk,
-         'hinten ' + (luecke * 10).toFixed(1) + ' mm frei, kein Überstand nach unten');
-
-  /* Zweiter Weg: ueber den gezeichneten Umriss statt ueber die Masse. */
-  var ragt = 0;
-  if (r.hoch > RINNE.hoehe + 0.001) ragt++;
-  if (r.breit > RINNE.breite + 0.001) ragt++;
-  pruefe('Blende steht nirgends über die Rinne vor',
-         gegen ? ragt > 0 : ragt === 0,
-         'Blende ' + (r.breit * 10).toFixed(0) + ' x ' + (r.hoch * 10).toFixed(0) +
-         ' mm, Rinne ' + (RINNE.breite * 10).toFixed(0) + ' x ' +
-         (RINNE.hoehe * 10).toFixed(0) + ' mm');
+  var lageOk = /profilKappen\(laenge, zVorne - RINNENDECKEL\.breite,/.test(k3d) &&
+               /yUnten - RINNE\.schenkelLang,/.test(k3d);
+  pruefe('Blende sitzt bündig auf dem ganzen Querschnitt',
+         gegen ? !lageOk : lageOk, 'hinten an der Rinnenkante, unten am Schenkelfuß');
 
   /* ---------- Die Probe aufs Ganze: deckt die Blende die Rinne? ----------
      „die rinnenblende passt auch von der form nicht an die rinne, die
@@ -1257,8 +1214,8 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
     var THREE = { Shape: P, Path: P };
     var pr = eval('(' + rinneQ + ')')(false).p;
 
-    var versatzX = RINNE.breite - RINNENDECKEL.breite;   // Deckel sitzt vorne
-    var versatzY = 0;                                    // Blende sitzt auf dem Boden
+    var versatzX = 0;                                    // Blende deckt alles ab
+    var versatzY = RINNE.schenkelLang;                   // Blende beginnt am Schenkelfuss
     var deckel = punkteVon(rinQ);
     function drin(poly, x, y) {
       var innen = false;

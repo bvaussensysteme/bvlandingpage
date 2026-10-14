@@ -1848,44 +1848,32 @@
      Die Schraege war bis heute nicht abgebildet – der Deckel hatte eine
      senkrechte Hinterkante. Alle vier Werte sind am markierten Bild
      ABGEMESSEN, Genauigkeit rund +/- 5 mm. */
-  /* ---------- Hoehe und Lage des Seitendeckels ----------
-     Zwei Runden lang passten Deckel (172 x 175) und Rinne (186,3 x 136,7)
-     nicht zusammen. Erst stand der Deckel oben und unten ueber, dann –
-     auf 136,7 gestutzt – deckte er die Rinne nicht mehr ab: „entweder is
-     der seitendeckel rinne zu klein oder die rinne is zu groß oder
-     falsche form" (Betreiber, 14.10.2026).
+  /* ---------- Form und Lage des Seitendeckels ----------
+     Der Betreiber hat den gerenderten Schnitt genommen und den Umriss
+     der Blende mit der Hand eingezeichnet (14.10.2026, nach „alter?").
+     Das ist die belastbarste Vorlage, die es fuer dieses Teil gibt –
+     belastbarer als die beiden Zeichnungen, die sich widersprechen.
 
-     Es war keines von beidem. In der Rechnung fehlte der SCHENKEL, der
-     hinten unter der Rinne nach unten geht:
+     Aus dem Umriss:
+       · Er deckt den GANZEN Querschnitt ab: Rinne samt dem Schenkel,
+         der hinten unter ihr nach unten geht.
+       · Hinten reicht er bis an die Rinnenkante; die 14,3 mm Luecke von
+         vorher gibt es nicht.
+       · Oben laeuft die Kante durchgehend gerade, auch ueber der
+         niedrigeren hinteren Wange – also KEINE Fase dort.
+       · Unten vorne eine grosse Fase.
 
-         136,7 (Rinne) + 38,3 (Schenkel) = 175,0 = Deckelhoehe
-         186,3 (Rinne) − 172,0 (Deckel)  =  14,3 mm bleiben hinten frei
+     Damit stimmen auch die 175 mm der Skizze zu 6017 wieder:
+     136,7 (Rinne) + 38,3 (Schenkel) = 175,0. Die Herleitung war also
+     richtig, falsch war die Form drumherum – die Fasen sassen hinten
+     statt unten vorne, und die Blende war hinten zu kurz.
 
-     Beide bemassten Zeichnungen stimmen also, sie beschreiben nur
-     verschiedene Teile desselben Querschnitts. Der Deckel reicht von der
-     Nase bis zum Schenkelfuss und sitzt vorne buendig – genau so, wie der
-     Betreiber ihn am 14.10.2026 in den Querschnitt gezeichnet hat.
-
-     Der FALL der Oberkante (vorher 11 mm nach vorne) ist entfallen: Er
-     war am Foto von 6011/6012 abgeschaetzt, nicht bemasst – und er gab
-     genau die vordere Oberkante der Rinne frei, die der Deckel abdecken
-     soll. Was belegt ist (172, 175, Fase 34), bleibt. */
-  /* KORREKTUR 14.10.2026, nach dem Bild aus der gedrehten Ansicht:
-     „alter?" (Betreiber). Dort steht die Blende als grosses schwarzes
-     Blech oben UND unten ueber die Rinne hinaus und verdeckt sie.
-
-     Damit ist meine Herleitung vom selben Abend widerlegt: Ich hatte aus
-     175 − 136,7 = 38,3 geschlossen, der Deckel reiche von der Nase bis
-     zum Schenkelfuss. Die Rechnung ging auf, am Bauteil stimmt sie
-     nicht. Woher die 175 mm der Skizze zu 6017 kommen, bleibt offen –
-     moeglicherweise misst sie das Rohteil samt Befestigungslasche.
-
-     Was jetzt gilt: Die Blende hat GENAU die Rinnenhoehe und schliesst
-     die Stirnseite ab, ohne irgendwo vorzustehen. Nicht belegt, aber das
-     Einzige, was im Bild stimmt – und das Bild entscheidet, seit die
-     Zeichnungen sich widersprechen. */
-  var RINNENDECKEL = { breite: 17.2, hoehe: RINNE.hoehe, fase: RINNE.fase,
-                       fall: 0, lehne: 0 };
+     Die Tiefe nimmt die RINNENTIEFE (186,3) statt der 172 aus der
+     Skizze: Die Blende soll die Rinne abdecken, und dazu muss sie so
+     tief sein wie diese. Woher die 172 kommen, bleibt offen. */
+  var RINNENDECKEL = { breite: RINNE.breite,
+                       hoehe: RINNE.hoehe + RINNE.schenkelLang,
+                       fase: RINNE.fase, fall: 0, lehne: 0 };
 
   /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
@@ -1927,46 +1915,15 @@
      Fasentiefe und der Fall der Oberkante sind daran ABGESCHAETZT. */
   function rinnenkappeQuerschnitt() {
     var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe;
+    var fase = RINNENDECKEL.fase;
     var f = new THREE.Shape();
-
-    /* KORREKTUR 14.10.2026, nach dem Rendern der Stirnansicht: „ja aber
-       die rinnenblende is immernoch wie fehl am platz" (Betreiber).
-
-       Die Fasen sassen auf der FALSCHEN SEITE. Sie gehoeren nach HINTEN,
-       zur Hausseite – dort, wo die Rinne niedriger ist. Vorne laeuft die
-       Kante gerade durch und deckt die Rinnenvorderwand auf ganzer Hoehe
-       ab.
-
-       Der Beleg steht in den Massen selbst: Die hintere Wange der Rinne
-       liegt RINNE.wangeAb = 34 mm unter der Nase – und 34 mm ist genau
-       die Fase aus der Skizze zu 6017. Die obere hintere Fase folgt also
-       der Wange, statt sie freizulassen. Mit den Fasen vorne stand die
-       Blende schraeg ueber einem Profil, das dort gerade ist.
-
-       Damit faellt auch die „Lehne" weg – die lange schraege Hinterkante,
-       die ich aus der Handzeichnung des Betreibers abgeleitet hatte. Was
-       dort schraeg aussah, war diese Fase ueber der niedrigeren Wange;
-       die bemasste Skizze zu 6017 zeigt die Hinterkante senkrecht. */
-    var fo = RINNE.wangeAb;            // hinten oben: folgt der Wange
-    var fu = RINNE.fase * 0.6;         // hinten unten: wie die kleine Fase
-    /* KORREKTUR 14.10.2026: „die blende sieht aus wie hingeklatscht"
-       (Betreiber). Die Unterkante lief waagerecht auf Schenkelfuss-Hoehe
-       durch – vorne hingen damit rund 7 cm Blech frei in der Luft, denn
-       unter dem Rinnenboden ist nur hinten der Schenkel und darunter der
-       Pfosten. Jetzt STEIGT sie nach vorne an, so wie es auch die Skizze
-       zu 6017 zeigt.
-
-       Das Mass dafuer kommt aus der Sache selbst: vorne endet sie an der
-       Rinnenunterkante, hinten am Schenkelfuss – der Anstieg ist also
-       genau die Schenkellaenge. Vorne ist die Blende damit 136,7 mm
-       hoch, also exakt so hoch wie die Rinne. */
-    f.moveTo(0, fu);
-    f.lineTo(fu, 0);                   // Fase hinten unten
-    f.lineTo(b, 0);                    // Unterkante auf dem Rinnenboden
-    f.lineTo(b, h);                    // Vorderkante = Rinnenhoehe
-    f.lineTo(fo, h);                   // Oberkante nach hinten
-    f.lineTo(0, h - fo);               // Fase hinten oben, folgt der Wange
-    f.closePath();
+    /* x = 0 ist hinten (zum Haus), y = 0 der Schenkelfuss. */
+    f.moveTo(0, 0);
+    f.lineTo(b - fase, 0);             // Unterkante
+    f.lineTo(b, fase);                 // Fase unten vorne
+    f.lineTo(b, h);                    // Vorderkante
+    f.lineTo(0, h);                    // Oberkante, durchgehend gerade
+    f.closePath();                     // Hinterkante
     return f;
   }
 
@@ -2048,7 +2005,8 @@
        Ueberstand / hinten buendig auf dem Boden). Alle drei waren
        Versuche, zwei Masse zusammenzubringen, zwischen denen der
        Schenkel fehlte. */
-    profilKappen(laenge, zVorne - RINNENDECKEL.breite, yUnten,
+    profilKappen(laenge, zVorne - RINNENDECKEL.breite,
+                 yUnten - RINNE.schenkelLang,
                  rinnenkappeQuerschnitt(), material);
   }
 

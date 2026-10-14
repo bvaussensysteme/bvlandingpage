@@ -223,18 +223,13 @@ pruefe('eZIP – Hinweis bei über 5 m Breite',
    Lage: HINTEN buendig und unten auf dem Rinnenboden. Vorher vorne
    buendig und an der Nase ausgerichtet, davor „in der Hoehe mittig". */
 var rd = (src.match(/var RINNENDECKEL = \{[^}]*\}/) || [''])[0];
-(function () {
-  var m = rd.match(/breite:\s*([\d.]+)/);
-  var ist = m ? Math.round(parseFloat(m[1]) * 10) : null;
-  var soll = 172 + (gegen ? 7 : 0);
-  pruefe('Rinnendeckel Tiefe', ist === soll, ist + ' mm (Teilebild 172)');
-})();
-pruefe('Rinnendeckel Höhe kommt aus der Rinne',
-       new RegExp(q || 'hoehe: RINNE\\.hoehe').test(rd),
-       'nicht mehr 175 mm aus der Skizze');
-pruefe('Rinnendeckel vorne buendig auf dem Rinnenboden',
-       new RegExp(q || 'profilKappen\\(laenge, zVorne - RINNENDECKEL\\.breite, yUnten,').test(src),
-       'kein Überstand nach unten');
+pruefe('Rinnendeckel Maße kommen aus der Rinne',
+       new RegExp(q || 'breite: RINNE\\.breite').test(rd) &&
+       new RegExp(q || 'hoehe: RINNE\\.hoehe \\+ RINNE\\.schenkelLang').test(rd),
+       'deckt Rinne und Schenkel ab');
+pruefe('Rinnendeckel sitzt am Schenkelfuss',
+       new RegExp(q || 'yUnten - RINNE\\.schenkelLang,').test(src),
+       'unten am Schenkelfuß, hinten an der Rinnenkante');
 
 /* Glasleiste TD, Teilebild: 55,3 x 22,6 mm */
 var gl = (src.match(/var GLASLEISTE = \{[^}]*\}/) || [''])[0];
