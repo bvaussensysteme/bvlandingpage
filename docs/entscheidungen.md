@@ -5984,3 +5984,59 @@ Gegenprobe mit 26 mm → schlägt an (20 + 26 + 20 = 66 gegen 61 mm).
 **Was gegengelesen werden soll:** Dach von oben oder schräg. Die
 Scheibenkanten müssen genau an den Stegflanken anstoßen, dazwischen sitzt
 die runde Abdeckleiste.
+
+### 14.10.2026 – Der Dachaufbau saß 23,3 mm zu hoch (Glas lag auf der Klaue)
+
+> „der 3d konf macht das falsch somit ist der aufbau sparren + glas +
+> glasleiste im 3d konf zu hoch also höher als real, deswegen guckt oben
+> etwas glasleiste aus dem wandprofil und unten guckt etwas sparren aus dem
+> wandprofil, dabei müsste es genau exakt passen"
+>
+> „quasi sparren dürfte nicht tiefer oder höher als die untere kammer des
+> wandprofil sein und glas + glasleiste dürfen nicht tiefer oder höher als
+> die obere kamer sein"
+
+**Der Fehler.** Die Scheibe lag im Modell auf der **Sparrenoberkante**
+(120 mm). Sie liegt aber auf dem **Hauptkörper** (96,7 mm) – die Klaue
+darüber steht *neben* der Scheibe hoch und nimmt die Abdeckleiste auf. So
+zeigen es die beiden Querschnittsbilder des Betreibers (eines mit der
+Glasleiste blau als Haube über der Klaue eingezeichnet). Der ganze Aufbau
+saß damit 23,3 mm zu hoch.
+
+**Was dadurch vorher als „unlösbar" dokumentiert war.** In zwei Einträgen
+davor steht die Rechnung „Sparren (120) + Glas (8) + Leiste (22,6) =
+150,6 mm gegen 143,6 mm Profil – beides gleichzeitig geht nicht", samt der
+Entscheidung, den Sparren 7 mm vorstehen zu lassen. **Die erste Zahl war
+falsch.** Richtig: 96,7 + 8 + 22,6 = **127,3 mm**, dazu drei Bleche –
+genau 143,6. Es geht auf, und zwar exakt.
+
+**Was jetzt gilt.** Die Kammern des Wandprofils werden nicht mehr
+geschätzt, sondern in `wandprofilKammern()` aus den Teilen gerechnet:
+
+| | Höhe | woher |
+|---|---|---|
+| untere Kammer | 96,7 mm | Hauptkörper des Sparrens |
+| obere Kammer | Scheibe + 22,6 mm | gewählte Scheibe + Abdeckleiste |
+| Blech (3 ×) | Rest ÷ 3 | einzige Unbekannte, fängt den Rest auf |
+
+Bei 8 mm Glas sind das 5,4 mm je Blech. Die Zeichnung zu 15188 bemaßt
+weder Steg noch Blechstärke – deshalb trägt sie den Rest. **Wäre sie in
+Wirklichkeit dünner, hätte das Profil irgendwo Luft; dann muss der
+Betreiber sagen, wo.** Die Steglage `stegAb` ist ersatzlos entfallen: ein
+zweiter Wert an dieser Stelle wäre wieder davongelaufen.
+
+**Absicherung:** fünf Verfälschungen, jede einzeln eingebaut, jede hat nur
+ihre eigene Prüfung rot gemacht – Glas wieder auf der Klaue; untere Kammer
+auf volle Sparrenhöhe; obere Kammer ohne Leiste; Profiloberkante wieder an
+der Sparrenoberkante; Mittelsteg entfernt. Die erste rutschte im ersten
+Anlauf durch (die Glasebene selbst war nicht bewacht) – dafür gibt es jetzt
+eine eigene Prüfung über alle drei Stellen (Scheibe, Abdeckleiste,
+Seitenglasleiste). Dazu eine nachgerechnete Prüfung, dass oben nichts
+herausschaut und unten nichts vorsteht; ihre Gegenprobe legt die Scheibe
+wieder auf die Sparrenoberkante und trifft damit genau den gemeldeten
+Fehler.
+
+**Was gegengelesen werden soll:** Blick von unten und von der Seite an die
+Wand. Oben darf keine Glasleiste aus dem Profil schauen, unten kein
+Sparren. Das Profil steht rund 11 mm unter die Sparrenunterkante – das ist
+richtig so, es ist höher als der Sparrenkörper.
