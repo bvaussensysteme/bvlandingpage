@@ -2137,7 +2137,14 @@
     f.moveTo(0, 0);
     f.lineTo(tiefe, 0);
     var vonY = 0.8, bisY = hoehe - 0.8;
-    var n = Math.max(2, Math.round((bisY - vonY) / RINNE.rilleTeilung));
+    /* FÜNF Rillen, nicht nach Teilung gerechnet: „5 rillen" (Betreiber,
+       14.10.2026) auf die Frage, ob die Blende glatt oder gerillt ist.
+       Vorher ergab die feste Teilung von 15 mm bei einer 252 mm hohen
+       Blende sechzehn Rillen – das sieht aus wie ein Lamellenprofil,
+       nicht wie die Blende auf den Produktbildern. Die Zahl gilt für
+       alle drei Blenden (vorne, hinten, seitlich), die alle dieselbe
+       Höhe haben. */
+    var n = 5;
     var schritt = (bisY - vonY) / n, fuge = 0.3, k;
     for (k = 0; k < n; k++) {
       var y0 = vonY + k * schritt;

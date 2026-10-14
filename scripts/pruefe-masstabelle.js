@@ -275,6 +275,32 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
        (gegen ? true : !/var pfH = pfostenUnterTraeger\(Z\.breite\);/.test(k3d)),
        'nimmt dieselbe Quelle wie die Anfrage');
 
+/* Die Blende hat FUENF Rillen – „5 rillen" (Betreiber, 14.10.2026).
+   Vorher wurde die Zahl aus der Hoehe geteilt durch 15 mm gerechnet; bei
+   der 252 mm hohen Blende ergab das sechzehn, also ein Lamellenprofil.
+   Gezaehlt wird am erzeugten Querschnitt, nicht an der Zahl im Code:
+   Jede Rille legt vier Punkte an, dazu kommen die vier Eckpunkte. */
+(function () {
+  var fn = (k3d.match(/function blendeProfil\([\s\S]*?\n  \}/) || [''])[0];
+  if (!fn) { pruefe('Blendenprofil lesbar', false, 'nicht gefunden'); return; }
+  var punkte = [];
+  function Form() { this.holes = []; }
+  Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.lineTo = function (x, y) { punkte.push([x, y]); };
+  Form.prototype.closePath = function () {};
+  function Leer() { return { translate: function () { return this; },
+                             rotateY: function () { return this; } }; }
+  var THREE = { Shape: Form,
+                ExtrudeGeometry: function () { return Leer(); },
+                Mesh: function () { return { position: { set: function () {} },
+                                             castShadow: 0, receiveShadow: 0 }; } };
+  var RINNE = { rilleTeilung: 1.5 };
+  var bau = { add: function () {} };
+  eval('(' + fn + ')')(500, 25.2, 18.63, 0, 100, 0, 0, null);
+  var rillen = (punkte.length - 4) / 4 + (gegen ? 1 : 0);
+  pruefe('Blende hat fünf Rillen', rillen === 5, rillen + ' Rillen');
+})();
+
 /* ---------- Beim SkyView darf nichts aus dem Rahmen ragen ----------
    Am 14.10.2026 gemeldet: „das sieht garnicht nach dem aus was ich
    geschickt hab" – im Bild standen Sparren und Glas 8 cm ueber dem
@@ -653,7 +679,10 @@ pruefe('Eindeckung liegt in beiden Systemen auf dem Sparren auf',
                                              castShadow: 0, receiveShadow: 0 }; } };
   var RINNE = { rilleTeilung: parseFloat((k3d.match(/rilleTeilung:\s*([\d.]+)/) || [])[1]) };
   var bau = { add: function () {} };
-  var hoehe = 33.4, tiefe = 14.0;
+  /* Mit den echten Massen des Rahmens pruefen, nicht mit alten
+     Beispielwerten: 252 mm hoch (Eckabdeckung 6073/6074), 186,3 tief
+     (Rinne 2 TD). */
+  var hoehe = 25.2, tiefe = 18.63;
   eval('(' + fn + ')')(500, hoehe, tiefe, 0, 100, 0, 0, null);
   var xs2 = punkte.map(function (pp) { return pp[0]; });
   var ys2 = punkte.map(function (pp) { return pp[1]; });
