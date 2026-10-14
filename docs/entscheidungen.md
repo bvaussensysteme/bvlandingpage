@@ -6197,3 +6197,56 @@ bündig statt vorne), alle schlagen an.
 **Was gegengelesen werden soll:** Stirnseite der Rinne. Der Deckel muss
 oben an der Nase und unten am Schenkelfuß abschließen, vorne bündig, und
 hinten 14 mm der Rinne frei lassen.
+
+### 14.10.2026 – Rinnenform vorne: zwei Fasen, die große nach unten
+
+> „die rinnenblende passt auch von der form nicht an die rinne, die
+> rinnenblende is richtig aber die rinnenform vorne an der stirnseite is
+> falsch" (Betreiber)
+
+Drei Fehler an der vorderen Kante, alle aus derselben Wurzel: Rinne und
+Blende hatten dort **getrennte Formen**, obwohl die eine die andere
+abdecken muss.
+
+1. **Die Rinne war oben gerundet** (28 mm Radius), die Blende hat dort
+   eine gerade Fase. Die Rundung schaute aus der Blende heraus. Jetzt
+   beide gerade – und aus **einer** Quelle: `RINNE.fase` steht beim
+   Profil, der Deckel übernimmt sie. (Andersherum hinge das Bauteil am
+   Blech davor.)
+2. **Die Fasen waren vertauscht.** Die große (34 mm) gehört nach **unten**,
+   die kleine (20,4 mm) nach oben. Zwei unabhängige Belege: In der
+   Zeichnung zu 16913 ist die untere Vorderecke rund 34 mm abgeschrägt,
+   die obere gut 20; und die obere Fase trifft so genau die Wandstärke
+   der Rinnenvorderwand (20,3 mm) – verdreht schnitt sie die Wand
+   komplett weg.
+3. **Das Rillenband endete 1 mm zu hoch**, weil seine Obergrenze noch an
+   der alten Rundung hing.
+
+**Der Fall der Deckeloberkante ist entfallen** (vorher 11 mm nach vorne).
+Er war am Foto abgeschätzt, nicht bemaßt, und gab genau die vordere
+Oberkante frei, die der Deckel abdecken soll.
+
+**Die Prüfung, die an fünf Runden gefehlt hat.** Alle bisherigen haben
+**einzelne Maße** verglichen – Höhe gegen Höhe, Tiefe gegen Tiefe – und
+jedes Mal stimmten die Zahlen, während die Formen nicht zusammenpassten.
+Jetzt wird der **ganze Rinnenumriss Punkt für Punkt** gegen den
+Blendenumriss gehalten (Strahlverfahren, mit 0,3 mm Toleranz für Punkte
+auf der Kante). Beim ersten Lauf meldete sie **17 von 33 Punkten** – darin
+drei echte Befunde (die drei oben) und zwei Fehler in der Prüfung selbst
+(die Kehle gehört zum Loch, nicht zum Umriss; Randpunkte brauchen
+Toleranz).
+
+Dazu eine zweite Prüfung, dass die Rinne die beiden Fasen überhaupt hat
+und die untere die größere ist – sonst wäre eine Rinne ganz ohne Fasen
+„bestanden": Sie wäre kleiner und läge erst recht hinter der Blende.
+
+**Gegenproben:** Rinne oben ohne Fase → beide Prüfungen schlagen an; Rinne
+unten ohne Fase → die Formprüfung schlägt an; Deckel schmaler → zwei
+andere Prüfungen; Deckel 1 cm höher → die Lageprüfung. Drei weitere
+Versuche liefen **nicht** an, weil sie die Rinne kleiner machten statt
+größer – das ist im Prüfskript vermerkt, damit niemand sie für wirksam
+hält.
+
+**Was gegengelesen werden soll:** Stirnseite der Rinne von schräg vorne.
+Die Blende muss die Rinne vollständig verdecken; unten eine deutlich
+größere Abschrägung als oben.
