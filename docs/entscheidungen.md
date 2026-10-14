@@ -5588,3 +5588,26 @@ nach Maß unterschiedlich schlank wirken – der ursprüngliche Anlass.
 **Was gegengelesen werden soll:** SkyView bei 2,5 m und bei 4,5 m Tiefe
 ansehen. Der Rahmen muss in beiden Fällen gleich hoch sein, kein Sparren
 darf über- oder unten herausstehen.
+
+## 2026-10-14 – Blende: fünf Rillen
+
+**Anlass:** Auf die Frage, ob die Blende glatt mit einer Fuge oder
+durchgehend gerillt ist: „5 rillen" (Betreiber).
+
+**Was falsch war:** Die Rillenzahl wurde aus der Blendenhöhe geteilt
+durch eine feste Teilung von 15 mm gerechnet. Bei der jetzt belegten
+Blendenhöhe von 252 mm ergab das **sechzehn** Rillen – das sieht aus wie
+ein Lamellenprofil, nicht wie die Blende auf den Produktbildern. Solange
+die Blende im Modell 26 cm hoch war, fiel es weniger auf.
+
+**Was jetzt gilt:** Fest fünf Rillen, für alle drei Blenden (vorne,
+hinten, seitlich) – sie haben dieselbe Höhe.
+
+**Absicherung:** Die Prüfung zählt die Rillen am erzeugten Querschnitt,
+nicht an der Zahl im Code: Jede Rille legt vier Punkte an, dazu die vier
+Eckpunkte. Die benachbarte Prüfung „Rillen ändern die Kastenmaße nicht"
+rechnete noch mit alten Beispielmaßen (33,4 × 14,0 cm); sie prüft jetzt
+mit den echten 252 × 186,3 mm.
+
+**Was gegengelesen werden soll:** SkyView von vorne – die Blende muss
+fünf waagerechte Rillen zeigen.
