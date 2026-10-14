@@ -647,6 +647,36 @@ pruefe('Wandprofil deckt die Glasleiste ab',
          (sparrenImProfil ? 'im Profil' : 'DAVOR'));
 })();
 
+/* ---------- Sparren: Scheibe stoesst an die Stegflanke ----------
+   „der träger also quasi sparren, ist so aufgebaut wie auf dem bild, das
+   bild zeigt 2 sparren und wie das glas (orange) dadrauf liegt"
+   (Betreiber, 14.10.2026, Querschnittsbild mit 20 mm Auflage je Seite).
+
+   Die Stegbreite war geschaetzt (26 mm) und damit zu breit: Die Scheibe
+   liegt laut Anleitung je Seite 20 mm auf, bei 61 mm Sparrenbreite bleiben
+   fuer den Steg 21 mm. Mit 26 schnitt die Scheibe 2,5 mm je Seite hinein.
+
+   Geprueft wird die Rechnung selbst, nicht die Zahl: Auflage links +
+   Steg + Auflage rechts muss die Sparrenbreite ergeben. */
+(function () {
+  var sp = (k3d.match(/var SPARREN = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!sp) { pruefe('Sparrenmasse lesbar', false, 'nicht gefunden'); return; }
+  var S2 = eval('(' + sp.replace(/^var SPARREN = /, '').replace(/;$/, '') + ')');
+  var auflage = 2.0;                         // 20 mm je Seite, Anleitung S. 9
+  var summe = S2.stegBreite + 2 * auflage;
+  var ok = Math.abs(summe - S2.breite) < 0.001;
+  pruefe('Scheibe liegt 20 mm auf und stößt an den Steg',
+         gegen ? !ok : ok,
+         (auflage * 10) + ' + ' + (S2.stegBreite * 10).toFixed(0) + ' + ' +
+         (auflage * 10) + ' = ' + (summe * 10).toFixed(0) + ' mm, Sparren ' +
+         (S2.breite * 10).toFixed(0) + ' mm');
+  /* Zweiter Weg: die Breite der Scheibe im Code (lichteWeite + 4 cm) gegen
+     dieselbe Auflage. Beide muessen dieselbe Zahl meinen. */
+  var vier = /var feldB = lichteWeite \+ 4;/.test(k3d);
+  pruefe('Scheibenbreite folgt denselben 20 mm',
+         gegen ? !vier : vier, 'Abstand zwischen Träger + 40 mm');
+})();
+
 /* ---------- Serienfarben je System ----------
    BELEGT aus dem Kopf der Preislisten-Masstabelle: Reinweiss 9010 gibt
    es NUR bei TDS. „korregieren" (Betreiber, 11.10.2026) - vorher

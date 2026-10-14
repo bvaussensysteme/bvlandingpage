@@ -1959,7 +1959,17 @@
     breite: 6.1,       // 61 mm, Zeichnung
     hoehe: 12.0,       // 120 mm gesamt, Zeichnung
     koerper: 9.67,     // 96,7 mm Hauptkörper, Zeichnung
-    stegBreite: 2.6    // GESCHÄTZT – steht nicht in der Zeichnung
+    /* 21 mm. Nicht mehr geschaetzt, sondern AUSGERECHNET aus dem
+       Querschnittsbild des Betreibers (14.10.2026, zwei Sparren mit
+       aufliegender Scheibe): Die Scheibe liegt je Seite 20 mm auf, der
+       Sparren ist 61 mm breit – fuer den Steg in der Mitte bleiben
+       61 − 2 × 20 = 21 mm. Dieselben 20 mm nennt die Montageanleitung
+       S. 9 („Breite der Eindeckung = Abstand zwischen Träger + 40 mm").
+
+       Mit den vorher geschaetzten 26 mm schnitt die Scheibe beidseitig
+       2,5 mm IN den Steg. Jetzt stoesst ihre Kante genau an die
+       Stegflanke – so, wie es das Bild zeigt. */
+    stegBreite: 2.1
   };
 
   /* Querschnitt des Sparrens in der XY-Ebene: x quer, y nach oben.

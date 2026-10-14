@@ -5956,3 +5956,31 @@ hätte den ursprünglichen Fehler gefunden.
 **Was gegengelesen werden soll:** TDS schräg von vorne an der Wand. Der
 Deckel muss das Profil UND die Sparrenstirn abdecken und dabei am Sparren
 anliegen, nicht davor schweben.
+
+### 14.10.2026 – Sparrensteg: 21 statt 26 mm, aus dem Querschnittsbild gerechnet
+
+> „Träger TD 15698 der träger also quasi sparren, ist so aufgebaut wie auf
+> dem bild, das bild zeigt 2 sparren und wie das glas (orange) dadrauf
+> liegt" (Betreiber, mit bemaßtem Querschnittsbild)
+
+Das Bild zeigt zwei Sparren nebeneinander, die Scheibe liegt je Seite
+**20 mm** auf. Damit ist ein bisher geschätztes Maß ausrechenbar: Bei
+61 mm Sparrenbreite bleiben für den Steg in der Mitte
+61 − 2 × 20 = **21 mm**. Im Modell standen 26 mm (geschätzt, „steht nicht
+in der Zeichnung").
+
+**Das war nicht nur ungenau, sondern falsch:** Die Scheibenbreite im Code
+folgt schon seit dem 11.10.2026 der Anleitung S. 9 („Breite der Eindeckung
+= Abstand zwischen Träger + 40 mm"), also denselben 20 mm je Seite. Mit
+einem 26 mm breiten Steg schnitt die Scheibe beidseitig **2,5 mm in den
+Steg hinein**. Zwei Zahlen, die dasselbe meinten, liefen auseinander –
+genau die Fehlerart, die hier schon mehrfach aufgetreten ist.
+
+**Absicherung:** Die Prüfung vergleicht nicht die Zahl 21, sondern die
+Rechnung: Auflage + Steg + Auflage muss die Sparrenbreite ergeben. Eine
+zweite prüft, dass die Scheibenbreite im Code dieselben 20 mm meint.
+Gegenprobe mit 26 mm → schlägt an (20 + 26 + 20 = 66 gegen 61 mm).
+
+**Was gegengelesen werden soll:** Dach von oben oder schräg. Die
+Scheibenkanten müssen genau an den Stegflanken anstoßen, dazwischen sitzt
+die runde Abdeckleiste.
