@@ -182,23 +182,44 @@ pruefe('Dachvorsprung ist voreingestellt auf 0',
        'kein Statikträger im Standardfall');
 pruefe('Dachvorsprung bewegt die Pfosten',
        new RegExp(q || 'zPf = T - PFOSTENACHSE - vorspr').test(k3d), 'zPf minus Vorsprung');
-/* BELEGT (Masstabelle, Kopf): PFOSTENACHSE_AB_VORDERKANTE_MM=55. Hier
-   standen zwischendurch 93 mm („mittig unter der Rinne"); auf Vorlage
-   des Tabellenbefunds entschied der Betreiber am 11.10.2026: „dann mach
-   es nach liste". */
+/* Der Pfosten sitzt HINTEN an der Rinne: „die pfosten sitzen bei uns zu
+   weit vorne, die müssen genau an dem hinteren schenkel der rinne sitzen
+   … denn dort werden sie von innen verschraubt" (Betreiber, 14.10.2026,
+   mit drei Werkbildern). Vorher 55 mm nach Masstabelle (vorne buendig),
+   davor 93 mm (mittig). Geprueft wird nicht die Zahl 131,2, sondern der
+   Zusammenhang: Pfostenrueckseite = Rinnenrueckseite. */
 (function () {
   var m = k3d.match(/var PFOSTENACHSE = ([\d.]+);/);
-  var ist = m ? Math.round(parseFloat(m[1]) * 10) : null;
-  var soll = 55 + (gegen ? 7 : 0);
-  pruefe('Pfostenachse 55 mm hinter der Vorderkante', ist === soll,
-         ist + ' mm (Masstabelle ' + 55 + ')');
-  /* Zweiter Weg: Daraus muss die Pfostenvorderkante buendig mit der
-     Rinnenvorderkante liegen - 55 mm Achse bei 110 mm Pfosten. */
-  var PF = 11;
-  var vorne = (m ? parseFloat(m[1]) : 0) - PF / 2;
-  pruefe('Pfosten steht vorne bündig mit der Rinne',
-         gegen ? Math.abs(vorne) > 0.001 : Math.abs(vorne) < 0.001,
-         (vorne * 10).toFixed(0) + ' mm Versatz');
+  var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
+  if (!m || !rinLit) { pruefe('Pfostenachse lesbar', false, 'nicht gefunden'); return; }
+  var RINNE = eval('(' + rinLit.replace(/^var RINNE = /, '').replace(/;$/, '') + ')');
+  var achse = parseFloat(m[1]), PF = 11.02;
+  /* Abstand der Pfostenrueckseite von der Rinnenrueckseite. Null heisst
+     buendig – dort sitzt der hintere Schenkel. */
+  var hinten = RINNE.breite - (achse + PF / 2);
+  var ok = Math.abs(hinten - RINNE.schenkelDick) < 0.02;
+  pruefe('Pfosten steht an der Vorderseite des Schenkels',
+         gegen ? !ok : ok,
+         (achse * 10).toFixed(1) + ' mm ab Vorderkante, Rückseite ' +
+         (hinten * 10).toFixed(1) + ' mm von der Rinnenrückseite (Schenkel ' +
+         (RINNE.schenkelDick * 10).toFixed(0) + ' mm)');
+  /* Zweiter Weg: Die Rinne muss vorne ueber den Pfosten ueberstehen –
+     genau das zeigen die Werkbilder, und genau das fehlte vorher. */
+  var ueber = RINNE.breite - PF;
+  var stehtUeber = (achse - PF / 2) > 0.5 && Math.abs(ueber - 7.61) < 0.02;
+  pruefe('Rinne steht vorne über den Pfosten über',
+         gegen ? !stehtUeber : stehtUeber,
+         (ueber * 10).toFixed(1) + ' mm Überstand');
+  /* Und: von innen verschraubbar. Das geht nur, wo der Pfosten unter der
+     Kehle liegt – sonst trifft die Schraube die Rinnenwange. */
+  var pfVon = achse - PF / 2, pfBis = achse + PF / 2;   // ab Vorderkante
+  var kehleVon = RINNE.breite - (RINNE.rueckwand + RINNE.innenBreite);
+  var kehleBis = RINNE.breite - RINNE.rueckwand;
+  var ueberlappung = Math.min(pfBis, kehleBis) - Math.max(pfVon, kehleVon);
+  var schraubbar = ueberlappung > 3.0;
+  pruefe('Pfosten liegt unter der Kehle (von innen verschraubbar)',
+         gegen ? !schraubbar : schraubbar,
+         (ueberlappung * 10).toFixed(1) + ' mm Überlappung mit der Kehle');
 })();
 pruefe('Träger kommt auch mit Vorsprung',
        new RegExp(q || 'unterzugGilt\\(tbMass\\) \\|\\| vorspr > 0').test(k3d), '');
@@ -1198,7 +1219,9 @@ pruefe('Beide Deckel werden gleich gebaut und gesetzt',
   var RINNE = { breite: zahl('breite'), hoehe: zahl('hoehe'),
                 innenBreite: zahl('innenBreite'), innenTiefe: zahl('innenTiefe'),
                 rueckwand: zahl('rueckwand'), wangeAb: zahl('wangeAb'),
-                rilleTeilung: zahl('rilleTeilung') };
+                rilleTeilung: zahl('rilleTeilung'),
+                schenkelDick: zahl('schenkelDick'),
+                schenkelLang: zahl('schenkelLang') };
   var punkte = [];
   function Form() { this.holes = []; }
   Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
@@ -1220,12 +1243,29 @@ pruefe('Beide Deckel werden gleich gebaut und gesetzt',
   var xs2 = punkte.map(function (p) { return p[0]; });
   var ys2 = punkte.map(function (p) { return p[1]; });
   var breit = Math.max.apply(null, xs2) - Math.min.apply(null, xs2);
-  var hoch = Math.max.apply(null, ys2) - Math.min.apply(null, ys2);
+  /* Die Hoehe wird AB DEM BODEN gemessen (y = 0), nicht vom tiefsten
+     Punkt: Seit dem 14.10.2026 haengt der Schenkel fuer die
+     Pfostenverschraubung unter dem Profil, bei negativem y. Die
+     bemassten 136,7 mm beziehen sich auf das Profil darueber. */
+  var hoch = Math.max.apply(null, ys2);
+  var tiefsterPunkt = Math.min.apply(null, ys2);
   if (gegen) breit += 1;
   pruefe('Rillen aendern die Rinnenmasse nicht',
          Math.abs(breit - RINNE.breite) < 0.02 && Math.abs(hoch - RINNE.hoehe) < 0.02,
          breit.toFixed(2) + ' x ' + hoch.toFixed(2) + ' cm (Zeichnung ' +
          RINNE.breite + ' x ' + RINNE.hoehe + ')');
+  /* Der Schenkel haengt nach unten – und zwar HINTEN, an der Rueckseite
+     (x = 0). Dort steht der Pfosten davor. */
+  var schenkelPunkte = punkte.filter(function (p) { return p[1] < -0.01; });
+  var allHinten = schenkelPunkte.length > 0 && schenkelPunkte.every(function (p) {
+    return p[0] <= RINNE.schenkelDick + 0.001;
+  });
+  var tiefOk = Math.abs(tiefsterPunkt + RINNE.schenkelLang) < 0.001;
+  pruefe('Rinne hat hinten unten den Schenkel für die Pfosten',
+         gegen ? !(allHinten && tiefOk) : (allHinten && tiefOk),
+         schenkelPunkte.length + ' Punkte unter dem Boden, ' +
+         (-tiefsterPunkt * 10).toFixed(0) + ' mm lang, ' +
+         (RINNE.schenkelDick * 10).toFixed(0) + ' mm dick');
   /* Die Rillen liegen zurueckgesetzt – gezaehlt werden die Punkte, die
      NICHT an der Vorderkante stehen, aber in der Vorderflaeche liegen. */
   var tief = punkte.filter(function (p) {
