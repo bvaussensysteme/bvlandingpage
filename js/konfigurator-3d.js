@@ -2297,6 +2297,15 @@
     return m;
   }
 
+  /* ---------- Wand-Rinnen Blende 2 TD (16912) ----------
+     BELEGT aus der Einzelteile-Liste: ein duenner Schenkel von 98,85 mm
+     mit einem 23,7 mm hohen Haken am Ende. Eingebaut steht der lange
+     Schenkel senkrecht vor der unteren Kammer des Wandprofils, der Haken
+     greift oben in den Mittelsteg. Die 98,85 mm decken die 96,7 mm hohe
+     Kammer genau ab – daran ist zu erkennen, dass es dieses Teil ist.
+     Die Dicke steht nicht in der Zeichnung, 2 mm GESCHAETZT. */
+  var WANDBLENDE = { hoehe: 9.885, dicke: 0.2 };
+
   var PFOSTENACHSE = 5.5;
 
   var RANDBLENDE = { dicke: 3.0, vor: 0.25 };
@@ -5876,6 +5885,31 @@
     xs.forEach(function (x) {
       sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
     });
+
+    /* ---------- Blende vor der unteren Kammer ----------
+       „und jz kommt zwischen jeden sparrenabstand, ans wandprofil ne
+       blende das man das innenleben also die kammern etc nicht sieht …
+       bzw das man nur die untere kammer nicht sieht" (Betreiber,
+       14.10.2026).
+
+       Die untere Kammer ist nach vorne offen. Wo ein Sparren steckt,
+       fuellt er sie aus; DAZWISCHEN sieht man hinein. Die Blende sitzt
+       deshalb nur in den Feldern zwischen den Sparren, nicht durchgehend
+       – sonst stuende sie vor den Sparren.
+
+       Die OBERE Kammer bleibt offen: dort liegt die Scheibe. */
+    if (!sky) {
+      var kam = wandprofilKammern(wpGlasD);
+      var wpUk = wpMitte - wpH / 2;
+      for (i = 0; i < xs.length - 1; i++) {
+        var feldB2 = (xs[i + 1] - xs[i]) - spB;
+        if (feldB2 <= 0) continue;
+        balken(feldB2, WANDBLENDE.hoehe, WANDBLENDE.dicke,
+               (xs[i] + xs[i + 1]) / 2,
+               wpUk + kam.blech + WANDBLENDE.hoehe / 2,
+               WANDPROFIL.tiefeUnten - WANDBLENDE.dicke / 2, mAlu);
+      }
+    }
 
     /* Seitliche Randblende – siehe RANDBLENDE. Sie liegt außen am
        Randsparren und schließt oben an der Glasoberseite ab, so dass

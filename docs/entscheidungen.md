@@ -6040,3 +6040,37 @@ Fehler.
 Wand. Oben darf keine Glasleiste aus dem Profil schauen, unten kein
 Sparren. Das Profil steht rund 11 mm unter die Sparrenunterkante – das ist
 richtig so, es ist höher als der Sparrenkörper.
+
+### 14.10.2026 – Blende vor der unteren Kammer des Wandprofils (16912)
+
+> „und jz kommt zwischen jeden sparrenabstand, ans wandprofil ne blende das
+> man ds innenleben aso die kammern etc nicht sieht" … „bzw das man nur die
+> untere kammer nicht sieht" (Betreiber)
+
+Seit das Wandprofil ein echtes Profil mit zwei nach vorne offenen Kammern
+ist, schaut man zwischen den Sparren in die untere Kammer hinein. Wo ein
+Sparren steckt, füllt er sie aus – dazwischen ist sie offen.
+
+**Das Teil gibt es in der Liste:** „Wand-Rinnen Blende 2 TD" (16912), ein
+dünner Schenkel von **98,85 mm** mit einem 23,7 mm hohen Haken am Ende.
+Eingebaut steht der lange Schenkel senkrecht vor der Kammer, der Haken
+greift oben in den Mittelsteg. Dass die 98,85 mm die 96,7 mm hohe Kammer
+genau abdecken, ist die Bestätigung, dass es dieses Teil ist – und
+zugleich eine zweite, unabhängige Bestätigung für die Kammerhöhe aus dem
+Eintrag davor: Die Kammer wurde aus dem Sparrenkörper gerechnet, das
+passende Teil war da schon in der Liste.
+
+Gebaut wird sie **feldweise, nicht durchgehend** – durchgehend stünde sie
+vor den Sparren, die in derselben Kammer stecken. Die **obere Kammer
+bleibt offen**: dort liegt die Scheibe.
+
+Nur die Dicke ist geschätzt (2 mm); die Zeichnung bemaßt sie nicht.
+
+**Absicherung:** drei Prüfungen, zwei mit eigener Verfälschung gegengeprüft
+(Blende auf halbe Höhe → „deckt die untere Kammer ab" schlägt an;
+durchgehend statt feldweise → „sitzt in den Feldern zwischen den Sparren"
+schlägt an).
+
+**Was gegengelesen werden soll:** Blick von unten und schräg von vorne an
+die Wand. Zwischen den Sparren darf man nicht mehr in die untere Kammer
+sehen; die obere mit der Scheibe bleibt sichtbar offen.
