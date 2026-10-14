@@ -5611,3 +5611,46 @@ mit den echten 252 × 186,3 mm.
 
 **Was gegengelesen werden soll:** SkyView von vorne – die Blende muss
 fünf waagerechte Rillen zeigen.
+
+## 2026-10-14 – Die vordere Blende war 19 cm dick
+
+**Anlass:** „die blenden links und rechts sind gut aber warum is die
+vorderseite so fett" (Betreiber, mit Bildschirmfoto).
+
+**Was falsch war:** Vorne wurde die **ganze Rinnentiefe** (186,3 mm) als
+gerillter Block gezeichnet, hinten die Trägertiefe (120 mm) – seitlich
+dagegen nur die Blendendicke (30 mm). Von vorne sah das Dach dadurch aus,
+als hätte es eine 19 cm dicke Kante.
+
+**Der Denkfehler:** Ich hatte Profil und Blende gleichgesetzt. Die Rinne
+ist 186,3 mm tief, aber **sichtbar ist davon nur die vorderste Schicht** –
+die Blende, so dünn wie an den Seiten. Die Rinne liegt dahinter.
+
+**Was jetzt gilt:** Vorne und hinten je zwei Teile – die gerillte Blende
+in Blendendicke, dahinter ein glatter Kasten über die restliche
+Profiltiefe. Der schließt die Unteransicht, ohne nach vorne aufzutragen.
+
+**Absicherung:** Eine Prüfung stellt sicher, dass **jeder**
+`blendeProfil`-Aufruf die Blendendicke als Tiefe bekommt und keiner mehr
+eine Profiltiefe. Dabei ist aufgefallen, dass die erste Fassung der
+Prüfung die Funktionsdefinition mitzählte (deren drittes Argument heißt
+„tiefe") – sie meldete 1 von 4 falsch, obwohl alle drei Aufrufe stimmten.
+
+**Was gegengelesen werden soll:** SkyView von schräg vorne – die vordere
+Kante muss genauso schlank sein wie die seitlichen.
+
+## 2026-10-14 – Die Rillen zeigten nach innen
+
+**Anlass:** „und von der innenseite is nix geriffelt" (Betreiber).
+
+**Was falsch war:** Im Profil liegt die gerillte Fläche auf der Seite +x;
+nach `rotateY(d)` zeigt sie in Richtung −sin(d) auf der z-Achse. Für
+„nach vorne" braucht es also **−90°, nicht +90°**. Vorne und hinten war
+die Drehung vertauscht – die Rillen zeigten ins Dach hinein, die glatte
+Seite nach außen. Seitlich stimmte es, deshalb fiel es dort nicht auf
+(„die blenden links und rechts sind gut").
+
+**Absicherung:** Die Prüfung rechnet aus Drehwinkel und Position jedes
+Aufrufs, wohin die Rillen zeigen – vorne nach +z, hinten nach −z,
+seitlich nach außen. Eine Textsuche hätte das nicht gefunden: Im Code
+stand eine plausible Zahl, nur mit falschem Vorzeichen.
