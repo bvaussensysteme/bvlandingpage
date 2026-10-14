@@ -400,16 +400,28 @@ pruefe('Wandprofil reicht bis an die Eindeckung',
            ist + ' mm (Anleitung ' + pp[1] + ')');
   });
 
-  /* Die Ableitung selbst nachrechnen: Wenn der Sparren an jedem Ende
-     65 mm aufliegt und insgesamt 150 mm kuerzer ist als die Spannweite,
-     muessen Rinne und Traeger zusammen 150 + 2 x 65 = 280 mm tief sein.
-     Genau daraus stammen die 140 mm je Profil. Stimmt das nicht mehr,
-     haengt der Sparren in der Luft oder steckt im Profil. */
-  var summe = SKY.rinneT + SKY.traegerT + (gegen ? 5 : 0);
-  var soll = SKY.sparrenAbzug + 2 * SKY.auflager;
-  pruefe('SkyView – Rinne und Träger passen zur Sparrenlänge',
-         Math.abs(summe - soll) < 0.01,
-         (summe * 10).toFixed(0) + ' mm gegen ' + (soll * 10).toFixed(0) + ' mm');
+  /* ---------- Profiltiefen jetzt BELEGT, nicht mehr abgeleitet ----------
+     Hier stand bis zum 14.10.2026 eine Ableitung: Weil der Sparren
+     150 mm kuerzer ist als die Spannweite und an jedem Ende 65 mm
+     aufliegt, muessten Rinne und Traeger zusammen 280 mm tief sein –
+     daraus kamen die 140 mm je Profil.
+
+     Die Einzelteile-Liste des Herstellers (Stand 07.10.2026) nennt die
+     echten Querschnitte: Rinne 2 TD (16913) 186,3 mm tief, Traeger TD
+     (15698) 120 mm. Zusammen 306,3 mm, nicht 280 mm.
+
+     Die Ableitung war also falsch – wie der Sparren genau aufliegt,
+     ergibt sich aus 150 und 65 allein nicht. Geprueft werden deshalb
+     jetzt die BELEGTEN Masse, und die offene Frage steht in
+     docs/NEXT_TASK.md. */
+  [['rinneT', 186.3, 'Rinne 2 TD (16913)'],
+   ['traegerT', 120, 'Träger TD (15698)'],
+   ['rahmenH', 136.7, 'Rinne 2 TD, Höhe']].forEach(function (pp) {
+    var ist = SKY[pp[0]] === null ? null : Math.round(SKY[pp[0]] * 100) / 10;
+    var soll = pp[1] + (gegen ? 7 : 0);
+    pruefe('SkyView – ' + pp[2], Math.abs(ist - soll) < 0.05,
+           ist + ' mm (Liste ' + pp[1] + ')');
+  });
 
   /* Der Sparren muss hoeher sein als seine Ausklinkung, sonst waere er
      an den Enden durchgeschnitten. Mit dem TDS-Sparren (120 mm) bleiben
@@ -435,7 +447,7 @@ pruefe('SkyView – Rahmen bleibt waagerecht',
   /* Die Sparrenunterkante vorne steht ZWEIMAL im Code – einmal fuer
      Pfosten und Traeger, einmal fuer das Dach. Laufen sie auseinander,
      liegt das Dach anders als die Pfosten. */
-  var n = (k3d.match(/sky\s*\n?\s*\? hRinne \+ SKY\.sparrenAb/g) || []).length;
+  var n = (k3d.match(/\? Math\.max\(hRinne,\s*\n\s*hRinne \+ riH - skyGlas/g) || []).length;
   pruefe('SkyView – beide Höhenrechnungen stimmen überein',
          gegen ? n !== 2 : n === 2, n + ' Stellen');
 })();
@@ -449,29 +461,39 @@ pruefe('SkyView – Rahmen bleibt waagerecht',
      haben keine keilform, die sind normal wie bei tds nur eben 2 grad
      geneigt" (Betreiber, 11.10.2026). Das Gefaelle liegt damit im
      Kasten, nicht im Sparren. */
-  var fRi = (k3d.match(/var riH = sky\s*\n\s*\?([\s\S]*?)\n\s*: RINNE\.hoehe;/) || [])[1];
+  /* ---------- Der Rahmen hat eine FESTE Hoehe ----------
+     Bis zum 14.10.2026 wuchs er mit der Dachtiefe, damit das 2°-Gefaelle
+     hineinpasst – bei 4,5 m auf 355 mm. „außenrum sieht er in echt auch
+     gleich hoch aus" (Betreiber, 14.10.2026), und im ganzen System gibt
+     es kein Profil ueber 136,7 mm. Das Gefaelle steckt stattdessen in
+     der Ausklinkung des Sparrens (65 x 86 mm, nur vorne).
+
+     Geprueft wird deshalb jetzt das Gegenteil von vorher: Die Formel
+     darf NICHT mehr von der Tiefe abhaengen. */
+  var fRi = (k3d.match(/var riH = sky \? ([^;]+);/) || [])[1];
   var blk = (k3d.match(/var SKY = \{[\s\S]*?\n  \};/) || [''])[0];
-  if (!fRi || !blk) { pruefe('SkyView - Kastenformel lesbar', false, 'nicht gefunden'); return; }
-  function zahl(name) {
+  if (!fRi || !blk) { pruefe('SkyView - Rahmenformel lesbar', false, 'nicht gefunden'); return; }
+  pruefe('SkyView – Rahmenhöhe hängt nicht an der Tiefe',
+         gegen ? / T\b/.test(fRi) : !/ T\b|Math\.tan/.test(fRi),
+         'riH = ' + fRi.trim());
+
+  function zahl2(name) {
     var m = blk.match(new RegExp(name + ':\\s*([\\d.]+)'));
     return m ? parseFloat(m[1]) : null;
   }
-  var SKY = { rahmenH: zahl('rahmenH'), sparrenAb: zahl('sparrenAb'),
-              ueber: zahl('ueber'), sparrenAbzug: zahl('sparrenAbzug') };
-  var SPARREN = { hoehe: parseFloat((k3d.match(/var SPARREN = \{\s*\n\s*breite:\s*[\d.]+,[^]*?hoehe:\s*([\d.]+)/) || [])[1]) };
-  var neig = 2 * Math.PI / 180, skyGlas = 0.8, hRinne = 250;
-  var ragt = 0, engste = 99;
-  [200, 250, 300, 350, 400, 500, 600, 705].forEach(function (T) {
-    var riH = eval(fRi) - (gegen ? 6 : 0);
-    var ukVorn = hRinne + SKY.sparrenAb;
-    var glasOk = ukVorn + Math.tan(neig) * T + SPARREN.hoehe + skyGlas;
-    var luft = (hRinne + riH) - glasOk;
-    if (luft < -0.001) ragt++;
-    if (luft < engste) engste = luft;
-  });
-  pruefe('SkyView - Dachfläche bleibt im Kasten', ragt === 0,
-         ragt + ' von 8 Tiefen mit Ueberstand, engste Stelle ' +
-         (engste * 10).toFixed(0) + ' mm');
+  var SKY2 = { rahmenH: zahl2('rahmenH'), auflagerH: zahl2('auflagerH') };
+  var spH2 = parseFloat((k3d.match(/var SPARREN = \{\s*\n\s*breite:\s*[\d.]+,[^]*?hoehe:\s*([\d.]+)/) || [])[1]);
+  /* Zweiter Weg: Die Sparrenunterkante vorne aus der Rahmenoberkante
+     zurueckrechnen. Ohne die Ausklinkung waere sie bei JEDER Tiefe
+     unter dem Rahmen – mit ihr passt es bis rund 2,6 m. Geprueft wird,
+     dass die Ausklinkung ueberhaupt etwas bewirkt: Sie muss die
+     Unterkante um genau 86 mm anheben. */
+  var ohne = SKY2.rahmenH - 0.8 - Math.tan(2 * Math.PI / 180) * 250 - spH2;
+  var mit = ohne + SKY2.auflagerH - (gegen ? 8.6 : 0);
+  pruefe('SkyView – die Ausklinkung hebt den Sparren vorne an',
+         Math.abs((mit - ohne) - 8.6) < 0.01,
+         'bei 2,5 m: ohne ' + (ohne * 10).toFixed(0) + ' mm, mit ' +
+         (mit * 10).toFixed(0) + ' mm zur Rahmenunterkante');
   pruefe('SkyView - Sparren ist ein gerades Profil wie bei TDS',
          gegen ? /function keilsparren/.test(k3d)
                : (!/function keilsparren/.test(k3d) &&
