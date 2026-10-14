@@ -6154,3 +6154,46 @@ beide schlagen an.
 **Was gegengelesen werden soll:** Stirnseite der Rinne von schräg vorne.
 Der Deckel darf nirgends über die Rinnenkontur stehen, vorne bleiben 14 mm
 Rinne sichtbar.
+
+### 14.10.2026 – Aufgelöst: Der Deckel deckt Rinne UND Schenkel ab
+
+> „entweder is der seitendeckel rinne zu klein oder die rinne is zu groß
+> oder falsche form" (Betreiber)
+
+**Es war keines von beidem.** Beide bemaßten Zeichnungen stimmen – in der
+Rechnung fehlte der Schenkel, der hinten unter der Rinne nach unten geht:
+
+```
+136,7 (Rinne)  + 38,3 (Schenkel) = 175,0 mm = Deckelhöhe   ✓
+186,3 (Rinne)  − 172,0 (Deckel)  =  14,3 mm bleiben hinten frei
+```
+
+Der Deckel reicht von der **Nase bis zum Schenkelfuß** und sitzt **vorne
+bündig** – genau so, wie der Betreiber ihn am selben Tag in den
+Querschnitt gezeichnet hatte (gelber Umriss). Was dort wie „der Deckel ist
+größer als die Rinne" aussah, war der Schenkel, den das Modell damals noch
+nicht hatte.
+
+**Was das nebenbei klärt:** Die Schenkellänge war seit heute Nachmittag
+mit 40 mm am Bild abgegriffen. Sie ist jetzt **ausgerechnet**: 175 − 136,7
+= 38,3 mm. Die geschätzten 40 lagen 1,7 mm daneben – nah genug, dass es im
+Bild niemandem auffiel, und weit genug, dass die Gleichung nicht aufging.
+Die Dicke (7 mm) bleibt geschätzt.
+
+**Vier Lagen an dieser Stelle an einem Tag** (mittig → vorne/an der Nase
+mit Überstand → hinten/auf dem Boden → vorne/bis zum Schenkelfuß). Die
+ersten drei waren Versuche, zwei Maße zusammenzubringen, zwischen denen
+ein drittes Teil fehlte. **Lehre: Wenn zwei belegte Maße nicht
+zusammenpassen, fehlt meist ein Teil – nicht eine Zahl.** Dreimal habe ich
+stattdessen eine der beiden Zahlen verworfen.
+
+**Absicherung:** Geprüft wird jetzt die **Gleichung**, nicht eine Zahl:
+Deckelhöhe = Rinnenhöhe + Schenkellänge. Läuft eines der drei Maße weg,
+schlägt sie an – genau die Prüfung, die in den drei Runden davor gefehlt
+hat, weil jede nur ein Teil für sich maß. Drei Verfälschungen (Schenkel
+wieder 40 mm; Deckel auf dem Rinnenboden statt am Schenkelfuß; hinten
+bündig statt vorne), alle schlagen an.
+
+**Was gegengelesen werden soll:** Stirnseite der Rinne. Der Deckel muss
+oben an der Nase und unten am Schenkelfuß abschließen, vorne bündig, und
+hinten 14 mm der Rinne frei lassen.

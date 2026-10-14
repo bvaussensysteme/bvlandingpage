@@ -1065,7 +1065,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 (function () {
   var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: (RINNE\.hoehe), fase: ([\d.]+),\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+),\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
   var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
   var wd = k3d.match(/WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
   if (!rinQ || !wandQ || !masse || !wd || !rinLit) {
@@ -1074,7 +1074,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   var RINNE = eval('(' + rinLit.replace(/^var RINNE = /, '').replace(/;$/, '') + ')');
   /* Die Hoehe steht im Code als RINNE.hoehe, nicht als Zahl – genau
      darum geht es: Sie kann nicht mehr von der Rinne davonlaufen. */
-  var RINNENDECKEL = { breite: +masse[1], hoehe: RINNE.hoehe,
+  var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2],
                        fase: +masse[3], fall: +masse[4], lehne: +masse[5] };
   var WANDDECKEL = { breite: +wd[1], hoehe: +wd[2] };
 
@@ -1143,34 +1143,44 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
          gegen ? !schraeg : schraeg,
          'oben ' + (RINNENDECKEL.lehne * 10).toFixed(0) + ' mm weiter vorne als unten');
 
-  /* Die Lage, wie der Code sie setzt – nachgerechnet, nicht abgelesen.
+  /* ---------- Der Deckel deckt Rinne UND Schenkel ab ----------
+     „entweder is der seitendeckel rinne zu klein oder die rinne is zu groß
+     oder falsche form" (Betreiber, 14.10.2026). Es war keines von beidem:
+     In der Rechnung fehlte der Schenkel unter der Rinne.
 
-     Bis zum Blick ins fertige Bild stand der Deckel vorne buendig, 5 mm
-     ueber der Nase und 33 mm unter dem Boden (so die markierte Skizze).
-     Im Bild sah das falsch aus: „sitzt meiner meinung zu niedrig und
-     könnte etwas nach links, darf nicht über die rinne drübergucken auf
-     der stirnseite" (Betreiber, 14.10.2026). Jetzt liegt er HINTEN
-     buendig, unten auf dem Rinnenboden – und bleibt ueberall innerhalb
-     des Rinnenumrisses. */
+         136,7 (Rinne) + 38,3 (Schenkel) = 175,0 = Deckelhoehe
+         186,3 (Rinne) − 172,0 (Deckel)  =  14,3 mm hinten frei
+
+     Geprueft wird genau diese Gleichung – nicht die Zahl 175. Laeuft eins
+     der drei Masse weg, schlaegt sie an. Das ist die Pruefung, die in den
+     drei Runden davor gefehlt hat: Jede hat nur ein Teil fuer sich
+     gemessen, nie die Beziehung. */
+  var stapel = RINNE.hoehe + RINNE.schenkelLang;
+  var passt = Math.abs(RINNENDECKEL.hoehe - stapel) < 0.02;
+  pruefe('Deckelhöhe = Rinne + Schenkel (175 = 136,7 + 38,3)',
+         gegen ? !passt : passt,
+         (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm Deckel gegen ' +
+         (RINNE.hoehe * 10).toFixed(1) + ' + ' +
+         (RINNE.schenkelLang * 10).toFixed(1) + ' = ' + (stapel * 10).toFixed(1) + ' mm');
+
   var luecke = RINNE.breite - RINNENDECKEL.breite;
-  var lageOk = Math.abs(RINNENDECKEL.hoehe - RINNE.hoehe) < 0.001 &&
-               luecke > 1.0 && luecke < 2.0 &&
-               /profilKappen\(laenge, zVorne - RINNE\.breite, yUnten,/.test(k3d) &&
-               (gegen || !/RINNENDECKEL\.ueberNase/.test(k3d));
-  pruefe('Rinnendeckel sitzt hinten bündig und auf dem Boden',
+  var lageOk = luecke > 1.0 && luecke < 2.0 &&
+               /profilKappen\(laenge, zVorne - RINNENDECKEL\.breite,/.test(k3d) &&
+               /yUnten - RINNE\.schenkelLang,/.test(k3d);
+  pruefe('Rinnendeckel: vorne bündig, unten am Schenkelfuß',
          gegen ? !lageOk : lageOk,
-         'hinten bündig, vorne ' + (luecke * 10).toFixed(0) + ' mm der Rinne frei');
+         'hinten ' + (luecke * 10).toFixed(1) + ' mm frei');
 
   /* Zweiter Weg: ueber den gezeichneten Umriss statt ueber die Formel.
-     Nichts darf ueber die Rinne hinausragen – weder oben noch unten. */
-  var ragt = 0;
-  if (r.hoch > RINNE.hoehe + 0.001) ragt++;        // hoeher als die Rinne
-  if (r.breit > RINNE.breite + 0.001) ragt++;      // tiefer als die Rinne
-  pruefe('Rinnendeckel guckt nirgends über die Rinne',
-         gegen ? ragt > 0 : ragt === 0,
-         'Deckel ' + (r.breit * 10).toFixed(0) + ' x ' + (r.hoch * 10).toFixed(0) +
-         ' mm, Rinne ' + (RINNE.breite * 10).toFixed(0) + ' x ' +
-         (RINNE.hoehe * 10).toFixed(0) + ' mm');
+     Oben darf er nicht ueber die Nase, unten nicht unter den Schenkel. */
+  var deckelUnten = -RINNE.schenkelLang;
+  var deckelOben = deckelUnten + r.hoch;
+  var buendig = Math.abs(deckelOben - RINNE.hoehe) < 0.02 &&
+                Math.abs(deckelUnten + RINNE.schenkelLang) < 0.001;
+  pruefe('Deckel schließt oben mit der Nase, unten mit dem Schenkel ab',
+         gegen ? !buendig : buendig,
+         'Oberkante ' + (deckelOben * 10).toFixed(1) + ' mm, Rinnennase ' +
+         (RINNE.hoehe * 10).toFixed(1) + ' mm');
 
   /* Die Wandprofilkappe (6013) ist BELEGT: 146,27 hoch x 89,16 breit, der
      flache Bogen an der AUSSENkante. Die Skizze zeigt sie liegend – „der
