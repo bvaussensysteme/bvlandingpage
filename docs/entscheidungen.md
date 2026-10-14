@@ -6329,3 +6329,35 @@ Formprüfung schlägt an).
 **Was gegengelesen werden soll:** Stirnseite der Rinne. Die Blende muss
 vorne glatt über die ganze Höhe laufen; abgeschrägt ist sie nur hinten,
 oben stärker als unten.
+
+### 14.10.2026 – Blende: Unterkante steigt nach vorne an
+
+> „rinne is ja jz gut, aber die blende sieht aus wie hingeklatscht"
+> (Betreiber)
+
+Im gerenderten Schnitt war zu sehen, woran das lag: Die Unterkante lief
+waagerecht auf Schenkelfuß-Höhe durch. Unter dem Rinnenboden ist aber nur
+**hinten** etwas – der Schenkel und darunter der Pfosten. Nach vorne hingen
+rund **7 cm Blech frei in der Luft**.
+
+Jetzt steigt die Unterkante nach vorne an, wie es auch die Skizze zu 6017
+zeigt. Das Maß dafür kommt aus der Sache selbst: hinten endet sie am
+Schenkelfuß, vorne an der Rinnenunterkante – der Anstieg ist genau die
+Schenkellänge. **Vorne ist die Blende damit 136,7 mm hoch, also exakt so
+hoch wie die Rinne.** Diese Gleichheit prüft das Skript; sie kann nicht
+auseinanderlaufen, weil beide Werte aus derselben Rechnung kommen.
+
+**Zum Vorgehen:** Statt zu raten, was „hingeklatscht" heißt, wurde erst der
+Schnitt gerendert und dann mit dem gefundenen Befund nachgefragt – mit drei
+konkreten Möglichkeiten (hängt frei / wirkt wie ein Aufkleber / insgesamt
+zu groß). Das hat eine weitere Fehlrunde gespart. Die vier Runden davor
+sind jeweils daran gescheitert, dass ich aus einer knappen Rückmeldung die
+Absicht erraten habe.
+
+**Absicherung:** Gegenprobe mit waagerechter Unterkante → die Prüfung
+meldet 175 statt 136,7 mm vorne.
+
+**Was gegengelesen werden soll:** Stirnseite von schräg vorne und von
+unten. Die Blende darf unter der Rinne nur hinten herunterreichen, wo
+Schenkel und Pfosten sind; nach vorne läuft ihre Unterkante hoch zur
+Rinnenunterkante.
