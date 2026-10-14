@@ -507,7 +507,7 @@ pruefe('Wandprofil steht mit 143,6 mm an der Wand',
 (function () {
   /* Das Wandprofil wird genau EINMAL gezeichnet, ausserhalb der
      frei-Verzweigung - sonst gaebe es zwei Fassungen davon. */
-  var zahl = (k3d.match(/balken\(B, wpH, wpT, 0, wpMitte,/g) || []).length;
+  var zahl = (k3d.match(/wandprofilBauen\(B, wpMitte - wpH \/ 2, mAlu\)/g) || []).length;
   pruefe('Wandprofil wird nicht ersetzt', gegen ? zahl !== 1 : zahl === 1,
          zahl + ' Mal gezeichnet');
 })();
@@ -522,25 +522,103 @@ pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
    genau das sah von aussen aus wie ein waagrecht liegender Balken. */
 pruefe('Oberkante haengt an der Sparrenoberkante',
        new RegExp(q || 'dachOk = ukHinten \\+ spH').test(k3d), 'nicht mehr an hHinten');
-/* Das Profil reicht ueber die Sparren bis an die Glasoberseite - dort
-   haelt die Glasleiste die Scheibe. An der Sparrenoberkante zu enden
-   waere zu tief (Betreiber, 11.10.2026). */
-pruefe('Wandprofil reicht bis an die Eindeckung',
-       new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH : dachOk \\+ wpGlasD').test(k3d) &&
+/* Das Profil reicht ueber die Sparren UND ueber die Abdeckleiste auf der
+   Scheibe: „die glasleisten können dochnicht höher wie das profil sein"
+   (Betreiber, 14.10.2026). Bis dahin endete es an der Glasoberseite –
+   die 22,6 mm hohe Leiste stand darueber. */
+pruefe('Wandprofil deckt die Glasleiste ab',
+       new RegExp(q || 'wpOk = sky \\? hRinne \\+ riH : dachOk \\+ wpGlasD \\+ GLASLEISTE\\.hoehe').test(k3d) &&
        new RegExp(q || 'wpMitte = wpOk - wpH / 2').test(k3d), '');
 (function () {
   /* Nachgerechnet: Die Sparren muessen in der unteren Haelfte liegen und
      die Glasoberseite mit der Profiloberkante abschliessen. */
-  var wpH = 14.36, spH = 12.0, glas = 0.8, dachOk = 100;
-  var ok = dachOk + (gegen ? 0 : glas);
+  /* Beides gleichzeitig geht NICHT: Sparren (120) + Glas (8) +
+     Abdeckleiste (22,6) sind zusammen 150,6 mm, das Profil ist 143,6 mm
+     hoch. Entweder steht die Leiste oben ueber oder der Sparren unten
+     vor. Der Betreiber hat es zweimal entschieden – zuletzt „die
+     glasleisten können dochnicht höher wie das profil sein"
+     (14.10.2026) –, also schliesst das Profil OBEN ab, und der Sparren
+     steht unten um die Differenz vor. Geprueft wird genau das, samt der
+     Groesse dieses Ueberstands: Mehr als 1 cm waere ein Rechenfehler,
+     nicht mehr die Bauart. */
+  var wpH = 14.36, spH = 12.0, glas = 0.8, leiste = 2.26, dachOk = 100;
+  var ok = dachOk + glas + (gegen ? 0 : leiste);
   var uk = ok - wpH;
   var sparrenUk = dachOk - spH;
+  var vor = uk - sparrenUk;                  // so weit steht der Sparren vor
   var falsch = 0;
-  if (Math.abs(ok - (dachOk + glas)) > 0.001) falsch++;   // Glas buendig
-  if (sparrenUk < uk - 0.001) falsch++;                   // Sparren im Profil
-  pruefe('Sparren im Profil, Glas buendig oben', falsch === 0,
-         falsch + ' von 2 Lagen falsch');
+  if (ok < dachOk + glas + leiste - 0.001) falsch++;      // Leiste verdeckt
+  if (vor > 1.0 || vor < -0.001) falsch++;                // Sparren nur knapp
+  pruefe('Glasleiste oben verdeckt, Sparren steht unten knapp vor',
+         falsch === 0,
+         falsch + ' von 2 Lagen falsch, Sparren ' + (vor * 10).toFixed(0) + ' mm vor');
 })();
+/* ---------- Wandprofil: echtes Profil statt Quader ----------
+   „die unterseite hier auf dem bild die zwei offenen kammern müssen nach
+   rechts gucken nicht nach unten" (Betreiber, 14.10.2026). Gebaut war es
+   als glatter Quader – von unten und von der Seite sah man einen Block.
+
+   Geprueft wird am erzeugten Querschnitt, nicht am Quelltext: Die Kammern
+   muessen nach VORNE offen sein, und die Ausladung muss oben groesser
+   sein als unten (38,6 gegen 37 mm, beide aus der Zeichnung). */
+(function () {
+  var q2 = (k3d.match(/function wandprofilQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var lit = (k3d.match(/var WANDPROFIL = \{[\s\S]*?\n  \};/) || [''])[0];
+  var dl = k3d.match(/var WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+) \}/);
+  if (!q2 || !lit || !dl) {
+    pruefe('Wandprofil-Querschnitt lesbar', false, 'nicht gefunden'); return;
+  }
+  var WANDPROFIL = eval('(' + lit.replace(/^var WANDPROFIL = /, '').replace(/;$/, '') + ')');
+  var p2 = [];
+  function F2() { this.holes = []; }
+  F2.prototype.moveTo = function (x, y) { p2.push([x, y]); };
+  F2.prototype.lineTo = F2.prototype.moveTo;
+  F2.prototype.quadraticCurveTo = function (a, b, x, y) { p2.push([x, y]); };
+  F2.prototype.closePath = function () {};
+  var THREE = { Shape: F2 };
+  eval('(' + q2 + ')')();
+  var xs2 = p2.map(function (e) { return e[0]; });
+  var ys2 = p2.map(function (e) { return e[1]; });
+  var tiefe = Math.max.apply(null, xs2), hoch = Math.max.apply(null, ys2);
+
+  /* Eine nach vorne offene Kammer heisst: es gibt Punkte, die WEIT
+     vorne liegen (Schenkelenden), und Punkte auf derselben Hoehe weit
+     hinten (Rueckwand). Ein Quader haette nur vier Ecken. */
+  var hinten = p2.filter(function (e) {
+    return e[0] <= WANDPROFIL.wand + 0.001 && e[1] > 0.001 && e[1] < hoch - 0.001;
+  }).length;
+  /* Nicht nur die Eckenzahl: Ein Profil, dem der Mittelsteg fehlt, haette
+     genauso viele Ecken (eine Verfaelschung, die genau so durchrutschte).
+     Gezaehlt werden deshalb die Punkte, die DEUTLICH vorne liegen – zwei
+     je Schenkel und zwei am Mittelsteg, also sechs. */
+  var vorne = p2.filter(function (e) {
+    return e[0] > WANDPROFIL.wand + 0.5;
+  }).length;
+  var kammern = p2.length >= 12 && hinten >= 4 && vorne === 6;
+  pruefe('Wandprofil ist ein Profil mit zwei Kammern, kein Quader',
+         gegen ? !kammern : kammern,
+         p2.length + ' Ecken, ' + hinten + ' an der Rückwand, ' +
+         vorne + ' an den drei Schenkeln');
+  var keilig = Math.abs(tiefe - WANDPROFIL.tiefe) < 0.001 &&
+               WANDPROFIL.tiefeUnten < WANDPROFIL.tiefe &&
+               Math.abs(hoch - WANDPROFIL.hoehe) < 0.001;
+  pruefe('Wandprofil: 143,6 hoch, oben 38,6 und unten 37 tief',
+         gegen ? !keilig : keilig,
+         (hoch * 10).toFixed(1) + ' hoch, ' + (tiefe * 10).toFixed(1) + '/' +
+         (WANDPROFIL.tiefeUnten * 10).toFixed(1) + ' mm tief');
+
+  /* Der Seitendeckel darf nicht vor dem Profil in der Luft stehen. Die
+     Liste nennt 89,16 mm – bei 38,6 mm Ausladung waeren das 5 cm frei
+     vorstehendes Blech. Bewusste Abweichung, siehe Kommentar im Code. */
+  var deckel = +dl[1];
+  var buendig = deckel >= WANDPROFIL.tiefe &&
+                deckel <= WANDPROFIL.tiefe + 0.3;
+  pruefe('Seitendeckel steht nicht vor dem Wandprofil',
+         gegen ? !buendig : buendig,
+         (deckel * 10).toFixed(1) + ' mm Deckel gegen ' +
+         (WANDPROFIL.tiefe * 10).toFixed(1) + ' mm Profil');
+})();
+
 /* ---------- Serienfarben je System ----------
    BELEGT aus dem Kopf der Preislisten-Masstabelle: Reinweiss 9010 gibt
    es NUR bei TDS. „korregieren" (Betreiber, 11.10.2026) - vorher
@@ -1143,7 +1221,7 @@ pruefe('Dachoberkante wird am Sparrenende gerechnet',
 (function () {
   /* Zweiter Weg: die Lagen aus den Zahlen der Datei nachrechnen, nicht
      aus der Absicht. wpT kommt aus dem Code, nicht aus dieser Datei. */
-  var wpT = parseFloat((k3d.match(/var WANDPROFIL = \{ hoehe: [\d.]+, tiefe: ([\d.]+)/) || [])[1]);
+  var wpT = parseFloat((k3d.match(/var WANDPROFIL = \{[\s\S]*?tiefe:\s*([\d.]+)/) || [])[1]);
   var sun = parseFloat((k3d.match(/sparrenUnterNase:\s*([\d.]+)/) || [])[1]);
   if (!wpT || !sun) { pruefe('Profilmasse lesbar', false, 'wpT/sparrenUnterNase fehlt'); return; }
   var spH = 12.0, wpH = 14.36, glas = 0.8, riH = 13.67, rinneB = 18.63;

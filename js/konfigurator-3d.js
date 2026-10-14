@@ -1872,8 +1872,28 @@
 
      Vorher standen hier 140 x 175 mit Radius 70, alle drei am Werkbild
      abgeschaetzt: zu schmal, zu hoch und mit dem Bogen nur ueber der
-     oberen Ecke statt ueber der ganzen Aussenkante. */
-  var WANDDECKEL = { breite: 8.916, hoehe: 14.627 };
+     oberen Ecke statt ueber der ganzen Aussenkante.
+
+     ABWEICHUNG VOM BELEGTEN MASS, bewusst (14.10.2026): Die Liste nennt
+     89,16 mm. Das Wandprofil laedt aber nur 38,6 mm aus – der Deckel
+     stand damit 5 cm frei vor dem Profil in der Luft. Genau das hat der
+     Betreiber gemeldet: „das wandprofil is zu tief brudiiiiiii das musst
+     du doch sehen". Gezeichnet wird er deshalb profilbuendig, also
+     Profiltiefe plus 2 mm Ueberstand.
+
+     Offen bleibt, was die 89,16 mm am echten Teil sind. Zwei
+     Moeglichkeiten: Der Deckel deckt ausser dem Profil noch die
+     Stirnseite des aeusseren Sparrens mit ab (38,6 + 50 = 88,6 – das
+     kaeme fast genau hin), oder das Mass ist die abgewickelte Laenge
+     ueber den Bogen. Das muss der Betreiber am Teil nachsehen; bis dahin
+     ist profilbuendig die Variante, die im Bild nicht falsch aussieht.
+     Die HOEHE 146,27 mm bleibt unangetastet.
+
+     Die Breite haengt bewusst an einer festen Zahl und nicht an
+     WANDPROFIL.tiefe: Die Konstante steht erst weiter unten in der
+     Datei. Dass beide zusammenpassen, bewacht eine Pruefung in
+     scripts/pruefe-masstabelle.js. */
+  var WANDDECKEL = { breite: 4.06, hoehe: 14.627 };
 
   function wandkappeQuerschnitt() {
     var b = WANDDECKEL.breite, h = WANDDECKEL.hoehe;
@@ -2173,7 +2193,73 @@
 
      Die Ausladung stand bis zum 14.10.2026 auf 31 mm – geschaetzt aus
      einer frueheren Zeichnung. Die Liste nennt 38,6 mm. */
-  var WANDPROFIL = { hoehe: 14.36, tiefe: 3.86 };
+  var WANDPROFIL = {
+    hoehe: 14.36,       // 143,6 mm – „143,6 is höhe" (Betreiber, 14.10.2026)
+    tiefe: 3.86,        // Ausladung OBEN: „38,6 is breite oben"
+    tiefeUnten: 3.70,   // Ausladung UNTEN: „37 is breite unten"
+    wand: 0.25,         // Blechstaerke, GESCHAETZT
+    stegAb: 0.30,       // Mittelsteg bei 30 % der Hoehe von oben, GESCHAETZT
+    stegTiefe: 2.90     // Mittelsteg ist kuerzer als die Schenkel, GESCHAETZT
+  };
+
+  /* ---------- Querschnitt des Wandprofils ----------
+     „die unterseite hier auf dem bild die zwei offenen kammern müssen
+     nach rechts gucken nicht nach unten" (Betreiber, 14.10.2026, zur
+     Zeichnung von 15188).
+
+     In der Zeichnung LIEGT das Profil: die geschlossene Wand oben, die
+     drei Schenkel nach unten, dazwischen zwei offene Kammern. Eingebaut
+     steht es: die geschlossene Wand am Haus, die Schenkel nach VORNE,
+     die Kammern zur Terrasse hin offen.
+
+     Bis heute war es ein glatter Quader (balken(...)). Von der Seite und
+     von unten sah man deshalb einen massiven Block statt eines Profils.
+
+     x = 0 ist die Wand, x waechst nach vorne; y = 0 ist die Unterkante.
+     Oben laedt es 38,6 mm aus, unten 37 – das Profil laeuft leicht
+     keilig, beide Masse stehen in der Zeichnung.
+
+     WARUM keilig: „links die flache seite muss bündig an der wand
+     anliegen quasi is das profil dann etwas geneigt" und „ja die
+     vorderseite is geneigt weil die sparren die in der kammer liegen
+     haben ja gefälle nach vorne" (Betreiber, 14.10.2026). Die flache
+     Rueckseite liegt an der Wand, die Vorderkante steht schraeg – die
+     grosse Kammer nimmt die Sparren auf, und die haben Gefaelle. */
+  function wandprofilQuerschnitt() {
+    var H = WANDPROFIL.hoehe, w = WANDPROFIL.wand;
+    var ob = WANDPROFIL.tiefe, ub = WANDPROFIL.tiefeUnten;
+    var ms = WANDPROFIL.stegTiefe;
+    var ys = H * (1 - WANDPROFIL.stegAb);        // Unterkante des Mittelstegs
+    var f = new THREE.Shape();
+    f.moveTo(0, 0);
+    f.lineTo(ub, 0);                 // unterer Schenkel nach vorne
+    f.lineTo(ub, w);
+    f.lineTo(w, w);                  // zurueck an die Rueckwand
+    f.lineTo(w, ys);                 // untere Kammer, nach vorne offen
+    f.lineTo(ms, ys);                // Mittelsteg
+    f.lineTo(ms, ys + w);
+    f.lineTo(w, ys + w);
+    f.lineTo(w, H - w);              // obere Kammer, nach vorne offen
+    f.lineTo(ob, H - w);
+    f.lineTo(ob, H);                 // oberer Schenkel
+    f.lineTo(0, H);
+    f.closePath();
+    return f;
+  }
+
+  /* laenge = Dachbreite in x, yUnten = Unterkante, z = 0 ist die Wand. */
+  function wandprofilBauen(laenge, yUnten, material) {
+    var g = new THREE.ExtrudeGeometry(wandprofilQuerschnitt(),
+      { depth: laenge, bevelEnabled: false });
+    /* Wie bei der Rinne: Mit −90° laeuft die Querschnittstiefe in +z,
+       die Kammern zeigen damit nach vorne und nicht zur Wand. */
+    g.rotateY(-Math.PI / 2);
+    g.translate(laenge / 2, yUnten, 0);
+    var m = new THREE.Mesh(g, material);
+    m.castShadow = true; m.receiveShadow = true;
+    bau.add(m);
+    return m;
+  }
 
   var PFOSTENACHSE = 5.5;
 
@@ -5525,7 +5611,16 @@
     /* Der Kasten ist rundum waagerecht: Der Träger hinten endet auf
        derselben Höhe wie die Rinne vorne, er folgt NICHT der geneigten
        Dachfläche. */
-    var wpOk = sky ? hRinne + riH : dachOk + wpGlasD;
+    /* KORREKTUR 14.10.2026: „die glasleisten können dochnicht höher wie
+       das profil sein" (Betreiber, mit Bildschirmfoto der Seitenansicht).
+
+       Die Oberkante hing an der GLASOBERSEITE – aber auf dem Glas sitzt
+       noch die Abdeckleiste, 22,6 mm hoch. Genau um dieses Mass stand
+       die Leiste ueber dem Profil. Die Vorgabe dazu steht seit dem
+       11.10.2026 im Code („das wandprofil soll die glasleisten abdecken
+       also selbe höhe bis zu den glasleisten") – umgesetzt war sie nur
+       bis zur Scheibe. */
+    var wpOk = sky ? hRinne + riH : dachOk + wpGlasD + GLASLEISTE.hoehe;
     var wpMitte = wpOk - wpH / 2;
     var trOk = vorsprH > 0 ? ukAmTraeger : wpOk;
     /* KORREKTUR 11.10.2026: „der statikträger ist tiefer als der
@@ -5637,7 +5732,10 @@
       balken(B, wpH, wpT - RANDBLENDE.dicke, 0, wpMitte,
              RANDBLENDE.dicke + (wpT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
-      balken(B, wpH, wpT, 0, wpMitte, wpT / 2, mAlu);
+      /* Kein Quader mehr: das echte Profil mit zwei nach vorne offenen
+         Kammern. wpMitte bleibt die Bezugsgroesse der uebrigen Rechnung,
+         gebaut wird ab der Unterkante. */
+      wandprofilBauen(B, wpMitte - wpH / 2, mAlu);
     }
     /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
        wandkappeQuerschnitt. */
