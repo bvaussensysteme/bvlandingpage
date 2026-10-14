@@ -1871,7 +1871,7 @@
      genau die vordere Oberkante der Rinne frei, die der Deckel abdecken
      soll. Was belegt ist (172, 175, Fase 34), bleibt. */
   var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: RINNE.fase,
-                       fall: 0, lehne: 3.2 };
+                       fall: 0, lehne: 0 };
 
   /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
@@ -1912,25 +1912,35 @@
      6017 – 6011/6012 sind in der Liste nur als Foto abgebildet. Die
      Fasentiefe und der Fall der Oberkante sind daran ABGESCHAETZT. */
   function rinnenkappeQuerschnitt() {
-    var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe, fase = RINNENDECKEL.fase;
+    var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe;
     var f = new THREE.Shape();
-    /* Die GROSSE Fase gehoert nach UNTEN, die kleine nach oben – nicht
-       umgekehrt, wie es hier bis zum 14.10.2026 stand. Zwei Dinge
-       belegen es: In der Zeichnung zu 16913 ist die untere Vorderecke
-       rund 34 mm abgeschraegt, die obere nur gut 20; und die obere Fase
-       trifft damit genau die Wandstaerke der Rinnenvorderwand
-       (20,3 mm). Verdreht schnitt die Fase die Wand komplett weg, und
-       die Rinne schaute oben aus der Blende heraus. */
-    f.moveTo(0, 0);                              // hinten unten
-    f.lineTo(b - fase, 0);
-    f.lineTo(b, fase);                           // grosse Fase vorne unten
-    f.lineTo(b, h - fase * 0.6 - RINNENDECKEL.fall);
-    f.lineTo(b - fase * 0.6, h - RINNENDECKEL.fall);   // kleine Fase vorne oben
-    /* Von hier aus laeuft die Oberkante nach hinten OBEN – und die
-       hintere Kante schraeg zurueck nach unten vorne. Bis zum
-       14.10.2026 stand hier f.lineTo(0, h): eine senkrechte Hinterkante.
-       Im markierten Bild des Betreibers ist sie deutlich geneigt. */
-    f.lineTo(RINNENDECKEL.lehne, h);
+
+    /* KORREKTUR 14.10.2026, nach dem Rendern der Stirnansicht: „ja aber
+       die rinnenblende is immernoch wie fehl am platz" (Betreiber).
+
+       Die Fasen sassen auf der FALSCHEN SEITE. Sie gehoeren nach HINTEN,
+       zur Hausseite – dort, wo die Rinne niedriger ist. Vorne laeuft die
+       Kante gerade durch und deckt die Rinnenvorderwand auf ganzer Hoehe
+       ab.
+
+       Der Beleg steht in den Massen selbst: Die hintere Wange der Rinne
+       liegt RINNE.wangeAb = 34 mm unter der Nase – und 34 mm ist genau
+       die Fase aus der Skizze zu 6017. Die obere hintere Fase folgt also
+       der Wange, statt sie freizulassen. Mit den Fasen vorne stand die
+       Blende schraeg ueber einem Profil, das dort gerade ist.
+
+       Damit faellt auch die „Lehne" weg – die lange schraege Hinterkante,
+       die ich aus der Handzeichnung des Betreibers abgeleitet hatte. Was
+       dort schraeg aussah, war diese Fase ueber der niedrigeren Wange;
+       die bemasste Skizze zu 6017 zeigt die Hinterkante senkrecht. */
+    var fo = RINNE.wangeAb;            // hinten oben: folgt der Wange
+    var fu = RINNE.fase * 0.6;         // hinten unten: wie die kleine Fase
+    f.moveTo(0, fu);
+    f.lineTo(fu, 0);                   // Fase hinten unten
+    f.lineTo(b, 0);                    // Unterkante bis zum Schenkelfuss
+    f.lineTo(b, h);                    // Vorderkante gerade ueber alles
+    f.lineTo(fo, h);                   // Oberkante nach hinten
+    f.lineTo(0, h - fo);               // Fase hinten oben, folgt der Wange
     f.closePath();
     return f;
   }

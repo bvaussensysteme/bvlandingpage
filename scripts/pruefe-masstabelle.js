@@ -1153,32 +1153,29 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
          r.breit.toFixed(1) + ' x ' + r.hoch.toFixed(1) + ' cm, ' +
          punkteZahl(rinQ) + ' Ecken, ' + r.bogen + ' Bogen');
 
-  /* ---------- Deckel gegen Rinne ----------
-     „der rinnendeckel muss damit matchen" (Betreiber, 14.10.2026), dazu
-     ein Bild, in dem der Deckelumriss in den Rinnenquerschnitt gezeichnet
-     ist. Die Masse allein sagen darueber nichts: 172 x 175 und
-     186,3 x 136,7 stimmten beide und passten trotzdem nicht zueinander,
-     weil die LAGE fehlte. Genau das wird hier geprueft – und nur das.
-
-     Kein Test auf „deckt alles ab": Der Deckel ist hinten absichtlich
-     rund 14 mm kuerzer als die Rinne tief ist, der untere Flansch schaut
-     heraus. Das ist im Bild zu sehen und war die Vorgabe. */
-  var hinterKante = punkteVon(rinQ).filter(function (q) {
-    return Math.abs(q[0]) < 0.001;
-  });
-  /* Seit der Fall der Oberkante entfallen ist, liegen ZWEI Punkte auf
-     der Oberkante (vorne das Ende der Fase, hinten der Knick zur
-     schraegen Kante). Gesucht ist der hinterste davon. */
-  var obenAlle = punkteVon(rinQ).filter(function (q) {
-    return Math.abs(q[1] - RINNENDECKEL.hoehe) < 0.001;
-  });
-  var obenHinten = obenAlle.slice().sort(function (a, b) { return a[0] - b[0]; });
-  var schraeg = hinterKante.length === 1 && obenHinten.length >= 1 &&
-                Math.abs(obenHinten[0][0] - RINNENDECKEL.lehne) < 0.001 &&
-                RINNENDECKEL.lehne > 0.5;
-  pruefe('Rinnendeckel: hintere Kante steht schräg (nicht senkrecht)',
-         gegen ? !schraeg : schraeg,
-         'oben ' + (RINNENDECKEL.lehne * 10).toFixed(0) + ' mm weiter vorne als unten');
+  /* Die Fasen des Deckels sitzen HINTEN, nicht vorne: „ja aber die
+     rinnenblende is immernoch wie fehl am platz" (Betreiber, 14.10.2026).
+     Vorne laeuft die Kante gerade durch und deckt die Rinnenvorderwand
+     auf ganzer Hoehe ab; hinten folgt die obere Fase der niedrigeren
+     Wange – und ihr Mass ist genau RINNE.wangeAb (34 mm). Die lange
+     schraege Hinterkante („Lehne") ist damit hinfaellig; was in der
+     Handzeichnung schraeg aussah, war diese Fase. */
+  (function () {
+    var p2 = punkteVon(rinQ);
+    var vorneDurch = p2.filter(function (q) {
+      return Math.abs(q[0] - RINNENDECKEL.breite) < 0.001;
+    });
+    var hintenOben = p2.some(function (q) {
+      return Math.abs(q[0]) < 0.001 &&
+             Math.abs(q[1] - (RINNENDECKEL.hoehe - RINNE.wangeAb)) < 0.001;
+    });
+    var ok = vorneDurch.length === 2 && hintenOben &&
+             Math.abs(RINNENDECKEL.lehne) < 0.001;
+    pruefe('Blende: vorne gerade, Fasen hinten an der Wange',
+           gegen ? !ok : ok,
+           vorneDurch.length + ' Punkte auf der Vorderkante, obere Fase ' +
+           (RINNE.wangeAb * 10).toFixed(0) + ' mm = wangeAb');
+  })();
 
   /* ---------- Der Deckel deckt Rinne UND Schenkel ab ----------
      „entweder is der seitendeckel rinne zu klein oder die rinne is zu groß
