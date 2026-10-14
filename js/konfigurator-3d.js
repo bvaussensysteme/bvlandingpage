@@ -1662,7 +1662,14 @@
        der Rechnung. Vorher standen hier 40 mm, am Bild abgegriffen.
        Die DICKE bleibt geschaetzt. */
     schenkelDick: 0.7,
-    schenkelLang: 3.83
+    schenkelLang: 3.83,
+    /* Die Fase der vorderen Kante, oben wie unten (unten 0,6 davon).
+       34 mm sind BELEGT – aus der Skizze zu 6017, denn der Seitendeckel
+       deckt genau diese Kante ab und hat dort seine Fase. Der Wert steht
+       deshalb HIER und nicht beim Deckel: Das Profil gibt die Form vor,
+       der Deckel uebernimmt sie. Andersherum haengt sonst das Bauteil am
+       Blech davor. */
+    fase: 3.4
   };
 
   /* Querschnitt der Rinne in der XY-Ebene: x läuft nach vorne (vom Haus
@@ -1702,10 +1709,11 @@
     f.moveTo(0, -RINNE.schenkelLang);
     f.lineTo(RINNE.schenkelDick, -RINNE.schenkelLang);
     f.lineTo(RINNE.schenkelDick, 0);
-    f.lineTo(B - faseT - rU, 0);
-    f.quadraticCurveTo(B - faseT, 0, B - faseT, rU);
-    f.lineTo(B - faseT, faseH - 0.6);
-    f.lineTo(B, faseH + 0.4);             // Fase läuft nach außen aus
+    /* Untere Vorderecke: dieselbe Fase wie am Deckel (dort fase * 0,6),
+       aus demselben Grund wie oben. Vorher eine eigene, flachere Form
+       mit zwei Knicken – die stand unten aus der Blende heraus. */
+    f.lineTo(B - RINNE.fase, 0);
+    f.lineTo(B, RINNE.fase);
 
     /* ---------- Rillenband in der Vorderfläche ----------
        „hier ein perfekter querschnitt unserer überdachung kannst du es
@@ -1721,7 +1729,12 @@
 
        Teilung und Tiefe sind GESCHÄTZT – auf den Bildern ist nichts
        bemaßt. Die vier Hauptmaße des Profils bleiben unangetastet. */
-    var vonY = faseH + 1.0, bisY = H - rO - 0.5;
+    /* Das Rillenband laeuft zwischen den beiden Fasen – es endet dort,
+       wo die Kante abknickt, nicht einen Millimeter darueber. Vorher
+       hing die Obergrenze an der alten Rundung (rO) und stand damit
+       1 mm ueber der Fase; im Bild schaute die Rinne dort aus der
+       Blende heraus. */
+    var vonY = RINNE.fase + 1.0, bisY = H - RINNE.fase * 0.6;
     var rillen = Math.max(2, Math.round((bisY - vonY) / RINNE.rilleTeilung));
     var schritt = (bisY - vonY) / rillen;
     for (var k = 0; k < rillen; k++) {
@@ -1733,9 +1746,19 @@
     }
     f.lineTo(B, bisY);
 
-    /* Nase */
-    f.lineTo(B, H - rO);
-    f.quadraticCurveTo(B, H, B - rO, H);
+    /* ---------- Vordere Oberkante: GERADE FASE, keine Rundung ----------
+       „die rinnenblende passt auch von der form nicht an die rinne, die
+       rinnenblende is richtig aber die rinnenform vorne an der stirnseite
+       is falsch" (Betreiber, 14.10.2026).
+
+       Hier stand eine Rundung mit 28 mm Radius. Der Seitendeckel hat an
+       derselben Stelle eine GERADE Fase von 34 mm (belegt aus der Skizze
+       zu 6017) – die Rundung schaute damit oben aus der Blende heraus.
+       Die Zeichnung zu 16913 zeigt dort ebenfalls eine gerade Kante, kein
+       Rund. Beide Fasen kommen jetzt aus derselben Quelle: Was am Deckel
+       belegt ist, gibt die Form der Rinne vor. */
+    f.lineTo(B, H - RINNE.fase * 0.6);
+    f.lineTo(B - RINNE.fase * 0.6, H);
     f.lineTo(hinten + iB, H);
 
     /* Hintere Wange, niedriger – hier liegt die Eindeckung auf */
@@ -1841,9 +1864,14 @@
      Beide bemassten Zeichnungen stimmen also, sie beschreiben nur
      verschiedene Teile desselben Querschnitts. Der Deckel reicht von der
      Nase bis zum Schenkelfuss und sitzt vorne buendig – genau so, wie der
-     Betreiber ihn am 14.10.2026 in den Querschnitt gezeichnet hat. */
-  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: 3.4,
-                       fall: 1.1, lehne: 3.2 };
+     Betreiber ihn am 14.10.2026 in den Querschnitt gezeichnet hat.
+
+     Der FALL der Oberkante (vorher 11 mm nach vorne) ist entfallen: Er
+     war am Foto von 6011/6012 abgeschaetzt, nicht bemasst – und er gab
+     genau die vordere Oberkante der Rinne frei, die der Deckel abdecken
+     soll. Was belegt ist (172, 175, Fase 34), bleibt. */
+  var RINNENDECKEL = { breite: 17.2, hoehe: 17.5, fase: RINNE.fase,
+                       fall: 0, lehne: 3.2 };
 
   /* ---------- Seitliche Abdeckungen ----------
      „miir is wichtig das die abdeckungen links rechts von rinne und von
@@ -1886,11 +1914,18 @@
   function rinnenkappeQuerschnitt() {
     var b = RINNENDECKEL.breite, h = RINNENDECKEL.hoehe, fase = RINNENDECKEL.fase;
     var f = new THREE.Shape();
+    /* Die GROSSE Fase gehoert nach UNTEN, die kleine nach oben – nicht
+       umgekehrt, wie es hier bis zum 14.10.2026 stand. Zwei Dinge
+       belegen es: In der Zeichnung zu 16913 ist die untere Vorderecke
+       rund 34 mm abgeschraegt, die obere nur gut 20; und die obere Fase
+       trifft damit genau die Wandstaerke der Rinnenvorderwand
+       (20,3 mm). Verdreht schnitt die Fase die Wand komplett weg, und
+       die Rinne schaute oben aus der Blende heraus. */
     f.moveTo(0, 0);                              // hinten unten
-    f.lineTo(b - fase * 0.6, 0);
-    f.lineTo(b, fase * 0.6);                     // Fase vorne unten
-    f.lineTo(b, h - fase - RINNENDECKEL.fall);
-    f.lineTo(b - fase, h - RINNENDECKEL.fall);   // Fase vorne oben
+    f.lineTo(b - fase, 0);
+    f.lineTo(b, fase);                           // grosse Fase vorne unten
+    f.lineTo(b, h - fase * 0.6 - RINNENDECKEL.fall);
+    f.lineTo(b - fase * 0.6, h - RINNENDECKEL.fall);   // kleine Fase vorne oben
     /* Von hier aus laeuft die Oberkante nach hinten OBEN – und die
        hintere Kante schraeg zurueck nach unten vorne. Bis zum
        14.10.2026 stand hier f.lineTo(0, h): eine senkrechte Hinterkante.

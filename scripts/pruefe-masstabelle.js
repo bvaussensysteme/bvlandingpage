@@ -1065,7 +1065,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 (function () {
   var rinQ = (k3d.match(/function rinnenkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var wandQ = (k3d.match(/function wandkappeQuerschnitt\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: ([\d.]+),\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
+  var masse = k3d.match(/RINNENDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+), fase: RINNE\.fase,\s*\n?\s*fall: ([\d.]+), lehne: ([\d.]+)/);
   var rinLit = (k3d.match(/var RINNE = \{[\s\S]*?\n  \};/) || [''])[0];
   var wd = k3d.match(/WANDDECKEL = \{ breite: ([\d.]+), hoehe: ([\d.]+)/);
   if (!rinQ || !wandQ || !masse || !wd || !rinLit) {
@@ -1075,7 +1075,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   /* Die Hoehe steht im Code als RINNE.hoehe, nicht als Zahl – genau
      darum geht es: Sie kann nicht mehr von der Rinne davonlaufen. */
   var RINNENDECKEL = { breite: +masse[1], hoehe: +masse[2],
-                       fase: +masse[3], fall: +masse[4], lehne: +masse[5] };
+                       fase: RINNE.fase, fall: +masse[3], lehne: +masse[4] };
   var WANDDECKEL = { breite: +wd[1], hoehe: +wd[2] };
 
   var punkte = [], bogen = 0;
@@ -1133,10 +1133,14 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
   var hinterKante = punkteVon(rinQ).filter(function (q) {
     return Math.abs(q[0]) < 0.001;
   });
-  var obenHinten = punkteVon(rinQ).filter(function (q) {
+  /* Seit der Fall der Oberkante entfallen ist, liegen ZWEI Punkte auf
+     der Oberkante (vorne das Ende der Fase, hinten der Knick zur
+     schraegen Kante). Gesucht ist der hinterste davon. */
+  var obenAlle = punkteVon(rinQ).filter(function (q) {
     return Math.abs(q[1] - RINNENDECKEL.hoehe) < 0.001;
   });
-  var schraeg = hinterKante.length === 1 && obenHinten.length === 1 &&
+  var obenHinten = obenAlle.slice().sort(function (a, b) { return a[0] - b[0]; });
+  var schraeg = hinterKante.length === 1 && obenHinten.length >= 1 &&
                 Math.abs(obenHinten[0][0] - RINNENDECKEL.lehne) < 0.001 &&
                 RINNENDECKEL.lehne > 0.5;
   pruefe('Rinnendeckel: hintere Kante steht schräg (nicht senkrecht)',
@@ -1181,6 +1185,92 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
          gegen ? !buendig : buendig,
          'Oberkante ' + (deckelOben * 10).toFixed(1) + ' mm, Rinnennase ' +
          (RINNE.hoehe * 10).toFixed(1) + ' mm');
+
+  /* ---------- Die Probe aufs Ganze: deckt die Blende die Rinne? ----------
+     „die rinnenblende passt auch von der form nicht an die rinne, die
+     rinnenblende is richtig aber die rinnenform vorne an der stirnseite
+     is falsch" (Betreiber, 14.10.2026).
+
+     Diese Pruefung hat an vier Runden gefehlt. Jede davor hat EINZELNE
+     Masse verglichen (Hoehe gegen Hoehe, Tiefe gegen Tiefe) – und jedes
+     Mal stimmten die Zahlen, waehrend die Formen nicht zueinander
+     passten. Hier wird deshalb der ganze Rinnenumriss PUNKT FUER PUNKT
+     gegen den Deckelumriss gehalten.
+
+     Die Punkte hinter der Deckelkante zaehlen nicht mit: Dort laesst der
+     Deckel die Rinne bewusst 14,3 mm frei. */
+  (function () {
+    var rinneQ = (k3d.match(/function rinneQuerschnitt\(mitKehle\)[\s\S]*?\n  \}/) || [''])[0];
+    if (!rinneQ) { pruefe('Rinnenquerschnitt für die Probe lesbar', false, ''); return; }
+    /* Jede Form sammelt ihre EIGENEN Punkte: Der Querschnitt legt
+       zusaetzlich die Kehle als Pfad an, und die reicht bewusst ueber die
+       Oberkante hinaus (nach oben offen). Liefen beide in einen Topf,
+       meldete die Pruefung die Kehlpunkte als „schaut heraus". */
+    function P() { this.holes = []; this.p = []; }
+    P.prototype.moveTo = function (x, y) { this.p.push([x, y]); };
+    P.prototype.lineTo = P.prototype.moveTo;
+    P.prototype.quadraticCurveTo = function (a, b, x, y) { this.p.push([x, y]); };
+    P.prototype.closePath = function () {};
+    var THREE = { Shape: P, Path: P };
+    var pr = eval('(' + rinneQ + ')')(false).p;
+
+    var versatzX = RINNE.breite - RINNENDECKEL.breite;   // Deckel sitzt vorne
+    var versatzY = RINNE.schenkelLang;                   // Deckel reicht tiefer
+    var deckel = punkteVon(rinQ);
+    function drin(poly, x, y) {
+      var innen = false;
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+        if ((yi > y) !== (yj > y) &&
+            x < (xj - xi) * (y - yi) / (yj - yi) + xi) innen = !innen;
+      }
+      return innen;
+    }
+    /* Punkte, die GENAU auf der Deckelkante liegen, sind buendig und
+       damit verdeckt – das Strahlverfahren zaehlt sie je nach Rundung
+       mal so, mal so. Deshalb zusaetzlich der Abstand zur Kante. */
+    function amRand(poly, x, y) {
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var x1 = poly[j][0], y1 = poly[j][1], x2 = poly[i][0], y2 = poly[i][1];
+        var dx = x2 - x1, dy = y2 - y1;
+        var l2 = dx * dx + dy * dy;
+        var t = l2 ? Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / l2)) : 0;
+        var ax = x1 + t * dx - x, ay = y1 + t * dy - y;
+        if (Math.sqrt(ax * ax + ay * ay) < 0.03) return true;   // 0,3 mm
+      }
+      return false;
+    }
+    var geprueft = 0, draussen = [];
+    pr.forEach(function (q) {
+      if (q[0] < versatzX + 0.001) return;              // hinten bewusst frei
+      geprueft++;
+      var x = q[0] - versatzX, y = q[1] + versatzY;
+      if (!drin(deckel, x, y) && !amRand(deckel, x, y)) draussen.push(q);
+    });
+    /* Dass der Deckel alles verdeckt, heisst noch nicht, dass die Rinne
+       die richtige Form hat – eine Rinne ohne Fasen waere kleiner und
+       laege erst recht dahinter. Deshalb zusaetzlich: Die beiden Fasen
+       muessen da sein, und die UNTERE muss die groessere sein. */
+    function hat(x, y) {
+      return pr.some(function (q) {
+        return Math.abs(q[0] - x) < 0.01 && Math.abs(q[1] - y) < 0.01;
+      });
+    }
+    var B2 = RINNE.breite, H2 = RINNE.hoehe, f2 = RINNE.fase;
+    var fasen = hat(B2 - f2, 0) && hat(B2, f2) &&                 // unten gross
+                hat(B2, H2 - f2 * 0.6) && hat(B2 - f2 * 0.6, H2); // oben klein
+    pruefe('Rinne hat vorne beide Fasen, unten die größere',
+           gegen ? !fasen : fasen,
+           fasen ? (f2 * 10).toFixed(0) + ' mm unten, ' +
+                   (f2 * 6).toFixed(0) + ' mm oben'
+                 : 'Fasenpunkte fehlen im Umriss');
+
+    var alleDrin = geprueft > 8 && draussen.length === 0;
+    pruefe('Jeder Punkt der Rinne liegt hinter der Blende',
+           gegen ? !alleDrin : alleDrin,
+           draussen.length ? draussen.length + ' von ' + geprueft + ' Punkten schauen heraus'
+                           : 'alle ' + geprueft + ' geprüften Punkte verdeckt');
+  })();
 
   /* Die Wandprofilkappe (6013) ist BELEGT: 146,27 hoch x 89,16 breit, der
      flache Bogen an der AUSSENkante. Die Skizze zeigt sie liegend – „der
@@ -1235,7 +1325,8 @@ pruefe('Beide Deckel werden gleich gebaut und gesetzt',
                 rueckwand: zahl('rueckwand'), wangeAb: zahl('wangeAb'),
                 rilleTeilung: zahl('rilleTeilung'),
                 schenkelDick: zahl('schenkelDick'),
-                schenkelLang: zahl('schenkelLang') };
+                schenkelLang: zahl('schenkelLang'),
+                fase: zahl('fase') };
   var punkte = [];
   function Form() { this.holes = []; }
   Form.prototype.moveTo = function (x, y) { punkte.push([x, y]); };
