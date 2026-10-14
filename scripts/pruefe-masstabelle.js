@@ -1171,6 +1171,23 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
     });
     var ok = vorneDurch.length === 2 && hintenOben &&
              Math.abs(RINNENDECKEL.lehne) < 0.001;
+    /* Die Unterkante steigt nach vorne an: Unter dem Rinnenboden ist nur
+       hinten der Schenkel (und darunter der Pfosten) – waagerecht
+       durchgezogen hinge die Blende vorne frei in der Luft, „wie
+       hingeklatscht" (Betreiber, 14.10.2026). Vorne ist sie damit genau
+       so hoch wie die Rinne. */
+    var vorneHoch = p2.filter(function (q) {
+      return Math.abs(q[0] - RINNENDECKEL.breite) < 0.001;
+    }).map(function (q) { return q[1]; });
+    var vh = vorneHoch.length === 2
+      ? Math.abs(vorneHoch[0] - vorneHoch[1]) : 0;
+    var steigt = Math.abs(vh - RINNE.hoehe) < 0.02;
+    pruefe('Blende ist vorne so hoch wie die Rinne',
+           gegen ? !steigt : steigt,
+           (vh * 10).toFixed(1) + ' mm vorne, Rinne ' +
+           (RINNE.hoehe * 10).toFixed(1) + ' mm (hinten ' +
+           (RINNENDECKEL.hoehe * 10).toFixed(1) + ' mm bis zum Schenkelfuß)');
+
     pruefe('Blende: vorne gerade, Fasen hinten an der Wange',
            gegen ? !ok : ok,
            vorneDurch.length + ' Punkte auf der Vorderkante, obere Fase ' +

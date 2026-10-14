@@ -1935,10 +1935,21 @@
        die bemasste Skizze zu 6017 zeigt die Hinterkante senkrecht. */
     var fo = RINNE.wangeAb;            // hinten oben: folgt der Wange
     var fu = RINNE.fase * 0.6;         // hinten unten: wie die kleine Fase
+    /* KORREKTUR 14.10.2026: „die blende sieht aus wie hingeklatscht"
+       (Betreiber). Die Unterkante lief waagerecht auf Schenkelfuss-Hoehe
+       durch – vorne hingen damit rund 7 cm Blech frei in der Luft, denn
+       unter dem Rinnenboden ist nur hinten der Schenkel und darunter der
+       Pfosten. Jetzt STEIGT sie nach vorne an, so wie es auch die Skizze
+       zu 6017 zeigt.
+
+       Das Mass dafuer kommt aus der Sache selbst: vorne endet sie an der
+       Rinnenunterkante, hinten am Schenkelfuss – der Anstieg ist also
+       genau die Schenkellaenge. Vorne ist die Blende damit 136,7 mm
+       hoch, also exakt so hoch wie die Rinne. */
     f.moveTo(0, fu);
     f.lineTo(fu, 0);                   // Fase hinten unten
-    f.lineTo(b, 0);                    // Unterkante bis zum Schenkelfuss
-    f.lineTo(b, h);                    // Vorderkante gerade ueber alles
+    f.lineTo(b, RINNE.schenkelLang);   // Unterkante steigt nach vorne an
+    f.lineTo(b, h);                    // Vorderkante ueber die Rinnenhoehe
     f.lineTo(fo, h);                   // Oberkante nach hinten
     f.lineTo(0, h - fo);               // Fase hinten oben, folgt der Wange
     f.closePath();
