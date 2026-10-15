@@ -4261,7 +4261,15 @@
          noch unter dem Dach stand. Seit der Statikträger die Wand ersetzt,
          steht er dahinter – ein Versatz nach vorne hinterließe genau die
          Lücke, die der Betreiber an der Wandseite schon beanstandet hat. */
-      var zHintenK = 0;
+      /* Die HINTERE Kante des Feldes, nicht fest z = 0. Mit dem festen
+         Nullwert baute seit der Unterzug-Teilung jedes der beiden Felder
+         seinen Keil von der Wand bis zur eigenen Vorderkante – der Keil
+         des vorderen Feldes lag also komplett ueber dem des hinteren,
+         jeder mit eigener Sprossenteilung. Im Bild: „keil is nicht
+         gleichmäßig und hat komische viele rechteckige unterteilungen"
+         (Betreiber, 15.10.2026). Ohne Teilung ist dieser Wert 0 – fuer
+         den ungeteilten Fall aendert sich damit nichts. */
+      var zHintenK = mitte - laenge / 2;
       var keilLaenge = zVorneK - zHintenK;
       var keilMitte = (zVorneK + zHintenK) / 2;
       var hatKeil = liste.indexOf('Keil') > -1 && keilErlaubt() &&
@@ -5960,7 +5968,14 @@
        sie aus demselben Wert, den der Regler zeigt und die Anfrage nennt.
        Beim SkyView gibt es ihn nicht: Dort traegt der umlaufende Rahmen. */
     if (!sky && unterzugNoetig()) {
-      var zUz = T - unterzugAbstand() / 10;      // Regler zaehlt ab der WAND
+      /* Der Regler zaehlt ab der WAND – und so wird jetzt auch gezeichnet.
+         Hier stand „T - unterzugAbstand() / 10", also von der Dachkante
+         rueckwaerts: Der Traeger lag damit gespiegelt. Bei genau mittiger
+         Lage faellt das nicht auf, bei jeder anderen schon – 1500 mm am
+         Regler landeten bei 5000 mm Tiefe auf 3500 mm ab Wand. Das ist der
+         Grund fuer „reger klappt immernoch nicht" (Betreiber, 15.10.2026):
+         Der Traeger lief der Hand entgegen. */
+      var zUz = unterzugAbstand() / 10;         // mm ab Wand -> cm
       var ukUz = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zUz);
       var uzOk = ukUz;                            // Traegeroberkante = Sparrenunterkante
       /* Volle 189 mm: Dieser Traeger liegt UNTER den Sparren und traegt
@@ -6900,15 +6915,41 @@
     return t > M.regeln.innenkernAbTiefe && t <= M.regeln.tiefeMaxOhneUnterzug;
   }
 
+  /* ---------- Wo liegen die Auflager wirklich? ----------
+     „er ist nicht 100% MITTIG" (Betreiber, 15.10.2026). Er hatte recht,
+     und zwar um 62 mm: Gerechnet wurde mit der Dachtiefe, der vordere
+     Pfosten steht aber nicht an der Dachkante, sondern eine halbe
+     Rinnenbreite dahinter – PFOSTENACHSE = 124,2 mm (siehe zPf im Bau).
+     Die Mitte der Dachtiefe liegt damit 62 mm vor der Mitte zwischen den
+     Auflagern. Beide Werte zurueckgegeben, in mm ab der Wand (z = 0):
+
+       hinten – Wandprofil bzw. hinterer Pfosten
+       vorne  – Achse der vorderen Pfostenreihe
+
+     Fuer die STUFE (nichts / Innenkern / Unterzug) bleibt statikTiefe()
+     zustaendig: Die Preisliste nennt Dachtiefen, keine Achsmasse. Hier
+     geht es allein darum, wo der Traeger steht. */
+  function unterzugAchsen() {
+    var tds = Z.produkt === 'Terrassendach TDS' || istCarportTds();
+    var achse = (tds ? PFOSTENACHSE : PFOSTENACHSE_VORNE) * 10;   // cm -> mm
+    var v = gruppeGilt('vorsprung') ? (Z.vorsprung || 0) : 0;
+    var vh = gruppeGilt('vorsprung-hinten') ? (Z.vorsprungHinten || 0) : 0;
+    var hinten = vh;
+    var vorne = Math.max(hinten + 1000, Z.tiefe - v - achse);
+    return { hinten: hinten, vorne: vorne };
+  }
+
   function unterzugBereich() {
     var M = window.BV_MASSTABELLE;
     var ohne = (M && M.regeln && M.regeln.tiefeMaxOhneUnterzug) || 4600;
-    /* Gerechnet wird mit der SPANNWEITE, nicht mit der Dachtiefe: Beide
-       Felder liegen zwischen den Auflagern, der Vorsprung kragt davor
-       aus. Die Lage selbst wird weiter ab der Wand gemessen – dort faengt
-       auch die Spannweite an (hinterer Vorsprung abgezogen). */
-    var sp = statikTiefe();
-    return { min: Math.max(500, sp - ohne), max: Math.min(ohne, sp - 500) };
+    /* Gerechnet wird zwischen den AUFLAGERN. Jedes der beiden Felder muss
+       unter dem Hoechstmass bleiben, und keines darf unter 500 mm fallen –
+       dort passt kein Pfostenfach mehr hin. Alles in mm ab der Wand. */
+    var a = unterzugAchsen();
+    return {
+      min: Math.max(a.hinten + 500, a.vorne - ohne),
+      max: Math.min(a.vorne - 500, a.hinten + ohne)
+    };
   }
 
   /* Die Mitte der Spannweite – gemessen ab der Wand, wo die Spannweite
@@ -6916,8 +6957,8 @@
      ist die geometrische Mitte zugleich die einzige Lage, bei der beide
      Felder unter dem Hoechstmass bleiben. */
   function unterzugMitte() {
-    var b = unterzugBereich();
-    return Math.min(b.max, Math.max(b.min, Math.round(statikTiefe() / 2)));
+    var a = unterzugAchsen(), b = unterzugBereich();
+    return Math.min(b.max, Math.max(b.min, Math.round((a.hinten + a.vorne) / 2)));
   }
 
   function unterzugAbstand() {
@@ -6938,7 +6979,11 @@
     var el = document.getElementById('k3dUnterzug');
     if (!el) return Z.unterzugLage;
     var v = zahl('k3dUnterzug', Z.unterzugLage);
-    if (Z.unterzugAuto && uzGesetzt != null && v !== uzGesetzt) {
+    /* Mehr als 2 mm Unterschied kann nur ein Mensch gemacht haben. Ein
+       exakter Vergleich schaltete die Automatik schon ab, wenn der Browser
+       den Wert beim Einrasten oder Runden um einen Millimeter verschob –
+       danach stand der Unterzug fest, wo er gerade war. */
+    if (Z.unterzugAuto && uzGesetzt != null && Math.abs(v - uzGesetzt) > 2) {
       Z.unterzugAuto = false;      // ab jetzt gilt der Wunsch des Nutzers
     }
     return v;
@@ -8587,7 +8632,9 @@
             ' mm (Dachtiefe ' + Z.tiefe + ' mm abzüglich Dachvorsprung)');
         }
         if (gruppeGilt('unterzug')) {
-          var uzA = unterzugAbstand(), uzB = statikTiefe() - uzA;
+          var uzAchsen = unterzugAchsen();
+          var uzA = unterzugAbstand() - uzAchsen.hinten;
+          var uzB = uzAchsen.vorne - unterzugAbstand();
           teile.push('Unterzug (Statikträger über die ganze Breite): ' +
             uzA + ' mm ab Wand' +
             (Z.unterzugAuto ? ' (mittig)' : ' (verschoben)') +

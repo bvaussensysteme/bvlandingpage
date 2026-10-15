@@ -1836,13 +1836,21 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   /* Die Formel aus dem Code, nicht nachgebaut, sondern ausgelesen. */
   var f = (k3d.match(/function unterzugBereich\(\)[\s\S]*?\n  \}/) || [''])[0];
   if (!f) { pruefe('Unterzug-Bereich lesbar', false, 'nicht gefunden'); return; }
-  /* unterzugBereich() rechnet seit dem 15.10.2026 mit der SPANNWEITE –
-     die Funktion dafuer wird mit ausgelesen, nicht nachgebaut. */
-    var st = (k3d.match(/function statikTiefe\(\)[\s\S]*?\n  \}/) || [''])[0];
-  var holen = eval('(function (Z, window, gruppeGilt) { ' +
+  /* unterzugBereich() rechnet seit dem 15.10.2026 zwischen den AUFLAGERN –
+     statikTiefe() und unterzugAchsen() werden mit ausgelesen, nicht
+     nachgebaut. PFOSTENACHSE kommt ebenfalls aus dem Code. */
+  var st = (k3d.match(/function statikTiefe\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var ac = (k3d.match(/function unterzugAchsen\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var pa = (k3d.match(/var PFOSTENACHSE = [\d.]+;/) || [''])[0];
+  var pv = (k3d.match(/var PFOSTENACHSE_VORNE = [\d.]+;/) || [''])[0];
+  if (!ac) { pruefe('Unterzug-Achsen lesbar', false, 'nicht gefunden'); return; }
+  var holen = eval('(function (Z, window, gruppeGilt, istCarportTds) { ' +
+    pa + pv +
     st.replace('function statikTiefe()', 'var statikTiefe = function ()') + ';' +
+    ac.replace('function unterzugAchsen()', 'var unterzugAchsen = function ()') + ';' +
     f.replace('function unterzugBereich()', 'var fn = function ()') +
-    '; return fn; })');
+    '; fn.achsen = unterzugAchsen; return fn; })');
+  function keinCarport() { return false; }
 
   /* Fuer jede lieferbare Tiefe mit Unterzug: Bei BEIDEN Grenzlagen
      muessen beide Felder unter dem Hoechstmass bleiben. */
@@ -1851,12 +1859,17 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   function gilt() { return true; }
   var verletzt = [], geprueft = 0;
   for (var T = ohne + 100; T <= mit; T += 100) {
-    var b = holen({ tiefe: T, vorsprung: 0, vorsprungHinten: 0 },
-                  { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt)();
+    var Zt = { tiefe: T, vorsprung: 0, vorsprungHinten: 0,
+               produkt: 'Terrassendach TDS' };
+    var fn = holen(Zt, { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport);
+    var b = fn();
+    var a = fn.achsen();
     [b.min, b.max].forEach(function (lage) {
       geprueft++;
       var grenze = ohne + (gegen ? -2000 : 0);
-      if (lage > grenze + 0.5 || (T - lage) > grenze + 0.5) {
+      /* Die Felder liegen zwischen den Auflagern, nicht zwischen Wand und
+         Dachkante: hinten bis zur Lage, Lage bis zur vorderen Pfostenachse. */
+      if ((lage - a.hinten) > grenze + 0.5 || (a.vorne - lage) > grenze + 0.5) {
         verletzt.push(T + ' mm bei Lage ' + lage);
       }
     });
@@ -1871,9 +1884,11 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
      unzulaessig. */
   var mitteOk = true;
   for (var T2 = ohne + 100; T2 <= mit; T2 += 100) {
-    var b2 = holen({ tiefe: T2, vorsprung: 0, vorsprungHinten: 0 },
-                   { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt)();
-    var m2 = Math.round(T2 / 2);
+    var fn2 = holen({ tiefe: T2, vorsprung: 0, vorsprungHinten: 0,
+                      produkt: 'Terrassendach TDS' },
+                    { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport);
+    var b2 = fn2(), a2 = fn2.achsen();
+    var m2 = Math.round((a2.hinten + a2.vorne) / 2);
     if (m2 < b2.min || m2 > b2.max) mitteOk = false;
   }
   pruefe('Die Mitte ist immer erlaubt', gegen ? !mitteOk : mitteOk,
@@ -1893,10 +1908,12 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
             : (sp > window.BV_MASSTABELLE.regeln.innenkernAbTiefe ? 'Innenkern' : 'nichts');
     if (ist !== r[2]) mitVor.push(r[0] + '/' + r[1] + ': ' + ist + ' statt ' + r[2]);
     if (ist === 'Unterzug') {
-      var bv = holen({ tiefe: r[0], vorsprung: r[1], vorsprungHinten: 0 },
-                     { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt)();
+      var fnv = holen({ tiefe: r[0], vorsprung: r[1], vorsprungHinten: 0,
+                        produkt: 'Terrassendach TDS' },
+                      { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport);
+      var bv = fnv(), av = fnv.achsen();
       [bv.min, bv.max].forEach(function (lage) {
-        if (lage > ohne + 0.5 || (sp - lage) > ohne + 0.5) {
+        if ((lage - av.hinten) > ohne + 0.5 || (av.vorne - lage) > ohne + 0.5) {
           mitVor.push(r[0] + '/' + r[1] + ': Feld über ' + ohne + ' bei Lage ' + lage);
         }
       });
