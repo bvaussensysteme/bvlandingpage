@@ -2628,6 +2628,73 @@ pruefe('RAL-Feld ist breit genug',
          zFest ? 'var zHintenK = 0 steht noch da' : 'entfernt');
 })();
 
+
+/* ---------- Jedes Bedienelement muss etwas auslösen ----------
+   „das klapt immernoch nicht" (Betreiber, 15.10.2026, mit Bild des
+   Unterzug-Reglers). Der Regler stand im HTML, hatte ein Zahlenfeld
+   daneben, seine Grenzen wurden gesetzt – aber er fehlte in der Liste der
+   Elemente, die aendern() auslösen. Schieben bewirkte nichts; erst beim
+   nächsten beliebigen Ereignis wurde sein Wert gelesen und der Träger
+   sprang dorthin.
+
+   Diese Prüfung ist bewusst allgemein: Sie zählt die Bedienelemente im
+   HTML und verlangt für jedes einen Weg zu aendern(). Eine Prüfung nur
+   für den Unterzug hätte den nächsten vergessenen Regler wieder nicht
+   gefunden. */
+(function () {
+  var ids = (html.match(/<(?:input|select|textarea)[^>]*\bid="k3d[A-Za-z0-9]+"/g) || [])
+    .map(function (t) { return { tag: t, id: t.replace(/.*id="(k3d[A-Za-z0-9]+)".*/, '$1') }; });
+
+  var block = (js.match(/\['k3dProdukt',[\s\S]*?\]\.forEach\(function \(id\) \{/) || [''])[0];
+  var verdrahtet = {};
+  (block.match(/'(k3d[A-Za-z0-9]+)'/g) || []).forEach(function (x) {
+    verdrahtet[x.replace(/'/g, '')] = true;
+  });
+  /* Zahlenfelder haengen an ihrem Regler (eigene Kopplung weiter unten),
+     versteckte Felder werden von den Bildkacheln gesetzt, die selbst
+     aendern() rufen. */
+  (js.match(/\['(k3d[A-Za-z0-9]+)', '(k3d[A-Za-z0-9]+Zahl)'\]/g) || []).forEach(function (x) {
+    verdrahtet[x.replace(/.*'(k3d[A-Za-z0-9]+Zahl)'.*/, '$1')] = true;
+  });
+
+  var offen = ids.filter(function (e) {
+    if (verdrahtet[e.id]) return false;
+    if (/type="hidden"/.test(e.tag)) return false;      // Kachelauswahl
+    return true;
+  }).map(function (e) { return e.id; });
+  if (gegen) offen = [];          // Verfaelschung: angeblich ist alles verdrahtet
+
+  pruefe('Jedes sichtbare Bedienelement löst ein Neuzeichnen aus',
+         gegen ? offen.length > 0 : offen.length === 0,
+         offen.length ? 'ohne Verdrahtung: ' + offen.join(', ')
+                      : ids.length + ' Elemente geprüft, keines ohne Weg zu aendern()');
+
+  /* Und der Regler, um den es ging, namentlich – damit die Meldung beim
+     nächsten Mal sofort lesbar ist. */
+  pruefe('Der Unterzug-Regler ist verdrahtet',
+         gegen ? !verdrahtet.k3dUnterzug : !!verdrahtet.k3dUnterzug,
+         verdrahtet.k3dUnterzug ? 'k3dUnterzug ruft aendern()' : 'fehlt in der Liste');
+
+  /* Die Schrittweite im HTML muss zu der passen, die der Code setzt –
+     sonst rastet der Regler beim ersten Anfassen auf ein anderes Raster
+     als die berechnete Mitte. */
+  var htmlStep = (html.match(/id="k3dUnterzug"[^>]*step="(\d+)"/) || [])[1];
+  var codeStep = (js.match(/el\.step = (\d+);[\s\S]{0,80}unterzugAbstand/) || [])[1] ||
+                 (js.match(/\/\* Schritt 1 mm[\s\S]*?el\.step = (\d+);/) || [])[1];
+  pruefe('HTML und Code sind sich über die Schrittweite einig',
+         gegen ? htmlStep !== codeStep : htmlStep === codeStep,
+         'HTML ' + htmlStep + ' mm, Code ' + codeStep + ' mm');
+
+  /* Der Startwert im HTML darf nicht unter der Untergrenze liegen: Der
+     Browser klemmt ihn sonst stumm, und der erste gelesene Wert ist ein
+     anderer als der geschriebene – was die Automatik abschaltet. */
+  var hMin = Number((html.match(/id="k3dUnterzug"[^>]*min="(\d+)"/) || [])[1]);
+  var hVal = Number((html.match(/id="k3dUnterzug"[^>]*value="(\d+)"/) || [])[1]);
+  pruefe('Der Startwert des Reglers liegt in seinen Grenzen',
+         gegen ? !(hVal >= hMin) : hVal >= hMin,
+         'Startwert ' + hVal + ' mm, Untergrenze ' + hMin + ' mm');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

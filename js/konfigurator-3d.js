@@ -9432,6 +9432,14 @@
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
+   /* k3dUnterzug fehlte hier – der Regler loeste kein Neuzeichnen aus.
+      Man schob ihn, nichts passierte; erst beim naechsten beliebigen
+      Ereignis wurde der Wert gelesen und der Traeger sprang dorthin:
+      „sobald ich keil oderso aktiviere springt der unterzug wieder von
+      seinem platz weg" (Betreiber, 15.10.2026). Das Zahlenfeld daneben
+      war verdrahtet, der Regler selbst nicht – deshalb wirkte er tot.
+      scripts/pruefe-fuehrung.js prueft jetzt jedes Bedienelement. */
+   'k3dUnterzug',
    'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
    'k3dSg23Glas', 'k3dKeilGlas', 'k3dSg23Schloss', 'k3dRahmenTeilung', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
    'k3dVelarisArt', 'k3dVelarisBreite',
