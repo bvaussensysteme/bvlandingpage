@@ -101,6 +101,9 @@
     /* Abstand der Glaskopplung von der Rinne, in mm. 0 heißt „mittig" –
        der Konfigurator setzt dann selbst. Siehe koppelBereich(). */
     koppelLage: 0,
+    /* Lage des Unterzugs in mm ab der Wand. 0 = noch nichts eingestellt,
+       dann mittig. Nur wenn die Tiefe einen Unterzug verlangt. */
+    unterzugLage: 0,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -5875,6 +5878,31 @@
       });
     }
 
+    /* ---------- Unterzug ueber die ganze Breite ----------
+       „Ab gewissen tiefen … steht in der preisliste unterzug über die
+       gesamte breite notwendig … ich denke damit ist gemeint das z.b nochmal
+       in der mitte 2 pfosten + statikträger hin müssten" (Betreiber,
+       15.10.2026, mit Bild). Genau so: ein Statiktraeger quer unter den
+       Sparren und eine eigene Pfostenreihe darunter.
+
+       Seine Lage ist einstellbar (siehe unterzugBereich) – gezeichnet wird
+       sie aus demselben Wert, den der Regler zeigt und die Anfrage nennt.
+       Beim SkyView gibt es ihn nicht: Dort traegt der umlaufende Rahmen. */
+    if (!sky && unterzugNoetig()) {
+      var zUz = T - unterzugAbstand() / 10;      // Regler zaehlt ab der WAND
+      var ukUz = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zUz);
+      var uzOk = ukUz;                            // Traegeroberkante = Sparrenunterkante
+      /* Volle 189 mm: Dieser Traeger liegt UNTER den Sparren und traegt
+         wirklich – anders als der hintere, der als Wand dient und deshalb
+         auf Sparrenhoehe gekuerzt wird (siehe trH). */
+      var uzH = TR_H;
+      var hPfUz = Math.max(100, uzOk - uzH);
+      balken(B, uzH, TR_T, 0, uzOk - uzH / 2, zUz, mAlu);
+      verteilen(pfostenUnterTraeger(Z.breite), B, PF / 2).forEach(function (x) {
+        balken(PF, hPfUz, PF, x, hPfUz / 2, zUz, mAlu);
+      });
+    }
+
     /* Rinne vorne. hRinne ist die Unterkante der Rinne. Ohne Statikträger
        ist das die Durchgangshöhe; mit Träger liegt sie um dessen Höhe
        darüber, weil er zwischen Pfosten und Rinne sitzt. */
@@ -6740,6 +6768,52 @@
     el.min = b.min; el.max = b.max; el.step = 50;
     var wert = koppelAbstand();
     if (Z.koppelLage && Z.koppelLage !== wert) Z.koppelLage = wert;
+    el.value = wert;
+    if (zf && document.activeElement !== zf) zf.value = wert;
+  }
+
+  /* ---------- Unterzug ----------
+     „Ab gewissen tiefen von dächern tds, carport tds steht ja in der
+     preisliste unterzug über die gesamte breite notwendig … ich will
+     diesen unterzug aber von der mitte nach links oder rechts
+     verschiebbar haben aber nur soweit das die angaben in der preisliste
+     nicht gebrochen werden" (Betreiber, 15.10.2026, mit Bild).
+
+     Die Maßtabelle nennt zwei Grenzen: ohne Unterzug sind 4500 mm Tiefe
+     moeglich, mit Unterzug 7000. Daraus folgt die Regel fuer die Lage:
+     Der Unterzug teilt die Tiefe in ZWEI Felder, und jedes davon ist ein
+     Dach ohne Unterzug – also darf keines ueber 4500 mm kommen.
+
+     Bei 7000 mm Tiefe heisst das: zwischen 2500 und 4500 mm ab Wand.
+     Mittig (3500) ist die Lage mit der groessten Reserve, deshalb der
+     Vorgabewert. Die Grenzen sind damit nicht geschaetzt, sondern aus
+     derselben Tabellenzeile abgeleitet, die den Unterzug ueberhaupt
+     verlangt. */
+  function unterzugNoetig() {
+    var tb = tabelleBauteile(Z.breite, Z.tiefe);
+    return !!(tb && tb.unterzug);
+  }
+
+  function unterzugBereich() {
+    var M = window.BV_MASSTABELLE;
+    var ohne = (M && M.regeln && M.regeln.tiefeMaxOhneUnterzug) || 4500;
+    return { min: Math.max(500, Z.tiefe - ohne), max: Math.min(ohne, Z.tiefe - 500) };
+  }
+
+  function unterzugAbstand() {
+    var b = unterzugBereich();
+    if (!Z.unterzugLage) return Math.round(Z.tiefe / 2);
+    return Math.min(b.max, Math.max(b.min, Z.unterzugLage));
+  }
+
+  function unterzugGrenzeSetzen() {
+    var el = document.getElementById('k3dUnterzug');
+    var zf = document.getElementById('k3dUnterzugZahl');
+    if (!el) return;
+    var b = unterzugBereich();
+    el.min = b.min; el.max = b.max; el.step = 50;
+    var wert = unterzugAbstand();
+    if (Z.unterzugLage && Z.unterzugLage !== wert) Z.unterzugLage = wert;
     el.value = wert;
     if (zf && document.activeElement !== zf) zf.value = wert;
   }
@@ -7989,6 +8063,11 @@
          unterschied dort ist ein dachvorsprung auch an der hinterseite
          möglich bei freistehender montage" (Betreiber, 11.10.2026). */
       case 'vorsprung-hinten': return vorsprungHintenMoeglich();
+      /* Der Regler erscheint nur, wenn die Tiefe einen Unterzug verlangt –
+         sonst gaebe es nichts zu verschieben. Gilt fuer Terrassendach UND
+         Carport TDS: „dächer tds, carport tds" (Betreiber, 15.10.2026). */
+      case 'unterzug': return (Z.produkt === 'Terrassendach TDS' || istCarportTds()) &&
+                              unterzugNoetig();
       /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
          da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
          hilft. Beim Carport und bei der Pergola gibt es die Bauweise
@@ -8284,6 +8363,16 @@
         if (gruppeGilt('vorsprung-hinten') && Z.vorsprungHinten > 0) {
           teile.push('Dachvorsprung hinten: ' + Z.vorsprungHinten + ' mm');
         }
+        /* Der Unterzug ist keine Ausstattung, sondern eine Vorgabe der
+           Preisliste – seine Lage muss in der Anfrage stehen, sonst wird
+           nach Standard gefertigt und der Kunde bekommt ihn in der Mitte.
+           Die Felder dazu, weil der Betrieb daran sofort sieht, dass
+           beide unter 4500 mm bleiben. */
+        if (gruppeGilt('unterzug')) {
+          var uzA = unterzugAbstand();
+          teile.push('Unterzug (Statikträger über die ganze Breite): ' +
+            uzA + ' mm ab Wand – Felder ' + uzA + ' / ' + (Z.tiefe - uzA) + ' mm');
+        }
       } else if (Z.cpVariante === 'Carport mit Überstand') {
         teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
       }
@@ -8570,6 +8659,10 @@
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.hoeheHinten = zahl('k3dHoeheHinten', Z.hoeheHinten);
     Z.koppelLage = zahl('k3dKoppel', Z.koppelLage);
+    /* Erst die Grenzen aus der aktuellen Tiefe, dann auslesen – sonst
+       bleibt der alte Wert stehen, wenn die Tiefe sich geaendert hat. */
+    unterzugGrenzeSetzen();
+    Z.unterzugLage = zahl('k3dUnterzug', Z.unterzugLage);
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
@@ -8639,7 +8732,8 @@
      ['k3dUeberstand', 'ueberstand'], ['k3dVorsprung', 'vorsprung'],
      ['k3dVorsprungHinten', 'vorsprungHinten'],
      ['k3dHoeheHinten', 'hoeheHinten'],
-     ['k3dKoppel', 'koppelLage']].forEach(function (paar) {
+     ['k3dKoppel', 'koppelLage'],
+     ['k3dUnterzug', 'unterzugLage']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
       if (a) a.textContent = Z[paar[1]] + ' mm';
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
@@ -9070,6 +9164,7 @@
    ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl'],
    ['k3dHoeheHinten', 'k3dHoeheHintenZahl'],
    ['k3dKoppel', 'k3dKoppelZahl'],
+   ['k3dUnterzug', 'k3dUnterzugZahl'],
    ['k3dPlankenFuge', 'k3dPlankenFugeZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
     if (!r || !n) return;
