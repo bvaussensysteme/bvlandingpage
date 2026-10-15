@@ -1833,15 +1833,23 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   /* Die Formel aus dem Code, nicht nachgebaut, sondern ausgelesen. */
   var f = (k3d.match(/function unterzugBereich\(\)[\s\S]*?\n  \}/) || [''])[0];
   if (!f) { pruefe('Unterzug-Bereich lesbar', false, 'nicht gefunden'); return; }
-  var holen = eval('(function (Z, window) { ' +
+  /* unterzugBereich() rechnet seit dem 15.10.2026 mit der SPANNWEITE –
+     die Funktion dafuer wird mit ausgelesen, nicht nachgebaut. */
+    var st = (k3d.match(/function statikTiefe\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var holen = eval('(function (Z, window, gruppeGilt) { ' +
+    st.replace('function statikTiefe()', 'var statikTiefe = function ()') + ';' +
     f.replace('function unterzugBereich()', 'var fn = function ()') +
     '; return fn; })');
 
   /* Fuer jede lieferbare Tiefe mit Unterzug: Bei BEIDEN Grenzlagen
      muessen beide Felder unter dem Hoechstmass bleiben. */
+  /* Immer wahr: In dieser Pruefung gilt jede Gruppe, damit der Vorsprung
+     wirklich abgezogen wird. */
+  function gilt() { return true; }
   var verletzt = [], geprueft = 0;
   for (var T = ohne + 100; T <= mit; T += 100) {
-    var b = holen({ tiefe: T }, { BV_MASSTABELLE: window.BV_MASSTABELLE })();
+    var b = holen({ tiefe: T, vorsprung: 0, vorsprungHinten: 0 },
+                  { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt)();
     [b.min, b.max].forEach(function (lage) {
       geprueft++;
       var grenze = ohne + (gegen ? -2000 : 0);
@@ -1860,12 +1868,40 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
      unzulaessig. */
   var mitteOk = true;
   for (var T2 = ohne + 100; T2 <= mit; T2 += 100) {
-    var b2 = holen({ tiefe: T2 }, { BV_MASSTABELLE: window.BV_MASSTABELLE })();
+    var b2 = holen({ tiefe: T2, vorsprung: 0, vorsprungHinten: 0 },
+                   { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt)();
     var m2 = Math.round(T2 / 2);
     if (m2 < b2.min || m2 > b2.max) mitteOk = false;
   }
   pruefe('Die Mitte ist immer erlaubt', gegen ? !mitteOk : mitteOk,
          'Vorgabewert liegt im Bereich');
+
+  /* ---------- Mit Dachvorsprung ----------
+     „wenn ich ne tiefe von 5000mm habe … aber 1000mm dachüberstand mache
+     … dann liegen wir ja rechnerisch bei 4500 also nur noch innenkern
+     träger nötig" (Betreiber, 15.10.2026). Der Vorsprung kragt aus, er
+     verlaengert die Spannweite nicht. Geprueft wird die ganze Kette:
+     Stufe, Bereichsgrenzen und Felder. */
+  var mitVor = [];
+  [[5000, 0, 'Unterzug'], [5000, 500, 'Innenkern'], [5000, 1000, 'nichts'],
+   [7000, 1000, 'Unterzug'], [4600, 700, 'nichts']].forEach(function (r) {
+    var sp = r[0] - r[1] - (gegen ? -r[1] : 0);
+    var ist = sp > ohne ? 'Unterzug'
+            : (sp > window.BV_MASSTABELLE.regeln.innenkernAbTiefe ? 'Innenkern' : 'nichts');
+    if (ist !== r[2]) mitVor.push(r[0] + '/' + r[1] + ': ' + ist + ' statt ' + r[2]);
+    if (ist === 'Unterzug') {
+      var bv = holen({ tiefe: r[0], vorsprung: r[1], vorsprungHinten: 0 },
+                     { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt)();
+      [bv.min, bv.max].forEach(function (lage) {
+        if (lage > ohne + 0.5 || (sp - lage) > ohne + 0.5) {
+          mitVor.push(r[0] + '/' + r[1] + ': Feld über ' + ohne + ' bei Lage ' + lage);
+        }
+      });
+    }
+  });
+  pruefe('Dachvorsprung zählt für die Statik nicht mit',
+         mitVor.length === 0,
+         mitVor.length ? mitVor.join('; ') : '5 Fälle geprüft, u. a. 5000/500 → Innenkern');
 })();
 
 /* Regler, 3D und Anfrage haengen an DERSELBEN Groesse – sonst zeigt der

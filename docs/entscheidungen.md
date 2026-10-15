@@ -6601,3 +6601,61 @@ eine zweite hält fest, dass 4600 lieferbar ist und 4500 nicht (sonst wäre
 die Grenze nicht nachprüfbar). Verfälschungen: Grenze zurück auf 4500 →
 „4600 mm: Unterzug statt Innenkern"; Innenkern-Schwelle auf 4600 →
 „4600 mm: nichts statt Innenkern".
+
+### 15.10.2026 – Die Statikstufe richtet sich nach der Spannweite, nicht nach der Dachtiefe
+
+**Was falsch war.** Der Betreiber: *„was du natürlich beachten musst wenn
+meine tiefe 7000mm sind und ich vorne nen dachüberstand von 1000mm mache dan
+verschiebt sich ja das maß, sprich wenn ich ne tiefe von 5000mm habe und einen
+unterzug brauche dann aber 1000mm dachüberstnd mache also wandern die pfosten
+1000mm nach innen dann liegen wir ja rechnerisch bei 4500 also nur noch
+innenkern träger nötig als beispiel"*
+
+Die drei Stufen von gestern lasen `Z.tiefe` – also das Dach von der Wand bis
+zur Vorderkante. Die Statik interessiert aber nur, **wie weit der Träger
+zwischen zwei Auflagern frei spannt**. Ein Dachvorsprung kragt über den
+Pfosten hinaus; er verlängert die Spannweite nicht, sondern verkürzt sie,
+weil die Pfosten nach innen wandern. Bei 5000 mm Tiefe mit 1000 mm Vorsprung
+verlangte der Konfigurator einen Unterzug über die ganze Breite, obwohl
+rechnerisch nur 4000 mm spannen – ein Bauteil, das der Kunde bezahlt und
+nicht braucht.
+
+**Was jetzt gilt.** Eine neue Funktion `statikTiefe()` in
+`js/konfigurator-3d.js` zieht vom Dachmaß beide Vorsprünge ab (vorn und
+hinten, jeweils nur wenn die Gruppe beim gewählten Produkt überhaupt gilt).
+Alle vier Stellen rechnen damit: ob ein Unterzug nötig ist, ob ein
+Innenkern-Träger reicht, in welchem Bereich der Unterzug verschiebbar ist und
+welcher Abstand voreingestellt wird. Gerechnet und nachgeprüft:
+
+| Tiefe | Vorsprung | Spannweite | Stufe |
+|---|---|---|---|
+| 5000 | 0 | 5000 | Unterzug über die Breite |
+| 5000 | 500 | 4500 | Innenkern-Träger |
+| 5000 | 1000 | 4000 | nichts nötig |
+| 7000 | 1000 | 6000 | Unterzug über die Breite |
+| 4600 | 700 | 3900 | nichts nötig |
+
+**Warum so und nicht anders.** Naheliegend wäre, nur `unterzugNoetig()`
+umzustellen. Das hätte einen stillen Widerspruch erzeugt: Der Regler für die
+Lage hätte weiter mit der ganzen Dachtiefe gerechnet und Positionen erlaubt,
+bei denen ein Feld über 4600 mm spannt. Die Grenze steckt deshalb in der
+Spannweite selbst, nicht in den einzelnen Abfragen.
+
+**Reihenfolge im Code.** `unterzugGrenzeSetzen()` muss nach dem Einlesen von
+`Z.vorsprung` und `Z.vorsprungHinten` laufen – sonst begrenzt es den Regler
+auf die Spannweite des vorherigen Schritts. Das steht als Kommentar an der
+Stelle, weil es beim Aufräumen sonst wieder nach oben rutscht.
+
+**Was gegengelesen werden soll.** Tiefe 5000 mm einstellen: ohne Vorsprung
+erscheint der Unterzug-Regler, mit 1000 mm Vorsprung verschwindet er. In der
+Anfrage steht dann die Zeile „Statisch wirksame Spannweite", solange sie von
+der Dachtiefe abweicht.
+
+**Absicherung.** Die Prüfung „Dachvorsprung zählt für die Statik nicht mit"
+in `scripts/pruefe-masstabelle.js` rechnet die fünf Fälle der Tabelle nach und
+prüft bei jedem Unterzug-Fall zusätzlich die Randlagen des Reglers auf die
+4600-mm-Grenze. Die Prüfung „Unterzug-Grenzen halten die Preisliste ein" zieht
+`statikTiefe()` jetzt mit aus dem Quelltext statt sie nachzubauen – sonst
+hätte sie eine zweite Wahrheit geprüft. Verfälschung: Vorsprung wird addiert
+statt abgezogen → 4 der 5 Fälle schlagen an, darunter „7000/1000: Feld über
+4600 bei Lage 1400".

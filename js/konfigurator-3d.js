@@ -6789,8 +6789,28 @@
      Vorgabewert. Die Grenzen sind damit nicht geschaetzt, sondern aus
      derselben Tabellenzeile abgeleitet, die den Unterzug ueberhaupt
      verlangt. */
+  /* ---------- Statisch wirksame Tiefe ----------
+     „wenn ich ne tiefe von 5000mm habe und einen unterzug brauche dann
+     aber 1000mm dachüberstand mache also wandern die pfosten 1000mm nach
+     innen dann liegen wir ja rechnerisch bei 4500 also nur noch
+     innenkern träger nötig" (Betreiber, 15.10.2026).
+
+     Fuer die Statik zaehlt der Abstand der AUFLAGER, nicht das Dachmass:
+     Der Dachvorsprung ist ein Kragarm, er verlaengert die Spannweite
+     nicht. Mit Vorsprung wandern die Pfosten um genau dieses Mass nach
+     innen (siehe zPf), hinten beim freistehenden Carport ebenso.
+
+     Die Preisliste nennt dazu nichts – sie fuehrt nur Tiefen auf. Die
+     Regel kommt vom Betreiber und ist statisch zwingend: Ein Dach mit
+     5000 mm Tiefe und 1000 mm Vorsprung spannt 4000 mm, nicht 5000. */
+  function statikTiefe() {
+    var v = gruppeGilt('vorsprung') ? (Z.vorsprung || 0) : 0;
+    var vh = gruppeGilt('vorsprung-hinten') ? (Z.vorsprungHinten || 0) : 0;
+    return Math.max(0, Z.tiefe - v - vh);
+  }
+
   function unterzugNoetig() {
-    var tb = tabelleBauteile(Z.breite, Z.tiefe);
+    var tb = tabelleBauteile(Z.breite, statikTiefe());
     return !!(tb && tb.unterzug);
   }
 
@@ -6802,19 +6822,24 @@
   function innenkernNoetig(tiefeMm) {
     var M = window.BV_MASSTABELLE;
     if (!M || !M.regeln) return false;
-    var t = tiefeMm == null ? Z.tiefe : tiefeMm;
+    var t = tiefeMm == null ? statikTiefe() : tiefeMm;
     return t > M.regeln.innenkernAbTiefe && t <= M.regeln.tiefeMaxOhneUnterzug;
   }
 
   function unterzugBereich() {
     var M = window.BV_MASSTABELLE;
-    var ohne = (M && M.regeln && M.regeln.tiefeMaxOhneUnterzug) || 4500;
-    return { min: Math.max(500, Z.tiefe - ohne), max: Math.min(ohne, Z.tiefe - 500) };
+    var ohne = (M && M.regeln && M.regeln.tiefeMaxOhneUnterzug) || 4600;
+    /* Gerechnet wird mit der SPANNWEITE, nicht mit der Dachtiefe: Beide
+       Felder liegen zwischen den Auflagern, der Vorsprung kragt davor
+       aus. Die Lage selbst wird weiter ab der Wand gemessen – dort faengt
+       auch die Spannweite an (hinterer Vorsprung abgezogen). */
+    var sp = statikTiefe();
+    return { min: Math.max(500, sp - ohne), max: Math.min(ohne, sp - 500) };
   }
 
   function unterzugAbstand() {
     var b = unterzugBereich();
-    if (!Z.unterzugLage) return Math.round(Z.tiefe / 2);
+    if (!Z.unterzugLage) return Math.round(statikTiefe() / 2);
     return Math.min(b.max, Math.max(b.min, Z.unterzugLage));
   }
 
@@ -8380,8 +8405,15 @@
            nach Standard gefertigt und der Kunde bekommt ihn in der Mitte.
            Die Felder dazu, weil der Betrieb daran sofort sieht, dass
            beide unter 4500 mm bleiben. */
+        /* Weicht die Spannweite von der Dachtiefe ab, steht sie in der
+           Anfrage – sonst sieht der Betrieb bei 5000 mm Tiefe keinen
+           Unterzug und haelt das fuer einen Fehler. */
+        if (statikTiefe() !== Z.tiefe) {
+          teile.push('Statisch wirksame Spannweite: ' + statikTiefe() +
+            ' mm (Dachtiefe ' + Z.tiefe + ' mm abzüglich Dachvorsprung)');
+        }
         if (gruppeGilt('unterzug')) {
-          var uzA = unterzugAbstand(), uzB = Z.tiefe - uzA;
+          var uzA = unterzugAbstand(), uzB = statikTiefe() - uzA;
           teile.push('Unterzug (Statikträger über die ganze Breite): ' +
             uzA + ' mm ab Wand – Felder ' + uzA + ' / ' + uzB + ' mm');
           /* Jedes Feld ist ein Dach fuer sich: Ueber 4000 mm braucht es
@@ -8684,10 +8716,6 @@
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.hoeheHinten = zahl('k3dHoeheHinten', Z.hoeheHinten);
     Z.koppelLage = zahl('k3dKoppel', Z.koppelLage);
-    /* Erst die Grenzen aus der aktuellen Tiefe, dann auslesen – sonst
-       bleibt der alte Wert stehen, wenn die Tiefe sich geaendert hat. */
-    unterzugGrenzeSetzen();
-    Z.unterzugLage = zahl('k3dUnterzug', Z.unterzugLage);
     Z.ueberstand = parseInt(wert('k3dUeberstand'), 10) || Z.ueberstand;
     Z.eindeckung = wert('k3dEindeckung') || Z.eindeckung;
     Z.glasstaerke = parseInt(wert('k3dGlasstaerke'), 10) || Z.glasstaerke;
@@ -8734,6 +8762,11 @@
     koppelGrenzeSetzen();
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
+    /* NACH den Vorspruengen: Die Grenzen des Unterzugs haengen an der
+       Spannweite, und die aendert sich mit jedem Vorsprung. Stand das
+       hier vorher, rechnete der Regler mit dem Wert von gestern. */
+    unterzugGrenzeSetzen();
+    Z.unterzugLage = zahl('k3dUnterzug', Z.unterzugLage);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
     Z.ledsetzahl = Math.min(20, Math.max(1, zahl('k3dLedAnzahl', Z.ledsetzahl)));
     Z.soundset = wert('k3dSoundSet') || Z.soundset;
