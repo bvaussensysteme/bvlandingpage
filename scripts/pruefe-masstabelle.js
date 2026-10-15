@@ -114,10 +114,42 @@ pruefe('TDS Glas 6000 mm → 9 Sparren, 3 Stützfüße',
 
 /* Regeln, auf denen die Verdichtung beruht */
 pruefe('Regelwerte hinterlegt',
-       !gegen && M.regeln && M.regeln.tiefeMaxOhneUnterzug === 4500 &&
+       !gegen && M.regeln && M.regeln.tiefeMaxOhneUnterzug === 4600 &&
+       M.regeln.innenkernAbTiefe === 4000 &&
        M.regeln.tiefeMaxMitUnterzug === 7000 &&
        M.regeln.tiefeMaxLieferbar === 7050,
-       'Unterzug ab 4500, Pfosten dazu ab 7000, lieferbar bis 7050');
+       'nichts bis 4000, Innenkern bis 4600, darüber Unterzug; Pfosten dazu ab 7000');
+
+/* ---------- Die drei Stufen der TDS-Preisliste ----------
+   „bis tiefe 4m nichts notwendig, ab 4m bis 4,6m reicht Innenkern Träger
+   und ab 4,6m unterzug über die gesamte breite" (Betreiber, 15.10.2026).
+
+   Hier stand vorher 4500 als Grenze. Die lieferbaren TDS-Tiefen springen
+   aber 4000 → 4600 → 5000; eine 4500 gibt es gar nicht. Mit der alten
+   Grenze verlangte das Modell bei 4600 mm einen Unterzug, obwohl dort der
+   Innenkern reicht – ein Teil zu viel in jeder Anfrage dieser Groesse. */
+(function () {
+  var SOLL = [[3500, 'nichts'], [4000, 'nichts'], [4600, 'Innenkern'],
+              [5000, 'Unterzug'], [7000, 'Unterzug']];
+  var falsch = [];
+  SOLL.forEach(function (r) {
+    var T = r[0] + (gegen ? 400 : 0);
+    var ist = T > M.regeln.tiefeMaxOhneUnterzug ? 'Unterzug'
+            : (T > M.regeln.innenkernAbTiefe ? 'Innenkern' : 'nichts');
+    if (ist !== r[1]) falsch.push(r[0] + ' mm: ' + ist + ' statt ' + r[1]);
+  });
+  pruefe('Drei Stufen: nichts / Innenkern / Unterzug', falsch.length === 0,
+         falsch.length ? falsch.join('; ') : SOLL.length + ' Tiefen geprüft');
+  /* Die Stufen muessen auch LIEFERBAR sein – eine Grenze auf einer Tiefe,
+     die es nicht gibt, waere nicht nachpruefbar. */
+  var tg = M.systeme && M.systeme['TDS|Glas'];
+  var hat46 = tg && tg.tiefen.indexOf(4600) > -1;
+  var kein45 = tg && tg.tiefen.indexOf(4500) === -1;
+  pruefe('4600 ist lieferbar, 4500 gibt es nicht',
+         gegen ? !(hat46 && kein45) : (hat46 && kein45),
+         tg ? tg.tiefen.filter(function (t) { return t >= 4000 && t <= 5000; }).join(', ') + ' mm'
+            : 'Tiefenliste fehlt');
+})();
 /* Die beiden duerfen nicht wieder zu einem Wert werden: 7000 ist der
    Punkt, ab dem ein Pfosten dazukommt, 7050 das Hoechstmass. Genau diese
    Verwechslung hat den Regler bei 7000 enden lassen. */
@@ -1854,8 +1886,21 @@ pruefe('Unterzug nur wo nötig – und nicht beim SkyView',
 pruefe('Unterzug-Lage steht in der Anfrage',
        gegen ? !/Unterzug \(Statikträger über die ganze Breite\)/.test(k3d)
              : /Unterzug \(Statikträger über die ganze Breite\)/.test(k3d) &&
-               /Felder ' \+ uzA \+ ' \/ ' \+ \(Z\.tiefe - uzA\)/.test(k3d),
+               /Felder ' \+ uzA \+ ' \/ ' \+ uzB \+ ' mm'/.test(k3d),
        'mit beiden Feldmaßen');
+
+/* Jedes Feld eines geteilten Dachs ist ein Dach fuer sich: Ueber 4000 mm
+   braucht es dort den Innenkern-Traeger. Bei mittiger Lage faellt das oft
+   weg, bei verschobener nicht – deshalb steht es in der Anfrage. */
+pruefe('Innenkern wird je Feld gemeldet',
+       gegen ? !/innenkernNoetig\(uzA\)/.test(k3d)
+             : /innenkernNoetig\(uzA\)/.test(k3d) && /innenkernNoetig\(uzB\)/.test(k3d) &&
+               /Innenkern-Träger nötig im/.test(k3d),
+       'vorderes und hinteres Feld getrennt');
+pruefe('Ohne Unterzug wird der Innenkern ganz gemeldet',
+       gegen ? !/else if \(innenkernNoetig\(\)\)/.test(k3d)
+             : /else if \(innenkernNoetig\(\)\)/.test(k3d),
+       'Tiefe zwischen 4000 und 4600 mm');
 
 /* ---------- Dachvorsprung beim Carport bis 1500 mm ----------
    „dachvorsprung bei carport ruhig machen möglich bis 1500mm nicht nur
