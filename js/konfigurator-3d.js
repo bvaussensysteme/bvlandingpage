@@ -104,6 +104,12 @@
     /* Lage des Unterzugs in mm ab der Wand. 0 = noch nichts eingestellt,
        dann mittig. Nur wenn die Tiefe einen Unterzug verlangt. */
     unterzugLage: 0,
+    /* true, solange niemand den Unterzug-Regler angefasst hat: Dann liegt
+       der Unterzug mittig und wandert bei jeder Massaenderung mit.
+       „wenn ein unterzug nötig ist sollte dieser erst mal automatisch
+       perfekt mittig platziert werden und dann falls man will mit regler
+       gechoben werden können" (Betreiber, 15.10.2026). */
+    unterzugAuto: true,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -3169,8 +3175,12 @@
 
      Statt diese Rechnungen im Bedienfeld zu wiederholen – zwei Wahrheiten,
      die auseinanderlaufen – meldet das Modell sie beim Bauen. */
-  var SG23_LAENGE = { links: 0, rechts: 0, vorne: 0 };
-  var SG23_FELDER = 1;                 // Anzahl Felder auf der Stirnseite
+  /* Je Seite eine LISTE: Seit dem Unterzug kann auch eine Laengsseite in
+     zwei Felder zerfallen, und vorne war es mit Mittelpfosten schon immer
+     so. Vorher stand hier eine einzelne Zahl, die jedes weitere Feld
+     ueberschrieb – in der Anfrage stand dann das Mass des letzten Feldes
+     fuer die ganze Seite. */
+  var SG23_LAENGE = { links: [], rechts: [], vorne: [] };
 
   var SG23_SEITEN = [['links', 'sg23Links', 'k3dSg23Links'],
                      ['rechts', 'sg23Rechts', 'k3dSg23Rechts'],
@@ -3181,8 +3191,17 @@
   /* Das gemeldete Mass gilt. Nur solange noch nichts gebaut wurde,
      greift die grobe Schaetzung – sonst stuende das Feld beim ersten
      Aufruf leer. */
+  /* Alle Felder dieser Seite, in mm. Ohne Modell (noch nichts gebaut) das
+     Rohmass, damit die Bedienfelder nicht leer bleiben. */
+  function sg23Masse(seite) {
+    var l = SG23_LAENGE[seite];
+    return (l && l.length) ? l : [seite === 'vorne' ? Z.breite : Z.tiefe];
+  }
+  /* Das GROESSTE Feld. Danach richtet sich die Bauart: Was fuer das
+     breiteste Feld reicht, reicht auch fuer die schmaleren. Der Rueckgabe-
+     wert bleibt eine Zahl – sg23Bauart() und Math.max rechnen damit. */
   function sg23Mass(seite) {
-    return SG23_LAENGE[seite] || (seite === 'vorne' ? Z.breite : Z.tiefe);
+    return Math.max.apply(null, sg23Masse(seite));
   }
 
   function sg23Gewaehlt(breiteMm, seite) {
@@ -3287,7 +3306,40 @@
     return new THREE.Mesh(g, material);
   }
 
-  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX) {
+  /* Die Felder einer Laengsseite, von hinten nach vorne. Ohne Unterzug ist
+     es eines, mit Unterzug zwei – das Pfostenfach dazwischen faellt weg.
+     Alle Masse in cm, z zaehlt von der Wand nach vorn.
+
+     Ausgelagert, weil es die einzige Stelle ist, an der sich die Aufteilung
+     ohne 3D-Modell nachrechnen laesst (scripts/pruefe-fuehrung.js). */
+  function seitenFelder(hinten, vorne, unterzugZcm, PROFIL) {
+    /* Nur teilen, wenn beiderseits noch etwas uebrig bleibt: Stuende der
+       Unterzug direkt an der Wand oder an der Vorderkante, entstuende ein
+       Feld von wenigen Zentimetern, in das kein Element passt. */
+    var teilt = unterzugZcm != null &&
+                unterzugZcm - PROFIL / 2 > hinten + 10 &&
+                unterzugZcm + PROFIL / 2 < vorne - 10;
+    var kanten = teilt
+      ? [hinten, unterzugZcm - PROFIL / 2, unterzugZcm + PROFIL / 2, vorne]
+      : [hinten, vorne];
+    var felder = [];
+    for (var i = 0; i + 1 < kanten.length; i += 2) {
+      var von = kanten[i], bis = kanten[i + 1];
+      if (bis - von <= 0) continue;
+      var mitte = (von + bis) / 2;
+      felder.push({
+        mitte: mitte,
+        laenge: bis - von,
+        /* „von der Mitte nach außen" (Betreiber, 15.10.2026): +1 stapelt
+           am Anfang (kleines z = hinten zur Wand), -1 am Ende (vorne).
+           Ohne Teilung ergibt sich -1 – die bisherige Richtung. */
+        richtung: teilt && mitte < unterzugZcm ? 1 : -1
+      });
+    }
+    return felder;
+  }
+
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm) {
     var mGlas = seitenglas();
     var mSchiebe = schiebeGlas();
     var mKeil = keilGlas();
@@ -4314,7 +4366,7 @@
          vor der Mauer. Eine Senkrechtmarkise bekommt beides NICHT: sie
          läuft in eigenen Führungsschienen und hat unten eine Fallstange. */
       /* Dem Bedienfeld melden, womit hier wirklich gerechnet wurde. */
-      if (hatSchiebe) SG23_LAENGE[seite] = Math.round(laenge * 10);
+      if (hatSchiebe) SG23_LAENGE[seite].push(Math.round(laenge * 10));
 
       if (hatRahmen || hatSchiebe || hatPlanken) {
         if (hatSchiebe) {
@@ -4480,11 +4532,31 @@
     var seitenMitte = (hinten + vorne) / 2;
     var seitenLaenge = vorne - hinten;
 
-    SG23_LAENGE.links = SG23_LAENGE.rechts = SG23_LAENGE.vorne = 0;
+    SG23_LAENGE.links = []; SG23_LAENGE.rechts = []; SG23_LAENGE.vorne = [];
     VELARIS_LAMELLEN = [];
     VELARIS_FAHRT = null;
-    eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
-    eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
+    /* ---------- Längsseiten: ein Feld je Pfostenfach ----------
+       „hier die ganzen sachen, müssen den unterzug dann natürlich
+       dementsprechend auch beachten und sich zu der neuen aufteilung
+       anpassen" (Betreiber, 15.10.2026, mit Bild der sechs Seitenelemente).
+
+       Die äußersten Pfosten des Unterzugs stehen auf ±(B/2 − PF/2) – das
+       ist genau die Achse der Seitenelemente (siehe verteilen() im
+       Unterzug-Block). Ein durchgehendes Element würde dort hindurchgehen.
+       Also dasselbe wie an der Vorderseite: lichtes Maß von Pfosten zu
+       Pfosten, je Fach ein eigenes Element.
+
+       Der Keil wird dabei mitgeteilt, weil jedes Feld seinen eigenen baut
+       – so entschieden, weil der Unterzugsträger quer genau durch die
+       Keilfläche läuft.
+
+       Laufrichtung „von der Mitte nach außen" (Betreiber, 15.10.2026):
+       Das hintere Feld stapelt zur Wand, das vordere nach vorn. Ohne
+       Unterzug bleibt es bei einem Feld und der bisherigen Richtung. */
+    seitenFelder(hinten, vorne, unterzugZcm, PROFIL).forEach(function (f, i) {
+      eineSeite('links',   B / 2 - PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
+      eineSeite('rechts', -B / 2 + PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
+    });
 
     /* ---------- Vorderseite: ein Feld je Pfostenfach ----------
        „wenn wir ein mittelpfosten haben wie hier oder mehrre pfosten,
@@ -4512,7 +4584,6 @@
     var achsen = (pfostenX && pfostenX.length > 1)
       ? pfostenX.slice().sort(function (a, b) { return a - b; })
       : [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2];
-    SG23_FELDER = Math.max(1, achsen.length - 1);
     for (var f = 0; f < achsen.length - 1; f++) {
       var lichtVon = achsen[f] + PROFIL / 2;
       var lichtBis = achsen[f + 1] - PROFIL / 2;
@@ -6286,7 +6357,10 @@
     seitenErweiterungen(B, T, hRinne, PF, sky ? 0 : neig,
       sky ? function () { return hRinne; }
           : function (z) { return ukMitte + Math.tan(neig) * (zMitte - z); },
-      zPf - PF / 2, xPfVorne);
+      zPf - PF / 2, xPfVorne,
+      /* Dieselbe Rechnung wie im Unterzug-Block weiter unten; eine zweite
+         Konstante dafuer gaebe es nur, damit sie auseinanderlaufen kann. */
+      (!sky && unterzugNoetig()) ? T - unterzugAbstand() / 10 : null);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und
@@ -6837,10 +6911,37 @@
     return { min: Math.max(500, sp - ohne), max: Math.min(ohne, sp - 500) };
   }
 
-  function unterzugAbstand() {
+  /* Die Mitte der Spannweite – gemessen ab der Wand, wo die Spannweite
+     anfaengt. Geklemmt auf den erlaubten Bereich: Bei sehr grossen Tiefen
+     ist die geometrische Mitte zugleich die einzige Lage, bei der beide
+     Felder unter dem Hoechstmass bleiben. */
+  function unterzugMitte() {
     var b = unterzugBereich();
-    if (!Z.unterzugLage) return Math.round(statikTiefe() / 2);
-    return Math.min(b.max, Math.max(b.min, Z.unterzugLage));
+    return Math.min(b.max, Math.max(b.min, Math.round(statikTiefe() / 2)));
+  }
+
+  function unterzugAbstand() {
+    if (Z.unterzugAuto) return unterzugMitte();
+    var b = unterzugBereich();
+    return Math.min(b.max, Math.max(b.min, Z.unterzugLage || unterzugMitte()));
+  }
+
+  /* Was zuletzt in den Regler geschrieben wurde. Daran – und nur daran –
+     laesst sich erkennen, ob der naechste Wert vom Nutzer kommt oder von
+     uns selbst: Steht etwas anderes im Regler als das, was wir
+     hineingeschrieben haben, hat ihn jemand bewegt. Ein Vergleich mit der
+     aktuellen Mitte taugt dafuer nicht, weil die sich mit jeder
+     Massaenderung verschiebt. */
+  var uzGesetzt = null;
+
+  function unterzugEinlesen() {
+    var el = document.getElementById('k3dUnterzug');
+    if (!el) return Z.unterzugLage;
+    var v = zahl('k3dUnterzug', Z.unterzugLage);
+    if (Z.unterzugAuto && uzGesetzt != null && v !== uzGesetzt) {
+      Z.unterzugAuto = false;      // ab jetzt gilt der Wunsch des Nutzers
+    }
+    return v;
   }
 
   function unterzugGrenzeSetzen() {
@@ -6848,10 +6949,19 @@
     var zf = document.getElementById('k3dUnterzugZahl');
     if (!el) return;
     var b = unterzugBereich();
-    el.min = b.min; el.max = b.max; el.step = 50;
+    el.min = b.min; el.max = b.max;
+    /* Schritt 1 mm, nicht 50: Ein Bereichsregler rastet auf min + n × step
+       ein. Bei 50er-Schritten war die Mitte der Spannweite meist gar nicht
+       einstellbar – „perfekt mittig" ging dann nicht. */
+    el.step = 1;
     var wert = unterzugAbstand();
-    if (Z.unterzugLage && Z.unterzugLage !== wert) Z.unterzugLage = wert;
-    el.value = wert;
+    Z.unterzugLage = wert;
+    /* Nur schreiben, wenn sich etwas aendert. Diese Zeile stand hier
+       vorher bedingungslos UND vor dem Auslesen des Reglers: Jeder
+       Schiebeversuch wurde damit sofort wieder ueberschrieben – „der
+       regler klappt nicht" (Betreiber, 15.10.2026). */
+    if (String(el.value) !== String(wert)) el.value = wert;
+    uzGesetzt = wert;
     if (zf && document.activeElement !== zf) zf.value = wert;
   }
 
@@ -7199,8 +7309,14 @@
     ['links', 'rechts', 'vorne'].forEach(function (seite) {
       if (erwListe(seite).indexOf('Schiebetür') === -1) return;
       var p = [seite, sg23Mass(seite)];
-      var zusatz = (seite === 'vorne' && SG23_FELDER > 1)
-        ? ' · ' + SG23_FELDER + ' Felder zwischen den Pfosten, Maß je Feld' : '';
+      /* Die Feldzahl kommt jetzt aus dem Modell, nicht mehr aus einem
+         eigenen Zaehler fuer die Vorderseite: Mit Unterzug zerfaellt auch
+         eine Laengsseite in zwei Felder. */
+      var felder = sg23Masse(seite);
+      var zusatz = felder.length > 1
+        ? ' · ' + felder.length + ' Felder zwischen den Pfosten (' +
+          felder.join(' / ') + ' mm), Maß je Feld'
+        : '';
       var b = sg23Bauart(p[1], p[0]);
       if (!b) {
         zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +
@@ -8473,7 +8589,9 @@
         if (gruppeGilt('unterzug')) {
           var uzA = unterzugAbstand(), uzB = statikTiefe() - uzA;
           teile.push('Unterzug (Statikträger über die ganze Breite): ' +
-            uzA + ' mm ab Wand – Felder ' + uzA + ' / ' + uzB + ' mm');
+            uzA + ' mm ab Wand' +
+            (Z.unterzugAuto ? ' (mittig)' : ' (verschoben)') +
+            ' – Felder ' + uzA + ' / ' + uzB + ' mm');
           /* Jedes Feld ist ein Dach fuer sich: Ueber 4000 mm braucht es
              dort den Innenkern-Traeger. Bei mittiger Lage faellt das oft
              weg, bei verschobener nicht – deshalb gehoert es in die
@@ -8830,11 +8948,13 @@
     koppelGrenzeSetzen();
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
-    /* NACH den Vorspruengen: Die Grenzen des Unterzugs haengen an der
-       Spannweite, und die aendert sich mit jedem Vorsprung. Stand das
-       hier vorher, rechnete der Regler mit dem Wert von gestern. */
+    /* Erst LESEN, dann Grenzen setzen – in dieser Reihenfolge, nicht
+       umgekehrt: unterzugGrenzeSetzen() schreibt den Regler nach, und was
+       es schreibt, haengt an der Spannweite. Die wiederum steht erst nach
+       den Vorspruengen fest. Lief das Setzen vorher, war der gerade
+       geschobene Wert schon weg, bevor ihn jemand gelesen hat. */
+    Z.unterzugLage = unterzugEinlesen();
     unterzugGrenzeSetzen();
-    Z.unterzugLage = zahl('k3dUnterzug', Z.unterzugLage);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
     Z.ledsetzahl = Math.min(20, Math.max(1, zahl('k3dLedAnzahl', Z.ledsetzahl)));
     Z.soundset = wert('k3dSoundSet') || Z.soundset;
@@ -8861,7 +8981,12 @@
      ['k3dKoppel', 'koppelLage'],
      ['k3dUnterzug', 'unterzugLage']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
-      if (a) a.textContent = Z[paar[1]] + ' mm';
+      /* Beim Unterzug steht dabei, ob die Lage noch die automatische
+         Mitte ist – sonst sieht man nicht, dass sie mitwandert. */
+      if (a) {
+        a.textContent = Z[paar[1]] + ' mm' +
+          (paar[1] === 'unterzugLage' && Z.unterzugAuto ? ' (mittig)' : '');
+      }
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
          tippt. Sonst springt die Zahl unter dem Finger weg. */
       var zf = document.getElementById(paar[0] + 'Zahl');

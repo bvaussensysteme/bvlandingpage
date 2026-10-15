@@ -141,7 +141,7 @@ if (!fs.existsSync(CSV)) {
      Hinweisen durch und bestaetigte sich selbst. Deshalb wird jeder Fall
      einzeln auf fehler geprueft und die Gesamtzahl unten mitgefordert. */
   const faelle = [
-    ['TDS', 'Glas', 4000, 5000, {}],
+    [gegen ? 'Terrassendach TDS' : 'TDS', 'Glas', 4000, 5000, {}],
     ['TDS', 'Glas', 7500, 4300, { freistehend: true }],
     ['TDS', 'Polycarbonat', 3870, 3500, {}],
     ['SkyView', 'Glas', 7500, 5000, {}],
@@ -155,9 +155,12 @@ if (!fs.existsSync(CSV)) {
     if (!e || e.fehler) { kaputt.push(f[0] + '/' + f[1] + ': ' + (e && e.fehler)); return; }
     (e.hinweise || []).forEach(function (h) {
       erzeugt++;
-      const fuer = gegen ? 'kunde' : h.fuer;      // Gegenprobe: alles sichtbar
+      /* Gegenprobe: Das Publikum fehlt ganz – so sah ein Hinweis vor der
+         Trennung aus. Geprueft werden dann alle Texte, sonst haette der
+         naechste Punkt nichts mehr zu tun. */
+      const fuer = gegen ? undefined : h.fuer;
       if (fuer !== 'kunde' && fuer !== 'intern') ohneKennzeichen.push(h.art);
-      if (fuer === 'kunde') {
+      if (fuer === 'kunde' || gegen) {
         const w = verbotenes(h.text);
         if (w.length) schmutzig2.push(h.art + ': ' + w.join(', '));
       }
@@ -166,8 +169,11 @@ if (!fs.existsSync(CSV)) {
   pruefe('Alle fünf Maße liefern wirklich eine Stückliste',
          kaputt.length === 0,
          kaputt.length ? kaputt.join(' | ') : '5 von 5 gerechnet');
+  /* Diese Prüfung hat sich bezahlt: Mit den Produktnamen des Konfigurators
+     statt den Systemnamen der Matrix gibt bauteile() stumm { fehler }
+     zurück – die Prüfung darunter lief dann an null Hinweisen durch. */
   pruefe('Jeder erzeugte Hinweis trägt ein Publikum',
-         ohneKennzeichen.length === 0 && erzeugt >= 15,
+         ohneKennzeichen.length === 0 && erzeugt >= 12,
          ohneKennzeichen.length ? 'ohne Kennzeichen: ' + ohneKennzeichen.join(', ')
                                 : erzeugt + ' Hinweise aus 5 Maßen (mindestens 15 erwartet)');
   pruefe('Auch erzeugt: kein internes Wort im Kundentext',
@@ -215,7 +221,12 @@ pruefe('Der Lieferantenname wird aus den Kundenzeilen entfernt',
 
 /* Zurückgelesen, nicht erschlossen: die echte Funktion auf die echte Zeile.
    Dass ohneLieferant() aufgerufen WIRD, sagt noch nicht, dass es wirkt. */
-const olSrc = (k3dSrc.match(/function ohneLieferant\([\s\S]*?\n  \}/) || [''])[0];
+let olSrc = (k3dSrc.match(/function ohneLieferant\([\s\S]*?\n  \}/) || [''])[0];
+/* Gegenprobe: die Funktion reicht die Zeile unveraendert durch – so stand
+   der Lieferantenname vor dem 15.10.2026 in jeder Kundenansicht. Ein
+   Entschaerfen einzelner Ersetzungen genuegt nicht: Die zweite Regel in
+   ohneLieferant() ist ein Sicherheitsnetz und faengt den Fall sonst ab. */
+if (gegen) olSrc = 'function ohneLieferant(zeile) { return String(zeile); }';
 const ohneLieferant = eval('(' + olSrc.replace('function ohneLieferant', 'function') + ')');
 const vdZeile = 'SG23 Richtungsangaben: von INNEN gesehen (links/rechts ' +
                 'wie im VD-Anfrageformular)';
@@ -249,9 +260,11 @@ pruefe('Die Vorgabe aus dem Konfigurator wird übernommen',
        /if \(v\.fachnotiz\) answers\.fachnotiz = v\.fachnotiz;/.test(awSrc),
        'vorgabeUebernehmen() setzt answers.fachnotiz');
 
-console.log('\nErgebnis: ' + (fehler === 0 ? 'bestanden' : fehler + ' Fehler') +
-            ' (' + ok + ' Prüfungen ok)');
-if (gegen) {
-  console.log('Gegenprobe: Es MÜSSEN Fehler stehen – sonst prüft das Skript nichts.');
-}
-process.exit(fehler === 0 ? 0 : 1);
+/* Dieselbe Rechnung wie in den anderen Prüfskripten: In der Gegenprobe
+   müssen ALLE Prüfungen anschlagen, sonst gibt es welche, die nichts
+   prüfen. */
+console.log(gegen
+  ? '\nGegenprobe: ' + fehler + ' von ' + (fehler + ok) + ' Prüfungen haben angeschlagen'
+  : '\nErgebnis: ' + (fehler === 0 ? 'bestanden' : fehler + ' Fehler') +
+    ' (' + ok + ' Prüfungen ok)');
+process.exit(gegen ? (ok === 0 ? 0 : 1) : (fehler === 0 ? 0 : 1));

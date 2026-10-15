@@ -374,7 +374,10 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
    verschiedene Tiefen DIESELBE Hoehe liefern. Eine Textsuche haette
    nicht gezeigt, ob die Hoehe wirklich konstant ist. */
 (function () {
-  var ruf = (k3d.match(/seitenErweiterungen\(B, T, hRinne[\s\S]*?xPfVorne\);/) || [''])[0];
+  /* Der Aufruf endet seit dem 15.10.2026 nicht mehr bei xPfVorne: Dahinter
+     steht die z-Lage des Unterzugs, nach der die Laengsseiten geteilt
+     werden. Gelesen wird bis zur schliessenden Klammer des Aufrufs. */
+  var ruf = (k3d.match(/seitenErweiterungen\(B, T, hRinne[\s\S]*?\n\s*\);|seitenErweiterungen\(B, T, hRinne[\s\S]*?: null\);/) || [''])[0];
   if (!ruf) { pruefe('Seitenaufruf lesbar', false, 'nicht gefunden'); return; }
   var mFn = ruf.match(/sky \? (function \(\) \{ return hRinne; \})/);
   var mNeig = /sky \? 0 : neig/.test(ruf);
@@ -2257,8 +2260,8 @@ pruefe('Gleichstand: weniger Schienen gewinnt',
 pruefe('Kein gemeinsames Feld mehr',
        gegen ? /id="k3dSg23"/.test(html) : !/id="k3dSg23"/.test(html), '');
 pruefe('Mass kommt aus dem Modell, nicht aus Z.breite/Z.tiefe',
-       new RegExp(q || "SG23_LAENGE\\[seite\\] \\|\\|").test(k3d),
-       'Rueckfall nur vor dem ersten Bauen');
+       new RegExp(q || "var l = SG23_LAENGE\\[seite\\];").test(k3d),
+       'Rueckfall auf Z.breite/Z.tiefe nur vor dem ersten Bauen');
 pruefe('Handauswahl liegt unter „Mehr Einstellungen"',
        new RegExp(q || 'data-k3d-mehr data-k3d-fuer="schiebe"').test(html), '');
 pruefe('Automatik bleibt die Voreinstellung',

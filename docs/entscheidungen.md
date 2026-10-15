@@ -6749,3 +6749,120 @@ Exit-Code ausgewertet.
 ist, der die Feldinhalte an den Absender zurückschickt, bekäme der Kunde die
 „Technische Angaben (intern)" per Mail doch zu sehen. Das lässt sich von hier
 aus nicht prüfen – bitte in der Web3Forms-Einstellung nachsehen.
+
+### 15.10.2026 – Der Unterzug liegt automatisch mittig, der Regler funktioniert wieder
+
+**Was falsch war.** Der Betreiber: *„wenn ein unterzug nötig ist sollte dieser
+erst mal automatisch perfekt mittig platziert werden und dann falls man will
+mit regler gechoben werden können p.s. der regler klappt nicht"*
+
+Zwei Fehler in einem. Der Regler ließ sich nicht bedienen, weil
+`unterzugGrenzeSetzen()` in `aendern()` **vor** dem Auslesen lief und den
+Regler bedingungslos nachschrieb (`el.value = wert`). Ablauf: schieben →
+`aendern()` → Grenzen setzen überschreibt den geschobenen Wert mit der Mitte →
+danach wird dieser überschriebene Wert gelesen. Der Regler sprang also bei
+jedem Versuch zurück. Beim Nachbau des Vorsprung-Reglers war das nicht
+passiert, weil der `el.value` nur anfasst, wenn der Wert außerhalb liegt.
+
+Zweitens gab es keine echte Automatik: `Z.unterzugLage === 0` stand für
+„mittig", wurde aber beim ersten `aendern()` auf eine Zahl gesetzt. Danach war
+nicht mehr unterscheidbar, ob diese Zahl die Automatik oder ein Wunsch war –
+und der Unterzug wanderte bei Maßänderungen nicht mehr mit.
+
+**Was jetzt gilt.** `Z.unterzugAuto` trennt beides. Solange niemand den Regler
+angefasst hat, liegt der Unterzug in der Mitte der **Spannweite** und wandert
+bei jeder Änderung von Tiefe oder Vorsprung mit. Erkannt wird das Anfassen
+über `uzGesetzt`: Steht im Regler etwas anderes als das, was wir zuletzt
+hineingeschrieben haben, war es der Nutzer. Ein Vergleich mit der aktuellen
+Mitte taugt dafür nicht – die verschiebt sich ja selbst mit jedem Maß.
+
+Die Schrittweite des Reglers ist von 50 auf 1 mm geändert. Ein Bereichsregler
+rastet auf `min + n × step` ein; bei 50er-Schritten war die Mitte der
+Spannweite meist gar nicht einstellbar. Beispiel: 5000 mm Tiefe mit 250 mm
+Vorsprung → Spannweite 4750, Mitte 2375, Regler ab 500 – mit 50er-Schritten
+nicht erreichbar, „perfekt mittig" ging also nicht.
+
+Im Bedienfeld steht jetzt „2500 mm (mittig)", solange die Automatik greift, und
+im Fachtext für den Betrieb „… mm ab Wand (mittig)" bzw. „(verschoben)".
+
+**Was gegengelesen werden soll.** Tiefe über 4600 mm einstellen: Der Unterzug
+steht mittig. Tiefe weiter verstellen – er bleibt mittig. Dann den Regler
+schieben: Der Wert bleibt stehen, auch wenn danach andere Einstellungen
+geändert werden. Zurück zur automatischen Mitte kommt man derzeit nur durch
+Hinschieben; ein Häkchen „mittig" wie bei den Planken wäre möglich, ist aber
+nicht gebaut.
+
+**Absicherung.** Sieben neue Prüfungen in `scripts/pruefe-fuehrung.js`, die die
+Bedienung am echten Code nachspielen (Regler und Zahlenfeld als Attrappe, die
+sechs Funktionen per `eval` aus dem Quelltext): erster Aufbau mittig, schieben,
+stehenbleiben über mehrere Durchläufe, Mitwandern der Mitte, Vorsprung, und
+dass die Mitte mit der Schrittweite überhaupt einstellbar ist. Jede hat eine
+eigene Verfälschung – die Gegenprobe lässt alle 268 Prüfungen des Skripts
+anschlagen. Ein reiner Blick in den Quelltext hätte diesen Fehler nicht
+gefunden; es war eine Reihenfolge, keine falsche Zeile.
+
+### 15.10.2026 – Die Seitenelemente teilen sich am Unterzug
+
+**Anlass.** Der Betreiber, mit einem Bild der sechs Seitenelemente (Keil,
+Rahmenwand, Schiebetür, Plankenwand, Senkrechtmarkise, Velaris): *„hier die
+ganzen sachen, müssen den unterzug dann natürlich dementsprechend auch
+beachten und sich zu der neuen aufteilung anpassen"*
+
+**Was falsch war.** Die Unterzug-Pfosten werden mit `verteilen(…, PF / 2)`
+über die Breite gesetzt – die äußersten landen damit auf `±(B/2 − PF/2)`, und
+das ist genau die Achse, auf der die Seitenelemente laufen. Die Vorderseite
+wurde seit dem 11.10.2026 je Pfostenfach geteilt („jeweils die lichten maße
+von pfosten zu pfosten"), die Längsseiten dagegen in einem Stück von der Wand
+bis zur Dachvorderkante gebaut. Mit Unterzug lief also jedes Seitenelement
+mitten durch einen Pfosten.
+
+**Was jetzt gilt.** Neue Funktion `seitenFelder(hinten, vorne, unterzugZ,
+PROFIL)` liefert die Felder einer Längsseite. Ohne Unterzug ist es eines wie
+bisher; mit Unterzug sind es zwei, das Pfostenfach dazwischen bleibt frei.
+`seitenErweiterungen()` baut beide Seiten daraus – jedes Feld bekommt sein
+eigenes Element, und weil der Keil innerhalb von `eineSeite()` entsteht, teilt
+er sich automatisch mit. Das war die Entscheidung des Betreibers: Der
+Unterzugsträger quert die Keilfläche, also wird der Keil getrennt und nicht
+der Träger gekürzt.
+
+**Laufrichtung** der Schiebetüren in den zwei Feldern: von der Mitte nach
+außen (Entscheidung des Betreibers). Das hintere Feld stapelt zur Wand, das
+vordere nach vorn; am Unterzugspfosten geht es auf. Ohne Teilung bleibt es bei
+der bisherigen Richtung.
+
+**Randfall.** Steht der Unterzug sehr nah an Wand oder Vorderkante, wird nicht
+geteilt: Nach Abzug der halben Pfostenbreite bliebe ein Feld von wenigen
+Zentimetern, in das kein Element passt. Die Grenze liegt bei 10 cm Restlänge.
+
+**Nebenbefund, mitgefixt.** `SG23_LAENGE` war eine Zahl je Seite und wurde von
+jedem weiteren Feld überschrieben. An der Vorderseite mit Mittelpfosten stand
+deshalb schon immer das Maß des **letzten** Feldes für die ganze Seite – in
+der Anfrage, also in einer Bestellangabe. Jetzt ist es eine Liste;
+`sg23Mass()` gibt weiterhin eine Zahl zurück (das größte Feld – danach richtet
+sich die Bauart, und was für das breiteste reicht, reicht auch für die
+schmaleren), neu daneben `sg23Masse()` mit allen Feldern. Die Anfrage nennt
+jetzt „2 Felder zwischen den Pfosten (2445 / 2445 mm), Maß je Feld" – für
+Längs- und Stirnseite gleichermaßen. Der eigene Zähler `SG23_FELDER` ist
+entfallen: Er galt nur für die Stirnseite und wäre eine zweite Zählung
+gewesen, die abweichen kann.
+
+**Was gegengelesen werden soll.** Tiefe über 4600 mm, links und rechts je eine
+Schiebetür: Es müssen vier Anlagen sein (zwei je Seite), die am mittleren
+Pfosten enden. Den Unterzug-Regler verschieben – die Felder müssen mitgehen.
+Dann dasselbe mit Plankenwand und Senkrechtmarkise. Und: Öffnen die Türen
+wirklich von der Mitte nach außen?
+
+**Absicherung.** Neun neue Prüfungen in `scripts/pruefe-fuehrung.js`, die
+`seitenFelder()` aus dem Quelltext ziehen und wirklich rechnen: ein Feld ohne
+Unterzug, zwei mit, Summe der Feldlängen gleich Seitenlänge minus
+Pfostenbreite, kein Überlappen, Laufrichtung, Mitgehen bei verschobenem
+Unterzug, kein Reststück am Rand. Dazu zwei Verfälschungen in
+unterschiedliche Richtungen („teilt nie" und „teilt immer"), weil die
+Prüfungen in beide Richtungen zeigen – die Gegenprobe lässt alle 278
+Prüfungen des Skripts anschlagen.
+
+**Offen geblieben.** Die Senkrechtmarkise hat eine Höchstbreite
+(`ZIP.maxBreite`); bisher warnte der Konfigurator, wenn die Tiefe sie
+überschreitet. Mit der Teilung sind zwei kürzere Markisen möglich, die Warnung
+rechnet aber weiter mit der vollen Tiefe. Das ist nicht angefasst – es gehört
+nachgezogen, sobald klar ist, ob zwei Kassetten je Seite gewünscht sind.
