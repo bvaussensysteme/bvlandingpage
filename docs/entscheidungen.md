@@ -6511,3 +6511,50 @@ erste Frage, ob das Profil, an dem es hängt, in allen Systemen existiert.
 **Absicherung:** Die bestehende Prüfung „Beide Deckel werden gleich gebaut
 und gesetzt" verlangt jetzt die Verzweigung mit; dazu eine eigene Prüfung
 dafür. Gegenprobe (ohne Verzweigung) lässt beide anschlagen.
+
+### 15.10.2026 – Unterzug: eigene Pfostenreihe und verschiebbare Lage
+
+> „Ab gewissen tiefen von dächern tds, carport tds steht ja in der
+> preisliste unterzug über die gesamte breite notwendig … Ich denke damit
+> ist gemeint das z.b nochmal in der mitte 2 pfosten + statikträger hin
+> müssten, ich will diesen unterzug aber von der mitte nach links oder
+> rechts verschiebbar haben aber nur soweit das die angaben in der
+> preisliste nicht gebrochen werden" (Betreiber, mit Bild)
+
+Auf Rückfrage geklärt: verschiebbar **in der Tiefe** (Haus ↔ Vorderkante),
+bedient über einen **eigenen Regler**, der nur erscheint, wenn die Tiefe
+einen Unterzug verlangt.
+
+**Die Grenzen sind nicht gewählt, sondern abgeleitet.** Die Maßtabelle
+nennt 4500 mm Tiefe ohne Unterzug und 7000 mm mit. Der Unterzug teilt die
+Tiefe in zwei Felder – und jedes davon ist ein Dach ohne Unterzug. Also
+darf keines über 4500 mm kommen:
+
+| Tiefe | Unterzug erlaubt zwischen | Felder an den Grenzen |
+|---|---|---|
+| 5000 mm | 500 – 4500 mm | 500/4500 bzw. 4500/500 |
+| 6000 mm | 1500 – 4500 mm | 1500/4500 bzw. 4500/1500 |
+| 7000 mm | 2500 – 4500 mm | 2500/4500 bzw. 4500/2500 |
+
+Vorgabe ist die Mitte – die Lage mit der größten Reserve nach beiden
+Seiten.
+
+**Was neu gebaut wird:** Statikträger quer über die ganze Breite **plus
+eigene Pfostenreihe darunter** (vorher gab es den Unterzug nur im
+Datenpfad, ohne Stützen). Er behält seine vollen 189 mm, weil er wirklich
+trägt – anders als der hintere Träger, der als Wand dient und auf
+Sparrenhöhe gekürzt wird. Beim SkyView entfällt er: Dort trägt der
+umlaufende Rahmen.
+
+**In der Anfrage** steht die Lage mit beiden Feldmaßen („3500 mm ab Wand –
+Felder 3500 / 3500 mm"), damit der Betrieb sofort sieht, dass die Vorgabe
+eingehalten ist. Ohne diese Zeile würde nach Standard gefertigt und der
+Kunde bekäme den Träger in der Mitte.
+
+**Absicherung:** Die Prüfung liest `unterzugBereich()` aus dem Code aus und
+rechnet für **jede lieferbare Tiefe** beide Grenzlagen durch – 50
+Grenzlagen, beide Felder stets ≤ 4500 mm. Dazu: Mitte immer erlaubt;
+Regler, 3D und Anfrage aus derselben Größe; Träger und Pfosten im Bild;
+nicht beim SkyView. Drei Verfälschungen (Bereich ohne Preislistengrenze →
+40 Verstöße; Unterzug auch beim SkyView; Pfosten entfernt) schlagen je
+einzeln an.

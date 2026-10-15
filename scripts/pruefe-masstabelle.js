@@ -1780,6 +1780,83 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   pruefe('Gekoppelte Hoehe hinten stimmt', hinten === 2720, hinten + ' mm');
 })();
 
+/* ---------- Unterzug: Lage verschiebbar, Preisliste haelt ----------
+   „Ab gewissen tiefen von dächern tds, carport tds steht ja in der
+   preisliste unterzug über die gesamte breite notwendig … ich will diesen
+   unterzug aber von der mitte nach links oder rechts verschiebbar haben
+   aber nur soweit das die angaben in der preisliste nicht gebrochen
+   werden" (Betreiber, 15.10.2026, mit Bild).
+
+   Die Regel ist nicht gewaehlt, sondern abgeleitet: Der Unterzug teilt die
+   Tiefe in zwei Felder, und jedes davon ist ein Dach ohne Unterzug – also
+   darf keines ueber tiefeMaxOhneUnterzug kommen. */
+(function () {
+  var M = require('path').resolve('js/masstabelle.js');
+  delete require.cache[M];
+  global.window = global.window || {};
+  require(M);
+  var ohne = window.BV_MASSTABELLE.regeln.tiefeMaxOhneUnterzug;
+  var mit = window.BV_MASSTABELLE.regeln.tiefeMaxMitUnterzug;
+
+  /* Die Formel aus dem Code, nicht nachgebaut, sondern ausgelesen. */
+  var f = (k3d.match(/function unterzugBereich\(\)[\s\S]*?\n  \}/) || [''])[0];
+  if (!f) { pruefe('Unterzug-Bereich lesbar', false, 'nicht gefunden'); return; }
+  var holen = eval('(function (Z, window) { ' +
+    f.replace('function unterzugBereich()', 'var fn = function ()') +
+    '; return fn; })');
+
+  /* Fuer jede lieferbare Tiefe mit Unterzug: Bei BEIDEN Grenzlagen
+     muessen beide Felder unter dem Hoechstmass bleiben. */
+  var verletzt = [], geprueft = 0;
+  for (var T = ohne + 100; T <= mit; T += 100) {
+    var b = holen({ tiefe: T }, { BV_MASSTABELLE: window.BV_MASSTABELLE })();
+    [b.min, b.max].forEach(function (lage) {
+      geprueft++;
+      var grenze = ohne + (gegen ? -2000 : 0);
+      if (lage > grenze + 0.5 || (T - lage) > grenze + 0.5) {
+        verletzt.push(T + ' mm bei Lage ' + lage);
+      }
+    });
+    if (b.min > b.max) verletzt.push(T + ' mm: Bereich leer');
+  }
+  pruefe('Unterzug-Grenzen halten die Preisliste ein',
+         verletzt.length === 0,
+         verletzt.length ? verletzt.length + ' Verstöße, z. B. ' + verletzt[0]
+                         : geprueft + ' Grenzlagen geprüft, beide Felder stets ≤ ' + ohne + ' mm');
+
+  /* Die Mitte muss im Bereich liegen – sonst waere der Vorgabewert selbst
+     unzulaessig. */
+  var mitteOk = true;
+  for (var T2 = ohne + 100; T2 <= mit; T2 += 100) {
+    var b2 = holen({ tiefe: T2 }, { BV_MASSTABELLE: window.BV_MASSTABELLE })();
+    var m2 = Math.round(T2 / 2);
+    if (m2 < b2.min || m2 > b2.max) mitteOk = false;
+  }
+  pruefe('Die Mitte ist immer erlaubt', gegen ? !mitteOk : mitteOk,
+         'Vorgabewert liegt im Bereich');
+})();
+
+/* Regler, 3D und Anfrage haengen an DERSELBEN Groesse – sonst zeigt der
+   Regler etwas anderes, als gebaut und bestellt wird. */
+pruefe('Unterzug: Regler, 3D und Anfrage aus einer Quelle',
+       gegen ? !/unterzugAbstand\(\)/.test(k3d)
+             : (k3d.match(/unterzugAbstand\(\)/g) || []).length >= 3,
+       (k3d.match(/unterzugAbstand\(\)/g) || []).length + ' Verwendungen');
+pruefe('Unterzug wird im 3D gebaut: Träger UND Pfosten',
+       gegen ? !/verteilen\(pfostenUnterTraeger\(Z\.breite\), B, PF \/ 2\)\.forEach\(function \(x\) \{\s*balken\(PF, hPfUz/.test(k3d)
+             : /balken\(B, uzH, TR_T, 0, uzOk - uzH \/ 2, zUz, mAlu\)/.test(k3d) &&
+               /balken\(PF, hPfUz, PF, x, hPfUz \/ 2, zUz, mAlu\)/.test(k3d),
+       'Statikträger quer plus eigene Pfostenreihe');
+pruefe('Unterzug nur wo nötig – und nicht beim SkyView',
+       gegen ? !/if \(!sky && unterzugNoetig\(\)\)/.test(k3d)
+             : /if \(!sky && unterzugNoetig\(\)\)/.test(k3d),
+       'beim SkyView trägt der umlaufende Rahmen');
+pruefe('Unterzug-Lage steht in der Anfrage',
+       gegen ? !/Unterzug \(Statikträger über die ganze Breite\)/.test(k3d)
+             : /Unterzug \(Statikträger über die ganze Breite\)/.test(k3d) &&
+               /Felder ' \+ uzA \+ ' \/ ' \+ \(Z\.tiefe - uzA\)/.test(k3d),
+       'mit beiden Feldmaßen');
+
 /* ---------- Dachvorsprung beim Carport bis 1500 mm ----------
    „dachvorsprung bei carport ruhig machen möglich bis 1500mm nicht nur
    800mm" (Betreiber, 11.10.2026). */
