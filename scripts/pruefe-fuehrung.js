@@ -2365,6 +2365,136 @@ pruefe('RAL-Feld ist breit genug',
        new RegExp(q || 'placeholder="7016"').test(html),
        'zwei Spalten, kurzer Platzhalter');
 
+
+/* ---------- Unterzug-Regler, am laufenden Code durchgespielt ----------
+   „wenn ein unterzug nötig ist sollte dieser erst mal automatisch perfekt
+   mittig platziert werden und dann falls man will mit regler gechoben
+   werden können p.s. der regler klappt nicht" (Betreiber, 15.10.2026).
+
+   Der Fehler war eine Reihenfolge: unterzugGrenzeSetzen() schrieb den
+   Regler nach, lief aber VOR dem Auslesen – jeder Schiebeversuch wurde
+   also ueberschrieben, bevor ihn jemand gelesen hatte. Ein Blick in den
+   Quelltext findet so etwas nicht; deshalb wird hier die Bedienung
+   nachgespielt: schieben, einlesen, nachziehen, wieder lesen. */
+(function () {
+  function holen(name) {
+    var m = js.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n  \\}'));
+    return m ? m[0] : '';
+  }
+  var namen = ['statikTiefe', 'unterzugBereich', 'unterzugMitte',
+               'unterzugAbstand', 'unterzugEinlesen', 'unterzugGrenzeSetzen'];
+  var quellen = namen.map(holen).join('\n');
+  var fehltEcht = namen.filter(function (n) { return !holen(n); });
+  /* Die Gegenprobe sucht zusaetzlich einen Namen, den es nicht gibt –
+     sonst waere diese Prüfung die einzige, die nie anschlägt. Abgebrochen
+     wird nur, wenn wirklich eine Funktion fehlt; sonst käme der Rest des
+     Blocks in der Gegenprobe gar nicht zum Laufen. */
+  var fehlend = gegen ? fehltEcht.concat('unterzugGibtEsNicht') : fehltEcht;
+  pruefe('Alle sechs Funktionen des Unterzugs sind auffindbar',
+         fehlend.length === 0,
+         fehlend.length ? 'fehlt: ' + fehlend.join(', ') : 'aus dem Quelltext gelesen');
+  if (fehltEcht.length) return;
+
+  /* Ein Regler und ein Zahlenfeld, so viel wie der Code davon benutzt. */
+  function bau(gegenReihenfolge, gruppenGelten) {
+    var el = { value: '', min: '', max: '', step: '' };
+    var zf = { value: '' };
+    var doc = { getElementById: function (id) {
+      return id === 'k3dUnterzug' ? el : (id === 'k3dUnterzugZahl' ? zf : null);
+    }, activeElement: null };
+    var Z = { tiefe: 5000, vorsprung: 0, vorsprungHinten: 0,
+              unterzugLage: 0, unterzugAuto: true };
+    var umgebung = {
+      Z: Z, document: doc,
+      window: { BV_MASSTABELLE: { regeln: { tiefeMaxOhneUnterzug: 4600,
+                                            innenkernAbTiefe: 4000 } } },
+      /* Gilt die Gruppe nicht, zählt der Vorsprung für die Statik nicht –
+         genau das prüft der Vorsprung-Fall weiter unten. */
+      gruppeGilt: function () { return gruppenGelten !== false; },
+      wert: function (id) { var e = doc.getElementById(id); return e ? e.value : null; },
+      zahl: function (id, ersatz) {
+        var v = parseInt(umgebung.wert(id), 10);
+        return isNaN(v) ? ersatz : v;
+      }
+    };
+    var api = eval('(function (Z, document, window, gruppeGilt, wert, zahl) { ' +
+      'var uzGesetzt = null;' + quellen +
+      '; return { einlesen: unterzugEinlesen, setzen: unterzugGrenzeSetzen,' +
+      '           mitte: unterzugMitte, bereich: unterzugBereich }; })')(
+      umgebung.Z, umgebung.document, umgebung.window, umgebung.gruppeGilt,
+      umgebung.wert, umgebung.zahl);
+    /* Ein Durchlauf von aendern(), auf das Wesentliche verkuerzt.
+       Die Verfaelschung dreht genau die Reihenfolge um, die der Fehler war. */
+    function aendern() {
+      if (gegenReihenfolge) { api.setzen(); Z.unterzugLage = api.einlesen(); }
+      else { Z.unterzugLage = api.einlesen(); api.setzen(); }
+    }
+    return { el: el, zf: zf, Z: Z, api: api, aendern: aendern };
+  }
+
+  // 1. Erster Aufbau: mittig, ohne dass jemand etwas eingestellt hat.
+  //    Verfälschung: So sah der Zustand vor dem 15.10.2026 aus – kein
+  //    Automatik-Schalter, dafür eine Lage, die irgendwo stehengeblieben war.
+  var s0 = bau(false);
+  if (gegen) { s0.Z.unterzugAuto = false; s0.Z.unterzugLage = 1000; }
+  s0.aendern();
+  pruefe('Der Unterzug liegt von selbst mittig',
+         Number(s0.el.value) === 2500 && s0.Z.unterzugAuto === true,
+         'Spannweite 5000 mm → ' + s0.el.value + ' mm ab Wand, Automatik ' +
+         (s0.Z.unterzugAuto ? 'an' : 'aus'));
+
+  var w = bau(gegen);
+  w.aendern();
+
+  // 2. Der Nutzer schiebt – und der Wert muss stehen bleiben
+  w.el.value = '1500';
+  w.aendern();
+  pruefe('Ein geschobener Regler springt nicht zurück',
+         Number(w.el.value) === 1500 && w.Z.unterzugLage === 1500,
+         'geschoben auf 1500, danach steht ' + w.el.value + ' mm im Regler');
+
+  pruefe('Nach dem Schieben gilt der Wunsch, nicht die Mitte',
+         w.Z.unterzugAuto === false,
+         'Automatik ' + (w.Z.unterzugAuto ? 'noch an – die Lage wird überschrieben' : 'aus'));
+
+  // 3. Noch zwei Durchlaeufe ohne Zutun: der Wert darf nicht wandern
+  w.aendern(); w.aendern();
+  pruefe('Er bleibt auch nach weiteren Änderungen stehen',
+         Number(w.el.value) === 1500,
+         'nach zwei weiteren Durchläufen ' + w.el.value + ' mm');
+
+  // 4. Solange niemand schiebt, wandert die Mitte mit dem Mass
+  var a = bau(false);
+  a.aendern();
+  var vorher = Number(a.el.value);
+  a.Z.tiefe = 6000;
+  if (gegen) a.Z.unterzugAuto = false;   // so verhielt sich die alte Fassung
+  a.aendern();
+  pruefe('Die automatische Mitte wandert mit der Spannweite',
+         vorher === 2500 && Number(a.el.value) === 3000,
+         '5000 mm → ' + vorher + ' mm, 6000 mm → ' + a.el.value + ' mm');
+
+  // 5. Dachvorsprung: die Mitte liegt zwischen den Auflagern, nicht im Dach
+  var b = bau(false, !gegen);
+  b.Z.tiefe = 6000; b.Z.vorsprung = 1000;
+  b.aendern();
+  pruefe('Der Dachvorsprung verschiebt die Mitte nach vorn',
+         Number(b.el.value) === 2500,
+         '6000 mm Tiefe, 1000 mm Vorsprung → Spannweite 5000, Mitte ' +
+         b.el.value + ' mm');
+
+  // 6. Die Mitte muss mit der Schrittweite des Reglers auch erreichbar sein
+  var c = bau(false);
+  c.Z.tiefe = 5000; c.Z.vorsprung = 250;
+  c.aendern();
+  var schritt = gegen ? 50 : Number(c.el.step);
+  var mitte = Number(c.el.value), untergrenze = Number(c.el.min);
+  pruefe('Die automatische Mitte ist auch einstellbar',
+         (mitte - untergrenze) % schritt === 0,
+         'Spannweite 4750, Mitte ' + mitte + ' mm, Regler ab ' + untergrenze +
+         ' in ' + schritt + '-mm-Schritten');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

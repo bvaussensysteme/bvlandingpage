@@ -6749,3 +6749,54 @@ Exit-Code ausgewertet.
 ist, der die Feldinhalte an den Absender zurückschickt, bekäme der Kunde die
 „Technische Angaben (intern)" per Mail doch zu sehen. Das lässt sich von hier
 aus nicht prüfen – bitte in der Web3Forms-Einstellung nachsehen.
+
+### 15.10.2026 – Der Unterzug liegt automatisch mittig, der Regler funktioniert wieder
+
+**Was falsch war.** Der Betreiber: *„wenn ein unterzug nötig ist sollte dieser
+erst mal automatisch perfekt mittig platziert werden und dann falls man will
+mit regler gechoben werden können p.s. der regler klappt nicht"*
+
+Zwei Fehler in einem. Der Regler ließ sich nicht bedienen, weil
+`unterzugGrenzeSetzen()` in `aendern()` **vor** dem Auslesen lief und den
+Regler bedingungslos nachschrieb (`el.value = wert`). Ablauf: schieben →
+`aendern()` → Grenzen setzen überschreibt den geschobenen Wert mit der Mitte →
+danach wird dieser überschriebene Wert gelesen. Der Regler sprang also bei
+jedem Versuch zurück. Beim Nachbau des Vorsprung-Reglers war das nicht
+passiert, weil der `el.value` nur anfasst, wenn der Wert außerhalb liegt.
+
+Zweitens gab es keine echte Automatik: `Z.unterzugLage === 0` stand für
+„mittig", wurde aber beim ersten `aendern()` auf eine Zahl gesetzt. Danach war
+nicht mehr unterscheidbar, ob diese Zahl die Automatik oder ein Wunsch war –
+und der Unterzug wanderte bei Maßänderungen nicht mehr mit.
+
+**Was jetzt gilt.** `Z.unterzugAuto` trennt beides. Solange niemand den Regler
+angefasst hat, liegt der Unterzug in der Mitte der **Spannweite** und wandert
+bei jeder Änderung von Tiefe oder Vorsprung mit. Erkannt wird das Anfassen
+über `uzGesetzt`: Steht im Regler etwas anderes als das, was wir zuletzt
+hineingeschrieben haben, war es der Nutzer. Ein Vergleich mit der aktuellen
+Mitte taugt dafür nicht – die verschiebt sich ja selbst mit jedem Maß.
+
+Die Schrittweite des Reglers ist von 50 auf 1 mm geändert. Ein Bereichsregler
+rastet auf `min + n × step` ein; bei 50er-Schritten war die Mitte der
+Spannweite meist gar nicht einstellbar. Beispiel: 5000 mm Tiefe mit 250 mm
+Vorsprung → Spannweite 4750, Mitte 2375, Regler ab 500 – mit 50er-Schritten
+nicht erreichbar, „perfekt mittig" ging also nicht.
+
+Im Bedienfeld steht jetzt „2500 mm (mittig)", solange die Automatik greift, und
+im Fachtext für den Betrieb „… mm ab Wand (mittig)" bzw. „(verschoben)".
+
+**Was gegengelesen werden soll.** Tiefe über 4600 mm einstellen: Der Unterzug
+steht mittig. Tiefe weiter verstellen – er bleibt mittig. Dann den Regler
+schieben: Der Wert bleibt stehen, auch wenn danach andere Einstellungen
+geändert werden. Zurück zur automatischen Mitte kommt man derzeit nur durch
+Hinschieben; ein Häkchen „mittig" wie bei den Planken wäre möglich, ist aber
+nicht gebaut.
+
+**Absicherung.** Sieben neue Prüfungen in `scripts/pruefe-fuehrung.js`, die die
+Bedienung am echten Code nachspielen (Regler und Zahlenfeld als Attrappe, die
+sechs Funktionen per `eval` aus dem Quelltext): erster Aufbau mittig, schieben,
+stehenbleiben über mehrere Durchläufe, Mitwandern der Mitte, Vorsprung, und
+dass die Mitte mit der Schrittweite überhaupt einstellbar ist. Jede hat eine
+eigene Verfälschung – die Gegenprobe lässt alle 268 Prüfungen des Skripts
+anschlagen. Ein reiner Blick in den Quelltext hätte diesen Fehler nicht
+gefunden; es war eine Reihenfolge, keine falsche Zeile.

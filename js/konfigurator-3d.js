@@ -104,6 +104,12 @@
     /* Lage des Unterzugs in mm ab der Wand. 0 = noch nichts eingestellt,
        dann mittig. Nur wenn die Tiefe einen Unterzug verlangt. */
     unterzugLage: 0,
+    /* true, solange niemand den Unterzug-Regler angefasst hat: Dann liegt
+       der Unterzug mittig und wandert bei jeder Massaenderung mit.
+       „wenn ein unterzug nötig ist sollte dieser erst mal automatisch
+       perfekt mittig platziert werden und dann falls man will mit regler
+       gechoben werden können" (Betreiber, 15.10.2026). */
+    unterzugAuto: true,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
@@ -6837,10 +6843,37 @@
     return { min: Math.max(500, sp - ohne), max: Math.min(ohne, sp - 500) };
   }
 
-  function unterzugAbstand() {
+  /* Die Mitte der Spannweite – gemessen ab der Wand, wo die Spannweite
+     anfaengt. Geklemmt auf den erlaubten Bereich: Bei sehr grossen Tiefen
+     ist die geometrische Mitte zugleich die einzige Lage, bei der beide
+     Felder unter dem Hoechstmass bleiben. */
+  function unterzugMitte() {
     var b = unterzugBereich();
-    if (!Z.unterzugLage) return Math.round(statikTiefe() / 2);
-    return Math.min(b.max, Math.max(b.min, Z.unterzugLage));
+    return Math.min(b.max, Math.max(b.min, Math.round(statikTiefe() / 2)));
+  }
+
+  function unterzugAbstand() {
+    if (Z.unterzugAuto) return unterzugMitte();
+    var b = unterzugBereich();
+    return Math.min(b.max, Math.max(b.min, Z.unterzugLage || unterzugMitte()));
+  }
+
+  /* Was zuletzt in den Regler geschrieben wurde. Daran – und nur daran –
+     laesst sich erkennen, ob der naechste Wert vom Nutzer kommt oder von
+     uns selbst: Steht etwas anderes im Regler als das, was wir
+     hineingeschrieben haben, hat ihn jemand bewegt. Ein Vergleich mit der
+     aktuellen Mitte taugt dafuer nicht, weil die sich mit jeder
+     Massaenderung verschiebt. */
+  var uzGesetzt = null;
+
+  function unterzugEinlesen() {
+    var el = document.getElementById('k3dUnterzug');
+    if (!el) return Z.unterzugLage;
+    var v = zahl('k3dUnterzug', Z.unterzugLage);
+    if (Z.unterzugAuto && uzGesetzt != null && v !== uzGesetzt) {
+      Z.unterzugAuto = false;      // ab jetzt gilt der Wunsch des Nutzers
+    }
+    return v;
   }
 
   function unterzugGrenzeSetzen() {
@@ -6848,10 +6881,19 @@
     var zf = document.getElementById('k3dUnterzugZahl');
     if (!el) return;
     var b = unterzugBereich();
-    el.min = b.min; el.max = b.max; el.step = 50;
+    el.min = b.min; el.max = b.max;
+    /* Schritt 1 mm, nicht 50: Ein Bereichsregler rastet auf min + n × step
+       ein. Bei 50er-Schritten war die Mitte der Spannweite meist gar nicht
+       einstellbar – „perfekt mittig" ging dann nicht. */
+    el.step = 1;
     var wert = unterzugAbstand();
-    if (Z.unterzugLage && Z.unterzugLage !== wert) Z.unterzugLage = wert;
-    el.value = wert;
+    Z.unterzugLage = wert;
+    /* Nur schreiben, wenn sich etwas aendert. Diese Zeile stand hier
+       vorher bedingungslos UND vor dem Auslesen des Reglers: Jeder
+       Schiebeversuch wurde damit sofort wieder ueberschrieben – „der
+       regler klappt nicht" (Betreiber, 15.10.2026). */
+    if (String(el.value) !== String(wert)) el.value = wert;
+    uzGesetzt = wert;
     if (zf && document.activeElement !== zf) zf.value = wert;
   }
 
@@ -8473,7 +8515,9 @@
         if (gruppeGilt('unterzug')) {
           var uzA = unterzugAbstand(), uzB = statikTiefe() - uzA;
           teile.push('Unterzug (Statikträger über die ganze Breite): ' +
-            uzA + ' mm ab Wand – Felder ' + uzA + ' / ' + uzB + ' mm');
+            uzA + ' mm ab Wand' +
+            (Z.unterzugAuto ? ' (mittig)' : ' (verschoben)') +
+            ' – Felder ' + uzA + ' / ' + uzB + ' mm');
           /* Jedes Feld ist ein Dach fuer sich: Ueber 4000 mm braucht es
              dort den Innenkern-Traeger. Bei mittiger Lage faellt das oft
              weg, bei verschobener nicht – deshalb gehoert es in die
@@ -8830,11 +8874,13 @@
     koppelGrenzeSetzen();
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
-    /* NACH den Vorspruengen: Die Grenzen des Unterzugs haengen an der
-       Spannweite, und die aendert sich mit jedem Vorsprung. Stand das
-       hier vorher, rechnete der Regler mit dem Wert von gestern. */
+    /* Erst LESEN, dann Grenzen setzen – in dieser Reihenfolge, nicht
+       umgekehrt: unterzugGrenzeSetzen() schreibt den Regler nach, und was
+       es schreibt, haengt an der Spannweite. Die wiederum steht erst nach
+       den Vorspruengen fest. Lief das Setzen vorher, war der gerade
+       geschobene Wert schon weg, bevor ihn jemand gelesen hat. */
+    Z.unterzugLage = unterzugEinlesen();
     unterzugGrenzeSetzen();
-    Z.unterzugLage = zahl('k3dUnterzug', Z.unterzugLage);
     Z.ledset = wert('k3dLedSet') || Z.ledset;
     Z.ledsetzahl = Math.min(20, Math.max(1, zahl('k3dLedAnzahl', Z.ledsetzahl)));
     Z.soundset = wert('k3dSoundSet') || Z.soundset;
@@ -8861,7 +8907,12 @@
      ['k3dKoppel', 'koppelLage'],
      ['k3dUnterzug', 'unterzugLage']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
-      if (a) a.textContent = Z[paar[1]] + ' mm';
+      /* Beim Unterzug steht dabei, ob die Lage noch die automatische
+         Mitte ist – sonst sieht man nicht, dass sie mitwandert. */
+      if (a) {
+        a.textContent = Z[paar[1]] + ' mm' +
+          (paar[1] === 'unterzugLage' && Z.unterzugAuto ? ' (mittig)' : '');
+      }
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
          tippt. Sonst springt die Zahl unter dem Finger weg. */
       var zf = document.getElementById(paar[0] + 'Zahl');
