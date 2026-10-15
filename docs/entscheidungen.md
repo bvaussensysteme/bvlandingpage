@@ -6866,3 +6866,70 @@ Prüfungen des Skripts anschlagen.
 überschreitet. Mit der Teilung sind zwei kürzere Markisen möglich, die Warnung
 rechnet aber weiter mit der vollen Tiefe. Das ist nicht angefasst – es gehört
 nachgezogen, sobald klar ist, ob zwei Kassetten je Seite gewünscht sind.
+
+### 15.10.2026 – Unterzug: gespiegelt gezeichnet, falsche Mitte, Keil doppelt
+
+**Anlass.** Der Betreiber, nach dem Gegenlesen: *„er ist nicht 100% MITTIG,
+reger klappt immernoch nicht, und wenn man zum weiteren schritt eindeckung geht
+springt er aufeinmal nen satz nach vorne"* und, mit zwei Bildern: *„keil is
+nicht gleichmäßig und hat komische viele rechteckige unterteilungen"*
+
+**Drei Fehler, und sie hängen zusammen.**
+
+**1. Die Zeichnung war gespiegelt.** Im Bau stand
+`var zUz = T - unterzugAbstand() / 10;` – mit dem Kommentar „Regler zaehlt ab
+der WAND" daneben. Der Kommentar hatte recht, der Code tat das Gegenteil: Er
+maß von der Dachkante rückwärts. 1500 mm am Regler landeten bei 5000 mm Tiefe
+auf 3500 mm ab Wand. Der Träger lief der Hand entgegen – deshalb „klappt der
+Regler nicht", obwohl die Reglermechanik seit dem Vortag in Ordnung war. Bei
+genau mittiger Lage fällt es nicht auf, weil die Spiegelung dort auf sich
+selbst fällt. Genau deshalb hat es die Prüfung vom Vortag auch nicht gefunden:
+Sie prüfte den Regler, nicht die Stelle im Modell.
+
+**2. Die Mitte war die falsche Mitte.** Gerechnet wurde mit der Dachtiefe. Der
+vordere Pfosten steht aber nicht an der Dachkante, sondern `PFOSTENACHSE` =
+124,2 mm dahinter (siehe `zPf` im Bau). Die Mitte der Dachtiefe liegt damit
+62 mm vor der Mitte zwischen den Auflagern – sichtbar, und zwar genau so, wie
+der Betreiber es beschreibt. Neu rechnet `unterzugAchsen()` die beiden
+Auflager aus (hinten Wandprofil bzw. hinterer Pfosten, vorne die Achse der
+vorderen Pfostenreihe), und Mitte, Verschiebebereich und die Feldmaße in der
+Anfrage hängen daran.
+
+Für die **Stufe** (nichts / Innenkern / Unterzug) bleibt `statikTiefe()`
+zuständig: Die Preisliste nennt Dachtiefen, keine Achsmaße. Das sind zwei
+verschiedene Fragen, und sie bleiben getrennt.
+
+**3. Der Keil wurde doppelt gebaut.** `var zHintenK = 0;` stand fest auf der
+Wand. Seit die Seiten sich am Unterzug teilen, baute damit auch das **vordere**
+Feld seinen Keil von der Wand bis zur eigenen Vorderkante – über dem des
+hinteren Feldes, jeder mit eigener Sprossenteilung. Daher die vielen
+ungleichmäßigen Rechtecke auf den Bildern. Jetzt beginnt der Keil an der
+Feldkante (`mitte − laenge / 2`); ohne Teilung ist das genau 0, der ungeteilte
+Fall ändert sich also nicht.
+
+**Dazu eine Härtung.** Der Vergleich, der erkennt, ob jemand den Regler
+angefasst hat, war exakt (`v !== uzGesetzt`). Schon ein Millimeter Unterschied
+durch Einrasten oder Runden schaltete die Automatik ab – danach stand der
+Unterzug fest, wo er gerade war, statt mitzuwandern. Das ist der wahrschein­
+lichste Grund für das Springen beim Schrittwechsel. Jetzt gilt erst mehr als
+2 mm als Eingriff. **Ehrlich dazu:** Für Punkt 3 der Meldung ist das eine
+begründete Vermutung, kein Beweis – ich kann im Browser nicht nachsehen. Mit
+der gespiegelten Zeichnung sprang der Träger zusätzlich in die falsche
+Richtung; wenn es nach dieser Runde noch springt, bitte melden.
+
+**Was gegengelesen werden soll.** Regler ganz nach links: Der Träger muss nach
+HINTEN zur Wand wandern, nicht nach vorn. Regler auf Mitte: Er muss optisch
+genau zwischen den Pfostenreihen stehen. Keil: eine durchgehende Teilung je
+Feld, keine überlagerten Sprossen.
+
+**Absicherung.** Vier neue Prüfungen in `scripts/pruefe-fuehrung.js`: Die Mitte
+wird gegen die Auflagerachsen gerechnet (2438 statt 2500 bei 5000 mm Tiefe),
+der Regler-Wert muss im Modell an derselben Stelle ankommen, und der Keil darf
+nicht mehr fest bei z = 0 beginnen. `scripts/pruefe-masstabelle.js` zieht
+`unterzugAchsen()` samt `PFOSTENACHSE` mit aus dem Quelltext, statt die Mitte
+nachzubauen. Gegenprobe: alle 282 Prüfungen schlagen an.
+
+**Lehre, schon zum zweiten Mal in dieser Sache.** Eine Prüfung, die nur die
+Bedienung nachspielt, sagt nichts darüber, wo das Bauteil landet. Die Stelle im
+Modell gehört genauso geprüft wie der Wert im Regler – sonst bestätigt die
+Prüfung die halbe Kette und schweigt zur anderen.
