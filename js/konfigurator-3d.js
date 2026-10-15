@@ -5935,8 +5935,18 @@
       wandprofilBauen(B, wpMitte - wpH / 2, wpGlasD, mAlu);
     }
     /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
-       wandkappeQuerschnitt. */
-    wandprofilKappen(B, wpOk, mAlu);
+       wandkappeQuerschnitt.
+
+       NUR BEIM TDS (15.10.2026): „du hast beim sky view die wandprofil
+       blende hingetan die kann weg" (Betreiber). Beim SkyView steht
+       hinten der Traeger TD an Stelle des Wandprofils – ein Seitendeckel
+       fuer ein Profil, das dort gar nicht sitzt, gehoert nicht ins Bild.
+       Die Seite deckt dort die Seitenblende Sky (6069) ueber die ganze
+       Tiefe ab.
+
+       Derselbe Fehler wie bei der Pfostenachse am Vortag: ein Teil, das
+       an einem bestimmten Profil haengt, ohne Verzweigung gebaut. */
+    if (!sky) wandprofilKappen(B, wpOk, mAlu);
     if (frei) {
       balken(B, trH, TR_T, 0, trOk - trH / 2, zTrHinten, mAlu);
     }

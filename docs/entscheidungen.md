@@ -6491,3 +6491,23 @@ betroffen; der SkyView war es.)
 **Absicherung:** Die Prüfung verlangt die Verzweigung UND dass die
 Flachdach-Achse die alte bleibt. Gegenprobe: wieder für alle Systeme →
 schlägt an.
+
+### 15.10.2026 – Wandprofil-Seitendeckel gehört nicht an den SkyView
+
+> „du hast beim sky view die wandprofil blende hingetan die kann weg"
+> (Betreiber)
+
+Der Seitendeckel Wandprofil TD (6013) wurde **außerhalb** der
+System-Verzweigung gebaut und erschien damit auch am SkyView. Dort steht
+hinten der Träger TD an Stelle des Wandprofils – ein Seitendeckel für ein
+Profil, das es dort nicht gibt. Die Seite deckt beim SkyView die
+Seitenblende Sky (6069) über die ganze Tiefe ab.
+
+**Dieselbe Fehlerart wie bei der Pfostenachse am Vortag:** ein Teil, dessen
+Begründung an einem bestimmten Profil hängt, ohne Verzweigung gebaut.
+Zweimal hintereinander – beim nächsten systemabhängigen Bauteil ist die
+erste Frage, ob das Profil, an dem es hängt, in allen Systemen existiert.
+
+**Absicherung:** Die bestehende Prüfung „Beide Deckel werden gleich gebaut
+und gesetzt" verlangt jetzt die Verzweigung mit; dazu eine eigene Prüfung
+dafür. Gegenprobe (ohne Verzweigung) lässt beide anschlagen.

@@ -1318,8 +1318,17 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 pruefe('Beide Deckel werden gleich gebaut und gesetzt',
        (k3d.match(/function profilKappen/g) || []).length === 1 &&
        new RegExp(q || 'profilKappen\\(laenge, 0, wpOk - WANDDECKEL\\.hoehe').test(k3d) &&
-       new RegExp(q || 'wandprofilKappen\\(B, wpOk, mAlu\\)').test(k3d),
+       new RegExp(q || 'if \\(!sky\\) wandprofilKappen\\(B, wpOk, mAlu\\)').test(k3d),
        'eine Bauweise, zwei Formen');
+/* „du hast beim sky view die wandprofil blende hingetan die kann weg"
+   (Betreiber, 15.10.2026). Beim SkyView steht hinten der Traeger TD an
+   Stelle des Wandprofils; ein Seitendeckel dafuer gehoert dort nicht hin.
+   Dieselbe Fehlerart wie bei der Pfostenachse am Vortag – ein Teil, das an
+   einem bestimmten Profil haengt, ohne Verzweigung gebaut. */
+pruefe('Wandprofil-Seitendeckel nur beim TDS',
+       gegen ? !/if \(!sky\) wandprofilKappen/.test(k3d)
+             : /if \(!sky\) wandprofilKappen/.test(k3d),
+       'beim SkyView deckt die Seitenblende Sky die Seite ab');
 (function () {
   /* KEINE Gravur: Die Kappen bekommen dasselbe Alu wie alle anderen
      Profile – kein eigenes Material, keine Textur, kein Schriftzug. Das
