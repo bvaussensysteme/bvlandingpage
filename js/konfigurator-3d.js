@@ -6961,24 +6961,9 @@
     return Math.min(b.max, Math.max(b.min, Math.round((a.hinten + a.vorne) / 2)));
   }
 
-<<<<<<< HEAD
   function unterzugAbstand() {
     if (Z.unterzugAuto) return unterzugMitte();
     var b = unterzugBereich();
-=======
-  /* Die Mitte der Spannweite – gemessen ab der Wand, wo die Spannweite
-     anfaengt. Geklemmt auf den erlaubten Bereich: Bei sehr grossen Tiefen
-     ist die geometrische Mitte zugleich die einzige Lage, bei der beide
-     Felder unter dem Hoechstmass bleiben. */
-  function unterzugMitte() {
-    var b = unterzugBereich();
-    return Math.min(b.max, Math.max(b.min, Math.round(statikTiefe() / 2)));
-  }
-
-  function unterzugAbstand() {
-    if (Z.unterzugAuto) return unterzugMitte();
-    var b = unterzugBereich();
->>>>>>> origin/main
     return Math.min(b.max, Math.max(b.min, Z.unterzugLage || unterzugMitte()));
   }
 
@@ -6994,15 +6979,11 @@
     var el = document.getElementById('k3dUnterzug');
     if (!el) return Z.unterzugLage;
     var v = zahl('k3dUnterzug', Z.unterzugLage);
-<<<<<<< HEAD
     /* Mehr als 2 mm Unterschied kann nur ein Mensch gemacht haben. Ein
        exakter Vergleich schaltete die Automatik schon ab, wenn der Browser
        den Wert beim Einrasten oder Runden um einen Millimeter verschob –
        danach stand der Unterzug fest, wo er gerade war. */
     if (Z.unterzugAuto && uzGesetzt != null && Math.abs(v - uzGesetzt) > 2) {
-=======
-    if (Z.unterzugAuto && uzGesetzt != null && v !== uzGesetzt) {
->>>>>>> origin/main
       Z.unterzugAuto = false;      // ab jetzt gilt der Wunsch des Nutzers
     }
     return v;
