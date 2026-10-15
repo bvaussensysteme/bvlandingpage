@@ -6465,3 +6465,29 @@ lässt sich direkt in Zahlen umsetzen und gegen die Nachbarteile prüfen.
 **Absicherung:** zwei Verfälschungen (untere Fase ohne Schenkelanteil,
 obere Fase entfernt), beide schlagen an. Dazu prüft eine zweite Prüfung,
 dass die untere Fase dieselbe Neigung hat wie die der Rinne.
+
+### 15.10.2026 – Die hintere Pfostenachse gilt nur beim TDS
+
+> „du hast beim fly die pfosten auch nach innen verschoben, ich wollte es
+> nur bei tds" (Betreiber)
+
+Die Umstellung der Pfostenachse von 55 auf 124,2 mm galt für alles, was
+durch `bauenTerrasseGeschaetzt()` läuft – also auch für den SkyView.
+
+**Die Einschränkung folgt der Begründung der Änderung selbst:** Die hintere
+Lage hat ihren Grund in der TDS-Rinne, an deren nach unten gehendem
+Schenkel der Pfosten verschraubt wird. Diesen Schenkel gibt es bei den
+Flachdach-Systemen nicht. Dort bleibt es bei den 55 mm aus der Maßtabelle
+(Pfostenvorderkante bündig mit der Dachkante).
+
+Das hätte mir auffallen müssen, als ich die Änderung gebaut habe: Ich habe
+eine Begründung übernommen, die an einem Bauteil hängt, und sie trotzdem
+auf alle Systeme angewandt. **Wenn der Grund für eine Änderung an einem
+bestimmten Profil hängt, gilt die Änderung auch nur dort.**
+
+(Flat Line und Flat Box laufen über `bauenGeschaetzt()` und waren nie
+betroffen; der SkyView war es.)
+
+**Absicherung:** Die Prüfung verlangt die Verzweigung UND dass die
+Flachdach-Achse die alte bleibt. Gegenprobe: wieder für alle Systeme →
+schlägt an.

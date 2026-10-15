@@ -181,7 +181,8 @@ pruefe('Dachvorsprung ist voreingestellt auf 0',
        /id="k3dVorsprung"[^>]*value="0"/.test(html),
        'kein Statikträger im Standardfall');
 pruefe('Dachvorsprung bewegt die Pfosten',
-       new RegExp(q || 'zPf = T - PFOSTENACHSE - vorspr').test(k3d), 'zPf minus Vorsprung');
+       new RegExp(q || 'zPf = T - \\(tdsRinne \\? PFOSTENACHSE : PFOSTENACHSE_VORNE\\) - vorspr').test(k3d),
+       'zPf minus Vorsprung');
 /* Der Pfosten sitzt HINTEN an der Rinne: „die pfosten sitzen bei uns zu
    weit vorne, die müssen genau an dem hinteren schenkel der rinne sitzen
    … denn dort werden sie von innen verschraubt" (Betreiber, 14.10.2026,
@@ -203,6 +204,17 @@ pruefe('Dachvorsprung bewegt die Pfosten',
          (achse * 10).toFixed(1) + ' mm ab Vorderkante, Rückseite ' +
          (hinten * 10).toFixed(1) + ' mm von der Rinnenrückseite (Schenkel ' +
          (RINNE.schenkelDick * 10).toFixed(0) + ' mm)');
+  /* „du hast beim fly die pfosten auch nach innen verschoben, ich wollte
+     es nur bei tds" (Betreiber, 14.10.2026). Die hintere Lage haengt am
+     Schenkel der TDS-Rinne; den gibt es bei den Flachdach-Systemen nicht.
+     Geprueft wird, dass die Verzweigung da ist UND dass die Flachdach-
+     Achse die alte aus der Masstabelle bleibt. */
+  var nurTds = /var tdsRinne = !sky && \(Z\.produkt === 'Terrassendach TDS' \|\| istCarportTds\(\)\);/.test(k3d) &&
+               /var PFOSTENACHSE_VORNE = 5\.5;/.test(k3d);
+  pruefe('Hintere Pfostenachse gilt nur beim TDS',
+         gegen ? !nurTds : nurTds,
+         'SkyView und Flachdach bleiben bei 55 mm');
+
   /* Zweiter Weg: Die Rinne muss vorne ueber den Pfosten ueberstehen –
      genau das zeigen die Werkbilder, und genau das fehlte vorher. */
   var ueber = RINNE.breite - PF;
