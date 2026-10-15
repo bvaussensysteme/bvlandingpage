@@ -5967,15 +5967,8 @@
        Seine Lage ist einstellbar (siehe unterzugBereich) – gezeichnet wird
        sie aus demselben Wert, den der Regler zeigt und die Anfrage nennt.
        Beim SkyView gibt es ihn nicht: Dort traegt der umlaufende Rahmen. */
-    if (!sky && unterzugNoetig()) {
-      /* Der Regler zaehlt ab der WAND – und so wird jetzt auch gezeichnet.
-         Hier stand „T - unterzugAbstand() / 10", also von der Dachkante
-         rueckwaerts: Der Traeger lag damit gespiegelt. Bei genau mittiger
-         Lage faellt das nicht auf, bei jeder anderen schon – 1500 mm am
-         Regler landeten bei 5000 mm Tiefe auf 3500 mm ab Wand. Das ist der
-         Grund fuer „reger klappt immernoch nicht" (Betreiber, 15.10.2026):
-         Der Traeger lief der Hand entgegen. */
-      var zUz = unterzugAbstand() / 10;         // mm ab Wand -> cm
+    var zUz = unterzugZcm(sky);
+    if (zUz != null) {
       var ukUz = ukVornJetzt + Math.tan(neig) * (dachTiefeJetzt - zUz);
       var uzOk = ukUz;                            // Traegeroberkante = Sparrenunterkante
       /* Volle 189 mm: Dieser Traeger liegt UNTER den Sparren und traegt
@@ -6373,9 +6366,9 @@
       sky ? function () { return hRinne; }
           : function (z) { return ukMitte + Math.tan(neig) * (zMitte - z); },
       zPf - PF / 2, xPfVorne,
-      /* Dieselbe Rechnung wie im Unterzug-Block weiter unten; eine zweite
-         Konstante dafuer gaebe es nur, damit sie auseinanderlaufen kann. */
-      (!sky && unterzugNoetig()) ? T - unterzugAbstand() / 10 : null);
+      /* Dieselbe Funktion wie der Traegerbau – hier stand bis zum
+         15.10.2026 eine eigene, gespiegelte Formel. */
+      unterzugZcm(sky));
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und
@@ -6956,6 +6949,21 @@
      anfaengt. Geklemmt auf den erlaubten Bereich: Bei sehr grossen Tiefen
      ist die geometrische Mitte zugleich die einzige Lage, bei der beide
      Felder unter dem Hoechstmass bleiben. */
+  /* Die z-Lage des Unterzugs im Modell, in cm ab der Wand – oder null,
+     wenn es keinen gibt. Bewusst EINE Funktion, denn es gibt zwei
+     Verwender: den Traegerbau und die Aufteilung der Seitenelemente.
+     Als zwei getrennte Formeln sind sie bereits auseinandergelaufen:
+     Am 15.10.2026 wurde die Spiegelung („T − Abstand") nur beim Traeger
+     berichtigt, der Aufruf fuer die Seiten behielt sie – der Traeger
+     stand dann ab Wand, die Keile und Elemente teilten sich gespiegelt.
+     „wenn mann unterzug verschoben hat, passen sich die keile und ndere
+     sachen nicht an" (Betreiber, mit Bild). Bei mittiger Lage faellt das
+     nicht auf, weil beide Rechnungen dort zusammenfallen. */
+  function unterzugZcm(sky) {
+    if (sky || !unterzugNoetig()) return null;
+    return unterzugAbstand() / 10;              // mm ab Wand -> cm
+  }
+
   function unterzugMitte() {
     var a = unterzugAchsen(), b = unterzugBereich();
     return Math.min(b.max, Math.max(b.min, Math.round((a.hinten + a.vorne) / 2)));

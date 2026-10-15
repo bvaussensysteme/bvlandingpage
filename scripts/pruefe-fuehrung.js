@@ -2502,11 +2502,29 @@ pruefe('RAL-Feld ist breit genug',
   c0.aendern();
   c0.el.value = '1500';
   c0.aendern();
-  var zRichtig = /var zUz = unterzugAbstand\(\) \/ 10;/.test(js);
-  var zFalsch = /var zUz = T - unterzugAbstand\(\) \/ 10;/.test(js);
+  /* Die Lage kommt aus unterzugZcm(); gespiegelt waere „T − Abstand". */
+  var zFalsch = /T - unterzugAbstand\(\) \/ 10/.test(js);
+  var zQuelle = (js.match(/unterzugAbstand\(\) \/ 10/g) || []).length;
+  var zNutzer = (js.match(/unterzugZcm\(sky\)/g) || []).length;
   pruefe('Gezeichnet wird ab der Wand, nicht ab der Dachkante',
-         gegen ? !(zRichtig && !zFalsch) : (zRichtig && !zFalsch),
-         zFalsch ? 'noch gespiegelt (T − Abstand)' : 'zUz = Abstand ab Wand');
+         gegen ? zFalsch : !zFalsch,
+         zFalsch ? 'noch gespiegelt (T − Abstand)' : 'keine gespiegelte Formel mehr');
+
+  /* ---------- Nur EINE Stelle rechnet die Lage aus ----------
+     „wenn mann unterzug verschoben hat, passen sich die keile und ndere
+     sachen nicht an" (Betreiber, 15.10.2026, mit Bild). Die Spiegelung
+     stand an ZWEI Stellen gleich geschrieben und wurde nur an einer
+     berichtigt: Der Traeger stand danach ab Wand, die Seitenelemente
+     teilten sich weiter gespiegelt. Bei mittiger Lage faellt das nicht
+     auf, weil beide Rechnungen dort zusammenfallen – genau deshalb hat
+     die Pruefung „der Bauaufruf gibt die Lage weiter" es nicht gefunden:
+     Sie sah nur, DASS etwas uebergeben wird, nicht WAS. */
+  pruefe('Die Lage des Unterzugs wird nur an einer Stelle gerechnet',
+         gegen ? zQuelle !== 1 : zQuelle === 1,
+         zQuelle + ' × „unterzugAbstand() / 10" im Code (erwartet 1, in unterzugZcm)');
+  pruefe('Träger und Seitenelemente fragen dieselbe Stelle',
+         gegen ? zNutzer < 2 : zNutzer >= 2,
+         zNutzer + ' Verwender von unterzugZcm(sky) – Trägerbau und Seitenaufteilung');
   pruefe('Regler und Modell meinen dieselbe Stelle',
          c0.api.abstand() === (gegen ? -1 : 1500),
          'Regler 1500 mm → Modell ' + c0.api.abstand() + ' mm ab Wand');
@@ -2607,8 +2625,8 @@ pruefe('RAL-Feld ist breit genug',
 
   // Die Teilung muss am Aufrufer wirklich ankommen
   pruefe('Der Bauaufruf gibt die Lage des Unterzugs weiter',
-         new RegExp(q || "unterzugNoetig\\(\\)\\) \\? T - unterzugAbstand\\(\\) / 10 : null").test(js),
-         'seitenErweiterungen(…, Unterzug-z)');
+         new RegExp(q || "xPfVorne,[\\s\\S]{0,200}unterzugZcm\\(sky\\)\\);").test(js),
+         'seitenErweiterungen(…, unterzugZcm(sky))');
   pruefe('Beide Längsseiten kommen aus derselben Aufteilung',
          new RegExp(q || "seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\)\\.forEach").test(js),
          'links und rechts im selben Durchlauf');

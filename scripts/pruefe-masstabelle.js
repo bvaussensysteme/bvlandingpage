@@ -1935,9 +1935,12 @@ pruefe('Unterzug wird im 3D gebaut: Träger UND Pfosten',
              : /balken\(B, uzH, TR_T, 0, uzOk - uzH \/ 2, zUz, mAlu\)/.test(k3d) &&
                /balken\(PF, hPfUz, PF, x, hPfUz \/ 2, zUz, mAlu\)/.test(k3d),
        'Statikträger quer plus eigene Pfostenreihe');
+/* Die Bedingung steht seit dem 15.10.2026 in unterzugZcm() und nicht mehr
+   am Bau-Block: Traeger und Seitenaufteilung fragen dieselbe Stelle, damit
+   ihre Lage nicht auseinanderlaufen kann. */
 pruefe('Unterzug nur wo nötig – und nicht beim SkyView',
-       gegen ? !/if \(!sky && unterzugNoetig\(\)\)/.test(k3d)
-             : /if \(!sky && unterzugNoetig\(\)\)/.test(k3d),
+       gegen ? !/if \(sky \|\| !unterzugNoetig\(\)\) return null;/.test(k3d)
+             : /function unterzugZcm\(sky\) \{\s*if \(sky \|\| !unterzugNoetig\(\)\) return null;/.test(k3d),
        'beim SkyView trägt der umlaufende Rahmen');
 pruefe('Unterzug-Lage steht in der Anfrage',
        gegen ? !/Unterzug \(Statikträger über die ganze Breite\)/.test(k3d)

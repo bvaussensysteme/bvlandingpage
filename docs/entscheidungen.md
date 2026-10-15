@@ -6974,3 +6974,37 @@ ab. Beides ist korrigiert und wird geprüft.
 **Was gegengelesen werden soll.** Den Regler schieben – der Träger muss sich
 sofort mitbewegen, nicht erst beim nächsten Klick woanders. Danach einen Keil
 aktivieren: Er darf nicht mehr springen.
+
+### 15.10.2026 – Dieselbe Spiegelung stand an zwei Stellen, berichtigt war eine
+
+**Anlass.** Der Betreiber, mit Bild: *„wenn mann unterzug verschoben hat,
+passen sich die keile und ndere sachen nicht an"*
+
+**Was falsch war.** Die gespiegelte Formel `T - unterzugAbstand() / 10` stand
+**zweimal** im Code: einmal im Trägerbau und einmal im Aufruf, der den
+Seitenelementen die Lage des Unterzugs mitgibt. Berichtigt wurde nur die
+erste. Danach stand der Träger richtig – ab der Wand –, während die Keile und
+Elemente sich weiterhin an der gespiegelten Stelle teilten. Bei mittiger Lage
+fallen beide Rechnungen zusammen, deshalb sah es dort richtig aus; sobald der
+Unterzug verschoben wurde, liefen sie auseinander.
+
+**Warum die Prüfung es nicht gefunden hat.** Es gab eine: „Der Bauaufruf gibt
+die Lage des Unterzugs weiter". Sie prüfte, **dass** etwas übergeben wird,
+nicht **was**. Eine Prüfung auf Anwesenheit ist keine Prüfung auf Richtigkeit.
+
+**Was jetzt gilt.** Die Lage wird an genau einer Stelle gerechnet:
+`unterzugZcm(sky)` gibt die z-Lage in cm ab der Wand zurück – oder null, wenn
+es keinen Unterzug gibt (SkyView, oder Tiefe unter der Grenze). Trägerbau und
+Seitenaufteilung rufen dieselbe Funktion. Zwei Formeln, die dasselbe meinen,
+können nicht auseinanderlaufen, wenn es nur eine gibt.
+
+**Zwei neue Prüfungen, die auf den Fehlertyp zielen statt auf den Einzelfall:**
+„Die Lage des Unterzugs wird nur an einer Stelle gerechnet" (zählt die
+Vorkommen der Formel – erwartet genau eines) und „Träger und Seitenelemente
+fragen dieselbe Stelle" (zählt die Verwender von `unterzugZcm`). Gegenprobe:
+alle 288 Prüfungen des Skripts schlagen an.
+
+**Lehre.** Beim Berichtigen eines Fehlers nicht die Fundstelle korrigieren,
+sondern **nach allen Vorkommen suchen** – `grep` auf die fehlerhafte Formel,
+bevor der Fix als fertig gilt. Und wo zwei Stellen dieselbe Größe brauchen,
+gehört sie in eine Funktion, nicht zweimal hingeschrieben.
