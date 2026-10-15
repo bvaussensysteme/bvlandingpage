@@ -7073,3 +7073,35 @@ Angabe der Preisliste), im geschätzten an `unterzugNoetig()` (der
 Tiefenregel). Beide können auseinandergehen. Hier wurde nur die **Lage**
 vereinheitlicht, nicht die Frage, **ob** es einen Unterzug gibt – das wäre
 eine Änderung an der Statikregel und gehört besprochen.
+
+### 15.10.2026 – Die Keil-Unterkante lief nicht mehr durch
+
+**Anlass.** Der Betreiber, mit Bild: *„jetzt passt es allerdings passt sich
+der hintere keil nicht an die höhe des vorderen an"*
+
+**Was falsch war.** Ein Anschlussfehler der Teilung am Unterzug. Die Höhe der
+Seitenelemente wird nach oben begrenzt, damit dem Keil vorne mindestens
+`KEIL_MIN_VORNE` (150 mm) bleiben – gerechnet an der Dachunterkante am
+vorderen Ende. Seit die Seite in zwei Felder zerfällt, nahm jedes Feld sein
+**eigenes** vorderes Ende: Das hintere endet am Unterzugspfosten, wo das Dach
+bei 8° Neigung noch deutlich höher liegt. Dort blieb also mehr Höhe übrig, die
+Keilunterkante saß höher, und an der Trennstelle entstand ein Absatz.
+
+**Was jetzt gilt.** Bezugspunkt ist das vordere Ende der **ganzen** Seite
+(`dachVorne`), nicht das des Feldes – also die engste Stelle. Die
+Keilunterkante läuft damit wieder als eine Linie über die Seite durch.
+Ausgenommen die Stirnseite: Sie rechnet in x statt in z, dort würde eine
+Breite als Tiefe gelesen; sie behält ihren eigenen Bezug (und hat ohnehin
+keinen Keil).
+
+**Absicherung.** Vier Prüfungen in `scripts/pruefe-fuehrung.js` rechnen die
+Bezugszeile aus dem Quelltext durch: beide Felder einer Längsseite müssen
+denselben Wert liefern (489 cm, die Dachvorderkante), die Stirnseite ihren
+eigenen, und ohne Dachvorderkante darf nichts umkippen. Zwei Verfälschungen in
+verschiedene Richtungen („jedes Feld misst bei sich" und „immer die Dachkante,
+auch wo sie nicht gilt"), weil die Prüfungen in verschiedene Richtungen
+zeigen. Gegenprobe: alle 296 Prüfungen des Skripts schlagen an.
+
+**Was gegengelesen werden soll.** Seite mit Keil und verschobenem Unterzug:
+Die Unterkante des Keils muss über beide Felder auf einer Höhe liegen, ohne
+Absatz am Pfosten.

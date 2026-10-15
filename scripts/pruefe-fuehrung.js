@@ -2790,6 +2790,57 @@ pruefe('RAL-Feld ist breit genug',
          hatPfosten ? 'eigene Pfostenreihe' : 'Träger schwebt');
 })();
 
+
+/* ---------- Die Keil-Unterkante läuft über die ganze Seite durch ----------
+   „allerdings passt sich der hintere keil nicht an die höhe des vorderen
+   an" (Betreiber, 15.10.2026, mit Bild). Jedes Feld begrenzte die Höhe
+   seiner Elemente an der Dachunterkante am EIGENEN vorderen Ende. Das
+   hintere Feld endet am Unterzugspfosten, wo das Dach noch höher liegt –
+   dort blieb mehr Höhe übrig, der Keil saß höher, und an der Trennstelle
+   entstand ein Absatz. */
+(function () {
+  var zeile = (js.match(/var zHoehenBezug = [^;]*;/) || [''])[0];
+  pruefe('Der Höhenbezug des Keils steht im Code',
+         gegen ? !zeile : !!zeile,
+         zeile || 'nicht gefunden');
+  if (!zeile) return;
+
+  function bauBezug(ersatz) {
+    return eval('(function (quer, dachVorne, zVorneK) { ' +
+      (ersatz || zeile) + ' return zHoehenBezug; })');
+  }
+  var bezug = bauBezug(null);
+  /* Zwei Verfaelschungen in verschiedene Richtungen, weil die Pruefungen
+     in verschiedene Richtungen zeigen: „alt" ist der Zustand von vorher
+     (jedes Feld misst bei sich selbst), „immer" nimmt die Dachkante auch
+     dort, wo sie nicht gilt. */
+  var alt = bauBezug('var zHoehenBezug = zVorneK;');
+  var immer = bauBezug('var zHoehenBezug = dachVorne;');
+
+  /* Zwei Felder einer Längsseite: hinten endet bei 244,5 cm (am Pfosten),
+     vorne bei 489 cm (Dachkante). Beide müssen denselben Bezug liefern. */
+  var b2 = gegen ? alt : bezug;
+  var hinten = b2(true, 489, 244.5);
+  var vorn = b2(true, 489, 489);
+  pruefe('Beide Keilfelder messen an derselben Stelle',
+         hinten === vorn && hinten === 489,
+         'hinteres Feld → ' + hinten + ' cm, vorderes → ' + vorn +
+         ' cm (erwartet beide 489, die Dachvorderkante)');
+
+  /* Die Stirnseite rechnet in x, nicht in z – dort bleibt es beim alten
+     Bezug, sonst würde eine Breite als Tiefe gelesen. */
+  var b3 = gegen ? immer : bezug;
+  pruefe('Die Stirnseite behält ihren eigenen Bezug',
+         b3(false, 489, 120) === 120,
+         'quer = false → ' + b3(false, 489, 120) + ' (der eigene Wert)');
+
+  /* Ohne Dachvorderkante (Bauwege ohne Keil) darf nichts umkippen. */
+  var b4 = gegen ? immer : bezug;
+  pruefe('Ohne Dachvorderkante bleibt der eigene Wert',
+         b4(true, null, 300) === 300,
+         'dachVorne = null → ' + b4(true, null, 300));
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

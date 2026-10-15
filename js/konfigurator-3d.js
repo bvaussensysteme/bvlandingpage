@@ -4301,8 +4301,18 @@
       if (hatKeil) {
         /* Mindesthöhe des Keils vorne einhalten, siehe KEIL_MIN_VORNE.
            Die Schiebetürführung zählt mit: Sie sitzt zwischen Flügel und
-           Keil, nimmt also von der Höhe weg, die dem Keil bleibt. */
-        var hoechstens = dachUk(zVorneK) - KEIL_MIN_VORNE - yUnten - fuehrungH;
+           Keil, nimmt also von der Höhe weg, die dem Keil bleibt.
+
+           Der Bezugspunkt ist das vordere Ende der GANZEN Seite, nicht das
+           des Feldes. Seit der Teilung am Unterzug rechnete jedes Feld mit
+           seinem eigenen vorderen Ende: Das hintere endet am Pfosten, wo
+           das Dach noch hoeher liegt – dort blieb mehr Hoehe uebrig, die
+           Keilunterkante lag hoeher, und an der Trennstelle entstand ein
+           Absatz. „allerdings passt sich der hintere keil nicht an die
+           höhe des vorderen an" (Betreiber, 15.10.2026, mit Bild).
+           Massgeblich ist die engste Stelle, und die ist vorne am Dach. */
+        var zHoehenBezug = (quer && dachVorne != null) ? dachVorne : zVorneK;
+        var hoechstens = dachUk(zHoehenBezug) - KEIL_MIN_VORNE - yUnten - fuehrungH;
         if (hoch > hoechstens) hoch = Math.max(20, hoechstens);
       }
       var hatRahmen = liste.indexOf('Rahmenwand') > -1;
