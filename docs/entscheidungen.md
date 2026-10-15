@@ -7008,3 +7008,68 @@ alle 288 Prüfungen des Skripts schlagen an.
 sondern **nach allen Vorkommen suchen** – `grep` auf die fehlerhafte Formel,
 bevor der Fix als fertig gilt. Und wo zwei Stellen dieselbe Größe brauchen,
 gehört sie in eine Funktion, nicht zweimal hingeschrieben.
+
+### 15.10.2026 – Der Unterzug lebte in zwei Bauwegen, geändert war einer
+
+**Anlass.** Der Betreiber, mit Bild, nach vier Runden: *„immernoch"*
+
+**Die eigentliche Ursache.** `bauen()` hat **zwei** Wege:
+
+```
+if (e && !e.fehler) bauenAusDaten(e);      ← sobald Herstellerdaten da sind
+...
+else bauenTerrasseGeschaetzt();            ← nur ohne Daten
+```
+
+Der Normalfall ist `bauenAusDaten()`. Der gesamte Unterzug vom 15.10. –
+Regler, Mitte zwischen den Auflagern, geteilte Seitenelemente – steckte
+dagegen allein in `bauenTerrasseGeschaetzt()`. Im Datenweg stand seit jeher
+eine eigene Zeile:
+
+```
+var zUnterzug = T / 2;
+```
+
+fest in der Mitte der **Dachtiefe**, ohne Regler, ohne Pfosten darunter, und
+der Aufruf an die Seitenelemente bekam keine Unterzuglage. Alles, was der
+Betreiber sah, kam aus diesem Weg. Alles, was ich vier Runden lang
+korrigierte und prüfte, lag im anderen.
+
+Das erklärt die Meldungen vollständig und rückwirkend:
+
+| Meldung | Grund |
+|---|---|
+| „nicht 100% MITTIG" | `T / 2` ist die Mitte der Dachtiefe – 62 mm vor der Mitte zwischen den Auflagern |
+| „Regler klappt nicht" | die Lage war fest, der Regler wirkte nur im anderen Weg |
+| „springt beim Schrittwechsel" | sobald die Stückliste geladen ist, wechselt `bauen()` den Weg – der Unterzug springt auf `T / 2` |
+| „Keile passen sich nicht an" | `seitenErweiterungen()` bekam im Datenweg keine Lage |
+
+**Was jetzt gilt.** Beide Wege holen die Lage aus `unterzugZcm()`. `T / 2`
+bleibt nur als Rückfall für den Fall, dass die Eindeckung geteilt wird, ohne
+dass die Tiefe einen Unterzug verlangt – dann gibt es keinen Regler, an dem
+eine Lage hängen könnte. Im Datenweg stehen jetzt auch Pfosten unter dem
+Träger; sie fehlten dort ganz, der Träger schwebte.
+
+**Das ist derselbe Fehler wie am 11.10.2026.** Die Prüfung
+„Pfostenachsen werden durchgereicht (Datenpfad)" in `scripts/pruefe-markise.js`
+trägt wörtlich die Notiz: *„BEIDE Baupfade muessen die Achsen mitgeben. Der
+Datenpfad tat es nicht."* Dieselbe Falle, vier Monate später derselbe
+Entwickler. Eine Lehre, die nur im Fließtext steht, verhindert nichts.
+
+**Deshalb prüft es jetzt die Decke, nicht die Stelle.** Vier neue Prüfungen in
+`scripts/pruefe-fuehrung.js`: Jeder Bauweg muss die Lage aus `unterzugZcm()`
+holen; kein Weg darf sie selbst rechnen; jeder Seitenaufruf, der eine
+Dachunterkante übergibt (dort entstehen Keile), muss die Lage mitbekommen; und
+im Datenweg müssen Pfosten unter dem Träger stehen. Die Aufrufe werden dafür
+über **Klammerzählung** gelesen – ein Muster „bis zur nächsten `);`" hörte
+mitten in einer Pfeilfunktion auf und sah das letzte Argument nicht.
+
+**Was gegengelesen werden soll.** Unterzug deutlich aus der Mitte schieben:
+Träger, Pfosten, Keile und Seitenelemente müssen an derselben Stelle
+zusammentreffen. Danach einen Schritt weiterklicken – nichts darf springen.
+
+**Offen.** Im Datenweg hängt der Unterzug an `e.eindeckungGeteilt` (einer
+Angabe der Preisliste), im geschätzten an `unterzugNoetig()` (der
+Tiefenregel). Beide können auseinandergehen. Hier wurde nur die **Lage**
+vereinheitlicht, nicht die Frage, **ob** es einen Unterzug gibt – das wäre
+eine Änderung an der Statikregel und gehört besprochen.

@@ -2970,17 +2970,37 @@
     });
 
     /* Statikträger als Unterzug quer unter den Sparren.
-       GESCHÄTZT ist seine Lage in der Tiefe: Die Quelle sagt nur, dass die
-       Eindeckung an ihm quer geteilt wird – also muss er dort liegen, wo die
-       Fuge sitzt. Mittig ist die einzige Lage, bei der beide Hälften gleich
-       lang werden. „unter Rinne" oder „überstehend" sind die belegten
-       Varianten; welche hier gilt, ist offen (offene-punkte.md, Punkt F). */
-    var zUnterzug = T / 2;
+
+       Hier stand bis zum 15.10.2026 „var zUnterzug = T / 2;" – eine
+       zweite, eigene Rechnung. Dieser Bauweg laeuft, sobald Hersteller-
+       daten vorliegen (siehe bauen()), also im Normalfall; der Regler,
+       die Mitte zwischen den Auflagern und die geteilten Seitenelemente
+       steckten dagegen allein im geschaetzten Weg. Darum blieb der
+       Unterzug fest in der Mitte der DACHTIEFE stehen, reagierte nicht
+       auf den Regler, und die Keile teilten sich nicht mit:
+       „wenn mann unterzug verschoben hat, passen sich die keile und
+       ndere sachen nicht an … immernoch" (Betreiber, 15.10.2026).
+       Beide Wege fragen jetzt dieselbe Funktion.
+
+       T / 2 bleibt der Rueckfall fuer den Fall, dass die Eindeckung
+       geteilt wird, ohne dass die Tiefe einen Unterzug verlangt – dann
+       gibt es keinen Regler, an dem eine Lage haengen koennte. */
+    var zUnterzug = unterzugZcm(false);
+    if (zUnterzug == null) zUnterzug = T / 2;
     if (e.eindeckungGeteilt) {
       var yU = hVorn + Math.tan(neig) * (T - zUnterzug) - stH / 2 + 2;
       balken(B, stH, stB, 0, yU, zUnterzug, mAlu);
       balken(B, g.traegerblende.hoehe / 10, g.traegerblende.staerke / 10,
              0, yU + stH / 2 + g.traegerblende.hoehe / 20, zUnterzug + stB / 2, mAlu);
+      /* Der Unterzug traegt nur mit eigenen Pfosten. Sie fehlten hier
+         ganz – „2 pfosten + statikträger" (Betreiber, 15.10.2026).
+         Dieselbe Verteilung wie im geschaetzten Weg. */
+      if (unterzugZcm(false) != null) {
+        verteilen(pfostenUnterTraeger(Z.breite), B, pf / 2).forEach(function (x) {
+          var hUz = Math.max(10, yU - stH / 2);
+          balken(pf, hUz, pf, x, hUz / 2, zUnterzug, mAlu);
+        });
+      }
     }
 
     /* Eindeckung: ein Feld je Sparrenzwischenraum. Bei geteilter Eindeckung
@@ -3034,7 +3054,11 @@
     }
     if (!e.freistehend) {
       seitenErweiterungen(B, T, hVorn, pf, neig, dachUkDaten,
-                          zPfosten - pf / 2, xP);
+                          zPfosten - pf / 2, xP,
+                          /* Dieselbe Funktion wie der Traegerbau darueber –
+                             sonst teilen sich Keil und Elemente an einer
+                             anderen Stelle, als der Traeger steht. */
+                          unterzugZcm(false));
     }
     if (!istCarport()) sonnenschutz(B, T, hVorn, neig, pf, {
       tiefe: T,
