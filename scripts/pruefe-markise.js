@@ -405,8 +405,10 @@ pruefe('Pfostenachsen werden durchgereicht (geschaetzter Pfad)',
 /* BEIDE Baupfade muessen die Achsen mitgeben. Der Datenpfad tat es
    nicht - dort lief die Anlage ueber die ganze Vorderseite, obwohl die
    Aufteilung laengst eingebaut war (Betreiber im Bild, 11.10.2026). */
+/* Ohne schliessende Klammer: Seit dem 15.10.2026 folgt dahinter noch die
+   Lage des Unterzugs, nach der sich die Laengsseiten teilen. */
 pruefe('Pfostenachsen werden durchgereicht (Datenpfad)',
-       new RegExp(q || 'zPfosten - pf / 2, xP\\)').test(src), '');
+       new RegExp(q || 'zPfosten - pf / 2, xP').test(src), '');
 pruefe('Datenpfad kennt die Dachunterkante',
        new RegExp(q || 'seitenErweiterungen\\(B, T, hVorn, pf, neig, dachUkDaten').test(src),
        'sonst fehlt der Keil ganz');

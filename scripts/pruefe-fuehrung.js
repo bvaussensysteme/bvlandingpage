@@ -2713,6 +2713,83 @@ pruefe('RAL-Feld ist breit genug',
          'Startwert ' + hVal + ' mm, Untergrenze ' + hMin + ' mm');
 })();
 
+
+/* ---------- Beide Bauwege bauen denselben Unterzug ----------
+   „immernoch" (Betreiber, 15.10.2026, mit Bild). Der Grund für vier
+   vergebliche Runden: Es gibt ZWEI Bauwege. bauen() nimmt
+   bauenAusDaten(), sobald Herstellerdaten vorliegen – also im Normalfall –
+   und bauenTerrasseGeschaetzt() nur sonst. Der Regler, die Mitte zwischen
+   den Auflagern und die geteilten Seitenelemente steckten allein im
+   geschätzten Weg; der andere hatte seine eigene Zeile „var zUnterzug =
+   T / 2;" und gab den Seiten keine Unterzuglage mit. Was ich prüfte, war
+   jedes Mal der Weg, den der Betreiber gar nicht sah.
+
+   Deshalb prüft das hier nicht eine Stelle, sondern die Decke: Jeder
+   Bauweg, der einen Unterzug zeichnet, muss seine Lage aus derselben
+   Funktion holen. */
+(function () {
+  function block(name) {
+    var m = js.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n  \\}\\n'));
+    return m ? m[0] : '';
+  }
+  var wege = ['bauenAusDaten', 'bauenTerrasseGeschaetzt'];
+  var ohneQuelle = wege.filter(function (n) {
+    var b = block(n);
+    return !b || b.indexOf('unterzugZcm(') === -1;
+  });
+  if (gegen) ohneQuelle = wege.slice(0, 1);
+  pruefe('Jeder Bauweg holt die Unterzug-Lage aus derselben Funktion',
+         ohneQuelle.length === 0,
+         ohneQuelle.length ? 'ohne unterzugZcm: ' + ohneQuelle.join(', ')
+                           : wege.join(' und ') + ' rufen unterzugZcm()');
+
+  /* Die alte Eigenrechnung darf nicht zurückkommen: „T / 2" als LAGE des
+     Unterzugs (nicht als Rückfall in der Zeile darunter). */
+  /* Nur echter Code: am Zeilenanfang nach Einrueckung. Ohne den Anker
+     schlug die Prüfung auf dem Kommentar an, der die alte Zeile zitiert. */
+  var eigen = /^\s*var zUnterzug = T \/ 2;/m.test(js);
+  pruefe('Kein Bauweg rechnet die Unterzug-Lage selbst',
+         gegen ? eigen : !eigen,
+         eigen ? 'var zUnterzug = T / 2 steht wieder da' : 'nur unterzugZcm()');
+
+  /* Und: Wo Keile entstehen (der Aufruf übergibt eine Dachunterkante),
+     muss auch die Unterzuglage mitgehen – sonst teilen sich die Seiten an
+     einer anderen Stelle, als der Träger steht. */
+  /* Die Argumentliste wird ueber ZAEHLEN der Klammern gelesen, nicht mit
+     einem Muster bis zur naechsten „);". Der Aufruf im geschaetzten Weg
+     enthaelt eine Pfeilfunktion mit „(zMitte - z);" darin – ein naives
+     Muster hoerte dort auf und sah die Lage am Ende nicht mehr. */
+  function argumente(ab) {
+    var i = js.indexOf('(', ab), tiefe = 0, j = i;
+    for (; j < js.length; j++) {
+      if (js[j] === '(') tiefe++;
+      else if (js[j] === ')') { tiefe--; if (tiefe === 0) break; }
+    }
+    return js.slice(i, j + 1);
+  }
+  var rufe = [], pos = 0;
+  while ((pos = js.indexOf('seitenErweiterungen(', pos)) > -1) {
+    if (js.slice(Math.max(0, pos - 9), pos) !== 'function ') {
+      rufe.push(argumente(pos));
+    }
+    pos += 20;
+  }
+  var mitDach = rufe.filter(function (r) { return /dachUk|function \(z\)/.test(r); });
+  var ohneLage = mitDach.filter(function (r) { return r.indexOf('unterzugZcm(') === -1; });
+  if (gegen) ohneLage = mitDach.slice(0, 1);
+  pruefe('Jeder Seitenaufruf mit Keil bekommt die Unterzug-Lage',
+         ohneLage.length === 0 && mitDach.length >= 2,
+         ohneLage.length ? ohneLage.length + ' von ' + mitDach.length + ' ohne Lage'
+                         : mitDach.length + ' Aufrufe mit Dachunterkante, alle mit Lage');
+
+  /* Der Unterzug trägt nur mit eigenen Pfosten – im Datenweg fehlten sie. */
+  var daten = block('bauenAusDaten');
+  var hatPfosten = /verteilen\(pfostenUnterTraeger\(Z\.breite\), B, pf \/ 2\)/.test(daten);
+  pruefe('Auch im Datenweg stehen Pfosten unter dem Unterzug',
+         gegen ? !hatPfosten : hatPfosten,
+         hatPfosten ? 'eigene Pfostenreihe' : 'Träger schwebt');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
