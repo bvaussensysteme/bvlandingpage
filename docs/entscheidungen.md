@@ -6933,3 +6933,44 @@ nachzubauen. Gegenprobe: alle 282 Prüfungen schlagen an.
 Bedienung nachspielt, sagt nichts darüber, wo das Bauteil landet. Die Stelle im
 Modell gehört genauso geprüft wie der Wert im Regler – sonst bestätigt die
 Prüfung die halbe Kette und schweigt zur anderen.
+
+### 15.10.2026 – Der Unterzug-Regler war nie verdrahtet
+
+**Anlass.** Der Betreiber, mit einem Bild des Reglers („3525 mm (mittig)"):
+*„das klapt immernoch nicht"* und kurz darauf: *„sobald ich keil oderso
+aktiviere springt der unterzug wieder von seinem platz weg"*
+
+**Was falsch war.** `k3dUnterzug` stand nicht in der Liste der Elemente, die
+`aendern()` auslösen. Der Regler hatte alles andere: ein Zahlenfeld daneben
+(das verdrahtet war), gesetzte Grenzen, eine Anzeige. Nur sein eigenes
+`input`-Ereignis ging nirgendwohin. Schieben bewirkte also nichts – und beim
+nächsten beliebigen Ereignis, etwa dem Aktivieren eines Keils, wurde sein Wert
+zum ersten Mal gelesen und der Träger sprang dorthin. Beide Meldungen sind
+derselbe Fehler.
+
+**Warum drei Runden nötig waren.** Die bisherigen Prüfungen haben jeweils ein
+Glied der Kette bestätigt und über das nächste geschwiegen:
+
+| Runde | geprüft | übersehen |
+|---|---|---|
+| 1 | Reglermechanik (lesen/schreiben/klemmen) | wohin gezeichnet wird |
+| 2 | Lage im Modell, Mitte zwischen den Auflagern | ob der Regler überhaupt etwas auslöst |
+| 3 | ob jedes Bedienelement verdrahtet ist | – |
+
+Die Lehre steht jetzt als Prüfung da, nicht als Vorsatz: **Jedes sichtbare
+Bedienelement im HTML braucht einen Weg zu `aendern()`.** Bewusst allgemein
+gehalten – eine Prüfung nur für den Unterzug hätte den nächsten vergessenen
+Regler wieder nicht gefunden. Sie zählt 81 Elemente; versteckte Felder
+(Stoffauswahl über Bildkacheln) und Zahlenfelder (hängen an ihrem Regler) sind
+begründete Ausnahmen.
+
+**Zwei Nebenbefunde aus demselben HTML-Tag.** Der Regler trug `step="50"`,
+während der Code `step = 1` setzt – beim ersten Anfassen wäre er auf ein
+anderes Raster gesprungen als die berechnete Mitte. Und `value="0"` lag unter
+`min="500"`: Der Browser klemmt so einen Startwert stumm, der erste gelesene
+Wert weicht damit vom geschriebenen ab, und genau das schaltet die Automatik
+ab. Beides ist korrigiert und wird geprüft.
+
+**Was gegengelesen werden soll.** Den Regler schieben – der Träger muss sich
+sofort mitbewegen, nicht erst beim nächsten Klick woanders. Danach einen Keil
+aktivieren: Er darf nicht mehr springen.
