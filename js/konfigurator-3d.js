@@ -2411,6 +2411,9 @@
      Zeichnung. Der Betreiber nennt den Grund, den keine Tabelle liefert
      – der Pfosten wird am Schenkel verschraubt, und der sitzt hinten. */
   var PFOSTENACHSE = 12.42;
+  /* Die Achse der Masstabelle, Pfostenvorderkante buendig mit der
+     Dachkante. Gilt weiter fuer alles ausser dem TDS – siehe oben. */
+  var PFOSTENACHSE_VORNE = 5.5;
 
   var RANDBLENDE = { dicke: 3.0, vor: 0.25 };
 
@@ -5609,8 +5612,18 @@
        Die Pfostenvorderkante steht damit bündig mit der Rinnenvorder-
        kante (55 mm Achse bei 110 mm Pfosten). Das gilt für alle
        Systeme – die Tabelle trennt dort nicht. */
+    /* NUR BEIM TDS (14.10.2026): „du hast beim fly die pfosten auch nach
+       innen verschoben, ich wollte es nur bei tds" (Betreiber).
+
+       Die hintere Lage hat ihren Grund in der TDS-Rinne: Der Pfosten wird
+       an dem Schenkel verschraubt, der hinten unter ihr nach unten geht.
+       Diesen Schenkel gibt es bei den Flachdach-Systemen nicht – dort
+       bleibt es bei der Achse aus der Masstabelle (55 mm, Pfosten vorne
+       buendig). Die Einschraenkung ist also nicht nur ein Wunsch,
+       sondern folgt der Begruendung der Aenderung selbst. */
+    var tdsRinne = !sky && (Z.produkt === 'Terrassendach TDS' || istCarportTds());
     /* Mit Vorsprung wandert der Pfosten um genau dieses Maß nach innen. */
-    var zPf = T - PFOSTENACHSE - vorspr;
+    var zPf = T - (tdsRinne ? PFOSTENACHSE : PFOSTENACHSE_VORNE) - vorspr;
 
     /* Unterkante der Sparren an der Pfostenachse – nur mit Vorsprung
        gebraucht, dort endet der Pfosten unter dem Träger. ukVorn wird
