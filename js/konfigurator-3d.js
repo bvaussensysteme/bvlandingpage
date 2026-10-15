@@ -3175,8 +3175,12 @@
 
      Statt diese Rechnungen im Bedienfeld zu wiederholen – zwei Wahrheiten,
      die auseinanderlaufen – meldet das Modell sie beim Bauen. */
-  var SG23_LAENGE = { links: 0, rechts: 0, vorne: 0 };
-  var SG23_FELDER = 1;                 // Anzahl Felder auf der Stirnseite
+  /* Je Seite eine LISTE: Seit dem Unterzug kann auch eine Laengsseite in
+     zwei Felder zerfallen, und vorne war es mit Mittelpfosten schon immer
+     so. Vorher stand hier eine einzelne Zahl, die jedes weitere Feld
+     ueberschrieb – in der Anfrage stand dann das Mass des letzten Feldes
+     fuer die ganze Seite. */
+  var SG23_LAENGE = { links: [], rechts: [], vorne: [] };
 
   var SG23_SEITEN = [['links', 'sg23Links', 'k3dSg23Links'],
                      ['rechts', 'sg23Rechts', 'k3dSg23Rechts'],
@@ -3187,8 +3191,17 @@
   /* Das gemeldete Mass gilt. Nur solange noch nichts gebaut wurde,
      greift die grobe Schaetzung – sonst stuende das Feld beim ersten
      Aufruf leer. */
+  /* Alle Felder dieser Seite, in mm. Ohne Modell (noch nichts gebaut) das
+     Rohmass, damit die Bedienfelder nicht leer bleiben. */
+  function sg23Masse(seite) {
+    var l = SG23_LAENGE[seite];
+    return (l && l.length) ? l : [seite === 'vorne' ? Z.breite : Z.tiefe];
+  }
+  /* Das GROESSTE Feld. Danach richtet sich die Bauart: Was fuer das
+     breiteste Feld reicht, reicht auch fuer die schmaleren. Der Rueckgabe-
+     wert bleibt eine Zahl – sg23Bauart() und Math.max rechnen damit. */
   function sg23Mass(seite) {
-    return SG23_LAENGE[seite] || (seite === 'vorne' ? Z.breite : Z.tiefe);
+    return Math.max.apply(null, sg23Masse(seite));
   }
 
   function sg23Gewaehlt(breiteMm, seite) {
@@ -3293,7 +3306,40 @@
     return new THREE.Mesh(g, material);
   }
 
-  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX) {
+  /* Die Felder einer Laengsseite, von hinten nach vorne. Ohne Unterzug ist
+     es eines, mit Unterzug zwei – das Pfostenfach dazwischen faellt weg.
+     Alle Masse in cm, z zaehlt von der Wand nach vorn.
+
+     Ausgelagert, weil es die einzige Stelle ist, an der sich die Aufteilung
+     ohne 3D-Modell nachrechnen laesst (scripts/pruefe-fuehrung.js). */
+  function seitenFelder(hinten, vorne, unterzugZcm, PROFIL) {
+    /* Nur teilen, wenn beiderseits noch etwas uebrig bleibt: Stuende der
+       Unterzug direkt an der Wand oder an der Vorderkante, entstuende ein
+       Feld von wenigen Zentimetern, in das kein Element passt. */
+    var teilt = unterzugZcm != null &&
+                unterzugZcm - PROFIL / 2 > hinten + 10 &&
+                unterzugZcm + PROFIL / 2 < vorne - 10;
+    var kanten = teilt
+      ? [hinten, unterzugZcm - PROFIL / 2, unterzugZcm + PROFIL / 2, vorne]
+      : [hinten, vorne];
+    var felder = [];
+    for (var i = 0; i + 1 < kanten.length; i += 2) {
+      var von = kanten[i], bis = kanten[i + 1];
+      if (bis - von <= 0) continue;
+      var mitte = (von + bis) / 2;
+      felder.push({
+        mitte: mitte,
+        laenge: bis - von,
+        /* „von der Mitte nach außen" (Betreiber, 15.10.2026): +1 stapelt
+           am Anfang (kleines z = hinten zur Wand), -1 am Ende (vorne).
+           Ohne Teilung ergibt sich -1 – die bisherige Richtung. */
+        richtung: teilt && mitte < unterzugZcm ? 1 : -1
+      });
+    }
+    return felder;
+  }
+
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm) {
     var mGlas = seitenglas();
     var mSchiebe = schiebeGlas();
     var mKeil = keilGlas();
@@ -4320,7 +4366,7 @@
          vor der Mauer. Eine Senkrechtmarkise bekommt beides NICHT: sie
          läuft in eigenen Führungsschienen und hat unten eine Fallstange. */
       /* Dem Bedienfeld melden, womit hier wirklich gerechnet wurde. */
-      if (hatSchiebe) SG23_LAENGE[seite] = Math.round(laenge * 10);
+      if (hatSchiebe) SG23_LAENGE[seite].push(Math.round(laenge * 10));
 
       if (hatRahmen || hatSchiebe || hatPlanken) {
         if (hatSchiebe) {
@@ -4486,11 +4532,31 @@
     var seitenMitte = (hinten + vorne) / 2;
     var seitenLaenge = vorne - hinten;
 
-    SG23_LAENGE.links = SG23_LAENGE.rechts = SG23_LAENGE.vorne = 0;
+    SG23_LAENGE.links = []; SG23_LAENGE.rechts = []; SG23_LAENGE.vorne = [];
     VELARIS_LAMELLEN = [];
     VELARIS_FAHRT = null;
-    eineSeite('links',   B / 2 - PROFIL / 2, seitenMitte, seitenLaenge, true);
-    eineSeite('rechts', -B / 2 + PROFIL / 2, seitenMitte, seitenLaenge, true);
+    /* ---------- Längsseiten: ein Feld je Pfostenfach ----------
+       „hier die ganzen sachen, müssen den unterzug dann natürlich
+       dementsprechend auch beachten und sich zu der neuen aufteilung
+       anpassen" (Betreiber, 15.10.2026, mit Bild der sechs Seitenelemente).
+
+       Die äußersten Pfosten des Unterzugs stehen auf ±(B/2 − PF/2) – das
+       ist genau die Achse der Seitenelemente (siehe verteilen() im
+       Unterzug-Block). Ein durchgehendes Element würde dort hindurchgehen.
+       Also dasselbe wie an der Vorderseite: lichtes Maß von Pfosten zu
+       Pfosten, je Fach ein eigenes Element.
+
+       Der Keil wird dabei mitgeteilt, weil jedes Feld seinen eigenen baut
+       – so entschieden, weil der Unterzugsträger quer genau durch die
+       Keilfläche läuft.
+
+       Laufrichtung „von der Mitte nach außen" (Betreiber, 15.10.2026):
+       Das hintere Feld stapelt zur Wand, das vordere nach vorn. Ohne
+       Unterzug bleibt es bei einem Feld und der bisherigen Richtung. */
+    seitenFelder(hinten, vorne, unterzugZcm, PROFIL).forEach(function (f, i) {
+      eineSeite('links',   B / 2 - PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
+      eineSeite('rechts', -B / 2 + PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
+    });
 
     /* ---------- Vorderseite: ein Feld je Pfostenfach ----------
        „wenn wir ein mittelpfosten haben wie hier oder mehrre pfosten,
@@ -4518,7 +4584,6 @@
     var achsen = (pfostenX && pfostenX.length > 1)
       ? pfostenX.slice().sort(function (a, b) { return a - b; })
       : [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2];
-    SG23_FELDER = Math.max(1, achsen.length - 1);
     for (var f = 0; f < achsen.length - 1; f++) {
       var lichtVon = achsen[f] + PROFIL / 2;
       var lichtBis = achsen[f + 1] - PROFIL / 2;
@@ -6292,7 +6357,10 @@
     seitenErweiterungen(B, T, hRinne, PF, sky ? 0 : neig,
       sky ? function () { return hRinne; }
           : function (z) { return ukMitte + Math.tan(neig) * (zMitte - z); },
-      zPf - PF / 2, xPfVorne);
+      zPf - PF / 2, xPfVorne,
+      /* Dieselbe Rechnung wie im Unterzug-Block weiter unten; eine zweite
+         Konstante dafuer gaebe es nur, damit sie auseinanderlaufen kann. */
+      (!sky && unterzugNoetig()) ? T - unterzugAbstand() / 10 : null);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und
@@ -7241,8 +7309,14 @@
     ['links', 'rechts', 'vorne'].forEach(function (seite) {
       if (erwListe(seite).indexOf('Schiebetür') === -1) return;
       var p = [seite, sg23Mass(seite)];
-      var zusatz = (seite === 'vorne' && SG23_FELDER > 1)
-        ? ' · ' + SG23_FELDER + ' Felder zwischen den Pfosten, Maß je Feld' : '';
+      /* Die Feldzahl kommt jetzt aus dem Modell, nicht mehr aus einem
+         eigenen Zaehler fuer die Vorderseite: Mit Unterzug zerfaellt auch
+         eine Laengsseite in zwei Felder. */
+      var felder = sg23Masse(seite);
+      var zusatz = felder.length > 1
+        ? ' · ' + felder.length + ' Felder zwischen den Pfosten (' +
+          felder.join(' / ') + ' mm), Maß je Feld'
+        : '';
       var b = sg23Bauart(p[1], p[0]);
       if (!b) {
         zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +

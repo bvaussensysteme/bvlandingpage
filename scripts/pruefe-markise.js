@@ -556,13 +556,16 @@ pruefe('Fluegelspur laeuft nach innen',
    Z.tiefe, gezeichnet wurde aber je Pfostenfach und an den Seiten nur
    bis zur Dachvorderkante. Eine Bauart, die nur zum vollen Mass passt,
    fiel beim Zeichnen still auf Automatik zurueck. */
+/* Seit dem 15.10.2026 sammelt jede Seite eine LISTE von Feldmassen –
+   mit Unterzug zerfaellt auch eine Laengsseite in zwei Felder. */
 pruefe('Modell meldet die gebauten Masse',
-       new RegExp(q || 'if \\(hatSchiebe\\) SG23_LAENGE\\[seite\\] = Math\\.round\\(laenge \\* 10\\)').test(src), '');
+       new RegExp(q || 'if \\(hatSchiebe\\) SG23_LAENGE\\[seite\\]\\.push\\(Math\\.round\\(laenge \\* 10\\)\\)').test(src), 'je Feld ein Eintrag');
 pruefe('Auswahlfeld nutzt das gemeldete Mass',
-       new RegExp(q || 'return SG23_LAENGE\\[seite\\] \\|\\|').test(src), 'nicht mehr Z.breite/Z.tiefe');
+       new RegExp(q || 'return Math\\.max\\.apply\\(null, sg23Masse\\(seite\\)\\)').test(src),
+       'das groesste Feld, nicht Z.breite/Z.tiefe');
 pruefe('Masse werden je Bauvorgang zurueckgesetzt',
-       new RegExp(q || 'SG23_LAENGE\\.links = SG23_LAENGE\\.rechts = SG23_LAENGE\\.vorne = 0').test(src),
-       'sonst bleibt eine geoeffnete Seite stehen');
+       new RegExp(q || 'SG23_LAENGE\\.links = \\[\\]; SG23_LAENGE\\.rechts = \\[\\]').test(src),
+       'sonst sammeln sich die Felder ueber mehrere Bauvorgaenge');
 pruefe('Auswahlfeld wird erst NACH dem Bauen gefuellt',
        /bauen\(\);[\s\S]{0,260}sg23FeldFuellen\(\);/.test(src) && !gegen ||
        gegen && /sg23FeldFuellen\(\);[\s\S]{0,80}if \(!el\) return;/.test(src),
@@ -571,8 +574,16 @@ pruefe('Hinweis rechnet mit denselben Massen',
        new RegExp(q || "laengen\\.push\\(sg23Mass\\(st\\)\\)").test(src), '');
 pruefe('Anfrage nennt das lichte Mass',
        new RegExp(q || "p\\[1\\] \\+ ' mm licht'").test(src), '');
+/* Der eigene Zaehler SG23_FELDER ist am 15.10.2026 entfallen: Er galt nur
+   fuer die Stirnseite. Die Feldzahl steht jetzt in der Massliste der Seite
+   selbst – damit stimmt sie auch fuer eine Laengsseite, die der Unterzug
+   teilt, und es gibt keine zweite Zaehlung, die abweichen koennte. */
 pruefe('Anfrage nennt die Zahl der Felder',
-       new RegExp(q || 'SG23_FELDER > 1').test(src), '');
+       new RegExp(q || "var felder = sg23Masse\\(seite\\);[\\s\\S]{0,120}felder\\.length > 1").test(src),
+       'aus der Massliste je Seite');
+pruefe('Kein zweiter Feldzaehler mehr',
+       gegen ? /SG23_FELDER/.test(src) : !/SG23_FELDER/.test(src),
+       'SG23_FELDER ist entfallen');
 
 /* ---------- Griff an der ueblichen Stelle ----------
    RECHERCHIERT: 1050 mm ist die uebliche Drueckerhoehe; DIN 18040 nennt

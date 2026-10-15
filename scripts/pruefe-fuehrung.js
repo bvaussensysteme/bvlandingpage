@@ -2495,6 +2495,96 @@ pruefe('RAL-Feld ist breit genug',
          ' in ' + schritt + '-mm-Schritten');
 })();
 
+
+/* ---------- Längsseiten teilen sich am Unterzug ----------
+   „hier die ganzen sachen, müssen den unterzug dann natürlich
+   dementsprechend auch beachten und sich zu der neuen aufteilung
+   anpassen" (Betreiber, 15.10.2026, mit Bild der sechs Seitenelemente:
+   Keil, Rahmenwand, Schiebetür, Plankenwand, Senkrechtmarkise, Velaris).
+
+   Die äußersten Unterzug-Pfosten stehen auf ±(B/2 − PF/2) – genau in der
+   Achse der Seitenelemente. Ein durchgehendes Element ginge mitten
+   hindurch. Gerechnet wird mit der echten Funktion, nicht mit einer
+   Kopie ihrer Formel. */
+(function () {
+  var f = (js.match(/function seitenFelder\([\s\S]*?\n  \}/) || [''])[0];
+  /* In der Gegenprobe wird zusaetzlich nach einer Funktion gesucht, die es
+     nicht gibt – sonst waere dies die einzige Pruefung hier, die nie
+     anschlaegt. */
+  var fPruef = gegen ? js.match(/function seitenFelderGibtEsNicht\(/) : f;
+  pruefe('seitenFelder() ist auffindbar', !!fPruef,
+         f ? 'aus dem Quelltext gelesen' : 'nicht gefunden');
+  if (!f) return;
+  function bauen(quelle) {
+    return eval('(' + quelle.replace('function seitenFelder', 'function') + ')');
+  }
+  var seitenFelder = bauen(f);
+  /* Zwei Verfaelschungen, weil die Pruefungen in beide Richtungen zeigen:
+     die eine Haelfte faellt auf, wenn gar nicht mehr geteilt wird (so war
+     es vor dem 15.10.2026), die andere, wenn IMMER geteilt wird. */
+  var nieTeilen = bauen(f.replace(/var teilt = [\s\S]*?;\n/, 'var teilt = false;\n'));
+  var immerTeilen = bauen(f.replace(/var teilt = [\s\S]*?;\n/,
+                                    'var teilt = unterzugZcm != null;\n'));
+  var PF = 11;                       // Pfostenbreite in cm, wie im Modell
+
+  // Ohne Unterzug bleibt alles wie vorher: ein Feld über die ganze Seite
+  var ohne = seitenFelder(0, 500, gegen ? 250 : null, PF);
+  pruefe('Ohne Unterzug bleibt die Seite ein Stück',
+         ohne.length === 1 && ohne[0].laenge === 500 && ohne[0].richtung === -1,
+         ohne.length + ' Feld, ' + ohne[0].laenge + ' cm, Richtung ' + ohne[0].richtung);
+
+  // Mit Unterzug: zwei Felder, das Pfostenfach dazwischen fällt weg
+  var mit = (gegen ? nieTeilen : seitenFelder)(0, 500, 250, PF);
+  var summe = mit.reduce(function (a, x) { return a + x.laenge; }, 0);
+  var m1 = mit[1] || { mitte: 0, laenge: 0, richtung: 0 };   // in der Gegenprobe fehlt es
+  pruefe('Mit Unterzug zerfällt die Seite in zwei Felder',
+         mit.length === 2, mit.length + ' Felder');
+  pruefe('Das Pfostenfach bleibt frei',
+         Math.abs(summe - (500 - PF)) < 0.01,
+         'zusammen ' + summe + ' cm von 500 cm, Pfosten ' + PF + ' cm');
+  pruefe('Kein Feld überlappt den Pfosten',
+         mit.length === 2 &&
+         mit[0].mitte + mit[0].laenge / 2 <= 250 - PF / 2 + 0.01 &&
+         m1.mitte - m1.laenge / 2 >= 250 + PF / 2 - 0.01,
+         'hinten bis ' + (mit[0].mitte + mit[0].laenge / 2) + ' cm, vorne ab ' +
+         (m1.mitte - m1.laenge / 2) + ' cm');
+
+  // Laufrichtung: von der Mitte nach außen
+  pruefe('Schiebetüren laufen von der Mitte nach außen',
+         mit[0].richtung === 1 && m1.richtung === -1,
+         'hinteres Feld stapelt zur Wand (' + mit[0].richtung +
+         '), vorderes nach vorn (' + m1.richtung + ')');
+
+  // Verschobener Unterzug: die Felder gehen mit
+  var links = (gegen ? nieTeilen : seitenFelder)(0, 500, 150, PF);
+  var rechts = (gegen ? nieTeilen : seitenFelder)(0, 500, 400, PF);
+  pruefe('Die Felder folgen dem verschobenen Unterzug',
+         Math.abs(links[0].laenge - (150 - PF / 2)) < 0.01 &&
+         Math.abs(rechts[0].laenge - (400 - PF / 2)) < 0.01,
+         'Unterzug bei 150 cm → hinteres Feld ' + links[0].laenge +
+         ' cm; bei 400 cm → ' + rechts[0].laenge + ' cm');
+
+  // Steht der Unterzug ganz am Rand, entsteht kein Reststück
+  /* 12 cm von der Wand: Nach Abzug der halben Pfostenbreite blieben 6,5 cm
+     Restfeld – da passt kein Element hinein. Die Laengen sind trotzdem
+     positiv, der Fall faellt also nicht von selbst weg, sondern nur durch
+     die Randbedingung in seitenFelder(). Genau die prueft dieser Fall. */
+  var randH = (gegen ? immerTeilen : seitenFelder)(0, 500, 12, PF);
+  var randV = (gegen ? immerTeilen : seitenFelder)(0, 500, 488, PF);
+  pruefe('Kein Feld von wenigen Zentimetern am Rand',
+         randH.length === 1 && randV.length === 1,
+         'Unterzug 12 cm vor der Wand bzw. hinter der Vorderkante → ' +
+         randH.length + ' bzw. ' + randV.length + ' Feld statt eines 6,5-cm-Restes');
+
+  // Die Teilung muss am Aufrufer wirklich ankommen
+  pruefe('Der Bauaufruf gibt die Lage des Unterzugs weiter',
+         new RegExp(q || "unterzugNoetig\\(\\)\\) \\? T - unterzugAbstand\\(\\) / 10 : null").test(js),
+         'seitenErweiterungen(…, Unterzug-z)');
+  pruefe('Beide Längsseiten kommen aus derselben Aufteilung',
+         new RegExp(q || "seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\)\\.forEach").test(js),
+         'links und rechts im selben Durchlauf');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
