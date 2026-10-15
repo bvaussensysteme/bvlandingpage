@@ -6659,3 +6659,93 @@ prüft bei jedem Unterzug-Fall zusätzlich die Randlagen des Reglers auf die
 hätte sie eine zweite Wahrheit geprüft. Verfälschung: Vorsprung wird addiert
 statt abgezogen → 4 der 5 Fälle schlagen an, darunter „7000/1000: Feld über
 4600 bei Lage 1400".
+
+### 15.10.2026 – Getrennt, was der Kunde sieht, und was nur uns angeht
+
+**Anlass.** Der Betreiber: *„innenkern hinweis kann stehen bleiben, aber
+nohmal alle hinweise prüfen. nicht jeder hinweis hat den kunden was anzugehen
+es stehen teilweise sachen drin die sind für uns relevant der kunde kann damit
+nix anfangen"*
+
+**Was falsch war.** Es gab drei Stellen, an denen Text aus dem Konfigurator
+den Kunden erreicht, und keine davon unterschied zwischen beiden
+Leserschaften:
+
+1. Die Hinweisbox im Kasten „Was daraus folgt" zeigte alle zwölf Hinweise aus
+   `js/bauteile.js`. Darunter wörtlich: „ungeprüfte Annahme", „Die Preisliste
+   markiert diese Zelle nicht", „ob sie addiert oder ersetzt, ist beim
+   Hersteller offen", „Freistehend ist kein Set", „Achsabstand … außerhalb des
+   dokumentierten Bandes".
+2. Der Kasten „Ihre Konfiguration" auf derselben Seite zeigte den vollen
+   Fachtext – einschließlich „Gerechnet mit der nächsten lieferbaren Breite",
+   „Statisch wirksame Spannweite", „ACHTUNG: … so nicht lieferbar" und
+   „SG23 Richtungsangaben … wie im **VD**-Anfrageformular". Das PDF filterte
+   diese Zeilen längst (`ohneLieferant`, `PDF_NUR_INTERN`); der Bildschirm
+   nicht. Das Kundenblatt war also sauberer als die Seite.
+3. Der Anfrage-Assistent zeigte denselben Fachtext in der Zusammenfassung
+   unter „Aus dem 3D-Konfigurator", bevor abgeschickt wird. Im Code stand als
+   Begründung „die Mail ist für uns, nicht für den Kunden" – das war falsch.
+
+Zwei Einzelfunde: Der Hinweis „Innenkern-Sparren sind erforderlich und
+**nicht** im Preis enthalten" war eine Preisaussage auf einer Seite, die
+grundsätzlich keine Preise nennt – und die Sternchen standen wörtlich da, weil
+die Hinweise als reiner Text ausgegeben werden (`esc()`). Und mit „wie im
+VD-Anfrageformular" stand unser Lieferant beim Kunden auf dem Bildschirm.
+
+**Was jetzt gilt.** Eine Trennung an jeder der drei Stellen:
+
+- `js/bauteile.js` hat zwei Helfer statt einem: `hin()` schreibt für den
+  Kunden, `hinI()` für uns. Fünf Hinweise sind kundenrelevant und in
+  Kundensprache umformuliert, zehn gehen nur noch in die Anfrage-Mail.
+  Gelöscht ist keiner – beim Gegenlesen einer Anfrage muss man sehen, wo eine
+  Annahme steckt.
+- `js/konfigurator-3d.js`: Die Hinweisbox filtert `h.fuer !== 'intern'`. Der
+  Kasten „Ihre Konfiguration" nutzt neu `zusammenfassungKunde()` – dieselbe
+  Liste wie die Mail, aber ohne die internen Zeilen (`NUR_INTERN`) und ohne
+  Lieferantennennung. Dasselbe Muster filtert jetzt auch das PDF, damit
+  Bildschirm und Blatt nicht auseinanderlaufen.
+- Der Assistent bekommt zwei Felder: `notiz` ist eine lesbare Kurzfassung
+  dessen, was der Kunde selbst eingestellt hat, und wird angezeigt;
+  `fachnotiz` ist der vollständige Fachtext samt der internen Hinweise und
+  geht allein in den Versand (`summaryPairs(true)` an allen drei Wegen,
+  `summaryPairs(false)` in der Anzeige).
+
+Zwei Formulierungen sind geändert, nicht verschoben: „Abrechnung nach …
+(nächstes Rasterfeld)" heißt jetzt „Nächstes Standardmaß … (daraus Sparren-
+und Pfostenzahl)", und „ACHTUNG: Tiefe über dem Höchstmaß – so nicht
+lieferbar" heißt „Tiefe über dem Höchstmaß des Systems – so nicht lieferbar,
+Klärung beim Aufmaß". Beide Aussagen bleiben für uns eindeutig.
+
+**Was ausdrücklich NICHT intern ist.** Der Unterzug. Er steht als zwei Pfosten
+mitten im Modell, und der Kunde hat seine Lage selbst eingestellt – er gehört
+auf den Bildschirm. Der Innenkern-Träger dagegen bleibt in der Mail: *„innenkern
+hinweis kann stehen bleiben"* bezog sich auf die Anfrage.
+
+**Was gegengelesen werden soll.** Ein Maß zwischen zwei Rasterfeldern wählen
+(z. B. 4300 × 3300 mm) und eine Tiefe über 4600 mm: In „Was daraus folgt" darf
+kein Satz über Preisliste, Annahme oder Preis stehen; in „Ihre Konfiguration"
+keine Spannweite, keine lieferbare Breite, kein VD. Dann auf „Anfrage" klicken:
+In der Zusammenfassung des Assistenten steht unter „Aus dem 3D-Konfigurator"
+die Kurzfassung – die Zeile „Technische Angaben (intern)" darf dort **nicht**
+auftauchen, muss aber in der Mail ankommen.
+
+**Absicherung.** Neu `scripts/pruefe-hinweise.js` (18 Prüfungen) – prüft alle
+vier Stellen, einmal aus dem Quelltext und einmal an wirklich erzeugten
+Hinweisen, und liest die VD-Zeile durch die echte Filterfunktion zurück.
+Gegenprobe stellt den Stand von vorher wieder her (ein Topf, alles sichtbar,
+ungefilterte Anzeige): 15 der 18 Prüfungen schlagen an.
+
+**Zwei eigene Fehler dabei, beide von den Prüfungen gefunden:**
+Die Prüfung an erzeugten Hinweisen lief zuerst an *null* Hinweisen durch – ich
+hatte „Terrassendach TDS" als Systemnamen übergeben, die Matrix kennt nur
+„TDS", und `bauteile()` gibt dann stumm `{ fehler }` zurück. Seitdem fordert
+die Prüfung eine Mindestzahl und prüft jeden Fall auf `fehler`. Und
+`pruefe-fuehrung.js` brach ab, weil es `PDF_NUR_INTERN` per eval aus dem
+Quelltext zieht; meine Sammelschleife hatte das verdeckt, weil ein Abbruch
+kein „FEHLER" ausgibt, sondern nur einen Exit-Code. Seitdem wird der
+Exit-Code ausgewertet.
+
+**Offen beim Betreiber.** Wenn bei Web3Forms ein Autoresponder eingeschaltet
+ist, der die Feldinhalte an den Absender zurückschickt, bekäme der Kunde die
+„Technische Angaben (intern)" per Mail doch zu sehen. Das lässt sich von hier
+aus nicht prüfen – bitte in der Web3Forms-Einstellung nachsehen.

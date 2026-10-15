@@ -247,20 +247,32 @@
     var stuetzfuesse = b.stuetzfuesseJeBreite[String(breite)];
 
     var hinweise = [];
-    function hin(art, text) { hinweise.push({ art: art, text: text }); }
+    /* Zwei Toepfe, weil zwei Leserschaften:
+       hin()  – steht im Konfigurator auf der Seite, der Kunde liest es.
+       hinI() – nur fuer uns, geht in die Anfrage-Mail. Dort darf die
+                Preisliste, eine offene Annahme oder ein Widerspruch
+                zwischen zwei Quellen benannt werden.
+       Anlass (Betreiber, 15.10.2026): „nicht jeder hinweis hat den kunden
+       was anzugehen es stehen teilweise sachen drin die sind fuer uns
+       relevant der kunde kann damit nix anfangen". Vorher war alles
+       sichtbar – einschliesslich „ungeprüfte Annahme" und einer Aussage
+       darueber, was im Preis enthalten ist. */
+    function hin(art, text) { hinweise.push({ art: art, text: text, fuer: 'kunde' }); }
+    function hinI(art, text) { hinweise.push({ art: art, text: text, fuer: 'intern' }); }
 
     /* Gebaut wird nach Kundenmaß. Das Raster ist die Abrechnungsgrundlage:
        Das nächstgrößere Rasterfeld bestimmt Preis, Pfosten- und
        Sparrenzahl. Deshalb steht hier kein „gibt es nicht", sondern wofür
        das Rastermaß zählt. */
     if (breite !== breiteWunsch || tiefe !== tiefeWunsch) {
-      hin('raster', 'Gebaut wird nach Ihrem Maß ' + breiteWunsch + ' × ' +
+      hinI('raster', 'Gebaut wird nach Ihrem Maß ' + breiteWunsch + ' × ' +
           tiefeWunsch + ' mm. Für Preis und Stückzahl zählt das nächste ' +
           'Rasterfeld: ' + breite + ' × ' + tiefe + ' mm.');
     }
     if (breiteWunsch > bL[bL.length - 1] || tiefeWunsch > tL[tL.length - 1]) {
-      hin('grenze', 'Größer als das Raster des Systems (max. ' + bL[bL.length - 1] +
-          ' × ' + tL[tL.length - 1] + ' mm).');
+      hin('grenze', 'Dieses Maß liegt über dem Standardmaß des Systems (bis ' +
+          bL[bL.length - 1] + ' × ' + tL[tL.length - 1] + ' mm). Ob und wie es sich ' +
+          'umsetzen lässt, klären wir beim Aufmaß.');
     }
 
     /* Unterzug / Statikträger.
@@ -279,12 +291,12 @@
 
     if (unterzugLautBetrieb && !unterzugLautListe && markierungenVorhanden) {
       // Die beiden Grenzen widersprechen sich leicht – bewusst nicht geglättet
-      hin('statik', 'Die Preisliste führt diese Tiefe ohne Unterzug-Markierung, die ' +
+      hinI('statik', 'Die Preisliste führt diese Tiefe ohne Unterzug-Markierung, die ' +
           'Betriebsgrenze liegt aber bei ' + TIEFE_MAX_OHNE_UNTERZUG +
           ' mm. Angewendet wird die härtere Grenze: Statikträger nötig.');
     }
     if (unterzugQuelle === 'annahme') {
-      hin('annahme', 'Für ' + system + ' sind in der Preisliste keine ' +
+      hinI('annahme', 'Für ' + system + ' sind in der Preisliste keine ' +
           'Statik-Markierungen hinterlegt. Der Unterzug folgt hier allein der ' +
           'Betriebsgrenze von ' + TIEFE_MAX_OHNE_UNTERZUG + ' mm – ungeprüfte Annahme.');
     }
@@ -301,9 +313,10 @@
       ? (tiefe > TIEFE_MAX_MIT_UNTERZUG) : (tiefe > TIEFE_MAX_OHNE_UNTERZUG);
     var pfosten = stuetzfuesse + (zusatzpfosten ? 1 : 0);
     if (zusatzpfosten) {
-      hin('pfosten', 'Wegen der Tiefe kommt ein Pfosten dazu (' + stuetzfuesse +
-          ' + 1). Betriebsregel, nicht aus der Preisliste – ob sie addiert oder ' +
-          'ersetzt, ist beim Hersteller offen.');
+      hin('pfosten', 'Bei dieser Tiefe kommt ein Pfosten dazu – ' + pfosten +
+          ' statt ' + stuetzfuesse + '.');
+      hinI('pfosten', 'Der Zusatzpfosten ist Betriebsregel, nicht Preisliste – ob sie ' +
+          'addiert oder die Zahl der Liste ersetzt, ist beim Hersteller offen.');
     }
 
     /* Freistehend. BELEGT (technische-daten.md 11): TDS und SkyView liegen in
@@ -317,9 +330,9 @@
     if (freistehend && !systemFreistehend) {
       pfosten += FREISTEHEND_ZUSATZ.pfosten;
       statiktraegerStueck += FREISTEHEND_ZUSATZ.statiktraeger;
-      hin('freistehend', 'Freistehend ist kein Set: Es kommen ' +
-          FREISTEHEND_ZUSATZ.pfosten + ' Pfosten und ein Statikträger über die ' +
-          'volle Breite samt Blende dazu (statt des Wandprofils).');
+      hin('freistehend', 'Freistehend trägt hinten kein Wandprofil: Dort kommen ' +
+          FREISTEHEND_ZUSATZ.pfosten + ' Pfosten und ein Träger über die volle Breite ' +
+          'mit Blende hin.');
     }
 
     /* Pfostenreihen. Bei Wandmontage trägt hinten das Wandprofil – eine Reihe.
@@ -330,7 +343,7 @@
     var reihen = freistehend ? 2 : 1;
     var pfostenJeReihe = freistehend ? Math.ceil(pfosten / 2) : pfosten;
     if (systemFreistehend) {
-      hin('annahme', 'Freistehendes System: angenommen, die ' + pfosten +
+      hinI('annahme', 'Freistehendes System: angenommen, die ' + pfosten +
           ' Pfosten verteilen sich auf zwei Reihen. Ob die Preisliste die ' +
           'Gesamtzahl oder die Zahl je Reihe nennt, ist offen.');
     }
@@ -342,13 +355,15 @@
     var bandIK = INNENKERN_BAND[system];
     var innenLautBand = !!bandIK && tiefe >= bandIK.von && tiefe <= bandIK.bis;
     if (innenLautBand && !innenLaut) {
-      hin('statik', 'Tiefe liegt im Innenkern-Band des Systems (' + bandIK.von +
+      hinI('statik', 'Tiefe liegt im Innenkern-Band des Systems (' + bandIK.von +
           '–' + bandIK.bis + ' mm). Die Preisliste markiert diese Zelle nicht – ' +
           'die Fußnote der Liste nennt das Band aber ausdrücklich.');
     }
     if (innenLautBand && bandIK && !bandIK.imPreis) {
-      hin('preis', 'Innenkern-Sparren sind erforderlich und **nicht** im ' +
-          'Preis enthalten (je Sparren einer).');
+      /* Ohne Sternchen: Die Hinweise werden als reiner Text ausgegeben
+         (esc() in konfigurator-3d.js), Markdown wuerde wörtlich dastehen. */
+      hinI('preis', 'Innenkern-Sparren sind erforderlich und NICHT im Preis ' +
+          'enthalten (je Sparren einer).');
     }
 
     /* Stöße. BELEGT: Rinnenkopplung und Innenkern Rinne ab Breite über 7 m,
@@ -356,8 +371,9 @@
     var stoss = breite > STOSS_AB_BREITE_MM;
     if (stoss) {
       hin('stoss', 'Über ' + STOSS_AB_BREITE_MM + ' mm Breite werden Rinne, ' +
-          'Wandprofil und Statikträger gestoßen (Rinnenkopplung, im Grundpreis). ' +
-          'Wie der Stoß aussieht, ist nicht belegt – im Modell nicht dargestellt.');
+          'Wandprofil und Träger gestoßen. Der Stoß ist im Modell nicht dargestellt.');
+      hinI('stoss', 'Rinnenkopplung und Innenkern Rinne sind im Grundpreis enthalten. ' +
+          'Wie der Stoß aussieht, ist nicht belegt.');
     }
 
     /* Stegplatten ohne Zuschnitt vor Ort. BELEGT, Montageanleitung S. 11. */
@@ -365,10 +381,11 @@
       var ohneZuschnitt = STEGPLATTEN_OHNE_ZUSCHNITT.breiten.indexOf(breite) > -1 &&
                           STEGPLATTEN_OHNE_ZUSCHNITT.tiefen.indexOf(tiefe) > -1;
       if (!ohneZuschnitt) {
-        hin('montage', 'Bei diesem Maß müssen die Stegplatten vor Ort ' +
-            'zugeschnitten werden. Ohne Zuschnitt gehen Breiten ' +
+        hin('montage', 'Bei diesem Maß werden die Stegplatten vor Ort zugeschnitten.');
+        hinI('montage', 'Ohne Zuschnitt gehen Breiten ' +
             STEGPLATTEN_OHNE_ZUSCHNITT.breiten.join(', ') + ' mm mit Tiefen ' +
-            STEGPLATTEN_OHNE_ZUSCHNITT.tiefen.join(', ') + ' mm.');
+            STEGPLATTEN_OHNE_ZUSCHNITT.tiefen.join(', ') + ' mm ' +
+            '(Montageanleitung S. 11).');
       }
     }
 
@@ -383,7 +400,7 @@
 
     var fb = feldbreite(system, material, breite);
     if (fb && fb.band && !fb.imBand) {
-      hin('pruefung', 'Achsabstand der Sparren ' + fb.achsabstand + ' mm liegt ' +
+      hinI('pruefung', 'Achsabstand der Sparren ' + fb.achsabstand + ' mm liegt ' +
           'außerhalb des dokumentierten Bandes ' + fb.band[0] + '–' + fb.band[1] +
           ' mm. Das Band stammt aus den TDS-Reihen und gilt nicht für alle ' +
           'Rastermaße – die Stückzahl kommt unverändert aus der Preisliste.');

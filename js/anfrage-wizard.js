@@ -892,7 +892,7 @@
   }
 
   /* ---------- Zusammenfassung ---------- */
-  function summaryPairs() {
+  function summaryPairs(mitFachtext) {
     function inFlow(s) { return flow.indexOf(s) > -1; } // nur Schritte des aktuellen Ablaufs zeigen
     var p = [];
     p.push(['Produkt', answers.produkt]);
@@ -948,6 +948,16 @@
     if (answers.wunsch) {
       p.push([inFlow('wunsch') ? 'Wunsch' : 'Aus dem 3D-Konfigurator', answers.wunsch]);
     }
+    /* Der vollstaendige Fachtext aus dem Konfigurator – nur in den Versand,
+       nicht in die Anzeige. Er enthaelt Fertigungs- und Kalkulationsangaben
+       (Profilmasse, Spannweite, Innenkern, Bestellformular des Herstellers),
+       die der Kunde nicht einordnen kann: „es stehen teilweise sachen drin
+       die sind für uns relevant der kunde kann damit nix anfangen"
+       (Betreiber, 15.10.2026). Deshalb entscheidet der Aufrufer:
+       summaryRows() zeigt ohne, jeder Versandweg schickt mit. */
+    if (mitFachtext && answers.fachnotiz) {
+      p.push(['Technische Angaben (intern)', answers.fachnotiz]);
+    }
     if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
@@ -961,12 +971,12 @@
     return p;
   }
   function summaryRows() {
-    return summaryPairs().map(function (r) {
+    return summaryPairs(false).map(function (r) {
       return '<div class="aw-sum-row"><span class="aw-sum-k">' + esc(r[0]) + '</span><span class="aw-sum-v">' + esc(r[1]) + '</span></div>';
     }).join('');
   }
   function summaryText() {
-    return 'Anfrage-Nr: ' + ref + '\n' + summaryPairs().map(function (r) { return r[0] + ': ' + r[1]; }).join('\n');
+    return 'Anfrage-Nr: ' + ref + '\n' + summaryPairs(true).map(function (r) { return r[0] + ': ' + r[1]; }).join('\n');
   }
 
   /* ---------- Rendering & Navigation ---------- */
@@ -1197,7 +1207,7 @@
   // E-Mail über Web3Forms (client-seitig, kostenlos). Gibt true bei Erfolg.
   function sendWeb3(subject) {
     var payload = { access_key: WEB3FORMS_KEY, subject: subject, from_name: 'BV AussenSysteme Website', 'Anfrage-Nr': ref };
-    summaryPairs().forEach(function (r) { payload[r[0]] = r[1]; });
+    summaryPairs(true).forEach(function (r) { payload[r[0]] = r[1]; });
     payload.replyto = answers.k_email || '';
     return fetch(WEB3FORMS, {
       method: 'POST',
@@ -1215,7 +1225,7 @@
     fd.append('_replyto', answers.k_email || '');
     fd.append('_gotcha', '');
     fd.append('Anfrage-Nr', ref);
-    summaryPairs().forEach(function (r) { fd.append(r[0], r[1]); });
+    summaryPairs(true).forEach(function (r) { fd.append(r[0], r[1]); });
     fd.append('Zusammenfassung', summaryText());
     return fetch(FORMSPREE, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } })
       .then(function (r) { return r.json(); })
@@ -1276,6 +1286,7 @@
       if (Array.isArray(v[k]) && v[k].length) answers[k] = v[k].slice();
     });
     if (v.notiz) answers.wunsch = v.notiz;
+    if (v.fachnotiz) answers.fachnotiz = v.fachnotiz;
 
     flow = computeFlow();
     var ziel = flow.indexOf('kontakt');

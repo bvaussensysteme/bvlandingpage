@@ -8369,6 +8369,64 @@
     return Z.cpTyp === 'Carport TDS' ? 'Carport TDS' : 'Carport ' + Z.cpTyp.replace('Flachdach ', '');
   }
 
+  /* Was nur wir lesen sollen: die internen Hinweise aus der Stueckliste.
+     Geloescht sind sie nicht – beim Gegenlesen einer Anfrage muss man
+     sehen, wo eine Annahme steckt oder zwei Quellen sich widersprechen. */
+  function hinweiseIntern() {
+    var e = stueckliste();
+    if (!e || e.fehler || !e.hinweise) return [];
+    return e.hinweise.filter(function (h) { return h.fuer === 'intern'; })
+                     .map(function (h) { return h.text; });
+  }
+
+  /* Die Kurzfassung fuer den Anfrage-Assistenten. Dort steht der ganze
+     Text in EINEM Feld („Aus dem 3D-Konfigurator") – als Fachwurst aus
+     dreissig mit · getrennten Teilen liest sie niemand. Sie nennt, was
+     der Kunde selbst eingestellt hat, nicht die Fertigungsangaben.
+     Der vollstaendige Fachtext geht weiter mit, nur still (v.fachnotiz). */
+  function zusammenfassungKurz() {
+    var k = [produktName()];
+    k.push(istCarport() ? cpVarianteJetzt() : Z.aufbau);
+    k.push(Z.breite + ' × ' + Z.tiefe + ' mm, Höhe ' + Z.hoehe + ' mm');
+    if (istPergola()) {
+      k.push(Z.pgDachart);
+      if (Z.pgSeitenschutz !== 'Nichts / später entscheiden') {
+        k.push('Seitenschutz: ' + Z.pgSeitenschutz);
+      }
+    } else if (istCarport() && !istCarportTds()) {
+      k.push('Dach: ' + Z.cpDach);
+    } else {
+      k.push('Eindeckung: ' + Z.eindeckung);
+    }
+    k.push('Farbe: ' + farbeName());
+    if (!istPergola() && !istCarport()) {
+      var se = [];
+      [['links', Z.erwLinks], ['rechts', Z.erwRechts],
+       ['vorne', Z.erwVorne]].forEach(function (pr) {
+        if (pr[1].length) se.push(pr[0] + ': ' + pr[1].join(' + '));
+      });
+      k.push(se.length ? 'Seiten – ' + se.join(' · ') : 'Seiten offen');
+      if (Z.markise !== 'Ohne') k.push('Sonnenschutz: ' + Z.markise);
+    }
+    if (gruppeGilt('verkleidung')) {
+      var vk = [];
+      if (Z.verkRueck) vk.push('hinten');
+      if (Z.verkLinks) vk.push('links');
+      if (Z.verkRechts) vk.push('rechts');
+      if (vk.length) k.push('Verkleidung ' + Z.verkRichtung + ': ' + vk.join(', '));
+    }
+    if (gruppeGilt('fassade')) k.push('Fassade: ' + Z.fassade);
+    var komfort = [];
+    if (Z.led) komfort.push('Beleuchtung');
+    if (!istCarport() && Z.sound) komfort.push('Lautsprecher');
+    if (istPergola() && Z.heizung) komfort.push('Heizstrahler');
+    if (istPergola() && Z.wettersensor) komfort.push('Wetter-Automatik');
+    if (komfort.length) k.push('Mit ' + komfort.join(', '));
+    k.push(Z.montage === 'Ja, mit Fachmontage'
+      ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
+    return k;
+  }
+
   function zusammenfassung() {
     var teile = [produktName()];
     if (istPergola()) {
@@ -8443,7 +8501,12 @@
                      ec.breiteTabelle + ' mm');
         }
         if (!ec.lieferbar) {
-          teile.push('ACHTUNG: Tiefe über dem Höchstmaß – so nicht lieferbar');
+          /* Vorher „ACHTUNG: … so nicht lieferbar". Die Zeile steht auf dem
+             Bildschirm und auf dem Kundenblatt; in Werkssprache liest sie
+             sich wie ein Fehler des Kunden. Die Aussage bleibt, auch fuer
+             uns eindeutig. */
+          teile.push('Tiefe über dem Höchstmaß des Systems – so nicht ' +
+                     'lieferbar, Klärung beim Aufmaß');
         }
       }
       /* Beim Flachdach-Carport ist die Eindeckung immer Trapezblech;
@@ -8466,7 +8529,12 @@
                      ed.breiteTabelle + ' mm');
         }
         if (!ed.lieferbar) {
-          teile.push('ACHTUNG: Tiefe über dem Höchstmaß – so nicht lieferbar');
+          /* Vorher „ACHTUNG: … so nicht lieferbar". Die Zeile steht auf dem
+             Bildschirm und auf dem Kundenblatt; in Werkssprache liest sie
+             sich wie ein Fehler des Kunden. Die Aussage bleibt, auch fuer
+             uns eindeutig. */
+          teile.push('Tiefe über dem Höchstmaß des Systems – so nicht ' +
+                     'lieferbar, Klärung beim Aufmaß');
         }
       }
       /* Nur das Terrassendach TDS wird nach Grad gefertigt. SkyView hat
@@ -8645,7 +8713,7 @@
   function textAktualisieren() {
     var box = document.getElementById('k3dZusammenfassung');
     if (!box) return;
-    box.innerHTML = zusammenfassung().map(function (t) {
+    box.innerHTML = zusammenfassungKunde().map(function (t) {
       return '<li>' + t.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>';
     }).join('');
   }
@@ -9023,8 +9091,11 @@
     var z = [];
     z.push(['Ihr Maß', e.angefragt.breite + ' × ' + e.angefragt.tiefe + ' mm']);
     if (!e.imRaster) {
-      z.push(['Abrechnung nach', e.raster.breite + ' × ' + e.raster.tiefe +
-              ' mm (nächstes Rasterfeld)']);
+      /* Vorher „Abrechnung nach": Das klang wie „Sie zahlen fuer mehr, als
+         Sie bekommen". Gebaut wird nach Kundenmass; das Rasterfeld bestimmt
+         Sparren- und Pfostenzahl. Genau das steht jetzt da. */
+      z.push(['Nächstes Standardmaß', e.raster.breite + ' × ' + e.raster.tiefe +
+              ' mm (daraus Sparren- und Pfostenzahl)']);
     }
     z.push(['Sparren', e.sparren + (e.feldbreite ? ' · Achsabstand ' +
             e.feldbreite.achsabstand + ' mm' : '')]);
@@ -9044,8 +9115,13 @@
     }).join('');
 
     if (hinBox) {
-      // Der Rasterhinweis steht schon als eigene Zeile darüber – nicht doppelt
-      hinBox.innerHTML = e.hinweise.filter(function (h) { return h.art !== 'raster'; }).map(function (h) {
+      /* Nur was den Kunden angeht. Die internen Hinweise (Preisliste,
+         offene Annahmen, Beleglage) tragen in js/bauteile.js fuer:
+         'intern' und gehen allein in die Anfrage-Mail – „nicht jeder
+         hinweis hat den kunden was anzugehen" (Betreiber, 15.10.2026).
+         Der Rasterhinweis ist einer davon; er stand hier ohnehin nie,
+         weil die Zeile darueber dasselbe sagt. */
+      hinBox.innerHTML = e.hinweise.filter(function (h) { return h.fuer !== 'intern'; }).map(function (h) {
         return '<li class="k3d-hin k3d-hin--' + esc(h.art) + '">' + esc(h.text) + '</li>';
       }).join('');
     }
@@ -9829,7 +9905,32 @@
 
      Die Zeile bleibt in der Anfrage an den Betrieb: Dort hängt der Preis
      daran. */
-  var PDF_NUR_INTERN = /^Gerechnet mit der nächsten lieferbaren Breite/;
+  /* Dieselbe Trennung gilt seit 15.10.2026 fuer jede Stelle, an der der
+     Kunde den Fachtext zu sehen bekommt: den Kasten „Ihre Konfiguration"
+     auf der Seite, das Kundenblatt im PDF und die Zusammenfassung im
+     Anfrage-Assistenten. Vorher filterte allein das PDF – auf dem
+     Bildschirm stand alles. Was hier steht, geht nur in die Mail:
+     Kalkulations- und Statikgroessen, die der Kunde nicht einordnen kann
+     („es stehen teilweise sachen drin die sind für uns relevant der kunde
+     kann damit nix anfangen", Betreiber 15.10.2026).
+
+     NICHT in dieser Liste: der Unterzug. Er steht als zwei Pfosten
+     mitten im Modell, der Kunde hat seine Lage selbst eingestellt. */
+  var NUR_INTERN = [
+    /^Gerechnet mit der nächsten lieferbaren Breite/,
+    /^Statisch wirksame Spannweite/,
+    /^Innenkern-Träger/
+  ];
+  function nurIntern(zeile) {
+    return NUR_INTERN.some(function (r) { return r.test(zeile); });
+  }
+  /* Der Fachtext, wie ihn der Kunde sehen darf: ohne die internen Zeilen
+     und ohne Lieferantennennung. Eine Quelle (zusammenfassung()), eine
+     Filterregel – sonst laufen Bildschirm, PDF und Mail auseinander. */
+  function zusammenfassungKunde() {
+    return zusammenfassung().filter(function (z) { return !nurIntern(z); })
+                            .map(ohneLieferant);
+  }
 
   /* ---------- Vorbehalte nur einmal, unten ----------
      „du musst nicht bei jedem element schreiben (vorschlag, Aufteilung
@@ -9864,7 +9965,7 @@
     /* Die ersten beiden Zeilen (Produkt und Montageart bzw. Ausführung)
        stehen im Kopf des Blattes. */
     var rest = zeilen.slice(2).filter(function (z) {
-      return !PDF_IM_KOPF.test(z) && !PDF_NUR_INTERN.test(z);
+      return !PDF_IM_KOPF.test(z) && !nurIntern(z);
     }).map(ohneLieferant).map(ohneVorbehalt);
     var gruppen = PDF_GRUPPEN.map(function (g) {
       return { titel: g[0], muster: g[1], zeilen: [] };
@@ -10154,7 +10255,14 @@
         led: Z.led ? VORGABE_LED.ja : VORGABE_LED.nein,
         montage: Z.montage,
         untergrund: Z.untergrund,
-        notiz: zusammenfassung().join(' · ')
+        /* notiz zeigt der Assistent dem Kunden in der Zusammenfassung –
+           deshalb die Kurzfassung. fachnotiz sieht nur der Betrieb:
+           Fachtext samt der internen Hinweise aus der Stueckliste
+           (js/anfrage-wizard.js nimmt sie allein in den Versand). */
+        notiz: zusammenfassungKurz().join(' · '),
+        fachnotiz: zusammenfassung().join(' · ') +
+          (hinweiseIntern().length
+            ? ' || Interne Hinweise: ' + hinweiseIntern().join(' || ') : '')
       };
       /* Alles, was der Assistent als eigenes Feld kennt, geht auch als
          eigenes Feld hinüber – nicht nur als Text in der Notiz. Sonst
