@@ -2216,7 +2216,11 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
   var ohneLieferant = eval('(' + fo.replace('function ohneLieferant', 'function') + ')');
   var fv = (js.match(/function ohneVorbehalt\([\s\S]*?\n  \}/) || [''])[0];
   var ohneVorbehalt = eval('(' + fv.replace('function ohneVorbehalt', 'function') + ')');
-  var PDF_NUR_INTERN = eval((js.match(/var PDF_NUR_INTERN = (\/.*\/);/) || [])[1]);
+  /* Seit 15.10.2026 entscheidet nicht mehr ein einzelnes Muster, was nur
+     den Betrieb angeht, sondern die Liste NUR_INTERN samt nurIntern().
+     Beide werden mit ausgelesen – nachgebaut waere es eine zweite Wahrheit. */
+  var internSrc = (js.match(/var NUR_INTERN = \[[\s\S]*?\n  \}/) || [''])[0];
+  var nurIntern = eval('(function () { ' + internSrc + '; return nurIntern; })')();
   var pdfGruppen = eval('(' + fg.replace('function pdfGruppen', 'function') + ')');
   var liste = [
     'Terrassendach TDS', 'Wandmontage',
@@ -2245,7 +2249,7 @@ pruefe('Die Konfigurationsseite kommt aus derselben Liste wie die Anfrage',
      bleibt damit das Entscheidende: dass nichts UNBEABSICHTIGT verschwindet
      und nichts doppelt auftaucht. */
   var soll = liste.slice(2)
-    .filter(function (z) { return !PDF_IM_KOPF.test(z) && !PDF_NUR_INTERN.test(z); })
+    .filter(function (z) { return !PDF_IM_KOPF.test(z) && !nurIntern(z); })
     .map(ohneLieferant).map(ohneVorbehalt);
   if (gegen) soll.push('Diese Zeile hat nie jemand uebergeben');
   var fehlt = soll.filter(function (z) { return raus.indexOf(z) === -1; });
