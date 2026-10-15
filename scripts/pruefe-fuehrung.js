@@ -2381,7 +2381,11 @@ pruefe('RAL-Feld ist breit genug',
     var m = js.match(new RegExp('function ' + name + '\\([\\s\\S]*?\\n  \\}'));
     return m ? m[0] : '';
   }
+<<<<<<< HEAD
   var namen = ['statikTiefe', 'unterzugAchsen', 'unterzugBereich', 'unterzugMitte',
+=======
+  var namen = ['statikTiefe', 'unterzugBereich', 'unterzugMitte',
+>>>>>>> origin/main
                'unterzugAbstand', 'unterzugEinlesen', 'unterzugGrenzeSetzen'];
   var quellen = namen.map(holen).join('\n');
   var fehltEcht = namen.filter(function (n) { return !holen(n); });
@@ -2390,7 +2394,11 @@ pruefe('RAL-Feld ist breit genug',
      wird nur, wenn wirklich eine Funktion fehlt; sonst käme der Rest des
      Blocks in der Gegenprobe gar nicht zum Laufen. */
   var fehlend = gegen ? fehltEcht.concat('unterzugGibtEsNicht') : fehltEcht;
+<<<<<<< HEAD
   pruefe('Alle sieben Funktionen des Unterzugs sind auffindbar',
+=======
+  pruefe('Alle sechs Funktionen des Unterzugs sind auffindbar',
+>>>>>>> origin/main
          fehlend.length === 0,
          fehlend.length ? 'fehlt: ' + fehlend.join(', ') : 'aus dem Quelltext gelesen');
   if (fehltEcht.length) return;
@@ -2403,8 +2411,12 @@ pruefe('RAL-Feld ist breit genug',
       return id === 'k3dUnterzug' ? el : (id === 'k3dUnterzugZahl' ? zf : null);
     }, activeElement: null };
     var Z = { tiefe: 5000, vorsprung: 0, vorsprungHinten: 0,
+<<<<<<< HEAD
               unterzugLage: 0, unterzugAuto: true,
               produkt: 'Terrassendach TDS' };
+=======
+              unterzugLage: 0, unterzugAuto: true };
+>>>>>>> origin/main
     var umgebung = {
       Z: Z, document: doc,
       window: { BV_MASSTABELLE: { regeln: { tiefeMaxOhneUnterzug: 4600,
@@ -2418,6 +2430,7 @@ pruefe('RAL-Feld ist breit genug',
         return isNaN(v) ? ersatz : v;
       }
     };
+<<<<<<< HEAD
     var pa = (js.match(/var PFOSTENACHSE = [\d.]+;/) || [''])[0];
     var pv = (js.match(/var PFOSTENACHSE_VORNE = [\d.]+;/) || [''])[0];
     var api = eval('(function (Z, document, window, gruppeGilt, wert, zahl, istCarportTds) { ' +
@@ -2427,6 +2440,14 @@ pruefe('RAL-Feld ist breit genug',
       '           achsen: unterzugAchsen, abstand: unterzugAbstand }; })')(
       umgebung.Z, umgebung.document, umgebung.window, umgebung.gruppeGilt,
       umgebung.wert, umgebung.zahl, function () { return false; });
+=======
+    var api = eval('(function (Z, document, window, gruppeGilt, wert, zahl) { ' +
+      'var uzGesetzt = null;' + quellen +
+      '; return { einlesen: unterzugEinlesen, setzen: unterzugGrenzeSetzen,' +
+      '           mitte: unterzugMitte, bereich: unterzugBereich }; })')(
+      umgebung.Z, umgebung.document, umgebung.window, umgebung.gruppeGilt,
+      umgebung.wert, umgebung.zahl);
+>>>>>>> origin/main
     /* Ein Durchlauf von aendern(), auf das Wesentliche verkuerzt.
        Die Verfaelschung dreht genau die Reihenfolge um, die der Fehler war. */
     function aendern() {
@@ -2442,6 +2463,7 @@ pruefe('RAL-Feld ist breit genug',
   var s0 = bau(false);
   if (gegen) { s0.Z.unterzugAuto = false; s0.Z.unterzugLage = 1000; }
   s0.aendern();
+<<<<<<< HEAD
   /* 5000 mm Tiefe, Pfostenachse 124,2 mm hinter der Dachkante → die
      Auflager stehen 4875,8 mm auseinander, die Mitte liegt bei 2438 mm.
      Vorher wurde hier 2500 erwartet – die Mitte der DACHTIEFE, also 62 mm
@@ -2451,6 +2473,11 @@ pruefe('RAL-Feld ist breit genug',
          Number(s0.el.value) === mitteSoll && s0.Z.unterzugAuto === true,
          'Auflager 0 … ' + (5000 - 124.2) + ' mm → ' + s0.el.value +
          ' mm ab Wand (erwartet ' + mitteSoll + '), Automatik ' +
+=======
+  pruefe('Der Unterzug liegt von selbst mittig',
+         Number(s0.el.value) === 2500 && s0.Z.unterzugAuto === true,
+         'Spannweite 5000 mm → ' + s0.el.value + ' mm ab Wand, Automatik ' +
+>>>>>>> origin/main
          (s0.Z.unterzugAuto ? 'an' : 'aus'));
 
   var w = bau(gegen);
@@ -2481,7 +2508,11 @@ pruefe('RAL-Feld ist breit genug',
   if (gegen) a.Z.unterzugAuto = false;   // so verhielt sich die alte Fassung
   a.aendern();
   pruefe('Die automatische Mitte wandert mit der Spannweite',
+<<<<<<< HEAD
          vorher === mitteSoll && Number(a.el.value) === Math.round((6000 - 124.2) / 2),
+=======
+         vorher === 2500 && Number(a.el.value) === 3000,
+>>>>>>> origin/main
          '5000 mm → ' + vorher + ' mm, 6000 mm → ' + a.el.value + ' mm');
 
   // 5. Dachvorsprung: die Mitte liegt zwischen den Auflagern, nicht im Dach
@@ -2489,6 +2520,7 @@ pruefe('RAL-Feld ist breit genug',
   b.Z.tiefe = 6000; b.Z.vorsprung = 1000;
   b.aendern();
   pruefe('Der Dachvorsprung verschiebt die Mitte nach vorn',
+<<<<<<< HEAD
          Number(b.el.value) === mitteSoll,
          '6000 mm Tiefe, 1000 mm Vorsprung → Auflager bis ' + (5000 - 124.2) +
          ' mm, Mitte ' + b.el.value + ' mm');
@@ -2510,6 +2542,11 @@ pruefe('RAL-Feld ist breit genug',
   pruefe('Regler und Modell meinen dieselbe Stelle',
          c0.api.abstand() === (gegen ? -1 : 1500),
          'Regler 1500 mm → Modell ' + c0.api.abstand() + ' mm ab Wand');
+=======
+         Number(b.el.value) === 2500,
+         '6000 mm Tiefe, 1000 mm Vorsprung → Spannweite 5000, Mitte ' +
+         b.el.value + ' mm');
+>>>>>>> origin/main
 
   // 6. Die Mitte muss mit der Schrittweite des Reglers auch erreichbar sein
   var c = bau(false);
@@ -2535,7 +2572,10 @@ pruefe('RAL-Feld ist breit genug',
    hindurch. Gerechnet wird mit der echten Funktion, nicht mit einer
    Kopie ihrer Formel. */
 (function () {
+<<<<<<< HEAD
   var zFest = /var zHintenK = 0;/.test(js);
+=======
+>>>>>>> origin/main
   var f = (js.match(/function seitenFelder\([\s\S]*?\n  \}/) || [''])[0];
   /* In der Gegenprobe wird zusaetzlich nach einer Funktion gesucht, die es
      nicht gibt – sonst waere dies die einzige Pruefung hier, die nie
@@ -2612,6 +2652,7 @@ pruefe('RAL-Feld ist breit genug',
   pruefe('Beide Längsseiten kommen aus derselben Aufteilung',
          new RegExp(q || "seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\)\\.forEach").test(js),
          'links und rechts im selben Durchlauf');
+<<<<<<< HEAD
 
   /* ---------- Der Keil bleibt in seinem Feld ----------
      „keil is nicht gleichmäßig und hat komische viele rechteckige
@@ -2626,6 +2667,8 @@ pruefe('RAL-Feld ist breit genug',
   pruefe('Kein fester Nullwert mehr für die Keil-Hinterkante',
          gegen ? zFest : !zFest,
          zFest ? 'var zHintenK = 0 steht noch da' : 'entfernt');
+=======
+>>>>>>> origin/main
 })();
 
 console.log(gegen
