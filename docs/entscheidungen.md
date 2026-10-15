@@ -6558,3 +6558,46 @@ Regler, 3D und Anfrage aus derselben Größe; Träger und Pfosten im Bild;
 nicht beim SkyView. Drei Verfälschungen (Bereich ohne Preislistengrenze →
 40 Verstöße; Unterzug auch beim SkyView; Pfosten entfernt) schlagen je
 einzeln an.
+
+### 15.10.2026 – Drei Statikstufen: nichts / Innenkern / Unterzug
+
+> „laut tds preisliste heißt es bis tiefe 4m nichts notwendig, ab 4m bis
+> 4,6m reicht Innenkern Träger und ab 4,6m unterzug über die gesamte
+> breite" (Betreiber)
+
+**Ein Fehler in meiner Maßtabelle, direkt nach dem Einbau des Unterzugs
+gefunden.** Dort stand `tiefeMaxOhneUnterzug: 4500`. Die lieferbaren
+TDS-Tiefen springen aber **4000 → 4050 → 4600 → 5000**; eine 4500 gibt es
+gar nicht. Mit der alten Grenze verlangte das Modell bei 4600 mm einen
+Unterzug über die ganze Breite, obwohl dort der Innenkern-Träger reicht –
+ein Teil zu viel in jeder Anfrage dieser Größe, und die Pfostenreihe im
+Bild dazu.
+
+**Was jetzt gilt:**
+
+| Tiefe | nötig |
+|---|---|
+| bis 4000 mm | nichts |
+| über 4000 bis 4600 mm | Innenkern-Träger im Sparren |
+| über 4600 mm | Unterzug über die ganze Breite |
+
+Der Unterzug-Regler von vorhin übernimmt die neue Grenze automatisch: Die
+Felder dürfen jetzt bis 4600 mm statt 4500 mm tief sein.
+
+**Neu in der Anfrage:** Der Innenkern wird genannt – und bei geteiltem Dach
+**je Feld**, weil jedes Feld ein Dach für sich ist. Bei 7000 mm Tiefe und
+mittigem Unterzug (3500/3500) braucht es keinen; schiebt man ihn auf
+4500 mm, braucht das hintere Feld einen. Genau das sieht man einer Anfrage
+sonst nicht an.
+
+*Anmerkung:* Am 11.10.2026 war entschieden worden, den Innenkern nicht
+anzuzeigen – das bezog sich aber auf die Teileliste und auf die falsche
+Verknüpfung mit der Glaskopplung („innenkern is keine Verglasung"). Als
+Statikangabe in der Anfrage ist er neu; **falls das nicht gewünscht ist,
+genügt ein Wort.**
+
+**Absicherung:** Eine Prüfung rechnet die drei Stufen für fünf Tiefen nach,
+eine zweite hält fest, dass 4600 lieferbar ist und 4500 nicht (sonst wäre
+die Grenze nicht nachprüfbar). Verfälschungen: Grenze zurück auf 4500 →
+„4600 mm: Unterzug statt Innenkern"; Innenkern-Schwelle auf 4600 →
+„4600 mm: nichts statt Innenkern".

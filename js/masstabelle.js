@@ -37,7 +37,7 @@
  *     Rückfrage mit genau diesem Befund noch einmal: „7m war schon
  *     richtig, tiefe wie ich gesagt hab". Es gilt die Angabe des
  *     Betreibers; die PDF-Spalte ist an dieser Stelle überholt.
- *   · Innenkern nur bei Tiefe 4600
+ *   · Innenkern ab Tiefe 4000 bis 4600 (einzige Stufe dort: 4600)
  * Deshalb stehen hier nur Breite → [Sparren, Stützfüße] und die
  * Liste der lieferbaren Tiefen. scripts/pruefe-masstabelle.js rechnet
  * die Regeln nach.
@@ -47,11 +47,23 @@
 window.BV_MASSTABELLE = {
   stand: '2026-10-11',
   regeln: {
-    tiefeMaxOhneUnterzug: 4500,
+    /* KORREKTUR 15.10.2026: Hier standen 4500 mm. Der Betreiber nach der
+       TDS-Preisliste: „bis tiefe 4m nichts notwendig, ab 4m bis 4,6m
+       reicht Innenkern Träger und ab 4,6m unterzug über die gesamte
+       breite". Die lieferbaren Tiefen springen 4000 → 4600 → 5000; eine
+       4500 gibt es gar nicht. Mit der alten Grenze verlangte das Modell
+       bei 4600 mm einen Unterzug, obwohl dort der Innenkern reicht. */
+    tiefeMaxOhneUnterzug: 4600,
+    /* Ab dieser Tiefe reicht der Innenkern-Traeger im Sparren; darunter
+       ist nichts noetig, darueber (ab tiefeMaxOhneUnterzug) der Unterzug
+       ueber die ganze Breite. */
+    innenkernAbTiefe: 4000,
     /* Ab dieser Tiefe kommt MIT Unterzug ein Pfosten dazu. */
     tiefeMaxMitUnterzug: 7000,
     /* Größte lieferbare Tiefe – die letzte Spalte der Tabelle. */
     tiefeMaxLieferbar: 7050,
+    /* Die einzige lieferbare Tiefe im Band 4000 < T <= 4600. Bleibt als
+       eigener Wert stehen, weil die Glasteilung daran haengt. */
     innenkernTiefe: 4600
   },
   /* Welche Serienfarben ein System führt – BELEGT aus dem Kopf der

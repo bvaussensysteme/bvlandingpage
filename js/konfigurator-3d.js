@@ -6794,6 +6794,18 @@
     return !!(tb && tb.unterzug);
   }
 
+  /* Die drei Stufen der TDS-Preisliste (Betreiber, 15.10.2026):
+     bis 4000 mm nichts, bis 4600 der Innenkern-Traeger im Sparren,
+     darueber der Unterzug ueber die ganze Breite. Die Funktion gilt auch
+     fuer ein einzelnes FELD eines geteilten Dachs – dort ist jedes Feld
+     ein Dach fuer sich. */
+  function innenkernNoetig(tiefeMm) {
+    var M = window.BV_MASSTABELLE;
+    if (!M || !M.regeln) return false;
+    var t = tiefeMm == null ? Z.tiefe : tiefeMm;
+    return t > M.regeln.innenkernAbTiefe && t <= M.regeln.tiefeMaxOhneUnterzug;
+  }
+
   function unterzugBereich() {
     var M = window.BV_MASSTABELLE;
     var ohne = (M && M.regeln && M.regeln.tiefeMaxOhneUnterzug) || 4500;
@@ -8369,9 +8381,22 @@
            Die Felder dazu, weil der Betrieb daran sofort sieht, dass
            beide unter 4500 mm bleiben. */
         if (gruppeGilt('unterzug')) {
-          var uzA = unterzugAbstand();
+          var uzA = unterzugAbstand(), uzB = Z.tiefe - uzA;
           teile.push('Unterzug (Statikträger über die ganze Breite): ' +
-            uzA + ' mm ab Wand – Felder ' + uzA + ' / ' + (Z.tiefe - uzA) + ' mm');
+            uzA + ' mm ab Wand – Felder ' + uzA + ' / ' + uzB + ' mm');
+          /* Jedes Feld ist ein Dach fuer sich: Ueber 4000 mm braucht es
+             dort den Innenkern-Traeger. Bei mittiger Lage faellt das oft
+             weg, bei verschobener nicht – deshalb gehoert es in die
+             Anfrage und nicht in eine Fussnote. */
+          var kerne = [innenkernNoetig(uzA) ? 'hinteres' : null,
+                       innenkernNoetig(uzB) ? 'vorderes' : null]
+                      .filter(function (x) { return x; });
+          if (kerne.length) {
+            teile.push('Innenkern-Träger nötig im ' + kerne.join(' und ') +
+              ' Feld (über 4000 mm)');
+          }
+        } else if (innenkernNoetig()) {
+          teile.push('Innenkern-Träger im Sparren nötig (Tiefe über 4000 mm)');
         }
       } else if (Z.cpVariante === 'Carport mit Überstand') {
         teile.push('Dachüberstand: ' + Z.ueberstand + ' mm');
