@@ -7105,3 +7105,54 @@ zeigen. Gegenprobe: alle 296 Prüfungen des Skripts schlagen an.
 **Was gegengelesen werden soll.** Seite mit Keil und verschobenem Unterzug:
 Die Unterkante des Keils muss über beide Felder auf einer Höhe liegen, ohne
 Absatz am Pfosten.
+
+### 16.10.2026 – Der Träger unter der Rinne kommt nur noch freiwillig
+
+**Anlass.** Der Betreiber: *„was mir aufgefallen ist, da das mit dem unterzug
+jz geklärt is, unter der rinne wird automatisch ein statikträger hinzugefügt
+sobald ein unterzug hinzugefügt wird, das is ja nicht mehr nötig nur
+freiwillig wenn man es will"*
+
+**Was dahintersteckt.** Bis heute erzwang die **Tiefe** einen Statikträger
+unter der Dachrinne: `unterzugGilt(tb)` fragte die Unterzug-Spalte der
+Maßtabelle ab und setzte daraufhin den Rinnenträger. Das ist ein Erbe aus der
+Zeit vor dem 15.10.2026 – damals gab es den Unterzug in der Dachmitte noch
+nicht, und der Rinnenträger war sein Ersatz. Seit der Unterzug an seiner
+eigenen Stelle steht, ist das doppelt: Zwei Träger für eine Anforderung.
+
+**Was jetzt gilt.** Der Träger unter der Rinne kommt nur noch aus zwei
+Gründen:
+
+| Grund | Pflicht? |
+|---|---|
+| Dachvorsprung | ja – die Rinne kragt über die Pfosten hinaus und braucht eine Auflage |
+| Häkchen „Statikträger" | nein, Kundenwunsch (spart Pfosten) |
+| Tiefe über 4600 mm | **nein mehr** – dafür gibt es den Unterzug |
+
+`unterzugGilt()` ist damit ohne Verwender und entfernt. Mit ihr entfällt auch
+die Carport-Ausnahme von damals (*„du machst beim carport automatisch nen
+statikträger ab bestimmte maß. lass das"*): Die Tiefenregel gibt es für dieses
+Bauteil jetzt nirgends mehr, die Sonderbehandlung hat keinen Gegenstand.
+
+Das Häkchen erscheint neu auch bei großen Tiefen. Vorher blendete
+`traegerSchonNoetig()` es aus, weil der Träger ohnehin kam – jetzt wäre genau
+das der Fall, in dem der Kunde ihn freiwillig haben will.
+
+**Folge, die beim Gegenlesen auffallen wird.** Unter einem durchgehenden
+Träger gilt die 7-Meter-Regel für die Pfosten, ohne ihn die Stützfußspalte der
+Preisliste. Bei tiefen Dächern ohne Häkchen stehen deshalb jetzt **mehr
+Pfosten in der vorderen Reihe** als vorher – sachlich richtig, denn ohne
+durchgehenden Träger trägt jede Stütze für sich. Wer die alte Ansicht will,
+setzt das Häkchen.
+
+**Absicherung.** Die Prüfungen in `scripts/pruefe-masstabelle.js` sind von der
+alten Regel auf die neue umgestellt: dass `unterzugGilt` verschwunden ist,
+dass der Rinnenträger nicht roh aus der Unterzug-Spalte kommt, dass das
+Häkchen wählbar bleibt, dazu sechs durchgerechnete Fälle (tief ohne Haken →
+kein Träger; mit Haken → Träger; mit Vorsprung → Träger; Terrassendach und
+Carport gleich).
+
+**Zum zweiten Mal an einem Tag:** Die erste Fassung der Prüfung schlug auf dem
+**Kommentar** an, der erklärt, warum es die Funktion nicht mehr gibt. Sie
+liest jetzt den Quelltext ohne Blockkommentare. Eine Prüfung muss Code lesen,
+nicht Prosa.

@@ -266,7 +266,7 @@ pruefe('Dachvorsprung bewegt die Pfosten',
          (ueberlappung * 10).toFixed(1) + ' mm Überlappung mit der Kehle');
 })();
 pruefe('Träger kommt auch mit Vorsprung',
-       new RegExp(q || 'unterzugGilt\\(tbMass\\) \\|\\| vorspr > 0').test(k3d), '');
+       new RegExp(q || 'traegerH = \\(vorspr > 0 \\|\\|').test(k3d), '');
 /* Die Rinne wird nie angehoben – technisch unmöglich. Der Träger nimmt
    dem Pfosten seine Höhe weg, in BEIDEN Lagen. */
 pruefe('Rinne bleibt auf der eingestellten Höhe',
@@ -2033,35 +2033,47 @@ pruefe('Beide Hoehen stehen in der Anfrage',
          flach + '° bis ' + steil + '°');
 })();
 
-/* ---------- Carport: Traeger nur ueber das Haekchen ----------
-   „du machst beim carport automatisch nen statikträger ab bestimmte maß.
-   lass das. mach es mit häckchen wie bei tds normal" (Betreiber). */
-pruefe('Tiefenregel gilt beim Carport TDS nicht',
-       new RegExp(q || 'return !!\\(tb && tb\\.unterzug\\) && !istCarportTds\\(\\)').test(k3d), '');
-pruefe('Modell fragt die Regel ueber unterzugGilt ab',
-       new RegExp(q || 'traegerH = \\(unterzugGilt\\(tbMass\\)').test(k3d), '');
-pruefe('Keine rohe Abfrage von unterzug mehr',
-       gegen ? /\(tbMass && tbMass\.unterzug\)/.test(k3d)
-             : !/\(tbMass && tbMass\.unterzug\)/.test(k3d),
-       'alles ueber unterzugGilt');
-pruefe('Haekchen erscheint beim Carport also auch tief',
-       new RegExp(q || 'if \\(unterzugGilt\\(tabelleBauteile').test(k3d), '');
+/* ---------- Traeger unter der Rinne: nur Vorsprung oder Haekchen ----------
+   „unter der rinne wird automatisch ein statikträger hinzugefügt sobald ein
+   unterzug hinzugefügt wird, das is ja nicht mehr nötig nur freiwillig wenn
+   man es will" (Betreiber, 16.10.2026).
+
+   Bis dahin erzwang die TIEFE einen Traeger unter der Rinne – ein Erbe aus
+   der Zeit, als es den Unterzug in der Dachmitte noch nicht gab; der
+   Rinnentraeger war sein Ersatz. Mit ihm entfiel auch die Carport-Ausnahme
+   („mach es mit häckchen wie bei tds normal"), denn die Tiefenregel gibt es
+   fuer dieses Bauteil nun nirgends mehr. */
+/* Ohne Blockkommentare: Sonst schlaegt die Pruefung auf dem Kommentar an,
+   der erklaert, warum es die Funktion nicht mehr gibt. Dasselbe ist mir
+   heute schon einmal passiert (siehe „var zUnterzug = T / 2" in
+   scripts/pruefe-fuehrung.js) – eine Pruefung muss Code lesen, nicht Prosa. */
+var k3dCode = k3d.replace(/\/\*[\s\S]*?\*\//g, '');
+pruefe('Die Tiefe erzwingt keinen Träger unter der Rinne mehr',
+       gegen ? /unterzugGilt\(/.test(k3dCode) : !/unterzugGilt\(/.test(k3dCode),
+       'unterzugGilt() ist entfallen');
+pruefe('Keine rohe Abfrage von unterzug für den Rinnenträger',
+       gegen ? /traegerH = \([^)]*tbMass\.unterzug/.test(k3d)
+             : !/traegerH = \([^)]*tbMass\.unterzug/.test(k3d),
+       'weder über eine Funktion noch roh');
+pruefe('Das Häkchen bleibt wählbar, auch wenn die Tiefe einen Unterzug verlangt',
+       new RegExp(q || 'return gruppeGilt\\(.vorsprung.\\) && Z\\.vorsprung > 0;').test(k3d),
+       'traegerSchonNoetig() kennt nur noch den Dachvorsprung');
 /* Zweiter Weg: die Entscheidung mit echten Werten durchrechnen. */
 (function () {
-  function unterzugGilt(tb, carport) { return !!(tb && tb.unterzug) && !carport; }
-  function traeger(tb, carport, vorsprung, haken) {
-    return unterzugGilt(tb, carport) || vorsprung > 0 || haken;
+  /* Dieselbe Regel wie im Code – jetzt ohne Tiefe und ohne Systemausnahme. */
+  function traeger(vorsprung, haken) {
+    return vorsprung > 0 || haken;
   }
-  var tief = { unterzug: true }, flach = { unterzug: false };
-  [['Terrassendach, 5,5 m tief, kein Haken', tief, false, 0, false, true],
-   ['Carport, 5,5 m tief, kein Haken',       tief, true,  0, false, false],
-   ['Carport, 5,5 m tief, mit Haken',        tief, true,  0, true,  true],
-   ['Carport, 5,5 m tief, mit Vorsprung',    tief, true,  300, false, true],
-   ['Carport, 3 m tief, kein Haken',         flach, true, 0, false, false]
+  [['Terrassendach, 5,5 m tief, kein Haken', 0, false, false],
+   ['Terrassendach, 5,5 m tief, mit Haken',  0, true,  true],
+   ['Carport, 5,5 m tief, kein Haken',       0, false, false],
+   ['Carport, 5,5 m tief, mit Haken',        0, true,  true],
+   ['Carport, 5,5 m tief, mit Vorsprung',    300, false, true],
+   ['Terrassendach, 3 m tief, kein Haken',   0, false, false]
   ].forEach(function (f) {
-    var ist = traeger(f[1], f[2], f[3], f[4]);
+    var ist = traeger(f[1], f[2]);
     if (gegen) ist = !ist;
-    pruefe(f[0] + ' -> ' + (f[5] ? 'Träger' : 'kein Träger'), ist === f[5],
+    pruefe(f[0] + ' -> ' + (f[3] ? 'Träger' : 'kein Träger'), ist === f[3],
            ist ? 'Träger' : 'kein Träger');
   });
 })();
@@ -2141,7 +2153,7 @@ pruefe('Haekchen nennt die geringere Durchgangshoehe',
 pruefe('Wunsch erzeugt den Traeger im Modell',
        new RegExp(q || 'vorspr > 0 \\|\\|\\s*Z\\.traegerWunsch').test(k3d), '');
 pruefe('Wunsch zaehlt auch im Masshinweis',
-       new RegExp(q || 'traeger = unterzugGilt\\(tb\\) \\|\\| vs > 0 \\|\\| wunsch').test(k3d) &&
+       new RegExp(q || 'var traeger = vs > 0 \\|\\| wunsch;').test(k3d) &&
        new RegExp(q || 'if \\(bt\\.traeger\\) \\{').test(k3d),
        'eine Entscheidung, von Hinweis und Anfrage genutzt');
 pruefe('Haekchen entfaellt, wenn der Traeger ohnehin noetig ist',

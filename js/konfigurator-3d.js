@@ -5655,8 +5655,16 @@
        mit häckchen wie bei tds normal" (Betreiber, 11.10.2026). Dort
        kommt der Träger also nur über das Häkchen oder über einen
        Dachvorsprung. */
-    var traegerH = (unterzugGilt(tbMass) || vorspr > 0 ||
-                    Z.traegerWunsch) ? 18.9 : 0;
+    /* Der Traeger unter der RINNE kommt nicht mehr automatisch, sobald die
+       Tiefe einen Unterzug verlangt. Das stammt aus der Zeit, als es den
+       echten Unterzug in der Dachmitte noch nicht gab – damals war der
+       Rinnentraeger der Ersatz dafuer. Seit dem 15.10.2026 steht der
+       Unterzug an seiner eigenen Stelle; der Rinnentraeger ist dann
+       „nicht mehr nötig nur freiwillig wenn man es will" (Betreiber,
+       16.10.2026). Beim Dachvorsprung bleibt er Pflicht: Dort kragt die
+       Rinne ueber die Pfosten hinaus und braucht etwas, worauf sie
+       aufliegt. */
+    var traegerH = (vorspr > 0 || Z.traegerWunsch) ? 18.9 : 0;
     var traegerT = 11.7;
     /* Die Rinne liegt immer auf der eingestellten Höhe – sie rückt nie
        nach oben. Der Träger nimmt dem PFOSTEN seine Höhe weg. */
@@ -8190,12 +8198,17 @@
      entscheidet allein das Häkchen bzw. der Dachvorsprung (Betreiber,
      11.10.2026). Ein Carport ist von Haus aus tief; die Regel hätte dort
      praktisch immer gegriffen und dem Kunden die Wahl genommen. */
-  function unterzugGilt(tb) {
-    return !!(tb && tb.unterzug) && !istCarportTds();
-  }
+  /* unterzugGilt() ist am 16.10.2026 entfallen. Sie sagte, ob die TIEFE
+     einen Traeger unter der Rinne erzwingt – samt einer Ausnahme fuer den
+     Carport TDS. Beides ist gegenstandslos: Was die Tiefe verlangt, ist
+     der Unterzug in der Dachmitte (unterzugNoetig/unterzugZcm), und der
+     Rinnentraeger kommt nur noch ueber Dachvorsprung oder Haekchen. */
 
+  /* Wann steckt der Traeger unter der Rinne schon fest, sodass das Haekchen
+     nichts mehr aendert? Nur noch beim Dachvorsprung. Die Tiefe zaehlt hier
+     nicht mehr mit – sonst verschwaende das Haekchen genau dann, wenn der
+     Kunde den Traeger freiwillig haben will (Betreiber, 16.10.2026). */
   function traegerSchonNoetig() {
-    if (unterzugGilt(tabelleBauteile(Z.breite, Z.tiefe))) return true;
     return gruppeGilt('vorsprung') && Z.vorsprung > 0;
   }
   /* ---------- Sparren, Pfosten, Traeger: EINE Quelle ----------
@@ -8217,7 +8230,9 @@
     if (!tb) return null;
     var vs = gruppeGilt('vorsprung') ? Z.vorsprung : 0;
     var wunsch = gruppeGilt('traeger-wunsch') && Z.traegerWunsch;
-    var traeger = unterzugGilt(tb) || vs > 0 || wunsch;
+    /* Siehe traegerH im Bau: Die Tiefe allein bringt keinen Traeger unter
+       der Rinne mehr, dafuer gibt es jetzt den Unterzug in der Dachmitte. */
+    var traeger = vs > 0 || wunsch;
     return {
       sparren: tb.sparren,
       /* Unter einem Träger gilt die 7-m-Regel, sonst die Stützfußspalte
@@ -9138,13 +9153,13 @@
         }
         var vs = vsHin;
         if (bt.traeger) {
-          var grund = unterzugGilt(tb)
-            ? 'Ab ' + (M.regeln.tiefeMaxOhneUnterzug / 1000).toFixed(1).replace('.', ',') +
-              ' m Tiefe kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
-            : (vs > 0
-              ? 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
-              : 'Sie haben den <b>Statikträger</b> (189 × 117 mm) gewählt – er läuft über ' +
-                'die volle Breite und spart ' + (tb.pfosten - pfV) + ' Pfosten.');
+          /* Den Grund „ab X m Tiefe" gibt es hier nicht mehr: Was die Tiefe
+             verlangt, ist der Unterzug in der Dachmitte, nicht der Traeger
+             unter der Rinne. Bleiben Dachvorsprung (Pflicht) und Wunsch. */
+          var grund = vs > 0
+            ? 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
+            : 'Sie haben den <b>Statikträger</b> (189 × 117 mm) gewählt – er läuft über ' +
+              'die volle Breite und spart ' + (tb.pfosten - pfV) + ' Pfosten.';
           var lage = vs > 0
             ? ' Die Pfosten stehen ' + vs + ' mm weiter innen; der Träger liegt ' +
               'über ihnen unter den Sparren, weil die Rinne dort auskragt.'
