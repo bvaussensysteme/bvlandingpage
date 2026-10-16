@@ -5575,33 +5575,38 @@
        GESCHAETZT – dazu sagt keine Quelle etwas. */
     var FLAT_BLENDE_H = SKY.seitenblendeH;
     var FLAT_BLENDE_T = SKY.seitenblendeT;
-    /* Die Rinne laeuft umlaufend hinter der Blende: „ja rinne wie bei
-       skyview" (Betreiber, 16.10.2026), also 186,3 mm tief – derselbe
-       Wert, mit dem der SkyView-Rahmen gebaut wird (SKY.rinneT). Vorher
-       war der ganze Kasten nur so tief wie die Blende (38,9 mm); die
-       Rinne dahinter fehlte, und die Sparren liefen bis an die
-       Aussenkante durch. */
-    var FLAT_RINNE_T = SKY.rinneT;
-    /* ---------- Die Seitenrinne ist schmaler als die vordere ----------
-       „Seitenrinne Flat" 16554 ist ein ANDERER Artikel als „Rinne Flat"
-       16553 – bis zum 16.10.2026 lief im Modell fuer beide dieselbe Tiefe
-       von 186,3 mm. Ergebnis: ein Rahmen von 225 mm auf allen vier
-       Seiten. „außenrum die blenden sind viel zu dick passt nicht ins
-       gleichgewicht" (Betreiber, 16.10.2026).
+    /* ---------- Welche Rinne auf welche Seite gehoert ----------
+       Es sind ZWEI verschieden tiefe Garnituren, und bis zum 16.10.2026
+       lagen sie verkehrt: die tiefe vorne und hinten, die schmale an den
+       Seiten. „das mit den rinnen is super nur du hast sie auf die
+       falschen 2 seiten gemacht, die muessen auf die anderen 2 seiten"
+       (Betreiber, 16.10.2026).
 
-       ABGELEITET aus einem belegten Mass: Die Montageanleitung (Schritt
-       3.2) gibt den aeussersten Sparren 135 mm lichten Abstand zur Kante
-       (FLAT_SPARREN_RAND). Zwischen Aussenkante und erstem Sparren passt
-       also hoechstens ein 135 mm breites Profil – waere die Seitenrinne
-       186,3 mm tief, saesse der Sparren mitten in ihr. Der Sparren liegt
-       damit genau an ihrer Innenwand, und die Seitenrinne ist 135 mm
-       breit. Das ist eine Rechnung, kein Beleg; eine Querschnittzeichnung
-       bestaetigt oder widerlegt sie (Rueckfrage 5b). */
-    var FLAT_SEITENRINNE_T = FLAT_SPARREN_RAND;
-    /* Wie tief die Rinne unter der Blechebene liegt. GESCHAETZT: Sie muss
-       unter das Blech (FLAT_DECK_AB = 50 mm), sonst liefe kein Wasser
-       hinein, und sie muss im 252 mm hohen Rahmen Platz haben. 70 mm sind
-       das Mindeste, bei dem man eine Rinne als Rinne erkennt. */
+       Die Montageanleitung belegt es und erklaert auch, warum:
+         · „SCHRITT 3 ANBRINGUNG DER SEITLICHEN REGENRINNE" – sie werden
+           als ERSTE montiert, direkt nach den Pfosten, mit „Fallrohr in
+           jeden Pfosten" und vier Laubfaengern. Das sind die
+           wasserfuehrenden Hauptrinnen, und sie liegen LINKS UND RECHTS.
+         · Erst danach, Schritt 2.3: „die vordere und hintere
+           Regenrinne" – die zweite, kleinere Garnitur.
+         · Beim Verschrauben der Eindeckung: Loecher, „die bis in die
+           Sparren reichen (an den Seiten bis in die Regenrinne)" – an den
+           Seiten traegt also die Rinne selbst das Blech, wie ein Sparren.
+
+       Benannt wird deshalb nach der LAGE, nicht nach dem Artikelnamen:
+       VDs „Seitenrinne" und „Seitenblende" meinen in der Anleitung die
+       vordere und hintere Seite, nicht links/rechts. Wer dem Namen folgt,
+       baut den Fehler wieder ein. */
+    var FLAT_RINNE_LAENGS = SKY.rinneT;    // links und rechts, 186,3 mm
+    /* Vorne und hinten, GESCHAETZT. Die fruehere Herleitung aus dem
+       Sparren-Randabstand gilt NICHT mehr: Die 135 mm der
+       Montageanleitung sind an der Masslinie „Anlagebreite" der Zeichnung
+       zu Schritt 3.2 angetragen, gelten also ueber die Breite – dort, wo
+       jetzt die Laengsrinne liegt. 135 mm bleiben hier als Mass der
+       schmaleren Garnitur stehen, weil der Betreiber die Proportion so
+       bestaetigt hat („das mit den rinnen is super"). Belegt ist sie
+       nicht; sie steht als Rueckfrage 5b. */
+    var FLAT_RINNE_QUER = 13.5;
     var FLAT_RINNE_TIEF = 7.0;
     var FLAT_DECK_AB = 5;
     /* Flat Line und Flat Box nehmen den Pfosten 15190 (110,2 mm). Die
@@ -5688,7 +5693,7 @@
        liegt die Rinne, dort endet der Sparren. Beim tds-Zweig (unbenutzt)
        bleibt die alte Rechnung. */
     var traegerL = tds ? Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2))
-                       : Math.max(10, T - 2 * SKY.rinneT);
+                       : Math.max(10, T - 2 * FLAT_RINNE_QUER);
     var tbFlat = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
     var spAnzahl = (tbFlat && tbFlat.sparren) || 2;
     var spBreite = tds ? PROFIL * 0.8 : FLAT_TRAEGER.breite;
@@ -5768,7 +5773,8 @@
             schon gebaut („Blende deckt Rinne und Schenkel ganz ab",
             12.10.2026). Der Rahmen ist damit so breit wie die Rinne.
          2. Die Seitenrinne lief mit der Tiefe der vorderen Rinne. Sie ist
-            ein eigener Artikel und schmaler – siehe FLAT_SEITENRINNE_T.
+            ein eigener Artikel. Seit dem 16.10.2026 liegt die tiefe
+            Garnitur links und rechts – siehe FLAT_RINNE_LAENGS.
          3. Die Rinne war ein MASSIVER Balken. Eine Rinne ist eine offene
             Rinne: Aussenwand, Boden, Innenwand. Als Trog wirkt derselbe
             Rahmen deutlich leichter – und man sieht, wohin das Wasser
@@ -5794,8 +5800,8 @@
          SkyView-Mass. Das ist eine Platzhalterform, kein Beleg, und
          steht als Rueckfrage 5b in daten/rueckfragen-an-vd.md. */
       var bT = FLAT_BLENDE_T;              // Wandstaerke/Aussenhaut, 38,9 mm
-      var rT = FLAT_RINNE_T;               // vorne und hinten, 186,3 mm
-      var sT = FLAT_SEITENRINNE_T;         // seitlich, 135 mm
+      var rT = FLAT_RINNE_QUER;            // vorne und hinten, 135 mm
+      var sT = FLAT_RINNE_LAENGS;          // links und rechts, 186,3 mm
       var yDeck = oben - FLAT_DECK_AB;     // Blechunterseite = Oberkante Innenwand
       var rinneBoden = yDeck - FLAT_RINNE_TIEF;
       var bodenD = 1.0;                    // Blechboden der Rinne
@@ -5810,7 +5816,9 @@
       /* Vorne und hinten: Aussenwand ueber die volle Breite */
       [[T - bT / 2, T - rT + bT / 2, T - rT / 2],
        [bT / 2, rT - bT / 2, rT / 2]].forEach(function (z) {
-        balken(B, blendeH, bT, 0, mitteH, z[0], mBlech);                       // Aussenwand
+        /* B - 2*bT: Die Laengsrinnen laufen in der Ecke durch, nicht
+           diese hier – sie werden laut Anleitung als erste montiert. */
+        balken(B - 2 * bT, blendeH, bT, 0, mitteH, z[0], mBlech);              // Aussenwand
         balken(B, innenHoehe, bT, 0, innenH, z[1], mBlech);                    // Innenwand
         balken(B, bodenD, rT - 2 * bT, 0, rinneBoden - bodenD / 2, z[2], mBlech); // Boden
       });
@@ -5819,7 +5827,7 @@
       var seitL = Math.max(1, T - 2 * rT);
       [[-B / 2 + bT / 2, -B / 2 + sT - bT / 2, -B / 2 + sT / 2],
        [B / 2 - bT / 2, B / 2 - sT + bT / 2, B / 2 - sT / 2]].forEach(function (x) {
-        balken(bT, blendeH, T - 2 * bT, x[0], mitteH, T / 2, mBlech);          // Aussenwand
+        balken(bT, blendeH, T, x[0], mitteH, T / 2, mBlech);                   // Aussenwand
         balken(bT, innenHoehe, seitL, x[1], innenH, T / 2, mBlech);            // Innenwand
         balken(sT - 2 * bT, bodenD, seitL, x[2], rinneBoden - bodenD / 2, T / 2, mBlech); // Boden
       });

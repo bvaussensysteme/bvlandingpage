@@ -2629,9 +2629,9 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
      „ja rinne wie bei skyview" (Betreiber, 16.10.2026). Die Rinne laeuft
      umlaufend hinter der Blende, 186,3 mm tief – derselbe Wert, mit dem
      der SkyView-Rahmen gebaut wird. */
-  pruefe('Flat-Line-Rinne nimmt die SkyView-Tiefe',
-         gegen ? !/var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d)
-               : /var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d),
+  pruefe('Flat-Line-Laengsrinne nimmt die SkyView-Tiefe',
+         gegen ? !/var FLAT_RINNE_LAENGS = SKY\.rinneT;/.test(k3d)
+               : /var FLAT_RINNE_LAENGS = SKY\.rinneT;/.test(k3d),
          'aus SKY, keine eigene Zahl');
   /* ---------- Der Rahmen außenrum ----------
      „außenrum die blenden sind viel zu dick passt nicht ins
@@ -2651,10 +2651,27 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
   pruefe('Die Blende ist die Außenwand der Rinne, kein Teil davor',
          gegen ? /T - bT - rT \/ 2/.test(k3d) : !/T - bT - rT \/ 2/.test(k3d),
          'Rahmen = Rinnentiefe, nicht Blende + Rinne');
-  pruefe('Die Seitenrinne ist ein eigenes, schmaleres Maß',
-         gegen ? !/var FLAT_SEITENRINNE_T = FLAT_SPARREN_RAND;/.test(k3d)
-               : /var FLAT_SEITENRINNE_T = FLAT_SPARREN_RAND;/.test(k3d),
-         '135 mm statt 186,3 – aus dem Sparren-Randabstand gerechnet');
+  pruefe('Zwei verschieden tiefe Rinnen-Garnituren',
+         gegen ? !/var FLAT_RINNE_LAENGS = SKY\.rinneT;/.test(k3d)
+               : /var FLAT_RINNE_LAENGS = SKY\.rinneT;/.test(k3d) &&
+                 /var FLAT_RINNE_QUER = 13\.5;/.test(k3d),
+         'nach der LAGE benannt, nicht nach dem Artikelnamen');
+  /* Die Hauptrinne liegt LINKS UND RECHTS. Montageanleitung: „SCHRITT 3
+     ANBRINGUNG DER SEITLICHEN REGENRINNE" – als erste montiert, mit
+     „Fallrohr in jeden Pfosten" und vier Laubfaengern; die vordere und
+     hintere Regenrinne kommt erst in Schritt 2.3. Im Modell lag es
+     umgekehrt: „du hast sie auf die falschen 2 seiten gemacht"
+     (Betreiber, 16.10.2026). */
+  pruefe('Die tiefe Rinne liegt links und rechts',
+         gegen ? !/var sT = FLAT_RINNE_LAENGS;/.test(k3d)
+               : /var sT = FLAT_RINNE_LAENGS;/.test(k3d) &&
+                 /var rT = FLAT_RINNE_QUER;/.test(k3d),
+         'sT = laengs (186,3), rT = quer (135)');
+  pruefe('Die Laengsrinne laeuft in der Ecke durch',
+         gegen ? !/balken\(bT, blendeH, T, x\[0\], mitteH, T \/ 2, mBlech\);/.test(k3d)
+               : /balken\(bT, blendeH, T, x\[0\], mitteH, T \/ 2, mBlech\);/.test(k3d) &&
+                 /balken\(B - 2 \* bT, blendeH, bT, 0, mitteH, z\[0\], mBlech\);/.test(k3d),
+         'sie wird laut Anleitung als erste montiert');
   pruefe('Nichts ragt über die Anlagenkante hinaus',
          gegen ? /blendeH, bT, 0, hVorn \+ blendeH \/ 2, T \+ bT \/ 2/.test(k3d)
                : !/, T \+ bT \/ 2, mBlech\)/.test(k3d) && !/B \+ 2 \* bT, blendeH/.test(k3d),
@@ -2670,28 +2687,46 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          gegen ? !/var innenHoehe = blendeH - FLAT_DECK_AB;/.test(k3d)
                : /var innenHoehe = blendeH - FLAT_DECK_AB;/.test(k3d),
          'sonst liefe kein Wasser hinein');
-  pruefe('Sparren enden an der Rinne, nicht an der Außenkante',
-         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* SKY\\.rinneT\\)').test(k3d),
-         'Länge = Tiefe minus zwei Mal die Rinne');
+  pruefe('Sparren enden an der vorderen und hinteren Rinne',
+         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* FLAT_RINNE_QUER\\)').test(k3d),
+         'Länge = Tiefe minus zwei Mal die Querrinne');
   (function () {
-    /* Nachgerechnet, ZWEI Wege: Die Sparrenlänge aus dem Code und die
-       Rahmenbreite aus den Profilmaßen müssen zusammenpassen. Bei 6 m
-       Tiefe bleiben 6000 − 2 × 186,3 = 5627,4 mm. */
-    var rT = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
+    /* Nachgerechnet: Die Sparren laufen in der Tiefe und enden an der
+       vorderen und hinteren Rinne. Bei 6 m Tiefe bleiben
+       6000 − 2 × 135 = 5730 mm. */
+    var lang = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
+    var quer = Number((k3d.match(/var FLAT_RINNE_QUER = ([\d.]+);/) || [])[1]);
     var rand = Number((k3d.match(/var FLAT_SPARREN_RAND = ([\d.]+);/) || [])[1]);
-    var ist = 6000 - 2 * rT * 10;
+    var ist = 6000 - 2 * quer * 10;
     pruefe('Sparrenlänge bei 6 m Tiefe',
-           gegen ? Math.abs(ist - 5627.4) > 0.01 : Math.abs(ist - 5627.4) < 0.01,
-           ist.toFixed(1) + ' mm (6000 − 2 × ' + (rT * 10).toFixed(1) + ')');
-    pruefe('Der Rahmen ist seitlich schmaler als vorne',
-           gegen ? !(rand * 10 === 135 && rand < rT)
-                 : (rand * 10 === 135 && rand < rT),
-           'seitlich ' + (rand * 10) + ' mm, vorne ' + (rT * 10).toFixed(1) + ' mm');
-    pruefe('Der äußerste Sparren passt genau an die Innenwand der Seitenrinne',
+           gegen ? Math.abs(ist - 5730) > 0.01 : Math.abs(ist - 5730) < 0.01,
+           ist.toFixed(1) + ' mm (6000 − 2 × ' + (quer * 10).toFixed(1) + ')');
+    pruefe('Der Rahmen ist links und rechts breiter als vorne und hinten',
+           gegen ? !(lang > quer) : lang > quer,
+           'längs ' + (lang * 10).toFixed(1) + ' mm, quer ' + (quer * 10).toFixed(1) + ' mm');
+    /* Der äußerste Sparren haelt 135 mm lichten Abstand zur Kante
+       (Anlagebreite, Zeichnung zu Schritt 3.2). Die Längsrinne ist dort
+       186,3 mm breit: Außenwand bis 38,9 mm, offene Rinne bis 147,4 mm,
+       dann die Innenwand. Der Sparren reicht mit seiner Außenkante also
+       in die offene Rinne hinein – und genau so steht es in der
+       Anleitung: „Befestigen Sie jede Sparre mit jeweils zwei
+       selbstvorbohrenden Schrauben an den seitlichen Regenrinnen."
+       Geprüft wird, dass er die Rinne erreicht, ohne die Außenwand zu
+       durchstoßen. */
+    var bT = Number((k3d.match(/seitenblendeT: ([\d.]+),/) || [])[1]);
+    var vonKante = rand * 10;
+    var rinneAb = bT * 10, rinneBis = (lang - bT) * 10;
+    var trifft = vonKante > rinneAb && vonKante < rinneBis;
+    pruefe('Der äußerste Sparren erreicht die Längsrinne',
+           gegen ? !trifft : trifft,
+           'Sparren bei ' + vonKante.toFixed(0) + ' mm, offene Rinne von ' +
+           rinneAb.toFixed(1) + ' bis ' + rinneBis.toFixed(1) + ' mm ab Kante');
+    pruefe('Das Blech deckt die Innenwand beider Rinnen ab',
            gegen ? !/var blechRandX = Math\.max\(0, sT - bT\);/.test(k3d)
                  : /var blechRandX = Math\.max\(0, sT - bT\);/.test(k3d) &&
                    /var blechRandZ = Math\.max\(0, rT - bT\);/.test(k3d),
-           'Blech deckt die Innenwand, endet an der offenen Rinne');
+           'seitlich ' + ((lang - bT) * 10).toFixed(1) + ' mm, quer ' +
+           ((quer - bT) * 10).toFixed(1) + ' mm vom Rand');
   })();
 
   /* ---------- Trapezblech T35M-0,75-RAL7016 + Antikondensvlies ----------
