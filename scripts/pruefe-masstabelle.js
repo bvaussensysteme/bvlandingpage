@@ -2633,26 +2633,65 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          gegen ? !/var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d)
                : /var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d),
          'aus SKY, keine eigene Zahl');
-  pruefe('Blende ist die Außenhaut, Rinne sitzt dahinter',
-         new RegExp(q || 'balken\\(B, blendeH, bT, 0, hVorn \\+ blendeH / 2, T - bT / 2').test(k3d) &&
-         new RegExp(q || 'T - bT - rT / 2').test(k3d),
-         'zwei Bauteile, Blende außen');
+  /* ---------- Der Rahmen außenrum ----------
+     „außenrum die blenden sind viel zu dick passt nicht ins
+     gleichgewicht" (Betreiber, 16.10.2026). Drei Dinge waren falsch,
+     alle drei von ihm bestätigt:
+
+       1. Blende und Rinne lagen HINTEREINANDER und addierten sich zu
+          225 mm je Seite. Die Blende ist aber die Außenwand der Rinne.
+       2. Die Seitenrinne (Artikel 16554) lief mit der Tiefe der vorderen
+          Rinne (16553). Sie ist ein eigenes Profil und schmaler.
+       3. Die Rinne war ein massiver Balken statt einer offenen Rinne.
+
+     Die Breite der Seitenrinne ist aus einem belegten Maß gerechnet:
+     Der äußerste Sparren hält laut Montageanleitung 135 mm lichten
+     Abstand zur Kante. Wäre die Seitenrinne 186,3 mm tief, säße der
+     Sparren mitten in ihr. */
+  pruefe('Die Blende ist die Außenwand der Rinne, kein Teil davor',
+         gegen ? /T - bT - rT \/ 2/.test(k3d) : !/T - bT - rT \/ 2/.test(k3d),
+         'Rahmen = Rinnentiefe, nicht Blende + Rinne');
+  pruefe('Die Seitenrinne ist ein eigenes, schmaleres Maß',
+         gegen ? !/var FLAT_SEITENRINNE_T = FLAT_SPARREN_RAND;/.test(k3d)
+               : /var FLAT_SEITENRINNE_T = FLAT_SPARREN_RAND;/.test(k3d),
+         '135 mm statt 186,3 – aus dem Sparren-Randabstand gerechnet');
   pruefe('Nichts ragt über die Anlagenkante hinaus',
          gegen ? /blendeH, bT, 0, hVorn \+ blendeH \/ 2, T \+ bT \/ 2/.test(k3d)
                : !/, T \+ bT \/ 2, mBlech\)/.test(k3d) && !/B \+ 2 \* bT, blendeH/.test(k3d),
          'kein „T + bT / 2" und kein „B + 2 * bT" mehr');
+  pruefe('Die Rinne ist offen: Außenwand, Innenwand, Boden',
+         gegen ? !/var rinneBoden = yDeck - FLAT_RINNE_TIEF;/.test(k3d)
+               : /var rinneBoden = yDeck - FLAT_RINNE_TIEF;/.test(k3d) &&
+                 (k3d.match(/\/\/ Au\u00dfenwand|\/\/ Aussenwand/g) || []).length === 2 &&
+                 (k3d.match(/\/\/ Innenwand/g) || []).length === 2 &&
+                 (k3d.match(/\/\/ Boden/g) || []).length === 2,
+         'je drei Teile für quer und längs, kein massiver Balken');
+  pruefe('Die Innenwand endet auf der Blechunterseite',
+         gegen ? !/var innenHoehe = blendeH - FLAT_DECK_AB;/.test(k3d)
+               : /var innenHoehe = blendeH - FLAT_DECK_AB;/.test(k3d),
+         'sonst liefe kein Wasser hinein');
   pruefe('Sparren enden an der Rinne, nicht an der Außenkante',
-         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* \\(SKY\\.seitenblendeT \\+ SKY\\.rinneT\\)\\)').test(k3d),
-         'Länge = Tiefe minus zwei Mal (Blende + Rinne)');
+         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* SKY\\.rinneT\\)').test(k3d),
+         'Länge = Tiefe minus zwei Mal die Rinne');
   (function () {
-    /* Nachgerechnet: Bei 6 m Tiefe bleiben 6000 - 2 x 186,3 = 5627,4 mm. */
+    /* Nachgerechnet, ZWEI Wege: Die Sparrenlänge aus dem Code und die
+       Rahmenbreite aus den Profilmaßen müssen zusammenpassen. Bei 6 m
+       Tiefe bleiben 6000 − 2 × 186,3 = 5627,4 mm. */
     var rT = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
-    var bT = Number((k3d.match(/seitenblendeT: ([\d.]+),/) || [])[1]);
-    var soll = gegen ? 6000 : 6000 - 2 * (bT + rT) * 10;
-    var ist = 6000 - 2 * (bT + rT) * 10;
-    pruefe('Sparrenlänge bei 6 m Tiefe', Math.abs(ist - soll) < 0.01,
-           ist.toFixed(1) + ' mm (6000 − 2 × (' + (bT * 10).toFixed(1) + ' + ' +
-           (rT * 10).toFixed(1) + '))');
+    var rand = Number((k3d.match(/var FLAT_SPARREN_RAND = ([\d.]+);/) || [])[1]);
+    var ist = 6000 - 2 * rT * 10;
+    pruefe('Sparrenlänge bei 6 m Tiefe',
+           gegen ? Math.abs(ist - 5627.4) > 0.01 : Math.abs(ist - 5627.4) < 0.01,
+           ist.toFixed(1) + ' mm (6000 − 2 × ' + (rT * 10).toFixed(1) + ')');
+    pruefe('Der Rahmen ist seitlich schmaler als vorne',
+           gegen ? !(rand * 10 === 135 && rand < rT)
+                 : (rand * 10 === 135 && rand < rT),
+           'seitlich ' + (rand * 10) + ' mm, vorne ' + (rT * 10).toFixed(1) + ' mm');
+    pruefe('Der äußerste Sparren passt genau an die Innenwand der Seitenrinne',
+           gegen ? !/var blechRandX = Math\.max\(0, sT - bT\);/.test(k3d)
+                 : /var blechRandX = Math\.max\(0, sT - bT\);/.test(k3d) &&
+                   /var blechRandZ = Math\.max\(0, rT - bT\);/.test(k3d),
+           'Blech deckt die Innenwand, endet an der offenen Rinne');
   })();
 
   /* ---------- Trapezblech T35M-0,75-RAL7016 + Antikondensvlies ----------
