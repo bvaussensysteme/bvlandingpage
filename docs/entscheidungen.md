@@ -7339,6 +7339,12 @@ Für Flat Line gibt es also doch einen Innenkern-Träger, und zwar zwischen
 5000 und 6000 mm Tiefe. Der Betreiber hatte zunächst gesagt: *„beim flatline
 is es so bis 6m nix"* – und nach dem Hinweis: *„ja hast recht habe das
 übersehen"*. **Eingebaut am 16.10.2026** (siehe den Eintrag darunter).
+Für Flat Line gäbe es also doch einen Innenkern-Träger, und zwar zwischen
+5000 und 6000 mm Tiefe. Der Betreiber hatte gesagt: *„beim flatline is es so
+bis 6m nix"*. Beides lässt sich vereinbaren, wenn „nix" heißt „nichts, was
+extra berechnet wird" – der Innenkern ist laut Liste im Preis enthalten.
+Technisch wäre er aber vorhanden. Im Konfigurator steht deshalb weiter
+`innenkernAbTiefe: null` für Flat Line; geändert wird das erst auf Ansage.
 
 **Ebenfalls aus der Liste, noch nicht eingebaut:**
 - „Innenkern Rinne (1 m für Breite über 7 Meter)" – beim TDS gibt es dieselbe
