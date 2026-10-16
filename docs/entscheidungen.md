@@ -7156,3 +7156,45 @@ Carport gleich).
 **Kommentar** an, der erklärt, warum es die Funktion nicht mehr gibt. Sie
 liest jetzt den Quelltext ohne Blockkommentare. Eine Prüfung muss Code lesen,
 nicht Prosa.
+
+### 16.10.2026 – Die Ansicht folgt dem Schritt
+
+**Anlass.** Der Betreiber: *„is es möglich das wenn man zum schritt 4 kommt
+eindeckung, die 3d ansicht direkt auf ''von oben'' schwenkt das man das dach
+sieht und im nächsten schritt 5 wieder auf perspektive"*
+
+**Was jetzt gilt.** Im geführten Modus schwenkt die Ansicht beim Betreten des
+Dach-Schritts auf „Von oben" und beim Verlassen zurück auf „Perspektive" –
+auch beim Zurückblättern. Aus der Perspektive verdeckt sich die Eindeckung
+weitgehend selbst; genau in dem Schritt, in dem man sie wählt, sah man sie am
+schlechtesten.
+
+**Worauf es beim Bauen ankam.** `schrittZeigen()` läuft nicht nur beim
+Schrittwechsel, sondern auch am Ende von `aendern()`, also nach **jeder**
+Einstellung. Ein unbedachtes „wenn Schritt = dach, dann von oben" hätte die
+Ansicht bei jedem Klick zurückgerissen – wer im Dachschritt selbst dreht,
+hätte sein Bild nie behalten. Deshalb merkt sich `ansichtZumSchritt()` die
+zuletzt gezeigte Schritt-ID und schaltet nur beim echten Wechsel.
+
+Im Modus „Alles auf einen Blick" gibt es keine Schritte; dort fällt der Merker
+zurück und es wird nichts geschaltet.
+
+**Zwei Wege, eine Stelle.** Die Ansichtsleiste setzte die Ansicht bisher
+selbst und markierte ihren Knopf. Beides steckt jetzt in `ansichtWaehlen()`,
+das der Knopf und der Schrittwechsel gleichermaßen rufen. Sonst hätte die
+Leiste „Perspektive" angezeigt, während das Bild von oben kam – und es wären
+wieder zwei Stellen gewesen, die dasselbe tun (siehe die Unterzug-Runden vom
+15.10.).
+
+**Absicherung.** Sieben Prüfungen in `scripts/pruefe-fuehrung.js` führen die
+echte Funktion mit einer Attrappe für `ansichtWaehlen()` aus und lesen zurück,
+**welche** Ansicht wann gesetzt wurde: der Weg produkt → aufbau → masse → dach
+→ farbe ergibt genau „Von oben → Perspektive"; derselbe Schritt noch einmal
+gerufen schaltet nichts; rückwärts aus dem Dachschritt heraus ebenfalls
+Perspektive. Gegenprobe: alle 303 Prüfungen des Skripts schlagen an.
+
+**Was gegengelesen werden soll.** „Schritt für Schritt" bis zum Dach – die
+Ansicht muss von oben kommen und die Leiste „Von oben" markieren. Dort eine
+Eindeckung wählen: Die Ansicht darf **nicht** erneut springen. Dann selbst
+drehen und noch etwas ändern – das gedrehte Bild bleibt. Weiter zur Farbe:
+zurück auf Perspektive.

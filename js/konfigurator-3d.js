@@ -6812,6 +6812,40 @@
     kameraSetzen();
   }
 
+  /* Ansicht setzen UND die Leiste darunter nachziehen. Beides gehoert
+     zusammen: Sonst zeigt die Leiste „Perspektive" an, waehrend das Bild
+     von oben kommt. autoDreht stoppt dabei – eine Ansicht, die sich
+     gleich wieder wegdreht, waere keine. */
+  function ansichtWaehlen(name) {
+    if (!ANSICHTEN[name]) return;
+    autoDreht = false;
+    ansichtAnwenden(name);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-ansicht]'),
+      function (x) {
+        x.classList.toggle('is-active', x.getAttribute('data-k3d-ansicht') === name);
+      });
+  }
+
+  /* ---------- Die Ansicht folgt dem Schritt ----------
+     „is es möglich das wenn man zum schritt 4 kommt eindeckung, die 3d
+     ansicht direkt auf ''von oben'' schwenkt das man das dach sieht und
+     im nächsten schritt 5 wieder auf perspektive" (Betreiber, 16.10.2026).
+
+     Beim Dachschritt sieht man die Eindeckung sonst gar nicht – aus der
+     Perspektive verdeckt sie sich selbst.
+
+     Nur beim WECHSEL des Schritts, nicht bei jedem Aufruf: schrittZeigen()
+     laeuft auch nach jeder Aenderung im Bedienfeld (siehe aendern()).
+     Ohne diesen Merker spraenge die Ansicht bei jedem Klick zurueck, und
+     wer im Dachschritt selbst dreht, behielte sein Bild nicht. */
+  var zuletztSchritt = null;
+  function ansichtZumSchritt(id) {
+    if (id === zuletztSchritt) return;
+    if (id === 'dach') ansichtWaehlen('Von oben');
+    else if (zuletztSchritt === 'dach') ansichtWaehlen('Perspektive');
+    zuletztSchritt = id;
+  }
+
   /* ---------- Bedienung ---------- */
   /* Grad zu Prozent, BELEGT aus der Tabelle der Montageanleitung TDS.
      Abgedeckt ist der einstellbare Bereich 2° bis 14°; alles darüber
@@ -7152,6 +7186,10 @@
       Array.prototype.forEach.call(document.querySelectorAll('.k3d-gruppe'),
         function (g) { g.classList.remove('ist-schritt'); });
       panel.classList.remove('ist-letzter');
+      /* „Alles auf einen Blick": Hier gibt es keine Schritte, also auch
+         keine Ansicht, die ihnen folgt. Der Merker faellt zurueck, damit
+         der Dachschritt beim Zurueckschalten wieder greift. */
+      zuletztSchritt = null;
       return;
     }
 
@@ -7165,6 +7203,7 @@
       schrittNr = weiter !== schrittNr ? weiter : schrittSuchen(schrittNr, -1);
     }
     var sch = SCHRITTE[schrittNr];
+    ansichtZumSchritt(sch.id);
 
     Array.prototype.forEach.call(document.querySelectorAll('.k3d-gruppe'),
       function (g) {
@@ -9880,14 +9919,10 @@
   // Ansichten
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-ansicht]'), function (b) {
     b.addEventListener('click', function () {
-      var name = b.getAttribute('data-k3d-ansicht');
-      if (!ANSICHTEN[name]) return;
-      autoDreht = false;
-      ansichtAnwenden(name);
-      Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-ansicht]'), function (x) {
-        x.classList.remove('is-active');
-      });
-      b.classList.add('is-active');
+      /* Derselbe Weg wie beim Schrittwechsel – sonst waeren es zwei
+         Stellen, die dasselbe tun, und eine von beiden liefe irgendwann
+         hinterher. */
+      ansichtWaehlen(b.getAttribute('data-k3d-ansicht'));
     });
   });
 
