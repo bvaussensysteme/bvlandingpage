@@ -7503,3 +7503,27 @@ mitgeändert, ohne ihn geprüft zu haben.
 einmal** im Code vorkommt, und dass Flat Line den gemeinsamen Pfosten nimmt.
 Dieselbe Form wie beim Statikträger – wo zwei Systeme dasselbe Teil bauen,
 prüft eine Zählung, dass es nur eine Quelle gibt.
+
+### 16.10.2026 – Flat Line: Rinne wie beim SkyView
+
+**Anlass.** Der Betreiber: *„ja rinne wie bei skyview"*
+
+**Was fehlte.** Die umlaufende Attika bestand im Modell nur aus der **Blende**
+(38,9 mm). Die Rinne dahinter gab es nicht – die Sparren liefen bis an die
+Außenkante durch, und das Trapezblech lag über der vollen Tiefe, auch dort, wo
+in Wirklichkeit die Rinne sitzt.
+
+**Was jetzt gilt.** Zwei Bauteile wie beim SkyView: die **Rinne** innerhalb der
+Anlagenkante, 186,3 mm tief (`SKY.rinneT`), und die **Blende** davor, bündig
+mit der Kante. Beide 252 mm hoch. Die Sparren enden an der Rinne – ihre Länge
+ist jetzt Tiefe minus zwei Rinnen, bei 6 m Tiefe also 5627 mm statt 6000.
+
+Die Teileliste der Montageanleitung stützt das: Sie führt **Rinne Flat
+(16553)** und **Blende Flat Rinne (16556)** als zwei getrennte Teile, dazu
+dasselbe Paar für die Seiten (16554 / 16555). Zwei Teile, zwei Bauteile im
+Modell.
+
+**Absicherung.** Vier Prüfungen: dass die Tiefe aus `SKY` kommt statt als
+eigene Zahl, dass Rinne und Blende als zwei Bauteile an der richtigen Stelle
+sitzen, dass die Sparrenlänge zwei Rinnen abzieht – und eine Rechnung, die das
+Ergebnis für 6 m Tiefe nachrechnet (5627,4 mm).

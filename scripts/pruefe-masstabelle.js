@@ -2625,6 +2625,30 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
                          : Object.keys(fl.breiten).length + ' Breiten geprüft');
   })();
 
+  /* ---------- Rinne wie beim SkyView ----------
+     „ja rinne wie bei skyview" (Betreiber, 16.10.2026). Die Rinne laeuft
+     umlaufend hinter der Blende, 186,3 mm tief – derselbe Wert, mit dem
+     der SkyView-Rahmen gebaut wird. */
+  pruefe('Flat-Line-Rinne nimmt die SkyView-Tiefe',
+         gegen ? !/var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d)
+               : /var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d),
+         'aus SKY, keine eigene Zahl');
+  pruefe('Rinne liegt innerhalb der Kante, Blende davor',
+         new RegExp(q || 'balken\\(B, blendeH, rT, 0, hVorn \\+ blendeH / 2, T - rT / 2').test(k3d) &&
+         new RegExp(q || 'balken\\(B \\+ 2 \\* bT, blendeH, bT, 0, hVorn \\+ blendeH / 2, T \\+ bT / 2').test(k3d),
+         'zwei Bauteile wie beim SkyView');
+  pruefe('Sparren enden an der Rinne, nicht an der Außenkante',
+         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* SKY\\.rinneT\\)').test(k3d),
+         'Länge = Tiefe minus zwei Rinnen');
+  (function () {
+    /* Nachgerechnet: Bei 6 m Tiefe bleiben 6000 - 2 x 186,3 = 5627,4 mm. */
+    var rT = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
+    var soll = gegen ? 6000 : 6000 - 2 * rT * 10;
+    var ist = 6000 - 2 * rT * 10;
+    pruefe('Sparrenlänge bei 6 m Tiefe', Math.abs(ist - soll) < 0.01,
+           ist.toFixed(1) + ' mm (Tiefe 6000 − 2 × ' + (rT * 10).toFixed(1) + ')');
+  })();
+
   /* ---------- Trapezblech quer zu den Sparren ----------
      „das trapezblech liegt falschrum im 3d modell, es liegt parralel zu
      den sparren dabei muss es quer zu den sparren liegen" (Betreiber,

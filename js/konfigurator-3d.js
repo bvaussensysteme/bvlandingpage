@@ -5381,6 +5381,13 @@
        GESCHAETZT – dazu sagt keine Quelle etwas. */
     var FLAT_BLENDE_H = SKY.seitenblendeH;
     var FLAT_BLENDE_T = SKY.seitenblendeT;
+    /* Die Rinne laeuft umlaufend hinter der Blende: „ja rinne wie bei
+       skyview" (Betreiber, 16.10.2026), also 186,3 mm tief – derselbe
+       Wert, mit dem der SkyView-Rahmen gebaut wird (SKY.rinneT). Vorher
+       war der ganze Kasten nur so tief wie die Blende (38,9 mm); die
+       Rinne dahinter fehlte, und die Sparren liefen bis an die
+       Aussenkante durch. */
+    var FLAT_RINNE_T = SKY.rinneT;
     var FLAT_DECK_AB = 5;
     /* Flat Line und Flat Box nehmen den Pfosten 15190 (110,2 mm). Die
        140 mm galten als „Carport-Stuetzen sind kraeftiger" – eine
@@ -5462,7 +5469,11 @@
 
        Jetzt: so viele Sparren wie die Tabelle nennt, im echten Profil,
        mit der Oberkante direkt unter dem Trapezblech. */
-    var traegerL = Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2));
+    /* Zwischen den Rinnen, nicht ueber die volle Tiefe: Vorne und hinten
+       liegt die Rinne, dort endet der Sparren. Beim tds-Zweig (unbenutzt)
+       bleibt die alte Rechnung. */
+    var traegerL = tds ? Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2))
+                       : Math.max(10, T - 2 * SKY.rinneT);
     var tbFlat = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
     var spAnzahl = (tbFlat && tbFlat.sparren) || 2;
     var spBreite = tds ? PROFIL * 0.8 : FLAT_TRAEGER.breite;
@@ -5531,9 +5542,19 @@
       var oben = hVorn + blendeH;
       var mBlech = blech();
 
-      var bT = FLAT_BLENDE_T;
-      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, T + bT / 2, mBlech);  // vorne
-      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, -bT / 2, mBlech);     // hinten
+      /* Rinne umlaufend (innen), Blende davor (aussen). Zwei Bauteile wie
+         beim SkyView – ein einzelner Kasten waere entweder zu duenn (nur
+         Blende) oder zu klobig (Rinnentiefe bis aussen). */
+      var bT = FLAT_BLENDE_T, rT = FLAT_RINNE_T;
+      /* Rinne: liegt INNERHALB der Anlagenkante */
+      balken(B, blendeH, rT, 0, hVorn + blendeH / 2, T - rT / 2, mBlech);   // vorne
+      balken(B, blendeH, rT, 0, hVorn + blendeH / 2, rT / 2, mBlech);       // hinten
+      [-B / 2 + rT / 2, B / 2 - rT / 2].forEach(function (x) {
+        balken(rT, blendeH, T - 2 * rT, x, hVorn + blendeH / 2, T / 2, mBlech);
+      });
+      /* Blende: davor, bündig mit der Anlagenkante */
+      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, T + bT / 2, mBlech);
+      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, -bT / 2, mBlech);
       [-B / 2 - bT / 2, B / 2 + bT / 2].forEach(function (x) {
         balken(bT, blendeH, T + 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
