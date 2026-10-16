@@ -2463,6 +2463,15 @@
      gibt keinen eigenen fuer Flat Line. */
   var STATIKTRAEGER = { hoehe: 18.92, tiefe: 11.7 };
 
+  /* Pfosten 110,2 x 110,2 mm (Artikel 15190). Zeichnungsmass; der
+     Betreiber nennt ihn „110x110". Auch er steht nur einmal hier, weil
+     ihn alle Systeme nutzen: Die Montageanleitung Flat Line fuehrt unter
+     „Benoetigte Komponenten" denselben „Pfosten (15190)" wie das
+     Terrassendach – „und pfosten sind auch 110x110" (Betreiber,
+     16.10.2026). Im Flat-Line-Bauweg standen vorher 140 mm mit der
+     Begruendung „Carport-Stuetzen sind kraeftiger". */
+  var PFOSTEN = { breite: 11.02 };
+
   var PFOSTENACHSE = 12.42;
   /* Die Achse der Masstabelle, Pfostenvorderkante buendig mit der
      Dachkante. Gilt weiter fuer alles ausser dem TDS – siehe oben. */
@@ -5373,7 +5382,12 @@
     var FLAT_BLENDE_H = SKY.seitenblendeH;
     var FLAT_BLENDE_T = SKY.seitenblendeT;
     var FLAT_DECK_AB = 5;
-    var PROFIL = 14;                                   // Carport-Stützen sind kräftiger
+    /* Flat Line und Flat Box nehmen den Pfosten 15190 (110,2 mm). Die
+       140 mm galten als „Carport-Stuetzen sind kraeftiger" – eine
+       Annahme, die die Teileliste der Anleitung widerlegt. Der
+       tds-Zweig hier ist unbenutzt (Carport TDS laeuft ueber
+       bauenTerrasseGeschaetzt) und bleibt unveraendert. */
+    var PROFIL = tds ? 14 : PFOSTEN.breite;
     /* BELEGT (technische-daten.md 1, dieselbe Quelle wie GENEIGT in
        js/bauteile.js): Flat Line ist ein Flachdach ohne Neigungsfeld, und
        Flat Box ist Flat Line mit Wänden. Hier standen vorher 1,5° – damit
@@ -5665,7 +5679,7 @@
     var sky = Z.produkt === 'Flachdach SkyView';
     /* Pfosten 110 x 110 x 2,5 mm (15190). Das Aussenmass der Zeichnung
        ist 110,2 – die Produktbezeichnung rundet auf 110. BELEGT. */
-    var PF = 11.02;
+    var PF = PFOSTEN.breite;
     /* SkyView: außen Flachdach, innen Gefälle. „das sky view sieht von
        außen aus wie flachdach hat aber ein innenliegendes gefälle von
        immer 2 grad" (Betreiber, 11.10.2026).

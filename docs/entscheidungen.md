@@ -7479,3 +7479,27 @@ Verfälschung dreht die Geometrie zurück.
 
 **Zum Gegenlesen.** Flat Line von oben ansehen: Die Blechrippen müssen quer
 über den Sparren liegen, nicht in derselben Richtung.
+
+### 16.10.2026 – Flat Line: Pfosten 110 × 110 statt 140
+
+**Anlass.** Der Betreiber: *„und pfosten sind auch 110x110"*
+
+**Was falsch war.** Im Flat-Line-Bauweg stand `var PROFIL = 14;` mit dem
+Kommentar „Carport-Stützen sind kräftiger" – eine Annahme aus der Zeit, als es
+für die Flachdach-Carports keine Unterlagen gab. Die Montageanleitung
+widerlegt sie: Unter „Benötigte Komponenten" steht derselbe **Pfosten
+(15190)** wie beim Terrassendach, also 110,2 × 110,2 mm.
+
+**Was jetzt gilt.** Der Pfosten steht wie der Statikträger als eine Konstante
+im Code, die alle Bauwege lesen. Vorher stand die Zahl im TDS-Bauweg, während
+Flat Line mit seinen eigenen 140 mm rechnete – zwei Systeme, zwei Wahrheiten
+über dasselbe Teil.
+
+Der `tds`-Zweig derselben Funktion behält die 140 mm: Er ist unbenutzt
+(Carport TDS läuft über `bauenTerrasseGeschaetzt`) und wird hier nicht
+mitgeändert, ohne ihn geprüft zu haben.
+
+**Absicherung.** Drei Prüfungen: die Maßangabe selbst, dass `11.02` **genau
+einmal** im Code vorkommt, und dass Flat Line den gemeinsamen Pfosten nimmt.
+Dieselbe Form wie beim Statikträger – wo zwei Systeme dasselbe Teil bauen,
+prüft eine Zählung, dass es nur eine Quelle gibt.

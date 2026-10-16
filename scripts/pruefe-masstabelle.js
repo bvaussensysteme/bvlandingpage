@@ -553,8 +553,19 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
 })();
 /* Die Pfostenbreite steht im Modell als Zahl ohne Namen – eigene
    Pruefung, damit sie nicht durchrutscht. */
+/* Der Pfosten steht seit dem 16.10.2026 einmal global, weil ihn alle
+   Systeme nutzen – die Montageanleitung Flat Line fuehrt denselben
+   Artikel 15190. */
 pruefe('Pfosten 110,2 mm (15190)',
-       new RegExp(q || 'var PF = 11\\.02;').test(k3d), 'Zeichnungsmaß, nicht gerundet');
+       new RegExp(q || 'var PFOSTEN = \\{ breite: 11\\.02 \\};').test(k3d),
+       'Zeichnungsmaß, nicht gerundet');
+pruefe('Der Pfosten steht an genau einer Stelle',
+       gegen ? (k3d.match(/11\.02/g) || []).length !== 1
+             : (k3d.match(/11\.02/g) || []).length === 1,
+       (k3d.match(/11\.02/g) || []).length + ' × 11.02 im Code');
+pruefe('Flat Line nimmt denselben Pfosten',
+       new RegExp(q || 'var PROFIL = tds \\? 14 : PFOSTEN\\.breite;').test(k3d),
+       'nicht mehr 140 mm „kräftigere Carport-Stütze"');
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
