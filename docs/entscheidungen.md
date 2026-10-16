@@ -7710,3 +7710,62 @@ dieselbe Zahl kommt wie die Sparrenlänge. Die anderen halten die Mindestwerte
 fest, die den Tiefenpuffer-Fehler verhindern: Blech mindestens 2 mm
 gezeichnet, Luft größer als 0,5 mm, Vlies kleiner als das Blech. Sinkt einer
 davon wieder, schlägt die Prüfung an, bevor es jemand im Bild sieht.
+
+---
+
+## 16.10.2026 – Zweiter Anlauf: Blech und Vlies sind EIN Körper
+
+**Anlass.** Nach dem ersten Anlauf (dickeres Blech, 1 mm Luft, Vlies
+eingezogen) blieb der Fehler: Bild vom Betreiber, weiße Streifen über das
+ganze Dach verteilt.
+
+**Warum der erste Anlauf nicht reichte.** Er hat das Symptom bekämpft, nicht
+die Ursache. Die Ursache ist, dass **zwei getrennte Flächen** übereinander
+lagen – Blechunterseite und Vliesoberseite. Der Tiefenpuffer der Grafikkarte
+hat eine begrenzte Auflösung, die mit dem Abstand zur Kamera quadratisch
+schlechter wird. Nachgerechnet: Bei Nahebene 1 cm und Fernebene 60 m liegt
+die Auflösung bei 25 m Kameraabstand – und so weit steht die Kamera bei einem
+14 m breiten System – in der Größenordnung von **3 bis 4 Millimetern**. Ein
+Millimeter Luft ist dagegen nichts. Es wäre auch mit 5 mm nicht sicher
+gewesen, weil der Abstand mit der Anlagengröße wächst.
+
+**Was jetzt gilt – zwei Änderungen, die den Fehler unmöglich machen.**
+
+1. **Ein Körper statt zweier Schalen.** Das Blech wird von Hand gebaut
+   (`trapezblechKoerper`) statt mit `ExtrudeGeometry`: Oberseite und
+   Schnittkanten in Werkstoffgruppe 0 (Blech, RAL 7016), Unterseite in
+   Gruppe 1 (Vlies, grauweiß). Zwei Flächen können so gar nicht mehr
+   konkurrieren – jede kommt genau einmal vor. **Das ist zugleich sachlich
+   richtiger:** Das Antikondensvlies ist auf das Blech geklebt, es ist keine
+   zweite Platte darunter.
+2. **Kamera-Nahebene von 1 auf 5 cm.** Das ist fünfmal mehr Tiefenauflösung
+   und immer noch weit näher, als die Kamera je an ein Bauteil kommt – sie
+   steht auch in der Ansicht „Darunter" mehrere Meter vom Ziel entfernt.
+
+Dazu bleibt der gezeichnete Aufbau mit 6 mm dicker als echt (0,75 mm Blech
+plus rund 3 mm Vlies). Die Begründung steht als Kommentar an der Konstante,
+damit niemand sie auf den „richtigen" Wert zurückräumt.
+
+**Die eigentliche Lehre.** Die erste Prüfung hat nur nachgelesen, was im Code
+steht („ist die Luft größer als 0,5 mm?"). Sie war grün, während der Fehler im
+Bild stand. **Eine Prüfung, die nur die eigene Annahme bestätigt, ist keine.**
+Die neue Prüfung lässt three.js die Geometrie wirklich bauen und zählt die
+Normalen der fertigen Flächen: **Keine einzige Fläche des Vlieses zeigt nach
+oben** (0 von 230), keine Fläche des Blechs zeigt nach unten (0 von 694). Von
+oben ist das Vlies damit nicht zeichenbar – der Fehler ist nicht
+unwahrscheinlich geworden, sondern unmöglich.
+
+**Was verworfen wurde.** Den Abstand weiter zu vergrößern. Das ging nicht:
+`FLAT_DECK_AB` lässt zwischen Sparrenoberkante und Blendenoberkante nur 50 mm,
+und davon braucht das Profil schon 35. Ab etwa 15 mm Aufbau hätte das Blech
+über die Blende geschaut – ein Fehler gegen den nächsten getauscht.
+
+**Was gegengelesen werden soll.** Carport → Flachdach Flat Line, einmal weit
+herauszoomen (dort war der Fehler am stärksten): Ist das Dach von oben
+durchgehend anthrazit, ohne weiße Streifen? Und beim Hereinzoomen bis dicht an
+die Anlage: Wird nichts abgeschnitten (die Nahebene steht jetzt bei 5 cm)?
+
+**Absicherung.** `scripts/pruefe-masstabelle.js`, jetzt 353 Prüfungen, alle
+bestanden, in der Gegenprobe schlagen alle 353 an. Neu darunter fünf
+Messungen an der echten Geometrie (Normalen je Werkstoffgruppe, Maße aus der
+Bounding Box, keine kaputten Normalen) und eine auf die Kamera-Nahebene.

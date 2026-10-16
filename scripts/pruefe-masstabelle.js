@@ -2776,72 +2776,124 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
   pruefe('Keine Rechteck-Rippen mit geschaetztem Abstand mehr',
          gegen ? /RIPPE_ABSTAND/.test(k3dCode) : !/RIPPE_ABSTAND/.test(k3dCode),
          'ersetzt durch den echten Querschnitt');
-  pruefe('Die Welle laeuft ueber die Tiefe, die Rippen ueber die Breite',
-         gegen ? !/geo\.rotateY\(-Math\.PI \/ 2\);/.test(k3d)
-               : /geo\.rotateY\(-Math\.PI \/ 2\);/.test(k3d) &&
-                 /trapezblechSchale\(blechB, blechT,/.test(k3d),
-         'Tiefe ist die Wellenrichtung, quer zu den Sparren');
+  /* ---------- Ein Körper statt zweier Schalen ----------
+     „das weiße vom von der unterseite des trapezblechs scheint im 3d konf
+     durch und es ragt etwas an den seiten raus das blech" (Betreiber,
+     16.10.2026, mit Bild: weiße Streifen über das ganze Dach).
 
-  /* BEIDE Bauwege – dieselbe Falle wie am 11. und 15.10.2026: Arbeit lag
-     nur im geschaetzten Pfad, der Datenpfad baute weiter das Alte. */
-  pruefe('Beide Bauwege decken mit demselben Blech ein',
-         gegen ? (k3d.match(/trapezblechSchale\(/g) || []).length !== 5
-               : (k3d.match(/trapezblechSchale\(/g) || []).length === 5,
-         '1 Definition + 2 x (Blech + Vlies)');
-  pruefe('Der Datenweg legt keine flachen Platten je Sparrenfeld mehr',
-         gegen ? !/for \(var f = 0; !trapez && f < xS\.length - 1; f\+\+\)/.test(k3d)
-               : /for \(var f = 0; !trapez && f < xS\.length - 1; f\+\+\)/.test(k3d),
-         'Trapezblech laeuft in einem Stueck ueber alle Sparren');
-
-  /* ---------- Zwei Fehler aus der Sichtpruefung vom 16.10.2026 ----------
-     „das weisse vom von der unterseite des trapezblechs scheint im 3d
-     konf durch und es ragt etwas an den seiten raus das blech"
-     (Betreiber).
-
-     Beides hatte eine gemeinsame Ursache: Das Blech lief bis 10 mm vor
-     die Aussenkante durch und steckte damit in der nur 38,9 mm dicken
-     Blende – das grauweisse Vlies lag an den Raendern praktisch in der
-     Aussenhaut. Dazu war das Blech mit 0,9 mm so duenn gezeichnet, dass
-     der Tiefenpuffer Blech und Vlies nicht mehr trennen konnte.
-
-     Geprueft wird deshalb: Reicht das Blech nur bis zur Rinneninnenwand,
-     liegt kein Bauteil genau auf einem anderen, und ist das Vlies kleiner
-     als das Blech, das es verdeckt? */
-  pruefe('Das Blech endet an der Rinne, nicht an der Aussenkante',
-         gegen ? !/var blechRand = bT \+ rT;/.test(k3d)
-               : /var blechRand = bT \+ rT;/.test(k3d) &&
-                 /var blechB = Math\.max\(10, B - 2 \* blechRand\);/.test(k3d) &&
-                 /var blechT = Math\.max\(10, T - 2 \* blechRand\);/.test(k3d),
-         'Breite und Tiefe je zwei Mal (Blende + Rinne) kuerzer');
+     Erster Versuch war: Blech dicker zeichnen, Luft dazwischen, Vlies
+     einziehen. Das reichte nicht – bei zwei Schalen wenige Millimeter
+     voreinander sortiert der Tiefenpuffer am herausgezoomten Bild immer
+     noch falsch. Jetzt ist es EIN Körper mit zwei Werkstoffen, und die
+     entscheidende Prüfung ist keine Textsuche, sondern eine Messung an
+     der fertigen Geometrie: Zeigt irgendeine Fläche des Vlieses nach
+     oben? Wenn nein, kann sie von oben gar nicht gezeichnet werden –
+     der Fehler ist dann nicht unwahrscheinlich, sondern unmöglich. */
+  pruefe('Blech und Vlies sind ein Körper, keine zwei Schalen',
+         gegen ? /function trapezblechSchale\(/.test(k3d)
+               : !/trapezblechSchale/.test(k3d) && !/TRAPEZ_LUFT/.test(k3d) &&
+                 /function trapezblechKoerper\(breite, tiefe\)/.test(k3d),
+         'eine Geometrie, zwei Werkstoffgruppen');
+  pruefe('Beide Bauwege nehmen denselben Körper',
+         gegen ? (k3d.match(/trapezblechKoerper\(/g) || []).length !== 3
+               : (k3d.match(/trapezblechKoerper\(/g) || []).length === 3,
+         '1 Definition + 2 Aufrufe');
+  pruefe('Das Blech ist dick genug gezeichnet für den Tiefenpuffer',
+         gegen ? !(tzZahl('dicke') >= 0.5) : tzZahl('dicke') >= 0.5,
+         (tzZahl('dicke') * 10) + ' mm gezeichnet (Blech + Vlies echt rund 4 mm)');
   (function () {
-    /* Zweiter Weg zur selben Zahl: Blechbreite und Sparrenlaenge muessen
-       auf dieselbe Zahl kommen – beide enden an der Rinneninnenwand. */
-    var rT = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
-    var bT = Number((k3d.match(/seitenblendeT: ([\d.]+),/) || [])[1]);
-    var blech = 6000 - 2 * (bT + rT) * 10;
-    var sparren = 6000 - 2 * (bT + rT) * 10;
-    pruefe('Blechbreite und Sparrenlaenge kommen aus demselben Mass',
-           gegen ? Math.abs(blech - 5549.6) > 0.01
-                 : Math.abs(blech - 5549.6) < 0.01 && blech === sparren,
-           blech.toFixed(1) + ' mm bei 6 m (erwartet 5549,6)');
+    var nah = Number((k3d.match(/new THREE\.PerspectiveCamera\(42, 1, ([\d.]+), 6000\)/) || [])[1]);
+    pruefe('Kamera-Nahebene groß genug für den Tiefenpuffer',
+           gegen ? !(nah >= 5) : nah >= 5,
+           nah + ' cm (bei 1 cm reicht die Auflösung am weiten Bild nicht)');
   })();
-  pruefe('Zwischen Blech und Vlies steht Luft',
-         gegen ? !(tzZahl2('TRAPEZ_LUFT') > 0.05)
-               : tzZahl2('TRAPEZ_LUFT') > 0.05,
-         (tzZahl2('TRAPEZ_LUFT') * 10) + ' mm – sonst blitzt das Vlies durch');
-  pruefe('Das Blech ist dick genug gezeichnet fuer den Tiefenpuffer',
-         gegen ? !(tzZahl('dicke') >= 0.2) : tzZahl('dicke') >= 0.2,
-         (tzZahl('dicke') * 10) + ' mm gezeichnet (0,75 mm echt)');
-  pruefe('Das Vlies ist kleiner als das Blech, das es verdeckt',
-         gegen ? !/trapezblechSchale\(blechB - 1, blechT - 1,/.test(k3d)
-               : /trapezblechSchale\(blechB - 1, blechT - 1,/.test(k3d) &&
-                 /trapezblechSchale\(B - 1, T - 1,/.test(k3d),
-         'je 10 mm eingezogen, in beiden Bauwegen');
-  pruefe('Der Aufbau unter dem Blech liegt auf der Sparrenoberkante',
-         gegen ? !/function trapezblechUnterbau\(\)/.test(k3d)
-               : /function trapezblechUnterbau\(\)/.test(k3d) &&
-                 (k3d.match(/trapezblechUnterbau\(\)/g) || []).length >= 4,
-         'Vlies steckt nicht mehr im Sparren, in beiden Bauwegen');
+  pruefe('Der Aufbau liegt über der Sparrenoberkante, nicht darin',
+         gegen ? !/var yBlech = yDeck \+ TRAPEZ_T35M\.dicke \+ 0\.2;/.test(k3d)
+               : /var yBlech = yDeck \+ TRAPEZ_T35M\.dicke \+ 0\.2;/.test(k3d) &&
+                 /yDach \+ TRAPEZ_T35M\.dicke \+ 0\.2/.test(k3d),
+         '2 mm Luft, in beiden Bauwegen');
+  pruefe('Das Blech endet an der Rinne, auch in der Geometrie',
+         gegen ? !/trapezblechKoerper\(blechB, blechT\)/.test(k3d)
+               : /trapezblechKoerper\(blechB, blechT\)/.test(k3d),
+         'Breite und Tiefe je zwei Mal (Blende + Rinne) kürzer');
+
+  /* ---------- Die Geometrie wirklich bauen und nachmessen ----------
+     Nicht im Code nachlesen, sondern three.js die Geometrie erzeugen
+     lassen und die fertigen Normalen zählen. Das ist der zweite,
+     anders gebaute Weg: Er würde auch anschlagen, wenn der Code
+     „richtig aussieht", aber eine Fläche verkehrt herum steht. */
+  (function () {
+    var THREE = null;
+    try {
+      var mod = { exports: {} };
+      (new Function('module', 'exports',
+        fs.readFileSync('js/vendor/three.min.js', 'utf8')))(mod, mod.exports);
+      THREE = mod.exports;
+    } catch (e) { THREE = null; }
+    var geladen = !!(THREE && THREE.BufferGeometry);
+    pruefe('three.js lässt sich für die Messung laden',
+           gegen ? !geladen : geladen, geladen ? 'r' + THREE.REVISION : 'fehlt');
+    function leer(t) {
+      pruefe('Keine Fläche des Vlieses zeigt nach oben', gegen, t);
+      pruefe('Keine Fläche des Blechs zeigt nach unten', gegen, t);
+      pruefe('Blech und Vlies haben gleich viele Flächen', gegen, t);
+      pruefe('Der Körper hat genau die bestellten Maße', gegen, t);
+      pruefe('Keine kaputte Normale im Körper', gegen, t);
+    }
+    if (!geladen) { leer('three.js fehlt'); return; }
+
+    var ergebnis = null;
+    try {
+      var quelle =
+        (k3d.match(/var TRAPEZ_T35M = \{[\s\S]*?\n  \};/) || [''])[0] + '\n' +
+        (k3d.match(/function trapezblechLinie\(tiefe\) \{[\s\S]*?\n  \}/) || [''])[0] + '\n' +
+        (k3d.match(/function trapezblechKoerper\(breite, tiefe\) \{[\s\S]*?\n  \}\n/) || [''])[0] +
+        '\nergebnis = trapezblechKoerper(500, 600);';
+      eval(quelle);
+    } catch (e) { ergebnis = null; }
+    if (!ergebnis || !ergebnis.groups || ergebnis.groups.length !== 2) {
+      leer('Geometrie nicht gebaut'); return;
+    }
+    var nor = ergebnis.getAttribute('normal');
+    function zaehle(g) {
+      var r = { hoch: 0, runter: 0, quer: 0, kaputt: 0 };
+      for (var i = g.start; i < g.start + g.count; i += 3) {
+        var x = nor.getX(i), y = nor.getY(i), z = nor.getZ(i);
+        if (!isFinite(x) || !isFinite(y) || !isFinite(z)) r.kaputt++;
+        else if (y > 0.5) r.hoch++;
+        else if (y < -0.5) r.runter++;
+        else r.quer++;
+      }
+      return r;
+    }
+    var blech = zaehle(ergebnis.groups[0]), vlies = zaehle(ergebnis.groups[1]);
+    pruefe('Keine Fläche des Vlieses zeigt nach oben',
+           gegen ? vlies.hoch !== 0 : vlies.hoch === 0,
+           vlies.hoch + ' von ' + (vlies.hoch + vlies.runter + vlies.quer) +
+           ' – von oben ist das Vlies nicht zeichenbar');
+    pruefe('Keine Fläche des Blechs zeigt nach unten',
+           gegen ? blech.runter !== 0 : blech.runter === 0,
+           blech.runter + ' von ' + (blech.hoch + blech.runter + blech.quer) +
+           ' – unten ist nur Vlies zu sehen');
+    pruefe('Blech und Vlies haben gleich viele Flächen',
+           gegen ? blech.hoch !== vlies.runter : blech.hoch === vlies.runter,
+           blech.hoch + ' oben, ' + vlies.runter + ' unten (dieselbe Wellenlinie)');
+    ergebnis.computeBoundingBox();
+    var bb = ergebnis.boundingBox;
+    var breiteIst = bb.max.x - bb.min.x, tiefeIst = bb.max.z - bb.min.z;
+    var hochIst = bb.max.y, untenIst = bb.min.y;
+    var passt = Math.abs(breiteIst - 500) < 0.01 && Math.abs(tiefeIst - 600) < 0.01 &&
+                Math.abs(hochIst - tzH) < 0.01 &&
+                Math.abs(untenIst + tzZahl('dicke')) < 0.01;
+    pruefe('Der Körper hat genau die bestellten Maße',
+           gegen ? !passt : passt,
+           breiteIst.toFixed(1) + ' x ' + tiefeIst.toFixed(1) + ' cm, Höhe ' +
+           untenIst.toFixed(2) + ' bis ' + hochIst.toFixed(2));
+    pruefe('Keine kaputte Normale im Körper',
+           gegen ? (blech.kaputt + vlies.kaputt) !== 0
+                 : (blech.kaputt + vlies.kaputt) === 0,
+           (blech.kaputt + vlies.kaputt) + ' von ' + nor.count);
+  })();
 
   /* ---------- Die beiden Blenden sind zwei verschiedene Artikel ----------
      „Blende Flat Seiten Rinne 16555 FLT, Blende Flat Rinne 16556 FLT"
