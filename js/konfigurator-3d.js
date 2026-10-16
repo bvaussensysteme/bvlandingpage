@@ -5330,6 +5330,17 @@
     var garagentor = variante.indexOf('Garagentor') > -1;
     var nebenraum = variante.indexOf('Nebenraum') > -1;
 
+    /* Träger Flat 16557 FLT – derselbe Artikel traegt als Sparren in der
+       Tiefe und als Unterzug quer. Rechteckrohr mit Mittelsteg: „der
+       sparren beim flatline is 172 hoch und 60 breit" (Betreiber,
+       16.10.2026, mit Querschnittszeichnung). Der Steg liegt innen und
+       ist am Modell nicht zu sehen. */
+    var FLAT_TRAEGER = { hoehe: 17.2, breite: 6.0 };
+    /* Attika: Blendenhoehe und wie tief das Blech darin liegt. Stehen
+       hier, weil die Sparren darunter passen muessen – als zwei getrennte
+       Zahlen liefen sie beim naechsten Umbau auseinander. */
+    var FLAT_BLENDE_H = 26;
+    var FLAT_DECK_AB = 5;
     var PROFIL = 14;                                   // Carport-Stützen sind kräftiger
     /* BELEGT (technische-daten.md 1, dieselbe Quelle wie GENEIGT in
        js/bauteile.js): Flat Line ist ein Flachdach ohne Neigungsfeld, und
@@ -5369,20 +5380,37 @@
        Pfostenreihe darunter – dieselbe Anordnung wie beim TDS. */
     var zUzF = unterzugZcm(false);
     if (zUzF != null) {
-      var uzH = PROFIL * 1.3;
+      /* Derselbe Artikel wie die Sparren (Träger Flat 16557), nur quer. */
+      var uzH = tds ? PROFIL * 1.3 : FLAT_TRAEGER.hoehe;
+      var uzT = tds ? PROFIL : FLAT_TRAEGER.breite;
       var ukUzF = hVorn + (hHinten - hVorn) * (1 - zUzF / T);   // Dachunterkante dort
       var hPfUzF = Math.max(10, ukUzF - uzH);
-      balken(B, uzH, PROFIL, 0, hPfUzF + uzH / 2, zUzF, mAlu);
+      balken(B, uzH, uzT, 0, hPfUzF + uzH / 2, zUzF, mAlu);
       verteilen(pfostenUnterTraeger(Z.breite), B, PROFIL / 2).forEach(function (x) {
         balken(PROFIL, hPfUzF, PROFIL, x, hPfUzF / 2, zUzF, mAlu);
       });
     }
 
-    /* Längsträger links und rechts – tragen die Dachlast zwischen den Pfosten */
+    /* ---------- Sparren in der Tiefe ----------
+       Hier lagen bis zum 16.10.2026 nur ZWEI Laengstraeger an den
+       Raendern, in geschaetzten Massen und mit Luft zur Dachhaut. Die
+       Preisliste fuehrt aber eine Sparrenzahl je Breite (4 bei 3 m, 15
+       bei 14 m) – dieselbe Spalte, aus der TDS und SkyView schon rechnen.
+
+       Jetzt: so viele Sparren wie die Tabelle nennt, im echten Profil,
+       mit der Oberkante direkt unter dem Trapezblech. */
     var traegerL = Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2));
-    [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2].forEach(function (x) {
-      var tr = new THREE.Mesh(new THREE.BoxGeometry(PROFIL * 0.8, PROFIL * 1.3, traegerL), mAlu);
-      tr.position.set(x, (hVorn + hHinten) / 2 + PROFIL * 0.65, T / 2);
+    var tbFlat = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
+    var spAnzahl = (tbFlat && tbFlat.sparren) || 2;
+    var spBreite = tds ? PROFIL * 0.8 : FLAT_TRAEGER.breite;
+    var spHoehe = tds ? PROFIL * 1.3 : FLAT_TRAEGER.hoehe;
+    /* Unter der Dachhaut, nicht darunter schwebend: Das Blech liegt
+       FLAT_DECK_AB unter der Blendenoberkante. */
+    var spY = tds ? (hVorn + hHinten) / 2 + PROFIL * 0.65
+                  : hVorn + FLAT_BLENDE_H - FLAT_DECK_AB - spHoehe / 2;
+    verteilen(tds ? 2 : spAnzahl, B, spBreite / 2).forEach(function (x) {
+      var tr = new THREE.Mesh(new THREE.BoxGeometry(spBreite, spHoehe, traegerL), mAlu);
+      tr.position.set(x, spY, T / 2);
       tr.rotation.x = NEIGUNG;
       tr.castShadow = true; tr.receiveShadow = true;
       bau.add(tr);
@@ -5434,7 +5462,7 @@
          uns und falsch (siehe NEIGUNG oben). Entwässert wird über die
          Attika, wo genau, ist nicht belegt und wird deshalb nicht
          gezeichnet. */
-      var blendeH = 26;
+      var blendeH = FLAT_BLENDE_H;
       var oben = hVorn + blendeH;
       var mBlech = blech();
 
@@ -5457,7 +5485,7 @@
       var BLECH_DICKE = 0.9;        // Grundblech, zeichnerisch
       var RIPPE_HOCH = 3.5;         // 35 mm, BELEGT
       var RIPPE_ABSTAND = 20;       // GESCHÄTZT, Rückfrage 5 an VD
-      var yDeck = oben - 5;
+      var yDeck = oben - FLAT_DECK_AB;
       var mTrapez = trapezblechMaterial();
 
       var grund = new THREE.Mesh(new THREE.BoxGeometry(B - 2, BLECH_DICKE, T), mTrapez);

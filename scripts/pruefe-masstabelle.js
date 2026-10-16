@@ -2539,6 +2539,43 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          : m3.join('; '));
 })();
 
+/* ---------- Flat Line: Träger 16557 FLT ----------
+   „der sparren beim flatline is 172 hoch und 60 breit" und, auf Nachfrage
+   zur Zeichnung: „auf der zeichnung liegt der sparren hochkant wäre er
+   richtig also 172 hoch 60 breit" (Betreiber, 16.10.2026). Die Zeichnung
+   zeigt das Rechteckrohr liegend; eingebaut steht es hochkant. */
+(function () {
+  var m = k3d.match(/var FLAT_TRAEGER = \{ hoehe: ([\d.]+), breite: ([\d.]+) \};/);
+  if (!m) { pruefe('Flat-Line-Träger ist im Code', false, 'FLAT_TRAEGER nicht gefunden'); return; }
+  var h = Number(m[1]) * 10, b = Number(m[2]) * 10;     // cm -> mm
+  if (gegen) { var t = h; h = b; b = t; }               // Verfaelschung: gelegt statt hochkant
+  pruefe('Träger Flat: 172 mm hoch', h === 172, h + ' mm');
+  pruefe('Träger Flat: 60 mm breit', b === 60, b + ' mm');
+  pruefe('Er steht hochkant, nicht flach', h > b,
+         'Höhe ' + h + ' mm über Breite ' + b + ' mm');
+
+  /* Im Modell ist x die Breite und y die Hoehe – in dieser Reihenfolge
+     erwartet BoxGeometry sie. Vertauscht laege der Sparren flach. */
+  pruefe('Im Modell liegt die Breite auf x, die Höhe auf y',
+         new RegExp(q || 'BoxGeometry\\(spBreite, spHoehe, traegerL\\)').test(k3d),
+         'BoxGeometry(Breite, Höhe, Länge)');
+  pruefe('Die Sparrenzahl kommt aus der Preisliste',
+         new RegExp(q || 'var spAnzahl = \\(tbFlat && tbFlat\\.sparren\\) \\|\\| 2;').test(k3d),
+         'nicht mehr zwei Längsträger an den Rändern');
+  pruefe('Der Unterzug nutzt dasselbe Profil',
+         new RegExp(q || 'var uzH = tds \\? PROFIL \\* 1\\.3 : FLAT_TRAEGER\\.hoehe;').test(k3d),
+         'Träger Flat trägt als Sparren und als Unterzug');
+
+  /* Die Oberkante muss am Blech liegen, nicht darunter schweben. */
+  var bl = Number((k3d.match(/var FLAT_BLENDE_H = ([\d.]+);/) || [])[1]);
+  var ab = Number((k3d.match(/var FLAT_DECK_AB = ([\d.]+);/) || [])[1]);
+  var spY = bl - ab - Number(m[1]) / 2;                  // relativ zu hVorn
+  var ok = spY + Number(m[1]) / 2;
+  pruefe('Sparren-Oberkante liegt an der Blechunterseite',
+         gegen ? ok !== (bl - ab) : ok === (bl - ab),
+         'Oberkante ' + ok + ' cm über Durchfahrt, Blech bei ' + (bl - ab) + ' cm');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));

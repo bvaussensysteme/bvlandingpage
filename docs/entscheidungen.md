@@ -7258,3 +7258,42 @@ Kästen. Die Einzelteileliste nennt die Teile des Systems FLT – Träger Flat
 Profilfüller für Trapezblech T35M –, aber **keine Querschnittsmaße**. Ohne
 die technischen Zeichnungen lässt sich das Design nicht nachbauen, wie es
 beim TDS möglich war. Dafür braucht es die Zeichnungen vom Betreiber.
+
+### 16.10.2026 – Flat Line: echte Sparren statt zweier Längsträger
+
+**Anlass.** Der Betreiber, mit Querschnittszeichnung: *„der sparren beim
+flatline is 172 hoch und 60 breit"* und auf Nachfrage zur Zeichnung: *„auf der
+zeichnung liegt der sparren hochkant wäre er richtig also 172 hoch 60 breit"*
+
+**Was dahintersteckt.** Das ist der **Träger Flat 16557 FLT** aus der
+Einzelteileliste – ein Rechteckrohr mit Mittelsteg. Die Zeichnung zeigt es
+liegend (172 waagerecht, 60 senkrecht); eingebaut steht es hochkant. Der Steg
+liegt innen und ist am Modell nicht zu sehen, deshalb genügt ein Kasten.
+
+**Was falsch war.** Flat Line hatte im Modell **zwei** Längsträger an den
+Rändern, in geschätzten Maßen (112 × 182 mm) und mit Luft zur Dachhaut. Die
+Preisliste führt aber eine Sparrenzahl je Breite – 4 bei 3 m, 15 bei 14 m –,
+dieselbe Spalte, aus der TDS und SkyView längst rechnen. Bei 14 m Breite
+standen also 2 statt 15 Sparren im Bild.
+
+**Was jetzt gilt.** So viele Sparren, wie die Tabelle nennt, im echten Profil
+60 × 172 mm hochkant, mit der Oberkante direkt unter dem Trapezblech. Die
+Attika-Maße (Blendenhöhe 26 cm, Blech 5 cm darunter) stehen jetzt als
+Konstanten oben und werden von beiden Stellen gelesen – vorher waren es zwei
+getrennte Zahlen, die beim nächsten Umbau auseinandergelaufen wären.
+
+Der Unterzug über die Breite nutzt **dasselbe** Profil: Der Artikel heißt
+„Träger Flat" und trägt in beiden Lagen. ABGELEITET, nicht belegt – die
+Preisliste nennt kein eigenes Unterzug-Profil für Flat Line.
+
+**Absicherung.** Acht Prüfungen in `scripts/pruefe-masstabelle.js`: beide Maße
+einzeln (172 und 60), dass die Höhe über der Breite liegt (hochkant), dass im
+Modell die Breite auf x und die Höhe auf y steht (vertauscht läge der Sparren
+flach), dass die Anzahl aus der Preisliste kommt, dass der Unterzug dasselbe
+Profil nutzt, und dass die Sparren-Oberkante rechnerisch genau an der
+Blechunterseite liegt (21 cm über der Durchfahrt). Die Verfälschung vertauscht
+Höhe und Breite. Gegenprobe: alle 309 Prüfungen schlagen an.
+
+**Was weiter fehlt.** Rinne Flat (16553), Seitenrinne (16554) und die beiden
+Blenden (16555, 16556) sind weiter geschätzt – für sie liegen keine
+Querschnitte vor.
