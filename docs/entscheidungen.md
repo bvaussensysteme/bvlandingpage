@@ -7557,3 +7557,101 @@ wirklich steht, dann weitersuchen.
 **Absicherung.** Die Prüfung „Nichts ragt über die Anlagenkante hinaus" sucht
 ausdrücklich nach den alten Mustern (`T + bT / 2`, `B + 2 * bT`) und schlägt
 an, wenn sie zurückkommen. Dazu die nachgerechnete Sparrenlänge.
+
+---
+
+## 16.10.2026 – Trapezblech T35M als echtes Profil, dazu Antikondensvlies
+
+**Anlass.** „das is die eindeckung Trapezblech T35M-0,75-RAL7016 +
+Antikondesnvlies 6094 ENG kannst im netz rechrchieren wie das aussieht"
+(Betreiber). Kurz danach: „Blende Flat Seiten Rinne 16555 FLT, Blende Flat
+Rinne 16556 FLT".
+
+**Was falsch war.** Drei Dinge auf einmal:
+
+1. Die Rippen lagen als **Rechtecke** mit senkrechten Flanken auf einer
+   glatten Platte – ein Trapezblech hat schräge Stege und oben einen
+   schmaleren Gurt. Es sah aus wie aufgeschraubte Leisten.
+2. Der Rippenabstand war mit **200 mm geschätzt** und als Rückfrage notiert.
+3. Das Blech lief in der **Gestellfarbe** mit. Das war eine Annahme; die
+   Farbe steht in der Artikelbezeichnung: RAL 7016.
+
+Dazu fehlte das Antikondensvlies vollständig – und das ist die Fläche, die
+der Kunde unter seinem Carport tatsächlich sieht.
+
+**Was jetzt belegt ist.** Produktdatenblatt des Herstellers (Polmetal
+„Trapezblech T35M | Dach | Anti-Tropf 700 g/m² | Stahl 0,75 mm", abgerufen am
+16.10.2026 unter
+`dwz-shop.de/produktdatenblatt/Produktdatenblatt_PT35MDVSP07597.pdf`):
+Profilhöhe **35 mm**, Nutzbreite **1050 mm**, Plattenbreite 1080 mm,
+Blechdicke 0,75 mm, Stahl S280GD, 25 µm Polyester, **Rückseite grauweiß**,
+Anti-Tropf-Vlies 700 g/m², beidseitig verödet.
+
+**Die Teilung ist abgeleitet, nicht geraten:** 1050 / 5 = **210 mm**. Dass es
+fünf Sicken je Platte sind, zeigt das Nachbarprofil desselben Herstellers,
+„T35/207" – 207 mm Teilung bei 1035 mm Nutzbreite, und 1035 = 5 × 207.
+Dieselbe Rechnung auf 1050 ergibt 210. Damit ist der einzige fehlende Wert aus
+Rückfrage 5 geschlossen.
+
+**Was weiter geschätzt ist.** Nur die Aufteilung *innerhalb* einer Teilung:
+Untergurt 115, Steg 25, Obergurt 45, Steg 25 mm. Der Hersteller
+veröffentlicht die Querschnittzeichnung nicht als Text; der Satz ist für
+T35-Profile üblich und trifft die belegten 210 und 35 mm genau. Liegt die
+Zeichnung vor, ist nur `TRAPEZ_T35M` zu ändern – alles andere rechnet daraus.
+
+**Wie es jetzt gebaut ist.** Statt Platte plus aufgelegte Rechtecke eine
+**gewellte Schale in einem Stück**: Die Profillinie wird erzeugt
+(`trapezblechLinie`), um die Blechdicke versetzt zurückgeführt, geschlossen
+und über die Breite ausgezogen (`trapezblechSchale`). Dadurch ist die
+**Unterseite genauso gewellt wie die Oberseite** – in der Ansicht „Darunter"
+sieht man das Profil und keine glatte Platte. Darunter als eigenes Bauteil
+das **Antikondensvlies**: grauweiß, völlig matt, derselbe Querschnitt.
+
+Die Welle läuft weiter **in der Tiefe**, die Rippen also über die Breite, quer
+zu den Sparren – das bleibt wie am Vormittag korrigiert.
+
+**Beide Bauwege.** Der Datenweg (`bauenAusDaten`) legte für Trapezblech
+weiter **flache Platten je Sparrenfeld** – dieselbe Eindeckung hätte je nach
+Serverantwort völlig anders ausgesehen. Ein Trapezblech ist aber keine
+Feldfüllung, es läuft in einem Stück über alle Sparren. Jetzt ruft auch
+dieser Weg `trapezblechSchale` auf, und die Feldschleife läuft für Trapezblech
+gar nicht mehr. **Das ist die dritte Runde derselben Falle** (11.10., 15.10.,
+heute): Arbeit lag nur in einem der beiden Bauwege. Die Prüfung zählt jetzt
+die Aufrufe, damit ein einseitiger Umbau auffällt.
+
+**Die beiden Blenden.** 16556 „Blende Flat Rinne" sitzt vorne und hinten vor
+der „Rinne Flat" 16553, 16555 „Blende Flat Seiten Rinne" an den Seiten vor der
+„Seitenrinne Flat" 16554. Das Modell baut diese vier Teile schon getrennt;
+Maße gibt die Einzelteileliste nicht her (Meterware, 6 m, ohne Querschnitt),
+deshalb tragen beide Blenden weiter das SkyView-Maß. Das steht als
+Platzhalter im Code benannt und als Rückfrage 5b in `rueckfragen-an-vd.md`.
+
+**Was verworfen wurde.** Den Rippenabstand weiter geschätzt stehen zu lassen
+und nur die Form zu glätten – die Teilung ließ sich aus der Nutzbreite
+ableiten, und eine geglättete Fläche hätte den Fehler nur unsichtbar gemacht.
+Ebenfalls verworfen: das Vlies als Fußnote im Hinweistext statt als Bauteil.
+Von unten ist es die sichtbare Fläche; ein Satz ersetzt das nicht.
+
+**Mitgedacht – bitte klären, nicht im Modell lösbar.** Dasselbe Datenblatt
+nennt für dieses Dachblech eine **Mindestdachneigung von 3° (5,24 cm/m)**. Das
+Flat Line wird ohne Gefälle gebaut („das dach is absolut gerade", Betreiber,
+16.10.2026). Entweder gibt VD das Blech waagerecht frei – dann bitte
+schriftlich – oder es gilt die Herstellervorgabe. Daran hängen Dichtigkeit,
+stehendes Wasser und im Streitfall die Gewährleistung. Das Modell zeigt
+weiterhin das gefällelose Dach, weil der Betreiber es so beschrieben hat; der
+Punkt steht in `rueckfragen-an-vd.md`.
+
+**Was gegengelesen werden soll.** Im Konfigurator Carport → Flachdach Flat
+Line: Sieht das Dach von oben wie ein Trapezblech aus (schräge Stege,
+schmalere Gurte oben), laufen die Rippen quer zu den Sparren, ist das Blech
+anthrazit statt in der Gestellfarbe – und zeigt die Ansicht „Darunter" ein
+grauweißes, mattes Vlies, das der Welle folgt?
+
+**Absicherung.** 14 neue Prüfungen in `scripts/pruefe-masstabelle.js`. Drei
+davon rechnen nicht nach, sondern **messen zurück**: Die Profillinie wird im
+Prüfskript wirklich erzeugt, und die Teilung wird aus den Abständen der
+Sickenanfänge in der fertigen Linie zurückgelesen – nicht aus `TRAPEZ_T35M`.
+Dazu: endet die Linie genau an der Dachkante, bleibt sie zwischen 0 und
+Profilhöhe, geht die Teilung in der Nutzbreite genau fünf Mal auf, ist der
+Obergurt schmaler als der Untergurt, rufen **beide** Bauwege dieselbe Funktion
+auf. Alle 344 Prüfungen laufen durch und schlagen in der Gegenprobe alle an.

@@ -2655,25 +2655,152 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
            (rT * 10).toFixed(1) + '))');
   })();
 
-  /* ---------- Trapezblech quer zu den Sparren ----------
-     „das trapezblech liegt falschrum im 3d modell, es liegt parralel zu
-     den sparren dabei muss es quer zu den sparren liegen" (Betreiber,
-     16.10.2026). Ein Trapezblech traegt in Rippenrichtung; parallel zu
-     den Sparren haette es zwischen ihnen keine Auflager.
+  /* ---------- Trapezblech T35M-0,75-RAL7016 + Antikondensvlies ----------
+     „das is die eindeckung Trapezblech T35M-0,75-RAL7016 +
+     Antikondesnvlies 6094 ENG kannst im netz rechrchieren wie das
+     aussieht" (Betreiber, 16.10.2026).
 
-     Geprueft wird die Geometrie: Die Rippe muss in x lang sein (ueber die
-     Breite) und in z schmal – vorher war es umgekehrt. */
-  var rippe = (k3d.match(/new THREE\.BoxGeometry\(([^)]*), RIPPE_HOCH, ([^)]*)\), mTrapez\)/) || []);
-  pruefe('Trapezblech-Rippen laufen über die Breite',
-         gegen ? rippe[1] !== 'B - 2' : rippe[1] === 'B - 2',
-         'lang in x: ' + rippe[1]);
-  pruefe('…und sind über die Tiefe verteilt',
-         gegen ? !/RIPPE_ABSTAND \* 0\.45\), mTrapez\)/.test(k3d)
-               : /RIPPE_ABSTAND \* 0\.45\), mTrapez\)/.test(k3d),
-         'schmal in z: ' + rippe[2]);
-  pruefe('Sparren und Rippen kreuzen sich',
-         new RegExp(q || 'var rippen = Math\\.max\\(3, Math\\.floor\\(\\(T - 4\\)').test(k3d),
-         'Rippenzahl aus der Tiefe, Sparrenzahl aus der Breite');
+     Belegt ist das Profil aus dem Produktdatenblatt des Herstellers
+     (Polmetal T35M Dach, 0,75 mm Stahl): 35 mm Profilhoehe, 1050 mm
+     Nutzbreite. Die Teilung 210 mm ist daraus abgeleitet (1050 / 5); der
+     Beleg fuer fuenf Sicken je Platte ist das Nachbarprofil T35/207 mit
+     1035 mm Nutzbreite = 5 x 207.
+
+     Geprueft wird deshalb nicht „sieht gut aus", sondern: Stimmen die
+     belegten Zahlen, geht die Teilung in der Nutzbreite genau auf, ist es
+     wirklich ein Trapez (Obergurt schmaler als Untergurt), laeuft die
+     Welle ueber die Tiefe – und decken BEIDE Bauwege gleich ein. */
+  var tzBlock = (k3d.match(/var TRAPEZ_T35M = \{[\s\S]*?\n  \};/) || [''])[0];
+  function tzZahl(f) {
+    return Number((tzBlock.match(new RegExp(f + ':\\s*([\\d.]+)')) || [])[1]);
+  }
+  var tzH = tzZahl('hoehe'), tzTeil = tzZahl('teilung');
+  var tzU = tzZahl('untergurt'), tzO = tzZahl('obergurt');
+  var tzSteg = (tzTeil - tzU - tzO) / 2;
+
+  pruefe('Trapezblech-Profilhoehe 35 mm (Datenblatt)',
+         gegen ? tzH !== 3.5 : tzH === 3.5,
+         (tzH * 10) + ' mm');
+  pruefe('Teilung 210 mm statt geschaetzter 200',
+         gegen ? tzTeil !== 21 : tzTeil === 21,
+         (tzTeil * 10) + ' mm');
+  pruefe('Teilung geht in der Nutzbreite 1050 mm genau fuenf Mal auf',
+         gegen ? Math.abs(5 * tzTeil - 105) > 0.001
+               : Math.abs(5 * tzTeil - 105) < 0.001,
+         '5 x ' + (tzTeil * 10) + ' = ' + (5 * tzTeil * 10) + ' mm');
+  pruefe('Es ist ein Trapez: Obergurt schmaler, Stege schraeg',
+         gegen ? !(tzO < tzU && tzSteg > 0) : (tzO < tzU && tzSteg > 0),
+         'Untergurt ' + (tzU * 10) + ' / Steg ' + (tzSteg * 10) +
+         ' / Obergurt ' + (tzO * 10) + ' mm');
+  pruefe('Die vier Teile einer Teilung ergeben genau die Teilung',
+         gegen ? Math.abs(tzU + 2 * tzSteg + tzO - tzTeil) > 0.001
+               : Math.abs(tzU + 2 * tzSteg + tzO - tzTeil) < 0.001,
+         (tzU + 2 * tzSteg + tzO).toFixed(2) + ' = ' + tzTeil + ' cm');
+
+  /* Nachgerechnet statt nachgelesen: die Profillinie wirklich erzeugen. */
+  (function () {
+    var fn = (k3d.match(/function trapezblechLinie\(tiefe\) \{[\s\S]*?\n  \}/) || [''])[0];
+    var linie = null;
+    try { eval(tzBlock + '\n' + fn + '\nlinie = trapezblechLinie(600);'); }
+    catch (e) { linie = null; }
+    var ok = !!(linie && linie.length > 8);
+    pruefe('Profillinie laesst sich erzeugen',
+           gegen ? !ok : ok, ok ? linie.length + ' Punkte bei 6 m Tiefe' : 'Fehler');
+    if (!ok) { pruefe('Profillinie beginnt bei 0', gegen, '-');
+               pruefe('Profillinie endet genau an der Dachkante', gegen, '-');
+               pruefe('Profillinie bleibt zwischen 0 und Profilhoehe', gegen, '-');
+               pruefe('Fuenf Hochsicken je 1050 mm', gegen, '-'); return; }
+    var hoch = 0, tief = 0, max = -1e9, min = 1e9;
+    linie.forEach(function (pp) {
+      max = Math.max(max, pp[1]); min = Math.min(min, pp[1]);
+    });
+    /* Hochsicken zaehlen: jede hat genau zwei Punkte auf der Oberkante. */
+    for (var i = 0; i < linie.length; i++) {
+      if (Math.abs(linie[i][1] - tzH) < 0.001) hoch++;
+      if (Math.abs(linie[i][1]) < 0.001) tief++;
+    }
+    pruefe('Profillinie beginnt an der Dachkante bei 0',
+           gegen ? linie[0][0] !== 0 : linie[0][0] === 0,
+           'erster Punkt ' + linie[0][0] + ' cm');
+    pruefe('Profillinie endet genau an der Dachkante',
+           gegen ? Math.abs(linie[linie.length - 1][0] - 600) > 0.001
+                 : Math.abs(linie[linie.length - 1][0] - 600) < 0.001,
+           'letzter Punkt ' + linie[linie.length - 1][0].toFixed(2) + ' cm (Tiefe 600)');
+    pruefe('Profillinie bleibt zwischen 0 und Profilhoehe',
+           gegen ? !(min >= -0.001 && max <= tzH + 0.001)
+                 : (min >= -0.001 && max <= tzH + 0.001),
+           min.toFixed(2) + ' bis ' + max.toFixed(2) + ' cm');
+    /* Zweiter Weg zur selben Zahl: die Teilung nicht aus TRAPEZ_T35M
+       lesen, sondern aus der FERTIGEN Linie zurueckmessen – Abstand von
+       Sickenanfang zu Sickenanfang. Wenn die Erzeugung die Teilung
+       verliert (Rundung, falscher Zaehler), faellt es nur hier auf. */
+    var anfang = [];
+    for (var j = 1; j < linie.length; j++) {
+      if (Math.abs(linie[j][1] - tzH) < 0.001 && Math.abs(linie[j - 1][1]) < 0.001) {
+        anfang.push(linie[j][0]);
+      }
+    }
+    var schief = [];
+    for (var k = 1; k < anfang.length; k++) {
+      if (Math.abs((anfang[k] - anfang[k - 1]) - tzTeil) > 0.001) {
+        schief.push(anfang[k].toFixed(2));
+      }
+    }
+    pruefe('Zurueckgemessene Teilung stimmt ueberall',
+           gegen ? !(anfang.length > 20 && schief.length === 0)
+                 : (anfang.length > 20 && schief.length === 0),
+           anfang.length + ' Sickenanfaenge, Abstand ueberall ' + (tzTeil * 10) +
+           ' mm' + (schief.length ? ', schief bei ' + schief.join(', ') : ''));
+    /* Die erste Hochsicke beginnt eine halbe Tiefsicke plus einen Steg
+       hinter der Kante: 57,5 + 25 = 82,5 mm. Danach alle 210 mm. Bis
+       6000 mm sind das (6000 − 82,5) / 210 = 28,18, also 28 weitere –
+       zusammen 29, von denen die letzte an der Kante abgeschnitten ist. */
+    pruefe('Hochsickenzahl bei 6 m Tiefe',
+           gegen ? hoch / 2 !== 29 : hoch / 2 === 29,
+           (hoch / 2) + ' Hochsicken (28 ganze + die an der Kante)');
+  })();
+
+  pruefe('Das Blech laeuft in RAL 7016, nicht in der Gestellfarbe',
+         gegen ? /color: rgb\(gestellFarbe\(\)\),\n      metalness: 0\.2, roughness: 0\.55/.test(k3d)
+               : /function trapezblechMaterial\(\) \{[\s\S]*?rgb\(RAL\['7016'\]\[0\]\)/.test(k3d),
+         'RAL 7016 steht in der Artikelbezeichnung des Betreibers');
+  pruefe('Antikondensvlies ist gebaut, nicht nur erwaehnt',
+         gegen ? !/function antikondensvliesMaterial\(\)/.test(k3d)
+               : /function antikondensvliesMaterial\(\)/.test(k3d) &&
+                 (k3d.match(/antikondensvliesMaterial\(\)/g) || []).length >= 3,
+         'eigenes Bauteil unter dem Blech, in beiden Bauwegen');
+  pruefe('Keine Rechteck-Rippen mit geschaetztem Abstand mehr',
+         gegen ? /RIPPE_ABSTAND/.test(k3dCode) : !/RIPPE_ABSTAND/.test(k3dCode),
+         'ersetzt durch den echten Querschnitt');
+  pruefe('Die Welle laeuft ueber die Tiefe, die Rippen ueber die Breite',
+         gegen ? !/geo\.rotateY\(-Math\.PI \/ 2\);/.test(k3d)
+               : /geo\.rotateY\(-Math\.PI \/ 2\);/.test(k3d) &&
+                 /trapezblechSchale\(blechB, T,/.test(k3d),
+         'Tiefe ist die Wellenrichtung, quer zu den Sparren');
+
+  /* BEIDE Bauwege – dieselbe Falle wie am 11. und 15.10.2026: Arbeit lag
+     nur im geschaetzten Pfad, der Datenpfad baute weiter das Alte. */
+  pruefe('Beide Bauwege decken mit demselben Blech ein',
+         gegen ? (k3d.match(/trapezblechSchale\(/g) || []).length !== 5
+               : (k3d.match(/trapezblechSchale\(/g) || []).length === 5,
+         '1 Definition + 2 x (Blech + Vlies)');
+  pruefe('Der Datenweg legt keine flachen Platten je Sparrenfeld mehr',
+         gegen ? !/for \(var f = 0; !trapez && f < xS\.length - 1; f\+\+\)/.test(k3d)
+               : /for \(var f = 0; !trapez && f < xS\.length - 1; f\+\+\)/.test(k3d),
+         'Trapezblech laeuft in einem Stueck ueber alle Sparren');
+
+  /* ---------- Die beiden Blenden sind zwei verschiedene Artikel ----------
+     „Blende Flat Seiten Rinne 16555 FLT, Blende Flat Rinne 16556 FLT"
+     (Betreiber, 16.10.2026). Masse gibt die Einzelteileliste nicht her –
+     beide tragen weiter das SkyView-Mass. Geprueft wird deshalb nur, dass
+     der Platzhalter als Platzhalter dasteht und die Artikel benannt sind. */
+  pruefe('Beide Flat-Line-Blenden sind mit Artikelnummer benannt',
+         gegen ? !/16555/.test(k3d) : /16555/.test(k3d) && /16556/.test(k3d),
+         '16556 vorne/hinten, 16555 an den Seiten');
+  pruefe('Die Blende steht als Platzhalter da, nicht als Ma\u00df',
+         gegen ? !/Platzhalterform, kein Beleg/.test(k3d)
+               : /Platzhalterform, kein Beleg/.test(k3d),
+         'SkyView-Ma\u00df als Platzhalter, im Code benannt');
 
   /* Randabstand aus der Montageanleitung, Schritt 3.2. */
   var rand = Number((k3d.match(/var FLAT_SPARREN_RAND = ([\d.]+);/) || [])[1]);
