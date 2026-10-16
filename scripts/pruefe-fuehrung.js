@@ -2841,6 +2841,63 @@ pruefe('RAL-Feld ist breit genug',
          'dachVorne = null → ' + b4(true, null, 300));
 })();
 
+
+/* ---------- Die Ansicht folgt dem Schritt ----------
+   „is es möglich das wenn man zum schritt 4 kommt eindeckung, die 3d
+   ansicht direkt auf ''von oben'' schwenkt das man das dach sieht und im
+   nächsten schritt 5 wieder auf perspektive" (Betreiber, 16.10.2026). */
+(function () {
+  var f = (js.match(/function ansichtZumSchritt\([\s\S]*?\n  \}/) || [''])[0];
+  pruefe('ansichtZumSchritt() ist auffindbar',
+         gegen ? !js.match(/function ansichtZumSchrittGibtEsNicht\(/) && false : !!f,
+         f ? 'aus dem Quelltext gelesen' : 'nicht gefunden');
+  if (!f) return;
+
+  /* Die echte Funktion, mit einer Attrappe für ansichtWaehlen: So steht
+     am Ende da, WELCHE Ansicht wann gesetzt wurde. */
+  var lauf = [];
+  var api = eval('(function (ansichtWaehlen) { var zuletztSchritt = null; ' + f +
+    '; return { ruf: ansichtZumSchritt, stand: function () { return zuletztSchritt; } }; })')(
+    function (n) { lauf.push(n); });
+
+  /* Der Weg durch die Schritte: produkt → aufbau → masse → dach → farbe */
+  ['produkt', 'aufbau', 'masse', 'dach', 'farbe'].forEach(api.ruf);
+  pruefe('Beim Dachschritt von oben, danach wieder Perspektive',
+         gegen ? lauf.join() !== 'Von oben,Perspektive'
+               : lauf.join() === 'Von oben,Perspektive',
+         lauf.length ? lauf.join(' → ') : 'nichts geschaltet');
+
+  /* Dieselbe Schritt-ID noch einmal (so ruft aendern() es bei jeder
+     Änderung) darf NICHTS tun – sonst springt die Ansicht zurück,
+     sobald man im Dachschritt etwas einstellt. */
+  var vorher = lauf.length;
+  api.ruf('farbe'); api.ruf('farbe');
+  pruefe('Gleicher Schritt schaltet nicht noch einmal',
+         gegen ? lauf.length !== vorher : lauf.length === vorher,
+         'nach zwei weiteren Aufrufen: ' + (lauf.length - vorher) + ' zusätzliche Schaltungen');
+
+  /* Zurückblättern aus dem Dachschritt: ebenfalls Perspektive. */
+  var lauf2 = [];
+  var api2 = eval('(function (ansichtWaehlen) { var zuletztSchritt = null; ' + f +
+    '; return ansichtZumSchritt; })')(function (n) { lauf2.push(n); });
+  ['masse', 'dach', 'masse'].forEach(api2);
+  pruefe('Auch rückwärts aus dem Dachschritt heraus',
+         gegen ? lauf2.join() !== 'Von oben,Perspektive'
+               : lauf2.join() === 'Von oben,Perspektive',
+         lauf2.join(' → ') || 'nichts geschaltet');
+
+  /* Beide Wege – Klick und Schrittwechsel – über dieselbe Funktion. */
+  pruefe('Klick und Schrittwechsel nutzen dieselbe Stelle',
+         new RegExp(q || "ansichtWaehlen\\(b\\.getAttribute\\('data-k3d-ansicht'\\)\\)").test(js),
+         'der Ansichtsknopf ruft ansichtWaehlen()');
+  pruefe('Die Leiste wird mitgeführt',
+         new RegExp(q || "x\\.classList\\.toggle\\('is-active'").test(js),
+         'sonst zeigt sie eine andere Ansicht an als das Bild');
+  pruefe('Im Modus „Alles auf einen Blick" greift sie nicht',
+         new RegExp(q || "zuletztSchritt = null;\\s*return;").test(js),
+         'Merker fällt zurück, kein Schalten ohne Schritte');
+})();
+
 console.log(gegen
   ? '\nGegenprobe: ' + fehler + ' von ' + geprueft + ' Prüfungen haben angeschlagen'
   : '\nErgebnis: ' + (fehler ? fehler + ' Prüfung(en) nicht bestanden' : 'bestanden'));
