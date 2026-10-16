@@ -1136,7 +1136,13 @@
   texMaxAniso = renderer.capabilities.getMaxAnisotropy();
 
   var szene = new THREE.Scene();
-  var kamera3 = new THREE.PerspectiveCamera(42, 1, 1, 6000);
+  /* Die Nahebene stand auf 1 cm. Bei einer Szene von über 14 m und einer
+     Fernebene von 60 m frisst das den Tiefenpuffer auf: Am herausgezoomten
+     Bild lassen sich Flächen, die wenige Millimeter voreinander liegen,
+     dann nicht mehr sortieren. 5 cm sind fünfmal mehr Auflösung und immer
+     noch weit näher, als die Kamera je an ein Bauteil kommt – sie steht
+     auch in der Ansicht „Darunter" mehrere Meter vom Ziel entfernt. */
+  var kamera3 = new THREE.PerspectiveCamera(42, 1, 5, 6000);
 
   var himmel = new THREE.HemisphereLight(0xdfeaf5, 0x8d8268, 0.5);
   szene.add(himmel);
@@ -1627,31 +1633,27 @@
     teilung:   21.0,   // 210 mm = Nutzbreite 1050 / 5 Sicken, ABGELEITET
     untergurt: 11.5,   // GESCHÄTZT, Tiefsicke – sie liegt auf dem Sparren
     obergurt:  4.5,    // GESCHÄTZT, Hochsicke oben
-    dicke:     0.3,    // 0,75 mm echt – gezeichnet 3 mm, Begründung unten
-    vlies:     0.3     // Antikondensvlies 700 g/m², ca. 3 mm aufgebaut
+    dicke:     0.6     // Blech + aufgeklebtes Vlies, gezeichnet – siehe unten
   };
 
-  /* Warum das Blech DICKER gezeichnet wird als es ist (0,75 mm echt, 3 mm
-     im Modell): Bei einer Szene von über 14 m Breite kann der Tiefenpuffer
-     der Grafikkarte zwei Flächen, die weniger als etwa einen Millimeter
-     auseinanderliegen, nicht mehr sicher trennen. Unter dem Blech liegt
-     das grauweiße Vlies – und genau das blitzte durch das dunkle Blech:
-     „das weiße vom von der unterseite des trapezblechs scheint im 3d konf
-     durch" (Betreiber, 16.10.2026). Drei Millimeter sieht man am fertigen
-     Dach nicht, der Fehler verschwindet damit aber vollständig.
+  /* Warum der Aufbau DICKER gezeichnet wird als er ist (0,75 mm Blech
+     plus rund 3 mm Vlies, zusammen knapp 4 mm – im Modell 6 mm):
 
-     TRAPEZ_LUFT ist derselbe Gedanke als Abstand: ein Millimeter Luft
-     zwischen Blechunterseite und Vlies, damit nicht zwei Flächen genau
-     aufeinanderliegen. */
-  var TRAPEZ_LUFT = 0.1;
+     Der Tiefenpuffer der Grafikkarte hat eine begrenzte Auflösung, und
+     die wird mit dem Abstand zur Kamera schlechter. Bei einer Szene von
+     über 14 m Breite liegt sie am weit herausgezoomten Bild in der
+     Größenordnung von Millimetern. Zwei Flächen, die näher beieinander
+     liegen, kann sie nicht mehr sortieren – dann flackert die hintere
+     durch die vordere.
 
-  /* Wie hoch der ganze Aufbau unter dem Blech ist: Vlies plus Luft. Er
-     liegt auf der Sparrenoberkante, das Blech sitzt also um diesen Betrag
-     höher. Vorher lag die Blechunterseite genau auf der Sparrenoberkante
-     und das Vlies steckte im Sparren. */
-  function trapezblechUnterbau() {
-    return TRAPEZ_T35M.dicke + TRAPEZ_LUFT + TRAPEZ_T35M.vlies;
-  }
+     Genau das war zu sehen: „das weiße vom von der unterseite des
+     trapezblechs scheint im 3d konf durch" (Betreiber, 16.10.2026, mit
+     Bild – weiße Streifen über das ganze Dach). Der erste Versuch mit
+     3 mm Blech und 1 mm Luft darunter reichte nicht; die Streifen blieben.
+
+     Sechs Millimeter sieht man am fertigen Dach nicht, der Fehler
+     verschwindet damit aber. Diese Zahl darf NICHT auf den echten Wert
+     „korrigiert" werden – dann ist das Flackern zurück. */
 
   /* Die Linie der Blech-OBERSEITE über die Tiefe, als Punktfolge
      [tiefe, höhe]. Die Null liegt auf der Tiefsicke, also dort, wo das
@@ -1685,28 +1687,69 @@
     return aus;
   }
 
-  /* Eine gewellte Schale: die Linie hin, um „dicke" versetzt zurück,
-     geschlossen und über die Breite ausgezogen. So ist die UNTERSEITE
-     genauso gewellt wie die Oberseite – von unten (Ansicht „Darunter")
-     sieht man das Profil und keine glatte Platte.
+  /* Das Blech als EIN Körper mit zwei Werkstoffen: oben und an den
+     Schnittkanten Blech, unten Vlies.
 
-     Warum eine Schale und nicht aufgelegte Rechtecke: Ein Trapezblech hat
-     schräge Stege und oben einen schmaleren Gurt. Mit Rechtecken sah es
-     aus wie aufgeschraubte Leisten. */
-  function trapezblechSchale(breite, tiefe, dicke, versatz) {
-    var linie = trapezblechLinie(tiefe), i;
-    var form = new THREE.Shape();
-    form.moveTo(linie[0][0], linie[0][1] - versatz);
-    for (i = 1; i < linie.length; i++) form.lineTo(linie[i][0], linie[i][1] - versatz);
-    for (i = linie.length - 1; i >= 0; i--)
-      form.lineTo(linie[i][0], linie[i][1] - versatz - dicke);
-    form.closePath();
-    var geo = new THREE.ExtrudeGeometry(form, { depth: breite, bevelEnabled: false });
-    /* Die Form liegt in (x = Tiefe, y = Höhe) und wird in z ausgezogen.
-       Gedreht wird die Tiefe zur z-Achse und der Auszug zur Breite in x –
-       so laufen die Rippen über die Breite, quer zu den Sparren. */
-    geo.rotateY(-Math.PI / 2);
-    geo.translate(breite / 2, 0, 0);
+     Vorher waren es ZWEI ineinandergeschobene Schalen, einen Millimeter
+     auseinander. Das war in zwei Hinsichten falsch:
+
+     Sachlich – das Antikondensvlies ist auf das Blech GEKLEBT. Es ist
+     keine zweite Platte darunter, sondern die Unterseite desselben Teils.
+
+     Technisch – zwei Flächen wenige Millimeter voreinander kann der
+     Tiefenpuffer am herausgezoomten Bild nicht mehr sortieren, und das
+     weiße Vlies schlug durch das dunkle Blech. Ein Körper mit zwei
+     Werkstoffen kann gar nicht mehr mit sich selbst konkurrieren: Jede
+     Fläche kommt genau einmal vor.
+
+     Gebaut wird von Hand statt mit ExtrudeGeometry, weil sich nur so
+     Ober- und Unterseite getrennt einfärben lassen. Die Wellenlinie läuft
+     in der TIEFE (dort kreuzt sie die Sparren), ausgezogen wird über die
+     Breite – die Rippen liegen also quer zu den Sparren.
+
+     Gruppe 0 ist Blech, Gruppe 1 ist Vlies; das Mesh bekommt die beiden
+     Werkstoffe in dieser Reihenfolge. */
+  function trapezblechKoerper(breite, tiefe) {
+    var linie = trapezblechLinie(tiefe);
+    var d = TRAPEZ_T35M.dicke, hb = breite / 2;
+    var blech = [], vlies = [], i;
+
+    function dreieck(ziel, a, b, c) {
+      ziel.push(a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+    }
+    function viereck(ziel, a, b, c, e) {
+      dreieck(ziel, a, b, c); dreieck(ziel, a, c, e);
+    }
+
+    for (i = 0; i < linie.length - 1; i++) {
+      var t0 = linie[i][0], y0 = linie[i][1];
+      var t1 = linie[i + 1][0], y1 = linie[i + 1][1];
+      /* Oberseite – Blech, Normale nach oben */
+      viereck(blech, [-hb, y0, t0], [-hb, y1, t1], [hb, y1, t1], [hb, y0, t0]);
+      /* Unterseite – Vlies, Normale nach unten */
+      viereck(vlies, [-hb, y0 - d, t0], [hb, y0 - d, t0],
+                     [hb, y1 - d, t1], [-hb, y1 - d, t1]);
+      /* Schnittkanten links und rechts – Blech */
+      viereck(blech, [-hb, y0, t0], [-hb, y0 - d, t0],
+                     [-hb, y1 - d, t1], [-hb, y1, t1]);
+      viereck(blech, [hb, y0, t0], [hb, y1, t1],
+                     [hb, y1 - d, t1], [hb, y0 - d, t0]);
+    }
+    /* Hintere und vordere Schnittkante */
+    var a = linie[0], b = linie[linie.length - 1];
+    viereck(blech, [-hb, a[1], a[0]], [hb, a[1], a[0]],
+                   [hb, a[1] - d, a[0]], [-hb, a[1] - d, a[0]]);
+    viereck(blech, [-hb, b[1], b[0]], [-hb, b[1] - d, b[0]],
+                   [hb, b[1] - d, b[0]], [hb, b[1], b[0]]);
+
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position',
+      new THREE.Float32BufferAttribute(blech.concat(vlies), 3));
+    geo.addGroup(0, blech.length / 3, 0);
+    geo.addGroup(blech.length / 3, vlies.length / 3, 1);
+    /* Ohne Index rechnet three.js je Dreieck eine Normale – genau richtig
+       fuer ein gekantetes Blech, das an den Faltkanten hart bleiben soll. */
+    geo.computeVertexNormals();
     return geo;
   }
 
@@ -3199,25 +3242,16 @@
 
        Das ist dieselbe Falle wie am 11. und 15.10.2026: Die Arbeit lag
        nur in EINEM der beiden Bauwege. Deshalb hier derselbe Aufbau aus
-       derselben Funktion (trapezblechSchale), nicht eine zweite Fassung
+       derselben Funktion (trapezblechKoerper), nicht eine zweite Fassung
        davon. */
     if (trapez) {
-      var geoBl = trapezblechSchale(B, T, TRAPEZ_T35M.dicke, 0);
+      var geoBl = trapezblechKoerper(B, T);
       geoBl.translate(0, 0, -T / 2);
-      var blechD = new THREE.Mesh(geoBl, mFuell);
-      blechD.position.set(0, yDach + trapezblechUnterbau(), T / 2);
+      var blechD = new THREE.Mesh(geoBl, [mFuell, antikondensvliesMaterial()]);
+      blechD.position.set(0, yDach + TRAPEZ_T35M.dicke + 0.2, T / 2);
       blechD.rotation.x = neig;
       blechD.castShadow = true; blechD.receiveShadow = true;
       bau.add(blechD);
-
-      var geoVl = trapezblechSchale(B - 1, T - 1, TRAPEZ_T35M.vlies,
-                                    TRAPEZ_T35M.dicke + TRAPEZ_LUFT);
-      geoVl.translate(0, 0, -(T - 1) / 2);
-      var vliesD = new THREE.Mesh(geoVl, antikondensvliesMaterial());
-      vliesD.position.set(0, yDach + trapezblechUnterbau(), T / 2);
-      vliesD.rotation.x = neig;
-      vliesD.receiveShadow = true;
-      bau.add(vliesD);
     }
 
     for (var f = 0; !trapez && f < xS.length - 1; f++) {
@@ -5775,25 +5809,15 @@
       var blechRand = bT + rT;
       var blechB = Math.max(10, B - 2 * blechRand);
       var blechT = Math.max(10, T - 2 * blechRand);
-      var yBlech = yDeck + trapezblechUnterbau();
+      /* Die Unterseite des Aufbaus liegt 2 mm über der Sparrenoberkante,
+         damit nicht zwei Flächen genau aufeinanderliegen. */
+      var yBlech = yDeck + TRAPEZ_T35M.dicke + 0.2;
 
-      var blech1 = new THREE.Mesh(
-        trapezblechSchale(blechB, blechT, TRAPEZ_T35M.dicke, 0), mTrapez);
+      var blech1 = new THREE.Mesh(trapezblechKoerper(blechB, blechT),
+                                  [mTrapez, antikondensvliesMaterial()]);
       blech1.position.set(0, yBlech, blechRand);
       blech1.castShadow = true; blech1.receiveShadow = true;
       bau.add(blech1);
-
-      /* Antikondensvlies 6094 ENG unter dem Blech. Von unten – Ansicht
-         „Darunter", und das ist die Ansicht, die der Kunde unter seinem
-         Carport hat – ist das Vlies die sichtbare Flaeche, nicht das
-         Blech. Deshalb gehoert es ins Modell und nicht in eine Fussnote. */
-      var vlies1 = new THREE.Mesh(
-        trapezblechSchale(blechB - 1, blechT - 1, TRAPEZ_T35M.vlies,
-                          TRAPEZ_T35M.dicke + TRAPEZ_LUFT),
-        antikondensvliesMaterial());
-      vlies1.position.set(0, yBlech, blechRand + 0.5);
-      vlies1.receiveShadow = true;
-      bau.add(vlies1);
 
       var obenBlech = yBlech + TRAPEZ_T35M.hoehe;
 
