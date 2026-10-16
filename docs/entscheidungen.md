@@ -7655,3 +7655,58 @@ Dazu: endet die Linie genau an der Dachkante, bleibt sie zwischen 0 und
 Profilhöhe, geht die Teilung in der Nutzbreite genau fünf Mal auf, ist der
 Obergurt schmaler als der Untergurt, rufen **beide** Bauwege dieselbe Funktion
 auf. Alle 344 Prüfungen laufen durch und schlagen in der Gegenprobe alle an.
+
+---
+
+## 16.10.2026 – Zwei Fehler am Trapezblech: durchscheinendes Vlies, überstehendes Blech
+
+**Anlass.** „das weiße vom von der unterseite des trapezblechs scheint im 3d
+konf durch und es ragt etwas an den seiten raus das blech" (Betreiber,
+Sichtprüfung direkt nach dem Einbau).
+
+**Eine Ursache, zwei Symptome.** Das Blech lief bis **10 mm vor die
+Außenkante** durch – damit steckten seine letzten 29 mm in der nur 38,9 mm
+dicken Blende, und das grauweiße Vlies lag an den Rändern praktisch in der
+Außenhaut. Dazu war das Blech mit **0,9 mm zeichnerischer Dicke** so dünn,
+dass der Tiefenpuffer der Grafikkarte bei einer Szene von über 14 m Breite
+Blech und Vlies nicht mehr sicher trennen konnte. Das Vlies lag außerdem nur
+0,2 mm unter dem Blech. Beides zusammen ergibt genau das gemeldete Bild:
+weiße Flecken im dunklen Blech, und an den Seiten schaut etwas heraus.
+
+**Was jetzt gilt.**
+
+- Das Blech endet an der **Innenwand der Rinne**, nicht an der Außenkante:
+  Breite und Tiefe je zwei Mal (Blende + Rinne) kürzer. Das ist dasselbe Maß,
+  mit dem schon die Sparren rechnen – bei 6 m Tiefe 5549,6 mm. Eine Zahl für
+  zwei Bauteile, damit sie nicht auseinanderlaufen können.
+- Das Blech wird **3 mm dick gezeichnet** statt 0,9 (echt sind 0,75 mm). Am
+  fertigen Dach sieht man den Unterschied nicht; der Tiefenpuffer braucht ihn.
+  Die Begründung steht als Kommentar an der Konstante – sonst „räumt" es
+  jemand auf den echten Wert zurück und der Fehler ist wieder da.
+- Zwischen Blechunterseite und Vlies steht **1 mm Luft** (`TRAPEZ_LUFT`).
+  Zwei Flächen genau aufeinander kann die Grafikkarte nicht sortieren.
+- Das Vlies ist **je 10 mm kleiner** als das Blech darüber. So kann es an
+  keiner Kante hervorschauen, auch wenn an den Maßen später etwas wandert.
+- Der ganze Aufbau (Vlies + Luft) liegt jetzt **auf der Sparrenoberkante**,
+  das Blech sitzt um 7 mm höher. Vorher lag die Blechunterseite auf dem
+  Sparren und das Vlies steckte im Sparren drin.
+
+**Was verworfen wurde.** Das Vlies nur dunkler einzufärben, damit es nicht
+auffällt, wenn es durchblitzt. Das hätte das Durchscheinen verdeckt, nicht
+behoben – und das Vlies ist nach Datenblatt grauweiß, eine dunkle Fläche wäre
+schlicht falsch. Ebenfalls verworfen: `polygonOffset` am Material. Das hätte
+dieselbe Stelle lokal geflickt, während das überstehende Blech an den Seiten
+unberührt geblieben wäre.
+
+**Was gegengelesen werden soll.** Carport → Flachdach Flat Line: Ist das Dach
+von oben durchgehend anthrazit, ohne weiße Flecken? Verschwindet das Blech an
+allen vier Seiten hinter der Blende, ohne hervorzuschauen? Zeigt die Ansicht
+„Darunter" das Vlies vollflächig – und nicht am Rand abgeschnitten?
+
+**Absicherung.** Sechs neue Prüfungen in `scripts/pruefe-masstabelle.js`
+(jetzt 350, alle bestanden, in der Gegenprobe schlagen alle 350 an). Eine
+davon rechnet die Blechbreite bei 6 m Tiefe nach und verlangt, dass sie auf
+dieselbe Zahl kommt wie die Sparrenlänge. Die anderen halten die Mindestwerte
+fest, die den Tiefenpuffer-Fehler verhindern: Blech mindestens 2 mm
+gezeichnet, Luft größer als 0,5 mm, Vlies kleiner als das Blech. Sinkt einer
+davon wieder, schlägt die Prüfung an, bevor es jemand im Bild sieht.

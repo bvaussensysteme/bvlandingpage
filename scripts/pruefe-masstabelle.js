@@ -2674,6 +2674,10 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
   function tzZahl(f) {
     return Number((tzBlock.match(new RegExp(f + ':\\s*([\\d.]+)')) || [])[1]);
   }
+  /* TRAPEZ_LUFT steht neben dem Block, nicht darin. */
+  function tzZahl2(name) {
+    return Number((k3d.match(new RegExp('var ' + name + ' = ([\\d.]+);')) || [])[1]);
+  }
   var tzH = tzZahl('hoehe'), tzTeil = tzZahl('teilung');
   var tzU = tzZahl('untergurt'), tzO = tzZahl('obergurt');
   var tzSteg = (tzTeil - tzU - tzO) / 2;
@@ -2775,7 +2779,7 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
   pruefe('Die Welle laeuft ueber die Tiefe, die Rippen ueber die Breite',
          gegen ? !/geo\.rotateY\(-Math\.PI \/ 2\);/.test(k3d)
                : /geo\.rotateY\(-Math\.PI \/ 2\);/.test(k3d) &&
-                 /trapezblechSchale\(blechB, T,/.test(k3d),
+                 /trapezblechSchale\(blechB, blechT,/.test(k3d),
          'Tiefe ist die Wellenrichtung, quer zu den Sparren');
 
   /* BEIDE Bauwege – dieselbe Falle wie am 11. und 15.10.2026: Arbeit lag
@@ -2788,6 +2792,56 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          gegen ? !/for \(var f = 0; !trapez && f < xS\.length - 1; f\+\+\)/.test(k3d)
                : /for \(var f = 0; !trapez && f < xS\.length - 1; f\+\+\)/.test(k3d),
          'Trapezblech laeuft in einem Stueck ueber alle Sparren');
+
+  /* ---------- Zwei Fehler aus der Sichtpruefung vom 16.10.2026 ----------
+     „das weisse vom von der unterseite des trapezblechs scheint im 3d
+     konf durch und es ragt etwas an den seiten raus das blech"
+     (Betreiber).
+
+     Beides hatte eine gemeinsame Ursache: Das Blech lief bis 10 mm vor
+     die Aussenkante durch und steckte damit in der nur 38,9 mm dicken
+     Blende – das grauweisse Vlies lag an den Raendern praktisch in der
+     Aussenhaut. Dazu war das Blech mit 0,9 mm so duenn gezeichnet, dass
+     der Tiefenpuffer Blech und Vlies nicht mehr trennen konnte.
+
+     Geprueft wird deshalb: Reicht das Blech nur bis zur Rinneninnenwand,
+     liegt kein Bauteil genau auf einem anderen, und ist das Vlies kleiner
+     als das Blech, das es verdeckt? */
+  pruefe('Das Blech endet an der Rinne, nicht an der Aussenkante',
+         gegen ? !/var blechRand = bT \+ rT;/.test(k3d)
+               : /var blechRand = bT \+ rT;/.test(k3d) &&
+                 /var blechB = Math\.max\(10, B - 2 \* blechRand\);/.test(k3d) &&
+                 /var blechT = Math\.max\(10, T - 2 \* blechRand\);/.test(k3d),
+         'Breite und Tiefe je zwei Mal (Blende + Rinne) kuerzer');
+  (function () {
+    /* Zweiter Weg zur selben Zahl: Blechbreite und Sparrenlaenge muessen
+       auf dieselbe Zahl kommen – beide enden an der Rinneninnenwand. */
+    var rT = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
+    var bT = Number((k3d.match(/seitenblendeT: ([\d.]+),/) || [])[1]);
+    var blech = 6000 - 2 * (bT + rT) * 10;
+    var sparren = 6000 - 2 * (bT + rT) * 10;
+    pruefe('Blechbreite und Sparrenlaenge kommen aus demselben Mass',
+           gegen ? Math.abs(blech - 5549.6) > 0.01
+                 : Math.abs(blech - 5549.6) < 0.01 && blech === sparren,
+           blech.toFixed(1) + ' mm bei 6 m (erwartet 5549,6)');
+  })();
+  pruefe('Zwischen Blech und Vlies steht Luft',
+         gegen ? !(tzZahl2('TRAPEZ_LUFT') > 0.05)
+               : tzZahl2('TRAPEZ_LUFT') > 0.05,
+         (tzZahl2('TRAPEZ_LUFT') * 10) + ' mm – sonst blitzt das Vlies durch');
+  pruefe('Das Blech ist dick genug gezeichnet fuer den Tiefenpuffer',
+         gegen ? !(tzZahl('dicke') >= 0.2) : tzZahl('dicke') >= 0.2,
+         (tzZahl('dicke') * 10) + ' mm gezeichnet (0,75 mm echt)');
+  pruefe('Das Vlies ist kleiner als das Blech, das es verdeckt',
+         gegen ? !/trapezblechSchale\(blechB - 1, blechT - 1,/.test(k3d)
+               : /trapezblechSchale\(blechB - 1, blechT - 1,/.test(k3d) &&
+                 /trapezblechSchale\(B - 1, T - 1,/.test(k3d),
+         'je 10 mm eingezogen, in beiden Bauwegen');
+  pruefe('Der Aufbau unter dem Blech liegt auf der Sparrenoberkante',
+         gegen ? !/function trapezblechUnterbau\(\)/.test(k3d)
+               : /function trapezblechUnterbau\(\)/.test(k3d) &&
+                 (k3d.match(/trapezblechUnterbau\(\)/g) || []).length >= 4,
+         'Vlies steckt nicht mehr im Sparren, in beiden Bauwegen');
 
   /* ---------- Die beiden Blenden sind zwei verschiedene Artikel ----------
      „Blende Flat Seiten Rinne 16555 FLT, Blende Flat Rinne 16556 FLT"
