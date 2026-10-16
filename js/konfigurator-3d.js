@@ -1590,15 +1590,124 @@
     return mat;
   }
 
-  /* Trapezblech T35M-0,75 – blickdicht. Rippenabstand und Deckbreite sind
-     nicht belegt (offene-punkte.md, Punkt F), deshalb eine glatte Fläche
-     statt einer falschen Welle. */
+  /* ---------- Trapezblech T35M-0,75-RAL7016 + Antikondensvlies ----------
+     „das is die eindeckung Trapezblech T35M-0,75-RAL7016 +
+     Antikondesnvlies 6094 ENG kannst im netz rechrchieren wie das
+     aussieht" (Betreiber, 16.10.2026).
+
+     BELEGT (Produktdatenblatt Polmetal „Trapezblech T35M | Dach |
+     Anti-Tropf 700 g/m² | Stahl 0,75 mm", abgerufen am 16.10.2026 unter
+     dwz-shop.de/produktdatenblatt/Produktdatenblatt_PT35MDVSP07597.pdf):
+       Profilhöhe 35 mm · Nutzbreite 1050 mm · Plattenbreite 1080 mm ·
+       Blechdicke 0,75 mm · Stahl S280GD · 25 µm Polyester ·
+       Rückseite grauweiß · Anti-Tropf-Vlies 700 g/m², beidseitig verödet.
+     Die Farbe steht in der Artikelbezeichnung des Betreibers: RAL 7016
+     Anthrazitgrau. Sie ist damit NICHT die Gestellfarbe – bis hierher lief
+     das Blech in der Farbe des Gestells mit, das war eine Annahme.
+
+     ABGELEITET ist die Teilung: 1050 / 5 = 210 mm. Beleg dafür, dass es
+     fünf Sicken je Platte sind, ist das Nachbarprofil desselben
+     Herstellers „T35/207" mit 207 mm Teilung und 1035 mm Nutzbreite –
+     1035 = 5 × 207. Dieselbe Rechnung auf 1050 ergibt 210.
+
+     GESCHÄTZT ist allein die Aufteilung INNERHALB einer Teilung
+     (Untergurt / Steg / Obergurt). Der Hersteller veröffentlicht die
+     Querschnittzeichnung nicht als Text; 115 / 25 / 45 / 25 mm ist ein
+     für T35-Profile üblicher Satz, der die belegten 210 mm Teilung und
+     35 mm Höhe genau trifft. Liegt die Zeichnung vor, nur TRAPEZ_T35M
+     ändern – Rückfrage 5 in daten/rueckfragen-an-vd.md.
+
+     OFFEN und wirtschaftlich erheblich: Dasselbe Datenblatt nennt für
+     dieses Dachblech eine Mindestdachneigung von 3° (5,24 cm/m). Das
+     Flat Line baut der Hersteller ohne Gefälle („das dach is absolut
+     gerade", Betreiber, 16.10.2026). Das ist nicht im Modell zu lösen,
+     steht aber als Punkt in daten/rueckfragen-an-vd.md. */
+  var TRAPEZ_T35M = {
+    hoehe:     3.5,    // 35 mm Profilhöhe, BELEGT
+    teilung:   21.0,   // 210 mm = Nutzbreite 1050 / 5 Sicken, ABGELEITET
+    untergurt: 11.5,   // GESCHÄTZT, Tiefsicke – sie liegt auf dem Sparren
+    obergurt:  4.5,    // GESCHÄTZT, Hochsicke oben
+    dicke:     0.09,   // 0,75 mm Blech, zeichnerisch etwas dicker
+    vlies:     0.3     // Antikondensvlies 700 g/m², ca. 3 mm aufgebaut
+  };
+
+  /* Die Linie der Blech-OBERSEITE über die Tiefe, als Punktfolge
+     [tiefe, höhe]. Die Null liegt auf der Tiefsicke, also dort, wo das
+     Blech auf dem Sparren aufliegt – damit bleibt die Oberkante des
+     Daches genau da, wo sie vorher war: Auflage plus Profilhöhe.
+
+     Der Lauf beginnt in der MITTE einer Tiefsicke, damit an beiden Rändern
+     eine liegende Fläche sitzt und nicht eine halbe Schräge in der Luft
+     endet. Hinter der Dachkante wird die letzte Linie linear
+     abgeschnitten, statt eine ganze Sicke überstehen zu lassen. */
+  function trapezblechLinie(tiefe) {
+    var P = TRAPEZ_T35M;
+    var steg = (P.teilung - P.untergurt - P.obergurt) / 2;
+    var pkt = [[0, 0]], t = P.untergurt / 2;
+    while (t < tiefe + P.teilung) {
+      pkt.push([t, 0]);
+      t += steg;        pkt.push([t, P.hoehe]);
+      t += P.obergurt;  pkt.push([t, P.hoehe]);
+      t += steg;        pkt.push([t, 0]);
+      t += P.untergurt;
+    }
+    var aus = [];
+    for (var i = 0; i < pkt.length; i++) {
+      if (pkt[i][0] <= tiefe) { aus.push(pkt[i]); continue; }
+      var v = pkt[i - 1];
+      var f = (tiefe - v[0]) / (pkt[i][0] - v[0]);
+      aus.push([tiefe, v[1] + (pkt[i][1] - v[1]) * f]);
+      break;
+    }
+    if (aus[aus.length - 1][0] < tiefe) aus.push([tiefe, aus[aus.length - 1][1]]);
+    return aus;
+  }
+
+  /* Eine gewellte Schale: die Linie hin, um „dicke" versetzt zurück,
+     geschlossen und über die Breite ausgezogen. So ist die UNTERSEITE
+     genauso gewellt wie die Oberseite – von unten (Ansicht „Darunter")
+     sieht man das Profil und keine glatte Platte.
+
+     Warum eine Schale und nicht aufgelegte Rechtecke: Ein Trapezblech hat
+     schräge Stege und oben einen schmaleren Gurt. Mit Rechtecken sah es
+     aus wie aufgeschraubte Leisten. */
+  function trapezblechSchale(breite, tiefe, dicke, versatz) {
+    var linie = trapezblechLinie(tiefe), i;
+    var form = new THREE.Shape();
+    form.moveTo(linie[0][0], linie[0][1] - versatz);
+    for (i = 1; i < linie.length; i++) form.lineTo(linie[i][0], linie[i][1] - versatz);
+    for (i = linie.length - 1; i >= 0; i--)
+      form.lineTo(linie[i][0], linie[i][1] - versatz - dicke);
+    form.closePath();
+    var geo = new THREE.ExtrudeGeometry(form, { depth: breite, bevelEnabled: false });
+    /* Die Form liegt in (x = Tiefe, y = Höhe) und wird in z ausgezogen.
+       Gedreht wird die Tiefe zur z-Achse und der Auszug zur Breite in x –
+       so laufen die Rippen über die Breite, quer zu den Sparren. */
+    geo.rotateY(-Math.PI / 2);
+    geo.translate(breite / 2, 0, 0);
+    return geo;
+  }
+
+  /* Das Blech selbst: Stahl mit 25 µm Polyesterlack in RAL 7016. Kein
+     blankes Metall – der Lack ist eine Schicht darauf, deshalb wenig
+     metalness und eher stumpf. */
   function trapezblechMaterial() {
     var m = new THREE.MeshStandardMaterial({
-      color: rgb(gestellFarbe()),
-      metalness: 0.2, roughness: 0.55
+      color: rgb(RAL['7016'][0]),
+      metalness: 0.25, roughness: 0.5
     });
     m.envMapIntensity = 0.4;
+    return m;
+  }
+
+  /* Das Antikondensvlies (6094 ENG) klebt auf der Unterseite und ist das,
+     was man von unten tatsächlich sieht: ein Filz, grauweiß (Datenblatt:
+     „Farbe Rückseite Grauweiß"), vollständig matt, ohne Spiegelung. */
+  function antikondensvliesMaterial() {
+    var m = new THREE.MeshStandardMaterial({
+      color: rgb(0xdcdedb), metalness: 0, roughness: 1
+    });
+    m.envMapIntensity = 0.15;
     return m;
   }
 
@@ -3060,7 +3169,36 @@
        zwei Platten übereinander mit Fuge am Unterzug. */
     var mFuell = trapez ? trapezblechMaterial() : dachfuellung();
     var yDach = mitteY + spH / 2;
-    for (var f = 0; f < xS.length - 1; f++) {
+
+    /* Trapezblech ist KEINE Fuellung je Sparrenfeld: Es laeuft in einem
+       Stueck quer ueber alle Sparren. Vorher legte dieser Bauweg flache
+       Platten zwischen die Sparren – dieselbe Eindeckung sah damit je
+       nach Serverantwort voellig anders aus als im geschaetzten Bauweg.
+
+       Das ist dieselbe Falle wie am 11. und 15.10.2026: Die Arbeit lag
+       nur in EINEM der beiden Bauwege. Deshalb hier derselbe Aufbau aus
+       derselben Funktion (trapezblechSchale), nicht eine zweite Fassung
+       davon. */
+    if (trapez) {
+      var geoBl = trapezblechSchale(B, T, TRAPEZ_T35M.dicke, 0);
+      geoBl.translate(0, 0, -T / 2);
+      var blechD = new THREE.Mesh(geoBl, mFuell);
+      blechD.position.set(0, yDach, T / 2);
+      blechD.rotation.x = neig;
+      blechD.castShadow = true; blechD.receiveShadow = true;
+      bau.add(blechD);
+
+      var geoVl = trapezblechSchale(B, T, TRAPEZ_T35M.vlies,
+                                    TRAPEZ_T35M.dicke + 0.02);
+      geoVl.translate(0, 0, -T / 2);
+      var vliesD = new THREE.Mesh(geoVl, antikondensvliesMaterial());
+      vliesD.position.set(0, yDach, T / 2);
+      vliesD.rotation.x = neig;
+      vliesD.receiveShadow = true;
+      bau.add(vliesD);
+    }
+
+    for (var f = 0; !trapez && f < xS.length - 1; f++) {
       var mitteX = (xS[f] + xS[f + 1]) / 2;
       var feldB = (xS[f + 1] - xS[f]) - spB;
       if (feldB <= 0) continue;
@@ -5473,7 +5611,7 @@
        liegt die Rinne, dort endet der Sparren. Beim tds-Zweig (unbenutzt)
        bleibt die alte Rechnung. */
     var traegerL = tds ? Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2))
-                       : Math.max(10, T - 2 * SKY.rinneT);
+                       : Math.max(10, T - 2 * (SKY.seitenblendeT + SKY.rinneT));
     var tbFlat = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
     var spAnzahl = (tbFlat && tbFlat.sparren) || 2;
     var spBreite = tds ? PROFIL * 0.8 : FLAT_TRAEGER.breite;
@@ -5542,67 +5680,87 @@
       var oben = hVorn + blendeH;
       var mBlech = blech();
 
-      /* Rinne umlaufend (innen), Blende davor (aussen). Zwei Bauteile wie
-         beim SkyView – ein einzelner Kasten waere entweder zu duenn (nur
-         Blende) oder zu klobig (Rinnentiefe bis aussen). */
+      /* Rinne umlaufend, Blende davor – zwei Bauteile wie beim SkyView.
+
+         NICHTS RAGT ÜBER DIE ANLAGENKANTE: Die Blende ist die Aussenhaut
+         und endet genau bei der Breite bzw. Tiefe, die eingestellt ist;
+         die Rinne sitzt dahinter. Vorher stand die Blende DAVOR und
+         ragte 39 mm hinaus – damit lag die aeusserste sichtbare Kante
+         vor den Pfosten, was aussah, als seien sie nach innen gerueckt
+         (Betreiber, 16.10.2026: „die pfosten sind auch nicht nach innen
+         gerückt wie beim sky momentan hast du sie etwa [n]ach innen
+         gerückt" – auf die Rueckfrage, ob die Blende buendig abschliessen
+         soll: „ja").
+
+         Die Pfosten bleiben, wo sie waren: buendig bis zur Kante, von der
+         Blende verdeckt. So laeuft sie auch an der echten Anlage. */
       var bT = FLAT_BLENDE_T, rT = FLAT_RINNE_T;
-      /* Rinne: liegt INNERHALB der Anlagenkante */
-      balken(B, blendeH, rT, 0, hVorn + blendeH / 2, T - rT / 2, mBlech);   // vorne
-      balken(B, blendeH, rT, 0, hVorn + blendeH / 2, rT / 2, mBlech);       // hinten
-      [-B / 2 + rT / 2, B / 2 - rT / 2].forEach(function (x) {
-        balken(rT, blendeH, T - 2 * rT, x, hVorn + blendeH / 2, T / 2, mBlech);
+      /* Es sind VIER Teile, nicht eins: vorne und hinten „Blende Flat
+         Rinne" 16556 FLT vor der „Rinne Flat" 16553, an den Seiten
+         „Blende Flat Seiten Rinne" 16555 FLT vor der „Seitenrinne Flat"
+         16554 (Betreiber, 16.10.2026; Artikel aus
+         daten/profile-und-eindeckung.csv).
+
+         Die Einzelteileliste fuehrt sie als Meterware ohne Querschnitt,
+         deshalb tragen beide Blenden hier weiter das SkyView-Mass
+         (FLAT_BLENDE_H/T) und beide Rinnen FLAT_RINNE_T. Das ist eine
+         Platzhalterform, kein Beleg – sie steht als Rueckfrage in
+         daten/rueckfragen-an-vd.md. */
+      /* Blende: Aussenhaut, buendig mit der Kante */
+      balken(B, blendeH, bT, 0, hVorn + blendeH / 2, T - bT / 2, mBlech);   // vorne
+      balken(B, blendeH, bT, 0, hVorn + blendeH / 2, bT / 2, mBlech);       // hinten
+      [-B / 2 + bT / 2, B / 2 - bT / 2].forEach(function (x) {
+        balken(bT, blendeH, T - 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
-      /* Blende: davor, bündig mit der Anlagenkante */
-      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, T + bT / 2, mBlech);
-      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, -bT / 2, mBlech);
-      [-B / 2 - bT / 2, B / 2 + bT / 2].forEach(function (x) {
-        balken(bT, blendeH, T + 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
+      /* Rinne: direkt dahinter */
+      balken(B - 2 * bT, blendeH, rT, 0, hVorn + blendeH / 2, T - bT - rT / 2, mBlech);
+      balken(B - 2 * bT, blendeH, rT, 0, hVorn + blendeH / 2, bT + rT / 2, mBlech);
+      [-B / 2 + bT + rT / 2, B / 2 - bT - rT / 2].forEach(function (x) {
+        balken(rT, blendeH, T - 2 * bT - 2 * rT, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
 
-      /* Eindeckung ist Trapezblech – und soll auch danach aussehen.
-         BELEGT ist das Profil T35M-0,75: 35 mm Profilhöhe, 0,75 mm Blech
-         (technische-daten.md, Abschnitt Profile). GESCHÄTZT ist der
-         Rippenabstand; er ist der einzige fehlende Wert und steht als
-         Rückfrage 5 in daten/rueckfragen-an-vd.md. Sobald er da ist, nur
-         RIPPE_ABSTAND ändern.
+      /* ---------- Eindeckung: Trapezblech T35M, Rippen quer ----------
+         Profil, Teilung, Farbe und Vlies stehen oben bei TRAPEZ_T35M;
+         dort steht auch, was belegt und was geschaetzt ist.
 
-         Das Blech läuft in der Farbe des Gestells, wie im Datenpfad
-         (trapezblechMaterial). Ob der Hersteller das Blech wirklich in der
-         RAL-Farbe liefert, ist nicht belegt – gegenzulesen. */
-      var BLECH_DICKE = 0.9;        // Grundblech, zeichnerisch
-      var RIPPE_HOCH = 3.5;         // 35 mm, BELEGT
-      var RIPPE_ABSTAND = 20;       // GESCHÄTZT, Rückfrage 5 an VD
-      var yDeck = oben - FLAT_DECK_AB;
-      var mTrapez = trapezblechMaterial();
+         Hier lagen bis zum 16.10.2026 Rechteck-Rippen auf einer glatten
+         Platte, mit senkrechten Flanken, geschaetzten 200 mm Abstand und
+         in der Gestellfarbe. Das Blech ist aber ein echtes Trapezprofil
+         in RAL 7016 mit Vlies auf der Unterseite:
+         „das is die eindeckung Trapezblech T35M-0,75-RAL7016 +
+         Antikondesnvlies 6094 ENG" (Betreiber, 16.10.2026).
 
-      var grund = new THREE.Mesh(new THREE.BoxGeometry(B - 2, BLECH_DICKE, T), mTrapez);
-      grund.position.set(0, yDeck, T / 2);
-      grund.castShadow = true; grund.receiveShadow = true;
-      bau.add(grund);
-
-      /* ---------- Rippen QUER zu den Sparren ----------
+         Die Rippen laufen QUER zu den Sparren, also ueber die Breite:
          „das trapezblech liegt falschrum im 3d modell, es liegt parralel
          zu den sparren dabei muss es quer zu den sparren liegen"
-         (Betreiber, 16.10.2026).
+         (Betreiber, 16.10.2026). Ein Trapezblech traegt in
+         Rippenrichtung und muss von Sparren zu Sparren spannen; parallel
+         zu ihnen haette es zwischen ihnen keine Auflager. Im Modell
+         heisst das: Die WELLE laeuft in der Tiefe durch (dort kreuzt sie
+         die Sparren), die Rippen selbst liegen in x. */
+      var yDeck = oben - FLAT_DECK_AB;
+      var mTrapez = trapezblechMaterial();
+      var blechB = B - 2;
 
-         Hier stand „Rippen laufen in Gefällerichtung, also in der Tiefe" –
-         und die Sparren laufen ebenfalls in der Tiefe, das Blech lag also
-         parallel zu ihnen. Ein Trapezblech traegt in RIPPENRICHTUNG und
-         muss deshalb von Sparren zu Sparren spannen: quer dazu, also
-         ueber die Breite. Parallel zu den Sparren haette es keine
-         Auflager zwischen ihnen.
+      var blech1 = new THREE.Mesh(
+        trapezblechSchale(blechB, T, TRAPEZ_T35M.dicke, 0), mTrapez);
+      blech1.position.set(0, yDeck, 0);
+      blech1.castShadow = true; blech1.receiveShadow = true;
+      bau.add(blech1);
 
-         Die Rippen liegen damit in x und sind ueber die Tiefe verteilt. */
-      var rippen = Math.max(3, Math.floor((T - 4) / RIPPE_ABSTAND));
-      for (var ri = 0; ri < rippen; ri++) {
-        var zr = 2 + ((T - 4) / rippen) * (ri + 0.5);
-        var rippe = new THREE.Mesh(
-          new THREE.BoxGeometry(B - 2, RIPPE_HOCH, RIPPE_ABSTAND * 0.45), mTrapez);
-        rippe.position.set(0, yDeck + RIPPE_HOCH / 2, zr);
-        rippe.castShadow = true; rippe.receiveShadow = true;
-        bau.add(rippe);
-      }
-      var obenBlech = yDeck + RIPPE_HOCH;
+      /* Antikondensvlies 6094 ENG unter dem Blech. Von unten – Ansicht
+         „Darunter", und das ist die Ansicht, die der Kunde unter seinem
+         Carport hat – ist das Vlies die sichtbare Flaeche, nicht das
+         Blech. Deshalb gehoert es ins Modell und nicht in eine Fussnote. */
+      var vlies1 = new THREE.Mesh(
+        trapezblechSchale(blechB, T, TRAPEZ_T35M.vlies,
+                          TRAPEZ_T35M.dicke + 0.02),
+        antikondensvliesMaterial());
+      vlies1.position.set(0, yDeck, 0);
+      vlies1.receiveShadow = true;
+      bau.add(vlies1);
+
+      var obenBlech = yDeck + TRAPEZ_T35M.hoehe;
 
       /* Solar und Dachbegrünung liegen AUF dem Trapezblech, sie ersetzen es
          nicht – deshalb bleibt das Blech darunter sichtbar. */
