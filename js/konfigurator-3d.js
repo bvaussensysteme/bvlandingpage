@@ -2463,6 +2463,15 @@
      gibt keinen eigenen fuer Flat Line. */
   var STATIKTRAEGER = { hoehe: 18.92, tiefe: 11.7 };
 
+  /* Pfosten 110,2 x 110,2 mm (Artikel 15190). Zeichnungsmass; der
+     Betreiber nennt ihn „110x110". Auch er steht nur einmal hier, weil
+     ihn alle Systeme nutzen: Die Montageanleitung Flat Line fuehrt unter
+     „Benoetigte Komponenten" denselben „Pfosten (15190)" wie das
+     Terrassendach – „und pfosten sind auch 110x110" (Betreiber,
+     16.10.2026). Im Flat-Line-Bauweg standen vorher 140 mm mit der
+     Begruendung „Carport-Stuetzen sind kraeftiger". */
+  var PFOSTEN = { breite: 11.02 };
+
   var PFOSTENACHSE = 12.42;
   /* Die Achse der Masstabelle, Pfostenvorderkante buendig mit der
      Dachkante. Gilt weiter fuer alles ausser dem TDS – siehe oben. */
@@ -5373,7 +5382,12 @@
     var FLAT_BLENDE_H = SKY.seitenblendeH;
     var FLAT_BLENDE_T = SKY.seitenblendeT;
     var FLAT_DECK_AB = 5;
-    var PROFIL = 14;                                   // Carport-Stützen sind kräftiger
+    /* Flat Line und Flat Box nehmen den Pfosten 15190 (110,2 mm). Die
+       140 mm galten als „Carport-Stuetzen sind kraeftiger" – eine
+       Annahme, die die Teileliste der Anleitung widerlegt. Der
+       tds-Zweig hier ist unbenutzt (Carport TDS laeuft ueber
+       bauenTerrasseGeschaetzt) und bleibt unveraendert. */
+    var PROFIL = tds ? 14 : PFOSTEN.breite;
     /* BELEGT (technische-daten.md 1, dieselbe Quelle wie GENEIGT in
        js/bauteile.js): Flat Line ist ein Flachdach ohne Neigungsfeld, und
        Flat Box ist Flat Line mit Wänden. Hier standen vorher 1,5° – damit
@@ -5545,14 +5559,25 @@
       grund.castShadow = true; grund.receiveShadow = true;
       bau.add(grund);
 
-      /* Rippen laufen in Gefällerichtung, also in der Tiefe – so liegt ein
-         Trapezblech, damit Wasser in den Tälern abläuft. */
-      var rippen = Math.max(3, Math.floor((B - 4) / RIPPE_ABSTAND));
+      /* ---------- Rippen QUER zu den Sparren ----------
+         „das trapezblech liegt falschrum im 3d modell, es liegt parralel
+         zu den sparren dabei muss es quer zu den sparren liegen"
+         (Betreiber, 16.10.2026).
+
+         Hier stand „Rippen laufen in Gefällerichtung, also in der Tiefe" –
+         und die Sparren laufen ebenfalls in der Tiefe, das Blech lag also
+         parallel zu ihnen. Ein Trapezblech traegt in RIPPENRICHTUNG und
+         muss deshalb von Sparren zu Sparren spannen: quer dazu, also
+         ueber die Breite. Parallel zu den Sparren haette es keine
+         Auflager zwischen ihnen.
+
+         Die Rippen liegen damit in x und sind ueber die Tiefe verteilt. */
+      var rippen = Math.max(3, Math.floor((T - 4) / RIPPE_ABSTAND));
       for (var ri = 0; ri < rippen; ri++) {
-        var xr = -B / 2 + 2 + ((B - 4) / rippen) * (ri + 0.5);
+        var zr = 2 + ((T - 4) / rippen) * (ri + 0.5);
         var rippe = new THREE.Mesh(
-          new THREE.BoxGeometry(RIPPE_ABSTAND * 0.45, RIPPE_HOCH, T), mTrapez);
-        rippe.position.set(xr, yDeck + RIPPE_HOCH / 2, T / 2);
+          new THREE.BoxGeometry(B - 2, RIPPE_HOCH, RIPPE_ABSTAND * 0.45), mTrapez);
+        rippe.position.set(0, yDeck + RIPPE_HOCH / 2, zr);
         rippe.castShadow = true; rippe.receiveShadow = true;
         bau.add(rippe);
       }
@@ -5654,7 +5679,7 @@
     var sky = Z.produkt === 'Flachdach SkyView';
     /* Pfosten 110 x 110 x 2,5 mm (15190). Das Aussenmass der Zeichnung
        ist 110,2 – die Produktbezeichnung rundet auf 110. BELEGT. */
-    var PF = 11.02;
+    var PF = PFOSTEN.breite;
     /* SkyView: außen Flachdach, innen Gefälle. „das sky view sieht von
        außen aus wie flachdach hat aber ein innenliegendes gefälle von
        immer 2 grad" (Betreiber, 11.10.2026).

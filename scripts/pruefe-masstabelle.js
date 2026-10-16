@@ -553,8 +553,19 @@ pruefe('Hinweis rechnet die Pfosten nicht selbst',
 })();
 /* Die Pfostenbreite steht im Modell als Zahl ohne Namen – eigene
    Pruefung, damit sie nicht durchrutscht. */
+/* Der Pfosten steht seit dem 16.10.2026 einmal global, weil ihn alle
+   Systeme nutzen – die Montageanleitung Flat Line fuehrt denselben
+   Artikel 15190. */
 pruefe('Pfosten 110,2 mm (15190)',
-       new RegExp(q || 'var PF = 11\\.02;').test(k3d), 'Zeichnungsmaß, nicht gerundet');
+       new RegExp(q || 'var PFOSTEN = \\{ breite: 11\\.02 \\};').test(k3d),
+       'Zeichnungsmaß, nicht gerundet');
+pruefe('Der Pfosten steht an genau einer Stelle',
+       gegen ? (k3d.match(/11\.02/g) || []).length !== 1
+             : (k3d.match(/11\.02/g) || []).length === 1,
+       (k3d.match(/11\.02/g) || []).length + ' × 11.02 im Code');
+pruefe('Flat Line nimmt denselben Pfosten',
+       new RegExp(q || 'var PROFIL = tds \\? 14 : PFOSTEN\\.breite;').test(k3d),
+       'nicht mehr 140 mm „kräftigere Carport-Stütze"');
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
@@ -2613,6 +2624,26 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
            schief.length ? schief.join(', ')
                          : Object.keys(fl.breiten).length + ' Breiten geprüft');
   })();
+
+  /* ---------- Trapezblech quer zu den Sparren ----------
+     „das trapezblech liegt falschrum im 3d modell, es liegt parralel zu
+     den sparren dabei muss es quer zu den sparren liegen" (Betreiber,
+     16.10.2026). Ein Trapezblech traegt in Rippenrichtung; parallel zu
+     den Sparren haette es zwischen ihnen keine Auflager.
+
+     Geprueft wird die Geometrie: Die Rippe muss in x lang sein (ueber die
+     Breite) und in z schmal – vorher war es umgekehrt. */
+  var rippe = (k3d.match(/new THREE\.BoxGeometry\(([^)]*), RIPPE_HOCH, ([^)]*)\), mTrapez\)/) || []);
+  pruefe('Trapezblech-Rippen laufen über die Breite',
+         gegen ? rippe[1] !== 'B - 2' : rippe[1] === 'B - 2',
+         'lang in x: ' + rippe[1]);
+  pruefe('…und sind über die Tiefe verteilt',
+         gegen ? !/RIPPE_ABSTAND \* 0\.45\), mTrapez\)/.test(k3d)
+               : /RIPPE_ABSTAND \* 0\.45\), mTrapez\)/.test(k3d),
+         'schmal in z: ' + rippe[2]);
+  pruefe('Sparren und Rippen kreuzen sich',
+         new RegExp(q || 'var rippen = Math\\.max\\(3, Math\\.floor\\(\\(T - 4\\)').test(k3d),
+         'Rippenzahl aus der Tiefe, Sparrenzahl aus der Breite');
 
   /* Randabstand aus der Montageanleitung, Schritt 3.2. */
   var rand = Number((k3d.match(/var FLAT_SPARREN_RAND = ([\d.]+);/) || [])[1]);
