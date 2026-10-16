@@ -558,8 +558,11 @@ pruefe('Pfosten 110,2 mm (15190)',
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
+/* Die Zahlen stehen seit dem 16.10.2026 in STATIKTRAEGER (eine Quelle fuer
+   alle Systeme); der Bauweg liest sie nur noch. */
 pruefe('Freistehend: Träger steht hochkant',
-       new RegExp(q || 'TR_H = 18\\.92, TR_T = 11\\.7').test(k3d), '189,2 hoch, 117 tief');
+       new RegExp(q || 'var TR_H = STATIKTRAEGER\\.hoehe, TR_T = STATIKTRAEGER\\.tiefe;').test(k3d),
+       '189,2 hoch, 117 tief – aus STATIKTRAEGER');
 pruefe('Freistehend: Träger hinter dem Wandprofil',
        new RegExp(q || 'zTrHinten = -TR_T / 2 \\+ vorsprH').test(k3d),
        'an der Stelle der Wand, mit Vorsprung nach innen');
@@ -2537,6 +2540,54 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          f3 === 0 ? 'Spitze ' + (aussen - sparrenHalb).toFixed(1) +
          ' mm ausserhalb, ' + (-tiefster * 10).toFixed(0) + ' mm unter der Glasebene'
          : m3.join('; '));
+})();
+
+/* ---------- Flat Line: Träger 16557 FLT ----------
+   „der sparren beim flatline is 172 hoch und 60 breit" und, auf Nachfrage
+   zur Zeichnung: „auf der zeichnung liegt der sparren hochkant wäre er
+   richtig also 172 hoch 60 breit" (Betreiber, 16.10.2026). Die Zeichnung
+   zeigt das Rechteckrohr liegend; eingebaut steht es hochkant. */
+(function () {
+  var m = k3d.match(/var FLAT_TRAEGER = \{ hoehe: ([\d.]+), breite: ([\d.]+) \};/);
+  if (!m) { pruefe('Flat-Line-Träger ist im Code', false, 'FLAT_TRAEGER nicht gefunden'); return; }
+  var h = Number(m[1]) * 10, b = Number(m[2]) * 10;     // cm -> mm
+  if (gegen) { var t = h; h = b; b = t; }               // Verfaelschung: gelegt statt hochkant
+  pruefe('Träger Flat: 172 mm hoch', h === 172, h + ' mm');
+  pruefe('Träger Flat: 60 mm breit', b === 60, b + ' mm');
+  pruefe('Er steht hochkant, nicht flach', h > b,
+         'Höhe ' + h + ' mm über Breite ' + b + ' mm');
+
+  /* Im Modell ist x die Breite und y die Hoehe – in dieser Reihenfolge
+     erwartet BoxGeometry sie. Vertauscht laege der Sparren flach. */
+  pruefe('Im Modell liegt die Breite auf x, die Höhe auf y',
+         new RegExp(q || 'BoxGeometry\\(spBreite, spHoehe, traegerL\\)').test(k3d),
+         'BoxGeometry(Breite, Höhe, Länge)');
+  pruefe('Die Sparrenzahl kommt aus der Preisliste',
+         new RegExp(q || 'var spAnzahl = \\(tbFlat && tbFlat\\.sparren\\) \\|\\| 2;').test(k3d),
+         'nicht mehr zwei Längsträger an den Rändern');
+  /* Der Statiktraeger ist ueberall derselbe (189 x 117, Artikel 15187):
+     „statikträger maß is ja das selbe wie beim tds oder fly" (Betreiber,
+     16.10.2026). Entsprechend darf es nur EINE Stelle geben, die ihn
+     bemasst – vorher stand die Zahl im TDS-Bauweg. */
+  pruefe('Der Unterzug nutzt überall den Statikträger',
+         new RegExp(q || 'var uzH = STATIKTRAEGER\\.hoehe;').test(k3d),
+         'auch bei Flat Line 189 x 117 mm');
+  var stq = (k3d.match(/var STATIKTRAEGER = \{ hoehe: ([\d.]+), tiefe: ([\d.]+) \};/) || []);
+  pruefe('Der Statikträger steht an genau einer Stelle',
+         gegen ? !stq[1] : (stq[1] === '18.92' && stq[2] === '11.7' &&
+                            (k3d.match(/18\.92/g) || []).length === 1),
+         stq[1] ? (stq[1] * 10).toFixed(1).replace('.', ',') + ' x ' +
+                  (stq[2] * 10).toFixed(0) + ' mm, einmal im Code'
+                : 'STATIKTRAEGER fehlt');
+
+  /* Die Oberkante muss am Blech liegen, nicht darunter schweben. */
+  var bl = Number((k3d.match(/var FLAT_BLENDE_H = ([\d.]+);/) || [])[1]);
+  var ab = Number((k3d.match(/var FLAT_DECK_AB = ([\d.]+);/) || [])[1]);
+  var spY = bl - ab - Number(m[1]) / 2;                  // relativ zu hVorn
+  var ok = spY + Number(m[1]) / 2;
+  pruefe('Sparren-Oberkante liegt an der Blechunterseite',
+         gegen ? ok !== (bl - ab) : ok === (bl - ab),
+         'Oberkante ' + ok + ' cm über Durchfahrt, Blech bei ' + (bl - ab) + ' cm');
 })();
 
 console.log(gegen
