@@ -1006,6 +1006,10 @@
       ? R.tiefeMaxMitUnterzug : R.tiefeMaxOhneUnterzug;
     return {
       sparren: e[0],
+      /* Die Stuetzfusszahl der Preisliste, unveraendert. pfosten darunter
+         rechnet die Tiefenregel des Betriebs dazu – wer die Liste selbst
+         braucht (Flat Line), nimmt diesen Wert. */
+      stuetzfuesse: e[1],
       pfosten: e[1] + (tiefeMm > grenze ? 1 : 0),
       unterzug: tiefeMm > R.tiefeMaxOhneUnterzug,
       lieferbar: tiefeMm <= R.tiefeMaxLieferbar,
@@ -5390,7 +5394,20 @@
     wand.position.set(0, (hHinten + 190) / 2, -12);
 
     /* Pfosten: vorne immer, hinten nur ohne Wandmontage */
-    var paare = B > 450 ? 3 : 2;
+    /* Pfostenpaare. Beim Flat Line aus der Preisliste: „aus der preisliste
+       kannst du auch entnehmen bei welcher breite / tiefe wieviel sparren
+       und wieviel stützfüße bzw pfosten benötigt werden" (Betreiber,
+       16.10.2026). Hier stand die Faustregel „ueber 4,5 m drei Paare" –
+       sie lag bei 3 von 8 geprueften Breiten daneben, bei 14 m mit 6
+       statt 8 Pfosten.
+
+       Die Liste nennt GESAMTzahlen (4 = zwei vorne, zwei hinten), die
+       Tiefenregel des TDS gilt hier nicht: Die Spalte steht je Breite,
+       ueber alle Tiefen gleich. Deshalb stuetzfuesse und nicht pfosten. */
+    var tbPf = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
+    var paare = (tbPf && tbPf.stuetzfuesse)
+      ? Math.max(2, Math.round(tbPf.stuetzfuesse / 2))
+      : (B > 450 ? 3 : 2);
     var xPos = verteilen(paare, B, PROFIL / 2);
     xPos.forEach(function (x) {
       balken(PROFIL, hVorn, PROFIL, x, hVorn / 2, T - PROFIL / 2, mAlu);
