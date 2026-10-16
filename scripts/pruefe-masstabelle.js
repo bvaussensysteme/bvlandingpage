@@ -2587,6 +2587,33 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
                   (stq[2] * 10).toFixed(0) + ' mm, einmal im Code'
                 : 'STATIKTRAEGER fehlt');
 
+  /* ---------- Pfosten aus der Preisliste, nicht aus einer Faustregel ----
+     „aus der preisliste kannst du auch entnehmen bei welcher breite /
+     tiefe wieviel sparren und wieviel stützfüße bzw pfosten benötigt
+     werden" (Betreiber, 16.10.2026). Im Modell stand „ueber 4,5 m drei
+     Paare" – das lag bei 5000, 11000 und 14000 mm daneben. */
+  pruefe('Flat Line nimmt die Stützfußzahl der Preisliste',
+         gegen ? /var paare = B > 450 \? 3 : 2;/.test(k3d)
+               : /tbPf\.stuetzfuesse\)\s*\?\s*Math\.max\(2, Math\.round\(tbPf\.stuetzfuesse \/ 2\)\)/.test(k3d),
+         'keine Faustregel mehr');
+  pruefe('Die Stückliste reicht den Rohwert durch',
+         gegen ? !/stuetzfuesse: e\[1\],/.test(k3d) : /stuetzfuesse: e\[1\],/.test(k3d),
+         'ohne die Tiefenregel des TDS');
+  (function () {
+    var fl = window.BV_MASSTABELLE.systeme['Flat_Line|Trapezblech'];
+    var schief = [];
+    Object.keys(fl.breiten).forEach(function (b) {
+      var st = fl.breiten[b][1];
+      var paare = gegen ? ((b / 10) > 450 ? 3 : 2)      // die alte Faustregel
+                        : Math.max(2, Math.round(st / 2));
+      if (paare * 2 !== st) schief.push(b + ': ' + (paare * 2) + ' statt ' + st);
+    });
+    pruefe('Jede Breite bekommt so viele Pfosten wie die Liste nennt',
+           schief.length === 0,
+           schief.length ? schief.join(', ')
+                         : Object.keys(fl.breiten).length + ' Breiten geprüft');
+  })();
+
   /* Randabstand aus der Montageanleitung, Schritt 3.2. */
   var rand = Number((k3d.match(/var FLAT_SPARREN_RAND = ([\d.]+);/) || [])[1]);
   pruefe('Äußerste Sparren halten 135 mm Abstand zur Kante',

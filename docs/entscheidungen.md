@@ -7415,3 +7415,40 @@ der Attika liegt (5 cm). Dazu sagt keine Quelle etwas.
 als eigene Zahl dastehen. Die Prüfung „Sparren-Oberkante liegt an der
 Blechunterseite" liest die Höhe jetzt ebenfalls aus `SKY` und rechnet weiter
 nach – sie steht jetzt bei 20,2 cm über der Durchfahrt statt 21.
+
+### 16.10.2026 – Flat Line: Pfostenzahl aus der Preisliste statt Faustregel
+
+**Anlass.** Der Betreiber: *„aus der preisliste kannst du auch entnehmen bei
+welcher breite / tiefe wieviel sparren und wieviel stützfüße bzw pfosten
+benötigt werden"*
+
+**Was ich übersehen hatte.** Beim Abgleich der Preisliste hatte ich nur die
+**Maßtabelle** verglichen (12 von 12 Breiten stimmten) – nicht das **Modell**.
+Im Flat-Line-Bauweg stand eine eigene Faustregel:
+
+```
+var paare = B > 450 ? 3 : 2;      // über 4,5 m drei Pfostenpaare
+```
+
+Nachgerechnet lag sie bei 3 von 8 geprüften Breiten daneben:
+
+| Breite | Modell | Preisliste |
+|---|---|---|
+| 5000 | 6 | **4** |
+| 11000 | 6 | **8** |
+| 14000 | 6 | **8** |
+
+Eine Tabelle zu haben heißt nicht, sie auch zu benutzen. Die Sparrenzahl kam
+schon aus ihr, die Pfostenzahl nicht.
+
+**Was jetzt gilt.** `tabelleBauteile()` gibt neben `pfosten` (mit der
+Tiefenregel des Betriebs) auch `stuetzfuesse` zurück – die Zahl der
+Preisliste, unverändert. Flat Line nimmt diese: Die Spalte steht dort je
+Breite und gilt über alle Tiefen gleich, die TDS-Tiefenregel hat hier nichts
+zu suchen. Die Zahlen sind **Gesamtzahlen** (4 = zwei vorne, zwei hinten),
+belegt durch die Montageanleitung, die bei kleinen Anlagen vier Pfosten zeigt.
+
+**Absicherung.** Drei Prüfungen, darunter eine, die **alle zwölf Breiten**
+durchrechnet: Pfostenzahl muss der Stützfußzahl der Liste entsprechen. Die
+Verfälschung setzt die alte Faustregel wieder ein – dann schlagen die drei
+Abweichungen oben an. Gegenprobe: alle 316 Prüfungen des Skripts.
