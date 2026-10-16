@@ -7452,3 +7452,30 @@ belegt durch die Montageanleitung, die bei kleinen Anlagen vier Pfosten zeigt.
 durchrechnet: Pfostenzahl muss der Stützfußzahl der Liste entsprechen. Die
 Verfälschung setzt die alte Faustregel wieder ein – dann schlagen die drei
 Abweichungen oben an. Gegenprobe: alle 316 Prüfungen des Skripts.
+
+### 16.10.2026 – Trapezblech lag parallel zu den Sparren statt quer
+
+**Anlass.** Der Betreiber: *„das trapezblech liegt falschrum im 3d modell, es
+liegt parralel zu den sparren dabei muss es quer zu den sparren liegen"*
+
+**Was falsch war.** Im Code stand als Begründung: *„Rippen laufen in
+Gefällerichtung, also in der Tiefe – so liegt ein Trapezblech, damit Wasser in
+den Tälern abläuft."* Die Überlegung war für sich plausibel, nur laufen die
+Sparren ebenfalls in der Tiefe. Das Blech lag damit **parallel** zu ihnen –
+und hätte zwischen zwei Sparren überhaupt kein Auflager gehabt.
+
+**Was jetzt gilt.** Ein Trapezblech trägt in **Rippenrichtung**; die Rippen
+müssen deshalb von Sparren zu Sparren spannen, also quer über die Breite. Die
+Rippen liegen jetzt in x und sind über die Tiefe verteilt – vorher umgekehrt.
+Bei einem Flachdach mit umlaufender Attika entwässert ohnehin die Rinne, nicht
+das Gefälle der Rippen; die alte Begründung hatte das Blech nach der falschen
+Größe ausgerichtet.
+
+**Absicherung.** Drei Prüfungen in `scripts/pruefe-masstabelle.js` lesen die
+Geometrie der Rippe aus dem Quelltext: lang in x (`B - 2`), schmal in z
+(`RIPPE_ABSTAND * 0.45`), und die Rippenzahl kommt aus der Tiefe, während die
+Sparrenzahl aus der Breite kommt – daran hängt, dass sich beide kreuzen. Die
+Verfälschung dreht die Geometrie zurück.
+
+**Zum Gegenlesen.** Flat Line von oben ansehen: Die Blechrippen müssen quer
+über den Sparren liegen, nicht in derselben Richtung.

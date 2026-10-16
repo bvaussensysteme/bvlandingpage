@@ -5545,14 +5545,25 @@
       grund.castShadow = true; grund.receiveShadow = true;
       bau.add(grund);
 
-      /* Rippen laufen in Gefällerichtung, also in der Tiefe – so liegt ein
-         Trapezblech, damit Wasser in den Tälern abläuft. */
-      var rippen = Math.max(3, Math.floor((B - 4) / RIPPE_ABSTAND));
+      /* ---------- Rippen QUER zu den Sparren ----------
+         „das trapezblech liegt falschrum im 3d modell, es liegt parralel
+         zu den sparren dabei muss es quer zu den sparren liegen"
+         (Betreiber, 16.10.2026).
+
+         Hier stand „Rippen laufen in Gefällerichtung, also in der Tiefe" –
+         und die Sparren laufen ebenfalls in der Tiefe, das Blech lag also
+         parallel zu ihnen. Ein Trapezblech traegt in RIPPENRICHTUNG und
+         muss deshalb von Sparren zu Sparren spannen: quer dazu, also
+         ueber die Breite. Parallel zu den Sparren haette es keine
+         Auflager zwischen ihnen.
+
+         Die Rippen liegen damit in x und sind ueber die Tiefe verteilt. */
+      var rippen = Math.max(3, Math.floor((T - 4) / RIPPE_ABSTAND));
       for (var ri = 0; ri < rippen; ri++) {
-        var xr = -B / 2 + 2 + ((B - 4) / rippen) * (ri + 0.5);
+        var zr = 2 + ((T - 4) / rippen) * (ri + 0.5);
         var rippe = new THREE.Mesh(
-          new THREE.BoxGeometry(RIPPE_ABSTAND * 0.45, RIPPE_HOCH, T), mTrapez);
-        rippe.position.set(xr, yDeck + RIPPE_HOCH / 2, T / 2);
+          new THREE.BoxGeometry(B - 2, RIPPE_HOCH, RIPPE_ABSTAND * 0.45), mTrapez);
+        rippe.position.set(0, yDeck + RIPPE_HOCH / 2, zr);
         rippe.castShadow = true; rippe.receiveShadow = true;
         bau.add(rippe);
       }
