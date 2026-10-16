@@ -7282,15 +7282,21 @@ Attika-Maße (Blendenhöhe 26 cm, Blech 5 cm darunter) stehen jetzt als
 Konstanten oben und werden von beiden Stellen gelesen – vorher waren es zwei
 getrennte Zahlen, die beim nächsten Umbau auseinandergelaufen wären.
 
-Der Unterzug über die Breite nutzt **dasselbe** Profil: Der Artikel heißt
-„Träger Flat" und trägt in beiden Lagen. ABGELEITET, nicht belegt – die
-Preisliste nennt kein eigenes Unterzug-Profil für Flat Line.
+**Nicht** der Unterzug: Dort hatte ich kurzzeitig dasselbe Sparrenprofil
+angenommen (als ABGELEITET gekennzeichnet) – der Betreiber hat noch am selben
+Tag richtiggestellt: *„statikträger maß is ja das selbe wie beim tds oder
+fly"*. Die Einzelteileliste bestätigt es: Sie führt genau **einen**
+Statikträger, 189 × 117 mm (Artikel 15187), ohne Systemkennung FLT. Er steht
+jetzt als `STATIKTRAEGER` an einer Stelle im Code, die alle Bauwege lesen –
+vorher stand die Zahl im TDS-Bauweg und wäre bei Flat Line ein zweites Mal
+hingeschrieben worden.
 
 **Absicherung.** Acht Prüfungen in `scripts/pruefe-masstabelle.js`: beide Maße
 einzeln (172 und 60), dass die Höhe über der Breite liegt (hochkant), dass im
 Modell die Breite auf x und die Höhe auf y steht (vertauscht läge der Sparren
-flach), dass die Anzahl aus der Preisliste kommt, dass der Unterzug dasselbe
-Profil nutzt, und dass die Sparren-Oberkante rechnerisch genau an der
+flach), dass die Anzahl aus der Preisliste kommt, dass der Unterzug überall den
+Statikträger nutzt und dieser nur an einer Stelle bemaßt ist, und dass die
+Sparren-Oberkante rechnerisch genau an der
 Blechunterseite liegt (21 cm über der Durchfahrt). Die Verfälschung vertauscht
 Höhe und Breite. Gegenprobe: alle 309 Prüfungen schlagen an.
 

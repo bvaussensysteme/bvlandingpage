@@ -558,8 +558,11 @@ pruefe('Pfosten 110,2 mm (15190)',
 
 /* Freistehend: der Statiktraeger steht an der Stelle der Wand, das
    Wandprofil wird darauf geschraubt – 1:1 wie bei Wandmontage. */
+/* Die Zahlen stehen seit dem 16.10.2026 in STATIKTRAEGER (eine Quelle fuer
+   alle Systeme); der Bauweg liest sie nur noch. */
 pruefe('Freistehend: Träger steht hochkant',
-       new RegExp(q || 'TR_H = 18\\.92, TR_T = 11\\.7').test(k3d), '189,2 hoch, 117 tief');
+       new RegExp(q || 'var TR_H = STATIKTRAEGER\\.hoehe, TR_T = STATIKTRAEGER\\.tiefe;').test(k3d),
+       '189,2 hoch, 117 tief – aus STATIKTRAEGER');
 pruefe('Freistehend: Träger hinter dem Wandprofil',
        new RegExp(q || 'zTrHinten = -TR_T / 2 \\+ vorsprH').test(k3d),
        'an der Stelle der Wand, mit Vorsprung nach innen');
@@ -2562,9 +2565,20 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
   pruefe('Die Sparrenzahl kommt aus der Preisliste',
          new RegExp(q || 'var spAnzahl = \\(tbFlat && tbFlat\\.sparren\\) \\|\\| 2;').test(k3d),
          'nicht mehr zwei Längsträger an den Rändern');
-  pruefe('Der Unterzug nutzt dasselbe Profil',
-         new RegExp(q || 'var uzH = tds \\? PROFIL \\* 1\\.3 : FLAT_TRAEGER\\.hoehe;').test(k3d),
-         'Träger Flat trägt als Sparren und als Unterzug');
+  /* Der Statiktraeger ist ueberall derselbe (189 x 117, Artikel 15187):
+     „statikträger maß is ja das selbe wie beim tds oder fly" (Betreiber,
+     16.10.2026). Entsprechend darf es nur EINE Stelle geben, die ihn
+     bemasst – vorher stand die Zahl im TDS-Bauweg. */
+  pruefe('Der Unterzug nutzt überall den Statikträger',
+         new RegExp(q || 'var uzH = STATIKTRAEGER\\.hoehe;').test(k3d),
+         'auch bei Flat Line 189 x 117 mm');
+  var stq = (k3d.match(/var STATIKTRAEGER = \{ hoehe: ([\d.]+), tiefe: ([\d.]+) \};/) || []);
+  pruefe('Der Statikträger steht an genau einer Stelle',
+         gegen ? !stq[1] : (stq[1] === '18.92' && stq[2] === '11.7' &&
+                            (k3d.match(/18\.92/g) || []).length === 1),
+         stq[1] ? (stq[1] * 10).toFixed(1).replace('.', ',') + ' x ' +
+                  (stq[2] * 10).toFixed(0) + ' mm, einmal im Code'
+                : 'STATIKTRAEGER fehlt');
 
   /* Die Oberkante muss am Blech liegen, nicht darunter schweben. */
   var bl = Number((k3d.match(/var FLAT_BLENDE_H = ([\d.]+);/) || [])[1]);

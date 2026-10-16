@@ -2449,6 +2449,16 @@
      mir aus den Preislisten zusammengestellt, die Zahl stand dort ohne
      Zeichnung. Der Betreiber nennt den Grund, den keine Tabelle liefert
      – der Pfosten wird am Schenkel verschraubt, und der sitzt hinten. */
+  /* Statiktraeger 189 x 117 mm (Artikel 15187). Die Zeichnung nennt
+     189,2 x 117; der Pfostenkopf liegt mit 110,2 darunter. BELEGT aus
+     Einzelteileliste und Masstabelle.
+
+     Steht hier und nicht in einem Bauweg, weil ihn ALLE Systeme nutzen:
+     „statikträger maß is ja das selbe wie beim tds oder fly" (Betreiber,
+     16.10.2026). Die Einzelteileliste fuehrt ihn auch nur einmal – es
+     gibt keinen eigenen fuer Flat Line. */
+  var STATIKTRAEGER = { hoehe: 18.92, tiefe: 11.7 };
+
   var PFOSTENACHSE = 12.42;
   /* Die Achse der Masstabelle, Pfostenvorderkante buendig mit der
      Dachkante. Gilt weiter fuer alles ausser dem TDS – siehe oben. */
@@ -5380,9 +5390,13 @@
        Pfostenreihe darunter – dieselbe Anordnung wie beim TDS. */
     var zUzF = unterzugZcm(false);
     if (zUzF != null) {
-      /* Derselbe Artikel wie die Sparren (Träger Flat 16557), nur quer. */
-      var uzH = tds ? PROFIL * 1.3 : FLAT_TRAEGER.hoehe;
-      var uzT = tds ? PROFIL : FLAT_TRAEGER.breite;
+      /* Der Statiktraeger ist ueberall derselbe – 189 x 117 mm, Artikel
+         15187. Hier stand kurzzeitig das Sparrenprofil (Träger Flat), als
+         ABGELEITET gekennzeichnet; der Betreiber hat es am selben Tag
+         richtiggestellt: „statikträger maß is ja das selbe wie beim tds
+         oder fly". Die Einzelteileliste fuehrt dazu passend nur einen. */
+      var uzH = STATIKTRAEGER.hoehe;
+      var uzT = STATIKTRAEGER.tiefe;
       var ukUzF = hVorn + (hHinten - hVorn) * (1 - zUzF / T);   // Dachunterkante dort
       var hPfUzF = Math.max(10, ukUzF - uzH);
       balken(B, uzH, uzT, 0, hPfUzF + uzH / 2, zUzF, mAlu);
@@ -5652,10 +5666,7 @@
                  Math.atan(skyLuft / Math.max(1, Z.tiefe / 10)))
       : neigungGrad() * Math.PI / 180;
     var frei = Z.aufbau === 'Freistehend';
-    /* Statiktraeger 189 x 117 mm (15187). Die Zeichnung nennt 189,2 x
-       117; der Pfostenkopf liegt mit 110,2 darunter. BELEGT (Liste und
-       Masstabelle). */
-    var TR_H = 18.92, TR_T = 11.7;
+    var TR_H = STATIKTRAEGER.hoehe, TR_T = STATIKTRAEGER.tiefe;
 
     /* TIEFENMASS: „bei freistehend das tiefe maß is immer inkl.
        statikträger, bei wandmontage ja nicht" (Betreiber, 11.10.2026).
