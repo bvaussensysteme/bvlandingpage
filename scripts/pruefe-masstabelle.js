@@ -169,9 +169,10 @@ pruefe('Hoechstmass und Pfostengrenze sind zwei Werte',
   pruefe('Regler reicht bis zum Hoechstmass der Tabelle',
          bMax === 14080 && tMax === 7050, bMax + ' x ' + tMax + ' mm');
 })();
+/* Seit dem 16.10.2026 je System: Flat Line endet bei 7000, TDS bei 7050. */
 pruefe('Grenzen kommen aus tiefeMaxLieferbar',
-       new RegExp(q || 'return t <= M\\.regeln\\.tiefeMaxLieferbar').test(k3d),
-       'nicht mehr bei der Pfostengrenze gekappt');
+       new RegExp(q || 'return t <= \\(\\(regelnJetzt\\(\\) \\|\\| M\\.regeln\\)\\.tiefeMaxLieferbar\\)').test(k3d),
+       'nicht mehr bei der Pfostengrenze gekappt, und je System');
 /* Carport TDS und Terrassendach TDS haben denselben Systemschluessel -
    beim Wechsel muessen die Grenzen trotzdem nachgezogen werden. */
 pruefe('Produktwechsel zieht die Grenzen nach',
@@ -1843,9 +1844,14 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   var ac = (k3d.match(/function unterzugAchsen\(\)[\s\S]*?\n  \}/) || [''])[0];
   var pa = (k3d.match(/var PFOSTENACHSE = [\d.]+;/) || [''])[0];
   var pv = (k3d.match(/var PFOSTENACHSE_VORNE = [\d.]+;/) || [''])[0];
+  /* Seit dem 16.10.2026 holt unterzugBereich() seine Grenzen ueber
+     regelnJetzt() – also je System. Beide Funktionen werden mit
+     ausgelesen statt nachgebaut. */
+  var rj = (k3d.match(/function regelnJetzt\(\)[\s\S]*?\n  \}/) || [''])[0];
+  var sn = (k3d.match(/function systemName\(\)[\s\S]*?\n  \}/) || [''])[0];
   if (!ac) { pruefe('Unterzug-Achsen lesbar', false, 'nicht gefunden'); return; }
   var holen = eval('(function (Z, window, gruppeGilt, istCarportTds) { ' +
-    pa + pv +
+    pa + pv + rj + sn +
     st.replace('function statikTiefe()', 'var statikTiefe = function ()') + ';' +
     ac.replace('function unterzugAchsen()', 'var unterzugAchsen = function ()') + ';' +
     f.replace('function unterzugBereich()', 'var fn = function ()') +
@@ -1937,11 +1943,61 @@ pruefe('Unterzug wird im 3D gebaut: Träger UND Pfosten',
        'Statikträger quer plus eigene Pfostenreihe');
 /* Die Bedingung steht seit dem 15.10.2026 in unterzugZcm() und nicht mehr
    am Bau-Block: Traeger und Seitenaufteilung fragen dieselbe Stelle, damit
-   ihre Lage nicht auseinanderlaufen kann. */
-pruefe('Unterzug nur wo nötig – und nicht beim SkyView',
-       gegen ? !/if \(sky \|\| !unterzugNoetig\(\)\) return null;/.test(k3d)
-             : /function unterzugZcm\(sky\) \{\s*if \(sky \|\| !unterzugNoetig\(\)\) return null;/.test(k3d),
-       'beim SkyView trägt der umlaufende Rahmen');
+   ihre Lage nicht auseinanderlaufen kann. Der SkyView-Ausschluss ist am
+   16.10.2026 entfallen: „bei skyview is es mit dem unterzug die selbe
+   regel" (Betreiber). */
+pruefe('Unterzug nur wo nötig – ohne Systemausnahme',
+       gegen ? /if \(sky \|\| !unterzugNoetig\(\)\)/.test(k3d)
+             : /function unterzugZcm\(sky\) \{[\s\S]{0,420}if \(!unterzugNoetig\(\)\) return null;/.test(k3d)
+               && !/if \(sky \|\| !unterzugNoetig\(\)\)/.test(k3d),
+       'auch SkyView und Flat Line bekommen ihn');
+pruefe('Der Regler gilt für jedes System mit Unterzug',
+       gegen ? /case 'unterzug': return \(Z\.produkt/.test(k3d)
+             : /case 'unterzug': return unterzugNoetig\(\);/.test(k3d),
+       'keine zweite Produktliste neben unterzugNoetig()');
+
+/* ---------- Die Grenzen je System ----------
+   „bei skyview is es mit dem unterzug die selbe regel 4m - 4,6m innenkern
+   träger ab 4,6m unterzug gesamte länge und beim flatline is es so bis 6m
+   nix über 6m bis 7m unterzug über die gesamte breite" (Betreiber,
+   16.10.2026). Gerechnet wird mit den Werten aus der Tabelle selbst. */
+(function () {
+  var M = window.BV_MASSTABELLE;
+  var eigen = M.regelnJeSystem || {};
+  function regeln(sys) {
+    var r = {}, k;
+    for (k in M.regeln) if (M.regeln.hasOwnProperty(k)) r[k] = M.regeln[k];
+    if (eigen[sys]) for (k in eigen[sys]) if (eigen[sys].hasOwnProperty(k)) r[k] = eigen[sys][k];
+    return r;
+  }
+  var REIHE = ['nichts', 'Innenkern', 'Unterzug'];
+  function stufe(sys, tiefe) {
+    var r = regeln(sys);
+    var echt = tiefe > r.tiefeMaxOhneUnterzug ? 'Unterzug'
+      : (r.innenkernAbTiefe != null && tiefe > r.innenkernAbTiefe ? 'Innenkern' : 'nichts');
+    /* Verfaelschung: eine Stufe weiter. Eine vertauschte Grenze haette nur
+       einen Teil der Faelle getroffen – diese trifft jeden. */
+    return gegen ? REIHE[(REIHE.indexOf(echt) + 1) % 3] : echt;
+  }
+  [['TDS', 4000, 'nichts'], ['TDS', 4600, 'Innenkern'], ['TDS', 5000, 'Unterzug'],
+   ['SkyView', 4000, 'nichts'], ['SkyView', 4600, 'Innenkern'], ['SkyView', 5000, 'Unterzug'],
+   ['Flat_Line', 5000, 'nichts'], ['Flat_Line', 6000, 'nichts'],
+   ['Flat_Line', 7000, 'Unterzug']
+  ].forEach(function (f) {
+    var ist = stufe(f[0], f[1]);
+    pruefe(f[0] + ' bei ' + f[1] + ' mm → ' + f[2], ist === f[2], ist);
+  });
+  pruefe('Flat Line kennt keinen Innenkern-Träger',
+         gegen ? regeln('Flat_Line').innenkernAbTiefe != null
+               : regeln('Flat_Line').innenkernAbTiefe == null,
+         'innenkernAbTiefe = ' + regeln('Flat_Line').innenkernAbTiefe);
+  /* Gegenprobe: gegen Flat Line verglichen – dort sind die Grenzen andere. */
+  var gegenueber = gegen ? 'Flat_Line' : 'TDS';
+  pruefe('SkyView übernimmt die Grenzen des Terrassendachs',
+         regeln('SkyView').tiefeMaxOhneUnterzug === regeln(gegenueber).tiefeMaxOhneUnterzug &&
+         regeln('SkyView').innenkernAbTiefe === regeln(gegenueber).innenkernAbTiefe,
+         regeln('SkyView').innenkernAbTiefe + ' / ' + regeln('SkyView').tiefeMaxOhneUnterzug + ' mm');
+})();
 pruefe('Unterzug-Lage steht in der Anfrage',
        gegen ? !/Unterzug \(Statikträger über die ganze Breite\)/.test(k3d)
              : /Unterzug \(Statikträger über die ganze Breite\)/.test(k3d) &&

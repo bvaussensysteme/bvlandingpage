@@ -66,6 +66,25 @@ window.BV_MASSTABELLE = {
        eigener Wert stehen, weil die Glasteilung daran haengt. */
     innenkernTiefe: 4600
   },
+  /* Abweichungen je System. Was hier fehlt, gilt wie oben.
+
+     „bei skyview is es mit dem unterzug die selbe regel 4m - 4,6m
+     innenkern träger ab 4,6m unterzug gesamte länge und beim flatline is
+     es so bis 6m nix über 6m bis 7m unterzug über die gesamte breite"
+     (Betreiber, 16.10.2026).
+
+     TDS und SkyView teilen sich also die Werte oben. Flat Line braucht
+     laenger keinen Unterzug und kennt gar keinen Innenkern-Traeger:
+     innenkernAbTiefe steht deshalb auf null, nicht auf 0 – „ab 0 mm"
+     hiesse „immer". */
+  regelnJeSystem: {
+    'Flat_Line': {
+      tiefeMaxOhneUnterzug: 6000,
+      innenkernAbTiefe: null,
+      innenkernTiefe: null,
+      tiefeMaxLieferbar: 7000
+    }
+  },
   /* Welche Serienfarben ein System führt – BELEGT aus dem Kopf der
      Preislisten-Maßtabelle (FARBEN_TDS, FARBEN_SKYVIEW,
      FARBEN_FLATLINE). Reinweiß 9010 gibt es NUR bei TDS. „sonderfarbe"

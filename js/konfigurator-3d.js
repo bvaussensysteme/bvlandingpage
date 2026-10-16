@@ -924,6 +924,33 @@
      LIEFERBARE Breite nach oben gegangen – so wird auch bestellt. Ein
      Dach mit 5,80 m bekommt die Sparren der 6-m-Breite, nicht die der
      5,50-m-Breite; zu wenige Sparren wären der teurere Irrtum. */
+  /* Welches System ist eingestellt? Als Name, wie ihn die Masstabelle
+     fuehrt – daran haengen Farben und seit dem 16.10.2026 auch die
+     Statikgrenzen. */
+  function systemName() {
+    if (Z.produkt === 'Terrassendach TDS' || istCarportTds()) return 'TDS';
+    if (Z.produkt === 'Flachdach SkyView') return 'SkyView';
+    if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') return 'Flat_Line';
+    return null;
+  }
+
+  /* Die geltenden Statikregeln: die allgemeinen, ueberschrieben von denen
+     des Systems. EINE Stelle, weil fuenf Funktionen sie brauchen – als
+     fuenf eigene Abfragen liefen sie beim naechsten System auseinander.
+
+     „bei skyview is es mit dem unterzug die selbe regel … und beim
+     flatline is es so bis 6m nix über 6m bis 7m unterzug über die
+     gesamte breite" (Betreiber, 16.10.2026). */
+  function regelnJetzt() {
+    var M = window.BV_MASSTABELLE;
+    if (!M || !M.regeln) return null;
+    var r = {}, k;
+    for (k in M.regeln) if (M.regeln.hasOwnProperty(k)) r[k] = M.regeln[k];
+    var eigen = M.regelnJeSystem && M.regelnJeSystem[systemName()];
+    if (eigen) for (k in eigen) if (eigen.hasOwnProperty(k)) r[k] = eigen[k];
+    return r;
+  }
+
   function tabelleGruppe() {
     var M = window.BV_MASSTABELLE;
     if (!M || !M.systeme) return null;
@@ -972,13 +999,16 @@
     }
     if (treffer === null) treffer = bs[bs.length - 1];   // breiter als die Tabelle
     var e = g.breiten[treffer];
-    var grenze = tiefeMm > M.regeln.tiefeMaxOhneUnterzug
-      ? M.regeln.tiefeMaxMitUnterzug : M.regeln.tiefeMaxOhneUnterzug;
+    /* Seit dem 16.10.2026 je System: Flat Line kommt bis 6000 mm ohne
+       Unterzug aus, TDS und SkyView bis 4600. */
+    var R = regelnJetzt() || M.regeln;
+    var grenze = tiefeMm > R.tiefeMaxOhneUnterzug
+      ? R.tiefeMaxMitUnterzug : R.tiefeMaxOhneUnterzug;
     return {
       sparren: e[0],
       pfosten: e[1] + (tiefeMm > grenze ? 1 : 0),
-      unterzug: tiefeMm > M.regeln.tiefeMaxOhneUnterzug,
-      lieferbar: tiefeMm <= M.regeln.tiefeMaxLieferbar,
+      unterzug: tiefeMm > R.tiefeMaxOhneUnterzug,
+      lieferbar: tiefeMm <= R.tiefeMaxLieferbar,
       breiteTabelle: treffer
     };
   }
@@ -5328,6 +5358,26 @@
       if (!anWand) balken(PROFIL, hHinten, PROFIL, x, hHinten / 2, PROFIL / 2, mAlu);
     });
 
+    /* ---------- Unterzug ueber die ganze Breite ----------
+       „beim flatline is es so bis 6m nix über 6m bis 7m unterzug über die
+       gesamte breite" (Betreiber, 16.10.2026). Die Grenze steht in
+       js/masstabelle.js unter regelnJeSystem; gebaut wird aus derselben
+       Funktion wie beim Terrassendach, damit Lage und Regler nicht
+       auseinanderlaufen (siehe die Runden vom 15.10.2026).
+
+       Hier liegt der Traeger quer UNTER den Laengstraegern, mit eigener
+       Pfostenreihe darunter – dieselbe Anordnung wie beim TDS. */
+    var zUzF = unterzugZcm(false);
+    if (zUzF != null) {
+      var uzH = PROFIL * 1.3;
+      var ukUzF = hVorn + (hHinten - hVorn) * (1 - zUzF / T);   // Dachunterkante dort
+      var hPfUzF = Math.max(10, ukUzF - uzH);
+      balken(B, uzH, PROFIL, 0, hPfUzF + uzH / 2, zUzF, mAlu);
+      verteilen(pfostenUnterTraeger(Z.breite), B, PROFIL / 2).forEach(function (x) {
+        balken(PROFIL, hPfUzF, PROFIL, x, hPfUzF / 2, zUzF, mAlu);
+      });
+    }
+
     /* Längsträger links und rechts – tragen die Dachlast zwischen den Pfosten */
     var traegerL = Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2));
     [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2].forEach(function (x) {
@@ -6978,10 +7028,12 @@
      fuer ein einzelnes FELD eines geteilten Dachs – dort ist jedes Feld
      ein Dach fuer sich. */
   function innenkernNoetig(tiefeMm) {
-    var M = window.BV_MASSTABELLE;
-    if (!M || !M.regeln) return false;
+    var R = regelnJetzt();
+    /* null heisst: Dieses System kennt den Innenkern-Traeger nicht
+       (Flat Line) – dort geht es ohne Weiteres bis zum Unterzug. */
+    if (!R || R.innenkernAbTiefe == null) return false;
     var t = tiefeMm == null ? statikTiefe() : tiefeMm;
-    return t > M.regeln.innenkernAbTiefe && t <= M.regeln.tiefeMaxOhneUnterzug;
+    return t > R.innenkernAbTiefe && t <= R.tiefeMaxOhneUnterzug;
   }
 
   /* ---------- Wo liegen die Auflager wirklich? ----------
@@ -7010,7 +7062,8 @@
 
   function unterzugBereich() {
     var M = window.BV_MASSTABELLE;
-    var ohne = (M && M.regeln && M.regeln.tiefeMaxOhneUnterzug) || 4600;
+    var R = regelnJetzt();
+    var ohne = (R && R.tiefeMaxOhneUnterzug) || 4600;
     /* Gerechnet wird zwischen den AUFLAGERN. Jedes der beiden Felder muss
        unter dem Hoechstmass bleiben, und keines darf unter 500 mm fallen –
        dort passt kein Pfostenfach mehr hin. Alles in mm ab der Wand. */
@@ -7036,7 +7089,11 @@
      sachen nicht an" (Betreiber, mit Bild). Bei mittiger Lage faellt das
      nicht auf, weil beide Rechnungen dort zusammenfallen. */
   function unterzugZcm(sky) {
-    if (sky || !unterzugNoetig()) return null;
+    /* Der Ausschluss „beim SkyView traegt der umlaufende Rahmen" ist am
+       16.10.2026 entfallen: „bei skyview is es mit dem unterzug die selbe
+       regel" (Betreiber). Der Parameter bleibt – der Aufrufer kennt sein
+       System, und so steht an der Bau-Stelle, dass daran gedacht wurde. */
+    if (!unterzugNoetig()) return null;
     return unterzugAbstand() / 10;              // mm ab Wand -> cm
   }
 
@@ -8360,8 +8417,12 @@
       /* Der Regler erscheint nur, wenn die Tiefe einen Unterzug verlangt –
          sonst gaebe es nichts zu verschieben. Gilt fuer Terrassendach UND
          Carport TDS: „dächer tds, carport tds" (Betreiber, 15.10.2026). */
-      case 'unterzug': return (Z.produkt === 'Terrassendach TDS' || istCarportTds()) &&
-                              unterzugNoetig();
+      /* Seit dem 16.10.2026 kennen alle drei Systeme den Unterzug – mit
+         eigenen Grenzen (siehe regelnJeSystem in js/masstabelle.js).
+         Wo unterzugNoetig() wahr ist, gibt es auch etwas zu verschieben;
+         eine Aufzaehlung der Produkte daneben waere eine zweite Liste,
+         die beim naechsten System vergessen wird. */
+      case 'unterzug': return unterzugNoetig();
       /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
          da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
          hilft. Beim Carport und bei der Pergola gibt es die Bauweise
@@ -8595,7 +8656,9 @@
     if (!g) return null;
     var M = window.BV_MASSTABELLE;
     var bs = Object.keys(g.breiten).map(Number).sort(function (a, b) { return a - b; });
-    var ts = g.tiefen.filter(function (t) { return t <= M.regeln.tiefeMaxLieferbar; });
+    var ts = g.tiefen.filter(function (t) {
+      return t <= ((regelnJetzt() || M.regeln).tiefeMaxLieferbar);
+    });
     if (!bs.length || !ts.length) return null;
     return { breiten: bs, tiefen: ts };
   }
@@ -9225,7 +9288,7 @@
         }
         if (!tb.lieferbar) {
           saetze.push('Diese Tiefe liegt über dem Höchstmaß von ' +
-            (M.regeln.tiefeMaxLieferbar / 1000).toFixed(2).replace('.', ',') +
+            ((regelnJetzt() || M.regeln).tiefeMaxLieferbar / 1000).toFixed(2).replace('.', ',') +
             ' m – <b>so nicht lieferbar</b>. Sprechen Sie uns an, wir finden eine Lösung.');
           warnung = true;
         }
