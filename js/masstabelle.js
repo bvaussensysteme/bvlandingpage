@@ -80,8 +80,25 @@ window.BV_MASSTABELLE = {
   regelnJeSystem: {
     'Flat_Line': {
       tiefeMaxOhneUnterzug: 6000,
-      innenkernAbTiefe: null,
-      innenkernTiefe: null,
+      /* KORREKTUR 16.10.2026. Hier stand null („kennt keinen Innenkern"),
+         nach der ersten Ansage „beim flatline is es so bis 6m nix". Die
+         Preisliste Flat Line (ab 01.08.2026) fuehrt unter „inklusive":
+         „Verstärkungsprofile (Innenkern Sparren: bei Tiefe ab 5 bis 6 m
+         – 1 Stk. x 3 m pro Sparren)". Der Betreiber dazu: „ja hast recht
+         habe das übersehen".
+
+         WARUM 3500 UND NICHT 5000: Die Regel lautet t > innenkernAbTiefe
+         (siehe innenkernNoetig). Mit 5000 fiele die Tiefe 5000 selbst
+         heraus – die Liste sagt aber „ab 5". Die lieferbaren Tiefen
+         springen 3500 → 5000 → 6000; „ueber 3500" trifft also genau die
+         Tiefen 5000 und 6000 und sonst keine. Beim TDS steht aus
+         demselben Grund 4000 (lieferbar sind 4000 und 4600, gemeint ist
+         nur 4600) – dort war „bis tiefe 4m nichts notwendig" ausdruecklich
+         gesagt. */
+      innenkernAbTiefe: 3500,
+      /* Die groesste Tiefe mit Innenkern statt Unterzug – beim TDS haengt
+         daran die Glasteilung, bei Flat Line (Trapezblech) nichts. */
+      innenkernTiefe: 6000,
       tiefeMaxLieferbar: 7000
     }
   },

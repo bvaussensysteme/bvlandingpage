@@ -1982,18 +1982,25 @@ pruefe('Der Regler gilt für jedes System mit Unterzug',
        einen Teil der Faelle getroffen – diese trifft jeden. */
     return gegen ? REIHE[(REIHE.indexOf(echt) + 1) % 3] : echt;
   }
+  /* Flat Line seit 16.10.2026 mit Innenkern von 5000 bis 6000 – belegt
+     aus der Preisliste, vom Betreiber bestaetigt. 3500 muss leer bleiben:
+     Die Liste sagt „ab 5", nicht „ab 3,5". */
   [['TDS', 4000, 'nichts'], ['TDS', 4600, 'Innenkern'], ['TDS', 5000, 'Unterzug'],
    ['SkyView', 4000, 'nichts'], ['SkyView', 4600, 'Innenkern'], ['SkyView', 5000, 'Unterzug'],
-   ['Flat_Line', 5000, 'nichts'], ['Flat_Line', 6000, 'nichts'],
-   ['Flat_Line', 7000, 'Unterzug']
+   ['Flat_Line', 3500, 'nichts'], ['Flat_Line', 5000, 'Innenkern'],
+   ['Flat_Line', 6000, 'Innenkern'], ['Flat_Line', 7000, 'Unterzug']
   ].forEach(function (f) {
     var ist = stufe(f[0], f[1]);
     pruefe(f[0] + ' bei ' + f[1] + ' mm → ' + f[2], ist === f[2], ist);
   });
-  pruefe('Flat Line kennt keinen Innenkern-Träger',
-         gegen ? regeln('Flat_Line').innenkernAbTiefe != null
-               : regeln('Flat_Line').innenkernAbTiefe == null,
-         'innenkernAbTiefe = ' + regeln('Flat_Line').innenkernAbTiefe);
+  /* Die Schwelle liegt unter der ersten betroffenen Tiefe, weil die Regel
+     „groesser als" lautet. Geprueft wird deshalb die WIRKUNG, nicht die
+     Zahl: 3500 ohne, 5000 mit Innenkern. */
+  pruefe('Flat Line: Innenkern ab 5 m, nicht schon ab 3,5 m',
+         stufe('Flat_Line', 3500) === 'nichts' &&
+         stufe('Flat_Line', 5000) === 'Innenkern',
+         'Schwelle ' + regeln('Flat_Line').innenkernAbTiefe +
+         ' mm trifft 5000 und 6000, nicht 3500');
   /* Gegenprobe: gegen Flat Line verglichen – dort sind die Grenzen andere. */
   var gegenueber = gegen ? 'Flat_Line' : 'TDS';
   pruefe('SkyView übernimmt die Grenzen des Terrassendachs',

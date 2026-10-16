@@ -7335,6 +7335,10 @@ vorgenannten Preise verstehen sich inklusive":
 > *Verstärkungsprofile (Innenkern Sparren: bei Tiefe ab 5 bis 6 m – 1 Stk. ×
 > 3 m pro Sparren)*
 
+Für Flat Line gibt es also doch einen Innenkern-Träger, und zwar zwischen
+5000 und 6000 mm Tiefe. Der Betreiber hatte zunächst gesagt: *„beim flatline
+is es so bis 6m nix"* – und nach dem Hinweis: *„ja hast recht habe das
+übersehen"*. **Eingebaut am 16.10.2026** (siehe den Eintrag darunter).
 Für Flat Line gäbe es also doch einen Innenkern-Träger, und zwar zwischen
 5000 und 6000 mm Tiefe. Der Betreiber hatte gesagt: *„beim flatline is es so
 bis 6m nix"*. Beides lässt sich vereinbaren, wenn „nix" heißt „nichts, was
@@ -7353,3 +7357,33 @@ Technisch wäre er aber vorhanden. Im Konfigurator steht deshalb weiter
 
 **Keine Querschnitte.** Die Anleitung zeigt Rinne Flat, Seitenrinne und die
 Blenden nur als Ansichtsbilder ohne Bemaßung. Diese Profile bleiben geschätzt.
+
+### 16.10.2026 – Flat Line bekommt den Innenkern-Träger von 5 bis 6 m
+
+**Anlass.** Nach dem Hinweis auf die Preisliste: *„ja hast recht habe das
+übersehen -> - Verstärkungsprofile (Innenkern Sparren: bei Tiefe ab 5 bis 6 m
+- 1 Stk. x 3 m pro Sparren)"*
+
+**Was jetzt gilt.** Flat Line hat dieselben drei Stufen wie die anderen
+Systeme, nur mit eigenen Grenzen:
+
+| Tiefe | Flat Line |
+|---|---|
+| bis 3500 | nichts |
+| 5000 und 6000 | Innenkern Sparren (1 Stk. × 3 m je Sparren, im Preis enthalten) |
+| 7000 | Unterzug über die ganze Breite |
+
+**Warum in der Tabelle 3500 steht und nicht 5000.** Die Regel lautet
+`t > innenkernAbTiefe` (siehe `innenkernNoetig`). Mit 5000 fiele die Tiefe
+5000 selbst heraus – die Liste sagt aber „ab 5". Die lieferbaren Tiefen
+springen 3500 → 5000 → 6000; „über 3500" trifft damit genau 5000 und 6000 und
+sonst keine. Beim TDS steht aus demselben Grund 4000 (lieferbar sind 4050 und
+4600, beide sollen den Innenkern haben).
+
+Die Prüfung geht deshalb nicht über die Zahl, sondern über die **Wirkung**:
+3500 ohne, 5000 mit Innenkern. Eine Prüfung auf „innenkernAbTiefe === 5000"
+hätte die Absicht bestätigt statt das Ergebnis.
+
+**Absicherung.** Die Stufentabelle in `scripts/pruefe-masstabelle.js` prüft
+jetzt zehn Fälle über drei Systeme, Flat Line mit 3500 / 5000 / 6000 / 7000.
+Gegenprobe: alle 313 Prüfungen schlagen an.
