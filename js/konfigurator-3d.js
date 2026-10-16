@@ -5355,8 +5355,19 @@
     var FLAT_SPARREN_RAND = 13.5;
     /* Attika: Blendenhoehe und wie tief das Blech darin liegt. Stehen
        hier, weil die Sparren darunter passen muessen – als zwei getrennte
-       Zahlen liefen sie beim naechsten Umbau auseinander. */
-    var FLAT_BLENDE_H = 26;
+       Zahlen liefen sie beim naechsten Umbau auseinander.
+
+       Hoehe und Dicke kommen seit dem 16.10.2026 vom SkyView: „die
+       blenden mße außenrum sind wie beim sky view vom maß wie schon
+       gesagt" (Betreiber). Das deckt sich mit der Einzelteileliste –
+       unter dem Flat-Line-Zubehoer (ZBHFLT) stehen die „Eckabdeckung Sky
+       HL/HR" (6073/6074), also dieselbe Aussenkontur wie beim SkyView.
+       Vorher standen hier geschaetzte 260 und 50 mm.
+
+       FLAT_DECK_AB (wie tief das Blech in der Attika liegt) bleibt
+       GESCHAETZT – dazu sagt keine Quelle etwas. */
+    var FLAT_BLENDE_H = SKY.seitenblendeH;
+    var FLAT_BLENDE_T = SKY.seitenblendeT;
     var FLAT_DECK_AB = 5;
     var PROFIL = 14;                                   // Carport-Stützen sind kräftiger
     /* BELEGT (technische-daten.md 1, dieselbe Quelle wie GENEIGT in
@@ -5489,10 +5500,11 @@
       var oben = hVorn + blendeH;
       var mBlech = blech();
 
-      balken(B + 4, blendeH, 5, 0, hVorn + blendeH / 2, T + 1, mBlech);   // vorne
-      balken(B + 4, blendeH, 5, 0, hVorn + blendeH / 2, -1, mBlech);      // hinten
-      [-B / 2 - 1, B / 2 + 1].forEach(function (x) {
-        balken(5, blendeH, T + 4, x, hVorn + blendeH / 2, T / 2, mBlech);
+      var bT = FLAT_BLENDE_T;
+      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, T + bT / 2, mBlech);  // vorne
+      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, -bT / 2, mBlech);     // hinten
+      [-B / 2 - bT / 2, B / 2 + bT / 2].forEach(function (x) {
+        balken(bT, blendeH, T + 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
 
       /* Eindeckung ist Trapezblech – und soll auch danach aussehen.

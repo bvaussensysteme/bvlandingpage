@@ -2596,8 +2596,22 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          new RegExp(q || 'FLAT_SPARREN_RAND \\+ spBreite / 2').test(k3d),
          'licht gemessen, nicht Achse');
 
+  /* Die Blende aussenrum hat die SkyView-Masse: „die blenden mße außenrum
+     sind wie beim sky view" (Betreiber, 16.10.2026), gestuetzt durch die
+     Einzelteileliste – die Eckabdeckung Sky steht unter Flat-Line-Zubehoer. */
+  pruefe('Flat-Line-Blende nimmt die SkyView-Maße',
+         gegen ? !/var FLAT_BLENDE_H = SKY\.seitenblendeH;/.test(k3d)
+               : /var FLAT_BLENDE_H = SKY\.seitenblendeH;/.test(k3d) &&
+                 /var FLAT_BLENDE_T = SKY\.seitenblendeT;/.test(k3d),
+         'aus SKY, nicht als eigene Zahl');
+  pruefe('Keine geschätzte Blendenhöhe mehr',
+         gegen ? /var FLAT_BLENDE_H = 26;/.test(k3d) : !/var FLAT_BLENDE_H = 26;/.test(k3d),
+         '260 mm waren geschätzt, 252 sind belegt');
+
   /* Die Oberkante muss am Blech liegen, nicht darunter schweben. */
-  var bl = Number((k3d.match(/var FLAT_BLENDE_H = ([\d.]+);/) || [])[1]);
+  /* Die Blendenhoehe steht seit dem 16.10.2026 nicht mehr als eigene Zahl
+     da, sondern kommt aus SKY – also dort nachsehen. */
+  var bl = Number((k3d.match(/seitenblendeH: ([\d.]+),/) || [])[1]);
   var ab = Number((k3d.match(/var FLAT_DECK_AB = ([\d.]+);/) || [])[1]);
   var spY = bl - ab - Number(m[1]) / 2;                  // relativ zu hVorn
   var ok = spY + Number(m[1]) / 2;
