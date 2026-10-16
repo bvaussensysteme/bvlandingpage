@@ -2382,7 +2382,9 @@ pruefe('RAL-Feld ist breit genug',
     return m ? m[0] : '';
   }
   var namen = ['statikTiefe', 'unterzugAchsen', 'unterzugBereich', 'unterzugMitte',
-               'unterzugAbstand', 'unterzugEinlesen', 'unterzugGrenzeSetzen'];
+               'unterzugAbstand', 'unterzugEinlesen', 'unterzugGrenzeSetzen',
+               /* seit 16.10.2026: die Grenzen haengen am System */
+               'regelnJetzt', 'systemName'];
   var quellen = namen.map(holen).join('\n');
   var fehltEcht = namen.filter(function (n) { return !holen(n); });
   /* Die Gegenprobe sucht zusaetzlich einen Namen, den es nicht gibt –

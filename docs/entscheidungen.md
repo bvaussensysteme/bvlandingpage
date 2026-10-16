@@ -7198,3 +7198,63 @@ Ansicht muss von oben kommen und die Leiste „Von oben" markieren. Dort eine
 Eindeckung wählen: Die Ansicht darf **nicht** erneut springen. Dann selbst
 drehen und noch etwas ändern – das gedrehte Bild bleibt. Weiter zur Farbe:
 zurück auf Perspektive.
+
+### 16.10.2026 – Unterzug-Regeln je System: SkyView wie TDS, Flat Line erst ab 6 m
+
+**Anlass.** Der Betreiber: *„bei skyview is es mit dem unterzug die selbe
+regel 4m - 4,6m innenkern träger ab 4,6m unterzug gesamte länge und beim
+flatline is es so bis 6m nix über 6m bis 7m unterzug über die gesamte
+breite"* (mit Korrektur: über die **Breite**, nicht Länge) und *„beim flatline
+gibts als eindeckung nur Trapezblech"*.
+
+**Was falsch war.** Die Statikgrenzen standen **global** in
+`js/masstabelle.js` – sie galten für alle Systeme gleich. Der Unterzug war
+außerdem auf Terrassendach TDS und Carport TDS beschränkt: `gruppeGilt`
+führte eine eigene Produktliste, und `unterzugZcm()` schloss SkyView
+ausdrücklich aus („dort trägt der umlaufende Rahmen" – meine Annahme, nicht
+seine Angabe).
+
+**Was jetzt gilt.**
+
+| System | nichts | Innenkern-Träger | Unterzug über die Breite |
+|---|---|---|---|
+| TDS | bis 4000 | 4000–4600 | über 4600 |
+| SkyView | bis 4000 | 4000–4600 | über 4600 |
+| Flat Line | bis 6000 | – (gibt es nicht) | über 6000 bis 7000 |
+
+`regelnJeSystem` in der Maßtabelle führt nur die **Abweichungen**; was dort
+fehlt, gilt wie bisher. TDS und SkyView teilen sich damit eine Quelle.
+`regelnJetzt()` im Konfigurator legt die Systemwerte über die allgemeinen –
+eine Stelle, weil fünf Funktionen sie brauchen. `innenkernAbTiefe: null`
+heißt „dieses System kennt den Innenkern-Träger nicht"; eine 0 hieße „immer".
+
+Die Produktliste bei `gruppeGilt('unterzug')` ist entfallen: Der Regler
+erscheint, wo `unterzugNoetig()` wahr ist. Eine Aufzählung daneben wäre eine
+zweite Liste, die beim nächsten System vergessen wird.
+
+**Flat Line baut den Unterzug jetzt auch.** Er läuft über einen eigenen
+Bauweg (`bauenGeschaetzt`, der Flachdach-Carport-Weg) – der dritte neben
+`bauenAusDaten` und `bauenTerrasseGeschaetzt`. Die Lage kommt aus derselben
+`unterzugZcm()`, die Pfostenverteilung aus `pfostenUnterTraeger()`, damit
+nichts auseinanderläuft (siehe die Runden vom 15.10.).
+
+**Trapezblech war bereits richtig.** Bei Flat Line ist die Dach-Auswahl
+ausgeblendet (`gruppeGilt('cp-flachdach')` schließt sie aus), `Z.cpDach`
+steht fest auf „Trapezblech (Standard)", und die Stückliste fragt
+`Flat_Line|Trapezblech`. Hier war nichts zu ändern – geprüft, nicht
+geglaubt.
+
+**Absicherung.** Elf neue Prüfungen in `scripts/pruefe-masstabelle.js`: die
+neun Stufen der Tabelle oben einzeln durchgerechnet (aus den Tabellenwerten
+selbst, nicht nachgebaut), dazu „Flat Line kennt keinen Innenkern" und
+„SkyView übernimmt die Grenzen des Terrassendachs". Die Verfälschung
+verschiebt jede Antwort um eine Stufe – eine vertauschte Grenze hätte nur
+einen Teil der Fälle getroffen. Gegenprobe: alle 302 Prüfungen schlagen an.
+
+**Was NICHT gemacht ist.** Die Flat-Line-Profile sind weiter geschätzte
+Kästen. Die Einzelteileliste nennt die Teile des Systems FLT – Träger Flat
+(16557), Rinne Flat (16553), Seitenrinne (16554), die beiden Blenden (16555,
+16556), Innenkern Rinne (16760), dazu Dichtungen, Eckabdeckungen und
+Profilfüller für Trapezblech T35M –, aber **keine Querschnittsmaße**. Ohne
+die technischen Zeichnungen lässt sich das Design nicht nachbauen, wie es
+beim TDS möglich war. Dafür braucht es die Zeichnungen vom Betreiber.
