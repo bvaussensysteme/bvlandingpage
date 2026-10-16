@@ -7823,3 +7823,61 @@ eine geschlossene Leiste?
 (jetzt 358, alle bestanden, Gegenprobe alle 358). Darunter die beiden, die den
 alten Zustand ausdrücklich ausschließen: kein `T - bT - rT / 2` mehr (Blende
 hinter der Rinne) und die Seitenrinne muss schmaler sein als die vordere.
+
+---
+
+## 16.10.2026 – Die beiden Rinnen lagen auf den falschen Seiten
+
+**Anlass.** „das mit den rinnen is super nur du hast sie auf die falschen 2
+seiten gemacht, die müssen auf die anderen 2 seiten" (Betreiber).
+
+**Nachgesehen statt geraten.** Die Flat-Line-Montageanleitung lag noch als
+Upload vor. Drei Stellen daraus belegen es und erklären auch, warum:
+
+- **„SCHRITT 3 ANBRINGUNG DER SEITLICHEN REGENRINNE"** – sie werden als
+  **erste** montiert, direkt nach den Pfosten, mit „Fallrohr in jeden Pfosten"
+  und vier Laubfängern. Das sind die wasserführenden **Hauptrinnen**, und sie
+  liegen **links und rechts**.
+- Erst danach, Schritt 2.3: „die **vordere und hintere** Regenrinne" – die
+  zweite, kleinere Garnitur.
+- Beim Verschrauben der Eindeckung: Löcher, „die bis in die Sparren reichen
+  (**an den Seiten bis in die Regenrinne**)" – an den Seiten trägt also die
+  Rinne selbst das Blech, wie ein Sparren.
+
+**Die Falle steckt im Artikelnamen.** VDs „Seitenrinne Flat" (16554) und
+„Blende Flat Seiten Rinne" (16555) sitzen laut Anleitung **vorne und hinten**;
+die Anleitung nennt die linke und rechte Garnitur „seitliche Regenrinne". Ich
+war dem Artikelnamen gefolgt – daher der Fehler. Die Konstanten heißen deshalb
+jetzt `FLAT_RINNE_LAENGS` und `FLAT_RINNE_QUER`, also **nach der Lage statt
+nach dem Namen**. Wer wieder nach dem Artikelnamen baut, dreht es erneut.
+
+**Was jetzt gilt.** Links und rechts 186,3 mm (Hauptrinne), vorne und hinten
+135 mm. Die Längsrinne läuft in der Ecke durch, weil sie zuerst montiert wird.
+Die Sparren laufen weiter in der Tiefe und enden an der vorderen und hinteren
+Rinne: bei 6 m Tiefe 5730 statt 5627,4 mm.
+
+**Was dadurch unbelegt wurde – und offen bleibt.** Die 135 mm hatte ich am
+Vormittag aus dem Sparren-Randabstand der Anleitung hergeleitet. Diese
+Herleitung **gilt nicht mehr**: Die 135 mm sind an der Maßlinie
+„Anlagebreite" angetragen, gelten also über die Breite – dort, wo jetzt die
+186,3 mm tiefe Längsrinne liegt. Der äußerste Sparren reicht damit 12,4 mm in
+die offene Rinne hinein. Das passt zu „Befestigen Sie jede Sparre mit jeweils
+zwei selbstvorbohrenden Schrauben an den seitlichen Regenrinnen", heißt aber:
+die 135 mm der vorderen/hinteren Rinne sind jetzt nur noch **geschätzt**. Sie
+bleiben stehen, weil der Betreiber die Proportion bestätigt hat („das mit den
+rinnen is super"). Steht als Rückfrage 5b.
+
+**Lehre.** Ein Artikelname ist kein Einbauort. Das ist derselbe Fehlertyp wie
+bei SG23, Velaris, Wandprofil und Seitenglasleiste, wo ein Querschnitt nichts
+über die Einbaulage sagte – diesmal war es der Name statt der Zeichnung. Der
+Beleg stand die ganze Zeit in der Montageanleitung; ich hatte sie für diese
+Frage nie gelesen.
+
+**Was gegengelesen werden soll.** Carport → Flachdach Flat Line: Ist der Rahmen
+jetzt **links und rechts breiter** als vorne und hinten?
+
+**Absicherung.** Vier neue Prüfungen (jetzt 361, alle bestanden, Gegenprobe
+alle 361): Die tiefe Rinne muss links und rechts liegen, die Längsrinne muss in
+der Ecke durchlaufen, der Rahmen muss längs breiter sein als quer, und der
+äußerste Sparren muss die offene Längsrinne erreichen, ohne die Außenwand zu
+durchstoßen.
