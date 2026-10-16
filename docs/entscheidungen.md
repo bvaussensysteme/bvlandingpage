@@ -7387,3 +7387,31 @@ hätte die Absicht bestätigt statt das Ergebnis.
 **Absicherung.** Die Stufentabelle in `scripts/pruefe-masstabelle.js` prüft
 jetzt zehn Fälle über drei Systeme, Flat Line mit 3500 / 5000 / 6000 / 7000.
 Gegenprobe: alle 313 Prüfungen schlagen an.
+
+### 16.10.2026 – Flat Line: Blende außenrum mit den SkyView-Maßen
+
+**Anlass.** Der Betreiber: *„die blenden mße außenrum sind wie beim sky view
+vom maß wie schon gesagt"*
+
+**Was gilt.** Die umlaufende Attika-Blende bei Flat Line nimmt jetzt die
+Maße der **Seitenblende Sky (6069)**: 252 mm hoch, 38,9 mm tief – beide
+BELEGT aus der Einzelteileliste und schon für den SkyView im Code. Vorher
+standen dort geschätzte 260 × 50 mm.
+
+**Unabhängiger Beleg.** Die Einzelteileliste führt unter dem
+Flat-Line-Zubehör (Kennung ZBHFLT) die **„Eckabdeckung Sky HL/HR"**
+(6073/6074) – dieselben Teile wie beim SkyView. Eine Eckabdeckung sitzt über
+der Rahmenecke; dass hier das Sky-Teil passt, bestätigt dieselbe Außenkontur.
+Die Angabe des Betreibers steht damit nicht allein.
+
+Im Code steht die Blende nicht als eigene Zahl, sondern als `SKY.seitenblendeH`
+und `SKY.seitenblendeT` – zwei gleiche Zahlen an zwei Stellen wären beim
+nächsten Maßwechsel auseinandergelaufen.
+
+**Weiter geschätzt** bleibt `FLAT_DECK_AB`: wie tief das Trapezblech innerhalb
+der Attika liegt (5 cm). Dazu sagt keine Quelle etwas.
+
+**Absicherung.** Zwei Prüfungen: dass die Maße aus `SKY` kommen und nicht mehr
+als eigene Zahl dastehen. Die Prüfung „Sparren-Oberkante liegt an der
+Blechunterseite" liest die Höhe jetzt ebenfalls aus `SKY` und rechnet weiter
+nach – sie steht jetzt bei 20,2 cm über der Durchfahrt statt 21.
