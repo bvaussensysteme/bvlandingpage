@@ -7303,3 +7303,53 @@ Höhe und Breite. Gegenprobe: alle 309 Prüfungen schlagen an.
 **Was weiter fehlt.** Rinne Flat (16553), Seitenrinne (16554) und die beiden
 Blenden (16555, 16556) sind weiter geschätzt – für sie liegen keine
 Querschnitte vor.
+
+### 16.10.2026 – Flat Line: Montageanleitung und Preisliste ausgewertet
+
+**Anlass.** Der Betreiber hat die Montageanleitung Flachdach Flat Line (25
+Seiten) und die Flat-Line-Preisliste ab 01.08.2026 geschickt.
+
+**Gegengeprüft, ohne Änderung.** Die Maßtabelle in `js/masstabelle.js` deckt
+sich mit der Preisliste: 12 von 12 Breiten mit denselben Sparren- und
+Stützfußzahlen (3000 → 4/4 bis 14000 → 15/8), und dieselben sieben Tiefen
+(2000, 2500, 3000, 3500, 5000, 6000, 7000). Das war bisher aus der
+Herstellermatrix übernommen und ist jetzt gegen die Preisliste selbst
+bestätigt.
+
+**Geändert: Randabstand der äußersten Sparren.** BELEGT aus der
+Montageanleitung, Schritt 3.2: *„Berechnen Sie die Abstände und verteilen Sie
+die Sparren gleichmäßig. Stellen Sie sicher, dass an den Seiten jeweils ein
+Abstand von 135 mm vorhanden ist."* Das Modell setzte die äußersten Sparren
+bündig an die Kante (halbe Profilbreite). Jetzt 135 mm licht, die Achse eine
+halbe Sparrenbreite weiter innen.
+
+**Bestätigt: Laufrichtung.** Die Zeichnungen auf Seite 21 und 22 zeigen die
+Sparren in der Tiefe laufend und über die Anlagenbreite verteilt – so wie seit
+heute gebaut. Der Satz „Befestigen Sie die Sparren an den seitlichen
+Regenrinnen" hatte kurz das Gegenteil nahegelegt; die Draufsicht auf Seite 22
+(Maßpfeil „Anlagebreite" über den Sparrenenden) entscheidet es.
+
+**Offen – Widerspruch zur Ansage.** Die Preisliste nennt unter „Die
+vorgenannten Preise verstehen sich inklusive":
+
+> *Verstärkungsprofile (Innenkern Sparren: bei Tiefe ab 5 bis 6 m – 1 Stk. ×
+> 3 m pro Sparren)*
+
+Für Flat Line gäbe es also doch einen Innenkern-Träger, und zwar zwischen
+5000 und 6000 mm Tiefe. Der Betreiber hatte gesagt: *„beim flatline is es so
+bis 6m nix"*. Beides lässt sich vereinbaren, wenn „nix" heißt „nichts, was
+extra berechnet wird" – der Innenkern ist laut Liste im Preis enthalten.
+Technisch wäre er aber vorhanden. Im Konfigurator steht deshalb weiter
+`innenkernAbTiefe: null` für Flat Line; geändert wird das erst auf Ansage.
+
+**Ebenfalls aus der Liste, noch nicht eingebaut:**
+- „Innenkern Rinne (1 m für Breite über 7 Meter)" – beim TDS gibt es dieselbe
+  Regel, dort ab 7 m Breite bereits umgesetzt.
+- „Stützen in 3,00 m Länge" – die Standardlänge der Pfosten.
+- Die Stützfußzahlen der Liste (4, 6, 8) sind **Gesamtzahlen**, nicht je
+  Reihe: Bei 3–5 m Breite nennt die Liste 4 Stützfüße, die Anleitung zeigt
+  vier Pfosten (zwei vorne, zwei hinten). Das beantwortet eine offene Frage
+  aus `daten/offene-punkte.md` (Punkt D) – dort steht sie noch als ungeklärt.
+
+**Keine Querschnitte.** Die Anleitung zeigt Rinne Flat, Seitenrinne und die
+Blenden nur als Ansichtsbilder ohne Bemaßung. Diese Profile bleiben geschätzt.
