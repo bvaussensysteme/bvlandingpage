@@ -2633,20 +2633,26 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
          gegen ? !/var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d)
                : /var FLAT_RINNE_T = SKY\.rinneT;/.test(k3d),
          'aus SKY, keine eigene Zahl');
-  pruefe('Rinne liegt innerhalb der Kante, Blende davor',
-         new RegExp(q || 'balken\\(B, blendeH, rT, 0, hVorn \\+ blendeH / 2, T - rT / 2').test(k3d) &&
-         new RegExp(q || 'balken\\(B \\+ 2 \\* bT, blendeH, bT, 0, hVorn \\+ blendeH / 2, T \\+ bT / 2').test(k3d),
-         'zwei Bauteile wie beim SkyView');
+  pruefe('Blende ist die Außenhaut, Rinne sitzt dahinter',
+         new RegExp(q || 'balken\\(B, blendeH, bT, 0, hVorn \\+ blendeH / 2, T - bT / 2').test(k3d) &&
+         new RegExp(q || 'T - bT - rT / 2').test(k3d),
+         'zwei Bauteile, Blende außen');
+  pruefe('Nichts ragt über die Anlagenkante hinaus',
+         gegen ? /blendeH, bT, 0, hVorn \+ blendeH \/ 2, T \+ bT \/ 2/.test(k3d)
+               : !/, T \+ bT \/ 2, mBlech\)/.test(k3d) && !/B \+ 2 \* bT, blendeH/.test(k3d),
+         'kein „T + bT / 2" und kein „B + 2 * bT" mehr');
   pruefe('Sparren enden an der Rinne, nicht an der Außenkante',
-         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* SKY\\.rinneT\\)').test(k3d),
-         'Länge = Tiefe minus zwei Rinnen');
+         new RegExp(q || 'Math\\.max\\(10, T - 2 \\* \\(SKY\\.seitenblendeT \\+ SKY\\.rinneT\\)\\)').test(k3d),
+         'Länge = Tiefe minus zwei Mal (Blende + Rinne)');
   (function () {
     /* Nachgerechnet: Bei 6 m Tiefe bleiben 6000 - 2 x 186,3 = 5627,4 mm. */
     var rT = Number((k3d.match(/rinneT: ([\d.]+),/) || [])[1]);
-    var soll = gegen ? 6000 : 6000 - 2 * rT * 10;
-    var ist = 6000 - 2 * rT * 10;
+    var bT = Number((k3d.match(/seitenblendeT: ([\d.]+),/) || [])[1]);
+    var soll = gegen ? 6000 : 6000 - 2 * (bT + rT) * 10;
+    var ist = 6000 - 2 * (bT + rT) * 10;
     pruefe('Sparrenlänge bei 6 m Tiefe', Math.abs(ist - soll) < 0.01,
-           ist.toFixed(1) + ' mm (Tiefe 6000 − 2 × ' + (rT * 10).toFixed(1) + ')');
+           ist.toFixed(1) + ' mm (6000 − 2 × (' + (bT * 10).toFixed(1) + ' + ' +
+           (rT * 10).toFixed(1) + '))');
   })();
 
   /* ---------- Trapezblech quer zu den Sparren ----------

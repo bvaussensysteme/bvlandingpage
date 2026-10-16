@@ -5473,7 +5473,7 @@
        liegt die Rinne, dort endet der Sparren. Beim tds-Zweig (unbenutzt)
        bleibt die alte Rechnung. */
     var traegerL = tds ? Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2))
-                       : Math.max(10, T - 2 * SKY.rinneT);
+                       : Math.max(10, T - 2 * (SKY.seitenblendeT + SKY.rinneT));
     var tbFlat = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
     var spAnzahl = (tbFlat && tbFlat.sparren) || 2;
     var spBreite = tds ? PROFIL * 0.8 : FLAT_TRAEGER.breite;
@@ -5542,21 +5542,32 @@
       var oben = hVorn + blendeH;
       var mBlech = blech();
 
-      /* Rinne umlaufend (innen), Blende davor (aussen). Zwei Bauteile wie
-         beim SkyView – ein einzelner Kasten waere entweder zu duenn (nur
-         Blende) oder zu klobig (Rinnentiefe bis aussen). */
+      /* Rinne umlaufend, Blende davor – zwei Bauteile wie beim SkyView.
+
+         NICHTS RAGT ÜBER DIE ANLAGENKANTE: Die Blende ist die Aussenhaut
+         und endet genau bei der Breite bzw. Tiefe, die eingestellt ist;
+         die Rinne sitzt dahinter. Vorher stand die Blende DAVOR und
+         ragte 39 mm hinaus – damit lag die aeusserste sichtbare Kante
+         vor den Pfosten, was aussah, als seien sie nach innen gerueckt
+         (Betreiber, 16.10.2026: „die pfosten sind auch nicht nach innen
+         gerückt wie beim sky momentan hast du sie etwa [n]ach innen
+         gerückt" – auf die Rueckfrage, ob die Blende buendig abschliessen
+         soll: „ja").
+
+         Die Pfosten bleiben, wo sie waren: buendig bis zur Kante, von der
+         Blende verdeckt. So laeuft sie auch an der echten Anlage. */
       var bT = FLAT_BLENDE_T, rT = FLAT_RINNE_T;
-      /* Rinne: liegt INNERHALB der Anlagenkante */
-      balken(B, blendeH, rT, 0, hVorn + blendeH / 2, T - rT / 2, mBlech);   // vorne
-      balken(B, blendeH, rT, 0, hVorn + blendeH / 2, rT / 2, mBlech);       // hinten
-      [-B / 2 + rT / 2, B / 2 - rT / 2].forEach(function (x) {
-        balken(rT, blendeH, T - 2 * rT, x, hVorn + blendeH / 2, T / 2, mBlech);
+      /* Blende: Aussenhaut, buendig mit der Kante */
+      balken(B, blendeH, bT, 0, hVorn + blendeH / 2, T - bT / 2, mBlech);   // vorne
+      balken(B, blendeH, bT, 0, hVorn + blendeH / 2, bT / 2, mBlech);       // hinten
+      [-B / 2 + bT / 2, B / 2 - bT / 2].forEach(function (x) {
+        balken(bT, blendeH, T - 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
-      /* Blende: davor, bündig mit der Anlagenkante */
-      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, T + bT / 2, mBlech);
-      balken(B + 2 * bT, blendeH, bT, 0, hVorn + blendeH / 2, -bT / 2, mBlech);
-      [-B / 2 - bT / 2, B / 2 + bT / 2].forEach(function (x) {
-        balken(bT, blendeH, T + 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
+      /* Rinne: direkt dahinter */
+      balken(B - 2 * bT, blendeH, rT, 0, hVorn + blendeH / 2, T - bT - rT / 2, mBlech);
+      balken(B - 2 * bT, blendeH, rT, 0, hVorn + blendeH / 2, bT + rT / 2, mBlech);
+      [-B / 2 + bT + rT / 2, B / 2 - bT - rT / 2].forEach(function (x) {
+        balken(rT, blendeH, T - 2 * bT - 2 * rT, x, hVorn + blendeH / 2, T / 2, mBlech);
       });
 
       /* Eindeckung ist Trapezblech – und soll auch danach aussehen.

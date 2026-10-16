@@ -7527,3 +7527,33 @@ Modell.
 eigene Zahl, dass Rinne und Blende als zwei Bauteile an der richtigen Stelle
 sitzen, dass die Sparrenlänge zwei Rinnen abzieht – und eine Rechnung, die das
 Ergebnis für 6 m Tiefe nachrechnet (5627,4 mm).
+
+### 16.10.2026 – Flat Line: Blende bündig statt überstehend
+
+**Anlass.** Der Betreiber: *„die pfosten sind auch nicht nach innen gerückt
+wie beim sky momentan hast du sie etwa [n]ach innen gerückt"* – und auf die
+Rückfrage, ob die Blende bündig abschließen soll: *„ja"*
+
+**Was dahintersteckte.** Die Pfosten standen unverändert bündig an der Kante
+(`T − PROFIL / 2`); nach innen gerückt ist nur das Terrassendach TDS, wo die
+Rinne auskragt. Verschoben hatte sich die **Blende**: Sie saß seit der
+Rinnen-Änderung *vor* der Anlagenkante und ragte 39 mm hinaus. Damit lag die
+äußerste sichtbare Kante vor den Pfosten – was wie ein Versatz aussieht,
+obwohl keiner da war.
+
+**Was jetzt gilt.** Nichts ragt über die eingestellte Breite oder Tiefe
+hinaus. Die Blende ist die Außenhaut und endet genau an der Kante, die Rinne
+sitzt direkt dahinter, die Pfosten bleiben bündig und werden von der Blende
+verdeckt – so läuft es auch an der echten Anlage.
+
+Die Sparrenlänge zieht entsprechend **Blende plus Rinne** je Seite ab: bei
+6 m Tiefe 5549,6 mm statt vorher 5627,4.
+
+**Lehre.** Eine Beobachtung („die Pfosten stehen falsch") muss nicht am
+genannten Bauteil liegen. Hier war das Bezugsmaß verschoben, nicht der Pfosten
+– sichtbar wurde es trotzdem am Pfosten. Erst im Code nachsehen, wo das Teil
+wirklich steht, dann weitersuchen.
+
+**Absicherung.** Die Prüfung „Nichts ragt über die Anlagenkante hinaus" sucht
+ausdrücklich nach den alten Mustern (`T + bT / 2`, `B + 2 * bT`) und schlägt
+an, wenn sie zurückkommen. Dazu die nachgerechnete Sparrenlänge.
