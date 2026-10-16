@@ -5582,6 +5582,27 @@
        Rinne dahinter fehlte, und die Sparren liefen bis an die
        Aussenkante durch. */
     var FLAT_RINNE_T = SKY.rinneT;
+    /* ---------- Die Seitenrinne ist schmaler als die vordere ----------
+       „Seitenrinne Flat" 16554 ist ein ANDERER Artikel als „Rinne Flat"
+       16553 – bis zum 16.10.2026 lief im Modell fuer beide dieselbe Tiefe
+       von 186,3 mm. Ergebnis: ein Rahmen von 225 mm auf allen vier
+       Seiten. „außenrum die blenden sind viel zu dick passt nicht ins
+       gleichgewicht" (Betreiber, 16.10.2026).
+
+       ABGELEITET aus einem belegten Mass: Die Montageanleitung (Schritt
+       3.2) gibt den aeussersten Sparren 135 mm lichten Abstand zur Kante
+       (FLAT_SPARREN_RAND). Zwischen Aussenkante und erstem Sparren passt
+       also hoechstens ein 135 mm breites Profil – waere die Seitenrinne
+       186,3 mm tief, saesse der Sparren mitten in ihr. Der Sparren liegt
+       damit genau an ihrer Innenwand, und die Seitenrinne ist 135 mm
+       breit. Das ist eine Rechnung, kein Beleg; eine Querschnittzeichnung
+       bestaetigt oder widerlegt sie (Rueckfrage 5b). */
+    var FLAT_SEITENRINNE_T = FLAT_SPARREN_RAND;
+    /* Wie tief die Rinne unter der Blechebene liegt. GESCHAETZT: Sie muss
+       unter das Blech (FLAT_DECK_AB = 50 mm), sonst liefe kein Wasser
+       hinein, und sie muss im 252 mm hohen Rahmen Platz haben. 70 mm sind
+       das Mindeste, bei dem man eine Rinne als Rinne erkennt. */
+    var FLAT_RINNE_TIEF = 7.0;
     var FLAT_DECK_AB = 5;
     /* Flat Line und Flat Box nehmen den Pfosten 15190 (110,2 mm). Die
        140 mm galten als „Carport-Stuetzen sind kraeftiger" – eine
@@ -5667,7 +5688,7 @@
        liegt die Rinne, dort endet der Sparren. Beim tds-Zweig (unbenutzt)
        bleibt die alte Rechnung. */
     var traegerL = tds ? Math.sqrt(T * T + Math.pow(hHinten - hVorn, 2))
-                       : Math.max(10, T - 2 * (SKY.seitenblendeT + SKY.rinneT));
+                       : Math.max(10, T - 2 * SKY.rinneT);
     var tbFlat = tds ? null : tabelleBauteile(Z.breite, Z.tiefe);
     var spAnzahl = (tbFlat && tbFlat.sparren) || 2;
     var spBreite = tds ? PROFIL * 0.8 : FLAT_TRAEGER.breite;
@@ -5736,43 +5757,71 @@
       var oben = hVorn + blendeH;
       var mBlech = blech();
 
-      /* Rinne umlaufend, Blende davor – zwei Bauteile wie beim SkyView.
+      /* ---------- Umlaufende Rinne, die Blende ist ihre Aussenwand ----------
+         Drei Dinge waren hier falsch, alle drei vom Betreiber am
+         16.10.2026 bestaetigt („außenrum die blenden sind viel zu dick
+         passt nicht ins gleichgewicht"):
 
-         NICHTS RAGT ÜBER DIE ANLAGENKANTE: Die Blende ist die Aussenhaut
-         und endet genau bei der Breite bzw. Tiefe, die eingestellt ist;
-         die Rinne sitzt dahinter. Vorher stand die Blende DAVOR und
-         ragte 39 mm hinaus – damit lag die aeusserste sichtbare Kante
-         vor den Pfosten, was aussah, als seien sie nach innen gerueckt
-         (Betreiber, 16.10.2026: „die pfosten sind auch nicht nach innen
-         gerückt wie beim sky momentan hast du sie etwa [n]ach innen
-         gerückt" – auf die Rueckfrage, ob die Blende buendig abschliessen
-         soll: „ja").
+         1. Blende UND Rinne lagen hintereinander und addierten sich zu
+            225 mm Rahmen je Seite. Die Blende ist aber die AUSSENWAND der
+            Rinne, kein zusaetzliches Teil davor – so ist es beim TDS
+            schon gebaut („Blende deckt Rinne und Schenkel ganz ab",
+            12.10.2026). Der Rahmen ist damit so breit wie die Rinne.
+         2. Die Seitenrinne lief mit der Tiefe der vorderen Rinne. Sie ist
+            ein eigener Artikel und schmaler – siehe FLAT_SEITENRINNE_T.
+         3. Die Rinne war ein MASSIVER Balken. Eine Rinne ist eine offene
+            Rinne: Aussenwand, Boden, Innenwand. Als Trog wirkt derselbe
+            Rahmen deutlich leichter – und man sieht, wohin das Wasser
+            laeuft.
 
-         Die Pfosten bleiben, wo sie waren: buendig bis zur Kante, von der
-         Blende verdeckt. So laeuft sie auch an der echten Anlage. */
-      var bT = FLAT_BLENDE_T, rT = FLAT_RINNE_T;
-      /* Es sind VIER Teile, nicht eins: vorne und hinten „Blende Flat
-         Rinne" 16556 FLT vor der „Rinne Flat" 16553, an den Seiten
-         „Blende Flat Seiten Rinne" 16555 FLT vor der „Seitenrinne Flat"
-         16554 (Betreiber, 16.10.2026; Artikel aus
-         daten/profile-und-eindeckung.csv).
+         Die Innenwand endet auf Hoehe der Blechunterseite (yDeck), damit
+         das Wasser vom Blech hineinlaufen kann; die Aussenwand geht ueber
+         die volle Rahmenhoehe.
 
-         Die Einzelteileliste fuehrt sie als Meterware ohne Querschnitt,
-         deshalb tragen beide Blenden hier weiter das SkyView-Mass
-         (FLAT_BLENDE_H/T) und beide Rinnen FLAT_RINNE_T. Das ist eine
-         Platzhalterform, kein Beleg – sie steht als Rueckfrage in
-         daten/rueckfragen-an-vd.md. */
-      /* Blende: Aussenhaut, buendig mit der Kante */
-      balken(B, blendeH, bT, 0, hVorn + blendeH / 2, T - bT / 2, mBlech);   // vorne
-      balken(B, blendeH, bT, 0, hVorn + blendeH / 2, bT / 2, mBlech);       // hinten
-      [-B / 2 + bT / 2, B / 2 - bT / 2].forEach(function (x) {
-        balken(bT, blendeH, T - 2 * bT, x, hVorn + blendeH / 2, T / 2, mBlech);
+         NICHTS RAGT UEBER DIE ANLAGENKANTE: Die Aussenwand endet genau
+         bei der eingestellten Breite bzw. Tiefe. Die Pfosten bleiben
+         buendig bis zur Kante, von ihr verdeckt (Betreiber, 16.10.2026:
+         „die pfosten sind auch nicht nach innen gerückt wie beim sky" –
+         auf die Rueckfrage, ob die Blende buendig abschliessen soll:
+         „ja").
+
+         Es sind VIER Teile, nicht eins: vorne und hinten „Blende Flat
+         Rinne" 16556 FLT an der „Rinne Flat" 16553, an den Seiten
+         „Blende Flat Seiten Rinne" 16555 FLT an der „Seitenrinne Flat"
+         16554 (Artikel aus daten/profile-und-eindeckung.csv). Die
+         Einzelteileliste fuehrt alle vier als Meterware OHNE
+         Querschnitt – Hoehe und Wandstaerke sind deshalb weiter das
+         SkyView-Mass. Das ist eine Platzhalterform, kein Beleg, und
+         steht als Rueckfrage 5b in daten/rueckfragen-an-vd.md. */
+      var bT = FLAT_BLENDE_T;              // Wandstaerke/Aussenhaut, 38,9 mm
+      var rT = FLAT_RINNE_T;               // vorne und hinten, 186,3 mm
+      var sT = FLAT_SEITENRINNE_T;         // seitlich, 135 mm
+      var yDeck = oben - FLAT_DECK_AB;     // Blechunterseite = Oberkante Innenwand
+      var rinneBoden = yDeck - FLAT_RINNE_TIEF;
+      var bodenD = 1.0;                    // Blechboden der Rinne
+      var mitteH = hVorn + blendeH / 2;
+      /* Die Innenwand reicht von unten bis zur Blechunterseite, nicht nur
+         ueber die Rinnentiefe: Sonst steht unter dem Rinnenboden ein
+         offener Spalt, in den man von unten hineinsieht. Oben endet sie
+         auf yDeck, damit das Wasser vom Blech hineinlaeuft. */
+      var innenHoehe = blendeH - FLAT_DECK_AB;
+      var innenH = hVorn + innenHoehe / 2;
+
+      /* Vorne und hinten: Aussenwand ueber die volle Breite */
+      [[T - bT / 2, T - rT + bT / 2, T - rT / 2],
+       [bT / 2, rT - bT / 2, rT / 2]].forEach(function (z) {
+        balken(B, blendeH, bT, 0, mitteH, z[0], mBlech);                       // Aussenwand
+        balken(B, innenHoehe, bT, 0, innenH, z[1], mBlech);                    // Innenwand
+        balken(B, bodenD, rT - 2 * bT, 0, rinneBoden - bodenD / 2, z[2], mBlech); // Boden
       });
-      /* Rinne: direkt dahinter */
-      balken(B - 2 * bT, blendeH, rT, 0, hVorn + blendeH / 2, T - bT - rT / 2, mBlech);
-      balken(B - 2 * bT, blendeH, rT, 0, hVorn + blendeH / 2, bT + rT / 2, mBlech);
-      [-B / 2 + bT + rT / 2, B / 2 - bT - rT / 2].forEach(function (x) {
-        balken(rT, blendeH, T - 2 * bT - 2 * rT, x, hVorn + blendeH / 2, T / 2, mBlech);
+
+      /* Links und rechts: zwischen den beiden Querrinnen */
+      var seitL = Math.max(1, T - 2 * rT);
+      [[-B / 2 + bT / 2, -B / 2 + sT - bT / 2, -B / 2 + sT / 2],
+       [B / 2 - bT / 2, B / 2 - sT + bT / 2, B / 2 - sT / 2]].forEach(function (x) {
+        balken(bT, blendeH, T - 2 * bT, x[0], mitteH, T / 2, mBlech);          // Aussenwand
+        balken(bT, innenHoehe, seitL, x[1], innenH, T / 2, mBlech);            // Innenwand
+        balken(sT - 2 * bT, bodenD, seitL, x[2], rinneBoden - bodenD / 2, T / 2, mBlech); // Boden
       });
 
       /* ---------- Eindeckung: Trapezblech T35M, Rippen quer ----------
@@ -5794,28 +5843,29 @@
          zu ihnen haette es zwischen ihnen keine Auflager. Im Modell
          heisst das: Die WELLE laeuft in der Tiefe durch (dort kreuzt sie
          die Sparren), die Rippen selbst liegen in x. */
-      var yDeck = oben - FLAT_DECK_AB;
       var mTrapez = trapezblechMaterial();
 
-      /* WIE WEIT das Blech reicht: bis an die Innenwand der Rinne, nicht
-         bis an die Aussenkante der Anlage. Vorher lief es bis 10 mm vor
-         die Kante durch – damit steckte es in der nur 38,9 mm dicken
-         Blende, und an den Rändern schaute es heraus: „es ragt etwas an
-         den seiten raus das blech" (Betreiber, 16.10.2026).
+      /* WIE WEIT das Blech reicht: bis UEBER die Innenwand der Rinne, so
+         dass das Wasser hineinlaeuft und die Wandoberkante verdeckt ist.
+         An den Seiten endet es also sT - bT von der Kante, vorne und
+         hinten rT - bT. Vorher lief es bis 10 mm vor die Aussenkante
+         durch und steckte in der Blende: „es ragt etwas an den seiten
+         raus das blech" (Betreiber, 16.10.2026).
 
-         Es ist dasselbe Mass, mit dem schon die Sparren gerechnet werden:
-         Tiefe minus zwei Mal (Blende + Rinne). Eine Zahl, zwei Bauteile –
-         so können sie nicht auseinanderlaufen. */
-      var blechRand = bT + rT;
-      var blechB = Math.max(10, B - 2 * blechRand);
-      var blechT = Math.max(10, T - 2 * blechRand);
-      /* Die Unterseite des Aufbaus liegt 2 mm über der Sparrenoberkante,
-         damit nicht zwei Flächen genau aufeinanderliegen. */
+         Die Breite deckt sich damit genau mit dem Sparrenfeld: Der
+         aeusserste Sparren haelt 135 mm lichten Abstand zur Kante
+         (FLAT_SPARREN_RAND), und das ist dieselbe Zahl wie sT. */
+      var blechRandX = Math.max(0, sT - bT);
+      var blechRandZ = Math.max(0, rT - bT);
+      var blechB = Math.max(10, B - 2 * blechRandX);
+      var blechT = Math.max(10, T - 2 * blechRandZ);
+      /* Die Unterseite des Aufbaus liegt 2 mm ueber der Sparrenoberkante,
+         damit nicht zwei Flaechen genau aufeinanderliegen. */
       var yBlech = yDeck + TRAPEZ_T35M.dicke + 0.2;
 
       var blech1 = new THREE.Mesh(trapezblechKoerper(blechB, blechT),
                                   [mTrapez, antikondensvliesMaterial()]);
-      blech1.position.set(0, yBlech, blechRand);
+      blech1.position.set(0, yBlech, blechRandZ);
       blech1.castShadow = true; blech1.receiveShadow = true;
       bau.add(blech1);
 

@@ -7769,3 +7769,57 @@ die Anlage: Wird nichts abgeschnitten (die Nahebene steht jetzt bei 5 cm)?
 bestanden, in der Gegenprobe schlagen alle 353 an. Neu darunter fünf
 Messungen an der echten Geometrie (Normalen je Werkstoffgruppe, Maße aus der
 Bounding Box, keine kaputten Normalen) und eine auf die Kamera-Nahebene.
+
+---
+
+## 16.10.2026 – Der Rahmen außenrum war 225 mm breit statt 135 bis 186
+
+**Anlass.** „und siehst du außenrum die blenden sind viel zu dick passt nicht
+ins gleichgewicht" (Betreiber). Auf Rückfrage mit den gemessenen Zahlen hat er
+**drei** der vier vorgelegten Ursachen bestätigt.
+
+**Was falsch war.**
+
+1. **Blende und Rinne lagen hintereinander** und addierten sich zu 38,9 + 186,3
+   = 225,2 mm Rahmen je Seite. Die Blende ist aber die **Außenwand** der Rinne,
+   kein zusätzliches Teil davor. Beim TDS war das schon richtig gebaut
+   („Blende deckt Rinne und Schenkel ganz ab", 12.10.2026) – hier hatte ich es
+   als zweite Schicht davorgesetzt.
+2. **Die Seitenrinne lief mit der Tiefe der vorderen Rinne.** „Seitenrinne
+   Flat" 16554 ist ein anderer Artikel als „Rinne Flat" 16553; ich hatte für
+   beide 186,3 mm genommen, weil der Betreiber „Rinne wie beim SkyView" gesagt
+   hatte – das galt der vorderen Rinne.
+3. **Die Rinne war ein massiver Balken.** Eine Rinne ist eine offene Rinne.
+
+**Woher die 135 mm der Seitenrinne kommen – gerechnet, nicht geraten.** Die
+Montageanleitung (Schritt 3.2) gibt dem äußersten Sparren **135 mm lichten
+Abstand zur Kante** (`FLAT_SPARREN_RAND`, seit dem 16.10.2026 im Code). Zwischen
+Außenkante und erstem Sparren passt also höchstens ein 135 mm breites Profil –
+wäre die Seitenrinne 186,3 mm tief, säße der Sparren **mitten in ihr**. Der
+Sparren liegt damit genau an ihrer Innenwand, und die Seitenrinne ist 135 mm
+breit. Das ist eine Rechnung aus einem belegten Maß, kein Beleg; sie steht als
+Rückfrage.
+
+**Was jetzt gilt.** Rahmen vorne und hinten 186,3 mm, seitlich 135 mm (vorher
+überall 225,2) – seitlich also **40 % schmaler**. Jede Seite besteht aus drei
+Teilen: Außenwand über die volle Rahmenhöhe (das ist die Blende), Innenwand
+bis zur Blechunterteilung, dazwischen der Rinnenboden 70 mm unter der
+Blechebene. Das Blech deckt die Innenwand ab und endet an der offenen Rinne –
+so läuft das Wasser sichtbar dorthin, wo es hingehört.
+
+Die Sparren enden entsprechend an der Rinne statt an Blende **plus** Rinne: bei
+6 m Tiefe 5627,4 statt 5549,6 mm.
+
+**Was geschätzt bleibt.** Die Rinnentiefe (70 mm unter der Blechebene). Sie muss
+unter das Blech und in den 252 mm hohen Rahmen passen; 70 mm ist das Mindeste,
+bei dem man eine Rinne als Rinne erkennt. Steht in `rueckfragen-an-vd.md`.
+
+**Was gegengelesen werden soll.** Carport → Flachdach Flat Line: Wirkt der
+Rahmen jetzt im Verhältnis? Ist er an den **Seiten schmaler** als vorne und
+hinten – so soll es sein? Und sieht man von oben in die Rinne hinein, statt auf
+eine geschlossene Leiste?
+
+**Absicherung.** Neun Prüfungen zum Rahmen in `scripts/pruefe-masstabelle.js`
+(jetzt 358, alle bestanden, Gegenprobe alle 358). Darunter die beiden, die den
+alten Zustand ausdrücklich ausschließen: kein `T - bT - rT / 2` mehr (Blende
+hinter der Rinne) und die Seitenrinne muss schmaler sein als die vordere.
