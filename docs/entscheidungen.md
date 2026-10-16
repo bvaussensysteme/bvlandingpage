@@ -7881,3 +7881,44 @@ alle 361): Die tiefe Rinne muss links und rechts liegen, die Längsrinne muss in
 der Ecke durchlaufen, der Rahmen muss längs breiter sein als quer, und der
 äußerste Sparren muss die offene Längsrinne erreichen, ohne die Außenwand zu
 durchstoßen.
+
+---
+
+## 16.10.2026 – Rinnentausch zurückgedreht
+
+**Anlass.** „oder ne warte war doch richtig" (Betreiber, direkt nach dem
+Tausch aus dem vorigen Eintrag).
+
+**Stand jetzt.** Wie vor dem Tausch: **tiefe Rinne vorne und hinten**
+(186,3 mm), **schmale links und rechts** (135 mm). Sparrenlänge bei 6 m Tiefe
+wieder 5627,4 mm. Die tiefe Querrinne läuft in der Ecke durch.
+
+**Warum der Eintrag darüber trotzdem stehen bleibt.** Er hält fest, was in der
+Montageanleitung steht – und das ist für diese Frage **nicht eindeutig**: Sie
+nennt die zuerst montierte Garnitur „seitliche Regenrinne" (mit Fallrohr und
+Laubfängern), ohne zu sagen, welche Seiten gemeint sind. Ich hatte „seitlich"
+als links/rechts gelesen. Zwei andere Stellen sprechen dagegen und tragen die
+jetzige Lösung:
+
+- „Befestigen Sie **jede** Sparre mit jeweils **zwei** selbstvorbohrenden
+  Schrauben an den seitlichen Regenrinnen." Zwei Schrauben je Sparren ist eine
+  je Sparrenende – die gemeinten Rinnen liegen an den **Enden** der Sparren,
+  und die Sparren laufen in der Tiefe. Also vorne und hinten.
+- „an den Seiten jeweils ein Abstand von 135 mm" ist an der Maßlinie
+  **Anlagebreite** angetragen, gilt also links und rechts. Mehr als 135 mm
+  passt dort zwischen Kante und erstem Sparren nicht – die schmale Garnitur
+  gehört dorthin.
+
+Damit gilt auch die Herleitung der 135 mm wieder, die im Tausch-Eintrag für
+ungültig erklärt wurde.
+
+**Was ich daraus mitnehme.** Ich habe auf eine Korrektur hin sofort umgebaut,
+obwohl mein eigener Fund („zwei Schrauben je Sparren") dagegen sprach. Richtig
+wäre gewesen, diesen Widerspruch **vor** dem Umbau zu nennen – dann hätte der
+Betreiber die Rückfrage gar nicht selbst zurücknehmen müssen. Ein Beleg, der
+gegen den Auftrag spricht, gehört auf den Tisch, nicht in den Commit danach.
+
+**Absicherung.** Die Prüfungen halten die Lage jetzt ausdrücklich fest („Die
+tiefe Rinne liegt vorne und hinten", „Der Rahmen ist vorne und hinten breiter
+als links und rechts"), damit die Frage nicht ein drittes Mal aufgemacht wird.
+361 Prüfungen, alle bestanden, Gegenprobe alle 361.
