@@ -5346,6 +5346,13 @@
        16.10.2026, mit Querschnittszeichnung). Der Steg liegt innen und
        ist am Modell nicht zu sehen. */
     var FLAT_TRAEGER = { hoehe: 17.2, breite: 6.0 };
+    /* Randabstand der aeussersten Sparren zur Anlagenkante. BELEGT aus der
+       Montageanleitung Flat Line, Schritt 3.2: „Berechnen Sie die Abstände
+       und verteilen Sie die Sparren gleichmäßig. Stellen Sie sicher, dass
+       an den Seiten jeweils ein Abstand von 135 mm vorhanden ist."
+       Das Mass ist LICHT (Kante zu Kante), die Achse liegt eine halbe
+       Sparrenbreite weiter innen. */
+    var FLAT_SPARREN_RAND = 13.5;
     /* Attika: Blendenhoehe und wie tief das Blech darin liegt. Stehen
        hier, weil die Sparren darunter passen muessen – als zwei getrennte
        Zahlen liefen sie beim naechsten Umbau auseinander. */
@@ -5422,7 +5429,9 @@
        FLAT_DECK_AB unter der Blendenoberkante. */
     var spY = tds ? (hVorn + hHinten) / 2 + PROFIL * 0.65
                   : hVorn + FLAT_BLENDE_H - FLAT_DECK_AB - spHoehe / 2;
-    verteilen(tds ? 2 : spAnzahl, B, spBreite / 2).forEach(function (x) {
+    /* Aussen 135 mm Luft, nicht buendig: siehe FLAT_SPARREN_RAND. */
+    var spRand = tds ? spBreite / 2 : FLAT_SPARREN_RAND + spBreite / 2;
+    verteilen(tds ? 2 : spAnzahl, B, spRand).forEach(function (x) {
       var tr = new THREE.Mesh(new THREE.BoxGeometry(spBreite, spHoehe, traegerL), mAlu);
       tr.position.set(x, spY, T / 2);
       tr.rotation.x = NEIGUNG;

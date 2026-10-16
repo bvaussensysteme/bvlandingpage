@@ -2580,6 +2580,15 @@ pruefe('Glasleisten laufen so weit wie die Scheibe',
                   (stq[2] * 10).toFixed(0) + ' mm, einmal im Code'
                 : 'STATIKTRAEGER fehlt');
 
+  /* Randabstand aus der Montageanleitung, Schritt 3.2. */
+  var rand = Number((k3d.match(/var FLAT_SPARREN_RAND = ([\d.]+);/) || [])[1]);
+  pruefe('Äußerste Sparren halten 135 mm Abstand zur Kante',
+         gegen ? rand !== 13.5 : rand === 13.5,
+         (rand * 10) + ' mm licht (Anleitung: 135 mm)');
+  pruefe('Die Sparrenachse liegt eine halbe Profilbreite weiter innen',
+         new RegExp(q || 'FLAT_SPARREN_RAND \\+ spBreite / 2').test(k3d),
+         'licht gemessen, nicht Achse');
+
   /* Die Oberkante muss am Blech liegen, nicht darunter schweben. */
   var bl = Number((k3d.match(/var FLAT_BLENDE_H = ([\d.]+);/) || [])[1]);
   var ab = Number((k3d.match(/var FLAT_DECK_AB = ([\d.]+);/) || [])[1]);
