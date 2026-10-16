@@ -1627,9 +1627,31 @@
     teilung:   21.0,   // 210 mm = Nutzbreite 1050 / 5 Sicken, ABGELEITET
     untergurt: 11.5,   // GESCHÄTZT, Tiefsicke – sie liegt auf dem Sparren
     obergurt:  4.5,    // GESCHÄTZT, Hochsicke oben
-    dicke:     0.09,   // 0,75 mm Blech, zeichnerisch etwas dicker
+    dicke:     0.3,    // 0,75 mm echt – gezeichnet 3 mm, Begründung unten
     vlies:     0.3     // Antikondensvlies 700 g/m², ca. 3 mm aufgebaut
   };
+
+  /* Warum das Blech DICKER gezeichnet wird als es ist (0,75 mm echt, 3 mm
+     im Modell): Bei einer Szene von über 14 m Breite kann der Tiefenpuffer
+     der Grafikkarte zwei Flächen, die weniger als etwa einen Millimeter
+     auseinanderliegen, nicht mehr sicher trennen. Unter dem Blech liegt
+     das grauweiße Vlies – und genau das blitzte durch das dunkle Blech:
+     „das weiße vom von der unterseite des trapezblechs scheint im 3d konf
+     durch" (Betreiber, 16.10.2026). Drei Millimeter sieht man am fertigen
+     Dach nicht, der Fehler verschwindet damit aber vollständig.
+
+     TRAPEZ_LUFT ist derselbe Gedanke als Abstand: ein Millimeter Luft
+     zwischen Blechunterseite und Vlies, damit nicht zwei Flächen genau
+     aufeinanderliegen. */
+  var TRAPEZ_LUFT = 0.1;
+
+  /* Wie hoch der ganze Aufbau unter dem Blech ist: Vlies plus Luft. Er
+     liegt auf der Sparrenoberkante, das Blech sitzt also um diesen Betrag
+     höher. Vorher lag die Blechunterseite genau auf der Sparrenoberkante
+     und das Vlies steckte im Sparren. */
+  function trapezblechUnterbau() {
+    return TRAPEZ_T35M.dicke + TRAPEZ_LUFT + TRAPEZ_T35M.vlies;
+  }
 
   /* Die Linie der Blech-OBERSEITE über die Tiefe, als Punktfolge
      [tiefe, höhe]. Die Null liegt auf der Tiefsicke, also dort, wo das
@@ -3183,16 +3205,16 @@
       var geoBl = trapezblechSchale(B, T, TRAPEZ_T35M.dicke, 0);
       geoBl.translate(0, 0, -T / 2);
       var blechD = new THREE.Mesh(geoBl, mFuell);
-      blechD.position.set(0, yDach, T / 2);
+      blechD.position.set(0, yDach + trapezblechUnterbau(), T / 2);
       blechD.rotation.x = neig;
       blechD.castShadow = true; blechD.receiveShadow = true;
       bau.add(blechD);
 
-      var geoVl = trapezblechSchale(B, T, TRAPEZ_T35M.vlies,
-                                    TRAPEZ_T35M.dicke + 0.02);
-      geoVl.translate(0, 0, -T / 2);
+      var geoVl = trapezblechSchale(B - 1, T - 1, TRAPEZ_T35M.vlies,
+                                    TRAPEZ_T35M.dicke + TRAPEZ_LUFT);
+      geoVl.translate(0, 0, -(T - 1) / 2);
       var vliesD = new THREE.Mesh(geoVl, antikondensvliesMaterial());
-      vliesD.position.set(0, yDach, T / 2);
+      vliesD.position.set(0, yDach + trapezblechUnterbau(), T / 2);
       vliesD.rotation.x = neig;
       vliesD.receiveShadow = true;
       bau.add(vliesD);
@@ -5740,11 +5762,24 @@
          die Sparren), die Rippen selbst liegen in x. */
       var yDeck = oben - FLAT_DECK_AB;
       var mTrapez = trapezblechMaterial();
-      var blechB = B - 2;
+
+      /* WIE WEIT das Blech reicht: bis an die Innenwand der Rinne, nicht
+         bis an die Aussenkante der Anlage. Vorher lief es bis 10 mm vor
+         die Kante durch – damit steckte es in der nur 38,9 mm dicken
+         Blende, und an den Rändern schaute es heraus: „es ragt etwas an
+         den seiten raus das blech" (Betreiber, 16.10.2026).
+
+         Es ist dasselbe Mass, mit dem schon die Sparren gerechnet werden:
+         Tiefe minus zwei Mal (Blende + Rinne). Eine Zahl, zwei Bauteile –
+         so können sie nicht auseinanderlaufen. */
+      var blechRand = bT + rT;
+      var blechB = Math.max(10, B - 2 * blechRand);
+      var blechT = Math.max(10, T - 2 * blechRand);
+      var yBlech = yDeck + trapezblechUnterbau();
 
       var blech1 = new THREE.Mesh(
-        trapezblechSchale(blechB, T, TRAPEZ_T35M.dicke, 0), mTrapez);
-      blech1.position.set(0, yDeck, 0);
+        trapezblechSchale(blechB, blechT, TRAPEZ_T35M.dicke, 0), mTrapez);
+      blech1.position.set(0, yBlech, blechRand);
       blech1.castShadow = true; blech1.receiveShadow = true;
       bau.add(blech1);
 
@@ -5753,14 +5788,14 @@
          Carport hat – ist das Vlies die sichtbare Flaeche, nicht das
          Blech. Deshalb gehoert es ins Modell und nicht in eine Fussnote. */
       var vlies1 = new THREE.Mesh(
-        trapezblechSchale(blechB, T, TRAPEZ_T35M.vlies,
-                          TRAPEZ_T35M.dicke + 0.02),
+        trapezblechSchale(blechB - 1, blechT - 1, TRAPEZ_T35M.vlies,
+                          TRAPEZ_T35M.dicke + TRAPEZ_LUFT),
         antikondensvliesMaterial());
-      vlies1.position.set(0, yDeck, 0);
+      vlies1.position.set(0, yBlech, blechRand + 0.5);
       vlies1.receiveShadow = true;
       bau.add(vlies1);
 
-      var obenBlech = yDeck + TRAPEZ_T35M.hoehe;
+      var obenBlech = yBlech + TRAPEZ_T35M.hoehe;
 
       /* Solar und Dachbegrünung liegen AUF dem Trapezblech, sie ersetzen es
          nicht – deshalb bleibt das Blech darunter sichtbar. */
