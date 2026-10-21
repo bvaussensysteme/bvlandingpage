@@ -21,10 +21,23 @@ AUSNAHMEN="$(pwd)/scripts/preise-ausnahmen.txt"
 # Geldangaben in ausgelieferten Dateien suchen.
 # node_modules und js/vendor sind Fremdcode: three.js enthält z. B. eine
 # Währungstabelle und ist kein Seiteninhalt.
+#
+# .js ist seit dem 21.10.2026 dabei. Vorher lief die Prüfung nur über .html
+# und .txt – ein Preis, der in einer Skriptdatei landet, wäre also still
+# durchgegangen. Genau dort würde er aber stehen: Der 3D-Konfigurator baut
+# seine Anzeige vollständig in JavaScript auf. Anlass war die Ansage des
+# Betreibers: „wenn auch nur ein preis im 3D konfigurator angezeigt wird ich
+# raste aus" (21.10.2026).
+#
+# Absichtlich NICHT entschärft: Ein einzelnes €-Zeichen ohne Zahl daneben
+# zählt auch in .js als Fund. Im Code steht ein Preis typischerweise als
+# Verkettung („preis + ' €'“) – da steht keine Ziffer neben dem Zeichen.
+# Würde man eine Ziffer verlangen, ginge genau der häufigste Fall durch.
 sammeln() {
   grep -rnoE '.{0,40}(€|EUR [0-9]|[0-9][.,][0-9]{3} ?(Euro|EUR)).{0,40}' \
-    --include=*.html --include=*.txt \
+    --include=*.html --include=*.txt --include=*.js \
     --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git \
+    --exclude-dir=export \
     "$1" 2>/dev/null \
     | grep -v 'priceCurrency' \
     | grep -v '"price": *"0"' \
@@ -52,8 +65,15 @@ if [ "${1:-}" = "--gegenprobe" ]; then
   printf '<p>Terrassendach ab 4.900 EUR inklusive Montage.</p>\n' > "$tmp/probe.html"
   # Zusätzlich eine freigegebene Fremdkostenzeile: sie darf NICHT anschlagen
   printf '<p>Bußgeldern (bis zu 500.000 €) drohen bei Bauen ohne Genehmigung.</p>\n' > "$tmp/erlaubt.html"
+  # Derselbe Fall in einer Skriptdatei - bis zum 21.10.2026 waere er
+  # durchgegangen, weil nur .html und .txt durchsucht wurden.
+  printf 'var zeile = "Gesamtpreis: " + summe + " €";\n' > "$tmp/probe.js"
   ergebnis=$(unerlaubte "$tmp")
   rm -rf "$tmp"
+  if ! echo "$ergebnis" | grep -q 'probe.js'; then
+    echo "  FEHLGESCHLAGEN - der Preis in der .js-Datei wurde NICHT gemeldet"
+    exit 1
+  fi
   if [ -z "$ergebnis" ]; then
     echo "  FEHLGESCHLAGEN – der eingebaute Preis wurde NICHT gemeldet"
     exit 1

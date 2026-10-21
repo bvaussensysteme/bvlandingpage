@@ -7967,3 +7967,42 @@ kaputt und verlangt, dass jede Prüfung anschlägt. Beides läuft.
 **Was gegengelesen werden soll.** Das Paket einmal aus einem Webserver-Ordner
 öffnen (nicht per Doppelklick – `file://` lädt die Texturen nicht) und prüfen,
 ob das 3D-Modell erscheint und die Schritte durchlaufen.
+
+---
+
+## 21.10.2026 – Preisprüfung gilt jetzt auch für JavaScript
+
+**Anlass.** „wenn auch nur ein preis im 3D konfigurator angezeigt wird ich
+raste aus" (Betreiber), danach die Freigabe, die Lücke zu schließen.
+
+**Was falsch war.** `scripts/pruefe-keine-preise.sh` durchsuchte nur `.html`
+und `.txt`. Ein Preis in einer Skriptdatei wäre still durchgegangen – und
+genau dort stünde er: **Der 3D-Konfigurator baut seine gesamte Anzeige in
+JavaScript auf.** Die Prüfung, die Preise auf der Website verhindern soll,
+deckte ausgerechnet die Datei nicht ab, um die es geht.
+
+**Was jetzt gilt.** `--include=*.js` ist dabei. Ausgenommen bleiben
+`node_modules` und `js/vendor` (Fremdcode – three.js enthält eine
+Währungstabelle) sowie `export/` (Erzeugnis, keine Website).
+
+**Absichtlich nicht entschärft.** Ein einzelnes €-Zeichen ohne Zahl daneben
+zählt auch in `.js` als Fund. Im Code steht ein Preis typischerweise als
+Verkettung – `preis + ' €'` – da steht keine Ziffer neben dem Zeichen. Würde
+man eine Ziffer verlangen, ginge genau der häufigste Fall durch.
+
+**Eine Ausnahme war nötig.** `js/pdf-blatt.js` enthält eine Zeichentabelle:
+Das PDF-Modul rechnet Unicode nach WinAnsi um, und das Euro-Zeichen ist dort
+eine Zeichennummer (0x80), kein Betrag. Zwei Zeilen in
+`scripts/preise-ausnahmen.txt`, dort als das benannt, was sie sind – keine
+Fremdkosten, sondern eine Tabelle.
+
+**Die Gegenprobe hat zuerst mich erwischt.** Sie legt jetzt zusätzlich eine
+`.js`-Datei mit einem Preis an. Der erste Versuch schlug fehl, weil ich das
+Euro-Zeichen als `€` geschrieben hatte – `printf` macht daraus nicht
+zuverlässig ein Zeichen, und die Gegenprobe suchte ins Leere. Mit einem
+echten € meldet sie beide Funde und lässt die freigegebene Fremdkostenzeile
+durch. Das ist genau der Zweck einer Gegenprobe: Sie hat einen Fehler in der
+Prüfung gefunden, bevor er als „bestanden" durchgegangen wäre.
+
+**Belegt.** Vor der Änderung fand die Prüfung die Preiszeile in der
+`.js`-Datei **nicht** – beobachtet, nicht vermutet. Danach findet sie sie.
