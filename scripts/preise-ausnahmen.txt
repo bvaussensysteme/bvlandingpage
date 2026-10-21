@@ -2,5 +2,11 @@
 # Preise für unsere Leistungen. Jede Zeile wird als Teilstring verglichen.
 # Neue Zeile nur eintragen, wenn es sich nachweislich nicht um einen eigenen
 # Preis handelt - sonst ist die Prüfung wertlos.
+#
+# Die beiden pdf-blatt-Zeilen sind KEINE Fremdkosten, sondern eine
+# Zeichentabelle: Das PDF-Modul rechnet Unicode nach WinAnsi um, und das
+# Euro-Zeichen ist dort eine Zeichennummer (0x80), kein Betrag.
+nur WinAnsi – Umlaute, ß, °, × und € gehen,
+'€': 0x80,
 mindestens jedoch 100–200 €
 Bußgeldern (bis zu 500.000 €)
