@@ -18,3 +18,7 @@ js/dachmatrix-daten.json
 
 # Bilder aus scripts/pruefe-konfigurator-oberflaeche.mjs
 pruefbilder/
+
+# Erzeugnis von scripts/export-konfigurator.sh - nie eingecheckt
+export/
+konfigurator-crm-export.zip

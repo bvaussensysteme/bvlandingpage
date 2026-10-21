@@ -142,6 +142,18 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 
 ---
 
+## 2b. Konfigurator ins CRM übernehmen
+
+Der 3D-Konfigurator lässt sich als eigenständiges Paket für die interne
+Nutzung erzeugen: `scripts/export-konfigurator.sh`. Die vollständige
+Übergabe – Dateiliste, Einbindung, Serverabhängigkeit, was bewusst nicht
+mitgeht – steht in `docs/konfigurator-export.md`.
+
+**Offen beim Betreiber:** Im Paket steckt der Anfrage-Assistent, der echte
+E-Mails an `info@bv-aussensysteme.de` verschickt. Intern sollte er raus oder
+stillgelegt werden; das ist bewusst nicht vorweggenommen (siehe Abschnitt 6
+des Export-Dokuments).
+
 ## 3. Prüfskripte
 
 Jederzeit ausführbar. Jedes Skript kennt `--gegenprobe`: es baut einen

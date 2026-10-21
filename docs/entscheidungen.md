@@ -7922,3 +7922,48 @@ gegen den Auftrag spricht, gehört auf den Tisch, nicht in den Commit danach.
 tiefe Rinne liegt vorne und hinten", „Der Rahmen ist vorne und hinten breiter
 als links und rechts"), damit die Frage nicht ein drittes Mal aufgemacht wird.
 361 Prüfungen, alle bestanden, Gegenprobe alle 361.
+
+---
+
+## 21.10.2026 – Konfigurator als Paket für das CRM
+
+**Anlass.** „kannst du mir für den 3D konfigurator einen export geben? das ich
+diesen in meinem CRM system einfügen kann für interne nutzung" (Betreiber).
+
+**Was gebaut wurde.** `scripts/export-konfigurator.sh` erzeugt ein
+eigenständiges Paket (31 Dateien, 2,5 MB) und `docs/konfigurator-export.md`
+ist die Übergabe dazu – geschrieben für jemanden, der dieses Projekt nicht
+kennt.
+
+**Warum ein Skript und keine Kopie im Repository.** Eine zweite Fassung des
+Konfigurators im Repository würde still auseinanderlaufen – genau die „zwei
+Wahrheiten", die laut CLAUDE.md nicht entstehen sollen. Das Paket ist ein
+Erzeugnis und steht in `.gitignore`.
+
+**Was bewusst nicht mitgeht.** `js/metricool.js` (lädt einen externen
+Social-Analytics-Tracker – hat in einem internen Werkzeug nichts zu suchen)
+und `js/cookie.js` (Einwilligungsbanner, intern gegenstandslos). `daten/` geht
+ohnehin nie mit: Datenbankherstellerrecht an der VD-Matrix.
+
+**Was ausdrücklich NICHT vorweggenommen wurde – und warum es wichtig ist.**
+Der Anfrage-Assistent (`js/anfrage-wizard.js`) verschickt über Web3Forms
+**echte E-Mails** an `info@bv-aussensysteme.de`. Im CRM heißt das: Wer intern
+durchklickt und auf „Anfrage senden" drückt, löst eine echte
+Kundenanfrage-Mail aus. Das ist im Export-Dokument als Entscheidung markiert,
+mit zwei konkreten Wegen (Skript-Zeilen entfernen oder `WEB3FORMS_KEY`
+leeren), aber nicht umgesetzt – was gebaut wird, entscheidet der Betreiber.
+
+**Absicherung.** Das Skript prüft das fertige Paket in sechs Punkten:
+Website-Skripte draußen, keine absoluten Pfade, alle Skripte verlinkt, **jede
+von `index.html` angeforderte Datei liegt auch im Paket**, keine Beträge
+enthalten. Die vierte davon ist die wichtigste: Sie findet einen vergessenen
+Mitnahme-Eintrag, ohne dass dafür ein Browser aufgemacht werden muss – beim
+ersten Lauf hat genau sie gegriffen (`i18n.js` stand in der Mitnahmeliste,
+wird von `konfigurator.html` aber gar nicht geladen).
+
+`--gegenprobe` baut das Paket, macht es danach in fünf Punkten absichtlich
+kaputt und verlangt, dass jede Prüfung anschlägt. Beides läuft.
+
+**Was gegengelesen werden soll.** Das Paket einmal aus einem Webserver-Ordner
+öffnen (nicht per Doppelklick – `file://` lädt die Texturen nicht) und prüfen,
+ob das 3D-Modell erscheint und die Schritte durchlaufen.
