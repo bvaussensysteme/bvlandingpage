@@ -44,8 +44,6 @@ Konfigurators würde still auseinanderlaufen. Änderungen gehören immer in
 | `js/masstabelle.js` | verdichtete Maßtabelle: welche Breiten/Tiefen lieferbar sind, Sparren- und Stützfußzahlen. **Enthält keine Preise** |
 | `js/markisenstoffe.js` | Stoffkollektionen für die Beschattung |
 | `js/pdf-blatt.js` | PDF-Erzeugung der Konfiguration |
-| `js/anfrage-wizard.js` | der Anfrage-Assistent – **siehe Abschnitt 6, der versendet E-Mails** |
-| `js/konfigurator-widget.js` | der schwebende Knopf, der den Assistenten öffnet |
 | `js/main.js`, `js/accessibility.js` | Kopf-/Fußzeile und Bedienhilfen der Seite |
 | `css/style.css` | das gesamte Stylesheet der Website |
 | `images/textur/*.webp` | Boden-, Wand- und Holztexturen für das 3D-Modell |
@@ -86,24 +84,42 @@ zum heutigen Live-Stand.
 Will man später die Serverzahlen auch im CRM, muss `/api/bauteile` dort
 erreichbar sein (Proxy auf die Website oder eigener Worker). Sonst nichts tun.
 
-## 6. Der Anfrage-Assistent – bitte entscheiden
+## 6. Kein Anfrage-Versand – das ist der Unterschied zur Website
 
-`js/anfrage-wizard.js` verschickt **echte E-Mails** an
-`info@bv-aussensysteme.de`, über den Dienst Web3Forms mit einem öffentlichen
-Access Key, der in der Datei steht (Kopf der Datei, Konstante `WEB3FORMS_KEY`).
+> „Ich will im crm eine eigenen 3d konfigurator 1:1 wie den auf der webseite
+> nur ohne formular abschicken" (Betreiber, 21.10.2026).
 
-Im CRM heißt das: Wer intern durch den Konfigurator klickt und am Ende auf
-„Anfrage senden" drückt, löst eine **echte Kundenanfrage-Mail** aus.
+Das Paket ist der Konfigurator der Website, **ohne jeden Weg, eine Anfrage
+abzuschicken**. Entfernt sind:
 
-**Empfehlung für die interne Nutzung:** die beiden Skript-Zeilen für
-`js/anfrage-wizard.js` und `js/konfigurator-widget.js` aus `index.html`
-entfernen und im Browser prüfen, ob der Konfigurator sauber durchläuft.
-Alternativ `WEB3FORMS_KEY` leeren – dann läuft der Assistent weiter, aber der
-Versand schlägt fehl.
+- `js/anfrage-wizard.js` – der Assistent, der die E-Mail verschickt hat
+- `js/konfigurator-widget.js` – der schwebende Knopf, der ihn öffnete
+- der Knopf **„Konfiguration anfragen →"** am Ende des Bedienfelds.
+  Er wird aus `index.html` herausgeschnitten, nicht nur stillgelegt –
+  sonst stünde ein toter Knopf da.
 
-Das ist bewusst **nicht** vorweggenommen: Was gebaut wird, entscheidet der
-Betreiber. Der zweite Weg, `/api/kontakt`, existiert im CRM ohnehin nicht und
-läuft still ins Leere.
+**Ein Rest brauchte eine eigene Behandlung.** `js/main.js` bleibt im Paket
+(Navigation, Mobilmenü, Lightbox) und trägt den Formular-Versand der Website
+mit sich. Laufen kann der dort nicht: Er steckt vollständig in
+`if (formSubmit) { … }`, und die Seite hat kein Formular. In einem internen
+Werkzeug soll die Versandadresse aber gar nicht erst stehen, deshalb ersetzt
+das Export-Skript sie durch `about:blank#kein-versand-im-internen-paket`.
+Eine Ersetzung, kein Umbau – die Datei bleibt Zeile für Zeile dieselbe
+(321 Zeilen, hier wie im Repository).
+
+**Geprüft wird das bei jedem Export**, nicht nur behauptet:
+
+- kein Knopf mit `id="k3dAnfrage"`
+- kein `<form>`, kein `id="formSubmit"`, kein `name="email"`
+- kein Versandziel im gesamten Paket – weder Web3Forms noch Formspree
+
+**Was an der Website unverändert bleibt:** alles. Der Anfrage-Assistent läuft
+dort weiter wie bisher. Entfernt wird er nur beim Erzeugen des Pakets.
+
+**Was bleibt:** Kopf- und Fußzeile verlinken weiter auf
+`bv-aussensysteme.de` – das ist Absicht, sonst liefen die Links ins Leere.
+Wer im CRM darauf klickt, landet auf der öffentlichen Website und könnte
+*dort* ein Formular ausfüllen. Im Paket selbst gibt es keines.
 
 ## 7. Was absichtlich nicht mitgeht
 

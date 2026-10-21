@@ -8006,3 +8006,51 @@ Prüfung gefunden, bevor er als „bestanden" durchgegangen wäre.
 
 **Belegt.** Vor der Änderung fand die Prüfung die Preiszeile in der
 `.js`-Datei **nicht** – beobachtet, nicht vermutet. Danach findet sie sie.
+
+---
+
+## 21.10.2026 – Internes Paket ohne jeden Anfrage-Versand
+
+**Anlass.** „Ich will im crm eine eigenen 3d konfigurator 1:1 wie den auf der
+webseite nur ohne formular abschicken" (Betreiber). Damit ist die Entscheidung
+gefallen, die im Export-Dokument als offen markiert war.
+
+**Was entfernt wird – beim Erzeugen des Pakets, nicht an der Website.**
+
+- `js/anfrage-wizard.js` (verschickte die E-Mail) und
+  `js/konfigurator-widget.js` (der schwebende Knopf dazu)
+- der Knopf **„Konfiguration anfragen →"** am Ende des Bedienfelds. Er wird
+  aus der `index.html` **herausgeschnitten**, nicht nur stillgelegt – ein
+  toter Knopf wäre schlimmer als keiner.
+
+**Der Rest, der Arbeit machte.** `js/main.js` bleibt drin (Navigation,
+Mobilmenü, Lightbox) und trägt den Formular-Versand der Website mit sich.
+Nachgesehen: Er steckt vollständig in `if (formSubmit) { … }`, und
+`konfigurator.html` hat **gar kein Formular** – der Code kann dort nicht
+laufen. Trotzdem soll die Versandadresse in einem internen Werkzeug nicht
+stehen, deshalb ersetzt das Export-Skript sie durch
+`about:blank#kein-versand-im-internen-paket`. Eine Ersetzung, kein Umbau:
+Die Datei hat vorher wie nachher 321 Zeilen.
+
+**Warum nicht einfach main.js weglassen:** Dann bricht das Mobilmenü. Die
+Abwägung war, ob man eine fremde Datei anfasst oder eine Funktion verliert –
+eine ersetzte URL in totem Code ist der kleinere Eingriff, und sie steht im
+Export-Dokument benannt, damit die Abweichung sichtbar bleibt.
+
+**Drei neue Prüfungen am fertigen Paket,** weil „ohne Formular" sonst nur
+eine Behauptung wäre:
+
+- kein Knopf mit `id="k3dAnfrage"`
+- kein `<form>`, kein `id="formSubmit"`, kein `name="email"`
+- kein Versandziel im ganzen Paket – weder Web3Forms noch Formspree
+
+Die Gegenprobe baut alle drei wieder ein und verlangt, dass jede anschlägt.
+**In der Gegenprobe meldet jetzt keine einzige der elf Prüfungen mehr „ok".**
+
+**Nachgemessen am Ergebnis.** Im Paket liegen noch sieben Skripte; `grep` über
+den ganzen Ordner findet kein `web3forms`, kein `formspree.io/f/…`, kein
+`api/kontakt` und kein `<form`.
+
+**An der Website wurde nichts geändert** – nur `scripts/export-konfigurator.sh`
+und `docs/konfigurator-export.md`. Der Anfrage-Assistent läuft auf
+bv-aussensysteme.de unverändert weiter.
