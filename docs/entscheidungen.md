@@ -8184,3 +8184,58 @@ zehn Formen über 200 Stellen ab** und verlangen: nirgends Tiefe null (dort
 stünde ein Sparren ohne Länge), nirgends ein Überstand über das umschließende
 Rechteck (sonst stimmt die Stückzahl nicht). Dazu gezielt: Form 3 links tief,
 Form 4 gespiegelt, Trapez läuft gleichmäßig durch statt zu springen.
+
+---
+
+## 23.10.2026 – Sonderformen: Rinne, Pfosten und Randblende folgen der Form
+
+**Anlass.** „trz bleibt z.b die rinne rechteckig" (Betreiber, mit Bild).
+Berechtigt: Sparren, Glas und Leisten folgten der Form schon, die Rinne lief
+weiter über die ganze Breite an **einer** Tiefe — und stand damit vor den
+verkürzten Abschnitten in der Luft. Dasselbe galt für die vorderen Pfosten
+und die seitliche Randblende.
+
+**Die Lehre daraus.** Ich hatte „die Form ist gebaut" gemeldet, nachdem die
+**tragenden** Teile folgten. Ein Dach besteht aber aus mehr: Rinne, Pfosten,
+Blenden. Wer nur prüft, was er gerade angefasst hat, übersieht genau das —
+das Bild des Betreibers hat es in zwei Sekunden gezeigt.
+
+**Was jetzt gilt.** Eine Funktion zerlegt die Vorderkante in Abschnitte
+(`sonderformVorderkanten`):
+
+- **Formen 1–6:** je Stufe ein gerades Rinnenstück, dazwischen ein kurzes
+  Stück quer, das die Lücke schließt
+- **Formen 7 und 8:** die Rinne ist laut Katalog **gerade** (schräg ist dort
+  das Wandprofil) — ein Stück
+- **Formen 9 und 10:** die Rinne läuft **schräg** — ein gedrehtes Stück,
+  entsprechend länger, sonst klaffen die Ecken
+
+**Bei normaler Form liefert die Funktion genau einen Abschnitt über die volle
+Breite** — die Schleife baut dann buchstäblich dasselbe wie der frühere
+einzelne Aufruf. Eine Prüfung hält das fest.
+
+**`rinneBauen` hat zwei Angaben dazubekommen** (Lage in der Breite, Drehung),
+und zwar rückwärtskompatibel: Ohne sie ergibt die neue Verschiebung Zeile für
+Zeile dieselbe wie die alte. Das steht als Kommentar an der Stelle, damit es
+niemand für einen Umbau hält.
+
+**Pfosten und Randblende** rechnen jetzt mit der Tiefe **an ihrer Stelle**
+statt mit der globalen. Die Randblende misst dicht an der Außenkante, nicht
+genau darauf: Läge eine Stufe exakt am Rand, wäre sonst nicht entschieden,
+welche der beiden Tiefen gilt.
+
+**Was geschätzt bleibt.** Das kurze Stück quer an jeder Stufe ist ein glatter
+Kasten im Rinnenquerschnitt. Welches Profil VD dort einsetzt, sagt das
+Katalogblatt nicht.
+
+**Was gegengelesen werden soll.** TDS → Sonderform → Form 3 und Form 5: Folgt
+die **Rinne** jetzt der Treppe? Stehen die Pfosten unter ihrem Abschnitt?
+Endet die seitliche Blende am verkürzten Rand statt darüber hinaus? Und bei
+Form 9 oder 10: läuft die Rinne wirklich schräg?
+
+**Absicherung.** `scripts/pruefe-sonderform.js`, jetzt **30 Prüfungen**, alle
+bestanden; in der Gegenprobe schlagen alle 30 an. Neu darunter: Jede Form
+bekommt so viele Rinnenabschnitte, wie sie Stufen hat (1–6 gestuft, 7–10
+durchgehend); die Abschnitte decken die Breite **lückenlos** ab — eine Lücke
+wäre ein Stück Dachkante ohne Rinne; und bei 7/8 ist die Rinne gerade, bei
+9/10 schräg, wie auf dem Katalogblatt.

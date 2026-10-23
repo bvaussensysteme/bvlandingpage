@@ -2009,7 +2009,7 @@
 
   /* Rinne über die volle Breite. laenge = Breite der Anlage in x,
      zVorne = Lage der Vorderkante in der Tiefe. */
-  function rinneBauen(laenge, zVorne, yUnten, material) {
+  function rinneBauen(laenge, zVorne, yUnten, material, xMitte, drehY) {
     var g = new THREE.ExtrudeGeometry(rinneQuerschnitt(true),
       { depth: laenge, bevelEnabled: false, curveSegments: 6 });
     /* Das Profil entsteht in der XY-Ebene und wird in z gezogen. Gedreht
@@ -2021,7 +2021,17 @@
        Pfosten. Vom Betreiber bemerkt. Mit −90° läuft die Querschnitts-
        breite in +z, die Vorderkante liegt vorne. */
     g.rotateY(-Math.PI / 2);
-    g.translate(laenge / 2, yUnten, zVorne - RINNE.breite);
+    /* xMitte und drehY kamen am 23.10.2026 dazu, fuer die Sonderformen:
+       Die Rinne laeuft dort nicht mehr ueber die ganze Breite an einer
+       Tiefe, sondern abschnittsweise – und bei den Trapezen schraeg.
+
+       Ohne die beiden Angaben kommt Zeile fuer Zeile dasselbe heraus wie
+       vorher: translate(laenge/2, y, -breite) gefolgt von
+       translate(0, 0, zVorne) ist dieselbe Verschiebung wie der alte
+       translate(laenge/2, y, zVorne - breite). */
+    g.translate(laenge / 2, yUnten, -RINNE.breite);
+    if (drehY) g.rotateY(drehY);
+    g.translate(xMitte || 0, 0, zVorne);
     var m = new THREE.Mesh(g, material);
     m.castShadow = true; m.receiveShadow = true;
     bau.add(m);
@@ -6473,8 +6483,18 @@
     /* Die Achsen der VORDEREN Pfosten werden unten noch gebraucht: Die
        Schiebeanlage läuft je Pfostenfach, nicht über die ganze Breite. */
     var xPfVorne = verteilen(pfVorne, B, PF / 2);
+    /* Die vorderen Pfosten stehen unter der Rinne – bei einer
+       Sonderform also nicht alle auf derselben Tiefe, sondern jeder
+       unter SEINEM Abschnitt. Gerechnet wird mit demselben Abstand zur
+       Vorderkante wie oben bei zPf, nur eben mit der Tiefe an dieser
+       Stelle. Bei normaler Form kommt wieder genau zPf heraus. */
+    function zPfBei(x) {
+      if (!sonderformAktiv()) return zPf;
+      var zv = sonderformProfil((x + B / 2) * 10).vorne / 10;
+      return zv - (tdsRinne ? PFOSTENACHSE : PFOSTENACHSE_VORNE) - vorspr;
+    }
     xPfVorne.forEach(function (x) {
-      balken(PF, hPfosten, PF, x, hPfosten / 2, zPf, mAlu);
+      balken(PF, hPfosten, PF, x, hPfosten / 2, zPfBei(x), mAlu);
     });
     if (frei) {
       verteilen(pfHinten, B, PF / 2).forEach(function (x) {
@@ -6537,8 +6557,41 @@
       balken(B, riH, riT - RANDBLENDE.dicke, 0, hRinne + riH / 2,
              T - RANDBLENDE.dicke - (riT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
-      rinneBauen(B, T, hRinne, mAlu);
-      rinnenblenden(B, T, hRinne, mAlu);
+      /* ---------- Die Rinne folgt der Vorderkante ----------
+         „trz bleibt z.b die rinne rechteckig" (Betreiber, 23.10.2026).
+         Sparren und Glas waren geformt, die Rinne nicht – sie lief
+         weiter ueber die ganze Breite an EINER Tiefe und stand damit
+         vor den verkuerzten Abschnitten in der Luft.
+
+         Bei normaler Form liefert sonderformVorderkanten() genau einen
+         Abschnitt ueber die volle Breite; dann baut die Schleife
+         buchstaeblich dasselbe wie der frueher einzelne Aufruf. */
+      var kanten = sonderformVorderkanten(B, T);
+      kanten.forEach(function (k) {
+        var lg = Math.max(1, k.x1 - k.x0);
+        var xm = (k.x0 + k.x1) / 2;
+        var zm = (k.z0 + k.z1) / 2;
+        /* Schraege Rinne (Formen 9 und 10): Das Stueck wird um den
+           Winkel der Kante gedreht und entsprechend laenger, sonst
+           bleiben an den Ecken Luecken. */
+        var dz = k.z1 - k.z0;
+        var dreh = Math.abs(dz) > 0.01 ? Math.atan2(dz, lg) : 0;
+        var lang = dreh ? Math.sqrt(lg * lg + dz * dz) : lg;
+        rinneBauen(lang, zm, hRinne, mAlu, xm, -dreh);
+        rinnenblenden(lang, zm, hRinne, mAlu);
+      });
+
+      /* An jeder Stufe schliesst ein kurzes Stueck quer die Luecke
+         zwischen zwei Rinnenabschnitten. GESCHAETZT als glatter Kasten
+         im Rinnenquerschnitt – welches Profil VD dort einsetzt, sagt
+         das Katalogblatt nicht. */
+      for (var ki = 0; ki < kanten.length - 1; ki++) {
+        var za = kanten[ki].z1, zb = kanten[ki + 1].z0;
+        if (Math.abs(zb - za) < 0.1) continue;
+        balken(RINNE.breite, riH, Math.abs(zb - za) + RINNE.breite,
+               kanten[ki].x1 + (zb > za ? RINNE.breite / 2 : -RINNE.breite / 2),
+               hRinne + riH / 2, (za + zb) / 2, mAlu);
+      }
     }
     if (traegerH) {
       /* Volle Dachbreite, immer über den Pfosten. Ohne Vorsprung heißt
@@ -6729,7 +6782,26 @@
     var blendeL = sky ? T : laenge;
     var blendeY = sky ? hRinne + riH / 2 : ukMitte + blendeH / 2;
     var blendeZ = sky ? T / 2 : zMitte;
+    /* Die Randblende laeuft am aeussersten Sparren entlang. Ist die
+       Anlage dort kuerzer (Sonderform), muss sie es auch sein – sonst
+       steht sie ueber die Dachkante hinaus. Gemessen wird dicht an der
+       Aussenkante, nicht genau darauf: Bei einer Stufe genau am Rand
+       waere sonst nicht entschieden, welche der beiden Tiefen gilt. */
+    function blendeMassBei(vz) {
+      if (!sonderformAktiv()) {
+        return { laenge: blendeL, z: blendeZ, y: blendeY };
+      }
+      var xRand = vz * (B / 2 - 1);
+      var ab = abschnittBei(xRand);
+      return {
+        laenge: sky ? Math.max(10, ab.vorne) : ab.laenge,
+        z: ab.zMitte,
+        y: sky ? blendeY : ukMitteBei(ab.zMitte) + blendeH / 2
+      };
+    }
     [-1, 1].forEach(function (vz) {
+      var bm = blendeMassBei(vz);
+      blendeL = bm.laenge; blendeZ = bm.z; blendeY = bm.y;
       if (sky) {
         /* Seitlich dieselbe gerillte Blende, Außenseite nach außen. */
         blendeProfil(blendeL, blendeH, RANDBLENDE.dicke,
@@ -9282,6 +9354,55 @@
   function sonderformTiefeBei(x) {
     var pr = sonderformProfil(x);
     return Math.max(0, pr.vorne - pr.hinten);
+  }
+
+  /* ---------- Die Vorderkante als Abschnitte ----------
+     „trz bleibt z.b die rinne rechteckig" (Betreiber, 23.10.2026, mit
+     Bild): Sparren und Glas folgten der Form, die Rinne lief weiter
+     stur ueber die ganze Breite.
+
+     Hier wird die Vorderkante in Abschnitte zerlegt, aus denen die Rinne
+     dann Stueck fuer Stueck gebaut wird:
+
+       Formen 1–6   Stufen – je Abschnitt ein gerades Rinnenstueck,
+                     dazwischen ein kurzes Stueck quer zum Schliessen
+       Formen 7, 8   die Rinne ist laut Katalog GERADE, also ein Stueck
+       Formen 9, 10  die Rinne laeuft schraeg – ein gedrehtes Stueck
+
+     Gerechnet wird in Modellkoordinaten (cm, x von -B/2 bis +B/2). Fuer
+     die normale Form kommt genau ein Abschnitt ueber die volle Breite
+     heraus – der Bauweg bleibt damit derselbe wie bisher. */
+  function sonderformVorderkanten(Bcm, Tcm) {
+    if (!sonderformAktiv()) {
+      return [{ x0: -Bcm / 2, x1: Bcm / 2, z0: Tcm, z1: Tcm }];
+    }
+    var n = sonderformJetzt();
+    var ganz = sonderRechteck();
+    var bM = ganz.breite || 1;
+    function zCm(xM) { return sonderformProfil(xM).vorne / 10; }
+    function xCm(xM) { return xM / 10 - Bcm / 2; }
+
+    /* Trapeze: eine durchgehende Kante, gerade oder schraeg. */
+    if (n >= 7) {
+      return [{ x0: -Bcm / 2, x1: Bcm / 2, z0: zCm(0), z1: zCm(bM) }];
+    }
+
+    /* Stufenformen: die Kante aendert sich nur an wenigen Stellen.
+       Abgetastet wird fein; gleiche Tiefen werden zusammengefasst, damit
+       aus einer Stufe nicht zwanzig Rinnenstuecke werden. */
+    var ab = [], schritte = 400, i, zAlt = null, start = 0;
+    for (i = 0; i <= schritte; i++) {
+      var xM = bM * i / schritte;
+      var z = zCm(xM);
+      if (zAlt === null) { zAlt = z; start = 0; continue; }
+      if (Math.abs(z - zAlt) > 0.05 || i === schritte) {
+        ab.push({ x0: xCm(bM * start / schritte), x1: xCm(xM),
+                  z0: zAlt, z1: zAlt });
+        zAlt = z; start = i;
+      }
+    }
+    if (!ab.length) ab.push({ x0: -Bcm / 2, x1: Bcm / 2, z0: Tcm, z1: Tcm });
+    return ab;
   }
 
   /* ---------- Die Skizze zur Form ----------
