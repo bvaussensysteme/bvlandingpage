@@ -39,6 +39,21 @@ das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
 `felder`-Liste eintragen – sonst kommt der Wert dort nie an.
 `scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
 
+### Sonderform — vier Maße *(gebaut 23.10.2026)*
+
+Im Schritt „Maße" steht bei **Terrassendach TDS** und **Flachdach SkyView**
+die Wahl *Normal / Sonderform*. Sonderform fragt vier Maße ab — **Breite
+hinten, Breite vorne, Tiefe links, Tiefe rechts** — und baut daraus ein
+Viereck; über den Feldern steht eine Skizze mit den eingetragenen Zahlen.
+Die Vorderkante liegt mittig zur Hinterkante. Begründung, verworfene
+Zwischenlösung (zehn Katalogformen) und die Gegenlese-Punkte stehen in
+`docs/entscheidungen.md`, Eintrag 23.10.2026.
+
+Noch nicht beantwortet: ob VD für ein Dach mit vier verschiedenen Maßen
+einen Aufschlag nimmt. Im Katalogblatt stehen +30 % — **im Konfigurator
+steht nirgends ein Preis**, die Frage betrifft nur die Kalkulation im
+Betrieb.
+
 ### Offene Rückfragen an VD (aus dem Konfigurator)
 
 | Frage | Warum sie zählt |
@@ -172,17 +187,28 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
+| `scripts/pruefe-sonderform.js` | Sonderform: Führt die Geometrie wirklich aus und misst nach – Viereck aus vier Maßen, nirgends Tiefe null, nichts ragt über das umschließende Rechteck hinaus, Vorderkante mittig, fehlendes Maß wird gemeldet, keine Reste der alten Katalogformen |
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
 | `scripts/pruefe-hinweise.js` | Bleibt getrennt, was der Kunde sieht, und was nur in die Anfrage-Mail gehört? Prüft Hinweisbox, Kasten „Ihre Konfiguration", Assistenten-Anzeige und alle drei Versandwege – einmal aus dem Quelltext, einmal an wirklich erzeugten Hinweisen |
 | `scripts/pruefe-pdf.js` | Erzeugt die PDFs **beider** Stellen (Konfigurator und Baugenehmigungs-Check) und liest sie mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Bildgröße, Umlaute, und vor allem: Steht jede Angabe **vollständig** da, auch bei 34 langen Zeilen über zwei Seiten? Zweispaltige Seiten werden dafür spaltenweise ausgeschnitten – am Stück gelesen zerreißt pdftotext die umgebrochenen Zeilen |
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`) |
 
-Am 11.10.2026 liefen alle Skripte außer dem Browsertest durch; die
-Gegenprobe schlug überall vollständig an (`pruefe-fuehrung.js` 45/45,
-`pruefe-masstabelle.js` 182/182, `pruefe-markise.js` 141/141).
-**Der Browsertest wird nicht mehr gefahren** – der Betreiber testet selbst
-im Browser („mach keinen browser test ich teste selber im browse").
+**Exit-Code abfragen, nicht die letzte Zeile lesen.** Am 23.10.2026 fiel
+auf, dass `pruefe-konfigurator-oberflaeche.mjs` seit PR #281 (11.10.2026)
+mit einer Ausnahme abbrach, statt ein Ergebnis zu melden – zwölf Tage
+unbemerkt rot. Eine Prüfung, die mit einer Ausnahme endet, ist rot.
+
+Stand 23.10.2026: **alle Skripte laufen durch**, jedes mit vollständig
+anschlagender Gegenprobe (`pruefe-sonderform.js` 25/25,
+`pruefe-konfigurator-oberflaeche.mjs` 61 Prüfungen und alle drei
+eingebauten Fehler gefunden, `pruefe-masstabelle.js` 361,
+`pruefe-markise.js` 141, `pruefe-fuehrung.js` 45).
+
+Der Browsertest ist damit wieder brauchbar. Er ersetzt **nicht** das
+Nachsehen im Browser – das macht der Betreiber selbst („mach keinen browser
+test ich teste selber im browse"); er fängt nur ab, dass eine Bedieneinheit
+unbemerkt verschwindet.
 
 Die beiden Datenprüfungen überspringen sich selbst, wenn `daten/` fehlt –
 das ist der Normalfall in einem frischen Klon.
@@ -272,6 +298,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 23.10.2026 | Sonderform: vier freie Maße statt zehn Katalogformen; Browser-Prüfung nach zwölf Tagen wieder grün | **noch nicht veröffentlicht** |
 | 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |
 | 12.10.2026 | Anfrage-Text rechnet über `bauteileJetzt()` statt über die tote Schnittstelle | live |
 | 12.10.2026 | Dachneigung: Rechenweg der Montageanleitung belegt, Anzeige in ganzen Grad | live |

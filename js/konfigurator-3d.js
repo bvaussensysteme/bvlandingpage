@@ -49,13 +49,15 @@
   /* ---------- Zustand ---------- */
   var Z = {
     produkt: 'Terrassendach TDS',
-    /* Sonderform: siehe SONDERFORM weiter unten. 'Normal' ist der
-       Regelfall; alle Masse bleiben dann die gewohnten Breite/Tiefe. */
+    /* Sonderform: ein Viereck aus vier Massen. 'Normal' ist der
+       Regelfall; dann gelten die gewohnten Breite/Tiefe.
+       „wäre besser wenn ich Breite 1, Breite 2, Tiefe 1, Tiefe 2 hätte"
+       (Betreiber, 23.10.2026). */
     form: 'Normal',
-    sonderform: 3,
-    sfA: 5000, sfA1: 2500, sfA2: 2500,
-    sfB: 5000, sfB1: 2500, sfB2: 2500, sfB3: 1500,
-    sfC1: 3500, sfC2: 2500, sfC3: 1500,
+    sfBreite1: 5000,   // hinten, an der Wand
+    sfBreite2: 5000,   // vorne, an der Rinne
+    sfTiefe1: 3500,    // links
+    sfTiefe2: 3500,    // rechts
     cpTyp: 'Carport TDS',
     cpVariante: 'Freistehender Carport',
     cpDach: 'Trapezblech (Standard)',
@@ -8943,128 +8945,67 @@
      Masse entgegen und rechnet daraus das umschliessende Rechteck, mit
      dem alles Weitere (Masstabelle, Stueckzahl, 3D) unveraendert
      weiterlaeuft. Die Formen selbst werden in Schritt 2 und 3 gebaut. */
-  var SONDERFORM = {
-    1:  { f: 'A A1 A2 B C1 C2',       t: 'L-Form, Ausschnitt rechts vorne' },
-    2:  { f: 'A A1 A2 B C1 C2',       t: 'L-Form, Ausschnitt links vorne' },
-    3:  { f: 'A B B1 B2 C1 C2',       t: 'Zwei Felder \u2013 links tief, rechts flach', sky: 1 },
-    4:  { f: 'A B B1 B2 C1 C2',       t: 'Zwei Felder \u2013 links flach, rechts tief', sky: 2 },
-    5:  { f: 'A B B1 B2 B3 C1 C2 C3', t: 'Aussparung in der Mitte', sky: 3 },
-    6:  { f: 'A B B1 B2 B3 C1 C2 C3', t: 'T-Form \u2013 Mitte steht vor' },
-    7:  { f: 'A C1 C2',               t: 'Trapez \u2013 Wandprofil schr\u00e4g, rechts tiefer' },
-    8:  { f: 'A C1 C2',               t: 'Trapez \u2013 Wandprofil schr\u00e4g, links tiefer' },
-    9:  { f: 'A C1 C2',               t: 'Trapez \u2013 Rinne schr\u00e4g, links tiefer' },
-    10: { f: 'A C1 C2',               t: 'Trapez \u2013 Rinne schr\u00e4g, rechts tiefer' }
-  };
 
   /* Welches System kennt welche Formen. SkyView nur drei – „Bei Skyview
      geht nur das" (Betreiber, 23.10.2026, mit dem Katalogblatt
      „Sondergroessen SkyView"). */
   function sonderformErlaubt() {
-    if (Z.produkt === 'Terrassendach TDS') return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    if (Z.produkt === 'Flachdach SkyView') return [3, 4, 5];
-    return [];
+    return (Z.produkt === 'Terrassendach TDS' ||
+            Z.produkt === 'Flachdach SkyView') ? ['frei'] : [];
   }
   function sonderformMoeglich() { return sonderformErlaubt().length > 0; }
   function sonderformAktiv() {
     return sonderformMoeglich() && Z.form === 'Sonderform';
   }
-  /* Die Nummer, die auf dem Blatt des aktuellen Systems steht. */
-  function sonderformNummer(n) {
-    var d = SONDERFORM[n];
-    if (!d) return n;
-    return (Z.produkt === 'Flachdach SkyView' && d.sky) ? d.sky : n;
-  }
-  function sonderformJetzt() {
-    var liste = sonderformErlaubt();
-    return liste.indexOf(Z.sonderform) > -1 ? Z.sonderform : (liste[0] || 3);
-  }
-  /* Braucht die gewaehlte Form dieses Mass? Entscheidet, welche Felder
-     sichtbar sind – so steht nie ein Feld da, das die Form nicht kennt. */
-  function sonderBraucht(feld) {
-    if (!sonderformAktiv()) return false;
-    var d = SONDERFORM[sonderformJetzt()];
-    return !!d && (' ' + d.f + ' ').indexOf(' ' + feld + ' ') > -1;
-  }
-  /* ---------- Welche Teilmasse die Breite ergeben ----------
-     Bei den Formen 1–6 sind alle Ecken rechtwinklig. Dann ist die
-     Breite nicht frei, sondern die SUMME ihrer Teile – und vorne wie
-     hinten dieselbe. Welche Teile das sind, steht hier.
+  /* Was fehlt. Jedes der vier Masse wird gebraucht; widerspruechlich
+     sein kann bei vier freien Massen nichts mehr – nur leer. Zurueck
+     kommen Saetze im Klartext, keine Fehlernummern: sie stehen so im
+     Bedienfeld.
 
-     Formen 7–10 haben keine Teilbreiten; dort ist A die ganze Breite. */
-  var SONDERFORM_TEILE = {
-    1:  { vorne: ['A1', 'A2'], ganzVorne: 'A', ganzHinten: 'B' },
-    2:  { vorne: ['A1', 'A2'], ganzVorne: 'A', ganzHinten: 'B' },
-    3:  { hinten: ['B1', 'B2'], ganzVorne: 'A', ganzHinten: 'B' },
-    4:  { hinten: ['B1', 'B2'], ganzVorne: 'A', ganzHinten: 'B' },
-    5:  { hinten: ['B1', 'B3', 'B2'], ganzVorne: 'A', ganzHinten: 'B' },
-    6:  { hinten: ['B2', 'B1', 'B3'], ganzVorne: 'A', ganzHinten: 'B' }
-  };
-
-  /* Die Breite, mit der wirklich gezeichnet wird. Wo es Teilbreiten
-     gibt, bestimmen SIE die Form – sie legen fest, wo die Stufen
-     liegen. A und B muessen dann dieselbe Summe ergeben; tun sie es
-     nicht, meldet sonderformWiderspruch() das. Frueher nahm diese
-     Funktion einfach max(A, B) und hat damit das abweichende Mass
-     stillschweigend verworfen:
-
-       „A – Breite vorne 5000, B – Breite hinten 7600" ergaben ein Dach,
-       das vorne 7600 breit gebaut wurde. „jeder buchstabe hat ja sein
-       maß" (Betreiber, 23.10.2026) – genau, und keines davon darf
-       verschwinden. */
-  function sonderformBreite() {
-    var t = SONDERFORM_TEILE[sonderformJetzt()];
-    if (t) {
-      var teile = t.hinten || t.vorne;
-      var summe = 0;
-      teile.forEach(function (k) { summe += Z['sf' + k] || 0; });
-      if (summe > 0) return summe;
-    }
-    return Math.max(sonderBraucht('A') ? (Z.sfA || 0) : 0,
-                    sonderBraucht('B') ? (Z.sfB || 0) : 0);
-  }
-
-  /* Was nicht zusammenpasst. Zurueck kommen Saetze im Klartext, keine
-     Fehlernummern – sie stehen so im Bedienfeld. */
+     Der Vorgaenger rechnete mit Teilmassen der Katalogformen und nahm
+     dabei max(A, B) – das verwarf ein Mass stillschweigend: „A – Breite
+     vorne 5000, B – Breite hinten 7600" ergab ein Dach, das vorne 7600
+     breit gebaut wurde. „jeder buchstabe hat ja sein maß" (Betreiber,
+     23.10.2026). Bei vier Massen kann das nicht mehr passieren, weil
+     jedes genau eine Kante beschreibt. */
   function sonderformWiderspruch() {
     if (!sonderformAktiv()) return [];
-    var n = sonderformJetzt(), t = SONDERFORM_TEILE[n], aus = [];
-    if (t) {
-      var teile = t.hinten || t.vorne, summe = 0;
-      teile.forEach(function (k) { summe += Z['sf' + k] || 0; });
-      [t.ganzVorne, t.ganzHinten].forEach(function (k) {
-        var v = Z['sf' + k] || 0;
-        if (v > 0 && Math.abs(v - summe) > 1) {
-          aus.push(k + ' ist ' + v + ' mm, die Teilbreiten ' +
-                   teile.join(' + ') + ' ergeben aber ' + summe + ' mm.');
-        }
-      });
-      var a = Z.sfA || 0, b = Z.sfB || 0;
-      if (a > 0 && b > 0 && Math.abs(a - b) > 1) {
-        aus.push('Bei dieser Form sind alle Ecken rechtwinklig – vorne und ' +
-                 'hinten muss die Anlage gleich breit sein. A ist ' + a +
-                 ' mm, B ist ' + b + ' mm.');
-      }
-    }
-    SONDERFORM[n].f.split(' ').forEach(function (k) {
-      if (!(Z['sf' + k] > 0)) aus.push(k + ' fehlt.');
+    var aus = [];
+    [['sfBreite1', 'Breite hinten'], ['sfBreite2', 'Breite vorne'],
+     ['sfTiefe1', 'Tiefe links'], ['sfTiefe2', 'Tiefe rechts']
+    ].forEach(function (f) {
+      if (!(Z[f[0]] > 0)) aus.push(f[1] + ' fehlt.');
     });
     return aus;
+  }
+
+  /* Die vier Ecken des Vierecks in Millimetern, x mittig, Wand bei z = 0.
+
+         hinten links (-B1/2 | 0) ----- hinten rechts (+B1/2 | 0)
+                   |                                  |
+         vorne links (-B2/2 | T1) ---- vorne rechts (+B2/2 | T2)
+
+     Die Vorderkante liegt MITTIG zur Hinterkante: Ist vorne breiter oder
+     schmaler, verteilt sich der Unterschied gleichmaessig auf beide
+     Seiten. Das ist eine Festlegung, keine Herleitung – mit vier Zahlen
+     allein waere sonst nicht gesagt, wo der Unterschied sitzt. Sichtbar
+     wird sie sofort in der Skizze. */
+  function sonderformEcken() {
+    var b1 = Z.sfBreite1 || 0, b2 = Z.sfBreite2 || 0;
+    var t1 = Z.sfTiefe1 || 0, t2 = Z.sfTiefe2 || 0;
+    return [{ x: -b1 / 2, z: 0 }, { x: b1 / 2, z: 0 },
+            { x: b2 / 2, z: t2 }, { x: -b2 / 2, z: t1 }];
   }
 
   /* Das umschliessende Rechteck: groesste Breite mal groesste Tiefe.
      Darauf laufen Masstabelle, Sparren- und Pfostenzahl weiter. Bewusst
      nach oben gerundet – lieber ein Sparren zu viel als einer zu wenig. */
   function sonderRechteck() {
-    var b = sonderformAktiv() ? sonderformBreite() : 0, t = 0;
-    if (!(b > 0)) {
-      ['A', 'B'].forEach(function (k) {
-        if (sonderBraucht(k)) b = Math.max(b, Z['sf' + k] || 0);
-      });
-    }
-    ['C1', 'C2', 'C3'].forEach(function (k) {
-      if (sonderBraucht(k)) t = Math.max(t, Z['sf' + k] || 0);
-    });
-    return { breite: b, tiefe: t };
+    if (!sonderformAktiv()) return { breite: 0, tiefe: 0 };
+    return {
+      breite: Math.max(Z.sfBreite1 || 0, Z.sfBreite2 || 0),
+      tiefe:  Math.max(Z.sfTiefe1 || 0, Z.sfTiefe2 || 0)
+    };
   }
 
   function gruppeGilt(stichwort) {
@@ -9074,14 +9015,10 @@
          'form-wahl'   die Auswahl Normal/Sonderform ueberhaupt anbieten
          'mass-normal' die gewohnten Regler Breite und Tiefe
          'sonderform'  der Block mit Formenauswahl und Massfeldern
-         'sf-XX'       das einzelne Mass, nur wenn die Form es kennt */
+         Die vier Massfelder haengen alle an 'sonderform'. */
       case 'form-wahl':   return sonderformMoeglich();
       case 'mass-normal': return !sonderformAktiv();
       case 'sonderform':  return sonderformAktiv();
-      case 'sf-A':  case 'sf-A1': case 'sf-A2':
-      case 'sf-B':  case 'sf-B1': case 'sf-B2': case 'sf-B3':
-      case 'sf-C1': case 'sf-C2': case 'sf-C3':
-        return sonderBraucht(stichwort.slice(3));
       case 'terrasse':       return !istCarport() && !istPergola();
       /* Seitenelemente gibt es beim Carport TDS auch – Glaswände und
          Schiebetüren am Carport sind üblich. Markisen dagegen nicht;
@@ -9340,17 +9277,6 @@
      steht (SkyView 1/2/3 statt TDS 3/4/5) – sonst sucht jemand auf dem
      falschen Blatt. Gebaut wie cpVariantenSetzen(): dieselbe Mechanik,
      damit es nicht zwei Arten gibt, eine Auswahl zu fuellen. */
-  function sonderformSetzen() {
-    var sel = document.getElementById('k3dSonderform');
-    if (!sel) return;
-    var liste = sonderformErlaubt();
-    sel.innerHTML = liste.map(function (n) {
-      return '<option value="' + n + '">Form ' + sonderformNummer(n) + ' \u2013 ' +
-             SONDERFORM[n].t + '</option>';
-    }).join('');
-    Z.sonderform = sonderformJetzt();
-    sel.value = String(Z.sonderform);
-  }
 
   /* Was unter der Formenauswahl steht: welche Masse die Form braucht und
      welches Rechteck daraus folgt. Das Rechteck ist die Zahl, mit der
@@ -9374,47 +9300,32 @@
      sind gespiegelt). Das ist die Stelle, an der ein Lesefehler am
      ehesten steckt; scripts/pruefe-sonderform.js rechnet deshalb jede
      Form nach, und der Betrieb sollte einmal gegen das Blatt schauen. */
-  function sonderformProfil(x) {
-    var n = sonderformJetzt();
-    var A = Z.sfA, B = Z.sfB, A1 = Z.sfA1, A2 = Z.sfA2;
-    var B1 = Z.sfB1, B2 = Z.sfB2, B3 = Z.sfB3;
-    var C1 = Z.sfC1, C2 = Z.sfC2, C3 = Z.sfC3;
-    var ganz = sonderRechteck();
-    var br = ganz.breite || 1;
-    var anteil = Math.min(1, Math.max(0, x / br));
-    var vorne, hinten = 0;
+  /* Wie tief die Anlage an der Stelle x ist – von der Wand bis zur
+     Rinne. Gesucht wird, wo eine senkrechte Linie bei x das Viereck
+     schneidet; hinten ist der kleinste, vorne der groesste Schnittpunkt.
 
-    switch (n) {
-      /* L-Form: links tief, rechts der Ausschnitt */
-      case 1:  vorne = (x < A1) ? C1 : C2; break;
-      /* gespiegelt: links der Ausschnitt */
-      case 2:  vorne = (x < A2) ? C2 : C1; break;
-      /* Zwei Felder nebeneinander, links tief */
-      case 3:  vorne = (x < B1) ? C1 : C2; break;
-      /* gespiegelt: rechts tief (B1 liegt hier rechts) */
-      case 4:  vorne = (x < B2) ? C2 : C1; break;
-      /* Aussparung in der Mitte: das mittlere Feld ist flacher */
-      case 5:  vorne = (x < B1) ? C1 : ((x < B1 + B3) ? C3 : C2); break;
-      /* T-Form: das mittlere Feld steht vor */
-      case 6:  vorne = (x < B2) ? C2 : ((x < B2 + B1) ? C1 : C3); break;
-      /* Trapeze 7 und 8: die RINNE ist gerade, das Wandprofil schraeg.
-         Die Tiefe laeuft linear; „hinten" wandert entsprechend mit. */
-      case 7:
-      case 8: {
-        var tiefe78 = (n === 7) ? C1 + (C2 - C1) * anteil
-                                : C2 + (C1 - C2) * anteil;
-        vorne = Math.max(C1, C2);
-        hinten = vorne - tiefe78;
-        break;
+     Bewusst allgemein gerechnet statt fuer jeden Fall einzeln: Ob vorne
+     breiter, schmaler oder gleich – es ist immer dasselbe Viereck, und
+     derselbe Schnitt beantwortet alle Faelle. */
+  function sonderformProfil(x) {
+    var ganz = sonderRechteck();
+    if (!sonderformAktiv()) return { hinten: 0, vorne: ganz.tiefe };
+    var xm = x - ganz.breite / 2;          // x kommt ab der linken Kante
+    var e = sonderformEcken(), tr = [], i, a, b;
+    for (i = 0; i < 4; i++) {
+      a = e[i]; b = e[(i + 1) % 4];
+      if (Math.abs(a.x - b.x) < 0.001) {
+        if (Math.abs(a.x - xm) < 0.5) { tr.push(a.z); tr.push(b.z); }
+        continue;
       }
-      /* Trapeze 9 und 10: das Wandprofil ist gerade, die RINNE schraeg */
-      case 9:  vorne = C2 + (C1 - C2) * anteil; break;
-      case 10: vorne = C1 + (C2 - C1) * anteil; break;
-      default: vorne = ganz.tiefe;
+      var lo = Math.min(a.x, b.x), hi = Math.max(a.x, b.x);
+      if (xm < lo - 0.001 || xm > hi + 0.001) continue;
+      tr.push(a.z + (b.z - a.z) * (xm - a.x) / (b.x - a.x));
     }
-    if (!(vorne > 0)) vorne = ganz.tiefe;
-    if (!(hinten >= 0)) hinten = 0;
-    return { hinten: hinten, vorne: vorne };
+    if (tr.length < 2) return { hinten: 0, vorne: Math.max(1, ganz.tiefe) };
+    var min = Math.min.apply(null, tr), max = Math.max.apply(null, tr);
+    if (max - min < 1) max = min + 1;      // nie ein Sparren ohne Laenge
+    return { hinten: min, vorne: max };
   }
 
   /* Wie tief die Anlage an dieser Stelle ist. Null oder weniger darf
@@ -9440,37 +9351,21 @@
      Gerechnet wird in Modellkoordinaten (cm, x von -B/2 bis +B/2). Fuer
      die normale Form kommt genau ein Abschnitt ueber die volle Breite
      heraus – der Bauweg bleibt damit derselbe wie bisher. */
+  /* ---------- Die Vorderkante ----------
+     Beim Viereck ist sie EINE gerade Linie: links bei Tiefe 1, rechts
+     bei Tiefe 2 – waagerecht, wenn beide gleich sind, sonst schraeg.
+     Die Rinne wird daraus gebaut.
+
+     Zurueck kommt trotzdem eine Liste, denn der Bauweg laeuft darueber.
+     Bei normaler Form steht genau ein Stueck ueber die volle Breite
+     darin; so gibt es nur einen Weg, die Rinne zu bauen. */
   function sonderformVorderkanten(Bcm, Tcm) {
     if (!sonderformAktiv()) {
       return [{ x0: -Bcm / 2, x1: Bcm / 2, z0: Tcm, z1: Tcm }];
     }
-    var n = sonderformJetzt();
-    var ganz = sonderRechteck();
-    var bM = ganz.breite || 1;
-    function zCm(xM) { return sonderformProfil(xM).vorne / 10; }
-    function xCm(xM) { return xM / 10 - Bcm / 2; }
-
-    /* Trapeze: eine durchgehende Kante, gerade oder schraeg. */
-    if (n >= 7) {
-      return [{ x0: -Bcm / 2, x1: Bcm / 2, z0: zCm(0), z1: zCm(bM) }];
-    }
-
-    /* Stufenformen: die Kante aendert sich nur an wenigen Stellen.
-       Abgetastet wird fein; gleiche Tiefen werden zusammengefasst, damit
-       aus einer Stufe nicht zwanzig Rinnenstuecke werden. */
-    var ab = [], schritte = 400, i, zAlt = null, start = 0;
-    for (i = 0; i <= schritte; i++) {
-      var xM = bM * i / schritte;
-      var z = zCm(xM);
-      if (zAlt === null) { zAlt = z; start = 0; continue; }
-      if (Math.abs(z - zAlt) > 0.05 || i === schritte) {
-        ab.push({ x0: xCm(bM * start / schritte), x1: xCm(xM),
-                  z0: zAlt, z1: zAlt });
-        zAlt = z; start = i;
-      }
-    }
-    if (!ab.length) ab.push({ x0: -Bcm / 2, x1: Bcm / 2, z0: Tcm, z1: Tcm });
-    return ab;
+    var b2 = (Z.sfBreite2 || 0) / 10;
+    return [{ x0: -b2 / 2, x1: b2 / 2,
+              z0: (Z.sfTiefe1 || 0) / 10, z1: (Z.sfTiefe2 || 0) / 10 }];
   }
 
   /* ---------- Die Skizze zur Form ----------
@@ -9521,36 +9416,21 @@
     var punkte = p1.concat(p2.reverse())
       .map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' ');
 
-    /* Wo welcher Buchstabe hingehoert. Die Anker folgen der Bedeutung:
-       A vorne, B hinten, C links/rechts/mitte, die Teilmasse an ihrem
-       Abschnitt. Gezeichnet wird nur, was die Form auch kennt. */
-    var mitteX = bM / 2;
-    var anker = {
-      A:  [mitteX, sonderformProfil(mitteX).vorne, 'unten'],
-      B:  [mitteX, sonderformProfil(mitteX).hinten, 'oben'],
-      A1: [bM * 0.25, sonderformProfil(bM * 0.25).vorne, 'unten'],
-      A2: [bM * 0.75, sonderformProfil(bM * 0.75).vorne, 'unten'],
-      B1: [bM * 0.25, sonderformProfil(bM * 0.25).hinten, 'oben'],
-      B2: [bM * 0.75, sonderformProfil(bM * 0.75).hinten, 'oben'],
-      B3: [mitteX, sonderformProfil(mitteX).hinten, 'oben'],
-      C1: [bM * 0.08, null, 'links'],
-      C2: [bM * 0.92, null, 'rechts'],
-      C3: [mitteX, null, 'mitte']
-    };
+    /* Die vier Masse an ihre Kante schreiben – im Klartext, nicht als
+       Buchstabe: „was bedeutet was man weiss es ja nicht" (Betreiber)
+       galt genau dafuer. */
+    var e = sonderformEcken();
+    function mx(a, b) { return sx((a.x + b.x) / 2 + bM / 2); }
+    function mz(a, b) { return sy((a.z + b.z) / 2); }
     var txt = '';
-    SONDERFORM[sonderformJetzt()].f.split(' ').forEach(function (k) {
-      var a = anker[k];
-      if (!a) return;
-      var px, py, anc = 'middle';
-      if (a[2] === 'links' || a[2] === 'rechts' || a[2] === 'mitte') {
-        var prc = sonderformProfil(a[0]);
-        px = sx(a[0]); py = sy((prc.hinten + prc.vorne) / 2) + 4;
-      } else {
-        px = sx(a[0]); py = sy(a[1]) + (a[2] === 'oben' ? -6 : 14);
-      }
-      txt += '<text x="' + px.toFixed(1) + '" y="' + py.toFixed(1) +
-             '" text-anchor="' + anc + '" class="k3d-skizze-mass">' + k +
-             '<tspan class="k3d-skizze-wert"> ' + (Z['sf' + k] || 0) + '</tspan></text>';
+    [['Breite hinten', Z.sfBreite1, mx(e[0], e[1]), mz(e[0], e[1]) - 7],
+     ['Breite vorne',  Z.sfBreite2, mx(e[3], e[2]), mz(e[3], e[2]) + 15],
+     ['Tiefe links',   Z.sfTiefe1,  mx(e[0], e[3]) - 2, mz(e[0], e[3])],
+     ['Tiefe rechts',  Z.sfTiefe2,  mx(e[1], e[2]) + 2, mz(e[1], e[2])]
+    ].forEach(function (b) {
+      txt += '<text x="' + b[2].toFixed(1) + '" y="' + b[3].toFixed(1) +
+             '" text-anchor="middle" class="k3d-skizze-mass">' + b[0] +
+             '<tspan class="k3d-skizze-wert"> ' + (b[1] || 0) + '</tspan></text>';
     });
 
     /* Die Wand als dicke Linie ueber dem hoechsten Punkt der Rueckseite –
@@ -9572,11 +9452,12 @@
   /* Die Masse der Form als eine Zeile, z. B. „A 5000, B 5000, C1 3500,
      C2 2500 mm". Eine Stelle fuer Zusammenfassung, PDF und Anfrage –
      sonst stehen dort drei verschiedene Schreibweisen. */
+  /* Die vier Masse als eine Zeile – eine Stelle fuer Zusammenfassung,
+     PDF und Anfrage. */
   function sonderMasskette() {
     if (!sonderformAktiv()) return '';
-    return SONDERFORM[sonderformJetzt()].f.split(' ').map(function (k) {
-      return k + ' ' + (Z['sf' + k] || 0);
-    }).join(', ') + ' mm';
+    return 'Breite hinten ' + Z.sfBreite1 + ', Breite vorne ' + Z.sfBreite2 +
+           ', Tiefe links ' + Z.sfTiefe1 + ', Tiefe rechts ' + Z.sfTiefe2 + ' mm';
   }
 
   function sonderformAnzeige() {
@@ -9584,7 +9465,9 @@
     var r = document.getElementById('k3dSonderformRechteck');
     if (h) {
       h.textContent = sonderformAktiv()
-        ? 'Ben\u00f6tigte Ma\u00dfe: ' + SONDERFORM[sonderformJetzt()].f.split(' ').join(', ')
+        ? 'Die Vorderkante liegt mittig zur Hinterkante \u2013 ein '
+          + 'Unterschied in der Breite verteilt sich gleichm\u00e4\u00dfig '
+          + 'auf beide Seiten.'
         : '';
     }
     if (r) {
@@ -9606,7 +9489,7 @@
       }
     }
     sonderformSkizze();
-    ['A', 'A1', 'A2', 'B', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'].forEach(function (k) {
+    ['Breite1', 'Breite2', 'Tiefe1', 'Tiefe2'].forEach(function (k) {
       var a = document.getElementById('k3dSf' + k + 'Wert');
       if (a) a.textContent = (Z['sf' + k] || 0) + ' mm';
       var zf = document.getElementById('k3dSf' + k);
@@ -9711,11 +9594,10 @@
       if (streit.length) {
         aus.push('ACHTUNG Sonderform: ' + streit.join(' '));
       }
-      aus.push('Sonderform ' + sonderformNummer(sonderformJetzt()) + ' (' +
-        SONDERFORM[sonderformJetzt()].t + '): ' + sonderMasskette() +
+      aus.push('Sonderform (Viereck): ' + sonderMasskette() +
         '. St\u00fcckzahl aus dem umschlie\u00dfenden Rechteck ' +
         Z.breite + ' \u00d7 ' + Z.tiefe +
-        ' mm. Aufschlag laut Katalogblatt beachten.');
+        ' mm. Sonderma\u00df \u2013 Machbarkeit und Aufschlag mit VD kl\u00e4ren.');
     }
     return aus;
   }
@@ -9734,9 +9616,7 @@
        die Form samt ihrer Masskette daneben, mit der Nummer des
        Katalogblatts, mit dem der Betrieb arbeitet. */
     if (sonderformAktiv()) {
-      k.push('Sonderform ' + sonderformNummer(sonderformJetzt()) + ' – ' +
-             SONDERFORM[sonderformJetzt()].t);
-      k.push(sonderMasskette());
+      k.push('Sonderform: ' + sonderMasskette());
     }
     if (istPergola()) {
       k.push(Z.pgDachart);
@@ -10084,7 +9964,6 @@
     /* Die Formenliste haengt am System: TDS kennt zehn, SkyView drei.
        Wird das Produkt gewechselt, muss sie neu geschrieben werden –
        sonst steht dort eine Form, die es dort gar nicht gibt. */
-    if (produktWechsel) sonderformSetzen();
     Z.cpVariante = wert('k3dCpVariante') || Z.cpVariante;
     Z.cpDach = wert('k3dCpDach') || Z.cpDach;
     Z.pgDachart = wert('k3dPgDachart') || Z.pgDachart;
@@ -10153,8 +10032,7 @@
        aendert daran nichts. */
     Z.form = wert('k3dForm') || Z.form;
     if (!sonderformMoeglich()) Z.form = 'Normal';
-    Z.sonderform = parseInt(wert('k3dSonderform'), 10) || Z.sonderform;
-    ['A', 'A1', 'A2', 'B', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'].forEach(function (k) {
+    ['Breite1', 'Breite2', 'Tiefe1', 'Tiefe2'].forEach(function (k) {
       Z['sf' + k] = zahl('k3dSf' + k, Z['sf' + k]);
     });
     if (sonderformAktiv()) {
@@ -10643,9 +10521,8 @@
   ['k3dProdukt', 'k3dCpTyp', 'k3dCpVariante', 'k3dCpDach', 'k3dAufbau',
    'k3dPgDachart', 'k3dPgAusfuehrung', 'k3dPgSeitenschutz', 'k3dLamellen',
    'k3dBreite', 'k3dTiefe', 'k3dHoehe',
-   'k3dForm', 'k3dSonderform',
-   'k3dSfA', 'k3dSfA1', 'k3dSfA2', 'k3dSfB', 'k3dSfB1', 'k3dSfB2', 'k3dSfB3',
-   'k3dSfC1', 'k3dSfC2', 'k3dSfC3',
+   'k3dForm',
+   'k3dSfBreite1', 'k3dSfBreite2', 'k3dSfTiefe1', 'k3dSfTiefe2',
    'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage',
    'k3dGlasOffen', 'k3dMarkise', 'k3dSonneAus',
@@ -11759,7 +11636,6 @@
 
   groesseAnpassen();
   cpVariantenSetzen();
-  sonderformSetzen();
   kameraSetzen();
   zeichnen();
 
