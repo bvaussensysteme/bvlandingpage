@@ -8123,3 +8123,64 @@ nach (5000 × 3500 aus A 5000, B 4000, C1 3500, C2 2500) und prüft, dass ein
 Maß, das die Form gar nicht kennt, es nicht vergrößert (Form 7 kennt kein B —
 ein B von 9999 bleibt wirkungslos). Dazu: jedes Maß hat ein Feld, jedes Feld
 blendet sich nach der Form ein, jedes Feld löst ein Neuzeichnen aus.
+
+---
+
+## 23.10.2026 – Sonderformen Schritt 2: echte Form im 3D, und eine Skizze
+
+**Anlass.** „3d macht alles rechteckig" und „es is schön das man so ne ganze
+liste hat, aber was bedeutet was man weiß es ja nicht es gibt ja keine skizze"
+(Betreiber). Beides berechtigt: Schritt 1 zeigte absichtlich nur das
+umschließende Rechteck, und A/A1/B2/C3 sind ohne Bild bedeutungslos.
+
+**Der Schlüssel zu allen zehn Formen auf einmal.** Jede dieser Formen ist
+**„Tiefe als Funktion der Breite"**: Für jedes x gibt es genau einen
+Tiefenbereich, von der Wand bis zur Rinne. Die Formen 1–6 sind Stufen, die
+Formen 7–10 Schrägen — aber alle zehn passen in dieselbe Funktion
+(`sonderformProfil`). Es braucht also **keine zehn Sonderfälle im Bau**,
+sondern eine Funktion, die alles andere speist.
+
+**Was daraus folgt:**
+
+- **Sparren:** Jeder bekommt seine eigene Länge, Lage und Höhe
+  (`abschnittBei`). Die Rechnung folgt Zeile für Zeile der globalen darüber —
+  laufen sie auseinander, sieht man es sofort.
+- **Eindeckung und Glasleisten:** dasselbe über `glasBei`. Gemessen wird in
+  der Feldmitte zwischen zwei Sparren; fällt eine Stufe mitten in ein Feld,
+  rundet das. Bewusst so: lieber eine Scheibe, die zur Feldmitte passt, als
+  eine, die an der Kante übersteht.
+- **Bei normaler Form liefern beide Funktionen exakt die alten Werte** — der
+  Rest des Bauwegs merkt nichts davon.
+
+**Die Skizze.** Der Grundriss wird **aus den eingegebenen Maßen gezeichnet**,
+nicht als Katalogbild hinterlegt. Das ist in zwei Hinsichten besser: Er zeigt
+die eigene Anlage statt eines Beispiels, und er ändert sich beim Tippen mit —
+ein falsch verstandenes Maß sieht man sofort. Die Umrisslinie kommt aus
+**derselben Funktion wie das 3D-Modell**; es gibt also keine zweite
+Vorstellung davon, wie die Form aussieht. Eine Prüfung hält genau das fest.
+
+**Die Falle, die heute zum vierten Mal drohte.** `bauenAusDaten()` baut ein
+Rechteck aus der Serverantwort und weiß von Sonderformen nichts. Wäre eine
+Sonderform dort hineingelaufen, wäre das Bild je nach Serverantwort mal
+geformt und mal nicht — genau wie am 11., 15. und 16.10.2026. Jetzt gibt es
+eine klare Weiche: **Sonderform zeichnet immer der geschätzte Bauweg.** An den
+Stückzahlen ändert das nichts, die kommen weiter aus dem umschließenden
+Rechteck.
+
+**Zwei bestehende Prüfungen mussten nachgezogen werden.** Sie hingen am
+genauen Wortlaut der Aufrufe (`sparrenBauen(laenge, x, ukMitte, …)` und
+`abdeckleiste(vollGlas, …)`). Ihre **Aussage** ist unverändert — gerades
+Sparrenprofil, Leisten auf Scheibenlänge —, nur die Schreibweise ist neu.
+
+**Was gegengelesen werden soll.** TDS → Sonderform → Form wechseln: Zeigt die
+Skizze die richtige Form, und stehen die Buchstaben an den richtigen Kanten?
+Stimmt das 3D-Modell mit der Skizze überein? **Vor allem:** Liegt bei Form 3
+wirklich links die tiefe Seite — oder habe ich das Blatt spiegelverkehrt
+gelesen? Das ist die Stelle, an der ein Lesefehler am ehesten steckt.
+
+**Absicherung.** `scripts/pruefe-sonderform.js`, jetzt **24 Prüfungen**, alle
+bestanden; in der Gegenprobe schlagen alle 24 an. Die wichtigen tasten **alle
+zehn Formen über 200 Stellen ab** und verlangen: nirgends Tiefe null (dort
+stünde ein Sparren ohne Länge), nirgends ein Überstand über das umschließende
+Rechteck (sonst stimmt die Stückzahl nicht). Dazu gezielt: Form 3 links tief,
+Form 4 gespiegelt, Trapez läuft gleichmäßig durch statt zu springen.
