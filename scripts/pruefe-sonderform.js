@@ -43,7 +43,8 @@ var quelle =
   hol(/function sonderBraucht\(feld\) \{[\s\S]*?\n  \}/, 'sonderBraucht') + '\n' +
   hol(/function sonderRechteck\(\) \{[\s\S]*?\n  \}/, 'sonderRechteck') + '\n' +
   hol(/function sonderformMoeglich\(\) \{[^}]*\}/, 'sonderformMoeglich') + '\n' +
-  hol(/function sonderformProfil\(x\) \{[\s\S]*?\n  \}/, 'sonderformProfil');
+  hol(/function sonderformProfil\(x\) \{[\s\S]*?\n  \}/, 'sonderformProfil') + '\n' +
+  hol(/function sonderformVorderkanten\(Bcm, Tcm\) \{[\s\S]*?\n  \}/, 'sonderformVorderkanten');
 
 var Z = { produkt: 'Terrassendach TDS', form: 'Sonderform', sonderform: 3,
           sfA: 5000, sfA1: 2500, sfA2: 2500, sfB: 4000, sfB1: 2000, sfB2: 2000,
@@ -58,7 +59,7 @@ try {
     ' erlaubt: sonderformErlaubt, aktiv: sonderformAktiv,' +
     ' nummer: sonderformNummer, jetzt: sonderformJetzt,' +
     ' braucht: sonderBraucht, rechteck: sonderRechteck,' +
-    ' profil: sonderformProfil })');
+    ' profil: sonderformProfil, kanten: sonderformVorderkanten })');
 } catch (e) { API = null; }
 var geladen = !!(API && API.SONDERFORM);
 var SONDERFORM = geladen ? API.SONDERFORM : {};
@@ -68,6 +69,7 @@ function sonderformNummer(n) { return API.nummer(n); }
 function sonderBraucht(f) { return API.braucht(f); }
 function sonderRechteck() { return API.rechteck(); }
 function sonderformProfil(x) { return API.profil(x); }
+function sonderformVorderkanten(b, t) { return API.kanten(b, t); }
 
 pruefe('Die Formenlogik lässt sich ausführen', gegen ? !geladen : geladen,
        geladen ? Object.keys(SONDERFORM).length + ' Formen' : 'Fehler beim Laden');
@@ -213,6 +215,93 @@ pruefe('Ein Maß außerhalb der Form zählt nicht mit',
          'links ' + a10 + ', Mitte ' + m10.toFixed(0) + ', rechts ' + e10);
   Z.sonderform = 3;
 })();
+
+/* ---------- Die Vorderkante als Abschnitte ----------
+   „trz bleibt z.b die rinne rechteckig" (Betreiber, 23.10.2026, mit
+   Bild): Sparren und Glas folgten der Form, die Rinne lief weiter über
+   die ganze Breite an EINER Tiefe und stand vor den verkürzten
+   Abschnitten in der Luft.
+
+   Geprüft wird, dass die Zerlegung der Vorderkante zur Form passt – und
+   zwar für jede Form. Ein Abschnitt zu wenig heißt: dort fehlt die
+   Rinne. */
+(function () {
+  /* Bei normaler Form muss genau EIN Abschnitt über die volle Breite
+     herauskommen, sonst baut der Bauweg etwas anderes als bisher. */
+  Z.form = 'Normal';
+  var norm = sonderformVorderkanten(500, 300);
+  Z.form = 'Sonderform';
+  pruefe('Normale Form ergibt genau einen Rinnenabschnitt',
+         gegen ? !(norm.length === 1 && norm[0].z0 === 300 &&
+                   norm[0].x0 === -250 && norm[0].x1 === 250)
+               : (norm.length === 1 && norm[0].z0 === 300 &&
+                  norm[0].x0 === -250 && norm[0].x1 === 250),
+         norm.length + ' Abschnitt über die volle Breite');
+
+  /* So viele Abschnitte hat jede Form: Stufenformen zwei oder drei,
+     Trapeze einen durchgehenden. */
+  var soll = { 1: 2, 2: 2, 3: 2, 4: 2, 5: 3, 6: 3,
+               7: 1, 8: 1, 9: 1, 10: 1 };
+  var schief = [];
+  Object.keys(soll).forEach(function (n) {
+    Z.sonderform = Number(n);
+    var g = sonderRechteck();
+    var k = sonderformVorderkanten(g.breite / 10, g.tiefe / 10);
+    if (k.length !== soll[n]) {
+      schief.push('Form ' + n + ': ' + k.length + ' statt ' + soll[n]);
+    }
+  });
+  Z.sonderform = 3;
+  pruefe('Jede Form bekommt so viele Rinnenabschnitte wie sie Stufen hat',
+         gegen ? schief.length !== 0 : schief.length === 0,
+         schief.length ? schief.join(', ') : '1\u20136 gestuft, 7\u201310 durchgehend');
+
+  /* Die Abschnitte müssen die Breite lückenlos abdecken – eine Lücke
+     wäre ein Stück Dachkante ohne Rinne. */
+  var luecken = [];
+  Object.keys(soll).forEach(function (n) {
+    Z.sonderform = Number(n);
+    var g = sonderRechteck();
+    var bc = g.breite / 10;
+    var k = sonderformVorderkanten(bc, g.tiefe / 10);
+    if (Math.abs(k[0].x0 + bc / 2) > 0.2) luecken.push('Form ' + n + ' links');
+    if (Math.abs(k[k.length - 1].x1 - bc / 2) > 0.2) luecken.push('Form ' + n + ' rechts');
+    for (var i = 0; i < k.length - 1; i++) {
+      if (Math.abs(k[i].x1 - k[i + 1].x0) > 0.2) luecken.push('Form ' + n + ' bei ' + i);
+    }
+  });
+  Z.sonderform = 3;
+  pruefe('Die Rinnenabschnitte decken die Breite lückenlos ab',
+         gegen ? luecken.length !== 0 : luecken.length === 0,
+         luecken.length ? luecken.join(', ') : 'kein Stück Dachkante ohne Rinne');
+
+  /* Trapeze: 7 und 8 haben laut Katalog eine GERADE Rinne (das
+     Wandprofil ist schräg), 9 und 10 eine schräge. */
+  var falschHerum = [];
+  [[7, false], [8, false], [9, true], [10, true]].forEach(function (f) {
+    Z.sonderform = f[0];
+    var g = sonderRechteck();
+    var k = sonderformVorderkanten(g.breite / 10, g.tiefe / 10)[0];
+    var schraeg = Math.abs(k.z1 - k.z0) > 0.1;
+    if (schraeg !== f[1]) falschHerum.push('Form ' + f[0]);
+  });
+  Z.sonderform = 3;
+  pruefe('Bei 7 und 8 ist die Rinne gerade, bei 9 und 10 schräg',
+         gegen ? falschHerum.length !== 0 : falschHerum.length === 0,
+         falschHerum.length ? falschHerum.join(', ') : 'wie auf dem Katalogblatt');
+})();
+
+/* Die Rinne muss die Abschnitte auch wirklich benutzen, und die
+   vorderen Pfosten müssen unter IHREM Abschnitt stehen. */
+pruefe('Die Rinne wird aus den Abschnitten gebaut',
+       gegen ? !/var kanten = sonderformVorderkanten\(B, T\);/.test(k3d)
+             : /var kanten = sonderformVorderkanten\(B, T\);/.test(k3d) &&
+               /rinneBauen\(lang, zm, hRinne, mAlu, xm, -dreh\);/.test(k3d),
+       'ein Rinnenstück je Abschnitt, bei Bedarf gedreht');
+pruefe('Die vorderen Pfosten stehen unter ihrem Abschnitt',
+       gegen ? !/balken\(PF, hPfosten, PF, x, hPfosten \/ 2, zPfBei\(x\), mAlu\);/.test(k3d)
+             : /balken\(PF, hPfosten, PF, x, hPfosten \/ 2, zPfBei\(x\), mAlu\);/.test(k3d),
+       'nicht mehr alle auf derselben Tiefe');
 
 /* ---------- Die Skizze kommt aus derselben Quelle wie das Modell ----------
    „was bedeutet was man weiß es ja nicht es gibt ja keine skizze"
