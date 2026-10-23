@@ -361,6 +361,9 @@
     /* Grundriss-Skizze der Sonderform. Die Farben folgen den uebrigen
        Bedienelementen; die Massbuchstaben stehen in der Akzentfarbe, die
        Zahl daneben etwas leiser. */
+    /* Widerspruechliche Masse werden nicht weggerundet, sondern
+       angesagt - siehe sonderformWiderspruch(). */
+    .k3d-mass-streit { color: #c0392b; }
     .k3d-skizze-feld { margin: .5rem 0 .25rem; }
     .k3d-skizze { width: 100%; height: auto; display: block; }
     .k3d-skizze-flaeche { fill: rgba(190, 150, 70, .16); stroke: currentColor;
@@ -1726,10 +1729,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261023c" defer></script>
+<script src="js/masstabelle.js?v=20261023d" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261023c" defer></script>
-<script src="js/konfigurator-3d.js?v=20261023c" defer></script>
+<script src="js/pdf-blatt.js?v=20261023d" defer></script>
+<script src="js/konfigurator-3d.js?v=20261023d" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

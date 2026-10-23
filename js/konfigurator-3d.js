@@ -8985,14 +8985,82 @@
     var d = SONDERFORM[sonderformJetzt()];
     return !!d && (' ' + d.f + ' ').indexOf(' ' + feld + ' ') > -1;
   }
+  /* ---------- Welche Teilmasse die Breite ergeben ----------
+     Bei den Formen 1–6 sind alle Ecken rechtwinklig. Dann ist die
+     Breite nicht frei, sondern die SUMME ihrer Teile – und vorne wie
+     hinten dieselbe. Welche Teile das sind, steht hier.
+
+     Formen 7–10 haben keine Teilbreiten; dort ist A die ganze Breite. */
+  var SONDERFORM_TEILE = {
+    1:  { vorne: ['A1', 'A2'], ganzVorne: 'A', ganzHinten: 'B' },
+    2:  { vorne: ['A1', 'A2'], ganzVorne: 'A', ganzHinten: 'B' },
+    3:  { hinten: ['B1', 'B2'], ganzVorne: 'A', ganzHinten: 'B' },
+    4:  { hinten: ['B1', 'B2'], ganzVorne: 'A', ganzHinten: 'B' },
+    5:  { hinten: ['B1', 'B3', 'B2'], ganzVorne: 'A', ganzHinten: 'B' },
+    6:  { hinten: ['B2', 'B1', 'B3'], ganzVorne: 'A', ganzHinten: 'B' }
+  };
+
+  /* Die Breite, mit der wirklich gezeichnet wird. Wo es Teilbreiten
+     gibt, bestimmen SIE die Form – sie legen fest, wo die Stufen
+     liegen. A und B muessen dann dieselbe Summe ergeben; tun sie es
+     nicht, meldet sonderformWiderspruch() das. Frueher nahm diese
+     Funktion einfach max(A, B) und hat damit das abweichende Mass
+     stillschweigend verworfen:
+
+       „A – Breite vorne 5000, B – Breite hinten 7600" ergaben ein Dach,
+       das vorne 7600 breit gebaut wurde. „jeder buchstabe hat ja sein
+       maß" (Betreiber, 23.10.2026) – genau, und keines davon darf
+       verschwinden. */
+  function sonderformBreite() {
+    var t = SONDERFORM_TEILE[sonderformJetzt()];
+    if (t) {
+      var teile = t.hinten || t.vorne;
+      var summe = 0;
+      teile.forEach(function (k) { summe += Z['sf' + k] || 0; });
+      if (summe > 0) return summe;
+    }
+    return Math.max(sonderBraucht('A') ? (Z.sfA || 0) : 0,
+                    sonderBraucht('B') ? (Z.sfB || 0) : 0);
+  }
+
+  /* Was nicht zusammenpasst. Zurueck kommen Saetze im Klartext, keine
+     Fehlernummern – sie stehen so im Bedienfeld. */
+  function sonderformWiderspruch() {
+    if (!sonderformAktiv()) return [];
+    var n = sonderformJetzt(), t = SONDERFORM_TEILE[n], aus = [];
+    if (t) {
+      var teile = t.hinten || t.vorne, summe = 0;
+      teile.forEach(function (k) { summe += Z['sf' + k] || 0; });
+      [t.ganzVorne, t.ganzHinten].forEach(function (k) {
+        var v = Z['sf' + k] || 0;
+        if (v > 0 && Math.abs(v - summe) > 1) {
+          aus.push(k + ' ist ' + v + ' mm, die Teilbreiten ' +
+                   teile.join(' + ') + ' ergeben aber ' + summe + ' mm.');
+        }
+      });
+      var a = Z.sfA || 0, b = Z.sfB || 0;
+      if (a > 0 && b > 0 && Math.abs(a - b) > 1) {
+        aus.push('Bei dieser Form sind alle Ecken rechtwinklig – vorne und ' +
+                 'hinten muss die Anlage gleich breit sein. A ist ' + a +
+                 ' mm, B ist ' + b + ' mm.');
+      }
+    }
+    SONDERFORM[n].f.split(' ').forEach(function (k) {
+      if (!(Z['sf' + k] > 0)) aus.push(k + ' fehlt.');
+    });
+    return aus;
+  }
+
   /* Das umschliessende Rechteck: groesste Breite mal groesste Tiefe.
      Darauf laufen Masstabelle, Sparren- und Pfostenzahl weiter. Bewusst
      nach oben gerundet – lieber ein Sparren zu viel als einer zu wenig. */
   function sonderRechteck() {
-    var b = 0, t = 0;
-    ['A', 'B'].forEach(function (k) {
-      if (sonderBraucht(k)) b = Math.max(b, Z['sf' + k] || 0);
-    });
+    var b = sonderformAktiv() ? sonderformBreite() : 0, t = 0;
+    if (!(b > 0)) {
+      ['A', 'B'].forEach(function (k) {
+        if (sonderBraucht(k)) b = Math.max(b, Z['sf' + k] || 0);
+      });
+    }
     ['C1', 'C2', 'C3'].forEach(function (k) {
       if (sonderBraucht(k)) t = Math.max(t, Z['sf' + k] || 0);
     });
@@ -9520,12 +9588,21 @@
         : '';
     }
     if (r) {
-      if (!sonderformAktiv()) { r.textContent = ''; }
+      if (!sonderformAktiv()) { r.innerHTML = ''; r.className = 'k3d-mass-hinweis'; }
       else {
         var m = sonderRechteck();
-        r.textContent = 'Umschlie\u00dfendes Rechteck: ' + m.breite + ' \u00d7 ' + m.tiefe +
-          ' mm. Damit rechnen St\u00fcckliste und 3D-Bild. Das Bild zeigt vorerst ' +
-          'dieses Rechteck, nicht die Sonderform.';
+        /* Widersprueche zuerst und deutlich. Ein Mass, das nicht passt,
+           darf nicht unter einer Zahl verschwinden – genau das ist am
+           23.10.2026 passiert: A war 5000, gezeichnet wurden 7600, und
+           niemand hat es erfahren ausser am fertigen Bild. */
+        var w = sonderformWiderspruch();
+        r.className = 'k3d-mass-hinweis' + (w.length ? ' k3d-mass-streit' : '');
+        r.innerHTML = (w.length
+          ? '<strong>Diese Ma\u00dfe passen nicht zusammen \u2013 so l\u00e4sst sich die Form ' +
+            'nicht bauen:</strong><br>' + w.join('<br>') + '<br><br>'
+          : '') +
+          'Umschlie\u00dfendes Rechteck: ' + m.breite + ' \u00d7 ' + m.tiefe +
+          ' mm. Damit rechnen St\u00fcckliste und Pfostenzahl.';
       }
     }
     sonderformSkizze();
@@ -9630,6 +9707,10 @@
        des Katalogblatts – die ZAHL steht hier bewusst nicht, sie ist
        eine Preisangabe und hat im Konfigurator nichts zu suchen. */
     if (sonderformAktiv()) {
+      var streit = sonderformWiderspruch();
+      if (streit.length) {
+        aus.push('ACHTUNG Sonderform: ' + streit.join(' '));
+      }
       aus.push('Sonderform ' + sonderformNummer(sonderformJetzt()) + ' (' +
         SONDERFORM[sonderformJetzt()].t + '): ' + sonderMasskette() +
         '. St\u00fcckzahl aus dem umschlie\u00dfenden Rechteck ' +
