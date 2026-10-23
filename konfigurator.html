@@ -729,7 +729,91 @@
           <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse">
+        <!-- ============================================================
+             Sonderform (TDS und SkyView)
+
+             VD baut diese Daecher auch in festen Sonderformen – L-Form,
+             zwei Felder, Aussparung, T-Form, Trapez. Das ist kein freies
+             Mass: Es gibt genau die Formen des Katalogblatts, und SkyView
+             kennt nur drei davon.
+
+             Welche Massfelder erscheinen, entscheidet die Form (siehe
+             SONDERFORM in js/konfigurator-3d.js). Aus den Massen rechnet
+             der Konfigurator das umschliessende Rechteck; damit laufen
+             Masstabelle, Stueckzahl und 3D-Bild unveraendert weiter.
+             ============================================================ -->
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="form-wahl" hidden>
+          <span class="k3d-label" id="k3dFormLabel">Form der Anlage</span>
+          <input type="hidden" id="k3dForm" value="Normal">
+          <div class="k3d-seg" data-k3d-seg="k3dForm" role="group" aria-labelledby="k3dFormLabel">
+            <button type="button" data-wert="Normal">Normale Form</button>
+            <button type="button" data-wert="Sonderform">Sonderform</button>
+          </div>
+          <p class="k3d-mini">Normal ist das Rechteck. Sonderform sind die festen
+            Grundrisse des Herstellers – L-Form, zwei Felder, Aussparung, Trapez.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+          <label class="k3d-label" for="k3dSonderform">Welche Sonderform?</label>
+          <select id="k3dSonderform" class="k3d-select"></select>
+          <p class="k3d-mini" id="k3dSonderformHinweis"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-A" hidden>
+          <label class="k3d-label" for="k3dSfA">A – Breite vorne (Rinne) <output id="k3dSfAWert">5000 mm</output></label>
+          <input type="number" id="k3dSfA" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="5000" aria-label="A – Breite vorne (Rinne) in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-B" hidden>
+          <label class="k3d-label" for="k3dSfB">B – Breite hinten (Wandprofil) <output id="k3dSfBWert">5000 mm</output></label>
+          <input type="number" id="k3dSfB" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="5000" aria-label="B – Breite hinten (Wandprofil) in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-A1" hidden>
+          <label class="k3d-label" for="k3dSfA1">A1 – Teilbreite vorne links <output id="k3dSfA1Wert">2500 mm</output></label>
+          <input type="number" id="k3dSfA1" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="2500" aria-label="A1 – Teilbreite vorne links in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-A2" hidden>
+          <label class="k3d-label" for="k3dSfA2">A2 – Teilbreite vorne rechts <output id="k3dSfA2Wert">2500 mm</output></label>
+          <input type="number" id="k3dSfA2" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="2500" aria-label="A2 – Teilbreite vorne rechts in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-B1" hidden>
+          <label class="k3d-label" for="k3dSfB1">B1 – Teilbreite hinten links <output id="k3dSfB1Wert">2500 mm</output></label>
+          <input type="number" id="k3dSfB1" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="2500" aria-label="B1 – Teilbreite hinten links in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-B2" hidden>
+          <label class="k3d-label" for="k3dSfB2">B2 – Teilbreite hinten rechts <output id="k3dSfB2Wert">2500 mm</output></label>
+          <input type="number" id="k3dSfB2" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="2500" aria-label="B2 – Teilbreite hinten rechts in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-B3" hidden>
+          <label class="k3d-label" for="k3dSfB3">B3 – Teilbreite Mitte <output id="k3dSfB3Wert">1500 mm</output></label>
+          <input type="number" id="k3dSfB3" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="1500" aria-label="B3 – Teilbreite Mitte in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-C1" hidden>
+          <label class="k3d-label" for="k3dSfC1">C1 – Tiefe links <output id="k3dSfC1Wert">3500 mm</output></label>
+          <input type="number" id="k3dSfC1" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="3500" aria-label="C1 – Tiefe links in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-C2" hidden>
+          <label class="k3d-label" for="k3dSfC2">C2 – Tiefe rechts <output id="k3dSfC2Wert">2500 mm</output></label>
+          <input type="number" id="k3dSfC2" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="2500" aria-label="C2 – Tiefe rechts in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sf-C3" hidden>
+          <label class="k3d-label" for="k3dSfC3">C3 – Tiefe Mitte <output id="k3dSfC3Wert">1500 mm</output></label>
+          <input type="number" id="k3dSfC3" class="k3d-zahl" inputmode="numeric"
+                 min="500" max="14080" step="10" value="1500" aria-label="C3 – Tiefe Mitte in Millimeter">
+        </div>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+          <p class="k3d-mass-hinweis" id="k3dSonderformRechteck"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="mass-normal">
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
@@ -737,7 +821,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse">
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="mass-normal">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
@@ -1626,10 +1710,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261016s" defer></script>
+<script src="js/masstabelle.js?v=20261023a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261016s" defer></script>
-<script src="js/konfigurator-3d.js?v=20261016s" defer></script>
+<script src="js/pdf-blatt.js?v=20261023a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261023a" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

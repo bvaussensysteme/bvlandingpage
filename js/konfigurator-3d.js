@@ -49,6 +49,13 @@
   /* ---------- Zustand ---------- */
   var Z = {
     produkt: 'Terrassendach TDS',
+    /* Sonderform: siehe SONDERFORM weiter unten. 'Normal' ist der
+       Regelfall; alle Masse bleiben dann die gewohnten Breite/Tiefe. */
+    form: 'Normal',
+    sonderform: 3,
+    sfA: 5000, sfA1: 2500, sfA2: 2500,
+    sfB: 5000, sfB1: 2500, sfB2: 2500, sfB3: 1500,
+    sfC1: 3500, sfC2: 2500, sfC3: 1500,
     cpTyp: 'Carport TDS',
     cpVariante: 'Freistehender Carport',
     cpDach: 'Trapezblech (Standard)',
@@ -8769,9 +8776,99 @@
 
   /* Welche Bedienfelder gelten für das gewählte Produkt? Die Gruppen im
      HTML tragen dazu data-k3d-fuer mit einem oder mehreren Stichworten. */
+  /* ---------- Sonderformen (TDS und SkyView) ----------
+     VD baut Terrassendaecher auch in festen Sonderformen. Das ist KEIN
+     freies Mass: Es gibt genau diese Formen, jede mit ihrer eigenen
+     Masskette. „VD baut das und es nennt sich bei system TDS ‚TDS
+     Sonderform'" (Betreiber, 23.10.2026).
+
+     NUMMERIERUNG. Die Schluessel hier sind die Nummern des
+     TDS-Katalogblatts. SkyView fuehrt dieselben drei Formen unter eigenen
+     Nummern: SkyView 1/2/3 sind TDS 3/4/5. Angezeigt wird deshalb die
+     Nummer des Systems, mit dem der Betrieb gerade arbeitet (Feld „sky")
+     – sonst sucht jemand auf dem falschen Blatt.
+
+     MASSE nach Katalog:
+       A          Breite vorne (an der Rinne)
+       B          Breite hinten (am Wandprofil)
+       A1 A2      Teilbreiten unten, B1 B2 B3 Teilbreiten oben
+       C1 C2 C3   Tiefen der einzelnen Abschnitte
+
+     WAS HIER NOCH NICHT STEHT: die echte Geometrie. Schritt 1 nimmt die
+     Masse entgegen und rechnet daraus das umschliessende Rechteck, mit
+     dem alles Weitere (Masstabelle, Stueckzahl, 3D) unveraendert
+     weiterlaeuft. Die Formen selbst werden in Schritt 2 und 3 gebaut. */
+  var SONDERFORM = {
+    1:  { f: 'A A1 A2 B C1 C2',       t: 'L-Form, Ausschnitt rechts vorne' },
+    2:  { f: 'A A1 A2 B C1 C2',       t: 'L-Form, Ausschnitt links vorne' },
+    3:  { f: 'A B B1 B2 C1 C2',       t: 'Zwei Felder \u2013 links tief, rechts flach', sky: 1 },
+    4:  { f: 'A B B1 B2 C1 C2',       t: 'Zwei Felder \u2013 links flach, rechts tief', sky: 2 },
+    5:  { f: 'A B B1 B2 B3 C1 C2 C3', t: 'Aussparung in der Mitte', sky: 3 },
+    6:  { f: 'A B B1 B2 B3 C1 C2 C3', t: 'T-Form \u2013 Mitte steht vor' },
+    7:  { f: 'A C1 C2',               t: 'Trapez \u2013 Wandprofil schr\u00e4g, rechts tiefer' },
+    8:  { f: 'A C1 C2',               t: 'Trapez \u2013 Wandprofil schr\u00e4g, links tiefer' },
+    9:  { f: 'A C1 C2',               t: 'Trapez \u2013 Rinne schr\u00e4g, links tiefer' },
+    10: { f: 'A C1 C2',               t: 'Trapez \u2013 Rinne schr\u00e4g, rechts tiefer' }
+  };
+
+  /* Welches System kennt welche Formen. SkyView nur drei – „Bei Skyview
+     geht nur das" (Betreiber, 23.10.2026, mit dem Katalogblatt
+     „Sondergroessen SkyView"). */
+  function sonderformErlaubt() {
+    if (Z.produkt === 'Terrassendach TDS') return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    if (Z.produkt === 'Flachdach SkyView') return [3, 4, 5];
+    return [];
+  }
+  function sonderformMoeglich() { return sonderformErlaubt().length > 0; }
+  function sonderformAktiv() {
+    return sonderformMoeglich() && Z.form === 'Sonderform';
+  }
+  /* Die Nummer, die auf dem Blatt des aktuellen Systems steht. */
+  function sonderformNummer(n) {
+    var d = SONDERFORM[n];
+    if (!d) return n;
+    return (Z.produkt === 'Flachdach SkyView' && d.sky) ? d.sky : n;
+  }
+  function sonderformJetzt() {
+    var liste = sonderformErlaubt();
+    return liste.indexOf(Z.sonderform) > -1 ? Z.sonderform : (liste[0] || 3);
+  }
+  /* Braucht die gewaehlte Form dieses Mass? Entscheidet, welche Felder
+     sichtbar sind – so steht nie ein Feld da, das die Form nicht kennt. */
+  function sonderBraucht(feld) {
+    if (!sonderformAktiv()) return false;
+    var d = SONDERFORM[sonderformJetzt()];
+    return !!d && (' ' + d.f + ' ').indexOf(' ' + feld + ' ') > -1;
+  }
+  /* Das umschliessende Rechteck: groesste Breite mal groesste Tiefe.
+     Darauf laufen Masstabelle, Sparren- und Pfostenzahl weiter. Bewusst
+     nach oben gerundet – lieber ein Sparren zu viel als einer zu wenig. */
+  function sonderRechteck() {
+    var b = 0, t = 0;
+    ['A', 'B'].forEach(function (k) {
+      if (sonderBraucht(k)) b = Math.max(b, Z['sf' + k] || 0);
+    });
+    ['C1', 'C2', 'C3'].forEach(function (k) {
+      if (sonderBraucht(k)) t = Math.max(t, Z['sf' + k] || 0);
+    });
+    return { breite: b, tiefe: t };
+  }
+
   function gruppeGilt(stichwort) {
     var d = datenSystem();
     switch (stichwort) {
+      /* ---------- Sonderformen ----------
+         'form-wahl'   die Auswahl Normal/Sonderform ueberhaupt anbieten
+         'mass-normal' die gewohnten Regler Breite und Tiefe
+         'sonderform'  der Block mit Formenauswahl und Massfeldern
+         'sf-XX'       das einzelne Mass, nur wenn die Form es kennt */
+      case 'form-wahl':   return sonderformMoeglich();
+      case 'mass-normal': return !sonderformAktiv();
+      case 'sonderform':  return sonderformAktiv();
+      case 'sf-A':  case 'sf-A1': case 'sf-A2':
+      case 'sf-B':  case 'sf-B1': case 'sf-B2': case 'sf-B3':
+      case 'sf-C1': case 'sf-C2': case 'sf-C3':
+        return sonderBraucht(stichwort.slice(3));
       case 'terrasse':       return !istCarport() && !istPergola();
       /* Seitenelemente gibt es beim Carport TDS auch – Glaswände und
          Schiebetüren am Carport sind üblich. Markisen dagegen nicht;
@@ -9025,6 +9122,62 @@
     sel.value = Z.cpVariante;
   }
 
+  /* Die Formenliste des aktuellen Systems in die Auswahl schreiben.
+     Gezeigt wird die Nummer, die auf dem Katalogblatt DIESES Systems
+     steht (SkyView 1/2/3 statt TDS 3/4/5) – sonst sucht jemand auf dem
+     falschen Blatt. Gebaut wie cpVariantenSetzen(): dieselbe Mechanik,
+     damit es nicht zwei Arten gibt, eine Auswahl zu fuellen. */
+  function sonderformSetzen() {
+    var sel = document.getElementById('k3dSonderform');
+    if (!sel) return;
+    var liste = sonderformErlaubt();
+    sel.innerHTML = liste.map(function (n) {
+      return '<option value="' + n + '">Form ' + sonderformNummer(n) + ' \u2013 ' +
+             SONDERFORM[n].t + '</option>';
+    }).join('');
+    Z.sonderform = sonderformJetzt();
+    sel.value = String(Z.sonderform);
+  }
+
+  /* Was unter der Formenauswahl steht: welche Masse die Form braucht und
+     welches Rechteck daraus folgt. Das Rechteck ist die Zahl, mit der
+     Stueckliste und 3D-Bild rechnen – sie gehoert sichtbar hin, nicht in
+     eine Fussnote. */
+  /* Die Masse der Form als eine Zeile, z. B. „A 5000, B 5000, C1 3500,
+     C2 2500 mm". Eine Stelle fuer Zusammenfassung, PDF und Anfrage –
+     sonst stehen dort drei verschiedene Schreibweisen. */
+  function sonderMasskette() {
+    if (!sonderformAktiv()) return '';
+    return SONDERFORM[sonderformJetzt()].f.split(' ').map(function (k) {
+      return k + ' ' + (Z['sf' + k] || 0);
+    }).join(', ') + ' mm';
+  }
+
+  function sonderformAnzeige() {
+    var h = document.getElementById('k3dSonderformHinweis');
+    var r = document.getElementById('k3dSonderformRechteck');
+    if (h) {
+      h.textContent = sonderformAktiv()
+        ? 'Ben\u00f6tigte Ma\u00dfe: ' + SONDERFORM[sonderformJetzt()].f.split(' ').join(', ')
+        : '';
+    }
+    if (r) {
+      if (!sonderformAktiv()) { r.textContent = ''; }
+      else {
+        var m = sonderRechteck();
+        r.textContent = 'Umschlie\u00dfendes Rechteck: ' + m.breite + ' \u00d7 ' + m.tiefe +
+          ' mm. Damit rechnen St\u00fcckliste und 3D-Bild. Das Bild zeigt vorerst ' +
+          'dieses Rechteck, nicht die Sonderform.';
+      }
+    }
+    ['A', 'A1', 'A2', 'B', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'].forEach(function (k) {
+      var a = document.getElementById('k3dSf' + k + 'Wert');
+      if (a) a.textContent = (Z['sf' + k] || 0) + ' mm';
+      var zf = document.getElementById('k3dSf' + k);
+      if (zf && document.activeElement !== zf) zf.value = Z['sf' + k];
+    });
+  }
+
   /* Schieberegler auf die Maßbereiche des Produkts stellen. Beim Wechsel
      greift die Voreinstellung – ein 3 m tiefes Terrassendach wäre als
      Carport nicht nutzbar, eine stille Umrechnung wäre irritierender. */
@@ -9109,9 +9262,22 @@
      sehen, wo eine Annahme steckt oder zwei Quellen sich widersprechen. */
   function hinweiseIntern() {
     var e = stueckliste();
-    if (!e || e.fehler || !e.hinweise) return [];
-    return e.hinweise.filter(function (h) { return h.fuer === 'intern'; })
-                     .map(function (h) { return h.text; });
+    var aus = (!e || e.fehler || !e.hinweise) ? []
+      : e.hinweise.filter(function (h) { return h.fuer === 'intern'; })
+                  .map(function (h) { return h.text; });
+    /* Bei einer Sonderform braucht der Betrieb drei Dinge, die der Kunde
+       nicht sehen muss: welche Form es ist, ihre echte Masskette, und
+       woher die Stueckzahl kommt. Dazu die Erinnerung an den Aufschlag
+       des Katalogblatts – die ZAHL steht hier bewusst nicht, sie ist
+       eine Preisangabe und hat im Konfigurator nichts zu suchen. */
+    if (sonderformAktiv()) {
+      aus.push('Sonderform ' + sonderformNummer(sonderformJetzt()) + ' (' +
+        SONDERFORM[sonderformJetzt()].t + '): ' + sonderMasskette() +
+        '. St\u00fcckzahl aus dem umschlie\u00dfenden Rechteck ' +
+        Z.breite + ' \u00d7 ' + Z.tiefe +
+        ' mm. Aufschlag laut Katalogblatt beachten.');
+    }
+    return aus;
   }
 
   /* Die Kurzfassung fuer den Anfrage-Assistenten. Dort steht der ganze
@@ -9123,6 +9289,15 @@
     var k = [produktName()];
     k.push(istCarport() ? cpVarianteJetzt() : Z.aufbau);
     k.push(Z.breite + ' × ' + Z.tiefe + ' mm, Höhe ' + Z.hoehe + ' mm');
+    /* Bei einer Sonderform ist die Zeile darueber das UMSCHLIESSENDE
+       Rechteck – allein gelesen waere sie irrefuehrend. Deshalb steht
+       die Form samt ihrer Masskette daneben, mit der Nummer des
+       Katalogblatts, mit dem der Betrieb arbeitet. */
+    if (sonderformAktiv()) {
+      k.push('Sonderform ' + sonderformNummer(sonderformJetzt()) + ' – ' +
+             SONDERFORM[sonderformJetzt()].t);
+      k.push(sonderMasskette());
+    }
     if (istPergola()) {
       k.push(Z.pgDachart);
       if (Z.pgSeitenschutz !== 'Nichts / später entscheiden') {
@@ -9466,6 +9641,10 @@
     var typWechsel = neuTyp !== Z.cpTyp;
     Z.cpTyp = neuTyp;
     if (typWechsel || produktWechsel) cpVariantenSetzen();
+    /* Die Formenliste haengt am System: TDS kennt zehn, SkyView drei.
+       Wird das Produkt gewechselt, muss sie neu geschrieben werden –
+       sonst steht dort eine Form, die es dort gar nicht gibt. */
+    if (produktWechsel) sonderformSetzen();
     Z.cpVariante = wert('k3dCpVariante') || Z.cpVariante;
     Z.cpDach = wert('k3dCpDach') || Z.cpDach;
     Z.pgDachart = wert('k3dPgDachart') || Z.pgDachart;
@@ -9520,6 +9699,29 @@
     Z.breite = parseInt(wert('k3dBreite'), 10) || Z.breite;
     Z.tiefe = parseInt(wert('k3dTiefe'), 10) || Z.tiefe;
     Z.hoehe = parseInt(wert('k3dHoehe'), 10) || Z.hoehe;
+
+    /* ---------- Sonderform ----------
+       Die Masse der Sonderform werden gelesen, und daraus wird das
+       UMSCHLIESSENDE RECHTECK gerechnet. Breite und Tiefe behalten damit
+       genau eine Bedeutung: das groesste Mass der Anlage. Masstabelle,
+       Stueckzahl, 3D-Bild, PDF und Anfrage laufen unveraendert weiter,
+       ohne dass eine dieser Stellen von Sonderformen wissen muss.
+
+       Das ist Absicht und keine Zwischenloesung: Die Stueckzahl SOLL vom
+       umschliessenden Rechteck kommen – lieber ein Sparren zu viel als
+       einer zu wenig. Die echte Form folgt in Schritt 2 und 3 und
+       aendert daran nichts. */
+    Z.form = wert('k3dForm') || Z.form;
+    if (!sonderformMoeglich()) Z.form = 'Normal';
+    Z.sonderform = parseInt(wert('k3dSonderform'), 10) || Z.sonderform;
+    ['A', 'A1', 'A2', 'B', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'].forEach(function (k) {
+      Z['sf' + k] = zahl('k3dSf' + k, Z['sf' + k]);
+    });
+    if (sonderformAktiv()) {
+      var sfR = sonderRechteck();
+      if (sfR.breite > 0) Z.breite = sfR.breite;
+      if (sfR.tiefe > 0) Z.tiefe = sfR.tiefe;
+    }
     Z.neigung = parseInt(wert('k3dNeigung'), 10) || Z.neigung;
     Z.hoeheHinten = zahl('k3dHoeheHinten', Z.hoeheHinten);
     Z.koppelLage = zahl('k3dKoppel', Z.koppelLage);
@@ -9613,6 +9815,9 @@
       var zf = document.getElementById(paar[0] + 'Zahl');
       if (zf && document.activeElement !== zf) zf.value = Z[paar[1]];
     });
+    /* Die Massfelder der Sonderform werden genauso nachgefuehrt – sonst
+       steht in den Feldern etwas anderes als im Modell. */
+    sonderformAnzeige();
     /* Grad links, Prozent rechts, Höhe an der Wand darunter.
 
        BELEGT (Montageanleitung TDS, S. 9): „Die Überdachung hat einen
@@ -9998,6 +10203,9 @@
   ['k3dProdukt', 'k3dCpTyp', 'k3dCpVariante', 'k3dCpDach', 'k3dAufbau',
    'k3dPgDachart', 'k3dPgAusfuehrung', 'k3dPgSeitenschutz', 'k3dLamellen',
    'k3dBreite', 'k3dTiefe', 'k3dHoehe',
+   'k3dForm', 'k3dSonderform',
+   'k3dSfA', 'k3dSfA1', 'k3dSfA2', 'k3dSfB', 'k3dSfB1', 'k3dSfB2', 'k3dSfB3',
+   'k3dSfC1', 'k3dSfC2', 'k3dSfC3',
    'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage',
    'k3dGlasOffen', 'k3dMarkise', 'k3dSonneAus',
@@ -11111,6 +11319,7 @@
 
   groesseAnpassen();
   cpVariantenSetzen();
+  sonderformSetzen();
   kameraSetzen();
   zeichnen();
 
