@@ -41,7 +41,9 @@ var quelle =
   hol(/function sonderformNummer\(n\) \{[\s\S]*?\n  \}/, 'sonderformNummer') + '\n' +
   hol(/function sonderformJetzt\(\) \{[\s\S]*?\n  \}/, 'sonderformJetzt') + '\n' +
   hol(/function sonderBraucht\(feld\) \{[\s\S]*?\n  \}/, 'sonderBraucht') + '\n' +
-  hol(/function sonderRechteck\(\) \{[\s\S]*?\n  \}/, 'sonderRechteck');
+  hol(/function sonderRechteck\(\) \{[\s\S]*?\n  \}/, 'sonderRechteck') + '\n' +
+  hol(/function sonderformMoeglich\(\) \{[^}]*\}/, 'sonderformMoeglich') + '\n' +
+  hol(/function sonderformProfil\(x\) \{[\s\S]*?\n  \}/, 'sonderformProfil');
 
 var Z = { produkt: 'Terrassendach TDS', form: 'Sonderform', sonderform: 3,
           sfA: 5000, sfA1: 2500, sfA2: 2500, sfB: 4000, sfB1: 2000, sfB2: 2000,
@@ -55,7 +57,8 @@ try {
   API = eval(quelle + '\n;({ SONDERFORM: SONDERFORM,' +
     ' erlaubt: sonderformErlaubt, aktiv: sonderformAktiv,' +
     ' nummer: sonderformNummer, jetzt: sonderformJetzt,' +
-    ' braucht: sonderBraucht, rechteck: sonderRechteck })');
+    ' braucht: sonderBraucht, rechteck: sonderRechteck,' +
+    ' profil: sonderformProfil })');
 } catch (e) { API = null; }
 var geladen = !!(API && API.SONDERFORM);
 var SONDERFORM = geladen ? API.SONDERFORM : {};
@@ -64,6 +67,7 @@ function sonderformAktiv() { return API.aktiv(); }
 function sonderformNummer(n) { return API.nummer(n); }
 function sonderBraucht(f) { return API.braucht(f); }
 function sonderRechteck() { return API.rechteck(); }
+function sonderformProfil(x) { return API.profil(x); }
 
 pruefe('Die Formenlogik lässt sich ausführen', gegen ? !geladen : geladen,
        geladen ? Object.keys(SONDERFORM).length + ' Formen' : 'Fehler beim Laden');
@@ -139,6 +143,99 @@ Z.sfB = altB;
 pruefe('Ein Maß außerhalb der Form zählt nicht mit',
        gegen ? r7.breite === 9999 : r7.breite === 5000,
        'Form 7 kennt kein B – Rechteck bleibt ' + r7.breite + ' mm breit');
+
+/* ---------- Die Form als Grundriss: über ALLE zehn Formen ----------
+   Der gemeinsame Nenner aller Formen ist „Tiefe als Funktion der
+   Breite". Damit lässt sich jede Form abtasten und auf zwei Dinge
+   prüfen, die immer gelten müssen:
+
+     1. Nirgends darf die Tiefe null oder negativ werden – dort stünde
+        ein Sparren ohne Länge, und das 3D-Modell bekäme eine kaputte
+        Geometrie.
+     2. Nirgends darf die Form über das umschließende Rechteck
+        hinausragen – sonst stimmt die Stückzahl nicht mehr.
+
+   Das ist der Weg, der einen Lesefehler beim Übertragen vom
+   Katalogblatt findet, ohne dass jemand hinschauen muss. */
+(function () {
+  var kaputt = [], draussen = [];
+  Object.keys(SONDERFORM).forEach(function (n) {
+    Z.sonderform = Number(n);
+    var g = sonderRechteck(), min = 1e9, max = -1e9;
+    for (var i = 0; i <= 200; i++) {
+      var pr = sonderformProfil(g.breite * i / 200);
+      var t = pr.vorne - pr.hinten;
+      if (t < min) min = t;
+      if (pr.vorne > max) max = pr.vorne;
+    }
+    if (!(min > 0)) kaputt.push('Form ' + n + ': ' + min.toFixed(0) + ' mm');
+    if (max > g.tiefe + 1) draussen.push('Form ' + n + ': ' + max.toFixed(0) +
+                                         ' > ' + g.tiefe);
+  });
+  Z.sonderform = 3;
+  pruefe('Keine Form hat irgendwo die Tiefe null',
+         gegen ? kaputt.length !== 0 : kaputt.length === 0,
+         kaputt.length ? kaputt.join(', ') : 'alle zehn Formen abgetastet');
+  pruefe('Keine Form ragt über das umschließende Rechteck hinaus',
+         gegen ? draussen.length !== 0 : draussen.length === 0,
+         draussen.length ? draussen.join(', ') : 'Stückzahl bleibt gültig');
+})();
+
+/* Die Stufen müssen auch wirklich da sein: Bei Form 3 ist links tief
+   (C1) und rechts flach (C2). Wäre das Blatt spiegelverkehrt gelesen,
+   käme es genau hier heraus. */
+(function () {
+  Z.sonderform = 3;
+  var links = sonderformProfil(100).vorne;
+  var rechts = sonderformProfil(sonderRechteck().breite - 100).vorne;
+  pruefe('Form 3 ist links tief und rechts flach',
+         gegen ? !(links === Z.sfC1 && rechts === Z.sfC2)
+               : (links === Z.sfC1 && rechts === Z.sfC2),
+         'links ' + links + ' (C1 ' + Z.sfC1 + '), rechts ' + rechts +
+         ' (C2 ' + Z.sfC2 + ')');
+  Z.sonderform = 4;
+  var links4 = sonderformProfil(100).vorne;
+  var rechts4 = sonderformProfil(sonderRechteck().breite - 100).vorne;
+  pruefe('Form 4 ist die gespiegelte Form 3',
+         gegen ? !(links4 === Z.sfC2 && rechts4 === Z.sfC1)
+               : (links4 === Z.sfC2 && rechts4 === Z.sfC1),
+         'links ' + links4 + ', rechts ' + rechts4);
+  /* Trapez: die Tiefe muss von links nach rechts durchlaufen, nicht
+     springen. Geprüft an Form 10 (C1 links, C2 rechts). */
+  Z.sonderform = 10;
+  var b10 = sonderRechteck().breite;
+  var a10 = sonderformProfil(0).vorne, m10 = sonderformProfil(b10 / 2).vorne,
+      e10 = sonderformProfil(b10).vorne;
+  var mittig = Math.abs(m10 - (a10 + e10) / 2) < 1;
+  pruefe('Trapez läuft gleichmäßig durch, statt zu springen',
+         gegen ? !(a10 === Z.sfC1 && e10 === Z.sfC2 && mittig)
+               : (a10 === Z.sfC1 && e10 === Z.sfC2 && mittig),
+         'links ' + a10 + ', Mitte ' + m10.toFixed(0) + ', rechts ' + e10);
+  Z.sonderform = 3;
+})();
+
+/* ---------- Die Skizze kommt aus derselben Quelle wie das Modell ----------
+   „was bedeutet was man weiß es ja nicht es gibt ja keine skizze"
+   (Betreiber, 23.10.2026). Die Skizze darf keine zweite Vorstellung von
+   der Form sein – sonst zeigt sie etwas anderes, als gebaut wird. */
+pruefe('Die Skizze zeichnet aus sonderformProfil',
+       gegen ? !/function sonderformSkizze\(\)[\s\S]*?sonderformProfil\(/.test(k3d)
+             : /function sonderformSkizze\(\)[\s\S]*?sonderformProfil\(/.test(k3d),
+       'dieselbe Funktion wie das 3D-Modell, keine zweite Zeichnung');
+pruefe('Die Skizze hat einen Platz in der Seite',
+       gegen ? html.indexOf('id="k3dSonderformSkizze"') < 0
+             : html.indexOf('id="k3dSonderformSkizze"') > -1,
+       'unter der Formenauswahl');
+
+/* ---------- Beide Bauwege ----------
+   bauenAusDaten() baut ein Rechteck aus der Serverantwort und weiß von
+   Sonderformen nichts. Liefe eine Sonderform dort hinein, wäre das Bild
+   je nach Serverantwort mal geformt und mal nicht – dieselbe Falle wie
+   am 11., 15. und 16.10.2026. */
+pruefe('Sonderform geht nie in den Datenweg',
+       gegen ? !/if \(e && !e\.fehler && !sonderformAktiv\(\)\) bauenAusDaten\(e\);/.test(k3d)
+             : /if \(e && !e\.fehler && !sonderformAktiv\(\)\) bauenAusDaten\(e\);/.test(k3d),
+       'nur der geschätzte Bauweg kennt die Form');
 
 /* ---------- Jedes Maß hat ein Feld in der Seite ---------- */
 var alleFelder = {};

@@ -1043,7 +1043,7 @@ pruefe('SkyView – Rahmen bleibt waagerecht',
   pruefe('SkyView - Sparren ist ein gerades Profil wie bei TDS',
          gegen ? /function keilsparren/.test(k3d)
                : (!/function keilsparren/.test(k3d) &&
-                  /sparrenBauen\(laenge, x, ukMitte, zMitte, neig, mAlu\)/.test(k3d)),
+                  /sparrenBauen\(ab\.laenge, x, ukMitteBei\(ab\.zMitte\), ab\.zMitte, neig, mAlu\)/.test(k3d)),
          'kein Keil, nur geneigt');
 })();
 pruefe('SkyView – Sparrenlänge aus der Anleitung',
@@ -2468,10 +2468,11 @@ pruefe('Scheibe liegt auf dem Sparrenkörper, nicht auf der Klaue',
        (gegen || !/yDach = ukMitte \+ spH \+ glasDicke/.test(k3d)),
        '96,7 statt 120 mm über der Sparrenunterkante');
 pruefe('Glasleisten laufen so weit wie die Scheibe',
-       new RegExp(q || 'abdeckleiste\\(vollGlas, x, ukMitte \\+ SPARREN\\.koerper \\+ glasDicke, zGlasMitte').test(k3d) &&
-       new RegExp(q || 'seitenglasleiste\\(vollGlas, x, ukMitte \\+ SPARREN\\.koerper \\+ glasDicke, zGlasMitte').test(k3d) &&
+       new RegExp(q || 'abdeckleiste\\(gll\\.laenge, x, ably, gll\\.zMitte').test(k3d) &&
+       new RegExp(q || 'seitenglasleiste\\(gll\\.laenge, x, ably, gll\\.zMitte').test(k3d) &&
+       new RegExp(q || 'var ably = ukMitteBei\\(abschnittBei\\(x\\)\\.zMitte\\) \\+ SPARREN\\.koerper \\+ glasDicke;').test(k3d) &&
        (gegen || !/abdeckleiste\(laenge - 2/.test(k3d)),
-       'nicht mehr auf Sparrenlaenge');
+       'Laenge und Lage aus glasBei(), nicht aus der Sparrenlaenge');
 (function () {
   /* Zweiter Weg: nachrechnen, wie viel vorne gefehlt hat. */
   var rinne = 18.63, rueck = 3.6, innen = 13.0;

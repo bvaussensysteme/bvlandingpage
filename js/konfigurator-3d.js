@@ -3105,7 +3105,18 @@
        kurz ein Carport, wo ein Terrassendach hingehört. */
     if (!e && datenSystem()) return;
     leeren(bau);
-    if (e && !e.fehler) bauenAusDaten(e);
+    /* ---------- Sonderform zeichnet immer der geschaetzte Bauweg ----------
+       bauenAusDaten() baut ein RECHTECK aus der Serverantwort; von den
+       Sonderformen weiss es nichts. Liefe eine Sonderform dort hinein,
+       waere das Bild je nach Serverantwort mal geformt und mal nicht –
+       genau die Falle, die am 11., 15. und 16.10.2026 schon dreimal
+       zugeschlagen hat (Arbeit nur in einem der beiden Bauwege).
+
+       Deshalb hier die klare Weiche: Form kennt nur dieser eine Weg,
+       also geht die Sonderform immer dorthin. An den STUECKZAHLEN
+       aendert das nichts – die kommen weiter aus stueckliste() bzw. der
+       Masstabelle, gerechnet auf das umschliessende Rechteck. */
+    if (e && !e.fehler && !sonderformAktiv()) bauenAusDaten(e);
     else if (istPergola()) bauenPergola();
     /* Der Carport TDS ist baulich dasselbe wie ein Terrassendach TDS –
        „das carport tds ist eig, genauso ein terrassendach tds, die
@@ -6604,6 +6615,38 @@
     var laenge = sky ? T - SKY.sparrenAbzug
                      : (dachTiefe - zSpHinten) / Math.cos(neig);
     var zMitte = sky ? T / 2 : (dachTiefe + zSpHinten) / 2;
+
+    /* ---------- Sonderform: jeder Sparren bekommt seine eigene Laenge ----------
+       Bei normaler Form liefert das hier genau die Werte von oben
+       zurueck – der Rest des Bauwegs merkt also nichts davon.
+
+       Bei Sonderform wird fuer die Stelle x nachgesehen, wie tief die
+       Anlage dort ist (sonderformProfil), und daraus dieselbe Rechnung
+       gemacht wie global: Dachtiefe, Sparrenlaenge, Mitte. Die Formeln
+       stehen bewusst NICHT ein zweites Mal da, sondern folgen Zeile fuer
+       Zeile denen darueber – laufen sie auseinander, sieht man es sofort.
+
+       xCm ist die Modellkoordinate (0 in der Mitte); das Profil rechnet
+       in Millimetern ab der linken Kante. */
+    function abschnittBei(xCm) {
+      if (!sonderformAktiv()) {
+        return { laenge: laenge, zMitte: zMitte, vorne: dachTiefe };
+      }
+      var pr = sonderformProfil((xCm + B / 2) * 10);
+      var zV = pr.vorne / 10, zH = pr.hinten / 10;
+      var dT = sky ? zV : zV - RINNE.breite;
+      var hi = sky ? zH : Math.max(zH, zSpHinten);
+      var ln = sky ? Math.max(10, zV - zH - SKY.sparrenAbzug)
+                   : Math.max(10, (dT - hi) / Math.cos(neig));
+      return { laenge: ln, zMitte: (dT + hi) / 2, vorne: dT };
+    }
+    /* Die Hoehe haengt an der Lage in der Tiefe: Je weiter hinten der
+       Sparren sitzt, desto hoeher liegt er (Gefaelle). Wandert zMitte
+       mit der Form, muss die Hoehe mitwandern – sonst haengt ein
+       verkuerzter Sparren in der Luft. */
+    function ukMitteBei(zM) {
+      return ukVorn + Math.tan(neig) * (dachTiefe - zM);
+    }
     /* Die Eindeckung ragt über das Sparrenende hinaus, bis etwa in die
        Mitte der Kehle – sonst tropft das Wasser auf die Rinnenrückwand
        statt in die Rinne. GESCHÄTZT. */
@@ -6644,7 +6687,8 @@
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
     xs.forEach(function (x) {
-      sparrenBauen(laenge, x, ukMitte, zMitte, neig, mAlu);
+      var ab = abschnittBei(x);
+      sparrenBauen(ab.laenge, x, ukMitteBei(ab.zMitte), ab.zMitte, neig, mAlu);
     });
 
     /* ---------- Blende vor der unteren Kammer ----------
@@ -6740,6 +6784,28 @@
     var zGlasMitte = sky ? T / 2 : zMitte + (glasRueck + glasUeber - 1) / 2;
     var vollGlas = sky ? Math.max(10, T - SKY.rinneT - SKY.traegerT + 2 * skyAuflage)
                        : laenge + glasUeber - 1 - glasRueck;
+    /* Dieselbe Rechnung wie oben, nur fuer eine einzelne Stelle in der
+       Breite. Bei normaler Form kommt genau vollGlas/zGlasMitte heraus;
+       bei Sonderform folgt die Scheibe der Tiefe an dieser Stelle.
+
+       Gemessen wird in der MITTE des Feldes zwischen zwei Sparren. Faellt
+       eine Stufe der Form mitten in ein Feld, rundet das – die Stufen
+       liegen nicht zwangslaeufig auf einer Sparrenachse. Das ist bewusst
+       so: Lieber eine Scheibe, die zur Feldmitte passt, als eine, die an
+       einer Kante ueber die Anlage hinaussteht. */
+    function glasBei(xCm) {
+      if (!sonderformAktiv()) {
+        return { laenge: vollGlas, zMitte: zGlasMitte };
+      }
+      var ab = abschnittBei(xCm);
+      var ln = sky ? Math.max(10, (ab.vorne - (ab.vorne - ab.laenge)) -
+                                   SKY.rinneT - SKY.traegerT + 2 * skyAuflage)
+                   : Math.max(10, ab.laenge + glasUeber - 1 - glasRueck);
+      var zm = sky ? ab.zMitte
+                   : ab.zMitte + (glasRueck + glasUeber - 1) / 2;
+      return { laenge: ln, zMitte: zm };
+    }
+
     var koppelZ = dachTiefe - koppelAbstand() / 10;      // mm -> cm
     var koppelLokal = (koppelZ - zGlasMitte) / Math.cos(neig);
     var koppelVorn = vollGlas / 2 - koppelLokal - KOPPEL.breite / 2;
@@ -6757,8 +6823,10 @@
       if (feldB <= 0) continue;
       var xMitte = (xs[i] + xs[i + 1]) / 2;
       if (!glasGeteilt()) {
-        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, vollGlas), mF);
-        pl.position.set(xMitte, yDach, zGlasMitte);
+        var gl = glasBei(xMitte);
+        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, gl.laenge), mF);
+        pl.position.set(xMitte, ukMitteBei(abschnittBei(xMitte).zMitte) +
+                                SPARREN.koerper + glasDicke / 2, gl.zMitte);
         pl.rotation.x = neig;
         pl.receiveShadow = true;
         dachTeil(pl);
@@ -6830,11 +6898,16 @@
            Leisten genau so weit wie die Scheibe, mit demselben Maß und
            derselben Mitte: Sie halten das Glas, also gehören sie auf
            seine Länge, nicht auf die des Sparrens. */
+        /* Die Leisten liegen AUF dem Sparren – also auf seiner Laenge
+           und seiner Hoehe, nicht auf der globalen. Sonst stehen sie bei
+           einer Sonderform ueber das verkuerzte Dach hinaus. */
+        var gll = glasBei(x);
+        var ably = ukMitteBei(abschnittBei(x).zMitte) + SPARREN.koerper + glasDicke;
         if (i === 0 || i === xs.length - 1) {
-          seitenglasleiste(vollGlas, x, ukMitte + SPARREN.koerper + glasDicke, zGlasMitte,
+          seitenglasleiste(gll.laenge, x, ably, gll.zMitte,
                            neig, i === 0, mAlu);
         } else {
-          abdeckleiste(vollGlas, x, ukMitte + SPARREN.koerper + glasDicke, zGlasMitte, neig, mAlu);
+          abdeckleiste(gll.laenge, x, ably, gll.zMitte, neig, mAlu);
         }
       });
     }
@@ -9143,6 +9216,170 @@
      welches Rechteck daraus folgt. Das Rechteck ist die Zahl, mit der
      Stueckliste und 3D-Bild rechnen – sie gehoert sichtbar hin, nicht in
      eine Fussnote. */
+  /* ---------- Die Form als Tiefe ueber die Breite ----------
+     Der Schluessel zu allen zehn Formen: Jede ist „Tiefe als Funktion
+     der Breite". Fuer jedes x gibt es genau EINEN Tiefenbereich, von
+     hinten (Wand) bis vorne (Rinne). Damit braucht es keine zehn
+     Sonderfaelle im Bau, sondern eine Funktion.
+
+       Formen 1–6   Stufen: die Tiefe springt an festen Breiten
+       Formen 7–10  Schraege: die Tiefe laeuft linear von links nach rechts
+
+     x laeuft von 0 (linke Kante) bis zur Gesamtbreite, alles in
+     Millimetern. Zurueck kommt { hinten, vorne } – bei den Formen 7
+     und 8 ist die WAND schraeg, dort wandert „hinten".
+
+     ABGELESEN vom Katalogblatt ist, welches Teilmass zu welcher Seite
+     gehoert (bei Form 3 liegt B1 links, bei Form 4 rechts – die Bilder
+     sind gespiegelt). Das ist die Stelle, an der ein Lesefehler am
+     ehesten steckt; scripts/pruefe-sonderform.js rechnet deshalb jede
+     Form nach, und der Betrieb sollte einmal gegen das Blatt schauen. */
+  function sonderformProfil(x) {
+    var n = sonderformJetzt();
+    var A = Z.sfA, B = Z.sfB, A1 = Z.sfA1, A2 = Z.sfA2;
+    var B1 = Z.sfB1, B2 = Z.sfB2, B3 = Z.sfB3;
+    var C1 = Z.sfC1, C2 = Z.sfC2, C3 = Z.sfC3;
+    var ganz = sonderRechteck();
+    var br = ganz.breite || 1;
+    var anteil = Math.min(1, Math.max(0, x / br));
+    var vorne, hinten = 0;
+
+    switch (n) {
+      /* L-Form: links tief, rechts der Ausschnitt */
+      case 1:  vorne = (x < A1) ? C1 : C2; break;
+      /* gespiegelt: links der Ausschnitt */
+      case 2:  vorne = (x < A2) ? C2 : C1; break;
+      /* Zwei Felder nebeneinander, links tief */
+      case 3:  vorne = (x < B1) ? C1 : C2; break;
+      /* gespiegelt: rechts tief (B1 liegt hier rechts) */
+      case 4:  vorne = (x < B2) ? C2 : C1; break;
+      /* Aussparung in der Mitte: das mittlere Feld ist flacher */
+      case 5:  vorne = (x < B1) ? C1 : ((x < B1 + B3) ? C3 : C2); break;
+      /* T-Form: das mittlere Feld steht vor */
+      case 6:  vorne = (x < B2) ? C2 : ((x < B2 + B1) ? C1 : C3); break;
+      /* Trapeze 7 und 8: die RINNE ist gerade, das Wandprofil schraeg.
+         Die Tiefe laeuft linear; „hinten" wandert entsprechend mit. */
+      case 7:
+      case 8: {
+        var tiefe78 = (n === 7) ? C1 + (C2 - C1) * anteil
+                                : C2 + (C1 - C2) * anteil;
+        vorne = Math.max(C1, C2);
+        hinten = vorne - tiefe78;
+        break;
+      }
+      /* Trapeze 9 und 10: das Wandprofil ist gerade, die RINNE schraeg */
+      case 9:  vorne = C2 + (C1 - C2) * anteil; break;
+      case 10: vorne = C1 + (C2 - C1) * anteil; break;
+      default: vorne = ganz.tiefe;
+    }
+    if (!(vorne > 0)) vorne = ganz.tiefe;
+    if (!(hinten >= 0)) hinten = 0;
+    return { hinten: hinten, vorne: vorne };
+  }
+
+  /* Wie tief die Anlage an dieser Stelle ist. Null oder weniger darf
+     nicht vorkommen – dort stuende ein Sparren ohne Laenge. */
+  function sonderformTiefeBei(x) {
+    var pr = sonderformProfil(x);
+    return Math.max(0, pr.vorne - pr.hinten);
+  }
+
+  /* ---------- Die Skizze zur Form ----------
+     „es is schoen das man so ne ganze liste hat, aber was bedeutet was
+     man weiss es ja nicht es gibt ja keine skizze" (Betreiber,
+     23.10.2026). Stimmt: A, A1, B2, C3 sind ohne Bild bedeutungslos.
+
+     Gezeichnet wird deshalb der Grundriss AUS DEN EINGEGEBENEN MASSEN,
+     nicht das Katalogbild. Das ist in zwei Hinsichten besser: Es zeigt
+     die eigene Anlage statt eines Beispiels, und es aendert sich beim
+     Tippen mit – ein falsch verstandenes Mass sieht man sofort.
+
+     Die Umrisslinie kommt aus derselben Funktion wie das 3D-Modell
+     (sonderformProfil). Es gibt also keine zweite Vorstellung davon, wie
+     die Form aussieht: Was hier gezeichnet wird, wird auch gebaut.
+
+     Oben liegt die Wand, unten die Rinne – wie auf den Katalogblaettern. */
+  function sonderformSkizze() {
+    var ziel = document.getElementById('k3dSonderformSkizze');
+    if (!ziel) return;
+    if (!sonderformAktiv()) { ziel.innerHTML = ''; return; }
+
+    var ganz = sonderRechteck();
+    var bM = ganz.breite || 1, tM = ganz.tiefe || 1;
+    var W = 320, H = 210, rand = 34;
+    var sk = Math.min((W - 2 * rand) / bM, (H - 2 * rand) / tM);
+    var bx = (W - bM * sk) / 2, by = (H - tM * sk) / 2;
+    function sx(x) { return bx + x * sk; }
+    function sy(z) { return by + z * sk; }
+
+    /* Umriss abtasten. An den Stufen braucht es zwei Punkte dicht
+       nebeneinander, sonst zeichnet die Linie eine Schraege statt einer
+       Kante – deshalb der kleine Versatz von einem Millimeter. */
+    var schritte = 240, i, p1 = [], p2 = [], x, pr;
+    for (i = 0; i <= schritte; i++) {
+      x = bM * i / schritte;
+      pr = sonderformProfil(x);
+      p1.push([sx(x), sy(pr.hinten)]);
+      p2.push([sx(x), sy(pr.vorne)]);
+      if (i < schritte) {
+        var pn = sonderformProfil(bM * (i + 1) / schritte - 0.5);
+        if (Math.abs(pn.vorne - pr.vorne) > 1 || Math.abs(pn.hinten - pr.hinten) > 1) {
+          p1.push([sx(bM * (i + 1) / schritte - 0.5), sy(pn.hinten)]);
+          p2.push([sx(bM * (i + 1) / schritte - 0.5), sy(pn.vorne)]);
+        }
+      }
+    }
+    var punkte = p1.concat(p2.reverse())
+      .map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' ');
+
+    /* Wo welcher Buchstabe hingehoert. Die Anker folgen der Bedeutung:
+       A vorne, B hinten, C links/rechts/mitte, die Teilmasse an ihrem
+       Abschnitt. Gezeichnet wird nur, was die Form auch kennt. */
+    var mitteX = bM / 2;
+    var anker = {
+      A:  [mitteX, sonderformProfil(mitteX).vorne, 'unten'],
+      B:  [mitteX, sonderformProfil(mitteX).hinten, 'oben'],
+      A1: [bM * 0.25, sonderformProfil(bM * 0.25).vorne, 'unten'],
+      A2: [bM * 0.75, sonderformProfil(bM * 0.75).vorne, 'unten'],
+      B1: [bM * 0.25, sonderformProfil(bM * 0.25).hinten, 'oben'],
+      B2: [bM * 0.75, sonderformProfil(bM * 0.75).hinten, 'oben'],
+      B3: [mitteX, sonderformProfil(mitteX).hinten, 'oben'],
+      C1: [bM * 0.08, null, 'links'],
+      C2: [bM * 0.92, null, 'rechts'],
+      C3: [mitteX, null, 'mitte']
+    };
+    var txt = '';
+    SONDERFORM[sonderformJetzt()].f.split(' ').forEach(function (k) {
+      var a = anker[k];
+      if (!a) return;
+      var px, py, anc = 'middle';
+      if (a[2] === 'links' || a[2] === 'rechts' || a[2] === 'mitte') {
+        var prc = sonderformProfil(a[0]);
+        px = sx(a[0]); py = sy((prc.hinten + prc.vorne) / 2) + 4;
+      } else {
+        px = sx(a[0]); py = sy(a[1]) + (a[2] === 'oben' ? -6 : 14);
+      }
+      txt += '<text x="' + px.toFixed(1) + '" y="' + py.toFixed(1) +
+             '" text-anchor="' + anc + '" class="k3d-skizze-mass">' + k +
+             '<tspan class="k3d-skizze-wert"> ' + (Z['sf' + k] || 0) + '</tspan></text>';
+    });
+
+    /* Die Wand als dicke Linie ueber dem hoechsten Punkt der Rueckseite –
+       damit klar ist, welche Seite am Haus liegt. */
+    var wandY = sy(Math.min(sonderformProfil(0).hinten,
+                            sonderformProfil(bM).hinten)) - 11;
+    ziel.innerHTML =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" class="k3d-skizze" ' +
+      'role="img" aria-label="Grundriss der gew\u00e4hlten Sonderform">' +
+      '<line x1="' + (bx - 10).toFixed(1) + '" y1="' + wandY.toFixed(1) +
+      '" x2="' + (bx + bM * sk + 10).toFixed(1) + '" y2="' + wandY.toFixed(1) +
+      '" class="k3d-skizze-wand" />' +
+      '<text x="' + (W / 2).toFixed(1) + '" y="' + (wandY - 5).toFixed(1) +
+      '" text-anchor="middle" class="k3d-skizze-haus">Hauswand</text>' +
+      '<polygon points="' + punkte + '" class="k3d-skizze-flaeche" />' +
+      txt + '</svg>';
+  }
+
   /* Die Masse der Form als eine Zeile, z. B. „A 5000, B 5000, C1 3500,
      C2 2500 mm". Eine Stelle fuer Zusammenfassung, PDF und Anfrage –
      sonst stehen dort drei verschiedene Schreibweisen. */
@@ -9170,6 +9407,7 @@
           'dieses Rechteck, nicht die Sonderform.';
       }
     }
+    sonderformSkizze();
     ['A', 'A1', 'A2', 'B', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3'].forEach(function (k) {
       var a = document.getElementById('k3dSf' + k + 'Wert');
       if (a) a.textContent = (Z['sf' + k] || 0) + ' mm';
