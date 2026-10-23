@@ -1104,6 +1104,24 @@
           </div>
         </div>
 
+        <!-- Die Rueckseite gibt es nur freistehend: An der Hauswand steht
+             dort das Haus. Sichtbar ueber die Regel 'erw-hinten' in
+             gruppeGilt(); der Keil entfaellt wie vorne, weil die Dachkante
+             hier waagerecht laeuft. Anlass: „Bei freistehen muss
+             plankenwand, rahmen etc. also alle moeglichen auch hinten
+             moeglich sein" (Betreiber, 23.10.2026). -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="erw-hinten" hidden>
+          <span class="k3d-label">Hinten (Rückseite) <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="hinten" role="group" aria-label="Erweiterung hinten">
+            <button type="button" data-erw="Keil" hidden><small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-links" hidden>
           <label class="k3d-label" for="k3dSg23Links">Aufteilung der Schiebeanlage links</label>
           <select id="k3dSg23Links" class="k3d-select"></select>
@@ -1117,6 +1135,11 @@
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-vorne" hidden>
           <label class="k3d-label" for="k3dSg23Vorne">Aufteilung der Schiebeanlage vorne (Stirnseite)</label>
           <select id="k3dSg23Vorne" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-hinten" hidden>
+          <label class="k3d-label" for="k3dSg23Hinten">Aufteilung der Schiebeanlage hinten (Rückseite)</label>
+          <select id="k3dSg23Hinten" class="k3d-select"></select>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="rahmenwand" hidden>
@@ -1701,10 +1724,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261023e" defer></script>
+<script src="js/masstabelle.js?v=20261023f" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261023e" defer></script>
-<script src="js/konfigurator-3d.js?v=20261023e" defer></script>
+<script src="js/pdf-blatt.js?v=20261023f" defer></script>
+<script src="js/konfigurator-3d.js?v=20261023f" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

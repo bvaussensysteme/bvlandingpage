@@ -87,7 +87,14 @@
     'Schiebetür': ['Velaris'],
     'Rahmenwand': ['Velaris']
   };
-  function erwIsVorne(id) { return id === 'erw_vorne'; } // Stirnseite: kein Keil, keine Auto-Keil-Regeln
+  // Stirnseiten (vorne und hinten): kein Keil, keine Auto-Keil-Regeln.
+  // Der Keil gleicht das Gefaelle an den Laengsseiten aus; vorne wie hinten
+  // laeuft die Dachkante waagerecht.
+  function erwIsVorne(id) { return id === 'erw_vorne' || id === 'erw_hinten'; }
+  // Hinten gibt es eine Seite nur freistehend – bei Wandmontage steht dort
+  // das Haus ("Bei freistehen muss plankenwand, rahmen etc. also alle
+  // moeglichen auch hinten moeglich sein", Betreiber 23.10.2026).
+  function rueckseiteOffen() { return answers.aufbau === 'Freistehend'; }
   // Keil (Gefälle-Ausgleich) nur bei TDS-Systemen mit Außengefälle – nicht bei
   // Flachdach SkyView oder Pergola (kein Außengefälle → kein Keil nötig).
   function keilAllowed() {
@@ -198,7 +205,7 @@
       if (answers.markise === 'Aufdachmarkise' || answers.markise === 'Unterdachmarkise')
         tdsSchritte.push('stoff');
       tdsSchritte.push('erweiterungen');
-      if (['erw_links', 'erw_rechts', 'erw_vorne'].some(function (k) {
+      if (['erw_links', 'erw_rechts', 'erw_vorne', 'erw_hinten'].some(function (k) {
         return (answers[k] || []).indexOf('Senkrechtmarkise') > -1;
       })) tdsSchritte.push('stoffzip');
       return tdsSchritte.concat(['led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary']);
@@ -241,7 +248,7 @@
      'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'ledsetzahl', 'sound', 'soundset',
      'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
-     'erw_links', 'erw_rechts', 'erw_vorne', 'untergrund', 'montage', 'wunsch', 'extras',
+     'erw_links', 'erw_rechts', 'erw_vorne', 'erw_hinten', 'untergrund', 'montage', 'wunsch', 'extras',
      'stoff', 'stoffzip']
       .forEach(function (k) { delete answers[k]; });
   }
@@ -526,6 +533,7 @@
           ddField('erw_links', 'Erweiterung links') +
           ddField('erw_rechts', 'Erweiterung rechts') +
           ddField('erw_vorne', 'Erweiterung vorne (Stirnseite)') +
+          (rueckseiteOffen() ? ddField('erw_hinten', 'Erweiterung hinten (Rückseite)') : '') +
           '</div>';
       },
       collect: function () {}, // Auswahl wird direkt beim Klick gesetzt
@@ -912,7 +920,8 @@
     if (inFlow('stoff') && answers.stoff) p.push(['Markisenstoff', stoffText(answers.stoff)]);
     if (inFlow('stoffzip') && answers.stoffzip) p.push(['Stoff Senkrechtmarkise', stoffText(answers.stoffzip)]);
     if (inFlow('erweiterungen')) {
-      [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'], ['erw_vorne', 'Erweiterung vorne']].forEach(function (e) {
+      [['erw_links', 'Erweiterung links'], ['erw_rechts', 'Erweiterung rechts'],
+       ['erw_vorne', 'Erweiterung vorne'], ['erw_hinten', 'Erweiterung hinten']].forEach(function (e) {
         var v = answers[e[0]];
         if (v && v.length) p.push([e[1], v.join(', ')]);
       });
@@ -1282,7 +1291,7 @@
       if (v[k] != null && v[k] !== '') answers[k] = String(v[k]);
     });
     // Die seitlichen Erweiterungen sind Listen, keine einzelnen Werte
-    ['erw_links', 'erw_rechts', 'erw_vorne'].forEach(function (k) {
+    ['erw_links', 'erw_rechts', 'erw_vorne', 'erw_hinten'].forEach(function (k) {
       if (Array.isArray(v[k]) && v[k].length) answers[k] = v[k].slice();
     });
     if (v.notiz) answers.wunsch = v.notiz;
