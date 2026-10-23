@@ -8386,3 +8386,68 @@ null, nichts ragt über das umschließende Rechteck hinaus). Außerdem geprüft:
 Sonderform geht nie in den Datenweg `bauenAusDaten()` (dieselbe Falle wie am
 11., 15. und 16.10.2026), und die Skizze zeichnet aus derselben Funktion wie
 das Modell, hat also keine zweite Vorstellung von der Form.
+
+---
+
+## 23.10.2026 — Vierte Seite: hinten, wenn nichts dahinter steht
+
+**Anlass.** „Bei freistehen muss plankenwand, rahmen etc. also alle möglichen
+auch hinten möglich sein" (Betreiber, mit Bild eines freistehenden Carports mit
+Plankenwänden).
+
+**Was falsch war.** Der Konfigurator kannte drei Seiten — links, rechts,
+vorne — weil hinten stillschweigend die Hauswand angenommen wurde. Bei
+Wandmontage stimmt das. Freistehend steht dort nichts, und eine der vier
+Seiten ließ sich schlicht nicht schließen. Im Bild des Betreibers hat die
+Anlage Plankenwände an den Längsseiten und hinten ein offenes Loch.
+
+**Was jetzt gilt.** Es gibt vier Seiten. Die Rückseite erscheint **nur bei
+Aufbau „Freistehend"** — an der Hauswand wird sie gar nicht erst angeboten,
+weil eine Wand vor der Hauswand niemand bestellt. Angeboten wird hinten
+dasselbe wie vorne: Rahmenwand, Schiebetür, Plankenwand, Senkrechtmarkise,
+Velaris.
+
+**Kein Keil hinten.** Der Keil gleicht das Gefälle an den *Längsseiten* aus.
+Vorne wie hinten läuft die Dachkante waagerecht; ein Keil stünde dort quer zum
+Gefälle. Die Abfrage im Code hängt deshalb jetzt an `quer` (Längsseite) statt
+am Namen `'vorne'` — sonst wäre mit der Rückseite automatisch ein falscher Keil
+entstanden.
+
+**Zwei Stellen, an denen „hinten" nicht einfach „vorne" ist:**
+
+- **Die Höhe.** Oberkante vorne ist die Rinnenunterkante. Hinten liegt die
+  Dachunterkante um das volle Gefälle höher — bei 4 m Tiefe und 5 Grad rund
+  35 cm. Mit dem bisherigen Wert wäre dort oben ein Streifen offen geblieben.
+  Das Element holt sich die Höhe deshalb aus `dachUk(0)`.
+- **Wo „innen" ist.** `innenRichtung()` gab für Stirnseiten fest −1 zurück
+  (vorne heißt innen −z). Hinten ist innen +z; die Schienen wären nach
+  draußen vor die Anlage gewandert. Die Funktion rechnet jetzt nur noch mit
+  dem Vorzeichen der Achse — für alle vier Seiten richtig und für die drei
+  alten unverändert.
+
+**Die Umkehrung ist der eigentliche Prüfpunkt.** Wer freistehend hinten etwas
+wählt und dann auf Wandmontage zurückschaltet, hätte sonst eine unsichtbare
+Auswahl im Zustand stehen — und die ginge mit in die Anfrage. `erwAufraeumen()`
+leert die Rückseite beim Aufbauwechsel; zusätzlich baut das 3D dort nichts,
+wenn nicht freistehend. Die interne Notiz der Anfrage nennt außerdem nur die
+Seiten, die es gibt: Bei Wandmontage stünde sonst „hinten: offen" in der Mail,
+als wäre dort etwas vergessen worden.
+
+**Was gegengelesen werden soll.**
+1. Terrassendach TDS, Aufbau „Freistehend": Erscheint im Schritt „Seiten" eine
+   vierte Reihe *Hinten (Rückseite)* — ohne Keil-Knopf?
+2. Dort Plankenwand wählen: Steht die Wand hinten im Modell, und reicht sie
+   **oben bis ans Dach** (dort ist es höher als vorne)?
+3. Schiebetür hinten: Läuft die Schiene innen, nicht vor den Pfosten?
+4. Zurück auf „Wandmontage": Ist die Reihe weg **und** die Wahl gelöscht
+   (Kurzfassung nennt „hinten" nicht mehr)?
+5. Anfrage abschicken: Steht „Erweiterung hinten" in der Zusammenfassung?
+
+**Absicherung.** Neu: `scripts/pruefe-rueckseite.js` — **29 Prüfungen**, alle
+bestanden, Gegenprobe schlägt in allen 29 an; die Seitenlogik wird dabei
+ausgeführt, nicht im Quelltext nachgelesen. Dazu **7 neue Prüfungen im echten
+Browser** (`pruefe-konfigurator-oberflaeche.mjs`, jetzt 68): Dass hinten
+wirklich etwas entsteht, wird am Bild gemessen — Bildschirmfoto vor und nach
+der Wahl, die Bilder müssen sich unterscheiden. `pruefe-markise.js` wurde auf
+`innenRichtung()` nachgezogen und um den Fall „hinten" erweitert (179
+Prüfungen, Gegenprobe 179/179).

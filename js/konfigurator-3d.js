@@ -78,7 +78,7 @@
        11.10.2026). Eine gemeinsame Wahl war falsch gedacht: links und
        rechts laufen über die TIEFE, vorne über die BREITE. Das sind zwei
        verschiedene Maße, zu denen oft gar nicht dieselbe Bauart passt. */
-    sg23Links: '', sg23Rechts: '', sg23Vorne: '',
+    sg23Links: '', sg23Rechts: '', sg23Vorne: '', sg23Hinten: '',
     sg23Glas: 'ESG 10 mm klar',
     keilGlas: 'ESG klar',   // laut VD-Formular gibt es nur diese zwei
     sg23Schloss: 'ohne',          // ohne | links | rechts
@@ -134,6 +134,9 @@
     erwLinks: [],
     erwRechts: [],
     erwVorne: [],
+    /* Die Rueckseite gibt es nur freistehend – bei Wandmontage ist dort
+       das Haus. Siehe ERW_SEITEN weiter unten. */
+    erwHinten: [],
 
     led: false,
     ledset: '8er-Set',
@@ -153,7 +156,7 @@
        „wie bei den markisen, die jeweilige schiebeanlage die man im
        3dmodell anklickt geht auf oder zu" (Betreiber, 11.10.2026).
        Der Regler bleibt – er setzt beim Ziehen alle drei gleich. */
-    offenLinks: 0, offenRechts: 0, offenVorne: 0,
+    offenLinks: 0, offenRechts: 0, offenVorne: 0, offenHinten: 0,
     markise: 'Ohne',         // Beschattung am Dach, Werte wie im Assistenten
     stoff: '',               // Markisenstoff der Dachmarkise, z. B. 'AC420'
     stoffZip: '',            // Stoff der Senkrechtmarkise, z. B. 'T30812-A'
@@ -798,15 +801,36 @@
     if (Z.produkt === 'Carport' && Z.cpTyp === 'Carport TDS') return true;
     return false;
   }
+  /* ---------- Die vier Seiten ----------
+     „Bei freistehen muss plankenwand, rahmen etc. also alle möglichen
+     auch hinten möglich sein" (Betreiber, 23.10.2026). Steht die Anlage
+     an der Hauswand, ist die Rueckseite das Haus – dort kann nichts
+     stehen, und die Seite wird gar nicht erst angeboten.
+
+     Gefragt wird ueber erwSeiten(), nicht ueber ERW_SEITEN: Wer die
+     Liste direkt nimmt, baut hinten auch dann etwas, wenn dort eine Wand
+     steht. */
+  var ERW_SEITEN = ['links', 'rechts', 'vorne', 'hinten'];
+  function rueckseiteOffen() { return Z.aufbau === 'Freistehend'; }
+  function erwSeiten() {
+    return rueckseiteOffen() ? ERW_SEITEN : ERW_SEITEN.slice(0, 3);
+  }
   function erwIrgendwo(wert) {
-    return Z.erwLinks.indexOf(wert) > -1 || Z.erwRechts.indexOf(wert) > -1 ||
-           Z.erwVorne.indexOf(wert) > -1;
+    for (var i = 0; i < ERW_SEITEN.length; i++) {
+      if (erwListe(ERW_SEITEN[i]).indexOf(wert) > -1) return true;
+    }
+    return false;
   }
   function erwListe(seite) {
-    return seite === 'links' ? Z.erwLinks : (seite === 'rechts' ? Z.erwRechts : Z.erwVorne);
+    return seite === 'links' ? Z.erwLinks
+         : seite === 'rechts' ? Z.erwRechts
+         : seite === 'hinten' ? Z.erwHinten : Z.erwVorne;
   }
+  /* Der Keil gleicht das Gefaelle an den LAENGSseiten aus. Vorne und
+     hinten laeuft die Dachkante waagerecht – dort gibt es nichts
+     auszugleichen. */
   function erwMoeglich(seite) {
-    return (seite === 'vorne' || !keilErlaubt())
+    return (seite === 'vorne' || seite === 'hinten' || !keilErlaubt())
       ? ERW_OPTS.filter(function (o) { return o !== 'Keil'; })
       : ERW_OPTS;
   }
@@ -820,7 +844,7 @@
     return null;
   }
   function erwKeilGesperrt(seite, liste) {
-    if (seite === 'vorne' || !keilErlaubt()) return false;
+    if (seite === 'vorne' || seite === 'hinten' || !keilErlaubt()) return false;
     for (var i = 0; i < ERW_BRAUCHT_KEIL.length; i++) {
       if (liste.indexOf(ERW_BRAUCHT_KEIL[i]) > -1) return true;
     }
@@ -837,7 +861,7 @@
     } else {
       if (erwBlocker(wert, liste)) return;
       liste.push(wert);
-      if (seite !== 'vorne' && keilErlaubt() &&
+      if (seite !== 'vorne' && seite !== 'hinten' && keilErlaubt() &&
           ERW_BRAUCHT_KEIL.indexOf(wert) > -1 && liste.indexOf('Keil') === -1) {
         liste.push('Keil');
       }
@@ -860,13 +884,17 @@
      Außengefälle, der Assistent kennt die Möglichkeit gar nicht – und im
      Modell stand ein Dreieck, das niemand bestellt hatte. */
   function erwAufraeumen() {
-    ['links', 'rechts', 'vorne'].forEach(function (seite) {
+    ERW_SEITEN.forEach(function (seite) {
       var liste = erwListe(seite);
       var moeglich = erwMoeglich(seite);
       for (var i = liste.length - 1; i >= 0; i--) {
         if (moeglich.indexOf(liste[i]) === -1) liste.splice(i, 1);
       }
     });
+    /* Zurueck auf Wandmontage: Was hinten gewaehlt war, faellt weg. Sonst
+       bliebe es unsichtbar im Zustand stehen und ginge spaeter in die
+       Anfrage – bestellt waere eine Wand, die vor der Hauswand steht. */
+    if (!rueckseiteOffen() && Z.erwHinten.length) Z.erwHinten = [];
   }
 
   /* Übersetzung in die Auswahlwerte des Anfrage-Assistenten.
@@ -3481,11 +3509,12 @@
      so. Vorher stand hier eine einzelne Zahl, die jedes weitere Feld
      ueberschrieb – in der Anfrage stand dann das Mass des letzten Feldes
      fuer die ganze Seite. */
-  var SG23_LAENGE = { links: [], rechts: [], vorne: [] };
+  var SG23_LAENGE = { links: [], rechts: [], vorne: [], hinten: [] };
 
   var SG23_SEITEN = [['links', 'sg23Links', 'k3dSg23Links'],
                      ['rechts', 'sg23Rechts', 'k3dSg23Rechts'],
-                     ['vorne', 'sg23Vorne', 'k3dSg23Vorne']];
+                     ['vorne', 'sg23Vorne', 'k3dSg23Vorne'],
+                     ['hinten', 'sg23Hinten', 'k3dSg23Hinten']];
 
   /* Welches Maß läuft auf welcher Seite? Links und rechts über die Tiefe,
      vorne über die Breite. */
@@ -3496,7 +3525,8 @@
      Rohmass, damit die Bedienfelder nicht leer bleiben. */
   function sg23Masse(seite) {
     var l = SG23_LAENGE[seite];
-    return (l && l.length) ? l : [seite === 'vorne' ? Z.breite : Z.tiefe];
+    return (l && l.length) ? l
+      : [(seite === 'vorne' || seite === 'hinten') ? Z.breite : Z.tiefe];
   }
   /* Das GROESSTE Feld. Danach richtet sich die Bauart: Was fuer das
      breiteste Feld reicht, reicht auch fuer die schmaleren. Der Rueckgabe-
@@ -3649,6 +3679,7 @@
       if (seite === 'links') return Z.offenLinks / 100;
       if (seite === 'rechts') return Z.offenRechts / 100;
       if (seite === 'vorne') return Z.offenVorne / 100;
+      if (seite === 'hinten') return Z.offenHinten / 100;
       return Z.glasOffen / 100;
     }
     var mPlanke = blech();
@@ -3823,8 +3854,13 @@
 
        Vorne läuft „innen" nach -z (zur Hauswand), an den Seiten zur
        Mitte hin, also entgegen dem Vorzeichen der Achse. */
-    function innenRichtung(achse, quer) {
-      return quer ? (achse > 0 ? -1 : 1) : -1;
+    function innenRichtung(achse) {
+      /* Vorne (achse = Dachvorderkante, positiv) ist innen -z, hinten
+         (achse = 0) ist innen +z, an den Laengsseiten jeweils zur Mitte.
+         Das ist in allen vier Faellen das umgekehrte Vorzeichen der
+         Achse – der frueher feste Wert -1 fuer die Stirnseiten haette
+         hinten die Schiene nach draussen gelegt. */
+      return achse > 0 ? -1 : 1;
     }
 
     /* Wo genau liegt die Schiene quer zur Seite?
@@ -4537,7 +4573,10 @@
          übergibt hRinne). Element und Führung zusammen reichen jetzt
          genau bis dorthin. An den Seiten ist das zugleich der tiefste
          Punkt des Daches – darüber schließt der Keil an. */
-      var okOben = hVorn;
+      /* Hinten liegt die Dachunterkante um das volle Gefaelle hoeher als
+         vorne an der Rinne. Mit hVorn bliebe dort oben ein Streifen
+         offen – bei 4 m Tiefe und 5 Grad sind das rund 35 cm. */
+      var okOben = (seite === 'hinten' && dachUk) ? dachUk(0) : hVorn;
       /* Die Elemente stehen jetzt praktisch auf dem Belag – die Schwelle
          liegt darin, nicht darauf. Die Durchgangshöhe darunter bleibt
          damit die eingestellte. */
@@ -4573,8 +4612,12 @@
       var zHintenK = mitte - laenge / 2;
       var keilLaenge = zVorneK - zHintenK;
       var keilMitte = (zVorneK + zHintenK) / 2;
+      /* Der Keil gehoert an die LAENGSseiten (quer = true). Vorne und
+         hinten laeuft die Dachkante waagerecht. Frueher stand hier
+         seite !== 'vorne' – mit der Rueckseite waere daraus ein Keil
+         geworden, der quer zum Gefaelle steht. */
       var hatKeil = liste.indexOf('Keil') > -1 && keilErlaubt() &&
-                    seite !== 'vorne' && neig > 0.001 && !!dachUk;
+                    quer && neig > 0.001 && !!dachUk;
       if (hatKeil) {
         /* Mindesthöhe des Keils vorne einhalten, siehe KEIL_MIN_VORNE.
            Die Schiebetürführung zählt mit: Sie sitzt zwischen Flügel und
@@ -4637,8 +4680,7 @@
            endete sie waagerecht, darüber blieb das Dreieck offen.
            Deshalb: kein oberes Rahmenprofil, stattdessen Glas bis zur
            Schräge und das Rahmenband obendrauf. */
-        var bisDach = !hatKeil && quer && seite !== 'vorne' &&
-                      neig > 0.001 && !!dachUk;
+        var bisDach = !hatKeil && quer && neig > 0.001 && !!dachUk;
         var yO = yUnten + hoch;
         rahmenwand(laenge, hAuf, achse, mitte, yAuf, quer, !bisDach,
                    bisDach ? function (pos) { return dachUk(pos) - yO; } : null);
@@ -4708,7 +4750,8 @@
 
       // Zubehör VOR der Fläche
       // nach außen, also vom Mittelpunkt weg – unabhängig vom Namen der Seite
-      var aussen = (seite === 'vorne' || achse >= 0) ? 4 : -4;
+      var aussen = seite === 'hinten' ? -4
+                 : ((seite === 'vorne' || achse >= 0) ? 4 : -4);
       if (liste.indexOf('Senkrechtmarkise') > -1) {
         /* Aufbau nach der Montageanleitung eZIP 105/125, Abb. 2:
            Kassette oben, je Seite eine Einzelfuehrungsschiene, unten die
@@ -4852,6 +4895,7 @@
     var seitenLaenge = vorne - hinten;
 
     SG23_LAENGE.links = []; SG23_LAENGE.rechts = []; SG23_LAENGE.vorne = [];
+    SG23_LAENGE.hinten = [];
     VELARIS_LAMELLEN = [];
     VELARIS_FAHRT = null;
     /* ---------- Längsseiten: ein Feld je Pfostenfach ----------
@@ -4925,6 +4969,23 @@
          falsch war. */
       eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
                 feldMitte > 0 ? -1 : 1, f);
+      /* ---------- Rueckseite: dieselben Faecher wie vorne ----------
+         „Bei freistehen muss plankenwand, rahmen etc. also alle moeglichen
+         auch hinten moeglich sein" (Betreiber, 23.10.2026).
+
+         z = 0 ist dieselbe Ebene, an der die Laengsseiten hinten enden
+         (siehe oben) – so treffen sich die Elemente in der Ecke ohne
+         Versatz. Die Faecher sind dieselben wie vorne, weil hinten
+         dieselben Pfosten stehen; nur die Hoehe ist eine andere, darum
+         kuemmert sich eineSeite().
+
+         Bei Wandmontage wird hier nichts gebaut: Dort ist die Rueckseite
+         das Haus. erwAufraeumen() leert die Auswahl dann ohnehin – die
+         Abfrage hier ist der zweite Riegel. */
+      if (rueckseiteOffen()) {
+        eineSeite('hinten', hinten, feldMitte, feldLaenge, false,
+                  feldMitte > 0 ? -1 : 1, f);
+      }
     }
   }
 
@@ -7183,9 +7244,12 @@
          „mit Glas" oder „ohne" – gezeichnet werden deshalb beide Seiten als
          Schiebetür. Die eigentliche Seitenauswahl bleibt unberührt. */
       var merkL = Z.erwLinks, merkR = Z.erwRechts, merkV = Z.erwVorne;
-      Z.erwLinks = ['Schiebetür']; Z.erwRechts = ['Schiebetür']; Z.erwVorne = [];
+      var merkH = Z.erwHinten;
+      Z.erwLinks = ['Schiebetür']; Z.erwRechts = ['Schiebetür'];
+      Z.erwVorne = []; Z.erwHinten = [];
       seitenErweiterungen(B, T, h, PFOSTEN, 0);
       Z.erwLinks = merkL; Z.erwRechts = merkR; Z.erwVorne = merkV;
+      Z.erwHinten = merkH;
     }
 
     if (Z.led) {
@@ -7885,14 +7949,20 @@
     var el = document.getElementById('k3dSeitenStand');
     if (!el) return;
     var zu = [], offen = [];
-    [['links', 'links'], ['rechts', 'rechts'], ['vorne', 'vorne']].forEach(function (p) {
-      var l = erwListe(p[0]);
-      if (l && l.length) zu.push('<b>' + p[1] + ':</b> ' + l.join(', '));
-      else offen.push(p[1]);
+    /* Nur die Seiten, die es hier gibt: Freistehend sind es vier, an der
+       Hauswand drei. „alle drei Seiten" stand frueher fest im Satz – mit
+       der Rueckseite waere das schlicht falsch gewesen. */
+    var seiten = erwSeiten();
+    seiten.forEach(function (seite) {
+      var l = erwListe(seite);
+      if (l && l.length) zu.push('<b>' + seite + ':</b> ' + l.join(', '));
+      else offen.push(seite);
     });
+    var wieViele = seiten.length === 4 ? 'alle vier Seiten' : 'alle drei Seiten';
+    var alleNamen = seiten.slice(0, -1).join(', ') + ' und ' + seiten[seiten.length - 1];
     if (!zu.length) {
-      el.innerHTML = '<span class="offen">Zurzeit bleiben <b>alle drei Seiten '
-        + 'offen</b> – links, rechts und vorne.</span>';
+      el.innerHTML = '<span class="offen">Zurzeit bleiben <b>' + wieViele
+        + ' offen</b> – ' + alleNamen + '.</span>';
       return;
     }
     el.innerHTML = 'So steht es gerade: ' + zu.join(' · ') +
@@ -7900,7 +7970,7 @@
         ? '.<br><span class="offen">' +
           (offen.length === 1 ? 'Offen bleibt: ' : 'Offen bleiben: ') +
           offen.join(' und ') + '.</span>'
-        : '.<br><span class="offen">Damit sind alle drei Seiten geschlossen.</span>') +
+        : '.<br><span class="offen">Damit sind ' + wieViele + ' geschlossen.</span>') +
       sg23Hinweis();
   }
 
@@ -8066,7 +8136,7 @@
 
   function sg23Zeilen() {
     var zeilen = [];
-    ['links', 'rechts', 'vorne'].forEach(function (seite) {
+    erwSeiten().forEach(function (seite) {
       if (erwListe(seite).indexOf('Schiebetür') === -1) return;
       var p = [seite, sg23Mass(seite)];
       /* Die Feldzahl kommt jetzt aus dem Modell, nicht mehr aus einem
@@ -8106,7 +8176,7 @@
     /* Dieselben Maße wie im Modell, nicht Z.breite/Z.tiefe – an den
        Seiten ist das Element kürzer als die Tiefe, vorne je Feld
        schmaler als die Breite. */
-    ['links', 'rechts', 'vorne'].forEach(function (st) {
+    erwSeiten().forEach(function (st) {
       if (erwListe(st).indexOf('Schiebetür') > -1) laengen.push(sg23Mass(st));
     });
     var maxL = Math.max.apply(null, laengen.concat([0]));
@@ -8296,7 +8366,8 @@
   var schiebeLaeuft = {};
   function schiebeFahren(seite, ziel) {
     var feld = seite === 'links' ? 'offenLinks'
-             : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
+             : seite === 'rechts' ? 'offenRechts'
+             : seite === 'hinten' ? 'offenHinten' : 'offenVorne';
     if (schiebeLaeuft[seite]) clearInterval(schiebeLaeuft[seite]);
     var start = Z[feld], t0 = Date.now(), dauer = FAHRDAUER;
     schiebeLaeuft[seite] = setInterval(function () {
@@ -8320,7 +8391,8 @@
       var seite = schiebeSeiteVon(treffer[i].object);
       if (seite) {
         var feld = seite === 'links' ? 'offenLinks'
-                 : seite === 'rechts' ? 'offenRechts' : 'offenVorne';
+                 : seite === 'rechts' ? 'offenRechts'
+                 : seite === 'hinten' ? 'offenHinten' : 'offenVorne';
         schiebeFahren(seite, Z[feld] > 50 ? 0 : 100);
         return true;
       }
@@ -9046,6 +9118,10 @@
          im Feld „Aufbau". Zwei Felder für dieselbe Frage verwirren. */
       case 'cp-variante':    return istCarport() && !istCarportTds();
       // Der Regler „geöffnet" erscheint nur, wenn es etwas zu schieben gibt
+      /* Die Rueckseite nur freistehend – an der Hauswand gaebe es sonst
+         eine Wand vor der Wand. */
+      case 'erw-hinten':     return gruppeGilt('seiten') && rueckseiteOffen();
+      case 'schiebe-hinten': return erwListe('hinten').indexOf('Schiebetür') > -1;
       case 'schiebe-links':  return erwListe('links').indexOf('Schiebetür') > -1;
       case 'schiebe-rechts': return erwListe('rechts').indexOf('Schiebetür') > -1;
       case 'schiebe-vorne':  return erwListe('vorne').indexOf('Schiebetür') > -1;
@@ -9631,9 +9707,9 @@
     k.push('Farbe: ' + farbeName());
     if (!istPergola() && !istCarport()) {
       var se = [];
-      [['links', Z.erwLinks], ['rechts', Z.erwRechts],
-       ['vorne', Z.erwVorne]].forEach(function (pr) {
-        if (pr[1].length) se.push(pr[0] + ': ' + pr[1].join(' + '));
+      erwSeiten().forEach(function (seite) {
+        var l = erwListe(seite);
+        if (l.length) se.push(seite + ': ' + l.join(' + '));
       });
       k.push(se.length ? 'Seiten – ' + se.join(' · ') : 'Seiten offen');
       if (Z.markise !== 'Ohne') k.push('Sonnenschutz: ' + Z.markise);
@@ -9799,9 +9875,12 @@
          Die Fachbegriffe bleiben – die Mail ist für uns, nicht für den
          Kunden. */
       var seiten = [];
-      [['links', Z.erwLinks], ['rechts', Z.erwRechts],
-       ['vorne', Z.erwVorne]].forEach(function (pr) {
-        seiten.push(pr[0] + ': ' + (pr[1].length ? pr[1].join(' + ') : 'offen'));
+      /* Nur die Seiten, die es hier wirklich gibt: Bei Wandmontage stuende
+         sonst „hinten: offen" in der Mail – als waere dort eine Seite
+         vergessen worden, wo in Wirklichkeit das Haus steht. */
+      erwSeiten().forEach(function (seite) {
+        var l = erwListe(seite);
+        seiten.push(seite + ': ' + (l.length ? l.join(' + ') : 'offen'));
       });
       teile.push('Seitenelemente – ' + seiten.join(' · '));
       /* Das Keilglas gehört in die Bestellung: satinato ist eine andere
@@ -10000,7 +10079,10 @@
     // keilErlaubt() hängt am Produkt UND am Carport-Typ
     if (produktWechsel || typWechsel) erwAufraeumen();
 
+    var aufbauVorher = Z.aufbau;
     Z.aufbau = wert('k3dAufbau') || Z.aufbau;
+    /* Von freistehend auf Wandmontage: hinten steht jetzt das Haus. */
+    if (Z.aufbau !== aufbauVorher) erwAufraeumen();
     /* Die Reglergrenzen hängen am System, nicht nur am Produkt: Ein Wechsel
        des Carport-Typs oder der Eindeckung bringt ein anderes Maßraster mit.
        Deshalb wird der Systemschlüssel verglichen, nicht nur das Produkt. */
@@ -10452,6 +10534,7 @@
       if (Z.erwLinks.length) se.push('links');
       if (Z.erwRechts.length) se.push('rechts');
       if (Z.erwVorne.length) se.push('vorne');
+      if (Z.erwHinten.length) se.push('hinten');
       if (erwIrgendwo('Plankenwand') && Z.plankenFarbe !== 'Wie das Gestell') {
         se.push(Z.plankenFarbe);
       }
@@ -10539,7 +10622,7 @@
       war verdrahtet, der Regler selbst nicht – deshalb wirkte er tot.
       scripts/pruefe-fuehrung.js prueft jetzt jedes Bedienelement. */
    'k3dUnterzug',
-   'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne',
+   'k3dSg23Links', 'k3dSg23Rechts', 'k3dSg23Vorne', 'k3dSg23Hinten',
    'k3dSg23Glas', 'k3dKeilGlas', 'k3dSg23Schloss', 'k3dRahmenTeilung', 'k3dVelarisWinkelOben', 'k3dVelarisWinkelUnten', 'k3dVelarisFarbe',
    'k3dVelarisArt', 'k3dVelarisBreite',
    'k3dVelarisAnzahl', 'k3dVelarisOffen',
@@ -10796,6 +10879,7 @@
     if (Z.erwLinks.indexOf('Senkrechtmarkise') > -1 && Z.tiefe > ZIP.maxBreite * 10) zuBreit.push('links');
     if (Z.erwRechts.indexOf('Senkrechtmarkise') > -1 && Z.tiefe > ZIP.maxBreite * 10) zuBreit.push('rechts');
     if (Z.erwVorne.indexOf('Senkrechtmarkise') > -1 && Z.breite > ZIP.maxBreite * 10) zuBreit.push('vorne');
+    if (Z.erwHinten.indexOf('Senkrechtmarkise') > -1 && Z.breite > ZIP.maxBreite * 10) zuBreit.push('hinten');
 
     var i2 = document.getElementById('k3dStoffZipInfo');
     if (i2) {
@@ -11612,6 +11696,7 @@
         if (Z.erwLinks.length) v.erw_links = Z.erwLinks.slice();
         if (Z.erwRechts.length) v.erw_rechts = Z.erwRechts.slice();
         if (Z.erwVorne.length) v.erw_vorne = Z.erwVorne.slice();
+        if (Z.erwHinten.length) v.erw_hinten = Z.erwHinten.slice();
       }
       window.bvKonfigVorgabe = v;
       var bubble = document.getElementById('bvKonfigBubble');

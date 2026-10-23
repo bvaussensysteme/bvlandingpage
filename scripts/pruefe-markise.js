@@ -484,8 +484,12 @@ pruefe('Fluegel stehen auf Belagsniveau',
    bündig sein" (Betreiber, 11.10.2026). Vorher sassen Schwelle und
    Fuehrung mittig auf der Achse - die halbe Profiltiefe stand nach
    aussen ueber den Pfosten hinaus. */
+/* Die Funktion hiess einmal innenRichtung(achse, quer) und gab fuer die
+   Stirnseiten fest -1 zurueck. Mit der Rueckseite (23.10.2026) stimmt das
+   nicht mehr: Dort liegt innen bei +z. Sie rechnet jetzt nur noch mit dem
+   Vorzeichen der Achse – fuer alle vier Seiten richtig. */
 pruefe('Innenrichtung je Seite bestimmt',
-       new RegExp(q || 'function innenRichtung\\(achse, quer\\)').test(src), '');
+       new RegExp(q || 'function innenRichtung\\(achse\\)').test(src), '');
 pruefe('Schienen nutzen die gemeinsame Lagefunktion',
        new RegExp(q || 'function schienenVersatz\\(achse, quer, tiefe\\)').test(src) &&
        (src.match(/schienenVersatz\(achse, quer, t\)/g) || []).length === 3,
@@ -501,26 +505,34 @@ pruefe('Fluegelspur laeuft nach innen',
        'nicht mehr vor den Pfosten');
 /* Zweiter Weg: nachrechnen, dass nichts nach aussen uebersteht. */
 (function () {
-  var m = src.match(/return quer \? \(achse > 0 \? (-?1) : (-?1)\) : (-?1);/);
+  var m = src.match(/return achse > 0 \? (-?1) : (-?1);/);
   if (!m) { pruefe('Innenrichtung rechenbar', false, 'Zeile nicht gefunden'); return; }
-  function innen(achse, quer) {
-    return quer ? (achse > 0 ? parseInt(m[1], 10) : parseInt(m[2], 10)) : parseInt(m[3], 10);
+  function innen(achse) {
+    return achse > 0 ? parseInt(m[1], 10) : parseInt(m[2], 10);
   }
   var PF = 11, B = 600, tiefe = 10.02;          // 4-gleisige Schwelle, schmaler als der Pfosten
   /* Links: Achse auf der Pfosteninnenseite bei +x, innen heisst -x. */
   var achseL = B / 2 - PF / 2;
-  var aussenkanteL = achseL + innen(achseL, true) * tiefe / 2 + tiefe / 2;
+  var aussenkanteL = achseL + innen(achseL) * tiefe / 2 + tiefe / 2;
   if (gegen) aussenkanteL += 3;
   pruefe('Links: Schiene steht nicht nach aussen ueber',
          aussenkanteL <= achseL + 0.01,
          'Aussenkante ' + aussenkanteL.toFixed(2) + ', Pfosteninnenseite ' + achseL.toFixed(2));
   /* Vorne: Achse auf der Pfosteninnenseite, innen heisst -z. */
   var achseV = 290;
-  var aussenkanteV = achseV + innen(achseV, false) * tiefe / 2 + tiefe / 2;
+  var aussenkanteV = achseV + innen(achseV) * tiefe / 2 + tiefe / 2;
   if (gegen) aussenkanteV += 3;
   pruefe('Vorne: Schiene steht nicht nach aussen ueber',
          aussenkanteV <= achseV + 0.01,
          'Aussenkante ' + aussenkanteV.toFixed(2) + ', Pfosteninnenseite ' + achseV.toFixed(2));
+  /* Hinten: Die Achse liegt bei z = 0, innen heisst dort +z. Mit dem
+     frueheren festen -1 fuer Stirnseiten waere die Schiene nach -z
+     gewandert, also nach draussen vor die Anlage. */
+  var aussenkanteH = 0 + innen(0) * tiefe / 2 - tiefe / 2;
+  if (gegen) aussenkanteH -= 3;
+  pruefe('Hinten: Schiene steht nicht nach aussen ueber',
+         aussenkanteH >= -0.01,
+         'Aussenkante ' + aussenkanteH.toFixed(2) + ', Pfostenrueckseite 0.00');
   /* Die ALTE Lage (mittig auf der Achse) stand um die halbe Profiltiefe
      nach aussen ueber. */
   var altUeber = tiefe / 2;
@@ -530,12 +542,12 @@ pruefe('Fluegelspur laeuft nach innen',
   /* Ist die Schiene TIEFER als der Pfosten, wird vermittelt - dann steht
      sie beidseitig gleich weit ueber, nicht einseitig nach aussen. */
   function versatz(a, q, t) {
-    var vz = innen(a, q);
+    var vz = innen(a);
     return (t <= PF) ? vz * t / 2 : -vz * PF / 2;
   }
   var tief = 12.96;                              // 5-gleisige Fuehrung
   var mitteSchiene = achseV + versatz(achseV, false, tief);
-  var mittePfosten = achseV - innen(achseV, false) * PF / 2;
+  var mittePfosten = achseV - innen(achseV) * PF / 2;
   var ab = Math.abs(mitteSchiene - mittePfosten) + (gegen ? 2 : 0);
   pruefe('Tiefe Schiene sitzt mittig auf dem Pfosten', ab < 0.01,
          ab.toFixed(2) + ' cm Versatz');
@@ -543,8 +555,8 @@ pruefe('Fluegelspur laeuft nach innen',
      Formel wiederholt - sonst vergliche man einen Ausdruck mit sich
      selbst. Innen = Richtung Terrasse, aussen = vor den Pfosten. */
   var von = mitteSchiene - tief / 2, bis = mitteSchiene + tief / 2;
-  var pfVon = Math.min(achseV, achseV - innen(achseV, false) * PF);
-  var pfBis = Math.max(achseV, achseV - innen(achseV, false) * PF);
+  var pfVon = Math.min(achseV, achseV - innen(achseV) * PF);
+  var pfBis = Math.max(achseV, achseV - innen(achseV) * PF);
   var ueberA = (bis - pfBis) + (gegen ? 2 : 0);
   var ueberI = pfVon - von;
   pruefe('Tiefe Schiene steht beidseitig gleich ueber',

@@ -39,6 +39,14 @@ das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
 `felder`-Liste eintragen – sonst kommt der Wert dort nie an.
 `scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
 
+### Seiten — vier statt drei *(gebaut 23.10.2026)*
+
+Bei Aufbau **„Freistehend"** gibt es im Schritt „Seiten" eine vierte Reihe
+*Hinten (Rückseite)* mit denselben Möglichkeiten wie vorne (kein Keil — die
+hintere Dachkante läuft waagerecht). Bei **Wandmontage** erscheint sie nicht,
+und eine vorher getroffene Wahl wird beim Umschalten gelöscht. Warum das die
+heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
+
 ### Sonderform — vier Maße *(gebaut 23.10.2026)*
 
 Im Schritt „Maße" steht bei **Terrassendach TDS** und **Flachdach SkyView**
@@ -187,6 +195,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
+| `scripts/pruefe-rueckseite.js` | Die vierte Seite: Gibt es sie nur freistehend? Verschwindet die Wahl beim Zurückschalten auf Wandmontage wieder? Kein Keil hinten, Höhe aus der Dachunterkante, Assistent kennt `erw_hinten` |
 | `scripts/pruefe-sonderform.js` | Sonderform: Führt die Geometrie wirklich aus und misst nach – Viereck aus vier Maßen, nirgends Tiefe null, nichts ragt über das umschließende Rechteck hinaus, Vorderkante mittig, fehlendes Maß wird gemeldet, keine Reste der alten Katalogformen |
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
 | `scripts/pruefe-hinweise.js` | Bleibt getrennt, was der Kunde sieht, und was nur in die Anfrage-Mail gehört? Prüft Hinweisbox, Kasten „Ihre Konfiguration", Assistenten-Anzeige und alle drei Versandwege – einmal aus dem Quelltext, einmal an wirklich erzeugten Hinweisen |
@@ -298,7 +307,8 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
-| 23.10.2026 | Sonderform: vier freie Maße statt zehn Katalogformen; Browser-Prüfung nach zwölf Tagen wieder grün | **noch nicht veröffentlicht** |
+| 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | **noch nicht veröffentlicht** |
+| 23.10.2026 | Sonderform: vier freie Maße statt zehn Katalogformen; Browser-Prüfung nach zwölf Tagen wieder grün | live |
 | 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |
 | 12.10.2026 | Anfrage-Text rechnet über `bauteileJetzt()` statt über die tote Schnittstelle | live |
 | 12.10.2026 | Dachneigung: Rechenweg der Montageanleitung belegt, Anzeige in ganzen Grad | live |

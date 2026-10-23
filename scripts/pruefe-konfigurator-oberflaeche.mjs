@@ -273,6 +273,50 @@ pruef('Erweiterungen in derselben Reihenfolge wie im Assistenten',
 pruef('Vorne wird kein Keil angeboten',
   await page.locator('[data-k3d-erw="vorne"] button[data-erw="Keil"]').evaluate(e => e.hidden));
 
+/* ---------- Die Rueckseite ----------
+   „Bei freistehen muss plankenwand, rahmen etc. also alle möglichen auch
+   hinten möglich sein" (Betreiber, 23.10.2026). Hier wird nicht nur die
+   Bedienung geprueft, sondern am fertigen Bild gemessen, dass hinten
+   wirklich etwas Neues entsteht – und dass es beim Zurueckschalten auf
+   Wandmontage wieder verschwindet. */
+const hintenBeiWand = await page.locator('[data-k3d-erw="hinten"]').isVisible();
+pruef('An der Hauswand gibt es hinten keine Seite', !hintenBeiWand,
+  'dort steht das Haus');
+
+await page.click('[data-k3d-seg="k3dAufbau"] button[data-wert="Freistehend"]');
+await page.waitForTimeout(900);
+await alleAufklappen();
+pruef('Freistehend erscheint die Rueckseite',
+  await page.locator('[data-k3d-erw="hinten"]').isVisible(),
+  'vierte Knopfreihe');
+pruef('Hinten wird kein Keil angeboten',
+  await page.locator('[data-k3d-erw="hinten"] button[data-erw="Keil"]').evaluate(e => e.hidden),
+  'die hintere Dachkante laeuft waagerecht');
+
+const vorRueck = await page.locator('#k3dCanvas').screenshot();
+await page.click('[data-k3d-erw="hinten"] button[data-erw="Plankenwand"]');
+await page.waitForTimeout(1200);
+const nachRueck = await page.locator('#k3dCanvas').screenshot();
+pruef('Eine Plankenwand hinten veraendert das Modell',
+  Buffer.compare(vorRueck, nachRueck) !== 0,
+  'im Bild nachgemessen, nicht im Code nachgelesen');
+pruef('Die Kurzfassung nennt die Rueckseite',
+  /hinten/.test(await page.locator('#k3dSumSeiten').innerText()),
+  await page.locator('#k3dSumSeiten').innerText());
+
+/* Zurueck an die Hauswand: Die Wahl muss weg sein, nicht nur unsichtbar.
+   Bliebe sie im Zustand stehen, ginge sie spaeter in die Anfrage. */
+await page.click('[data-k3d-seg="k3dAufbau"] button[data-wert="Wandmontage"]');
+await page.waitForTimeout(1200);
+await alleAufklappen();
+pruef('Zurueck an die Hauswand verschwindet die Rueckseite',
+  !(await page.locator('[data-k3d-erw="hinten"]').isVisible()));
+pruef('Und die Wahl dort ist wirklich geloescht',
+  !/hinten/.test(await page.locator('#k3dSumSeiten').innerText()) &&
+  !(await page.locator('[data-k3d-erw="hinten"] button[data-erw="Plankenwand"]')
+      .evaluate(e => e.classList.contains('is-active'))),
+  await page.locator('#k3dSumSeiten').innerText());
+
 /* Beim Wechsel auf ein Flachdach ohne Außengefälle muss der Keil weg sein.
    Er überlebte den Produktwechsel und stand als Dreieck im Modell, obwohl
    der Anfrage-Assistent die Möglichkeit dort gar nicht kennt. */
