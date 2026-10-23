@@ -8054,3 +8054,72 @@ den ganzen Ordner findet kein `web3forms`, kein `formspree.io/f/…`, kein
 **An der Website wurde nichts geändert** – nur `scripts/export-konfigurator.sh`
 und `docs/konfigurator-export.md`. Der Anfrage-Assistent läuft auf
 bv-aussensysteme.de unverändert weiter.
+
+---
+
+## 23.10.2026 – TDS/SkyView Sonderformen, Schritt 1: Bedienung und Maße
+
+**Anlass.** „Ich brauche ne möglichkeit, wenn ein dach schräg sein soll
+Verschiedene Tiefen und Verschiedene Breiten anzugeben" — und danach, mit den
+Katalogblättern: „VD baut das und es nennt sich bei system TDS **TDS
+Sonderform**", „**Bei Skyview geht nur das**" (drei Formen).
+
+**Der Denkfehler, den die Katalogblätter verhindert haben.** Ich war dabei,
+vier freie Maße zu bauen (Breite vorne/hinten, Tiefe links/rechts). Das wäre
+falsch gewesen: Es ist **kein freies Maß**, sondern ein Katalog mit **zehn
+festen Formen**, jede mit eigener Maßkette. Hätte ich auf die Handskizze hin
+losgebaut, wäre etwas entstanden, das VD so nicht liefert.
+
+**Was belegt ist.** TDS: zehn Formen (L-Form 1/2, zwei Felder 3/4, Aussparung
+5, T-Form 6, Trapeze 7–10). SkyView: genau drei — und zwar **dieselben** wie
+TDS 3, 4 und 5, nur unter eigenen Nummern 1, 2, 3.
+
+**Die Nummern sind eine Stolperstelle.** Intern wird durchgehend die
+TDS-Nummer geführt; angezeigt wird die Nummer des Systems, mit dem der Betrieb
+gerade arbeitet. Sonst steht im Konfigurator „Form 3", während auf dem
+SkyView-Blatt vor dem Betrieb „Form 1" steht. `sonderformNummer()` macht genau
+diese Umrechnung, und die Prüfung hält sie fest.
+
+**Wie es gebaut ist.** Eine Tabelle `SONDERFORM` nennt je Form die Maßkette
+(A, B, A1, A2, B1–B3, C1–C3) und eine Beschreibung. Daraus folgt alles andere:
+welche Felder sichtbar sind, was in der Auswahl steht, was in Zusammenfassung
+und Anfrage landet. Eine Quelle, kein zweiter Ort.
+
+**Die Entscheidung, die alles Weitere trägt:** Aus den Maßen wird das
+**umschließende Rechteck** gerechnet, und dieses füllt `Z.breite`/`Z.tiefe`.
+Dadurch laufen Maßtabelle, Stückzahl, 3D-Bild, PDF und Anfrage **unverändert**
+weiter — keine dieser Stellen muss von Sonderformen wissen. Das ist keine
+Zwischenlösung: Die Stückzahl **soll** vom umschließenden Rechteck kommen,
+lieber ein Sparren zu viel als einer zu wenig. Schritt 2 und 3 ändern daran
+nichts, sie zeichnen nur die echte Form.
+
+**Was der Kunde sieht und was nicht.** In der Zusammenfassung stehen Form und
+Maßkette. Die interne Notiz bekommt zusätzlich, woher die Stückzahl kommt, und
+die Erinnerung an den Aufschlag des Katalogblatts — **ohne die Zahl**. Der
+„+30%"-Hinweis ist eine Preisangabe und bleibt aus dem Konfigurator draußen;
+eine Prüfung sucht ausdrücklich danach.
+
+**Nebenbefund, mitgenommen.** Die Cache-Buster-Prüfung durchsuchte auch den
+erzeugten `export/`-Ordner. Lag der veraltet herum, schlug sie an, obwohl die
+Website stimmte — eine Prüfung, die aus dem falschen Grund rot wird, wird
+irgendwann ignoriert. `export/` ist jetzt ausgenommen, wie schon bei der
+Preisprüfung.
+
+**Was noch nicht da ist.** Das 3D-Bild zeigt das umschließende Rechteck, mit
+einem Hinweis direkt unter den Maßfeldern. Schritt 2 (Formen 3/4/5 — deckt
+SkyView ganz ab), Schritt 3 (Rest TDS).
+
+**Was gegengelesen werden soll.** Terrassendach TDS wählen → Schritt „Wie groß
+soll es werden?": Oben steht jetzt „Form der Anlage". Auf „Sonderform"
+schalten — erscheint die Formenauswahl, und ändern sich die Maßfelder, wenn
+man die Form wechselt? Dann auf SkyView wechseln: Stehen dort genau drei
+Formen, nummeriert 1, 2, 3? Und bei Carport oder Pergola darf die Auswahl gar
+nicht erscheinen.
+
+**Absicherung.** `scripts/pruefe-sonderform.js`, 16 Prüfungen, alle bestanden;
+in der Gegenprobe schlagen alle 16 an. Sie liest nicht nur im Code nach,
+sondern **führt die Formenlogik aus**: Sie rechnet das umschließende Rechteck
+nach (5000 × 3500 aus A 5000, B 4000, C1 3500, C2 2500) und prüft, dass ein
+Maß, das die Form gar nicht kennt, es nicht vergrößert (Form 7 kennt kein B —
+ein B von 9999 bleibt wirkungslos). Dazu: jedes Maß hat ein Feld, jedes Feld
+blendet sich nach der Form ein, jedes Feld löst ein Neuzeichnen aus.

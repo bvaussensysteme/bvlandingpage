@@ -17,7 +17,7 @@ pruefen() {
   # Alle Verweise der Form datei.ext?v=version einsammeln
   local liste
   liste=$(grep -rho '[a-z0-9-]*\.\(js\|css\)?v=[0-9a-z]*' \
-          --include=*.html --include=*.njk "$wurzel" 2>/dev/null | sort -u)
+          --include=*.html --include=*.njk --exclude-dir=export "$wurzel" 2>/dev/null | sort -u)
   [ -z "$liste" ] && { echo "  keine versionierten Dateien gefunden"; return 1; }
 
   local datei
@@ -29,9 +29,9 @@ pruefen() {
       echo "  FEHLER  $datei hat $anzahl verschiedene Versionen: $(echo "$versionen" | tr '\n' ' ')"
       # Zeigen, welche Dateien abweichen - sonst sucht man von Hand
       local haeufigste
-      haeufigste=$(grep -rho "${datei}?v=[0-9a-z]*" --include=*.html --include=*.njk "$wurzel" \
+      haeufigste=$(grep -rho "${datei}?v=[0-9a-z]*" --include=*.html --include=*.njk --exclude-dir=export "$wurzel" \
                    | sort | uniq -c | sort -rn | head -1 | sed 's/.*?v=//')
-      grep -rl "${datei}?v=" --include=*.html --include=*.njk "$wurzel" \
+      grep -rl "${datei}?v=" --include=*.html --include=*.njk --exclude-dir=export "$wurzel" \
         | while read -r f; do
             grep -q "${datei}?v=${haeufigste}" "$f" || echo "          abweichend: $f"
           done
