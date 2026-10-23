@@ -8239,3 +8239,59 @@ bekommt so viele Rinnenabschnitte, wie sie Stufen hat (1–6 gestuft, 7–10
 durchgehend); die Abschnitte decken die Breite **lückenlos** ab — eine Lücke
 wäre ein Stück Dachkante ohne Rinne; und bei 7/8 ist die Rinne gerade, bei
 9/10 schräg, wie auf dem Katalogblatt.
+
+---
+
+## 23.10.2026 – Ein eingegebenes Maß wurde stillschweigend verworfen
+
+**Anlass.** Bild des Betreibers: Die Eindeckung steht rechts über die
+Konstruktion hinaus. Auf die Rückfrage, ob bei den Formen 1–6 die Breite
+vorne von der hinten abweichen darf: **„jeder buchstabe hat ja sein maß"**.
+
+**Was falsch war — reproduziert mit seinen eigenen Zahlen.** Bei Form 1 mit
+A (Breite vorne) = 5000 und B (Breite hinten) = 7600 nahm `sonderRechteck()`
+schlicht `max(A, B)` und baute das Dach **vorne 7600 mm breit**. Der Wert 5000
+kam in der Form überhaupt nicht vor. Gemerkt hat es niemand — bis das fertige
+Bild es zeigte.
+
+**Das ist der schlimmste Fehlertyp an einem Eingabefeld:** Es nimmt eine Zahl
+entgegen, benutzt sie nicht und sagt nichts. Der Bediener glaubt, er habe
+etwas eingestellt.
+
+**Was jetzt gilt.** Bei den Formen 1–6 sind alle Ecken rechtwinklig; die
+Breite ist deshalb nicht frei, sondern die **Summe ihrer Teile** — und vorne
+wie hinten dieselbe. `SONDERFORM_TEILE` hält fest, welche Teilmaße das je Form
+sind.
+
+- **Gezeichnet wird aus den Teilmaßen** (A1 + A2 bzw. B1 + B2 + B3). Sie legen
+  fest, wo die Stufen liegen — sie sind die Form.
+- **Was dazu nicht passt, wird gemeldet**, nicht verworfen. Im Bedienfeld rot
+  über dem Rechteck-Hinweis, im Klartext: *„B ist 7600 mm, die Teilbreiten
+  A1 + A2 ergeben aber 5000 mm."*
+- **Ein fehlendes Maß ist auch ein Widerspruch** und wird genauso gemeldet.
+- **Passt alles, kommt keine Meldung.** Eine Warnung, die immer da ist, wird
+  überlesen.
+- Der Widerspruch geht zusätzlich in die **interne Notiz** der Anfrage — damit
+  er im Betrieb auffällt und nicht erst beim Aufmaß.
+
+**Ein Rückschritt, den die eigene Prüfung gefangen hat.** Der Rückfall für die
+Formen 7–10 (die keine Teilbreiten haben) nahm zunächst wieder `max(A, B)` —
+und damit bei Form 7 ein B, das diese Form gar nicht kennt. Die Prüfung „Ein
+Maß außerhalb der Form zählt nicht mit" schlug sofort an. Genau dafür ist sie
+da; ohne sie wäre derselbe Fehler eine Ebene tiefer wieder eingebaut worden.
+
+**Was offen bleibt.** Falls A bei einer dieser Formen doch von B abweichen
+*darf* — also die Seiten schräg laufen —, ist mein Modell („Tiefe als Funktion
+der Breite") dafür zu einfach und müsste durch einen echten Grundriss aus
+Eckpunkten ersetzt werden. Bis dahin sagt der Konfigurator klar, dass er diese
+Kombination nicht bauen kann, statt etwas anderes zu zeichnen.
+
+**Was gegengelesen werden soll.** Form 1 wählen, A auf 5000 und B auf 7600
+setzen: Kommt die rote Meldung? Dann B auf 5000 — verschwindet sie, und ist
+das Dach vorne wie hinten 5000 breit?
+
+**Absicherung.** `scripts/pruefe-sonderform.js`, jetzt **36 Prüfungen**, alle
+bestanden; in der Gegenprobe schlagen alle 36 an. Vier davon sind genau dieser
+Fall, mit den echten Zahlen aus dem Bild: Breite kommt aus den Teilmaßen;
+unpassendes Maß wird gemeldet; passende Maße ergeben **keine** Meldung;
+fehlendes Maß fällt auf.

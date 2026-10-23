@@ -44,10 +44,13 @@ var quelle =
   hol(/function sonderRechteck\(\) \{[\s\S]*?\n  \}/, 'sonderRechteck') + '\n' +
   hol(/function sonderformMoeglich\(\) \{[^}]*\}/, 'sonderformMoeglich') + '\n' +
   hol(/function sonderformProfil\(x\) \{[\s\S]*?\n  \}/, 'sonderformProfil') + '\n' +
-  hol(/function sonderformVorderkanten\(Bcm, Tcm\) \{[\s\S]*?\n  \}/, 'sonderformVorderkanten');
+  hol(/function sonderformVorderkanten\(Bcm, Tcm\) \{[\s\S]*?\n  \}/, 'sonderformVorderkanten') + '\n' +
+  hol(/var SONDERFORM_TEILE = \{[\s\S]*?\n  \};/, 'SONDERFORM_TEILE') + '\n' +
+  hol(/function sonderformBreite\(\) \{[\s\S]*?\n  \}/, 'sonderformBreite') + '\n' +
+  hol(/function sonderformWiderspruch\(\) \{[\s\S]*?\n  \}/, 'sonderformWiderspruch');
 
 var Z = { produkt: 'Terrassendach TDS', form: 'Sonderform', sonderform: 3,
-          sfA: 5000, sfA1: 2500, sfA2: 2500, sfB: 4000, sfB1: 2000, sfB2: 2000,
+          sfA: 5000, sfA1: 2500, sfA2: 2500, sfB: 5000, sfB1: 2500, sfB2: 2500,
           sfB3: 1500, sfC1: 3500, sfC2: 2500, sfC3: 1500 };
 /* Im strict-Modus bekommt eval einen eigenen Geltungsbereich - die dort
    angelegten Namen landen also NICHT hier draussen. Deshalb gibt der
@@ -59,7 +62,8 @@ try {
     ' erlaubt: sonderformErlaubt, aktiv: sonderformAktiv,' +
     ' nummer: sonderformNummer, jetzt: sonderformJetzt,' +
     ' braucht: sonderBraucht, rechteck: sonderRechteck,' +
-    ' profil: sonderformProfil, kanten: sonderformVorderkanten })');
+    ' profil: sonderformProfil, kanten: sonderformVorderkanten,' +
+    ' breite: sonderformBreite, streit: sonderformWiderspruch })');
 } catch (e) { API = null; }
 var geladen = !!(API && API.SONDERFORM);
 var SONDERFORM = geladen ? API.SONDERFORM : {};
@@ -70,6 +74,8 @@ function sonderBraucht(f) { return API.braucht(f); }
 function sonderRechteck() { return API.rechteck(); }
 function sonderformProfil(x) { return API.profil(x); }
 function sonderformVorderkanten(b, t) { return API.kanten(b, t); }
+function sonderformBreite() { return API.breite(); }
+function sonderformWiderspruch() { return API.streit(); }
 
 pruefe('Die Formenlogik lässt sich ausführen', gegen ? !geladen : geladen,
        geladen ? Object.keys(SONDERFORM).length + ' Formen' : 'Fehler beim Laden');
@@ -131,10 +137,10 @@ pruefe('Bei normaler Form bleibt alles unberührt',
 /* ---------- Nachgerechnet: das umschließende Rechteck ---------- */
 Z.sonderform = 3;                       // braucht A B B1 B2 C1 C2
 var r = sonderRechteck();
-pruefe('Umschließendes Rechteck ist die größte Breite mal größte Tiefe',
+pruefe('Umschließendes Rechteck: Breite aus den Teilmaßen, größte Tiefe',
        gegen ? !(r.breite === 5000 && r.tiefe === 3500)
              : (r.breite === 5000 && r.tiefe === 3500),
-       r.breite + ' × ' + r.tiefe + ' mm (A 5000, B 4000, C1 3500, C2 2500)');
+       r.breite + ' × ' + r.tiefe + ' mm (B1 2500 + B2 2500, C1 3500, C2 2500)');
 
 /* Ein Maß, das die Form NICHT kennt, darf das Rechteck nicht vergrößern.
    Form 7 kennt nur A, C1, C2 – das B von 9999 muss wirkungslos bleiben. */
@@ -215,6 +221,54 @@ pruefe('Ein Maß außerhalb der Form zählt nicht mit',
          'links ' + a10 + ', Mitte ' + m10.toFixed(0) + ', rechts ' + e10);
   Z.sonderform = 3;
 })();
+
+/* ---------- Kein eingegebenes Maß darf verschwinden ----------
+   Am 23.10.2026 hat der Betrieb bei Form 1 „A – Breite vorne 5000" und
+   „B – Breite hinten 7600" eingegeben. Gezeichnet wurde ein Dach, das
+   vorne 7600 mm breit war: Die Funktion nahm schlicht max(A, B) und
+   verwarf A. Gemerkt hat es niemand – bis das fertige Bild zeigte, dass
+   die Eindeckung rechts über die Konstruktion hinaussteht.
+
+   „jeder buchstabe hat ja sein maß" (Betreiber). Genau. Deshalb gilt
+   jetzt: Wo es Teilbreiten gibt, bestimmen SIE die Form – sie legen die
+   Stufen fest. Was dazu nicht passt, wird gemeldet statt verworfen. */
+(function () {
+  var frueher = { A: Z.sfA, B: Z.sfB, A1: Z.sfA1, A2: Z.sfA2 };
+  Z.sonderform = 1;
+  Z.sfA = 5000; Z.sfA1 = 2500; Z.sfA2 = 2500; Z.sfB = 7600;
+  var br = sonderformBreite();
+  var streit = sonderformWiderspruch();
+  pruefe('Die Breite kommt aus den Teilmaßen, nicht aus max(A, B)',
+         gegen ? br !== 5000 : br === 5000,
+         br + ' mm aus A1 + A2, nicht 7600 aus B');
+  pruefe('Ein Maß, das nicht passt, wird gemeldet statt verworfen',
+         gegen ? streit.length === 0 : streit.length >= 2,
+         streit.length + ' Meldung(en): ' + (streit[0] || '\u2013'));
+  /* Und wenn alles zusammenpasst, darf keine Meldung kommen – sonst
+     stumpft die Warnung ab und wird überlesen. */
+  Z.sfB = 5000;
+  var sauber = sonderformWiderspruch();
+  pruefe('Passende Maße ergeben keine Meldung',
+         gegen ? sauber.length !== 0 : sauber.length === 0,
+         sauber.length ? sauber.join(' ') : 'still, solange alles stimmt');
+  /* Ein fehlendes Maß ist auch ein Widerspruch. */
+  Z.sfA1 = 0;
+  var fehlt = sonderformWiderspruch();
+  pruefe('Ein fehlendes Maß fällt auf',
+         gegen ? fehlt.length === 0 : fehlt.length > 0,
+         fehlt.length + ' Meldung(en), wenn A1 leer ist');
+  Z.sfA = frueher.A; Z.sfB = frueher.B;
+  Z.sfA1 = frueher.A1; Z.sfA2 = frueher.A2;
+  Z.sonderform = 3;
+})();
+
+pruefe('Der Widerspruch steht im Bedienfeld, nicht nur im Code',
+       gegen ? !/k3d-mass-streit/.test(k3d)
+             : /k3d-mass-streit/.test(k3d) && html.indexOf('k3d-mass-streit') > -1,
+       'rot hervorgehoben \u00fcber dem Rechteck-Hinweis');
+pruefe('Der Widerspruch geht auch in die interne Notiz',
+       gegen ? !/ACHTUNG Sonderform: /.test(k3d) : /ACHTUNG Sonderform: /.test(k3d),
+       'damit es im Betrieb auff\u00e4llt, nicht erst beim Aufma\u00df');
 
 /* ---------- Die Vorderkante als Abschnitte ----------
    „trz bleibt z.b die rinne rechteckig" (Betreiber, 23.10.2026, mit
