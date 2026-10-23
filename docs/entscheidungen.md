@@ -8295,3 +8295,94 @@ bestanden; in der Gegenprobe schlagen alle 36 an. Vier davon sind genau dieser
 Fall, mit den echten Zahlen aus dem Bild: Breite kommt aus den Teilmaßen;
 unpassendes Maß wird gemeldet; passende Maße ergeben **keine** Meldung;
 fehlendes Maß fällt auf.
+
+---
+
+## 23.10.2026 — Sonderform: zurück zu vier Maßen (Breite 1/2, Tiefe 1/2)
+
+**Anlass.** „die lösung is blöd, es funktioniert nicht. wäre besser wenn ich
+Breite 1, Breite 2, Tiefe 1, Tiefe 2 hätte" (Betreiber).
+
+**Was falsch war — und zwar an mir.** Gefordert war von Anfang an: *„Breite
+hinten, Breite vorne, Tiefe links, Tiefe rechts"*. Ich habe daraus die zehn
+Katalogformen von VD gemacht (A, A1, A2, B, B1–B3, C1–C3), weil sie im Katalog
+so stehen. Das Ergebnis war eine Liste aus bis zu zehn Buchstabenfeldern, bei
+der niemand wusste, welcher Buchstabe welche Kante ist — „es is schön das man
+so ne ganze liste hat, aber was bedeutet was man weiß es ja nicht". Die Skizze,
+die ich danach gebaut habe, hat das Symptom gelindert, nicht die Ursache: Die
+Form kam aus einem Katalogblatt statt aus den Maßen, die der Betrieb am Objekt
+abliest. **Lehre: Wenn der Auftrag ein Modell vorgibt, ist ein „besseres"
+Modell aus der Fachliteratur erst einmal ein Vorschlag, kein Ersatz.**
+
+**Was jetzt gilt.** Vier Zahlen, jede eine Kante, alle frei:
+
+| Feld | Kante |
+|---|---|
+| Breite hinten | an der Wand |
+| Breite vorne | an der Rinne |
+| Tiefe links | linke Seite |
+| Tiefe rechts | rechte Seite |
+
+Daraus entsteht ein Viereck mit vier Eckpunkten. Jeder Sparren bekommt die
+Tiefe, die an seiner Stelle gilt; Rinne, Pfosten und Blende folgen derselben
+Kante. Die **Vorderkante liegt mittig** zur Hinterkante: Ist vorne breiter oder
+schmaler, verteilt sich der Unterschied gleichmäßig auf beide Seiten. Das ist
+eine Festlegung, keine Herleitung — mit vier Zahlen allein wäre nicht gesagt,
+wo der Unterschied sitzt. Sichtbar wird sie sofort in der Skizze über den
+Feldern.
+
+**Warum so und nicht anders.** Eine schiefe Fläche hat vier Kanten; vier Maße
+legen sie fest und jedes davon kann man mit dem Bandmaß nachprüfen. Teilmaße
+(A1 + A2 = A) brauchen zusätzlich die Regel, dass die Summen stimmen müssen —
+genau daran ist die Katalogvariante gescheitert. Mit vier freien Maßen kann
+nichts mehr widersprüchlich sein, nur noch leer; entsprechend meldet
+`sonderformWiderspruch()` jetzt nur fehlende Maße.
+
+**Was verworfen wurde.** Die Tabelle `SONDERFORM` mit zehn Formen, die
+Teilmaß-Felder A1/A2/B1/B2/B3/C, die Formenauswahl und `sonderformNummer()` —
+alles entfernt. Wer sie wieder einbauen will: Sie lösen ein Problem, das der
+Betrieb nicht hat (Bestellnummern im VD-Katalog), und schaffen eines, das er
+hat (zehn namenlose Buchstaben). Der **+30 %-Aufschlag** vom Katalogblatt
+bleibt draußen, wie jeder Preis.
+
+**An den Rändern läuft die Tiefe gegen null** — das ist richtig so: Bei
+7000 hinten und 5000 vorne gibt es an der äußersten Stelle nur noch die
+hintere Ecke. Der Code fängt nur ab, dass daraus kein Sparren mit Länge 0 wird
+(Mindestmaß 1 mm), damit die Geometrie nicht kaputtgeht.
+
+**Nebenbefund, der nicht von dieser Änderung kommt:
+`scripts/pruefe-konfigurator-oberflaeche.mjs` war seit zwölf Tagen rot.**
+Die Browser-Prüfung stammt aus der Zeit vor der Schritt-für-Schritt-Führung
+(PR #281, 11.10.2026). Seitdem ist nur der aktuelle Schritt sichtbar, alles
+andere steht auf `display:none` — die Prüfung griff beim ersten Maßfeld ins
+Leere („element is not visible") und brach ab, **ohne** dass das auffiel, weil
+sie mit einer Ausnahme statt mit einem Prüfergebnis endete. Dahinter lagen drei
+weitere veraltete Annahmen: der Testbetrieb-Hinweis fängt jeden Klick ab; die
+Verkleidung ist am 11.10.2026 in den Abschnitt „Seiten" gewandert und gibt es
+nur beim Flachdach-Carport, nicht beim Carport TDS; die obere Maßgrenze ist
+nicht mehr 7000 mm, sondern 14080 mm. Alles vier nachgezogen, die Grenze wird
+jetzt am Regler abgelesen statt im Skript festgeschrieben. Die Prüfung läuft
+wieder: **61 Prüfungen, alle bestanden; Gegenprobe findet alle drei
+eingebauten Fehler.**
+**Lehre fürs nächste Mal: Eine Prüfung, die mit einer Ausnahme abbricht, zählt
+als rot — nicht als „läuft noch".** Beim Durchlauf aller Skripte wird deshalb
+künftig der Exit-Code abgefragt, nicht die letzte Ausgabezeile.
+
+**Was gegengelesen werden soll.**
+1. Maße-Schritt, „Sonderform" wählen: Stehen genau vier Felder da, jedes mit
+   Klartext-Beschriftung?
+2. Breite hinten 7600, Breite vorne 5000, Tiefe links 4000, Tiefe rechts 4000:
+   Läuft das Dach nach vorne spitz zu — und laufen Rinne, Pfosten und Blende
+   mit, nicht nur die Sparren?
+3. Die Handskizze vom Betreiber: Breite hinten 4000, Breite vorne 5000,
+   Tiefe links 7600, Tiefe rechts 8000. Passt das Bild zur Skizze daneben?
+4. Ein Feld leeren: Kommt die rote Meldung, und verschwindet sie wieder?
+
+**Absicherung.** `scripts/pruefe-sonderform.js` neu geschrieben: **25
+Prüfungen**, alle bestanden, in der Gegenprobe schlagen alle 25 an. Die
+Geometrie wird dabei nicht im Code nachgelesen, sondern **ausgeführt und
+nachgemessen** — sechs Formen über je 200 Stellen abgetastet (nirgends Tiefe
+null, nichts ragt über das umschließende Rechteck hinaus). Außerdem geprüft:
+Sonderform geht nie in den Datenweg `bauenAusDaten()` (dieselbe Falle wie am
+11., 15. und 16.10.2026), und die Skizze zeichnet aus derselben Funktion wie
+das Modell, hat also keine zweite Vorstellung von der Form.

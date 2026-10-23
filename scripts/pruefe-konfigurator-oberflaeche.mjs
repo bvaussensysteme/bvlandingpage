@@ -107,7 +107,32 @@ async function alleAufklappen(ziel = page) {
   });
   await ziel.waitForTimeout(150);
 }
+/* Der Testbetrieb-Hinweis ist ein echter Dialog ueber der ganzen Seite
+   und faengt jeden Klick ab. Ein Besucher bestaetigt ihn, also hier auch
+   – sonst prueft der Rest nichts. */
+await page.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+
 await alleAufklappen();
+
+/* Seit PR #281 fragt das Bedienfeld Schritt fuer Schritt ab: sichtbar ist
+   nur der aktuelle Schritt, alles andere steht auf display:none (Regel
+   .k3d-gefuehrt .k3d-gruppe:not(.ist-schritt)). Diese Pruefung stammt aus
+   der Zeit davor und lief seitdem beim ersten Massfeld ins Leere
+   ("element is not visible"). Gefunden am 23.10.2026 – nicht von der
+   Sonderform verursacht, sondern seit #281 unbemerkt rot. Sie arbeitet
+   jetzt in der Ansicht "Alles auf einen Blick"; dass der Umschalter
+   wirklich alles zeigt, ist selbst eine Pruefung. */
+const breiteGefuehrt = await page.locator('#k3dBreiteZahl').isVisible();
+/* Die Sprechblase (#k3dTestHinweis) liegt ueber dem Umschalter. force
+   ueberspringt nur die Pruefung von Playwright – der Mausklick landet
+   trotzdem auf der Blase. Deshalb den Knopf direkt ausloesen. */
+await page.$eval('#k3dModus', (el) => el.click());
+await page.waitForTimeout(250);
+await alleAufklappen();
+pruef('Schritt fuer Schritt zeigt nur den aktuellen Schritt',
+  !breiteGefuehrt, 'Massfeld steckt nicht im Produktschritt');
+pruef('"Alles auf einen Blick" zeigt alle Abschnitte',
+  await page.locator('#k3dBreiteZahl').isVisible(), 'Massfeld sichtbar');
 
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
@@ -161,14 +186,21 @@ pruef('Ausgabe folgt dem Zahlenfeld',
   (await page.locator('#k3dBreiteWert').innerText()) === '4200 mm');
 
 // Zahlenfeld außerhalb des Bereichs wird markiert und beim Verlassen begrenzt
-await page.fill('#k3dBreiteZahl', '9999');
+/* Die obere Grenze stand hier als feste 7000 und ist seit der Freigabe
+   groesserer Anlagen 10000 – 9999 lag also INNERHALB und die Pruefung
+   schlug an, obwohl alles stimmte. Jetzt wird die Grenze am Feld selbst
+   abgelesen; so haelt die Pruefung auch die naechste Aenderung aus. */
+/* Die Grenze steht am Regler, nicht am Zahlenfeld. */
+const maxBreite = Number(await page.locator('#k3dBreite').getAttribute('max'));
+await page.fill('#k3dBreiteZahl', String(maxBreite + 1500));
 await page.waitForTimeout(200);
 const markiert = await page.locator('#k3dBreiteZahl').evaluate(e => e.classList.contains('ist-ausserhalb'));
 await page.locator('#k3dBreiteZahl').blur();
 await page.waitForTimeout(300);
 const begrenzt = await page.inputValue('#k3dBreiteZahl');
-pruef('Maß außerhalb wird markiert', markiert);
-pruef('Maß außerhalb wird begrenzt', begrenzt === '7000', begrenzt + ' mm');
+pruef('Maß außerhalb wird markiert', markiert, (maxBreite + 1500) + ' mm eingegeben');
+pruef('Maß außerhalb wird begrenzt', begrenzt === String(maxBreite),
+  begrenzt + ' mm, Grenze ' + maxBreite + ' mm');
 
 // Knopfreihe Produkt
 await page.click('[data-k3d-seg="k3dProdukt"] button[data-wert="Carport"]');
@@ -180,8 +212,18 @@ pruef('Titel folgt dem Produkt',
   await page.locator('#k3dTitelBuehne').innerText());
 
 // Verkleidung nur beim Carport
-const verkSichtbar = await page.locator('details[data-k3d-fuer="verkleidung"]').isVisible();
-const seitenSichtbar = await page.locator('details[data-k3d-fuer="terrasse pergola"]').isVisible();
+/* Zwei Dinge haben sich geaendert, seit das hier geschrieben wurde:
+   Die Verkleidung ist am 11.10.2026 in den Abschnitt "Seiten" gewandert
+   (den Abschnitt details[data-k3d-fuer="verkleidung"] gibt es nicht mehr,
+   die Pruefung griff ins Leere), und der Carport kommt seit dem TDS-Typ
+   standardmaessig als Carport TDS – der hat Seitenelemente und KEINE
+   Verkleidung. Verkleidung gibt es nur beim Flachdach-Carport, also
+   wird der hier eingestellt. */
+await page.selectOption('#k3dCpTyp', 'Flachdach Flat Line');
+await page.waitForTimeout(700);
+await alleAufklappen();
+const verkSichtbar = await page.locator('div[data-k3d-fuer="verkleidung"]').first().isVisible();
+const seitenSichtbar = await page.locator('div[data-k3d-fuer="seiten"]').first().isVisible();
 pruef('Verkleidung erscheint beim Carport', verkSichtbar);
 pruef('Seiten-Abschnitt beim Carport weg', !seitenSichtbar);
 
@@ -192,7 +234,7 @@ await page.check('#k3dVerkLinks');
 await page.waitForTimeout(800);
 const nachVerk = await page.locator('#k3dCanvas').screenshot();
 pruef('Verkleidung verändert das Modell', !vorVerk.equals(nachVerk));
-pruef('Ausrichtung erscheint', await page.locator('[data-k3d-fuer="verk-richtung"]').isVisible());
+pruef('Ausrichtung erscheint', await page.locator('[data-k3d-fuer="verk-richtung"]').first().isVisible());
 pruef('Kurzfassung Verkleidung',
   /links/.test(await page.locator('#k3dSumVerk').innerText()),
   await page.locator('#k3dSumVerk').innerText());
@@ -203,7 +245,7 @@ await page.waitForTimeout(900);
 await alleAufklappen();
 await page.click('[data-k3d-erw="links"] button[data-erw="Schiebetür"]');
 await page.waitForTimeout(700);
-pruef('Schiebe-Regler erscheint', await page.locator('[data-k3d-fuer="schiebe"]').isVisible());
+pruef('Schiebe-Regler erscheint', await page.locator('[data-k3d-fuer="schiebe"]').first().isVisible());
 
 /* Regeln aus dem Anfrage-Assistenten müssen auch hier gelten:
    Schiebetür zieht den Keil mit (Außengefälle), und Velaris verträgt sich
@@ -285,7 +327,7 @@ await alleAufklappen();
 const ohneMarkise = await page.locator('#k3dCanvas').screenshot();
 await page.click('[data-k3d-seg="k3dMarkise"] button[data-wert="Aufdachmarkise"]');
 await page.waitForTimeout(800);
-pruef('Ausfahr-Regler erscheint', await page.locator('[data-k3d-fuer="sonne-aus"]').isVisible());
+pruef('Ausfahr-Regler erscheint', await page.locator('[data-k3d-fuer="sonne-aus"]').first().isVisible());
 const mitMarkise = await page.locator('#k3dCanvas').screenshot();
 pruef('Markise ist im Modell zu sehen', !ohneMarkise.equals(mitMarkise));
 await alleAufklappen();
@@ -305,12 +347,12 @@ const ohneLed = await page.locator('#k3dCanvas').screenshot();
 await page.check('#k3dLed');
 await page.waitForTimeout(700);
 pruef('LED verändert das Modell', !ohneLed.equals(await page.locator('#k3dCanvas').screenshot()));
-pruef('LED-Set erscheint', await page.locator('[data-k3d-fuer="led-detail"]').isVisible());
+pruef('LED-Set erscheint', await page.locator('[data-k3d-fuer="led-detail"]').first().isVisible());
 await page.click('[data-k3d-seg="k3dLedSet"] button[data-wert="12er-Set"]');
 await page.fill('#k3dLedAnzahl', '2');
 await page.check('#k3dSound');
 await page.waitForTimeout(600);
-pruef('Lautsprecher-Set erscheint', await page.locator('[data-k3d-fuer="sound-detail"]').isVisible());
+pruef('Lautsprecher-Set erscheint', await page.locator('[data-k3d-fuer="sound-detail"]').first().isVisible());
 pruef('Kurzfassung Licht', /12er-Set/.test(await page.locator('#k3dSumLicht').innerText()),
   await page.locator('#k3dSumLicht').innerText());
 
@@ -407,6 +449,10 @@ const mFehler = [];
 m.on('pageerror', e => mFehler.push(e.message));
 await m.goto(BASIS, { waitUntil: 'networkidle' });
 await m.waitForTimeout(1600);
+await m.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+await m.$eval('#k3dModus', (el) => el.click());          // wie oben: alles sichtbar, sonst scrollt die Seite nicht
+await m.waitForTimeout(250);
+await alleAufklappen(m);
 
 const mbu = await m.locator('.k3d-buehne').boundingBox();
 const msl = await m.locator('#k3dPanel').boundingBox();
@@ -424,10 +470,28 @@ const innenScroll = await m.evaluate(() => {
 pruef('Handy: die Seite scrollt', scrollbar);
 pruef('Handy: kein zweiter Scrollbereich im Bedienfeld', !innenScroll);
 
-// Werkzeugleiste darf die Sprechblase nicht überdecken
+/* Die Leiste war einmal mittig und schmal, deshalb stand hier "laesst
+   rechts Platz". Seit dem 11.10.2026 geht sie auf dem Handy bewusst ueber
+   die ganze Breite (Betreiber: "auf iphone 17 pro is es leicht zu
+   schmal"), also schlug die alte Pruefung auf etwas an, das so gewollt
+   ist. Geblieben ist die Sorge dahinter: Die Leiste darf den Hinweis
+   darueber nicht verdecken, und sie darf die Seite nicht breiter machen
+   als das Fenster. */
 const leiste = await m.locator('.k3d-leiste').boundingBox();
-pruef('Handy: Werkzeugleiste lässt rechts Platz', leiste.x + leiste.width < 330,
-  `endet bei x=${Math.round(leiste.x + leiste.width)}`);
+const breiterAlsFenster = await m.evaluate(() =>
+  document.documentElement.scrollWidth > window.innerWidth + 1);
+pruef('Handy: Werkzeugleiste macht die Seite nicht breiter', !breiterAlsFenster,
+  `Leiste ${Math.round(leiste.width)}px bei ${await m.evaluate(() => window.innerWidth)}px Fenster`);
+const hinwDa = await m.locator('.k3d-klickhinweis').isVisible().catch(() => false);
+if (hinwDa) {
+  const hinw = await m.locator('.k3d-klickhinweis').boundingBox();
+  pruef('Handy: Werkzeugleiste verdeckt den Hinweis nicht',
+    hinw.y + hinw.height <= leiste.y + 1,
+    `Hinweis endet bei y=${Math.round(hinw.y + hinw.height)}, Leiste beginnt bei y=${Math.round(leiste.y)}`);
+} else {
+  pruef('Handy: Werkzeugleiste verdeckt den Hinweis nicht', true,
+    'kein Hinweis eingeblendet');
+}
 
 if (!GEGENPROBE) await m.screenshot({ path: 'pruefbilder/k3d-handy.png' });
 
