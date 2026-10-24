@@ -8502,3 +8502,73 @@ Türzahl) ergibt sich, mit welchem Feld das Modell wirklich gebaut hat — vorne
 2336 mm, hinten 4780 mm (`pruefe-konfigurator-oberflaeche.mjs`, jetzt 70
 Prüfungen). `pruefe-fuehrung.js` (304) und `pruefe-masstabelle.js` (362)
 mussten auf den neuen Aufruf nachgezogen werden; beide Gegenproben vollständig.
+
+---
+
+## 24.10.2026 — Zwei Stufen: Basic für Kunden, Pro für alles
+
+**Anlass.** „Der 3D Konfigurator wird mit den ganzen einstellungen immer
+unübersichtlicher und schwieriger, mach eine Basic version für leihen und dann
+wenn man auf pro umschaltet wirklich alle einstellungen vorhanden" (Betreiber).
+
+**Der Befund davor.** 68 Bedieneinheiten in 9 Schritten, 88 Eingabeelemente.
+19 davon steckten schon unter „Mehr Einstellungen" — der Rest stand offen da,
+darunter Dachneigung, Glasstärke, Keilglas und die Sonderform-Maße. Für einen
+Besucher ohne Fachwissen ist das keine Auswahl, sondern eine Prüfung.
+
+**Was Basic zeigt** — vom Betreiber festgelegt (Rückfrage mit drei Umfängen,
+gewählt: „nur die Kundenfragen"): Produkt, Wandmontage/freistehend, Breite,
+Tiefe, Höhe, Dacheindeckung, Farbe, die vier Seiten, Sonnenschutz, Licht
+(LED, Lautsprecher, Heizstrahler), Untergrund und Montage. **Nur in Pro:**
+Form der Anlage und die Sonderform-Maße, Dachneigung, hintere Höhe,
+Glasstärke, Keilglas, Velaris-Hälfte, Ausrichtung der Paneele, die drei
+Stofffarben — dazu alles, was schon „Mehr Einstellungen" war (Statikträger,
+Unterzug, Glasstoß, Dachvorsprung, Schiebe- und Rahmenaufteilung,
+Plankenfuge, Lamellenstellung, Bodenbelag, Maßlinien).
+
+Gemessen im Browser bei der Voreinstellung: **17 sichtbare Bedieneinheiten in
+Basic, 25 in Pro** (der Rest hängt ohnehin am gewählten Produkt). Über alle
+Einheiten gerechnet: 33 von 68 bleiben in Basic.
+
+**Wie es gebaut ist — und warum so.** Welche Einheit zu Pro gehört, steht **an
+ihr selbst** (`data-k3d-pro` im HTML), nicht in einer Liste im Code. Eine
+Liste liefe auseinander, sobald jemand eine Einheit verschiebt; das Attribut
+zieht mit. Die Regel in `panelAnpassen()` läuft **nach** der Inhaltsregel und
+darf nur zusätzlich verbergen, nie aufdecken — was es beim gewählten Produkt
+gar nicht gibt, bleibt auch in Pro aus.
+
+Der Umschalter steht **außerhalb** der geführten Kopfzeile. Die ist im Modus
+„Alles auf einen Blick" ausgeblendet (`.k3d-fuehrung { display: none }`) — dort
+wäre der Umschalter genau dann verschwunden, wenn man am meisten sieht.
+
+**Die heikle Stelle ist nicht das Ausblenden.** Wer in Pro etwas einstellt und
+zurück auf Basic schaltet, **behält seine Eingabe**: Die Werte bleiben in `Z`
+stehen, und die Anfrage nennt sie weiterhin — sie wird aus `Z` gebaut, nicht
+aus dem, was gerade sichtbar ist. Stilles Zurücksetzen wäre der schlimmere
+Fehler, und eine unsichtbar weiterwirkende Einstellung ist genau die Falle, in
+die ich bei der Rückseite am 23.10. gelaufen bin — nur andersherum. Deshalb
+prüft `pruefe-stufen.js` beides: dass nichts zurückgesetzt wird **und** dass
+die Begründung als Kommentar im Code steht, damit sie niemand „aufräumt".
+
+**Was gegengelesen werden soll.**
+1. Konfigurator öffnen: Steht oben „Einstellungen · Basic | Pro", und ist
+   Basic vorausgewählt?
+2. In Basic durchklicken: Taucht irgendwo noch ein Feld auf, das ein Kunde
+   nicht beantworten kann?
+3. Auf Pro schalten: Sind Dachneigung, Sonderform und „Mehr Einstellungen"
+   wieder da?
+4. In Pro die Neigung auf 8° stellen, auf Basic und zurück: Steht sie noch
+   auf 8°?
+5. Fehlt Ihnen in Basic etwas, das ein Kunde doch sehen sollte? Das Attribut
+   ist eine Zeile — sagen Sie welche Einheit.
+
+**Absicherung.** Neu: `scripts/pruefe-stufen.js` — **34 Prüfungen**, Gegenprobe
+34/34; darunter die vollständige Pro-Liste, die vollständige Basic-Liste und
+die Reihenfolge der beiden Sichtbarkeitsregeln. Dazu **6 Prüfungen im echten
+Browser** (jetzt 76): sichtbare Einheiten gezählt, 17 → 25, und das
+Bildschirmfoto des Modells muss beim Umschalten **identisch** bleiben — die
+Stufe ist eine Frage der Ansicht, nicht des Bauwerks. `pruefe-fuehrung.js`
+(304) und `pruefe-masstabelle.js` (362) hingen an der Attribut-Reihenfolge und
+wurden nachgezogen; bei „Weg 1 / Weg 2" prüft die Fassung jetzt schärfer als
+vorher: Neigung und hintere Höhe müssen **beide** zu Pro gehören oder keine
+von beiden, sonst stünde in Basic die hintere Höhe ohne die Neigung daneben.

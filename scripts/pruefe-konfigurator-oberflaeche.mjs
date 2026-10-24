@@ -134,6 +134,69 @@ pruef('Schritt fuer Schritt zeigt nur den aktuellen Schritt',
 pruef('"Alles auf einen Blick" zeigt alle Abschnitte',
   await page.locator('#k3dBreiteZahl').isVisible(), 'Massfeld sichtbar');
 
+/* ---------- Basic und Pro ----------
+   „mach eine Basic version für leihen und dann wenn man auf pro
+   umschaltet wirklich alle einstellungen vorhanden" (Betreiber,
+   24.10.2026).
+
+   Gemessen wird in der Ansicht „Alles auf einen Blick": Im gefuehrten
+   Modus steht ohnehin nur der aktuelle Schritt da, dort laesst sich
+   Basic nicht von Pro unterscheiden. Der Knopf „Mehr Einstellungen"
+   gehoert zur Fuehrung und wird deshalb am Attribut geprueft, nicht an
+   seiner Sichtbarkeit. */
+async function sichtbareEinheiten() {
+  return await page.evaluate(() => {
+    let n = 0;
+    document.querySelectorAll('.k3d-gruppe').forEach((g) => {
+      if (g.offsetParent !== null) n++;
+    });
+    return n;
+  });
+}
+const einheitenBasic = await sichtbareEinheiten();
+const bildBasic = await page.locator('#k3dCanvas').screenshot();
+pruef('Basic verbirgt die Fachwerte',
+  !(await page.locator('#k3dNeigungZahl').isVisible()) &&
+  !(await page.locator('[data-k3d-seg="k3dForm"]').isVisible()) &&
+  (await page.locator('#k3dMehr').evaluate((e) => e.hidden)),
+  'Dachneigung, Form der Anlage und „Mehr Einstellungen" sind weg');
+pruef('Basic zeigt die Kundenfragen',
+  (await page.locator('#k3dBreiteZahl').isVisible()) &&
+  (await page.locator('#k3dHoeheZahl').isVisible()),
+  einheitenBasic + ' Bedieneinheiten sichtbar');
+
+await page.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Pro"]', (el) => el.click());
+await page.waitForTimeout(900);
+await alleAufklappen();
+const einheitenPro = await sichtbareEinheiten();
+pruef('Pro zeigt wirklich alle Einstellungen',
+  (await page.locator('#k3dNeigungZahl').isVisible()) &&
+  (await page.locator('[data-k3d-seg="k3dForm"]').isVisible()) &&
+  !(await page.locator('#k3dMehr').evaluate((e) => e.hidden)),
+  'Dachneigung, Form der Anlage und „Mehr Einstellungen" sind wieder da');
+pruef('Pro zeigt deutlich mehr als Basic',
+  einheitenPro > einheitenBasic * 1.3,
+  einheitenBasic + ' -> ' + einheitenPro + ' Bedieneinheiten');
+/* Die Stufe ist eine Frage der Ansicht, nicht des Bauwerks. */
+pruef('Das Modell bleibt beim Umschalten unveraendert',
+  Buffer.compare(bildBasic, await page.locator('#k3dCanvas').screenshot()) === 0,
+  'nur das Bedienfeld aendert sich');
+
+/* Und der Punkt, auf den es wirklich ankommt: In Pro Eingestelltes darf
+   beim Zurueckschalten nicht verschwinden. */
+await page.fill('#k3dNeigungZahl', '8');
+await page.locator('#k3dNeigungZahl').blur();
+await page.waitForTimeout(700);
+await page.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Basic"]', (el) => el.click());
+await page.waitForTimeout(700);
+await page.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Pro"]', (el) => el.click());
+await page.waitForTimeout(700);
+await alleAufklappen();
+pruef('In Pro Eingestelltes ueberlebt den Weg ueber Basic',
+  (await page.inputValue('#k3dNeigungZahl')) === '8',
+  'Dachneigung steht auf ' + await page.inputValue('#k3dNeigungZahl') + ' Grad');
+
+
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
   await page.waitForTimeout(300);
