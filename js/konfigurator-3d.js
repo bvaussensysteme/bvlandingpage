@@ -3670,7 +3670,7 @@
     return felder;
   }
 
-  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm) {
+  function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm, pfostenHintenX) {
     var mGlas = seitenglas();
     var mSchiebe = schiebeGlas();
     var mKeil = keilGlas();
@@ -4969,22 +4969,40 @@
          falsch war. */
       eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
                 feldMitte > 0 ? -1 : 1, f);
-      /* ---------- Rueckseite: dieselben Faecher wie vorne ----------
-         „Bei freistehen muss plankenwand, rahmen etc. also alle moeglichen
-         auch hinten moeglich sein" (Betreiber, 23.10.2026).
+    }
 
-         z = 0 ist dieselbe Ebene, an der die Laengsseiten hinten enden
-         (siehe oben) – so treffen sich die Elemente in der Ecke ohne
-         Versatz. Die Faecher sind dieselben wie vorne, weil hinten
-         dieselben Pfosten stehen; nur die Hoehe ist eine andere, darum
-         kuemmert sich eineSeite().
+    /* ---------- Rueckseite: EIGENE Faecher ----------
+       „Bei freistehen muss plankenwand, rahmen etc. also alle moeglichen
+       auch hinten moeglich sein" (Betreiber, 23.10.2026).
 
-         Bei Wandmontage wird hier nichts gebaut: Dort ist die Rueckseite
-         das Haus. erwAufraeumen() leert die Auswahl dann ohnehin – die
-         Abfrage hier ist der zweite Riegel. */
-      if (rueckseiteOffen()) {
-        eineSeite('hinten', hinten, feldMitte, feldLaenge, false,
-                  feldMitte > 0 ? -1 : 1, f);
+       z = 0 ist dieselbe Ebene, an der die Laengsseiten hinten enden
+       (siehe oben) – so treffen sich die Elemente in der Ecke ohne
+       Versatz.
+
+       Die Faecher sind NICHT die der Vorderseite. Genau das war der
+       Fehler im ersten Anlauf: „wenn ich hinten plankenwand oder was
+       anderes hinzufüge sind da so 2 lücken dazwischen aber da sind bei
+       der freistehenden version keine pfosten, da statikträger"
+       (Betreiber, 24.10.2026, mit Bild). Hinten traegt der Statiktraeger
+       bis 7 m, dort stehen deshalb nur zwei Pfosten – die Wand laeuft in
+       EINEM Stueck durch, waehrend vorne nach Tabelle drei oder vier
+       stehen. Geteilt wird nur, wo wirklich ein Pfosten im Weg ist.
+
+       Bei Wandmontage wird hier nichts gebaut: Dort ist die Rueckseite
+       das Haus. erwAufraeumen() leert die Auswahl dann ohnehin – die
+       Abfrage hier ist der zweite Riegel. */
+    if (rueckseiteOffen()) {
+      var achsenH = (pfostenHintenX && pfostenHintenX.length > 1)
+        ? pfostenHintenX.slice().sort(function (a, b) { return a - b; })
+        : achsen;
+      for (var fh = 0; fh < achsenH.length - 1; fh++) {
+        var hVon = achsenH[fh] + PROFIL / 2;
+        var hBis = achsenH[fh + 1] - PROFIL / 2;
+        var hMitte = (hVon + hBis) / 2;
+        var hLaenge = hBis - hVon;
+        if (hLaenge <= 0) continue;
+        eineSeite('hinten', hinten, hMitte, hLaenge, false,
+                  hMitte > 0 ? -1 : 1, fh);
       }
     }
   }
@@ -6546,6 +6564,9 @@
     /* Die Achsen der VORDEREN Pfosten werden unten noch gebraucht: Die
        Schiebeanlage läuft je Pfostenfach, nicht über die ganze Breite. */
     var xPfVorne = verteilen(pfVorne, B, PF / 2);
+    /* Und die HINTEREN: Dort stehen weniger (7-m-Regel am Statiktraeger),
+       also laufen die Elemente hinten ueber laengere Felder. */
+    var xPfHinten = verteilen(pfHinten, B, PF / 2);
     /* Die vorderen Pfosten stehen unter der Rinne – bei einer
        Sonderform also nicht alle auf derselben Tiefe, sondern jeder
        unter SEINEM Abschnitt. Gerechnet wird mit demselben Abstand zur
@@ -6560,7 +6581,7 @@
       balken(PF, hPfosten, PF, x, hPfosten / 2, zPfBei(x), mAlu);
     });
     if (frei) {
-      verteilen(pfHinten, B, PF / 2).forEach(function (x) {
+      xPfHinten.forEach(function (x) {
         balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zTrHinten, mAlu);
       });
     }
@@ -7090,7 +7111,10 @@
       zPf - PF / 2, xPfVorne,
       /* Dieselbe Funktion wie der Traegerbau – hier stand bis zum
          15.10.2026 eine eigene, gespiegelte Formel. */
-      unterzugZcm(sky));
+      unterzugZcm(sky),
+      /* Die Rueckseite teilt sich an IHREN Pfosten, nicht an denen der
+         Vorderseite – hinten stehen weniger. */
+      frei ? xPfHinten : null);
     /* Die Markise bekommt die VOLLE Tiefe T, nicht dachTiefe. dachTiefe
        endet dort, wo die Sparren enden – an der Rückwand der Rinne. Mit
        diesem Maß hörten Schiene und Tuch rund 19 cm vor der Rinne auf und

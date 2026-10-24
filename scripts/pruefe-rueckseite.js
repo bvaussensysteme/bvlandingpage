@@ -161,12 +161,53 @@ pruefe('Der Keil hängt an der Längsseite, nicht am Namen der Seite',
                !/seite !== 'vorne' && neig > 0\.001/.test(k3d),
        'quer statt einer Namensabfrage');
 pruefe('Die Rückseite wird nur freistehend gebaut',
-       gegen ? !/if \(rueckseiteOffen\(\)\) \{\n        eineSeite\('hinten'/.test(k3d)
-             : /if \(rueckseiteOffen\(\)\) \{\n        eineSeite\('hinten'/.test(k3d),
+       gegen ? !/if \(rueckseiteOffen\(\)\) \{\n      var achsenH/.test(k3d)
+             : /if \(rueckseiteOffen\(\)\) \{\n      var achsenH/.test(k3d),
        'zweiter Riegel neben dem Aufräumen');
+/* ---------- Hinten hat EIGENE Felder ----------
+   „wenn ich hinten plankenwand oder was anderes hinzufüge sind da so 2
+   lücken dazwischen aber da sind bei der freistehenden version keine
+   pfosten, da statikträger" (Betreiber, 24.10.2026, mit Bild). Im ersten
+   Anlauf lief die Rückseite in derselben Schleife wie die Vorderseite
+   und übernahm damit deren Pfostenfächer. Hinten stehen aber weniger
+   Pfosten: Der Statikträger trägt bis 7 m. */
+pruefe('Die Rückseite teilt sich an ihren eigenen Pfosten',
+       gegen ? !/var achsenH = \(pfostenHintenX && pfostenHintenX\.length > 1\)/.test(k3d)
+             : /var achsenH = \(pfostenHintenX && pfostenHintenX\.length > 1\)/.test(k3d) &&
+               /eineSeite\('hinten', hinten, hMitte, hLaenge/.test(k3d),
+       'nicht an denen der Vorderseite');
+pruefe('Die hinteren Pfostenachsen werden übergeben',
+       gegen ? !/frei \? xPfHinten : null\);/.test(k3d)
+             : /frei \? xPfHinten : null\);/.test(k3d) &&
+               /var xPfHinten = verteilen\(pfHinten, B, PF \/ 2\);/.test(k3d),
+       'einmal gerechnet, zweimal benutzt');
+/* Nachgerechnet statt nachgelesen: Aus der Pfostenzahl folgt die Feldzahl. */
+(function () {
+  function verteilen(n, B, rand) {
+    var a = [], i;
+    if (n < 2) return [0];
+    for (i = 0; i < n; i++) a.push(-B / 2 + rand + (B - 2 * rand) * i / (n - 1));
+    return a;
+  }
+  function felder(achsen, PF) {
+    var k = 0;
+    for (var i = 0; i < achsen.length - 1; i++) {
+      if ((achsen[i + 1] - PF / 2) - (achsen[i] + PF / 2) > 0) k++;
+    }
+    return k;
+  }
+  var B = 500, PF = 11;
+  var fV = felder(verteilen(4, B, PF / 2), PF);     // 5000 x 7050: vier vorne
+  var fH = felder(verteilen(2, B, PF / 2), PF);     // zwei hinten
+  pruefe('Vier Pfosten vorne ergeben drei Felder',
+         gegen ? fV !== 3 : fV === 3, fV + ' Felder');
+  pruefe('Zwei Pfosten hinten ergeben ein durchgehendes Feld',
+         gegen ? fH !== 1 : fH === 1, fH + ' Feld');
+})();
+
 pruefe('Hinten liegt in derselben Ebene wie das Ende der Längsseiten',
-       gegen ? !/eineSeite\('hinten', hinten, feldMitte, feldLaenge/.test(k3d)
-             : /eineSeite\('hinten', hinten, feldMitte, feldLaenge/.test(k3d),
+       gegen ? !/eineSeite\('hinten', hinten, hMitte, hLaenge/.test(k3d)
+             : /eineSeite\('hinten', hinten, hMitte, hLaenge/.test(k3d),
        'z = 0, sonst klafft die Ecke');
 
 /* ---------- Bedienung ---------- */
