@@ -8628,3 +8628,89 @@ pauschal wird. Die zweite hält die Begründung fest: Wo es den Träger auf
 Wunsch gibt, muss es auch den Dachvorsprung geben, denn der baut denselben
 Träger. Dazu **2 Prüfungen im echten Browser** (jetzt 78): Häkchen beim
 Carport TDS sichtbar, beim Flachdach-Carport nicht.
+
+---
+
+## 24.10.2026 — Gefälle des Terrassenbodens
+
+**Anlass.** „Und es wäre sinnvoll, wenn man die Neidugung in Grad vom
+Bodenbelag einstellen könnte damit man die Grad von der terasse richtig
+rechnen kann, weil der Boden is ja nicht immer Eben manche haben 2 grad mehr"
+(Betreiber).
+
+**Warum das zählt.** Eine Terrasse mit 2 % Gefälle liegt bei 4 m Tiefe vorne
+**14 cm tiefer** als an der Wand. Genau so viel länger bzw. kürzer müssen die
+Pfosten bestellt werden. Bisher rechnete der Konfigurator mit ebenem Boden —
+die Pfostenlängen stimmten dann erst nach dem Aufmaß.
+
+**Zwei Festlegungen des Betreibers** (Rückfrage mit je drei bzw. zwei
+Möglichkeiten):
+
+1. **„Die Höhen wie gemessen"** — was im Feld *Höhe vorne (Durchgang)* steht,
+   gilt **vorne**, über dem Boden an dieser Stelle.
+2. **Gefälle in beide Richtungen** — nach vorne und quer; damit hat jede Ecke
+   ihre eigene Pfostenlänge.
+
+**Was daraus folgt — und worin es von meinem eigenen Beispiel abweicht.** In
+der Rückfrage hatte ich geschrieben: *„Pfosten vorne 140 mm länger"*. Gebaut
+ist es andersherum, und zwar weil die erste Festlegung es so verlangt: Bleibt
+die Durchgangshöhe **vorne** stehen, rutscht das ganze Dach mit dem Boden nach
+unten — der **vordere** Pfosten behält exakt das eingegebene Maß, der
+**hintere** wird um das Bodengefälle **kürzer**, weil der Boden dort höher
+liegt.
+
+Nachgerechnet, 5000 × 4000 mm, Höhe 2300 mm, Dachneigung 5°, Boden 2°:
+
+| | eben | mit 2° Bodengefälle |
+|---|---|---|
+| Pfosten vorne | 2300 mm | **2300 mm** (unverändert, wie eingegeben) |
+| Pfosten hinten | 2650 mm | **2510 mm** |
+| Dachneigung gegen die Waagerechte | 5° | **5°** (unverändert) |
+| Dachneigung gegenüber dem Boden | 5° | **3°** |
+
+**Das Dach wird verschoben, nicht gekippt.** Die Neigung gegenüber der
+**Waagerechten** entscheidet über den Wasserablauf und steht so im
+Bestellformular — sie darf sich durch den Untergrund nicht ändern. Was der
+Monteur vor Ort dagegen *sieht*, ist die Neigung gegenüber dem Boden; die
+steht deshalb im Bedienfeld daneben, sonst verwirrt sie beim Aufmaß.
+
+**Vorzeichen.** Plus heißt: fällt vom Haus weg bzw. nach rechts. Achtung beim
+Lesen des Codes: In diesem Modell liegt **links bei +x** (siehe
+`eineSeite('links', B / 2 - PROFIL / 2, …)`), deshalb wächst `bodenY` mit x,
+wenn das Wasser nach rechts läuft.
+
+**Eine Quelle.** `bodenY(x, z)` gibt die Bodenhöhe an jeder Stelle; davon
+hängen Dachlage, Pfostenlängen, Belagkippung und die Unterkante der
+Seitenelemente ab. Ohne Gefälle gibt sie überall 0 zurück — dann rechnet und
+zeichnet alles exakt wie zuvor, und genau das prüft die erste numerische
+Prüfung.
+
+**Was bewusst offen bleibt.** Die Seitenelemente werden **nicht schräg
+zugeschnitten**: Innerhalb eines Feldes bleibt die Unterkante waagerecht, auf
+der Höhe des Bodens in der Feldmitte. Bei 2° und 2,3 m Feldlänge sind das rund
+4 cm an den Enden — sichtbar, aber nicht falsch gerechnet. Ein schräger
+Zuschnitt wäre der nächste Schritt und steht in `docs/NEXT_TASK.md`.
+Gerechnet wird das Gefälle außerdem nur im Terrassen-Bauweg (Terrassendach
+TDS, Flachdach SkyView, Carport TDS); beim Flachdach-Carport und bei der
+Pergola wird es deshalb gar nicht erst abgefragt.
+
+**Was gegengelesen werden soll.**
+1. Pro → „Mehr Einstellungen" beim Bodenbelag: Stehen dort zwei Felder,
+   „nach vorne" und „zur Seite"?
+2. 2 nach vorne eintragen: Kippt der Belag sichtbar, stehen die Pfosten
+   darauf, und nennt der Hinweis beide Neigungen und die Pfostenlängen?
+3. Stimmt die Zahl mit dem Bandmaß? 2° auf 4 m = 14 cm.
+4. Quergefälle 1 eintragen: Stehen die vier Ecken auf vier Höhen?
+5. Felder leeren: Steht wieder „eben" und verschwindet der Hinweis?
+6. **Fachlich:** Ist „Höhe vorne gilt vorne" so richtig, oder messen Sie
+   die Durchgangshöhe an der Wand? Dann drehe ich den Bezug um.
+
+**Absicherung.** Neu: `scripts/pruefe-bodengefaelle.js` — **26 Prüfungen**,
+Gegenprobe 26/26. Die Bodenfunktion wird dabei **ausgeführt** und mit eigenen
+Zahlen nachgerechnet (ebener Boden ergibt überall null; 2° auf 4 m ergeben
+140 mm; vier Ecken auf vier Höhen). Dazu **4 Prüfungen im echten Browser**
+(jetzt 82): Das Gefälle verändert das Modell, der Hinweis nennt beide
+Neigungen und die Pfostenlängen, und das Feld lässt sich wieder leeren.
+`pruefe-markise.js` (182) und `pruefe-masstabelle.js` (364) hingen am Wortlaut
+der geänderten Zeilen; die Markisen-Prüfung rechnet die Bodenfunktion jetzt
+selbst nach, statt sie nur zu lesen.

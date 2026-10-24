@@ -165,6 +165,21 @@
        3dmodell anklickt geht auf oder zu" (Betreiber, 11.10.2026).
        Der Regler bleibt – er setzt beim Ziehen alle drei gleich. */
     offenLinks: 0, offenRechts: 0, offenVorne: 0, offenHinten: 0,
+    /* ---------- Gefaelle des Terrassenbodens, in Grad ----------
+       „der Boden is ja nicht immer Eben manche haben 2 grad manche mehr"
+       (Betreiber, 24.10.2026). Terrassen werden mit Gefaelle gebaut,
+       damit das Wasser ablaeuft – ueblich sind 1 bis 2 Prozent, also
+       gut ein halbes bis gut ein Grad.
+
+       bodenGefaelle:     Tiefenrichtung, positiv = faellt vom Haus weg
+       bodenGefaelleQuer: quer dazu, positiv = faellt nach rechts
+
+       Beides wirkt NICHT auf die Dachneigung: Das Dach behaelt seine
+       Neigung gegenueber der Waagerechten (danach laeuft das Wasser auf
+       dem Dach ab). Was sich aendert, sind die PFOSTENLAENGEN – und die
+       werden bestellt. Siehe bodenY(). */
+    bodenGefaelle: 0,
+    bodenGefaelleQuer: 0,
     markise: 'Ohne',         // Beschattung am Dach, Werte wie im Assistenten
     stoff: '',               // Markisenstoff der Dachmarkise, z. B. 'AC420'
     stoffZip: '',            // Stoff der Senkrechtmarkise, z. B. 'T30812-A'
@@ -314,6 +329,11 @@
   /* Was im Modell wirklich gebaut wurde – das Bedienfeld liest es
      zurück, statt dieselbe Rechnung ein zweites Mal zu machen.
      Zweiter Weg zum selben Ergebnis, wie bei den Schiebeanlagen. */
+  /* Die wirklich gebauten Pfostenlaengen in mm, je Reihe. Auf ebenem
+     Boden sind alle gleich; mit Gefaelle nicht – und dann ist das die
+     Zahl, die bestellt wird. Gefuellt beim Bauen, gelesen vom Hinweis
+     und von der Anfrage. */
+  var PFOSTEN_IST = { vorne: [], hinten: [] };
   var PLANKEN_IST = { anzahl: 0, gesamt: 0, fuge: 0, hoehe: 0, lage: 'voll',
                       felder: 1, feldLaenge: 0 };
   var WINKEL = { lang: 4.0, kurz: 2.0, staerke: 0.2 };
@@ -3221,6 +3241,7 @@
     /* Umgebung */
     belag.scale.set(B + 180, 1, T + (e.freistehend ? 240 : 120));
     belag.position.set(0, -1, (T + 120) / 2 - 60);
+    belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
     wand.visible = !e.freistehend;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -4588,7 +4609,15 @@
       /* Die Elemente stehen jetzt praktisch auf dem Belag – die Schwelle
          liegt darin, nicht darauf. Die Durchgangshöhe darunter bleibt
          damit die eingestellte. */
-      var yUnten = SCHWELLE.ueberstand;
+      /* Das Element steht auf dem Boden – bei Gefaelle also tiefer oder
+         hoeher, je nachdem wo es sitzt. Gerechnet wird mit der Mitte des
+         FELDES: Innerhalb eines Feldes bleibt die Unterkante waagerecht,
+         der Rest ist eine halbe Feldneigung. Bei 2 Grad und 2,3 m Feld
+         sind das rund 4 cm an den Enden – sichtbar, aber nicht falsch
+         gerechnet; die Elemente schraeg zuzuschneiden waere der naechste
+         Schritt und steht in docs/NEXT_TASK.md. */
+      var yUnten = SCHWELLE.ueberstand +
+                   bodenY(quer ? achse : mitte, quer ? mitte : achse);
       var hatSchiebeHier = erwListe(seite).indexOf('Schiebetür') > -1;
       var fuehrungH = hatSchiebeHier ? FUEHRUNG.hoehe : 0;
       var hoch = okOben - yUnten - fuehrungH;
@@ -5782,6 +5811,7 @@
     /* Umgebung: gepflasterte Zufahrt statt Terrassenbelag */
     belag.scale.set(B + 200, 1, T + 260);
     belag.position.set(0, -1, (T + 260) / 2 - 130);
+    belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
     wand.visible = anWand;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -6188,7 +6218,19 @@
        tiefer da als bestellt. Der Nullpunkt bleibt die Rückseite des
        Trägers bzw. die Mauerflucht. */
     var B = Z.breite / 10, T = Z.tiefe / 10 - (frei ? TR_T : 0);
-    var hVorn = Z.hoehe / 10;
+    /* ---------- Hoehe bei geneigtem Terrassenboden ----------
+       „Die Höhen wie gemessen" (Entscheidung des Betreibers,
+       24.10.2026): Was im Feld „Höhe vorne (Durchgang)" steht, gilt
+       VORNE – also dort, wo es gemessen wird, ueber dem Boden an dieser
+       Stelle. Faellt die Terrasse nach vorne weg, liegt der Boden dort
+       tiefer, und das ganze Dach rutscht um denselben Betrag mit nach
+       unten. Die Dachneigung gegenueber der WAAGERECHTEN bleibt dabei
+       unveraendert – sie entscheidet ueber den Wasserablauf und wird so
+       bestellt. Was sich aendert, sind die Pfostenlaengen.
+
+       Ohne Gefaelle ist bodenY() ueberall 0 und hier steht wieder genau
+       Z.hoehe / 10. */
+    var hVorn = Z.hoehe / 10 + bodenY(0, T);
 
     /* ---------- Statikträger unter der Rinne ----------
        Vorgabe des Betreibers (11.10.2026): „beachte nur bei den nötigen
@@ -6315,8 +6357,17 @@
     var riH = sky ? SKY.rahmenH : RINNE.hoehe;
     var riT = sky ? SKY.rinneT : RINNE.breite;
 
+    /* ---------- Der Belag kippt mit ----------
+       Kleine Winkel, deshalb genuegt je eine Drehung: um die x-Achse
+       faellt er nach vorne, um die z-Achse zur Seite. Gedreht wird um
+       die Mitte der Platte, darum wandert sie zusaetzlich auf die Hoehe,
+       die bodenY() dort ergibt – sonst schnitte sie hinten in den Rasen.
+       Ohne Gefaelle sind beide Winkel null und alles steht wie zuvor. */
+    var belagZ = (T + 120) / 2 - 60;
     belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
-    belag.position.set(0, -1, (T + 120) / 2 - 60);
+    belag.position.set(0, -1 + bodenY(0, belagZ), belagZ);
+    belag.rotation.set((Z.bodenGefaelle || 0) * Math.PI / 180, 0,
+                       (Z.bodenGefaelleQuer || 0) * Math.PI / 180);
     wand.visible = !frei;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -6602,12 +6653,24 @@
       var zv = sonderformProfil((x + B / 2) * 10).vorne / 10;
       return zv - (tdsRinne ? PFOSTENACHSE : PFOSTENACHSE_VORNE) - vorspr;
     }
+    /* Jeder Pfosten steht auf dem Boden an SEINER Stelle und reicht bis
+       zur Dachunterkante. Bei ebenem Boden ist bodenY() null und die
+       Rechnung ergibt wieder genau hPfosten. Die Laengen werden
+       mitgeschrieben: Sie gehen in den Hinweis und in die Anfrage –
+       bestellt werden Pfosten, nicht Winkel. */
+    PFOSTEN_IST = { vorne: [], hinten: [] };
     xPfVorne.forEach(function (x) {
-      balken(PF, hPfosten, PF, x, hPfosten / 2, zPfBei(x), mAlu);
+      var yB = bodenY(x, zPfBei(x));
+      var lang = Math.max(10, hPfosten - yB);
+      balken(PF, lang, PF, x, yB + lang / 2, zPfBei(x), mAlu);
+      PFOSTEN_IST.vorne.push(Math.round(lang * 10));
     });
     if (frei) {
       xPfHinten.forEach(function (x) {
-        balken(PF, hPfostenHinten, PF, x, hPfostenHinten / 2, zTrHinten, mAlu);
+        var yB = bodenY(x, zTrHinten);
+        var lang = Math.max(10, hPfostenHinten - yB);
+        balken(PF, lang, PF, x, yB + lang / 2, zTrHinten, mAlu);
+        PFOSTEN_IST.hinten.push(Math.round(lang * 10));
       });
     }
 
@@ -7203,6 +7266,7 @@
 
     belag.scale.set(B + 160, 1, T + 140);
     belag.position.set(0, -1, (T + 140) / 2 - 70);
+    belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
     wand.visible = !frei;
     wand.scale.set(B + 420, h + RAHMEN_H + 190, 1);
     wand.position.set(0, (h + RAHMEN_H + 190) / 2, -12);
@@ -8131,6 +8195,48 @@
     });
   }
 
+  /* ---------- Was das Bodengefaelle bedeutet ----------
+     Eine Quelle fuer drei Verwendungen: Anzeige neben dem Feld, Hinweis
+     darunter und interne Notiz der Anfrage. Zurueck kommt null, wenn der
+     Boden eben ist – dann steht nirgends etwas davon. */
+  function bodenGefaelleText() {
+    var gt = Z.bodenGefaelle || 0, gq = Z.bodenGefaelleQuer || 0;
+    if (!bodenGefaelleMoeglich() || (!gt && !gq)) return null;
+    function zahl(w) { return String(Math.abs(w)).replace('.', ','); }
+    var teile = [];
+    if (gt) teile.push(zahl(gt) + '° ' + (gt > 0 ? 'nach vorne' : 'zum Haus'));
+    if (gq) teile.push(zahl(gq) + '° nach ' + (gq > 0 ? 'rechts' : 'links'));
+    /* Die Dachneigung gegenueber der WAAGERECHTEN bleibt, wie sie
+       eingestellt ist – danach laeuft das Wasser ab. Gegenueber dem
+       Boden sieht man einen anderen Winkel, und der verwirrt beim
+       Aufmass, wenn er nicht dasteht. */
+    var ueberBoden = Math.round((neigungGrad() - gt) * 10) / 10;
+    return {
+      kurz: teile.join(' · '),
+      ueberBoden: ueberBoden,
+      pfosten: PFOSTEN_IST
+    };
+  }
+
+  function bodenGefaelleZeigen() {
+    var e = document.getElementById('k3dBodenGefaelleWert');
+    var st = document.getElementById('k3dBodenGefaelleStand');
+    var g = bodenGefaelleText();
+    if (e) e.textContent = g ? g.kurz : 'eben';
+    if (!st) return;
+    if (!g) { st.textContent = ''; return; }
+    function spanne(liste) {
+      if (!liste || !liste.length) return null;
+      var min = Math.min.apply(null, liste), max = Math.max.apply(null, liste);
+      return min === max ? min + ' mm' : min + ' bis ' + max + ' mm';
+    }
+    var v = spanne(g.pfosten.vorne), h = spanne(g.pfosten.hinten);
+    st.textContent = 'Gebaut: Dachneigung ' + String(neigungGrad()).replace('.', ',') +
+      '° gegenüber der Waagerechten (so wird bestellt), ' +
+      String(g.ueberBoden).replace('.', ',') + '° gegenüber dem Terrassenboden.' +
+      (v ? ' Pfosten vorne ' + v + (h ? ', hinten ' + h : '') + '.' : '');
+  }
+
   function plankenStandZeigen() {
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
@@ -8939,6 +9045,30 @@
      den (teils geschätzten) Profilmaßen baut. Welches Maß dafür nicht
      stimmt – der Sparrensitz in der Rinne ist nur geschätzt –, gehört
      geprüft; auch das steht in docs/NEXT_TASK.md. Alles in Millimetern. */
+  /* ---------- Hoehe des Terrassenbodens an der Stelle (x, z), in cm ----
+     Nullpunkt ist die Wandmitte (x = 0, z = 0): Dort liegt der Boden
+     immer auf 0, alles andere ergibt sich aus den beiden Gefaellen.
+
+     ACHTUNG beim Vorzeichen von x: In diesem Modell liegt LINKS bei +x
+     (siehe eineSeite('links', B / 2 - PROFIL / 2, …)). „Faellt nach
+     rechts" heisst also: die linke Seite liegt hoeher, y waechst mit x.
+
+     Ohne Gefaelle gibt die Funktion ueberall 0 zurueck – dann rechnet
+     und zeichnet alles wie bisher. */
+  function bodenY(x, z) {
+    if (!bodenGefaelleMoeglich()) return 0;
+    var gt = (Z.bodenGefaelle || 0) * Math.PI / 180;
+    var gq = (Z.bodenGefaelleQuer || 0) * Math.PI / 180;
+    return -Math.tan(gt) * z + Math.tan(gq) * x;
+  }
+  /* Gerechnet wird das Gefaelle bisher nur im geschaetzten Terrassen-
+     Bauweg (Terrassendach TDS, Flachdach SkyView, Carport TDS). Beim
+     Flachdach-Carport und bei der Pergola wird es deshalb auch nicht
+     abgefragt – ein Feld, das nichts bewirkt, ist schlimmer als keins. */
+  function bodenGefaelleMoeglich() {
+    return !istPergola() && (!istCarport() || istCarportTds());
+  }
+
   function wandUkBasis() {
     return Z.hoehe;
   }
@@ -9169,6 +9299,7 @@
       // Der Regler „geöffnet" erscheint nur, wenn es etwas zu schieben gibt
       /* Die Rueckseite nur freistehend – an der Hauswand gaebe es sonst
          eine Wand vor der Wand. */
+      case 'bodengefaelle':  return bodenGefaelleMoeglich();
       case 'erw-hinten':     return gruppeGilt('seiten') && rueckseiteOffen();
       case 'schiebe-hinten': return erwListe('hinten').indexOf('Schiebetür') > -1;
       case 'schiebe-links':  return erwListe('links').indexOf('Schiebetür') > -1;
@@ -9979,6 +10110,19 @@
         seiten.push(seite + ': ' + (l.length ? l.join(' + ') : 'offen'));
       });
       teile.push('Seitenelemente – ' + seiten.join(' · '));
+      /* Bei geneigtem Boden sind die Pfosten verschieden lang – genau das
+         wird bestellt, und genau das sieht man dem Winkel nicht an. */
+      var bg = bodenGefaelleText();
+      if (bg) {
+        teile.push('Terrassenboden faellt ' + bg.kurz +
+          ' – Dachneigung ' + neigungGrad() + '° gegen die Waagerechte, ' +
+          String(bg.ueberBoden).replace('.', ',') + '° gegen den Boden');
+        if (bg.pfosten.vorne.length) {
+          teile.push('Pfostenlaengen vorne: ' + bg.pfosten.vorne.join(' / ') + ' mm' +
+            (bg.pfosten.hinten.length
+              ? ' · hinten: ' + bg.pfosten.hinten.join(' / ') + ' mm' : ''));
+        }
+      }
       /* Das Keilglas gehört in die Bestellung: satinato ist eine andere
          Scheibe, nicht nur eine andere Ansicht. */
       if (erwIrgendwo('Keil')) teile.push('Glas im Keil: ' + Z.keilGlas);
@@ -10261,6 +10405,16 @@
     Z.velarisOffen = zahl('k3dVelarisOffen', Z.velarisOffen);
     Z.verkRichtung = wert('k3dVerkRichtung') || Z.verkRichtung;
     Z.boden = wert('k3dBoden') || Z.boden;
+    /* Grad mit einer Nachkommastelle. Ein leeres Feld heisst „eben", nicht
+       „unveraendert" – sonst liesse sich ein eingetipptes Gefaelle nicht
+       mehr loeschen. */
+    function gefaelleAus(id) {
+      var roh = parseFloat(String(wert(id)).replace(',', '.'));
+      if (!isFinite(roh)) return 0;
+      return Math.round(Math.min(10, Math.max(-10, roh)) * 10) / 10;
+    }
+    Z.bodenGefaelle = gefaelleAus('k3dBodenGefaelle');
+    Z.bodenGefaelleQuer = gefaelleAus('k3dBodenGefaelleQuer');
     Z.fassade = wert('k3dFassade') || Z.fassade;
     Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
     vorsprungGrenzeSetzen();
@@ -10488,6 +10642,7 @@
        tatsaechlich gebauten Mass, und das meldet erst bauen(). */
     sg23FeldFuellen();
     plankenStandZeigen();
+    bodenGefaelleZeigen();
     ralStandZeigen();
     ledStandZeigen();
     sonneStandZeigen();
@@ -10707,6 +10862,7 @@
    'k3dLinks', 'k3dRechts', 'k3dFront', 'k3dLed', 'k3dMontage',
    'k3dGlasOffen', 'k3dMarkise', 'k3dSonneAus',
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
+   'k3dBodenGefaelle', 'k3dBodenGefaelleQuer',
    'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',

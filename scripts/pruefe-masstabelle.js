@@ -605,8 +605,12 @@ pruefe('Wandprofil steht mit 143,6 mm an der Wand',
    darunter. */
 pruefe('Freistehend: hintere Pfosten enden unter dem Träger',
        new RegExp(q || 'hPfostenHinten = frei \\? Math\\.max\\(100, trOk - trH\\)').test(k3d), '');
+/* Seit dem 24.10.2026 steht jeder Pfosten auf dem Boden an SEINER Stelle
+   (Bodengefaelle), die Laenge heisst deshalb lang statt hPfostenHinten.
+   Geprueft wird weiter dasselbe: Er sitzt bei zTrHinten, nicht bei
+   zHinten. */
 pruefe('Freistehend: hintere Pfosten stehen unter dem Träger',
-       new RegExp(q || 'hPfostenHinten / 2, zTrHinten').test(k3d), 'nicht mehr bei zHinten');
+       new RegExp(q || 'lang / 2, zTrHinten').test(k3d), 'nicht mehr bei zHinten');
 /* Traeger und Wandprofil duerfen nicht ueber die Sparren hinausragen –
    genau das sah von aussen aus wie ein waagrecht liegender Balken. */
 pruefe('Oberkante haengt an der Sparrenoberkante',
