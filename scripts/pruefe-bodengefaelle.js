@@ -203,6 +203,16 @@ pruefe('Andere Bauwege stellen den Belag zurück',
        gegen ? (k3d.match(/belag\.rotation\.set\(0, 0, 0\);/g) || []).length !== 3
              : (k3d.match(/belag\.rotation\.set\(0, 0, 0\);/g) || []).length === 3,
        'drei Bauwege ohne Bodengefälle');
+/* Die dicke Platte darf an den Flanken nicht das Pflasterfoto tragen:
+   Bei 6 Grad auf 4 m ist sie ueber 40 cm hoch, und aus flachem
+   Blickwinkel fuellt diese Flanke den Vordergrund. Gestreckt sieht das
+   aus, als waere das Muster weg. */
+pruefe('Die Platte hat oben das Muster und an den Seiten eine Kante',
+       gegen ? !/\[belagKante, belagKante, belagFlaeche, belagKante, belagKante, belagKante\]/.test(k3d)
+             : /\[belagKante, belagKante, belagFlaeche, belagKante, belagKante, belagKante\]/.test(k3d) &&
+               /fotoAuftragen\(belagFlaeche, bodenFoto,/.test(k3d),
+       'sechs Materialien, Muster nur oben');
+
 pruefe('Der Belag kippt im Terrassenweg mit',
        gegen ? !/belag\.rotation\.set\(gt, 0, gq\);/.test(k3d)
              : /belag\.rotation\.set\(gt, 0, gq\);/.test(k3d),

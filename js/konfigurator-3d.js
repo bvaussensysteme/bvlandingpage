@@ -1287,9 +1287,24 @@
   rasen.receiveShadow = true;
   szene.add(rasen);
 
+  /* ---------- Oben das Muster, an den Seiten eine ruhige Kante ----------
+     Mit Bodengefaelle wird die Platte so dick wie ihr eigener
+     Hoehenunterschied (siehe bauenTerrasseGeschaetzt) – bei 6 Grad auf
+     4 m sind das ueber 40 cm. Aus flachem Blickwinkel fuellt dann ihre
+     SEITE den Vordergrund, und die trug bisher dasselbe Pflasterfoto,
+     ueber eine halbmeterhohe Flanke gestreckt. Das sah aus, als waere
+     das Muster weg: „Wenn man ein gefälle des terassenbodens auswählt
+     verschwindet das pflasterdesign" (Betreiber, 24.10.2026).
+
+     Jetzt traegt die Platte sechs Materialien: oben die Flaeche mit dem
+     Belag, an den uebrigen Seiten eine schlichte Kante – so, wie ein
+     Terrassenaufbau auch in echt aussieht. Reihenfolge bei BoxGeometry:
+     +x, -x, +y (oben), -y, +z, -z. */
+  var belagKante = new THREE.MeshStandardMaterial({ color: rgb(0x6f6760), roughness: 0.95 });
+  var belagFlaeche = new THREE.MeshStandardMaterial({ color: rgb(0x8e867a), roughness: 0.85 });
   var belag = new THREE.Mesh(
     new THREE.BoxGeometry(1, 2, 1),
-    new THREE.MeshStandardMaterial({ color: rgb(0x8e867a), roughness: 0.85 })
+    [belagKante, belagKante, belagFlaeche, belagKante, belagKante, belagKante]
   );
   belag.receiveShadow = true;
   szene.add(belag);
@@ -1324,7 +1339,12 @@
      28 % + 15 = 43 %. Dazu zwei Drittel der Breite statt knapp der
      Haelfte und eine hoehere Obergrenze (4,6 statt 3,2 m).
      Feiner stellen heisst: diese eine Zeile aendern. */
-  var WZ = { deckkraft: 0.43, anteil: 0.66, hoechstens: 460 };
+  /* „mach das bv logo auf dem boden noch besser sichtbarer" (Betreiber,
+     24.10.2026). Vorher: deckkraft 0.43, anteil 0.66, hoechstens 460 –
+     auf hellem Belag gerade noch zu erkennen, auf Holzdielen kaum.
+     Dazu kommt unten ein Kontrastrand; der hilft mehr als blosse
+     Deckkraft, weil der Belag von hellgrau bis dunkelbraun reicht. */
+  var WZ = { deckkraft: 0.72, anteil: 0.80, hoechstens: 560 };
 
   var WZ_TEXTUR = {};
   function wasserzeichenTextur(abend) {
@@ -1338,12 +1358,27 @@
       ? renderer.capabilities.getMaxAnisotropy() : 1;
     WZ_TEXTUR[schl] = t;
 
+    /* Ein Rand in der GEGENfarbe. Auf hellem Belag steht das dunkle
+       Zeichen dann in einem hellen Hof, auf dunklem Belag umgekehrt –
+       lesbar wird es dadurch auf jedem Bodenbelag, ohne dass die
+       Deckkraft so hoch muss, dass es wie ein aufgeklebtes Schild
+       wirkt. */
+    function hof(an) {
+      c.shadowColor = an ? (abend ? 'rgba(0,0,0,.85)' : 'rgba(255,255,255,.9)') : 'transparent';
+      c.shadowBlur = an ? 22 : 0;
+    }
+
     function zeile() {
       c.textAlign = 'center';
       c.fillStyle = abend ? '#ffffff' : '#111111';
       c.font = '600 54px Inter, Arial, sans-serif';
-      c.fillText('© ' + new Date().getFullYear() + ' BV AussenSysteme',
-                 512, 296);
+      hof(true);
+      /* Zweimal schreiben: Der Hof baut sich auf, sonst bleibt er bei
+         duennen Buchstaben zu blass. */
+      c.fillText('© ' + new Date().getFullYear() + ' BV AussenSysteme', 512, 296);
+      c.fillText('© ' + new Date().getFullYear() + ' BV AussenSysteme', 512, 296);
+      hof(false);
+      c.fillText('© ' + new Date().getFullYear() + ' BV AussenSysteme', 512, 296);
       t.needsUpdate = true;
       neuZeichnen();
     }
@@ -1371,6 +1406,10 @@
         hc.putImageData(d, 0, 0);
       } catch (e) { /* ohne Freistellung weiter */ }
       var br = 900, ho = br * bild.height / bild.width;
+      hof(true);
+      c.drawImage(h, (1024 - br) / 2, 40, br, ho);
+      c.drawImage(h, (1024 - br) / 2, 40, br, ho);
+      hof(false);
       c.drawImage(h, (1024 - br) / 2, 40, br, ho);
       zeile();
     };
@@ -1378,6 +1417,9 @@
       c.textAlign = 'center';
       c.fillStyle = abend ? '#ffffff' : '#111111';
       c.font = '700 110px Inter, Arial, sans-serif';
+      hof(true);
+      c.fillText('BV AussenSysteme', 512, 170);
+      hof(false);
       c.fillText('BV AussenSysteme', 512, 170);
       zeile();
     };
@@ -1528,7 +1570,7 @@
     var drunter = kamera3.position.y < 0;
     if (drunter === bodenDurchsichtig) return;
     bodenDurchsichtig = drunter;
-    [rasen.material, belag.material].forEach(function (m) {
+    [rasen.material, belagFlaeche, belagKante].forEach(function (m) {
       m.transparent = drunter;
       m.opacity = drunter ? BODEN_DURCHSICHT : 1;
       m.depthWrite = !drunter;
@@ -3102,6 +3144,13 @@
      Die Leinwand bleibt hochaufgelöst (40 px Schrift), damit der Text
      auch beim Heranzoomen scharf bleibt; verkleinert wird erst beim
      Anzeigen. */
+  /* 14 bleibt. Beim Reparieren der Masslinien (24.10.2026) hatte ich
+     auf 19 erhoeht, weil die Zahlen auf dem Bildschirmfoto schwer zu
+     lesen waren – und damit eine ausdrueckliche Vorgabe ueberschrieben:
+     „die maßangaben etwas kleiner filigraner machen das es nicht so
+     stört" (Betreiber, 11.10.2026). Schlecht lesbar waren die LINIEN,
+     nicht die Schilder; die sind repariert. Soll es groesser werden,
+     entscheidet das der Betreiber – hier steht die eine Zahl dafuer. */
   var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
 
   function schild(text) {
@@ -3139,14 +3188,58 @@
     return s;
   }
 
+  /* ---------- Masslinien ----------
+     „repariere die maßanzeige" (Betreiber, 24.10.2026, mit Bild). Drei
+     Dinge waren falsch:
+
+     1. Gezeichnet wurde eine THREE.Line mit Deckkraft 0,55 – also eine
+        HAARLINIE. WebGL kennt bei Linien keine Staerke (linewidth wird
+        von den meisten Treibern ignoriert), im Bild war sie kaum zu
+        finden. Die einzige Art, eine sichtbare Linie zu bekommen, ist
+        ein Koerper.
+     2. Es fehlten die Endmarken. Ohne sie sieht eine Linie auf dem Boden
+        aus wie ein Kratzer im Belag, nicht wie ein Mass.
+     3. Die Linien lagen AUF dem Belag: Die Breitenlinie 30 cm vor der
+        Dachkante, der Belag reicht aber 60 bis 120 cm weiter. Jetzt
+        liegen sie daneben, wie in einer Zeichnung.
+
+     Die Beschriftung sitzt ueber der Linie statt mittig darauf – sonst
+     verdeckt das Schild genau die Stelle, die es bemasst. */
+  var MASS_DICK = 1.6;      // cm Staerke – duenn genug, um nicht zu stoeren
+  var MASS_MARKE = 16;      // cm Laenge der Endmarken
+
+  /* Ein achsparalleler Stab von a nach b. Laeuft die Strecke in einer
+     Achse, bleibt sie in den anderen beiden bei der Staerke stehen. */
+  function massStab(a, b, material) {
+    var d = new THREE.Vector3().subVectors(b, a);
+    var g = new THREE.BoxGeometry(Math.max(Math.abs(d.x), MASS_DICK),
+                                  Math.max(Math.abs(d.y), MASS_DICK),
+                                  Math.max(Math.abs(d.z), MASS_DICK));
+    var m = new THREE.Mesh(g, material);
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    return m;
+  }
+
   function masslinie(a, b, text) {
-    var linie = new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([a, b]),
-      new THREE.LineBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.55 })
-    );
-    masseGruppe.add(linie);
+    var mMass = new THREE.MeshBasicMaterial({ color: 0x1b1b1b });
+    masseGruppe.add(massStab(a, b, mMass));
+    /* Steht die Linie (Hoehenmass), zeigen die Endmarken waagerecht;
+       liegt sie (Breite, Tiefe), zeigen sie nach oben. */
+    var steht = Math.abs(b.y - a.y) > Math.abs(b.x - a.x) &&
+                Math.abs(b.y - a.y) > Math.abs(b.z - a.z);
+    [a, b].forEach(function (pkt) {
+      var v = pkt.clone(), w = pkt.clone();
+      if (steht) { v.x -= MASS_MARKE / 2; w.x += MASS_MARKE / 2; }
+      else { w.y = pkt.y + MASS_MARKE; }
+      masseGruppe.add(massStab(v, w, mMass));
+    });
     var s = schild(text);
     s.position.copy(a).add(b).multiplyScalar(0.5);
+    /* Das Schild NEBEN die Linie, nicht darauf – sonst verdeckt es
+       genau die Stelle, die es bemasst. Die halbe Schildbreite steht
+       erst nach schild() fest, deshalb hier aus der Skalierung. */
+    if (steht) s.position.x -= s.scale.x / 2 + MASS_MARKE / 2;
+    else s.position.y += MASS_MARKE + SCHILD_HOCH * 0.7;
     masseGruppe.add(s);
   }
 
@@ -3161,11 +3254,22 @@
     var hintenZ = (Z.aufbau === 'Freistehend' && !istCarport() && !istPergola())
       ? -11.7 : 0;
     var T = hintenZ + Z.tiefe / 10;
-    var vorn = T + 30;
-    masslinie(new V(-B / 2, 2, vorn), new V(B / 2, 2, vorn), Z.breite + ' mm');
-    var seite = B / 2 + 30;
-    masslinie(new V(seite, 2, hintenZ), new V(seite, 2, T), Z.tiefe + ' mm');
-    masslinie(new V(-B / 2 - 16, 0, T + 6), new V(-B / 2 - 16, H, T + 6), Z.hoehe + ' mm');
+    /* Neben den Belag, nicht darauf: Er ist 180 cm breiter als das Dach
+       und reicht vorne 60 cm (freistehend 120 cm) darueber hinaus. */
+    var frei = Z.aufbau === 'Freistehend';
+    var vorn = T + (frei ? 135 : 80);
+    var seite = B / 2 + 100;
+    /* Auf dem Boden liegen heisst: auf dem GENEIGTEN Boden liegen. */
+    masslinie(new V(-B / 2, bodenY(-B / 2, vorn) + 2, vorn),
+              new V(B / 2, bodenY(B / 2, vorn) + 2, vorn), Z.breite + ' mm');
+    masslinie(new V(seite, bodenY(seite, hintenZ) + 2, hintenZ),
+              new V(seite, bodenY(seite, T) + 2, T), Z.tiefe + ' mm');
+    /* Die Hoehenlinie STEHT, sie liegt nicht – sie darf deshalb ueber
+       dem Belag stehen. Weiter aussen ginge auch nicht: Bei 105 cm lief
+       sie in der Ansicht „Vorne" aus dem Bild. */
+    var hx = -(B / 2 + 40);
+    masslinie(new V(hx, bodenY(hx, T), T),
+              new V(hx, bodenY(hx, T) + H, T), Z.hoehe + ' mm');
   }
 
   /* ---------- Modell aufbauen ----------
@@ -7453,7 +7557,8 @@
       fuell.intensity = 0.12;
       renderer.toneMappingExposure = 0.95;
       rasen.material.color.copy(rgb(0x47503c));
-      belag.material.color.copy(rgb(0x8f8c87));
+      belagFlaeche.color.copy(rgb(0x8f8c87));
+      belagKante.color.copy(rgb(0x5e5852));
       wand.material.color.copy(rgb(0x8e8b85));
     } else {
       szene.background = new THREE.Color(0xbcd3e6);
@@ -7464,7 +7569,8 @@
       fuell.intensity = 0.3;
       renderer.toneMappingExposure = 0.72;
       rasen.material.color.copy(rgb(0x6d7a5c));
-      belag.material.color.copy(rgb(belagTag));
+      belagFlaeche.color.copy(rgb(belagTag));
+      belagKante.color.copy(rgb(0x6f6760));
       wand.material.color.copy(rgb(0xcfc7b8));
     }
 
@@ -7497,20 +7603,20 @@
        dort bleibt die graue Fläche ohne Muster stehen. */
     var bodenFoto = Z.produkt === 'Carport' ? 'zufahrt'
                   : (Z.boden === 'Holzdielen' ? 'holzdielen' : 'steinplatten');
-    if (!fotoAuftragen(belag.material, bodenFoto,
+    if (!fotoAuftragen(belagFlaeche, bodenFoto,
                        belag.scale.x, belag.scale.z, Z.abend)) {
       /* Notnagel: gezeichnetes Muster, vor dem Carport gar keins */
-      belag.material.normalMap = null;
+      belagFlaeche.normalMap = null;
       if (Z.produkt === 'Carport') {
-        belag.material.map = null;
+        belagFlaeche.map = null;
       } else {
         var tex = bodenTextur(Z.boden);
         tex.repeat.set(Math.max(1, Math.round(belag.scale.x / 90)),
                        Math.max(1, Math.round(belag.scale.z / 90)));
-        belag.material.map = tex;
-        if (!Z.abend) belag.material.color.copy(rgb(0xffffff));
+        belagFlaeche.map = tex;
+        if (!Z.abend) belagFlaeche.color.copy(rgb(0xffffff));
       }
-      belag.material.needsUpdate = true;
+      belagFlaeche.needsUpdate = true;
     }
 
     /* Das Wasserzeichen gehört zum Boden und wechselt mit der Stimmung

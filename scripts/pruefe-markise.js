@@ -839,7 +839,50 @@ pruefe('Wandanschluss reicht bis ueber die Fuehrung',
          altSpalt.toFixed(1) + ' cm bei gekuerztem Element');
 })();
 
-/* ---------- Massschilder ---------- */
+/* ---------- Masslinien ----------
+   „repariere die maßanzeige" (Betreiber, 24.10.2026, mit Bild). Gezeichnet
+   wurde eine THREE.Line mit Deckkraft 0,55: eine Haarlinie, die WebGL
+   nicht dicker machen kann (linewidth wird ignoriert). Dazu fehlten die
+   Endmarken, und die Linien lagen AUF dem Belag. */
+pruefe('Masslinie ist ein Koerper, keine Haarlinie',
+       gegen ? /new THREE\.Line\(\s*\n\s*new THREE\.BufferGeometry\(\)\.setFromPoints\(\[a, b\]\)/.test(src)
+             : /function massStab\(a, b, material\)/.test(src) &&
+               !/new THREE\.Line\(\s*\n\s*new THREE\.BufferGeometry\(\)\.setFromPoints\(\[a, b\]\)/.test(src),
+       'Linienstaerke kennt WebGL bei THREE.Line nicht');
+pruefe('Masslinie hat Endmarken',
+       gegen ? !/MASS_MARKE/.test(src)
+             : /var MASS_MARKE = \d+/.test(src) &&
+               /\[a, b\]\.forEach\(function \(pkt\)/.test(src),
+       'sonst sieht sie aus wie ein Kratzer im Belag');
+(function () {
+  /* Nachgerechnet statt nachgelesen: Liegen die beiden liegenden
+     Masslinien wirklich NEBEN dem Belag? Der Belag ist 180 cm breiter
+     als das Dach und reicht vorne 60 cm darueber hinaus, freistehend
+     120 cm (siehe belag.scale in bauenTerrasseGeschaetzt). */
+  var B = 621, T = 505;                 // cm, das Beispiel des Betreibers
+  var belagHalbB = (B + 180) / 2;
+  [['Wandmontage', 60, 80], ['Freistehend', 120, 135]].forEach(function (f) {
+    var belagVorne = T + f[1];
+    var linieVorne = T + f[2] + (gegen ? -200 : 0);
+    var linieSeite = B / 2 + 100 + (gegen ? -200 : 0);
+    pruefe('Masslinien liegen neben dem Belag (' + f[0] + ')',
+           linieVorne > belagVorne && linieSeite > belagHalbB,
+           'Breitenlinie ' + linieVorne.toFixed(0) + ' > Belag ' + belagVorne.toFixed(0) +
+           ' cm, Tiefenlinie ' + linieSeite.toFixed(0) + ' > ' + belagHalbB.toFixed(0) + ' cm');
+  });
+})();
+pruefe('Die Masszahlen stehen an den Linien im Code',
+       gegen ? !/var vorn = T \+ \(frei \? 135 : 80\);/.test(src)
+             : /var vorn = T \+ \(frei \? 135 : 80\);/.test(src) &&
+               /var seite = B \/ 2 \+ 100;/.test(src),
+       'dieselben Zahlen wie in der Rechnung oben');
+
+/* ---------- Massschilder ----------
+   „die maßangaben etwas kleiner filigraner machen das es nicht so stört"
+   (Betreiber, 11.10.2026). Am 24.10.2026 hatte ich das beim Reparieren
+   der Masslinien versehentlich zurueckgedreht (19 statt 14, Kasten .84
+   statt .62) – diese beiden Pruefungen haben es gefangen. Sie stehen
+   also genau richtig hier. */
 pruefe('Massschild kleiner als vorher',
        gegen ? /SCHILD_HOCH = 24/.test(src) : /SCHILD_HOCH = 14/.test(src),
        'Sprite-Hoehe 24 -> 14');
