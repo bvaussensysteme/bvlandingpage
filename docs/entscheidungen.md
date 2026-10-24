@@ -8908,3 +8908,49 @@ verglichen. Sie steht bewusst im Prüfskript und nicht nur im HTML — dort ist
 sie bloß die Reihenfolge der Blöcke und verrutscht beim nächsten Einfügen
 unbemerkt. Wer eine Bedieneinheit dazubaut, trägt sie in die Liste ein und
 sieht dabei, wohin sie gehört.
+
+---
+
+## 24.10.2026 — Der wirkliche Durchgang steht in Klammern daneben
+
+**Anlass.** „man kann ja unterkante wandprofil unterkante rinne eingeben wenn
+aber jetzt statikträger in spiel kommen is die durchgangshöhe um den
+statikträger niedriger und das kann man neben dem unterkanten maß in klammern
+hinschreiben) wieviel es real is" (Betreiber).
+
+**Was jetzt gilt.** Neben „Höhe vorne (Unterkante Rinne)" steht, sobald ein
+Statikträger darunterliegt: `2300 mm (Durchgang 2111 mm)` — 189 mm weniger,
+die Höhe des Trägers. Ohne Träger steht keine Klammer; eine Klammer, die immer
+dasteht und dasselbe sagt, wird überlesen.
+
+**Die Zahl kommt aus dem Modell, nicht aus einer zweiten Rechnung.**
+`PFOSTEN_IST` hält die Längen, mit denen wirklich gebaut wurde. Damit stimmt
+die Klammer von selbst auch bei **Dachvorsprung** (dann sitzt der Träger höher,
+weil er an der Sparrenunterkante hängt) und bei **geneigtem Boden** — ohne dass
+eine zweite Formel entsteht, die irgendwann auseinanderläuft. Gezeigt wird die
+**kleinste** Pfostenlänge der Reihe: „die durchgangshöhe ist halt immer die
+tiefere seite" (Betreiber, 24.10.2026).
+
+**Ein Fall, in dem die Klammer NICHT erscheint — und das ist richtig so.**
+Freistehend liegt hinten ebenfalls ein Statikträger, trotzdem bleibt die Höhe
+dort unverändert. Grund ist die Korrektur vom 11.10.2026: *„der statikträger
+ist tiefer als der sparren, mach ihn unten bündig mit sparren"* — ohne
+Dachvorsprung sitzt er **in** der Sparrenebene und nimmt deshalb keine
+Durchgangshöhe weg. Erst ein Dachvorsprung hinten hängt ihn darunter; den gibt
+es nur beim Carport TDS.
+
+Ich hatte das zuerst andersherum erwartet und die Prüfung entsprechend
+geschrieben — sie schlug an, und beim Nachsehen lag der Fehler in meiner
+Erwartung, nicht im Code. Die Prüfung prüft jetzt die richtige Aussage und
+nennt den Grund dazu.
+
+**Was gegengelesen werden soll.** Pro → „Maße & Neigungen": Häkchen
+„Statikträger unter der Rinne" setzen — steht neben der Höhe vorne
+`(Durchgang … mm)`, und sind es genau 189 mm weniger? Häkchen weg: Klammer
+weg? Dann einen Dachvorsprung vorne einstellen — der erzeugt denselben Träger,
+die Klammer muss also auch dann stehen.
+
+**Absicherung.** **5 neue Prüfungen im echten Browser** (jetzt 90): ohne Träger
+keine Klammer, mit Träger genau 189 mm weniger (2300 → 2111), nach dem
+Abwählen wieder weg, und hinten — an der Hauswand wie freistehend — keine
+Klammer.

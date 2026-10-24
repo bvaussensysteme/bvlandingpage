@@ -8269,6 +8269,43 @@
       (v ? ' Pfosten vorne ' + v + (h ? ', hinten ' + h : '') + '.' : '');
   }
 
+  /* ---------- Was wirklich unter dem Dach bleibt ----------
+     „wenn aber jetzt statikträger in spiel kommen is die durchgangshöhe
+     um den statikträger niedriger und das kann man neben dem unterkanten
+     maß in klammern hinschreiben" (Betreiber, 24.10.2026).
+
+     „Unterkante Rinne" und „Unterkante Wandprofil" sind die Masse, nach
+     denen bestellt wird. Liegt darunter ein Statiktraeger (189 mm), geht
+     man nicht unter der Rinne durch, sondern unter dem Traeger – und das
+     steht jetzt in Klammern daneben.
+
+     Die Zahl wird nicht neu gerechnet, sondern aus dem MODELL genommen:
+     PFOSTEN_IST haelt die Laengen, mit denen wirklich gebaut wurde. Damit
+     stimmt sie auch bei Dachvorsprung (der Traeger sitzt dann hoeher) und
+     bei geneigtem Boden, ohne dass hier eine zweite Formel entsteht, die
+     irgendwann auseinanderlaeuft.
+
+     Gezeigt wird die KLEINSTE Laenge der Reihe: „die durchgangshöhe ist
+     halt immer die tiefere seite" (Betreiber, 24.10.2026). */
+  function durchgangReal(seite) {
+    var l = PFOSTEN_IST[seite] || [];
+    return l.length ? Math.min.apply(null, l) : null;
+  }
+
+  function durchgangZusatz(feld) {
+    var seite = feld === 'k3dHoehe' ? 'vorne'
+              : feld === 'k3dHoeheHinten' ? 'hinten' : null;
+    if (!seite) return '';
+    var ist = durchgangReal(seite);
+    if (ist == null) return '';
+    var mass = seite === 'vorne' ? Z.hoehe : Z.hoeheHinten;
+    /* Nur wenn es wirklich abweicht – eine Klammer, die immer dasteht und
+       dasselbe sagt, wird ueberlesen. Zwei Millimeter Toleranz, weil die
+       Laenge aus Zentimetern gerundet zurueckkommt. */
+    if (Math.abs(ist - mass) <= 2) return '';
+    return ' (Durchgang ' + ist + ' mm)';
+  }
+
   function plankenStandZeigen() {
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
@@ -10545,7 +10582,8 @@
          Mitte ist – sonst sieht man nicht, dass sie mitwandert. */
       if (a) {
         a.textContent = Z[paar[1]] + ' mm' +
-          (paar[1] === 'unterzugLage' && Z.unterzugAuto ? ' (mittig)' : '');
+          (paar[1] === 'unterzugLage' && Z.unterzugAuto ? ' (mittig)' : '') +
+          durchgangZusatz(paar[0]);
       }
       /* Das Zahlenfeld wird nachgeführt – aber nicht, während jemand darin
          tippt. Sonst springt die Zahl unter dem Finger weg. */
