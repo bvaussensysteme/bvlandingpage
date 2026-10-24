@@ -9212,10 +9212,31 @@
       case 'unterzug': return unterzugNoetig();
       /* Der Träger auf Wunsch wird nur gefragt, wenn ohnehin noch keiner
          da ist – ein Häkchen, das nichts ändert, verwirrt mehr als es
-         hilft. Beim Carport und bei der Pergola gibt es die Bauweise
-         nicht. */
-      case 'traeger-wunsch': return !istCarport() && !istPergola() &&
-                                    !traegerSchonNoetig();
+         hilft.
+
+         Hier stand bis zum 24.10.2026 pauschal !istCarport(), mit dem
+         Kommentar „beim Carport gibt es die Bauweise nicht". Für Flat
+         Line und Flat Box stimmt das: andere Systeme, Flachdach, kein
+         TDS-Träger. Für den Carport TDS stimmte es nie – „wieso kann man
+         bei Carport TDS keinen Statikträger unter Rinne auswählen"
+         (Betreiber, 24.10.2026). Er ist dasselbe Dach wie das
+         Terrassendach TDS: „der einzige unterschied dort ist ein
+         dachvorsprung auch an der hinterseite möglich bei freistehender
+         montage" (Betreiber, 11.10.2026).
+
+         Baubar war der Träger dort ohnehin schon: Der Dachvorsprung ist
+         beim Carport TDS erlaubt (case 'vorsprung'), und der erzeugt
+         denselben Träger – siehe traegerH im Bau. Gefehlt hat nur die
+         Möglichkeit, ihn OHNE Vorsprung zu bestellen, also genau der
+         Fall, für den das Häkchen am 11.10.2026 gebaut wurde: „wenn ein
+         kunde z.b 2 pfosten anstatt 3 nur möchte".
+
+         Pauschal nach Produkt zu fragen ist beim Carport der
+         wiederkehrende Fehler – derselbe wie bei den Maßgrenzen, wo
+         Carport TDS unter „Carport" fiel, obwohl er den TDS-Schlüssel
+         hat. Deshalb wird hier nach TYP gefragt, nicht nach Produkt. */
+      case 'traeger-wunsch': return (!istCarport() || istCarportTds()) &&
+                                    !istPergola() && !traegerSchonNoetig();
       case 'led-detail':     return Z.led;
       // Lautsprecher bietet VD beim Carport nicht an
       case 'sound':          return !istCarport();

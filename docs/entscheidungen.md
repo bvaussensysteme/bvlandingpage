@@ -8572,3 +8572,59 @@ Stufe ist eine Frage der Ansicht, nicht des Bauwerks. `pruefe-fuehrung.js`
 wurden nachgezogen; bei „Weg 1 / Weg 2" prüft die Fassung jetzt schärfer als
 vorher: Neigung und hintere Höhe müssen **beide** zu Pro gehören oder keine
 von beiden, sonst stünde in Basic die hintere Höhe ohne die Neigung daneben.
+
+---
+
+## 24.10.2026 — Statikträger auf Wunsch gibt es auch beim Carport TDS
+
+**Anlass.** „wieso kann man bei Carport TDS keinen Statikträger unter Rinne
+auswählen" (Betreiber).
+
+**Was falsch war.** Die Regel fragte pauschal nach dem Produkt:
+
+```
+case 'traeger-wunsch': return !istCarport() && !istPergola() && !traegerSchonNoetig();
+```
+
+mit dem Kommentar *„Beim Carport und bei der Pergola gibt es die Bauweise
+nicht."* Für **Flat Line** und **Flat Box** stimmt das — andere Systeme,
+Flachdach, kein TDS-Träger. Für den **Carport TDS** stimmte es nie: Er ist
+dasselbe Dach wie das Terrassendach TDS, und die einzige Abweichung hat der
+Betreiber am 11.10.2026 selbst benannt — *„der einzige unterschied dort ist
+ein dachvorsprung auch an der hinterseite möglich bei freistehender montage"*.
+
+**Der Widerspruch stand im Code selbst.** Der **Dachvorsprung** ist beim
+Carport TDS erlaubt (`case 'vorsprung': … || istCarportTds()`), und ein
+Vorsprung erzeugt exakt denselben Träger (`traegerH = (vorspr > 0 ||
+Z.traegerWunsch) ? 18.9 : 0`). Der Träger war dort also längst baubar — es
+fehlte nur die Möglichkeit, ihn **ohne** Vorsprung zu bestellen. Genau dafür
+war das Häkchen am 11.10.2026 gebaut worden: *„wenn ein kunde z.b 2 pfosten
+anstatt 3 nur möchte"*.
+
+**Wie es dazu kam.** Das Häkchen kam am 11.10.2026, als es den Carport TDS
+schon seit dem 10.10. gab. Ich habe `!istCarport()` geschrieben statt nach dem
+TYP zu fragen — derselbe Fehler wie bei den Maßgrenzen, wo Carport TDS unter
+„Carport" fiel, obwohl er den Systemschlüssel `TDS|Glas` trägt. **Beim Carport
+ist „nach Produkt fragen" der wiederkehrende Fehler; richtig ist, nach dem Typ
+zu fragen.**
+
+**Was jetzt gilt.** `(!istCarport() || istCarportTds()) && !istPergola() &&
+!traegerSchonNoetig()`. Alles Weitere zieht von selbst mit: die 7-Meter-Regel
+für die Pfosten, der Hinweis auf die um 189 mm geringere Durchgangshöhe, der
+Maßhinweis und die Anfrage-Mail hängen alle an derselben Abfrage.
+
+**Was gegengelesen werden soll.** Carport → Typ „Carport TDS" → Pro → „Mehr
+Einstellungen": Steht das Häkchen „Statikträger unter der Rinne" da, mit dem
+Hinweis auf 189 mm? Anhaken: Wird aus drei Pfosten je Reihe einer weniger, und
+steht das in der Zusammenfassung? Danach Typ auf „Flat Line" — das Häkchen
+muss verschwinden.
+
+**Absicherung.** `scripts/pruefe-masstabelle.js` jetzt **364 Prüfungen**
+(Gegenprobe 364/364). Zwei davon sind neu und prüfen das **Ergebnis statt des
+Wortlauts**: Die Bedingung wird aus dem Code herausgelöst und für alle sechs
+Systeme durchgerechnet (TDS, Carport TDS, SkyView: ja; Flat Line, Flat Box,
+Pergola: nein) — so fällt auch auf, wenn sie beim nächsten Umbau wieder
+pauschal wird. Die zweite hält die Begründung fest: Wo es den Träger auf
+Wunsch gibt, muss es auch den Dachvorsprung geben, denn der baut denselben
+Träger. Dazu **2 Prüfungen im echten Browser** (jetzt 78): Häkchen beim
+Carport TDS sichtbar, beim Flachdach-Carport nicht.

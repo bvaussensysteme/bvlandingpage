@@ -2248,6 +2248,59 @@ pruefe('Haekchen entfaellt, wenn der Traeger ohnehin noetig ist',
        new RegExp(q || '!traegerSchonNoetig\\(\\)').test(k3d), '');
 pruefe('Wunsch steht in der Anfrage',
        new RegExp(q || 'unter der Dachrinne auf Kundenwunsch').test(k3d), 'Fachbegriff');
+
+/* ---------- Welche Systeme den Traeger auf Wunsch kennen ----------
+   „wieso kann man bei Carport TDS keinen Statikträger unter Rinne
+   auswählen" (Betreiber, 24.10.2026). Die Regel fragte pauschal
+   !istCarport() – damit fiel der Carport TDS mit heraus, obwohl er
+   dasselbe Dach ist wie das Terrassendach TDS und den Traeger ueber den
+   Dachvorsprung ohnehin bauen kann.
+
+   Geprueft wird nicht der Wortlaut, sondern das ERGEBNIS: Die Bedingung
+   wird aus dem Code herausgeloest und fuer jedes System durchgerechnet.
+   So faellt auch auf, wenn sie beim naechsten Umbau wieder pauschal
+   wird. */
+(function () {
+  var m = k3d.match(/case 'traeger-wunsch': return ([^;]+);/);
+  if (!m) {
+    pruefe('Traeger-Regel laesst sich ausrechnen', gegen, 'Zeile nicht gefunden');
+    return;
+  }
+  var ausdruck = m[1].replace(/\s+/g, ' ');
+  var faelle = [
+    ['Terrassendach TDS', '',                     true,  'dasselbe Dach'],
+    ['Carport',           'Carport TDS',          true,  'dasselbe Dach wie TDS'],
+    ['Carport',           'Flachdach Flat Line',  false, 'anderes System'],
+    ['Carport',           'Flachdach Flat Box',   false, 'anderes System'],
+    ['Flachdach SkyView', '',                     true,  'kein Carport'],
+    ['Pergola / Lamellendach', '',                false, 'andere Bauweise']
+  ];
+  var schief = [];
+  faelle.forEach(function (f) {
+    var Z = { produkt: f[0], cpTyp: f[1] };
+    var istCarport = function () { return Z.produkt === 'Carport'; };
+    var istCarportTds = function () { return istCarport() && Z.cpTyp === 'Carport TDS'; };
+    var istPergola = function () { return Z.produkt === 'Pergola / Lamellendach'; };
+    var traegerSchonNoetig = function () { return false; };   // ohne Dachvorsprung
+    var ist;
+    try { ist = !!eval(ausdruck); } catch (e) { ist = null; }
+    var soll = gegen ? !f[2] : f[2];
+    if (ist !== soll) schief.push((f[1] || f[0]) + ': ' + ist + ' statt ' + soll);
+  });
+  pruefe('Traeger auf Wunsch: richtige Systeme',
+         schief.length === 0,
+         schief.length ? schief.join(' · ')
+                       : 'TDS, Carport TDS und SkyView ja; Flat Line, Flat Box und Pergola nein');
+  /* Und die Gegenprobe der Begruendung: Wo es den Traeger auf Wunsch
+     gibt, muss es auch den Dachvorsprung geben – der baut denselben
+     Traeger. Andersherum waere die Regel in sich widerspruechlich. */
+  var mv = k3d.match(/case 'vorsprung':\s+return ([^;]+);/);
+  var vorsprungPasst = !!mv && /istCarportTds\(\)/.test(mv[1]) &&
+                       /istCarportTds\(\)/.test(ausdruck);
+  pruefe('Traeger und Dachvorsprung gelten fuer dieselben Systeme',
+         gegen ? !vorsprungPasst : vorsprungPasst,
+         'der Vorsprung erzeugt denselben Traeger');
+})();
 /* Zweiter Weg: die Pfostenersparnis wirklich ausrechnen. */
 (function () {
   if (!mRegel) return;

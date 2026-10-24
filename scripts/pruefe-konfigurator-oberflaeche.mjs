@@ -282,9 +282,22 @@ pruef('Titel folgt dem Produkt',
    standardmaessig als Carport TDS – der hat Seitenelemente und KEINE
    Verkleidung. Verkleidung gibt es nur beim Flachdach-Carport, also
    wird der hier eingestellt. */
+/* ---------- Statiktraeger auf Wunsch je Carport-Typ ----------
+   „wieso kann man bei Carport TDS keinen Statikträger unter Rinne
+   auswählen" (Betreiber, 24.10.2026). Der Carport TDS ist dasselbe Dach
+   wie das Terrassendach TDS; Flat Line und Flat Box sind es nicht.
+   Gemessen wird am sichtbaren Haekchen, nicht an der Regel im Code. */
+await alleAufklappen();
+pruef('Carport TDS kennt den Träger auf Wunsch',
+  await page.locator('#k3dTraeger').isVisible(),
+  'dasselbe Dach wie das Terrassendach TDS');
+
 await page.selectOption('#k3dCpTyp', 'Flachdach Flat Line');
 await page.waitForTimeout(700);
 await alleAufklappen();
+pruef('Der Flachdach-Carport kennt ihn nicht',
+  !(await page.locator('#k3dTraeger').isVisible()),
+  'anderes System, kein TDS-Träger');
 const verkSichtbar = await page.locator('div[data-k3d-fuer="verkleidung"]').first().isVisible();
 const seitenSichtbar = await page.locator('div[data-k3d-fuer="seiten"]').first().isVisible();
 pruef('Verkleidung erscheint beim Carport', verkSichtbar);

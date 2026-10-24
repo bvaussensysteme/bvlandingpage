@@ -308,6 +308,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 24.10.2026 | Statikträger auf Wunsch auch beim Carport TDS (war pauschal für alle Carports gesperrt) | **noch nicht veröffentlicht** |
 | 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | **noch nicht veröffentlicht** |
 | 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten, nicht an denen der Vorderseite | **noch nicht veröffentlicht** |
 | 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | **noch nicht veröffentlicht** |
