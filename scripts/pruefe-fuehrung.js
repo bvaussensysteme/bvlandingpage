@@ -1917,13 +1917,20 @@ pruefe('Beschriftung wie im Bestellformular',
      Grad die Unterkante des Wandprofils, daraus zurueck die Grad - es
      muss wieder dasselbe herauskommen. Beide Funktionen stammen aus dem
      Code, samt der Kette aus Rinnen-, Sparren- und Profilmassen. */
+  /* tanBoden() kam am 24.10.2026 dazu: Beide Umrechnungen rechnen das
+     Bodengefaelle mit. Ohne sie im Geltungsbereich wirft die Rechnung. */
   var teile = ['neigungProzent', 'wandUkBasis', 'wandUkSpanne', 'wandUkAus',
-               'gradAusWandUk'];
+               'gradAusWandUk', 'tanBoden', 'bodenGefaelleMoeglich'];
   var fehlt = teile.filter(function (n) {
     return !new RegExp('function ' + n + '\\(').test(js);
   });
   if (fehlt.length) { pruefe('Neigungsrechnungen lesbar', false, fehlt.join(',')); return; }
-  var Z = { glasstaerke: 8 }, istPolycarbonat = function () { return false; };
+  var Z = { glasstaerke: 8, bodenGefaelle: 0, produkt: 'Terrassendach TDS', cpTyp: '' };
+  var istPolycarbonat = function () { return false; };
+  var istCarport = function () { return Z.produkt === 'Carport'; };
+  var istCarportTds = function () { return istCarport() && Z.cpTyp === 'Carport TDS'; };
+  var istPergola = function () { return Z.produkt === 'Pergola / Lamellendach'; };
+  void istCarportTds; void istPergola;
   var NEIGUNG_PROZENT = eval('(' +
     (js.match(/var NEIGUNG_PROZENT = (\{[\s\S]*?\});/) || [])[1] + ')');
   var RINNE = eval('(' + (js.match(/var RINNE = (\{[\s\S]*?\n  \});/) || [])[1] + ')');
@@ -1937,6 +1944,9 @@ pruefe('Beschriftung wie im Bestellformular',
   var wandUkBasis = hol('wandUkBasis');
   var wandUkSpanne = hol('wandUkSpanne');
   var wandUkAus = hol('wandUkAus');
+  var bodenGefaelleMoeglich = hol('bodenGefaelleMoeglich');
+  var tanBoden = hol('tanBoden');
+  void bodenGefaelleMoeglich; void tanBoden;
   var gradAusWandUk = hol('gradAusWandUk');
   var schlimmste = 0, faelle = 0;
   [2500, 3500, 5000, 7050].forEach(function (T) {
@@ -1951,6 +1961,36 @@ pruefe('Beschriftung wie im Bestellformular',
   });
   pruefe('Beide Wege kommen auf dieselbe Neigung', schlimmste <= 0.1,
          faelle + ' Faelle, groesste Abweichung ' + schlimmste.toFixed(2) + '°');
+
+  /* ---------- Dasselbe mit geneigtem Boden ----------
+     „beispiel wenn boden gefälle 6 grad is und ich hinten höhe z.b 2500
+     mache und vorne 2500 dann sind es ja 6 grad trz" (Betreiber,
+     24.10.2026). Genau dieser Fall lief bis dahin auseinander: Der Weg
+     ueber die Gradzahl rechnete gegen die Waagerechte, der Weg ueber die
+     beiden Hoehen gegen den Boden. */
+  (function () {
+    var schief = 0, n = 0;
+    [1, 2, 6].forEach(function (boden) {
+      Z.bodenGefaelle = boden;
+      [2500, 4000, 7050].forEach(function (T) {
+        [2, 6, 10].forEach(function (grad) {
+          Z.tiefe = T; Z.hoehe = 2300;
+          var ab = Math.abs(gradAusWandUk(wandUkAus(grad)) - grad);
+          if (ab > schief) schief = ab;
+          n++;
+        });
+      });
+    });
+    if (gegen) schief += 1.5;
+    pruefe('Auch mit Bodengefaelle kommen beide Wege auf dasselbe',
+           schief <= 0.1, n + ' Faelle, groesste Abweichung ' + schief.toFixed(2) + '°');
+    /* Und der Fall aus dem Beispiel, mit seinen Zahlen. */
+    Z.bodenGefaelle = 6; Z.tiefe = 3000; Z.hoehe = 2500;
+    var beispiel = gradAusWandUk(2500) + (gegen ? 2 : 0);
+    pruefe('6° Boden, vorne wie hinten 2500 mm ergibt 6°',
+           beispiel === 6, beispiel + '° gegen die Waagerechte');
+    Z.bodenGefaelle = 0;
+  })();
 
   /* ---------- Jeder Millimeter muss eingebbar sein ----------
      „das übernimmt nicht mein maß habe 2600 eingegeben es macht daraus
@@ -2066,6 +2106,10 @@ pruefe('Beschriftung wie im Bestellformular',
   if (!f) { pruefe('Reglergrenzen lesbar', false, 'nicht gefunden'); return; }
   var Z = { hoehe: 2300, tiefe: 7050, hoeheHinten: 2500, glasstaerke: 8 };
   var istPolycarbonat = function () { return false; };
+  var istCarport = function () { return Z.produkt === 'Carport'; };
+  var istCarportTds = function () { return istCarport() && Z.cpTyp === 'Carport TDS'; };
+  var istPergola = function () { return Z.produkt === 'Pergola / Lamellendach'; };
+  void istCarportTds; void istPergola;
   var NEIGUNG_PROZENT = eval('(' +
     (js.match(/var NEIGUNG_PROZENT = (\{[\s\S]*?\});/) || [])[1] + ')');
   var RINNE = eval('(' + (js.match(/var RINNE = (\{[\s\S]*?\n  \});/) || [])[1] + ')');
@@ -2077,6 +2121,12 @@ pruefe('Beschriftung wie im Bestellformular',
   var neigungProzent = hol('neigungProzent');
   var wandUkBasis = hol('wandUkBasis');
   var wandUkSpanne = hol('wandUkSpanne');
+  /* Seit dem 24.10.2026 fragt wandUkAus() das Bodengefaelle ab – ohne
+     diese beiden Helfer im Geltungsbereich wirft die Rechnung. Hier
+     wird mit ebenem Boden geprueft, es geht um die Reglergrenzen. */
+  var bodenGefaelleMoeglich = hol('bodenGefaelleMoeglich');
+  var tanBoden = hol('tanBoden');
+  void bodenGefaelleMoeglich; void tanBoden;
   var wandUkAus = hol('wandUkAus');
   var document = { getElementById: function () { return null; } };
   var g = eval('(' + f.replace('function hoeheHintenGrenzen()', 'function ()') + ')')();

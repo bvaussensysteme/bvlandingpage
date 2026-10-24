@@ -8733,3 +8733,69 @@ Neigungen und die Pfostenlängen, und das Feld lässt sich wieder leeren.
 `pruefe-markise.js` (182) und `pruefe-masstabelle.js` (364) hingen am Wortlaut
 der geänderten Zeilen; die Markisen-Prüfung rechnet die Bodenfunktion jetzt
 selbst nach, statt sie nur zu lesen.
+
+---
+
+## 24.10.2026 — Zwei Nachbesserungen am Bodengefälle
+
+### 1. „verschwindet es unter der wiese"
+
+**Anlass.** „wenn man boden gefälle einträgt verschwindet es unter der wiese"
+(Betreiber, mit Bild: Belag fast vollständig im Rasen, die Pfosten scheinbar
+frei in der Luft).
+
+**Was falsch war.** Ich habe den Belag gekippt, aber zwei Dinge übersehen: Er
+war nur **2 cm dick**, und die **Wiese blieb waagerecht** auf −0,6. Damit lag
+die tiefere Hälfte der Platte unter dem Rasen und die höhere schwebte darüber.
+Bei 4° und 4 m Tiefe sind das rund 30 cm Höhenunterschied über die Platte — ein
+2 cm dünnes Brett kann das nicht überbrücken.
+
+**Was jetzt gilt.** Die Platte ist so dick wie ihr **eigener
+Höhenunterschied** (plus 2 cm), und die Wiese liegt unter ihrem **tiefsten
+Punkt**, an den vier Ecken gerechnet statt geschätzt. Damit schließt der Belag
+an jeder Kante an den Rasen an, gleich wie stark es fällt. Ohne Gefälle bleibt
+es bei 2 cm und Rasen auf −0,6 — also genau wie zuvor. Das Wasserzeichen auf
+dem Boden kippt mit, sonst steckte das Logo im Belag oder schwebte darüber.
+
+**Nachgesehen, nicht geglaubt:** Modell mit 4° und mit 6° gerendert und das
+Bild angesehen — Belag sichtbar, Pfosten stehen darauf, nichts im Rasen.
+
+### 2. Die beiden Eingabewege liefen auseinander
+
+**Anlass.** „du musst natürlich beachten wenn boden gefälle sich ändert sich je
+nachdem die grad anzahl des daches weil vorne geht es ja runter" und dazu das
+Rechenbeispiel: „wenn boden gefälle 6 grad is und ich hinten höhe z.b 2500
+mache und vorne 2500 dann sind es ja 6 grad trz" (Betreiber).
+
+**Das Beispiel trifft genau den Fehler.** Beide Höhen werden über dem **Boden**
+gemessen. Sind sie gleich, läuft das Dach **parallel zum Boden** — und hat
+damit gegenüber der Waagerechten genau dessen Gefälle, hier 6°.
+
+Der Konfigurator kannte zwei Wege, dieselbe Neigung anzugeben:
+
+| | vorher | jetzt |
+|---|---|---|
+| Weg 1: Gradzahl | richtig (Neigung gegen die Waagerechte) | unverändert |
+| Weg 2: zwei Höhen | **rechnete mit ebenem Boden → 0°** | **6°** |
+
+Beide Umrechnungen (`wandUkAus`, `gradAusWandUk`) tragen jetzt denselben
+Summanden `tanBoden()`. Damit kommt aus beiden Wegen dasselbe heraus, und
+umgekehrt ergeben 6° wieder 2500 mm hinten.
+
+**Warum das zusammengehört:** Die Gradzahl ist das, was bestellt wird; die
+beiden Höhen sind das, was vor Ort gemessen wird. Laufen sie auseinander,
+stimmt entweder das Angebot oder das Aufmaß nicht — und man merkt es erst auf
+der Baustelle.
+
+**Was gegengelesen werden soll.** Bodengefälle 6° eintragen, dann über „Weg 2"
+vorne 2500 und hinten 2500 setzen: Steht die Dachneigung auf 6° und daneben
+„0° gegenüber dem Terrassenboden"? Und umgekehrt: 6° einstellen — wird die
+Höhe hinten 2500?
+
+**Absicherung.** `scripts/pruefe-bodengefaelle.js` jetzt **35 Prüfungen**
+(Gegenprobe 35/35), darunter das Rechenbeispiel mit seinen eigenen Zahlen in
+**beide Richtungen** und eine Nachrechnung, dass die Platte den Rasen bei 6°
+plus 2° Quergefälle überall abdeckt. `scripts/pruefe-fuehrung.js` jetzt
+**306 Prüfungen**: Der bestehende Hin-und-Rück-Vergleich der beiden Wege läuft
+zusätzlich über 27 Fälle **mit** Bodengefälle — genau die Prüfung, die den
+Fehler verhindert hätte, wenn ich sie gleich so geschrieben hätte.
