@@ -224,6 +224,53 @@ pruef('In Pro Eingestelltes ueberlebt den Weg ueber Basic',
   (await page.inputValue('#k3dNeigungZahl')) === '8',
   'Dachneigung steht auf ' + await page.inputValue('#k3dNeigungZahl') + ' Grad');
 
+/* ---------- Durchgangshoehe unter dem Statiktraeger ----------
+   „wenn aber jetzt statikträger in spiel kommen is die durchgangshöhe um
+   den statikträger niedriger und das kann man neben dem unterkanten maß
+   in klammern hinschreiben" (Betreiber, 24.10.2026). Gemessen wird an
+   der Zahl, die im Bedienfeld steht – und sie muss um die Traegerhoehe
+   (189 mm) unter dem eingegebenen Mass liegen. */
+const hoeheOhne = await page.locator('#k3dHoeheWert').innerText();
+pruef('Ohne Traeger steht keine Klammer',
+  !/Durchgang/.test(hoeheOhne), hoeheOhne);
+await page.check('#k3dTraeger');
+await page.waitForTimeout(1200);
+const hoeheMit = await page.locator('#k3dHoeheWert').innerText();
+const zahlen = hoeheMit.match(/(\d+) mm \(Durchgang (\d+) mm\)/);
+pruef('Mit Traeger steht der wirkliche Durchgang daneben',
+  !!zahlen && Number(zahlen[1]) - Number(zahlen[2]) === 189,
+  hoeheMit + (zahlen ? ' – Unterschied ' + (Number(zahlen[1]) - Number(zahlen[2])) + ' mm' : ''));
+await page.uncheck('#k3dTraeger');
+await page.waitForTimeout(900);
+pruef('Haekchen weg, Klammer weg',
+  !/Durchgang/.test(await page.locator('#k3dHoeheWert').innerText()),
+  await page.locator('#k3dHoeheWert').innerText());
+
+/* Hinten gilt dasselbe: Freistehend traegt dort der Statiktraeger, also
+   geht man auch dort nicht unter dem Wandprofil durch. An der Hauswand
+   gibt es keinen – dann darf auch keine Klammer stehen. */
+await page.check('#k3dHoeheGetrennt');
+await page.waitForTimeout(900);
+const hintenWand = await page.locator('#k3dHoeheHintenWert').innerText();
+pruef('An der Hauswand steht hinten keine Klammer',
+  !/Durchgang/.test(hintenWand), hintenWand);
+await page.click('[data-k3d-seg="k3dAufbau"] button[data-wert="Freistehend"]');
+await page.waitForTimeout(1200);
+const hintenFrei = await page.locator('#k3dHoeheHintenWert').innerText();
+/* Und auch freistehend steht hinten keine – NACHGEPRUEFT, nicht
+   angenommen: Der hintere Statiktraeger sitzt ohne Dachvorsprung buendig
+   mit den Sparren („der statikträger ist tiefer als der sparren, mach
+   ihn unten bündig mit sparren", Betreiber 11.10.2026). Er nimmt dort
+   also keine Durchgangshoehe weg, anders als der Traeger unter der
+   Rinne. Erst ein Dachvorsprung hinten haengt ihn unter die Sparren –
+   den gibt es nur beim Carport TDS. */
+pruef('Freistehend nimmt der hintere Traeger keine Hoehe weg',
+  !/Durchgang/.test(hintenFrei),
+  hintenFrei + ' – Traeger buendig mit den Sparren');
+await page.click('[data-k3d-seg="k3dAufbau"] button[data-wert="Wandmontage"]');
+await page.uncheck('#k3dHoeheGetrennt');
+await page.waitForTimeout(900);
+
 /* ---------- Gefaelle des Terrassenbodens ----------
    „der Boden is ja nicht immer Eben manche haben 2 grad manche mehr"
    (Betreiber, 24.10.2026). Gemessen wird am Bild und an der Zahl, die
