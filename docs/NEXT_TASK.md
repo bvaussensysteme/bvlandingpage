@@ -55,6 +55,10 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   Rahmen-, Planken- und Schiebeelemente unten schräg geschnitten werden.
 - **Nur im Terrassen-Bauweg gerechnet** (TDS, SkyView, Carport TDS). Beim
   Flachdach-Carport und bei der Pergola wird das Gefälle nicht abgefragt.
+- **Erledigt (24.10.2026):** Die Wiese kippt jetzt mit, der Belag bleibt dünn.
+  Damit sind „verschwindet das pflasterdesign" und „die linke maßanzeige …
+  ist ein fetter balken" dieselbe, behobene Ursache — siehe
+  `docs/entscheidungen.md`, Eintrag „Der Boden kippt, nicht die Platte".
 - **Beantwortet (24.10.2026):** „die durchgangshöhe ist halt immer die tiefere
   seite aber erst mal soll das so bliben". Gebaut bleibt „vorne"; nur wenn der
   Boden stärker fällt als das Dach, liegt die tiefere Seite hinten. Dann wäre
@@ -209,7 +213,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
-| `scripts/pruefe-bodengefaelle.js` | Gefälle des Terrassenbodens: Führt `bodenY()` aus und rechnet nach – ebener Boden ändert nichts, 2° auf 4 m sind 140 mm, vier Ecken auf vier Höhen. Dazu: Dach wird verschoben statt gekippt, Pfostenlängen gehen in die Anfrage |
+| `scripts/pruefe-bodengefaelle.js` | Gefälle des Terrassenbodens: Führt `bodenY()` aus und rechnet nach – ebener Boden ändert nichts, 2° auf 4 m sind 140 mm, vier Ecken auf vier Höhen. Dazu: Dach wird verschoben statt gekippt, Pfostenlängen gehen in die Anfrage. **Misst mit three.js nach**, dass Wiese und Plattenoberseite senkrecht gemessen auf derselben Ebene liegen wie die gerechneten Pfosten |
 | `scripts/pruefe-stufen.js` | Basic und Pro: Ist Basic voreingestellt? Trägt jede Fachangabe `data-k3d-pro`? Bleibt jede Kundenfrage in Basic sichtbar? Verbirgt die Stufenregel nur, statt aufzudecken? Und vor allem: Wird beim Umschalten **kein** Wert zurückgesetzt |
 | `scripts/pruefe-rueckseite.js` | Die vierte Seite: Gibt es sie nur freistehend? Verschwindet die Wahl beim Zurückschalten auf Wandmontage wieder? Kein Keil hinten, Höhe aus der Dachunterkante, Assistent kennt `erw_hinten` |
 | `scripts/pruefe-sonderform.js` | Sonderform: Führt die Geometrie wirklich aus und misst nach – Viereck aus vier Maßen, nirgends Tiefe null, nichts ragt über das umschließende Rechteck hinaus, Vorderkante mittig, fehlendes Maß wird gemeldet, keine Reste der alten Katalogformen |
