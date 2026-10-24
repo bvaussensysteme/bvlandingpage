@@ -128,6 +128,34 @@ const breiteGefuehrt = await page.locator('#k3dBreiteZahl').isVisible();
    trotzdem auf der Blase. Deshalb den Knopf direkt ausloesen. */
 await page.$eval('#k3dModus', (el) => el.click());
 await page.waitForTimeout(250);
+
+/* ---------- Immer nur ein Abschnitt offen ----------
+   „die einstellungen sind viele auch unlogisch angeordnet man muss mal
+   runter srollen dann wieder hoch" (Betreiber, 24.10.2026). Gemessen
+   waren es in Pro 4653 px Bedienfeld bei 900 px Fenster. Gemessen wird
+   VOR alleAufklappen() – das Pruefskript klappt gleich wieder alles auf,
+   damit die uebrigen Pruefungen jede Bedieneinheit sehen. */
+async function panelHoehe() {
+  return await page.evaluate(() =>
+    Math.round(document.querySelector('.k3d-sl-rollen').scrollHeight));
+}
+async function offeneAbschnitte() {
+  return await page.evaluate(() =>
+    [...document.querySelectorAll('details.k3d-sek')].filter((d) => d.open).length);
+}
+pruef('Beim Wechsel in die Uebersicht bleibt ein Abschnitt offen',
+  (await offeneAbschnitte()) === 1,
+  (await offeneAbschnitte()) + ' von 8 offen, Bedienfeld ' + (await panelHoehe()) + ' px');
+/* Einen anderen Abschnitt aufklappen: die uebrigen muessen zugehen. */
+await page.locator('details.k3d-sek > summary').nth(3).click();
+await page.waitForTimeout(400);
+pruef('Ein Klick auf eine Ueberschrift schliesst die anderen',
+  (await offeneAbschnitte()) === 1,
+  (await offeneAbschnitte()) + ' offen, Bedienfeld ' + (await panelHoehe()) + ' px');
+const hoeheEiner = await panelHoehe();
+pruef('Das Bedienfeld bleibt bei etwa einem Bildschirm',
+  hoeheEiner < 2000, hoeheEiner + ' px (vorher 4653 px in Pro)');
+
 await alleAufklappen();
 pruef('Schritt fuer Schritt zeigt nur den aktuellen Schritt',
   !breiteGefuehrt, 'Massfeld steckt nicht im Produktschritt');
