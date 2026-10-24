@@ -8705,6 +8705,45 @@ Pergola wird es deshalb gar nicht erst abgefragt.
 6. **Fachlich:** Ist „Höhe vorne gilt vorne" so richtig, oder messen Sie
    die Durchgangshöhe an der Wand? Dann drehe ich den Bezug um.
 
+**Nachtrag vom selben Tag — die Regel dahinter.** Auf die Rückfrage, ob die
+Durchgangshöhe vorne oder an der Wand gilt: *„die durchgangshöhe ist halt immer
+die tiefere seite aber erst mal soll das so bliben"* (Betreiber). Damit ist die
+fachliche Regel benannt: **Gemessen wird dort, wo die lichte Höhe am kleinsten
+ist** — das ist die Stelle, an der man sich stößt.
+
+Beim üblichen Terrassendach ist das die Vorderseite (das Dach fällt zur Rinne),
+und genau dort gilt die Eingabe auch. Solange das Dach stärker fällt als der
+Boden, stimmt Gebautes und Regel überein; im Beispiel oben sind es vorne
+2300 mm und hinten 2510 mm, die tiefere Seite ist also die vordere.
+
+**Der eine Fall, in dem es auseinanderläuft:** Fällt der *Boden* stärker als
+das Dach (etwa Boden 6°, Dach 5°), wird die lichte Höhe hinten kleiner als
+vorne — dann wäre nach der Regel die Rückseite zu bemaßen, der Konfigurator
+hält aber weiter die Vorderseite fest. Das ist **bewusst so gelassen**
+(„erst mal soll das so bliben") und hier notiert, damit es beim nächsten Mal
+nicht als Fehler gesucht wird. Ein Hinweis „niedrigste Durchgangshöhe: X mm
+an der Y-Seite" wäre die kleine Lösung dafür, wenn der Fall in der Praxis
+auftaucht.
+
+**Nachtrag vom selben Tag — die Regel dahinter.** Auf die Rückfrage, ob die
+Durchgangshöhe vorne oder an der Wand gilt: *„die durchgangshöhe ist halt immer
+die tiefere seite aber erst mal soll das so bliben"* (Betreiber). Damit ist die
+fachliche Regel benannt: **Gemessen wird dort, wo die lichte Höhe am kleinsten
+ist** — das ist die Stelle, an der man sich stößt.
+
+Beim üblichen Terrassendach ist das die Vorderseite (das Dach fällt zur Rinne),
+und genau dort gilt die Eingabe auch. Solange das Dach stärker fällt als der
+Boden, stimmen Gebautes und Regel überein; im Beispiel oben sind es vorne
+2300 mm und hinten 2510 mm, die tiefere Seite ist also die vordere.
+
+**Der eine Fall, in dem es auseinanderläuft:** Fällt der *Boden* stärker als
+das Dach (etwa Boden 6°, Dach 5°), wird die lichte Höhe hinten kleiner als
+vorne — dann wäre nach der Regel die Rückseite zu bemaßen, der Konfigurator
+hält aber weiter die Vorderseite fest. Das ist **bewusst so gelassen**
+(„erst mal soll das so bliben") und hier notiert, damit es beim nächsten Mal
+nicht als Fehler gesucht wird. Ein Hinweis „niedrigste Durchgangshöhe: X mm
+an der Y-Seite" wäre die kleine Lösung, falls der Fall in der Praxis auftaucht.
+
 **Absicherung.** Neu: `scripts/pruefe-bodengefaelle.js` — **26 Prüfungen**,
 Gegenprobe 26/26. Die Bodenfunktion wird dabei **ausgeführt** und mit eigenen
 Zahlen nachgerechnet (ebener Boden ergibt überall null; 2° auf 4 m ergeben

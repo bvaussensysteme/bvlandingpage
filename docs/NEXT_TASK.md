@@ -55,8 +55,11 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   Rahmen-, Planken- und Schiebeelemente unten schräg geschnitten werden.
 - **Nur im Terrassen-Bauweg gerechnet** (TDS, SkyView, Carport TDS). Beim
   Flachdach-Carport und bei der Pergola wird das Gefälle nicht abgefragt.
-- **Rückfrage an den Betreiber:** Gilt die Durchgangshöhe vorne oder an der
-  Wand? Gebaut ist „vorne" (siehe `docs/entscheidungen.md`, 24.10.2026).
+- **Beantwortet (24.10.2026):** „die durchgangshöhe ist halt immer die tiefere
+  seite aber erst mal soll das so bliben". Gebaut bleibt „vorne"; nur wenn der
+  Boden stärker fällt als das Dach, liegt die tiefere Seite hinten. Dann wäre
+  ein Hinweis „niedrigste Durchgangshöhe: X mm an der Y-Seite" die kleine
+  Lösung — **nicht ohne Auftrag bauen**.
 
 ### Sonderform — vier Maße *(gebaut 23.10.2026)*
 
