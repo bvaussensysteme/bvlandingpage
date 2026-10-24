@@ -1404,7 +1404,12 @@
   function wasserzeichenSetzen() {
     var br = Math.min(Z.breite / 10 * WZ.anteil, WZ.hoechstens);
     wasserzeichen.scale.set(br, br * 320 / 1024, 1);
-    wasserzeichen.position.set(0, 0.4, Z.tiefe / 10 * 0.55);
+    /* Es liegt AUF dem Belag – faellt der, faellt es mit. Sonst stuende
+       das Logo bei Gefaelle frei in der Luft bzw. steckte im Boden. */
+    var wzZ = Z.tiefe / 10 * 0.55;
+    wasserzeichen.position.set(0, 0.4 + bodenY(0, wzZ), wzZ);
+    wasserzeichen.rotation.set(-Math.PI / 2 + (Z.bodenGefaelle || 0) * Math.PI / 180,
+                               0, (Z.bodenGefaelleQuer || 0) * Math.PI / 180);
     var t = wasserzeichenTextur(!!Z.abend);
     if (wasserzeichen.material.map !== t) {
       wasserzeichen.material.map = t;
@@ -3242,6 +3247,8 @@
     belag.scale.set(B + 180, 1, T + (e.freistehend ? 240 : 120));
     belag.position.set(0, -1, (T + 120) / 2 - 60);
     belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
+    belag.scale.y = 1;             // wieder die duenne Platte
+    rasen.position.y = -0.6;       // und die Wiese auf ihrer Hoehe
     wand.visible = !e.freistehend;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -5812,6 +5819,8 @@
     belag.scale.set(B + 200, 1, T + 260);
     belag.position.set(0, -1, (T + 260) / 2 - 130);
     belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
+    belag.scale.y = 1;             // wieder die duenne Platte
+    rasen.position.y = -0.6;       // und die Wiese auf ihrer Hoehe
     wand.visible = anWand;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -6359,15 +6368,36 @@
 
     /* ---------- Der Belag kippt mit ----------
        Kleine Winkel, deshalb genuegt je eine Drehung: um die x-Achse
-       faellt er nach vorne, um die z-Achse zur Seite. Gedreht wird um
-       die Mitte der Platte, darum wandert sie zusaetzlich auf die Hoehe,
-       die bodenY() dort ergibt – sonst schnitte sie hinten in den Rasen.
-       Ohne Gefaelle sind beide Winkel null und alles steht wie zuvor. */
+       faellt er nach vorne, um die z-Achse zur Seite.
+
+       ZWEI DINGE, die beim ersten Anlauf gefehlt haben – „wenn man boden
+       gefälle einträgt verschwindet es unter der wiese" (Betreiber,
+       24.10.2026, mit Bild): Der Belag war nur 2 cm dick und die Wiese
+       blieb waagerecht auf -0,6. Die tiefere Haelfte lag damit unter dem
+       Rasen, die hoehere schwebte darueber, und die Pfosten standen in
+       der Luft.
+
+       Jetzt ist die Platte so dick wie ihr eigener Hoehenunterschied
+       (plus 2 cm), und die Wiese liegt unter ihrem TIEFSTEN Punkt. Damit
+       ist der Belag von oben immer sichtbar und schliesst an jeder Kante
+       an den Rasen an. Ohne Gefaelle bleibt es bei 2 cm Dicke und
+       Rasen auf -0,6 – also genau wie zuvor. */
     var belagZ = (T + 120) / 2 - 60;
-    belag.scale.set(B + 180, 1, T + (frei ? 240 : 120));
-    belag.position.set(0, -1 + bodenY(0, belagZ), belagZ);
-    belag.rotation.set((Z.bodenGefaelle || 0) * Math.PI / 180, 0,
-                       (Z.bodenGefaelleQuer || 0) * Math.PI / 180);
+    var belagB = B + 180, belagL = T + (frei ? 240 : 120);
+    var gt = (Z.bodenGefaelle || 0) * Math.PI / 180;
+    var gq = (Z.bodenGefaelleQuer || 0) * Math.PI / 180;
+    var abfall = Math.abs(Math.tan(gt)) * belagL + Math.abs(Math.tan(gq)) * belagB;
+    var dicke = 2 + abfall;
+    belag.scale.set(belagB, dicke / 2, belagL);
+    belag.position.set(0, bodenY(0, belagZ) - dicke / 2, belagZ);
+    belag.rotation.set(gt, 0, gq);
+    /* Die Wiese unter den tiefsten Punkt der Platte legen. Gerechnet an
+       den vier Ecken, nicht geschaetzt. */
+    var tiefste = 0;
+    [[-belagB / 2, belagZ - belagL / 2], [belagB / 2, belagZ - belagL / 2],
+     [-belagB / 2, belagZ + belagL / 2], [belagB / 2, belagZ + belagL / 2]
+    ].forEach(function (e) { tiefste = Math.min(tiefste, bodenY(e[0], e[1])); });
+    rasen.position.y = -0.6 + tiefste;
     wand.visible = !frei;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -7267,6 +7297,8 @@
     belag.scale.set(B + 160, 1, T + 140);
     belag.position.set(0, -1, (T + 140) / 2 - 70);
     belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
+    belag.scale.y = 1;             // wieder die duenne Platte
+    rasen.position.y = -0.6;       // und die Wiese auf ihrer Hoehe
     wand.visible = !frei;
     wand.scale.set(B + 420, h + RAHMEN_H + 190, 1);
     wand.position.set(0, (h + RAHMEN_H + 190) / 2, -12);
@@ -9077,12 +9109,32 @@
     return Math.max(1, Z.tiefe);
   }
 
+  /* ---------- Das Bodengefaelle rechnet in beiden Wegen mit ----------
+     „beispiel wenn boden gefälle 6 grad is und ich hinten höhe z.b 2500
+     mache und vorne 2500 dann sind es ja 6 grad trz" (Betreiber,
+     24.10.2026). Genau so ist es: Beide Hoehen werden ueber dem BODEN
+     gemessen. Sind sie gleich, laeuft das Dach parallel zum Boden – und
+     hat damit gegenueber der Waagerechten genau dessen Gefaelle.
+
+     Bis zu diesem Tag rechnete der Weg ueber die beiden Hoehen mit
+     ebenem Boden und kam auf 0°. Der Weg ueber die Gradzahl war richtig
+     (dort steht die Neigung gegen die Waagerechte direkt im Feld),
+     beide liefen also auseinander, sobald ein Gefaelle eingetragen war.
+
+     Jetzt steckt in beiden Richtungen derselbe Summand tanBoden(). */
+  function tanBoden() {
+    if (!bodenGefaelleMoeglich()) return 0;
+    return Math.tan((Z.bodenGefaelle || 0) * Math.PI / 180);
+  }
+
   function wandUkAus(grad) {
-    return Math.round(wandUkBasis() + wandUkSpanne() * neigungProzent(grad) / 100);
+    return Math.round(wandUkBasis() +
+                      wandUkSpanne() * (neigungProzent(grad) / 100 - tanBoden()));
   }
 
   function gradAusWandUk(mm) {
-    var grad = Math.atan((mm - wandUkBasis()) / wandUkSpanne()) * 180 / Math.PI;
+    var grad = Math.atan((mm - wandUkBasis()) / wandUkSpanne() + tanBoden()) *
+               180 / Math.PI;
     return Math.min(14, Math.max(2, Math.round(grad * 10) / 10));
   }
 

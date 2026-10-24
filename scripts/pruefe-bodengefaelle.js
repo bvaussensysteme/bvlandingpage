@@ -128,6 +128,61 @@ pruefe('Die Neigung gegenüber dem Boden wird ausgewiesen',
                /gegenüber dem Terrassenboden/.test(k3d),
        'sonst verwirrt der Winkel beim Aufmaß');
 
+/* ---------- Das Rechenbeispiel des Betreibers ----------
+   „beispiel wenn boden gefälle 6 grad is und ich hinten höhe z.b 2500
+   mache und vorne 2500 dann sind es ja 6 grad trz" (Betreiber,
+   24.10.2026). Beide Höhen werden über dem BODEN gemessen; sind sie
+   gleich, läuft das Dach parallel zum Boden und hat gegenüber der
+   Waagerechten genau dessen Gefälle.
+
+   Bis dahin rechnete der Weg über die beiden Höhen mit ebenem Boden und
+   kam auf 0°. Die beiden Eingabewege liefen also auseinander, sobald ein
+   Gefälle eingetragen war – gefunden hat das der Betreiber, nicht ich.
+
+   Geprüft wird, indem die beiden Umrechnungen aus dem Code ausgeführt
+   werden, und zwar in BEIDE Richtungen: Grad aus Höhen und Höhen aus
+   Grad müssen dasselbe ergeben. */
+(function () {
+  function hol(re) { var m = k3d.match(re); return m ? m[0] : ''; }
+  var quelle = [
+    /* bodenGefaelleMoeglich() gehoert mit in den Geltungsbereich –
+       tanBoden() fragt sie, und ohne sie wirft die Rechnung. */
+    hol(/function bodenGefaelleMoeglich\(\) \{[\s\S]*?\n  \}/),
+    hol(/function tanBoden\(\) \{[\s\S]*?\n  \}/),
+    hol(/function wandUkBasis\(\) \{[\s\S]*?\n  \}/),
+    hol(/function wandUkSpanne\(\) \{[\s\S]*?\n  \}/),
+    hol(/function wandUkAus\(grad\) \{[\s\S]*?\n  \}/),
+    hol(/function gradAusWandUk\(mm\) \{[\s\S]*?\n  \}/)
+  ].join('\n');
+  var neigungProzent = function (grad) { return Math.tan(grad * Math.PI / 180) * 100; };
+  void neigungProzent;
+  var API = null;
+  try {
+    API = eval(quelle + '\n;({ aus: wandUkAus, grad: gradAusWandUk })');
+  } catch (e) { API = null; }
+  if (!API) {
+    pruefe('Die Höhen-Umrechnung lässt sich ausführen', gegen, 'nicht ausführbar');
+    return;
+  }
+  pruefe('Die Höhen-Umrechnung lässt sich ausführen', !gegen, 'beide Richtungen');
+  Z.hoehe = 2500; Z.tiefe = 3000; Z.bodenGefaelle = 6; Z.bodenGefaelleQuer = 0;
+  var grad = API.grad(2500);
+  pruefe('6° Boden, vorne 2500, hinten 2500 ergibt 6°',
+         gegen ? grad !== 6 : grad === 6,
+         grad + '° gegenüber der Waagerechten – das Dach läuft parallel zum Boden');
+  var zurueck = API.aus(6);
+  pruefe('Umgekehrt ergeben 6° wieder 2500 mm hinten',
+         gegen ? zurueck !== 2500 : zurueck === 2500, zurueck + ' mm');
+  /* Ohne Gefaelle muss beides sein wie zuvor. */
+  Z.bodenGefaelle = 0;
+  var ebenHin = API.aus(5), ebenGrad = API.grad(2762);
+  pruefe('Ohne Gefälle rechnet die Umrechnung wie zuvor',
+         gegen ? !(ebenHin === 2762 && ebenGrad === 5)
+               : (ebenHin === 2762 && ebenGrad === 5),
+         '5° ergeben ' + ebenHin + ' mm, und zurück ' + ebenGrad + '°');
+  delete Z.hoehe; delete Z.tiefe;
+})();
+
 /* ---------- Wo es das Gefälle gibt ---------- */
 [['Terrassendach TDS', '', true], ['Flachdach SkyView', '', true],
  ['Carport', 'Carport TDS', true], ['Carport', 'Flachdach Flat Line', false],
@@ -149,9 +204,65 @@ pruefe('Andere Bauwege stellen den Belag zurück',
              : (k3d.match(/belag\.rotation\.set\(0, 0, 0\);/g) || []).length === 3,
        'drei Bauwege ohne Bodengefälle');
 pruefe('Der Belag kippt im Terrassenweg mit',
-       gegen ? !/belag\.rotation\.set\(\(Z\.bodenGefaelle/.test(k3d)
-             : /belag\.rotation\.set\(\(Z\.bodenGefaelle/.test(k3d),
+       gegen ? !/belag\.rotation\.set\(gt, 0, gq\);/.test(k3d)
+             : /belag\.rotation\.set\(gt, 0, gq\);/.test(k3d),
        'sonst stünde die Anlage sichtbar in der Luft');
+/* ---------- „verschwindet es unter der wiese" ----------
+   Der erste Anlauf kippte den Belag, ließ ihn aber 2 cm dünn und die
+   Wiese waagerecht auf −0,6. Die tiefere Hälfte lag damit unter dem
+   Rasen, die höhere schwebte darüber: „wenn man boden gefälle einträgt
+   verschwindet es unter der wiese" (Betreiber, 24.10.2026, mit Bild).
+
+   Zwei Bedingungen halten das jetzt zusammen, und beide werden
+   nachgerechnet statt nur gelesen. */
+pruefe('Der Belag ist so dick wie sein eigener Höhenunterschied',
+       gegen ? !/var dicke = 2 \+ abfall;/.test(k3d)
+             : /var dicke = 2 \+ abfall;/.test(k3d) &&
+               /belag\.scale\.set\(belagB, dicke \/ 2, belagL\);/.test(k3d),
+       'sonst hängt die hohe Seite in der Luft');
+pruefe('Die Wiese liegt unter dem tiefsten Punkt des Belags',
+       gegen ? !/rasen\.position\.y = -0\.6 \+ tiefste;/.test(k3d)
+             : /rasen\.position\.y = -0\.6 \+ tiefste;/.test(k3d) &&
+               /tiefste = Math\.min\(tiefste, bodenY\(e\[0\], e\[1\]\)\)/.test(k3d),
+       'an den vier Ecken gerechnet, nicht geschätzt');
+(function () {
+  /* Nachgerechnet: Deckt die Dicke den Abfall über die Platte wirklich
+     ab, und liegt die Wiese tief genug? Zahlen wie im Bauweg. */
+  Z.bodenGefaelle = 6; Z.bodenGefaelleQuer = 2;
+  var B = 500, T = 300;
+  var belagZ = (T + 120) / 2 - 60, belagB = B + 180, belagL = T + 120;
+  var gt = Math.tan(6 * Math.PI / 180), gq = Math.tan(2 * Math.PI / 180);
+  var abfall = Math.abs(gt) * belagL + Math.abs(gq) * belagB;
+  var dicke = 2 + abfall;
+  var ecken = [[-belagB / 2, belagZ - belagL / 2], [belagB / 2, belagZ - belagL / 2],
+               [-belagB / 2, belagZ + belagL / 2], [belagB / 2, belagZ + belagL / 2]];
+  var tiefste = 0, hoechste = 0;
+  ecken.forEach(function (e) {
+    tiefste = Math.min(tiefste, bodenY(e[0], e[1]));
+    hoechste = Math.max(hoechste, bodenY(e[0], e[1]));
+  });
+  var rasenY = -0.6 + tiefste;
+  /* Unterkante der Platte in ihrer Mitte, grob: Mitte minus halbe Dicke;
+     die gekippten Ecken liegen höchstens um den halben Abfall darüber. */
+  var unterkante = bodenY(0, belagZ) - dicke + abfall / 2;
+  var deckt = (hoechste - tiefste) <= dicke && unterkante <= rasenY;
+  if (gegen) deckt = !deckt;
+  pruefe('Bei 6° und 2° deckt die Platte den Rasen überall ab',
+         deckt,
+         'Höhenunterschied ' + (hoechste - tiefste).toFixed(1) + ' cm, Dicke ' +
+         dicke.toFixed(1) + ' cm, Rasen auf ' + rasenY.toFixed(1));
+  Z.bodenGefaelle = 0; Z.bodenGefaelleQuer = 0;
+})();
+pruefe('Die anderen Bauwege legen Platte und Wiese zurück',
+       gegen ? (k3d.match(/rasen\.position\.y = -0\.6;       \/\/ und die Wiese/g) || []).length !== 3
+             : (k3d.match(/rasen\.position\.y = -0\.6;       \/\/ und die Wiese/g) || []).length === 3 &&
+               (k3d.match(/belag\.scale\.y = 1;/g) || []).length === 3,
+       'sonst bliebe die Wiese nach einem Produktwechsel versenkt');
+pruefe('Das Wasserzeichen liegt auf dem Belag und kippt mit',
+       gegen ? !/wasserzeichen\.rotation\.set\(-Math\.PI \/ 2 \+/.test(k3d)
+             : /wasserzeichen\.rotation\.set\(-Math\.PI \/ 2 \+/.test(k3d) &&
+               /0\.4 \+ bodenY\(0, wzZ\)/.test(k3d),
+       'sonst steckt das Logo im Boden oder schwebt');
 
 /* ---------- Bedienung ---------- */
 ['k3dBodenGefaelle', 'k3dBodenGefaelleQuer'].forEach(function (id) {
