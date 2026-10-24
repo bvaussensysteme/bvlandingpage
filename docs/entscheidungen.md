@@ -8451,3 +8451,54 @@ wirklich etwas entsteht, wird am Bild gemessen — Bildschirmfoto vor und nach
 der Wahl, die Bilder müssen sich unterscheiden. `pruefe-markise.js` wurde auf
 `innenRichtung()` nachgezogen und um den Fall „hinten" erweitert (179
 Prüfungen, Gegenprobe 179/179).
+
+---
+
+## 24.10.2026 — Die Rückseite teilte sich an den falschen Pfosten
+
+**Anlass.** „wenn ich hinten plankenwand oder was anderes hinzufüge sind da so
+2 lücken dazwischen aber da sind bei der freistehenden version keine pfosten,
+da statikträger" (Betreiber, mit Bild: drei Plankenfelder mit zwei sichtbaren
+Spalten).
+
+**Was falsch war — mein Fehler vom Vortag.** Beim Einbau der vierten Seite
+(23.10.2026) habe ich die Rückseite in dieselbe Schleife gehängt wie die
+Vorderseite. Damit übernahm sie deren Pfostenfächer. Vorne stimmt das: Dort
+stehen nach Maßtabelle drei oder vier Pfosten, und ein durchgehendes Element
+liefe mitten hindurch. **Hinten stehen weniger** — der Statikträger trägt bis
+7 m, dort genügen zwei Pfosten (7-m-Regel, Vorgabe des Betreibers vom
+11.10.2026). Die Wand wurde also an Stellen geteilt, an denen gar nichts steht.
+
+Nachgerechnet bei 5000 mm Breite:
+
+| | Pfosten | Felder | Feldbreite |
+|---|---|---|---|
+| vorne | 3 | 2 | je rund 2336 mm |
+| hinten | 2 | **1** | **4780 mm am Stück** |
+
+**Was jetzt gilt.** Die Rückseite hat eine eigene Schleife über ihre eigenen
+Pfostenachsen (`xPfHinten`, aus `pfHinten` — dieselbe Zahl, mit der auch die
+Pfosten gezeichnet werden; einmal gerechnet, zweimal benutzt). Geteilt wird
+nur dort, wo wirklich ein Pfosten im Weg ist. Über 7 m Breite greift weiterhin
+die Plankenregel „nicht am Stück lieferbar, Zwischenprofil am Stoß" — das ist
+eine Materialgrenze, kein Pfosten.
+
+**Die Lehre.** Die Rückseite ist nicht die gespiegelte Vorderseite. Drei Dinge
+sind dort anders, und jedes hat einen eigenen Grund: die Höhe (Gefälle), die
+Richtung von „innen" (+z statt −z) — beide am 23.10. erkannt — und jetzt die
+Feldaufteilung (weniger Pfosten). Beim nächsten Bauteil, das an einer Seite
+hängt, gehört diese Liste zuerst durchgegangen.
+
+**Was gegengelesen werden soll.** Freistehend, 5000 × 3000, hinten
+Plankenwand: Läuft die Wand ohne Spalt durch? Dann die Breite auf 8000 stellen
+— jetzt stehen hinten drei Pfosten, also zwei Felder; die Teilung muss genau
+unter dem mittleren Pfosten liegen.
+
+**Absicherung.** `scripts/pruefe-rueckseite.js` jetzt **33 Prüfungen**
+(Gegenprobe 33/33), darunter zwei, die die Feldzahl aus der Pfostenzahl
+nachrechnen statt sie im Code zu lesen. Im Browser wird die **Feldbreite
+gemessen**: Aus der Auswahlliste der Schiebeanlage („Scheiben je ca. X mm" mal
+Türzahl) ergibt sich, mit welchem Feld das Modell wirklich gebaut hat — vorne
+2336 mm, hinten 4780 mm (`pruefe-konfigurator-oberflaeche.mjs`, jetzt 70
+Prüfungen). `pruefe-fuehrung.js` (304) und `pruefe-masstabelle.js` (362)
+mussten auf den neuen Aufruf nachgezogen werden; beide Gegenproben vollständig.

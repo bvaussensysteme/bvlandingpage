@@ -307,6 +307,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten, nicht an denen der Vorderseite | **noch nicht veröffentlicht** |
 | 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | **noch nicht veröffentlicht** |
 | 23.10.2026 | Sonderform: vier freie Maße statt zehn Katalogformen; Browser-Prüfung nach zwölf Tagen wieder grün | live |
 | 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |

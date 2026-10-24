@@ -304,6 +304,42 @@ pruef('Die Kurzfassung nennt die Rueckseite',
   /hinten/.test(await page.locator('#k3dSumSeiten').innerText()),
   await page.locator('#k3dSumSeiten').innerText());
 
+/* ---------- Hinten wird nicht an den Pfosten der Vorderseite geteilt ----
+   „wenn ich hinten plankenwand oder was anderes hinzufüge sind da so 2
+   lücken dazwischen aber da sind bei der freistehenden version keine
+   pfosten, da statikträger" (Betreiber, 24.10.2026, mit Bild). Hinten
+   traegt der Statiktraeger bis 7 m, dort stehen nur zwei Pfosten.
+   Gemessen wird an der Feldaufteilung, die das Bedienfeld meldet – das
+   ist dieselbe Zahl, die auch in die Anfrage geht. */
+await page.fill('#k3dBreiteZahl', '5000');
+await page.locator('#k3dBreiteZahl').blur();
+await page.waitForTimeout(900);
+await page.click('[data-k3d-erw="vorne"] button[data-erw="Schiebetür"]');
+await page.click('[data-k3d-erw="hinten"] button[data-erw="Plankenwand"]');   // wieder abwaehlen
+await page.click('[data-k3d-erw="hinten"] button[data-erw="Schiebetür"]');
+await page.waitForTimeout(1200);
+/* Gemessen wird die FELDBREITE je Seite. Die Auswahlliste der
+   Schiebeanlage nennt je Bauart „Scheiben je ca. X mm"; mal der
+   Tuerzahl ergibt das die Breite des Feldes, mit dem das Modell
+   wirklich gebaut hat. Bei 5000 mm Breite stehen vorne drei Pfosten
+   (zwei Felder zu je rund 2335 mm), hinten zwei (ein Feld von rund
+   4780 mm). */
+async function feldBreite(id) {
+  const texte = await page.locator('#' + id + ' option').allInnerTexts();
+  for (const t of texte) {
+    const m = t.match(/(\d+)-türig.*?ca\. (\d+) mm/);
+    if (m) return Number(m[1]) * Number(m[2]);
+  }
+  return 0;
+}
+const feldV = await feldBreite('k3dSg23Vorne');
+const feldH = await feldBreite('k3dSg23Hinten');
+pruef('Vorne wird an den Pfosten geteilt',
+  feldV > 2000 && feldV < 2800, 'Feld vorne rund ' + feldV + ' mm (drei Pfosten)');
+pruef('Hinten laeuft die Seite in einem Stueck durch',
+  feldH > 4400 && feldH > feldV * 1.8,
+  'Feld hinten rund ' + feldH + ' mm (zwei Pfosten, Statiktraeger traegt durch)');
+
 /* Zurueck an die Hauswand: Die Wahl muss weg sein, nicht nur unsichtbar.
    Bliebe sie im Zustand stehen, ginge sie spaeter in die Anfrage. */
 await page.click('[data-k3d-seg="k3dAufbau"] button[data-wert="Wandmontage"]');

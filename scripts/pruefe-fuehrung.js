@@ -2626,9 +2626,16 @@ pruefe('RAL-Feld ist breit genug',
          randH.length + ' bzw. ' + randV.length + ' Feld statt eines 6,5-cm-Restes');
 
   // Die Teilung muss am Aufrufer wirklich ankommen
+  /* Seit dem 24.10.2026 folgt dem Unterzug noch ein Argument: die Achsen
+     der HINTEREN Pfosten, weil sich die Rueckseite an ihnen teilt und
+     nicht an denen der Vorderseite. Geprueft wird weiter dasselbe – dass
+     die Lage des Unterzugs beim Seitenbau ankommt. */
   pruefe('Der Bauaufruf gibt die Lage des Unterzugs weiter',
-         new RegExp(q || "xPfVorne,[\\s\\S]{0,200}unterzugZcm\\(sky\\)\\);").test(js),
-         'seitenErweiterungen(…, unterzugZcm(sky))');
+         new RegExp(q || "xPfVorne,[\\s\\S]{0,200}unterzugZcm\\(sky\\),").test(js),
+         'seitenErweiterungen(…, unterzugZcm(sky), …)');
+  pruefe('Und die Achsen der hinteren Pfosten',
+         new RegExp(q || "frei \\? xPfHinten : null\\);").test(js),
+         'sonst teilt sich die Rueckseite falsch');
   pruefe('Beide Längsseiten kommen aus derselben Aufteilung',
          new RegExp(q || "seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\)\\.forEach").test(js),
          'links und rechts im selben Durchlauf');

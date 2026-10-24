@@ -298,8 +298,14 @@ pruefe('Hintere Reihe immer nach der 7-m-Regel',
        new RegExp(q || 'pfHinten = pfostenUnterTraeger\\(Z\\.breite\\)').test(k3d), '');
 pruefe('Keine gemeinsame Pfostenzahl mehr',
        gegen ? /hatTraeger/.test(k3d) : !/hatTraeger/.test(k3d), 'hatTraeger entfernt');
+/* Die Achsen werden seit dem 24.10.2026 einmal gerechnet (xPfHinten) und
+   zweimal gebraucht: fuer die Pfosten und fuer die Felder der
+   Rueckseite. Gezeichnet wird die Reihe weiterhin nur freistehend. */
 pruefe('Hintere Reihe nur freistehend gezeichnet',
-       new RegExp(q || 'if \\(frei\\) \\{\\s*verteilen\\(pfHinten').test(k3d), '');
+       new RegExp(q || 'if \\(frei\\) \\{\\s*xPfHinten\\.forEach').test(k3d), '');
+pruefe('Die hinteren Achsen kommen aus der hinteren Pfostenzahl',
+       new RegExp(q || 'var xPfHinten = verteilen\\(pfHinten, B, PF / 2\\);').test(k3d),
+       'nicht aus pfVorne');
 
 /* Zweiter Weg: die Entscheidung aus dem Code herausloesen und mit
    eigenen Zahlen rechnen, statt den Text nur zu lesen. */
