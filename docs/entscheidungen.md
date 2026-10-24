@@ -9018,3 +9018,50 @@ die beiden liegenden Linien bei Wand- wie bei freistehender Montage wirklich
 neben dem Belag. `pruefe-fuehrung.js` (309) hält die neuen Logo-Werte und den
 Kontrastrand fest. `pruefe-bodengefaelle.js` (37) prüft die sechs Materialien
 der Platte.
+
+## 24.10.2026 — Der Boden kippt, nicht die Platte
+
+**Was falsch war.** Beim Bodengefälle kippte nur der Belag, die Wiese blieb
+waagerecht. Erster Versuch: „wenn man boden gefälle einträgt verschwindet es
+unter der wiese" (Betreiber, mit Bild). Zweiter Versuch: Die Platte wurde so
+dick gemacht wie ihr eigener Höhenunterschied und die Wiese unter ihren
+tiefsten Punkt gelegt – bei 6° auf 7 m Tiefe ein **70 cm hoher Klotz**.
+Genau den hat der Betreiber zweimal gemeldet, beide Male ohne zu wissen, dass
+es dieselbe Sache ist:
+
+- „Wenn man ein gefälle des terassenbodens auswählt verschwindet das
+  pflasterdesign" – das Pflasterfoto war über die hohe Flanke gestreckt und
+  sah dort aus wie eine glatte Fläche.
+- „die linke maßanzeige hat nen bug und ist ein fetter balken" (mit Bild) –
+  nachdem die Flanke eine eigene graue Kante bekommen hatte, stand der Klotz
+  als dunkler Balken vor der Maßlinie.
+
+**Was jetzt gilt.** Ein Grundstück mit Gefälle ist kein waagerechter Rasen mit
+einem Keil darauf, sondern schräger Boden. Die **Wiese kippt mit demselben
+Winkel wie der Belag**, und der Belag bleibt bei jedem Gefälle 2 cm dünn –
+genau wie auf ebenem Grund. Damit sind Klotz, gestreckte Flanke und die Lücke
+zwischen Platte und Rasen zugleich weg.
+
+**Warum über die Flächennormale gedreht wird.** Zwei nacheinander ausgeführte
+Drehungen (erst nach vorne, dann zur Seite) ergeben **nicht** dieselbe Fläche
+wie `bodenY`, mit der die Pfostenlängen gerechnet werden: bei 10° in beide
+Richtungen liegen an den Plattenecken über **11 cm** dazwischen – die Pfosten
+stünden sichtbar neben dem Boden. Gedreht wird deshalb aus der Normalen der
+Ebene `y = tan(quer)·x − tan(vorne)·z`, also `(−tan(quer), 1, tan(vorne))`,
+über `setFromUnitVectors`. Das trifft genau die Ebene, mit der gerechnet wird.
+Belag, Wiese und Wasserzeichen benutzen alle dieselbe Drehung.
+
+**Verworfen:** die dicke Platte (sieht aus wie eine Betonstufe), und die Wiese
+unter dem tiefsten Punkt (erzeugt die Flanke überhaupt erst).
+
+**Gegenlesen bitte:** Terrassendach TDS mit 6° nach vorne – liegt das Pflaster
+sichtbar gemustert da und ist der dunkle Balken weg? Dasselbe mit zusätzlich
+3° zur Seite und einmal mit 10°. Danach auf Flachdach-Carport umschalten:
+Wiese wieder waagerecht?
+
+**Geprüft:** `node scripts/pruefe-bodengefaelle.js` (38 Prüfungen, Gegenprobe
+schlägt bei 38 von 38 an). Zwei davon messen nach, statt den Code zu lesen:
+three.js lädt, Wiese und Platte werden wie im Bauweg aufgestellt, und an den
+vier Plattenecken und der Mitte wird die Höhe **senkrecht** verglichen –
+Abweichung Wiese 0,000 cm, Platte 0,031 cm (halbe Plattendicke durch die
+Neigung). Dazu alle übrigen `scripts/pruefe-*` und die 90 Browser-Prüfungen.

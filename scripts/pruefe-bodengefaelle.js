@@ -214,63 +214,118 @@ pruefe('Die Platte hat oben das Muster und an den Seiten eine Kante',
        'sechs Materialien, Muster nur oben');
 
 pruefe('Der Belag kippt im Terrassenweg mit',
-       gegen ? !/belag\.rotation\.set\(gt, 0, gq\);/.test(k3d)
-             : /belag\.rotation\.set\(gt, 0, gq\);/.test(k3d),
+       gegen ? !/belag\.quaternion\.copy\(bodenDrehung\(gt, gq\)\);/.test(k3d)
+             : /belag\.quaternion\.copy\(bodenDrehung\(gt, gq\)\);/.test(k3d),
        'sonst stünde die Anlage sichtbar in der Luft');
 /* ---------- „verschwindet es unter der wiese" ----------
-   Der erste Anlauf kippte den Belag, ließ ihn aber 2 cm dünn und die
-   Wiese waagerecht auf −0,6. Die tiefere Hälfte lag damit unter dem
-   Rasen, die höhere schwebte darüber: „wenn man boden gefälle einträgt
-   verschwindet es unter der wiese" (Betreiber, 24.10.2026, mit Bild).
+   Drei Anläufe, zwei davon falsch – deshalb steht hier, was jeweils im
+   Bild zu sehen war:
 
-   Zwei Bedingungen halten das jetzt zusammen, und beide werden
-   nachgerechnet statt nur gelesen. */
-pruefe('Der Belag ist so dick wie sein eigener Höhenunterschied',
-       gegen ? !/var dicke = 2 \+ abfall;/.test(k3d)
-             : /var dicke = 2 \+ abfall;/.test(k3d) &&
-               /belag\.scale\.set\(belagB, dicke \/ 2, belagL\);/.test(k3d),
-       'sonst hängt die hohe Seite in der Luft');
-pruefe('Die Wiese liegt unter dem tiefsten Punkt des Belags',
-       gegen ? !/rasen\.position\.y = -0\.6 \+ tiefste;/.test(k3d)
-             : /rasen\.position\.y = -0\.6 \+ tiefste;/.test(k3d) &&
-               /tiefste = Math\.min\(tiefste, bodenY\(e\[0\], e\[1\]\)\)/.test(k3d),
-       'an den vier Ecken gerechnet, nicht geschätzt');
+   1. Belag gekippt, 2 cm dünn, Wiese waagerecht auf −0,6: „wenn man
+      boden gefälle einträgt verschwindet es unter der wiese"
+      (Betreiber, 24.10.2026, mit Bild).
+   2. Belag so dick wie sein eigener Höhenunterschied, Wiese unter den
+      tiefsten Punkt gelegt: bei 6 Grad auf 7 m ein 70 cm hoher Klotz.
+      Erst „verschwindet das pflasterdesign" (das Pflasterfoto über die
+      Flanke gestreckt), nach der grauen Kante dann „die linke
+      maßanzeige hat nen bug und ist ein fetter balken".
+   3. Jetzt: Die WIESE kippt mit, die Platte bleibt 2 cm dünn.
+
+   Geprüft wird nicht die Schreibweise, sondern die Geometrie: Rasen
+   und Plattenoberseite werden mit three.js gebaut und ihre Höhe an
+   mehreren Stellen gemessen. */
+pruefe('Die Platte bleibt bei jedem Gefälle dünn',
+       gegen ? !/belag\.scale\.set\(belagB, 1, belagL\);/.test(k3d)
+             : /belag\.scale\.set\(belagB, 1, belagL\);/.test(k3d) &&
+               !/var dicke = 2 \+ abfall;/.test(k3d),
+       'kein Klotz vor der Maßlinie');
+pruefe('Die Wiese kippt im Terrassenweg mit',
+       gegen ? !/rasenNeigen\(gt, gq\);/.test(k3d)
+             : /rasenNeigen\(gt, gq\);/.test(k3d) &&
+               /rasen\.quaternion\.copy\(bodenDrehung\(gt, gq\)\)\.multiply\(RASEN_FLACH\);/.test(k3d),
+       'sonst liegt die tiefe Hälfte unter dem Rasen');
+
 (function () {
-  /* Nachgerechnet: Deckt die Dicke den Abfall über die Platte wirklich
-     ab, und liegt die Wiese tief genug? Zahlen wie im Bauweg. */
-  Z.bodenGefaelle = 6; Z.bodenGefaelleQuer = 2;
-  var B = 500, T = 300;
-  var belagZ = (T + 120) / 2 - 60, belagB = B + 180, belagL = T + 120;
-  var gt = Math.tan(6 * Math.PI / 180), gq = Math.tan(2 * Math.PI / 180);
-  var abfall = Math.abs(gt) * belagL + Math.abs(gq) * belagB;
-  var dicke = 2 + abfall;
-  var ecken = [[-belagB / 2, belagZ - belagL / 2], [belagB / 2, belagZ - belagL / 2],
-               [-belagB / 2, belagZ + belagL / 2], [belagB / 2, belagZ + belagL / 2]];
-  var tiefste = 0, hoechste = 0;
-  ecken.forEach(function (e) {
-    tiefste = Math.min(tiefste, bodenY(e[0], e[1]));
-    hoechste = Math.max(hoechste, bodenY(e[0], e[1]));
+  /* NACHGEMESSEN statt gelesen: three.js laden, Rasen und Platte genau
+     wie im Bauweg aufstellen und die Höhen vergleichen. */
+  var src, THREE;
+  try {
+    src = fs.readFileSync('js/vendor/three.min.js', 'utf8');
+    var mod = { exports: {} };
+    (new Function('module', 'exports', src))(mod, mod.exports);
+    THREE = mod.exports;
+  } catch (e) { THREE = null; }
+  if (!THREE || !THREE.Quaternion) {
+    pruefe('three.js für die Messung geladen', gegen, 'nicht ladbar: ' + e);
+    return;
+  }
+  var FLACH = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
+  var HOCH = new THREE.Vector3(0, 1, 0);
+  function bodenDrehung(gt, gq) {
+    var n = new THREE.Vector3(-Math.tan(gq || 0), 1, Math.tan(gt || 0)).normalize();
+    return new THREE.Quaternion().setFromUnitVectors(HOCH, n);
+  }
+  var faelle = [[0, 0], [3, 0], [6, 2], [-4, 3], [10, -10]];
+  var schlimmstRasen = 0, schlimmstPlatte = 0;
+  faelle.forEach(function (f) {
+    Z.bodenGefaelle = f[0]; Z.bodenGefaelleQuer = f[1];
+    var gt = f[0] * Math.PI / 180, gq = f[1] * Math.PI / 180;
+    var B = 500, T = 700, belagZ = (T + 120) / 2 - 60;
+    var belagB = B + 180, belagL = T + 120;
+
+    var rasen = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000),
+                               new THREE.MeshBasicMaterial());
+    rasen.quaternion.copy(bodenDrehung(gt, gq)).multiply(FLACH);
+    rasen.position.y = -0.6;
+    rasen.updateMatrixWorld(true);
+
+    var belag = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1),
+                               new THREE.MeshBasicMaterial());
+    belag.scale.set(belagB, 1, belagL);
+    belag.position.set(0, bodenY(0, belagZ) - 1, belagZ);
+    belag.quaternion.copy(bodenDrehung(gt, gq));
+    belag.updateMatrixWorld(true);
+
+    /* Hoehe einer gekippten Flaeche SENKRECHT ueber einer Stelle –
+       nicht senkrecht zur Flaeche, sonst misst man bei 10 Grad an der
+       falschen Stelle (das war beim ersten Anlauf der Messfehler). */
+    function hoeheAn(objekt, abstand, x, z, achse) {
+      /* achse: welche LOKALE Richtung die Flaechennormale ist. Beim
+         Rasen ist es +z (eine Plane liegt in ihrer xy-Ebene), bei der
+         Platte +y. */
+      var n = achse.clone().applyQuaternion(objekt.quaternion);
+      var p = objekt.position.clone().add(n.clone().multiplyScalar(abstand || 0));
+      return p.y - (n.x * (x - p.x) + n.z * (z - p.z)) / n.y;
+    }
+    /* Vier Ecken der Platte und ihre Mitte, in Weltmass. */
+    [[-belagB / 2, belagZ - belagL / 2], [belagB / 2, belagZ - belagL / 2],
+     [-belagB / 2, belagZ + belagL / 2], [belagB / 2, belagZ + belagL / 2],
+     [0, belagZ]].forEach(function (e) {
+      schlimmstRasen = Math.max(schlimmstRasen,
+        Math.abs(hoeheAn(rasen, 0, e[0], e[1], new THREE.Vector3(0, 0, 1)) -
+                 (bodenY(e[0], e[1]) - 0.6)));
+      /* Oberseite der Platte: eine halbe Dicke ueber ihrer Mitte. */
+      schlimmstPlatte = Math.max(schlimmstPlatte,
+        Math.abs(hoeheAn(belag, 1, e[0], e[1], new THREE.Vector3(0, 1, 0)) -
+                 bodenY(e[0], e[1])));
+    });
   });
-  var rasenY = -0.6 + tiefste;
-  /* Unterkante der Platte in ihrer Mitte, grob: Mitte minus halbe Dicke;
-     die gekippten Ecken liegen höchstens um den halben Abfall darüber. */
-  var unterkante = bodenY(0, belagZ) - dicke + abfall / 2;
-  var deckt = (hoechste - tiefste) <= dicke && unterkante <= rasenY;
-  if (gegen) deckt = !deckt;
-  pruefe('Bei 6° und 2° deckt die Platte den Rasen überall ab',
-         deckt,
-         'Höhenunterschied ' + (hoechste - tiefste).toFixed(1) + ' cm, Dicke ' +
-         dicke.toFixed(1) + ' cm, Rasen auf ' + rasenY.toFixed(1));
   Z.bodenGefaelle = 0; Z.bodenGefaelleQuer = 0;
+  var okR = schlimmstRasen < 0.05, okP = schlimmstPlatte < 0.05;
+  if (gegen) { okR = !okR; okP = !okP; }
+  pruefe('Die Wiese liegt überall 6 mm unter dem geplanten Boden',
+         okR, 'groesste Abweichung ' + schlimmstRasen.toFixed(3) + ' cm');
+  pruefe('Die Plattenoberseite liegt überall auf dem geplanten Boden',
+         okP, 'groesste Abweichung ' + schlimmstPlatte.toFixed(3) + ' cm');
 })();
 pruefe('Die anderen Bauwege legen Platte und Wiese zurück',
-       gegen ? (k3d.match(/rasen\.position\.y = -0\.6;       \/\/ und die Wiese/g) || []).length !== 3
-             : (k3d.match(/rasen\.position\.y = -0\.6;       \/\/ und die Wiese/g) || []).length === 3 &&
+       gegen ? (k3d.match(/rasenNeigen\(0, 0\);             \/\/ und die Wiese/g) || []).length !== 3
+             : (k3d.match(/rasenNeigen\(0, 0\);             \/\/ und die Wiese/g) || []).length === 3 &&
                (k3d.match(/belag\.scale\.y = 1;/g) || []).length === 3,
-       'sonst bliebe die Wiese nach einem Produktwechsel versenkt');
+       'sonst bliebe die Wiese nach einem Produktwechsel gekippt');
 pruefe('Das Wasserzeichen liegt auf dem Belag und kippt mit',
-       gegen ? !/wasserzeichen\.rotation\.set\(-Math\.PI \/ 2 \+/.test(k3d)
-             : /wasserzeichen\.rotation\.set\(-Math\.PI \/ 2 \+/.test(k3d) &&
+       gegen ? !/wasserzeichen\.quaternion\s*\n\s*\.copy\(bodenDrehung\(/.test(k3d)
+             : /wasserzeichen\.quaternion\s*\n\s*\.copy\(bodenDrehung\(/.test(k3d) &&
                /0\.4 \+ bodenY\(0, wzZ\)/.test(k3d),
        'sonst steckt das Logo im Boden oder schwebt');
 

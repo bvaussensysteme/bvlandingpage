@@ -1282,10 +1282,46 @@
     new THREE.PlaneGeometry(4000, 4000),
     new THREE.MeshStandardMaterial({ color: rgb(0x6d7a5c), roughness: 1 })
   );
-  rasen.rotation.x = -Math.PI / 2;
-  rasen.position.y = -0.6;
   rasen.receiveShadow = true;
   szene.add(rasen);
+
+  /* ---------- Die Wiese ist der Boden, nicht eine Scheibe darunter ----------
+     Beim ersten Anlauf blieb die Wiese waagerecht und der Belag wurde
+     stattdessen so dick wie sein eigener Hoehenunterschied – bei 6 Grad
+     auf 7 m Tiefe ein 70 cm hoher Klotz. Der Betreiber hat genau das
+     gesehen: erst „Wenn man ein gefälle des terassenbodens auswählt
+     verschwindet das pflasterdesign" (24.10.2026 – das Pflasterfoto war
+     ueber die hohe Flanke gestreckt), dann, nachdem die Flanke eine
+     eigene graue Kante bekam, „die linke maßanzeige hat nen bug und ist
+     ein fetter balken" (24.10.2026, mit Bild) – der Klotz stand vor der
+     Massliniezeile.
+
+     Ein Grundstueck mit Gefaelle ist aber nicht eine waagerechte Wiese
+     mit einem Keil darauf, sondern schraeger Boden. Deshalb dreht sich
+     die Wiese mit demselben Winkel wie der Belag, und der Belag bleibt
+     so duenn wie ohne Gefaelle. WICHTIG: Die Drehung muss VOR dem
+     Flachlegen der Plane stehen (Quaternion mal RASEN_FLACH), sonst
+     kippt sie um die falsche Achse. */
+  var RASEN_FLACH = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(-Math.PI / 2, 0, 0));
+  var HOCH_ACHSE = new THREE.Vector3(0, 1, 0);
+
+  /* Genau die Ebene, mit der auch die Pfosten gerechnet werden.
+     Zwei nacheinander ausgefuehrte Drehungen (erst nach vorne, dann zur
+     Seite) ergeben eine ANDERE Flaeche als bodenY – bei 10 Grad in
+     beide Richtungen liegen zwischen beiden ueber 10 cm, die Pfosten
+     stuenden sichtbar daneben. Deshalb wird aus der Flaechennormalen
+     gedreht: Die Normale der Ebene y = tan(gq)*x - tan(gt)*z ist
+     (-tan(gq), 1, tan(gt)), und setFromUnitVectors trifft sie exakt. */
+  function bodenDrehung(gt, gq) {
+    var n = new THREE.Vector3(-Math.tan(gq || 0), 1, Math.tan(gt || 0)).normalize();
+    return new THREE.Quaternion().setFromUnitVectors(HOCH_ACHSE, n);
+  }
+  function rasenNeigen(gt, gq) {
+    rasen.quaternion.copy(bodenDrehung(gt, gq)).multiply(RASEN_FLACH);
+    rasen.position.y = -0.6;
+  }
+  rasenNeigen(0, 0);
 
   /* ---------- Oben das Muster, an den Seiten eine ruhige Kante ----------
      Mit Bodengefaelle wird die Platte so dick wie ihr eigener
@@ -1450,8 +1486,10 @@
        das Logo bei Gefaelle frei in der Luft bzw. steckte im Boden. */
     var wzZ = Z.tiefe / 10 * 0.55;
     wasserzeichen.position.set(0, 0.4 + bodenY(0, wzZ), wzZ);
-    wasserzeichen.rotation.set(-Math.PI / 2 + (Z.bodenGefaelle || 0) * Math.PI / 180,
-                               0, (Z.bodenGefaelleQuer || 0) * Math.PI / 180);
+    wasserzeichen.quaternion
+      .copy(bodenDrehung((Z.bodenGefaelle || 0) * Math.PI / 180,
+                         (Z.bodenGefaelleQuer || 0) * Math.PI / 180))
+      .multiply(RASEN_FLACH);
     var t = wasserzeichenTextur(!!Z.abend);
     if (wasserzeichen.material.map !== t) {
       wasserzeichen.material.map = t;
@@ -3352,7 +3390,7 @@
     belag.position.set(0, -1, (T + 120) / 2 - 60);
     belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
     belag.scale.y = 1;             // wieder die duenne Platte
-    rasen.position.y = -0.6;       // und die Wiese auf ihrer Hoehe
+    rasenNeigen(0, 0);             // und die Wiese wieder waagerecht
     wand.visible = !e.freistehend;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -5924,7 +5962,7 @@
     belag.position.set(0, -1, (T + 260) / 2 - 130);
     belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
     belag.scale.y = 1;             // wieder die duenne Platte
-    rasen.position.y = -0.6;       // und die Wiese auf ihrer Hoehe
+    rasenNeigen(0, 0);             // und die Wiese wieder waagerecht
     wand.visible = anWand;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -6474,34 +6512,20 @@
        Kleine Winkel, deshalb genuegt je eine Drehung: um die x-Achse
        faellt er nach vorne, um die z-Achse zur Seite.
 
-       ZWEI DINGE, die beim ersten Anlauf gefehlt haben – „wenn man boden
-       gefälle einträgt verschwindet es unter der wiese" (Betreiber,
-       24.10.2026, mit Bild): Der Belag war nur 2 cm dick und die Wiese
-       blieb waagerecht auf -0,6. Die tiefere Haelfte lag damit unter dem
-       Rasen, die hoehere schwebte darueber, und die Pfosten standen in
-       der Luft.
-
-       Jetzt ist die Platte so dick wie ihr eigener Hoehenunterschied
-       (plus 2 cm), und die Wiese liegt unter ihrem TIEFSTEN Punkt. Damit
-       ist der Belag von oben immer sichtbar und schliesst an jeder Kante
-       an den Rasen an. Ohne Gefaelle bleibt es bei 2 cm Dicke und
-       Rasen auf -0,6 – also genau wie zuvor. */
+       „wenn man boden gefälle einträgt verschwindet es unter der wiese"
+       (Betreiber, 24.10.2026, mit Bild): Der Belag kippte, die Wiese
+       blieb waagerecht – die tiefere Haelfte lag unter dem Rasen.
+       Geloest wird das nicht ueber die Plattendicke (siehe rasenNeigen),
+       sondern indem die Wiese mitkippt. Die Platte bleibt deshalb bei
+       jedem Gefaelle 2 cm duenn, genau wie ohne. */
     var belagZ = (T + 120) / 2 - 60;
     var belagB = B + 180, belagL = T + (frei ? 240 : 120);
     var gt = (Z.bodenGefaelle || 0) * Math.PI / 180;
     var gq = (Z.bodenGefaelleQuer || 0) * Math.PI / 180;
-    var abfall = Math.abs(Math.tan(gt)) * belagL + Math.abs(Math.tan(gq)) * belagB;
-    var dicke = 2 + abfall;
-    belag.scale.set(belagB, dicke / 2, belagL);
-    belag.position.set(0, bodenY(0, belagZ) - dicke / 2, belagZ);
-    belag.rotation.set(gt, 0, gq);
-    /* Die Wiese unter den tiefsten Punkt der Platte legen. Gerechnet an
-       den vier Ecken, nicht geschaetzt. */
-    var tiefste = 0;
-    [[-belagB / 2, belagZ - belagL / 2], [belagB / 2, belagZ - belagL / 2],
-     [-belagB / 2, belagZ + belagL / 2], [belagB / 2, belagZ + belagL / 2]
-    ].forEach(function (e) { tiefste = Math.min(tiefste, bodenY(e[0], e[1])); });
-    rasen.position.y = -0.6 + tiefste;
+    belag.scale.set(belagB, 1, belagL);
+    belag.position.set(0, bodenY(0, belagZ) - 1, belagZ);
+    belag.quaternion.copy(bodenDrehung(gt, gq));
+    rasenNeigen(gt, gq);      // der Boden kippt mit, nicht nur die Platte
     wand.visible = !frei;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -7402,7 +7426,7 @@
     belag.position.set(0, -1, (T + 140) / 2 - 70);
     belag.rotation.set(0, 0, 0);   // hier wird kein Bodengefaelle gerechnet
     belag.scale.y = 1;             // wieder die duenne Platte
-    rasen.position.y = -0.6;       // und die Wiese auf ihrer Hoehe
+    rasenNeigen(0, 0);             // und die Wiese wieder waagerecht
     wand.visible = !frei;
     wand.scale.set(B + 420, h + RAHMEN_H + 190, 1);
     wand.position.set(0, (h + RAHMEN_H + 190) / 2, -12);
