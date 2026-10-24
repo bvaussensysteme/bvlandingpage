@@ -161,6 +161,7 @@ pruefe('Der Keil hängt an der Längsseite, nicht am Namen der Seite',
                !/seite !== 'vorne' && neig > 0\.001/.test(k3d),
        'quer statt einer Namensabfrage');
 pruefe('Die Rückseite wird nur freistehend gebaut',
+<<<<<<< HEAD
        gegen ? !/if \(rueckseiteOffen\(\)\) \{\n      var achsenH/.test(k3d)
              : /if \(rueckseiteOffen\(\)\) \{\n      var achsenH/.test(k3d),
        'zweiter Riegel neben dem Aufräumen');
@@ -208,6 +209,14 @@ pruefe('Die hinteren Pfostenachsen werden übergeben',
 pruefe('Hinten liegt in derselben Ebene wie das Ende der Längsseiten',
        gegen ? !/eineSeite\('hinten', hinten, hMitte, hLaenge/.test(k3d)
              : /eineSeite\('hinten', hinten, hMitte, hLaenge/.test(k3d),
+=======
+       gegen ? !/if \(rueckseiteOffen\(\)\) \{\n        eineSeite\('hinten'/.test(k3d)
+             : /if \(rueckseiteOffen\(\)\) \{\n        eineSeite\('hinten'/.test(k3d),
+       'zweiter Riegel neben dem Aufräumen');
+pruefe('Hinten liegt in derselben Ebene wie das Ende der Längsseiten',
+       gegen ? !/eineSeite\('hinten', hinten, feldMitte, feldLaenge/.test(k3d)
+             : /eineSeite\('hinten', hinten, feldMitte, feldLaenge/.test(k3d),
+>>>>>>> origin/main
        'z = 0, sonst klafft die Ecke');
 
 /* ---------- Bedienung ---------- */

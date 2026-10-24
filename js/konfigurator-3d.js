@@ -4969,6 +4969,23 @@
          falsch war. */
       eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
                 feldMitte > 0 ? -1 : 1, f);
+      /* ---------- Rueckseite: dieselben Faecher wie vorne ----------
+         „Bei freistehen muss plankenwand, rahmen etc. also alle moeglichen
+         auch hinten moeglich sein" (Betreiber, 23.10.2026).
+
+         z = 0 ist dieselbe Ebene, an der die Laengsseiten hinten enden
+         (siehe oben) – so treffen sich die Elemente in der Ecke ohne
+         Versatz. Die Faecher sind dieselben wie vorne, weil hinten
+         dieselben Pfosten stehen; nur die Hoehe ist eine andere, darum
+         kuemmert sich eineSeite().
+
+         Bei Wandmontage wird hier nichts gebaut: Dort ist die Rueckseite
+         das Haus. erwAufraeumen() leert die Auswahl dann ohnehin – die
+         Abfrage hier ist der zweite Riegel. */
+      if (rueckseiteOffen()) {
+        eineSeite('hinten', hinten, feldMitte, feldLaenge, false,
+                  feldMitte > 0 ? -1 : 1, f);
+      }
     }
 
     /* ---------- Rueckseite: EIGENE Faecher ----------
