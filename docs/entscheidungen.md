@@ -8855,3 +8855,56 @@ schließt die anderen, und das Bedienfeld bleibt unter 2 000 px — die Zahl aus
 der Messung oben, nicht geschätzt. `scripts/pruefe-bodengefaelle.js` (36) prüft
 jetzt die **Nachbarschaft**: Das Gefälle muss unmittelbar auf die Dachneigung
 folgen, nicht nur im selben Schritt stehen.
+
+---
+
+## 24.10.2026 — Reihenfolge im Bedienfeld: von oben nach unten durchplanen
+
+**Anlass.** „erst sucht man Höhe vorne, Höhe hinten aus mit Gradanzahl, dann
+Statikträger, dann kommt Dachvorsprung hinten, dazwischen kommt Glasstoß und
+dann kommt erst Dachvorsprung vorne. Das ist unlogisch … es muss schon in der
+logischsten Reihenfolge nacheinander, dass man wirklich von oben nach unten
+alles nacheinander sauber, ordentlich durchgeht, in der richtigen Reihenfolge
+und dann hat man ein Dach geplant" (Betreiber).
+
+**Was falsch war.** Die Felder standen in der Reihenfolge, in der sie über die
+Wochen dazugekommen sind — nicht in der, in der man ein Dach plant. Im Schritt
+„Maße" wechselten sich Statik und Dachüberstand ab:
+
+| vorher | jetzt |
+|---|---|
+| Statikträger | Dachvorsprung vorne |
+| Dachvorsprung **hinten** | Dachvorsprung **hinten** |
+| Unterzug | Dachüberstand vorne (Carport) |
+| Glasstoß | Statikträger |
+| Dachvorsprung **vorne** | Unterzug |
+| Dachüberstand vorne | Glasstoß |
+
+**Die Ordnung, nach der jetzt sortiert ist.** *Maße:* erst die Form, dann die
+Maße, dann die Neigungen (Dach und Boden gehören zusammen), dann was über die
+Pfosten hinausragt, zum Schluss die Statik — die ergibt sich aus allem davor.
+*Seiten:* erst die vier Seiten, dann je Bauteil die Feinheiten — Schiebetür,
+Rahmenwand, Velaris, Planken, Verkleidung. Vorher lagen die Schiebetür-Details
+über vier Stellen verstreut, zwischen Planken und Verkleidung.
+
+**Ein Fehler beim Umbau, der fast durchgerutscht wäre.** Mein erster Versuch
+sortierte über Positionsnummern. Der Blockleser übersah dabei eine tiefer
+eingerückte Gruppe (die RAL-Zelle), wodurch die Nummern um eins verrutschten —
+und der ersetzte Bereich verschluckte den gesamten Abschnitt **„Sonnenschutz"**.
+Aufgefallen ist es nicht beim Lesen des Diffs, sondern weil die Browser-Prüfung
+`#k3dSumSonne` nicht mehr fand. Danach: zurückgesetzt, neu sortiert über
+**eindeutige Feld-Kennungen** statt Positionsnummern, mit einem Riegel davor —
+zwischen zwei Gruppen darf nur Leerraum stehen, sonst bricht der Umbau ab.
+
+**Was gegengelesen werden soll.** Pro einschalten, „Maße & Neigungen"
+aufklappen und von oben nach unten lesen: Breite → Tiefe → Höhe vorne → Höhe
+hinten/Neigung → Bodengefälle → Dachvorsprung vorne → hinten → Statikträger →
+Unterzug → Glasstoß. Stimmt das mit Ihrer Reihenfolge beim Planen überein?
+Dasselbe im Abschnitt „Seiten".
+
+**Absicherung.** `scripts/pruefe-fuehrung.js` jetzt **308 Prüfungen**: Die
+Reihenfolge beider Schritte steht dort als Liste und wird Stelle für Stelle
+verglichen. Sie steht bewusst im Prüfskript und nicht nur im HTML — dort ist
+sie bloß die Reihenfolge der Blöcke und verrutscht beim nächsten Einfügen
+unbemerkt. Wer eine Bedieneinheit dazubaut, trägt sie in die Liste ein und
+sieht dabei, wohin sie gehört.

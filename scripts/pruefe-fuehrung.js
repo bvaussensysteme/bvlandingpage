@@ -93,6 +93,74 @@ pruefe('Höhe an der Wand steht in der Anfrage',
 pruefe('Neigung steht direkt unter der Durchgangshöhe',
        new RegExp(q || 'data-k3d-schritt="masse"[^>]*data-k3d-fuer="neigung"').test(html), '');
 
+/* ---------- Die Reihenfolge im Bedienfeld ----------
+   „erst sucht man Höhe vorne, Höhe hinten aus mit Gradanzahl, dann
+   Statikträger, dann kommt Dachvorsprung hinten, dazwischen kommt
+   Glasstoß und dann kommt erst Dachvorsprung vorne. Das ist unlogisch
+   … es muss schon in der logischsten Reihenfolge nacheinander, dass man
+   wirklich von oben nach unten alles nacheinander sauber, ordentlich
+   durchgeht" (Betreiber, 24.10.2026).
+
+   Die Reihenfolge steht hier als Liste, weil sie sonst nirgends steht:
+   Im HTML ist sie nur die Reihenfolge der Bloecke und verrutscht beim
+   naechsten Einfuegen unbemerkt. Wer eine Einheit dazubaut, traegt sie
+   hier ein – und sieht dabei, wohin sie gehoert.
+
+   Maße: erst die Form, dann die Maße, dann die Neigungen (Dach und
+   Boden gehoeren zusammen), dann was ueber die Pfosten hinausragt, zum
+   Schluss die Statik, die sich aus alledem ergibt.
+
+   Seiten: erst die vier Seiten, dann je Bauteil die Feinheiten –
+   Schiebetuer, Rahmenwand, Velaris, Planken, Verkleidung. */
+(function () {
+  function reihenfolge(schritt) {
+    var aus = [], re = /<div class="k3d-gruppe[^>]*?>/g, m;
+    while ((m = re.exec(html))) {
+      if (m[0].indexOf('data-k3d-schritt="' + schritt + '"') === -1) continue;
+      var f = m[0].match(/data-k3d-fuer="([^"]*)"/);
+      var koerper = html.slice(m.index, m.index + 700);
+      var l = koerper.match(/(?:class="k3d-label"[^>]*>|<label[^>]*>)\s*([^<]{2,60})/);
+      aus.push({ fuer: f ? f[1] : '-', lab: l ? l[1].trim() : '' });
+    }
+    return aus;
+  }
+  function pruefeFolge(schritt, soll, titel) {
+    var ist = reihenfolge(schritt);
+    var schief = -1;
+    for (var i = 0; i < soll.length; i++) {
+      if (!ist[i] || ist[i].fuer !== soll[i][0] ||
+          (soll[i][1] && ist[i].lab.indexOf(soll[i][1]) === -1)) { schief = i; break; }
+    }
+    if (schief === -1 && ist.length !== soll.length) schief = soll.length;
+    var ok = gegen ? schief !== -1 : schief === -1;
+    pruefe(titel, ok,
+           schief === -1 ? ist.length + ' Einheiten in der festgelegten Reihenfolge'
+             : 'Stelle ' + (schief + 1) + ': erwartet ' + soll[schief] +
+               ', gefunden ' + (ist[schief] ? ist[schief].fuer + ' / ' + ist[schief].lab : '(nichts)'));
+  }
+  pruefeFolge('masse', [
+    ['form-wahl', ''], ['sonderform', ''], ['sonderform', 'Breite hinten'],
+    ['sonderform', 'Breite vorne'], ['sonderform', 'Tiefe links'],
+    ['sonderform', 'Tiefe rechts'], ['sonderform', ''],
+    ['mass-normal', 'Breite'], ['mass-normal', 'Tiefe'],
+    ['-', 'Höhe vorne'], ['hoehe-hinten', ''], ['neigung', 'Dachneigung'],
+    ['bodengefaelle', 'Gefälle'],
+    ['vorsprung', 'Dachvorsprung vorne'], ['vorsprung-hinten', 'Dachvorsprung hinten'],
+    ['cp-ueberstand', 'Dachüberstand'],
+    ['traeger-wunsch', ''], ['unterzug', 'Unterzug'], ['kopplung', 'Glasstoß']
+  ], 'Maße: Form, Maße, Neigungen, Überstände, Statik');
+  pruefeFolge('seiten', [
+    ['pergola', 'Seitenschutz'], ['seiten', ''], ['seiten', 'Links'],
+    ['seiten', 'Rechts'], ['seiten', 'Vorne'], ['erw-hinten', 'Hinten'],
+    ['schiebe-links', ''], ['schiebe-rechts', ''], ['schiebe-vorne', ''],
+    ['schiebe-hinten', ''], ['schiebe', 'Glas der Schiebe'],
+    ['schiebe', 'Abschließbar'], ['schiebe', ''], ['schiebe', 'Schiebetür geöffnet'],
+    ['rahmenwand', ''], ['keil-glas', ''], ['velaris', ''],
+    ['planken', 'Oberfläche'], ['planken', 'Luft'],
+    ['verkleidung', ''], ['verk-richtung', '']
+  ], 'Seiten: erst die vier Seiten, dann je Bauteil die Feinheiten');
+})();
+
 /* ---------- Hinweis auf den Testbetrieb ---------- */
 pruefe('Testhinweis ist vorhanden',
        /id="k3dTestHinweis"/.test(html) && new RegExp(q || 'k3dTestHinweis').test(js), '');
