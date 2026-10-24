@@ -87,8 +87,11 @@ pruefe('Gradfeld ist an den Regler gekoppelt',
        new RegExp(q || "\\['k3dNeigung', 'k3dNeigungZahl'\\]").test(js), '');
 pruefe('Höhe an der Wand steht in der Anfrage',
        new RegExp(q || 'UK Wandprofil').test(js), 'textAktualisieren()');
+/* Seit dem 24.10.2026 steht zwischen den beiden Attributen noch
+   data-k3d-pro – die Neigung gehoert zu Pro. Geprueft wird weiter
+   dasselbe: Sie steht im Schritt „Maße". */
 pruefe('Neigung steht direkt unter der Durchgangshöhe',
-       new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="neigung"').test(html), '');
+       new RegExp(q || 'data-k3d-schritt="masse"[^>]*data-k3d-fuer="neigung"').test(html), '');
 
 /* ---------- Hinweis auf den Testbetrieb ---------- */
 pruefe('Testhinweis ist vorhanden',
@@ -1893,9 +1896,22 @@ pruefe('Beschriftung wie im Bestellformular',
        new RegExp(q || 'Unterkante Rinne').test(html) &&
        new RegExp(q || 'Unterkante Wandprofil').test(html) &&
        new RegExp(q || 'Mindestgefälle 2–3°').test(html), '');
-pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
-       new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="hoehe-hinten"').test(html) &&
-       !/data-k3d-mehr data-k3d-fuer="hoehe-hinten"/.test(html), '');
+/* Weg 1 (Grad) und Weg 2 (Unterkanten) sind gleichwertige Arten, dasselbe
+   anzugeben – sie duerfen nie auf zwei Ebenen landen. Frueher hiess das:
+   Weg 2 nicht unter „Mehr Einstellungen". Seit Basic/Pro (24.10.2026)
+   heisst es zusaetzlich: beide tragen data-k3d-pro oder keiner. Sonst
+   stuende in Basic die hintere Hoehe ohne die Neigung daneben. */
+(function () {
+  var wege = (html.match(/<div class="k3d-gruppe[^>]*data-k3d-fuer="(neigung|hoehe-hinten)"[^>]*>/g) || []);
+  var proNeig = wege.some(function (t) { return /"neigung"/.test(t) && /data-k3d-pro/.test(t); });
+  var proHint = wege.some(function (t) { return /"hoehe-hinten"/.test(t) && /data-k3d-pro/.test(t); });
+  pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
+         wege.length === 2 &&
+         new RegExp(q || 'data-k3d-schritt="masse"[^>]*data-k3d-fuer="hoehe-hinten"').test(html) &&
+         !/data-k3d-mehr[^>]*data-k3d-fuer="hoehe-hinten"/.test(html) &&
+         proNeig === proHint,
+         'beide auf derselben Ebene (Pro: ' + proNeig + '/' + proHint + ')');
+})();
 (function () {
   /* Zweiter Weg: die beiden Rechnungen gegeneinander laufen lassen. Aus
      Grad die Unterkante des Wandprofils, daraus zurueck die Grad - es

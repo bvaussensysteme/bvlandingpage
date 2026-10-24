@@ -261,6 +261,8 @@
        Bedienelemente selbst bleiben dieselben – es wird nur gesteuert,
        welche gerade sichtbar sind. Deshalb geht hier nichts verloren,
        wenn jemand auf „Alles auf einen Blick" umschaltet. */
+    .k3d-stufe { padding: 12px 13px 0; }
+    .k3d-stufe .k3d-label { margin-bottom: 6px; }
     .k3d-fuehrung, .k3d-nav { display: none; }
     .k3d-gefuehrt .k3d-fuehrung { display: block; margin-bottom: 16px; }
     .k3d-fuehrung-kopf { display: flex; justify-content: space-between;
@@ -663,6 +665,30 @@
 
     <div class="k3d-sl-rollen">
 
+      <!-- ---------- Basic / Pro ----------
+           „Der 3D Konfigurator wird mit den ganzen einstellungen immer
+           unübersichtlicher und schwieriger, mach eine Basic version für
+           leihen und dann wenn man auf pro umschaltet wirklich alle
+           einstellungen vorhanden" (Betreiber, 24.10.2026).
+
+           Der Umschalter steht bewusst NICHT in der geführten Kopfzeile:
+           Die ist im Modus „Alles auf einen Blick" ausgeblendet
+           (.k3d-fuehrung { display: none }), der Umschalter wäre dort
+           also genau dann weg, wenn man am meisten sieht.
+
+           Welche Einheit zu Pro gehört, steht an ihr selbst
+           (data-k3d-pro) – nicht in einer Liste im Code, die auseinander
+           läuft, sobald jemand eine Einheit verschiebt. -->
+      <div class="k3d-stufe">
+        <span class="k3d-label" id="k3dStufeLabel">Einstellungen</span>
+        <input type="hidden" id="k3dStufe" value="Basic">
+        <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dStufe" role="group"
+             aria-labelledby="k3dStufeLabel">
+          <button type="button" data-wert="Basic">Basic<small>das Wichtigste</small></button>
+          <button type="button" data-wert="Pro">Pro<small>alle Einstellungen</small></button>
+        </div>
+      </div>
+
       <!-- ---------- Geführte Reihenfolge ----------
            Eine Frage nach der anderen, wie im Anfrage-Assistenten. Wer
            lieber alles gleichzeitig sieht, schaltet oben rechts um. -->
@@ -756,7 +782,7 @@
              der Konfigurator das umschliessende Rechteck; damit laufen
              Masstabelle, Stueckzahl und 3D-Bild unveraendert weiter.
              ============================================================ -->
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="form-wahl" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="form-wahl" hidden>
           <span class="k3d-label" id="k3dFormLabel">Form der Anlage</span>
           <input type="hidden" id="k3dForm" value="Normal">
           <div class="k3d-seg" data-k3d-seg="k3dForm" role="group" aria-labelledby="k3dFormLabel">
@@ -767,7 +793,7 @@
             Grundrisse des Herstellers – L-Form, zwei Felder, Aussparung, Trapez.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
           <!-- Der Grundriss wird aus den eingegebenen Massen gezeichnet
                (sonderformSkizze in js/konfigurator-3d.js), nicht als Bild
                hinterlegt: Er zeigt die eigene Anlage und aendert sich
@@ -776,31 +802,31 @@
           <p class="k3d-mini" id="k3dSonderformHinweis"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
           <label class="k3d-label" for="k3dSfBreite1">Breite hinten <small>an der Wand</small> <output id="k3dSfBreite1Wert">5000 mm</output></label>
           <input type="number" id="k3dSfBreite1" class="k3d-zahl" inputmode="numeric"
                  min="500" max="14080" step="10" value="5000" aria-label="Breite hinten in Millimeter">
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
           <label class="k3d-label" for="k3dSfBreite2">Breite vorne <small>an der Rinne</small> <output id="k3dSfBreite2Wert">5000 mm</output></label>
           <input type="number" id="k3dSfBreite2" class="k3d-zahl" inputmode="numeric"
                  min="500" max="14080" step="10" value="5000" aria-label="Breite vorne in Millimeter">
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
           <label class="k3d-label" for="k3dSfTiefe1">Tiefe links <small>von der Wand nach vorne</small> <output id="k3dSfTiefe1Wert">3500 mm</output></label>
           <input type="number" id="k3dSfTiefe1" class="k3d-zahl" inputmode="numeric"
                  min="500" max="14080" step="10" value="3500" aria-label="Tiefe links in Millimeter">
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
           <label class="k3d-label" for="k3dSfTiefe2">Tiefe rechts <small>von der Wand nach vorne</small> <output id="k3dSfTiefe2Wert">3500 mm</output></label>
           <input type="number" id="k3dSfTiefe2" class="k3d-zahl" inputmode="numeric"
                  min="500" max="14080" step="10" value="3500" aria-label="Tiefe rechts in Millimeter">
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="sonderform" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
           <p class="k3d-mass-hinweis" id="k3dSonderformRechteck"></p>
         </div>
 
@@ -842,7 +868,7 @@
              beide Maße hängen zusammen, und erst aus beiden ergibt sich
              die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
              hinten unter „Mehr Einstellungen". -->
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="hoehe-hinten" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="hoehe-hinten" hidden>
           <!-- Dieselbe Frage wie im Bestellformular des Herstellers:
                „Möchten Sie die Dachneigung oder die Unterkante Rinne und
                die Unterkante Wandprofil angeben?" -->
@@ -864,7 +890,7 @@
             darüber läge, wird gekappt.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="neigung">
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="neigung">
           <span class="k3d-label" id="k3dNeigungLabel">Dachneigung</span>
           <!-- Links einstellen, rechts ablesen: Grad ist die Eingabe,
                Prozent die Übersetzung in die Sprache der Anleitung
@@ -974,7 +1000,7 @@
             für Graphit liegt uns noch keine Angabe vor.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="glasstaerke">
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-pro data-k3d-fuer="glasstaerke">
           <span class="k3d-label" id="k3dGlasstaerkeLabel">Glasstärke</span>
           <input type="hidden" id="k3dGlasstaerke" value="8">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dGlasstaerke" role="group" aria-labelledby="k3dGlasstaerkeLabel">
@@ -1164,7 +1190,7 @@
             können Sie eine der acht Varianten des Herstellers vorgeben.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="velaris" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="velaris" hidden>
           <label class="k3d-label" for="k3dVelarisWinkelOben">Obere Hälfte <output id="k3dVelarisWinkelObenWert">45° offen</output></label>
           <input type="range" id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
           <div class="k3d-seg k3d-seg--2">
@@ -1243,7 +1269,7 @@
              glas bei den keilen auch" (Betreiber, 11.10.2026). Eigene
              Wahl, nicht an die Schiebeelemente gekoppelt: oben geht es um
              Einblick von der Seite, unten oft um freie Sicht. -->
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="keil-glas" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="keil-glas" hidden>
           <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
           <select id="k3dKeilGlas" class="k3d-select">
             <option value="ESG klar">klar – freie Sicht</option>
@@ -1344,7 +1370,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="verk-richtung" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="verk-richtung" hidden>
           <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
           <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
@@ -1375,7 +1401,7 @@
             bei den Erweiterungen.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-segel" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-segel" hidden>
           <label class="k3d-label" for="k3dSegelStoff">Stofffarbe Sonnensegel</label>
           <select id="k3dSegelStoff" class="k3d-select">
             <option value="Platin">Platin</option>
@@ -1397,7 +1423,7 @@
           <p class="k3d-mini" id="k3dSegelStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-plissee" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-plissee" hidden>
           <label class="k3d-label" for="k3dPlisseeStoff">Stofffarbe Plissee</label>
           <select id="k3dPlisseeStoff" class="k3d-select">
             <option value="Weiss">Weiß</option>
@@ -1425,7 +1451,7 @@
           <p class="k3d-mini" id="k3dPlisseeStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-dach" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-dach" hidden>
           <span class="k3d-label" id="k3dStoffLabel">Markisenstoff</span>
           <input type="hidden" id="k3dStoff" value="">
           <div class="k3d-stoff-liste" id="k3dStoffeDach" role="group"
@@ -1724,10 +1750,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261024a" defer></script>
+<script src="js/masstabelle.js?v=20261024b" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261024a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261024a" defer></script>
+<script src="js/pdf-blatt.js?v=20261024b" defer></script>
+<script src="js/konfigurator-3d.js?v=20261024b" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

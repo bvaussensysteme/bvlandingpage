@@ -2082,9 +2082,13 @@ pruefe('Beide Vorspruenge betroffen',
    Einstellungen", sondern direkt unter der Durchgangshoehe. */
 pruefe('Getrennte Hoehen bei allen TDS-Anlagen',
        new RegExp(q || 'function hoehenGetrennt\\(\\) \\{\\s*\\n\\s*return neigungMoeglich\\(\\);').test(k3d), '');
+/* Seit Basic/Pro (24.10.2026) steht zwischen den Attributen noch
+   data-k3d-pro: Die hintere Hoehe gehoert zu Pro, genau wie die Neigung,
+   zu der sie die Alternative ist. Geprueft wird weiter dasselbe – sie
+   steht im Schritt „Masse" und nicht unter „Mehr Einstellungen". */
 pruefe('Hoehe hinten steht direkt unter der Durchgangshoehe',
-       new RegExp(q || 'data-k3d-schritt="masse" data-k3d-fuer="hoehe-hinten"').test(html) &&
-       !/data-k3d-mehr data-k3d-fuer="hoehe-hinten"/.test(html), '');
+       new RegExp(q || 'data-k3d-schritt="masse"[^>]*data-k3d-fuer="hoehe-hinten"').test(html) &&
+       !/data-k3d-mehr[^>]*data-k3d-fuer="hoehe-hinten"/.test(html), '');
 pruefe('Neigungsfeld verschwindet dafuer',
        new RegExp(q || "case 'neigung':        return neigungMoeglich\\(\\) && !Z\\.hoeheGetrennt").test(k3d),
        'nicht zwei Regler fuer dieselbe Sache');

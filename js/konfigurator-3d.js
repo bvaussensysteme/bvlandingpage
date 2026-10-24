@@ -49,6 +49,14 @@
   /* ---------- Zustand ---------- */
   var Z = {
     produkt: 'Terrassendach TDS',
+    /* Basic oder Pro. Basic blendet jede Bedieneinheit aus, die mit
+       data-k3d-pro oder data-k3d-mehr ausgezeichnet ist – siehe
+       panelAnpassen(). Die WERTE dahinter bleiben stehen: Wer in Pro
+       etwas eingestellt hat und zurueck auf Basic schaltet, verliert
+       seine Eingabe nicht, und die Anfrage nennt sie weiterhin (sie wird
+       aus Z gebaut, nicht aus dem, was gerade sichtbar ist). Stilles
+       Zuruecksetzen waere der schlimmere Fehler. */
+    stufe: 'Basic',
     /* Sonderform: ein Viereck aus vier Massen. 'Normal' ist der
        Regelfall; dann gelten die gewohnten Breite/Tiefe.
        „wäre besser wenn ich Breite 1, Breite 2, Tiefe 1, Tiefe 2 hätte"
@@ -9272,6 +9280,32 @@
       el.hidden = !gilt;
     });
 
+    /* ---------- Basic / Pro ----------
+       „mach eine Basic version für leihen und dann wenn man auf pro
+       umschaltet wirklich alle einstellungen vorhanden" (Betreiber,
+       24.10.2026). Basic zeigt die Fragen, die ein Kunde beantworten
+       kann; alles, was Fachwissen braucht, traegt data-k3d-pro, und die
+       frueheren „Mehr Einstellungen" (data-k3d-mehr) gehoeren ebenfalls
+       dorthin.
+
+       Diese Schleife laeuft NACH der Schleife darueber und darf nur
+       zusaetzlich verbergen, nie aufdecken: Was inhaltlich nicht gilt
+       (data-k3d-fuer), bleibt auch in Pro aus. Fuer Einheiten OHNE
+       data-k3d-fuer gibt es nichts, was sie wieder sichtbar macht –
+       deshalb setzt der Pro-Zweig hidden dort ausdruecklich auf false.
+
+       Die Schrittzahl der Fuehrung zieht sich von selbst nach:
+       schrittHatInhalt() zaehlt nur Einheiten, die nicht hidden sind. */
+    var basic = Z.stufe !== 'Pro';
+    Array.prototype.forEach.call(
+      document.querySelectorAll('[data-k3d-pro], [data-k3d-mehr]'), function (g) {
+        if (basic) g.hidden = true;
+        else if (!g.hasAttribute('data-k3d-fuer')) g.hidden = false;
+      });
+    /* In Basic gibt es nichts aufzuklappen. */
+    var mehr = document.getElementById('k3dMehr');
+    if (mehr) mehr.hidden = basic;
+
     /* Farbfelder: welche Farben das System führt. Erste Quelle ist die
        Stückliste des Herstellers; liefert die nichts – zurzeit immer,
        weil /api/bauteile 503 antwortet –, greift die Maßtabelle.
@@ -10120,6 +10154,7 @@
     // keilErlaubt() hängt am Produkt UND am Carport-Typ
     if (produktWechsel || typWechsel) erwAufraeumen();
 
+    Z.stufe = wert('k3dStufe') || Z.stufe;
     var aufbauVorher = Z.aufbau;
     Z.aufbau = wert('k3dAufbau') || Z.aufbau;
     /* Von freistehend auf Wandmontage: hinten steht jetzt das Haus. */
