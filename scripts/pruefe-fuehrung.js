@@ -93,6 +93,14 @@ pruefe('Höhe an der Wand steht in der Anfrage',
 pruefe('Neigung steht direkt unter der Durchgangshöhe',
        new RegExp(q || 'data-k3d-schritt="masse"[^>]*data-k3d-fuer="neigung"').test(html), '');
 
+/* Der Kontrastrand ist das, was auf dunklem Belag wirklich hilft –
+   mehr als blosse Deckkraft. Er wird in der Gegenfarbe gezeichnet. */
+pruefe('Wasserzeichen hat einen Kontrastrand',
+       gegen ? !/function hof\(an\)/.test(js)
+             : /function hof\(an\)/.test(js) &&
+               /shadowColor = an \? \(abend \? 'rgba\(0,0,0,\.85\)' : 'rgba\(255,255,255,\.9\)'\)/.test(js),
+       'heller Hof am Tag, dunkler am Abend');
+
 /* ---------- Die Reihenfolge im Bedienfeld ----------
    „erst sucht man Höhe vorne, Höhe hinten aus mit Gradanzahl, dann
    Statikträger, dann kommt Dachvorsprung hinten, dazwischen kommt
@@ -1892,7 +1900,13 @@ pruefe('Der Hinweis nennt das Dach, nicht die Markise',
     return t ? parseFloat(t[1]) : null;
   }
   var d = w('deckkraft'), a = w('anteil'), h = w('hoechstens');
-  var ok = d !== null && Math.abs(d - 0.43) < 0.001 && a >= 0.6 && h >= 400;
+  /* Am 24.10.2026 noch einmal hoeher: „mach das bv logo auf dem boden
+     noch besser sichtbarer" (Betreiber). 0,43 -> 0,58, dazu groesser
+     und mit Kontrastrand (siehe hof() in wasserzeichenTextur). Die
+     Pruefung haelt den neuen Stand fest, damit er nicht zurueckfaellt. */
+  /* Zweimal nachgelegt am 24.10.2026: erst 0,58, dann „das logo bv is
+     noch zu durchsichtig mach es sehbarer also" – 0,72. */
+  var ok = d !== null && d >= 0.72 && a >= 0.78 && h >= 540;
   pruefe('Wasserzeichen ist deutlich sichtbar', gegen ? !ok : ok,
          'Deckkraft ' + (d === null ? '?' : Math.round(d * 100) + ' %') +
          ', Breite ' + a + ' der Anlage, hoechstens ' + h + ' cm');

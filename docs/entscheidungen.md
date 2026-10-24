@@ -8954,3 +8954,67 @@ die Klammer muss also auch dann stehen.
 keine Klammer, mit Träger genau 189 mm weniger (2300 → 2111), nach dem
 Abwählen wieder weg, und hinten — an der Hauswand wie freistehend — keine
 Klammer.
+
+---
+
+## 24.10.2026 — Maßanzeige repariert, Logo deutlicher, Plattenkante
+
+### 1. „repariere die maßanzeige"
+
+**Anlass.** Bildschirmfoto mit drei kaum sichtbaren Maßlinien (Betreiber).
+
+**Drei Fehler auf einmal:**
+
+1. Gezeichnet wurde eine `THREE.Line` mit Deckkraft 0,55 — eine **Haarlinie**.
+   WebGL kann Linien nicht dicker machen (`linewidth` wird von den meisten
+   Treibern ignoriert); die einzige Art, eine sichtbare Linie zu bekommen, ist
+   ein **Körper**. Jetzt: ein dünner Stab (16 mm) aus demselben Baukasten wie
+   das Modell.
+2. Es fehlten die **Endmarken**. Ohne sie sieht eine Linie auf dem Boden aus
+   wie ein Kratzer im Belag, nicht wie ein Maß.
+3. Die Linien lagen **auf dem Belag**: Die Breitenlinie 30 cm vor der
+   Dachkante, der Belag reicht aber 60 cm (freistehend 120 cm) weiter. Jetzt
+   liegen sie daneben — die Höhenlinie steht, die darf über dem Belag stehen.
+
+Die Beschriftung sitzt jetzt **neben** der Linie statt mittig darauf; vorher
+verdeckte das Schild genau die Stelle, die es bemaßt.
+
+**Was ich dabei fast überschrieben hätte.** Weil die Zahlen im Bildschirmfoto
+schwer zu lesen waren, hatte ich die Schilder von 14 auf 19 vergrößert und den
+Kasten deckender gemacht. Zwei bestehende Prüfungen schlugen an — und zu Recht:
+*„die maßangaben etwas kleiner filigraner machen das es nicht so stört"*
+(Betreiber, 11.10.2026). Schlecht lesbar waren die **Linien**, nicht die
+Schilder. Zurückgedreht auf 14 und 62 %. **Genau dafür sind solche Prüfungen
+da: Sie halten eine Entscheidung fest, an die sich zwei Wochen später niemand
+erinnert — auch ich nicht.**
+
+### 2. „mach das bv logo auf dem boden noch besser sichtbarer"
+
+Deckkraft **0,43 → 0,72**, Breite 0,66 → 0,80 der Anlage, Höchstmaß 460 → 560
+cm. Dazu ein **Kontrastrand** in der Gegenfarbe (heller Hof am Tag, dunkler am
+Abend): Der hilft mehr als bloße Deckkraft, weil der Belag von hellgrau bis
+dunkelbraun reicht. Zweimal nachgelegt — nach 0,58 kam *„das logo bv is noch zu
+durchsichtig mach es sehbarer also"*.
+
+### 3. „verschwindet das pflasterdesign" — teilweise behoben, Rest offen
+
+**Gefunden habe ich eine echte Ursache:** Mit Bodengefälle wird die Platte so
+dick wie ihr eigener Höhenunterschied (bei 6° auf 4 m über 40 cm). Ihre
+**Flanke** trug dasselbe Pflasterfoto, über einen halben Meter gestreckt — aus
+flachem Blickwinkel füllt das den Vordergrund und sieht aus, als wäre das
+Muster weg. Die Platte hat jetzt sechs Materialien: oben die Fläche mit dem
+Belag, an den Seiten eine ruhige Kante, wie ein Terrassenaufbau in echt.
+
+**Ehrlich bleibt offen:** Ich habe den Fehler mit Steinplatten bei 3°, 6° und
+8° **nicht nachstellen können** — das Muster war in allen Renderings da. Die
+Flanke ist die plausibelste Erklärung, bewiesen ist sie nicht. Zweite
+Möglichkeit: Die gekippte Fläche fängt mehr Sonne, das Bild wird heller und die
+Fugen verblassen. Dafür bräuchte ich die genauen Einstellungen des Betreibers
+(Bodenbelag, Gefälle, Ansicht) oder ein Bildschirmfoto.
+
+**Absicherung.** `pruefe-markise.js` jetzt **187 Prüfungen** (Gegenprobe
+187/187): Maßlinie ist ein Körper, hat Endmarken, und — nachgerechnet — liegen
+die beiden liegenden Linien bei Wand- wie bei freistehender Montage wirklich
+neben dem Belag. `pruefe-fuehrung.js` (309) hält die neuen Logo-Werte und den
+Kontrastrand fest. `pruefe-bodengefaelle.js` (37) prüft die sechs Materialien
+der Platte.
