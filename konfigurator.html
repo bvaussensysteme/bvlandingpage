@@ -961,11 +961,14 @@
           <p class="k3d-mini" id="k3dBodenGefaelleStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="traeger-wunsch">
-          <label class="k3d-schalter"><input type="checkbox" id="k3dTraeger"> <span>Statikträger unter der Rinne – für weniger Pfosten</span></label>
-          <p class="k3d-mini">Ein durchgehender Träger über den Pfosten trägt mehr, dadurch
-            brauchen Sie weniger Pfosten (alle 7 m statt alle 4 m). <b>Dafür ist der
-            Durchgang unter dem Träger 189 mm niedriger</b> als die eingestellte Höhe.</p>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
+          <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="0">
+            <input type="number" id="k3dVorsprungZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Dachvorsprung in Millimeter">
+          </div>
+          <p class="k3d-mini">Ohne Vorsprung stehen die Pfosten unter der Rinne.
+            Mit Vorsprung rücken sie nach innen, und ein Statikträger kommt dazu.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung-hinten" hidden>
@@ -976,6 +979,21 @@
           </div>
           <p class="k3d-mini">Nur beim freistehenden Carport: Auch hinten rücken die
             Pfosten um dieses Maß nach innen, der Statikträger wandert mit.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="cp-ueberstand" hidden>
+          <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
+            <input type="number" id="k3dUeberstandZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Dachüberstand in Millimeter">
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="traeger-wunsch">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dTraeger"> <span>Statikträger unter der Rinne – für weniger Pfosten</span></label>
+          <p class="k3d-mini">Ein durchgehender Träger über den Pfosten trägt mehr, dadurch
+            brauchen Sie weniger Pfosten (alle 7 m statt alle 4 m). <b>Dafür ist der
+            Durchgang unter dem Träger 189 mm niedriger</b> als die eingestellte Höhe.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="unterzug" hidden>
@@ -999,24 +1017,6 @@
           <p class="k3d-mini">VSG-Glas gibt es bis 4,50 m am Stück. Bei größerer Tiefe
             werden die Scheiben quer gestoßen; hier verschieben Sie den Stoß. Der
             Regler lässt nur Lagen zu, bei denen beide Scheiben machbar bleiben.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
-          <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
-          <div class="k3d-regler">
-            <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="0">
-            <input type="number" id="k3dVorsprungZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Dachvorsprung in Millimeter">
-          </div>
-          <p class="k3d-mini">Ohne Vorsprung stehen die Pfosten unter der Rinne.
-            Mit Vorsprung rücken sie nach innen, und ein Statikträger kommt dazu.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="cp-ueberstand" hidden>
-          <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
-          <div class="k3d-regler">
-            <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
-            <input type="number" id="k3dUeberstandZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Dachüberstand in Millimeter">
-          </div>
         </div>
       </details>
 
@@ -1209,6 +1209,46 @@
           <select id="k3dSg23Hinten" class="k3d-select"></select>
         </div>
 
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dSg23Glas">Glas der Schiebeelemente</label>
+          <select id="k3dSg23Glas" class="k3d-select">
+            <option value="ESG 10 mm klar">klar – freie Sicht</option>
+            <option value="ESG 10 mm satinato">satinato – matt, blickdicht</option>
+          </select>
+          <p class="k3d-mini">Mehr gibt es beim Hersteller nicht: klar oder satiniert,
+            beides 10 mm Einscheiben-Sicherheitsglas.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dSg23Schloss">Abschließbar?</label>
+          <select id="k3dSg23Schloss" class="k3d-select">
+            <option value="ohne">ohne Schloss</option>
+            <option value="links">Schloss links</option>
+            <option value="rechts">Schloss rechts</option>
+          </select>
+          <p class="k3d-mini">Links und rechts von innen gesehen – so steht es auch
+            auf dem Bestellformular des Herstellers. Das Schloss zeigt das Modell
+            nicht, es steht in der Anfrage.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <p class="k3d-mini">Normalerweise wählt der Konfigurator die Aufteilung,
+            die zu Ihrem Maß am besten aussieht. Links und rechts laufen über die
+            Tiefe, vorne über die Breite – deshalb steht jede Seite für sich.
+            Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
+          <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dGlasZu">◀ Schließen</button>
+            <button type="button" id="k3dGlasAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
+            immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="rahmenwand" hidden>
           <label class="k3d-label" for="k3dRahmenTeilung">Aufteilung der Rahmenwand</label>
           <select id="k3dRahmenTeilung" class="k3d-select">
@@ -1229,6 +1269,20 @@
             Normalerweise teilt der Konfigurator die Wand wie den Keil auf –
             ein Feld je angefangene 1,5 m, ohne waagerechte Sprosse. Hier
             können Sie eine der acht Varianten des Herstellers vorgeben.</p>
+        </div>
+
+        <!-- „die glasschiebetüren gibts ja in satinato, hab vergessen das
+             glas bei den keilen auch" (Betreiber, 11.10.2026). Eigene
+             Wahl, nicht an die Schiebeelemente gekoppelt: oben geht es um
+             Einblick von der Seite, unten oft um freie Sicht. -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="keil-glas" hidden>
+          <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
+          <select id="k3dKeilGlas" class="k3d-select">
+            <option value="ESG klar">klar – freie Sicht</option>
+            <option value="ESG satinato">satinato – matt, blickdicht</option>
+          </select>
+          <p class="k3d-mini">Das Dreieck über der Wand oder der Schiebeanlage.
+            Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="velaris" hidden>
@@ -1296,49 +1350,6 @@
             breitere Seiten teilt der Konfigurator gleichmäßig auf.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="schiebe" hidden>
-          <label class="k3d-label" for="k3dSg23Glas">Glas der Schiebeelemente</label>
-          <select id="k3dSg23Glas" class="k3d-select">
-            <option value="ESG 10 mm klar">klar – freie Sicht</option>
-            <option value="ESG 10 mm satinato">satinato – matt, blickdicht</option>
-          </select>
-          <p class="k3d-mini">Mehr gibt es beim Hersteller nicht: klar oder satiniert,
-            beides 10 mm Einscheiben-Sicherheitsglas.</p>
-        </div>
-
-        <!-- „die glasschiebetüren gibts ja in satinato, hab vergessen das
-             glas bei den keilen auch" (Betreiber, 11.10.2026). Eigene
-             Wahl, nicht an die Schiebeelemente gekoppelt: oben geht es um
-             Einblick von der Seite, unten oft um freie Sicht. -->
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="keil-glas" hidden>
-          <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
-          <select id="k3dKeilGlas" class="k3d-select">
-            <option value="ESG klar">klar – freie Sicht</option>
-            <option value="ESG satinato">satinato – matt, blickdicht</option>
-          </select>
-          <p class="k3d-mini">Das Dreieck über der Wand oder der Schiebeanlage.
-            Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
-          <label class="k3d-label" for="k3dSg23Schloss">Abschließbar?</label>
-          <select id="k3dSg23Schloss" class="k3d-select">
-            <option value="ohne">ohne Schloss</option>
-            <option value="links">Schloss links</option>
-            <option value="rechts">Schloss rechts</option>
-          </select>
-          <p class="k3d-mini">Links und rechts von innen gesehen – so steht es auch
-            auf dem Bestellformular des Herstellers. Das Schloss zeigt das Modell
-            nicht, es steht in der Anfrage.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
-          <p class="k3d-mini">Normalerweise wählt der Konfigurator die Aufteilung,
-            die zu Ihrem Maß am besten aussieht. Links und rechts laufen über die
-            Tiefe, vorne über die Breite – deshalb steht jede Seite für sich.
-            Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
-        </div>
-
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="planken" hidden>
           <label class="k3d-label" for="k3dPlankenFarbe">Oberfläche der Planken</label>
           <select id="k3dPlankenFarbe" class="k3d-select">
@@ -1386,16 +1397,6 @@
             weicht um wenige Millimeter ab, damit es oben und unten aufgeht.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
-          <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
-          <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
-          <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dGlasZu">◀ Schließen</button>
-            <button type="button" id="k3dGlasAuf">Öffnen ▶</button>
-          </div>
-          <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
-            immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
-        </div>
         <!-- Die Verkleidung stand bis 11.10.2026 als eigener Abschnitt und
              eigener Schritt da. Sie gehoert hierher: Es ist dieselbe Frage
              wie Seitenelemente und Senkrechtmarkise – was passiert mit den
@@ -1792,10 +1793,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261024f" defer></script>
+<script src="js/masstabelle.js?v=20261024g" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261024f" defer></script>
-<script src="js/konfigurator-3d.js?v=20261024f" defer></script>
+<script src="js/pdf-blatt.js?v=20261024g" defer></script>
+<script src="js/konfigurator-3d.js?v=20261024g" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
