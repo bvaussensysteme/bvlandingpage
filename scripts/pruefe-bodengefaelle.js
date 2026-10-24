@@ -272,10 +272,27 @@ pruefe('Das Wasserzeichen liegt auf dem Belag und kippt mit',
                  k3d.indexOf("'" + id + "'") > -1,
          'Eingabefeld und Ereignisliste');
 });
-pruefe('Das Gefälle steht beim Bodenbelag',
-       gegen ? !/data-k3d-schritt="umgebung" data-k3d-mehr\s*\n\s*data-k3d-fuer="bodengefaelle"/.test(html)
-             : /data-k3d-schritt="umgebung" data-k3d-mehr\s*\n\s*data-k3d-fuer="bodengefaelle"/.test(html),
-       'Untergrund, nicht Anlage');
+/* Das Gefälle stand bis zum 24.10.2026 beim Bodenbelag – fachlich
+   richtig, in der Bedienung falsch: Es hängt rechnerisch an der
+   Dachneigung, und die beiden lagen rund 4000 px auseinander („man muss
+   mal runter srollen dann wieder hoch"). Jetzt steht es direkt darunter,
+   und genau diese Nachbarschaft wird geprüft – nicht nur der Schritt. */
+(function () {
+  var gruppen = html.match(/<div class="k3d-gruppe[^>]*>/g) || [];
+  var iN = -1, iB = -1;
+  gruppen.forEach(function (g, n) {
+    if (/data-k3d-fuer="neigung"/.test(g)) iN = n;
+    if (/data-k3d-fuer="bodengefaelle"/.test(g)) iB = n;
+  });
+  var direkt = iN > -1 && iB === iN + 1;
+  pruefe('Das Gefälle steht direkt unter der Dachneigung',
+         gegen ? !direkt : direkt,
+         iN > -1 && iB > -1 ? 'Neigung an Stelle ' + iN + ', Gefälle an ' + iB
+                            : 'eine der beiden fehlt');
+  var imMass = /data-k3d-schritt="masse" data-k3d-mehr\s*\n\s*data-k3d-fuer="bodengefaelle"/.test(html);
+  pruefe('Das Gefälle gehört zum Schritt „Maße"',
+         gegen ? !imMass : imMass, 'nicht mehr zu „Untergrund"');
+})();
 pruefe('Ein leeres Feld heißt eben, nicht unverändert',
        gegen ? !/if \(!isFinite\(roh\)\) return 0;/.test(k3d)
              : /if \(!isFinite\(roh\)\) return 0;/.test(k3d),

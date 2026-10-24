@@ -8766,11 +8766,45 @@
       zeigtMehr = !zeigtMehr;
       schrittZeigen();
     });
+    /* ---------- Immer nur ein Abschnitt offen ----------
+       „die einstellungen sind viele auch unlogisch angeordnet man muss
+       mal runter srollen dann wieder hoch" (Betreiber, 24.10.2026).
+       Gemessen waren es in Pro 4653 px Bedienfeld bei 900 px Fenster –
+       gut fuenf Bildschirme. Wird einer aufgeklappt, gehen die anderen
+       zu; damit bleibt es bei rund einem Bildschirm.
+
+       Gehorcht wird dem KLICK auf die Ueberschrift, nicht dem
+       toggle-Ereignis: Die Fuehrung klappt selbst alle Abschnitte auf
+       (schrittZeigen), und ein toggle-Zuhoerer wuerde ihr dabei sofort
+       wieder zuklappen. */
+    Array.prototype.forEach.call(
+      document.querySelectorAll('details.k3d-sek > summary'), function (kopf) {
+        kopf.addEventListener('click', function () {
+          var sek = kopf.parentNode;
+          if (gefuehrt || sek.open) return;   // zuklappen betrifft nur sich selbst
+          Array.prototype.forEach.call(
+            document.querySelectorAll('details.k3d-sek'), function (a) {
+              if (a !== sek) a.open = false;
+            });
+        });
+      });
+
     var mo = document.getElementById('k3dModus');
     if (mo) mo.addEventListener('click', function () {
       gefuehrt = !gefuehrt;
       mo.textContent = gefuehrt ? 'Alles auf einen Blick' : 'Schritt für Schritt';
       mo.setAttribute('aria-pressed', gefuehrt ? 'false' : 'true');
+      /* Beim Wechsel in die Uebersicht stuenden sonst alle Abschnitte
+         offen, die die Fuehrung aufgeklappt hat – also wieder fuenf
+         Bildschirme. Offen bleibt der, an dem man gerade war. */
+      if (!gefuehrt) {
+        var jetzt = SCHRITTE[schrittNr] ? SCHRITTE[schrittNr].id : null;
+        Array.prototype.forEach.call(
+          document.querySelectorAll('details.k3d-sek'), function (sek) {
+            sek.open = !!jetzt &&
+              !!sek.querySelector('[data-k3d-schritt="' + jetzt + '"]');
+          });
+      }
       /* Beim Umschalten auf „alles" bleiben die Abschnitte offen, sonst
          stünde man vor acht zugeklappten Überschriften. */
       schrittZeigen();
@@ -10821,6 +10855,13 @@
 
   function summenSetzen() {
     text('k3dSumProdukt', Z.breite + ' × ' + Z.tiefe + ' mm · Höhe ' + Z.hoehe + ' mm');
+    /* Seit der Teilung von „Produkt & Maße" (24.10.2026) hat der
+       Produktabschnitt eine eigene Kopfzeile. Beim Carport und bei der
+       Pergola steht der Typ dabei – sonst stuende dort dreimal
+       „Carport". */
+    text('k3dSumProduktName', Z.produkt +
+      (istCarport() && Z.cpTyp ? ' · ' + Z.cpTyp : '') +
+      (istPergola() && Z.pgDachart ? ' · ' + Z.pgDachart : ''));
 
     var d = [];
     if (istPergola()) d.push(Z.pgDachart + (istLamellen() ? ' ' + Z.lamellen + '°' : ''));

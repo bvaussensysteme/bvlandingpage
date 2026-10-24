@@ -705,7 +705,7 @@
 
       <!-- ---------- Produkt & Maße ---------- -->
       <details class="k3d-sek" open>
-        <summary><span class="k3d-sek-t">Produkt &amp; Maße</span><span class="k3d-sek-s" id="k3dSumProdukt"></span></summary>
+        <summary><span class="k3d-sek-t">Produkt</span><span class="k3d-sek-s" id="k3dSumProduktName"></span></summary>
 
         <div class="k3d-gruppe" data-k3d-schritt="produkt">
           <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
@@ -772,16 +772,26 @@
         <!-- ============================================================
              Sonderform (TDS und SkyView)
 
-             VD baut diese Daecher auch in festen Sonderformen – L-Form,
-             zwei Felder, Aussparung, T-Form, Trapez. Das ist kein freies
-             Mass: Es gibt genau die Formen des Katalogblatts, und SkyView
-             kennt nur drei davon.
-
-             Welche Massfelder erscheinen, entscheidet die Form (siehe
-             SONDERFORM in js/konfigurator-3d.js). Aus den Massen rechnet
-             der Konfigurator das umschliessende Rechteck; damit laufen
+             Vier freie Masse – Breite hinten, Breite vorne, Tiefe links,
+             Tiefe rechts – ergeben ein Viereck; die Vorderkante liegt
+             mittig zur Hinterkante. Aus den Massen rechnet der
+             Konfigurator das umschliessende Rechteck; damit laufen
              Masstabelle, Stueckzahl und 3D-Bild unveraendert weiter.
+             Begruendung und die verworfene Zwischenloesung (zehn feste
+             Katalogformen) stehen in docs/entscheidungen.md, 23.10.2026.
              ============================================================ -->
+      </details>
+
+      <!-- ---------- Maße und Neigungen ----------
+           Bis zum 24.10.2026 stand das alles mit dem Produkt in EINEM
+           Abschnitt: in Pro 1747 px und elf Bedieneinheiten. „die
+           einstellungen sind viele auch unlogisch angeordnet man muss
+           mal runter srollen dann wieder hoch" (Betreiber). Geteilt
+           bleibt jeder Abschnitt überschaubar, und die beiden Neigungen
+           – Dach und Boden – stehen beieinander. -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Maße &amp; Neigungen</span><span class="k3d-sek-s" id="k3dSumProdukt"></span></summary>
+
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="form-wahl" hidden>
           <span class="k3d-label" id="k3dFormLabel">Form der Anlage</span>
           <input type="hidden" id="k3dForm" value="Normal">
@@ -789,8 +799,9 @@
             <button type="button" data-wert="Normal">Normale Form</button>
             <button type="button" data-wert="Sonderform">Sonderform</button>
           </div>
-          <p class="k3d-mini">Normal ist das Rechteck. Sonderform sind die festen
-            Grundrisse des Herstellers – L-Form, zwei Felder, Aussparung, Trapez.</p>
+          <p class="k3d-mini">Normal ist das Rechteck. Sonderform heißt: vier
+            freie Maße – Breite hinten, Breite vorne, Tiefe links, Tiefe rechts.
+            Daraus wird ein Viereck; eine Skizze zeigt es sofort.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
@@ -918,6 +929,36 @@
           <p class="k3d-mini">Mindestgefälle 2–3°, Höchstmaß 13–14° (Angabe des
             Herstellers im Bestellformular), Standard 8°. Den genauen Wert legt das
             Aufmaß fest.</p>
+        </div>
+
+        <!-- Gefaelle des Terrassenbodens. „der Boden is ja nicht immer
+             Eben manche haben 2 grad manche mehr" (Betreiber,
+             24.10.2026).
+
+             Stand bis zum 24.10.2026 beim Bodenbelag – fachlich richtig
+             (es beschreibt den Untergrund), in der Bedienung falsch: Es
+             haengt rechnerisch an der Dachneigung, und die beiden lagen
+             rund 4000 px auseinander. „man muss mal runter srollen dann
+             wieder hoch" (Betreiber). Jetzt steht es direkt darunter. -->
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr
+             data-k3d-fuer="bodengefaelle" hidden>
+          <span class="k3d-label">Gefälle des Terrassenbodens
+            <output id="k3dBodenGefaelleWert">eben</output></span>
+          <div class="k3d-felder">
+            <label class="k3d-mini" for="k3dBodenGefaelle">nach vorne, Grad
+              <input type="number" id="k3dBodenGefaelle" class="k3d-zahl"
+                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
+                     aria-label="Bodengefälle nach vorne in Grad"></label>
+            <label class="k3d-mini" for="k3dBodenGefaelleQuer">zur Seite, Grad
+              <input type="number" id="k3dBodenGefaelleQuer" class="k3d-zahl"
+                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
+                     aria-label="Bodengefälle zur Seite in Grad"></label>
+          </div>
+          <p class="k3d-mini">Üblich sind 1–2 % (gut ein halbes bis ein Grad),
+            damit Wasser abläuft. Plus heißt: fällt vom Haus weg bzw. nach
+            rechts. Die Durchgangshöhe gilt weiterhin vorne – die Pfosten
+            werden entsprechend unterschiedlich lang.</p>
+          <p class="k3d-mini" id="k3dBodenGefaelleStand"></p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="traeger-wunsch">
@@ -1549,30 +1590,6 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Anzeige</span><span class="k3d-sek-s" id="k3dSumAnzeige"></span></summary>
 
-        <!-- Gefaelle des Terrassenbodens. „der Boden is ja nicht immer
-             Eben manche haben 2 grad manche mehr" (Betreiber,
-             24.10.2026). Steht beim Bodenbelag, weil es dorthin gehoert:
-             Es beschreibt den Untergrund, nicht die Anlage. -->
-        <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr
-             data-k3d-fuer="bodengefaelle" hidden>
-          <span class="k3d-label">Gefälle des Terrassenbodens
-            <output id="k3dBodenGefaelleWert">eben</output></span>
-          <div class="k3d-felder">
-            <label class="k3d-mini" for="k3dBodenGefaelle">nach vorne, Grad
-              <input type="number" id="k3dBodenGefaelle" class="k3d-zahl"
-                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
-                     aria-label="Bodengefälle nach vorne in Grad"></label>
-            <label class="k3d-mini" for="k3dBodenGefaelleQuer">zur Seite, Grad
-              <input type="number" id="k3dBodenGefaelleQuer" class="k3d-zahl"
-                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
-                     aria-label="Bodengefälle zur Seite in Grad"></label>
-          </div>
-          <p class="k3d-mini">Üblich sind 1–2 % (gut ein halbes bis ein Grad),
-            damit Wasser abläuft. Plus heißt: fällt vom Haus weg bzw. nach
-            rechts. Die Durchgangshöhe gilt weiterhin vorne – die Pfosten
-            werden entsprechend unterschiedlich lang.</p>
-          <p class="k3d-mini" id="k3dBodenGefaelleStand"></p>
-        </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
           <span class="k3d-label" id="k3dBodenLabel">Boden</span>
@@ -1775,10 +1792,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261024e" defer></script>
+<script src="js/masstabelle.js?v=20261024f" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261024e" defer></script>
-<script src="js/konfigurator-3d.js?v=20261024e" defer></script>
+<script src="js/pdf-blatt.js?v=20261024f" defer></script>
+<script src="js/konfigurator-3d.js?v=20261024f" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

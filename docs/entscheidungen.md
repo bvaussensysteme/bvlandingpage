@@ -8799,3 +8799,59 @@ plus 2° Quergefälle überall abdeckt. `scripts/pruefe-fuehrung.js` jetzt
 **306 Prüfungen**: Der bestehende Hin-und-Rück-Vergleich der beiden Wege läuft
 zusätzlich über 27 Fälle **mit** Bodengefälle — genau die Prüfung, die den
 Fehler verhindert hätte, wenn ich sie gleich so geschrieben hätte.
+
+---
+
+## 24.10.2026 — Bedienfeld: immer nur ein Abschnitt offen
+
+**Anlass.** „die einstellungen sind viele auch unlogisch angeordnet man muss
+mal runter srollen dann wieder hoch" (Betreiber).
+
+**Erst gemessen, dann gebaut.** In der Ansicht „Alles auf einen Blick":
+
+| Ansicht | Bedienfeld | bei 900 px Fenster |
+|---|---|---|
+| Schritt für Schritt | 713 px | halber Bildschirm – hier war nie ein Problem |
+| Alles auf einen Blick, Basic | 3 227 px | 3,6 Bildschirme |
+| Alles auf einen Blick, **Pro** | **4 653 px** | **5,2 Bildschirme** |
+
+Allein „Produkt & Maße" war in Pro **1 747 px** lang (11 Einheiten). Und das,
+was der Betreiber zuletzt eingestellt hatte, lag maximal weit auseinander: das
+**Bodengefälle** ganz unten bei der Anzeige, die **Dachneigung** ganz oben —
+rund 4 000 px dazwischen, obwohl die beiden rechnerisch aneinanderhängen.
+
+**Was jetzt gilt** (Auswahl des Betreibers aus drei Vorschlägen:
+„Zuklappen + zusammenlegen"):
+
+1. **Immer nur ein Abschnitt offen.** Klappt man einen auf, gehen die anderen
+   zu. Gemessen: **1 214 px** direkt nach dem Umschalten, **1 474 px** nach dem
+   Aufklappen eines anderen Abschnitts — statt 4 653 px.
+2. **Das Bodengefälle steht jetzt direkt unter der Dachneigung.** Fachlich
+   gehört es zum Untergrund, in der Bedienung zur Neigung: Beide Winkel ergeben
+   zusammen die Pfostenlängen, und man stellt sie zusammen ein.
+3. **„Produkt & Maße" ist geteilt** in „Produkt" und „Maße & Neigungen". Der
+   Produktabschnitt zeigt im Kopf jetzt das Produkt samt Typ.
+
+**Warum der Zuhörer am KLICK hängt und nicht am `toggle`-Ereignis:** Die
+geführte Reihenfolge klappt selbst alle Abschnitte auf (`schrittZeigen`), und
+ein `toggle`-Zuhörer würde ihr dabei sofort wieder zuklappen. Beim Wechsel in
+die Übersicht bleibt genau der Abschnitt offen, an dem man gerade war.
+
+**Nebenbei gefunden.** Beim Ansehen des Bildschirmfotos fiel ein Rest des alten
+Sonderform-Modells auf: Unter „Form der Anlage" stand noch „Sonderform sind die
+festen Grundrisse des Herstellers – L-Form, zwei Felder, Aussparung, Trapez" —
+die zehn Katalogformen, die am 23.10. durch die vier freien Maße ersetzt wurden.
+Der Text nannte also etwas, das es im Konfigurator nicht mehr gibt. Korrigiert,
+ebenso der Kommentar darüber im Quelltext.
+
+**Was gegengelesen werden soll.** Auf „Alles auf einen Blick" schalten: Ist nur
+ein Abschnitt offen? Einen anderen aufklappen — geht der vorige zu? Steht das
+Bodengefälle direkt unter der Dachneigung? Und: Fehlt Ihnen jetzt irgendwo ein
+Klick, der vorher nicht nötig war?
+
+**Absicherung.** **3 neue Prüfungen im echten Browser** (jetzt 85): nach dem
+Umschalten ist genau ein Abschnitt offen, ein Klick auf eine Überschrift
+schließt die anderen, und das Bedienfeld bleibt unter 2 000 px — die Zahl aus
+der Messung oben, nicht geschätzt. `scripts/pruefe-bodengefaelle.js` (36) prüft
+jetzt die **Nachbarschaft**: Das Gefälle muss unmittelbar auf die Dachneigung
+folgen, nicht nur im selben Schritt stehen.
