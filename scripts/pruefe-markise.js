@@ -458,9 +458,47 @@ pruefe('Kein seitenErweiterungen-Aufruf ohne Pfostenachsen',
          'Oberkante ' + (okIst === null ? '?' : (okIst * 10).toFixed(0)) +
          ' mm ueber dem Belag');
 })();
+/* Seit dem 24.10.2026 kommt die Bodenhoehe an dieser Stelle dazu – der
+   Terrassenboden kann geneigt sein. Auf ebenem Boden gibt bodenY() null
+   zurueck, dann steht hier wieder genau SCHWELLE.ueberstand. Das wird
+   unten nachgerechnet, nicht nur gelesen. */
 pruefe('Fluegel stehen auf Belagsniveau',
-       new RegExp(q || 'var yUnten = SCHWELLE\\.ueberstand;').test(src),
-       'nicht mehr auf der Schwellenhoehe');
+       new RegExp(q || 'var yUnten = SCHWELLE\\.ueberstand \\+').test(src) &&
+       new RegExp(q || 'bodenY\\(quer \\? achse : mitte, quer \\? mitte : achse\\)').test(src),
+       'Schwelle plus Bodenhoehe an dieser Stelle');
+(function () {
+  /* bodenY() aus dem Code herausloesen und mit eigenen Zahlen rechnen.
+     Ohne Gefaelle muss ueberall null herauskommen – sonst stuenden alle
+     Elemente auf einmal woanders, auf jeder ebenen Terrasse. */
+  var m = src.match(/function bodenY\(x, z\) \{[\s\S]*?\n  \}/);
+  if (!m) { pruefe('Bodenhoehe rechenbar', false, 'bodenY nicht gefunden'); return; }
+  var Z = { bodenGefaelle: 0, bodenGefaelleQuer: 0 };
+  var bodenGefaelleMoeglich = function () { return true; };
+  var bodenY = null;
+  /* Als Funktionsausdruck auswerten – eine Deklaration in eval legt im
+     strikten Modus keinen Namen nach draussen. Z und
+     bodenGefaelleMoeglich liest sie von hier. */
+  try {
+    bodenY = eval('(' + m[0].replace('function bodenY', 'function') + ')');
+  } catch (e) { bodenY = null; }
+  if (!bodenY) { pruefe('Bodenhoehe rechenbar', false, 'nicht ausfuehrbar'); return; }
+  var ebenOk = bodenY(0, 0) === 0 && bodenY(250, 400) === 0 && bodenY(-250, 400) === 0;
+  pruefe('Ebener Boden aendert nichts', gegen ? !ebenOk : ebenOk,
+         'bodenY ist ueberall 0');
+  Z.bodenGefaelle = 2;
+  var vorne = bodenY(0, 400);               // 4 m Tiefe, 2 Grad
+  var sollV = -Math.tan(2 * Math.PI / 180) * 400;
+  if (gegen) vorne = -vorne;
+  pruefe('2 Grad auf 4 m ergeben 14 cm',
+         Math.abs(vorne - sollV) < 0.001 && Math.abs(vorne + 13.97) < 0.1,
+         (vorne * 10).toFixed(0) + ' mm tiefer als an der Wand');
+  Z.bodenGefaelle = 0; Z.bodenGefaelleQuer = 2;
+  var links = bodenY(250, 0), rechts = bodenY(-250, 0);
+  var richtung = links > 0 && rechts < 0;   // links liegt bei +x und hoeher
+  pruefe('Quergefaelle laeuft nach rechts',
+         gegen ? !richtung : richtung,
+         'links ' + (links * 10).toFixed(0) + ' mm, rechts ' + (rechts * 10).toFixed(0) + ' mm');
+})();
 (function () {
   var m = src.match(/var SCHWELLE = \{ hoehe: ([\d.]+), ueberstand: ([\d.]+),/);
   if (!m) { pruefe('Schwellenmass lesbar', false, 'Zeile nicht gefunden'); return; }

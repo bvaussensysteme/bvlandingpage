@@ -1549,6 +1549,31 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Anzeige</span><span class="k3d-sek-s" id="k3dSumAnzeige"></span></summary>
 
+        <!-- Gefaelle des Terrassenbodens. „der Boden is ja nicht immer
+             Eben manche haben 2 grad manche mehr" (Betreiber,
+             24.10.2026). Steht beim Bodenbelag, weil es dorthin gehoert:
+             Es beschreibt den Untergrund, nicht die Anlage. -->
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr
+             data-k3d-fuer="bodengefaelle" hidden>
+          <span class="k3d-label">Gefälle des Terrassenbodens
+            <output id="k3dBodenGefaelleWert">eben</output></span>
+          <div class="k3d-felder">
+            <label class="k3d-mini" for="k3dBodenGefaelle">nach vorne, Grad
+              <input type="number" id="k3dBodenGefaelle" class="k3d-zahl"
+                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
+                     aria-label="Bodengefälle nach vorne in Grad"></label>
+            <label class="k3d-mini" for="k3dBodenGefaelleQuer">zur Seite, Grad
+              <input type="number" id="k3dBodenGefaelleQuer" class="k3d-zahl"
+                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
+                     aria-label="Bodengefälle zur Seite in Grad"></label>
+          </div>
+          <p class="k3d-mini">Üblich sind 1–2 % (gut ein halbes bis ein Grad),
+            damit Wasser abläuft. Plus heißt: fällt vom Haus weg bzw. nach
+            rechts. Die Durchgangshöhe gilt weiterhin vorne – die Pfosten
+            werden entsprechend unterschiedlich lang.</p>
+          <p class="k3d-mini" id="k3dBodenGefaelleStand"></p>
+        </div>
+
         <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
           <span class="k3d-label" id="k3dBodenLabel">Boden</span>
           <input type="hidden" id="k3dBoden" value="Steinplatten">
@@ -1750,10 +1775,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261024c" defer></script>
+<script src="js/masstabelle.js?v=20261024d" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261024c" defer></script>
-<script src="js/konfigurator-3d.js?v=20261024c" defer></script>
+<script src="js/pdf-blatt.js?v=20261024d" defer></script>
+<script src="js/konfigurator-3d.js?v=20261024d" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

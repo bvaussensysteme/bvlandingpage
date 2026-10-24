@@ -47,6 +47,17 @@ hintere Dachkante läuft waagerecht). Bei **Wandmontage** erscheint sie nicht,
 und eine vorher getroffene Wahl wird beim Umschalten gelöscht. Warum das die
 heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
 
+### Offen am Bodengefälle *(seit 24.10.2026)*
+
+- **Seitenelemente schräg zuschneiden.** Heute bleibt die Unterkante innerhalb
+  eines Feldes waagerecht (Höhe = Boden in der Feldmitte); bei 2° und 2,3 m
+  Feld sind das rund 4 cm an den Enden. Für einen sauberen Anschluss müssten
+  Rahmen-, Planken- und Schiebeelemente unten schräg geschnitten werden.
+- **Nur im Terrassen-Bauweg gerechnet** (TDS, SkyView, Carport TDS). Beim
+  Flachdach-Carport und bei der Pergola wird das Gefälle nicht abgefragt.
+- **Rückfrage an den Betreiber:** Gilt die Durchgangshöhe vorne oder an der
+  Wand? Gebaut ist „vorne" (siehe `docs/entscheidungen.md`, 24.10.2026).
+
 ### Sonderform — vier Maße *(gebaut 23.10.2026)*
 
 Im Schritt „Maße" steht bei **Terrassendach TDS** und **Flachdach SkyView**
@@ -195,6 +206,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
+| `scripts/pruefe-bodengefaelle.js` | Gefälle des Terrassenbodens: Führt `bodenY()` aus und rechnet nach – ebener Boden ändert nichts, 2° auf 4 m sind 140 mm, vier Ecken auf vier Höhen. Dazu: Dach wird verschoben statt gekippt, Pfostenlängen gehen in die Anfrage |
 | `scripts/pruefe-stufen.js` | Basic und Pro: Ist Basic voreingestellt? Trägt jede Fachangabe `data-k3d-pro`? Bleibt jede Kundenfrage in Basic sichtbar? Verbirgt die Stufenregel nur, statt aufzudecken? Und vor allem: Wird beim Umschalten **kein** Wert zurückgesetzt |
 | `scripts/pruefe-rueckseite.js` | Die vierte Seite: Gibt es sie nur freistehend? Verschwindet die Wahl beim Zurückschalten auf Wandmontage wieder? Kein Keil hinten, Höhe aus der Dachunterkante, Assistent kennt `erw_hinten` |
 | `scripts/pruefe-sonderform.js` | Sonderform: Führt die Geometrie wirklich aus und misst nach – Viereck aus vier Maßen, nirgends Tiefe null, nichts ragt über das umschließende Rechteck hinaus, Vorderkante mittig, fehlendes Maß wird gemeldet, keine Reste der alten Katalogformen |
@@ -308,6 +320,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 24.10.2026 | Gefälle des Terrassenbodens: Pfostenlängen je Ecke, zwei Neigungen ausgewiesen | **noch nicht veröffentlicht** |
 | 24.10.2026 | Statikträger auf Wunsch auch beim Carport TDS (war pauschal für alle Carports gesperrt) | **noch nicht veröffentlicht** |
 | 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | **noch nicht veröffentlicht** |
 | 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten, nicht an denen der Vorderseite | **noch nicht veröffentlicht** |

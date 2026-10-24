@@ -196,6 +196,33 @@ pruef('In Pro Eingestelltes ueberlebt den Weg ueber Basic',
   (await page.inputValue('#k3dNeigungZahl')) === '8',
   'Dachneigung steht auf ' + await page.inputValue('#k3dNeigungZahl') + ' Grad');
 
+/* ---------- Gefaelle des Terrassenbodens ----------
+   „der Boden is ja nicht immer Eben manche haben 2 grad manche mehr"
+   (Betreiber, 24.10.2026). Gemessen wird am Bild und an der Zahl, die
+   das Bedienfeld meldet – das ist dieselbe, die in die Anfrage geht. */
+const vorGefaelle = await page.locator('#k3dCanvas').screenshot();
+pruef('Ohne Gefaelle steht dort nichts',
+  (await page.locator('#k3dBodenGefaelleStand').innerText()).trim() === '',
+  'ein Hinweis, der immer dasteht, wird ueberlesen');
+await page.fill('#k3dBodenGefaelle', '2');
+await page.locator('#k3dBodenGefaelle').blur();
+await page.waitForTimeout(1200);
+pruef('Das Gefaelle veraendert das Modell',
+  Buffer.compare(vorGefaelle, await page.locator('#k3dCanvas').screenshot()) !== 0,
+  'Belag und Pfosten folgen dem Boden');
+const stand = await page.locator('#k3dBodenGefaelleStand').innerText();
+pruef('Das Bedienfeld nennt beide Neigungen und die Pfostenlaengen',
+  /gegenüber der Waagerechten/.test(stand) &&
+  /gegenüber dem Terrassenboden/.test(stand) &&
+  /Pfosten vorne \d+ mm/.test(stand),
+  stand.slice(0, 120));
+await page.fill('#k3dBodenGefaelle', '0');
+await page.locator('#k3dBodenGefaelle').blur();
+await page.waitForTimeout(900);
+pruef('Zurueck auf eben loescht den Hinweis wieder',
+  (await page.locator('#k3dBodenGefaelleStand').innerText()).trim() === '',
+  'das Feld laesst sich leeren');
+
 
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
