@@ -323,6 +323,31 @@ pruefe('Die anderen Bauwege legen Platte und Wiese zurück',
              : (k3d.match(/rasenNeigen\(0, 0\);             \/\/ und die Wiese/g) || []).length === 3 &&
                (k3d.match(/belag\.scale\.y = 1;/g) || []).length === 3,
        'sonst bliebe die Wiese nach einem Produktwechsel gekippt');
+/* ---------- Steigungsdreieck ----------
+   „jz is der ganze boden geneigt bei neigung das is aber egal nur man
+   sieht es jetzt nicht mehr so deutlich vorher war eig besser"
+   (Betreiber, 25.10.2026). Der Boden bleibt richtig gebaut; sichtbar
+   wird das Gefaelle ueber ein Dreieck an der Masslinie. */
+pruefe('Das Gefälle bekommt ein Steigungsdreieck',
+       gegen ? !/function gefaelleDreieck\(a, b, grad, quer\)/.test(k3d)
+             : /function gefaelleDreieck\(a, b, grad, quer\)/.test(k3d) &&
+               /gefaelleDreieck\(new V\(seite,/.test(k3d) &&
+               /gefaelleDreieck\(new V\(-B \/ 2,/.test(k3d),
+       'Waagerechte, Höhenunterschied und Zahl an der Maßlinie');
+(function () {
+  /* Nachgerechnet: Die Zahl im Schild ist der Hoehenunterschied ueber
+     die bemasste Laenge – nicht irgendeine gerundete Gradzahl. */
+  Z.bodenGefaelle = 6; Z.bodenGefaelleQuer = 0;
+  var hintenZ = -11.7, T = hintenZ + 4000 / 10, seite = 500 / 2 + 100;
+  var a = bodenY(seite, hintenZ) + 2, b = bodenY(seite, T) + 2;
+  var mm = Math.round(Math.abs(a - b) * 10);
+  var soll = Math.round(Math.tan(6 * Math.PI / 180) * (T - hintenZ) * 10);
+  Z.bodenGefaelle = 0;
+  var ok = Math.abs(mm - soll) <= 1 && mm > 400;
+  pruefe('Die Zahl im Dreieck ist der wirkliche Höhenunterschied',
+         gegen ? !ok : ok,
+         mm + ' mm auf 4000 mm Tiefe bei 6°');
+})();
 pruefe('Das Wasserzeichen liegt auf dem Belag und kippt mit',
        gegen ? !/wasserzeichen\.quaternion\s*\n\s*\.copy\(bodenDrehung\(/.test(k3d)
              : /wasserzeichen\.quaternion\s*\n\s*\.copy\(bodenDrehung\(/.test(k3d) &&

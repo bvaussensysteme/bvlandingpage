@@ -404,6 +404,37 @@
              ys.toFixed(1) + ' m ' + (x + b).toFixed(1) + ' ' + ys.toFixed(1) + ' l S');
     }
 
+    /* ---------- Wert einer Kachel kuerzen ----------
+       „das konfigurations pdf hat noch fehler dach texte sich
+       überlappen" (Betreiber, 25.10.2026, mit Bild): In der Kachel
+       EINDECKUNG stand „VSG 8 mm opal, quer gestossen und gekoppelt bei
+       4150 mm ab Rinne". Die Schrift wurde bis 7,5 Punkt verkleinert
+       und lief dann trotzdem in die Nachbarkachel – ein Wert, der auch
+       bei 7,5 Punkt nicht passt, wurde einfach darueber hinaus
+       geschrieben.
+
+       Eine Kachel ist eine KENNZAHL, kein Satz: Der vollstaendige Text
+       steht unten in der Liste. Deshalb wird hier stufenweise gekuerzt
+       und zuletzt hart abgeschnitten – es kann nichts mehr ueberlaufen.
+       Gemessen wird bei 9 Punkt: Darunter wird es auf dem Ausdruck
+       unleserlich, und eine unleserliche Kachel hilft niemandem. */
+    function kachelWert(wert, maxB) {
+      var voll = String(wert == null ? '' : wert).trim();
+      var stufen = [
+        voll,
+        voll.replace(/\s*\([^()]*\)\s*$/, '').trim(),      // Klammerzusatz weg
+        voll.split(',')[0].replace(/\s*\([^()]*\)\s*$/, '').trim()
+      ];
+      for (var i = 0; i < stufen.length; i++) {
+        if (stufen[i] && textBreite(stufen[i], 9, true) <= maxB) return stufen[i];
+      }
+      var kurz = stufen[2] || voll;
+      while (kurz.length > 3 && textBreite(kurz + '…', 9, true) > maxB) {
+        kurz = kurz.slice(0, -1);
+      }
+      return kurz.replace(/[\s,;]+$/, '') + '…';
+    }
+
     function kopfZeichnen(erste) {
       y = A4_H - RAND - 8;
       zeile(erste ? s.titel : s.titel + ' (Fortsetzung)', 19, true, G.text, RAND);
@@ -420,7 +451,7 @@
           y = oben - 17;
           zeile(k.label.toUpperCase(), 7, true, G.hell, kx);
           y = oben - 33;
-          var wert = k.wert, gr = 13;
+          var wert = kachelWert(k.wert, kb - 26), gr = 13;
           while (textBreite(wert, gr, true) > kb - 26 && gr > 7.5) gr -= 0.5;
           zeile(wert, gr, true, G.text, kx);
         });

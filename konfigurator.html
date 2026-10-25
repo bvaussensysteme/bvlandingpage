@@ -223,6 +223,52 @@
       text-align: center; line-height: 1.15;
     }
     .k3d-ral-name[hidden] { display: none; }
+    /* ---------- Lupe neben dem RAL-Feld ----------
+       „hier daneben wäre vllr nen button mit lupen symbol gut wenn man
+       draufklickt kann man z.b eingeben Braun, Blau etc, dann werden
+       einem RAL Töne vorgeschlagen" (Betreiber, 25.10.2026, mit Bild).
+       Wer die Nummer nicht auswendig kann – also fast jeder – kommt
+       sonst gar nicht an die 217 Töne heran. */
+    .k3d-ral-reihe { display: flex; gap: 4px; align-items: center; }
+    .k3d-ral-reihe input { flex: 1 1 auto; min-width: 0; }
+    .k3d-ral-lupe {
+      flex: 0 0 auto; width: 28px; height: 28px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: #fff; color: var(--gold-text); cursor: pointer;
+    }
+    .k3d-ral-lupe:hover, .k3d-ral-lupe[aria-expanded="true"] {
+      border-color: var(--gold-text); background: #fffaf0;
+    }
+    .k3d-ral-lupe svg { width: 15px; height: 15px; display: block; }
+    .k3d-ral-suche[hidden] { display: none; }
+    .k3d-ral-suche { margin-top: 6px; }
+    /* Linksbündig: Das Feld erbt .k3d-zahl, und dort stehen Zahlen
+       rechts – ein Suchwort sieht so aus, als rutsche es weg. */
+    .k3d-ral-suche input { width: 100%; text-align: left; }
+    .k3d-ral-treffer {
+      list-style: none; margin: 6px 0 0; padding: 0;
+      max-height: 210px; overflow-y: auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+      gap: 4px;
+    }
+    .k3d-ral-treffer button {
+      width: 100%; display: flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: 6px; background: #fff;
+      padding: 4px 6px; cursor: pointer; text-align: left; font: inherit;
+      font-size: .68rem; line-height: 1.15;
+    }
+    .k3d-ral-treffer button:hover { border-color: var(--gold-text); }
+    .k3d-ral-treffer .k3d-ral-fleck {
+      flex: 0 0 auto; width: 16px; height: 16px; border-radius: 4px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+    .k3d-ral-treffer .k3d-ral-text { min-width: 0; }
+    .k3d-ral-treffer .k3d-ral-nr { font-weight: 700; display: block; }
+    .k3d-ral-treffer .k3d-ral-bez {
+      display: block; color: var(--muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
     /* „nicht hinterlegt" darf nicht untergehen – sonst wundert man sich,
        warum sich nichts ändert. */
     .k3d-mini.ist-warnung { color: var(--gold-text); font-weight: 600; }
@@ -1090,9 +1136,22 @@
                  ohnehin leer. -->
             <div class="k3d-gruppe k3d-ral-zelle" data-k3d-schritt="farbe" data-k3d-fuer="ral-sonder" hidden>
               <label class="k3d-label" for="k3dRalCode">RAL-Ton</label>
-              <input type="text" id="k3dRalCode" class="k3d-zahl"
-                     inputmode="numeric" maxlength="9" placeholder="7016"
-                     aria-describedby="k3dRalStand">
+              <div class="k3d-ral-reihe">
+                <input type="text" id="k3dRalCode" class="k3d-zahl"
+                       inputmode="numeric" maxlength="9" placeholder="7016"
+                       aria-describedby="k3dRalStand">
+                <button type="button" class="k3d-ral-lupe" id="k3dRalLupe"
+                        aria-expanded="false" aria-controls="k3dRalSuche"
+                        title="RAL-Ton suchen" aria-label="RAL-Ton suchen">
+                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <circle cx="7" cy="7" r="4.6" fill="none"
+                            stroke="currentColor" stroke-width="1.7"></circle>
+                    <line x1="10.4" y1="10.4" x2="14.4" y2="14.4"
+                          stroke="currentColor" stroke-width="1.7"
+                          stroke-linecap="round"></line>
+                  </svg>
+                </button>
+              </div>
               <span class="k3d-ral-name" id="k3dRalName" hidden></span>
             </div>
           </div>
@@ -1108,6 +1167,17 @@
           <p class="k3d-mini"><strong>Sonderfarben sind aufpreispflichtig.</strong>
             Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen
             Aufmaß – er hängt von Menge und Oberfläche ab.</p>
+          <!-- Die Suche steht hier und nicht in der Zelle oben: Dort ist
+               sie eine Spalte breit, hier die ganze Breite des Bedienfelds
+               – die Treffer brauchen Platz. -->
+          <div class="k3d-ral-suche" id="k3dRalSuche" hidden>
+            <label class="k3d-label" for="k3dRalSuchFeld">RAL-Ton suchen</label>
+            <input type="search" id="k3dRalSuchFeld" class="k3d-zahl"
+                   placeholder="z. B. Braun, Blau, Moos oder 70"
+                   autocomplete="off" aria-describedby="k3dRalSuchStand">
+            <ul class="k3d-ral-treffer" id="k3dRalTreffer"></ul>
+            <p class="k3d-mini" id="k3dRalSuchStand"></p>
+          </div>
           <p class="k3d-mini" id="k3dRalStand"></p>
         </div>
       </details>
@@ -1793,10 +1863,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261025a" defer></script>
+<script src="js/masstabelle.js?v=20261025b" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261025a" defer></script>
-<script src="js/konfigurator-3d.js?v=20261025a" defer></script>
+<script src="js/pdf-blatt.js?v=20261025b" defer></script>
+<script src="js/konfigurator-3d.js?v=20261025b" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

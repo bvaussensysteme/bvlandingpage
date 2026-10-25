@@ -9097,3 +9097,92 @@ Linie sein. Dasselbe mit Quergefälle für die Breitenlinie vorne.
 
 **Geprüft:** `pruefe-markise.js` 190 Prüfungen bestanden, Gegenprobe schlägt
 bei 190 von 190 an. Dazu alle übrigen `pruefe-*` und die 90 Browser-Prüfungen.
+
+## 25.10.2026 — Gefälle sichtbar machen, ohne die Geometrie zu verbiegen
+
+**Anlass.** „jz is der ganze boden geneigt bei neigung das is aber egal nur man
+sieht es jetzt nicht mehr so deutlich vorher war eig besser" (Betreiber).
+Stimmt: Kippt der ganze Boden, kippt das Auge mit — das Gefälle ist richtig
+gebaut, aber im Bild kaum zu erkennen.
+
+**Rückfrage gestellt, Betreiber hat entschieden:** „Gefälle-Maß einblenden" —
+Boden bleibt wie er ist, die Zahl kommt dazu. Verworfen wurde damit die
+sichtbare Terrassenkante (der alte Keil), die genau die beiden Fehlerbilder
+erzeugt hatte.
+
+**Gebaut:** ein **Steigungsdreieck** an der liegenden Maßlinie. Die Maßlinie
+selbst ist die Schräge, dazu eine graue Waagerechte als Bezug und der
+senkrechte Höhenunterschied mit seiner Zahl, z. B. „6° · 420 mm". Es erscheint
+nur bei eingestelltem Gefälle und für jede Richtung einzeln (vorne/hinten und
+quer). Damit ist das Gefälle zu sehen **und** abzulesen — die Zahl, die beim
+Aufmaß gebraucht wird.
+
+**Geprüft:** `pruefe-bodengefaelle.js` (40, Gegenprobe 40/40). Eine Prüfung
+rechnet die Zahl im Schild nach: 6° auf 4000 mm Tiefe = 420 mm.
+
+## 25.10.2026 — PDF: Kacheln liefen ineinander, Durchfahrt ohne Statikträger
+
+**Was falsch war** („das konfigurations pdf hat noch fehler dach texte sich
+überlappen, und z.b bei der durchfahrtshöhe is der statikträger nicht beachtet
+dadurch sinkt das ja", Betreiber mit Bild):
+
+1. Der Kachelwert wurde bis 7,5 Punkt verkleinert und dann **trotzdem**
+   geschrieben — „VSG 8 mm opal, quer gestoßen und gekoppelt bei 4150 mm ab
+   Rinne" lief quer durch die Nachbarkachel „Farbe".
+2. In der Kachel DURCHFAHRTSHÖHE stand die bestellte Unterkante. Hängt ein
+   Statikträger darunter, fährt man dort nicht durch.
+
+**Was jetzt gilt.** Eine Kachel ist eine Kennzahl, kein Satz: Der Wert wird
+stufenweise gekürzt (Klammerzusatz weg, dann bis zum ersten Komma) und zuletzt
+hart mit „…" abgeschnitten — gemessen bei 9 Punkt, darunter ist es auf dem
+Ausdruck unleserlich. Der vollständige Text steht ohnehin in der Liste
+darunter. Und die Höhenkachel führt die wirkliche Durchfahrt in Klammern mit,
+in derselben Schreibweise wie das Bedienfeld („2650 mm (Durchfahrt 2465 mm)") —
+keine zwei Wahrheiten zwischen Blatt und Bildschirm.
+
+**Geprüft, am fertigen PDF statt am Code:** `pruefe-pdf.js` liest aus dem
+Inhaltsstrom die Textbefehle mit Position und Schriftgröße, rechnet die Breite
+jedes Textes und sieht nach, ob der nächste links davon beginnt. Gemessen wird
+dabei die **Wertezeile**, nicht die Beschriftungszeile darüber — die
+Beschriftungen sind so kurz, dass die Prüfung an ihnen immer „ok" gesagt hätte
+(erster Anlauf, gefangen beim Nachsehen der Ausgabe). Gegenprobe baut das Blatt
+wie vorher: 238 pt Überlappung. 29 Prüfungen, Gegenprobe 29/29.
+
+## 25.10.2026 — Alle RAL-Töne, und eine Lupe zum Suchen
+
+**Anlass.** „füge mehr RAL töne hinzu" und „hier daneben wäre vllr nen button
+mit lupen symbol gut wenn man draufklickt kann man z.b eingeben Braun, Blau
+etc, dann werden einem RAL Töne vorgeschlagen" (Betreiber, mit Bild).
+
+**Gebaut.** Die Tabelle führt jetzt die ganze RAL-Classic-Reihe (217 statt 53).
+Neben dem RAL-Feld steht eine Lupe; sie öffnet ein Suchfeld mit Trefferliste
+aus Farbfleck, Nummer und Namen. Ein Klick setzt die Nummer ins Feld und löst
+dort dasselbe Ereignis aus wie eine Eingabe von Hand — sonst stünde die Zahl im
+Feld, ohne dass das Modell sie kennt.
+
+**Sortierung, und warum sie so ist:** Im ersten Anlauf brachte „Braun" den Ton
+1011 **Braun**beige nach oben — ein Beigeton. Im Deutschen steht die Grundfarbe
+hinten: Sepia**braun** ist braun, Braun**beige** ist beige. Gesucht wird
+deshalb in drei Stufen: Nummer, dann Name (Endung vor Anfang vor Mitte), dann
+Farbfamilie über die erste Ziffer der RAL-Nummer (1 Gelb … 9 Weiß/Schwarz).
+Ohne die Familie fände „Blau" zwar „Enzianblau", aber nicht „Ultramarin".
+
+**Woher die Farbwerte kommen — ehrlich:** Die 53 vorhandenen Töne sind
+**unverändert** geblieben (sie stehen seit dem 11.10.2026 so im Bild). Die
+neuen stammen aus der Farbprobe der englischen Wikipedia-Liste, die deutschen
+Namen aus der deutschen Seite, zusammengeführt über die Nummer. Beides sind
+Näherungen und sie weichen stellenweise voneinander ab (RAL 7016 hier 383e42,
+Wikipedia-Probe 373f43). Für ein Vorschaubild ist das unsichtbar; verbindlich
+ist der RAL-Fächer, und genau das steht auch im Bedienfeld. **Wer es exakt
+will**, müsste die offiziellen Lab-Werte kaufen und umrechnen — das wäre die
+einzige wirklich belastbare Quelle.
+
+**Geprüft:** neues Skript `scripts/pruefe-ral.js` (10 Prüfungen, Gegenprobe
+10/10). Es führt Tabelle und Suche wirklich aus: Stichproben Nummer → Name,
+Helligkeit der Schwarz- und Weißtöne nachgerechnet (ein vertauschter Wert
+fällt damit auf), neun echte Suchfragen mit erwartetem ersten Treffer. Dazu im
+Browser geprüft: Lupe sichtbar, „Braun" liefert 25 Treffer beginnend bei RAL
+8000, ein Klick setzt 8000 ins Feld und der Name erscheint darunter.
+`pruefe-fuehrung.js` hat beim ersten Durchlauf angeschlagen, weil das Suchfeld
+kein Neuzeichnen auslöst — das ist richtig so und steht jetzt als begründete
+Ausnahme im Prüfskript.
