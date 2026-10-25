@@ -180,6 +180,39 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 | **Abschnitt „Vertragsabwicklung" in der Datenschutzerklärung** | Von mir formuliert. Die Liste der Empfänger (Steuerbüro, Hersteller, Transport, Kreditinstitute) muss zur tatsächlichen Praxis passen – im Zweifel anwaltlich bestätigen lassen |
 | **Rechtstext-PDFs für Kleinanzeigen** | Liegen nicht im Repository (siehe Abschnitt 5). Bei Textänderungen neu erzeugen lassen |
 | **Preisgrundlage, falls je Preise gezeigt werden sollen** | Bisherige Linie: keine Preise. Eine Kalkulationsgrundlage kann nur der Betrieb liefern |
+| **Tabelle für den Kurzlink anlegen** (ein Befehl, siehe unten) | Die Datenbank-Rolle darf im Schema `public` nichts Neues anlegen (ab PostgreSQL 15 Standard). Live bestätigt am 25.10.2026: `/api/teilen` antwortet `{"ok":false,"schritt":"tabelle"}`. Bis dahin bekommt jeder den langen Link – der funktioniert, ist nur lang |
+
+### Kurzlink freischalten — ein Befehl, einmal
+
+1. [console.neon.tech](https://console.neon.tech) öffnen und anmelden (dasselbe
+   Konto wie für die Anfragen-Datenbank).
+2. Links **„SQL Editor"** anklicken, oben die Datenbank auswählen, in der auch
+   die Tabelle `anfragen` liegt.
+3. Diesen Text einfügen und auf **Run** klicken:
+
+```sql
+create table if not exists teilen_links (
+  id        text primary key,
+  code      text not null,
+  code_hash text not null unique,
+  erstellt  timestamptz not null default now(),
+  zuletzt   timestamptz
+);
+```
+
+4. Fertig. Prüfen lässt es sich ohne Anmeldung:
+
+```sh
+curl -s -X POST https://bv-aussensysteme.de/api/teilen \
+  -H 'Content-Type: application/json' \
+  -d '{"code":"AAAAAAAAAAAAAAAAAAAAAA"}'
+```
+
+   Antwort `{"ok":true,"id":"…"}` heißt: Der Kurzlink läuft. Kommt weiterhin
+   `{"ok":false,"schritt":"tabelle"}`, hat der Befehl nicht gegriffen.
+
+Im Konfigurator ändert sich danach nichts an der Bedienung – im Teilen-Dialog
+steht dann automatisch der kurze Link statt des langen.
 
 ---
 

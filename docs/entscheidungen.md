@@ -9323,3 +9323,28 @@ Deshalb jetzt `scripts/pruefe-konfliktmarken.sh` — sucht im ganzen Projekt nac
 Marken am Zeilenanfang und hat eine Gegenprobe, die eine Datei mit Marken
 anlegt und findet. **Gehört in jeden Durchlauf vor dem Commit**, besonders nach
 jedem Merge.
+
+## 25.10.2026 — Kurzlink: live bestätigt, warum er noch nicht läuft
+
+Der erste Aufruf auf dem Livesystem antwortete `502 {"ok":false}` — ein
+Datenbankfehler ohne erkennbare Ursache. Nach dem Nachrüsten einer
+Schritt-Angabe steht es fest: `{"ok":false,"schritt":"tabelle"}`. Die Tabelle
+`teilen_links` fehlt, und die Rolle, mit der der Worker schreibt, darf im
+Schema `public` nichts anlegen (ab PostgreSQL 15 der Standard; die Tabelle
+`anfragen` hat jemand mit mehr Rechten angelegt).
+
+**Das lässt sich von hier aus nicht lösen** — die Zugangsdaten sind ein Secret
+der Live-Umgebung. Der Betreiber führt einen Befehl in der Neon-Konsole aus;
+die Anleitung steht in `docs/NEXT_TASK.md`, Abschnitt 2, samt Prüfbefehl.
+
+**Bis dahin passiert nichts Schlimmes:** Der Dialog zeigt den langen Link, der
+die Planung selbst trägt, und der Hinweistext sagt genau das. Diese
+Rückfallebene war von Anfang an der Grund, den langen Link nicht einfach zu
+ersetzen.
+
+**Was dabei auffiel und geändert wurde:** Der Worker versucht das Anlegen jetzt
+nur noch, wenn das Lesen fehlschlägt, merkt sich einen Fehlschlag und probiert
+es nicht bei jedem Aufruf erneut. Und die Antwort nennt den Schritt
+(`tabelle` / `suchen` / `schreiben`) — ein Wort, keine Datenbankmeldung an den
+Besucher. Ohne diese eine Zeile hätte ich die Ursache nicht benennen können,
+sondern nur raten.
