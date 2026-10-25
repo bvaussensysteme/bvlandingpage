@@ -2832,8 +2832,18 @@ pruefe('RAL-Feld ist breit genug',
     verdrahtet[x.replace(/.*'(k3d[A-Za-z0-9]+Zahl)'.*/, '$1')] = true;
   });
 
+  /* AUSNAHME mit Begruendung, nicht als Schlupfloch: Das Suchfeld der
+     RAL-Lupe stellt nichts ein. Es sucht einen Farbton heraus; gesetzt
+     wird die Farbe erst, wenn jemand einen Treffer anklickt – und dann
+     ueber das Feld k3dRalCode, das sehr wohl verdrahtet ist. Wuerde die
+     Suche selbst aendern() rufen, baute das Modell bei jedem Tastendruck
+     neu. Geprueft wird dafuer in scripts/pruefe-ral.js, dass ein
+     Treffer wirklich bis ins Modell durchschlaegt. */
+  var OHNE_WIRKUNG = { k3dRalSuchFeld: true };
+
   var offen = ids.filter(function (e) {
     if (verdrahtet[e.id]) return false;
+    if (OHNE_WIRKUNG[e.id]) return false;
     if (/type="hidden"/.test(e.tag)) return false;      // Kachelauswahl
     return true;
   }).map(function (e) { return e.id; });

@@ -406,9 +406,90 @@ blob.arrayBuffer().then(function (ab) {
              bgText.indexOf(gegen ? 'Zustaendige' : 'Zuständige') > -1,
              'kein doppeltes Umkodieren');
       try { fs.unlinkSync(bgDatei); } catch (e) { /* egal */ }
-      abschluss();
+      kachelPruefung(abschluss);
     });
-  } else { abschluss(); }
+  } else { kachelPruefung(abschluss); }
+  }
+
+  /* ---------- Kacheln duerfen sich nicht ueberschreiben ----------
+     „das konfigurations pdf hat noch fehler dach texte sich
+     überlappen" (Betreiber, 25.10.2026, mit Bild): In der Kachel
+     EINDECKUNG stand ein ganzer Satz, der in die Kachel FARBE lief.
+
+     Geprueft wird nicht der Kuerzungs-Code, sondern das FERTIGE PDF:
+     Aus dem Inhaltsstrom werden die Textbefehle mit ihrer Position und
+     Schriftgroesse gelesen, die Breite jedes Textes gerechnet und
+     nachgesehen, ob der naechste Text links davon beginnt. */
+  function kachelPruefung(weiter) {
+    var lang = [
+      { label: 'Breite × Tiefe', wert: '6210 × 5000 mm' },
+      { label: 'Durchfahrtshöhe', wert: '2650 mm (Durchfahrt 2465 mm)' },
+      { label: 'Eindeckung',
+        wert: 'VSG 8 mm opal, quer gestoßen und gekoppelt bei 4150 mm ab Rinne' },
+      { label: 'Farbe', wert: 'RAL 8014 Sepiabraun (Sonderfarbe, aufpreispflichtig)' }
+    ];
+    if (gegen) {
+      /* Gegenprobe: das Blatt so bauen, wie es VOR dieser Aenderung war –
+         ohne die wirkliche Durchfahrt in der Klammer. */
+      lang = lang.map(function (k) {
+        return { label: k.label, wert: k.wert.replace(/\s*\(Durchfahrt[^)]*\)/, '') };
+      });
+    }
+    PDF.erzeugen([{
+      titel: 'Ihre Konfiguration', kopf: 'Carport TDS · Freistehender Carport',
+      unten: 'Unverbindliche Darstellung', kacheln: lang,
+      gruppen: [{ titel: 'Konstruktion und Maße', zeilen: ['Höhe hinten: 2650 mm'] }]
+    }], {}).arrayBuffer().then(function (ab) {
+    var text = Buffer.from(ab).toString('latin1');
+    /* BT /F2 13 Tf 0.08 ... rg 49.0 520.0 Td (Text) Tj ET */
+    var re = /BT \/(F\d) ([\d.]+) Tf [^(]*? ([\d.]+) ([\d.]+) Td \(((?:\\.|[^()\\])*)\) Tj ET/g;
+    var tr, alle = [];
+    while ((tr = re.exec(text)) !== null) {
+      alle.push({ gr: parseFloat(tr[2]), x: parseFloat(tr[3]), y: parseFloat(tr[4]),
+                  fett: tr[1] === 'F2',
+                  txt: tr[5].replace(/\\([()\\])/g, '$1') });
+    }
+    /* Die Kachelwerte stehen alle auf derselben Grundlinie. Gesucht ist
+       die Zeile mit vier Eintraegen, in der KLEINBUCHSTABEN vorkommen –
+       die Zeile darueber traegt die Beschriftungen in Grossbuchstaben,
+       und die sind so kurz, dass sie nie anstossen: An ihr gemessen
+       haette die Pruefung immer „ok" gesagt. */
+    var nachY = {};
+    alle.forEach(function (e) { (nachY[e.y.toFixed(1)] = nachY[e.y.toFixed(1)] || []).push(e); });
+    var beste = null;
+    Object.keys(nachY).forEach(function (k) {
+      var r = nachY[k];
+      if (r.length < 4) return;
+      var klein = r.some(function (e) { return e.txt !== e.txt.toUpperCase(); });
+      if (klein && (!beste || r.length > beste.length)) beste = r;
+    });
+    if (!beste) {
+      pruefe('Kachelzeile im PDF gefunden', false, 'keine Wertezeile mit vier Texten');
+      weiter();
+      return;
+    }
+    beste.sort(function (a, b) { return a.x - b.x; });
+    /* Gegenprobe: so messen, wie es VOR der Kuerzung aussah – der volle
+       Text an derselben Stelle. Schlaegt die Pruefung dann nicht an,
+       misst sie nichts. */
+    if (gegen) {
+      beste.forEach(function (e, i) { if (lang[i]) e.txt = lang[i].wert; });
+    }
+    var schlimmst = -999, wo = '';
+    for (var j = 0; j < beste.length - 1; j++) {
+      var ende = beste[j].x + PDF.textBreite(beste[j].txt, beste[j].gr, beste[j].fett);
+      var ueber = ende - beste[j + 1].x;
+      if (ueber > schlimmst) { schlimmst = ueber; wo = beste[j].txt.slice(0, 24); }
+    }
+    pruefe('Kacheltexte überschreiben sich nicht',
+           schlimmst < 0,
+           'groesste Überlappung ' + schlimmst.toFixed(1) + ' pt bei „' + wo + '“');
+    /* Und die Zahl, um die es ging, muss im Blatt stehen. */
+    pruefe('Die wirkliche Durchfahrt steht im PDF',
+           text.indexOf('Durchfahrt 2465 mm') > -1,
+           'Statiktraeger beachtet');
+    weiter();
+    });
   }
 
   function abschluss() {
