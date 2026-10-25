@@ -9706,6 +9706,11 @@
      breit gebaut wurde. „jeder buchstabe hat ja sein maß" (Betreiber,
      23.10.2026). Bei vier Massen kann das nicht mehr passieren, weil
      jedes genau eine Kante beschreibt. */
+  var SF_NAME = {
+    Breite1: 'Breite hinten', Breite2: 'Breite vorne',
+    Tiefe1: 'Tiefe links', Tiefe2: 'Tiefe rechts'
+  };
+
   function sonderformWiderspruch() {
     if (!sonderformAktiv()) return [];
     var aus = [];
@@ -9715,6 +9720,18 @@
       if (!(Z[f[0]] > 0)) aus.push(f[1] + ' fehlt.');
     });
     return aus;
+  }
+
+  /* Gekappte Masse sind etwas anderes als Widersprueche: Die Form laesst
+     sich bauen, nur eben nicht so gross. Deshalb eigene Liste und eigene
+     Ueberschrift – „passt nicht zusammen" waere schlicht falsch. */
+  function sonderformGekappt() {
+    if (!sonderformAktiv()) return [];
+    return Object.keys(SF_GEKAPPT).map(function (k) {
+      var g = SF_GEKAPPT[k];
+      return (SF_NAME[k] || k) + ' ' + g[0] + ' mm ist in diesem System ' +
+             'nicht lieferbar \u2013 gebaut wird mit ' + g[1] + ' mm.';
+    });
   }
 
   /* Die vier Ecken des Vierecks in Millimetern, x mittig, Wand bei z = 0.
@@ -10408,10 +10425,15 @@
            23.10.2026 passiert: A war 5000, gezeichnet wurden 7600, und
            niemand hat es erfahren ausser am fertigen Bild. */
         var w = sonderformWiderspruch();
-        r.className = 'k3d-mass-hinweis' + (w.length ? ' k3d-mass-streit' : '');
+        var gk = sonderformGekappt();
+        r.className = 'k3d-mass-hinweis' + ((w.length || gk.length) ? ' k3d-mass-streit' : '');
         r.innerHTML = (w.length
           ? '<strong>Diese Ma\u00dfe passen nicht zusammen \u2013 so l\u00e4sst sich die Form ' +
             'nicht bauen:</strong><br>' + w.join('<br>') + '<br><br>'
+          : '') +
+          (gk.length
+          ? '<strong>Gr\u00f6\u00dfer, als dieses System kann:</strong><br>' +
+            gk.join('<br>') + '<br><br>'
           : '') +
           'Umschlie\u00dfendes Rechteck: ' + m.breite + ' \u00d7 ' + m.tiefe +
           ' mm. Damit rechnen St\u00fcckliste und Pfostenzahl.';
@@ -10479,12 +10501,62 @@
     return { breiten: bs, tiefen: ts };
   }
 
+  /* ---------- Was das System hergibt ----------
+     Dieselbe Liste, aus der die Regler ihre Grenzen bekommen. Sie ist
+     die EINZIGE Stelle, an der steht, wie gross eine Anlage werden
+     kann – deshalb holen sich die Sonderform-Felder sie hier und nicht
+     aus einer zweiten Zahl im HTML. */
+  function massGrenzen() {
+    var listen = null;
+    var d = datenSystem();
+    if (d && RASTER) listen = RASTER[d.system + '|' + d.material];
+    if (!listen) listen = grenzenAusTabelle();
+    if (!listen) return null;
+    var b = listen.breiten || [], t = listen.tiefen || [];
+    if (!b.length || !t.length) return null;
+    return { bMin: b[0], bMax: b[b.length - 1],
+             tMin: t[0], tMax: t[t.length - 1] };
+  }
+
+  /* ---------- Die Sonderform darf nicht mehr zulassen als der Regler ----------
+     „das modell sieht verkrüppelt aus nix passt sich richtig an"
+     (Betreiber, 25.10.2026, mit Bild und Teilen-Link). Nachgemessen:
+     Gebaut wurde genau das, was eingegeben war – Tiefe links 8000 mm.
+     Nur gibt es die in diesem System nicht: Der Tiefenregler endet bei
+     7050 mm, die vier Sonderform-Felder standen aber auf max="14080".
+     Aus 8000 mm Tiefe bei 8 Grad werden hinten 3,42 m hohe Pfosten,
+     und das Ergebnis sieht aus wie ein Fehler, obwohl das Modell
+     gehorsam gerechnet hat.
+
+     Jetzt gilt im Sonderformweg dieselbe Grenze wie am Regler. Was
+     darueber liegt, wird gekappt UND gesagt – stillschweigend kuerzen
+     waere der naechste Fehler, den niemand findet. */
+  /* Die Meldung muss BLEIBEN. Beim ersten Anlauf stand sie nur einen
+     Wimpernschlag: Das Feld bekommt den gekappten Wert zurueckgeschrieben,
+     der naechste Durchlauf findet nichts mehr zu kappen – und der
+     Betreiber haette gesehen, wie seine 8000 ohne ein Wort zu 7050
+     werden. Deshalb gemerkt, bis jemand das Feld wirklich aendert. */
+  var SF_GEKAPPT = {};
+
+  function sonderformGrenzenSetzen() {
+    var g = massGrenzen();
+    if (!g) return;
+    [['k3dSfBreite1', 'b'], ['k3dSfBreite2', 'b'],
+     ['k3dSfTiefe1', 't'], ['k3dSfTiefe2', 't']].forEach(function (p) {
+      var el = document.getElementById(p[0]);
+      if (!el) return;
+      el.min = p[1] === 'b' ? g.bMin : g.tMin;
+      el.max = p[1] === 'b' ? g.bMax : g.tMax;
+    });
+  }
+
   function reglerGrenzenSetzen() {
     var listen = null;
     var d = datenSystem();
     if (d && RASTER) listen = RASTER[d.system + '|' + d.material];
     if (!listen) listen = grenzenAusTabelle();
     if (!listen) return;
+    sonderformGrenzenSetzen();
     [['k3dBreite', 'breiten', 'breite'], ['k3dTiefe', 'tiefen', 'tiefe']].forEach(function (p) {
       var el = document.getElementById(p[0]);
       var liste = listen[p[1]] || [];
@@ -10522,6 +10594,13 @@
       var streit = sonderformWiderspruch();
       if (streit.length) {
         aus.push('ACHTUNG Sonderform: ' + streit.join(' '));
+      }
+      /* Ein gekapptes Mass muss in der Anfrage stehen: Der Kunde hat
+         8000 getippt und bekommt 7050 angeboten – wer das Angebot
+         schreibt, muss wissen, dass da ein Wunsch gekuerzt wurde. */
+      var gekappt = sonderformGekappt();
+      if (gekappt.length) {
+        aus.push('ACHTUNG Sonderform gekappt: ' + gekappt.join(' '));
       }
       aus.push('Sonderform (Viereck): ' + sonderMasskette() +
         '. St\u00fcckzahl aus dem umschlie\u00dfenden Rechteck ' +
@@ -10981,8 +11060,18 @@
        aendert daran nichts. */
     Z.form = wert('k3dForm') || Z.form;
     if (!sonderformMoeglich()) Z.form = 'Normal';
+    var sfG = massGrenzen();
     ['Breite1', 'Breite2', 'Tiefe1', 'Tiefe2'].forEach(function (k) {
-      Z['sf' + k] = zahl('k3dSf' + k, Z['sf' + k]);
+      var wert = zahl('k3dSf' + k, Z['sf' + k]);
+      if (sfG && sonderformAktiv()) {
+        var quer = k.indexOf('Breite') === 0;
+        var hoch = quer ? sfG.bMax : sfG.tMax;
+        var tief = quer ? sfG.bMin : sfG.tMin;
+        if (wert > hoch) { SF_GEKAPPT[k] = [wert, hoch]; wert = hoch; }
+        else if (wert > 0 && wert < tief) { SF_GEKAPPT[k] = [wert, tief]; wert = tief; }
+        else if (!SF_GEKAPPT[k] || wert !== SF_GEKAPPT[k][1]) delete SF_GEKAPPT[k];
+      } else if (!sonderformAktiv()) delete SF_GEKAPPT[k];
+      Z['sf' + k] = wert;
     });
     if (sonderformAktiv()) {
       var sfR = sonderRechteck();
@@ -12642,8 +12731,15 @@
     'PgDachart', 'PgAusfuehrung', 'Aufbau', 'Form',
     'Breite', 'BreiteZahl', 'Tiefe', 'TiefeZahl', 'Hoehe', 'HoeheZahl',
     'HoeheHinten', 'HoeheHintenZahl', 'Neigung', 'NeigungZahl'];
-  /* Das Suchfeld der RAL-Lupe ist eine Suchhilfe, keine Einstellung. */
-  var TEILEN_AUS = { RalSuchFeld: true };
+  /* Diese Felder sind Werkzeuge, keine Einstellungen – sie gehoeren
+     nicht in den Link.
+
+     TeilenLink hat gefehlt, und das war schlimmer als unordentlich: Das
+     Feld enthaelt den zuletzt erzeugten Link, also kam beim naechsten
+     Teilen der alte Link IM neuen mit. Jedes Teilen verdoppelte die
+     Laenge. Im Link des Betreibers vom 25.10.2026 steckte genau das –
+     ein vollstaendiger zweiter Link, eingepackt in den ersten. */
+  var TEILEN_AUS = { RalSuchFeld: true, TeilenLink: true };
   var TEILEN_VORGABE = null;      // Stand direkt nach dem Laden
 
   function teilenFelder() {

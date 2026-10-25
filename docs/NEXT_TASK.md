@@ -80,6 +80,15 @@ einen Aufschlag nimmt. Im Katalogblatt stehen +30 % — **im Konfigurator
 steht nirgends ein Preis**, die Frage betrifft nur die Kalkulation im
 Betrieb.
 
+### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
+
+Bei 7050 mm Tiefe und 8° Dachneigung ergibt sich eine **Höhe hinten von
+3290 mm**. Der Höhenregler (vorne) endet bei 2700 mm, für die Höhe hinten gibt
+es keine Grenze — die Pfosten hinten werden entsprechend lang. Gibt es eine
+maximale Pfostenlänge oder Höhe hinten im System? Solange das niemand
+beziffert hat, wird **nicht** gekappt; eine erfundene Grenze wäre schlimmer
+als keine.
+
 ### Offene Rückfragen an VD (aus dem Konfigurator)
 
 | Frage | Warum sie zählt |
