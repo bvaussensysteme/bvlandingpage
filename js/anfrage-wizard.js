@@ -98,7 +98,12 @@
   // Keil (Gefälle-Ausgleich) nur bei TDS-Systemen mit Außengefälle – nicht bei
   // Flachdach SkyView oder Pergola (kein Außengefälle → kein Keil nötig).
   function keilAllowed() {
-    if (answers.produkt === 'Terrassendach TDS') return true;
+    /* Die Balkonüberdachung ist technisch ein TDS – gleiches Außen-
+       gefälle, also auch dieselbe Frage nach dem Keil. Stünde sie hier
+       nicht, wichen Assistent und Konfigurator voneinander ab; genau
+       das prüft scripts/pruefe-konfigurator.js. */
+    if (answers.produkt === 'Terrassendach TDS' ||
+        answers.produkt === 'Balkonüberdachung') return true;
     if (answers.produkt === 'Carport' && answers.carporttyp === 'Carport TDS') return true;
     return false;
   }
@@ -195,12 +200,22 @@
     var p = answers.produkt;
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
-    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView') {
+    if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView' ||
+        p === 'Balkonüberdachung') {
       /* Der Stoffschritt haengt an der Bauart: Die Stoffkarte fuehrt nur
          LINEA / SOLARA / PERGOLA / LUNA / LUXORA – Plissee und Sonnensegel
          gehoeren nicht dazu und bekommen deshalb keine Stoffwahl. Die
          Senkrechtmarkise hat eine EIGENE Liste (EZIP). */
-      var tdsSchritte = ['produkt', 'aufbau'].concat(wand ? ['fassade'] : [])
+      /* Beim Balkon entfällt die Frage nach dem Aufbau – ein Balkondach
+         hängt immer an der Hauswand. An ihre Stelle tritt die Frage, was
+         vorne steht und wo die Pfosten aufsetzen. Ohne sie käme eine
+         Anfrage herein, der man nicht ansieht, ob die Pfosten auf einer
+         Mauer stehen können; das entscheidet über Pfostenlänge und
+         Befestigung und müsste sonst hinterhertelefoniert werden. */
+      var balkon = p === 'Balkonüberdachung';
+      var tdsSchritte = ['produkt']
+        .concat(balkon ? ['balkon'] : ['aufbau'])
+        .concat(wand || balkon ? ['fassade'] : [])
         .concat(['masse', 'verglasung', 'markise']);
       if (answers.markise === 'Aufdachmarkise' || answers.markise === 'Unterdachmarkise')
         tdsSchritte.push('stoff');
@@ -346,6 +361,7 @@
           { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },
           { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
           { value: 'Carport', img: 'carport', photo: true, hint: 'TDS · Flat Line · Flat Box' },
+          { value: 'Balkonüberdachung', icon: I.sonst, hint: 'Für den Balkon – auf Brüstung oder Boden' },
           { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'Lamellendach · Faltdach · Velaris' },
           { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' },
           { value: 'Direkt anfragen', icon: I.brief, hint: 'Ohne Fragen – kurze Nachricht senden' }
@@ -363,6 +379,26 @@
         ]);
       },
       valid: function () { return answers.aufbau ? null : 'Bitte wählen Sie die Art des Aufbaus.'; }
+    },
+
+    /* ---------- Balkon ----------
+       Zwei Fragen, mehr nicht – dieselben wie im 3D-Konfigurator:
+       „z.B hat man ein normales geländer oder wie hier eine wand vorne,
+       geht die tiefe nur bis zum geländer oder baut man wie auf dem foto
+       auf die mauer vorne" (Betreiber, 25.10.2026). */
+    balkon: {
+      title: 'Was steht vorne auf Ihrem Balkon?',
+      sub: 'Davon hängt ab, wo die Pfosten stehen können',
+      render: function () {
+        return optionCards('balkonbruestung', [
+          { value: 'Gemauerte Brüstung', icon: I.sonst, hint: 'Kann die Pfosten tragen' },
+          { value: 'Geländer', icon: I.sonst, hint: 'Metall oder Glas – Pfosten stehen dahinter' },
+          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+        ], 'aw-options--equal');
+      },
+      valid: function () {
+        return answers.balkonbruestung ? null : 'Bitte wählen Sie, was vorne steht.';
+      }
     },
 
     carporttyp: {
@@ -424,7 +460,8 @@
       sub: 'Grobe Angaben genügen – wir messen später vor Ort exakt nach',
       render: function () {
         var opt = answers.produkt === 'Sonstiges';
-        var tds = answers.produkt === 'Terrassendach TDS';
+        var tds = answers.produkt === 'Terrassendach TDS' ||
+                  answers.produkt === 'Balkonüberdachung';
         var cpUeber = answers.carportvariante === 'Carport mit Überstand';
         return '<div class="aw-dims">' +
           dimField('breite', 'Breite', 'z. B. 4000', 'mm') +
@@ -912,7 +949,9 @@
     if (inFlow('masse')) {
       var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
       if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
-      if (answers.produkt === 'Terrassendach TDS' && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' mm']);
+      if ((answers.produkt === 'Terrassendach TDS' ||
+           answers.produkt === 'Balkonüberdachung') && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' mm']);
+      if (answers.balkonbruestung) p.push(['Brüstung', answers.balkonbruestung]);
       if (answers.carportvariante === 'Carport mit Überstand' && answers.ueberstand) p.push(['Überstand', answers.ueberstand + ' mm']);
     }
     if (inFlow('verglasung') && answers.verglasung) p.push(['Eindeckung', answers.verglasung + (isGlas(answers.verglasung) && answers.glasstaerke ? ' · ' + answers.glasstaerke : '')]);

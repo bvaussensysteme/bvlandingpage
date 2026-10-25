@@ -9066,6 +9066,71 @@ vier Plattenecken und der Mitte wird die Höhe **senkrecht** verglichen –
 Abweichung Wiese 0,000 cm, Platte 0,031 cm (halbe Plattendicke durch die
 Neigung). Dazu alle übrigen `scripts/pruefe-*` und die 90 Browser-Prüfungen.
 
+## 25.10.2026 (nachts) · Balkonüberdachung als Produkt im Konfigurator
+
+**Anlass.** „Ich möchte noch eine Option und zwar, Balkonüberdachungen …
+geht die tiefe nur bis zum geländer oder baut man wie auf dem foto auf
+die mauer vorne … versuch eine so gute und einfach bedienbare version wie
+möglich zu bauen" (Betreiber, mit zwei Zeichnungen eines Balkons).
+
+**Was jetzt gilt.** Die Balkonüberdachung ist ein eigenes Produkt im
+Konfigurator und im Anfrage-Assistenten, technisch aber eine Variante des
+Terrassendachs TDS — VD verkauft genau das (dieselbe Eindeckung, dieselben
+Farben, dieselben Erweiterungen). Eigen sind nur drei Dinge: die
+Maßgrenzen, die Brüstung davor und die Frage, wo die Pfosten aufsetzen.
+Zwei Pfostenstellungen, vom Betreiber ausgewählt: auf der Brüstungsmauer
+und dahinter auf dem Balkonboden.
+
+**Warum so und nicht anders.** Ein zweiter Bauweg hätte denselben Code
+ein zweites Mal gebraucht und wäre beim nächsten Umbau auseinander
+gelaufen. Stattdessen fasst istTdsDach() beide zusammen. Das Tiefenmaß
+meint beim Balkon die NUTZBARE Balkontiefe (so bemaßt der Betreiber, so
+misst man am Bau); das Dach reicht um die Brüstungsdicke weiter bis zur
+Außenkante, sonst tropft die Rinne auf die Brüstung.
+
+**Was verworfen wurde.** Die Verglasung aus dem zweiten Bild
+(zurückgestellt bis das Dach sitzt). Freitragende Dächer und Pfosten
+außen an der Balkonplatte (vom Betreiber nicht gewählt; bei VD auch nicht
+belegt). Die Seitenwangen aus der Zeichnung — sie sind an jedem Haus
+anders hoch, zwei falsche Wände wären schlechter als keine. „Freistehend"
+beim Balkon: der Wert wird gesetzt, nicht nur das Feld versteckt, sonst
+käme ein geteilter Link als unbaubares Modell zurück.
+
+**Mitgedacht, nicht gefragt worden.** Die Freistellungen der
+Landesbauordnungen gelten für Anbauten „zu ebener Erde" (so wörtlich die
+LBO Rheinland-Pfalz). Ein Dach auf dem Balkon im Obergeschoss fällt nicht
+automatisch darunter; dazu kommen Abstandsflächen, Fassadenbild und in
+einer Eigentümergemeinschaft ein Beschluss. Deshalb steht beim Balkon ein
+eigener Hinweis im Bedienfeld, den es beim Terrassendach nicht gibt.
+Bewertet wird nichts — es soll vorher gefragt werden. Die Seite
+/baugenehmigung.html behandelt weiterhin nur ebenerdige Dächer.
+
+**Zwei Fallen, die beim Einbau aufgefallen sind.**
+1. keilErlaubt() muss die Produktnamen ausgeschrieben enthalten:
+   scripts/pruefe-konfigurator.js vergleicht diese Liste mit der des
+   Anfrage-Assistenten. Hinter istTdsDach() versteckt, verglich die
+   Prüfung nichts mehr — sie hat sofort angeschlagen.
+2. Mehrere Prüfskripte schneiden Funktionen aus dem Quelltext und führen
+   sie einzeln aus. Eine neue Hilfsfunktion darin lässt sie abstürzen,
+   und ein Absturz sieht in langer Ausgabe aus wie „fertig". Betroffen
+   waren pruefe-fuehrung.js und pruefe-masstabelle.js; beide bekommen die
+   Funktion jetzt in ihre nachgebaute Umgebung gereicht.
+
+**Was gegengelesen werden soll.** `node scripts/pruefe-balkon.mjs` (14
+Prüfungen am fertigen Modell im Browser, mit --gegenprobe). Die
+Gegenprobe hat dabei eine echte Schwäche der Prüfung aufgedeckt: Ohne
+Brüstung lief der Vergleich „Pfosten steht dahinter" ins Leere und
+bestand ausgerechnet im Fehlerfall. Seitdem gehört br.length >= 1 ins
+Kriterium. Einzelheiten: docs/balkonueberdachung.md.
+
+**Offen.** VD nennt keine Maßgrenzen für die Balkonüberdachung — Breite,
+Tiefe und Höhe im Konfigurator sind an gängigen Balkongrößen
+ausgerichtet, nicht an einer Herstellerangabe. Ebenso offen: ob VD
+freitragend anbietet, ob es eine eigene Brüstungsbefestigung gibt und ob
+die Stückliste des Servers für Balkonmaße gilt (deshalb läuft der Balkon
+bewusst über den geschätzten Bauweg).
+
+
 ## 25.10.2026 (nachts) · Kurzlink zurückgestellt — die Datenbankrolle darf nichts anlegen
 
 **Anlass.** „wieso klappt das mit kurz link immernoch nicht" und, zur

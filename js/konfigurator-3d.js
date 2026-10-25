@@ -57,6 +57,15 @@
        aus Z gebaut, nicht aus dem, was gerade sichtbar ist). Stilles
        Zuruecksetzen waere der schlimmere Fehler. */
     stufe: 'Basic',
+    /* ---------- Balkon ----------
+       bruestung  – was vorne schon steht: gemauert oder ein Geländer.
+       bruestungH – ihre Höhe über dem Balkonboden, in mm.
+       pfostenAuf – wo die Pfosten stehen: 'Brüstung' (oben auf der Mauer)
+                    oder 'Boden' (dahinter auf der Balkonplatte).
+       Die Voreinstellung ist der Fall aus der Zeichnung des Betreibers. */
+    bruestung: 'Mauer',
+    bruestungH: 1000,
+    pfostenAuf: 'Brüstung',
     cpTyp: 'Carport TDS',
     cpVariante: 'Freistehender Carport',
     cpDach: 'Trapezblech (Standard)',
@@ -907,6 +916,32 @@
       tiefe:  [2000, 4500, 100, 3000],
       hoehe:  [2000, 2700,  50, 2400]
     },
+    /* ---------- Balkon: andere Größenordnung ----------
+       Ein Balkon ist schmal und flach. Die Voreinstellung ist die
+       Zeichnung des Betreibers vom 25.10.2026: 3,65 m breit, 1,31 m tief
+       („Balkontiefe"), Brüstung 1,00 m.
+
+       Die TIEFE meint hier wie in seiner Zeichnung die nutzbare
+       Balkontiefe – Hauswand bis Innenkante der Brüstung. Das Dach reicht
+       darüber hinaus bis zur Außenkante, damit das Wasser außen abtropft
+       und nicht auf den Balkon.
+
+       Die HÖHE ist wie beim Terrassendach die lichte Höhe vorne, gemessen
+       ab dem BALKONBODEN. Nach unten 1900 mm: Darunter stößt man sich den
+       Kopf. Nach oben 2600 mm – höher wird es selten, weil der Balkon
+       darüber oder die Fensterbrüstung im Weg ist. Was oben wirklich
+       passt, kann nur am Bau gemessen werden; darauf weist der
+       Konfigurator hin.
+
+       GESCHÄTZT: VD nennt auf der Produktseite keine Maßgrenzen für die
+       Balkonüberdachung. Breite und Tiefe sind hier an gängigen
+       Balkongrößen ausgerichtet, nicht an einer Herstellerangabe –
+       Rückfrage, siehe daten/rueckfragen-an-vd.md. */
+    'Balkonüberdachung': {
+      breite: [1500, 7000, 100, 3650],
+      tiefe:  [ 800, 2500,  50, 1300],
+      hoehe:  [1900, 2600,  50, 2200]
+    },
     'Carport': {
       breite: [2700, 6500, 100, 3200],
       tiefe:  [4500, 8000, 100, 5500],
@@ -995,8 +1030,19 @@
 
   /* Keil gleicht das Außengefälle aus – nur dort nötig, wo es eines gibt.
      SkyView und Pergola haben innenliegendes bzw. gar kein Gefälle. */
+  /* ACHTUNG: Hier stehen die Produktnamen ausgeschrieben, obwohl es
+     istTdsDach() gäbe. Das ist Absicht. scripts/pruefe-konfigurator.js
+     liest aus DIESER Funktion und aus keilAllowed() im Anfrage-
+     Assistenten die Produktnamen heraus und vergleicht beide Listen –
+     laufen sie auseinander, bekommt der Kunde im Assistenten eine
+     Auswahl, die der Konfigurator nicht kennt. Hinter einer Hilfs-
+     funktion versteckt, könnte die Prüfung nichts mehr vergleichen;
+     genau das ist am 25.10.2026 beim Einbau des Balkons passiert und
+     sofort aufgefallen. Wer hier ein Produkt ergänzt, ergänzt es auch
+     in js/anfrage-wizard.js. */
   function keilErlaubt() {
     if (Z.produkt === 'Terrassendach TDS') return true;
+    if (Z.produkt === 'Balkonüberdachung') return true;
     if (Z.produkt === 'Carport' && Z.cpTyp === 'Carport TDS') return true;
     return false;
   }
@@ -1164,7 +1210,7 @@
      fuehrt – daran haengen Farben und seit dem 16.10.2026 auch die
      Statikgrenzen. */
   function systemName() {
-    if (Z.produkt === 'Terrassendach TDS' || istCarportTds()) return 'TDS';
+    if (istTdsDach() || istCarportTds()) return 'TDS';
     if (Z.produkt === 'Flachdach SkyView') return 'SkyView';
     if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') return 'Flat_Line';
     return null;
@@ -1194,7 +1240,7 @@
     var k = null;
     /* Carport TDS rechnet mit derselben Tabelle wie das Terrassendach –
        es ist dasselbe System. */
-    if (Z.produkt === 'Terrassendach TDS' || istCarportTds()) k = 'TDS|' + mat;
+    if (istTdsDach() || istCarportTds()) k = 'TDS|' + mat;
     else if (Z.produkt === 'Flachdach SkyView') k = 'SkyView|' + mat;
     else if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
       k = 'Flat_Line|Trapezblech';
@@ -1292,6 +1338,12 @@
     if (!RASTER) return null;        // ohne Serverantwort: geschätzte Skizze
     var mat = istPolycarbonat() ? 'Polycarbonat' : 'Glas';
     var d = null;
+    /* Der Balkon fehlt hier mit Absicht: Die Stückliste des Servers
+       rechnet mit Terrassenmaßen (Pfostenlängen vom Boden, Statikträger
+       ab 4,5 m Tiefe). Ein Balkondach ist 1,3 m tief und seine Pfosten
+       stehen oft auf der Brüstung – dieselbe Tabelle gäbe falsche
+       Stückzahlen aus. Bis eine eigene Grundlage vorliegt, läuft der
+       Balkon über den geschätzten Bauweg. */
     if (Z.produkt === 'Terrassendach TDS') d = { system: 'TDS', material: mat };
     else if (Z.produkt === 'Flachdach SkyView') d = { system: 'SkyView', material: mat };
     else if (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') {
@@ -6521,6 +6573,49 @@
      Jede Zahl hier ist GESCHÄTZT – außer dem Pfostenmaß 110 mm (BELEGT) und
      dem Sparrenabstand 1100 mm (Richtwert SPARREN_ABSTAND). Sobald die
      Matrix angebunden ist, übernimmt wieder bauenAusDaten(). */
+  /* ---------- Die Brüstung des Balkons ----------
+     Gebaut wird, was schon da ist, bevor das Dach kommt: die vorhandene
+     Brüstung des Balkons. Sie gehört nicht zur Lieferung – sie steht im
+     Modell, weil ohne sie niemand erkennt, ob das Dach passt, und weil
+     die Pfosten irgendwo aufstehen müssen.
+
+     Zwei Bauarten, so wie sie am Haus vorkommen:
+       · Mauer    – gemauert oder betoniert, verputzt. Trägt Pfosten.
+       · Geländer – Glas zwischen Alu-Handlauf und Fußprofil. Trägt nichts.
+
+     Die Zeichnung des Betreibers (25.10.2026) zeigt zusätzlich zwei
+     SEITENwangen in voller Höhe (1,83 m links, 1,75 m rechts). Die sind
+     hier bewusst NICHT nachgebaut: Sie sind an jedem Haus anders hoch,
+     und ein Modell, das zwei falsche Wände zeigt, ist schlechter als
+     eines, das keine zeigt. Was der Konfigurator zeigen muss, ist die
+     Höhe unter dem Dach und wo die Pfosten stehen – beides hängt an der
+     vorderen Brüstung, nicht an den Wangen. Die Seitenwände lassen sich
+     über die seitlichen Erweiterungen dazunehmen (Glaswand, Plankenwand). */
+  function bruestungBauen(B, zAussen, hoehe, dicke, art) {
+    var mPutz = new THREE.MeshStandardMaterial({
+      color: rgb(0xd7d2c8), roughness: 0.95
+    });
+    if (art === 'Geländer') {
+      /* Glasgeländer: Scheibe zwischen Fuß- und Handlaufprofil. Die
+         Maße sind die gängigen eines Ganzglasgeländers; VD führt dafür
+         „Easy Rail" – belegt ist hier nichts, gezeichnet wird die
+         Erscheinung. */
+      var HAND = 5, FUSS = 10;
+      var glasH = Math.max(10, hoehe - HAND - FUSS);
+      balken(B, FUSS, dicke, 0, FUSS / 2, zAussen - dicke / 2, alu());
+      var scheibe = balken(B - 4, glasH, 1.2, 0,
+                           FUSS + glasH / 2, zAussen - dicke / 2, seitenglas());
+      scheibe.castShadow = false;          // Glas wirft hier nur Grauschleier
+      balken(B, HAND, dicke + 2, 0, hoehe - HAND / 2, zAussen - dicke / 2, alu());
+      return;
+    }
+    /* Mauer: ein Körper, oben eine leicht überstehende Abdeckung – so
+       sieht eine verputzte Brüstung mit Abdeckblech aus. */
+    var ABD = 4;
+    balken(B, hoehe - ABD, dicke, 0, (hoehe - ABD) / 2, zAussen - dicke / 2, mPutz);
+    balken(B + 4, ABD, dicke + 4, 0, hoehe - ABD / 2, zAussen - dicke / 2, blech());
+  }
+
   function bauenTerrasseGeschaetzt() {
     var sky = Z.produkt === 'Flachdach SkyView';
     /* Pfosten 110 x 110 x 2,5 mm (15190). Das Aussenmass der Zeichnung
@@ -6586,7 +6681,21 @@
        der Träger hinten angebaut wird; sonst stünde die Anlage 117 mm
        tiefer da als bestellt. Der Nullpunkt bleibt die Rückseite des
        Trägers bzw. die Mauerflucht. */
-    var B = Z.breite / 10, T = Z.tiefe / 10 - (frei ? TR_T : 0);
+    /* ---------- Balkon: die Tiefe meint etwas anderes ----------
+       Beim Terrassendach ist Z.tiefe die Dachtiefe. Beim Balkon ist es
+       die nutzbare BALKONtiefe (Hauswand bis Innenkante Brüstung) – so
+       ist sie in der Zeichnung des Betreibers bemaßt („Balkontiefe
+       1,31 m"), und so misst sie auch jeder am Bau nach.
+
+       Das DACH reicht darüber hinaus bis zur Außenkante der Brüstung.
+       Sonst tropft das Wasser von der Rinne auf die Brüstung und von
+       dort auf den Balkon. Gerechnet wird deshalb ab hier mit der
+       Dachtiefe; das eingegebene Maß steht unverändert in der Anfrage. */
+    var balkon = istBalkon();
+    var brD = balkon ? bruestungDicke() : 0;
+    var brH = balkon ? Math.max(0, Z.bruestungH / 10) : 0;
+    var B = Z.breite / 10,
+        T = Z.tiefe / 10 - (frei ? TR_T : 0) + brD;
     /* ---------- Hoehe bei geneigtem Terrassenboden ----------
        „Die Höhen wie gemessen" (Entscheidung des Betreibers,
        24.10.2026): Was im Feld „Höhe vorne (Durchgang)" steht, gilt
@@ -6740,10 +6849,34 @@
     var belagB = B + 180, belagL = T + (frei ? 240 : 120);
     var gt = (Z.bodenGefaelle || 0) * Math.PI / 180;
     var gq = (Z.bodenGefaelleQuer || 0) * Math.PI / 180;
+    /* ---------- Der Balkon ist kein Stück Garten ----------
+       Beim Terrassendach läuft der Belag ringsum ins Grüne weiter. Ein
+       Balkon hört an der Brüstung auf – dahinter ist Luft. Deshalb
+       endet die Platte hier genau an der Außenkante der Brüstung und
+       ist seitlich nur so breit wie der Balkon.
+
+       Der Rasen wird ausgeblendet. Gras neben einem Balkon im ersten
+       Stock wäre schlicht falsch; der freie Himmel dahinter ist die
+       ehrlichere Darstellung und entspricht auch den Zeichnungen des
+       Betreibers. */
+    if (balkon) {
+      belagB = B;
+      belagL = T;
+      belagZ = T / 2;
+    }
+    rasen.visible = !balkon;
     belag.scale.set(belagB, 1, belagL);
     belag.position.set(0, bodenY(0, belagZ) - 1, belagZ);
     belag.quaternion.copy(bodenDrehung(gt, gq));
     rasenNeigen(gt, gq);      // der Boden kippt mit, nicht nur die Platte
+    /* Die Balkonplatte von der Seite: ohne sie schwebt der Belag als
+       Papierblatt in der Luft. 18 cm ist eine übliche Plattenstärke. */
+    if (balkon) {
+      var PLATTE = 18;
+      balken(B, PLATTE, T, 0, -PLATTE / 2 - 1, T / 2,
+             new THREE.MeshStandardMaterial({ color: rgb(0xcac5bb), roughness: 0.95 }));
+      bruestungBauen(B, T, brH, brD, Z.bruestung);
+    }
     wand.visible = !frei;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
@@ -6771,9 +6904,26 @@
        bleibt es bei der Achse aus der Masstabelle (55 mm, Pfosten vorne
        buendig). Die Einschraenkung ist also nicht nur ein Wunsch,
        sondern folgt der Begruendung der Aenderung selbst. */
-    var tdsRinne = !sky && (Z.produkt === 'Terrassendach TDS' || istCarportTds());
+    var tdsRinne = !sky && (istTdsDach() || istCarportTds());
     /* Mit Vorsprung wandert der Pfosten um genau dieses Maß nach innen. */
     var zPf = T - (tdsRinne ? PFOSTENACHSE : PFOSTENACHSE_VORNE) - vorspr;
+    /* ---------- Wo der Pfosten beim Balkon steht ----------
+       Zwei Fälle, beide vom Betreiber gewählt (25.10.2026):
+
+         · AUF der Brüstung – der Pfosten steht mittig auf der Mauer.
+           Die volle Balkontiefe bleibt nutzbar. Setzt eine tragende
+           Brüstung voraus.
+         · DAHINTER auf der Balkonplatte – der Normalfall beim Geländer.
+           Der Pfosten steht innen vor der Brüstung; er kostet seine
+           eigene Breite an nutzbarer Tiefe.
+
+       Ein Dachvorsprung verschiebt den Pfosten wie beim Terrassendach
+       zusätzlich nach innen – deshalb steht vorspr in beiden Zeilen. */
+    if (balkon) {
+      zPf = pfostenAufBruestung()
+        ? T - brD / 2 - vorspr
+        : T - brD - PF / 2 - vorspr;
+    }
 
     /* Unterkante der Sparren an der Pfostenachse – nur mit Vorsprung
        gebraucht, dort endet der Pfosten unter dem Träger. ukVorn wird
@@ -7025,8 +7175,12 @@
        mitgeschrieben: Sie gehen in den Hinweis und in die Anfrage –
        bestellt werden Pfosten, nicht Winkel. */
     PFOSTEN_IST = { vorne: [], hinten: [] };
+    /* Auf der Brüstung fängt der Pfosten nicht am Boden an, sondern auf
+       der Mauerkrone. Er wird dadurch um die Brüstungshöhe kürzer – und
+       genau diese Länge wird bestellt, nicht die vom Boden aus. */
+    var pfFuss = pfostenAufBruestung() ? brH : 0;
     xPfVorne.forEach(function (x) {
-      var yB = bodenY(x, zPf);
+      var yB = bodenY(x, zPf) + pfFuss;
       var lang = Math.max(10, hPfosten - yB);
       balken(PF, lang, PF, x, yB + lang / 2, zPf, mAlu);
       PFOSTEN_IST.vorne.push(Math.round(lang * 10));
@@ -8062,7 +8216,7 @@
      zustaendig: Die Preisliste nennt Dachtiefen, keine Achsmasse. Hier
      geht es allein darum, wo der Traeger steht. */
   function unterzugAchsen() {
-    var tds = Z.produkt === 'Terrassendach TDS' || istCarportTds();
+    var tds = istTdsDach() || istCarportTds();
     var achse = (tds ? PFOSTENACHSE : PFOSTENACHSE_VORNE) * 10;   // cm -> mm
     var v = gruppeGilt('vorsprung') ? (Z.vorsprung || 0) : 0;
     var vh = gruppeGilt('vorsprung-hinten') ? (Z.vorsprungHinten || 0) : 0;
@@ -9219,6 +9373,48 @@
   function istCarport() { return Z.produkt === 'Carport'; }
   function istCarportTds() { return istCarport() && Z.cpTyp === 'Carport TDS'; }
   function istPergola() { return Z.produkt === 'Pergola / Lamellendach'; }
+  function istBalkon() { return Z.produkt === 'Balkonüberdachung'; }
+
+  /* ---------- Warum die Balkonüberdachung ein TDS ist ----------
+     „Ich möchte noch eine Option und zwar, Balkonüberdachungen"
+     (Betreiber, 25.10.2026, mit zwei Zeichnungen eines Balkons mit
+     Mauerbrüstung).
+
+     VD führt die Balkonüberdachung als eigenes Produkt, technisch ist es
+     aber dasselbe System wie das Terrassendach TDS: dieselbe Eindeckung
+     (VSG 8 mm klar/opal oder Polycarbonat 16 mm), dieselben vier
+     Standardfarben, dieselben Erweiterungen (Beschattung, LED, Sound).
+     Quelle: vd-alusysteme.de/balkonueberdachung, gelesen am 25.10.2026.
+
+     Deshalb erbt sie hier alles vom TDS – Neigung, Rinne, Dachvorsprung,
+     Pfostenachse, Maßtabelle –, statt den Bauweg ein zweites Mal
+     hinzuschreiben. Anders sind nur drei Dinge, und genau die stehen
+     unten: die Maßgrenzen (ein Balkon ist schmaler und viel weniger
+     tief), die Brüstung davor und die Frage, wo die Pfosten stehen.
+
+     Wo im Code bisher `Z.produkt === 'Terrassendach TDS'` stand, steht
+     jetzt istTdsDach(). EINE Ausnahme: datenSystem() – siehe dort. */
+  function istTdsDach() { return Z.produkt === 'Terrassendach TDS' || istBalkon(); }
+
+  /* ---------- Die Brüstung ----------
+     Dicke der Mauerbrüstung. Die Zeichnung des Betreibers nennt für die
+     SEITENwangen 0,19 m und 0,31 m – zwei verschiedene Wände, wie es an
+     einem echten Haus eben ist. Für die vordere Brüstung steht dort
+     keine Zahl. 20 cm ist der übliche Wert für eine gemauerte oder
+     betonierte Balkonbrüstung und wird hier als ANNAHME gezeichnet; am
+     Modell ändert ein Zentimeter nichts an der Aussage. Beim Geländer
+     ist es die Glasstärke plus Halter. */
+  var BRUESTUNG_D = 20;
+  var GELAENDER_D = 6;
+  function bruestungDicke() { return Z.bruestung === 'Geländer' ? GELAENDER_D : BRUESTUNG_D; }
+  /* Stehen die Pfosten AUF der Brüstung, ist das nur bei einer gemauerten
+     Brüstung sinnvoll – ein Glasgeländer trägt kein Dach. Die Auswahl
+     wird im Bedienfeld gesperrt (siehe gruppeGilt), hier wird sie
+     zusätzlich abgefangen: Ein Zustand aus einem geteilten Link darf
+     nicht zu Pfosten führen, die auf einer Glasscheibe stehen. */
+  function pfostenAufBruestung() {
+    return istBalkon() && Z.pfostenAuf === 'Brüstung' && Z.bruestung === 'Mauer';
+  }
 
   /* Liegt der Träger schon aus Tiefe oder Dachvorsprung fest? */
   /* ---------- Dachneigung ----------
@@ -9252,7 +9448,7 @@
      Einstellungen". Ob ein TDS-Dach geneigt ist, weiß das Modell aber
      auch ohne Server. */
   function neigungMoeglich() {
-    return Z.produkt === 'Terrassendach TDS' || istCarportTds();
+    return istTdsDach() || istCarportTds();
   }
 
   /* Zwei Wege zur Neigung, beide vom Betreiber gewünscht (11.10.2026):
@@ -9533,6 +9729,9 @@
   function gruppeGilt(stichwort) {
     var d = datenSystem();
     switch (stichwort) {
+      /* Der Balkon zählt zur Terrassen-Gruppe: Eindeckung, Farbe,
+         Neigung, Beschattung – alles gleich. Nur das, was am Boden
+         hängt, bekommt unten eigene Fälle. */
       case 'terrasse':       return !istCarport() && !istPergola();
       /* Seitenelemente gibt es beim Carport TDS auch – Glaswände und
          Schiebetüren am Carport sind üblich. Markisen dagegen nicht;
@@ -9540,11 +9739,19 @@
       case 'seiten':         return !istPergola() && (!istCarport() || istCarportTds());
       case 'sonnenschutz':   return !istCarport();
       case 'carport':        return istCarport();
+      case 'balkon':         return istBalkon();
+      /* Pfosten auf die Brüstung zu stellen setzt eine tragende Mauer
+         voraus. Bei einem Geländer verschwindet die Auswahl, statt sie
+         grau anzubieten – ein Feld, das nichts bewirkt, ist schlimmer
+         als keins (dieselbe Begründung wie beim Bodengefälle). */
+      case 'balkon-mauer':   return istBalkon() && Z.bruestung === 'Mauer';
       case 'pergola':        return istPergola();
       case 'pg-lamellen':    return istLamellen();
       // Aufbau (Wand oder freistehend) gibt es überall außer beim Carport,
       // dort steckt die Montageart in der Ausführung
-      case 'aufbau':         return !istCarport() || istCarportTds();
+      /* Beim Balkon entfällt die Frage: Ein Balkondach steht immer an
+         der Hauswand (siehe aendern(), wo der Wert gesetzt wird). */
+      case 'aufbau':         return (!istCarport() || istCarportTds()) && !istBalkon();
       case 'glas':           return (!istCarport() && !istPergola()) || istCarportTds();
       // Glasstärke nur fragen, wenn auch Glas gewählt ist
       case 'glasstaerke':    return !istPolycarbonat() &&
@@ -9590,7 +9797,7 @@
                                     ? Z.cpVariante === 'Carport mit Wandmontage'
                                     : Z.aufbau === 'Wandmontage';
       // Dachvorsprung gibt es nur beim TDS (so auch im Anfrage-Assistenten)
-      case 'vorsprung':      return Z.produkt === 'Terrassendach TDS' || istCarportTds();
+      case 'vorsprung':      return istTdsDach() || istCarportTds();
       /* NUR beim Carport TDS und nur freistehend: „der einzige
          unterschied dort ist ein dachvorsprung auch an der hinterseite
          möglich bei freistehender montage" (Betreiber, 11.10.2026). */
@@ -9679,7 +9886,7 @@
   function farbenAusTabelle() {
     var M = window.BV_MASSTABELLE;
     if (!M || !M.farben) return null;
-    var sys = (Z.produkt === 'Terrassendach TDS' || istCarportTds()) ? 'TDS'
+    var sys = (istTdsDach() || istCarportTds()) ? 'TDS'
             : (Z.produkt === 'Flachdach SkyView') ? 'SkyView'
             : (Z.produkt === 'Carport' && Z.cpTyp === 'Flachdach Flat Line') ? 'Flat_Line'
             : null;
@@ -10083,7 +10290,15 @@
      Der vollstaendige Fachtext geht weiter mit, nur still (v.fachnotiz). */
   function zusammenfassungKurz() {
     var k = [produktName()];
-    k.push(istCarport() ? cpVarianteJetzt() : Z.aufbau);
+    /* Beim Balkon steht an der Stelle von „Wandmontage" (die dort immer
+       gilt und nichts aussagt) das, was den Fall wirklich beschreibt:
+       was vorne steht und wo die Pfosten aufsetzen. Das ist die Zeile,
+       die der Kunde im Bedienfeld zu sehen bekommt. */
+    k.push(istCarport() ? cpVarianteJetzt()
+         : istBalkon() ? (Z.bruestung === 'Mauer' ? 'Gemauerte Brüstung' : 'Geländer') +
+                         ' ' + Z.bruestungH + ' mm, Pfosten ' +
+                         (pfostenAufBruestung() ? 'auf der Brüstung' : 'auf dem Boden')
+         : Z.aufbau);
     k.push(Z.breite + ' × ' + Z.tiefe + ' mm, Höhe ' + Z.hoehe + ' mm');
     if (istPergola()) {
       k.push(Z.pgDachart);
@@ -10221,6 +10436,27 @@
     } else {
       teile.push(Z.aufbau);
       teile.push(Z.breite + ' × ' + Z.tiefe + ' mm, Durchgangshöhe ' + Z.hoehe + ' mm');
+      /* ---------- Was beim Balkon in die Anfrage gehört ----------
+         Ohne diese drei Zeilen käme im Betrieb eine Balkonüberdachung an,
+         die sich von einem Terrassendach nicht unterscheidet – und genau
+         daran hängt, was gefertigt und wie montiert wird: Die Pfosten
+         sind um die Brüstungshöhe kürzer, wenn sie oben aufstehen, und
+         die Befestigung ist eine andere.
+
+         Die TIEFE darüber meint beim Balkon die nutzbare Balkontiefe
+         (so eingegeben). Die Dachtiefe reicht um die Brüstungsdicke
+         weiter nach vorn – das steht als eigene Zeile da, damit niemand
+         die beiden Maße verwechselt. */
+      if (istBalkon()) {
+        teile.push('Brüstung: ' + (Z.bruestung === 'Mauer'
+          ? 'gemauert, ' + Z.bruestungH + ' mm hoch'
+          : 'Geländer, ' + Z.bruestungH + ' mm hoch'));
+        teile.push('Pfosten: ' + (pfostenAufBruestung()
+          ? 'auf der Brüstung'
+          : 'hinter der Brüstung auf dem Balkonboden'));
+        teile.push('Tiefenmaß = nutzbare Balkontiefe; das Dach reicht ' +
+                   'bis zur Außenkante der Brüstung');
+      }
       var ed = bauteileJetzt();
       if (ed) {
         teile.push(ed.sparren + ' Sparren, ' + pfostenText(ed) +
@@ -10248,7 +10484,7 @@
          erst aus Durchgangshöhe, Tiefe und Neigung zusammen. Hat der
          Kunde sie selbst eingegeben (Weg 2), steht genau seine Zahl da –
          nicht die über die gerundeten Grad zurückgerechnete. */
-      if (Z.produkt === 'Terrassendach TDS') {
+      if (istTdsDach()) {
         teile.push('Dachneigung: ' + neigungAnzeige() + '° (' +
           String(neigungProzent(neigungAnzeige())).replace('.', ',') + ' %)');
         teile.push('Höhe an der Wand (UK Wandprofil): ' +
@@ -10402,7 +10638,7 @@
         }
       }
       if (Z.stoffZip && gruppeGilt('stoff-zip')) teile.push('Stoff Senkrechtmarkise: ' + stoffText(Z.stoffZip));
-      if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
+      if (istTdsDach() && Z.vorsprung) {
         teile.push('Dachvorsprung: ' + Z.vorsprung + ' mm');
       }
     }
@@ -10563,6 +10799,20 @@
     vorsprungGrenzeSetzen();
     hoeheHintenKoppeln();
     koppelGrenzeSetzen();
+    /* ---------- Balkon ----------
+       Die Brüstung wird auch dann gelesen, wenn gerade kein Balkon
+       gewählt ist: Ein geteilter Link kann beides enthalten, und wer
+       zwischen Terrassendach und Balkon hin- und herschaltet, soll
+       seine Eingabe wiederfinden (dieselbe Linie wie bei Basic/Pro). */
+    Z.bruestung = wert('k3dBruestung') || Z.bruestung;
+    Z.bruestungH = zahl('k3dBruestungH', Z.bruestungH);
+    Z.pfostenAuf = wert('k3dPfostenAuf') || Z.pfostenAuf;
+    /* Ein Balkondach hängt immer an der Hauswand. „Freistehend" gäbe
+       vier Pfosten auf einer Balkonplatte und einen Statikträger, der
+       dort nichts zu suchen hat – deshalb wird der Aufbau hier gesetzt,
+       nicht nur das Feld ausgeblendet. Sonst käme ein geteilter Link mit
+       „Freistehend" als unbaubares Modell zurück. */
+    if (istBalkon()) Z.aufbau = 'Wandmontage';
     Z.vorsprung = zahl('k3dVorsprung', Z.vorsprung);
     Z.vorsprungHinten = zahl('k3dVorsprungHinten', Z.vorsprungHinten);
     /* Erst LESEN, dann Grenzen setzen – in dieser Reihenfolge, nicht
@@ -10596,6 +10846,7 @@
      ['k3dVorsprungHinten', 'vorsprungHinten'],
      ['k3dHoeheHinten', 'hoeheHinten'],
      ['k3dKoppel', 'koppelLage'],
+     ['k3dBruestungH', 'bruestungH'],
      ['k3dUnterzug', 'unterzugLage']].forEach(function (paar) {
       var a = document.getElementById(paar[0] + 'Wert');
       /* Beim Unterzug steht dabei, ob die Lage noch die automatische
@@ -10916,7 +11167,15 @@
        „Carport". */
     text('k3dSumProduktName', Z.produkt +
       (istCarport() && Z.cpTyp ? ' · ' + Z.cpTyp : '') +
-      (istPergola() && Z.pgDachart ? ' · ' + Z.pgDachart : ''));
+      (istPergola() && Z.pgDachart ? ' · ' + Z.pgDachart : '') +
+      /* Beim Balkon ist der Produktname allein nichtssagend – was den
+         Fall ausmacht, ist die Brüstung und wo die Pfosten stehen. Das
+         gehört in die zugeklappte Kopfzeile, sonst muss man den
+         Abschnitt aufklappen, um es zu sehen. */
+      (istBalkon()
+        ? ' · ' + (Z.bruestung === 'Mauer' ? 'Brüstung gemauert' : 'Geländer') +
+          ' · Pfosten ' + (pfostenAufBruestung() ? 'auf der Brüstung' : 'auf dem Boden')
+        : ''));
 
     var d = [];
     if (istPergola()) d.push(Z.pgDachart + (istLamellen() ? ' ' + Z.lamellen + '°' : ''));
@@ -11002,6 +11261,7 @@
   }
 
   ['k3dProdukt', 'k3dCpTyp', 'k3dCpVariante', 'k3dCpDach', 'k3dAufbau',
+   'k3dBruestung', 'k3dBruestungH', 'k3dPfostenAuf',
    'k3dPgDachart', 'k3dPgAusfuehrung', 'k3dPgSeitenschutz', 'k3dLamellen',
    'k3dBreite', 'k3dTiefe', 'k3dHoehe',
    'k3dNeigung', 'k3dUeberstand', 'k3dEindeckung',
@@ -11059,6 +11319,7 @@
    ['k3dVorsprungHinten', 'k3dVorsprungHintenZahl'],
    ['k3dHoeheHinten', 'k3dHoeheHintenZahl'],
    ['k3dKoppel', 'k3dKoppelZahl'],
+   ['k3dBruestungH', 'k3dBruestungHZahl'],
    ['k3dUnterzug', 'k3dUnterzugZahl'],
    ['k3dPlankenFuge', 'k3dPlankenFugeZahl']].forEach(function (pr) {
     var r = document.getElementById(pr[0]), n = document.getElementById(pr[1]);
@@ -12102,7 +12363,7 @@
           v.bahnen = String(SONNE_IST.bahnen);
         }
         if (Z.stoffZip && gruppeGilt('stoff-zip')) v.stoffzip = Z.stoffZip;
-        if (Z.produkt === 'Terrassendach TDS' && Z.vorsprung) {
+        if (istTdsDach() && Z.vorsprung) {
           v.vorsprung = String(Z.vorsprung);
         }
         // Die Erweiterungen sind Listen – der Assistent führt sie ebenso

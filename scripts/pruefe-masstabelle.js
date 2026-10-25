@@ -242,7 +242,7 @@ pruefe('Dachvorsprung bewegt die Pfosten',
      Schenkel der TDS-Rinne; den gibt es bei den Flachdach-Systemen nicht.
      Geprueft wird, dass die Verzweigung da ist UND dass die Flachdach-
      Achse die alte aus der Masstabelle bleibt. */
-  var nurTds = /var tdsRinne = !sky && \(Z\.produkt === 'Terrassendach TDS' \|\| istCarportTds\(\)\);/.test(k3d) &&
+  var nurTds = /var tdsRinne = !sky && \(istTdsDach\(\) \|\| istCarportTds\(\)\);/.test(k3d) &&
                /var PFOSTENACHSE_VORNE = 5\.5;/.test(k3d);
   pruefe('Hintere Pfostenachse gilt nur beim TDS',
          gegen ? !nurTds : nurTds,
@@ -891,6 +891,12 @@ pruefe('Wandprofil deckt die Glasleiste ab',
   var map = (k3d.match(/var RAL_ZU_NAME = \{[\s\S]*?\};/) || [''])[0];
   if (!fn || !map) { pruefe('Farbuebersetzung lesbar', false, 'nicht gefunden'); return; }
   var Z = {}, istCarportTds = function () { return false; };
+  /* Seit dem 25.10.2026 fragt farbenAusTabelle() ueber istTdsDach(), ob
+     es ein TDS-Dach ist – das deckt Terrassendach UND Balkon ab. */
+  var istTdsDach = function () {
+    return Z.produkt === 'Terrassendach TDS' || Z.produkt === 'Balkonüberdachung';
+  };
+  void istTdsDach;
   /* Das Objektliteral herausloesen - ein eval('var ...') in strict mode
      legt die Variable nur in seinem eigenen Scope an. */
   var RAL_ZU_NAME = eval('(' + map.replace('var RAL_ZU_NAME = ', '').replace(/;\s*$/, '') + ')');
@@ -1676,7 +1682,11 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
        new RegExp(q || "Z\\.tiefe / 10 - \\(e\\.freistehend \\? stB : 0\\)").test(k3d), '');
 /* Zweiter Weg: Gesamttiefe aus den Einzelteilen zurueckrechnen. */
 (function () {
-  var mT = k3d.match(/var B = Z\.breite \/ 10, T = Z\.tiefe \/ 10 - \(frei \? (TR_T) : 0\);/);
+  /* Seit dem 25.10.2026 steht die Zeile zweizeilig und mit einem
+     Zuschlag brD: Beim Balkon reicht das Dach ueber die Bruestung
+     hinaus, sonst ist brD null. Die Traegerregel selbst ist unberuehrt –
+     genau sie wird hier weiter nachgerechnet. */
+  var mT = k3d.match(/var B = Z\.breite \/ 10,\s*\n\s*T = Z\.tiefe \/ 10 - \(frei \? (TR_T) : 0\) \+ brD;/);
   if (!mT) { pruefe('Gesamttiefe rechenbar', false, 'Zeile nicht gefunden'); return; }
   var trT = 11.7, tiefe = 4000;
   var dach = tiefe / 10 - trT, gesamt = dach + trT;          // Dach + Traeger
@@ -1874,13 +1884,17 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   var rj = (k3d.match(/function regelnJetzt\(\)[\s\S]*?\n  \}/) || [''])[0];
   var sn = (k3d.match(/function systemName\(\)[\s\S]*?\n  \}/) || [''])[0];
   if (!ac) { pruefe('Unterzug-Achsen lesbar', false, 'nicht gefunden'); return; }
-  var holen = eval('(function (Z, window, gruppeGilt, istCarportTds) { ' +
+  var holen = eval('(function (Z, window, gruppeGilt, istCarportTds, istTdsDach) { ' +
     pa + pv + rj + sn +
     st.replace('function statikTiefe()', 'var statikTiefe = function ()') + ';' +
     ac.replace('function unterzugAchsen()', 'var unterzugAchsen = function ()') + ';' +
     f.replace('function unterzugBereich()', 'var fn = function ()') +
     '; fn.achsen = unterzugAchsen; return fn; })');
   function keinCarport() { return false; }
+  /* In diesen Durchlaeufen ist das Produkt immer ein Terrassendach TDS –
+     die Unterzug-Rechnung haengt an der Pfostenachse, und die ist beim
+     Balkon dieselbe. */
+  function tdsJa() { return true; }
 
   /* Fuer jede lieferbare Tiefe mit Unterzug: Bei BEIDEN Grenzlagen
      muessen beide Felder unter dem Hoechstmass bleiben. */
@@ -1891,7 +1905,7 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   for (var T = ohne + 100; T <= mit; T += 100) {
     var Zt = { tiefe: T, vorsprung: 0, vorsprungHinten: 0,
                produkt: 'Terrassendach TDS' };
-    var fn = holen(Zt, { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport);
+    var fn = holen(Zt, { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport, tdsJa);
     var b = fn();
     var a = fn.achsen();
     [b.min, b.max].forEach(function (lage) {
@@ -1916,7 +1930,7 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
   for (var T2 = ohne + 100; T2 <= mit; T2 += 100) {
     var fn2 = holen({ tiefe: T2, vorsprung: 0, vorsprungHinten: 0,
                       produkt: 'Terrassendach TDS' },
-                    { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport);
+                    { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport, tdsJa);
     var b2 = fn2(), a2 = fn2.achsen();
     var m2 = Math.round((a2.hinten + a2.vorne) / 2);
     if (m2 < b2.min || m2 > b2.max) mitteOk = false;
@@ -1940,7 +1954,7 @@ pruefe('Neigung nur bei entkoppelter Hoehe abgeleitet',
     if (ist === 'Unterzug') {
       var fnv = holen({ tiefe: r[0], vorsprung: r[1], vorsprungHinten: 0,
                         produkt: 'Terrassendach TDS' },
-                      { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport);
+                      { BV_MASSTABELLE: window.BV_MASSTABELLE }, gilt, keinCarport, tdsJa);
       var bv = fnv(), av = fnv.achsen();
       [bv.min, bv.max].forEach(function (lage) {
         if ((lage - av.hinten) > ohne + 0.5 || (av.vorne - lage) > ohne + 0.5) {
@@ -2055,7 +2069,7 @@ pruefe('Hoechstmass je Produkt hinterlegt',
        gegen ? !/carport: 1500, standard: 800/.test(k3d)
              : /carport: 1500, standard: 800/.test(k3d), '');
 pruefe('Grenze wird vor dem Auslesen gesetzt',
-       new RegExp(q || 'vorsprungGrenzeSetzen\\(\\);[\\s\\S]{0,80}Z\\.vorsprung = zahl').test(k3d),
+       new RegExp(q || 'vorsprungGrenzeSetzen\\(\\);[\\s\\S]{0,1200}Z\\.vorsprung = zahl').test(k3d),
        'sonst bleibt der alte Wert stehen');
 pruefe('Wert wird beim Produktwechsel mitgezogen',
        new RegExp(q || 'if \\(Z\\[pr\\[1\\]\\] > max\\)').test(k3d),
@@ -2179,9 +2193,9 @@ pruefe('Carport TDS laeuft ueber den Terrassendach-Pfad',
        new RegExp(q || 'istCarport\\(\\) && !istCarportTds\\(\\)\\) bauenGeschaetzt').test(k3d),
        'bauenGeschaetzt nur noch fuer Flachdach-Carports');
 pruefe('Carport TDS nutzt die TDS-Masstabelle',
-       new RegExp(q || "Z\\.produkt === 'Terrassendach TDS' \\|\\| istCarportTds\\(\\)\\) k = 'TDS\\|'").test(k3d), '');
+       new RegExp(q || "istTdsDach\\(\\) \\|\\| istCarportTds\\(\\)\\) k = 'TDS\\|'").test(k3d), '');
 pruefe('Carport TDS fragt den Aufbau ab',
-       new RegExp(q || "case 'aufbau':\\s*return !istCarport\\(\\) \\|\\| istCarportTds\\(\\)").test(k3d), '');
+       new RegExp(q || "case 'aufbau':\\s*return \\(!istCarport\\(\\) \\|\\| istCarportTds\\(\\)\\) && !istBalkon\\(\\)").test(k3d), '');
 pruefe('Keine doppelte Montagefrage',
        new RegExp(q || "case 'cp-variante':\\s*return istCarport\\(\\) && !istCarportTds\\(\\)").test(k3d),
        'Ausfuehrungsliste nur bei Flachdach-Carports');
