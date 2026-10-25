@@ -9528,3 +9528,30 @@ gemeldet. Genau dafür sind sie da.
 Sf-Felder. Sie schaden nicht: Die Felder gibt es nicht mehr, sie werden beim
 Wiederherstellen übersprungen, und der Link zeigt dann das Rechteck aus Breite
 und Tiefe.
+
+## 25.10.2026 — Übergabe-Stand zum Sitzungsende
+
+Alles ist gemergt, veröffentlicht und am Livesystem nachgeprüft
+(`v=20261025i`). Nichts liegt halbfertig.
+
+**Zwei Dinge liegen beim Betreiber, nicht am Rechner:**
+1. **Kurzlink freischalten** — ein SQL-Befehl in der Neon-Konsole
+   (`docs/NEXT_TASK.md`, Abschnitt 2). Live bestätigt, dass nur die Tabelle
+   fehlt: `/api/teilen` antwortet `{"ok":false,"schritt":"tabelle"}`.
+   Bis dahin zeigt der Dialog den langen Link, und das steht auch dort.
+2. **Maximale Höhe hinten?** Bei 7050 mm Tiefe und 8° sind es 3290 mm. Ohne
+   eine belegte Grenze wird nichts gekappt.
+
+**Letzter Durchlauf vor der Übergabe:** alle `pruefe-*` samt Gegenproben,
+90 Browser-Prüfungen (alle drei eingebauten Fehler gefunden), Teilen-Prüfung,
+Konfliktmarken, Datenschutz, Preise, Cache-Buster und `pruefe-live.sh` —
+alles grün.
+
+**Eine Falle für die nächste Sitzung:** Der Branch ist langlebig, gemergt wird
+mit Squash. Beim Merge von `main` spielt Git deshalb die eigenen älteren
+Änderungen zurück (am 25.10. kam ein gelöschtes Prüfskript wieder, und eine
+zurückgezogene Erwartung stand wieder auf dem alten Stand). **Nach jedem
+Merge: `sh scripts/pruefe-konfliktmarken.sh` und einmal alle Prüfskripte
+laufen lassen** — beides hat es gefunden. Besser noch: zu Beginn der nächsten
+Sitzung den Branch frisch von `main` ziehen, wie es oben in `NEXT_TASK.md`
+steht.
