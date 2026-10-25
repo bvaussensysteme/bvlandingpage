@@ -9348,3 +9348,51 @@ es nicht bei jedem Aufruf erneut. Und die Antwort nennt den Schritt
 (`tabelle` / `suchen` / `schreiben`) — ein Wort, keine Datenbankmeldung an den
 Besucher. Ohne diese eine Zeile hätte ich die Ursache nicht benennen können,
 sondern nur raten.
+
+## 25.10.2026 — „verkrüppelt": Die Sonderform ließ mehr zu, als es gibt
+
+**Anlass.** „das modell sieht verkrüppelt aus nix passt sich richtig an"
+(Betreiber, mit Bild und Teilen-Link).
+
+**Zuerst nachgemessen, nicht geraten.** Der geteilte Link wurde geöffnet und
+dieselbe Planung zusätzlich von Hand gebaut — **identischer Zustand**, der
+Link war also nicht schuld. Dann wurden die Bauteile im Modell vermessen
+(three.js-Szene aus dem laufenden Zeichenvorgang abgegriffen):
+
+| | Pfosten hinten | Pfosten vorne | Dachtiefe |
+|---|---|---|---|
+| Normal 5000 × 3000 | 2 Stück, 270 cm | 3 Stück bei z = 270 | 300 cm |
+| Sonderform 8000/7600 | 2 Stück, **341 cm** | 4 Stück schräg bei z = 742–781 | 800 cm |
+
+Das Modell war also **nicht kaputt** — es hat gehorsam gebaut, was dastand.
+Nur gibt es das nicht: Der Tiefenregler endet bei **7050 mm**, die vier
+Sonderform-Felder standen auf `max="14080"`. Aus 8000 mm Tiefe bei 8° werden
+hinten 3,42 m hohe Pfosten, und das sieht aus wie ein Fehler.
+
+**Was jetzt gilt.** Die Sonderform-Felder holen ihre Grenzen aus derselben
+Liste wie die Regler (`massGrenzen()`), ein zu großes Maß wird **gekappt und
+gesagt** — im Hinweiskasten unter eigener Überschrift („Größer, als dieses
+System kann") und in der Anfrage als interne Notiz („ACHTUNG Sonderform
+gekappt"). Wer das Angebot schreibt, muss wissen, dass ein Wunsch gekürzt
+wurde.
+
+**Die Meldung bleibt stehen.** Beim ersten Anlauf war sie nach einem
+Wimpernschlag weg: Das Feld bekommt den gekappten Wert zurückgeschrieben, der
+nächste Durchlauf findet nichts mehr zu kappen. Jetzt wird die Kappung
+gemerkt, bis jemand das Feld wirklich ändert.
+
+**Noch offen — Frage an den Betreiber/VD:** Auch im normalen Weg ergibt
+7050 mm Tiefe bei 8° eine **Höhe hinten von 3290 mm**. Der Höhenregler endet
+bei 2700 mm, für die Höhe hinten gibt es keine Grenze. Gibt es eine maximale
+Pfostenlänge oder Höhe hinten? Solange das niemand beziffert hat, wird hier
+**nichts** gekappt — eine erfundene Grenze wäre schlimmer als keine.
+
+## 25.10.2026 — Der Teilen-Link enthielt sich selbst
+
+Im Link des Betreibers steckte ein **vollständiger zweiter Link**: Das Feld
+`k3dTeilenLink` zeigt den zuletzt erzeugten Link und wurde mitgespeichert.
+Jedes Teilen verdoppelte damit die Länge — aus 836 Zeichen wurden über 2600.
+
+Mein Fehler: `TEILEN_AUS` schloss nur das Suchfeld der RAL-Lupe aus.
+Jetzt auch `TeilenLink`. `pruefe-teilen.mjs` prüft seitdem ausdrücklich, dass
+im Link kein zweiter Link steckt (`#k=` darf im Inhalt nicht vorkommen).

@@ -753,6 +753,57 @@ if (hinwDa) {
 
 if (!GEGENPROBE) await m.screenshot({ path: 'pruefbilder/k3d-handy.png' });
 
+/* ---------- Sonderform: nicht mehr zulassen als der Regler ----------
+   „das modell sieht verkrüppelt aus nix passt sich richtig an"
+   (Betreiber, 25.10.2026). Nachgemessen war das Modell nicht kaputt –
+   es baute gehorsam 8000 mm Tiefe, die es im System nicht gibt. Die
+   vier Sonderform-Felder standen auf max="14080", der Tiefenregler auf
+   7050. Diese Prüfung hält beide Grenzen zusammen und sieht nach, dass
+   ein zu großes Maß gekappt UND gesagt wird. */
+{
+  const sctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const s2 = await sctx.newPage();
+  s2.setDefaultTimeout(8000);
+  await s2.goto(BASIS, { waitUntil: 'networkidle' });
+  await s2.waitForTimeout(1600);
+  await s2.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+  await s2.$eval('#k3dModus', (el) => el.click());
+  await s2.waitForTimeout(400);
+  await s2.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Pro"]', (el) => el.click());
+  await s2.waitForTimeout(400);
+  await alleAufklappen(s2);
+  await s2.click('[data-k3d-seg="k3dForm"] button[data-wert="Sonderform"]').catch(() => {});
+  await s2.waitForTimeout(700);
+  const grenzen = await s2.evaluate(() => {
+    const t = document.getElementById('k3dTiefe');
+    const b = document.getElementById('k3dBreite');
+    const sfT = document.getElementById('k3dSfTiefe1');
+    const sfB = document.getElementById('k3dSfBreite1');
+    return { tMax: +t.max, bMax: +b.max, sfTMax: +sfT.max, sfBMax: +sfB.max };
+  });
+  pruef('Sonderform erlaubt nicht mehr als der Regler',
+    grenzen.sfTMax === grenzen.tMax && grenzen.sfBMax === grenzen.bMax,
+    `Tiefe ${grenzen.sfTMax}/${grenzen.tMax} mm, Breite ${grenzen.sfBMax}/${grenzen.bMax} mm`);
+
+  await s2.evaluate(() => {
+    const e = document.getElementById('k3dSfTiefe1');
+    e.value = '8000';
+    e.dispatchEvent(new Event('input', { bubbles: true }));
+    e.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await s2.waitForTimeout(1200);
+  const danach = await s2.evaluate(() => ({
+    feld: document.getElementById('k3dSfTiefe1').value,
+    hinweis: (document.getElementById('k3dSonderformRechteck') || {}).textContent || ''
+  }));
+  pruef('Ein zu großes Maß wird gekappt',
+    +danach.feld === grenzen.tMax, `8000 mm eingegeben, ${danach.feld} mm gebaut`);
+  pruef('Das Kappen wird gesagt, nicht stillschweigend getan',
+    /8000 mm ist in diesem System nicht lieferbar/.test(danach.hinweis),
+    danach.hinweis.slice(0, 80));
+  await sctx.close();
+}
+
 await browser.close();
 server.kill();
 

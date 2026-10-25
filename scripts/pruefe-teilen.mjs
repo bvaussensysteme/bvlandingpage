@@ -65,7 +65,10 @@ async function oeffnen(url) {
 const lesen = (p) => p.evaluate(() => {
   const f = {};
   document.querySelectorAll('input[id^=k3d], select[id^=k3d]').forEach(e => {
-    if (e.id === 'k3dRalSuchFeld') return;
+    /* Werkzeuge, keine Einstellungen – genau die, die auch nicht in den
+       Link gehoeren. k3dTeilenLink ZEIGT den Link; stuende er im Link,
+       wuerde der sich bei jedem Teilen verdoppeln. */
+    if (e.id === 'k3dRalSuchFeld' || e.id === 'k3dTeilenLink') return;
     f[e.id.slice(3)] = (e.type === 'checkbox') ? (e.checked ? 1 : 0) : e.value;
   });
   const fa = document.querySelector('[data-k3d-farbe][aria-pressed="true"], [data-k3d-farbe].is-active');
@@ -114,6 +117,20 @@ pruefe('Der Dialog geht auf',
        await p1.locator('#k3dTeilenDialog').isVisible(), '');
 
 let link = await p1.$eval('#k3dTeilenLink', e => e.value);
+/* Der Link darf sich nicht selbst enthalten: Beim ersten Anlauf stand
+   das Feld k3dTeilenLink mit im Zustand, und jedes Teilen verdoppelte
+   die Laenge (im Link des Betreibers vom 25.10.2026 steckte ein
+   vollstaendiger zweiter Link). */
+{
+  const roh = JSON.parse(Buffer.from(
+    link.slice(link.indexOf('#k=') + 3).replace(/-/g, '+').replace(/_/g, '/'),
+    'base64').toString('utf8'));
+  const felder = Object.keys(roh.f || {});
+  pruefe('Der Link enthält sich nicht selbst',
+         !felder.includes('TeilenLink') &&
+         !JSON.stringify(roh).includes('#k='),
+         felder.length + ' Felder, kein zweiter Link darin');
+}
 pruefe('Der Link trägt die Planung selbst',
        link.includes('#k=') && link.length > 120 && link.length < 1600,
        link.length + ' Zeichen, nichts gespeichert, kein Dienst Dritter');
