@@ -9256,3 +9256,70 @@ Neuzeichnen auslöst; das ist richtig so und steht als begründete Ausnahme drin
 (dieselbe KV, die für `/api/bauteile` noch eingerichtet werden muss). Dann wird
 aus dem langen Link ein `bv-aussensysteme.de/k/A7F3K` — der Dialog bleibt, es
 ändert sich nur, was im Feld steht.
+
+## 25.10.2026 — Kurzlink über den eigenen Server (nicht bit.ly)
+
+**Anlass.** „die links sind riesig, besser nen kurzlink wie bei bitly"
+(Betreiber, mit Bild einer WhatsApp-Nachricht, in der der Link über zehn Zeilen
+lief). Zu Recht — 836 Zeichen sind in einem Chat unbrauchbar.
+
+**Gebaut: unser eigener Kurzlink**, `bv-aussensysteme.de/k/F388HH`, rund **30
+statt 836 Zeichen**. Zwei neue Wege im Worker: `POST /api/teilen` legt die
+Planung ab und gibt eine Kennung zurück, `GET /k/<id>` leitet auf
+`/konfigurator#k=…` weiter.
+
+**Ohne neue Infrastruktur.** Die Datenbank für die Anfragen ist längst da
+(Neon, Secret `ANFRAGEN_DB`). Der Kurzlink braucht nur eine zweite Tabelle, die
+sich beim ersten Aufruf selbst anlegt. **Kein KV-Namensraum** — der fehlt seit
+dem 10.10.2026 und hätte das hier sonst aufgehalten.
+
+**Warum nicht bit.ly**, obwohl der Betreiber zugestimmt hatte („Ja aber auch
+wenn über bit.ly es stehen keine persönlichen daten dort"): Der bit.ly-Schlüssel
+müsste im Browser liegen und wäre damit öffentlich — ein Kurzlink braucht so
+oder so eine Serverfunktion. Und „keine persönlichen Daten" gilt für den
+Inhalt, nicht für den Aufruf: bit.ly sähe IP, Zeitpunkt und Browser **jedes
+Empfängers**. Der eigene Link hat beides nicht und stirbt auch nicht mit einem
+fremden Konto.
+
+**Was gespeichert wird:** nur die Planung, die Prüfsumme und zwei Zeitstempel.
+Kein Name, keine IP. Gleiche Planung = gleicher Link (die Prüfsumme ist
+eindeutig), die Tabelle wächst also nicht mit jedem Klick. Die Kennung kommt aus
+der Prüfsumme und meidet I, L, O und U — vorlesbar zu sein ist der ganze Zweck.
+
+**Wenn der Server nicht antwortet** (kein Netz, Wartung, oder die Kopie im CRM,
+wo es den Endpunkt nicht gibt), bleibt der lange Link stehen und der Hinweis im
+Dialog sagt das. Der lange Link funktioniert ohne jeden Server — deshalb wurde
+er nicht ersetzt, sondern bleibt die Rückfallebene.
+
+**Datenschutzerklärung:** neuer Abschnitt 18 „3D-Konfigurator: Planung teilen
+(Kurzlink)". **Das ist vom Fachmann gegenzulesen** — hier steht, was der Code
+tut (nur Planung, keine IP, eigener Server, Art. 6 Abs. 1 lit. f, Löschung auf
+Zuruf), die verbindliche Bewertung gehört zum Anwalt.
+
+**Geprüft:** neues Skript `scripts/pruefe-kurzlink.mjs` (12 Prüfungen,
+Gegenprobe 12/12) am **echten Worker-Modul**: Die Wege werden bedient, Unsinn
+wird mit 400 abgewiesen **bevor** die Datenbank angefasst wird, ohne Datenbank
+kommt 503 bzw. eine verständliche 404-Seite ohne Datenbankmeldung, die Kennung
+ist stabil und vorlesbar, die Tabelle enthält nichts Persönliches.
+`pruefe-teilen.mjs` prüft zusätzlich im Browser beide Fälle: ohne Server bleibt
+der lange Link, mit (nachgestellter) Serverantwort steht der Kurzlink im Feld
+und in den WhatsApp- und E-Mail-Wegen.
+
+**Ehrlich offen:** Speichern, Wiederfinden und die Weiterleitung sind **ohne
+Datenbank nicht prüfbar** — die Zugangsdaten gibt es nur live. Der Durchlauf am
+echten Link steht deshalb direkt nach dem Deploy an.
+
+## 25.10.2026 — Konfliktmarken: derselbe Fehler zum zweiten Mal
+
+Beim Auflösen des Merges sind erneut Marken liegengeblieben, diesmal in
+`scripts/pruefe-fuehrung.js` und `docs/NEXT_TASK.md`. Beide gingen mit PR #478
+nach main. Das Prüfskript war damit kaputt — und ein abgestürztes Prüfskript
+meldet nicht „Fehler", es meldet gar nichts.
+
+Ursache ist jedes Mal dieselbe: Marken in **einer** Datei beseitigt, der Rest
+mit `git add -A` unbesehen mitgenommen.
+
+Deshalb jetzt `scripts/pruefe-konfliktmarken.sh` — sucht im ganzen Projekt nach
+Marken am Zeilenanfang und hat eine Gegenprobe, die eine Datei mit Marken
+anlegt und findet. **Gehört in jeden Durchlauf vor dem Commit**, besonders nach
+jedem Merge.
