@@ -303,8 +303,12 @@ pruefe('Keine gemeinsame Pfostenzahl mehr',
    Rueckseite. Gezeichnet wird die Reihe weiterhin nur freistehend. */
 pruefe('Hintere Reihe nur freistehend gezeichnet',
        new RegExp(q || 'if \\(frei\\) \\{\\s*xPfHinten\\.forEach').test(k3d), '');
+/* Seit dem 25.10.2026 ist die Breite der Reihe nicht mehr zwangslaeufig
+   die des umschliessenden Rechtecks: Bei einer Sonderform folgt jede
+   Reihe ihrer eigenen Kante (bHinten bzw. bVorne). Die PfostenZAHL
+   kommt weiter aus pfHinten – darum geht es hier. */
 pruefe('Die hinteren Achsen kommen aus der hinteren Pfostenzahl',
-       new RegExp(q || 'var xPfHinten = verteilen\\(pfHinten, B, PF / 2\\);').test(k3d),
+       new RegExp(q || 'var xPfHinten = verteilen\\(pfHinten, bHinten, PF / 2\\);').test(k3d),
        'nicht aus pfVorne');
 
 /* Zweiter Weg: die Entscheidung aus dem Code herausloesen und mit

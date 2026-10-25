@@ -76,6 +76,69 @@ function tiefen() {
   return { min: min, max: max, g: g };
 }
 
+/* ---------- Die Pfosten stehen an der Kante, nicht im Rechteck ----------
+   „wieder fehler" (Betreiber, 25.10.2026, mit Bild und Teilen-Link):
+   Breite hinten 5000, Breite vorne 4000. Die vorderen Pfosten wurden
+   ueber die volle Breite des umschliessenden Rechtecks verteilt, also
+   bis x = +/-2500. Dort gibt es vorne aber keine Anlage mehr;
+   sonderformProfil liefert an der Stelle nur die hintere Ecke, und der
+   Pfosten landete direkt hinter der Rueckwand. Nachgemessen im Modell:
+   zwei Pfosten bei z = 20 und 26 cm, waehrend das Dach bis z = 400 cm
+   reicht.
+
+   Geprueft wird die Regel selbst: Jeder vordere Pfosten muss an einer
+   Stelle stehen, an der die Anlage auch wirklich bis nach vorne reicht. */
+(function () {
+  function verteilen(anzahl, B, rand) {
+    var xs = [];
+    for (var i = 0; i < anzahl; i++) {
+      xs.push(-B / 2 + rand + (B - 2 * rand) * (anzahl === 1 ? 0.5 : i / (anzahl - 1)));
+    }
+    return xs;
+  }
+  var PF = 12;                       // Pfostenbreite in cm, wie im Modell
+  var faelle = [
+    ['vorne schmaler', 5000, 4000, 3500, 4000],
+    ['hinten schmaler', 4000, 5000, 3500, 4000],
+    ['Trapez beidseitig', 6000, 4000, 3000, 5000],
+    ['rechteckig', 5000, 5000, 4000, 4000]
+  ];
+  var schief = [];
+  faelle.forEach(function (f) {
+    stelle(f[1], f[2], f[3], f[4]);
+    var g = API.rechteck();
+    var B = g.breite / 10;
+    /* So, wie es der Bauweg macht: Zahl aus dem Rechteck, Lage aus der
+       Kante. In der Gegenprobe wieder ueber das ganze Rechteck – dann
+       MUSS diese Pruefung anschlagen. */
+    var bVorne = gegen ? B : f[2] / 10;
+    verteilen(3, bVorne, PF / 2).forEach(function (x) {
+      var pr = API.profil((x + B / 2) * 10);
+      var vorne = pr.vorne / 10;                 // cm ab Wand
+      var tiefsteKante = Math.min(f[3], f[4]) / 10;
+      /* Ein vorderer Pfosten gehoert an die Vorderkante. Mehr als eine
+         Pfostenbreite davor darf er nicht liegen. */
+      if (vorne < tiefsteKante - PF) {
+        schief.push(f[0] + ': Pfosten bei x=' + Math.round(x) +
+                    ' steht bei z=' + Math.round(vorne) +
+                    ' statt >= ' + Math.round(tiefsteKante - PF));
+      }
+    });
+  });
+  stelle(5000, 5000, 3500, 3500);
+  pruefe('Vordere Pfosten stehen an der Vorderkante',
+         schief.length === 0,
+         schief.length ? schief.slice(0, 3).join(' | ')
+                       : faelle.length + ' Formen, je drei Pfosten nachgerechnet');
+})();
+pruefe('Die Pfostenreihen folgen ihrer eigenen Kante',
+       gegen ? !/var bVorne = sonderformAktiv\(\) && Z\.sfBreite2 > 0/.test(k3d)
+             : /var bVorne = sonderformAktiv\(\) && Z\.sfBreite2 > 0/.test(k3d) &&
+               /var bHinten = sonderformAktiv\(\) && Z\.sfBreite1 > 0/.test(k3d) &&
+               /verteilen\(pfVorne, bVorne, PF \/ 2\)/.test(k3d) &&
+               /verteilen\(pfHinten, bHinten, PF \/ 2\)/.test(k3d),
+       'vorne die Vorderkante, hinten die Hinterkante');
+
 /* ---------- Wo es die Sonderform gibt ---------- */
 var tds = API.erlaubt().length;
 Z.produkt = 'Flachdach SkyView';

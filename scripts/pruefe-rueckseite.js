@@ -179,7 +179,7 @@ pruefe('Die Rückseite teilt sich an ihren eigenen Pfosten',
 pruefe('Die hinteren Pfostenachsen werden übergeben',
        gegen ? !/frei \? xPfHinten : null\);/.test(k3d)
              : /frei \? xPfHinten : null\);/.test(k3d) &&
-               /var xPfHinten = verteilen\(pfHinten, B, PF \/ 2\);/.test(k3d),
+               /var xPfHinten = verteilen\(pfHinten, bHinten, PF \/ 2\);/.test(k3d),
        'einmal gerechnet, zweimal benutzt');
 /* Nachgerechnet statt nachgelesen: Aus der Pfostenzahl folgt die Feldzahl. */
 (function () {

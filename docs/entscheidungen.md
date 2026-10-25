@@ -9396,3 +9396,39 @@ Jedes Teilen verdoppelte damit die Länge — aus 836 Zeichen wurden über 2600.
 Mein Fehler: `TEILEN_AUS` schloss nur das Suchfeld der RAL-Lupe aus.
 Jetzt auch `TeilenLink`. `pruefe-teilen.mjs` prüft seitdem ausdrücklich, dass
 im Link kein zweiter Link steckt (`#k=` darf im Inhalt nicht vorkommen).
+
+## 25.10.2026 — Sonderform: Pfosten standen im Rechteck statt an der Kante
+
+**Anlass.** „wieder fehler" (Betreiber, mit Bild und Teilen-Link). Form:
+Breite hinten 5000, **Breite vorne 4000**, Tiefe links 3500, rechts 4000.
+
+**Nachgemessen** (Bauteile aus der laufenden three.js-Szene):
+
+| Reihe | x | z | Länge |
+|---|---|---|---|
+| hinten | −250 / +238 | −11 | 284 cm ✔ |
+| „vorne" | −250 / +238 | **20 / 26** | 230 cm ✘ |
+| vorne | −5 | 357 | 230 cm |
+
+Das Dach reicht bis z = 400 — zwei vordere Pfosten standen also **direkt
+hinter der Rückwand**.
+
+**Ursache.** Die vorderen Pfosten wurden über die Breite des
+**umschließenden Rechtecks** verteilt (±2500 mm). Vorne ist die Anlage aber
+nur 4000 mm breit; bei x = ±2500 trifft `sonderformProfil()` nur noch die
+hintere Ecke, liefert 1 mm Tiefe (die Notbremse „nie ein Sparren ohne Länge"),
+und der Pfosten landet bei z ≈ 0.
+
+**Was jetzt gilt.** Die **Zahl** der Pfosten kommt weiter aus dem
+umschließenden Rechteck (lieber einer zu viel). Ihre **Lage** folgt der Kante,
+an der sie stehen: vorne `sfBreite2`, hinten `sfBreite1`. Nachgemessen stehen
+die vorderen jetzt bei x = −200 / −5 / +188 und z = 332 / 357 / 381 — auf der
+schrägen Vorderkante.
+
+**Geprüft:** `pruefe-sonderform.js` (27, Gegenprobe 27/27) rechnet für vier
+Formen je drei Pfosten durch und verlangt, dass jeder an einer Stelle steht,
+an der die Anlage wirklich bis nach vorne reicht; die Gegenprobe verteilt
+wieder über das Rechteck und muss anschlagen. Zwei bestehende Prüfungen
+(`pruefe-masstabelle.js`, `pruefe-rueckseite.js`) haben die geänderte Zeile
+sofort bemerkt — ihre Erwartung ist nachgezogen, die Aussage bleibt: Die
+hinteren Achsen kommen aus `pfHinten`, nicht aus `pfVorne`.
