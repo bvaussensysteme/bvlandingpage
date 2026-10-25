@@ -871,6 +871,81 @@ pruefe('Masslinie hat Endmarken',
            ' cm, Tiefenlinie ' + linieSeite.toFixed(0) + ' > ' + belagHalbB.toFixed(0) + ' cm');
   });
 })();
+(function () {
+  /* GEMESSEN, nicht gelesen: Wie dick ist eine Masslinie, wenn sie
+     wegen des Bodengefaelles schraeg laeuft? Vorher spannte massStab
+     einen achsparallelen Kasten auf – bei 6 Grad auf 4 m Tiefe wurde
+     daraus ein 43 cm hohes Brett („der dicke balken is rechts noch da
+     also maßanzeige", Betreiber 24.10.2026). Hier wird der Stab mit
+     three.js wirklich gebaut und sein Koerper vermessen. */
+  var THREE;
+  try {
+    var mod = { exports: {} };
+    (new Function('module', 'exports', fs.readFileSync('js/vendor/three.min.js', 'utf8')))(mod, mod.exports);
+    THREE = mod.exports;
+  } catch (e) { THREE = null; }
+  if (!THREE || !THREE.BoxGeometry) {
+    pruefe('three.js fuer die Massmessung geladen', gegen, 'nicht ladbar');
+    return;
+  }
+  var MASS_DICK = 1.6;
+  var ACHSE = new THREE.Vector3(0, 0, 1);
+  function massStab(a, b) {
+    var d = new THREE.Vector3().subVectors(b, a);
+    var laenge = Math.max(d.length(), MASS_DICK);
+    var m = new THREE.Mesh(new THREE.BoxGeometry(MASS_DICK, MASS_DICK, laenge),
+                           new THREE.MeshBasicMaterial());
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    if (d.lengthSq() > 1e-6) m.quaternion.setFromUnitVectors(ACHSE, d.clone().normalize());
+    if (gegen) {          // die ALTE Bauart als Gegenprobe
+      m = new THREE.Mesh(new THREE.BoxGeometry(
+        Math.max(Math.abs(d.x), MASS_DICK), Math.max(Math.abs(d.y), MASS_DICK),
+        Math.max(Math.abs(d.z), MASS_DICK)), new THREE.MeshBasicMaterial());
+      m.position.copy(a).add(b).multiplyScalar(0.5);
+    }
+    m.updateMatrixWorld(true);
+    return m;
+  }
+  /* Tiefenlinie rechts bei 6 Grad Gefaelle, 4 m Tiefe, und
+     Breitenlinie vorne bei 3 Grad Quergefaelle, 6,2 m Breite. */
+  var faelle = [
+    ['Tiefenlinie bei 6° Gefälle', new THREE.Vector3(410, 0, 0),
+     new THREE.Vector3(410, -Math.tan(6 * Math.PI / 180) * 411, 411)],
+    ['Breitenlinie bei 3° Quergefälle', new THREE.Vector3(-310, -Math.tan(3 * Math.PI / 180) * 310, 505),
+     new THREE.Vector3(310, Math.tan(3 * Math.PI / 180) * 310, 505)]
+  ];
+  faelle.forEach(function (f) {
+    var m = massStab(f[1], f[2]);
+    var d = new THREE.Vector3().subVectors(f[2], f[1]);
+    var laenge = d.length(), richtung = d.clone().normalize();
+    /* Der ehrliche Dickenmass: Wie weit steht der aeusserste Eckpunkt
+       des Koerpers SENKRECHT von der gedachten Linie a-b ab? Bei einem
+       1,6 cm starken Stab ist das hoechstens die halbe Diagonale,
+       also 1,14 cm – egal wie schraeg er liegt. Der achsparallele
+       Umriss taugt dafuer nicht: Ein schraeger duenner Stab hat einen
+       grossen Umriss, ohne dick zu sein. */
+    var pos = m.geometry.attributes.position, weit = 0;
+    for (var i = 0; i < pos.count; i++) {
+      var pw = new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+      var rel = pw.clone().sub(f[1]);
+      var entlang = rel.dot(richtung);
+      var quer = rel.clone().sub(richtung.clone().multiplyScalar(entlang)).length();
+      weit = Math.max(weit, quer);
+    }
+    var duenn = weit < 1.2;
+    /* Keine umgedrehte Bedingung: In der Gegenprobe wird oben die ALTE
+       Bauart gebaut, und dieselbe Messung muss daran scheitern. */
+    pruefe('Masslinie bleibt dünn: ' + f[0],
+           duenn,
+           'hoechstens ' + weit.toFixed(1) + ' cm neben der Linie, bei ' +
+           laenge.toFixed(0) + ' cm Laenge');
+  });
+})();
+pruefe('Der Massstab wird gedreht, nicht achsparallel aufgespannt',
+       gegen ? !/m\.quaternion\.setFromUnitVectors\(MASS_ACHSE,/.test(src)
+             : /m\.quaternion\.setFromUnitVectors\(MASS_ACHSE,/.test(src) &&
+               /new THREE\.BoxGeometry\(MASS_DICK, MASS_DICK, laenge\)/.test(src),
+       'sonst wird aus der Linie bei Gefälle ein Brett');
 pruefe('Die Masszahlen stehen an den Linien im Code',
        gegen ? !/var vorn = T \+ \(frei \? 135 : 80\);/.test(src)
              : /var vorn = T \+ \(frei \? 135 : 80\);/.test(src) &&

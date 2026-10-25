@@ -9065,3 +9065,35 @@ three.js lädt, Wiese und Platte werden wie im Bauweg aufgestellt, und an den
 vier Plattenecken und der Mitte wird die Höhe **senkrecht** verglichen –
 Abweichung Wiese 0,000 cm, Platte 0,031 cm (halbe Plattendicke durch die
 Neigung). Dazu alle übrigen `scripts/pruefe-*` und die 90 Browser-Prüfungen.
+
+## 25.10.2026 — Die Maßlinie war ein Brett, sobald sie schräg lief
+
+**Was falsch war.** „der dicke balken is rechts noch da also maßanzeige"
+(Betreiber, 24.10.2026, mit Bild) — und zwar zu Recht: Der dicke Balken im
+Bild davor war die Plattenflanke (behoben), dieser hier ist etwas anderes.
+
+`massStab(a, b)` hat einen **achsparallelen** Kasten aufgespannt: je Weltachse
+`|b − a|`, mindestens 1,6 cm. Solange eine Maßlinie genau auf einer Achse
+liegt, kommt dabei ein dünner Stab heraus. Sobald sie schräg läuft, nicht
+mehr — und schräg läuft sie, seit es Bodengefälle gibt: Die Tiefenlinie rechts
+steigt bei 6° auf 4 m Tiefe um **43 cm** an. Aus der 1,6-cm-Linie wurde ein
+43 cm hohes Brett. Dasselbe passiert der Breitenlinie bei Quergefälle.
+
+**Was jetzt gilt.** Der Stab wird gebaut und **gedreht**: Querschnitt
+1,6 × 1,6 cm, Länge `|b − a|`, Richtung über `setFromUnitVectors`. Damit steht
+die Stärke quer zur Linie statt entlang der Weltachsen, in jeder Richtung.
+
+**Gemessen statt gelesen** (`pruefe-markise.js`, zwei neue Prüfungen): Der Stab
+wird mit three.js wirklich gebaut, und von jedem Eckpunkt des Körpers wird der
+**senkrechte Abstand zur gedachten Linie a–b** bestimmt. Neu: 1,1 cm (halbe
+Diagonale eines 1,6-cm-Stabs). Alte Bauart in der Gegenprobe: 43,0 cm bzw.
+32,5 cm. Der achsparallele Umriss taugt dafür nicht — ein schräger dünner Stab
+hat einen großen Umriss, ohne dick zu sein; das war beim ersten Anlauf der
+Messfehler und stand kurz als „ok" im Bericht.
+
+**Gegenlesen bitte:** Terrassendach TDS freistehend, 6° Gefälle, Maße
+einblenden, von vorne/unten schauen — die Tiefenlinie rechts muss eine dünne
+Linie sein. Dasselbe mit Quergefälle für die Breitenlinie vorne.
+
+**Geprüft:** `pruefe-markise.js` 190 Prüfungen bestanden, Gegenprobe schlägt
+bei 190 von 190 an. Dazu alle übrigen `pruefe-*` und die 90 Browser-Prüfungen.

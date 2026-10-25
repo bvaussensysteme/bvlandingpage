@@ -3248,13 +3248,25 @@
 
   /* Ein achsparalleler Stab von a nach b. Laeuft die Strecke in einer
      Achse, bleibt sie in den anderen beiden bei der Staerke stehen. */
+  /* Ein Stab VON a NACH b – gedreht, nicht achsparallel aufgespannt.
+     Vorher wurde je Achse |b-a| genommen. Solange eine Linie genau auf
+     einer Achse lag, kam dabei ein duenner Stab heraus; sobald sie
+     schraeg lief, ein Brett: Bei 6 Grad Bodengefaelle auf 4 m Tiefe
+     steigt die Tiefenlinie um 43 cm an, und aus der 1,6 cm starken
+     Linie wurde eine 43 cm hohe Platte. Der Betreiber hat genau die
+     gesehen: „der dicke balken is rechts noch da also maßanzeige"
+     (24.10.2026, mit Bild). Die Staerke muss deshalb QUER zur
+     Richtung stehen, nicht entlang der Weltachsen. */
+  var MASS_ACHSE = new THREE.Vector3(0, 0, 1);
   function massStab(a, b, material) {
     var d = new THREE.Vector3().subVectors(b, a);
-    var g = new THREE.BoxGeometry(Math.max(Math.abs(d.x), MASS_DICK),
-                                  Math.max(Math.abs(d.y), MASS_DICK),
-                                  Math.max(Math.abs(d.z), MASS_DICK));
-    var m = new THREE.Mesh(g, material);
+    var laenge = Math.max(d.length(), MASS_DICK);
+    var m = new THREE.Mesh(
+      new THREE.BoxGeometry(MASS_DICK, MASS_DICK, laenge), material);
     m.position.copy(a).add(b).multiplyScalar(0.5);
+    if (d.lengthSq() > 1e-6) {
+      m.quaternion.setFromUnitVectors(MASS_ACHSE, d.clone().normalize());
+    }
     return m;
   }
 
