@@ -65,21 +65,6 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   ein Hinweis „niedrigste Durchgangshöhe: X mm an der Y-Seite" die kleine
   Lösung — **nicht ohne Auftrag bauen**.
 
-### Sonderform — vier Maße *(gebaut 23.10.2026)*
-
-Im Schritt „Maße" steht bei **Terrassendach TDS** und **Flachdach SkyView**
-die Wahl *Normal / Sonderform*. Sonderform fragt vier Maße ab — **Breite
-hinten, Breite vorne, Tiefe links, Tiefe rechts** — und baut daraus ein
-Viereck; über den Feldern steht eine Skizze mit den eingetragenen Zahlen.
-Die Vorderkante liegt mittig zur Hinterkante. Begründung, verworfene
-Zwischenlösung (zehn Katalogformen) und die Gegenlese-Punkte stehen in
-`docs/entscheidungen.md`, Eintrag 23.10.2026.
-
-Noch nicht beantwortet: ob VD für ein Dach mit vier verschiedenen Maßen
-einen Aufschlag nimmt. Im Katalogblatt stehen +30 % — **im Konfigurator
-steht nirgends ein Preis**, die Frage betrifft nur die Kalkulation im
-Betrieb.
-
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
 Bei 7050 mm Tiefe und 8° Dachneigung ergibt sich eine **Höhe hinten von
@@ -263,7 +248,6 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-bodengefaelle.js` | Gefälle des Terrassenbodens: Führt `bodenY()` aus und rechnet nach – ebener Boden ändert nichts, 2° auf 4 m sind 140 mm, vier Ecken auf vier Höhen. Dazu: Dach wird verschoben statt gekippt, Pfostenlängen gehen in die Anfrage. **Misst mit three.js nach**, dass Wiese und Plattenoberseite senkrecht gemessen auf derselben Ebene liegen wie die gerechneten Pfosten |
 | `scripts/pruefe-stufen.js` | Basic und Pro: Ist Basic voreingestellt? Trägt jede Fachangabe `data-k3d-pro`? Bleibt jede Kundenfrage in Basic sichtbar? Verbirgt die Stufenregel nur, statt aufzudecken? Und vor allem: Wird beim Umschalten **kein** Wert zurückgesetzt |
 | `scripts/pruefe-rueckseite.js` | Die vierte Seite: Gibt es sie nur freistehend? Verschwindet die Wahl beim Zurückschalten auf Wandmontage wieder? Kein Keil hinten, Höhe aus der Dachunterkante, Assistent kennt `erw_hinten` |
-| `scripts/pruefe-sonderform.js` | Sonderform: Führt die Geometrie wirklich aus und misst nach – Viereck aus vier Maßen, nirgends Tiefe null, nichts ragt über das umschließende Rechteck hinaus, Vorderkante mittig, fehlendes Maß wird gemeldet, keine Reste der alten Katalogformen |
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
 | `scripts/pruefe-hinweise.js` | Bleibt getrennt, was der Kunde sieht, und was nur in die Anfrage-Mail gehört? Prüft Hinweisbox, Kasten „Ihre Konfiguration", Assistenten-Anzeige und alle drei Versandwege – einmal aus dem Quelltext, einmal an wirklich erzeugten Hinweisen |
 | `scripts/pruefe-pdf.js` | Erzeugt die PDFs **beider** Stellen (Konfigurator und Baugenehmigungs-Check) und liest sie mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Bildgröße, Umlaute, und vor allem: Steht jede Angabe **vollständig** da, auch bei 34 langen Zeilen über zwei Seiten? Zweispaltige Seiten werden dafür spaltenweise ausgeschnitten – am Stück gelesen zerreißt pdftotext die umgebrochenen Zeilen |
@@ -275,11 +259,11 @@ auf, dass `pruefe-konfigurator-oberflaeche.mjs` seit PR #281 (11.10.2026)
 mit einer Ausnahme abbrach, statt ein Ergebnis zu melden – zwölf Tage
 unbemerkt rot. Eine Prüfung, die mit einer Ausnahme endet, ist rot.
 
-Stand 23.10.2026: **alle Skripte laufen durch**, jedes mit vollständig
-anschlagender Gegenprobe (`pruefe-sonderform.js` 25/25,
-`pruefe-konfigurator-oberflaeche.mjs` 61 Prüfungen und alle drei
-eingebauten Fehler gefunden, `pruefe-masstabelle.js` 361,
-`pruefe-markise.js` 141, `pruefe-fuehrung.js` 45).
+Stand 25.10.2026: **alle Skripte laufen durch**, jedes mit vollständig
+anschlagender Gegenprobe (`pruefe-konfigurator-oberflaeche.mjs` 90 Prüfungen
+und alle drei eingebauten Fehler gefunden, `pruefe-masstabelle.js` 364,
+`pruefe-markise.js` 190, `pruefe-fuehrung.js` 309, `pruefe-teilen.mjs` und
+`pruefe-kurzlink.mjs`).
 
 Der Browsertest ist damit wieder brauchbar. Er ersetzt **nicht** das
 Nachsehen im Browser – das macht der Betreiber selbst („mach keinen browser
@@ -379,7 +363,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | **noch nicht veröffentlicht** |
 | 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten, nicht an denen der Vorderseite | **noch nicht veröffentlicht** |
 | 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | **noch nicht veröffentlicht** |
-| 23.10.2026 | Sonderform: vier freie Maße statt zehn Katalogformen; Browser-Prüfung nach zwölf Tagen wieder grün | live |
+| 25.10.2026 | **Sonderform wieder entfernt** – Entscheidung des Betreibers, Begründung im Logbuch. Sonderformen laufen über Telefon und Aufmaß | **noch nicht veröffentlicht** |
 | 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |
 | 12.10.2026 | Anfrage-Text rechnet über `bauteileJetzt()` statt über die tote Schnittstelle | live |
 | 12.10.2026 | Dachneigung: Rechenweg der Montageanleitung belegt, Anzeige in ganzen Grad | live |

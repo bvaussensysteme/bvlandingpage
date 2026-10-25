@@ -84,7 +84,6 @@ pruefe('Die Stufe wird beim Ändern gelesen',
 
 /* ---------- Was Basic verbirgt ---------- */
 var sollPro = [
-  ['form-wahl', 'Form der Anlage'], ['sonderform', 'Sonderform-Maße'],
   ['neigung', 'Dachneigung'], ['hoehe-hinten', 'hintere Höhe'],
   ['glasstaerke', 'Glasstärke'], ['keil-glas', 'Glas im Keil'],
   ['velaris', 'Velaris-Hälfte'], ['verk-richtung', 'Ausrichtung der Paneele'],
@@ -101,7 +100,7 @@ sollPro.forEach(function (p) {
    Die Gegenprobe deckt genau die Verwechslung auf, die hier wehtäte:
    eine Kundenfrage versehentlich nach Pro geschoben. */
 var sollBasic = [
-  ['id="k3dBreiteZahl"', 'Breite'], ['data-k3d-fuer="mass-normal"', 'Tiefe'],
+  ['id="k3dBreiteZahl"', 'Breite'], ['id="k3dTiefeZahl"', 'Tiefe'],
   ['id="k3dHoeheZahl"', 'Höhe vorne'], ['data-k3d-fuer="glas"', 'Dacheindeckung'],
   ['data-k3d-farbe', 'Farbe'], ['data-k3d-erw="links"', 'Seite links'],
   ['data-k3d-erw="hinten"', 'Seite hinten'],

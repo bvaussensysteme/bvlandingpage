@@ -147,10 +147,7 @@ pruefe('Wasserzeichen hat einen Kontrastrand',
                ', gefunden ' + (ist[schief] ? ist[schief].fuer + ' / ' + ist[schief].lab : '(nichts)'));
   }
   pruefeFolge('masse', [
-    ['form-wahl', ''], ['sonderform', ''], ['sonderform', 'Breite hinten'],
-    ['sonderform', 'Breite vorne'], ['sonderform', 'Tiefe links'],
-    ['sonderform', 'Tiefe rechts'], ['sonderform', ''],
-    ['mass-normal', 'Breite'], ['mass-normal', 'Tiefe'],
+    ['-', 'Breite'], ['-', 'Tiefe'],
     ['-', 'Höhe vorne'], ['hoehe-hinten', ''], ['neigung', 'Dachneigung'],
     ['bodengefaelle', 'Gefälle'],
     ['vorsprung', 'Dachvorsprung vorne'], ['vorsprung-hinten', 'Dachvorsprung hinten'],
