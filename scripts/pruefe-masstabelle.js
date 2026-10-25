@@ -596,10 +596,7 @@ pruefe('Wandprofil steht mit 143,6 mm an der Wand',
 (function () {
   /* Das Wandprofil wird genau EINMAL gezeichnet, ausserhalb der
      frei-Verzweigung - sonst gaebe es zwei Fassungen davon. */
-  /* Seit 25.10.2026 bekommt es die Breite der HINTERKANTE (bHinten) –
-     bei einer Sonderform ist das nicht die des Rechtecks. Gezeichnet
-     wird es weiterhin genau einmal; darum geht es hier. */
-  var zahl = (k3d.match(/wandprofilBauen\(bHinten, wpMitte - wpH \/ 2, wpGlasD, mAlu\)/g) || []).length;
+  var zahl = (k3d.match(/wandprofilBauen\(B, wpMitte - wpH \/ 2, wpGlasD, mAlu\)/g) || []).length;
   pruefe('Wandprofil wird nicht ersetzt', gegen ? zahl !== 1 : zahl === 1,
          zahl + ' Mal gezeichnet');
 })();
@@ -823,12 +820,7 @@ pruefe('Wandprofil deckt die Glasleiste ab',
   /* Nur ZWISCHEN den Sparren, nicht durchgehend: Sonst stuende sie vor
      den Sparren, die in derselben Kammer stecken. Und nur vor der
      unteren – die obere traegt die Scheibe. */
-  /* Seit 25.10.2026 wird das Feld zusaetzlich auf die Hinterkante
-     beschnitten (bei einer Sonderform reicht das Sparrenraster weiter
-     nach aussen als das Wandprofil). Die Aussage bleibt: je Feld ein
-     Stueck, nicht durchgehend. */
-  var proFeld = /var feldL = Math\.max\(xs\[i\] \+ spB \/ 2, -blendeRand\);/.test(k3d) &&
-                /var feldR = Math\.min\(xs\[i \+ 1\] - spB \/ 2, blendeRand\);/.test(k3d) &&
+  var proFeld = /feldB2 = \(xs\[i \+ 1\] - xs\[i\]\) - spB;/.test(k3d) &&
                 /balken\(feldB2, WANDBLENDE\.hoehe, WANDBLENDE\.dicke,/.test(k3d);
   pruefe('Blende sitzt in den Feldern zwischen den Sparren',
          gegen ? !proFeld : proFeld, 'nicht durchgehend über die Breite');
@@ -1386,7 +1378,7 @@ pruefe('SkyView – die alte Attika-Blende ist weg',
 pruefe('Beide Deckel werden gleich gebaut und gesetzt',
        (k3d.match(/function profilKappen/g) || []).length === 1 &&
        new RegExp(q || 'profilKappen\\(laenge, 0, wpOk - WANDDECKEL\\.hoehe').test(k3d) &&
-       new RegExp(q || 'if \\(!sky\\) wandprofilKappen\\(bHinten, wpOk, mAlu\\)').test(k3d),
+       new RegExp(q || 'if \\(!sky\\) wandprofilKappen\\(B, wpOk, mAlu\\)').test(k3d),
        'eine Bauweise, zwei Formen');
 /* „du hast beim sky view die wandprofil blende hingetan die kann weg"
    (Betreiber, 15.10.2026). Beim SkyView steht hinten der Traeger TD an
@@ -1549,10 +1541,7 @@ pruefe('Wandprofil-Seitendeckel nur beim TDS',
    Dachvorsprung), traegt er wirklich und behaelt seine vollen 189 mm. */
 pruefe('Traegerhoehe folgt dem Dach, nicht dem festen Mass',
        new RegExp(q || 'var trH = \\(frei && vorsprH <= 0\\) \\? Math\\.max\\(spH, trOk - ukHinten\\) : TR_H;').test(k3d) &&
-       /* Breite und Mitte kommen seit 25.10.2026 aus querBei() – bei
-          einer Sonderform ist die Hinterkante schmaler als das
-          umschliessende Rechteck. Die HOEHE trH ist hier die Aussage. */
-       new RegExp(q || 'balken\\(qTr\\.breite, trH, TR_T, qTr\\.mitte, trOk - trH / 2').test(k3d) &&
+       new RegExp(q || 'balken\\(B, trH, TR_T, 0, trOk - trH / 2').test(k3d) &&
        !/balken\(B, TR_H, TR_T/.test(k3d), '');
 (function () {
   /* Zweiter Weg: die Lagen ausrechnen. Oben muss der Traeger mit der
@@ -1791,11 +1780,8 @@ pruefe('Kopplungsprofil ohne Metallanteil, nur leicht matt',
 pruefe('Kopplungsprofil wirft keinen Schatten',
        gegen ? /kq\.castShadow = true/.test(k3d) : !/kq\.castShadow/.test(k3d),
        'sonst ein dunkler Streifen quer ueber die Terrasse');
-/* „ueber die volle Breite" heisst seit 25.10.2026: ueber die Breite der
-   Anlage AN SEINER TIEFE. Bei normaler Form ist das genau B. */
 pruefe('Kopplungsprofil ueber die volle Breite',
-       new RegExp(q || 'BoxGeometry\\(qK\\.breite, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d) &&
-       new RegExp(q || 'var qK = querBei\\(koppelZ\\);').test(k3d), '');
+       new RegExp(q || 'BoxGeometry\\(B, KOPPEL\\.hoehe, KOPPEL\\.breite\\)').test(k3d), '');
 pruefe('Hinweis im Bedienfeld',
        gegen ? !/quer gestoßen und gekoppelt/.test(k3d) : /quer gestoßen und gekoppelt/.test(k3d), '');
 pruefe('Anfrage nennt den Stoss mit seiner Lage',
@@ -1975,10 +1961,10 @@ pruefe('Unterzug: Regler, 3D und Anfrage aus einer Quelle',
              : (k3d.match(/unterzugAbstand\(\)/g) || []).length >= 3,
        (k3d.match(/unterzugAbstand\(\)/g) || []).length + ' Verwendungen');
 pruefe('Unterzug wird im 3D gebaut: Träger UND Pfosten',
-       gegen ? !/verteilen\(pfostenUnterTraeger\(Z\.breite\), qUz\.breite, PF \/ 2\)/.test(k3d)
-             : /balken\(qUz\.breite, uzH, TR_T, qUz\.mitte, uzOk - uzH \/ 2, zUz, mAlu\)/.test(k3d) &&
-               /balken\(PF, hPfUz, PF, x \+ qUz\.mitte, hPfUz \/ 2, zUz, mAlu\)/.test(k3d),
-       'Statikträger quer plus eigene Pfostenreihe, beide so breit wie die Anlage dort');
+       gegen ? !/verteilen\(pfostenUnterTraeger\(Z\.breite\), B, PF \/ 2\)\.forEach\(function \(x\) \{\s*balken\(PF, hPfUz/.test(k3d)
+             : /balken\(B, uzH, TR_T, 0, uzOk - uzH \/ 2, zUz, mAlu\)/.test(k3d) &&
+               /balken\(PF, hPfUz, PF, x, hPfUz \/ 2, zUz, mAlu\)/.test(k3d),
+       'Statikträger quer plus eigene Pfostenreihe');
 /* Die Bedingung steht seit dem 15.10.2026 in unterzugZcm() und nicht mehr
    am Bau-Block: Traeger und Seitenaufteilung fragen dieselbe Stelle, damit
    ihre Lage nicht auseinanderlaufen kann. Der SkyView-Ausschluss ist am
