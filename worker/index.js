@@ -224,37 +224,121 @@ const TEILEN_MAX_BODY = 8 * 1024;
 /* Ohne I, L, O, U: Diese Zeichen werden beim Abtippen oder Vorlesen mit
    1, 0 und V verwechselt – und vorlesbar zu sein ist der ganze Zweck. */
 const TEILEN_ZEICHEN = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
-let teilenTabelleDa = false;
+/* WO DIE TABELLE STEHT – und warum der Server sich selbst zu helfen weiss.
 
-/* Die Tabelle legt sich beim ersten Mal selbst an – WENN die Rolle das
-   darf. Ab PostgreSQL 15 darf nicht mehr jede Rolle im Schema „public"
-   anlegen, und genau daran ist der erste Versuch live gescheitert
-   (502 beim ersten Aufruf). Deshalb: Fehlschlag merken, nicht bei jedem
-   Aufruf erneut versuchen, und der Aufrufer bekommt ein Wort, WO es
-   klemmt – nicht die Datenbankmeldung.
+   Zwei moegliche Orte:
+     1. "public"  - der Normalfall.
+     2. "bv"      - ein eigenes Schema, das sich der Server anlegt, wenn
+                    er in "public" nichts anlegen darf.
 
-   Zum Nachtragen von Hand (Neon-Konsole, einmal):
+   ANLASS. Ab PostgreSQL 15 darf nicht mehr jede Rolle im Schema "public"
+   Tabellen anlegen. Genau daran ist der erste Versuch live gescheitert:
+   POST /api/teilen antwortete 502 mit {"schritt":"tabelle"}. Der Plan
+   war, den fehlenden Befehl einmal von Hand in der Neon-Konsole
+   nachzutragen. Das ist am 25.10.2026 daran gescheitert, dass dem
+   Betreiber SQL nichts sagt - "is mir zu kompliziert xd keine ahnung".
 
-     create table if not exists teilen_links (
-       id text primary key, code text not null,
-       code_hash text not null unique,
-       erstellt timestamptz not null default now(),
-       zuletzt timestamptz);
-*/
-let teilenTabelleFehlt = false;
+   Eine Funktion, die eine Handarbeit voraussetzt, die niemand machen
+   will, ist nicht fertig. Deshalb raeumt sich der Server den Platz jetzt
+   selbst ein: Ein eigenes Schema anzulegen braucht ein ANDERES Recht
+   (CREATE an der Datenbank) als in "public" zu schreiben, und das hat
+   die Rolle in aller Regel - auch dann, wenn ihr "public" verschlossen
+   ist. Faellt der Normalfall aus, weicht der Server also nach "bv" aus.
 
-async function teilenTabelle(sql) {
-  if (teilenTabelleDa || teilenTabelleFehlt) return;
-  await sql`
-    create table if not exists teilen_links (
-      id         text primary key,
-      code       text not null,
-      code_hash  text not null unique,
-      erstellt   timestamptz not null default now(),
-      zuletzt    timestamptz
-    )
-  `;
-  teilenTabelleDa = true;
+   Der gefundene Ort wird je Server-Instanz gemerkt, nicht bei jedem
+   Aufruf gesucht. Nach einem Fehlschlag gilt eine Pause, damit nicht
+   jeder Besucher denselben aussichtslosen Versuch ausloest. */
+let teilenOrt = null;                       // 'public' | 'bv' | null
+let teilenPause = 0;                        // Zeitpunkt, ab dem wieder probiert wird
+const TEILEN_PAUSE_MS = 5 * 60 * 1000;
+
+/* Dieselben Abfragen, einmal je Ort. Ein Tabellenname laesst sich in SQL
+   nicht als Wert einsetzen (das geht nur mit Werten), deshalb steht hier
+   beides ausgeschrieben statt zusammengebaut - so kann kein Text aus
+   einer Anfrage je in einen Befehl geraten. */
+const TEILEN_SPALTEN =
+  'id text primary key, code text not null, code_hash text not null unique, ' +
+  'erstellt timestamptz not null default now(), zuletzt timestamptz';
+const TEILEN_SQL = {
+  public: {
+    probe:     (sql) => sql`select 1 from teilen_links limit 1`,
+    nachHash:  (sql, h) => sql`select id from teilen_links where code_hash = ${h}`,
+    nachId:    (sql, i) => sql`select code_hash from teilen_links where id = ${i}`,
+    code:      (sql, i) => sql`select code from teilen_links where id = ${i}`,
+    beruehren: (sql, i) => sql`update teilen_links set zuletzt = now() where id = ${i}`,
+    einfuegen: (sql, i, c, h) => sql`
+      insert into teilen_links (id, code, code_hash)
+      values (${i}, ${c}, ${h})
+      on conflict (code_hash) do nothing`,
+    anlegen:   (sql) => sql`
+      create table if not exists teilen_links (
+        id         text primary key,
+        code       text not null,
+        code_hash  text not null unique,
+        erstellt   timestamptz not null default now(),
+        zuletzt    timestamptz
+      )`
+  },
+  bv: {
+    probe:     (sql) => sql`select 1 from bv.teilen_links limit 1`,
+    nachHash:  (sql, h) => sql`select id from bv.teilen_links where code_hash = ${h}`,
+    nachId:    (sql, i) => sql`select code_hash from bv.teilen_links where id = ${i}`,
+    code:      (sql, i) => sql`select code from bv.teilen_links where id = ${i}`,
+    beruehren: (sql, i) => sql`update bv.teilen_links set zuletzt = now() where id = ${i}`,
+    einfuegen: (sql, i, c, h) => sql`
+      insert into bv.teilen_links (id, code, code_hash)
+      values (${i}, ${c}, ${h})
+      on conflict (code_hash) do nothing`,
+    anlegen:   (sql) => sql`
+      create table if not exists bv.teilen_links (
+        id         text primary key,
+        code       text not null,
+        code_hash  text not null unique,
+        erstellt   timestamptz not null default now(),
+        zuletzt    timestamptz
+      )`
+  }
+};
+
+/* Nur die fuenfstellige Fehlernummer von PostgreSQL (42501 = keine
+   Rechte, 42P01 = Tabelle gibt es nicht, 28P01 = Anmeldung abgelehnt),
+   nie der Meldungstext: Der kann Rollen-, Host- oder Tabellennamen
+   enthalten, und dieser Endpunkt ist oeffentlich. Die Nummer allein
+   genuegt, um von aussen zu erkennen, woran es klemmt - ohne Zugang zu
+   den Server-Protokollen. */
+function teilenFehlerNr(err) {
+  const c = err && (err.code || (err.sourceError && err.sourceError.code));
+  return (typeof c === 'string' && /^[0-9A-Z]{5}$/.test(c)) ? c : null;
+}
+
+/* Nur nachsehen, nichts anlegen - fuer den Aufruf eines fertigen Links.
+   Ein Besucher, der einen Link oeffnet, soll keine Tabellen erzeugen. */
+async function teilenOrtSuchen(sql) {
+  if (teilenOrt) return teilenOrt;
+  for (const ort of ['public', 'bv']) {
+    try { await TEILEN_SQL[ort].probe(sql); teilenOrt = ort; return ort; }
+    catch (e) { /* naechster Ort */ }
+  }
+  return null;
+}
+
+/* Nachsehen und notfalls anlegen - fuer das Erzeugen eines Links. */
+async function teilenOrtFinden(sql) {
+  const da = await teilenOrtSuchen(sql);
+  if (da) return da;
+  if (Date.now() < teilenPause) return null;
+  try {
+    await TEILEN_SQL.public.anlegen(sql);
+    teilenOrt = 'public';
+    return 'public';
+  } catch (e) {
+    console.log('Kurzlink: "public" verschlossen (' +
+                (teilenFehlerNr(e) || 'ohne Nummer') + '), weiche auf "bv" aus');
+  }
+  await sql`create schema if not exists bv`;
+  await TEILEN_SQL.bv.anlegen(sql);
+  teilenOrt = 'bv';
+  return 'bv';
 }
 
 async function teilenHash(code) {
@@ -262,7 +346,7 @@ async function teilenHash(code) {
   return [...new Uint8Array(roh)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-/* Aus der Prüfsumme eine kurze, vorlesbare Kennung. Länge wächst nur,
+/* Aus der Pruefsumme eine kurze, vorlesbare Kennung. Laenge waechst nur,
    wenn die kurze schon vergeben ist (andere Planung, gleicher Anfang). */
 function teilenId(hash, laenge) {
   let aus = '';
@@ -291,46 +375,32 @@ async function handleTeilenNeu(request, env) {
   try {
     const sql = neon(env.ANFRAGEN_DB);
     const hash = await teilenHash(code);
-    /* Zuerst lesen: Steht die Tabelle schon, braucht es kein CREATE –
-       und die Rolle braucht dafür keine Rechte am Schema. */
-    let da;
-    schritt = 'suchen';
-    try {
-      da = await sql`select id from teilen_links where code_hash = ${hash}`;
-    } catch (lesefehler) {
-      schritt = 'tabelle';
-      try {
-        await teilenTabelle(sql);
-      } catch (anlegefehler) {
-        teilenTabelleFehlt = true;
-        console.log('Kurzlink: Tabelle fehlt und lässt sich nicht anlegen:',
-                    String(anlegefehler));
-        return jsonResponse({ ok: false, schritt: 'tabelle' }, 502);
-      }
-      schritt = 'suchen';
-      da = await sql`select id from teilen_links where code_hash = ${hash}`;
-    }
-    if (da.length) return jsonResponse({ ok: true, id: da[0].id });
-    schritt = 'schreiben';
 
+    schritt = 'tabelle';
+    const ort = await teilenOrtFinden(sql);
+    if (!ort) return jsonResponse({ ok: false, schritt: 'tabelle' }, 503);
+    const Q = TEILEN_SQL[ort];
+
+    schritt = 'suchen';
+    const da = await Q.nachHash(sql, hash);
+    if (da.length) return jsonResponse({ ok: true, id: da[0].id });
+
+    schritt = 'schreiben';
     for (let laenge = 6; laenge <= 12; laenge++) {
       const id = teilenId(hash, laenge);
-      const belegt = await sql`select code_hash from teilen_links where id = ${id}`;
+      const belegt = await Q.nachId(sql, id);
       if (belegt.length) {
         if (belegt[0].code_hash === hash) return jsonResponse({ ok: true, id });
         continue;                        // andere Planung, eine Stelle mehr
       }
-      await sql`
-        insert into teilen_links (id, code, code_hash)
-        values (${id}, ${code}, ${hash})
-        on conflict (code_hash) do nothing
-      `;
+      await Q.einfuegen(sql, id, code, hash);
       return jsonResponse({ ok: true, id });
     }
     return jsonResponse({ ok: false }, 503);
   } catch (err) {
+    if (schritt === 'tabelle') { teilenOrt = null; teilenPause = Date.now() + TEILEN_PAUSE_MS; }
     console.log('Kurzlink fehlgeschlagen bei', schritt, ':', String(err));
-    return jsonResponse({ ok: false, schritt }, 502);
+    return jsonResponse({ ok: false, schritt, nr: teilenFehlerNr(err) }, 502);
   }
 }
 
@@ -351,11 +421,14 @@ async function handleTeilenOeffnen(url, env) {
   if (!/^[0-9A-Z]{4,16}$/.test(id) || !env.ANFRAGEN_DB) return teilenNichtDa(url);
   try {
     const sql = neon(env.ANFRAGEN_DB);
-    const rows = await sql`select code from teilen_links where id = ${id}`;
+    const ort = await teilenOrtSuchen(sql);
+    if (!ort) return teilenNichtDa(url);
+    const Q = TEILEN_SQL[ort];
+    const rows = await Q.code(sql, id);
     if (!rows.length) return teilenNichtDa(url);
     /* Wann der Link zuletzt gebraucht wurde – die Grundlage dafür, später
        einmal aufzuräumen. Schlägt das fehl, ist das egal. */
-    try { await sql`update teilen_links set zuletzt = now() where id = ${id}`; } catch { /* egal */ }
+    try { await Q.beruehren(sql, id); } catch { /* egal */ }
     const ziel = new URL('/konfigurator', url);
     ziel.hash = 'k=' + rows[0].code;
     return Response.redirect(ziel.toString(), 302);

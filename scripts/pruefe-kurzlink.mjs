@@ -132,6 +132,146 @@ function anfrage(pfad, method = 'GET', body = null) {
          'Prüfsumme ist eindeutig');
 }
 
+/* ---------- Der Server raeumt sich den Platz selbst ein ---------- */
+/* ANLASS: Der Betreiber sollte die Tabelle einmal von Hand in der
+   Neon-Konsole anlegen. „is mir zu kompliziert xd keine ahnung"
+   (25.10.2026). Seitdem weicht der Server selbst aus. Diese Logik wird
+   hier AUSGEFUEHRT – mit einer nachgebauten Datenbank, die genau die
+   Fehler wirft, die live aufgetreten sind. */
+function ortLogik() {
+  /* Den Block aus der Quelle holen und ausfuehren: exportiert ist er
+     nicht, und exportiert werden soll er auch nicht, nur zum Pruefen.
+     Jeder Aufruf gibt einen frischen Satz – sonst merkt sich der zweite
+     Fall den Ort aus dem ersten. */
+  const block = (quelle.match(/let teilenOrt = null;[\s\S]*?return 'bv';\n\}/) || [''])[0];
+  return new Function(block +
+    "\nreturn { teilenOrtFinden, teilenOrtSuchen, TEILEN_SQL, teilenFehlerNr };")();
+}
+
+/* Eine Datenbank, die nur so tut. Sie merkt sich, was gefragt wurde. */
+function datenbank(regeln) {
+  const verlauf = [];
+  const sql = function (teile) {
+    const text = teile.join(' ? ').replace(/\s+/g, ' ').trim();
+    verlauf.push(text);
+    for (const r of regeln) {
+      if (r.muster.test(text)) {
+        if (r.fehler) {
+          const e = new Error('nachgebaut'); e.code = r.fehler;
+          return Promise.reject(e);
+        }
+        return Promise.resolve(r.zeilen || []);
+      }
+    }
+    const e = new Error('unerwartete Abfrage: ' + text); e.code = 'XX000';
+    return Promise.reject(e);
+  };
+  sql.verlauf = verlauf;
+  return sql;
+}
+
+const FEHLT   = '42P01';   // Tabelle gibt es nicht
+const KEIN_SCHEMA = '3F000';
+const GESPERRT = '42501';  // keine Rechte
+
+{
+  /* Fall 1: alles normal – die Tabelle steht in „public". */
+  const L = ortLogik();
+  /* Gegenprobe: die Tabelle ist WEG – dann darf „public" nicht
+     herauskommen, ohne dass etwas angelegt wurde. */
+  const db = datenbank(gegen
+    ? [{ muster: /^select 1 from teilen_links/, fehler: FEHLT },
+        { muster: /^select 1 from bv\./, fehler: KEIN_SCHEMA },
+        { muster: /./, zeilen: [] }]
+    : [{ muster: /^select 1 from teilen_links/, zeilen: [] }]);
+  let ort = null;
+  try { ort = await L.teilenOrtFinden(db); } catch (e) { ort = 'Abbruch'; }
+  pruefe('Steht die Tabelle in „public", bleibt alles wie bisher',
+         ort === 'public' && !db.verlauf.some((t) => /create/i.test(t)),
+         'Ort: ' + ort + ', ' + db.verlauf.length + ' Abfrage(n), kein CREATE');
+  pruefe('Dann wird nichts angelegt',
+         !db.verlauf.some((t) => /create/i.test(t)),
+         'eine bestehende Tabelle wird nicht angefasst');
+}
+
+{
+  /* Fall 2: genau die Lage auf dem Server – Tabelle fehlt, und „public"
+     ist fuer die Rolle verschlossen (PostgreSQL 15). */
+  const L = ortLogik();
+  const db = datenbank([
+    { muster: /^select 1 from teilen_links/,    fehler: FEHLT },
+    { muster: /^select 1 from bv\.teilen_links/, fehler: KEIN_SCHEMA },
+    { muster: /^create table if not exists teilen_links/, fehler: GESPERRT },
+    /* Gegenprobe: auch das eigene Schema ist verboten – dann gibt es
+       keinen Ort mehr, und das muss auffallen. */
+    { muster: /^create schema if not exists bv/,
+      fehler: gegen ? GESPERRT : null, zeilen: [] },
+    { muster: /^create table if not exists bv\.teilen_links/, zeilen: [] }
+  ]);
+  let ort = null, kaputt = null;
+  try { ort = await L.teilenOrtFinden(db); } catch (e) { kaputt = e; }
+  pruefe('Ist „public" verschlossen, legt sich der Server ein eigenes Fach an',
+         ort === 'bv',
+         kaputt ? 'Abbruch: ' + kaputt.message : 'Ort: ' + ort);
+  const machte = db.verlauf.some((t) => /^create schema if not exists bv/.test(t)) &&
+                 db.verlauf.some((t) => /^create table if not exists bv\.teilen_links/.test(t));
+  pruefe('Dafür legt er Schema und Tabelle wirklich an',
+         machte,
+         db.verlauf.length + ' Schritte bis zum Ziel');
+}
+
+{
+  /* Fall 3: die Datenbank antwortet gar nicht. Dann darf nichts
+     abstuerzen, und der Fehler muss NACH AUSSEN als Nummer sichtbar
+     sein – ohne Zugang zu den Server-Protokollen ist er sonst nicht
+     auffindbar. Genau daran hat diese Suche zwei Tage gehangen. */
+  const L = ortLogik();
+  const db = datenbank([{ muster: /./, fehler: '28P01' }]);
+  let nr = null;
+  try { await L.teilenOrtFinden(db); } catch (e) { nr = L.teilenFehlerNr(e); }
+  pruefe('Ein Datenbankfehler kommt als Nummer zurück, nicht als Text',
+         gegen ? nr !== '28P01' : nr === '28P01',
+         'Nummer ' + nr + ' – ohne Rollen-, Host- oder Tabellennamen');
+  /* Gemessen am fertigen Antwort-Aufruf, nicht am Quelltext drumherum:
+     console.log(String(err)) ist richtig und soll bleiben – nur in
+     jsonResponse(...) darf der Fehler nicht auftauchen. */
+  const rumpf = (quelle.match(/async function handleTeilenNeu[\s\S]*?\n\}/) || [''])[0];
+  const antworten = rumpf.match(/jsonResponse\(\{[^}]*\}/g) || [];
+  /* Gegenprobe: eine erfundene Antwort, die den Fehler durchreicht –
+     wird sie nicht beanstandet, prüft diese Prüfung nichts. */
+  if (gegen) antworten.push("jsonResponse({ ok: false, text: String(err) }");
+  /* teilenFehlerNr(err) ist erlaubt und gewollt – das gibt nur die
+     fünfstellige Nummer heraus, geprüft eine Zeile weiter oben. Alles
+     andere, was aus dem Fehler stammt, ist Text und darf nicht raus. */
+  const verraet = antworten
+    .map((a) => a.replace(/teilenFehlerNr\(err\)/g, 'NR'))
+    .filter((a) => /\berr\b|String\(/.test(a));
+  pruefe('Der Meldungstext geht nie an den Besucher',
+         antworten.length >= 4 && verraet.length === 0,
+         antworten.length + ' Antworten geprüft' +
+         (verraet.length ? ': ' + verraet[0] : ', nur ok/schritt/nr/message'));
+}
+
+{
+  /* Beide Satzgruppen muessen auch wirklich den Ort treffen, den sie
+     versprechen. Gelesen wird der fertige Befehl, nicht der Quelltext. */
+  const L = ortLogik();
+  const db = datenbank([{ muster: /./, zeilen: [] }]);
+  for (const schluessel of ['nachHash', 'nachId', 'code', 'beruehren']) {
+    await L.TEILEN_SQL.public[schluessel](db, 'X');
+    await L.TEILEN_SQL.bv[schluessel](db, 'X');
+  }
+  await L.TEILEN_SQL.public.einfuegen(db, 'A', 'B', 'C');
+  await L.TEILEN_SQL.bv.einfuegen(db, 'A', 'B', 'C');
+  const bvAlle = db.verlauf.filter((_, i) => i % 2 === 1)
+                   .every((t) => /bv\.teilen_links/.test(t));
+  const pubAlle = db.verlauf.filter((_, i) => i % 2 === 0)
+                   .every((t) => /teilen_links/.test(t) && !/bv\.teilen_links/.test(t));
+  pruefe('Jede Abfrage trifft das Fach, zu dem sie gehört',
+         gegen ? !(bvAlle && pubAlle) : (bvAlle && pubAlle),
+         db.verlauf.length + ' Befehle gegengelesen');
+}
+
 /* ---------- Der Browser kommt ohne Kurzlink aus ---------- */
 {
   const k3d = readFileSync(new URL('../js/konfigurator-3d.js', import.meta.url), 'utf8');
