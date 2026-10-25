@@ -7029,12 +7029,27 @@
     var pfVorne = traegerH > 0 ? pfostenUnterTraeger(Z.breite) : pfTabelle;
     var pfHinten = pfostenUnterTraeger(Z.breite);
 
+    /* ---------- Wie breit ist die Reihe wirklich? ----------
+       „wieder fehler" (Betreiber, 25.10.2026, mit Bild und Link):
+       Breite hinten 5000, Breite vorne 4000. Die vorderen Pfosten wurden
+       trotzdem ueber die volle Breite des UMSCHLIESSENDEN RECHTECKS
+       verteilt, also bis x = +/-2500 – dort gibt es vorne aber gar keine
+       Anlage mehr. sonderformProfil() findet an dieser Stelle nur die
+       hintere Ecke, liefert 1 mm Tiefe, und der Pfosten landete direkt
+       hinter der Rueckwand statt an der Rinne. Nachgemessen standen zwei
+       Pfosten bei z = 20 und 26 cm, waehrend das Dach bis z = 400 reicht.
+
+       Die ZAHL der Pfosten kommt weiter aus dem umschliessenden Rechteck
+       (lieber einer zu viel). Ihre LAGE folgt der Kante, an der sie
+       stehen: vorne die Vorderkante, hinten die Hinterkante. */
+    var bVorne = sonderformAktiv() && Z.sfBreite2 > 0 ? Z.sfBreite2 / 10 : B;
+    var bHinten = sonderformAktiv() && Z.sfBreite1 > 0 ? Z.sfBreite1 / 10 : B;
     /* Die Achsen der VORDEREN Pfosten werden unten noch gebraucht: Die
        Schiebeanlage läuft je Pfostenfach, nicht über die ganze Breite. */
-    var xPfVorne = verteilen(pfVorne, B, PF / 2);
+    var xPfVorne = verteilen(pfVorne, bVorne, PF / 2);
     /* Und die HINTEREN: Dort stehen weniger (7-m-Regel am Statiktraeger),
        also laufen die Elemente hinten ueber laengere Felder. */
-    var xPfHinten = verteilen(pfHinten, B, PF / 2);
+    var xPfHinten = verteilen(pfHinten, bHinten, PF / 2);
     /* Die vorderen Pfosten stehen unter der Rinne – bei einer
        Sonderform also nicht alle auf derselben Tiefe, sondern jeder
        unter SEINEM Abschnitt. Gerechnet wird mit demselben Abstand zur
