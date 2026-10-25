@@ -406,20 +406,6 @@
     .k3d-seiten-stand b { font-weight: 700; }
     .k3d-seiten-stand .offen { color: var(--muted); }
 
-    /* Grundriss-Skizze der Sonderform. Die Farben folgen den uebrigen
-       Bedienelementen; die Massbuchstaben stehen in der Akzentfarbe, die
-       Zahl daneben etwas leiser. */
-    /* Widerspruechliche Masse werden nicht weggerundet, sondern
-       angesagt - siehe sonderformWiderspruch(). */
-    .k3d-mass-streit { color: #c0392b; }
-    .k3d-skizze-feld { margin: .5rem 0 .25rem; }
-    .k3d-skizze { width: 100%; height: auto; display: block; }
-    .k3d-skizze-flaeche { fill: rgba(190, 150, 70, .16); stroke: currentColor;
-                          stroke-width: 2; stroke-linejoin: round; }
-    .k3d-skizze-wand { stroke: currentColor; stroke-width: 3; opacity: .55; }
-    .k3d-skizze-haus { font-size: 11px; fill: currentColor; opacity: .6; }
-    .k3d-skizze-mass { font-size: 12px; font-weight: 700; fill: #b4863c; }
-    .k3d-skizze-wert { font-weight: 400; opacity: .75; }
     .k3d-gefuehrt .k3d-anfrage { display: none; }
     .k3d-gefuehrt.ist-letzter .k3d-anfrage { display: block; }
 
@@ -879,18 +865,6 @@
           </div>
           <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
         </div>
-
-        <!-- ============================================================
-             Sonderform (TDS und SkyView)
-
-             Vier freie Masse – Breite hinten, Breite vorne, Tiefe links,
-             Tiefe rechts – ergeben ein Viereck; die Vorderkante liegt
-             mittig zur Hinterkante. Aus den Massen rechnet der
-             Konfigurator das umschliessende Rechteck; damit laufen
-             Masstabelle, Stueckzahl und 3D-Bild unveraendert weiter.
-             Begruendung und die verworfene Zwischenloesung (zehn feste
-             Katalogformen) stehen in docs/entscheidungen.md, 23.10.2026.
-             ============================================================ -->
       </details>
 
       <!-- ---------- Maße und Neigungen ----------
@@ -903,56 +877,7 @@
       <details class="k3d-sek">
         <summary><span class="k3d-sek-t">Maße &amp; Neigungen</span><span class="k3d-sek-s" id="k3dSumProdukt"></span></summary>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="form-wahl" hidden>
-          <span class="k3d-label" id="k3dFormLabel">Form der Anlage</span>
-          <input type="hidden" id="k3dForm" value="Normal">
-          <div class="k3d-seg" data-k3d-seg="k3dForm" role="group" aria-labelledby="k3dFormLabel">
-            <button type="button" data-wert="Normal">Normale Form</button>
-            <button type="button" data-wert="Sonderform">Sonderform</button>
-          </div>
-          <p class="k3d-mini">Normal ist das Rechteck. Sonderform heißt: vier
-            freie Maße – Breite hinten, Breite vorne, Tiefe links, Tiefe rechts.
-            Daraus wird ein Viereck; eine Skizze zeigt es sofort.</p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
-          <!-- Der Grundriss wird aus den eingegebenen Massen gezeichnet
-               (sonderformSkizze in js/konfigurator-3d.js), nicht als Bild
-               hinterlegt: Er zeigt die eigene Anlage und aendert sich
-               beim Tippen mit. -->
-          <div id="k3dSonderformSkizze" class="k3d-skizze-feld"></div>
-          <p class="k3d-mini" id="k3dSonderformHinweis"></p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
-          <label class="k3d-label" for="k3dSfBreite1">Breite hinten <small>an der Wand</small> <output id="k3dSfBreite1Wert">5000 mm</output></label>
-          <input type="number" id="k3dSfBreite1" class="k3d-zahl" inputmode="numeric"
-                 min="500" max="14080" step="10" value="5000" aria-label="Breite hinten in Millimeter">
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
-          <label class="k3d-label" for="k3dSfBreite2">Breite vorne <small>an der Rinne</small> <output id="k3dSfBreite2Wert">5000 mm</output></label>
-          <input type="number" id="k3dSfBreite2" class="k3d-zahl" inputmode="numeric"
-                 min="500" max="14080" step="10" value="5000" aria-label="Breite vorne in Millimeter">
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
-          <label class="k3d-label" for="k3dSfTiefe1">Tiefe links <small>von der Wand nach vorne</small> <output id="k3dSfTiefe1Wert">3500 mm</output></label>
-          <input type="number" id="k3dSfTiefe1" class="k3d-zahl" inputmode="numeric"
-                 min="500" max="14080" step="10" value="3500" aria-label="Tiefe links in Millimeter">
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
-          <label class="k3d-label" for="k3dSfTiefe2">Tiefe rechts <small>von der Wand nach vorne</small> <output id="k3dSfTiefe2Wert">3500 mm</output></label>
-          <input type="number" id="k3dSfTiefe2" class="k3d-zahl" inputmode="numeric"
-                 min="500" max="14080" step="10" value="3500" aria-label="Tiefe rechts in Millimeter">
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="sonderform" hidden>
-          <p class="k3d-mass-hinweis" id="k3dSonderformRechteck"></p>
-        </div>
-
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="mass-normal">
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
           <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
@@ -960,7 +885,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-fuer="mass-normal">
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
@@ -1983,10 +1908,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261025h" defer></script>
+<script src="js/masstabelle.js?v=20261025i" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261025h" defer></script>
-<script src="js/konfigurator-3d.js?v=20261025h" defer></script>
+<script src="js/pdf-blatt.js?v=20261025i" defer></script>
+<script src="js/konfigurator-3d.js?v=20261025i" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

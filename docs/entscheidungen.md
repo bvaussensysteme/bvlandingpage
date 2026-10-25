@@ -9483,3 +9483,48 @@ aus wie ein überstehendes Bauteil. Beides steht als Kommentar im Prüfskript.
 **Fünf bestehende Prüfungen** in `pruefe-masstabelle.js` und
 `pruefe-rueckseite.js` haben die geänderten Zeilen sofort bemerkt. Ihre
 Erwartungen sind nachgezogen, ihre Aussagen unverändert.
+
+## 25.10.2026 — Sonderform entfernt
+
+**Entscheidung des Betreibers**, auf meine Rückfrage mit drei Möglichkeiten:
+**„Ganz entfernen."** Anlass: „ne passt nix, also das mit sonderformen klappt
+wirklich nicht gut überlege es zu entfernen".
+
+**Warum sie nicht zu halten war — der ehrliche Grund.** Das 3D-Modell ist von
+Grund auf für ein **Rechteck** gebaut. Jedes Bauteil muss die Form einzeln
+beigebracht bekommen. An einem Tag kamen vier Meldungen zu derselben Stelle,
+und jedes Mal war es dasselbe Muster: Pfosten, hinterer Träger, Wandprofil,
+Seitendeckel, Blendenstreifen, Kopplungsprofil, Rinnenkappen, vorderer
+Statikträger und zuletzt die Scheiben folgten dem umschließenden Rechteck
+statt der wirklichen Kante. Jedes einzelne war reparierbar — aber jedes neue
+Bauteil (Markise, Seitenelemente, Planken, Schiebeanlagen) hätte denselben
+Fehler wieder mitgebracht. Das ist keine Kette von Flüchtigkeitsfehlern,
+sondern ein Architekturproblem.
+
+**Was verworfen wurde:** der Mittelweg „Eingabe und Skizze behalten, 3D zeigt
+das Rechteck mit Hinweis". Er war mein Vorschlag; der Betreiber hat sich
+bewusst für den sauberen Schnitt entschieden.
+
+**Was jetzt gilt.** Es gibt nur noch Breite × Tiefe. Entfernt sind: die Wahl
+Normal/Sonderform, die vier Maßfelder, die Grundriss-Skizze, der
+Rechteck-Hinweis, die Formlogik im Modell (`sonderformProfil`,
+`sonderformEcken`, `querBei`, `abschnittBei`, `glasBei`, `scheibeVieleck`,
+`randblendeSchraeg`, die gekappten Maße) und die Sonderform-Zeilen in Anfrage
+und interner Notiz. **Sonderformen laufen ab jetzt über Telefon und Aufmaß** —
+das muss im Vertrieb bekannt sein.
+
+**Was bewusst stehen blieb:** `rinneBauen` und `profilKappen` behalten ihre
+optionalen Parameter für Mitte und Drehung. Ohne sie kommt Zeile für Zeile
+dasselbe heraus wie vorher, und sie kosten nichts.
+
+**Nachwirkung in den Prüfskripten:** `pruefe-sonderform.js` und
+`pruefe-sonderform-3d.mjs` sind gelöscht. In `pruefe-masstabelle.js`,
+`pruefe-rueckseite.js`, `pruefe-fuehrung.js`, `pruefe-stufen.js` und
+`pruefe-konfigurator-oberflaeche.mjs` sind die Erwartungen auf den
+Rechteck-Stand zurückgezogen — zehn Stellen, alle von den Skripten selbst
+gemeldet. Genau dafür sind sie da.
+
+**Geteilte Links aus der Zeit davor** enthalten noch `Form` und die vier
+Sf-Felder. Sie schaden nicht: Die Felder gibt es nicht mehr, sie werden beim
+Wiederherstellen übersprungen, und der Link zeigt dann das Rechteck aus Breite
+und Tiefe.
