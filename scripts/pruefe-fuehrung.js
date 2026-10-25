@@ -2224,7 +2224,10 @@ pruefe('SkyView neigt nicht nach Z.neigung',
        (gegen ? true : !/var neig = sky \? neigungGrad/.test(js)),
        'feste 2°, begrenzt durch die Profilmaße');
 pruefe('SkyView bietet keine Neigungseingabe',
-       new RegExp(q || "return Z\\.produkt === 'Terrassendach TDS' \\|\\| istCarportTds\\(\\)")
+       /* Seit dem 25.10.2026 steht dort istTdsDach() – die Funktion
+          deckt Terrassendach TDS UND Balkonüberdachung ab (dasselbe
+          System). Geprüft wird unverändert: SkyView ist nicht dabei. */
+       new RegExp(q || "return istTdsDach\\(\\) \\|\\| istCarportTds\\(\\)")
          .test(js) &&
        !/neigungMoeglich[\s\S]{0,120}Flachdach SkyView/.test(js),
        'neigungMoeglich deckt nur TDS');
@@ -2259,7 +2262,7 @@ pruefe('SkyView bietet keine Unterkanten-Eingabe',
   /* Die Neigung darf NUR beim Terrassendach TDS dastehen – SkyView hat
      ein festes Gefaelle von 2°, das nicht bestellt wird. */
   pruefe('Neigung steht nur beim Terrassendach TDS in der Anfrage',
-         new RegExp(q || "if \\(Z\\.produkt === 'Terrassendach TDS'\\) \\{\\s*\\n\\s*teile\\.push\\('Dachneigung: ")
+         new RegExp(q || "if \\(istTdsDach\\(\\)\\) \\{\\s*\\n\\s*teile\\.push\\('Dachneigung: ")
            .test(block), '');
   /* Alter Fehler: Hier stand neigungProzent(Z.neigung) statt der wirklich
      geltenden Neigung – bei Weg 2 (Unterkante eingegeben) also die falsche
@@ -2567,13 +2570,19 @@ pruefe('RAL-Feld ist breit genug',
     };
     var pa = (js.match(/var PFOSTENACHSE = [\d.]+;/) || [''])[0];
     var pv = (js.match(/var PFOSTENACHSE_VORNE = [\d.]+;/) || [''])[0];
-    var api = eval('(function (Z, document, window, gruppeGilt, wert, zahl, istCarportTds) { ' +
+    /* istTdsDach() kam am 25.10.2026 mit der Balkonüberdachung dazu und
+       wird von unterzugAchsen() aufgerufen. Ohne sie bricht der
+       Durchlauf hier ab – der Abbruch sah aus wie ein Testfehler, war
+       aber nur eine fehlende Zeile im Nachbau der Umgebung. */
+    var api = eval('(function (Z, document, window, gruppeGilt, wert, zahl, istCarportTds, istTdsDach) { ' +
       'var uzGesetzt = null;' + pa + pv + quellen +
       '; return { einlesen: unterzugEinlesen, setzen: unterzugGrenzeSetzen,' +
       '           mitte: unterzugMitte, bereich: unterzugBereich,' +
       '           achsen: unterzugAchsen, abstand: unterzugAbstand }; })')(
       umgebung.Z, umgebung.document, umgebung.window, umgebung.gruppeGilt,
-      umgebung.wert, umgebung.zahl, function () { return false; });
+      umgebung.wert, umgebung.zahl, function () { return false; },
+      function () { return umgebung.Z.produkt === 'Terrassendach TDS' ||
+                           umgebung.Z.produkt === 'Balkonüberdachung'; });
     /* Ein Durchlauf von aendern(), auf das Wesentliche verkuerzt.
        Die Verfaelschung dreht genau die Reihenfolge um, die der Fehler war. */
     function aendern() {

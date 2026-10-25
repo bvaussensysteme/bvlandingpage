@@ -24,6 +24,14 @@
    weiterbauen, ohne zu fragen.**
 2. **Gibt es eine maximale Höhe hinten?** Frage an VD, siehe unten. Solange
    sie offen ist, wird nichts gekappt.
+3. **Balkonüberdachung: Maßgrenzen bei VD erfragen.** Seit dem 25.10.2026
+   im Konfigurator (Details: `docs/balkonueberdachung.md`). Breite, Tiefe
+   und Höhe sind dort an gängigen Balkongrößen ausgerichtet, **nicht** an
+   einer Herstellerangabe — VD nennt auf der Produktseite keine. Ebenso
+   offen: freitragende Ausführung, eigene Brüstungsbefestigung.
+4. **Teilen-Dialog auf schmalen Handys.** Auf dem Bildschirmfoto des
+   Betreibers (25.10.2026) sind „PDF / WhatsApp / E-Mail" unten
+   abgeschnitten. Noch nicht repariert.
 
 Sonst ist nichts halbfertig: Alles ist gemergt, veröffentlicht und am
 Livesystem nachgeprüft (Stand `v=20261025i`).
@@ -275,6 +283,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-konfliktmarken.sh` | **Nach jedem Merge, vor jedem Commit:** liegengebliebene Merge-Marken im ganzen Projekt. Gegenprobe legt eine Datei mit Marken an und muss sie finden |
+| `scripts/pruefe-balkon.mjs` | Balkonüberdachung am fertigen Modell im Browser: Pfostenfuß auf der Brüstung bzw. am Boden, Pfosten hinter der Brüstung, Dach bis zur Außenkante, Pfosten-Auswahl verschwindet beim Geländer, Baurechts-Hinweis, keine Javascript-Fehler. Gemessen werden Eckpunkte in Weltkoordinaten |
 | `scripts/pruefe-kurzlink.mjs` | Kurzlink im Worker ohne Datenbank: Wege bedient, Unsinn mit 400 abgewiesen bevor die Datenbank angefasst wird, 503/404 ohne Datenbankmeldung, Kennung stabil und vorlesbar, Tabelle ohne Persönliches. Dazu die Ausweich-Logik an einer nachgebauten Datenbank: `public` offen / `public` verschlossen / Datenbank ganz weg, und die fertigen SQL-Befehle werden zurückgelesen |
 | `scripts/pruefe-teilen.mjs` | Teilen-Link: plant im Browser, teilt, öffnet den Link in einem frischen Tab und vergleicht alle 91 Einstellungen, 14 Knopfreihen und die Farbe. Gegenprobe verfälscht den Link und erwartet den Hinweis |
 | `scripts/pruefe-ral.js` | RAL-Tabelle und Farbsuche: führt beide aus – 217 Töne, Stichproben Nummer → Name, Helligkeit der Schwarz-/Weißtöne nachgerechnet, neun Suchfragen mit erwartetem erstem Treffer, Lupe im HTML verdrahtet |

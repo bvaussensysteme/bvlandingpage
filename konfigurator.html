@@ -441,6 +441,10 @@
     .k3d-folgt li::before { content: none; }
     .k3d-folgt li span { min-width: 104px; color: var(--muted); font-size: .74rem; }
     .k3d-mini { font-size: .72rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
+    /* Hinweiskasten, der gelesen werden soll – beim Balkon steht dort,
+       was vor der Bestellung zu klären ist (Baurecht, Statik, WEG). */
+    .k3d-notiz { border-left: 3px solid var(--gold); padding-left: 10px; }
+    .k3d-notiz .k3d-mini { margin-top: 0; }
     .k3d-hinweise { list-style: none; padding: 0; margin: 9px 0 0; }
     .k3d-hin {
       font-size: .74rem; line-height: 1.45; padding: 5px 0 5px 9px;
@@ -811,6 +815,7 @@
             <button type="button" data-wert="Terrassendach TDS">Terrassendach TDS<small>geneigt, Glas oder Polycarbonat</small></button>
             <button type="button" data-wert="Flachdach SkyView">Flachdach SkyView<small>kubisch, flache Neigung</small></button>
             <button type="button" data-wert="Carport">Carport<small>TDS, Flat Line oder Flat Box</small></button>
+            <button type="button" data-wert="Balkonüberdachung">Balkonüberdachung<small>für den Balkon, auf Brüstung oder Boden</small></button>
             <button type="button" data-wert="Pergola / Lamellendach">Pergola / Lamellendach<small>drehbare Lamellen, Faltdach, Velaris</small></button>
           </div>
         </div>
@@ -853,6 +858,65 @@
             <button type="button" data-wert="Wandmontage">An der Hauswand</button>
             <button type="button" data-wert="Freistehend">Freistehend</button>
           </div>
+        </div>
+
+        <!-- ---------- Balkon ----------
+             „Es müssen natürlich viele sachen beachtet werden, z.B hat
+             man ein normales geländer oder wie hier eine wand vorne,
+             geht die tiefe nur bis zum geländer oder baut man wie auf
+             dem foto auf die mauer vorne" (Betreiber, 25.10.2026).
+
+             Genau diese zwei Fragen stehen hier – mehr nicht. Alles
+             andere (Eindeckung, Farbe, Neigung, Beschattung) ist beim
+             Balkon dasselbe wie beim Terrassendach und steht dort, wo
+             es immer stand. -->
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon" hidden>
+          <span class="k3d-label" id="k3dBruestungLabel">Was steht vorne?</span>
+          <input type="hidden" id="k3dBruestung" value="Mauer">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dBruestung" role="group" aria-labelledby="k3dBruestungLabel">
+            <button type="button" data-wert="Mauer">Gemauerte Brüstung<small>trägt die Pfosten</small></button>
+            <button type="button" data-wert="Geländer">Geländer<small>Glas oder Metall</small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon" hidden>
+          <label class="k3d-label" for="k3dBruestungH">Höhe der Brüstung <output id="k3dBruestungHWert">1000 mm</output></label>
+          <div class="k3d-reglerzeile">
+            <input type="range" id="k3dBruestungH" class="k3d-range" min="700" max="1400" step="10" value="1000">
+            <input type="number" id="k3dBruestungHZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Höhe der Brüstung in Millimeter">
+          </div>
+          <p class="k3d-mini">Vom Balkonboden bis zur Oberkante – meist 100 cm.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon-mauer" hidden>
+          <span class="k3d-label" id="k3dPfostenAufLabel">Wo stehen die Pfosten?</span>
+          <input type="hidden" id="k3dPfostenAuf" value="Brüstung">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dPfostenAuf" role="group" aria-labelledby="k3dPfostenAufLabel">
+            <button type="button" data-wert="Brüstung">Auf der Brüstung<small>volle Tiefe nutzbar</small></button>
+            <button type="button" data-wert="Boden">Dahinter auf dem Boden<small>braucht keine tragende Mauer</small></button>
+          </div>
+          <p class="k3d-mini">Ob Ihre Brüstung die Pfosten tragen kann, prüft der Monteur vor Ort.</p>
+        </div>
+
+        <!-- ---------- Warum hier ein eigener Hinweis steht ----------
+             Die Freistellungen der Landesbauordnungen gelten für
+             Terrassenüberdachungen „zu ebener Erde" (so wörtlich die
+             LBO Rheinland-Pfalz). Ein Dach auf einem Balkon im
+             Obergeschoss fällt nicht automatisch darunter. Würde der
+             Konfigurator hier dasselbe sagen wie beim Terrassendach,
+             bekäme der Kunde eine falsche Sicherheit – und der Ärger
+             käme nach dem Einbau. Bewertet wird nichts; es steht da,
+             damit vorher gefragt wird. -->
+        <div class="k3d-gruppe k3d-notiz" data-k3d-schritt="aufbau" data-k3d-fuer="balkon" hidden>
+          <p class="k3d-mini"><strong>Vor der Bestellung klären:</strong>
+          Für ein Dach auf dem Balkon gelten die Erleichterungen, die viele
+          Landesbauordnungen für <em>ebenerdige</em> Terrassenüberdachungen
+          vorsehen, nicht ohne Weiteres. Dazu kommen Abstandsflächen, das
+          Erscheinungsbild der Fassade und – in einer Eigentümergemeinschaft –
+          ein Beschluss der übrigen Eigentümer. Bitte vorab beim Bauamt und
+          gegebenenfalls bei der Hausverwaltung nachfragen. Ob Balkonplatte
+          und Brüstung die Lasten aufnehmen, prüft der Statiker oder unser
+          Monteur beim Aufmaß.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="fassade" hidden>
@@ -1911,13 +1975,13 @@
 <script src="js/masstabelle.js?v=20261025i" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
-<script src="js/konfigurator-3d.js?v=20261025i" defer></script>
+<script src="js/konfigurator-3d.js?v=20261025j" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
 <script src="js/accessibility.js" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="js/anfrage-wizard.js?v=20261011d" defer></script>
+<script src="js/anfrage-wizard.js?v=20261025j" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
