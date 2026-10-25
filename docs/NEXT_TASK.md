@@ -1,7 +1,8 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 12.10.2026 (abends) · zuletzt bearbeitet: Dachneigung, PDF-Ausgabe, Anfrage-Text
+> Stand: 25.10.2026 (abends) · zuletzt bearbeitet: Teilen-Knopf mit Kurzlink,
+> alle RAL-Töne mit Suche, Gefälle-Dreieck, PDF-Kacheln, **Sonderform entfernt**
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -14,6 +15,18 @@
 ---
 
 ## 1. Was als Nächstes ansteht
+
+### Zuerst: zwei Dinge liegen beim Betreiber, nicht am Rechner
+
+1. **Kurzlink freischalten** – ein SQL-Befehl in der Neon-Konsole, Anleitung in
+   Abschnitt 2. Live bestätigt: `/api/teilen` antwortet
+   `{"ok":false,"schritt":"tabelle"}`. Bis dahin zeigt der Teilen-Dialog den
+   langen Link; der funktioniert, ist nur lang. **Kein Code-Problem.**
+2. **Gibt es eine maximale Höhe hinten?** Frage an VD, siehe unten. Solange
+   sie offen ist, wird nichts gekappt.
+
+Sonst ist nichts halbfertig: Alles ist gemergt, veröffentlicht und am
+Livesystem nachgeprüft (Stand `v=20261025i`).
 
 ### Aufgabe A — Konfigurator-Produkte *(erledigt bis auf Zubehör)*
 
@@ -55,15 +68,10 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   Rahmen-, Planken- und Schiebeelemente unten schräg geschnitten werden.
 - **Nur im Terrassen-Bauweg gerechnet** (TDS, SkyView, Carport TDS). Beim
   Flachdach-Carport und bei der Pergola wird das Gefälle nicht abgefragt.
-- **Erledigt (24.10.2026):** Die Wiese kippt jetzt mit, der Belag bleibt dünn.
-  Damit sind „verschwindet das pflasterdesign" und „die linke maßanzeige …
-  ist ein fetter balken" dieselbe, behobene Ursache — siehe
-  `docs/entscheidungen.md`, Eintrag „Der Boden kippt, nicht die Platte".
 - **Beantwortet (24.10.2026):** „die durchgangshöhe ist halt immer die tiefere
-  seite aber erst mal soll das so bliben". Gebaut bleibt „vorne"; nur wenn der
-  Boden stärker fällt als das Dach, liegt die tiefere Seite hinten. Dann wäre
-  ein Hinweis „niedrigste Durchgangshöhe: X mm an der Y-Seite" die kleine
-  Lösung — **nicht ohne Auftrag bauen**.
+  seite aber erst mal soll das so bliben". Gebaut bleibt „vorne". Ein Hinweis
+  „niedrigste Durchgangshöhe: X mm an der Y-Seite" wäre die kleine Lösung —
+  **nicht ohne Auftrag bauen**.
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
@@ -240,7 +248,6 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
-| `scripts/pruefe-sonderform-3d.mjs` | **Misst das gebaute Modell:** greift die three.js-Szene aus dem laufenden Zeichenvorgang ab und prüft für drei Sonderformen jeden Eckpunkt jedes Bauteils gegen die Kante an seiner Tiefe. Gegenprobe baut die alte Fassung wieder ein |
 | `scripts/pruefe-konfliktmarken.sh` | **Nach jedem Merge, vor jedem Commit:** liegengebliebene Merge-Marken im ganzen Projekt. Gegenprobe legt eine Datei mit Marken an und muss sie finden |
 | `scripts/pruefe-kurzlink.mjs` | Kurzlink im Worker ohne Datenbank: Wege bedient, Unsinn mit 400 abgewiesen bevor die Datenbank angefasst wird, 503/404 ohne Datenbankmeldung, Kennung stabil und vorlesbar, Tabelle ohne Persönliches |
 | `scripts/pruefe-teilen.mjs` | Teilen-Link: plant im Browser, teilt, öffnet den Link in einem frischen Tab und vergleicht alle 91 Einstellungen, 14 Knopfreihen und die Farbe. Gegenprobe verfälscht den Link und erwartet den Hinweis |
@@ -358,12 +365,18 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
-| 24.10.2026 | Gefälle des Terrassenbodens: Pfostenlängen je Ecke, zwei Neigungen ausgewiesen | **noch nicht veröffentlicht** |
-| 24.10.2026 | Statikträger auf Wunsch auch beim Carport TDS (war pauschal für alle Carports gesperrt) | **noch nicht veröffentlicht** |
-| 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | **noch nicht veröffentlicht** |
-| 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten, nicht an denen der Vorderseite | **noch nicht veröffentlicht** |
-| 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | **noch nicht veröffentlicht** |
-| 25.10.2026 | **Sonderform wieder entfernt** – Entscheidung des Betreibers, Begründung im Logbuch. Sonderformen laufen über Telefon und Aufmaß | **noch nicht veröffentlicht** |
+| 25.10.2026 | **Sonderform entfernt** – Entscheidung des Betreibers; Sonderformen laufen über Telefon und Aufmaß | live |
+| 25.10.2026 | Teilen-Knopf: Link öffnet die Planung wieder, mit PDF-, WhatsApp- und E-Mail-Weg | live |
+| 25.10.2026 | Kurzlink über den eigenen Worker (`/api/teilen`, `/k/<id>`) | **wartet auf einen SQL-Befehl, siehe Abschnitt 2** |
+| 25.10.2026 | Alle RAL-Töne (217) mit Lupensuche nach Farbe oder Nummer | live |
+| 25.10.2026 | PDF: Kacheln liefen ineinander; Durchfahrt jetzt mit Statikträger | live |
+| 25.10.2026 | Gefälle sichtbar: Steigungsdreieck an der Maßlinie | live |
+| 24.10.2026 | Gefälle des Terrassenbodens: Pfostenlängen je Ecke, Wiese kippt mit | live |
+| 24.10.2026 | Statikträger auf Wunsch auch beim Carport TDS | live |
+| 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | live |
+| 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten | live |
+| 24.10.2026 | Maßlinien als Körper mit Endmarken, BV-Logo deutlicher | live |
+| 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | live |
 | 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |
 | 12.10.2026 | Anfrage-Text rechnet über `bauteileJetzt()` statt über die tote Schnittstelle | live |
 | 12.10.2026 | Dachneigung: Rechenweg der Montageanleitung belegt, Anzeige in ganzen Grad | live |
@@ -381,79 +394,3 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 09.09.2026 | Datenschutz: tote Verweise repariert, Vertragsabwicklung ergänzt | live |
 | 09.09.2026 | PDF-Download im Baugenehmigungs-Check | live |
 | 09.09.2026 | Konfigurator-Fenster auch auf der Startseite | live |
-
-## Stand 12.10.2026, abends — Neigung, PDF und die Anfrage
-
-Alles veröffentlicht (PRs bis #398), nichts liegt halbfertig. Alle
-Prüfskripte laufen durch, jede Gegenprobe schlägt **vollständig** an
-(`pruefe-fuehrung.js` 253/253, `pruefe-masstabelle.js` 243/243,
-`pruefe-pdf.js` 24/24, `pruefe-markise.js` 179/179,
-`pruefe-stoffe.js` 12/12, `pruefe-konfigurator.js`,
-`pruefe-bauteile.js`, `pruefe-lbo-daten.js`, `pruefe-stoffe.js`,
-`pruefe-datenschutz.py`, beide `.sh`-Skripte).
-
-### Was heute entstanden ist
-
-| Bereich | Was jetzt gilt |
-|---|---|
-| **Dachneigung** | Der Rechenweg ist jetzt **belegt**: über die volle Bestelltiefe, ohne Abzüge (Montageanleitung, wörtlich: 200 cm + 3 × 14 cm = 242 cm). Eine zwischenzeitliche „Korrektur" um Rinnen- und Profilmaße ist zurückgenommen – die angezeigte Zahl geht in die Bestellung und muss die des Herstellers sein |
-| **Zwei Wege zur Neigung** | Grad eingeben **oder** Unterkante Rinne und Unterkante Wandprofil, wie im Bestellformular. Angezeigt werden **ganze Grad**; gerechnet und gezeichnet wird weiter genau, weil die beiden Höhen bindend sind |
-| **Höhe hinten** | Nimmt jeden Millimeter. Vorher rastete der Regler auf ein 50er-Raster über einer krummen Untergrenze – aus 2600 wurde 2602 |
-| **SkyView** | Festes Gefälle von 2°, keine Neigungseingabe. War schon so, ist jetzt belegt |
-| **Anfrage-Text** | Sparrenzahl, Pfosten, Statikträger, Dachneigung und Höhe an der Wand hingen allein an `/api/bauteile` (503) und standen damit **in keiner Anfrage**. Rechnen jetzt über `bauteileJetzt()` aus `js/masstabelle.js` – dieselbe Quelle wie der Maßhinweis |
-| **„PDF erstellen"** | Statt eines Sammelbilds eine mehrseitige PDF: fünf Ansichten (Markisen eingefahren, Schiebeelemente offen), je eine Seite pro beweglichem Teil im anderen Zustand, zuletzt die Konfiguration |
-| **Konfigurationsseite** | Kopf, vier Eckdaten als Kacheln, Angaben nach Themen gruppiert, Zeilen werden umgebrochen statt abgeschnitten, bei Platzmangel eine weitere Seite, unten der Ablauf in drei Schritten |
-| **PDF-Erzeuger** | `js/pdf-blatt.js` schreibt die Datei für **beide** Stellen; `js/bg-pdf.js` (Baugenehmigungs-Check) hatte einen eigenen, gleichen Dateiaufbau. Der war bis heute nirgends geprüft |
-
-### Was gegengelesen werden soll
-
-- **PDF mit viel Ausstattung** (Schiebetüren auf allen Seiten, Markise,
-  LED): Steht jede Angabe vollständig da? Ist „Ihre Konfiguration" die
-  letzte Seite? Steht der Konfigurator danach **genau so da wie vorher**
-  (gleiche Ansicht, gleiche Reglerstellungen)?
-- **Baugenehmigungs-Check** auf `/baugenehmigung.html`: PDF speichern –
-  es muss sich öffnen lassen und aussehen wie vorher
-- **Anfrage-Text** bei Terrassendach TDS: Sparren, Pfosten, Dachneigung
-  und Höhe an der Wand müssen dastehen. Bei SkyView muss die
-  Dachneigung **verschwinden**
-- **Neigung:** Tiefe 3000, Unterkante Rinne 2200 – bei 2500 mm müssen 6°
-  erscheinen, wie im Bestellformular des Herstellers
-
-### Beim Betreiber: Entscheidung offen
-
-| Was | Warum es wartet |
-|---|---|
-| **Ablauftexte im PDF** („Kostenloses Aufmaß · Verbindliches Angebot · Fertigung und Montage") | Von mir vorgeschlagen, nicht abgestimmt. Wortlaut und Reihenfolge sollten zum tatsächlichen Prozess passen |
-| **Zweiter Referenzfall für die Neigung**, am besten mit großer Tiefe | Der Fall 2200/2500/3000 → 6° bestätigt den Rechenweg, trennt ihn aber nicht von drei ähnlichen Varianten. Bei 7 m Tiefe und 300 mm Unterschied lägen sie 1° auseinander |
-
-### Fragen an VD (unverändert offen)
-
-| Frage | Warum sie zählt |
-|---|---|
-| **Profilquerschnitte TDS mit Maßen** (Rinne, Wandprofil, Sparren, Glasleiste) | Räumt den Rest an Schätzungen ab. Die gezeichnete Unterkante Wandprofil liegt rund 4 cm unter der angezeigten Zahl, weil ein Maß der Kette (Sparrensitz in der Rinne) geschätzt ist |
-| **SkyView: wirkliche Blendenhöhe** | Die Blende ist außen „immer gleich, einfach rechteckig" (Betreiber, 12.10.2026). Im Modell wächst ihre Höhe mit der Tiefe, weil das 2°-Gefälle innen untergebracht werden muss. Gibt es gestaffelte Profilhöhen? |
-| **SkyView freistehend oder Wandmontage?** | `js/masstabelle.js` führt SkyView als `wandmontage`; die Montageanleitung beschreibt durchgehend die freistehende Anlage. Beides gibt es – die Angabe sollte geprüft werden |
-| **Statikträger „überstehend"** | Das Bestellformular kennt „ohne / überstehend / unter Rinne", der Konfigurator nur das Häkchen „unter der Rinne" |
-| **Teilebild für den Deckel am Wandprofil** | Für den Rinnendeckel gibt es eines (172 × 175 mm, Fase 34, BELEGT). Der Wandprofil-Deckel ist rund; seine drei Maße sind am Werkbild abgeschätzt |
-| **Echte RAL-Liste je Serie** | Aktuell aus der Maßtabelle abgeleitet (7016 / 9006 / 9007, Reinweiß 9010 nur bei TDS) |
-| **Höchstmaß einer Scheibe** in der Rahmenwand · **Profilmaße FR23** · **Velaris-Maße** · **Plankenwand-Winkel** · **Keilfelder über 1500 mm** | Standen schon gestern offen, siehe `docs/erledigt-archiv.md` (Block vom 11.10.2026) |
-
-### Noch nicht gebaut, steht aber in den Unterlagen
-
-- **Fenster FRF23** mit Griff als Teil der Rahmenwand
-- Rahmenwand **„mit Neigung"** als eigene Ausführung
-- **Zubehör** im Konfigurator (Richtpreis, Plissee, Zaunpaneele,
-  Holzdekore) – dafür fehlen die Grundlagen, siehe Abschnitt 1
-
-### Zwei Lehren aus diesem Tag
-
-**Eine Prüfung kann lügen.** `pdftotext -layout` liest über beide Spalten
-hinweg und meldete 29 von 34 fehlenden Zeilen, die in Wahrheit alle auf
-dem Blatt standen. Hätte ich das geglaubt, hätte ich einen Fehler
-gesucht, den es nicht gibt. **Wer einem Prüfergebnis nicht traut, rendert
-die Seite und sieht hin.**
-
-**Eine Gegenprobe, die nicht anschlägt, beweist nichts.** Die erste
-Gegenprobe des PDF-Skripts beschädigte die Verweistabelle – poppler
-repariert die stillschweigend, acht von elf Prüfungen liefen trotzdem
-durch. Jede Prüfung braucht ihre **eigene** Verfälschung.

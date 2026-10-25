@@ -330,3 +330,81 @@ Fehler: SG23-Profile um jeden Flügel gelegt, Velaris-Aufhängung als
 kurzer Träger, Wandprofil liegend statt stehend. Das Maßbild zeigt die
 Form – wie das Teil eingebaut wird, weiß nur der Betreiber. Im Zweifel
 fragen, bevor es ins Modell geht.
+
+---
+
+## Stand 12.10.2026, abends — Neigung, PDF und die Anfrage
+
+Alles veröffentlicht (PRs bis #398), nichts liegt halbfertig. Alle
+Prüfskripte laufen durch, jede Gegenprobe schlägt **vollständig** an
+(`pruefe-fuehrung.js` 253/253, `pruefe-masstabelle.js` 243/243,
+`pruefe-pdf.js` 24/24, `pruefe-markise.js` 179/179,
+`pruefe-stoffe.js` 12/12, `pruefe-konfigurator.js`,
+`pruefe-bauteile.js`, `pruefe-lbo-daten.js`, `pruefe-stoffe.js`,
+`pruefe-datenschutz.py`, beide `.sh`-Skripte).
+
+### Was heute entstanden ist
+
+| Bereich | Was jetzt gilt |
+|---|---|
+| **Dachneigung** | Der Rechenweg ist jetzt **belegt**: über die volle Bestelltiefe, ohne Abzüge (Montageanleitung, wörtlich: 200 cm + 3 × 14 cm = 242 cm). Eine zwischenzeitliche „Korrektur" um Rinnen- und Profilmaße ist zurückgenommen – die angezeigte Zahl geht in die Bestellung und muss die des Herstellers sein |
+| **Zwei Wege zur Neigung** | Grad eingeben **oder** Unterkante Rinne und Unterkante Wandprofil, wie im Bestellformular. Angezeigt werden **ganze Grad**; gerechnet und gezeichnet wird weiter genau, weil die beiden Höhen bindend sind |
+| **Höhe hinten** | Nimmt jeden Millimeter. Vorher rastete der Regler auf ein 50er-Raster über einer krummen Untergrenze – aus 2600 wurde 2602 |
+| **SkyView** | Festes Gefälle von 2°, keine Neigungseingabe. War schon so, ist jetzt belegt |
+| **Anfrage-Text** | Sparrenzahl, Pfosten, Statikträger, Dachneigung und Höhe an der Wand hingen allein an `/api/bauteile` (503) und standen damit **in keiner Anfrage**. Rechnen jetzt über `bauteileJetzt()` aus `js/masstabelle.js` – dieselbe Quelle wie der Maßhinweis |
+| **„PDF erstellen"** | Statt eines Sammelbilds eine mehrseitige PDF: fünf Ansichten (Markisen eingefahren, Schiebeelemente offen), je eine Seite pro beweglichem Teil im anderen Zustand, zuletzt die Konfiguration |
+| **Konfigurationsseite** | Kopf, vier Eckdaten als Kacheln, Angaben nach Themen gruppiert, Zeilen werden umgebrochen statt abgeschnitten, bei Platzmangel eine weitere Seite, unten der Ablauf in drei Schritten |
+| **PDF-Erzeuger** | `js/pdf-blatt.js` schreibt die Datei für **beide** Stellen; `js/bg-pdf.js` (Baugenehmigungs-Check) hatte einen eigenen, gleichen Dateiaufbau. Der war bis heute nirgends geprüft |
+
+### Was gegengelesen werden soll
+
+- **PDF mit viel Ausstattung** (Schiebetüren auf allen Seiten, Markise,
+  LED): Steht jede Angabe vollständig da? Ist „Ihre Konfiguration" die
+  letzte Seite? Steht der Konfigurator danach **genau so da wie vorher**
+  (gleiche Ansicht, gleiche Reglerstellungen)?
+- **Baugenehmigungs-Check** auf `/baugenehmigung.html`: PDF speichern –
+  es muss sich öffnen lassen und aussehen wie vorher
+- **Anfrage-Text** bei Terrassendach TDS: Sparren, Pfosten, Dachneigung
+  und Höhe an der Wand müssen dastehen. Bei SkyView muss die
+  Dachneigung **verschwinden**
+- **Neigung:** Tiefe 3000, Unterkante Rinne 2200 – bei 2500 mm müssen 6°
+  erscheinen, wie im Bestellformular des Herstellers
+
+### Beim Betreiber: Entscheidung offen
+
+| Was | Warum es wartet |
+|---|---|
+| **Ablauftexte im PDF** („Kostenloses Aufmaß · Verbindliches Angebot · Fertigung und Montage") | Von mir vorgeschlagen, nicht abgestimmt. Wortlaut und Reihenfolge sollten zum tatsächlichen Prozess passen |
+| **Zweiter Referenzfall für die Neigung**, am besten mit großer Tiefe | Der Fall 2200/2500/3000 → 6° bestätigt den Rechenweg, trennt ihn aber nicht von drei ähnlichen Varianten. Bei 7 m Tiefe und 300 mm Unterschied lägen sie 1° auseinander |
+
+### Fragen an VD (unverändert offen)
+
+| Frage | Warum sie zählt |
+|---|---|
+| **Profilquerschnitte TDS mit Maßen** (Rinne, Wandprofil, Sparren, Glasleiste) | Räumt den Rest an Schätzungen ab. Die gezeichnete Unterkante Wandprofil liegt rund 4 cm unter der angezeigten Zahl, weil ein Maß der Kette (Sparrensitz in der Rinne) geschätzt ist |
+| **SkyView: wirkliche Blendenhöhe** | Die Blende ist außen „immer gleich, einfach rechteckig" (Betreiber, 12.10.2026). Im Modell wächst ihre Höhe mit der Tiefe, weil das 2°-Gefälle innen untergebracht werden muss. Gibt es gestaffelte Profilhöhen? |
+| **SkyView freistehend oder Wandmontage?** | `js/masstabelle.js` führt SkyView als `wandmontage`; die Montageanleitung beschreibt durchgehend die freistehende Anlage. Beides gibt es – die Angabe sollte geprüft werden |
+| **Statikträger „überstehend"** | Das Bestellformular kennt „ohne / überstehend / unter Rinne", der Konfigurator nur das Häkchen „unter der Rinne" |
+| **Teilebild für den Deckel am Wandprofil** | Für den Rinnendeckel gibt es eines (172 × 175 mm, Fase 34, BELEGT). Der Wandprofil-Deckel ist rund; seine drei Maße sind am Werkbild abgeschätzt |
+| **Echte RAL-Liste je Serie** | Aktuell aus der Maßtabelle abgeleitet (7016 / 9006 / 9007, Reinweiß 9010 nur bei TDS) |
+| **Höchstmaß einer Scheibe** in der Rahmenwand · **Profilmaße FR23** · **Velaris-Maße** · **Plankenwand-Winkel** · **Keilfelder über 1500 mm** | Standen schon gestern offen, siehe `docs/erledigt-archiv.md` (Block vom 11.10.2026) |
+
+### Noch nicht gebaut, steht aber in den Unterlagen
+
+- **Fenster FRF23** mit Griff als Teil der Rahmenwand
+- Rahmenwand **„mit Neigung"** als eigene Ausführung
+- **Zubehör** im Konfigurator (Richtpreis, Plissee, Zaunpaneele,
+  Holzdekore) – dafür fehlen die Grundlagen, siehe Abschnitt 1
+
+### Zwei Lehren aus diesem Tag
+
+**Eine Prüfung kann lügen.** `pdftotext -layout` liest über beide Spalten
+hinweg und meldete 29 von 34 fehlenden Zeilen, die in Wahrheit alle auf
+dem Blatt standen. Hätte ich das geglaubt, hätte ich einen Fehler
+gesucht, den es nicht gibt. **Wer einem Prüfergebnis nicht traut, rendert
+die Seite und sieht hin.**
+
+**Eine Gegenprobe, die nicht anschlägt, beweist nichts.** Die erste
+Gegenprobe des PDF-Skripts beschädigte die Verweistabelle – poppler
+repariert die stillschweigend, acht von elf Prüfungen liefen trotzdem
+durch. Jede Prüfung braucht ihre **eigene** Verfälschung.
