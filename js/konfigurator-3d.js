@@ -2544,15 +2544,21 @@
     return f;
   }
 
-  function profilKappen(laenge, zHinten, yStart, form, material) {
-    var dicke = 0.4;
+  /* xMitte und dreh sind optional und nur fuer die SCHRAEGE Rinne einer
+     Sonderform noetig: Dort sitzt die Rinne gedreht, und ihre Kappen
+     muessen an deren Enden mitwandern. Ohne die beiden Werte bleibt
+     alles wie zuvor – mittig und ungedreht. */
+  function profilKappen(laenge, zHinten, yStart, form, material, xMitte, dreh) {
+    var dicke = 0.4, mx = xMitte || 0, d = dreh || 0;
     [-1, 1].forEach(function (seite) {
       var g = new THREE.ExtrudeGeometry(form,
         { depth: dicke, bevelEnabled: false, curveSegments: 8 });
       g.rotateY(-Math.PI / 2);
       g.translate(seite * (laenge / 2 + dicke) + (seite > 0 ? 0 : dicke),
-                  yStart, zHinten);
+                  yStart, 0);
       var m = new THREE.Mesh(g, material);
+      m.rotation.y = d;
+      m.position.set(mx, 0, zHinten);
       m.castShadow = true; m.receiveShadow = true;
       bau.add(m);
     });
@@ -2566,7 +2572,7 @@
                  wandkappeQuerschnitt(), material);
   }
 
-  function rinnenblenden(laenge, zVorne, yUnten, material) {
+  function rinnenblenden(laenge, zVorne, yUnten, material, xMitte, dreh) {
     /* Unten am SCHENKELFUSS, oben an der Nase – das sind zusammen genau
        die 175 mm des Teils. Vorne buendig; die 14,3 mm, die hinten frei
        bleiben, sind die Differenz der beiden bemassten Breiten.
@@ -2577,7 +2583,7 @@
        Schenkel fehlte. */
     profilKappen(laenge, zVorne - RINNENDECKEL.breite,
                  yUnten - RINNE.schenkelLang,
-                 rinnenkappeQuerschnitt(), material);
+                 rinnenkappeQuerschnitt(), material, xMitte, dreh);
   }
 
 
@@ -3164,6 +3170,70 @@
     m.position.set(x, yMitte, z);
     m.rotation.x = neig;
     m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
+    bau.add(m);
+    return m;
+  }
+
+  /* ---------- Randblende an einer SCHRAEGEN Kante ----------
+     „siehst du nicht das es darum geht das das glas etc. in der luft
+     hängt etc." (Betreiber, 25.10.2026, mit Bild). Bei einer Sonderform
+     mit verschiedenen Breiten laeuft die Seitenkante schraeg von der
+     hinteren zur vorderen Ecke. Die gerade Blende stand aber weiter bei
+     x = +/-B/2 und endete dort, wo die Anlage an DIESER Stelle aufhoert –
+     zwischen ihr und der wirklichen Dachkante lag Glas ohne jeden Rand.
+     Genau das sieht im Bild aus, als haenge die Scheibe in der Luft.
+
+     Gebaut wird sie deshalb VON ECKE ZU ECKE und in der Dachebene
+     gedreht – dieselbe Rechnung wie beim Massstab: Querschnitt quer zur
+     Richtung, Laenge gleich dem Abstand der Ecken. */
+  var BLENDE_ACHSE = new THREE.Vector3(0, 0, 1);
+  function randblendeSchraeg(a, b, hoehe, material) {
+    var d = new THREE.Vector3().subVectors(b, a);
+    var m = new THREE.Mesh(
+      new THREE.BoxGeometry(RANDBLENDE.dicke, hoehe, Math.max(d.length(), 1)),
+      material);
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    if (d.lengthSq() > 1e-6) {
+      m.quaternion.setFromUnitVectors(BLENDE_ACHSE, d.clone().normalize());
+    }
+    m.castShadow = true; m.receiveShadow = true;
+    dachTeil(m);
+    bau.add(m);
+    return m;
+  }
+
+  /* ---------- Eine Scheibe als Vieleck ----------
+     „hinten gucken die scheiben links rechts raus und sind zu kurz,
+     vorne is die schräge das glas in stufen anstatt gerade linie"
+     (Betreiber, 25.10.2026, mit Bild von oben).
+
+     Genau so war es gebaut: jede Scheibe ein Rechteck, so lang wie die
+     Anlage in der MITTE ihres Feldes. An einer schraegen Kante kann ein
+     Rechteck nur eine Treppe bilden – und wo die Anlage schmaler wird,
+     steht es seitlich darueber.
+
+     Deshalb bekommt jede Scheibe ihre vier echten Ecken: Die Seiten
+     folgen den Sparren bzw. der Formkante, vorne und hinten die
+     wirkliche Kante AN DIESER STELLE. Gebaut wird flach in der
+     Dachebene (x und die Lage laengs der Schraege) und anschliessend
+     wie jede Scheibe um die Dachneigung gekippt. */
+  function scheibeVieleck(ecken, dicke, material, yRef, zRef, neig) {
+    var f = new THREE.Shape();
+    ecken.forEach(function (e, i) {
+      var zl = (e.z - zRef) / Math.cos(neig);
+      if (i === 0) f.moveTo(e.x, zl); else f.lineTo(e.x, zl);
+    });
+    f.closePath();
+    var g = new THREE.ExtrudeGeometry(f, { depth: dicke, bevelEnabled: false });
+    /* Die Shape liegt in der xy-Ebene und wird nach +z dick. Gebraucht
+       wird: x bleibt x, Shape-y wird Welt-z, die Dicke geht nach oben. */
+    g.rotateX(Math.PI / 2);
+    g.translate(0, dicke / 2, 0);
+    var m = new THREE.Mesh(g, material);
+    m.position.set(0, yRef, zRef);
+    m.rotation.x = neig;
+    m.receiveShadow = true;
     dachTeil(m);
     bau.add(m);
     return m;
@@ -7044,6 +7114,30 @@
        stehen: vorne die Vorderkante, hinten die Hinterkante. */
     var bVorne = sonderformAktiv() && Z.sfBreite2 > 0 ? Z.sfBreite2 / 10 : B;
     var bHinten = sonderformAktiv() && Z.sfBreite1 > 0 ? Z.sfBreite1 / 10 : B;
+
+    /* ---------- Wie breit ist die Anlage AN DIESER TIEFE? ----------
+       „immernoch bug" (Betreiber, 25.10.2026, mit Bild). Nachgemessen
+       bei Hinterkante 4000 und Vorderkante 5000: Das Dach war hinten
+       500 mm zu breit (x bis +/-250 statt +/-200) – der hintere Traeger
+       und das Wandprofil liefen weiter ueber die Breite des
+       UMSCHLIESSENDEN RECHTECKS und standen seitlich ueber, ohne Pfosten
+       darunter. Dasselbe galt fuer den Unterzug in der Mitte.
+
+       Ein quer liegendes Bauteil muss so breit sein wie die Anlage an
+       SEINER Tiefe. Die beiden Seitenkanten laufen gerade von der
+       Hinterkante zur Vorderkante – links ueber die Tiefe t1, rechts
+       ueber t2. Weil die beiden verschieden lang sein koennen, wandert
+       dabei auch die Mitte. */
+    function querBei(zCm) {
+      if (!sonderformAktiv()) return { mitte: 0, breite: B };
+      var b1 = (Z.sfBreite1 || 0) / 10, b2 = (Z.sfBreite2 || 0) / 10;
+      var t1 = (Z.sfTiefe1 || 0) / 10, t2 = (Z.sfTiefe2 || 0) / 10;
+      var aL = t1 > 0 ? Math.min(1, Math.max(0, zCm / t1)) : 0;
+      var aR = t2 > 0 ? Math.min(1, Math.max(0, zCm / t2)) : 0;
+      var li = -b1 / 2 + (b1 - b2) / 2 * aL;
+      var re =  b1 / 2 - (b1 - b2) / 2 * aR;
+      return { mitte: (li + re) / 2, breite: Math.max(10, re - li) };
+    }
     /* Die Achsen der VORDEREN Pfosten werden unten noch gebraucht: Die
        Schiebeanlage läuft je Pfostenfach, nicht über die ganze Breite. */
     var xPfVorne = verteilen(pfVorne, bVorne, PF / 2);
@@ -7100,9 +7194,10 @@
          auf Sparrenhoehe gekuerzt wird (siehe trH). */
       var uzH = TR_H;
       var hPfUz = Math.max(100, uzOk - uzH);
-      balken(B, uzH, TR_T, 0, uzOk - uzH / 2, zUz, mAlu);
-      verteilen(pfostenUnterTraeger(Z.breite), B, PF / 2).forEach(function (x) {
-        balken(PF, hPfUz, PF, x, hPfUz / 2, zUz, mAlu);
+      var qUz = querBei(zUz);
+      balken(qUz.breite, uzH, TR_T, qUz.mitte, uzOk - uzH / 2, zUz, mAlu);
+      verteilen(pfostenUnterTraeger(Z.breite), qUz.breite, PF / 2).forEach(function (x) {
+        balken(PF, hPfUz, PF, x + qUz.mitte, hPfUz / 2, zUz, mAlu);
       });
     }
 
@@ -7157,7 +7252,7 @@
         var dreh = Math.abs(dz) > 0.01 ? Math.atan2(dz, lg) : 0;
         var lang = dreh ? Math.sqrt(lg * lg + dz * dz) : lg;
         rinneBauen(lang, zm, hRinne, mAlu, xm, -dreh);
-        rinnenblenden(lang, zm, hRinne, mAlu);
+        rinnenblenden(lang, zm, hRinne, mAlu, xm, -dreh);
       });
 
       /* An jeder Stufe schliesst ein kurzes Stueck quer die Luecke
@@ -7177,7 +7272,26 @@
          das „unter der Rinne", mit Vorsprung „unter den Sparren" – die
          Höhe ergibt sich aus der Pfostenlage, nicht aus einer zweiten
          Regel. */
-      balken(B, traegerH, traegerT, 0, hPfosten + traegerH / 2, zPf, mAlu);
+      /* Bei einer Sonderform laeuft die Vorderkante schraeg – der
+         Traeger darunter muss es auch, sonst steht er an einer Ecke im
+         Freien (gemessen 24 cm bei 3000/5000 Tiefe). */
+      var vk = sonderformVorderkanten(B, T)[0];
+      var trDz = sonderformAktiv() ? (vk.z1 - vk.z0) : 0;
+      var trLg = Math.max(1, vk.x1 - vk.x0);
+      if (Math.abs(trDz) > 0.01) {
+        var trDreh = Math.atan2(trDz, trLg);
+        var trM = new THREE.Mesh(
+          new THREE.BoxGeometry(Math.sqrt(trLg * trLg + trDz * trDz),
+                                traegerH, traegerT), mAlu);
+        trM.position.set((vk.x0 + vk.x1) / 2, hPfosten + traegerH / 2,
+                         zPf + (vk.z0 + vk.z1) / 2 - (sonderformAktiv() ? T : 0));
+        trM.rotation.y = -trDreh;
+        trM.castShadow = true; trM.receiveShadow = true;
+        bau.add(trM);
+      } else {
+        balken(trLg, traegerH, traegerT, (vk.x0 + vk.x1) / 2,
+               hPfosten + traegerH / 2, zPf, mAlu);
+      }
     }
     /* Wandprofil – IMMER dasselbe Teil an derselben Stelle. Freistehend
        sitzt dahinter der Träger statt der Mauer, mehr ändert sich nicht. */
@@ -7188,15 +7302,15 @@
       /* Hinten dasselbe: gerillte Blende in Blendendicke, der Traeger
          als glatter Kasten dahinter. Bei Wandmontage sieht man davon
          nichts, freistehend schon. */
-      blendeProfil(B, wpH, RANDBLENDE.dicke, 0, wpMitte,
+      blendeProfil(bHinten, wpH, RANDBLENDE.dicke, 0, wpMitte,
                    RANDBLENDE.dicke / 2, Math.PI / 2, mAlu);
-      balken(B, wpH, wpT - RANDBLENDE.dicke, 0, wpMitte,
+      balken(bHinten, wpH, wpT - RANDBLENDE.dicke, 0, wpMitte,
              RANDBLENDE.dicke + (wpT - RANDBLENDE.dicke) / 2, mAlu);
     } else {
       /* Kein Quader mehr: das echte Profil mit zwei nach vorne offenen
          Kammern. wpMitte bleibt die Bezugsgroesse der uebrigen Rechnung,
          gebaut wird ab der Unterkante. */
-      wandprofilBauen(B, wpMitte - wpH / 2, wpGlasD, mAlu);
+      wandprofilBauen(bHinten, wpMitte - wpH / 2, wpGlasD, mAlu);
     }
     /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
        wandkappeQuerschnitt.
@@ -7210,9 +7324,12 @@
 
        Derselbe Fehler wie bei der Pfostenachse am Vortag: ein Teil, das
        an einem bestimmten Profil haengt, ohne Verzweigung gebaut. */
-    if (!sky) wandprofilKappen(B, wpOk, mAlu);
+    /* Beides sitzt an der HINTERKANTE – also so breit wie diese und
+       nicht wie das umschliessende Rechteck (siehe querBei). */
+    if (!sky) wandprofilKappen(bHinten, wpOk, mAlu);
     if (frei) {
-      balken(B, trH, TR_T, 0, trOk - trH / 2, zTrHinten, mAlu);
+      var qTr = querBei(zTrHinten);
+      balken(qTr.breite, trH, TR_T, qTr.mitte, trOk - trH / 2, zTrHinten, mAlu);
     }
 
     /* Sparrenraster BELEGT (Montageanleitung S. 33): „Dachbreite minus
@@ -7338,11 +7455,19 @@
     if (!sky) {
       var kam = wandprofilKammern(wpGlasD);
       var wpUk = wpMitte - wpH / 2;
+      /* Nur dort, wo das Wandprofil auch wirklich liegt. Bei einer
+         Sonderform mit schmalerer Hinterkante reichte das Sparrenraster
+         (und mit ihm diese Blende) weiter nach aussen als das Profil –
+         die Streifen standen frei in der Luft. Gemessen: Raster bis
+         x = +/-244 cm bei einer Hinterkante von +/-200 cm. */
+      var blendeRand = bHinten / 2;
       for (i = 0; i < xs.length - 1; i++) {
-        var feldB2 = (xs[i + 1] - xs[i]) - spB;
+        var feldL = Math.max(xs[i] + spB / 2, -blendeRand);
+        var feldR = Math.min(xs[i + 1] - spB / 2, blendeRand);
+        var feldB2 = feldR - feldL;
         if (feldB2 <= 0) continue;
         balken(feldB2, WANDBLENDE.hoehe, WANDBLENDE.dicke,
-               (xs[i] + xs[i + 1]) / 2,
+               (feldL + feldR) / 2,
                wpUk + kam.blech + WANDBLENDE.hoehe / 2,
                WANDPROFIL.tiefeUnten - WANDBLENDE.dicke / 2, mAlu);
       }
@@ -7378,7 +7503,32 @@
         y: sky ? blendeY : ukMitteBei(ab.zMitte) + blendeH / 2
       };
     }
+    /* Laeuft die Seitenkante schraeg, wird sie als eine Blende von Ecke
+       zu Ecke gebaut. „Schraeg" heisst: Die Breiten vorne und hinten
+       unterscheiden sich um mehr als 2 cm – darunter ist der Knick im
+       Bild nicht zu sehen und die gerade Blende bleibt die ruhigere
+       Loesung. */
+    var seiteSchraeg = sonderformAktiv() &&
+      Math.abs((Z.sfBreite1 || 0) - (Z.sfBreite2 || 0)) > 20;
+
+    function kantenPunkt(vz, zCm, hoehe) {
+      var halb = vz * (RANDBLENDE.dicke / 2 - RANDBLENDE.vor);
+      var bq = querBei(zCm);
+      var x = bq.mitte + vz * bq.breite / 2 - halb;
+      var uk = ukVorn + Math.tan(neig) * (dachTiefe - zCm);
+      return new THREE.Vector3(x, uk + hoehe / 2, zCm);
+    }
+
     [-1, 1].forEach(function (vz) {
+      if (seiteSchraeg && !sky) {
+        /* Von der hinteren Kante (dort beginnen die Sparren) bis zur
+           vorderen Kante dieser Seite. */
+        var tSeite = (vz < 0 ? (Z.sfTiefe1 || 0) : (Z.sfTiefe2 || 0)) / 10;
+        var zVorn = Math.max(zSpHinten + 10, tSeite - RINNE.breite);
+        randblendeSchraeg(kantenPunkt(vz, zSpHinten, blendeH),
+                          kantenPunkt(vz, zVorn, blendeH), blendeH, mAlu);
+        return;
+      }
       var bm = blendeMassBei(vz);
       blendeL = bm.laenge; blendeZ = bm.z; blendeY = bm.y;
       if (sky) {
@@ -7473,6 +7623,70 @@
       var feldB = lichteWeite + 4;
       if (feldB <= 0) continue;
       var xMitte = (xs[i] + xs[i + 1]) / 2;
+      /* ---------- Sonderform: echte Ecken statt Rechteck ----------
+         Die Seiten folgen den Sparren, am aeussersten Feld der
+         Formkante; vorne und hinten die Tiefe an genau diesem x. Damit
+         wird aus der Treppe eine gerade Linie und nichts steht mehr
+         seitlich ueber. */
+      if (sonderformAktiv() && !sky) {
+        var xA0 = xMitte - feldB / 2, xB0 = xMitte + feldB / 2;
+        var zFeld = glasBei(xMitte).zMitte;
+        var qFeld = querBei(zFeld);
+        var xA = Math.max(xA0, qFeld.mitte - qFeld.breite / 2);
+        var xB = Math.min(xB0, qFeld.mitte + qFeld.breite / 2);
+        if (xB - xA > 1) {
+          var halbCos = Math.cos(neig);
+          var glA = glasBei(xA + 0.5), glB = glasBei(xB - 0.5);
+          var kante = function (vz, z) {
+            var q = querBei(z);
+            return q.mitte + vz * q.breite / 2;
+          };
+          var aH = glA.zMitte - glA.laenge / 2 * halbCos;
+          var aV = glA.zMitte + glA.laenge / 2 * halbCos;
+          var bH = glB.zMitte - glB.laenge / 2 * halbCos;
+          var bV = glB.zMitte + glB.laenge / 2 * halbCos;
+          var ecken = [
+            { x: Math.min(xB, Math.max(xA, kante(-1, aH))), z: aH },
+            { x: Math.max(xA, Math.min(xB, kante(1, bH))), z: bH },
+            { x: Math.max(xA, Math.min(xB, kante(1, bV))), z: bV },
+            { x: Math.min(xB, Math.max(xA, kante(-1, aV))), z: aV }
+          ];
+          var zRef = (aH + aV + bH + bV) / 4;
+          var yRef = ukMitteBei(abschnittBei(xMitte).zMitte) +
+                     SPARREN.koerper + glasDicke / 2;
+          /* Die Hoehe gilt in der Mitte des Feldes; die Neigung traegt
+             den Rest, weil die Scheibe mit neig gekippt wird. */
+          yRef += Math.tan(neig) * (abschnittBei(xMitte).zMitte - zRef);
+          /* Geteilt wird nur, wenn der Stoss ueberhaupt INNERHALB dieses
+             Feldes liegt. An der schraegen Ecke ist die Scheibe kurz –
+             dort lag der Stoss dahinter, und der Schnitt zog die Scheibe
+             bis zu ihm hin: gemessen 62 cm ins Freie. */
+          var zStoss = koppelZ;
+          var stossDrin = glasGeteilt() &&
+            zStoss - KOPPEL.breite > Math.max(aH, bH) &&
+            zStoss + KOPPEL.breite < Math.min(aV, bV);
+          if (!stossDrin) {
+            scheibeVieleck(ecken, glasDicke, mF, yRef, zRef, neig);
+          } else {
+            /* Geteilt: derselbe Umriss, am Stoss quer durchgeschnitten. */
+            var zS = zStoss;
+            var schnittL = { x: ecken[0].x + (ecken[3].x - ecken[0].x) *
+                                  Math.min(1, Math.max(0, (zS - aH) / Math.max(1, aV - aH))), z: zS };
+            var schnittR = { x: ecken[1].x + (ecken[2].x - ecken[1].x) *
+                                  Math.min(1, Math.max(0, (zS - bH) / Math.max(1, bV - bH))), z: zS };
+            var halbe = KOPPEL.breite / 2 * halbCos;
+            scheibeVieleck([ecken[0], ecken[1],
+                            { x: schnittR.x, z: zS - halbe },
+                            { x: schnittL.x, z: zS - halbe }],
+                           glasDicke, mF, yRef, zRef, neig);
+            scheibeVieleck([{ x: schnittL.x, z: zS + halbe },
+                            { x: schnittR.x, z: zS + halbe },
+                            ecken[2], ecken[3]],
+                           glasDicke, mF, yRef, zRef, neig);
+          }
+        }
+        continue;
+      }
       if (!glasGeteilt()) {
         var gl = glasBei(xMitte);
         var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, gl.laenge), mF);
@@ -7522,9 +7736,13 @@
         color: rgb(0x9fa8ad), roughness: 0.28, metalness: 0,
         transparent: true, opacity: 0.55, side: THREE.DoubleSide
       });
+      /* So breit wie die Anlage AN SEINER TIEFE – bei einer Sonderform
+         ist das nicht die Breite des umschliessenden Rechtecks. Gemessen
+         stand es sonst 80 cm im Freien (6000 hinten, 4000 vorne). */
+      var qK = querBei(koppelZ);
       var kq = new THREE.Mesh(
-        new THREE.BoxGeometry(B, KOPPEL.hoehe, KOPPEL.breite), mKoppel);
-      kq.position.set(0,
+        new THREE.BoxGeometry(qK.breite, KOPPEL.hoehe, KOPPEL.breite), mKoppel);
+      kq.position.set(qK.mitte,
                       yDach + KOPPEL.hoehe / 2 - glasDicke / 2 - Math.sin(neig) * koppelLokal,
                       zGlasMitte + Math.cos(neig) * koppelLokal);
       kq.rotation.x = neig;
