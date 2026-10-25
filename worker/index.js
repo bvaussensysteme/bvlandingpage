@@ -226,8 +226,25 @@ const TEILEN_MAX_BODY = 8 * 1024;
 const TEILEN_ZEICHEN = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
 let teilenTabelleDa = false;
 
+/* Die Tabelle legt sich beim ersten Mal selbst an – WENN die Rolle das
+   darf. Ab PostgreSQL 15 darf nicht mehr jede Rolle im Schema „public"
+   anlegen, und genau daran ist der erste Versuch live gescheitert
+   (502 beim ersten Aufruf). Deshalb: Fehlschlag merken, nicht bei jedem
+   Aufruf erneut versuchen, und der Aufrufer bekommt ein Wort, WO es
+   klemmt – nicht die Datenbankmeldung.
+
+   Zum Nachtragen von Hand (Neon-Konsole, einmal):
+
+     create table if not exists teilen_links (
+       id text primary key, code text not null,
+       code_hash text not null unique,
+       erstellt timestamptz not null default now(),
+       zuletzt timestamptz);
+*/
+let teilenTabelleFehlt = false;
+
 async function teilenTabelle(sql) {
-  if (teilenTabelleDa) return;
+  if (teilenTabelleDa || teilenTabelleFehlt) return;
   await sql`
     create table if not exists teilen_links (
       id         text primary key,
@@ -270,13 +287,31 @@ async function handleTeilenNeu(request, env) {
   }
   if (!env.ANFRAGEN_DB) return jsonResponse({ ok: false }, 503);
 
+  let schritt = 'start';
   try {
     const sql = neon(env.ANFRAGEN_DB);
-    await teilenTabelle(sql);
     const hash = await teilenHash(code);
-    /* Zuerst: Gibt es die Planung schon? Dann denselben Link zurück. */
-    const da = await sql`select id from teilen_links where code_hash = ${hash}`;
+    /* Zuerst lesen: Steht die Tabelle schon, braucht es kein CREATE –
+       und die Rolle braucht dafür keine Rechte am Schema. */
+    let da;
+    schritt = 'suchen';
+    try {
+      da = await sql`select id from teilen_links where code_hash = ${hash}`;
+    } catch (lesefehler) {
+      schritt = 'tabelle';
+      try {
+        await teilenTabelle(sql);
+      } catch (anlegefehler) {
+        teilenTabelleFehlt = true;
+        console.log('Kurzlink: Tabelle fehlt und lässt sich nicht anlegen:',
+                    String(anlegefehler));
+        return jsonResponse({ ok: false, schritt: 'tabelle' }, 502);
+      }
+      schritt = 'suchen';
+      da = await sql`select id from teilen_links where code_hash = ${hash}`;
+    }
     if (da.length) return jsonResponse({ ok: true, id: da[0].id });
+    schritt = 'schreiben';
 
     for (let laenge = 6; laenge <= 12; laenge++) {
       const id = teilenId(hash, laenge);
@@ -294,8 +329,8 @@ async function handleTeilenNeu(request, env) {
     }
     return jsonResponse({ ok: false }, 503);
   } catch (err) {
-    console.log('Kurzlink fehlgeschlagen:', String(err));
-    return jsonResponse({ ok: false }, 502);
+    console.log('Kurzlink fehlgeschlagen bei', schritt, ':', String(err));
+    return jsonResponse({ ok: false, schritt }, 502);
   }
 }
 
@@ -316,7 +351,6 @@ async function handleTeilenOeffnen(url, env) {
   if (!/^[0-9A-Z]{4,16}$/.test(id) || !env.ANFRAGEN_DB) return teilenNichtDa(url);
   try {
     const sql = neon(env.ANFRAGEN_DB);
-    await teilenTabelle(sql);
     const rows = await sql`select code from teilen_links where id = ${id}`;
     if (!rows.length) return teilenNichtDa(url);
     /* Wann der Link zuletzt gebraucht wurde – die Grundlage dafür, später
