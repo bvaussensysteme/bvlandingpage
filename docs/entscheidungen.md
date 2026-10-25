@@ -9432,3 +9432,54 @@ wieder über das Rechteck und muss anschlagen. Zwei bestehende Prüfungen
 (`pruefe-masstabelle.js`, `pruefe-rueckseite.js`) haben die geänderte Zeile
 sofort bemerkt — ihre Erwartung ist nachgezogen, die Aussage bleibt: Die
 hinteren Achsen kommen aus `pfHinten`, nicht aus `pfVorne`.
+
+## 25.10.2026 — Sonderform: Glas in Stufen, Teile im Freien
+
+**Anlass, in drei Meldungen am selben Abend:** „das modell sieht verkrüppelt
+aus", „wieder fehler", und schließlich die genaue Diagnose vom Betreiber:
+**„hinten gucken die scheiben links rechts raus und sind zu kurz, vorne is die
+schräge das glas in stufen anstatt gerade linie"** (mit Bild von oben).
+
+**Was dahinterstand — ein Muster, nicht ein Fehler.** Zehn Bauteile folgten dem
+**umschließenden Rechteck** statt der wirklichen Kante. Gefunden wurden sie
+nicht durch Lesen, sondern durch Messen: Die three.js-Szene wird aus dem
+laufenden Zeichenvorgang abgegriffen und **jeder Eckpunkt** jedes Bauteils
+gegen die Kante an *seiner* Tiefe geprüft.
+
+| Bauteil | stand im Freien |
+|---|---|
+| vordere Pfosten | bis 48 cm |
+| hinterer Träger, Wandprofil, Seitendeckel | 50 cm |
+| Blendenstreifen am Wandprofil | 44 cm |
+| Kopplungsprofil (Glasstoß) | 80 cm |
+| Rinnen-Endkappen, vorderer Statikträger | 24 cm |
+| **Scheiben** | 69 cm, und als Treppe statt gerader Kante |
+
+**Was jetzt gilt.**
+- `querBei(z)` gibt die Breite der Anlage **an einer Tiefe** zurück; jedes quer
+  liegende Teil benutzt sie.
+- Die Randblende an einer schrägen Seitenkante wird **von Ecke zu Ecke**
+  gebaut (`randblendeSchraeg`) statt gerade an ±B/2.
+- Jede Scheibe wird bei Sonderform als **Viereck aus ihren vier echten Ecken**
+  gebaut (`scheibeVieleck`): Seiten an den Sparren bzw. an der Formkante,
+  vorne und hinten die Tiefe an genau diesem x. Damit ist die Treppe weg.
+- Geteilt wird eine Scheibe nur, wenn der Stoß **innerhalb** ihres Feldes
+  liegt — an der schrägen Ecke ist sie kürzer als der Stoß weit weg ist; der
+  Schnitt zog sie sonst 62 cm ins Freie.
+- Rinnenkappen und vorderer Statikträger werden mit der Vorderkante **gedreht**.
+
+**Geprüft:** neues Skript `scripts/pruefe-sonderform-3d.mjs` — baut drei Formen
+im echten Browser (vorne schmaler, hinten schmaler, stark schräg) und misst
+jeden Eckpunkt. Größter verbleibender Überstand: 2,4 / 7,1 / 8,0 cm — das ist
+die Randblende, die bauartbedingt ein Stück nach außen steht. Die Gegenprobe
+baut die alte Fassung wieder ein und schlägt bei allen drei Formen an.
+
+**Zwei eigene Messfehler, damit sie niemand wiederholt:** Erst habe ich den
+**achsparallelen Umriss** gemessen — ein schräg liegendes Teil hat einen
+großen Umriss, ohne überzustehen: drei Fehlalarme. Und das **Wasserzeichen**
+auf dem Belag wird mit der Dachbreite skaliert und liegt bei y = 0,4; es sah
+aus wie ein überstehendes Bauteil. Beides steht als Kommentar im Prüfskript.
+
+**Fünf bestehende Prüfungen** in `pruefe-masstabelle.js` und
+`pruefe-rueckseite.js` haben die geänderten Zeilen sofort bemerkt. Ihre
+Erwartungen sind nachgezogen, ihre Aussagen unverändert.
