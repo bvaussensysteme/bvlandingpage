@@ -9186,3 +9186,73 @@ Browser geprüft: Lupe sichtbar, „Braun" liefert 25 Treffer beginnend bei RAL
 `pruefe-fuehrung.js` hat beim ersten Durchlauf angeschlagen, weil das Suchfeld
 kein Neuzeichnen auslöst — das ist richtig so und steht jetzt als begründete
 Ausnahme im Prüfskript.
+
+## 25.10.2026 — Planung teilen: der Link trägt die Konfiguration selbst
+
+**Anlass.** „Ich will auch einen Teilen Button und dann so wie hier nur in
+meinem Design das man nen link bekommt und diesen kann man dann aufrufen um die
+konfiguration wieder zu sehen bzw. nochmal bearbeitet etc." (Betreiber, mit
+Bildern von destag-grabmale.de als Vorbild — dort ein bit.ly-Kurzlink).
+
+**Rückfrage gestellt, Betreiber hat geantwortet:** „Ja aber auch wenn über
+bit.ly es stehen keine persönlichen daten dort."
+
+**Trotzdem ohne bit.ly gebaut — die Gründe, damit das nachvollziehbar bleibt:**
+
+1. **Technisch geht es im Browser nicht sicher.** Die bit.ly-Schnittstelle
+   verlangt einen geheimen Zugangsschlüssel. Im Browser läge der im Quelltext
+   offen — jeder könnte damit auf unseren Namen Links erzeugen. Ein Kurzlink
+   braucht also **in jedem Fall** eine Serverfunktion. Und wenn wir die ohnehin
+   bauen, ist der eigene Kurzlink (`bv-aussensysteme.de/k/A7F3K`) der bessere:
+   kürzer, ohne Dritten, ohne Abhängigkeit von einem Konto.
+2. **„Keine persönlichen Daten" stimmt für den Link-Inhalt, nicht für den
+   Aufruf.** Wer den Kurzlink anklickt, wird über bit.ly geleitet; dabei sieht
+   der Dienst IP-Adresse, Zeitpunkt und Browser des Empfängers. Das sind
+   personenbezogene Daten im Sinne der DSGVO, und sie fielen bei jedem
+   Weiterleiten an — auch bei Leuten, die unsere Seite nie bewusst besucht
+   haben.
+
+**Was jetzt gilt.** Der Link trägt die Planung **selbst**: hinter dem
+Rautezeichen steht die ganze Konfiguration, zusammengefaltet
+(`…/konfigurator.html#k=…`). Nichts wird gespeichert, kein Dienst Dritter ist
+beteiligt, kein Zusatz in der Datenschutzerklärung nötig — und was hinter dem
+Rautezeichen steht, schickt der Browser nicht einmal an unseren eigenen Server.
+Der Link funktioniert in fünf Jahren noch, weil ihn niemand löschen kann.
+**Preis dafür: Er ist lang** (im Versuch 836 Zeichen). Für WhatsApp und E-Mail
+ist das egal, zum Vorlesen am Telefon taugt er nicht.
+
+**Kurz halten ohne Server:** Im Link stehen nur die Felder, die von der
+Voreinstellung abweichen — plus die Maße und die Produktfelder, die beim
+Produktwechsel ohnehin neu gesetzt werden.
+
+**Zwei Fehler, die erst der Durchlauf gezeigt hat** (und deshalb steht die
+Prüfung im Browser, nicht im Code):
+
+1. Die Maße kamen als Produktvorgabe zurück: 6210 × 7000 mm wurde zu
+   5000 × 3000 mm. Ursache: `aendern()` erkennt den Produktwechsel und ruft
+   `masseSetzen()`, das Breite, Tiefe und Höhe auf die Vorgabe zurückstellt.
+   Deshalb jetzt **zwei Durchgänge**: erst das Produkt allein, einmal
+   `aendern()` — damit ist der Wechsel verbraucht —, dann alles übrige.
+2. Der Unterzug wurde an der alten Reglergrenze gekappt (3438 → 2375 mm), weil
+   seine Grenze an der Tiefe hängt. Deshalb werden die Felder **zweimal**
+   gesetzt, mit einem `aendern()` dazwischen.
+
+**Kaputter Link:** Wird der Code nicht gelesen (Tippfehler, abgeschnitten,
+künftige Version), sagt der Konfigurator das mit einem Hinweis und zeigt die
+Grundeinstellung. Stillschweigend etwas anderes zu zeigen wäre schlimmer — der
+Empfänger glaubte sonst, das sei die Planung des Absenders. Dafür trägt der
+Code eine Versionsnummer (`TEILEN_V`).
+
+**Geprüft:** neues Skript `scripts/pruefe-teilen.mjs` — es plant im echten
+Browser ein Carport TDS (6210 × 7000 mm, 6° Bodengefälle, RAL 8014, Glas opal,
+550 mm Dachvorsprung), teilt, öffnet den Link in einem **frischen Tab** und
+vergleicht **alle 91 Einstellungen, 14 Knopfreihen und die Farbe** Feld für
+Feld. Toleranz nur beim Unterzug (±2 mm, Schrittweite des Reglers). Gegenprobe:
+ein Zeichen im Link getauscht — der Hinweis kommt, 19 Felder stehen auf
+Grundeinstellung. `pruefe-fuehrung.js` hat angeschlagen, weil das Linkfeld kein
+Neuzeichnen auslöst; das ist richtig so und steht als begründete Ausnahme drin.
+
+**Offen, wenn der Betreiber es will:** der eigene Kurzlink über Worker + KV
+(dieselbe KV, die für `/api/bauteile` noch eingerichtet werden muss). Dann wird
+aus dem langen Link ein `bv-aussensysteme.de/k/A7F3K` — der Dialog bleibt, es
+ändert sich nur, was im Feld steht.

@@ -504,6 +504,71 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.35);
     }
     .k3d-bildmenu[hidden] { display: none; }
+    /* ---------- Teilen-Dialog ----------
+       „Ich will auch einen Teilen Button … das man nen link bekommt und
+       diesen kann man dann aufrufen um die konfiguration wieder zu sehen
+       bzw. nochmal bearbeitet" (Betreiber, 25.10.2026, mit Bildern einer
+       fremden Seite als Vorbild). Dunkel wie die Werkzeugleiste, Gold wie
+       der Rest der Seite – das Vorbild wurde NICHT nachgebaut. */
+    .k3d-teilen {
+      position: absolute; inset: 0; z-index: 9;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10,10,10,.62); padding: 14px;
+    }
+    .k3d-teilen[hidden] { display: none; }
+    .k3d-teilen-kasten {
+      background: rgba(22,22,22,.98); color: #fff;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      padding: 16px 16px 18px; width: 100%; max-width: 420px;
+      max-height: 100%; overflow-y: auto; text-align: center;
+    }
+    .k3d-teilen-zu {
+      float: right; background: 0 0; border: 0; color: rgba(255,255,255,.72);
+      font: inherit; font-size: .78rem; cursor: pointer; padding: 2px 4px;
+    }
+    .k3d-teilen h3 {
+      margin: 2px 0 6px; font-size: 1.05rem; color: #fff;
+    }
+    .k3d-teilen p {
+      margin: 0 0 12px; font-size: .78rem; line-height: 1.45;
+      color: rgba(255,255,255,.76);
+    }
+    .k3d-teilen-feld {
+      display: flex; flex-direction: column; gap: 0;
+      border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .k3d-teilen-feld input {
+      width: 100%; border: 0; background: rgba(255,255,255,.06); color: #fff;
+      font: inherit; font-size: .72rem; padding: 10px 11px; text-align: center;
+      text-overflow: ellipsis;
+    }
+    .k3d-teilen-feld button {
+      border: 0; background: rgba(0,0,0,.55); color: #fff; font: inherit;
+      font-weight: 700; font-size: .82rem; padding: 10px; cursor: pointer;
+    }
+    .k3d-teilen-feld button:hover { background: var(--gold, #c9a24a); color: #111; }
+    .k3d-teilen-wege {
+      display: flex; justify-content: center; gap: 22px; flex-wrap: wrap;
+    }
+    .k3d-teilen-wege a, .k3d-teilen-wege button {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      background: 0 0; border: 0; cursor: pointer; font: inherit;
+      font-size: .72rem; color: rgba(255,255,255,.8); text-decoration: none;
+      width: 86px;
+    }
+    .k3d-teilen-wege .k3d-teilen-kreis {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #f3f1ee; color: #111;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .k3d-teilen-wege svg { width: 24px; height: 24px; display: block; }
+    .k3d-teilen-wege a:hover .k3d-teilen-kreis,
+    .k3d-teilen-wege button:hover .k3d-teilen-kreis { background: var(--gold, #c9a24a); }
+    .k3d-teilen-hinweis {
+      margin: 14px 0 0; font-size: .68rem; color: rgba(255,255,255,.55);
+    }
     .k3d-bildmenu button {
       background: 0 0; color: #fff; border: 0; border-radius: 7px;
       padding: 9px 11px; font: inherit; font-size: .8rem; text-align: left;
@@ -1736,6 +1801,7 @@
     <div class="k3d-oben">
       <button type="button" id="k3dPanelAn" aria-expanded="true" class="k3d-nurgross-knopf">☰ <span class="k3d-nurgross">Bedienfeld</span></button>
       <button type="button" id="k3dVollbild" aria-pressed="false" class="k3d-nurgross-knopf">⛶ <span class="k3d-nurgross">Vollbild</span></button>
+      <button type="button" id="k3dTeilen" aria-haspopup="dialog" aria-expanded="false">↗ <span class="k3d-immer">Teilen</span></button>
       <button type="button" id="k3dBild" class="ist-gold" aria-expanded="false" aria-haspopup="true">↓ <span class="k3d-immer">Bild speichern</span></button>
     </div>
 
@@ -1751,6 +1817,59 @@
       <button type="button" role="menuitem" data-k3d-bild="Darunter">Darunter</button>
       <span class="k3d-bildmenu-trenn"></span>
       <button type="button" role="menuitem" data-k3d-bild="alle" class="ist-gold">PDF erstellen</button>
+    </div>
+
+    <!-- Der Link trägt die Konfiguration selbst (im Adressteil hinter #).
+         Nichts wird gespeichert, kein Dienst Dritter ist beteiligt –
+         siehe docs/entscheidungen.md, 25.10.2026. -->
+    <div class="k3d-teilen" id="k3dTeilenDialog" role="dialog" aria-modal="true"
+         aria-labelledby="k3dTeilenTitel" hidden>
+      <div class="k3d-teilen-kasten">
+        <button type="button" class="k3d-teilen-zu" id="k3dTeilenZu">✕ Schließen</button>
+        <h3 id="k3dTeilenTitel">↗ Planung teilen</h3>
+        <p>Der Link enthält Ihre komplette Planung. Wer ihn öffnet, sieht
+          dasselbe Modell und kann es weiterbearbeiten – auch Sie selbst
+          später wieder. Speichern Sie ihn sich als Lesezeichen oder
+          schicken Sie ihn weiter.</p>
+        <div class="k3d-teilen-feld">
+          <input type="text" id="k3dTeilenLink" readonly
+                 aria-label="Link zu dieser Planung">
+          <button type="button" id="k3dTeilenKopieren">Link kopieren</button>
+        </div>
+        <div class="k3d-teilen-wege">
+          <button type="button" id="k3dTeilenPdf">
+            <span class="k3d-teilen-kreis" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm0 2.5L17.5 8H14V4.5zM8 13h8v1.6H8V13zm0 3.2h8v1.6H8v-1.6zM8 9.8h4v1.6H8V9.8z"/>
+              </svg>
+            </span>
+            PDF herunterladen
+          </button>
+          <a id="k3dTeilenWa" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="k3d-teilen-kreis" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.3-.2-2.6.7.7-2.5-.2-.3A8 8 0 0 1 12 4zm-3.3 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.1-.7.1l-.9 1.1c-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.1-.3 0-.4.1-.6l.5-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.8-2c-.2-.5-.4-.4-.6-.4h-.5z"/>
+              </svg>
+            </span>
+            WhatsApp
+          </a>
+          <a id="k3dTeilenMail" href="#">
+            <span class="k3d-teilen-kreis" aria-hidden="true">
+              <!-- Umrisse statt Flaeche: Als gefuellter Pfad wurde aus dem
+                   Umschlag ein schwarzer Klotz. -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linejoin="round">
+                <rect x="2.6" y="5" width="18.8" height="14" rx="2"/>
+                <path d="M3.4 7.2 12 13.2l8.6-6"/>
+              </svg>
+            </span>
+            E-Mail
+          </a>
+        </div>
+        <p class="k3d-teilen-hinweis" id="k3dTeilenStand">Der Link wird in
+          Ihrem Browser erzeugt. Es wird nichts gespeichert und nichts an
+          Dritte übermittelt.</p>
+      </div>
     </div>
 
     <!-- Reihenfolge: erst die Schalter (Maße, Abend, Drehen), dann der
@@ -1863,10 +1982,10 @@
 </footer>
 
 <script src="js/vendor/three.min.js" defer></script>
-<script src="js/masstabelle.js?v=20261025b" defer></script>
+<script src="js/masstabelle.js?v=20261025c" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
-<script src="js/pdf-blatt.js?v=20261025b" defer></script>
-<script src="js/konfigurator-3d.js?v=20261025b" defer></script>
+<script src="js/pdf-blatt.js?v=20261025c" defer></script>
+<script src="js/konfigurator-3d.js?v=20261025c" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

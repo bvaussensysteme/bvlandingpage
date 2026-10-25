@@ -12607,6 +12607,218 @@
     });
   }
 
+  /* ---------- Planung teilen ----------
+     „Ich will auch einen Teilen Button und dann so wie hier nur in
+     meinem Design das man nen link bekommt und diesen kann man dann
+     aufrufen um die konfiguration wieder zu sehen bzw. nochmal
+     bearbeitet etc." (Betreiber, 25.10.2026, mit Bildern von
+     destag-grabmale.de als Vorbild).
+
+     DER LINK TRAEGT DIE PLANUNG SELBST. Hinter dem Rautezeichen steht
+     die ganze Konfiguration, zusammengefaltet. Das hat drei Gruende:
+     Es wird nichts gespeichert (keine Datenbank, keine Aufbewahrungs-
+     frist, kein Satz in der Datenschutzerklaerung), es ist kein Dienst
+     Dritter beteiligt (das Vorbild nutzt bit.ly – der sieht dann jeden
+     Aufruf samt IP), und der Link funktioniert in fuenf Jahren noch,
+     weil niemand ihn geloescht haben kann.
+
+     Was hinter dem Rautezeichen steht, SCHICKT DER BROWSER NICHT ZUM
+     SERVER – auch das spricht dafuer.
+
+     Preis: Der Link ist lang. Ein kurzer waere nur mit Speicher auf
+     unserer Seite zu haben (Worker + KV, siehe docs/NEXT_TASK.md) –
+     dann aber bitte unser eigener, nicht bit.ly.
+
+     VERSION: Aendert sich der Aufbau der Felder so, dass alte Links
+     falsch gelesen wuerden, wird TEILEN_V hochgezaehlt. Ein Link mit
+     anderer Version wird dann ignoriert statt falsch angewandt. */
+  var TEILEN_V = 1;
+
+  /* Diese Felder gehen IMMER mit, auch wenn sie wie die Voreinstellung
+     aussehen: Sie werden beim Produktwechsel neu gesetzt. Stuenden sie
+     nicht im Link, bekaeme der Empfaenger die Produktvorgabe statt der
+     geteilten Zahl. */
+  var TEILEN_IMMER = ['Stufe', 'Produkt', 'CpTyp', 'CpVariante',
+    'PgDachart', 'PgAusfuehrung', 'Aufbau', 'Form',
+    'Breite', 'BreiteZahl', 'Tiefe', 'TiefeZahl', 'Hoehe', 'HoeheZahl',
+    'HoeheHinten', 'HoeheHintenZahl', 'Neigung', 'NeigungZahl'];
+  /* Das Suchfeld der RAL-Lupe ist eine Suchhilfe, keine Einstellung. */
+  var TEILEN_AUS = { RalSuchFeld: true };
+  var TEILEN_VORGABE = null;      // Stand direkt nach dem Laden
+
+  function teilenFelder() {
+    var f = {};
+    Array.prototype.forEach.call(
+      document.querySelectorAll('input[id^="k3d"], select[id^="k3d"]'),
+      function (e) {
+        var k = e.id.slice(3);
+        if (TEILEN_AUS[k]) return;
+        f[k] = (e.type === 'checkbox') ? (e.checked ? 1 : 0) : e.value;
+      });
+    return f;
+  }
+
+  function teilenDaten() {
+    var alle = teilenFelder(), f = {};
+    Object.keys(alle).forEach(function (k) {
+      /* Nur was abweicht – sonst waere der Link dreimal so lang. */
+      if (!TEILEN_VORGABE || TEILEN_IMMER.indexOf(k) > -1 ||
+          String(alle[k]) !== String(TEILEN_VORGABE[k])) f[k] = alle[k];
+    });
+    var d = { v: TEILEN_V, f: f, fa: Z.farbe };
+    var e = {};
+    if (Z.erwLinks && Z.erwLinks.length) e.l = Z.erwLinks;
+    if (Z.erwRechts && Z.erwRechts.length) e.r = Z.erwRechts;
+    if (Z.erwVorne && Z.erwVorne.length) e.v = Z.erwVorne;
+    if (Z.erwHinten && Z.erwHinten.length) e.h = Z.erwHinten;
+    if (Object.keys(e).length) d.e = e;
+    return d;
+  }
+
+  /* Base64 mit URL-tauglichen Zeichen. unescape/escape sind alt, aber
+     sie sind der kuerzeste Weg, Umlaute durch btoa zu bekommen – und
+     sie sind in jedem Browser da, den wir bedienen. */
+  function teilenCode() {
+    var txt = JSON.stringify(teilenDaten());
+    return btoa(unescape(encodeURIComponent(txt)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function teilenLink() {
+    return location.origin + location.pathname + '#k=' + teilenCode();
+  }
+
+  function feldSetzen(k, w) {
+    if (w == null) return;
+    var el = document.getElementById('k3d' + k);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!Number(w);
+    else el.value = w;
+  }
+
+  /* Gibt zurueck, ob der Link gelesen werden konnte. Ein kaputter oder
+     veralteter Link darf das Modell NICHT halb umstellen – deshalb wird
+     erst vollstaendig gelesen und dann angewandt. */
+  function zustandAnwenden(code) {
+    var d;
+    try {
+      var b = String(code).replace(/-/g, '+').replace(/_/g, '/');
+      d = JSON.parse(decodeURIComponent(escape(atob(b))));
+    } catch (e) { return false; }
+    if (!d || d.v !== TEILEN_V || !d.f) return false;
+    /* ZWEI DURCHGAENGE, und das ist kein Umweg: aendern() erkennt einen
+       Produktwechsel und ruft dann masseSetzen() – das stellt Breite,
+       Tiefe und Hoehe auf die VORGABE des Produkts zurueck und zieht
+       die Reglergrenzen nach. Wer alles auf einmal setzt, bekommt
+       deshalb die geteilten Masse ueberschrieben (im ersten Versuch
+       genau so passiert: 6210 x 7000 kam als 5000 x 3000 zurueck).
+
+       Also erst das Produkt allein, einmal aendern() – jetzt ist der
+       Wechsel verbraucht und die Grenzen stimmen –, dann alles
+       uebrige. */
+    ['Produkt', 'CpTyp', 'CpVariante', 'PgDachart', 'PgAusfuehrung']
+      .forEach(function (k) { feldSetzen(k, d.f[k]); });
+    cpVariantenSetzen();
+    aendern();
+    function alleSetzen() {
+      Object.keys(d.f).forEach(function (k) { feldSetzen(k, d.f[k]); });
+    }
+    /* ZWEIMAL, aus demselben Grund in klein: Die Grenze des Unterzug-
+       Reglers haengt an der Tiefe. Steht er in der Reihenfolge vor ihr,
+       wird sein Wert beim Setzen auf die alte Grenze gekappt (im Versuch
+       3438 mm -> 2375 mm). Nach einem aendern() stimmen die Grenzen, und
+       der zweite Durchgang traegt den richtigen Wert ein. */
+    alleSetzen();
+    aendern();
+    alleSetzen();
+    /* Knopfreihen zeigen sonst weiter den alten Stand an – der Wert
+       steht im versteckten Feld, die Knoepfe muessen nachziehen. */
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-seg]'),
+      function (r) {
+        var id = r.getAttribute('data-k3d-seg');
+        var el = document.getElementById(id);
+        if (el) segSetzen(id, el.value);
+      });
+    Z.erwLinks  = (d.e && d.e.l) || [];
+    Z.erwRechts = (d.e && d.e.r) || [];
+    Z.erwVorne  = (d.e && d.e.v) || [];
+    Z.erwHinten = (d.e && d.e.h) || [];
+    if (d.fa) farbeSetzen(d.fa);
+    aendern();
+    return true;
+  }
+
+  function teilenText() {
+    return 'Meine Planung bei BV AussenSysteme: ' + produktName() + ', ' +
+           Z.breite + ' × ' + Z.tiefe + ' mm';
+  }
+
+  function teilenDialogAufbauen() {
+    var knopf  = document.getElementById('k3dTeilen');
+    var kasten = document.getElementById('k3dTeilenDialog');
+    var feld   = document.getElementById('k3dTeilenLink');
+    var zu     = document.getElementById('k3dTeilenZu');
+    var kopf   = document.getElementById('k3dTeilenKopieren');
+    var pdf    = document.getElementById('k3dTeilenPdf');
+    var wa     = document.getElementById('k3dTeilenWa');
+    var mail   = document.getElementById('k3dTeilenMail');
+    if (!knopf || !kasten || !feld) return;
+
+    function zeigen(an) {
+      kasten.hidden = !an;
+      knopf.setAttribute('aria-expanded', an ? 'true' : 'false');
+      if (!an) return;
+      var link = teilenLink();
+      feld.value = link;
+      var text = teilenText() + ' – ansehen und weiterbearbeiten: ' + link;
+      if (wa) wa.href = 'https://wa.me/?text=' + encodeURIComponent(text);
+      if (mail) {
+        mail.href = 'mailto:?subject=' +
+          encodeURIComponent(teilenText()) + '&body=' + encodeURIComponent(text);
+      }
+      if (kopf) kopf.textContent = 'Link kopieren';
+      feld.focus();
+      feld.setSelectionRange(0, link.length);
+    }
+
+    knopf.addEventListener('click', function () { zeigen(kasten.hidden); });
+    if (zu) zu.addEventListener('click', function () { zeigen(false); });
+    kasten.addEventListener('click', function (ev) {
+      if (ev.target === kasten) zeigen(false);     // Klick daneben schliesst
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && !kasten.hidden) zeigen(false);
+    });
+    if (kopf) {
+      kopf.addEventListener('click', function () {
+        var fertig = function (ok) {
+          kopf.textContent = ok ? '✓ Kopiert' : 'Bitte von Hand kopieren';
+          setTimeout(function () { kopf.textContent = 'Link kopieren'; }, 2500);
+        };
+        /* navigator.clipboard gibt es nur auf https und nicht in jedem
+           Browser – deshalb der alte Weg als Auffangnetz. */
+        feld.focus();
+        feld.setSelectionRange(0, feld.value.length);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(feld.value)
+            .then(function () { fertig(true); })
+            .catch(function () { fertig(!!document.execCommand('copy')); });
+        } else {
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+          fertig(ok);
+        }
+      });
+    }
+    if (pdf) {
+      pdf.addEventListener('click', function () {
+        zeigen(false);
+        var b = document.querySelector('[data-k3d-bild="alle"]');
+        if (b) b.click();
+      });
+    }
+  }
+
   /* ---------- Start ----------
      Die Anwendung soll unter der Navigationsleiste anfangen und bis zum
      unteren Bildrand reichen. Deren Höhe steht nirgends im CSS dieser
@@ -12631,5 +12843,21 @@
   rasterHolen(function () {
     reglerGrenzenSetzen();
     aendern();   // entfernt den Ladehinweis, sobald die erste Antwort da ist
+    /* Erst jetzt steht die Voreinstellung fest – sie ist der Massstab
+       dafuer, was ueberhaupt in einen Teilen-Link muss. */
+    TEILEN_VORGABE = teilenFelder();
+    teilenDialogAufbauen();
+    var h = location.hash || '';
+    if (h.indexOf('#k=') === 0 && !zustandAnwenden(h.slice(3))) {
+      /* Lieber ehrlich sagen, dass der Link nichts hergibt, als still
+         die Voreinstellung zeigen und so tun, als sei das die Planung.
+         alert ist hier richtig: Es gibt keinen Hinweiskasten, der ohne
+         Stueckliste sichtbar waere, und ueberlesen werden darf es
+         nicht. Denselben Weg geht der Konfigurator, wenn das
+         PDF-Modul fehlt. */
+      alert('Dieser Teilen-Link konnte nicht gelesen werden.\n\n' +
+        'Sie sehen die Grundeinstellung. Bitte planen Sie neu oder ' +
+        'fragen Sie den Absender nach einem frischen Link.');
+    }
   });
 })();
