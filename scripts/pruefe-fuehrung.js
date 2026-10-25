@@ -2839,6 +2839,7 @@ pruefe('RAL-Feld ist breit genug',
      Suche selbst aendern() rufen, baute das Modell bei jedem Tastendruck
      neu. Geprueft wird dafuer in scripts/pruefe-ral.js, dass ein
      Treffer wirklich bis ins Modell durchschlaegt. */
+<<<<<<< HEAD
   var OHNE_WIRKUNG = {
     k3dRalSuchFeld: true,
     /* Das Feld im Teilen-Dialog ZEIGT den Link, es stellt nichts ein.
@@ -2846,6 +2847,9 @@ pruefe('RAL-Feld ist breit genug',
        und zwar daran, ob der Link die Planung wirklich zurueckbringt. */
     k3dTeilenLink: true
   };
+=======
+  var OHNE_WIRKUNG = { k3dRalSuchFeld: true };
+>>>>>>> origin/main
 
   var offen = ids.filter(function (e) {
     if (verdrahtet[e.id]) return false;
