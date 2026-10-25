@@ -9066,6 +9066,58 @@ vier Plattenecken und der Mitte wird die Höhe **senkrecht** verglichen –
 Abweichung Wiese 0,000 cm, Platte 0,031 cm (halbe Plattendicke durch die
 Neigung). Dazu alle übrigen `scripts/pruefe-*` und die 90 Browser-Prüfungen.
 
+## 25.10.2026 (nachts) · Kurzlink zurückgestellt — die Datenbankrolle darf nichts anlegen
+
+**Anlass.** „wieso klappt das mit kurz link immernoch nicht" und, zur
+Anleitung für den einen SQL-Befehl: „ich weiß nicht mal was du mit sql meinst
+kenne mich doch ned aus", dann „is mir zu kompliziert xd keine ahnung".
+
+**Was falsch war.** Der Kurzlink hing an einer Handarbeit in der Neon-Konsole.
+Eine Funktion, die eine Handarbeit voraussetzt, die niemand machen will, ist
+nicht fertig — und zwei Tage lang stand im Einstieg „wartet auf einen
+SQL-Befehl", als wäre das ein Zustand und kein Problem.
+
+**Was versucht wurde.** Der Server weicht jetzt selbst aus: erst `public`,
+dann ein eigenes Schema `bv`. Das ist ein anderes Recht (CREATE an der
+Datenbank statt am Schema `public`) und in aller Regel offen. Dazu gibt die
+Antwort die fünfstellige PostgreSQL-Fehlernummer mit — nur die Nummer, nie den
+Meldungstext, denn der Endpunkt ist öffentlich und der Text kann Rollen-,
+Host- und Tabellennamen enthalten.
+
+**Was dabei herauskam.** Auf der Testadresse des Zweigs, gegen die echte
+Datenbank: `{"ok":false,"schritt":"tabelle","nr":"42501"}`. `42501` heißt
+„keine Berechtigung" — die Rolle darf **gar nichts** anlegen, auch kein
+eigenes Schema. Damit ist bewiesen, was vorher nur vermutet war: Ohne einen
+Eingriff in der Datenbank gibt es auf diesem Weg keinen Kurzlink. Die
+Fehlernummer war die ganze Erkenntnis; ohne sie hätte man weiter geraten.
+
+**Die Alternative, beziffert statt geschätzt.** Gemessen an einer
+Standard-Planung (17 Felder, 392 Zeichen JSON): heute 565 Zeichen Link, nur
+zusammengepackt ~341, ohne Feldnamen ~172, mit Nummern statt Texten und
+zusammengepackt ~80–120. Über die Datenbank wären es 36. Ein eigenes Format
+hieße aber: Die Feldreihenfolge wird Teil des Links und muss eingefroren
+werden, sonst sterben bereits verschickte Links.
+
+**Entscheidung des Betreibers.** „Erstmal lassen." Beide Wege lagen mit Zahlen
+auf dem Tisch. Der lange Link funktioniert, er ist nur lang.
+
+**Was bleibt.** Die Ausweich-Logik und die Fehlernummer bleiben im Code: Sie
+kosten nichts, und sollte die Rolle je Rechte bekommen, legt sich die Tabelle
+von selbst an. Der Server sucht sie in `public` **und** in `bv`.
+
+**Was gegengelesen werden soll.** `scripts/pruefe-kurzlink.mjs` — 19
+Prüfungen, davon vier neue, die die Ausweich-Logik an einer nachgebauten
+Datenbank ausführen (die genau die live aufgetretenen Fehlernummern wirft) und
+die fertigen SQL-Befehle zurücklesen, statt dem Quelltext zu glauben.
+Gegenprobe schlägt bei allen 19 an.
+
+**Verworfen.** Den Kurzlink in die bestehende Tabelle `anfragen`
+hineinzuschreiben — die gehört den Kundenanfragen und wird vom CRM gelesen;
+geteilte Planungen haben darin nichts zu suchen. Ebenso verworfen: ein
+Cloudflare-KV-Namensraum, weil der denselben Klick in einer Konsole braucht
+wie der SQL-Befehl, nur an anderer Stelle.
+
+
 ## 25.10.2026 — Die Maßlinie war ein Brett, sobald sie schräg lief
 
 **Was falsch war.** „der dicke balken is rechts noch da also maßanzeige"

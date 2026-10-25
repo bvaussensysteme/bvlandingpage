@@ -18,10 +18,10 @@
 
 ### Zuerst: zwei Dinge liegen beim Betreiber, nicht am Rechner
 
-1. **Kurzlink freischalten** – ein SQL-Befehl in der Neon-Konsole, Anleitung in
-   Abschnitt 2. Live bestätigt: `/api/teilen` antwortet
-   `{"ok":false,"schritt":"tabelle"}`. Bis dahin zeigt der Teilen-Dialog den
-   langen Link; der funktioniert, ist nur lang. **Kein Code-Problem.**
+1. **Kurzlink: vom Betreiber zurückgestellt (25.10.2026, abends).** Der
+   Teilen-Dialog zeigt den langen Link – der funktioniert. Warum der kurze
+   nicht kommt und was die Alternativen kosten: Abschnitt 2. **Nicht
+   weiterbauen, ohne zu fragen.**
 2. **Gibt es eine maximale Höhe hinten?** Frage an VD, siehe unten. Solange
    sie offen ist, wird nichts gekappt.
 
@@ -182,15 +182,24 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 | **Abschnitt „Vertragsabwicklung" in der Datenschutzerklärung** | Von mir formuliert. Die Liste der Empfänger (Steuerbüro, Hersteller, Transport, Kreditinstitute) muss zur tatsächlichen Praxis passen – im Zweifel anwaltlich bestätigen lassen |
 | **Rechtstext-PDFs für Kleinanzeigen** | Liegen nicht im Repository (siehe Abschnitt 5). Bei Textänderungen neu erzeugen lassen |
 | **Preisgrundlage, falls je Preise gezeigt werden sollen** | Bisherige Linie: keine Preise. Eine Kalkulationsgrundlage kann nur der Betrieb liefern |
-| **Tabelle für den Kurzlink anlegen** (ein Befehl, siehe unten) | Die Datenbank-Rolle darf im Schema `public` nichts Neues anlegen (ab PostgreSQL 15 Standard). Live bestätigt am 25.10.2026: `/api/teilen` antwortet `{"ok":false,"schritt":"tabelle"}`. Bis dahin bekommt jeder den langen Link – der funktioniert, ist nur lang |
+| **Kurzlink: Rechte in der Datenbank** (nur falls gewünscht, siehe Abschnitt 2) | Die Datenbank-Rolle darf **gar nichts anlegen** – weder in `public` noch ein eigenes Schema. Live gemessen am 25.10.2026: Fehlernummer `42501`. Vom Betreiber zurückgestellt: „is mir zu kompliziert xd keine ahnung". Der lange Link funktioniert, er ist nur lang |
 
-### Kurzlink freischalten — ein Befehl, einmal
+### Kurzlink: warum er nicht läuft, und was die Wege kosten
 
-1. [console.neon.tech](https://console.neon.tech) öffnen und anmelden (dasselbe
-   Konto wie für die Anfragen-Datenbank).
-2. Links **„SQL Editor"** anklicken, oben die Datenbank auswählen, in der auch
-   die Tabelle `anfragen` liegt.
-3. Diesen Text einfügen und auf **Run** klicken:
+**Stand:** Der Teilen-Knopf funktioniert und gibt den **langen** Link heraus
+(565 Zeichen, gemessen an der Standard-Planung). Der kurze Link
+(`bv-aussensysteme.de/k/A7K3PQ`, 36 Zeichen) braucht eine Tabelle in der
+Datenbank. **Die kann der Server nicht selbst anlegen.**
+
+**Woran es liegt – gemessen, nicht vermutet.** `/api/teilen` antwortet
+`{"ok":false,"schritt":"tabelle","nr":"42501"}`. `42501` ist in PostgreSQL
+„keine Berechtigung". Der Server versucht zuerst `public`, dann ein eigenes
+Schema `bv` (anderes Recht, deshalb oft offen) – **beides** wird abgelehnt.
+Die Rolle in `ANFRAGEN_DB` darf also nur in bestehende Tabellen schreiben.
+Das ist kein Fehler im Code; es fehlt ein Recht in der Datenbank.
+
+**Weg A – ein Klick in der Neon-Konsole.** SQL Editor öffnen, in der
+Datenbank, in der auch `anfragen` liegt, diesen Befehl ausführen:
 
 ```sql
 create table if not exists teilen_links (
@@ -202,19 +211,36 @@ create table if not exists teilen_links (
 );
 ```
 
-4. Fertig. Prüfen lässt es sich ohne Anmeldung:
+Danach ohne Anmeldung prüfbar – `{"ok":true,"id":"…"}` heißt, er läuft:
 
 ```sh
 curl -s -X POST https://bv-aussensysteme.de/api/teilen \
-  -H 'Content-Type: application/json' \
-  -d '{"code":"AAAAAAAAAAAAAAAAAAAAAA"}'
+  -H 'Content-Type: application/json' -d '{"code":"AAAAAAAAAAAAAAAAAAAAAA"}'
 ```
 
-   Antwort `{"ok":true,"id":"…"}` heißt: Der Kurzlink läuft. Kommt weiterhin
-   `{"ok":false,"schritt":"tabelle"}`, hat der Befehl nicht gegriffen.
+Am Code ändert sich dafür nichts: Der Server sucht die Tabelle bei jedem
+Start in `public` **und** in `bv` und nimmt, was er findet.
 
-Im Konfigurator ändert sich danach nichts an der Bedienung – im Teilen-Dialog
-steht dann automatisch der kurze Link statt des langen.
+**Weg B – den Link selbst kürzen, ohne Datenbank.** Im Link steht heute alles
+ausgeschrieben (`"Produkt":"Terrassendach TDS"`). Gemessen am 25.10.2026 mit
+einer Standard-Planung (17 Felder, 392 Zeichen Klartext):
+
+| Form | Länge des ganzen Links |
+|---|---|
+| heute (JSON, Base64) | 565 |
+| nur zusammengepackt (deflate) | ~341 |
+| nur Werte, ohne Feldnamen | ~172 |
+| Nummern statt Texten + zusammengepackt | **~80–120** |
+| Kurzlink über die Datenbank (Weg A) | 36 |
+
+Weg B braucht niemanden außer den Entwickler, kostet aber ein eigenes,
+**eingefrorenes** Format: Die Reihenfolge der Felder wird Teil des Links, also
+Versionsnummer hochzählen und v1 weiter lesen können, sonst sterben alle
+bereits verschickten Links. Dafür wäre eine Prüfung nötig, die zufällige
+Planungen hin- und zurückrechnet und auf Gleichheit vergleicht.
+
+**Entschieden am 25.10.2026:** Erst einmal gar nichts – der Betreiber hat beide
+Wege gesehen und „erstmal lassen" gewählt. Nicht ohne neue Ansage anfangen.
 
 ---
 
@@ -249,7 +275,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-konfliktmarken.sh` | **Nach jedem Merge, vor jedem Commit:** liegengebliebene Merge-Marken im ganzen Projekt. Gegenprobe legt eine Datei mit Marken an und muss sie finden |
-| `scripts/pruefe-kurzlink.mjs` | Kurzlink im Worker ohne Datenbank: Wege bedient, Unsinn mit 400 abgewiesen bevor die Datenbank angefasst wird, 503/404 ohne Datenbankmeldung, Kennung stabil und vorlesbar, Tabelle ohne Persönliches |
+| `scripts/pruefe-kurzlink.mjs` | Kurzlink im Worker ohne Datenbank: Wege bedient, Unsinn mit 400 abgewiesen bevor die Datenbank angefasst wird, 503/404 ohne Datenbankmeldung, Kennung stabil und vorlesbar, Tabelle ohne Persönliches. Dazu die Ausweich-Logik an einer nachgebauten Datenbank: `public` offen / `public` verschlossen / Datenbank ganz weg, und die fertigen SQL-Befehle werden zurückgelesen |
 | `scripts/pruefe-teilen.mjs` | Teilen-Link: plant im Browser, teilt, öffnet den Link in einem frischen Tab und vergleicht alle 91 Einstellungen, 14 Knopfreihen und die Farbe. Gegenprobe verfälscht den Link und erwartet den Hinweis |
 | `scripts/pruefe-ral.js` | RAL-Tabelle und Farbsuche: führt beide aus – 217 Töne, Stichproben Nummer → Name, Helligkeit der Schwarz-/Weißtöne nachgerechnet, neun Suchfragen mit erwartetem erstem Treffer, Lupe im HTML verdrahtet |
 | `scripts/pruefe-bodengefaelle.js` | Gefälle des Terrassenbodens: Führt `bodenY()` aus und rechnet nach – ebener Boden ändert nichts, 2° auf 4 m sind 140 mm, vier Ecken auf vier Höhen. Dazu: Dach wird verschoben statt gekippt, Pfostenlängen gehen in die Anfrage. **Misst mit three.js nach**, dass Wiese und Plattenoberseite senkrecht gemessen auf derselben Ebene liegen wie die gerechneten Pfosten |
@@ -367,7 +393,7 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 |---|---|---|
 | 25.10.2026 | **Sonderform entfernt** – Entscheidung des Betreibers; Sonderformen laufen über Telefon und Aufmaß | live |
 | 25.10.2026 | Teilen-Knopf: Link öffnet die Planung wieder, mit PDF-, WhatsApp- und E-Mail-Weg | live |
-| 25.10.2026 | Kurzlink über den eigenen Worker (`/api/teilen`, `/k/<id>`) | **wartet auf einen SQL-Befehl, siehe Abschnitt 2** |
+| 25.10.2026 | Kurzlink über den eigenen Worker (`/api/teilen`, `/k/<id>`) | **zurückgestellt – Datenbankrolle darf nichts anlegen (`42501`), siehe Abschnitt 2** |
 | 25.10.2026 | Alle RAL-Töne (217) mit Lupensuche nach Farbe oder Nummer | live |
 | 25.10.2026 | PDF: Kacheln liefen ineinander; Durchfahrt jetzt mit Statikträger | live |
 | 25.10.2026 | Gefälle sichtbar: Steigungsdreieck an der Maßlinie | live |
