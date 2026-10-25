@@ -41,6 +41,14 @@ export default {
       return handleBauteile(url, env);
     }
 
+    if (url.pathname === '/api/teilen' && request.method === 'POST') {
+      return handleTeilenNeu(request, env);
+    }
+
+    if (url.pathname.startsWith('/k/')) {
+      return handleTeilenOeffnen(url, env);
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
@@ -178,6 +186,150 @@ async function handleKontakt(request, env) {
   return kontaktOk(request);
 }
 
+
+/* ============================================================
+   Kurzlink für geteilte Planungen
+     POST /api/teilen   {code}  ->  {id, kurz}
+     GET  /k/<id>               ->  302 auf /konfigurator#k=<code>
+
+   WARUM ÜBERHAUPT: „die links sind riesig, besser nen kurzlink wie bei
+   bitly" (Betreiber, 25.10.2026, mit Bild einer WhatsApp-Nachricht, in
+   der der lange Link über zehn Zeilen lief).
+
+   WARUM NICHT BIT.LY: Deren Schnittstelle verlangt einen geheimen
+   Schlüssel. Im Browser läge der offen – ein Kurzlink braucht also so
+   oder so eine Serverfunktion. Und dann ist die eigene besser: kein
+   Dritter sieht IP, Zeitpunkt und Browser jedes Empfängers, und der
+   Link stirbt nicht mit einem fremden Konto.
+
+   WARUM OHNE NEUE INFRASTRUKTUR: Die Datenbank für die Anfragen ist
+   schon da (Neon, Secret ANFRAGEN_DB). Der Kurzlink braucht nur eine
+   zweite Tabelle, die sich beim ersten Aufruf selbst anlegt. KEIN
+   KV-Namensraum nötig – der fehlt bis heute und hätte das hier sonst
+   aufgehalten.
+
+   WAS GESPEICHERT WIRD: ausschließlich die Planung (Maße, Farbe,
+   Ausstattung) und zwei Zeitstempel. Kein Name, keine Adresse, keine
+   IP. Gleiche Planung = gleicher Kurzlink (die Prüfsumme ist eindeutig),
+   deshalb wächst die Tabelle nicht mit jedem Klick.
+
+   Sicherheit (öffentliches Repository, offener Endpunkt):
+     - nur POST, Body hart auf 8 KB begrenzt
+     - der Code muss aussehen wie unser Code (Base64-URL, 20–6000 Zeichen)
+     - Datenbankfehler gehen nie an den Besucher; der Browser behält
+       dann einfach den langen Link
+   ============================================================ */
+const TEILEN_MAX = 6000;          // Zeichen im Code
+const TEILEN_MAX_BODY = 8 * 1024;
+/* Ohne I, L, O, U: Diese Zeichen werden beim Abtippen oder Vorlesen mit
+   1, 0 und V verwechselt – und vorlesbar zu sein ist der ganze Zweck. */
+const TEILEN_ZEICHEN = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
+let teilenTabelleDa = false;
+
+async function teilenTabelle(sql) {
+  if (teilenTabelleDa) return;
+  await sql`
+    create table if not exists teilen_links (
+      id         text primary key,
+      code       text not null,
+      code_hash  text not null unique,
+      erstellt   timestamptz not null default now(),
+      zuletzt    timestamptz
+    )
+  `;
+  teilenTabelleDa = true;
+}
+
+async function teilenHash(code) {
+  const roh = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(code));
+  return [...new Uint8Array(roh)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* Aus der Prüfsumme eine kurze, vorlesbare Kennung. Länge wächst nur,
+   wenn die kurze schon vergeben ist (andere Planung, gleicher Anfang). */
+function teilenId(hash, laenge) {
+  let aus = '';
+  for (let i = 0; i < laenge; i++) {
+    const wert = parseInt(hash.slice(i * 2, i * 2 + 2), 16);
+    aus += TEILEN_ZEICHEN[wert % TEILEN_ZEICHEN.length];
+  }
+  return aus;
+}
+
+async function handleTeilenNeu(request, env) {
+  const len = parseInt(request.headers.get('Content-Length') || '0', 10);
+  if (len && len > TEILEN_MAX_BODY) return jsonResponse({ ok: false }, 413);
+  let raw;
+  try { raw = await request.text(); } catch { return jsonResponse({ ok: false }, 400); }
+  if (raw.length > TEILEN_MAX_BODY) return jsonResponse({ ok: false }, 413);
+
+  let code = '';
+  try { code = String((JSON.parse(raw) || {}).code || ''); } catch { code = ''; }
+  if (!/^[A-Za-z0-9_-]{20,6000}$/.test(code) || code.length > TEILEN_MAX) {
+    return jsonResponse({ ok: false, message: 'Ungültiger Code.' }, 400);
+  }
+  if (!env.ANFRAGEN_DB) return jsonResponse({ ok: false }, 503);
+
+  try {
+    const sql = neon(env.ANFRAGEN_DB);
+    await teilenTabelle(sql);
+    const hash = await teilenHash(code);
+    /* Zuerst: Gibt es die Planung schon? Dann denselben Link zurück. */
+    const da = await sql`select id from teilen_links where code_hash = ${hash}`;
+    if (da.length) return jsonResponse({ ok: true, id: da[0].id });
+
+    for (let laenge = 6; laenge <= 12; laenge++) {
+      const id = teilenId(hash, laenge);
+      const belegt = await sql`select code_hash from teilen_links where id = ${id}`;
+      if (belegt.length) {
+        if (belegt[0].code_hash === hash) return jsonResponse({ ok: true, id });
+        continue;                        // andere Planung, eine Stelle mehr
+      }
+      await sql`
+        insert into teilen_links (id, code, code_hash)
+        values (${id}, ${code}, ${hash})
+        on conflict (code_hash) do nothing
+      `;
+      return jsonResponse({ ok: true, id });
+    }
+    return jsonResponse({ ok: false }, 503);
+  } catch (err) {
+    console.log('Kurzlink fehlgeschlagen:', String(err));
+    return jsonResponse({ ok: false }, 502);
+  }
+}
+
+function teilenNichtDa(url) {
+  return new Response(
+    '<!doctype html><meta charset="utf-8"><title>Link nicht gefunden</title>' +
+    '<body style="font-family:sans-serif;max-width:600px;margin:60px auto;padding:0 20px;line-height:1.6">' +
+    '<h1>Diesen Link gibt es nicht</h1>' +
+    '<p>Der Kurzlink ist unvollständig oder falsch abgetippt. ' +
+    'Bitte fragen Sie den Absender nach einem frischen Link – oder planen Sie selbst.</p>' +
+    '<p><a href="/konfigurator">Zum 3D-Konfigurator</a></p></body>',
+    { status: 404, headers: { 'content-type': 'text/html; charset=utf-8' } }
+  );
+}
+
+async function handleTeilenOeffnen(url, env) {
+  const id = url.pathname.slice(3).replace(/\/+$/, '').toUpperCase();
+  if (!/^[0-9A-Z]{4,16}$/.test(id) || !env.ANFRAGEN_DB) return teilenNichtDa(url);
+  try {
+    const sql = neon(env.ANFRAGEN_DB);
+    await teilenTabelle(sql);
+    const rows = await sql`select code from teilen_links where id = ${id}`;
+    if (!rows.length) return teilenNichtDa(url);
+    /* Wann der Link zuletzt gebraucht wurde – die Grundlage dafür, später
+       einmal aufzuräumen. Schlägt das fehl, ist das egal. */
+    try { await sql`update teilen_links set zuletzt = now() where id = ${id}`; } catch { /* egal */ }
+    const ziel = new URL('/konfigurator', url);
+    ziel.hash = 'k=' + rows[0].code;
+    return Response.redirect(ziel.toString(), 302);
+  } catch (err) {
+    console.log('Kurzlink-Aufruf fehlgeschlagen:', String(err));
+    return teilenNichtDa(url);
+  }
+}
 
 /* ============================================================
    Stückliste  →  GET /api/bauteile

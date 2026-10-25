@@ -12764,21 +12764,66 @@
     var mail   = document.getElementById('k3dTeilenMail');
     if (!knopf || !kasten || !feld) return;
 
-    function zeigen(an) {
-      kasten.hidden = !an;
-      knopf.setAttribute('aria-expanded', an ? 'true' : 'false');
-      if (!an) return;
-      var link = teilenLink();
-      feld.value = link;
+    var stand = document.getElementById('k3dTeilenStand');
+    /* Laeuft eine Kurzlink-Anfrage noch, waehrend der Dialog neu geoeffnet
+       wird, darf ihre spaete Antwort nicht den neuen Link ueberschreiben.
+       Deshalb bekommt jeder Durchgang eine Nummer. */
+    var teilenLauf = 0;
+
+    var STAND_LANG = 'Dieser Link enthält Ihre Planung selbst und ' +
+      'funktioniert immer – auch ohne unseren Server. Dafür ist er lang.';
+    var STAND_KURZ = 'Kurzlink von bv-aussensysteme.de. Gespeichert wird ' +
+      'nur die Planung – keine persönlichen Daten, kein fremder Dienst.';
+
+    function wegeSetzen(link) {
       var text = teilenText() + ' – ansehen und weiterbearbeiten: ' + link;
       if (wa) wa.href = 'https://wa.me/?text=' + encodeURIComponent(text);
       if (mail) {
         mail.href = 'mailto:?subject=' +
           encodeURIComponent(teilenText()) + '&body=' + encodeURIComponent(text);
       }
+    }
+
+    /* „die links sind riesig, besser nen kurzlink wie bei bitly"
+       (Betreiber, 25.10.2026, mit Bild). Der kurze kommt von unserem
+       eigenen Server (POST /api/teilen). Antwortet er nicht – kein Netz,
+       Wartung, oder die Kopie im CRM, wo es den Endpunkt nicht gibt –,
+       bleibt der lange Link stehen. Er funktioniert ja. */
+    function kurzHolen(lang) {
+      var meins = ++teilenLauf;
+      var trenn = lang.indexOf('#k=');
+      if (trenn < 0 || !window.fetch) return;
+      if (stand) stand.textContent = 'Kurzlink wird erzeugt …';
+      fetch('/api/teilen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ code: lang.slice(trenn + 3) })
+      }).then(function (r) {
+        return r.ok ? r.json() : null;
+      }).then(function (a) {
+        if (meins !== teilenLauf) return;          // Dialog zwischendurch neu
+        if (!a || !a.ok || !a.id) throw new Error('keine Kennung');
+        var kurz = location.origin + '/k/' + a.id;
+        feld.value = kurz;
+        wegeSetzen(kurz);
+        if (stand) stand.textContent = STAND_KURZ;
+      }).catch(function () {
+        if (meins !== teilenLauf) return;
+        if (stand) stand.textContent = STAND_LANG;
+      });
+    }
+
+    function zeigen(an) {
+      kasten.hidden = !an;
+      knopf.setAttribute('aria-expanded', an ? 'true' : 'false');
+      if (!an) { teilenLauf++; return; }
+      var link = teilenLink();
+      feld.value = link;
+      wegeSetzen(link);
       if (kopf) kopf.textContent = 'Link kopieren';
       feld.focus();
       feld.setSelectionRange(0, link.length);
+      kurzHolen(link);
     }
 
     knopf.addEventListener('click', function () { zeigen(kasten.hidden); });

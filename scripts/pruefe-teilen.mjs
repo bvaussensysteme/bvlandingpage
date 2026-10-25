@@ -128,6 +128,40 @@ pruefe('WhatsApp- und E-Mail-Weg führen denselben Link mit',
 pruefe('Der PDF-Knopf steht im Dialog',
        await p1.locator('#k3dTeilenPdf').isVisible(), 'ruft dieselbe Erzeugung wie das Bildmenü');
 
+/* ---------- Kurzlink ----------
+   „die links sind riesig, besser nen kurzlink wie bei bitly" (Betreiber,
+   25.10.2026). Der kurze kommt vom eigenen Worker. Hier laeuft kein
+   Worker, also wird zuerst geprueft, dass das NICHTS kaputt macht, und
+   danach die Antwort des Servers nachgestellt. */
+await p1.waitForTimeout(1500);
+{
+  const stand = await p1.$eval('#k3dTeilenStand', e => e.textContent);
+  const immernoch = await p1.$eval('#k3dTeilenLink', e => e.value);
+  pruefe('Ohne Kurzlink-Server bleibt der lange Link stehen',
+         immernoch.includes('#k=') && /funktioniert immer/.test(stand),
+         'und der Hinweis sagt es');
+}
+await ctx.route('**/api/teilen', (route) => route.fulfill({
+  status: 200, contentType: 'application/json',
+  body: JSON.stringify({ ok: true, id: 'K7M2QX' })
+}));
+await p1.$eval('#k3dTeilen', el => el.click());      // zu
+await p1.$eval('#k3dTeilen', el => el.click());      // und wieder auf
+await p1.waitForTimeout(1600);
+{
+  const kurz = await p1.$eval('#k3dTeilenLink', e => e.value);
+  const wa2 = await p1.$eval('#k3dTeilenWa', e => e.href);
+  const mail2 = await p1.$eval('#k3dTeilenMail', e => e.href);
+  const stand = await p1.$eval('#k3dTeilenStand', e => e.textContent);
+  pruefe('Antwortet der Server, steht der Kurzlink im Feld',
+         /\/k\/K7M2QX$/.test(kurz) && kurz.length < 70 &&
+         wa2.includes(encodeURIComponent('/k/K7M2QX')) &&
+         mail2.includes(encodeURIComponent('/k/K7M2QX')) &&
+         /Kurzlink von bv-aussensysteme/.test(stand),
+         kurz + ' (' + kurz.length + ' Zeichen statt ' + link.length + ')');
+}
+await ctx.unroute('**/api/teilen');
+
 if (gegen) {
   /* Ein Zeichen im Code tauschen: Der Link muss dann als unlesbar
      erkannt werden, nicht halb angewandt. */
