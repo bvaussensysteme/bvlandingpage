@@ -58,10 +58,30 @@ Anders sind genau drei Dinge, und nur die stehen im Code eigens da:
 
 **Das Tiefenmaß bedeutet beim Balkon etwas anderes.** Eingegeben wird die
 nutzbare Balkontiefe (Hauswand bis Innenkante Brüstung) — so ist es in
-der Zeichnung des Betreibers bemaßt und so misst man am Bau nach. Das
-**Dach** reicht um die Brüstungsdicke weiter nach vorn, bis zur
-Außenkante; sonst tropft die Rinne auf die Brüstung. Beides steht in der
-Anfrage, damit es niemand verwechselt.
+der Zeichnung des Betreibers bemaßt und so misst man am Bau nach.
+
+**Wie weit das Dach nach vorne reicht, hängt an der Pfostenstellung**
+(korrigiert am 26.10.2026, siehe `docs/entscheidungen.md`):
+
+| Pfosten | Dach reicht bis |
+|---|---|
+| auf der Brüstung | Außenkante der Brüstung — es deckt sie mit ab |
+| dahinter auf dem Boden | Innenkante, also über die Pfosten |
+
+Der Grund: Im ganzen übrigen Konfigurator steht der Pfosten **unter** der
+Rinne; nur ein Dachvorsprung schiebt sie darüber hinaus, und dann wandert
+der Statikträger über den Pfosten unter die Sparren. Der Balkon hält sich
+jetzt an dieselbe Regel. Wer über die Brüstung hinaus will, stellt den
+Dachvorsprung ein — bei VD ist das die eigene Variante „mit Überstand".
+Im Bedienfeld steht, wie viel dafür fehlt.
+
+**Die Brüstung hängt NICHT an der Dachtiefe.** Ihre Außenkante liegt
+immer eine Brüstungsdicke hinter der nutzbaren Tiefe (`brAussen`). Hing
+sie an `T`, rutschte sie bei kürzerem Dach in den Balkon hinein — genau
+das war bis zum 26.10.2026 der Fall und ist von der Prüfung gefunden
+worden, nicht von Auge.
+
+Beides steht in der Anfrage, damit es niemand verwechselt.
 
 ### Zwei Ausnahmen, die man kennen muss
 
