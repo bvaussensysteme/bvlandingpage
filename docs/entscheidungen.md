@@ -9066,6 +9066,59 @@ vier Plattenecken und der Mitte wird die Höhe **senkrecht** verglichen –
 Abweichung Wiese 0,000 cm, Platte 0,031 cm (halbe Plattendicke durch die
 Neigung). Dazu alle übrigen `scripts/pruefe-*` und die 90 Browser-Prüfungen.
 
+## 26.10.2026 · Balkon: Die Rinne folgt den Pfosten
+
+**Anlass.** „wenn man hinter der brüstung auswählt, wandert die rinne
+nicht mit den pfosten" (Betreiber, mit Bildschirmfoto vom Handy).
+
+**Was falsch war.** Zwei Fehler, einer davon unsichtbar.
+
+1. Das Dach reichte IMMER bis zur Außenkante der Brüstung – auch dann,
+   wenn die Pfosten dahinter auf dem Balkonboden standen. Die Rinne hing
+   damit rund 26 cm vor dem vordersten Pfosten in der Luft, ohne dass
+   etwas sie trug. Im ganzen übrigen Konfigurator gilt: Der Pfosten steht
+   UNTER der Rinne, und nur ein Dachvorsprung schiebt sie darüber hinaus
+   (dann wandert der Statikträger über den Pfosten unter die Sparren).
+   Der Balkon hielt sich als einziges Produkt nicht daran.
+2. Beim Beheben fiel ein zweiter Fehler auf, den niemand gesehen hatte:
+   Die Brüstung hing an der Dachtiefe T. Sobald das Dach kürzer wurde,
+   rutschte die gemauerte Brüstung 20 cm in den Balkon hinein. Gefunden
+   hat ihn die Prüfung, nicht das Auge – sie misst die Innenkante der
+   Brüstung gegen die Pfostenvorderkante.
+
+**Was jetzt gilt.** Die Brüstung steht, wo sie am Haus steht: ihre
+Außenkante immer eine Brüstungsdicke hinter der nutzbaren Balkontiefe
+(brAussen, unabhängig von T). Das Dach folgt den Pfosten:
+
+| Pfosten | Dach reicht bis |
+|---|---|
+| auf der Brüstung | Außenkante der Brüstung (deckt sie mit ab) |
+| dahinter auf dem Boden | Innenkante der Brüstung, also über die Pfosten |
+
+**Warum nicht einfach das Dach immer über die Brüstung ziehen.** Weil
+dann etwas gezeichnet würde, das so nicht bestellt wird: Ein Überstand
+über die Brüstung ist bei VD die eigene Variante „Balkonüberdachung mit
+Überstand", und er braucht den Statikträger, der ihn trägt. Wer ihn will,
+stellt den vorhandenen Dachvorsprung ein – dann kommt der Träger
+automatisch mit, weil der Balkon denselben Bauweg nutzt wie das
+Terrassendach.
+
+**Mitgedacht.** Endet das Dach an der Innenkante, regnet es auf die
+Brüstung und von dort auf den Balkon. Das ist eine zulässige Bauweise,
+aber keine, die man unbemerkt bestellen sollte. Deshalb steht jetzt im
+Bedienfeld, wie viel Dachvorsprung fehlt, um bis zur Außenkante zu
+kommen – als Zahl (200 mm bei einer gemauerten Brüstung), nicht als Rat.
+Dieselbe Unterscheidung steht in der Anfrage.
+
+**Was gegengelesen werden soll.** `node scripts/pruefe-balkon.mjs` – jetzt
+16 Prüfungen. Neu: „Ohne Vorsprung endet das Dach an der Innenkante der
+Brüstung" (gemessen gegen die Brüstung, nicht gegen die Pfostenkante –
+die TDS-Rinne steht konstruktiv rund 7 cm über den Pfosten über, das ist
+richtig so) und „Der Hinweis nennt den fehlenden Dachvorsprung". Die
+Gegenprobe baut jetzt beide Fehler ein und verlangt namentlich, dass drei
+bestimmte Prüfungen anschlagen.
+
+
 ## 25.10.2026 (nachts) · Balkonüberdachung als Produkt im Konfigurator
 
 **Anlass.** „Ich möchte noch eine Option und zwar, Balkonüberdachungen …

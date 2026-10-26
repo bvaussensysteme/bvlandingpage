@@ -57,7 +57,8 @@ function pruefe(titel, ok, info) {
 const GEGEN_ERWARTET = [
   'Auf der Brüstung: der Pfosten beginnt oben auf der Mauer',
   'Die Brüstung steht im Modell',
-  'Der Pfosten steht hinter der Brüstung, nicht in ihr'
+  'Der Pfosten steht hinter der Brüstung, nicht in ihr',
+  'Ohne Vorsprung endet das Dach an der Innenkante der Brüstung'
 ];
 
 const browser = await chromium.launch({
@@ -85,7 +86,12 @@ await seite.route('**/konfigurator-3d.js*', async (r) => {
        Bruestung. Genau das soll auffallen. */
     t = t.replace('var pfFuss = pfostenAufBruestung() ? brH : 0;',
                   'var pfFuss = 0;');
-    t = t.replace('bruestungBauen(B, T, brH, brD, Z.bruestung);', '');
+    t = t.replace('bruestungBauen(B, brAussen, brH, brD, Z.bruestung);', '');
+    /* Der zweite eingebaute Fehler: das Dach deckt die Bruestung IMMER
+       mit ab, auch wenn die Pfosten dahinter stehen – genau der Zustand,
+       den der Betreiber am 26.10.2026 beanstandet hat. */
+    t = t.replace('var dachDecktBruestung = pfostenAufBruestung();',
+                  'var dachDecktBruestung = true;');
   }
   await r.fulfill({ response: a, body: t,
                     headers: { ...a.headers(), 'content-type': 'application/javascript' } });
@@ -209,6 +215,43 @@ await setzen('k3dPfostenAuf', 'Boden');
          br.length ? 'Pfostenkante ' + pfVorne.toFixed(1) + ' cm, Brüstung innen ' +
                      brInnen.toFixed(1)
                    : 'keine Brüstung gefunden – nichts, wovor der Pfosten stehen könnte');
+
+  /* ---------- Die Rinne wandert mit ----------
+     „wenn man hinter der brüstung auswählt, wandert die rinne nicht mit
+     den pfosten" (Betreiber, 26.10.2026, mit Bildschirmfoto). Die Rinne
+     stand 26 cm vor dem vordersten Pfosten in der Luft. Gemessen wird
+     der vorderste Punkt des DACHES gegen die Vorderkante der Pfosten –
+     ohne Dachvorsprung müssen sie zusammenfallen, so wie bei jedem
+     anderen Produkt auch. */
+  const dachVorne2 = Math.max.apply(null, teile.filter((t) => t.sichtbar && t.y1 > 150)
+                                               .map((t) => t.z1));
+  /* Gemessen wird gegen die INNENKANTE der Brüstung, nicht gegen die
+     Pfostenvorderkante: Die TDS-Rinne steht konstruktiv rund 7 cm über
+     den Pfosten über (RINNE.breite - PF, belegt in der Maßtabelle). Was
+     der Betreiber beanstandet hat, war der Sprung über die ganze
+     Brüstung – und genau das misst diese Zeile. */
+  pruefe('Ohne Vorsprung endet das Dach an der Innenkante der Brüstung',
+         br.length >= 1 && Math.abs(dachVorne2 - brInnen) < 1.5,
+         'Dach bis ' + dachVorne2.toFixed(1) + ' cm, Brüstung innen ' +
+         (br.length ? brInnen.toFixed(1) : 'nicht gefunden'));
+
+  /* Und der Kunde muss erfahren, was das fürs Wasser bedeutet. */
+  const hinw = await seite.evaluate(() => {
+    const el = document.getElementById('k3dBalkonHinweis');
+    return el ? el.textContent.replace(/\s+/g, ' ').trim() : null;
+  });
+  pruefe('Der Hinweis nennt den fehlenden Dachvorsprung',
+         !!hinw && /\d+ mm mehr Dachvorsprung/.test(hinw),
+         hinw ? hinw.slice(0, 54) + '…' : 'fehlt');
+}
+
+/* Bild des beanstandeten Falls, zum Gegenlesen durch den Betreiber. */
+await seite.evaluate(() => {
+  document.querySelectorAll('.k3d-hinw, [class*="cookie"]').forEach((el) => el.remove());
+});
+{
+  const b = await seite.$('#k3dBuehne, .k3d-buehne, canvas');
+  if (b) await b.screenshot({ path: 'pruefbilder/balkon-pfosten-dahinter.png' });
 }
 
 /* ---------- Geländer statt Mauer ---------- */

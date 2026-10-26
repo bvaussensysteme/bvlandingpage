@@ -1686,7 +1686,12 @@ pruefe('Datenpfad: dieselbe Tiefenregel',
      Zuschlag brD: Beim Balkon reicht das Dach ueber die Bruestung
      hinaus, sonst ist brD null. Die Traegerregel selbst ist unberuehrt –
      genau sie wird hier weiter nachgerechnet. */
-  var mT = k3d.match(/var B = Z\.breite \/ 10,\s*\n\s*T = Z\.tiefe \/ 10 - \(frei \? (TR_T) : 0\) \+ brD;/);
+  /* Der Zuschlag heisst seit dem 26.10.2026 nicht mehr pauschal brD: Das
+     Dach deckt die Bruestung nur ab, wenn die Pfosten darauf stehen –
+     sonst endet es ueber den Pfosten („wenn man hinter der brüstung
+     auswählt, wandert die rinne nicht mit den pfosten", Betreiber). Die
+     Traegerregel, um die es hier geht, ist davon unberuehrt. */
+  var mT = k3d.match(/var B = Z\.breite \/ 10,\s*\n\s*T = Z\.tiefe \/ 10 - \(frei \? (TR_T) : 0\) \+ \(dachDecktBruestung \? brD : 0\);/);
   if (!mT) { pruefe('Gesamttiefe rechenbar', false, 'Zeile nicht gefunden'); return; }
   var trT = 11.7, tiefe = 4000;
   var dach = tiefe / 10 - trT, gesamt = dach + trT;          // Dach + Traeger

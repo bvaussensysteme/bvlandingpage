@@ -6694,8 +6694,40 @@
     var balkon = istBalkon();
     var brD = balkon ? bruestungDicke() : 0;
     var brH = balkon ? Math.max(0, Z.bruestungH / 10) : 0;
+    /* ---------- Wie weit das Dach nach vorne reicht ----------
+       Beanstandet vom Betreiber (26.10.2026, mit Bildschirmfoto):
+       „wenn man hinter der brüstung auswählt, wandert die rinne nicht
+       mit den pfosten". Er hat recht, und es war mehr als ein Schönheits-
+       fehler: Die Rinne stand 26 cm vor dem vordersten Pfosten in der
+       Luft, ohne dass etwas sie trug.
+
+       Im ganzen übrigen Konfigurator gilt: Der Pfosten steht UNTER der
+       Rinne, und nur ein Dachvorsprung schiebt die Rinne darüber hinaus
+       (dann wandert der Statikträger über den Pfosten unter die Sparren
+       – siehe traegerH weiter unten). Der Balkon hält sich jetzt an
+       dieselbe Regel:
+
+         · Pfosten AUF der Brüstung – das Dach deckt die Brüstung mit ab,
+           der Pfosten steht mittig auf der Mauer darunter.
+         · Pfosten DAHINTER auf dem Boden – das Dach endet über den
+           Pfosten, also an der Innenkante der Brüstung.
+
+       Wer in diesem zweiten Fall trotzdem über die Brüstung hinaus will,
+       stellt einen Dachvorsprung ein. Das ist bei VD auch die eigene
+       Variante „Balkonüberdachung mit Überstand" – und so kommt der
+       Statikträger mit, der den Überstand trägt. Ein Hinweis im
+       Bedienfeld sagt, wie viel fehlt. */
+    var dachDecktBruestung = pfostenAufBruestung();
+    /* Die Brüstung steht am Haus, wo sie steht – sie wandert NICHT mit
+       der Dachtiefe. Ihre Außenkante liegt immer eine Brüstungsdicke
+       hinter der nutzbaren Balkontiefe. Das muss getrennt von T
+       gerechnet werden: Beim ersten Versuch hing die Brüstung an T, und
+       als das Dach bei „Pfosten dahinter" kürzer wurde, rutschte die
+       Mauer 20 cm in den Balkon hinein. Von der Prüfung gefunden,
+       nicht von Auge. */
+    var brAussen = Z.tiefe / 10 + brD;
     var B = Z.breite / 10,
-        T = Z.tiefe / 10 - (frei ? TR_T : 0) + brD;
+        T = Z.tiefe / 10 - (frei ? TR_T : 0) + (dachDecktBruestung ? brD : 0);
     /* ---------- Hoehe bei geneigtem Terrassenboden ----------
        „Die Höhen wie gemessen" (Entscheidung des Betreibers,
        24.10.2026): Was im Feld „Höhe vorne (Durchgang)" steht, gilt
@@ -6860,9 +6892,12 @@
        ehrlichere Darstellung und entspricht auch den Zeichnungen des
        Betreibers. */
     if (balkon) {
+      /* Der Boden reicht bis unter die Außenkante der Brüstung – nicht
+         nur bis zur Dachkante. Sonst endete die Platte dort, wo das
+         Dach aufhört, und die Mauer stünde auf nichts. */
       belagB = B;
-      belagL = T;
-      belagZ = T / 2;
+      belagL = brAussen;
+      belagZ = brAussen / 2;
     }
     rasen.visible = !balkon;
     belag.scale.set(belagB, 1, belagL);
@@ -6873,9 +6908,9 @@
        Papierblatt in der Luft. 18 cm ist eine übliche Plattenstärke. */
     if (balkon) {
       var PLATTE = 18;
-      balken(B, PLATTE, T, 0, -PLATTE / 2 - 1, T / 2,
+      balken(B, PLATTE, brAussen, 0, -PLATTE / 2 - 1, brAussen / 2,
              new THREE.MeshStandardMaterial({ color: rgb(0xcac5bb), roughness: 0.95 }));
-      bruestungBauen(B, T, brH, brD, Z.bruestung);
+      bruestungBauen(B, brAussen, brH, brD, Z.bruestung);
     }
     wand.visible = !frei;
     wand.scale.set(B + 420, hHinten + 190, 1);
@@ -6919,11 +6954,13 @@
 
        Ein Dachvorsprung verschiebt den Pfosten wie beim Terrassendach
        zusätzlich nach innen – deshalb steht vorspr in beiden Zeilen. */
-    if (balkon) {
-      zPf = pfostenAufBruestung()
-        ? T - brD / 2 - vorspr
-        : T - brD - PF / 2 - vorspr;
-    }
+    /* Nur der Pfosten AUF der Brüstung braucht eine eigene Lage: Er soll
+       mittig auf der Mauerkrone stehen, nicht bündig mit der Dachkante
+       (die Regel aus der Maßtabelle setzt ihn 55 mm hinter die
+       Vorderkante – auf einer 20 cm dicken Mauer stünde er damit fast
+       auf der Außenkante). Stehen die Pfosten dahinter auf dem Boden,
+       gilt die normale TDS-Regel: Pfosten unter der Rinne. */
+    if (pfostenAufBruestung()) zPf = brAussen - brD / 2 - vorspr;
 
     /* Unterkante der Sparren an der Pfostenachse – nur mit Vorsprung
        gebraucht, dort endet der Pfosten unter dem Träger. ukVorn wird
@@ -10454,8 +10491,12 @@
         teile.push('Pfosten: ' + (pfostenAufBruestung()
           ? 'auf der Brüstung'
           : 'hinter der Brüstung auf dem Balkonboden'));
-        teile.push('Tiefenmaß = nutzbare Balkontiefe; das Dach reicht ' +
-                   'bis zur Außenkante der Brüstung');
+        teile.push(pfostenAufBruestung()
+          ? 'Tiefenmaß = nutzbare Balkontiefe; das Dach reicht bis zur ' +
+            'Außenkante der Brüstung'
+          : 'Tiefenmaß = nutzbare Balkontiefe; das Dach endet über den ' +
+            'Pfosten, also an der Innenkante der Brüstung' +
+            (Z.vorsprung ? ' (plus ' + Z.vorsprung + ' mm Dachvorsprung)' : ''));
       }
       var ed = bauteileJetzt();
       if (ed) {
@@ -10890,6 +10931,30 @@
          · dass über 7 m Tiefe nichts mehr geht.
        Alles drei steht in der Maßtabelle; es hier zu verschweigen hieße,
        es im Angebot erklären zu müssen. */
+    /* ---------- Was das Dach beim Balkon vorne macht ----------
+       Stehen die Pfosten hinter der Brüstung, endet das Dach über ihnen
+       (siehe bauenTerrasseGeschaetzt). Dann regnet es auf die Brüstung,
+       und von dort tropft es auf den Balkon. Das ist kein Fehler, es ist
+       eine Entscheidung – aber eine, die man sehen muss, bevor man
+       bestellt. Deshalb steht hier, wie viel Dachvorsprung fehlt, um bis
+       zur Außenkante zu kommen, und zwar als Zahl, nicht als Rat. */
+    var bh = document.getElementById('k3dBalkonHinweis');
+    if (bh) {
+      if (!istBalkon()) bh.textContent = '';
+      else if (pfostenAufBruestung()) {
+        bh.textContent = 'Das Dach deckt die Brüstung mit ab – das Wasser ' +
+          'tropft außen ab.';
+      } else {
+        var fehlt = bruestungDicke() * 10 - (Z.vorsprung || 0);
+        bh.textContent = fehlt > 0
+          ? 'Das Dach endet über den Pfosten, also an der Innenkante der ' +
+            'Brüstung. Mit ' + Math.round(fehlt) + ' mm mehr Dachvorsprung ' +
+            'reicht es bis zur Außenkante, dann tropft das Wasser außen ab.'
+          : 'Mit dem Dachvorsprung reicht das Dach über die Brüstung hinaus – ' +
+            'das Wasser tropft außen ab.';
+      }
+    }
+
     var mh = document.getElementById('k3dMassHinweis');
     if (mh) {
       var tb = tabelleBauteile(Z.breite, Z.tiefe);
