@@ -24,12 +24,18 @@
    weiterbauen, ohne zu fragen.**
 2. **Gibt es eine maximale Höhe hinten?** Frage an VD, siehe unten. Solange
    sie offen ist, wird nichts gekappt.
-3. **Balkonüberdachung: Maßgrenzen bei VD erfragen.** Seit dem 25.10.2026
+3. **Farbtöne: nichts tun.** Am 27.10.2026 entschieden („so lassen").
+   RAL Classic ist vollständig und mit den amtlichen Werten hinterlegt;
+   Farbwerte von Beschichter-Seiten (TIGER Coatings) wurden verworfen —
+   fremde Produktdatenbank, und für VD nicht genauer. Begründung und der
+   saubere Weg für mehr Auswahl (RAL Design, aus der Nummer berechnet):
+   `docs/entscheidungen.md`, 27.10.2026. **Nicht ungefragt nachholen.**
+4. **Balkonüberdachung: Maßgrenzen bei VD erfragen.** Seit dem 25.10.2026
    im Konfigurator (Details: `docs/balkonueberdachung.md`). Breite, Tiefe
    und Höhe sind dort an gängigen Balkongrößen ausgerichtet, **nicht** an
    einer Herstellerangabe — VD nennt auf der Produktseite keine. Ebenso
    offen: freitragende Ausführung, eigene Brüstungsbefestigung.
-4. **Teilen-Dialog auf schmalen Handys.** Auf dem Bildschirmfoto des
+5. **Teilen-Dialog auf schmalen Handys.** Auf dem Bildschirmfoto des
    Betreibers (25.10.2026) sind „PDF / WhatsApp / E-Mail" unten
    abgeschnitten. Noch nicht repariert.
 

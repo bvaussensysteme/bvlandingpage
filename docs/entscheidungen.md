@@ -9066,6 +9066,45 @@ vier Plattenecken und der Mitte wird die Höhe **senkrecht** verglichen –
 Abweichung Wiese 0,000 cm, Platte 0,031 cm (halbe Plattendicke durch die
 Neigung). Dazu alle übrigen `scripts/pruefe-*` und die 90 Browser-Prüfungen.
 
+## 27.10.2026 · Keine Farbwerte von TIGER Coatings — verworfen
+
+**Anlass.** Der Betreiber schickte `tiger-coatings.com`: „hiervon kannst du
+RAL Farbtöne übernehmen."
+
+**Nachgesehen statt losgelegt.** Die RAL-Classic-Reihe im Konfigurator ist
+bereits vollständig: 217 Töne, alle neun Familien komplett (30/14/25/12/
+25/38/38/20/15), und mit den amtlichen Werten — RAL 7016 steht auf
+`#383E42`, 9006 auf `#A5A5A5`, 9010 auf `#F1F0EA`. Von TIGER käme für RAL
+Classic **kein einziger Ton** dazu.
+
+**Was TIGER darüber hinaus hat, ist nicht RAL,** sondern das eigene
+Sortiment: über 1.500 Drylac-Pulverlacke in eigenen Serien (09–89),
+Trendkollektionen und Effektoberflächen (3D Metallic, Anodized Look,
+Flip Flop, Pearl, Antique).
+
+**Warum verworfen.** Zwei Gründe, der erste wiegt schwerer:
+
+1. **Fremde Produktdatenbank.** Das systematische Übernehmen ist dieselbe
+   Kategorie, die bei der VD-Preisliste bewusst gemieden wird —
+   Datenbankherstellerrecht (§§ 87a ff. UrhG). Im Fußbereich der Seite
+   steht „© Copyright 2026 – TIGER Coatings GmbH & Co. KG – All Rights
+   Reserved".
+2. **Es wäre nicht einmal genauer.** TIGERs Werte zeigen TIGERs
+   Pulverlacke. Welchen Beschichter VD verwendet, ist nicht bekannt. Wir
+   würden fremde Produktfarben als die Lieferfarben des Betriebs zeigen.
+
+**Entscheidung des Betreibers nach Vorlage der Zahlen:** „So lassen."
+
+**Der saubere Weg, falls doch mehr Auswahl gewünscht wird.** Das
+RAL-Design-System (rund 1.825 Töne): Dort IST die Nummer die Farbe
+(„RAL 270 30 20" = Farbton 270°, Helligkeit 30, Buntheit 20, in CIE LCh).
+Der Farbwert lässt sich daraus **ausrechnen**, es muss nichts
+abgeschrieben werden — rechtlich unbedenklich und genauer als jede
+abgetippte Tabelle. Vorher zu klären: ob VD überhaupt nach RAL Design
+beschichtet. Deren Seite sagt nur „Wunschfarbe nach RAL gegen Aufpreis",
+was üblicherweise RAL Classic meint.
+
+
 ## 26.10.2026 · Balkon: Die Rinne folgt den Pfosten
 
 **Anlass.** „wenn man hinter der brüstung auswählt, wandert die rinne
