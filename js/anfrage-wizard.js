@@ -269,6 +269,81 @@
   }
 
   /* ---------- Wiederverwendbare Bausteine ---------- */
+  /* ---------- RAL-Suche im Assistenten ----------
+     „baue hier als sechste kachel so ähnlich wie im 3d konfigurator wo
+     man RAL farbe suchen oder eingeben kann" (Betreiber, 29.10.2026).
+
+     Die Tabelle und die Suchlogik stehen in js/ral.js – dieselbe Quelle,
+     aus der auch der Konfigurator liest. Hier liegt nur die Bedienung.
+
+     Der Suchtext wird NICHT bei jedem Tastendruck über render() neu
+     gezeichnet: Dabei verlöre das Eingabefeld den Fokus, und man könnte
+     kein zweites Zeichen tippen. Stattdessen wird allein die
+     Trefferliste ausgetauscht. */
+  var ralFrage = '';
+  var ralOffen = false;
+  var RAL_TREFFER_MAX = 24;
+
+  function ralGewaehlt() {
+    return /^RAL \d{4}/.test(answers.farbe || '') ? answers.farbe : '';
+  }
+  function ralHex(nr) {
+    var t = window.BV_RAL && window.BV_RAL.TABELLE[nr];
+    return t ? '#' + ('000000' + t[0].toString(16)).slice(-6) : '#888';
+  }
+  function ralTrefferHtml(frage) {
+    if (!window.BV_RAL) {
+      return '<p class="aw-ral-stand">Die Farbtabelle konnte nicht geladen werden. ' +
+             'Schreiben Sie uns den RAL-Ton einfach in die Nachricht.</p>';
+    }
+    var f = String(frage || '').trim();
+    if (f.length < 2) {
+      return '<p class="aw-ral-stand">Nummer oder Farbe eingeben – zum Beispiel ' +
+             '<strong>7016</strong>, <strong>Anthrazit</strong> oder <strong>Braun</strong>.</p>';
+    }
+    var tr = window.BV_RAL.suchen(f);
+    if (!tr.length) {
+      return '<p class="aw-ral-stand">Dazu finden wir keinen RAL-Ton. ' +
+             'Andere Schreibweise versuchen – oder „Andere / Beratung" wählen.</p>';
+    }
+    var html = '<div class="aw-ral-liste">';
+    tr.slice(0, RAL_TREFFER_MAX).forEach(function (t) {
+      var name = window.BV_RAL.TABELLE[t.nr][1];
+      html += '<button type="button" class="aw-ral-opt" data-ral-pick="' + t.nr + '">' +
+        '<span class="aw-ral-sw" style="background:' + ralHex(t.nr) + '"></span>' +
+        '<span class="aw-ral-nr">RAL ' + t.nr + '</span>' +
+        '<span class="aw-ral-nm">' + esc(name) + '</span></button>';
+    });
+    html += '</div>';
+    if (tr.length > RAL_TREFFER_MAX) {
+      html += '<p class="aw-ral-stand">' + tr.length + ' Treffer – die ersten ' +
+              RAL_TREFFER_MAX + ' stehen hier. Genauer suchen zeigt weniger.</p>';
+    }
+    return html;
+  }
+  function ralPanelHtml() {
+    return '<div class="aw-ral">' +
+      '<div class="aw-field"><label for="awRalFeld">RAL-Farbe suchen oder eingeben</label>' +
+      '<input type="text" id="awRalFeld" value="' + esc(ralFrage) + '" ' +
+      'placeholder="z. B. 7016, Anthrazit oder Braun" autocomplete="off"></div>' +
+      '<div id="awRalTreffer">' + ralTrefferHtml(ralFrage) + '</div>' +
+      '<p class="aw-ral-fuss">Die Farbe am Bildschirm ist eine Näherung. ' +
+      'Verbindlich ist der RAL-Fächer – wir zeigen Ihnen das Muster beim Aufmaß.</p>' +
+      '</div>';
+  }
+  function ralKachelHtml() {
+    var g = ralGewaehlt();
+    var nr = g ? g.slice(4, 8) : '';
+    var media = g
+      ? '<span class="aw-option-ic aw-option-sw" style="background:' + ralHex(nr) + '"></span>'
+      : '<span class="aw-option-ic">' + svg(I.lupe) + '</span>';
+    return '<button type="button" class="aw-option' + (g ? ' is-active' : '') +
+      '" data-ral-open="1">' + media +
+      '<span class="aw-option-lbl">' + esc(g || 'Andere RAL-Farbe suchen') + '</span>' +
+      '<span class="aw-option-hint">' + (g ? 'Tippen zum Ändern' : '217 Töne – Nummer oder Farbname') +
+      '</span></button>';
+  }
+
   function optionCards(field, opts, modClass) {
     var html = '<div class="aw-options' + (modClass ? ' ' + modClass : '') + '">';
     opts.forEach(function (o) {
@@ -744,7 +819,12 @@
           opts = [ANTHRAZIT, WEISSALU, GRAUALU, REINWEISS]; // TDS/SkyView/Flat Box: 4 Standardfarben
         }
         opts.push({ value: 'Andere / Beratung', icon: I.frage });
-        return optionCards('farbe', opts, 'aw-options--equal');
+        /* Die sechste Kachel steht ausserhalb von optionCards: Sie setzt
+           nicht einfach answers.farbe, sondern klappt die Suche auf.
+           Deshalb traegt sie data-ral-open statt data-field. */
+        var karten = optionCards('farbe', opts, 'aw-options--equal');
+        karten = karten.replace(/<\/div>$/, ralKachelHtml() + '</div>');
+        return karten + (ralOffen ? ralPanelHtml() : '');
       },
       valid: function () { return null; } // optional
     },
@@ -1077,6 +1157,20 @@
     document.body.appendChild(lb);
   }
 
+  /* Die Trefferknoepfe werden nach jedem Tastendruck neu erzeugt und
+     muessen deshalb jedes Mal neu verdrahtet werden. */
+  function ralPickBinden() {
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('[data-ral-pick]'), function (btn) {
+      btn.addEventListener('click', function () {
+        var nr = btn.getAttribute('data-ral-pick');
+        var name = window.BV_RAL ? window.BV_RAL.TABELLE[nr][1] : '';
+        answers.farbe = 'RAL ' + nr + (name ? ' – ' + name : '');
+        clearError();
+        rerenderKeepScroll();
+      });
+    });
+  }
+
   function bindStep() {
     // Option-Karten (Einfachauswahl)
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-option'), function (btn) {
@@ -1145,6 +1239,26 @@
       });
     });
     // Erweiterungs-Optionen: Mehrfachauswahl (Panel bleibt offen)
+    /* ---------- RAL-Suche ---------- */
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('[data-ral-open]'), function (btn) {
+      btn.addEventListener('click', function () {
+        ralOffen = !ralOffen;
+        rerenderKeepScroll();
+        var feld = bodyEl.querySelector('#awRalFeld');
+        if (feld) feld.focus();
+      });
+    });
+    var ralFeld = bodyEl.querySelector('#awRalFeld');
+    if (ralFeld) {
+      ralFeld.addEventListener('input', function () {
+        ralFrage = ralFeld.value;
+        /* Nur die Liste tauschen – siehe Begruendung bei ralTrefferHtml. */
+        var ziel = bodyEl.querySelector('#awRalTreffer');
+        if (ziel) { ziel.innerHTML = ralTrefferHtml(ralFrage); ralPickBinden(); }
+      });
+    }
+    ralPickBinden();
+
     Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-opt[data-dd-pick]'), function (btn) {
       btn.addEventListener('click', function () {
         erwToggle(btn.getAttribute('data-dd-pick'), btn.getAttribute('data-value'));
