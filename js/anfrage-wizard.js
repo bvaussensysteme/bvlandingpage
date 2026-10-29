@@ -492,9 +492,12 @@
           { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' },
           /* Graphit und Bronze fehlten hier, obwohl die Artikelliste alle
              vier Ausführungen der Sechsfachstegplatte führt (Art. 6126 und
-             6127). Noch ohne Foto – deshalb das Stegplatten-Zeichen. */
-          { value: 'Polycarbonat Graphit', icon: I.steg, hint: 'Dunkel getönt, starker Schatten' },
-          { value: 'Polycarbonat Bronze', icon: I.steg, hint: 'Bronzefarben, warmes Licht' }
+             6127). Standen bis zum 29.10.2026 nur mit Stegplatten-Zeichen
+             da, weil kein Foto vorlag – der Betreiber hat die beiden
+             Herstellerbilder nachgereicht („hier is vsg graphit", mit den
+             zugehörigen Aufnahmen). */
+          { value: 'Polycarbonat Graphit', img: 'poly_graphit', photo: true, hint: 'Dunkel getönt, starker Schatten' },
+          { value: 'Polycarbonat Bronze', img: 'poly_bronze', photo: true, hint: 'Bronzefarben, warmes Licht' }
         ];
         // „Noch unsicher" nur zeigen, solange keine VSG-Glas-Variante gewählt ist
         if (!isGlas(answers.verglasung)) opts.push({ value: 'Noch unsicher – bitte beraten', icon: I.frage });
