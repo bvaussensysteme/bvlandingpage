@@ -19,6 +19,10 @@ var gegen = process.argv.indexOf('--gegenprobe') > -1;
 
 var k3d  = fs.readFileSync('js/konfigurator-3d.js', 'utf8');
 var html = fs.readFileSync('konfigurator.html', 'utf8');
+/* Tabelle und Suche stehen seit dem 29.10.2026 in js/ral.js – der
+   Konfigurator und der Anfrage-Assistent lesen beide daraus. Geprueft
+   wird deshalb die Quelle, nicht mehr die Kopie im Konfigurator. */
+var ral  = fs.readFileSync('js/ral.js', 'utf8');
 
 var fehler = 0, geprueft = 0;
 function pruefe(titel, ok, info) {
@@ -28,10 +32,10 @@ function pruefe(titel, ok, info) {
 }
 
 /* ---------- Tabelle und Suche aus der Quelle holen ---------- */
-var tabQuelle = (k3d.match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
-var famQuelle = (k3d.match(/var RAL_FAMILIE = \{[\s\S]*?\n  \};/) || [''])[0];
-var flachQ    = (k3d.match(/function ralFlach\(t\) \{[\s\S]*?\n  \}/) || [''])[0];
-var suchQ     = (k3d.match(/function ralSuchen\(frage\) \{[\s\S]*?\n  \}/) || [''])[0];
+var tabQuelle = (ral.match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
+var famQuelle = (ral.match(/var RAL_FAMILIE = \{[\s\S]*?\n  \};/) || [''])[0];
+var flachQ    = (ral.match(/function ralFlach\(t\) \{[\s\S]*?\n  \}/) || [''])[0];
+var suchQ     = (ral.match(/function ralSuchen\(frage\) \{[\s\S]*?\n  \}/) || [''])[0];
 var RAL = null, ralSuchen = null;
 try {
   /* new Function statt eval: Dieses Skript laeuft im strict mode, und

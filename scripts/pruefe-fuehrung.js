@@ -1678,7 +1678,10 @@ pruefe('Aufpreis steht im Bedienfeld und in der Anfrage',
   /* Zweiter Weg: die ECHTE Funktion laufen lassen. Bekannte Nummer ->
      deren Ton, unbekannte -> Anthrazit (nicht geraten), Schreibweise
      egal. */
-  var tab = (js.match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
+  /* Die Tabelle steht seit dem 29.10.2026 in js/ral.js – Konfigurator und
+     Anfrage-Assistent lesen beide daraus, damit es nur eine Liste gibt. */
+  var tab = (require('fs').readFileSync('js/ral.js', 'utf8')
+               .match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
   var fn = (js.match(/function ralNummer\(\)[\s\S]*?\n  \}/) || [''])[0];
   var gf = (js.match(/function gestellFarbe\(\)[\s\S]*?\n  \}/) || [''])[0];
   if (!tab || !fn || !gf) { pruefe('RAL-Teile lesbar', false, 'nicht gefunden'); return; }
@@ -1790,7 +1793,10 @@ pruefe('Unbekannter Ton faellt auf',
      daneben auftauchen wie er heisst z.b bei 9005 Tiefschwarz"
      (Betreiber, 11.10.2026). Der Name ist die Kontrolle: Eine vertippte
      Ziffer faellt am Namen auf, am Farbfleck nicht. */
-  var tab = (js.match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
+  /* Die Tabelle steht seit dem 29.10.2026 in js/ral.js – Konfigurator und
+     Anfrage-Assistent lesen beide daraus, damit es nur eine Liste gibt. */
+  var tab = (require('fs').readFileSync('js/ral.js', 'utf8')
+               .match(/var RAL = \{[\s\S]*?\n  \};/) || [''])[0];
   var RAL = eval('(' + tab.replace(/^\s*var RAL = /, '').replace(/;\s*$/, '') + ')');
   var ohneNamen = Object.keys(RAL).filter(function (k) {
     return !Array.isArray(RAL[k]) || typeof RAL[k][1] !== 'string' || !RAL[k][1];

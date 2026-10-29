@@ -2399,6 +2399,29 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-option-ic .aw-badge { top: 6px; bottom: auto; }
 /* Farb-Kachel (RAL-Farbfeld statt Icon) */
 .aw-option-sw { border: 1px solid rgba(255,255,255,0.25); }
+
+/* ---------- RAL-Suche im Anfrage-Assistenten ----------
+   Sechste Kachel im Schritt „Wunschfarbe": aufklappbare Suche über alle
+   217 RAL-Classic-Töne (Betreiber, 29.10.2026). Die Liste wird bei jedem
+   Tastendruck ausgetauscht, deshalb bewusst schlicht gehalten. */
+.aw-ral { margin-top: 14px; }
+.aw-ral-liste {
+  display: grid; gap: 8px; margin-top: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  max-height: 290px; overflow-y: auto;
+}
+.aw-ral-opt {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 6px; border-radius: 8px; cursor: pointer; text-align: left;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.10);
+}
+.aw-ral-opt:hover { border-color: var(--gold); background: rgba(255,255,255,.08); }
+.aw-ral-sw { display: block; height: 34px; border-radius: 5px; border: 1px solid rgba(0,0,0,.25); }
+.aw-ral-nr { font-size: .74rem; font-weight: 700; color: #fff; }
+.aw-ral-nm { font-size: .68rem; color: var(--muted); line-height: 1.25; }
+.aw-ral-stand, .aw-ral-fuss { font-size: .74rem; color: var(--muted); margin: 10px 0 0; line-height: 1.45; }
+.aw-ral-fuss { opacity: .75; }
+
 .aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
 .aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.2; }
 
