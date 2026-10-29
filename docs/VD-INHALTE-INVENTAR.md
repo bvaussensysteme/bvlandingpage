@@ -62,6 +62,7 @@ VD-Logo ist auf der Eckkappe sichtbar:
 ```
 images/wizard/wz_poly_graphit.webp
 images/wizard/wz_poly_bronze.webp
+images/wizard/wz_vsg_graphit.webp
 ```
 
 Bei den übrigen Kachelbildern ist die Herkunft **nicht dokumentiert**. Vor einer
