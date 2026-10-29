@@ -327,8 +327,10 @@
       '<input type="text" id="awRalFeld" value="' + esc(ralFrage) + '" ' +
       'placeholder="z. B. 7016, Anthrazit oder Braun" autocomplete="off"></div>' +
       '<div id="awRalTreffer">' + ralTrefferHtml(ralFrage) + '</div>' +
-      '<p class="aw-ral-fuss">Die Farbe am Bildschirm ist eine Näherung. ' +
-      'Verbindlich ist der RAL-Fächer – wir zeigen Ihnen das Muster beim Aufmaß.</p>' +
+      '<p class="aw-ral-fuss"><strong>Sonderfarben sind aufpreispflichtig.</strong> ' +
+      'Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen Aufmaß – ' +
+      'er hängt von Menge und Oberfläche ab.<br>Die Farbe am Bildschirm ist eine ' +
+      'Näherung. Verbindlich ist der RAL-Fächer – wir zeigen Ihnen das Muster beim Aufmaß.</p>' +
       '</div>';
   }
   function ralKachelHtml() {
@@ -340,7 +342,7 @@
     return '<button type="button" class="aw-option' + (g ? ' is-active' : '') +
       '" data-ral-open="1">' + media +
       '<span class="aw-option-lbl">' + esc(g || 'Andere RAL-Farbe suchen') + '</span>' +
-      '<span class="aw-option-hint">' + (g ? 'Tippen zum Ändern' : '217 Töne – Nummer oder Farbname') +
+      '<span class="aw-option-hint">' + (g ? 'Aufpreis – Betrag im Angebot' : '217 Töne – Nummer oder Farbname') +
       '</span></button>';
   }
 
@@ -577,7 +579,13 @@
         ];
         // „Noch unsicher" nur zeigen, solange keine VSG-Glas-Variante gewählt ist
         if (!isGlas(answers.verglasung)) opts.push({ value: 'Noch unsicher – bitte beraten', icon: I.frage });
-        var cards = optionCards('verglasung', opts);
+        /* --equal: Die letzte Karte bei ungerader Anzahl bleibt gleich
+           gross. Ohne den Schalter laeuft sie ueber die volle Breite –
+           bei Polycarbonat Bronze (siebte Karte) wurde daraus mit dem
+           neuen Foto eine riesige Kachel: „wieso hast du die bronze
+           kachel so großgemacht die sollen ale gleich groß bleiben"
+           (Betreiber, 29.10.2026). */
+        var cards = optionCards('verglasung', opts, 'aw-options--equal');
         // An seiner Stelle: Glasstärke-Auswahl bei den VSG-Glas-Varianten (8 oder 10 mm)
         if (isGlas(answers.verglasung)) {
           cards += '<div class="aw-subchoice"><p class="aw-group-h">Glasstärke</p><div class="aw-pills">' +
@@ -803,7 +811,12 @@
 
     farbe: {
       title: 'Wunschfarbe (optional)',
-      sub: 'Die Standardfarben – jede weitere RAL-Farbe auf Anfrage.',
+      /* „bei wunschfarbe feht hinweis das es aufpreispflichtig is"
+         (Betreiber, 29.10.2026). Im 3D-Konfigurator steht der Hinweis
+         seit dem 11.10.2026, im Assistenten fehlte er. Wortlaut bewusst
+         derselbe wie dort – ohne Betrag, denn der haengt von Menge und
+         Oberflaeche ab und wird erst mit dem Angebot genannt. */
+      sub: 'Die vier Standardfarben ohne Aufpreis – jede andere RAL-Farbe gegen Aufpreis.',
       render: function () {
         var ANTHRAZIT = { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' };
         var WEISSALU = { value: 'Weißaluminium (RAL 9006)', swatch: '#a9aca9' };
