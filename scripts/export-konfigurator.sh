@@ -41,7 +41,7 @@ done
 # bleiben drin, weil die Seite sonst halb bedient ist.
 RAUS="js/metricool.js js/cookie.js js/anfrage-wizard.js js/konfigurator-widget.js"
 
-MIT_JS="js/vendor/three.min.js js/masstabelle.js js/markisenstoffe.js
+MIT_JS="js/vendor/three.min.js js/masstabelle.js js/markisenstoffe.js js/ral.js
         js/pdf-blatt.js js/konfigurator-3d.js js/main.js js/accessibility.js"
 MIT_BILD="images/logo-dunkel.png images/logo-hell.png images/favicon.ico
           images/favicon-16.png images/favicon-32.png images/apple-touch-icon.png
