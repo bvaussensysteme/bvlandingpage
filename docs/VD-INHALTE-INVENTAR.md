@@ -52,6 +52,24 @@ images/partner-vd-alusysteme.png   ← Duplikat von vd_partner-vd-alusysteme.png
 
 Befehl zum Entfernen aller Bilder: `git rm images/vd_* images/partner-vd-alusysteme.png`
 
+### ⚠️ Lücke: die Kachelbilder des Anfrage-Assistenten
+
+`images/wizard/wz_*.webp` (rund 45 Dateien) tragen **kein `vd_`-Prefix** und
+fallen damit **nicht** unter den Lösch-Befehl oben. Mindestens zwei davon sind
+belegt Herstellerbilder von VD – am 29.10.2026 vom Betreiber geliefert, das
+VD-Logo ist auf der Eckkappe sichtbar:
+
+```
+images/wizard/wz_poly_graphit.webp
+images/wizard/wz_poly_bronze.webp
+```
+
+Bei den übrigen Kachelbildern ist die Herkunft **nicht dokumentiert**. Vor einer
+Vertragsbeendigung muss der Betreiber Datei für Datei klären, welche davon von
+VD stammen und welche eigene Aufnahmen sind – sonst bleiben Herstellerbilder
+auf der Seite stehen, obwohl sie gelöscht sein sollten. Das ist der einzige
+bekannte blinde Fleck dieses Inventars.
+
 ## 2. Direkte Markennennungen im Code
 
 | Datei | Was |
