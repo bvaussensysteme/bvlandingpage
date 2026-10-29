@@ -486,8 +486,9 @@
           { value: 'VSG-Glas klar', img: 'vsg_klar', photo: true, hint: 'Durchsichtig, edel' },
           { value: 'VSG-Glas Opal (milchig)', img: 'vsg_opal', photo: true, hint: 'Blickdicht, sanftes Licht' },
           /* Getöntes VSG kam am 11.10.2026 vom Betreiber dazu: „gls gibts
-             auch in getönt also graphit". Noch ohne Foto. */
-          { value: 'VSG-Glas Graphit (getönt)', icon: I.glas, hint: 'Getönt, starker Schatten' },
+             auch in getönt also graphit". Foto vom Hersteller nachgereicht
+             am 29.10.2026 – bis dahin stand hier ein Glas-Zeichen. */
+          { value: 'VSG-Glas Graphit (getönt)', img: 'vsg_graphit', photo: true, hint: 'Getönt, starker Schatten' },
           { value: 'Polycarbonat klar', img: 'poly_klar', photo: true, hint: 'Leicht & günstiger' },
           { value: 'Polycarbonat Opal (milchig)', img: 'poly_opal', photo: true, hint: 'Wärmeschutz, diffuses Licht' },
           /* Graphit und Bronze fehlten hier, obwohl die Artikelliste alle
