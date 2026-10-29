@@ -1,8 +1,11 @@
 #!/usr/bin/env node
-/* Prueft die RAL-Suche im Anfrage-Assistenten – im echten Browser.
+/* Prueft die Bedienung des Anfrage-Assistenten – im echten Browser.
  *
- * ANLASS. „baue hier als sechste kachel so ähnlich wie im 3d konfigurator
- * wo man RAL farbe suchen oder eingeben kann" (Betreiber, 29.10.2026).
+ * ANLASS. Zwei Beanstandungen vom 29.10.2026: „baue hier als sechste
+ * kachel so ähnlich wie im 3d konfigurator wo man RAL farbe suchen oder
+ * eingeben kann" und, nachdem die Eindeckungs-Fotos drin waren: „wieso
+ * hast du die bronze kachel so großgemacht die sollen ale gleich groß
+ * bleiben".
  *
  * WARUM IM BROWSER: Die Suche ist Bedienung. Ob ein Treffer erscheint,
  * ob er die Farbe setzt und ob das Eingabefeld beim Tippen den Fokus
@@ -11,7 +14,7 @@
  * ihn das Feld nach dem ersten Zeichen, kann niemand einen Farbnamen
  * eintippen.
  *
- * Aufruf:  node scripts/pruefe-ral-assistent.mjs [--gegenprobe]
+ * Aufruf:  node scripts/pruefe-assistent.mjs [--gegenprobe]
  *
  * --gegenprobe laesst die Trefferliste leer. Dann MUESSEN die drei unten
  * genannten Pruefungen anschlagen.
@@ -51,6 +54,8 @@ function pruefe(titel, ok, info) {
   else console.log('  ok      ' + titel.padEnd(50) + (info || ''));
 }
 const GEGEN_ERWARTET = [
+  'Der Schritt nennt den Aufpreis',
+  'Alle Eindeckungs-Kacheln sind gleich groß',
   '„braun" findet Brauntöne',
   'Eine Nummer steht an erster Stelle',
   'Ein Treffer setzt die Farbe'
@@ -71,6 +76,14 @@ if (GEGENPROBE) {
     let t = await a.text();
     t = t.replace('var html = \'<div class="aw-ral-liste">\';',
                   'var html = \'<div class="aw-ral-liste">\'; tr = [];');
+    /* Zweiter eingebauter Fehler: ohne --equal laeuft die letzte Karte
+       bei ungerader Anzahl ueber die volle Breite – genau der Zustand,
+       den der Betreiber an der Bronze-Kachel beanstandet hat. */
+    t = t.replace("optionCards('verglasung', opts, 'aw-options--equal')",
+                  "optionCards('verglasung', opts)");
+    /* Dritter eingebauter Fehler: der Aufpreis-Hinweis verschwindet. */
+    t = t.replace('Die vier Standardfarben ohne Aufpreis – jede andere RAL-Farbe gegen Aufpreis.',
+                  'Die Standardfarben.');
     await r.fulfill({ response: a, body: t,
                       headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
@@ -81,6 +94,7 @@ await seite.waitForTimeout(1200);
 
 /* ---------- Bis zum Farbschritt klicken ---------- */
 let titel = '';
+let kachelnGemessen = false;
 for (let i = 0; i < 26; i++) {
   titel = (await seite.locator('#awTitle').textContent()) || '';
   if (/Wunschfarbe/.test(titel)) break;
@@ -111,6 +125,29 @@ for (let i = 0; i < 26; i++) {
   }
   /* Der Masse-Schritt hat keine Karten, sondern Zahlenfelder – ohne
      Eingabe geht es dort nicht weiter, und die Schleife liefe leer. */
+  /* ---------- Unterwegs: die Eindeckungs-Kacheln vermessen ----------
+     Der ungerade Fall ist der riskante: Bei VSG-Glas entfaellt „Noch
+     unsicher", dann sind es sieben Karten und die letzte (Bronze) stand
+     allein in der Zeile. Deshalb hier VSG waehlen, messen, und erst
+     danach auf Polycarbonat zurueck. */
+  if (/Eindeckung/.test(titel) && !kachelnGemessen) {
+    const vsg = seite.locator('#awBody .aw-option[data-value="VSG-Glas klar"]');
+    if (await vsg.count()) {
+      await vsg.first().click();
+      await seite.waitForTimeout(350);
+      const m = await seite.$$eval('#awBody .aw-option[data-field="verglasung"]',
+        (ns) => ns.map((n) => {
+          const r = n.getBoundingClientRect();
+          return Math.round(r.width) + 'x' + Math.round(r.height);
+        }));
+      const satz = new Set(m);
+      pruefe('Alle Eindeckungs-Kacheln sind gleich groß',
+             m.length >= 7 && satz.size === 1,
+             m.length + ' Karten, ' + satz.size + ' Größe(n): ' +
+             Array.from(satz).join(', '));
+      kachelnGemessen = true;
+    }
+  }
   const zahlen = seite.locator('#awBody .aw-dim input');
   const n = await zahlen.count();
   for (let k = 0; k < n; k++) await zahlen.nth(k).fill(['4000', '3000', '2500'][k] || '2500');
@@ -179,6 +216,22 @@ if (await feld.count()) {
 
   const aktiv = await seite.locator('#awBody [data-ral-open].is-active').count();
   pruefe('Die Kachel ist danach als gewählt markiert', aktiv === 1);
+}
+
+/* ---------- Aufpreis ----------
+   „bei wunschfarbe feht hinweis das es aufpreispflichtig is" (Betreiber,
+   29.10.2026). Ohne diesen Satz waehlt jemand eine Sonderfarbe im guten
+   Glauben, sie koste nichts – und erfaehrt das Gegenteil erst im
+   Angebot. Geprueft wird der sichtbare Text, nicht der Quelltext. */
+{
+  const sichtbar = await seite.locator('#awBody').innerText();
+  const unter = await seite.locator('#awSub').textContent().catch(() => '');
+  pruefe('Der Schritt nennt den Aufpreis',
+         /Aufpreis/.test(unter || ''),
+         (unter || '').trim());
+  pruefe('Auch in der Suche steht der Aufpreis-Hinweis',
+         /aufpreispflichtig/i.test(sichtbar) && /mit dem Angebot/.test(sichtbar),
+         'ohne Betrag – der hängt von Menge und Oberfläche ab');
 }
 
 pruefe('Keine Javascript-Fehler',
