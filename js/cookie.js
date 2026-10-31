@@ -143,7 +143,7 @@
     banner.innerHTML =
       '<div class="cb-inner">' +
         '<div class="cb-top">' +
-          '<div class="cb-icon">🍪</div>' +
+          '<div class="cb-icon">' + (window.bvSymbol ? window.bvSymbol('kekse') : '') + '</div>' +
           '<div class="cb-text">' +
             '<strong>Wir verwenden Cookies</strong>' +
             '<p>Wir nutzen Cookies und ähnliche Technologien, um unsere Website zu betreiben. ' +

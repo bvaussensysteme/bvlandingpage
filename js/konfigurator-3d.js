@@ -8777,9 +8777,9 @@
          als Naechstes kommt - und genau das ist die Frage, die jemand
          vor dem Klick hat. */
       var naechster = bereichSuchen(bereichNr, 1);
-      weiterKnopf.textContent = (naechster !== bereichNr)
-        ? 'Weiter \u00b7 ' + BEREICHE[naechster].t + ' \u25b6'
-        : 'Weiter \u25b6';
+      weiterKnopf.innerHTML = 'Weiter' +
+        ((naechster !== bereichNr) ? ' \u00b7 ' + BEREICHE[naechster].t : '') +
+        ' ' + bvSymbol('rechts');
     }
 
     /* „Mehr Einstellungen" nur anbieten, wo es welche gibt. */
@@ -8791,8 +8791,9 @@
         });
       });
       mehrKnopf.hidden = !hatMehr;
-      mehrKnopf.textContent = zeigtMehr ? 'Weniger Einstellungen ▴'
-                                        : 'Mehr Einstellungen ▾';
+      mehrKnopf.innerHTML = (zeigtMehr ? 'Weniger Einstellungen '
+                                       : 'Mehr Einstellungen ') +
+                            bvSymbol(zeigtMehr ? 'auf' : 'ab');
       mehrKnopf.setAttribute('aria-expanded', zeigtMehr ? 'true' : 'false');
     }
   }
@@ -9474,6 +9475,15 @@
      das erste im Dokument, also das Haekchen, und alle Punkte landeten
      DARIN statt ueber der Leinwand (im Browserlauf als vier Knoepfe auf
      einem Punkt bei 0/0 aufgefallen). */
+  /* Ein Symbol aus der eigenen Sammlung (Sprite unter <body> in
+     konfigurator.html). Gezeichnet statt getippt: Zeichen wie ↗ ↔ ☾
+     stellt iOS von sich aus als farbiges Emoji dar – „benutz bitte keine
+     imogis das is nicht serioes" (Betreiber, 31.10.2026). */
+  function bvSymbol(name) {
+    return '<svg class="bvs" aria-hidden="true"><use href="#bvs-' +
+           name + '"></use></svg>';
+  }
+
   var markenHuelle = document.getElementById('k3dMarkenHuelle');
   var markenKnoepfe = [];
 
@@ -9494,10 +9504,13 @@
 
   /* Ein Punkt ist belegt, wenn für diese Seite schon etwas gewählt ist.
      Dann steht ein Stift darin statt eines Plus: Ein Plus an einer Seite,
-     die längst eine Schiebeanlage hat, sagt etwas Falsches. */
+     die längst eine Schiebeanlage hat, sagt etwas Falsches.
+
+     Gibt den NAMEN des Symbols zurück, nicht das Zeichen – gezeichnete
+     Symbole statt Schriftzeichen, siehe bvSymbol(). */
   function markenZeichen(m) {
-    if (m.art === 'dach') return '\u270e';
-    return erwListe(m.seite).length ? '\u270e' : '+';
+    if (m.art === 'dach') return 'stift';
+    return erwListe(m.seite).length ? 'stift' : 'punkt';
   }
 
   /* Die Knöpfe werden WIEDERVERWENDET, nicht jedes Mal neu erzeugt:
@@ -9528,10 +9541,11 @@
     }
     for (var i = 0; i < markenKnoepfe.length; i++) {
       var m = MARKEN[i], b = markenKnoepfe[i];
-      b.textContent = markenZeichen(m);
+      var zeichen = markenZeichen(m);
+      b.innerHTML = bvSymbol(zeichen);
       b.setAttribute('aria-label', markenBeschriftung(m));
       b.title = markenBeschriftung(m);
-      b.classList.toggle('ist-belegt', markenZeichen(m) !== '+');
+      b.classList.toggle('ist-belegt', zeichen !== 'punkt');
       b.hidden = true;             // bis markenStellen() die Lage kennt
     }
     markenStellen();
@@ -12174,7 +12188,7 @@
       var txt = abendBtn.querySelector('.k3d-txt');
       var sym = abendBtn.querySelector('.k3d-sym');
       if (txt) txt.textContent = Z.abend ? 'Tag' : 'Abend';
-      if (sym) sym.textContent = Z.abend ? '☀' : '☾';
+      if (sym) sym.innerHTML = bvSymbol(Z.abend ? 'tag' : 'abend');
       bauen();
     });
   }
@@ -13128,7 +13142,8 @@
     if (kopf) {
       kopf.addEventListener('click', function () {
         var fertig = function (ok) {
-          kopf.textContent = ok ? '✓ Kopiert' : 'Bitte von Hand kopieren';
+          if (ok) kopf.innerHTML = bvSymbol('haken') + ' Kopiert';
+          else kopf.textContent = 'Bitte von Hand kopieren';
           setTimeout(function () { kopf.textContent = 'Link kopieren'; }, 2500);
         };
         /* navigator.clipboard gibt es nur auf https und nicht in jedem

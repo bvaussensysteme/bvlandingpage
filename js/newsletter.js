@@ -84,7 +84,8 @@
       .catch(function (err) {
         console.error('[Newsletter] Fehler:', err);
         if (err === 'emailjs_not_loaded') {
-          msg.textContent = '⚙️ E-Mail-Dienst noch nicht konfiguriert (EmailJS API-Key fehlt).';
+          msg.innerHTML = (window.bvSymbol ? window.bvSymbol('zahnrad') : '') +
+            ' E-Mail-Dienst noch nicht konfiguriert (EmailJS API-Key fehlt).';
         } else {
           msg.textContent = 'Fehler beim Senden. Bitte versuche es später erneut.';
         }
@@ -114,7 +115,7 @@
         <button class="nl-close" onclick="closeNewsletterPopup()" aria-label="Schließen">✕</button>
 
         <div class="nl-badge">Exklusives Angebot</div>
-        <div class="nl-icon">🎁</div>
+        <div class="nl-icon">' + (window.bvSymbol ? window.bvSymbol('geschenk') : '') + '</div>
         <h2 class="nl-title">5 % Rabatt auf Ihre Montage</h2>
         <p class="nl-sub">
           Jetzt Newsletter abonnieren und sofort Ihren persönlichen
@@ -147,7 +148,7 @@
         </div>
 
         <div id="nlSuccess" class="nl-success" style="display:none;">
-          <span class="nl-success-icon">✅</span>
+          <span class="nl-success-icon">' + (window.bvSymbol ? window.bvSymbol('haken') : '') + '</span>
           <div>
             <strong>Code wurde versendet!</strong>
             <p>Bitte prüfen Sie Ihr Postfach – auch den Spam-Ordner.</p>

@@ -94,7 +94,9 @@ var FEHLER = [
    '                   nx: 1, nz: 0, feld: 0, anzahl: 1 });'],
   ['Punkte werden ins Bild gezeichnet statt darueber gelegt', 'js',
    "      k.className = 'k3d-marke';",
-   "      k.className = 'k3d-marke'; void new THREE.Sprite();"]
+   "      k.className = 'k3d-marke'; void new THREE.Sprite();"],
+  ['Punkte tragen wieder ein Schriftzeichen statt eines Symbols', 'js',
+   "      b.innerHTML = bvSymbol(zeichen);", "      b.textContent = '+';"]
 ];
 
 function baue(nr) {
@@ -291,6 +293,15 @@ function lauf(q) {
     auf > -1 && stueck.indexOf('THREE') < 0 &&
     stueck.indexOf("createElement('button')") > -1,
     'markenAufbauen() ohne THREE');
+
+  /* Keine Schriftzeichen als Symbol: „benutz bitte keine imogis das is
+     nicht serioes benutz eigene logosammlung" (Betreiber, 31.10.2026).
+     iOS macht aus ↗ ↔ ☾ von sich aus farbige Emoji - im Punkt stand
+     zuerst ein getipptes Plus und ein Stift (U+270E). */
+  p('Die Punkte tragen gezeichnete Symbole, keine Schriftzeichen',
+    /b\.innerHTML = bvSymbol\(zeichen\);/.test(q.js) &&
+    !/return '\\u270e'/.test(q.js),
+    'bvSymbol() aus der eigenen Sammlung');
 
   return e;
 }

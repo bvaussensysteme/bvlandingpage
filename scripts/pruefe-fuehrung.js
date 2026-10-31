@@ -89,8 +89,13 @@ if (gegen) doppelt = ['künstlich'];
 pruefe('Kein Schritt steht in zwei Bereichen', doppelt.length === 0,
        doppelt.length ? doppelt.join(', ') : 'jeder genau einmal');
 
+/* Seit dem 31.10.2026 setzt der Knopf innerHTML statt textContent: Der
+   Pfeil ist ein gezeichnetes Symbol aus der eigenen Sammlung, kein
+   Schriftzeichen mehr (iOS machte daraus ein Emoji). Geprueft wird
+   weiter dasselbe - dass der NAME des naechsten Bereichs darin steht. */
 pruefe('Der Weiter-Knopf nennt den nächsten Bereich',
-       new RegExp(q || "'Weiter \\\\u00b7 ' \\+ BEREICHE\\[naechster\\]\\.t").test(js),
+       new RegExp(q || "BEREICHE\\[naechster\\]\\.t").test(js) &&
+       new RegExp(q || "weiterKnopf\\.innerHTML = 'Weiter'").test(js),
        'statt nur „Weiter"');
 pruefe('Umschalten auf „Alles auf einen Blick" vorhanden',
        new RegExp(q || 'k3dModus').test(js) && /id="k3dModus"/.test(html), '');
@@ -1354,9 +1359,13 @@ pruefe('Platz fuer die Streifenleiste des iPhones',
   var gleich = folge.length === soll.length && soll.every(function (x, i) { return folge[i] === x; });
   pruefe('Schalter stehen vor den Blickrichtungen', gleich, folge.join(' → '));
 })();
+/* Seit dem 31.10.2026 sind Sonne und Mond gezeichnete Symbole aus der
+   eigenen Sammlung statt der Zeichen ☀ und ☾ - iOS stellte die als
+   farbiges Emoji dar. Geprueft wird weiter dasselbe: dass der Schalter
+   sein Feld hat und beide Zustaende setzt. */
 pruefe('Sonne und Mond am Abend-Schalter',
-       new RegExp(q || 'class="k3d-sym" aria-hidden="true">☾').test(html) &&
-       new RegExp(q || "sym\\.textContent = Z\\.abend \\? '☀' : '☾'").test(js), '');
+       new RegExp(q || 'class="k3d-sym"><svg class="bvs"').test(html) &&
+       new RegExp(q || "sym\\.innerHTML = bvSymbol\\(Z\\.abend \\? 'tag' : 'abend'\\)").test(js), '');
 /* Das Symbol steht VOR der Beschriftung - wer weiter mit
    querySelector('span') schreibt, loescht es. */
 pruefe('Beschriftung wird am eigenen Feld gesetzt',
