@@ -340,30 +340,38 @@ auf, dass `pruefe-konfigurator-oberflaeche.mjs` seit PR #281 (11.10.2026)
 mit einer Ausnahme abbrach, statt ein Ergebnis zu melden – zwölf Tage
 unbemerkt rot. Eine Prüfung, die mit einer Ausnahme endet, ist rot.
 
-**Stand 31.10.2026: alle Skripte laufen durch — mit EINER Ausnahme, siehe
-unten.** Jedes mit vollständig anschlagender Gegenprobe
+**Stand 31.10.2026: alle Skripte laufen durch**, jedes mit vollständig
+anschlagender Gegenprobe
 (`pruefe-marken.js` 28 Prüfungen und 25 Fehler, `pruefe-masstabelle.js` 364,
 `pruefe-markise.js` 190, `pruefe-fuehrung.js` 313, `pruefe-teilen.mjs`,
 `pruefe-kurzlink.mjs`, `pruefe-assistent.mjs`, `pruefe-werkstatt.js`).
 
-> **Die Ausnahme: `pruefe-konfigurator-oberflaeche.mjs` bricht bei Prüfung
-> 67 von 90 ab** — `page.check('#k3dSound')` läuft in eine Zeitüberschreitung,
-> der Klick landet, das Häkchen setzt sich aber nicht. Die letzten **23
-> Prüfungen laufen deshalb gar nicht**, unter anderem Untergrund, Montage,
-> Verkleidung und der ganze Handy-Teil.
+> **Am 31.10.2026 repariert: Dieses Skript brach bei Prüfung 67 von 90 ab**
+> — die letzten 23 Prüfungen (Untergrund, Montage, Verkleidung, der ganze
+> Handy-Teil) liefen seit PR #500 gar nicht, und in der **Gegenprobe** war es
+> dieselbe Stelle. Es lag **nicht** an den Anklickpunkten: derselbe Abbruch am
+> unberührten Programmstand mit unverändertem Skript, in eigenen Läufen
+> nachgewiesen.
 >
-> **Es liegt nicht an den Anklickpunkten.** Nachgewiesen: Derselbe Abbruch
-> an derselben Stelle am unberührten Programmstand vom 31.10.2026 mit dem
-> unveränderten Prüfskript (`git archive`-Kopie, eigener Lauf). Von sechs
-> Läufen kam genau **einer** bis zum Ende — der allererste. Es ist also
-> nichts, was eine Änderung ausgelöst hat, sondern eine wackelige Stelle im
-> Prüfskript selbst.
+> **Ursache, gemessen statt geraten:** `page.check('#k3dSound')` lief in eine
+> Zeitüberschreitung. An der Stelle war das Kästchen sichtbar, nicht gesperrt,
+> im Bild, und `elementFromPoint` in seiner Mitte war es selbst — ein Klick
+> im Browser setzte es sofort, nur der Mausklick von außen kam nicht an. Der
+> Unterschied zu den Häkchen weiter oben: **das Bedienfeld war 6944 von
+> 8683 px gescrollt.** Playwright scrollt heran und klickt sofort danach; der
+> Browser hat die neue Scrollstelle da noch nicht übernommen, der Klick
+> landet auf den alten Koordinaten. Alle sieben Häkchen laufen jetzt über
+> `haken()` — heranscrollen, zwei Bilder warten, dann klicken.
 >
-> **Das wäre die nächste sinnvolle Reparatur an den Prüfungen.** Verdacht:
-> Vor dem Häkchen laufen `page.click` auf das LED-Set und `page.fill` auf
-> die LED-Anzahl; beide lösen einen vollständigen Neuaufbau des Modells aus.
-> Nachzusehen wäre, ob `#k3dSound` dabei neu erzeugt wird oder kurz
-> unbedienbar ist. Nicht geraten weiterbauen — erst messen.
+> **Dahinter lag ein zweites Hindernis verdeckt:** Die Gegenprobe quetscht
+> die Bühne absichtlich auf 0 px. Die Ansichtsleiste liegt darin und ist
+> mittig begrenzt, hat dann also keine Fläche zum Anklicken — der Klick auf
+> „Darunter" scheiterte. Gelöst über `ansicht()`: im normalen Lauf ein echter
+> Mausklick, in der Gegenprobe wird der Knopf direkt ausgelöst (dasselbe tut
+> das Skript seit längerem beim Umschalter `#k3dModus`).
+>
+> **Stand jetzt: 91 von 91 Prüfungen grün, Gegenprobe bestanden** — alle
+> eingebauten Fehler werden gefunden.
 
 Ebenfalls am 31.10.2026 gefunden: Eine Prüfung desselben Skripts war seit
 der Bereichs-Aufteilung (PR #500) **unbemerkt rot**. Sie erwartete, dass das
