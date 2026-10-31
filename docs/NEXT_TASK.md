@@ -1,8 +1,8 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 31.10.2026 · zuletzt bearbeitet: **Anklickpunkte am Modell**
-> (ein Punkt je Seitenfeld, einer am Dach, Klick springt in den Bereich)
+> Stand: 31.10.2026 · zuletzt bearbeitet: **Anklickbare Felder am Modell**
+> (Flächen in der Szene statt Knöpfe darüber; unter dem Zeiger orange)
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -130,175 +130,136 @@ Nebenbefund, nachgesehen: `js/metricool.js` startet erst nach einer
 Einwilligung. Ohne Banner wird die in der Werkstatt nie erteilt — eigene
 Testaufrufe verfälschen die Zahlen des Betriebs also nicht.
 
-### Werkstatt: Aussparung (Hausvorsprung) *(Machbarkeit gezeigt, 31.10.2026)*
+### Erledigt am 31.10.2026, Einzelheiten im Archiv
 
-Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
-**rechtwinklig**: Rechteck mit rechteckiger Lücke an der Wandseite. Sparren,
-Scheiben und Wandprofil folgen der Lücke, Rinne und Pfosten vorne bleiben
-unverändert — nachgemessen mit `node scripts/miss-aussparung.mjs`, nicht
-geschätzt. Auf der öffentlichen Seite ist die Aussparung **durch nichts
-einschaltbar**: sie hängt am Pfad `/werkstatt/` (`PROBE_AUSSPARUNG` in
-`js/konfigurator-3d.js`), nicht an einem Parameter.
+- **Aussparung (Hausvorsprung)** in der Werkstatt — Machbarkeit gezeigt.
+- **Menü in fünf Bereichen** — gebaut.
+- **Maße voreingestellt an und antippbar** — gebaut.
 
-Formen über die Adresse (Standard ohne Parameter: `Rechteck`, also keine
-Aussparung):
+Volltext mit Begründungen: `docs/erledigt-archiv.md`, Eintrag 31.10.2026.
 
-```
-/werkstatt/?form=rechts&ab=2000&at=1000
-/werkstatt/?form=links&ab=2000&at=1000
-/werkstatt/?form=mittig&ab=2000&at=1000&aa=1200
-```
-`ab` = Breite der Aussparung, `at` = Tiefe, `aa` = Abstand von links, in mm.
+### Anklickbare Felder am Modell — zweite Bauart *(31.10.2026)*
 
-**Bekannte Grenzen** (bewusst so, nicht vergessen):
-- Ein Feld, das genau auf der Kante der Aussparung sitzt, wird ganz der
-  Aussparung zugeschlagen — Versatz bis **13,6 cm**.
-- `scripts/miss-aussparung.mjs` ist ein **Messwerkzeug ohne `--gegenprobe`**.
-  Es beweist nichts, es zeigt Zahlen. Ein echter Browser-Prüflauf daraus wäre
-  die saubere Lösung und ist noch nicht gebaut.
-- Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den
-  Flanken, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
-  Begründungen: `docs/entscheidungen.md`, 31.10.2026.
+Jedes **Seitenfeld** und das **Dach** sind am Modell markiert. Fährt man mit
+dem Zeiger darüber, färbt sich das ganze Feld **orange durchsichtig**; ein
+Klick springt in den passenden Bereich (Feld → **Seiten**, Dach → **Dach**)
+und die angesprungene Zeile leuchtet kurz auf.
 
-**Der Betreiber entscheidet, ob weitergebaut wird.**
+**Die zweite Bauart ist der Kern dieses Eintrags.** Bis zum Nachmittag des
+31.10.2026 waren die Marken **HTML-Knöpfe über der Leinwand**, deren Lage je
+Bild aus der Kamera gerechnet wurde. Der Betreiber hat viermal dasselbe
+gemeldet, zuletzt präzise:
 
-### Menü in fünf Bereichen — gebaut *(31.10.2026)*
+> „und die Punkte drehen sich quasi immer in Kamerarichtung und bleiben nicht
+> flach wie dieses Feld immer stehen … wenn man dann mit der Maus über dieses
+> Feld fährt, dann sieht dieses Feld wie markiert aus … in orange
+> durchsichtig."
 
-Statt einer langen Schrittfolge gibt es oben fünf Reiter: **Anlage · Dach ·
-Seiten · Zubehör · Fertig** (`BEREICHE` in `js/konfigurator-3d.js`, Zähler
-„1 von 5", Weiter-Knopf nennt den nächsten Bereich). Ein Reiter ohne Inhalt
-wird ausgeblendet (`bereichHatInhalt`). Geprüft von
-`scripts/pruefe-fuehrung.js` (vier eigene Bereichsprüfungen).
+Jetzt ist jedes Feld eine **Fläche in der Szene** (`feldGruppe` in
+`js/konfigurator-3d.js`), genau dort, wo das Element säße, mit dem Zeichen
+**flach darin**. Damit erledigt die Tiefenprüfung der Grafikkarte die
+Verdeckung von selbst, die Fläche dreht sich mit dem Modell und wächst beim
+Zoomen mit — sie *ist* an dieser Stelle. **Ersatzlos weggefallen:**
+Projektion je Bild, `markeSichtbar()`, `markenVerdeckungPruefen()`,
+`markenStellen()` und das Nachziehen bei Größenänderung. Alles, was am
+31.10.2026 vormittags dahinter vermutet wurde, war Folge der ersten Bauart.
 
-**Zwei Fragen sind offen und brauchen eine Antwort des Betreibers:**
-1. Ist „Anlage" zu voll (Produkt + Montage + Maße + Farbe)?
-2. Soll „Tragwerk" ein eigener Bereich werden?
+- **Leeres Feld:** Fläche zu 9 % weiß angedeutet, Zeichen **+**.
+  **Belegtes Feld:** Fläche in Ruhe unsichtbar (sonst läge ein Schleier vor
+  der fertigen Schiebeanlage), Zeichen **Stift**. Anklickbar sind beide.
+- **Unter dem Zeiger:** 26 % Deckkraft in einem eigenen Orange
+  (`FELD_ORANGE`, aus dem Gold der Seite `--gold #C49A2A` nach Orange
+  verschoben). Beim Ziehen leuchtet nichts mit, und sobald sich die Kamera
+  bewegt, erlischt es — über die Ansichtsknöpfe und das Mausrad kommt kein
+  `pointermove`, sonst bliebe es stehen.
+- **Das Zeichen** ist eine gezeichnete Fläche (dunkle Scheibe, heller Ring,
+  helles Zeichen), kein Sprite und kein Schriftzeichen: Ein Sprite drehte
+  sich wieder zur Kamera, und das war die Beschwerde. 14 bis 34 cm groß,
+  1,2 cm vor der Feldfläche, damit beide nicht um dieselbe Tiefe streiten.
+- **Das Dachfeld** liegt in der *gemessenen* Dachneigung: Ein Strahl von oben
+  auf die Mitte liefert Höhe **und** Richtung der getroffenen Fläche. Von
+  unten („Darunter") ist es nicht anklickbar — die Eindeckung nimmt den
+  Strahl, und das ist richtig.
+- **Die Flächen sind Bedienung, kein Bauteil:** `bildVonAnsicht()` und
+  `schuss()` schalten sie vor jeder Aufnahme aus, damit sie nicht im
+  gespeicherten Bild und nicht im PDF landen. Als HTML fiel das früher von
+  selbst weg.
+- **Tastatur und Screenreader:** Eine Fläche in der Szene ist kein HTML.
+  Deshalb bleibt unter der Leinwand eine **unsichtbare Knopfliste**
+  (`k3dMarkenHuelle`, `clip-path`, *nicht* `display:none`). Sie klappt unten
+  links auf, sobald einer ihrer Knöpfe den Fokus hat.
+- Abschaltbar an zwei Stellen, die denselben Wert halten: Schalter
+  **„+ Felder"** in der Ansichtsleiste und Häkchen unter *Anzeige*.
+  Voreingestellt **an**.
 
-### Maße: voreingestellt an und anklickbar *(31.10.2026)*
+**Im Browser gemessen (31.10.2026, Software-Rendering):**
 
-Die Maßlinien sind **standardmäßig eingeschaltet**. Ein Tipp auf ein Maßschild
-im Bild öffnet ein kleines Zahlenfeld; die neue Zahl ändert die Anlage sofort.
+| Was | Messung |
+|---|---|
+| Zeiger auf einem Feld | 100 602 Bildpunkte ändern sich, **99 % davon orange** |
+| Liegt die Fläche in der Ebene? | Perspektive: linke Kante 417 px, rechte 306 px → **27 % Unterschied**. In „Vorne" und „Seite" (Blick senkrecht darauf) 0 % — genau das Muster einer Fläche im Raum, nicht einer am Bildschirm |
+| Nach Ansichtswechsel | Hervorhebung 108 111 → **0** geänderte Punkte |
+| Klick auf ein Feld | Fokus landet auf dem Knopf „Rahmenwand" im Bereich *Seiten*, Gruppe leuchtet auf |
 
-- Anklickbar sind **Breite, Tiefe und Höhe vorne**. Das Schild trägt dafür
-  `userData.massFeld`; den Klick wertet `massGeklickt()` aus.
-- Die Zahl wird **in das Zahlenfeld des Bedienfeldes geschrieben**
-  (`k3dBreiteZahl` …) und dort per `change` angewandt — dort hängen Mindest-
-  und Höchstmaß und der Neubau. Im Browser gemessen: **99999 mm → 14080 mm**.
-- Die Schilder sind seit dem 11.10.2026 bewusst klein und filigran; daran ist
-  **nichts geändert**. Zurückgenommen wurde nur die Deckkraft des Kästchens
-  (62 → 52 %), also dieselbe Richtung wie „nicht störend wirken".
-- `k3dMassWert` steht in `pruefe-fuehrung.js` als **Ausnahme mit Begründung**:
-  Es stellt nichts ein, solange getippt wird — sonst wäre eine halb getippte
-  „4" sofort ein 4-mm-Dach.
+**Dabei gefunden, nicht vermutet:** Ein Klick brauchte im Versuch 549 ms
+zwischen Druck und Loslassen und fiel durch die Grenze `zeit < 500`. Die
+Grenze steht jetzt bei **900 ms**. Was einen Klick von einer Drehung trennt,
+ist der **Weg** (`weg < 6`), nicht die Zeit; die Obergrenze fängt nur ab, dass
+jemand den Finger liegen lässt. Am Handy zielt man langsamer als am Zeiger —
+mit 500 ms wäre jeder bedächtige Tipp ins Leere gelaufen.
 
-**Offen, bewusst:** Mit der Tastatur sind die Schilder nicht erreichbar (sie
-sind Teile im 3D-Bild, keine Knöpfe). Dieselben Werte stehen im Bedienfeld.
-
-### Anklickpunkte am Modell — gebaut *(31.10.2026)*
-
-Am Modell sitzt jetzt **ein Punkt je Seitenfeld und einer am Dach**. Ein Klick
-springt in den passenden Bereich und setzt den Blick auf die Einstellung:
-Feld → **Seiten**, Dach → **Dach**. Die angesprungene Zeile leuchtet kurz auf,
-sonst wirkt der Klick folgenlos.
-
-- Leer ist der Punkt ein **+**, belegt ein **Stift** — ein Plus an einer Seite,
-  die längst eine Schiebeanlage hat, sagt etwas Falsches.
-- **24 px (Handy 28 px), halbdurchsichtig**, unter dem Zeiger voll deckend.
-  Nachgebessert am 31.10.2026: „die + zeichen sind zu groß … mach sie kleiner
-  etwas durchsichtiger und feststehend". Weniger als 24 px geht nicht —
-  das ist das Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8).
-- **Die Punkte sitzen mittig im Feld** — waagerecht in der Feldmitte,
-  senkrecht in der Mitte der Öffnung. Am 31.10.2026 hatte ich sie kurz an die
-  Dachkante gehängt, weil eine Messung zeigte, dass sie in der Mitte einer
-  **offenen** Seite über Wiese und Himmel liegen (von zwölf Messungen lag eine
-  auf einem Bauteil). Das war **meine Auslegung, nicht der Wunsch des
-  Betreibers** („die sollen mittig in den feldern sitzen … das hab ich nie
-  gesagt") — zurückgenommen, und `pruefe-marken.js` hält jetzt fest, was
-  wirklich gilt. Der **Dachpunkt** sitzt per Strahl von oben auf der
-  Dachfläche statt auf `kiste.max.y`; das ist bei geneigtem Dach die
-  Hinterkante, dort schwebte er in der Mitte darüber.
-- **Die Bühne wird beobachtet, nicht nur das Fenster** (`ResizeObserver` in
-  `groesseAnpassen()`). Gemessen am 31.10.2026: Wird die Bühne kleiner, ohne
-  dass sich das Fenster ändert — am iPhone fährt dabei die Adressleiste ein
-  und aus —, blieb der Zeichenpuffer der Leinwand auf der alten Größe
-  (Bühne 390 × 360, Puffer 390 × 380). Das Bild wird dann per CSS **gedehnt**
-  (daher das verzerrte Modell) und die Punkte rechnen schon mit der neuen
-  Größe: Sie liegen neben ihrem Bauteil. Ein `resize`-Ereignis kommt dabei
-  nicht zuverlässig.
-> **„die + punkte wandern" — fünf Erklärungen geprüft, vier verworfen**
-> (Betreiber, 31.10.2026, dreimal gemeldet; auf Rückfrage: *„Tauchen an
-> Feldern auf, die man gar nicht sieht"*, *„erst nach dem Drehen"*).
+> **Was vorher vergeblich gesucht wurde** — fünf Erklärungen, vier verworfen
+> (Betreiber, 31.10.2026: *„Tauchen an Feldern auf, die man gar nicht sieht"*,
+> *„erst nach dem Drehen"*). Steht hier, damit es niemand wiederholt:
 >
 > | Verdacht | Messung | Ergebnis |
 > |---|---|---|
 > | Seitenverhältnis Leinwand/Bühne | auch mit `deviceScaleFactor: 3` | passt, Abweichung < 0,01 |
-> | Hauswand fehlte als Verdecker | A/B über 12 Drehschritte | **identisch** — eingebaut, Wirkung nicht nachgewiesen |
-> | Zustand veraltet nach dem Drehen | 6 Drehungen, Muster direkt / nach 1,6 s / nach Stups | **unverändert** |
-> | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt ausgelesen | stimmt, war aber **nicht der Wunsch** — zurückgenommen |
-> | Unsichtbare Wand im Feld als Verdecker | A/B über 12 Drehschritte | **identisch**, 8 von 25 Punkten so und so vor Wiese/Himmel |
+> | Hauswand fehlte als Verdecker | A/B über 12 Drehschritte | **identisch** |
+> | Zustand veraltet nach dem Drehen | 6 Drehungen, direkt / nach 1,6 s / nach Stups | **unverändert** |
+> | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt ausgelesen | stimmt, war aber **nicht der Wunsch** — zurückgenommen („das hab ich nie gesagt") |
+> | Unsichtbare Wand im Feld als Verdecker | A/B über 12 Drehschritte | **identisch** |
+> | Der Punkt schluckte den Druck (`stopPropagation`) | Umriss über 16 Drehungen | **war ein echter Fehler**, aber nicht der gemeldete |
 >
-> | **Der Punkt schluckte den Druck** | Umriss des Bauwerks über 16 Drehungen | **gefunden**: ab Schritt 6 blieb der Umriss Pixel für Pixel gleich — zehn Züge ohne jede Wirkung |
->
-> **Der Fund, der zählt:** Ein Punkt rief `stopPropagation` auf dem
-> `pointerdown`. Wer den Finger auf einen Punkt setzte und zog, drehte
-> **nichts** — und die Punkte sitzen mitten im Bild, also genau dort, wo man
-> zum Drehen hinfasst. Jetzt beginnt der Druck auf einen Punkt dieselbe
-> Drehung wie auf der Leinwand; ob es Tippen oder Ziehen war, entscheidet der
-> Browser (beim Ziehen endet der Zeiger woanders, dann kommt kein `click`).
->
-> **Die Erklärung, die blieb:** Die Punkte der *abgewandten* Seite sind längst
-> durch die Flächenrichtung ausgeblendet. Was im Leeren steht, ist der Punkt
-> des **eigenen, offenen** Feldes — und hinter dem ist nichts. Gegen den hilft
-> keine Verdeckung.
->
-> **Gelöst wie vom Betreiber vorgeschlagen, nur andersherum:** Die Fläche im
-> offenen Feld bleibt — sie wird ganz schwach **sichtbar** (9 % Deckkraft,
-> kein Schatten, kein Tiefenschreiben). Dann steht der Punkt auf etwas, das
-> man sieht, und das offene Feld zeigt sich als Stelle, an der etwas
-> eingebaut werden kann. Nur wo wirklich nichts steht; am selben Schalter wie
-> die Punkte. **Vom Betreiber noch nicht gegengelesen.**
->
+> **Die eigentliche Ursache war die Bauart selbst.** Ein HTML-Knopf kann nicht
+> flach in einer Fläche liegen; er schaut immer zum Betrachter. Alles andere
+> waren Folgeerscheinungen. Die Lehre: Wenn vier Messungen nacheinander
+> „identisch" sagen, stimmt die Frage nicht.
 
-- **Verdeckte Punkte werden ausgeblendet** (`markenVerdeckungPruefen()`).
-  Die Flächenrichtung allein reichte nicht: Beim Drehen schien der Punkt der
-  abgewandten Längsseite durch das ganze Bauwerk und klebte an einem fremden
-  Bauteil. Der Strahl läuft **nicht je Bild**, sondern höchstens alle 110 ms
-  und nur bei bewegter Kamera — sonst wäre er der teuerste Posten der
-  Zeichenschleife. Beleg: In der Ansicht „Von oben" ist nur noch **1 von 5**
-  Punkten zu sehen, der am Dach.
-- Abschaltbar an zwei Stellen, die denselben Wert halten: Schalter
-  **„+ Punkte"** in der Ansichtsleiste und Häkchen unter *Anzeige*.
-  Voreingestellt **an**.
-- Punkte sind **HTML über der Leinwand** (`.k3d-marke`), nicht Teile im Modell.
-  Deshalb bleiben sie bei jedem Zoom gleich groß, sind mit der Tabulatortaste
-  erreichbar — und stehen **nicht** im gespeicherten Bild und nicht im PDF.
-  Begründung und die verworfenen Wege: `docs/entscheidungen.md`, 31.10.2026.
+- **Die Bühne wird beobachtet, nicht nur das Fenster** (`ResizeObserver`).
+  Gemessen am 31.10.2026: Wird die Bühne kleiner, ohne dass sich das Fenster
+  ändert — am iPhone fährt dabei die Adressleiste ein und aus —, blieb der
+  Zeichenpuffer auf der alten Größe (Bühne 390 × 360, Puffer 390 × 380) und
+  das Bild wurde per CSS **gedehnt**. Seit die Felder im Modell liegen,
+  verzieht das nicht mehr nur die Punkte, sondern das ganze Bild.
 - Lage: `markenFelder()` in `js/konfigurator-3d.js`, mit denselben Achsen, mit
-  denen `eineSeite()` baut. Ob ein Punkt gezeigt wird, entscheidet die Richtung
-  seiner Fläche (`markeSichtbar()`) — kein Strahl ins Modell, das wäre je Bild
-  der teuerste Posten. Der Dachpunkt fällt in der Ansicht „Darunter" deshalb
-  von selbst weg.
-- Geprüft von **`scripts/pruefe-marken.js`** (28 Prüfungen, Gegenprobe mit
-  24 einzeln eingebauten Fehlern).
+  denen `eineSeite()` baut.
+- Geprüft von **`scripts/pruefe-marken.js`** (58 Prüfungen, Gegenprobe mit
+  61 einzeln eingebauten Fehlern, alle bemerkt).
 
 **Beim ersten Bauen schiefgegangen** (steht hier, damit es niemand wiederholt):
 Die Hülle über der Leinwand und das Häkchen im Bedienfeld trugen beide die
 Kennung `k3dMarken`. `getElementById` nahm das erste Element im Dokument, also
-das Häkchen — alle Punkte landeten **darin** statt über der Leinwand und saßen
-im Browserlauf zu viert auf einem Fleck bei 0/0. Die Hülle heißt jetzt
-`k3dMarkenHuelle`, und `pruefe-marken.js` prüft, dass beide Kennungen
-verschieden sind.
+das Häkchen — alle Punkte landeten **darin** und saßen im Browserlauf zu viert
+auf einem Fleck bei 0/0. Die Hülle heißt `k3dMarkenHuelle`, und
+`pruefe-marken.js` prüft, dass beide Kennungen verschieden sind.
+
+**Vom Betreiber gegenzulesen:**
+1. Am Handy: Lassen sich die Felder mit dem Finger treffen? Ohne Zeiger gibt
+   es kein Überfahren — der erste Tipp ist gleich der Klick.
+2. Wirkt das Orange zu kräftig oder zu schwach? (`FELD_WACH`, zurzeit 26 %.)
+3. Stören die angedeuteten leeren Felder (9 % weiß), wenn man nur schauen
+   will? Der Schalter **„+ Felder"** nimmt sie weg.
 
 **Offen (bewusst, braucht eine Entscheidung):**
-1. **Ein Punkt je Feld, aber nur eine Auswahl je Seite.** Zwei Felder links
+1. **Ein Feld je Öffnung, aber nur eine Auswahl je Seite.** Zwei Felder links
    springen beide in dieselbe Zeile „Links". Eine Auswahl je Feld wäre der
    nächste Schritt — und ein großer: Sie müsste durch Maßtabelle, Anfrage und
    Teilen-Link mitgehen.
-2. **Kein Punkt am Terrassenboden, an den Pfosten und am Zubehör.** Auftrag
-   waren Seitenfelder und Dach; mehr Punkte sind schnell zu viele.
-3. **Der Hinweis zum Testbetrieb liegt beim ersten Aufruf über den Punkten.**
-   Er verschwindet nach dem Wegklicken (einmal je Browser-Sitzung) — unschön,
-   aber kein Fehler.
+2. **Kein Feld am Terrassenboden, an den Pfosten und am Zubehör.** Auftrag
+   waren Seitenfelder und Dach; mehr Marken sind schnell zu viele.
+3. **Der Hinweis zum Testbetrieb liegt beim ersten Aufruf über dem Modell.**
+   Er verschwindet nach dem Wegklicken (einmal je Browser-Sitzung).
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
@@ -414,7 +375,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-symbole.js` | **Keine Emoji in der Oberfläche.** Sucht die Zeichen selbst (nicht das Aussehen) in Knopfbeschriftungen, in allem, was Javascript in die Seite schreibt, und in den sechs Skripten der Website. Dazu: Jedes benutzte Symbol gibt es, keines liegt ungenutzt herum, jedes hat eine viewBox, keines bringt fremde Bilddaten mit, das Sprite steht vor der ersten Verwendung. Gegenprobe: 17 Fehler, jeder einzeln |
-| `scripts/pruefe-marken.js` | Anklickpunkte am Modell: ein Punkt je Seitenfeld (auch bei Unterzug und Mittelpfosten), kein Punkt hinten bei Wandmontage, hinten nach den **hinteren** Achsen, keiner steckt in einem Pfosten, Abgewandtes wird nicht gezeigt, Schalter wirkt, Punkte bleiben aus Bild und PDF heraus. `markenFelder()` und `markeSichtbar()` werden **ausgeführt**, nicht im Quelltext nachgelesen. Gegenprobe: 24 Fehler, jeder einzeln |
+| `scripts/pruefe-marken.js` | Anklickbare Felder am Modell: ein Feld je Seitenfeld (auch bei Unterzug und Mittelpfosten), keins hinten bei Wandmontage, hinten nach den **hinteren** Achsen, keins steckt in einem Pfosten; die Fläche liegt IN der Ebene ihres Feldes (Quaternion, kein Sprite), Hervorhebung orange und durchsichtig, Klick führt ins Bedienfeld, Verdecktes ist nicht anklickbar, Flächen bleiben aus Bild und PDF heraus. `markenFelder()` wird **ausgeführt**, nicht im Quelltext nachgelesen. 58 Prüfungen, Gegenprobe: 61 Fehler einzeln |
 | `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
 | `scripts/pruefe-konfigurator-sperre.js` | Ist der öffentliche Konfigurator wirklich gesperrt (503, nicht 404), führt die Hinweisseite zur Anfrage, ist die Werkstatt **nicht** mitgesperrt, verlinkt keine Seite ihn noch aktiv im Menü? **Beim Zurückschalten muss dieses Skript rot werden** |
 | `scripts/pruefe-werkstatt.js` | Passwortschranke vor `/werkstatt/`: gesperrt ohne hinterlegtes Passwort, falsches Passwort abgewiesen, Keks HttpOnly/Secure/SameSite und nicht im Klartext, alte Anmeldung nach Passwortwechsel ungültig — **und ob die Seite überhaupt durch den Worker läuft** (`run_worker_first`). Gegenprobe: 10 Fehler, jeder einzeln |

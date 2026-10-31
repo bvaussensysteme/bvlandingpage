@@ -243,29 +243,33 @@ async function sichtbareEinheiten() {
     return n;
   });
 }
-/* ---------- Anklickpunkte fuer diesen Lauf abschalten ----------
+/* ---------- Die Feldflaechen fuer diesen Lauf abschalten ----------
    Nicht, um ein Problem zu verstecken, sondern damit dieses Skript
-   wieder das MODELL misst:
+   wieder das MODELL misst.
 
-   locator.screenshot() fotografiert den Bildschirmausschnitt, in dem die
-   Leinwand liegt - und nimmt alles mit, was darueber liegt. Seit es die
-   Anklickpunkte gibt (31.10.2026) liegen deren Raender darin. Der
-   Vergleich "Das Modell bleibt beim Umschalten unveraendert" wurde davon
-   rot, obwohl das Modell Pixel fuer Pixel dasselbe war: 48 abweichende
-   Pixel von 832.000, alle an den Punkten, entstanden durch
-   Kantenglaettung beim Neuaufbau der Seite. Umgekehrt - und das ist der
-   schlimmere Fall - koennte ein veraenderter Punkt eine Pruefung auf
-   "hat sich geaendert" bestehen lassen, ohne dass sich am Modell etwas
-   tut.
+   ANLASS (31.10.2026): Damals lagen die Anklickpunkte als HTML ueber
+   der Leinwand, und locator.screenshot() fotografiert den
+   Bildschirmausschnitt mit allem, was darueber liegt. Der Vergleich
+   "Das Modell bleibt beim Umschalten unveraendert" wurde davon rot,
+   obwohl das Modell Pixel fuer Pixel dasselbe war: 48 abweichende
+   Pixel von 832.000, alle an den Punkten, aus der Kantenglaettung beim
+   Neuaufbau der Seite.
+
+   SEIT DER ZWEITEN BAUART gilt es erst richtig: Die Felder sind
+   Flaechen IN der Szene, also echte Bildpunkte des gerenderten Bildes.
+   Ein Feld, das unter dem Zeiger orange aufleuchtet, aenderte jeden
+   Bildvergleich. Umgekehrt - und das ist der schlimmere Fall - koennte
+   eine veraenderte Flaeche eine Pruefung auf "hat sich geaendert"
+   bestehen lassen, ohne dass sich am Bauwerk etwas tut.
 
    VERWORFEN: die Leinwand ueber toDataURL selbst lesen. Das waere der
    direktere Weg und war der erste Versuch, aber unter Software-Rendering
    brach der Lauf danach REPRODUZIERBAR bei Pruefung 66 von 90 ab
    (page.check('#k3dSound'), TimeoutError) - auch am unveraenderten
-   Programmstand, also nicht an den Punkten. Zwanzig synchrone
+   Programmstand, also nicht an den Feldern. Zwanzig synchrone
    Leinwand-Auslesungen sind dem Browser hier zu viel.
 
-   Die Punkte selbst prueft scripts/pruefe-marken.js - und zwar an der
+   Die Felder selbst prueft scripts/pruefe-marken.js - und zwar an der
    gerechneten Lage, nicht an Bildpixeln. */
 await page.evaluate(() => {
   const h = document.getElementById('k3dMarken');
@@ -280,8 +284,9 @@ await alleAufklappen();
 /* Die Voraussetzung dieses Laufes, ausdruecklich geprueft: Bliebe das
    Abschalten wirkungslos, verglichen alle Bildpruefungen weiter Modell
    SAMT Punkten - und niemand wuesste es. */
-pruef('Anklickpunkte sind fuer diesen Lauf abgeschaltet',
-  (await page.locator('.k3d-marke').count()) === 0,
+pruef('Die Feldflaechen sind fuer diesen Lauf abgeschaltet',
+  (await page.locator('.k3d-marke').count()) === 0 &&
+  (await page.evaluate(() => !document.getElementById('k3dMarken').checked)),
   'alle Bildvergleiche zeigen damit das Modell pur');
 
 const einheitenBasic = await sichtbareEinheiten();
@@ -735,10 +740,23 @@ const steinBild = await page.locator('#k3dCanvas').screenshot();
 await page.click('[data-k3d-seg="k3dBoden"] button[data-wert="Holzdielen"]');
 await page.waitForTimeout(700);
 pruef('Bodenbelag wechselt sichtbar', !steinBild.equals(await page.locator('#k3dCanvas').screenshot()));
-const ohneMasse = await page.locator('#k3dCanvas').screenshot();
+/* UMGEKEHRT seit dem 31.10.2026: Die Maße sind voreingestellt AN
+   („Die Maße sollen standartmäßig an sein", Betreiber). Das Häkchen
+   anzuhaken war damit wirkungslos – check() tut nichts, wenn der Haken
+   schon sitzt, das Bild blieb gleich und die Prüfung wurde rot, ohne
+   dass etwas kaputt war. Jetzt wird ABGESCHALTET und danach wieder
+   eingeschaltet, damit die folgenden Bildvergleiche denselben Stand
+   sehen wie vorher. */
+const mitMasse = await page.locator('#k3dCanvas').screenshot();
+await page.locator('#k3dMasse').scrollIntoViewIfNeeded();
+await page.waitForTimeout(250);
+await page.uncheck('#k3dMasse');
+await page.waitForTimeout(800);
+pruef('Maße lassen sich im Modell abschalten',
+  !mitMasse.equals(await page.locator('#k3dCanvas').screenshot()),
+  'voreingestellt an, Haken weg – Bild muss sich ändern');
 await haken(page, '#k3dMasse');
 await page.waitForTimeout(800);
-pruef('Maße erscheinen im Modell', !ohneMasse.equals(await page.locator('#k3dCanvas').screenshot()));
 
 // Bedienfeld zuklappen
 const vorher = (await page.locator('.k3d-buehne').boundingBox()).width;
@@ -869,7 +887,7 @@ if (!GEGENPROBE) {
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
   'Bedienfeld links von der Bühne',
-  'Maße erscheinen im Modell',
+  'Maße lassen sich im Modell abschalten',
   'Notiz des Konfigurators geht mit'
 ];
 let luecken = 0;

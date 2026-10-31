@@ -3467,7 +3467,10 @@
        wird, steht nach einem Produktwechsel noch da. Die Punkte entstehen
        während des Baus neu – also hier leeren, nicht irgendwo später. */
     MARKEN = [];
-    leeren(blendGruppe);
+    leeren(feldGruppe);
+    /* Nach dem Neubau gibt es die hervorgehobene Fläche nicht mehr –
+       sonst zeigte feldFaerben() auf ein Feld, das weggeraeumt ist. */
+    feldWach = null;
     /* Der Hausvorsprung haengt an der Szene, nicht an bau - leeren(bau)
        raeumt ihn also NICHT weg. Deshalb bei jedem Bau zuerst aus, und
        nur der Bauweg, der ihn braucht, schaltet ihn wieder ein. Sonst
@@ -3998,18 +4001,17 @@
      klick drauf springt in den bereich der dazu gehoert" (Betreiber,
      31.10.2026).
 
-     WARUM HTML UND NICHT 3D. Die Punkte sind Bedienung, nicht Bauteil.
-     Als Knopf über der Leinwand sind sie bei jeder Zoomstufe gleich
-     groß, mit der Tabulatortaste erreichbar und von Screenreadern
-     lesbar – und sie landen NICHT im gespeicherten Bild und nicht im
-     PDF, weil die Leinwand nichts von ihnen weiß. Als Sprite im Modell
-     wäre jeder dieser vier Punkte anders, und das Bild hätte plötzlich
-     Bedienelemente darin.
+     ES SIND FLÄCHEN IN DER SZENE, keine Knoepfe darueber – warum, steht
+     bei feldGruppe. MARKEN ist die Liste dahinter: Sie trägt die
+     Beschriftung, das Sprungziel im Bedienfeld und die unsichtbare
+     Knopfliste für die Tabulatortaste.
 
      MARKEN wird bei jedem Bau neu gefüllt. Ein Eintrag:
        { art: 'seite'|'dach', seite, feld, anzahl,
          p: {x,y,z} Lage in cm im Modellraum,
-         n: {x,y,z} Richtung, in die die Fläche schaut } */
+         n: {x,y,z} Richtung, in die die Fläche schaut }
+     Die Flächen in feldGruppe zeigen über userData.feldMarke auf genau
+     diesen Eintrag – so findet ein Klick sein Ziel. */
   var MARKEN = [];
 
   /* Wo die Punkte der Seitenfelder liegen – nur Zahlen, kein 3D.
@@ -4058,142 +4060,216 @@
     return liste;
   }
 
-  /* Zeigt die Fläche, an der der Punkt sitzt, zur Kamera?
+  /* ---------- Die Felder am Modell ----------
+     „und die Punkte drehen sich quasi immer in Kamerarichtung und
+     bleiben nicht flach wie dieses Feld immer stehen … Und wenn man dann
+     mit der Maus über dieses Feld fährt, dann sieht dieses Feld wie
+     markiert aus … bei mir kann man das ja in orange durchsichtig
+     machen" (Betreiber, 31.10.2026).
 
-     Ein reines Skalarprodukt, absichtlich kein Strahl ins Modell: Bei
-     bis zu zehn Punkten je Bild wäre ein Strahl je Punkt der teuerste
-     Posten der Zeichenschleife, und am Handy merkt man das sofort. Die
-     Flächenrichtung reicht – was von hinten gesehen wird, ist durch die
-     Anlage selbst ohnehin verdeckt. */
-  function markeSichtbar(n, p, kamPos) {
-    return (kamPos.x - p.x) * n.x + (kamPos.y - p.y) * n.y +
-           (kamPos.z - p.z) * n.z > 0;
+     DAS IST DIE ZWEITE BAUART. Die erste war ein HTML-Knopf über der
+     Leinwand, dessen Lage je Bild aus der Kamera gerechnet wurde. Daran
+     hing alles, was am 31.10.2026 hinterhergeräumt werden musste:
+     Projektion, Seitenverhältnis beim Größenwechsel, ein
+     Verdeckungsstrahl je Punkt – und der Punkt schaute immer in die
+     Kamera, weil ein HTML-Knopf nichts anderes kann.
+
+     Jetzt ist das Feld ein Teil der Szene: eine Fläche genau dort, wo
+     das Element säße, mit dem Zeichen flach darin. Damit erledigt die
+     Tiefenprüfung der Grafikkarte die Verdeckung von selbst, die Fläche
+     dreht sich mit dem Modell und wird beim Zoomen größer – sie IST ja
+     an dieser Stelle. Ersatzlos weggefallen sind dadurch
+     markeSichtbar(), markenVerdeckungPruefen() und markenStellen().
+
+     WAS DAMIT NICHT MEHR GEHT: Eine Fläche in der Szene ist kein
+     HTML-Element, also nicht mit der Tabulatortaste erreichbar und von
+     Screenreadern nicht lesbar. Deshalb bleiben die Knöpfe als
+     unsichtbare Liste bestehen (markenAufbauen) – sie werden sichtbar,
+     sobald einer von ihnen den Fokus hat. */
+  var feldGruppe = new THREE.Group();
+  szene.add(feldGruppe);
+
+  /* Eigene Farbe: aus dem Gold der Seite (--gold #C49A2A in
+     src/css/style.css) nach Orange verschoben, weil der Betreiber
+     Orange wollte. Kein Wert von irgendwoher übernommen. */
+  var FELD_ORANGE = 0xE2901F;
+  var FELD_RUHE   = 0.09;        // leeres Feld: nur angedeutet
+  var FELD_WACH   = 0.26;        // unter dem Zeiger
+
+  function feldStoff(ruhe) {
+    var st = new THREE.MeshBasicMaterial({
+      color: rgb(0xffffff), side: THREE.DoubleSide,
+      transparent: true, opacity: ruhe, depthWrite: false
+    });
+    /* depthWrite aus, damit die Fläche nichts dahinter wegschneidet;
+       depthTest bleibt AN – das ist die Verdeckung, um die es ging. */
+    st.userData.ruhe = ruhe;
+    return st;
   }
 
-  /* ---------- Und liegt die Anlage davor? ----------
-     „die wandern an komplett falsche stellen wenn man den konfigurator
-     dreht" (Betreiber, 31.10.2026, mit Bild: der Punkt der LINKEN Seite
-     stand beim Blick von rechts mitten im Glas der rechten Seite).
-
-     Die Flaechenrichtung allein reicht dafuer nicht. Sie sagt nur, ob
-     die Flaeche zur Kamera schaut - nicht, ob etwas DAZWISCHEN steht.
-     Beim Drehen schien der Punkt der abgewandten Laengsseite durch das
-     ganze Bauwerk hindurch und klebte an einem Bauteil, zu dem er nicht
-     gehoert.
-
-     Ein Strahl je Punkt und BILD waere der teuerste Posten der
-     Zeichenschleife - deshalb wird nur nachgesehen, wenn sich die
-     Kamera wirklich bewegt hat, und hoechstens alle 110 ms. Dazwischen
-     gilt das letzte Ergebnis. Beim Drehen sind das rund neun Pruefungen
-     je Sekunde statt sechzig; das Ergebnis haengt dem Bild hoechstens
-     ein Zehntel hinterher, und das sieht man nicht.
-
-     TOLERANZ: Der Punkt sitzt IN der Ebene seines Feldes. Steht dort
-     ein Element (Glas, Planken), trifft der Strahl es genau dort -
-     deshalb zaehlt nur, was mindestens 12 cm davor liegt. Ohne diese
-     Toleranz blendete sich jeder Punkt an einer geschlossenen Seite
-     selbst aus. */
-  /* ---------- Unsichtbare Flaechen in den Feldern ----------
-     „dann bau ne unsichtbare wand oderso" (Betreiber, 31.10.2026).
-
-     Das Problem, das er dreimal gemeldet hat: Punkte „tauchen an
-     Feldern auf, die man gar nicht sieht". Eine OFFENE Seite ist ein
-     Loch - der Strahl geht hindurch, und der Punkt der dahinter
-     liegenden Seite bleibt stehen, mitten im Bild, wo kein Bauteil ist.
-
-     Also bekommt jedes Feld eine Flaeche, die GENAU DORT liegt, wo das
-     Element saesse, wenn eines gewaehlt waere. Sie wird NIE GEZEICHNET:
-     Die Gruppe haengt nicht in der Szene, sie existiert nur fuer den
-     Strahl. Damit verhaelt sich ein offenes Feld bei der Verdeckung wie
-     ein geschlossenes - und genau das ist gemeint, wenn jemand sagt,
-     der Punkt gehoere zu DIESEM Feld.
-
-     Der eigene Punkt bleibt sichtbar: Er liegt in derselben Ebene, und
-     die Toleranz von 12 cm schneidet die eigene Flaeche weg. */
-  var blendGruppe = new THREE.Group();
-  szene.add(blendGruppe);
-
-  /* ZUERST war die Flaeche wirklich unsichtbar und nur fuer den Strahl
-     da. GEMESSEN ueber zwoelf Drehungen, einmal mit und einmal ohne:
-     ZEILE FUER ZEILE DASSELBE, 8 von 25 Punkten standen so und so vor
-     Wiese oder Himmel. Der Grund: Die Punkte der ABGEWANDTEN Seite sind
-     laengst durch die Flaechenrichtung ausgeblendet - was im Leeren
-     steht, ist der Punkt des EIGENEN, offenen Feldes. Gegen den hilft
-     keine Verdeckung, der haelt sich ja selbst nicht auf.
-
-     Also andersherum: Die Flaeche bleibt, wird aber SICHTBAR - ganz
-     schwach. Dann steht der Punkt auf etwas, das man sieht, und das
-     offene Feld zeigt sich als das, was es ist: eine Stelle, an der
-     etwas eingebaut werden kann. Deckkraft 9 Prozent, kein Schatten,
-     kein Tiefenschreiben - es soll das Modell nicht veraendern,
-     sondern das Feld andeuten.
-
-     Sie haengt am selben Schalter wie die Punkte („+ Punkte"): Wer die
-     Punkte abschaltet, will auch die Felder nicht sehen. */
-  var blendStoff = new THREE.MeshBasicMaterial({
-    color: rgb(0xffffff), side: THREE.DoubleSide,
-    transparent: true, opacity: 0.09, depthWrite: false
-  });
-
-  function blendFlaeche(m, yUnten, okOben) {
-    var hoch = okOben - yUnten;
-    if (!(hoch > 0) || !(m.laenge > 0)) return;
-    var f = new THREE.Mesh(new THREE.PlaneGeometry(m.laenge, hoch), blendStoff);
-    /* Laengsseiten schauen in x, Stirnseiten in z - die Ebene wird
-       entsprechend gedreht. */
-    if (m.nx) f.rotation.y = Math.PI / 2;
-    f.position.set(m.x, (yUnten + okOben) / 2, m.z);
-    blendGruppe.add(f);
+  /* Das Zeichen wird gezeichnet, nicht getippt. Ein Sprite oder ein
+     Schriftzeichen würde sich wieder zur Kamera drehen, und genau das
+     soll nicht sein. Zwei Bilder, einmal angelegt und geteilt. */
+  var feldBilder = {};
+  function feldBild(art) {
+    if (feldBilder[art]) return feldBilder[art];
+    var c = document.createElement('canvas');
+    c.width = c.height = 128;
+    var g = c.getContext('2d');
+    g.lineCap = 'round';
+    /* EINE SCHEIBE HINTER DEM ZEICHEN. Im ersten Versuch stand nur ein
+       weisses Kreuz mit dunklem Rand darin - GESEHEN im Bild vom
+       31.10.2026: vor heller Hauswand und vor dem hellen Belag war es
+       kaum zu finden. Dunkel gefuellt mit hellem Ring traegt es sich
+       selbst, auf dunklem Dach wie auf heller Wand.
+       Eigene Form: dunkle Scheibe, heller Ring, helles Zeichen. */
+    g.beginPath(); g.arc(64, 64, 42, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(17,17,17,.46)'; g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 5; g.stroke();
+    g.strokeStyle = '#ffffff'; g.lineWidth = 9;
+    g.beginPath();
+    if (art === 'stift') {
+      g.moveTo(44, 84); g.lineTo(84, 44);
+      g.moveTo(44, 84); g.lineTo(57, 81);
+      g.moveTo(44, 84); g.lineTo(47, 71);
+    } else {
+      g.moveTo(64, 40); g.lineTo(64, 88);
+      g.moveTo(40, 64); g.lineTo(88, 64);
+    }
+    g.stroke();
+    var t = new THREE.CanvasTexture(c);
+    t.anisotropy = 4;
+    feldBilder[art] = t;
+    return t;
   }
 
-  var VERDECKT_TOLERANZ = 12;        // cm
-  var markenPruefZeit = 0, markenKamMerk = null;
+  /* Eine PlaneGeometry schaut von sich aus nach +z. Gedreht wird sie auf
+     die Flächenrichtung des Feldes – damit liegt sie IN der Ebene des
+     Feldes und nicht quer dazu. Ein Quaternion statt rotation.y, weil
+     das Dach geneigt ist und seine Richtung aus einem Strahl kommt. */
+  var FELD_VOR = new THREE.Vector3(0, 0, 1);
+  var feldRichtung = new THREE.Vector3();
+  function feldRichten(o, marke) {
+    o.position.set(marke.p.x, marke.p.y, marke.p.z);
+    feldRichtung.set(marke.n.x, marke.n.y, marke.n.z).normalize();
+    o.quaternion.setFromUnitVectors(FELD_VOR, feldRichtung);
+  }
 
-  function markenVerdeckungPruefen(erzwingen) {
-    if (!MARKEN.length) return;
-    var jetzt = Date.now();
-    var k = kamera3.position;
-    var bewegt = !markenKamMerk ||
-                 Math.abs(markenKamMerk.x - k.x) > 0.5 ||
-                 Math.abs(markenKamMerk.y - k.y) > 0.5 ||
-                 Math.abs(markenKamMerk.z - k.z) > 0.5;
-    if (!erzwingen && (!bewegt || jetzt - markenPruefZeit < 110)) return;
-    markenPruefZeit = jetzt;
-    markenKamMerk = { x: k.x, y: k.y, z: k.z };
-    if (!markenV) markenV = new THREE.Vector3();
-    var richtung = new THREE.Vector3();
-    /* WAS den Blick nehmen kann. Anfangs stand hier nur bau.children -
-       und genau das war die Luecke: Hauswand, Hausvorsprung und
-       Haustuer haengen NICHT am Bauwerk, sondern einzeln in der Szene.
-       Punkte dahinter schienen durch die Wand hindurch.
+  /* Fläche und Zeichen für ein Feld.
+     belegt = für diese Seite ist schon etwas gewählt. */
+  function feldFlaeche(marke, laenge, hoehe, belegt) {
+    if (!(laenge > 0) || !(hoehe > 0)) return;
+    /* Ein belegtes Feld bleibt in Ruhe UNSICHTBAR: Über einer fertigen
+       Schiebeanlage wäre die Andeutung eine zweite Scheibe davor. Unter
+       dem Zeiger leuchtet es trotzdem auf – anklickbar ist es ja. Die
+       Deckkraft ändert nichts daran, dass der Strahl es trifft. */
+    var f = new THREE.Mesh(new THREE.PlaneGeometry(laenge, hoehe),
+                           feldStoff(belegt ? 0 : FELD_RUHE));
+    feldRichten(f, marke);
+    f.userData.feldMarke = marke;
+    f.renderOrder = 2;
+    feldGruppe.add(f);
 
-       „Tauchen an Feldern auf, die man gar nicht sieht" (Betreiber,
-       31.10.2026, auf die Rueckfrage, was die Punkte beim Drehen tun). */
-    var verdecker = [bau, blendGruppe];
-    if (wand && wand.visible) verdecker.push(wand);
-    if (vorsprung && vorsprung.visible) verdecker.push(vorsprung);
-    if (tuer && tuer.visible) verdecker.push(tuer);
-    for (var i = 0; i < MARKEN.length; i++) {
-      var m = MARKEN[i];
-      markenV.set(m.p.x, m.p.y, m.p.z);
-      richtung.copy(markenV).sub(k);
-      var weite = richtung.length();
-      strahl.set(k, richtung.normalize());
-      strahl.far = weite - VERDECKT_TOLERANZ;
-      m.verdeckt = strahl.far > 0 && nimmtDenBlick(
-        strahl.intersectObjects(verdecker, true));
-      strahl.far = Infinity;         // der geteilte Strahl gehoert allen
+    /* Das Zeichen: ein Drittel der kurzen Seite, aber nie so klein,
+       dass man es am Handy nicht mehr trifft, und nie so groß, dass es
+       das Feld füllt. */
+    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3));
+    var z = new THREE.Mesh(new THREE.PlaneGeometry(gr, gr),
+      new THREE.MeshBasicMaterial({
+        map: feldBild(belegt ? 'stift' : 'punkt'), side: THREE.DoubleSide,
+        transparent: true, depthWrite: false, opacity: 0.88
+      }));
+    feldRichten(z, marke);
+    /* 1,2 cm vor der Fläche: Lagen beide in derselben Ebene, stritten
+       sie um dieselbe Tiefe und das Zeichen flackerte beim Drehen. */
+    z.position.x += feldRichtung.x * 1.2;
+    z.position.y += feldRichtung.y * 1.2;
+    z.position.z += feldRichtung.z * 1.2;
+    z.userData.feldMarke = marke;
+    z.renderOrder = 3;
+    feldGruppe.add(z);
+  }
+
+  /* ---------- Unter dem Zeiger ----------
+     Welches Feld der Zeiger trifft. Ein Strahl, aber nur auf Bewegung
+     des Zeigers und höchstens alle 60 ms – nicht je gezeichnetes Bild
+     wie beim alten Verdeckungsstrahl. */
+  var feldWach = null;
+
+  function feldFaerben() {
+    var k = feldGruppe.children;
+    for (var i = 0; i < k.length; i++) {
+      var mat = k[i].material;
+      if (!mat || !mat.userData || mat.userData.ruhe === undefined) continue;
+      var an = (k[i].userData.feldMarke === feldWach);
+      mat.color.copy(rgb(an ? FELD_ORANGE : 0xffffff));
+      mat.opacity = an ? FELD_WACH : mat.userData.ruhe;
     }
   }
 
+  function feldUnterZeiger(e) {
+    if (!Z.markenZeigen || !feldGruppe.children.length || !e) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    /* Hauswand, Hausvorsprung und Haustür hängen NICHT am Bauwerk,
+       sondern einzeln in der Szene – ohne sie wäre ein Feld hinter der
+       Wand anklickbar, obwohl man es nicht sieht. */
+    var ziele = [bau, feldGruppe];
+    if (wand && wand.visible) ziele.push(wand);
+    if (vorsprung && vorsprung.visible) ziele.push(vorsprung);
+    if (tuer && tuer.visible) ziele.push(tuer);
+    var treffer = strahl.intersectObjects(ziele, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      if (!o || o.visible === false) continue;
+      if (o.userData && o.userData.feldMarke) return o.userData.feldMarke;
+      /* Was den Blick nimmt, nimmt auch den Klick. */
+      if (nimmtDenBlick([treffer[i]])) return null;
+    }
+    return null;
+  }
+
+  function feldSchweben(e) {
+    /* Beim Drehen nichts hervorheben: Der Zeiger fährt dabei über das
+       halbe Modell, und ein mitlaufendes Leuchten wäre nur Unruhe. */
+    var neu = zieht ? null : feldUnterZeiger(e);
+    if (neu === feldWach) return;
+    feldWach = neu;
+    feldFaerben();
+    leinwand.style.cursor = neu ? 'pointer' : '';
+    neuZeichnen();
+  }
+
+  function feldGeklickt(e) {
+    var m = feldUnterZeiger(e);
+    if (!m) return false;
+    markeSpringen(m);
+    return true;
+  }
+
+  (function () {
+    if (!leinwand) return;
+    var zuletzt = 0;
+    leinwand.addEventListener('pointermove', function (ev) {
+      var jetzt = Date.now();
+      if (jetzt - zuletzt < 60) return;
+      zuletzt = jetzt;
+      feldSchweben(ev);
+    });
+    leinwand.addEventListener('pointerleave', function () { feldSchweben(null); });
+  })();
+
   /* Nimmt eines der getroffenen Teile wirklich den Blick?
 
-     DURCHSICHTIGES ZAEHLT NICHT. Steht die Kamera hinter der Hauswand,
+     DURCHSICHTIGES ZÄHLT NICHT. Steht die Kamera hinter der Hauswand,
      macht wandDurchsicht() sie durchscheinend, damit man das Modell
-     sieht - ein Punkt dahinter ist dann sehr wohl zu sehen. Dasselbe
-     gilt fuer Glas: Durch eine Scheibe sieht man den Punkt, also
-     verdeckt sie ihn nicht. Wuerde beides zaehlen, verschwaenden
-     Punkte, die der Betreiber vor sich sieht - der umgekehrte Fehler. */
+     sieht – ein Feld dahinter ist dann sehr wohl zu sehen. Dasselbe gilt
+     für Glas: Durch eine Scheibe sieht man das Feld, also verdeckt sie
+     es nicht. Würde beides zählen, ließen sich Felder nicht anklicken,
+     die der Betreiber vor sich sieht – der umgekehrte Fehler. */
   function nimmtDenBlick(treffer) {
     for (var i = 0; i < treffer.length; i++) {
       var o = treffer[i].object;
@@ -5591,14 +5667,18 @@
       var yUnten = SCHWELLE.ueberstand + bodenY(m.x, m.z);
       var okOben = (m.seite === 'hinten') ? okHinten : hVorn;
       if (okOben - yUnten <= 0) return;
-      MARKEN.push({
+      var marke = {
         art: 'seite', seite: m.seite, feld: m.feld, anzahl: m.anzahl,
         p: { x: m.x, y: (yUnten + okOben) / 2, z: m.z },
         n: { x: m.nx, y: 0, z: m.nz }
-      });
-      /* Nur wo wirklich nichts steht: Hat die Seite schon ein Element,
-         waere die Andeutung ein zweites Glas vor dem ersten. */
-      if (!erwListe(m.seite).length) blendFlaeche(m, yUnten, okOben);
+      };
+      MARKEN.push(marke);
+      /* Die Fläche entsteht für JEDES Feld, auch für ein belegtes – nur
+         bleibt sie dort in Ruhe unsichtbar. Vorher gab es sie nur an
+         leeren Seiten; dann ließ sich eine fertige Schiebeanlage nicht
+         mehr über das Modell anwählen, was der Sinn der Sache ist. */
+      feldFlaeche(marke, m.laenge, okOben - yUnten,
+                  erwListe(m.seite).length > 0);
     });
   }
 
@@ -8281,6 +8361,13 @@
     kamera3.lookAt(kam.ziel);
     wandDurchsicht();
     bodenDurchsicht();
+    /* Bewegt sich die Kamera, steht der Zeiger nicht mehr auf dem Feld,
+       das gerade leuchtet. Beim Ziehen raeumt pointermove das schon weg;
+       ueber die Ansichtsknoepfe, das Rad und die Tastatur kommt KEIN
+       pointermove - dort bliebe das Leuchten sonst stehen. Die Abfrage
+       davor, damit beim Ziehen nicht je Bild alle Werkstoffe durchlaufen
+       werden. */
+    if (feldWach) { feldWach = null; feldFaerben(); }
     neuZeichnen();
   }
 
@@ -9729,7 +9816,7 @@
     });
   })();
 
-  /* ---------- Der Punkt am Dach ----------
+  /* ---------- Das Feld am Dach ----------
      Gerechnet aus dem, was wirklich gebaut wurde, nicht aus Breite und
      Tiefe: Überstand, Rinne, Neigung und eine aufliegende Markise
      verschieben die Dachfläche gegenüber dem Rohmaß um bis zu einen
@@ -9737,9 +9824,10 @@
      gelten (dachTeil) – dieselbe Kennzeichnung, über die das Dach schon
      anklickbar ist.
 
-     Der Punkt sitzt OBEN auf der Hülle. Von unten („Darunter") fällt er
-     damit durch markeSichtbar() weg, und das ist richtig: Dort schaut
-     man auf die Unterseite, der Punkt gehörte sonst mitten ins Bild. */
+     Die Fläche liegt OBEN auf der Hülle. Von unten („Darunter") lässt
+     sie sich nicht treffen, weil die Eindeckung dazwischen liegt und
+     den Strahl nimmt – und das ist richtig: Dort schaut man auf die
+     Unterseite, das Zeichen gehörte sonst mitten ins Bild. */
   function markeDach() {
     var kiste = null, teile = [];
     bau.traverse(function (o) {
@@ -9763,27 +9851,49 @@
        wirklich liegt - Neigung, Aufbau und Eindeckung schon
        eingerechnet. Einmal je Bau, nicht je Bild. */
     var y = kiste.max.y;
+    var nrm = new THREE.Vector3(0, 1, 0);
     if (teile.length) {
       var runter = new THREE.Raycaster(
         new THREE.Vector3(m.x, kiste.max.y + 100, m.z),
         new THREE.Vector3(0, -1, 0));
       var t = runter.intersectObjects(teile, true);
-      if (t.length) y = t[0].point.y;
+      if (t.length) {
+        y = t[0].point.y;
+        /* Die Neigung kommt aus der getroffenen Fläche selbst, nicht
+           aus Z.neigung: Beim Pergola-Dach und bei Aufbauten steckt die
+           wirkliche Lage in der Geometrie, nicht in der Eingabe. */
+        if (t[0].face) {
+          nrm.copy(t[0].face.normal).applyNormalMatrix(
+            new THREE.Matrix3().getNormalMatrix(t[0].object.matrixWorld))
+            .normalize();
+          /* Trifft der Strahl eine Lamellenkante oder eine Wange,
+             zeigt die Fläche zur Seite. Dann lieber flach nach oben. */
+          if (nrm.y < 0.4) nrm.set(0, 1, 0);
+        }
+      }
     }
-    MARKEN.push({
+    var marke = {
       art: 'dach', seite: 'dach', feld: 0, anzahl: 1,
-      /* 3 cm darueber: genau auf der Flaeche wuerde die
-         Verdeckungspruefung ihn an der eigenen Eindeckung ausblenden. */
+      /* 3 cm darüber, damit die Fläche nicht in der Eindeckung
+         steckt und beim Drehen mit ihr um die Tiefe streitet. */
       p: { x: m.x, y: y + 3, z: m.z },
-      n: { x: 0, y: 1, z: 0 }
-    });
+      n: { x: nrm.x, y: nrm.y, z: nrm.z }
+    };
+    MARKEN.push(marke);
+    /* Die Dachfläche: Hülle minus 20 cm Rand, in der Neigung liegend.
+       Durch die Neigung ist sie in Tiefenrichtung länger als die Hülle
+       breit ist – deshalb geteilt durch die Senkrechte der Fläche. Das
+       Dach gilt immer als belegt: Eine Eindeckung hat es stets, eine
+       Andeutung darüber wäre ein Schleier auf dem halben Bild. */
+    var tief = (kiste.max.z - kiste.min.z) / Math.max(0.4, nrm.y);
+    feldFlaeche(marke, kiste.max.x - kiste.min.x - 20, tief - 20, true);
   }
 
   /* NICHT 'k3dMarken' – so hiess im ersten Versuch auch das Haekchen im
      Bedienfeld. Zwei Elemente mit derselben Kennung: getElementById nahm
      das erste im Dokument, also das Haekchen, und alle Punkte landeten
-     DARIN statt ueber der Leinwand (im Browserlauf als vier Knoepfe auf
-     einem Punkt bei 0/0 aufgefallen). */
+     DARIN (im Browserlauf als vier Knoepfe auf einem Punkt bei 0/0
+     aufgefallen). Die Huelle traegt heute die unsichtbare Knopfliste. */
   /* Ein Symbol aus der eigenen Sammlung (Sprite unter <body> in
      konfigurator.html). Gezeichnet statt getippt: Zeichen wie ↗ ↔ ☾
      stellt iOS von sich aus als farbiges Emoji dar – „benutz bitte keine
@@ -9822,10 +9932,18 @@
     return erwListe(m.seite).length ? 'stift' : 'punkt';
   }
 
-  /* Die Knöpfe werden WIEDERVERWENDET, nicht jedes Mal neu erzeugt:
-     Ein Klick auf einen Punkt baut das Modell neu, und ein neu erzeugter
-     Knopf hätte den Tastaturfokus verloren – wer sich mit der Tabulator-
-     taste bewegt, stünde nach jedem Klick wieder am Anfang. */
+  /* ---------- Die Liste für die Tastatur ----------
+     Angeklickt wird am Modell (feldGruppe). Eine Fläche in der Szene
+     ist aber kein HTML – ohne diese Liste wären die Felder mit der
+     Tabulatortaste nicht erreichbar und für einen Screenreader nicht
+     vorhanden. Sie liegt deshalb unsichtbar unter der Leinwand und wird
+     sichtbar, sobald einer ihrer Knöpfe den Fokus hat (CSS
+     .k3d-marken:focus-within in konfigurator.html).
+
+     Die Knöpfe werden WIEDERVERWENDET, nicht jedes Mal neu erzeugt:
+     Ein Klick baut das Modell neu, und ein neu erzeugter Knopf hätte
+     den Tastaturfokus verloren – wer sich mit der Tabulatortaste
+     bewegt, stünde nach jedem Klick wieder am Anfang. */
   function markenAufbauen() {
     if (!markenHuelle) return;
     var soll = Z.markenZeigen ? MARKEN.length : 0;
@@ -9842,30 +9960,10 @@
         var i = markenKnoepfe.indexOf(ev.currentTarget);
         if (i > -1 && MARKEN[i]) markeSpringen(MARKEN[i]);
       });
-      /* ---------- Vom Punkt aus muss sich das Modell drehen lassen ----------
-         GEMESSEN am 31.10.2026: Der Punkt schluckte den Druck
-         (stopPropagation). Wer den Finger auf einen Punkt setzte und zog,
-         drehte NICHTS - zehn Zuege hintereinander ohne jede Wirkung, im
-         Versuch nachgestellt. Und die Punkte sitzen mitten im Bild, also
-         genau dort, wo man zum Drehen hinfasst.
-
-         Jetzt beginnt ein Druck auf den Punkt dieselbe Drehung wie ein
-         Druck auf die Leinwand. Ob es ein Tippen oder ein Ziehen war,
-         entscheidet der Browser selbst: Beim Tippen folgt ein click auf
-         den Knopf, beim Ziehen endet der Zeiger woanders - dann kommt
-         kein click, und es bleibt bei der Drehung.
-
-         klickStart wird geleert, damit der Druck nicht zusaetzlich als
-         Klick INS MODELL gilt - sonst oeffnete sich beim Antippen eines
-         Punktes nebenbei eine Schiebetuer dahinter. */
-      k.addEventListener('pointerdown', function (ev) {
-        zieht = true;
-        autoDreht = false;
-        kam.ansicht = '';
-        letzteX = ev.clientX;
-        letzteY = ev.clientY;
-        klickStart = null;
-      });
+      /* Kein eigener pointerdown mehr: Die Liste liegt nicht mehr über
+         dem Modell, sondern unter der Leinwand. Bis zum 31.10.2026 stand
+         hier ein Handgriff, der eine Drehung startete – damals saßen die
+         Knöpfe mitten im Bild und schluckten sonst den Zug. */
       markenHuelle.appendChild(k);
       markenKnoepfe.push(k);
     }
@@ -9876,42 +9974,22 @@
       b.setAttribute('aria-label', markenBeschriftung(m));
       b.title = markenBeschriftung(m);
       b.classList.toggle('ist-belegt', zeichen !== 'punkt');
-      b.hidden = true;             // bis markenStellen() die Lage kennt
-    }
-    /* Nach einem Neubau stimmt das gemerkte Ergebnis nicht mehr: Die
-       Anlage kann anders stehen, ohne dass sich die Kamera bewegt hat. */
-    markenKamMerk = null;
-    /* Ohne Szene rechnet niemand die Weltmatrizen nach - der Strahl
-       traefe sonst Flaechen im Nullpunkt statt an ihrem Platz. */
-    blendGruppe.visible = !!Z.markenZeigen;
-    blendGruppe.updateMatrixWorld(true);
-    markenVerdeckungPruefen(true);
-    markenStellen();
-  }
-
-  /* Lage auf dem Schirm. Läuft je gezeichnetes Bild – deshalb steht hier
-     nichts, was Speicher anlegt: EIN Vektor für alle Punkte, und keine
-     Zeichenkette, die sich nicht geändert hat. */
-  var markenV = null;
-  function markenStellen() {
-    if (!markenHuelle || !markenKnoepfe.length) return;
-    markenVerdeckungPruefen(false);
-    if (!markenV) markenV = new THREE.Vector3();
-    var breite = leinwand.clientWidth, hoehe = leinwand.clientHeight;
-    for (var i = 0; i < markenKnoepfe.length; i++) {
-      var m = MARKEN[i], b = markenKnoepfe[i];
-      if (!m || m.verdeckt || !markeSichtbar(m.n, m.p, kamera3.position)) {
-        b.hidden = true; continue;
-      }
-      markenV.set(m.p.x, m.p.y, m.p.z).project(kamera3);
-      /* z > 1 heißt: hinter der Kamera. Das kommt in der Ansicht
-         „Darunter" vor, wo die Kamera INNEN steht – ohne diese Abfrage
-         klebte der Punkt gespiegelt am Bildrand. */
-      if (markenV.z > 1 || markenV.z < -1) { b.hidden = true; continue; }
       b.hidden = false;
-      b.style.left = Math.round((markenV.x + 1) / 2 * breite) + 'px';
-      b.style.top = Math.round((1 - markenV.y) / 2 * hoehe) + 'px';
     }
+    /* Die Flächen am Modell hängen am selben Schalter wie die Liste
+       („+ Punkte"): Wer sie abschaltet, will auch die Felder nicht
+       sehen. updateMatrixWorld, weil der Strahl aus feldUnterZeiger()
+       sonst Flächen im Nullpunkt treffen könnte statt an ihrem Platz. */
+    feldGruppe.visible = !!Z.markenZeigen;
+    feldGruppe.updateMatrixWorld(true);
+    /* Abgeschaltet heisst auch: keine gemerkte Hervorhebung. Sonst
+       leuchtete beim Wiedereinschalten ein Feld, ohne dass der Zeiger
+       darauf steht. */
+    if (!Z.markenZeigen) feldWach = null;
+    feldFaerben();
+    /* Der Schalter in der Ansichtsleiste aendert nur die Sichtbarkeit,
+       nicht das Modell - ohne das hier bliebe das letzte Bild stehen. */
+    neuZeichnen();
   }
 
   /* Wohin der Klick springt. Nicht einfach „erstes Feld im Bereich":
@@ -10123,7 +10201,17 @@
     klickStart = null;
     /* Erst die Markise, dann die Schiebeanlage: Liegt eine Markise vor
        dem Glas, ist sie gemeint. Beide duerfen nicht zugleich reagieren. */
-    if (weg < 6 && zeit < 500 && !massGeklickt(e) &&
+    /* feldGeklickt zuerst: Die Feldflächen liegen VOR den Bauteilen,
+       sonst oeffnete ein Tipp auf das Feld die Schiebetür dahinter.
+
+       ZEIT: 900 ms, vorher 500. GEMESSEN am 31.10.2026 im Versuch: Ein
+       Druck und ein Loslassen ohne jede Bewegung brauchten 549 ms - der
+       Klick fiel durch, und auf dem Modell geschah nichts. Wer bewusst
+       auf ein Feld zielt, haelt laenger als eine halbe Sekunde; am
+       Handy erst recht. Was einen Klick von einer Drehung trennt, ist
+       der WEG (weg < 6), nicht die Zeit - die Obergrenze faengt nur den
+       Fall ab, dass jemand den Finger minutenlang liegen laesst. */
+    if (weg < 6 && zeit < 900 && !feldGeklickt(e) && !massGeklickt(e) &&
         !markiseGeklickt(e) && !velarisGeklickt(e)) {
       schiebeGeklickt(e);
     }
@@ -10164,10 +10252,6 @@
     kamera3.aspect = breite / hoehe;
     kamera3.updateProjectionMatrix();
     neuZeichnen();
-    /* Die Anklickpunkte liegen ueber der Leinwand und rechnen mit ihrer
-       Groesse. Aendert die sich, muessen sie sofort nachgezogen werden -
-       nicht erst beim naechsten gezeichneten Bild. */
-    markenStellen();
   }
   window.addEventListener('resize', groesseAnpassen);
 
@@ -10239,11 +10323,6 @@
     if (autoDreht) { kam.theta += 0.0035; kameraSetzen(); }
     if (frisch > 0 || autoDreht || zieht) {
       renderer.render(szene, kamera3);
-      /* Die Punkte liegen über der Leinwand, nicht darin – sie müssen
-         deshalb bei jedem Bild mitwandern. Hier und nicht in
-         kameraSetzen(): Beim Drehen und beim Zoomen wird gezeichnet,
-         ohne dass kameraSetzen() zwingend durchläuft. */
-      markenStellen();
       if (frisch > 0) frisch--;
     }
     requestAnimationFrame(zeichnen);
@@ -12674,8 +12753,15 @@
   function bildVonAnsicht(name) {
     var vorher = kam.ansicht;
     if (name && ANSICHTEN[name]) ansichtAnwenden(name);
+    /* Die Feldflächen sind Bedienung, kein Bauteil – im gespeicherten
+       Bild haetten sie nichts verloren. Als HTML-Knoepfe fielen sie von
+       selbst weg; jetzt hängen sie in der Szene und müssen für die
+       Aufnahme ausgeschaltet werden. */
+    var feldVorher = feldGruppe.visible;
+    feldGruppe.visible = false;
     renderer.render(szene, kamera3);
     var bild = renderer.domElement.toDataURL('image/png');
+    feldGruppe.visible = feldVorher;
     if (name && ANSICHTEN[name] && vorher && vorher !== name) ansichtAnwenden(vorher);
     return bild;
   }
@@ -12979,7 +13065,11 @@
 
     function schuss(ansicht) {
       ansichtAnwenden(ansicht);
+      /* Siehe bildVonAnsicht(): keine Bedienelemente im PDF. */
+      var feldVorher = feldGruppe.visible;
+      feldGruppe.visible = false;
       renderer.render(szene, kamera3);
+      feldGruppe.visible = feldVorher;
       /* JPEG statt PNG: Das PDF übernimmt die JPEG-Bytes unverändert
          (DCTDecode). Ein PNG müsste erst entpackt und neu verpackt
          werden – mehr Code und eine deutlich größere Datei. */

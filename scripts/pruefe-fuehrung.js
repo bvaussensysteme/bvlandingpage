@@ -340,10 +340,11 @@ pruefe('Loslassen bleibt ungebremst',
              : /addEventListener\('change', aendern\)/.test(js), '');
 /* Die Flagge MUSS an jeder Stelle gesetzt werden, die die Szene
    aendert - sonst bliebe das Bild stehen. Hier die vier Pflichtstellen. */
-/* Zwischen lookAt und neuZeichnen steht jetzt die Durchsicht der
-   Hauswand - sie darf dazwischen stehen, neuZeichnen aber nicht
-   wegfallen. */
-[['Kamerabewegung', 'kamera3\\.lookAt\\(kam\\.ziel\\);[\\s\\S]{0,60}neuZeichnen\\(\\)'],
+/* Zwischen lookAt und neuZeichnen stehen die Durchsicht der Hauswand,
+   die des Bodens und seit dem 31.10.2026 das Loeschen der Feld-
+   Hervorhebung. Alles das DARF dazwischen stehen, neuZeichnen aber
+   nicht wegfallen - deshalb ein weites Fenster und kein enges. */
+[['Kamerabewegung', 'kamera3\\.lookAt\\(kam\\.ziel\\);[\\s\\S]{0,700}neuZeichnen\\(\\)'],
  ['Groessenaenderung', 'kamera3\\.updateProjectionMatrix\\(\\);\\s*\\n\\s*neuZeichnen\\(\\)'],
  ['Nachgeladene Textur', 'texLader\\.load\\(pfad, function \\(t\\) \\{\\s*\\n\\s*neuZeichnen\\(\\)'],
  ['Stofftextur', "texLader\\.load\\('images/stoffe/tex/[^']*' \\+ wert \\+ '\\.webp', function \\(t\\) \\{\\s*\\n\\s*neuZeichnen\\(\\)"]

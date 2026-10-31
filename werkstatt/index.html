@@ -523,45 +523,50 @@
       background: var(--gold); border-color: var(--gold);
       color: #111; font-weight: 700;
     }
-    .k3d-marken { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
-    /* „die + zeichen sind zu groß … mach sie kleiner etwas
-       durchsichtiger und feststehend" (Betreiber, 31.10.2026).
+    /* ---------- Die Felder: Flächen im Modell, Liste für die Tastatur ----------
+       „und die Punkte drehen sich quasi immer in Kamerarichtung und
+       bleiben nicht flach wie dieses Feld immer stehen … wenn man dann
+       mit der Maus über dieses Feld fährt, dann sieht dieses Feld wie
+       markiert aus … in orange durchsichtig" (Betreiber, 31.10.2026).
 
-       KLEINER: 24 px statt 32. Weniger geht nicht – 24 × 24 ist das
-       Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8). Am
-       Handy bleiben es 28 px, dort zielt ein Finger.
+       Seit dem 31.10.2026 sind die Felder Flächen IN der Szene (siehe
+       feldGruppe in js/konfigurator-3d.js), nicht mehr Knöpfe über der
+       Leinwand. Gestaltet werden sie dort, nicht hier.
 
-       DURCHSICHTIGER: Der Punkt ist ein Angebot, nicht das Bauwerk. Er
-       liegt jetzt halbdurchsichtig darüber und wird erst unter dem
-       Zeiger oder mit der Tastatur voll deckend – dann, wenn er
-       gebraucht wird.
-
-       FESTSTEHEND: Keine Vergrößerung beim Überfahren mehr. Dass die
-       Punkte beim Drehen an falschen Stellen klebten, lag nicht an der
-       Gestaltung, sondern an der fehlenden Verdeckungsprüfung – siehe
-       markenVerdeckungPruefen() in js/konfigurator-3d.js. */
+       Hier bleibt nur die Liste, die die Felder für die Tabulatortaste
+       und für Screenreader erreichbar hält. Sie ist unsichtbar – aber
+       NICHT display:none und nicht aria-hidden, sonst wäre sie auch für
+       die Tastatur weg. Sobald einer ihrer Knöpfe den Fokus hat, klappt
+       sie unten links auf: Wer mit der Tastatur arbeitet, muss sehen,
+       wo er steht. */
+    .k3d-marken {
+      position: absolute; left: 10px; bottom: 10px; z-index: 3;
+      display: flex; flex-wrap: wrap; gap: 4px; max-width: calc(100% - 20px);
+      width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+    }
+    .k3d-marken:focus-within {
+      width: auto; height: auto; overflow: visible; clip-path: none;
+      background: rgba(255,255,255,.94); border: 1px solid var(--border);
+      border-radius: 9px; padding: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    }
     .k3d-marke {
-      position: absolute; transform: translate(-50%, -50%);
-      width: 24px; height: 24px; padding: 0; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,.55); color: var(--gold-text);
-      border: 1.5px solid rgba(196,154,42,.7);
-      box-shadow: 0 1px 4px rgba(0,0,0,.22);
-      font: inherit; font-size: .82rem; font-weight: 700; line-height: 1;
-      cursor: pointer; pointer-events: auto;
-      transition: background .15s ease, border-color .15s ease;
+      display: inline-flex; align-items: center; gap: 5px;
+      min-height: 24px; padding: 3px 8px; border-radius: 7px;
+      background: #fff; color: var(--gold-text);
+      border: 1px solid rgba(196,154,42,.7);
+      font: inherit; font-size: .76rem; font-weight: 600; line-height: 1.2;
+      cursor: pointer;
     }
-    .k3d-marke .bvs { width: 15px; height: 15px; stroke-width: 2.3; }
-    /* Belegt heißt: für diese Seite ist schon etwas gewählt. Gefüllt statt
-       umrandet, und im Punkt steht ein Stift – ein Plus an einer Seite,
-       die längst eine Schiebeanlage hat, sagt etwas Falsches. */
+    /* Der Knopf trägt nur ein Symbol; vorgelesen wird das aria-label.
+       Damit die aufgeklappte Liste lesbar ist, steht die Beschriftung
+       auch sichtbar daneben – über das title-Attribut geht das nicht. */
+    .k3d-marke::after { content: attr(aria-label); }
+    .k3d-marke .bvs { width: 14px; height: 14px; stroke-width: 2.3; flex: none; }
     .k3d-marke.ist-belegt {
-      background: rgba(196,154,42,.62); color: #fff;
-      border-color: rgba(196,154,42,.8);
+      background: rgba(196,154,42,.14); border-color: rgba(196,154,42,.8);
     }
-    .k3d-marke:hover, .k3d-marke:focus-visible {
-      background: var(--gold); color: #111; border-color: var(--gold);
-    }
+    .k3d-marke:hover { background: var(--gold); color: #111; border-color: var(--gold); }
     .k3d-marke:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
     .k3d-laden {
       position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
@@ -770,9 +775,6 @@
       .k3d-oben .k3d-nurgross-knopf { display: none; }
       .k3d-oben #k3dBild { padding: 5px 13px; font-size: .74rem; }
       .k3d-bildmenu { right: 8px; top: 40px; left: 8px; min-width: 0; }
-      /* Am Handy zielt ein Finger, kein Zeiger: 28 px statt 24. */
-      .k3d-marke { width: 28px; height: 28px; font-size: .95rem; }
-      .k3d-marke .bvs { width: 17px; height: 17px; }
       /* Von Rand zu Rand und flacher: „die anzeige bitte etwas schmaler
          machen in der höhe aber das alles gut lesbar bleibt, aber in der
          breite bitte von bildschirmrand zu bildschirmrand" (Betreiber,
@@ -1862,9 +1864,10 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
-          <label class="k3d-schalter"><input type="checkbox" id="k3dMarken" checked> <span>Anklickpunkte im Modell anzeigen</span></label>
-          <p class="k3d-mini">Ein Punkt je Seitenfeld und einer am Dach. Ein Klick darauf
-            springt zur passenden Einstellung.</p>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dMarken" checked> <span>Anklickbare Felder im Modell anzeigen</span></label>
+          <p class="k3d-mini">Jedes Seitenfeld und das Dach sind im Modell markiert.
+            Unter dem Zeiger färbt sich das Feld orange; ein Klick springt zur
+            passenden Einstellung.</p>
         </div>
       </details>
 
@@ -2029,7 +2032,7 @@
          scrollbar – was vorne steht, sieht man ohne Wischen. -->
     <div class="k3d-leiste" role="group" aria-label="Ansicht steuern">
       <button type="button" id="k3dMasseLeiste" aria-pressed="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-masse"></use></svg> Maße</button>
-      <button type="button" id="k3dMarkenLeiste" aria-pressed="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-punkt"></use></svg> Punkte</button>
+      <button type="button" id="k3dMarkenLeiste" aria-pressed="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-punkt"></use></svg> Felder</button>
       <button type="button" id="k3dAbend" aria-pressed="false"><span class="k3d-sym"><svg class="bvs" aria-hidden="true"><use href="#bvs-abend"></use></svg></span><span class="k3d-txt">Abend</span></button>
       <button type="button" id="k3dDrehen" aria-pressed="false"><svg class="bvs" aria-hidden="true"><use href="#bvs-drehen"></use></svg> Drehen</button>
       <span class="k3d-trenn"></span>
@@ -2132,13 +2135,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031n" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031o" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261031n" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261031o" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
