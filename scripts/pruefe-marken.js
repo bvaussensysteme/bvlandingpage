@@ -70,8 +70,16 @@ var FEHLER = [
   ['Die Punkte selbst sind nicht anklickbar', 'html',
    'cursor: pointer; pointer-events: auto;', 'cursor: pointer;'],
   ['Punkte zu klein zum Antippen', 'html',
-   'width: 32px; height: 32px; padding: 0; border-radius: 50%;',
+   'width: 24px; height: 24px; padding: 0; border-radius: 50%;',
    'width: 14px; height: 14px; padding: 0; border-radius: 50%;'],
+  ['Verdeckte Punkte werden trotzdem gezeigt', 'js',
+   'if (!m || m.verdeckt || !markeSichtbar(', 'if (!m || !markeSichtbar('],
+  ['Die Verdeckung wird bei jedem Bild neu gestrahlt', 'js',
+   'if (!erzwingen && (!bewegt || jetzt - markenPruefZeit < 110)) return;',
+   'if (false) return;'],
+  ['Der geteilte Strahl bleibt begrenzt zurueck', 'js',
+   "      strahl.far = Infinity;         // der geteilte Strahl gehoert allen",
+   '      void 0;'],
   ['Das Haekchen im Bedienfeld fehlt', 'html',
    '<input type="checkbox" id="k3dMarken" checked>',
    '<input type="checkbox" id="k3dMarkenAnzeige" checked>'],
@@ -92,6 +100,16 @@ var FEHLER = [
   ['Die Feldnummer geht verloren (Beschriftung "Feld 1 von 1")', 'js',
    '                   nx: 1, nz: 0, feld: i, anzahl: felder.length });',
    '                   nx: 1, nz: 0, feld: 0, anzahl: 1 });'],
+  ['Die Buehne wird nicht mehr beobachtet', 'js',
+   'new ResizeObserver(groesseGebremst).observe(leinwand.parentNode);',
+   'void groesseGebremst;'],
+  /* Der Aufruf selbst muss weg, nicht nur sein Kommentar - sonst
+     schlaegt die Pruefung nicht an (im ersten Anlauf genau so passiert). */
+  ['Die Groessenanpassung zieht die Punkte nicht nach', 'js',
+   "    markenStellen();\n  }\n  window.addEventListener('resize', groesseAnpassen);",
+   "  }\n  window.addEventListener('resize', groesseAnpassen);"],
+  ['Der Beobachter feuert ungebremst', 'js',
+   '    if (groesseLaeuft) return;', '    if (false) return;'],
   ['Punkte werden ins Bild gezeichnet statt darueber gelegt', 'js',
    "      k.className = 'k3d-marke';",
    "      k.className = 'k3d-marke'; void new THREE.Sprite();"],
@@ -276,6 +294,44 @@ function lauf(q) {
   p('Die Punkte selbst sind anklickbar',
     /\.k3d-marke \{[^}]*pointer-events: auto/.test(q.html),
     'pointer-events: auto');
+  /* Verdeckte Punkte duerfen nicht gezeigt werden: Sonst klebt der
+     Punkt der abgewandten Seite mitten auf einem fremden Bauteil -
+     genau das hat der Betreiber am 31.10.2026 gemeldet. */
+  p('Verdeckte Punkte werden ausgeblendet',
+    /if \(!m \|\| m\.verdeckt \|\| !markeSichtbar\(/.test(q.js) &&
+    /m\.verdeckt = strahl\.far > 0 &&/.test(q.js),
+    'markenVerdeckungPruefen()');
+
+  /* Die Pruefung darf NICHT je Bild laufen - ein Strahl je Punkt und
+     Bild ist der teuerste Posten der Zeichenschleife. */
+  p('Die Verdeckung wird gebremst geprueft, nicht je Bild',
+    /jetzt - markenPruefZeit < 110/.test(q.js) &&
+    /if \(!erzwingen && \(!bewegt/.test(q.js),
+    'hoechstens alle 110 ms und nur bei bewegter Kamera');
+
+  /* Der Strahl gehoert auch Markise, Schiebetuer und Velaris. Wer seine
+     Reichweite begrenzt und nicht zuruecksetzt, bricht deren Klicks. */
+  p('Der geteilte Strahl wird wieder freigegeben',
+    /strahl\.far = Infinity;/.test(q.js), 'strahl.far zurueckgesetzt');
+
+  /* ---------- Groesse der Buehne ----------
+     GEMESSEN am 31.10.2026: Wird die Buehne kleiner, ohne dass sich das
+     Fenster aendert (am iPhone faehrt die Adressleiste beim Scrollen
+     ein und aus), blieb der Zeichenpuffer der Leinwand auf der alten
+     Groesse: Buehne 390 x 360, Puffer 390 x 380. Das Bild wird dann per
+     CSS gedehnt und die Punkte rechnen schon mit der neuen Groesse -
+     sie liegen neben ihrem Bauteil. */
+  p('Die Buehne selbst wird beobachtet, nicht nur das Fenster',
+    /new ResizeObserver\(groesseGebremst\)\.observe\(leinwand\.parentNode\)/.test(q.js),
+    'ResizeObserver auf der Buehne');
+  p('Die Groessenanpassung zieht die Punkte sofort nach',
+    /renderer\.setSize\(breite, hoehe, false\);[\s\S]{0,700}?markenStellen\(\);/.test(q.js),
+    'markenStellen() in groesseAnpassen()');
+  p('Der Beobachter ist auf ein Bild gebremst',
+    /if \(groesseLaeuft\) return;/.test(q.js) &&
+    /requestAnimationFrame\(function \(\) \{\s*groesseLaeuft = false;/.test(q.js),
+    'sonst rechnet er waehrend jeder Animation dutzendfach');
+
   var gr = q.html.match(/\.k3d-marke \{[^}]*width: (\d+)px/);
   p('Punkte sind mindestens 24 px gross (WCAG 2.2, 2.5.8)',
     gr && Number(gr[1]) >= 24, gr ? gr[1] + ' px' : 'keine Groesse gefunden');

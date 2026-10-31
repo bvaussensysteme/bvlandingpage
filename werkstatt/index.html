@@ -52,7 +52,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261031f" />
+  <link rel="stylesheet" href="/css/style.css?v=20261031h" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -164,8 +164,7 @@
        schauen die meisten Kunden.
 
        Deshalb gezeichnete Symbole statt Zeichen: eigene Pfade in einem
-       Sprite unter <body>
-<div style="position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center"><span style="background:#c8863a;border-radius:4px;padding:2px 8px">WERKSTATT</span><span>Nicht veröffentlicht – Stand in Arbeit. Änderungen hier sind für Kunden nicht sichtbar.</span><button type="button" onclick="location.reload()" style="background:#fff;color:#1f2a33;border:0;border-radius:6px;padding:5px 11px;font:inherit;font-weight:700;cursor:pointer"><svg class="bvs" aria-hidden="true" style="vertical-align:-.16em"><use href="#bvs-neuladen"></use></svg> Neu laden</button><span id="wkVersion" style="opacity:.75;font-weight:500"></span><script>document.addEventListener("DOMContentLoaded",function(){var s=document.querySelector('script[src*="konfigurator-3d.js"]');var m=s&&s.src.match(/[?&]v=([0-9a-z]+)/);var e=document.getElementById("wkVersion");if(e)e.textContent=m?("Stand "+m[1]):"Stand unbekannt";});</script></div>, 24x24, nur Striche in currentColor. Sie
+       Sprite unter <body>, 24x24, nur Striche in currentColor. Sie
        nehmen Farbe und Groesse der Schrift an, sind auf jedem Geraet
        gleich und koennen nicht zum Emoji werden. Keine fremde Sammlung,
        kein fremder Pfad - siehe CLAUDE.md, „Nachbauten". */
@@ -501,20 +500,44 @@
        (WCAG 2.2, 2.5.8), am Handy sind es 38 px – dort zielt ein
        Finger, kein Zeiger. */
     .k3d-marken { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+    /* „die + zeichen sind zu groß … mach sie kleiner etwas
+       durchsichtiger und feststehend" (Betreiber, 31.10.2026).
+
+       KLEINER: 24 px statt 32. Weniger geht nicht – 24 × 24 ist das
+       Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8). Am
+       Handy bleiben es 28 px, dort zielt ein Finger.
+
+       DURCHSICHTIGER: Der Punkt ist ein Angebot, nicht das Bauwerk. Er
+       liegt jetzt halbdurchsichtig darüber und wird erst unter dem
+       Zeiger oder mit der Tastatur voll deckend – dann, wenn er
+       gebraucht wird.
+
+       FESTSTEHEND: Keine Vergrößerung beim Überfahren mehr. Dass die
+       Punkte beim Drehen an falschen Stellen klebten, lag nicht an der
+       Gestaltung, sondern an der fehlenden Verdeckungsprüfung – siehe
+       markenVerdeckungPruefen() in js/konfigurator-3d.js. */
     .k3d-marke {
       position: absolute; transform: translate(-50%, -50%);
-      width: 32px; height: 32px; padding: 0; border-radius: 50%;
+      width: 24px; height: 24px; padding: 0; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,.94); color: var(--gold-text);
-      border: 2px solid var(--gold); box-shadow: 0 2px 9px rgba(0,0,0,.3);
-      font: inherit; font-size: 1.05rem; font-weight: 700; line-height: 1;
+      background: rgba(255,255,255,.55); color: var(--gold-text);
+      border: 1.5px solid rgba(196,154,42,.7);
+      box-shadow: 0 1px 4px rgba(0,0,0,.22);
+      font: inherit; font-size: .82rem; font-weight: 700; line-height: 1;
       cursor: pointer; pointer-events: auto;
+      transition: background .15s ease, border-color .15s ease;
     }
+    .k3d-marke .bvs { width: 15px; height: 15px; stroke-width: 2.3; }
     /* Belegt heißt: für diese Seite ist schon etwas gewählt. Gefüllt statt
        umrandet, und im Punkt steht ein Stift – ein Plus an einer Seite,
        die längst eine Schiebeanlage hat, sagt etwas Falsches. */
-    .k3d-marke.ist-belegt { background: var(--gold); color: #111; }
-    .k3d-marke:hover { background: var(--gold); color: #111; transform: translate(-50%,-50%) scale(1.12); }
+    .k3d-marke.ist-belegt {
+      background: rgba(196,154,42,.62); color: #fff;
+      border-color: rgba(196,154,42,.8);
+    }
+    .k3d-marke:hover, .k3d-marke:focus-visible {
+      background: var(--gold); color: #111; border-color: var(--gold);
+    }
     .k3d-marke:focus-visible { outline: 3px solid #111; outline-offset: 2px; }
     .k3d-laden {
       position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
@@ -723,9 +746,9 @@
       .k3d-oben .k3d-nurgross-knopf { display: none; }
       .k3d-oben #k3dBild { padding: 5px 13px; font-size: .74rem; }
       .k3d-bildmenu { right: 8px; top: 40px; left: 8px; min-width: 0; }
-      /* Am Handy zielt ein Finger, kein Zeiger: 38 px statt 32 – dieselbe
-         Größe, die auch die Knöpfe der Ansichtsleiste hier bekommen. */
-      .k3d-marke { width: 38px; height: 38px; font-size: 1.15rem; }
+      /* Am Handy zielt ein Finger, kein Zeiger: 28 px statt 24. */
+      .k3d-marke { width: 28px; height: 28px; font-size: .95rem; }
+      .k3d-marke .bvs { width: 17px; height: 17px; }
       /* Von Rand zu Rand und flacher: „die anzeige bitte etwas schmaler
          machen in der höhe aber das alles gut lesbar bleibt, aber in der
          breite bitte von bildschirmrand zu bildschirmrand" (Betreiber,
@@ -774,6 +797,7 @@
   <meta property="og:locale" content="de_DE" />
 </head>
 <body class="k3d-app-seite">
+<style>.wk-leiste{position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;font:600 12.5px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:5px 10px;display:flex;gap:9px;align-items:center;justify-content:center;white-space:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}.wk-leiste::-webkit-scrollbar{display:none}.wk-marke{background:#c8863a;border-radius:4px;padding:1px 7px;flex:none}.wk-text{overflow:hidden;text-overflow:ellipsis;min-width:0}.wk-knopf{background:#fff;color:#1f2a33;border:0;border-radius:6px;padding:4px 10px;font:inherit;font-weight:700;cursor:pointer;flex:none}.wk-version{opacity:.75;font-weight:500;flex:none}@media (max-width:640px){.wk-text{display:none}.wk-leiste{gap:7px;padding:4px 8px;font-size:12px}.wk-knopf{padding:3px 9px}}</style><div class="wk-leiste"><span class="wk-marke">WERKSTATT</span><span class="wk-text">Nicht veröffentlicht<span class="wk-lang"> – Änderungen hier sind für Kunden nicht sichtbar.</span></span><button type="button" class="wk-knopf" onclick="location.reload()"><svg class="bvs" aria-hidden="true" style="vertical-align:-.16em"><use href="#bvs-neuladen"></use></svg> Neu laden</button><span id="wkVersion" class="wk-version"></span><script>document.addEventListener("DOMContentLoaded",function(){var s=document.querySelector('script[src*="konfigurator-3d.js"]');var m=s&&s.src.match(/[?&]v=([0-9a-z]+)/);var e=document.getElementById("wkVersion");if(e)e.textContent=m?("Stand "+m[1]):"Stand unbekannt";});</script></div>
 <!-- ---------- Eigene Symbolsammlung ----------
      Gezeichnet statt getippt: Zeichen wie ↗ ↔ ☾ werden auf iOS zu
      Emoji. Jedes Symbol ist ein eigener Pfad, 24x24, nur Striche in
@@ -2067,17 +2091,15 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031f" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031h" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
-<script src="/js/bv-symbole.js?v=20261031f" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261031f" defer></script>
+<script src="/js/bv-symbole.js?v=20261031h" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261031h" defer></script>
 <script src="/js/main.js" defer></script>
-<script src="/js/cookie.js" defer></script>
 <script src="/js/metricool.js" defer></script>
-<script src="/js/accessibility.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
 <script src="/js/anfrage-wizard.js?v=20261029d" defer></script>
 <!-- ===== STICKY CTA ===== -->
@@ -2097,24 +2119,6 @@
      Fassung halten. Wird einmal je Browser-Sitzung gezeigt, nicht bei
      jedem Klick – und erst, wenn der Cookie-Hinweis weg ist, damit nicht
      zwei Dialoge übereinanderliegen. -->
-<div class="k3d-hinw" id="k3dTestHinweis" hidden>
-  <div class="k3d-hinw-box" role="dialog" aria-modal="true"
-       aria-labelledby="k3dTestTitel" aria-describedby="k3dTestText">
-    <p class="k3d-hinw-marke">Testbetrieb</p>
-    <h2 id="k3dTestTitel">Der 3D-Konfigurator ist noch im Aufbau</h2>
-    <div id="k3dTestText">
-      <p>Wir bauen ihn gerade und testen ihn laufend. Es kann sein, dass die
-        Darstellung noch nicht überall stimmt oder etwas noch nicht so
-        funktioniert, wie es soll.</p>
-      <p>Ihre Anfrage erreicht uns trotzdem zuverlässig. Verbindlich ist
-        immer unser Angebot nach dem kostenlosen Aufmaß vor Ort – nicht das
-        Bild auf dem Bildschirm.</p>
-      <p class="k3d-hinw-bitte">Wenn Ihnen etwas auffällt, sagen Sie uns gern
-        Bescheid. Das hilft uns weiter.</p>
-    </div>
-    <button type="button" class="btn btn-gold" id="k3dTestOk">Verstanden, weiter</button>
-  </div>
-</div>
 
 <script>
 /* Schwebende Knöpfe nur im Bereich des Konfigurators ausblenden.

@@ -117,6 +117,19 @@ ausgelieferten Dateiversion (`#wkVersion`) — daran ist zu sehen, ob eine
 `node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
 Prüfung: `node scripts/pruefe-werkstatt.js`.
 
+**Drei Einblendungen fehlen in der Werkstatt — nur dort** (31.10.2026):
+Cookie-Banner (`js/cookie.js`), Hinweis auf den Testbetrieb
+(`k3dTestHinweis`) und die Bedienhilfe mit den beiden runden Knöpfen
+(`js/accessibility.js`). Sie legten sich über genau das Bild, das
+beurteilt werden soll. Auf der öffentlichen Seite bleibt alles —
+`pruefe-werkstatt.js` prüft **beide Hälften**, und die zweite ist die
+wichtigere: Fiele eine davon versehentlich auch öffentlich weg, fehlte
+dort das Cookie-Banner.
+
+Nebenbefund, nachgesehen: `js/metricool.js` startet erst nach einer
+Einwilligung. Ohne Banner wird die in der Werkstatt nie erteilt — eigene
+Testaufrufe verfälschen die Zahlen des Betriebs also nicht.
+
 ### Werkstatt: Aussparung (Hausvorsprung) *(Machbarkeit gezeigt, 31.10.2026)*
 
 Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
@@ -170,6 +183,25 @@ sonst wirkt der Klick folgenlos.
 
 - Leer ist der Punkt ein **+**, belegt ein **Stift** — ein Plus an einer Seite,
   die längst eine Schiebeanlage hat, sagt etwas Falsches.
+- **24 px (Handy 28 px), halbdurchsichtig**, unter dem Zeiger voll deckend.
+  Nachgebessert am 31.10.2026: „die + zeichen sind zu groß … mach sie kleiner
+  etwas durchsichtiger und feststehend". Weniger als 24 px geht nicht —
+  das ist das Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8).
+- **Die Bühne wird beobachtet, nicht nur das Fenster** (`ResizeObserver` in
+  `groesseAnpassen()`). Gemessen am 31.10.2026: Wird die Bühne kleiner, ohne
+  dass sich das Fenster ändert — am iPhone fährt dabei die Adressleiste ein
+  und aus —, blieb der Zeichenpuffer der Leinwand auf der alten Größe
+  (Bühne 390 × 360, Puffer 390 × 380). Das Bild wird dann per CSS **gedehnt**
+  (daher das verzerrte Modell) und die Punkte rechnen schon mit der neuen
+  Größe: Sie liegen neben ihrem Bauteil. Ein `resize`-Ereignis kommt dabei
+  nicht zuverlässig.
+- **Verdeckte Punkte werden ausgeblendet** (`markenVerdeckungPruefen()`).
+  Die Flächenrichtung allein reichte nicht: Beim Drehen schien der Punkt der
+  abgewandten Längsseite durch das ganze Bauwerk und klebte an einem fremden
+  Bauteil. Der Strahl läuft **nicht je Bild**, sondern höchstens alle 110 ms
+  und nur bei bewegter Kamera — sonst wäre er der teuerste Posten der
+  Zeichenschleife. Beleg: In der Ansicht „Von oben" ist nur noch **1 von 5**
+  Punkten zu sehen, der am Dach.
 - Abschaltbar an zwei Stellen, die denselben Wert halten: Schalter
   **„+ Punkte"** in der Ansichtsleiste und Häkchen unter *Anzeige*.
   Voreingestellt **an**.
@@ -459,6 +491,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 31.10.2026 | Anklickpunkte kleiner, halbdurchsichtig, **verdeckte werden ausgeblendet**; Werkstatt-Streifen von 4 Zeilen auf eine (28 px) | live |
 | 31.10.2026 | **Keine Emoji mehr**: eigene Symbolsammlung für Konfigurator und Website (Cookie-Banner, Newsletter, Slider, Galerie-Lupe, Ortsanzeige, Bedienhilfe) | live |
 | 31.10.2026 | `pruefe-live.sh`: sechs Marker auf dem gesperrten Konfigurator machten sie unbemerkt rot — ruhen jetzt, mit Beweis der Hinweisseite | live |
 | 31.10.2026 | `pruefe-konfigurator-oberflaeche.mjs`: Abbruch bei Prüfung 67 von 90 behoben (23 Prüfungen liefen seit PR #500 nicht) | live |
