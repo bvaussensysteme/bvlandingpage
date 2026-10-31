@@ -237,6 +237,15 @@ sonst wirkt der Klick folgenlos.
 > | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt ausgelesen | stimmt, war aber **nicht der Wunsch** — zurückgenommen |
 > | Unsichtbare Wand im Feld als Verdecker | A/B über 12 Drehschritte | **identisch**, 8 von 25 Punkten so und so vor Wiese/Himmel |
 >
+> | **Der Punkt schluckte den Druck** | Umriss des Bauwerks über 16 Drehungen | **gefunden**: ab Schritt 6 blieb der Umriss Pixel für Pixel gleich — zehn Züge ohne jede Wirkung |
+>
+> **Der Fund, der zählt:** Ein Punkt rief `stopPropagation` auf dem
+> `pointerdown`. Wer den Finger auf einen Punkt setzte und zog, drehte
+> **nichts** — und die Punkte sitzen mitten im Bild, also genau dort, wo man
+> zum Drehen hinfasst. Jetzt beginnt der Druck auf einen Punkt dieselbe
+> Drehung wie auf der Leinwand; ob es Tippen oder Ziehen war, entscheidet der
+> Browser (beim Ziehen endet der Zeiger woanders, dann kommt kein `click`).
+>
 > **Die Erklärung, die blieb:** Die Punkte der *abgewandten* Seite sind längst
 > durch die Flächenrichtung ausgeblendet. Was im Leeren steht, ist der Punkt
 > des **eigenen, offenen** Feldes — und hinter dem ist nichts. Gegen den hilft

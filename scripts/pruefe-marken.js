@@ -130,6 +130,11 @@ var FEHLER = [
   ['Die Feldflaeche ist nicht mehr zurueckhaltend', 'js',
    '    transparent: true, opacity: 0.09, depthWrite: false',
    '    transparent: false, opacity: 1, depthWrite: true'],
+  ['Der Punkt schluckt den Druck wieder (Modell dreht nicht)', 'js',
+   "      k.addEventListener('pointerdown', function (ev) {\n        zieht = true;",
+   "      k.addEventListener('pointerdown', function (ev) {\n        ev.stopPropagation();\n        zieht = false;"],
+  ['Der Druck auf den Punkt gilt zusaetzlich als Klick ins Modell', 'js',
+   '        klickStart = null;\n      });', '      });'],
   ['Die Buehne wird nicht mehr beobachtet', 'js',
    'new ResizeObserver(groesseGebremst).observe(leinwand.parentNode);',
    'void groesseGebremst;'],
@@ -400,6 +405,23 @@ function lauf(q) {
     /id="k3dMassEingabe"/.test(q.html) &&
     /id="k3dMassWert"/.test(q.html) && /id="k3dMassOk"/.test(q.html),
     'Kasten, Zahlenfeld und Übernehmen');
+
+  /* ---------- Vom Punkt aus drehen ----------
+     GEMESSEN am 31.10.2026: Der Punkt schluckte den Druck
+     (stopPropagation). Wer den Finger auf einen Punkt setzte und zog,
+     drehte NICHTS - zehn Zuege hintereinander ohne jede Wirkung, im
+     Versuch nachgestellt (der Umriss des Bauwerks blieb Pixel fuer
+     Pixel derselbe). Und die Punkte sitzen mitten im Bild, also genau
+     dort, wo man zum Drehen hinfasst. */
+  p('Vom Punkt aus laesst sich das Modell drehen',
+    /k\.addEventListener\('pointerdown', function \(ev\) \{\s*\n\s*zieht = true;/.test(q.js) &&
+    !/k\.addEventListener\('pointerdown', function \(ev\) \{ ev\.stopPropagation/.test(q.js),
+    'der Druck beginnt dieselbe Drehung wie auf der Leinwand');
+
+  /* Sonst oeffnete sich beim Antippen eines Punktes nebenbei eine
+     Schiebetuer dahinter. */
+  p('Der Druck auf den Punkt ist kein Klick ins Modell',
+    /klickStart = null;\s*\n\s*\}\);/.test(q.js), 'klickStart wird geleert');
 
   /* ---------- Angedeutete Flaeche im offenen Feld ----------
      „dann bau ne unsichtbare wand oderso" (Betreiber, 31.10.2026).

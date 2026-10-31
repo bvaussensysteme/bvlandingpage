@@ -9842,9 +9842,30 @@
         var i = markenKnoepfe.indexOf(ev.currentTarget);
         if (i > -1 && MARKEN[i]) markeSpringen(MARKEN[i]);
       });
-      /* Ein Druck auf den Punkt darf das Modell nicht mitdrehen: Der
-         Zeiger ginge sonst zugleich an die Leinwand. */
-      k.addEventListener('pointerdown', function (ev) { ev.stopPropagation(); });
+      /* ---------- Vom Punkt aus muss sich das Modell drehen lassen ----------
+         GEMESSEN am 31.10.2026: Der Punkt schluckte den Druck
+         (stopPropagation). Wer den Finger auf einen Punkt setzte und zog,
+         drehte NICHTS - zehn Zuege hintereinander ohne jede Wirkung, im
+         Versuch nachgestellt. Und die Punkte sitzen mitten im Bild, also
+         genau dort, wo man zum Drehen hinfasst.
+
+         Jetzt beginnt ein Druck auf den Punkt dieselbe Drehung wie ein
+         Druck auf die Leinwand. Ob es ein Tippen oder ein Ziehen war,
+         entscheidet der Browser selbst: Beim Tippen folgt ein click auf
+         den Knopf, beim Ziehen endet der Zeiger woanders - dann kommt
+         kein click, und es bleibt bei der Drehung.
+
+         klickStart wird geleert, damit der Druck nicht zusaetzlich als
+         Klick INS MODELL gilt - sonst oeffnete sich beim Antippen eines
+         Punktes nebenbei eine Schiebetuer dahinter. */
+      k.addEventListener('pointerdown', function (ev) {
+        zieht = true;
+        autoDreht = false;
+        kam.ansicht = '';
+        letzteX = ev.clientX;
+        letzteY = ev.clientY;
+        klickStart = null;
+      });
       markenHuelle.appendChild(k);
       markenKnoepfe.push(k);
     }
