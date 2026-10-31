@@ -4106,6 +4106,17 @@
     markenKamMerk = { x: k.x, y: k.y, z: k.z };
     if (!markenV) markenV = new THREE.Vector3();
     var richtung = new THREE.Vector3();
+    /* WAS den Blick nehmen kann. Anfangs stand hier nur bau.children -
+       und genau das war die Luecke: Hauswand, Hausvorsprung und
+       Haustuer haengen NICHT am Bauwerk, sondern einzeln in der Szene.
+       Punkte dahinter schienen durch die Wand hindurch.
+
+       „Tauchen an Feldern auf, die man gar nicht sieht" (Betreiber,
+       31.10.2026, auf die Rueckfrage, was die Punkte beim Drehen tun). */
+    var verdecker = [bau];
+    if (wand && wand.visible) verdecker.push(wand);
+    if (vorsprung && vorsprung.visible) verdecker.push(vorsprung);
+    if (tuer && tuer.visible) verdecker.push(tuer);
     for (var i = 0; i < MARKEN.length; i++) {
       var m = MARKEN[i];
       markenV.set(m.p.x, m.p.y, m.p.z);
@@ -4113,10 +4124,29 @@
       var weite = richtung.length();
       strahl.set(k, richtung.normalize());
       strahl.far = weite - VERDECKT_TOLERANZ;
-      m.verdeckt = strahl.far > 0 &&
-                   strahl.intersectObjects(bau.children, true).length > 0;
+      m.verdeckt = strahl.far > 0 && nimmtDenBlick(
+        strahl.intersectObjects(verdecker, true));
       strahl.far = Infinity;         // der geteilte Strahl gehoert allen
     }
+  }
+
+  /* Nimmt eines der getroffenen Teile wirklich den Blick?
+
+     DURCHSICHTIGES ZAEHLT NICHT. Steht die Kamera hinter der Hauswand,
+     macht wandDurchsicht() sie durchscheinend, damit man das Modell
+     sieht - ein Punkt dahinter ist dann sehr wohl zu sehen. Dasselbe
+     gilt fuer Glas: Durch eine Scheibe sieht man den Punkt, also
+     verdeckt sie ihn nicht. Wuerde beides zaehlen, verschwaenden
+     Punkte, die der Betreiber vor sich sieht - der umgekehrte Fehler. */
+  function nimmtDenBlick(treffer) {
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      if (!o || o.visible === false) continue;
+      var mat = o.material;
+      if (mat && mat.transparent && mat.opacity < 0.45) continue;
+      return true;
+    }
+    return false;
   }
 
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm, pfostenHintenX) {

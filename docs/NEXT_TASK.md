@@ -225,6 +225,27 @@ sonst wirkt der Klick folgenlos.
   (daher das verzerrte Modell) und die Punkte rechnen schon mit der neuen
   Größe: Sie liegen neben ihrem Bauteil. Ein `resize`-Ereignis kommt dabei
   nicht zuverlässig.
+> **OFFEN und ungeklärt: „die + punkte wandern"** (Betreiber, 31.10.2026,
+> dreimal gemeldet). Auf Rückfrage: *„Tauchen an Feldern auf, die man gar
+> nicht sieht"*, und zwar *„erst nach dem Drehen"*.
+>
+> **Vier Erklärungen geprüft, vier verworfen** — damit sie niemand ein
+> zweites Mal durchprobiert:
+>
+> | Verdacht | Messung | Ergebnis |
+> |---|---|---|
+> | Seitenverhältnis Leinwand/Bühne läuft auseinander | auch mit `deviceScaleFactor: 3` | passt, Abweichung < 0,01 |
+> | Hauswand fehlte als Verdecker | A/B über 12 Drehschritte | **identisch** — eingebaut, Wirkung aber **nicht nachgewiesen** |
+> | Verdeckungszustand veraltet nach dem Drehen | 6 Drehungen, Muster direkt danach / nach 1,6 s / nach winzigem Stups | **unverändert**, also nicht veraltet |
+> | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt eingeordnet | stimmt (1 von 12 auf einem Bauteil), war aber **nicht der Wunsch** — zurückgenommen |
+>
+> **Der verbleibende Verdacht ist keine Fehlersuche, sondern eine
+> Entscheidung:** Bei einer OFFENEN Seite ist in der Feldmitte nichts zu
+> sehen — der Punkt steht dann vor Wiese oder Himmel. Das ist geometrisch
+> richtig. Falls das stört, wäre die Frage: Soll an einer offenen Seite
+> überhaupt ein Punkt erscheinen, oder erst, wenn dort etwas eingebaut ist?
+> **Beim Betreiber nachgefragt, Antwort steht aus.**
+
 - **Verdeckte Punkte werden ausgeblendet** (`markenVerdeckungPruefen()`).
   Die Flächenrichtung allein reichte nicht: Beim Drehen schien der Punkt der
   abgewandten Längsseite durch das ganze Bauwerk und klebte an einem fremden
