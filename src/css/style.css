@@ -1330,8 +1330,29 @@ footer h4 {
 .galerie-item:not(.galerie-placeholder) {
   cursor: zoom-in;
 }
+/* ---------- Eigene Symbolsammlung ----------
+   Emoji sind nicht Teil unserer Gestaltung: Sie sehen auf jedem Geraet
+   anders aus, nehmen unsere Farben nicht an und wirken neben einer
+   Angebotsanfrage wie eine Chatnachricht. „benutz bitte keine imogis
+   das is nicht serioes benutz eigene logosammlung" (Betreiber,
+   31.10.2026). Die Pfade stehen in js/bv-symbole.js bzw. als Sprite in
+   konfigurator.html; hier steht nur, wie sie sich einfuegen. */
+.bvs {
+  width: 1.05em; height: 1.05em; flex: none;
+  display: inline-block; vertical-align: -.16em;
+  fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+/* Die Lupe am Galeriebild war ein Emoji im content. Ein Pseudo-Element
+   kann kein SVG aufnehmen, deshalb hier derselbe Pfad als Hintergrund -
+   gezeichnet, nicht getippt. Die Farbe steht im Bild selbst, weil
+   currentColor in einem Hintergrundbild nicht greift; weiss auf dem
+   dunklen Kreis ist genau das, was vorher auch zu sehen war. */
 .galerie-item:not(.galerie-placeholder)::after {
-  content: '🔍';
+  content: '';
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6'/%3E%3Cpath d='M15 15l5 5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center;
+  background-size: 17px 17px;
   position: absolute; top: 12px; right: 12px;
   background: rgba(0,0,0,0.55); color: white;
   width: 32px; height: 32px; border-radius: 50%;

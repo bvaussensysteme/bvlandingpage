@@ -220,7 +220,7 @@
       '</div>' +
       '<div class="a11y-panel-body">' + rows + '</div>' +
       '<div class="a11y-panel-footer">' +
-        '<button id="bv-a11y-reset">↺ Alles zurücksetzen</button>' +
+        '<button id="bv-a11y-reset">' + (window.bvSymbol ? window.bvSymbol('zuruecksetzen') : '') + ' Alles zurücksetzen</button>' +
       '</div>' +
     '</div>';
   }

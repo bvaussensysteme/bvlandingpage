@@ -73,7 +73,7 @@
   function toggleManualPause() {
     manualPause = !manualPause;
     if (pauseBtn) {
-      pauseBtn.innerHTML = manualPause ? '▶' : '⏸';
+      pauseBtn.innerHTML = manualPause ? (window.bvSymbol ? window.bvSymbol('abspielen') : '') : (window.bvSymbol ? window.bvSymbol('pause') : '');
       pauseBtn.setAttribute('aria-label', manualPause ? 'Slider fortsetzen' : 'Slider pausieren');
     }
     if (manualPause) {
@@ -102,7 +102,7 @@
     // Pause button neben den Punkten
     pauseBtn = document.createElement('button');
     pauseBtn.className = 'hs-pause-btn';
-    pauseBtn.innerHTML = '⏸';
+    pauseBtn.innerHTML = (window.bvSymbol ? window.bvSymbol('pause') : '');
     pauseBtn.setAttribute('aria-label', 'Slider pausieren');
     pauseBtn.addEventListener('click', function(e) {
       e.stopPropagation();

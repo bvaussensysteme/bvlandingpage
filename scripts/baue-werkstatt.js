@@ -60,7 +60,12 @@ var werkzeug = [
   '<button type="button" onclick="location.reload()" ',
   'style="background:#fff;color:#1f2a33;border:0;border-radius:6px;',
   'padding:5px 11px;font:inherit;font-weight:700;cursor:pointer">',
-  '\u21bb Neu laden</button>',
+  /* Eigenes Symbol statt des Zeichens U+21BB: Das stellt iOS als
+     farbiges Emoji dar - „benutz bitte keine imogis das is nicht
+     serioes" (Betreiber, 31.10.2026). Das Sprite steht in
+     konfigurator.html und kommt mit dieser Datei mit. */
+  '<svg class="bvs" aria-hidden="true" style="vertical-align:-.16em">',
+  '<use href="#bvs-neuladen"></use></svg> Neu laden</button>',
   '<span id="wkVersion" style="opacity:.75;font-weight:500"></span>',
   /* Erst wenn die Seite steht: Die Skript-Tags stehen am Seitenende,
      der Streifen aber ganz oben. Beim ersten Versuch lief die Abfrage

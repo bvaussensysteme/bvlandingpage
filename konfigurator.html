@@ -54,7 +54,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="css/style.css?v=20261031e" />
+  <link rel="stylesheet" href="css/style.css?v=20261031f" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -155,6 +155,27 @@
     .k3d-sek > .k3d-gruppe:first-of-type { margin-top: 12px; }
     .k3d-sek > :last-child { margin-bottom: 13px; }
 
+    /* ---------- Eigene Symbolsammlung ----------
+       „benutz bitte keine imogis das is nicht serioes benutz eigene
+       logosammlung" (Betreiber, 31.10.2026, mit Bildschirmfoto vom
+       iPhone: „Teilen" und „Maße" trugen dort bunte Emoji-Kacheln).
+
+       Zeichen wie ↗ ↔ ☾ ⟳ ✕ ◀ ▶ sind in Unicode zwar Schriftzeichen,
+       iOS stellt sie aber ohne Zutun als farbiges Emoji dar. Auf dem
+       Rechner sah es richtig aus, am Handy nicht - und gerade dort
+       schauen die meisten Kunden.
+
+       Deshalb gezeichnete Symbole statt Zeichen: eigene Pfade in einem
+       Sprite unter <body>, 24x24, nur Striche in currentColor. Sie
+       nehmen Farbe und Groesse der Schrift an, sind auf jedem Geraet
+       gleich und koennen nicht zum Emoji werden. Keine fremde Sammlung,
+       kein fremder Pfad - siehe CLAUDE.md, „Nachbauten". */
+    .bvs {
+      width: 1.05em; height: 1.05em; flex: none;
+      display: inline-block; vertical-align: -.16em;
+      fill: none; stroke: currentColor; stroke-width: 1.9;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
     .k3d-gruppe { margin-bottom: 14px; }
     /* Wohin der Klick am Modell gesprungen ist. Ohne dieses kurze
        Aufleuchten wirkt der Klick folgenlos, wenn die Zeile schon im
@@ -754,6 +775,31 @@
   <meta property="og:locale" content="de_DE" />
 </head>
 <body class="k3d-app-seite">
+<!-- ---------- Eigene Symbolsammlung ----------
+     Gezeichnet statt getippt: Zeichen wie ↗ ↔ ☾ werden auf iOS zu
+     Emoji. Jedes Symbol ist ein eigener Pfad, 24x24, nur Striche in
+     currentColor. Begruendung oben im Stilblock bei .bvs. -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="bvs-teilen" viewBox="0 0 24 24"><path d="M10 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4"/><path d="M14 4h6v6"/><path d="M20 4l-8.6 8.6"/></symbol>
+  <symbol id="bvs-abwaerts" viewBox="0 0 24 24"><path d="M12 4v10"/><path d="M8 11l4 4 4-4"/><path d="M5 19h14"/></symbol>
+  <symbol id="bvs-menue" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></symbol>
+  <symbol id="bvs-vollbild" viewBox="0 0 24 24"><path d="M4 9V5h4"/><path d="M16 5h4v4"/><path d="M20 15v4h-4"/><path d="M8 19H4v-4"/></symbol>
+  <symbol id="bvs-masse" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M7.5 9L4 12l3.5 3"/><path d="M16.5 9L20 12l-3.5 3"/><path d="M4 7.5v9"/><path d="M20 7.5v9"/></symbol>
+  <symbol id="bvs-abend" viewBox="0 0 24 24"><path d="M20.5 14.8A8.6 8.6 0 0 1 9.2 3.5a8.6 8.6 0 1 0 11.3 11.3z"/></symbol>
+  <symbol id="bvs-tag" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2"/><path d="M12 19.3v2.2"/><path d="M2.5 12h2.2"/><path d="M19.3 12h2.2"/><path d="M5.2 5.2l1.6 1.6"/><path d="M17.2 17.2l1.6 1.6"/><path d="M18.8 5.2l-1.6 1.6"/><path d="M6.8 17.2l-1.6 1.6"/></symbol>
+  <symbol id="bvs-drehen" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4.5V9h-4.5"/></symbol>
+  <symbol id="bvs-neuladen" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5V9h4.5"/></symbol>
+  <symbol id="bvs-punkt" viewBox="0 0 24 24"><path d="M12 6.5v11"/><path d="M6.5 12h11"/></symbol>
+  <symbol id="bvs-stift" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.8L15.8 5.3l2.9 2.9L8.3 18.6z"/><path d="M13.9 7.2l2.9 2.9"/></symbol>
+  <symbol id="bvs-links" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></symbol>
+  <symbol id="bvs-rechts" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></symbol>
+  <symbol id="bvs-auf" viewBox="0 0 24 24"><path d="M5.5 14.5L12 8l6.5 6.5"/></symbol>
+  <symbol id="bvs-ab" viewBox="0 0 24 24"><path d="M5.5 9.5L12 16l6.5-6.5"/></symbol>
+  <symbol id="bvs-schliessen" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></symbol>
+  <symbol id="bvs-pfeil-rechts" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M14 7l5 5-5 5"/></symbol>
+  <symbol id="bvs-pfeil-links" viewBox="0 0 24 24"><path d="M20 12H5"/><path d="M10 7l-5 5 5 5"/></symbol>
+  <symbol id="bvs-haken" viewBox="0 0 24 24"><path d="M5 12.5l4.6 4.6L19 7.3"/></symbol>
+</svg>
 
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
@@ -774,7 +820,7 @@
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
+  <button class="mobile-close" id="mobileClose" aria-label="Menü schließen"><svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg></button>
   <a href="/" onclick="closeMobile()">Startseite</a>
   <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
   <a href="konfigurator.html" style="color:var(--gold)"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a>
@@ -1206,8 +1252,8 @@
           <label class="k3d-label" for="k3dLamellen">Lamellenstellung <output id="k3dLamellenWert">35° geöffnet</output></label>
           <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dLamZu">◀ Schließen</button>
-            <button type="button" id="k3dLamAuf">Öffnen ▶</button>
+            <button type="button" id="k3dLamZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
+            <button type="button" id="k3dLamAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
         </div>
@@ -1403,8 +1449,8 @@
           <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
           <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dGlasZu">◀ Schließen</button>
-            <button type="button" id="k3dGlasAuf">Öffnen ▶</button>
+            <button type="button" id="k3dGlasZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
+            <button type="button" id="k3dGlasAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
             immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
@@ -1450,14 +1496,14 @@
           <label class="k3d-label" for="k3dVelarisWinkelOben">Obere Hälfte <output id="k3dVelarisWinkelObenWert">45° offen</output></label>
           <input type="range" id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dVelarisObenZu">◀ Schließen</button>
-            <button type="button" id="k3dVelarisObenAuf">Öffnen ▶</button>
+            <button type="button" id="k3dVelarisObenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
+            <button type="button" id="k3dVelarisObenAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <label class="k3d-label" for="k3dVelarisWinkelUnten">Untere Hälfte <output id="k3dVelarisWinkelUntenWert">45° offen</output></label>
           <input type="range" id="k3dVelarisWinkelUnten" class="k3d-range" min="0" max="90" step="5" value="45">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dVelarisUntenZu">◀ Schließen</button>
-            <button type="button" id="k3dVelarisUntenAuf">Öffnen ▶</button>
+            <button type="button" id="k3dVelarisUntenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
+            <button type="button" id="k3dVelarisUntenAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <p class="k3d-mini">Beide Hälften lassen sich getrennt stellen – oben
             offen für Licht und Luft, unten zu für den Sichtschutz. Im Bild
@@ -1467,8 +1513,8 @@
           <label class="k3d-label" for="k3dVelarisOffen">Elemente verschoben <output id="k3dVelarisOffenWert">0 %</output></label>
           <input type="range" id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dVelarisSchiebenZu">◀ Schließen</button>
-            <button type="button" id="k3dVelarisSchiebenAuf">Aufschieben ▶</button>
+            <button type="button" id="k3dVelarisSchiebenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
+            <button type="button" id="k3dVelarisSchiebenAuf">Aufschieben <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <p class="k3d-mini">Nur bei der verschiebbaren Ausführung: Die Elemente
             fahren zur Seite. Vorbei kommen sie nur an Elementen auf einem
@@ -1675,8 +1721,8 @@
           <label class="k3d-label" for="k3dSonneAus">Ausgefahren <output id="k3dSonneAusWert">85 %</output></label>
           <input type="range" id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
           <div class="k3d-seg k3d-seg--2">
-            <button type="button" id="k3dSonneEin">◀ Einfahren</button>
-            <button type="button" id="k3dSonneRaus">Ausfahren ▶</button>
+            <button type="button" id="k3dSonneEin"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Einfahren</button>
+            <button type="button" id="k3dSonneRaus">Ausfahren <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <p class="k3d-mini">Sie können auch direkt im Bild auf das Dach
             tippen – auf die Sparren oder das Glas. Die Beschattung fährt
@@ -1777,10 +1823,10 @@
       <!-- ---------- Weiter / Zurück ---------- -->
       <div class="k3d-nav" id="k3dNav">
         <button type="button" class="k3d-mehr-knopf" id="k3dMehr" hidden
-                aria-expanded="false">Mehr Einstellungen ▾</button>
+                aria-expanded="false">Mehr Einstellungen <svg class="bvs" aria-hidden="true"><use href="#bvs-ab"></use></svg></button>
         <div class="k3d-nav-zeile">
-          <button type="button" id="k3dZurueck">◀ Zurück</button>
-          <button type="button" id="k3dWeiter" class="btn btn-gold">Weiter ▶</button>
+          <button type="button" id="k3dZurueck"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Zurück</button>
+          <button type="button" id="k3dWeiter" class="btn btn-gold">Weiter <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
         </div>
       </div>
 
@@ -1799,7 +1845,7 @@
 
     <div class="k3d-sl-fuss">
       <button type="button" class="btn btn-gold k3d-anfrage" id="k3dAnfrage">
-        Konfiguration anfragen →
+        Konfiguration anfragen <svg class="bvs" aria-hidden="true"><use href="#bvs-pfeil-rechts"></use></svg>
       </button>
       <p class="k3d-fuss">
         Die Darstellung dient nur der Orientierung und bildet Farben, Materialien
@@ -1807,7 +1853,7 @@
         kostenlosen Aufmaß vor Ort.
       </p>
       <p class="k3d-rechtslinks">
-        <a href="/">← Zur Website</a> ·
+        <a href="/"><svg class="bvs" aria-hidden="true"><use href="#bvs-pfeil-links"></use></svg> Zur Website</a> ·
         <a href="/impressum.html">Impressum</a> ·
         <a href="/datenschutz.html">Datenschutz</a>
       </p>
@@ -1838,10 +1884,10 @@
          dort nichts (das Bedienfeld steht unter der Bühne, nicht daneben)
          und Vollbild gibt es auf iPhones gar nicht. -->
     <div class="k3d-oben">
-      <button type="button" id="k3dPanelAn" aria-expanded="true" class="k3d-nurgross-knopf">☰ <span class="k3d-nurgross">Bedienfeld</span></button>
-      <button type="button" id="k3dVollbild" aria-pressed="false" class="k3d-nurgross-knopf">⛶ <span class="k3d-nurgross">Vollbild</span></button>
-      <button type="button" id="k3dTeilen" aria-haspopup="dialog" aria-expanded="false">↗ <span class="k3d-immer">Teilen</span></button>
-      <button type="button" id="k3dBild" class="ist-gold" aria-expanded="false" aria-haspopup="true">↓ <span class="k3d-immer">Bild speichern</span></button>
+      <button type="button" id="k3dPanelAn" aria-expanded="true" class="k3d-nurgross-knopf"><svg class="bvs" aria-hidden="true"><use href="#bvs-menue"></use></svg> <span class="k3d-nurgross">Bedienfeld</span></button>
+      <button type="button" id="k3dVollbild" aria-pressed="false" class="k3d-nurgross-knopf"><svg class="bvs" aria-hidden="true"><use href="#bvs-vollbild"></use></svg> <span class="k3d-nurgross">Vollbild</span></button>
+      <button type="button" id="k3dTeilen" aria-haspopup="dialog" aria-expanded="false"><svg class="bvs" aria-hidden="true"><use href="#bvs-teilen"></use></svg> <span class="k3d-immer">Teilen</span></button>
+      <button type="button" id="k3dBild" class="ist-gold" aria-expanded="false" aria-haspopup="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-abwaerts"></use></svg> <span class="k3d-immer">Bild speichern</span></button>
     </div>
 
     <!-- Ein Druck, mehrere Ansichten: „wenn man draufdrückt kann man
@@ -1864,8 +1910,8 @@
     <div class="k3d-teilen" id="k3dTeilenDialog" role="dialog" aria-modal="true"
          aria-labelledby="k3dTeilenTitel" hidden>
       <div class="k3d-teilen-kasten">
-        <button type="button" class="k3d-teilen-zu" id="k3dTeilenZu">✕ Schließen</button>
-        <h3 id="k3dTeilenTitel">↗ Planung teilen</h3>
+        <button type="button" class="k3d-teilen-zu" id="k3dTeilenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen</button>
+        <h3 id="k3dTeilenTitel"><svg class="bvs" aria-hidden="true"><use href="#bvs-teilen"></use></svg> Planung teilen</h3>
         <p>Wer den Link öffnet, sieht dasselbe Modell und kann es
           weiterbearbeiten – auch Sie selbst später wieder. Speichern Sie
           ihn sich als Lesezeichen oder schicken Sie ihn weiter.</p>
@@ -1918,10 +1964,10 @@
          (Betreiber, 11.10.2026). Am Handy ist die Leiste seitlich
          scrollbar – was vorne steht, sieht man ohne Wischen. -->
     <div class="k3d-leiste" role="group" aria-label="Ansicht steuern">
-      <button type="button" id="k3dMasseLeiste" aria-pressed="false">↔ Maße</button>
-      <button type="button" id="k3dMarkenLeiste" aria-pressed="true">+ Punkte</button>
-      <button type="button" id="k3dAbend" aria-pressed="false"><span class="k3d-sym" aria-hidden="true">☾</span><span class="k3d-txt">Abend</span></button>
-      <button type="button" id="k3dDrehen" aria-pressed="false">⟳ Drehen</button>
+      <button type="button" id="k3dMasseLeiste" aria-pressed="false"><svg class="bvs" aria-hidden="true"><use href="#bvs-masse"></use></svg> Maße</button>
+      <button type="button" id="k3dMarkenLeiste" aria-pressed="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-punkt"></use></svg> Punkte</button>
+      <button type="button" id="k3dAbend" aria-pressed="false"><span class="k3d-sym"><svg class="bvs" aria-hidden="true"><use href="#bvs-abend"></use></svg></span><span class="k3d-txt">Abend</span></button>
+      <button type="button" id="k3dDrehen" aria-pressed="false"><svg class="bvs" aria-hidden="true"><use href="#bvs-drehen"></use></svg> Drehen</button>
       <span class="k3d-trenn"></span>
       <button type="button" class="is-active" data-k3d-ansicht="Perspektive">Perspektive</button>
       <button type="button" data-k3d-ansicht="Vorne">Vorne</button>
@@ -2027,7 +2073,8 @@
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
-<script src="js/konfigurator-3d.js?v=20261031e" defer></script>
+<script src="js/bv-symbole.js?v=20261031f" defer></script>
+<script src="js/konfigurator-3d.js?v=20261031f" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
@@ -2043,7 +2090,7 @@
       WhatsApp
     </a>
   </div>
-  <button class="sticky-close" id="stickyClose" aria-label="Banner schließen">✕</button>
+  <button class="sticky-close" id="stickyClose" aria-label="Banner schließen"><svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg></button>
 </div>
 
 <!-- ---------- Hinweis auf den Testbetrieb ----------

@@ -39,7 +39,7 @@
       var sz = getSchneelastzone(data.kreis);
       var szLabel = sz.slz ? sz.slz + (sz.fn ? ' (' + sz.fn + ')' : '') : 'unbekannt';
       return (
-        '<span class="rit-title">📍 ' + city + '</span>' +
+        '<span class="rit-title">' + (window.bvSymbol ? window.bvSymbol('ort') : '') + ' ' + city + '</span>' +
         '<div class="rit-zone">Windzone: <strong>' + (wz !== null ? wz : 'unbekannt') + '</strong> · ' +
         'Schneelastzone: <strong>' + szLabel + '</strong></div>' +
         '<div class="rit-bau">Baugenehmigung: abhängig vom Bundesland (' + data.bundesland + '). ' +

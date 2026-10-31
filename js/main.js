@@ -153,7 +153,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
-          msgBox.innerHTML = '✅ <strong>Vielen Dank, ' + vornameEscaped + '!</strong> Sie werden weitergeleitet…';
+          msgBox.innerHTML = (window.bvSymbol ? window.bvSymbol('haken') : '') +
+            ' <strong>Vielen Dank, ' + vornameEscaped + '!</strong> Sie werden weitergeleitet…';
           msgBox.style.color = '#C49A2A';
           setTimeout(function(){ window.location.href = '/danke.html'; }, 1500);
           formSubmit.textContent = 'Anfrage gesendet ✓';
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       })
       .catch(function(err) {
-        msgBox.innerHTML = '❌ Fehler beim Senden. Bitte rufen Sie uns direkt an: <a href="tel:+4915678696609" style="color:var(--gold-dark)">015678696609</a>';
+        msgBox.innerHTML = (window.bvSymbol ? window.bvSymbol('kreuz') : '') + ' Fehler beim Senden. Bitte rufen Sie uns direkt an: <a href="tel:+4915678696609" style="color:var(--gold-dark)">015678696609</a>';
         msgBox.style.color = '#e05555';
         formSubmit.disabled = false;
         formSubmit.textContent = 'Kostenlose Beratung anfordern →';
@@ -262,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.vd-carousel').forEach(function (c) {
     var hint = document.createElement('span');
     hint.className = 'vd-carousel-zoom-hint';
-    hint.textContent = '🔍';
+    hint.innerHTML = (window.bvSymbol ? window.bvSymbol('lupe') : '');
     c.appendChild(hint);
   });
   if (document.querySelector('.vd-carousel') && !document.getElementById('vdZoomOverlay')) {
