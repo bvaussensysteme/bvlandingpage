@@ -32,7 +32,7 @@ var FEHLER = [
    "liste.push({ seite: 'links', x: B / 2 - PROFIL / 2, z: f.mitte,",
    "liste.push({ seite: 'links', x: -B / 2 + PROFIL / 2, z: f.mitte,"],
   ['Nur ein Punkt je Laengsseitenfeld statt zwei', 'js',
-   "      liste.push({ seite: 'rechts', x: -B / 2 + PROFIL / 2, z: f.mitte,\n                   nx: -1, nz: 0, feld: i, anzahl: felder.length });\n",
+   "      liste.push({ seite: 'rechts', x: -B / 2 + PROFIL / 2, z: f.mitte,\n                   nx: -1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: f.laenge });\n",
    ''],
   ['Der Unterzug teilt die Seite nicht mehr', 'js',
    '    (felder || []).forEach(function (f, i) {',
@@ -45,7 +45,7 @@ var FEHLER = [
    "    if (rueck) quer('hinten', achsen,"],
   ['Pfostenbreite bleibt unberuecksichtigt (Punkt im Pfosten)', 'js',
    '        var von = achsenListe[i] + PROFIL / 2;\n        var bis = achsenListe[i + 1] - PROFIL / 2;',
-   '        var von = achsenListe[i];\n        var bis = achsenListe[i + 1];'],
+   '        var von = achsenListe[i] - PROFIL / 2;\n        var bis = achsenListe[i + 1] + PROFIL / 2;'],
   ['Flaechenrichtung wird nicht geprueft', 'js',
    '    return (kamPos.x - p.x) * n.x + (kamPos.y - p.y) * n.y +\n           (kamPos.z - p.z) * n.z > 0;',
    '    return true;'],
@@ -95,11 +95,11 @@ var FEHLER = [
    "    if (rueck) quer('hinten', achsenH && achsenH.length ? achsenH : achsen,\n                    hintenZ, -1);",
    "    if (rueck) quer('hinten', achsenH && achsenH.length ? achsenH : achsen,\n                    vorneZ, -1);"],
   ['Nur das erste Pfostenfach bekommt einen Punkt', 'js',
-   '      mitten.forEach(function (x, i) {',
-   '      mitten.slice(0, 1).forEach(function (x, i) {'],
+   '      mitten.forEach(function (f, i) {',
+   '      mitten.slice(0, 1).forEach(function (f, i) {'],
   ['Die Feldnummer geht verloren (Beschriftung "Feld 1 von 1")', 'js',
-   '                   nx: 1, nz: 0, feld: i, anzahl: felder.length });',
-   '                   nx: 1, nz: 0, feld: 0, anzahl: 1 });'],
+   '                   nx: 1, nz: 0, feld: i, anzahl: felder.length,',
+   '                   nx: 1, nz: 0, feld: 0, anzahl: 1,'],
   ['Masse sind wieder voreingestellt AUS', 'js',
    '    masseZeigen: true,', '    masseZeigen: false,'],
   ['Das Haekchen fuer die Masse steht nicht auf an', 'html',
@@ -120,6 +120,16 @@ var FEHLER = [
    '        p: { x: m.x, y: okOben - 2, z: m.z },'],
   ['Der Dachpunkt schwebt wieder ueber dem Dach', 'js',
    '      if (t.length) y = t[0].point.y;', '      void t;'],
+  ['Die Feldflaeche wird auch bei belegter Seite gebaut', 'js',
+   "      if (!erwListe(m.seite).length) blendFlaeche(m, yUnten, okOben);",
+   '      blendFlaeche(m, yUnten, okOben);'],
+  ['Die Feldflaechen haengen nicht am Punkte-Schalter', 'js',
+   '    blendGruppe.visible = !!Z.markenZeigen;', '    void 0;'],
+  ['Die Weltmatrix der Feldflaechen wird nicht nachgezogen', 'js',
+   '    blendGruppe.updateMatrixWorld(true);', '    void 0;'],
+  ['Die Feldflaeche ist nicht mehr zurueckhaltend', 'js',
+   '    transparent: true, opacity: 0.09, depthWrite: false',
+   '    transparent: false, opacity: 1, depthWrite: true'],
   ['Die Buehne wird nicht mehr beobachtet', 'js',
    'new ResizeObserver(groesseGebremst).observe(leinwand.parentNode);',
    'void groesseGebremst;'],
@@ -390,6 +400,36 @@ function lauf(q) {
     /id="k3dMassEingabe"/.test(q.html) &&
     /id="k3dMassWert"/.test(q.html) && /id="k3dMassOk"/.test(q.html),
     'Kasten, Zahlenfeld und Übernehmen');
+
+  /* ---------- Angedeutete Flaeche im offenen Feld ----------
+     „dann bau ne unsichtbare wand oderso" (Betreiber, 31.10.2026).
+
+     ZUERST war sie wirklich unsichtbar und nur fuer den Strahl da.
+     GEMESSEN ueber zwoelf Drehungen, einmal mit und einmal ohne:
+     Zeile fuer Zeile dasselbe, 8 von 25 Punkten standen so und so vor
+     Wiese oder Himmel. Der Grund: Die Punkte der ABGEWANDTEN Seite
+     sind laengst durch die Flaechenrichtung ausgeblendet - was im
+     Leeren steht, ist der Punkt des EIGENEN, offenen Feldes.
+
+     Deshalb andersherum: Die Flaeche bleibt und wird ganz schwach
+     SICHTBAR. Dann steht der Punkt auf etwas, das man sieht. */
+  p('Nur offene Felder bekommen eine Flaeche',
+    /if \(!erwListe\(m\.seite\)\.length\) blendFlaeche\(m, yUnten, okOben\);/.test(q.js),
+    'sonst laege sie vor dem eingebauten Element');
+
+  p('Die Flaechen haengen am selben Schalter wie die Punkte',
+    /blendGruppe\.visible = !!Z\.markenZeigen;/.test(q.js),
+    'wer die Punkte abschaltet, will auch die Felder nicht sehen');
+
+  /* Die Gruppe steht in der Szene, wird aber ausserhalb des normalen
+     Ablaufs gefuellt - ohne updateMatrixWorld laegen alle Flaechen im
+     Nullpunkt statt an ihrem Platz. */
+  p('Die Weltmatrix der Flaechen wird nachgezogen',
+    /blendGruppe\.updateMatrixWorld\(true\);/.test(q.js), 'sonst liegen sie im Nullpunkt');
+
+  p('Die Flaeche bleibt zurueckhaltend',
+    /opacity: 0\.0[0-9], depthWrite: false/.test(q.js),
+    'sie soll das Feld andeuten, nicht das Modell veraendern');
 
   /* ---------- Groesse der Buehne ----------
      GEMESSEN am 31.10.2026: Wird die Buehne kleiner, ohne dass sich das

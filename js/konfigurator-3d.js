@@ -3467,6 +3467,7 @@
        wird, steht nach einem Produktwechsel noch da. Die Punkte entstehen
        während des Baus neu – also hier leeren, nicht irgendwo später. */
     MARKEN = [];
+    leeren(blendGruppe);
     /* Der Hausvorsprung haengt an der Szene, nicht an bau - leeren(bau)
        raeumt ihn also NICHT weg. Deshalb bei jedem Bau zuerst aus, und
        nur der Bauweg, der ihn braucht, schaltet ihn wieder ein. Sonst
@@ -4025,9 +4026,11 @@
       /* Links liegt bei +x – wie in eineSeite('links', B / 2 - PROFIL / 2).
          Die Fläche schaut nach außen, also +x bzw. -x. */
       liste.push({ seite: 'links', x: B / 2 - PROFIL / 2, z: f.mitte,
-                   nx: 1, nz: 0, feld: i, anzahl: felder.length });
+                   nx: 1, nz: 0, feld: i, anzahl: felder.length,
+                   laenge: f.laenge });
       liste.push({ seite: 'rechts', x: -B / 2 + PROFIL / 2, z: f.mitte,
-                   nx: -1, nz: 0, feld: i, anzahl: felder.length });
+                   nx: -1, nz: 0, feld: i, anzahl: felder.length,
+                   laenge: f.laenge });
     });
     /* Vorne und hinten: ein Punkt je Pfostenfach, mit dem LICHTEN Maß
        von Pfosten zu Pfosten – dieselbe Rechnung wie bei den Feldern
@@ -4038,11 +4041,11 @@
       for (var i = 0; i + 1 < (achsenListe || []).length; i++) {
         var von = achsenListe[i] + PROFIL / 2;
         var bis = achsenListe[i + 1] - PROFIL / 2;
-        if (bis - von > 0) mitten.push((von + bis) / 2);
+        if (bis - von > 0) mitten.push({ m: (von + bis) / 2, l: bis - von });
       }
-      mitten.forEach(function (x, i) {
-        liste.push({ seite: seite, x: x, z: z, nx: 0, nz: nz,
-                     feld: i, anzahl: mitten.length });
+      mitten.forEach(function (f, i) {
+        liste.push({ seite: seite, x: f.m, z: z, nx: 0, nz: nz,
+                     feld: i, anzahl: mitten.length, laenge: f.l });
       });
     }
     quer('vorne', achsen, vorneZ, 1);
@@ -4090,6 +4093,59 @@
      deshalb zaehlt nur, was mindestens 12 cm davor liegt. Ohne diese
      Toleranz blendete sich jeder Punkt an einer geschlossenen Seite
      selbst aus. */
+  /* ---------- Unsichtbare Flaechen in den Feldern ----------
+     „dann bau ne unsichtbare wand oderso" (Betreiber, 31.10.2026).
+
+     Das Problem, das er dreimal gemeldet hat: Punkte „tauchen an
+     Feldern auf, die man gar nicht sieht". Eine OFFENE Seite ist ein
+     Loch - der Strahl geht hindurch, und der Punkt der dahinter
+     liegenden Seite bleibt stehen, mitten im Bild, wo kein Bauteil ist.
+
+     Also bekommt jedes Feld eine Flaeche, die GENAU DORT liegt, wo das
+     Element saesse, wenn eines gewaehlt waere. Sie wird NIE GEZEICHNET:
+     Die Gruppe haengt nicht in der Szene, sie existiert nur fuer den
+     Strahl. Damit verhaelt sich ein offenes Feld bei der Verdeckung wie
+     ein geschlossenes - und genau das ist gemeint, wenn jemand sagt,
+     der Punkt gehoere zu DIESEM Feld.
+
+     Der eigene Punkt bleibt sichtbar: Er liegt in derselben Ebene, und
+     die Toleranz von 12 cm schneidet die eigene Flaeche weg. */
+  var blendGruppe = new THREE.Group();
+  szene.add(blendGruppe);
+
+  /* ZUERST war die Flaeche wirklich unsichtbar und nur fuer den Strahl
+     da. GEMESSEN ueber zwoelf Drehungen, einmal mit und einmal ohne:
+     ZEILE FUER ZEILE DASSELBE, 8 von 25 Punkten standen so und so vor
+     Wiese oder Himmel. Der Grund: Die Punkte der ABGEWANDTEN Seite sind
+     laengst durch die Flaechenrichtung ausgeblendet - was im Leeren
+     steht, ist der Punkt des EIGENEN, offenen Feldes. Gegen den hilft
+     keine Verdeckung, der haelt sich ja selbst nicht auf.
+
+     Also andersherum: Die Flaeche bleibt, wird aber SICHTBAR - ganz
+     schwach. Dann steht der Punkt auf etwas, das man sieht, und das
+     offene Feld zeigt sich als das, was es ist: eine Stelle, an der
+     etwas eingebaut werden kann. Deckkraft 9 Prozent, kein Schatten,
+     kein Tiefenschreiben - es soll das Modell nicht veraendern,
+     sondern das Feld andeuten.
+
+     Sie haengt am selben Schalter wie die Punkte („+ Punkte"): Wer die
+     Punkte abschaltet, will auch die Felder nicht sehen. */
+  var blendStoff = new THREE.MeshBasicMaterial({
+    color: rgb(0xffffff), side: THREE.DoubleSide,
+    transparent: true, opacity: 0.09, depthWrite: false
+  });
+
+  function blendFlaeche(m, yUnten, okOben) {
+    var hoch = okOben - yUnten;
+    if (!(hoch > 0) || !(m.laenge > 0)) return;
+    var f = new THREE.Mesh(new THREE.PlaneGeometry(m.laenge, hoch), blendStoff);
+    /* Laengsseiten schauen in x, Stirnseiten in z - die Ebene wird
+       entsprechend gedreht. */
+    if (m.nx) f.rotation.y = Math.PI / 2;
+    f.position.set(m.x, (yUnten + okOben) / 2, m.z);
+    blendGruppe.add(f);
+  }
+
   var VERDECKT_TOLERANZ = 12;        // cm
   var markenPruefZeit = 0, markenKamMerk = null;
 
@@ -4113,7 +4169,7 @@
 
        „Tauchen an Feldern auf, die man gar nicht sieht" (Betreiber,
        31.10.2026, auf die Rueckfrage, was die Punkte beim Drehen tun). */
-    var verdecker = [bau];
+    var verdecker = [bau, blendGruppe];
     if (wand && wand.visible) verdecker.push(wand);
     if (vorsprung && vorsprung.visible) verdecker.push(vorsprung);
     if (tuer && tuer.visible) verdecker.push(tuer);
@@ -5540,6 +5596,9 @@
         p: { x: m.x, y: (yUnten + okOben) / 2, z: m.z },
         n: { x: m.nx, y: 0, z: m.nz }
       });
+      /* Nur wo wirklich nichts steht: Hat die Seite schon ein Element,
+         waere die Andeutung ein zweites Glas vor dem ersten. */
+      if (!erwListe(m.seite).length) blendFlaeche(m, yUnten, okOben);
     });
   }
 
@@ -9801,6 +9860,10 @@
     /* Nach einem Neubau stimmt das gemerkte Ergebnis nicht mehr: Die
        Anlage kann anders stehen, ohne dass sich die Kamera bewegt hat. */
     markenKamMerk = null;
+    /* Ohne Szene rechnet niemand die Weltmatrizen nach - der Strahl
+       traefe sonst Flaechen im Nullpunkt statt an ihrem Platz. */
+    blendGruppe.visible = !!Z.markenZeigen;
+    blendGruppe.updateMatrixWorld(true);
     markenVerdeckungPruefen(true);
     markenStellen();
   }
