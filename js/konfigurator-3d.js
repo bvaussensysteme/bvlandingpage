@@ -182,6 +182,11 @@
     /* Darstellung und Zubehör */
     boden: 'Steinplatten',
     masseZeigen: false,
+    /* Die Anklickpunkte am Modell sind VOREINGESTELLT AN: Sie sind der
+       Hinweis darauf, dass man am Modell selbst arbeiten kann – aus
+       wären sie ein Hinweis, den niemand findet. Abschaltbar bleiben sie
+       trotzdem (Leiste und Häkchen unter „Anzeige"). */
+    markenZeigen: true,
     glasOffen: 0,            // Regler: setzt alle drei Seiten auf einmal
     /* Je Seite, damit sich eine Anlage im Bild einzeln öffnen lässt:
        „wie bei den markisen, die jeweilige schiebeanlage die man im
@@ -3440,6 +3445,10 @@
        kurz ein Carport, wo ein Terrassendach hingehört. */
     if (!e && datenSystem()) return;
     leeren(bau);
+    /* Dieselbe Falle wie beim Hausvorsprung: Was nicht zurückgesetzt
+       wird, steht nach einem Produktwechsel noch da. Die Punkte entstehen
+       während des Baus neu – also hier leeren, nicht irgendwo später. */
+    MARKEN = [];
     /* Der Hausvorsprung haengt an der Szene, nicht an bau - leeren(bau)
        raeumt ihn also NICHT weg. Deshalb bei jedem Bau zuerst aus, und
        nur der Bauweg, der ihn braucht, schaltet ihn wieder ein. Sonst
@@ -3470,6 +3479,8 @@
     wandDurchsicht();
     bodenDurchsichtig = null;
     bodenDurchsicht();
+    markeDach();
+    markenAufbauen();
     neuZeichnen();
   }
 
@@ -3961,6 +3972,81 @@
       });
     }
     return felder;
+  }
+
+  /* ---------- Anklickpunkte am Modell ----------
+     „kleine + marken am 3d modell, eine je seitenfeld und eine am dach,
+     klick drauf springt in den bereich der dazu gehoert" (Betreiber,
+     31.10.2026).
+
+     WARUM HTML UND NICHT 3D. Die Punkte sind Bedienung, nicht Bauteil.
+     Als Knopf über der Leinwand sind sie bei jeder Zoomstufe gleich
+     groß, mit der Tabulatortaste erreichbar und von Screenreadern
+     lesbar – und sie landen NICHT im gespeicherten Bild und nicht im
+     PDF, weil die Leinwand nichts von ihnen weiß. Als Sprite im Modell
+     wäre jeder dieser vier Punkte anders, und das Bild hätte plötzlich
+     Bedienelemente darin.
+
+     MARKEN wird bei jedem Bau neu gefüllt. Ein Eintrag:
+       { art: 'seite'|'dach', seite, feld, anzahl,
+         p: {x,y,z} Lage in cm im Modellraum,
+         n: {x,y,z} Richtung, in die die Fläche schaut } */
+  var MARKEN = [];
+
+  /* Wo die Punkte der Seitenfelder liegen – nur Zahlen, kein 3D.
+     Ausgelagert, damit sich die Lage ohne Browser nachrechnen lässt
+     (scripts/pruefe-marken.js). Die Achsen sind genau die, mit denen
+     eineSeite() baut: Stünden hier andere, lägen die Punkte neben den
+     Feldern, und das fiele erst im Bild auf.
+
+     felder  = Ergebnis von seitenFelder() (Längsseiten, nach Unterzug)
+     achsen  = Pfostenachsen vorne, achsenH die hinteren (Statikträger) */
+  function markenFelder(B, PROFIL, felder, vorneZ, hintenZ, achsen, achsenH, rueck) {
+    var liste = [];
+    (felder || []).forEach(function (f, i) {
+      /* Links liegt bei +x – wie in eineSeite('links', B / 2 - PROFIL / 2).
+         Die Fläche schaut nach außen, also +x bzw. -x. */
+      liste.push({ seite: 'links', x: B / 2 - PROFIL / 2, z: f.mitte,
+                   nx: 1, nz: 0, feld: i, anzahl: felder.length });
+      liste.push({ seite: 'rechts', x: -B / 2 + PROFIL / 2, z: f.mitte,
+                   nx: -1, nz: 0, feld: i, anzahl: felder.length });
+    });
+    /* Vorne und hinten: ein Punkt je Pfostenfach, mit dem LICHTEN Maß
+       von Pfosten zu Pfosten – dieselbe Rechnung wie bei den Feldern
+       selbst. Ein Fach ohne lichtes Maß (zwei Pfosten dicht an dicht)
+       bekommt keinen Punkt, sonst stünde er in einem Pfosten. */
+    function quer(seite, achsenListe, z, nz) {
+      var mitten = [];
+      for (var i = 0; i + 1 < (achsenListe || []).length; i++) {
+        var von = achsenListe[i] + PROFIL / 2;
+        var bis = achsenListe[i + 1] - PROFIL / 2;
+        if (bis - von > 0) mitten.push((von + bis) / 2);
+      }
+      mitten.forEach(function (x, i) {
+        liste.push({ seite: seite, x: x, z: z, nx: 0, nz: nz,
+                     feld: i, anzahl: mitten.length });
+      });
+    }
+    quer('vorne', achsen, vorneZ, 1);
+    /* Hinten nur freistehend. Bei Wandmontage ist die Rückseite das Haus
+       – ein Punkt dort führte in eine Auswahl, die erwAufraeumen() ohnehin
+       leert. Und die Achsen sind die HINTEREN: dort trägt der
+       Statikträger, es stehen weniger Pfosten als vorne. */
+    if (rueck) quer('hinten', achsenH && achsenH.length ? achsenH : achsen,
+                    hintenZ, -1);
+    return liste;
+  }
+
+  /* Zeigt die Fläche, an der der Punkt sitzt, zur Kamera?
+
+     Ein reines Skalarprodukt, absichtlich kein Strahl ins Modell: Bei
+     bis zu zehn Punkten je Bild wäre ein Strahl je Punkt der teuerste
+     Posten der Zeichenschleife, und am Handy merkt man das sofort. Die
+     Flächenrichtung reicht – was von hinten gesehen wird, ist durch die
+     Anlage selbst ohnehin verdeckt. */
+  function markeSichtbar(n, p, kamPos) {
+    return (kamPos.x - p.x) * n.x + (kamPos.y - p.y) * n.y +
+           (kamPos.z - p.z) * n.z > 0;
   }
 
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm, pfostenHintenX) {
@@ -5217,7 +5303,8 @@
        Laufrichtung „von der Mitte nach außen" (Betreiber, 15.10.2026):
        Das hintere Feld stapelt zur Wand, das vordere nach vorn. Ohne
        Unterzug bleibt es bei einem Feld und der bisherigen Richtung. */
-    seitenFelder(hinten, vorne, unterzugZcm, PROFIL).forEach(function (f, i) {
+    var felderLR = seitenFelder(hinten, vorne, unterzugZcm, PROFIL);
+    felderLR.forEach(function (f, i) {
       eineSeite('links',   B / 2 - PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
       eineSeite('rechts', -B / 2 + PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
     });
@@ -5323,6 +5410,28 @@
                   hMitte > 0 ? -1 : 1, fh);
       }
     }
+
+    /* ---------- Anklickpunkte der Seitenfelder ----------
+       Hier und nicht in eineSeite(): eineSeite() kehrt sofort um, wenn
+       für diese Seite nichts gewählt ist – und genau DANN ist der Punkt
+       am nötigsten, weil er zum Hinzufügen einlädt. Der Punkt hängt also
+       am Feld, nicht an seinem Inhalt.
+
+       Die Höhe ist die Mitte der Öffnung: unten der Boden (mit Gefälle,
+       deshalb bodenY), oben die Dachunterkante. Hinten liegt die um das
+       ganze Gefälle höher – mit hVorn säße der Punkt dort zu tief. */
+    var okHinten = dachUk ? dachUk(0) : hVorn;
+    markenFelder(B, PROFIL, felderLR, vorne, hinten, achsen, achsenH,
+                 rueckseiteOffen()).forEach(function (m) {
+      var yUnten = SCHWELLE.ueberstand + bodenY(m.x, m.z);
+      var okOben = (m.seite === 'hinten') ? okHinten : hVorn;
+      if (okOben - yUnten <= 0) return;
+      MARKEN.push({
+        art: 'seite', seite: m.seite, feld: m.feld, anzahl: m.anzahl,
+        p: { x: m.x, y: (yUnten + okOben) / 2, z: m.z },
+        n: { x: m.nx, y: 0, z: m.nz }
+      });
+    });
   }
 
   /* ---------- Aufdachmarkise TDS Linea A / Linea AZ ----------
@@ -9333,6 +9442,175 @@
     return false;
   }
 
+  /* ---------- Der Punkt am Dach ----------
+     Gerechnet aus dem, was wirklich gebaut wurde, nicht aus Breite und
+     Tiefe: Überstand, Rinne, Neigung und eine aufliegende Markise
+     verschieben die Dachfläche gegenüber dem Rohmaß um bis zu einen
+     halben Meter. Genommen wird die Hülle aller Teile, die als Dach
+     gelten (dachTeil) – dieselbe Kennzeichnung, über die das Dach schon
+     anklickbar ist.
+
+     Der Punkt sitzt OBEN auf der Hülle. Von unten („Darunter") fällt er
+     damit durch markeSichtbar() weg, und das ist richtig: Dort schaut
+     man auf die Unterseite, der Punkt gehörte sonst mitten ins Bild. */
+  function markeDach() {
+    var kiste = null;
+    bau.traverse(function (o) {
+      if (!o.isMesh || !istDach(o)) return;
+      var k = new THREE.Box3().setFromObject(o);
+      kiste = kiste ? kiste.union(k) : k;
+    });
+    if (!kiste || !isFinite(kiste.max.y)) return;
+    var m = kiste.getCenter(new THREE.Vector3());
+    MARKEN.push({
+      art: 'dach', seite: 'dach', feld: 0, anzahl: 1,
+      p: { x: m.x, y: kiste.max.y, z: m.z },
+      n: { x: 0, y: 1, z: 0 }
+    });
+  }
+
+  /* NICHT 'k3dMarken' – so hiess im ersten Versuch auch das Haekchen im
+     Bedienfeld. Zwei Elemente mit derselben Kennung: getElementById nahm
+     das erste im Dokument, also das Haekchen, und alle Punkte landeten
+     DARIN statt ueber der Leinwand (im Browserlauf als vier Knoepfe auf
+     einem Punkt bei 0/0 aufgefallen). */
+  var markenHuelle = document.getElementById('k3dMarkenHuelle');
+  var markenKnoepfe = [];
+
+  /* Was am Punkt steht, und was ein Screenreader vorliest. Die Beschriftung
+     ist bewusst dieselbe wie im Bedienfeld („Vorne (Stirnseite)"), damit
+     klar ist, wohin der Klick führt. */
+  var MARKEN_NAME = { links: 'Linke Seite', rechts: 'Rechte Seite',
+                      vorne: 'Vorne (Stirnseite)',
+                      hinten: 'Hinten (Rückseite)', dach: 'Dach' };
+
+  function markenBeschriftung(m) {
+    if (m.art === 'dach') return 'Dach – Eindeckung wählen';
+    var name = MARKEN_NAME[m.seite] || m.seite;
+    var wo = (m.anzahl > 1) ? ', Feld ' + (m.feld + 1) + ' von ' + m.anzahl : '';
+    var belegt = erwListe(m.seite).length > 0;
+    return name + wo + (belegt ? ' – ändern' : ' – Seite schließen');
+  }
+
+  /* Ein Punkt ist belegt, wenn für diese Seite schon etwas gewählt ist.
+     Dann steht ein Stift darin statt eines Plus: Ein Plus an einer Seite,
+     die längst eine Schiebeanlage hat, sagt etwas Falsches. */
+  function markenZeichen(m) {
+    if (m.art === 'dach') return '\u270e';
+    return erwListe(m.seite).length ? '\u270e' : '+';
+  }
+
+  /* Die Knöpfe werden WIEDERVERWENDET, nicht jedes Mal neu erzeugt:
+     Ein Klick auf einen Punkt baut das Modell neu, und ein neu erzeugter
+     Knopf hätte den Tastaturfokus verloren – wer sich mit der Tabulator-
+     taste bewegt, stünde nach jedem Klick wieder am Anfang. */
+  function markenAufbauen() {
+    if (!markenHuelle) return;
+    var soll = Z.markenZeigen ? MARKEN.length : 0;
+    while (markenKnoepfe.length > soll) {
+      var weg = markenKnoepfe.pop();
+      if (weg.parentNode) weg.parentNode.removeChild(weg);
+    }
+    while (markenKnoepfe.length < soll) {
+      var k = document.createElement('button');
+      k.type = 'button';
+      k.className = 'k3d-marke';
+      k.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        var i = markenKnoepfe.indexOf(ev.currentTarget);
+        if (i > -1 && MARKEN[i]) markeSpringen(MARKEN[i]);
+      });
+      /* Ein Druck auf den Punkt darf das Modell nicht mitdrehen: Der
+         Zeiger ginge sonst zugleich an die Leinwand. */
+      k.addEventListener('pointerdown', function (ev) { ev.stopPropagation(); });
+      markenHuelle.appendChild(k);
+      markenKnoepfe.push(k);
+    }
+    for (var i = 0; i < markenKnoepfe.length; i++) {
+      var m = MARKEN[i], b = markenKnoepfe[i];
+      b.textContent = markenZeichen(m);
+      b.setAttribute('aria-label', markenBeschriftung(m));
+      b.title = markenBeschriftung(m);
+      b.classList.toggle('ist-belegt', markenZeichen(m) !== '+');
+      b.hidden = true;             // bis markenStellen() die Lage kennt
+    }
+    markenStellen();
+  }
+
+  /* Lage auf dem Schirm. Läuft je gezeichnetes Bild – deshalb steht hier
+     nichts, was Speicher anlegt: EIN Vektor für alle Punkte, und keine
+     Zeichenkette, die sich nicht geändert hat. */
+  var markenV = null;
+  function markenStellen() {
+    if (!markenHuelle || !markenKnoepfe.length) return;
+    if (!markenV) markenV = new THREE.Vector3();
+    var breite = leinwand.clientWidth, hoehe = leinwand.clientHeight;
+    for (var i = 0; i < markenKnoepfe.length; i++) {
+      var m = MARKEN[i], b = markenKnoepfe[i];
+      if (!m || !markeSichtbar(m.n, m.p, kamera3.position)) { b.hidden = true; continue; }
+      markenV.set(m.p.x, m.p.y, m.p.z).project(kamera3);
+      /* z > 1 heißt: hinter der Kamera. Das kommt in der Ansicht
+         „Darunter" vor, wo die Kamera INNEN steht – ohne diese Abfrage
+         klebte der Punkt gespiegelt am Bildrand. */
+      if (markenV.z > 1 || markenV.z < -1) { b.hidden = true; continue; }
+      b.hidden = false;
+      b.style.left = Math.round((markenV.x + 1) / 2 * breite) + 'px';
+      b.style.top = Math.round((1 - markenV.y) / 2 * hoehe) + 'px';
+    }
+  }
+
+  /* Wohin der Klick springt. Nicht einfach „erstes Feld im Bereich":
+     Bei der Pergola gibt es keine Eindeckung, bei Wandmontage keine
+     Rückseite – ein Sprung auf ein ausgeblendetes Feld wäre ein Klick
+     ins Leere. Deshalb wird genommen, was wirklich sichtbar ist. */
+  function markenZiel(m) {
+    var wahl = (m.art === 'dach')
+      ? '[data-k3d-schritt="dach"] button, [data-k3d-schritt="dach"] select'
+      : '[data-k3d-erw="' + m.seite + '"] button';
+    var liste = document.querySelectorAll(wahl), ersterTreffer = null;
+    for (var i = 0; i < liste.length; i++) {
+      var e = liste[i];
+      /* Zugeklappte Abschnitte aufklappen – im Modus „Alles auf einen
+         Blick" sind sie es, und offsetParent wäre dort null. */
+      var d = e.closest ? e.closest('details') : null;
+      if (d && !d.open) d.open = true;
+      if (!ersterTreffer) ersterTreffer = e;
+      if (e.offsetParent !== null) return e;
+    }
+    return ersterTreffer;
+  }
+
+  function markeSpringen(m) {
+    var schritt = (m.art === 'dach') ? 'dach' : 'seiten';
+    if (gefuehrt) {
+      bereichNr = bereichVon(schritt);
+      schrittZeigen();
+    }
+    /* Am Handy und bei zugeklapptem Bedienfeld führte der Sprung sonst
+       in etwas, das man nicht sieht. Dann erst aufklappen. */
+    var panel = document.getElementById('k3dPanel');
+    if (panel && panel.classList.contains('ist-zu')) {
+      panel.classList.remove('ist-zu');
+      var pb = document.getElementById('k3dPanelAn');
+      if (pb) pb.setAttribute('aria-expanded', 'true');
+      setTimeout(groesseAnpassen, 280);
+    }
+    var ziel = markenZiel(m);
+    if (!ziel) return;
+    var gruppe = ziel.closest ? ziel.closest('.k3d-gruppe') : null;
+    try { ziel.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    catch (x) { ziel.scrollIntoView(); }
+    /* Fokus ohne zweites Scrollen – sonst ruckelt es zweimal. */
+    try { ziel.focus({ preventScroll: true }); } catch (x) { try { ziel.focus(); } catch (y) {} }
+    /* Kurz hervorheben: Wer vom Modell ins Bedienfeld springt, muss
+       sehen, WO er gelandet ist. Ohne das wirkt der Klick folgenlos,
+       besonders wenn die Zeile schon im Bild stand. */
+    if (gruppe) {
+      gruppe.classList.add('ist-gezeigt');
+      setTimeout(function () { gruppe.classList.remove('ist-gezeigt'); }, 1600);
+    }
+  }
+
   /* ---------- Hinweis auf den Testbetrieb ----------
      Wunsch des Betreibers (11.10.2026): „bevor das jemand für fertige
      version hält". Der Konfigurator wird gerade gebaut und getestet.
@@ -9562,6 +9840,11 @@
     if (autoDreht) { kam.theta += 0.0035; kameraSetzen(); }
     if (frisch > 0 || autoDreht || zieht) {
       renderer.render(szene, kamera3);
+      /* Die Punkte liegen über der Leinwand, nicht darin – sie müssen
+         deshalb bei jedem Bild mitwandern. Hier und nicht in
+         kameraSetzen(): Beim Drehen und beim Zoomen wird gezeichnet,
+         ohne dass kameraSetzen() zwingend durchläuft. */
+      markenStellen();
       if (frisch > 0) frisch--;
     }
     requestAnimationFrame(zeichnen);
@@ -11007,6 +11290,7 @@
     Z.soundset = wert('k3dSoundSet') || Z.soundset;
     [['verkRueck', 'k3dVerkRueck'], ['verkLinks', 'k3dVerkLinks'],
      ['verkRechts', 'k3dVerkRechts'], ['masseZeigen', 'k3dMasse'],
+     ['markenZeigen', 'k3dMarken'],
      ['sound', 'k3dSound'], ['heizung', 'k3dHeizung'],
      ['wettersensor', 'k3dWetter'],
      ['traegerWunsch', 'k3dTraeger'],
@@ -11473,7 +11757,7 @@
    'k3dGlasOffen', 'k3dMarkise', 'k3dSonneAus',
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
    'k3dBodenGefaelle', 'k3dBodenGefaelleQuer',
-   'k3dBoden', 'k3dMasse', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
+   'k3dBoden', 'k3dMasse', 'k3dMarken', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
@@ -11924,6 +12208,29 @@
   var hakenMasse = document.getElementById('k3dMasse');
   if (hakenMasse) hakenMasse.addEventListener('change', masseKnopfStand);
   masseKnopfStand();
+
+  /* Derselbe Aufbau wie bei den Maßen: ein Schalter in der Ansichtsleiste
+     und ein Häkchen im Bedienfeld, die denselben Wert halten – nicht zwei.
+     Wer die Punkte als störend empfindet, muss sie dort abschalten können,
+     wo er sie sieht. */
+  var markenBtn = document.getElementById('k3dMarkenLeiste');
+  function markenKnopfStand() {
+    if (!markenBtn) return;
+    markenBtn.classList.toggle('is-active', Z.markenZeigen);
+    markenBtn.setAttribute('aria-pressed', Z.markenZeigen ? 'true' : 'false');
+  }
+  if (markenBtn) {
+    markenBtn.addEventListener('click', function () {
+      Z.markenZeigen = !Z.markenZeigen;
+      var haken = document.getElementById('k3dMarken');
+      if (haken) haken.checked = Z.markenZeigen;
+      markenKnopfStand();
+      markenAufbauen();
+    });
+  }
+  var hakenMarken = document.getElementById('k3dMarken');
+  if (hakenMarken) hakenMarken.addEventListener('change', markenKnopfStand);
+  markenKnopfStand();
 
   var drehBtn = document.getElementById('k3dDrehen');
   if (drehBtn) {

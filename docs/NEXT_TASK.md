@@ -1,8 +1,8 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: 25.10.2026 (abends) · zuletzt bearbeitet: Teilen-Knopf mit Kurzlink,
-> alle RAL-Töne mit Suche, Gefälle-Dreieck, PDF-Kacheln, **Sonderform entfernt**
+> Stand: 31.10.2026 · zuletzt bearbeitet: **Anklickpunkte am Modell**
+> (ein Punkt je Seitenfeld, einer am Dach, Klick springt in den Bereich)
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -158,22 +158,48 @@ wird ausgeblendet (`bereichHatInhalt`). Geprüft von
 1. Ist „Anlage" zu voll (Produkt + Montage + Maße + Farbe)?
 2. Soll „Tragwerk" ein eigener Bereich werden?
 
-### Als Nächstes: „+"-Punkte am Modell *(Auftrag vom 31.10.2026)*
+### Anklickpunkte am Modell — gebaut *(31.10.2026)*
 
-Gewünscht: kleine **+**-Marken am 3D-Modell — eine je Seitenfeld und eine am
-Dach. Klick auf die Marke springt in den Bereich, der dazu gehört: Feld →
-Seiten (Festelement, Planken, Schiebeflügel …), Dach → Dach (Eindeckung).
+Am Modell sitzt jetzt **ein Punkt je Seitenfeld und einer am Dach**. Ein Klick
+springt in den passenden Bereich und setzt den Blick auf die Einstellung:
+Feld → **Seiten**, Dach → **Dach**. Die angesprungene Zeile leuchtet kurz auf,
+sonst wirkt der Klick folgenlos.
 
-Was die Vorarbeit ergeben hat:
-- Die Seitenfelder entstehen in `seitenFelder(hinten, vorne, unterzugZcm,
-  PROFIL)` in `js/konfigurator-3d.js` (Beschriftungen „Links / Rechts /
-  Vorne (Stirnseite) / Hinten (Rückseite)"); die Schrittgruppe heißt
-  `SG23_SEITEN`.
-- Ein `THREE.Raycaster` ist schon im Einsatz (Markisen, Schiebeflügel) — die
-  Klickerkennung muss nicht neu erfunden werden.
-- Der Sprung selbst ist da: `bereichVon(schrittId)` + `schrittZeigen()`.
-- Eigene Gestaltung, eigene Namen — kein Zeichen, kein Farbwert, kein Abstand
-  vom Wettbewerber (CLAUDE.md, „Nachbauten").
+- Leer ist der Punkt ein **+**, belegt ein **Stift** — ein Plus an einer Seite,
+  die längst eine Schiebeanlage hat, sagt etwas Falsches.
+- Abschaltbar an zwei Stellen, die denselben Wert halten: Schalter
+  **„+ Punkte"** in der Ansichtsleiste und Häkchen unter *Anzeige*.
+  Voreingestellt **an**.
+- Punkte sind **HTML über der Leinwand** (`.k3d-marke`), nicht Teile im Modell.
+  Deshalb bleiben sie bei jedem Zoom gleich groß, sind mit der Tabulatortaste
+  erreichbar — und stehen **nicht** im gespeicherten Bild und nicht im PDF.
+  Begründung und die verworfenen Wege: `docs/entscheidungen.md`, 31.10.2026.
+- Lage: `markenFelder()` in `js/konfigurator-3d.js`, mit denselben Achsen, mit
+  denen `eineSeite()` baut. Ob ein Punkt gezeigt wird, entscheidet die Richtung
+  seiner Fläche (`markeSichtbar()`) — kein Strahl ins Modell, das wäre je Bild
+  der teuerste Posten. Der Dachpunkt fällt in der Ansicht „Darunter" deshalb
+  von selbst weg.
+- Geprüft von **`scripts/pruefe-marken.js`** (28 Prüfungen, Gegenprobe mit
+  24 einzeln eingebauten Fehlern).
+
+**Beim ersten Bauen schiefgegangen** (steht hier, damit es niemand wiederholt):
+Die Hülle über der Leinwand und das Häkchen im Bedienfeld trugen beide die
+Kennung `k3dMarken`. `getElementById` nahm das erste Element im Dokument, also
+das Häkchen — alle Punkte landeten **darin** statt über der Leinwand und saßen
+im Browserlauf zu viert auf einem Fleck bei 0/0. Die Hülle heißt jetzt
+`k3dMarkenHuelle`, und `pruefe-marken.js` prüft, dass beide Kennungen
+verschieden sind.
+
+**Offen (bewusst, braucht eine Entscheidung):**
+1. **Ein Punkt je Feld, aber nur eine Auswahl je Seite.** Zwei Felder links
+   springen beide in dieselbe Zeile „Links". Eine Auswahl je Feld wäre der
+   nächste Schritt — und ein großer: Sie müsste durch Maßtabelle, Anfrage und
+   Teilen-Link mitgehen.
+2. **Kein Punkt am Terrassenboden, an den Pfosten und am Zubehör.** Auftrag
+   waren Seitenfelder und Dach; mehr Punkte sind schnell zu viele.
+3. **Der Hinweis zum Testbetrieb liegt beim ersten Aufruf über den Punkten.**
+   Er verschwindet nach dem Wegklicken (einmal je Browser-Sitzung) — unschön,
+   aber kein Fehler.
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
@@ -288,6 +314,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
+| `scripts/pruefe-marken.js` | Anklickpunkte am Modell: ein Punkt je Seitenfeld (auch bei Unterzug und Mittelpfosten), kein Punkt hinten bei Wandmontage, hinten nach den **hinteren** Achsen, keiner steckt in einem Pfosten, Abgewandtes wird nicht gezeigt, Schalter wirkt, Punkte bleiben aus Bild und PDF heraus. `markenFelder()` und `markeSichtbar()` werden **ausgeführt**, nicht im Quelltext nachgelesen. Gegenprobe: 24 Fehler, jeder einzeln |
 | `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
 | `scripts/pruefe-konfigurator-sperre.js` | Ist der öffentliche Konfigurator wirklich gesperrt (503, nicht 404), führt die Hinweisseite zur Anfrage, ist die Werkstatt **nicht** mitgesperrt, verlinkt keine Seite ihn noch aktiv im Menü? **Beim Zurückschalten muss dieses Skript rot werden** |
 | `scripts/pruefe-werkstatt.js` | Passwortschranke vor `/werkstatt/`: gesperrt ohne hinterlegtes Passwort, falsches Passwort abgewiesen, Keks HttpOnly/Secure/SameSite und nicht im Klartext, alte Anmeldung nach Passwortwechsel ungültig — **und ob die Seite überhaupt durch den Worker läuft** (`run_worker_first`). Gegenprobe: 10 Fehler, jeder einzeln |
@@ -363,7 +390,7 @@ Die ganze Liste steht in **`docs/fallen.md`** — vor dem Anfangen einmal
 überfliegen. Die vier, die am häufigsten zuschlagen:
 
 - **Cache-Buster:** pro Datei genau **eine** Version, sonst meldet
-  `scripts/pruefe-cache-buster.sh` rot. Aktuell `v=20261031d`.
+  `scripts/pruefe-cache-buster.sh` rot. Aktuell `v=20261031e`.
 - **`run_worker_first` in `wrangler.jsonc`:** fehlt der Pfad dort, liefert
   Cloudflare die Datei direkt aus und der Worker läuft nie.
 - **Konfliktmarken:** nach jedem `git merge origin/main`
@@ -392,6 +419,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 31.10.2026 | **Anklickpunkte am Modell**: ein Punkt je Seitenfeld, einer am Dach, Klick springt in den Bereich; abschaltbar | live |
 | 31.10.2026 | Menü in fünf Bereiche geteilt (Anlage · Dach · Seiten · Zubehör · Fertig) mit Reitern und Zähler | live |
 | 31.10.2026 | Werkstatt `/werkstatt/`: Passwortschutz im Worker, Neu-laden-Knopf, Versionsanzeige | live |
 | 31.10.2026 | Öffentlicher Konfigurator gesperrt: Hinweisseite statt Rechner, alle Links raus | live |
