@@ -112,7 +112,46 @@ async function alleAufklappen(ziel = page) {
    – sonst prueft der Rest nichts. */
 await page.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
 
+/* ---------- Anklickpunkte fuer diesen Lauf abschalten ----------
+   Nicht, um ein Problem zu verstecken, sondern damit dieses Skript
+   wieder das MODELL misst:
+
+   locator.screenshot() fotografiert den Bildschirmausschnitt, in dem die
+   Leinwand liegt - und nimmt alles mit, was darueber liegt. Seit es die
+   Anklickpunkte gibt (31.10.2026) liegen deren Raender darin. Der
+   Vergleich "Das Modell bleibt beim Umschalten unveraendert" wurde davon
+   rot, obwohl das Modell Pixel fuer Pixel dasselbe war: 48 abweichende
+   Pixel von 832.000, alle an den Punkten, entstanden durch
+   Kantenglaettung beim Neuaufbau der Seite. Umgekehrt - und das ist der
+   schlimmere Fall - koennte ein veraenderter Punkt eine Pruefung auf
+   "hat sich geaendert" bestehen lassen, ohne dass sich am Modell etwas
+   tut.
+
+   VERWORFEN: die Leinwand ueber toDataURL selbst lesen. Das waere der
+   direktere Weg und war der erste Versuch, aber unter Software-Rendering
+   brach der Lauf danach REPRODUZIERBAR bei Pruefung 66 von 90 ab
+   (page.check('#k3dSound'), TimeoutError) - auch am unveraenderten
+   Programmstand, also nicht an den Punkten. Zwanzig synchrone
+   Leinwand-Auslesungen sind dem Browser hier zu viel.
+
+   Die Punkte selbst prueft scripts/pruefe-marken.js - und zwar an der
+   gerechneten Lage, nicht an Bildpixeln. */
+await page.evaluate(() => {
+  const h = document.getElementById('k3dMarken');
+  if (h && h.checked) {
+    h.checked = false;
+    h.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+await page.waitForTimeout(400);
+
 await alleAufklappen();
+/* Die Voraussetzung dieses Laufes, ausdruecklich geprueft: Bliebe das
+   Abschalten wirkungslos, verglichen alle Bildpruefungen weiter Modell
+   SAMT Punkten - und niemand wuesste es. */
+pruef('Anklickpunkte sind fuer diesen Lauf abgeschaltet',
+  (await page.locator('.k3d-marke').count()) === 0,
+  'alle Bildvergleiche zeigen damit das Modell pur');
 
 /* Seit PR #281 fragt das Bedienfeld Schritt fuer Schritt ab: sichtbar ist
    nur der aktuelle Schritt, alles andere steht auf display:none (Regel
@@ -122,7 +161,20 @@ await alleAufklappen();
    Sonderform verursacht, sondern seit #281 unbemerkt rot. Sie arbeitet
    jetzt in der Ansicht "Alles auf einen Blick"; dass der Umschalter
    wirklich alles zeigt, ist selbst eine Pruefung. */
-const breiteGefuehrt = await page.locator('#k3dBreiteZahl').isVisible();
+/* Was hier gemessen wird, hat sich am 31.10.2026 geaendert: Seit der
+   Aufteilung in fuenf Bereiche (PR #500) steht "Maße" ABSICHTLICH im
+   ersten Bereich "Anlage", zusammen mit Produkt, Montage und Farbe. Die
+   alte Erwartung ("Massfeld steckt nicht im Produktschritt") beschrieb
+   den Aufbau von vorher und war seit dem 31.10.2026 rot - unbemerkt,
+   waehrend docs/NEXT_TASK.md noch "alle Skripte laufen durch" sagte.
+
+   Geprueft wird jetzt dieselbe Absicht am neuen Aufbau: Im gefuehrten
+   Modus ist NICHT alles zu sehen. Waehrend "Anlage" offen ist, muss die
+   Montagefrage - sie gehoert zum letzten Bereich "Fertig" - verborgen
+   sein. Das hidden-Eingabefeld #k3dMontage taugt dafuer nicht (ein
+   hidden-Feld ist nie sichtbar), deshalb seine Knopfreihe. */
+const fremderBereichGefuehrt =
+  await page.locator('[data-k3d-seg="k3dMontage"]').isVisible();
 /* Die Sprechblase (#k3dTestHinweis) liegt ueber dem Umschalter. force
    ueberspringt nur die Pruefung von Playwright – der Mausklick landet
    trotzdem auf der Blase. Deshalb den Knopf direkt ausloesen. */
@@ -157,10 +209,13 @@ pruef('Das Bedienfeld bleibt bei etwa einem Bildschirm',
   hoeheEiner < 2000, hoeheEiner + ' px (vorher 4653 px in Pro)');
 
 await alleAufklappen();
-pruef('Schritt fuer Schritt zeigt nur den aktuellen Schritt',
-  !breiteGefuehrt, 'Massfeld steckt nicht im Produktschritt');
+pruef('Der gefuehrte Modus zeigt nur den aktuellen Bereich',
+  !fremderBereichGefuehrt,
+  'Montagefrage (Bereich "Fertig") ist in "Anlage" nicht zu sehen');
 pruef('"Alles auf einen Blick" zeigt alle Abschnitte',
-  await page.locator('#k3dBreiteZahl').isVisible(), 'Massfeld sichtbar');
+  (await page.locator('#k3dBreiteZahl').isVisible()) &&
+  (await page.locator('[data-k3d-seg="k3dMontage"]').isVisible()),
+  'Massfeld und Montagefrage sichtbar');
 
 /* ---------- Basic und Pro ----------
    „mach eine Basic version für leihen und dann wenn man auf pro

@@ -340,11 +340,39 @@ auf, dass `pruefe-konfigurator-oberflaeche.mjs` seit PR #281 (11.10.2026)
 mit einer Ausnahme abbrach, statt ein Ergebnis zu melden – zwölf Tage
 unbemerkt rot. Eine Prüfung, die mit einer Ausnahme endet, ist rot.
 
-Stand 25.10.2026: **alle Skripte laufen durch**, jedes mit vollständig
-anschlagender Gegenprobe (`pruefe-konfigurator-oberflaeche.mjs` 90 Prüfungen
-und alle drei eingebauten Fehler gefunden, `pruefe-masstabelle.js` 364,
-`pruefe-markise.js` 190, `pruefe-fuehrung.js` 309, `pruefe-teilen.mjs` und
-`pruefe-kurzlink.mjs`).
+**Stand 31.10.2026: alle Skripte laufen durch — mit EINER Ausnahme, siehe
+unten.** Jedes mit vollständig anschlagender Gegenprobe
+(`pruefe-marken.js` 28 Prüfungen und 25 Fehler, `pruefe-masstabelle.js` 364,
+`pruefe-markise.js` 190, `pruefe-fuehrung.js` 313, `pruefe-teilen.mjs`,
+`pruefe-kurzlink.mjs`, `pruefe-assistent.mjs`, `pruefe-werkstatt.js`).
+
+> **Die Ausnahme: `pruefe-konfigurator-oberflaeche.mjs` bricht bei Prüfung
+> 67 von 90 ab** — `page.check('#k3dSound')` läuft in eine Zeitüberschreitung,
+> der Klick landet, das Häkchen setzt sich aber nicht. Die letzten **23
+> Prüfungen laufen deshalb gar nicht**, unter anderem Untergrund, Montage,
+> Verkleidung und der ganze Handy-Teil.
+>
+> **Es liegt nicht an den Anklickpunkten.** Nachgewiesen: Derselbe Abbruch
+> an derselben Stelle am unberührten Programmstand vom 31.10.2026 mit dem
+> unveränderten Prüfskript (`git archive`-Kopie, eigener Lauf). Von sechs
+> Läufen kam genau **einer** bis zum Ende — der allererste. Es ist also
+> nichts, was eine Änderung ausgelöst hat, sondern eine wackelige Stelle im
+> Prüfskript selbst.
+>
+> **Das wäre die nächste sinnvolle Reparatur an den Prüfungen.** Verdacht:
+> Vor dem Häkchen laufen `page.click` auf das LED-Set und `page.fill` auf
+> die LED-Anzahl; beide lösen einen vollständigen Neuaufbau des Modells aus.
+> Nachzusehen wäre, ob `#k3dSound` dabei neu erzeugt wird oder kurz
+> unbedienbar ist. Nicht geraten weiterbauen — erst messen.
+
+Ebenfalls am 31.10.2026 gefunden: Eine Prüfung desselben Skripts war seit
+der Bereichs-Aufteilung (PR #500) **unbemerkt rot**. Sie erwartete, dass das
+Maßfeld im Produktschritt unsichtbar ist — seit den fünf Bereichen steht
+„Maße" aber absichtlich im Bereich *Anlage*. Sie prüft jetzt dieselbe
+Absicht am neuen Aufbau: Während „Anlage" offen ist, darf die Montagefrage
+(Bereich *Fertig*) nicht sichtbar sein. **Zwei Prüfungen in einem Skript,
+beide unbemerkt rot** — das ist der Grund, warum oben „Exit-Code abfragen"
+steht.
 
 Der Browsertest ist damit wieder brauchbar. Er ersetzt **nicht** das
 Nachsehen im Browser – das macht der Betreiber selbst („mach keinen browser
