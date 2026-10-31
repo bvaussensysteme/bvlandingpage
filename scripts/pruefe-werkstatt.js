@@ -41,7 +41,13 @@ var FEHLER = [
   ['Gueltige Anmeldung wird abgewiesen',
    '    return null;                        // durchlassen',
    "    return anmeldeSeite('');            // faelschlich zu"],
-  ['Werkstatt laeuft am Worker vorbei', '"/werkstatt/*"', '"/nie-benutzt/*"', 'wrangler']
+  ['Werkstatt laeuft am Worker vorbei', '"/werkstatt/*"', '"/nie-benutzt/*"', 'wrangler'],
+  ['Leerraum im Secret wird nicht abgeschnitten',
+   "const passwort = String(env.WERKSTATT_PASSWORT || '').trim();",
+   'const passwort = env.WERKSTATT_PASSWORT;'],
+  ['Leerraum in der Eingabe wird nicht abgeschnitten',
+   "eingabe = String(daten.get('passwort') || '').trim();",
+   "eingabe = String(daten.get('passwort') || '');"]
 ];
 
 function baue(nr) {
@@ -139,6 +145,26 @@ async function lauf(w) {
     a2 !== null && /no-store/.test(a2.headers.get('cache-control') || '') &&
     /noindex/.test(a2.headers.get('x-robots-tag') || ''),
     a2 ? 'cache-control: ' + a2.headers.get('cache-control') : '-');
+
+  /* 8b - Unsichtbarer Leerraum darf niemanden aussperren. Beim
+     Einfuegen in die Cloudflare-Maske rutscht leicht ein Leerzeichen
+     oder Zeilenumbruch mit; sichtbar ist er nicht. */
+  var a8 = await w.tor(anfrage('POST', null, { passwort: PW }),
+                       { WERKSTATT_PASSWORT: PW + '\n' }, URL_);
+  p('Leerraum im hinterlegten Passwort sperrt niemanden aus',
+    a8 !== null && a8.status === 303,
+    a8 === null ? 'DURCHGELASSEN' : 'Status ' + a8.status);
+
+  var a9 = await w.tor(anfrage('POST', null, { passwort: '  ' + PW + ' ' }),
+                       { WERKSTATT_PASSWORT: PW }, URL_);
+  p('Leerraum in der Eingabe sperrt niemanden aus',
+    a9 !== null && a9.status === 303,
+    a9 === null ? 'DURCHGELASSEN' : 'Status ' + a9.status);
+
+  var a10 = await w.tor(anfrage('GET'), { WERKSTATT_PASSWORT: '   ' }, URL_);
+  p('Ein Passwort aus lauter Leerzeichen gilt als nicht gesetzt',
+    a10 !== null && a10.status === 503,
+    a10 === null ? 'DURCHGELASSEN' : 'Status ' + a10.status);
 
   /* 9 - Wird die Schranke ueberhaupt aufgerufen? Cloudflare liefert
      vorhandene Dateien am Worker VORBEI aus, wenn der Pfad nicht in
