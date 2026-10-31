@@ -10034,3 +10034,37 @@ aktiv". Alle 12 Prüfungen schlagen an, alle 10 Fehler werden bemerkt.
 
 **Beim Zurückschalten** ist dieses Skript die Gegenprobe: Es muss dann rot
 werden. Dafür ist es gebaut.
+
+## 31.10.2026 — Aussparung: Voreinstellung war falsch, Eindeckung fehlt
+
+**Anlass.** „ähm was genau soll das werden das sieht erstens nicht aus wie auf
+den bildern un 2 is es einfach random da ohne es auszuwählen" (Betreiber, mit
+Bildschirmfoto der Werkstatt und drei Vergleichsbildern).
+
+**Punkt 2 — eindeutig mein Fehler, behoben.** In `aussparungWerte()` stand als
+Voreinstellung `'Aussparung rechts'`. Dadurch erschien die Aussparung, sobald
+die Werkstatt geöffnet wurde — ohne dass sie jemand gewählt hatte. Jetzt gilt
+ohne ausdrückliche Wahl **Rechteck**, auch in der Werkstatt. Als Prüfung
+festgehalten, mit eigenem Fehler in der Gegenprobe („Aussparung schaltet sich
+selbst ein").
+
+**Lehre:** Eine Erprobung, die sich selbst einschaltet, verfälscht jeden Blick
+auf die Seite — man sieht nie mehr den normalen Zustand. Voreinstellung einer
+Erprobung ist immer „aus".
+
+**Punkt 1 — offen.** Auf dem Bildschirmfoto ist zu sehen: Die **Sparren folgen
+der Aussparung** (sie beginnen an der Vorderkante des Vorsprungs, das stimmt),
+aber die **Eindeckung fehlt dort**. Das Dach ist auf der Seite der Aussparung
+offen; es sieht nicht aus wie ein Hausvorsprung, sondern kaputt.
+
+**Was NICHT gemacht wird: raten.** Die Rechnung im Code sieht richtig aus
+(Länge, Lage und Höhe je Feld werden aus derselben Hinterkante abgeleitet wie
+die Sparren). Warum die Scheiben trotzdem fehlen, lässt sich durch Lesen nicht
+klären — dieselbe Falle wie am 25.10.2026, als neun Bauteile nacheinander
+„repariert" wurden. Der nächste Schritt ist deshalb eine **Messung im
+laufenden Modell**: Scheiben zählen und ihre Lage nachmessen, nicht den
+Quelltext interpretieren.
+
+**Stand:** Die Werkstatt zeigt wieder ein normales Rechteck. Die Aussparung
+erscheint nur noch mit ausdrücklichem `?form=…` und ist dort weiterhin
+fehlerhaft. Ob weitergebaut wird, entscheidet der Betreiber.
