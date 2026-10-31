@@ -31,6 +31,9 @@
 
 | Datum | Entscheidung | Begründung | Anlass |
 |---|---|---|---|
+| 31.10.2026 | **Anklickpunkte am Modell sind HTML über der Leinwand, nicht Teile im 3D-Modell** | Als Knopf über der Leinwand bleiben sie bei jeder Zoomstufe gleich groß, sind mit der Tabulatortaste erreichbar und von Screenreadern lesbar – und sie landen **nicht** im gespeicherten Bild und nicht im PDF, weil die Leinwand nichts von ihnen weiß. Als Sprite im Modell wäre jeder dieser vier Punkte anders, und „Bild speichern" hätte plötzlich Bedienelemente im Bild | Auftrag des Betreibers vom 31.10.2026: „kleine + marken am 3d modell, eine je seitenfeld und eine am dach" |
+| 31.10.2026 | **Ob ein Punkt gezeigt wird, entscheidet die Richtung seiner Fläche – kein Strahl ins Modell** | Bei bis zu zehn Punkten je Bild wäre ein Strahl je Punkt der teuerste Posten der Zeichenschleife, und am Handy merkt man das. Ein Skalarprodukt kostet nichts und liefert dasselbe Ergebnis: Was von hinten gesehen wird, ist durch die Anlage ohnehin verdeckt. Der Dachpunkt fällt damit in der Ansicht „Darunter" von selbst weg | Bau der Punkte; der Raycaster war schon da und wäre der naheliegende, aber teure Weg gewesen |
+| 31.10.2026 | **Der Punkt hängt am Feld, nicht an seinem Inhalt** – er erscheint auch an einer Seite, für die noch nichts gewählt ist | Dort ist er am nötigsten: Er lädt zum Hinzufügen ein. `eineSeite()` kehrt bei leerer Seite sofort um, deshalb werden die Punkte nicht dort, sondern aus `markenFelder()` erzeugt. Belegte Seiten tragen statt des Plus einen Stift – ein Plus an einer Seite, die längst eine Schiebeanlage hat, sagt etwas Falsches | Bau der Punkte |
 | 10.10.2026 | **Lamellendach bekommt einen eigenen Regler für den Öffnungswinkel** (0–90°), die Lamellen überlappen sich bei 0° | Die drehbaren Lamellen sind das Kennzeichen des Systems – ein starres Bild zeigt nicht, wofür man bezahlt. Geschlossen ist so ein Dach regendicht, deshalb Überlappung statt fester Lamellenbreite | Bau der Pergola |
 | 10.10.2026 | Farb- und Beleuchtungswerte werden **je Produkt** übersetzt | Beim Lamellendach heißt RAL 9010 im Assistenten „Creme-Weiß“ statt „Reinweiß“ und die Beleuchtung „Ja, mit Beleuchtung“ statt „Ja, mit LED-Spots“. Derselbe Wert am falschen Produkt kommt im Assistenten nicht an – und fällt nicht auf, weil beide Werte gültig sind | Beim Bau der Pergola aufgefallen |
 | 09.09.2026 | Assistent wird auf der Startseite **per DOM-Verschiebung** ins Panel geholt, nicht kopiert | Ein zweites Exemplar hätte doppelte IDs (`#awTitle` …) erzeugt; `anfrage-wizard.js` hätte nur noch das erste bedient | Der Button scrollte nur, statt das Fenster zu öffnen |
@@ -68,6 +71,9 @@
 
 | Verworfen | Warum | Stattdessen |
 |---|---|---|
+| Anklickpunkte als Sprites im 3D-Modell | würden mit dem Zoom mitwachsen, wären mit der Tastatur nicht erreichbar – und ständen in jedem gespeicherten Bild und in jedem PDF | HTML-Knöpfe über der Leinwand (`.k3d-marke`) |
+| Verdeckte Punkte per Strahl ins Modell ermitteln | ein Strahl je Punkt und Bild ist der teuerste Posten der Zeichenschleife | Richtung der Fläche, ein Skalarprodukt (`markeSichtbar`) |
+| Ein Punkt je Seite statt je Feld | eine Längsseite zerfällt am Unterzug in zwei Felder, die Vorderseite in ein Fach je Pfosten – ein Punkt für alles zeigte auf kein bestimmtes Bauteil | ein Punkt je Feld, mit „Feld 2 von 2" in der Beschriftung |
 | jsPDF / html2canvas für den PDF-Download | mehrere hundert Kilobyte, externe Abhängigkeit, CSP-Anpassung nötig | eigener PDF-Schreiber in `js/bg-pdf.js` |
 | OrbitControls aus dem three.js-Beispielordner | zweites CDN, Touch-Verhalten nicht steuerbar | rund 60 Zeilen eigene Steuerung in `js/konfigurator-3d.js` |
 | `aggregateRating` im LocalBusiness-Schema | Verstoß gegen Googles Richtlinie zu selbstdargestellten Bewertungen | echte Bewertungen im Google-Profil sammeln |

@@ -2840,8 +2840,13 @@ pruefe('RAL-Feld ist breit genug',
   pruefe('Und die Achsen der hinteren Pfosten',
          new RegExp(q || "frei \\? xPfHinten : null\\);").test(js),
          'sonst teilt sich die Rueckseite falsch');
+  /* Seit dem 31.10.2026 steht das Ergebnis in `felderLR`, statt direkt
+     in ein .forEach zu laufen: Dieselbe Aufteilung tragen jetzt auch die
+     Anklickpunkte (markenFelder). Geprueft wird weiter dasselbe – EINE
+     Aufteilung fuer links UND rechts. Lagen es zwei, koennten die Seiten
+     auseinanderlaufen, ohne dass es im Bild sofort auffaellt. */
   pruefe('Beide Längsseiten kommen aus derselben Aufteilung',
-         new RegExp(q || "seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\)\\.forEach").test(js),
+         new RegExp(q || "var felderLR = seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\);[\\s\\S]{0,120}felderLR\\.forEach\\(function \\(f, i\\) \\{[\\s\\S]{0,200}eineSeite\\('links'[\\s\\S]{0,200}eineSeite\\('rechts'").test(js),
          'links und rechts im selben Durchlauf');
 
   /* ---------- Der Keil bleibt in seinem Feld ----------

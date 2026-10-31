@@ -98,6 +98,53 @@ if (GEGENPROBE) {
 await page.goto(BASIS, { waitUntil: 'networkidle' });
 await page.waitForTimeout(1600);
 
+/* ---------- Ein Haekchen setzen, das weit unten im Bedienfeld steht ----------
+   GEMESSEN am 31.10.2026: page.check('#k3dSound') lief reproduzierbar in
+   eine Zeitueberschreitung und beendete den Lauf bei Pruefung 67 von 90 -
+   die letzten 23 Pruefungen liefen monatelang nicht. Was die Messung an
+   der Stelle ergab:
+
+     sichtbar, nicht gesperrt, im Bild (18 x 18 px bei y = 619),
+     elementFromPoint in seiner Mitte IST das Kaestchen selbst,
+     Gruppe sichtbar - und ein Klick im Browser (el.click()) setzt es
+     sofort. Nur der Mausklick von aussen kommt nicht an.
+
+   Der Unterschied zu den Haekchen, die funktionieren: Das Bedienfeld war
+   6944 von 8683 px weit gescrollt. Playwright scrollt das Element
+   heran und klickt SOFORT danach; der Browser hat die neue Scrollstelle
+   da noch nicht uebernommen, und der Klick landet auf den Koordinaten
+   von vorher. Deshalb: erst heranscrollen, dem Browser zwei Bilder Zeit
+   lassen, dann klicken.
+
+   Nicht per el.click() im Browser abgekuerzt: Das umgeht die Maus und
+   wuerde auch dann bestehen, wenn das Kaestchen in Wirklichkeit unter
+   einem anderen Element liegt. Geprueft werden soll, was ein Besucher
+   tut. */
+/* ---------- Eine Blickrichtung waehlen ----------
+   Die Ansichtsleiste liegt IN der Buehne und ist mittig begrenzt
+   (max-width: calc(100% - 28px)). Die Gegenprobe quetscht die Buehne
+   absichtlich auf 0 px - dann hat die Leiste keine Breite, und ein
+   Mausklick darauf kann nicht ankommen.
+
+   GEMESSEN am 31.10.2026: Genau daran brach die Gegenprobe ab, nachdem
+   der Abbruch bei #k3dSound behoben war. Vorher kam sie nie so weit, das
+   Hindernis lag also lange verdeckt dahinter.
+
+   Im normalen Lauf bleibt es ein echter Mausklick - nur in der
+   Gegenprobe wird der Knopf direkt ausgeloest. Dasselbe tut das Skript
+   schon beim Umschalter #k3dModus, wo die Sprechblase im Weg liegt. */
+async function ansicht(name) {
+  const wahl = `[data-k3d-ansicht="${name}"]`;
+  if (GEGENPROBE) await page.$eval(wahl, (el) => el.click());
+  else await page.click(wahl);
+}
+
+async function haken(ziel, auswahl) {
+  await ziel.locator(auswahl).scrollIntoViewIfNeeded();
+  await ziel.waitForTimeout(250);
+  await ziel.check(auswahl);
+}
+
 /* Alle Abschnitte aufklappen und offen lassen. Vorher hat der Test sie per
    Klick auf die Überschrift geöffnet – und beim zweiten Klick wieder
    zugeklappt, worauf die nächste Prüfung ins Leere lief. */
@@ -112,7 +159,6 @@ async function alleAufklappen(ziel = page) {
    – sonst prueft der Rest nichts. */
 await page.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
 
-await alleAufklappen();
 
 /* Seit PR #281 fragt das Bedienfeld Schritt fuer Schritt ab: sichtbar ist
    nur der aktuelle Schritt, alles andere steht auf display:none (Regel
@@ -122,7 +168,20 @@ await alleAufklappen();
    Sonderform verursacht, sondern seit #281 unbemerkt rot. Sie arbeitet
    jetzt in der Ansicht "Alles auf einen Blick"; dass der Umschalter
    wirklich alles zeigt, ist selbst eine Pruefung. */
-const breiteGefuehrt = await page.locator('#k3dBreiteZahl').isVisible();
+/* Was hier gemessen wird, hat sich am 31.10.2026 geaendert: Seit der
+   Aufteilung in fuenf Bereiche (PR #500) steht "Maße" ABSICHTLICH im
+   ersten Bereich "Anlage", zusammen mit Produkt, Montage und Farbe. Die
+   alte Erwartung ("Massfeld steckt nicht im Produktschritt") beschrieb
+   den Aufbau von vorher und war seit dem 31.10.2026 rot - unbemerkt,
+   waehrend docs/NEXT_TASK.md noch "alle Skripte laufen durch" sagte.
+
+   Geprueft wird jetzt dieselbe Absicht am neuen Aufbau: Im gefuehrten
+   Modus ist NICHT alles zu sehen. Waehrend "Anlage" offen ist, muss die
+   Montagefrage - sie gehoert zum letzten Bereich "Fertig" - verborgen
+   sein. Das hidden-Eingabefeld #k3dMontage taugt dafuer nicht (ein
+   hidden-Feld ist nie sichtbar), deshalb seine Knopfreihe. */
+const fremderBereichGefuehrt =
+  await page.locator('[data-k3d-seg="k3dMontage"]').isVisible();
 /* Die Sprechblase (#k3dTestHinweis) liegt ueber dem Umschalter. force
    ueberspringt nur die Pruefung von Playwright – der Mausklick landet
    trotzdem auf der Blase. Deshalb den Knopf direkt ausloesen. */
@@ -157,10 +216,13 @@ pruef('Das Bedienfeld bleibt bei etwa einem Bildschirm',
   hoeheEiner < 2000, hoeheEiner + ' px (vorher 4653 px in Pro)');
 
 await alleAufklappen();
-pruef('Schritt fuer Schritt zeigt nur den aktuellen Schritt',
-  !breiteGefuehrt, 'Massfeld steckt nicht im Produktschritt');
+pruef('Der gefuehrte Modus zeigt nur den aktuellen Bereich',
+  !fremderBereichGefuehrt,
+  'Montagefrage (Bereich "Fertig") ist in "Anlage" nicht zu sehen');
 pruef('"Alles auf einen Blick" zeigt alle Abschnitte',
-  await page.locator('#k3dBreiteZahl').isVisible(), 'Massfeld sichtbar');
+  (await page.locator('#k3dBreiteZahl').isVisible()) &&
+  (await page.locator('[data-k3d-seg="k3dMontage"]').isVisible()),
+  'Massfeld und Montagefrage sichtbar');
 
 /* ---------- Basic und Pro ----------
    „mach eine Basic version für leihen und dann wenn man auf pro
@@ -181,6 +243,47 @@ async function sichtbareEinheiten() {
     return n;
   });
 }
+/* ---------- Anklickpunkte fuer diesen Lauf abschalten ----------
+   Nicht, um ein Problem zu verstecken, sondern damit dieses Skript
+   wieder das MODELL misst:
+
+   locator.screenshot() fotografiert den Bildschirmausschnitt, in dem die
+   Leinwand liegt - und nimmt alles mit, was darueber liegt. Seit es die
+   Anklickpunkte gibt (31.10.2026) liegen deren Raender darin. Der
+   Vergleich "Das Modell bleibt beim Umschalten unveraendert" wurde davon
+   rot, obwohl das Modell Pixel fuer Pixel dasselbe war: 48 abweichende
+   Pixel von 832.000, alle an den Punkten, entstanden durch
+   Kantenglaettung beim Neuaufbau der Seite. Umgekehrt - und das ist der
+   schlimmere Fall - koennte ein veraenderter Punkt eine Pruefung auf
+   "hat sich geaendert" bestehen lassen, ohne dass sich am Modell etwas
+   tut.
+
+   VERWORFEN: die Leinwand ueber toDataURL selbst lesen. Das waere der
+   direktere Weg und war der erste Versuch, aber unter Software-Rendering
+   brach der Lauf danach REPRODUZIERBAR bei Pruefung 66 von 90 ab
+   (page.check('#k3dSound'), TimeoutError) - auch am unveraenderten
+   Programmstand, also nicht an den Punkten. Zwanzig synchrone
+   Leinwand-Auslesungen sind dem Browser hier zu viel.
+
+   Die Punkte selbst prueft scripts/pruefe-marken.js - und zwar an der
+   gerechneten Lage, nicht an Bildpixeln. */
+await page.evaluate(() => {
+  const h = document.getElementById('k3dMarken');
+  if (h && h.checked) {
+    h.checked = false;
+    h.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+await page.waitForTimeout(400);
+
+await alleAufklappen();
+/* Die Voraussetzung dieses Laufes, ausdruecklich geprueft: Bliebe das
+   Abschalten wirkungslos, verglichen alle Bildpruefungen weiter Modell
+   SAMT Punkten - und niemand wuesste es. */
+pruef('Anklickpunkte sind fuer diesen Lauf abgeschaltet',
+  (await page.locator('.k3d-marke').count()) === 0,
+  'alle Bildvergleiche zeigen damit das Modell pur');
+
 const einheitenBasic = await sichtbareEinheiten();
 const bildBasic = await page.locator('#k3dCanvas').screenshot();
 pruef('Basic verbirgt die Fachwerte',
@@ -233,7 +336,7 @@ pruef('In Pro Eingestelltes ueberlebt den Weg ueber Basic',
 const hoeheOhne = await page.locator('#k3dHoeheWert').innerText();
 pruef('Ohne Traeger steht keine Klammer',
   !/Durchgang/.test(hoeheOhne), hoeheOhne);
-await page.check('#k3dTraeger');
+await haken(page, '#k3dTraeger');
 await page.waitForTimeout(1200);
 const hoeheMit = await page.locator('#k3dHoeheWert').innerText();
 const zahlen = hoeheMit.match(/(\d+) mm \(Durchgang (\d+) mm\)/);
@@ -249,7 +352,7 @@ pruef('Haekchen weg, Klammer weg',
 /* Hinten gilt dasselbe: Freistehend traegt dort der Statiktraeger, also
    geht man auch dort nicht unter dem Wandprofil durch. An der Hauswand
    gibt es keinen – dann darf auch keine Klammer stehen. */
-await page.check('#k3dHoeheGetrennt');
+await haken(page, '#k3dHoeheGetrennt');
 await page.waitForTimeout(900);
 const hintenWand = await page.locator('#k3dHoeheHintenWert').innerText();
 pruef('An der Hauswand steht hinten keine Klammer',
@@ -408,7 +511,7 @@ pruef('Seiten-Abschnitt beim Carport weg', !seitenSichtbar);
 // Verkleidung einschalten -> Ausrichtung erscheint, Bild ändert sich
 const vorVerk = await page.locator('#k3dCanvas').screenshot();
 await alleAufklappen();
-await page.check('#k3dVerkLinks');
+await haken(page, '#k3dVerkLinks');
 await page.waitForTimeout(800);
 const nachVerk = await page.locator('#k3dCanvas').screenshot();
 pruef('Verkleidung verändert das Modell', !vorVerk.equals(nachVerk));
@@ -602,13 +705,13 @@ pruef('Kurzfassung Sonnenschutz',
 const lichtDetails = page.locator('details').filter({ hasText: 'Licht & Technik' }).first();
 await alleAufklappen();
 const ohneLed = await page.locator('#k3dCanvas').screenshot();
-await page.check('#k3dLed');
+await haken(page, '#k3dLed');
 await page.waitForTimeout(700);
 pruef('LED verändert das Modell', !ohneLed.equals(await page.locator('#k3dCanvas').screenshot()));
 pruef('LED-Set erscheint', await page.locator('[data-k3d-fuer="led-detail"]').first().isVisible());
 await page.click('[data-k3d-seg="k3dLedSet"] button[data-wert="12er-Set"]');
 await page.fill('#k3dLedAnzahl', '2');
-await page.check('#k3dSound');
+await haken(page, '#k3dSound');
 await page.waitForTimeout(600);
 pruef('Lautsprecher-Set erscheint', await page.locator('[data-k3d-fuer="sound-detail"]').first().isVisible());
 pruef('Kurzfassung Licht', /12er-Set/.test(await page.locator('#k3dSumLicht').innerText()),
@@ -633,7 +736,7 @@ await page.click('[data-k3d-seg="k3dBoden"] button[data-wert="Holzdielen"]');
 await page.waitForTimeout(700);
 pruef('Bodenbelag wechselt sichtbar', !steinBild.equals(await page.locator('#k3dCanvas').screenshot()));
 const ohneMasse = await page.locator('#k3dCanvas').screenshot();
-await page.check('#k3dMasse');
+await haken(page, '#k3dMasse');
 await page.waitForTimeout(800);
 pruef('Maße erscheinen im Modell', !ohneMasse.equals(await page.locator('#k3dCanvas').screenshot()));
 
@@ -647,12 +750,12 @@ await page.click('#k3dPanelAn');
 await page.waitForTimeout(500);
 
 // Ansicht „Darunter"
-await page.click('[data-k3d-ansicht="Darunter"]');
+await ansicht('Darunter');
 await page.waitForTimeout(600);
 pruef('Ansicht „Darunter" zeichnet', (await bildVielfalt()) > 25);
 
 // Übergabe an den Anfrage-Assistenten
-await page.click('[data-k3d-ansicht="Perspektive"]');
+await ansicht('Perspektive');
 const konfigBreite = await page.inputValue('#k3dBreite');
 await page.click('#k3dAnfrage');
 await page.waitForTimeout(1200);
@@ -674,7 +777,7 @@ await page.fill('#k_email', 'pruefung@bv-aussensysteme.de');
 await page.fill('#k_telefon', '026311234567');
 await page.fill('#k_plz', '57537');
 await page.fill('#k_ort', 'Hirtscheid');
-await page.check('#k_consent');
+await haken(page, '#k_consent');
 await page.click('#awNext');
 await page.waitForTimeout(500);
 
