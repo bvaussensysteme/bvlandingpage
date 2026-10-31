@@ -181,7 +181,12 @@
 
     /* Darstellung und Zubehör */
     boden: 'Steinplatten',
-    masseZeigen: false,
+    /* Voreingestellt AN: „Die Maße sollen standartmäßig an sein"
+       (Betreiber, 31.10.2026). Wer ein Dach plant, will als Erstes
+       wissen, wie groß es wird - und seit demselben Tag sind die
+       Schilder anklickbar, also auch der kürzeste Weg, ein Maß zu
+       ändern. Ausgeschaltet wäre das ein Angebot, das niemand findet. */
+    masseZeigen: true,
     /* Die Anklickpunkte am Modell sind VOREINGESTELLT AN: Sie sind der
        Hinweis darauf, dass man am Modell selbst arbeiten kann – aus
        wären sie ein Hinweis, den niemand findet. Abschaltbar bleiben sie
@@ -3272,7 +3277,12 @@
     c.width = breit; c.height = hoch;
     g = c.getContext('2d');
     g.font = schrift;
-    g.fillStyle = 'rgba(17,17,17,.62)';
+    /* Etwas zurueckhaltender als bisher (.62): „nicht störend wirken"
+       (Betreiber, 31.10.2026). Dieselbe Richtung wie am 11.10.2026
+       („kleiner filigraner … das es nicht so stört"), deshalb nur die
+       Deckkraft - die GROESSE bleibt, die hat der Betreiber selbst
+       festgelegt (siehe SCHILD_HOCH). */
+    g.fillStyle = 'rgba(17,17,17,.52)';
     /* Abgerundete Ecken von Hand – roundRect kennen aeltere Browser
        nicht, und ein eckiger Kasten wirkt schwerer als er ist. */
     g.beginPath();
@@ -3341,7 +3351,9 @@
     return m;
   }
 
-  function masslinie(a, b, text) {
+  /* feld: 'breite' | 'tiefe' | 'hoehe' - woran das Schild haengt.
+     Ohne Angabe bleibt das Schild ein reines Schild (Steigungsdreieck). */
+  function masslinie(a, b, text, feld) {
     var mMass = new THREE.MeshBasicMaterial({ color: 0x1b1b1b });
     masseGruppe.add(massStab(a, b, mMass));
     /* Steht die Linie (Hoehenmass), zeigen die Endmarken waagerecht;
@@ -3355,6 +3367,11 @@
       masseGruppe.add(massStab(v, w, mMass));
     });
     var s = schild(text);
+    /* „wenn man auf ein maß tippt oder klickt dann man z.b ne neue zahl
+       eintragen und das ändert sich dann in der konfiguration"
+       (Betreiber, 31.10.2026). Das Schild traegt dafuer den Namen
+       seines Feldes; den Rest macht massGeklickt(). */
+    if (feld) s.userData.massFeld = feld;
     s.position.copy(a).add(b).multiplyScalar(0.5);
     /* Das Schild NEBEN die Linie, nicht darauf – sonst verdeckt es
        genau die Stelle, die es bemasst. Die halbe Schildbreite steht
@@ -3382,15 +3399,16 @@
     var seite = B / 2 + 100;
     /* Auf dem Boden liegen heisst: auf dem GENEIGTEN Boden liegen. */
     masslinie(new V(-B / 2, bodenY(-B / 2, vorn) + 2, vorn),
-              new V(B / 2, bodenY(B / 2, vorn) + 2, vorn), Z.breite + ' mm');
+              new V(B / 2, bodenY(B / 2, vorn) + 2, vorn), Z.breite + ' mm',
+              'breite');
     masslinie(new V(seite, bodenY(seite, hintenZ) + 2, hintenZ),
-              new V(seite, bodenY(seite, T) + 2, T), Z.tiefe + ' mm');
+              new V(seite, bodenY(seite, T) + 2, T), Z.tiefe + ' mm', 'tiefe');
     /* Die Hoehenlinie STEHT, sie liegt nicht – sie darf deshalb ueber
        dem Belag stehen. Weiter aussen ginge auch nicht: Bei 105 cm lief
        sie in der Ansicht „Vorne" aus dem Bild. */
     var hx = -(B / 2 + 40);
     masslinie(new V(hx, bodenY(hx, T), T),
-              new V(hx, bodenY(hx, T) + H, T), Z.hoehe + ' mm');
+              new V(hx, bodenY(hx, T) + H, T), Z.hoehe + ' mm', 'hoehe');
 
     /* ---------- Steigungsdreieck ----------
        „jz is der ganze boden geneigt bei neigung das is aber egal nur
@@ -9495,6 +9513,124 @@
     return false;
   }
 
+  /* ---------- Ein Maß antippen und ändern ----------
+     „wenn man auf ein maß tippt oder klickt dann man z.b ne neue zahl
+     eintragen und das ändert sich dann in der konfiguration"
+     (Betreiber, 31.10.2026).
+
+     Der kürzeste Weg zwischen „das ist mir zu schmal" und der neuen
+     Zahl. Bisher musste man dafür im Bedienfeld den passenden Regler
+     suchen - bei zugeklapptem Panel am Handy drei Schritte.
+
+     Die Zahl wird NICHT hier gesetzt, sondern in das Zahlenfeld des
+     Bedienfeldes geschrieben; dort hängt die Begrenzung auf Mindest-
+     und Höchstmaß und der Neubau des Modells. Zwei Wege, die dasselbe
+     täten, liefen sonst irgendwann auseinander. */
+  var MASS_FELDER = {
+    breite: { regler: 'k3dBreite', zahl: 'k3dBreiteZahl', name: 'Breite' },
+    tiefe:  { regler: 'k3dTiefe',  zahl: 'k3dTiefeZahl',  name: 'Tiefe' },
+    hoehe:  { regler: 'k3dHoehe',  zahl: 'k3dHoeheZahl',
+              name: 'Höhe vorne (Durchgang)' }
+  };
+
+  var massKasten = document.getElementById('k3dMassEingabe');
+  var massFeldJetzt = null;
+
+  function massSchliessen() {
+    if (massKasten) massKasten.hidden = true;
+    massFeldJetzt = null;
+  }
+
+  function massOeffnen(feld, x, y) {
+    var def = MASS_FELDER[feld];
+    if (!massKasten || !def) return;
+    var regler = document.getElementById(def.regler);
+    var zahl = document.getElementById(def.zahl);
+    if (!regler || !zahl) return;
+    massFeldJetzt = feld;
+
+    var eingabe = document.getElementById('k3dMassWert');
+    var titel = document.getElementById('k3dMassLabel');
+    var grenzen = document.getElementById('k3dMassGrenzen');
+    if (titel) titel.textContent = def.name + ' in mm';
+    if (grenzen) {
+      grenzen.textContent = regler.min + ' bis ' + regler.max + ' mm';
+    }
+    if (eingabe) {
+      eingabe.min = regler.min;
+      eingabe.max = regler.max;
+      eingabe.step = regler.step || 10;
+      eingabe.value = zahl.value || regler.value;
+    }
+    massKasten.hidden = false;
+
+    /* Neben den angetippten Punkt, aber immer ganz im Bild: Am Handy
+       steht das Schild oft am Rand, und ein Kasten, der halb draußen
+       liegt, ist nicht zu bedienen. */
+    var r = leinwand.getBoundingClientRect();
+    var breit = massKasten.offsetWidth || 190;
+    var hoch = massKasten.offsetHeight || 130;
+    var lx = Math.min(Math.max(8, x - r.left - breit / 2), r.width - breit - 8);
+    var ly = Math.min(Math.max(8, y - r.top - hoch - 14), r.height - hoch - 8);
+    massKasten.style.left = Math.round(lx) + 'px';
+    massKasten.style.top = Math.round(ly) + 'px';
+
+    if (eingabe) { try { eingabe.focus(); eingabe.select(); } catch (e) {} }
+  }
+
+  function massUebernehmen() {
+    var def = MASS_FELDER[massFeldJetzt];
+    var eingabe = document.getElementById('k3dMassWert');
+    if (!def || !eingabe) { massSchliessen(); return; }
+    var zahl = document.getElementById(def.zahl);
+    if (zahl) {
+      zahl.value = eingabe.value;
+      /* 'change' statt 'input': Das Zahlenfeld begrenzt beim change auf
+         Mindest- und Hoechstmass und baut danach neu. Genau das soll
+         hier passieren - auch wenn jemand 9999 eintippt. */
+      zahl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    massSchliessen();
+  }
+
+  function massGeklickt(e) {
+    if (!Z.masseZeigen || !massKasten) return false;
+    var r = leinwand.getBoundingClientRect();
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects(masseGruppe.children, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var feld = treffer[i].object && treffer[i].object.userData
+                 ? treffer[i].object.userData.massFeld : null;
+      if (feld) { massOeffnen(feld, e.clientX, e.clientY); return true; }
+    }
+    return false;
+  }
+
+  (function () {
+    if (!massKasten) return;
+    var ok = document.getElementById('k3dMassOk');
+    var ab = document.getElementById('k3dMassAb');
+    var eingabe = document.getElementById('k3dMassWert');
+    if (ok) ok.addEventListener('click', massUebernehmen);
+    if (ab) ab.addEventListener('click', massSchliessen);
+    if (eingabe) {
+      eingabe.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); massUebernehmen(); }
+        if (ev.key === 'Escape') { ev.preventDefault(); massSchliessen(); }
+      });
+    }
+    /* Ein Druck ins Bild schliesst den Kasten - sonst bliebe er stehen,
+       wenn jemand ihn vergisst und weiterdreht. */
+    leinwand.addEventListener('pointerdown', function () {
+      if (!massKasten.hidden) massSchliessen();
+    });
+    massKasten.addEventListener('pointerdown', function (ev) {
+      ev.stopPropagation();
+    });
+  })();
+
   /* ---------- Der Punkt am Dach ----------
      Gerechnet aus dem, was wirklich gebaut wurde, nicht aus Breite und
      Tiefe: Überstand, Rinne, Neigung und eine aufliegende Markise
@@ -9841,7 +9977,8 @@
     klickStart = null;
     /* Erst die Markise, dann die Schiebeanlage: Liegt eine Markise vor
        dem Glas, ist sie gemeint. Beide duerfen nicht zugleich reagieren. */
-    if (weg < 6 && zeit < 500 && !markiseGeklickt(e) && !velarisGeklickt(e)) {
+    if (weg < 6 && zeit < 500 && !massGeklickt(e) &&
+        !markiseGeklickt(e) && !velarisGeklickt(e)) {
       schiebeGeklickt(e);
     }
   });
