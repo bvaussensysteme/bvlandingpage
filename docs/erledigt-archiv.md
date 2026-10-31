@@ -498,3 +498,71 @@ Begründungen: `docs/entscheidungen.md`, 31.10.2026.
 
 **Nach jeder Änderung an `konfigurator.html`:**
 `node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
+
+---
+
+## Aus dem Einstieg verschoben am 31.10.2026
+
+### Werkstatt: Aussparung (Hausvorsprung) *(Machbarkeit gezeigt, 31.10.2026)*
+
+Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
+**rechtwinklig**: Rechteck mit rechteckiger Lücke an der Wandseite. Sparren,
+Scheiben und Wandprofil folgen der Lücke, Rinne und Pfosten vorne bleiben
+unverändert — nachgemessen mit `node scripts/miss-aussparung.mjs`, nicht
+geschätzt. Auf der öffentlichen Seite ist die Aussparung **durch nichts
+einschaltbar**: sie hängt am Pfad `/werkstatt/` (`PROBE_AUSSPARUNG` in
+`js/konfigurator-3d.js`), nicht an einem Parameter.
+
+Formen über die Adresse (Standard ohne Parameter: `Rechteck`, also keine
+Aussparung):
+
+```
+/werkstatt/?form=rechts&ab=2000&at=1000
+/werkstatt/?form=links&ab=2000&at=1000
+/werkstatt/?form=mittig&ab=2000&at=1000&aa=1200
+```
+`ab` = Breite der Aussparung, `at` = Tiefe, `aa` = Abstand von links, in mm.
+
+**Bekannte Grenzen** (bewusst so, nicht vergessen):
+- Ein Feld, das genau auf der Kante der Aussparung sitzt, wird ganz der
+  Aussparung zugeschlagen — Versatz bis **13,6 cm**.
+- `scripts/miss-aussparung.mjs` ist ein **Messwerkzeug ohne `--gegenprobe`**.
+  Es beweist nichts, es zeigt Zahlen. Ein echter Browser-Prüflauf daraus wäre
+  die saubere Lösung und ist noch nicht gebaut.
+- Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den
+  Flanken, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
+  Begründungen: `docs/entscheidungen.md`, 31.10.2026.
+
+**Der Betreiber entscheidet, ob weitergebaut wird.**
+
+### Menü in fünf Bereichen — gebaut *(31.10.2026)*
+
+Statt einer langen Schrittfolge gibt es oben fünf Reiter: **Anlage · Dach ·
+Seiten · Zubehör · Fertig** (`BEREICHE` in `js/konfigurator-3d.js`, Zähler
+„1 von 5", Weiter-Knopf nennt den nächsten Bereich). Ein Reiter ohne Inhalt
+wird ausgeblendet (`bereichHatInhalt`). Geprüft von
+`scripts/pruefe-fuehrung.js` (vier eigene Bereichsprüfungen).
+
+**Zwei Fragen sind offen und brauchen eine Antwort des Betreibers:**
+1. Ist „Anlage" zu voll (Produkt + Montage + Maße + Farbe)?
+2. Soll „Tragwerk" ein eigener Bereich werden?
+
+### Maße: voreingestellt an und anklickbar *(31.10.2026)*
+
+Die Maßlinien sind **standardmäßig eingeschaltet**. Ein Tipp auf ein Maßschild
+im Bild öffnet ein kleines Zahlenfeld; die neue Zahl ändert die Anlage sofort.
+
+- Anklickbar sind **Breite, Tiefe und Höhe vorne**. Das Schild trägt dafür
+  `userData.massFeld`; den Klick wertet `massGeklickt()` aus.
+- Die Zahl wird **in das Zahlenfeld des Bedienfeldes geschrieben**
+  (`k3dBreiteZahl` …) und dort per `change` angewandt — dort hängen Mindest-
+  und Höchstmaß und der Neubau. Im Browser gemessen: **99999 mm → 14080 mm**.
+- Die Schilder sind seit dem 11.10.2026 bewusst klein und filigran; daran ist
+  **nichts geändert**. Zurückgenommen wurde nur die Deckkraft des Kästchens
+  (62 → 52 %), also dieselbe Richtung wie „nicht störend wirken".
+- `k3dMassWert` steht in `pruefe-fuehrung.js` als **Ausnahme mit Begründung**:
+  Es stellt nichts ein, solange getippt wird — sonst wäre eine halb getippte
+  „4" sofort ein 4-mm-Dach.
+
+**Offen, bewusst:** Mit der Tastatur sind die Schilder nicht erreichbar (sie
+sind Teile im 3D-Bild, keine Knöpfe). Dieselben Werte stehen im Bedienfeld.

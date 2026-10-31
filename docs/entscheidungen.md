@@ -10244,3 +10244,65 @@ nur noch, woran gerade gearbeitet wurde.
 Offenes fehlt — namentlich die zwei unbeantworteten Menü-Fragen („Anlage" zu
 voll? „Tragwerk" eigener Bereich?) und die bekannte 13,6-cm-Grenze bei einem
 Feld auf der Aussparungskante.
+
+## 31.10.2026 — Die Anklickmarken sind Flächen in der Szene, keine Knöpfe darüber
+
+**Was falsch war.** Der Betreiber hat viermal dasselbe gemeldet — „die +
+zeichen … wandern an komplett falsche stellen wenn man den konfigurator
+dreht", „die + bleiben nicht an ort und stelle sondern verschieben sich
+komplett", „nein die + punkte wandern", „guck die verschieben sich beim drehen
+des modells". Fünf Erklärungen wurden geprüft und vier verworfen (Tabelle in
+`docs/NEXT_TASK.md`); vier Messungen hintereinander sagten „identisch". Erst
+der fünfte Anlauf des Betreibers nannte die Sache beim Namen:
+
+> „und die Punkte drehen sich quasi immer in Kamerarichtung und bleiben nicht
+> flach wie dieses Feld immer stehen … Und wenn man dann mit der Maus über
+> dieses Feld fährt, dann sieht dieses Feld wie markiert aus … bei mir kann
+> man das ja in orange durchsichtig machen."
+
+**Die Ursache war die Bauart.** Ein HTML-Knopf über der Leinwand kann nicht
+flach in einer Fläche liegen; er schaut immer zum Betrachter, und seine Lage
+muss je Bild aus der Kamera gerechnet werden. Projektion, Seitenverhältnis,
+Verdeckungsstrahl und das Nachziehen bei Größenänderung waren alles Folgen
+dieser einen Entscheidung — nicht eigenständige Fehler.
+
+**Was jetzt gilt.** Jedes Feld ist eine Fläche in der Szene (`feldGruppe`),
+genau dort, wo das Element säße, mit dem Zeichen flach darin (1,2 cm davor,
+sonst streiten beide um dieselbe Tiefe). Verdeckung macht die Tiefenprüfung
+der Grafikkarte; die Fläche dreht sich mit dem Modell und wächst beim Zoomen
+mit. `markeSichtbar()`, `markenVerdeckungPruefen()` und `markenStellen()`
+sind ersatzlos entfallen.
+
+**Warum so und nicht anders.**
+- *Kein Sprite.* Ein `THREE.Sprite` dreht sich von sich aus zur Kamera — also
+  genau der gemeldete Fehler. `pruefe-marken.js` prüft, dass im Feldcode kein
+  Sprite vorkommt.
+- *Belegtes Feld in Ruhe unsichtbar.* Über einer fertigen Schiebeanlage wäre
+  die Andeutung eine zweite Scheibe davor. Anklickbar ist es trotzdem — sonst
+  ließe sich eine vorhandene Seite nicht mehr über das Modell ändern.
+- *Eigene Farbe.* Das Vorbild hebt in Blau hervor. Hier ist es ein eigenes
+  Orange, aus dem Gold der Seite (`--gold #C49A2A`) nach Orange verschoben —
+  siehe die Dauerregel „Nachbauten in eigener Sprache" vom selben Tag.
+  Übernommen wurde die **Idee** (Feld markieren, Zeichen flach darin), kein
+  Farbwert, kein Bild, keine Anordnung.
+- *Die Flächen bleiben aus Bild und PDF heraus.* Als HTML fiel das von selbst
+  weg; jetzt schalten `bildVonAnsicht()` und `schuss()` sie vor der Aufnahme
+  aus. Sie sind Bedienung, kein Bauteil.
+- *Unsichtbare Knopfliste bleibt.* Eine Fläche in der Szene ist für
+  Tabulatortaste und Screenreader nicht vorhanden. Die Liste ist deshalb per
+  `clip-path` versteckt, **nicht** `display:none`, und klappt bei Fokus auf.
+
+**Was dabei nebenbei gefunden wurde.** Ein Klick brauchte im Versuch 549 ms
+zwischen Druck und Loslassen und fiel durch die Grenze `zeit < 500` — auf dem
+Modell geschah nichts. Die Grenze steht jetzt bei 900 ms. Was einen Klick von
+einer Drehung trennt, ist der Weg (`weg < 6`), nicht die Zeit. Am Handy zielt
+man langsamer; mit 500 ms wäre jeder bedächtige Tipp ins Leere gelaufen.
+
+**Verworfen:** die Punkte an die Dachkante hängen (war meine Auslegung, nicht
+sein Wunsch: „das hab ich nie gesagt"); eine wirklich unsichtbare Fläche nur
+für den Strahl (A/B über zwölf Drehungen: identisch).
+
+**Gegengelesen werden soll:** ob das Orange (26 %) kräftig genug ist, ob die
+angedeuteten leeren Felder (9 % weiß) stören, und ob sich die Felder am Handy
+mit dem Finger treffen lassen — dort gibt es kein Überfahren, der erste Tipp
+ist gleich der Klick.
