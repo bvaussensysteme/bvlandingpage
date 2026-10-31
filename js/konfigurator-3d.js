@@ -79,6 +79,29 @@
     breite: 5000,
     tiefe: 3000,
     hoehe: 2300,
+    /* ---------- Form der Anlage (Aussparung) ----------
+       Springt das Haus in die Terrasse hinein (Erker, Windfang, Vorbau),
+       wird aus dem Rechteck ein Grundriss mit einer rechteckigen
+       AUSSPARUNG an der WANDSEITE. Vorne bleibt die Kante gerade: Rinne
+       und Pfosten aendern sich dadurch nicht.
+
+       Bewusst NICHT wieder das schiefe Viereck vom 23.10.2026 (Breite
+       hinten/vorne, Tiefe links/rechts). Daran ist es gescheitert, weil
+       jede Kante in einem beliebigen Winkel stand und damit jedes Profil
+       Gehrung und Drehung brauchte. Hier bleibt alles rechtwinklig; es
+       aendern sich nur LAENGEN. Das ist der ganze Unterschied.
+
+       form        Rechteck | Aussparung links | Aussparung rechts
+                   | Aussparung mittig
+       ausBreite   Breite der Aussparung in mm (wie weit das Haus vorsteht,
+                   quer gemessen)
+       ausTiefe    Tiefe der Aussparung in mm (wie weit es vorspringt)
+       ausAbstand  nur bei 'Aussparung mittig': Abstand der Aussparung von
+                   der linken Anlagenkante in mm */
+    form: 'Rechteck',
+    ausBreite: 2000,
+    ausTiefe: 1000,
+    ausAbstand: 1200,
     eindeckung: 'VSG klar',   // siehe EINDECKUNGEN
     glasstaerke: 8,           // mm, nur bei Glas – 8 oder 10 (VSG)
     /* Aufteilung der Schiebeanlage JE SEITE – '' heißt automatisch.
@@ -2757,7 +2780,14 @@
   }
 
   /* laenge = Dachbreite in x, yUnten = Unterkante, z = 0 ist die Wand. */
-  function wandprofilBauen(laenge, yUnten, glasD, material) {
+  /* xMitte/zVorn/drehY sind neu und haben Vorgaben, die genau das
+     bisherige Verhalten ergeben (mittig an der Wand, ungedreht).
+     Gebraucht werden sie fuer die Aussparung: dort besteht das
+     Wandprofil aus mehreren geraden Stuecken, zwei davon laufen in
+     der Tiefe statt in der Breite. Dieselbe Loesung wie bei
+     rinneBauen, deren Parameter aus demselben Grund stehen blieben. */
+  function wandprofilBauen(laenge, yUnten, glasD, material,
+                           xMitte, zVorn, drehY) {
     var g = new THREE.ExtrudeGeometry(wandprofilQuerschnitt(glasD),
       { depth: laenge, bevelEnabled: false });
     /* Wie bei der Rinne: Mit −90° laeuft die Querschnittstiefe in +z,
@@ -2765,6 +2795,8 @@
     g.rotateY(-Math.PI / 2);
     g.translate(laenge / 2, yUnten, 0);
     var m = new THREE.Mesh(g, material);
+    if (drehY) m.rotation.y = drehY;
+    m.position.set(xMitte || 0, 0, zVorn || 0);
     m.castShadow = true; m.receiveShadow = true;
     bau.add(m);
     return m;
@@ -6403,6 +6435,95 @@
     balken(B + 4, ABD, dicke + 4, 0, hoehe - ABD / 2, zAussen - dicke / 2, blech());
   }
 
+  /* ---------- Aussparung: eine Kante, eine Funktion ----------
+     Die gesamte Form steckt in EINER Auskunft: Wie weit hinten darf ein
+     Bauteil an der Stelle x beginnen? Ueberall sonst ist das die Wand,
+     innerhalb der Aussparung die Vorderkante des Hausvorsprungs.
+
+     Warum nur diese eine Funktion: Am 25.10.2026 ist die Sonderform
+     daran gescheitert, dass jedes Bauteil die Form einzeln beigebracht
+     bekam - Pfosten, Traeger, Wandprofil, Deckel, Blende, Kappen,
+     Scheiben. Jedes neue Bauteil haette denselben Fehler mitgebracht.
+     Hier fragt jedes Bauteil dieselbe Funktion; wer sie nicht fragt,
+     baut automatisch das Rechteck und liegt damit nie falsch, sondern
+     nur unvollstaendig. */
+
+  /* Nur waehrend der Erprobung sichtbar: ?probe=aussparung in der Adresse.
+     Fuer normale Besucher aendert sich dadurch nichts. */
+  var PROBE_AUSSPARUNG = (function () {
+    try { return /[?&]probe=aussparung(\b|&|$)/.test(location.search); }
+    catch (e) { return false; }
+  })();
+
+  /* Waehrend der Erprobung kommen die Werte aus der Adresse, damit noch
+     kein Bedienfeld gebaut werden muss und fuer normale Besucher nichts
+     erscheint. Spaeter liest dieselbe Funktion aus Z. Beispiel:
+     ?probe=aussparung&form=mittig&ab=2000&at=1000&aa=1200   (Masse in mm) */
+  function aussparungWerte() {
+    if (!PROBE_AUSSPARUNG) {
+      return { form: Z.form, ab: Z.ausBreite, at: Z.ausTiefe, aa: Z.ausAbstand };
+    }
+    var q = {};
+    try {
+      String(location.search).replace(/^\?/, '').split('&').forEach(function (t) {
+        var i = t.indexOf('=');
+        if (i > 0) q[t.slice(0, i)] = decodeURIComponent(t.slice(i + 1));
+      });
+    } catch (e) { /* ohne Adresse bleibt es bei den Vorgaben */ }
+    var namen = { links: 'Aussparung links', rechts: 'Aussparung rechts',
+                  mittig: 'Aussparung mittig', rechteck: 'Rechteck' };
+    function zahl(v, vor) {
+      var n = parseFloat(v);
+      return (isFinite(n) && n > 0) ? n : vor;
+    }
+    return {
+      form: namen[String(q.form || '').toLowerCase()] || 'Aussparung rechts',
+      ab: zahl(q.ab, Z.ausBreite),
+      at: zahl(q.at, Z.ausTiefe),
+      aa: zahl(q.aa, Z.ausAbstand)
+    };
+  }
+
+  function aussparungAktiv() {
+    var w = aussparungWerte();
+    return !!(w.form && w.form !== 'Rechteck' && w.ab > 0 && w.at > 0);
+  }
+
+  /* Die Aussparung in Anlagen-Koordinaten (cm, x von -B/2 bis +B/2).
+     null heisst: Rechteck, keine Aussparung. */
+  function aussparungSpanne(B) {
+    if (!aussparungAktiv()) return null;
+    var w = aussparungWerte();
+    var b = w.ab / 10;
+    if (b >= B) b = B;                      // breiter als die Anlage: alles
+    var von;
+    if (w.form === 'Aussparung links')       von = -B / 2;
+    else if (w.form === 'Aussparung rechts') von = B / 2 - b;
+    else {
+      /* mittig: Abstand von der linken Kante, aber nie ueber den Rand
+         hinaus - sonst stuende die Aussparung teils neben der Anlage. */
+      von = -B / 2 + Math.min(Math.max(0, w.aa / 10), B - b);
+    }
+    /* Die Aussparung darf nicht die ganze Anlage auffressen: Hinter ihr
+       muessen mindestens 80 cm Dach uebrig bleiben, sonst entstehen
+       Sparren der Laenge null und die Geometrie kippt. Dieselbe Falle wie
+       am 25.10.2026 ('verkrueppelt'), nur von der anderen Seite. */
+    var tMax = Math.max(0, Z.tiefe / 10 - 80);
+    return { von: von, bis: von + b, tiefe: Math.min(w.at / 10, tMax) };
+  }
+
+  /* Liegt x innerhalb der Aussparung? Genau auf der Kante zaehlt als
+     aussen, damit der Randsparren nicht verkuerzt wird. */
+  function inAussparung(sp, x) {
+    return !!sp && x > sp.von + 1e-6 && x < sp.bis - 1e-6;
+  }
+
+  /* Die hintere Kante an der Stelle x: normal zHinten, in der Aussparung
+     um deren Tiefe weiter vorne. */
+  function hinterkanteBei(sp, x, zHinten) {
+    return inAussparung(sp, x) ? zHinten + sp.tiefe : zHinten;
+  }
+
   function bauenTerrasseGeschaetzt() {
     var sky = Z.produkt === 'Flachdach SkyView';
     /* Pfosten 110 x 110 x 2,5 mm (15190). Das Aussenmass der Zeichnung
@@ -6576,6 +6697,9 @@
        4500 mm) ODER wenn ein Vorsprung eingestellt ist – dann hängt die
        Rinne frei und braucht ihn. */
     var tbMass = tabelleBauteile(Z.breite, Z.tiefe);
+    /* Die Form der Anlage - einmal bestimmt, von allen Bauteilen
+       dieselbe Auskunft. null heisst Rechteck. */
+    var sp = aussparungSpanne(B);
     var vorspr = gruppeGilt('vorsprung') ? Z.vorsprung / 10 : 0;   // cm
     /* Ein Statikträger entsteht auf drei Wegen: ab 4500 mm Tiefe
        zwingend (Tabelle), mit Dachvorsprung bauartbedingt – oder weil der
@@ -7101,7 +7225,33 @@
       /* Kein Quader mehr: das echte Profil mit zwei nach vorne offenen
          Kammern. wpMitte bleibt die Bezugsgroesse der uebrigen Rechnung,
          gebaut wird ab der Unterkante. */
-      wandprofilBauen(B, wpMitte - wpH / 2, wpGlasD, mAlu);
+      if (!sp) {
+        wandprofilBauen(B, wpMitte - wpH / 2, wpGlasD, mAlu);
+      } else {
+        /* Mit Aussparung sind es bis zu fuenf gerade Stuecke: links und
+           rechts an der Wand, die Vorderkante des Hausvorsprungs und
+           seine beiden Flanken. Alle rechtwinklig - keine Gehrung, keine
+           Schraege. Genau das ist der Unterschied zur Sonderform vom
+           23.10.2026, an der das Modell zerbrochen ist. */
+        var wpU = wpMitte - wpH / 2;
+        var wpLinks  = sp.von - (-B / 2);
+        var wpRechts = (B / 2) - sp.bis;
+        if (wpLinks > 0) {
+          wandprofilBauen(wpLinks, wpU, wpGlasD, mAlu,
+                          (-B / 2 + sp.von) / 2, 0, 0);
+        }
+        if (wpRechts > 0) {
+          wandprofilBauen(wpRechts, wpU, wpGlasD, mAlu,
+                          (sp.bis + B / 2) / 2, 0, 0);
+        }
+        wandprofilBauen(sp.bis - sp.von, wpU, wpGlasD, mAlu,
+                        (sp.von + sp.bis) / 2, sp.tiefe, 0);
+        [sp.von, sp.bis].forEach(function (xk, k) {
+          wandprofilBauen(sp.tiefe, wpU, wpGlasD, mAlu,
+                          xk, sp.tiefe / 2,
+                          (k === 0 ? -1 : 1) * Math.PI / 2);
+        });
+      }
     }
     /* Seitliche Abdeckung links und rechts – eigene, runde Form, siehe
        wandkappeQuerschnitt.
@@ -7199,8 +7349,13 @@
     var ukMitte = ukVorn + Math.tan(neig) * (dachTiefe - zMitte);
     var mitteY = ukMitte + spH / 2;                // Mitte, für LED und Glas
 
+    /* Jeder Sparren fragt die Hinterkante an SEINER Stelle. Ohne
+       Aussparung kommt fuer alle dasselbe heraus wie vorher. */
     xs.forEach(function (x) {
-      sparrenBauen(laenge, x, ukMitteBei(zMitte), zMitte, neig, mAlu);
+      var zH = hinterkanteBei(sp, x, zSpHinten);
+      var lg = sky ? laenge : (dachTiefe - zH) / Math.cos(neig);
+      var zM = sky ? zMitte : (dachTiefe + zH) / 2;
+      sparrenBauen(lg, x, ukMitteBei(zM), zM, neig, mAlu);
     });
 
     /* ---------- Blende vor der unteren Kammer ----------
@@ -7221,10 +7376,14 @@
       for (i = 0; i < xs.length - 1; i++) {
         var feldB2 = (xs[i + 1] - xs[i]) - spB;
         if (feldB2 <= 0) continue;
+        var xmB = (xs[i] + xs[i + 1]) / 2;
+        /* In der Aussparung sitzt das Wandprofil weiter vorne - die
+           Blende davor muss denselben Weg mitgehen. */
+        var vorB = inAussparung(sp, xmB) ? sp.tiefe : 0;
         balken(feldB2, WANDBLENDE.hoehe, WANDBLENDE.dicke,
-               (xs[i] + xs[i + 1]) / 2,
+               xmB,
                wpUk + kam.blech + WANDBLENDE.hoehe / 2,
-               WANDPROFIL.tiefeUnten - WANDBLENDE.dicke / 2, mAlu);
+               vorB + WANDPROFIL.tiefeUnten - WANDBLENDE.dicke / 2, mAlu);
       }
     }
 
@@ -7312,9 +7471,26 @@
       var feldB = lichteWeite + 4;
       if (feldB <= 0) continue;
       var xMitte = (xs[i] + xs[i + 1]) / 2;
+      /* Die Scheibe gehoert zu IHREM Feld: Liegt das Feld in der
+         Aussparung, ist sie kuerzer, sitzt weiter vorne - und damit
+         wegen des Gefaelles auch tiefer. Ohne Aussparung kommt Zeile
+         fuer Zeile dasselbe heraus wie vorher. */
+      var zHf  = hinterkanteBei(sp, xMitte, zSpHinten);
+      var lgF  = sky ? laenge : (dachTiefe - zHf) / Math.cos(neig);
+      var zMf  = sky ? zMitte : (dachTiefe + zHf) / 2;
+      var vollGlasF   = sky ? vollGlas   : lgF + glasUeber - 1 - glasRueck;
+      var zGlasMitteF = sky ? zGlasMitte : zMf + (glasRueck + glasUeber - 1) / 2;
+      var yDachF      = yDach - Math.tan(neig) * (zMf - zMitte);
+      if (vollGlasF <= 0) continue;
+      /* Die Kopplung sitzt an einer festen Stelle in der Tiefe. In einem
+         verkuerzten Feld kann sie dahinter liegen - dann faellt die
+         hintere Scheibe weg (laengeT <= 0) und es bleibt eine. */
+      var koppelLokalF  = (koppelZ - zGlasMitteF) / Math.cos(neig);
+      var koppelVornF   = vollGlasF / 2 - koppelLokalF - KOPPEL.breite / 2;
+      var koppelHintenF = vollGlasF / 2 + koppelLokalF - KOPPEL.breite / 2;
       if (!glasGeteilt()) {
-        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, vollGlas), mF);
-        pl.position.set(xMitte, yDach, zGlasMitte);
+        var pl = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, vollGlasF), mF);
+        pl.position.set(xMitte, yDachF, zGlasMitteF);
         pl.rotation.x = neig;
         pl.receiveShadow = true;
         dachTeil(pl);
@@ -7324,13 +7500,13 @@
            Lage kommt aus koppelAbstand() – voreingestellt mittig, im
            Bedienfeld im erlaubten Bereich verschiebbar. */
         [1, -1].forEach(function (vz) {
-          var laengeT = vz > 0 ? koppelVorn : koppelHinten;
+          var laengeT = vz > 0 ? koppelVornF : koppelHintenF;
           if (laengeT <= 0) return;
           var teil = new THREE.Mesh(new THREE.BoxGeometry(feldB, glasDicke, laengeT), mF);
-          var o = koppelLokal + vz * (KOPPEL.breite / 2 + laengeT / 2);
+          var o = koppelLokalF + vz * (KOPPEL.breite / 2 + laengeT / 2);
           teil.position.set(xMitte,
-                            yDach - Math.sin(neig) * o,
-                            zGlasMitte + Math.cos(neig) * o);
+                            yDachF - Math.sin(neig) * o,
+                            zGlasMitteF + Math.cos(neig) * o);
           teil.rotation.x = neig;
           teil.receiveShadow = true;
           dachTeil(teil);

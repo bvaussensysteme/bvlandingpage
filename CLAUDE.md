@@ -20,6 +20,28 @@ Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (oder ähn
 2. Nach Bestätigung: `docs/VD-INHALTE-INVENTAR.md` als Grundlage nutzen (vollständige Liste aller betroffenen Bilder, Dateien, Textstellen).
 3. Darauf hinweisen, dass reines Entfernen Lücken hinterlässt (fehlende Fotos, generische Produktnamen nötig) – das ist beabsichtigt, muss aber kommuniziert werden.
 
+## Nachbauten: eigene Sprache, eigene Namen (permanent)
+
+Wird etwas nachgebaut, das es bei einem Wettbewerber schon gibt (eine Funktion,
+eine Bedienidee, ein Aufbau), gilt ohne Ausnahme:
+
+- **Keine fremden Namen.** Nirgends – nicht in Dateinamen, Funktionsnamen,
+  CSS-Klassen, Kommentaren, Beschriftungen, Commit-Texten oder Doku. Der Name
+  eines Wettbewerbers taucht im Repository nicht auf.
+- **Eigene Benennung.** Formen, Felder, Produkte und Schalter bekommen eigene
+  Namen, auch wenn die fremde Bezeichnung kürzer wäre.
+- **Eigene Designsprache.** Gestaltung folgt `src/css/style.css` und dem, was
+  die Seite schon hat. Ähnlich in der Funktion ja, nachgezeichnet nein: keine
+  übernommenen Icons, Bilder, Farbwerte, Abstände, Anordnungen oder
+  Textbausteine.
+- **Übernommen werden nur Ideen und Fakten** – dass es eine Funktion gibt, wie
+  sie sich bedient, technische Daten, Normbezeichnungen des Herstellers. Nie
+  fremde Dateien, Bilder, Texte oder Code.
+
+Grund: Eine Funktion ist frei, ihre konkrete Ausführung nicht. Gegenüber einem
+direkten Wettbewerber ist eine Abmahnung ein reales, teures Risiko – und sie
+kommt ohne Gericht.
+
 ## Übergabe und Absicherung (permanent)
 
 Der Chatverlauf darf nie die einzige Quelle sein – ein neuer Chat muss jederzeit

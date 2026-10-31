@@ -87,6 +87,26 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   „niedrigste Durchgangshöhe: X mm an der Y-Seite" wäre die kleine Lösung —
   **nicht ohne Auftrag bauen**.
 
+### Aussparung (Hausvorsprung) — Machbarkeitsnachweis steht *(31.10.2026)*
+
+Zweiter Anlauf nach der entfernten Sonderform, diesmal **rechtwinklig**:
+Rechteck mit rechteckiger Lücke an der Wandseite. Es gibt **noch kein
+Bedienfeld** — zu sehen nur über die Adresse:
+
+```
+/konfigurator/?probe=aussparung&form=rechts&ab=2000&at=1000
+/konfigurator/?probe=aussparung&form=links&ab=2000&at=1000
+/konfigurator/?probe=aussparung&form=mittig&ab=2000&at=1000&aa=1200
+```
+
+**Der Betreiber sieht sich das an und entscheidet, ob weitergebaut wird.**
+Gegenzulesen: Folgen Sparren, Scheiben und Wandprofil der Lücke — und bleiben
+Rinne und Pfosten vorne unverändert?
+
+Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den Flanken
+der Aussparung, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
+Hintergrund und Begründung: `docs/entscheidungen.md`, 31.10.2026.
+
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
 Bei 7050 mm Tiefe und 8° Dachneigung ergibt sich eine **Höhe hinten von
@@ -288,6 +308,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
+| `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
 | `scripts/pruefe-konfliktmarken.sh` | **Nach jedem Merge, vor jedem Commit:** liegengebliebene Merge-Marken im ganzen Projekt. Gegenprobe legt eine Datei mit Marken an und muss sie finden |
 | `scripts/pruefe-assistent.mjs` | Bedienung des Anfrage-Assistenten im echten Browser: Eindeckungs-Kacheln alle gleich groß (auch bei ungerader Anzahl), Aufpreis-Hinweis bei der Wunschfarbe, RAL-Suche (Kachel, Suchfeld, „braun" findet Brauntöne, Nummer steht vorn, Unsinn erklärt sich, **Eingabefeld behält den Fokus**, Treffer setzt die Farbe) |
 | `scripts/pruefe-balkon.mjs` | Balkonüberdachung am fertigen Modell im Browser: Pfostenfuß auf der Brüstung bzw. am Boden, Pfosten hinter der Brüstung, Dach bis zur Außenkante, Pfosten-Auswahl verschwindet beim Geländer, Baurechts-Hinweis, keine Javascript-Fehler. Gemessen werden Eckpunkte in Weltkoordinaten |
