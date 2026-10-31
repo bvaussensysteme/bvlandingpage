@@ -10068,3 +10068,68 @@ Quelltext interpretieren.
 **Stand:** Die Werkstatt zeigt wieder ein normales Rechteck. Die Aussparung
 erscheint nur noch mit ausdrücklichem `?form=…` und ist dort weiterhin
 fehlerhaft. Ob weitergebaut wird, entscheidet der Betreiber.
+
+## 31.10.2026 — Gemessen statt geraten: drei Funde auf einen Schlag
+
+**Anlass.** Die Aussparung sah im Bild kaputt aus. Entscheidung des
+Betreibers: „Ursache messen und beheben".
+
+**Wie gemessen wurde.** `scripts/miss-aussparung.mjs` startet einen
+Webserver, lädt die Werkstatt in einem echten Browser, **kapert den Renderer
+von three.js** und liest die gebauten Teile aus: Anzahl, Lage, Maße. Das
+Kapern musste zweimal umgebaut werden — three.js legt sein Exportobjekt
+**leer** an und füllt es erst danach, ein Wrapper auf `window.THREE` greift
+also ins Leere. Jetzt hängt der Haken an der Zuweisung von `WebGLRenderer`
+selbst.
+
+**Fund 1 — meine Annahme war falsch.** Die Scheiben fehlten **nicht**.
+Gemessen: In der Aussparung sind die drei betroffenen Scheiben 192,6 cm statt
+293,6 cm lang, sitzen 50 cm weiter vorne und 7 cm tiefer. Genau richtig. Hätte
+ich „repariert", was ich vermutet habe, wäre es schlechter geworden.
+
+**Fund 2 — acht fehlende Bilder.** Die Werkstatt liegt eine Ebene tiefer.
+`konfigurator-3d.js` lädt seine Texturen mit relativen Pfaden
+(`images/textur/putz.webp`), die von `/werkstatt/` aus ins Leere zeigen.
+Gemessen: Putz, Rasen, Steinplatten, Normalmaps und das Bodenlogo fehlten —
+**deshalb sah die Werkstatt anders aus als die echte Seite**, und das war kein
+Zufall, sondern der sichtbare Teil desselben Problems.
+
+Behoben mit `js/werkstatt-pfade.js` (biegt den Lader von three.js um). Kein
+`<base href="/">`, das würde jede Sprungmarke auf die Startseite umlenken.
+Zwei Anläufe waren nötig: Der Schnipsel stand erst **vor** three.js, dann als
+eingebettetes Skript — beides wirkungslos, weil three.js mit `defer` geladen
+wird. Eigene, ebenfalls aufgeschobene Datei, damit die Reihenfolge gilt. Das
+Bodenlogo läuft gar nicht über three.js, sondern über ein eigenes `Image`;
+dessen Pfad ist jetzt absolut.
+
+**Fund 3 — der eigentliche Grund für das Bild.** Es fehlte **der
+Hausvorsprung selbst**. Sparren, Scheiben und Wandprofil folgten der Form
+korrekt, aber dort, wo das Haus vorspringt, stand nichts. Ohne Baukörper ist
+eine Aussparung kein Hausvorsprung, sondern ein Loch im Dach. Jetzt steht dort
+ein Körper aus demselben Material wie die Hauswand, von der Wandfläche bis zur
+Vorderkante der Aussparung, so hoch wie die Wand.
+
+Er hängt an der **Szene**, nicht an `bau` — `leeren(bau)` räumt ihn also nicht
+weg. Deshalb wird er in `bauen()` bei jedem Durchgang zuerst ausgeschaltet;
+nur der Bauweg, der ihn braucht, schaltet ihn wieder ein. Sonst stünde er noch
+da, nachdem man das Produkt gewechselt hat.
+
+**Gegengelesen** mit einem zweiten, anders gebauten Weg: Bildschirmfotos aus
+demselben Browserlauf, angesehen statt nur Zahlen geprüft. Beim letzten Mal
+hatten die Zahlen gestimmt und das Bild trotzdem nicht.
+
+**Lehre.** Drei Fehler, von denen ich zwei nicht einmal vermutet hatte, in
+einem einzigen Messlauf. Beim Lesen des Quelltextes wäre ich auf keinen davon
+gekommen — ich hätte an der einen Stelle „repariert", die in Ordnung war.
+
+**Was noch offen ist:** `miss-aussparung.mjs` ist ein **Messwerkzeug, keine
+Prüfung** — es hat keine `--gegenprobe` und fällt nicht rot aus. Eine echte
+Browser-Prüfung mit Gegenprobe steht aus und ist in `docs/NEXT_TASK.md`
+vermerkt. Außerdem: Ein Feld, das genau auf der Kante der Aussparung liegt,
+wird ganz der Aussparung zugeschlagen (gemessen: 13,6 cm Versatz) — sichtbar
+erst bei schmalen Feldern.
+
+**Nebenbei auf Wunsch gebaut:** In der Werkstatt gibt es jetzt einen Knopf
+**„Neu laden"** samt Versionsnummer der geladenen Konfigurator-Datei
+(Betreiber: „bau in der werkstatt den reload button"). Die Nummer beantwortet
+die Frage, die ein Neuladen allein offen lässt: Ist der neue Stand schon da?

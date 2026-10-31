@@ -716,7 +716,7 @@
   <meta property="og:locale" content="de_DE" />
 </head>
 <body class="k3d-app-seite">
-<div style="position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center"><span style="background:#c8863a;border-radius:4px;padding:2px 8px">WERKSTATT</span><span>Nicht veröffentlicht – Stand in Arbeit. Änderungen hier sind für Kunden nicht sichtbar.</span></div>
+<div style="position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center"><span style="background:#c8863a;border-radius:4px;padding:2px 8px">WERKSTATT</span><span>Nicht veröffentlicht – Stand in Arbeit. Änderungen hier sind für Kunden nicht sichtbar.</span><button type="button" onclick="location.reload()" style="background:#fff;color:#1f2a33;border:0;border-radius:6px;padding:5px 11px;font:inherit;font-weight:700;cursor:pointer">↻ Neu laden</button><span id="wkVersion" style="opacity:.75;font-weight:500"></span><script>document.addEventListener("DOMContentLoaded",function(){var s=document.querySelector('script[src*="konfigurator-3d.js"]');var m=s&&s.src.match(/[?&]v=([0-9a-z]+)/);var e=document.getElementById("wkVersion");if(e)e.textContent=m?("Stand "+m[1]):"Stand unbekannt";});</script></div>
 
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
@@ -1971,12 +1971,12 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031c" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261031b" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261031c" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/cookie.js" defer></script>
 <script src="/js/metricool.js" defer></script>
