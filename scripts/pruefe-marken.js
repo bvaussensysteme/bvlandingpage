@@ -100,6 +100,16 @@ var FEHLER = [
   ['Die Feldnummer geht verloren (Beschriftung "Feld 1 von 1")', 'js',
    '                   nx: 1, nz: 0, feld: i, anzahl: felder.length });',
    '                   nx: 1, nz: 0, feld: 0, anzahl: 1 });'],
+  ['Die Buehne wird nicht mehr beobachtet', 'js',
+   'new ResizeObserver(groesseGebremst).observe(leinwand.parentNode);',
+   'void groesseGebremst;'],
+  /* Der Aufruf selbst muss weg, nicht nur sein Kommentar - sonst
+     schlaegt die Pruefung nicht an (im ersten Anlauf genau so passiert). */
+  ['Die Groessenanpassung zieht die Punkte nicht nach', 'js',
+   "    markenStellen();\n  }\n  window.addEventListener('resize', groesseAnpassen);",
+   "  }\n  window.addEventListener('resize', groesseAnpassen);"],
+  ['Der Beobachter feuert ungebremst', 'js',
+   '    if (groesseLaeuft) return;', '    if (false) return;'],
   ['Punkte werden ins Bild gezeichnet statt darueber gelegt', 'js',
    "      k.className = 'k3d-marke';",
    "      k.className = 'k3d-marke'; void new THREE.Sprite();"],
@@ -303,6 +313,24 @@ function lauf(q) {
      Reichweite begrenzt und nicht zuruecksetzt, bricht deren Klicks. */
   p('Der geteilte Strahl wird wieder freigegeben',
     /strahl\.far = Infinity;/.test(q.js), 'strahl.far zurueckgesetzt');
+
+  /* ---------- Groesse der Buehne ----------
+     GEMESSEN am 31.10.2026: Wird die Buehne kleiner, ohne dass sich das
+     Fenster aendert (am iPhone faehrt die Adressleiste beim Scrollen
+     ein und aus), blieb der Zeichenpuffer der Leinwand auf der alten
+     Groesse: Buehne 390 x 360, Puffer 390 x 380. Das Bild wird dann per
+     CSS gedehnt und die Punkte rechnen schon mit der neuen Groesse -
+     sie liegen neben ihrem Bauteil. */
+  p('Die Buehne selbst wird beobachtet, nicht nur das Fenster',
+    /new ResizeObserver\(groesseGebremst\)\.observe\(leinwand\.parentNode\)/.test(q.js),
+    'ResizeObserver auf der Buehne');
+  p('Die Groessenanpassung zieht die Punkte sofort nach',
+    /renderer\.setSize\(breite, hoehe, false\);[\s\S]{0,700}?markenStellen\(\);/.test(q.js),
+    'markenStellen() in groesseAnpassen()');
+  p('Der Beobachter ist auf ein Bild gebremst',
+    /if \(groesseLaeuft\) return;/.test(q.js) &&
+    /requestAnimationFrame\(function \(\) \{\s*groesseLaeuft = false;/.test(q.js),
+    'sonst rechnet er waehrend jeder Animation dutzendfach');
 
   var gr = q.html.match(/\.k3d-marke \{[^}]*width: (\d+)px/);
   p('Punkte sind mindestens 24 px gross (WCAG 2.2, 2.5.8)',

@@ -9881,8 +9881,51 @@
     kamera3.aspect = breite / hoehe;
     kamera3.updateProjectionMatrix();
     neuZeichnen();
+    /* Die Anklickpunkte liegen ueber der Leinwand und rechnen mit ihrer
+       Groesse. Aendert die sich, muessen sie sofort nachgezogen werden -
+       nicht erst beim naechsten gezeichneten Bild. */
+    markenStellen();
   }
   window.addEventListener('resize', groesseAnpassen);
+
+  /* ---------- Die Buehne aendert sich auch ohne Fenster-Resize ----------
+     „die + bleiben nicht an ort und stelle sondern verschieben sich
+     komplett" (Betreiber, 31.10.2026, mit Bild vom iPhone, auf dem auch
+     das Modell verzerrt war).
+
+     GEMESSEN, nicht vermutet: Wird die Buehne kleiner, OHNE dass das
+     Fenster sich aendert, blieb der Zeichenpuffer der Leinwand auf der
+     alten Groesse (390 x 380 bei einer Buehne von 390 x 360). Das Bild
+     wird dann per CSS gedehnt - daher das verzerrte Modell - und die
+     Punkte rechnen schon mit der neuen Groesse. Beides zusammen: Die
+     Punkte liegen neben ihrem Bauteil.
+
+     Am iPhone passiert das staendig, weil die Adressleiste beim
+     Scrollen ein- und ausfaehrt. Ein resize-Ereignis kommt dabei nicht
+     zuverlaessig. Deshalb wird die Buehne SELBST beobachtet: Der
+     ResizeObserver meldet jede Groessenaenderung, egal wodurch sie
+     entsteht - Adressleiste, Vollbild, zugeklapptes Bedienfeld,
+     Drehen des Geraets.
+
+     Gebremst auf ein Bild, weil der Beobachter waehrend einer
+     Animation sonst dutzendfach je Sekunde feuert und jedes Mal die
+     Projektionsmatrix neu rechnen liesse. */
+  var groesseLaeuft = false;
+  function groesseGebremst() {
+    if (groesseLaeuft) return;
+    groesseLaeuft = true;
+    requestAnimationFrame(function () {
+      groesseLaeuft = false;
+      groesseAnpassen();
+    });
+  }
+  if (window.ResizeObserver && leinwand.parentNode) {
+    /* Aeltere Browser kennen den Beobachter nicht - dort bleibt es beim
+       resize-Zuhoerer darueber. Besser als nichts, und nichts geht
+       dadurch kaputt. */
+    try { new ResizeObserver(groesseGebremst).observe(leinwand.parentNode); }
+    catch (x) {}
+  }
 
   /* ---------- Schleife ----------
      „prüfe was man machen kann das die bewegungen smooother ohne laggs

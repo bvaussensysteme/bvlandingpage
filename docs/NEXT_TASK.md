@@ -187,6 +187,14 @@ sonst wirkt der Klick folgenlos.
   Nachgebessert am 31.10.2026: „die + zeichen sind zu groß … mach sie kleiner
   etwas durchsichtiger und feststehend". Weniger als 24 px geht nicht —
   das ist das Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8).
+- **Die Bühne wird beobachtet, nicht nur das Fenster** (`ResizeObserver` in
+  `groesseAnpassen()`). Gemessen am 31.10.2026: Wird die Bühne kleiner, ohne
+  dass sich das Fenster ändert — am iPhone fährt dabei die Adressleiste ein
+  und aus —, blieb der Zeichenpuffer der Leinwand auf der alten Größe
+  (Bühne 390 × 360, Puffer 390 × 380). Das Bild wird dann per CSS **gedehnt**
+  (daher das verzerrte Modell) und die Punkte rechnen schon mit der neuen
+  Größe: Sie liegen neben ihrem Bauteil. Ein `resize`-Ereignis kommt dabei
+  nicht zuverlässig.
 - **Verdeckte Punkte werden ausgeblendet** (`markenVerdeckungPruefen()`).
   Die Flächenrichtung allein reichte nicht: Beim Drehen schien der Punkt der
   abgewandten Längsseite durch das ganze Bauwerk und klebte an einem fremden
