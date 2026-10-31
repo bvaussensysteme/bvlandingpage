@@ -9940,3 +9940,34 @@ Fehlern, jeder einzeln** — darunter „ohne Passwort offen", „jedes Passwort
 angenommen", „jeder beliebige Keks reicht", „Keks ohne HttpOnly", „Werkstatt
 läuft am Worker vorbei". Alle 11 Prüfungen schlagen an, alle 10 Fehler werden
 bemerkt. Gesamte Batterie: 19 Prüfungen grün.
+
+## 31.10.2026 — Werkstatt: unsichtbarer Leerraum im Passwort
+
+**Anlass.** Der Betreiber hat das Passwort in Cloudflare hinterlegt und kam
+trotzdem nicht hinein: „Passwort stimmt nicht."
+
+**Was falsch war — an mir.** Die Schranke verglich das eingegebene Passwort
+Zeichen für Zeichen mit dem hinterlegten, ohne Leerraum abzuschneiden. Beim
+Einfügen in die Cloudflare-Maske rutscht leicht ein Leerzeichen oder ein
+Zeilenumbruch mit ans Ende. Der ist **nirgends zu sehen** — weder in der Maske
+noch später, weil ein Secret nicht mehr auslesbar ist. Ergebnis wäre ein
+Passwort, das niemand mehr eingeben kann, auch der Betreiber nicht, und ohne
+jeden Hinweis worauf es liegt. Eine Sperre, die sich selbst zusperrt.
+
+**Was jetzt gilt.** Leerraum am Anfang und Ende wird auf **beiden** Seiten
+abgeschnitten: beim hinterlegten Passwort und bei der Eingabe. Ein Passwort,
+das absichtlich mit einem Leerzeichen endet, gibt es nicht. Besteht das
+hinterlegte Passwort nur aus Leerraum, gilt es als nicht gesetzt — die Seite
+bleibt dann zu, statt mit leerem Passwort aufzumachen.
+
+**Warum das nicht in der ersten Runde auffiel.** Die Prüfungen haben die
+Schranke mit sauberen Werten bedient. Dass die Eingabe aus einer Maske kommt,
+in der man Leerraum nicht sieht, stand in keiner Annahme. **Lehre: Bei einem
+Wert, den ein Mensch aus der Zwischenablage einsetzt, gehört der Fall „mit
+unsichtbarem Leerraum" in die Prüfungen — nicht nur der saubere Fall.**
+
+**Absicherung.** `scripts/pruefe-werkstatt.js`: jetzt **14 Prüfungen**, alle
+bestanden; Gegenprobe mit **12 Fehlern, jeder einzeln**, alle 14 Prüfungen
+schlagen an. Neu darunter: Leerraum im hinterlegten Passwort sperrt niemanden
+aus, Leerraum in der Eingabe ebenso wenig, und ein Passwort aus lauter
+Leerzeichen gilt als nicht gesetzt.

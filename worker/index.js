@@ -659,7 +659,13 @@ function anmeldeSeite(fehler) {
 }
 
 async function werkstattTor(request, env, url) {
-  const passwort = env.WERKSTATT_PASSWORT;
+  /* Leerraum aussen wird abgeschnitten - auf BEIDEN Seiten. Beim
+     Einfuegen in die Cloudflare-Maske rutscht leicht ein Leerzeichen
+     oder Zeilenumbruch mit ans Ende; der gehoert dann zum Passwort,
+     ist aber nirgends zu sehen. Das Ergebnis waere ein Passwort, das
+     niemand mehr eingeben kann - auch der Betreiber nicht. Ein
+     Passwort, das absichtlich mit Leerzeichen endet, gibt es nicht. */
+  const passwort = String(env.WERKSTATT_PASSWORT || '').trim();
 
   /* Kein Passwort hinterlegt -> zu. Mit Anleitung, damit klar ist, was
      zu tun ist, und ohne zu verraten, was auf der Seite liegt. */
@@ -683,7 +689,7 @@ async function werkstattTor(request, env, url) {
     let eingabe = '';
     try {
       const daten = await request.formData();
-      eingabe = String(daten.get('passwort') || '');
+      eingabe = String(daten.get('passwort') || '').trim();
     } catch (e) { eingabe = ''; }
 
     if (!gleichInKonstanterZeit(await werkstattToken(eingabe), erwartet)) {
