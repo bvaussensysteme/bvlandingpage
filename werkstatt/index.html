@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="de" class="k3d-html">
+<head>
+<script>
+/* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
+(function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
+</script>
+<style>
+.a11y-pre-links a{text-decoration:underline!important;}
+.a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
+</style>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Werkstatt – nicht veroeffentlicht</title>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="description" content="Terrassendach, Flachdach SkyView oder Carport in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Ausführung wählen und sofort von allen Seiten ansehen. Kostenlos und unverbindlich." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+  <meta name="theme-color" content="#C49A2A" />
+  <style>
+  /* Fallback fonts bis Google Fonts geladen */
+  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
+  body { font-family: 'Arial', sans-serif; }
+</style>
+<script>
+/* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  function externalOK(raw){
+    if (!raw) return false;
+    if (raw === 'all') return true;
+    if (raw === 'necessary' || raw === 'rejected') return false;
+    if (raw.indexOf('custom:') === 0) return raw.indexOf('external=1') !== -1;
+    return false;
+  }
+  try {
+    if (externalOK(localStorage.getItem('bv_cookie_consent'))) loadFonts();
+    window.addEventListener('bv_consent_given', function(){
+      if (externalOK(localStorage.getItem('bv_cookie_consent'))) loadFonts();
+    });
+  } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
+})();
+</script>
+  <link rel="stylesheet" href="/css/style.css?v=20261029c" />
+  <style>
+    /* ===========================================================
+       3D-Konfigurator – Aufbau als Anwendung
+
+       Links das Bedienfeld, rechts das Modell über die ganze Fläche.
+       Der Grund für diese Teilung: Wer eine Maßangabe ändert, will die
+       Wirkung sehen, ohne zu scrollen. Bedienfeld und Modell müssen
+       deshalb gleichzeitig im Bild stehen.
+
+       Auf dem Handy ist das nicht möglich – dort liegt das Modell oben
+       (feste Höhe) und das Bedienfeld darunter im normalen Seitenfluss.
+       Bewusst KEIN eigener Scrollbereich im Bedienfeld: genau daran ist
+       die erste Fassung gescheitert (zwei verschachtelte Scrollflächen,
+       der Finger traf die falsche). Die Seite scrollt, das Modell nicht.
+       =========================================================== */
+
+    /* Der Klassenname ist bewusst k3d-app-seite und nicht k3d-seite:
+       .k3d-seite ist schon die Zeile „Links / Rechts / Vorne" im Bedienfeld
+       (ein Raster mit 62-px-Spalte). Als Klasse am body hat genau das die
+       ganze Anwendung auf 62 px zusammengezogen – gefunden im Browsertest. */
+    body.k3d-app-seite .sticky-cta { display: none; }   /* eigener Abschlussknopf im Bedienfeld */
+
+    /* Die Seite zentriert ihre Inhalte; die Anwendung soll die ganze Breite
+       haben. #bv-a11y-page-wrap legt das Barrierefreiheits-Skript zur
+       Laufzeit um den Inhalt. */
+    body.k3d-app-seite main,
+    body.k3d-app-seite #bv-a11y-page-wrap { width: 100%; }
+
+    /* WARUM position: sticky vorher nicht wirkte (Betreiber: „scheint
+       nicht zu klappen", 11.10.2026):
+
+       In css/style.css steht für die ganze Seite
+       `html, body { overflow-x: hidden }` – gegen waagerechtes
+       Verrutschen einzelner Abschnitte. Genau das macht aus html und
+       body einen eigenen Scrollbehälter, und ein klebendes Element
+       orientiert sich dann an diesem statt am Fenster: Es klebt nie.
+       Ein Dauerbrenner, der von außen aussieht, als sei sticky kaputt.
+
+       `clip` schneidet genauso ab, erzeugt aber KEINEN Scrollbehälter.
+       Nur auf dieser Seite gesetzt, damit die übrigen Seiten unberührt
+       bleiben. Browser, die clip nicht kennen, ignorieren die Zeile und
+       verhalten sich wie bisher. */
+    html.k3d-html, body.k3d-app-seite { overflow-x: clip; }
+
+    .k3d-app {
+      display: flex;
+      width: 100%;
+      height: calc(100svh - var(--k3d-nav, 72px));
+      min-height: 560px;
+      background: var(--light-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ---------- Bedienfeld ---------- */
+    /* Breite des Bedienfelds: mitwachsend statt fest.
+       Mit festen 352 px brachen Knopfbeschriftungen wie
+       „Streifenfundament" mitten im Wort um – auf einem 1900 px breiten
+       Bildschirm standen daneben 1500 px Rasen. Jetzt wächst das Feld
+       mit, bleibt aber gedeckelt: Auf einem 24-Zöller sind es rund 520 px
+       (gut ein Viertel), der Rest gehört dem Modell. Vom Betreiber so
+       gewünscht – „ausgeglichen, dass man 3D noch gut sieht, aber auch
+       vernünftig konfigurieren kann". */
+    .k3d-sl {
+      --k3d-sl-breite: clamp(360px, 30vw, 520px);
+      width: var(--k3d-sl-breite); flex: none;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      transition: margin-left .25s ease;
+    }
+    .k3d-sl.ist-zu { margin-left: calc(var(--k3d-sl-breite) * -1); }
+    /* Der Kopfblock des Bedienfelds ist entfallen (siehe Kommentar im
+       Rumpf) – seine Regeln stehen hier nicht mehr herum. */
+    .k3d-sl-rollen { flex: 1; overflow-y: auto; padding: 12px 14px 4px; min-height: 0; }
+    .k3d-sl-fuss { padding: 12px 16px 16px; border-top: 1px solid var(--border); background: var(--offwhite); }
+
+    /* ---------- Abschnitte ---------- */
+    .k3d-sek { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 9px; background: #fff; }
+    .k3d-sek > summary {
+      list-style: none; cursor: pointer;
+      padding: 11px 13px; display: flex; align-items: center; gap: 9px;
+    }
+    .k3d-sek > summary::-webkit-details-marker { display: none; }
+    .k3d-sek > summary::after { content: '›'; color: var(--muted); font-size: 1.1rem; line-height: 1; transition: transform .2s; }
+    .k3d-sek[open] > summary::after { transform: rotate(90deg); }
+    .k3d-sek[open] > summary { border-bottom: 1px solid var(--border); }
+    .k3d-sek > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .k3d-sek-t {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 1rem; color: var(--black);
+      letter-spacing: .3px; white-space: nowrap;
+    }
+    .k3d-sek-s {
+      flex: 1; text-align: right; font-size: .7rem; color: var(--gold-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .k3d-sek > .k3d-gruppe, .k3d-sek > .k3d-mini { padding-left: 13px; padding-right: 13px; }
+    .k3d-sek > .k3d-gruppe:first-of-type { margin-top: 12px; }
+    .k3d-sek > :last-child { margin-bottom: 13px; }
+
+    .k3d-gruppe { margin-bottom: 14px; }
+    .k3d-label {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+      font-size: .8rem; font-weight: 600; color: var(--black); margin-bottom: 6px;
+    }
+    .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
+    .k3d-select {
+      width: 100%; padding: 9px 11px; font: inherit; font-size: .86rem;
+      border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--black);
+    }
+    .k3d-select:focus { outline: none; border-color: var(--gold); }
+
+    /* Regler und Zahlenfeld nebeneinander: ziehen für das Gefühl,
+       tippen für das genaue Maß. Beide schreiben denselben Wert. */
+    .k3d-regler { display: grid; grid-template-columns: 1fr 78px; gap: 9px; align-items: center; }
+    .k3d-range { width: 100%; accent-color: var(--gold-dark); height: 26px; }
+    .k3d-zahl {
+      width: 100%; padding: 7px 8px; font: inherit; font-size: .82rem; text-align: right;
+      border: 1px solid var(--border); border-radius: 8px; font-variant-numeric: tabular-nums;
+    }
+    .k3d-zahl:focus { outline: none; border-color: var(--gold); }
+    .k3d-zahl.ist-ausserhalb { border-color: #b4532a; background: #fdf3ef; }
+
+    /* ---------- Knopfreihen ---------- */
+    .k3d-seg { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; }
+    .k3d-seg--2 { grid-template-columns: 1fr 1fr; }
+    .k3d-seg button {
+      padding: 8px 6px; font: inherit; font-size: .78rem; line-height: 1.25;
+      background: #fff; color: var(--black);
+      border: 1px solid var(--border); border-radius: 8px; cursor: pointer; text-align: center;
+    }
+    .k3d-seg button, .k3d-farbe span, .k3d-erw button {
+      overflow-wrap: break-word; hyphens: auto;
+    }
+    .k3d-seg button small { display: block; font-size: .66rem; color: var(--muted); margin-top: 2px; }
+    .k3d-seg button:hover { border-color: var(--gold); }
+    .k3d-seg button.is-active { background: var(--black); color: #fff; border-color: var(--black); }
+    .k3d-seg button.is-active small { color: rgba(255,255,255,.72); }
+
+    .k3d-farben { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .k3d-farbe {
+      border: 2px solid var(--border); border-radius: 8px; background: #fff;
+      padding: 6px 2px 5px; cursor: pointer; text-align: center;
+    }
+    /* Die RAL-Zelle sitzt im Farbraster und soll wie ein Farbfeld wirken:
+       gleiche Höhe, gleicher Rahmen, kein Außenabstand einer Gruppe. */
+    /* ACHTUNG: display gehört hier mit einer [hidden]-Regel zusammen.
+       Das Attribut hidden wirkt über die Standardregel display:none – eine
+       eigene display-Angabe schlägt sie und das Feld steht IMMER da.
+       Genau das ist passiert: „es sollte erst angezeigt werden wenn man
+       andere ausgewählt hat nicht immer" (Betreiber, 11.10.2026). */
+    .k3d-ral-zelle {
+      margin: 0; display: flex; flex-direction: column; justify-content: center;
+      gap: 3px; border: 2px dashed var(--border); border-radius: 8px;
+      padding: 5px 7px;
+      /* Über zwei Spalten, sonst passt „7016" kaum ins Feld. */
+      grid-column: span 2;
+    }
+    .k3d-ral-zelle[hidden] { display: none; }
+    .k3d-ral-zelle .k3d-label { margin: 0; font-size: .7rem; }
+    .k3d-ral-zelle input { width: 100%; }
+    /* Der Name des erkannten Tons – die Bestätigung, dass die Nummer die
+       gemeinte ist. */
+    .k3d-ral-name {
+      font-size: .68rem; font-weight: 700; color: var(--gold-text);
+      text-align: center; line-height: 1.15;
+    }
+    .k3d-ral-name[hidden] { display: none; }
+    /* ---------- Lupe neben dem RAL-Feld ----------
+       „hier daneben wäre vllr nen button mit lupen symbol gut wenn man
+       draufklickt kann man z.b eingeben Braun, Blau etc, dann werden
+       einem RAL Töne vorgeschlagen" (Betreiber, 25.10.2026, mit Bild).
+       Wer die Nummer nicht auswendig kann – also fast jeder – kommt
+       sonst gar nicht an die 217 Töne heran. */
+    .k3d-ral-reihe { display: flex; gap: 4px; align-items: center; }
+    .k3d-ral-reihe input { flex: 1 1 auto; min-width: 0; }
+    .k3d-ral-lupe {
+      flex: 0 0 auto; width: 28px; height: 28px; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: #fff; color: var(--gold-text); cursor: pointer;
+    }
+    .k3d-ral-lupe:hover, .k3d-ral-lupe[aria-expanded="true"] {
+      border-color: var(--gold-text); background: #fffaf0;
+    }
+    .k3d-ral-lupe svg { width: 15px; height: 15px; display: block; }
+    .k3d-ral-suche[hidden] { display: none; }
+    .k3d-ral-suche { margin-top: 6px; }
+    /* Linksbündig: Das Feld erbt .k3d-zahl, und dort stehen Zahlen
+       rechts – ein Suchwort sieht so aus, als rutsche es weg. */
+    .k3d-ral-suche input { width: 100%; text-align: left; }
+    .k3d-ral-treffer {
+      list-style: none; margin: 6px 0 0; padding: 0;
+      max-height: 210px; overflow-y: auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+      gap: 4px;
+    }
+    .k3d-ral-treffer button {
+      width: 100%; display: flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: 6px; background: #fff;
+      padding: 4px 6px; cursor: pointer; text-align: left; font: inherit;
+      font-size: .68rem; line-height: 1.15;
+    }
+    .k3d-ral-treffer button:hover { border-color: var(--gold-text); }
+    .k3d-ral-treffer .k3d-ral-fleck {
+      flex: 0 0 auto; width: 16px; height: 16px; border-radius: 4px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+    .k3d-ral-treffer .k3d-ral-text { min-width: 0; }
+    .k3d-ral-treffer .k3d-ral-nr { font-weight: 700; display: block; }
+    .k3d-ral-treffer .k3d-ral-bez {
+      display: block; color: var(--muted);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    /* „nicht hinterlegt" darf nicht untergehen – sonst wundert man sich,
+       warum sich nichts ändert. */
+    .k3d-mini.ist-warnung { color: var(--gold-text); font-weight: 600; }
+    .k3d-farbe::before {
+      content: ''; display: block; height: 22px; border-radius: 4px;
+      background: var(--f); margin: 0 4px 4px; border: 1px solid rgba(0,0,0,.12);
+    }
+    .k3d-farbe span { font-size: .66rem; color: var(--muted); line-height: 1.2; }
+    .k3d-farbe.is-active { border-color: var(--gold); }
+    .k3d-farbe.is-active span { color: var(--black); font-weight: 600; }
+
+    /* Stoffauswahl: 97 Muster passen nur als Bildraster ins Bedienfeld.
+       Die Familienzeile gliedert sie, damit man nicht 53 Kacheln am Stück
+       absucht. Bilder laden verzögert – sonst zieht das Panel beim Öffnen
+       hundert Dateien. */
+    .k3d-stoff-fam { font-size: .68rem; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); margin: 10px 0 4px; }
+    .k3d-stoff-fam:first-child { margin-top: 0; }
+    .k3d-stoffe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .k3d-stoff {
+      border: 2px solid var(--border); border-radius: 8px; background: #fff;
+      padding: 4px 2px 3px; cursor: pointer; text-align: center; overflow: hidden;
+    }
+    .k3d-stoff img { display: block; width: 100%; height: 20px; object-fit: cover;
+      border-radius: 3px; border: 1px solid rgba(0,0,0,.12); }
+    .k3d-stoff span { display: block; font-size: .6rem; color: var(--muted);
+      line-height: 1.15; margin-top: 3px; word-break: break-all; }
+    .k3d-stoff:hover { border-color: var(--gold); }
+    .k3d-stoff.is-active { border-color: var(--gold); }
+    .k3d-stoff.is-active span { color: var(--black); font-weight: 600; }
+    .k3d-stoff--leer { grid-column: 1 / -1; }
+    .k3d-stoff--leer span { font-size: .72rem; }
+
+    /* ---------- Geführte Reihenfolge ----------
+       Eine Frage nach der anderen, wie im Anfrage-Assistenten. Die
+       Bedienelemente selbst bleiben dieselben – es wird nur gesteuert,
+       welche gerade sichtbar sind. Deshalb geht hier nichts verloren,
+       wenn jemand auf „Alles auf einen Blick" umschaltet. */
+    .k3d-stufe { padding: 12px 13px 0; }
+    .k3d-stufe .k3d-label { margin-bottom: 6px; }
+    .k3d-fuehrung, .k3d-nav { display: none; }
+    .k3d-gefuehrt .k3d-fuehrung { display: block; margin-bottom: 16px; }
+    .k3d-fuehrung-kopf { display: flex; justify-content: space-between;
+      align-items: center; gap: 10px; }
+    .k3d-fortschritt { font-size: .7rem; letter-spacing: .07em;
+      text-transform: uppercase; color: var(--muted); }
+    .k3d-modus { background: none; border: 0; padding: 2px; cursor: pointer;
+      font-size: .72rem; color: var(--gold-dark); text-decoration: underline; }
+    .k3d-balken { display: block; height: 4px; border-radius: 2px;
+      background: var(--border); margin: 9px 0 14px; overflow: hidden; }
+    .k3d-balken i { display: block; height: 100%; background: var(--gold);
+      width: 0; transition: width .25s ease; }
+    .k3d-schritt-t { font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.5rem; line-height: 1.1; margin: 0 0 5px; }
+    .k3d-schritt-s { font-size: .84rem; color: var(--muted); margin: 0; }
+
+    .k3d-gefuehrt .k3d-nav { display: block; margin: 18px 0 6px; }
+    .k3d-nav-zeile { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; }
+    .k3d-nav-zeile button { padding: 14px 10px; border-radius: 10px;
+      border: 2px solid var(--border); background: #fff; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1.05rem; }
+    .k3d-nav-zeile #k3dWeiter { border-color: var(--gold); }
+    .k3d-nav-zeile button[disabled] { opacity: .38; cursor: default; }
+    .k3d-mehr-knopf { width: 100%; margin-bottom: 12px; padding: 10px;
+      border-radius: 9px; border: 1px dashed var(--border); background: none;
+      font-size: .8rem; color: var(--muted); cursor: pointer; }
+
+    .k3d-gefuehrt .k3d-sek > summary { display: none; }
+    .k3d-gefuehrt .k3d-sek { border: 0; margin: 0; padding: 0; }
+    .k3d-gefuehrt .k3d-gruppe:not(.ist-schritt) { display: none; }
+    .k3d-gefuehrt .k3d-zus { display: none; }
+    .k3d-gefuehrt.ist-letzter .k3d-zus { display: block; }
+    /* ---------- Hinweis auf den Testbetrieb ---------- */
+    .k3d-hinw {
+      position: fixed; inset: 0; z-index: 90;
+      background: rgba(17, 17, 17, .58);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .k3d-hinw[hidden] { display: none; }
+    .k3d-hinw-box {
+      background: #fff; border-radius: 14px; max-width: 460px; width: 100%;
+      padding: 24px 24px 22px; box-shadow: 0 18px 60px rgba(0,0,0,.3);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .k3d-hinw-marke {
+      display: inline-block; margin: 0 0 10px; padding: 4px 10px;
+      border-radius: 999px; background: var(--gold); color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .k3d-hinw-box h2 { font-size: 1.5rem; line-height: 1.12; margin: 0 0 10px; }
+    .k3d-hinw-box p { font-size: .9rem; line-height: 1.55; margin: 0 0 10px;
+      color: var(--muted); }
+    .k3d-hinw-bitte { color: var(--black) !important; }
+    .k3d-hinw-box .btn { width: 100%; margin-top: 6px; }
+
+    /* Zwei kleine Felder nebeneinander: links wird eingestellt, rechts
+       abgelesen. Darunter dasselbe Feld über die ganze Breite für die
+       Höhe an der Wand – die Zahl, nach der am Bau angerissen wird, und
+       deshalb keine Fußnote. */
+    .k3d-felder { display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 10px; }
+    .k3d-feld { display: block; border: 2px solid var(--border);
+      border-radius: 9px; padding: 7px 10px 6px; background: #fff;
+      position: relative; }
+    .k3d-feld > span { display: block; font-size: .66rem; color: var(--muted);
+      line-height: 1.2; margin-bottom: 2px; }
+    .k3d-feld > span small { display: block; font-size: .62rem; opacity: .8; }
+    .k3d-feld > output, .k3d-feld-ein {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 1.3rem; line-height: 1.1; color: var(--black);
+      border: 0; padding: 0; background: none; width: 3.4em;
+    }
+    .k3d-feld > i { font-style: normal; font-weight: 700; font-size: 1rem;
+      color: var(--muted); margin-left: 2px; }
+    .k3d-feld--fest { background: var(--light-bg, #F1EFEA); border-style: dashed; }
+    .k3d-feld--breit { margin: 10px 0 4px; }
+    .k3d-feld--breit > output { width: auto; font-size: 1.5rem; }
+    .k3d-feld-ein:focus { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* Was aus den eingestellten Maßen folgt. Grau, solange es nur
+       Auskunft ist; gelb, wenn etwas dazukommt oder nicht geht. */
+    .k3d-mass-hinweis { margin: 10px 0 6px; padding: 10px 12px; border-radius: 9px;
+      background: var(--light-bg, #F1EFEA); font-size: .82rem; line-height: 1.5; }
+    .k3d-mass-hinweis:empty { display: none; }
+    .k3d-mass-hinweis.ist-warnung { background: #fdf3dc;
+      border-left: 3px solid var(--gold); }
+    .k3d-mass-hinweis b { font-weight: 700; }
+
+    /* Klartextzeile zu den Seiten: welche ist zu, welche offen. */
+    .k3d-seiten-stand { margin: 10px 0 0; padding: 10px 12px; border-radius: 9px;
+      background: var(--light-bg, #F1EFEA); font-size: .82rem; line-height: 1.45; }
+    .k3d-seiten-stand b { font-weight: 700; }
+    .k3d-seiten-stand .offen { color: var(--muted); }
+
+    .k3d-gefuehrt .k3d-anfrage { display: none; }
+    .k3d-gefuehrt.ist-letzter .k3d-anfrage { display: block; }
+
+    /* Erweiterungen: mehrere je Seite, gesperrte bleiben sichtbar und sagen,
+       woran es liegt – wegnehmen würde die Frage aufwerfen, wo sie hin sind. */
+    .k3d-erw button small { min-height: 0; color: #9a6a3a; }
+    .k3d-erw button.ist-gesperrt { opacity: .55; }
+    .k3d-erw button:disabled { cursor: not-allowed; }
+    .k3d-erw-wert { font-weight: 600; color: var(--gold-text); font-size: .74rem; }
+
+    .k3d-seiten { display: grid; gap: 8px; }
+    .k3d-seite { display: grid; grid-template-columns: 62px 1fr; align-items: center; gap: 10px; }
+    .k3d-seite > span { font-size: .8rem; color: var(--muted); }
+
+    .k3d-schalter { display: flex; align-items: center; gap: 10px; font-size: .84rem; cursor: pointer; margin-bottom: 7px; }
+    .k3d-schalter input { width: 18px; height: 18px; flex: none; accent-color: var(--gold-dark); }
+    .k3d-schalter:last-child { margin-bottom: 0; }
+    .k3d-drei { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .k3d-drei .k3d-schalter { margin-bottom: 0; font-size: .78rem; gap: 6px; }
+
+    /* ---------- Ergebnis ---------- */
+    .k3d-zus { background: var(--light-bg); border-radius: var(--radius); padding: 13px 15px; margin: 4px 0 10px; }
+    .k3d-zus--folgt { background: #fbf7ec; border: 1px solid rgba(196,154,42,0.25); }
+    .k3d-zus h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .98rem; font-weight: 700; color: var(--black);
+      letter-spacing: .3px; margin: 0 0 8px;
+    }
+    .k3d-zus ul { list-style: none; padding: 0; margin: 0; }
+    .k3d-zus li { font-size: .78rem; color: var(--black); line-height: 1.5; padding-left: 13px; position: relative; }
+    .k3d-zus li::before { content: '·'; position: absolute; left: 3px; color: var(--gold-dark); font-weight: 700; }
+    .k3d-folgt li { display: flex; gap: 8px; align-items: baseline; padding-left: 0; }
+    .k3d-folgt li::before { content: none; }
+    .k3d-folgt li span { min-width: 104px; color: var(--muted); font-size: .74rem; }
+    .k3d-mini { font-size: .72rem; color: var(--muted); line-height: 1.45; margin: 6px 0 0; }
+    /* Hinweiskasten, der gelesen werden soll – beim Balkon steht dort,
+       was vor der Bestellung zu klären ist (Baurecht, Statik, WEG). */
+    .k3d-notiz { border-left: 3px solid var(--gold); padding-left: 10px; }
+    .k3d-notiz .k3d-mini { margin-top: 0; }
+    .k3d-hinweise { list-style: none; padding: 0; margin: 9px 0 0; }
+    .k3d-hin {
+      font-size: .74rem; line-height: 1.45; padding: 5px 0 5px 9px;
+      border-left: 3px solid var(--gold); color: var(--black); margin-bottom: 5px;
+    }
+    .k3d-hin--statik, .k3d-hin--grenze { border-left-color: #b4532a; color: #6d3a22; }
+    .k3d-anfrage { width: 100%; justify-content: center; }
+    .k3d-fuss { font-size: .68rem; color: var(--muted); line-height: 1.45; margin: 9px 0 0; }
+    .k3d-rechtslinks { font-size: .7rem; margin: 9px 0 0; color: var(--muted); }
+    .k3d-rechtslinks a { color: var(--muted); }
+
+    /* ---------- Bühne ---------- */
+    .k3d-buehne { flex: 1; position: relative; min-width: 0; background: #bcd3e6; }
+    #k3dCanvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      display: block; touch-action: none; cursor: grab;
+    }
+    #k3dCanvas:active { cursor: grabbing; }
+    .k3d-laden {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      font-size: .9rem; color: #2d3b46; margin: 0;
+    }
+    .k3d-info {
+      position: absolute; left: 16px; top: 14px; max-width: 46%;
+      pointer-events: none;
+    }
+    .k3d-info h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.25rem; font-weight: 800; color: #16232c;
+      margin: 0; line-height: 1.1; text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    }
+    .k3d-info p { font-size: .76rem; color: #2d3b46; margin: 3px 0 0; line-height: 1.4; }
+    /* Abendmodus: Der Himmel wird dunkel, die dunkle Schrift darauf
+       unlesbar. Weiß mit weichem Schatten statt eines harten Kastens –
+       so bleibt das Bild ruhig. */
+    .k3d-buehne.ist-abend .k3d-info h2,
+    .k3d-buehne.ist-abend .k3d-info p {
+      color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.65);
+    }
+    .k3d-oben { position: absolute; right: 14px; top: 12px; display: flex; gap: 7px; }
+    .k3d-bildmenu {
+      position: absolute; right: 14px; top: 52px; z-index: 6;
+      display: flex; flex-direction: column; gap: 2px;
+      background: rgba(17,17,17,.94); color: #fff;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 10px;
+      padding: 6px; min-width: 190px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .k3d-bildmenu[hidden] { display: none; }
+    /* ---------- Teilen-Dialog ----------
+       „Ich will auch einen Teilen Button … das man nen link bekommt und
+       diesen kann man dann aufrufen um die konfiguration wieder zu sehen
+       bzw. nochmal bearbeitet" (Betreiber, 25.10.2026, mit Bildern einer
+       fremden Seite als Vorbild). Dunkel wie die Werkzeugleiste, Gold wie
+       der Rest der Seite – das Vorbild wurde NICHT nachgebaut. */
+    .k3d-teilen {
+      position: absolute; inset: 0; z-index: 9;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10,10,10,.62); padding: 14px;
+    }
+    .k3d-teilen[hidden] { display: none; }
+    .k3d-teilen-kasten {
+      background: rgba(22,22,22,.98); color: #fff;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      padding: 16px 16px 18px; width: 100%; max-width: 420px;
+      max-height: 100%; overflow-y: auto; text-align: center;
+    }
+    .k3d-teilen-zu {
+      float: right; background: 0 0; border: 0; color: rgba(255,255,255,.72);
+      font: inherit; font-size: .78rem; cursor: pointer; padding: 2px 4px;
+    }
+    .k3d-teilen h3 {
+      margin: 2px 0 6px; font-size: 1.05rem; color: #fff;
+    }
+    .k3d-teilen p {
+      margin: 0 0 12px; font-size: .78rem; line-height: 1.45;
+      color: rgba(255,255,255,.76);
+    }
+    .k3d-teilen-feld {
+      display: flex; flex-direction: column; gap: 0;
+      border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .k3d-teilen-feld input {
+      width: 100%; border: 0; background: rgba(255,255,255,.06); color: #fff;
+      font: inherit; font-size: .72rem; padding: 10px 11px; text-align: center;
+      text-overflow: ellipsis;
+    }
+    .k3d-teilen-feld button {
+      border: 0; background: rgba(0,0,0,.55); color: #fff; font: inherit;
+      font-weight: 700; font-size: .82rem; padding: 10px; cursor: pointer;
+    }
+    .k3d-teilen-feld button:hover { background: var(--gold, #c9a24a); color: #111; }
+    .k3d-teilen-wege {
+      display: flex; justify-content: center; gap: 22px; flex-wrap: wrap;
+    }
+    .k3d-teilen-wege a, .k3d-teilen-wege button {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      background: 0 0; border: 0; cursor: pointer; font: inherit;
+      font-size: .72rem; color: rgba(255,255,255,.8); text-decoration: none;
+      width: 86px;
+    }
+    .k3d-teilen-wege .k3d-teilen-kreis {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #f3f1ee; color: #111;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .k3d-teilen-wege svg { width: 24px; height: 24px; display: block; }
+    .k3d-teilen-wege a:hover .k3d-teilen-kreis,
+    .k3d-teilen-wege button:hover .k3d-teilen-kreis { background: var(--gold, #c9a24a); }
+    .k3d-teilen-hinweis {
+      margin: 14px 0 0; font-size: .68rem; color: rgba(255,255,255,.55);
+    }
+    .k3d-bildmenu button {
+      background: 0 0; color: #fff; border: 0; border-radius: 7px;
+      padding: 9px 11px; font: inherit; font-size: .8rem; text-align: left;
+      cursor: pointer;
+    }
+    .k3d-bildmenu button:hover { background: #2c3034; }
+    .k3d-bildmenu button.ist-gold { background: var(--gold); color: #111; font-weight: 700; }
+    .k3d-bildmenu button.ist-gold:hover { background: var(--gold-light); }
+    .k3d-bildmenu-trenn { height: 1px; background: rgba(255,255,255,.14); margin: 3px 0; }
+    .k3d-bildmenu .ist-laeuft { opacity: .6; }
+
+    .k3d-oben button {
+      background: rgba(17,17,17,.82); color: #fff;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 9px;
+      padding: 8px 12px; font: inherit; font-size: .78rem; cursor: pointer;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .k3d-oben button:hover { border-color: var(--gold); }
+    .k3d-oben button.ist-gold { background: var(--gold); color: #111; font-weight: 700; border-color: var(--gold); }
+    .k3d-leiste {
+      position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+      display: flex; gap: 6px; align-items: center;
+      background: rgba(17,17,17,.82); padding: 7px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      max-width: calc(100% - 28px);
+    }
+    .k3d-leiste button {
+      background: transparent; color: #fff; border: 1px solid transparent; border-radius: 8px;
+      padding: 7px 10px; font: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap;
+    }
+    .k3d-leiste button:hover { background: #2c3034; }
+    .k3d-leiste button.is-active { background: var(--gold); color: #111; font-weight: 700; }
+    .k3d-leiste .k3d-sym { font-size: 1.05em; line-height: 1; margin-right: 4px; }
+    .k3d-leiste .k3d-trenn { width: 1px; align-self: stretch; background: rgba(255,255,255,.18); margin: 0 2px; }
+    .k3d-maushinweis {
+      position: absolute; left: 16px; bottom: 18px;
+      font-size: .7rem; color: #2d3b46; margin: 0; pointer-events: none;
+    }
+    /* Was der nächste Klick tut. Steht ÜBER der Ansichtsleiste und bleibt
+       am Handy sichtbar – dort ist der Hinweis am nötigsten, weil es
+       keinen Mauszeiger gibt, der etwas verrät. */
+    .k3d-klickhinweis {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: 52px; margin: 0; pointer-events: none;
+      background: rgba(17,17,17,.72); color: #fff;
+      font-size: .74rem; padding: 5px 10px; border-radius: 999px;
+    }
+
+    /* ---------- Handy und Tablet ---------- */
+    /* Schwebende Knöpfe (Barrierefreiheit, Konfigurator-Blase, Nach-oben)
+       liegen über dem 3D-Bild und stören dort beim Drehen und Tippen:
+       „beim konfigurator stören diese buttons … NUR im bereich des
+       konfigurators ausgeblendet werden, sobald man aber z.b weiter
+       runter scrollt z.b ab dem footer sollen die wieder auftauchen"
+       (Betreiber, 11.10.2026).
+
+       Deshalb KEIN dauerhaftes Ausblenden auf dieser Seite: Die Klasse
+       setzt und entfernt ein Beobachter, je nachdem ob der Konfigurator
+       gerade im Bild ist. Unter dem Konfigurator – Hinweise, Fußzeile –
+       sind die Knöpfe wieder da, und damit bleibt auch die
+       Barrierefreiheits-Hilfe auf jeder Seite erreichbar. */
+    body.k3d-im-bild #bv-a11y-trigger,
+    body.k3d-im-bild #bv-a11y-panel,
+    body.k3d-im-bild #bv-scroll-top,
+    body.k3d-im-bild #bvKonfigBubble {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .k3d-app { flex-direction: column; height: auto; min-height: 0; }
+      /* Das 3D-Bild bleibt beim Scrollen oben stehen: „ich hätte ganz
+         gerne auf dem handy das die 3d ansicht immer stehen bleibt, weil
+         wenn man z.b runterscrollt oder weitere einstellungen öffnet …
+         muss man wieder komplett hoch scrollen um die änderung zu sehen"
+         (Betreiber, 11.10.2026).
+
+         sticky statt fixed: Das Bild klebt NUR, solange der Konfigurator
+         läuft, und gibt die Seite unterhalb (Hinweise, Fußzeile) wieder
+         frei. Mit fixed läge es über allem, auch über dem Impressum.
+
+         Höhe 45 svh statt 54: Oben bleibt etwa die Hälfte für das
+         Modell, unten bleibt genug für zwei bis drei Einstellungen –
+         sonst scrollt man im verbleibenden Schlitz. svh statt vh, weil
+         die Adressleiste des Handys sonst Teile abschneidet. */
+      .k3d-buehne {
+        order: 0; flex: none; height: 45svh; min-height: 260px;
+        position: sticky; top: 0; z-index: 5;
+      }
+      .k3d-sl {
+        order: 1; width: 100%; border-right: 0; border-top: 1px solid var(--border);
+        margin-left: 0 !important;
+      }
+      /* Kein eigener Scrollbereich: die Seite scrollt, nicht das Bedienfeld */
+      .k3d-sl-rollen { overflow: visible; flex: none; }
+      /* Flacher, wie die Leiste unten: „die beiden sachen in der höhe
+         bissl schmaler ähnlich wie die leiste unten wo maße tag abend
+         steht" (Betreiber, 11.10.2026). Gespart wird wieder an den
+         Polstern und an der Zeilenhöhe, nicht an der Schriftgröße – der
+         Produktname bleibt die größte Schrift im Bild. */
+      .k3d-info { max-width: 60%; left: 12px; top: 8px; }
+      .k3d-info h1 { font-size: 1.02rem; line-height: 1.05; }
+      .k3d-info p { font-size: .72rem; margin: 1px 0 0; line-height: 1.25; }
+      .k3d-oben { right: 8px; top: 8px; gap: 5px; }
+      .k3d-oben button { padding: 4px 9px; font-size: .72rem; }
+      .k3d-oben .k3d-nurgross { display: none; }
+      /* Die beiden linken Knöpfe wirken am Handy nicht – weg damit. Der
+         Bild-Knopf behält dafür seine Beschriftung und wird breiter. */
+      .k3d-oben .k3d-nurgross-knopf { display: none; }
+      .k3d-oben #k3dBild { padding: 5px 13px; font-size: .74rem; }
+      .k3d-bildmenu { right: 8px; top: 40px; left: 8px; min-width: 0; }
+      /* Von Rand zu Rand und flacher: „die anzeige bitte etwas schmaler
+         machen in der höhe aber das alles gut lesbar bleibt, aber in der
+         breite bitte von bildschirmrand zu bildschirmrand" (Betreiber,
+         11.10.2026).
+
+         Der frühere Abstand rechts (74 px) hielt die Schwebe-Knöpfe frei.
+         Die sind im Bereich des Konfigurators jetzt ausgeblendet, also
+         ist der Platz frei. Die Schriftgröße bleibt bei 0,72 rem – flacher
+         wird die Leiste über die Polster, nicht über die Lesbarkeit.
+         Unten kommt der Platz für die Streifenleiste des iPhones dazu,
+         sonst liegt sie über den Knöpfen. */
+      .k3d-leiste {
+        left: 0; right: 0; bottom: 0; transform: none; max-width: none;
+        overflow-x: auto; scrollbar-width: none;
+        /* Ein Mittelweg: Erst war sie zu hoch, dann „etwas schmaler",
+           jetzt „auf iphone 17 pro is es leicht zu schmal" (Betreiber,
+           11.10.2026). 6 px am Knopf statt 4 – das sind rund 38 px
+           Gesamthöhe, nah an den 44 px, die Apple als Mindestgröße für
+           eine Fläche zum Antippen nennt, ohne dass die Leiste wieder
+           ins Bild ragt. */
+        padding: 4px 6px;
+        padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+        border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0;
+        justify-content: flex-start;
+      }
+      .k3d-leiste::-webkit-scrollbar { display: none; }
+      .k3d-leiste button { padding: 6px 10px; font-size: .72rem; flex: none; }
+      .k3d-maushinweis { display: none; }
+      .k3d-klickhinweis { bottom: 44px; font-size: .68rem; padding: 4px 8px; }
+    }
+    @media (max-width: 420px) {
+      .k3d-farben { grid-template-columns: repeat(2, 1fr); }
+      /* Bei zwei Spalten würde span 2 das Feld in eine eigene Zeile
+         schieben – also wieder darunter statt daneben. */
+      .k3d-ral-zelle { grid-column: span 1; }
+      .k3d-regler { grid-template-columns: 1fr 66px; }
+    }
+
+    /* Vollbild: im Vollbildmodus trägt die Anwendung die ganze Fläche */
+    .k3d-app:fullscreen { height: 100vh; min-height: 0; }
+    .k3d-app:fullscreen .k3d-sl-rollen { overflow-y: auto; }
+  </style>
+  <meta property="og:title" content="Produkt-Konfigurator | BV AussenSysteme Westerwald" />
+  <meta property="og:description" content="Terrassendach, Flachdach SkyView oder Carport in 3D zusammenstellen – Maße, Eindeckung, Farbe und Ausführung live ansehen. Kostenlos und unverbindlich." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="de_DE" />
+</head>
+<body class="k3d-app-seite">
+<div style="position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center"><span style="background:#c8863a;border-radius:4px;padding:2px 8px">WERKSTATT</span><span>Nicht veröffentlicht – Stand in Arbeit. Änderungen hier sind für Kunden nicht sichtbar.</span></div>
+
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
+  <div class="container navbar-inner">
+    <a href="/" aria-label="BV AussenSysteme Startseite">
+      <img src="/images/logo-hell.png" alt="BV AussenSysteme Logo" class="nav-logo" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="/#leistungen">Leistungen</a></li>
+      <li><a href="/konfigurator.html" style="color:var(--gold);font-weight:600;"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a></li>
+      <li><a href="/#warum-wir">Über uns</a></li>
+      <li><a href="/#faq">FAQ</a></li>
+      <li><a href="/#kontakt" class="nav-cta" data-i18n="nav_anfragen">Jetzt anfragen</a></li>
+    </ul>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
+  <a href="/" onclick="closeMobile()">Startseite</a>
+  <a href="/#leistungen" onclick="closeMobile()">Leistungen</a>
+  <a href="/konfigurator.html" style="color:var(--gold)"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a>
+  <a href="/#kontakt" onclick="closeMobile()" class="mobile-cta" data-i18n="nav_anfragen">Jetzt anfragen</a>
+</div>
+
+<main>
+<div class="k3d-app" id="k3dApp">
+
+  <!-- ===== Bedienfeld ===== -->
+  <aside class="k3d-sl" id="k3dPanel" aria-label="Konfiguration">
+
+    <!-- Der Kopfblock (Kennzeichnung, Überschrift, Erklärtext) ist weg:
+         „dieser bereich kann weg damit mehr platz für den konfigurator
+         entsteht … weil is selbsterklärend die leute sehen was es is"
+         (Betreiber, 11.10.2026).
+
+         Die Überschrift der Seite ist damit NICHT verschwunden – sie
+         steht jetzt im Bild selbst (k3dTitelBuehne, siehe unten) und
+         nennt dort dasselbe Produkt. Ohne eine sichtbare h1 wäre die
+         Seite bei Google schlechter einzuordnen, und Screenreader hätten
+         keinen Einstieg mehr. Verstecken statt umziehen wäre die falsche
+         Lösung gewesen: Text, den nur Suchmaschinen sehen, ist
+         Verschleierung. -->
+
+    <div class="k3d-sl-rollen">
+
+      <!-- ---------- Basic / Pro ----------
+           „Der 3D Konfigurator wird mit den ganzen einstellungen immer
+           unübersichtlicher und schwieriger, mach eine Basic version für
+           leihen und dann wenn man auf pro umschaltet wirklich alle
+           einstellungen vorhanden" (Betreiber, 24.10.2026).
+
+           Der Umschalter steht bewusst NICHT in der geführten Kopfzeile:
+           Die ist im Modus „Alles auf einen Blick" ausgeblendet
+           (.k3d-fuehrung { display: none }), der Umschalter wäre dort
+           also genau dann weg, wenn man am meisten sieht.
+
+           Welche Einheit zu Pro gehört, steht an ihr selbst
+           (data-k3d-pro) – nicht in einer Liste im Code, die auseinander
+           läuft, sobald jemand eine Einheit verschiebt. -->
+      <div class="k3d-stufe">
+        <span class="k3d-label" id="k3dStufeLabel">Einstellungen</span>
+        <input type="hidden" id="k3dStufe" value="Basic">
+        <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dStufe" role="group"
+             aria-labelledby="k3dStufeLabel">
+          <button type="button" data-wert="Basic">Basic<small>das Wichtigste</small></button>
+          <button type="button" data-wert="Pro">Pro<small>alle Einstellungen</small></button>
+        </div>
+      </div>
+
+      <!-- ---------- Geführte Reihenfolge ----------
+           Eine Frage nach der anderen, wie im Anfrage-Assistenten. Wer
+           lieber alles gleichzeitig sieht, schaltet oben rechts um. -->
+      <div class="k3d-fuehrung" id="k3dFuehrung">
+        <div class="k3d-fuehrung-kopf">
+          <span class="k3d-fortschritt" id="k3dSchrittZahl">Schritt 1 von 9</span>
+          <button type="button" class="k3d-modus" id="k3dModus"
+                  aria-pressed="false">Alles auf einen Blick</button>
+        </div>
+        <span class="k3d-balken" aria-hidden="true"><i id="k3dBalken"></i></span>
+        <h2 class="k3d-schritt-t" id="k3dSchrittTitel"></h2>
+        <p class="k3d-schritt-s" id="k3dSchrittUnter"></p>
+      </div>
+
+      <!-- ---------- Produkt & Maße ---------- -->
+      <details class="k3d-sek" open>
+        <summary><span class="k3d-sek-t">Produkt</span><span class="k3d-sek-s" id="k3dSumProduktName"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="produkt">
+          <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
+          <input type="hidden" id="k3dProdukt" value="Terrassendach TDS">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
+            <button type="button" data-wert="Terrassendach TDS">Terrassendach TDS<small>geneigt, Glas oder Polycarbonat</small></button>
+            <button type="button" data-wert="Flachdach SkyView">Flachdach SkyView<small>kubisch, flache Neigung</small></button>
+            <button type="button" data-wert="Carport">Carport<small>TDS, Flat Line oder Flat Box</small></button>
+            <button type="button" data-wert="Balkonüberdachung">Balkonüberdachung<small>für den Balkon, auf Brüstung oder Boden</small></button>
+            <button type="button" data-wert="Pergola / Lamellendach">Pergola / Lamellendach<small>drehbare Lamellen, Faltdach, Velaris</small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="carport" hidden>
+          <label class="k3d-label" for="k3dCpTyp">Carport-Typ</label>
+          <select id="k3dCpTyp" class="k3d-select">
+            <option value="Carport TDS">Carport TDS – Profildach</option>
+            <option value="Flachdach Flat Line">Flat Line – Flachdach</option>
+            <option value="Flachdach Flat Box">Flat Box – Kubus-Optik</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="cp-variante" hidden>
+          <label class="k3d-label" for="k3dCpVariante">Ausführung</label>
+          <select id="k3dCpVariante" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="pergola" hidden>
+          <label class="k3d-label" for="k3dPgDachart">Dachart</label>
+          <select id="k3dPgDachart" class="k3d-select">
+            <option value="Lamellendach">Lamellendach – drehbare Alu-Lamellen</option>
+            <option value="Faltdach">Faltdach – textil, komplett öffenbar</option>
+            <option value="Velaris">Velaris – verschiebbare Elemente</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="pg-lamellen" hidden>
+          <label class="k3d-label" for="k3dPgAusfuehrung">Ausführung</label>
+          <select id="k3dPgAusfuehrung" class="k3d-select">
+            <option value="SunPro">SunPro – bis 7 × 4,5 m</option>
+            <option value="Premium (Warema Lamaxa L50)">Premium – Warema Lamaxa L50</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="aufbau">
+          <span class="k3d-label" id="k3dAufbauLabel">Aufbau</span>
+          <input type="hidden" id="k3dAufbau" value="Wandmontage">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dAufbau" role="group" aria-labelledby="k3dAufbauLabel">
+            <button type="button" data-wert="Wandmontage">An der Hauswand</button>
+            <button type="button" data-wert="Freistehend">Freistehend</button>
+          </div>
+        </div>
+
+        <!-- ---------- Balkon ----------
+             „Es müssen natürlich viele sachen beachtet werden, z.B hat
+             man ein normales geländer oder wie hier eine wand vorne,
+             geht die tiefe nur bis zum geländer oder baut man wie auf
+             dem foto auf die mauer vorne" (Betreiber, 25.10.2026).
+
+             Genau diese zwei Fragen stehen hier – mehr nicht. Alles
+             andere (Eindeckung, Farbe, Neigung, Beschattung) ist beim
+             Balkon dasselbe wie beim Terrassendach und steht dort, wo
+             es immer stand. -->
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon" hidden>
+          <span class="k3d-label" id="k3dBruestungLabel">Was steht vorne?</span>
+          <input type="hidden" id="k3dBruestung" value="Mauer">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dBruestung" role="group" aria-labelledby="k3dBruestungLabel">
+            <button type="button" data-wert="Mauer">Gemauerte Brüstung<small>trägt die Pfosten</small></button>
+            <button type="button" data-wert="Geländer">Geländer<small>Glas oder Metall</small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon" hidden>
+          <label class="k3d-label" for="k3dBruestungH">Höhe der Brüstung <output id="k3dBruestungHWert">1000 mm</output></label>
+          <div class="k3d-reglerzeile">
+            <input type="range" id="k3dBruestungH" class="k3d-range" min="700" max="1400" step="10" value="1000">
+            <input type="number" id="k3dBruestungHZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Höhe der Brüstung in Millimeter">
+          </div>
+          <p class="k3d-mini">Vom Balkonboden bis zur Oberkante – meist 100 cm.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon-mauer" hidden>
+          <span class="k3d-label" id="k3dPfostenAufLabel">Wo stehen die Pfosten?</span>
+          <input type="hidden" id="k3dPfostenAuf" value="Brüstung">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dPfostenAuf" role="group" aria-labelledby="k3dPfostenAufLabel">
+            <button type="button" data-wert="Brüstung">Auf der Brüstung<small>volle Tiefe nutzbar</small></button>
+            <button type="button" data-wert="Boden">Dahinter auf dem Boden<small>braucht keine tragende Mauer</small></button>
+          </div>
+          <p class="k3d-mini">Ob Ihre Brüstung die Pfosten tragen kann, prüft der Monteur vor Ort.</p>
+          <p class="k3d-mini" id="k3dBalkonHinweis"></p>
+        </div>
+
+        <!-- ---------- Warum hier ein eigener Hinweis steht ----------
+             Die Freistellungen der Landesbauordnungen gelten für
+             Terrassenüberdachungen „zu ebener Erde" (so wörtlich die
+             LBO Rheinland-Pfalz). Ein Dach auf einem Balkon im
+             Obergeschoss fällt nicht automatisch darunter. Würde der
+             Konfigurator hier dasselbe sagen wie beim Terrassendach,
+             bekäme der Kunde eine falsche Sicherheit – und der Ärger
+             käme nach dem Einbau. Bewertet wird nichts; es steht da,
+             damit vorher gefragt wird. -->
+        <div class="k3d-gruppe k3d-notiz" data-k3d-schritt="aufbau" data-k3d-fuer="balkon" hidden>
+          <p class="k3d-mini"><strong>Vor der Bestellung klären:</strong>
+          Für ein Dach auf dem Balkon gelten die Erleichterungen, die viele
+          Landesbauordnungen für <em>ebenerdige</em> Terrassenüberdachungen
+          vorsehen, nicht ohne Weiteres. Dazu kommen Abstandsflächen, das
+          Erscheinungsbild der Fassade und – in einer Eigentümergemeinschaft –
+          ein Beschluss der übrigen Eigentümer. Bitte vorab beim Bauamt und
+          gegebenenfalls bei der Hausverwaltung nachfragen. Ob Balkonplatte
+          und Brüstung die Lasten aufnehmen, prüft der Statiker oder unser
+          Monteur beim Aufmaß.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="fassade" hidden>
+          <span class="k3d-label" id="k3dFassadeLabel">Wie ist Ihre Hauswand?</span>
+          <input type="hidden" id="k3dFassade" value="Rauputz">
+          <div class="k3d-seg" data-k3d-seg="k3dFassade" role="group" aria-labelledby="k3dFassadeLabel">
+            <button type="button" data-wert="Rauputz">Rauputz</button>
+            <button type="button" data-wert="Verklinkert">Verklinkert</button>
+            <button type="button" data-wert="Sonstiges / weiß nicht">Weiß nicht</button>
+          </div>
+          <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
+        </div>
+      </details>
+
+      <!-- ---------- Maße und Neigungen ----------
+           Bis zum 24.10.2026 stand das alles mit dem Produkt in EINEM
+           Abschnitt: in Pro 1747 px und elf Bedieneinheiten. „die
+           einstellungen sind viele auch unlogisch angeordnet man muss
+           mal runter srollen dann wieder hoch" (Betreiber). Geteilt
+           bleibt jeder Abschnitt überschaubar, und die beiden Neigungen
+           – Dach und Boden – stehen beieinander. -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Maße &amp; Neigungen</span><span class="k3d-sek-s" id="k3dSumProdukt"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
+          <label class="k3d-label" for="k3dBreite">Breite <output id="k3dBreiteWert">5000 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dBreite" class="k3d-range" min="2500" max="7000" step="100" value="5000">
+            <input type="number" id="k3dBreiteZahl" class="k3d-zahl" inputmode="numeric" value="5000" aria-label="Breite in Millimeter">
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
+          <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dTiefe" class="k3d-range" min="2000" max="4500" step="100" value="3000">
+            <input type="number" id="k3dTiefeZahl" class="k3d-zahl" inputmode="numeric" value="3000" aria-label="Tiefe in Millimeter">
+          </div>
+          <!-- Was aus Breite und Tiefe folgt: lieferbares Rasterfeld,
+               Statikträger, Grenze der Lieferbarkeit. -->
+          <p class="k3d-mass-hinweis" id="k3dMassHinweis"></p>
+          <p class="k3d-mini">Alle Maße in Millimeter – so wird aufgemessen. Gebaut wird
+            nach Ihrem Maß; für Stückzahl und Abrechnung zählt das nächste Rasterfeld
+            des Herstellers.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse">
+          <!-- „Unterkante Rinne" ist der Name, unter dem der Hersteller
+               dieses Maß im Bestellformular führt. Beide Bezeichnungen
+               stehen da, damit beim Übertragen in die Bestellung nichts
+               verwechselt wird. -->
+          <label class="k3d-label" for="k3dHoehe">Höhe vorne (Durchgang) <small>Unterkante Rinne</small> <output id="k3dHoeheWert">2300 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
+            <input type="number" id="k3dHoeheZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Höhe in Millimeter">
+          </div>
+        </div>
+
+        <!-- Die Neigung steht bewusst DIREKT unter der Durchgangshöhe:
+             beide Maße hängen zusammen, und erst aus beiden ergibt sich
+             die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
+             hinten unter „Mehr Einstellungen". -->
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="hoehe-hinten" hidden>
+          <!-- Dieselbe Frage wie im Bestellformular des Herstellers:
+               „Möchten Sie die Dachneigung oder die Unterkante Rinne und
+               die Unterkante Wandprofil angeben?" -->
+          <label class="k3d-schalter"><input type="checkbox" id="k3dHoeheGetrennt"> <span>Statt der Dachneigung die Unterkante Wandprofil angeben</span></label>
+          <label class="k3d-label" for="k3dHoeheHinten">Höhe hinten <small>Unterkante Wandprofil</small> <output id="k3dHoeheHintenWert">2500 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dHoeheHinten" class="k3d-range" min="2000" max="3200" step="1" value="2500">
+            <input type="number" id="k3dHoeheHintenZahl" class="k3d-zahl" inputmode="numeric" value="2500" aria-label="Höhe hinten in Millimeter">
+          </div>
+          <div class="k3d-feld k3d-feld--fest k3d-feld--breit">
+            <span>Daraus folgt die Dachneigung</span>
+            <output id="k3dNeigungHinten">8°</output>
+          </div>
+          <p class="k3d-mini">Zwei Wege zum selben Dach – genau die beiden, die auch
+            das Bestellformular des Herstellers anbietet: Ohne Häkchen geben Sie die
+            Dachneigung vor und lesen die Unterkante Wandprofil ab. Mit Häkchen geben
+            Sie Unterkante Rinne (oben) und Unterkante Wandprofil vor – daraus
+            ergibt sich die Neigung. Mindestgefälle 2–3°, Höchstmaß 13–14°; was
+            darüber läge, wird gekappt.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="neigung">
+          <span class="k3d-label" id="k3dNeigungLabel">Dachneigung</span>
+          <!-- Links einstellen, rechts ablesen: Grad ist die Eingabe,
+               Prozent die Übersetzung in die Sprache der Anleitung
+               (8° = 14 %). Darunter die Zahl, nach der an der Wand
+               angerissen wird. -->
+          <div class="k3d-felder">
+            <label class="k3d-feld">
+              <span>Neigung</span>
+              <input type="number" id="k3dNeigungZahl" class="k3d-feld-ein"
+                     min="2" max="14" step="1" value="8" inputmode="numeric"
+                     aria-label="Dachneigung in Grad"><i>°</i>
+            </label>
+            <div class="k3d-feld k3d-feld--fest">
+              <span>Gefälle</span>
+              <output id="k3dNeigungProzent" for="k3dNeigungZahl">14</output><i>%</i>
+            </div>
+          </div>
+          <input type="range" id="k3dNeigung" class="k3d-range" min="2" max="14"
+                 step="1" value="8" aria-labelledby="k3dNeigungLabel">
+          <div class="k3d-feld k3d-feld--fest k3d-feld--breit">
+            <span>Höhe an der Wand <small>Unterkante Wandprofil</small></span>
+            <output id="k3dWandHoehe">2420</output><i>mm</i>
+          </div>
+          <p class="k3d-mini" id="k3dWandHoeheInfo"></p>
+          <p class="k3d-mini">Mindestgefälle 2–3°, Höchstmaß 13–14° (Angabe des
+            Herstellers im Bestellformular), Standard 8°. Den genauen Wert legt das
+            Aufmaß fest.</p>
+        </div>
+
+        <!-- Gefaelle des Terrassenbodens. „der Boden is ja nicht immer
+             Eben manche haben 2 grad manche mehr" (Betreiber,
+             24.10.2026).
+
+             Stand bis zum 24.10.2026 beim Bodenbelag – fachlich richtig
+             (es beschreibt den Untergrund), in der Bedienung falsch: Es
+             haengt rechnerisch an der Dachneigung, und die beiden lagen
+             rund 4000 px auseinander. „man muss mal runter srollen dann
+             wieder hoch" (Betreiber). Jetzt steht es direkt darunter. -->
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr
+             data-k3d-fuer="bodengefaelle" hidden>
+          <span class="k3d-label">Gefälle des Terrassenbodens
+            <output id="k3dBodenGefaelleWert">eben</output></span>
+          <div class="k3d-felder">
+            <label class="k3d-mini" for="k3dBodenGefaelle">nach vorne, Grad
+              <input type="number" id="k3dBodenGefaelle" class="k3d-zahl"
+                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
+                     aria-label="Bodengefälle nach vorne in Grad"></label>
+            <label class="k3d-mini" for="k3dBodenGefaelleQuer">zur Seite, Grad
+              <input type="number" id="k3dBodenGefaelleQuer" class="k3d-zahl"
+                     inputmode="decimal" step="0.1" min="-10" max="10" value="0"
+                     aria-label="Bodengefälle zur Seite in Grad"></label>
+          </div>
+          <p class="k3d-mini">Üblich sind 1–2 % (gut ein halbes bis ein Grad),
+            damit Wasser abläuft. Plus heißt: fällt vom Haus weg bzw. nach
+            rechts. Die Durchgangshöhe gilt weiterhin vorne – die Pfosten
+            werden entsprechend unterschiedlich lang.</p>
+          <p class="k3d-mini" id="k3dBodenGefaelleStand"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung">
+          <label class="k3d-label" for="k3dVorsprung">Dachvorsprung vorne <output id="k3dVorsprungWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dVorsprung" class="k3d-range" min="0" max="800" step="50" value="0">
+            <input type="number" id="k3dVorsprungZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Dachvorsprung in Millimeter">
+          </div>
+          <p class="k3d-mini">Ohne Vorsprung stehen die Pfosten unter der Rinne.
+            Mit Vorsprung rücken sie nach innen, und ein Statikträger kommt dazu.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="vorsprung-hinten" hidden>
+          <label class="k3d-label" for="k3dVorsprungHinten">Dachvorsprung hinten <output id="k3dVorsprungHintenWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dVorsprungHinten" class="k3d-range" min="0" max="800" step="50" value="0">
+            <input type="number" id="k3dVorsprungHintenZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Dachvorsprung hinten in Millimeter">
+          </div>
+          <p class="k3d-mini">Nur beim freistehenden Carport: Auch hinten rücken die
+            Pfosten um dieses Maß nach innen, der Statikträger wandert mit.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="cp-ueberstand" hidden>
+          <label class="k3d-label" for="k3dUeberstand">Dachüberstand vorne <output id="k3dUeberstandWert">1000 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dUeberstand" class="k3d-range" min="500" max="1500" step="100" value="1000">
+            <input type="number" id="k3dUeberstandZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Dachüberstand in Millimeter">
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="traeger-wunsch">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dTraeger"> <span>Statikträger unter der Rinne – für weniger Pfosten</span></label>
+          <p class="k3d-mini">Ein durchgehender Träger über den Pfosten trägt mehr, dadurch
+            brauchen Sie weniger Pfosten (alle 7 m statt alle 4 m). <b>Dafür ist der
+            Durchgang unter dem Träger 189 mm niedriger</b> als die eingestellte Höhe.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="unterzug" hidden>
+          <label class="k3d-label" for="k3dUnterzug">Unterzug – Abstand von der Wand <output id="k3dUnterzugWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dUnterzug" class="k3d-range" min="500" max="4600" step="1" value="2000">
+            <input type="number" id="k3dUnterzugZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Unterzug – Abstand von der Wand in Millimeter">
+          </div>
+          <p class="k3d-mini">Ab dieser Tiefe schreibt die Preisliste einen Statikträger
+            über die ganze Breite vor, mit eigener Pfostenreihe darunter. Sie können ihn
+            nach vorne oder hinten verschieben – der Regler lässt nur Lagen zu, bei denen
+            <b>beide Felder höchstens 4500 mm</b> tief bleiben.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="kopplung" hidden>
+          <label class="k3d-label" for="k3dKoppel">Glasstoß – Abstand von der Rinne <output id="k3dKoppelWert">0 mm</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dKoppel" class="k3d-range" min="100" max="4500" step="50" value="2300">
+            <input type="number" id="k3dKoppelZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Abstand des Glasstoßes von der Rinne in Millimeter">
+          </div>
+          <p class="k3d-mini">VSG-Glas gibt es bis 4,50 m am Stück. Bei größerer Tiefe
+            werden die Scheiben quer gestoßen; hier verschieben Sie den Stoß. Der
+            Regler lässt nur Lagen zu, bei denen beide Scheiben machbar bleiben.</p>
+        </div>
+      </details>
+
+      <!-- ---------- Dach & Farbe ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Dach &amp; Farbe</span><span class="k3d-sek-s" id="k3dSumDach"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="glas">
+          <span class="k3d-label" id="k3dEindeckungLabel">Dacheindeckung</span>
+          <input type="hidden" id="k3dEindeckung" value="VSG klar">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
+            <button type="button" data-wert="VSG klar">Glas klar<small>durchsichtig</small></button>
+            <button type="button" data-wert="VSG opal">Glas opal<small>milchig, blickdicht</small></button>
+            <button type="button" data-wert="VSG graphit">Glas graphit<small>getönt, viel Schatten</small></button>
+            <button type="button" data-wert="Polycarbonat klar">Polycarbonat klar<small>Stegplatte, ca. 76 % Licht</small></button>
+            <button type="button" data-wert="Polycarbonat opal">Polycarbonat opal<small>milchig, ca. 48 % Licht</small></button>
+            <button type="button" data-wert="Polycarbonat graphit">Polycarbonat graphit<small>dunkel getönt, viel Schatten</small></button>
+            <button type="button" data-wert="Polycarbonat bronze">Polycarbonat bronze<small>bronzefarben, ca. 35 % Licht</small></button>
+          </div>
+          <p class="k3d-mini">Polycarbonat ist eine Sechsfachstegplatte, 16 mm.
+            Die Lichtwerte stammen aus Händler-Datenblättern und sind Richtwerte;
+            für Graphit liegt uns noch keine Angabe vor.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-pro data-k3d-fuer="glasstaerke">
+          <span class="k3d-label" id="k3dGlasstaerkeLabel">Glasstärke</span>
+          <input type="hidden" id="k3dGlasstaerke" value="8">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dGlasstaerke" role="group" aria-labelledby="k3dGlasstaerkeLabel">
+            <button type="button" data-wert="8">8 mm<small>Standard</small></button>
+            <button type="button" data-wert="10">10 mm<small>dickeres Sicherheitsglas</small></button>
+          </div>
+          <p class="k3d-mini">Verbund-Sicherheitsglas (VSG). Die Zeichnung rechnet
+            bei beiden Stärken mit dem Sparrenabstand für 8 mm – das ist die
+            sichere Annahme. Das endgültige Raster legt das Aufmaß fest.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="cp-flachdach" hidden>
+          <label class="k3d-label" for="k3dCpDach">Dacheindeckung</label>
+          <select id="k3dCpDach" class="k3d-select">
+            <option value="Trapezblech (Standard)">Trapezblech – nur Blech</option>
+            <option value="Solar (PV-Anlage)">Trapezblech + Solar (PV-Anlage)</option>
+            <option value="Dachbegrünung">Trapezblech + Dachbegrünung</option>
+          </select>
+          <p class="k3d-mini">Eingedeckt wird immer mit Trapezblech. Solarmodule
+            und Begrünung liegen darauf, sie ersetzen es nicht. Das Dach liegt
+            waagerecht – ohne sichtbares Gefälle.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="pg-lamellen" hidden>
+          <label class="k3d-label" for="k3dLamellen">Lamellenstellung <output id="k3dLamellenWert">35° geöffnet</output></label>
+          <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dLamZu">◀ Schließen</button>
+            <button type="button" id="k3dLamAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="farbe">
+          <span class="k3d-label" id="k3dFarbeLabel">Farbe Aluminium</span>
+          <div class="k3d-farben" role="group" aria-labelledby="k3dFarbeLabel">
+            <button type="button" class="k3d-farbe is-active" data-k3d-farbe="Anthrazit" aria-pressed="true" style="--f:#383b3d"><span>Anthrazit<br>RAL 7016</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Weißaluminium" aria-pressed="false" style="--f:#d3d4d2"><span>Weißalu<br>RAL 9006</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Graualuminium" aria-pressed="false" style="--f:#9a9c9b"><span>Graualu<br>RAL 9007</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Reinweiß" aria-pressed="false" style="--f:#f1f1ec"><span>Reinweiß<br>RAL 9010</span></button>
+            <button type="button" class="k3d-farbe" data-k3d-farbe="Andere / Beratung" aria-pressed="false" style="--f:linear-gradient(135deg,#c9a24a,#8fa2ab)"><span>Andere<br>Beratung</span></button>
+            <!-- Steht als eigene Zelle NEBEN dem Knopf, nicht darunter:
+                 „bitte neben den button ‚Andere / Beratung‘ nicht
+                 dadrunter" (Betreiber, 11.10.2026). Das Raster hat vier
+                 Spalten, der Knopf ist der fünfte – die Zelle daneben war
+                 ohnehin leer. -->
+            <div class="k3d-gruppe k3d-ral-zelle" data-k3d-schritt="farbe" data-k3d-fuer="ral-sonder" hidden>
+              <label class="k3d-label" for="k3dRalCode">RAL-Ton</label>
+              <div class="k3d-ral-reihe">
+                <input type="text" id="k3dRalCode" class="k3d-zahl"
+                       inputmode="numeric" maxlength="9" placeholder="7016"
+                       aria-describedby="k3dRalStand">
+                <button type="button" class="k3d-ral-lupe" id="k3dRalLupe"
+                        aria-expanded="false" aria-controls="k3dRalSuche"
+                        title="RAL-Ton suchen" aria-label="RAL-Ton suchen">
+                  <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <circle cx="7" cy="7" r="4.6" fill="none"
+                            stroke="currentColor" stroke-width="1.7"></circle>
+                    <line x1="10.4" y1="10.4" x2="14.4" y2="14.4"
+                          stroke="currentColor" stroke-width="1.7"
+                          stroke-linecap="round"></line>
+                  </svg>
+                </button>
+              </div>
+              <span class="k3d-ral-name" id="k3dRalName" hidden></span>
+            </div>
+          </div>
+          <p class="k3d-mini">Alle Systeme sind auch in anderen RAL-Farben lieferbar.</p>
+        </div>
+
+        <!-- Optionales Feld, erscheint nur bei „Andere / Beratung“:
+             „wenn man das wählt soll in dem freien feld rechts daneben nen
+             feld (optionales feld) auftauchen wo man einen anderen RAL code
+             eintragen kann, der 3d konfi soll diesen dann berechnen und
+             anzeigen … und aufpreis hinweis" (Betreiber, 11.10.2026). -->
+        <div class="k3d-gruppe" data-k3d-schritt="farbe" data-k3d-fuer="ral-sonder" hidden>
+          <p class="k3d-mini"><strong>Sonderfarben sind aufpreispflichtig.</strong>
+            Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen
+            Aufmaß – er hängt von Menge und Oberfläche ab.</p>
+          <!-- Die Suche steht hier und nicht in der Zelle oben: Dort ist
+               sie eine Spalte breit, hier die ganze Breite des Bedienfelds
+               – die Treffer brauchen Platz. -->
+          <div class="k3d-ral-suche" id="k3dRalSuche" hidden>
+            <label class="k3d-label" for="k3dRalSuchFeld">RAL-Ton suchen</label>
+            <input type="search" id="k3dRalSuchFeld" class="k3d-zahl"
+                   placeholder="z. B. Braun, Blau, Moos oder 70"
+                   autocomplete="off" aria-describedby="k3dRalSuchStand">
+            <ul class="k3d-ral-treffer" id="k3dRalTreffer"></ul>
+            <p class="k3d-mini" id="k3dRalSuchStand"></p>
+          </div>
+          <p class="k3d-mini" id="k3dRalStand"></p>
+        </div>
+      </details>
+
+      <!-- ---------- Seiten & Erweiterungen ---------- -->
+      <details class="k3d-sek" data-k3d-fuer="terrasse pergola verkleidung">
+        <summary><span class="k3d-sek-t">Seiten &amp; Erweiterungen</span><span class="k3d-sek-s" id="k3dSumSeiten"></span><span class="k3d-sek-s" id="k3dSumVerk"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="pergola" hidden>
+          <label class="k3d-label" for="k3dPgSeitenschutz">Seitenschutz</label>
+          <select id="k3dPgSeitenschutz" class="k3d-select">
+            <option value="Nichts / später entscheiden">ohne</option>
+            <option value="ZIP-Senkrechtmarkise">ZIP-Senkrechtmarkise</option>
+            <option value="Glas-Schiebeelemente">Glas-Schiebeelemente</option>
+          </select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
+          <p class="k3d-mini">Schon eine geschlossene Seite bringt Wind-, Sicht- und
+            Wetterschutz. Mehrfachauswahl – Rahmenwand unten, Schiebetür darüber.</p>
+          <!-- Klartext, welche Seite gerade wie steht. Anlass: Ein Kunde
+               hatte nur links Schiebetüren gewählt und später gefragt, ob
+               es rundherum sei. Die Knöpfe allein haben das nicht
+               beantwortet. -->
+          <p class="k3d-seiten-stand" id="k3dSeitenStand"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
+          <span class="k3d-label">Links <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="links" role="group" aria-label="Erweiterung links">
+            <button type="button" data-erw="Keil">Keil<small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
+          <span class="k3d-label">Rechts <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="rechts" role="group" aria-label="Erweiterung rechts">
+            <button type="button" data-erw="Keil">Keil<small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
+          <span class="k3d-label">Vorne (Stirnseite) <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="vorne" role="group" aria-label="Erweiterung vorne">
+            <button type="button" data-erw="Keil" hidden><small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
+        <!-- Die Rueckseite gibt es nur freistehend: An der Hauswand steht
+             dort das Haus. Sichtbar ueber die Regel 'erw-hinten' in
+             gruppeGilt(); der Keil entfaellt wie vorne, weil die Dachkante
+             hier waagerecht laeuft. Anlass: „Bei freistehen muss
+             plankenwand, rahmen etc. also alle moeglichen auch hinten
+             moeglich sein" (Betreiber, 23.10.2026). -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="erw-hinten" hidden>
+          <span class="k3d-label">Hinten (Rückseite) <span class="k3d-erw-wert" data-k3d-erw-wert>offen</span></span>
+          <div class="k3d-seg k3d-seg--2 k3d-erw" data-k3d-erw="hinten" role="group" aria-label="Erweiterung hinten">
+            <button type="button" data-erw="Keil" hidden><small></small></button>
+            <button type="button" data-erw="Rahmenwand">Rahmenwand<small></small></button>
+            <button type="button" data-erw="Schiebetür">Schiebetür<small></small></button>
+            <button type="button" data-erw="Plankenwand">Plankenwand<small></small></button>
+            <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
+            <button type="button" data-erw="Velaris">Velaris<small></small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-links" hidden>
+          <label class="k3d-label" for="k3dSg23Links">Aufteilung der Schiebeanlage links</label>
+          <select id="k3dSg23Links" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-rechts" hidden>
+          <label class="k3d-label" for="k3dSg23Rechts">Aufteilung der Schiebeanlage rechts</label>
+          <select id="k3dSg23Rechts" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-vorne" hidden>
+          <label class="k3d-label" for="k3dSg23Vorne">Aufteilung der Schiebeanlage vorne (Stirnseite)</label>
+          <select id="k3dSg23Vorne" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-hinten" hidden>
+          <label class="k3d-label" for="k3dSg23Hinten">Aufteilung der Schiebeanlage hinten (Rückseite)</label>
+          <select id="k3dSg23Hinten" class="k3d-select"></select>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dSg23Glas">Glas der Schiebeelemente</label>
+          <select id="k3dSg23Glas" class="k3d-select">
+            <option value="ESG 10 mm klar">klar – freie Sicht</option>
+            <option value="ESG 10 mm satinato">satinato – matt, blickdicht</option>
+          </select>
+          <p class="k3d-mini">Mehr gibt es beim Hersteller nicht: klar oder satiniert,
+            beides 10 mm Einscheiben-Sicherheitsglas.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dSg23Schloss">Abschließbar?</label>
+          <select id="k3dSg23Schloss" class="k3d-select">
+            <option value="ohne">ohne Schloss</option>
+            <option value="links">Schloss links</option>
+            <option value="rechts">Schloss rechts</option>
+          </select>
+          <p class="k3d-mini">Links und rechts von innen gesehen – so steht es auch
+            auf dem Bestellformular des Herstellers. Das Schloss zeigt das Modell
+            nicht, es steht in der Anfrage.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <p class="k3d-mini">Normalerweise wählt der Konfigurator die Aufteilung,
+            die zu Ihrem Maß am besten aussieht. Links und rechts laufen über die
+            Tiefe, vorne über die Breite – deshalb steht jede Seite für sich.
+            Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
+          <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
+          <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dGlasZu">◀ Schließen</button>
+            <button type="button" id="k3dGlasAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
+            immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="rahmenwand" hidden>
+          <label class="k3d-label" for="k3dRahmenTeilung">Aufteilung der Rahmenwand</label>
+          <select id="k3dRahmenTeilung" class="k3d-select">
+            <option value="">automatisch</option>
+            <option value="0">1-teilig, ohne Sprosse</option>
+            <option value="1">2-teilig, 1 waagerechte Sprosse</option>
+            <option value="2">2-teilig, 1 senkrechte Sprosse</option>
+            <option value="3">3-teilig, 2 senkrechte Sprossen</option>
+            <option value="4">4-teilig, 3 senkrechte Sprossen</option>
+            <option value="5">4-teilig, 1 senkrechte und 1 waagerechte</option>
+            <option value="6">6-teilig, 2 senkrechte und 1 waagerechte</option>
+            <option value="7">8-teilig, 3 senkrechte und 1 waagerechte</option>
+          </select>
+          <p class="k3d-mini" id="k3dRahmenStand"></p>
+          <p class="k3d-mini">Aluminiumrahmen mit Glasfüllung (System FR23). Ohne
+            Keil geht die Wand an den Seiten bis ans Dach – der Rahmen folgt
+            dann der Dachschräge.
+            Normalerweise teilt der Konfigurator die Wand wie den Keil auf –
+            ein Feld je angefangene 1,5 m, ohne waagerechte Sprosse. Hier
+            können Sie eine der acht Varianten des Herstellers vorgeben.</p>
+        </div>
+
+        <!-- „die glasschiebetüren gibts ja in satinato, hab vergessen das
+             glas bei den keilen auch" (Betreiber, 11.10.2026). Eigene
+             Wahl, nicht an die Schiebeelemente gekoppelt: oben geht es um
+             Einblick von der Seite, unten oft um freie Sicht. -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="keil-glas" hidden>
+          <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
+          <select id="k3dKeilGlas" class="k3d-select">
+            <option value="ESG klar">klar – freie Sicht</option>
+            <option value="ESG satinato">satinato – matt, blickdicht</option>
+          </select>
+          <p class="k3d-mini">Das Dreieck über der Wand oder der Schiebeanlage.
+            Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="velaris" hidden>
+          <label class="k3d-label" for="k3dVelarisWinkelOben">Obere Hälfte <output id="k3dVelarisWinkelObenWert">45° offen</output></label>
+          <input type="range" id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dVelarisObenZu">◀ Schließen</button>
+            <button type="button" id="k3dVelarisObenAuf">Öffnen ▶</button>
+          </div>
+          <label class="k3d-label" for="k3dVelarisWinkelUnten">Untere Hälfte <output id="k3dVelarisWinkelUntenWert">45° offen</output></label>
+          <input type="range" id="k3dVelarisWinkelUnten" class="k3d-range" min="0" max="90" step="5" value="45">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dVelarisUntenZu">◀ Schließen</button>
+            <button type="button" id="k3dVelarisUntenAuf">Öffnen ▶</button>
+          </div>
+          <p class="k3d-mini">Beide Hälften lassen sich getrennt stellen – oben
+            offen für Licht und Luft, unten zu für den Sichtschutz. Im Bild
+            genügt ein Klick auf die Lamellen: Jeder Klick schaltet einen
+            Schritt weiter – Lamellen öffnen, Element zur Seite schieben,
+            schließen. Was als Nächstes kommt, steht unter dem Modell.</p>
+          <label class="k3d-label" for="k3dVelarisOffen">Elemente verschoben <output id="k3dVelarisOffenWert">0 %</output></label>
+          <input type="range" id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dVelarisSchiebenZu">◀ Schließen</button>
+            <button type="button" id="k3dVelarisSchiebenAuf">Aufschieben ▶</button>
+          </div>
+          <p class="k3d-mini">Nur bei der verschiebbaren Ausführung: Die Elemente
+            fahren zur Seite. Vorbei kommen sie nur an Elementen auf einem
+            anderen Laufweg – auf demselben Laufweg stoßen sie aneinander.
+            Deshalb bewegt sich bei einer Schiene nichts. An der Stirnseite
+            mit Zwischenpfosten geht jedes Feld nach außen auf.</p>
+          <label class="k3d-label" for="k3dVelarisArt">Ausführung</label>
+          <select id="k3dVelarisArt" class="k3d-select">
+            <option value="feststehend">feststehend</option>
+            <option value="verschiebbar">verschiebbar (bis 4 Elemente)</option>
+          </select>
+          <label class="k3d-label" for="k3dVelarisAnzahl">Aufteilung in Elemente</label>
+          <select id="k3dVelarisAnzahl" class="k3d-select"></select>
+          <p class="k3d-mini">Normalerweise rechnet das System die Aufteilung aus.
+            Hier können Sie eine andere wählen – angeboten wird nur, was zu Ihrem
+            Maß passt (Element 500 bis 1500 mm). Bei der verschiebbaren
+            Ausführung steht nur, was sich auch wirklich bewegen lässt: drei
+            oder vier Elemente, also 1500 bis 6000 mm lichte Breite.</p>
+          <label class="k3d-label" for="k3dVelarisBreite">Elementbreite</label>
+          <select id="k3dVelarisBreite" class="k3d-select">
+            <option value="gleich">gleichmäßige Aufteilung</option>
+            <option value="wunsch">Wunsch-Breite (individuell)</option>
+          </select>
+          <p class="k3d-mini">Bei Wunsch-Breite legen wir die einzelnen Breiten
+            beim Aufmaß mit Ihnen fest – das Modell zeigt so lange die
+            gleichmäßige Aufteilung.</p>
+          <label class="k3d-label" for="k3dVelarisFarbe">Oberfläche der Lamellen</label>
+          <select id="k3dVelarisFarbe" class="k3d-select">
+            <option value="Anthrazit RAL 7016">Anthrazit (RAL 7016)</option>
+            <option value="Holzoptik Golden OAK">Holzoptik Golden OAK</option>
+            <option value="RAL-Sonderfarbe">RAL-Sonderfarbe (Aufpreis)</option>
+          </select>
+          <p class="k3d-mini">Nur diese drei: Die vier RAL-Standardtöne gelten für
+            den Rahmen, nicht für die Lamellen. Eine Sonderfarbe zeigt das Modell
+            in der Rahmenfarbe – die RAL-Nummer legen wir mit Ihnen fest.</p>
+          <p class="k3d-mini" id="k3dVelarisStand"></p>
+          <p class="k3d-mini">Waagerechte Lamellen in einem Rahmen, stufenlos
+            verstellbar – zu für vollen Sichtschutz, offen für Licht und Luft.
+            Ein Element ist 500 bis 1500 mm breit, die Anlage höchstens 7000 mm;
+            breitere Seiten teilt der Konfigurator gleichmäßig auf.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="planken" hidden>
+          <label class="k3d-label" for="k3dPlankenFarbe">Oberfläche der Planken</label>
+          <select id="k3dPlankenFarbe" class="k3d-select">
+            <option value="Wie das Gestell">wie das Gestell</option>
+            <option value="Anthrazit">Anthrazit (RAL 7016)</option>
+            <option value="Weißaluminium">Weißaluminium (RAL 9006)</option>
+            <option value="Graualuminium">Graualuminium (RAL 9007)</option>
+            <option value="Reinweiß">Reinweiß (RAL 9010)</option>
+            <option value="Eiche Mocca">Eiche Mocca (Holzdekor)</option>
+            <option value="Rovere Pechino – Hell">Rovere Pechino hell (Holzdekor)</option>
+          </select>
+          <p class="k3d-mini">Rechteckprofile 25 × 70 mm, waagerecht an Winkeln
+            an den Pfosten. Die Zahl der Planken ergibt sich aus der lichten
+            Höhe – sie werden gleichmäßig verteilt, oben und unten bündig.
+            Die Holzdekore zeigt das Modell mit Maserung; der genaue Farbton
+            ist dem Original nachempfunden – maßgeblich bleibt das Muster. Über 7 m Länge gibt es keine Planke am Stück – dann
+            wird gleichmäßig geteilt, mit einem Zwischenprofil am Stoß.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="planken" hidden>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dPlankenAuto" checked> <span>Fuge automatisch berechnen</span></label>
+          <label class="k3d-label" for="k3dPlankenFuge">Luft zwischen den Planken <output id="k3dPlankenFugeWert">automatisch</output></label>
+          <div class="k3d-regler">
+            <input type="range" id="k3dPlankenFuge" class="k3d-range" min="0" max="60" step="1" value="10">
+            <input type="number" id="k3dPlankenFugeZahl" class="k3d-zahl" inputmode="numeric" value="10" aria-label="Fuge in Millimeter">
+          </div>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dPlankenHoeheAuto" checked> <span>Standard: ganz zugesetzt</span></label>
+          <label class="k3d-label" for="k3dPlankenAnteil">Wie hoch zugesetzt <output id="k3dPlankenAnteilWert">volle Höhe</output></label>
+          <input type="range" id="k3dPlankenAnteil" class="k3d-range" min="-90" max="90" step="5" value="0">
+          <p class="k3d-mini">In der Mitte ist die Seite ganz zu. Nach links
+            bleiben die unteren Planken stehen und oben wird frei, nach rechts
+            umgekehrt – für halbhohe Wände, zwei Drittel und alles dazwischen.
+            Die Fuge bleibt dabei dieselbe wie bei der vollen Wand.
+            Ist auf derselben Seite zusätzlich eine Rahmenwand oder
+            Schiebetür gewählt, bestimmt derselbe Regler, wie viel davon
+            die Planken einnehmen – der Rest ist dann Rahmenwand bzw.
+            Tür, nicht offen. In der Mitte bleibt es beim Drittel
+            Planken unten.</p>
+          <p class="k3d-mini" id="k3dPlankenStand"></p>
+          <p class="k3d-mini">Normalerweise rechnet das System die Fuge aus, so
+            dass die Wand oben und unten bündig abschließt. Haken weg, und Sie
+            stellen sie selbst ein: ganz links liegen die Planken bündig
+            aufeinander – voller Sichtschutz –, nach rechts wird die Wand
+            luftiger. Auch dann bleibt Ihr Wert der Wunsch und die gebaute Fuge
+            weicht um wenige Millimeter ab, damit es oben und unten aufgeht.</p>
+        </div>
+
+        <!-- Die Verkleidung stand bis 11.10.2026 als eigener Abschnitt und
+             eigener Schritt da. Sie gehoert hierher: Es ist dieselbe Frage
+             wie Seitenelemente und Senkrechtmarkise – was passiert mit den
+             Seiten. Als eigener Schritt war sie ausserdem beim
+             Terrassendach leer, weil die Gruppe kein data-k3d-fuer hatte
+             und der Schritt deshalb nie uebersprungen wurde. -->
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="verkleidung" hidden>
+          <span class="k3d-label">Welche Wände verkleiden?</span>
+          <div class="k3d-drei">
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRueck"> <span>Hinten</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkLinks"> <span>Links</span></label>
+            <label class="k3d-schalter"><input type="checkbox" id="k3dVerkRechts"> <span>Rechts</span></label>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="verk-richtung" hidden>
+          <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
+          <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
+            <button type="button" data-wert="waagerecht">Waagerecht</button>
+            <button type="button" data-wert="senkrecht">Senkrecht</button>
+          </div>
+          <p class="k3d-mini">Aluminium-Sichtschutzpaneele, 140 mm hoch, in der Farbe
+            des Gestells. Fugenbild und Höhe der Wand legt das Aufmaß fest.</p>
+        </div>
+      </details>
+
+      <!-- ---------- Sonnenschutz ---------- -->
+      <details class="k3d-sek" data-k3d-fuer="terrasse">
+        <summary><span class="k3d-sek-t">Sonnenschutz</span><span class="k3d-sek-s" id="k3dSumSonne"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="sonnenschutz">
+          <span class="k3d-label" id="k3dMarkiseLabel">Mehr Schatten &amp; Komfort?</span>
+          <input type="hidden" id="k3dMarkise" value="Ohne">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMarkise" role="group" aria-labelledby="k3dMarkiseLabel">
+            <button type="button" data-wert="Ohne">Ohne</button>
+            <button type="button" data-wert="Aufdachmarkise">Aufdachmarkise<small>auf dem Glas, hält Hitze davor</small></button>
+            <button type="button" data-wert="Unterdachmarkise">Unterdachmarkise<small>darunter, bleibt im Trockenen</small></button>
+            <button type="button" data-wert="Plissees">Plissees<small>zwischen den Sparren</small></button>
+            <button type="button" data-wert="Sonnensegel">Sonnensegel<small>Bahnen unter dem Glas</small></button>
+            <button type="button" data-wert="Noch unsicher – bitte beraten">Noch unsicher<small>wir beraten Sie</small></button>
+          </div>
+          <p class="k3d-mini">Senkrechtmarkisen an den Seiten wählen Sie oben
+            bei den Erweiterungen.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-segel" hidden>
+          <label class="k3d-label" for="k3dSegelStoff">Stofffarbe Sonnensegel</label>
+          <select id="k3dSegelStoff" class="k3d-select">
+            <option value="Platin">Platin</option>
+            <option value="Perlmutt" selected>Perlmutt</option>
+            <option value="Gold">Gold</option>
+            <option value="Taupe">Taupe</option>
+            <option value="Grau">Grau</option>
+          </select>
+          <p class="k3d-mini">Die fünf Farben des Sonnensegels. Andere gibt es nicht.</p>
+          <p class="k3d-mini"><strong>Bedienung:</strong> Jede Bahn wird einzeln
+            von Hand bedient – mit einer Stange, die dafür gedacht ist. Im Modell
+            laufen die Bahnen deshalb nacheinander auf und zu.</p>
+          <label class="k3d-label" for="k3dSegelArt" style="margin-top:10px">Ausführung</label>
+          <select id="k3dSegelArt" class="k3d-select">
+            <option value="Ohne Verstärkung" selected>ohne Verstärkung</option>
+            <option value="Mit Verstärkung">mit Verstärkung</option>
+          </select>
+          <label class="k3d-schalter" style="margin-top:10px"><input type="checkbox" id="k3dSegelStange" checked> <span>Teleskopstange zum Bedienen mitbestellen</span></label>
+          <p class="k3d-mini" id="k3dSegelStand"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-plissee" hidden>
+          <label class="k3d-label" for="k3dPlisseeStoff">Stofffarbe Plissee</label>
+          <select id="k3dPlisseeStoff" class="k3d-select">
+            <option value="Weiss">Weiß</option>
+            <option value="Hellgrau" selected>Hellgrau</option>
+            <option value="Grau">Grau</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Hellbeige">Hellbeige</option>
+            <option value="Braun">Braun</option>
+          </select>
+          <label class="k3d-label" for="k3dPlisseeGestell" style="margin-top:10px">Farbe der Schienen</label>
+          <select id="k3dPlisseeGestell" class="k3d-select">
+            <option value="Weiss">Weiß</option>
+            <option value="Alu" selected>Alu</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Schwarz">Schwarz</option>
+          </select>
+          <label class="k3d-label" for="k3dPlisseeStab" style="margin-top:10px">Bedienstab (120 cm)</label>
+          <select id="k3dPlisseeStab" class="k3d-select">
+            <option value="Weiss">Weiß</option>
+            <option value="Schwarz" selected>Schwarz</option>
+          </select>
+          <p class="k3d-mini"><strong>Bedienung:</strong> Jedes Feld zwischen zwei
+            Sparren wird einzeln von Hand bedient – mit dem Bedienstab (120 cm).
+            Im Modell laufen die Bahnen deshalb nacheinander auf und zu.</p>
+          <p class="k3d-mini" id="k3dPlisseeStand"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-dach" hidden>
+          <span class="k3d-label" id="k3dStoffLabel">Markisenstoff</span>
+          <input type="hidden" id="k3dStoff" value="">
+          <div class="k3d-stoff-liste" id="k3dStoffeDach" role="group"
+               aria-labelledby="k3dStoffLabel"></div>
+          <p class="k3d-mini" id="k3dStoffInfo"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-fuer="stoff-zip" hidden>
+          <span class="k3d-label" id="k3dStoffZipLabel">Stoff der Senkrechtmarkise</span>
+          <input type="hidden" id="k3dStoffZip" value="">
+          <div class="k3d-stoff-liste" id="k3dStoffeZip" role="group"
+               aria-labelledby="k3dStoffZipLabel"></div>
+          <p class="k3d-mini" id="k3dStoffZipInfo">Jeder Stoff gibt es in zwei
+            Mustern – Konfektion A und B.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="sonne-aus" hidden>
+          <label class="k3d-label" for="k3dSonneAus">Ausgefahren <output id="k3dSonneAusWert">85 %</output></label>
+          <input type="range" id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
+          <div class="k3d-seg k3d-seg--2">
+            <button type="button" id="k3dSonneEin">◀ Einfahren</button>
+            <button type="button" id="k3dSonneRaus">Ausfahren ▶</button>
+          </div>
+          <p class="k3d-mini">Sie können auch direkt im Bild auf das Dach
+            tippen – auf die Sparren oder das Glas. Die Beschattung fährt
+            dann aus oder ein.</p>
+        </div>
+      </details>
+
+      <!-- ---------- Licht & Technik ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Licht &amp; Technik</span><span class="k3d-sek-s" id="k3dSumLicht"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="technik">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dLed"> <span id="k3dLedText">LED-Spots in den Sparren</span></label>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="led-detail" hidden>
+          <span class="k3d-label" id="k3dLedSetLabel">Welche LED-Spots?</span>
+          <input type="hidden" id="k3dLedSet" value="8er-Set">
+          <div class="k3d-seg" data-k3d-seg="k3dLedSet" role="group" aria-labelledby="k3dLedSetLabel">
+            <button type="button" data-wert="6er-Set">6er-Set</button>
+            <button type="button" data-wert="8er-Set">8er-Set</button>
+            <button type="button" data-wert="12er-Set">12er-Set</button>
+          </div>
+          <label class="k3d-label" for="k3dLedAnzahl" style="margin-top:10px">Wie viele Sets?</label>
+          <input type="number" id="k3dLedAnzahl" class="k3d-zahl" inputmode="numeric" min="1" max="20" value="1" style="width:90px">
+          <p class="k3d-mini" id="k3dLedStand"></p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="sound">
+          <label class="k3d-schalter"><input type="checkbox" id="k3dSound"> <span>Lautsprecher im Dachprofil</span></label>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="sound-detail" hidden>
+          <span class="k3d-label" id="k3dSoundSetLabel">Wie viele Lautsprecher?</span>
+          <input type="hidden" id="k3dSoundSet" value="2er-Set">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dSoundSet" role="group" aria-labelledby="k3dSoundSetLabel">
+            <button type="button" data-wert="2er-Set">2er-Set</button>
+            <button type="button" data-wert="4er-Set">4er-Set</button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="technik" data-k3d-fuer="komfort" hidden>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dHeizung"> <span>Heizstrahler</span></label>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dWetter"> <span>Wetter-Automatik (Wind- und Regensensor)</span></label>
+        </div>
+      </details>
+
+      <!-- ---------- Untergrund & Montage ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Untergrund &amp; Montage</span><span class="k3d-sek-s" id="k3dSumUnterbau"></span></summary>
+
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung">
+          <span class="k3d-label" id="k3dUntergrundLabel">Wie ist der Untergrund vor Ort?</span>
+          <input type="hidden" id="k3dUntergrund" value="Tragender Untergrund vorhanden">
+          <div class="k3d-seg" data-k3d-seg="k3dUntergrund" role="group" aria-labelledby="k3dUntergrundLabel">
+            <button type="button" data-wert="Tragender Untergrund vorhanden">Tragend vorhanden<small>Beton, Platten, Streifenfundament</small></button>
+            <button type="button" data-wert="Punktfundamente nötig">Punktfundamente nötig<small>Rasen, Kies, Erdreich</small></button>
+            <button type="button" data-wert="Weiß nicht – Beratung">Weiß nicht<small>wir sehen uns das an</small></button>
+          </div>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung">
+          <span class="k3d-label" id="k3dMontageLabel">Montage durch unser Fachteam?</span>
+          <input type="hidden" id="k3dMontage" value="Ja, mit Fachmontage">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dMontage" role="group" aria-labelledby="k3dMontageLabel">
+            <button type="button" data-wert="Ja, mit Fachmontage">Durch unser Fachteam</button>
+            <button type="button" data-wert="Nein, Selbstmontage">Selbstmontage</button>
+          </div>
+        </div>
+      </details>
+
+      <!-- ---------- Anzeige ---------- -->
+      <details class="k3d-sek">
+        <summary><span class="k3d-sek-t">Anzeige</span><span class="k3d-sek-s" id="k3dSumAnzeige"></span></summary>
+
+
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
+          <span class="k3d-label" id="k3dBodenLabel">Boden</span>
+          <input type="hidden" id="k3dBoden" value="Steinplatten">
+          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dBoden" role="group" aria-labelledby="k3dBodenLabel">
+            <button type="button" data-wert="Steinplatten">Steinplatten</button>
+            <button type="button" data-wert="Holzdielen">Holzdielen</button>
+          </div>
+          <p class="k3d-mini">Nur für die Darstellung – den Bodenbelag bringen Sie selbst mit.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dMasse"> <span>Maße im Modell anzeigen</span></label>
+        </div>
+      </details>
+
+      <!-- ---------- Weiter / Zurück ---------- -->
+      <div class="k3d-nav" id="k3dNav">
+        <button type="button" class="k3d-mehr-knopf" id="k3dMehr" hidden
+                aria-expanded="false">Mehr Einstellungen ▾</button>
+        <div class="k3d-nav-zeile">
+          <button type="button" id="k3dZurueck">◀ Zurück</button>
+          <button type="button" id="k3dWeiter" class="btn btn-gold">Weiter ▶</button>
+        </div>
+      </div>
+
+      <!-- ---------- Ergebnis ---------- -->
+      <div class="k3d-zus k3d-zus--folgt">
+        <h2>Was daraus folgt</h2>
+        <ul id="k3dFolgt" class="k3d-folgt"></ul>
+        <ul id="k3dHinweise" class="k3d-hinweise"></ul>
+      </div>
+
+      <div class="k3d-zus">
+        <h2>Ihre Konfiguration</h2>
+        <ul id="k3dZusammenfassung"></ul>
+      </div>
+    </div>
+
+    <div class="k3d-sl-fuss">
+      <button type="button" class="btn btn-gold k3d-anfrage" id="k3dAnfrage">
+        Konfiguration anfragen →
+      </button>
+      <p class="k3d-fuss">
+        Die Darstellung dient nur der Orientierung und bildet Farben, Materialien
+        und Details nicht verbindlich ab. Maßgeblich ist unser Angebot nach dem
+        kostenlosen Aufmaß vor Ort.
+      </p>
+      <p class="k3d-rechtslinks">
+        <a href="/">← Zur Website</a> ·
+        <a href="/impressum.html">Impressum</a> ·
+        <a href="/datenschutz.html">Datenschutz</a>
+      </p>
+    </div>
+  </aside>
+
+  <!-- ===== Bühne ===== -->
+  <div class="k3d-buehne">
+    <canvas id="k3dCanvas" aria-label="3D-Ansicht des konfigurierten Terrassendachs" role="img"></canvas>
+    <p id="k3dLaden" class="k3d-laden">3D-Ansicht wird geladen …</p>
+
+    <div class="k3d-info">
+      <h1 id="k3dTitelBuehne">Terrassendach TDS</h1>
+      <p id="k3dSpec"></p>
+    </div>
+
+    <!-- Am Handy bleiben nur der Bild-Knopf und seine Beschriftung:
+         „bei mobile klappen auf handy die ersten 2 symbole nicht deswegen
+         lass sie auf handy weg, mach den download button bissl breiter das
+         man sieht bild download" (Betreiber, 11.10.2026). Zuklappen bringt
+         dort nichts (das Bedienfeld steht unter der Bühne, nicht daneben)
+         und Vollbild gibt es auf iPhones gar nicht. -->
+    <div class="k3d-oben">
+      <button type="button" id="k3dPanelAn" aria-expanded="true" class="k3d-nurgross-knopf">☰ <span class="k3d-nurgross">Bedienfeld</span></button>
+      <button type="button" id="k3dVollbild" aria-pressed="false" class="k3d-nurgross-knopf">⛶ <span class="k3d-nurgross">Vollbild</span></button>
+      <button type="button" id="k3dTeilen" aria-haspopup="dialog" aria-expanded="false">↗ <span class="k3d-immer">Teilen</span></button>
+      <button type="button" id="k3dBild" class="ist-gold" aria-expanded="false" aria-haspopup="true">↓ <span class="k3d-immer">Bild speichern</span></button>
+    </div>
+
+    <!-- Ein Druck, mehrere Ansichten: „wenn man draufdrückt kann man
+         direkt mehrere perspektiven in bilder runterladen". -->
+    <div class="k3d-bildmenu" id="k3dBildMenu" role="menu" aria-label="Welches Bild?" hidden>
+      <button type="button" role="menuitem" data-k3d-bild="jetzt">Aktuelle Ansicht</button>
+      <span class="k3d-bildmenu-trenn"></span>
+      <button type="button" role="menuitem" data-k3d-bild="Perspektive">Perspektive</button>
+      <button type="button" role="menuitem" data-k3d-bild="Vorne">Vorne</button>
+      <button type="button" role="menuitem" data-k3d-bild="Seite">Seite</button>
+      <button type="button" role="menuitem" data-k3d-bild="Von oben">Von oben</button>
+      <button type="button" role="menuitem" data-k3d-bild="Darunter">Darunter</button>
+      <span class="k3d-bildmenu-trenn"></span>
+      <button type="button" role="menuitem" data-k3d-bild="alle" class="ist-gold">PDF erstellen</button>
+    </div>
+
+    <!-- Der Link trägt die Konfiguration selbst (im Adressteil hinter #).
+         Nichts wird gespeichert, kein Dienst Dritter ist beteiligt –
+         siehe docs/entscheidungen.md, 25.10.2026. -->
+    <div class="k3d-teilen" id="k3dTeilenDialog" role="dialog" aria-modal="true"
+         aria-labelledby="k3dTeilenTitel" hidden>
+      <div class="k3d-teilen-kasten">
+        <button type="button" class="k3d-teilen-zu" id="k3dTeilenZu">✕ Schließen</button>
+        <h3 id="k3dTeilenTitel">↗ Planung teilen</h3>
+        <p>Wer den Link öffnet, sieht dasselbe Modell und kann es
+          weiterbearbeiten – auch Sie selbst später wieder. Speichern Sie
+          ihn sich als Lesezeichen oder schicken Sie ihn weiter.</p>
+        <div class="k3d-teilen-feld">
+          <input type="text" id="k3dTeilenLink" readonly
+                 aria-label="Link zu dieser Planung">
+          <button type="button" id="k3dTeilenKopieren">Link kopieren</button>
+        </div>
+        <div class="k3d-teilen-wege">
+          <button type="button" id="k3dTeilenPdf">
+            <span class="k3d-teilen-kreis" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm0 2.5L17.5 8H14V4.5zM8 13h8v1.6H8V13zm0 3.2h8v1.6H8v-1.6zM8 9.8h4v1.6H8V9.8z"/>
+              </svg>
+            </span>
+            PDF herunterladen
+          </button>
+          <a id="k3dTeilenWa" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="k3d-teilen-kreis" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.3-.2-2.6.7.7-2.5-.2-.3A8 8 0 0 1 12 4zm-3.3 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.1-.7.1l-.9 1.1c-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.1-.3 0-.4.1-.6l.5-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.8-2c-.2-.5-.4-.4-.6-.4h-.5z"/>
+              </svg>
+            </span>
+            WhatsApp
+          </a>
+          <a id="k3dTeilenMail" href="#">
+            <span class="k3d-teilen-kreis" aria-hidden="true">
+              <!-- Umrisse statt Flaeche: Als gefuellter Pfad wurde aus dem
+                   Umschlag ein schwarzer Klotz. -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linejoin="round">
+                <rect x="2.6" y="5" width="18.8" height="14" rx="2"/>
+                <path d="M3.4 7.2 12 13.2l8.6-6"/>
+              </svg>
+            </span>
+            E-Mail
+          </a>
+        </div>
+        <!-- Der Text wechselt: kurzer Link (von unserem Server) oder
+             langer (trägt die Planung selbst). Beides steht hier, damit
+             niemand raten muss, was gerade passiert ist. -->
+        <p class="k3d-teilen-hinweis" id="k3dTeilenStand">Der Link wird in
+          Ihrem Browser erzeugt.</p>
+      </div>
+    </div>
+
+    <!-- Reihenfolge: erst die Schalter (Maße, Abend, Drehen), dann der
+         Trennstrich, dann die Blickrichtungen. „die angaben maße, abend,
+         drehen bitte vor der angabe perspektive mit trennstrich"
+         (Betreiber, 11.10.2026). Am Handy ist die Leiste seitlich
+         scrollbar – was vorne steht, sieht man ohne Wischen. -->
+    <div class="k3d-leiste" role="group" aria-label="Ansicht steuern">
+      <button type="button" id="k3dMasseLeiste" aria-pressed="false">↔ Maße</button>
+      <button type="button" id="k3dAbend" aria-pressed="false"><span class="k3d-sym" aria-hidden="true">☾</span><span class="k3d-txt">Abend</span></button>
+      <button type="button" id="k3dDrehen" aria-pressed="false">⟳ Drehen</button>
+      <span class="k3d-trenn"></span>
+      <button type="button" class="is-active" data-k3d-ansicht="Perspektive">Perspektive</button>
+      <button type="button" data-k3d-ansicht="Vorne">Vorne</button>
+      <button type="button" data-k3d-ansicht="Seite">Seite</button>
+      <button type="button" data-k3d-ansicht="Von oben">Von oben</button>
+      <button type="button" data-k3d-ansicht="Darunter">Darunter</button>
+    </div>
+
+    <p class="k3d-maushinweis">Ziehen zum Drehen · Mausrad zoomen · zwei Finger zum Zoomen</p>
+    <p class="k3d-klickhinweis" id="k3dKlickHinweis" hidden></p>
+  </div>
+</div>
+</main>
+
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="/images/logo-dunkel.png" alt="BV AussenSysteme" class="footer-logo" id="k3dFussLogo" loading="lazy" width="200" height="200" />
+        <p>Ihr regionaler Spezialist für Terrassenüberdachungen, Carports, Pergolen und
+           Sonnenschutz im Westerwald und Umgebung.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/profile.php?id=61590931949818" class="social-btn social-btn--facebook"
+             aria-label="Facebook" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.883v2.27h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/bv.aussensysteme" class="social-btn social-btn--instagram"
+             aria-label="Instagram" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+          <a href="https://www.youtube.com/channel/UCU2_F-qZlN7KyfHY4G2oSFg" class="social-btn social-btn--youtube"
+             aria-label="YouTube" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+          </a>
+          <a href="https://wa.me/4915678696609" class="social-btn social-btn--whatsapp"
+             aria-label="WhatsApp" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4>Leistungen</h4>
+        <ul class="footer-links">
+          <li><a href="/produkte/terrassenueberdachung.html">Terrassenüberdachung</a></li>
+          <li><a href="/produkte/carport.html">Carport</a></li>
+          <li><a href="/produkte/pergola.html">Pergola &amp; Lamellendach</a></li>
+          <li><a href="/produkte/kaltwintergarten.html">Kaltwintergarten</a></li>
+          <li><a href="/produkte/sonnenschutz.html">Sonnenschutz &amp; Markisen</a></li>
+          <li><a href="/produkte/gelaender.html">Geländer &amp; Zubehör</a></li>
+        </ul>
+      </div>
+      <div class="footer-col--regionen">
+        <h4>Regionen</h4>
+        <ul class="footer-links">
+          <li><a href="/einzugsgebiet.html">Westerwald</a></li>
+          <li><a href="/terrassenueberdachung-montabaur.html">Montabaur</a></li>
+          <li><a href="/terrassenueberdachung-neuwied.html">Neuwied</a></li>
+          <li><a href="/terrassenueberdachung-altenkirchen.html">Altenkirchen</a></li>
+          <li><a href="/einzugsgebiet.html">Hachenburg</a></li>
+          <li><a href="/einzugsgebiet.html">Limburg</a></li>
+          <li><a href="/terrassenueberdachung-koblenz.html">Koblenz</a></li>
+          <li><a href="/einzugsgebiet.html">Pleckhausen</a></li>
+          <li><a href="/einzugsgebiet.html">Horhausen</a></li>
+          <li><a href="/einzugsgebiet.html">Wirges</a></li>
+          <li><a href="/einzugsgebiet.html">Bad Ems</a></li>
+          <li><a href="/einzugsgebiet.html">Diez</a></li>
+          <li><a href="/einzugsgebiet.html">Höhr-Grenzhausen</a></li>
+        </ul>
+      </div>
+      <div class="footer-col--unternehmen">
+        <h4>Unternehmen</h4>
+        <ul class="footer-links">
+          <li><a href="/partner.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Partner</a></li>
+          <li><a href="/konfigurator.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a></li>
+          <li><a href="/#warum-wir"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Über uns</a></li>
+          <li><a href="/#prozess"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Unser Ablauf</a></li>
+          <li><a href="/#faq"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>FAQ</a></li>
+          <li><a href="/pflege.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Pflegehinweise</a></li>
+          <li><a href="/ratgeber/"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Ratgeber</a></li>
+          <li><a href="/einzugsgebiet.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Einzugsgebiet</a></li>
+          <li><a href="/#kontakt"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Kontakt</a></li>
+          <li><a href="/windzonen.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>Wind- &amp; Schneelastzonen-Rechner</a></li>
+          <li><a href="/baugenehmigung.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Baugenehmigung prüfen</a></li>
+          <li><a href="/impressum.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0z"/><path d="M5 7h14"/><path d="M8 3h8"/></svg>Impressum</a></li>
+          <li><a href="/agb.html" style="color:rgba(255,255,255,0.5)"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>AGB</a> ·
+      <a href="/datenschutz.html">Datenschutz</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 BV AussenSysteme – Alexander Becker &amp; Josef Voronin GbR · Westerwaldkreis, Rheinland-Pfalz</p>
+      <p>
+        <a href="/impressum.html">Impressum</a> ·
+        <a href="/datenschutz.html">Datenschutz</a> ·
+        <a href="#" onclick="openCookieSettings();return false;">Cookie-Einstellungen</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/vendor/three.min.js" defer></script>
+<script src="/js/masstabelle.js?v=20261025i" defer></script>
+<script src="/js/markisenstoffe.js?v=20261011a" defer></script>
+<script src="/js/ral.js?v=20261029c" defer></script>
+<script src="/js/pdf-blatt.js?v=20261025i" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261031a" defer></script>
+<script src="/js/main.js" defer></script>
+<script src="/js/cookie.js" defer></script>
+<script src="/js/metricool.js" defer></script>
+<script src="/js/accessibility.js" defer></script>
+<script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261029d" defer></script>
+<!-- ===== STICKY CTA ===== -->
+<div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
+  <div class="sticky-btns">
+    <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
+    <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="btn btn-whatsapp">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.526 5.845L.057 23.243a.75.75 0 0 0 .916.916l5.398-1.469A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.696 9.696 0 0 1-4.964-1.366l-.356-.214-3.694 1.004 1.004-3.694-.214-.356A9.696 9.696 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+  <button class="sticky-close" id="stickyClose" aria-label="Banner schließen">✕</button>
+</div>
+
+<!-- ---------- Hinweis auf den Testbetrieb ----------
+     Wunsch des Betreibers: Niemand soll den Konfigurator für die fertige
+     Fassung halten. Wird einmal je Browser-Sitzung gezeigt, nicht bei
+     jedem Klick – und erst, wenn der Cookie-Hinweis weg ist, damit nicht
+     zwei Dialoge übereinanderliegen. -->
+<div class="k3d-hinw" id="k3dTestHinweis" hidden>
+  <div class="k3d-hinw-box" role="dialog" aria-modal="true"
+       aria-labelledby="k3dTestTitel" aria-describedby="k3dTestText">
+    <p class="k3d-hinw-marke">Testbetrieb</p>
+    <h2 id="k3dTestTitel">Der 3D-Konfigurator ist noch im Aufbau</h2>
+    <div id="k3dTestText">
+      <p>Wir bauen ihn gerade und testen ihn laufend. Es kann sein, dass die
+        Darstellung noch nicht überall stimmt oder etwas noch nicht so
+        funktioniert, wie es soll.</p>
+      <p>Ihre Anfrage erreicht uns trotzdem zuverlässig. Verbindlich ist
+        immer unser Angebot nach dem kostenlosen Aufmaß vor Ort – nicht das
+        Bild auf dem Bildschirm.</p>
+      <p class="k3d-hinw-bitte">Wenn Ihnen etwas auffällt, sagen Sie uns gern
+        Bescheid. Das hilft uns weiter.</p>
+    </div>
+    <button type="button" class="btn btn-gold" id="k3dTestOk">Verstanden, weiter</button>
+  </div>
+</div>
+
+<script>
+/* Schwebende Knöpfe nur im Bereich des Konfigurators ausblenden.
+   Der Beobachter meldet, sobald der Konfigurator das Bild verlässt –
+   dann kommen die Knöpfe zurück. Ohne Beobachter (sehr alte Browser)
+   bleibt alles wie vorher sichtbar: lieber ein störender Knopf als ein
+   verschwundener. */
+(function () {
+  var app = document.getElementById('k3dApp');
+  var logo = document.getElementById('k3dFussLogo');
+  if (!app || !('IntersectionObserver' in window)) return;
+  /* Zwei Beobachter, ein Ergebnis: Versteckt wird, solange der
+     Konfigurator im Bild ist – ausser das Firmenlogo in der Fusszeile
+     ist auch schon zu sehen. „diese 3 buttons können wieder sichtbar
+     werden auf höhe des weißen bv firmenlogos" (Betreiber, 11.10.2026).
+
+     Ohne die zweite Bedingung blieben sie bis zum allerletzten Pixel des
+     Konfigurators weg – auf einem hohen Bildschirm steht man dann schon
+     in der Fusszeile und hat trotzdem keine Knöpfe. */
+  var imBild = true, amLogo = false;
+  var setzen = function () {
+    document.body.classList.toggle('k3d-im-bild', imBild && !amLogo);
+  };
+  new IntersectionObserver(function (eintraege) {
+    imBild = eintraege[0].isIntersecting;
+    setzen();
+  }, { threshold: 0 }).observe(app);
+  if (logo) {
+    new IntersectionObserver(function (eintraege) {
+      amLogo = eintraege[0].isIntersecting;
+      setzen();
+    }, { threshold: 0 }).observe(logo);
+  }
+  setzen();
+})();
+</script>
+</body>
+</html>

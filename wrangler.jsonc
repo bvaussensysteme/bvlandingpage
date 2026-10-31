@@ -13,7 +13,13 @@
       "/produkte/balkonueberdachung.html",
       "/produkte/sonnenschutz-beschattung.html",
       "/termin.html",
-      "/kontakt.html"
+      "/kontakt.html",
+      // Werkstatt: MUSS hier stehen. Ohne diesen Eintrag liefert
+      // Cloudflare werkstatt/index.html direkt als Datei aus, ohne den
+      // Worker zu fragen - die Passwortschranke wuerde nie aufgerufen
+      // und die Seite laege offen. Geprueft von scripts/pruefe-werkstatt.js.
+      "/werkstatt",
+      "/werkstatt/*"
     ]
   },
   // Die VD-Matrix liegt bewusst NICHT in diesem oeffentlichen Repository,

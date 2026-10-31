@@ -1056,10 +1056,13 @@ pruefe('SkyView – Rahmen bleibt waagerecht',
          Math.abs((mit - ohne) - 8.6) < 0.01,
          'bei 2,5 m: ohne ' + (ohne * 10).toFixed(0) + ' mm, mit ' +
          (mit * 10).toFixed(0) + ' mm zur Rahmenunterkante');
+  /* NACHGEZOGEN: Seit die Aussparung eingebaut ist, bekommt jeder Sparren
+     seine eigene Laenge und Lage (lg/zM statt laenge/zMitte). Geprueft
+     wird weiterhin dasselbe: ein GERADES, geneigtes Profil - kein Keil. */
   pruefe('SkyView - Sparren ist ein gerades Profil wie bei TDS',
          gegen ? /function keilsparren/.test(k3d)
                : (!/function keilsparren/.test(k3d) &&
-                  /sparrenBauen\(laenge, x, ukMitteBei\(zMitte\), zMitte, neig, mAlu\)/.test(k3d)),
+                  /sparrenBauen\(lg, x, ukMitteBei\(zM\), zM, neig, mAlu\)/.test(k3d)),
          'kein Keil, nur geneigt');
 })();
 pruefe('SkyView – Sparrenlänge aus der Anleitung',

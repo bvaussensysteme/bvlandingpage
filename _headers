@@ -21,3 +21,12 @@
 
 /js/*
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# Werkstatt - nicht oeffentliche Erprobungsseite.
+# Zusaetzlich zum noindex im Kopf der Seite, damit auch Abrufe, die den
+# Kopf nicht auswerten, die Seite nicht in einen Index nehmen. Die Seite
+# wird nirgends verlinkt und steht bewusst NICHT in robots.txt - ein
+# Disallow dort wuerde die Adresse oeffentlich bekannt machen.
+/werkstatt/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-store

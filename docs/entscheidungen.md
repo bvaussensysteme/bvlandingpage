@@ -9764,3 +9764,179 @@ Merge: `sh scripts/pruefe-konfliktmarken.sh` und einmal alle Prüfskripte
 laufen lassen** — beides hat es gefunden. Besser noch: zu Beginn der nächsten
 Sitzung den Branch frisch von `main` ziehen, wie es oben in `NEXT_TASK.md`
 steht.
+
+## 31.10.2026 — Aussparung: zweiter Anlauf, diesmal rechtwinklig
+
+**Anlass.** Der Betreiber hat den Konfigurator eines Wettbewerbers im
+Quelltext geschickt: „bei denen funktionieren die sonderformen so wie ich sie
+mir von dir damals gewünscht hatte du es aber nicht hinbekommen hast". Er hat
+recht — und der Vergleich zeigt genau, woran es lag.
+
+**Warum der erste Anlauf gescheitert ist.** Die Sonderform vom 23.10.2026 war
+ein **schiefes Viereck**: Breite hinten, Breite vorne, Tiefe links, Tiefe
+rechts, alle frei. Damit steht jede Kante in einem beliebigen Winkel, und jedes
+Profil braucht Gehrung, Drehung und eine eigene Länge. Am 25.10.2026 ist sie
+deshalb ganz entfernt worden.
+
+**Was jetzt gebaut ist — und warum es ein anderes Problem ist.** Die
+**Aussparung** ist ein Rechteck mit einer **rechteckigen Lücke an der
+Wandseite**: dort, wo das Haus in die Terrasse hineinspringt (Erker, Windfang,
+Vorbau). Die Vorderkante bleibt gerade. Daraus folgt:
+
+| Bauteil | ändert sich |
+|---|---|
+| Rinne, Pfosten, Statikträger | **gar nicht** — die Vorderkante ist unberührt |
+| Sparren | nur die **Länge** je Stelle |
+| Scheiben | Länge, Lage und (wegen des Gefälles) Höhe je Feld |
+| Wandprofil | aus einem Stück werden bis zu **fünf gerade Stücke** |
+| Wandblende | wandert in der Aussparung mit nach vorne |
+
+**Alles bleibt bei 90°.** Keine Gehrung, keine Schräge. Das, woran der erste
+Anlauf zerbrochen ist, kommt hier nicht vor.
+
+**Eine Auskunft für alle Bauteile.** Die ganze Form steckt in
+`hinterkanteBei(sp, x, zHinten)`: Wie weit hinten darf ein Bauteil an der
+Stelle x beginnen? Wer sie nicht fragt, baut das Rechteck — ist also nie
+falsch, nur unvollständig. Genau das war am 25.10. anders: Jedes Bauteil kannte
+die Form einzeln, und jedes neue brachte denselben Fehler wieder mit.
+
+**Was dabei auffiel und gleich mitgebaut wurde.** Es gab keine Begrenzung der
+Aussparungstiefe. Bei einer Tiefe größer als die Anlage wären Sparren mit
+Länge null entstanden — dieselbe Falle wie am 25.10.2026 („verkrüppelt"), nur
+von der anderen Seite. Jetzt bleiben hinter der Aussparung mindestens 80 cm
+Dach stehen.
+
+**Stand: Erprobung, nicht Betrieb.** Es gibt noch kein Bedienfeld. Sichtbar nur
+über die Adresse, für normale Besucher ändert sich nichts:
+
+```
+/konfigurator/?probe=aussparung&form=rechts&ab=2000&at=1000
+/konfigurator/?probe=aussparung&form=links&ab=2000&at=1000
+/konfigurator/?probe=aussparung&form=mittig&ab=2000&at=1000&aa=1200
+```
+`ab` = Breite der Aussparung, `at` = Tiefe, `aa` = Abstand von links (nur
+mittig), alle in Millimeter.
+
+**Was gegengelesen werden soll — und zwar genau das, woran es zuletzt lag:**
+1. Folgen **Sparren** der Lücke, oder enden welche in der Luft?
+2. Liegen die **Scheiben** in den verkürzten Feldern richtig — nicht zu lang,
+   nicht zu hoch?
+3. Läuft das **Wandprofil** um die Lücke herum, auch an den beiden Flanken?
+4. Stehen **Rinne und Pfosten** unverändert vorne? (Sie dürfen sich nicht
+   rühren.)
+5. Bleibt bei `form=rechts` der **rechte Randsparren** in voller Länge?
+
+**Was noch fehlt** (bewusst, es ist ein Machbarkeitsnachweis): Bedienfeld,
+Grundriss-Skizze, die Wandfelder an den Flanken der Aussparung (dort können
+heute keine Seitenelemente sitzen), Randblende an der Stufe, Maßtabelle,
+Anfrage und interne Notiz.
+
+**Absicherung.** `scripts/pruefe-aussparung.js`: **10 Prüfungen**, alle
+bestanden. Die Geometrie wird ausgeführt und nachgemessen, nicht im Quelltext
+nachgelesen; über 200 Stellen abgetastet. **Die Gegenprobe baut jeden Fehler
+EINZELN ein** (10 Fehler) und verlangt, dass jede Prüfung in mindestens einem
+Durchgang rot wird — beim ersten Versuch waren drei Prüfungen blind, weil sich
+zwei gemeinsam eingebaute Fehler gegenseitig verdeckt hatten. **Lehre: Eine
+Gegenprobe mit allen Fehlern auf einmal kann eine blinde Prüfung scharf
+aussehen lassen.**
+
+`scripts/pruefe-masstabelle.js` war rot, weil sie die Sparren-Zeile wörtlich
+aus dem Quelltext liest; sie prüft jetzt dieselbe Aussage in der neuen
+Schreibweise. Gesamte Batterie: 17 Skripte grün, Export grün.
+
+## 31.10.2026 — Dauerregel: Nachbauten in eigener Sprache
+
+**Anlass.** Betreiber: „dateinamen alle namen alles was du benennst nur nach
+unseren namen, nirgends darf [der Wettbewerber] vorkommen, alle designs in
+unserer designsprache nicht 1:1 … ähnlich aber nicht anfechtbar" — und
+nachgeschoben: „ich will trotz erlaubnis den rechtlich sicheren weg gehen, er
+kann seine meinung jederzeit ändern ich habe dann viel arbeit".
+
+**Was falsch war.** Der Betreiber hatte zunächst angenommen, er dürfe alles
+nutzen, was beim Wettbewerber von VD stammt, weil beide VD-Händler sind. Die
+Trennlinie läuft aber nicht zwischen „VD" und „nicht VD", sondern danach, **wer
+es erstellt hat**: Ein Foto, das der Wettbewerber von einem VD-Dach gemacht
+hat, gehört ihm, nicht VD. Eine mündliche Erlaubnis ist jederzeit widerrufbar —
+die Arbeit wäre dann umsonst.
+
+**Was jetzt gilt.** Als Dauerregel in `CLAUDE.md` („Nachbauten: eigene Sprache,
+eigene Namen"): keine fremden Namen irgendwo im Repository, eigene Benennung,
+eigene Designsprache, übernommen werden nur Ideen und Fakten. Geprüft: Der Name
+kommt im Repository nirgends vor.
+
+**Angewandt auf die Aussparung:** Die Formen heißen bei uns **Aussparung links
+/ rechts / mittig** (nicht die Bezeichnungen des Wettbewerbers), die Maße
+**Breite / Tiefe der Aussparung** und **Abstand von links**, der Code ist von
+Grund auf selbst geschrieben.
+
+## 31.10.2026 — Werkstatt: eigene Seite hinter Passwort, statt Parameter
+
+**Anlass.** „mach eine versteckte seite auf meiner homepage wo nur ICH erst mal
+zugriff habe. also den konfigurator erst mal aus der normalen konfigurator 3d
+seite weg bis er fertig is und ich ihn veröffentlichen will" (Betreiber).
+
+**Was daran besser ist als mein Vorschlag.** Ich hatte die Aussparung hinter
+`?probe=aussparung` auf der öffentlichen Seite versteckt. Das ist kein
+Verstecken, sondern eine unverschlossene Tür mit einem Schild daneben: Wer den
+Parameter errät oder im Quelltext liest, sieht den unfertigen Stand auf der
+Verkaufsseite. Die Trennung in zwei Seiten ist sauberer.
+
+**Was jetzt gilt.**
+
+| | öffentlich `/konfigurator.html` | **Werkstatt** `/werkstatt/` |
+|---|---|---|
+| Zugang | jeder | Passwort |
+| Aussparung | **durch nichts einschaltbar** | an |
+| Suchmaschinen | normal | `noindex` im Kopf **und** als Kopfzeile |
+| verlinkt | ja | nirgends, auch nicht in der Sitemap |
+
+**Die Freischaltung hängt am PFAD, nicht an einem Parameter.** Auf der
+öffentlichen Seite lässt sich die Aussparung durch Herumprobieren an der
+Adresse nicht mehr einschalten.
+
+**Eine Datei, zwei Seiten.** Beide laden dieselbe `js/konfigurator-3d.js`, und
+`werkstatt/index.html` wird aus `konfigurator.html` **erzeugt**
+(`scripts/baue-werkstatt.js`), nicht kopiert. Eine Kopie wäre nach wenigen
+Tagen ein zweiter Stand, und dann weiß niemand mehr, welcher der richtige ist.
+Das Skript biegt dabei alle relativen Verweise auf absolute um — sonst würde
+`js/…` von `/werkstatt/` aus ins Leere zeigen — und prüft am eigenen Erzeugnis
+nach, dass keiner übrig blieb und beide Seiten auf dieselben Dateiversionen
+zeigen. `--pruefen` meldet, wenn die Werkstatt nicht mehr auf dem Stand ist.
+
+**Nicht in die `robots.txt`.** Ein `Disallow: /werkstatt/` dort würde die
+Adresse öffentlich bekannt machen — die Datei liest jeder. Gesperrt wird über
+`noindex` im Kopf und `X-Robots-Tag` in `_headers`.
+
+**Die Schranke: im Zweifel zu.** Ist kein Passwort hinterlegt, ist die Seite
+für **alle** gesperrt (503 mit Anleitung). Ein Schutz, der bei fehlender
+Einstellung still aufmacht, ist keiner — so stehen Testseiten monatelang offen,
+ohne dass es jemand merkt. Das Passwort liegt als Secret in Cloudflare
+(`WERKSTATT_PASSWORT`), **nicht im Repository**. Der Keks ist daraus abgeleitet
+(SHA-256), nicht das Passwort selbst; er ist `HttpOnly`, `Secure`, `SameSite`
+und gilt 30 Tage. Wird das Passwort geändert, sind alle alten Anmeldungen
+sofort ungültig. Vergleich in konstanter Zeit, 700 ms Bremse bei falscher
+Eingabe.
+
+**Der Fund, der am teuersten gewesen wäre.** Cloudflare liefert eine
+vorhandene Datei **am Worker vorbei** aus, wenn ihr Pfad nicht in
+`run_worker_first` steht. Ohne diesen Eintrag wäre `werkstatt/index.html`
+direkt ausgeliefert worden und die ganze Passwortschranke nie aufgerufen — bei
+einer Seite, die danach aussieht, als sei sie geschützt. `/werkstatt` und
+`/werkstatt/*` stehen jetzt dort, mit Begründung an der Stelle, und
+`scripts/pruefe-werkstatt.js` prüft es mit.
+
+**Was die Schranke NICHT leistet.** Sie schützt die Seite, nicht den Code:
+`js/konfigurator-3d.js` wird auch öffentlich geladen und ist lesbar.
+Einschalten lässt sich die Aussparung dort trotzdem nicht. Eine eigene Datei
+nur für die Werkstatt wäre ein zweiter Stand und damit die größere Gefahr.
+
+**Beim Betreiber liegt ein Handgriff:** das Passwort in Cloudflare hinterlegen.
+Bis dahin ist die Seite gesperrt — auch für ihn. Schritte stehen in
+`docs/NEXT_TASK.md`.
+
+**Absicherung.** `scripts/pruefe-werkstatt.js`: **11 Prüfungen**, alle
+bestanden. Die Schranke wird ausgeführt, nicht gelesen. Gegenprobe mit **10
+Fehlern, jeder einzeln** — darunter „ohne Passwort offen", „jedes Passwort wird
+angenommen", „jeder beliebige Keks reicht", „Keks ohne HttpOnly", „Werkstatt
+läuft am Worker vorbei". Alle 11 Prüfungen schlagen an, alle 10 Fehler werden
+bemerkt. Gesamte Batterie: 19 Prüfungen grün.

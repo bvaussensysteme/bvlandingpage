@@ -49,6 +49,13 @@ export default {
       return handleTeilenOeffnen(url, env);
     }
 
+    /* Werkstatt: nicht oeffentliche Erprobungsseite. Muss VOR der
+       Auslieferung der Dateien stehen - sonst laege die Seite offen. */
+    if (url.pathname === '/werkstatt' || url.pathname.startsWith('/werkstatt/')) {
+      const abweisung = await werkstattTor(request, env, url);
+      if (abweisung) return abweisung;
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
@@ -549,4 +556,160 @@ function cacheAntwort(daten) {
       'cache-control': 'public, max-age=3600',
     },
   });
+}
+
+/* ===================== Werkstatt: Passwortschranke =====================
+
+   Die Werkstatt ist die Erprobungsseite des Betreibers. Dort ist
+   freigeschaltet, was auf der oeffentlichen Seite noch nichts zu suchen
+   hat. Der Zugang haengt an EINEM Passwort, das als Secret in Cloudflare
+   liegt (WERKSTATT_PASSWORT) - nicht im Repository.
+
+   Grundsatz: IM ZWEIFEL ZU. Ist kein Passwort hinterlegt, ist die Seite
+   fuer alle gesperrt. Ein Schutz, der bei fehlender Einstellung still
+   aufmacht, ist keiner - und genau so entstehen die Faelle, in denen eine
+   Testseite monatelang offen im Netz steht, ohne dass es jemand merkt.
+
+   Was die Schranke NICHT leistet: Sie schuetzt die Seite, nicht den Code.
+   js/konfigurator-3d.js wird auch von der oeffentlichen Seite geladen und
+   ist damit lesbar. Einschalten laesst sich die Aussparung dort trotzdem
+   nicht - das haengt am Pfad. Wer die unfertige Funktion wirklich
+   verbergen muesste, braeuchte eine eigene Datei; das waere ein zweiter
+   Stand und damit die groessere Gefahr.                                */
+
+const WERKSTATT_KEKS = 'bv_werkstatt';
+const WERKSTATT_TAGE = 30;
+
+async function werkstattToken(passwort) {
+  const roh = new TextEncoder().encode('bv-werkstatt:' + passwort);
+  const hash = await crypto.subtle.digest('SHA-256', roh);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function keksLesen(request, name) {
+  const roh = request.headers.get('cookie') || '';
+  for (const teil of roh.split(';')) {
+    const i = teil.indexOf('=');
+    if (i > 0 && teil.slice(0, i).trim() === name) return teil.slice(i + 1).trim();
+  }
+  return null;
+}
+
+/* Vergleich in konstanter Zeit: Ein Vergleich, der beim ersten
+   abweichenden Zeichen abbricht, verraet ueber die Antwortzeit, wie viele
+   Zeichen stimmen. Hier wird immer bis zum Ende gerechnet. */
+function gleichInKonstanterZeit(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let rest = 0;
+  for (let i = 0; i < a.length; i++) rest |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return rest === 0;
+}
+
+function werkstattSeite(inhalt, status) {
+  return new Response(
+    '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">'
+    + '<title>Werkstatt</title><style>'
+    + 'body{margin:0;min-height:100vh;display:grid;place-items:center;'
+    + 'background:#f3f5f7;color:#1f2a33;'
+    + 'font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}'
+    + '.k{background:#fff;border-radius:12px;padding:28px 26px;max-width:420px;'
+    + 'width:calc(100% - 32px);box-shadow:0 2px 16px rgba(31,42,51,.10)}'
+    + 'h1{margin:0 0 6px;font-size:20px}p{margin:0 0 16px;color:#4a5962}'
+    + 'label{display:block;font-weight:600;margin:0 0 6px;font-size:14px}'
+    + 'input{width:100%;box-sizing:border-box;padding:11px 12px;font-size:16px;'
+    + 'border:1px solid #c6d0d6;border-radius:8px}'
+    + 'button{margin-top:14px;width:100%;padding:12px;font-size:16px;font-weight:600;'
+    + 'border:0;border-radius:8px;background:#1f2a33;color:#fff;cursor:pointer}'
+    + '.f{margin:0 0 14px;padding:10px 12px;border-radius:8px;'
+    + 'background:#fdecec;color:#8c2f2f;font-size:14px}'
+    + '.h{margin:16px 0 0;font-size:13px;color:#6b7a84}'
+    + '</style></head><body><div class="k">' + inhalt + '</div></body></html>',
+    {
+      status: status,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'no-store',
+        'x-robots-tag': 'noindex, nofollow',
+        'x-content-type-options': 'nosniff',
+        'referrer-policy': 'no-referrer',
+      },
+    }
+  );
+}
+
+function anmeldeSeite(fehler) {
+  return werkstattSeite(
+    '<h1>Werkstatt</h1>'
+    + '<p>Nicht &ouml;ffentliche Erprobungsseite.</p>'
+    + (fehler ? '<p class="f">' + fehler + '</p>' : '')
+    + '<form method="POST">'
+    + '<label for="p">Passwort</label>'
+    + '<input id="p" name="passwort" type="password" autocomplete="current-password" '
+    + 'autofocus required>'
+    + '<button type="submit">Anmelden</button>'
+    + '</form>'
+    + '<p class="h">Die Anmeldung gilt auf diesem Ger&auml;t '
+    + WERKSTATT_TAGE + ' Tage.</p>',
+    fehler ? 401 : 200
+  );
+}
+
+async function werkstattTor(request, env, url) {
+  const passwort = env.WERKSTATT_PASSWORT;
+
+  /* Kein Passwort hinterlegt -> zu. Mit Anleitung, damit klar ist, was
+     zu tun ist, und ohne zu verraten, was auf der Seite liegt. */
+  if (!passwort) {
+    return werkstattSeite(
+      '<h1>Werkstatt gesperrt</h1>'
+      + '<p>Es ist noch kein Passwort hinterlegt. Solange bleibt die Seite '
+      + 'f&uuml;r alle gesperrt.</p>'
+      + '<p class="h">Cloudflare &rarr; Workers &amp; Pages &rarr; bvlanding '
+      + '&rarr; Settings &rarr; Variables and Secrets &rarr; Add &rarr; Typ '
+      + '<b>Secret</b>, Name <b>WERKSTATT_PASSWORT</b>, Wert: das gew&uuml;nschte '
+      + 'Passwort &rarr; Deploy.</p>',
+      503
+    );
+  }
+
+  const erwartet = await werkstattToken(passwort);
+
+  /* Anmeldung */
+  if (request.method === 'POST') {
+    let eingabe = '';
+    try {
+      const daten = await request.formData();
+      eingabe = String(daten.get('passwort') || '');
+    } catch (e) { eingabe = ''; }
+
+    if (!gleichInKonstanterZeit(await werkstattToken(eingabe), erwartet)) {
+      /* Kurze Bremse: macht das Durchprobieren unattraktiv, ohne einen
+         ehrlichen Tippfehler sp&uuml;rbar zu bestrafen. */
+      await new Promise((r) => setTimeout(r, 700));
+      return anmeldeSeite('Passwort stimmt nicht.');
+    }
+
+    return new Response(null, {
+      status: 303,
+      headers: {
+        location: url.pathname + url.search,
+        'cache-control': 'no-store',
+        'set-cookie': WERKSTATT_KEKS + '=' + erwartet
+          + '; Path=/werkstatt; Max-Age=' + (WERKSTATT_TAGE * 24 * 60 * 60)
+          + '; HttpOnly; Secure; SameSite=Lax',
+      },
+    });
+  }
+
+  /* Bereits angemeldet? Der Keks haengt am Passwort: Wird es geaendert,
+     sind alle alten Anmeldungen sofort ungueltig. */
+  if (gleichInKonstanterZeit(keksLesen(request, WERKSTATT_KEKS) || '', erwartet)) {
+    return null;                        // durchlassen
+  }
+
+  return anmeldeSeite('');
 }
