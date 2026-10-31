@@ -1492,7 +1492,13 @@
       c.fillText('BV AussenSysteme', 512, 170);
       zeile();
     };
-    bild.src = 'images/logo-' + schl + '.png';
+    /* Absoluter Pfad: Dieses Bild laeuft nicht ueber den Lader von
+       three.js, sondern ueber ein eigenes Image - der Umweg in
+       js/werkstatt-pfade.js greift hier also nicht. Mit einem relativen
+       Pfad fehlte das Bodenlogo auf der Werkstatt-Seite (gemessen am
+       31.10.2026). Auf der oeffentlichen Seite aendert sich nichts, sie
+       liegt im Stammverzeichnis. */
+    bild.src = '/images/logo-' + schl + '.png';
     return t;
   }
 
@@ -1537,6 +1543,20 @@
   );
   wand.castShadow = true; wand.receiveShadow = true;
   szene.add(wand);
+
+  /* ---------- Hausvorsprung ----------
+     Der Baukoerper, um den die Aussparung herumgebaut wird: Erker,
+     Windfang, Vorbau. OHNE ihn sieht die Aussparung nicht nach einem
+     Hausvorsprung aus, sondern nach einem Loch im Dach - gemessen und
+     vom Betreiber am 31.10.2026 genau so gemeldet ("sieht nicht aus wie
+     auf den bildern"). Die Sparren und Scheiben stimmten da bereits.
+
+     Dasselbe Material wie die Hauswand, damit er als Teil des Hauses
+     gelesen wird und nicht als zweites Bauteil der Anlage. */
+  var vorsprung = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), wand.material);
+  vorsprung.castShadow = true; vorsprung.receiveShadow = true;
+  vorsprung.visible = false;
+  szene.add(vorsprung);
 
   /* ---------- Terrassentür an der Hauswand ----------
      Der Betreiber am 11.10.2026: „vllt. noch so ne terassentür/balkontür
@@ -3420,6 +3440,12 @@
        kurz ein Carport, wo ein Terrassendach hingehört. */
     if (!e && datenSystem()) return;
     leeren(bau);
+    /* Der Hausvorsprung haengt an der Szene, nicht an bau - leeren(bau)
+       raeumt ihn also NICHT weg. Deshalb bei jedem Bau zuerst aus, und
+       nur der Bauweg, der ihn braucht, schaltet ihn wieder ein. Sonst
+       stuende er noch da, nachdem man auf ein anderes Produkt gewechselt
+       hat. Dieselbe Falle wie bei der Hauswand, die es schon gibt. */
+    vorsprung.visible = false;
     if (e && !e.fehler) bauenAusDaten(e);
     else if (istPergola()) bauenPergola();
     /* Der Carport TDS ist baulich dasselbe wie ein Terrassendach TDS –
@@ -6841,6 +6867,17 @@
     wand.visible = !frei;
     wand.scale.set(B + 420, hHinten + 190, 1);
     wand.position.set(0, (hHinten + 190) / 2, -12);
+
+    /* Der Hausvorsprung fuellt die Aussparung aus: von der Wandflaeche
+       (z = 0) bis zu ihrer Vorderkante, ueber ihre ganze Breite, so hoch
+       wie die Hauswand. Freistehend gibt es ihn nicht - dort steht keine
+       Wand, aus der etwas vorspringen koennte. */
+    vorsprung.visible = !!sp && !frei;
+    if (vorsprung.visible) {
+      var vsH = hHinten + 190;
+      vorsprung.scale.set(sp.bis - sp.von, vsH, sp.tiefe);
+      vorsprung.position.set((sp.von + sp.bis) / 2, vsH / 2, sp.tiefe / 2);
+    }
 
     /* Pfosten: zwei, bei breiten Anlagen drei. Die Verteilung über die
        BREITE bleibt GESCHÄTZT – die Maßtabelle führt sie ausdrücklich
