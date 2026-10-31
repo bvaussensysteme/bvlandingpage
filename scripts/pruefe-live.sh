@@ -13,6 +13,23 @@
 # offenen Pull Request liegt. Sie werden berichtet, zählen aber nicht als
 # Fehler. Nach dem Veröffentlichen das "offen:" entfernen.
 #
+# Marker mit führendem "gesperrt:" liegen auf einer Seite, die absichtlich
+# abgeschaltet ist – derzeit der öffentliche 3D-Konfigurator (seit dem
+# 31.10.2026, siehe docs/NEXT_TASK.md). Dort kommt die Hinweisseite statt
+# des Rechners, also kann dort kein Suchtext gefunden werden.
+#
+# GEFUNDEN AM 31.10.2026: Sechs solche Marker standen ungeschützt in der
+# Liste und machten diese Prüfung seit dem Abschalten rot – unbemerkt.
+# Weggelassen werden sie NICHT: Sobald der Konfigurator wieder aufmacht,
+# müssen sie wieder greifen.
+#
+# Damit das kein Freibrief wird, reicht "Text nicht gefunden" nicht aus:
+# Es muss auch wirklich die HINWEISSEITE kommen (SPERRE_BELEG). Kommt
+# etwas Drittes – eine Fehlerseite, eine leere Antwort, eine halb
+# ausgelieferte Datei –, ist das ein Fehler wie jeder andere. Und wird der
+# Text gefunden, ist der Konfigurator wieder offen: dann sagt das Skript,
+# dass "gesperrt:" zu entfernen ist.
+#
 # Aufruf:     scripts/pruefe-live.sh [basis-url]
 # Gegenprobe: scripts/pruefe-live.sh --gegenprobe
 set -u
@@ -22,26 +39,32 @@ BASIS="${1:-https://bv-aussensysteme.de}"
 # Pfad|Suchtext|Bezeichnung      ("offen:" vor dem Pfad = noch nicht erwartet)
 MARKER='
 /|konfigurator-widget.js|Konfigurator-Widget eingebunden
-/konfigurator.html|k3dCanvas|3D-Konfigurator
+gesperrt:/konfigurator.html|k3dCanvas|3D-Konfigurator
 /baugenehmigung.html|bg-pdf.js|PDF-Download im Baugenehmigungs-Check
 /js/baugenehmigung-data.js|50 m³ umbauter Raum|Korrigierte RLP-Werte
 /datenschutz.html|Vertragsabwicklung, Angebote und Anfragen|Abschnitt Vertragsabwicklung
 /ratgeber/terrassenueberdachung-kosten.html|stammen nicht von uns|Preis-Klarstellung
 /js/anfrage-wizard.js|Telefon / WhatsApp \*|Telefon ist Pflichtfeld
-/konfigurator.html|k3d-app-seite|Konfigurator im Vollbild-Layout
+gesperrt:/konfigurator.html|k3d-app-seite|Konfigurator im Vollbild-Layout
 /js/konfigurator-3d.js|bauenTerrasseGeschaetzt|Terrassendach wird als Terrassendach gezeichnet
 /js/konfigurator-3d.js|function sonnenschutz|Sonnenschutz im Konfigurator
 /js/anfrage-wizard.js|Aus dem 3D-Konfigurator|Notiz des Konfigurators geht in die Anfrage
-/konfigurator.html|Polycarbonat graphit|Vier Polycarbonat-Ausführungen
+gesperrt:/konfigurator.html|Polycarbonat graphit|Vier Polycarbonat-Ausführungen
 /js/anfrage-wizard.js|Polycarbonat Bronze|Bronze auch im Anfrage-Assistenten
 /js/konfigurator-3d.js|var NEIGUNG = (tds ? 6 : 0)|Flat Box ohne Gefälle
-/konfigurator.html|data-k3d-erw=|Erweiterungen wie im Anfrage-Assistenten
-/konfigurator.html|k3dMontage|Montage-Frage wieder im Bedienfeld
-/konfigurator.html|k3dUntergrund|Untergrund-Frage im Konfigurator
+gesperrt:/konfigurator.html|data-k3d-erw=|Erweiterungen wie im Anfrage-Assistenten
+gesperrt:/konfigurator.html|k3dMontage|Montage-Frage wieder im Bedienfeld
+gesperrt:/konfigurator.html|k3dUntergrund|Untergrund-Frage im Konfigurator
 /js/anfrage-wizard.js|erw_links|Erweiterungen kommen im Assistenten an
 '
 
 holen() { curl -sL --max-time 25 "$1"; }
+
+# Woran die Hinweisseite der Sperre zu erkennen ist (worker/index.js).
+# Ueberschreibbar, damit die Gegenprobe den Beleg wegnehmen kann: Dann
+# muessen die "gesperrt:"-Marker wieder als FEHLER erscheinen. Ohne diese
+# Moeglichkeit waere die Sperre-Ausnahme nicht pruefbar.
+SPERRE_BELEG="${SPERRE_BELEG:-wird überarbeitet}"
 
 if [ "${1:-}" = "--gegenprobe" ]; then
   echo "Gegenprobe: schlägt die Prüfung an, wenn der Inhalt fehlt?"
@@ -67,10 +90,15 @@ fi
 echo "Live-Stand auf $BASIS"
 fehler=0
 offen=0
+gesperrtZahl=0
 while IFS='|' read -r pfad text name; do
   [ -z "$pfad" ] && continue
   nurOffen=0
-  case "$pfad" in offen:*) nurOffen=1; pfad="${pfad#offen:}" ;; esac
+  gesperrt=0
+  case "$pfad" in
+    offen:*)    nurOffen=1; pfad="${pfad#offen:}" ;;
+    gesperrt:*) gesperrt=1; pfad="${pfad#gesperrt:}" ;;
+  esac
 
   inhalt=$(holen "$BASIS$pfad")
   groesse=$(printf '%s' "$inhalt" | wc -c)
@@ -81,12 +109,17 @@ while IFS='|' read -r pfad text name; do
   elif printf '%s' "$inhalt" | grep -q "$text"; then
     if [ "$nurOffen" -eq 1 ]; then
       printf '  ok      %-42s jetzt live – "offen:" im Skript entfernen\n' "$name"
+    elif [ "$gesperrt" -eq 1 ]; then
+      printf '  ok      %-42s Konfigurator ist wieder offen – "gesperrt:" entfernen\n' "$name"
     else
       printf '  ok      %-42s (%s Bytes)\n' "$name" "$groesse"
     fi
   elif [ "$nurOffen" -eq 1 ]; then
     printf '  offen   %-42s noch nicht veröffentlicht (erwartet)\n' "$name"
     offen=$((offen + 1))
+  elif [ "$gesperrt" -eq 1 ] && printf '%s' "$inhalt" | grep -q "$SPERRE_BELEG"; then
+    printf '  gesperrt %-41s Hinweisseite statt Rechner (so gewollt)\n' "$name"
+    gesperrtZahl=$((gesperrtZahl + 1))
   else
     printf '  FEHLER  %-42s Suchtext nicht gefunden\n' "$name"
     fehler=$((fehler + 1))
@@ -95,6 +128,10 @@ done <<EOF
 $MARKER
 EOF
 
+if [ "$gesperrtZahl" -gt 0 ]; then
+  echo "Hinweis: $gesperrtZahl Prüfung(en) ruhen, weil der öffentliche"
+  echo "         3D-Konfigurator abgeschaltet ist (docs/NEXT_TASK.md)."
+fi
 if [ "$fehler" -eq 0 ]; then
   echo "Ergebnis: bestanden${offen:+ ($offen noch offen, siehe oben)}"
   exit 0
