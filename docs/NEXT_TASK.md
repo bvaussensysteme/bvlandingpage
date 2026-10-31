@@ -255,6 +255,17 @@ das Häkchen — alle Punkte landeten **darin** und saßen im Browserlauf zu vie
 auf einem Fleck bei 0/0. Die Hülle heißt `k3dMarkenHuelle`, und
 `pruefe-marken.js` prüft, dass beide Kennungen verschieden sind.
 
+**Nachgebessert am 31.10.2026 (zweite Meldung):** „die leiste hat sich
+verändert es, ragen schrften rein". Die Umbenennung „Punkte" → „Felder"
+machte die Ansichtsleiste zwei Zeichen breiter als den Platz – die Knöpfe
+schrumpften, der Text nicht, also fiel er aus seinem goldenen Hintergrund.
+Jetzt schrumpfen die Knöpfe nicht mehr und die Leiste lässt sich schieben
+(wie am Handy schon). Dabei kam ein nie bemerkter Fall mit heraus: Maus- und
+Klickhinweis lagen hinter der Leiste (202 bis 347 px bzw. 215 px bei jeder
+Breite). Beide stehen jetzt darüber. Gemessen bei 1440, 1100 und 1000 px:
+Überlappung 0 px; mit den alten Werten 202/336/347 px – die vier neuen
+Prüfungen in `pruefe-konfigurator-oberflaeche.mjs` schlagen also an.
+
 **Vom Betreiber gegenzulesen:**
 1. Am Handy: Lassen sich die Felder mit dem Finger treffen? Ohne Zeiger gibt
    es kein Überfahren — der erste Tipp ist gleich der Klick.

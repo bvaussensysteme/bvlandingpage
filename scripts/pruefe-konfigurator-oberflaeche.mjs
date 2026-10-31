@@ -427,6 +427,67 @@ pruef('Bedienfeld links von der Bühne',
   `Panel ${Math.round(sl.width)}px, Bühne ${Math.round(bu.width)}px`);
 pruef('Bühne füllt die Resthöhe', bu.height > 600, `${Math.round(bu.height)}px hoch`);
 
+/* ---------- Die Hinweise dürfen nicht hinter der Leiste liegen ----------
+   „die leiste hat sich verändert es, ragen schrften rein" (Betreiber,
+   31.10.2026, mit Bild). GEMESSEN vorher: Leiste 685 px mittig,
+   Maushinweis 347 px links bündig – 202 px Überlappung bei 1440 px
+   Fenster, 347 px (also vollständig) bei 1000 px. Der Klickhinweis lag
+   bei jeder Breite 215 px dahinter; das war nie aufgefallen, weil er
+   meist ausgeblendet ist. Deshalb wird er hier eigens eingeblendet.
+
+   Die Prüfung ruht, wenn die Bühne künstlich schmal gemacht wurde
+   (Gegenprobe) – dort ist eine Überlappung kein Befund. */
+const hinweisKasten = await page.evaluate(() => {
+  const k = document.getElementById('k3dKlickHinweis');
+  const vorher = k.hidden, text = k.textContent;
+  k.hidden = false;
+  if (!text) k.textContent = 'Prüflauf';
+  const r = (w) => { const e = document.querySelector(w); if (!e) return null;
+    const st = getComputedStyle(e);
+    if (st.display === 'none' || st.visibility === 'hidden') return null;
+    const b = e.getBoundingClientRect();
+    return { x: b.x, y: b.y, w: b.width, h: b.height }; };
+  const aus = { L: r('.k3d-leiste'), M: r('.k3d-maushinweis'), K: r('.k3d-klickhinweis') };
+  k.hidden = vorher; k.textContent = text;
+  return aus;
+});
+function ueberlappung(a, b) {
+  if (!a || !b) return 0;
+  const quer = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+  const hoch = Math.min(a.y + a.h, b.y + b.h) > Math.max(a.y, b.y);
+  return hoch ? Math.round(quer) : 0;
+}
+/* ---------- Keine Beschriftung ragt aus ihrem Knopf ----------
+   Zweiter Teil derselben Meldung. Die Leiste war breiter als der Platz,
+   und Flex-Elemente schrumpfen von sich aus: Der Knopf gab nach, der
+   Text nicht (white-space: nowrap) - also lief er aus seinem goldenen
+   Hintergrund heraus. scrollWidth > clientWidth ist genau das. */
+const ragtRaus = await page.evaluate(() => {
+  const raus = [];
+  document.querySelectorAll('.k3d-leiste button').forEach((b) => {
+    if (b.scrollWidth > b.clientWidth + 1)
+      raus.push(b.textContent.trim().slice(0, 18) + ' (' +
+                (b.scrollWidth - b.clientWidth) + 'px)');
+  });
+  return raus;
+});
+pruef('Keine Beschriftung ragt aus ihrem Knopf',
+  ragtRaus.length === 0,
+  ragtRaus.length ? ragtRaus.join(', ') : 'alle Kn\u00f6pfe breit genug');
+
+if (bu.width > 600) {
+  const uM = ueberlappung(hinweisKasten.L, hinweisKasten.M);
+  const uK = ueberlappung(hinweisKasten.L, hinweisKasten.K);
+  const uMK = ueberlappung(hinweisKasten.M, hinweisKasten.K);
+  pruef('Ansichtsleiste verdeckt den Maushinweis nicht', uM === 0, `${uM}px Überlappung`);
+  pruef('Ansichtsleiste verdeckt den Klickhinweis nicht', uK === 0, `${uK}px Überlappung`);
+  pruef('Die beiden Hinweise liegen nicht übereinander', uMK === 0, `${uMK}px Überlappung`);
+} else {
+  pruef('Ansichtsleiste verdeckt den Maushinweis nicht', true, 'Bühne künstlich schmal – ruht');
+  pruef('Ansichtsleiste verdeckt den Klickhinweis nicht', true, 'Bühne künstlich schmal – ruht');
+  pruef('Die beiden Hinweise liegen nicht übereinander', true, 'Bühne künstlich schmal – ruht');
+}
+
 // Canvas zeigt wirklich etwas (nicht einfarbig)
 async function bildVielfalt() {
   return await page.evaluate(() => {

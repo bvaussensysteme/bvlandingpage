@@ -10335,3 +10335,43 @@ es, bis es jemand sieht.
 
 **Fällt weg:** die dunkle Scheibe mit hellem Ring aus der ersten Fassung. Sie
 war gut lesbar, aber sie war neu — und das alte Bild war schon abgenommen.
+
+## 31.10.2026 — Ansichtsleiste: Beschriftungen fielen aus ihrem Knopf, Hinweise lagen dahinter
+
+**Was falsch war.** „die leiste hat sich verändert es, ragen schrften rein"
+(Betreiber, mit Bild). Zwei Dinge auf einmal:
+
+1. **Die Beschriftungen standen über ihren Knopf hinaus.** Die Leiste ist
+   breiter als der Platz (`max-width: calc(100% - 28px)`), und Flex-Elemente
+   schrumpfen von sich aus. Der Knopf gab also nach, der Text nicht
+   (`white-space: nowrap`) — also lief er aus seinem goldenen Hintergrund
+   heraus. Ausgelöst hat es meine Umbenennung „Punkte" → „Felder" am selben
+   Tag: zwei Zeichen mehr, und die Leiste passte nicht mehr.
+2. **Der Maushinweis lief hinter der Leiste durch.** Gemessen: Leiste 685 px
+   mittig, Maushinweis 347 px links bündig — 202 px Überlappung bei 1440 px
+   Fenster, 347 px (also vollständig) bei 1000 px. Dabei fiel ein zweiter,
+   nie bemerkter Fall auf: Der **Klickhinweis** lag bei jeder Breite 215 px
+   hinter der Leiste. Er ist meist ausgeblendet, deshalb hatte ihn niemand
+   gesehen.
+
+**Was jetzt gilt.** Die Knöpfe schrumpfen nicht mehr (`flex: none`), und ist
+die Leiste zu breit, lässt sie sich schieben (`overflow-x: auto`,
+Rollbalken ausgeblendet) — dieselbe Lösung, die am Handy schon stand und die
+jetzt für beide gilt, statt zweimal zu existieren. Lieber eine Leiste, die
+weiterläuft, als Beschriftungen, die aus ihrem Knopf fallen.
+
+Die Leiste endet 68 px über dem Rand. Darum steht der Maushinweis bei 76 px
+(8 px Luft) und der Klickhinweis bei 108 px darüber. Nachgemessen bei 1440,
+1100 und 1000 px Fensterbreite: alle drei Überlappungen 0 px; mit den alten
+Werten an derselben Stelle gemessen wieder 202/336/347 px und 215 px — die
+Prüfung schlägt also an, wenn sie soll.
+
+**Festgehalten in `scripts/pruefe-konfigurator-oberflaeche.mjs`:** vier neue
+Prüfungen (keine Beschriftung ragt aus ihrem Knopf; Leiste verdeckt weder
+Maus- noch Klickhinweis; die beiden Hinweise liegen nicht übereinander). Für
+den Klickhinweis wird er eigens eingeblendet — sonst prüfte man nichts.
+
+**Die Lehre.** Ein Wort länger in einer Beschriftung ist eine Layoutänderung.
+Wer umbenennt, sieht sich die Leiste in der schmalsten Breite an, in der sie
+noch benutzt wird.
+
