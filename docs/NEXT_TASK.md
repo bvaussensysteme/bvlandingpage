@@ -426,6 +426,25 @@ erzeugt, direkt bearbeiten): `index.html`, `konfigurator.html`, alle
 
 ## 5. Fallen, die schon Zeit gekostet haben
 
+### Ein fehlgeschlagener Cloudflare-Bau ist oft nur ein Aussetzer *(31.10.2026)*
+
+Am 31.10.2026 stand der Bau von PR #500 auf **Failed nach 4 Sekunden**, und
+der neue Stand kam nicht live. Ich habe daraus zu früh „die Veröffentlichung
+hängt" geschlossen — falsch. Der Betreiber hat in Cloudflare auf die drei
+Punkte → **Retry build** gedrückt; derselbe Stand, keine Änderung, zweiter
+Versuch erfolgreich.
+
+**Faustregel:** Bei **Failed** zuerst einmal *Retry build*. Läuft es dann
+durch, war es ein Aussetzer beim Starten der Bauumgebung — dazu passen auch
+die wenigen Sekunden, in denen ein echter Baufehler gar nicht entstehen kann.
+Erst wenn **derselbe Stand zweimal** scheitert, lohnt das Protokoll.
+
+**Und für den Assistenten:** Nicht aus „noch nicht live" auf „Pipeline kaputt"
+schließen. In der Liste unter *Workers & Pages → bvlanding → Deployments*
+steht, welcher Bau rot ist und welcher gerade die aktive Version stellt — das
+ist die Antwort, nicht das Abfragen der Website von außen.
+
+
 - **`curl` braucht `-L`.** Die Seite leitet `/seite.html` → `/seite` weiter
   (307). Ohne `-L` kommt ein **leerer Body** zurück und jede Prüfung wirkt
   „bestanden". Hat schon zu einer falschen Erfolgsmeldung geführt.
