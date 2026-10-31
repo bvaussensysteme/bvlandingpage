@@ -9971,3 +9971,66 @@ bestanden; Gegenprobe mit **12 Fehlern, jeder einzeln**, alle 14 Prüfungen
 schlagen an. Neu darunter: Leerraum im hinterlegten Passwort sperrt niemanden
 aus, Leerraum in der Eingabe ebenso wenig, und ein Passwort aus lauter
 Leerzeichen gilt als nicht gesetzt.
+
+## 31.10.2026 — Der öffentliche 3D-Konfigurator ist vorübergehend gesperrt
+
+**Anlass.** „komme mit meinem passwort plötzlich rein, du hast den konf aber
+von der öffentlichen seite nicht entfernt" (Betreiber).
+
+**Was falsch war — an mir.** Am Vormittag hatte er gesagt: „den konfigurator
+erst mal aus der normalen konfigurator 3d seite weg bis er fertig is und ich
+ihn veröffentlichen will". Ich habe das so gelesen, dass nur die *neue,
+unfertige Funktion* nicht auf der öffentlichen Seite erscheinen soll, und
+genau das gebaut. Gemeint war der Konfigurator selbst. **Lehre: Wenn ein Satz
+zwei Lesarten hat und die eine viel kleiner ist als die andere, ist das kein
+Grund, die kleine zu wählen — sondern einer, kurz nachzufragen.**
+
+**Was jetzt gilt.** `/konfigurator`, `/konfigurator/` und
+`/konfigurator.html` antworten mit einer Hinweisseite: „Der 3D-Konfigurator
+wird gerade überarbeitet", mit Knopf zum Anfrageformular und der Rufnummer.
+Die Arbeit läuft in der Werkstatt weiter, die davon nicht betroffen ist.
+
+**Warum im Worker und nicht in den Seiten.** Der Konfigurator war von 92
+geprüften Dateien aus verlinkt — Kopfzeile, Fußzeile, Ratgeber, Städteseiten,
+Produktseiten. Diese Verweise einzeln zu entfernen und später wieder
+einzusetzen wäre viel Arbeit und jedes Mal eine Gelegenheit, einen zu
+vergessen. Die Sperre ist **eine Zeile** (`KONFIGURATOR_GESPERRT`), in beide
+Richtungen.
+
+**Warum 503 und nicht 404 oder eine Weiterleitung.** 503 heißt „vorübergehend
+nicht verfügbar". Suchmaschinen behalten die Adresse im Bestand und nehmen den
+Hinweistext nicht in den Index. Ein 404 oder ein `noindex` würde die Seite
+dagegen abschreiben — der aufgebaute Rang wäre bei der Rückkehr weg.
+`Retry-After` sagt zusätzlich, dass es sich lohnt, wieder vorbeizuschauen. Der
+Sitemap-Eintrag bleibt aus demselben Grund stehen.
+
+**Was zusätzlich entfernt wurde** (damit niemand aktiv ins Leere geschickt
+wird): der Eintrag „Konfigurator" aus Kopfzeile, mobilem Menü und Fußzeile —
+in `src/_includes/layout.njk` für alle erzeugten Seiten, dazu sieben
+handgepflegte Seiten — und der **Teaser-Abschnitt auf der Startseite**. Alles
+auskommentiert mit dem Marker `KONFIGURATOR-SPERRE 31.10.2026`, nicht gelöscht:
+zum Zurückschalten wird der Kommentar aufgelöst.
+
+**Was absichtlich bleibt:** die Verweise **im Text** der Ratgeber und
+Städteseiten. Sie landen weich auf der Hinweisseite. Sie zu entfernen hieße,
+zwanzig Artikel anzufassen und später wieder — und redaktionelle Texte
+umzuschreiben, nur weil eine Funktion zwei Wochen pausiert, wäre
+unverhältnismäßig. Das steht als Prüfung drin, damit es niemand „aufräumt".
+
+**Ein eigener Fehler, den die Nachprüfung gefunden hat.** Mein Skript zum
+Entfernen der Menüeinträge brach bei Dateien ab, die den Marker schon
+enthielten. Die Startseite hatte ihn durch den Teaser bereits — und behielt
+deshalb ihren Fußzeilen-Link. Aufgefallen ist das nur, weil ich danach noch
+einmal über **alle** Dateien gelaufen bin, mit entfernten Kommentaren.
+**Lehre: Ein Skript, das Stellen verändert, ist kein Nachweis, dass keine mehr
+übrig ist. Das ist ein zweiter, anders gebauter Durchgang.**
+
+**Absicherung.** `scripts/pruefe-konfigurator-sperre.js`: **12 Prüfungen**,
+alle bestanden. Die Sperre wird ausgeführt, nicht gelesen; die Seiten werden
+mit entfernten Kommentaren durchsucht. Gegenprobe mit **10 Fehlern, jeder
+einzeln** — darunter „Sperre abgeschaltet", „alte Adresse mit .html
+vergessen", „Werkstatt fälschlich mitgesperrt", „eine Seite verlinkt wieder
+aktiv". Alle 12 Prüfungen schlagen an, alle 10 Fehler werden bemerkt.
+
+**Beim Zurückschalten** ist dieses Skript die Gegenprobe: Es muss dann rot
+werden. Dafür ist es gebaut.

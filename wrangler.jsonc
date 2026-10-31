@@ -19,7 +19,13 @@
       // Worker zu fragen - die Passwortschranke wuerde nie aufgerufen
       // und die Seite laege offen. Geprueft von scripts/pruefe-werkstatt.js.
       "/werkstatt",
-      "/werkstatt/*"
+      "/werkstatt/*",
+      // Konfigurator-Sperre: dieselbe Falle wie bei der Werkstatt - ohne
+      // diese Eintraege liefert Cloudflare konfigurator.html direkt aus
+      // und der Worker kaeme nie zum Zug.
+      "/konfigurator",
+      "/konfigurator/",
+      "/konfigurator.html"
     ]
   },
   // Die VD-Matrix liegt bewusst NICHT in diesem oeffentlichen Repository,

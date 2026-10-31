@@ -87,6 +87,23 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   „niedrigste Durchgangshöhe: X mm an der Y-Seite" wäre die kleine Lösung —
   **nicht ohne Auftrag bauen**.
 
+### Öffentlicher Konfigurator ist gesperrt *(seit 31.10.2026)*
+
+`/konfigurator` zeigt eine Hinweisseite („wird gerade überarbeitet") mit Knopf
+zur Anfrage und Rufnummer. Menüeintrag und Startseiten-Teaser sind
+ausgeblendet. Gearbeitet wird in der Werkstatt.
+
+**Zum Zurückschalten, wenn der Betreiber freigibt:**
+
+1. `worker/index.js`: `KONFIGURATOR_GESPERRT = false`
+2. Alle Kommentare mit dem Marker `KONFIGURATOR-SPERRE 31.10.2026` auflösen:
+   `grep -rl "KONFIGURATOR-SPERRE" --include=*.html --include=*.njk .`
+   (betrifft `src/_includes/layout.njk`, `index.html` samt Teaser und sieben
+   handgepflegte Seiten)
+3. `npm run build`, dann `node scripts/baue-werkstatt.js`
+4. `node scripts/pruefe-konfigurator-sperre.js` **muss jetzt rot sein** — das
+   ist der Nachweis, dass die Sperre wirklich weg ist
+
 ### ⚠️ Zuerst: Passwort für die Werkstatt hinterlegen *(31.10.2026)*
 
 Die Erprobungsseite `/werkstatt/` ist gebaut, aber **für alle gesperrt**,
@@ -339,6 +356,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
+| `scripts/pruefe-konfigurator-sperre.js` | Ist der öffentliche Konfigurator wirklich gesperrt (503, nicht 404), führt die Hinweisseite zur Anfrage, ist die Werkstatt **nicht** mitgesperrt, verlinkt keine Seite ihn noch aktiv im Menü? **Beim Zurückschalten muss dieses Skript rot werden** |
 | `scripts/pruefe-werkstatt.js` | Passwortschranke vor `/werkstatt/`: gesperrt ohne hinterlegtes Passwort, falsches Passwort abgewiesen, Keks HttpOnly/Secure/SameSite und nicht im Klartext, alte Anmeldung nach Passwortwechsel ungültig — **und ob die Seite überhaupt durch den Worker läuft** (`run_worker_first`). Gegenprobe: 10 Fehler, jeder einzeln |
 | `scripts/baue-werkstatt.js` | Erzeugt `werkstatt/index.html` aus `konfigurator.html`. Mit `--pruefen` meldet es, wenn die Werkstatt nicht mehr auf dem Stand ist |
 | `scripts/pruefe-konfliktmarken.sh` | **Nach jedem Merge, vor jedem Commit:** liegengebliebene Merge-Marken im ganzen Projekt. Gegenprobe legt eine Datei mit Marken an und muss sie finden |
