@@ -456,6 +456,25 @@ PR frisch aufsetzen:
 git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main
 ```
 
+**Wenn der Zweig schon eigene Commits trägt** (frisch aufsetzen ginge nur mit
+`--force-with-lease`, und das lehnt die automatische Freigabe ab): `main`
+hereinholen statt überschreiben. PRs werden hier **squash**-gemergt — dadurch
+meldet git beim nächsten Mal 50+ Konflikte, obwohl inhaltlich nichts
+auseinanderläuft. Am 31.10.2026 dreimal hintereinander passiert. Der eigene
+Zweig ist dabei der neuere Stand:
+
+```bash
+git merge origin/main
+git diff --name-only --diff-filter=U | xargs git checkout --ours --
+git diff --name-only --diff-filter=U | xargs git add
+git commit --no-edit
+bash scripts/pruefe-konfliktmarken.sh
+git diff --stat <letzter-eigener-commit> HEAD   # MUSS LEER SEIN
+```
+
+Die letzte Zeile ist der Nachweis, dass durch das Hereinholen keine Datei
+ihren Inhalt verändert hat. Ohne sie ist `--ours` geraten, nicht geprüft.
+
 **Ablauf:** bauen → prüfen → committen → pushen → PR → Build abwarten →
 squash-mergen → Live-Stand prüfen (`scripts/pruefe-live.sh`). Der Betreiber
 sagt meist „mergen veröffentlichen"; bei neuen öffentlichen Funktionen vorher
