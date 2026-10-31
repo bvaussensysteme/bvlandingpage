@@ -10196,3 +10196,39 @@ bekam **vier neue**: Es gibt Bereiche · jeder Schritt gehört zu einem Bereich
 Weiter-Knopf nennt den nächsten Bereich. Die Schrittliste wird jetzt **gezielt
 aus `SCHRITTE` geschnitten** — vorher zählte die Prüfung die Bereiche als
 Schritte mit. Gegenprobe schlägt an, gesamte Batterie grün.
+
+## 31.10.2026 — Übergabe aufgeräumt: Einstieg kurz, Fachwissen in eigene Dateien
+
+**Anlass.** Der Betreiber bat vor einem `/clear` darum, die Übergabe
+vorzubereiten. `docs/NEXT_TASK.md` war auf **529 Zeilen** gewachsen; der
+Richtwert in `CLAUDE.md` ist ~400. Eine Einstiegsdatei, die man nicht in einem
+Zug liest, wird nicht gelesen — dann fängt ein neuer Chat beim Code an und
+wiederholt Fehler, die schon bezahlt sind.
+
+**Was jetzt gilt.** Der Einstieg (**410 Zeilen**) enthält nur noch, was *jetzt*
+ansteht, plus Verweise. Drei Bereiche wurden zu eigenen Fachdokumenten, weil
+sie mehr als ein paar Absätze brauchen und nicht zum Tagesgeschäft gehören:
+
+| Neu | Inhalt | Im Einstieg steht noch |
+|---|---|---|
+| `docs/kurzlink.md` | Warum `/k/<id>` an `42501` scheitert, drei Wege mit Kosten | 6 Zeilen: zurückgestellt, nicht ungefragt weiterbauen |
+| `docs/fallen.md` | Alle Fallen, die schon Zeit gekostet haben | die vier häufigsten (Cache-Buster, `run_worker_first`, Konfliktmarken, Cloudflare-Retry) |
+| `docs/dachmatrix.md` | Aufbau, offene Herstellerfragen, Grenzen | die vier Befehle und was ohne KV leer bleibt |
+
+Fertiges wanderte nach `docs/erledigt-archiv.md`: die vollständige
+Produktliste des Konfigurators, die vierte Seitenreihe, die Klickanleitung
+für das Werkstatt-Passwort (ist hinterlegt, Werkstatt läuft). Der Verlauf in
+Abschnitt 7 führt nur noch die letzten Tage.
+
+**Warum so und nicht anders.** Verworfen: die Prüfskript-Tabelle (Abschnitt 3)
+auslagern — das wären 59 Zeilen gewesen, aber `CLAUDE.md` verlangt
+ausdrücklich, dass die Prüfungen **im Einstieg** stehen. Eine Prüfung, die man
+erst suchen muss, läuft nicht. Ebenfalls verworfen: alte Verlaufszeilen ganz
+löschen — sie stehen vollständig im Archiv, die Kurzfassung im Einstieg zeigt
+nur noch, woran gerade gearbeitet wurde.
+
+**Gegenzulesen.** Dass kein Verweis ins Leere zeigt (geprüft: jeder
+`docs/*.md`-Verweis im Einstieg existiert) und dass im Einstieg nichts
+Offenes fehlt — namentlich die zwei unbeantworteten Menü-Fragen („Anlage" zu
+voll? „Tragwerk" eigener Bereich?) und die bekannte 13,6-cm-Grenze bei einem
+Feld auf der Aussparungskante.

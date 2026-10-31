@@ -40,39 +40,30 @@
    abgeschnitten. Noch nicht repariert.
 
 Sonst ist nichts halbfertig: Alles ist gemergt, veröffentlicht und am
-Livesystem nachgeprüft (Stand `v=20261025i`).
+Livesystem nachgeprüft (Stand `v=20261031d`). Der öffentliche Konfigurator
+ist **gesperrt**, gearbeitet wird in der **Werkstatt** — beides weiter unten.
 
-### Aufgabe A — Konfigurator-Produkte *(erledigt bis auf Zubehör)*
+### Konfigurator-Produkte *(fertig bis auf Zubehör)*
 
-Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView, Carport**
-(TDS, Flat Line, Flat Box) und **Pergola / Lamellendach** (Lamellendach mit
-drehbaren Lamellen, Faltdach, Velaris).
+Gebaut: Terrassendach TDS, Flachdach SkyView, Carport (TDS, Flat Line, Flat
+Box), Pergola / Lamellendach, Sonnenschutz (Auf-/Unterdach, Senkrecht),
+Seitenelemente als einzelne Schiebeflügel, Carport-Verkleidung,
+Terrassenboden, zuschaltbare Maßlinien, Vollbild, Ansicht „Darunter", und bei
+Aufbau „Freistehend" eine vierte Seitenreihe *Hinten*. Einzelheiten und
+Begründungen stehen in `docs/erledigt-archiv.md` (Eintrag 31.10.2026).
 
-Seit dem Umbau auf das Vollbild-Layout (10.10.2026) dazu: **Sonnenschutz**
-(Aufdach, Unterdach, Senkrechtmarkisen mit Ausfahr-Regler), **Seitenelemente
-als einzelne Schiebeflügel** mit Öffnen-Regler, **Carport-Verkleidung** aus
-Sichtschutzpaneelen, **Terrassenboden**, **zuschaltbare Maßlinien**,
-Vollbild, Ansicht „Darunter“, Zahlenfeld neben jedem Regler.
-
-Bewusst **nicht** gebaut (Begründung in `docs/entscheidungen.md`, 10.10.2026):
-Richtpreis, Markisenstoff-Kollektionen, Plissee, Zaunpaneele, Holzdekore –
-für die Stoff- und Dekornamen fehlt uns die Grundlage. Wenn der Betreiber sie
-liefert, ist der Rahmen dafür da.
+Bewusst **nicht** gebaut: Richtpreis, Markisenstoff-Kollektionen, Plissee,
+Zaunpaneele, Holzdekore — für die Stoff- und Dekornamen fehlt die Grundlage
+(`docs/entscheidungen.md`, 10.10.2026). Liefert der Betreiber sie, ist der
+Rahmen da.
 
 **Wenn ein Produkt dazukommt:** Zweig in `bauen()`, Eintrag in `MASSE` und im
-Auswahlfeld `k3dProdukt`, Bedienfelder mit `data-k3d-fuer` kennzeichnen und
-das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
-`js/anfrage-wizard.js` übernehmen und in `vorgabeUebernehmen()` in die
-`felder`-Liste eintragen – sonst kommt der Wert dort nie an.
-`scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
-
-### Seiten — vier statt drei *(gebaut 23.10.2026)*
-
-Bei Aufbau **„Freistehend"** gibt es im Schritt „Seiten" eine vierte Reihe
-*Hinten (Rückseite)* mit denselben Möglichkeiten wie vorne (kein Keil — die
-hintere Dachkante läuft waagerecht). Bei **Wandmontage** erscheint sie nicht,
-und eine vorher getroffene Wahl wird beim Umschalten gelöscht. Warum das die
-heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
+Auswahlfeld `k3dProdukt`, Bedienfelder mit `data-k3d-fuer` kennzeichnen, das
+Stichwort in `gruppeGilt()` auswerten — und den Schritt in `BEREICHE` einem
+der fünf Bereiche zuordnen, sonst erscheint er nirgends. Übergabewerte
+**wörtlich** aus `js/anfrage-wizard.js` übernehmen und in
+`vorgabeUebernehmen()` in die `felder`-Liste eintragen, sonst kommt der Wert
+dort nie an. `scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
 
 ### Offen am Bodengefälle *(seit 24.10.2026)*
 
@@ -104,37 +95,37 @@ ausgeblendet. Gearbeitet wird in der Werkstatt.
 4. `node scripts/pruefe-konfigurator-sperre.js` **muss jetzt rot sein** — das
    ist der Nachweis, dass die Sperre wirklich weg ist
 
-### ⚠️ Zuerst: Passwort für die Werkstatt hinterlegen *(31.10.2026)*
+### Werkstatt `/werkstatt/` — läuft, passwortgeschützt *(31.10.2026)*
 
-Die Erprobungsseite `/werkstatt/` ist gebaut, aber **für alle gesperrt**,
-solange kein Passwort hinterlegt ist — auch für den Betreiber. Das ist
-Absicht: Ein Schutz, der ohne Einstellung aufmacht, ist keiner.
+Die Erprobungsseite ist live und nur mit Passwort erreichbar. Das Passwort
+liegt als **Secret** `WERKSTATT_PASSWORT` im Worker (Cloudflare → Workers &
+Pages → **bvlanding** → Settings → Variables and Secrets → + Add → Typ
+*Secret*). Es steht **nirgends im Projekt** und ist auch für den Assistenten
+nicht lesbar. Die Anmeldung hält 30 Tage pro Gerät; wird das Passwort
+geändert, sind alle alten Anmeldungen sofort ungültig. Ist kein Secret
+hinterlegt, ist die Seite für **alle** gesperrt — auch für den Betreiber. Das
+ist Absicht: ein Schutz, der ohne Einstellung aufmacht, ist keiner.
 
-**Die Schritte in Cloudflare (einmalig, etwa fünf Klicks):**
+Oben in der Werkstatt steht ein Balken mit **„↻ Neu laden"** und der
+ausgelieferten Dateiversion (`#wkVersion`) — daran ist zu sehen, ob eine
+Änderung schon ausgeliefert wird oder noch der alte Stand im Browser liegt.
 
-1. [dash.cloudflare.com](https://dash.cloudflare.com) öffnen und anmelden
-2. Links **Workers & Pages** → den Eintrag **bvlanding** anklicken
-3. Oben **Settings** → Abschnitt **Variables and Secrets**
-4. **+ Add** → Typ auf **Secret** stellen
-   *(wichtig: Secret, nicht Text — ein Secret ist danach nicht mehr lesbar)*
-5. Name: `WERKSTATT_PASSWORT` · Wert: das gewünschte Passwort
-6. **Deploy** klicken
+**Nach jeder Änderung an `konfigurator.html`:**
+`node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
+Prüfung: `node scripts/pruefe-werkstatt.js`.
 
-Danach `https://bv-aussensysteme.de/werkstatt/` aufrufen, Passwort eingeben.
-Die Anmeldung hält 30 Tage pro Gerät. Wird das Passwort später geändert, sind
-alle alten Anmeldungen sofort ungültig.
-
-Das Passwort steht **nirgends im Projekt** und ist für niemanden außer dem
-Betreiber sichtbar — auch nicht für den Assistenten.
-
-### Werkstatt: Aussparung (Hausvorsprung) — Machbarkeitsnachweis *(31.10.2026)*
+### Werkstatt: Aussparung (Hausvorsprung) *(Machbarkeit gezeigt, 31.10.2026)*
 
 Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
-**rechtwinklig**: Rechteck mit rechteckiger Lücke an der Wandseite. Auf der
-öffentlichen Konfiguratorseite ist die Aussparung **durch nichts
-einschaltbar** — sie hängt am Pfad `/werkstatt/`.
+**rechtwinklig**: Rechteck mit rechteckiger Lücke an der Wandseite. Sparren,
+Scheiben und Wandprofil folgen der Lücke, Rinne und Pfosten vorne bleiben
+unverändert — nachgemessen mit `node scripts/miss-aussparung.mjs`, nicht
+geschätzt. Auf der öffentlichen Seite ist die Aussparung **durch nichts
+einschaltbar**: sie hängt am Pfad `/werkstatt/` (`PROBE_AUSSPARUNG` in
+`js/konfigurator-3d.js`), nicht an einem Parameter.
 
-Formen über die Adresse:
+Formen über die Adresse (Standard ohne Parameter: `Rechteck`, also keine
+Aussparung):
 
 ```
 /werkstatt/?form=rechts&ab=2000&at=1000
@@ -143,16 +134,46 @@ Formen über die Adresse:
 ```
 `ab` = Breite der Aussparung, `at` = Tiefe, `aa` = Abstand von links, in mm.
 
-**Der Betreiber sieht es sich an und entscheidet, ob weitergebaut wird.**
-Gegenzulesen: Folgen Sparren, Scheiben und Wandprofil der Lücke — und bleiben
-Rinne und Pfosten vorne unverändert?
+**Bekannte Grenzen** (bewusst so, nicht vergessen):
+- Ein Feld, das genau auf der Kante der Aussparung sitzt, wird ganz der
+  Aussparung zugeschlagen — Versatz bis **13,6 cm**.
+- `scripts/miss-aussparung.mjs` ist ein **Messwerkzeug ohne `--gegenprobe`**.
+  Es beweist nichts, es zeigt Zahlen. Ein echter Browser-Prüflauf daraus wäre
+  die saubere Lösung und ist noch nicht gebaut.
+- Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den
+  Flanken, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
+  Begründungen: `docs/entscheidungen.md`, 31.10.2026.
 
-Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den Flanken
-der Aussparung, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
-Begründungen: `docs/entscheidungen.md`, 31.10.2026.
+**Der Betreiber entscheidet, ob weitergebaut wird.**
 
-**Nach jeder Änderung an `konfigurator.html`:**
-`node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
+### Menü in fünf Bereichen — gebaut *(31.10.2026)*
+
+Statt einer langen Schrittfolge gibt es oben fünf Reiter: **Anlage · Dach ·
+Seiten · Zubehör · Fertig** (`BEREICHE` in `js/konfigurator-3d.js`, Zähler
+„1 von 5", Weiter-Knopf nennt den nächsten Bereich). Ein Reiter ohne Inhalt
+wird ausgeblendet (`bereichHatInhalt`). Geprüft von
+`scripts/pruefe-fuehrung.js` (vier eigene Bereichsprüfungen).
+
+**Zwei Fragen sind offen und brauchen eine Antwort des Betreibers:**
+1. Ist „Anlage" zu voll (Produkt + Montage + Maße + Farbe)?
+2. Soll „Tragwerk" ein eigener Bereich werden?
+
+### Als Nächstes: „+"-Punkte am Modell *(Auftrag vom 31.10.2026)*
+
+Gewünscht: kleine **+**-Marken am 3D-Modell — eine je Seitenfeld und eine am
+Dach. Klick auf die Marke springt in den Bereich, der dazu gehört: Feld →
+Seiten (Festelement, Planken, Schiebeflügel …), Dach → Dach (Eindeckung).
+
+Was die Vorarbeit ergeben hat:
+- Die Seitenfelder entstehen in `seitenFelder(hinten, vorne, unterzugZcm,
+  PROFIL)` in `js/konfigurator-3d.js` (Beschriftungen „Links / Rechts /
+  Vorne (Stirnseite) / Hinten (Rückseite)"); die Schrittgruppe heißt
+  `SG23_SEITEN`.
+- Ein `THREE.Raycaster` ist schon im Einsatz (Markisen, Schiebeflügel) — die
+  Klickerkennung muss nicht neu erfunden werden.
+- Der Sprung selbst ist da: `bereichVon(schrittId)` + `schrittZeigen()`.
+- Eigene Gestaltung, eigene Namen — kein Zeichen, kein Farbwert, kein Abstand
+  vom Wettbewerber (CLAUDE.md, „Nachbauten").
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
@@ -176,61 +197,25 @@ als keine.
 | **Aufteilung des Trapezblech-Querschnitts (Untergurt / Steg / Obergurt)** | Im Modell geschätzte 115 / 25 / 45 / 25 mm. Sie treffen die belegten 210 mm Teilung und 35 mm Höhe genau, sind aber nicht belegt – eine Querschnittzeichnung erledigt es |
 | **Werden die Aluminium-Sichtschutzpaneele (140 mm) als Carport-Verkleidung angeboten?** | Die 140 mm stammen von unserer eigenen Produktseite, die Anwendung am Carport ist eine Annahme |
 
-### Aufgabe A2 — Konfigurator auf die echten Herstellerdaten *(gebaut, wartet auf einen Handgriff)*
+### Herstellerdaten (DACHMATRIX) — wartet auf einen Handgriff
 
-Fertig und geprüft. **Es fehlt nur noch, die Matrix in den KV-Speicher zu
-legen** – das geht nur mit Cloudflare-Zugang.
-
-> **Das kostet gerade etwas (gefunden 12.10.2026).** Solange `/api/bauteile`
-> mit 503 antwortet, liefert `stueckliste()` `null`. Daran hängen in der
-> Anfrage-Zusammenfassung: Sparrenzahl, Pfostenzahl, Statikträger,
-> Dachneigung und Höhe an der Wand (UK Wandprofil). Diese Angaben stehen
-> damit **in keiner Anfrage** – auch nicht die Neigung, die der Kunde
-> ausdrücklich eingestellt hat. Das 3D-Modell ist nicht betroffen, es rechnet
-> seit dem 11.10.2026 über `js/masstabelle.js`.
-> **Erledigt am 12.10.2026:** Der Betreiber hat Weg 2 gewählt. Die Anfrage
-> rechnet jetzt über `bauteileJetzt()` aus `js/masstabelle.js`. Offen bleibt
-> nur: Sobald DACHMATRIX gebunden ist, gehört `stueckliste()` in
-> `bauteileJetzt()` vorgeschaltet – der Platz ist im Kommentar der Funktion
-> benannt. Der Zusammenfassungskasten `k3dZus` bleibt bis dahin leer, so
-> gewollt.
-
-#### Die drei Befehle
+Gebaut und geprüft. Es fehlt nur, die Matrix in den **KV-Speicher** zu legen —
+das geht nur mit Cloudflare-Zugang. Solange `/api/bauteile` mit 503 antwortet,
+bleibt der Zusammenfassungskasten `k3dZus` leer (so gewollt); die Anfrage
+rechnet seit 12.10.2026 über `bauteileJetzt()` aus `js/masstabelle.js`, das
+3D-Modell ist nicht betroffen.
 
 ```bash
-npx wrangler kv namespace create DACHMATRIX
-# die ausgegebene id in wrangler.jsonc eintragen (Vorlage steht dort als Kommentar)
-
+npx wrangler kv namespace create DACHMATRIX   # id in wrangler.jsonc eintragen
 mkdir -p daten && cp /pfad/zu/bv-crm/docs/konfigurator-daten/* daten/
-node scripts/baue-dachmatrix.js        # erzeugt js/dachmatrix-daten.json
-
+node scripts/baue-dachmatrix.js               # erzeugt js/dachmatrix-daten.json
 npx wrangler kv key put --binding DACHMATRIX matrix \
   --path js/dachmatrix-daten.json --remote
 ```
 
-Vorher passiert nichts Schlimmes: `/api/bauteile` antwortet mit 503 und der
-Konfigurator zeigt dieselbe geschätzte Skizze wie bisher.
-
-#### Wie es gebaut ist
-
-| Teil | Rolle |
-|---|---|
-| `js/bauteile.js` | die Regeln. **Enthält keine Herstellerdaten**, bekommt die Matrix über `matrixSetzen()`. Läuft im Browser, unter Node und im Worker |
-| `worker/index.js` → `/api/bauteile` | nimmt ein Maß, gibt eine Stückliste. Holt die Matrix aus KV, nie an den Browser |
-| `js/konfigurator-3d.js` | freie Schieberegler (gebaut wird nach Kundenmaß), fragt den Endpunkt gebremst, zeichnet das Kundenmaß und zeigt das Rasterfeld als Abrechnungsgrundlage daneben. Ohne Antwort: geschätzte Skizze, Seite bleibt benutzbar |
-| `daten/` | die Quelle – **nicht im Repository**, siehe `.gitignore` |
-
-#### Was offen bleibt
-
-- **Beim Hersteller:** `daten/rueckfragen-an-vd.md` (liegt lokal, nicht im
-  Repo) listet neun Punkte. Die zwei wirksamsten: Systemschnitte oder
-  DXF-Dateien der Profile, und die Seiten 10, 25 und 32 der
-  VD-Montageanleitung abfotografieren.
-- **Carport TDS und Flat Box** haben keine Matrix – sie bleiben die
-  geschätzte Skizze, bis es eine Preisliste dafür gibt.
-- **Profilquerschnitte** sind bis auf Pfosten und Statikträger geschätzt
-  (`PROFILE_GESCHAETZT` in `js/bauteile.js`). Das Modell ist deshalb in den
-  Stückzahlen richtig, in den Proportionen noch nicht.
+Aufbau, offene Punkte beim Hersteller und die Grenzen (Carport TDS und Flat
+Box ohne Matrix, geschätzte Profilquerschnitte): **`docs/dachmatrix.md`**.
+Die Quelldaten liegen unter `daten/` und sind **nicht im Repository**.
 
 ### Aufgabe B — Baugenehmigungs-Check: weitere Bundesländer prüfen
 
@@ -265,65 +250,13 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 | **Preisgrundlage, falls je Preise gezeigt werden sollen** | Bisherige Linie: keine Preise. Eine Kalkulationsgrundlage kann nur der Betrieb liefern |
 | **Kurzlink: Rechte in der Datenbank** (nur falls gewünscht, siehe Abschnitt 2) | Die Datenbank-Rolle darf **gar nichts anlegen** – weder in `public` noch ein eigenes Schema. Live gemessen am 25.10.2026: Fehlernummer `42501`. Vom Betreiber zurückgestellt: „is mir zu kompliziert xd keine ahnung". Der lange Link funktioniert, er ist nur lang |
 
-### Kurzlink: warum er nicht läuft, und was die Wege kosten
+### Kurzlink — zurückgestellt
 
-**Stand:** Der Teilen-Knopf funktioniert und gibt den **langen** Link heraus
-(565 Zeichen, gemessen an der Standard-Planung). Der kurze Link
-(`bv-aussensysteme.de/k/A7K3PQ`, 36 Zeichen) braucht eine Tabelle in der
-Datenbank. **Die kann der Server nicht selbst anlegen.**
-
-**Woran es liegt – gemessen, nicht vermutet.** `/api/teilen` antwortet
-`{"ok":false,"schritt":"tabelle","nr":"42501"}`. `42501` ist in PostgreSQL
-„keine Berechtigung". Der Server versucht zuerst `public`, dann ein eigenes
-Schema `bv` (anderes Recht, deshalb oft offen) – **beides** wird abgelehnt.
-Die Rolle in `ANFRAGEN_DB` darf also nur in bestehende Tabellen schreiben.
-Das ist kein Fehler im Code; es fehlt ein Recht in der Datenbank.
-
-**Weg A – ein Klick in der Neon-Konsole.** SQL Editor öffnen, in der
-Datenbank, in der auch `anfragen` liegt, diesen Befehl ausführen:
-
-```sql
-create table if not exists teilen_links (
-  id        text primary key,
-  code      text not null,
-  code_hash text not null unique,
-  erstellt  timestamptz not null default now(),
-  zuletzt   timestamptz
-);
-```
-
-Danach ohne Anmeldung prüfbar – `{"ok":true,"id":"…"}` heißt, er läuft:
-
-```sh
-curl -s -X POST https://bv-aussensysteme.de/api/teilen \
-  -H 'Content-Type: application/json' -d '{"code":"AAAAAAAAAAAAAAAAAAAAAA"}'
-```
-
-Am Code ändert sich dafür nichts: Der Server sucht die Tabelle bei jedem
-Start in `public` **und** in `bv` und nimmt, was er findet.
-
-**Weg B – den Link selbst kürzen, ohne Datenbank.** Im Link steht heute alles
-ausgeschrieben (`"Produkt":"Terrassendach TDS"`). Gemessen am 25.10.2026 mit
-einer Standard-Planung (17 Felder, 392 Zeichen Klartext):
-
-| Form | Länge des ganzen Links |
-|---|---|
-| heute (JSON, Base64) | 565 |
-| nur zusammengepackt (deflate) | ~341 |
-| nur Werte, ohne Feldnamen | ~172 |
-| Nummern statt Texten + zusammengepackt | **~80–120** |
-| Kurzlink über die Datenbank (Weg A) | 36 |
-
-Weg B braucht niemanden außer den Entwickler, kostet aber ein eigenes,
-**eingefrorenes** Format: Die Reihenfolge der Felder wird Teil des Links, also
-Versionsnummer hochzählen und v1 weiter lesen können, sonst sterben alle
-bereits verschickten Links. Dafür wäre eine Prüfung nötig, die zufällige
-Planungen hin- und zurückrechnet und auf Gleichheit vergleicht.
-
-**Entschieden am 25.10.2026:** Erst einmal gar nichts – der Betreiber hat beide
-Wege gesehen und „erstmal lassen" gewählt. Nicht ohne neue Ansage anfangen.
-
----
+Der Teilen-Dialog zeigt den **langen** Link, der funktioniert. Der kurze
+(`/k/<id>`) scheitert daran, dass die Datenbankrolle nichts anlegen darf
+(`42501`). Warum, welche drei Wege es gibt und was sie kosten:
+**`docs/kurzlink.md`**. Vom Betreiber zurückgestellt — nicht ungefragt
+weiterbauen.
 
 ## 2b. Konfigurator ins CRM übernehmen
 
@@ -426,58 +359,18 @@ erzeugt, direkt bearbeiten): `index.html`, `konfigurator.html`, alle
 
 ## 5. Fallen, die schon Zeit gekostet haben
 
-### Ein fehlgeschlagener Cloudflare-Bau ist oft nur ein Aussetzer *(31.10.2026)*
+Die ganze Liste steht in **`docs/fallen.md`** — vor dem Anfangen einmal
+überfliegen. Die vier, die am häufigsten zuschlagen:
 
-Am 31.10.2026 stand der Bau von PR #500 auf **Failed nach 4 Sekunden**, und
-der neue Stand kam nicht live. Ich habe daraus zu früh „die Veröffentlichung
-hängt" geschlossen — falsch. Der Betreiber hat in Cloudflare auf die drei
-Punkte → **Retry build** gedrückt; derselbe Stand, keine Änderung, zweiter
-Versuch erfolgreich.
-
-**Faustregel:** Bei **Failed** zuerst einmal *Retry build*. Läuft es dann
-durch, war es ein Aussetzer beim Starten der Bauumgebung — dazu passen auch
-die wenigen Sekunden, in denen ein echter Baufehler gar nicht entstehen kann.
-Erst wenn **derselbe Stand zweimal** scheitert, lohnt das Protokoll.
-
-**Und für den Assistenten:** Nicht aus „noch nicht live" auf „Pipeline kaputt"
-schließen. In der Liste unter *Workers & Pages → bvlanding → Deployments*
-steht, welcher Bau rot ist und welcher gerade die aktive Version stellt — das
-ist die Antwort, nicht das Abfragen der Website von außen.
-
-
-- **`curl` braucht `-L`.** Die Seite leitet `/seite.html` → `/seite` weiter
-  (307). Ohne `-L` kommt ein **leerer Body** zurück und jede Prüfung wirkt
-  „bestanden". Hat schon zu einer falschen Erfolgsmeldung geführt.
-  `scripts/pruefe-live.sh` fängt das ab.
-- **CSS wird minifiziert**: in `css/style.css` steht `overscroll-behavior:contain`
-  ohne Leerzeichen. Suchmuster entsprechend wählen.
-- **iOS Safari ignoriert `window.print()`** – deshalb erzeugt `js/bg-pdf.js`
-  die PDF-Datei selbst.
-- **`body { overflow: hidden }` sperrt iOS nicht.** Der Body wird fixiert,
-  aber nur im Sheet-Layout (`matchMedia('(max-width: 600px)')`).
-- **Schwebe-Buttons** liegen rechts über dem Inhalt – rechtsbündige Werte auf
-  schmalen Schirmen vermeiden.
-- **Chromium im Container erreicht die echte Domain nicht** (Proxy-Zertifikat).
-  Funktionstests gegen `http://localhost:8783`, live mit `curl -sL`.
-
-**Testaufbau** (nach einem Container-Neustart weg, neu aufsetzen):
-```bash
-python3 -m http.server 8783 &                 # im Projektverzeichnis
-cd "$SCRATCHPAD" && npm install playwright    # Chromium: /opt/pw-browsers/chromium
-```
-Für WebGL (3D-Konfigurator) mit
-`args: ['--use-gl=swiftshader','--enable-unsafe-swiftshader']` starten.
-Absende-Wege mit `page.route()` auf `**/api/kontakt` und
-`https://api.web3forms.com/**` abfangen, statt echt zu senden.
-
-**Rechtstext-PDFs für Kleinanzeigen** (Widerrufsbelehrung, AGB,
-Datenschutzerklärung): werden aus den echten Seiten per Playwright erzeugt und
-**nicht** im Repository gehalten – zwei Fassungen desselben Textes laufen
-auseinander. Bei Bedarf neu erzeugen: Inhalt aus `agb.html` (`#widerruf` plus
-folgender Block) und `datenschutz.html` holen, in eine schlichte Druckvorlage
-mit Briefkopf setzen, als A4-PDF ausgeben.
-
----
+- **Cache-Buster:** pro Datei genau **eine** Version, sonst meldet
+  `scripts/pruefe-cache-buster.sh` rot. Aktuell `v=20261031d`.
+- **`run_worker_first` in `wrangler.jsonc`:** fehlt der Pfad dort, liefert
+  Cloudflare die Datei direkt aus und der Worker läuft nie.
+- **Konfliktmarken:** nach jedem `git merge origin/main`
+  `bash scripts/pruefe-konfliktmarken.sh` laufen lassen — schon zweimal
+  wurden Marken mitgecommittet.
+- **Ein fehlgeschlagener Cloudflare-Bau** nach wenigen Sekunden ist meist nur
+  ein Aussetzer: erst **Retry build**, dann suchen.
 
 ## 6. Dauerhafte Vorgaben des Betreibers
 
@@ -493,11 +386,16 @@ mit Briefkopf setzen, als A4-PDF ausgeben.
 
 ## 7. Letzte Arbeitsschritte
 
-Vollständig und mit Begründung in `docs/erledigt-archiv.md`, die
-Grundsatzentscheidungen in `docs/entscheidungen.md`.
+Nur die letzten Tage. Älteres vollständig und mit Begründung in
+`docs/erledigt-archiv.md`, die Grundsatzentscheidungen in
+`docs/entscheidungen.md`.
 
 | Datum | Was | Stand |
 |---|---|---|
+| 31.10.2026 | Menü in fünf Bereiche geteilt (Anlage · Dach · Seiten · Zubehör · Fertig) mit Reitern und Zähler | live |
+| 31.10.2026 | Werkstatt `/werkstatt/`: Passwortschutz im Worker, Neu-laden-Knopf, Versionsanzeige | live |
+| 31.10.2026 | Öffentlicher Konfigurator gesperrt: Hinweisseite statt Rechner, alle Links raus | live |
+| 31.10.2026 | Aussparung (Hausvorsprung) als Machbarkeitsnachweis — nur in der Werkstatt | **wartet auf Entscheidung** |
 | 25.10.2026 | **Sonderform entfernt** – Entscheidung des Betreibers; Sonderformen laufen über Telefon und Aufmaß | live |
 | 25.10.2026 | Teilen-Knopf: Link öffnet die Planung wieder, mit PDF-, WhatsApp- und E-Mail-Weg | live |
 | 25.10.2026 | Kurzlink über den eigenen Worker (`/api/teilen`, `/k/<id>`) | **zurückgestellt – Datenbankrolle darf nichts anlegen (`42501`), siehe Abschnitt 2** |
@@ -510,20 +408,3 @@ Grundsatzentscheidungen in `docs/entscheidungen.md`.
 | 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten | live |
 | 24.10.2026 | Maßlinien als Körper mit Endmarken, BV-Logo deutlicher | live |
 | 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | live |
-| 12.10.2026 | „PDF erstellen": mehrseitige Ausgabe mit Zustandsseiten und neu gestalteter Konfigurationsseite | live |
-| 12.10.2026 | Anfrage-Text rechnet über `bauteileJetzt()` statt über die tote Schnittstelle | live |
-| 12.10.2026 | Dachneigung: Rechenweg der Montageanleitung belegt, Anzeige in ganzen Grad | live |
-| 12.10.2026 | Beide PDF-Erzeuger auf einen Unterbau, Baugenehmigungs-Check erstmals geprüft | live |
-| 11.10.2026 | Seitenelemente, Velaris, Plankenwand, Rahmenwand, Profilmaße (siehe Archiv) | live |
-| 10.10.2026 | Konfigurator rechnet serverseitig (`/api/bauteile`), Rasterauswahl, Matrix bleibt auf dem Server | **fertig, wartet auf den KV-Namensraum** |
-| 10.10.2026 | 3D-Konfigurator: Carport (TDS, Flat Line, Flat Box) und Flachdach SkyView; Übergabewerte an den Assistenten korrigiert | **in Arbeit** |
-| 10.10.2026 | Übergabe- und Prüfsystem eingerichtet (diese Datei, Entscheidungen, Archiv, fünf Prüfskripte) | live |
-| 10.10.2026 | 3D-Konfigurator Terrassendach TDS | **live** |
-| 10.10.2026 | Telefonnummer als Pflichtangabe | live |
-| 16.09.2026 | Scrollen im Konfigurator-Fenster auf dem Handy repariert | live |
-| 16.09.2026 | Anrede, Nachname, PLZ und Ort als Pflichtangaben | live |
-| 09.09.2026 | Baugenehmigungs-Daten korrigiert (RLP rechnet in m³) | live |
-| 09.09.2026 | Preis-Klarstellung auf Kostenseite, FAQ-Schema und `llms.txt` | live |
-| 09.09.2026 | Datenschutz: tote Verweise repariert, Vertragsabwicklung ergänzt | live |
-| 09.09.2026 | PDF-Download im Baugenehmigungs-Check | live |
-| 09.09.2026 | Konfigurator-Fenster auch auf der Startseite | live |

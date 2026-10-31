@@ -408,3 +408,93 @@ die Seite und sieht hin.**
 Gegenprobe des PDF-Skripts beschädigte die Verweistabelle – poppler
 repariert die stillschweigend, acht von elf Prüfungen liefen trotzdem
 durch. Jede Prüfung braucht ihre **eigene** Verfälschung.
+
+## 31.10.2026 — aus dem Einstieg hierher verschoben
+
+Der Einstieg `docs/NEXT_TASK.md` war auf 529 Zeilen gewachsen (Richtwert ~400).
+Verschoben wurde, was fertig ist: die vollständige Produktliste des
+Konfigurators, die vierte Seitenreihe, und die Klickanleitung für das
+Werkstatt-Passwort (ist hinterlegt, Werkstatt läuft). Im Einstieg steht
+dafür eine kurze Fassung mit Verweis hierher.
+
+### Aufgabe A — Konfigurator-Produkte *(erledigt bis auf Zubehör)*
+
+Der Konfigurator kann **Terrassendach TDS, Flachdach SkyView, Carport**
+(TDS, Flat Line, Flat Box) und **Pergola / Lamellendach** (Lamellendach mit
+drehbaren Lamellen, Faltdach, Velaris).
+
+Seit dem Umbau auf das Vollbild-Layout (10.10.2026) dazu: **Sonnenschutz**
+(Aufdach, Unterdach, Senkrechtmarkisen mit Ausfahr-Regler), **Seitenelemente
+als einzelne Schiebeflügel** mit Öffnen-Regler, **Carport-Verkleidung** aus
+Sichtschutzpaneelen, **Terrassenboden**, **zuschaltbare Maßlinien**,
+Vollbild, Ansicht „Darunter“, Zahlenfeld neben jedem Regler.
+
+Bewusst **nicht** gebaut (Begründung in `docs/entscheidungen.md`, 10.10.2026):
+Richtpreis, Markisenstoff-Kollektionen, Plissee, Zaunpaneele, Holzdekore –
+für die Stoff- und Dekornamen fehlt uns die Grundlage. Wenn der Betreiber sie
+liefert, ist der Rahmen dafür da.
+
+**Wenn ein Produkt dazukommt:** Zweig in `bauen()`, Eintrag in `MASSE` und im
+Auswahlfeld `k3dProdukt`, Bedienfelder mit `data-k3d-fuer` kennzeichnen und
+das Stichwort in `gruppeGilt()` auswerten. Übergabewerte **wörtlich** aus
+`js/anfrage-wizard.js` übernehmen und in `vorgabeUebernehmen()` in die
+`felder`-Liste eintragen – sonst kommt der Wert dort nie an.
+`scripts/pruefe-konfigurator.js` prüft die Werte, nicht die Liste.
+
+### Seiten — vier statt drei *(gebaut 23.10.2026)*
+
+Bei Aufbau **„Freistehend"** gibt es im Schritt „Seiten" eine vierte Reihe
+*Hinten (Rückseite)* mit denselben Möglichkeiten wie vorne (kein Keil — die
+hintere Dachkante läuft waagerecht). Bei **Wandmontage** erscheint sie nicht,
+und eine vorher getroffene Wahl wird beim Umschalten gelöscht. Warum das die
+heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
+
+### ⚠️ Zuerst: Passwort für die Werkstatt hinterlegen *(31.10.2026)*
+
+Die Erprobungsseite `/werkstatt/` ist gebaut, aber **für alle gesperrt**,
+solange kein Passwort hinterlegt ist — auch für den Betreiber. Das ist
+Absicht: Ein Schutz, der ohne Einstellung aufmacht, ist keiner.
+
+**Die Schritte in Cloudflare (einmalig, etwa fünf Klicks):**
+
+1. [dash.cloudflare.com](https://dash.cloudflare.com) öffnen und anmelden
+2. Links **Workers & Pages** → den Eintrag **bvlanding** anklicken
+3. Oben **Settings** → Abschnitt **Variables and Secrets**
+4. **+ Add** → Typ auf **Secret** stellen
+   *(wichtig: Secret, nicht Text — ein Secret ist danach nicht mehr lesbar)*
+5. Name: `WERKSTATT_PASSWORT` · Wert: das gewünschte Passwort
+6. **Deploy** klicken
+
+Danach `https://bv-aussensysteme.de/werkstatt/` aufrufen, Passwort eingeben.
+Die Anmeldung hält 30 Tage pro Gerät. Wird das Passwort später geändert, sind
+alle alten Anmeldungen sofort ungültig.
+
+Das Passwort steht **nirgends im Projekt** und ist für niemanden außer dem
+Betreiber sichtbar — auch nicht für den Assistenten.
+
+### Werkstatt: Aussparung (Hausvorsprung) — Machbarkeitsnachweis *(31.10.2026)*
+
+Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
+**rechtwinklig**: Rechteck mit rechteckiger Lücke an der Wandseite. Auf der
+öffentlichen Konfiguratorseite ist die Aussparung **durch nichts
+einschaltbar** — sie hängt am Pfad `/werkstatt/`.
+
+Formen über die Adresse:
+
+```
+/werkstatt/?form=rechts&ab=2000&at=1000
+/werkstatt/?form=links&ab=2000&at=1000
+/werkstatt/?form=mittig&ab=2000&at=1000&aa=1200
+```
+`ab` = Breite der Aussparung, `at` = Tiefe, `aa` = Abstand von links, in mm.
+
+**Der Betreiber sieht es sich an und entscheidet, ob weitergebaut wird.**
+Gegenzulesen: Folgen Sparren, Scheiben und Wandprofil der Lücke — und bleiben
+Rinne und Pfosten vorne unverändert?
+
+Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den Flanken
+der Aussparung, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
+Begründungen: `docs/entscheidungen.md`, 31.10.2026.
+
+**Nach jeder Änderung an `konfigurator.html`:**
+`node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
