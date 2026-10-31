@@ -2632,3 +2632,65 @@ body.bv-konfig-open #bvKonfigBubble {
   .aw-head, .aw-body, .aw-nav { padding-left: 18px; padding-right: 18px; }
   .aw-row { grid-template-columns: 1fr; }
 }
+
+/* ---------- Konfigurator: Reiterleiste der Bereiche ----------
+   Betreiber am 31.10.2026: Zehn Schritte nacheinander wurden zu fuenf
+   Bereichen, zwischen denen man springen kann.
+
+   Gestaltung bewusst in unseren Farben (Gold/Anthrazit aus den
+   Variablen oben) und mit unseren Abstaenden - nicht nachgezeichnet.
+   Der aktive Reiter traegt den Goldbalken, weil Gold auf dieser Seite
+   ueberall "hier bist du" heisst. */
+.k3d-reiter {
+  display: flex;
+  gap: 2px;
+  margin: 0 0 14px;
+  padding: 0 0 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid #e3e6e9;
+}
+.k3d-reiter::-webkit-scrollbar { display: none; }
+.k3d-reiter button {
+  flex: 1 0 auto;
+  min-width: 0;
+  padding: 9px 7px 8px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  color: #5a646c;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s;
+}
+.k3d-reiter button:hover { color: var(--gold-text); }
+.k3d-reiter button.ist-aktiv {
+  color: #1f2a33;
+  border-bottom-color: var(--gold);
+}
+.k3d-reiter button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+/* Zwischenueberschrift je Schritt innerhalb eines Bereichs. Klein und
+   ruhig: Sie ordnet, sie soll nicht mit der Bereichsueberschrift
+   konkurrieren. */
+.k3d-abschnitt {
+  margin: 18px 0 8px;
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #7a858d;
+}
+.k3d-abschnitt[hidden] { display: none; }
+/* Im Modus "Alles auf einen Blick" gibt es keine Bereiche - dort
+   wuerden die Ueberschriften doppelt zu den Abschnitten stehen. */
+.k3d-panel:not(.k3d-gefuehrt) .k3d-abschnitt,
+.k3d-panel:not(.k3d-gefuehrt) .k3d-reiter { display: none; }

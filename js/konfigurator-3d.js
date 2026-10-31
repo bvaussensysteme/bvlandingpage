@@ -8402,6 +8402,69 @@
      Carport gibt es keine Seitenelemente, beim Terrassendach keine
      Verkleidung. Ohne das Überspringen stünde man vor einer leeren Seite
      und wüsste nicht, was zu tun ist. */
+  /* ---------- Bereiche: die Schritte in fuenf Reitern ----------
+     Betreiber am 31.10.2026, mit Bildern eines Wettbewerbers: "das menue
+     is so aufgebaut". Zehn Schritte nacheinander werden zu fuenf
+     Bereichen, zwischen denen man springen kann.
+
+     WARUM ALS SCHICHT DARUEBER und nicht als Neubau: data-k3d-schritt
+     an jeder Bedieneinheit bleibt die Wahrheit. Ein Bereich sagt nur,
+     WELCHE Schritte er zusammen zeigt. Damit gelten die bestehende
+     Logik, das Ueberspringen leerer Schritte, "Mehr Einstellungen" und
+     scripts/pruefe-fuehrung.js unveraendert weiter - geaendert hat sich
+     nur, wie viel auf einmal sichtbar ist.
+
+     Die Titel der Schritte gehen nicht verloren: Sie werden innerhalb
+     des Bereichs zu Zwischenueberschriften. Ein Bereich mit vier
+     Abschnitten ohne Beschriftung waere eine lange Liste ohne Halt.
+
+     TRAGWERK ist bewusst noch kein eigener Bereich: Pfosten und
+     Statiktraeger stecken heute im Schritt "masse" unter "Mehr
+     Einstellungen". Sie herauszuloesen waere ein zweiter Eingriff - er
+     kann jederzeit folgen, indem die Gruppen ein eigenes
+     data-k3d-schritt bekommen und hier ein Bereich dazukommt. */
+  var BEREICHE = [
+    { id: 'anlage',   t: 'Anlage',   schritte: ['produkt', 'aufbau', 'masse', 'farbe'] },
+    { id: 'dach',     t: 'Dach',     schritte: ['dach'] },
+    { id: 'seiten',   t: 'Seiten',   schritte: ['seiten'] },
+    { id: 'zubehoer', t: 'Zubeh\u00f6r', schritte: ['sonne', 'technik'] },
+    /* "Fertig" statt "Abschluss": In der Reiterleiste muessen fuenf
+       Namen nebeneinander passen, sonst wird der letzte abgeschnitten
+       (gemessen im Bild). Kurz und in der Sprache der Seite. */
+    { id: 'abschluss', t: 'Fertig', schritte: ['umgebung', 'fertig'] }
+  ];
+  var bereichNr = 0;
+
+  function bereichSchritte(b) {
+    return BEREICHE[b] ? BEREICHE[b].schritte : [];
+  }
+  /* Ein Bereich zaehlt nur, wenn wenigstens einer seiner Schritte in
+     dieser Konfiguration ueberhaupt etwas zeigt - sonst stuende da ein
+     leerer Reiter. */
+  function bereichHatInhalt(b) {
+    return bereichSchritte(b).some(function (id) {
+      var i = SCHRITTE.findIndex ? SCHRITTE.findIndex(function (x) { return x.id === id; }) : -1;
+      return i >= 0 && schrittHatInhalt(i);
+    });
+  }
+  function schrittIndex(id) {
+    for (var i = 0; i < SCHRITTE.length; i++) if (SCHRITTE[i].id === id) return i;
+    return -1;
+  }
+  /* Naechster Bereich in dieser Richtung, der etwas zu zeigen hat. */
+  function bereichSuchen(von, richtung) {
+    for (var i = von + richtung; i >= 0 && i < BEREICHE.length; i += richtung) {
+      if (bereichHatInhalt(i)) return i;
+    }
+    return von;
+  }
+  function bereichVon(schrittId) {
+    for (var i = 0; i < BEREICHE.length; i++) {
+      if (BEREICHE[i].schritte.indexOf(schrittId) > -1) return i;
+    }
+    return 0;
+  }
+
   var SCHRITTE = [
     { id: 'produkt',     t: 'Was möchten Sie bauen?',
       s: 'Wählen Sie Ihr Produkt – alles Weitere richtet sich danach.' },
@@ -8451,6 +8514,74 @@
     return i;
   }
 
+  /* ---------- Reiterleiste ----------
+     Wird aus BEREICHE gebaut, nicht ins HTML geschrieben: Kommt ein
+     Bereich dazu oder faellt einer weg, muss niemand zwei Stellen
+     nachziehen. Bereiche ohne Inhalt erscheinen gar nicht erst. */
+  function reiterZeichnen() {
+    var fuehrung = document.getElementById('k3dFuehrung');
+    if (!fuehrung || !fuehrung.parentNode) return;
+    var leiste = document.getElementById('k3dReiter');
+    if (!leiste) {
+      leiste = document.createElement('nav');
+      leiste.id = 'k3dReiter';
+      leiste.className = 'k3d-reiter';
+      leiste.setAttribute('aria-label', 'Bereiche');
+      fuehrung.parentNode.insertBefore(leiste, fuehrung);
+      leiste.addEventListener('click', function (e) {
+        var k = e.target.closest ? e.target.closest('button[data-bereich]') : null;
+        if (!k) return;
+        var nr = parseInt(k.getAttribute('data-bereich'), 10);
+        if (isNaN(nr) || nr === bereichNr) return;
+        bereichNr = nr;
+        zeigtMehr = false;
+        schrittZeigen();
+        var rollen = document.querySelector('.k3d-sl-rollen');
+        if (rollen) { if (rollen.scrollTo) rollen.scrollTo({ top: 0, behavior: 'smooth' });
+                      else rollen.scrollTop = 0; }
+      });
+    }
+    var soll = [], i;
+    for (i = 0; i < BEREICHE.length; i++) if (bereichHatInhalt(i)) soll.push(i);
+    var zeichen = soll.join(',') + '|' + bereichNr;
+    if (leiste.getAttribute('data-stand') === zeichen) return;   // nichts Neues
+    leiste.setAttribute('data-stand', zeichen);
+    leiste.innerHTML = soll.map(function (nr) {
+      var aktiv = nr === bereichNr;
+      return '<button type="button" data-bereich="' + nr + '"'
+        + (aktiv ? ' class="ist-aktiv" aria-current="step"' : '') + '>'
+        + BEREICHE[nr].t + '</button>';
+    }).join('');
+  }
+
+  /* ---------- Zwischenueberschriften ----------
+     Ein Bereich zeigt mehrere Schritte untereinander. Ohne Beschriftung
+     waere das eine lange Liste ohne Halt - man sieht nicht, wo die
+     Masse aufhoeren und die Farbe anfaengt. Die Ueberschrift ist der
+     Titel des Schrittes, es entsteht also kein neuer Text, der
+     auseinanderlaufen koennte. */
+  function abschnitteZeigen(ids) {
+    SCHRITTE.forEach(function (sch) {
+      var erste = document.querySelector('.k3d-gruppe[data-k3d-schritt="' + sch.id + '"]');
+      if (!erste || !erste.parentNode) return;
+      var kopf = document.querySelector('.k3d-abschnitt[data-fuer="' + sch.id + '"]');
+      if (!kopf) {
+        kopf = document.createElement('h3');
+        kopf.className = 'k3d-abschnitt';
+        kopf.setAttribute('data-fuer', sch.id);
+        kopf.textContent = sch.t;
+        erste.parentNode.insertBefore(kopf, erste);
+      }
+      /* Sichtbar nur, wenn der Schritt zum Bereich gehoert UND in dieser
+         Konfiguration ueberhaupt etwas zeigt. Und nur, wenn der Bereich
+         mehr als einen Schritt hat - sonst stuende die Ueberschrift
+         doppelt unter der Bereichsueberschrift. */
+      var i = schrittIndex(sch.id);
+      kopf.hidden = !(ids.indexOf(sch.id) > -1 && ids.length > 1
+                      && i >= 0 && schrittHatInhalt(i));
+    });
+  }
+
   function schrittZeigen() {
     var panel = document.getElementById('k3dPanel');
     if (!panel) return;
@@ -8476,44 +8607,79 @@
       var weiter = schrittSuchen(schrittNr, 1);
       schrittNr = weiter !== schrittNr ? weiter : schrittSuchen(schrittNr, -1);
     }
+    /* Welcher BEREICH ist zu sehen - nicht mehr welcher einzelne
+       Schritt. Hat er in dieser Konfiguration nichts, geht es zum
+       naechsten, der etwas hat. */
+    if (!bereichHatInhalt(bereichNr)) {
+      var bAus = bereichSuchen(bereichNr, 1);
+      bereichNr = bAus !== bereichNr ? bAus : bereichSuchen(bereichNr, -1);
+    }
+    var ber = BEREICHE[bereichNr];
+    var ids = ber.schritte;
+
+    /* Die Kameraansicht folgt dem ERSTEN Schritt des Bereichs, der etwas
+       zeigt - sonst stuende sie im Bereich "Dach" noch beim Produkt. */
+    var ersterId = ids[0], k;
+    for (k = 0; k < ids.length; k++) {
+      var iK = schrittIndex(ids[k]);
+      if (iK >= 0 && schrittHatInhalt(iK)) { ersterId = ids[k]; break; }
+    }
+    schrittNr = Math.max(0, schrittIndex(ersterId));
     var sch = SCHRITTE[schrittNr];
-    ansichtZumSchritt(sch.id);
+    ansichtZumSchritt(ersterId);
 
     Array.prototype.forEach.call(document.querySelectorAll('.k3d-gruppe'),
       function (g) {
-        var dazu = g.getAttribute('data-k3d-schritt') === sch.id;
+        var dazu = ids.indexOf(g.getAttribute('data-k3d-schritt')) > -1;
         var mehr = g.hasAttribute('data-k3d-mehr');
         g.classList.toggle('ist-schritt', dazu && (!mehr || zeigtMehr));
       });
+
+    abschnitteZeigen(ids);
+    reiterZeichnen();
 
     /* Gezählt werden nur Schritte, die es in dieser Konfiguration gibt –
        „Schritt 7 von 11" wäre gelogen, wenn vier davon übersprungen
        werden. */
     var gueltig = [], i;
-    for (i = 0; i < SCHRITTE.length; i++) if (schrittHatInhalt(i)) gueltig.push(i);
-    var pos = gueltig.indexOf(schrittNr) + 1;
+    for (i = 0; i < BEREICHE.length; i++) if (bereichHatInhalt(i)) gueltig.push(i);
+    var pos = gueltig.indexOf(bereichNr) + 1;
     var zahl = document.getElementById('k3dSchrittZahl');
-    if (zahl) zahl.textContent = 'Schritt ' + pos + ' von ' + gueltig.length;
+    if (zahl) zahl.textContent = pos + ' von ' + gueltig.length;
     var balken = document.getElementById('k3dBalken');
     if (balken) balken.style.width = (pos / gueltig.length * 100) + '%';
     var tEl = document.getElementById('k3dSchrittTitel');
-    if (tEl) tEl.textContent = sch.t;
+    /* Ueberschrift ist jetzt der BEREICH. Die Frage des ersten
+       Schrittes bleibt als Unterzeile stehen - sie fuehrt weiter durch
+       den Bereich, und ohne sie waere der Kopf eine nackte Vokabel. */
+    if (tEl) tEl.textContent = ber.t;
     var sEl = document.getElementById('k3dSchrittUnter');
     if (sEl) sEl.textContent = sch.s;
 
-    var letzter = sch.id === 'fertig';
+    var letzter = ids.indexOf('fertig') > -1;
     panel.classList.toggle('ist-letzter', letzter);
 
     var zurueck = document.getElementById('k3dZurueck');
     if (zurueck) zurueck.disabled = pos <= 1;
     var weiterKnopf = document.getElementById('k3dWeiter');
-    if (weiterKnopf) weiterKnopf.hidden = letzter;
+    if (weiterKnopf) {
+      weiterKnopf.hidden = letzter;
+      /* Der Knopf sagt, WOHIN es geht. "Weiter" allein laesst offen, was
+         als Naechstes kommt - und genau das ist die Frage, die jemand
+         vor dem Klick hat. */
+      var naechster = bereichSuchen(bereichNr, 1);
+      weiterKnopf.textContent = (naechster !== bereichNr)
+        ? 'Weiter \u00b7 ' + BEREICHE[naechster].t + ' \u25b6'
+        : 'Weiter \u25b6';
+    }
 
     /* „Mehr Einstellungen" nur anbieten, wo es welche gibt. */
     var mehrKnopf = document.getElementById('k3dMehr');
     if (mehrKnopf) {
-      var hatMehr = schrittGruppen(sch.id, true).some(function (g) {
-        return g.hasAttribute('data-k3d-mehr');
+      var hatMehr = ids.some(function (id) {
+        return schrittGruppen(id, true).some(function (g) {
+          return g.hasAttribute('data-k3d-mehr');
+        });
       });
       mehrKnopf.hidden = !hatMehr;
       mehrKnopf.textContent = zeigtMehr ? 'Weniger Einstellungen ▴'
@@ -8862,9 +9028,9 @@
   }
 
   function schrittWechseln(richtung) {
-    var ziel = schrittSuchen(schrittNr, richtung);
-    if (ziel === schrittNr) return;
-    schrittNr = ziel;
+    var ziel = bereichSuchen(bereichNr, richtung);
+    if (ziel === bereichNr) return;
+    bereichNr = ziel;
     zeigtMehr = false;            // jeder Schritt beginnt schlank
     schrittZeigen();
     var rollen = document.querySelector('.k3d-sl-rollen');
