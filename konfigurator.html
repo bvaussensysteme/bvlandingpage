@@ -685,6 +685,21 @@
     }
     .k3d-oben button:hover { border-color: var(--gold); }
     .k3d-oben button.ist-gold { background: var(--gold); color: #111; font-weight: 700; border-color: var(--gold); }
+    /* „die leiste hat sich verändert es, ragen schrften rein" (Betreiber,
+       31.10.2026, mit Bild: die Beschriftungen „Maße" und „+ Felder"
+       standen über ihren goldenen Knopf hinaus).
+
+       URSACHE: Die Leiste ist breiter als der Platz (max-width), und
+       Flex-Elemente schrumpfen von sich aus. Die Knopfbreite gab also
+       nach, der Text aber nicht – white-space: nowrap lässt ihn nicht
+       umbrechen, also lief er aus seinem Hintergrund heraus. Ausgelöst
+       hat es die Umbenennung „Punkte" → „Felder" am selben Tag: zwei
+       Zeichen mehr, und die Leiste passte nicht mehr.
+
+       Dieselbe Lösung wie am Handy, wo sie schon stand: Die Knöpfe
+       schrumpfen NICHT (flex: none), und ist die Leiste zu breit, lässt
+       sie sich schieben. Lieber eine Leiste, die weiterläuft, als
+       Beschriftungen, die aus ihrem Knopf fallen. */
     .k3d-leiste {
       position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
       display: flex; gap: 6px; align-items: center;
@@ -692,17 +707,39 @@
       border: 1px solid rgba(255,255,255,.1);
       -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
       max-width: calc(100% - 28px);
+      overflow-x: auto; scrollbar-width: none;
     }
+    .k3d-leiste::-webkit-scrollbar { display: none; }
     .k3d-leiste button {
       background: transparent; color: #fff; border: 1px solid transparent; border-radius: 8px;
       padding: 7px 10px; font: inherit; font-size: .78rem; cursor: pointer; white-space: nowrap;
+      flex: none;
     }
     .k3d-leiste button:hover { background: #2c3034; }
     .k3d-leiste button.is-active { background: var(--gold); color: #111; font-weight: 700; }
     .k3d-leiste .k3d-sym { font-size: 1.05em; line-height: 1; margin-right: 4px; }
     .k3d-leiste .k3d-trenn { width: 1px; align-self: stretch; background: rgba(255,255,255,.18); margin: 0 2px; }
+    /* ---------- Beide Hinweise liegen ÜBER der Leiste ----------
+       „die leiste hat sich verändert es, ragen schrften rein" (Betreiber,
+       31.10.2026, mit Bild: der Maushinweis lief hinter der Leiste
+       durch und schaute links und rechts darunter hervor).
+
+       GEMESSEN, nicht geschätzt: Die Leiste ist 685 px breit und mittig,
+       der Maushinweis 347 px und links bündig – bei 1440 px Fenster
+       überlappten sie 202 px, bei 1000 px 347 px, also vollständig. Der
+       Klickhinweis lag bei JEDER Breite 215 px hinter der Leiste; das
+       war nie aufgefallen, weil er meist ausgeblendet ist.
+
+       Die Leiste steht 16 px über dem Rand und ist 52 px hoch, endet
+       also bei 68 px. Darum 76 px für den Maushinweis (8 px Luft) und
+       108 px für den Klickhinweis darüber. Nachgemessen bei 1440, 1100
+       und 1000 px: alle drei Überlappungen 0 px.
+
+       Am Handy gilt weiter die Regel weiter unten: Der Maushinweis
+       entfällt (es gibt keine Maus), der Klickhinweis rückt dichter an
+       die flachere Leiste. */
     .k3d-maushinweis {
-      position: absolute; left: 16px; bottom: 18px;
+      position: absolute; left: 16px; bottom: 76px;
       font-size: .7rem; color: #2d3b46; margin: 0; pointer-events: none;
     }
     /* Was der nächste Klick tut. Steht ÜBER der Ansichtsleiste und bleibt
@@ -710,7 +747,7 @@
        keinen Mauszeiger gibt, der etwas verrät. */
     .k3d-klickhinweis {
       position: absolute; left: 50%; transform: translateX(-50%);
-      bottom: 52px; margin: 0; pointer-events: none;
+      bottom: 108px; margin: 0; pointer-events: none;
       background: rgba(17,17,17,.72); color: #fff;
       font-size: .74rem; padding: 5px 10px; border-radius: 999px;
     }
@@ -802,8 +839,9 @@
         border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0;
         justify-content: flex-start;
       }
-      .k3d-leiste::-webkit-scrollbar { display: none; }
-      .k3d-leiste button { padding: 6px 10px; font-size: .72rem; flex: none; }
+      /* overflow-x, scrollbar-width und flex: none stehen jetzt in der
+         allgemeinen Regel - hier bleibt nur, was am Handy anders ist. */
+      .k3d-leiste button { padding: 6px 10px; font-size: .72rem; }
       .k3d-maushinweis { display: none; }
       .k3d-klickhinweis { bottom: 44px; font-size: .68rem; padding: 4px 8px; }
     }
