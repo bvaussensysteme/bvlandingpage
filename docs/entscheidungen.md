@@ -9868,3 +9868,75 @@ kommt im Repository nirgends vor.
 / rechts / mittig** (nicht die Bezeichnungen des Wettbewerbers), die Maße
 **Breite / Tiefe der Aussparung** und **Abstand von links**, der Code ist von
 Grund auf selbst geschrieben.
+
+## 31.10.2026 — Werkstatt: eigene Seite hinter Passwort, statt Parameter
+
+**Anlass.** „mach eine versteckte seite auf meiner homepage wo nur ICH erst mal
+zugriff habe. also den konfigurator erst mal aus der normalen konfigurator 3d
+seite weg bis er fertig is und ich ihn veröffentlichen will" (Betreiber).
+
+**Was daran besser ist als mein Vorschlag.** Ich hatte die Aussparung hinter
+`?probe=aussparung` auf der öffentlichen Seite versteckt. Das ist kein
+Verstecken, sondern eine unverschlossene Tür mit einem Schild daneben: Wer den
+Parameter errät oder im Quelltext liest, sieht den unfertigen Stand auf der
+Verkaufsseite. Die Trennung in zwei Seiten ist sauberer.
+
+**Was jetzt gilt.**
+
+| | öffentlich `/konfigurator.html` | **Werkstatt** `/werkstatt/` |
+|---|---|---|
+| Zugang | jeder | Passwort |
+| Aussparung | **durch nichts einschaltbar** | an |
+| Suchmaschinen | normal | `noindex` im Kopf **und** als Kopfzeile |
+| verlinkt | ja | nirgends, auch nicht in der Sitemap |
+
+**Die Freischaltung hängt am PFAD, nicht an einem Parameter.** Auf der
+öffentlichen Seite lässt sich die Aussparung durch Herumprobieren an der
+Adresse nicht mehr einschalten.
+
+**Eine Datei, zwei Seiten.** Beide laden dieselbe `js/konfigurator-3d.js`, und
+`werkstatt/index.html` wird aus `konfigurator.html` **erzeugt**
+(`scripts/baue-werkstatt.js`), nicht kopiert. Eine Kopie wäre nach wenigen
+Tagen ein zweiter Stand, und dann weiß niemand mehr, welcher der richtige ist.
+Das Skript biegt dabei alle relativen Verweise auf absolute um — sonst würde
+`js/…` von `/werkstatt/` aus ins Leere zeigen — und prüft am eigenen Erzeugnis
+nach, dass keiner übrig blieb und beide Seiten auf dieselben Dateiversionen
+zeigen. `--pruefen` meldet, wenn die Werkstatt nicht mehr auf dem Stand ist.
+
+**Nicht in die `robots.txt`.** Ein `Disallow: /werkstatt/` dort würde die
+Adresse öffentlich bekannt machen — die Datei liest jeder. Gesperrt wird über
+`noindex` im Kopf und `X-Robots-Tag` in `_headers`.
+
+**Die Schranke: im Zweifel zu.** Ist kein Passwort hinterlegt, ist die Seite
+für **alle** gesperrt (503 mit Anleitung). Ein Schutz, der bei fehlender
+Einstellung still aufmacht, ist keiner — so stehen Testseiten monatelang offen,
+ohne dass es jemand merkt. Das Passwort liegt als Secret in Cloudflare
+(`WERKSTATT_PASSWORT`), **nicht im Repository**. Der Keks ist daraus abgeleitet
+(SHA-256), nicht das Passwort selbst; er ist `HttpOnly`, `Secure`, `SameSite`
+und gilt 30 Tage. Wird das Passwort geändert, sind alle alten Anmeldungen
+sofort ungültig. Vergleich in konstanter Zeit, 700 ms Bremse bei falscher
+Eingabe.
+
+**Der Fund, der am teuersten gewesen wäre.** Cloudflare liefert eine
+vorhandene Datei **am Worker vorbei** aus, wenn ihr Pfad nicht in
+`run_worker_first` steht. Ohne diesen Eintrag wäre `werkstatt/index.html`
+direkt ausgeliefert worden und die ganze Passwortschranke nie aufgerufen — bei
+einer Seite, die danach aussieht, als sei sie geschützt. `/werkstatt` und
+`/werkstatt/*` stehen jetzt dort, mit Begründung an der Stelle, und
+`scripts/pruefe-werkstatt.js` prüft es mit.
+
+**Was die Schranke NICHT leistet.** Sie schützt die Seite, nicht den Code:
+`js/konfigurator-3d.js` wird auch öffentlich geladen und ist lesbar.
+Einschalten lässt sich die Aussparung dort trotzdem nicht. Eine eigene Datei
+nur für die Werkstatt wäre ein zweiter Stand und damit die größere Gefahr.
+
+**Beim Betreiber liegt ein Handgriff:** das Passwort in Cloudflare hinterlegen.
+Bis dahin ist die Seite gesperrt — auch für ihn. Schritte stehen in
+`docs/NEXT_TASK.md`.
+
+**Absicherung.** `scripts/pruefe-werkstatt.js`: **11 Prüfungen**, alle
+bestanden. Die Schranke wird ausgeführt, nicht gelesen. Gegenprobe mit **10
+Fehlern, jeder einzeln** — darunter „ohne Passwort offen", „jedes Passwort wird
+angenommen", „jeder beliebige Keks reicht", „Keks ohne HttpOnly", „Werkstatt
+läuft am Worker vorbei". Alle 11 Prüfungen schlagen an, alle 10 Fehler werden
+bemerkt. Gesamte Batterie: 19 Prüfungen grün.

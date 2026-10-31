@@ -6448,17 +6448,26 @@
      baut automatisch das Rechteck und liegt damit nie falsch, sondern
      nur unvollstaendig. */
 
-  /* Nur waehrend der Erprobung sichtbar: ?probe=aussparung in der Adresse.
-     Fuer normale Besucher aendert sich dadurch nichts. */
+  /* Die Aussparung gibt es NUR auf der Werkstatt-Seite - der nicht
+     oeffentlichen Erprobungsseite. Entscheidend ist der PFAD, nicht ein
+     Parameter: Auf der oeffentlichen Konfiguratorseite laesst sie sich
+     durch nichts einschalten, auch nicht durch Herumprobieren an der
+     Adresse. Erst wenn der Betreiber sagt "veroeffentlichen", faellt
+     diese Schranke.
+
+     Beide Seiten benutzen DIESELBE Datei. Das ist Absicht: Zwei Kopien
+     laufen nach wenigen Tagen auseinander, und dann ist nicht mehr klar,
+     welche die richtige ist. Unterschiedlich ist nur, was freigeschaltet
+     ist. */
   var PROBE_AUSSPARUNG = (function () {
-    try { return /[?&]probe=aussparung(\b|&|$)/.test(location.search); }
+    try { return /(^|\/)werkstatt(\/|$)/.test(location.pathname); }
     catch (e) { return false; }
   })();
 
   /* Waehrend der Erprobung kommen die Werte aus der Adresse, damit noch
-     kein Bedienfeld gebaut werden muss und fuer normale Besucher nichts
-     erscheint. Spaeter liest dieselbe Funktion aus Z. Beispiel:
-     ?probe=aussparung&form=mittig&ab=2000&at=1000&aa=1200   (Masse in mm) */
+     kein Bedienfeld gebaut werden muss. Spaeter liest dieselbe Funktion
+     aus Z. Beispiel auf der Werkstatt-Seite:
+     /werkstatt/?form=mittig&ab=2000&at=1000&aa=1200   (Masse in mm) */
   function aussparungWerte() {
     if (!PROBE_AUSSPARUNG) {
       return { form: Z.form, ab: Z.ausBreite, at: Z.ausTiefe, aa: Z.ausAbstand };

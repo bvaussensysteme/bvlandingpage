@@ -87,25 +87,55 @@ heikle Stelle ist, steht in `docs/entscheidungen.md`, Eintrag 23.10.2026.
   „niedrigste Durchgangshöhe: X mm an der Y-Seite" wäre die kleine Lösung —
   **nicht ohne Auftrag bauen**.
 
-### Aussparung (Hausvorsprung) — Machbarkeitsnachweis steht *(31.10.2026)*
+### ⚠️ Zuerst: Passwort für die Werkstatt hinterlegen *(31.10.2026)*
 
-Zweiter Anlauf nach der entfernten Sonderform, diesmal **rechtwinklig**:
-Rechteck mit rechteckiger Lücke an der Wandseite. Es gibt **noch kein
-Bedienfeld** — zu sehen nur über die Adresse:
+Die Erprobungsseite `/werkstatt/` ist gebaut, aber **für alle gesperrt**,
+solange kein Passwort hinterlegt ist — auch für den Betreiber. Das ist
+Absicht: Ein Schutz, der ohne Einstellung aufmacht, ist keiner.
+
+**Die Schritte in Cloudflare (einmalig, etwa fünf Klicks):**
+
+1. [dash.cloudflare.com](https://dash.cloudflare.com) öffnen und anmelden
+2. Links **Workers & Pages** → den Eintrag **bvlanding** anklicken
+3. Oben **Settings** → Abschnitt **Variables and Secrets**
+4. **+ Add** → Typ auf **Secret** stellen
+   *(wichtig: Secret, nicht Text — ein Secret ist danach nicht mehr lesbar)*
+5. Name: `WERKSTATT_PASSWORT` · Wert: das gewünschte Passwort
+6. **Deploy** klicken
+
+Danach `https://bv-aussensysteme.de/werkstatt/` aufrufen, Passwort eingeben.
+Die Anmeldung hält 30 Tage pro Gerät. Wird das Passwort später geändert, sind
+alle alten Anmeldungen sofort ungültig.
+
+Das Passwort steht **nirgends im Projekt** und ist für niemanden außer dem
+Betreiber sichtbar — auch nicht für den Assistenten.
+
+### Werkstatt: Aussparung (Hausvorsprung) — Machbarkeitsnachweis *(31.10.2026)*
+
+Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
+**rechtwinklig**: Rechteck mit rechteckiger Lücke an der Wandseite. Auf der
+öffentlichen Konfiguratorseite ist die Aussparung **durch nichts
+einschaltbar** — sie hängt am Pfad `/werkstatt/`.
+
+Formen über die Adresse:
 
 ```
-/konfigurator/?probe=aussparung&form=rechts&ab=2000&at=1000
-/konfigurator/?probe=aussparung&form=links&ab=2000&at=1000
-/konfigurator/?probe=aussparung&form=mittig&ab=2000&at=1000&aa=1200
+/werkstatt/?form=rechts&ab=2000&at=1000
+/werkstatt/?form=links&ab=2000&at=1000
+/werkstatt/?form=mittig&ab=2000&at=1000&aa=1200
 ```
+`ab` = Breite der Aussparung, `at` = Tiefe, `aa` = Abstand von links, in mm.
 
-**Der Betreiber sieht sich das an und entscheidet, ob weitergebaut wird.**
+**Der Betreiber sieht es sich an und entscheidet, ob weitergebaut wird.**
 Gegenzulesen: Folgen Sparren, Scheiben und Wandprofil der Lücke — und bleiben
 Rinne und Pfosten vorne unverändert?
 
 Fehlt noch (bewusst): Bedienfeld, Grundriss-Skizze, Wandfelder an den Flanken
 der Aussparung, Randblende an der Stufe, Maßtabelle, Anfrage, interne Notiz.
-Hintergrund und Begründung: `docs/entscheidungen.md`, 31.10.2026.
+Begründungen: `docs/entscheidungen.md`, 31.10.2026.
+
+**Nach jeder Änderung an `konfigurator.html`:**
+`node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
 
@@ -309,6 +339,8 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
+| `scripts/pruefe-werkstatt.js` | Passwortschranke vor `/werkstatt/`: gesperrt ohne hinterlegtes Passwort, falsches Passwort abgewiesen, Keks HttpOnly/Secure/SameSite und nicht im Klartext, alte Anmeldung nach Passwortwechsel ungültig — **und ob die Seite überhaupt durch den Worker läuft** (`run_worker_first`). Gegenprobe: 10 Fehler, jeder einzeln |
+| `scripts/baue-werkstatt.js` | Erzeugt `werkstatt/index.html` aus `konfigurator.html`. Mit `--pruefen` meldet es, wenn die Werkstatt nicht mehr auf dem Stand ist |
 | `scripts/pruefe-konfliktmarken.sh` | **Nach jedem Merge, vor jedem Commit:** liegengebliebene Merge-Marken im ganzen Projekt. Gegenprobe legt eine Datei mit Marken an und muss sie finden |
 | `scripts/pruefe-assistent.mjs` | Bedienung des Anfrage-Assistenten im echten Browser: Eindeckungs-Kacheln alle gleich groß (auch bei ungerader Anzahl), Aufpreis-Hinweis bei der Wunschfarbe, RAL-Suche (Kachel, Suchfeld, „braun" findet Brauntöne, Nummer steht vorn, Unsinn erklärt sich, **Eingabefeld behält den Fokus**, Treffer setzt die Farbe) |
 | `scripts/pruefe-balkon.mjs` | Balkonüberdachung am fertigen Modell im Browser: Pfostenfuß auf der Brüstung bzw. am Boden, Pfosten hinter der Brüstung, Dach bis zur Außenkante, Pfosten-Auswahl verschwindet beim Geländer, Baurechts-Hinweis, keine Javascript-Fehler. Gemessen werden Eckpunkte in Weltkoordinaten |

@@ -44,7 +44,7 @@ var FEHLER = [
   ['Randsparren wird mit verkuerzt',
    'return !!sp && x > sp.von + 1e-6 && x < sp.bis - 1e-6;',
    'return !!sp && x >= sp.von && x <= sp.bis;'],
-  ['Aussparung auch ohne Erprobungsschalter',
+  ['Aussparung auch auf der oeffentlichen Seite',
    'if (!aussparungAktiv()) return null;',
    'if (false) return null;'],
   ['Links landet in der Mitte',
@@ -72,7 +72,10 @@ function baue(fehlerNr) {
     var bau = new Function('Z', 'location', code +
       '\n;return { aktiv: aussparungAktiv, spanne: aussparungSpanne,' +
       ' drin: inAussparung, kante: hinterkanteBei };');
-    return bau(zustand, { search: suche });
+    /* Die Freischaltung haengt am Pfad: '' = oeffentliche Seite,
+       '/werkstatt/' = Erprobungsseite. */
+    var pfad = suche === '' ? '/konfigurator.html' : '/werkstatt/';
+    return bau(zustand, { search: suche, pathname: pfad });
   };
 }
 
@@ -93,40 +96,40 @@ function lauf(lade) {
   function p(name, bed, beleg) { e.push({ name: name, ok: !!bed, beleg: beleg }); }
 
   var sp0 = lade(zustand(), '').spanne(B);
-  p('Ohne ?probe=aussparung bleibt es das Rechteck', sp0 === null,
+  p('Auf der oeffentlichen Seite bleibt es das Rechteck', sp0 === null,
     'aussparungSpanne() liefert ' + (sp0 === null ? 'null' : 'eine Form'));
 
-  var r = lade(zustand(), '?probe=aussparung&form=rechts&ab=2000&at=1000').spanne(B);
+  var r = lade(zustand(), '?form=rechts&ab=2000&at=1000').spanne(B);
   p('Aussparung rechts liegt an der rechten Kante',
     r && Math.abs(r.bis - B / 2) < 1e-6 && Math.abs(r.bis - r.von - 200) < 1e-6,
     r ? 'von ' + r.von + ' bis ' + r.bis + ' cm' : 'keine Form');
 
-  var l = lade(zustand(), '?probe=aussparung&form=links&ab=2000&at=1000').spanne(B);
+  var l = lade(zustand(), '?form=links&ab=2000&at=1000').spanne(B);
   p('Aussparung links liegt an der linken Kante',
     l && Math.abs(l.von + B / 2) < 1e-6,
     l ? 'von ' + l.von + ' bis ' + l.bis + ' cm' : 'keine Form');
 
-  var m = lade(zustand(), '?probe=aussparung&form=mittig&ab=2000&at=1000&aa=1200').spanne(B);
+  var m = lade(zustand(), '?form=mittig&ab=2000&at=1000&aa=1200').spanne(B);
   p('Aussparung mittig haelt den Abstand von links',
     m && Math.abs(m.von - (-B / 2 + 120)) < 1e-6,
     m ? 'von ' + m.von + ' cm, erwartet ' + (-B / 2 + 120) : 'keine Form');
 
-  var m2 = lade(zustand(), '?probe=aussparung&form=mittig&ab=2000&at=1000&aa=9000').spanne(B);
+  var m2 = lade(zustand(), '?form=mittig&ab=2000&at=1000&aa=9000').spanne(B);
   p('Zu grosser Abstand schiebt die Aussparung nicht hinaus',
     m2 && m2.bis <= B / 2 + 1e-6 && m2.von >= -B / 2 - 1e-6,
     m2 ? 'von ' + m2.von + ' bis ' + m2.bis + ' (Rand ' + (-B / 2) + '/' + (B / 2) + ')' : 'keine Form');
 
-  var m3 = lade(zustand(), '?probe=aussparung&form=links&ab=99000&at=1000').spanne(B);
+  var m3 = lade(zustand(), '?form=links&ab=99000&at=1000').spanne(B);
   p('Breiter als die Anlage wird gekappt',
     m3 && (m3.bis - m3.von) <= B + 1e-6,
     m3 ? 'Breite ' + (m3.bis - m3.von) + ' cm bei Anlage ' + B : 'keine Form');
 
-  var t = lade(zustand({ tiefe: T * 10 }), '?probe=aussparung&form=rechts&ab=2000&at=9000').spanne(B);
+  var t = lade(zustand({ tiefe: T * 10 }), '?form=rechts&ab=2000&at=9000').spanne(B);
   p('Die Aussparung frisst die Anlage nicht auf',
     t && t.tiefe <= T - 80 + 1e-6,
     t ? 'Tiefe ' + t.tiefe + ' cm bei ' + T + ' cm Anlagentiefe (hoechstens ' + (T - 80) + ')' : 'keine Form');
 
-  var A = lade(zustand(), '?probe=aussparung&form=rechts&ab=2000&at=1000');
+  var A = lade(zustand(), '?form=rechts&ab=2000&at=1000');
   var spr = A.spanne(B), zH = 12;
   var innen  = spr ? A.kante(spr, B / 2 - 50, zH) : null;
   var aussen = spr ? A.kante(spr, -B / 2 + 50, zH) : null;
