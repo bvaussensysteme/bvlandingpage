@@ -100,6 +100,21 @@ var FEHLER = [
   ['Die Feldnummer geht verloren (Beschriftung "Feld 1 von 1")', 'js',
    '                   nx: 1, nz: 0, feld: i, anzahl: felder.length });',
    '                   nx: 1, nz: 0, feld: 0, anzahl: 1 });'],
+  ['Masse sind wieder voreingestellt AUS', 'js',
+   '    masseZeigen: true,', '    masseZeigen: false,'],
+  ['Das Haekchen fuer die Masse steht nicht auf an', 'html',
+   '<input type="checkbox" id="k3dMasse" checked>',
+   '<input type="checkbox" id="k3dMasse">'],
+  ['Die Schilder wissen nicht, zu welchem Mass sie gehoeren', 'js',
+   "    if (feld) s.userData.massFeld = feld;", '    void feld;'],
+  ['Der Klick auf ein Mass wird nicht ausgewertet', 'js',
+   '    if (weg < 6 && zeit < 500 && !massGeklickt(e) &&',
+   '    if (weg < 6 && zeit < 500 &&'],
+  ['Die neue Zahl umgeht das Zahlenfeld und seine Grenzen', 'js',
+   "      zahl.dispatchEvent(new Event('change', { bubbles: true }));",
+   '      Z.breite = parseInt(eingabe.value, 10);'],
+  ['Der Eingabekasten fehlt in der Seite', 'html',
+   'id="k3dMassEingabe"', 'id="k3dMassEingabeAlt"'],
   ['Die Buehne wird nicht mehr beobachtet', 'js',
    'new ResizeObserver(groesseGebremst).observe(leinwand.parentNode);',
    'void groesseGebremst;'],
@@ -313,6 +328,42 @@ function lauf(q) {
      Reichweite begrenzt und nicht zuruecksetzt, bricht deren Klicks. */
   p('Der geteilte Strahl wird wieder freigegeben',
     /strahl\.far = Infinity;/.test(q.js), 'strahl.far zurueckgesetzt');
+
+  /* ---------- Ein Maß antippen und ändern ----------
+     „Die Maße sollen standartmäßig an sein … wenn man auf ein maß tippt
+     oder klickt dann man z.b ne neue zahl eintragen und das ändert sich
+     dann in der konfiguration" (Betreiber, 31.10.2026). */
+  p('Die Maße sind voreingestellt an',
+    /masseZeigen: true,/.test(q.js) &&
+    /<input type="checkbox" id="k3dMasse" checked>/.test(q.html),
+    'Z.masseZeigen und das Häkchen');
+
+  p('Jedes Maßschild weiß, zu welchem Maß es gehört',
+    /if \(feld\) s\.userData\.massFeld = feld;/.test(q.js) &&
+    /Z\.breite \+ ' mm',\s*\n?\s*'breite'/.test(q.js) &&
+    /Z\.tiefe \+ ' mm', 'tiefe'/.test(q.js) &&
+    /Z\.hoehe \+ ' mm', 'hoehe'/.test(q.js),
+    'breite, tiefe, hoehe');
+
+  p('Der Klick auf ein Maß wird ausgewertet',
+    /!massGeklickt\(e\) &&/.test(q.js) &&
+    /strahl\.intersectObjects\(masseGruppe\.children, true\)/.test(q.js),
+    'massGeklickt() in der Klickkette');
+
+  /* Der wunde Punkt: Die neue Zahl darf NICHT am Zahlenfeld vorbei
+     gesetzt werden. Dort haengt die Begrenzung auf Mindest- und
+     Hoechstmass und der Neubau. Zwei Wege, die dasselbe taeten, liefen
+     sonst auseinander - und eine Eingabe von 99999 mm ginge durch.
+     Gemessen im Browser: 99999 wird zu 14080, dem Hoechstmass. */
+  p('Die neue Zahl geht durch das Zahlenfeld, nicht daran vorbei',
+    /zahl\.dispatchEvent\(new Event\('change', \{ bubbles: true \}\)\);/.test(q.js) &&
+    /MASS_FELDER = \{[\s\S]{0,400}?zahl: 'k3dBreiteZahl'/.test(q.js),
+    'dort haengen Grenzen und Neubau');
+
+  p('Der Eingabekasten steht in der Seite',
+    /id="k3dMassEingabe"/.test(q.html) &&
+    /id="k3dMassWert"/.test(q.html) && /id="k3dMassOk"/.test(q.html),
+    'Kasten, Zahlenfeld und Übernehmen');
 
   /* ---------- Groesse der Buehne ----------
      GEMESSEN am 31.10.2026: Wird die Buehne kleiner, ohne dass sich das

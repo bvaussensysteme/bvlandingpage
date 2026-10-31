@@ -52,7 +52,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261031h" />
+  <link rel="stylesheet" href="/css/style.css?v=20261031i" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -499,6 +499,30 @@
        tun es. 32 px Durchmesser liegen über dem Mindestmaß von 24 px
        (WCAG 2.2, 2.5.8), am Handy sind es 38 px – dort zielt ein
        Finger, kein Zeiger. */
+    /* ---------- Ein Maß ändern ----------
+       Liegt über der Bühne, nicht im Bedienfeld: Der Weg vom „das ist
+       mir zu schmal" zur neuen Zahl soll kurz sein. Die Lage setzt
+       massOeffnen() und hält den Kasten dabei ganz im Bild. */
+    .k3d-masseingabe {
+      position: absolute; z-index: 6; width: 190px;
+      background: rgba(255,255,255,.97); color: var(--black);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 11px 12px; box-shadow: 0 8px 26px rgba(0,0,0,.26);
+      font-size: .82rem;
+    }
+    .k3d-masseingabe-t { display: block; font-weight: 700; margin-bottom: 6px; }
+    .k3d-masseingabe input { width: 100%; }
+    .k3d-masseingabe-mini { margin: 5px 0 9px; font-size: .72rem; color: var(--muted); }
+    .k3d-masseingabe-wege { display: flex; gap: 7px; }
+    .k3d-masseingabe-wege button {
+      flex: 1; border: 1px solid var(--border); background: #fff;
+      border-radius: 7px; padding: 6px 8px; font: inherit; font-size: .78rem;
+      cursor: pointer;
+    }
+    .k3d-masseingabe-wege button.ist-gold {
+      background: var(--gold); border-color: var(--gold);
+      color: #111; font-weight: 700;
+    }
     .k3d-marken { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
     /* „die + zeichen sind zu groß … mach sie kleiner etwas
        durchsichtiger und feststehend" (Betreiber, 31.10.2026).
@@ -1833,7 +1857,8 @@
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
-          <label class="k3d-schalter"><input type="checkbox" id="k3dMasse"> <span>Maße im Modell anzeigen</span></label>
+          <label class="k3d-schalter"><input type="checkbox" id="k3dMasse" checked> <span>Maße im Modell anzeigen</span></label>
+          <p class="k3d-mini">Auf ein Maß im Bild tippen, um es zu ändern.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
@@ -1894,6 +1919,22 @@
          sind mit der Tabulatortaste erreichbar – und sie landen NICHT
          im gespeicherten Bild und nicht im PDF. -->
     <div class="k3d-marken" id="k3dMarkenHuelle"></div>
+
+    <!-- Ein Maß antippen und ändern. „wenn man auf ein maß tippt oder
+         klickt dann man z.b ne neue zahl eintragen und das ändert sich
+         dann in der konfiguration" (Betreiber, 31.10.2026). Die Zahl
+         wird in das Zahlenfeld des Bedienfeldes geschrieben – dort
+         hängt die Begrenzung und der Neubau. -->
+    <div class="k3d-masseingabe" id="k3dMassEingabe" role="dialog"
+         aria-labelledby="k3dMassLabel" hidden>
+      <label class="k3d-masseingabe-t" id="k3dMassLabel" for="k3dMassWert">Breite in mm</label>
+      <input type="number" id="k3dMassWert" inputmode="numeric" class="k3d-zahl">
+      <p class="k3d-masseingabe-mini" id="k3dMassGrenzen"></p>
+      <div class="k3d-masseingabe-wege">
+        <button type="button" id="k3dMassAb">Abbrechen</button>
+        <button type="button" id="k3dMassOk" class="ist-gold">Übernehmen</button>
+      </div>
+    </div>
 
     <div class="k3d-info">
       <h1 id="k3dTitelBuehne">Terrassendach TDS</h1>
@@ -1987,7 +2028,7 @@
          (Betreiber, 11.10.2026). Am Handy ist die Leiste seitlich
          scrollbar – was vorne steht, sieht man ohne Wischen. -->
     <div class="k3d-leiste" role="group" aria-label="Ansicht steuern">
-      <button type="button" id="k3dMasseLeiste" aria-pressed="false"><svg class="bvs" aria-hidden="true"><use href="#bvs-masse"></use></svg> Maße</button>
+      <button type="button" id="k3dMasseLeiste" aria-pressed="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-masse"></use></svg> Maße</button>
       <button type="button" id="k3dMarkenLeiste" aria-pressed="true"><svg class="bvs" aria-hidden="true"><use href="#bvs-punkt"></use></svg> Punkte</button>
       <button type="button" id="k3dAbend" aria-pressed="false"><span class="k3d-sym"><svg class="bvs" aria-hidden="true"><use href="#bvs-abend"></use></svg></span><span class="k3d-txt">Abend</span></button>
       <button type="button" id="k3dDrehen" aria-pressed="false"><svg class="bvs" aria-hidden="true"><use href="#bvs-drehen"></use></svg> Drehen</button>
@@ -2091,13 +2132,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031h" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261031i" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
-<script src="/js/bv-symbole.js?v=20261031h" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261031h" defer></script>
+<script src="/js/bv-symbole.js?v=20261031i" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261031i" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

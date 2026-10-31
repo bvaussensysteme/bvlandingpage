@@ -174,6 +174,26 @@ wird ausgeblendet (`bereichHatInhalt`). Geprüft von
 1. Ist „Anlage" zu voll (Produkt + Montage + Maße + Farbe)?
 2. Soll „Tragwerk" ein eigener Bereich werden?
 
+### Maße: voreingestellt an und anklickbar *(31.10.2026)*
+
+Die Maßlinien sind **standardmäßig eingeschaltet**. Ein Tipp auf ein Maßschild
+im Bild öffnet ein kleines Zahlenfeld; die neue Zahl ändert die Anlage sofort.
+
+- Anklickbar sind **Breite, Tiefe und Höhe vorne**. Das Schild trägt dafür
+  `userData.massFeld`; den Klick wertet `massGeklickt()` aus.
+- Die Zahl wird **in das Zahlenfeld des Bedienfeldes geschrieben**
+  (`k3dBreiteZahl` …) und dort per `change` angewandt — dort hängen Mindest-
+  und Höchstmaß und der Neubau. Im Browser gemessen: **99999 mm → 14080 mm**.
+- Die Schilder sind seit dem 11.10.2026 bewusst klein und filigran; daran ist
+  **nichts geändert**. Zurückgenommen wurde nur die Deckkraft des Kästchens
+  (62 → 52 %), also dieselbe Richtung wie „nicht störend wirken".
+- `k3dMassWert` steht in `pruefe-fuehrung.js` als **Ausnahme mit Begründung**:
+  Es stellt nichts ein, solange getippt wird — sonst wäre eine halb getippte
+  „4" sofort ein 4-mm-Dach.
+
+**Offen, bewusst:** Mit der Tastatur sind die Schilder nicht erreichbar (sie
+sind Teile im 3D-Bild, keine Knöpfe). Dieselben Werte stehen im Bedienfeld.
+
 ### Anklickpunkte am Modell — gebaut *(31.10.2026)*
 
 Am Modell sitzt jetzt **ein Punkt je Seitenfeld und einer am Dach**. Ein Klick
@@ -491,6 +511,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 31.10.2026 | **Maße voreingestellt an und im Bild anklickbar** — Tipp auf ein Maß öffnet ein Zahlenfeld | live |
 | 31.10.2026 | Anklickpunkte kleiner, halbdurchsichtig, **verdeckte werden ausgeblendet**; Werkstatt-Streifen von 4 Zeilen auf eine (28 px) | live |
 | 31.10.2026 | **Keine Emoji mehr**: eigene Symbolsammlung für Konfigurator und Website (Cookie-Banner, Newsletter, Slider, Galerie-Lupe, Ortsanzeige, Bedienhilfe) | live |
 | 31.10.2026 | `pruefe-live.sh`: sechs Marker auf dem gesperrten Konfigurator machten sie unbemerkt rot — ruhen jetzt, mit Beweis der Hinweisseite | live |

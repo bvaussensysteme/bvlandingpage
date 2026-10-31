@@ -2914,7 +2914,17 @@ pruefe('RAL-Feld ist breit genug',
     /* Das Feld im Teilen-Dialog ZEIGT den Link, es stellt nichts ein.
        Es ist readonly; geprueft wird es in scripts/pruefe-teilen.mjs,
        und zwar daran, ob der Link die Planung wirklich zurueckbringt. */
-    k3dTeilenLink: true
+    k3dTeilenLink: true,
+    /* Das Feld im Mass-Kasten stellt NICHTS ein, solange getippt wird.
+       Erst "Uebernehmen" (oder die Eingabetaste) schreibt die Zahl in
+       das Zahlenfeld des Bedienfeldes - dort haengen Mindest- und
+       Hoechstmass und der Neubau. Wuerde dieses Feld selbst aendern()
+       rufen, baute das Modell bei jedem Tastendruck neu, und eine halb
+       getippte "4" waere sofort ein 4-mm-Dach.
+       Geprueft wird dafuer in scripts/pruefe-marken.js, dass die Zahl
+       den Weg ueber das Zahlenfeld nimmt - und im Browser gemessen,
+       dass 99999 mm auf das Hoechstmass begrenzt wird. */
+    k3dMassWert: true
   };
 
   var offen = ids.filter(function (e) {
