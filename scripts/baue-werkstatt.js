@@ -45,6 +45,43 @@ html = html.replace(/<title>[^<]*<\/title>/,
   '<title>Werkstatt – nicht veroeffentlicht</title>\n'
   + '  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">');
 
+/* 2b. Was in der Werkstatt nur stoert, fliegt raus - AUSSCHLIESSLICH hier.
+      „cookies, testbetrieb popup, und die 2 runden buttons auf dem bild
+      kannst du NUR in der Werkstattseite entfernen, auf der normalen
+      internetseite bleibt es bestehen" (Betreiber, 31.10.2026).
+
+      Die Werkstatt ist die Arbeitsflaeche des Betreibers hinter einem
+      Passwort. Drei Einblendungen legen sich dort ueber genau das Bild,
+      das beurteilt werden soll, und muessen bei jedem Aufruf weggeklickt
+      werden. Auf der oeffentlichen Seite bleibt alles, wie es ist -
+      geprueft von scripts/pruefe-werkstatt.js, das BEIDE Seiten ansieht.
+
+      DATENSCHUTZ, nachgesehen statt angenommen: js/metricool.js startet
+      erst nach einer Einwilligung (localStorage 'bv_cookie_consent').
+      Ohne Banner wird die nie erteilt - in der Werkstatt laeuft also
+      auch keine Statistik mit. Das ist die richtige Richtung, nicht nur
+      eine Nebenwirkung: Die eigenen Testaufrufe sollen die Zahlen des
+      Betriebs nicht verfaelschen.
+
+      Jeder Griff wird gezaehlt. Wird eine Datei umbenannt und greift ein
+      Muster nicht mehr, bricht der Bau ab, statt die Einblendung still
+      stehen zu lassen. */
+[
+  ['Cookie-Banner', /\s*<script src="[^"]*js\/cookie\.js[^"]*"[^>]*><\/script>/g],
+  ['Bedienhilfe mit den beiden runden Knoepfen',
+   /\s*<script src="[^"]*js\/accessibility\.js[^"]*"[^>]*><\/script>/g],
+  ['Hinweis auf den Testbetrieb',
+   /\s*<div class="k3d-hinw" id="k3dTestHinweis"[\s\S]*?\n<\/div>/g]
+].forEach(function (paar) {
+  var vorher = html;
+  html = html.replace(paar[1], '');
+  if (html === vorher) {
+    console.error('FEHLER: "' + paar[0] + '" wurde in konfigurator.html nicht ' +
+                  'gefunden - es bliebe in der Werkstatt stehen.');
+    process.exit(2);
+  }
+});
+
 /* 3. Ein Streifen, der keinen Zweifel laesst, auf welcher Seite man ist.
       Bewusst nuechtern und in den Farben der Seite - er soll auffallen,
       aber nicht wie ein Fehler aussehen. */

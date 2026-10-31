@@ -23,6 +23,12 @@ var WRANGLER = WRANGLER_ORIGINAL;
    keiner Quelldatei. */
 var WK_ORIGINAL = fs.readFileSync(__dirname + '/../werkstatt/index.html', 'utf8');
 var WK = WK_ORIGINAL;
+/* Und die OEFFENTLICHE Seite. Sie gehoert in die Gegenprobe, weil der
+   schlimmere Fehler dort liegt: Faellt eine Einblendung versehentlich
+   auch oeffentlich weg, fehlte das Cookie-Banner - und das faellt
+   niemandem sofort auf. */
+var QUELLE_ORIGINAL = fs.readFileSync(__dirname + '/../konfigurator.html', 'utf8');
+var QUELLE = QUELLE_ORIGINAL;
 
 var FEHLER = [
   ['Ohne hinterlegtes Passwort offen',
@@ -64,13 +70,39 @@ var FEHLER = [
   ['Ein Stilblock wird zerrissen', 'werkstatt', '<div class="wk-leiste">',
    '</style><div class="wk-leiste">'],
   ['Der Streifen darf wieder umbrechen', 'werkstatt',
-   'white-space:nowrap;overflow-x:auto', 'flex-wrap:wrap;overflow-x:auto']
+   'white-space:nowrap;overflow-x:auto', 'flex-wrap:wrap;overflow-x:auto'],
+  /* Die Einblendungen duerfen NUR in der Werkstatt fehlen. */
+  ['Cookie-Banner steht wieder in der Werkstatt', 'werkstatt',
+   '<script src="/js/metricool.js"',
+   '<script src="/js/cookie.js" defer></script><script src="/js/metricool.js"'],
+  ['Testbetrieb-Hinweis steht wieder in der Werkstatt', 'werkstatt',
+   '<div class="wk-leiste">', '<div class="k3d-hinw" id="k3dTestHinweis" hidden></div><div class="wk-leiste">'],
+  ['Bedienhilfe steht wieder in der Werkstatt', 'werkstatt',
+   '<script src="/js/metricool.js"',
+   '<script src="/js/accessibility.js" defer></script><script src="/js/metricool.js"'],
+  /* Und dasselbe andersherum: auf der oeffentlichen Seite entfernt. */
+  ['Cookie-Banner faellt auch oeffentlich weg', 'quelle',
+   '<script src="js/cookie.js" defer></script>', ''],
+  ['Bedienhilfe faellt auch oeffentlich weg', 'quelle',
+   '<script src="js/accessibility.js" defer></script>', ''],
+  ['Testbetrieb-Hinweis faellt auch oeffentlich weg', 'quelle',
+   'id="k3dTestHinweis"', 'id="k3dHinweisTest"']
 ];
 
 function baue(nr) {
   var code = ORIGINAL;
   WRANGLER = WRANGLER_ORIGINAL;
   WK = WK_ORIGINAL;
+  QUELLE = QUELLE_ORIGINAL;
+  if (nr != null && FEHLER[nr][1] === 'quelle') {
+    var fq = FEHLER[nr];
+    if (QUELLE.indexOf(fq[2]) < 0) {
+      console.error('FEHLER: Gegenprobe "' + fq[0] + '" findet ihre Stelle nicht mehr.');
+      process.exit(2);
+    }
+    QUELLE = QUELLE.replace(fq[2], fq[3]);
+    nr = null;
+  }
   if (nr != null && FEHLER[nr][1] === 'werkstatt') {
     var fw = FEHLER[nr];
     if (WK.indexOf(fw[2]) < 0) {
@@ -213,7 +245,7 @@ async function lauf(w) {
 
      Gemessen wird die ERZEUGTE Datei, nicht der Baukasten gelesen. */
   var wkDatei = WK;
-  var quellDatei = fs.readFileSync(__dirname + '/../konfigurator.html', 'utf8');
+  var quellDatei = QUELLE;
   function zaehleStil(t) { return (t.match(/<\/style>/g) || []).length; }
   var anfaenge = (wkDatei.match(/^<body[^>]*>/gm) || []).length;
   var koerper = wkDatei.search(/^<body[^>]*>/m);
@@ -232,6 +264,24 @@ async function lauf(w) {
      nimmt dem Modell den Platz wieder weg. */
   var stilStueck = wkDatei.slice(wkDatei.indexOf('.wk-leiste{'),
                                  wkDatei.indexOf('.wk-marke{'));
+  /* 11 - Drei Einblendungen fliegen NUR in der Werkstatt raus.
+     „cookies, testbetrieb popup, und die 2 runden buttons … kannst du
+     NUR in der Werkstattseite entfernen, auf der normalen internetseite
+     bleibt es bestehen" (Betreiber, 31.10.2026).
+
+     Beide Haelften zaehlen, und die zweite ist die wichtigere: Faellt
+     eine davon aus Versehen auch auf der oeffentlichen Seite weg,
+     fehlte dort das Cookie-Banner - ein Datenschutzproblem, das
+     niemandem sofort auffaellt. */
+  [['Cookie-Banner', 'js/cookie.js'],
+   ['Bedienhilfe (die beiden runden Knoepfe)', 'js/accessibility.js'],
+   ['Hinweis auf den Testbetrieb', 'k3dTestHinweis']].forEach(function (x) {
+    p(x[0] + ' ist in der Werkstatt weg',
+      wkDatei.indexOf(x[1]) < 0, x[1]);
+    p(x[0] + ' bleibt auf der oeffentlichen Seite',
+      quellDatei.indexOf(x[1]) > -1, x[1] + ' in konfigurator.html');
+  });
+
   p('Der Streifen bleibt einzeilig',
     /white-space:nowrap/.test(stilStueck) && !/flex-wrap:\s*wrap/.test(stilStueck),
     'white-space:nowrap, kein Umbruch');

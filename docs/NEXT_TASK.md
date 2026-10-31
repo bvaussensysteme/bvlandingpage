@@ -117,6 +117,19 @@ ausgelieferten Dateiversion (`#wkVersion`) — daran ist zu sehen, ob eine
 `node scripts/baue-werkstatt.js` — sonst hängt die Werkstatt zurück.
 Prüfung: `node scripts/pruefe-werkstatt.js`.
 
+**Drei Einblendungen fehlen in der Werkstatt — nur dort** (31.10.2026):
+Cookie-Banner (`js/cookie.js`), Hinweis auf den Testbetrieb
+(`k3dTestHinweis`) und die Bedienhilfe mit den beiden runden Knöpfen
+(`js/accessibility.js`). Sie legten sich über genau das Bild, das
+beurteilt werden soll. Auf der öffentlichen Seite bleibt alles —
+`pruefe-werkstatt.js` prüft **beide Hälften**, und die zweite ist die
+wichtigere: Fiele eine davon versehentlich auch öffentlich weg, fehlte
+dort das Cookie-Banner.
+
+Nebenbefund, nachgesehen: `js/metricool.js` startet erst nach einer
+Einwilligung. Ohne Banner wird die in der Werkstatt nie erteilt — eigene
+Testaufrufe verfälschen die Zahlen des Betriebs also nicht.
+
 ### Werkstatt: Aussparung (Hausvorsprung) *(Machbarkeit gezeigt, 31.10.2026)*
 
 Zweiter Anlauf nach der am 25.10.2026 entfernten Sonderform, diesmal
