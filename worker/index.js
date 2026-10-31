@@ -49,6 +49,15 @@ export default {
       return handleTeilenOeffnen(url, env);
     }
 
+    /* Der oeffentliche 3D-Konfigurator ist vorübergehend gesperrt,
+       solange er ueberarbeitet wird. Zum Zurueckschalten genuegt
+       KONFIGURATOR_GESPERRT = false - die Seite selbst ist unberuehrt,
+       und alle Verweise aus Ratgebern und Staedteseiten bleiben
+       bestehen. Die Werkstatt ist davon nicht betroffen. */
+    if (KONFIGURATOR_GESPERRT && KONFIGURATOR_PFADE.has(url.pathname)) {
+      return konfiguratorGesperrtSeite();
+    }
+
     /* Werkstatt: nicht oeffentliche Erprobungsseite. Muss VOR der
        Auslieferung der Dateien stehen - sonst laege die Seite offen. */
     if (url.pathname === '/werkstatt' || url.pathname.startsWith('/werkstatt/')) {
@@ -718,4 +727,67 @@ async function werkstattTor(request, env, url) {
   }
 
   return anmeldeSeite('');
+}
+
+/* ============== Konfigurator vorübergehend gesperrt ==============
+
+   Entscheidung des Betreibers am 31.10.2026: Der 3D-Konfigurator soll
+   von der oeffentlichen Website verschwinden, bis er fertig ist und er
+   ihn freigibt. Gearbeitet wird solange in der Werkstatt.
+
+   Warum hier und nicht in den Seiten: Der Konfigurator ist von rund
+   zwanzig Seiten verlinkt - Kopfzeile, Fusszeile, jeder Ratgeber, die
+   Staedteseiten. Diese Verweise einzeln zu entfernen und spaeter wieder
+   einzusetzen waere viel Arbeit und jedes Mal eine Gelegenheit, einen
+   zu vergessen. Hier ist es EINE Zeile, in beide Richtungen.
+
+   Warum 503 und nicht 404 oder eine Weiterleitung: 503 heisst
+   "voruebergehend nicht verfuegbar". Suchmaschinen behalten die Adresse
+   im Bestand und nehmen den Hinweistext nicht in den Index. Ein 404
+   oder ein noindex wuerde die Seite dagegen abschreiben, und der
+   aufgebaute Rang waere bei der Rueckkehr weg. Retry-After sagt
+   zusaetzlich, dass es sich lohnt, wieder vorbeizuschauen.          */
+
+const KONFIGURATOR_GESPERRT = true;
+const KONFIGURATOR_PFADE = new Set([
+  '/konfigurator', '/konfigurator/', '/konfigurator.html',
+]);
+
+function konfiguratorGesperrtSeite() {
+  const html = '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<title>3D-Konfigurator wird \u00fcberarbeitet \u2013 BV AussenSysteme</title>'
+    + '<style>'
+    + ':root{--ink:#1f2a33;--gold:#c8a04a}'
+    + '*{box-sizing:border-box}'
+    + 'body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;'
+    + 'background:#f3f5f7;color:var(--ink);'
+    + 'font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}'
+    + '.k{background:#fff;border-radius:14px;padding:34px 30px;max-width:560px;width:100%;'
+    + 'box-shadow:0 2px 20px rgba(31,42,51,.10);text-align:center}'
+    + 'h1{margin:0 0 10px;font-size:25px;line-height:1.25}'
+    + 'p{margin:0 0 18px;color:#4a5962}'
+    + '.b{display:inline-flex;align-items:center;justify-content:center;gap:8px;'
+    + 'margin:5px;padding:13px 22px;border-radius:9px;text-decoration:none;font-weight:600}'
+    + '.b1{background:var(--gold);color:#1a1a1a}'
+    + '.b2{background:#fff;color:var(--ink);border:1px solid #c6d0d6}'
+    + '.z{margin:22px 0 0;font-size:14px;color:#6b7a84}'
+    + '.z a{color:#6b7a84}'
+    + '</style></head><body><div class="k">'
+    + '<h1>Der 3D-Konfigurator wird gerade \u00fcberarbeitet</h1>'
+    + '<p>Wir bauen ihn aus und schalten ihn in K\u00fcrze wieder frei.</p>'
+    + '<p>Ihr Projekt k\u00f6nnen Sie trotzdem jederzeit anfragen \u2013 '
+    + 'wir melden uns mit einem Angebot und messen vor Ort kostenlos auf.</p>'
+    + '<p><a class="b b1" href="/#kontakt">Jetzt anfragen</a>'
+    + '<a class="b b2" href="tel:+4915678696609">0156 7869 6609</a></p>'
+    + '<p class="z"><a href="/">\u2190 Zur Website</a></p>'
+    + '</div></body></html>';
+  return new Response(html, {
+    status: 503,
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'cache-control': 'no-store',
+      'retry-after': '86400',
+    },
+  });
 }
