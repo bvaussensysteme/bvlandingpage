@@ -5487,9 +5487,23 @@
        am nötigsten, weil er zum Hinzufügen einlädt. Der Punkt hängt also
        am Feld, nicht an seinem Inhalt.
 
-       Die Höhe ist die Mitte der Öffnung: unten der Boden (mit Gefälle,
-       deshalb bodenY), oben die Dachunterkante. Hinten liegt die um das
-       ganze Gefälle höher – mit hVorn säße der Punkt dort zu tief. */
+       DIE HÖHE: dicht UNTER DER DACHKANTE, nicht in der Mitte der
+       Öffnung.
+
+       GEMESSEN am 31.10.2026, nachdem der Betreiber zum dritten Mal
+       „die + punkte wandern" gemeldet hat: In der Mitte der Öffnung ist
+       bei einer OFFENEN Seite nichts – der Punkt hing in der leeren
+       Luft. Von zwölf Messungen (vier Punkte über fünf Drehungen) lag
+       genau EINE auf einem Bauteil; die übrigen auf Wiese, Himmel und
+       Belag. Beim Drehen wandert so ein Punkt über den Hintergrund,
+       weil ihn nichts hält.
+
+       Die Dachkante ist dagegen immer da – ob die Seite offen ist oder
+       zu. 18 cm darunter heißt: sichtbar am Träger hängend, aber nicht
+       in ihm drin, wo ihn die Verdeckungsprüfung ausblenden würde.
+
+       Hinten liegt die Dachunterkante um das ganze Gefälle höher – mit
+       hVorn säße der Punkt dort zu tief. */
     var okHinten = dachUk ? dachUk(0) : hVorn;
     markenFelder(B, PROFIL, felderLR, vorne, hinten, achsen, achsenH,
                  rueckseiteOffen()).forEach(function (m) {
@@ -5498,7 +5512,26 @@
       if (okOben - yUnten <= 0) return;
       MARKEN.push({
         art: 'seite', seite: m.seite, feld: m.feld, anzahl: m.anzahl,
-        p: { x: m.x, y: (yUnten + okOben) / 2, z: m.z },
+        /* VOR der Dachkante, auf Hoehe des Traegers.
+
+           Drei Lagen durchgemessen, jede im Browser nachgesehen:
+             Mitte der Oeffnung  -> haengt in der Luft, wandert beim
+                                    Drehen ueber Wiese und Himmel
+             18 cm darunter      -> liegt vor der Hauswand, nicht auf
+                                    einem Bauteil
+             6 cm darueber       -> steckt IM Traeger, und die
+                                    Verdeckungspruefung blendet ihn aus
+                                    (die vorderen Punkte verschwanden)
+
+           Deshalb: auf Hoehe der Dachunterkante und 10 cm nach AUSSEN
+           versetzt, entlang der Richtung, in die das Feld schaut. Damit
+           liegt der Punkt optisch auf dem Traeger, geometrisch aber
+           davor - er verdeckt sich nicht selbst.
+
+           Bei einer sehr niedrigen Anlage bleibt er ueber dem Boden. */
+        p: { x: m.x + m.nx * 10,
+             y: Math.max(yUnten + 5, okOben - 2),
+             z: m.z + m.nz * 10 },
         n: { x: m.nx, y: 0, z: m.nz }
       });
     });
@@ -9643,17 +9676,40 @@
      damit durch markeSichtbar() weg, und das ist richtig: Dort schaut
      man auf die Unterseite, der Punkt gehörte sonst mitten ins Bild. */
   function markeDach() {
-    var kiste = null;
+    var kiste = null, teile = [];
     bau.traverse(function (o) {
       if (!o.isMesh || !istDach(o)) return;
+      teile.push(o);
       var k = new THREE.Box3().setFromObject(o);
       kiste = kiste ? kiste.union(k) : k;
     });
     if (!kiste || !isFinite(kiste.max.y)) return;
     var m = kiste.getCenter(new THREE.Vector3());
+
+    /* AUF die Dachflaeche, nicht ueber sie.
+
+       Vorher stand hier kiste.max.y - der HOECHSTE Punkt der ganzen
+       Huelle. Bei einem geneigten Dach liegt der an der Hinterkante; in
+       der Mitte schwebte der Punkt deshalb in der Luft darueber, und
+       beim Drehen wanderte er ueber den Himmel (am 31.10.2026 gemessen:
+       der Dachpunkt lag auf "Himmel" statt auf einem Bauteil).
+
+       Ein Strahl von oben auf die Mitte trifft die Flaeche dort, wo sie
+       wirklich liegt - Neigung, Aufbau und Eindeckung schon
+       eingerechnet. Einmal je Bau, nicht je Bild. */
+    var y = kiste.max.y;
+    if (teile.length) {
+      var runter = new THREE.Raycaster(
+        new THREE.Vector3(m.x, kiste.max.y + 100, m.z),
+        new THREE.Vector3(0, -1, 0));
+      var t = runter.intersectObjects(teile, true);
+      if (t.length) y = t[0].point.y;
+    }
     MARKEN.push({
       art: 'dach', seite: 'dach', feld: 0, anzahl: 1,
-      p: { x: m.x, y: kiste.max.y, z: m.z },
+      /* 3 cm darueber: genau auf der Flaeche wuerde die
+         Verdeckungspruefung ihn an der eigenen Eindeckung ausblenden. */
+      p: { x: m.x, y: y + 3, z: m.z },
       n: { x: 0, y: 1, z: 0 }
     });
   }

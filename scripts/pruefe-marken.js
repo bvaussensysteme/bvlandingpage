@@ -115,6 +115,13 @@ var FEHLER = [
    '      Z.breite = parseInt(eingabe.value, 10);'],
   ['Der Eingabekasten fehlt in der Seite', 'html',
    'id="k3dMassEingabe"', 'id="k3dMassEingabeAlt"'],
+  ['Punkte haengen wieder in der Mitte der Oeffnung', 'js',
+   '             y: Math.max(yUnten + 5, okOben - 2),',
+   '             y: (yUnten + okOben) / 2,'],
+  ['Punkte stecken im Traeger statt davor', 'js',
+   '        p: { x: m.x + m.nx * 10,', '        p: { x: m.x,'],
+  ['Der Dachpunkt schwebt wieder ueber dem Dach', 'js',
+   '      if (t.length) y = t[0].point.y;', '      void t;'],
   ['Die Buehne wird nicht mehr beobachtet', 'js',
    'new ResizeObserver(groesseGebremst).observe(leinwand.parentNode);',
    'void groesseGebremst;'],
@@ -328,6 +335,36 @@ function lauf(q) {
      Reichweite begrenzt und nicht zuruecksetzt, bricht deren Klicks. */
   p('Der geteilte Strahl wird wieder freigegeben',
     /strahl\.far = Infinity;/.test(q.js), 'strahl.far zurueckgesetzt');
+
+  /* ---------- Die Punkte haengen am Bauwerk, nicht in der Luft ----------
+     „die + punkte wandern" (Betreiber, 31.10.2026, dreimal gemeldet).
+
+     GEMESSEN statt geraten: Im Browser wurde der Bildpunkt unter jedem
+     Punkt ausgelesen und eingeordnet (Bauteil, Wiese, Himmel, Belag).
+     In der Mitte der Oeffnung lag von zwoelf Messungen genau EINE auf
+     einem Bauteil - bei einer offenen Seite ist dort nichts. Beim
+     Drehen wandert so ein Punkt ueber den Hintergrund.
+
+     Jetzt: auf Hoehe der Dachunterkante und 10 cm nach AUSSEN versetzt.
+     Optisch auf dem Traeger, geometrisch davor - sonst blendet ihn die
+     Verdeckungspruefung an seinem eigenen Traeger aus (durchgemessen:
+     6 cm darueber liess die vorderen Punkte verschwinden). */
+  p('Die Seitenpunkte haengen an der Dachkante, nicht in der Mitte',
+    /y: Math\.max\(yUnten \+ 5, okOben - 2\)/.test(q.js) &&
+    !/y: \(yUnten \+ okOben\) \/ 2/.test(q.js),
+    'Hoehe der Dachunterkante');
+
+  p('Die Seitenpunkte liegen VOR ihrer Flaeche, nicht darin',
+    /p: \{ x: m\.x \+ m\.nx \* 10,[\s\S]{0,120}z: m\.z \+ m\.nz \* 10 \}/.test(q.js),
+    '10 cm nach aussen versetzt');
+
+  /* Der Dachpunkt lag auf kiste.max.y - dem hoechsten Punkt der Huelle.
+     Bei einem geneigten Dach ist das die Hinterkante; in der Mitte
+     schwebte er darueber. */
+  p('Der Dachpunkt sitzt auf der Dachflaeche, nicht ueber ihr',
+    /new THREE\.Raycaster\(\s*\n?\s*new THREE\.Vector3\(m\.x, kiste\.max\.y \+ 100, m\.z\)/.test(q.js) &&
+    /if \(t\.length\) y = t\[0\]\.point\.y;/.test(q.js),
+    'Strahl von oben auf die Mitte');
 
   /* ---------- Ein Maß antippen und ändern ----------
      „Die Maße sollen standartmäßig an sein … wenn man auf ein maß tippt

@@ -207,6 +207,17 @@ sonst wirkt der Klick folgenlos.
   Nachgebessert am 31.10.2026: „die + zeichen sind zu groß … mach sie kleiner
   etwas durchsichtiger und feststehend". Weniger als 24 px geht nicht —
   das ist das Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8).
+- **Die Punkte hängen an der Dachkante, nicht in der Luft.** Dreimal gemeldet
+  („die + punkte wandern"), beim dritten Mal richtig gemessen: Im Browser
+  wurde der Bildpunkt unter jedem Punkt ausgelesen und eingeordnet. In der
+  Mitte der Öffnung lag von **zwölf Messungen genau eine** auf einem Bauteil —
+  bei einer offenen Seite ist dort nichts. Jetzt sitzen sie auf Höhe der
+  Dachunterkante, **10 cm nach außen versetzt**: optisch auf dem Träger,
+  geometrisch davor. Drei Lagen durchgemessen — Mitte (hängt in der Luft),
+  18 cm darunter (liegt vor der Hauswand), 6 cm darüber (steckt im Träger,
+  die Verdeckungsprüfung blendet ihn aus). Der Dachpunkt sitzt per Strahl von
+  oben auf der **Dachfläche**, nicht auf `kiste.max.y` (das ist bei geneigtem
+  Dach die Hinterkante — in der Mitte schwebte er darüber).
 - **Die Bühne wird beobachtet, nicht nur das Fenster** (`ResizeObserver` in
   `groesseAnpassen()`). Gemessen am 31.10.2026: Wird die Bühne kleiner, ohne
   dass sich das Fenster ändert — am iPhone fährt dabei die Adressleiste ein
