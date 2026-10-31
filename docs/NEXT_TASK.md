@@ -172,10 +172,21 @@ Projektion je Bild, `markeSichtbar()`, `markenVerdeckungPruefen()`,
   verschoben). Beim Ziehen leuchtet nichts mit, und sobald sich die Kamera
   bewegt, erlischt es — über die Ansichtsknöpfe und das Mausrad kommt kein
   `pointermove`, sonst bliebe es stehen.
-- **Das Zeichen** ist eine gezeichnete Fläche (dunkle Scheibe, heller Ring,
-  helles Zeichen), kein Sprite und kein Schriftzeichen: Ein Sprite drehte
-  sich wieder zur Kamera, und das war die Beschwerde. 14 bis 34 cm groß,
-  1,2 cm vor der Feldfläche, damit beide nicht um dieselbe Tiefe streiten.
+- **Das Zeichen** ist eine gezeichnete Fläche, kein Sprite und kein
+  Schriftzeichen: Ein Sprite drehte sich wieder zur Kamera, und das war die
+  Beschwerde. 14 bis 34 cm groß, 1,2 cm vor der Feldfläche, damit beide
+  nicht um dieselbe Tiefe streiten.
+- **Die Form ist die des alten Knopfes** – leer eine helle Scheibe mit
+  Goldring und goldenem **+**, belegt eine goldene Scheibe mit weißem
+  **Stift**. „nur das alte design von den + hat mir mehr gefallen und am
+  dach is kein + sondern ein pfeil es soll ein + oder wie damals stift
+  sein" (Betreiber, 31.10.2026). Im ersten Anlauf hatte ich das Zeichen
+  frei auf die Leinwand gemalt; der Stift geriet dabei zu einem **Pfeil**,
+  weil ein Strich mit zwei Haken am Ende genau das ist. Jetzt kommen die
+  Umrisse aus **demselben Zeichensatz**, den auch die Knopfliste benutzt
+  (`symbolUmriss()` liest `bvs-punkt` / `bvs-stift` aus dem Sprite in
+  `konfigurator.html`) – sonst gäbe es zwei Wahrheiten. Welches Zeichen
+  gilt, entscheidet `markenZeichen()`, ebenfalls nur an einer Stelle.
 - **Das Dachfeld** liegt in der *gemessenen* Dachneigung: Ein Strahl von oben
   auf die Mitte liefert Höhe **und** Richtung der getroffenen Fläche. Von
   unten („Darunter") ist es nicht anklickbar — die Eindeckung nimmt den
@@ -234,8 +245,8 @@ mit 500 ms wäre jeder bedächtige Tipp ins Leere gelaufen.
   verzieht das nicht mehr nur die Punkte, sondern das ganze Bild.
 - Lage: `markenFelder()` in `js/konfigurator-3d.js`, mit denselben Achsen, mit
   denen `eineSeite()` baut.
-- Geprüft von **`scripts/pruefe-marken.js`** (58 Prüfungen, Gegenprobe mit
-  61 einzeln eingebauten Fehlern, alle bemerkt).
+- Geprüft von **`scripts/pruefe-marken.js`** (61 Prüfungen, Gegenprobe mit
+  64 einzeln eingebauten Fehlern, alle bemerkt).
 
 **Beim ersten Bauen schiefgegangen** (steht hier, damit es niemand wiederholt):
 Die Hülle über der Leinwand und das Häkchen im Bedienfeld trugen beide die
@@ -247,7 +258,7 @@ auf einem Fleck bei 0/0. Die Hülle heißt `k3dMarkenHuelle`, und
 **Vom Betreiber gegenzulesen:**
 1. Am Handy: Lassen sich die Felder mit dem Finger treffen? Ohne Zeiger gibt
    es kein Überfahren — der erste Tipp ist gleich der Klick.
-2. Wirkt das Orange zu kräftig oder zu schwach? (`FELD_WACH`, zurzeit 26 %.)
+2. Orange ist abgenommen („deckkraft is oke", 31.10.2026).
 3. Stören die angedeuteten leeren Felder (9 % weiß), wenn man nur schauen
    will? Der Schalter **„+ Felder"** nimmt sie weg.
 

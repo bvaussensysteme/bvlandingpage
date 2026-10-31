@@ -4107,36 +4107,86 @@
     return st;
   }
 
-  /* Das Zeichen wird gezeichnet, nicht getippt. Ein Sprite oder ein
+  /* ---------- Das Zeichen im Feld ----------
+     Es wird GEZEICHNET, nicht getippt: Ein Sprite oder ein
      Schriftzeichen würde sich wieder zur Kamera drehen, und genau das
-     soll nicht sein. Zwei Bilder, einmal angelegt und geteilt. */
+     soll nicht sein.
+
+     DIE FORM IST DIE ALTE. „nur das alte design von den + hat mir mehr
+     gefallen und am dach is kein + sondern ein pfeil es soll ein + oder
+     wie damals stift sein" (Betreiber, 31.10.2026, zur ersten Fassung
+     dieser Bauart). Davor hatte ich das Zeichen frei auf die Leinwand
+     gemalt - der „Stift" geriet dabei zu einem Pfeil, weil ein
+     Strich mit zwei Haken am Ende genau das ist.
+
+     Also kein zweites Mal von Hand: Die Umrisse kommen aus DEMSELBEN
+     Zeichensatz, den auch die Knopfliste benutzt (das SVG-Sprite unter
+     <body> in konfigurator.html). Ändert sich dort ein Zeichen,
+     ändert sich dieses hier mit - sonst hätten wir zwei Wahrheiten.
+
+     Die Farben sind die des alten Knopfes: leer eine helle Scheibe mit
+     Goldring und goldenem Zeichen, belegt eine goldene Scheibe mit
+     weißem Zeichen - genau der Unterschied, den .k3d-marke und
+     .k3d-marke.ist-belegt im Bedienfeld machen. */
   var feldBilder = {};
+
+  /* Die Umrisse eines Zeichens aus dem Sprite, dazu seine Kantenlänge.
+     Fehlt das Sprite (z. B. in einer abgespeckten Seite), gibt es ein
+     Kreuz von Hand - lieber ein schlichtes Zeichen als gar keins. */
+  function symbolUmriss(name) {
+    var sy = document.getElementById('bvs-' + name);
+    if (!sy) return null;
+    var kasten = (sy.getAttribute('viewBox') || '0 0 24 24').split(/\s+/);
+    var pfade = sy.querySelectorAll('path'), d = [];
+    for (var i = 0; i < pfade.length; i++) {
+      var w = pfade[i].getAttribute('d');
+      if (w) d.push(w);
+    }
+    if (!d.length) return null;
+    return { d: d, breite: parseFloat(kasten[2]) || 24,
+             hoehe: parseFloat(kasten[3]) || 24 };
+  }
+
   function feldBild(art) {
     if (feldBilder[art]) return feldBilder[art];
     var c = document.createElement('canvas');
     c.width = c.height = 128;
     var g = c.getContext('2d');
-    g.lineCap = 'round';
-    /* EINE SCHEIBE HINTER DEM ZEICHEN. Im ersten Versuch stand nur ein
-       weisses Kreuz mit dunklem Rand darin - GESEHEN im Bild vom
-       31.10.2026: vor heller Hauswand und vor dem hellen Belag war es
-       kaum zu finden. Dunkel gefuellt mit hellem Ring traegt es sich
-       selbst, auf dunklem Dach wie auf heller Wand.
-       Eigene Form: dunkle Scheibe, heller Ring, helles Zeichen. */
-    g.beginPath(); g.arc(64, 64, 42, 0, Math.PI * 2);
-    g.fillStyle = 'rgba(17,17,17,.46)'; g.fill();
-    g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 5; g.stroke();
-    g.strokeStyle = '#ffffff'; g.lineWidth = 9;
-    g.beginPath();
-    if (art === 'stift') {
-      g.moveTo(44, 84); g.lineTo(84, 44);
-      g.moveTo(44, 84); g.lineTo(57, 81);
-      g.moveTo(44, 84); g.lineTo(47, 71);
+    var belegt = (art !== 'punkt');
+
+    /* Ein Hauch Dunkel außen – das ist der Schatten des alten Knopfes
+       (box-shadow). Ohne ihn verschwindet die helle Scheibe vor der
+       hellen Hauswand. */
+    g.beginPath(); g.arc(64, 64, 57, 0, Math.PI * 2);
+    g.strokeStyle = 'rgba(17,17,17,.22)'; g.lineWidth = 4; g.stroke();
+
+    g.beginPath(); g.arc(64, 64, 54, 0, Math.PI * 2);
+    g.fillStyle = belegt ? 'rgba(196,154,42,.80)' : 'rgba(255,255,255,.80)';
+    g.fill();
+    g.strokeStyle = 'rgba(196,154,42,.85)'; g.lineWidth = 7; g.stroke();
+
+    var u = symbolUmriss(belegt ? 'stift' : 'punkt');
+    g.strokeStyle = belegt ? '#ffffff' : '#7A5B12';
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    g.fillStyle = 'rgba(0,0,0,0)';
+    if (u && window.Path2D) {
+      /* Das Zeichen füllt gut die halbe Scheibe – dasselbe Verhältnis
+         wie im Knopf (14 px Zeichen in 24 px Scheibe). */
+      var kante = 70;
+      var f = kante / Math.max(u.breite, u.hoehe);
+      g.save();
+      g.translate(64 - u.breite * f / 2, 64 - u.hoehe * f / 2);
+      g.scale(f, f);
+      g.lineWidth = 2.3;            // wie stroke-width in .k3d-marke .bvs
+      for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));
+      g.restore();
     } else {
+      g.lineWidth = 9;
+      g.beginPath();
       g.moveTo(64, 40); g.lineTo(64, 88);
       g.moveTo(40, 64); g.lineTo(88, 64);
+      g.stroke();
     }
-    g.stroke();
     var t = new THREE.CanvasTexture(c);
     t.anisotropy = 4;
     feldBilder[art] = t;
@@ -4174,10 +4224,14 @@
        dass man es am Handy nicht mehr trifft, und nie so groß, dass es
        das Feld füllt. */
     var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3));
+    /* WELCHES Zeichen, entscheidet markenZeichen() – dieselbe Regel wie
+       in der Knopfliste. Nicht noch einmal „belegt ? stift : punkt"
+       hier: Das Dach ist immer belegt, aber die Regel steht an EINER
+       Stelle, damit beide nicht auseinanderlaufen. */
     var z = new THREE.Mesh(new THREE.PlaneGeometry(gr, gr),
       new THREE.MeshBasicMaterial({
-        map: feldBild(belegt ? 'stift' : 'punkt'), side: THREE.DoubleSide,
-        transparent: true, depthWrite: false, opacity: 0.88
+        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,
+        transparent: true, depthWrite: false, opacity: 0.95
       }));
     feldRichten(z, marke);
     /* 1,2 cm vor der Fläche: Lagen beide in derselben Ebene, stritten
