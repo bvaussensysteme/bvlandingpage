@@ -225,26 +225,30 @@ sonst wirkt der Klick folgenlos.
   (daher das verzerrte Modell) und die Punkte rechnen schon mit der neuen
   Größe: Sie liegen neben ihrem Bauteil. Ein `resize`-Ereignis kommt dabei
   nicht zuverlässig.
-> **OFFEN und ungeklärt: „die + punkte wandern"** (Betreiber, 31.10.2026,
-> dreimal gemeldet). Auf Rückfrage: *„Tauchen an Feldern auf, die man gar
-> nicht sieht"*, und zwar *„erst nach dem Drehen"*.
->
-> **Vier Erklärungen geprüft, vier verworfen** — damit sie niemand ein
-> zweites Mal durchprobiert:
+> **„die + punkte wandern" — fünf Erklärungen geprüft, vier verworfen**
+> (Betreiber, 31.10.2026, dreimal gemeldet; auf Rückfrage: *„Tauchen an
+> Feldern auf, die man gar nicht sieht"*, *„erst nach dem Drehen"*).
 >
 > | Verdacht | Messung | Ergebnis |
 > |---|---|---|
-> | Seitenverhältnis Leinwand/Bühne läuft auseinander | auch mit `deviceScaleFactor: 3` | passt, Abweichung < 0,01 |
-> | Hauswand fehlte als Verdecker | A/B über 12 Drehschritte | **identisch** — eingebaut, Wirkung aber **nicht nachgewiesen** |
-> | Verdeckungszustand veraltet nach dem Drehen | 6 Drehungen, Muster direkt danach / nach 1,6 s / nach winzigem Stups | **unverändert**, also nicht veraltet |
-> | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt eingeordnet | stimmt (1 von 12 auf einem Bauteil), war aber **nicht der Wunsch** — zurückgenommen |
+> | Seitenverhältnis Leinwand/Bühne | auch mit `deviceScaleFactor: 3` | passt, Abweichung < 0,01 |
+> | Hauswand fehlte als Verdecker | A/B über 12 Drehschritte | **identisch** — eingebaut, Wirkung nicht nachgewiesen |
+> | Zustand veraltet nach dem Drehen | 6 Drehungen, Muster direkt / nach 1,6 s / nach Stups | **unverändert** |
+> | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt ausgelesen | stimmt, war aber **nicht der Wunsch** — zurückgenommen |
+> | Unsichtbare Wand im Feld als Verdecker | A/B über 12 Drehschritte | **identisch**, 8 von 25 Punkten so und so vor Wiese/Himmel |
 >
-> **Der verbleibende Verdacht ist keine Fehlersuche, sondern eine
-> Entscheidung:** Bei einer OFFENEN Seite ist in der Feldmitte nichts zu
-> sehen — der Punkt steht dann vor Wiese oder Himmel. Das ist geometrisch
-> richtig. Falls das stört, wäre die Frage: Soll an einer offenen Seite
-> überhaupt ein Punkt erscheinen, oder erst, wenn dort etwas eingebaut ist?
-> **Beim Betreiber nachgefragt, Antwort steht aus.**
+> **Die Erklärung, die blieb:** Die Punkte der *abgewandten* Seite sind längst
+> durch die Flächenrichtung ausgeblendet. Was im Leeren steht, ist der Punkt
+> des **eigenen, offenen** Feldes — und hinter dem ist nichts. Gegen den hilft
+> keine Verdeckung.
+>
+> **Gelöst wie vom Betreiber vorgeschlagen, nur andersherum:** Die Fläche im
+> offenen Feld bleibt — sie wird ganz schwach **sichtbar** (9 % Deckkraft,
+> kein Schatten, kein Tiefenschreiben). Dann steht der Punkt auf etwas, das
+> man sieht, und das offene Feld zeigt sich als Stelle, an der etwas
+> eingebaut werden kann. Nur wo wirklich nichts steht; am selben Schalter wie
+> die Punkte. **Vom Betreiber noch nicht gegengelesen.**
+>
 
 - **Verdeckte Punkte werden ausgeblendet** (`markenVerdeckungPruefen()`).
   Die Flächenrichtung allein reichte nicht: Beim Drehen schien der Punkt der
