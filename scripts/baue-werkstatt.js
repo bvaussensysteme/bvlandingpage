@@ -56,17 +56,56 @@ html = html.replace(/<title>[^<]*<\/title>/,
    Frage, ob der neue Stand schon da ist - nach dem Zusammenfuehren
    braucht die Veroeffentlichung etwa eine Minute. Mit der Nummer sieht
    man es: aendert sie sich nicht, ist der neue Stand noch unterwegs. */
+/* ---------- Der Streifen ----------
+   „mach das flacher es schneidet zuviel seite weg" (Betreiber,
+   31.10.2026, mit Bildschirmfoto vom iPhone). Vorher lief der Streifen
+   ueber vier Zeilen und nahm rund ein Viertel des Handybildschirms -
+   genau den Platz, auf dem das Modell zu sehen sein soll.
+
+   Flach heisst hier: EINE Zeile, die nicht umbricht. Gespart wird an
+   Polstern, Zeilenhoehe und an Text, nicht an der Lesbarkeit - die
+   Marke WERKSTATT, der Neu-laden-Knopf und die Version bleiben in
+   voller Groesse, weil sie gebraucht werden. Der erklaerende Halbsatz
+   faellt am Handy weg: Wer die Werkstatt aufruft, weiss, wo er ist, und
+   die Marke sagt es noch einmal.
+
+   Warum die Version dabeisteht: Ein Neuladen allein beantwortet nicht
+   die Frage, ob der neue Stand schon da ist - nach dem Zusammenfuehren
+   braucht die Veroeffentlichung etwa eine Minute. Mit der Nummer sieht
+   man es: aendert sie sich nicht, ist der neue Stand noch unterwegs. */
+var wkStil = [
+  '<style>',
+  '.wk-leiste{position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;',
+  'font:600 12.5px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;',
+  'padding:5px 10px;display:flex;gap:9px;align-items:center;',
+  'justify-content:center;white-space:nowrap;overflow-x:auto;',
+  'scrollbar-width:none;-ms-overflow-style:none}',
+  '.wk-leiste::-webkit-scrollbar{display:none}',
+  '.wk-marke{background:#c8863a;border-radius:4px;padding:1px 7px;flex:none}',
+  '.wk-text{overflow:hidden;text-overflow:ellipsis;min-width:0}',
+  '.wk-knopf{background:#fff;color:#1f2a33;border:0;border-radius:6px;',
+  'padding:4px 10px;font:inherit;font-weight:700;cursor:pointer;flex:none}',
+  '.wk-version{opacity:.75;font-weight:500;flex:none}',
+  /* Am Handy faellt der ganze Satz weg, nicht nur der Halbsatz: Bei
+     390 px blieb davon "Nicht veroef..." uebrig, und ein abgeschnittener
+     Satz ist schlechter als keiner. Die Marke WERKSTATT sagt dasselbe
+     in zwei Woertern. 640px ist dieselbe Grenze, an der auch der
+     Konfigurator auf das Handy-Layout umschaltet. */
+  '@media (max-width:640px){.wk-text{display:none}',
+  '.wk-leiste{gap:7px;padding:4px 8px;font-size:12px}',
+  '.wk-knopf{padding:3px 9px}}',
+  '</style>'
+].join('');
+
 var werkzeug = [
-  '<button type="button" onclick="location.reload()" ',
-  'style="background:#fff;color:#1f2a33;border:0;border-radius:6px;',
-  'padding:5px 11px;font:inherit;font-weight:700;cursor:pointer">',
+  '<button type="button" class="wk-knopf" onclick="location.reload()">',
   /* Eigenes Symbol statt des Zeichens U+21BB: Das stellt iOS als
      farbiges Emoji dar - „benutz bitte keine imogis das is nicht
      serioes" (Betreiber, 31.10.2026). Das Sprite steht in
      konfigurator.html und kommt mit dieser Datei mit. */
   '<svg class="bvs" aria-hidden="true" style="vertical-align:-.16em">',
   '<use href="#bvs-neuladen"></use></svg> Neu laden</button>',
-  '<span id="wkVersion" style="opacity:.75;font-weight:500"></span>',
+  '<span id="wkVersion" class="wk-version"></span>',
   /* Erst wenn die Seite steht: Die Skript-Tags stehen am Seitenende,
      der Streifen aber ganz oben. Beim ersten Versuch lief die Abfrage
      waehrend des Einlesens und fand nichts - angezeigt wurde dann
@@ -79,20 +118,51 @@ var werkzeug = [
   '});<\/script>'
 ].join('');
 
-var streifen = [
-  '<div style="position:sticky;top:0;z-index:9999;background:#1f2a33;color:#fff;',
-  'font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;',
-  'padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;',
-  'flex-wrap:wrap;text-align:center">',
-  '<span style="background:#c8863a;border-radius:4px;padding:2px 8px">WERKSTATT</span>',
-  '<span>Nicht veröffentlicht – Stand in Arbeit. ',
-  'Änderungen hier sind für Kunden nicht sichtbar.</span>',
+var streifen = wkStil + [
+  '<div class="wk-leiste">',
+  '<span class="wk-marke">WERKSTATT</span>',
+  '<span class="wk-text">Nicht veröffentlicht',
+  '<span class="wk-lang"> – Änderungen hier sind für Kunden nicht sichtbar.</span>',
+  '</span>',
   werkzeug,
   '</div>'
 ].join('');
-if (html.indexOf('WERKSTATT') < 0) {
-  html = html.replace(/<body([^>]*)>/, '<body$1>\n' + streifen);
+/* Der ECHTE body-Anfang, nicht irgendein "<body>" im Text.
+   GEFUNDEN AM 31.10.2026: Ein Kommentar im Stilblock erwaehnte "<body>"
+   - und genau den traf dieser Ausdruck. Der Streifen landete MITTEN IM
+   STYLESHEET; das </style> darin schloss den Stilblock der Seite viel
+   zu frueh, der Rest der Gestaltung wurde zu sichtbarem Text. Deshalb
+   nur ein <body am ZEILENANFANG, so wie es im HTML wirklich steht. */
+var BODY = /^<body([^>]*)>/m;
+if (html.indexOf('wk-leiste') < 0) {
+  if (!BODY.test(html)) {
+    console.error('FEHLER: kein <body> am Zeilenanfang gefunden.');
+    process.exit(2);
+  }
+  html = html.replace(BODY, '<body$1>\n' + streifen);
 }
+
+/* Nachgerechnet statt gehofft: Der Streifen muss NACH dem body-Anfang
+   stehen, und es darf genau ein body-Anfang dasein. Liefe der Einbau
+   noch einmal in einen Kommentar, faellt es hier auf - nicht erst dem
+   Betreiber im Browser. */
+(function () {
+  var koerper = html.search(BODY);
+  var leiste = html.indexOf('<div class="wk-leiste">');
+  var anzahl = (html.match(/^<body[^>]*>/gm) || []).length;
+  if (anzahl !== 1 || leiste < 0 || leiste < koerper) {
+    console.error('FEHLER: Der Streifen sitzt falsch (body-Anfaenge: ' + anzahl +
+                  ', body bei ' + koerper + ', Streifen bei ' + leiste + ').');
+    process.exit(2);
+  }
+  /* Und: genauso viele </style> wie in der Quelle plus unser eines.
+     Eins zu viel oder zu wenig heisst, dass ein Stilblock zerrissen ist. */
+  function zaehle(t) { return (t.match(/<\/style>/g) || []).length; }
+  if (zaehle(html) !== zaehle(fs.readFileSync(quelle, 'utf8')) + 1) {
+    console.error('FEHLER: Die Zahl der Stilbloecke stimmt nicht - ein Block wurde zerrissen.');
+    process.exit(2);
+  }
+})();
 
 /* 3b. Bilder, die aus dem JAVASCRIPT geladen werden, umbiegen.
       Schritt 1 oben fasst nur href/src im HTML an. Die Texturen (Putz,

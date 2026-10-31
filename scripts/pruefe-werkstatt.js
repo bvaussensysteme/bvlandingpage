@@ -18,6 +18,11 @@ if (von < 0) { console.error('FEHLER: Die Schranke wurde in worker/index.js nich
 var ORIGINAL = quelle.slice(von);
 var WRANGLER_ORIGINAL = fs.readFileSync(__dirname + '/../wrangler.jsonc', 'utf8');
 var WRANGLER = WRANGLER_ORIGINAL;
+/* Die ERZEUGTE Werkstattseite. Sie gehoert in die Gegenprobe wie der
+   Worker: Was hier schiefgeht, sieht man der Seite im Browser an, aber
+   keiner Quelldatei. */
+var WK_ORIGINAL = fs.readFileSync(__dirname + '/../werkstatt/index.html', 'utf8');
+var WK = WK_ORIGINAL;
 
 var FEHLER = [
   ['Ohne hinterlegtes Passwort offen',
@@ -47,12 +52,34 @@ var FEHLER = [
    'const passwort = env.WERKSTATT_PASSWORT;'],
   ['Leerraum in der Eingabe wird nicht abgeschnitten',
    "eingabe = String(daten.get('passwort') || '').trim();",
-   "eingabe = String(daten.get('passwort') || '');"]
+   "eingabe = String(daten.get('passwort') || '');"],
+  /* Die vier Fehler, die am 31.10.2026 wirklich passiert sind oder
+     unmittelbar drohen: Der Streifen landete im Stylesheet, weil der
+     Baukasten ein "<body>" in einem Kommentar traf. */
+  ['Streifen landet im Stylesheet statt im Koerper', 'werkstatt',
+   '\n<body class="k3d-app-seite">',
+   '\n<style>.wk-leiste{}</style><div class="wk-leiste"></div>\n<body class="k3d-app-seite">'],
+  ['Ein zweiter body-Anfang schleicht sich ein', 'werkstatt',
+   '\n<body class="k3d-app-seite">', '\n<body>\n<body class="k3d-app-seite">'],
+  ['Ein Stilblock wird zerrissen', 'werkstatt', '<div class="wk-leiste">',
+   '</style><div class="wk-leiste">'],
+  ['Der Streifen darf wieder umbrechen', 'werkstatt',
+   'white-space:nowrap;overflow-x:auto', 'flex-wrap:wrap;overflow-x:auto']
 ];
 
 function baue(nr) {
   var code = ORIGINAL;
   WRANGLER = WRANGLER_ORIGINAL;
+  WK = WK_ORIGINAL;
+  if (nr != null && FEHLER[nr][1] === 'werkstatt') {
+    var fw = FEHLER[nr];
+    if (WK.indexOf(fw[2]) < 0) {
+      console.error('FEHLER: Gegenprobe "' + fw[0] + '" findet ihre Stelle nicht mehr.');
+      process.exit(2);
+    }
+    WK = WK.replace(fw[2], fw[3]);
+    nr = null;
+  }
   if (nr != null && FEHLER[nr][3] === 'wrangler') {
     if (WRANGLER.indexOf(FEHLER[nr][1]) < 0) {
       console.error('FEHLER: Gegenprobe "' + FEHLER[nr][0] + '" findet ihre Stelle nicht mehr.');
@@ -174,6 +201,40 @@ async function lauf(w) {
   p('Die Werkstatt laeuft durch den Worker (run_worker_first)',
     /"\/werkstatt\/\*"/.test(wr) && /"\/werkstatt"/.test(wr),
     /"\/werkstatt\/\*"/.test(wr) ? 'Eintrag vorhanden' : 'EINTRAG FEHLT in wrangler.jsonc');
+
+  /* 10 - Sitzt der Streifen an der richtigen Stelle?
+
+     GEFUNDEN AM 31.10.2026, nachdem es schon veroeffentlicht war: Der
+     Baukasten setzte den Streifen hinter das erste "<body>" IM TEXT -
+     und das stand in einem Kommentar im Stilblock. Der Streifen landete
+     mitten im Stylesheet; das </style> darin schloss den Stilblock der
+     Seite viel zu frueh, und der Rest der Gestaltung wurde zu sichtbarem
+     Text. Im Browser sah man einen zerrissenen Seitenkopf.
+
+     Gemessen wird die ERZEUGTE Datei, nicht der Baukasten gelesen. */
+  var wkDatei = WK;
+  var quellDatei = fs.readFileSync(__dirname + '/../konfigurator.html', 'utf8');
+  function zaehleStil(t) { return (t.match(/<\/style>/g) || []).length; }
+  var anfaenge = (wkDatei.match(/^<body[^>]*>/gm) || []).length;
+  var koerper = wkDatei.search(/^<body[^>]*>/m);
+  var leiste = wkDatei.indexOf('<div class="wk-leiste">');
+  p('Genau ein body-Anfang in der Werkstatt', anfaenge === 1,
+    anfaenge + ' gefunden');
+  p('Der Streifen steht hinter dem body-Anfang',
+    koerper > -1 && leiste > koerper,
+    'body bei ' + koerper + ', Streifen bei ' + leiste);
+  var sollStil = zaehleStil(quellDatei) + 1, istStil = zaehleStil(wkDatei);
+  p('Kein Stilblock zerrissen', istStil === sollStil,
+    istStil + ' Stilbloecke, erwartet ' + sollStil);
+
+  /* Flach heisst: EINE Zeile. „mach das flacher es schneidet zuviel
+     seite weg" (Betreiber, 31.10.2026). Wer den Umbruch zurueckholt,
+     nimmt dem Modell den Platz wieder weg. */
+  var stilStueck = wkDatei.slice(wkDatei.indexOf('.wk-leiste{'),
+                                 wkDatei.indexOf('.wk-marke{'));
+  p('Der Streifen bleibt einzeilig',
+    /white-space:nowrap/.test(stilStueck) && !/flex-wrap:\s*wrap/.test(stilStueck),
+    'white-space:nowrap, kein Umbruch');
 
   return e;
 }

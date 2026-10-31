@@ -170,6 +170,17 @@ sonst wirkt der Klick folgenlos.
 
 - Leer ist der Punkt ein **+**, belegt ein **Stift** — ein Plus an einer Seite,
   die längst eine Schiebeanlage hat, sagt etwas Falsches.
+- **24 px (Handy 28 px), halbdurchsichtig**, unter dem Zeiger voll deckend.
+  Nachgebessert am 31.10.2026: „die + zeichen sind zu groß … mach sie kleiner
+  etwas durchsichtiger und feststehend". Weniger als 24 px geht nicht —
+  das ist das Mindestmaß für eine Fläche zum Antippen (WCAG 2.2, 2.5.8).
+- **Verdeckte Punkte werden ausgeblendet** (`markenVerdeckungPruefen()`).
+  Die Flächenrichtung allein reichte nicht: Beim Drehen schien der Punkt der
+  abgewandten Längsseite durch das ganze Bauwerk und klebte an einem fremden
+  Bauteil. Der Strahl läuft **nicht je Bild**, sondern höchstens alle 110 ms
+  und nur bei bewegter Kamera — sonst wäre er der teuerste Posten der
+  Zeichenschleife. Beleg: In der Ansicht „Von oben" ist nur noch **1 von 5**
+  Punkten zu sehen, der am Dach.
 - Abschaltbar an zwei Stellen, die denselben Wert halten: Schalter
   **„+ Punkte"** in der Ansichtsleiste und Häkchen unter *Anzeige*.
   Voreingestellt **an**.
@@ -459,6 +470,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 31.10.2026 | Anklickpunkte kleiner, halbdurchsichtig, **verdeckte werden ausgeblendet**; Werkstatt-Streifen von 4 Zeilen auf eine (28 px) | live |
 | 31.10.2026 | **Keine Emoji mehr**: eigene Symbolsammlung für Konfigurator und Website (Cookie-Banner, Newsletter, Slider, Galerie-Lupe, Ortsanzeige, Bedienhilfe) | live |
 | 31.10.2026 | `pruefe-live.sh`: sechs Marker auf dem gesperrten Konfigurator machten sie unbemerkt rot — ruhen jetzt, mit Beweis der Hinweisseite | live |
 | 31.10.2026 | `pruefe-konfigurator-oberflaeche.mjs`: Abbruch bei Prüfung 67 von 90 behoben (23 Prüfungen liefen seit PR #500 nicht) | live |

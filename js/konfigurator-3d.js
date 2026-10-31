@@ -4049,6 +4049,58 @@
            (kamPos.z - p.z) * n.z > 0;
   }
 
+  /* ---------- Und liegt die Anlage davor? ----------
+     „die wandern an komplett falsche stellen wenn man den konfigurator
+     dreht" (Betreiber, 31.10.2026, mit Bild: der Punkt der LINKEN Seite
+     stand beim Blick von rechts mitten im Glas der rechten Seite).
+
+     Die Flaechenrichtung allein reicht dafuer nicht. Sie sagt nur, ob
+     die Flaeche zur Kamera schaut - nicht, ob etwas DAZWISCHEN steht.
+     Beim Drehen schien der Punkt der abgewandten Laengsseite durch das
+     ganze Bauwerk hindurch und klebte an einem Bauteil, zu dem er nicht
+     gehoert.
+
+     Ein Strahl je Punkt und BILD waere der teuerste Posten der
+     Zeichenschleife - deshalb wird nur nachgesehen, wenn sich die
+     Kamera wirklich bewegt hat, und hoechstens alle 110 ms. Dazwischen
+     gilt das letzte Ergebnis. Beim Drehen sind das rund neun Pruefungen
+     je Sekunde statt sechzig; das Ergebnis haengt dem Bild hoechstens
+     ein Zehntel hinterher, und das sieht man nicht.
+
+     TOLERANZ: Der Punkt sitzt IN der Ebene seines Feldes. Steht dort
+     ein Element (Glas, Planken), trifft der Strahl es genau dort -
+     deshalb zaehlt nur, was mindestens 12 cm davor liegt. Ohne diese
+     Toleranz blendete sich jeder Punkt an einer geschlossenen Seite
+     selbst aus. */
+  var VERDECKT_TOLERANZ = 12;        // cm
+  var markenPruefZeit = 0, markenKamMerk = null;
+
+  function markenVerdeckungPruefen(erzwingen) {
+    if (!MARKEN.length) return;
+    var jetzt = Date.now();
+    var k = kamera3.position;
+    var bewegt = !markenKamMerk ||
+                 Math.abs(markenKamMerk.x - k.x) > 0.5 ||
+                 Math.abs(markenKamMerk.y - k.y) > 0.5 ||
+                 Math.abs(markenKamMerk.z - k.z) > 0.5;
+    if (!erzwingen && (!bewegt || jetzt - markenPruefZeit < 110)) return;
+    markenPruefZeit = jetzt;
+    markenKamMerk = { x: k.x, y: k.y, z: k.z };
+    if (!markenV) markenV = new THREE.Vector3();
+    var richtung = new THREE.Vector3();
+    for (var i = 0; i < MARKEN.length; i++) {
+      var m = MARKEN[i];
+      markenV.set(m.p.x, m.p.y, m.p.z);
+      richtung.copy(markenV).sub(k);
+      var weite = richtung.length();
+      strahl.set(k, richtung.normalize());
+      strahl.far = weite - VERDECKT_TOLERANZ;
+      m.verdeckt = strahl.far > 0 &&
+                   strahl.intersectObjects(bau.children, true).length > 0;
+      strahl.far = Infinity;         // der geteilte Strahl gehoert allen
+    }
+  }
+
   function seitenErweiterungen(B, T, hVorn, PROFIL, neig, dachUk, dachVorne, pfostenX, unterzugZcm, pfostenHintenX) {
     var mGlas = seitenglas();
     var mSchiebe = schiebeGlas();
@@ -9548,6 +9600,10 @@
       b.classList.toggle('ist-belegt', zeichen !== 'punkt');
       b.hidden = true;             // bis markenStellen() die Lage kennt
     }
+    /* Nach einem Neubau stimmt das gemerkte Ergebnis nicht mehr: Die
+       Anlage kann anders stehen, ohne dass sich die Kamera bewegt hat. */
+    markenKamMerk = null;
+    markenVerdeckungPruefen(true);
     markenStellen();
   }
 
@@ -9557,11 +9613,14 @@
   var markenV = null;
   function markenStellen() {
     if (!markenHuelle || !markenKnoepfe.length) return;
+    markenVerdeckungPruefen(false);
     if (!markenV) markenV = new THREE.Vector3();
     var breite = leinwand.clientWidth, hoehe = leinwand.clientHeight;
     for (var i = 0; i < markenKnoepfe.length; i++) {
       var m = MARKEN[i], b = markenKnoepfe[i];
-      if (!m || !markeSichtbar(m.n, m.p, kamera3.position)) { b.hidden = true; continue; }
+      if (!m || m.verdeckt || !markeSichtbar(m.n, m.p, kamera3.position)) {
+        b.hidden = true; continue;
+      }
       markenV.set(m.p.x, m.p.y, m.p.z).project(kamera3);
       /* z > 1 heißt: hinter der Kamera. Das kommt in der Ansicht
          „Darunter" vor, wo die Kamera INNEN steht – ohne diese Abfrage

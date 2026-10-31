@@ -70,8 +70,16 @@ var FEHLER = [
   ['Die Punkte selbst sind nicht anklickbar', 'html',
    'cursor: pointer; pointer-events: auto;', 'cursor: pointer;'],
   ['Punkte zu klein zum Antippen', 'html',
-   'width: 32px; height: 32px; padding: 0; border-radius: 50%;',
+   'width: 24px; height: 24px; padding: 0; border-radius: 50%;',
    'width: 14px; height: 14px; padding: 0; border-radius: 50%;'],
+  ['Verdeckte Punkte werden trotzdem gezeigt', 'js',
+   'if (!m || m.verdeckt || !markeSichtbar(', 'if (!m || !markeSichtbar('],
+  ['Die Verdeckung wird bei jedem Bild neu gestrahlt', 'js',
+   'if (!erzwingen && (!bewegt || jetzt - markenPruefZeit < 110)) return;',
+   'if (false) return;'],
+  ['Der geteilte Strahl bleibt begrenzt zurueck', 'js',
+   "      strahl.far = Infinity;         // der geteilte Strahl gehoert allen",
+   '      void 0;'],
   ['Das Haekchen im Bedienfeld fehlt', 'html',
    '<input type="checkbox" id="k3dMarken" checked>',
    '<input type="checkbox" id="k3dMarkenAnzeige" checked>'],
@@ -276,6 +284,26 @@ function lauf(q) {
   p('Die Punkte selbst sind anklickbar',
     /\.k3d-marke \{[^}]*pointer-events: auto/.test(q.html),
     'pointer-events: auto');
+  /* Verdeckte Punkte duerfen nicht gezeigt werden: Sonst klebt der
+     Punkt der abgewandten Seite mitten auf einem fremden Bauteil -
+     genau das hat der Betreiber am 31.10.2026 gemeldet. */
+  p('Verdeckte Punkte werden ausgeblendet',
+    /if \(!m \|\| m\.verdeckt \|\| !markeSichtbar\(/.test(q.js) &&
+    /m\.verdeckt = strahl\.far > 0 &&/.test(q.js),
+    'markenVerdeckungPruefen()');
+
+  /* Die Pruefung darf NICHT je Bild laufen - ein Strahl je Punkt und
+     Bild ist der teuerste Posten der Zeichenschleife. */
+  p('Die Verdeckung wird gebremst geprueft, nicht je Bild',
+    /jetzt - markenPruefZeit < 110/.test(q.js) &&
+    /if \(!erzwingen && \(!bewegt/.test(q.js),
+    'hoechstens alle 110 ms und nur bei bewegter Kamera');
+
+  /* Der Strahl gehoert auch Markise, Schiebetuer und Velaris. Wer seine
+     Reichweite begrenzt und nicht zuruecksetzt, bricht deren Klicks. */
+  p('Der geteilte Strahl wird wieder freigegeben',
+    /strahl\.far = Infinity;/.test(q.js), 'strahl.far zurueckgesetzt');
+
   var gr = q.html.match(/\.k3d-marke \{[^}]*width: (\d+)px/);
   p('Punkte sind mindestens 24 px gross (WCAG 2.2, 2.5.8)',
     gr && Number(gr[1]) >= 24, gr ? gr[1] + ' px' : 'keine Groesse gefunden');
