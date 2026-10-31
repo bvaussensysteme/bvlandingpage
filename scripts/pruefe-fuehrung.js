@@ -27,9 +27,20 @@ if (gegen) ohne = ['künstlich'];
 pruefe('Jede Bedieneinheit gehört zu einem Schritt', ohne.length === 0,
        gruppen.length + ' Gruppen, ' + ohne.length + ' ohne Zuordnung');
 
-/* Schrittliste aus dem Code gegen die im HTML benutzten Namen */
-var imCode = (js.match(/\{ id: '([a-z]+)'/g) || [])
-  .map(function (x) { return x.replace(/.*'([a-z]+)'.*/, '$1'); });
+/* Schrittliste aus dem Code gegen die im HTML benutzten Namen.
+   NUR aus SCHRITTE herausgeschnitten: Seit dem 31.10.2026 gibt es
+   darueber BEREICHE, die ebenfalls "{ id: '...'" schreiben. Ohne den
+   Schnitt zaehlte die Pruefung Bereiche als Schritte und meldete sie
+   als "Schritt ohne Bedieneinheiten". */
+function liste(name) {
+  var a = js.indexOf('var ' + name + ' = [');
+  if (a < 0) return [];
+  var b = js.indexOf('\n  ];', a);
+  var stueck = js.slice(a, b < 0 ? js.length : b);
+  return (stueck.match(/\{ id: '([a-z]+)'/g) || [])
+    .map(function (x) { return x.replace(/.*'([a-z]+)'.*/, '$1'); });
+}
+var imCode = liste('SCHRITTE');
 var imHtml = {};
 (html.match(/data-k3d-schritt="([a-z]+)"/g) || []).forEach(function (x) {
   imHtml[x.replace(/.*"([a-z]+)".*/, '$1')] = true;
@@ -46,8 +57,41 @@ pruefe('Kein Schritt ohne Bedieneinheiten', leer.length === 0,
 
 pruefe('Leere Schritte werden übersprungen',
        new RegExp(q || 'schrittHatInhalt').test(js), 'schrittSuchen()');
-pruefe('Fortschritt zählt nur gültige Schritte',
-       new RegExp(q || "'Schritt ' \\+ pos \\+ ' von ' \\+ gueltig\\.length").test(js), '');
+/* Gezaehlt werden seit dem 31.10.2026 BEREICHE, nicht mehr einzelne
+   Schritte - die Aussage bleibt dieselbe: nur was es in dieser
+   Konfiguration wirklich gibt, wird mitgezaehlt. */
+pruefe('Fortschritt zählt nur gültige Bereiche',
+       new RegExp(q || "pos \\+ ' von ' \\+ gueltig\\.length").test(js) &&
+       new RegExp(q || 'bereichHatInhalt\\(i\\)').test(js), '');
+
+/* ---------- Bereiche (seit 31.10.2026) ---------- */
+var bereiche = liste('BEREICHE');
+var bereichText = (function () {
+  var a = js.indexOf('var BEREICHE = [');
+  var b = js.indexOf('\n  ];', a);
+  return a < 0 ? '' : js.slice(a, b < 0 ? js.length : b);
+})();
+var zugeordnet = (bereichText.match(/schritte: \[([^\]]*)\]/g) || [])
+  .join(',').match(/'([a-z]+)'/g) || [];
+zugeordnet = zugeordnet.map(function (x) { return x.replace(/'/g, ''); });
+
+pruefe('Es gibt Bereiche', bereiche.length >= 2 && !gegen,
+       bereiche.length ? bereiche.join(', ') : 'keine');
+
+var ohneBereich = imCode.filter(function (id) { return zugeordnet.indexOf(id) < 0; });
+if (gegen) ohneBereich = ['künstlich'];
+pruefe('Jeder Schritt gehört zu einem Bereich', ohneBereich.length === 0,
+       ohneBereich.length ? ohneBereich.join(', ')
+                          : imCode.length + ' Schritte in ' + bereiche.length + ' Bereichen');
+
+var doppelt = zugeordnet.filter(function (id, i) { return zugeordnet.indexOf(id) !== i; });
+if (gegen) doppelt = ['künstlich'];
+pruefe('Kein Schritt steht in zwei Bereichen', doppelt.length === 0,
+       doppelt.length ? doppelt.join(', ') : 'jeder genau einmal');
+
+pruefe('Der Weiter-Knopf nennt den nächsten Bereich',
+       new RegExp(q || "'Weiter \\\\u00b7 ' \\+ BEREICHE\\[naechster\\]\\.t").test(js),
+       'statt nur „Weiter"');
 pruefe('Umschalten auf „Alles auf einen Blick" vorhanden',
        new RegExp(q || 'k3dModus').test(js) && /id="k3dModus"/.test(html), '');
 pruefe('Selten Gebrauchtes liegt hinter „Mehr Einstellungen"',

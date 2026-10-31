@@ -10133,3 +10133,66 @@ erst bei schmalen Feldern.
 **„Neu laden"** samt Versionsnummer der geladenen Konfigurator-Datei
 (Betreiber: „bau in der werkstatt den reload button"). Die Nummer beantwortet
 die Frage, die ein Neuladen allein offen lässt: Ist der neue Stand schon da?
+
+## 31.10.2026 — Konfigurator: fünf Bereiche statt zehn Schritte
+
+**Anlass.** „das menü is so aufgebaut, ich dachte du hast den quellcode gelesen
+und kannst das design und aufbau auslesen" (Betreiber, mit vier Bildern eines
+Wettbewerbers).
+
+**Richtigstellung, die dazugehört.** Konnte ich nicht. Der Quelltext, den er
+geschickt hatte, war das HTML der Seite; darin stand der **Katalog**
+(Produkte, Optionsgruppen, Glasarten, Formularfelder) — den habe ich
+ausgewertet. Die Bedienoberfläche dort wird aber **per JavaScript erst im
+Browser gebaut**, und das Aussehen liegt in drei CSS-Dateien, die nur verlinkt
+waren. Die Bildschirmfotos des Betreibers waren dafür die bessere Quelle.
+
+**Was jetzt gilt.** Die zehn Schritte sind zu **fünf Bereichen** geworden,
+zwischen denen man springen kann:
+
+| Bereich | enthält die Schritte |
+|---|---|
+| Anlage | produkt, aufbau, masse, farbe |
+| Dach | dach |
+| Seiten | seiten |
+| Zubehör | sonne, technik |
+| Fertig | umgebung, fertig |
+
+Darüber eine Reiterleiste, unten ein Knopf, der sein Ziel nennt („Weiter ·
+Dach"), und der Zähler sagt „1 von 5".
+
+**Warum als Schicht darüber und nicht als Neubau.** `data-k3d-schritt` an
+jeder Bedieneinheit bleibt die Wahrheit; ein Bereich sagt nur, **welche
+Schritte er zusammen zeigt**. Damit gelten das Überspringen leerer Schritte,
+„Mehr Einstellungen", „Alles auf einen Blick" und die bestehenden Prüfungen
+unverändert weiter. Ein Neubau hätte dieselbe Oberfläche ergeben und dabei
+jede dieser Eigenschaften neu erfinden müssen.
+
+**Die Titel der Schritte gehen nicht verloren:** Sie werden innerhalb des
+Bereichs zu Zwischenüberschriften („WAS MÖCHTEN SIE BAUEN?", „WO SOLL ES
+STEHEN?"). Es entsteht also kein neuer Text, der auseinanderlaufen könnte.
+
+**Eigene Sprache, eigene Gestaltung** (Dauerregel in CLAUDE.md): unsere
+Bereichsnamen, Gold/Anthrazit aus den Farbvariablen, der aktive Reiter trägt
+den Goldbalken — auf dieser Seite heißt Gold überall „hier bist du".
+
+**Was bewusst noch fehlt: ein eigener Bereich „Tragwerk".** Pfosten und
+Statikträger stecken heute im Schritt „masse" hinter „Mehr Einstellungen".
+Sie herauszulösen ist ein zweiter Eingriff: Die Gruppen brauchen ein eigenes
+`data-k3d-schritt`, dann kommt hier ein Bereich dazu.
+
+**Zwei eigene Fehler, beide gefunden statt übersehen.**
+1. Beim Erzeugen des Codes rutschte das Wort `challenge` mitten in eine Zeile.
+   `node --check` meldete **nichts** — JavaScript liest das als gültigen
+   Ausdruck, es wäre erst beim Klicken in der Leiste gescheitert. Gefunden
+   beim Gegenlesen des eingefügten Codes. **Lehre: Eine bestandene
+   Syntaxprüfung heißt nicht, dass dort steht, was stehen soll.**
+2. „Abschluss" war in der Reiterleiste zu lang und wurde abgeschnitten —
+   gesehen im Bildschirmfoto, nicht in den Zahlen. Heißt jetzt „Fertig".
+
+**Absicherung.** `scripts/pruefe-fuehrung.js` zog zwei Prüfungen nach und
+bekam **vier neue**: Es gibt Bereiche · jeder Schritt gehört zu einem Bereich
+(10 Schritte in 5 Bereichen) · kein Schritt steht in zwei Bereichen · der
+Weiter-Knopf nennt den nächsten Bereich. Die Schrittliste wird jetzt **gezielt
+aus `SCHRITTE` geschnitten** — vorher zählte die Prüfung die Bereiche als
+Schritte mit. Gegenprobe schlägt an, gesamte Batterie grün.
