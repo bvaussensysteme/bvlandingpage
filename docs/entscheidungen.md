@@ -10306,3 +10306,32 @@ für den Strahl (A/B über zwölf Drehungen: identisch).
 angedeuteten leeren Felder (9 % weiß) stören, und ob sich die Felder am Handy
 mit dem Finger treffen lassen — dort gibt es kein Überfahren, der erste Tipp
 ist gleich der Klick.
+
+## 31.10.2026 — Das Zeichen im Feld kommt aus dem eigenen Zeichensatz
+
+**Was falsch war.** In der ersten Fassung der Feldflächen habe ich das Zeichen
+frei auf die Leinwand gemalt: ein Kreuz aus zwei Strichen, der „Stift" ein
+schräger Strich mit zwei Haken am unteren Ende. Genau das ist ein **Pfeil**.
+Am Dach, wo das belegte Zeichen gilt, stand deshalb ein Pfeil. „nur das alte
+design von den + hat mir mehr gefallen und am dach is kein + sondern ein pfeil
+es soll ein + oder wie damals stift sein" (Betreiber).
+
+**Was jetzt gilt.** `symbolUmriss()` liest die Umrisse aus demselben
+SVG-Sprite, das auch die Knopfliste benutzt (`bvs-punkt`, `bvs-stift` in
+`konfigurator.html`), und zeichnet sie mit `Path2D` auf die Textur. Ändert
+sich ein Zeichen im Zeichensatz, ändert sich dieses hier mit. Welches Zeichen
+gilt, entscheidet `markenZeichen()` — dieselbe Regel wie in der Knopfliste,
+nicht noch einmal `belegt ? stift : punkt` daneben.
+
+**Die Farben sind die des alten Knopfes:** leer eine helle Scheibe mit
+Goldring und goldenem Zeichen (`.k3d-marke`), belegt eine goldene Scheibe mit
+weißem Zeichen (`.k3d-marke.ist-belegt`), dazu ein Hauch Dunkel außen — das
+ist der `box-shadow`, ohne den die helle Scheibe vor der hellen Hauswand
+verschwindet.
+
+**Die Lehre.** Ein Zeichen, das es im Projekt schon gibt, wird nicht zum
+zweiten Mal gemalt. Beim Nachmalen entsteht etwas anderes, und niemand merkt
+es, bis es jemand sieht.
+
+**Fällt weg:** die dunkle Scheibe mit hellem Ring aus der ersten Fassung. Sie
+war gut lesbar, aber sie war neu — und das alte Bild war schon abgenommen.

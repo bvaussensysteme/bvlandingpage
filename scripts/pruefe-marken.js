@@ -109,8 +109,14 @@ var FEHLER = [
    '    o.quaternion.setFromUnitVectors(FELD_VOR, feldRichtung);',
    '    void feldRichtung;'],
   ['Das Zeichen dreht sich wieder zur Kamera', 'js',
-   "        map: feldBild(belegt ? 'stift' : 'punkt'), side: THREE.DoubleSide,",
-   "        map: feldBild(belegt ? 'stift' : 'punkt'), side: THREE.DoubleSide, void: new THREE.Sprite(),"],
+   '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,',
+   '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide, void: new THREE.Sprite(),'],
+  ['Das Zeichen wird wieder von Hand gemalt statt aus dem Zeichensatz', 'js',
+   '      for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));',
+   '      void u;'],
+  ['Das Zeichen im Feld folgt einer eigenen Regel', 'js',
+   '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,',
+   "        map: feldBild(belegt ? 'stift' : 'punkt'), side: THREE.DoubleSide,"],
   ['Die Flaeche traegt keinen Verweis auf ihr Feld', 'js',
    '    f.userData.feldMarke = marke;', '    void marke;'],
   ['Das Zeichen traegt keinen Verweis auf sein Feld', 'js',
@@ -181,6 +187,8 @@ var FEHLER = [
    'id="k3dMassEingabe"', 'id="k3dMassEingabeAlt"'],
 
   /* ---------- Bedienung aussen ---------- */
+  ['Das Stift-Zeichen fehlt im Zeichensatz', 'html',
+   '<symbol id="bvs-stift"', '<symbol id="bvs-stiftchen"'],
   ['Das Haekchen im Bedienfeld fehlt', 'html',
    '<input type="checkbox" id="k3dMarken" checked>',
    '<input type="checkbox" id="k3dMarkenAnzeige" checked>'],
@@ -393,6 +401,24 @@ function lauf(q) {
     vonFeld > -1 && feldCode.indexOf('Sprite') < 0 &&
     feldCode.indexOf('PlaneGeometry') > -1,
     'feldFlaeche() baut Flaechen, keine Sprites');
+
+  /* ---------- Das Zeichen kommt aus dem eigenen Zeichensatz ----------
+     „nur das alte design von den + hat mir mehr gefallen und am dach
+     is kein + sondern ein pfeil es soll ein + oder wie damals stift
+     sein" (Betreiber, 31.10.2026). Von Hand gemalt geriet der Stift zu
+     einem Pfeil. Die Umrisse kommen deshalb aus DEMSELBEN Sprite, das
+     auch die Knopfliste benutzt - sonst gibt es zwei Wahrheiten. */
+  p('Das Zeichen kommt aus dem Sprite, nicht aus der Hand',
+    /getElementById\('bvs-' \+ name\)/.test(q.js) &&
+    /g\.stroke\(new Path2D\(u\.d\[i\]\)\)/.test(q.js),
+    'symbolUmriss() liest die Pfade aus konfigurator.html');
+  p('Welches Zeichen, entscheidet eine einzige Regel',
+    /map: feldBild\(markenZeichen\(marke\)\)/.test(q.js),
+    'markenZeichen() - dieselbe Regel wie in der Knopfliste');
+  p('Die beiden Zeichen stehen im Sprite',
+    /<symbol id="bvs-punkt"[^>]*>[\s\S]{0,200}?<\/symbol>/.test(q.html) &&
+    /<symbol id="bvs-stift"[^>]*>[\s\S]{0,200}?<\/symbol>/.test(q.html),
+    'bvs-punkt und bvs-stift');
 
   p('Flaeche und Zeichen zeigen auf ihr Feld',
     /f\.userData\.feldMarke = marke;/.test(q.js) &&
