@@ -47,6 +47,9 @@ var FEHLER = [
   ['Aussparung auch auf der oeffentlichen Seite',
    'if (!aussparungAktiv()) return null;',
    'if (false) return null;'],
+  ['Aussparung schaltet sich selbst ein',
+   "namen[String(q.form || '').toLowerCase()] || 'Rechteck'",
+   "namen[String(q.form || '').toLowerCase()] || 'Aussparung rechts'"],
   ['Links landet in der Mitte',
    "if (w.form === 'Aussparung links')       von = -B / 2;",
    "if (w.form === 'Aussparung links')       von = 0;"],
@@ -98,6 +101,13 @@ function lauf(lade) {
   var sp0 = lade(zustand(), '').spanne(B);
   p('Auf der oeffentlichen Seite bleibt es das Rechteck', sp0 === null,
     'aussparungSpanne() liefert ' + (sp0 === null ? 'null' : 'eine Form'));
+
+  /* Auch in der Werkstatt gilt: ohne ausdrueckliche Wahl Rechteck. */
+  var sp1 = lade(zustand(), '').spanne(B);
+  var spW = lade(zustand(), '?ab=2000&at=1000').spanne(B);
+  p('Ohne ausdrueckliche Wahl bleibt es auch in der Werkstatt das Rechteck',
+    spW === null, spW === null ? 'aussparungSpanne() liefert null'
+                               : 'Aussparung erscheint ungefragt');
 
   var r = lade(zustand(), '?form=rechts&ab=2000&at=1000').spanne(B);
   p('Aussparung rechts liegt an der rechten Kante',

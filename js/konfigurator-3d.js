@@ -6486,7 +6486,13 @@
       return (isFinite(n) && n > 0) ? n : vor;
     }
     return {
-      form: namen[String(q.form || '').toLowerCase()] || 'Aussparung rechts',
+      /* OHNE ausdrueckliche Wahl bleibt es das RECHTECK - auch in der
+         Werkstatt. Vorher stand hier 'Aussparung rechts': Damit erschien
+         die Aussparung, sobald die Seite geoeffnet wurde, ohne dass sie
+         jemand gewaehlt hatte. Betreiber dazu: "is es einfach random da
+         ohne es auszuwaehlen". Eine Erprobung, die sich selbst
+         einschaltet, verfaelscht jeden Blick auf die Seite. */
+      form: namen[String(q.form || '').toLowerCase()] || 'Rechteck',
       ab: zahl(q.ab, Z.ausBreite),
       at: zahl(q.at, Z.ausTiefe),
       aa: zahl(q.aa, Z.ausAbstand)
