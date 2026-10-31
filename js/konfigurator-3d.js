@@ -5487,23 +5487,18 @@
        am nötigsten, weil er zum Hinzufügen einlädt. Der Punkt hängt also
        am Feld, nicht an seinem Inhalt.
 
-       DIE HÖHE: dicht UNTER DER DACHKANTE, nicht in der Mitte der
-       Öffnung.
+       DIE LAGE IST DIE MITTE DES FELDES – waagerecht wie senkrecht.
+       „die sollen mittig in den feldern sitzen" (Betreiber,
+       31.10.2026).
 
-       GEMESSEN am 31.10.2026, nachdem der Betreiber zum dritten Mal
-       „die + punkte wandern" gemeldet hat: In der Mitte der Öffnung ist
-       bei einer OFFENEN Seite nichts – der Punkt hing in der leeren
-       Luft. Von zwölf Messungen (vier Punkte über fünf Drehungen) lag
-       genau EINE auf einem Bauteil; die übrigen auf Wiese, Himmel und
-       Belag. Beim Drehen wandert so ein Punkt über den Hintergrund,
-       weil ihn nichts hält.
+       Am selben Tag hatte ich sie an die Dachkante gehängt, weil eine
+       Messung zeigte, dass sie in der Mitte einer OFFENEN Seite ueber
+       Wiese und Himmel liegen. Das war meine Auslegung, nicht sein
+       Wunsch: „das hab ich nie gesagt". Zurückgenommen.
 
-       Die Dachkante ist dagegen immer da – ob die Seite offen ist oder
-       zu. 18 cm darunter heißt: sichtbar am Träger hängend, aber nicht
-       in ihm drin, wo ihn die Verdeckungsprüfung ausblenden würde.
-
-       Hinten liegt die Dachunterkante um das ganze Gefälle höher – mit
-       hVorn säße der Punkt dort zu tief. */
+       Unten der Boden (mit Gefälle, deshalb bodenY), oben die
+       Dachunterkante. Hinten liegt die um das ganze Gefälle höher –
+       mit hVorn säße der Punkt dort zu tief. */
     var okHinten = dachUk ? dachUk(0) : hVorn;
     markenFelder(B, PROFIL, felderLR, vorne, hinten, achsen, achsenH,
                  rueckseiteOffen()).forEach(function (m) {
@@ -5512,26 +5507,7 @@
       if (okOben - yUnten <= 0) return;
       MARKEN.push({
         art: 'seite', seite: m.seite, feld: m.feld, anzahl: m.anzahl,
-        /* VOR der Dachkante, auf Hoehe des Traegers.
-
-           Drei Lagen durchgemessen, jede im Browser nachgesehen:
-             Mitte der Oeffnung  -> haengt in der Luft, wandert beim
-                                    Drehen ueber Wiese und Himmel
-             18 cm darunter      -> liegt vor der Hauswand, nicht auf
-                                    einem Bauteil
-             6 cm darueber       -> steckt IM Traeger, und die
-                                    Verdeckungspruefung blendet ihn aus
-                                    (die vorderen Punkte verschwanden)
-
-           Deshalb: auf Hoehe der Dachunterkante und 10 cm nach AUSSEN
-           versetzt, entlang der Richtung, in die das Feld schaut. Damit
-           liegt der Punkt optisch auf dem Traeger, geometrisch aber
-           davor - er verdeckt sich nicht selbst.
-
-           Bei einer sehr niedrigen Anlage bleibt er ueber dem Boden. */
-        p: { x: m.x + m.nx * 10,
-             y: Math.max(yUnten + 5, okOben - 2),
-             z: m.z + m.nz * 10 },
+        p: { x: m.x, y: (yUnten + okOben) / 2, z: m.z },
         n: { x: m.nx, y: 0, z: m.nz }
       });
     });
