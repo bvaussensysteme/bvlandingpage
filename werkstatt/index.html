@@ -545,6 +545,38 @@
        Fächer, bekommt jedes seinen eigenen Block mit denselben
        Knöpfen; die Reihe für die ganze Seite wird dann ausgeblendet.
        Bei einem Fach bleibt alles, wie es war. */
+    /* ---------- Zwischenpfosten ----------
+       „kann man außer die eckpfosten die zwischenpfosten verschieben
+       innerhalb den erlaubten toleranzen" (Betreiber, 01.11.2026). Je
+       Zwischenpfosten eine Zeile: Nummer, Lage von links, und die
+       beiden Feldbreiten daneben. */
+    .k3d-pfosten { display: grid; gap: 7px; }
+    .k3d-pfostenzeile {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 8px;
+      align-items: center;
+    }
+    .k3d-pfostenzeile .k3d-pf-nr {
+      width: 22px; height: 22px; border-radius: 50%; flex: none;
+      background: var(--gold); color: #111; font-size: .72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .k3d-pfostenzeile input[type=range] { width: 100%; }
+    .k3d-pfostenzeile .k3d-pf-mm {
+      font-size: .78rem; font-weight: 700; color: #2d3b46; min-width: 74px;
+      text-align: right;
+    }
+    .k3d-pf-felder { font-size: .72rem; color: var(--muted); margin: 0; }
+    /* Band beim Ziehen eines Zwischenpfostens. UNTEN UEBER DEN HINWEISEN,
+       nicht oben: Oben links steht der Produktname (bis 46 % Breite),
+       oben rechts die Knoepfe fuer Bild und Vollbild - am Handy bleibt
+       dazwischen nichts uebrig. Der Klickhinweis sitzt auf 108 px und
+       ist rund 26 px hoch, darum 140 px. */
+    .k3d-ziehband {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      bottom: 140px; margin: 0; pointer-events: none; z-index: 6;
+      background: rgba(17, 17, 17, .78); color: #fff; white-space: nowrap;
+      font-size: .74rem; padding: 5px 10px; border-radius: 999px;
+    }
     .k3d-feldwahl:empty { display: none; }
     .k3d-feldwahl { display: grid; gap: 10px; }
     .k3d-fach {
@@ -877,6 +909,12 @@
       .k3d-leiste button { padding: 6px 10px; font-size: .72rem; }
       .k3d-maushinweis { display: none; }
       .k3d-klickhinweis { bottom: 44px; font-size: .68rem; padding: 4px 8px; }
+      /* Der Maushinweis entfaellt am Handy, der Klickhinweis rutscht auf
+         44 px - das Band darueber auf 76 px. */
+      .k3d-ziehband {
+        bottom: 76px; font-size: .66rem; padding: 4px 8px;
+        max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis;
+      }
     }
     @media (max-width: 420px) {
       .k3d-farben { grid-template-columns: repeat(2, 1fr); }
@@ -1154,6 +1192,9 @@
           </div>
         </div>
 
+        <!-- Zwischenpfosten verschieben. Der Inhalt entsteht beim Bauen
+             (pfostenFelderAnzeigen in js/konfigurator-3d.js): Wie viele
+             Zwischenpfosten es gibt, steht erst dann fest. -->
         <div class="k3d-gruppe" data-k3d-schritt="masse">
           <label class="k3d-label" for="k3dTiefe">Tiefe <output id="k3dTiefeWert">3000 mm</output></label>
           <div class="k3d-regler">
@@ -1322,6 +1363,12 @@
           <p class="k3d-mini">VSG-Glas gibt es bis 4,50 m am Stück. Bei größerer Tiefe
             werden die Scheiben quer gestoßen; hier verschieben Sie den Stoß. Der
             Regler lässt nur Lagen zu, bei denen beide Scheiben machbar bleiben.</p>
+        </div>
+
+        <div class="k3d-gruppe" data-k3d-schritt="masse" id="k3dPfostenGruppe" hidden>
+          <span class="k3d-label">Zwischenpfosten <span class="k3d-erw-wert" id="k3dPfostenWert"></span></span>
+          <div class="k3d-pfosten" id="k3dPfosten"></div>
+          <p class="k3d-mini" id="k3dPfostenHinweis"></p>
         </div>
       </details>
 
@@ -2122,6 +2169,7 @@
 
     <p class="k3d-maushinweis">Ziehen zum Drehen · Mausrad zoomen · zwei Finger zum Zoomen</p>
     <p class="k3d-klickhinweis" id="k3dKlickHinweis" hidden></p>
+    <p class="k3d-ziehband" id="k3dZiehband" aria-live="polite" hidden></p>
   </div>
 </div>
 </main>
@@ -2212,13 +2260,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101h" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101i" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261101h" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261101i" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

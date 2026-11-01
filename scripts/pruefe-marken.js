@@ -74,7 +74,8 @@ var FEHLER = [
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: f.laenge });",
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: 0 });"],
   ['Der Zeiger verraet nicht, dass das Feld anklickbar ist', 'js',
-   "    leinwand.style.cursor = neu ? 'pointer' : '';", '    void neu;'],
+   "    leinwand.style.cursor = neu ? 'pointer'\n      : (pfostenUnterZeiger(e) ? 'ew-resize' : '');",
+   '    void neu;'],
   ['Die Lagefunktion ist nicht mehr auffindbar', 'js',
    'function markenFelder(B, PROFIL, felder', 'function markenFelderchen(B, PROFIL, felder'],
   ['Felder sitzen nicht mehr mittig im Feld', 'js',
@@ -170,13 +171,17 @@ var FEHLER = [
   ['Nach einem Ansichtswechsel leuchtet das Feld weiter', 'js',
    '    if (feldWach) { feldWach = null; feldFaerben(); }', '    void 0;'],
   ['Beim Drehen leuchtet das Feld mit', 'js',
-   '    var neu = zieht ? null : feldUnterZeiger(e);',
+   '    var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);',
    '    var neu = feldUnterZeiger(e);'],
   ['Felder sind auch bei abgeschaltetem Schalter anklickbar', 'js',
    '    if (!Z.markenZeigen || !feldGruppe.children.length || !e) return null;',
    '    if (!feldGruppe.children.length || !e) return null;'],
   ['Hinter einem Pfosten ist das Feld trotzdem anklickbar', 'js',
-   '      if (nimmtDenBlick([treffer[i]])) return null;', '      void 0;'],
+   '      if (o.userData && o.userData.feldMarke) return o.userData.feldMarke;\n'
+   + '      /* Was den Blick nimmt, nimmt auch den Klick. */\n'
+   + '      if (nimmtDenBlick([treffer[i]])) return null;',
+   '      if (o.userData && o.userData.feldMarke) return o.userData.feldMarke;\n'
+   + '      void 0;'],
   ['Hauswand und Haustuer nehmen den Klick nicht', 'js',
    '    if (wand && wand.visible) ziele.push(wand);', '    void wand;'],
   ['Der Klick aufs Feld wird nicht ausgewertet', 'js',
@@ -541,14 +546,14 @@ function lauf(q) {
     /if \(feldWach\) \{ feldWach = null; feldFaerben\(\); \}/.test(q.js),
     'die Ansichtsknoepfe und das Rad schicken kein pointermove');
   p('Beim Drehen leuchtet kein Feld mit',
-    /var neu = zieht \? null : feldUnterZeiger\(e\);/.test(q.js),
+    /var neu = \(zieht \|\| PF_ZIEHT\) \? null : feldUnterZeiger\(e\);/.test(q.js),
     'sonst faehrt der Zeiger beim Drehen ueber das halbe Modell');
   p('Das Schweben wird gebremst gestrahlt, nicht je Bild',
     /if \(jetzt - zuletzt < 60\) return;/.test(q.js) &&
     /leinwand\.addEventListener\('pointermove'/.test(q.js),
     'hoechstens alle 60 ms und nur auf Bewegung des Zeigers');
   p('Der Zeiger zeigt am Feld, dass es anklickbar ist',
-    /leinwand\.style\.cursor = neu \? 'pointer' : '';/.test(q.js),
+    /leinwand\.style\.cursor = neu \? 'pointer'\s*\n\s*: \(pfostenUnterZeiger\(e\) \? 'ew-resize' : ''\);/.test(q.js),
     'sonst sieht man nicht, dass dort etwas geht');
 
   /* ---------- Der Klick ---------- */
@@ -557,7 +562,7 @@ function lauf(q) {
     /function feldGeklickt\(e\) \{[\s\S]{0,200}?markeSpringen\(m\);/.test(q.js),
     'feldGeklickt() als ERSTES in der Klickkette');
   p('Hinter einem Bauteil ist das Feld nicht anklickbar',
-    /if \(nimmtDenBlick\(\[treffer\[i\]\]\)\) return null;/.test(q.js),
+    /feldMarke\) return o\.userData\.feldMarke;[\s\S]{0,120}?if \(nimmtDenBlick\(\[treffer\[i\]\]\)\) return null;/.test(q.js),
     'was den Blick nimmt, nimmt auch den Klick');
   p('Hauswand, Vorsprung und Haustuer nehmen den Klick mit',
     /if \(wand && wand\.visible\) ziele\.push\(wand\);/.test(q.js) &&
@@ -652,7 +657,7 @@ function lauf(q) {
     /\.k3d-marken:focus-within \{/.test(q.html),
     'wer mit der Tastatur arbeitet, muss sehen, wo er steht');
   p('Die Knoepfe der Liste sind erreichbar',
-    /b\.hidden = false;/.test(q.js) &&
+    /^      b\.hidden = false;$/m.test(q.js) &&
     /b\.setAttribute\('aria-label', markenBeschriftung\(m\)\);/.test(q.js),
     'nicht hidden, und jeder traegt seine Beschriftung');
   p('Haekchen und Leistenschalter sind da',

@@ -201,7 +201,8 @@ pruefe('Wasserzeichen hat einen Kontrastrand',
     ['bodengefaelle', 'Gefälle'],
     ['vorsprung', 'Dachvorsprung vorne'], ['vorsprung-hinten', 'Dachvorsprung hinten'],
     ['cp-ueberstand', 'Dachüberstand'],
-    ['traeger-wunsch', ''], ['unterzug', 'Unterzug'], ['kopplung', 'Glasstoß']
+    ['traeger-wunsch', ''], ['unterzug', 'Unterzug'], ['kopplung', 'Glasstoß'],
+    ['-', 'Zwischenpfosten']
   ], 'Maße: Form, Maße, Neigungen, Überstände, Statik');
   pruefeFolge('seiten', [
     ['pergola', 'Seitenschutz'], ['seiten', ''], ['seiten', 'Links'],

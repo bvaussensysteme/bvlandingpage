@@ -85,6 +85,9 @@ if (GEGENPROBE) {
     const a = await r.fetch();
     let t = await a.text();
     t = t.replace('function masseZeichnen() {', 'function masseZeichnen() { return;');
+    /* Vierter Fehler: Der Griff am Zwischenpfosten wird uebergangen -
+       dann dreht sich beim Ziehen die Kamera, wie vor dieser Funktion. */
+    t = t.replace('if (pfostenGreifen(e)) {', 'if (false) {');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
   await page.route('**/anfrage-wizard.js*', async (r) => {
@@ -442,6 +445,116 @@ pruef('Zurueck auf eben loescht den Hinweis wieder',
   (await page.locator('#k3dBodenGefaelleStand').innerText()).trim() === '',
   'das Feld laesst sich leeren');
 
+
+/* ---------- Zwischenpfosten im Modell ziehen ----------
+   „kann man ausser die eckpfosten die zwischenpfosten verschieben
+   innerhalb den erlaubten toleranzen" (Betreiber, 01.11.2026).
+
+   WAS NUR HIER ZU SEHEN IST: ob der Pfosten unter dem Zeiger wirklich
+   greifbar ist und ob die Kamera dabei still haelt. Die Rechnung
+   dahinter prueft scripts/pruefe-pfosten.js.
+
+   DER BILDVERGLEICH ist der harte Teil: Nach dem Ziehen wird der
+   Pfosten per Regler wieder auf die gleichmaessige Lage gestellt. Steht
+   die Kamera noch, muss das Bild Pixel fuer Pixel dasselbe sein wie
+   vorher. Dreht sie mitgeschoben mit, nicht. */
+/* Die Breite wird am Ende dieses Blocks zurueckgestellt: Nachfolgende
+   Pruefungen rechnen mit dem Stand, den sie vorgefunden haben - genau
+   darueber sind beim ersten Lauf zwei von ihnen rot geworden. */
+const pfBreiteVorher = await page.$eval('#k3dBreiteZahl', (e) => e.value);
+await page.evaluate(() => {
+  const e = document.getElementById('k3dBreiteZahl');
+  e.value = 7000;
+  e.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(1400);
+await alleAufklappen();
+const pfZeilen = await page.locator('#k3dPfosten [data-pfosten]').count();
+pruef('Der Block fuer die Zwischenpfosten erscheint', pfZeilen === 1,
+  `${pfZeilen} Regler bei 7000 mm (3 Pfosten, also 1 verschiebbar)`);
+
+await ansicht('Vorne');
+await page.waitForTimeout(800);
+const pfBildVor = await page.locator('#k3dCanvas').screenshot();
+const pfAchsVor = (await page.locator('#k3dPfosten .k3d-pf-felder').first().innerText()).trim();
+const pfReglerVor = await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e) => e.value);
+
+/* Der Zeiger-Handler laeuft hoechstens alle 60 ms - darum je Probe
+   warten, sonst verschluckt die Bremse die Suche. */
+async function pfProbe(x, y) {
+  await page.evaluate(({ x, y }) => {
+    document.getElementById('k3dCanvas').dispatchEvent(new PointerEvent('pointermove',
+      { clientX: x, clientY: y, bubbles: true, pointerId: 1 }));
+  }, { x, y });
+  await page.waitForTimeout(75);
+  return page.evaluate(() => document.getElementById('k3dCanvas').style.cursor);
+}
+const pfKasten = await page.locator('#k3dCanvas').boundingBox();
+let pfGriff = null;
+for (let dx = 0; dx <= 60 && !pfGriff; dx += 6) {
+  for (const sx of (dx === 0 ? [0] : [-dx, dx])) {
+    for (let f = 0.55; f <= 0.95 && !pfGriff; f += 0.06) {
+      const x = Math.round(pfKasten.x + pfKasten.width / 2 + sx);
+      const y = Math.round(pfKasten.y + pfKasten.height * f);
+      if (await pfProbe(x, y) === 'ew-resize') { pfGriff = { x, y }; break; }
+    }
+    if (pfGriff) break;
+  }
+}
+pruef('Der Zeiger verraet den greifbaren Pfosten', !!pfGriff,
+  pfGriff ? `ew-resize bei ${pfGriff.x}/${pfGriff.y}` : 'nirgends ew-resize gefunden');
+
+let pfBandBeim = '(nicht gezogen)', pfBandNach = '(nicht gezogen)';
+if (pfGriff) {
+  await page.evaluate(({ x, y }) => document.getElementById('k3dCanvas').dispatchEvent(
+    new PointerEvent('pointerdown',
+      { clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true })), pfGriff);
+  /* Schraeg ziehen: Die seitliche Bewegung soll wirken, die senkrechte
+     darf die Kamera NICHT kippen. */
+  for (let i = 1; i <= 8; i++) {
+    await page.evaluate(({ x, y, i }) => window.dispatchEvent(new PointerEvent('pointermove',
+      { clientX: x + i * 6, clientY: y - i * 9, bubbles: true, pointerId: 1 })),
+      { ...pfGriff, i });
+    await page.waitForTimeout(80);
+  }
+  pfBandBeim = await page.evaluate(() => {
+    const b = document.getElementById('k3dZiehband');
+    return b.hidden ? '(versteckt)' : b.textContent;
+  });
+  await page.evaluate(({ x, y }) => window.dispatchEvent(new PointerEvent('pointerup',
+    { clientX: x + 48, clientY: y - 72, bubbles: true, pointerId: 1 })), pfGriff);
+  await page.waitForTimeout(1000);
+  pfBandNach = await page.evaluate(() =>
+    document.getElementById('k3dZiehband').hidden ? '(versteckt)' : 'steht noch da');
+}
+const pfAchsNach = (await page.locator('#k3dPfosten .k3d-pf-felder').first().innerText()).trim();
+pruef('Ziehen am Pfosten verschiebt den Pfosten', pfAchsVor !== pfAchsNach,
+  `vorher ${pfAchsVor} / nachher ${pfAchsNach}`);
+pruef('Beim Ziehen stehen die beiden Feldmasse im Bild',
+  /licht/.test(pfBandBeim), pfBandBeim.slice(0, 70));
+pruef('Nach dem Loslassen verschwindet das Band',
+  pfBandNach === '(versteckt)', pfBandNach);
+
+/* Zurueck auf die gleichmaessige Lage - dasselbe Bauwerk wie vorher. */
+await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {
+  e.value = v;
+  e.dispatchEvent(new Event('change', { bubbles: true }));
+}, pfReglerVor);
+await page.waitForTimeout(1200);
+const pfBildNach = await page.locator('#k3dCanvas').screenshot();
+pruef('Ziehen am Pfosten dreht die Kamera nicht',
+  pfBildVor.equals(pfBildNach),
+  pfBildVor.equals(pfBildNach) ? 'Bild Pixel fuer Pixel gleich'
+    : `Bild unterscheidet sich (${pfBildVor.length} / ${pfBildNach.length} Bytes)`);
+await ansicht('Perspektive');
+await page.$eval('#k3dBreiteZahl', (e, v) => {
+  e.value = v;
+  e.dispatchEvent(new Event('change', { bubbles: true }));
+}, pfBreiteVorher);
+await page.waitForTimeout(1200);
+pruef('Die Breite steht wieder auf dem Stand von vorher',
+  (await page.$eval('#k3dBreiteZahl', (e) => e.value)) === pfBreiteVorher,
+  `${pfBreiteVorher} mm`);
 
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
@@ -1186,6 +1299,9 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Ziehen am Pfosten verschiebt den Pfosten',
+  'Ziehen am Pfosten dreht die Kamera nicht',
+  'Beim Ziehen stehen die beiden Feldmasse im Bild',
   'Bedienfeld links von der Bühne',
   'Maße lassen sich im Modell abschalten',
   'Notiz des Konfigurators geht mit'

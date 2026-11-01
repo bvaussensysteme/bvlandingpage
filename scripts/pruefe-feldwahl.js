@@ -85,7 +85,7 @@ var FEHLER = [
    "        eineSeite('hinten', hinten, hMitte, hLaenge, false,",
    "        void eineSeite || (function () {})('hinten', hinten, hMitte, hLaenge, false,"],
   ['Die Faecher werden nach dem Bauen nicht nachgezogen', 'js',
-   '    erwAnzeigen();\n    neuZeichnen();', '    neuZeichnen();'],
+   '    erwAnzeigen();\n    pfostenFelderAnzeigen();', '    pfostenFelderAnzeigen();'],
 
   /* ---------- Namen statt Nummern ---------- */
   ['Die Faecher tragen wieder Himmelsrichtungen statt Nummern', 'js',
@@ -271,7 +271,7 @@ function lauf(q) {
     /hMitte > 0 \? -1 : 1, feldNrH\);\s*\n\s*feldNrH\+\+;/.test(q.js),
     'sonst zeigt die Zuordnung auf ein Fach daneben');
   p('Die Faecher werden nach dem Bauen nachgezogen',
-    /markenAufbauen\(\);[\s\S]{0,900}?erwAnzeigen\(\);\s*\n\s*neuZeichnen\(\);/.test(q.js),
+    /markenAufbauen\(\);[\s\S]{0,900}?erwAnzeigen\(\);\s*\n\s*pfostenFelderAnzeigen\(\);/.test(q.js),
     'sonst zeigen sie die Fachzahl des vorigen Aufbaus');
 
   /* ---------- Der Fund vom 01.11.2026 ---------- */

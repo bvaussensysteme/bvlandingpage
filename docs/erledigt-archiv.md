@@ -6,6 +6,226 @@
 
 ---
 
+## 31.10./01.11.2026 – Anklickbare Felder am Modell und Zuordnung je Feld
+
+> Ausgelagert aus `docs/NEXT_TASK.md` am 01.11.2026. Das *Warum* steht in
+> `docs/entscheidungen.md` unter den Einträgen vom 31.10. und 01.11.2026.
+
+#### Anklickbare Felder am Modell — zweite Bauart *(31.10.2026)*
+
+Jedes **Seitenfeld** und das **Dach** sind am Modell markiert. Fährt man mit
+dem Zeiger darüber, färbt sich das ganze Feld **orange durchsichtig**; ein
+Klick springt in den passenden Bereich (Feld → **Seiten**, Dach → **Dach**)
+und die angesprungene Zeile leuchtet kurz auf.
+
+**Die zweite Bauart ist der Kern dieses Eintrags.** Bis zum Nachmittag des
+31.10.2026 waren die Marken **HTML-Knöpfe über der Leinwand**, deren Lage je
+Bild aus der Kamera gerechnet wurde. Der Betreiber hat viermal dasselbe
+gemeldet, zuletzt präzise:
+
+> „und die Punkte drehen sich quasi immer in Kamerarichtung und bleiben nicht
+> flach wie dieses Feld immer stehen … wenn man dann mit der Maus über dieses
+> Feld fährt, dann sieht dieses Feld wie markiert aus … in orange
+> durchsichtig."
+
+Jetzt ist jedes Feld eine **Fläche in der Szene** (`feldGruppe` in
+`js/konfigurator-3d.js`), genau dort, wo das Element säße, mit dem Zeichen
+**flach darin**. Damit erledigt die Tiefenprüfung der Grafikkarte die
+Verdeckung von selbst, die Fläche dreht sich mit dem Modell und wächst beim
+Zoomen mit — sie *ist* an dieser Stelle. **Ersatzlos weggefallen:**
+Projektion je Bild, `markeSichtbar()`, `markenVerdeckungPruefen()`,
+`markenStellen()` und das Nachziehen bei Größenänderung. Alles, was am
+31.10.2026 vormittags dahinter vermutet wurde, war Folge der ersten Bauart.
+
+- **Leeres Feld:** Fläche zu 9 % weiß angedeutet, Zeichen **+**.
+  **Belegtes Feld:** Fläche in Ruhe unsichtbar (sonst läge ein Schleier vor
+  der fertigen Schiebeanlage), Zeichen **Stift**. Anklickbar sind beide.
+- **Unter dem Zeiger:** 26 % Deckkraft in einem eigenen Orange
+  (`FELD_ORANGE`, aus dem Gold der Seite `--gold #C49A2A` nach Orange
+  verschoben). Beim Ziehen leuchtet nichts mit, und sobald sich die Kamera
+  bewegt, erlischt es — über die Ansichtsknöpfe und das Mausrad kommt kein
+  `pointermove`, sonst bliebe es stehen.
+- **Das Zeichen** ist eine gezeichnete Fläche, kein Sprite und kein
+  Schriftzeichen: Ein Sprite drehte sich wieder zur Kamera, und das war die
+  Beschwerde. 9,3 bis 22,7 cm groß („mach die + 1/3 kleiner", Betreiber,
+  01.11.2026 – verkleinert wird das Ergebnis samt seiner Grenzen, sonst
+  bliebe ein kleines Feld beim alten Mindestmaß stehen), 1,2 cm vor der
+  Feldfläche, damit beide nicht um dieselbe Tiefe streiten. Auf die
+  Bedienung wirkt die Größe nicht: Angeklickt wird die ganze Feldfläche.
+- **Die Form ist die des alten Knopfes** – leer eine helle Scheibe mit
+  Goldring und goldenem **+**, belegt eine goldene Scheibe mit weißem
+  **Stift**. „nur das alte design von den + hat mir mehr gefallen und am
+  dach is kein + sondern ein pfeil es soll ein + oder wie damals stift
+  sein" (Betreiber, 31.10.2026). Im ersten Anlauf hatte ich das Zeichen
+  frei auf die Leinwand gemalt; der Stift geriet dabei zu einem **Pfeil**,
+  weil ein Strich mit zwei Haken am Ende genau das ist. Jetzt kommen die
+  Umrisse aus **demselben Zeichensatz**, den auch die Knopfliste benutzt
+  (`symbolUmriss()` liest `bvs-punkt` / `bvs-stift` aus dem Sprite in
+  `konfigurator.html`) – sonst gäbe es zwei Wahrheiten. Welches Zeichen
+  gilt, entscheidet `markenZeichen()`, ebenfalls nur an einer Stelle.
+- **Das Dachfeld** liegt in der *gemessenen* Dachneigung: Ein Strahl von oben
+  auf die Mitte liefert Höhe **und** Richtung der getroffenen Fläche. Von
+  unten („Darunter") ist es nicht anklickbar — die Eindeckung nimmt den
+  Strahl, und das ist richtig.
+- **Die Flächen sind Bedienung, kein Bauteil:** `bildVonAnsicht()` und
+  `schuss()` schalten sie vor jeder Aufnahme aus, damit sie nicht im
+  gespeicherten Bild und nicht im PDF landen. Als HTML fiel das früher von
+  selbst weg.
+- **Tastatur und Screenreader:** Eine Fläche in der Szene ist kein HTML.
+  Deshalb bleibt unter der Leinwand eine **unsichtbare Knopfliste**
+  (`k3dMarkenHuelle`, `clip-path`, *nicht* `display:none`). Sie klappt unten
+  links auf, sobald einer ihrer Knöpfe den Fokus hat.
+- Abschaltbar an zwei Stellen, die denselben Wert halten: Schalter
+  **„+ Felder"** in der Ansichtsleiste und Häkchen unter *Anzeige*.
+  Voreingestellt **an**.
+
+**Im Browser gemessen (31.10.2026, Software-Rendering):**
+
+| Was | Messung |
+|---|---|
+| Zeiger auf einem Feld | 100 602 Bildpunkte ändern sich, **99 % davon orange** |
+| Liegt die Fläche in der Ebene? | Perspektive: linke Kante 417 px, rechte 306 px → **27 % Unterschied**. In „Vorne" und „Seite" (Blick senkrecht darauf) 0 % — genau das Muster einer Fläche im Raum, nicht einer am Bildschirm |
+| Nach Ansichtswechsel | Hervorhebung 108 111 → **0** geänderte Punkte |
+| Klick auf ein Feld | Fokus landet auf dem Knopf „Rahmenwand" im Bereich *Seiten*, Gruppe leuchtet auf |
+
+**Dabei gefunden, nicht vermutet:** Ein Klick brauchte im Versuch 549 ms
+zwischen Druck und Loslassen und fiel durch die Grenze `zeit < 500`. Die
+Grenze steht jetzt bei **900 ms**. Was einen Klick von einer Drehung trennt,
+ist der **Weg** (`weg < 6`), nicht die Zeit; die Obergrenze fängt nur ab, dass
+jemand den Finger liegen lässt. Am Handy zielt man langsamer als am Zeiger —
+mit 500 ms wäre jeder bedächtige Tipp ins Leere gelaufen.
+
+> **Was vorher vergeblich gesucht wurde** — fünf Erklärungen, vier verworfen
+> (Betreiber, 31.10.2026: *„Tauchen an Feldern auf, die man gar nicht sieht"*,
+> *„erst nach dem Drehen"*). Steht hier, damit es niemand wiederholt:
+>
+> | Verdacht | Messung | Ergebnis |
+> |---|---|---|
+> | Seitenverhältnis Leinwand/Bühne | auch mit `deviceScaleFactor: 3` | passt, Abweichung < 0,01 |
+> | Hauswand fehlte als Verdecker | A/B über 12 Drehschritte | **identisch** |
+> | Zustand veraltet nach dem Drehen | 6 Drehungen, direkt / nach 1,6 s / nach Stups | **unverändert** |
+> | Punkte hängen in der Luft statt am Bauwerk | Bildpunkt unter jedem Punkt ausgelesen | stimmt, war aber **nicht der Wunsch** — zurückgenommen („das hab ich nie gesagt") |
+> | Unsichtbare Wand im Feld als Verdecker | A/B über 12 Drehschritte | **identisch** |
+> | Der Punkt schluckte den Druck (`stopPropagation`) | Umriss über 16 Drehungen | **war ein echter Fehler**, aber nicht der gemeldete |
+>
+> **Die eigentliche Ursache war die Bauart selbst.** Ein HTML-Knopf kann nicht
+> flach in einer Fläche liegen; er schaut immer zum Betrachter. Alles andere
+> waren Folgeerscheinungen. Die Lehre: Wenn vier Messungen nacheinander
+> „identisch" sagen, stimmt die Frage nicht.
+
+- **Die Bühne wird beobachtet, nicht nur das Fenster** (`ResizeObserver`).
+  Gemessen am 31.10.2026: Wird die Bühne kleiner, ohne dass sich das Fenster
+  ändert — am iPhone fährt dabei die Adressleiste ein und aus —, blieb der
+  Zeichenpuffer auf der alten Größe (Bühne 390 × 360, Puffer 390 × 380) und
+  das Bild wurde per CSS **gedehnt**. Seit die Felder im Modell liegen,
+  verzieht das nicht mehr nur die Punkte, sondern das ganze Bild.
+- Lage: `markenFelder()` in `js/konfigurator-3d.js`, mit denselben Achsen, mit
+  denen `eineSeite()` baut.
+- Geprüft von **`scripts/pruefe-marken.js`** (62 Prüfungen, Gegenprobe mit
+  65 einzeln eingebauten Fehlern, alle bemerkt).
+
+**Beim ersten Bauen schiefgegangen** (steht hier, damit es niemand wiederholt):
+Die Hülle über der Leinwand und das Häkchen im Bedienfeld trugen beide die
+Kennung `k3dMarken`. `getElementById` nahm das erste Element im Dokument, also
+das Häkchen — alle Punkte landeten **darin** und saßen im Browserlauf zu viert
+auf einem Fleck bei 0/0. Die Hülle heißt `k3dMarkenHuelle`, und
+`pruefe-marken.js` prüft, dass beide Kennungen verschieden sind.
+
+**Nachgebessert am 31.10.2026 (zweite Meldung):** „die leiste hat sich
+verändert es, ragen schrften rein". Die Umbenennung „Punkte" → „Felder"
+machte die Ansichtsleiste zwei Zeichen breiter als den Platz – die Knöpfe
+schrumpften, der Text nicht, also fiel er aus seinem goldenen Hintergrund.
+Jetzt schrumpfen die Knöpfe nicht mehr und die Leiste lässt sich schieben
+(wie am Handy schon). Dabei kam ein nie bemerkter Fall mit heraus: Maus- und
+Klickhinweis lagen hinter der Leiste (202 bis 347 px bzw. 215 px bei jeder
+Breite). Beide stehen jetzt darüber. Gemessen bei 1440, 1100 und 1000 px:
+Überlappung 0 px; mit den alten Werten 202/336/347 px – die vier neuen
+Prüfungen in `pruefe-konfigurator-oberflaeche.mjs` schlagen also an.
+
+**Und am 01.11.2026 der Rest davon:** „auf dem pc knn die leiste breiter sein
+das alles drauf passst" – „Darunter" war angeschnitten. Die Leiste steht
+absolut mit `left: 50 %` und bekam ohne eigene Breitenangabe nur den Platz von
+ihrem linken Rand bis zum Bühnenrand: Sie braucht 735 px, bekam bei JEDER
+Fensterbreite 683 px – auch bei 1600 px Fenster mit 1120 px breiter Bühne.
+`width: max-content` behebt es; nachgemessen passt es ab 1280 px Fenster
+vollständig, darunter lässt sich die Leiste schieben.
+
+**Vom Betreiber gegenzulesen:**
+1. Am Handy: Lassen sich die Felder mit dem Finger treffen? Ohne Zeiger gibt
+   es kein Überfahren — der erste Tipp ist gleich der Klick.
+2. Orange ist abgenommen („deckkraft is oke", 31.10.2026).
+3. Stören die angedeuteten leeren Felder (9 % weiß), wenn man nur schauen
+   will? Der Schalter **„+ Felder"** nimmt sie weg.
+
+#### Zuordnung Element → Feld — gebaut *(01.11.2026)*
+
+„bei dieser terassengröße sind es zwei felder vorne … man kann aber nur die
+stirnseite komplett bearbeiten und nicht pro feld" (Betreiber, mit Bildern).
+Auf Rückfrage entschieden: **Zuordnung je Feld**, bedient **über das + im
+Feld**.
+
+Die Auswahl bleibt je Seite; dazu kommt `Z.erwFeld` (`"Seite|Element" →
+Feldnummer`). **Steht nichts drin, gilt das Element in allen Feldern** – also
+genau wie bisher. Alte Konfigurationen und Teilen-Links sind unberührt. Die
+Zeilen „in welchem Feld?" erscheinen nur, wenn eine Seite mehr als ein Feld
+hat. Anfrage und Kurzfassung nennen das Feld, die Anfrage zusätzlich die
+Feldzahl je Seite.
+
+**Im Browser gemessen (01.11.2026):** Nach der Zuweisung baut Feld 1 nur die
+Plankenwand, Feld 2 nur die Schiebetür; der Teilen-Link trägt
+`{"vorne|Plankenwand":0,"vorne|Schiebetür":1}` und stellt nach dem Laden
+genau dasselbe wieder her.
+
+**Dabei gefunden: die Rückseite wurde DREIMAL gebaut** – zweimal nach den
+Fächern der Vorderseite, einmal nach den eigenen, alle übereinander (gemessen
+bei 7 m freistehend mit Plankenwand hinten). Rest der Korrektur vom
+24.10.2026. Jetzt: ein Aufbau. Einzelheiten: `docs/entscheidungen.md`,
+01.11.2026.
+
+**Dritte Fassung** (01.11.2026): Die Fächer heissen **Feld 1, Feld 2 …** –
+ein Richtungsname trägt nicht, sobald es fünf Fächer gibt. Wo Feld 1 liegt,
+steht in der Anfrage-Mail. **Und jedes Fach ist wirklich für sich:**
+Unverträglichkeiten gelten nur gegen den Inhalt DIESES Fachs – Velaris in
+Feld 1 und Schiebetür in Feld 2 geht jetzt. Vorher prüften nur die Knöpfe je
+Fach, das Umschalten aber gegen die ganze Seite: Der Knopf liess sich drücken
+und tat nichts. Einzelheiten: `docs/entscheidungen.md`, 01.11.2026 (dritte
+Fassung).
+
+**Zweite Fassung der Bedienung** („die umsetzung ist etwas verwirrend und
+kompliziert"): Hat eine Seite mehrere Fächer, bekommt **jedes einen eigenen
+Block** mit denselben Knöpfen und einem Namen („rechtes Fach", „linkes Fach",
+an den Längsseiten „hinteres"/„vorderes"). Die Reihe für die ganze Seite wird
+dann ausgeblendet. Das + springt nur noch dorthin und merkt sich nichts mehr.
+Bei einem Fach bleibt alles wie vorher. `Z.erwFeld` trägt je Element eine
+**Liste** von Fächern. Einzelheiten und der dabei gefundene CSS-Fehler, der
+die ganze Handy-Darstellung aushebelte: `docs/entscheidungen.md`, 01.11.2026
+(nachts, zweite Fassung).
+
+**Vorher nachgebessert** – „die feldzuordnung geht noch nicht":
+Das + landete nie in der Feldzeile (`querySelectorAll` liefert in der
+Reihenfolge des Dokuments, nicht der Abfrage), und Springen allein ist keine
+Bedienung. Jetzt merkt sich das +, von welchem Feld es kam, und das **nächste**
+gewählte Element bekommt dieses Feld – einmalig. Einzelheiten:
+`docs/entscheidungen.md`, 01.11.2026 (nachts).
+
+Geprüft von **`scripts/pruefe-feldwahl.js`** (31 Prüfungen, Gegenprobe mit 32
+einzeln eingebauten Fehlern) und von fünf Prüfungen im Browserlauf – darunter
+eine, die wirklich tippt und nachsieht, wo die Auswahl landet. Genau die hat
+den Fehler gefunden, den die Quelltextprüfung nicht sehen konnte.
+
+**Offen (bewusst, braucht eine Entscheidung):**
+1. **Volle, unabhängige Auswahl je Feld** – also zwei verschiedene
+   Plankenwände mit verschiedenen Höhen. Am 01.11.2026 bewusst NICHT gebaut;
+   sie müsste durch Datenmodell, Bedienfeld, Anfrage, Teilen-Link, PDF und
+   Maßtabelle gehen. `Z.erwFeld` müsste dann je Feld eine eigene Liste tragen
+   statt einer Feldnummer je Element.
+2. **Kein Feld am Terrassenboden, an den Pfosten und am Zubehör.** Auftrag
+   waren Seitenfelder und Dach; mehr Marken sind schnell zu viele.
+3. **Der Hinweis zum Testbetrieb liegt beim ersten Aufruf über dem Modell.**
+   Er verschwindet nach dem Wegklicken (einmal je Browser-Sitzung).
+
+---
+
 ## 10.10.2026 – Carport und Flachdach SkyView im 3D-Konfigurator
 
 **Was war falsch.** Der Konfigurator konnte nur das Terrassendach TDS. Für
