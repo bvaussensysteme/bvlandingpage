@@ -10680,3 +10680,34 @@ Die Scheibe ist mit 23 cm am oberen Anschlag der eigenen Begrenzung
 die Größe bleibt die Grenze. Größer machen heißt, die Verkleinerung von vorhin
 teilweise zurückzunehmen — **das entscheidet der Betreiber**, nicht ich.
 
+## 01.11.2026 — Das Zeichen verschwindet, sobald etwas im Fach steht
+
+**Was gemeldet war.** „wenn man auf ein plus drückt, und z.b glassschiebetür
+oder was anderes auswählt soll das plus in diesem feld verschwinden samt der
+orangen durchsichtigen markierung, erst wenn man wieder ne auswahl aufgehoben
+hat is das plus wieder da … weil sonst wenn man glasschiebewand etc.
+ausgewählt hat, leuchtet das + durch und sieht unprofessionell aus."
+
+**Was falsch war.** Auch ein belegtes Fach bekam seine Fläche — in Ruhe
+unsichtbar, aber **mit Zeichen** (einem Stift) und mit der orangen
+Hervorhebung unter dem Zeiger. Vor einer Glasschiebewand stand damit ein
+Symbol im Bild, das dort nichts mehr zu suchen hat. Der Gedanke dahinter war,
+dass sich ein belegtes Fach auch über das Modell ändern lassen soll. Der
+Einwand ist stärker: **Das Zeichen lädt zum Hinzufügen ein, und hinzuzufügen
+gibt es nichts mehr.** Geändert wird im Bedienfeld, in dem Block, der zu
+diesem Fach gehört.
+
+**Was jetzt gilt.** Nur leere Fächer bekommen Fläche und Zeichen. Nimmt man
+die Auswahl im Block weg, ist das Zeichen beim nächsten Aufbau wieder da.
+
+**Ausnahme Dach.** Es ist immer belegt — eine Eindeckung hat es stets —, und
+der Klick darauf ist der einzige Weg vom Modell in die Dachauswahl. Es behält
+sein Zeichen. Seine Fläche bleibt in Ruhe unsichtbar; mit `FELD_RUHE` läge ein
+Schleier über dem halben Bild. Dafür gibt es jetzt eine eigene Prüfung, denn
+der Unterschied steht an einer Stelle, die man beim Aufräumen leicht
+„vereinfacht".
+
+**Dazu:** „dünnere Ränder" — der Ring von 13 auf 8. 13 verschluckte die
+Scheibe. Die Linien **im** Zeichen bleiben bei 4,2; dick sollten sie ja
+werden.
+
