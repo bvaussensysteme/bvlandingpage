@@ -958,9 +958,17 @@ pruefe('Die Masszahlen stehen an den Linien im Code',
    der Masslinien versehentlich zurueckgedreht (19 statt 14, Kasten .84
    statt .62) – diese beiden Pruefungen haben es gefangen. Sie stehen
    also genau richtig hier. */
-pruefe('Massschild kleiner als vorher',
-       gegen ? /SCHILD_HOCH = 24/.test(src) : /SCHILD_HOCH = 14/.test(src),
-       'Sprite-Hoehe 24 -> 14');
+/* DER BETREIBER HAT SICH UMENTSCHIEDEN, und das ist der Grund, warum
+   hier eine Zahl steht und kein „kleiner als vorher":
+     11.10.2026  „kleiner filigraner … das es nicht so stört"  -> 24 auf 14
+     01.11.2026  „zu grau zu klein"                            -> 14 auf 22
+   Die alte Fassung dieser Pruefung verlangte 14 und waere heute rot
+   geworden, obwohl die Aenderung gewollt ist. Geprueft wird jetzt der
+   gueltige Stand; die Geschichte steht hier, damit niemand sie fuer
+   einen Rueckschritt haelt. */
+pruefe('Massschild in der vom Betreiber festgelegten Groesse',
+       gegen ? /SCHILD_HOCH = 14/.test(src) : /SCHILD_HOCH = 22/.test(src),
+       'Sprite-Hoehe 22 (24 -> 14 am 11.10. -> 22 am 01.11.)');
 pruefe('Schrift nicht mehr fett',
        gegen ? /bold 40px Arial/.test(src) : !/bold 40px Arial/.test(src), '');
 /* GEPRUEFT WIRD DIE ABSICHT, NICHT EINE ZAHL. Hier stand bis zum
@@ -971,10 +979,16 @@ pruefe('Schrift nicht mehr fett',
    meldet den falschen Fehler. Jetzt gilt: weniger deckend als die .86
    von frueher, und ueberhaupt vorhanden. */
 var kastenDeck = src.match(/g\.fillStyle = 'rgba\(17,17,17,\.(\d+)\)'/);
-pruefe('Kasten weniger deckend',
-       gegen ? !(kastenDeck && Number('0.' + kastenDeck[1]) < 0.86)
-             : !!(kastenDeck && Number('0.' + kastenDeck[1]) < 0.86),
-       kastenDeck ? 'jetzt .' + kastenDeck[1] + ', frueher .86' : 'keine Deckkraft gefunden');
+/* AUCH HIER UMGEKEHRT: Am 31.10.2026 sollte der Kasten zurueckhaltender
+   werden (.86 -> .52), am 01.11.2026 „zu grau zu klein" und „nutze doch
+   normal unsere firmenfarben". Ein durchscheinender Grund nimmt jeder
+   Schrift den Halt; jetzt deckt er voll - weiss mit goldenem Rand, unter
+   dem Zeiger gold gefuellt wie die Knoepfe der Seite. */
+pruefe('Der Masskasten deckt voll und traegt die Hausfarben',
+       gegen ? !/g\.fillStyle = wach \? '#C49A2A' : '#ffffff';/.test(src)
+             : /g\.fillStyle = wach \? '#C49A2A' : '#ffffff';/.test(src) &&
+               /g\.strokeStyle = wach \? '#9A7318' : '#C49A2A';/.test(src),
+       'weiss mit goldenem Rand, unter dem Zeiger gold');
 pruefe('Masslinie duenner',
        new RegExp(q || 'opacity: 0\\.55').test(src), '');
 

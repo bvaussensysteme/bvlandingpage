@@ -463,6 +463,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 01.11.2026 | **Hausfarben statt Grau**: Maßschild doppelt so groß, weiß mit goldenem Rand, unter dem Zeiger gold gefüllt wie die Knöpfe der Seite; Maßlinien wieder schwarz; + Scheiben gold mit weißem Zeichen | neu |
 | 01.11.2026 | **Bemaßung neu**: dünnere Linien (0,9 statt 1,6 cm), Pfeilspitzen, Maßhilfslinien mit Überstand; das Maß selbst als Bedienelement (heller Grund, Rahmen, Stift, Gold beim Darüberfahren). Klickgrenze von 0,9 auf 2,5 s — gemessen 689 ms für einen Druck von 120 ms | neu |
 | 01.11.2026 | **Maßkasten**: „Übernehmen" ragte 10 px heraus (190 px breit, Knöpfe brauchten 187 + 24 px Polster); eigene − / + Schalter statt der Browser-Pfeilchen, die am Handy gar nicht da sind | neu |
 | 01.11.2026 | **Zwischenpfosten: erst antippen, dann schieben** — und die Toleranz war zu eng hergeleitet (nur eigene Pfostenspalte statt ganzer Tabelle): bei 7.000 mm jetzt ±520 statt ±200 mm | neu |

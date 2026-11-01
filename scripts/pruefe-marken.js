@@ -113,8 +113,8 @@ var FEHLER = [
    '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,',
    '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide, void: new THREE.Sprite(),'],
   ['Die Scheibe wird wieder durchsichtig', 'js',
-   "    g.fillStyle = belegt ? '#C49A2A' : '#FFFFFF';",
-   "    g.fillStyle = belegt ? 'rgba(196,154,42,.80)' : 'rgba(255,255,255,.80)';"],
+   "    g.fillStyle = '#C49A2A';\n    g.fill();",
+   "    g.fillStyle = 'rgba(196,154,42,.80)';\n    g.fill();"],
   ['Die Linien werden wieder duenn', 'js',
    '      g.lineWidth = 4.2;', '      g.lineWidth = 2.3;'],
   ['Der Rand wird wieder breit', 'js',
@@ -237,12 +237,25 @@ var FEHLER = [
    '        v.y = pkt.y - MASS_UEBER;\n        w.y = pkt.y + MASS_MARKE;',
    '        w.y = pkt.y + MASS_MARKE;'],
   ['Das Schild sieht wieder aus wie eine Beschriftung', 'js',
-   "      g.strokeStyle = wach ? '#C49A2A' : '#9AA4AB';", '      g.strokeStyle = wach ? 1 : 1;'],
+   "      g.strokeStyle = wach ? '#9A7318' : '#C49A2A';", '      g.strokeStyle = wach ? 1 : 1;'],
+  ['Der Zeiger faerbt das Schild nicht mehr gold', 'js',
+   "      g.fillStyle = wach ? '#C49A2A' : '#ffffff';", "      g.fillStyle = '#ffffff';"],
+  ['Das Schild ist wieder zu klein', 'js',
+   '  var SCHILD_HOCH = 22;', '  var SCHILD_HOCH = 14;'],
+  ['Der Schatten unter dem Schild faellt weg', 'js',
+   "    g.shadowColor = 'rgba(0,0,0,.30)';", "    g.shadowColor = 'transparent';"],
+  ['Die Masslinien sind wieder grau', 'js',
+   '    var mMass = new THREE.MeshBasicMaterial({ color: 0x111111 });',
+   '    var mMass = new THREE.MeshBasicMaterial({ color: 0x8a8a8a });'],
+  ['Die Scheibe ist wieder blass', 'js',
+   "    g.fillStyle = '#C49A2A';\n    g.fill();", "    g.fillStyle = '#FFFFFF';\n    g.fill();"],
+  ['Das Zeichen auf der Scheibe ist nicht mehr weiss', 'js',
+   "    g.strokeStyle = '#FFFFFF';", "    g.strokeStyle = '#7A5B12';"],
   ['Das Schild traegt kein Stiftzeichen mehr', 'js',
    "      var u = symbolUmriss('stift');", '      var u = null;'],
   ['Zahl und Einheit sind wieder gleich gross', 'js',
-   "    var fEinheit = '400 40px Arial, Helvetica, sans-serif';",
-   "    var fEinheit = '600 54px Arial, Helvetica, sans-serif';"],
+   "    var fEinheit = '600 44px Arial, Helvetica, sans-serif';",
+   "    var fEinheit = '700 58px Arial, Helvetica, sans-serif';"],
   ['Das Schild kennt keine zweite Fassung', 'js',
    "      s.userData.wachMap = schildBild(text, true, true).map;", '      void feld;'],
   ['Der Zeiger auf dem Schild aendert nichts', 'js',
@@ -523,9 +536,15 @@ function lauf(q) {
      haben, dass man es besser sieht … und nicht so duenne Linien"
      (Betreiber, 01.11.2026). Drei Dinge zahlen darauf ein, und jedes
      laesst sich einzeln wieder kaputtmachen. */
-  p('Die Scheibe ist voll deckend',
-    /g\.fillStyle = belegt \? '#C49A2A' : '#FFFFFF';/.test(q.js),
-    'durchsichtig nahm sie die Farbe des Hintergrunds an');
+  /* GOLD MIT WEISS, nicht weiss mit Gold: „generell auch die + logos
+     etc. alles is so zu grau keine farbe, nutze doch normal unsere
+     firmenfarben das orange/gold das weiß etc" (Betreiber,
+     01.11.2026). Vor heller Hauswand und hellem Pflaster blieb von
+     einer weissen Scheibe mit goldenem Rand ein blasser Kreis. */
+  p('Die Scheibe traegt die Hausfarben: Gold mit weissem Zeichen',
+    /g\.fillStyle = '#C49A2A';/.test(q.js) &&
+    /g\.strokeStyle = '#FFFFFF';/.test(q.js),
+    'voll deckend, kein Durchscheinen');
   p('Die Linien sind kraeftig',
     /g\.lineWidth = 4\.2;/.test(q.js),
     'Strich 4,2 statt 2,3 - die 2,3 stammten aus dem 24-px-Knopf');
@@ -706,13 +725,24 @@ function lauf(q) {
     /v\.y = pkt\.y - MASS_UEBER;\s*\n\s*w\.y = pkt\.y \+ MASS_MARKE;/.test(q.js),
     'sonst sehen sie aus wie ein Haken');
   p('Das Schild sieht aus wie ein Bedienelement',
-    /g\.strokeStyle = wach \? '#C49A2A' : '#9AA4AB';/.test(q.js) &&
+    /g\.strokeStyle = wach \? '#9A7318' : '#C49A2A';/.test(q.js) &&
     /var u = symbolUmriss\('stift'\);/.test(q.js),
-    'heller Grund, Haarlinie als Rahmen, Stift aus der eigenen Sammlung');
+    'weiss mit goldenem Rand, Stift aus der eigenen Sammlung');
+  p('Unter dem Zeiger wird es gold gefüllt, wie die Knöpfe der Seite',
+    /g\.fillStyle = wach \? '#C49A2A' : '#ffffff';/.test(q.js),
+    'dieselben zwei Zustände wie .ist-gold');
+  p('Das Schild ist groß genug',
+    /var SCHILD_HOCH = 22;/.test(q.js), '22 statt 14 Welt-Einheiten');
+  p('Das Schild hebt sich mit einem Schatten vom Hintergrund ab',
+    /g\.shadowColor = 'rgba\(0,0,0,\.30\)';/.test(q.js) &&
+    /var SCHILD_RAND = 9;/.test(q.js),
+    'über Pflaster, Rasen und Glas verschwimmt die Kante sonst');
+  p('Die Maßlinien sind dunkel, nicht grau',
+    /color: 0x111111/.test(q.js), 'dünn und hell heißt unsichtbar');
   p('Die Einheit tritt hinter die Zahl zurück',
-    /var fEinheit = '400 40px Arial/.test(q.js) &&
-    /var fZahl = '600 54px Arial/.test(q.js),
-    'in einer Bemaßung zählt die Zahl');
+    /var fEinheit = '600 44px Arial/.test(q.js) &&
+    /var fZahl = '700 58px Arial/.test(q.js),
+    'in einer Bemaßung zählt die Zahl - zurücktreten heißt aber nicht unleserlich');
   p('Der Zeiger auf dem Schild macht Rahmen und Stift gold',
     /s\.userData\.wachMap = schildBild\(text, true, true\)\.map;/.test(q.js) &&
     /s\.material\.map = s\.userData\.wachMap;/.test(q.js) &&
