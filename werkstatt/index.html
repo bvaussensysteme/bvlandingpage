@@ -611,7 +611,9 @@
     .k3d-ziehband {
       position: absolute; left: 50%; transform: translateX(-50%);
       bottom: 140px; margin: 0; pointer-events: none; z-index: 6;
-      background: rgba(17, 17, 17, .78); color: #fff; white-space: nowrap;
+      /* Hausfarben statt Grau: dunkler Grund, goldener Rand. */
+      background: var(--black); color: #fff; white-space: nowrap;
+      border: 1px solid var(--gold);
       font-size: .74rem; padding: 5px 10px; border-radius: 999px;
     }
     .k3d-feldwahl:empty { display: none; }
@@ -2303,13 +2305,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101m" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101n" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261101m" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261101n" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

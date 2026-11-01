@@ -3877,7 +3877,29 @@
      stört" (Betreiber, 11.10.2026). Schlecht lesbar waren die LINIEN,
      nicht die Schilder; die sind repariert. Soll es groesser werden,
      entscheidet das der Betreiber – hier steht die eine Zahl dafuer. */
-  var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
+  /* GROESSER UND KRAEFTIGER, zweite Fassung vom 01.11.2026: „das is
+     noch zu schlecht sichtbar, zu grau zu klein und die linien sind
+     durch die graue farbe auch schlechter sichtbar" (Betreiber, mit
+     Bild). Ich hatte beim Zuruecknehmen zu weit gedreht - die erste
+     Fassung war auf „nicht stoeren" gebaut, nicht auf „lesen koennen".
+     Geaendert wurde deshalb alles, was Kontrast kostet:
+
+     · GROESSE von 14 auf 22 Welt-Einheiten (das Schild selbst damit von
+       14 auf gut 19).
+     · RAHMEN dunkel statt hellgrau, und breiter.
+     · GRUND voll deckend statt 94 Prozent - durchscheinendes Pflaster
+       nimmt jeder Schrift den Halt.
+     · EINHEIT dunkler und groesser; grau heisst zurueckhaltend, nicht
+       unleserlich.
+     · STIFT immer in Gold statt in Grau. Er ist der Hinweis darauf,
+       dass hier etwas zu holen ist - der darf auffallen.
+     · SCHATTEN darunter. Das Schild steht ueber Pflaster, Rasen und
+       Glas; ohne Schatten verschwimmt die Kante mit dem, was gerade
+       dahinter liegt. Dafuer bekommt die Zeichenflaeche ringsum Luft
+       (SCHILD_RAND), sonst schnitte der Schatten an der Kante ab. */
+  var SCHILD_HOCH = 22;         // Welt-Einheiten der ganzen Zeichenflaeche
+  var SCHILD_PX = 112;          // Hoehe des Schildes auf der Flaeche
+  var SCHILD_RAND = 9;          // Luft ringsum, damit der Schatten Platz hat
 
   /* Ein abgerundeter Weg von Hand. roundRect kennen aeltere Browser
      nicht, und ein eckiger Kasten wirkt schwerer als er ist. */
@@ -3895,33 +3917,6 @@
     g.closePath();
   }
 
-  /* ---------- Das Schild am Mass ----------
-     „verbessere die maßanzeige … das maß selber vllt. so designen das
-     man sieht man kann draufkliken und es bearbeiten" (Betreiber,
-     01.11.2026, mit drei Bildern).
-
-     VORHER war es ein dunkler Kasten mit weisser Schrift bei 52 Prozent
-     Deckkraft - eine Beschriftung, wie sie in jeder Zeichnung steht.
-     Dass man sie anfassen kann, war ihr nicht anzusehen, und ein Kunde
-     tippt nicht auf gut Glueck auf eine Beschriftung.
-
-     JETZT sieht es aus wie das, was es ist: ein Feld, in das man
-     schreiben kann. Hell, mit einer Haarlinie als Rahmen, der Zahl in
-     unserem Schriftschwarz und dem Stift aus der eigenen Sammlung
-     daneben. Faehrt der Zeiger darauf, werden Rahmen und Stift GOLD -
-     dieselbe Sprache wie bei den runden Zeichen in den Feldern.
-
-     EINHEIT KLEINER UND GRAU: In einer Bemassung zaehlt die Zahl; die
-     Einheit sagt nur, in welcher Sprache sie spricht. Sie gleich gross
-     zu setzen laesst beide um Aufmerksamkeit streiten.
-
-     ZWEIFACHE AUFLOESUNG (SCHILD_PX): Die Zeichenflaeche ist doppelt so
-     gross wie noetig und wird heruntergerechnet. Vorher stand die
-     Schrift bei 54 Bildpunkten Hoehe und wurde auf hohen Aufloesungen
-     weich. */
-  var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
-  var SCHILD_PX = 108;          // Zeichenflaeche, doppelt fuer scharfe Kanten
-
   function schildBild(text, klickbar, wach) {
     var c = document.createElement('canvas');
     var g = c.getContext('2d');
@@ -3929,42 +3924,59 @@
     var zahl = text, einheit = '';
     var tr = /^([\s\S]*?)\s+(mm)$/.exec(text);
     if (tr) { zahl = tr[1]; einheit = tr[2]; }
-    var fZahl = '600 54px Arial, Helvetica, sans-serif';
-    var fEinheit = '400 40px Arial, Helvetica, sans-serif';
+    var fZahl = '700 58px Arial, Helvetica, sans-serif';
+    var fEinheit = '600 44px Arial, Helvetica, sans-serif';
     g.font = fZahl;
     var wZahl = g.measureText(zahl).width;
     g.font = fEinheit;
-    var wEinheit = einheit ? g.measureText(einheit).width + 11 : 0;
-    var stift = klickbar ? 52 : 0;
-    var polster = 24;
-    var breit = Math.ceil(wZahl + wEinheit + stift + polster * 2);
-    var hoch = SCHILD_PX, rund = 24, rahmen = 3;
+    var wEinheit = einheit ? g.measureText(einheit).width + 12 : 0;
+    var stift = klickbar ? 56 : 0;
+    var polster = 26;
+    var innen = Math.ceil(wZahl + wEinheit + stift + polster * 2);
+    var breit = innen + SCHILD_RAND * 2;
+    var hoch = SCHILD_PX + SCHILD_RAND * 2;
+    var rund = 26, rahmen = klickbar ? 4 : 0;
     c.width = breit; c.height = hoch;
     g = c.getContext('2d');
 
+    g.save();
+    g.shadowColor = 'rgba(0,0,0,.30)';
+    g.shadowBlur = 11;
+    g.shadowOffsetY = 3;
+    /* HAUSFARBEN STATT GRAU (Betreiber, 01.11.2026): Weiss mit
+       goldenem Rand im Ruhezustand, unter dem Zeiger GOLD GEFUELLT -
+       genau die beiden Zustaende, die die Knoepfe der Seite haben
+       (.ist-gold). Wer die Seite kennt, weiss damit sofort, dass hier
+       etwas zu druecken ist. Das Schild ohne Stift (Gefaelle) ist eine
+       Notiz und bleibt dunkel. */
     if (klickbar) {
-      g.fillStyle = wach ? 'rgba(255,252,243,.97)' : 'rgba(255,255,255,.94)';
-      rundWeg(g, rahmen / 2, rahmen / 2, breit - rahmen, hoch - rahmen, rund);
-      g.fill();
-      g.lineWidth = rahmen;
-      g.strokeStyle = wach ? '#C49A2A' : '#9AA4AB';
-      g.stroke();
+      g.fillStyle = wach ? '#C49A2A' : '#ffffff';
     } else {
-      g.fillStyle = 'rgba(17,17,17,.52)';
-      rundWeg(g, 0, 0, breit, hoch, rund);
-      g.fill();
+      g.fillStyle = '#111111';
+    }
+    rundWeg(g, SCHILD_RAND, SCHILD_RAND, innen, SCHILD_PX, rund);
+    g.fill();
+    g.restore();
+    if (klickbar) {
+      g.lineWidth = rahmen;
+      g.strokeStyle = wach ? '#9A7318' : '#C49A2A';
+      rundWeg(g, SCHILD_RAND + rahmen / 2, SCHILD_RAND + rahmen / 2,
+              innen - rahmen, SCHILD_PX - rahmen, rund);
+      g.stroke();
     }
 
     g.textBaseline = 'middle';
-    var x = polster;
+    var mitte = SCHILD_RAND + SCHILD_PX / 2;
+    var x = SCHILD_RAND + polster;
     g.font = fZahl;
-    g.fillStyle = klickbar ? '#16232c' : '#ffffff';
-    g.fillText(zahl, x, hoch / 2 + 2);
+    g.fillStyle = klickbar ? '#111111' : '#ffffff';
+    g.fillText(zahl, x, mitte + 2);
     x += wZahl;
     if (einheit) {
       g.font = fEinheit;
-      g.fillStyle = klickbar ? '#6b7a84' : 'rgba(255,255,255,.8)';
-      g.fillText(einheit, x + 11, hoch / 2 + 3);
+      g.fillStyle = klickbar ? (wach ? '#4a3a0c' : '#9A7318')
+                             : 'rgba(255,255,255,.88)';
+      g.fillText(einheit, x + 12, mitte + 3);
       x += wEinheit;
     }
     if (klickbar) {
@@ -3973,12 +3985,12 @@
          auch im Bedienfeld steht. */
       var u = symbolUmriss('stift');
       if (u && typeof Path2D === 'function') {
-        var gr = 40;
+        var gr = 46;
         g.save();
-        g.translate(x + 14, (hoch - gr) / 2);
+        g.translate(x + 14, mitte - gr / 2);
         g.scale(gr / u.breite, gr / u.hoehe);
-        g.lineWidth = 2.1 * (u.breite / gr);
-        g.strokeStyle = wach ? '#C49A2A' : '#8d99a1';
+        g.lineWidth = 2.6 * (u.breite / gr);
+        g.strokeStyle = wach ? '#ffffff' : '#C49A2A';
         g.lineCap = 'round';
         g.lineJoin = 'round';
         u.d.forEach(function (d) { g.stroke(new Path2D(d)); });
@@ -3995,7 +4007,7 @@
     if (renderer && renderer.capabilities) {
       t.anisotropy = renderer.capabilities.getMaxAnisotropy();
     }
-    return { map: t, breit: breit };
+    return { map: t, breit: breit, hoch: hoch };
   }
 
   /* feld gesetzt heisst: Das Schild ist anklickbar und bekommt dafuer
@@ -4004,7 +4016,7 @@
     var ruhe = schildBild(text, !!feld, false);
     var s = new THREE.Sprite(new THREE.SpriteMaterial({
       map: ruhe.map, depthTest: false }));
-    s.scale.set(ruhe.breit / SCHILD_PX * SCHILD_HOCH, SCHILD_HOCH, 1);
+    s.scale.set(ruhe.breit / ruhe.hoch * SCHILD_HOCH, SCHILD_HOCH, 1);
     s.userData.ruheMap = ruhe.map;
     if (feld) {
       s.userData.massFeld = feld;
@@ -4086,10 +4098,12 @@
   /* feld: 'breite' | 'tiefe' | 'hoehe' - woran das Schild haengt.
      Ohne Angabe bleibt das Schild ein reines Schild (Steigungsdreieck). */
   function masslinie(a, b, text, feld) {
-    /* Etwas heller als vorher (0x1b1b1b): Die Linie ist jetzt duenner,
-       und ein duenner tiefschwarzer Strich wirkt haerter als ein
-       dickerer. 0x33424c ist unser Schriftschwarz, leicht aufgehellt. */
-    var mMass = new THREE.MeshBasicMaterial({ color: 0x33424c });
+    /* ZURUECK AUF DUNKEL. Ich hatte die Linie beim Duennermachen auch
+       aufgehellt (0x33424c) - das war einmal zuviel des Guten:
+       „die linien sind durch die graue farbe auch schlechter sichtbar"
+       (Betreiber, 01.11.2026). Duenn UND hell heisst unsichtbar. Duenn
+       und dunkel ist das, was eine technische Zeichnung macht. */
+    var mMass = new THREE.MeshBasicMaterial({ color: 0x111111 });
     masseGruppe.add(massStab(a, b, mMass));
     /* Steht die Linie (Hoehenmass), zeigen die Hilfslinien waagerecht;
        liegt sie (Breite, Tiefe), zeigen sie nach oben. */
@@ -4206,7 +4220,10 @@
     var hoch = a.y >= b.y ? a : b;        // das hoehere Ende
     var tief = a.y >= b.y ? b : a;
     var ecke = tief.clone(); ecke.y = hoch.y;
-    var mHilf = new THREE.MeshBasicMaterial({ color: 0x8a8a8a });
+    /* Heller als die Masslinie, aber nicht mehr blass: Das Dreieck ist
+       eine Hilfslinie, keine Bemassung - sichtbar muss es trotzdem
+       sein. 0x8a8a8a war auf hellem Pflaster kaum zu finden. */
+    var mHilf = new THREE.MeshBasicMaterial({ color: 0x5a6b76 });
     masseGruppe.add(massStab(hoch, ecke, mHilf));   // die Waagerechte
     masseGruppe.add(massStab(ecke, tief, mHilf));   // der Hoehenunterschied
     var mm = Math.round((hoch.y - tief.y) * 10);
@@ -4964,7 +4981,17 @@
     g.shadowBlur = 14;
     g.shadowOffsetY = 4;
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    g.fillStyle = belegt ? '#C49A2A' : '#FFFFFF';
+    /* GOLD GEFUELLT, WEISSES ZEICHEN - unsere Hausfarben, zweite
+       Fassung vom 01.11.2026: „generell auch die + logos etc. alles is
+       so zu grau keine farbe, nutze doch normal unsere firmenfarben das
+       orange/gold das weiß etc" (Betreiber).
+
+       Vorher war die Scheibe fuer ein LEERES Feld weiss mit goldenem
+       Rand und dunkelgoldenem Zeichen. Vor hellem Pflaster und heller
+       Hauswand - also fast ueberall - blieb davon ein blasser Kreis.
+       Seit die Zeichen nur noch in leeren Feldern stehen (01.11.2026)
+       war das sogar der Normalfall. */
+    g.fillStyle = '#C49A2A';
     g.fill();
     g.restore();
 
@@ -4975,7 +5002,7 @@
     g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
-    g.strokeStyle = belegt ? '#FFFFFF' : '#7A5B12';
+    g.strokeStyle = '#FFFFFF';
     g.lineCap = 'round'; g.lineJoin = 'round';
     g.fillStyle = 'rgba(0,0,0,0)';
     if (u && window.Path2D) {

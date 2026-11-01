@@ -11065,3 +11065,60 @@ verankert, dazu eine eigene Prüfung für das Maßschild.
 Maß an, dass man es anfassen kann — auch ohne Mauszeiger, am Handy? Und: Das
 Gold beim Darüberfahren ist dasselbe wie bei den runden Feldzeichen; passt das
 zusammen?
+
+## 01.11.2026 (spät) — Hausfarben statt Grau: ich hatte zu weit zurückgenommen
+
+**Anlass, zwei Sätze kurz nacheinander.** „das is noch zu schlecht sichtbar, zu
+grau zu klein und die linien sind durch die graue farbe auch schlechter
+sichtbar" und „generell auch die + logos etc. alles is so zu grau keine farbe,
+nutze doch normal unsere firmenfarben das orange/gold das weiß etc" (Betreiber,
+01.11.2026, mit Bild).
+
+### Der Fehler war meiner, und er hat eine Vorgeschichte
+
+Am **11.10.2026** hieß es „kleiner filigraner … das es nicht so stört", am
+**31.10.2026** „nicht störend wirken". Danach habe ich auf *Zurückhaltung*
+gebaut: Schild von 24 auf 14 Einheiten, Deckkraft von .86 auf .52, und beim
+Dünnermachen der Linien habe ich sie **auch noch aufgehellt**. Das war einmal
+zuviel des Guten — dünn **und** hell heißt unsichtbar.
+
+**Eine Anweisung des Betreibers kann eine frühere aufheben.** Zwei Prüfungen
+hielten den alten Stand fest („Maßschild kleiner als vorher" verlangte
+`SCHILD_HOCH = 14`, „Kasten weniger deckend" verlangte unter .86) und wären
+heute rot geworden, obwohl die Änderung gewollt ist. Beide prüfen jetzt den
+gültigen Stand; die Geschichte steht im Kommentar daneben, damit niemand sie
+für einen Rückschritt hält.
+
+### Was jetzt gilt
+
+| | vorher | jetzt |
+|---|---|---|
+| Maßschild, Höhe | 14 Einheiten | **22** |
+| Maßschild, Grund | weiß zu 94 % | **weiß voll deckend**, unter dem Zeiger **gold gefüllt** |
+| Maßschild, Rahmen | hellgrau `#9AA4AB` | **Gold `#C49A2A`**, unter dem Zeiger Dunkelgold |
+| Einheit „mm" | `#6b7a84`, 400/40px | **`#9A7318`, 600/44px** |
+| Stift | grau | **Gold**, unter dem Zeiger weiß |
+| Maßlinien | `0x33424c` (grau) | **`0x111111`** |
+| Gefälle-Hilfslinien | `0x8a8a8a` | `0x5a6b76` |
+| Feldzeichen (+) | weiße Scheibe, goldener Rand, dunkelgoldenes Zeichen | **gold gefüllte Scheibe, weißes Zeichen** |
+| Band beim Pfostenziehen | grau `rgba(17,17,17,.78)` | **Schwarz mit goldenem Rand** |
+
+**Die zwei Zustände des Maßschildes sind die der Knöpfe auf der Seite**
+(`.ist-gold`): ruhend weiß mit goldenem Rand, unter dem Zeiger gold gefüllt mit
+dunkler Schrift. Wer die Seite kennt, weiß damit ohne Erklärung, dass hier etwas
+zu drücken ist.
+
+**Ein Schatten unter dem Schild**, dafür bekommt die Zeichenfläche ringsum Luft
+(sonst schneidet der Schatten an der Kante ab). Das Schild steht über Pflaster,
+Rasen und Glas — ohne Schatten verschwimmt die Kante mit dem, was gerade
+dahinter liegt.
+
+**Die Feldzeichen waren der unauffälligste Fall:** Seit dem 01.11.2026 stehen
+sie nur noch in **leeren** Feldern — und genau für die war die Scheibe weiß mit
+goldenem Rand. Vor heller Hauswand und hellem Pflaster, also fast überall, blieb
+davon ein blasser Kreis. Die kräftige Fassung (gold mit weißem Zeichen) gab es
+schon, sie war nur dem Fall „Feld belegt" zugeordnet, den es nicht mehr gibt.
+
+**Gegenlesen:** Reicht der Kontrast jetzt — auch bei Sonne auf hellem Pflaster?
+Ist das Gold am Maß dasselbe, das Sie auf der Seite verwenden? Und: Das Schild
+ist jetzt deutlich größer; stört es beim Drehen?
