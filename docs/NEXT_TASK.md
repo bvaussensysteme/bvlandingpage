@@ -154,23 +154,36 @@ Einzelheiten im Archiv (`docs/erledigt-archiv.md`, 31.10./01.11.2026), das
 
 „kann man außer die eckpfosten die zwischenpfosten verschieben innerhalb den
 erlaubten toleranzen" (Betreiber). Gebaut: Grenze **aus unserer Maßtabelle
-hergeleitet**, bedient durch **Ziehen am Modell** (Zeiger wechselt auf
-`ew-resize`, Band zeigt Achsmaß und lichte Breite, Einrasten auf der
-gleichmäßigen Lage) **plus Regler** im Bedienfeld unter „Zwischenpfosten".
-Die Lage geht in Teilen-Link, Anfrage und Kurzfassung mit.
+hergeleitet**, bedient durch **Antippen, dann Ziehen** am Modell **plus Regler**
+im Bedienfeld unter „Zwischenpfosten". Die Lage geht in Teilen-Link, Anfrage und
+Kurzfassung mit.
+
+**Erst antippen, dann schieben** (Betreiber, 01.11.2026 nachmittags): Ein Tipp
+wählt den Pfosten (orange Hülle am Pfosten, markierte Zeile im Bedienfeld, Band
+mit Achsmaß und lichter Breite), erst dann lässt er sich ziehen. Zweiter Tipp,
+Tipp daneben oder `Esc` heben die Wahl auf. Ohne Auswahl dreht das Ziehen nur
+die Kamera — am Handy sonst eine unbemerkte Planänderung.
+
+**Die Spanne wurde am 01.11.2026 nachmittags korrigiert**: Sie wird jetzt über
+die **ganze** Maßtabelle gesucht, nicht in der eigenen Pfostenspalte. TDS/Glas
+bei flachem Dach: 970–3970 mm statt 2195–3645 mm; bei 7.000 mm Breite also
+2.980–4.020 mm statt 3.300–3.700 mm. Begründung in `docs/entscheidungen.md`.
 
 **Die Spanne ist abgeleitet, nicht belegt** — siehe die Rückfrage an VD unten.
-Unter dem Bedienfeld steht, woher die Zahl kommt und dass beim Aufmaß die Lage
-verbindlich festgelegt wird.
+Sie ist jetzt breiter, die Rückfrage damit wichtiger. Unter dem Bedienfeld
+steht, woher die Zahl kommt und dass beim Aufmaß die Lage verbindlich
+festgelegt wird.
 
 **Vom Betreiber gegenzulesen:**
-1. Bei 7.000 mm Breite den Mittelpfosten im Modell greifen und ziehen: Läuft er
-   nur seitlich? Kippt die Ansicht nicht? Rastet er in der Mitte ein?
-2. Am Handy mit dem Finger: Geht das Greifen auch ohne Mauszeiger?
-3. Teilen-Link öffnen — stehen die Pfosten dort genauso?
-4. Sind „Achsmaße" und „lichte Breite" die Zahlen, mit denen Sie arbeiten?
+1. Bei 5.000 und 7.000 mm Breite den Mittelpfosten antippen (Hülle muss
+   erscheinen) und ziehen: Ist der Spielraum jetzt genug?
+2. Ohne Auswahl über den Pfosten ziehen: Dreht sich nur die Ansicht?
+3. Am Handy mit dem Finger: Antippen und Ziehen, und lässt sich das Modell
+   weiterhin bequem drehen, wenn der Finger auf einem Pfosten aufsetzt?
+4. Teilen-Link öffnen — stehen die Pfosten dort genauso?
+5. Sind „Achsmaße" und „lichte Breite" die Zahlen, mit denen Sie arbeiten?
 
-Geprüft von `scripts/pruefe-pfosten.js` (50 Prüfungen, darunter 4.000
+Geprüft von `scripts/pruefe-pfosten.js` (75 Prüfungen, darunter 4.000
 Zufallsfälle) und im Browser von `scripts/pruefe-konfigurator-oberflaeche.mjs`.
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
@@ -186,7 +199,7 @@ als keine.
 
 | Frage | Warum sie zählt |
 |---|---|
-| **Zulässiger Achsabstand der Pfosten (von … bis), je System** | Seit 01.11.2026 lassen sich die Zwischenpfosten verschieben. Die Spanne wird aus der Maßtabelle **hergeleitet** (kleinste und größte Breite derselben Pfostenspalte) – das ist eine Ableitung, keine Herstellerangabe. Daran hängen Statik und Gewährleistung; bitte die wirklichen Grenzwerte schriftlich geben lassen |
+| **Zulässiger Achsabstand der Pfosten (von … bis), je System** | Seit 01.11.2026 lassen sich die Zwischenpfosten verschieben. Die Spanne wird aus der Maßtabelle **hergeleitet**: größter und kleinster Achsabstand, der in der Tabelle irgendwo vorkommt (TDS/Glas flach: 970–3970 mm, aus den Zeilen 1080 mm/2 Pfosten und 4080 mm/2 Pfosten). Das ist eine Ableitung, keine Herstellerangabe. Daran hängen Statik und Gewährleistung; bitte die wirklichen Grenzwerte schriftlich geben lassen |
 | **Lichtdurchlässigkeit der Sechsfachstegplatte Graphit** | Für klar (76 %), opal (48 %) und bronze (35 %) gibt es Händlerangaben, für Graphit nichts. Im Modell ist die Deckkraft geschätzt |
 | ~~Rippenabstand des Trapezblechs T35M-0,75~~ | **Erledigt 16.10.2026.** Teilung 210 mm, abgeleitet aus der belegten Nutzbreite 1050 mm (1050 / 5); gestützt durch das Nachbarprofil T35/207 mit 1035 mm = 5 × 207 |
 | ~~Liefert der Hersteller das Trapezblech in der RAL-Farbe des Gestells?~~ | **Erledigt 16.10.2026.** Nein – der Betreiber hat den Artikel genannt: „T35M-0,75-**RAL7016**". Das Blech läuft jetzt in Anthrazit, unabhängig von der Gestellfarbe |
@@ -290,7 +303,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-symbole.js` | **Keine Emoji in der Oberfläche.** Sucht die Zeichen selbst (nicht das Aussehen) in Knopfbeschriftungen, in allem, was Javascript in die Seite schreibt, und in den sechs Skripten der Website. Dazu: Jedes benutzte Symbol gibt es, keines liegt ungenutzt herum, jedes hat eine viewBox, keines bringt fremde Bilddaten mit, das Sprite steht vor der ersten Verwendung. Gegenprobe: 17 Fehler, jeder einzeln |
 | `scripts/pruefe-feldwahl.js` | Zuordnung Element → Feld: ohne Zuordnung gilt ein Element in ALLEN Feldern (alte Links bleiben unverändert), das Modell baut danach, verwaiste Zuordnungen werden geloescht, ein weggefallenes Feld lässt nichts verschwinden, Teilen-Link trägt und liest sie, Anfrage nennt Feld und Feldzahl, die Rückseite wird nicht mehr doppelt gebaut. 25 Prüfungen, Gegenprobe: 26 Fehler einzeln |
 | `scripts/pruefe-marken.js` | Anklickbare Felder am Modell: ein Feld je Seitenfeld (auch bei Unterzug und Mittelpfosten), keins hinten bei Wandmontage, hinten nach den **hinteren** Achsen, keins steckt in einem Pfosten; die Fläche liegt IN der Ebene ihres Feldes (Quaternion, kein Sprite), Hervorhebung orange und durchsichtig, Klick führt ins Bedienfeld, Verdecktes ist nicht anklickbar, Flächen bleiben aus Bild und PDF heraus. `markenFelder()` wird **ausgeführt**, nicht im Quelltext nachgelesen. 58 Prüfungen, Gegenprobe: 61 Fehler einzeln |
-| `scripts/pruefe-pfosten.js` | Verschiebbare Zwischenpfosten: Spanne aus der Maßtabelle (Achse zu Achse, Profil der Reihe, gleichmäßige Lage immer enthalten), Klemmen in Feldbreiten, Spanne je Pfosten gegen die **wirkliche** Lage der Nachbarn, Eckpfosten unbeweglich, Griff hat Vorrang vor dem Drehen, Einrasten, Verdecktes nicht greifbar, Teilen-Link und Anfrage tragen die Lage. `achsenKlemmen()` wird **ausgeführt**: 4.000 Zufallsfälle müssen alle in der Toleranz landen – genau daran ist die erste Fassung gescheitert (1.413 außerhalb). 50 Prüfungen, Gegenprobe: 50 Fehler einzeln |
+| `scripts/pruefe-pfosten.js` | Verschiebbare Zwischenpfosten: Spanne über die **ganze** Maßtabelle (Achse zu Achse, Zählregel des Produkts, Profil der Reihe, gleichmäßige Lage immer enthalten), Auswahl durch Antippen (ohne Auswahl kein Griff, zweiter Tipp hebt sie auf, Esc, Hülle in eigener Gruppe und nicht im Bild/PDF), Reglerraster trifft die gleichmäßige Lage, Klemmen in Feldbreiten, Spanne je Pfosten gegen die **wirkliche** Lage der Nachbarn, Eckpfosten unbeweglich, Griff hat Vorrang vor dem Drehen, Einrasten, Verdecktes nicht greifbar, Teilen-Link und Anfrage tragen die Lage. `achsenKlemmen()` wird **ausgeführt**: 4.000 Zufallsfälle müssen alle in der Toleranz landen – genau daran ist die erste Fassung gescheitert (1.413 außerhalb). 50 Prüfungen, Gegenprobe: 50 Fehler einzeln |
 | `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
 | `scripts/pruefe-konfigurator-sperre.js` | Ist der öffentliche Konfigurator wirklich gesperrt (503, nicht 404), führt die Hinweisseite zur Anfrage, ist die Werkstatt **nicht** mitgesperrt, verlinkt keine Seite ihn noch aktiv im Menü? **Beim Zurückschalten muss dieses Skript rot werden** |
 | `scripts/pruefe-werkstatt.js` | Passwortschranke vor `/werkstatt/`: gesperrt ohne hinterlegtes Passwort, falsches Passwort abgewiesen, Keks HttpOnly/Secure/SameSite und nicht im Klartext, alte Anmeldung nach Passwortwechsel ungültig — **und ob die Seite überhaupt durch den Worker läuft** (`run_worker_first`). Gegenprobe: 10 Fehler, jeder einzeln |
@@ -450,7 +463,8 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
-| 01.11.2026 | **Zwischenpfosten verschiebbar** — Ziehen am Modell plus Regler, Toleranz aus der Maßtabelle hergeleitet; Lage geht in Teilen-Link und Anfrage mit | neu |
+| 01.11.2026 | **Zwischenpfosten: erst antippen, dann schieben** — und die Toleranz war zu eng hergeleitet (nur eigene Pfostenspalte statt ganzer Tabelle): bei 7.000 mm jetzt ±520 statt ±200 mm | neu |
+| 01.11.2026 | **Zwischenpfosten verschiebbar** — Ziehen am Modell plus Regler, Toleranz aus der Maßtabelle hergeleitet; Lage geht in Teilen-Link und Anfrage mit | live |
 | 01.11.2026 | Jedes Feld entscheidet für sich („Feld 1 … n"), rundes Zeichen nur im leeren Feld, kräftigere Farbe, dünnere Ränder | live |
 | 31.10.2026 | **Maße voreingestellt an und im Bild anklickbar** — Tipp auf ein Maß öffnet ein Zahlenfeld | live |
 | 31.10.2026 | Anklickpunkte kleiner, halbdurchsichtig, **verdeckte werden ausgeblendet**; Werkstatt-Streifen von 4 Zeilen auf eine (28 px) | live |

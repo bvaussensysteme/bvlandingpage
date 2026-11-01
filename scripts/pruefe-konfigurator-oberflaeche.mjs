@@ -88,6 +88,9 @@ if (GEGENPROBE) {
     /* Vierter Fehler: Der Griff am Zwischenpfosten wird uebergangen -
        dann dreht sich beim Ziehen die Kamera, wie vor dieser Funktion. */
     t = t.replace('if (pfostenGreifen(e)) {', 'if (false) {');
+    /* Fuenfter Fehler: Das Band haengt nur noch am Ziehen, nicht an der
+       Auswahl - nach dem Loslassen stuende dort nichts mehr. */
+    t = t.replace('var w = PF_ZIEHT || PF_WAHL;', 'var w = PF_ZIEHT;');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
   await page.route('**/anfrage-wizard.js*', async (r) => {
@@ -475,7 +478,12 @@ pruef('Der Block fuer die Zwischenpfosten erscheint', pfZeilen === 1,
 
 await ansicht('Vorne');
 await page.waitForTimeout(800);
-const pfBildVor = await page.locator('#k3dCanvas').screenshot();
+/* Das Vergleichsbild wird ERST NACH dem Ziehen ohne Auswahl gemacht:
+   Dieses Ziehen dreht die Kamera, wie es soll, und danach stellt
+   ansicht('Vorne') sie wieder gerade. Vorher aufgenommen verglich die
+   Pruefung zwei verschiedene Kameralagen und war rot, obwohl alles
+   richtig lief. */
+let pfBildVor = null;
 const pfAchsVor = (await page.locator('#k3dPfosten .k3d-pf-felder').first().innerText()).trim();
 const pfReglerVor = await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e) => e.value);
 
@@ -489,6 +497,10 @@ async function pfProbe(x, y) {
   await page.waitForTimeout(75);
   return page.evaluate(() => document.getElementById('k3dCanvas').style.cursor);
 }
+/* Die Feldflaechen sind in diesem Lauf abgeschaltet, deshalb kann
+   „pointer" nur von einem Pfosten kommen. Zur Sicherheit wird gleich
+   darauf getippt und geprueft, dass der Zeiger auf „ew-resize"
+   umspringt - das kann nur der gewaehlte Pfosten. */
 const pfKasten = await page.locator('#k3dCanvas').boundingBox();
 let pfGriff = null;
 for (let dx = 0; dx <= 60 && !pfGriff; dx += 6) {
@@ -496,44 +508,75 @@ for (let dx = 0; dx <= 60 && !pfGriff; dx += 6) {
     for (let f = 0.55; f <= 0.95 && !pfGriff; f += 0.06) {
       const x = Math.round(pfKasten.x + pfKasten.width / 2 + sx);
       const y = Math.round(pfKasten.y + pfKasten.height * f);
-      if (await pfProbe(x, y) === 'ew-resize') { pfGriff = { x, y }; break; }
+      if (await pfProbe(x, y) === 'pointer') { pfGriff = { x, y }; break; }
     }
     if (pfGriff) break;
   }
 }
-pruef('Der Zeiger verraet den greifbaren Pfosten', !!pfGriff,
-  pfGriff ? `ew-resize bei ${pfGriff.x}/${pfGriff.y}` : 'nirgends ew-resize gefunden');
+pruef('Der Zeiger verraet den antippbaren Pfosten', !!pfGriff,
+  pfGriff ? `pointer bei ${pfGriff.x}/${pfGriff.y}` : 'nirgends pointer gefunden');
 
-let pfBandBeim = '(nicht gezogen)', pfBandNach = '(nicht gezogen)';
-if (pfGriff) {
+async function pfZiehen(von, schritte = 8) {
   await page.evaluate(({ x, y }) => document.getElementById('k3dCanvas').dispatchEvent(
     new PointerEvent('pointerdown',
-      { clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true })), pfGriff);
+      { clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true })), von);
   /* Schraeg ziehen: Die seitliche Bewegung soll wirken, die senkrechte
      darf die Kamera NICHT kippen. */
-  for (let i = 1; i <= 8; i++) {
+  for (let i = 1; i <= schritte; i++) {
     await page.evaluate(({ x, y, i }) => window.dispatchEvent(new PointerEvent('pointermove',
       { clientX: x + i * 6, clientY: y - i * 9, bubbles: true, pointerId: 1 })),
-      { ...pfGriff, i });
+      { ...von, i });
     await page.waitForTimeout(80);
   }
-  pfBandBeim = await page.evaluate(() => {
-    const b = document.getElementById('k3dZiehband');
-    return b.hidden ? '(versteckt)' : b.textContent;
-  });
-  await page.evaluate(({ x, y }) => window.dispatchEvent(new PointerEvent('pointerup',
-    { clientX: x + 48, clientY: y - 72, bubbles: true, pointerId: 1 })), pfGriff);
+  await page.evaluate(({ x, y, n }) => window.dispatchEvent(new PointerEvent('pointerup',
+    { clientX: x + n * 6, clientY: y - n * 9, bubbles: true, pointerId: 1 })),
+    { ...von, n: schritte });
   await page.waitForTimeout(1000);
-  pfBandNach = await page.evaluate(() =>
-    document.getElementById('k3dZiehband').hidden ? '(versteckt)' : 'steht noch da');
 }
-const pfAchsNach = (await page.locator('#k3dPfosten .k3d-pf-felder').first().innerText()).trim();
+const pfAchsen = async () =>
+  (await page.locator('#k3dPfosten .k3d-pf-felder').first().innerText()).trim();
+const pfBand = () => page.evaluate(() => {
+  const b = document.getElementById('k3dZiehband');
+  return b.hidden ? '(versteckt)' : b.textContent;
+});
+
+/* ERST ANTIPPEN, DANN SCHIEBEN. Ohne Auswahl darf das Ziehen den
+   Pfosten nicht anfassen - am Handy waere jeder Dreh-Versuch sonst eine
+   unbemerkte Planaenderung. */
+let pfAchsOhne = pfAchsVor, pfAchsNach = pfAchsVor;
+let pfZeigerNachTipp = '(nicht getippt)';
+let pfBandBeim = '(nicht gezogen)', pfBandNach = '(nicht gezogen)';
+if (pfGriff) {
+  await pfZiehen(pfGriff);
+  pfAchsOhne = await pfAchsen();
+  await ansicht('Vorne');
+  await page.waitForTimeout(800);
+  pfBildVor = await page.locator('#k3dCanvas').screenshot();
+  /* Antippen: druecken und ohne Weg loslassen. */
+  await page.evaluate(({ x, y }) => {
+    const c = document.getElementById('k3dCanvas');
+    c.dispatchEvent(new PointerEvent('pointerdown',
+      { clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true }));
+    window.dispatchEvent(new PointerEvent('pointerup',
+      { clientX: x, clientY: y, bubbles: true, pointerId: 1 }));
+  }, pfGriff);
+  await page.waitForTimeout(900);
+  pfZeigerNachTipp = await pfProbe(pfGriff.x, pfGriff.y);
+  await pfZiehen(pfGriff);
+  pfAchsNach = await pfAchsen();
+  pfBandNach = await pfBand();
+}
+pruef('Ohne Auswahl bleibt der Pfosten stehen', pfAchsOhne === pfAchsVor,
+  `vorher ${pfAchsVor} / nach dem Ziehen ohne Auswahl ${pfAchsOhne}`);
+pruef('Antippen waehlt den Pfosten aus', pfZeigerNachTipp === 'ew-resize',
+  `Zeiger danach: ${pfZeigerNachTipp}`);
 pruef('Ziehen am Pfosten verschiebt den Pfosten', pfAchsVor !== pfAchsNach,
   `vorher ${pfAchsVor} / nachher ${pfAchsNach}`);
-pruef('Beim Ziehen stehen die beiden Feldmasse im Bild',
-  /licht/.test(pfBandBeim), pfBandBeim.slice(0, 70));
-pruef('Nach dem Loslassen verschwindet das Band',
-  pfBandNach === '(versteckt)', pfBandNach);
+pruef('Das Band nennt beide Feldmasse', /licht/.test(pfBandNach),
+  pfBandNach.slice(0, 80));
+pruef('Die gewaehlte Zeile im Bedienfeld ist markiert',
+  (await page.locator('#k3dPfosten .k3d-pfostenzeile.ist-gewaehlt').count()) === 1,
+  'genau eine Zeile traegt ist-gewaehlt');
 
 /* Zurueck auf die gleichmaessige Lage - dasselbe Bauwerk wie vorher. */
 await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {
@@ -541,11 +584,23 @@ await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {
   e.dispatchEvent(new Event('change', { bubbles: true }));
 }, pfReglerVor);
 await page.waitForTimeout(1200);
+/* ABWAEHLEN VOR DEM BILDVERGLEICH, und zwar mit Esc: Der gewaehlte
+   Pfosten traegt eine orange Huelle, die im Bild steht - das
+   Vergleichsbild entstand ohne Auswahl. Beim ersten Lauf war die
+   Pruefung genau daran rot, obwohl die Kamera stillstand. Nebenbei
+   prueft das die Esc-Taste. */
+await page.keyboard.press('Escape');
+await page.waitForTimeout(700);
+pruef('Esc hebt die Pfostenwahl auf',
+  (await page.locator('#k3dPfosten .k3d-pfostenzeile.ist-gewaehlt').count()) === 0 &&
+  (await pfBand()) === '(versteckt)',
+  'keine markierte Zeile, kein Band mehr');
 const pfBildNach = await page.locator('#k3dCanvas').screenshot();
 pruef('Ziehen am Pfosten dreht die Kamera nicht',
-  pfBildVor.equals(pfBildNach),
-  pfBildVor.equals(pfBildNach) ? 'Bild Pixel fuer Pixel gleich'
-    : `Bild unterscheidet sich (${pfBildVor.length} / ${pfBildNach.length} Bytes)`);
+  !!pfBildVor && pfBildVor.equals(pfBildNach),
+  !pfBildVor ? 'kein Vergleichsbild - der Pfosten wurde nicht gefunden'
+    : pfBildVor.equals(pfBildNach) ? 'Bild Pixel fuer Pixel gleich'
+      : `Bild unterscheidet sich (${pfBildVor.length} / ${pfBildNach.length} Bytes)`);
 await ansicht('Perspektive');
 await page.$eval('#k3dBreiteZahl', (e, v) => {
   e.value = v;
@@ -1301,7 +1356,7 @@ if (!GEGENPROBE) {
 const sollenScheitern = [
   'Ziehen am Pfosten verschiebt den Pfosten',
   'Ziehen am Pfosten dreht die Kamera nicht',
-  'Beim Ziehen stehen die beiden Feldmasse im Bild',
+  'Das Band nennt beide Feldmasse',
   'Bedienfeld links von der Bühne',
   'Maße lassen sich im Modell abschalten',
   'Notiz des Konfigurators geht mit'

@@ -37,17 +37,34 @@ var HTML_ORIG = fs.readFileSync(__dirname + '/../konfigurator.html', 'utf8');
 var FEHLER = [
   /* ---------- Toleranz herleiten ---------- */
   ['Die gleichmaessige Verteilung faellt aus der Spanne', 'js',
-   '    return { min: Math.min(min, jetzt), max: Math.max(max, jetzt) };',
-   '    return { min: min, max: max };'],
+   '    var gr = { min: Math.min(min, jetzt), max: Math.max(max, jetzt) };',
+   '    var gr = { min: min, max: max };'],
   ['Die Spanne wird aus der Breite statt aus dem Achsmass gerechnet', 'js',
-   '    var min = (minB - pfMm) / (anzahl - 1);',
-   '    var min = minB / (anzahl - 1);'],
+   '      var achs = (b - pfMm) / (n - 1);', '      var achs = b / (n - 1);'],
+  ['Gesucht wird wieder nur in der eigenen Pfostenspalte', 'js',
+   '      if (!(n > 1)) return;', '      if (n !== anzahl) return;'],
+  ['Die Vorgabe-Zaehlregel laesst die Tiefenregel weg', 'js',
+   '      zahlVon = function (sf) { return sf + zusatz; };',
+   '      zahlVon = function (sf) { return sf; };'],
+  ['Die Hervorhebung haengt wieder am Schalter fuer die Feldmarken', 'js',
+   '  var ziehGruppe = new THREE.Group();\n  szene.add(ziehGruppe);',
+   '  var ziehGruppe = feldGruppe;'],
+  ['Ein Wechsel der Pfostenzahl laesst die Wahl stehen', 'js',
+   '      if (PF_WAHL && PF_WAHL.reihe === reihe) PF_WAHL = null;',
+   '      void PF_WAHL;'],
+  ['Die Zaehlregel des Produkts wird uebergangen', 'js',
+   '      var n = zahlVon(g.breiten[k][1], b);',
+   '      var n = g.breiten[k][1];'],
+  ['Flat Line rechnet nicht mehr in Paaren', 'js',
+   "      return Math.max(2, Math.round(sf / 2));", '      return sf;'],
+  ['Die hintere Reihe nimmt die Spalte statt der 7-m-Regel', 'js',
+   "      function (sf, b) { return pfostenUnterTraeger(b); });",
+   '      null);'],
   ['Die Pfostenbreite der Reihe wird nicht beachtet', 'js',
    '    var pfMm = (randCm != null ? randCm * 2 : PFOSTEN.breite) * 10;',
    '    var pfMm = PFOSTEN.breite * 10;'],
-  ['Eine Spalte mit nur einer Breite ergibt trotzdem eine Spanne', 'js',
-   '    if (minB === null || maxB === minB) return null;',
-   '    if (minB === null) return null;'],
+  ['Eine Spanne von null wird durchgelassen', 'js',
+   '    return (gr.max - gr.min) < 1 ? null : gr;', '    return gr;'],
   ['Die Tiefenregel wird nicht herausgerechnet', 'js',
    '    var zusatz = tb.pfosten - tb.stuetzfuesse;', '    var zusatz = 0;'],
 
@@ -109,19 +126,68 @@ var FEHLER = [
   ['Ein verdeckter Pfosten laesst sich greifen', 'js',
    '        return { reihe: p.reihe, nr: p.nr, punkt: treffer[i].point };\n      }\n      if (nimmtDenBlick([treffer[i]])) return null;',
    '        return { reihe: p.reihe, nr: p.nr, punkt: treffer[i].point };\n      }\n      void treffer;'],
+  ['Der Zeiger unterscheidet antippen und schieben nicht', 'js',
+   "          ? 'ew-resize' : 'pointer');", "          ? 'pointer' : 'pointer');"],
   ['Beim Ziehen leuchten die Feldmarken mit', 'js',
    '    var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);',
    '    var neu = zieht ? null : feldUnterZeiger(e);'],
 
   /* ---------- Bedienfeld ---------- */
   ['Die Reglergrenzen werden nicht nachgezogen', 'js',
-   '          regler.min = Math.round((spJ.von + r.B / 2) * 10);',
+   '          var gz = pfostenReglerGrenzen(spJ, r.B);\n          regler.min = gz.min;',
    '          void spJ;'],
+  ['Das Reglerraster trifft die gleichmaessige Lage nicht', 'js',
+   '      min: mitte - Math.floor(Math.max(0, mitte - von) / PF_SCHRITT) * PF_SCHRITT,',
+   '      min: von,'],
+  ['Das Ziehen rastet nicht auf dasselbe Raster wie der Regler', 'js',
+   '    mm = (mm < 0 ? -1 : 1) * Math.floor(Math.abs(mm) / PF_SCHRITT) * PF_SCHRITT;',
+   '    void PF_SCHRITT;'],
+  ['Ein Pfosten laesst sich ohne Auswahl schieben', 'js',
+   '    if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
+   '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;',
+   '    var t = pfostenUnterZeiger(e);\n    if (!t) return false;'],
+  ['Der Tipp auf den Pfosten waehlt ihn nicht', 'js',
+   '    if (weg < 6 && zeit < 900 && !pfostenGeklickt(e) &&',
+   '    if (weg < 6 && zeit < 900 && !(false) &&'],
+  ['Ein zweiter Tipp hebt die Wahl nicht auf', 'js',
+   '    pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });',
+   '    pfostenWaehlen({ reihe: t.reihe, nr: t.nr });'],
+  ['Ein Tipp daneben laesst die Wahl stehen', 'js',
+   '      if (!PF_WAHL) return false;\n      pfostenWaehlen(null);\n      return false;',
+   '      return false;'],
+  ['Ein Tipp ohne Weg verschiebt statt abzuwaehlen', 'js',
+   '    if (tipp) { pfostenWaehlen(null); return true; }', '    void tipp;'],
+  ['Der Weg wird gar nicht mehr gemessen', 'js',
+   '    var tipp = PF_ZIEHT.weg < 6;', '    var tipp = false;'],
+  ['Der gewaehlte Pfosten wird im Modell nicht hervorgehoben', 'js',
+   '      ziehGruppe.add(h);', '      void h;'],
+  ['Die Hervorhebung wird nach dem Bauen nicht erneuert', 'js',
+   '    pfostenFelderAnzeigen();\n    pfostenWahlZeigen();',
+   '    pfostenFelderAnzeigen();'],
+  ['Die Hervorhebung landet im gespeicherten Bild', 'js',
+   '    ziehGruppe.visible = false;\n    renderer.render(szene, kamera3);\n' +
+   "    var bild = renderer.domElement.toDataURL('image/png');",
+   "    renderer.render(szene, kamera3);\n    var bild = renderer.domElement.toDataURL('image/png');"],
+  ['Die Hervorhebung landet im PDF', 'js',
+   '      ziehGruppe.visible = false;\n      renderer.render(szene, kamera3);',
+   '      renderer.render(szene, kamera3);'],
+  ['Die Wahl bleibt stehen, wenn es den Pfosten nicht mehr gibt', 'js',
+   '    if (!pfostenSpanne(PF_WAHL.reihe, PF_WAHL.nr)) { PF_WAHL = null; return; }',
+   '    void PF_WAHL;'],
+  ['Esc hebt die Wahl nicht auf', 'js',
+   "    if (e.key === 'Escape' && PF_WAHL) pfostenWaehlen(null);", '    void e;'],
+  ['Die gewaehlte Zeile im Bedienfeld ist nicht zu erkennen', 'js',
+   "        zeile.classList.toggle('ist-gewaehlt',",
+   "        (function () {}) ('ist-gewaehlt',"],
+  ['Die gewaehlte Zeile hat kein Aussehen', 'html',
+   '      background: rgba(226, 144, 31, .14);', '      background: none;'],
+  ['Das Band zeigt nichts, solange nur gewaehlt ist', 'js',
+   '    var w = PF_ZIEHT || PF_WAHL;', '    var w = PF_ZIEHT;'],
   ['Das lichte Mass fehlt', 'js',
    "      licht.push(Math.round(achs - pfCm * 10) + ' mm');", '      void achs;'],
   ['Der Block erscheint auch ohne Spielraum', 'js',
-   '                   (r.grenzen.max - r.grenzen.min) > 1;',
-   '                   true;'],
+   '      if (sS && sS.bis - sS.von > 0.2) { spielraum = true; break; }',
+   '      spielraum = true;'],
   ['Das Band beim Ziehen fehlt in der Seite', 'html',
    'id="k3dZiehband"', 'id="k3dZiehbandAlt"'],
   ['Das Band hat kein Aussehen', 'html',
@@ -149,11 +215,10 @@ var FEHLER = [
   ['achsenKlemmen() ist nicht mehr auffindbar', 'js',
    '  function achsenKlemmen(xs, gr) {', '  function achsenGeklemmt(xs, gr) {'],
   ['achsGrenzenMm() ist nicht mehr auffindbar', 'js',
-   '  function achsGrenzenMm(anzahl, randCm) {',
-   '  function achsGrenzen(anzahl, randCm) {'],
-  ['Die obere Spanne rechnet mit der Breite statt dem Achsmass', 'js',
-   '    var max = (maxB - pfMm) / (anzahl - 1);',
-   '    var max = maxB / (anzahl - 1);'],
+   '  function achsGrenzenMm(anzahl, randCm, zahlVon) {',
+   '  function achsGrenzen(anzahl, randCm, zahlVon) {'],
+  ['Die Spanne nimmt nur den kleinsten Wert, nicht auch den groessten', 'js',
+   '      if (max === null || achs > max) max = achs;', '      void achs;'],
   ['Nach oben begrenzt nur ein Nachbar', 'js',
    '    var bis = Math.min(links + maxCm, rechts - minCm);',
    '    var bis = links + maxCm;'],
@@ -285,19 +350,35 @@ function lauf(q) {
 
   /* ---------- Toleranz herleiten ---------- */
   hat('Die Spanne wird aus der Masstabelle hergeleitet',
-      'function achsGrenzenMm(anzahl, randCm) {');
+      'function achsGrenzenMm(anzahl, randCm, zahlVon) {');
+  /* DER FUND VOM 01.11.2026 nachmittags: „man kann den pfosten zu wenig
+     verschieben das is falsch" (Betreiber). Vorher wurde nur in der
+     eigenen Pfostenspalte gesucht - der kleinste Wert einer Spalte ist
+     aber keine Mindestvorgabe, sondern die Stelle, an der die Tabelle
+     einen Pfosten dazunimmt; und der groesste ist nicht die Spannweite
+     des Traegers. Gesucht wird jetzt ueber ALLE Zeilen. */
+  hat('Gesucht wird ueber die ganze Tabelle, nicht in einer Spalte',
+      'var n = zahlVon(g.breiten[k][1], b);');
+  hat('Jede Zeile wird mit der Zaehlregel des Produkts gelesen',
+      'zahlVon = function (sf) { return sf + zusatz; };');
+  hat('Jede Zeile zaehlt, nicht nur die mit dieser Pfostenzahl',
+      'if (!(n > 1)) return;');
+  hat('Flat Line rechnet in Paaren',
+      'return Math.max(2, Math.round(sf / 2));');
+  hat('Die hintere Reihe folgt der 7-m-Regel',
+      'function (sf, b) { return pfostenUnterTraeger(b); });');
   hat('Die gleichmaessige Verteilung gehoert immer zur Spanne',
-      'return { min: Math.min(min, jetzt), max: Math.max(max, jetzt) };');
+      'var gr = { min: Math.min(min, jetzt), max: Math.max(max, jetzt) };');
   hat('Gerechnet wird mit dem Profil der Reihe',
       'var pfMm = (randCm != null ? randCm * 2 : PFOSTEN.breite) * 10;');
   hat('Die Spanne zieht die Pfostenbreite ab, rechnet also Achse zu Achse',
-      'var min = (minB - pfMm) / (anzahl - 1);');
-  hat('Auch nach oben Achse zu Achse',
-      'var max = (maxB - pfMm) / (anzahl - 1);');
+      'var achs = (b - pfMm) / (n - 1);');
+  hat('Es werden beide Enden gesucht, nicht nur eines',
+      'if (max === null || achs > max) max = achs;');
   hat('Die Tiefenregel wird herausgerechnet',
       'var zusatz = tb.pfosten - tb.stuetzfuesse;');
-  hat('Ohne zweite Breite in der Spalte gibt es keine Spanne',
-      'if (minB === null || maxB === minB) return null;');
+  hat('Eine Spanne von null gilt als keine',
+      'return (gr.max - gr.min) < 1 ? null : gr;');
 
   /* ---------- Spanne je Pfosten ---------- */
   hat('Die Spanne haelt sich an die WIRKLICHE Lage der Nachbarn',
@@ -356,15 +437,67 @@ function lauf(q) {
   hat('Beim Ziehen leuchtet keine Feldmarke mit',
       'var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);');
 
+  /* ---------- Erst antippen, dann schieben ----------
+     „ich haette es gerne so, man tippt den pfosten an er wird
+     ausgewaehlt und dann erst kann man schieben" (Betreiber,
+     01.11.2026). Ohne Auswahl verschiebt ein Dreh-Versuch am Handy
+     unbemerkt einen Pfosten - dort gibt es keinen Zeiger, der vorher
+     verraet, was unter dem Finger liegt. */
+  hat('Ohne Auswahl laesst sich kein Pfosten greifen',
+      'if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
+      '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;');
+  hat('Der Tipp auf den Pfosten steht vor allen anderen Klicks',
+      'if (weg < 6 && zeit < 900 && !pfostenGeklickt(e) &&');
+  hat('Ein zweiter Tipp hebt die Wahl auf',
+      'pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });');
+  hat('Ein Tipp daneben hebt die Wahl auf',
+      'if (!PF_WAHL) return false;\n      pfostenWaehlen(null);\n      return false;');
+  hat('Ein Druck ohne Weg gilt als Tipp, nicht als Ziehen',
+      'var tipp = PF_ZIEHT.weg < 6;');
+  hat('Und dieser Tipp hebt die Wahl wirklich auf',
+      'if (tipp) { pfostenWaehlen(null); return true; }');
+  hat('Der gewaehlte Pfosten wird im Modell hervorgehoben',
+      'ziehGruppe.add(h);');
+  hat('Die Hervorhebung liegt in eigener Gruppe, nicht bei den Feldmarken',
+      'var ziehGruppe = new THREE.Group();');
+  hat('Die Hervorhebung wird nach jedem Bauen erneuert',
+      'pfostenFelderAnzeigen();\n    pfostenWahlZeigen();');
+  hat('Die Hervorhebung bleibt aus dem gespeicherten Bild heraus',
+      'ziehGruppe.visible = false;\n    renderer.render(szene, kamera3);');
+  hat('Die Hervorhebung bleibt aus dem PDF heraus',
+      'ziehGruppe.visible = false;\n      renderer.render(szene, kamera3);');
+  hat('Die Wahl faellt weg, wenn es den Pfosten nicht mehr gibt',
+      'if (!pfostenSpanne(PF_WAHL.reihe, PF_WAHL.nr)) { PF_WAHL = null; return; }');
+  hat('Ein Wechsel der Pfostenzahl hebt auch die Wahl auf',
+      'if (PF_WAHL && PF_WAHL.reihe === reihe) PF_WAHL = null;');
+  hat('Esc hebt die Wahl auf',
+      "if (e.key === 'Escape' && PF_WAHL) pfostenWaehlen(null);");
+  hat('Die gewaehlte Zeile im Bedienfeld ist zu erkennen',
+      "zeile.classList.toggle('ist-gewaehlt',");
+  hat('Die gewaehlte Zeile hat ein Aussehen',
+      'background: rgba(226, 144, 31, .14);', 'html');
+  hat('Das Band zeigt die Masse auch ohne Ziehen',
+      'var w = PF_ZIEHT || PF_WAHL;');
+  hat('Der Zeiger unterscheidet antippen von schieben',
+      "? 'ew-resize' : 'pointer');");
+
   /* ---------- Bedienfeld und Band ---------- */
   hat('Die Reglergrenzen werden bei jeder Aenderung nachgezogen',
-      'regler.min = Math.round((spJ.von + r.B / 2) * 10);');
+      'var gz = pfostenReglerGrenzen(spJ, r.B);\n          regler.min = gz.min;');
+  /* GEMESSEN am 01.11.2026: Der Regler stand auf 3505, der Pfosten auf
+     3500 - ein Schieberegler zaehlt seine Schritte vom Mindestwert aus,
+     und 3500 lag nicht auf dem Raster. Ein Antippen des Reglers haette
+     daraus einen Versatz von 5 mm gemacht, den niemand eingestellt hat. */
+  hat('Das Reglerraster trifft die gleichmaessige Lage',
+      'min: mitte - Math.floor(Math.max(0, mitte - von) / PF_SCHRITT) * PF_SCHRITT,');
+  hat('Das Ziehen rastet auf dasselbe Raster wie der Regler',
+      'mm = (mm < 0 ? -1 : 1) * Math.floor(Math.abs(mm) / PF_SCHRITT) * PF_SCHRITT;');
   hat('Das Bedienfeld nennt das Achsmass', "'Achsmaße: ' + felder.join");
   hat('Das Bedienfeld nennt die lichte Breite', "'lichte Breite: ' + licht.join");
   hat('Das lichte Mass wird wirklich gerechnet',
       "licht.push(Math.round(achs - pfCm * 10) + ' mm');");
-  hat('Ohne Spielraum gibt es keinen Block',
-      '(r.grenzen.max - r.grenzen.min) > 1;');
+  hat('Ohne wirklichen Spielraum gibt es keinen Block',
+      'if (sS && sS.bis - sS.von > 0.2) { spielraum = true; break; }');
   hat('Das Band steht in der Seite', 'id="k3dZiehband"', 'html');
   hat('Das Band hat ein Aussehen',
       'bottom: 140px; margin: 0; pointer-events: none; z-index: 6;', 'html');
