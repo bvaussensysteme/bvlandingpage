@@ -10375,3 +10375,37 @@ den Klickhinweis wird er eigens eingeblendet — sonst prüfte man nichts.
 Wer umbenennt, sieht sich die Leiste in der schmalsten Breite an, in der sie
 noch benutzt wird.
 
+## 01.11.2026 — Die Ansichtsleiste durfte ihre eigene Breite nicht nehmen
+
+**Was falsch war.** „auf dem pc knn die leiste breiter sein das alles drauf
+passst" (Betreiber, mit Bild: „Darunter" war angeschnitten).
+
+Die Leiste steht absolut mit `left: 50 %`. Ein solches Element ohne eigene
+Breitenangabe bekommt nur den Platz von seinem linken Rand bis zum Rand der
+Bühne zugemessen — also die halbe Bühne. **Gemessen:** Sie braucht 735 px,
+bekam aber bei *jeder* Fensterbreite nur 683 px — auch bei 1600 px Fenster
+mit 1120 px breiter Bühne, wo reichlich Platz war. Die 52 px fehlten immer.
+
+Vorher fiel das nicht auf, weil die Knöpfe schrumpfen durften: Dann passte die
+Leiste scheinbar, und stattdessen fielen die Beschriftungen aus ihrem
+Hintergrund (Eintrag vom 31.10.2026). Mit `flex: none` wurde aus dem einen
+Fehler der andere sichtbar.
+
+**Was jetzt gilt.** `width: max-content` — nimm die Breite, die der Inhalt
+wirklich braucht. `max-width: calc(100% - 28px)` deckelt sie weiterhin, wenn
+die Bühne schmaler ist; dann lässt sich die Leiste schieben.
+
+**Nachgemessen:** bei 1600 und 1280 px Fenster passt alles (736 von 736 px).
+Bei 1100 px fehlen noch 25 px — dort ist die Bühne selbst nur 740 px breit, da
+hilft keine Regel; die Leiste lässt sich dann schieben. Mit der alten Regel an
+derselben Stelle gemessen: 735 gebraucht, 683 bekommen, bei allen drei
+Breiten.
+
+**Festgehalten** in `scripts/pruefe-konfigurator-oberflaeche.mjs`: *Die
+Ansichtsleiste wird nicht angeschnitten* — geprüft wird nur, solange die Bühne
+den Platz hat; ist sie selbst zu schmal, ist das Schieben kein Befund.
+
+**Die Lehre.** Ein absolut gesetztes, mittig ausgerichtetes Element bekommt
+nicht den Platz, den man sieht, sondern den von seinem Bezugspunkt bis zum
+Rand. Wer so zentriert, sagt dazu, wie breit es sein soll.
+

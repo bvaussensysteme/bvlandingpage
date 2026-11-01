@@ -471,6 +471,29 @@ const ragtRaus = await page.evaluate(() => {
   });
   return raus;
 });
+/* ---------- Und die Leiste selbst wird nicht angeschnitten ----------
+   „auf dem pc knn die leiste breiter sein das alles drauf passst"
+   (Betreiber, 31.10.2026). GEMESSEN vorher: Sie braucht 735 px, bekam
+   aber bei JEDER Fensterbreite nur 683 px - auch bei 1600 px Fenster
+   mit 1120 px breiter B\u00fchne. Ursache: absolut mit left: 50 % und ohne
+   eigene Breitenangabe. Hier wird gepr\u00fcft, dass sie ihre Breite
+   bekommt, SOLANGE die B\u00fchne den Platz hat - ist die B\u00fchne selbst zu
+   schmal, soll sie sich schieben lassen, das ist kein Befund. */
+const leisteMass = await page.evaluate(() => {
+  const l = document.querySelector('.k3d-leiste');
+  const b = document.querySelector('.k3d-buehne');
+  return { noetig: l.scrollWidth, da: l.clientWidth,
+           buehne: Math.round(b.getBoundingClientRect().width) };
+});
+if (leisteMass.buehne >= leisteMass.noetig + 28) {
+  pruef('Die Ansichtsleiste wird nicht angeschnitten',
+    leisteMass.noetig <= leisteMass.da + 1,
+    `braucht ${leisteMass.noetig}px, hat ${leisteMass.da}px, B\u00fchne ${leisteMass.buehne}px`);
+} else {
+  pruef('Die Ansichtsleiste wird nicht angeschnitten', true,
+    `B\u00fchne ${leisteMass.buehne}px zu schmal f\u00fcr ${leisteMass.noetig}px - sie darf sich schieben lassen`);
+}
+
 pruef('Keine Beschriftung ragt aus ihrem Knopf',
   ragtRaus.length === 0,
   ragtRaus.length ? ragtRaus.join(', ') : 'alle Kn\u00f6pfe breit genug');
