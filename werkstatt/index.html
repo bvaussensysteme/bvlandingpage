@@ -581,8 +581,13 @@
        Zwischenpfosten eine Zeile: Nummer, Lage von links, und die
        beiden Feldbreiten daneben. */
     .k3d-pfosten { display: grid; gap: 7px; }
+    /* VIER SPALTEN, und die vierte bleibt leer, solange der Pfosten
+       gleichmaessig steht: Waere sie nur da, wenn der Schalter da ist,
+       spraenge die Millimeterzahl beim ersten Verschieben um 38 px zur
+       Seite. Ein Bedienfeld, das beim Bedienen hupft, liest sich
+       schlechter, als 30 px Platz kosten. */
     .k3d-pfostenzeile {
-      display: grid; grid-template-columns: auto 1fr auto; gap: 8px;
+      display: grid; grid-template-columns: auto 1fr auto 30px; gap: 8px;
       align-items: center;
     }
     .k3d-pfostenzeile .k3d-pf-nr {
@@ -591,6 +596,20 @@
       display: flex; align-items: center; justify-content: center;
     }
     .k3d-pfostenzeile input[type=range] { width: 100%; }
+    /* Zurueck auf die gleichmaessige Lage. Steht nur da, wenn der
+       Pfosten verschoben ist - ein Schalter, der nichts tut, ist ein
+       Angebot, das enttaeuscht. */
+    .k3d-pfostenzeile .k3d-pf-mitte {
+      flex: 0 0 auto; width: 30px; height: 30px; padding: 0;
+      border: 1px solid var(--border); background: #fff; border-radius: 8px;
+      color: var(--gold-dark); cursor: pointer;
+      display: grid; place-items: center;
+    }
+    .k3d-pfostenzeile .k3d-pf-mitte:hover {
+      border-color: var(--gold); background: var(--gold); color: #111;
+    }
+    .k3d-pfostenzeile .k3d-pf-mitte[hidden] { display: none; }
+    .k3d-pfostenzeile .k3d-pf-mitte .bvs { width: 16px; height: 16px; }
     .k3d-pfostenzeile .k3d-pf-mm {
       font-size: .78rem; font-weight: 700; color: #2d3b46; min-width: 74px;
       text-align: right;
@@ -2305,13 +2324,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101n" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101p" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261101n" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261101p" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

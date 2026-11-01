@@ -13996,7 +13996,17 @@
                 '<input type="range" class="k3d-range" min="' + gz.min +
                 '" max="' + gz.max + '" step="' + PF_SCHRITT + '" value="' +
                 gz.mitte + '">' +
-                '<span class="k3d-pf-mm"></span></div>';
+                '<span class="k3d-pf-mm"></span>' +
+                /* ZURUECK AUF DIE GLEICHMAESSIGE LAGE. „da müsste ne
+                   funktion hin um den pfosten wenn man ihn verschoben
+                   hat wieder zu zetrieren" (Betreiber, 01.11.2026).
+                   Einmal verschoben trifft man die Mitte am Regler nur
+                   noch durch Zielen - und bei krummen Breiten liegt sie
+                   nicht auf einer runden Zahl. Der Schalter steht nur
+                   da, wenn es etwas zurueckzusetzen gibt. */
+                '<button type="button" class="k3d-pf-mitte" hidden>' +
+                '<svg class="bvs" aria-hidden="true"><use href="#bvs-neuladen">' +
+                '</use></svg></button></div>';
       }
       html += '<p class="k3d-pf-felder"></p><p class="k3d-pf-felder' +
               ' k3d-pf-licht"></p>';
@@ -14033,6 +14043,16 @@
         zeile.querySelector('.k3d-pf-mm').textContent = mm + ' mm';
         zeile.classList.toggle('ist-gewaehlt',
           !!PF_WAHL && PF_WAHL.reihe === 'vorne' && PF_WAHL.nr === nr);
+        var zur = zeile.querySelector('.k3d-pf-mitte');
+        if (zur) {
+          var vs = Z.pfostenVersatz && Z.pfostenVersatz.vorne &&
+                   Number(Z.pfostenVersatz.vorne[String(nr)]);
+          zur.hidden = !vs;
+          zur.setAttribute('title', 'Pfosten ' + nr + ' wieder gleichmäßig stellen');
+          zur.setAttribute('aria-label',
+            'Pfosten ' + nr + ' wieder gleichmäßig stellen (jetzt ' +
+            (vs > 0 ? vs + ' mm nach rechts' : Math.abs(vs || 0) + ' mm nach links') + ')');
+        }
         regler.setAttribute('aria-label',
           'Pfosten ' + nr + ', Lage von links in Millimeter');
       });
@@ -14073,6 +14093,21 @@
       }
       pfostenKasten.addEventListener('input', function (ev) { schieben(ev, false); });
       pfostenKasten.addEventListener('change', function (ev) { schieben(ev, true); });
+      /* Der Schalter nimmt den Versatz weg, statt einen Wert zu setzen:
+         Die gleichmaessige Lage ist genau „kein Versatz" - sie als Zahl
+         zurueckzuschreiben waere ein zweiter Weg zum selben Ziel, und
+         bei krummen Breiten laege sie nicht auf dem Zehnerraster. */
+      pfostenKasten.addEventListener('click', function (ev) {
+        var b = ev.target.closest ? ev.target.closest('.k3d-pf-mitte') : null;
+        if (!b) return;
+        var zeile = b.closest('[data-pfosten]');
+        if (!zeile) return;
+        var nr = zeile.getAttribute('data-pfosten');
+        if (Z.pfostenVersatz && Z.pfostenVersatz.vorne) {
+          delete Z.pfostenVersatz.vorne[nr];
+        }
+        aendern();
+      });
     })();
   }
 

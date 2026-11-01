@@ -11122,3 +11122,36 @@ schon, sie war nur dem Fall „Feld belegt" zugeordnet, den es nicht mehr gibt.
 **Gegenlesen:** Reicht der Kontrast jetzt — auch bei Sonne auf hellem Pflaster?
 Ist das Gold am Maß dasselbe, das Sie auf der Seite verwenden? Und: Das Schild
 ist jetzt deutlich größer; stört es beim Drehen?
+
+## 01.11.2026 (spät) — Ein Pfosten muss auch wieder gleichmäßig stehen können
+
+**Anlass.** „da müsste ne funktion hin um den pfosten wenn man ihn verschoben
+hat wieder zu zetrieren" (Betreiber, 01.11.2026, mit Bild des Bedienfeldes).
+
+Stimmt, und zwar aus einem Grund, der erst beim Rechnen auffällt: **Die
+gleichmäßige Lage liegt nicht auf einer runden Zahl.** Bei 7.000 mm Breite sind
+es 3.500 mm von links, bei 7.040 mm aber 3.520 — und bei einer krummen Breite
+landet sie zwischen zwei Rasterschritten. Einmal verschoben trifft man sie am
+Regler nur noch durch Zielen.
+
+**Jeder Zwischenpfosten hat jetzt einen Schalter** mit dem Zeichen aus der
+eigenen Sammlung (`bvs-neuladen`). Er **nimmt den Versatz weg**, statt einen
+Wert zurückzuschreiben: Die gleichmäßige Lage *ist* genau „kein Versatz" — sie
+als Zahl einzutragen wäre ein zweiter Weg zum selben Ziel, und die beiden liefen
+irgendwann auseinander.
+
+**Er steht nur da, wenn es etwas zurückzusetzen gibt.** Ein Schalter, der nichts
+tut, ist ein Angebot, das enttäuscht.
+
+**Sein Platz in der Zeile bleibt trotzdem immer frei.** Sonst spränge die
+Millimeterzahl beim ersten Verschieben um 38 px zur Seite — ein Bedienfeld, das
+beim Bedienen hüpft, liest sich schlechter, als 30 px Platz kosten.
+
+**Am Modell braucht es ihn nicht:** Dort rastet der Pfosten beim Ziehen von
+selbst auf der gleichmäßigen Lage ein, sobald man auf 25 mm herankommt.
+
+**Gegenlesen:** Pfosten verschieben, Schalter drücken — steht er wieder genau in
+der Mitte, und verschwindet der Schalter danach? Und: Wäre bei mehreren
+verschobenen Pfosten ein „alle gleichmäßig" nützlich? Gebaut ist bisher nur der
+Schalter je Pfosten; bei höchstens drei verschiebbaren Pfosten sind das
+höchstens drei Klicks.

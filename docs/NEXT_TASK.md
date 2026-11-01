@@ -183,7 +183,7 @@ festgelegt wird.
 4. Teilen-Link öffnen — stehen die Pfosten dort genauso?
 5. Sind „Achsmaße" und „lichte Breite" die Zahlen, mit denen Sie arbeiten?
 
-Geprüft von `scripts/pruefe-pfosten.js` (75 Prüfungen, darunter 4.000
+Geprüft von `scripts/pruefe-pfosten.js` (82 Prüfungen, darunter 4.000
 Zufallsfälle) und im Browser von `scripts/pruefe-konfigurator-oberflaeche.mjs`.
 
 ### Offen: Gibt es eine maximale Höhe hinten? *(seit 25.10.2026)*
@@ -463,6 +463,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 01.11.2026 | **Pfosten wieder gleichmäßig stellen**: Schalter je Zwischenpfosten, erscheint nur wenn verschoben; nimmt den Versatz weg statt einen Wert zu setzen | neu |
 | 01.11.2026 | **Hausfarben statt Grau**: Maßschild doppelt so groß, weiß mit goldenem Rand, unter dem Zeiger gold gefüllt wie die Knöpfe der Seite; Maßlinien wieder schwarz; + Scheiben gold mit weißem Zeichen | neu |
 | 01.11.2026 | **Bemaßung neu**: dünnere Linien (0,9 statt 1,6 cm), Pfeilspitzen, Maßhilfslinien mit Überstand; das Maß selbst als Bedienelement (heller Grund, Rahmen, Stift, Gold beim Darüberfahren). Klickgrenze von 0,9 auf 2,5 s — gemessen 689 ms für einen Druck von 120 ms | neu |
 | 01.11.2026 | **Maßkasten**: „Übernehmen" ragte 10 px heraus (190 px breit, Knöpfe brauchten 187 + 24 px Polster); eigene − / + Schalter statt der Browser-Pfeilchen, die am Handy gar nicht da sind | neu |
