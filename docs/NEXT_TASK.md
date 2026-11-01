@@ -284,11 +284,40 @@ vollständig, darunter lässt sich die Leiste schieben.
 3. Stören die angedeuteten leeren Felder (9 % weiß), wenn man nur schauen
    will? Der Schalter **„+ Felder"** nimmt sie weg.
 
+### Zuordnung Element → Feld — gebaut *(01.11.2026)*
+
+„bei dieser terassengröße sind es zwei felder vorne … man kann aber nur die
+stirnseite komplett bearbeiten und nicht pro feld" (Betreiber, mit Bildern).
+Auf Rückfrage entschieden: **Zuordnung je Feld**, bedient **über das + im
+Feld**.
+
+Die Auswahl bleibt je Seite; dazu kommt `Z.erwFeld` (`"Seite|Element" →
+Feldnummer`). **Steht nichts drin, gilt das Element in allen Feldern** – also
+genau wie bisher. Alte Konfigurationen und Teilen-Links sind unberührt. Die
+Zeilen „in welchem Feld?" erscheinen nur, wenn eine Seite mehr als ein Feld
+hat. Anfrage und Kurzfassung nennen das Feld, die Anfrage zusätzlich die
+Feldzahl je Seite.
+
+**Im Browser gemessen (01.11.2026):** Nach der Zuweisung baut Feld 1 nur die
+Plankenwand, Feld 2 nur die Schiebetür; der Teilen-Link trägt
+`{"vorne|Plankenwand":0,"vorne|Schiebetür":1}` und stellt nach dem Laden
+genau dasselbe wieder her.
+
+**Dabei gefunden: die Rückseite wurde DREIMAL gebaut** – zweimal nach den
+Fächern der Vorderseite, einmal nach den eigenen, alle übereinander (gemessen
+bei 7 m freistehend mit Plankenwand hinten). Rest der Korrektur vom
+24.10.2026. Jetzt: ein Aufbau. Einzelheiten: `docs/entscheidungen.md`,
+01.11.2026.
+
+Geprüft von **`scripts/pruefe-feldwahl.js`** (25 Prüfungen, Gegenprobe mit 26
+einzeln eingebauten Fehlern) und von vier neuen Prüfungen im Browserlauf.
+
 **Offen (bewusst, braucht eine Entscheidung):**
-1. **Ein Feld je Öffnung, aber nur eine Auswahl je Seite.** Zwei Felder links
-   springen beide in dieselbe Zeile „Links". Eine Auswahl je Feld wäre der
-   nächste Schritt — und ein großer: Sie müsste durch Maßtabelle, Anfrage und
-   Teilen-Link mitgehen.
+1. **Volle, unabhängige Auswahl je Feld** – also zwei verschiedene
+   Plankenwände mit verschiedenen Höhen. Am 01.11.2026 bewusst NICHT gebaut;
+   sie müsste durch Datenmodell, Bedienfeld, Anfrage, Teilen-Link, PDF und
+   Maßtabelle gehen. `Z.erwFeld` müsste dann je Feld eine eigene Liste tragen
+   statt einer Feldnummer je Element.
 2. **Kein Feld am Terrassenboden, an den Pfosten und am Zubehör.** Auftrag
    waren Seitenfelder und Dach; mehr Marken sind schnell zu viele.
 3. **Der Hinweis zum Testbetrieb liegt beim ersten Aufruf über dem Modell.**
@@ -408,6 +437,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-symbole.js` | **Keine Emoji in der Oberfläche.** Sucht die Zeichen selbst (nicht das Aussehen) in Knopfbeschriftungen, in allem, was Javascript in die Seite schreibt, und in den sechs Skripten der Website. Dazu: Jedes benutzte Symbol gibt es, keines liegt ungenutzt herum, jedes hat eine viewBox, keines bringt fremde Bilddaten mit, das Sprite steht vor der ersten Verwendung. Gegenprobe: 17 Fehler, jeder einzeln |
+| `scripts/pruefe-feldwahl.js` | Zuordnung Element → Feld: ohne Zuordnung gilt ein Element in ALLEN Feldern (alte Links bleiben unverändert), das Modell baut danach, verwaiste Zuordnungen werden geloescht, ein weggefallenes Feld lässt nichts verschwinden, Teilen-Link trägt und liest sie, Anfrage nennt Feld und Feldzahl, die Rückseite wird nicht mehr doppelt gebaut. 25 Prüfungen, Gegenprobe: 26 Fehler einzeln |
 | `scripts/pruefe-marken.js` | Anklickbare Felder am Modell: ein Feld je Seitenfeld (auch bei Unterzug und Mittelpfosten), keins hinten bei Wandmontage, hinten nach den **hinteren** Achsen, keins steckt in einem Pfosten; die Fläche liegt IN der Ebene ihres Feldes (Quaternion, kein Sprite), Hervorhebung orange und durchsichtig, Klick führt ins Bedienfeld, Verdecktes ist nicht anklickbar, Flächen bleiben aus Bild und PDF heraus. `markenFelder()` wird **ausgeführt**, nicht im Quelltext nachgelesen. 58 Prüfungen, Gegenprobe: 61 Fehler einzeln |
 | `scripts/pruefe-aussparung.js` | Form der Anlage mit Aussparung: Lage links/rechts/mittig, Begrenzungen, wandert die Hinterkante genau dort, bleibt der Randsparren lang, bekommt kein Sparren Länge null (200 Stellen abgetastet). Die Gegenprobe baut **jeden Fehler einzeln** ein und verlangt, dass jede Prüfung in mindestens einem Durchgang anschlägt |
 | `scripts/pruefe-konfigurator-sperre.js` | Ist der öffentliche Konfigurator wirklich gesperrt (503, nicht 404), führt die Hinweisseite zur Anfrage, ist die Werkstatt **nicht** mitgesperrt, verlinkt keine Seite ihn noch aktiv im Menü? **Beim Zurückschalten muss dieses Skript rot werden** |

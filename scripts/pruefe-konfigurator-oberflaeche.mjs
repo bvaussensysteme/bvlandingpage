@@ -900,6 +900,71 @@ pruef('Montage kommt an', /Selbstmontage/.test(zus));
 
 if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
 
+/* ---------- Welches Element sitzt in welchem Feld? ----------
+   „man kann aber nur die stirnseite komplett bearbeiten und nicht pro
+   feld" (Betreiber, 01.11.2026). In einer EIGENEN Seite, damit die
+   Breite von 7 m den Lauf oben nicht durcheinanderbringt - dort wird
+   mit 5000 mm gerechnet und das Maß bis in die Anfrage verfolgt.
+
+   Geprüft wird die WIRKUNG, nicht der Quelltext: Die Zeilen tauchen
+   auf, und das Bild des Modells ändert sich, wenn ein Element einem
+   Feld zugewiesen wird. Den Quelltext prüft scripts/pruefe-feldwahl.js. */
+{
+  const fw = await browser.newPage();
+  await fw.goto(BASIS, { waitUntil: 'networkidle' });
+  await fw.waitForTimeout(1600);
+  await fw.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+  await fw.evaluate(() => {
+    document.querySelectorAll('details.k3d-sek').forEach(d => { d.open = true; });
+    const e = document.getElementById('k3dBreiteZahl');
+    e.value = 7000; e.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await fw.waitForTimeout(1400);
+  await fw.evaluate(() => {
+    document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Plankenwand"]').click();
+    document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Schiebet\u00fcr"]').click();
+  });
+  await fw.waitForTimeout(1200);
+  const zeilen = await fw.evaluate(() => Array.from(
+    document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-feld-fuer]'))
+    .map(z => z.getAttribute('data-feld-fuer')));
+  pruef('Bei zwei Feldern vorne gibt es je Element eine Feldwahl',
+    zeilen.length === 2, zeilen.join(' + ') || 'keine Zeile');
+
+  const vorher = await fw.locator('#k3dCanvas').screenshot();
+  await fw.evaluate(() => {
+    document.querySelector('[data-k3d-feldwahl="vorne"] [data-feld-fuer="Plankenwand"] button[data-feld="0"]').click();
+  });
+  await fw.waitForTimeout(900);
+  await fw.evaluate(() => {
+    document.querySelector('[data-k3d-feldwahl="vorne"] [data-feld-fuer="Schiebet\u00fcr"] button[data-feld="1"]').click();
+  });
+  await fw.waitForTimeout(1200);
+  pruef('Die Zuordnung ändert das Modell',
+    !vorher.equals(await fw.locator('#k3dCanvas').screenshot()),
+    'vorher stand beides in beiden Fächern');
+  const beschriftung = await fw.evaluate(() => {
+    const z = document.querySelector('[data-k3d-erw="vorne"]').parentNode
+      .querySelector('[data-k3d-erw-wert]');
+    return z ? z.textContent : '';
+  });
+  pruef('Die Zeile nennt das Feld',
+    /\(Feld 1\)/.test(beschriftung) && /\(Feld 2\)/.test(beschriftung),
+    beschriftung);
+  /* Eine Seite mit nur EINEM Feld darf keine Feldwahl zeigen - sonst
+     stünde im Bedienfeld eine Frage, die keine ist. */
+  await fw.evaluate(() => {
+    const e = document.getElementById('k3dBreiteZahl');
+    e.value = 3000; e.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await fw.waitForTimeout(1400);
+  const beiEinemFeld = await fw.evaluate(() => document.querySelectorAll(
+    '[data-k3d-feldwahl="vorne"] [data-feld-fuer]').length);
+  pruef('Bei einem Feld gibt es keine Feldwahl', beiEinemFeld === 0,
+    beiEinemFeld + ' Zeile(n) bei 3000 mm Breite');
+  await fw.close();
+}
+
 // ---------- Handy ----------
 const mctx = await browser.newContext({
   viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,

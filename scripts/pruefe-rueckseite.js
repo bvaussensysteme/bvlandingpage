@@ -160,9 +160,13 @@ pruefe('Der Keil hängt an der Längsseite, nicht am Namen der Seite',
              : /quer && neig > 0\.001 && !!dachUk;/.test(k3d) &&
                !/seite !== 'vorne' && neig > 0\.001/.test(k3d),
        'quer statt einer Namensabfrage');
+/* Die Achsen der Rueckseite stehen seit dem 01.11.2026 weiter oben -
+   die Feldzahl muss VOR dem Bauen feststehen (siehe
+   scripts/pruefe-feldwahl.js). Der Riegel ist derselbe geblieben: Der
+   Block, der hinten baut, laeuft nur freistehend. */
 pruefe('Die Rückseite wird nur freistehend gebaut',
-       gegen ? !/if \(rueckseiteOffen\(\)\) \{\n      var achsenH/.test(k3d)
-             : /if \(rueckseiteOffen\(\)\) \{\n      var achsenH/.test(k3d),
+       gegen ? !/if \(rueckseiteOffen\(\)\) \{\n      var feldNrH = 0;/.test(k3d)
+             : /if \(rueckseiteOffen\(\)\) \{\n      var feldNrH = 0;/.test(k3d),
        'zweiter Riegel neben dem Aufräumen');
 /* ---------- Hinten hat EIGENE Felder ----------
    „wenn ich hinten plankenwand oder was anderes hinzufüge sind da so 2
@@ -254,8 +258,8 @@ pruefe('Auch im Assistenten gibt es hinten keinen Keil',
 
 /* ---------- Die Anfrage nennt keine Seite, die es nicht gibt ---------- */
 pruefe('Die interne Notiz nennt nur vorhandene Seiten',
-       gegen ? !/erwSeiten\(\)\.forEach\(function \(seite\) \{\n        var l = erwListe\(seite\);\n        seiten\.push/.test(k3d)
-             : /erwSeiten\(\)\.forEach\(function \(seite\) \{\n        var l = erwListe\(seite\);\n        seiten\.push/.test(k3d),
+       gegen ? !/erwSeiten\(\)\.forEach\(function \(seite\) \{\n        var l = erwListe\(seite\);[\s\S]{0,400}?seiten\.push/.test(k3d)
+             : /erwSeiten\(\)\.forEach\(function \(seite\) \{\n        var l = erwListe\(seite\);[\s\S]{0,400}?seiten\.push/.test(k3d),
        'sonst stünde bei Wandmontage „hinten: offen" in der Mail');
 
 console.log(gegen

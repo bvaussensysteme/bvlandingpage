@@ -539,6 +539,27 @@
        die Tastatur weg. Sobald einer ihrer Knöpfe den Fokus hat, klappt
        sie unten links auf: Wer mit der Tastatur arbeitet, muss sehen,
        wo er steht. */
+    /* ---------- In welchem Feld sitzt das Element? ----------
+       „man kann aber nur die stirnseite komplett bearbeiten und nicht
+       pro feld" (Betreiber, 01.11.2026). Die Zeilen erscheinen nur,
+       wenn eine Seite mehr als ein Feld hat – bei einem Feld wäre die
+       Frage sinnlos und das Bedienfeld nur länger. */
+    .k3d-feldwahl:empty { display: none; }
+    .k3d-feldwahl { margin-top: 7px; display: grid; gap: 5px; }
+    .k3d-feldzeile {
+      display: grid; grid-template-columns: 1fr auto; gap: 7px;
+      align-items: center;
+    }
+    .k3d-feldzeile > span { font-size: .78rem; color: #2d3b46; }
+    .k3d-feldzeile .k3d-seg { display: flex; gap: 4px; }
+    .k3d-feldzeile button {
+      border: 1px solid var(--border); background: #fff; border-radius: 7px;
+      padding: 4px 8px; font: inherit; font-size: .72rem; cursor: pointer;
+      white-space: nowrap;
+    }
+    .k3d-feldzeile button.is-active {
+      background: var(--gold); border-color: var(--gold); color: #111; font-weight: 700;
+    }
     .k3d-marken {
       position: absolute; left: 10px; bottom: 10px; z-index: 3;
       display: flex; flex-wrap: wrap; gap: 4px; max-width: calc(100% - 20px);
@@ -1458,6 +1479,7 @@
             <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
             <button type="button" data-erw="Velaris">Velaris<small></small></button>
           </div>
+          <div class="k3d-feldwahl" data-k3d-feldwahl="links"></div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
@@ -1470,6 +1492,7 @@
             <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
             <button type="button" data-erw="Velaris">Velaris<small></small></button>
           </div>
+          <div class="k3d-feldwahl" data-k3d-feldwahl="rechts"></div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="seiten">
@@ -1482,6 +1505,7 @@
             <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
             <button type="button" data-erw="Velaris">Velaris<small></small></button>
           </div>
+          <div class="k3d-feldwahl" data-k3d-feldwahl="vorne"></div>
         </div>
 
         <!-- Die Rueckseite gibt es nur freistehend: An der Hauswand steht
@@ -1500,6 +1524,7 @@
             <button type="button" data-erw="Senkrechtmarkise">Senkrechtmarkise<small></small></button>
             <button type="button" data-erw="Velaris">Velaris<small></small></button>
           </div>
+          <div class="k3d-feldwahl" data-k3d-feldwahl="hinten"></div>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe-links" hidden>
@@ -2192,13 +2217,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101a" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101b" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261101a" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261101b" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

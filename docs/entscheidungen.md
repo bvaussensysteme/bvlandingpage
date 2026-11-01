@@ -10409,3 +10409,70 @@ den Platz hat; ist sie selbst zu schmal, ist das Schieben kein Befund.
 nicht den Platz, den man sieht, sondern den von seinem Bezugspunkt bis zum
 Rand. Wer so zentriert, sagt dazu, wie breit es sein soll.
 
+## 01.11.2026 — Jedes Element bekommt ein Feld, und die Rückseite wurde dreimal gebaut
+
+**Was gewünscht war.** „bei dieser terassengröße sind es zwei felder vorne wie
+man auf screenshots sieht, man kann aber nur die stirnseite komplett
+bearbeiten und nicht pro feld, also planken etc." (Betreiber, mit zwei
+Bildern). Auf Rückfrage entschieden: **Zuordnung je Feld**, bedient **über das
++ im Feld** — nicht die volle, unabhängige Auswahl je Feld.
+
+**Was jetzt gilt.** Die Auswahl bleibt je Seite (`Z.erwVorne` usw. — eine
+Liste von Elementarten). Dazu kommt `Z.erwFeld`: ein Verzeichnis
+`"Seite|Element" → Feldnummer`. **Steht nichts drin, gilt das Element in allen
+Feldern** — und das ist genau das bisherige Verhalten. Deshalb verhalten sich
+jede bestehende Konfiguration, jeder Teilen-Link von vorher und jede Anlage
+mit nur einem Feld unverändert.
+
+**Warum diese Richtung und nicht umgekehrt.** Die Vorgabe „alle Felder" ist die
+sichere: Wer sie verfehlt, lässt ein Element *verschwinden*, ohne dass es
+jemand abgewählt hat. Deshalb fällt auch ein Element, dessen Feld weggefallen
+ist (Anlage schmaler geworden), auf „alle Felder" zurück statt zu verschwinden.
+
+**Weitere Entscheidungen.**
+- *Erst zählen, dann bauen.* Die Pfostenachsen stehen jetzt am Anfang von
+  `seitenErweiterungen()`. Sonst räumte `erwAufraeumen()` mit der Feldzahl des
+  **vorigen** Aufbaus auf, und ein Element wäre einen Aufbau lang unsichtbar.
+- *Die Feldnummer zählt Fächer, nicht Schleifendurchläufe.* Ein Fach ohne
+  lichtes Maß wird übersprungen; zählte die Schleife weiter, zeigte die
+  Zuordnung auf ein Fach daneben. In `markenFelder()` wird genauso gezählt.
+- *Das Lamellendach erbt die Zuordnung nicht.* Dort wird die Seitenauswahl
+  vorübergehend durch „Schiebetür" ersetzt; ohne Mitnehmen von `Z.erwFeld`
+  bliebe eine Seite leer, ohne dass es jemand eingestellt hat.
+- *Die Anfrage nennt das Feld* („Plankenwand (Feld 1)") **und** die Feldzahl je
+  Seite. Ohne die zweite Angabe ist „Feld 2" in der Mail nicht
+  nachvollziehbar.
+- *Die Feldwahl erscheint nur bei mehr als einem Feld.* Bei einem Feld wäre die
+  Frage sinnlos und das Bedienfeld nur länger.
+
+**Der Fund nebenbei: die Rückseite wurde dreimal gebaut.** Beim Lesen des
+Codes aufgefallen, im Browser nachgemessen (7 m freistehend, Plankenwand
+hinten): **drei** Aufbauten — zweimal nach den Fächern der *Vorderseite*
+(2 × 333 cm) und einmal nach den eigenen (1 × 678 cm), alle übereinander. Rest
+der Korrektur vom 24.10.2026, bei der die Rückseite eigene Fächer bekam: Der
+neue Block kam dazu, der alte Aufruf blieb stehen. Nach der Korrektur: **ein**
+Aufbau. Für die Feldzuordnung war das zwingend — die Feldnummern von vorne und
+hinten zeigten sonst auf verschiedene Fächer.
+
+**Zwei Prüfungen waren rot, ohne dass es jemandem aufgefallen war.**
+`pruefe-rueckseite.js` und `pruefe-fuehrung.js` hingen an Mustern, die diese
+Umbauten verändert haben — das ist in Ordnung und wurde nachgezogen.
+`pruefe-markise.js` dagegen war seit dem Commit „Maße voreingestellt an und im
+Bild anklickbar" **von mir selbst** rot gemacht: Die Deckkraft des Maßschilds
+ging von .62 auf .52, die Prüfung verlangte die feste Zahl .62. Sie prüft
+jetzt die Absicht („weniger deckend als die früheren .86") statt einer Zahl,
+die sich bewusst ändern darf. **Die Lehre:** Eine Prüfung, die an einem Wert
+hängt, der sich ändern soll, meldet den falschen Fehler — und wer nach einer
+Änderung nicht die ganze Reihe laufen lässt, merkt es nicht.
+
+**Gefunden von der eigenen Prüfung:** Nach dem Verkleinern von 7000 auf
+3000 mm standen vorne weiter zwei Feldzeilen im Bedienfeld. `erwAnzeigen()`
+läuft in `aendern()` **vor** `bauen()`, die Feldzahl steht aber erst beim Bauen
+fest. Jetzt zieht `bauen()` die Oberfläche am Ende selbst nach.
+
+**Verworfen:** die volle, unabhängige Auswahl je Feld (zwei verschiedene
+Plankenwände mit verschiedenen Höhen). Sie müsste durch Datenmodell,
+Bedienfeld, Anfrage, Teilen-Link, PDF und Maßtabelle gehen — der Betreiber hat
+am 01.11.2026 den kleineren Weg gewählt. Der Weg dorthin bleibt offen: `Z.erwFeld`
+müsste dann je Feld eine eigene Liste tragen statt einer Feldnummer je Element.
+

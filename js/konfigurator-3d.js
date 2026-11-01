@@ -168,6 +168,22 @@
     /* Die Rueckseite gibt es nur freistehend – bei Wandmontage ist dort
        das Haus. Siehe ERW_SEITEN weiter unten. */
     erwHinten: [],
+    /* ---------- In welchem Feld sitzt welches Element? ----------
+       „bei dieser terassengröße sind es zwei felder vorne … man kann
+       aber nur die stirnseite komplett bearbeiten und nicht pro feld"
+       (Betreiber, 01.11.2026, mit zwei Bildern).
+
+       Die Auswahl bleibt je SEITE (erwVorne usw. – eine Liste von
+       Elementärten). Dazu kommt hier, in welchem Feld jedes dieser
+       Elemente sitzt. Schlüssel ist „Seite|Element", Wert die
+       Feldnummer ab 0.
+
+       STEHT NICHTS DRIN, GILT ES FÜR ALLE FELDER – und das ist genau
+       das bisherige Verhalten. Deshalb ist diese Erweiterung
+       rückwärtskompatibel: Ein Teilen-Link von gestern, eine Anfrage von
+       gestern und eine Anlage mit nur einem Feld verhalten sich
+       unverändert. */
+    erwFeld: {},
 
     led: false,
     ledset: '8er-Set',
@@ -891,6 +907,46 @@
          : seite === 'rechts' ? Z.erwRechts
          : seite === 'hinten' ? Z.erwHinten : Z.erwVorne;
   }
+  /* ---------- Feldzuordnung ----------
+     -1 heisst „in allen Feldern dieser Seite", und das ist die Vorgabe.
+     Siehe Z.erwFeld. */
+  var FELD_ALLE = -1;
+
+  function erwFeldSchluessel(seite, wert) { return seite + '|' + wert; }
+
+  function erwFeldVon(seite, wert) {
+    if (!Z.erwFeld) return FELD_ALLE;
+    var v = Z.erwFeld[erwFeldSchluessel(seite, wert)];
+    return (v == null) ? FELD_ALLE : v;
+  }
+
+  function erwFeldSetzen(seite, wert, feld) {
+    if (!Z.erwFeld) Z.erwFeld = {};
+    var k = erwFeldSchluessel(seite, wert);
+    /* Die Vorgabe wird NICHT gespeichert, sondern geloescht: So bleibt
+       der Teilen-Link kurz, und „nichts eingetragen" heisst ueberall
+       dasselbe. */
+    if (feld == null || feld < 0) delete Z.erwFeld[k];
+    else Z.erwFeld[k] = feld;
+  }
+
+  /* Wie viele Felder hat eine Seite? Wird beim Bauen gefuellt, weil es
+     erst dort feststeht: An den Laengsseiten teilt der Unterzug, vorne
+     und hinten die Pfosten - und hinten stehen andere als vorne. */
+  var FELD_ANZAHL = { links: 1, rechts: 1, vorne: 1, hinten: 1 };
+
+  /* Was in DIESEM Feld steht. Ohne Feldnummer die ganze Seite – so
+     bleiben alle Stellen gueltig, die nur wissen wollen, ob an einer
+     Seite ueberhaupt etwas gewaehlt ist. */
+  function erwListeFeld(seite, feldNr) {
+    var l = erwListe(seite);
+    if (feldNr == null) return l;
+    return l.filter(function (w) {
+      var f = erwFeldVon(seite, w);
+      return f === FELD_ALLE || f === feldNr;
+    });
+  }
+
   /* Der Keil gleicht das Gefaelle an den LAENGSseiten aus. Vorne und
      hinten laeuft die Dachkante waagerecht – dort gibt es nichts
      auszugleichen. */
@@ -960,6 +1016,26 @@
        bliebe es unsichtbar im Zustand stehen und ginge spaeter in die
        Anfrage – bestellt waere eine Wand, die vor der Hauswand steht. */
     if (!rueckseiteOffen() && Z.erwHinten.length) Z.erwHinten = [];
+    /* ---------- Verwaiste Feldzuordnungen loeschen ----------
+       Drei Faelle, und alle drei kommen im Betrieb vor:
+         · Das Element wurde abgewaehlt – die Zuordnung haette sonst
+           beim Wiederanwaehlen eine alte Entscheidung wiederbelebt,
+           die niemand mehr im Kopf hat.
+         · Die Seite gibt es nicht mehr (Rueckseite bei Wandmontage).
+         · Die Anlage ist schmaler geworden, das Feld gibt es nicht
+           mehr: Dann zeigt die Zuordnung ins Leere, und das Element
+           verschwaende aus dem Modell, ohne dass es jemand abgewaehlt
+           hat. Es faellt zurueck auf „alle Felder" – sichtbar bleiben
+           ist die sichere Richtung. */
+    if (Z.erwFeld) {
+      Object.keys(Z.erwFeld).forEach(function (k) {
+        var t = k.split('|'), seite = t[0], wert = t[1];
+        var gilt = ERW_SEITEN.indexOf(seite) > -1 &&
+                   erwListe(seite).indexOf(wert) > -1 &&
+                   Z.erwFeld[k] < (FELD_ANZAHL[seite] || 1);
+        if (!gilt) delete Z.erwFeld[k];
+      });
+    }
   }
 
   /* Übersetzung in die Auswahlwerte des Anfrage-Assistenten.
@@ -3503,6 +3579,17 @@
     bodenDurchsicht();
     markeDach();
     markenAufbauen();
+    /* ---------- Die Feldwahl erst JETZT nachziehen ----------
+       GEMESSEN am 01.11.2026 von der eigenen Pruefung: Nach dem
+       Verkleinern von 7000 auf 3000 mm standen vorne weiter ZWEI
+       Feldzeilen im Bedienfeld, obwohl es nur noch ein Fach gibt.
+
+       Grund: erwAnzeigen() laeuft in aendern() VOR bauen(), und wie
+       viele Felder eine Seite hat, steht erst waehrend des Bauens fest
+       (FELD_ANZAHL). Die Oberflaeche zeichnete also mit der Feldzahl des
+       vorigen Aufbaus. Hier und nicht in aendern(): bauen() wird auch an
+       anderen Stellen gerufen, und jede davon haette denselben Verzug. */
+    erwAnzeigen();
     neuZeichnen();
   }
 
@@ -5226,7 +5313,9 @@
     }
 
     function eineSeite(seite, achse, mitte, laenge, quer, richtung, feldNr) {
-      var liste = erwListe(seite);
+      /* NUR was diesem Feld zugeordnet ist. Ohne Zuordnung gilt ein
+         Element fuer alle Felder – das ist der Stand von vorher. */
+      var liste = erwListeFeld(seite, feldNr);
       if (!liste.length) return;
       /* Die Elemente stehen jetzt IN der Bodenschiene – Unterkante also
          auf deren Oberkante, nicht frei in der Luft. Die Gesamthöhe
@@ -5263,7 +5352,7 @@
          Schritt und steht in docs/NEXT_TASK.md. */
       var yUnten = SCHWELLE.ueberstand +
                    bodenY(quer ? achse : mitte, quer ? mitte : achse);
-      var hatSchiebeHier = erwListe(seite).indexOf('Schiebetür') > -1;
+      var hatSchiebeHier = liste.indexOf('Schiebetür') > -1;
       var fuehrungH = hatSchiebeHier ? FUEHRUNG.hoehe : 0;
       var hoch = okOben - yUnten - fuehrungH;
       /* Der Keil läuft IMMER bis nach hinten durch: bei Wandmontage bis
@@ -5599,6 +5688,35 @@
        Das hintere Feld stapelt zur Wand, das vordere nach vorn. Ohne
        Unterzug bleibt es bei einem Feld und der bisherigen Richtung. */
     var felderLR = seitenFelder(hinten, vorne, unterzugZcm, PROFIL);
+
+    /* ---------- Erst zaehlen, dann bauen ----------
+       Die Pfostenachsen standen bis zum 01.11.2026 weiter unten, direkt
+       vor der Schleife, die sie braucht. Seit es die Feldzuordnung gibt,
+       muss VOR dem Bauen feststehen, wie viele Felder jede Seite hat:
+       Sonst raeumt erwAufraeumen() mit der Feldzahl des VORIGEN Aufbaus
+       auf, und ein Element, dessen Feld gerade weggefallen ist, waere
+       einen Aufbau lang unsichtbar.
+
+       Gezaehlt werden nur Faecher mit lichtem Mass - genauso wie beim
+       Bauen und in markenFelder(). */
+    var achsen = (pfostenX && pfostenX.length > 1)
+      ? pfostenX.slice().sort(function (a, b) { return a - b; })
+      : [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2];
+    var achsenH = (pfostenHintenX && pfostenHintenX.length > 1)
+      ? pfostenHintenX.slice().sort(function (a, b) { return a - b; })
+      : achsen;
+    function faecher(liste) {
+      var n = 0;
+      for (var i = 0; i + 1 < liste.length; i++) {
+        if (liste[i + 1] - PROFIL / 2 - (liste[i] + PROFIL / 2) > 0) n++;
+      }
+      return n;
+    }
+    FELD_ANZAHL.links = FELD_ANZAHL.rechts = felderLR.length || 1;
+    FELD_ANZAHL.vorne = faecher(achsen) || 1;
+    FELD_ANZAHL.hinten = rueckseiteOffen() ? (faecher(achsenH) || 1) : 0;
+    erwAufraeumen();
+
     felderLR.forEach(function (f, i) {
       eineSeite('links',   B / 2 - PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
       eineSeite('rechts', -B / 2 + PROFIL / 2, f.mitte, f.laenge, true, f.richtung, i);
@@ -5627,9 +5745,13 @@
        GENAU in der Mitte (ungerade Pfostenzahl gibt es nicht, aber ein
        einzelnes Feld über die volle Breite schon) behält die
        Voreinstellung. */
-    var achsen = (pfostenX && pfostenX.length > 1)
-      ? pfostenX.slice().sort(function (a, b) { return a - b; })
-      : [-B / 2 + PROFIL / 2, B / 2 - PROFIL / 2];
+    /* feldNr ZAEHLT NUR DIE WIRKLICHEN FAECHER, nicht die Schleife.
+       Ein Fach ohne lichtes Mass (zwei Pfosten dicht an dicht) wird
+       uebersprungen - zaehlte die Schleife weiter, bekaeme das naechste
+       Fach eine Nummer, die es in markenFelder() nicht gibt, und die
+       Feldzuordnung zeigte auf ein Fach daneben. Dort wird genauso
+       gezaehlt. */
+    var feldNrV = 0;
     for (var f = 0; f < achsen.length - 1; f++) {
       var lichtVon = achsen[f] + PROFIL / 2;
       var lichtBis = achsen[f + 1] - PROFIL / 2;
@@ -5651,24 +5773,23 @@
          hatte beim Griff-Fehler zwei Dinge geändert, obwohl nur eines
          falsch war. */
       eineSeite('vorne', vorne, feldMitte, feldLaenge, false,
-                feldMitte > 0 ? -1 : 1, f);
-      /* ---------- Rueckseite: dieselben Faecher wie vorne ----------
-         „Bei freistehen muss plankenwand, rahmen etc. also alle moeglichen
-         auch hinten moeglich sein" (Betreiber, 23.10.2026).
+                feldMitte > 0 ? -1 : 1, feldNrV);
+      feldNrV++;
+      /* HIER WIRD DIE RUECKSEITE NICHT MEHR GEBAUT. Bis zum 01.11.2026
+         stand an dieser Stelle ein zweiter Aufruf mit den Faechern der
+         VORDERSEITE - ein Rest der Korrektur vom 24.10.2026, bei der die
+         Rueckseite ihre eigenen Faecher bekam (siehe unten). Der neue
+         Block kam dazu, der alte Aufruf blieb stehen.
 
-         z = 0 ist dieselbe Ebene, an der die Laengsseiten hinten enden
-         (siehe oben) – so treffen sich die Elemente in der Ecke ohne
-         Versatz. Die Faecher sind dieselben wie vorne, weil hinten
-         dieselben Pfosten stehen; nur die Hoehe ist eine andere, darum
-         kuemmert sich eineSeite().
+         GEMESSEN am 01.11.2026 im Browser, 7 m freistehend mit
+         Plankenwand hinten: DREI Aufbauten statt einem - zweimal nach
+         den vorderen Faechern (2 x 333 cm) und einmal nach dem eigenen
+         (1 x 678 cm), alle uebereinander. Beim Lesen faellt so etwas
+         nicht auf, weil beide Stellen fuer sich richtig aussehen.
 
-         Bei Wandmontage wird hier nichts gebaut: Dort ist die Rueckseite
-         das Haus. erwAufraeumen() leert die Auswahl dann ohnehin – die
-         Abfrage hier ist der zweite Riegel. */
-      if (rueckseiteOffen()) {
-        eineSeite('hinten', hinten, feldMitte, feldLaenge, false,
-                  feldMitte > 0 ? -1 : 1, f);
-      }
+         Und es waere ab jetzt schlimmer als doppelte Geometrie: Die
+         Feldnummer des vorderen Fachs zeigte auf ein anderes Fach als
+         die hintere, die Feldzuordnung liefe also ins Leere. */
     }
 
     /* ---------- Rueckseite: EIGENE Faecher ----------
@@ -5692,9 +5813,7 @@
        das Haus. erwAufraeumen() leert die Auswahl dann ohnehin – die
        Abfrage hier ist der zweite Riegel. */
     if (rueckseiteOffen()) {
-      var achsenH = (pfostenHintenX && pfostenHintenX.length > 1)
-        ? pfostenHintenX.slice().sort(function (a, b) { return a - b; })
-        : achsen;
+      var feldNrH = 0;
       for (var fh = 0; fh < achsenH.length - 1; fh++) {
         var hVon = achsenH[fh] + PROFIL / 2;
         var hBis = achsenH[fh + 1] - PROFIL / 2;
@@ -5702,7 +5821,8 @@
         var hLaenge = hBis - hVon;
         if (hLaenge <= 0) continue;
         eineSeite('hinten', hinten, hMitte, hLaenge, false,
-                  hMitte > 0 ? -1 : 1, fh);
+                  hMitte > 0 ? -1 : 1, feldNrH);
+        feldNrH++;
       }
     }
 
@@ -8247,11 +8367,18 @@
          Schiebetür. Die eigentliche Seitenauswahl bleibt unberührt. */
       var merkL = Z.erwLinks, merkR = Z.erwRechts, merkV = Z.erwVorne;
       var merkH = Z.erwHinten;
+      /* Die Feldzuordnung muss hier MIT weggelegt werden. Sonst gilt
+         eine Zuordnung des Terrassendachs („links|Schiebetür -> Feld 2")
+         auch fuer das Glas des Lamellendachs, und dort bliebe eine
+         Seite leer, ohne dass es jemand eingestellt hat. */
+      var merkF = Z.erwFeld;
       Z.erwLinks = ['Schiebetür']; Z.erwRechts = ['Schiebetür'];
       Z.erwVorne = []; Z.erwHinten = [];
+      Z.erwFeld = {};
       seitenErweiterungen(B, T, h, PFOSTEN, 0);
       Z.erwLinks = merkL; Z.erwRechts = merkR; Z.erwVorne = merkV;
       Z.erwHinten = merkH;
+      Z.erwFeld = merkF;
     }
 
     if (Z.led) {
@@ -10060,9 +10187,16 @@
      Rückseite – ein Sprung auf ein ausgeblendetes Feld wäre ein Klick
      ins Leere. Deshalb wird genommen, was wirklich sichtbar ist. */
   function markenZiel(m) {
+    /* Hat die Seite mehrere Felder und ist dort schon etwas gewaehlt,
+       fuehrt der Klick auf das + zur Zeile DIESES Feldes - dafuer ist
+       die Feldwahl da. Gibt es sie nicht (nur ein Feld, oder noch
+       nichts gewaehlt), bleibt es bei den Elementknoepfen der Seite:
+       Dann ist „etwas aussuchen" der naechste Schritt, nicht
+       „zuordnen". */
     var wahl = (m.art === 'dach')
       ? '[data-k3d-schritt="dach"] button, [data-k3d-schritt="dach"] select'
-      : '[data-k3d-erw="' + m.seite + '"] button';
+      : '[data-k3d-feldwahl="' + m.seite + '"] button[data-feld="' + m.feld + '"], ' +
+        '[data-k3d-erw="' + m.seite + '"] button';
     var liste = document.querySelectorAll(wahl), ersterTreffer = null;
     for (var i = 0; i < liste.length; i++) {
       var e = liste[i];
@@ -11315,7 +11449,8 @@
       var se = [];
       erwSeiten().forEach(function (seite) {
         var l = erwListe(seite);
-        if (l.length) se.push(seite + ': ' + l.join(' + '));
+        if (l.length) se.push(seite + ': ' + l.map(function (w) {
+          return w + erwFeldZusatz(seite, w); }).join(' + '));
       });
       k.push(se.length ? 'Seiten – ' + se.join(' · ') : 'Seiten offen');
       if (Z.markise !== 'Ohne') k.push('Sonnenschutz: ' + Z.markise);
@@ -11511,8 +11646,18 @@
          vergessen worden, wo in Wirklichkeit das Haus steht. */
       erwSeiten().forEach(function (seite) {
         var l = erwListe(seite);
-        seiten.push(seite + ': ' + (l.length ? l.join(' + ') : 'offen'));
+        /* Die Feldangabe gehoert in die Mail, sobald eine Seite mehrere
+           Felder hat: „vorne: Plankenwand + Schiebetür" liesse offen,
+           welches Fach welches bekommt - und genau danach wird
+           bestellt. */
+        seiten.push(seite + ': ' + (l.length ? l.map(function (w) {
+          return w + erwFeldZusatz(seite, w); }).join(' + ') : 'offen'));
       });
+      if (erwSeiten().some(function (seite) { return (FELD_ANZAHL[seite] || 1) > 1; })) {
+        teile.push('Felder je Seite – ' + erwSeiten().map(function (seite) {
+          return seite + ': ' + (FELD_ANZAHL[seite] || 1); }).join(' · ') +
+          ' (Feld 1 ist das linke bzw. das hintere)');
+      }
       teile.push('Seitenelemente – ' + seiten.join(' · '));
       /* Bei geneigtem Boden sind die Pfosten verschieden lang – genau das
          wird bestellt, und genau das sieht man dem Winkel nicht an. */
@@ -12669,9 +12814,78 @@
         }
       });
       var zeile = reihe.parentNode.querySelector('[data-k3d-erw-wert]');
-      if (zeile) zeile.textContent = liste.length ? liste.join(' · ') : 'offen';
+      if (zeile) zeile.textContent = liste.length
+        ? liste.map(function (w) { return w + erwFeldZusatz(seite, w); }).join(' · ')
+        : 'offen';
+      feldwahlAnzeigen(seite, liste);
     });
   }
+
+  /* „ (Feld 2)" hinter einem Element – aber nur, wenn es etwas zu
+     unterscheiden gibt. Steht ueberall dasselbe, ist der Zusatz nur
+     Ballast. */
+  function erwFeldZusatz(seite, wert) {
+    var f = erwFeldVon(seite, wert);
+    if (f === FELD_ALLE || (FELD_ANZAHL[seite] || 1) < 2) return '';
+    return ' (Feld ' + (f + 1) + ')';
+  }
+
+  /* ---------- Die Zeilen „in welchem Feld?" ----------
+     Sie entstehen nur, wenn die Seite mehr als ein Feld hat und
+     ueberhaupt etwas gewaehlt ist.
+
+     NEU GEBAUT WIRD NUR, WENN SICH ETWAS GEAENDERT HAT. erwAnzeigen()
+     laeuft bei jeder Aenderung; wuerde hier jedes Mal innerHTML neu
+     gesetzt, verloere ein Knopf unter dem Finger seinen Fokus –
+     dieselbe Falle wie bei den Knoepfen der Tastaturliste. */
+  function feldwahlAnzeigen(seite, liste) {
+    var kasten = document.querySelector('[data-k3d-feldwahl="' + seite + '"]');
+    if (!kasten) return;
+    var anzahl = FELD_ANZAHL[seite] || 1;
+    var stand = anzahl + '#' + (anzahl > 1 ? liste.join(',') : '');
+    if (kasten.getAttribute('data-stand') !== stand) {
+      kasten.setAttribute('data-stand', stand);
+      var html = '';
+      if (anzahl > 1) {
+        liste.forEach(function (wert) {
+          html += '<div class="k3d-feldzeile" data-feld-fuer="' + wert + '">' +
+                  '<span>' + wert + '</span><span class="k3d-seg">' +
+                  '<button type="button" data-feld="' + FELD_ALLE + '">Alle</button>';
+          for (var i = 0; i < anzahl; i++) {
+            html += '<button type="button" data-feld="' + i + '">Feld ' + (i + 1) + '</button>';
+          }
+          html += '</span></div>';
+        });
+      }
+      kasten.innerHTML = html;
+    }
+    /* Der Stand wird IMMER nachgezogen, auch wenn die Zeilen stehen
+       bleiben – sonst bliebe nach einem Klick der alte Knopf golden. */
+    Array.prototype.forEach.call(kasten.querySelectorAll('[data-feld-fuer]'), function (z) {
+      var wert = z.getAttribute('data-feld-fuer');
+      var jetzt = erwFeldVon(seite, wert);
+      Array.prototype.forEach.call(z.querySelectorAll('button[data-feld]'), function (b) {
+        var an = Number(b.getAttribute('data-feld')) === jetzt;
+        b.classList.toggle('is-active', an);
+        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+      });
+    });
+  }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('[data-k3d-feldwahl]'), function (kasten) {
+      var seite = kasten.getAttribute('data-k3d-feldwahl');
+      kasten.addEventListener('click', function (ev) {
+        var b = ev.target;
+        while (b && b !== kasten && b.tagName !== 'BUTTON') b = b.parentNode;
+        if (!b || b === kasten) return;
+        var zeile = b.closest ? b.closest('[data-feld-fuer]') : null;
+        if (!zeile) return;
+        erwFeldSetzen(seite, zeile.getAttribute('data-feld-fuer'),
+                      Number(b.getAttribute('data-feld')));
+        aendern();
+      });
+    });
 
   // Farbfelder
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
@@ -13515,6 +13729,10 @@
     if (Z.erwVorne && Z.erwVorne.length) e.v = Z.erwVorne;
     if (Z.erwHinten && Z.erwHinten.length) e.h = Z.erwHinten;
     if (Object.keys(e).length) d.e = e;
+    /* Die Feldzuordnung nur mitgeben, wenn ueberhaupt etwas zugeordnet
+       ist - „nichts eingetragen" heisst alle Felder, und das ist der
+       Normalfall. So bleibt der Link kurz. */
+    if (Z.erwFeld && Object.keys(Z.erwFeld).length) d.ef = Z.erwFeld;
     return d;
   }
 
@@ -13586,6 +13804,10 @@
     Z.erwRechts = (d.e && d.e.r) || [];
     Z.erwVorne  = (d.e && d.e.v) || [];
     Z.erwHinten = (d.e && d.e.h) || [];
+    /* Ein Link ohne Feldzuordnung (also jeder von vor dem 01.11.2026)
+       bekommt ein leeres Verzeichnis - dann gilt ueberall „alle
+       Felder", und er zeigt dasselbe Bild wie damals. */
+    Z.erwFeld = (d.ef && typeof d.ef === 'object') ? d.ef : {};
     if (d.fa) farbeSetzen(d.fa);
     aendern();
     return true;
