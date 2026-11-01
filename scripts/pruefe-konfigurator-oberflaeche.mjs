@@ -94,6 +94,9 @@ if (GEGENPROBE) {
     /* Sechster Fehler: Die eigenen Schalter am Masskasten tun nichts -
        genau der Zustand, den der Betreiber am 01.11.2026 gemeldet hat. */
     t = t.replace('        massHalten(paar[1]);', '        void paar;');
+    /* Siebter Fehler: Das Massschild meldet sich nicht mehr am Zeiger -
+       dann sieht niemand, dass man es anfassen kann. */
+    t = t.replace('    var ms = massUnterZeiger(e);', '    var ms = null;');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
   await page.route('**/anfrage-wizard.js*', async (r) => {
@@ -333,6 +336,76 @@ pruef('Die Feldflaechen sind fuer diesen Lauf abgeschaltet',
   (await page.locator('.k3d-marke').count()) === 0 &&
   (await page.evaluate(() => !document.getElementById('k3dMarken').checked)),
   'alle Bildvergleiche zeigen damit das Modell pur');
+
+/* ---------- Das Maßschild als Bedienelement ----------
+   „das maß selber vllt. so designen das man sieht man kann draufkliken
+   und es bearbeiten" (Betreiber, 01.11.2026). Im Quelltext steht, dass
+   es zwei Fassungen gibt; ob der Zeiger sie wirklich tauscht und ob ein
+   Klick den Kasten öffnet, sieht man nur hier.
+
+   IN DER VORDERANSICHT, weil dort das Breitenschild mittig unter dem
+   Bauwerk steht. Die Suche ist SELBSTPRÜFEND: Eine Hand als Zeiger
+   zeigen auch die Zwischenpfosten, und die stehen in derselben Gegend.
+   Erst wenn ein Klick den Maßkasten öffnet, war es wirklich ein Schild;
+   sonst läuft die Suche weiter. Ein Pfosten, der dabei ausgewählt
+   wurde, wird mit Esc wieder freigegeben - sonst trüge er beim
+   nächsten Bildvergleich seine orange Hülle. */
+await ansicht('Vorne');
+await page.waitForTimeout(800);
+async function massProbe(x, y) {
+  await page.mouse.move(x, y);
+  await page.waitForTimeout(75);
+  return page.evaluate(() => document.getElementById('k3dCanvas').style.cursor);
+}
+async function massKastenOffen() {
+  return !(await page.locator('#k3dMassEingabe').isHidden());
+}
+const massRahmen = await page.locator('#k3dCanvas').boundingBox();
+let massPunkt = null, massTitel = '(nichts gefunden)';
+for (let f = 0.60; f <= 0.86 && !massPunkt; f += 0.02) {
+  for (let dx = 0; dx <= 70 && !massPunkt; dx += 14) {
+    for (const sx of (dx === 0 ? [0] : [-dx, dx])) {
+      const x = Math.round(massRahmen.x + massRahmen.width / 2 + sx);
+      const y = Math.round(massRahmen.y + massRahmen.height * f);
+      if (await massProbe(x, y) !== 'pointer') continue;
+      await page.mouse.down();
+      await page.waitForTimeout(120);
+      await page.mouse.up();
+      await page.waitForTimeout(600);
+      if (await massKastenOffen()) {
+        massPunkt = { x, y };
+        massTitel = (await page.locator('#k3dMassLabel').innerText()).trim();
+        await page.evaluate(() => { document.getElementById('k3dMassEingabe').hidden = true; });
+        break;
+      }
+      /* War ein Pfosten: Auswahl wieder aufheben. */
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(250);
+    }
+  }
+}
+pruef('Ein Klick auf das Maßschild öffnet den Kasten',
+  massTitel === 'Breite in mm', massTitel);
+
+let massBildAnders = false;
+if (massPunkt) {
+  await page.mouse.move(massRahmen.x + 6, massRahmen.y + 6);
+  await page.waitForTimeout(450);
+  const ruhe = await page.locator('#k3dCanvas').screenshot();
+  await massProbe(massPunkt.x, massPunkt.y);
+  await page.waitForTimeout(450);
+  const wach = await page.locator('#k3dCanvas').screenshot();
+  massBildAnders = !ruhe.equals(wach);
+  await page.mouse.move(massRahmen.x + 6, massRahmen.y + 6);
+  await page.waitForTimeout(400);
+}
+pruef('Der Zeiger auf dem Schild ändert das Bild', massBildAnders,
+  'Rahmen und Stift werden gold');
+/* Nichts ausgewählt zurücklassen. */
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+await ansicht('Perspektive');
+await page.waitForTimeout(600);
 
 const einheitenBasic = await sichtbareEinheiten();
 const bildBasic = await page.locator('#k3dCanvas').screenshot();
@@ -1432,6 +1505,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Ein Klick auf das Maßschild öffnet den Kasten',
   'Im Maßkasten ragt nichts heraus',
   'Die Zahl lässt sich über die eigenen Schalter ändern',
   'Ziehen am Pfosten verschiebt den Pfosten',

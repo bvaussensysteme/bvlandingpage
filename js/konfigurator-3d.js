@@ -3879,43 +3879,137 @@
      entscheidet das der Betreiber – hier steht die eine Zahl dafuer. */
   var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
 
-  function schild(text) {
+  /* Ein abgerundeter Weg von Hand. roundRect kennen aeltere Browser
+     nicht, und ein eckiger Kasten wirkt schwerer als er ist. */
+  function rundWeg(g, x, y, breit, hoch, r) {
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.lineTo(x + breit - r, y);
+    g.quadraticCurveTo(x + breit, y, x + breit, y + r);
+    g.lineTo(x + breit, y + hoch - r);
+    g.quadraticCurveTo(x + breit, y + hoch, x + breit - r, y + hoch);
+    g.lineTo(x + r, y + hoch);
+    g.quadraticCurveTo(x, y + hoch, x, y + hoch - r);
+    g.lineTo(x, y + r);
+    g.quadraticCurveTo(x, y, x + r, y);
+    g.closePath();
+  }
+
+  /* ---------- Das Schild am Mass ----------
+     „verbessere die maßanzeige … das maß selber vllt. so designen das
+     man sieht man kann draufkliken und es bearbeiten" (Betreiber,
+     01.11.2026, mit drei Bildern).
+
+     VORHER war es ein dunkler Kasten mit weisser Schrift bei 52 Prozent
+     Deckkraft - eine Beschriftung, wie sie in jeder Zeichnung steht.
+     Dass man sie anfassen kann, war ihr nicht anzusehen, und ein Kunde
+     tippt nicht auf gut Glueck auf eine Beschriftung.
+
+     JETZT sieht es aus wie das, was es ist: ein Feld, in das man
+     schreiben kann. Hell, mit einer Haarlinie als Rahmen, der Zahl in
+     unserem Schriftschwarz und dem Stift aus der eigenen Sammlung
+     daneben. Faehrt der Zeiger darauf, werden Rahmen und Stift GOLD -
+     dieselbe Sprache wie bei den runden Zeichen in den Feldern.
+
+     EINHEIT KLEINER UND GRAU: In einer Bemassung zaehlt die Zahl; die
+     Einheit sagt nur, in welcher Sprache sie spricht. Sie gleich gross
+     zu setzen laesst beide um Aufmerksamkeit streiten.
+
+     ZWEIFACHE AUFLOESUNG (SCHILD_PX): Die Zeichenflaeche ist doppelt so
+     gross wie noetig und wird heruntergerechnet. Vorher stand die
+     Schrift bei 54 Bildpunkten Hoehe und wurde auf hohen Aufloesungen
+     weich. */
+  var SCHILD_HOCH = 14;         // Welt-Einheiten, vorher 24
+  var SCHILD_PX = 108;          // Zeichenflaeche, doppelt fuer scharfe Kanten
+
+  function schildBild(text, klickbar, wach) {
     var c = document.createElement('canvas');
     var g = c.getContext('2d');
-    var schrift = '40px Arial, Helvetica, sans-serif';
-    g.font = schrift;
-    var hoch = 54, rund = 10;
-    var breit = Math.ceil(g.measureText(text).width) + 22;
+    /* „5280 mm" wird zu Zahl und Einheit - die Einheit tritt zurueck. */
+    var zahl = text, einheit = '';
+    var tr = /^([\s\S]*?)\s+(mm)$/.exec(text);
+    if (tr) { zahl = tr[1]; einheit = tr[2]; }
+    var fZahl = '600 54px Arial, Helvetica, sans-serif';
+    var fEinheit = '400 40px Arial, Helvetica, sans-serif';
+    g.font = fZahl;
+    var wZahl = g.measureText(zahl).width;
+    g.font = fEinheit;
+    var wEinheit = einheit ? g.measureText(einheit).width + 11 : 0;
+    var stift = klickbar ? 52 : 0;
+    var polster = 24;
+    var breit = Math.ceil(wZahl + wEinheit + stift + polster * 2);
+    var hoch = SCHILD_PX, rund = 24, rahmen = 3;
     c.width = breit; c.height = hoch;
     g = c.getContext('2d');
-    g.font = schrift;
-    /* Etwas zurueckhaltender als bisher (.62): „nicht störend wirken"
-       (Betreiber, 31.10.2026). Dieselbe Richtung wie am 11.10.2026
-       („kleiner filigraner … das es nicht so stört"), deshalb nur die
-       Deckkraft - die GROESSE bleibt, die hat der Betreiber selbst
-       festgelegt (siehe SCHILD_HOCH). */
-    g.fillStyle = 'rgba(17,17,17,.52)';
-    /* Abgerundete Ecken von Hand – roundRect kennen aeltere Browser
-       nicht, und ein eckiger Kasten wirkt schwerer als er ist. */
-    g.beginPath();
-    g.moveTo(rund, 0);
-    g.lineTo(breit - rund, 0);
-    g.quadraticCurveTo(breit, 0, breit, rund);
-    g.lineTo(breit, hoch - rund);
-    g.quadraticCurveTo(breit, hoch, breit - rund, hoch);
-    g.lineTo(rund, hoch);
-    g.quadraticCurveTo(0, hoch, 0, hoch - rund);
-    g.lineTo(0, rund);
-    g.quadraticCurveTo(0, 0, rund, 0);
-    g.closePath();
-    g.fill();
-    g.fillStyle = '#ffffff';
+
+    if (klickbar) {
+      g.fillStyle = wach ? 'rgba(255,252,243,.97)' : 'rgba(255,255,255,.94)';
+      rundWeg(g, rahmen / 2, rahmen / 2, breit - rahmen, hoch - rahmen, rund);
+      g.fill();
+      g.lineWidth = rahmen;
+      g.strokeStyle = wach ? '#C49A2A' : '#9AA4AB';
+      g.stroke();
+    } else {
+      g.fillStyle = 'rgba(17,17,17,.52)';
+      rundWeg(g, 0, 0, breit, hoch, rund);
+      g.fill();
+    }
+
     g.textBaseline = 'middle';
-    g.fillText(text, 11, hoch / 2 + 1);
+    var x = polster;
+    g.font = fZahl;
+    g.fillStyle = klickbar ? '#16232c' : '#ffffff';
+    g.fillText(zahl, x, hoch / 2 + 2);
+    x += wZahl;
+    if (einheit) {
+      g.font = fEinheit;
+      g.fillStyle = klickbar ? '#6b7a84' : 'rgba(255,255,255,.8)';
+      g.fillText(einheit, x + 11, hoch / 2 + 3);
+      x += wEinheit;
+    }
+    if (klickbar) {
+      /* Der Stift kommt aus dem eigenen Zeichensatz der Seite, nicht
+         aus einer fremden Schrift - gezeichnet wird derselbe Pfad, der
+         auch im Bedienfeld steht. */
+      var u = symbolUmriss('stift');
+      if (u && typeof Path2D === 'function') {
+        var gr = 40;
+        g.save();
+        g.translate(x + 14, (hoch - gr) / 2);
+        g.scale(gr / u.breite, gr / u.hoehe);
+        g.lineWidth = 2.1 * (u.breite / gr);
+        g.strokeStyle = wach ? '#C49A2A' : '#8d99a1';
+        g.lineCap = 'round';
+        g.lineJoin = 'round';
+        u.d.forEach(function (d) { g.stroke(new Path2D(d)); });
+        g.restore();
+      }
+    }
+
     var t = new THREE.Texture(c);
     t.needsUpdate = true;
-    var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false }));
-    s.scale.set(breit / hoch * SCHILD_HOCH, SCHILD_HOCH, 1);
+    /* Ohne Mipmaps und mit linearer Filterung bleibt die Haarlinie des
+       Rahmens eine Linie statt zu Grau zu zerfliessen. */
+    t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter;
+    if (renderer && renderer.capabilities) {
+      t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    }
+    return { map: t, breit: breit };
+  }
+
+  /* feld gesetzt heisst: Das Schild ist anklickbar und bekommt dafuer
+     beide Fassungen - ruhend und unter dem Zeiger. */
+  function schild(text, feld) {
+    var ruhe = schildBild(text, !!feld, false);
+    var s = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: ruhe.map, depthTest: false }));
+    s.scale.set(ruhe.breit / SCHILD_PX * SCHILD_HOCH, SCHILD_HOCH, 1);
+    s.userData.ruheMap = ruhe.map;
+    if (feld) {
+      s.userData.massFeld = feld;
+      s.userData.wachMap = schildBild(text, true, true).map;
+    }
     return s;
   }
 
@@ -3936,8 +4030,34 @@
 
      Die Beschriftung sitzt ueber der Linie statt mittig darauf – sonst
      verdeckt das Schild genau die Stelle, die es bemasst. */
-  var MASS_DICK = 1.6;      // cm Staerke – duenn genug, um nicht zu stoeren
-  var MASS_MARKE = 16;      // cm Laenge der Endmarken
+  /* DUENNER, 0,9 statt 1,6 cm: „verbessere die maßanzeige, vllt.
+     dünnere linien" (Betreiber, 01.11.2026, mit drei Bildern). Eine
+     Masslinie soll man lesen, nicht sehen - sie gehoert zur Zeichnung,
+     nicht zum Bauwerk. Unter etwa 0,8 cm verschwindet sie bei
+     herausgezoomter Ansicht ganz, deshalb nicht noch feiner. */
+  var MASS_DICK = 0.9;      // cm Staerke
+  var MASS_MARKE = 18;      // cm Laenge der Masshilfslinien
+  var MASS_UEBER = 5;       // cm, um die sie ueber die Masslinie hinausstehen
+  var MASS_PFEIL = 7;       // cm Laenge der Pfeilspitzen
+  var MASS_PFEIL_R = 1.8;   // cm Radius der Pfeilspitzen
+
+  /* Eine Pfeilspitze an `spitze`, zeigend in Richtung `richtung`.
+     ERST MIT IHNEN ist es eine Bemassung: Zwei Striche am Ende einer
+     Linie koennen alles Moegliche sein, ein Pfeilpaar nicht. Als Kegel
+     und nicht als flaches Dreieck, damit sie aus jeder Blickrichtung
+     zu sehen sind - das Modell laesst sich frei drehen. */
+  function massPfeil(spitze, richtung, material) {
+    var d = richtung.clone();
+    if (d.lengthSq() < 1e-9) return null;
+    d.normalize();
+    var m = new THREE.Mesh(
+      new THREE.ConeGeometry(MASS_PFEIL_R, MASS_PFEIL, 10), material);
+    /* Der Kegel zeigt in +y; gedreht wird er auf die Laufrichtung, und
+       die Mitte liegt eine halbe Laenge hinter der Spitze. */
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d);
+    m.position.copy(spitze).addScaledVector(d, -MASS_PFEIL / 2);
+    return m;
+  }
 
   /* Ein achsparalleler Stab von a nach b. Laeuft die Strecke in einer
      Achse, bleibt sie in den anderen beiden bei der Staerke stehen. */
@@ -3966,34 +4086,60 @@
   /* feld: 'breite' | 'tiefe' | 'hoehe' - woran das Schild haengt.
      Ohne Angabe bleibt das Schild ein reines Schild (Steigungsdreieck). */
   function masslinie(a, b, text, feld) {
-    var mMass = new THREE.MeshBasicMaterial({ color: 0x1b1b1b });
+    /* Etwas heller als vorher (0x1b1b1b): Die Linie ist jetzt duenner,
+       und ein duenner tiefschwarzer Strich wirkt haerter als ein
+       dickerer. 0x33424c ist unser Schriftschwarz, leicht aufgehellt. */
+    var mMass = new THREE.MeshBasicMaterial({ color: 0x33424c });
     masseGruppe.add(massStab(a, b, mMass));
-    /* Steht die Linie (Hoehenmass), zeigen die Endmarken waagerecht;
+    /* Steht die Linie (Hoehenmass), zeigen die Hilfslinien waagerecht;
        liegt sie (Breite, Tiefe), zeigen sie nach oben. */
     var steht = Math.abs(b.y - a.y) > Math.abs(b.x - a.x) &&
                 Math.abs(b.y - a.y) > Math.abs(b.z - a.z);
+    /* MASSHILFSLINIEN MIT UEBERSTAND, wie in einer technischen
+       Zeichnung: Sie beginnen ein Stueck VOR der Masslinie und laufen
+       ueber sie hinaus. Vorher setzten sie genau auf ihr auf und sahen
+       aus wie ein Haken. */
     [a, b].forEach(function (pkt) {
       var v = pkt.clone(), w = pkt.clone();
-      if (steht) { v.x -= MASS_MARKE / 2; w.x += MASS_MARKE / 2; }
-      else { w.y = pkt.y + MASS_MARKE; }
+      if (steht) {
+        v.x -= MASS_MARKE / 2 + MASS_UEBER;
+        w.x += MASS_MARKE / 2;
+      } else {
+        v.y = pkt.y - MASS_UEBER;
+        w.y = pkt.y + MASS_MARKE;
+      }
       masseGruppe.add(massStab(v, w, mMass));
     });
-    var s = schild(text);
+    /* Die Pfeile zeigen NACH AUSSEN - sie sagen „bis hierhin". */
+    var richtung = new THREE.Vector3().subVectors(b, a);
+    var pa = massPfeil(a, richtung.clone().negate(), mMass);
+    var pb = massPfeil(b, richtung, mMass);
+    if (pa) masseGruppe.add(pa);
+    if (pb) masseGruppe.add(pb);
     /* „wenn man auf ein maß tippt oder klickt dann man z.b ne neue zahl
        eintragen und das ändert sich dann in der konfiguration"
        (Betreiber, 31.10.2026). Das Schild traegt dafuer den Namen
        seines Feldes; den Rest macht massGeklickt(). */
-    if (feld) s.userData.massFeld = feld;
+    var s = schild(text, feld);
     s.position.copy(a).add(b).multiplyScalar(0.5);
     /* Das Schild NEBEN die Linie, nicht darauf – sonst verdeckt es
        genau die Stelle, die es bemasst. Die halbe Schildbreite steht
        erst nach schild() fest, deshalb hier aus der Skalierung. */
     if (steht) s.position.x -= s.scale.x / 2 + MASS_MARKE / 2;
-    else s.position.y += MASS_MARKE + SCHILD_HOCH * 0.7;
+    else s.position.y += MASS_MARKE + SCHILD_HOCH * 0.65;
     masseGruppe.add(s);
   }
 
   function masseZeichnen() {
+    /* Die Schilder sind gezeichnete Bilder; jedes anklickbare traegt
+       zwei davon. Material.dispose() gibt sie NICHT mit frei, und bei
+       jedem Reglerzug entstuenden neue - deshalb hier von Hand. */
+    masseGruppe.children.forEach(function (k) {
+      if (!k.userData) return;
+      if (k.userData.ruheMap) k.userData.ruheMap.dispose();
+      if (k.userData.wachMap) k.userData.wachMap.dispose();
+    });
+    massWachSchild = null;
     leeren(masseGruppe);
     if (!Z.masseZeigen) return;
     var V = THREE.Vector3;
@@ -4044,6 +4190,13 @@
                         Z.bodenGefaelleQuer, 0);
       }
     }
+    /* JEDES TEIL DER BEMASSUNG TRAEGT EINE MARKE. Prüfungen, die das
+       Bauwerk vermessen, laufen ueber die ganze Szene - und eine
+       Pfeilspitze sieht fuer sie aus wie ein Bauteil. GEMESSEN am
+       01.11.2026: Die Pfeilspitze des Hoehenmasses (Radius 1,8 cm)
+       reichte beim Balkon bis z = 131,8 cm und wurde als Dachkante
+       gezaehlt, die bei 130,0 cm liegt. */
+    masseGruppe.children.forEach(function (k) { k.userData.mass = true; });
   }
 
   /* Das Dreieck zur liegenden Masslinie a-b. `quer` sagt, zu welcher
@@ -4981,11 +5134,21 @@
        nur gefragt, wenn kein Feld darueber liegt - zwei Strahlen je
        Bewegung waeren Verschwendung. */
     if (PF_ZIEHT) return;
-    if (neu) { leinwand.style.cursor = 'pointer'; return; }
+    if (neu) { massSchweben(null); leinwand.style.cursor = 'pointer'; return; }
     var pf = pfostenUnterZeiger(e);
-    leinwand.style.cursor = !pf ? ''
-      : (PF_WAHL && PF_WAHL.reihe === pf.reihe && PF_WAHL.nr === pf.nr
-          ? 'ew-resize' : 'pointer');
+    if (pf) {
+      massSchweben(null);
+      leinwand.style.cursor =
+        (PF_WAHL && PF_WAHL.reihe === pf.reihe && PF_WAHL.nr === pf.nr)
+          ? 'ew-resize' : 'pointer';
+      return;
+    }
+    /* Zuletzt die Massschilder: Sie liegen ausserhalb des Bauwerks, da
+       ist selten etwas anderes im Weg - und ein dritter Strahl lohnt
+       nur, wenn die beiden ersten nichts gefunden haben. */
+    var ms = massUnterZeiger(e);
+    massSchweben(ms);
+    leinwand.style.cursor = ms ? 'pointer' : '';
   }
 
   function feldGeklickt(e) {
@@ -5004,7 +5167,10 @@
       zuletzt = jetzt;
       feldSchweben(ev);
     });
-    leinwand.addEventListener('pointerleave', function () { feldSchweben(null); });
+    leinwand.addEventListener('pointerleave', function () {
+      feldSchweben(null);
+      massSchweben(null);
+    });
   })();
 
   /* Nimmt eines der getroffenen Teile wirklich den Blick?
@@ -10590,19 +10756,49 @@
     massSchliessen();
   }
 
-  function massGeklickt(e) {
-    if (!Z.masseZeigen || !massKasten) return false;
+  /* Welches Massschild unter dem Zeiger liegt - oder null. Dieselbe
+     Rechnung wie beim Klick, damit Zeiger und Klick nicht auf
+     verschiedene Schilder zeigen koennen. */
+  function massUnterZeiger(e) {
+    if (!Z.masseZeigen || !massKasten || !e) return null;
     var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
     strahl.setFromCamera(new THREE.Vector2(
       ((e.clientX - r.left) / r.width) * 2 - 1,
       -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
     var treffer = strahl.intersectObjects(masseGruppe.children, true);
     for (var i = 0; i < treffer.length; i++) {
-      var feld = treffer[i].object && treffer[i].object.userData
-                 ? treffer[i].object.userData.massFeld : null;
-      if (feld) { massOeffnen(feld, e.clientX, e.clientY); return true; }
+      var o = treffer[i].object;
+      if (o && o.userData && o.userData.massFeld) return o;
     }
-    return false;
+    return null;
+  }
+
+  /* Der Zeiger auf dem Schild: Rahmen und Stift werden gold. GEZEICHNET
+     WIRD NICHTS NEU - beide Fassungen stehen seit dem Bauen bereit, es
+     wird nur das Bild getauscht. Ein Schild je Zug neu zu zeichnen
+     hiesse, bei jeder Mausbewegung eine Zeichenflaeche aufzubauen. */
+  var massWachSchild = null;
+
+  function massSchweben(s) {
+    if (s === massWachSchild) return;
+    if (massWachSchild && massWachSchild.material && massWachSchild.userData.ruheMap) {
+      massWachSchild.material.map = massWachSchild.userData.ruheMap;
+      massWachSchild.material.needsUpdate = true;
+    }
+    massWachSchild = s;
+    if (s && s.material && s.userData.wachMap) {
+      s.material.map = s.userData.wachMap;
+      s.material.needsUpdate = true;
+    }
+    neuZeichnen();
+  }
+
+  function massGeklickt(e) {
+    var o = massUnterZeiger(e);
+    if (!o) return false;
+    massOeffnen(o.userData.massFeld, e.clientX, e.clientY);
+    return true;
   }
 
   (function () {
@@ -11109,14 +11305,22 @@
     /* feldGeklickt zuerst: Die Feldflächen liegen VOR den Bauteilen,
        sonst oeffnete ein Tipp auf das Feld die Schiebetür dahinter.
 
-       ZEIT: 900 ms, vorher 500. GEMESSEN am 31.10.2026 im Versuch: Ein
+       ZEIT: 2500 ms. Vorher 500, dann 900. GEMESSEN am 31.10.2026: Ein
        Druck und ein Loslassen ohne jede Bewegung brauchten 549 ms - der
-       Klick fiel durch, und auf dem Modell geschah nichts. Wer bewusst
-       auf ein Feld zielt, haelt laenger als eine halbe Sekunde; am
-       Handy erst recht. Was einen Klick von einer Drehung trennt, ist
-       der WEG (weg < 6), nicht die Zeit - die Obergrenze faengt nur den
-       Fall ab, dass jemand den Finger minutenlang liegen laesst. */
-    if (weg < 6 && zeit < 900 && !pfostenGeklickt(e) &&
+       Klick fiel durch, und auf dem Modell geschah nichts. GEMESSEN am
+       01.11.2026 noch einmal, waehrend der Rechner zu tun hatte: 689 ms
+       fuer einen Druck von 120 ms. Die Zeit misst nicht, wie lange
+       jemand drueckt, sondern wie lange der Browser braucht, beide
+       Ereignisse zuzustellen - und das haengt an der Last, nicht am
+       Finger. Auf einem aelteren Telefon mit einem grossen Modell kann
+       das deutlich laenger dauern; eine knappe Grenze laesst dort
+       Klicks verschwinden, ohne dass jemand den Fehler findet.
+
+       Was einen Klick von einer Drehung trennt, ist der WEG (weg < 6),
+       nicht die Zeit - die Obergrenze faengt nur den Fall ab, dass
+       jemand den Finger liegen laesst und spaeter loslaesst. Dafuer
+       reichen 2,5 Sekunden mit Abstand. */
+    if (weg < 6 && zeit < 2500 && !pfostenGeklickt(e) &&
         !feldGeklickt(e) && !massGeklickt(e) &&
         !markiseGeklickt(e) && !velarisGeklickt(e)) {
       schiebeGeklickt(e);

@@ -10991,3 +10991,77 @@ gedrückt halten), und am Handy dasselbe. Steht „Übernehmen" ganz im Kasten?
 **Offen:** Falls die Zahl sich weiterhin nicht ändern lässt, brauche ich einen
 Satz dazu, **was genau** nicht geht — tippen, die Schalter, oder übernimmt
 „Übernehmen" den Wert nicht? Die drei haben verschiedene Ursachen.
+
+## 01.11.2026 (abends) — Die Bemaßung: dünner, mit Pfeilen, und das Maß als Bedienelement
+
+**Anlass.** „verbessere die maßanzeige, vllt. dünnere linien, das maß selber
+vllt. so designen das man sieht man kann draufkliken und es bearbeiten. mach es
+designtechnisch auf höchstem profisionellen art" (Betreiber, 01.11.2026, mit
+drei Bildern).
+
+### Die Linien
+
+- **0,9 statt 1,6 cm.** Eine Maßlinie soll man lesen, nicht sehen — sie gehört
+  zur Zeichnung, nicht zum Bauwerk. Unter etwa 0,8 cm verschwindet sie bei
+  herausgezoomter Ansicht ganz, deshalb nicht feiner.
+- **Nicht mehr tiefschwarz**, sondern `0x33424c` (unser Schriftschwarz, leicht
+  aufgehellt): Ein dünner tiefschwarzer Strich wirkt härter als ein dickerer.
+- **Pfeilspitzen an beiden Enden**, nach außen zeigend. Erst damit ist es eine
+  Bemaßung — zwei Striche am Ende einer Linie können alles Mögliche sein, ein
+  Pfeilpaar nicht. Als **Kegel**, nicht als flaches Dreieck: Das Modell lässt
+  sich frei drehen, und ein Dreieck wäre von der Seite unsichtbar.
+- **Maßhilfslinien mit Überstand**, wie in einer technischen Zeichnung: Sie
+  beginnen 5 cm vor der Maßlinie und laufen darüber hinaus. Vorher setzten sie
+  genau auf ihr auf und sahen aus wie ein Haken.
+
+### Das Maß als Bedienelement
+
+Vorher war es ein dunkler Kasten mit weißer Schrift bei 52 % Deckkraft — eine
+Beschriftung, wie sie in jeder Zeichnung steht. Dass man sie anfassen kann, war
+ihr nicht anzusehen, und **ein Kunde tippt nicht auf gut Glück auf eine
+Beschriftung**.
+
+Jetzt: heller Grund, **Haarlinie als Rahmen**, die Zahl in unserem
+Schriftschwarz, die **Einheit kleiner und grau** (in einer Bemaßung zählt die
+Zahl; gleich groß gesetzt streiten beide um Aufmerksamkeit), und der **Stift aus
+der eigenen Zeichensammlung** daneben. Fährt der Zeiger darauf, werden **Rahmen
+und Stift gold** — dieselbe Sprache wie bei den runden Zeichen in den Feldern.
+
+**Gezeichnet wird beim Zeigen nichts neu.** Beide Fassungen entstehen beim
+Bauen, der Zeiger tauscht nur das Bild. Ein Schild je Mausbewegung neu zu
+zeichnen hieße, bei jedem Zug eine Zeichenfläche aufzubauen.
+
+**Doppelte Auflösung** (108 statt 54 Bildpunkte Höhe) mit abgeschalteten
+Mipmaps: Sonst zerfließt die Haarlinie des Rahmens zu Grau.
+
+### Zwei Funde nebenbei
+
+**Die Klickgrenze war zu knapp.** Ein Klick galt nur, wenn zwischen Drücken und
+Loslassen weniger als 900 ms lagen. **Gemessen am 01.11.2026**, während der
+Rechner zu tun hatte: **689 ms für einen Druck von 120 ms**. Die Zeit misst
+nicht, wie lange jemand drückt, sondern wie lange der Browser braucht, beide
+Ereignisse zuzustellen — das hängt an der Last, nicht am Finger. Auf einem
+älteren Telefon mit einem großen Modell kann das deutlich länger dauern; eine
+knappe Grenze lässt dort Klicks verschwinden, ohne dass jemand den Fehler
+findet. Was einen Klick von einer Drehung trennt, ist der **Weg** (unter 6
+Bildpunkten), nicht die Zeit. Jetzt 2,5 Sekunden.
+
+**Eine Pfeilspitze wurde als Dachkante vermessen.** `pruefe-balkon.mjs` läuft
+über die ganze Szene und nimmt jeden Körper als Bauteil. Die Spitze des
+Höhenmaßes (Radius 1,8 cm) reichte bis z = 131,8 cm; die Dachkante liegt bei
+130,0 cm, die Prüfung erlaubt 1,5 cm Abweichung — also rot. Jedes Teil der
+Bemaßung trägt jetzt eine Marke (`userData.mass`), und die Prüfung überspringt
+sie. Die Prüfung hatte recht, mein Modell nicht: Eine Bemaßung ist kein Bauteil.
+
+### Und wieder stumme Prüfungen
+
+Dieselbe Falle zum dritten Mal an einem Tag: `t.generateMipmaps = false;` und
+`t.minFilter = THREE.LinearFilter;` stehen seit heute **zweimal** in der Datei —
+einmal für die runden Feldzeichen, einmal für die Maßschilder. Der eingebaute
+Fehler traf das eine, die Prüfung fand das andere und blieb grün. Beide
+verankert, dazu eine eigene Prüfung für das Maßschild.
+
+**Gegenlesen:** Sind die Linien dünn genug, ohne zu verschwinden? Sieht man dem
+Maß an, dass man es anfassen kann — auch ohne Mauszeiger, am Handy? Und: Das
+Gold beim Darüberfahren ist dasselbe wie bei den runden Feldzeichen; passt das
+zusammen?
