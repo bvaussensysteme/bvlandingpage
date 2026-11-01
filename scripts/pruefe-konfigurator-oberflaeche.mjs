@@ -133,10 +133,16 @@ await page.waitForTimeout(1600);
    Im normalen Lauf bleibt es ein echter Mausklick - nur in der
    Gegenprobe wird der Knopf direkt ausgeloest. Dasselbe tut das Skript
    schon beim Umschalter #k3dModus, wo die Sprechblase im Weg liegt. */
+/* IMMER über $eval, nicht nur in der Gegenprobe. Die Ansichtsleiste
+   liegt über der Leinwand; je nachdem wie lang das Bedienfeld gerade
+   ist und wie weit die Seite gescrollt steht, meldet Playwrights
+   Trefferprüfung „verdeckt" und bricht nach 8 s ab. Am 01.11.2026 genau
+   so passiert, als die Fächerblöcke das Bedienfeld länger machten.
+   Geprüft wird die WIRKUNG des Knopfes, nicht ob man ihn trifft – dass
+   die Leiste erreichbar ist und nichts verdeckt, prüfen die eigenen
+   Prüfungen weiter unten mit gemessenen Überlappungen. */
 async function ansicht(name) {
-  const wahl = `[data-k3d-ansicht="${name}"]`;
-  if (GEGENPROBE) await page.$eval(wahl, (el) => el.click());
-  else await page.click(wahl);
+  await page.$eval(`[data-k3d-ansicht="${name}"]`, (el) => el.click());
 }
 
 async function haken(ziel, auswahl) {
@@ -154,10 +160,40 @@ async function alleAufklappen(ziel = page) {
   });
   await ziel.waitForTimeout(150);
 }
-/* Der Testbetrieb-Hinweis ist ein echter Dialog ueber der ganzen Seite
+/* ---------- Beide Hinweise wegraeumen ----------
+   Der Testbetrieb-Hinweis ist ein echter Dialog ueber der ganzen Seite
    und faengt jeden Klick ab. Ein Besucher bestaetigt ihn, also hier auch
-   – sonst prueft der Rest nichts. */
-await page.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+   – sonst prueft der Rest nichts.
+
+   ZWEI DINGE, UND DIE REIHENFOLGE ZAEHLT: Der Testbetrieb-Hinweis
+   erscheint erst, wenn der Cookie-Hinweis weg ist (so gebaut, zwei
+   Dialoge uebereinander sind keiner). Liegt der Cookie-Hinweis noch da,
+   faengt ER die Klicks ab. Am 01.11.2026 stand deshalb im Handy-Teil
+   beides uebereinander, und gemessen wurde eine zur Haelfte verdeckte
+   Seite (Buehne 777 px bei 390 px Fenster).
+
+   Und ueber evaluate() statt click(): Playwrights Trefferpruefung
+   bricht ab, sobald irgendetwas darueber liegt - geprueft werden soll
+   aber der Konfigurator, nicht der Hinweis. */
+async function dialogeWeg(ziel = page) {
+  await ziel.evaluate(() => {
+    var cb = document.getElementById('cookieBanner');
+    if (cb) cb.remove();
+  });
+  for (var i = 0; i < 12; i++) {
+    var weg = await ziel.evaluate(() => {
+      var k = document.getElementById('k3dTestOk');
+      var box = document.getElementById('k3dTestHinweis');
+      if (!box || box.hidden) return true;
+      if (k) { k.click(); return true; }
+      return false;
+    });
+    if (weg) break;
+    await ziel.waitForTimeout(250);
+  }
+  await ziel.waitForTimeout(200);
+}
+await dialogeWeg(page);
 
 
 /* Seit PR #281 fragt das Bedienfeld Schritt fuer Schritt ab: sichtbar ist
@@ -831,24 +867,61 @@ pruef('Bodenbelag wechselt sichtbar', !steinBild.equals(await page.locator('#k3d
    dass etwas kaputt war. Jetzt wird ABGESCHALTET und danach wieder
    eingeschaltet, damit die folgenden Bildvergleiche denselben Stand
    sehen wie vorher. */
-const mitMasse = await page.locator('#k3dCanvas').screenshot();
+/* GEZAEHLT, NICHT NUR VERGLICHEN. Bis zum 01.11.2026 stand hier ein
+   Vergleich zweier Bildschirmfotos auf Gleichheit. Der wurde in der
+   Gegenprobe blind: Seit das Bedienfeld seine Laenge aendert (die
+   Faecherbloecke), verschiebt sich die Buehne beim Umschalten ein
+   wenig - und schon sind die Bilder "verschieden", auch wenn die Masse
+   gar nicht gezeichnet werden. Gezaehlt wird deshalb, WIE VIELE
+   Bildpunkte sich aendern; Masse ueber das halbe Bild sind Tausende,
+   ein Versatz um ein Pixel ist es nicht.
+
+   Zwei Leseraenge der Leinwand, nicht zwanzig - zwanzig haben den Lauf
+   unter Software-Rendering zum Abbruch gebracht (siehe weiter oben). */
+await page.evaluate(() => {
+  window.__lesen = () => {
+    const c = document.getElementById('k3dCanvas');
+    const t = document.createElement('canvas');
+    t.width = c.width; t.height = c.height;
+    t.getContext('2d').drawImage(c, 0, 0);
+    return t.getContext('2d').getImageData(0, 0, t.width, t.height).data;
+  };
+  window.__merk = () => { window.__b = window.__lesen(); return true; };
+  window.__diff = () => {
+    const a = window.__lesen(), b = window.__b;
+    if (!b || a.length !== b.length || a.length === 0) return 0;
+    let n = 0;
+    for (let i = 0; i < a.length; i += 4) {
+      if (Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) +
+          Math.abs(a[i + 2] - b[i + 2]) > 18) n++;
+    }
+    return n;
+  };
+});
+await page.evaluate(() => window.__merk());
 await page.locator('#k3dMasse').scrollIntoViewIfNeeded();
 await page.waitForTimeout(250);
 await page.uncheck('#k3dMasse');
 await page.waitForTimeout(800);
-pruef('Maße lassen sich im Modell abschalten',
-  !mitMasse.equals(await page.locator('#k3dCanvas').screenshot()),
-  'voreingestellt an, Haken weg – Bild muss sich ändern');
+const massWeg = await page.evaluate(() => window.__diff());
+pruef('Maße lassen sich im Modell abschalten', massWeg > 2000,
+  massWeg + ' Bildpunkte geändert – voreingestellt an, Haken weg');
 await haken(page, '#k3dMasse');
 await page.waitForTimeout(800);
 
-// Bedienfeld zuklappen
+/* Bedienfeld zuklappen. ÜBER $eval, NICHT page.click(): Der Knopf liegt
+   oben im Bedienfeld, und je nachdem wie lang das Bedienfeld gerade ist,
+   schiebt sich die Navigationsleiste oder die Leinwand darüber – dann
+   bricht Playwrights Trefferprüfung mit einem Timeout ab. Am 01.11.2026
+   genau so passiert, als die Fächerblöcke das Bedienfeld länger machten.
+   Geprüft wird die WIRKUNG des Knopfes, nicht ob man ihn trifft; dasselbe
+   Vorgehen steht schon beim Moduswechsel weiter oben. */
 const vorher = (await page.locator('.k3d-buehne').boundingBox()).width;
-await page.click('#k3dPanelAn');
+await page.$eval('#k3dPanelAn', (el) => el.click());
 await page.waitForTimeout(600);
 const nachher = (await page.locator('.k3d-buehne').boundingBox()).width;
 pruef('Bedienfeld klappt zu', nachher > vorher + 200, `${Math.round(vorher)} → ${Math.round(nachher)} px`);
-await page.click('#k3dPanelAn');
+await page.$eval('#k3dPanelAn', (el) => el.click());
 await page.waitForTimeout(500);
 
 // Ansicht „Darunter"
@@ -900,111 +973,106 @@ pruef('Montage kommt an', /Selbstmontage/.test(zus));
 
 if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
 
-/* ---------- Welches Element sitzt in welchem Feld? ----------
+/* ---------- Ein Block je Fach ----------
    „man kann aber nur die stirnseite komplett bearbeiten und nicht pro
-   feld" (Betreiber, 01.11.2026). In einer EIGENEN Seite, damit die
-   Breite von 7 m den Lauf oben nicht durcheinanderbringt - dort wird
-   mit 5000 mm gerechnet und das Maß bis in die Anfrage verfolgt.
+   feld" (Betreiber, 01.11.2026) und danach, zur ersten Fassung:
+   „grunglegen klappt es aber die umsetzung ist etwas verwirrend und
+   kompliziert". Jetzt bekommt jedes Fach einen eigenen Block.
 
-   Geprüft wird die WIRKUNG, nicht der Quelltext: Die Zeilen tauchen
-   auf, und das Bild des Modells ändert sich, wenn ein Element einem
-   Feld zugewiesen wird. Den Quelltext prüft scripts/pruefe-feldwahl.js. */
+   In einer EIGENEN Seite, damit der Lauf oben nicht gestört wird.
+   Geprüft wird die WIRKUNG, nicht der Quelltext – wohin ein Klick
+   führt, entscheidet der Browser, und genau dort steckte der Fehler,
+   den die Quelltextprüfung am 01.11.2026 nicht gesehen hat. */
 {
   const fw = await browser.newPage();
   await fw.goto(BASIS, { waitUntil: 'networkidle' });
   await fw.waitForTimeout(1600);
-  await fw.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
-  await fw.waitForTimeout(300);
+  await dialogeWeg(fw);
+  await fw.evaluate(() => { document.getElementById('k3dModus').click(); });
+  await fw.waitForTimeout(600);
+  await alleAufklappen(fw);
 
-  /* ---------- Das + bedient sein Feld ----------
-     DIESE PRUEFUNG HAT DEN FEHLER GEFUNDEN, den die Quelltextpruefung
-     nicht sehen konnte: Der Sprung landete immer auf einem
-     Elementknopf, weil querySelectorAll in der Reihenfolge des
-     DOKUMENTS liefert und nicht in der der Abfrage. Geprüft wird
-     deshalb die WIRKUNG - was nach dem Tippen auf das + und einer
-     Auswahl wirklich in der Zeile steht.
+  /* Bei der Standardbreite 5000 mm hat die Stirnseite bereits zwei
+     Fächer (Mittelpfosten). */
+  const bloecke = await fw.evaluate(() => Array.from(
+    document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach]'))
+    .map(f => f.querySelector('.k3d-fach-kopf').textContent.trim().split(' ').slice(0, 2).join(' ')));
+  pruef('Jedes Fach hat einen eigenen Block mit Namen',
+    bloecke.length === 2 && /rechtes/.test(bloecke[0]) && /linkes/.test(bloecke[1]),
+    bloecke.join(' | ') || 'keine Blöcke');
+  pruef('Die Reihe für die ganze Seite ist dann weg',
+    await fw.evaluate(() => document.querySelector('[data-k3d-erw="vorne"]').hidden),
+    'sonst gäbe es zwei Wege für dieselbe Sache');
 
-     Bei der Standardbreite 5000 mm hat die Stirnseite bereits zwei
-     Fächer (Mittelpfosten), es braucht also keine Umstellung. */
-  const plusFeld2 = await fw.evaluate(() => {
+  /* Das + springt in den Block SEINES Fachs. Genau das ging in der
+     ersten Fassung nicht: querySelectorAll liefert in der Reihenfolge
+     des Dokuments, nicht in der der Abfrage. */
+  await fw.evaluate(() => {
     const k = Array.from(document.querySelectorAll('.k3d-marke'))
       .find(b => /Vorne/.test(b.getAttribute('aria-label') || '') &&
                  /Feld 2 von 2/.test(b.getAttribute('aria-label') || ''));
-    if (!k) return false;
-    k.click();
-    return true;
+    if (k) k.click();
   });
   await fw.waitForTimeout(1000);
-  if (plusFeld2) {
+  pruef('Das + führt in den Block seines Fachs',
     await fw.evaluate(() => {
-      document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Plankenwand"]').click();
-    });
-    await fw.waitForTimeout(1200);
-    const nachPlus = await fw.evaluate(() => {
-      const z = document.querySelector('[data-k3d-erw="vorne"]').parentNode
-        .querySelector('[data-k3d-erw-wert]');
-      return z ? z.textContent.trim() : '';
-    });
-    pruef('Nach dem + landet die Auswahl in diesem Feld',
-      /Plankenwand \(Feld 2\)/.test(nachPlus), nachPlus);
-    /* Zuruecknehmen, damit der Rest dieses Blocks sauber anfaengt. */
-    await fw.evaluate(() => {
-      document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Plankenwand"]').click();
-    });
-    await fw.waitForTimeout(900);
-  } else {
-    pruef('Nach dem + landet die Auswahl in diesem Feld', false,
-      'kein + fuer Feld 2 gefunden');
-  }
-
-  await fw.evaluate(() => {
-    document.querySelectorAll('details.k3d-sek').forEach(d => { d.open = true; });
-    const e = document.getElementById('k3dBreiteZahl');
-    e.value = 7000; e.dispatchEvent(new Event('change', { bubbles: true }));
-  });
-  await fw.waitForTimeout(1400);
-  await fw.evaluate(() => {
-    document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Plankenwand"]').click();
-    document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Schiebet\u00fcr"]').click();
-  });
-  await fw.waitForTimeout(1200);
-  const zeilen = await fw.evaluate(() => Array.from(
-    document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-feld-fuer]'))
-    .map(z => z.getAttribute('data-feld-fuer')));
-  pruef('Bei zwei Feldern vorne gibt es je Element eine Feldwahl',
-    zeilen.length === 2, zeilen.join(' + ') || 'keine Zeile');
+      const a = document.activeElement;
+      const f = a && a.closest ? a.closest('[data-fach]') : null;
+      return !!f && f.getAttribute('data-fach') === '1';
+    }), 'Fokus liegt im zweiten Fach');
 
   const vorher = await fw.locator('#k3dCanvas').screenshot();
   await fw.evaluate(() => {
-    document.querySelector('[data-k3d-feldwahl="vorne"] [data-feld-fuer="Plankenwand"] button[data-feld="0"]').click();
+    const b = Array.from(document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach="0"] button'))
+      .find(x => x.getAttribute('data-erw') === 'Plankenwand');
+    b.click();
   });
-  await fw.waitForTimeout(900);
+  await fw.waitForTimeout(1300);
+  pruef('Die Wahl im Block ändert das Modell',
+    !vorher.equals(await fw.locator('#k3dCanvas').screenshot()),
+    'die Plankenwand steht jetzt im rechten Fach');
+  const stand = await fw.evaluate(() => {
+    const k = document.querySelector('[data-k3d-feldwahl="vorne"]');
+    const voll = f => k.querySelector('[data-fach="' + f + '"] [data-fach-wert]').textContent.trim();
+    const z = document.querySelector('[data-k3d-erw="vorne"]').parentNode
+      .querySelector('[data-k3d-erw-wert]').textContent.trim();
+    return { rechts: voll(0), links: voll(1), zeile: z };
+  });
+  pruef('Die Wahl steht nur in ihrem Fach',
+    stand.rechts === 'Plankenwand' && stand.links === 'offen',
+    'rechts: ' + stand.rechts + ' · links: ' + stand.links);
+  pruef('Die Zusammenfassung nennt das Fach beim Namen',
+    /Plankenwand \(rechtes Fach\)/.test(stand.zeile) && !/Feld \d/.test(stand.zeile),
+    stand.zeile);
+
+  /* Abwählen im Fach nimmt es auch aus der Seite – es sitzt dann
+     nirgends mehr. */
   await fw.evaluate(() => {
-    document.querySelector('[data-k3d-feldwahl="vorne"] [data-feld-fuer="Schiebet\u00fcr"] button[data-feld="1"]').click();
+    const b = Array.from(document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach="0"] button'))
+      .find(x => x.getAttribute('data-erw') === 'Plankenwand');
+    b.click();
   });
   await fw.waitForTimeout(1200);
-  pruef('Die Zuordnung ändert das Modell',
-    !vorher.equals(await fw.locator('#k3dCanvas').screenshot()),
-    'vorher stand beides in beiden Fächern');
-  const beschriftung = await fw.evaluate(() => {
-    const z = document.querySelector('[data-k3d-erw="vorne"]').parentNode
-      .querySelector('[data-k3d-erw-wert]');
-    return z ? z.textContent : '';
-  });
-  pruef('Die Zeile nennt das Feld',
-    /\(Feld 1\)/.test(beschriftung) && /\(Feld 2\)/.test(beschriftung),
-    beschriftung);
-  /* Eine Seite mit nur EINEM Feld darf keine Feldwahl zeigen - sonst
-     stünde im Bedienfeld eine Frage, die keine ist. */
+  pruef('Abwählen im Fach nimmt es ganz weg',
+    await fw.evaluate(() => document.querySelector('[data-k3d-erw="vorne"]').parentNode
+      .querySelector('[data-k3d-erw-wert]').textContent.trim() === 'offen'),
+    'es sitzt dann in keinem Fach mehr');
+
+  /* Eine Seite mit nur EINEM Fach zeigt keine Blöcke, sondern wieder
+     die Reihe für die ganze Seite. */
   await fw.evaluate(() => {
     const e = document.getElementById('k3dBreiteZahl');
     e.value = 3000; e.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await fw.waitForTimeout(1400);
-  const beiEinemFeld = await fw.evaluate(() => document.querySelectorAll(
-    '[data-k3d-feldwahl="vorne"] [data-feld-fuer]').length);
-  pruef('Bei einem Feld gibt es keine Feldwahl', beiEinemFeld === 0,
-    beiEinemFeld + ' Zeile(n) bei 3000 mm Breite');
+  await fw.waitForTimeout(1500);
+  const einFach = await fw.evaluate(() => ({
+    bloecke: document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach]').length,
+    reiheDa: !document.querySelector('[data-k3d-erw="vorne"]').hidden
+  }));
+  pruef('Bei einem Fach gibt es keine Blöcke', einFach.bloecke === 0,
+    einFach.bloecke + ' Block/Blöcke bei 3000 mm Breite');
+  pruef('Bei einem Fach kommt die Seitenreihe zurück', einFach.reiheDa,
+    'sonst liesse sich dort gar nichts mehr wählen');
   await fw.close();
 }
 
@@ -1020,7 +1088,7 @@ const mFehler = [];
 m.on('pageerror', e => mFehler.push(e.message));
 await m.goto(BASIS, { waitUntil: 'networkidle' });
 await m.waitForTimeout(1600);
-await m.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+await dialogeWeg(m);
 await m.$eval('#k3dModus', (el) => el.click());          // wie oben: alles sichtbar, sonst scrollt die Seite nicht
 await m.waitForTimeout(250);
 await alleAufklappen(m);

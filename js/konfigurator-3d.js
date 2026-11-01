@@ -914,20 +914,60 @@
 
   function erwFeldSchluessel(seite, wert) { return seite + '|' + wert; }
 
+  /* In WELCHEN Faechern sitzt ein Element? FELD_ALLE heisst: in allen.
+     Sonst eine Liste von Fachnummern.
+
+     ZWEITE FASSUNG (01.11.2026). Zuerst stand hier EINE Fachnummer je
+     Element - gedacht als der kleinere Weg. Die Bedienung dazu war
+     aber „etwas verwirrend und kompliziert" (Betreiber): erst fuer die
+     ganze Seite waehlen, dann in einer Zeile darunter korrigieren, und
+     dazu ein + , das sich unsichtbar ein Fach merkte. Jetzt wird je
+     Fach gewaehlt - und dafuer muss ein Element in mehreren, aber
+     nicht allen Faechern sitzen koennen. */
   function erwFeldVon(seite, wert) {
     if (!Z.erwFeld) return FELD_ALLE;
     var v = Z.erwFeld[erwFeldSchluessel(seite, wert)];
-    return (v == null) ? FELD_ALLE : v;
+    if (v == null) return FELD_ALLE;
+    /* Ein Teilen-Link vom Vormittag traegt noch eine einzelne Zahl. */
+    return (typeof v === 'number') ? [v] : v;
   }
 
-  function erwFeldSetzen(seite, wert, feld) {
+  function erwImFeld(seite, wert, feldNr) {
+    var f = erwFeldVon(seite, wert);
+    return f === FELD_ALLE || f.indexOf(feldNr) > -1;
+  }
+
+  function erwFeldSetzen(seite, wert, faecher, anzahl) {
     if (!Z.erwFeld) Z.erwFeld = {};
     var k = erwFeldSchluessel(seite, wert);
-    /* Die Vorgabe wird NICHT gespeichert, sondern geloescht: So bleibt
-       der Teilen-Link kurz, und „nichts eingetragen" heisst ueberall
-       dasselbe. */
-    if (feld == null || feld < 0) delete Z.erwFeld[k];
-    else Z.erwFeld[k] = feld;
+    /* „In allen Faechern" wird NICHT gespeichert, sondern geloescht: So
+       bleibt der Teilen-Link kurz, „nichts eingetragen" heisst ueberall
+       dasselbe, und eine Anlage mit nur einem Fach kommt ohne jede
+       Zuordnung aus. */
+    if (faecher === FELD_ALLE || !faecher ||
+        (anzahl && faecher.length >= anzahl)) { delete Z.erwFeld[k]; return; }
+    Z.erwFeld[k] = faecher.slice().sort(function (a, b) { return a - b; });
+  }
+
+  /* Ein Fach an- oder abwaehlen. Gibt zurueck, ob das Element danach
+     ueberhaupt noch irgendwo sitzt - ist es nirgends mehr, faellt es
+     aus der Seite heraus. */
+  function erwFeldUmschalten(seite, wert, feldNr, anzahl) {
+    var f = erwFeldVon(seite, wert);
+    var liste;
+    if (f === FELD_ALLE) {
+      /* Steht es ueberall und man nimmt EIN Fach weg, bleiben die
+         anderen. */
+      liste = [];
+      for (var i = 0; i < anzahl; i++) if (i !== feldNr) liste.push(i);
+    } else {
+      liste = f.slice();
+      var w = liste.indexOf(feldNr);
+      if (w > -1) liste.splice(w, 1);
+      else liste.push(feldNr);
+    }
+    erwFeldSetzen(seite, wert, liste, anzahl);
+    return liste.length > 0;
   }
 
   /* Wie viele Felder hat eine Seite? Wird beim Bauen gefuellt, weil es
@@ -941,10 +981,7 @@
   function erwListeFeld(seite, feldNr) {
     var l = erwListe(seite);
     if (feldNr == null) return l;
-    return l.filter(function (w) {
-      var f = erwFeldVon(seite, w);
-      return f === FELD_ALLE || f === feldNr;
-    });
+    return l.filter(function (w) { return erwImFeld(seite, w, feldNr); });
   }
 
   /* Der Keil gleicht das Gefaelle an den LAENGSseiten aus. Vorne und
@@ -1031,9 +1068,16 @@
       Object.keys(Z.erwFeld).forEach(function (k) {
         var t = k.split('|'), seite = t[0], wert = t[1];
         var gilt = ERW_SEITEN.indexOf(seite) > -1 &&
-                   erwListe(seite).indexOf(wert) > -1 &&
-                   Z.erwFeld[k] < (FELD_ANZAHL[seite] || 1);
-        if (!gilt) delete Z.erwFeld[k];
+                   erwListe(seite).indexOf(wert) > -1;
+        if (!gilt) { delete Z.erwFeld[k]; return; }
+        /* Faecher, die es nicht mehr gibt (Anlage schmaler geworden),
+           fallen weg. Bleibt dann nichts uebrig, gilt wieder „alle
+           Faecher" - sichtbar bleiben ist die sichere Richtung. */
+        var anzahl = FELD_ANZAHL[seite] || 1;
+        var f = erwFeldVon(seite, wert);
+        if (f === FELD_ALLE) return;
+        erwFeldSetzen(seite, wert, f.filter(function (n) {
+          return n >= 0 && n < anzahl; }), anzahl);
       });
     }
   }
@@ -10205,7 +10249,7 @@
        fuehrt. */
     var wahlen = (m.art === 'dach')
       ? ['[data-k3d-schritt="dach"] button, [data-k3d-schritt="dach"] select']
-      : ['[data-k3d-feldwahl="' + m.seite + '"] button[data-feld="' + m.feld + '"]',
+      : ['[data-k3d-feldwahl="' + m.seite + '"] [data-fach="' + m.feld + '"] button',
          '[data-k3d-erw="' + m.seite + '"] button'];
     var ersterTreffer = null;
     for (var w = 0; w < wahlen.length; w++) {
@@ -10223,27 +10267,14 @@
     return ersterTreffer;
   }
 
-  /* ---------- Welches Feld hat den Sprung ausgeloest? ----------
-     „man kann aber nur die stirnseite komplett bearbeiten und nicht
-     pro feld" (Betreiber, 01.11.2026) – bedient werden soll es
-     „ueber das + im Feld".
-
-     Nur zu springen reicht dafuer nicht: Wer auf das + im zweiten Fach
-     tippt und dann „Plankenwand" waehlt, meint die Plankenwand IN
-     DIESEM FACH. Also wird gemerkt, von welchem Feld der Sprung kam,
-     und das NAECHSTE Element, das fuer diese Seite dazukommt, bekommt
-     dieses Feld.
-
-     EINMALIG, dann vergessen: Sonst landete auch eine Auswahl, die
-     eine Viertelstunde spaeter getroffen wird, noch in einem Fach, an
-     das niemand mehr denkt. Wer etwas anderes will, stellt es in der
-     Zeile darunter auf „Alle" oder ein anderes Feld. */
-  var feldGemerkt = null;
-
+  /* Das + MERKT SICH NICHTS MEHR. Bis zum 01.11.2026 nachts hat es
+     sich gemerkt, von welchem Fach der Sprung kam, und das naechste
+     gewaehlte Element landete dort. Das war unsichtbar und galt nur
+     einmal - ein zweiter, verdeckter Weg neben der Auswahl selbst.
+     Jetzt gibt es je Fach einen eigenen Block; das + springt nur noch
+     dorthin, und gewaehlt wird im Block. */
   function markeSpringen(m) {
     var schritt = (m.art === 'dach') ? 'dach' : 'seiten';
-    feldGemerkt = (m.art === 'seite' && (FELD_ANZAHL[m.seite] || 1) > 1)
-      ? { seite: m.seite, feld: m.feld } : null;
     if (gefuehrt) {
       bereichNr = bereichVon(schritt);
       schrittZeigen();
@@ -11685,10 +11716,14 @@
         seiten.push(seite + ': ' + (l.length ? l.map(function (w) {
           return w + erwFeldZusatz(seite, w); }).join(' + ') : 'offen'));
       });
+      /* HIER STAND EIN ERKLAERSATZ: „Felder je Seite … (Feld 1 ist das
+         linke bzw. das hintere)". Dass er noetig war, war das Zeichen,
+         dass die Nummern nichts sagen. Seit die Faecher „rechtes Fach",
+         „linkes Fach", „hinteres Fach" heissen, erklaert sich die Mail
+         von selbst. */
       if (erwSeiten().some(function (seite) { return (FELD_ANZAHL[seite] || 1) > 1; })) {
-        teile.push('Felder je Seite – ' + erwSeiten().map(function (seite) {
-          return seite + ': ' + (FELD_ANZAHL[seite] || 1); }).join(' · ') +
-          ' (Feld 1 ist das linke bzw. das hintere)');
+        teile.push('Faecher je Seite – ' + erwSeiten().map(function (seite) {
+          return seite + ': ' + (FELD_ANZAHL[seite] || 1); }).join(' · '));
       }
       teile.push('Seitenelemente – ' + seiten.join(' · '));
       /* Bei geneigtem Boden sind die Pfosten verschieden lang – genau das
@@ -12585,22 +12620,10 @@
       if (!b || b === reihe) return;
       var wert = b.getAttribute('data-erw');
       if (!wert) return;
-      var vorher = erwListe(seite).indexOf(wert) > -1;
+      /* Diese Reihe gilt fuer die GANZE Seite und ist nur da, solange
+         sie ein einziges Fach hat - bei mehreren blendet
+         feldwahlAnzeigen() sie aus und es wird je Fach gewaehlt. */
       erwUmschalten(seite, wert);
-      var jetzt = erwListe(seite).indexOf(wert) > -1;
-      /* Kam das Element gerade DAZU und wurde der Schritt ueber das +
-         eines bestimmten Feldes erreicht, gehoert es in dieses Feld. */
-      if (!vorher && jetzt && feldGemerkt && feldGemerkt.seite === seite) {
-        erwFeldSetzen(seite, wert, feldGemerkt.feld);
-        /* Mit dem Keil, den erwUmschalten() an den Laengsseiten von
-           selbst dazunimmt, genauso verfahren - sonst saesse die
-           Plankenwand im zweiten Fach und ihr Keil ueber beiden. */
-        if (erwListe(seite).indexOf('Keil') > -1 &&
-            erwFeldVon(seite, 'Keil') === FELD_ALLE && wert !== 'Keil') {
-          erwFeldSetzen(seite, 'Keil', feldGemerkt.feld);
-        }
-        feldGemerkt = null;
-      }
       aendern();
     });
   });
@@ -12864,58 +12887,110 @@
       if (zeile) zeile.textContent = liste.length
         ? liste.map(function (w) { return w + erwFeldZusatz(seite, w); }).join(' · ')
         : 'offen';
-      feldwahlAnzeigen(seite, liste);
+      feldwahlAnzeigen(seite, reihe);
     });
   }
 
-  /* „ (Feld 2)" hinter einem Element – aber nur, wenn es etwas zu
-     unterscheiden gibt. Steht ueberall dasselbe, ist der Zusatz nur
-     Ballast. */
-  function erwFeldZusatz(seite, wert) {
-    var f = erwFeldVon(seite, wert);
-    if (f === FELD_ALLE || (FELD_ANZAHL[seite] || 1) < 2) return '';
-    return ' (Feld ' + (f + 1) + ')';
+  /* ---------- Wie heisst ein Fach? ----------
+     NICHT „Feld 1 / Feld 2". Dass ich in die Anfrage-Mail einen Satz
+     schreiben musste, welches Feld 1 ist, war das Zeichen, dass die
+     Nummer nichts sagt - „die umsetzung ist etwas verwirrend und
+     kompliziert" (Betreiber, 01.11.2026).
+
+     Die Reihenfolge kommt aus dem Bauen, nicht aus dem Gefuehl: Vorne
+     und hinten laufen die Faecher nach steigendem x, und +x ist in
+     diesem Modell die LINKE Seite (siehe eineSeite('links', B / 2 ...)).
+     Fach 0 liegt also rechts. An den Laengsseiten laufen sie von der
+     Wand nach vorne, Fach 0 liegt hinten. */
+  function feldName(seite, i, anzahl) {
+    if (!anzahl || anzahl < 2) return '';
+    var laengs = (seite === 'links' || seite === 'rechts');
+    if (anzahl === 2) {
+      return (laengs ? ['hinteres Fach', 'vorderes Fach']
+                     : ['rechtes Fach', 'linkes Fach'])[i];
+    }
+    if (anzahl === 3) {
+      return (laengs ? ['hinteres Fach', 'mittleres Fach', 'vorderes Fach']
+                     : ['rechtes Fach', 'mittleres Fach', 'linkes Fach'])[i];
+    }
+    return (i + 1) + '. Fach von ' + (laengs ? 'hinten' : 'rechts');
   }
 
-  /* ---------- Die Zeilen „in welchem Feld?" ----------
-     Sie entstehen nur, wenn die Seite mehr als ein Feld hat und
-     ueberhaupt etwas gewaehlt ist.
+  /* „ (rechtes Fach)" hinter einem Element – aber nur, wenn es etwas
+     zu unterscheiden gibt. Sitzt es in allen Faechern, ist der Zusatz
+     nur Ballast. */
+  function erwFeldZusatz(seite, wert) {
+    var anzahl = FELD_ANZAHL[seite] || 1;
+    var f = erwFeldVon(seite, wert);
+    if (f === FELD_ALLE || anzahl < 2) return '';
+    return ' (' + f.map(function (i) { return feldName(seite, i, anzahl); })
+                   .join(' + ') + ')';
+  }
 
-     NEU GEBAUT WIRD NUR, WENN SICH ETWAS GEAENDERT HAT. erwAnzeigen()
-     laeuft bei jeder Aenderung; wuerde hier jedes Mal innerHTML neu
-     gesetzt, verloere ein Knopf unter dem Finger seinen Fokus –
-     dieselbe Falle wie bei den Knoepfen der Tastaturliste. */
-  function feldwahlAnzeigen(seite, liste) {
+  /* ---------- Ein Block je Fach ----------
+     „grunglegen klappt es aber die umsetzung ist etwas verwirrend und
+     kompliziert" (Betreiber, 01.11.2026). Verworfen wurde damit die
+     erste Fassung: Auswahl fuer die ganze Seite, darunter eine Zeile
+     zum Korrigieren, und ein +, das sich unsichtbar ein Fach merkte -
+     zwei Wege fuer dieselbe Sache, einer davon unsichtbar.
+
+     Jetzt gibt es bei mehreren Faechern je Fach einen eigenen Block mit
+     denselben Knoepfen. Man waehlt dort, wo es hingehoert. Die Zeile
+     fuer die ganze Seite wird dann ausgeblendet – sonst waeren es
+     wieder zwei Wege.
+
+     NEU GEBAUT WIRD NUR BEI AENDERUNG: erwAnzeigen() laeuft bei jeder
+     Aenderung; wuerde hier jedes Mal innerHTML neu gesetzt, verloere
+     ein Knopf unter dem Finger seinen Fokus. */
+  function feldwahlAnzeigen(seite, reihe) {
     var kasten = document.querySelector('[data-k3d-feldwahl="' + seite + '"]');
     if (!kasten) return;
     var anzahl = FELD_ANZAHL[seite] || 1;
-    var stand = anzahl + '#' + (anzahl > 1 ? liste.join(',') : '');
+    var moeglich = erwMoeglich(seite);
+    /* Bei einem Fach bleibt alles wie frueher: eine Reihe fuer die
+       Seite, kein Block, keine Frage. */
+    if (reihe) reihe.hidden = anzahl > 1;
+    var stand = anzahl + '#' + moeglich.join(',');
     if (kasten.getAttribute('data-stand') !== stand) {
       kasten.setAttribute('data-stand', stand);
       var html = '';
       if (anzahl > 1) {
-        liste.forEach(function (wert) {
-          html += '<div class="k3d-feldzeile" data-feld-fuer="' + wert + '">' +
-                  '<span>' + wert + '</span><span class="k3d-seg">' +
-                  '<button type="button" data-feld="' + FELD_ALLE + '">Alle</button>';
-          for (var i = 0; i < anzahl; i++) {
-            html += '<button type="button" data-feld="' + i + '">Feld ' + (i + 1) + '</button>';
-          }
-          html += '</span></div>';
-        });
+        for (var i = 0; i < anzahl; i++) {
+          html += '<div class="k3d-fach" data-fach="' + i + '">' +
+                  '<span class="k3d-fach-kopf">' + feldName(seite, i, anzahl) +
+                  ' <span data-fach-wert>offen</span></span>' +
+                  '<div class="k3d-seg k3d-seg--2">';
+          moeglich.forEach(function (wert) {
+            html += '<button type="button" data-erw="' + wert + '">' +
+                    wert + '<small></small></button>';
+          });
+          html += '</div></div>';
+        }
       }
       kasten.innerHTML = html;
     }
-    /* Der Stand wird IMMER nachgezogen, auch wenn die Zeilen stehen
-       bleiben – sonst bliebe nach einem Klick der alte Knopf golden. */
-    Array.prototype.forEach.call(kasten.querySelectorAll('[data-feld-fuer]'), function (z) {
-      var wert = z.getAttribute('data-feld-fuer');
-      var jetzt = erwFeldVon(seite, wert);
-      Array.prototype.forEach.call(z.querySelectorAll('button[data-feld]'), function (b) {
-        var an = Number(b.getAttribute('data-feld')) === jetzt;
-        b.classList.toggle('is-active', an);
-        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+    if (anzahl < 2) return;
+    Array.prototype.forEach.call(kasten.querySelectorAll('[data-fach]'), function (block) {
+      var nr = Number(block.getAttribute('data-fach'));
+      var imFach = erwListeFeld(seite, nr);
+      Array.prototype.forEach.call(block.querySelectorAll('button[data-erw]'), function (b) {
+        var wert = b.getAttribute('data-erw');
+        var drin = imFach.indexOf(wert) > -1;
+        b.classList.toggle('is-active', drin);
+        b.setAttribute('aria-pressed', drin ? 'true' : 'false');
+        /* Unvertraeglich ist jetzt eine Frage JE FACH: Eine Plankenwand
+           im einen und eine Rahmenwand im anderen Fach stoeren einander
+           nicht. */
+        var blocker = drin ? null : erwBlocker(wert, imFach);
+        var gesperrt = drin && wert === 'Keil' && erwKeilGesperrt(seite, imFach);
+        b.disabled = !!blocker;
+        b.classList.toggle('ist-gesperrt', !!blocker || gesperrt);
+        var note = b.querySelector('small');
+        if (note) note.textContent = blocker ? 'nicht mit ' + blocker
+                                             : (gesperrt ? 'erforderlich' : '');
       });
+      var wert = block.querySelector('[data-fach-wert]');
+      if (wert) wert.textContent = imFach.length ? imFach.join(' · ') : 'offen';
     });
   }
 
@@ -12925,19 +13000,34 @@
       kasten.addEventListener('click', function (ev) {
         var b = ev.target;
         while (b && b !== kasten && b.tagName !== 'BUTTON') b = b.parentNode;
-        if (!b || b === kasten) return;
-        var zeile = b.closest ? b.closest('[data-feld-fuer]') : null;
-        if (!zeile) return;
-        erwFeldSetzen(seite, zeile.getAttribute('data-feld-fuer'),
-                      Number(b.getAttribute('data-feld')));
-        /* Wer hier von Hand zuordnet, hat die Frage beantwortet – das
-           gemerkte Feld darf nicht noch einmal zuschlagen. */
-        feldGemerkt = null;
+        if (!b || b === kasten || b.disabled) return;
+        var block = b.closest ? b.closest('[data-fach]') : null;
+        if (!block) return;
+        var nr = Number(block.getAttribute('data-fach'));
+        var wert = b.getAttribute('data-erw');
+        var anzahl = FELD_ANZAHL[seite] || 1;
+        if (erwListe(seite).indexOf(wert) === -1) {
+          /* Noch gar nicht an dieser Seite: hinzufuegen und NUR diesem
+             Fach geben. erwUmschalten() nimmt an den Laengsseiten von
+             selbst den Keil dazu - der gehoert dann in dasselbe Fach,
+             sonst saesse die Wand in einem Fach und ihr Keil ueber
+             beiden. */
+          var vorKeil = erwListe(seite).indexOf('Keil') > -1;
+          erwUmschalten(seite, wert);
+          if (erwListe(seite).indexOf(wert) === -1) return;   // blockiert
+          erwFeldSetzen(seite, wert, [nr], anzahl);
+          if (!vorKeil && erwListe(seite).indexOf('Keil') > -1) {
+            erwFeldSetzen(seite, 'Keil', [nr], anzahl);
+          }
+        } else if (!erwFeldUmschalten(seite, wert, nr, anzahl)) {
+          /* In keinem Fach mehr – dann faellt es ganz weg. */
+          erwUmschalten(seite, wert);
+        }
         aendern();
       });
     });
 
-  // Farbfelder
+  // Farbfelder  // Farbfelder
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
     b.addEventListener('click', function () {
       farbeSetzen(b.getAttribute('data-k3d-farbe'));
