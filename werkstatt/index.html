@@ -503,19 +503,49 @@
        Liegt über der Bühne, nicht im Bedienfeld: Der Weg vom „das ist
        mir zu schmal" zur neuen Zahl soll kurz sein. Die Lage setzt
        massOeffnen() und hält den Kasten dabei ganz im Bild. */
+    /* BREITE: 230 px, nicht 190. GEMESSEN am 01.11.2026: „Abbrechen"
+       braucht 83 px, „Übernehmen" 97 px, dazwischen 7 px Abstand - das
+       sind 187 px, bei 190 px Kastenbreite abzüglich 24 px Polster
+       blieben 164 px. „Übernehmen" ragte 10 px nach rechts heraus
+       („da guckt der rechte button raus", Betreiber). Dazu darf die
+       Knopfreihe jetzt umbrechen: Schriftgrößen sind auf jedem Gerät
+       anders, und ein Knopf unter dem anderen ist lesbar - einer, der
+       aus dem Kasten ragt, nicht. */
     .k3d-masseingabe {
-      position: absolute; z-index: 6; width: 190px;
+      position: absolute; z-index: 6; width: 230px; box-sizing: border-box;
       background: rgba(255,255,255,.97); color: var(--black);
       border: 1px solid var(--border); border-radius: 10px;
       padding: 11px 12px; box-shadow: 0 8px 26px rgba(0,0,0,.26);
       font-size: .82rem;
     }
     .k3d-masseingabe-t { display: block; font-weight: 700; margin-bottom: 6px; }
-    .k3d-masseingabe input { width: 100%; }
+    .k3d-masseingabe-zeile { display: flex; gap: 6px; align-items: stretch; }
+    .k3d-masseingabe-zeile input { flex: 1 1 auto; min-width: 0; text-align: center; }
+    /* EIGENE SCHALTER STATT DER BROWSER-PFEILCHEN. Die sind winzig, auf
+       jedem Gerät anders und am Handy GAR NICHT DA - dort kennt
+       type=number keine Pfeile. Wer die Zahl ändern will, soll etwas
+       zum Drücken sehen. Gedrückt halten läuft weiter, sonst wären es
+       von 5000 auf 6000 hundert Klicks. */
+    .k3d-masseingabe-pm {
+      flex: 0 0 auto; width: 36px; border: 1px solid var(--border);
+      background: #fff; border-radius: 7px; color: var(--black);
+      cursor: pointer; display: grid; place-items: center;
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
+    }
+    .k3d-masseingabe-pm:hover { border-color: var(--gold); }
+    .k3d-masseingabe-pm:active { background: #f3ede0; border-color: var(--gold); }
+    .k3d-masseingabe-pm .bvs { width: 17px; height: 17px; }
+    /* Zwei Bedienungen für dieselbe Sache wären eine zu viel. */
+    .k3d-masseingabe input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+    .k3d-masseingabe input[type=number]::-webkit-outer-spin-button,
+    .k3d-masseingabe input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
     .k3d-masseingabe-mini { margin: 5px 0 9px; font-size: .72rem; color: var(--muted); }
-    .k3d-masseingabe-wege { display: flex; gap: 7px; }
+    .k3d-masseingabe-wege { display: flex; flex-wrap: wrap; gap: 7px; }
     .k3d-masseingabe-wege button {
-      flex: 1; border: 1px solid var(--border); background: #fff;
+      flex: 1 1 auto; min-width: 0; white-space: nowrap;
+      border: 1px solid var(--border); background: #fff;
       border-radius: 7px; padding: 6px 8px; font: inherit; font-size: .78rem;
       cursor: pointer;
     }
@@ -956,7 +986,7 @@
   <symbol id="bvs-tag" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2"/><path d="M12 19.3v2.2"/><path d="M2.5 12h2.2"/><path d="M19.3 12h2.2"/><path d="M5.2 5.2l1.6 1.6"/><path d="M17.2 17.2l1.6 1.6"/><path d="M18.8 5.2l-1.6 1.6"/><path d="M6.8 17.2l-1.6 1.6"/></symbol>
   <symbol id="bvs-drehen" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4.5V9h-4.5"/></symbol>
   <symbol id="bvs-neuladen" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5V9h4.5"/></symbol>
-  <symbol id="bvs-punkt" viewBox="0 0 24 24"><path d="M12 6.5v11"/><path d="M6.5 12h11"/></symbol>
+  <symbol id="bvs-punkt" viewBox="0 0 24 24"><path d="M12 6.5v11"/><path d="M6.5 12h11"/></symbol><symbol id="bvs-strich" viewBox="0 0 24 24"><path d="M6.5 12h11"/></symbol>
   <symbol id="bvs-stift" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.8L15.8 5.3l2.9 2.9L8.3 18.6z"/><path d="M13.9 7.2l2.9 2.9"/></symbol>
   <symbol id="bvs-links" viewBox="0 0 24 24"><path d="M14.5 5.5L8 12l6.5 6.5"/></symbol>
   <symbol id="bvs-rechts" viewBox="0 0 24 24"><path d="M9.5 5.5L16 12l-6.5 6.5"/></symbol>
@@ -2062,7 +2092,13 @@
     <div class="k3d-masseingabe" id="k3dMassEingabe" role="dialog"
          aria-labelledby="k3dMassLabel" hidden>
       <label class="k3d-masseingabe-t" id="k3dMassLabel" for="k3dMassWert">Breite in mm</label>
-      <input type="number" id="k3dMassWert" inputmode="numeric" class="k3d-zahl">
+      <div class="k3d-masseingabe-zeile">
+        <button type="button" class="k3d-masseingabe-pm" id="k3dMassMinus"
+                aria-label="Maß verkleinern"><svg class="bvs" aria-hidden="true"><use href="#bvs-strich"></use></svg></button>
+        <input type="number" id="k3dMassWert" inputmode="numeric" class="k3d-zahl">
+        <button type="button" class="k3d-masseingabe-pm" id="k3dMassPlus"
+                aria-label="Maß vergrößern"><svg class="bvs" aria-hidden="true"><use href="#bvs-punkt"></use></svg></button>
+      </div>
       <p class="k3d-masseingabe-mini" id="k3dMassGrenzen"></p>
       <div class="k3d-masseingabe-wege">
         <button type="button" id="k3dMassAb">Abbrechen</button>
@@ -2267,13 +2303,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101j" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101k" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261101j" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261101k" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

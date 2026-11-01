@@ -91,6 +91,9 @@ if (GEGENPROBE) {
     /* Fuenfter Fehler: Das Band haengt nur noch am Ziehen, nicht an der
        Auswahl - nach dem Loslassen stuende dort nichts mehr. */
     t = t.replace('var w = PF_ZIEHT || PF_WAHL;', 'var w = PF_ZIEHT;');
+    /* Sechster Fehler: Die eigenen Schalter am Masskasten tun nichts -
+       genau der Zustand, den der Betreiber am 01.11.2026 gemeldet hat. */
+    t = t.replace('        massHalten(paar[1]);', '        void paar;');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
   await page.route('**/anfrage-wizard.js*', async (r) => {
@@ -610,6 +613,81 @@ await page.waitForTimeout(1200);
 pruef('Die Breite steht wieder auf dem Stand von vorher',
   (await page.$eval('#k3dBreiteZahl', (e) => e.value)) === pfBreiteVorher,
   `${pfBreiteVorher} mm`);
+
+/* ---------- Der Kasten zum Maß ändern ----------
+   „da guckt der rechte button raus und die zahl lässt sich nicht
+   ändern" (Betreiber, 01.11.2026, mit Bild). GEMESSEN: Der Kasten war
+   190 px breit, die beiden Knöpfe brauchten 187 px plus 24 px Polster -
+   „Übernehmen" ragte 10 px nach rechts heraus.
+
+   Geprüft wird mit dem LÄNGSTEN Titel, den es gibt: Bei „Breite in mm"
+   wäre nichts aufgefallen. Der Kasten wird dafür von Hand aufgedeckt -
+   wo im Bild gerade ein Maßschild steht, ist Zufall, und darum geht es
+   hier nicht. */
+if (GEGENPROBE) {
+  /* GENAU DER ALTE ZUSTAND: 190 px breit, und die Knopfreihe darf
+     weder umbrechen noch schrumpfen. Die Breite allein reicht als
+     eingebauter Fehler nicht mehr - seit die Reihe umbrechen darf,
+     rutscht „Übernehmen" bei 190 px einfach in die zweite Zeile und
+     ragt nirgends heraus. Das ist die Absicht der Änderung; der Fehler
+     muss deshalb auch das Umbrechen wieder abschalten. */
+  await page.addStyleTag({ content:
+    '#k3dMassEingabe{width:190px!important}' +
+    '.k3d-masseingabe-wege{flex-wrap:nowrap!important}' +
+    '.k3d-masseingabe-wege button{flex:0 0 auto!important}' });
+  await page.waitForTimeout(200);
+}
+await page.evaluate(() => {
+  const k = document.getElementById('k3dMassEingabe');
+  document.getElementById('k3dMassLabel').textContent = 'Höhe vorne (Durchgang) in mm';
+  document.getElementById('k3dMassGrenzen').textContent = '2000 bis 2700 mm';
+  const i = document.getElementById('k3dMassWert');
+  i.min = '2000'; i.max = '2700'; i.step = '10'; i.value = '2300';
+  k.hidden = false;
+  k.style.left = '20px';
+  k.style.top = '20px';
+});
+await page.waitForTimeout(300);
+const massRaus = await page.evaluate(() => {
+  const k = document.getElementById('k3dMassEingabe');
+  const b = k.getBoundingClientRect();
+  const raus = [];
+  ['k3dMassLabel', 'k3dMassMinus', 'k3dMassWert', 'k3dMassPlus',
+   'k3dMassGrenzen', 'k3dMassAb', 'k3dMassOk'].forEach((id) => {
+    const e = document.getElementById(id).getBoundingClientRect();
+    const r = Math.round(Math.max(e.right - b.right, b.left - e.left,
+                                  e.bottom - b.bottom, b.top - e.top));
+    if (r > 0) raus.push(id + ' ' + r + 'px');
+  });
+  return { breit: Math.round(b.width), raus: raus };
+});
+pruef('Im Maßkasten ragt nichts heraus', massRaus.raus.length === 0,
+  massRaus.raus.length ? `${massRaus.breit} px breit, draußen: ${massRaus.raus.join(', ')}`
+    : `${massRaus.breit} px breit, alle sieben Teile drin`);
+
+/* Die Zahl muss sich ändern lassen - mit etwas, das man sieht und
+   trifft. Die Pfeilchen des Browsers sind acht Bildpunkte hoch und am
+   Handy gar nicht da. */
+const massWert = () => page.$eval('#k3dMassWert', (e) => e.value);
+await page.click('#k3dMassPlus');
+await page.waitForTimeout(220);
+const massPlus = await massWert();
+await page.click('#k3dMassMinus');
+await page.click('#k3dMassMinus');
+await page.waitForTimeout(220);
+const massMinus = await massWert();
+pruef('Die Zahl lässt sich über die eigenen Schalter ändern',
+  massPlus === '2310' && massMinus === '2290',
+  `2300 → ${massPlus} → ${massMinus}`);
+
+/* Und die Grenzen halten: Unter 2000 darf der Minus-Schalter nicht. */
+await page.$eval('#k3dMassWert', (e) => { e.value = '2000'; });
+await page.click('#k3dMassMinus');
+await page.waitForTimeout(220);
+pruef('Die eigenen Schalter halten sich an die Grenzen',
+  (await massWert()) === '2000', `Mindestmaß 2000, danach ${await massWert()}`);
+await page.evaluate(() => { document.getElementById('k3dMassEingabe').hidden = true; });
+await page.waitForTimeout(200);
 
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
@@ -1354,6 +1432,8 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Im Maßkasten ragt nichts heraus',
+  'Die Zahl lässt sich über die eigenen Schalter ändern',
   'Ziehen am Pfosten verschiebt den Pfosten',
   'Ziehen am Pfosten dreht die Kamera nicht',
   'Das Band nennt beide Feldmasse',

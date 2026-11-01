@@ -10927,3 +10927,67 @@ Hülle muss erscheinen) und dann ziehen — der Spielraum muss jetzt deutlich
 größer sein. Danach ohne Auswahl über den Pfosten ziehen: Das Modell soll sich
 nur drehen, der Pfosten nicht wandern. Und am Handy: Lässt sich das Modell noch
 bequem drehen, auch wenn der Finger auf einem Pfosten aufsetzt?
+
+## 01.11.2026 (abends) — Der Maßkasten: ein Knopf ragte heraus, die Zahl ließ sich schlecht ändern
+
+**Anlass.** „da guckt der rechte button raus und die zahl lässt sich nicht
+ändern" (Betreiber, 01.11.2026, mit Bild).
+
+### Der herausragende Knopf
+
+**Gemessen:** Der Kasten war **190 px** breit, abzüglich 24 px Polster blieben
+164 px. „Abbrechen" braucht 83 px, „Übernehmen" 97 px, dazwischen 7 px Abstand
+— **187 px**. Da `flex: 1` einen Knopf nicht unter seine Textbreite schrumpfen
+lässt, ragte „Übernehmen" **10 px** nach rechts aus dem Kasten.
+
+Jetzt 230 px breit — und, wichtiger, die Knopfreihe **darf umbrechen**
+(`flex-wrap: wrap`). Schriftgrößen sind auf jedem Gerät anders; ein Knopf unter
+dem anderen ist lesbar, einer der aus dem Kasten ragt nicht. Geprüft wird mit
+dem **längsten** Titel, den es gibt („Höhe vorne (Durchgang) in mm") — bei
+„Breite in mm" wäre nichts aufgefallen.
+
+### Die Zahl
+
+Hier musste ich erst herausfinden, was überhaupt kaputt ist. **Tippen
+funktionierte** im Versuch einwandfrei (5000 → 6000, Pfeiltaste → 6010). Was
+**nicht** funktionierte, war der Griff, den das Bild zeigt: die kleinen
+Pfeilchen, die der Browser an ein `type=number`-Feld hängt.
+
+**Was ich NICHT behaupten kann:** dass diese Pfeilchen im richtigen Browser
+kaputt sind. Im Prüfbrowser reagieren sie auf keinen der beiden Konfigurator-
+Eingaben — auch nicht am Zahlenfeld im Bedienfeld, das nie beanstandet wurde.
+Das ist ein Werkzeugproblem, kein Befund. Nachgewiesen ist also nur: **der
+Knopf ragte heraus**; beim Ändern der Zahl bin ich dem gefolgt, was das Bild
+nahelegt.
+
+**Gebaut wurde trotzdem — und unabhängig davon, woran es lag:** Links und
+rechts vom Feld stehen jetzt **eigene Schalter** (− und +, aus unserer
+Zeichensammlung; `bvs-strich` kam dafür dazu). Gründe, die unabhängig von der
+Fehlersuche gelten:
+
+- Die Pfeilchen des Browsers sind rund **acht Bildpunkte** hoch — kein Ziel für
+  einen Finger und keines für eine ungenaue Maus.
+- **Am Handy gibt es sie gar nicht.** `type=number` zeigt dort keine Pfeile.
+  Wer das Maß am Telefon ändern will, hatte nur die Tastatur.
+- Sie sehen auf jedem Gerät anders aus und gehören damit nicht zu unserer
+  Gestaltung.
+
+Die Pfeilchen des Browsers sind jetzt ausgeblendet — zwei Bedienungen für
+dieselbe Sache wären eine zu viel. **Gedrückt halten läuft weiter** und
+beschleunigt ab der fünfzehnten Stufe auf Fünferschritte: Die Schrittweite kommt
+vom Regler und ist 10 mm, von 5000 auf 6000 wären es sonst hundert Klicks.
+Gemessen: 1,5 s Halten ergibt 400 mm. Der Druck auf den Schalter nimmt dem
+Zahlenfeld **nicht den Fokus** (`preventDefault`), sonst klappte am Handy die
+Tastatur zu.
+
+**Die Grenzen halten:** Der Schalter geht nicht unter das Mindest- und nicht
+über das Höchstmaß. Das ist zusätzlich zur Begrenzung im Zahlenfeld, über das
+„Übernehmen" weiterhin läuft — zwei Wege, die dasselbe tun, laufen sonst
+auseinander.
+
+**Gegenlesen:** Maß im Bild antippen, dann mit − und + verstellen (auch
+gedrückt halten), und am Handy dasselbe. Steht „Übernehmen" ganz im Kasten?
+
+**Offen:** Falls die Zahl sich weiterhin nicht ändern lässt, brauche ich einen
+Satz dazu, **was genau** nicht geht — tippen, die Schalter, oder übernimmt
+„Übernehmen" den Wert nicht? Die drei haben verschiedene Ursachen.
