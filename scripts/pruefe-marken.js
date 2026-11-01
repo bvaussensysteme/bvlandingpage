@@ -122,8 +122,10 @@ var FEHLER = [
   ['Das Zeichen traegt keinen Verweis auf sein Feld', 'js',
    '    z.userData.feldMarke = marke;', '    void marke;'],
   ['Das Zeichen wird beliebig klein', 'js',
-   '    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3));',
+   '    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3)) *\n             FELD_ZEICHEN_ANTEIL;',
    '    var gr = Math.min(laenge, hoehe) / 30;'],
+  ['Das Zeichen ist wieder so gross wie vorher', 'js',
+   '  var FELD_ZEICHEN_ANTEIL = 2 / 3;', '  var FELD_ZEICHEN_ANTEIL = 1;'],
   ['Die Flaeche schneidet weg, was dahinter liegt', 'js',
    '      transparent: true, opacity: ruhe, depthWrite: false',
    '      transparent: true, opacity: ruhe, depthWrite: true'],
@@ -425,9 +427,16 @@ function lauf(q) {
     /z\.userData\.feldMarke = marke;/.test(q.js),
     'userData.feldMarke – daran findet der Klick sein Ziel');
 
+  /* „passt mach die + 1/3 kleiner" (Betreiber, 01.11.2026). Verkleinert
+     wird das ERGEBNIS, also auch die beiden Grenzen - würde nur geteilt,
+     bliebe ein kleines Feld bei den alten 14 cm stehen. Auf die Bedienung
+     wirkt sich das nicht aus: Angeklickt wird die ganze Feldfläche. */
   p('Das Zeichen hat ein Mindest- und ein Hoechstmass',
-    /var gr = Math\.max\(14, Math\.min\(34, Math\.min\(laenge, hoehe\) \/ 3\)\);/.test(q.js),
-    'nie kleiner als 14 cm, nie groesser als 34 cm');
+    /var gr = Math\.max\(14, Math\.min\(34, Math\.min\(laenge, hoehe\) \/ 3\)\) \*\s*\n\s*FELD_ZEICHEN_ANTEIL;/.test(q.js),
+    'ein Drittel der kurzen Seite, gedeckelt auf 14 bis 34 cm');
+  p('Das Zeichen ist um ein Drittel kleiner',
+    /var FELD_ZEICHEN_ANTEIL = 2 \/ 3;/.test(q.js),
+    'zwei Drittel der früheren Groesse, also 9,3 bis 22,7 cm');
 
   p('Die Flaeche schneidet nicht weg, was dahinter liegt',
     /transparent: true, opacity: ruhe, depthWrite: false/.test(q.js),

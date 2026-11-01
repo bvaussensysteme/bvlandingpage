@@ -4221,9 +4221,18 @@
     feldGruppe.add(f);
 
     /* Das Zeichen: ein Drittel der kurzen Seite, aber nie so klein,
-       dass man es am Handy nicht mehr trifft, und nie so groß, dass es
-       das Feld füllt. */
-    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3));
+       dass es verschwindet, und nie so groß, dass es das Feld füllt.
+
+       DAVON NOCH EIN DRITTEL AB – „passt mach die + 1/3 kleiner"
+       (Betreiber, 01.11.2026). Verkleinert wird das ERGEBNIS, also auch
+       die beiden Grenzen; würde nur geteilt, bliebe ein kleines Feld
+       bei den alten 14 cm stehen und wäre gar nicht kleiner geworden.
+
+       Auf die Bedienung hat das keine Auswirkung: Angeklickt wird die
+       ganze Feldfläche, nicht das Zeichen darin. */
+    var FELD_ZEICHEN_ANTEIL = 2 / 3;
+    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3)) *
+             FELD_ZEICHEN_ANTEIL;
     /* WELCHES Zeichen, entscheidet markenZeichen() – dieselbe Regel wie
        in der Knopfliste. Nicht noch einmal „belegt ? stift : punkt"
        hier: Das Dach ist immer belegt, aber die Regel steht an EINER

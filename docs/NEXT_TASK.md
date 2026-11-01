@@ -174,8 +174,11 @@ Projektion je Bild, `markeSichtbar()`, `markenVerdeckungPruefen()`,
   `pointermove`, sonst bliebe es stehen.
 - **Das Zeichen** ist eine gezeichnete Fläche, kein Sprite und kein
   Schriftzeichen: Ein Sprite drehte sich wieder zur Kamera, und das war die
-  Beschwerde. 14 bis 34 cm groß, 1,2 cm vor der Feldfläche, damit beide
-  nicht um dieselbe Tiefe streiten.
+  Beschwerde. 9,3 bis 22,7 cm groß („mach die + 1/3 kleiner", Betreiber,
+  01.11.2026 – verkleinert wird das Ergebnis samt seiner Grenzen, sonst
+  bliebe ein kleines Feld beim alten Mindestmaß stehen), 1,2 cm vor der
+  Feldfläche, damit beide nicht um dieselbe Tiefe streiten. Auf die
+  Bedienung wirkt die Größe nicht: Angeklickt wird die ganze Feldfläche.
 - **Die Form ist die des alten Knopfes** – leer eine helle Scheibe mit
   Goldring und goldenem **+**, belegt eine goldene Scheibe mit weißem
   **Stift**. „nur das alte design von den + hat mir mehr gefallen und am
@@ -245,8 +248,8 @@ mit 500 ms wäre jeder bedächtige Tipp ins Leere gelaufen.
   verzieht das nicht mehr nur die Punkte, sondern das ganze Bild.
 - Lage: `markenFelder()` in `js/konfigurator-3d.js`, mit denselben Achsen, mit
   denen `eineSeite()` baut.
-- Geprüft von **`scripts/pruefe-marken.js`** (61 Prüfungen, Gegenprobe mit
-  64 einzeln eingebauten Fehlern, alle bemerkt).
+- Geprüft von **`scripts/pruefe-marken.js`** (62 Prüfungen, Gegenprobe mit
+  65 einzeln eingebauten Fehlern, alle bemerkt).
 
 **Beim ersten Bauen schiefgegangen** (steht hier, damit es niemand wiederholt):
 Die Hülle über der Leinwand und das Häkchen im Bedienfeld trugen beide die
