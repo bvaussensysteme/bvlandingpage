@@ -963,8 +963,18 @@ pruefe('Massschild kleiner als vorher',
        'Sprite-Hoehe 24 -> 14');
 pruefe('Schrift nicht mehr fett',
        gegen ? /bold 40px Arial/.test(src) : !/bold 40px Arial/.test(src), '');
+/* GEPRUEFT WIRD DIE ABSICHT, NICHT EINE ZAHL. Hier stand bis zum
+   01.11.2026 die feste Deckkraft .62 - und als sie am selben Tag auf
+   .52 ging (Commit "Masse voreingestellt an und im Bild anklickbar"),
+   wurde diese Pruefung rot, ohne dass es jemandem auffiel. Eine
+   Pruefung, die an einer Zahl haengt, die sich bewusst aendern darf,
+   meldet den falschen Fehler. Jetzt gilt: weniger deckend als die .86
+   von frueher, und ueberhaupt vorhanden. */
+var kastenDeck = src.match(/g\.fillStyle = 'rgba\(17,17,17,\.(\d+)\)'/);
 pruefe('Kasten weniger deckend',
-       new RegExp(q || "rgba\\(17,17,17,\\.62\\)").test(src), 'vorher .86');
+       gegen ? !(kastenDeck && Number('0.' + kastenDeck[1]) < 0.86)
+             : !!(kastenDeck && Number('0.' + kastenDeck[1]) < 0.86),
+       kastenDeck ? 'jetzt .' + kastenDeck[1] + ', frueher .86' : 'keine Deckkraft gefunden');
 pruefe('Masslinie duenner',
        new RegExp(q || 'opacity: 0\\.55').test(src), '');
 

@@ -2854,9 +2854,14 @@ pruefe('RAL-Feld ist breit genug',
      in ein .forEach zu laufen: Dieselbe Aufteilung tragen jetzt auch die
      Anklickpunkte (markenFelder). Geprueft wird weiter dasselbe – EINE
      Aufteilung fuer links UND rechts. Lagen es zwei, koennten die Seiten
-     auseinanderlaufen, ohne dass es im Bild sofort auffaellt. */
+     auseinanderlaufen, ohne dass es im Bild sofort auffaellt.
+
+     Das Fenster ist weit (1800 Zeichen): Seit dem 01.11.2026 steht
+     zwischen beiden das Zaehlen der Felder (FELD_ANZAHL) und das
+     Aufraeumen der Feldzuordnung. Beides DARF dort stehen - geprueft
+     wird, dass EINE Aufteilung beide Laengsseiten speist. */
   pruefe('Beide Längsseiten kommen aus derselben Aufteilung',
-         new RegExp(q || "var felderLR = seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\);[\\s\\S]{0,120}felderLR\\.forEach\\(function \\(f, i\\) \\{[\\s\\S]{0,200}eineSeite\\('links'[\\s\\S]{0,200}eineSeite\\('rechts'").test(js),
+         new RegExp(q || "var felderLR = seitenFelder\\(hinten, vorne, unterzugZcm, PROFIL\\);[\\s\\S]{0,1800}felderLR\\.forEach\\(function \\(f, i\\) \\{[\\s\\S]{0,200}eineSeite\\('links'[\\s\\S]{0,200}eineSeite\\('rechts'").test(js),
          'links und rechts im selben Durchlauf');
 
   /* ---------- Der Keil bleibt in seinem Feld ----------
