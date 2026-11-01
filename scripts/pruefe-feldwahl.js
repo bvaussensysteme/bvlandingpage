@@ -88,14 +88,26 @@ var FEHLER = [
    '    erwAnzeigen();\n    neuZeichnen();', '    neuZeichnen();'],
 
   /* ---------- Namen statt Nummern ---------- */
-  ['Die Faecher tragen wieder Nummern statt Namen', 'js',
-   "      return (laengs ? ['hinteres Fach', 'vorderes Fach']",
-   "      return (laengs ? ['Feld 1', 'Feld 2']"],
-  ['Laengsseiten und Stirnseiten bekommen dieselben Namen', 'js',
-   "                     : ['rechtes Fach', 'linkes Fach'])[i];",
-   "                     : ['hinteres Fach', 'vorderes Fach'])[i];"],
+  ['Die Faecher tragen wieder Himmelsrichtungen statt Nummern', 'js',
+   "    return 'Feld ' + (i + 1);", "    return 'rechtes Fach';"],
+  ['Die Zaehlung beginnt bei 0', 'js',
+   "    return 'Feld ' + (i + 1);", "    return 'Feld ' + i;"],
   ['Bei einem Fach wird trotzdem ein Name vergeben', 'js',
    "    if (!anzahl || anzahl < 2) return '';", "    if (false) return '';"],
+  ['Ein Fach wird gegen die ganze Seite geprueft', 'js',
+   '      if (erwBlocker(wert, imFach)) return false;',
+   '      if (erwBlocker(wert, erwListe(seite))) return false;'],
+  ['Der Fachklick laeuft wieder ueber erwUmschalten', 'js',
+   '        if (erwFachSetzen(seite, wert, nr, anzahl, !drin)) aendern();',
+   '        erwUmschalten(seite, wert); aendern();'],
+  ['Der Keil landet nicht im Fach seines Elements', 'js',
+   "        erwFachSetzen(seite, 'Keil', nr, anzahl, true);", '        void nr;'],
+  ['Ein Element bleibt stehen, obwohl es in keinem Fach mehr sitzt', 'js',
+   '      var w = liste.indexOf(wert);\n      if (w > -1) liste.splice(w, 1);',
+   '      var w = liste.indexOf(wert);\n      void w;'],
+  ['Die Anfrage sagt nicht, wo Feld 1 liegt', 'js',
+   "            ? 'Feld 1 an der Wand' : 'Feld 1 rechts';",
+   "            ? '' : '';"],
   ['Der Zusatz steht auch bei nur einem Fach', 'js',
    "    if (f === FELD_ALLE || anzahl < 2) return '';",
    "    if (f === FELD_ALLE) return '';"],
@@ -116,15 +128,6 @@ var FEHLER = [
    "        var drin = imFach.indexOf(wert) > -1;\n        void drin;"],
   ['Die Namensfunktion ist nicht mehr auffindbar', 'js',
    '  function feldName(seite, i, anzahl) {', '  function feldNamen(seite, i, anzahl) {'],
-  ['Bei drei Faechern fehlt das mittlere', 'js',
-   "      return (laengs ? ['hinteres Fach', 'mittleres Fach', 'vorderes Fach']",
-   "      return (laengs ? ['hinteres Fach', 'zweites Fach', 'vorderes Fach']"],
-  ['Bei vielen Faechern wird von der falschen Seite gezaehlt', 'js',
-   "    return (i + 1) + '. Fach von ' + (laengs ? 'hinten' : 'rechts');",
-   "    return (i + 1) + '. Fach von ' + (laengs ? 'vorne' : 'links');"],
-  ['Die Stirnseiten tragen wieder Nummern', 'js',
-   "                     : ['rechtes Fach', 'linkes Fach'])[i];",
-   "                     : ['Feld 1', 'Feld 2'])[i];"],
   ['Das + merkt sich wieder ein Fach', 'js',
    '  function markeSpringen(m) {',
    '  var feldGemerkt = null;\n  function markeSpringen(m) {'],
@@ -132,12 +135,7 @@ var FEHLER = [
    '        var blocker = drin ? null : erwBlocker(wert, imFach);',
    '        var blocker = drin ? null : erwBlocker(wert, erwListe(seite));'],
   ['Ein neues Element landet in allen Faechern', 'js',
-   '          erwFeldSetzen(seite, wert, [nr], anzahl);', '          void nr;'],
-  ['Der Keil bleibt in allen Faechern', 'js',
-   "            erwFeldSetzen(seite, 'Keil', [nr], anzahl);", '            void 0;'],
-  ['Das letzte Fach abzuwaehlen laesst das Element stehen', 'js',
-   '        } else if (!erwFeldUmschalten(seite, wert, nr, anzahl)) {',
-   '        } else if (false) {'],
+   '        erwFeldSetzen(seite, wert, [nr], anzahl);', '        void nr;'],
   ['Ein gesperrter Knopf wirkt trotzdem', 'js',
    '        if (!b || b === kasten || b.disabled) return;',
    '        if (!b || b === kasten) return;'],
@@ -209,28 +207,24 @@ function lauf(q) {
     p('feldName() laesst sich ausfuehren', true, 'aus js/konfigurator-3d.js herausgeschnitten');
     p('Bei einem Fach gibt es keinen Namen',
       q.name('vorne', 0, 1) === '', '"' + q.name('vorne', 0, 1) + '"');
-    p('Vorne heisst Fach 0 rechts und Fach 1 links',
-      q.name('vorne', 0, 2) === 'rechtes Fach' && q.name('vorne', 1, 2) === 'linkes Fach',
+    /* „Es ist nicht linkes Feld und rechtes Feld, sondern es heisst
+       Feld 1 und 2 … desto hoeher die Breite wird, desto mehr Felder
+       kommen dazu" (Betreiber, 01.11.2026). Ich hatte es mit
+       „rechtes/linkes Fach" gebaut - das traegt bei zweien, nicht bei
+       fuenf. */
+    p('Die Faecher heissen Feld 1, Feld 2 und so weiter',
+      q.name('vorne', 0, 2) === 'Feld 1' && q.name('vorne', 1, 2) === 'Feld 2',
       q.name('vorne', 0, 2) + ' / ' + q.name('vorne', 1, 2));
-    p('An den Laengsseiten heisst Fach 0 hinten',
-      q.name('links', 0, 2) === 'hinteres Fach' && q.name('links', 1, 2) === 'vorderes Fach',
-      q.name('links', 0, 2) + ' / ' + q.name('links', 1, 2));
-    p('Bei drei Faechern gibt es ein mittleres',
-      q.name('vorne', 1, 3) === 'mittleres Fach' && q.name('links', 1, 3) === 'mittleres Fach',
-      q.name('vorne', 0, 3) + ' / ' + q.name('vorne', 1, 3) + ' / ' + q.name('vorne', 2, 3));
-    p('Bei mehr als drei Faechern wird von der benannten Seite gezaehlt',
-      /^1\. Fach von rechts$/.test(q.name('vorne', 0, 4)) &&
-      /^1\. Fach von hinten$/.test(q.name('links', 0, 4)),
-      q.name('vorne', 0, 4) + ' / ' + q.name('links', 0, 4));
-    p('Kein Fach heisst "Feld 1"',
+    p('Die Zaehlung beginnt bei 1, nicht bei 0',
+      q.name('vorne', 0, 5) === 'Feld 1' && q.name('vorne', 4, 5) === 'Feld 5',
+      q.name('vorne', 0, 5) + ' … ' + q.name('vorne', 4, 5));
+    p('Alle Seiten zaehlen gleich',
       ['vorne', 'hinten', 'links', 'rechts'].every(function (seite) {
-        return [2, 3, 4].every(function (n) {
-          for (var i = 0; i < n; i++) {
-            if (/^Feld \d/.test(q.name(seite, i, n))) return false;
-          }
-          return true;
-        });
-      }), 'Nummern sagen nicht, welches Fach gemeint ist');
+        return q.name(seite, 2, 4) === 'Feld 3';
+      }), 'auch an den Laengsseiten Feld 1, 2, 3 …');
+    p('Die Namen tragen auch bei vielen Faechern',
+      q.name('vorne', 7, 8) === 'Feld 8',
+      'eine Nummer waechst mit, ein Richtungsname nicht');
   }
 
   /* ---------- Vorgabe: ohne Zuordnung gilt ueberall ---------- */
@@ -314,18 +308,41 @@ function lauf(q) {
   p('Der Stand der Faecher wird immer nachgezogen',
     /var drin = imFach\.indexOf\(wert\) > -1;\s*\n\s*b\.classList\.toggle\('is-active', drin\);/.test(q.js),
     'sonst bliebe nach dem Klick der alte Knopf golden');
-  p('Unvertraegliches wird JE FACH geprueft',
+  /* ---------- Ein Fach ist ein Fach fuer sich ----------
+     „Die Felder untereinander sind komplett getrennte Felder … wenn
+     ich in einem Feld Velaris habe, kann ich in dem zweiten, dritten,
+     vierten, fuenften Feld alles andere reinmachen" (Betreiber,
+     01.11.2026).
+
+     ZWEI STELLEN, UND BEIDE MUESSEN ES TUN: Die Knoepfe sahen schon
+     richtig aus - dort wurde je Fach geprueft -, aber das Umschalten
+     lief ueber erwUmschalten() und fragte gegen die ganze Seite. Von
+     aussen war das ein Knopf, der sich druecken liess und nichts tat. */
+  p('Unvertraegliches wird am KNOPF je Fach geprueft',
     /var blocker = drin \? null : erwBlocker\(wert, imFach\);/.test(q.js),
-    'Plankenwand im einen und Rahmenwand im anderen Fach stoeren einander nicht');
+    'Velaris im einen und Schiebetuer im anderen Fach stoeren einander nicht');
+  p('Unvertraegliches wird beim UMSCHALTEN je Fach geprueft',
+    /if \(erwBlocker\(wert, imFach\)\) return false;/.test(q.js),
+    'sonst sperrte ein Fach das andere, obwohl der Knopf offen aussah');
+  p('Der Fachklick geht nicht ueber erwUmschalten',
+    /if \(erwFachSetzen\(seite, wert, nr, anzahl, !drin\)\) aendern\(\);/.test(q.js) &&
+    !/erwUmschalten\(seite, wert\);\s*\n?\s*aendern\(\);\s*\n\s*\}\);\s*\n\s*\}\);/.test(
+      q.js.slice(q.js.indexOf('data-k3d-feldwahl]'))),
+    'erwUmschalten() fragt gegen die ganze Seite');
+  p('Der Keil landet im Fach seines Elements',
+    /erwFachSetzen\(seite, 'Keil', nr, anzahl, true\);/.test(q.js),
+    'sonst saesse die Wand in einem Fach und ihr Keil ueber allen');
+  /* MIT DER VORZEILE: dieselbe Zeile steht auch in erwFeldUmschalten(),
+     wo w eine Fachnummer ist. Ohne Kontext bliebe die Pruefung gruen. */
+  p('Ein Element, das in keinem Fach mehr sitzt, faellt aus der Seite',
+    /var w = liste\.indexOf\(wert\);\s*\n\s*if \(w > -1\) liste\.splice\(w, 1\);/.test(q.js),
+    'sonst stuende es in der Anfrage, ohne irgendwo zu sein');
+  p('Die Anfrage sagt, wo Feld 1 liegt',
+    /\? 'Feld 1 an der Wand' : 'Feld 1 rechts';/.test(q.js),
+    'in der Mail steht kein Modell daneben, bestellt wird danach');
   p('Ein neu gewaehltes Element landet nur in seinem Fach',
     /erwFeldSetzen\(seite, wert, \[nr\], anzahl\);/.test(q.js),
     'gewaehlt wird dort, wo es hingehoert');
-  p('Der Keil folgt seinem Element ins Fach',
-    /erwFeldSetzen\(seite, 'Keil', \[nr\], anzahl\);/.test(q.js),
-    'sonst saesse die Wand in einem Fach und ihr Keil ueber beiden');
-  p('Das letzte Fach abzuwaehlen nimmt das Element ganz weg',
-    /\} else if \(!erwFeldUmschalten\(seite, wert, nr, anzahl\)\) \{[\s\S]{0,200}?erwUmschalten\(seite, wert\);/.test(q.js),
-    'sonst bliebe es in der Seitenliste stehen, ohne irgendwo zu sitzen');
   p('Ein gesperrter Knopf wirkt nicht',
     /if \(!b \|\| b === kasten \|\| b\.disabled\) return;/.test(q.js),
     'disabled allein reicht bei einem Zuhoerer am Kasten nicht');

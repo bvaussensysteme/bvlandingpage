@@ -1031,6 +1031,56 @@
     liste.sort(function (a, b) { return ERW_OPTS.indexOf(a) - ERW_OPTS.indexOf(b); });
   }
 
+  /* ---------- Ein Fach ist ein Fach fuer sich ----------
+     „Die Felder untereinander sind komplett getrennte Felder und pro
+     jedes Feld kann man einzeln entscheiden, was man da rein möchte. In
+     einem Feld gilt, dass das Velaris mit dem oder dem anderen nicht
+     kompatibel ist. Aber wenn ich in einem Feld Velaris habe, kann ich
+     in dem zweiten, dritten, vierten, fünften Feld alles andere
+     reinmachen" (Betreiber, 01.11.2026).
+
+     BIS DAHIN LIEF AUCH DER FACHKLICK UEBER erwUmschalten(), und das
+     fragt erwBlocker() gegen die Liste der GANZEN SEITE: Ein Velaris im
+     ersten Fach sperrte die Schiebetuer im zweiten. Die Knoepfe sahen
+     richtig aus - dort wurde schon je Fach geprueft -, nur das
+     Umschalten selbst nicht. Von aussen war das ein Knopf, der sich
+     drücken liess und nichts tat.
+
+     Gibt zurueck, ob sich etwas geaendert hat. */
+  function erwFachSetzen(seite, wert, nr, anzahl, an) {
+    var liste = erwListe(seite);
+    var imFach = erwListeFeld(seite, nr);
+    var drin = imFach.indexOf(wert) > -1;
+    if (!!an === drin) return false;
+    if (an) {
+      /* Unvertraeglich NUR gegen das, was in DIESEM Fach steht. */
+      if (erwBlocker(wert, imFach)) return false;
+      if (liste.indexOf(wert) === -1) {
+        liste.push(wert);
+        liste.sort(function (a, b) { return ERW_OPTS.indexOf(a) - ERW_OPTS.indexOf(b); });
+        erwFeldSetzen(seite, wert, [nr], anzahl);
+      } else {
+        erwFeldUmschalten(seite, wert, nr, anzahl);
+      }
+      /* Der Keil gleicht das Aussengefaelle aus und gehoert damit in DAS
+         Fach, in dem das Element steht - nicht ueber die ganze Seite. */
+      if (seite !== 'vorne' && seite !== 'hinten' && keilErlaubt() &&
+          ERW_BRAUCHT_KEIL.indexOf(wert) > -1 &&
+          erwListeFeld(seite, nr).indexOf('Keil') === -1) {
+        erwFachSetzen(seite, 'Keil', nr, anzahl, true);
+      }
+      return true;
+    }
+    if (wert === 'Keil' && erwKeilGesperrt(seite, imFach)) return false;
+    if (!erwFeldUmschalten(seite, wert, nr, anzahl)) {
+      /* In keinem Fach mehr - dann faellt es ganz aus der Seite. */
+      var w = liste.indexOf(wert);
+      if (w > -1) liste.splice(w, 1);
+      if (Z.erwFeld) delete Z.erwFeld[erwFeldSchluessel(seite, wert)];
+    }
+    return true;
+  }
+
   /* Beim Produktwechsel fällt weg, was es beim neuen Produkt nicht gibt.
      Der Assistent löscht beim Produktwechsel die ganze Konfiguration
      (resetConfig); hier genügt es, das Unmögliche zu entfernen, weil das
@@ -11722,8 +11772,19 @@
          „linkes Fach", „hinteres Fach" heissen, erklaert sich die Mail
          von selbst. */
       if (erwSeiten().some(function (seite) { return (FELD_ANZAHL[seite] || 1) > 1; })) {
+        /* Die Nummer allein reicht in der Mail nicht: Dort steht kein
+           Modell daneben, und bestellt wird nach dieser Angabe. */
         teile.push('Faecher je Seite – ' + erwSeiten().map(function (seite) {
-          return seite + ': ' + (FELD_ANZAHL[seite] || 1); }).join(' · '));
+          var n = FELD_ANZAHL[seite] || 1;
+          /* Wo Feld 1 liegt, steht HIER und nicht in einer eigenen
+             Funktion: Im ersten Anlauf lag die neben feldName() weit
+             unten, und der Mailtext brach mit „feldRichtung is not a
+             function" ab - gemessen im Browser. Eine Zeile am Ort ihrer
+             Verwendung kann das nicht passieren. */
+          var wo = (seite === 'links' || seite === 'rechts')
+            ? 'Feld 1 an der Wand' : 'Feld 1 rechts';
+          return seite + ': ' + n + (n > 1 ? ' (' + wo + ')' : '');
+        }).join(' · '));
       }
       teile.push('Seitenelemente – ' + seiten.join(' · '));
       /* Bei geneigtem Boden sind die Pfosten verschieden lang – genau das
@@ -12892,28 +12953,22 @@
   }
 
   /* ---------- Wie heisst ein Fach? ----------
-     NICHT „Feld 1 / Feld 2". Dass ich in die Anfrage-Mail einen Satz
-     schreiben musste, welches Feld 1 ist, war das Zeichen, dass die
-     Nummer nichts sagt - „die umsetzung ist etwas verwirrend und
-     kompliziert" (Betreiber, 01.11.2026).
+     „Es ist nicht linkes Feld und rechtes Feld, sondern es heißt Feld 1
+     und 2 … desto höher die Breite wird, desto mehr Felder kommen dazu"
+     (Betreiber, 01.11.2026).
 
-     Die Reihenfolge kommt aus dem Bauen, nicht aus dem Gefuehl: Vorne
-     und hinten laufen die Faecher nach steigendem x, und +x ist in
-     diesem Modell die LINKE Seite (siehe eineSeite('links', B / 2 ...)).
-     Fach 0 liegt also rechts. An den Laengsseiten laufen sie von der
-     Wand nach vorne, Fach 0 liegt hinten. */
+     ICH HATTE ES ANDERS GEBAUT und lag damit falsch: „rechtes/linkes
+     Fach" funktioniert bei zweien und bei dreien, aber nicht bei fünf -
+     und die gibt es, sobald die Anlage breit genug ist. Eine Nummer
+     waechst mit, ein Himmelsrichtungsname nicht.
+
+     GEZAEHLT WIRD IN DER REIHENFOLGE DES BAUENS: Vorne und hinten nach
+     steigendem x, an den Laengsseiten von der Wand nach vorne. Welches
+     Ende das ist, steht in der Anfrage-Mail - fuer die Bestellung muss
+     es eindeutig sein. */
   function feldName(seite, i, anzahl) {
     if (!anzahl || anzahl < 2) return '';
-    var laengs = (seite === 'links' || seite === 'rechts');
-    if (anzahl === 2) {
-      return (laengs ? ['hinteres Fach', 'vorderes Fach']
-                     : ['rechtes Fach', 'linkes Fach'])[i];
-    }
-    if (anzahl === 3) {
-      return (laengs ? ['hinteres Fach', 'mittleres Fach', 'vorderes Fach']
-                     : ['rechtes Fach', 'mittleres Fach', 'linkes Fach'])[i];
-    }
-    return (i + 1) + '. Fach von ' + (laengs ? 'hinten' : 'rechts');
+    return 'Feld ' + (i + 1);
   }
 
   /* „ (rechtes Fach)" hinter einem Element – aber nur, wenn es etwas
@@ -13006,24 +13061,10 @@
         var nr = Number(block.getAttribute('data-fach'));
         var wert = b.getAttribute('data-erw');
         var anzahl = FELD_ANZAHL[seite] || 1;
-        if (erwListe(seite).indexOf(wert) === -1) {
-          /* Noch gar nicht an dieser Seite: hinzufuegen und NUR diesem
-             Fach geben. erwUmschalten() nimmt an den Laengsseiten von
-             selbst den Keil dazu - der gehoert dann in dasselbe Fach,
-             sonst saesse die Wand in einem Fach und ihr Keil ueber
-             beiden. */
-          var vorKeil = erwListe(seite).indexOf('Keil') > -1;
-          erwUmschalten(seite, wert);
-          if (erwListe(seite).indexOf(wert) === -1) return;   // blockiert
-          erwFeldSetzen(seite, wert, [nr], anzahl);
-          if (!vorKeil && erwListe(seite).indexOf('Keil') > -1) {
-            erwFeldSetzen(seite, 'Keil', [nr], anzahl);
-          }
-        } else if (!erwFeldUmschalten(seite, wert, nr, anzahl)) {
-          /* In keinem Fach mehr – dann faellt es ganz weg. */
-          erwUmschalten(seite, wert);
-        }
-        aendern();
+        var drin = erwListeFeld(seite, nr).indexOf(wert) > -1;
+        /* NICHT erwUmschalten(): Das fragt gegen die ganze Seite und
+           sperrte damit ein Fach wegen des Inhalts eines anderen. */
+        if (erwFachSetzen(seite, wert, nr, anzahl, !drin)) aendern();
       });
     });
 
