@@ -10711,3 +10711,126 @@ der Unterschied steht an einer Stelle, die man beim Aufräumen leicht
 Scheibe. Die Linien **im** Zeichen bleiben bei 4,2; dick sollten sie ja
 werden.
 
+
+## 01.11.2026 — Zwischenpfosten verschieben, Toleranz aus der eigenen Maßtabelle
+
+**Anlass.** „kann man außer die eckpfosten die zwischenpfosten verschieben
+innerhalb den erlaubten toleranzen" (Betreiber, 01.11.2026, mit Bildschirmfoto
+eines Wettbewerber-Konfigurators).
+
+**Gewählt wurde** (nach Rückfrage): die Grenze wird aus unserer eigenen
+Maßtabelle **hergeleitet**, bedient wird durch **Ziehen am Modell plus Zahl im
+Bedienfeld**.
+
+### Woher die Toleranz kommt
+
+Eine Herstellerangabe „Achsabstand von … bis …" liegt uns nicht vor. Was
+vorliegt, ist die Maßtabelle: je Breite eine Pfostenzahl. Daraus folgt die
+Spanne von selbst — die kleinste Breite, die mit dieser Pfostenzahl noch
+auskommt, nennt den **größten** zulässigen Achsabstand nicht, sondern den
+kleinsten; die größte Breite derselben Spalte den größten. Gerechnet wird
+Achse zu Achse, also Breite minus **einer** Pfostenbreite, geteilt durch die
+Zahl der Felder (`achsGrenzenMm()` in `js/konfigurator-3d.js`).
+
+**Gemessen im Browser (01.11.2026), rein aus `window.BV_MASSTABELLE`:**
+
+| Breite | Pfosten | hergeleitete Spanne | gleichmäßig |
+|---|---|---|---|
+| 5.000 mm | 3 | 2.195–3.645 mm | 2.445 mm |
+| 7.000 mm | 3 | 2.195–3.645 mm | 3.445 mm |
+| 8.000 mm | 4 | 2.657–3.163 mm | 2.630 mm |
+| 10.000 mm | 5 | 2.492–3.492 mm | 2.473 mm |
+| 12.000 mm | 5 | 2.492–3.492 mm | 2.973 mm |
+
+**Die 8.000-mm-Zeile ist der Grund für eine Sonderregel.** Dort lag der
+hergeleitete Mindestabstand (2.657 mm) **über** dem, was die Anlage ohne jede
+Verschiebung schon hat (2.630 mm) — weil 8.000 mm auf das Tabellenmaß 8.080 mm
+aufrundet. Ein winziger Versatz hätte den Pfosten weit springen lassen. Also
+gilt: **die gleichmäßige Verteilung gehört immer zur erlaubten Spanne.** Was wir
+heute ohne Versatz bauen, ist per Definition zulässig.
+
+**Offen für den Betreiber:** Die Spanne ist *abgeleitet*, nicht belegt. Die
+Frage nach dem wirklich zulässigen Achsabstand gehört in die Rückfragen an den
+Hersteller. Bis dahin steht unter dem Bedienfeld, woher die Zahl kommt, und
+dass beim Aufmaß die Lage verbindlich festgelegt wird.
+
+### Der Fehler, den erst die Rechnung gezeigt hat
+
+Die erste Fassung hat jeden Pfosten der Reihe nach **zwischen seine beiden
+Nachbarn geklemmt**. Das sieht richtig aus und ist es nicht: Steht der rechte
+Nachbar zu dicht, schiebt die obere Grenze den Pfosten unter seine untere — das
+**linke** Feld wird dabei zu klein, und dem linken Nachbarn fällt es nicht auf,
+weil bei *ihm* alles passt.
+
+**Gemessen mit 4.000 Zufallsfällen: 1.413 endeten außerhalb der Toleranz**, im
+schlimmsten Fall mit einem Feld von 1.458 mm bei erlaubten 2.195 mm. Im
+Quelltext war davon nichts zu sehen; gefunden hat es erst der Zufallsversuch in
+`scripts/pruefe-pfosten.js`, der jetzt dauerhaft mitläuft.
+
+**Jetzt wird in Feldbreiten gerechnet** (`achsenKlemmen()`): erst jedes Feld
+einzeln in die Toleranz, dann die fehlende oder überzählige Breite auf die
+Felder verteilen, die in diese Richtung noch Luft haben. Ein Durchgang genügt
+dafür rechnerisch — weil die gleichmäßige Verteilung immer in der Toleranz
+liegt, ist das Fehlende nie größer als die vorhandene Luft, jedes Feld bekommt
+also höchstens seinen eigenen Abstand zur Grenze dazu. **0 von 4.000 Fällen
+außerhalb.**
+
+### Bedienung
+
+- **Ziehen am Modell.** Der Pfosten unter dem Zeiger wird greifbar (Zeiger
+  wechselt auf `ew-resize`), beim Ziehen zeigt ein Band Achsmaß **und** lichte
+  Breite der beiden Nachbarfelder. Nahe der gleichmäßigen Lage rastet er ein
+  (25 mm) — sie ist der Normalfall und muss ohne Zittern wieder erreichbar sein.
+- **Gezogen wird auf einer Ebene, die zur Kamera zeigt**, nicht auf der Ebene
+  der Pfostenreihe. Eine feste Ebene wäre beim Blick von der Seite fast parallel
+  zum Strahl — der Pfosten sprang dann bei der kleinsten Mausbewegung über die
+  ganze Breite.
+- **Der Griff hat Vorrang vor dem Drehen.** Wer den Pfosten anfasst, dreht nicht
+  die Kamera. Nachgewiesen im Browser: nach dem Ziehen und Zurückstellen auf die
+  gleichmäßige Lage ist das Bild **Pixel für Pixel** dasselbe wie vorher; bei
+  abgeschaltetem Griff (Gegenprobe) nicht.
+- **Eckpfosten lassen sich nicht greifen**, und eine Reihe ohne Spielraum auch
+  nicht — sonst hinge man an einem Pfosten, der sich nicht rührt.
+- **Im Bedienfeld** je Zwischenpfosten ein Regler mit der Lage in Millimetern
+  von links, darunter **zwei** Zahlenreihen: Achsmaße und lichte Breiten. Beide
+  braucht es — bestellt und aufgemaßt wird von Achse zu Achse, durchgegangen
+  und möbliert wird die lichte Weite; eine Zahl allein würde die andere
+  stillschweigend mitbehaupten.
+- **Die Reglergrenzen hängen an der wirklichen Lage der Nachbarn**, nicht an der
+  gleichmäßigen. Steht Pfosten 1 schon weit links, darf Pfosten 2 weiter nach
+  links als sonst. Sonst zeigte der Regler eine Spanne an, die das Klemmen
+  anschließend wieder zurechtschiebt — zwei Wahrheiten.
+
+### Was mitgeht, wenn der Pfosten verschoben ist
+
+- **Teilen-Link** trägt die Lage mit (`d.pv`). Ohne sie zeigte der geteilte Link
+  eine gleichmäßig verteilte Reihe — und genau die würde dann angefragt und
+  gebaut. Ein Link von vor dem 01.11.2026 ergibt leere Verzeichnisse, also
+  gleichmäßige Pfosten wie damals.
+- **Anfrage und Kurzfassung** nennen die **Achsmaße** („Pfosten vorne von Achse
+  zu Achse: … / … mm (nicht gleichmäßig verteilt)"), denn danach wird gebohrt.
+  Gleichmäßige Pfosten werden nicht gemeldet.
+- **Wechselt die Pfostenzahl** (andere Breite, anderes Produkt), wird der
+  gespeicherte Versatz weggeräumt. Ein Versatz von 600 mm bedeutet bei drei
+  Pfosten etwas völlig anderes als bei fünf. Aufgeräumt wird beim Bauen, weil
+  erst dort die Zahl feststeht.
+
+### Nebenbefund: ein Prüftext, der zweimal in der Datei stand
+
+Zwei fremde Prüfungen wurden von meiner Arbeit stumm: `pruefe-marken.js` suchte
+`if (nimmtDenBlick([treffer[i]])) return null;` und `b.hidden = false;` — beide
+Sätze gibt es seit heute **zweimal** (bei den Feldmarken und beim Greifen der
+Pfosten bzw. beim Zieh-Band). Der eingebaute Fehler traf die eine Stelle, die
+Prüfung fand die andere und blieb grün. Beide sind jetzt verankert. Dieselbe
+Falle hat in meinem eigenen Prüfskript siebenmal zugeschlagen — darum steht
+jede Gegenprobe dort mit Vorzeile.
+
+**Verworfen:** die Klasse `.k3d-pfostenband` für das Zieh-Band. Sie enthält
+`k3d-pfosten` als Teilwort, und `pruefe-fuehrung.js` sucht Klassennamen als
+Teilzeichenfolge — die Prüfung „Jede versteckbare Einheit hat ihre
+[hidden]-Regel" wurde davon fälschlich rot. Heißt jetzt `.k3d-ziehband`.
+
+**Gegenlesen:** Bei 7.000 mm Breite den Mittelpfosten im Modell greifen und
+ziehen — er darf nur seitlich laufen, die Ansicht darf nicht kippen, und in der
+Mitte soll er einrasten. Dann den Teilen-Link öffnen und prüfen, ob die Pfosten
+dort genauso stehen.

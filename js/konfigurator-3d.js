@@ -184,6 +184,21 @@
        gestern und eine Anlage mit nur einem Feld verhalten sich
        unverändert. */
     erwFeld: {},
+    /* ---------- Zwischenpfosten verschieben ----------
+       „kann man außer die eckpfosten die zwischenpfosten verschieben
+       innerhalb den erlaubten toleranzen" (Betreiber, 01.11.2026, mit
+       Bild eines Wettbewerbers).
+
+       Gespeichert wird der VERSATZ in Millimetern gegenüber der
+       gleichmäßigen Verteilung, je Reihe und Pfostennummer:
+       { vorne: { "1": -200 }, hinten: {} }.
+
+       Versatz und nicht absolute Lage: Wird die Anlage breiter oder
+       schmaler, wäre eine absolute Lage plötzlich falsch; ein Versatz
+       bleibt sinnvoll und wird nur gekappt, wenn er aus der Toleranz
+       fällt. Die Eckpfosten tragen nie einen Versatz – sie stehen am
+       Rand, dort gibt es nichts zu verschieben. */
+    pfostenVersatz: { vorne: {}, hinten: {} },
 
     led: false,
     ledset: '8er-Set',
@@ -3265,6 +3280,311 @@
     return xs;
   }
 
+  /* ---------- Wie weit darf ein Zwischenpfosten wandern? ----------
+     „innerhalb den erlaubten toleranzen" (Betreiber, 01.11.2026) – und
+     genau die sind der wunde Punkt: Eine Herstellerangabe für den
+     größten zulässigen Achsabstand haben wir NICHT.
+
+     ABGELEITET AUS DER MASSTABELLE SELBST, und nur daraus: Steht in der
+     Preisliste für eine bestimmte Pfostenzahl eine größte Breite, dann
+     ist der Achsabstand bei dieser Breite einer, den VD selbst zulässt.
+     Dasselbe nach unten mit der kleinsten Breite derselben Spalte.
+     Beispiel TDS/Glas mit 3 Pfosten: Die Tabelle führt sie von 4500 bis
+     7400 mm – der Achsabstand darf also zwischen (4500−110)/2 = 2195 mm
+     und (7400−110)/2 = 3645 mm liegen.
+
+     Das ist eine AUSLEGUNG unserer eigenen Daten, keine Zusage des
+     Herstellers. Sie steht als Rückfrage auf der VD-Liste
+     (daten/rueckfragen-an-vd.md). Sagt VD etwas anderes, ändert sich
+     hier eine Zahl und sonst nichts.
+
+     Gibt null zurück, wenn sich nichts herleiten lässt (keine Tabelle,
+     nur eine Breite in der Spalte, keine Zwischenpfosten) – dann bleibt
+     es bei der gleichmäßigen Verteilung. */
+  function achsGrenzenMm(anzahl, randCm) {
+    if (!(anzahl > 2)) return null;
+    var g = tabelleGruppe();
+    var tb = g ? tabelleBauteile(Z.breite, Z.tiefe) : null;
+    if (!g || !tb) return null;
+    /* Die Tiefenregel kostet einen Pfosten und gilt über alle Breiten
+       gleich – sie kürzt sich beim Vergleich also heraus. */
+    var zusatz = tb.pfosten - tb.stuetzfuesse;
+    var minB = null, maxB = null;
+    Object.keys(g.breiten).forEach(function (k) {
+      if (g.breiten[k][1] + zusatz !== anzahl) return;
+      var b = Number(k);
+      if (minB === null || b < minB) minB = b;
+      if (maxB === null || b > maxB) maxB = b;
+    });
+    if (minB === null || maxB === minB) return null;
+    /* Die Achsen liegen um eine halbe Pfostenbreite nach innen versetzt
+       (siehe verteilen(..., pf / 2)) - die Achsspanne ist also die
+       Breite minus EINER Pfostenbreite. PFOSTEN.breite steht in cm. */
+    /* randCm ist die halbe Pfostenbreite der Reihe, mit der gebaut wird
+       (TDS, Flatline und Balkon haben verschiedene Profile). Ohne Angabe
+       das Standardprofil. */
+    var pfMm = (randCm != null ? randCm * 2 : PFOSTEN.breite) * 10;
+    var min = (minB - pfMm) / (anzahl - 1);
+    var max = (maxB - pfMm) / (anzahl - 1);
+    /* DIE GLEICHMAESSIGE VERTEILUNG GEHOERT IMMER DAZU. GEMESSEN am
+       01.11.2026: Bei 8000 mm Breite liefert die Tabelle 4 Pfosten,
+       die kleinste Breite dieser Spalte ist aber 8080 mm - der
+       hergeleitete Mindestabstand (2657 mm) lag damit UEBER dem, was
+       die Anlage gerade hat (2630 mm). Ein winziger Versatz haette den
+       Pfosten dann weit gesprungen lassen.
+
+       Was wir heute ohne Versatz bauen, ist per Definition zulaessig -
+       also zieht die Spanne sich auf, bis sie es enthaelt. */
+    var jetzt = (Z.breite - pfMm) / (anzahl - 1);
+    return { min: Math.min(min, jetzt), max: Math.max(max, jetzt) };
+  }
+
+  /* Die x-Lagen einer Pfostenreihe, mit Versatz und innerhalb der
+     Toleranz. rand und B in cm wie bei verteilen(); der Versatz steht in
+     Millimetern, weil er aus der Bedienung kommt.
+
+     GEKLEMMT WIRD HIER, nicht bei der Eingabe: Dieselbe Rechnung gilt
+     für das Ziehen am Modell, für das Zahlenfeld und für einen
+     Teilen-Link von gestern. An einer Stelle geklemmt heisst: überall
+     dieselbe Grenze. */
+  /* Was zuletzt gebaut wurde - das Bedienfeld und das Ziehen am Modell
+     brauchen es, und erst beim Bauen steht fest, wie viele Pfosten eine
+     Reihe hat. Wird in bauen() geleert, damit nach einem Produktwechsel
+     keine Reihe stehen bleibt, die es nicht mehr gibt. */
+  var PFOSTEN_REIHE = { vorne: null, hinten: null };
+
+  /* Wie viele Pfosten die Reihe beim letzten Bauen hatte. Aendert sich
+     die Zahl (andere Breite, anderes Produkt), sind die gespeicherten
+     Versaetze hinfaellig: Ein Versatz von 600 mm bedeutet bei drei
+     Pfosten etwas voellig anderes als bei fuenf, und der Pfosten
+     spraenge beim Ziehen am Breitenregler weit. Erst beim Bauen steht
+     die Zahl fest - darum wird hier aufgeraeumt und nicht in aendern(). */
+  var PF_ANZAHL = { vorne: 0, hinten: 0 };
+
+  function pfostenReihe(anzahl, B, rand, reihe) {
+    if (PF_ANZAHL[reihe] && PF_ANZAHL[reihe] !== anzahl &&
+        Z.pfostenVersatz && Z.pfostenVersatz[reihe]) {
+      Z.pfostenVersatz[reihe] = {};
+    }
+    PF_ANZAHL[reihe] = anzahl;
+    var gleich = verteilen(anzahl, B, rand);
+    var gr = achsGrenzenMm(anzahl, rand);
+    var xs = gleich.slice();
+    var v = Z.pfostenVersatz && Z.pfostenVersatz[reihe];
+    if (v && anzahl >= 3) {
+      for (var i = 1; i < anzahl - 1; i++) {
+        var mm = Number(v[String(i)]);
+        if (mm) xs[i] = gleich[i] + mm / 10;
+      }
+      if (gr) achsenKlemmen(xs, gr);
+    }
+    PFOSTEN_REIHE[reihe] = { anzahl: anzahl, B: B, rand: rand,
+                             grenzen: gr, xs: xs, gleich: gleich };
+    return xs;
+  }
+
+  /* Wuensche in die Toleranz holen. Die Eckpfosten stehen fest, jedes
+     Feld muss zwischen min und max bleiben.
+
+     GERECHNET WIRD IN FELDBREITEN, nicht in Pfostenlagen - und das ist
+     der Kern. Der erste Versuch hat jeden Pfosten der Reihe nach
+     zwischen seine beiden Nachbarn geklemmt. Das sieht richtig aus und
+     ist es nicht: Steht der rechte Nachbar zu dicht, schiebt die obere
+     Grenze den Pfosten unter seine untere - das linke Feld wird dabei
+     zu klein, und dem Nachbarn faellt es nicht auf, weil bei IHM alles
+     passt. GEMESSEN am 01.11.2026 mit 4000 Zufallsfaellen: 1413 davon
+     endeten ausserhalb der Toleranz, im schlimmsten Fall mit einem Feld
+     von 1458 mm bei erlaubten 2195 mm.
+
+     Also umgekehrt: Erst jedes Feld einzeln in die Toleranz bringen.
+     Dadurch stimmt die Summe nicht mehr - die Gesamtbreite steht ja
+     fest. Was fehlt oder uebrig ist, geben die Felder her, die in diese
+     Richtung noch Luft haben, jedes nach seinem Anteil.
+
+     EIN DURCHGANG REICHT DAFUER RECHNERISCH SCHON: Weil die
+     gleichmaessige Verteilung immer in der Toleranz liegt (dafuer sorgt
+     achsGrenzenMm), ist das Fehlende nie groesser als die vorhandene
+     Luft - jedes Feld bekommt also hoechstens seinen eigenen Abstand
+     zur Grenze dazu und kann sie nicht ueberschreiten. Die weiteren
+     Runden fangen nur Rundungsreste ab; sie kosten nichts und ersparen
+     die Frage, ob die Rechnung bis auf die letzte Stelle aufgeht.
+
+     Im Normalfall aendert diese Funktion nichts: Beim Ziehen und am
+     Regler wird der Wunsch schon vorher auf die erlaubte Spanne
+     begrenzt (pfostenSpanne). Sie faengt den anderen Fall ab - einen
+     gespeicherten Versatz, der nach einer Breitenaenderung oder aus
+     einem alten Teilen-Link nicht mehr passt. */
+  function achsenKlemmen(xs, gr) {
+    var minCm = gr.min / 10, maxCm = gr.max / 10, n = xs.length, i;
+    if (n < 3) return xs;
+    var ganz = xs[n - 1] - xs[0];
+    var f = [];
+    for (i = 0; i + 1 < n; i++) {
+      f.push(Math.min(Math.max(xs[i + 1] - xs[i], minCm), maxCm));
+    }
+    for (var runde = 0; runde < n + 2; runde++) {
+      var summe = 0;
+      for (i = 0; i < f.length; i++) summe += f[i];
+      var rest = ganz - summe;
+      if (Math.abs(rest) < 1e-9) break;
+      /* Luft nur in der gebrauchten Richtung: Fehlt Breite, zaehlt der
+         Abstand nach oben; ist Breite uebrig, der nach unten. */
+      var luft = 0;
+      for (i = 0; i < f.length; i++) {
+        luft += rest > 0 ? (maxCm - f[i]) : (f[i] - minCm);
+      }
+      if (luft < 1e-9) break;
+      for (i = 0; i < f.length; i++) {
+        var eigen = rest > 0 ? (maxCm - f[i]) : (f[i] - minCm);
+        f[i] += rest * (eigen / luft);
+      }
+    }
+    for (i = 1; i < n; i++) xs[i] = xs[i - 1] + f[i - 1];
+    return xs;
+  }
+
+  /* Wie weit darf GENAU DIESER Pfosten? Zwischen beiden Nachbarn, so
+     dass beide Felder in der Toleranz bleiben. In cm, wie das Modell.
+     Dieselbe Rechnung wie in pfostenReihe() - sie steht hier, damit
+     Regler, Zahlenfeld und Klemmen nicht auseinanderlaufen koennen. */
+  function pfostenSpanne(reihe, nr) {
+    var r = PFOSTEN_REIHE[reihe];
+    if (!r || nr < 1 || nr > r.anzahl - 2) return null;
+    /* GEGEN DIE WIRKLICHEN NACHBARN, nicht gegen die gleichmaessige
+       Lage: Steht Pfosten 1 schon weit links, darf Pfosten 2 weiter
+       nach links als sonst. Rechnete man hier mit der gleichmaessigen
+       Verteilung, zeigte der Regler eine Spanne an, die das Klemmen
+       anschliessend wieder zurechtschiebt - zwei Wahrheiten. */
+    var xs = r.xs, gl = r.gleich || r.xs;
+    var links = xs[nr - 1], rechts = xs[nr + 1];
+    if (!r.grenzen) return { von: xs[nr], bis: xs[nr], mitte: gl[nr] };
+    var minCm = r.grenzen.min / 10, maxCm = r.grenzen.max / 10;
+    var von = Math.max(links + minCm, rechts - maxCm);
+    var bis = Math.min(links + maxCm, rechts - minCm);
+    /* Sollte die Spanne je leer ausfallen, bleibt die gleichmaessige
+       Lage - sie ist immer zulaessig. Lieber unbeweglich als falsch. */
+    if (bis < von) { von = gl[nr]; bis = gl[nr]; }
+    return { von: von, bis: bis, mitte: gl[nr] };
+  }
+
+  /* ---------- Zwischenpfosten im Modell ziehen ----------
+     Marke am Bauteil: Welche Reihe, welche Nummer. Der Strahl muss sonst
+     raten, welchen Pfosten er getroffen hat. Eckpfosten bekommen die
+     Marke auch - dass sie feststehen, entscheidet pfostenSpanne(). */
+  function pfostenGriff(m, reihe, nr) {
+    if (m) m.userData.pfosten = { reihe: reihe, nr: nr };
+    return m;
+  }
+
+  var PF_ZIEHT = null;
+
+  /* Verschiebbarer Pfosten unter dem Zeiger - oder null. Dieselbe
+     Verdeckungsregel wie bei den Feldmarken: Was den Blick nimmt, nimmt
+     auch den Griff; Glas und die durchscheinende Hauswand nicht. */
+  function pfostenUnterZeiger(e) {
+    if (!e || !leinwand || !bau) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects([bau], true);
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      if (!o || o.visible === false) continue;
+      var p = o.userData && o.userData.pfosten;
+      if (p) {
+        var sp = pfostenSpanne(p.reihe, p.nr);
+        /* Eckpfosten (keine Spanne) und eine Reihe ohne Spielraum
+           lassen sich nicht greifen - sonst haenge man an einem
+           Pfosten, der sich nicht ruehrt. */
+        if (!sp || sp.bis - sp.von < 0.2) return null;
+        return { reihe: p.reihe, nr: p.nr, punkt: treffer[i].point };
+      }
+      if (nimmtDenBlick([treffer[i]])) return null;
+    }
+    return null;
+  }
+
+  /* Gezogen wird auf einer Ebene, die zur Kamera zeigt und durch die
+     Griffstelle geht. Eine feste Ebene (z = Pfostenreihe) waere beim
+     Blick von der Seite fast parallel zum Strahl - der Pfosten spraenge
+     dann bei der kleinsten Mausbewegung ueber die ganze Breite. */
+  function pfostenGreifen(e) {
+    var t = pfostenUnterZeiger(e);
+    if (!t) return false;
+    var r = PFOSTEN_REIHE[t.reihe];
+    if (!r) return false;
+    PF_ZIEHT = {
+      reihe: t.reihe, nr: t.nr, bewegt: false,
+      ebene: new THREE.Plane().setFromNormalAndCoplanarPoint(
+        kamera3.getWorldDirection(new THREE.Vector3()).negate(), t.punkt),
+      /* Wo am Pfosten gegriffen wurde. Ohne diesen Abstand spraenge der
+         Pfosten beim Anfassen mit seiner Achse unter den Zeiger. */
+      halt: bau.worldToLocal(t.punkt.clone()).x - r.xs[t.nr]
+    };
+    leinwand.style.cursor = 'ew-resize';
+    pfostenBandZeigen();
+    return true;
+  }
+
+  function pfostenZiehen(e) {
+    if (!PF_ZIEHT) return false;
+    var r = leinwand.getBoundingClientRect();
+    var reihe = PFOSTEN_REIHE[PF_ZIEHT.reihe];
+    var sp = reihe ? pfostenSpanne(PF_ZIEHT.reihe, PF_ZIEHT.nr) : null;
+    if (!r.width || !r.height || !sp) return true;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treff = strahl.ray.intersectPlane(PF_ZIEHT.ebene, new THREE.Vector3());
+    if (!treff) return true;
+    var x = bau.worldToLocal(treff).x - PF_ZIEHT.halt;
+    x = Math.min(Math.max(x, sp.von), sp.bis);
+    var mm = Math.round((x - sp.mitte) * 10);
+    /* EINRASTEN AUF DER GLEICHMAESSIGEN LAGE: Sie ist der Normalfall und
+       muss ohne Zittern wieder erreichbar sein. 25 mm sind am Bildschirm
+       wenige Pixel und am Bauwerk nichts. */
+    if (Math.abs(mm) < 25) mm = 0;
+    if (!Z.pfostenVersatz) Z.pfostenVersatz = { vorne: {}, hinten: {} };
+    if (!Z.pfostenVersatz[PF_ZIEHT.reihe]) Z.pfostenVersatz[PF_ZIEHT.reihe] = {};
+    var topf = Z.pfostenVersatz[PF_ZIEHT.reihe], s = String(PF_ZIEHT.nr);
+    if ((Number(topf[s]) || 0) === mm) return true;
+    if (mm) topf[s] = mm; else delete topf[s];
+    PF_ZIEHT.bewegt = true;
+    aendernGebremst();
+    pfostenBandZeigen();
+    return true;
+  }
+
+  function pfostenLoslassen() {
+    if (!PF_ZIEHT) return false;
+    var war = PF_ZIEHT.bewegt;
+    PF_ZIEHT = null;
+    leinwand.style.cursor = '';
+    pfostenBandZeigen();
+    /* Beim Loslassen einmal ungebremst - sonst bliebe der letzte
+       Zwischenstand stehen, wenn die Bremse gerade lief. */
+    if (war) aendern();
+    return true;
+  }
+
+  /* Was beim Ziehen am Modell zu sehen ist: die beiden Feldmasse. Eigenes
+     Band, damit es sich nicht mit dem Klickhinweis streitet. */
+  function pfostenBandZeigen() {
+    var b = document.getElementById('k3dZiehband');
+    if (!b) return;
+    var r = PF_ZIEHT ? PFOSTEN_REIHE[PF_ZIEHT.reihe] : null;
+    if (!r) { b.hidden = true; return; }
+    var nr = PF_ZIEHT.nr, pf = r.rand * 2;
+    var li = (r.xs[nr] - r.xs[nr - 1]) * 10, re = (r.xs[nr + 1] - r.xs[nr]) * 10;
+    var mittig = Math.abs(r.xs[nr] - (r.gleich || r.xs)[nr]) < 0.05;
+    b.textContent = 'Pfosten ' + nr + ' · Achsmaß ' + Math.round(li) + ' / ' +
+      Math.round(re) + ' mm · licht ' + Math.round(li - pf * 10) + ' / ' +
+      Math.round(re - pf * 10) + ' mm' + (mittig ? ' · gleichmäßig' : '');
+    b.hidden = false;
+  }
+
   /* LED-Spots. unterkante(z) liefert die Unterkante des Bauteils, in das
      die Spots eingelassen sind – beim Terrassendach ist das die Unterseite
      der SPARREN, nicht die Dachfläche.
@@ -3637,6 +3957,7 @@
        wird, steht nach einem Produktwechsel noch da. Die Punkte entstehen
        während des Baus neu – also hier leeren, nicht irgendwo später. */
     MARKEN = [];
+    PFOSTEN_REIHE = { vorne: null, hinten: null };
     leeren(feldGruppe);
     /* Nach dem Neubau gibt es die hervorgehobene Fläche nicht mehr –
        sonst zeigte feldFaerben() auf ein Feld, das weggeraeumt ist. */
@@ -3684,6 +4005,7 @@
        vorigen Aufbaus. Hier und nicht in aendern(): bauen() wird auch an
        anderen Stellen gerufen, und jede davon haette denselben Verzug. */
     erwAnzeigen();
+    pfostenFelderAnzeigen();
     neuZeichnen();
   }
 
@@ -3726,10 +4048,12 @@
 
     /* Pfosten. Die Verteilung über die Breite ist NICHT belegt
        (offene-punkte.md, Punkt D) – hier gleichmäßig, Eckpfosten bündig. */
-    var xP = verteilen(e.pfostenJeReihe, B, pf / 2);
-    xP.forEach(function (x) {
-      balken(pf, hVorn, pf, x, hVorn / 2, zPfosten, mAlu);
-      if (e.freistehend) balken(pf, hHinten, pf, x, hHinten / 2, pf / 2, mAlu);
+    var xP = pfostenReihe(e.pfostenJeReihe, B, pf / 2, 'vorne');
+    xP.forEach(function (x, iP) {
+      pfostenGriff(balken(pf, hVorn, pf, x, hVorn / 2, zPfosten, mAlu), 'vorne', iP);
+      if (e.freistehend) {
+        pfostenGriff(balken(pf, hHinten, pf, x, hHinten / 2, pf / 2, mAlu), 'vorne', iP);
+      }
     });
 
     /* Rinne vorne über die volle Breite */
@@ -4524,12 +4848,18 @@
   function feldSchweben(e) {
     /* Beim Drehen nichts hervorheben: Der Zeiger fährt dabei über das
        halbe Modell, und ein mitlaufendes Leuchten wäre nur Unruhe. */
-    var neu = zieht ? null : feldUnterZeiger(e);
-    if (neu === feldWach) return;
-    feldWach = neu;
-    feldFaerben();
-    leinwand.style.cursor = neu ? 'pointer' : '';
-    neuZeichnen();
+    var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);
+    if (neu !== feldWach) {
+      feldWach = neu;
+      feldFaerben();
+      neuZeichnen();
+    }
+    /* Der Zeiger verraet, was der naechste Griff tut. Der Pfosten wird
+       nur gefragt, wenn kein Feld darueber liegt - zwei Strahlen je
+       Bewegung waeren Verschwendung. */
+    if (PF_ZIEHT) return;
+    leinwand.style.cursor = neu ? 'pointer'
+      : (pfostenUnterZeiger(e) ? 'ew-resize' : '');
   }
 
   function feldGeklickt(e) {
@@ -6794,10 +7124,14 @@
     var paare = (tbPf && tbPf.stuetzfuesse)
       ? Math.max(2, Math.round(tbPf.stuetzfuesse / 2))
       : (B > 450 ? 3 : 2);
-    var xPos = verteilen(paare, B, PROFIL / 2);
-    xPos.forEach(function (x) {
-      balken(PROFIL, hVorn, PROFIL, x, hVorn / 2, T - PROFIL / 2, mAlu);
-      if (!anWand) balken(PROFIL, hHinten, PROFIL, x, hHinten / 2, PROFIL / 2, mAlu);
+    var xPos = pfostenReihe(paare, B, PROFIL / 2, 'vorne');
+    xPos.forEach(function (x, iP) {
+      pfostenGriff(balken(PROFIL, hVorn, PROFIL, x, hVorn / 2, T - PROFIL / 2, mAlu),
+                   'vorne', iP);
+      if (!anWand) {
+        pfostenGriff(balken(PROFIL, hHinten, PROFIL, x, hHinten / 2, PROFIL / 2, mAlu),
+                     'vorne', iP);
+      }
     });
 
     /* ---------- Unterzug ueber die ganze Breite ----------
@@ -7862,10 +8196,10 @@
 
     /* Die Achsen der VORDEREN Pfosten werden unten noch gebraucht: Die
        Schiebeanlage läuft je Pfostenfach, nicht über die ganze Breite. */
-    var xPfVorne = verteilen(pfVorne, B, PF / 2);
+    var xPfVorne = pfostenReihe(pfVorne, B, PF / 2, 'vorne');
     /* Und die HINTEREN: Dort stehen weniger (7-m-Regel am Statiktraeger),
        also laufen die Elemente hinten ueber laengere Felder. */
-    var xPfHinten = verteilen(pfHinten, B, PF / 2);
+    var xPfHinten = pfostenReihe(pfHinten, B, PF / 2, 'hinten');
     /* Jeder Pfosten steht auf dem Boden an SEINER Stelle und reicht bis
        zur Dachunterkante. Bei ebenem Boden ist bodenY() null und die
        Rechnung ergibt wieder genau hPfosten. Die Laengen werden
@@ -7876,17 +8210,18 @@
        der Mauerkrone. Er wird dadurch um die Brüstungshöhe kürzer – und
        genau diese Länge wird bestellt, nicht die vom Boden aus. */
     var pfFuss = pfostenAufBruestung() ? brH : 0;
-    xPfVorne.forEach(function (x) {
+    xPfVorne.forEach(function (x, iP) {
       var yB = bodenY(x, zPf) + pfFuss;
       var lang = Math.max(10, hPfosten - yB);
-      balken(PF, lang, PF, x, yB + lang / 2, zPf, mAlu);
+      pfostenGriff(balken(PF, lang, PF, x, yB + lang / 2, zPf, mAlu), 'vorne', iP);
       PFOSTEN_IST.vorne.push(Math.round(lang * 10));
     });
     if (frei) {
-      xPfHinten.forEach(function (x) {
+      xPfHinten.forEach(function (x, iP) {
         var yB = bodenY(x, zTrHinten);
         var lang = Math.max(10, hPfostenHinten - yB);
-        balken(PF, lang, PF, x, yB + lang / 2, zTrHinten, mAlu);
+        pfostenGriff(balken(PF, lang, PF, x, yB + lang / 2, zTrHinten, mAlu),
+                     'hinten', iP);
         PFOSTEN_IST.hinten.push(Math.round(lang * 10));
       });
     }
@@ -10547,6 +10882,16 @@
 
   leinwand.addEventListener('pointerdown', function (e) {
     if (e.pointerType === 'touch' && e.isPrimary === false) return;
+    /* ERST DER PFOSTEN: Wer ihn greift, will ihn schieben und nicht die
+       Kamera drehen. Trifft der Strahl keinen verschiebbaren Pfosten,
+       laeuft alles weiter wie bisher. */
+    if (pfostenGreifen(e)) {
+      autoDreht = false;
+      if (leinwand.setPointerCapture) {
+        try { leinwand.setPointerCapture(e.pointerId); } catch (x) {}
+      }
+      return;
+    }
     zieht = true; autoDreht = false;
     /* Wer selbst dreht, hat die Ansicht verlassen – sonst spränge die
        Kamera beim nächsten Neubau in die gespeicherte Lage zurück. Die
@@ -10559,6 +10904,7 @@
   });
 
   window.addEventListener('pointermove', function (e) {
+    if (pfostenZiehen(e)) return;
     if (!zieht) return;
     kam.theta -= (e.clientX - letzteX) * 0.007;
     kam.phi   -= (e.clientY - letzteY) * 0.007;
@@ -10567,6 +10913,7 @@
   });
 
   window.addEventListener('pointerup', function (e) {
+    if (pfostenLoslassen()) return;
     zieht = false;
     if (!klickStart) return;
     var weg = Math.abs(e.clientX - klickStart.x) + Math.abs(e.clientY - klickStart.y);
@@ -10589,7 +10936,10 @@
       schiebeGeklickt(e);
     }
   });
-  window.addEventListener('pointercancel', function () { zieht = false; });
+  window.addEventListener('pointercancel', function () {
+    pfostenLoslassen();
+    zieht = false;
+  });
 
   leinwand.addEventListener('wheel', function (e) {
     e.preventDefault();
@@ -11598,6 +11948,26 @@
      dreissig mit · getrennten Teilen liest sie niemand. Sie nennt, was
      der Kunde selbst eingestellt hat, nicht die Fertigungsangaben.
      Der vollstaendige Fachtext geht weiter mit, nur still (v.fachnotiz). */
+  /* Stehen die Pfosten nicht gleichmaessig, muss das in die Anfrage.
+     Sonst geht eine gleichmaessige Reihe in die Fertigung, und der
+     Unterschied faellt erst beim Aufbau auf - dann ist er teuer.
+     Gemeldet werden die ACHSMASSE, denn danach wird gebohrt. */
+  function pfostenNotiz() {
+    var aus = [];
+    ['vorne', 'hinten'].forEach(function (seite) {
+      var r = PFOSTEN_REIHE[seite];
+      var t = Z.pfostenVersatz && Z.pfostenVersatz[seite];
+      if (!r || !t || !Object.keys(t).length) return;
+      var masse = [];
+      for (var i = 0; i + 1 < r.xs.length; i++) {
+        masse.push(Math.round((r.xs[i + 1] - r.xs[i]) * 10));
+      }
+      aus.push('Pfosten ' + seite + ' von Achse zu Achse: ' +
+               masse.join(' / ') + ' mm (nicht gleichmäßig verteilt)');
+    });
+    return aus;
+  }
+
   function zusammenfassungKurz() {
     var k = [produktName()];
     /* Beim Balkon steht an der Stelle von „Wandmontage" (die dort immer
@@ -11645,6 +12015,7 @@
     if (istPergola() && Z.heizung) komfort.push('Heizstrahler');
     if (istPergola() && Z.wettersensor) komfort.push('Wetter-Automatik');
     if (komfort.length) k.push('Mit ' + komfort.join(', '));
+    pfostenNotiz().forEach(function (t) { k.push(t); });
     k.push(Z.montage === 'Ja, mit Fachmontage'
       ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
     return k;
@@ -13131,7 +13502,120 @@
       });
     });
 
-  // Farbfelder  // Farbfelder
+  /* ---------- Zwischenpfosten im Bedienfeld ----------
+     „kann man außer die eckpfosten die zwischenpfosten verschieben
+     innerhalb den erlaubten toleranzen" (Betreiber, 01.11.2026).
+
+     Je Zwischenpfosten eine Zeile mit Regler und der Lage in
+     Millimetern von links. Darunter die Feldbreiten – das ist die
+     Zahl, auf die es beim Planen ankommt. Eckpfosten kommen nicht vor:
+     Sie stehen am Rand, dort gibt es nichts zu verschieben.
+
+     NEU GEBAUT WIRD NUR BEI AENDERUNG, sonst verloere ein Regler unter
+     dem Finger den Griff – dieselbe Falle wie bei den Faecherbloecken. */
+  var pfostenKasten = document.getElementById('k3dPfosten');
+  var pfostenGruppe = document.getElementById('k3dPfostenGruppe');
+
+  function pfostenFelderAnzeigen() {
+    if (!pfostenKasten || !pfostenGruppe) return;
+    var r = PFOSTEN_REIHE.vorne;
+    var zwischen = r ? r.anzahl - 2 : 0;
+    /* Ohne Zwischenpfosten, ohne herleitbare Toleranz oder wenn die
+       Spanne auf einen Punkt zusammenfaellt gibt es nichts zu schieben. */
+    var moeglich = zwischen > 0 && !!r.grenzen &&
+                   (r.grenzen.max - r.grenzen.min) > 1;
+    pfostenGruppe.hidden = !moeglich;
+    if (!moeglich) { pfostenKasten.innerHTML = ''; return; }
+    var stand = r.anzahl + '#' + Math.round(r.B);
+    if (pfostenKasten.getAttribute('data-stand') !== stand) {
+      pfostenKasten.setAttribute('data-stand', stand);
+      var html = '';
+      for (var i = 1; i <= zwischen; i++) {
+        var sp = pfostenSpanne('vorne', i);
+        html += '<div class="k3d-pfostenzeile" data-pfosten="' + i + '">' +
+                '<span class="k3d-pf-nr">' + i + '</span>' +
+                '<input type="range" class="k3d-range" min="' +
+                Math.round((sp.von + r.B / 2) * 10) + '" max="' +
+                Math.round((sp.bis + r.B / 2) * 10) + '" step="10" value="' +
+                Math.round((sp.mitte + r.B / 2) * 10) + '">' +
+                '<span class="k3d-pf-mm"></span></div>';
+      }
+      html += '<p class="k3d-pf-felder"></p><p class="k3d-pf-felder' +
+              ' k3d-pf-licht"></p>';
+      pfostenKasten.innerHTML = html;
+    }
+    /* Werte und Beschriftung IMMER nachziehen – auch wenn die Zeilen
+       stehen bleiben, kann sich die Lage geaendert haben (Ziehen am
+       Modell, Teilen-Link, Klemmen). */
+    /* ZWEI ZAHLENREIHEN, und beide braucht es: Bestellt und aufgemasst
+       wird von Achse zu Achse, durchgehen und moebliert wird die lichte
+       Weite. Eine Zahl allein wuerde die andere stillschweigend
+       mitbehaupten - die Pfostenbreite liegt dazwischen. */
+    var felder = [], licht = [], xs = r.xs, pfCm = r.rand * 2;
+    for (var k = 0; k + 1 < xs.length; k++) {
+      var achs = (xs[k + 1] - xs[k]) * 10;
+      felder.push(Math.round(achs) + ' mm');
+      licht.push(Math.round(achs - pfCm * 10) + ' mm');
+    }
+    Array.prototype.forEach.call(
+      pfostenKasten.querySelectorAll('[data-pfosten]'), function (zeile) {
+        var nr = Number(zeile.getAttribute('data-pfosten'));
+        var regler = zeile.querySelector('input');
+        var mm = Math.round((xs[nr] + r.B / 2) * 10);
+        /* Die Grenzen haengen an der Lage der NACHBARN und aendern sich
+           damit, sobald ein anderer Pfosten wandert. Darum hier und
+           nicht nur beim Aufbauen der Zeilen. */
+        var spJ = pfostenSpanne('vorne', nr);
+        if (spJ) {
+          regler.min = Math.round((spJ.von + r.B / 2) * 10);
+          regler.max = Math.round((spJ.bis + r.B / 2) * 10);
+        }
+        if (document.activeElement !== regler) regler.value = mm;
+        zeile.querySelector('.k3d-pf-mm').textContent = mm + ' mm';
+        regler.setAttribute('aria-label',
+          'Pfosten ' + nr + ', Lage von links in Millimeter');
+      });
+    var zf = pfostenKasten.querySelector('.k3d-pf-felder');
+    if (zf) zf.textContent = 'Achsmaße: ' + felder.join(' · ');
+    var zl = pfostenKasten.querySelector('.k3d-pf-licht');
+    if (zl) zl.textContent = 'lichte Breite: ' + licht.join(' · ');
+    var wert = document.getElementById('k3dPfostenWert');
+    if (wert) wert.textContent = zwischen + (zwischen === 1 ? ' verschiebbar' : ' verschiebbar');
+    var hinweis = document.getElementById('k3dPfostenHinweis');
+    if (hinweis) {
+      hinweis.textContent = 'Achsabstand zwischen ' + Math.round(r.grenzen.min) +
+        ' und ' + Math.round(r.grenzen.max) + ' mm – hergeleitet aus der ' +
+        'Maßtabelle des Herstellers für diese Pfostenzahl. Im Modell lassen ' +
+        'sich die Pfosten auch direkt ziehen. Beim Aufmaß wird die Lage ' +
+        'verbindlich festgelegt.';
+    }
+  }
+
+  if (pfostenKasten) {
+    /* Beim Ziehen gebremst neu bauen, beim Loslassen einmal sauber –
+       dieselbe Aufteilung wie bei den uebrigen Reglern. */
+    (function () {
+      function schieben(ev, sofort) {
+        var zeile = ev.target.closest ? ev.target.closest('[data-pfosten]') : null;
+        if (!zeile) return;
+        var nr = Number(zeile.getAttribute('data-pfosten'));
+        var r = PFOSTEN_REIHE.vorne;
+        var sp = r ? pfostenSpanne('vorne', nr) : null;
+        if (!sp) return;
+        /* Gespeichert wird der VERSATZ gegen die gleichmaessige Lage. */
+        var mm = Number(ev.target.value) - Math.round((sp.mitte + r.B / 2) * 10);
+        if (!Z.pfostenVersatz) Z.pfostenVersatz = { vorne: {}, hinten: {} };
+        if (!Z.pfostenVersatz.vorne) Z.pfostenVersatz.vorne = {};
+        if (mm) Z.pfostenVersatz.vorne[String(nr)] = mm;
+        else delete Z.pfostenVersatz.vorne[String(nr)];
+        if (sofort) aendern(); else aendernGebremst();
+      }
+      pfostenKasten.addEventListener('input', function (ev) { schieben(ev, false); });
+      pfostenKasten.addEventListener('change', function (ev) { schieben(ev, true); });
+    })();
+  }
+
+  // Farbfelder
   Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-farbe]'), function (b) {
     b.addEventListener('click', function () {
       farbeSetzen(b.getAttribute('data-k3d-farbe'));
@@ -13815,6 +14299,7 @@
            (js/anfrage-wizard.js nimmt sie allein in den Versand). */
         notiz: zusammenfassungKurz().join(' · '),
         fachnotiz: zusammenfassung().join(' · ') +
+          (pfostenNotiz().length ? ' · ' + pfostenNotiz().join(' · ') : '') +
           (hinweiseIntern().length
             ? ' || Interne Hinweise: ' + hinweiseIntern().join(' || ') : '')
       };
@@ -13977,6 +14462,15 @@
        ist - „nichts eingetragen" heisst alle Felder, und das ist der
        Normalfall. So bleibt der Link kurz. */
     if (Z.erwFeld && Object.keys(Z.erwFeld).length) d.ef = Z.erwFeld;
+    /* Die Pfostenlage MUSS mit: Ohne sie zeigt der geteilte Link eine
+       gleichmaessig verteilte Reihe - und genau die wuerde dann
+       angefragt und gebaut, obwohl der Kunde sie verschoben hatte. */
+    var pv = {};
+    ['vorne', 'hinten'].forEach(function (seite) {
+      var t = Z.pfostenVersatz && Z.pfostenVersatz[seite];
+      if (t && Object.keys(t).length) pv[seite] = t;
+    });
+    if (Object.keys(pv).length) d.pv = pv;
     return d;
   }
 
@@ -14052,6 +14546,17 @@
        bekommt ein leeres Verzeichnis - dann gilt ueberall „alle
        Felder", und er zeigt dasselbe Bild wie damals. */
     Z.erwFeld = (d.ef && typeof d.ef === 'object') ? d.ef : {};
+    /* Ein Link ohne Pfostenlage (jeder von vor dem 01.11.2026) bekommt
+       leere Verzeichnisse - dann stehen die Pfosten gleichmaessig, wie
+       damals. Die Pfostenzahl kann sich mit dem Produkt aendern; das
+       Klemmen in pfostenReihe() faengt einen unpassenden Versatz ab. */
+    Z.pfostenVersatz = {
+      vorne: (d.pv && d.pv.vorne && typeof d.pv.vorne === 'object') ? d.pv.vorne : {},
+      hinten: (d.pv && d.pv.hinten && typeof d.pv.hinten === 'object') ? d.pv.hinten : {}
+    };
+    /* Sonst raeumte pfostenReihe() den gerade gelesenen Versatz wieder
+       weg, weil die Pfostenzahl des vorigen Standes noch gemerkt ist. */
+    PF_ANZAHL = { vorne: 0, hinten: 0 };
     if (d.fa) farbeSetzen(d.fa);
     aendern();
     return true;
