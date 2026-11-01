@@ -212,6 +212,22 @@ var FEHLER = [
    '      Z.breite = parseInt(eingabe.value, 10);'],
   ['Der Eingabekasten fehlt in der Seite', 'html',
    'id="k3dMassEingabe"', 'id="k3dMassEingabeAlt"'],
+  ['Die eigenen Schalter am Masskasten fehlen', 'html',
+   'id="k3dMassPlus"', 'id="k3dMassPlusAlt"'],
+  ['Die Schalter tun nichts', 'js',
+   '        massHalten(paar[1]);', '        void paar;'],
+  ['Die Schalter achten nicht auf die Grenzen', 'js',
+   '      e.value = String(Math.round(Math.min(Math.max(v, min), max)));',
+   '      e.value = String(Math.round(v));'],
+  ['Gedrueckt halten laeuft nicht weiter', 'js',
+   '        stufeTakt = setInterval(function () { massStufe(richtung); }, 60);',
+   '        void richtung;'],
+  ['Der Fokus wandert beim Druecken aus dem Feld', 'js',
+   '        ev.preventDefault();\n        massHalten(paar[1]);',
+   '        massHalten(paar[1]);'],
+  ['Das eigene Minus-Zeichen fehlt in der Sammlung', 'html',
+   '<symbol id="bvs-strich" viewBox="0 0 24 24">',
+   '<symbol id="bvs-strichlein" viewBox="0 0 24 24">'],
 
   /* ---------- Bedienung aussen ---------- */
   ['Das Stift-Zeichen fehlt im Zeichensatz', 'html',
@@ -619,6 +635,28 @@ function lauf(q) {
     /id="k3dMassEingabe"/.test(q.html) &&
     /id="k3dMassWert"/.test(q.html) && /id="k3dMassOk"/.test(q.html),
     'Kasten, Zahlenfeld und Übernehmen');
+
+  /* ---------- Eigene Schalter statt der Browser-Pfeilchen ----------
+     „die zahl lässt sich nicht ändern" (Betreiber, 01.11.2026, mit
+     Bild). Die Pfeilchen am Zahlenfeld sind rund acht Bildpunkte hoch,
+     sehen auf jedem Gerät anders aus und FEHLEN am Handy ganz - dort
+     kennt type=number keine. Ob sie im Bild richtig sitzen, misst
+     scripts/pruefe-konfigurator-oberflaeche.mjs. */
+  p('Neben dem Zahlenfeld stehen eigene Schalter',
+    /id="k3dMassMinus"/.test(q.html) && /id="k3dMassPlus"/.test(q.html) &&
+    /<symbol id="bvs-strich" viewBox="0 0 24 24">/.test(q.html),
+    'minus und plus aus der eigenen Sammlung');
+  p('Die Schalter ändern die Zahl',
+    /massHalten\(paar\[1\]\);/.test(q.js), 'pointerdown auf beiden');
+  p('Die Schalter halten sich an Mindest- und Höchstmaß',
+    /e\.value = String\(Math\.round\(Math\.min\(Math\.max\(v, min\), max\)\)\);/.test(q.js),
+    'sonst ginge 99999 mm durch das Zahlenfeld');
+  p('Gedrückt halten läuft weiter',
+    /stufeTakt = setInterval\(function \(\) \{ massStufe\(richtung\); \}, 60\);/.test(q.js),
+    'von 5000 auf 6000 wären es sonst hundert Klicks');
+  p('Der Fokus bleibt beim Drücken im Zahlenfeld',
+    /ev\.preventDefault\(\);\s*\n\s*massHalten\(paar\[1\]\);/.test(q.js),
+    'sonst klappt am Handy die Tastatur zu');
 
   /* ---------- Groesse der Buehne ----------
      GEMESSEN am 31.10.2026: Wird die Buehne kleiner, ohne dass sich das

@@ -10618,6 +10618,61 @@
         if (ev.key === 'Escape') { ev.preventDefault(); massSchliessen(); }
       });
     }
+
+    /* ---------- Die eigenen Schalter neben dem Feld ----------
+       „die zahl lässt sich nicht ändern" (Betreiber, 01.11.2026, mit
+       Bild). Die Pfeilchen, die der Browser an ein Zahlenfeld hängt,
+       sind rund acht Bildpunkte hoch, sehen auf jedem Gerät anders aus
+       und FEHLEN am Handy ganz - dort kennt type=number keine. Jetzt
+       stehen links und rechts vom Feld eigene Schalter.
+
+       GEDRUECKT HALTEN LAEUFT WEITER, und ab der fuenfzehnten Stufe in
+       Fuenferschritten: Die Schrittweite kommt vom Regler und ist beim
+       Mass 10 mm - von 5000 auf 6000 waeren es sonst hundert Klicks. */
+    var stufeWarte = null, stufeTakt = null, stufeZahl = 0;
+
+    function massStufe(richtung) {
+      var e = document.getElementById('k3dMassWert');
+      if (!e) return;
+      var s = Number(e.step) || 10;
+      var min = e.min === '' ? -Infinity : Number(e.min);
+      var max = e.max === '' ? Infinity : Number(e.max);
+      var v = Number(e.value);
+      if (!isFinite(v)) v = isFinite(min) ? min : 0;
+      stufeZahl++;
+      v += richtung * s * (stufeZahl > 15 ? 5 : 1);
+      e.value = String(Math.round(Math.min(Math.max(v, min), max)));
+    }
+
+    function massHalten(richtung) {
+      stufeZahl = 0;
+      massStufe(richtung);
+      stufeWarte = setTimeout(function () {
+        stufeTakt = setInterval(function () { massStufe(richtung); }, 60);
+      }, 350);
+    }
+
+    function massLoslassen() {
+      if (stufeWarte) { clearTimeout(stufeWarte); stufeWarte = null; }
+      if (stufeTakt) { clearInterval(stufeTakt); stufeTakt = null; }
+    }
+
+    [['k3dMassMinus', -1], ['k3dMassPlus', 1]].forEach(function (paar) {
+      var b = document.getElementById(paar[0]);
+      if (!b) return;
+      b.addEventListener('pointerdown', function (ev) {
+        /* Ohne das wandert der Fokus auf den Schalter, und am Handy
+           klappt die Tastatur wieder zu. */
+        ev.preventDefault();
+        massHalten(paar[1]);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (n) {
+        b.addEventListener(n, massLoslassen);
+      });
+    });
+    /* Wer ausserhalb des Schalters loslaesst, soll ihn auch loswerden. */
+    window.addEventListener('pointerup', massLoslassen);
+    window.addEventListener('pointercancel', massLoslassen);
     /* Ein Druck ins Bild schliesst den Kasten - sonst bliebe er stehen,
        wenn jemand ihn vergisst und weiterdreht. */
     leinwand.addEventListener('pointerdown', function () {
