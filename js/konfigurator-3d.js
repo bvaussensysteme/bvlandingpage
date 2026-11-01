@@ -10193,25 +10193,57 @@
        nichts gewaehlt), bleibt es bei den Elementknoepfen der Seite:
        Dann ist „etwas aussuchen" der naechste Schritt, nicht
        „zuordnen". */
-    var wahl = (m.art === 'dach')
-      ? '[data-k3d-schritt="dach"] button, [data-k3d-schritt="dach"] select'
-      : '[data-k3d-feldwahl="' + m.seite + '"] button[data-feld="' + m.feld + '"], ' +
-        '[data-k3d-erw="' + m.seite + '"] button';
-    var liste = document.querySelectorAll(wahl), ersterTreffer = null;
-    for (var i = 0; i < liste.length; i++) {
-      var e = liste[i];
-      /* Zugeklappte Abschnitte aufklappen – im Modus „Alles auf einen
-         Blick" sind sie es, und offsetParent wäre dort null. */
-      var d = e.closest ? e.closest('details') : null;
-      if (d && !d.open) d.open = true;
-      if (!ersterTreffer) ersterTreffer = e;
-      if (e.offsetParent !== null) return e;
+    /* ZWEI ABFRAGEN NACHEINANDER, NICHT EINE MIT KOMMA. GEMESSEN am
+       01.11.2026: Mit einer Abfrage „Feldzeile, sonst Elementknopf"
+       landete der Sprung IMMER auf einem Elementknopf –
+       querySelectorAll liefert in der Reihenfolge des DOKUMENTS, nicht
+       in der der Abfrage, und die Feldzeilen stehen unter den
+       Elementknoepfen. Die Feldzeile war damit unerreichbar.
+
+       Meine Quelltextpruefung hat das nicht gesehen: Sie hat
+       nachgelesen, dass die Abfrage dasteht – nicht, wohin sie
+       fuehrt. */
+    var wahlen = (m.art === 'dach')
+      ? ['[data-k3d-schritt="dach"] button, [data-k3d-schritt="dach"] select']
+      : ['[data-k3d-feldwahl="' + m.seite + '"] button[data-feld="' + m.feld + '"]',
+         '[data-k3d-erw="' + m.seite + '"] button'];
+    var ersterTreffer = null;
+    for (var w = 0; w < wahlen.length; w++) {
+      var liste = document.querySelectorAll(wahlen[w]);
+      for (var i = 0; i < liste.length; i++) {
+        var e = liste[i];
+        /* Zugeklappte Abschnitte aufklappen – im Modus „Alles auf einen
+           Blick" sind sie es, und offsetParent wäre dort null. */
+        var d = e.closest ? e.closest('details') : null;
+        if (d && !d.open) d.open = true;
+        if (!ersterTreffer) ersterTreffer = e;
+        if (e.offsetParent !== null) return e;
+      }
     }
     return ersterTreffer;
   }
 
+  /* ---------- Welches Feld hat den Sprung ausgeloest? ----------
+     „man kann aber nur die stirnseite komplett bearbeiten und nicht
+     pro feld" (Betreiber, 01.11.2026) – bedient werden soll es
+     „ueber das + im Feld".
+
+     Nur zu springen reicht dafuer nicht: Wer auf das + im zweiten Fach
+     tippt und dann „Plankenwand" waehlt, meint die Plankenwand IN
+     DIESEM FACH. Also wird gemerkt, von welchem Feld der Sprung kam,
+     und das NAECHSTE Element, das fuer diese Seite dazukommt, bekommt
+     dieses Feld.
+
+     EINMALIG, dann vergessen: Sonst landete auch eine Auswahl, die
+     eine Viertelstunde spaeter getroffen wird, noch in einem Fach, an
+     das niemand mehr denkt. Wer etwas anderes will, stellt es in der
+     Zeile darunter auf „Alle" oder ein anderes Feld. */
+  var feldGemerkt = null;
+
   function markeSpringen(m) {
     var schritt = (m.art === 'dach') ? 'dach' : 'seiten';
+    feldGemerkt = (m.art === 'seite' && (FELD_ANZAHL[m.seite] || 1) > 1)
+      ? { seite: m.seite, feld: m.feld } : null;
     if (gefuehrt) {
       bereichNr = bereichVon(schritt);
       schrittZeigen();
@@ -12553,7 +12585,22 @@
       if (!b || b === reihe) return;
       var wert = b.getAttribute('data-erw');
       if (!wert) return;
+      var vorher = erwListe(seite).indexOf(wert) > -1;
       erwUmschalten(seite, wert);
+      var jetzt = erwListe(seite).indexOf(wert) > -1;
+      /* Kam das Element gerade DAZU und wurde der Schritt ueber das +
+         eines bestimmten Feldes erreicht, gehoert es in dieses Feld. */
+      if (!vorher && jetzt && feldGemerkt && feldGemerkt.seite === seite) {
+        erwFeldSetzen(seite, wert, feldGemerkt.feld);
+        /* Mit dem Keil, den erwUmschalten() an den Laengsseiten von
+           selbst dazunimmt, genauso verfahren - sonst saesse die
+           Plankenwand im zweiten Fach und ihr Keil ueber beiden. */
+        if (erwListe(seite).indexOf('Keil') > -1 &&
+            erwFeldVon(seite, 'Keil') === FELD_ALLE && wert !== 'Keil') {
+          erwFeldSetzen(seite, 'Keil', feldGemerkt.feld);
+        }
+        feldGemerkt = null;
+      }
       aendern();
     });
   });
@@ -12883,6 +12930,9 @@
         if (!zeile) return;
         erwFeldSetzen(seite, zeile.getAttribute('data-feld-fuer'),
                       Number(b.getAttribute('data-feld')));
+        /* Wer hier von Hand zuordnet, hat die Frage beantwortet – das
+           gemerkte Feld darf nicht noch einmal zuschlagen. */
+        feldGemerkt = null;
         aendern();
       });
     });

@@ -99,9 +99,24 @@ var FEHLER = [
    "    if (kasten.getAttribute('data-stand') !== stand) {", '    if (true) {'],
   ['Der Stand der Feldwahl wird nicht nachgezogen', 'js',
    "        b.classList.toggle('is-active', an);", '        void an;'],
+  ['Die Sprungziele werden wieder in EINER Abfrage gesucht', 'js',
+   "    var wahlen = (m.art === 'dach')",
+   "    var wahlen = [].concat((m.art === 'dach')"],
+  ['Das + merkt sich sein Feld nicht', 'js',
+   "    feldGemerkt = (m.art === 'seite' && (FELD_ANZAHL[m.seite] || 1) > 1)",
+   "    feldGemerkt = (false)"],
+  ['Ein neu gewaehltes Element landet nicht im gemerkten Feld', 'js',
+   '      if (!vorher && jetzt && feldGemerkt && feldGemerkt.seite === seite) {',
+   '      if (false) {'],
+  ['Das gemerkte Feld gilt mehr als einmal', 'js',
+   '        feldGemerkt = null;\n      }\n      aendern();', '      }\n      aendern();'],
+  ['Der Keil bleibt in allen Feldern', 'js',
+   "          erwFeldSetzen(seite, 'Keil', feldGemerkt.feld);", '          void 0;'],
+  ['Eine Zuordnung von Hand loescht das gemerkte Feld nicht', 'js',
+   '        feldGemerkt = null;\n        aendern();', '        aendern();'],
   ['Das + springt nicht mehr in die Feldzeile', 'js',
-   "      : '[data-k3d-feldwahl=\"' + m.seite + '\"] button[data-feld=\"' + m.feld + '\"], ' +\n        '[data-k3d-erw=\"' + m.seite + '\"] button';",
-   "      : '[data-k3d-erw=\"' + m.seite + '\"] button';"]
+   "      : ['[data-k3d-feldwahl=\"' + m.seite + '\"] button[data-feld=\"' + m.feld + '\"]',\n         '[data-k3d-erw=\"' + m.seite + '\"] button'];",
+   "      : ['[data-k3d-erw=\"' + m.seite + '\"] button'];"]
 ];
 
 function baue(nr) {
@@ -227,9 +242,42 @@ function lauf(q) {
   p('Der Stand der Feldwahl wird immer nachgezogen',
     /b\.classList\.toggle\('is-active', an\);/.test(q.js),
     'sonst bliebe nach dem Klick der alte Knopf golden');
+  /* ---------- Der Fehler, den die Quelltextpruefung NICHT gesehen hat ----------
+     Mit EINER Abfrage „Feldzeile, sonst Elementknopf" landete der
+     Sprung immer auf einem Elementknopf: querySelectorAll liefert in
+     der Reihenfolge des DOKUMENTS, nicht in der der Abfrage, und die
+     Feldzeilen stehen unter den Elementknoepfen. Die alte Pruefung hat
+     nachgelesen, dass die Abfrage dasteht - nicht, wohin sie fuehrt.
+     Gefunden hat es erst der Browserlauf. */
+  p('Die Sprungziele werden nacheinander gefragt',
+    /var wahlen = \(m\.art === 'dach'\)/.test(q.js) &&
+    /for \(var w = 0; w < wahlen\.length; w\+\+\) \{/.test(q.js),
+    'sonst entscheidet die Reihenfolge im Dokument, nicht die Absicht');
+
+  /* ---------- Das + bedient sein Feld ----------
+     „bedient ueber das + im Feld" (Entscheidung des Betreibers,
+     01.11.2026). Nur zu springen reicht nicht: Wer auf das + im zweiten
+     Fach tippt und dann „Plankenwand" waehlt, meint sie IN DIESEM FACH. */
+  p('Das + merkt sich sein Feld',
+    /feldGemerkt = \(m\.art === 'seite' && \(FELD_ANZAHL\[m\.seite\] \|\| 1\) > 1\)/.test(q.js),
+    'nur wenn die Seite ueberhaupt mehrere Felder hat');
+  p('Ein neu gewaehltes Element landet im gemerkten Feld',
+    /if \(!vorher && jetzt && feldGemerkt && feldGemerkt\.seite === seite\) \{/.test(q.js) &&
+    /erwFeldSetzen\(seite, wert, feldGemerkt\.feld\);/.test(q.js),
+    'nur beim Hinzufuegen, nicht beim Abwaehlen');
+  p('Das gemerkte Feld gilt nur einmal',
+    /erwFeldSetzen\(seite, wert, feldGemerkt\.feld\);[\s\S]{0,500}?feldGemerkt = null;/.test(q.js),
+    'sonst landete auch eine viel spaetere Auswahl noch in diesem Fach');
+  p('Der Keil folgt seinem Element ins Feld',
+    /erwFeldSetzen\(seite, 'Keil', feldGemerkt\.feld\);/.test(q.js),
+    'sonst saesse die Wand in einem Fach und ihr Keil ueber beiden');
+  p('Eine Zuordnung von Hand loescht das gemerkte Feld',
+    /feldGemerkt = null;\s*\n\s*aendern\(\);/.test(q.js),
+    'wer selbst zuordnet, hat die Frage beantwortet');
+
   p('Das + springt in die Zeile seines Feldes',
-    /\[data-k3d-feldwahl="' \+ m\.seite \+ '"\] button\[data-feld="' \+ m\.feld \+ '"\], ' \+/.test(q.js) &&
-    /\[data-k3d-erw="' \+ m\.seite \+ '"\] button';/.test(q.js),
+    /\['\[data-k3d-feldwahl="' \+ m\.seite \+ '"\] button\[data-feld="' \+ m\.feld \+ '"\]',/.test(q.js) &&
+    /'\[data-k3d-erw="' \+ m\.seite \+ '"\] button'\];/.test(q.js),
     'mit Rueckfall auf die Elementknoepfe, wenn es noch nichts zuzuordnen gibt');
 
   return e;
