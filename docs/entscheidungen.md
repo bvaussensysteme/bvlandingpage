@@ -10591,3 +10591,55 @@ stillschweigend und zeigen den Schaden woanders.
   zur Hälfte verdeckte Seite. Jetzt räumt `dialogeWeg()` beide in der richtigen
   Reihenfolge weg.
 
+## 01.11.2026 (dritte Fassung) — Feld 1, Feld 2 … und jedes Fach wirklich für sich
+
+**Was gemeldet war.** „Es ist nicht linkes Feld und rechtes Feld, sondern es
+heißt Feld 1 und 2 … desto höher die Breite wird, desto mehr Felder kommen
+dazu." Und: „Die Felder untereinander sind komplett getrennte Felder … wenn
+ich in einem Feld Velaris habe, kann ich in dem zweiten, dritten, vierten,
+fünften Feld alles andere reinmachen."
+
+**Punkt 1 — die Namen.** Ich hatte „rechtes Fach / linkes Fach" gebaut und
+dafür argumentiert, dass Nummern nichts sagen. Der Betreiber hat recht: Ein
+Richtungsname trägt bei zweien, vielleicht bei dreien — bei fünf Fächern
+nicht mehr, und die gibt es, sobald die Anlage breit genug ist. Eine Nummer
+wächst mit. Jetzt heißen sie **Feld 1, Feld 2, …**, gezählt in der Reihenfolge
+des Bauens. **Wo Feld 1 liegt, steht in der Anfrage-Mail** („Feld 1 rechts"
+bzw. „Feld 1 an der Wand") — im Bedienfeld sieht man das Modell daneben, in
+der Mail nicht, und bestellt wird nach dieser Angabe.
+
+**Punkt 2 — der eigentliche Fehler.** Die Fächer waren noch voneinander
+abhängig. Die **Knöpfe** prüften schon je Fach (`erwBlocker(wert, imFach)`),
+aber das **Umschalten** lief weiter über `erwUmschalten()`, und das fragt
+gegen die Liste der **ganzen Seite**. Ein Velaris im ersten Fach sperrte damit
+die Schiebetür im zweiten — der Knopf sah offen aus, ließ sich drücken und tat
+nichts. Das ist die unangenehmste Sorte Fehler: Die Oberfläche sagt ja, das
+Programm sagt nein.
+
+Jetzt gibt es `erwFachSetzen()`: Unverträglichkeiten werden **nur gegen den
+Inhalt dieses Fachs** geprüft, das Element kommt in die Seitenliste und
+bekommt genau dieses Fach, und sitzt es am Ende in keinem Fach mehr, fällt es
+ganz aus der Seite. Der Keil, den die Längsseiten brauchen, folgt **in sein
+Fach** statt über die ganze Seite zu gelten.
+
+**Im Browser gemessen (01.11.2026):**
+
+| Schritt | Feld 1 | Feld 2 |
+|---|---|---|
+| Velaris in Feld 1 | Velaris, gesperrt: Rahmenwand, Schiebetür, Senkrechtmarkise | offen, nichts gesperrt |
+| Schiebetür in Feld 2 | Velaris | Schiebetür, gesperrt: Velaris |
+| Rahmenwand dazu | Velaris | Rahmenwand · Schiebetür |
+
+Vorher ließ sich der zweite Schritt nicht ausführen.
+
+**Nebenbei gefunden:** `feldRichtung()` lag neben `feldName()` weit unten in
+der Datei und war am Ort der Anfrage-Mail nicht sichtbar — im Browser brach
+der Mailtext mit „feldRichtung is not a function" ab. Die Zeile steht jetzt am
+Ort ihrer Verwendung. Gefunden hat es ein Browserlauf, der die Konsole
+mitliest; im Quelltext sah die Funktion völlig in Ordnung aus.
+
+**Die Lehre.** Zwei Stellen entscheiden über dieselbe Regel — wie der Knopf
+aussieht und was das Umschalten tut. Wer nur eine ändert, baut eine Oberfläche,
+die lügt. `scripts/pruefe-feldwahl.js` prüft deshalb jetzt **beide** Stellen
+einzeln, und der Browserlauf drückt den Knopf wirklich.
+

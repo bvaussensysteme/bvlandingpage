@@ -998,7 +998,7 @@ if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
     document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach]'))
     .map(f => f.querySelector('.k3d-fach-kopf').textContent.trim().split(' ').slice(0, 2).join(' ')));
   pruef('Jedes Fach hat einen eigenen Block mit Namen',
-    bloecke.length === 2 && /rechtes/.test(bloecke[0]) && /linkes/.test(bloecke[1]),
+    bloecke.length === 2 && /Feld 1/.test(bloecke[0]) && /Feld 2/.test(bloecke[1]),
     bloecke.join(' | ') || 'keine Blöcke');
   pruef('Die Reihe für die ganze Seite ist dann weg',
     await fw.evaluate(() => document.querySelector('[data-k3d-erw="vorne"]').hidden),
@@ -1041,9 +1041,49 @@ if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
   pruef('Die Wahl steht nur in ihrem Fach',
     stand.rechts === 'Plankenwand' && stand.links === 'offen',
     'rechts: ' + stand.rechts + ' · links: ' + stand.links);
-  pruef('Die Zusammenfassung nennt das Fach beim Namen',
-    /Plankenwand \(rechtes Fach\)/.test(stand.zeile) && !/Feld \d/.test(stand.zeile),
-    stand.zeile);
+  pruef('Die Zusammenfassung nennt das Fach',
+    /Plankenwand \(Feld 1\)/.test(stand.zeile), stand.zeile);
+
+  /* ---------- Jedes Fach fuer sich ----------
+     „Die Felder untereinander sind komplett getrennte Felder … wenn ich
+     in einem Feld Velaris habe, kann ich in dem zweiten alles andere
+     reinmachen" (Betreiber, 01.11.2026). Vorher lief das Umschalten
+     über die Liste der ganzen Seite: Der Knopf im zweiten Fach liess
+     sich drücken und tat nichts. */
+  await fw.evaluate(() => {
+    const b = Array.from(document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach="0"] button'))
+      .find(x => x.getAttribute('data-erw') === 'Velaris');
+    if (b) b.click();
+  });
+  await fw.waitForTimeout(1300);
+  await fw.evaluate(() => {
+    const b = Array.from(document.querySelectorAll('[data-k3d-feldwahl="vorne"] [data-fach="1"] button'))
+      .find(x => x.getAttribute('data-erw') === 'Schiebet\u00fcr');
+    if (b) b.click();
+  });
+  await fw.waitForTimeout(1300);
+  const getrennt = await fw.evaluate(() => {
+    const k = document.querySelector('[data-k3d-feldwahl="vorne"]');
+    const voll = f => k.querySelector('[data-fach="' + f + '"] [data-fach-wert]').textContent.trim();
+    const gesperrt = f => Array.from(k.querySelectorAll('[data-fach="' + f + '"] button'))
+      .filter(b => b.disabled).map(b => b.getAttribute('data-erw')).join(',');
+    return { f1: voll(0), f2: voll(1), s1: gesperrt(0), s2: gesperrt(1) };
+  });
+  pruef('Velaris im einen Fach sperrt das andere nicht',
+    /Schiebet\u00fcr/.test(getrennt.f2) && /Velaris/.test(getrennt.f1),
+    'Feld 1: ' + getrennt.f1 + ' · Feld 2: ' + getrennt.f2);
+  pruef('Unverträgliches bleibt im eigenen Fach gesperrt',
+    /Schiebet\u00fcr/.test(getrennt.s1) && /Velaris/.test(getrennt.s2),
+    'Feld 1 sperrt: ' + getrennt.s1 + ' · Feld 2 sperrt: ' + getrennt.s2);
+  /* Wieder abraeumen, damit der Rest des Blocks sauber anfaengt. */
+  await fw.evaluate(() => {
+    const k = document.querySelector('[data-k3d-feldwahl="vorne"]');
+    const weg = (f, w) => { const b = Array.from(k.querySelectorAll('[data-fach="' + f + '"] button'))
+      .find(x => x.getAttribute('data-erw') === w && x.classList.contains('is-active'));
+      if (b) b.click(); };
+    weg(0, 'Velaris'); weg(1, 'Schiebet\u00fcr');
+  });
+  await fw.waitForTimeout(1300);
 
   /* Abwählen im Fach nimmt es auch aus der Seite – es sitzt dann
      nirgends mehr. */

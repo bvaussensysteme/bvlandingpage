@@ -309,6 +309,15 @@ bei 7 m freistehend mit Plankenwand hinten). Rest der Korrektur vom
 24.10.2026. Jetzt: ein Aufbau. Einzelheiten: `docs/entscheidungen.md`,
 01.11.2026.
 
+**Dritte Fassung** (01.11.2026): Die Fächer heissen **Feld 1, Feld 2 …** –
+ein Richtungsname trägt nicht, sobald es fünf Fächer gibt. Wo Feld 1 liegt,
+steht in der Anfrage-Mail. **Und jedes Fach ist wirklich für sich:**
+Unverträglichkeiten gelten nur gegen den Inhalt DIESES Fachs – Velaris in
+Feld 1 und Schiebetür in Feld 2 geht jetzt. Vorher prüften nur die Knöpfe je
+Fach, das Umschalten aber gegen die ganze Seite: Der Knopf liess sich drücken
+und tat nichts. Einzelheiten: `docs/entscheidungen.md`, 01.11.2026 (dritte
+Fassung).
+
 **Zweite Fassung der Bedienung** („die umsetzung ist etwas verwirrend und
 kompliziert"): Hat eine Seite mehrere Fächer, bekommt **jedes einen eigenen
 Block** mit denselben Knöpfen und einem Namen („rechtes Fach", „linkes Fach",
