@@ -116,9 +116,9 @@ var FEHLER = [
    "    g.fillStyle = belegt ? 'rgba(196,154,42,.80)' : 'rgba(255,255,255,.80)';"],
   ['Die Linien werden wieder duenn', 'js',
    '      g.lineWidth = 4.2;', '      g.lineWidth = 2.3;'],
-  ['Der Ring wird wieder schmal', 'js',
-   "    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();",
-   "    g.strokeStyle = '#9A7318'; g.lineWidth = 6; g.stroke();"],
+  ['Der Rand wird wieder breit', 'js',
+   "    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();",
+   "    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();"],
   ['Das Zeichen wird beim Verkleinern wieder weichgerechnet', 'js',
    '    t.minFilter = THREE.LinearFilter;', '    void 0;'],
   ['Die Mipmap-Kette kommt zurueck', 'js',
@@ -146,6 +146,12 @@ var FEHLER = [
   ['Belegte Felder liegen als Schleier vor dem Element', 'js',
    '                           feldStoff(belegt ? 0 : FELD_RUHE));',
    '                           feldStoff(FELD_RUHE));'],
+  ['Auch belegte Faecher bekommen wieder ein Zeichen', 'js',
+   '      if (erwListeFeld(m.seite, m.feld).length === 0) {',
+   '      if (true) {'],
+  ['Das Dach verliert sein Zeichen', 'js',
+   '    feldFlaeche(marke, kiste.max.x - kiste.min.x - 20, tief - 20, true);',
+   '    void tief;'],
   ['Die leere Flaeche ist nicht mehr zurueckhaltend', 'js',
    '  var FELD_RUHE   = 0.09;', '  var FELD_RUHE   = 0.9;'],
   ['Die Flaechen haengen nicht am Felder-Schalter', 'js',
@@ -454,9 +460,13 @@ function lauf(q) {
     /g\.fillStyle = belegt \? '#C49A2A' : '#FFFFFF';/.test(q.js),
     'durchsichtig nahm sie die Farbe des Hintergrunds an');
   p('Die Linien sind kraeftig',
-    /g\.lineWidth = 4\.2;/.test(q.js) &&
-    /g\.strokeStyle = '#9A7318'; g\.lineWidth = 13; g\.stroke\(\);/.test(q.js),
+    /g\.lineWidth = 4\.2;/.test(q.js),
     'Strich 4,2 statt 2,3 - die 2,3 stammten aus dem 24-px-Knopf');
+  /* „dünnere Ränder" (Betreiber, 01.11.2026): 13 verschluckte die
+     Scheibe. Die Linien IM Zeichen bleiben kraeftig. */
+  p('Der Rand ist schmal',
+    /g\.strokeStyle = '#9A7318'; g\.lineWidth = 8; g\.stroke\(\);/.test(q.js),
+    'Ring 8 statt 13');
   p('Das Zeichen bleibt beim Verkleinern scharf',
     /t\.generateMipmaps = false;/.test(q.js) &&
     /t\.minFilter = THREE\.LinearFilter;/.test(q.js),
@@ -476,14 +486,27 @@ function lauf(q) {
     /transparent: true, opacity: ruhe, depthWrite: false/.test(q.js),
     'depthWrite aus, depthTest an – das ist die Verdeckung');
 
-  /* Ein belegtes Feld bekommt seine Flaeche AUCH - sonst liesse sich
-     eine fertige Schiebeanlage nicht mehr ueber das Modell anwaehlen.
-     Nur sichtbar ist sie dort nicht, sonst laege sie als Schleier vor
-     dem eingebauten Element. */
-  p('Jedes Feld bekommt eine Flaeche, belegte bleiben in Ruhe unsichtbar',
-    /feldFlaeche\(marke, m\.laenge, okOben - yUnten,\s*\n?\s*erwListe\(m\.seite\)\.length > 0\);/.test(q.js) &&
+  /* ---------- Nur LEERE Faecher bekommen ein Zeichen ----------
+     „wenn man auf ein plus drueckt, und z.b glassschiebetuer oder was
+     anderes auswaehlt soll das plus in diesem feld verschwinden samt
+     der orangen durchsichtigen markierung … weil sonst wenn man
+     glasschiebewand etc. ausgewaehlt hat, leuchtet das + durch und
+     sieht unprofessionell aus" (Betreiber, 01.11.2026).
+
+     Das Zeichen laedt zum HINZUFUEGEN ein - ist etwas drin, gibt es
+     nichts mehr hinzuzufuegen. Geaendert wird im Bedienfeld. */
+  p('Nur leere Faecher bekommen ein Zeichen',
+    /if \(erwListeFeld\(m\.seite, m\.feld\)\.length === 0\) \{\s*\n\s*feldFlaeche\(marke, m\.laenge, okOben - yUnten, false\);/.test(q.js),
+    'vor einer Glasschiebewand steht kein Plus mehr');
+  /* Das Dach ist das einzige belegte Feld, das noch eine Flaeche
+     bekommt - und die muss in Ruhe UNSICHTBAR sein. Mit FELD_RUHE laege
+     ein Schleier ueber dem halben Bild. */
+  p('Das Dach liegt nicht unter einem Schleier',
     /feldStoff\(belegt \? 0 : FELD_RUHE\)/.test(q.js),
-    'belegt = 0, leer = FELD_RUHE');
+    'belegt = 0 Deckkraft, nur unter dem Zeiger leuchtet es');
+  p('Das Dach behaelt sein Zeichen',
+    /feldFlaeche\(marke, kiste\.max\.x - kiste\.min\.x - 20, tief - 20, true\);/.test(q.js),
+    'es ist immer belegt, und der Klick ist der einzige Weg in die Dachauswahl');
 
   p('Die leere Flaeche bleibt zurueckhaltend',
     /var FELD_RUHE   = 0\.0[0-9];/.test(q.js),

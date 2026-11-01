@@ -4369,7 +4369,10 @@
     g.restore();
 
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();
+    /* Schmaler Ring: „dünnere Ränder" (Betreiber, 01.11.2026). 13 war
+       zu breit - der Ring verschluckte die Scheibe. Die Linien im
+       Zeichen bleiben kräftig, nur der Rand wird zurückgenommen. */
+    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
     g.strokeStyle = belegt ? '#FFFFFF' : '#7A5B12';
@@ -5992,12 +5995,30 @@
         n: { x: m.nx, y: 0, z: m.nz }
       };
       MARKEN.push(marke);
-      /* Die Fläche entsteht für JEDES Feld, auch für ein belegtes – nur
-         bleibt sie dort in Ruhe unsichtbar. Vorher gab es sie nur an
-         leeren Seiten; dann ließ sich eine fertige Schiebeanlage nicht
-         mehr über das Modell anwählen, was der Sinn der Sache ist. */
-      feldFlaeche(marke, m.laenge, okOben - yUnten,
-                  erwListe(m.seite).length > 0);
+      /* ---------- Nur LEERE Faecher bekommen ein Zeichen ----------
+         „wenn man auf ein plus drückt, und z.b glassschiebetür oder was
+         anderes auswählt soll das plus in diesem feld verschwinden samt
+         der orangen durchsichtigen markierung … weil sonst wenn man
+         glasschiebewand etc. ausgewählt hat, leuchtet das + durch und
+         sieht unprofessionell aus" (Betreiber, 01.11.2026).
+
+         Bis dahin bekam auch ein belegtes Fach seine Flaeche - in Ruhe
+         unsichtbar, aber mit Zeichen (einem Stift) und mit der orangen
+         Hervorhebung unter dem Zeiger. Vor einer Glasschiebewand stand
+         damit ein Symbol im Bild, das dort nichts mehr zu suchen hat:
+         Das Zeichen lauft zum HINZUFUEGEN ein, und hinzuzufuegen gibt
+         es nichts mehr.
+
+         Geaendert wird ein belegtes Fach im Bedienfeld, in seinem
+         eigenen Block. Nimmt man die Auswahl dort weg, ist das Zeichen
+         beim naechsten Aufbau wieder da.
+
+         Das DACH ist die Ausnahme und bekommt seines weiterhin: Es ist
+         immer belegt (eine Eindeckung hat es stets), und der Klick
+         darauf ist der einzige Weg vom Modell in die Dachauswahl. */
+      if (erwListeFeld(m.seite, m.feld).length === 0) {
+        feldFlaeche(marke, m.laenge, okOben - yUnten, false);
+      }
     });
   }
 
