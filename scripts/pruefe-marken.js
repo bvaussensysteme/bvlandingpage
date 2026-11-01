@@ -74,7 +74,7 @@ var FEHLER = [
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: f.laenge });",
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: 0 });"],
   ['Der Zeiger verraet nicht, dass das Feld anklickbar ist', 'js',
-   "    if (neu) { leinwand.style.cursor = 'pointer'; return; }",
+   "    if (neu) { massSchweben(null); leinwand.style.cursor = 'pointer'; return; }",
    '    void neu;'],
   ['Die Lagefunktion ist nicht mehr auffindbar', 'js',
    'function markenFelder(B, PROFIL, felder', 'function markenFelderchen(B, PROFIL, felder'],
@@ -120,10 +120,19 @@ var FEHLER = [
   ['Der Rand wird wieder breit', 'js',
    "    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();",
    "    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();"],
+  /* MIT DER NACHBARZEILE VERANKERT: Beide Saetze stehen seit dem
+     01.11.2026 ZWEIMAL in der Datei - einmal fuer die runden
+     Feldzeichen, einmal fuer die Massschilder. Ohne Anker beschaedigte
+     der eingebaute Fehler das eine und die Pruefung fand das andere. */
   ['Das Zeichen wird beim Verkleinern wieder weichgerechnet', 'js',
-   '    t.minFilter = THREE.LinearFilter;', '    void 0;'],
+   '    t.minFilter = THREE.LinearFilter;\n    t.anisotropy =',
+   '    t.anisotropy ='],
+  ['Das Massschild wird beim Verkleinern weichgerechnet', 'js',
+   '       Rahmens eine Linie statt zu Grau zu zerfliessen. */\n    t.generateMipmaps = false;',
+   '       Rahmens eine Linie statt zu Grau zu zerfliessen. */'],
   ['Die Mipmap-Kette kommt zurueck', 'js',
-   '    t.generateMipmaps = false;', '    void 0;'],
+   '       Tauschgeschaefts; es ist kein Foto mit feiner Struktur. */\n    t.generateMipmaps = false;',
+   '       Tauschgeschaefts; es ist kein Foto mit feiner Struktur. */'],
   ['Das Zeichen wird nur halb so fein gezeichnet', 'js',
    '    var K = 256, M = K / 2;', '    var K = 128, M = K / 2;'],
   ['Das Zeichen wird wieder von Hand gemalt statt aus dem Zeichensatz', 'js',
@@ -204,7 +213,7 @@ var FEHLER = [
    '<input type="checkbox" id="k3dMasse" checked>',
    '<input type="checkbox" id="k3dMasse">'],
   ['Die Schilder wissen nicht, zu welchem Mass sie gehoeren', 'js',
-   "    if (feld) s.userData.massFeld = feld;", '    void feld;'],
+   '      s.userData.massFeld = feld;', '      void feld;'],
   ['Der Klick auf ein Mass wird nicht ausgewertet', 'js',
    '!feldGeklickt(e) && !massGeklickt(e) &&', '!feldGeklickt(e) &&'],
   ['Die neue Zahl umgeht das Zahlenfeld und seine Grenzen', 'js',
@@ -212,6 +221,43 @@ var FEHLER = [
    '      Z.breite = parseInt(eingabe.value, 10);'],
   ['Der Eingabekasten fehlt in der Seite', 'html',
    'id="k3dMassEingabe"', 'id="k3dMassEingabeAlt"'],
+  /* ---------- Das neue Aussehen der Bemassung ---------- */
+  ['Die Masslinien sind wieder dick', 'js',
+   '  var MASS_DICK = 0.9;      // cm Staerke', '  var MASS_DICK = 1.6;      // cm Staerke'],
+  ['Die Pfeilspitzen fehlen', 'js',
+   '    if (pa) masseGruppe.add(pa);\n    if (pb) masseGruppe.add(pb);',
+   '    void pa; void pb;'],
+  ['Die Pfeilspitze ist kein Koerper mehr', 'js',
+   '      new THREE.ConeGeometry(MASS_PFEIL_R, MASS_PFEIL, 10), material);',
+   '      new THREE.PlaneGeometry(MASS_PFEIL_R, MASS_PFEIL), material);'],
+  ['Die Pfeile zeigen nach innen statt nach aussen', 'js',
+   '    var pa = massPfeil(a, richtung.clone().negate(), mMass);',
+   '    var pa = massPfeil(a, richtung.clone(), mMass);'],
+  ['Die Masshilfslinien stehen nicht mehr ueber', 'js',
+   '        v.y = pkt.y - MASS_UEBER;\n        w.y = pkt.y + MASS_MARKE;',
+   '        w.y = pkt.y + MASS_MARKE;'],
+  ['Das Schild sieht wieder aus wie eine Beschriftung', 'js',
+   "      g.strokeStyle = wach ? '#C49A2A' : '#9AA4AB';", '      g.strokeStyle = wach ? 1 : 1;'],
+  ['Das Schild traegt kein Stiftzeichen mehr', 'js',
+   "      var u = symbolUmriss('stift');", '      var u = null;'],
+  ['Zahl und Einheit sind wieder gleich gross', 'js',
+   "    var fEinheit = '400 40px Arial, Helvetica, sans-serif';",
+   "    var fEinheit = '600 54px Arial, Helvetica, sans-serif';"],
+  ['Das Schild kennt keine zweite Fassung', 'js',
+   "      s.userData.wachMap = schildBild(text, true, true).map;", '      void feld;'],
+  ['Der Zeiger auf dem Schild aendert nichts', 'js',
+   '      s.material.map = s.userData.wachMap;', '      void s;'],
+  ['Die Hervorhebung wird nicht in die Zeigerkette gehaengt', 'js',
+   '    var ms = massUnterZeiger(e);\n    massSchweben(ms);', '    var ms = null;'],
+  ['Die Schildbilder werden nicht mehr freigegeben', 'js',
+   '      if (k.userData.ruheMap) k.userData.ruheMap.dispose();',
+   '      void k;'],
+  ['Die Hervorhebung bleibt nach einem Neubau haengen', 'js',
+   '    massWachSchild = null;\n    leeren(masseGruppe);',
+   '    leeren(masseGruppe);'],
+  ['Der Klick faellt bei langsamen Geraeten wieder durch', 'js',
+   '    if (weg < 6 && zeit < 2500 && !pfostenGeklickt(e) &&',
+   '    if (weg < 6 && zeit < 900 && !pfostenGeklickt(e) &&'],
   ['Die eigenen Schalter am Masskasten fehlen', 'html',
    'id="k3dMassPlus"', 'id="k3dMassPlusAlt"'],
   ['Die Schalter tun nichts', 'js',
@@ -488,10 +534,16 @@ function lauf(q) {
   p('Der Rand ist schmal',
     /g\.strokeStyle = '#9A7318'; g\.lineWidth = 8; g\.stroke\(\);/.test(q.js),
     'Ring 8 statt 13');
+  /* MIT DEN NACHBARZEILEN: Beide Saetze stehen seit dem 01.11.2026
+     auch beim Massschild. Ohne Anker bestuende die Pruefung, obwohl
+     beim runden Zeichen die Mipmaps zurueck waeren. */
   p('Das Zeichen bleibt beim Verkleinern scharf',
-    /t\.generateMipmaps = false;/.test(q.js) &&
-    /t\.minFilter = THREE\.LinearFilter;/.test(q.js),
+    /Tauschgeschaefts; es ist kein Foto mit feiner Struktur\. \*\/\s*\n\s*t\.generateMipmaps = false;/.test(q.js) &&
+    /t\.minFilter = THREE\.LinearFilter;\s*\n\s*t\.anisotropy =/.test(q.js),
     'ohne das rechnet three.js die Scheibe Stufe fuer Stufe weich');
+  p('Auch das Maßschild bleibt scharf',
+    /Rahmens eine Linie statt zu Grau zu zerfliessen\. \*\/\s*\n\s*t\.generateMipmaps = false;/.test(q.js),
+    'sonst zerfließt die Haarlinie des Rahmens zu Grau');
   p('Das Zeichen wird fein genug gezeichnet',
     /var K = 256, M = K \/ 2;/.test(q.js),
     '256 Bildpunkte Kantenlaenge');
@@ -569,7 +621,7 @@ function lauf(q) {
     /leinwand\.addEventListener\('pointermove'/.test(q.js),
     'hoechstens alle 60 ms und nur auf Bewegung des Zeigers');
   p('Der Zeiger zeigt am Feld, dass es anklickbar ist',
-    /if \(neu\) \{ leinwand\.style\.cursor = 'pointer'; return; \}/.test(q.js),
+    /if \(neu\) \{ massSchweben\(null\); leinwand\.style\.cursor = 'pointer'; return; \}/.test(q.js),
     'sonst sieht man nicht, dass dort etwas geht');
 
   /* ---------- Der Klick ---------- */
@@ -610,7 +662,8 @@ function lauf(q) {
     'Z.masseZeigen und das Häkchen');
 
   p('Jedes Maßschild weiß, zu welchem Maß es gehört',
-    /if \(feld\) s\.userData\.massFeld = feld;/.test(q.js) &&
+    /s\.userData\.massFeld = feld;/.test(q.js) &&
+    /var s = schild\(text, feld\);/.test(q.js) &&
     /Z\.breite \+ ' mm',\s*\n?\s*'breite'/.test(q.js) &&
     /Z\.tiefe \+ ' mm', 'tiefe'/.test(q.js) &&
     /Z\.hoehe \+ ' mm', 'hoehe'/.test(q.js),
@@ -635,6 +688,46 @@ function lauf(q) {
     /id="k3dMassEingabe"/.test(q.html) &&
     /id="k3dMassWert"/.test(q.html) && /id="k3dMassOk"/.test(q.html),
     'Kasten, Zahlenfeld und Übernehmen');
+
+  /* ---------- Das Aussehen der Bemassung ----------
+     „verbessere die maßanzeige, vllt. dünnere linien, das maß selber
+     vllt. so designen das man sieht man kann draufkliken und es
+     bearbeiten" (Betreiber, 01.11.2026, mit drei Bildern). */
+  p('Die Masslinien sind dünn',
+    /var MASS_DICK = 0\.9;/.test(q.js), '0,9 cm statt 1,6 cm');
+  p('Die Masslinien enden in Pfeilspitzen',
+    /new THREE\.ConeGeometry\(MASS_PFEIL_R, MASS_PFEIL, 10\)/.test(q.js) &&
+    /if \(pa\) masseGruppe\.add\(pa\);\s*\n\s*if \(pb\) masseGruppe\.add\(pb\);/.test(q.js),
+    'Kegel, damit sie aus jeder Blickrichtung zu sehen sind');
+  p('Die Pfeile zeigen nach außen',
+    /var pa = massPfeil\(a, richtung\.clone\(\)\.negate\(\), mMass\);/.test(q.js),
+    'sie sagen „bis hierhin"');
+  p('Die Maßhilfslinien stehen über die Maßlinie hinaus',
+    /v\.y = pkt\.y - MASS_UEBER;\s*\n\s*w\.y = pkt\.y \+ MASS_MARKE;/.test(q.js),
+    'sonst sehen sie aus wie ein Haken');
+  p('Das Schild sieht aus wie ein Bedienelement',
+    /g\.strokeStyle = wach \? '#C49A2A' : '#9AA4AB';/.test(q.js) &&
+    /var u = symbolUmriss\('stift'\);/.test(q.js),
+    'heller Grund, Haarlinie als Rahmen, Stift aus der eigenen Sammlung');
+  p('Die Einheit tritt hinter die Zahl zurück',
+    /var fEinheit = '400 40px Arial/.test(q.js) &&
+    /var fZahl = '600 54px Arial/.test(q.js),
+    'in einer Bemaßung zählt die Zahl');
+  p('Der Zeiger auf dem Schild macht Rahmen und Stift gold',
+    /s\.userData\.wachMap = schildBild\(text, true, true\)\.map;/.test(q.js) &&
+    /s\.material\.map = s\.userData\.wachMap;/.test(q.js) &&
+    /var ms = massUnterZeiger\(e\);\s*\n\s*massSchweben\(ms\);/.test(q.js),
+    'beide Fassungen stehen seit dem Bauen bereit, getauscht wird nur das Bild');
+  p('Die Schildbilder werden beim Neuzeichnen freigegeben',
+    /if \(k\.userData\.ruheMap\) k\.userData\.ruheMap\.dispose\(\);/.test(q.js) &&
+    /massWachSchild = null;\s*\n\s*leeren\(masseGruppe\);/.test(q.js),
+    'sonst bliebe bei jedem Reglerzug eine Zeichenfläche liegen');
+  /* GEMESSEN am 01.11.2026: 689 ms fuer einen Druck von 120 ms,
+     waehrend der Rechner zu tun hatte. Die Zeit misst die Last, nicht
+     den Finger - eine knappe Grenze laesst auf langsamen Geraeten
+     Klicks verschwinden. */
+  p('Ein Klick fällt auch auf langsamen Geräten nicht durch',
+    /zeit < 2500/.test(q.js), '2,5 s statt 0,9 s');
 
   /* ---------- Eigene Schalter statt der Browser-Pfeilchen ----------
      „die zahl lässt sich nicht ändern" (Betreiber, 01.11.2026, mit

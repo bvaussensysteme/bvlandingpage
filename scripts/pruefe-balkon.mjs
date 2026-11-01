@@ -129,6 +129,12 @@ async function messen() {
     s.traverse((o) => {
       if (!o.isMesh || !o.geometry || !o.geometry.attributes ||
           !o.geometry.attributes.position) return;
+      /* DIE BEMASSUNG IST KEIN BAUTEIL. Sie haengt in derselben Szene,
+         und seit dem 01.11.2026 enden die Masslinien in Pfeilspitzen.
+         GEMESSEN: Die Spitze des Hoehenmasses (Radius 1,8 cm) reichte
+         bis z = 131,8 cm und wurde als Dachkante gezaehlt - die liegt
+         bei 130,0 cm. Markiert wird in masseZeichnen(). */
+      if (o.userData && o.userData.mass) return;
       o.updateWorldMatrix(true, false);
       const p = o.geometry.attributes.position;
       const v = new THREE.Vector3();
