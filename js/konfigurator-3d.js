@@ -10275,8 +10275,6 @@
      dorthin, und gewaehlt wird im Block. */
   function markeSpringen(m) {
     var schritt = (m.art === 'dach') ? 'dach' : 'seiten';
-    feldGemerkt = (m.art === 'seite' && (FELD_ANZAHL[m.seite] || 1) > 1)
-      ? { seite: m.seite, feld: m.feld } : null;
     if (gefuehrt) {
       bereichNr = bereichVon(schritt);
       schrittZeigen();
@@ -12626,20 +12624,6 @@
          sie ein einziges Fach hat - bei mehreren blendet
          feldwahlAnzeigen() sie aus und es wird je Fach gewaehlt. */
       erwUmschalten(seite, wert);
-      var jetzt = erwListe(seite).indexOf(wert) > -1;
-      /* Kam das Element gerade DAZU und wurde der Schritt ueber das +
-         eines bestimmten Feldes erreicht, gehoert es in dieses Feld. */
-      if (!vorher && jetzt && feldGemerkt && feldGemerkt.seite === seite) {
-        erwFeldSetzen(seite, wert, feldGemerkt.feld);
-        /* Mit dem Keil, den erwUmschalten() an den Laengsseiten von
-           selbst dazunimmt, genauso verfahren - sonst saesse die
-           Plankenwand im zweiten Fach und ihr Keil ueber beiden. */
-        if (erwListe(seite).indexOf('Keil') > -1 &&
-            erwFeldVon(seite, 'Keil') === FELD_ALLE && wert !== 'Keil') {
-          erwFeldSetzen(seite, 'Keil', feldGemerkt.feld);
-        }
-        feldGemerkt = null;
-      }
       aendern();
     });
   });
