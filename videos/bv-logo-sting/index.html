@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>BV AussenSysteme — Logo Sting</title>
+    <script src="node_modules/gsap/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #1a1a1a;
+      }
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #1a1a1a;
+      }
+
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+
+      /* full-bleed ground, per hyperframes-core: never rely on #root's own background */
+      .stage-bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 42%, #232323 0%, #1a1a1a 55%, #141414 100%);
+      }
+
+      .glow {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        width: 900px;
+        height: 900px;
+        transform: translate(-50%, -50%) scale(0.5);
+        background: radial-gradient(circle, rgba(196, 154, 42, 0.35) 0%, rgba(196, 154, 42, 0) 70%);
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .accent-line {
+        position: absolute;
+        left: 50%;
+        top: 46.5%;
+        width: 260px;
+        height: 3px;
+        background: #c49a2a;
+        transform: translate(-50%, -50%) scaleX(0);
+        transform-origin: center;
+        opacity: 0;
+      }
+
+      .logo-wrap {
+        position: absolute;
+        left: 50%;
+        top: 42%;
+        transform: translate(-50%, -50%) scale(0.82);
+        opacity: 0;
+        width: 620px;
+      }
+
+      .logo-wrap img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .text-block {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 58%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .tagline {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-weight: 700;
+        font-size: 32px;
+        letter-spacing: 7px;
+        color: #f5f2eb;
+        text-transform: uppercase;
+        opacity: 0;
+        margin-bottom: 44px;
+      }
+
+      .url-pill {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 34px;
+        border: 1px solid rgba(196, 154, 42, 0.55);
+        border-radius: 100px;
+        opacity: 0;
+      }
+
+      .url-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #c49a2a;
+      }
+
+      .url-text {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-weight: 500;
+        font-size: 26px;
+        letter-spacing: 1px;
+        color: #c49a2a;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-width="1080"
+      data-height="1920"
+      data-duration="4"
+    >
+      <section
+        id="sting"
+        class="clip"
+        data-start="0"
+        data-duration="4"
+        data-track-index="1"
+      >
+        <div class="stage-bg"></div>
+        <div id="glow" class="glow"></div>
+        <div id="accent-line" class="accent-line"></div>
+
+        <div id="logo-wrap" class="logo-wrap">
+          <img src="public/logo-dunkel.png" alt="BV AussenSysteme" />
+        </div>
+
+        <div class="text-block">
+          <div id="tagline" class="tagline">Aluminium-Außensysteme</div>
+          <div id="url-pill" class="url-pill">
+            <span class="url-dot"></span>
+            <span class="url-text">bv-aussensysteme.de</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // 1. Accent line draws in from center, glow blooms behind it
+      tl.to("#accent-line", { opacity: 1, duration: 0.01 }, 0.15);
+      tl.to("#accent-line", { scaleX: 1, duration: 0.55, ease: "power3.out" }, 0.15);
+      tl.to("#glow", { opacity: 1, scale: 1, duration: 0.9, ease: "power2.out" }, 0.15);
+
+      // 2. Logo scales up + fades in
+      tl.to(
+        "#logo-wrap",
+        { opacity: 1, scale: 1, duration: 0.85, ease: "power3.out" },
+        0.55,
+      );
+
+      // 3. Accent line contracts back to a short underline beneath the logo
+      tl.to(
+        "#accent-line",
+        { scaleX: 0.35, top: "51%", duration: 0.5, ease: "power2.inOut" },
+        1.15,
+      );
+
+      // 4. Tagline fades up
+      tl.fromTo(
+        "#tagline",
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        1.55,
+      );
+
+      // 5. URL pill fades in
+      tl.fromTo(
+        "#url-pill",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
+        1.95,
+      );
+
+      // 6. Gentle glow settle so the hold (2.5s–4s) isn't static
+      tl.to("#glow", { opacity: 0.65, scale: 1.08, duration: 1.6, ease: "sine.inOut" }, 2.4);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
