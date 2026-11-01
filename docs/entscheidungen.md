@@ -10511,3 +10511,83 @@ Browser etwas. Quelltextprüfungen halten fest, was gemeint war; sie ersetzen
 nicht den Versuch. Für die Feldzuordnung gibt es deshalb jetzt eine Prüfung,
 die tippt und nachsieht: *Nach dem + landet die Auswahl in diesem Feld*.
 
+## 01.11.2026 (nachts, zweite Fassung) — Ein Block je Fach, und eine Klammer zu viel
+
+**Was gemeldet war.** „grunglegen klappt es aber die umsetzung ist etwas
+verwirrend und kompliziert" (Betreiber).
+
+**Was an der ersten Fassung falsch war** — meine Analyse, vom Betreiber
+bestätigt:
+1. **Zwei Wege für dasselbe.** Zuordnen ging über das + *und* über eine Zeile
+   darunter.
+2. **Das + merkte sich etwas Unsichtbares.** Nach dem Tippen stand nirgends,
+   dass das Nächste in dieses Fach kommt — und nach einmal Benutzen war es weg.
+3. **„Feld 1 / Feld 2" sagt nichts.** Dass ich dafür einen Erklärsatz in die
+   Anfrage-Mail schreiben musste, war das Zeichen.
+4. **Die Reihenfolge war verkehrt herum:** erst für die ganze Seite wählen,
+   dann auf ein Fach korrigieren.
+
+**Was jetzt gilt.** Hat eine Seite mehrere Fächer, bekommt jedes einen eigenen
+Block mit denselben Knöpfen und einem **Namen**: „rechtes Fach", „linkes
+Fach", an den Längsseiten „hinteres"/„vorderes". Die Reihe für die ganze Seite
+wird dann ausgeblendet — sonst wären es wieder zwei Wege. Das + springt nur
+noch in den Block; es merkt sich nichts mehr. Bei **einem** Fach bleibt alles
+wie vorher.
+
+**Die Namen kommen aus dem Bauen, nicht aus dem Gefühl:** Vorne laufen die
+Fächer nach steigendem x, und +x ist in diesem Modell die *linke* Seite (siehe
+`eineSeite('links', B / 2 …)`) — Fach 0 liegt also rechts. An den Längsseiten
+laufen sie von der Wand nach vorne. `feldName()` wird von
+`scripts/pruefe-feldwahl.js` **ausgeführt**, nicht nachgelesen: Ein falsch
+herum benanntes Fach fällt im Quelltext nicht auf.
+
+**Datenmodell:** `Z.erwFeld` trägt jetzt je Element eine **Liste** von Fächern
+statt einer Nummer — ein Element kann in zweien von drei Fächern sitzen. Sitzt
+es in allen, wird nichts gespeichert; das bleibt die Vorgabe. Ein Link mit
+einer einzelnen Zahl (Vormittag des 01.11.2026) wird weiter gelesen.
+
+**Nebenbei besser geworden:** Unverträglichkeiten werden jetzt **je Fach**
+geprüft — eine Plankenwand im einen und eine Rahmenwand im anderen Fach stören
+einander nicht mehr.
+
+---
+
+### Der Fehler, der dabei fast unbemerkt live gegangen wäre
+
+Beim Austausch des CSS-Abschnitts blieb eine Regel doppelt stehen:
+`.k3d-marken {    .k3d-marken {`. **Eine geschweifte Klammer zu viel** — und
+der Browser verwirft von dort an den **Rest des Stilblocks**. Betroffen war
+damit alles Spätere, darunter die **ganze Handy-Darstellung**: Im Versuch bei
+390 px Fensterbreite war die Bühne noch **30 px** breit statt 390.
+
+Gefunden hat es die Prüfreihe — die Handy-Prüfungen wurden rot —, aber bis zur
+Ursache war es eine Stunde Suche: Erst der Vergleich derselben Messung gegen
+`origin/main` (390 px dort, 30 px hier) zeigte, dass es keine Testschwäche war,
+sondern eine echte Regression.
+
+**Festgehalten** in `scripts/pruefe-werkstatt.js`: Öffnende und schließende
+Klammern je Stilblock zählen, in `konfigurator.html` **und** in der erzeugten
+Werkstatt-Seite. Kommentare werden vorher entfernt. Gegenprobe mit beiden
+Richtungen: eine Klammer zu viel und eine zu wenig.
+
+**Die Lehre.** Ein Textaustausch in einer Datei, die kein Übersetzer prüft,
+braucht eine Prüfung auf Wohlgeformtheit. CSS und HTML schlucken Fehler
+stillschweigend und zeigen den Schaden woanders.
+
+### Zwei Prüfungen, die dabei stumpf geworden sind
+
+- **Playwright-Klicks auf Knöpfe über der Leinwand** (`#k3dPanelAn`, die
+  Ansichtsleiste) brachen mit Timeout ab, sobald das Bedienfeld länger wurde:
+  Die Trefferprüfung meldet „verdeckt". Beide laufen jetzt über `$eval` — es
+  geht um die *Wirkung* des Knopfes; dass die Leiste frei liegt, prüfen eigene
+  Prüfungen mit gemessenen Überlappungen.
+- **„Maße lassen sich im Modell abschalten"** verglich zwei Bildschirmfotos auf
+  Gleichheit und wurde in der Gegenprobe blind: Seit das Bedienfeld seine Länge
+  ändert, verschiebt sich die Bühne beim Umschalten ein wenig, und schon sind
+  die Bilder „verschieden". Gezählt wird jetzt, **wie viele** Bildpunkte sich
+  ändern (gemessen: 9525 mit Maßen, nahe null ohne).
+- **Die beiden Hinweis-Dialoge** (Cookie, Testbetrieb) wurden im Handy-Teil
+  nicht weggeklickt, weil der eine den anderen abfing — gemessen wurde eine
+  zur Hälfte verdeckte Seite. Jetzt räumt `dialogeWeg()` beide in der richtigen
+  Reihenfolge weg.
+

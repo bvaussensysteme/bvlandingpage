@@ -309,7 +309,17 @@ bei 7 m freistehend mit Plankenwand hinten). Rest der Korrektur vom
 24.10.2026. Jetzt: ein Aufbau. Einzelheiten: `docs/entscheidungen.md`,
 01.11.2026.
 
-**Nachgebessert in derselben Nacht** – „die feldzuordnung geht noch nicht":
+**Zweite Fassung der Bedienung** („die umsetzung ist etwas verwirrend und
+kompliziert"): Hat eine Seite mehrere Fächer, bekommt **jedes einen eigenen
+Block** mit denselben Knöpfen und einem Namen („rechtes Fach", „linkes Fach",
+an den Längsseiten „hinteres"/„vorderes"). Die Reihe für die ganze Seite wird
+dann ausgeblendet. Das + springt nur noch dorthin und merkt sich nichts mehr.
+Bei einem Fach bleibt alles wie vorher. `Z.erwFeld` trägt je Element eine
+**Liste** von Fächern. Einzelheiten und der dabei gefundene CSS-Fehler, der
+die ganze Handy-Darstellung aushebelte: `docs/entscheidungen.md`, 01.11.2026
+(nachts, zweite Fassung).
+
+**Vorher nachgebessert** – „die feldzuordnung geht noch nicht":
 Das + landete nie in der Feldzeile (`querySelectorAll` liefert in der
 Reihenfolge des Dokuments, nicht der Abfrage), und Springen allein ist keine
 Bedienung. Jetzt merkt sich das +, von welchem Feld es kam, und das **nächste**

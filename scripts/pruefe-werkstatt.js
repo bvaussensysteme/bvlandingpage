@@ -86,7 +86,14 @@ var FEHLER = [
   ['Bedienhilfe faellt auch oeffentlich weg', 'quelle',
    '<script src="js/accessibility.js" defer></script>', ''],
   ['Testbetrieb-Hinweis faellt auch oeffentlich weg', 'quelle',
-   'id="k3dTestHinweis"', 'id="k3dHinweisTest"']
+   'id="k3dTestHinweis"', 'id="k3dHinweisTest"'],
+  /* Eine Klammer zu viel - genau der Fehler vom 01.11.2026, der die
+     ganze Handy-Darstellung aushebelte. */
+  ['Eine geschweifte Klammer zu viel im Stilblock', 'quelle',
+   '    .k3d-marken {', '    .k3d-marken {    .k3d-marken {'],
+  ['Eine geschweifte Klammer fehlt im Stilblock', 'werkstatt',
+   '.k3d-feldwahl:empty { display: none; }',
+   '.k3d-feldwahl:empty { display: none;']
 ];
 
 function baue(nr) {
@@ -285,6 +292,35 @@ async function lauf(w) {
   p('Der Streifen bleibt einzeilig',
     /white-space:nowrap/.test(stilStueck) && !/flex-wrap:\s*wrap/.test(stilStueck),
     'white-space:nowrap, kein Umbruch');
+
+  /* ---------- Die Stilbloecke muessen aufgehen ----------
+     GEMESSEN am 01.11.2026: Beim Austausch eines CSS-Abschnitts blieb
+     eine Regel doppelt stehen (".k3d-marken {    .k3d-marken {"). EINE
+     geschweifte Klammer zu viel - und der Browser verwirft von dort an
+     den Rest des Stilblocks. Betroffen war damit alles Spaetere,
+     darunter die GANZE Handy-Darstellung: Im Versuch bei 390 px
+     Fensterbreite war die Buehne noch 30 px breit statt 390.
+
+     Niemand sieht das beim Lesen, und keine der bestehenden Pruefungen
+     nennt die Ursache - die Handy-Pruefungen wurden rot, aber erst eine
+     Stunde Suche fuehrte zur Klammer. Deshalb hier, wo es billig ist:
+     Oeffnende und schliessende Klammern je Stilblock zaehlen.
+
+     Kommentare werden vorher entfernt: In ihnen stehen Beispiele wie
+     "display:grid {", die sonst mitzaehlten. */
+  [['konfigurator.html', quellDatei], ['werkstatt/index.html', wkDatei]].forEach(function (d) {
+    var bloecke = d[1].match(/<style[^>]*>[\s\S]*?<\/style>/g) || [];
+    var schief = [];
+    bloecke.forEach(function (b, i) {
+      var ohne = b.replace(/\/\*[\s\S]*?\*\//g, '');
+      var auf = (ohne.match(/\{/g) || []).length;
+      var zu = (ohne.match(/\}/g) || []).length;
+      if (auf !== zu) schief.push('Block ' + (i + 1) + ': ' + auf + ' auf, ' + zu + ' zu');
+    });
+    p('Die Stilbloecke in ' + d[0] + ' gehen auf',
+      bloecke.length > 0 && schief.length === 0,
+      schief.length ? schief.join(' \u00b7 ') : bloecke.length + ' Block/Bloecke geprueft');
+  });
 
   return e;
 }
