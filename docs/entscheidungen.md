@@ -10476,3 +10476,38 @@ Bedienfeld, Anfrage, Teilen-Link, PDF und Maßtabelle gehen — der Betreiber ha
 am 01.11.2026 den kleineren Weg gewählt. Der Weg dorthin bleibt offen: `Z.erwFeld`
 müsste dann je Feld eine eigene Liste tragen statt einer Feldnummer je Element.
 
+## 01.11.2026 (nachts) — „die feldzuordnung geht noch nicht": zwei Fehler, einer davon in meiner Prüfung
+
+**Was gemeldet war.** „ja die feldzuordnung geht noch nicht" (Betreiber),
+Stunden nachdem ich sie als fertig gemeldet hatte.
+
+**Fehler 1: Das + landete nie in der Feldzeile.** `markenZiel()` fragte mit
+EINER Abfrage „Feldzeile, sonst Elementknopf" (`a, b`). `querySelectorAll`
+liefert aber in der Reihenfolge des **Dokuments**, nicht in der der Abfrage —
+und die Feldzeilen stehen unter den Elementknöpfen. Der Sprung landete
+deshalb immer auf einem Elementknopf. Jetzt werden die Ziele **nacheinander**
+gefragt.
+
+**Fehler 2, der eigentliche: Springen ist keine Bedienung.** Entschieden war
+„Zuordnung je Feld, bedient über das + im Feld". Gebaut hatte ich nur den
+Sprung — zuordnen musste man danach von Hand in der Zeile. Wer auf das + im
+zweiten Fach tippt und dann „Plankenwand" wählt, meint aber die Plankenwand
+**in diesem Fach**. Jetzt merkt sich das +, von welchem Feld der Sprung kam,
+und das **nächste** Element, das für diese Seite dazukommt, bekommt dieses
+Feld. Einmalig, dann vergessen: Sonst landete auch eine Auswahl, die eine
+Viertelstunde später getroffen wird, noch in einem Fach, an das niemand mehr
+denkt. Der Keil, den `erwUmschalten()` an den Längsseiten von selbst
+dazunimmt, folgt seinem Element — sonst säße die Wand in einem Fach und ihr
+Keil über beiden.
+
+**Warum meine Prüfung das nicht gesehen hat.** `pruefe-feldwahl.js` hat
+nachgelesen, **dass** die Abfrage dasteht — nicht, **wohin** sie führt. Eine
+Prüfung auf Quelltext kann die Reihenfolge, in der der Browser Treffer
+liefert, nicht kennen. Gefunden hat es erst eine Messung im Browser.
+
+**Die Lehre, und sie ist teuer bezahlt:** Wo eine Entscheidung erst im Browser
+fällt (Reihenfolge im DOM, Sichtbarkeit, Fokus), beweist nur ein Lauf im
+Browser etwas. Quelltextprüfungen halten fest, was gemeint war; sie ersetzen
+nicht den Versuch. Für die Feldzuordnung gibt es deshalb jetzt eine Prüfung,
+die tippt und nachsieht: *Nach dem + landet die Auswahl in diesem Feld*.
+

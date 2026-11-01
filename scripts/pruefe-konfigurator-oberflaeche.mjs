@@ -914,6 +914,49 @@ if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
   await fw.goto(BASIS, { waitUntil: 'networkidle' });
   await fw.waitForTimeout(1600);
   await fw.locator('#k3dTestOk').click({ timeout: 5000 }).catch(() => {});
+  await fw.waitForTimeout(300);
+
+  /* ---------- Das + bedient sein Feld ----------
+     DIESE PRUEFUNG HAT DEN FEHLER GEFUNDEN, den die Quelltextpruefung
+     nicht sehen konnte: Der Sprung landete immer auf einem
+     Elementknopf, weil querySelectorAll in der Reihenfolge des
+     DOKUMENTS liefert und nicht in der der Abfrage. Geprüft wird
+     deshalb die WIRKUNG - was nach dem Tippen auf das + und einer
+     Auswahl wirklich in der Zeile steht.
+
+     Bei der Standardbreite 5000 mm hat die Stirnseite bereits zwei
+     Fächer (Mittelpfosten), es braucht also keine Umstellung. */
+  const plusFeld2 = await fw.evaluate(() => {
+    const k = Array.from(document.querySelectorAll('.k3d-marke'))
+      .find(b => /Vorne/.test(b.getAttribute('aria-label') || '') &&
+                 /Feld 2 von 2/.test(b.getAttribute('aria-label') || ''));
+    if (!k) return false;
+    k.click();
+    return true;
+  });
+  await fw.waitForTimeout(1000);
+  if (plusFeld2) {
+    await fw.evaluate(() => {
+      document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Plankenwand"]').click();
+    });
+    await fw.waitForTimeout(1200);
+    const nachPlus = await fw.evaluate(() => {
+      const z = document.querySelector('[data-k3d-erw="vorne"]').parentNode
+        .querySelector('[data-k3d-erw-wert]');
+      return z ? z.textContent.trim() : '';
+    });
+    pruef('Nach dem + landet die Auswahl in diesem Feld',
+      /Plankenwand \(Feld 2\)/.test(nachPlus), nachPlus);
+    /* Zuruecknehmen, damit der Rest dieses Blocks sauber anfaengt. */
+    await fw.evaluate(() => {
+      document.querySelector('[data-k3d-erw="vorne"] button[data-erw="Plankenwand"]').click();
+    });
+    await fw.waitForTimeout(900);
+  } else {
+    pruef('Nach dem + landet die Auswahl in diesem Feld', false,
+      'kein + fuer Feld 2 gefunden');
+  }
+
   await fw.evaluate(() => {
     document.querySelectorAll('details.k3d-sek').forEach(d => { d.open = true; });
     const e = document.getElementById('k3dBreiteZahl');

@@ -309,8 +309,17 @@ bei 7 m freistehend mit Plankenwand hinten). Rest der Korrektur vom
 24.10.2026. Jetzt: ein Aufbau. Einzelheiten: `docs/entscheidungen.md`,
 01.11.2026.
 
-Geprüft von **`scripts/pruefe-feldwahl.js`** (25 Prüfungen, Gegenprobe mit 26
-einzeln eingebauten Fehlern) und von vier neuen Prüfungen im Browserlauf.
+**Nachgebessert in derselben Nacht** – „die feldzuordnung geht noch nicht":
+Das + landete nie in der Feldzeile (`querySelectorAll` liefert in der
+Reihenfolge des Dokuments, nicht der Abfrage), und Springen allein ist keine
+Bedienung. Jetzt merkt sich das +, von welchem Feld es kam, und das **nächste**
+gewählte Element bekommt dieses Feld – einmalig. Einzelheiten:
+`docs/entscheidungen.md`, 01.11.2026 (nachts).
+
+Geprüft von **`scripts/pruefe-feldwahl.js`** (31 Prüfungen, Gegenprobe mit 32
+einzeln eingebauten Fehlern) und von fünf Prüfungen im Browserlauf – darunter
+eine, die wirklich tippt und nachsieht, wo die Auswahl landet. Genau die hat
+den Fehler gefunden, den die Quelltextprüfung nicht sehen konnte.
 
 **Offen (bewusst, braucht eine Entscheidung):**
 1. **Volle, unabhängige Auswahl je Feld** – also zwei verschiedene
