@@ -74,7 +74,7 @@ var FEHLER = [
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: f.laenge });",
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: 0 });"],
   ['Der Zeiger verraet nicht, dass das Feld anklickbar ist', 'js',
-   "    leinwand.style.cursor = neu ? 'pointer'\n      : (pfostenUnterZeiger(e) ? 'ew-resize' : '');",
+   "    if (neu) { leinwand.style.cursor = 'pointer'; return; }",
    '    void neu;'],
   ['Die Lagefunktion ist nicht mehr auffindbar', 'js',
    'function markenFelder(B, PROFIL, felder', 'function markenFelderchen(B, PROFIL, felder'],
@@ -191,11 +191,11 @@ var FEHLER = [
 
   /* ---------- Bild und PDF ---------- */
   ['Die Flaechen landen im gespeicherten Bild', 'js',
-   "    var feldVorher = feldGruppe.visible;\n    feldGruppe.visible = false;\n    renderer.render(szene, kamera3);\n    var bild = renderer.domElement.toDataURL('image/png');",
-   "    renderer.render(szene, kamera3);\n    var bild = renderer.domElement.toDataURL('image/png');"],
+   "    feldGruppe.visible = false;\n    ziehGruppe.visible = false;",
+   "    ziehGruppe.visible = false;"],
   ['Die Flaechen landen im PDF', 'js',
-   '      var feldVorher = feldGruppe.visible;\n      feldGruppe.visible = false;\n      renderer.render(szene, kamera3);\n      feldGruppe.visible = feldVorher;',
-   '      renderer.render(szene, kamera3);'],
+   '      feldGruppe.visible = false;\n      ziehGruppe.visible = false;',
+   '      ziehGruppe.visible = false;'],
 
   /* ---------- Masse antippen ---------- */
   ['Masse sind wieder voreingestellt AUS', 'js',
@@ -553,7 +553,7 @@ function lauf(q) {
     /leinwand\.addEventListener\('pointermove'/.test(q.js),
     'hoechstens alle 60 ms und nur auf Bewegung des Zeigers');
   p('Der Zeiger zeigt am Feld, dass es anklickbar ist',
-    /leinwand\.style\.cursor = neu \? 'pointer'\s*\n\s*: \(pfostenUnterZeiger\(e\) \? 'ew-resize' : ''\);/.test(q.js),
+    /if \(neu\) \{ leinwand\.style\.cursor = 'pointer'; return; \}/.test(q.js),
     'sonst sieht man nicht, dass dort etwas geht');
 
   /* ---------- Der Klick ---------- */
@@ -578,10 +578,10 @@ function lauf(q) {
      sie von selbst aus dem Bild; jetzt haengen sie in der Szene und
      muessen fuer die Aufnahme ausgeschaltet werden. */
   p('Die Flaechen bleiben aus dem gespeicherten Bild heraus',
-    /feldGruppe\.visible = false;\s*\n\s*renderer\.render\(szene, kamera3\);\s*\n\s*var bild = renderer\.domElement\.toDataURL/.test(q.js),
+    /feldGruppe\.visible = false;[\s\S]{0,80}?renderer\.render\(szene, kamera3\);\s*\n\s*var bild = renderer\.domElement\.toDataURL/.test(q.js),
     'bildVonAnsicht() schaltet sie vor der Aufnahme aus');
   p('Die Flaechen bleiben aus dem PDF heraus',
-    /feldGruppe\.visible = false;\s*\n\s*renderer\.render\(szene, kamera3\);\s*\n\s*feldGruppe\.visible = feldVorher;/.test(q.js),
+    /feldGruppe\.visible = false;[\s\S]{0,80}?renderer\.render\(szene, kamera3\);\s*\n\s*feldGruppe\.visible = feldVorher;/.test(q.js),
     'schuss() schaltet sie vor jeder Seite aus');
 
   /* ---------- Ein Maß antippen und ändern ----------

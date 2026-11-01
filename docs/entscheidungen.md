@@ -10834,3 +10834,96 @@ Teilzeichenfolge — die Prüfung „Jede versteckbare Einheit hat ihre
 ziehen — er darf nur seitlich laufen, die Ansicht darf nicht kippen, und in der
 Mitte soll er einrasten. Dann den Teilen-Link öffnen und prüfen, ob die Pfosten
 dort genauso stehen.
+
+## 01.11.2026 (nachmittags) — „zu wenig verschieben": die Spanne war falsch hergeleitet
+
+**Anlass.** „1. man kann den pfosten zu wenig verschieben das is falsch,
+2. ich hätte es gerne so, man tippt den pfosten an er wird ausgewählt und dann
+erst kann man schieben" (Betreiber, 01.11.2026).
+
+### Punkt 1 war ein Denkfehler, kein Tippfehler
+
+Ich hatte die Spanne **innerhalb derselben Pfostenspalte** gesucht: Bei
+TDS/Glas mit drei Pfosten führt die Tabelle die Breiten 4500 bis 7400 mm,
+daraus 2195 bis 3645 mm Achsabstand. Beide Enden waren falsch gedacht.
+
+**Der kleinste Wert einer Spalte ist keine Mindestvorgabe.** Er sagt nur, wo die
+Tabelle einen Pfosten **dazunimmt**. Dass VD eine Anlage von 1080 mm Breite mit
+zwei Pfosten baut, beweist das Gegenteil: Ein Feld von 970 mm ist zulässig.
+
+**Der größte Wert einer Spalte ist nicht die Spannweite des Trägers**, sondern
+nur die größte, die mit *dieser* Pfostenzahl vorkommt. Die Tabelle führt
+TDS/Glas mit **zwei** Pfosten bis 4080 mm Breite — ein Feld von **3970 mm**,
+deutlich mehr als die 3645 mm aus der Dreierspalte.
+
+**Jetzt wird über die ganze Tabelle gesucht.** Jede Zeile ist eine Anlage, die
+VD so liefert; ihre Breite auf die Pfostenzahl umgerechnet, die wir dort bauen,
+ergibt einen Achsabstand, den VD selbst zulässt. Der größte und der kleinste
+dieser Abstände sind die Spanne.
+
+| | vorher | jetzt |
+|---|---|---|
+| Spanne TDS/Glas, flaches Dach | 2195–3645 mm | **970–3970 mm** |
+| Spielraum bei 5000 mm Breite | 2250–2750 mm | **1030–3970 mm** |
+| Spielraum bei 7000 mm Breite | 3300–3700 mm | **2980–4020 mm** |
+
+Die Pfostenzahl je Tabellenzeile wird mit **derselben Rechnung wie beim Bauen**
+gelesen, und die ist je Produkt eine andere: Flat Line in Paaren
+(`max(2, round(Stützfüße/2))`), die hintere Reihe und das TDS am Statikträger
+nach der 7-m-Regel (`2 + floor((Breite−1)/7000)`), sonst die Spalte der
+Preisliste plus Tiefenregel. Dafür nimmt `achsGrenzenMm()` jetzt eine
+Zählfunktion als Argument — sonst hätte Flat Line eine Spanne bekommen, die zu
+seinen Pfosten nicht passt.
+
+**Was sich NICHT geändert hat:** Es bleibt eine Auslegung unserer eigenen
+Daten. Die Rückfrage an VD nach den wirklichen Grenzwerten steht weiter offen
+und ist jetzt wichtiger, nicht unwichtiger — die Spanne ist breiter geworden.
+
+### Punkt 2: erst antippen, dann schieben
+
+Ein Tipp auf den Pfosten wählt ihn aus (durchscheinende orange Hülle am
+Pfosten, markierte Zeile im Bedienfeld, Band mit den Feldmaßen); **erst dann**
+lässt er sich ziehen. Ein zweiter Tipp, ein Tipp daneben oder `Esc` heben die
+Wahl auf.
+
+**Warum das besser ist als Ziehen ohne Auswahl** — und zwar nicht nur
+Geschmack: Am Handy gibt es keinen Mauszeiger, der vorher verrät, was unter dem
+Finger liegt. Wer das Modell drehen will und dabei einen Pfosten erwischt, hat
+ihn vorher **unbemerkt verschoben**. Mit der Auswahl kostet ein Versehen einen
+Tipp, keine Änderung am Bauwerk.
+
+Die Hülle liegt in einer **eigenen Szenengruppe**, nicht bei den Feldmarken:
+Die hängen am Schalter „Felder", und die Auswahl soll auch sichtbar bleiben,
+wenn der aus ist. Vor dem gespeicherten Bild und vor dem PDF wird sie
+ausgeschaltet — Bedienzustand gehört nicht in ein Angebot.
+
+### Nebenfund: der Regler konnte die Mitte nicht treffen
+
+**Gemessen:** Der Regler stand auf **3505 mm**, der Pfosten auf **3500 mm**. Ein
+Schieberegler zählt seine Schritte von seinem Mindestwert aus; bei min = 2975
+und Schrittweite 10 gibt es 3495 und 3505, aber nicht 3500 — und genau 3500 ist
+die gleichmäßige Lage bei 7000 mm Breite. Ein Antippen des Reglers hätte daraus
+einen Versatz von 5 mm gemacht, den niemand eingestellt hat.
+
+Jetzt wird der Mindestwert **von der gleichmäßigen Lage aus** in ganzen
+Schritten nach unten gelegt, der Höchstwert nach oben. Das Ziehen rastet auf
+dasselbe 10-mm-Raster, immer nach innen gerundet — so zeigen Regler und Modell
+dieselbe Zahl, und das Runden kann die Spanne nicht überschreiten. Ein
+Millimeter Genauigkeit am Bildschirm wäre bei einer Anlage, die ohnehin nach
+Aufmaß gebaut wird, vorgetäuschte Präzision.
+
+### Und wieder stumme Prüfungen
+
+Drei fremde Prüfungen wurden von dieser Arbeit blind, alle aus demselben Grund:
+Ihr Suchtext war ein **Anfangsstück** eines längeren gewordenen Abschnitts.
+`pruefe-marken.js` suchte `feldGruppe.visible = false;` gefolgt von
+`renderer.render(...)` — dazwischen steht jetzt `ziehGruppe.visible = false;`.
+`pruefe-masstabelle.js` und `pruefe-rueckseite.js` suchten
+`pfostenReihe(pfHinten, B, PF / 2, 'hinten');` — der Aufruf hat ein Argument
+mehr bekommen. Alle drei nachgezogen.
+
+**Gegenlesen:** Bei 5000 und 7000 mm Breite den Mittelpfosten antippen (die
+Hülle muss erscheinen) und dann ziehen — der Spielraum muss jetzt deutlich
+größer sein. Danach ohne Auswahl über den Pfosten ziehen: Das Modell soll sich
+nur drehen, der Pfosten nicht wandern. Und am Handy: Lässt sich das Modell noch
+bequem drehen, auch wenn der Finger auf einem Pfosten aufsetzt?

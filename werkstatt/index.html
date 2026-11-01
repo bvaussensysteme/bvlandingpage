@@ -566,6 +566,13 @@
       text-align: right;
     }
     .k3d-pf-felder { font-size: .72rem; color: var(--muted); margin: 0; }
+    /* Die Zeile des im Modell angetippten Pfostens. Dieselbe Farbe wie
+       die Huelle am Pfosten selbst - sonst waere nicht zu sehen, dass
+       beides dasselbe meint. */
+    .k3d-pfostenzeile.ist-gewaehlt {
+      background: rgba(226, 144, 31, .14);
+      border-radius: 8px; padding: 3px 6px; margin: -3px -6px;
+    }
     /* Band beim Ziehen eines Zwischenpfostens. UNTEN UEBER DEN HINWEISEN,
        nicht oben: Oben links steht der Produktname (bis 46 % Breite),
        oben rechts die Knoepfe fuer Bild und Vollbild - am Handy bleibt
@@ -2260,13 +2267,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101i" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261101j" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261101i" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261101j" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
