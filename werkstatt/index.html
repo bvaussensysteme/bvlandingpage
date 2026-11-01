@@ -705,6 +705,25 @@
       border: 1px solid rgba(255,255,255,.1);
       -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
       max-width: calc(100% - 28px);
+      /* „auf dem pc knn die leiste breiter sein das alles drauf passst"
+         (Betreiber, 31.10.2026, mit Bild: „Darunter" war abgeschnitten).
+
+         DIE LEISTE DURFTE IHRE EIGENE BREITE NICHT NEHMEN. Sie steht
+         absolut mit left: 50 % – ohne eigene Breitenangabe bekommt so
+         ein Element nur den Platz von seinem linken Rand bis zum Rand
+         der Bühne zugemessen, und das ist die halbe Bühne. GEMESSEN:
+         Sie braucht 735 px, bekam aber bei JEDER Fensterbreite nur
+         683 px – auch bei 1600 px Fenster mit 1120 px breiter Bühne,
+         wo reichlich Platz war. Die 52 px fehlten immer, deshalb war
+         „Darunter" immer angeschnitten.
+
+         width: max-content heißt: nimm die Breite, die der Inhalt
+         wirklich braucht. max-width deckelt sie weiterhin, wenn die
+         Bühne schmaler ist – dann lässt sich die Leiste schieben.
+         Nachgemessen: bei 1600 und 1280 px Fenster passt jetzt alles
+         (736 von 736 px), bei 1100 px fehlen noch 25 px – dort ist die
+         Bühne selbst nur 740 px breit, da hilft keine Regel. */
+      width: max-content;
       overflow-x: auto; scrollbar-width: none;
     }
     .k3d-leiste::-webkit-scrollbar { display: none; }

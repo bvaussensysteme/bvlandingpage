@@ -266,6 +266,14 @@ Breite). Beide stehen jetzt darüber. Gemessen bei 1440, 1100 und 1000 px:
 Überlappung 0 px; mit den alten Werten 202/336/347 px – die vier neuen
 Prüfungen in `pruefe-konfigurator-oberflaeche.mjs` schlagen also an.
 
+**Und am 01.11.2026 der Rest davon:** „auf dem pc knn die leiste breiter sein
+das alles drauf passst" – „Darunter" war angeschnitten. Die Leiste steht
+absolut mit `left: 50 %` und bekam ohne eigene Breitenangabe nur den Platz von
+ihrem linken Rand bis zum Bühnenrand: Sie braucht 735 px, bekam bei JEDER
+Fensterbreite 683 px – auch bei 1600 px Fenster mit 1120 px breiter Bühne.
+`width: max-content` behebt es; nachgemessen passt es ab 1280 px Fenster
+vollständig, darunter lässt sich die Leiste schieben.
+
 **Vom Betreiber gegenzulesen:**
 1. Am Handy: Lassen sich die Felder mit dem Finger treffen? Ohne Zeiger gibt
    es kein Überfahren — der erste Tipp ist gleich der Klick.
