@@ -185,6 +185,30 @@ var FEHLER = [
    '    var w = PF_ZIEHT || PF_WAHL;', '    var w = PF_ZIEHT;'],
   ['Das lichte Mass fehlt', 'js',
    "      licht.push(Math.round(achs - pfCm * 10) + ' mm');", '      void achs;'],
+  ['Der Schalter zum Zuruecksetzen fehlt', 'js',
+   "                '<button type=\"button\" class=\"k3d-pf-mitte\" hidden>' +",
+   "                '' +"],
+  ['Der Schalter steht auch bei gleichmaessigem Pfosten da', 'js',
+   '          zur.hidden = !vs;', '          zur.hidden = false;'],
+  ['Der Schalter wird nie eingeblendet', 'js',
+   '          zur.hidden = !vs;', '          zur.hidden = true;'],
+  ['Der Schalter setzt den Versatz nicht zurueck', 'js',
+   '          delete Z.pfostenVersatz.vorne[nr];', '          void nr;'],
+  ['Der Schalter baut danach nicht neu', 'js',
+   "        var nr = zeile.getAttribute('data-pfosten');" +
+   '\n        if (Z.pfostenVersatz && Z.pfostenVersatz.vorne) {\n' +
+   '          delete Z.pfostenVersatz.vorne[nr];\n        }\n        aendern();',
+   "        var nr = zeile.getAttribute('data-pfosten');" +
+   '\n        if (Z.pfostenVersatz && Z.pfostenVersatz.vorne) {\n' +
+   '          delete Z.pfostenVersatz.vorne[nr];\n        }'],
+  ['Der Platz fuer den Schalter fehlt in der Zeile', 'html',
+   'grid-template-columns: auto 1fr auto 30px;',
+   'grid-template-columns: auto 1fr auto;'],
+  ['Das Zeichen auf dem Schalter fehlt', 'js',
+   "                '<svg class=\"bvs\" aria-hidden=\"true\"><use href=\"#bvs-neuladen\">' +",
+   "                '<svg class=\"bvs\" aria-hidden=\"true\"><use href=\"#bvs-nix\">' +"],
+  ['Der Schalter hat kein Aussehen', 'html',
+   '    .k3d-pfostenzeile .k3d-pf-mitte {', '    .k3d-pfostenzeile .k3d-pf-mitte-alt {'],
   ['Der Block erscheint auch ohne Spielraum', 'js',
    '      if (sS && sS.bis - sS.von > 0.2) { spielraum = true; break; }',
    '      spielraum = true;'],
@@ -482,6 +506,26 @@ function lauf(q) {
       "? 'ew-resize' : 'pointer';");
 
   /* ---------- Bedienfeld und Band ---------- */
+  /* ---------- Zurueck auf die gleichmaessige Lage ----------
+     „da müsste ne funktion hin um den pfosten wenn man ihn verschoben
+     hat wieder zu zetrieren" (Betreiber, 01.11.2026). Einmal
+     verschoben trifft man die Mitte am Regler nur noch durch Zielen -
+     und bei krummen Breiten liegt sie nicht auf einer runden Zahl. */
+  hat('Jede Pfostenzeile hat einen Schalter zum Zuruecksetzen',
+      '<button type=\"button\" class=\"k3d-pf-mitte\" hidden>');
+  hat('Der Schalter traegt ein Zeichen aus der eigenen Sammlung',
+      '<use href=\"#bvs-neuladen\">');
+  hat('Er steht nur da, wenn der Pfosten verschoben ist',
+      'zur.hidden = !vs;');
+  hat('Er nimmt den Versatz weg, statt einen Wert zu setzen',
+      'delete Z.pfostenVersatz.vorne[nr];');
+  hat('Und danach wird neu gebaut',
+      'delete Z.pfostenVersatz.vorne[nr];\n        }\n        aendern();');
+  hat('Sein Platz in der Zeile bleibt auch frei reserviert',
+      'grid-template-columns: auto 1fr auto 30px;', 'html');
+  hat('Der Schalter hat ein Aussehen',
+      '.k3d-pfostenzeile .k3d-pf-mitte {', 'html');
+
   hat('Die Reglergrenzen werden bei jeder Aenderung nachgezogen',
       'var gz = pfostenReglerGrenzen(spJ, r.B);\n          regler.min = gz.min;');
   /* GEMESSEN am 01.11.2026: Der Regler stand auf 3505, der Pfosten auf

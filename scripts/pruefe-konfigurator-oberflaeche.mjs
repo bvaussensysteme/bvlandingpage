@@ -97,6 +97,9 @@ if (GEGENPROBE) {
     /* Siebter Fehler: Das Massschild meldet sich nicht mehr am Zeiger -
        dann sieht niemand, dass man es anfassen kann. */
     t = t.replace('    var ms = massUnterZeiger(e);', '    var ms = null;');
+    /* Achter Fehler: Der Schalter nimmt den Versatz nicht weg - der
+       Pfosten bliebe stehen, wo er ist. */
+    t = t.replace('          delete Z.pfostenVersatz.vorne[nr];', '          void nr;');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
   await page.route('**/anfrage-wizard.js*', async (r) => {
@@ -653,6 +656,30 @@ pruef('Das Band nennt beide Feldmasse', /licht/.test(pfBandNach),
 pruef('Die gewaehlte Zeile im Bedienfeld ist markiert',
   (await page.locator('#k3dPfosten .k3d-pfostenzeile.ist-gewaehlt').count()) === 1,
   'genau eine Zeile traegt ist-gewaehlt');
+
+/* ---------- Wieder gleichmaessig stellen ----------
+   „da müsste ne funktion hin um den pfosten wenn man ihn verschoben hat
+   wieder zu zetrieren" (Betreiber, 01.11.2026). Der Schalter steht nur
+   da, wenn es etwas zurueckzusetzen gibt - also wird beides geprueft:
+   dass er nach dem Ziehen auftaucht und dass er danach wieder
+   verschwindet, weil der Pfosten gleichmaessig steht. */
+const pfSchalter = async () => page.evaluate(() => {
+  const b = document.querySelector('[data-pfosten="1"] .k3d-pf-mitte');
+  return !b ? '(fehlt)' : (b.hidden ? 'versteckt' : 'da');
+});
+const pfSchalterNachZiehen = await pfSchalter();
+let pfNachZuruecksetzen = '(nicht geklickt)', pfSchalterDanach = '(nicht geklickt)';
+if (pfSchalterNachZiehen === 'da') {
+  await page.click('[data-pfosten="1"] .k3d-pf-mitte');
+  await page.waitForTimeout(1200);
+  pfNachZuruecksetzen = await pfAchsen();
+  pfSchalterDanach = await pfSchalter();
+}
+pruef('Der Schalter zum Zurücksetzen erscheint erst nach dem Verschieben',
+  pfSchalterNachZiehen === 'da', `nach dem Ziehen: ${pfSchalterNachZiehen}`);
+pruef('Er stellt den Pfosten wieder gleichmäßig',
+  pfNachZuruecksetzen === pfAchsVor && pfSchalterDanach === 'versteckt',
+  `${pfNachZuruecksetzen} (vorher ${pfAchsVor}), Schalter danach ${pfSchalterDanach}`);
 
 /* Zurueck auf die gleichmaessige Lage - dasselbe Bauwerk wie vorher. */
 await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {
@@ -1505,6 +1532,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Er stellt den Pfosten wieder gleichmäßig',
   'Ein Klick auf das Maßschild öffnet den Kasten',
   'Im Maßkasten ragt nichts heraus',
   'Die Zahl lässt sich über die eigenen Schalter ändern',
