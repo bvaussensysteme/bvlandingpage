@@ -111,6 +111,20 @@ var FEHLER = [
   ['Das Zeichen dreht sich wieder zur Kamera', 'js',
    '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,',
    '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide, void: new THREE.Sprite(),'],
+  ['Die Scheibe wird wieder durchsichtig', 'js',
+   "    g.fillStyle = belegt ? '#C49A2A' : '#FFFFFF';",
+   "    g.fillStyle = belegt ? 'rgba(196,154,42,.80)' : 'rgba(255,255,255,.80)';"],
+  ['Die Linien werden wieder duenn', 'js',
+   '      g.lineWidth = 4.2;', '      g.lineWidth = 2.3;'],
+  ['Der Ring wird wieder schmal', 'js',
+   "    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();",
+   "    g.strokeStyle = '#9A7318'; g.lineWidth = 6; g.stroke();"],
+  ['Das Zeichen wird beim Verkleinern wieder weichgerechnet', 'js',
+   '    t.minFilter = THREE.LinearFilter;', '    void 0;'],
+  ['Die Mipmap-Kette kommt zurueck', 'js',
+   '    t.generateMipmaps = false;', '    void 0;'],
+  ['Das Zeichen wird nur halb so fein gezeichnet', 'js',
+   '    var K = 256, M = K / 2;', '    var K = 128, M = K / 2;'],
   ['Das Zeichen wird wieder von Hand gemalt statt aus dem Zeichensatz', 'js',
    '      for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));',
    '      void u;'],
@@ -431,6 +445,26 @@ function lauf(q) {
      wird das ERGEBNIS, also auch die beiden Grenzen - würde nur geteilt,
      bliebe ein kleines Feld bei den alten 14 cm stehen. Auf die Bedienung
      wirkt sich das nicht aus: Angeklickt wird die ganze Feldfläche. */
+  /* ---------- Kraeftig und scharf ----------
+     „Ich will die runden Pluszeichen, die Farbe doch etwas kraeftiger
+     haben, dass man es besser sieht … und nicht so duenne Linien"
+     (Betreiber, 01.11.2026). Drei Dinge zahlen darauf ein, und jedes
+     laesst sich einzeln wieder kaputtmachen. */
+  p('Die Scheibe ist voll deckend',
+    /g\.fillStyle = belegt \? '#C49A2A' : '#FFFFFF';/.test(q.js),
+    'durchsichtig nahm sie die Farbe des Hintergrunds an');
+  p('Die Linien sind kraeftig',
+    /g\.lineWidth = 4\.2;/.test(q.js) &&
+    /g\.strokeStyle = '#9A7318'; g\.lineWidth = 13; g\.stroke\(\);/.test(q.js),
+    'Strich 4,2 statt 2,3 - die 2,3 stammten aus dem 24-px-Knopf');
+  p('Das Zeichen bleibt beim Verkleinern scharf',
+    /t\.generateMipmaps = false;/.test(q.js) &&
+    /t\.minFilter = THREE\.LinearFilter;/.test(q.js),
+    'ohne das rechnet three.js die Scheibe Stufe fuer Stufe weich');
+  p('Das Zeichen wird fein genug gezeichnet',
+    /var K = 256, M = K \/ 2;/.test(q.js),
+    '256 Bildpunkte Kantenlaenge');
+
   p('Das Zeichen hat ein Mindest- und ein Hoechstmass',
     /var gr = Math\.max\(14, Math\.min\(34, Math\.min\(laenge, hoehe\) \/ 3\)\) \*\s*\n\s*FELD_ZEICHEN_ANTEIL;/.test(q.js),
     'ein Drittel der kurzen Seite, gedeckelt auf 14 bis 34 cm');

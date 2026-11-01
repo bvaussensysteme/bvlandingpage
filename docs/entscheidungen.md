@@ -10643,3 +10643,40 @@ aussieht und was das Umschalten tut. Wer nur eine ändert, baut eine Oberfläche
 die lügt. `scripts/pruefe-feldwahl.js` prüft deshalb jetzt **beide** Stellen
 einzeln, und der Browserlauf drückt den Knopf wirklich.
 
+## 01.11.2026 — Die runden Zeichen: kräftiger, dickere Linien, scharf
+
+**Was gewünscht war.** „Ich will die runden Pluszeichen, die Farbe doch etwas
+kräftiger haben, dass man es besser sieht … und nicht so dünne Linien, also
+das Design soll schön sein."
+
+**Drei Dinge, und alle drei zahlen auf dasselbe ein.**
+
+1. **Keine Durchsicht mehr.** Scheibe und Ring waren zu 80 bzw. 85 Prozent
+   deckend und nahmen damit die Farbe des Hintergrunds an — vor heller
+   Hauswand blasses Gold, vor dunklem Dach schmutziges Gold. Jetzt volle
+   Farbe: Weiß bzw. das Gold der Seite (`--gold #C49A2A`), der Ring im
+   dunkleren `--gold-dark #9A7318`.
+2. **Dickere Linien.** Die Strichstärke 2,3 stammte aus dem 24-px-Knopf im
+   Bedienfeld. Auf einer Fläche, die im Bild zwanzig Pixel groß ist, bleibt
+   davon ein Haar übrig. Jetzt 4,2 im selben Maßstab, der Ring 13 statt 7.
+3. **Scharf statt weichgerechnet.** Das war der eigentliche Grund, warum die
+   vollfarbige Scheibe am Modell *immer noch* blass wirkte: three.js legt für
+   jede Textur eine Mipmap-Kette an und rechnet sie beim Verkleinern Stufe für
+   Stufe weich. Aus einem 13 Pixel breiten Ring wird dabei ein Hauch. Mit
+   `generateMipmaps = false` und `minFilter = LinearFilter` bleibt das Zeichen
+   scharf; gegen das Flimmern bei schrägem Blick steht die anisotrope
+   Filterung, so hoch wie die Grafikkarte sie hergibt. Bei einer Scheibe mit
+   Ring und Strich ist das die richtige Seite des Tauschgeschäfts — es ist kein
+   Foto mit feiner Struktur.
+
+Dazu doppelte Auflösung (256 statt 128) und ein echter Schlagschatten statt
+des früheren dunklen Außenrings; der ließ die Scheibe größer und unsauberer
+wirken.
+
+**Was damit NICHT gelöst ist, und das steht hier, damit es nicht untergeht:**
+Die Scheibe ist mit 23 cm am oberen Anschlag der eigenen Begrenzung
+(9,3 bis 22,7 cm, seit „mach die + 1/3 kleiner" vom selben Tag). Bei einer
+5 m breiten Anlage sind das rund 30 Bildpunkte. Farbe und Strichstärke helfen,
+die Größe bleibt die Grenze. Größer machen heißt, die Verkleinerung von vorhin
+teilweise zurückzunehmen — **das entscheidet der Betreiber**, nicht ich.
+

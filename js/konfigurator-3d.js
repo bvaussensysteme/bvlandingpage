@@ -4330,46 +4330,86 @@
 
   function feldBild(art) {
     if (feldBilder[art]) return feldBilder[art];
+    /* ---------- Kräftiger und sauberer ----------
+       „Ich will die runden Pluszeichen, die Farbe doch etwas kräftiger
+       haben, dass man es besser sieht … und nicht so dünne Linien, also
+       das Design soll schön sein" (Betreiber, 01.11.2026).
+
+       DREI SACHEN, und alle drei zahlen auf dasselbe ein:
+       · KEINE DURCHSICHT MEHR. Scheibe und Ring waren zu 80 bzw.
+         85 Prozent deckend und nahmen damit die Farbe des Hintergrunds
+         an – vor heller Hauswand blasses Gold, vor dunklem Dach
+         schmutziges Gold. Jetzt volle Farbe: Weiß und das Gold der
+         Seite (--gold #C49A2A), der Ring im dunkleren --gold-dark
+         (#9A7318).
+       · DICKERE LINIEN. Die Strichstärke 2,3 stammt aus dem 24-px-Knopf
+         im Bedienfeld; auf einer Fläche, die im Bild zwanzig Pixel groß
+         ist, bleibt davon ein Haar übrig. Jetzt 4,2 im selben Maßstab,
+         also fast doppelt so kräftig.
+       · DOPPELTE AUFLÖSUNG (256 statt 128) und ein echter Schatten
+         statt eines dunklen Rings. Der Ring war ein Notbehelf, der die
+         Scheibe größer und unsauberer wirken ließ; ein weicher
+         Schlagschatten trennt sie vom Hintergrund, ohne sie zu
+         verändern. */
+    var K = 256, M = K / 2;         // Kantenlänge und Mitte
     var c = document.createElement('canvas');
-    c.width = c.height = 128;
+    c.width = c.height = K;
     var g = c.getContext('2d');
     var belegt = (art !== 'punkt');
 
-    /* Ein Hauch Dunkel außen – das ist der Schatten des alten Knopfes
-       (box-shadow). Ohne ihn verschwindet die helle Scheibe vor der
-       hellen Hauswand. */
-    g.beginPath(); g.arc(64, 64, 57, 0, Math.PI * 2);
-    g.strokeStyle = 'rgba(17,17,17,.22)'; g.lineWidth = 4; g.stroke();
-
-    g.beginPath(); g.arc(64, 64, 54, 0, Math.PI * 2);
-    g.fillStyle = belegt ? 'rgba(196,154,42,.80)' : 'rgba(255,255,255,.80)';
+    /* Schatten nur unter die Scheibe, nicht unter das Zeichen – sonst
+       sähe das Zeichen verschmiert aus. */
+    g.save();
+    g.shadowColor = 'rgba(17,17,17,.45)';
+    g.shadowBlur = 14;
+    g.shadowOffsetY = 4;
+    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
+    g.fillStyle = belegt ? '#C49A2A' : '#FFFFFF';
     g.fill();
-    g.strokeStyle = 'rgba(196,154,42,.85)'; g.lineWidth = 7; g.stroke();
+    g.restore();
+
+    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
+    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
-    g.strokeStyle = belegt ? '#ffffff' : '#7A5B12';
+    g.strokeStyle = belegt ? '#FFFFFF' : '#7A5B12';
     g.lineCap = 'round'; g.lineJoin = 'round';
     g.fillStyle = 'rgba(0,0,0,0)';
     if (u && window.Path2D) {
-      /* Das Zeichen füllt gut die halbe Scheibe – dasselbe Verhältnis
-         wie im Knopf (14 px Zeichen in 24 px Scheibe). */
-      var kante = 70;
+      /* Das Zeichen füllt gut die halbe Scheibe. */
+      var kante = 132;
       var f = kante / Math.max(u.breite, u.hoehe);
       g.save();
-      g.translate(64 - u.breite * f / 2, 64 - u.hoehe * f / 2);
+      g.translate(M - u.breite * f / 2, M - u.hoehe * f / 2);
       g.scale(f, f);
-      g.lineWidth = 2.3;            // wie stroke-width in .k3d-marke .bvs
+      g.lineWidth = 4.2;
       for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));
       g.restore();
     } else {
-      g.lineWidth = 9;
+      g.lineWidth = 22;
       g.beginPath();
-      g.moveTo(64, 40); g.lineTo(64, 88);
-      g.moveTo(40, 64); g.lineTo(88, 64);
+      g.moveTo(M, M - 46); g.lineTo(M, M + 46);
+      g.moveTo(M - 46, M); g.lineTo(M + 46, M);
       g.stroke();
     }
     var t = new THREE.CanvasTexture(c);
-    t.anisotropy = 4;
+    /* ---------- Scharf bleiben, auch klein ----------
+       GESEHEN im Bild vom 01.11.2026: Die Scheibe war vollfarbig
+       gezeichnet und wirkte am Modell trotzdem blass. Grund ist nicht
+       die Farbe, sondern die VERKLEINERUNG: Eine Textur bekommt von
+       three.js von sich aus eine Mipmap-Kette und wird beim
+       Herunterskalieren Stufe fuer Stufe weichgerechnet. Aus einem
+       13 Pixel breiten Ring wird dabei ein Hauch.
+
+       Ohne Mipmaps (LinearFilter) bleibt das Zeichen scharf. Das kann
+       bei schraegem Blick flimmern - dagegen steht die anisotrope
+       Filterung, und zwar so hoch, wie die Grafikkarte es hergibt. Bei
+       einer Scheibe mit Ring und Strich ist das die richtige Seite des
+       Tauschgeschaefts; es ist kein Foto mit feiner Struktur. */
+    t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter;
+    t.anisotropy = (renderer.capabilities && renderer.capabilities.getMaxAnisotropy)
+      ? renderer.capabilities.getMaxAnisotropy() : 4;
     feldBilder[art] = t;
     return t;
   }
@@ -4421,7 +4461,9 @@
     var z = new THREE.Mesh(new THREE.PlaneGeometry(gr, gr),
       new THREE.MeshBasicMaterial({
         map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,
-        transparent: true, depthWrite: false, opacity: 0.95
+        /* Volle Deckkraft: Das Zeichen soll sich nicht erst mit dem
+           Hintergrund mischen muessen, um gesehen zu werden. */
+        transparent: true, depthWrite: false, opacity: 1
       }));
     feldRichten(z, marke);
     /* 1,2 cm vor der Fläche: Lagen beide in derselben Ebene, stritten
