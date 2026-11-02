@@ -127,10 +127,12 @@ var FEHLER = [
    '        return { reihe: p.reihe, nr: p.nr, punkt: treffer[i].point };\n      }\n      if (nimmtDenBlick([treffer[i]])) return null;',
    '        return { reihe: p.reihe, nr: p.nr, punkt: treffer[i].point };\n      }\n      void treffer;'],
   ['Der Zeiger unterscheidet antippen und schieben nicht', 'js',
-   "          ? 'ew-resize' : 'pointer';", "          ? 'pointer' : 'pointer';"],
+   "          ? 'ew-resize' : 'pointer');", "          ? 'pointer' : 'pointer');"],
   ['Beim Ziehen leuchten die Feldmarken mit', 'js',
-   '    var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);',
-   '    var neu = zieht ? null : feldUnterZeiger(e);'],
+   '    var neu = (ruht && !ms && !pf) ? feldUnterZeiger(e) : null;',
+   '    var neu = feldUnterZeiger(e);'],
+  ['Beim Ziehen am Pfosten wird trotzdem gestrahlt', 'js',
+   '    var ruht = !zieht && !PF_ZIEHT;', '    var ruht = !zieht;'],
 
   /* ---------- Bedienfeld ---------- */
   ['Die Reglergrenzen werden nicht nachgezogen', 'js',
@@ -147,8 +149,8 @@ var FEHLER = [
    '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;',
    '    var t = pfostenUnterZeiger(e);\n    if (!t) return false;'],
   ['Der Tipp auf den Pfosten waehlt ihn nicht', 'js',
-   '    if (weg < 6 && zeit < 2500 && !pfostenGeklickt(e) &&',
-   '    if (weg < 6 && zeit < 2500 && !(false) &&'],
+   '    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&',
+   '    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !(false) &&'],
   ['Ein zweiter Tipp hebt die Wahl nicht auf', 'js',
    '    pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });',
    '    pfostenWaehlen({ reihe: t.reihe, nr: t.nr });'],
@@ -475,7 +477,13 @@ function lauf(q) {
       'return { reihe: p.reihe, nr: p.nr, punkt: treffer[i].point };\n      }\n' +
       '      if (nimmtDenBlick([treffer[i]])) return null;');
   hat('Beim Ziehen leuchtet keine Feldmarke mit',
-      'var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);');
+      'var neu = (ruht && !ms && !pf) ? feldUnterZeiger(e) : null;');
+  /* EIN MERKER FUER ALLE DREI STRAHLEN: Waehrend gedreht oder ein
+     Pfosten gezogen wird, faehrt der Zeiger ueber das halbe Modell -
+     dann darf weder ein Feld leuchten noch ein Schild golden werden
+     noch der Zeiger wechseln. */
+  hat('Beim Drehen und Ziehen ruht die ganze Zeigerspur',
+      'var ruht = !zieht && !PF_ZIEHT;');
 
   /* ---------- Erst antippen, dann schieben ----------
      „ich haette es gerne so, man tippt den pfosten an er wird
@@ -487,7 +495,7 @@ function lauf(q) {
       'if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
       '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;');
   hat('Der Tipp auf den Pfosten steht vor allen anderen Klicks',
-      'if (weg < 6 && zeit < 2500 && !pfostenGeklickt(e) &&');
+      'if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&');
   hat('Ein zweiter Tipp hebt die Wahl auf',
       'pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });');
   hat('Ein Tipp daneben hebt die Wahl auf',
@@ -519,7 +527,7 @@ function lauf(q) {
   hat('Das Band zeigt die Masse auch ohne Ziehen',
       'var w = PF_ZIEHT || PF_WAHL;');
   hat('Der Zeiger unterscheidet antippen von schieben',
-      "? 'ew-resize' : 'pointer';");
+      "? 'ew-resize' : 'pointer');");
 
   /* ---------- Bedienfeld und Band ---------- */
   /* ---------- Das Zeichen am gewaehlten Pfosten ----------
