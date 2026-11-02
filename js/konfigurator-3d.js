@@ -3525,10 +3525,87 @@
   var ziehGruppe = new THREE.Group();
   szene.add(ziehGruppe);
 
+  /* Groesse des Doppelpfeils in Welt-Einheiten. Gross genug, um auf
+     einem 11 cm breiten Pfosten aus der Ferne gesehen zu werden. */
+  var ZIEH_ZEICHEN = 30;
+
   /* Der gewaehlte Pfosten bekommt einen durchscheinenden Mantel in
      unserem Orange. Gezeichnet wird er nach dem Bauen aus den Teilen
      selbst: Ihre Lage und ihr Querschnitt stehen dort schon, und so
      stimmt die Huelle auch bei Balkonpfosten auf der Bruestung. */
+  /* ---------- Das Zeichen am gewaehlten Pfosten ----------
+     „wenn man pfosten anklickt is er orange kann man noch nen rundes
+     logo mit durchgehendem pfeil nach links-rechts das man sieht man
+     kann es verschieben" (Betreiber, 01.11.2026).
+
+     Die orange Huelle sagt „ausgewaehlt" - sie sagt nicht, WAS man
+     damit tun kann. Der Doppelpfeil sagt es: seitlich, in beide
+     Richtungen.
+
+     ALS SPRITE, nicht als Flaeche im Raum - und das ist der eine
+     Punkt, an dem dieses Zeichen sich anders verhaelt als die runden
+     Zeichen in den Feldern, die ausdruecklich flach stehen bleiben
+     sollen (Betreiber, 31.10.2026). Grund: Die Feldzeichen markieren
+     eine Stelle am Bauwerk und duerfen verschwinden, wenn man von der
+     Seite schaut - dort gibt es dann auch nichts anzuklicken. Dieses
+     Zeichen gehoert zu einem Werkzeug, das GERADE IN DER HAND ist. Es
+     flach zu stellen hiesse, es genau dann unsichtbar zu machen, wenn
+     jemand das Modell dreht, um besser zu zielen.
+
+     DAS BILD WIRD EINMAL GEZEICHNET und behalten: Es haengt an nichts,
+     was sich aendert, und bei jedem Klick eine neue Zeichenflaeche
+     aufzubauen waere Verschwendung. */
+  var ziehZeichen = null;
+
+  function ziehZeichenBild() {
+    if (ziehZeichen) return ziehZeichen;
+    var K = 256, M = K / 2;
+    var c = document.createElement('canvas');
+    c.width = c.height = K;
+    var g = c.getContext('2d');
+    /* Schatten nur unter die Scheibe, nicht unter den Pfeil - sonst
+       saehe der Pfeil verschmiert aus. */
+    g.save();
+    g.shadowColor = 'rgba(17,17,17,.45)';
+    g.shadowBlur = 14;
+    g.shadowOffsetY = 4;
+    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
+    g.fillStyle = '#C49A2A';          // unser Gold
+    g.fill();
+    g.restore();
+    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
+    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();
+
+    var u = symbolUmriss('schieben');
+    if (u && window.Path2D) {
+      var kante = 142;
+      var f = kante / Math.max(u.breite, u.hoehe);
+      g.save();
+      g.translate(M - (u.breite * f) / 2, M - (u.hoehe * f) / 2);
+      g.scale(f, f);
+      g.strokeStyle = '#FFFFFF';
+      /* GETEILT DURCH f, WEIL DER STIFT MITSKALIERT. Im ersten Versuch
+         stand hier 2.3 wie im 24-px-Knopf des Bedienfeldes - nach der
+         Vergroesserung um das knapp Sechsfache blieb davon ein Haar von
+         2 Bildpunkten auf einer Scheibe von 256. Gemeint sind 15
+         Bildpunkte auf der fertigen Flaeche. */
+      g.lineWidth = 15 / f;
+      g.lineCap = 'round';
+      g.lineJoin = 'round';
+      u.d.forEach(function (d) { g.stroke(new Path2D(d)); });
+      g.restore();
+    }
+    var t = new THREE.Texture(c);
+    t.needsUpdate = true;
+    t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter;
+    if (renderer && renderer.capabilities) {
+      t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    }
+    ziehZeichen = t;
+    return t;
+  }
+
   function pfostenWahlZeigen() {
     leeren(ziehGruppe);
     if (!PF_WAHL) return;
@@ -3536,6 +3613,7 @@
        faellt die Wahl weg - sonst zeigte das Band Masse eines Feldes,
        das nicht mehr da ist. */
     if (!pfostenSpanne(PF_WAHL.reihe, PF_WAHL.nr)) { PF_WAHL = null; return; }
+    var zeichenGesetzt = false;
     bau.children.forEach(function (m) {
       var pf = m.userData && m.userData.pfosten;
       if (!pf || pf.reihe !== PF_WAHL.reihe || pf.nr !== PF_WAHL.nr) return;
@@ -3550,6 +3628,21 @@
       h.position.copy(m.position);
       h.renderOrder = 4;
       ziehGruppe.add(h);
+      /* NUR EINMAL, am vorderen Teil: Bei freistehenden Anlagen tragen
+         vorderer und hinterer Pfosten derselben Reihe dieselbe Nummer -
+         zwei Zeichen uebereinander waeren nur Unruhe. Gebaut wird der
+         vordere zuerst. */
+      if (zeichenGesetzt) return;
+      zeichenGesetzt = true;
+      var z = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: ziehZeichenBild(), depthTest: false, transparent: true }));
+      z.scale.set(ZIEH_ZEICHEN, ZIEH_ZEICHEN, 1);
+      /* Auf gut zwei Dritteln der Pfostenhoehe: Unten steht Belag,
+         Moebel und Bemassung im Weg, ganz oben liegt die Rinne. */
+      z.position.set(m.position.x, m.position.y + g.height * 0.17,
+                     m.position.z);
+      z.renderOrder = 5;
+      ziehGruppe.add(z);
     });
   }
 
