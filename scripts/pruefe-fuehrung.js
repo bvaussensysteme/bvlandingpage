@@ -1387,29 +1387,28 @@ pruefe('Beschriftung wird am eigenen Feld gesetzt',
   /* Breiter, nicht hoeher: Das Polster an den Seiten muss deutlich
      groesser sein als oben und unten - die Zahl selbst darf sich
      aendern, die Form nicht. */
-  var p = block.match(/#k3dBild \{ padding: (\d+)px (\d+)px/);
+  var p = block.match(/#k3dZuruecksetzen \{ padding: (\d+)px (\d+)px/);
   var label = !!p && Number(p[2]) >= Number(p[1]) * 2;
   if (gegen) { weg = !weg; label = !label; }
-  pruefe('Am Handy nur der Bild-Knopf, mit Beschriftung', weg && label,
+  pruefe('Am Handy nur der gold hervorgehobene Knopf, mit Beschriftung', weg && label,
          weg ? (label ? 'Bedienfeld und Vollbild weg, Knopf breiter'
                       : 'Knopf nicht breiter') : 'die beiden stehen noch da');
   /* Die Beschriftung darf NICHT die Klasse tragen, die am Handy
      ausgeblendet wird - sonst ist der Knopf breiter, aber leer. */
-  var btn = (html.match(/id="k3dBild"[^>]*>[\s\S]*?<\/button>/) || [''])[0];
+  var btn = (html.match(/id="k3dZuruecksetzen"[^>]*>[\s\S]*?<\/button>/) || [''])[0];
   var sichtbar = /class="k3d-immer"/.test(btn) && !/k3d-nurgross/.test(btn);
   if (gegen) sichtbar = !sichtbar;
   pruefe('Beschriftung bleibt am Handy sichtbar', sichtbar, '');
 })();
-(function () {
-  var menu = (html.match(/<div class="k3d-bildmenu"[\s\S]*?<\/div>/) || [''])[0];
-  var soll = ['jetzt', 'Perspektive', 'Vorne', 'Seite', 'Von oben', 'Darunter', 'alle'];
-  var ist = (menu.match(/data-k3d-bild="([^"]+)"/g) || []).map(function (x) {
-    return x.replace(/data-k3d-bild="|"/g, ''); });
-  if (gegen) soll.push('gibtsnicht');
-  var fehlt = soll.filter(function (x) { return ist.indexOf(x) === -1; });
-  pruefe('Menue bietet jede Ansicht an', !fehlt.length,
-         fehlt.length ? 'fehlt: ' + fehlt.join(', ') : ist.length + ' Einträge');
-})();
+/* ENTFERNT am 02.11.2026: der Knopf „Bild speichern" samt Menue.
+   „entferne das, und füge einen button mit Zurücksetzen hinzu"
+   (Betreiber, mit Bild des Knopfes). Geprueft wird jetzt, dass davon
+   nichts liegen geblieben ist - ein Knopf ohne Menue oder ein Menue
+   ohne Knopf waere schlimmer als beides. */
+pruefe('Der Knopf „Bild speichern" samt Menue ist weg',
+       gegen ? /id="k3dBild"/.test(html)
+             : !/id="k3dBild"/.test(html) && !/data-k3d-bild=/.test(html) &&
+               !/k3d-bildmenu/.test(js), '');
 /* Alles in EINER Datei statt fuenf Downloads: Handy-Browser lassen nur
    einen Download je Tipp zu, der Rest geht still verloren. Bis zum
    12.10.2026 war das ein PNG mit fuenf Feldern, seither ein PDF mit einer
@@ -1424,7 +1423,7 @@ pruefe('Alle Ansichten kommen als eine Datei',
      soll – Handy-Browser verwerfen den Rest still. Gezaehlt wird im Zweig
      'alle' des Knopfes und in pdfSeiten(): die Funktion sammelt nur die
      Seiten und gibt sie weiter, laden darf sie nicht. */
-  var zweig = (js.match(/if \(was === 'alle'\) \{[\s\S]*?return;\n        \}/) || [''])[0];
+  var zweig = (js.match(/function pdfErstellen\([\s\S]*?\n  \}/) || [''])[0];
   var fn = (js.match(/function pdfSeiten\([\s\S]*?\n  \}/) || [''])[0];
   var male = (zweig.match(/pdfLaden\(|bildLaden\(/g) || []).length + (gegen ? 1 : 0);
   var inFn = (fn.match(/pdfLaden\(|bildLaden\(/g) || []).length;
@@ -1531,15 +1530,15 @@ pruefe('Bodenschatten geht mit aus',
   }
   var polsterLeiste = zahl(/\.k3d-leiste button \{ padding: (\d+)px/);
   var polsterOben = zahl(/\.k3d-oben button \{ padding: (\d+)px/);
-  var polsterBild = zahl(/#k3dBild \{ padding: (\d+)px/);
-  var schriftBild = zahl(/#k3dBild \{ padding: \d+px \d+px; font-size: ([\d.]+)rem/);
+  var polsterBild = zahl(/#k3dZuruecksetzen \{ padding: (\d+)px/);
+  var schriftBild = zahl(/#k3dZuruecksetzen \{ padding: \d+px \d+px; font-size: ([\d.]+)rem/);
   var schriftInfo = zahl(/\.k3d-info p \{ font-size: ([\d.]+)rem/);
   /* Gegenprobe mit deutlich hoeheren Polstern - knapp daneben wuerde
      die Pruefung nicht anschlagen, seit die Leiste selbst 6 px hat. */
   if (gegen) { polsterOben = 14; polsterBild = 18; }
   var falsch = 0, meld = [];
   if (!(polsterOben <= polsterLeiste + 1)) { falsch++; meld.push('Kopfknoepfe ' + polsterOben + 'px gegen ' + polsterLeiste + 'px unten'); }
-  if (!(polsterBild <= polsterLeiste + 2)) { falsch++; meld.push('Bild-Knopf ' + polsterBild + 'px'); }
+  if (!(polsterBild <= polsterLeiste + 2)) { falsch++; meld.push('Gold-Knopf ' + polsterBild + 'px'); }
   if (!(schriftBild >= 0.7) || !(schriftInfo >= 0.7)) { falsch++; meld.push('Schrift unter 0,7rem'); }
   pruefe('Kopfzeile so flach wie die Leiste unten', falsch === 0,
          falsch === 0 ? 'Polster ' + polsterOben + '/' + polsterBild + 'px, Leiste ' +
@@ -2346,13 +2345,18 @@ pruefe('Hinweis und Anfrage rechnen an einer Stelle',
    erstell werden ... die normalen ansichtsbilder alles im offenen zustnd"
    (Betreiber). Auf Rueckfrage festgelegt: Hauptansichten mit EINGEFAHRENER
    Markise und AUFGESCHOBENEN Schiebeelementen, Zusatzseiten umgekehrt. */
-pruefe('Menue bietet das PDF an',
-       new RegExp(q || '>PDF erstellen<').test(html) &&
-       (gegen ? true : !/Alle fünf in einem Bild/.test(html)), '');
+/* DER WEG ZUM PDF hat sich am 02.11.2026 geaendert: Der Knopf „PDF
+   herunterladen" im Teilen-Dialog hat bisher INTERN auf den Menuepunkt
+   gedrueckt. Mit dem Menue waere das PDF stillschweigend verschwunden -
+   ein Knopf, der nichts mehr tut. Jetzt ruft er die Funktion direkt. */
+pruefe('Das PDF ist ueber den Teilen-Dialog zu erreichen',
+       new RegExp(q || 'id="k3dTeilenPdf"').test(html) &&
+       new RegExp(q || 'pdfErstellen\\(pdf\\);').test(js) &&
+       (gegen ? true : !/data-k3d-bild="alle"/.test(js)), '');
 pruefe('PDF-Modul ist eingebunden',
        new RegExp(q || 'js/pdf-blatt\\.js\\?v=').test(html), '');
 pruefe('Knopf stellt die alte Beschriftung wieder her',
-       new RegExp(q || "b\\.textContent = 'PDF erstellen';").test(js),
+       new RegExp(q || 'knopf\\.textContent = alt;').test(js),
        'sonst steht dort fuer immer „Wird erstellt"');
 pruefe('Fehlendes Modul meldet sich, statt stumm zu bleiben',
        new RegExp(q || 'if \\(!window\\.BV_PDF\\)').test(js), '');

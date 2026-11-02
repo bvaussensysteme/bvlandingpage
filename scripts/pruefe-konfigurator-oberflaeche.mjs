@@ -100,6 +100,11 @@ if (GEGENPROBE) {
     /* Achter Fehler: Der Schalter nimmt den Versatz nicht weg - der
        Pfosten bliebe stehen, wo er ist. */
     t = t.replace('          delete Z.pfostenVersatz.vorne[nr];', '          void nr;');
+    /* Neunter Fehler: Zuruecksetzen laedt die Seite MIT dem Anker neu -
+       wer ueber einen Teilen-Link kam, bekaeme dieselbe Planung zurueck,
+       die er gerade verworfen hat. */
+    t = t.replace('    location.replace(location.pathname + location.search);',
+                  '    location.reload();');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
   await page.route('**/anfrage-wizard.js*', async (r) => {
@@ -1462,6 +1467,90 @@ if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
   await fw.close();
 }
 
+/* ---------- Zurücksetzen ----------
+   „füge einen button mit Zurücksetzen hinzu, der de konfiguration wieder
+   zurücksetzt und von anfang an beginnt" und „wenn man zurücksetzen
+   klickt popup Wirklich Zurücksetzen? Zurücksetzen - Abbrechen"
+   (Betreiber, 02.11.2026).
+
+   GANZ AM ENDE DES DESKTOP-TEILS, weil die Bestätigung die Seite neu
+   lädt: Alles, was danach noch geprüft würde, stünde auf einer frisch
+   geladenen Seite. */
+/* Aus den vorherigen Pruefungen kann noch ein Fenster offen stehen -
+   die Konfigurator-Blase legt dabei eine Flaeche ueber die ganze Seite
+   und faengt jeden Klick ab. Beim ersten Lauf ist genau daran der Klick
+   auf „Zuruecksetzen" haengen geblieben. */
+await dialogeWeg();
+await page.evaluate(() => {
+  const o = document.getElementById('bvKonfigOverlay');
+  if (o) { o.classList.remove('open'); o.hidden = true; }
+});
+await page.waitForTimeout(400);
+
+pruef('Der Knopf „Bild speichern" ist weg',
+  (await page.locator('#k3dBild').count()) === 0 &&
+  (await page.locator('[data-k3d-bild]').count()) === 0,
+  'samt seinem Menü');
+pruef('Der Knopf „Zurücksetzen" steht an seiner Stelle',
+  await page.locator('#k3dZuruecksetzen').isVisible(), 'oben rechts, gold');
+/* Das PDF hing am Menüpunkt und muss den Umbau überlebt haben. */
+pruef('Das PDF ist weiter über den Teilen-Dialog zu erreichen',
+  (await page.locator('#k3dTeilenPdf').count()) === 1, 'Knopf im Teilen-Dialog');
+
+await page.evaluate(() => {
+  const e = document.getElementById('k3dBreiteZahl');
+  e.value = 6420;
+  e.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(1300);
+const resetVorher = await page.$eval('#k3dBreiteZahl', (e) => e.value);
+await page.click('#k3dZuruecksetzen');
+await page.waitForTimeout(400);
+const resetPopup = await page.evaluate(() => {
+  const b = document.getElementById('k3dResetHinweis');
+  return {
+    offen: !b.hidden,
+    titel: (document.getElementById('k3dResetTitel') || {}).textContent,
+    ab: (document.getElementById('k3dResetAb') || {}).textContent,
+    ok: (document.getElementById('k3dResetOk') || {}).textContent,
+    fokus: document.activeElement ? document.activeElement.id : ''
+  };
+});
+pruef('Zurücksetzen fragt vorher nach',
+  resetPopup.offen && /Wirklich zur/.test(resetPopup.titel || '') &&
+  resetPopup.ab === 'Abbrechen' && resetPopup.ok === 'Zurücksetzen',
+  `${resetPopup.titel} · ${resetPopup.ab} / ${resetPopup.ok}`);
+/* Der Fokus liegt auf „Abbrechen": Wer den Dialog mit der Eingabetaste
+   wegdrückt, soll nicht aus Versehen seine Planung verlieren. */
+pruef('Der Fokus liegt auf „Abbrechen", nicht auf „Zurücksetzen"',
+  resetPopup.fokus === 'k3dResetAb', resetPopup.fokus || '(nichts)');
+await page.click('#k3dResetAb');
+await page.waitForTimeout(500);
+pruef('Abbrechen lässt die Planung stehen',
+  (await page.locator('#k3dResetHinweis').isHidden()) &&
+  (await page.$eval('#k3dBreiteZahl', (e) => e.value)) === resetVorher,
+  `Breite weiterhin ${resetVorher} mm`);
+/* MIT EINEM ANKER IN DER ADRESSE, sonst prueft der Vergleich nichts:
+   Ohne #k=... kaeme auch ein schlichtes location.reload() bei der
+   Vorgabebreite heraus, und der eingebaute Fehler bliebe unbemerkt.
+   Der Code muss nicht echt sein - er wird beim Laden verworfen, und
+   genau darum geht es: Er darf gar nicht erst wieder da sein. */
+await page.evaluate(() => {
+  history.replaceState(null, '', location.pathname + location.search + '#k=xyz');
+});
+await page.waitForTimeout(200);
+await page.click('#k3dZuruecksetzen');
+await page.waitForTimeout(400);
+await page.click('#k3dResetOk');
+await page.waitForTimeout(3200);
+const resetNachher = await page.evaluate(() => ({
+  breite: document.getElementById('k3dBreiteZahl').value,
+  anker: location.hash
+}));
+pruef('Zurücksetzen beginnt wirklich von vorne',
+  resetNachher.breite === '5000' && resetNachher.anker === '',
+  `Breite ${resetNachher.breite} mm, kein Anker in der Adresse`);
+
 // ---------- Handy ----------
 const mctx = await browser.newContext({
   viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
@@ -1532,6 +1621,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Zurücksetzen beginnt wirklich von vorne',
   'Er stellt den Pfosten wieder gleichmäßig',
   'Ein Klick auf das Maßschild öffnet den Kasten',
   'Im Maßkasten ragt nichts heraus',

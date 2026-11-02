@@ -11209,3 +11209,73 @@ findet es; aus der Quelle allein sieht man es nicht.
 **Gegenlesen:** Pfosten antippen — ist der Doppelpfeil groß genug und auch dann
 zu sehen, wenn das Modell gedreht wird? Und: Er liegt vor allem anderen, also
 auch vor dem Dach, wenn man von hinten schaut. Stört das?
+
+## 02.11.2026 — Unterkante Wandprofil im Modell, und „Zurücksetzen" statt „Bild speichern"
+
+### Das Höhenmaß hinten
+
+„man sieht im modell nur uk rinne und kann es bearbeiten, füge uk wandprofil
+dazu" (Betreiber, 02.11.2026, mit Bild). Die **Bedienung** dafür gab es längst
+im Bedienfeld („Statt der Dachneigung die Unterkante Wandprofil angeben") — im
+Modell fehlte das Maß.
+
+Jetzt steht es an derselben Seite wie das vordere, nur an der Wand statt an der
+Rinne; in der Seitenansicht stehen beide Höhen nebeneinander wie in einem
+Aufriss. Gezeigt wird es nur, wo der Hersteller diese Angabe führt.
+
+**Der Haken, und er ist sichtbar:** Das Maß hinten ist normalerweise
+**abgeleitet** (aus Dachneigung und Tiefe). Wer es eintippt, legt fest, dass von
+nun an umgekehrt gerechnet wird — dieselbe Frage stellt das Bestellformular des
+Herstellers. Der Kasten sagt das vorher („Die Dachneigung ergibt sich dann aus
+diesem Maß"), und beim Übernehmen wird der Schalter umgelegt, damit die
+eingetippte Zahl auch stehen bleibt.
+
+**Zu „aber unter 2 grad und über 14 soll gesperrt sein" (Betreiber):** Die
+Sperre gibt es bereits, an drei Stellen — am Neigungsregler (`min="2" max="14"`),
+beim Herleiten der Höhengrenzen und beim Zurückrechnen auf Grad. **Nachgemessen
+über das neue Maß:** Der Kasten bietet 2402 bis 3047 mm an; die Eingabe 9999
+wird zu 3047, die Eingabe 1000 zu 2402. Es war also nichts zu bauen, nur zu
+belegen.
+
+### Dabei gefunden: das neue Maß war gar nicht anklickbar
+
+Das Schild hinten liegt genau über der **linken Feldfläche**. In der Klickkette
+stand `feldGeklickt` vor `massGeklickt` — ein Tipp darauf sprang also in die
+Seitenauswahl, statt den Maßkasten zu öffnen.
+
+Jetzt gilt für Klick **und** Zeiger dieselbe Folge: **Maßschild, dann Pfosten,
+dann Feld.** Die Schilder liegen mit `depthTest: false` vor allem anderen — was
+obenauf liegt, ist auch gemeint. Dass Zeiger und Klick dieselbe Reihenfolge
+benutzen, ist kein Schönheitsfehler: Sonst verspricht der Zeiger etwas anderes,
+als der Tipp dann tut.
+
+### „Bild speichern" raus, „Zurücksetzen" rein
+
+„entferne das, und füge einen button mit Zurücksetzen hinzu, der de
+konfiguration wieder zurücksetzt und von anfang an beginnt" (Betreiber, mit Bild
+des Knopfes) und „wenn man zurücksetzen klickt popup Wirklich Zurücksetzen?
+Zurücksetzen - Abbrechen".
+
+**Was dabei verloren geht, und das ist beabsichtigt:** Einzelne Ansichten lassen
+sich nicht mehr als Bild herunterladen. Das war der Rest jenes Menüs.
+
+**Was beinahe mit verloren gegangen wäre:** Der Knopf „PDF herunterladen" im
+Teilen-Dialog hat bisher **intern auf den Menüpunkt gedrückt**
+(`querySelector('[data-k3d-bild="alle"]').click()`). Mit dem Menü wäre das PDF
+stillschweigend verschwunden — ein Knopf, der nichts mehr tut, und niemand hätte
+es gemerkt. Das PDF steht jetzt als eigene Funktion da und wird direkt gerufen.
+
+**Zurückgesetzt wird durch Neuladen**, nicht durch Zurückstellen einzelner
+Werte. Der Zustand steckt in `Z`, in rund hundert Bedienelementen, in der
+Kameralage, in den Feldzuordnungen und im Pfostenversatz. Jedes davon einzeln
+zurückzusetzen hieße, eine zweite Liste aller Vorgaben zu führen — und die erste
+Vorgabe, die dort fehlt, überlebt das Zurücksetzen stillschweigend. **Ein
+Neuladen kann nichts vergessen.** Und zwar **ohne den Anker** (`#k=...`): Wer
+über einen Teilen-Link gekommen ist, bekäme sonst dieselbe Planung zurück, die
+er gerade verworfen hat.
+
+**Der Fokus liegt auf „Abbrechen".** Wer den Dialog mit der Eingabetaste
+wegdrückt, soll nicht aus Versehen seine Planung verlieren.
+
+**Gegenlesen:** Fehlt Ihnen das Herunterladen einzelner Ansichten? Es ließe sich
+als weiterer Knopf in den Teilen-Dialog setzen, wo schon das PDF liegt.

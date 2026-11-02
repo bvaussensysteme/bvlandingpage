@@ -4274,6 +4274,21 @@
     var hx = -(B / 2 + 40);
     masslinie(new V(hx, bodenY(hx, T), T),
               new V(hx, bodenY(hx, T) + H, T), Z.hoehe + ' mm', 'hoehe');
+    /* ---------- Hoehe hinten, Unterkante Wandprofil ----------
+       Gezeigt wird es nur, wo es das auch gibt: hoehenGetrennt() sagt,
+       fuer welche Produkte der Hersteller diese Angabe fuehrt. Beim
+       Lamellendach und beim Carport gaebe es sonst ein Mass, das in
+       keinem Formular steht.
+
+       AN DERSELBEN SEITE wie das vordere, nur an der Wand statt an der
+       Rinne - in der Seitenansicht stehen damit beide Hoehen
+       nebeneinander, wie in einem Aufriss. */
+    if (hoehenGetrennt()) {
+      var hhx = hx;
+      masslinie(new V(hhx, bodenY(hhx, hintenZ), hintenZ),
+                new V(hhx, bodenY(hhx, hintenZ) + Z.hoeheHinten / 10, hintenZ),
+                Z.hoeheHinten + ' mm', 'hoeheHinten');
+    }
 
     /* ---------- Steigungsdreieck ----------
        „jz is der ganze boden geneigt bei neigung das is aber egal nur
@@ -5244,31 +5259,33 @@
   function feldSchweben(e) {
     /* Beim Drehen nichts hervorheben: Der Zeiger fährt dabei über das
        halbe Modell, und ein mitlaufendes Leuchten wäre nur Unruhe. */
-    var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);
+    /* REIHENFOLGE: Massschild, dann Pfosten, dann Feld - und zwar
+       dieselbe wie beim Klick, sonst verspricht der Zeiger etwas
+       anderes, als der Tipp dann tut.
+
+       GEMESSEN am 02.11.2026: Das neue Hoehenmass hinten liegt genau
+       ueber der linken Feldflaeche. Mit der alten Reihenfolge (Feld
+       zuerst) sprang ein Tipp darauf in die Seitenauswahl, statt den
+       Masskasten zu oeffnen - das Schild war nicht zu erreichen.
+
+       Die Schilder liegen mit depthTest:false VOR allem anderen; was
+       obenauf liegt, ist auch gemeint. Teuer ist der zusaetzliche
+       Strahl nicht: masseGruppe hat eine Handvoll Kinder. */
+    var ruht = !zieht && !PF_ZIEHT;
+    var ms = ruht ? massUnterZeiger(e) : null;
+    var pf = (ruht && !ms) ? pfostenUnterZeiger(e) : null;
+    var neu = (ruht && !ms && !pf) ? feldUnterZeiger(e) : null;
     if (neu !== feldWach) {
       feldWach = neu;
       feldFaerben();
       neuZeichnen();
     }
-    /* Der Zeiger verraet, was der naechste Griff tut. Der Pfosten wird
-       nur gefragt, wenn kein Feld darueber liegt - zwei Strahlen je
-       Bewegung waeren Verschwendung. */
-    if (PF_ZIEHT) return;
-    if (neu) { massSchweben(null); leinwand.style.cursor = 'pointer'; return; }
-    var pf = pfostenUnterZeiger(e);
-    if (pf) {
-      massSchweben(null);
-      leinwand.style.cursor =
-        (PF_WAHL && PF_WAHL.reihe === pf.reihe && PF_WAHL.nr === pf.nr)
-          ? 'ew-resize' : 'pointer';
-      return;
-    }
-    /* Zuletzt die Massschilder: Sie liegen ausserhalb des Bauwerks, da
-       ist selten etwas anderes im Weg - und ein dritter Strahl lohnt
-       nur, wenn die beiden ersten nichts gefunden haben. */
-    var ms = massUnterZeiger(e);
     massSchweben(ms);
-    leinwand.style.cursor = ms ? 'pointer' : '';
+    if (PF_ZIEHT) return;
+    if (ms || neu) { leinwand.style.cursor = 'pointer'; return; }
+    leinwand.style.cursor = !pf ? ''
+      : (PF_WAHL && PF_WAHL.reihe === pf.reihe && PF_WAHL.nr === pf.nr
+          ? 'ew-resize' : 'pointer');
   }
 
   function feldGeklickt(e) {
@@ -10813,7 +10830,30 @@
     breite: { regler: 'k3dBreite', zahl: 'k3dBreiteZahl', name: 'Breite' },
     tiefe:  { regler: 'k3dTiefe',  zahl: 'k3dTiefeZahl',  name: 'Tiefe' },
     hoehe:  { regler: 'k3dHoehe',  zahl: 'k3dHoeheZahl',
-              name: 'Höhe vorne (Durchgang)' }
+              name: 'Höhe vorne (Durchgang)' },
+    /* „man sieht im modell nur uk rinne und kann es bearbeiten, füge uk
+       wandprofil dazu" (Betreiber, 02.11.2026). Die Bedienung dafür gab
+       es längst im Bedienfeld - im Modell fehlte das Maß.
+
+       DER HAKEN, und er ist sichtbar: Das Höhenmaß hinten ist normal
+       ABGELEITET (aus Dachneigung und Tiefe). Wer es eintippt, legt
+       damit fest, dass von nun an umgekehrt gerechnet wird - dieselbe
+       Frage stellt das Bestellformular des Herstellers („Möchten Sie
+       die Dachneigung oder die Unterkante Rinne und die Unterkante
+       Wandprofil angeben?"). Der Kasten sagt das vorher, und vor() legt
+       den Schalter um, damit die Zahl auch stehen bleibt. */
+    hoeheHinten: {
+      regler: 'k3dHoeheHinten', zahl: 'k3dHoeheHintenZahl',
+      name: 'Höhe hinten (Unterkante Wandprofil)',
+      hinweis: 'Die Dachneigung ergibt sich dann aus diesem Maß.',
+      vor: function () {
+        var h = document.getElementById('k3dHoeheGetrennt');
+        if (h && !h.checked) {
+          h.checked = true;
+          h.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    }
   };
 
   var massKasten = document.getElementById('k3dMassEingabe');
@@ -10837,7 +10877,8 @@
     var grenzen = document.getElementById('k3dMassGrenzen');
     if (titel) titel.textContent = def.name + ' in mm';
     if (grenzen) {
-      grenzen.textContent = regler.min + ' bis ' + regler.max + ' mm';
+      grenzen.textContent = regler.min + ' bis ' + regler.max + ' mm' +
+        (def.hinweis ? ' \u2013 ' + def.hinweis : '');
     }
     if (eingabe) {
       eingabe.min = regler.min;
@@ -10865,6 +10906,10 @@
     var def = MASS_FELDER[massFeldJetzt];
     var eingabe = document.getElementById('k3dMassWert');
     if (!def || !eingabe) { massSchliessen(); return; }
+    /* Erst umschalten, dann eintragen: Solange die Dachneigung fuehrt,
+       wuerde hoeheHintenKoppeln() den eingetippten Wert sofort wieder
+       aus der Neigung ueberschreiben. */
+    if (def.vor) def.vor();
     var zahl = document.getElementById(def.zahl);
     if (zahl) {
       zahl.value = eingabe.value;
@@ -11440,8 +11485,14 @@
        nicht die Zeit - die Obergrenze faengt nur den Fall ab, dass
        jemand den Finger liegen laesst und spaeter loslaesst. Dafuer
        reichen 2,5 Sekunden mit Abstand. */
-    if (weg < 6 && zeit < 2500 && !pfostenGeklickt(e) &&
-        !feldGeklickt(e) && !massGeklickt(e) &&
+    /* MASSSCHILD ZUERST, dann Pfosten, dann Feld - dieselbe Folge wie
+       beim Zeiger. Die Schilder liegen mit depthTest:false vor allem
+       anderen; was obenauf liegt, ist auch gemeint. Vorher stand das
+       Feld vor dem Mass, und das neue Hoehenmass hinten - es liegt
+       genau ueber der linken Feldflaeche - war damit nicht zu
+       erreichen. */
+    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&
+        !feldGeklickt(e) &&
         !markiseGeklickt(e) && !velarisGeklickt(e)) {
       schiebeGeklickt(e);
     }
@@ -14765,66 +14816,100 @@
     }, 4000);
   }
 
-  var bildBtn = document.getElementById('k3dBild');
-  var bildMenu = document.getElementById('k3dBildMenu');
-  if (bildBtn && bildMenu) {
-    var menuZeigen = function (auf) {
-      bildMenu.hidden = !auf;
-      bildBtn.setAttribute('aria-expanded', auf ? 'true' : 'false');
+  /* ---------- Das PDF ----------
+     ENTFERNT am 02.11.2026: der Knopf „Bild speichern" samt Menue.
+     „entferne das, und füge einen button mit Zurücksetzen hinzu"
+     (Betreiber, mit Bild des Knopfes).
+
+     DAS PDF BLIEB, und darum steht es jetzt hier als eigene Funktion:
+     Der Knopf „PDF herunterladen" im Teilen-Dialog hat bisher INTERN
+     auf den Menuepunkt gedrueckt (document.querySelector + click).
+     Mit dem Menue waere das PDF stillschweigend mit verschwunden -
+     ein Knopf, der nichts mehr tut, und niemand haette es gemerkt.
+
+     Einzelne Ansichten als Bild herunterzuladen gibt es seitdem nicht
+     mehr; das war der Rest jenes Menues. */
+  function pdfErstellen(knopf, fertig) {
+    autoDreht = false;
+    var alt = knopf ? knopf.textContent : '';
+    if (knopf) {
+      /* Das PDF entsteht in einem Durchgang und blockiert dabei kurz.
+         Damit „Wird erstellt …" vorher auch wirklich auf dem Schirm
+         steht, wird erst nach zwei Bildern losgelegt - sonst rechnet
+         der Browser, bevor er den neuen Text gezeichnet hat. Und falls
+         unterwegs etwas schiefgeht, steht am Knopf wieder die
+         Beschriftung statt fuer immer „Wird erstellt". */
+      knopf.classList.add('ist-laeuft');
+      knopf.textContent = 'Wird erstellt …';
+    }
+    var zurueck = function () {
+      if (knopf) {
+        knopf.classList.remove('ist-laeuft');
+        knopf.textContent = alt;
+      }
+      if (fertig) fertig();
     };
-    bildBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      menuZeigen(bildMenu.hidden);
-    });
-    document.addEventListener('click', function (e) {
-      if (!bildMenu.hidden && !bildMenu.contains(e.target)) menuZeigen(false);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !bildMenu.hidden) menuZeigen(false);
-    });
-    Array.prototype.forEach.call(bildMenu.querySelectorAll('[data-k3d-bild]'), function (b) {
-      b.addEventListener('click', function () {
-        var was = b.getAttribute('data-k3d-bild');
-        autoDreht = false;
-        if (was === 'alle') {
-          /* Das PDF entsteht in einem Durchgang und blockiert dabei kurz.
-             Damit „Wird erstellt …" vorher auch wirklich auf dem Schirm
-             steht, wird erst nach zwei Bildern losgelegt – sonst rechnet
-             der Browser, bevor er den neuen Text gezeichnet hat. Und
-             falls unterwegs etwas schiefgeht, steht am Knopf wieder die
-             Beschriftung statt für immer „Wird erstellt". */
-          b.classList.add('ist-laeuft');
-          b.textContent = 'Wird erstellt …';
-          var zurueck = function () {
-            b.classList.remove('ist-laeuft');
-            b.textContent = 'PDF erstellen';
-          };
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              try {
-                /* Fehlt das PDF-Modul (alter Zwischenspeicher im
-                   Browser), bleibt der Knopf nicht stumm stehen. */
-                if (!window.BV_PDF) {
-                  alert('Das PDF konnte nicht erstellt werden. ' +
-                        'Bitte die Seite neu laden und noch einmal versuchen.');
-                  return;
-                }
-                var seiten = pdfSeiten();
-                pdfLaden(window.BV_PDF.erzeugen(seiten, { titel: produktName() }),
-                         bildName('Ansichten').replace(/\.png$/, '.pdf'));
-                menuZeigen(false);
-              } finally { zurueck(); }
-            });
-          });
-          return;
-        }
-        var name = was === 'jetzt' ? null : was;
-        bildLaden(bildVonAnsicht(name), bildName(name || kam.ansicht));
-        neuZeichnen();
-        menuZeigen(false);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        try {
+          /* Fehlt das PDF-Modul (alter Zwischenspeicher im Browser),
+             bleibt der Knopf nicht stumm stehen. */
+          if (!window.BV_PDF) {
+            alert('Das PDF konnte nicht erstellt werden. ' +
+                  'Bitte die Seite neu laden und noch einmal versuchen.');
+            return;
+          }
+          var seiten = pdfSeiten();
+          pdfLaden(window.BV_PDF.erzeugen(seiten, { titel: produktName() }),
+                   bildName('Ansichten').replace(/\.png$/, '.pdf'));
+        } finally { zurueck(); }
       });
     });
   }
+
+  /* ---------- Zuruecksetzen ----------
+     „füge einen button mit Zurücksetzen hinzu, der de konfiguration
+     wieder zurücksetzt und von anfang an beginnt" und „wenn man
+     zurücksetzen klickt popup Wirklich Zurücksetzen? Zurücksetzen -
+     Abbrechen" (Betreiber, 02.11.2026).
+
+     NEU GELADEN, NICHT EINZELN ZURUECKGESTELLT. Der Zustand steckt in
+     Z, in rund hundert Bedienelementen, in der Kameralage, in den
+     Feldzuordnungen und im Pfostenversatz. Jedes davon einzeln
+     zurueckzusetzen hiesse, eine zweite Liste aller Vorgaben zu
+     fuehren - und die erste Vorgabe, die dort fehlt, ueberlebt das
+     Zuruecksetzen stillschweigend. Ein Neuladen kann nichts vergessen.
+
+     OHNE DEN ANKER (#k=...): Wer ueber einen Teilen-Link gekommen ist,
+     bekaeme sonst dieselbe Planung zurueck, die er gerade verworfen
+     hat. */
+  function konfiguratorZuruecksetzen() {
+    location.replace(location.pathname + location.search);
+  }
+
+  (function () {
+    var btn = document.getElementById('k3dZuruecksetzen');
+    var box = document.getElementById('k3dResetHinweis');
+    var ok = document.getElementById('k3dResetOk');
+    var ab = document.getElementById('k3dResetAb');
+    if (!btn || !box || !ok || !ab) return;
+    function zeigen(an) {
+      box.hidden = !an;
+      if (an) { try { ab.focus(); } catch (e) {} }
+    }
+    /* ABBRECHEN BEKOMMT DEN FOKUS, nicht „Zuruecksetzen": Wer den
+       Dialog mit der Eingabetaste wegdrueckt, soll nicht aus Versehen
+       seine Planung verlieren. */
+    btn.addEventListener('click', function () { zeigen(true); });
+    ab.addEventListener('click', function () { zeigen(false); });
+    ok.addEventListener('click', konfiguratorZuruecksetzen);
+    box.addEventListener('click', function (e) {
+      if (e.target === box) zeigen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !box.hidden) zeigen(false);
+    });
+  })();
 
   /* Übergabe an den Anfrage-Assistenten: die Konfiguration wandert als
      Vorgabe in den Assistenten, damit niemand alles zweimal eingibt.
@@ -15268,8 +15353,7 @@
     if (pdf) {
       pdf.addEventListener('click', function () {
         zeigen(false);
-        var b = document.querySelector('[data-k3d-bild="alle"]');
-        if (b) b.click();
+        pdfErstellen(pdf);
       });
     }
   }

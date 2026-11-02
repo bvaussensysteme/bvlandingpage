@@ -74,7 +74,7 @@ var FEHLER = [
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: f.laenge });",
    "                   nx: 1, nz: 0, feld: i, anzahl: felder.length,\n                   laenge: 0 });"],
   ['Der Zeiger verraet nicht, dass das Feld anklickbar ist', 'js',
-   "    if (neu) { massSchweben(null); leinwand.style.cursor = 'pointer'; return; }",
+   "    if (ms || neu) { leinwand.style.cursor = 'pointer'; return; }",
    '    void neu;'],
   ['Die Lagefunktion ist nicht mehr auffindbar', 'js',
    'function markenFelder(B, PROFIL, felder', 'function markenFelderchen(B, PROFIL, felder'],
@@ -183,8 +183,7 @@ var FEHLER = [
   ['Nach einem Ansichtswechsel leuchtet das Feld weiter', 'js',
    '    if (feldWach) { feldWach = null; feldFaerben(); }', '    void 0;'],
   ['Beim Drehen leuchtet das Feld mit', 'js',
-   '    var neu = (zieht || PF_ZIEHT) ? null : feldUnterZeiger(e);',
-   '    var neu = feldUnterZeiger(e);'],
+   '    var ruht = !zieht && !PF_ZIEHT;', '    var ruht = true;'],
   ['Felder sind auch bei abgeschaltetem Schalter anklickbar', 'js',
    '    if (!Z.markenZeigen || !feldGruppe.children.length || !e) return null;',
    '    if (!feldGruppe.children.length || !e) return null;'],
@@ -197,7 +196,8 @@ var FEHLER = [
   ['Hauswand und Haustuer nehmen den Klick nicht', 'js',
    '    if (wand && wand.visible) ziele.push(wand);', '    void wand;'],
   ['Der Klick aufs Feld wird nicht ausgewertet', 'js',
-   '!feldGeklickt(e) && !massGeklickt(e) &&', '!massGeklickt(e) &&'],
+   '!massGeklickt(e) && !pfostenGeklickt(e) &&\n        !feldGeklickt(e) &&',
+   '!massGeklickt(e) && !pfostenGeklickt(e) &&'],
   ['Der Klick aufs Feld fuehrt nirgendwohin', 'js',
    '    markeSpringen(m);\n    return true;', '    return true;'],
 
@@ -218,7 +218,7 @@ var FEHLER = [
   ['Die Schilder wissen nicht, zu welchem Mass sie gehoeren', 'js',
    '      s.userData.massFeld = feld;', '      void feld;'],
   ['Der Klick auf ein Mass wird nicht ausgewertet', 'js',
-   '!feldGeklickt(e) && !massGeklickt(e) &&', '!feldGeklickt(e) &&'],
+   '!massGeklickt(e) && !pfostenGeklickt(e) &&', '!pfostenGeklickt(e) &&'],
   ['Die neue Zahl umgeht das Zahlenfeld und seine Grenzen', 'js',
    "      zahl.dispatchEvent(new Event('change', { bubbles: true }));",
    '      Z.breite = parseInt(eingabe.value, 10);'],
@@ -265,7 +265,7 @@ var FEHLER = [
   ['Der Zeiger auf dem Schild aendert nichts', 'js',
    '      s.material.map = s.userData.wachMap;', '      void s;'],
   ['Die Hervorhebung wird nicht in die Zeigerkette gehaengt', 'js',
-   '    var ms = massUnterZeiger(e);\n    massSchweben(ms);', '    var ms = null;'],
+   '    var ms = ruht ? massUnterZeiger(e) : null;', '    var ms = null;'],
   ['Die Schildbilder werden nicht mehr freigegeben', 'js',
    '      if (k.userData.ruheMap) k.userData.ruheMap.dispose();',
    '      void k;'],
@@ -273,8 +273,8 @@ var FEHLER = [
    '    massWachSchild = null;\n    leeren(masseGruppe);',
    '    leeren(masseGruppe);'],
   ['Der Klick faellt bei langsamen Geraeten wieder durch', 'js',
-   '    if (weg < 6 && zeit < 2500 && !pfostenGeklickt(e) &&',
-   '    if (weg < 6 && zeit < 900 && !pfostenGeklickt(e) &&'],
+   '    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&',
+   '    if (weg < 6 && zeit < 900 && !massGeklickt(e) && !pfostenGeklickt(e) &&'],
   ['Die eigenen Schalter am Masskasten fehlen', 'html',
    'id="k3dMassPlus"', 'id="k3dMassPlusAlt"'],
   ['Die Schalter tun nichts', 'js',
@@ -637,14 +637,15 @@ function lauf(q) {
     /if \(feldWach\) \{ feldWach = null; feldFaerben\(\); \}/.test(q.js),
     'die Ansichtsknoepfe und das Rad schicken kein pointermove');
   p('Beim Drehen leuchtet kein Feld mit',
-    /var neu = \(zieht \|\| PF_ZIEHT\) \? null : feldUnterZeiger\(e\);/.test(q.js),
+    /var neu = \(ruht && !ms && !pf\) \? feldUnterZeiger\(e\) : null;/.test(q.js) &&
+    /var ruht = !zieht && !PF_ZIEHT;/.test(q.js),
     'sonst faehrt der Zeiger beim Drehen ueber das halbe Modell');
   p('Das Schweben wird gebremst gestrahlt, nicht je Bild',
     /if \(jetzt - zuletzt < 60\) return;/.test(q.js) &&
     /leinwand\.addEventListener\('pointermove'/.test(q.js),
     'hoechstens alle 60 ms und nur auf Bewegung des Zeigers');
   p('Der Zeiger zeigt am Feld, dass es anklickbar ist',
-    /if \(neu\) \{ massSchweben\(null\); leinwand\.style\.cursor = 'pointer'; return; \}/.test(q.js),
+    /if \(ms \|\| neu\) \{ leinwand\.style\.cursor = 'pointer'; return; \}/.test(q.js),
     'sonst sieht man nicht, dass dort etwas geht');
 
   /* ---------- Der Klick ---------- */
@@ -750,7 +751,8 @@ function lauf(q) {
   p('Der Zeiger auf dem Schild macht Rahmen und Stift gold',
     /s\.userData\.wachMap = schildBild\(text, true, true\)\.map;/.test(q.js) &&
     /s\.material\.map = s\.userData\.wachMap;/.test(q.js) &&
-    /var ms = massUnterZeiger\(e\);\s*\n\s*massSchweben\(ms\);/.test(q.js),
+    /var ms = ruht \? massUnterZeiger\(e\) : null;/.test(q.js) &&
+    /massSchweben\(ms\);/.test(q.js),
     'beide Fassungen stehen seit dem Bauen bereit, getauscht wird nur das Bild');
   p('Die Schildbilder werden beim Neuzeichnen freigegeben',
     /if \(k\.userData\.ruheMap\) k\.userData\.ruheMap\.dispose\(\);/.test(q.js) &&

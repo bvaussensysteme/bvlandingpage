@@ -463,6 +463,8 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 02.11.2026 | **„Zurücksetzen" statt „Bild speichern"** — mit Rückfrage; das PDF hing am entfernten Menü und ruft jetzt direkt | neu |
+| 02.11.2026 | **Unterkante Wandprofil im Modell** — anklickbar; dabei gefunden: Maßschilder standen in der Klickkette hinter den Feldflächen und waren dort nicht erreichbar | neu |
 | 02.11.2026 | **Doppelpfeil am gewählten Pfosten** — die orange Hülle sagt „ausgewählt", der Pfeil sagt „seitlich verschiebbar" | neu |
 | 01.11.2026 | **Pfosten wieder gleichmäßig stellen**: Schalter je Zwischenpfosten, erscheint nur wenn verschoben; nimmt den Versatz weg statt einen Wert zu setzen | neu |
 | 01.11.2026 | **Hausfarben statt Grau**: Maßschild doppelt so groß, weiß mit goldenem Rand, unter dem Zeiger gold gefüllt wie die Knöpfe der Seite; Maßlinien wieder schwarz; + Scheiben gold mit weißem Zeichen | neu |
