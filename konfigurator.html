@@ -391,6 +391,25 @@
       display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px;
     }
     .k3d-reset-wege .btn { flex: 1 1 auto; text-align: center; }
+    /* ABBRECHEN IN ROT, Rahmen und Schrift in derselben Farbe, der Grund
+       hell dazu („Das abbrechen lieber in nem leichten roten ton mot mit
+       roten normalen rahmen und das wort in der selben farbe wie rahmen",
+       Betreiber, 02.11.2026).
+
+       Vorher trug der Knopf nur .btn - und .btn setzt keine Schriftfarbe.
+       Auf dem iPhone blieb damit das Blau, das Safari jedem Knopf von
+       sich aus gibt: eine fremde Farbe mitten in unseren Hausfarben.
+
+       Die Rahmenstaerke bleibt bei den 2 px, die .btn vorgibt, damit
+       beide Knoepfe gleich hoch bleiben. */
+    .k3d-reset-wege .btn-abbruch {
+      background: #FDECEA; border-color: #B3352B; color: #B3352B;
+      font-weight: 700;
+    }
+    .k3d-reset-wege .btn-abbruch:hover,
+    .k3d-reset-wege .btn-abbruch:focus-visible {
+      background: #F8D7D2; border-color: #8E2A22; color: #8E2A22;
+    }
     .k3d-hinw-marke {
       display: inline-block; margin: 0 0 10px; padding: 4px 10px;
       border-radius: 999px; background: var(--gold); color: var(--black);
@@ -2330,7 +2349,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261102c" defer></script>
+<script src="js/konfigurator-3d.js?v=20261102d" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
@@ -2363,7 +2382,7 @@
         Das lässt sich nicht rückgängig machen.</p>
     </div>
     <div class="k3d-reset-wege">
-      <button type="button" class="btn" id="k3dResetAb">Abbrechen</button>
+      <button type="button" class="btn btn-abbruch" id="k3dResetAb">Abbrechen</button>
       <button type="button" class="btn btn-gold" id="k3dResetOk">Zurücksetzen</button>
     </div>
   </div>

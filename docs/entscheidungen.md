@@ -11279,3 +11279,24 @@ wegdrückt, soll nicht aus Versehen seine Planung verlieren.
 
 **Gegenlesen:** Fehlt Ihnen das Herunterladen einzelner Ansichten? Es ließe sich
 als weiterer Knopf in den Teilen-Dialog setzen, wo schon das PDF liegt.
+
+## 02.11.2026 — „Abbrechen" in Rot, und warum es vorher blau war
+
+**Anlass.** „Das abbrechen lieber in nem leichten roten ton mot mit roten
+normalen rahmen und das wort in der selben farbe wie rahmen" (Betreiber,
+02.11.2026, mit Bild vom iPhone).
+
+Der Knopf trug nur `.btn` — und `.btn` setzt **keine Schriftfarbe**. Auf dem
+iPhone blieb damit das Blau, das Safari jedem Knopf von sich aus gibt: eine
+fremde Farbe mitten in unseren Hausfarben, und sie fiel erst auf dem Gerät auf.
+Am Rechner war sie nicht zu sehen.
+
+Jetzt: Grund `#FDECEA`, Rahmen und Wort beide `#B3352B`. **Die Rahmenstärke
+bleibt bei den 2 px, die `.btn` vorgibt** — sonst wären die beiden Knöpfe
+verschieden hoch (nachgemessen: beide 48 px).
+
+**Geprüft wird die wirkliche Farbe, nicht der Klassenname:** Die Prüfung liest
+`getComputedStyle` und verlangt, dass Rahmen und Schrift gleich sind, dass der
+Rotanteil deutlich über Grün und Blau liegt und dass der Grund hell ist. Ein
+Klassenname hätte den ursprünglichen Fehler nicht gefunden — die Klasse war ja
+da, nur die Farbe fehlte.
