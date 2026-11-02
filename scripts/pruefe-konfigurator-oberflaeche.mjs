@@ -100,6 +100,9 @@ if (GEGENPROBE) {
     /* Achter Fehler: Der Schalter nimmt den Versatz nicht weg - der
        Pfosten bliebe stehen, wo er ist. */
     t = t.replace('          delete Z.pfostenVersatz.vorne[nr];', '          void nr;');
+    /* Zehnter Fehler steckt im Stylesheet, siehe weiter unten:
+       „Abbrechen" verliert seine rote Fassung und faellt auf das Blau
+       zurueck, das Safari jedem Knopf von sich aus gibt. */
     /* Neunter Fehler: Zuruecksetzen laedt die Seite MIT dem Anker neu -
        wer ueber einen Teilen-Link kam, bekaeme dieselbe Planung zurueck,
        die er gerade verworfen hat. */
@@ -729,6 +732,15 @@ pruef('Die Breite steht wieder auf dem Stand von vorher',
    wäre nichts aufgefallen. Der Kasten wird dafür von Hand aufgedeckt -
    wo im Bild gerade ein Maßschild steht, ist Zufall, und darum geht es
    hier nicht. */
+if (GEGENPROBE) {
+  /* „Abbrechen" ohne seine rote Fassung: Der Knopf traegt dann nur
+     .btn, und .btn setzt keine Schriftfarbe - genau der Zustand vom
+     Bild des Betreibers. */
+  await page.addStyleTag({ content:
+    '.k3d-reset-wege .btn-abbruch{background:#eee!important;' +
+    'border-color:transparent!important;color:#0a84ff!important}' });
+  await page.waitForTimeout(150);
+}
 if (GEGENPROBE) {
   /* GENAU DER ALTE ZUSTAND: 190 px breit, und die Knopfreihe darf
      weder umbrechen noch schrumpfen. Die Breite allein reicht als
@@ -1524,6 +1536,36 @@ pruef('Zurücksetzen fragt vorher nach',
    wegdrückt, soll nicht aus Versehen seine Planung verlieren. */
 pruef('Der Fokus liegt auf „Abbrechen", nicht auf „Zurücksetzen"',
   resetPopup.fokus === 'k3dResetAb', resetPopup.fokus || '(nichts)');
+/* „Das abbrechen lieber in nem leichten roten ton mot mit roten normalen
+   rahmen und das wort in der selben farbe wie rahmen" (Betreiber,
+   02.11.2026). Vorher trug der Knopf nur .btn, und .btn setzt keine
+   Schriftfarbe - auf dem iPhone blieb damit das Blau, das Safari jedem
+   Knopf von sich aus gibt. Gemessen wird deshalb die WIRKLICHE Farbe,
+   nicht der Klassenname. */
+const resetFarben = await page.evaluate(() => {
+  const a = document.getElementById('k3dResetAb');
+  const o = document.getElementById('k3dResetOk');
+  const c = getComputedStyle(a);
+  const rot = (f) => {
+    const m = /rgba?\((\d+), (\d+), (\d+)/.exec(f);
+    return m ? { r: +m[1], g: +m[2], b: +m[3] } : null;
+  };
+  return {
+    rand: c.borderTopColor, schrift: c.color, grund: c.backgroundColor,
+    randRGB: rot(c.borderTopColor), grundRGB: rot(c.backgroundColor),
+    hoch: Math.round(a.getBoundingClientRect().height),
+    hochOk: Math.round(o.getBoundingClientRect().height)
+  };
+});
+const rr = resetFarben.randRGB, gr = resetFarben.grundRGB;
+pruef('„Abbrechen" steht in Rot, Rahmen und Wort in derselben Farbe',
+  resetFarben.rand === resetFarben.schrift &&
+  !!rr && rr.r > 120 && rr.r > rr.g * 2 && rr.r > rr.b * 2 &&
+  !!gr && gr.r > 240 && gr.r > gr.b,
+  `Rahmen und Schrift ${resetFarben.rand}, Grund ${resetFarben.grund}`);
+pruef('Beide Knöpfe bleiben gleich hoch',
+  resetFarben.hoch === resetFarben.hochOk,
+  `${resetFarben.hoch} px / ${resetFarben.hochOk} px`);
 await page.click('#k3dResetAb');
 await page.waitForTimeout(500);
 pruef('Abbrechen lässt die Planung stehen',
@@ -1621,6 +1663,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  '„Abbrechen" steht in Rot, Rahmen und Wort in derselben Farbe',
   'Zurücksetzen beginnt wirklich von vorne',
   'Er stellt den Pfosten wieder gleichmäßig',
   'Ein Klick auf das Maßschild öffnet den Kasten',
