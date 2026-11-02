@@ -118,7 +118,9 @@ var FEHLER = [
   ['Die Linien werden wieder duenn', 'js',
    '      g.lineWidth = 4.2;', '      g.lineWidth = 2.3;'],
   ['Der Rand wird wieder breit', 'js',
+   "       Zeichen bleiben kr\u00e4ftig, nur der Rand wird zur\u00fcckgenommen. */\n" +
    "    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();",
+   "       Zeichen bleiben kr\u00e4ftig, nur der Rand wird zur\u00fcckgenommen. */\n" +
    "    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();"],
   /* MIT DER NACHBARZEILE VERANKERT: Beide Saetze stehen seit dem
      01.11.2026 ZWEIMAL in der Datei - einmal fuer die runden
@@ -134,7 +136,8 @@ var FEHLER = [
    '       Tauschgeschaefts; es ist kein Foto mit feiner Struktur. */\n    t.generateMipmaps = false;',
    '       Tauschgeschaefts; es ist kein Foto mit feiner Struktur. */'],
   ['Das Zeichen wird nur halb so fein gezeichnet', 'js',
-   '    var K = 256, M = K / 2;', '    var K = 128, M = K / 2;'],
+   '    var K = 256, M = K / 2;         // Kantenl\u00e4nge und Mitte',
+   '    var K = 128, M = K / 2;         // Kantenl\u00e4nge und Mitte'],
   ['Das Zeichen wird wieder von Hand gemalt statt aus dem Zeichensatz', 'js',
    '      for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));',
    '      void u;'],
@@ -250,7 +253,8 @@ var FEHLER = [
   ['Die Scheibe ist wieder blass', 'js',
    "    g.fillStyle = '#C49A2A';\n    g.fill();", "    g.fillStyle = '#FFFFFF';\n    g.fill();"],
   ['Das Zeichen auf der Scheibe ist nicht mehr weiss', 'js',
-   "    g.strokeStyle = '#FFFFFF';", "    g.strokeStyle = '#7A5B12';"],
+   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#FFFFFF';",
+   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#7A5B12';"],
   ['Das Schild traegt kein Stiftzeichen mehr', 'js',
    "      var u = symbolUmriss('stift');", '      var u = null;'],
   ['Zahl und Einheit sind wieder gleich gross', 'js',
@@ -542,8 +546,8 @@ function lauf(q) {
      01.11.2026). Vor heller Hauswand und hellem Pflaster blieb von
      einer weissen Scheibe mit goldenem Rand ein blasser Kreis. */
   p('Die Scheibe traegt die Hausfarben: Gold mit weissem Zeichen',
-    /g\.fillStyle = '#C49A2A';/.test(q.js) &&
-    /g\.strokeStyle = '#FFFFFF';/.test(q.js),
+    /g\.fillStyle = '#C49A2A';\s*\n\s*g\.fill\(\);/.test(q.js) &&
+    /symbolUmriss\(belegt \? 'stift' : 'punkt'\);\s*\n\s*g\.strokeStyle = '#FFFFFF';/.test(q.js),
     'voll deckend, kein Durchscheinen');
   p('Die Linien sind kraeftig',
     /g\.lineWidth = 4\.2;/.test(q.js),
@@ -551,7 +555,7 @@ function lauf(q) {
   /* „dünnere Ränder" (Betreiber, 01.11.2026): 13 verschluckte die
      Scheibe. Die Linien IM Zeichen bleiben kraeftig. */
   p('Der Rand ist schmal',
-    /g\.strokeStyle = '#9A7318'; g\.lineWidth = 8; g\.stroke\(\);/.test(q.js),
+    /verschluckte die Scheibe[\s\S]{0,120}?g\.strokeStyle = '#9A7318'; g\.lineWidth = 8; g\.stroke\(\);/.test(q.js),
     'Ring 8 statt 13');
   /* MIT DEN NACHBARZEILEN: Beide Saetze stehen seit dem 01.11.2026
      auch beim Massschild. Ohne Anker bestuende die Pruefung, obwohl
@@ -564,7 +568,7 @@ function lauf(q) {
     /Rahmens eine Linie statt zu Grau zu zerfliessen\. \*\/\s*\n\s*t\.generateMipmaps = false;/.test(q.js),
     'sonst zerfließt die Haarlinie des Rahmens zu Grau');
   p('Das Zeichen wird fein genug gezeichnet',
-    /var K = 256, M = K \/ 2;/.test(q.js),
+    /var K = 256, M = K \/ 2;\s+\/\/ Kantenl/.test(q.js),
     '256 Bildpunkte Kantenlaenge');
 
   p('Das Zeichen hat ein Mindest- und ein Hoechstmass',

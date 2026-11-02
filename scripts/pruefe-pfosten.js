@@ -185,6 +185,22 @@ var FEHLER = [
    '    var w = PF_ZIEHT || PF_WAHL;', '    var w = PF_ZIEHT;'],
   ['Das lichte Mass fehlt', 'js',
    "      licht.push(Math.round(achs - pfCm * 10) + ' mm');", '      void achs;'],
+  ['Das Zeichen am gewaehlten Pfosten fehlt', 'js',
+   '      ziehGruppe.add(z);', '      void z;'],
+  ['Das Zeichen wird aus einem anderen Umriss gezeichnet', 'js',
+   "    var u = symbolUmriss('schieben');", "    var u = symbolUmriss('punkt');"],
+  ['Der Doppelpfeil fehlt in der Zeichensammlung', 'html',
+   '<symbol id="bvs-schieben" viewBox="0 0 24 24">',
+   '<symbol id="bvs-schiebchen" viewBox="0 0 24 24">'],
+  ['Das Zeichen wird zweimal gesetzt', 'js',
+   '      if (zeichenGesetzt) return;\n      zeichenGesetzt = true;', '      void 0;'],
+  ['Das Zeichenbild wird bei jedem Klick neu gezeichnet', 'js',
+   '    if (ziehZeichen) return ziehZeichen;', '    void 0;'],
+  ['Der Pfeil wird wieder haarduenn gezeichnet', 'js',
+   '      g.lineWidth = 15 / f;', '      g.lineWidth = 2.3 / f;'],
+  ['Das Zeichen haengt nicht mehr in der eigenen Gruppe', 'js',
+   '      z.renderOrder = 5;\n      ziehGruppe.add(z);',
+   '      z.renderOrder = 5;\n      bau.add(z);'],
   ['Der Schalter zum Zuruecksetzen fehlt', 'js',
    "                '<button type=\"button\" class=\"k3d-pf-mitte\" hidden>' +",
    "                '' +"],
@@ -506,6 +522,26 @@ function lauf(q) {
       "? 'ew-resize' : 'pointer';");
 
   /* ---------- Bedienfeld und Band ---------- */
+  /* ---------- Das Zeichen am gewaehlten Pfosten ----------
+     „wenn man pfosten anklickt is er orange kann man noch nen rundes
+     logo mit durchgehendem pfeil nach links-rechts das man sieht man
+     kann es verschieben" (Betreiber, 01.11.2026). Die orange Huelle
+     sagt „ausgewaehlt", nicht WAS man damit tun kann. */
+  hat('Der gewaehlte Pfosten bekommt ein Zeichen',
+      'z.renderOrder = 5;\n      ziehGruppe.add(z);');
+  hat('Der Doppelpfeil steht in der eigenen Zeichensammlung',
+      '<symbol id="bvs-schieben" viewBox="0 0 24 24">', 'html');
+  hat('Gezeichnet wird er aus genau diesem Zeichen',
+      "var u = symbolUmriss('schieben');");
+  hat('Nur ein Zeichen je Pfosten, auch bei zwei Reihen',
+      'if (zeichenGesetzt) return;\n      zeichenGesetzt = true;');
+  hat('Das Bild wird einmal gezeichnet und behalten',
+      'if (ziehZeichen) return ziehZeichen;');
+  /* GEMESSEN am 02.11.2026: Mit der Strichstaerke aus dem 24-px-Knopf
+     (2.3) blieb auf der Scheibe von 256 Bildpunkten ein Haar von zwei
+     Punkten - der Stift skaliert mit. */
+  hat('Der Pfeil ist kraeftig genug gezeichnet', 'g.lineWidth = 15 / f;');
+
   /* ---------- Zurueck auf die gleichmaessige Lage ----------
      „da müsste ne funktion hin um den pfosten wenn man ihn verschoben
      hat wieder zu zetrieren" (Betreiber, 01.11.2026). Einmal

@@ -11155,3 +11155,57 @@ der Mitte, und verschwindet der Schalter danach? Und: Wäre bei mehreren
 verschobenen Pfosten ein „alle gleichmäßig" nützlich? Gebaut ist bisher nur der
 Schalter je Pfosten; bei höchstens drei verschiebbaren Pfosten sind das
 höchstens drei Klicks.
+
+## 02.11.2026 — Der Doppelpfeil am gewählten Pfosten
+
+**Anlass.** „wenn man pfosten anklickt is er orange kann man noch nen rundes
+logo mit durchgehendem pfeil nach links-rechts das man sieht man kann es
+verschieben" (Betreiber, 01.11.2026).
+
+Die orange Hülle sagt **„ausgewählt"** — sie sagt nicht, *was* man damit tun
+kann. Der Doppelpfeil sagt es: seitlich, in beide Richtungen. Gezeichnet wird
+er aus der eigenen Zeichensammlung; `bvs-schieben` (eine durchgehende Linie mit
+Spitzen an beiden Enden) kam dafür dazu.
+
+### Als Sprite, und das ist der eine Fall, wo das richtig ist
+
+Die runden Zeichen in den Feldern bleiben **flach stehen** — ausdrücklicher
+Wunsch vom 31.10.2026 („die Punkte drehen sich quasi immer in Kamerarichtung
+und bleiben nicht flach"). Dieses Zeichen macht es umgekehrt, und zwar aus
+einem Grund, nicht aus Bequemlichkeit:
+
+- Die **Feldzeichen markieren eine Stelle am Bauwerk**. Dreht man zur Seite,
+  verschwinden sie — dort gibt es dann auch nichts anzuklicken.
+- Dieses Zeichen gehört zu einem **Werkzeug, das gerade in der Hand ist**. Es
+  flach zu stellen hieße, es genau dann unsichtbar zu machen, wenn jemand das
+  Modell dreht, um besser zu zielen.
+
+Es liegt in `ziehGruppe` und bleibt damit aus dem gespeicherten Bild und aus dem
+PDF heraus. **Nur eines je Pfosten:** Bei freistehenden Anlagen tragen vorderer
+und hinterer Pfosten derselben Reihe dieselbe Nummer — zwei Zeichen übereinander
+wären nur Unruhe. Das Bild wird **einmal** gezeichnet und behalten; es hängt an
+nichts, was sich ändert.
+
+### Gemessen: die Strichstärke war um das Sechsfache daneben
+
+Im ersten Versuch stand dort `2.3` — die Stärke aus dem 24-px-Knopf des
+Bedienfeldes. Der Stift skaliert aber mit: Nach der Vergrößerung auf 142
+Bildpunkte blieb davon ein **Haar von zwei Punkten** auf einer Scheibe von 256.
+Jetzt `15 / f`, also 15 Bildpunkte auf der fertigen Fläche.
+
+### Dieselbe Anker-Falle, zum fünften Mal
+
+`ziehZeichenBild()` zeichnet dieselbe goldene Scheibe mit weißem Zeichen wie
+`feldBild()` — und steht in der Datei **weiter oben**. Fünf eingebaute Fehler
+von `pruefe-marken.js` trafen damit meine neue Funktion, während die Prüfungen
+die alte fanden und grün blieben. Drei Fehler und drei Prüfungen sind jetzt mit
+einer eindeutigen Nachbarzeile verankert.
+
+**Das ist kein Zufall mehr, sondern ein Muster:** Wer in dieser Datei eine
+zweite Stelle baut, die aussieht wie eine vorhandene, macht damit stillschweigend
+Prüfungen stumpf. Ein kurzer Lauf `--gegenprobe` nach jedem solchen Schritt
+findet es; aus der Quelle allein sieht man es nicht.
+
+**Gegenlesen:** Pfosten antippen — ist der Doppelpfeil groß genug und auch dann
+zu sehen, wenn das Modell gedreht wird? Und: Er liegt vor allem anderen, also
+auch vor dem Dach, wenn man von hinten schaut. Stört das?
