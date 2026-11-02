@@ -1103,6 +1103,17 @@
     if (mitFachtext && answers.fachnotiz) {
       p.push(['Technische Angaben (intern)', answers.fachnotiz]);
     }
+    /* Der Konfigurationslink - NUR in den Versand, nicht in die Anzeige.
+       „stelle sicher das auch der konfigurationslink verschickt wird das
+       ich diesen aufrufen kann" (Betreiber, 02.11.2026). Der Betrieb
+       oeffnet damit genau die angefragte Planung im Konfigurator und
+       kann daraus auch das PDF erzeugen.
+
+       Nicht in der Kundenzusammenfassung: Der Link ist mehrere hundert
+       Zeichen lang und wuerde die Uebersicht zerreissen. */
+    if (mitFachtext && answers.konfiglink) {
+      p.push(['Konfigurationslink', answers.konfiglink]);
+    }
     if (inFlow('untergrund') && answers.untergrund) p.push(['Untergrund', answers.untergrund]);
     if (inFlow('montage') && answers.montage) p.push(['Montage', answers.montage]);
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
@@ -1466,6 +1477,7 @@
     });
     if (v.notiz) answers.wunsch = v.notiz;
     if (v.fachnotiz) answers.fachnotiz = v.fachnotiz;
+    if (v.konfiglink) answers.konfiglink = v.konfiglink;
 
     flow = computeFlow();
     var ziel = flow.indexOf('kontakt');

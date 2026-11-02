@@ -354,11 +354,23 @@
 
     .k3d-gefuehrt .k3d-nav { display: block; margin: 18px 0 6px; }
     .k3d-nav-zeile { display: grid; grid-template-columns: 1fr 1.5fr; gap: 10px; }
+    /* color GEHOERT HIERHER: Ohne Angabe nimmt Safari auf dem iPhone
+       sein eigenes Blau fuer Knopftexte – „Zurück" stand dort blau,
+       waehrend es im Entwurf schwarz war (Bild des Betreibers,
+       02.11.2026). Derselbe Fehler wie zuvor bei „Abbrechen". */
     .k3d-nav-zeile button { padding: 14px 10px; border-radius: 10px;
       border: 2px solid var(--border); background: #fff; cursor: pointer;
+      color: var(--black);
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 1.05rem; }
     .k3d-nav-zeile #k3dWeiter { border-color: var(--gold); }
+    /* Im Bereich „Fertig" ist derselbe Knopf der Absender der Anfrage
+       (js/konfigurator-3d.js, schrittZeigen). Dann darf er auch
+       aussehen wie der Hauptknopf der Seite und nicht wie ein weiterer
+       Schritt. */
+    .k3d-nav-zeile #k3dWeiter[data-k3d-tut="anfrage"] {
+      background: var(--gold); border-color: var(--gold-dark);
+      color: var(--black); }
     .k3d-nav-zeile button[disabled] { opacity: .38; cursor: default; }
     .k3d-mehr-knopf { width: 100%; margin-bottom: 12px; padding: 10px;
       border-radius: 9px; border: 1px dashed var(--border); background: none;
@@ -2342,17 +2354,17 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261102d" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261102e" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261102d" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261102e" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261029d" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261102e" defer></script>
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">

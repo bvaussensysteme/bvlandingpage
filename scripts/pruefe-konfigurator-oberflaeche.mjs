@@ -1651,6 +1651,173 @@ if (hinwDa) {
 
 if (!GEGENPROBE) await m.screenshot({ path: 'pruefbilder/k3d-handy.png' });
 
+/* ---------- Der letzte Knopf der Führung ----------
+   „das allerletzen ,Weiter' funktioniert nicht und es sollte nicht weiter
+   heißen sondern vllt. Anfrage oder Anfrage abschicken. Dann wird ja die
+   konfiguration verschickt, stelle sicher das auch der konfigurationslink
+   verschickt wird das ich diesen aufrufen kann" (Betreiber, 02.11.2026).
+
+   WARUM EINE EIGENE SEITE: Der Lauf oben schaltet auf „Alles auf einen
+   Blick" und arbeitet danach am Modell weiter – die Führung gibt es dort
+   nicht mehr. Und hier wird wirklich abgeschickt (abgefangen), danach
+   steht der Assistent auf seiner Dankseite.
+
+   Gemessen wird in der Lage des Betreibers: iPhone-Fenster, Führung an.
+
+   DER FEHLER, DEN DAS HIER FINDET: Vorher stand im Code
+   weiterKnopf.hidden = letzter. Der Knopf trägt die Klasse .btn, und die
+   setzt display:inline-block – eine Autorenregel schlägt das
+   [hidden]{display:none} des Browsers. Der Knopf blieb also stehen, und
+   sein Klick lief ins Leere. Deshalb prüft der erste Punkt die
+   SICHTBARKEIT UND die Beschriftung, nicht das hidden-Attribut. */
+const fctx = await browser.newContext({
+  viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
+  deviceScaleFactor: 2,
+  userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+});
+const f = await fctx.newPage();
+f.setDefaultTimeout(8000);
+const fFehler = [];
+f.on('pageerror', e => fFehler.push(e.message));
+if (GEGENPROBE) {
+  /* Elfter Fehler: Der letzte Knopf tut wieder nichts – genau der
+     Zustand, den der Betreiber gemeldet hat. */
+  await f.route('**/konfigurator-3d.js*', async (r) => {
+    const a = await r.fetch();
+    let t = await a.text();
+    t = t.replace("if (w.getAttribute('data-k3d-tut') === 'anfrage') {", 'if (false) {');
+    await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
+  });
+  /* Zwölfter Fehler: Der Assistent lässt den Konfigurationslink fallen –
+     dann steht er in keiner E-Mail. */
+  await f.route('**/anfrage-wizard.js*', async (r) => {
+    const a = await r.fetch();
+    let t = await a.text();
+    t = t.replace('if (v.konfiglink) answers.konfiglink = v.konfiglink;', 'void 0;');
+    await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
+  });
+}
+await f.goto(BASIS, { waitUntil: 'networkidle' });
+await f.waitForTimeout(1600);
+await dialogeWeg(f);
+if (GEGENPROBE) {
+  /* Dreizehnter Fehler: dem Knopftext fehlt die Farbe – dann gibt Safari
+     ihm sein eigenes Blau, wie zuvor bei „Abbrechen". */
+  await f.addStyleTag({ content: '.k3d-nav-zeile button{color:rgb(0,122,255)!important}' });
+}
+
+const knopfStand = () => f.evaluate(() => {
+  const w = document.getElementById('k3dWeiter');
+  const z = document.getElementById('k3dZurueck');
+  const cw = getComputedStyle(w), cz = getComputedStyle(z);
+  const r = w.getBoundingClientRect();
+  return {
+    zahl: (document.getElementById('k3dSchrittZahl') || {}).textContent || '',
+    titel: (document.getElementById('k3dSchrittTitel') || {}).textContent || '',
+    text: w.textContent.trim().replace(/\s+/g, ' '),
+    tut: w.getAttribute('data-k3d-tut') || '',
+    sichtbar: cw.display !== 'none' && r.width > 40 && r.height > 10,
+    grund: cw.backgroundColor,
+    schriftZurueck: cz.color
+  };
+});
+
+let st = await knopfStand();
+const weg = [st.zahl];
+let weiterTexte = [];
+for (let i = 0; i < 8 && !st.tut; i++) {
+  weiterTexte.push(st.text);
+  await f.$eval('#k3dWeiter', (el) => el.click());
+  await f.waitForTimeout(700);
+  st = await knopfStand();
+  weg.push(st.zahl);
+}
+pruef('Die Führung läuft bis zum letzten Bereich durch',
+  st.zahl === '5 von 5' && st.titel === 'Fertig', weg.join(' → '));
+pruef('Unterwegs heißt der Knopf weiter „Weiter"',
+  weiterTexte.length > 2 && weiterTexte.every((t) => /^Weiter/.test(t)),
+  weiterTexte.join(' | '));
+pruef('Der letzte Knopf heißt „Anfrage abschicken"',
+  st.text === 'Anfrage abschicken' && st.sichtbar, `„${st.text}", sichtbar: ${st.sichtbar}`);
+const gw = /rgba?\((\d+), ?(\d+), ?(\d+)/.exec(st.grund);
+pruef('Der Absender-Knopf trägt die Firmenfarbe',
+  !!gw && +gw[1] > 150 && +gw[2] > 110 && +gw[3] < 110, st.grund);
+const sz = /rgba?\((\d+), ?(\d+), ?(\d+)/.exec(st.schriftZurueck);
+pruef('„Zurück" steht nicht in Safaris Blau',
+  !!sz && +sz[3] < 90 && Math.abs(+sz[1] - +sz[3]) < 40, st.schriftZurueck);
+
+/* Den Konfigurationslink im Flug mitlesen: Der Assistent setzt
+   window.bvKonfigVorgabe nach dem Übernehmen auf null, also wird der
+   Schreibzugriff abgefangen. */
+await f.evaluate(() => {
+  let gespeichert = null;
+  Object.defineProperty(window, 'bvKonfigVorgabe', {
+    configurable: true,
+    get() { return gespeichert; },
+    set(v) { if (v && v.konfiglink) window.__bvLink = v.konfiglink; gespeichert = v; }
+  });
+});
+const breiteVorAnfrage = await f.inputValue('#k3dBreiteZahl');
+await f.$eval('#k3dWeiter', (el) => el.click());
+await f.waitForTimeout(1500);
+const assistentDa = await f.locator('#bvKonfigPanel').isVisible().catch(() => false);
+pruef('Der letzte Knopf schickt die Anfrage ab', assistentDa);
+
+const link = await f.evaluate(() => window.__bvLink || '');
+pruef('Der Konfigurationslink liegt der Anfrage bei',
+  /^https?:\/\/[^#]+#k=/.test(link), link ? link.slice(0, 48) + '… (' + link.length + ' Zeichen)' : 'kein Link');
+/* ZWEITER, ANDERS GEBAUTER WEG: nicht nachsehen, ob ein Link da ist,
+   sondern ihn auspacken und die Breite daraus zurücklesen. */
+const linkBreite = await f.evaluate((u) => {
+  try {
+    const c = String(u).split('#k=')[1];
+    const b = c.replace(/-/g, '+').replace(/_/g, '/');
+    const d = JSON.parse(decodeURIComponent(escape(atob(b))));
+    if (!d || d.v !== 1 || !d.f) return 'nicht lesbar';
+    return String(d.f.BreiteZahl || d.f.Breite || '');
+  } catch (e) { return 'nicht lesbar'; }
+}, link);
+pruef('Aus dem Link kommt die angefragte Breite zurück',
+  linkBreite === breiteVorAnfrage, `${linkBreite} mm aus dem Link, ${breiteVorAnfrage} mm im Konfigurator`);
+
+if (!assistentDa) {
+  pruef('Konfigurationslink geht mit der Anfrage raus', false, 'Assistent gar nicht geöffnet');
+} else {
+  /* Nichts darf wirklich verschickt werden. Der Mailweg wird abgefangen
+     UND mitgelesen – geprüft wird, was den Browser verlassen HÄTTE. */
+  let versand = null;
+  await f.route('**/api/kontakt', r => r.fulfill({ status: 200, body: '{"ok":true}' }));
+  await f.route('https://api.web3forms.com/**', async (r) => {
+    try { versand = JSON.parse(r.request().postData() || '{}'); } catch (e) { versand = {}; }
+    await r.fulfill({ status: 200, body: '{"success":true}' });
+  });
+  const anredeF = f.locator('#bvKonfigPanel button', { hasText: /^Frau$/ }).first();
+  if (await anredeF.count()) await anredeF.click();
+  await f.fill('#k_nachname', 'Testfall');
+  await f.fill('#k_email', 'pruefung@bv-aussensysteme.de');
+  await f.fill('#k_telefon', '026311234567');
+  await f.fill('#k_plz', '57537');
+  await f.fill('#k_ort', 'Hirtscheid');
+  await haken(f, '#k_consent');
+  await f.click('#awNext');                       // zur Zusammenfassung
+  await f.waitForTimeout(600);
+  const kundenText = await f.locator('#bvKonfigPanel').innerText();
+  await f.click('#awNext');                       // absenden
+  await f.waitForTimeout(2000);
+  const mitLink = versand && typeof versand['Konfigurationslink'] === 'string'
+    && /#k=/.test(versand['Konfigurationslink']);
+  pruef('Konfigurationslink geht mit der Anfrage raus', !!mitLink,
+    mitLink ? versand['Konfigurationslink'].length + ' Zeichen in der E-Mail'
+            : 'nicht im Versand: ' + Object.keys(versand || {}).join(', ').slice(0, 90));
+  /* Der Link gehört NICHT in die Kundenzusammenfassung – mehrere hundert
+     Zeichen würden sie zerreißen. */
+  pruef('Der Link steht nicht in der Kundenübersicht', !/#k=/.test(kundenText));
+  pruef('Die Anfrage ist durchgegangen',
+    /Vielen Dank/.test(await f.locator('#awTitle').textContent().catch(() => '')));
+}
+pruef('Letzter Schritt: keine Fehler in der Seite', fFehler.length === 0,
+  fFehler.join(' | ').slice(0, 120));
+
 await browser.close();
 server.kill();
 
@@ -1663,6 +1830,9 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Der letzte Knopf schickt die Anfrage ab',
+  'Konfigurationslink geht mit der Anfrage raus',
+  '„Zurück" steht nicht in Safaris Blau',
   '„Abbrechen" steht in Rot, Rahmen und Wort in derselben Farbe',
   'Zurücksetzen beginnt wirklich von vorne',
   'Er stellt den Pfosten wieder gleichmäßig',

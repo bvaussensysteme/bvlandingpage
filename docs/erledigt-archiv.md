@@ -786,3 +786,20 @@ im Bild öffnet ein kleines Zahlenfeld; die neue Zahl ändert die Anlage sofort.
 
 **Offen, bewusst:** Mit der Tastatur sind die Schilder nicht erreichbar (sie
 sind Teile im 3D-Bild, keine Knöpfe). Dieselben Werte stehen im Bedienfeld.
+
+## Kurzliste 23.–25.10.2026 (aus dem Einstieg verschoben, 02.11.2026)
+
+| Datum | Was | Stand |
+|---|---|---|
+| 25.10.2026 | **Sonderform entfernt** – Entscheidung des Betreibers; Sonderformen laufen über Telefon und Aufmaß | live |
+| 25.10.2026 | Teilen-Knopf: Link öffnet die Planung wieder, mit PDF-, WhatsApp- und E-Mail-Weg | live |
+| 25.10.2026 | Kurzlink über den eigenen Worker (`/api/teilen`, `/k/<id>`) | **zurückgestellt – Datenbankrolle darf nichts anlegen (`42501`), siehe Abschnitt 2** |
+| 25.10.2026 | Alle RAL-Töne (217) mit Lupensuche nach Farbe oder Nummer | live |
+| 25.10.2026 | PDF: Kacheln liefen ineinander; Durchfahrt jetzt mit Statikträger | live |
+| 25.10.2026 | Gefälle sichtbar: Steigungsdreieck an der Maßlinie | live |
+| 24.10.2026 | Gefälle des Terrassenbodens: Pfostenlängen je Ecke, Wiese kippt mit | live |
+| 24.10.2026 | Statikträger auf Wunsch auch beim Carport TDS | live |
+| 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | live |
+| 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten | live |
+| 24.10.2026 | Maßlinien als Körper mit Endmarken, BV-Logo deutlicher | live |
+| 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | live |
