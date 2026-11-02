@@ -10142,14 +10142,37 @@
     if (zurueck) zurueck.disabled = pos <= 1;
     var weiterKnopf = document.getElementById('k3dWeiter');
     if (weiterKnopf) {
-      weiterKnopf.hidden = letzter;
-      /* Der Knopf sagt, WOHIN es geht. "Weiter" allein laesst offen, was
-         als Naechstes kommt - und genau das ist die Frage, die jemand
-         vor dem Klick hat. */
-      var naechster = bereichSuchen(bereichNr, 1);
-      weiterKnopf.innerHTML = 'Weiter' +
-        ((naechster !== bereichNr) ? ' \u00b7 ' + BEREICHE[naechster].t : '') +
-        ' ' + bvSymbol('rechts');
+      /* IM LETZTEN BEREICH IST DIES DER ABSENDER, kein „Weiter".
+         „das allerletzen ,Weiter' funktioniert nicht und es sollte nicht
+         weiter heissen sondern vllt. Anfrage oder Anfrage abschicken"
+         (Betreiber, 02.11.2026).
+
+         Vorher stand hier weiterKnopf.hidden = letzter. Das hat NIE
+         gewirkt: Der Knopf traegt die Klasse .btn, und die setzt
+         display:inline-block (css/style.css) - eine Autorenregel
+         schlaegt das [hidden]{display:none} des Browsers. Also blieb im
+         Bereich „Fertig" ein „Weiter" stehen, hinter dem kein Bereich
+         mehr lag; der Klick lief in schrittWechseln() ins Leere.
+
+         Statt den Knopf jetzt richtig zu verstecken, tut er dort das,
+         was an dieser Stelle ansteht: Er schickt die Anfrage ab. Der
+         Knopf unter der Zusammenfassung (#k3dAnfrage) bleibt daneben
+         bestehen - wer scrollt, findet ihn dort, wer der Fuehrung
+         folgt, hier. */
+      weiterKnopf.hidden = false;
+      if (letzter) {
+        weiterKnopf.setAttribute('data-k3d-tut', 'anfrage');
+        weiterKnopf.innerHTML = 'Anfrage abschicken ' + bvSymbol('haken');
+      } else {
+        weiterKnopf.removeAttribute('data-k3d-tut');
+        /* Der Knopf sagt, WOHIN es geht. "Weiter" allein laesst offen, was
+           als Naechstes kommt - und genau das ist die Frage, die jemand
+           vor dem Klick hat. */
+        var naechster = bereichSuchen(bereichNr, 1);
+        weiterKnopf.innerHTML = 'Weiter' +
+          ((naechster !== bereichNr) ? ' \u00b7 ' + BEREICHE[naechster].t : '') +
+          ' ' + bvSymbol('rechts');
+      }
     }
 
     /* „Mehr Einstellungen" nur anbieten, wo es welche gibt. */
@@ -11365,7 +11388,15 @@
   /* Bedienung der geführten Reihenfolge */
   (function () {
     var w = document.getElementById('k3dWeiter');
-    if (w) w.addEventListener('click', function () { schrittWechseln(1); });
+    if (w) w.addEventListener('click', function () {
+      /* Im Bereich „Fertig" ist derselbe Knopf der Absender - was er
+         gerade ist, steht in data-k3d-tut (schrittZeigen). */
+      if (w.getAttribute('data-k3d-tut') === 'anfrage') {
+        anfrageStarten();
+        return;
+      }
+      schrittWechseln(1);
+    });
     var z = document.getElementById('k3dZurueck');
     if (z) z.addEventListener('click', function () { schrittWechseln(-1); });
     var m = document.getElementById('k3dMehr');
@@ -14962,109 +14993,129 @@
     if (drehBtn) drehBtn.click();
   });
 
-  var anfrageBtn = document.getElementById('k3dAnfrage');
-  if (anfrageBtn) {
-    anfrageBtn.addEventListener('click', function () {
-      var v = {
-        breite: String(Z.breite),            // der Assistent rechnet ebenfalls in Millimetern
-        tiefe: String(Z.tiefe),
-        hoehe: String(Z.hoehe),
-        farbe: VORGABE_FARBE[Z.farbe] || Z.farbe,
-        led: Z.led ? VORGABE_LED.ja : VORGABE_LED.nein,
-        montage: Z.montage,
-        untergrund: Z.untergrund,
-        /* notiz zeigt der Assistent dem Kunden in der Zusammenfassung –
-           deshalb die Kurzfassung. fachnotiz sieht nur der Betrieb:
-           Fachtext samt der internen Hinweise aus der Stueckliste
-           (js/anfrage-wizard.js nimmt sie allein in den Versand). */
-        notiz: zusammenfassungKurz().join(' · '),
-        fachnotiz: zusammenfassung().join(' · ') +
-          (pfostenNotiz().length ? ' · ' + pfostenNotiz().join(' · ') : '') +
-          (hinweiseIntern().length
-            ? ' || Interne Hinweise: ' + hinweiseIntern().join(' || ') : '')
-      };
-      /* Alles, was der Assistent als eigenes Feld kennt, geht auch als
-         eigenes Feld hinüber – nicht nur als Text in der Notiz. Sonst
-         steht es zwar in der E-Mail, aber im Assistenten ist nichts
-         markiert, und beim Zurückblättern ist die Angabe weg. */
-      if (gruppeGilt('fassade')) v.fassade = Z.fassade;
-      if (Z.led) {
-        v.ledset = Z.ledset;
-        if (Z.ledsetzahl > 1) v.ledsetzahl = String(Z.ledsetzahl);
+  /* Die Anfrage wird an ZWEI Stellen ausgeloest: unter der
+     Zusammenfassung (#k3dAnfrage) und als letzter Knopf der Fuehrung
+     („Anfrage abschicken", #k3dWeiter im Bereich „Fertig"). Deshalb
+     steht sie hier als Funktion und nicht im Zuhoerer. */
+  function anfrageStarten() {
+    var v = {
+      breite: String(Z.breite),            // der Assistent rechnet ebenfalls in Millimetern
+      tiefe: String(Z.tiefe),
+      hoehe: String(Z.hoehe),
+      farbe: VORGABE_FARBE[Z.farbe] || Z.farbe,
+      led: Z.led ? VORGABE_LED.ja : VORGABE_LED.nein,
+      montage: Z.montage,
+      untergrund: Z.untergrund,
+      /* notiz zeigt der Assistent dem Kunden in der Zusammenfassung –
+         deshalb die Kurzfassung. fachnotiz sieht nur der Betrieb:
+         Fachtext samt der internen Hinweise aus der Stueckliste
+         (js/anfrage-wizard.js nimmt sie allein in den Versand). */
+      notiz: zusammenfassungKurz().join(' · '),
+      fachnotiz: zusammenfassung().join(' · ') +
+        (pfostenNotiz().length ? ' · ' + pfostenNotiz().join(' · ') : '') +
+        (hinweiseIntern().length
+          ? ' || Interne Hinweise: ' + hinweiseIntern().join(' || ') : '')
+    };
+    /* Alles, was der Assistent als eigenes Feld kennt, geht auch als
+       eigenes Feld hinüber – nicht nur als Text in der Notiz. Sonst
+       steht es zwar in der E-Mail, aber im Assistenten ist nichts
+       markiert, und beim Zurückblättern ist die Angabe weg. */
+    if (gruppeGilt('fassade')) v.fassade = Z.fassade;
+    if (Z.led) {
+      v.ledset = Z.ledset;
+      if (Z.ledsetzahl > 1) v.ledsetzahl = String(Z.ledsetzahl);
+    }
+    if (!istCarport()) {
+      v.sound = Z.sound ? 'Ja, mit Lautsprechern' : 'Nein, ohne Lautsprecher';
+      if (Z.sound) v.soundset = Z.soundset;
+    }
+    if (istPergola()) {
+      v.produkt = 'Pergola / Lamellendach';
+      v.dachart = Z.pgDachart;
+      if (istLamellen()) v.dachausfuehrung = Z.pgAusfuehrung;
+      v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
+      v.seitenschutz = Z.pgSeitenschutz;
+      v.farbe = VORGABE_FARBE_PERGOLA[Z.farbe] || VORGABE_FARBE[Z.farbe] || Z.farbe;
+      v.led = Z.led ? VORGABE_LED_PERGOLA.ja : VORGABE_LED_PERGOLA.nein;
+      v.heizung = Z.heizung ? 'Ja, mit Heizstrahler' : 'Nein, ohne Heizung';
+      v.wettersensor = Z.wettersensor ? 'Ja, mit Wetter-Automatik' : 'Nein';
+    } else if (istCarport()) {
+      v.produkt = 'Carport';
+      v.carporttyp = Z.cpTyp;
+      v.carportvariante = cpVarianteJetzt();
+      if (istCarportTds()) {
+        if (Z.vorsprung > 0) v.ueberstand = String(Z.vorsprung);
+      } else if (Z.cpVariante === 'Carport mit Überstand') {
+        v.ueberstand = String(Z.ueberstand);
       }
-      if (!istCarport()) {
-        v.sound = Z.sound ? 'Ja, mit Lautsprechern' : 'Nein, ohne Lautsprecher';
-        if (Z.sound) v.soundset = Z.soundset;
+      if (istCarportTds()) v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+      /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
+         (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
+         und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
+      if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
+      else v.dach = Z.cpDach;
+    } else {
+      v.produkt = Z.produkt;
+      v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
+      v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
+      /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
+         (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
+         und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
+      if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
+      if (Z.markise !== 'Ohne') v.markise = Z.markise;
+      /* Roher Code, nicht der Fliesstext: Der Assistent markiert damit
+         die richtige Kachel. Den lesbaren Satz baut er selbst aus
+         derselben Liste. */
+      if (Z.stoff && gruppeGilt('stoff-dach')) v.stoff = Z.stoff;
+      if (gruppeGilt('stoff-segel')) {
+        v.segelstoff = Z.segelStoff;
+        v.segelart = Z.segelArt;
+        v.segelmontage = Z.segelMontage;
+        v.segelstange = Z.segelStange ? 'ja' : 'nein';
       }
-      if (istPergola()) {
-        v.produkt = 'Pergola / Lamellendach';
-        v.dachart = Z.pgDachart;
-        if (istLamellen()) v.dachausfuehrung = Z.pgAusfuehrung;
-        v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
-        v.seitenschutz = Z.pgSeitenschutz;
-        v.farbe = VORGABE_FARBE_PERGOLA[Z.farbe] || VORGABE_FARBE[Z.farbe] || Z.farbe;
-        v.led = Z.led ? VORGABE_LED_PERGOLA.ja : VORGABE_LED_PERGOLA.nein;
-        v.heizung = Z.heizung ? 'Ja, mit Heizstrahler' : 'Nein, ohne Heizung';
-        v.wettersensor = Z.wettersensor ? 'Ja, mit Wetter-Automatik' : 'Nein';
-      } else if (istCarport()) {
-        v.produkt = 'Carport';
-        v.carporttyp = Z.cpTyp;
-        v.carportvariante = cpVarianteJetzt();
-        if (istCarportTds()) {
-          if (Z.vorsprung > 0) v.ueberstand = String(Z.vorsprung);
-        } else if (Z.cpVariante === 'Carport mit Überstand') {
-          v.ueberstand = String(Z.ueberstand);
-        }
-        if (istCarportTds()) v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
-        /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
-           (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
-           und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
-        if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
-        else v.dach = Z.cpDach;
-      } else {
-        v.produkt = Z.produkt;
-        v.aufbau = Z.aufbau === 'Wandmontage' ? 'Wandmontage' : 'Freistehend';
-        v.verglasung = VORGABE_VERGLASUNG[Z.eindeckung];
-        /* Der Assistent fragt die Glasstaerke als eigenes Feld ab
-           (js/anfrage-wizard.js, Schritt „verglasung") – Werte „8 mm"
-           und „10 mm". Ohne diese Zeile stuende die Anfrage dort leer. */
-        if (!istPolycarbonat()) v.glasstaerke = Z.glasstaerke + ' mm';
-        if (Z.markise !== 'Ohne') v.markise = Z.markise;
-        /* Roher Code, nicht der Fliesstext: Der Assistent markiert damit
-           die richtige Kachel. Den lesbaren Satz baut er selbst aus
-           derselben Liste. */
-        if (Z.stoff && gruppeGilt('stoff-dach')) v.stoff = Z.stoff;
-        if (gruppeGilt('stoff-segel')) {
-          v.segelstoff = Z.segelStoff;
-          v.segelart = Z.segelArt;
-          v.segelmontage = Z.segelMontage;
-          v.segelstange = Z.segelStange ? 'ja' : 'nein';
-        }
-        if (gruppeGilt('stoff-plissee')) {
-          v.plisseestoff = Z.plisseeStoff;
-          v.plisseegestell = Z.plisseeGestell;
-          v.plisseestab = Z.plisseeStab;
-        }
-        if (SONNE_IST.bahnen && (gruppeGilt('stoff-segel') || gruppeGilt('stoff-plissee'))) {
-          v.bahnen = String(SONNE_IST.bahnen);
-        }
-        if (Z.stoffZip && gruppeGilt('stoff-zip')) v.stoffzip = Z.stoffZip;
-        if (istTdsDach() && Z.vorsprung) {
-          v.vorsprung = String(Z.vorsprung);
-        }
-        // Die Erweiterungen sind Listen – der Assistent führt sie ebenso
-        if (Z.erwLinks.length) v.erw_links = Z.erwLinks.slice();
-        if (Z.erwRechts.length) v.erw_rechts = Z.erwRechts.slice();
-        if (Z.erwVorne.length) v.erw_vorne = Z.erwVorne.slice();
-        if (Z.erwHinten.length) v.erw_hinten = Z.erwHinten.slice();
+      if (gruppeGilt('stoff-plissee')) {
+        v.plisseestoff = Z.plisseeStoff;
+        v.plisseegestell = Z.plisseeGestell;
+        v.plisseestab = Z.plisseeStab;
       }
-      window.bvKonfigVorgabe = v;
-      var bubble = document.getElementById('bvKonfigBubble');
-      if (bubble) bubble.click();
-      // Der Assistent hoert darauf und springt direkt zu den Kontaktdaten
-      document.dispatchEvent(new CustomEvent('bv-konfig-vorgabe'));
-    });
+      if (SONNE_IST.bahnen && (gruppeGilt('stoff-segel') || gruppeGilt('stoff-plissee'))) {
+        v.bahnen = String(SONNE_IST.bahnen);
+      }
+      if (Z.stoffZip && gruppeGilt('stoff-zip')) v.stoffzip = Z.stoffZip;
+      if (istTdsDach() && Z.vorsprung) {
+        v.vorsprung = String(Z.vorsprung);
+      }
+      // Die Erweiterungen sind Listen – der Assistent führt sie ebenso
+      if (Z.erwLinks.length) v.erw_links = Z.erwLinks.slice();
+      if (Z.erwRechts.length) v.erw_rechts = Z.erwRechts.slice();
+      if (Z.erwVorne.length) v.erw_vorne = Z.erwVorne.slice();
+      if (Z.erwHinten.length) v.erw_hinten = Z.erwHinten.slice();
+    }
+    /* DER KONFIGURATIONSLINK GEHT MIT.
+       „stelle sicher das auch der konfigurationslink verschickt wird das
+       ich diesen aufrufen kann" (Betreiber, 02.11.2026).
+
+       Der Link traegt die Planung selbst (teilenDaten) - der Betrieb
+       kann die Anfrage damit im Konfigurator oeffnen, nachrechnen,
+       aendern und das PDF daraus erzeugen, auch Monate spaeter. Kein
+       Speicher, keine Aufbewahrungsfrist.
+
+       Das fertige PDF als ANHANG waere der kuerzere Weg, geht aber
+       nicht kostenlos: Beide Mailwege (Web3Forms, Formspree) nehmen
+       Dateien nur in ihren Bezahlplaenen, und das PDF entsteht erst im
+       Browser des Kunden. Begruendung in docs/entscheidungen.md
+       (02.11.2026). */
+    v.konfiglink = teilenLink();
+
+    window.bvKonfigVorgabe = v;
+    var bubble = document.getElementById('bvKonfigBubble');
+    if (bubble) bubble.click();
+    // Der Assistent hoert darauf und springt direkt zu den Kontaktdaten
+    document.dispatchEvent(new CustomEvent('bv-konfig-vorgabe'));
   }
+
+  var anfrageBtn = document.getElementById('k3dAnfrage');
+  if (anfrageBtn) anfrageBtn.addEventListener('click', anfrageStarten);
 
   /* ---------- Planung teilen ----------
      „Ich will auch einen Teilen Button und dann so wie hier nur in

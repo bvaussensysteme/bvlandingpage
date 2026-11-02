@@ -262,6 +262,19 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 | **Preisgrundlage, falls je Preise gezeigt werden sollen** | Bisherige Linie: keine Preise. Eine Kalkulationsgrundlage kann nur der Betrieb liefern |
 | **Kurzlink: Rechte in der Datenbank** (nur falls gewünscht, siehe Abschnitt 2) | Die Datenbank-Rolle darf **gar nichts anlegen** – weder in `public` noch ein eigenes Schema. Live gemessen am 25.10.2026: Fehlernummer `42501`. Vom Betreiber zurückgestellt: „is mir zu kompliziert xd keine ahnung". Der lange Link funktioniert, er ist nur lang |
 
+### Vorschlag, nicht gebaut: das PDF als Anhang in der Anfrage
+
+Gewünscht war „ggf. falls kostenlos möglich auch die fertige konfigurations
+PDF" (Betreiber, 02.11.2026). **Kostenlos geht es nicht:** Web3Forms und
+Formspree nehmen Dateien nur in ihren Bezahlplänen, und das PDF entsteht erst
+im Browser des Kunden (mehrere MB). Stattdessen fährt jetzt der
+**Konfigurationslink** mit — daraus ist das PDF in einem Klick erzeugt.
+
+Der mögliche eigene Weg: PDF an einen Worker, Ablage in R2, kurzer Link in die
+E-Mail. Kostet kein Geld (Freikontingent), **speichert aber Kundendaten** –
+dann braucht es eine Aufbewahrungsfrist, einen Satz in der
+Datenschutzerklärung und ein Löschkonzept. Wird nur auf Ansage gebaut.
+
 ### Kurzlink — zurückgestellt
 
 Der Teilen-Dialog zeigt den **langen** Link, der funktioniert. Der kurze
@@ -299,7 +312,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-fuehrung.js` | Gehört jede Bedieneinheit des 3D-Konfigurators zu einem Schritt der geführten Reihenfolge? Nennt die Anfrage alle drei Seiten? |
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
-| `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser: Layout, Regler, Markisen, Maße, Handy-Scrollen – und liest zurück, was im Assistenten ankommt. Braucht `npm i --no-save playwright`, startet den Webserver selbst |
+| `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser, 145 Prüfungen: Layout, Regler, Markisen, Maße, Handy-Scrollen, Zurücksetzen – und liest zurück, was im Assistenten ankommt **und was den Browser beim Absenden verlassen hätte** (Mailweg abgefangen, Konfigurationslink ausgepackt und zurückgerechnet). Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-symbole.js` | **Keine Emoji in der Oberfläche.** Sucht die Zeichen selbst (nicht das Aussehen) in Knopfbeschriftungen, in allem, was Javascript in die Seite schreibt, und in den sechs Skripten der Website. Dazu: Jedes benutzte Symbol gibt es, keines liegt ungenutzt herum, jedes hat eine viewBox, keines bringt fremde Bilddaten mit, das Sprite steht vor der ersten Verwendung. Gegenprobe: 17 Fehler, jeder einzeln |
 | `scripts/pruefe-feldwahl.js` | Zuordnung Element → Feld: ohne Zuordnung gilt ein Element in ALLEN Feldern (alte Links bleiben unverändert), das Modell baut danach, verwaiste Zuordnungen werden geloescht, ein weggefallenes Feld lässt nichts verschwinden, Teilen-Link trägt und liest sie, Anfrage nennt Feld und Feldzahl, die Rückseite wird nicht mehr doppelt gebaut. 25 Prüfungen, Gegenprobe: 26 Fehler einzeln |
 | `scripts/pruefe-marken.js` | Anklickbare Felder am Modell: ein Feld je Seitenfeld (auch bei Unterzug und Mittelpfosten), keins hinten bei Wandmontage, hinten nach den **hinteren** Achsen, keins steckt in einem Pfosten; die Fläche liegt IN der Ebene ihres Feldes (Quaternion, kein Sprite), Hervorhebung orange und durchsichtig, Klick führt ins Bedienfeld, Verdecktes ist nicht anklickbar, Flächen bleiben aus Bild und PDF heraus. `markenFelder()` wird **ausgeführt**, nicht im Quelltext nachgelesen. 58 Prüfungen, Gegenprobe: 61 Fehler einzeln |
@@ -463,6 +476,8 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 02.11.2026 | **Letzter Knopf schickt ab** („Anfrage abschicken") und der **Konfigurationslink geht in jede Anfrage** — das alte `hidden` wirkte nie, weil `.btn` `display:inline-block` setzt; PDF-Anhang geht nicht kostenlos (Begründung in `docs/entscheidungen.md`) | neu |
+| 02.11.2026 | **„Zurück" stand auf dem iPhone in Safaris Blau** — dritter Fall derselben Art: eine Knopfregel ohne `color` | neu |
 | 02.11.2026 | **„Abbrechen" in Rot** — trug nur `.btn`, und das setzt keine Schriftfarbe: Auf dem iPhone blieb Safaris Blau | neu |
 | 02.11.2026 | **„Zurücksetzen" statt „Bild speichern"** — mit Rückfrage; das PDF hing am entfernten Menü und ruft jetzt direkt | neu |
 | 02.11.2026 | **Unterkante Wandprofil im Modell** — anklickbar; dabei gefunden: Maßschilder standen in der Klickkette hinter den Feldflächen und waren dort nicht erreichbar | neu |
@@ -484,15 +499,3 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 | 31.10.2026 | Werkstatt `/werkstatt/`: Passwortschutz im Worker, Neu-laden-Knopf, Versionsanzeige | live |
 | 31.10.2026 | Öffentlicher Konfigurator gesperrt: Hinweisseite statt Rechner, alle Links raus | live |
 | 31.10.2026 | Aussparung (Hausvorsprung) als Machbarkeitsnachweis — nur in der Werkstatt | **wartet auf Entscheidung** |
-| 25.10.2026 | **Sonderform entfernt** – Entscheidung des Betreibers; Sonderformen laufen über Telefon und Aufmaß | live |
-| 25.10.2026 | Teilen-Knopf: Link öffnet die Planung wieder, mit PDF-, WhatsApp- und E-Mail-Weg | live |
-| 25.10.2026 | Kurzlink über den eigenen Worker (`/api/teilen`, `/k/<id>`) | **zurückgestellt – Datenbankrolle darf nichts anlegen (`42501`), siehe Abschnitt 2** |
-| 25.10.2026 | Alle RAL-Töne (217) mit Lupensuche nach Farbe oder Nummer | live |
-| 25.10.2026 | PDF: Kacheln liefen ineinander; Durchfahrt jetzt mit Statikträger | live |
-| 25.10.2026 | Gefälle sichtbar: Steigungsdreieck an der Maßlinie | live |
-| 24.10.2026 | Gefälle des Terrassenbodens: Pfostenlängen je Ecke, Wiese kippt mit | live |
-| 24.10.2026 | Statikträger auf Wunsch auch beim Carport TDS | live |
-| 24.10.2026 | Zwei Stufen im Konfigurator: Basic (Kundenfragen) und Pro (alles) | live |
-| 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten | live |
-| 24.10.2026 | Maßlinien als Körper mit Endmarken, BV-Logo deutlicher | live |
-| 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | live |

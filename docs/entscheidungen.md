@@ -11300,3 +11300,85 @@ verschieden hoch (nachgemessen: beide 48 px).
 Rotanteil deutlich über Grün und Blau liegt und dass der Grund hell ist. Ein
 Klassenname hätte den ursprünglichen Fehler nicht gefunden — die Klasse war ja
 da, nur die Farbe fehlte.
+
+## 02.11.2026 — Der letzte Knopf schickt ab, und der Link fährt mit
+
+**Anlass.** „das allerletzen ‚Weiter' funktioniert nicht und es sollte nicht
+weiter heißen sondern vllt. Anfrage oder Anfrage abschicken., Dann wird ja die
+konfiguration verschickt, stelle sicher das auch der konfigurationslink
+verschickt wird das ich diesen aufrufen kann und ggf. falls kostenlos möglich
+auch die fertige konfigurations PDF" (Betreiber, 02.11.2026, mit Bild vom
+Handy).
+
+### Warum der Knopf tot war — und warum er überhaupt dastand
+
+Im Code stand `weiterKnopf.hidden = letzter`. Das sollte den Knopf im letzten
+Bereich wegnehmen. **Es hat nie gewirkt.** Der Knopf trägt die Klasse `.btn`,
+und die setzt `display:inline-block` (`css/style.css`). Eine Autorenregel
+schlägt das `[hidden]{display:none}`, das der Browser selbst mitbringt — also
+blieb ein „Weiter" stehen, hinter dem kein Bereich mehr lag, und der Klick lief
+in `schrittWechseln()` ins Leere. Im Browser nachgemessen: `hidden` war `true`,
+`getComputedStyle(...).display` trotzdem `block`.
+
+Das ist dieselbe Falle wie beim blauen „Abbrechen": **eine Klasse, die mehr
+mitbringt als man an der Stelle sieht.** Wer `hidden` benutzt, muss wissen, ob
+eine Autorenregel ein `display` setzt — sonst versteckt man nichts.
+
+**Entschieden wurde nicht, den Knopf richtig zu verstecken.** Er tut jetzt an
+dieser Stelle das, was dort ansteht: `data-k3d-tut="anfrage"`, Beschriftung
+„Anfrage abschicken", Firmenfarbe als Grund — und der Klick ruft dieselbe
+Funktion wie der Knopf unter der Zusammenfassung (`anfrageStarten()`, dafür aus
+dem Zuhörer herausgezogen). Beide Knöpfe bleiben: Wer der Führung folgt, findet
+ihn unten, wer scrollt, findet ihn unter der Zusammenfassung.
+
+Nebenbei behoben: `#k3dZurueck` stand auf dem iPhone in Safaris Blau — die
+Regel `.k3d-nav-zeile button` setzte keine `color`. Dritter Fall derselben Art
+in zwei Tagen; die Prüfung liest jetzt auch hier die wirkliche Farbe.
+
+### Der Konfigurationslink geht mit
+
+`anfrageStarten()` legt `v.konfiglink = teilenLink()` dazu, der Assistent
+übernimmt ihn (`answers.konfiglink`) und hängt ihn in **jeden Versandweg**
+(`summaryPairs(true)` → Web3Forms, Formspree, und über `summaryText()` auch in
+die Datenbank). Gemessen: 565 Zeichen bei der Vorgabekonfiguration.
+
+**Nicht in die Kundenzusammenfassung.** Mehrere hundert Zeichen würden die
+Übersicht zerreißen, und der Kunde hat seinen Stand ohnehin vor sich. Geprüft
+wird beides: dass der Link im Versand steht und dass er in der Anzeige **nicht**
+steht.
+
+Damit ist die Anfrage wieder herstellbar: Link öffnen, und im Konfigurator steht
+genau die angefragte Planung — samt verschobener Pfosten. Daraus lässt sich auch
+das PDF mit einem Klick erzeugen.
+
+### Das PDF als Anhang: nicht kostenlos, deshalb nicht gebaut
+
+Geprüft, nicht geraten:
+
+- **Web3Forms** nimmt Dateianhänge nur in den Bezahlplänen; der kostenlose
+  Zugang überträgt Felder, keine Dateien.
+- **Formspree** ebenso — Datei-Uploads gehören dort nicht zum freien Plan.
+- Das PDF entsteht erst **im Browser des Kunden** (jsPDF, mehrere MB mit den
+  Modellbildern). Als Text in ein Formularfeld gepackt (Base64) wäre es rund ein
+  Drittel größer und läge weit über dem, was beide Dienste je Feld annehmen.
+- Ein eigener Weg wäre möglich: PDF an einen Worker, Ablage in R2, kurzer Link
+  in die E-Mail. Das kostet kein Geld (Cloudflare-Freikontingent), aber es
+  **speichert Kundendaten** — damit kommen Aufbewahrungsfrist, ein Satz in der
+  Datenschutzerklärung und ein Löschkonzept dazu.
+
+**Entscheidung:** vorerst nur der Link. Er leistet dasselbe (das PDF ist daraus
+in einem Klick erzeugt), ohne dass irgendwo etwas liegt. Der Worker-Weg steht
+als Vorschlag in `docs/NEXT_TASK.md` — gebaut wird er nur auf Ansage.
+
+### Woran der Erfolg gemessen wird
+
+Zwölf neue Prüfungen in `scripts/pruefe-konfigurator-oberflaeche.mjs`, im
+iPhone-Fenster und in der Führung — also in der Lage, in der der Betreiber den
+Fehler gesehen hat. Sie laufen die Führung wirklich durch (1 von 5 → 5 von 5),
+lesen Beschriftung, Sichtbarkeit und Farben aus `getComputedStyle`, fangen den
+Mailweg ab und **lesen mit, was den Browser verlassen hätte**. Der zweite,
+anders gebaute Weg: Der mitgeschickte Link wird nicht nur gefunden, sondern
+**ausgepackt** — Base64 zurück, JSON gelesen, die Breite daraus mit der im
+Konfigurator verglichen. Drei neue eingebaute Fehler in der Gegenprobe (toter
+Knopf, Assistent lässt den Link fallen, Knopftext ohne Farbe) wurden alle
+erkannt.
