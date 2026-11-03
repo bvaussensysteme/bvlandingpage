@@ -262,6 +262,19 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 | **Preisgrundlage, falls je Preise gezeigt werden sollen** | Bisherige Linie: keine Preise. Eine Kalkulationsgrundlage kann nur der Betrieb liefern |
 | **Kurzlink: Rechte in der Datenbank** (nur falls gewünscht, siehe Abschnitt 2) | Die Datenbank-Rolle darf **gar nichts anlegen** – weder in `public` noch ein eigenes Schema. Live gemessen am 25.10.2026: Fehlernummer `42501`. Vom Betreiber zurückgestellt: „is mir zu kompliziert xd keine ahnung". Der lange Link funktioniert, er ist nur lang |
 
+### Werkstatt-Zugang: Cloudflare Access einrichten *(beim Betreiber, 03.11.2026)*
+
+Beschlossen am 03.11.2026: eigene Anmeldung je Person per E-Mail-Einmalcode,
+kostenlos. **Die Einrichtung läuft im Cloudflare-Dashboard und kann nicht von
+hier aus gemacht werden** – Schritt für Schritt in **`docs/werkstatt-zugang.md`**.
+Dort steht auch die Falle: „Access für diesen Worker" würde die ganze
+öffentliche Website hinter die Anmeldung legen; richtig ist eine
+Self-hosted-Anwendung auf den Pfad `/werkstatt`.
+
+Danach `bash scripts/pruefe-werkstatt-zugang.sh` – erwartet wird `Access` vor
+allen Werkstatt-Pfaden und `offen` für die Startseite. Die eigene
+Passwortschranke bleibt als Rückfallebene bestehen (Begründung im Dokument).
+
 ### Besucherzahlen: was noch offen ist *(seit 03.11.2026)*
 
 Die eigene Messung läuft. Drei Dinge hängen daran:
@@ -327,6 +340,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-fuehrung.js` | Gehört jede Bedieneinheit des 3D-Konfigurators zu einem Schritt der geführten Reihenfolge? Nennt die Anfrage alle drei Seiten? |
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
+| `scripts/pruefe-werkstatt-zugang.sh` | Ruft die **echte Adresse** ab und sagt, welche Tür vor der Werkstatt antwortet (Cloudflare Access, eigene Passwortschranke, Inhalt offen, nicht vorhanden). Prüft mit, dass die öffentliche Startseite offen **bleibt** und die Besuchermessung weiter annimmt. `--gegenprobe` prüft die Erkennung selbst |
 | `scripts/pruefe-messung.js` | Die eigene Reichweitenmessung als **Datenschutz-Zusage**: kein Speicherzugriff außer dem Abschalter, kein User-Agent, keine Spalte für IP oder Besucherkennung, Auswertung hinter dem Werkstatt-Tor, Abschnitt 19 der Datenschutzerklärung, kein vorbelegter Haken, keine Vorab-Verbindung zu Google. Führt die Rechenfunktionen aus `worker/index.js` wirklich aus (39 Prüfungen) |
 | `scripts/pruefe-messung.mjs` | Dasselbe im Browser: fängt die Messpakete ab und liest, was abgegangen **wäre** – Verweildauer, Telefonklick, kein Kennzeichen im Paket, Kekse und Speicher unverändert; dazu die Darstellung der Zahlenseite (20 Prüfungen) |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser, 145 Prüfungen: Layout, Regler, Markisen, Maße, Handy-Scrollen, Zurücksetzen – und liest zurück, was im Assistenten ankommt **und was den Browser beim Absenden verlassen hätte** (Mailweg abgefangen, Konfigurationslink ausgepackt und zurückgerechnet). Braucht `npm i --no-save playwright`, startet den Webserver selbst |
