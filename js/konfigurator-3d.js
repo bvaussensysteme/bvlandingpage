@@ -9908,20 +9908,25 @@
      Einstellungen". Sie herauszuloesen waere ein zweiter Eingriff - er
      kann jederzeit folgen, indem die Gruppen ein eigenes
      data-k3d-schritt bekommen und hier ein Bereich dazukommt. */
+  /* zeichen: das Symbol in der Reiterleiste. Eigene Zeichnungen im
+     Sprite von konfigurator.html, siehe dort. */
   var BEREICHE = [
-    { id: 'anlage',   t: 'Anlage',   schritte: ['produkt', 'aufbau', 'masse', 'farbe'] },
-    { id: 'dach',     t: 'Dach',     schritte: ['dach'] },
-    { id: 'seiten',   t: 'Seiten',   schritte: ['seiten'] },
-    { id: 'zubehoer', t: 'Zubeh\u00f6r', schritte: ['sonne', 'technik'] },
+    { id: 'anlage',   t: 'Anlage',   zeichen: 'anlage',      schritte: ['produkt', 'aufbau', 'masse', 'farbe'] },
+    { id: 'dach',     t: 'Dach',     zeichen: 'dachflaeche', schritte: ['dach'] },
+    { id: 'seiten',   t: 'Seiten',   zeichen: 'seitenfeld',  schritte: ['seiten'] },
+    { id: 'zubehoer', t: 'Zubeh\u00f6r', zeichen: 'zubehoer', schritte: ['sonne', 'technik'] },
     /* "Fertig" statt "Abschluss": In der Reiterleiste muessen fuenf
        Namen nebeneinander passen, sonst wird der letzte abgeschnitten
        (gemessen im Bild). Kurz und in der Sprache der Seite. */
-    { id: 'abschluss', t: 'Fertig', schritte: ['umgebung', 'fertig'] }
+    { id: 'abschluss', t: 'Fertig', zeichen: 'fertig', schritte: ['umgebung', 'fertig'] }
   ];
   var bereichNr = 0;
   /* Welcher Bereich dem eigenen Zaehler zuletzt gemeldet wurde (-1 =
      noch keiner). Siehe schrittZeigen(). */
   var messungBereich = -1;
+  /* Welche Bereiche der Besucher schon gesehen hat - fuer den Haken
+     in der Reiterleiste. */
+  var bereicheGesehen = {};
 
   function bereichSchritte(b) {
     return BEREICHE[b] ? BEREICHE[b].schritte : [];
@@ -10031,14 +10036,29 @@
     }
     var soll = [], i;
     for (i = 0; i < BEREICHE.length; i++) if (bereichHatInhalt(i)) soll.push(i);
-    var zeichen = soll.join(',') + '|' + bereichNr;
+    /* ERLEDIGT HEISST: schon einmal dagewesen. Nicht „ausgefuellt" -
+       das waere eine Behauptung, denn fast alles hat eine Vorgabe und
+       ist damit formal ausgefuellt, auch wenn niemand hingesehen hat.
+       Gezaehlt wird, was der Besucher wirklich geoeffnet hat; wer
+       zurueckspringt, verliert den Haken nicht wieder. */
+    soll.forEach(function (nr) { if (nr < bereichNr) bereicheGesehen[nr] = true; });
+    bereicheGesehen[bereichNr] = true;
+
+    var zeichen = soll.join(',') + '|' + bereichNr + '|'
+      + soll.filter(function (nr) { return bereicheGesehen[nr]; }).join('.');
     if (leiste.getAttribute('data-stand') === zeichen) return;   // nichts Neues
     leiste.setAttribute('data-stand', zeichen);
     leiste.innerHTML = soll.map(function (nr) {
       var aktiv = nr === bereichNr;
+      var fertig = !aktiv && bereicheGesehen[nr];
+      var klassen = (aktiv ? 'ist-aktiv' : '') + (fertig ? ' ist-fertig' : '');
       return '<button type="button" data-bereich="' + nr + '"'
-        + (aktiv ? ' class="ist-aktiv" aria-current="step"' : '') + '>'
-        + BEREICHE[nr].t + '</button>';
+        + (klassen.trim() ? ' class="' + klassen.trim() + '"' : '')
+        + (aktiv ? ' aria-current="step"' : '')
+        + (fertig ? ' aria-label="' + BEREICHE[nr].t + ', bereits angesehen"' : '')
+        + '><span class="k3d-reiter-z">'
+        + bvSymbol(fertig ? 'haken' : (BEREICHE[nr].zeichen || 'punkt'))
+        + '</span><span class="k3d-reiter-t">' + BEREICHE[nr].t + '</span></button>';
     }).join('');
   }
 
@@ -10175,7 +10195,16 @@
     panel.classList.toggle('ist-letzter', letzter);
 
     var zurueck = document.getElementById('k3dZurueck');
-    if (zurueck) zurueck.disabled = pos <= 1;
+    if (zurueck) {
+      zurueck.disabled = pos <= 1;
+      /* Auch der Rueckweg nennt sein Ziel. */
+      var vorher = bereichSuchen(bereichNr, -1);
+      var zielZurueck = document.getElementById('k3dZurueckZiel');
+      if (zielZurueck) {
+        zielZurueck.textContent = (!zurueck.disabled && vorher !== bereichNr)
+          ? BEREICHE[vorher].t : '';
+      }
+    }
     var weiterKnopf = document.getElementById('k3dWeiter');
     if (weiterKnopf) {
       /* IM LETZTEN BEREICH IST DIES DER ABSENDER, kein „Weiter".
@@ -10205,9 +10234,10 @@
            als Naechstes kommt - und genau das ist die Frage, die jemand
            vor dem Klick hat. */
         var naechster = bereichSuchen(bereichNr, 1);
-        weiterKnopf.innerHTML = 'Weiter' +
-          ((naechster !== bereichNr) ? ' \u00b7 ' + BEREICHE[naechster].t : '') +
-          ' ' + bvSymbol('rechts');
+        weiterKnopf.innerHTML = '<span class="k3d-nav-t">Weiter '
+          + bvSymbol('rechts') + '</span>'
+          + ((naechster !== bereichNr)
+             ? '<span class="k3d-nav-z">' + BEREICHE[naechster].t + '</span>' : '');
       }
     }
 
@@ -15316,8 +15346,48 @@
     if (window.bvMessung) window.bvMessung('konfig-anfrage');
   }
 
+  /* ---------- Zwei Wege: Mittelpfosten oder Statiktraeger ----------
+     Die Karten setzen den Haken #k3dTraeger; alles Uebrige liest ihn
+     weiter wie bisher. Zwei Bedienungen fuer dieselbe Entscheidung
+     waere genau die Verwirrung, um die es geht - deshalb ist der Haken
+     selbst nicht mehr sichtbar (.k3d-nurlesbar). */
+  (function () {
+    var wahl = document.getElementById('k3dTraegerWahl');
+    var haken = document.getElementById('k3dTraeger');
+    if (!wahl || !haken) return;
+    function zeigen() {
+      Array.prototype.forEach.call(wahl.querySelectorAll('button'), function (k) {
+        k.classList.toggle('ist-gewaehlt',
+          (k.getAttribute('data-traeger') === '1') === !!haken.checked);
+        k.setAttribute('aria-pressed',
+          (k.getAttribute('data-traeger') === '1') === !!haken.checked ? 'true' : 'false');
+      });
+    }
+    wahl.addEventListener('click', function (e) {
+      var k = e.target.closest ? e.target.closest('button[data-traeger]') : null;
+      if (!k) return;
+      var will = k.getAttribute('data-traeger') === '1';
+      if (will === !!haken.checked) return;
+      haken.checked = will;
+      /* BEIDE Ereignisse, und das ist kein Gürtel-und-Hosenträger:
+         Mit nur 'change' zog das Modell erst beim NÄCHSTEN Klick nach -
+         gemessen am 04.11.2026, die Durchgangshöhe hinkte eine
+         Entscheidung hinterher. Die Anwendung hört an dieser Stelle auf
+         'input'. Dieselbe Paarung benutzt auch der Zahlensteller. */
+      haken.dispatchEvent(new Event('input', { bubbles: true }));
+      haken.dispatchEvent(new Event('change', { bubbles: true }));
+      zeigen();
+    });
+    haken.addEventListener('change', zeigen);
+    zeigen();
+  })();
+
   var anfrageBtn = document.getElementById('k3dAnfrage');
   if (anfrageBtn) anfrageBtn.addEventListener('click', anfrageStarten);
+  /* Derselbe Weg aus der festen Fusszeile - dort steht er in JEDEM
+     Schritt, nicht erst im letzten. */
+  var anfrageFuss = document.getElementById('k3dAnfrageFuss');
+  if (anfrageFuss) anfrageFuss.addEventListener('click', anfrageStarten);
 
   /* ---------- Planung teilen ----------
      „Ich will auch einen Teilen Button und dann so wie hier nur in
