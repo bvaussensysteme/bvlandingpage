@@ -275,6 +275,19 @@ Danach `bash scripts/pruefe-werkstatt-zugang.sh` – erwartet wird `Access` vor
 allen Werkstatt-Pfaden und `offen` für die Startseite. Die eigene
 Passwortschranke bleibt als Rückfallebene bestehen (Begründung im Dokument).
 
+### Konfigurator: nächste Schritte aus der Vorbild-Analyse *(04.11.2026)*
+
+Die Analyse der zehn Bilder steht in **`docs/konfigurator-bedienung.md`** –
+samt der Trennung, was Idee ist (übernehmbar) und was Ausführung (nicht).
+Gebaut ist die erste Runde. Offen:
+
+1. **Eigene Miniaturen statt Textkarten** für Produkt, Aufbau, Grundriss und
+   Eindeckung. Die Bilder **aus unserem eigenen 3D-Modell rendern** – originär,
+   kostenlos, zeigt unser echtes Produkt. Ein Skript erzeugt sie einmalig.
+2. **Seiten als Liste mit Zustand** statt als Knopfreihe.
+3. **Berechnetes als Häkchenliste** im Maße-Schritt.
+4. **Anfrage-Dialog** mit Planungskarte und der Zahl fehlender Pflichtangaben.
+
 ### Konfigurator: zweite Runde ist vorbereitet, nicht entschieden *(03.11.2026)*
 
 Die erste Runde (Regler → Zahlensteller, ein Bedienweg) ist gebaut. **Offen
@@ -524,6 +537,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 04.11.2026 | **Konfigurator nach fremdem Vorbild, eigene Ausführung**: Reiter mit eigenen Zeichen und Haken für Erledigtes, feste Fußzeile mit Zielangabe auf beiden Knöpfen, Anfrage-Weg in jedem Schritt, „Mittelpfosten (empfohlen)" gegen „Statikträger" statt eines Hakens. Analyse in `docs/konfigurator-bedienung.md` | neu |
 | 03.11.2026 | **Konfigurator: ein Weg statt sechs.** Basic/Pro und „Alles auf einen Blick" entfallen, Fachliches liegt hinter „Mehr Einstellungen". Maße haben einen Zahlensteller (−/+) statt Schieberegler; Regler nur noch für Sichtbares (Lamellen, Markise, Tür). Gemessen: 0 statt 6 sichtbare Regler, Schritt 1 von 3,0 auf 1,9 Bildschirme, 129 → 113 Bedienelemente | neu |
 | 03.11.2026 | **Zahlenseite gestalterisch überarbeitet**: Gold nur noch für den Spitzenwert, Abstandsleiter, tabulare Ziffern, Ladeplatzhalter, Wolke am Diagramm, aufklappbare Listen, hell/dunkel. Dabei zwei echte Fehler gefunden (Wolke zog die Seite breiter, `min-width:0` auf Rasterfeldern) | neu |
 | 03.11.2026 | **Zahlenseite ausgebaut**: gerade aktiv (30 Min.), Land und Bundesland (von Cloudflare, ohne IP – keine Stadt, keine PLZ), Lesetiefe, worauf geklickt wird, Wochentag × Stunde, Einstiegsseiten, Anfragen je Aufruf, CSV-Export und ein Block **„Was auffällt"**, der die Zahlen in Sätze übersetzt | neu |

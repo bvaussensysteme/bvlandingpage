@@ -11879,3 +11879,55 @@ Und eine Falle im Code selbst: `zeile.querySelector('input')` in den
 Pfostenzeilen hätte ab sofort das **Zahlenfeld** statt des Reglers getroffen –
 Grenzen und Wert wären an der falschen Stelle gelandet. Jetzt steht dort
 `input[type="range"]`.
+
+## 04.11.2026 — Konfigurator nach fremdem Vorbild, in eigener Ausführung
+
+**Anlass.** Zehn Bildschirmfotos eines fremden Konfigurators: „finde diesen
+aufbau richtig schön vom design ui uix, es sol nicht 1:1 geklaut werden aber
+ähnlich und rechtlich unanfechtbar" und „mach das beste draus und start"
+(Betreiber, 03./04.11.2026).
+
+**Der fremde Anbieter wird nirgends genannt** – auch nicht in Dateinamen,
+Klassen, Kommentaren oder Commits (`CLAUDE.md`). Die Bilder liegen nicht im
+Repository. Die vollständige Analyse, was Idee und was Ausführung ist, steht
+in **`docs/konfigurator-bedienung.md`**.
+
+### Gebaut in dieser Runde
+
+1. **Reiterleiste mit Zeichen und Haken.** Fünf eigene Symbole im Stil der
+   vorhandenen Sammlung. „Erledigt" heißt **schon dagewesen**, nicht
+   „ausgefüllt" – fast alles hat eine Vorgabe und wäre formal ausgefüllt, auch
+   wenn niemand hingesehen hat. Das wäre eine Behauptung, keine Auskunft.
+2. **Feste Fußzeile** mit Balken, `Zurück` **und** `Weiter` jeweils mit dem
+   Namen ihres Ziels, dazwischen der Zähler. Vorher stand die Weiterführung am
+   Ende des Bedienfeldes – wer mitten im Schritt war, musste erst ans Ende
+   scrollen.
+3. **Der Weg zur Anfrage steht in jedem Schritt da**, nicht erst im letzten.
+4. **Zwei Wege statt eines Hakens:** `Mittelpfosten (empfohlen)` neben
+   `Statikträger (freie Front · Durchgang 189 mm niedriger)`. Der Haken
+   `#k3dTraeger` bleibt die Quelle der Wahrheit und ist nicht mehr sichtbar –
+   zwei Bedienungen für dieselbe Entscheidung wären genau die Verwirrung, um
+   die es geht.
+5. Doppelter Satz im Schritt „Seiten" gekürzt: Die Unterzeile sagte schon
+   dasselbe.
+
+### Zwei Fehler, die erst die Prüfung gezeigt hat
+
+1. **Die Karten setzten den Schalter, aber das Modell zog erst einen Klick
+   später nach.** Gemessen: Nach „Statikträger an" stand die Durchgangshöhe
+   noch ohne Klammer, nach „wieder aus" stand sie mit. Ursache: Ich meldete
+   nur `change`; die Anwendung hört an dieser Stelle auf `input`. Jetzt beide,
+   wie beim Zahlensteller.
+2. **Der versteckte Haken war nicht versteckt.** `.k3d-nurlesbar` und
+   `.k3d-schalter` haben dieselbe Spezifität, und `.k3d-schalter` steht weiter
+   unten in derselben Datei – bei Gleichstand gewinnt die spätere Regel. Jetzt
+   `.k3d-schalter.k3d-nurlesbar`.
+
+### Nachgemessen
+
+`scripts/pruefe-konfigurator-oberflaeche.mjs`: **154 Prüfungen** (vorher 147).
+Neu darunter: jeder Reiter trägt Zeichen und Namen, erledigte tragen einen
+Haken, die Fußzeile klebt wirklich (`position: sticky`), beide Knöpfe nennen
+ihr Ziel, der Anfrage-Weg steht in jedem Schritt, und die Zwei-Wege-Karten
+setzen den Schalter wirklich (aus → an → aus). Drei neue eingebaute Fehler in
+der Gegenprobe.

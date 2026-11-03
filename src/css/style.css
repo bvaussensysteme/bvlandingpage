@@ -2676,18 +2676,37 @@ body.bv-konfig-open #bvKonfigBubble {
 .k3d-reiter button {
   flex: 1 0 auto;
   min-width: 0;
-  padding: 9px 7px 8px;
+  padding: 8px 7px 7px;
   border: 0;
   border-bottom: 3px solid transparent;
   background: none;
   font: inherit;
-  font-size: .9rem;
+  font-size: .82rem;
   font-weight: 600;
   color: #5a646c;
   cursor: pointer;
   white-space: nowrap;
-  transition: color .15s, border-color .15s;
+  transition: color .15s, border-color .15s, background .15s;
+  /* Zeichen oben, Wort darunter: Der Reiter wird dadurch breiter als
+     hoch und traegt zwei Angaben - wo man ist und was dort entschieden
+     wird. Bei fuenf Bereichen auf 390 px bleibt pro Reiter rund 75 px,
+     das reicht fuer ein 20er Zeichen und ein kurzes Wort. */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border-radius: 8px 8px 0 0;
 }
+.k3d-reiter .k3d-reiter-z { display: block; line-height: 0; }
+.k3d-reiter .k3d-reiter-z .bvs { width: 20px; height: 20px; }
+/* ERLEDIGT: Haken statt Bereichszeichen, in Gold. „Erledigt" heisst
+   hier „schon dagewesen" - siehe reiterZeichnen() in
+   js/konfigurator-3d.js. Der Haken sitzt an der Stelle des Zeichens und
+   nicht daneben, damit die Reiter gleich breit bleiben und die Leiste
+   beim Weitergehen nicht springt. */
+.k3d-reiter button.ist-fertig { color: var(--gold-text); }
+.k3d-reiter button.ist-fertig .k3d-reiter-z .bvs { color: var(--gold-dark); }
+.k3d-reiter button.ist-aktiv { background: rgba(196, 154, 42, .09); }
 .k3d-reiter button:hover { color: var(--gold-text); }
 .k3d-reiter button.ist-aktiv {
   color: #1f2a33;

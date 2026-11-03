@@ -117,6 +117,21 @@ async function fehlerEinbauen(ziel) {
        die Beschwerde („viele gleiche regler"). */
     t = t.replace('steller.appendChild(regler);\n      regler.hidden = true;',
                   'steller.appendChild(regler);');
+    /* Dreizehnter Fehler: Die Reiterleiste merkt sich nicht, wo man
+       schon war - dann fehlt der Haken fuer Erledigtes.
+
+       GEMESSEN am 04.11.2026: Der erste Versuch traf nur
+       bereicheGesehen[bereichNr] - und blieb unbemerkt, weil die Zeile
+       darueber ohnehin jeden FRUEHEREN Bereich abhakt. Der Fehler muss
+       an die Zeile, die das Merken wirklich traegt. */
+    t = t.replace('soll.forEach(function (nr) { if (nr < bereichNr) bereicheGesehen[nr] = true; });',
+                  'void soll;');
+    t = t.replace('bereicheGesehen[bereichNr] = true;', 'void bereichNr;');
+    /* Vierzehnter Fehler: Der Rueckweg nennt sein Ziel nicht mehr. */
+    t = t.replace("? BEREICHE[vorher].t : '';", "? '' : '';");
+    /* Fuenfzehnter Fehler: Die Zwei-Wege-Karten setzen den Schalter
+       nicht - dann sieht die Wahl richtig aus und wirkt nicht. */
+    t = t.replace('haken.checked = will;', 'void will;');
     /* Zwoelfter Fehler: Der Plusknopf springt um zwei Schritte. */
     t = t.replace('setzen(Number(regler.value) + (Number(regler.step) || 1));',
                   'setzen(Number(regler.value) + 2 * (Number(regler.step) || 1));');
@@ -567,6 +582,63 @@ await page.waitForTimeout(600);
       .filter((r) => r.offsetParent !== null).length);
   pruef('Im Kundenweg ist kein Schieberegler mehr sichtbar',
     sichtRegler === 0, sichtRegler + ' sichtbare Regler');
+
+  /* ---------- Zwei Wege statt eines Hakens ----------
+     Vorher war das ein Haken hinter „Mehr Einstellungen". Geprueft
+     wird, dass die Karten den Haken wirklich setzen - er bleibt die
+     Quelle der Wahrheit fuer alles Uebrige. */
+  const wege = await me.evaluate(() => {
+    const w = document.getElementById('k3dTraegerWahl');
+    const h = document.getElementById('k3dTraeger');
+    if (!w || !h) return null;
+    const karten = w.querySelectorAll('button[data-traeger]');
+    const vorher = h.checked;
+    karten[1].click();
+    const nachKlick = h.checked;
+    const markiert = w.querySelector('button.ist-gewaehlt');
+    karten[0].click();
+    return { karten: karten.length, vorher, nachKlick, zurueck: h.checked,
+      markiert: markiert ? markiert.getAttribute('data-traeger') : null,
+      hakenSichtbar: h.offsetParent !== null };
+  });
+  pruef('Statikträger steht als zweiter Weg daneben, nicht als Haken',
+    !!wege && wege.karten === 2 && !wege.hakenSichtbar,
+    wege ? wege.karten + ' Karten, Haken sichtbar: ' + wege.hakenSichtbar : 'nicht gefunden');
+  pruef('Die Karten setzen den Schalter wirklich',
+    !!wege && wege.vorher === false && wege.nachKlick === true && wege.zurueck === false
+    && wege.markiert === '1',
+    wege ? 'aus → an → aus' : '');
+
+  /* ---------- Reiterleiste: Haken fuer Erledigtes ---------- */
+  await me.$eval('#k3dWeiter', (e) => e.click());
+  await me.waitForTimeout(700);
+  await me.$eval('#k3dWeiter', (e) => e.click());
+  await me.waitForTimeout(700);
+  const leiste = await me.evaluate(() => ({
+    reiter: [...document.querySelectorAll('.k3d-reiter button')].map((b) => ({
+      name: (b.querySelector('.k3d-reiter-t') || {}).textContent || '',
+      klasse: b.className,
+      zeichen: !!b.querySelector('.k3d-reiter-z svg')
+    })),
+    weiter: document.getElementById('k3dWeiter').innerText.replace(/\s+/g, ' ').trim(),
+    zurueckZiel: (document.getElementById('k3dZurueckZiel') || {}).textContent || '',
+    zahl: (document.getElementById('k3dSchrittZahl') || {}).textContent || '',
+    klebt: getComputedStyle(document.getElementById('k3dNav')).position,
+    anfrageSichtbar: !!document.getElementById('k3dAnfrageFuss').offsetParent
+  }));
+  pruef('Jeder Reiter trägt ein Zeichen und seinen Namen',
+    leiste.reiter.length === 5 && leiste.reiter.every((r) => r.zeichen && r.name),
+    leiste.reiter.map((r) => r.name).join(' · '));
+  pruef('Erledigte Bereiche tragen einen Haken',
+    leiste.reiter.filter((r) => /ist-fertig/.test(r.klasse)).length === 2 &&
+    leiste.reiter.filter((r) => /ist-aktiv/.test(r.klasse)).length === 1,
+    leiste.reiter.map((r) => r.name + (/ist-fertig/.test(r.klasse) ? ' ✓' : '')).join(' · '));
+  pruef('Die Fußzeile bleibt beim Blättern stehen', leiste.klebt === 'sticky', leiste.klebt);
+  pruef('Beide Knöpfe nennen ihr Ziel',
+    /Weiter/.test(leiste.weiter) && /Zubehör/.test(leiste.weiter) && leiste.zurueckZiel === 'Dach',
+    leiste.weiter.replace(/\n/g, ' / ') + ' | zurück: ' + leiste.zurueckZiel);
+  pruef('Der Weg zur Anfrage steht in jedem Schritt da',
+    leiste.anfrageSichtbar, 'Schritt ' + leiste.zahl);
   await me.close();
 }
 
@@ -579,14 +651,18 @@ await page.waitForTimeout(600);
 const hoeheOhne = await page.locator('#k3dHoeheWert').innerText();
 pruef('Ohne Traeger steht keine Klammer',
   !/Durchgang/.test(hoeheOhne), hoeheOhne);
-await haken(page, '#k3dTraeger');
+/* Seit dem 04.11.2026 steht der Traeger als Karte neben dem
+   Mittelpfosten; der Haken dahinter ist unsichtbar und laesst sich
+   nicht mehr anklicken. Geschaltet wird jetzt so, wie es auch der
+   Besucher tut. */
+await page.$eval('#k3dTraegerWahl button[data-traeger="1"]', (e) => e.click());
 await page.waitForTimeout(1200);
 const hoeheMit = await page.locator('#k3dHoeheWert').innerText();
 const zahlen = hoeheMit.match(/(\d+) mm \(Durchgang (\d+) mm\)/);
 pruef('Mit Traeger steht der wirkliche Durchgang daneben',
   !!zahlen && Number(zahlen[1]) - Number(zahlen[2]) === 189,
   hoeheMit + (zahlen ? ' – Unterschied ' + (Number(zahlen[1]) - Number(zahlen[2])) + ' mm' : ''));
-await page.uncheck('#k3dTraeger');
+await page.$eval('#k3dTraegerWahl button[data-traeger="0"]', (e) => e.click());
 await page.waitForTimeout(900);
 pruef('Haekchen weg, Klammer weg',
   !/Durchgang/.test(await page.locator('#k3dHoeheWert').innerText()),
@@ -1090,15 +1166,17 @@ pruef('Titel folgt dem Produkt',
    wie das Terrassendach TDS; Flat Line und Flat Box sind es nicht.
    Gemessen wird am sichtbaren Haekchen, nicht an der Regel im Code. */
 await alleAufklappen();
+/* Gemessen an der KARTENWAHL, nicht am Haken: Der ist seit dem
+   04.11.2026 immer unsichtbar (die Karten bedienen ihn). */
 pruef('Carport TDS kennt den Träger auf Wunsch',
-  await page.locator('#k3dTraeger').isVisible(),
+  await page.locator('#k3dTraegerWahl').isVisible(),
   'dasselbe Dach wie das Terrassendach TDS');
 
 await page.selectOption('#k3dCpTyp', 'Flachdach Flat Line');
 await page.waitForTimeout(700);
 await alleAufklappen();
 pruef('Der Flachdach-Carport kennt ihn nicht',
-  !(await page.locator('#k3dTraeger').isVisible()),
+  !(await page.locator('#k3dTraegerWahl').isVisible()),
   'anderes System, kein TDS-Träger');
 const verkSichtbar = await page.locator('div[data-k3d-fuer="verkleidung"]').first().isVisible();
 const seitenSichtbar = await page.locator('div[data-k3d-fuer="seiten"]').first().isVisible();
@@ -1937,6 +2015,9 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Erledigte Bereiche tragen einen Haken',
+  'Beide Knöpfe nennen ihr Ziel',
+  'Die Karten setzen den Schalter wirklich',
   'Im Kundenweg ist kein Schieberegler mehr sichtbar',
   'Der Plusknopf geht genau einen Schritt weiter',
   'Der letzte Knopf schickt die Anfrage ab',
