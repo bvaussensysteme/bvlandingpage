@@ -56,7 +56,13 @@
        seine Eingabe nicht, und die Anfrage nennt sie weiterhin (sie wird
        aus Z gebaut, nicht aus dem, was gerade sichtbar ist). Stilles
        Zuruecksetzen waere der schlimmere Fehler. */
-    stufe: 'Basic',
+    /* Seit dem 03.11.2026 gibt es keinen Umschalter Basic/Pro mehr.
+       Das Feld bleibt auf 'Pro' stehen, damit stufeAnwenden() alles
+       freigibt - was selten gebraucht wird, liegt jetzt hinter „Mehr
+       Einstellungen" in seinem Schritt und nicht mehr in einer zweiten
+       Betriebsart. Stuende hier noch 'Basic', waere auch der Knopf
+       „Mehr Einstellungen" dauerhaft versteckt (mehr.hidden = basic). */
+    stufe: 'Pro',
     /* ---------- Balkon ----------
        bruestung  – was vorne schon steht: gemauert oder ein Geländer.
        bruestungH – ihre Höhe über dem Balkonboden, in mm.
@@ -10042,7 +10048,15 @@
      Masse aufhoeren und die Farbe anfaengt. Die Ueberschrift ist der
      Titel des Schrittes, es entsteht also kein neuer Text, der
      auseinanderlaufen koennte. */
-  function abschnitteZeigen(ids) {
+  /* ersterId: der Schritt, dessen Frage schon als Unterzeile unter der
+     Bereichsueberschrift steht. Seine eigene Zwischenueberschrift waere
+     die dritte Zeile mit demselben Inhalt.
+
+     „Vier Überschriften für eine Frage" (gemessen am 03.11.2026 auf dem
+     Bild des Betreibers: „Anlage" / „Wählen Sie Ihr Produkt …" /
+     „WAS MÖCHTEN SIE BAUEN?" / „Produkt"). Jetzt sind es zwei plus die
+     Feldbeschriftung. */
+  function abschnitteZeigen(ids, ersterId) {
     SCHRITTE.forEach(function (sch) {
       var erste = document.querySelector('.k3d-gruppe[data-k3d-schritt="' + sch.id + '"]');
       if (!erste || !erste.parentNode) return;
@@ -10060,7 +10074,8 @@
          doppelt unter der Bereichsueberschrift. */
       var i = schrittIndex(sch.id);
       kopf.hidden = !(ids.indexOf(sch.id) > -1 && ids.length > 1
-                      && i >= 0 && schrittHatInhalt(i));
+                      && i >= 0 && schrittHatInhalt(i))
+                    || sch.id === ersterId;
     });
   }
 
@@ -10117,7 +10132,7 @@
         g.classList.toggle('ist-schritt', dazu && (!mehr || zeigtMehr));
       });
 
-    abschnitteZeigen(ids);
+    abschnitteZeigen(ids, ersterId);
     reiterZeichnen();
 
     /* Gezählt werden nur Schritte, die es in dieser Konfiguration gibt –
@@ -10195,6 +10210,9 @@
           ' ' + bvSymbol('rechts');
       }
     }
+
+    zahlenstellerBauen();
+    zahlenstellerAuffrischen();
 
     /* „Mehr Einstellungen" nur anbieten, wo es welche gibt. */
     var mehrKnopf = document.getElementById('k3dMehr');
@@ -11405,6 +11423,157 @@
       setTimeout(warten, 500);
     })();
   })();
+
+  /* ============================================================
+     ZAHLENSTELLER STATT SCHIEBEREGLER
+     ------------------------------------------------------------
+     Anlass: „viele gleiche regler die aber verschiedenes bedeuten …
+     kann ich verstehen das potentielle kunden schnell abbrechen"
+     (Betreiber, 03.11.2026).
+
+     NACHGEMESSEN im iPhone-Fenster: 20 Schieberegler, alle gleich
+     aussehend, mit 12 bis 1.876 Stufen. Breite: 1.300 Stufen auf rund
+     300 px, also ein Pixel je 43 mm. Unterzug: 1.876 Stufen, rund sechs
+     Werte je Pixel. Mit dem Finger ist das nicht zu treffen.
+
+     WAS HIER PASSIERT: Der Schieberegler bleibt im Dokument und bleibt
+     die Quelle der Wahrheit - alles andere im Konfigurator liest und
+     schreibt ihn, vom Teilen-Link bis zum Masskasten. Er wird nur
+     versteckt, und davor tritt ein Zahlenfeld mit − und +. Jede
+     Aenderung geht denselben Weg wie vorher: Wert setzen, input und
+     change melden. Deshalb aendert sich am Verhalten nichts.
+
+     WAS SCHIEBEREGLER BLEIBT: alles, wo der genaue Wert egal ist und
+     man das Ergebnis sieht - Lamellenstellung, Markise, Schiebetuer,
+     Velaris. Diese tragen im HTML data-k3d-schieber.
+     ============================================================ */
+  function stellerEinheit(gruppe, regler) {
+    var aus = gruppe && gruppe.querySelector('output');
+    var txt = aus ? aus.textContent : '';
+    if (/°/.test(txt)) return '°';
+    if (/%/.test(txt)) return '%';
+    if (/\bcm\b/.test(txt)) return 'cm';
+    return 'mm';
+  }
+
+  function stellerGrenzenText(regler, einheit) {
+    function z(n) { return Number(n).toLocaleString('de-DE'); }
+    return 'von ' + z(regler.min) + ' bis ' + z(regler.max) + ' ' + einheit
+      + ' · Schritt ' + z(regler.step || 1);
+  }
+
+  /* Einmal je Regler. Laeuft mehrfach (nach jedem Schrittwechsel und
+     nachdem die Pfostenzeilen neu gebaut wurden) und ueberspringt, was
+     schon umgebaut ist. */
+  function zahlenstellerBauen() {
+    var liste = document.querySelectorAll(
+      'input[type="range"]:not([data-k3d-schieber]):not([data-k3d-steller])');
+    Array.prototype.forEach.call(liste, function (regler) {
+      regler.setAttribute('data-k3d-steller', '1');
+      var gruppe = regler.closest('.k3d-gruppe, .k3d-pfostenzeile');
+      var huelle = regler.parentNode;
+      var zahl = gruppe ? gruppe.querySelector('input[type="number"]') : null;
+
+      /* Liegt das Zahlenfeld schon anderswo in der Gruppe (Dachneigung
+         hat ein eigenes Feld mit Gradzeichen), genuegt es, den Regler
+         wegzunehmen - zwei Eingaben fuer dasselbe Mass sind genau die
+         Verwirrung, um die es geht. */
+      if (zahl && zahl.parentNode !== huelle) {
+        regler.hidden = true;
+        return;
+      }
+
+      var einheit = stellerEinheit(gruppe, regler);
+      var steller = document.createElement('div');
+      steller.className = 'k3d-steller';
+      huelle.insertBefore(steller, regler);
+
+      var minus = document.createElement('button');
+      minus.type = 'button';
+      minus.className = 'k3d-stell';
+      minus.textContent = '−';
+      minus.setAttribute('aria-label', 'weniger');
+      var plus = document.createElement('button');
+      plus.type = 'button';
+      plus.className = 'k3d-stell';
+      plus.textContent = '+';
+      plus.setAttribute('aria-label', 'mehr');
+
+      if (!zahl) {
+        /* Pfostenzeilen bekommen ihr Feld erst hier. Die Kennung
+           beginnt bewusst NICHT mit k3d: teilenFelder() sammelt alles,
+           was so heisst, und der Teilen-Link soll den Steller nicht
+           doppelt mitschreiben. */
+        zahl = document.createElement('input');
+        zahl.type = 'number';
+        zahl.className = 'k3d-zahl';
+        zahl.setAttribute('inputmode', 'numeric');
+        zahl.id = 'zs-' + (regler.id || Math.random().toString(36).slice(2));
+        zahl.setAttribute('aria-label', (gruppe && gruppe.querySelector('.k3d-label')
+          ? gruppe.querySelector('.k3d-label').textContent.replace(/\s+/g, ' ').trim()
+          : 'Wert') + ' in ' + einheit);
+      }
+      steller.appendChild(minus);
+      steller.appendChild(zahl);
+      steller.appendChild(plus);
+      steller.appendChild(regler);
+      regler.hidden = true;
+
+      var hinweis = document.createElement('small');
+      hinweis.className = 'k3d-grenzen';
+      huelle.appendChild(hinweis);
+
+      function auffrischen() {
+        zahl.min = regler.min; zahl.max = regler.max; zahl.step = regler.step;
+        if (document.activeElement !== zahl) zahl.value = regler.value;
+        minus.disabled = Number(regler.value) <= Number(regler.min);
+        plus.disabled = Number(regler.value) >= Number(regler.max);
+        hinweis.textContent = stellerGrenzenText(regler, einheit);
+      }
+      function setzen(wert) {
+        var schritt = Number(regler.step) || 1;
+        var min = Number(regler.min), max = Number(regler.max);
+        var w = Math.min(max, Math.max(min, wert));
+        /* Auf das Raster des Reglers runden - sonst entstuenden Werte,
+           die der Regler selbst nie liefern koennte. */
+        w = min + Math.round((w - min) / schritt) * schritt;
+        w = Math.min(max, Math.max(min, w));
+        if (String(w) === String(regler.value)) { auffrischen(); return; }
+        regler.value = w;
+        zahl.value = w;
+        regler.dispatchEvent(new Event('input', { bubbles: true }));
+        regler.dispatchEvent(new Event('change', { bubbles: true }));
+        auffrischen();
+      }
+      minus.addEventListener('click', function () {
+        setzen(Number(regler.value) - (Number(regler.step) || 1));
+      });
+      plus.addEventListener('click', function () {
+        setzen(Number(regler.value) + (Number(regler.step) || 1));
+      });
+      zahl.addEventListener('change', function () { setzen(Number(zahl.value)); });
+      /* Waehrend des Tippens NICHT uebernehmen: Wer „1200" eintippt,
+         haette sonst nach der ersten Ziffer eine 1 - und die faellt auf
+         das Mindestmass zurueck. */
+      zahl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); setzen(Number(zahl.value)); zahl.blur(); }
+      });
+      regler.addEventListener('input', auffrischen);
+      regler.addEventListener('change', auffrischen);
+      auffrischen();
+      regler.setAttribute('data-k3d-auffrischen', '1');
+      regler.k3dAuffrischen = auffrischen;
+    });
+  }
+
+  /* Grenzen und Werte koennen sich aendern, ohne dass der Regler ein
+     Ereignis meldet (masseGrenzen schreibt min/max direkt). Deshalb
+     nach jedem Zeichnen einmal nachziehen. */
+  function zahlenstellerAuffrischen() {
+    Array.prototype.forEach.call(
+      document.querySelectorAll('input[type="range"][data-k3d-auffrischen]'),
+      function (r) { if (r.k3dAuffrischen) r.k3dAuffrischen(); });
+  }
 
   /* Bedienung der geführten Reihenfolge */
   (function () {
@@ -14207,6 +14376,9 @@
       html += '<p class="k3d-pf-felder"></p><p class="k3d-pf-felder' +
               ' k3d-pf-licht"></p>';
       pfostenKasten.innerHTML = html;
+      /* Die Zeilen sind gerade erst entstanden - der Zahlensteller muss
+         sie noch bekommen. */
+      zahlenstellerBauen();
     }
     /* Werte und Beschriftung IMMER nachziehen – auch wenn die Zeilen
        stehen bleiben, kann sich die Lage geaendert haben (Ziehen am
@@ -14224,7 +14396,11 @@
     Array.prototype.forEach.call(
       pfostenKasten.querySelectorAll('[data-pfosten]'), function (zeile) {
         var nr = Number(zeile.getAttribute('data-pfosten'));
-        var regler = zeile.querySelector('input');
+        /* AUSDRUECKLICH der Schieberegler: Seit dem Zahlensteller
+           (03.11.2026) steht in derselben Zeile auch ein Zahlenfeld,
+           und querySelector('input') haette ab da dieses getroffen -
+           Grenzen und Wert waeren an der falschen Stelle gelandet. */
+        var regler = zeile.querySelector('input[type="range"]');
         var mm = Math.round((xs[nr] + r.B / 2) * 10);
         /* Die Grenzen haengen an der Lage der NACHBARN und aendern sich
            damit, sobald ein anderer Pfosten wandert. Darum hier und
@@ -14237,6 +14413,7 @@
         }
         if (document.activeElement !== regler) regler.value = mm;
         zeile.querySelector('.k3d-pf-mm').textContent = mm + ' mm';
+        if (regler.k3dAuffrischen) regler.k3dAuffrischen();
         zeile.classList.toggle('ist-gewaehlt',
           !!PF_WAHL && PF_WAHL.reihe === 'vorne' && PF_WAHL.nr === nr);
         var zur = zeile.querySelector('.k3d-pf-mitte');

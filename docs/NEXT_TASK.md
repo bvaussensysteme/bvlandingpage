@@ -275,6 +275,23 @@ Danach `bash scripts/pruefe-werkstatt-zugang.sh` – erwartet wird `Access` vor
 allen Werkstatt-Pfaden und `offen` für die Startseite. Die eigene
 Passwortschranke bleibt als Rückfallebene bestehen (Begründung im Dokument).
 
+### Konfigurator: zweite Runde ist vorbereitet, nicht entschieden *(03.11.2026)*
+
+Die erste Runde (Regler → Zahlensteller, ein Bedienweg) ist gebaut. **Offen
+und vom Betreiber noch nicht entschieden:**
+
+1. **Schritte neu schneiden** – „Anlage" ist mit 1,9 Bildschirmen immer noch
+   der längste. Vorschlag: Produkt / Ort und Aufbau / Maße / Farbe als eigene
+   Schritte, Ziel höchstens 1,2 Bildschirme. Die Prüfung misst das heute schon
+   (Grenze 2,6) und würde mit umgestellt.
+2. **Modell beim Ändern sichtbar halten** – am Handy liegt das Bedienfeld
+   unter dem Modell; wer scrollt, sieht das Ergebnis nicht mehr. Vorschlag:
+   halbhohes Blatt über dem Modell.
+3. **Dachneigung und hintere Höhe**: liegen jetzt hinter „Mehr Einstellungen".
+   Das weicht bewusst von der Ansage vom 11.10.2026 ab (siehe
+   `docs/entscheidungen.md`). Ein Wort genügt, um sie eine Ebene höher zu
+   holen.
+
 ### Besucherzahlen: was noch offen ist *(seit 03.11.2026)*
 
 Die eigene Messung läuft. Drei Dinge hängen daran:
@@ -507,6 +524,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 03.11.2026 | **Konfigurator: ein Weg statt sechs.** Basic/Pro und „Alles auf einen Blick" entfallen, Fachliches liegt hinter „Mehr Einstellungen". Maße haben einen Zahlensteller (−/+) statt Schieberegler; Regler nur noch für Sichtbares (Lamellen, Markise, Tür). Gemessen: 0 statt 6 sichtbare Regler, Schritt 1 von 3,0 auf 1,9 Bildschirme, 129 → 113 Bedienelemente | neu |
 | 03.11.2026 | **Zahlenseite gestalterisch überarbeitet**: Gold nur noch für den Spitzenwert, Abstandsleiter, tabulare Ziffern, Ladeplatzhalter, Wolke am Diagramm, aufklappbare Listen, hell/dunkel. Dabei zwei echte Fehler gefunden (Wolke zog die Seite breiter, `min-width:0` auf Rasterfeldern) | neu |
 | 03.11.2026 | **Zahlenseite ausgebaut**: gerade aktiv (30 Min.), Land und Bundesland (von Cloudflare, ohne IP – keine Stadt, keine PLZ), Lesetiefe, worauf geklickt wird, Wochentag × Stunde, Einstiegsseiten, Anfragen je Aufruf, CSV-Export und ein Block **„Was auffällt"**, der die Zahlen in Sätze übersetzt | neu |
 | 03.11.2026 | **Zahlenseite neu gebaut** — in der ersten Fassung fehlten alle Beschriftungen (`max-width:0` ohne feste Tabellenbreite quetscht die Spalte auf null). Jetzt Kennzahlen mit Vergleich zum Zeitraum davor, Tagesdiagramm, Stundendiagramm, Balken **hinter** dem Text statt in eigener Spalte. Die Prüfung misst seitdem die **gerenderte Breite** jeder Beschriftung, nicht ihren Text | neu |

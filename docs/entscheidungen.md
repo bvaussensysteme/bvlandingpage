@@ -11788,3 +11788,94 @@ das Aufklappen langer Listen, dass nur der Spitzenwert golden ist, der
 Hell-Dunkel-Wechsel (**nach** dem Farbübergang gemessen – `transition` liefert
 sonst die Zwischenfarbe, was beim ersten Versuch wie ein Fehler aussah) und
 die Handy-Breite.
+
+## 03.11.2026 (Nacht) — Konfigurator: ein Weg, Zahlen statt Regler
+
+**Anlass.** „mir gefällt UI UIX technisch dieser ganze aufbau und design beim
+3d konfigurator nicht. Es wird schnell unübersihtlich, viele gleiche regler
+die aber verschiedenes bedeuten und wenn ich als der der das gemacht hat mit
+dir schon probleme habe teilweise, kann ich verstehen das potentielle kunden
+schnell abbrechen" (Betreiber, 03.11.2026, mit Bild).
+
+### Erst gemessen, dann umgebaut
+
+Im iPhone-Fenster (390 × 844), beide Stufen:
+
+| Befund | vorher | nachher |
+|---|---|---|
+| Bedienelemente insgesamt | 129 (Pro) | 113 |
+| Sichtbare Schieberegler im Kundenweg | bis zu 6 | **0** |
+| Schritt 1 „Anlage" | 2.555 px = 3,0 Bildschirme | 1.600 px = 1,9 |
+| „Alles auf einen Blick", aufgeklappt | 5.772 px = 6,8 Bildschirme, 93 Elemente | entfällt |
+| Wege durch die Bedienung | **sechs** | **einer** |
+
+**Das Reglerproblem war messbar, nicht gefühlt.** 20 Schieberegler, alle gleich
+aussehend, mit 12 bis **1.876** Stufen: „Dachneigung" 12 Stufen, „Breite"
+1.300 (ein Pixel ≈ 43 mm), „Unterzug" 1.876 (rund sechs Werte je Pixel). Mit
+dem Finger ist das nicht zu treffen – derselbe Regler bedeutet einmal
+„Auswahl aus zwölf" und einmal „Millimeterarbeit".
+
+### Was entschieden wurde
+
+1. **Maße bekommen einen Zahlensteller** (− / Zahl / +) statt eines Reglers,
+   mit den Grenzen im Klartext darunter. **Schieberegler bleiben nur dort, wo
+   der genaue Wert egal ist und man das Ergebnis sieht**: Lamellenstellung,
+   Markise, Schiebetür, Velaris. Diese tragen im HTML `data-k3d-schieber`.
+2. **Der Regler bleibt die Quelle der Wahrheit** und wird nur versteckt. Alles
+   im Konfigurator liest und schreibt ihn – vom Teilen-Link bis zum Maßkasten;
+   jede Änderung geht denselben Weg wie vorher (Wert setzen, `input` und
+   `change` melden). Deshalb ändert sich am Verhalten nichts, und alle
+   bestehenden Prüfungen blieben gültig.
+3. **Basic/Pro ist weg.** Was früher „nur in Pro" war, liegt jetzt in seinem
+   Schritt hinter **„Mehr Einstellungen"** – erreichbar für den, der es sucht,
+   unsichtbar für alle anderen. Das Feld `#k3dStufe` bleibt als verstecktes
+   Feld auf `Pro` stehen; stünde dort noch `Basic`, wäre auch der Knopf „Mehr
+   Einstellungen" dauerhaft versteckt (`mehr.hidden = basic`).
+4. **„Alles auf einen Blick" ist weg.** Es war ein zweiter, gleichwertiger
+   Bedienweg neben den Schritten. Die Übersicht gibt es weiterhin, aber dort,
+   wo sie hingehört: als Zusammenfassung im letzten Schritt.
+5. **Eine Überschrift weniger:** Die Frage des ersten Schritts steht schon als
+   Unterzeile unter der Bereichsüberschrift; ihre eigene Zwischenüberschrift
+   war die dritte Zeile mit demselben Inhalt.
+
+### Eine bewusste Abweichung von einer früheren Ansage
+
+Am 11.10.2026 sollte die **hintere Höhe** ausdrücklich *nicht* unter „Mehr
+Einstellungen" stehen, sondern direkt unter der Durchgangshöhe. Das galt in
+der damaligen Stufe Pro. Mit deren Wegfall liegt sie – zusammen mit der
+Dachneigung, zu der sie die Alternative ist – jetzt hinter „Mehr
+Einstellungen". Beide stehen weiter im Schritt „Maße" und weiter auf
+**derselben** Ebene; nur diese Ebene ist jetzt zugeklappt. Der Betreiber ist
+darauf hingewiesen worden. Soll es zurück, fällt `data-k3d-mehr` an beiden
+Gruppen weg, und zwei Prüfungen drehen sich mit um.
+
+### Was die Prüfung gekostet und gebracht hat
+
+Vier Prüfskripte prüften Dinge, die es nicht mehr gibt. Sie wurden **nicht
+gelöscht, sondern umgedreht** – jede mit der Begründung im Text:
+
+- `pruefe-stufen.js`: aus „der Umschalter steht in der Seite" wurde „kein
+  Umschalter mehr", aus „Pro verbirgt" wurde „zugeklappt".
+- `pruefe-fuehrung.js`: aus „Umschalten vorhanden" wurde „es gibt nur einen
+  Weg".
+- `pruefe-masstabelle.js`: siehe die Abweichung oben.
+- `pruefe-konfigurator-oberflaeche.mjs`: Statt des Modus-Knopfes misst sie
+  jetzt, **wie lang ein Schritt ist** (Grenze 2,6 Bildschirme, gemessen
+  1,9 · 0,8 · 1,3 · 0,8 · 1,0) und prüft den Zahlensteller selbst.
+
+**Zwei eigene Fehler hat erst die Gegenprobe gezeigt:**
+
+1. Die Test-Hilfe „alles sichtbar machen" ersetzte den alten Umschalter – aber
+   der setzte eine Variable *in* der Seite und überlebte jedes Neuzeichnen, der
+   Griff von außen nicht. Der Lauf brach später an einem Kästchen ab, das
+   inzwischen wieder in einem anderen Schritt lag. Jetzt stellt ein Wächter den
+   Zustand nach jeder Änderung wieder her.
+2. Die beiden neuen eingebauten Fehler am Zahlensteller blieben **unbemerkt**,
+   weil die Prüfung dafür in einer eigenen Seite läuft und die Fehler nur in
+   der ersten eingebaut waren. Das Einbauen steht jetzt in einer Funktion, die
+   für jede Seite aufgerufen wird.
+
+Und eine Falle im Code selbst: `zeile.querySelector('input')` in den
+Pfostenzeilen hätte ab sofort das **Zahlenfeld** statt des Reglers getroffen –
+Grenzen und Wert wären an der falschen Stelle gelandet. Jetzt steht dort
+`input[type="range"]`.

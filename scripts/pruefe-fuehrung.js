@@ -97,8 +97,16 @@ pruefe('Der Weiter-Knopf nennt den nächsten Bereich',
        new RegExp(q || "BEREICHE\\[naechster\\]\\.t").test(js) &&
        new RegExp(q || "weiterKnopf\\.innerHTML = 'Weiter'").test(js),
        'statt nur „Weiter"');
-pruefe('Umschalten auf „Alles auf einen Blick" vorhanden',
-       new RegExp(q || 'k3dModus').test(js) && /id="k3dModus"/.test(html), '');
+/* UMGEKEHRT seit dem 03.11.2026. Vorher wurde hier geprueft, dass es
+   den zweiten Bedienweg „Alles auf einen Blick" GIBT. Gemessen waren
+   dann sechs Wege durch dieselbe Bedienung (Basic/Pro, Reiter, Zaehler,
+   Alles-auf-einen-Blick, Mehr Einstellungen, Weiter/Zurueck) - und der
+   Betreiber: „Es wird schnell unübersichtlich". Jetzt gilt das
+   Gegenteil: EIN Weg, die Schritte. */
+pruefe('Es gibt nur einen Weg durch die Bedienung',
+       q ? /id="k3dModus"/.test(html) || /data-k3d-seg="k3dStufe"/.test(html)
+         : !/id="k3dModus"/.test(html) && !/data-k3d-seg="k3dStufe"/.test(html),
+       'kein zweiter Modus, keine Stufe Basic/Pro');
 pruefe('Selten Gebrauchtes liegt hinter „Mehr Einstellungen"',
        new RegExp(q || 'data-k3d-mehr').test(js) &&
        (html.match(/data-k3d-mehr/g) || []).length >= 6,
@@ -2042,14 +2050,25 @@ pruefe('Beschriftung wie im Bestellformular',
    stuende in Basic die hintere Hoehe ohne die Neigung daneben. */
 (function () {
   var wege = (html.match(/<div class="k3d-gruppe[^>]*data-k3d-fuer="(neigung|hoehe-hinten)"[^>]*>/g) || []);
-  var proNeig = wege.some(function (t) { return /"neigung"/.test(t) && /data-k3d-pro/.test(t); });
-  var proHint = wege.some(function (t) { return /"hoehe-hinten"/.test(t) && /data-k3d-pro/.test(t); });
-  pruefe('Weg 2 steht neben Weg 1, nicht unter „Mehr Einstellungen“',
+  /* data-k3d-mehr statt data-k3d-pro: Seit dem Wegfall von Basic/Pro
+     traegt das, was frueher „nur in Pro" war, dieselbe Marke wie alles
+     andere selten Gebrauchte. Die Bedingung bleibt dieselbe - beide
+     Wege auf einer Ebene. */
+  var proNeig = wege.some(function (t) { return /"neigung"/.test(t) && /data-k3d-mehr/.test(t); });
+  var proHint = wege.some(function (t) { return /"hoehe-hinten"/.test(t) && /data-k3d-mehr/.test(t); });
+  /* ENTFALLEN am 03.11.2026: die Bedingung „hoehe-hinten NICHT hinter
+     Mehr Einstellungen". Sie stammt aus der Zeit, als die Neigung frei
+     dastand und nur der zweite Weg versteckt gewesen waere. Seit dem
+     Wegfall von Basic/Pro liegen BEIDE Wege hinter „Mehr
+     Einstellungen" - und genau das ist gewollt: Die Dachneigung ist
+     eine Fachangabe, nach der kein Kunde von sich aus sucht.
+     Entscheidend bleibt, dass sie auf DERSELBEN Ebene liegen; das
+     prueft proNeig === proHint. */
+  pruefe('Beide Wege zur Neigung stehen auf derselben Ebene',
          wege.length === 2 &&
          new RegExp(q || 'data-k3d-schritt="masse"[^>]*data-k3d-fuer="hoehe-hinten"').test(html) &&
-         !/data-k3d-mehr[^>]*data-k3d-fuer="hoehe-hinten"/.test(html) &&
          proNeig === proHint,
-         'beide auf derselben Ebene (Pro: ' + proNeig + '/' + proHint + ')');
+         'Mehr Einstellungen: ' + proNeig + '/' + proHint);
 })();
 (function () {
   /* Zweiter Weg: die beiden Rechnungen gegeneinander laufen lassen. Aus

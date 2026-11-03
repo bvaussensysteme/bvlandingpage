@@ -79,9 +79,13 @@ page.on('pageerror', e => konsole.push('pageerror: ' + e.message));
 /* Gegenprobe: drei Fehler werden absichtlich eingebaut. Schlägt die
    Prüfung dann nicht an, prüft sie nichts. Fehler 3 ist genau der Fehler,
    der in der E-Mail die Notiz verschwinden ließ. */
-if (GEGENPROBE) {
-  await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
-  await page.route('**/konfigurator-3d.js*', async (r) => {
+/* Die eingebauten Fehler muessen auf JEDER Seite gelten, die sie
+   pruefen soll - nicht nur auf der ersten. GEMESSEN am 03.11.2026: Die
+   beiden Fehler am Zahlensteller blieben unbemerkt, weil die Pruefung
+   dafuer in einer eigenen Seite laeuft und diese Route dort nicht
+   eingerichtet war. Deshalb steht das Einbauen jetzt in einer Funktion. */
+async function fehlerEinbauen(ziel) {
+  await ziel.route('**/konfigurator-3d.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
     t = t.replace('function masseZeichnen() {', 'function masseZeichnen() { return;');
@@ -108,8 +112,21 @@ if (GEGENPROBE) {
        die er gerade verworfen hat. */
     t = t.replace('    location.replace(location.pathname + location.search);',
                   '    location.reload();');
+    /* Elfter Fehler: Der Schieberegler bleibt hinter dem Zahlensteller
+       stehen - dann hat der Kunde beides vor sich, und genau das war
+       die Beschwerde („viele gleiche regler"). */
+    t = t.replace('steller.appendChild(regler);\n      regler.hidden = true;',
+                  'steller.appendChild(regler);');
+    /* Zwoelfter Fehler: Der Plusknopf springt um zwei Schritte. */
+    t = t.replace('setzen(Number(regler.value) + (Number(regler.step) || 1));',
+                  'setzen(Number(regler.value) + 2 * (Number(regler.step) || 1));');
     await r.fulfill({ response: a, body: t, headers: { ...a.headers(), 'content-type': 'application/javascript' } });
   });
+}
+
+if (GEGENPROBE) {
+  await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
+  await fehlerEinbauen(page);
   await page.route('**/anfrage-wizard.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
@@ -155,7 +172,7 @@ await page.waitForTimeout(1600);
 
    Im normalen Lauf bleibt es ein echter Mausklick - nur in der
    Gegenprobe wird der Knopf direkt ausgeloest. Dasselbe tut das Skript
-   schon beim Umschalter #k3dModus, wo die Sprechblase im Weg liegt. */
+   schon an anderen Stellen, wo die Sprechblase im Weg liegt. */
 /* IMMER über $eval, nicht nur in der Gegenprobe. Die Ansichtsleiste
    liegt über der Leinwand; je nachdem wie lang das Bedienfeld gerade
    ist und wie weit die Seite gescrollt steht, meldet Playwrights
@@ -198,6 +215,51 @@ async function alleAufklappen(ziel = page) {
    Und ueber evaluate() statt click(): Playwrights Trefferpruefung
    bricht ab, sobald irgendetwas darueber liegt - geprueft werden soll
    aber der Konfigurator, nicht der Hinweis. */
+/* ---------- Alles sichtbar machen ----------
+   Bis zum 03.11.2026 tat das der Knopf „Alles auf einen Blick". Den
+   gibt es nicht mehr: Gemessen waren sechs Wege durch dieselbe
+   Bedienung, und er war der zweite davon („Es wird schnell
+   unübersichtlich", Betreiber).
+
+   Fuer die Pruefung wird dieselbe Wirkung jetzt direkt hergestellt -
+   die Klasse der Fuehrung ab, alle Abschnitte auf. Das ist ausdruecklich
+   ein Griff NUR im Test: Er ahmt nach, was es in der Seite nicht mehr
+   gibt, damit die nachfolgenden Pruefungen alle Gruppen auf einmal
+   sehen. Die Fuehrung selbst wird davon nicht geprueft. */
+async function alleGruppenZeigen(ziel = page) {
+  await ziel.evaluate(() => {
+    function anwenden() {
+      const panel = document.getElementById('k3dPanel');
+      if (panel) panel.classList.remove('k3d-gefuehrt');
+      document.querySelectorAll('.k3d-gruppe').forEach((g) => g.classList.add('ist-schritt'));
+      document.querySelectorAll('details.k3d-sek').forEach((d) => { d.open = true; });
+    }
+    anwenden();
+    /* SELBSTERHALTEND, und das ist der Unterschied zum alten
+       Umschalter: Der setzte eine Variable in der Seite, die jedes
+       Neuzeichnen ueberlebte. Dieser Griff von aussen wird dagegen vom
+       naechsten schrittZeigen() wieder ueberschrieben - gemessen am
+       03.11.2026: Der Lauf brach spaeter an #k3dTraeger ab, weil das
+       Kaestchen inzwischen wieder in einem anderen Schritt lag.
+       Deshalb beobachtet ein Waechter das Bedienfeld und stellt den
+       Zustand nach jeder Aenderung wieder her. */
+    if (!window.__bvAllesWaechter) {
+      const ziel2 = document.getElementById('k3dPanel');
+      if (ziel2) {
+        window.__bvAllesWaechter = new MutationObserver(() => {
+          if (window.__bvStill) return;
+          window.__bvStill = true;
+          anwenden();
+          setTimeout(() => { window.__bvStill = false; }, 0);
+        });
+        window.__bvAllesWaechter.observe(ziel2,
+          { attributes: true, childList: true, subtree: true, attributeFilter: ['class'] });
+      }
+    }
+  });
+  await ziel.waitForTimeout(250);
+}
+
 async function dialogeWeg(ziel = page) {
   await ziel.evaluate(() => {
     var cb = document.getElementById('cookieBanner');
@@ -241,39 +303,40 @@ await dialogeWeg(page);
    hidden-Feld ist nie sichtbar), deshalb seine Knopfreihe. */
 const fremderBereichGefuehrt =
   await page.locator('[data-k3d-seg="k3dMontage"]').isVisible();
-/* Die Sprechblase (#k3dTestHinweis) liegt ueber dem Umschalter. force
-   ueberspringt nur die Pruefung von Playwright – der Mausklick landet
-   trotzdem auf der Blase. Deshalb den Knopf direkt ausloesen. */
-await page.$eval('#k3dModus', (el) => el.click());
-await page.waitForTimeout(250);
 
-/* ---------- Immer nur ein Abschnitt offen ----------
-   „die einstellungen sind viele auch unlogisch angeordnet man muss mal
-   runter srollen dann wieder hoch" (Betreiber, 24.10.2026). Gemessen
-   waren es in Pro 4653 px Bedienfeld bei 900 px Fenster. Gemessen wird
-   VOR alleAufklappen() – das Pruefskript klappt gleich wieder alles auf,
-   damit die uebrigen Pruefungen jede Bedieneinheit sehen. */
+/* ---------- Wie lang ist ein Schritt? ----------
+   ERSETZT am 03.11.2026 die Pruefungen zum Modus „Alles auf einen
+   Blick" und zur Ziehharmonika der Abschnitte. Beides gibt es nicht
+   mehr: Gemessen waren sechs Wege durch dieselbe Bedienung, und der
+   Betreiber: „Es wird schnell unübersichtlich … kann ich verstehen das
+   potentielle kunden schnell abbrechen".
+
+   Geblieben ist EIN Weg, und damit zaehlt eine andere Zahl: wie viel
+   Bedienfeld ein einzelner Schritt ist. Gemessen am 03.11.2026 im
+   iPhone-Fenster, vor dem Umbau 3,0 Bildschirme im ersten Schritt,
+   danach 2,4. Die Grenze steht bewusst bei 2,6 - sie haelt den
+   erreichten Stand fest und schlaegt an, wenn ein Schritt wieder
+   waechst. Kuerzer wird es erst, wenn die Schritte neu geschnitten
+   werden; das ist die naechste Runde und noch nicht entschieden. */
 async function panelHoehe() {
   return await page.evaluate(() =>
     Math.round(document.querySelector('.k3d-sl-rollen').scrollHeight));
 }
-async function offeneAbschnitte() {
-  return await page.evaluate(() =>
-    [...document.querySelectorAll('details.k3d-sek')].filter((d) => d.open).length);
+{
+  const fenster = await page.evaluate(() => window.innerHeight);
+  const laengen = [];
+  for (let i = 0; i < 5; i++) {
+    laengen.push(await panelHoehe());
+    if (i < 4) { await page.$eval('#k3dWeiter', (e) => e.click()); await page.waitForTimeout(600); }
+  }
+  for (let i = 0; i < 4; i++) { await page.$eval('#k3dZurueck', (e) => e.click()); await page.waitForTimeout(400); }
+  const schlimmster = Math.max(...laengen);
+  pruef('Kein Schritt wird laenger als 2,6 Bildschirme',
+    schlimmster / fenster <= 2.6,
+    laengen.map((h) => (h / fenster).toFixed(1)).join(' · ') + ' Bildschirme');
 }
-pruef('Beim Wechsel in die Uebersicht bleibt ein Abschnitt offen',
-  (await offeneAbschnitte()) === 1,
-  (await offeneAbschnitte()) + ' von 8 offen, Bedienfeld ' + (await panelHoehe()) + ' px');
-/* Einen anderen Abschnitt aufklappen: die uebrigen muessen zugehen. */
-await page.locator('details.k3d-sek > summary').nth(3).click();
-await page.waitForTimeout(400);
-pruef('Ein Klick auf eine Ueberschrift schliesst die anderen',
-  (await offeneAbschnitte()) === 1,
-  (await offeneAbschnitte()) + ' offen, Bedienfeld ' + (await panelHoehe()) + ' px');
-const hoeheEiner = await panelHoehe();
-pruef('Das Bedienfeld bleibt bei etwa einem Bildschirm',
-  hoeheEiner < 2000, hoeheEiner + ' px (vorher 4653 px in Pro)');
 
+await alleGruppenZeigen(page);
 await alleAufklappen();
 pruef('Der gefuehrte Modus zeigt nur den aktuellen Bereich',
   !fremderBereichGefuehrt,
@@ -418,48 +481,94 @@ await page.waitForTimeout(300);
 await ansicht('Perspektive');
 await page.waitForTimeout(600);
 
-const einheitenBasic = await sichtbareEinheiten();
-const bildBasic = await page.locator('#k3dCanvas').screenshot();
-pruef('Basic verbirgt die Fachwerte',
-  !(await page.locator('#k3dNeigungZahl').isVisible()) &&
-  !(await page.locator('[data-k3d-seg="k3dGlasstaerke"]').isVisible()) &&
-  (await page.locator('#k3dMehr').evaluate((e) => e.hidden)),
-  'Dachneigung, Glasstärke und „Mehr Einstellungen" sind weg');
-pruef('Basic zeigt die Kundenfragen',
-  (await page.locator('#k3dBreiteZahl').isVisible()) &&
-  (await page.locator('#k3dHoeheZahl').isVisible()),
-  einheitenBasic + ' Bedieneinheiten sichtbar');
+/* ---------- „Mehr Einstellungen" statt Basic/Pro ----------
+   ERSETZT am 03.11.2026 die Pruefungen zum Umschalter Basic/Pro. Der
+   ist weg; was selten gebraucht wird, liegt jetzt in seinem Schritt
+   hinter „Mehr Einstellungen". Geprueft wird dieselbe Zusage wie
+   vorher: Der Kunde sieht die Fachwerte nicht, wer sie sucht, findet
+   sie - und das Modell aendert sich dabei nicht.
 
-await page.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Pro"]', (el) => el.click());
-await page.waitForTimeout(900);
-await alleAufklappen();
-const einheitenPro = await sichtbareEinheiten();
-pruef('Pro zeigt wirklich alle Einstellungen',
-  (await page.locator('#k3dNeigungZahl').isVisible()) &&
-  (await page.locator('[data-k3d-seg="k3dGlasstaerke"]').isVisible()) &&
-  !(await page.locator('#k3dMehr').evaluate((e) => e.hidden)),
-  'Dachneigung, Glasstärke und „Mehr Einstellungen" sind wieder da');
-pruef('Pro zeigt deutlich mehr als Basic',
-  einheitenPro > einheitenBasic * 1.3,
-  einheitenBasic + ' -> ' + einheitenPro + ' Bedieneinheiten');
-/* Die Stufe ist eine Frage der Ansicht, nicht des Bauwerks. */
-pruef('Das Modell bleibt beim Umschalten unveraendert',
-  Buffer.compare(bildBasic, await page.locator('#k3dCanvas').screenshot()) === 0,
-  'nur das Bedienfeld aendert sich');
+   In einer EIGENEN Seite, weil der Lauf oben die Fuehrung fuer seine
+   Zwecke abgeschaltet hat. */
+{
+  const me = await browser.newPage();
+  me.setDefaultTimeout(8000);
+  if (GEGENPROBE) await fehlerEinbauen(me);
+  await me.goto(BASIS, { waitUntil: 'networkidle' });
+  await me.waitForTimeout(1600);
+  await dialogeWeg(me);
+  /* Schritt „Anlage" enthaelt die Masse; dort sitzt auch die
+     Dachneigung hinter „Mehr Einstellungen". */
+  const sichtbarVorher = await me.evaluate(() =>
+    [...document.querySelectorAll('.k3d-gruppe')].filter((g) => g.offsetParent !== null).length);
+  const bildVorher = await me.locator('#k3dCanvas').screenshot();
+  pruef('Der Kunde sieht die Fachwerte nicht',
+    !(await me.locator('#k3dNeigungZahl').isVisible()) &&
+    !(await me.locator('[data-k3d-seg="k3dGlasstaerke"]').isVisible()),
+    'Dachneigung und Glasstärke sind zugeklappt');
+  pruef('Die Kundenfragen stehen sofort da',
+    (await me.locator('#k3dBreiteZahl').isVisible()) &&
+    (await me.locator('#k3dHoeheZahl').isVisible()),
+    sichtbarVorher + ' Bedieneinheiten sichtbar');
+  pruef('Der Knopf „Mehr Einstellungen" ist da',
+    !(await me.locator('#k3dMehr').evaluate((e) => e.hidden)));
 
-/* Und der Punkt, auf den es wirklich ankommt: In Pro Eingestelltes darf
-   beim Zurueckschalten nicht verschwinden. */
-await page.fill('#k3dNeigungZahl', '8');
-await page.locator('#k3dNeigungZahl').blur();
-await page.waitForTimeout(700);
-await page.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Basic"]', (el) => el.click());
-await page.waitForTimeout(700);
-await page.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Pro"]', (el) => el.click());
-await page.waitForTimeout(700);
-await alleAufklappen();
-pruef('In Pro Eingestelltes ueberlebt den Weg ueber Basic',
-  (await page.inputValue('#k3dNeigungZahl')) === '8',
-  'Dachneigung steht auf ' + await page.inputValue('#k3dNeigungZahl') + ' Grad');
+  await me.$eval('#k3dMehr', (e) => e.click());
+  await me.waitForTimeout(800);
+  const sichtbarNachher = await me.evaluate(() =>
+    [...document.querySelectorAll('.k3d-gruppe')].filter((g) => g.offsetParent !== null).length);
+  pruef('Mehr Einstellungen holt die Fachwerte hervor',
+    (await me.locator('#k3dNeigungZahl').isVisible()),
+    sichtbarVorher + ' -> ' + sichtbarNachher + ' Bedieneinheiten');
+  /* Die Ansicht ist eine Frage der Ansicht, nicht des Bauwerks. */
+  pruef('Das Modell bleibt beim Aufklappen unveraendert',
+    Buffer.compare(bildVorher, await me.locator('#k3dCanvas').screenshot()) === 0,
+    'nur das Bedienfeld aendert sich');
+
+  /* Und der Punkt, auf den es ankommt: Eingestelltes darf beim
+     Zuklappen nicht verschwinden. */
+  await me.fill('#k3dNeigungZahl', '8');
+  await me.locator('#k3dNeigungZahl').blur();
+  await me.waitForTimeout(700);
+  await me.$eval('#k3dMehr', (e) => e.click());       // wieder zu
+  await me.waitForTimeout(500);
+  await me.$eval('#k3dMehr', (e) => e.click());       // wieder auf
+  await me.waitForTimeout(700);
+  pruef('Eingestelltes ueberlebt das Zuklappen',
+    (await me.inputValue('#k3dNeigungZahl')) === '8',
+    'Dachneigung steht auf ' + await me.inputValue('#k3dNeigungZahl') + ' Grad');
+
+  /* ---------- Zahlensteller statt Schieberegler ----------
+     „viele gleiche regler die aber verschiedenes bedeuten" (Betreiber,
+     03.11.2026). Nachgemessen: Breite 1.300 Stufen auf rund 300 px. */
+  const steller = await me.evaluate(() => {
+    const r = document.getElementById('k3dBreite');
+    const st = r.closest('.k3d-steller');
+    if (!st) return null;
+    const zahl = st.querySelector('input[type=number]');
+    const knoepfe = st.querySelectorAll('button.k3d-stell');
+    const vorher = r.value;
+    knoepfe[1].click();
+    return { versteckt: r.hidden, vorher, nachher: r.value, zahl: zahl.value,
+      schritt: r.step, knoepfe: knoepfe.length,
+      grenzen: (r.closest('.k3d-gruppe').querySelector('.k3d-grenzen') || {}).textContent || '' };
+  });
+  pruef('Die Breite hat einen Zahlensteller statt eines Reglers',
+    !!steller && steller.versteckt && steller.knoepfe === 2,
+    steller ? 'Regler versteckt, ' + steller.knoepfe + ' Knöpfe' : 'kein Steller gefunden');
+  pruef('Der Plusknopf geht genau einen Schritt weiter',
+    !!steller && Number(steller.nachher) - Number(steller.vorher) === Number(steller.schritt)
+    && steller.zahl === steller.nachher,
+    steller ? steller.vorher + ' -> ' + steller.nachher + ' mm' : '');
+  pruef('Die Grenzen stehen im Klartext darunter',
+    !!steller && /von .* bis .* mm/.test(steller.grenzen), steller ? steller.grenzen : '');
+  const sichtRegler = await me.evaluate(() =>
+    [...document.querySelectorAll('input[type=range]')]
+      .filter((r) => r.offsetParent !== null).length);
+  pruef('Im Kundenweg ist kein Schieberegler mehr sichtbar',
+    sichtRegler === 0, sichtRegler + ' sichtbare Regler');
+  await me.close();
+}
 
 /* ---------- Durchgangshoehe unter dem Statiktraeger ----------
    „wenn aber jetzt statikträger in spiel kommen is die durchgangshöhe um
@@ -1351,8 +1460,7 @@ if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/k3d-desktop.png' });
   await fw.goto(BASIS, { waitUntil: 'networkidle' });
   await fw.waitForTimeout(1600);
   await dialogeWeg(fw);
-  await fw.evaluate(() => { document.getElementById('k3dModus').click(); });
-  await fw.waitForTimeout(600);
+  await alleGruppenZeigen(fw);
   await alleAufklappen(fw);
 
   /* Bei der Standardbreite 5000 mm hat die Stirnseite bereits zwei
@@ -1606,8 +1714,7 @@ m.on('pageerror', e => mFehler.push(e.message));
 await m.goto(BASIS, { waitUntil: 'networkidle' });
 await m.waitForTimeout(1600);
 await dialogeWeg(m);
-await m.$eval('#k3dModus', (el) => el.click());          // wie oben: alles sichtbar, sonst scrollt die Seite nicht
-await m.waitForTimeout(250);
+await alleGruppenZeigen(m);     // wie oben: alles sichtbar, sonst scrollt die Seite nicht
 await alleAufklappen(m);
 
 const mbu = await m.locator('.k3d-buehne').boundingBox();
@@ -1830,6 +1937,8 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Im Kundenweg ist kein Schieberegler mehr sichtbar',
+  'Der Plusknopf geht genau einen Schritt weiter',
   'Der letzte Knopf schickt die Anfrage ab',
   'Konfigurationslink geht mit der Anfrage raus',
   '„Zurück" steht nicht in Safaris Blau',

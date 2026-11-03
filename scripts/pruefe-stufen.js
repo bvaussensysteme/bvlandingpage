@@ -56,32 +56,32 @@ pruefe('Die Bedieneinheiten lassen sich auslesen',
        gegen ? GRUPPEN.length < 50 : GRUPPEN.length > 50,
        GRUPPEN.length + ' Einheiten');
 
-/* ---------- Der Umschalter ---------- */
-pruefe('Der Umschalter steht in der Seite',
-       gegen ? html.indexOf('data-k3d-seg="k3dStufe"') < 0
-             : html.indexOf('data-k3d-seg="k3dStufe"') > -1 &&
-               /<button type="button" data-wert="Basic">/.test(html) &&
-               /<button type="button" data-wert="Pro">/.test(html),
-       'zwei Knöpfe');
-/* Die geführte Kopfzeile ist im Modus „Alles auf einen Blick" ausgeblendet
-   (.k3d-fuehrung { display: none }). Stünde der Umschalter dort, wäre er
-   genau dann weg, wenn man am meisten sieht. */
-(function () {
-  var a = html.indexOf('<div class="k3d-stufe">');
-  var f = html.indexOf('<div class="k3d-fuehrung" id="k3dFuehrung">');
-  var drin = a > f;
-  pruefe('Der Umschalter steht außerhalb der geführten Kopfzeile',
-         gegen ? drin : (a > -1 && f > -1 && !drin),
-         'sonst verschwindet er bei „Alles auf einen Blick"');
-})();
-pruefe('Basic ist die Voreinstellung',
-       gegen ? !/stufe: 'Basic',/.test(k3d) || !/id="k3dStufe" value="Basic"/.test(html)
-             : /stufe: 'Basic',/.test(k3d) && /id="k3dStufe" value="Basic"/.test(html),
-       'im Zustand und im Feld');
-pruefe('Die Stufe wird beim Ändern gelesen',
+/* ---------- Kein Umschalter mehr ----------
+   UMGEDREHT am 03.11.2026. Bis dahin wurde hier geprueft, dass es den
+   Umschalter Basic/Pro GIBT. Gemessen waren dann sechs Wege durch
+   dieselbe Bedienung, und der Betreiber: „viele gleiche regler die aber
+   verschiedenes bedeuten … kann ich verstehen das potentielle kunden
+   schnell abbrechen".
+
+   Jetzt gilt: EIN Weg (die Schritte). Was frueher „nur in Pro" war,
+   liegt in seinem Schritt hinter „Mehr Einstellungen". Diese Datei
+   prueft seitdem, WAS der Kunde sofort sieht und was zugeklappt ist -
+   nicht mehr, ob es zwei Betriebsarten gibt. */
+pruefe('Kein Umschalter Basic/Pro mehr in der Seite',
+       gegen ? html.indexOf('data-k3d-seg="k3dStufe"') > -1
+             : html.indexOf('data-k3d-seg="k3dStufe"') < 0 &&
+               !/data-wert="Basic"/.test(html),
+       'eine Bedienung, nicht zwei');
+pruefe('Das Feld bleibt als verstecktes Feld auf Pro stehen',
+       gegen ? !/id="k3dStufe" value="Pro"/.test(html)
+             : /<input type="hidden" id="k3dStufe" value="Pro">/.test(html),
+       'sonst bliebe „Mehr Einstellungen" dauerhaft versteckt');
+pruefe('Auch der Zustand steht auf Pro',
+       gegen ? !/stufe: 'Pro',/.test(k3d) : /stufe: 'Pro',/.test(k3d),
+       'stufeAnwenden gibt alles frei');
+pruefe('Die Stufe wird beim Ändern weiterhin gelesen',
        gegen ? !/Z\.stufe = wert\('k3dStufe'\) \|\| Z\.stufe;/.test(k3d)
              : /Z\.stufe = wert\('k3dStufe'\) \|\| Z\.stufe;/.test(k3d), '');
-
 /* ---------- Was Basic verbirgt ---------- */
 var sollPro = [
   ['neigung', 'Dachneigung'], ['hoehe-hinten', 'hintere Höhe'],
@@ -92,8 +92,10 @@ var sollPro = [
 ];
 sollPro.forEach(function (p) {
   var g = GRUPPEN.filter(function (x) { return x.fuer === p[0]; });
-  var alle = g.length > 0 && g.every(function (x) { return x.pro; });
-  pruefe('Pro: ' + p[1], gegen ? !alle : alle, g.length + ' Einheit(en)');
+  /* .pro gibt es nicht mehr - alles Fachliche traegt jetzt
+     data-k3d-mehr und liegt damit in seinem Schritt zugeklappt. */
+  var alle = g.length > 0 && g.every(function (x) { return x.pro || x.mehr; });
+  pruefe('Zugeklappt: ' + p[1], gegen ? !alle : alle, g.length + ' Einheit(en)');
 });
 
 /* ---------- Was Basic zeigt ----------
@@ -111,14 +113,14 @@ var sollBasic = [
 sollBasic.forEach(function (p) {
   var g = mit(p[0]);
   var frei = g.length > 0 && g.every(function (x) { return !x.pro && !x.mehr; });
-  pruefe('Basic: ' + p[1], gegen ? !frei : frei, g.length + ' Einheit(en)');
+  pruefe('Sofort sichtbar: ' + p[1], gegen ? !frei : frei, g.length + ' Einheit(en)');
 });
 
 /* ---------- Nachgerechnet: wie viel bleibt übrig ---------- */
 (function () {
   var sichtbarBasic = GRUPPEN.filter(function (g) { return !g.pro && !g.mehr; });
   var proNur = GRUPPEN.filter(function (g) { return g.pro || g.mehr; });
-  pruefe('Basic zeigt deutlich weniger als Pro',
+  pruefe('Der Kunde sieht sofort deutlich weniger als alles',
          gegen ? !(sichtbarBasic.length < GRUPPEN.length * 0.6)
                : sichtbarBasic.length < GRUPPEN.length * 0.6,
          sichtbarBasic.length + ' von ' + GRUPPEN.length +

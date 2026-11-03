@@ -205,6 +205,36 @@
       border: 1px solid var(--border); border-radius: 8px; font-variant-numeric: tabular-nums;
     }
     .k3d-zahl:focus { outline: none; border-color: var(--gold); }
+
+    /* ---------- Zahlensteller statt Schieberegler ----------
+       „viele gleiche regler die aber verschiedenes bedeuten"
+       (Betreiber, 03.11.2026). Nachgemessen: 20 Schieberegler, die alle
+       gleich aussehen, mit 12 bis 1.876 Stufen. Bei der Breite
+       (1.300 Stufen) entspricht EIN PIXEL rund 43 mm - genau 5.000 mm
+       zu treffen ist Glückssache, erst recht mit dem Finger.
+
+       Deshalb: Maße bekommen ein Zahlenfeld mit − und +. Schieberegler
+       bleiben nur dort, wo der genaue Wert egal ist und man das
+       Ergebnis sieht (Lamellenstellung, Markise, Schiebetür, Velaris);
+       die sind im HTML mit data-k3d-schieber gekennzeichnet. */
+    .k3d-steller { display: grid; grid-template-columns: 46px 1fr 46px; gap: 7px;
+      align-items: stretch; }
+    .k3d-stell { border: 1px solid var(--border); background: #fff; color: var(--black);
+      border-radius: 9px; font: 700 1.2rem/1 'Barlow Condensed', sans-serif;
+      cursor: pointer; -webkit-appearance: none; appearance: none; }
+    .k3d-stell:hover { border-color: var(--gold); }
+    .k3d-stell:active { background: var(--light-bg); }
+    .k3d-stell:disabled { opacity: .3; cursor: default; }
+    .k3d-steller .k3d-zahl { text-align: center; font-size: .95rem; padding: 9px 4px;
+      width: 100%; }
+    /* Die Grenzen stehen sichtbar darunter. Am Regler waren sie nur zu
+       erahnen: Man zog bis zum Anschlag und wusste nicht, ob der
+       Anschlag das Produkt oder die Statik ist. */
+    .k3d-grenzen { display: block; margin-top: 5px; font-size: .72rem;
+      color: var(--muted); font-variant-numeric: tabular-nums; }
+    .k3d-regler.ist-steller { display: block; }
+    .k3d-pfostenzeile .k3d-steller { grid-template-columns: 38px 1fr 38px; gap: 5px; }
+    .k3d-pfostenzeile .k3d-stell { font-size: 1rem; border-radius: 7px; }
     .k3d-zahl.ist-ausserhalb { border-color: #b4532a; background: #fdf3ef; }
 
     /* ---------- Knopfreihen ---------- */
@@ -1117,17 +1147,26 @@
            also genau dann weg, wenn man am meisten sieht.
 
            Welche Einheit zu Pro gehört, steht an ihr selbst
-           (data-k3d-pro) – nicht in einer Liste im Code, die auseinander
+           (data-k3d-mehr) – nicht in einer Liste im Code, die auseinander
            läuft, sobald jemand eine Einheit verschiebt. -->
-      <div class="k3d-stufe">
-        <span class="k3d-label" id="k3dStufeLabel">Einstellungen</span>
-        <input type="hidden" id="k3dStufe" value="Basic">
-        <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dStufe" role="group"
-             aria-labelledby="k3dStufeLabel">
-          <button type="button" data-wert="Basic">Basic<small>das Wichtigste</small></button>
-          <button type="button" data-wert="Pro">Pro<small>alle Einstellungen</small></button>
-        </div>
-      </div>
+      <!-- ENTFERNT am 03.11.2026: die Umschaltung Basic/Pro.
+           „Es wird schnell unübersichtlich … und wenn ich als der der
+           das gemacht hat mit dir schon probleme habe teilweise, kann
+           ich verstehen das potentielle kunden schnell abbrechen"
+           (Betreiber).
+
+           Gemessen waren SECHS Wege durch dieselbe Bedienung: Basic/Pro,
+           fünf Reiter, „1 von 5" mit Balken, „Alles auf einen Blick",
+           „Mehr Einstellungen" und Weiter/Zurück. Jeder für sich
+           sinnvoll, zusammen ein Labyrinth.
+
+           Geblieben ist EIN Weg: die Schritte. Was früher „Pro" war,
+           steht jetzt in seinem Schritt hinter „Mehr Einstellungen" –
+           erreichbar für den, der es sucht, unsichtbar für alle anderen.
+           Das Feld bleibt als verstecktes Feld stehen und steht fest auf
+           Pro: Daran hängen die Sichtbarkeitsregeln (stufeAnwenden) und
+           der Teilen-Link. -->
+      <input type="hidden" id="k3dStufe" value="Pro">
 
       <!-- ---------- Geführte Reihenfolge ----------
            Eine Frage nach der anderen, wie im Anfrage-Assistenten. Wer
@@ -1135,8 +1174,12 @@
       <div class="k3d-fuehrung" id="k3dFuehrung">
         <div class="k3d-fuehrung-kopf">
           <span class="k3d-fortschritt" id="k3dSchrittZahl">Schritt 1 von 9</span>
-          <button type="button" class="k3d-modus" id="k3dModus"
-                  aria-pressed="false">Alles auf einen Blick</button>
+          <!-- ENTFERNT am 03.11.2026: „Alles auf einen Blick". Es war
+               ein zweiter, gleichwertiger Bedienweg neben den Schritten
+               - aufgeklappt gemessene 5.772 px, also 6,8
+               Handy-Bildschirme mit 93 Bedienelementen auf einmal. Die
+               Übersicht gibt es weiterhin, aber dort, wo sie hingehört:
+               als Zusammenfassung im letzten Schritt. -->
         </div>
         <span class="k3d-balken" aria-hidden="true"><i id="k3dBalken"></i></span>
         <h2 class="k3d-schritt-t" id="k3dSchrittTitel"></h2>
@@ -1322,7 +1365,7 @@
              beide Maße hängen zusammen, und erst aus beiden ergibt sich
              die Höhe an der Wand. Vorher lag sie zwei Schritte weiter
              hinten unter „Mehr Einstellungen". -->
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="hoehe-hinten" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="hoehe-hinten" hidden>
           <!-- Dieselbe Frage wie im Bestellformular des Herstellers:
                „Möchten Sie die Dachneigung oder die Unterkante Rinne und
                die Unterkante Wandprofil angeben?" -->
@@ -1344,7 +1387,7 @@
             darüber läge, wird gekappt.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-pro data-k3d-fuer="neigung">
+        <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="neigung">
           <span class="k3d-label" id="k3dNeigungLabel">Dachneigung</span>
           <!-- Links einstellen, rechts ablesen: Grad ist die Eingabe,
                Prozent die Übersetzung in die Sprache der Anleitung
@@ -1490,7 +1533,7 @@
             für Graphit liegt uns noch keine Angabe vor.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-pro data-k3d-fuer="glasstaerke">
+        <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="glasstaerke">
           <span class="k3d-label" id="k3dGlasstaerkeLabel">Glasstärke</span>
           <input type="hidden" id="k3dGlasstaerke" value="8">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dGlasstaerke" role="group" aria-labelledby="k3dGlasstaerkeLabel">
@@ -1516,7 +1559,7 @@
 
         <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="pg-lamellen" hidden>
           <label class="k3d-label" for="k3dLamellen">Lamellenstellung <output id="k3dLamellenWert">35° geöffnet</output></label>
-          <input type="range" id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
+          <input type="range" data-k3d-schieber id="k3dLamellen" class="k3d-range" min="0" max="90" step="5" value="35">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dLamZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dLamAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
@@ -1717,7 +1760,7 @@
 
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dGlasOffen">Schiebetür geöffnet <output id="k3dGlasOffenWert">0 %</output></label>
-          <input type="range" id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
+          <input type="range" data-k3d-schieber id="k3dGlasOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dGlasZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dGlasAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
@@ -1752,7 +1795,7 @@
              glas bei den keilen auch" (Betreiber, 11.10.2026). Eigene
              Wahl, nicht an die Schiebeelemente gekoppelt: oben geht es um
              Einblick von der Seite, unten oft um freie Sicht. -->
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="keil-glas" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="keil-glas" hidden>
           <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
           <select id="k3dKeilGlas" class="k3d-select">
             <option value="ESG klar">klar – freie Sicht</option>
@@ -1762,15 +1805,15 @@
             Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="velaris" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="velaris" hidden>
           <label class="k3d-label" for="k3dVelarisWinkelOben">Obere Hälfte <output id="k3dVelarisWinkelObenWert">45° offen</output></label>
-          <input type="range" id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
+          <input type="range" data-k3d-schieber id="k3dVelarisWinkelOben" class="k3d-range" min="0" max="90" step="5" value="45">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dVelarisObenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dVelarisObenAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <label class="k3d-label" for="k3dVelarisWinkelUnten">Untere Hälfte <output id="k3dVelarisWinkelUntenWert">45° offen</output></label>
-          <input type="range" id="k3dVelarisWinkelUnten" class="k3d-range" min="0" max="90" step="5" value="45">
+          <input type="range" data-k3d-schieber id="k3dVelarisWinkelUnten" class="k3d-range" min="0" max="90" step="5" value="45">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dVelarisUntenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dVelarisUntenAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
@@ -1781,7 +1824,7 @@
             Schritt weiter – Lamellen öffnen, Element zur Seite schieben,
             schließen. Was als Nächstes kommt, steht unter dem Modell.</p>
           <label class="k3d-label" for="k3dVelarisOffen">Elemente verschoben <output id="k3dVelarisOffenWert">0 %</output></label>
-          <input type="range" id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
+          <input type="range" data-k3d-schieber id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dVelarisSchiebenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dVelarisSchiebenAuf">Aufschieben <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
@@ -1889,7 +1932,7 @@
           </div>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-pro data-k3d-fuer="verk-richtung" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="verk-richtung" hidden>
           <span class="k3d-label" id="k3dVerkRichtungLabel">Ausrichtung der Paneele</span>
           <input type="hidden" id="k3dVerkRichtung" value="waagerecht">
           <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dVerkRichtung" role="group" aria-labelledby="k3dVerkRichtungLabel">
@@ -1920,7 +1963,7 @@
             bei den Erweiterungen.</p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-segel" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="stoff-segel" hidden>
           <label class="k3d-label" for="k3dSegelStoff">Stofffarbe Sonnensegel</label>
           <select id="k3dSegelStoff" class="k3d-select">
             <option value="Platin">Platin</option>
@@ -1942,7 +1985,7 @@
           <p class="k3d-mini" id="k3dSegelStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-plissee" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="stoff-plissee" hidden>
           <label class="k3d-label" for="k3dPlisseeStoff">Stofffarbe Plissee</label>
           <select id="k3dPlisseeStoff" class="k3d-select">
             <option value="Weiss">Weiß</option>
@@ -1970,7 +2013,7 @@
           <p class="k3d-mini" id="k3dPlisseeStand"></p>
         </div>
 
-        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-pro data-k3d-fuer="stoff-dach" hidden>
+        <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="stoff-dach" hidden>
           <span class="k3d-label" id="k3dStoffLabel">Markisenstoff</span>
           <input type="hidden" id="k3dStoff" value="">
           <div class="k3d-stoff-liste" id="k3dStoffeDach" role="group"
@@ -1989,7 +2032,7 @@
 
         <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="sonne-aus" hidden>
           <label class="k3d-label" for="k3dSonneAus">Ausgefahren <output id="k3dSonneAusWert">85 %</output></label>
-          <input type="range" id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
+          <input type="range" data-k3d-schieber id="k3dSonneAus" class="k3d-range" min="0" max="100" step="5" value="85">
           <div class="k3d-seg k3d-seg--2">
             <button type="button" id="k3dSonneEin"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Einfahren</button>
             <button type="button" id="k3dSonneRaus">Ausfahren <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
