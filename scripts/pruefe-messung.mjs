@@ -191,44 +191,127 @@ const BASIS = `http://localhost:${PORT}`;
   await page.close();
 }
 
-/* ---------- 4. Die Zahlenseite zeigt, was ankommt ---------- */
+/* ---------- 4. Die Zahlenseite ----------
+   GEMESSEN WIRD DIE GERENDERTE BREITE, nicht der Text. Am 03.11.2026 hat
+   der Betreiber ein Bild geschickt: nackte Balken mit Zahlen, keine
+   einzige Beschriftung. Die Namensspalte hatte max-width:0 - ein Trick,
+   der nur mit table-layout:fixed wirkt; ohne das quetscht der Browser
+   sie auf null Pixel. Die damalige Pruefung hat „Samstag" im innerText
+   gefunden und war zufrieden: innerText kennt die abgeschnittene Breite
+   nicht. Deshalb misst sie jetzt jede Beschriftung einzeln. */
 {
   const page = await ctx.newPage();
   page.setDefaultTimeout(8000);
   const fehlerSeite = [];
   page.on('pageerror', (e) => fehlerSeite.push(e.message));
+
   /* Beispielzahlen statt der echten Datenbank: Geprüft wird die
      Darstellung, nicht der Worker. Der 14.11.2026 ist ein Samstag -
      damit muss der Wochentagsblock den Samstag als stärksten zeigen. */
+  const BEISPIEL = {
+    von: '2026-11-13', tage: 30,
+    tageReihe: [{ tag: '2026-11-13', aufrufe: 10 }, { tag: '2026-11-14', aufrufe: 90 }],
+    seiten: [{ seite: '/konfigurator.html', aufrufe: 70, dauer: 185 },
+             { seite: '/', aufrufe: 30, dauer: 42 }],
+    quellen: [{ quelle: 'google.de', aufrufe: 60 }, { quelle: 'direkt', aufrufe: 40 }],
+    geraete: [{ geraet: 'handy', aufrufe: 80 }, { geraet: 'rechner', aufrufe: 20 }],
+    handlungen: [{ art: 'telefon', anzahl: 7 }, { art: 'anfrage-gesendet', anzahl: 3 }],
+    trichter: [{ nr: 1, name: 'anlage', anzahl: 50 }, { nr: 2, name: 'dach', anzahl: 20 }],
+    stunden: [{ stunde: 20, aufrufe: 55 }],
+    vorher: { von: '2026-10-14', aufrufe: 50, dauer: 60,
+              handlungen: [{ art: 'anfrage-gesendet', anzahl: 2 }] }
+  };
   await page.route('**/werkstatt/api/zahlen*', (r) => r.fulfill({
-    status: 200, contentType: 'application/json',
-    body: JSON.stringify({
-      von: '2026-11-01', tage: 30,
-      tageReihe: [{ tag: '2026-11-13', aufrufe: 10 }, { tag: '2026-11-14', aufrufe: 90 }],
-      seiten: [{ seite: '/konfigurator.html', aufrufe: 70, dauer: 185 },
-               { seite: '/', aufrufe: 30, dauer: 42 }],
-      quellen: [{ quelle: 'google.de', aufrufe: 60 }, { quelle: 'direkt', aufrufe: 40 }],
-      geraete: [{ geraet: 'handy', aufrufe: 80 }, { geraet: 'rechner', aufrufe: 20 }],
-      handlungen: [{ art: 'telefon', anzahl: 7 }, { art: 'anfrage-gesendet', anzahl: 3 }],
-      trichter: [{ nr: 1, name: 'anlage', anzahl: 50 }, { nr: 2, name: 'dach', anzahl: 20 }],
-      stunden: [{ stunde: 20, aufrufe: 55 }]
-    })
+    status: 200, contentType: 'application/json', body: JSON.stringify(BEISPIEL)
   }));
   await page.goto(`${BASIS}/werkstatt/zahlen.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(900);
+  if (GEGENPROBE) {
+    /* Vierter eingebauter Fehler: genau der Fehler aus dem Bild des
+       Betreibers - die Beschriftung wird auf null Pixel gequetscht. */
+    await page.addStyleTag({ content: '.reihe .nam{max-width:0!important;flex:0 0 0!important}' });
+    await page.waitForTimeout(200);
+  }
+
+  /* 4a. JEDE Beschriftung muss wirklich Platz auf dem Bildschirm haben. */
+  const beschriftungen = await page.$$eval('.reihe .nam', (nodes) => nodes.map((n) => ({
+    text: (n.textContent || '').trim(),
+    breite: Math.round(n.getBoundingClientRect().width)
+  })));
+  const schmal = beschriftungen.filter((b) => b.breite < 60 || !b.text);
+  pruef('Jede Zeile trägt eine sichtbare Beschriftung',
+    beschriftungen.length >= 20 && schmal.length === 0,
+    `${beschriftungen.length} Zeilen, schmalste ${
+      beschriftungen.length ? Math.min(...beschriftungen.map((b) => b.breite)) : 0} px`);
+
   const text = await page.locator('body').innerText();
-  pruef('Die Zahlenseite zeigt die Summe', /100/.test(text), 'Seitenaufrufe');
-  pruef('Sie zeigt die abgeschickten Anfragen', /Anfragen abgeschickt/.test(text) && /\b3\b/.test(text));
-  pruef('Sie zeigt den stärksten Wochentag',
-    /Samstag/.test(text) && /90,0|90\.0/.test(text.replace(/\s+/g, ' ')),
-    (text.match(/Samstag[^\n]*/) || [''])[0].trim());
-  pruef('Sie zeigt die Verweildauer in Minuten', /3:05 min/.test(text),
-    (text.match(/konfigurator[^\n]*/i) || [''])[0].trim());
-  pruef('Sie zeigt den Trichter', /1\. anlage/.test(text) && /40 %/.test(text),
-    (text.match(/2\. dach[^\n]*/) || [''])[0].trim());
-  pruef('Der Abschalter steht auf der Seite',
-    await page.locator('#abschalter').isVisible());
+  const hatName = (n) => beschriftungen.some((b) => b.text.indexOf(n) > -1 && b.breite >= 60);
+  pruef('Die Namen stehen wirklich da, nicht nur die Balken',
+    hatName('Samstag') && hatName('google.de') && hatName('Handy')
+    && hatName('Anfrage abgeschickt') && hatName('/konfigurator.html'),
+    beschriftungen.slice(0, 3).map((b) => `"${b.text}" (${b.breite}px)`).join(', '));
+
+  /* 4b. Kennzahlen mit Vergleich zum Zeitraum davor */
+  const kacheln = await page.$$eval('.kz', (n) => n.map((k) => k.innerText.replace(/\n/g, ' | ')));
+  pruef('Fünf Kennzahlen oben', kacheln.length === 5, kacheln.length + ' Kacheln');
+  pruef('Die Summe stimmt', /\b100\b/.test(kacheln[0] || ''), kacheln[0] || '');
+  pruef('Der Vergleich zum Zeitraum davor steht dabei',
+    /\+100 % gegenüber davor/.test(kacheln[0] || ''), kacheln[0] || '');
+  /* Ohne das i schlaegt das hier fehl, obwohl alles stimmt: innerText
+     liefert die GERENDERTE Schreibweise, und die Kachelueberschrift steht
+     per text-transform in Grossbuchstaben. */
+  pruef('Anfragen werden eigens ausgewiesen',
+    /anfragen abgeschickt/i.test(kacheln[3] || '') && /\+50 % gegenüber davor/.test(kacheln[3] || ''),
+    kacheln[3] || '');
+
+  /* 4c. Diagramm, Vollständigkeit der Listen */
+  /* .saeule.tag, nicht .saeule: Die Stunden zeichnen inzwischen eigene
+     Saeulen, und die wuerden hier mitgezaehlt. */
+  const saeulen = await page.$$eval('.saeule.tag', (n) => n.length);
+  pruef('Das Diagramm zeichnet je Tag eine Säule', saeulen === 2, saeulen + ' Säulen');
+  /* Die Uhrzeit ist seit dem Umbau ein Diagramm und keine Liste aus 24
+     Zeilen mehr - 24 Nullen untereinander haben die Seite auseinander
+     gezogen. Geprueft wird jetzt, dass alle 24 Saeulen da sind und die
+     staerkste Stunde im Klartext darunter steht. */
+  const stunden = await page.$$eval('.saeule.stunde', (n) => n.length);
+  pruef('Alle 24 Stunden im Diagramm', stunden === 24, stunden + ' Säulen');
+  pruef('Die stärkste Stunde steht im Klartext',
+    /Stärkste Stunde: 20:00 Uhr mit 55 Aufrufen/.test(text),
+    (text.match(/Stärkste Stunde[^\n]*/) || [''])[0]);
+  const handlungen = beschriftungen.filter((b) =>
+    /angeklickt|abgeschickt|geöffnet|geteilt|erzeugt|angefragt/.test(b.text)).length;
+  pruef('Auch Handlungen mit null werden gezeigt', handlungen === 9, handlungen + ' Handlungen');
+  pruef('Der Trichter nennt den Ausstieg',
+    /60 % steigen hier aus/.test(text), (text.match(/2\. dach[^\n]*/) || [''])[0].trim());
+  pruef('Die Verweildauer steht bei der Seite', /3:05 Min\./.test(text));
+  pruef('Der Abschalter steht auf der Seite', await page.locator('#abschalter').isVisible());
   pruef('Zahlenseite ohne Fehler', fehlerSeite.length === 0, fehlerSeite.join(' | ').slice(0, 100));
+  if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/werkstatt-zahlen.png', fullPage: true });
+  await page.close();
+}
+
+/* ---------- 5. Dieselbe Seite ohne jede Zahl ----------
+   So sah sie am ersten Tag aus, und so darf sie nicht kaputtgehen. */
+{
+  const page = await ctx.newPage();
+  page.setDefaultTimeout(8000);
+  const fehlerSeite = [];
+  page.on('pageerror', (e) => fehlerSeite.push(e.message));
+  await page.route('**/werkstatt/api/zahlen*', (r) => r.fulfill({
+    status: 200, contentType: 'application/json',
+    body: JSON.stringify({ von: '2026-11-03', tage: 30, tageReihe: [], seiten: [],
+      quellen: [], geraete: [], handlungen: [], trichter: [], stunden: [],
+      vorher: { aufrufe: 0, dauer: 0, handlungen: [] } })
+  }));
+  await page.goto(`${BASIS}/werkstatt/zahlen.html`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(800);
+  const leerText = await page.locator('body').innerText();
+  pruef('Ohne Daten erklärt die Seite, warum',
+    /Noch nichts zu sehen/.test(leerText) && /3\. November 2026/.test(leerText));
+  pruef('Ohne Daten sagt der Trichter, woran es liegt',
+    /öffentliche Konfigurator ist gesperrt/.test(leerText));
+  pruef('Ohne Daten keine Fehler', fehlerSeite.length === 0,
+    fehlerSeite.join(' | ').slice(0, 100));
   await page.close();
 }
 
@@ -243,6 +326,8 @@ if (!GEGENPROBE) {
 }
 
 const sollenScheitern = [
+  'Jede Zeile trägt eine sichtbare Beschriftung',
+  'Die Namen stehen wirklich da, nicht nur die Balken',
   'Auch geladen würde in der Werkstatt nicht gemessen',
   'Mit Abschalter wird nichts gesendet',
   'Die Verweildauer ist gemessen, nicht geraten'

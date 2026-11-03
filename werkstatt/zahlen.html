@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>Zahlen – Werkstatt</title>
+<title>Besucher – Werkstatt</title>
 <!-- ============================================================
      Die eigene Auswertung. Liegt unter /werkstatt/, also hinter dem
      Passwort (worker/index.js, werkstattTor) - und holt ihre Zahlen von
@@ -12,276 +12,470 @@
      Anmelde-Keks hat Path=/werkstatt und wuerde an /api/... nicht
      mitgeschickt.
 
-     Keine fremden Schriften, keine Bibliothek, keine Diagramm-Software:
-     Balken sind hier Rechtecke mit Prozentbreite. Das laedt sofort, geht
-     auch ohne Netz zu Dritten und faellt nicht aus, wenn irgendwo eine
+     ZWEITE FASSUNG, 03.11.2026. „das sagt mir alles genau garnichts,
+     baue ein vernünftiges dashboard wie bei anderen beliebten anbietern
+     für analysen und daten von webseiten" (Betreiber, mit Bild).
+
+     Im Bild war mehr als schwache Gestaltung zu sehen: Die
+     BESCHRIFTUNGEN FEHLTEN GANZ. Die Namensspalte hatte max-width:0 -
+     ein Trick, der nur mit table-layout:fixed und gesetzter Spaltenbreite
+     funktioniert. Ohne das quetscht der Browser die Spalte auf null, und
+     uebrig bleiben nackte Balken mit Zahlen. Genau so sah es aus.
+
+     Daraus zwei Festlegungen:
+       1. KEINE Tabellen mehr fuer Balken. Eine Zeile ist jetzt ein
+          Flex-Element, und der Balken liegt als getoente Flaeche
+          DAHINTER (position:absolute). Eine Beschriftung kann damit gar
+          nicht mehr weggedrueckt werden - sie bestimmt die Breite mit.
+       2. Die Browserpruefung misst die GERENDERTE Breite der
+          Beschriftung, nicht ihren Text. Der alte Test hat „Samstag"
+          im innerText gefunden, obwohl auf dem Bildschirm nichts stand.
+
+     Keine fremden Schriften, keine Bibliothek, kein Diagrammpaket: Das
+     Saeulendiagramm ist handgeschriebenes SVG. Das laedt sofort, geht
+     ohne Netz zu Dritten und faellt nicht aus, wenn irgendwo eine
      Version wechselt.
      ============================================================ -->
 <style>
-  :root{--gold:#C49A2A;--gold-dark:#9A7318;--ink:#1f2a33;--muted:#6b7a84;
-        --rand:#dfe4e8;--grund:#f3f5f7;--weiss:#fff}
+  :root{
+    --gold:#C49A2A; --gold-dark:#9A7318; --gold-hell:#F0E3C2; --gold-spur:rgba(196,154,42,.16);
+    --tinte:#1f2a33; --leise:#6b7a84; --rand:#e3e8ec; --grund:#f3f5f7; --weiss:#fff;
+    --gruen:#2f7d4f; --rot:#b3352b;
+  }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--grund);color:var(--ink);padding:0 0 60px;
-       font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-  .leiste{position:sticky;top:0;z-index:9;background:#1f2a33;color:#fff;
-          padding:6px 10px;display:flex;gap:9px;align-items:center;
-          justify-content:center;white-space:nowrap;font:600 12.5px/1.2 inherit}
-  .marke{background:#c8863a;border-radius:4px;padding:1px 7px}
-  .leiste a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4)}
-  .huelle{max-width:1000px;margin:0 auto;padding:18px 16px}
-  h1{font-size:1.5rem;line-height:1.2;margin-bottom:4px}
-  .unter{color:var(--muted);font-size:.86rem;margin-bottom:16px}
-  .zeitwahl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-  .zeitwahl button{padding:8px 15px;border-radius:9px;border:2px solid var(--rand);
-                   background:var(--weiss);color:var(--ink);font:700 .9rem inherit;cursor:pointer}
-  .zeitwahl button[aria-pressed="true"]{border-color:var(--gold-dark);background:var(--gold)}
-  .karten{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
-  .karte{background:var(--weiss);border:1px solid var(--rand);border-radius:12px;padding:13px 14px}
-  .karte b{display:block;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
-  .karte span{color:var(--muted);font-size:.78rem}
-  section{background:var(--weiss);border:1px solid var(--rand);border-radius:12px;
-          padding:15px 16px;margin-bottom:14px}
-  h2{font-size:1.02rem;margin-bottom:3px}
-  .hinw{color:var(--muted);font-size:.78rem;margin-bottom:11px}
-  table{width:100%;border-collapse:collapse;font-size:.88rem}
-  td{padding:5px 0;vertical-align:middle}
-  td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:10px}
-  td.t{max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .balken{background:var(--grund);border-radius:4px;height:11px;min-width:40px}
-  .balken i{display:block;height:100%;border-radius:4px;background:var(--gold)}
-  .leer{color:var(--muted);font-size:.86rem;padding:6px 0}
-  .fuss{margin-top:22px;color:var(--muted);font-size:.78rem}
-  .schalter{display:flex;gap:10px;align-items:flex-start;background:#fffaf0;
-            border:1px solid #e8d9b0;border-radius:12px;padding:13px 14px;margin-bottom:14px}
-  .schalter input{width:20px;height:20px;margin-top:2px;flex:none}
+  body{background:var(--grund);color:var(--tinte);padding-bottom:70px;
+       font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+       -webkit-font-smoothing:antialiased}
+  .wkleiste{position:sticky;top:0;z-index:20;background:#1f2a33;color:#fff;
+            padding:6px 12px;display:flex;gap:10px;align-items:center;
+            justify-content:center;white-space:nowrap;font:600 12.5px/1.2 inherit}
+  .wkmarke{background:#c8863a;border-radius:4px;padding:1px 7px}
+  .wkleiste a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.45)}
+  .huelle{max-width:1060px;margin:0 auto;padding:20px 16px}
+
+  /* ---------- Kopf ---------- */
+  .kopf{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;
+        justify-content:space-between;margin-bottom:16px}
+  h1{font-size:1.55rem;line-height:1.15;letter-spacing:-.01em}
+  .zeitraum{color:var(--leise);font-size:.85rem;margin-top:2px}
+  .wahl{display:flex;gap:6px;background:var(--weiss);border:1px solid var(--rand);
+        border-radius:11px;padding:4px}
+  .wahl button{padding:7px 13px;border:0;border-radius:8px;background:none;color:var(--tinte);
+               font:700 .86rem inherit;cursor:pointer;white-space:nowrap}
+  .wahl button:hover{background:var(--grund)}
+  .wahl button[aria-pressed="true"]{background:var(--gold);color:#1a1a1a}
+
+  /* ---------- Kennzahlen ---------- */
+  .kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+              gap:12px;margin-bottom:14px}
+  .kz{background:var(--weiss);border:1px solid var(--rand);border-radius:14px;padding:14px 16px}
+  .kz .titel{color:var(--leise);font-size:.76rem;font-weight:600;letter-spacing:.02em;
+             text-transform:uppercase}
+  .kz .zahl{font-size:2rem;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums;
+            margin-top:3px}
+  .kz .trend{font-size:.78rem;font-weight:600;margin-top:2px;color:var(--leise)}
+  .kz .trend.hoch{color:var(--gruen)}
+  .kz .trend.runter{color:var(--rot)}
+
+  /* ---------- Karten ---------- */
+  .karte{background:var(--weiss);border:1px solid var(--rand);border-radius:14px;
+         padding:16px 18px;margin-bottom:14px}
+  .karte h2{font-size:1rem;letter-spacing:-.01em}
+  .karte .unter{color:var(--leise);font-size:.79rem;margin-top:2px}
+  .zwei{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  .zwei > .karte{margin:0}
+  @media (max-width:760px){ .zwei{grid-template-columns:1fr} .zwei > .karte{margin-bottom:0} }
+
+  /* ---------- Zeilen mit Balken DAHINTER ----------
+     Der Balken ist eine getoente Flaeche hinter dem Text, keine eigene
+     Spalte. Damit kann die Beschriftung nie weggedrueckt werden. */
+  .liste{margin-top:11px;display:flex;flex-direction:column;gap:2px}
+  .reihe{position:relative;display:flex;align-items:center;gap:12px;
+         padding:8px 10px;border-radius:7px;font-size:.9rem}
+  .reihe .fuell{position:absolute;left:0;top:0;bottom:0;border-radius:7px;
+                background:var(--gold-spur)}
+  .reihe .nam{position:relative;flex:1 1 auto;min-width:0;overflow:hidden;
+              text-overflow:ellipsis;white-space:nowrap}
+  .reihe .nam small{color:var(--leise);font-weight:400}
+  .reihe .wert{position:relative;flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:700}
+  .reihe .neben{position:relative;flex:0 0 auto;color:var(--leise);font-size:.8rem;
+                font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+  .leer{color:var(--leise);font-size:.86rem;padding:14px 2px;line-height:1.5}
+
+  /* ---------- Diagramm ---------- */
+  .diagramm{position:relative;margin-top:14px}
+  .diagramm svg{display:block;width:100%;height:190px;overflow:visible}
+  .saeule{fill:var(--gold-hell)}
+  .diagramm svg.stunden{height:150px}
+  .saeule.stark{fill:var(--gold)}
+  .gitter{stroke:var(--rand);stroke-width:1}
+  .achse{fill:var(--leise);font-size:11px;font-family:inherit}
+  .wolke{position:absolute;pointer-events:none;background:#1f2a33;color:#fff;
+         border-radius:8px;padding:6px 10px;font-size:.78rem;white-space:nowrap;
+         transform:translate(-50%,-115%);opacity:0;transition:opacity .12s}
+  .wolke b{font-size:.92rem}
+
+  /* ---------- Sonstiges ---------- */
+  .schalter{display:flex;gap:11px;align-items:flex-start;background:#fffaf0;
+            border:1px solid #e8d9b0;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+  .schalter input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--gold-dark)}
   .schalter label{font-size:.88rem}
   .schalter strong{display:block}
-  .warn{background:#FDECEA;border:1px solid #B3352B;color:#B3352B;
-        border-radius:12px;padding:13px 14px;margin-bottom:14px;font-size:.88rem}
+  .warn{background:#FDECEA;border:1px solid var(--rot);color:var(--rot);
+        border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.88rem}
+  .fuss{margin-top:20px;color:var(--leise);font-size:.78rem;line-height:1.55}
+  .laedt{color:var(--leise);font-size:.88rem;padding:30px 0;text-align:center}
 </style>
 </head>
 <body>
-<div class="leiste"><span class="marke">WERKSTATT</span>
-  <span>Zahlen</span><a href="/werkstatt/">&rarr; Konfigurator</a></div>
+<div class="wkleiste"><span class="wkmarke">WERKSTATT</span>
+  <span>Besucher</span><a href="/werkstatt/">&rarr; Konfigurator</a></div>
 
 <div class="huelle">
-  <h1>Was auf der Website passiert</h1>
-  <p class="unter">Eigene Messung, ohne fremden Dienst und ohne Cookies.
-    Gezählt werden <b>Aufrufe und Handlungen</b> – keine Personen: Es gibt
-    bewusst kein Kennzeichen, das denselben Besucher wiedererkennt
-    (Begründung in <code>worker/index.js</code>).</p>
-
-  <div class="zeitwahl" id="zeitwahl">
-    <button type="button" data-tage="7">7 Tage</button>
-    <button type="button" data-tage="30" aria-pressed="true">30 Tage</button>
-    <button type="button" data-tage="90">90 Tage</button>
-    <button type="button" data-tage="365">1 Jahr</button>
+  <div class="kopf">
+    <div>
+      <h1>Besucher</h1>
+      <p class="zeitraum" id="zeitraum">wird geladen …</p>
+    </div>
+    <div class="wahl" id="wahl">
+      <button type="button" data-tage="7">7 Tage</button>
+      <button type="button" data-tage="30" aria-pressed="true">30 Tage</button>
+      <button type="button" data-tage="90">90 Tage</button>
+      <button type="button" data-tage="365">1 Jahr</button>
+    </div>
   </div>
 
   <div id="meldung"></div>
+  <div id="inhalt"><p class="laedt">Zahlen werden geholt …</p></div>
 
   <div class="schalter">
     <input type="checkbox" id="abschalter">
     <label for="abschalter"><strong>Meine eigenen Besuche nicht mitzählen</strong>
-      Gilt für dieses Gerät und diesen Browser. Die Werkstatt selbst wird
-      ohnehin nie gezählt – dieser Schalter betrifft deine Besuche auf der
-      <em>öffentlichen</em> Website.</label>
+      Gilt für dieses Gerät und diesen Browser. Die Werkstatt wird ohnehin nie
+      gezählt – dieser Schalter betrifft deine Besuche auf der <em>öffentlichen</em>
+      Website.</label>
   </div>
-
-  <div class="karten" id="karten"></div>
-
-  <section>
-    <h2>Seitenaufrufe je Tag</h2>
-    <p class="hinw" id="tageHinw">&nbsp;</p>
-    <table id="tabTage"></table>
-  </section>
-
-  <section>
-    <h2>Wochentage im Schnitt</h2>
-    <p class="hinw">Beantwortet „an welchen Tagen kommen die meisten Besucher".</p>
-    <table id="tabWoche"></table>
-  </section>
-
-  <section>
-    <h2>Beliebteste Seiten und Verweildauer</h2>
-    <p class="hinw">Die Dauer ist der Schnitt der sichtbaren Zeit auf der Seite.</p>
-    <table id="tabSeiten"></table>
-  </section>
-
-  <section>
-    <h2>Handlungen</h2>
-    <p class="hinw">Telefon, WhatsApp, E-Mail, Anfrage geöffnet und wirklich abgeschickt.</p>
-    <table id="tabHandlungen"></table>
-  </section>
-
-  <section>
-    <h2>Weg durch den 3D-Konfigurator</h2>
-    <p class="hinw" id="trichterHinw">Wie viele erreichen welchen Bereich – dort,
-      wo die Zahl abfällt, hören die Leute auf.</p>
-    <table id="tabTrichter"></table>
-  </section>
-
-  <section>
-    <h2>Woher die Besucher kommen</h2>
-    <table id="tabQuellen"></table>
-  </section>
-
-  <section>
-    <h2>Uhrzeit und Gerät</h2>
-    <table id="tabStunden"></table>
-    <table id="tabGeraete" style="margin-top:12px"></table>
-  </section>
 
   <p class="fuss">Gespeichert werden Tag, Stunde, Pfad, Verweildauer, Art der
     Handlung, Herkunftsseite und ob Handy oder Rechner – keine IP-Adresse, kein
-    User-Agent, kein Kennzeichen pro Besucher. Die Datenbank liegt in der EU.
-    Älteres als 400 Tage wird beim Aufruf dieser Seite gelöscht.</p>
+    User-Agent, kein Kennzeichen pro Besucher. Deshalb zählt diese Seite Aufrufe
+    und Handlungen, nicht Personen. Die Datenbank liegt in der EU; älteres als
+    400 Tage wird beim Aufruf dieser Seite gelöscht.</p>
 </div>
 
 <script>
 (function () {
   'use strict';
-  var TAGE = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+
+  var WOCHE = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  var HANDLUNG = {
+    'anfrage-gesendet': 'Anfrage abgeschickt',
+    'anfrage-geoeffnet': 'Anfrage-Assistent geöffnet',
+    'telefon': 'Telefonnummer angeklickt',
+    'whatsapp': 'WhatsApp angeklickt',
+    'mail': 'E-Mail angeklickt',
+    'konfig-start': '3D-Konfigurator geöffnet',
+    'konfig-anfrage': 'Aus dem Konfigurator angefragt',
+    'konfig-teilen': 'Planung geteilt',
+    'konfig-pdf': 'PDF erzeugt'
+  };
   var tage = 30;
 
   function el(id) { return document.getElementById(id); }
-  function zahl(n) { return (n == null ? 0 : n).toLocaleString('de-DE'); }
-  function dauerText(s) {
-    if (!s) return '–';
-    return s < 60 ? s + ' s' : Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2) + ' min';
-  }
-  function balkenZeile(name, wert, hoechst, rechts) {
-    var b = hoechst > 0 ? Math.max(2, Math.round(wert / hoechst * 100)) : 0;
-    return '<tr><td class="t">' + name + '</td>'
-      + '<td style="width:42%"><div class="balken"><i style="width:' + b + '%"></i></div></td>'
-      + '<td class="n">' + (rechts != null ? rechts : zahl(wert)) + '</td></tr>';
-  }
-  function fuellen(ziel, zeilen, leerText) {
-    el(ziel).innerHTML = zeilen.length ? zeilen.join('')
-      : '<tr><td class="leer">' + leerText + '</td></tr>';
-  }
+  function zahl(n) { return Number(n || 0).toLocaleString('de-DE'); }
   function sicher(t) {
     return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
   }
+  function dauerText(s) {
+    s = Math.round(s || 0);
+    if (!s) return '–';
+    if (s < 60) return s + ' Sek.';
+    return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2) + ' Min.';
+  }
+  function datumKurz(iso) {
+    var t = String(iso).split('-');
+    return t.length === 3 ? t[2] + '.' + t[1] + '.' : iso;
+  }
+  function wochentag(iso) {
+    var js = new Date(iso + 'T12:00:00').getDay();
+    return js === 0 ? 6 : js - 1;
+  }
+
+  /* Eine Zeile: Name, Balken DAHINTER, Wert und optionaler Zusatz rechts. */
+  function reihe(name, anteil, wert, neben) {
+    return '<div class="reihe">'
+      + '<span class="fuell" style="width:' + Math.max(0, Math.min(100, anteil)) + '%"></span>'
+      + '<span class="nam">' + name + '</span>'
+      + (neben != null ? '<span class="neben">' + neben + '</span>' : '')
+      + '<span class="wert">' + wert + '</span></div>';
+  }
+  function liste(zeilen, leerText) {
+    return '<div class="liste">' + (zeilen.length ? zeilen.join('')
+      : '<p class="leer">' + leerText + '</p>') + '</div>';
+  }
+  function hoechstwert(arr, feld) {
+    return arr.reduce(function (m, x) { return Math.max(m, Number(x[feld]) || 0); }, 0);
+  }
+
+  function trend(jetzt, vorher, umgekehrt) {
+    if (!vorher) return '<div class="trend">kein Vergleich davor</div>';
+    var p = Math.round((jetzt - vorher) / vorher * 100);
+    var klasse = p === 0 ? '' : ((p > 0) === !umgekehrt ? 'hoch' : 'runter');
+    return '<div class="trend ' + klasse + '">' + (p > 0 ? '+' : '') + p
+      + ' % gegenüber davor</div>';
+  }
+  function kachel(titel, wert, trendHtml) {
+    return '<div class="kz"><div class="titel">' + titel + '</div>'
+      + '<div class="zahl">' + wert + '</div>' + (trendHtml || '') + '</div>';
+  }
+
+  /* ---------- Säulendiagramm der Tage ----------
+     Bewusst Säulen und keine Linie: Bei einem einzigen gemessenen Tag
+     ist eine Linie nichts als ein Punkt, und genau so fängt es an. */
+  function diagramm(reihen) {
+    if (!reihen.length) return '<p class="leer">Noch kein Tag gemessen.</p>';
+    var B = 1000, H = 190, oben = 14, unten = 24, links = 34;
+    var hoechst = hoechstwert(reihen, 'aufrufe') || 1;
+    var breite = (B - links) / reihen.length;
+    var saeuleB = Math.max(2, Math.min(42, breite * 0.68));
+    var teile = [];
+
+    [0, 0.5, 1].forEach(function (f) {
+      var y = oben + (H - oben - unten) * (1 - f);
+      teile.push('<line class="gitter" x1="' + links + '" y1="' + y + '" x2="' + B + '" y2="' + y + '"/>');
+      teile.push('<text class="achse" x="0" y="' + (y + 4) + '">'
+        + Math.round(hoechst * f) + '</text>');
+    });
+
+    reihen.forEach(function (r, i) {
+      var h = (H - oben - unten) * (r.aufrufe / hoechst);
+      var x = links + breite * i + (breite - saeuleB) / 2;
+      var y = H - unten - h;
+      var stark = r.aufrufe === hoechst ? ' stark' : '';
+      teile.push('<rect class="saeule tag' + stark + '" x="' + x + '" y="' + y
+        + '" width="' + saeuleB + '" height="' + Math.max(h, r.aufrufe ? 2 : 0)
+        + '" rx="3" data-nr="' + i + '"><title>' + datumKurz(r.tag) + ': '
+        + r.aufrufe + ' Aufrufe</title></rect>');
+    });
+
+    var schritt = Math.max(1, Math.ceil(reihen.length / 7));
+    reihen.forEach(function (r, i) {
+      if (i % schritt && i !== reihen.length - 1) return;
+      teile.push('<text class="achse" text-anchor="middle" x="'
+        + (links + breite * i + breite / 2) + '" y="' + (H - 6) + '">'
+        + datumKurz(r.tag) + '</text>');
+    });
+
+    return '<div class="diagramm"><svg viewBox="0 0 ' + B + ' ' + H
+      + '" preserveAspectRatio="none" role="img" aria-label="Seitenaufrufe je Tag">'
+      + teile.join('') + '</svg></div>';
+  }
+
+  /* ---------- Die Uhrzeit als Diagramm, nicht als 24 Zeilen ----------
+     Erste Fassung hatte je Stunde eine Zeile. Auf dem Bildschirm war das
+     eine Spalte aus 24 Nullen, die die Nachbarkarte um das Dreifache
+     ueberragte - die halbe Seite bestand aus Leere. Als Diagramm passt
+     derselbe Tagesverlauf in die Hoehe einer Karte, und die Spitze sieht
+     man auf einen Blick. */
+  function stundenDiagramm(roh) {
+    var hoechst = 0, u;
+    for (u = 0; u < 24; u++) hoechst = Math.max(hoechst, roh[u] || 0);
+    if (!hoechst) return '<p class="leer">Noch nichts gemessen.</p>';
+    var B = 480, H = 150, oben = 10, unten = 20;
+    var breite = B / 24, teile = [], spitze = 0;
+    for (u = 0; u < 24; u++) {
+      var a = roh[u] || 0;
+      if (a > (roh[spitze] || 0)) spitze = u;
+      var hh = (H - oben - unten) * (a / hoechst);
+      teile.push('<rect class="saeule stunde' + (a === hoechst ? ' stark' : '')
+        + '" x="' + (breite * u + breite * 0.17) + '" y="' + (H - unten - hh)
+        + '" width="' + (breite * 0.66) + '" height="' + Math.max(hh, a ? 2 : 1)
+        + '" rx="2"><title>' + ('0' + u).slice(-2) + ':00 Uhr: ' + a
+        + ' Aufrufe</title></rect>');
+      if (u % 3 === 0) {
+        teile.push('<text class="achse" text-anchor="middle" x="'
+          + (breite * u + breite / 2) + '" y="' + (H - 5) + '">'
+          + ('0' + u).slice(-2) + '</text>');
+      }
+    }
+    return '<div class="diagramm"><svg viewBox="0 0 ' + B + ' ' + H
+      + '" preserveAspectRatio="none" role="img" aria-label="Aufrufe je Stunde">'
+      + teile.join('') + '</svg></div>'
+      + '<p class="unter" style="margin-top:9px">Stärkste Stunde: <b>'
+      + ('0' + spitze).slice(-2) + ':00 Uhr</b> mit ' + zahl(roh[spitze] || 0)
+      + ' Aufrufen.</p>';
+  }
 
   function zeichnen(d) {
-    var reihe = d.tageReihe || [];
-    var summe = reihe.reduce(function (a, r) { return a + r.aufrufe; }, 0);
-    var handlung = {};
-    (d.handlungen || []).forEach(function (h) { handlung[h.art] = h.anzahl; });
-    var dauern = (d.seiten || []).filter(function (s) { return s.dauer; });
-    var schnittDauer = dauern.length
-      ? Math.round(dauern.reduce(function (a, s) { return a + s.dauer * s.aufrufe; }, 0)
-                   / dauern.reduce(function (a, s) { return a + s.aufrufe; }, 0)) : 0;
+    var reihen = d.tageReihe || [];
+    var summe = reihen.reduce(function (a, r) { return a + r.aufrufe; }, 0);
+    var vorher = d.vorher || { aufrufe: 0, dauer: 0, handlungen: [] };
 
-    el('karten').innerHTML =
-      '<div class="karte"><b>' + zahl(summe) + '</b><span>Seitenaufrufe</span></div>'
-      + '<div class="karte"><b>' + (reihe.length ? zahl(Math.round(summe / tage)) : '0')
-      + '</b><span>im Schnitt am Tag</span></div>'
-      + '<div class="karte"><b>' + dauerText(schnittDauer) + '</b><span>Verweildauer</span></div>'
-      + '<div class="karte"><b>' + zahl(handlung['anfrage-gesendet'] || 0)
-      + '</b><span>Anfragen abgeschickt</span></div>'
-      + '<div class="karte"><b>' + zahl((handlung.telefon || 0) + (handlung.whatsapp || 0)
-      + (handlung.mail || 0)) + '</b><span>Telefon / WhatsApp / Mail</span></div>';
+    var h = {}, hv = {};
+    (d.handlungen || []).forEach(function (x) { h[x.art] = x.anzahl; });
+    (vorher.handlungen || []).forEach(function (x) { hv[x.art] = x.anzahl; });
+    var kontakt = (h.telefon || 0) + (h.whatsapp || 0) + (h.mail || 0);
+    var kontaktV = (hv.telefon || 0) + (hv.whatsapp || 0) + (hv.mail || 0);
 
-    // Tage
-    var hoechst = reihe.reduce(function (m, r) { return Math.max(m, r.aufrufe); }, 0);
-    el('tageHinw').textContent = reihe.length
-      ? 'Ab ' + d.von + ' · stärkster Tag: ' + hoechst + ' Aufrufe'
-      : 'Noch keine Daten – gemessen wird ab der Veröffentlichung.';
-    fuellen('tabTage', reihe.slice(-60).reverse().map(function (r) {
-      var t = r.tag.split('-');
-      return balkenZeile(t[2] + '.' + t[1] + '. <span style="color:#6b7a84">'
-        + TAGE[(new Date(r.tag + 'T12:00:00')).getDay() === 0 ? 6
-               : (new Date(r.tag + 'T12:00:00')).getDay() - 1].slice(0, 2) + '</span>',
-        r.aufrufe, hoechst);
-    }), 'Noch nichts gemessen.');
+    var seiten = d.seiten || [];
+    var mitDauer = seiten.filter(function (s) { return s.dauer; });
+    var gewicht = mitDauer.reduce(function (a, s) { return a + s.aufrufe; }, 0);
+    var schnittDauer = gewicht
+      ? Math.round(mitDauer.reduce(function (a, s) { return a + s.dauer * s.aufrufe; }, 0) / gewicht)
+      : 0;
 
-    // Wochentage
-    var summeW = [0,0,0,0,0,0,0], anzahlW = [0,0,0,0,0,0,0];
-    reihe.forEach(function (r) {
-      var js = (new Date(r.tag + 'T12:00:00')).getDay();
-      var i = js === 0 ? 6 : js - 1;
-      summeW[i] += r.aufrufe; anzahlW[i]++;
+    el('zeitraum').textContent = reihen.length
+      ? datumKurz(d.von) + ' bis heute · ' + tage + ' Tage'
+      : 'Noch keine Messwerte';
+
+    var teile = [];
+
+    /* Kennzahlen */
+    teile.push('<div class="kennzahlen">'
+      + kachel('Seitenaufrufe', zahl(summe), trend(summe, vorher.aufrufe))
+      + kachel('Im Schnitt am Tag', zahl(Math.round(summe / tage)), '')
+      + kachel('Verweildauer', dauerText(schnittDauer), trend(schnittDauer, vorher.dauer))
+      + kachel('Anfragen abgeschickt', zahl(h['anfrage-gesendet'] || 0),
+               trend(h['anfrage-gesendet'] || 0, hv['anfrage-gesendet'] || 0))
+      + kachel('Kontakt angeklickt', zahl(kontakt), trend(kontakt, kontaktV))
+      + '</div>');
+
+    if (!summe) {
+      teile.push('<div class="karte"><h2>Noch nichts zu sehen – und das ist richtig</h2>'
+        + '<p class="unter">Die eigene Messung läuft seit dem 3. November 2026. '
+        + 'In diesem Zeitraum ist noch kein Seitenaufruf aufgezeichnet worden. '
+        + 'Die Zahlen wachsen ab jetzt von selbst; morgen steht hier der erste Tag.</p></div>');
+    }
+
+    /* Verlauf */
+    teile.push('<div class="karte"><h2>Seitenaufrufe je Tag</h2>'
+      + '<p class="unter">Die stärkste Säule ist der beste Tag im Zeitraum.</p>'
+      + diagramm(reihen) + '</div>');
+
+    /* Seiten und Quellen */
+    var hS = hoechstwert(seiten, 'aufrufe');
+    var seitenZeilen = seiten.slice(0, 12).map(function (s) {
+      return reihe(sicher(s.seite === '/' ? '/ (Startseite)' : s.seite),
+        hS ? s.aufrufe / hS * 100 : 0, zahl(s.aufrufe), dauerText(s.dauer));
     });
-    var schnitt = summeW.map(function (s, i) { return anzahlW[i] ? s / anzahlW[i] : 0; });
-    var hoechstW = Math.max.apply(null, schnitt);
-    fuellen('tabWoche', schnitt.map(function (s, i) {
-      return balkenZeile(TAGE[i], s, hoechstW, s ? s.toFixed(1) : '–');
-    }), 'Noch nichts gemessen.');
+    var quellen = d.quellen || [];
+    var hQ = hoechstwert(quellen, 'aufrufe');
+    var quellenZeilen = quellen.map(function (q) {
+      var name = q.quelle === 'direkt'
+        ? 'Direkt eingegeben oder Lesezeichen' : sicher(q.quelle);
+      return reihe(name, hQ ? q.aufrufe / hQ * 100 : 0, zahl(q.aufrufe),
+        summe ? Math.round(q.aufrufe / summe * 100) + ' %' : null);
+    });
+    teile.push('<div class="zwei">'
+      + '<div class="karte"><h2>Meistbesuchte Seiten</h2>'
+      + '<p class="unter">Rechts die durchschnittliche Verweildauer.</p>'
+      + liste(seitenZeilen, 'Noch keine Seite aufgerufen.') + '</div>'
+      + '<div class="karte"><h2>Woher die Besucher kommen</h2>'
+      + '<p class="unter">Die Seite davor – nur deren Name, nie die ganze Adresse.</p>'
+      + liste(quellenZeilen, 'Noch keine Herkunft erfasst.') + '</div></div>');
 
-    // Seiten
-    var hoechstS = (d.seiten || []).reduce(function (m, s) { return Math.max(m, s.aufrufe); }, 0);
-    fuellen('tabSeiten', (d.seiten || []).map(function (s) {
-      return balkenZeile(sicher(s.seite), s.aufrufe, hoechstS,
-        zahl(s.aufrufe) + ' · ' + dauerText(s.dauer));
-    }), 'Noch nichts gemessen.');
+    /* Wochentage und Uhrzeit */
+    var sumW = [0,0,0,0,0,0,0], anzW = [0,0,0,0,0,0,0];
+    reihen.forEach(function (r) {
+      var i = wochentag(r.tag); sumW[i] += r.aufrufe; anzW[i]++;
+    });
+    var schnittW = sumW.map(function (s, i) { return anzW[i] ? s / anzW[i] : 0; });
+    var hW = Math.max.apply(null, schnittW) || 0;
+    var wochenZeilen = WOCHE.map(function (name, i) {
+      return reihe(name, hW ? schnittW[i] / hW * 100 : 0,
+        anzW[i] ? schnittW[i].toFixed(1) : '–',
+        anzW[i] ? zahl(sumW[i]) + ' ges.' : null);
+    });
 
-    // Handlungen
-    var NAMEN = { telefon: 'Telefonnummer angeklickt', whatsapp: 'WhatsApp angeklickt',
-      mail: 'E-Mail angeklickt', 'anfrage-geoeffnet': 'Anfrage-Assistent geöffnet',
-      'anfrage-gesendet': 'Anfrage abgeschickt', 'konfig-start': '3D-Konfigurator geöffnet',
-      'konfig-anfrage': 'Aus dem Konfigurator angefragt', 'konfig-pdf': 'PDF erzeugt',
-      'konfig-teilen': 'Planung geteilt', verweilen: 'Rückkehr auf die Seite' };
-    var hoechstH = (d.handlungen || []).reduce(function (m, h) { return Math.max(m, h.anzahl); }, 0);
-    fuellen('tabHandlungen', (d.handlungen || []).map(function (h) {
-      return balkenZeile(NAMEN[h.art] || sicher(h.art), h.anzahl, hoechstH);
-    }), 'Noch keine Handlung gemessen.');
+    var stundenRoh = {};
+    (d.stunden || []).forEach(function (s) { stundenRoh[s.stunde] = s.aufrufe; });
+    teile.push('<div class="zwei">'
+      + '<div class="karte"><h2>Wochentage im Schnitt</h2>'
+      + '<p class="unter">Aufrufe je Tag dieser Art, rechts die Summe.</p>'
+      + liste(wochenZeilen, 'Noch nichts gemessen.') + '</div>'
+      + '<div class="karte"><h2>Uhrzeit</h2>'
+      + '<p class="unter">Wann die Seite aufgerufen wird (deutsche Zeit).</p>'
+      + stundenDiagramm(stundenRoh) + '</div></div>');
 
-    // Trichter
+    /* Handlungen und Geräte */
+    var handlungZeilen = Object.keys(HANDLUNG).map(function (art) {
+      return { art: art, anzahl: h[art] || 0 };
+    }).sort(function (a, b) { return b.anzahl - a.anzahl; });
+    var hH = hoechstwert(handlungZeilen, 'anzahl');
+    var handlungHtml = handlungZeilen.map(function (x) {
+      return reihe(HANDLUNG[x.art], hH ? x.anzahl / hH * 100 : 0, zahl(x.anzahl),
+        hv[x.art] != null ? 'davor ' + zahl(hv[x.art]) : null);
+    });
+
+    var geraete = d.geraete || [];
+    var gSumme = geraete.reduce(function (a, g) { return a + g.aufrufe; }, 0);
+    var geraeteZeilen = ['handy', 'rechner'].map(function (k) {
+      var g = geraete.filter(function (x) { return x.geraet === k; })[0];
+      var a = g ? g.aufrufe : 0;
+      return reihe(k === 'handy' ? 'Handy' : 'Rechner oder Tablet',
+        gSumme ? a / gSumme * 100 : 0, zahl(a),
+        gSumme ? Math.round(a / gSumme * 100) + ' %' : null);
+    });
+    teile.push('<div class="zwei">'
+      + '<div class="karte"><h2>Was die Besucher tun</h2>'
+      + '<p class="unter">Alle gemessenen Handlungen, auch die mit null – '
+      + 'so siehst du, was überhaupt gezählt wird.</p>'
+      + liste(handlungHtml, '') + '</div>'
+      + '<div class="karte"><h2>Handy oder Rechner</h2>'
+      + '<p class="unter">Aus der Fensterbreite, nicht aus dem Gerätekennzeichen.</p>'
+      + liste(gSumme ? geraeteZeilen : [], 'Noch nichts gemessen.') + '</div></div>');
+
+    /* Trichter */
     var tr = d.trichter || [];
-    var hoechstT = tr.reduce(function (m, t) { return Math.max(m, t.anzahl); }, 0);
-    fuellen('tabTrichter', tr.map(function (t) {
-      var anteil = hoechstT ? Math.round(t.anzahl / hoechstT * 100) : 0;
-      return balkenZeile((t.nr || '?') + '. ' + sicher(t.name || 'Bereich'),
-        t.anzahl, hoechstT, zahl(t.anzahl) + ' · ' + anteil + ' %');
-    }), 'Noch nichts gemessen. Der öffentliche Konfigurator ist gesperrt – '
-      + 'solange kann hier nichts entstehen (in der Werkstatt wird bewusst nicht gezählt).');
+    var start = tr.length ? tr[0].anzahl : 0;
+    var trichterZeilen = tr.map(function (t, i) {
+      var anteil = start ? Math.round(t.anzahl / start * 100) : 0;
+      var verlust = i > 0 && tr[i - 1].anzahl
+        ? Math.round((tr[i - 1].anzahl - t.anzahl) / tr[i - 1].anzahl * 100) : 0;
+      return reihe('<b>' + (t.nr || (i + 1)) + '.</b> ' + sicher(t.name || 'Bereich')
+        + (verlust > 0 ? ' <small>· ' + verlust + ' % steigen hier aus</small>' : ''),
+        anteil, zahl(t.anzahl), anteil + ' %');
+    });
+    teile.push('<div class="karte"><h2>Weg durch den 3D-Konfigurator</h2>'
+      + '<p class="unter">Wie viele erreichen welchen Bereich – wo die Zahl abfällt, '
+      + 'hören die Leute auf.</p>'
+      + liste(trichterZeilen,
+          'Noch nichts gemessen. Der öffentliche Konfigurator ist gesperrt – solange '
+          + 'kann hier nichts entstehen, denn in der Werkstatt wird bewusst nicht '
+          + 'gezählt. Ab der Freischaltung füllt sich dieser Block von selbst.')
+      + '</div>');
 
-    // Quellen
-    var hoechstQ = (d.quellen || []).reduce(function (m, q) { return Math.max(m, q.aufrufe); }, 0);
-    fuellen('tabQuellen', (d.quellen || []).map(function (q) {
-      return balkenZeile(q.quelle === 'direkt' ? 'direkt eingegeben / Lesezeichen'
-        : sicher(q.quelle), q.aufrufe, hoechstQ);
-    }), 'Noch nichts gemessen.');
-
-    // Stunden
-    var st = d.stunden || [];
-    var hoechstU = st.reduce(function (m, s) { return Math.max(m, s.aufrufe); }, 0);
-    fuellen('tabStunden', st.map(function (s) {
-      return balkenZeile(('0' + s.stunde).slice(-2) + ':00', s.aufrufe, hoechstU);
-    }), 'Noch nichts gemessen.');
-    var hoechstG = (d.geraete || []).reduce(function (m, g) { return Math.max(m, g.aufrufe); }, 0);
-    fuellen('tabGeraete', (d.geraete || []).map(function (g) {
-      return balkenZeile(g.geraet === 'handy' ? 'Handy' : 'Rechner', g.aufrufe, hoechstG);
-    }), '');
+    el('inhalt').innerHTML = teile.join('');
   }
 
   function laden() {
     el('meldung').innerHTML = '';
+    el('inhalt').innerHTML = '<p class="laedt">Zahlen werden geholt …</p>';
     fetch('/werkstatt/api/zahlen?tage=' + tage, { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (a) {
         if (!a.ok) {
+          el('inhalt').innerHTML = '';
           el('meldung').innerHTML = '<div class="warn"><b>Keine Zahlen.</b> '
-            + sicher(a.d && a.d.hinweis || 'Unbekannter Fehler') + '</div>';
+            + sicher((a.d && a.d.hinweis) || 'Unbekannter Fehler') + '</div>';
           return;
         }
         zeichnen(a.d);
       })
       .catch(function (e) {
+        el('inhalt').innerHTML = '';
         el('meldung').innerHTML = '<div class="warn"><b>Abfrage fehlgeschlagen.</b> '
           + sicher(e && e.message) + '</div>';
       });
   }
 
-  el('zeitwahl').addEventListener('click', function (ev) {
+  el('wahl').addEventListener('click', function (ev) {
     var b = ev.target.closest('button[data-tage]');
     if (!b) return;
     tage = Number(b.getAttribute('data-tage'));
-    Array.prototype.forEach.call(el('zeitwahl').querySelectorAll('button'), function (x) {
+    Array.prototype.forEach.call(el('wahl').querySelectorAll('button'), function (x) {
       x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
     });
     laden();

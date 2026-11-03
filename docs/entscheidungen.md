@@ -11586,3 +11586,70 @@ offene Startseite und erfundene Adresse unterscheiden. Beim ersten Lauf tat
 sie das nicht: Der Startseite fehlte ein Marker, sie galt als „unklar". Damit
 hätte das Skript eine versehentlich gesperrte Website nicht von einem
 Netzfehler unterscheiden können. Jetzt prüft es `id="kontakt"`.
+
+## 03.11.2026 (spät) — Die Zahlenseite zeigte Balken ohne Beschriftung
+
+**Anlass.** „das sagt mir alles genau garnichts, baue ein vernünftiges dashboard
+wie bei anderen beliebten anbietern für analysen und daten von webseiten"
+(Betreiber, 03.11.2026, mit Bild).
+
+### Im Bild war kein Gestaltungsproblem, sondern ein Fehler
+
+Unter „Handlungen" stand ein Balken und eine `1`. Unter „Woher die Besucher
+kommen" zwei Balken, `2` und `1`. Kein einziger Name. **Die Beschriftungen
+fehlten vollständig.**
+
+Ursache: Die Namensspalte hatte `max-width:0`. Das ist ein bekannter Trick, um
+in einer Tabelle Text mit Auslassungspunkten abzuschneiden – er funktioniert
+aber **nur mit `table-layout:fixed` und gesetzten Spaltenbreiten**. Ohne das
+nimmt der Browser die Vorgabe wörtlich und quetscht die Spalte auf null Pixel.
+Übrig bleiben Balken und Zahlen.
+
+### Warum die Prüfung das nicht gefunden hat
+
+Sie hat `innerText` gelesen und „Samstag" darin gefunden – obwohl auf dem
+Bildschirm nichts stand. **`innerText` kennt die abgeschnittene Breite nicht.**
+Eine Prüfung, die Text sucht, kann über Sichtbarkeit nichts sagen.
+
+Jetzt misst sie die **gerenderte Breite jeder einzelnen Beschriftung**
+(`getBoundingClientRect().width >= 60`) und zusätzlich, dass die erwarteten
+Namen in einer Zeile stehen, die diese Breite auch hat. In der Gegenprobe wird
+genau der Fehler aus dem Bild wieder eingebaut – `max-width:0` per Stilregel –
+und muss erkannt werden.
+
+### Zwei Festlegungen für die Gestaltung
+
+1. **Keine Tabellen mehr für Balkenlisten.** Eine Zeile ist ein Flex-Element,
+   der Balken liegt als getönte Fläche **dahinter**. Damit bestimmt die
+   Beschriftung die Breite mit und kann nicht weggedrückt werden – der Fehler
+   ist nicht nur behoben, er ist baulich ausgeschlossen.
+2. **Jede Zahl bekommt eine Richtung.** Die Kennzahlen oben vergleichen mit dem
+   **gleich langen Zeitraum davor** (neue Abfrage im Worker). „100 Aufrufe"
+   allein sagt nichts; „+100 % gegenüber davor" schon.
+
+### Was sonst neu ist
+
+- Fünf Kennzahlen statt loser Balken: Seitenaufrufe, Schnitt am Tag,
+  Verweildauer, abgeschickte Anfragen, Kontaktklicks.
+- Ein Säulendiagramm der Tage (handgeschriebenes SVG, keine Bibliothek – die
+  Seite lädt sofort und hängt von keiner fremden Version ab).
+- **Die Uhrzeit als Diagramm statt als 24 Zeilen.** In der ersten Fassung war
+  das eine Spalte aus 24 Nullen, dreimal so hoch wie die Nachbarkarte; die
+  halbe Seite bestand aus Leere. Jetzt 24 schmale Säulen plus die stärkste
+  Stunde im Klartext.
+- **Alle Handlungen werden gezeigt, auch die mit null.** Sonst sieht niemand,
+  was überhaupt gezählt wird.
+- Ein eigener Zustand für „noch nichts gemessen", der erklärt, warum – statt
+  leerer Kästen.
+
+### Nachgemessen
+
+30 Prüfungen in `scripts/pruefe-messung.mjs` (vorher 20), Gegenprobe mit vier
+eingebauten Fehlern, alle erkannt. Dazu ein Durchgang mit **leeren** Daten:
+So sah die Seite am ersten Tag aus, und so darf sie nicht kaputtgehen.
+
+Zwei eigene Prüfungen mussten dabei korrigiert werden, und beide Male war die
+Prüfung schuld, nicht der Code: `Math.min(..., 0)` als Rückfall machte die
+Ausgabe „schmalste 0 px" immer wahr, und `innerText` liefert die **gerenderte**
+Schreibweise – die Kachelüberschrift steht per `text-transform` in
+Großbuchstaben, der Vergleich suchte in Kleinbuchstaben.
