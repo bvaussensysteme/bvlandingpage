@@ -917,35 +917,6 @@
       + '<div class="skelett sk-gross"></div></div>';
   }
 
-  /* ---------- Als Tabelle speichern ----------
-     Ein langes Format (Block; Name; Wert; Zusatz) statt vieler Dateien:
-     So laesst sich in Excel mit einem Filter arbeiten, und es gibt nur
-     einen Knopf. Semikolon, weil Excel in deutscher Einstellung sonst
-     alles in eine Spalte legt. */
-  function csvBauen(d) {
-    var zeilen = [['Block', 'Name', 'Wert', 'Zusatz']];
-    (d.tageReihe || []).forEach(function (r) { zeilen.push(['Tag', r.tag, r.aufrufe, '']); });
-    (d.seiten || []).forEach(function (r) {
-      zeilen.push(['Seite', r.seite, r.aufrufe,
-        (r.dauer || 0) + ' s, ' + (r.tiefe || 0) + ' % gelesen, '
-        + (r.einstiege || 0) + ' Einstiege']);
-    });
-    (d.quellen || []).forEach(function (r) { zeilen.push(['Herkunft', r.quelle, r.aufrufe, '']); });
-    (d.regionen || []).forEach(function (r) { zeilen.push(['Bundesland', r.region, r.aufrufe, '']); });
-    (d.laender || []).forEach(function (r) { zeilen.push(['Land', r.land, r.aufrufe, '']); });
-    (d.geraete || []).forEach(function (r) { zeilen.push(['Gerät', r.geraet, r.aufrufe, '']); });
-    (d.handlungen || []).forEach(function (r) { zeilen.push(['Handlung', r.art, r.anzahl, '']); });
-    (d.klicks || []).forEach(function (r) { zeilen.push(['Klick', r.was, r.anzahl, r.seite]); });
-    (d.trichter || []).forEach(function (r) {
-      zeilen.push(['Konfigurator-Schritt', (r.nr || '') + ' ' + (r.name || ''), r.anzahl, '']);
-    });
-    (d.stunden || []).forEach(function (r) { zeilen.push(['Stunde', r.stunde, r.aufrufe, '']); });
-    return zeilen.map(function (z) {
-      return z.map(function (f) { return '"' + String(f == null ? '' : f).replace(/"/g, '""') + '"'; })
-        .join(';');
-    }).join('\r\n');
-  }
-
   function laden() {
     el('meldung').innerHTML = '';
     el('inhalt').innerHTML = skelett();
