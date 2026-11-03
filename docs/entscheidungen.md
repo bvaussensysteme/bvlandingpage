@@ -11511,3 +11511,78 @@ Der **Trichter durch den Konfigurator** ist gebaut, bleibt aber leer, solange
 der öffentliche Konfigurator gesperrt ist: In der Werkstatt wird bewusst nicht
 gezählt, und sonst kommt niemand hin. Das ist kein Fehler, sondern die Folge
 der Sperre – die Zahlen entstehen ab dem Tag der Freischaltung.
+
+## 03.11.2026 — Werkstatt-Zugang: Access davor, Passwort bleibt dahinter
+
+**Anlass.** „kommt man da ohne passwort rein?" und nach dem Befund „ja mach das
+mit cloudflare wenns kostenlos is, dann hat josef und ich eigenes konto etc."
+(Betreiber, 03.11.2026).
+
+### Der Befund, gemessen statt vermutet
+
+Von außen durchprobiert: Alle Wege zur Werkstatt enden an der
+Passwortschranke – mit Parameter, mit Schrägstrich am Ende, mit `./` im Pfad,
+mit doppeltem oder kodiertem Schrägstrich (307 auf den geschützten Pfad), in
+Großbuchstaben (404). Die Zahlen (`/werkstatt/api/zahlen`) geben ohne
+Anmeldung kein JSON heraus, und es gibt **keine** Leseadresse außerhalb der
+Tür. Die Seite ist nirgends öffentlich verlinkt und steht nicht in
+`sitemap.xml`, `robots.txt` oder `llms.txt`.
+
+**Die Schwachstelle liegt woanders:** Das Repository ist öffentlich, die
+Adresse also auffindbar – geschützt wird allein durch das Passwort. Und die
+Bremse nach Fehlversuchen wirkt **pro Anfrage, nicht insgesamt**: Zehn
+gleichzeitige Versuche gingen in 1,7 s durch, nach 13 Fehlversuchen kam keine
+Sperre (HTTP 401, je ca. 1 s). Ein kurzes Passwort wäre also ratbar.
+
+### Entschieden: Access davor, Passwort bleibt
+
+Cloudflare Access (Zero Trust, Free-Tarif, dauerhaft 0 € unter 50 Personen,
+nachgesehen auf der Preisseite) mit **One-time PIN**: Jeder bekommt einen
+Einmalcode an seine eigene Adresse. Damit eigene Konten, ein Protokoll, wer
+wann drin war, und nichts mehr zu raten.
+
+**Das Passwort wird NICHT entfernt**, und das ist die eigentliche Entscheidung:
+
+- **Rückfallebene.** Access hängt am E-Mail-Postfach. Kommt dort kein Code an,
+  wäre die Werkstatt ohne Passwort für niemanden mehr erreichbar – auch nicht
+  für den Betreiber.
+- **Eine falsch gesetzte Access-Regel sieht im Dashboard richtig aus.** Mit dem
+  Passwort dahinter ist ein falscher Pfad ein Ärgernis statt eines offenen Tors.
+
+Preis: zwei Anmeldungen hintereinander, beide halten wochenlang. Nach einer
+Woche verlässlicher Prüfläufe kann die Passwortschranke auf Wunsch fallen.
+
+### Die Falle, die beinahe die Website abgeschaltet hätte
+
+Bei der Recherche gefunden: Cloudflare bietet inzwischen einen Knopf, der
+**einen ganzen Worker** hinter Access legt – ein Klick, und es sieht nach der
+bequemen Lösung aus. Hier wäre es ein Ausfall der ganzen Website: Dieselbe
+Datei `worker/index.js` liefert auch jede öffentliche Seite aus. Richtig ist
+eine Self-hosted-Anwendung auf den **Pfad** `/werkstatt`. Steht als Warnung
+oben in `docs/werkstatt-zugang.md` und wird vom Prüfskript abgefangen – die
+öffentliche Startseite muss darin weiter als „offen" erscheinen.
+
+### Was offen blieb und warum
+
+Die Einrichtung selbst **kann von hier aus nicht gemacht werden**: Dafür
+braucht es das Zero-Trust-Dashboard des Kontos; die hier verfügbaren
+Cloudflare-Werkzeuge reichen nur an D1, KV, R2 und Worker, nicht an Access.
+Deshalb eine Anleitung statt einer Umsetzung.
+
+Zur Reihenfolge Worker/Access: Cloudflare sagt, die Identität werde geprüft,
+**bevor** die Anfrage den Worker-Code erreicht; eine Dokumentationsseite, die
+die Reihenfolge ausdrücklich festhält, habe ich nicht gefunden. Statt das zu
+behaupten, prüft `scripts/pruefe-werkstatt-zugang.sh` nach der Einrichtung
+von außen, welche Tür wirklich zuerst antwortet. Bis dahin gilt: Passwort.
+
+### Woran der Erfolg gemessen wird
+
+`scripts/pruefe-werkstatt-zugang.sh` (9 Prüfungen, `--gegenprobe`): Jeder
+Werkstatt-Pfad muss `Access` oder `Passwort` melden, niemals „INHALT OFFEN";
+die öffentliche Startseite muss offen bleiben; `POST /api/messung` muss weiter
+mit 204 annehmen (läge die Messung hinter Access, würde ab sofort nichts mehr
+gezählt). Die Gegenprobe prüft die **Erkennung selbst** – sie muss Werkstatt,
+offene Startseite und erfundene Adresse unterscheiden. Beim ersten Lauf tat
+sie das nicht: Der Startseite fehlte ein Marker, sie galt als „unklar". Damit
+hätte das Skript eine versehentlich gesperrte Website nicht von einem
+Netzfehler unterscheiden können. Jetzt prüft es `id="kontakt"`.
