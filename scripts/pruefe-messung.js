@@ -65,8 +65,8 @@ if (GEGENPROBE) {
              'var geraet = (navigator.userAgent.indexOf("iPhone") > -1)');
   worker = worker
     .replace("if (s.charAt(0) !== '/') return null;", '')
-    .replace("+ 'wert INTEGER, zusatz TEXT, quelle TEXT, geraet TEXT)'",
-             "+ 'wert INTEGER, zusatz TEXT, quelle TEXT, geraet TEXT, ip TEXT)'")
+    .replace("+ 'zeit INTEGER, land TEXT, region TEXT, tiefe INTEGER)'",
+             "+ 'zeit INTEGER, land TEXT, region TEXT, tiefe INTEGER, ip TEXT)'")
     .replace("if (!roh || roh.length > MESSUNG_MAX_BODY) return new Response(null, { status: 204 });",
              'if (!roh) return new Response(null, { status: 204 });');
   cookie = cookie.replace("'<input type=\"checkbox\" id=\"cbExternal\" />' +",
@@ -109,6 +109,7 @@ if (GEGENPROBE) {
 
 /* ---------- 2. Der Worker: Tabelle und Annahme ---------- */
 (function () {
+  var code = ohneKommentar(messung);
   var tabelle = (worker.match(/CREATE TABLE IF NOT EXISTS ereignis[\s\S]{0,400}?\)'/) || [''])[0];
   pruef('Tabelle hat keine Spalte für IP oder Browser',
     tabelle.length > 50 && !/\bip\b|adresse|agent|fingerprint|besucher_?id|sitzung/i.test(tabelle),
@@ -127,6 +128,22 @@ if (GEGENPROBE) {
     /DELETE FROM ereignis WHERE tag < \?1/.test(worker) && /400 \* 86400000/.test(worker));
   pruef('Ohne Datenbank läuft die Seite weiter',
     /if \(!env\.MESSUNG\) return new Response\(null, \{ status: 204 \}\)/.test(worker));
+  /* Der zweite Ausbau bringt Herkunft, Lesetiefe und Klickbeschriftung.
+     Jede dieser drei Angaben ist eine neue Zusage in der
+     Datenschutzerklaerung - und jede hat ihre eigene Grenze. */
+  pruef('Die Herkunft kommt von Cloudflare, nicht aus der IP-Adresse',
+    /const cf = request\.cf \|\| \{\};/.test(worker) &&
+    /messungText\(cf\.country, 4\)/.test(worker) &&
+    !/cf\.city|cf\.postalCode|cf\.latitude|cf\.longitude/.test(worker),
+    'weder Stadt noch Postleitzahl noch Koordinaten');
+  pruef('Das Bundesland nur innerhalb Deutschlands',
+    /land === 'DE'\) \? messungText\(cf\.region/.test(worker));
+  pruef('Geklickt wird nur an Knöpfen und Verweisen gelesen',
+    /ziel\.closest\('a\[href\], button'\)/.test(code) &&
+    !/input|textarea|\.value/.test(code),
+    'keine Eingabefelder');
+  pruef('Die Lesetiefe merkt nur den tiefsten Punkt',
+    /if \(p > tiefe\) tiefe = Math\.max\(0, Math\.min\(100, p\)\);/.test(code));
   pruef('Datenbank ist gebunden und liegt in der EU',
     /"binding": "MESSUNG"/.test(wrangler) &&
     /"database_id": "[0-9a-f]{8}-[0-9a-f]{4}-/.test(wrangler) && /WEUR|EU/.test(wrangler));
@@ -234,6 +251,11 @@ if (GEGENPROBE) {
   pruef('Sie sagt ausdrücklich, was NICHT erfasst wird',
     /keine IP-Adresse|Ihre IP-Adresse \(auch nicht/.test(datenschutz) &&
     /wiedererkennen/.test(datenschutz));
+  pruef('Die neuen Angaben stehen auch darin',
+    /gescrollt/.test(datenschutz) && /Bundesland/.test(datenschutz) &&
+    /Beschriftung/.test(datenschutz) &&
+    /keine Stadt, keine\s*Postleitzahl|keine Stadt, keine Postleitzahl/.test(datenschutz),
+    'Scrolltiefe, Bundesland, Klickbeschriftung');
   /* Vorbelegte Einwilligung: Der Haken bei „Externe Dienste" war bis zum
      03.11.2026 gesetzt. Nach EuGH (Planet49) ist das keine Einwilligung. */
   pruef('Kein vorbelegter Haken im Cookie-Banner',
@@ -264,10 +286,10 @@ var sollenScheitern = [
   'Messung hat einen Abschalter für eigene Besuche',
   'Messung liest keinen User-Agent',
   'Fremde Adresse wird abgelehnt',
-  'Tabelle hat keine Spalte für IP oder Browser',
   'Rumpf ist begrenzt',
   'Das Bauskript nimmt die Messung dort heraus',
   'Sie nennt die Vorschrift, die Dauer und den Standort',
+  'Tabelle hat keine Spalte für IP oder Browser',
   'Kein vorbelegter Haken im Cookie-Banner',
   'Keine Vorab-Verbindung zu Google'
 ];

@@ -11653,3 +11653,72 @@ Prüfung schuld, nicht der Code: `Math.min(..., 0)` als Rückfall machte die
 Ausgabe „schmalste 0 px" immer wahr, und `innerText` liefert die **gerenderte**
 Schreibweise – die Kachelüberschrift steht per `text-transform` in
 Großbuchstaben, der Vergleich suchte in Kleinbuchstaben.
+
+## 03.11.2026 (Nacht) — Der zweite Ausbau der Zahlenseite
+
+**Anlass.** „schon besser aber ich erwarte das abgefuckt beste analyse dashboard
+mit allen krassesten funtionen des universums" (Betreiber, 03.11.2026).
+
+### Was dazukam – und warum gerade das
+
+| Neu | Wofür |
+|---|---|
+| **Gerade aktiv** (letzte 30 Minuten) | Braucht einen Zeitstempel; dafür die Spalte `zeit`. Ohne sie gäbe es nur Tagesauflösung |
+| **Land und Bundesland** | Für einen Betrieb mit Anfahrt die wichtigste Frage überhaupt |
+| **Lesetiefe** (wie weit gescrollt wurde) | Die Verweildauer täuscht: Jemand kann eine Minute auf der Seite stehen und nie unter das erste Bild gesehen haben |
+| **Worauf geklickt wird** (Beschriftung) | Beantwortet dieselbe Frage wie eine Klickkarte, ohne Abbild der Seite und ohne Mausbewegung |
+| **Wochentag × Stunde** | Sagt, wann sich Erreichbarkeit lohnt |
+| **Einstiegsseiten, Anfragen je Aufruf** | Aus vorhandenen Daten, kostet nichts dazu |
+| **„Was auffällt"** | Der eigentliche Punkt – siehe unten |
+| **CSV-Export** | Damit die Zahlen auch außerhalb dieser Seite brauchbar sind |
+
+### Die wichtigste Zutat ist kein Diagramm, sondern ein Satz
+
+Die ursprüngliche Beschwerde war nicht „zu wenige Zahlen", sondern „das sagt mir
+alles genau garnichts". Deshalb steht ganz oben **„Was auffällt"**: dieselben
+Zahlen, in deutschen Sätzen – „Dein stärkster Tag ist Samstag mit im Schnitt
+90,0 Aufrufen", „Aus je 33 Seitenaufrufen wird eine Anfrage". **Jeder Satz
+nennt die Zahl, auf der er beruht**, damit nichts behauptet wird, was nicht
+auch im Diagramm darunter steht.
+
+### Die Grenze bei der Herkunft – bewusst gezogen
+
+Cloudflare legt jeder Anfrage Land, Bundesland, **Stadt, Postleitzahl und
+Koordinaten** bei. Gespeichert werden davon nur **Land und Bundesland**, und
+das Bundesland nur innerhalb Deutschlands. Begründung: Die Gegend beantwortet
+die geschäftliche Frage vollständig; eine Stadt wäre in einem Dorf im
+Westerwald zusammen mit einem Zeitstempel schon fast eine Person. Die
+IP-Adresse wird dafür **weder gelesen noch gespeichert** – Cloudflare liefert
+die Angabe bereits fertig. Geprüft wird das maschinell: `pruefe-messung.js`
+schlägt an, sobald im Worker `cf.city`, `cf.postalCode` oder Koordinaten
+auftauchen.
+
+Ebenso bei den Klicks: gelesen wird nur die Beschriftung von `<a>` und
+`<button>` – **nie der Inhalt eines Eingabefeldes**. Auch das prüft eine
+Maschine, nicht das Gedächtnis.
+
+Beides steht jetzt in der Datenschutzerklärung (Abschnitt 19) und im Fußtext
+der Zahlenseite selbst.
+
+### Vier eigene Fehler, die erst die Prüfung gezeigt hat
+
+1. **Die dunkelste Zelle lag falsch.** Nicht die Seite war schuld: Chromium
+   gibt `rgba(...,1)` als `rgb(...)` zurück – ausgerechnet die **dunkelste**
+   Zelle sah für die Prüfung aus wie gar keine Farbe. Jetzt wird der Goldton
+   erkannt und eine fehlende Deckung als 1 gelesen.
+2. **Die Byte-Order-Mark war nicht nachweisbar.** `blob.text()` entfernt sie
+   beim Dekodieren. Die Prüfung liest die Datei jetzt roh und sieht die drei
+   Bytes `EF BB BF`, die Excel braucht.
+3. **Die sechste Kennzahl brach allein in die nächste Zeile** und sah nach
+   Fehler aus. Ab 980 px stehen jetzt alle sechs nebeneinander.
+4. **`pruefe-keine-preise.sh` schlug auf einen Kommentar an** – darin stand ein
+   ausgeschriebenes Beispiel für Zeichensalat, und das enthält ein Eurozeichen.
+   Die Prüfung hatte recht; sie kann nicht wissen, dass es ein Anzeigefehler
+   sein soll. Der Kommentar erklärt es jetzt, ohne es vorzuführen.
+
+### Nachgemessen
+
+`scripts/pruefe-messung.mjs`: 43 Prüfungen (vorher 30), Gegenprobe mit **neun**
+eingebauten Fehlern – alle erkannt, darunter die falsche Wochentagsumrechnung
+und die fehlende BOM. `scripts/pruefe-messung.js`: 44 Prüfungen (vorher 39),
+Gegenprobe mit **zehn** Fehlern. Dazu der Durchgang mit leeren Daten.
