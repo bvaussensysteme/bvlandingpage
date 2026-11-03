@@ -36,6 +36,18 @@
   //   "kv_namespaces": [{ "binding": "DACHMATRIX", "id": "<id>" }],
   // Ohne Binding antwortet /api/bauteile mit 503 und der Konfigurator zeigt
   // die geschaetzte Skizze - die Seite bleibt benutzbar.
+  // Eigene Reichweitenmessung (POST /api/messung, Auswertung unter
+  // /werkstatt/api/zahlen). Die Datenbank liegt bewusst in WEUR, also in
+  // der EU - das ist Teil der Begruendung in der Datenschutzerklaerung.
+  // Fehlt dieses Binding, wird nicht gemessen und die Auswertung sagt es;
+  // die Website laeuft unveraendert weiter (worker/index.js).
+  "d1_databases": [
+    {
+      "binding": "MESSUNG",
+      "database_name": "bv-messung",
+      "database_id": "f8867de0-2ee5-446b-bd91-d234173cb100"
+    }
+  ],
   "observability": {
     "logs": {
       "enabled": true,

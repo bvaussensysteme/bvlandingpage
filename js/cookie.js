@@ -109,7 +109,9 @@
     var cbA = document.getElementById('cbAnalytics');
     var cbE = document.getElementById('cbExternal');
     var analytics = cbA ? cbA.checked : false;
-    var external  = cbE ? cbE.checked : true;
+    /* Rueckfall false, nicht true: Fehlt das Kaestchen (anderes Layout,
+       Skriptfehler), darf daraus keine Einwilligung werden. */
+    var external  = cbE ? cbE.checked : false;
     setCookie(COOKIE_KEY, serializeCustom(analytics, external), COOKIE_DAYS);
     window.dispatchEvent(new Event('bv_consent_given'));
     hideBanner();
@@ -166,7 +168,12 @@
           '</div>' +
           '<div class="cb-detail-row">' +
             '<label class="cb-toggle-label">' +
-              '<input type="checkbox" id="cbExternal" checked />' +
+              /* NICHT vorbelegt. Eine vorbelegte Einwilligung ist nach
+                 EuGH (Planet49) und BGH keine Einwilligung - und genau
+                 dieser Haken war es, bis 03.11.2026. Wer die externen
+                 Dienste will, klickt sie an; die Vorbelegung hat die
+                 Wirkung des ganzen Banners in Frage gestellt. */
+              '<input type="checkbox" id="cbExternal" />' +
               '<span class="cb-toggle-slider"></span>' +
               '<strong>Externe Dienste</strong>' +
             '</label>' +

@@ -70,6 +70,14 @@ html = html.replace(/<title>[^<]*<\/title>/,
   ['Cookie-Banner', /\s*<script src="[^"]*js\/cookie\.js[^"]*"[^>]*><\/script>/g],
   ['Bedienhilfe mit den beiden runden Knoepfen',
    /\s*<script src="[^"]*js\/accessibility\.js[^"]*"[^>]*><\/script>/g],
+  /* Die eigene Reichweitenmessung gehoert nicht in die Werkstatt: Hier
+     testet der Betrieb, und eigene Testaufrufe sollen die Zahlen des
+     Betriebs nicht verfaelschen. js/messung.js hoert unter /werkstatt/
+     zwar ohnehin von selbst auf - aber ein zweiter Schutz, der schon
+     beim Bauen greift, haelt auch dann, wenn jemand die Pfadabfrage
+     dort einmal umbaut. */
+  ['Eigene Reichweitenmessung',
+   /\s*<script src="[^"]*js\/messung\.js[^"]*"[^>]*><\/script>/g],
   ['Hinweis auf den Testbetrieb',
    /\s*<div class="k3d-hinw" id="k3dTestHinweis"[\s\S]*?\n<\/div>/g]
 ].forEach(function (paar) {
@@ -143,6 +151,11 @@ var werkzeug = [
   '<svg class="bvs" aria-hidden="true" style="vertical-align:-.16em">',
   '<use href="#bvs-neuladen"></use></svg> Neu laden</button>',
   '<span id="wkVersion" class="wk-version"></span>',
+  /* Weg zu den eigenen Besucherzahlen. Die Seite liegt unter
+     /werkstatt/, also hinter demselben Passwort - und sie wird nirgends
+     sonst verlinkt, damit die Adresse nicht in Umlauf kommt. */
+  '<a class="wk-knopf" href="/werkstatt/zahlen.html" ',
+  'style="text-decoration:none">Zahlen</a>',
   /* Erst wenn die Seite steht: Die Skript-Tags stehen am Seitenende,
      der Streifen aber ganz oben. Beim ersten Versuch lief die Abfrage
      waehrend des Einlesens und fand nichts - angezeigt wurde dann
@@ -253,10 +266,13 @@ if (rest.length) {
       Sonst laedt die Werkstatt alten Code und man sucht an der falschen
       Stelle nach dem Fehler. */
 /* Verglichen werden nur die GEMEINSAMEN Dateien. js/werkstatt-pfade.js
-   gibt es nur hier und darf den Vergleich nicht ausloesen. */
+   gibt es nur hier, js/messung.js absichtlich nur dort (Schritt 2b nimmt
+   es hier heraus) - beide duerfen den Vergleich nicht ausloesen. */
 function versionen(t) {
   var a = (t.match(/[a-z0-9-]+\.(?:js|css)\?v=[0-9a-z]+/g) || [])
-            .filter(function (v) { return v.indexOf('werkstatt-pfade') < 0; })
+            .filter(function (v) {
+              return v.indexOf('werkstatt-pfade') < 0 && v.indexOf('messung') < 0;
+            })
             .slice().sort();
   return a.join(',');
 }

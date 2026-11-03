@@ -45,6 +45,12 @@ export default {
       return handleTeilenNeu(request, env);
     }
 
+    /* Eigene Reichweitenmessung. Nimmt nur ENTGEGEN - gelesen wird
+       ausschliesslich hinter dem Werkstatt-Passwort, siehe unten. */
+    if (url.pathname === '/api/messung' && request.method === 'POST') {
+      return handleMessung(request, env);
+    }
+
     if (url.pathname.startsWith('/k/')) {
       return handleTeilenOeffnen(url, env);
     }
@@ -63,6 +69,17 @@ export default {
     if (url.pathname === '/werkstatt' || url.pathname.startsWith('/werkstatt/')) {
       const abweisung = await werkstattTor(request, env, url);
       if (abweisung) return abweisung;
+
+      /* Die Zahlen liegen UNTER /werkstatt/ und nicht unter /api/ - und
+         das ist der ganze Trick: Der Anmelde-Keks hat Path=/werkstatt,
+         also schickt der Browser ihn nur an Adressen darunter. Unter
+         /api/zahlen kaeme er nicht mit, die Abfrage waere unangemeldet,
+         und die Zahlen muessten eine zweite Schranke bekommen. Hier
+         gilt dieselbe Tuer wie fuer die Seite selbst: Wer hier
+         ankommt, ist schon durch werkstattTor() gegangen. */
+      if (url.pathname === '/werkstatt/api/zahlen' && request.method === 'GET') {
+        return handleZahlen(url, env);
+      }
     }
 
     return env.ASSETS.fetch(request);
@@ -790,4 +807,232 @@ function konfiguratorGesperrtSeite() {
       'retry-after': '86400',
     },
   });
+}
+
+
+/* ============================================================
+   Eigene Reichweitenmessung  →  POST /api/messung
+                                 GET  /werkstatt/api/zahlen
+   ------------------------------------------------------------
+   ANLASS. „Wird meine Internetseite aber auch überwacht? Zum Beispiel,
+   an welchen Tagen kommen die meisten Besucher? Wo klicken die Besucher
+   drauf? Welche Zeit ist ein Besucher wo? Welche Aktion führt ein
+   Besucher durch?" (Betreiber, 03.11.2026). Metricool laeuft seit Juni,
+   kann davon aber nur die erste Frage beantworten - und zaehlt nur
+   Besucher, die vorher im Banner zugestimmt haben.
+
+   WARUM EIGEN UND NICHT EIN FREMDER DIENST:
+     · Es zaehlt ALLE Besucher. Weil nichts auf dem Geraet gespeichert
+       oder von dort gelesen wird, greift die Einwilligungspflicht aus
+       § 25 TDDDG nicht - der Haken im Banner entscheidet hier nichts.
+     · Die Daten bleiben bei uns, in der EU (D1-Datenbank in WEUR).
+     · Es kostet nichts: Das Freikontingent von D1 liegt bei 100.000
+       Schreibvorgaengen am Tag, gemessen werden einige Dutzend.
+     · Es kann, was kein fremdes Werkzeug kann: den Weg durch den
+       3D-Konfigurator Schritt fuer Schritt zeigen.
+
+   WAS BEWUSST NICHT ERFASST WIRD - und das ist die ganze Begruendung
+   dafuer, dass hier keine Einwilligung noetig ist:
+     · keine IP-Adresse (auch nicht gekuerzt, auch nicht als Hashwert),
+     · kein User-Agent, kein Fingerabdruck,
+     · kein Kennzeichen fuer "derselbe Besucher" - deshalb gibt es hier
+       auch keine Zahl "einzelne Besucher". Was gezaehlt wird, sind
+       Aufrufe und Handlungen, nicht Personen. Wer das aendern will,
+       aendert die Rechtsgrundlage mit: Dann braucht es eine
+       Einwilligung, und die Zahlen fallen auf die Zustimmenden zurueck.
+     · keine Adresszeile mit Fragezeichen (eine Suchanfrage oder ein
+       Teilen-Link stehen dort und gehoeren nicht in eine Statistik).
+
+   OEFFENTLICHE SCHREIBADRESSE. Jeder kann hier POSTen. Deshalb nimmt
+   die Route nur an, was sie kennt: feste Liste erlaubter Arten,
+   begrenzte Laengen, begrenzte Zahlenbereiche, hoechstens 20 Ereignisse
+   je Sendung, hoechstens 4 KB Rumpf. Schlimmer als ein paar erfundene
+   Zeilen ist eine Datenbank, die sich mit Fremdtext fuellen laesst.
+   ============================================================ */
+const MESSUNG_MAX_BODY = 4 * 1024;
+const MESSUNG_ARTEN = new Set([
+  'seite',               // ein Seitenaufruf, wert = Verweildauer in Sekunden
+  'telefon', 'whatsapp', 'mail',
+  'anfrage-geoeffnet',   // Anfrage-Assistent geoeffnet
+  'anfrage-gesendet',    // Anfrage wirklich abgeschickt
+  'konfig-start',        // 3D-Konfigurator aufgebaut
+  'konfig-schritt',      // wert = Nummer des Bereichs, zusatz = sein Name
+  'konfig-anfrage',      // aus dem Konfigurator in den Assistenten
+  'konfig-pdf', 'konfig-teilen',
+]);
+const MESSUNG_GERAETE = new Set(['handy', 'rechner']);
+
+/* Tag und Stunde in UNSERER Zeitzone, nicht in UTC. Sonst waere
+   "Samstagabend" in der Statistik teilweise Sonntag - und genau nach
+   Wochentagen ist gefragt. */
+function messungZeit(jetzt = new Date()) {
+  const tag = jetzt.toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+  const stunde = Number(jetzt.toLocaleString('de-DE', {
+    timeZone: 'Europe/Berlin', hour: '2-digit', hour12: false,
+  }).replace(/\D/g, ''));
+  return { tag, stunde: Number.isFinite(stunde) ? stunde : 0 };
+}
+
+function messungText(wert, max) {
+  if (wert == null) return null;
+  let s = String(wert).replace(/[\u0000-\u001f]/g, ' ').trim();
+  if (!s) return null;
+  return s.length > max ? s.slice(0, max) : s;
+}
+
+function messungZahl(wert, min, max) {
+  const n = Math.round(Number(wert));
+  if (!Number.isFinite(n)) return null;
+  return Math.min(Math.max(n, min), max);
+}
+
+/* Der Pfad, und nur der Pfad. Fragezeichen und Raute fallen weg (dort
+   stehen Suchbegriffe und ganze Konfigurationen), und etwas, das nicht
+   mit / beginnt, ist keine Seite dieser Website. */
+function messungSeite(wert) {
+  let s = messungText(wert, 160);
+  if (!s) return null;
+  s = s.split('?')[0].split('#')[0];
+  if (s.charAt(0) !== '/') return null;
+  return s.length > 120 ? s.slice(0, 120) : s;
+}
+
+async function messungTabelle(env) {
+  await env.MESSUNG.prepare(
+    'CREATE TABLE IF NOT EXISTS ereignis ('
+    + 'id INTEGER PRIMARY KEY AUTOINCREMENT, tag TEXT NOT NULL, '
+    + 'stunde INTEGER NOT NULL, art TEXT NOT NULL, seite TEXT NOT NULL, '
+    + 'wert INTEGER, zusatz TEXT, quelle TEXT, geraet TEXT)'
+  ).run();
+  await env.MESSUNG.prepare(
+    'CREATE INDEX IF NOT EXISTS ereignis_tag ON ereignis (tag)'
+  ).run();
+}
+
+async function handleMessung(request, env) {
+  /* Ohne Binding wird NICHT gemessen - und das ist kein Fehlerfall, der
+     den Besucher etwas angeht. Er bekommt dieselbe leere Antwort wie
+     sonst; die Seite merkt nichts. Genauso wie /api/bauteile ohne
+     KV-Namensraum. */
+  if (!env.MESSUNG) return new Response(null, { status: 204 });
+
+  let roh = '';
+  try { roh = await request.text(); } catch (e) { return new Response(null, { status: 204 }); }
+  if (!roh || roh.length > MESSUNG_MAX_BODY) return new Response(null, { status: 204 });
+
+  let body = null;
+  try { body = JSON.parse(roh); } catch (e) { body = null; }
+  if (!body || typeof body !== 'object') return new Response(null, { status: 204 });
+
+  const seite = messungSeite(body.seite);
+  if (!seite) return new Response(null, { status: 204 });
+
+  const geraet = MESSUNG_GERAETE.has(body.geraet) ? body.geraet : null;
+  const quelle = messungText(body.quelle, 80);
+  const dauer = messungZahl(body.dauer, 0, 3600);
+
+  const zeilen = [];
+  /* Der Seitenaufruf selbst wird nur beim ERSTEN Senden gezaehlt. Wer
+     den Tab wegklickt und zurueckkommt, schickt ein zweites Paket mit
+     weiterer Verweildauer - das darf kein zweiter Aufruf werden. */
+  if (body.neu) {
+    zeilen.push(['seite', seite, dauer, null, quelle, geraet]);
+  } else if (dauer) {
+    zeilen.push(['verweilen', seite, dauer, null, null, geraet]);
+  }
+
+  const liste = Array.isArray(body.ereignisse) ? body.ereignisse.slice(0, 20) : [];
+  for (const e of liste) {
+    if (!e || typeof e !== 'object') continue;
+    const art = messungText(e.art, 30);
+    if (!art || !MESSUNG_ARTEN.has(art) || art === 'seite') continue;
+    zeilen.push([art, seite, messungZahl(e.wert, 0, 9999),
+                 messungText(e.zusatz, 40), null, geraet]);
+  }
+  if (!zeilen.length) return new Response(null, { status: 204 });
+
+  const { tag, stunde } = messungZeit();
+  try {
+    await messungTabelle(env);
+    const satz = env.MESSUNG.prepare(
+      'INSERT INTO ereignis (tag, stunde, art, seite, wert, zusatz, quelle, geraet) '
+      + 'VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
+    );
+    await env.MESSUNG.batch(zeilen.map((z) => satz.bind(
+      tag, stunde, z[0], z[1], z[2], z[3], z[4], z[5]
+    )));
+  } catch (e) {
+    /* Eine Statistik darf nie etwas kaputt machen. Faellt die Datenbank
+       aus, fehlen Zahlen - der Besucher merkt nichts. */
+  }
+  return new Response(null, { status: 204 });
+}
+
+/* ---------- Die Auswertung, nur hinter dem Werkstatt-Passwort ---------- */
+async function handleZahlen(url, env) {
+  if (!env.MESSUNG) {
+    return jsonResponse({
+      fehler: 'keine-datenbank',
+      hinweis: 'Die D1-Datenbank "bv-messung" ist nicht an den Worker gebunden '
+        + '(wrangler.jsonc, Eintrag d1_databases). Bis dahin wird nichts gemessen.',
+    }, 503);
+  }
+  const tage = Math.min(Math.max(Number(url.searchParams.get('tage')) || 30, 1), 400);
+  const von = new Date(Date.now() - (tage - 1) * 86400000)
+    .toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+
+  try {
+    await messungTabelle(env);
+
+    /* AUFRAEUMEN HIER und nicht beim Messen: Diese Abfrage ruft nur der
+       Betrieb auf, ein paar Mal im Monat. Beim Messen waere dasselbe
+       Loeschen ein zusaetzlicher Schreibvorgang bei JEDEM Aufruf.
+       400 Tage, damit ein Jahresvergleich moeglich bleibt. */
+    const grenze = new Date(Date.now() - 400 * 86400000)
+      .toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+    await env.MESSUNG.prepare('DELETE FROM ereignis WHERE tag < ?1').bind(grenze).run();
+
+    const frage = (sql) => env.MESSUNG.prepare(sql).bind(von).all();
+    const [tageRows, seitenRows, quellenRows, geraeteRows,
+           handlungRows, trichterRows, stundenRows] = await Promise.all([
+      frage("SELECT tag, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 GROUP BY tag ORDER BY tag"),
+      frage("SELECT seite, COUNT(*) AS aufrufe, "
+            + "CAST(AVG(NULLIF(wert, 0)) AS INTEGER) AS dauer FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 GROUP BY seite "
+            + "ORDER BY aufrufe DESC LIMIT 30"),
+      frage("SELECT quelle, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND quelle IS NOT NULL "
+            + "GROUP BY quelle ORDER BY aufrufe DESC LIMIT 15"),
+      frage("SELECT geraet, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND geraet IS NOT NULL GROUP BY geraet"),
+      frage("SELECT art, COUNT(*) AS anzahl FROM ereignis "
+            + "WHERE tag >= ?1 AND art NOT IN ('seite', 'verweilen', 'konfig-schritt') "
+            + "GROUP BY art ORDER BY anzahl DESC"),
+      frage("SELECT wert AS nr, zusatz AS name, COUNT(*) AS anzahl FROM ereignis "
+            + "WHERE art = 'konfig-schritt' AND tag >= ?1 GROUP BY wert, zusatz "
+            + "ORDER BY nr"),
+      frage("SELECT stunde, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 GROUP BY stunde ORDER BY stunde"),
+    ]);
+
+    return new Response(JSON.stringify({
+      von, tage,
+      tageReihe: tageRows.results || [],
+      seiten: seitenRows.results || [],
+      quellen: quellenRows.results || [],
+      geraete: geraeteRows.results || [],
+      handlungen: handlungRows.results || [],
+      trichter: trichterRows.results || [],
+      stunden: stundenRows.results || [],
+    }), {
+      status: 200,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store',
+      },
+    });
+  } catch (e) {
+    return jsonResponse({ fehler: 'abfrage', hinweis: String(e && e.message || e) }, 500);
+  }
 }
