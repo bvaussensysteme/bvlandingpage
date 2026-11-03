@@ -235,7 +235,17 @@ const BASIS = `http://localhost:${PORT}`;
     regionen: [{ region: 'Rheinland-Pfalz', aufrufe: 70 },
                { region: 'Nordrhein-Westfalen', aufrufe: 25 }],
     klicks: [{ was: 'Jetzt anfragen', seite: '/', anzahl: 12 },
-             { was: '0156 7869 6609', seite: '/', anzahl: 7 }],
+             { was: '0156 7869 6609', seite: '/', anzahl: 7 },
+             { was: 'Knopf 1', seite: '/', anzahl: 6 },
+             { was: 'Knopf 2', seite: '/', anzahl: 5 },
+             { was: 'Knopf 3', seite: '/', anzahl: 4 },
+             { was: 'Knopf 4', seite: '/', anzahl: 3 },
+             { was: 'Knopf 5', seite: '/', anzahl: 2 },
+             { was: 'Knopf 6', seite: '/', anzahl: 6 },
+             { was: 'Knopf 7', seite: '/', anzahl: 5 },
+             { was: 'Knopf 8', seite: '/', anzahl: 4 },
+             { was: 'Knopf 9', seite: '/', anzahl: 3 },
+             { was: 'Knopf 10', seite: '/', anzahl: 2 }],
     live: [{ seite: '/konfigurator.html', aufrufe: 2 }],
     vorher: { von: '2026-10-14', aufrufe: 50, dauer: 60,
               handlungen: [{ art: 'anfrage-gesendet', anzahl: 2 }] }
@@ -251,6 +261,9 @@ const BASIS = `http://localhost:${PORT}`;
       const a = await route.fetch();
       let t = await a.text();
       t = t.replace('var i = ((Number(r.wtag) + 6) % 7);', 'var i = (Number(r.wtag) % 7);');
+      /* Neunter Fehler: Die Wolke am Diagramm bleibt stumm - auf dem
+         Handy gaebe es dann gar keine Zahl zur Saeule. */
+      t = t.replace("svg.addEventListener('pointermove', zeigen);", 'void zeigen;');
       t = t.replace("var blob = new Blob(['\\ufeff' + csvBauen(letzteDaten)],",
                     'var blob = new Blob([csvBauen(letzteDaten)],');
       await route.fulfill({ response: a, body: t,
@@ -267,10 +280,16 @@ const BASIS = `http://localhost:${PORT}`;
   }
 
   /* 4a. JEDE Beschriftung muss wirklich Platz auf dem Bildschirm haben. */
-  const beschriftungen = await page.$$eval('.reihe .nam', (nodes) => nodes.map((n) => ({
-    text: (n.textContent || '').trim(),
-    breite: Math.round(n.getBoundingClientRect().width)
-  })));
+  /* Nur SICHTBARE Zeilen messen: Lange Listen sind seit dem
+     Gestaltungsdurchgang eingeklappt, und was nicht gerendert wird, hat
+     naturgemaess null Breite. Dass das Aufklappen wirklich etwas
+     hervorholt, prueft der eigene Punkt weiter unten. */
+  const beschriftungen = await page.$$eval('.reihe .nam', (nodes) => nodes
+    .filter((n) => n.offsetParent !== null)
+    .map((n) => ({
+      text: (n.textContent || '').trim(),
+      breite: Math.round(n.getBoundingClientRect().width)
+    })));
   const schmal = beschriftungen.filter((b) => b.breite < 60 || !b.text);
   pruef('Jede Zeile trägt eine sichtbare Beschriftung',
     beschriftungen.length >= 20 && schmal.length === 0,
@@ -386,9 +405,119 @@ const BASIS = `http://localhost:${PORT}`;
     csv.split('\r\n').length + ' Zeilen · ' + JSON.stringify(csvOk)
     + ' · Anfang: ' + JSON.stringify(csv.slice(0, 60)));
 
+  /* Das Bild VOR den Bedienproben: Danach steht die Seite mitten im
+     Farbuebergang des Tonwechsels, und auf dem Bild saehe alles blass
+     aus - beim ersten Versuch genau so passiert. */
+  if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/werkstatt-zahlen.png', fullPage: true });
+
+  /* ---------- Gestaltung und Bedienung ---------- */
+  const vorMehr = await page.$$eval('.reihe', (n) => n.filter((r) => r.offsetParent !== null).length);
+  const mehrKnopf = page.locator('button[data-mehr]').first();
+  if (await mehrKnopf.count()) {
+    await mehrKnopf.click();
+    await page.waitForTimeout(250);
+  }
+  const nachMehr = await page.$$eval('.reihe', (n) => n.filter((r) => r.offsetParent !== null).length);
+  pruef('Lange Listen lassen sich aufklappen', nachMehr > vorMehr,
+    vorMehr + ' → ' + nachMehr + ' sichtbare Zeilen');
+
+  const spitzen = await page.$$eval('.reihe.spitze .nam', (n) => n.map((x) => x.textContent.trim()));
+  pruef('Nur der Spitzenwert ist golden, nicht alles',
+    spitzen.length > 2 && spitzen.length < 14 && spitzen.indexOf('/konfigurator.html') > -1,
+    spitzen.length + ' hervorgehobene Zeilen');
+
+  /* Die Wolke am Diagramm: Ein <title> im SVG zeigt das Handy nicht an,
+     deshalb eine eigene. Geprueft wird, dass sie beim Zeigen erscheint
+     und den richtigen Tag nennt. */
+  /* Erst heranscrollen: boundingBox() liefert die Lage im Fenster, und
+     was unterhalb davon liegt, kann die Maus nicht erreichen - der
+     Zeiger landete sonst neben der Seite. */
+  await page.locator('.diagramm.tage svg').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(150);
+  const svgKasten = await page.locator('.diagramm.tage svg').boundingBox();
+  await page.mouse.move(svgKasten.x + svgKasten.width * 0.88, svgKasten.y + svgKasten.height / 2);
+  await page.waitForTimeout(200);
+  const wolke = await page.locator('.diagramm.tage .wolke').innerText().catch(() => '');
+  const wolkeDa = await page.locator('.diagramm.tage .wolke.an').count();
+  pruef('Das Diagramm zeigt beim Zeigen eine Wolke',
+    wolkeDa === 1 && /90 Aufrufe/.test(wolke) && /Samstag/.test(wolke),
+    wolke.replace(/\n/g, ' · '));
+
+  const ton = await page.evaluate(() => {
+    const k = document.getElementById('ton');
+    k.click();                                   // automatisch -> hell
+    const a = document.documentElement.getAttribute('data-ton');
+    k.click();                                   // hell -> dunkel
+    return { a: a, b: document.documentElement.getAttribute('data-ton'), text: k.textContent };
+  });
+  pruef('Hell und dunkel lassen sich umschalten',
+    ton.a === 'hell' && ton.b === 'dunkel' && /dunkel/.test(ton.text),
+    ton.a + ' → ' + ton.b);
+  /* NACH dem Farbuebergang messen: body hat transition:background .2s,
+     und waehrend des Uebergangs liefert getComputedStyle die gerade
+     angezeigte Zwischenfarbe - beim ersten Versuch also noch die helle.
+     Nicht die Seite war falsch, sondern der Zeitpunkt der Messung. */
+  await page.waitForTimeout(400);
+  const dunkelGrund = await page.evaluate(() =>
+    getComputedStyle(document.body).backgroundColor);
+  pruef('Im dunklen Ton ist der Grund wirklich dunkel',
+    /^rgb\((\d+), (\d+), (\d+)\)$/.test(dunkelGrund)
+    && Number(RegExp.$1) < 60 && Number(RegExp.$2) < 60, dunkelGrund);
+  await page.evaluate(() => {
+    document.getElementById('ton').click();      // zurueck auf automatisch
+  });
+
+  /* ---------- Am Handy ----------
+     Die Auswertung schaut sich der Betrieb unterwegs an. Eine Seite,
+     die seitlich wegläuft, ist dort unbrauchbar - geprüft wird deshalb
+     die wirkliche Breite, nicht der Eindruck. Die Matrix darf scrollen,
+     aber in ihrem eigenen Kasten, nicht die ganze Seite. */
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(400);
+  const handy = await page.evaluate(() => {
+    const w = window.innerWidth;
+    /* Nicht nur MELDEN, dass etwas herausragt, sondern WAS. Eine
+       Pruefung, die nur „zu breit" sagt, kostet jedes Mal eine eigene
+       Suche. Die Matrix und ihr Inhalt duerfen herausragen - sie hat
+       ihren eigenen Scrollkasten. */
+    const schuld = [];
+    document.querySelectorAll('body *').forEach((el) => {
+      if (el.closest('.matrix')) return;
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && (r.right > w + 1 || r.left < -1)) {
+        schuld.push(el.tagName.toLowerCase() + '.'
+          + String(el.className || '').split(' ')[0]
+          + ' [' + Math.round(r.left) + '…' + Math.round(r.right) + ']');
+      }
+    });
+    return {
+      breiter: document.documentElement.scrollWidth > w + 1,
+      schuld: schuld.slice(0, 5),
+      kachelBreite: Math.round(document.querySelector('.kz').getBoundingClientRect().width),
+      matrixScrollt: (() => {
+        const m = document.querySelector('.matrix');
+        return !!m && m.scrollWidth > m.clientWidth;
+      })()
+    };
+  });
+  pruef('Am Handy läuft nichts seitlich weg', !handy.breiter,
+    handy.breiter ? handy.schuld.join(' | ')
+                  : 'Kachelbreite ' + handy.kachelBreite + ' px bei 390 px Fenster');
+  pruef('Die Matrix scrollt in ihrem eigenen Kasten', handy.matrixScrollt);
+  /* Der Seitenname darf am Handy nicht zur Unkenntlichkeit schrumpfen -
+     aus „/konfigurator.html" wurde vorher „/...". */
+  const namBreiten = await page.$$eval('.reihe .nam', (n) => n
+    .filter((x) => x.offsetParent !== null)
+    .map((x) => Math.round(x.getBoundingClientRect().width)));
+  pruef('Am Handy bleiben die Namen lesbar',
+    namBreiten.length > 10 && Math.min(...namBreiten) >= 150,
+    'schmalster Name ' + Math.min(...namBreiten) + ' px');
+  if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/werkstatt-zahlen-handy.png', fullPage: true });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.waitForTimeout(300);
+
   pruef('Der Abschalter steht auf der Seite', await page.locator('#abschalter').isVisible());
   pruef('Zahlenseite ohne Fehler', fehlerSeite.length === 0, fehlerSeite.join(' | ').slice(0, 100));
-  if (!GEGENPROBE) await page.screenshot({ path: 'pruefbilder/werkstatt-zahlen.png', fullPage: true });
   await page.close();
 }
 
@@ -428,6 +557,7 @@ if (!GEGENPROBE) {
 }
 
 const sollenScheitern = [
+  'Das Diagramm zeigt beim Zeigen eine Wolke',
   'Die Lesetiefe fährt mit',
   'Die Beschriftung des Geklickten fährt mit',
   'Die dunkelste Zelle sitzt Samstag um 20 Uhr',
