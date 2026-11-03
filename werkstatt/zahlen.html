@@ -37,127 +37,248 @@
      Version wechselt.
      ============================================================ -->
 <style>
+  /* ===========================================================
+     GESTALTUNG. „ja schon beser abr das ui uix design könnte besser
+     sein" (Betreiber, 03.11.2026).
+
+     Drei Regeln, nach denen hier alles gebaut ist:
+
+     1. EINE Akzentfarbe, und sie bedeutet etwas. Gold markiert den
+        Spitzenwert einer Liste, sonst nichts. Vorher war jeder Balken
+        gold - dann trägt die Farbe keine Aussage mehr, und das Auge
+        findet nichts. Alles Übrige ist Grau, Grün und Rot nur für
+        Veränderung.
+     2. Abstände aus einer Leiter (4-6-8-12-16-22-30 px), nicht nach
+        Gefühl. Ungleiche Abstände sind der Hauptgrund, warum eine
+        Seite „irgendwie unruhig" aussieht.
+     3. Zahlen immer mit tabularen Ziffern. Sonst tanzen die Spalten,
+        sobald sich eine Ziffer ändert.
+
+     Schrift: die des Geräts. Die Hausschrift der Website (Barlow
+     Condensed, Inter) kommt von Google und lädt erst nach einer
+     Einwilligung - in der Werkstatt gibt es das Banner bewusst nicht,
+     sie käme also nie. Lieber eine saubere Systemschrift als ein
+     Kasten, der auf die Schrift wartet.
+     =========================================================== */
   :root{
-    --gold:#C49A2A; --gold-dark:#9A7318; --gold-hell:#F0E3C2; --gold-spur:rgba(196,154,42,.16);
-    --tinte:#1f2a33; --leise:#6b7a84; --rand:#e3e8ec; --grund:#f3f5f7; --weiss:#fff;
-    --gruen:#2f7d4f; --rot:#b3352b;
+    color-scheme:light dark;
+    --gold:#C49A2A; --gold-dark:#9A7318; --gold-weich:rgba(196,154,42,.20);
+    --tinte:#18212a; --leise:#64747f; --feiner:#8b99a3;
+    --rand:#e4e9ed; --grund:#f4f6f8; --karte:#fff; --balken:rgba(24,33,42,.07);
+    --gruen:#19714a; --rot:#b3352b;
+    --schatten:0 1px 2px rgba(16,24,32,.05), 0 6px 18px rgba(16,24,32,.045);
+    --r-gross:16px; --r-mittel:11px; --r-klein:8px;
+  }
+  /* Dunkel, wenn das Gerät es so will - und von Hand umschaltbar.
+     Eine Auswertung schaut man abends an; hell leuchtendes Weiß ist
+     dann schlicht unangenehm. */
+  @media (prefers-color-scheme: dark){
+    :root:not([data-ton="hell"]){
+      --tinte:#e9eef2; --leise:#9aa8b2; --feiner:#7d8b95;
+      --rand:#2a343d; --grund:#121920; --karte:#1a232b; --balken:rgba(255,255,255,.07);
+      --gold:#D6AC3E; --gold-weich:rgba(214,172,62,.22); --gold-dark:#E8C765;
+      --gruen:#5bc08c; --rot:#e4786d;
+      --schatten:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-ton="dunkel"]{
+    --tinte:#e9eef2; --leise:#9aa8b2; --feiner:#7d8b95;
+    --rand:#2a343d; --grund:#121920; --karte:#1a232b; --balken:rgba(255,255,255,.07);
+    --gold:#D6AC3E; --gold-weich:rgba(214,172,62,.22); --gold-dark:#E8C765;
+    --gruen:#5bc08c; --rot:#e4786d;
+    --schatten:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--grund);color:var(--tinte);padding-bottom:70px;
-       font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-       -webkit-font-smoothing:antialiased}
-  .wkleiste{position:sticky;top:0;z-index:20;background:#1f2a33;color:#fff;
-            padding:6px 12px;display:flex;gap:10px;align-items:center;
-            justify-content:center;white-space:nowrap;font:600 12.5px/1.2 inherit}
-  .wkmarke{background:#c8863a;border-radius:4px;padding:1px 7px}
-  .wkleiste a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.45)}
-  .huelle{max-width:1060px;margin:0 auto;padding:20px 16px}
+       font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+       -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+       transition:background .2s,color .2s}
+  b,strong{font-weight:650}
 
-  /* ---------- Kopf ---------- */
+  /* ---------- Kopfleiste ---------- */
+  .wkleiste{position:sticky;top:0;z-index:30;background:#141c23;color:#fff;
+            padding:7px 14px;display:flex;gap:10px;align-items:center;
+            justify-content:center;white-space:nowrap;font:600 12px/1.2 inherit;
+            letter-spacing:.01em}
+  .wkmarke{background:#c8863a;border-radius:5px;padding:2px 8px;letter-spacing:.04em}
+  .wkleiste a{color:rgba(255,255,255,.82);text-decoration:none;
+              border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:1px}
+  .wkleiste a:hover{color:#fff;border-color:#fff}
+  .huelle{max-width:1120px;margin:0 auto;padding:22px 18px}
+
+  /* ---------- Titelzeile ---------- */
   .kopf{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;
         justify-content:space-between;margin-bottom:16px}
-  h1{font-size:1.55rem;line-height:1.15;letter-spacing:-.01em}
-  .zeitraum{color:var(--leise);font-size:.85rem;margin-top:2px}
-  .wahl{display:flex;gap:6px;background:var(--weiss);border:1px solid var(--rand);
-        border-radius:11px;padding:4px}
-  .wahl button{padding:7px 13px;border:0;border-radius:8px;background:none;color:var(--tinte);
-               font:700 .86rem inherit;cursor:pointer;white-space:nowrap}
-  .wahl button:hover{background:var(--grund)}
-  .wahl button[aria-pressed="true"]{background:var(--gold);color:#1a1a1a}
+  h1{font-size:1.72rem;line-height:1.1;letter-spacing:-.022em;font-weight:700}
+  .zeitraum{color:var(--leise);font-size:.84rem;margin-top:3px;font-variant-numeric:tabular-nums}
+  .wahl{display:flex;gap:3px;background:var(--karte);border:1px solid var(--rand);
+        border-radius:var(--r-mittel);padding:3px;box-shadow:var(--schatten)}
+  .wahl button{padding:7px 13px;border:0;border-radius:var(--r-klein);background:none;
+               color:var(--leise);font:650 .83rem inherit;cursor:pointer;white-space:nowrap;
+               transition:background .15s,color .15s}
+  .wahl button:hover{background:var(--balken);color:var(--tinte)}
+  .wahl button[aria-pressed="true"]{background:var(--gold);color:#18212a}
+  :focus-visible{outline:2px solid var(--gold-dark);outline-offset:2px;border-radius:4px}
+
+  /* ---------- Werkzeugzeile ---------- */
+  .werkzeuge{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .knopf{padding:7px 13px;border:1px solid var(--rand);border-radius:var(--r-mittel);
+         background:var(--karte);color:var(--tinte);font:600 .82rem inherit;cursor:pointer;
+         text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+         box-shadow:var(--schatten);transition:border-color .15s,transform .08s}
+  .knopf:hover{border-color:var(--gold)}
+  .knopf:active{transform:translateY(1px)}
+  .live{display:inline-flex;align-items:center;gap:8px;background:rgba(25,113,74,.09);
+        color:var(--gruen);border:1px solid rgba(25,113,74,.25);border-radius:999px;
+        padding:6px 14px;font-size:.8rem;font-weight:650;margin-right:auto}
+  .punkt{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;
+         box-shadow:0 0 0 0 currentColor;animation:pulsen 2s ease-out infinite}
+  @keyframes pulsen{0%{box-shadow:0 0 0 0 rgba(25,113,74,.45)}
+                    70%{box-shadow:0 0 0 7px rgba(25,113,74,0)}
+                    100%{box-shadow:0 0 0 0 rgba(25,113,74,0)}}
+  .live.still{background:var(--balken);color:var(--leise);border-color:var(--rand)}
+  .live.still .punkt{animation:none}
 
   /* ---------- Kennzahlen ---------- */
-  .kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-              gap:12px;margin-bottom:14px}
-  /* Sechs Kacheln in EINE Reihe, sobald Platz ist. Mit auto-fit brach
-     die sechste allein in die naechste Zeile - das sah nach Fehler aus. */
-  @media (min-width:980px){ .kennzahlen{grid-template-columns:repeat(6,1fr)} }
-  .kz{background:var(--weiss);border:1px solid var(--rand);border-radius:14px;padding:14px 16px}
-  .kz .titel{color:var(--leise);font-size:.76rem;font-weight:600;letter-spacing:.02em;
+  .kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));
+              gap:12px;margin-bottom:16px}
+  @media (min-width:1000px){ .kennzahlen{grid-template-columns:repeat(6,1fr)} }
+  .kz{background:var(--karte);border:1px solid var(--rand);border-radius:var(--r-gross);
+      padding:15px 16px 14px;box-shadow:var(--schatten);position:relative;overflow:hidden}
+  .kz .titel{color:var(--feiner);font-size:.68rem;font-weight:700;letter-spacing:.07em;
              text-transform:uppercase}
-  .kz .zahl{font-size:2rem;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums;
-            margin-top:3px}
-  .kz .trend{font-size:.78rem;font-weight:600;margin-top:2px;color:var(--leise)}
-  .kz .trend.hoch{color:var(--gruen)}
-  .kz .trend.runter{color:var(--rot)}
+  .kz .zahl{font-size:1.92rem;line-height:1.1;font-weight:700;letter-spacing:-.025em;
+            font-variant-numeric:tabular-nums;margin-top:5px}
+  /* Eine Zeile, kein Umbruch: „+100 % gegenüber / davor" ueber zwei
+     Zeilen hat die Kacheln unruhig aussehen lassen. */
+  .kz .trend{font-size:.73rem;font-weight:650;margin-top:4px;color:var(--feiner);
+             display:flex;align-items:center;gap:4px;white-space:nowrap;
+             overflow:hidden;text-overflow:ellipsis}
+  .kz .trend.hoch{color:var(--gruen)} .kz .trend.runter{color:var(--rot)}
+  .kz .trend svg{width:9px;height:9px;flex:none}
+  .kz .funke{position:absolute;right:12px;top:14px;opacity:.5}
 
   /* ---------- Karten ---------- */
-  .karte{background:var(--weiss);border:1px solid var(--rand);border-radius:14px;
-         padding:16px 18px;margin-bottom:14px}
-  .karte h2{font-size:1rem;letter-spacing:-.01em}
-  .karte .unter{color:var(--leise);font-size:.79rem;margin-top:2px}
+  .karte{background:var(--karte);border:1px solid var(--rand);border-radius:var(--r-gross);
+         padding:17px 18px;margin-bottom:14px;box-shadow:var(--schatten)}
+  .karte h2{font-size:.96rem;letter-spacing:-.012em;font-weight:700}
+  .karte .unter{color:var(--leise);font-size:.78rem;margin-top:3px;line-height:1.45;
+                max-width:62ch}
   .zwei{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
-  .zwei > .karte{margin:0}
-  @media (max-width:760px){ .zwei{grid-template-columns:1fr} .zwei > .karte{margin-bottom:0} }
+  /* min-width:0 ist hier PFLICHT, nicht Kosmetik: Ein Rasterfeld mit
+     1fr ist in Wahrheit minmax(auto,1fr), und dieses auto ist die
+     Mindestbreite des Inhalts. Eine lange Zeile schiebt die Karte dann
+     ueber den Bildschirmrand hinaus - am Handy gemessen: 399 px Karte
+     in einem 390-px-Fenster. Mit min-width:0 darf das Feld schmaler
+     werden als sein laengster Inhalt, und die Zeile kuerzt sich selbst. */
+  .zwei > .karte{margin:0;min-width:0}
+  .kennzahlen > .kz{min-width:0}
+  .erkenntnisse > .erkenntnis{min-width:0}
+  @media (max-width:780px){ .zwei{grid-template-columns:1fr;gap:0} .zwei > .karte{margin-bottom:14px} }
 
-  /* ---------- Zeilen mit Balken DAHINTER ----------
-     Der Balken ist eine getoente Flaeche hinter dem Text, keine eigene
-     Spalte. Damit kann die Beschriftung nie weggedrueckt werden. */
-  .liste{margin-top:11px;display:flex;flex-direction:column;gap:2px}
+  /* ---------- Listenzeilen ----------
+     Der Balken liegt HINTER dem Text (nie als eigene Spalte - genau
+     daran sind die Beschriftungen am 03.11.2026 verschwunden). Gold
+     bekommt nur die stärkste Zeile; alles andere bleibt grau, damit
+     die Farbe eine Aussage behält. */
+  .liste{margin-top:12px;display:flex;flex-direction:column;gap:1px}
   .reihe{position:relative;display:flex;align-items:center;gap:12px;
-         padding:8px 10px;border-radius:7px;font-size:.9rem}
-  .reihe .fuell{position:absolute;left:0;top:0;bottom:0;border-radius:7px;
-                background:var(--gold-spur)}
+         padding:9px 11px;border-radius:var(--r-klein);font-size:.875rem;
+         transition:background .12s}
+  .reihe:hover{background:var(--balken)}
+  .reihe .fuell{position:absolute;left:0;top:0;bottom:0;border-radius:var(--r-klein);
+                background:var(--balken);transition:width .35s cubic-bezier(.2,.7,.3,1)}
+  .reihe.spitze .fuell{background:var(--gold-weich)}
   .reihe .nam{position:relative;flex:1 1 auto;min-width:0;overflow:hidden;
               text-overflow:ellipsis;white-space:nowrap}
   .reihe .nam small{color:var(--leise);font-weight:400}
-  .reihe .wert{position:relative;flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:700}
-  .reihe .neben{position:relative;flex:0 0 auto;color:var(--leise);font-size:.8rem;
-                font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
-  .leer{color:var(--leise);font-size:.86rem;padding:14px 2px;line-height:1.5}
+  .reihe .wert{position:relative;flex:0 0 auto;font-variant-numeric:tabular-nums;
+               font-weight:700;letter-spacing:-.01em}
+  .reihe .neben{position:relative;flex:0 0 auto;color:var(--leise);font-size:.775rem;
+                font-variant-numeric:tabular-nums;min-width:54px;text-align:right}
+  /* ---------- Am Handy zwei Zeilen statt einer ----------
+     Bei 390 px teilen sich Name und Zusatz eine Zeile, und der Name
+     verliert: Aus „/konfigurator.html" wurde „/...". Der Name ist aber
+     das, wonach man sucht. Also bekommt er die ganze erste Zeile, und
+     Zusatz und Zahl ruecken darunter. */
+  @media (max-width:560px){
+    .reihe{flex-wrap:wrap;row-gap:2px;padding:10px 11px}
+    .reihe .nam{flex:1 1 100%;order:1}
+    .reihe .neben{order:2;flex:1 1 auto;text-align:left;min-width:0}
+    .reihe .wert{order:3;margin-left:auto}
+  }
+  .mehr{margin-top:8px;width:100%;padding:7px;border:1px dashed var(--rand);
+        border-radius:var(--r-klein);background:none;color:var(--leise);
+        font:600 .78rem inherit;cursor:pointer}
+  .mehr:hover{border-color:var(--gold);color:var(--tinte)}
+  .leer{color:var(--leise);font-size:.84rem;padding:16px 2px;line-height:1.55;max-width:60ch}
 
-  /* ---------- Diagramm ---------- */
-  .diagramm{position:relative;margin-top:14px}
-  .diagramm svg{display:block;width:100%;height:190px;overflow:visible}
-  .saeule{fill:var(--gold-hell)}
-  .diagramm svg.stunden{height:150px}
+  /* ---------- Diagramme ---------- */
+  .diagramm{position:relative;margin-top:16px}
+  .diagramm svg{display:block;width:100%;height:200px;overflow:visible}
+  .saeule{fill:var(--balken);transition:fill .12s}
   .saeule.stark{fill:var(--gold)}
-  .gitter{stroke:var(--rand);stroke-width:1}
-  .achse{fill:var(--leise);font-size:11px;font-family:inherit}
-  .wolke{position:absolute;pointer-events:none;background:#1f2a33;color:#fff;
-         border-radius:8px;padding:6px 10px;font-size:.78rem;white-space:nowrap;
-         transform:translate(-50%,-115%);opacity:0;transition:opacity .12s}
-  .wolke b{font-size:.92rem}
+  .diagramm:hover .saeule{fill:var(--balken)}
+  .saeule.wach{fill:var(--gold-dark)!important}
+  .gitter{stroke:var(--rand);stroke-width:1;stroke-dasharray:2 4}
+  .achse{fill:var(--feiner);font-size:11px;font-family:inherit;font-variant-numeric:tabular-nums}
+  /* display:none, nicht opacity:0 - und das ist kein Schoenheitsgriff:
+     Ein unsichtbares, aber absolut gesetztes Element behaelt seine
+     letzte Position und zaehlt weiter zur Seitenbreite. Wer am Rechner
+     ueber das Diagramm fuhr und das Fenster danach schmal zog, hatte
+     eine Seite, die seitlich weglief (gemessen am 03.11.2026 bei
+     390 px). Unsichtbar heisst hier: wirklich weg. */
+  .wolke{position:absolute;display:none;pointer-events:none;background:#141c23;color:#fff;
+         border-radius:var(--r-klein);padding:7px 11px;font-size:.78rem;white-space:nowrap;
+         transform:translate(-50%,-128%);
+         box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:5;line-height:1.35}
+  .wolke b{display:block;font-size:.95rem;font-variant-numeric:tabular-nums}
+  .wolke.an{display:block}
+
+  /* ---------- Wochentag × Stunde ---------- */
+  .matrix{margin-top:16px;overflow-x:auto;padding-bottom:4px}
+  .matrix table{border-collapse:separate;border-spacing:3px;min-width:540px}
+  .matrix th{font-size:.67rem;color:var(--feiner);font-weight:650;text-align:center;
+             padding-bottom:4px}
+  .matrix th.tag{text-align:right;padding-right:8px;width:30px}
+  .matrix .zelle{width:100%;height:16px;border-radius:4px;background:var(--balken);
+                 transition:transform .1s}
+  .matrix .zelle:hover{transform:scale(1.35)}
+  .matrix td{width:18px;padding:0}
+
+  /* ---------- Was auffällt ---------- */
+  .erkenntnisse{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));
+                gap:10px;margin-top:14px}
+  .erkenntnis{background:var(--grund);border:1px solid var(--rand);border-radius:var(--r-mittel);
+              padding:12px 14px;font-size:.86rem;line-height:1.5}
+  .erkenntnis b{color:var(--gold-dark);font-weight:700}
+  :root[data-ton="dunkel"] .erkenntnis b{color:var(--gold)}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-ton="hell"]) .erkenntnis b{color:var(--gold)}
+  }
+
+  /* ---------- Ladezustand ----------
+     Graue Platzhalter statt „wird geladen …": Man sieht sofort, WAS
+     kommt, und die Seite springt beim Eintreffen nicht. */
+  .skelett{background:linear-gradient(90deg,var(--balken) 25%,var(--rand) 37%,var(--balken) 63%);
+           background-size:400% 100%;animation:wandern 1.3s ease-in-out infinite;
+           border-radius:var(--r-klein)}
+  @keyframes wandern{0%{background-position:100% 50%}100%{background-position:0 50%}}
+  .sk-kz{height:92px;border-radius:var(--r-gross)}
+  .sk-gross{height:244px;border-radius:var(--r-gross);margin-bottom:14px}
 
   /* ---------- Sonstiges ---------- */
-  .schalter{display:flex;gap:11px;align-items:flex-start;background:#fffaf0;
-            border:1px solid #e8d9b0;border-radius:14px;padding:14px 16px;margin-bottom:14px}
-  .schalter input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--gold-dark)}
-  .schalter label{font-size:.88rem}
-  .schalter strong{display:block}
-  .warn{background:#FDECEA;border:1px solid var(--rot);color:var(--rot);
-        border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.88rem}
-  .fuss{margin-top:20px;color:var(--leise);font-size:.78rem;line-height:1.55}
-  .laedt{color:var(--leise);font-size:.88rem;padding:30px 0;text-align:center}
-
-  /* Gerade aktiv */
-  .live{display:inline-flex;align-items:center;gap:7px;background:#eaf5ee;color:#1d6b3f;
-        border:1px solid #bfe0cc;border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700}
-  .punkt{width:8px;height:8px;border-radius:50%;background:#2f7d4f;flex:none;
-         animation:pulsen 1.8s ease-in-out infinite}
-  @keyframes pulsen{0%,100%{opacity:1}50%{opacity:.35}}
-  .live.still{background:var(--grund);color:var(--leise);border-color:var(--rand)}
-  .live.still .punkt{background:var(--leise);animation:none}
-
-  /* Was auffällt */
-  .erkenntnisse{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:12px}
-  .erkenntnis{background:var(--grund);border-radius:10px;padding:11px 13px;font-size:.88rem;line-height:1.45}
-  .erkenntnis b{color:var(--gold-dark)}
-
-  /* Wochentag × Stunde */
-  .matrix{margin-top:14px;overflow-x:auto}
-  .matrix table{border-collapse:separate;border-spacing:2px;min-width:560px}
-  .matrix td,.matrix th{padding:0}
-  .matrix th{font-size:.7rem;color:var(--leise);font-weight:600;text-align:center;padding-bottom:3px}
-  .matrix th.tag{text-align:right;padding-right:7px;width:34px}
-  .matrix .zelle{width:100%;height:17px;border-radius:3px;background:var(--grund)}
-  .matrix td{width:19px}
-
-  /* Werkzeugzeile */
-  .werkzeuge{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-  .knopf{padding:8px 14px;border:1px solid var(--rand);border-radius:9px;background:var(--weiss);
-         color:var(--tinte);font:600 .84rem inherit;cursor:pointer;text-decoration:none;
-         display:inline-flex;align-items:center;gap:6px}
-  .knopf:hover{border-color:var(--gold)}
+  .schalter{display:flex;gap:12px;align-items:flex-start;
+            background:var(--karte);border:1px solid var(--rand);
+            border-radius:var(--r-gross);padding:15px 17px;margin-bottom:14px;
+            box-shadow:var(--schatten)}
+  .schalter input{width:19px;height:19px;margin-top:2px;flex:none;accent-color:var(--gold-dark)}
+  .schalter label{font-size:.86rem;line-height:1.5;color:var(--leise)}
+  .schalter strong{display:block;color:var(--tinte);margin-bottom:1px}
+  .warn{background:rgba(179,53,43,.08);border:1px solid var(--rot);color:var(--rot);
+        border-radius:var(--r-gross);padding:15px 17px;margin-bottom:14px;font-size:.86rem}
+  .fuss{margin-top:22px;color:var(--feiner);font-size:.76rem;line-height:1.6;max-width:92ch}
+  .fuss a{color:var(--leise)}
 </style>
 </head>
 <body>
@@ -183,10 +304,11 @@
     <span id="liveStand" class="live still"><span class="punkt"></span>gerade aktiv: –</span>
     <button type="button" class="knopf" id="csv">Als Tabelle speichern (CSV)</button>
     <button type="button" class="knopf" id="neuladen">Aktualisieren</button>
+    <button type="button" class="knopf" id="ton" aria-live="polite">Ansicht: automatisch</button>
   </div>
 
   <div id="meldung"></div>
-  <div id="inhalt"><p class="laedt">Zahlen werden geholt …</p></div>
+  <div id="inhalt"></div>
 
   <div class="schalter">
     <input type="checkbox" id="abschalter">
@@ -249,30 +371,68 @@
 
   /* Eine Zeile: Name, Balken DAHINTER, Wert und optionaler Zusatz rechts. */
   function reihe(name, anteil, wert, neben) {
-    return '<div class="reihe">'
+    /* Gold bekommt nur die staerkste Zeile. Welche das ist, steht schon
+       im Balken: Der Anteil ist auf den Hoechstwert normiert, 100 %
+       heisst "das ist der Spitzenwert". Kein zweiter Parameter noetig,
+       und es kann nicht auseinanderlaufen. */
+    var spitze = anteil >= 99.5 ? ' spitze' : '';
+    return '<div class="reihe' + spitze + '">'
       + '<span class="fuell" style="width:' + Math.max(0, Math.min(100, anteil)) + '%"></span>'
       + '<span class="nam">' + name + '</span>'
       + (neben != null ? '<span class="neben">' + neben + '</span>' : '')
       + '<span class="wert">' + wert + '</span></div>';
   }
+  var listeNr = 0;
   function liste(zeilen, leerText) {
-    return '<div class="liste">' + (zeilen.length ? zeilen.join('')
-      : '<p class="leer">' + leerText + '</p>') + '</div>';
+    if (!zeilen.length) return '<div class="liste"><p class="leer">' + leerText + '</p></div>';
+    /* Mehr als acht Zeilen sind in einer Karte eine Wand. Der Rest
+       bleibt da, nur zugeklappt - Wegkuerzen waere Verschweigen. */
+    /* Erst ab elf Zeilen einklappen: Die Liste der Handlungen hat neun,
+       und „Alle 9 anzeigen" unter acht sichtbaren Zeilen ist laecherlich. */
+    if (zeilen.length <= 10) return '<div class="liste">' + zeilen.join('') + '</div>';
+    var id = 'liste' + (++listeNr);
+    return '<div class="liste" id="' + id + '">' + zeilen.slice(0, 10).join('')
+      + '<div hidden>' + zeilen.slice(10).join('') + '</div></div>'
+      + '<button type="button" class="mehr" data-mehr="' + id + '">Alle '
+      + zeilen.length + ' anzeigen</button>';
   }
   function hoechstwert(arr, feld) {
     return arr.reduce(function (m, x) { return Math.max(m, Number(x[feld]) || 0); }, 0);
   }
 
+  /* Das Dreieck ist gezeichnet, kein Schriftzeichen: ▲ und ▼ stellt iOS
+     von sich aus als farbiges Emoji dar - derselbe Grund, aus dem die
+     ganze Website eine eigene Symbolsammlung hat. */
+  function pfeil(hoch) {
+    return '<svg viewBox="0 0 10 10" aria-hidden="true"><path fill="currentColor" d="'
+      + (hoch ? 'M5 1 9 8H1z' : 'M5 9 1 2h8z') + '"/></svg>';
+  }
   function trend(jetzt, vorher, umgekehrt) {
     if (!vorher) return '<div class="trend">kein Vergleich davor</div>';
     var p = Math.round((jetzt - vorher) / vorher * 100);
     var klasse = p === 0 ? '' : ((p > 0) === !umgekehrt ? 'hoch' : 'runter');
-    return '<div class="trend ' + klasse + '">' + (p > 0 ? '+' : '') + p
-      + ' % gegenüber davor</div>';
+    return '<div class="trend ' + klasse + '">' + (p === 0 ? '' : pfeil(p > 0))
+      + '<span>' + (p > 0 ? '+' : '') + p + ' % gegenüber davor</span></div>';
   }
-  function kachel(titel, wert, trendHtml) {
-    return '<div class="kz"><div class="titel">' + titel + '</div>'
+  function kachel(titel, wert, trendHtml, funke) {
+    return '<div class="kz">' + (funke || '') + '<div class="titel">' + titel + '</div>'
       + '<div class="zahl">' + wert + '</div>' + (trendHtml || '') + '</div>';
+  }
+
+  /* Winziger Verlauf in der Kachel: Die Summe sagt, WIE VIEL - erst die
+     Linie daneben sagt, ob es steigt oder einbricht. */
+  function funke(reihen) {
+    if (reihen.length < 3) return '';
+    var hoechst = hoechstwert(reihen, 'aufrufe') || 1;
+    var b = 56, hh = 18;
+    var punkte = reihen.map(function (r, i) {
+      return (i / (reihen.length - 1) * b).toFixed(1) + ','
+        + (hh - r.aufrufe / hoechst * hh).toFixed(1);
+    }).join(' ');
+    return '<svg class="funke" width="' + b + '" height="' + hh + '" viewBox="0 0 '
+      + b + ' ' + hh + '" aria-hidden="true"><polyline points="' + punkte
+      + '" fill="none" stroke="var(--gold)" stroke-width="1.6" '
+      + 'stroke-linejoin="round" stroke-linecap="round"/></svg>';
   }
 
   /* ---------- Säulendiagramm der Tage ----------
@@ -312,9 +472,56 @@
         + datumKurz(r.tag) + '</text>');
     });
 
-    return '<div class="diagramm"><svg viewBox="0 0 ' + B + ' ' + H
-      + '" preserveAspectRatio="none" role="img" aria-label="Seitenaufrufe je Tag">'
+    /* links und breite wandern als Daten mit: Die Wolke muss spaeter
+       aus einer Mausposition die Saeule zurueckrechnen, und zwar in
+       denselben Einheiten, in denen hier gezeichnet wurde. */
+    return '<div class="diagramm tage" data-links="' + links + '" data-breite="'
+      + breite + '" data-anzahl="' + reihen.length + '">'
+      + '<svg viewBox="0 0 ' + B + ' ' + H + '" preserveAspectRatio="none" '
+      + 'role="img" aria-label="Seitenaufrufe je Tag">'
       + teile.join('') + '</svg></div>';
+  }
+
+  /* ---------- Die Wolke am Diagramm ----------
+     Ein <title> im SVG zeigt der Browser erst nach einer Sekunde
+     Stillstand, und auf dem Handy gar nicht. Deshalb eine eigene
+     Wolke, die auch auf Fingertippen reagiert. */
+  function diagrammBeleben(reihen) {
+    var huelle = document.querySelector('.diagramm.tage');
+    if (!huelle || !reihen.length) return;
+    var svg = huelle.querySelector('svg');
+    var links = Number(huelle.getAttribute('data-links'));
+    var breite = Number(huelle.getAttribute('data-breite'));
+    var wolke = document.createElement('div');
+    wolke.className = 'wolke';
+    huelle.appendChild(wolke);
+    var saeulen = huelle.querySelectorAll('.saeule.tag');
+
+    function zeigen(ev) {
+      var kasten = svg.getBoundingClientRect();
+      var x = (ev.clientX - kasten.left) / kasten.width * 1000;
+      var i = Math.floor((x - links) / breite);
+      if (i < 0 || i >= reihen.length) { verstecken(); return; }
+      Array.prototype.forEach.call(saeulen, function (r, k) {
+        r.classList.toggle('wach', k === i);
+      });
+      var r = reihen[i];
+      wolke.innerHTML = '<b>' + zahl(r.aufrufe) + ' Aufruf' + (r.aufrufe === 1 ? '' : 'e')
+        + '</b>' + WOCHE[wochentag(r.tag)] + ', ' + datumKurz(r.tag);
+      /* Und zusaetzlich am Rand abgefangen: Bei der ersten und der
+         letzten Saeule stuende die Wolke sonst halb neben der Karte. */
+      var x1 = (links + breite * i + breite / 2) / 1000 * kasten.width;
+      wolke.style.left = Math.max(70, Math.min(kasten.width - 70, x1)) + 'px';
+      wolke.style.top = '0px';
+      wolke.classList.add('an');
+    }
+    function verstecken() {
+      wolke.classList.remove('an');
+      Array.prototype.forEach.call(saeulen, function (r) { r.classList.remove('wach'); });
+    }
+    svg.addEventListener('pointermove', zeigen);
+    svg.addEventListener('pointerdown', zeigen);
+    svg.addEventListener('pointerleave', verstecken);
   }
 
   /* ---------- Die Uhrzeit als Diagramm, nicht als 24 Zeilen ----------
@@ -508,7 +715,7 @@
     var teile = [];
 
     teile.push('<div class="kennzahlen">'
-      + kachel('Seitenaufrufe', zahl(summe), trend(summe, vorher.aufrufe))
+      + kachel('Seitenaufrufe', zahl(summe), trend(summe, vorher.aufrufe), funke(reihen))
       + kachel('Im Schnitt am Tag', zahl(Math.round(summe / tage)), '')
       + kachel('Verweildauer', dauerText(schnittDauer), trend(schnittDauer, vorher.dauer))
       + kachel('Gelesen', schnittTiefe ? schnittTiefe + ' %' : '–', '')
@@ -638,8 +845,9 @@
     var klicks = d.klicks || [];
     var hK = hoechstwert(klicks, 'anzahl');
     var klickZeilen = klicks.slice(0, 15).map(function (k) {
+      /* „/" allein sieht rechts aus wie ein vergessener Schraegstrich. */
       return reihe(sicher(k.was), hK ? k.anzahl / hK * 100 : 0, zahl(k.anzahl),
-        sicher(k.seite));
+        k.seite === '/' ? 'Startseite' : sicher(k.seite));
     });
     teile.push('<div class="karte"><h2>Worauf geklickt wird</h2>'
       + '<p class="unter">Die Beschriftung des Knopfes oder Verweises, rechts die Seite. '
@@ -668,6 +876,7 @@
       + '</div>');
 
     el('inhalt').innerHTML = teile.join('');
+    diagrammBeleben(reihen);
   }
 
   /* ---------- Als Tabelle speichern ----------
@@ -699,9 +908,18 @@
     }).join('\r\n');
   }
 
+  function skelett() {
+    var kacheln = '';
+    for (var i = 0; i < 6; i++) kacheln += '<div class="skelett sk-kz"></div>';
+    return '<div class="kennzahlen">' + kacheln + '</div>'
+      + '<div class="skelett sk-gross"></div>'
+      + '<div class="zwei"><div class="skelett sk-gross"></div>'
+      + '<div class="skelett sk-gross"></div></div>';
+  }
+
   function laden() {
     el('meldung').innerHTML = '';
-    el('inhalt').innerHTML = '<p class="laedt">Zahlen werden geholt …</p>';
+    el('inhalt').innerHTML = skelett();
     fetch('/werkstatt/api/zahlen?tage=' + tage, { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (a) {
@@ -728,6 +946,36 @@
       x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
     });
     laden();
+  });
+
+  /* Aufklappen langer Listen - ein Zuhoerer fuer alle, weil die Knoepfe
+     bei jedem Zeichnen neu entstehen. */
+  el('inhalt').addEventListener('click', function (ev) {
+    var k = ev.target.closest('button[data-mehr]');
+    if (!k) return;
+    var rest = document.getElementById(k.getAttribute('data-mehr')).lastElementChild;
+    rest.hidden = false;
+    k.remove();
+  });
+
+  /* ---------- Hell, dunkel oder wie das Gerät ----------
+     Eine Auswertung schaut man abends an. Die Wahl liegt im
+     localStorage DIESER Seite - sie steht hinter dem Passwort und hat
+     mit der Besuchermessung nichts zu tun. */
+  var TON = ['automatisch', 'hell', 'dunkel'];
+  function tonSetzen(t) {
+    if (t === 'automatisch') document.documentElement.removeAttribute('data-ton');
+    else document.documentElement.setAttribute('data-ton', t);
+    el('ton').textContent = 'Ansicht: ' + t;
+    try { localStorage.setItem('bv_zahlen_ton', t); } catch (e) {}
+  }
+  var tonJetzt = 'automatisch';
+  try { tonJetzt = localStorage.getItem('bv_zahlen_ton') || 'automatisch'; } catch (e) {}
+  if (TON.indexOf(tonJetzt) < 0) tonJetzt = 'automatisch';
+  tonSetzen(tonJetzt);
+  el('ton').addEventListener('click', function () {
+    tonJetzt = TON[(TON.indexOf(tonJetzt) + 1) % TON.length];
+    tonSetzen(tonJetzt);
   });
 
   el('csv').addEventListener('click', function () {

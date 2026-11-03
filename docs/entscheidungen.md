@@ -11722,3 +11722,69 @@ der Zahlenseite selbst.
 eingebauten Fehlern – alle erkannt, darunter die falsche Wochentagsumrechnung
 und die fehlende BOM. `scripts/pruefe-messung.js`: 44 Prüfungen (vorher 39),
 Gegenprobe mit **zehn** Fehlern. Dazu der Durchgang mit leeren Daten.
+
+## 03.11.2026 (spät) — Gestaltung der Zahlenseite
+
+**Anlass.** „ja schon beser abr das ui uix design könnte besser sein"
+(Betreiber, 03.11.2026).
+
+### Drei Regeln, nach denen die Seite jetzt gebaut ist
+
+1. **Eine Akzentfarbe, und sie bedeutet etwas.** Gold markiert nur noch die
+   **stärkste Zeile** einer Liste, alles andere ist grau. Vorher war jeder
+   Balken gold – dann trägt die Farbe keine Aussage mehr, und das Auge findet
+   nichts. Welche Zeile die stärkste ist, steht schon im Balken selbst: Der
+   Anteil ist auf den Höchstwert normiert, 100 % heißt Spitzenwert. Kein
+   zweiter Parameter, der auseinanderlaufen könnte.
+2. **Abstände aus einer Leiter** (4-6-8-12-16-22-30 px) statt nach Gefühl.
+   Ungleiche Abstände sind der häufigste Grund, warum eine Seite „irgendwie
+   unruhig" wirkt.
+3. **Zahlen mit tabularen Ziffern.** Sonst tanzen die Spalten, sobald sich
+   eine Ziffer ändert.
+
+Dazu: Ladezustand als graue Platzhalter statt „wird geladen …" (man sieht
+sofort, *was* kommt, und die Seite springt beim Eintreffen nicht), ein
+Verlaufsfunke in der ersten Kennzahl, Trendpfeile als **gezeichnetes SVG**
+(▲ und ▼ stellt iOS als farbiges Emoji dar – derselbe Grund, aus dem die
+Website eine eigene Symbolsammlung hat), aufklappbare lange Listen und
+**hell/dunkel/automatisch**. Eine Auswertung schaut man abends an.
+
+### Warum Systemschrift und nicht die Hausschrift
+
+Barlow Condensed und Inter kommen von Google und laden erst nach einer
+Einwilligung. In der Werkstatt gibt es das Cookie-Banner bewusst nicht, die
+Einwilligung käme also nie – die Seite würde dauerhaft auf eine Schrift
+warten, die nicht kommt. Lieber eine sauber gesetzte Systemschrift.
+
+### Zwei echte Fehler, die erst die Prüfung gezeigt hat
+
+1. **Die Wolke am Diagramm zog die Seite breiter.** Sie war mit `opacity:0`
+   versteckt – ein unsichtbares, aber absolut gesetztes Element behält seine
+   letzte Position und zählt weiter zur Seitenbreite. Wer am Rechner über das
+   Diagramm fuhr und das Fenster danach schmal zog, hatte eine Seite, die
+   seitlich weglief. Jetzt `display:none`, und die Wolke wird zusätzlich am
+   Rand abgefangen.
+2. **`min-width:0` auf Rasterfeldern ist Pflicht, nicht Kosmetik.** Ein Feld
+   mit `1fr` ist in Wahrheit `minmax(auto,1fr)`, und dieses `auto` ist die
+   **Mindestbreite des Inhalts**. Eine lange Zeile schob die Karte über den
+   Bildschirmrand: gemessen 399 px Karte in einem 390-px-Fenster.
+
+Beide hätte man am Rechner nie gesehen. Die Prüfung misst jetzt bei 390 px
+die wirkliche Seitenbreite – und **nennt das Element**, das heraussteht. Eine
+Prüfung, die nur „zu breit" sagt, kostet jedes Mal eine eigene Suche.
+
+### Und eine Entscheidung für das Handy
+
+Bei 390 px teilten sich Name und Zusatz eine Zeile, und der Name verlor: Aus
+`/konfigurator.html` wurde `/…`. Der Name ist aber das, wonach man sucht. Ab
+jetzt bekommt er dort die ganze erste Zeile, Zusatz und Zahl rücken darunter.
+Geprüft wird die gemessene Breite: mindestens 150 px, gemessen 294 px.
+
+### Nachgemessen
+
+`scripts/pruefe-messung.mjs`: **51 Prüfungen** (vorher 43), Gegenprobe mit
+zehn eingebauten Fehlern – alle erkannt. Neu darunter: die Wolke am Diagramm,
+das Aufklappen langer Listen, dass nur der Spitzenwert golden ist, der
+Hell-Dunkel-Wechsel (**nach** dem Farbübergang gemessen – `transition` liefert
+sonst die Zwischenfarbe, was beim ersten Versuch wie ein Fehler aussah) und
+die Handy-Breite.
