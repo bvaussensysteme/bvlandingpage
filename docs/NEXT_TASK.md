@@ -262,6 +262,21 @@ eine Entscheidung oder eine Rückfrage bei Dritten.
 | **Preisgrundlage, falls je Preise gezeigt werden sollen** | Bisherige Linie: keine Preise. Eine Kalkulationsgrundlage kann nur der Betrieb liefern |
 | **Kurzlink: Rechte in der Datenbank** (nur falls gewünscht, siehe Abschnitt 2) | Die Datenbank-Rolle darf **gar nichts anlegen** – weder in `public` noch ein eigenes Schema. Live gemessen am 25.10.2026: Fehlernummer `42501`. Vom Betreiber zurückgestellt: „is mir zu kompliziert xd keine ahnung". Der lange Link funktioniert, er ist nur lang |
 
+### Besucherzahlen: was noch offen ist *(seit 03.11.2026)*
+
+Die eigene Messung läuft. Drei Dinge hängen daran:
+
+1. **Der Konfigurator-Trichter bleibt leer**, solange der öffentliche
+   Konfigurator gesperrt ist – in der Werkstatt wird bewusst nicht gezählt.
+   Ab der Freischaltung entstehen die Zahlen von selbst.
+2. **Cloudflare Web Analytics** wäre eine kostenlose Ergänzung (Besucherzahlen
+   ohne Einwilligung, dazu Ladezeiten). Vorher zu klären: ob im Gratis-Tarif
+   EU-Verkehr ausgeschlossen ist – dann wäre es für uns wertlos.
+3. **Heatmaps** (wo genau wird geklickt) gibt es nur mit einem fremden Dienst.
+   Microsoft Clarity ist kostenlos, aber einwilligungspflichtig, US-Anbieter mit
+   AVV-Pflicht, und die Eingabefelder des Anfrage-Assistenten müssten maskiert
+   werden. Nur auf Ansage.
+
 ### Vorschlag, nicht gebaut: das PDF als Anhang in der Anfrage
 
 Gewünscht war „ggf. falls kostenlos möglich auch die fertige konfigurations
@@ -312,6 +327,8 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-fuehrung.js` | Gehört jede Bedieneinheit des 3D-Konfigurators zu einem Schritt der geführten Reihenfolge? Nennt die Anfrage alle drei Seiten? |
 | `scripts/pruefe-stoffe.js` | Sind beide Stoffgruppen vollständig, überschneidungsfrei und in beiden Konfiguratoren gleich? Sind alle Musterbilder da? |
 | `scripts/pruefe-markise.js` | Stimmen die Maße der Aufdachmarkise (Kassette, Schiene, Stützen) mit der Herstellerzeichnung Linea A/AZ überein? `--gegenprobe` verfälscht die Sollwerte |
+| `scripts/pruefe-messung.js` | Die eigene Reichweitenmessung als **Datenschutz-Zusage**: kein Speicherzugriff außer dem Abschalter, kein User-Agent, keine Spalte für IP oder Besucherkennung, Auswertung hinter dem Werkstatt-Tor, Abschnitt 19 der Datenschutzerklärung, kein vorbelegter Haken, keine Vorab-Verbindung zu Google. Führt die Rechenfunktionen aus `worker/index.js` wirklich aus (39 Prüfungen) |
+| `scripts/pruefe-messung.mjs` | Dasselbe im Browser: fängt die Messpakete ab und liest, was abgegangen **wäre** – Verweildauer, Telefonklick, kein Kennzeichen im Paket, Kekse und Speicher unverändert; dazu die Darstellung der Zahlenseite (20 Prüfungen) |
 | `scripts/pruefe-konfigurator-oberflaeche.mjs` | Echter Browser, 145 Prüfungen: Layout, Regler, Markisen, Maße, Handy-Scrollen, Zurücksetzen – und liest zurück, was im Assistenten ankommt **und was den Browser beim Absenden verlassen hätte** (Mailweg abgefangen, Konfigurationslink ausgepackt und zurückgerechnet). Braucht `npm i --no-save playwright`, startet den Webserver selbst |
 | `scripts/pruefe-symbole.js` | **Keine Emoji in der Oberfläche.** Sucht die Zeichen selbst (nicht das Aussehen) in Knopfbeschriftungen, in allem, was Javascript in die Seite schreibt, und in den sechs Skripten der Website. Dazu: Jedes benutzte Symbol gibt es, keines liegt ungenutzt herum, jedes hat eine viewBox, keines bringt fremde Bilddaten mit, das Sprite steht vor der ersten Verwendung. Gegenprobe: 17 Fehler, jeder einzeln |
 | `scripts/pruefe-feldwahl.js` | Zuordnung Element → Feld: ohne Zuordnung gilt ein Element in ALLEN Feldern (alte Links bleiben unverändert), das Modell baut danach, verwaiste Zuordnungen werden geloescht, ein weggefallenes Feld lässt nichts verschwinden, Teilen-Link trägt und liest sie, Anfrage nennt Feld und Feldzahl, die Rückseite wird nicht mehr doppelt gebaut. 25 Prüfungen, Gegenprobe: 26 Fehler einzeln |
@@ -476,6 +493,8 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 03.11.2026 | **Eigene Reichweitenmessung** (`/api/messung` → D1 in der EU) mit Auswertung unter `/werkstatt/zahlen.html`: Tage, Wochentage, Seiten, Verweildauer, Handlungen, Konfigurator-Trichter. Ohne Cookies, ohne Einwilligung, ohne Besucherkennzeichen – deshalb **keine Zahl „einzelne Besucher"** | neu |
+| 03.11.2026 | **Cookie-Banner: vorbelegter Haken „Externe Dienste" entfernt** (vorbelegte Einwilligung ist keine Einwilligung) und die drei Vorab-Verbindungen zu Google aus dem Kopf der Startseite genommen | neu |
 | 02.11.2026 | **Letzter Knopf schickt ab** („Anfrage abschicken") und der **Konfigurationslink geht in jede Anfrage** — das alte `hidden` wirkte nie, weil `.btn` `display:inline-block` setzt; PDF-Anhang geht nicht kostenlos (Begründung in `docs/entscheidungen.md`) | neu |
 | 02.11.2026 | **„Zurück" stand auf dem iPhone in Safaris Blau** — dritter Fall derselben Art: eine Knopfregel ohne `color` | neu |
 | 02.11.2026 | **„Abbrechen" in Rot** — trug nur `.btn`, und das setzt keine Schriftfarbe: Auf dem iPhone blieb Safaris Blau | neu |

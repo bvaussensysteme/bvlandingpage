@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Zahlen – Werkstatt</title>
+<!-- ============================================================
+     Die eigene Auswertung. Liegt unter /werkstatt/, also hinter dem
+     Passwort (worker/index.js, werkstattTor) - und holt ihre Zahlen von
+     /werkstatt/api/zahlen, das aus demselben Grund dort liegt: Der
+     Anmelde-Keks hat Path=/werkstatt und wuerde an /api/... nicht
+     mitgeschickt.
+
+     Keine fremden Schriften, keine Bibliothek, keine Diagramm-Software:
+     Balken sind hier Rechtecke mit Prozentbreite. Das laedt sofort, geht
+     auch ohne Netz zu Dritten und faellt nicht aus, wenn irgendwo eine
+     Version wechselt.
+     ============================================================ -->
+<style>
+  :root{--gold:#C49A2A;--gold-dark:#9A7318;--ink:#1f2a33;--muted:#6b7a84;
+        --rand:#dfe4e8;--grund:#f3f5f7;--weiss:#fff}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--grund);color:var(--ink);padding:0 0 60px;
+       font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .leiste{position:sticky;top:0;z-index:9;background:#1f2a33;color:#fff;
+          padding:6px 10px;display:flex;gap:9px;align-items:center;
+          justify-content:center;white-space:nowrap;font:600 12.5px/1.2 inherit}
+  .marke{background:#c8863a;border-radius:4px;padding:1px 7px}
+  .leiste a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4)}
+  .huelle{max-width:1000px;margin:0 auto;padding:18px 16px}
+  h1{font-size:1.5rem;line-height:1.2;margin-bottom:4px}
+  .unter{color:var(--muted);font-size:.86rem;margin-bottom:16px}
+  .zeitwahl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .zeitwahl button{padding:8px 15px;border-radius:9px;border:2px solid var(--rand);
+                   background:var(--weiss);color:var(--ink);font:700 .9rem inherit;cursor:pointer}
+  .zeitwahl button[aria-pressed="true"]{border-color:var(--gold-dark);background:var(--gold)}
+  .karten{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+  .karte{background:var(--weiss);border:1px solid var(--rand);border-radius:12px;padding:13px 14px}
+  .karte b{display:block;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+  .karte span{color:var(--muted);font-size:.78rem}
+  section{background:var(--weiss);border:1px solid var(--rand);border-radius:12px;
+          padding:15px 16px;margin-bottom:14px}
+  h2{font-size:1.02rem;margin-bottom:3px}
+  .hinw{color:var(--muted);font-size:.78rem;margin-bottom:11px}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  td{padding:5px 0;vertical-align:middle}
+  td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:10px}
+  td.t{max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .balken{background:var(--grund);border-radius:4px;height:11px;min-width:40px}
+  .balken i{display:block;height:100%;border-radius:4px;background:var(--gold)}
+  .leer{color:var(--muted);font-size:.86rem;padding:6px 0}
+  .fuss{margin-top:22px;color:var(--muted);font-size:.78rem}
+  .schalter{display:flex;gap:10px;align-items:flex-start;background:#fffaf0;
+            border:1px solid #e8d9b0;border-radius:12px;padding:13px 14px;margin-bottom:14px}
+  .schalter input{width:20px;height:20px;margin-top:2px;flex:none}
+  .schalter label{font-size:.88rem}
+  .schalter strong{display:block}
+  .warn{background:#FDECEA;border:1px solid #B3352B;color:#B3352B;
+        border-radius:12px;padding:13px 14px;margin-bottom:14px;font-size:.88rem}
+</style>
+</head>
+<body>
+<div class="leiste"><span class="marke">WERKSTATT</span>
+  <span>Zahlen</span><a href="/werkstatt/">&rarr; Konfigurator</a></div>
+
+<div class="huelle">
+  <h1>Was auf der Website passiert</h1>
+  <p class="unter">Eigene Messung, ohne fremden Dienst und ohne Cookies.
+    Gezählt werden <b>Aufrufe und Handlungen</b> – keine Personen: Es gibt
+    bewusst kein Kennzeichen, das denselben Besucher wiedererkennt
+    (Begründung in <code>worker/index.js</code>).</p>
+
+  <div class="zeitwahl" id="zeitwahl">
+    <button type="button" data-tage="7">7 Tage</button>
+    <button type="button" data-tage="30" aria-pressed="true">30 Tage</button>
+    <button type="button" data-tage="90">90 Tage</button>
+    <button type="button" data-tage="365">1 Jahr</button>
+  </div>
+
+  <div id="meldung"></div>
+
+  <div class="schalter">
+    <input type="checkbox" id="abschalter">
+    <label for="abschalter"><strong>Meine eigenen Besuche nicht mitzählen</strong>
+      Gilt für dieses Gerät und diesen Browser. Die Werkstatt selbst wird
+      ohnehin nie gezählt – dieser Schalter betrifft deine Besuche auf der
+      <em>öffentlichen</em> Website.</label>
+  </div>
+
+  <div class="karten" id="karten"></div>
+
+  <section>
+    <h2>Seitenaufrufe je Tag</h2>
+    <p class="hinw" id="tageHinw">&nbsp;</p>
+    <table id="tabTage"></table>
+  </section>
+
+  <section>
+    <h2>Wochentage im Schnitt</h2>
+    <p class="hinw">Beantwortet „an welchen Tagen kommen die meisten Besucher".</p>
+    <table id="tabWoche"></table>
+  </section>
+
+  <section>
+    <h2>Beliebteste Seiten und Verweildauer</h2>
+    <p class="hinw">Die Dauer ist der Schnitt der sichtbaren Zeit auf der Seite.</p>
+    <table id="tabSeiten"></table>
+  </section>
+
+  <section>
+    <h2>Handlungen</h2>
+    <p class="hinw">Telefon, WhatsApp, E-Mail, Anfrage geöffnet und wirklich abgeschickt.</p>
+    <table id="tabHandlungen"></table>
+  </section>
+
+  <section>
+    <h2>Weg durch den 3D-Konfigurator</h2>
+    <p class="hinw" id="trichterHinw">Wie viele erreichen welchen Bereich – dort,
+      wo die Zahl abfällt, hören die Leute auf.</p>
+    <table id="tabTrichter"></table>
+  </section>
+
+  <section>
+    <h2>Woher die Besucher kommen</h2>
+    <table id="tabQuellen"></table>
+  </section>
+
+  <section>
+    <h2>Uhrzeit und Gerät</h2>
+    <table id="tabStunden"></table>
+    <table id="tabGeraete" style="margin-top:12px"></table>
+  </section>
+
+  <p class="fuss">Gespeichert werden Tag, Stunde, Pfad, Verweildauer, Art der
+    Handlung, Herkunftsseite und ob Handy oder Rechner – keine IP-Adresse, kein
+    User-Agent, kein Kennzeichen pro Besucher. Die Datenbank liegt in der EU.
+    Älteres als 400 Tage wird beim Aufruf dieser Seite gelöscht.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var TAGE = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  var tage = 30;
+
+  function el(id) { return document.getElementById(id); }
+  function zahl(n) { return (n == null ? 0 : n).toLocaleString('de-DE'); }
+  function dauerText(s) {
+    if (!s) return '–';
+    return s < 60 ? s + ' s' : Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2) + ' min';
+  }
+  function balkenZeile(name, wert, hoechst, rechts) {
+    var b = hoechst > 0 ? Math.max(2, Math.round(wert / hoechst * 100)) : 0;
+    return '<tr><td class="t">' + name + '</td>'
+      + '<td style="width:42%"><div class="balken"><i style="width:' + b + '%"></i></div></td>'
+      + '<td class="n">' + (rechts != null ? rechts : zahl(wert)) + '</td></tr>';
+  }
+  function fuellen(ziel, zeilen, leerText) {
+    el(ziel).innerHTML = zeilen.length ? zeilen.join('')
+      : '<tr><td class="leer">' + leerText + '</td></tr>';
+  }
+  function sicher(t) {
+    return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function zeichnen(d) {
+    var reihe = d.tageReihe || [];
+    var summe = reihe.reduce(function (a, r) { return a + r.aufrufe; }, 0);
+    var handlung = {};
+    (d.handlungen || []).forEach(function (h) { handlung[h.art] = h.anzahl; });
+    var dauern = (d.seiten || []).filter(function (s) { return s.dauer; });
+    var schnittDauer = dauern.length
+      ? Math.round(dauern.reduce(function (a, s) { return a + s.dauer * s.aufrufe; }, 0)
+                   / dauern.reduce(function (a, s) { return a + s.aufrufe; }, 0)) : 0;
+
+    el('karten').innerHTML =
+      '<div class="karte"><b>' + zahl(summe) + '</b><span>Seitenaufrufe</span></div>'
+      + '<div class="karte"><b>' + (reihe.length ? zahl(Math.round(summe / tage)) : '0')
+      + '</b><span>im Schnitt am Tag</span></div>'
+      + '<div class="karte"><b>' + dauerText(schnittDauer) + '</b><span>Verweildauer</span></div>'
+      + '<div class="karte"><b>' + zahl(handlung['anfrage-gesendet'] || 0)
+      + '</b><span>Anfragen abgeschickt</span></div>'
+      + '<div class="karte"><b>' + zahl((handlung.telefon || 0) + (handlung.whatsapp || 0)
+      + (handlung.mail || 0)) + '</b><span>Telefon / WhatsApp / Mail</span></div>';
+
+    // Tage
+    var hoechst = reihe.reduce(function (m, r) { return Math.max(m, r.aufrufe); }, 0);
+    el('tageHinw').textContent = reihe.length
+      ? 'Ab ' + d.von + ' · stärkster Tag: ' + hoechst + ' Aufrufe'
+      : 'Noch keine Daten – gemessen wird ab der Veröffentlichung.';
+    fuellen('tabTage', reihe.slice(-60).reverse().map(function (r) {
+      var t = r.tag.split('-');
+      return balkenZeile(t[2] + '.' + t[1] + '. <span style="color:#6b7a84">'
+        + TAGE[(new Date(r.tag + 'T12:00:00')).getDay() === 0 ? 6
+               : (new Date(r.tag + 'T12:00:00')).getDay() - 1].slice(0, 2) + '</span>',
+        r.aufrufe, hoechst);
+    }), 'Noch nichts gemessen.');
+
+    // Wochentage
+    var summeW = [0,0,0,0,0,0,0], anzahlW = [0,0,0,0,0,0,0];
+    reihe.forEach(function (r) {
+      var js = (new Date(r.tag + 'T12:00:00')).getDay();
+      var i = js === 0 ? 6 : js - 1;
+      summeW[i] += r.aufrufe; anzahlW[i]++;
+    });
+    var schnitt = summeW.map(function (s, i) { return anzahlW[i] ? s / anzahlW[i] : 0; });
+    var hoechstW = Math.max.apply(null, schnitt);
+    fuellen('tabWoche', schnitt.map(function (s, i) {
+      return balkenZeile(TAGE[i], s, hoechstW, s ? s.toFixed(1) : '–');
+    }), 'Noch nichts gemessen.');
+
+    // Seiten
+    var hoechstS = (d.seiten || []).reduce(function (m, s) { return Math.max(m, s.aufrufe); }, 0);
+    fuellen('tabSeiten', (d.seiten || []).map(function (s) {
+      return balkenZeile(sicher(s.seite), s.aufrufe, hoechstS,
+        zahl(s.aufrufe) + ' · ' + dauerText(s.dauer));
+    }), 'Noch nichts gemessen.');
+
+    // Handlungen
+    var NAMEN = { telefon: 'Telefonnummer angeklickt', whatsapp: 'WhatsApp angeklickt',
+      mail: 'E-Mail angeklickt', 'anfrage-geoeffnet': 'Anfrage-Assistent geöffnet',
+      'anfrage-gesendet': 'Anfrage abgeschickt', 'konfig-start': '3D-Konfigurator geöffnet',
+      'konfig-anfrage': 'Aus dem Konfigurator angefragt', 'konfig-pdf': 'PDF erzeugt',
+      'konfig-teilen': 'Planung geteilt', verweilen: 'Rückkehr auf die Seite' };
+    var hoechstH = (d.handlungen || []).reduce(function (m, h) { return Math.max(m, h.anzahl); }, 0);
+    fuellen('tabHandlungen', (d.handlungen || []).map(function (h) {
+      return balkenZeile(NAMEN[h.art] || sicher(h.art), h.anzahl, hoechstH);
+    }), 'Noch keine Handlung gemessen.');
+
+    // Trichter
+    var tr = d.trichter || [];
+    var hoechstT = tr.reduce(function (m, t) { return Math.max(m, t.anzahl); }, 0);
+    fuellen('tabTrichter', tr.map(function (t) {
+      var anteil = hoechstT ? Math.round(t.anzahl / hoechstT * 100) : 0;
+      return balkenZeile((t.nr || '?') + '. ' + sicher(t.name || 'Bereich'),
+        t.anzahl, hoechstT, zahl(t.anzahl) + ' · ' + anteil + ' %');
+    }), 'Noch nichts gemessen. Der öffentliche Konfigurator ist gesperrt – '
+      + 'solange kann hier nichts entstehen (in der Werkstatt wird bewusst nicht gezählt).');
+
+    // Quellen
+    var hoechstQ = (d.quellen || []).reduce(function (m, q) { return Math.max(m, q.aufrufe); }, 0);
+    fuellen('tabQuellen', (d.quellen || []).map(function (q) {
+      return balkenZeile(q.quelle === 'direkt' ? 'direkt eingegeben / Lesezeichen'
+        : sicher(q.quelle), q.aufrufe, hoechstQ);
+    }), 'Noch nichts gemessen.');
+
+    // Stunden
+    var st = d.stunden || [];
+    var hoechstU = st.reduce(function (m, s) { return Math.max(m, s.aufrufe); }, 0);
+    fuellen('tabStunden', st.map(function (s) {
+      return balkenZeile(('0' + s.stunde).slice(-2) + ':00', s.aufrufe, hoechstU);
+    }), 'Noch nichts gemessen.');
+    var hoechstG = (d.geraete || []).reduce(function (m, g) { return Math.max(m, g.aufrufe); }, 0);
+    fuellen('tabGeraete', (d.geraete || []).map(function (g) {
+      return balkenZeile(g.geraet === 'handy' ? 'Handy' : 'Rechner', g.aufrufe, hoechstG);
+    }), '');
+  }
+
+  function laden() {
+    el('meldung').innerHTML = '';
+    fetch('/werkstatt/api/zahlen?tage=' + tage, { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (a) {
+        if (!a.ok) {
+          el('meldung').innerHTML = '<div class="warn"><b>Keine Zahlen.</b> '
+            + sicher(a.d && a.d.hinweis || 'Unbekannter Fehler') + '</div>';
+          return;
+        }
+        zeichnen(a.d);
+      })
+      .catch(function (e) {
+        el('meldung').innerHTML = '<div class="warn"><b>Abfrage fehlgeschlagen.</b> '
+          + sicher(e && e.message) + '</div>';
+      });
+  }
+
+  el('zeitwahl').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-tage]');
+    if (!b) return;
+    tage = Number(b.getAttribute('data-tage'));
+    Array.prototype.forEach.call(el('zeitwahl').querySelectorAll('button'), function (x) {
+      x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+    });
+    laden();
+  });
+
+  /* Der Abschalter liegt im localStorage des Geräts – js/messung.js
+     liest genau diesen Schlüssel und hört dann auf zu zählen. */
+  var box = el('abschalter');
+  try { box.checked = localStorage.getItem('bv_messung_aus') === '1'; } catch (e) {}
+  box.addEventListener('change', function () {
+    try {
+      if (box.checked) localStorage.setItem('bv_messung_aus', '1');
+      else localStorage.removeItem('bv_messung_aus');
+    } catch (e) {}
+  });
+
+  laden();
+})();
+</script>
+</body>
+</html>

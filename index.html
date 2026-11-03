@@ -41,11 +41,25 @@
   <link rel="preload" as="image" href="images/vd_prod_terrasse_tds_m.webp?v=20260718a" media="(max-width: 767.98px)" />
   <link rel="preload" as="image" href="images/vd_prod_terrasse_tds.webp?v=20260715a" media="(min-width: 768px)" />
 
-  <!-- ===== PERFORMANCE: Resource Hints ===== -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- ===== PERFORMANCE: Resource Hints =====
+       ENTFERNT am 03.11.2026, und zwar aus Datenschutzgruenden, nicht
+       wegen der Geschwindigkeit:
+
+         preconnect auf fonts.googleapis.com und fonts.gstatic.com
+       baut die Verbindung zu Google schon beim Laden auf - samt
+       IP-Adresse des Besuchers, BEVOR er im Banner zugestimmt hat. Die
+       Schriften selbst laden korrekt erst nach der Einwilligung (siehe
+       weiter unten, loadFonts). Der Vorab-Verbindungsaufbau hat genau
+       das ausgehebelt, worum es bei der Einwilligung geht.
+
+         dns-prefetch auf www.googletagmanager.com war ein Rest eines
+       laengst entfernten Google Analytics. Es gab nichts mehr zu
+       verbinden - die Zeile hat nur noch verraten, dass hier einmal
+       Google-Werkzeug lief.
+
+       Geblieben ist formspree.io: Der Versandweg der Anfrage, und dort
+       geht ohnehin erst etwas hin, wenn jemand absendet. =====  -->
   <link rel="dns-prefetch" href="https://formspree.io" />
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
   <!-- ===== OPEN GRAPH (Social Media) ===== -->
   <meta property="og:title"       content="Terrassenüberdachung & Carport Westerwald | BV AussenSysteme" />
@@ -1451,6 +1465,7 @@
 <script src="js/anfrage-wizard.js?v=20261102e" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
+<script src="/js/messung.js?v=20261103a" defer></script>
 <script src="js/slider.js?v=20260714k" defer></script>
 <script src="js/prozess-animation.js" defer></script>
 <script src="js/dibt-lastzonen.js" defer></script>

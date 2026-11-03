@@ -9913,6 +9913,9 @@
     { id: 'abschluss', t: 'Fertig', schritte: ['umgebung', 'fertig'] }
   ];
   var bereichNr = 0;
+  /* Welcher Bereich dem eigenen Zaehler zuletzt gemeldet wurde (-1 =
+     noch keiner). Siehe schrittZeigen(). */
+  var messungBereich = -1;
 
   function bereichSchritte(b) {
     return BEREICHE[b] ? BEREICHE[b].schritte : [];
@@ -10125,6 +10128,24 @@
     var pos = gueltig.indexOf(bereichNr) + 1;
     var zahl = document.getElementById('k3dSchrittZahl');
     if (zahl) zahl.textContent = pos + ' von ' + gueltig.length;
+
+    /* ---------- Dem eigenen Zaehler melden, wo wir sind ----------
+       „Welche Aktion führt ein Besucher durch?" (Betreiber,
+       03.11.2026). Daraus entsteht der Trichter in der Werkstatt: wie
+       viele fangen an, bei welchem Bereich hoeren sie auf.
+
+       NUR BEI EINEM WECHSEL. schrittZeigen() laeuft bei jeder
+       Aenderung im Bedienfeld - jedes Haekchen wuerde sonst als
+       weiterer Schritt gezaehlt, und der Trichter zeigte Unsinn.
+
+       Gezaehlt wird nichts, was eine Person wiedererkennbar macht:
+       js/messung.js schickt Pfad, Bereichsnummer und Bereichsnamen,
+       sonst nichts. */
+    if (window.bvMessung && bereichNr !== messungBereich) {
+      if (messungBereich < 0) window.bvMessung('konfig-start');
+      messungBereich = bereichNr;
+      window.bvMessung('konfig-schritt', pos, ber.id);
+    }
     var balken = document.getElementById('k3dBalken');
     if (balken) balken.style.width = (pos / gueltig.length * 100) + '%';
     var tEl = document.getElementById('k3dSchrittTitel');
@@ -15112,6 +15133,10 @@
     if (bubble) bubble.click();
     // Der Assistent hoert darauf und springt direkt zu den Kontaktdaten
     document.dispatchEvent(new CustomEvent('bv-konfig-vorgabe'));
+    /* Hier und nicht am Knopf: Die Anfrage kann aus dem Knopf unter der
+       Zusammenfassung ODER aus dem letzten Knopf der Fuehrung kommen -
+       beide laufen durch diese Funktion. */
+    if (window.bvMessung) window.bvMessung('konfig-anfrage');
   }
 
   var anfrageBtn = document.getElementById('k3dAnfrage');

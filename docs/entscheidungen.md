@@ -11382,3 +11382,132 @@ anders gebaute Weg: Der mitgeschickte Link wird nicht nur gefunden, sondern
 Konfigurator verglichen. Drei neue eingebaute Fehler in der Gegenprobe (toter
 Knopf, Assistent lässt den Link fallen, Knopftext ohne Farbe) wurden alle
 erkannt.
+
+## 03.11.2026 — Eigene Reichweitenmessung, und was dabei im Banner auffiel
+
+**Anlass.** „Wird meine Internetseite aber auch überwacht? Zum Beispiel, an
+welchen Tagen kommen die meisten Besucher? Wo klicken die Besucher drauf?
+Welche Zeit ist ein Besucher wo? Welche Aktion führt ein Besucher durch? …
+ich würde nämlich gerne so ein Tool haben, was mir wirklich alle wichtigsten
+Daten zeigt und das dann halt auch, wo der 3D-Konfigurator ist, in dieser
+Werkstattseite, ja, wo halt keiner hin kann, nur ich" (Betreiber, 03.11.2026).
+
+### Der Befund vorher
+
+Gemessen wurde schon: **Metricool** liegt seit dem 16.06.2026 in 51 Seiten
+(`js/metricool.js`), lädt erst nach Einwilligung in „Analyse & Statistik" und
+steht korrekt als Abschnitt 17 in der Datenschutzerklärung. Aus dem Konto
+gelesen (04.10.–03.11.2026): 674 Seitenaufrufe, 240 Besuche, 187 Besucher;
+stärkster Wochentag Samstag mit 12,8 Besuchern im Schnitt; beliebteste Seite
+`/konfigurator` mit 293 Aufrufen.
+
+Zwei Dinge machen diese Zahlen schwächer, als sie aussehen, und beides war dem
+Betreiber nicht klar: **Gezählt wird nur, wer zustimmt** (die echten Zahlen sind
+höher, um wie viel weiß niemand), und **die eigenen Testaufrufe zählen mit** –
+die 56 Aufrufe von `/werkstatt/` sind der Beweis.
+
+Was Metricool nicht kann: Klicks, Verweildauer je Seite, Ereignisse, einen
+Trichter durch den Konfigurator – also vier von fünf Fragen des Betreibers.
+
+### Warum eigene Messung und kein zweiter Dienst
+
+Entschieden wurde gegen **Microsoft Clarity** (kostenlose Heatmaps und
+Sitzungsaufzeichnungen, aber einwilligungspflichtig, US-Anbieter mit
+AVV-Pflicht, und im Anfrage-Assistenten müssten alle Eingabefelder maskiert
+werden – sonst stehen Namen und Telefonnummern in den Aufzeichnungen) und
+gegen **Plausible** (sauber und EU-gehostet, aber monatliche Kosten und ohne
+Trichter in der kleinen Stufe).
+
+**Cloudflare Web Analytics** wurde geprüft und verworfen, solange eine Frage
+offen ist: Die Quellen widersprechen sich, ob im Gratis-Tarif **EU-Verkehr
+ausgeschlossen** ist. Für einen Betrieb im Westerwald wäre das der ganze
+Verkehr. Nicht ausgeschlossen, nur nicht ohne Klärung empfohlen.
+
+Gebaut wurde die eigene Messung, weil nur sie alle vier offenen Fragen
+beantwortet, **alle** Besucher zählt statt nur die Zustimmenden, nichts kostet
+(D1-Freikontingent: 100.000 Schreibvorgänge am Tag, gemessen werden Dutzende)
+und die Daten in der EU bei uns lässt.
+
+### Die eine Entscheidung, die alles trägt: kein Kennzeichen pro Besucher
+
+Die Messung läuft **ohne Einwilligung**. Das ist nur zulässig, solange sie
+nichts auf dem Gerät speichert und nichts von dort liest (§ 25 TDDDG betrifft
+genau das) und keine personenbezogenen Daten verarbeitet. Deshalb:
+
+- kein Cookie, kein localStorage, kein sessionStorage – **eine Ausnahme**: der
+  Abschalter `bv_messung_aus`, mit dem der Betrieb seine *eigenen* Besuche
+  ausnimmt. Er speichert, um **nicht** zu zählen.
+- keine IP-Adresse, auch nicht gekürzt, auch nicht als Hashwert; kein
+  User-Agent (Handy oder Rechner kommt aus der Fensterbreite);
+- **kein Merkmal, das denselben Besucher wiedererkennt.**
+
+**Der Preis dafür, offen benannt:** Es gibt keine Zahl „einzelne Besucher".
+Gezählt werden Aufrufe und Handlungen. Wer die Besucherzahl haben will, braucht
+ein Kennzeichen – und damit eine Einwilligung, und dann zählt es wieder nur die
+Zustimmenden. Metricool liefert diese Zahl weiterhin, mit genau dieser
+Einschränkung. Beide nebeneinander sind ehrlicher als eine erfundene Mitte.
+
+### Wo die Grenze läuft
+
+- Die Werkstatt wird **nie** gezählt, aus zwei voneinander unabhängigen
+  Gründen: `scripts/baue-werkstatt.js` nimmt das Skript dort heraus, und
+  `js/messung.js` steigt bei `/werkstatt` von selbst aus. Dass der zweite Grund
+  wirklich trägt, hat erst die Gegenprobe erzwungen – siehe unten.
+- Die Auswertung liegt unter `/werkstatt/api/zahlen` und **nicht** unter
+  `/api/zahlen`. Grund: Der Anmelde-Keks hat `Path=/werkstatt`; unter `/api/`
+  käme er nicht mit, und die Zahlen bräuchten eine zweite Schranke.
+- Vom Pfad gehen Fragezeichen und Raute weg: Dort stehen Suchbegriffe und ganze
+  Konfigurationen, die in keiner Statistik etwas zu suchen haben.
+- Die Schreibadresse ist öffentlich. Deshalb nimmt sie nur an, was auf einer
+  festen Liste steht: 10 erlaubte Ereignisarten, höchstens 20 je Sendung,
+  höchstens 4 KB, begrenzte Längen und Zahlenbereiche.
+- Gelöscht wird nach **400 Tagen** (Jahresvergleich bleibt möglich), und zwar
+  beim Aufruf der Zahlenseite – nicht beim Messen, wo es ein zusätzlicher
+  Schreibvorgang bei jedem Besuch wäre.
+
+### Dabei gefunden: zwei Punkte im Cookie-Banner
+
+1. **Der Haken „Externe Dienste" war vorbelegt.** Nach EuGH (Planet49) und BGH
+   ist eine vorbelegte Einwilligung keine Einwilligung – das ist der klassische
+   Abmahnpunkt, und er stand mitten im eigenen Banner. Haken entfernt, und der
+   Rückfall bei fehlendem Kästchen von `true` auf `false` gedreht.
+2. **Vor der Einwilligung wurde trotzdem zu Google verbunden.** Im Kopf der
+   Startseite standen `preconnect` auf `fonts.googleapis.com` und
+   `fonts.gstatic.com` – die bauen die Verbindung samt IP-Adresse sofort auf,
+   während die Schriften selbst korrekt erst nach Zustimmung laden. Dazu ein
+   `dns-prefetch` auf `googletagmanager.com`, Rest eines längst entfernten
+   Google Analytics. Alle drei Zeilen weg; `formspree.io` bleibt, dorthin geht
+   erst beim Absenden etwas.
+
+### Woran der Erfolg gemessen wird
+
+Vorher festgelegt, danach wirklich gelaufen:
+
+- `scripts/pruefe-messung.js` (39 Prüfungen, `--gegenprobe` mit zehn
+  eingebauten Fehlern): Die **Datenschutz-Zusage** wird geprüft, nicht die
+  Absicht – kein Speicherzugriff außer dem Abschalter, kein User-Agent, keine
+  Spalte für IP oder Besucherkennung in der Tabelle, Auswertung hinter dem Tor,
+  Abschnitt 19 samt § 25 TDDDG und 400 Tagen vorhanden, kein vorbelegter Haken,
+  keine Vorab-Verbindung zu Google. Die vier Rechenfunktionen aus
+  `worker/index.js` werden **herausgelöst und wirklich ausgeführt**, nicht
+  nachgebaut – eine Kopie im Prüfskript würde irgendwann etwas anderes tun.
+- `scripts/pruefe-messung.mjs` (20 Prüfungen, `--gegenprobe` mit drei
+  eingebauten Fehlern): im echten Browser, Messpakete abgefangen. Geprüft wird,
+  was abgegangen *wäre*: Seite, gemessene Verweildauer, Telefonklick, kein
+  Kennzeichen im Paket, und dass Kekse und Speicher vorher und nachher gleich
+  sind.
+
+**Was die Gegenprobe erzwungen hat** – und genau dafür ist sie da: Der
+eingebaute Fehler „Pfadabfrage in `js/messung.js` entfernt" blieb zunächst
+**unbemerkt**. Die Prüfung „Die Werkstatt sendet nichts" bestand nur, weil das
+Skript dort gar nicht geladen ist. Sie hätte auch bestanden, wenn die zweite
+Sperre längst kaputt gewesen wäre. Jetzt setzt die Prüfung das Skript
+absichtlich in die Werkstattseite ein; damit hängt alles an der Pfadabfrage,
+und die wird wirklich geprüft.
+
+### Was offen bleibt
+
+Der **Trichter durch den Konfigurator** ist gebaut, bleibt aber leer, solange
+der öffentliche Konfigurator gesperrt ist: In der Werkstatt wird bewusst nicht
+gezählt, und sonst kommt niemand hin. Das ist kein Fehler, sondern die Folge
+der Sperre – die Zahlen entstehen ab dem Tag der Freischaltung.

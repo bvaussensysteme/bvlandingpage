@@ -1424,6 +1424,11 @@
   }
 
   function showSuccess() {
+    /* Die einzige Zahl, an der wirklich Geld haengt: eine Anfrage, die
+       den Browser verlassen hat. Hier und nicht am Absendeknopf -
+       dieser Zweig wird erst erreicht, wenn ein Versandweg Erfolg
+       gemeldet hat (js/messung.js, Auswertung in /werkstatt/). */
+    if (window.bvMessung) window.bvMessung('anfrage-gesendet');
     document.getElementById('awNav').style.display = 'none';
     subEl.style.display = 'none';
     document.getElementById('awTitle').textContent = 'Vielen Dank!';
