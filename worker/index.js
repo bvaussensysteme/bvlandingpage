@@ -978,8 +978,14 @@ async function handleZahlen(url, env) {
     }, 503);
   }
   const tage = Math.min(Math.max(Number(url.searchParams.get('tage')) || 30, 1), 400);
-  const von = new Date(Date.now() - (tage - 1) * 86400000)
-    .toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+  const tagVon = new Date(Date.now() - (tage - 1) * 86400000);
+  const berlin = (d) => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+  const von = berlin(tagVon);
+  /* Der GLEICH LANGE Zeitraum davor. Ohne ihn ist jede Zahl eine Zahl
+     ohne Richtung: 240 Aufrufe sind gut oder schlecht, je nachdem, was
+     vorher war. Genau diese Einordnung hat auf der ersten Fassung der
+     Zahlenseite gefehlt. */
+  const vorherVon = berlin(new Date(tagVon.getTime() - tage * 86400000));
 
   try {
     await messungTabelle(env);
@@ -993,8 +999,10 @@ async function handleZahlen(url, env) {
     await env.MESSUNG.prepare('DELETE FROM ereignis WHERE tag < ?1').bind(grenze).run();
 
     const frage = (sql) => env.MESSUNG.prepare(sql).bind(von).all();
+    const frageVorher = (sql) => env.MESSUNG.prepare(sql).bind(vorherVon, von).all();
     const [tageRows, seitenRows, quellenRows, geraeteRows,
-           handlungRows, trichterRows, stundenRows] = await Promise.all([
+           handlungRows, trichterRows, stundenRows,
+           vorherAufrufe, vorherHandlung, vorherDauer] = await Promise.all([
       frage("SELECT tag, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 GROUP BY tag ORDER BY tag"),
       frage("SELECT seite, COUNT(*) AS aufrufe, "
@@ -1014,6 +1022,13 @@ async function handleZahlen(url, env) {
             + "ORDER BY nr"),
       frage("SELECT stunde, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 GROUP BY stunde ORDER BY stunde"),
+      frageVorher("SELECT COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND tag < ?2"),
+      frageVorher("SELECT art, COUNT(*) AS anzahl FROM ereignis "
+            + "WHERE tag >= ?1 AND tag < ?2 "
+            + "AND art NOT IN ('seite', 'verweilen', 'konfig-schritt') GROUP BY art"),
+      frageVorher("SELECT CAST(AVG(NULLIF(wert, 0)) AS INTEGER) AS dauer FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND tag < ?2"),
     ]);
 
     return new Response(JSON.stringify({
@@ -1025,6 +1040,12 @@ async function handleZahlen(url, env) {
       handlungen: handlungRows.results || [],
       trichter: trichterRows.results || [],
       stunden: stundenRows.results || [],
+      vorher: {
+        von: vorherVon,
+        aufrufe: ((vorherAufrufe.results || [])[0] || {}).aufrufe || 0,
+        dauer: ((vorherDauer.results || [])[0] || {}).dauer || 0,
+        handlungen: vorherHandlung.results || [],
+      },
     }), {
       status: 200,
       headers: {
