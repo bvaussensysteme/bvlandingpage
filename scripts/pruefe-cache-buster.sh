@@ -43,6 +43,53 @@ pruefen() {
   return $fehler
 }
 
+# ============================================================
+# ZWEITE PRUEFUNG: Wurde die Version auch HOCHGEZAEHLT?
+# ------------------------------------------------------------
+# Anlass: „ja mach noch sehe ich keine änderung" (Betreiber,
+# 03.11.2026). Der Konfigurator war umgebaut und live - aber
+# js/konfigurator-3d.js trug noch dieselbe Versionsnummer wie zwei Tage
+# zuvor. Browser duerfen die Datei unter derselben Adresse eine Stunde
+# behalten (_headers: /js/* max-age=3600). Der Betreiber sah also
+# zu Recht nichts.
+#
+# Die erste Pruefung oben sieht das nicht: Alle Seiten zeigten brav auf
+# DIESELBE veraltete Version. Deshalb hier die zweite Frage: Ist die
+# Datei juenger als die Stelle, an der ihre Version zuletzt geaendert
+# wurde?
+# ============================================================
+# Wird in der Gegenprobe in einem anderen Verzeichnis aufgerufen.
+bumpPruefen() {
+  local fehler=0
+  local datei version letzteDatei letzteVersion
+  for datei in js/konfigurator-3d.js js/anfrage-wizard.js js/messung.js \
+               js/bauteile.js js/ral.js js/markisenstoffe.js; do
+    [ -f "$datei" ] || continue
+    local name
+    name=$(basename "$datei")
+    # Nur Dateien, die ueberhaupt mit ?v= eingebunden sind
+    grep -rqho "$name?v=" --include=*.html . 2>/dev/null || continue
+    letzteDatei=$(git log -1 --format=%ct -- "$datei" 2>/dev/null)
+    # Der letzte Commit, der die Versionsangabe dieser Datei anfasste.
+    # -G und NICHT -S: -S zaehlt, wie oft eine Zeichenkette vorkommt, und
+    # beim Hochzaehlen von ?v=20261102e auf ?v=20261103c bleibt diese Zahl
+    # gleich - der Commit waere unsichtbar. Beim ersten Versuch meldete
+    # die Pruefung deshalb drei Dateien als veraltet, die laengst
+    # hochgezaehlt waren. -G sucht im Unterschied selbst.
+    letzteVersion=$(git log -1 --format=%ct -G"$name\?v=" -- '*.html' 2>/dev/null)
+    if [ -z "$letzteDatei" ] || [ -z "$letzteVersion" ]; then continue; fi
+    if [ "$letzteDatei" -gt "$letzteVersion" ]; then
+      echo "  FEHLER  $name wurde geändert, die Version aber nicht hochgezählt"
+      echo "          Datei zuletzt: $(date -d @"$letzteDatei" '+%d.%m.%Y %H:%M')," \
+           "Version zuletzt: $(date -d @"$letzteVersion" '+%d.%m.%Y %H:%M')"
+      fehler=1
+    else
+      echo "  ok      $name  (Version jünger als die Datei)"
+    fi
+  done
+  return $fehler
+}
+
 if [ "${1:-}" = "--gegenprobe" ]; then
   echo "Gegenprobe: absichtlich abweichende Version"
   tmp=$(mktemp -d)
@@ -53,14 +100,43 @@ if [ "${1:-}" = "--gegenprobe" ]; then
     rm -rf "$tmp"; exit 1
   fi
   echo "  bestanden - der eingebaute Fehler wurde erkannt"
-  rm -rf "$tmp"; exit 0
+  rm -rf "$tmp"
+
+  # ---- Gegenprobe fuer die zweite Pruefung ----
+  # In einem eigenen kleinen Repository: erst beides zusammen einchecken,
+  # dann NUR die Javascript-Datei aendern. Genau der Fall, der am
+  # 03.11.2026 unbemerkt live ging.
+  echo "Gegenprobe: Datei geändert, Version stehen gelassen"
+  tmp2=$(mktemp -d)
+  (
+    cd "$tmp2" || exit 1
+    git init -q . && git config user.email t@t && git config user.name T
+    mkdir -p js
+    printf 'alt\n' > js/konfigurator-3d.js
+    printf '<script src="/js/konfigurator-3d.js?v=1111"></script>\n' > a.html
+    git add -A && git commit -qm erst
+    sleep 1
+    printf 'neu\n' > js/konfigurator-3d.js
+    git add -A && git commit -qm "nur die Datei"
+  ) >/dev/null 2>&1
+  if (cd "$tmp2" && bumpPruefen) >/dev/null 2>&1; then
+    echo "  FEHLGESCHLAGEN - die stehen gelassene Version wurde NICHT bemerkt"
+    rm -rf "$tmp2"; exit 1
+  fi
+  echo "  bestanden - die stehen gelassene Version wurde bemerkt"
+  rm -rf "$tmp2"
+  exit 0
 fi
 
 echo "Cache-Buster-Versionen"
-if pruefen "."; then
-  echo "Ergebnis: alle Seiten verweisen auf dieselbe Version"
+gesamt=0
+pruefen "." || gesamt=1
+echo "Wurde die Version mit der Datei hochgezählt?"
+bumpPruefen || gesamt=1
+if [ "$gesamt" = "0" ]; then
+  echo "Ergebnis: alle Seiten verweisen auf dieselbe Version, und sie ist aktuell"
   exit 0
 else
-  echo "Ergebnis: Versionen laufen auseinander - vor dem Veröffentlichen angleichen"
+  echo "Ergebnis: vor dem Veröffentlichen angleichen bzw. hochzählen"
   exit 1
 fi
