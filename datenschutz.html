@@ -642,18 +642,33 @@
         damit nicht statt. Erfasst werden ausschließlich:
       </p>
       <ul>
-        <li>Datum und Stunde des Aufrufs,</li>
+        <li>Zeitpunkt des Aufrufs (Datum und Uhrzeit),</li>
         <li>die aufgerufene Seite (nur der Pfad, ohne Suchbegriffe oder
             Parameter),</li>
         <li>die auf der Seite verbrachte sichtbare Zeit,</li>
+        <li>wie weit die Seite gescrollt wurde (nur der tiefste erreichte
+            Punkt in Prozent, nicht der Verlauf),</li>
         <li>die Art einer Handlung – zum Beispiel ein Klick auf unsere
             Telefonnummer, das Öffnen des Anfrage-Assistenten, ein
             abgeschicktes Anfrageformular oder der erreichte Schritt im
             3D-Konfigurator,</li>
+        <li>die <strong>Beschriftung</strong> eines angeklickten Knopfes oder
+            Verweises (z.&nbsp;B. „Jetzt anfragen"). Erfasst werden
+            ausschließlich fest vorgegebene Beschriftungen unserer eigenen
+            Bedienelemente – <strong>niemals Inhalte, die Sie selbst in ein
+            Feld eingeben</strong>,</li>
         <li>die Internetseite, von der Sie zu uns gekommen sind (nur deren
             Name, nicht die vollständige Adresse),</li>
+        <li><strong>Land und Bundesland</strong>, die unser Dienstleister
+            Cloudflare der Anfrage bereits beilegt. Wir speichern davon nur
+            Länderkürzel und Bundesland – <strong>keine Stadt, keine
+            Postleitzahl, keine Koordinaten</strong> – und benötigen dafür
+            Ihre IP-Adresse weder zu lesen noch zu speichern. Zweck: Wir
+            montieren im Westerwald und der Umgebung und möchten wissen, aus
+            welcher Gegend Interesse besteht,</li>
         <li>die Angabe, ob die Seite auf einem Handy oder an einem größeren
-            Bildschirm aufgerufen wurde.</li>
+            Bildschirm aufgerufen wurde (ermittelt aus der Fensterbreite,
+            nicht aus einer Gerätekennung).</li>
       </ul>
       <p>
         <strong>Nicht erfasst werden:</strong> Ihre IP-Adresse (auch nicht
@@ -782,7 +797,7 @@
 <script src="/js/main.js" defer></script>
 <script src="/js/cookie.js" defer></script>
 <script src="/js/metricool.js" defer></script>
-<script src="/js/messung.js?v=20261103a" defer></script>
+<script src="/js/messung.js?v=20261103b" defer></script>
 <script src="/js/accessibility.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>

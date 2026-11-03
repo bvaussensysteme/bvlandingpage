@@ -507,6 +507,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 03.11.2026 | **Zahlenseite ausgebaut**: gerade aktiv (30 Min.), Land und Bundesland (von Cloudflare, ohne IP – keine Stadt, keine PLZ), Lesetiefe, worauf geklickt wird, Wochentag × Stunde, Einstiegsseiten, Anfragen je Aufruf, CSV-Export und ein Block **„Was auffällt"**, der die Zahlen in Sätze übersetzt | neu |
 | 03.11.2026 | **Zahlenseite neu gebaut** — in der ersten Fassung fehlten alle Beschriftungen (`max-width:0` ohne feste Tabellenbreite quetscht die Spalte auf null). Jetzt Kennzahlen mit Vergleich zum Zeitraum davor, Tagesdiagramm, Stundendiagramm, Balken **hinter** dem Text statt in eigener Spalte. Die Prüfung misst seitdem die **gerenderte Breite** jeder Beschriftung, nicht ihren Text | neu |
 | 03.11.2026 | **Eigene Reichweitenmessung** (`/api/messung` → D1 in der EU) mit Auswertung unter `/werkstatt/zahlen.html`: Tage, Wochentage, Seiten, Verweildauer, Handlungen, Konfigurator-Trichter. Ohne Cookies, ohne Einwilligung, ohne Besucherkennzeichen – deshalb **keine Zahl „einzelne Besucher"** | neu |
 | 03.11.2026 | **Cookie-Banner: vorbelegter Haken „Externe Dienste" entfernt** (vorbelegte Einwilligung ist keine Einwilligung) und die drei Vorab-Verbindungen zu Google aus dem Kopf der Startseite genommen | neu |

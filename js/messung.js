@@ -114,20 +114,60 @@
     for (var i = 0; i < KLICKZIELE.length; i++) {
       if (ziel.closest(KLICKZIELE[i][0])) {
         window.bvMessung(KLICKZIELE[i][1]);
-        return;
+        break;
       }
     }
+    /* ---------- Was sonst angeklickt wird ----------
+       Statt einer Klickkarte mit Koordinaten: die BESCHRIFTUNG des
+       Knopfes oder Verweises. Das beantwortet dieselbe Frage („wo
+       klicken die Leute hin?"), ohne dass ein Bild der Seite oder die
+       Mausbewegung irgendwo gespeichert werden muss.
+
+       Nur <a> und <button>: Das sind Bedienelemente mit fester
+       Beschriftung. Eingabefelder werden bewusst NICHT angefasst - dort
+       stuende, was jemand selbst getippt hat. */
+    var knopf = ziel.closest('a[href], button');
+    if (!knopf) return;
+    var text = (knopf.getAttribute('aria-label') || knopf.textContent || '')
+      .replace(/\s+/g, ' ').trim();
+    if (text) window.bvMessung('klick', 0, text.slice(0, 60));
   }, true);
+
+  /* ---------- Wie weit wird gescrollt ----------
+     Die Verweildauer allein kann taeuschen: Jemand kann eine Minute auf
+     der Seite stehen und nie unter das erste Bild gesehen haben.
+     Gemerkt wird nur der TIEFSTE erreichte Punkt in Prozent, nichts
+     ueber den Verlauf. */
+  var tiefe = 0, tiefeLaeuft = false;
+  function tiefeMessen() {
+    tiefeLaeuft = false;
+    var doc = document.documentElement;
+    var ganz = Math.max(doc.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    var rest = ganz - window.innerHeight;
+    var p = rest <= 8 ? 100
+      : Math.round(((window.pageYOffset || doc.scrollTop || 0) + window.innerHeight) / ganz * 100);
+    if (p > tiefe) tiefe = Math.max(0, Math.min(100, p));
+  }
+  window.addEventListener('scroll', function () {
+    /* Gedrosselt ueber das naechste Bild: Ein Scroll-Ereignis kommt
+       dutzendfach je Sekunde, und gerechnet werden muss nur einmal. */
+    if (tiefeLaeuft) return;
+    tiefeLaeuft = true;
+    (window.requestAnimationFrame || setTimeout)(tiefeMessen);
+  }, { passive: true });
+  tiefeMessen();
 
   /* ---------- Senden ---------- */
   function senden() {
     zeitStoppen();
     var dauer = gesammelt;
     if (!erstes && !ereignisse.length && dauer < 5) return;   // nichts Neues
+    tiefeMessen();
     var paket = {
       seite: seite,
       geraet: geraet,
       dauer: dauer,
+      tiefe: tiefe,
       neu: erstes,
       ereignisse: ereignisse
     };

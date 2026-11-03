@@ -859,6 +859,10 @@ const MESSUNG_ARTEN = new Set([
   'konfig-schritt',      // wert = Nummer des Bereichs, zusatz = sein Name
   'konfig-anfrage',      // aus dem Konfigurator in den Assistenten
   'konfig-pdf', 'konfig-teilen',
+  /* Seit 03.11.2026 (zweiter Ausbau): Was auf der Seite angeklickt wird.
+     zusatz traegt die BESCHRIFTUNG des Knopfes oder Verweises, nie einen
+     eingegebenen Text - js/messung.js nimmt nur <a> und <button>. */
+  'klick',
 ]);
 const MESSUNG_GERAETE = new Set(['handy', 'rechner']);
 
@@ -897,16 +901,34 @@ function messungSeite(wert) {
   return s.length > 120 ? s.slice(0, 120) : s;
 }
 
+/* Einmal je Isolat, nicht bei jedem Aufruf: Die Tabellenpflege kostet
+   sonst bei JEDEM Seitenaufruf zusaetzliche Schreibvorgaenge. */
+let messungSchemaGeprueft = false;
+
 async function messungTabelle(env) {
+  if (messungSchemaGeprueft) return;
   await env.MESSUNG.prepare(
     'CREATE TABLE IF NOT EXISTS ereignis ('
     + 'id INTEGER PRIMARY KEY AUTOINCREMENT, tag TEXT NOT NULL, '
     + 'stunde INTEGER NOT NULL, art TEXT NOT NULL, seite TEXT NOT NULL, '
-    + 'wert INTEGER, zusatz TEXT, quelle TEXT, geraet TEXT)'
+    + 'wert INTEGER, zusatz TEXT, quelle TEXT, geraet TEXT, '
+    + 'zeit INTEGER, land TEXT, region TEXT, tiefe INTEGER)'
   ).run();
+  /* Nachruesten fuer Datenbanken, die vor dem Ausbau angelegt wurden.
+     Jede Spalte einzeln und mit Fangnetz: "duplicate column name" ist
+     hier der NORMALFALL, kein Fehler. */
+  for (const spalte of ['zeit INTEGER', 'land TEXT', 'region TEXT', 'tiefe INTEGER']) {
+    try {
+      await env.MESSUNG.prepare('ALTER TABLE ereignis ADD COLUMN ' + spalte).run();
+    } catch (e) { /* Spalte ist schon da */ }
+  }
   await env.MESSUNG.prepare(
     'CREATE INDEX IF NOT EXISTS ereignis_tag ON ereignis (tag)'
   ).run();
+  await env.MESSUNG.prepare(
+    'CREATE INDEX IF NOT EXISTS ereignis_zeit ON ereignis (zeit)'
+  ).run();
+  messungSchemaGeprueft = true;
 }
 
 async function handleMessung(request, env) {
@@ -931,14 +953,31 @@ async function handleMessung(request, env) {
   const quelle = messungText(body.quelle, 80);
   const dauer = messungZahl(body.dauer, 0, 3600);
 
+  /* Wie weit wurde gescrollt (0-100 %)? Sagt mehr als die Verweildauer:
+     Jemand kann eine Minute auf einer Seite stehen, ohne je unter das
+     erste Bild gesehen zu haben. */
+  const tiefe = messungZahl(body.tiefe, 0, 100);
+
+  /* HERKUNFT AUS CLOUDFLARE, NICHT AUS DER IP-ADRESSE.
+     request.cf traegt Land und Region bereits fertig bei; die
+     IP-Adresse wird dafuer weder gelesen noch gespeichert. Gespeichert
+     werden nur Laenderkuerzel und Bundesland - keine Stadt, keine
+     Postleitzahl, keine Koordinaten. Fuer einen Betrieb, der im
+     Westerwald montiert, ist "aus welcher Gegend kommen die Leute" die
+     wichtigste Frage; eine Stadt waere in einem Dorf dagegen schon
+     fast eine Person. */
+  const cf = request.cf || {};
+  const land = messungText(cf.country, 4);
+  const region = (land === 'DE') ? messungText(cf.region || cf.regionCode, 40) : null;
+
   const zeilen = [];
   /* Der Seitenaufruf selbst wird nur beim ERSTEN Senden gezaehlt. Wer
      den Tab wegklickt und zurueckkommt, schickt ein zweites Paket mit
      weiterer Verweildauer - das darf kein zweiter Aufruf werden. */
   if (body.neu) {
-    zeilen.push(['seite', seite, dauer, null, quelle, geraet]);
+    zeilen.push(['seite', seite, dauer, null, quelle, geraet, tiefe]);
   } else if (dauer) {
-    zeilen.push(['verweilen', seite, dauer, null, null, geraet]);
+    zeilen.push(['verweilen', seite, dauer, null, null, geraet, tiefe]);
   }
 
   const liste = Array.isArray(body.ereignisse) ? body.ereignisse.slice(0, 20) : [];
@@ -947,19 +986,21 @@ async function handleMessung(request, env) {
     const art = messungText(e.art, 30);
     if (!art || !MESSUNG_ARTEN.has(art) || art === 'seite') continue;
     zeilen.push([art, seite, messungZahl(e.wert, 0, 9999),
-                 messungText(e.zusatz, 40), null, geraet]);
+                 messungText(e.zusatz, 60), null, geraet, null]);
   }
   if (!zeilen.length) return new Response(null, { status: 204 });
 
   const { tag, stunde } = messungZeit();
+  const zeit = Math.floor(Date.now() / 1000);
   try {
     await messungTabelle(env);
     const satz = env.MESSUNG.prepare(
-      'INSERT INTO ereignis (tag, stunde, art, seite, wert, zusatz, quelle, geraet) '
-      + 'VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
+      'INSERT INTO ereignis (tag, stunde, zeit, art, seite, wert, zusatz, '
+      + 'quelle, geraet, land, region, tiefe) '
+      + 'VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)'
     );
     await env.MESSUNG.batch(zeilen.map((z) => satz.bind(
-      tag, stunde, z[0], z[1], z[2], z[3], z[4], z[5]
+      tag, stunde, zeit, z[0], z[1], z[2], z[3], z[4], z[5], land, region, z[6]
     )));
   } catch (e) {
     /* Eine Statistik darf nie etwas kaputt machen. Faellt die Datenbank
@@ -1000,22 +1041,32 @@ async function handleZahlen(url, env) {
 
     const frage = (sql) => env.MESSUNG.prepare(sql).bind(von).all();
     const frageVorher = (sql) => env.MESSUNG.prepare(sql).bind(vorherVon, von).all();
+    /* „Gerade aktiv" braucht einen Zeitstempel, keinen Tag - deshalb
+       die Spalte zeit. 30 Minuten ist das Fenster, das auch die
+       bekannten Werkzeuge nehmen. */
+    const seitSekunden = Math.floor(Date.now() / 1000) - 30 * 60;
+
     const [tageRows, seitenRows, quellenRows, geraeteRows,
            handlungRows, trichterRows, stundenRows,
-           vorherAufrufe, vorherHandlung, vorherDauer] = await Promise.all([
+           vorherAufrufe, vorherHandlung, vorherDauer,
+           matrixRows, laenderRows, regionenRows, klickRows, liveRows] = await Promise.all([
       frage("SELECT tag, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 GROUP BY tag ORDER BY tag"),
+      /* Je Seite: Aufrufe, Verweildauer, Scrolltiefe und wie oft sie der
+         EINSTIEG war (nur beim Einstieg steht eine fremde Herkunft). */
       frage("SELECT seite, COUNT(*) AS aufrufe, "
-            + "CAST(AVG(NULLIF(wert, 0)) AS INTEGER) AS dauer FROM ereignis "
-            + "WHERE art = 'seite' AND tag >= ?1 GROUP BY seite "
+            + "CAST(AVG(NULLIF(wert, 0)) AS INTEGER) AS dauer, "
+            + "CAST(AVG(NULLIF(tiefe, 0)) AS INTEGER) AS tiefe, "
+            + "SUM(CASE WHEN quelle IS NOT NULL THEN 1 ELSE 0 END) AS einstiege "
+            + "FROM ereignis WHERE art = 'seite' AND tag >= ?1 GROUP BY seite "
             + "ORDER BY aufrufe DESC LIMIT 30"),
       frage("SELECT quelle, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 AND quelle IS NOT NULL "
-            + "GROUP BY quelle ORDER BY aufrufe DESC LIMIT 15"),
+            + "GROUP BY quelle ORDER BY aufrufe DESC LIMIT 20"),
       frage("SELECT geraet, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 AND geraet IS NOT NULL GROUP BY geraet"),
       frage("SELECT art, COUNT(*) AS anzahl FROM ereignis "
-            + "WHERE tag >= ?1 AND art NOT IN ('seite', 'verweilen', 'konfig-schritt') "
+            + "WHERE tag >= ?1 AND art NOT IN ('seite', 'verweilen', 'konfig-schritt', 'klick') "
             + "GROUP BY art ORDER BY anzahl DESC"),
       frage("SELECT wert AS nr, zusatz AS name, COUNT(*) AS anzahl FROM ereignis "
             + "WHERE art = 'konfig-schritt' AND tag >= ?1 GROUP BY wert, zusatz "
@@ -1026,9 +1077,29 @@ async function handleZahlen(url, env) {
             + "WHERE art = 'seite' AND tag >= ?1 AND tag < ?2"),
       frageVorher("SELECT art, COUNT(*) AS anzahl FROM ereignis "
             + "WHERE tag >= ?1 AND tag < ?2 "
-            + "AND art NOT IN ('seite', 'verweilen', 'konfig-schritt') GROUP BY art"),
+            + "AND art NOT IN ('seite', 'verweilen', 'konfig-schritt', 'klick') GROUP BY art"),
       frageVorher("SELECT CAST(AVG(NULLIF(wert, 0)) AS INTEGER) AS dauer FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 AND tag < ?2"),
+      /* Wochentag MAL Stunde. strftime zaehlt den Sonntag als 0 - das
+         rechnet die Seite auf Montag = 0 um. In SQL gruppiert statt im
+         Browser: Ein Jahr einzeln ausgeliefert waeren 8.760 Zeilen,
+         gruppiert sind es hoechstens 168. */
+      frage("SELECT CAST(strftime('%w', tag) AS INTEGER) AS wtag, stunde, "
+            + "COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 GROUP BY wtag, stunde"),
+      frage("SELECT land, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND land IS NOT NULL "
+            + "GROUP BY land ORDER BY aufrufe DESC LIMIT 20"),
+      frage("SELECT region, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND region IS NOT NULL "
+            + "GROUP BY region ORDER BY aufrufe DESC LIMIT 20"),
+      frage("SELECT zusatz AS was, seite, COUNT(*) AS anzahl FROM ereignis "
+            + "WHERE art = 'klick' AND tag >= ?1 AND zusatz IS NOT NULL "
+            + "GROUP BY zusatz, seite ORDER BY anzahl DESC LIMIT 25"),
+      env.MESSUNG.prepare(
+        "SELECT seite, COUNT(*) AS aufrufe FROM ereignis "
+        + "WHERE art IN ('seite', 'verweilen') AND zeit >= ?1 "
+        + "GROUP BY seite ORDER BY aufrufe DESC LIMIT 10").bind(seitSekunden).all(),
     ]);
 
     return new Response(JSON.stringify({
@@ -1040,6 +1111,11 @@ async function handleZahlen(url, env) {
       handlungen: handlungRows.results || [],
       trichter: trichterRows.results || [],
       stunden: stundenRows.results || [],
+      matrix: matrixRows.results || [],
+      laender: laenderRows.results || [],
+      regionen: regionenRows.results || [],
+      klicks: klickRows.results || [],
+      live: liveRows.results || [],
       vorher: {
         von: vorherVon,
         aufrufe: ((vorherAufrufe.results || [])[0] || {}).aufrufe || 0,

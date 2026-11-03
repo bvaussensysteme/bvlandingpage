@@ -66,8 +66,11 @@
   .wahl button[aria-pressed="true"]{background:var(--gold);color:#1a1a1a}
 
   /* ---------- Kennzahlen ---------- */
-  .kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  .kennzahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
               gap:12px;margin-bottom:14px}
+  /* Sechs Kacheln in EINE Reihe, sobald Platz ist. Mit auto-fit brach
+     die sechste allein in die naechste Zeile - das sah nach Fehler aus. */
+  @media (min-width:980px){ .kennzahlen{grid-template-columns:repeat(6,1fr)} }
   .kz{background:var(--weiss);border:1px solid var(--rand);border-radius:14px;padding:14px 16px}
   .kz .titel{color:var(--leise);font-size:.76rem;font-weight:600;letter-spacing:.02em;
              text-transform:uppercase}
@@ -125,6 +128,36 @@
         border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:.88rem}
   .fuss{margin-top:20px;color:var(--leise);font-size:.78rem;line-height:1.55}
   .laedt{color:var(--leise);font-size:.88rem;padding:30px 0;text-align:center}
+
+  /* Gerade aktiv */
+  .live{display:inline-flex;align-items:center;gap:7px;background:#eaf5ee;color:#1d6b3f;
+        border:1px solid #bfe0cc;border-radius:999px;padding:4px 12px;font-size:.8rem;font-weight:700}
+  .punkt{width:8px;height:8px;border-radius:50%;background:#2f7d4f;flex:none;
+         animation:pulsen 1.8s ease-in-out infinite}
+  @keyframes pulsen{0%,100%{opacity:1}50%{opacity:.35}}
+  .live.still{background:var(--grund);color:var(--leise);border-color:var(--rand)}
+  .live.still .punkt{background:var(--leise);animation:none}
+
+  /* Was auffällt */
+  .erkenntnisse{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:12px}
+  .erkenntnis{background:var(--grund);border-radius:10px;padding:11px 13px;font-size:.88rem;line-height:1.45}
+  .erkenntnis b{color:var(--gold-dark)}
+
+  /* Wochentag × Stunde */
+  .matrix{margin-top:14px;overflow-x:auto}
+  .matrix table{border-collapse:separate;border-spacing:2px;min-width:560px}
+  .matrix td,.matrix th{padding:0}
+  .matrix th{font-size:.7rem;color:var(--leise);font-weight:600;text-align:center;padding-bottom:3px}
+  .matrix th.tag{text-align:right;padding-right:7px;width:34px}
+  .matrix .zelle{width:100%;height:17px;border-radius:3px;background:var(--grund)}
+  .matrix td{width:19px}
+
+  /* Werkzeugzeile */
+  .werkzeuge{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .knopf{padding:8px 14px;border:1px solid var(--rand);border-radius:9px;background:var(--weiss);
+         color:var(--tinte);font:600 .84rem inherit;cursor:pointer;text-decoration:none;
+         display:inline-flex;align-items:center;gap:6px}
+  .knopf:hover{border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -138,11 +171,18 @@
       <p class="zeitraum" id="zeitraum">wird geladen …</p>
     </div>
     <div class="wahl" id="wahl">
+      <button type="button" data-tage="1">Heute</button>
       <button type="button" data-tage="7">7 Tage</button>
       <button type="button" data-tage="30" aria-pressed="true">30 Tage</button>
       <button type="button" data-tage="90">90 Tage</button>
       <button type="button" data-tage="365">1 Jahr</button>
     </div>
+  </div>
+
+  <div class="werkzeuge">
+    <span id="liveStand" class="live still"><span class="punkt"></span>gerade aktiv: –</span>
+    <button type="button" class="knopf" id="csv">Als Tabelle speichern (CSV)</button>
+    <button type="button" class="knopf" id="neuladen">Aktualisieren</button>
   </div>
 
   <div id="meldung"></div>
@@ -156,11 +196,15 @@
       Website.</label>
   </div>
 
-  <p class="fuss">Gespeichert werden Tag, Stunde, Pfad, Verweildauer, Art der
-    Handlung, Herkunftsseite und ob Handy oder Rechner – keine IP-Adresse, kein
-    User-Agent, kein Kennzeichen pro Besucher. Deshalb zählt diese Seite Aufrufe
-    und Handlungen, nicht Personen. Die Datenbank liegt in der EU; älteres als
-    400 Tage wird beim Aufruf dieser Seite gelöscht.</p>
+  <p class="fuss">Gespeichert werden Zeitpunkt, Pfad, Verweildauer, wie weit
+    gescrollt wurde, die Art der Handlung samt Beschriftung des angeklickten
+    Knopfes, die Herkunftsseite, Land und Bundesland sowie ob Handy oder Rechner.
+    <b>Nicht gespeichert werden:</b> IP-Adresse, User-Agent, Stadt, Postleitzahl
+    und jedes Kennzeichen, das denselben Besucher wiedererkennen würde. Deshalb
+    zählt diese Seite Aufrufe und Handlungen, nicht Personen. Die Datenbank liegt
+    in der EU; älteres als 400 Tage wird beim Aufruf dieser Seite gelöscht.
+    Einzelheiten in der <a href="/datenschutz.html#eigene-messung">Datenschutzerklärung</a>,
+    Abschnitt 19.</p>
 </div>
 
 <script>
@@ -308,7 +352,122 @@
       + ' Aufrufen.</p>';
   }
 
+  /* ---------- Wochentag MAL Stunde ----------
+     Die Matrix, die jedes gute Analysewerkzeug hat: 7 Zeilen, 24
+     Spalten, je dunkler desto mehr Aufrufe. Sie beantwortet mit einem
+     Blick, wann sich Erreichbarkeit lohnt - und das ist fuer einen
+     Handwerksbetrieb die praktischste Zahl ueberhaupt. */
+  function matrixZeichnen(rohe) {
+    var feld = [], w, u;
+    for (w = 0; w < 7; w++) { feld.push([]); for (u = 0; u < 24; u++) feld[w].push(0); }
+    var hoechst = 0;
+    (rohe || []).forEach(function (r) {
+      /* SQLite zaehlt den Sonntag als 0. Hier faengt die Woche am
+         Montag an, wie im Kalender. */
+      var i = ((Number(r.wtag) + 6) % 7);
+      feld[i][Number(r.stunde) || 0] += r.aufrufe;
+      hoechst = Math.max(hoechst, feld[i][Number(r.stunde) || 0]);
+    });
+    if (!hoechst) return '<p class="leer">Noch nichts gemessen.</p>';
+    var kopf = '<tr><th class="tag"></th>';
+    for (u = 0; u < 24; u++) kopf += '<th>' + (u % 3 === 0 ? ('0' + u).slice(-2) : '') + '</th>';
+    kopf += '</tr>';
+    var zeilen = '';
+    for (w = 0; w < 7; w++) {
+      zeilen += '<tr><th class="tag">' + WOCHE[w].slice(0, 2) + '</th>';
+      for (u = 0; u < 24; u++) {
+        var a = feld[w][u];
+        var staerke = a ? (0.14 + 0.86 * (a / hoechst)) : 0;
+        zeilen += '<td><div class="zelle" title="' + WOCHE[w] + ', '
+          + ('0' + u).slice(-2) + ':00 Uhr: ' + a + ' Aufrufe"'
+          + (a ? ' style="background:rgba(196,154,42,' + staerke.toFixed(2) + ')"' : '')
+          + '></div></td>';
+      }
+      zeilen += '</tr>';
+    }
+    return '<div class="matrix"><table>' + kopf + zeilen + '</table></div>';
+  }
+
+  /* ---------- Was auffällt ----------
+     Der Betreiber ist kein Analyst: „das sagt mir alles genau
+     garnichts". Zahlen allein beantworten keine Frage. Dieser Block
+     uebersetzt sie in Saetze - jeder mit der Zahl, auf der er beruht,
+     damit nichts behauptet wird, was nicht dasteht. */
+  function erkenntnisse(d, summe, h, schnittDauer, schnittTiefe) {
+    var sagt = [];
+    var reihen = d.tageReihe || [];
+
+    if (reihen.length > 2) {
+      var sumW = [0,0,0,0,0,0,0], anzW = [0,0,0,0,0,0,0];
+      reihen.forEach(function (r) { var i = wochentag(r.tag); sumW[i] += r.aufrufe; anzW[i]++; });
+      var best = 0, bestWert = -1;
+      for (var i = 0; i < 7; i++) {
+        var schnitt = anzW[i] ? sumW[i] / anzW[i] : 0;
+        if (schnitt > bestWert) { bestWert = schnitt; best = i; }
+      }
+      if (bestWert > 0) sagt.push('Dein stärkster Tag ist <b>' + WOCHE[best]
+        + '</b> mit im Schnitt ' + bestWert.toFixed(1) + ' Aufrufen.');
+    }
+
+    var st = (d.stunden || []).slice().sort(function (x, y) { return y.aufrufe - x.aufrufe; })[0];
+    if (st) sagt.push('Die meisten kommen gegen <b>' + ('0' + st.stunde).slice(-2)
+      + ':00 Uhr</b> – dann lohnt sich Erreichbarkeit am meisten.');
+
+    var g = d.geraete || [], gSum = g.reduce(function (a, x) { return a + x.aufrufe; }, 0);
+    var handy = (g.filter(function (x) { return x.geraet === 'handy'; })[0] || {}).aufrufe || 0;
+    if (gSum) sagt.push('<b>' + Math.round(handy / gSum * 100)
+      + ' %</b> schauen vom Handy – dort muss alles zuerst stimmen.');
+
+    var q = (d.quellen || [])[0];
+    if (q) sagt.push(q.quelle === 'direkt'
+      ? 'Die meisten tippen die Adresse <b>direkt</b> ein oder haben ein Lesezeichen.'
+      : 'Die meisten kommen über <b>' + sicher(q.quelle) + '</b> (' + zahl(q.aufrufe) + ' Aufrufe).');
+
+    var r1 = (d.regionen || [])[0];
+    if (r1) sagt.push('Die meisten sitzen in <b>' + sicher(r1.region) + '</b>.');
+
+    var seite1 = (d.seiten || [])[0];
+    if (seite1) sagt.push('Meistbesucht ist <b>' + sicher(seite1.seite) + '</b>'
+      + (seite1.dauer ? ' mit ' + dauerText(seite1.dauer) + ' Verweildauer' : '') + '.');
+
+    if (schnittTiefe && schnittTiefe < 45) {
+      sagt.push('Im Schnitt wird nur <b>' + schnittTiefe
+        + ' %</b> einer Seite gelesen – das Wichtigste gehört weiter nach oben.');
+    } else if (schnittTiefe) {
+      sagt.push('Im Schnitt wird <b>' + schnittTiefe + ' %</b> einer Seite gelesen.');
+    }
+
+    var anfragen = h['anfrage-gesendet'] || 0;
+    if (summe) {
+      var quote = (anfragen / summe * 100);
+      sagt.push(anfragen
+        ? 'Aus je <b>' + Math.round(summe / anfragen) + ' Seitenaufrufen</b> wird eine Anfrage ('
+          + quote.toFixed(1) + ' %).'
+        : 'Noch keine Anfrage aus diesen ' + zahl(summe) + ' Aufrufen.');
+    }
+
+    var tr = d.trichter || [];
+    if (tr.length > 1) {
+      var schlimm = 0, verlust = -1;
+      for (var k = 1; k < tr.length; k++) {
+        var v = tr[k - 1].anzahl ? (tr[k - 1].anzahl - tr[k].anzahl) / tr[k - 1].anzahl : 0;
+        if (v > verlust) { verlust = v; schlimm = k; }
+      }
+      if (verlust > 0) sagt.push('Im Konfigurator steigen die meisten bei <b>'
+        + sicher(tr[schlimm].name) + '</b> aus (' + Math.round(verlust * 100) + ' %).');
+    }
+
+    if (!sagt.length) return '';
+    return '<div class="karte"><h2>Was auffällt</h2>'
+      + '<p class="unter">Dieselben Zahlen, in Sätzen.</p><div class="erkenntnisse">'
+      + sagt.map(function (t) { return '<div class="erkenntnis">' + t + '</div>'; }).join('')
+      + '</div></div>';
+  }
+
+  var letzteDaten = null;
+
   function zeichnen(d) {
+    letzteDaten = d;
     var reihen = d.tageReihe || [];
     var summe = reihen.reduce(function (a, r) { return a + r.aufrufe; }, 0);
     var vorher = d.vorher || { aufrufe: 0, dauer: 0, handlungen: [] };
@@ -320,26 +479,43 @@
     var kontaktV = (hv.telefon || 0) + (hv.whatsapp || 0) + (hv.mail || 0);
 
     var seiten = d.seiten || [];
-    var mitDauer = seiten.filter(function (s) { return s.dauer; });
-    var gewicht = mitDauer.reduce(function (a, s) { return a + s.aufrufe; }, 0);
-    var schnittDauer = gewicht
-      ? Math.round(mitDauer.reduce(function (a, s) { return a + s.dauer * s.aufrufe; }, 0) / gewicht)
-      : 0;
+    function gewogen(feld) {
+      var mit = seiten.filter(function (x) { return x[feld]; });
+      var g = mit.reduce(function (a, x) { return a + x.aufrufe; }, 0);
+      return g ? Math.round(mit.reduce(function (a, x) { return a + x[feld] * x.aufrufe; }, 0) / g) : 0;
+    }
+    var schnittDauer = gewogen('dauer');
+    var schnittTiefe = gewogen('tiefe');
+    var anfragen = h['anfrage-gesendet'] || 0;
+    var quote = summe ? (anfragen / summe * 100) : 0;
+    var quoteV = vorher.aufrufe ? ((hv['anfrage-gesendet'] || 0) / vorher.aufrufe * 100) : 0;
+
+    /* Gerade aktiv */
+    var live = (d.live || []).reduce(function (a, x) { return a + x.aufrufe; }, 0);
+    var liveEl = el('liveStand');
+    liveEl.className = 'live' + (live ? '' : ' still');
+    liveEl.innerHTML = '<span class="punkt"></span>' + (live
+      ? zahl(live) + ' Aufruf' + (live === 1 ? '' : 'e') + ' in den letzten 30 Minuten'
+      : 'nichts los in den letzten 30 Minuten');
+    liveEl.title = (d.live || []).map(function (x) {
+      return x.seite + ': ' + x.aufrufe;
+    }).join('\n');
 
     el('zeitraum').textContent = reihen.length
-      ? datumKurz(d.von) + ' bis heute · ' + tage + ' Tage'
+      ? (tage === 1 ? 'Heute' : datumKurz(d.von) + ' bis heute · ' + tage + ' Tage')
       : 'Noch keine Messwerte';
 
     var teile = [];
 
-    /* Kennzahlen */
     teile.push('<div class="kennzahlen">'
       + kachel('Seitenaufrufe', zahl(summe), trend(summe, vorher.aufrufe))
       + kachel('Im Schnitt am Tag', zahl(Math.round(summe / tage)), '')
       + kachel('Verweildauer', dauerText(schnittDauer), trend(schnittDauer, vorher.dauer))
-      + kachel('Anfragen abgeschickt', zahl(h['anfrage-gesendet'] || 0),
-               trend(h['anfrage-gesendet'] || 0, hv['anfrage-gesendet'] || 0))
-      + kachel('Kontakt angeklickt', zahl(kontakt), trend(kontakt, kontaktV))
+      + kachel('Gelesen', schnittTiefe ? schnittTiefe + ' %' : '–', '')
+      + kachel('Anfragen abgeschickt', zahl(anfragen),
+               trend(anfragen, hv['anfrage-gesendet'] || 0))
+      + kachel('Anfragen je Aufruf', quote ? quote.toFixed(1) + ' %' : '–',
+               trend(Math.round(quote * 10), Math.round(quoteV * 10)))
       + '</div>');
 
     if (!summe) {
@@ -349,20 +525,27 @@
         + 'Die Zahlen wachsen ab jetzt von selbst; morgen steht hier der erste Tag.</p></div>');
     }
 
-    /* Verlauf */
+    teile.push(erkenntnisse(d, summe, h, schnittDauer, schnittTiefe));
+
     teile.push('<div class="karte"><h2>Seitenaufrufe je Tag</h2>'
       + '<p class="unter">Die stärkste Säule ist der beste Tag im Zeitraum.</p>'
       + diagramm(reihen) + '</div>');
 
-    /* Seiten und Quellen */
+    /* Seiten: Aufrufe, Dauer, Lesetiefe, Einstiege */
     var hS = hoechstwert(seiten, 'aufrufe');
-    var seitenZeilen = seiten.slice(0, 12).map(function (s) {
+    var seitenZeilen = seiten.slice(0, 14).map(function (s) {
+      var zusatz = [];
+      if (s.dauer) zusatz.push(dauerText(s.dauer));
+      if (s.tiefe) zusatz.push(s.tiefe + ' % gelesen');
+      if (s.einstiege) zusatz.push(zahl(s.einstiege) + 'x Einstieg');
       return reihe(sicher(s.seite === '/' ? '/ (Startseite)' : s.seite),
-        hS ? s.aufrufe / hS * 100 : 0, zahl(s.aufrufe), dauerText(s.dauer));
+        hS ? s.aufrufe / hS * 100 : 0, zahl(s.aufrufe), zusatz.join(' · ') || null);
     });
+
+    /* Quellen, zusätzlich nach Art gruppiert */
     var quellen = d.quellen || [];
     var hQ = hoechstwert(quellen, 'aufrufe');
-    var quellenZeilen = quellen.map(function (q) {
+    var quellenZeilen = quellen.slice(0, 14).map(function (q) {
       var name = q.quelle === 'direkt'
         ? 'Direkt eingegeben oder Lesezeichen' : sicher(q.quelle);
       return reihe(name, hQ ? q.aufrufe / hQ * 100 : 0, zahl(q.aufrufe),
@@ -370,27 +553,52 @@
     });
     teile.push('<div class="zwei">'
       + '<div class="karte"><h2>Meistbesuchte Seiten</h2>'
-      + '<p class="unter">Rechts die durchschnittliche Verweildauer.</p>'
+      + '<p class="unter">Verweildauer, wie weit gelesen wurde, und wie oft die Seite '
+      + 'der Einstieg war.</p>'
       + liste(seitenZeilen, 'Noch keine Seite aufgerufen.') + '</div>'
       + '<div class="karte"><h2>Woher die Besucher kommen</h2>'
       + '<p class="unter">Die Seite davor – nur deren Name, nie die ganze Adresse.</p>'
       + liste(quellenZeilen, 'Noch keine Herkunft erfasst.') + '</div></div>');
 
-    /* Wochentage und Uhrzeit */
+    /* Geografie */
+    var LAND = { DE: 'Deutschland', AT: 'Österreich', CH: 'Schweiz', NL: 'Niederlande',
+                 FR: 'Frankreich', BE: 'Belgien', LU: 'Luxemburg', PL: 'Polen',
+                 US: 'USA', GB: 'Großbritannien' };
+    var laender = d.laender || [], regionen = d.regionen || [];
+    var hL = hoechstwert(laender, 'aufrufe'), hR = hoechstwert(regionen, 'aufrufe');
+    var landZeilen = laender.map(function (l) {
+      return reihe(LAND[l.land] || sicher(l.land), hL ? l.aufrufe / hL * 100 : 0, zahl(l.aufrufe));
+    });
+    var regionZeilen = regionen.map(function (r) {
+      return reihe(sicher(r.region), hR ? r.aufrufe / hR * 100 : 0, zahl(r.aufrufe));
+    });
+    teile.push('<div class="zwei">'
+      + '<div class="karte"><h2>Aus welchem Bundesland</h2>'
+      + '<p class="unter">Die wichtigste Frage für einen Betrieb mit Anfahrt. '
+      + 'Gespeichert wird das Bundesland, keine Stadt und keine Postleitzahl.</p>'
+      + liste(regionZeilen, 'Noch nichts gemessen.') + '</div>'
+      + '<div class="karte"><h2>Aus welchem Land</h2>'
+      + liste(landZeilen, 'Noch nichts gemessen.') + '</div></div>');
+
+    /* Wochentag × Stunde */
+    teile.push('<div class="karte"><h2>Wochentag und Uhrzeit</h2>'
+      + '<p class="unter">Je dunkler, desto mehr Aufrufe. Zeigt, wann sich '
+      + 'Erreichbarkeit lohnt.</p>' + matrixZeichnen(d.matrix) + '</div>');
+
+    /* Wochentage und Stunden einzeln */
     var sumW = [0,0,0,0,0,0,0], anzW = [0,0,0,0,0,0,0];
     reihen.forEach(function (r) {
       var i = wochentag(r.tag); sumW[i] += r.aufrufe; anzW[i]++;
     });
-    var schnittW = sumW.map(function (s, i) { return anzW[i] ? s / anzW[i] : 0; });
+    var schnittW = sumW.map(function (x, i) { return anzW[i] ? x / anzW[i] : 0; });
     var hW = Math.max.apply(null, schnittW) || 0;
     var wochenZeilen = WOCHE.map(function (name, i) {
       return reihe(name, hW ? schnittW[i] / hW * 100 : 0,
         anzW[i] ? schnittW[i].toFixed(1) : '–',
         anzW[i] ? zahl(sumW[i]) + ' ges.' : null);
     });
-
     var stundenRoh = {};
-    (d.stunden || []).forEach(function (s) { stundenRoh[s.stunde] = s.aufrufe; });
+    (d.stunden || []).forEach(function (x) { stundenRoh[x.stunde] = x.aufrufe; });
     teile.push('<div class="zwei">'
       + '<div class="karte"><h2>Wochentage im Schnitt</h2>'
       + '<p class="unter">Aufrufe je Tag dieser Art, rechts die Summe.</p>'
@@ -408,7 +616,6 @@
       return reihe(HANDLUNG[x.art], hH ? x.anzahl / hH * 100 : 0, zahl(x.anzahl),
         hv[x.art] != null ? 'davor ' + zahl(hv[x.art]) : null);
     });
-
     var geraete = d.geraete || [];
     var gSumme = geraete.reduce(function (a, g) { return a + g.aufrufe; }, 0);
     var geraeteZeilen = ['handy', 'rechner'].map(function (k) {
@@ -426,6 +633,19 @@
       + '<div class="karte"><h2>Handy oder Rechner</h2>'
       + '<p class="unter">Aus der Fensterbreite, nicht aus dem Gerätekennzeichen.</p>'
       + liste(gSumme ? geraeteZeilen : [], 'Noch nichts gemessen.') + '</div></div>');
+
+    /* Meistgeklickt */
+    var klicks = d.klicks || [];
+    var hK = hoechstwert(klicks, 'anzahl');
+    var klickZeilen = klicks.slice(0, 15).map(function (k) {
+      return reihe(sicher(k.was), hK ? k.anzahl / hK * 100 : 0, zahl(k.anzahl),
+        sicher(k.seite));
+    });
+    teile.push('<div class="karte"><h2>Worauf geklickt wird</h2>'
+      + '<p class="unter">Die Beschriftung des Knopfes oder Verweises, rechts die Seite. '
+      + 'Das beantwortet dieselbe Frage wie eine Klickkarte – ohne ein Abbild der Seite '
+      + 'oder die Mausbewegung zu speichern.</p>'
+      + liste(klickZeilen, 'Noch kein Klick gemessen.') + '</div>');
 
     /* Trichter */
     var tr = d.trichter || [];
@@ -448,6 +668,35 @@
       + '</div>');
 
     el('inhalt').innerHTML = teile.join('');
+  }
+
+  /* ---------- Als Tabelle speichern ----------
+     Ein langes Format (Block; Name; Wert; Zusatz) statt vieler Dateien:
+     So laesst sich in Excel mit einem Filter arbeiten, und es gibt nur
+     einen Knopf. Semikolon, weil Excel in deutscher Einstellung sonst
+     alles in eine Spalte legt. */
+  function csvBauen(d) {
+    var zeilen = [['Block', 'Name', 'Wert', 'Zusatz']];
+    (d.tageReihe || []).forEach(function (r) { zeilen.push(['Tag', r.tag, r.aufrufe, '']); });
+    (d.seiten || []).forEach(function (r) {
+      zeilen.push(['Seite', r.seite, r.aufrufe,
+        (r.dauer || 0) + ' s, ' + (r.tiefe || 0) + ' % gelesen, '
+        + (r.einstiege || 0) + ' Einstiege']);
+    });
+    (d.quellen || []).forEach(function (r) { zeilen.push(['Herkunft', r.quelle, r.aufrufe, '']); });
+    (d.regionen || []).forEach(function (r) { zeilen.push(['Bundesland', r.region, r.aufrufe, '']); });
+    (d.laender || []).forEach(function (r) { zeilen.push(['Land', r.land, r.aufrufe, '']); });
+    (d.geraete || []).forEach(function (r) { zeilen.push(['Gerät', r.geraet, r.aufrufe, '']); });
+    (d.handlungen || []).forEach(function (r) { zeilen.push(['Handlung', r.art, r.anzahl, '']); });
+    (d.klicks || []).forEach(function (r) { zeilen.push(['Klick', r.was, r.anzahl, r.seite]); });
+    (d.trichter || []).forEach(function (r) {
+      zeilen.push(['Konfigurator-Schritt', (r.nr || '') + ' ' + (r.name || ''), r.anzahl, '']);
+    });
+    (d.stunden || []).forEach(function (r) { zeilen.push(['Stunde', r.stunde, r.aufrufe, '']); });
+    return zeilen.map(function (z) {
+      return z.map(function (f) { return '"' + String(f == null ? '' : f).replace(/"/g, '""') + '"'; })
+        .join(';');
+    }).join('\r\n');
   }
 
   function laden() {
@@ -480,6 +729,25 @@
     });
     laden();
   });
+
+  el('csv').addEventListener('click', function () {
+    if (!letzteDaten) return;
+    /* Die Byte-Order-Mark vorneweg: Ohne sie liest Excel die Datei in
+       seiner alten Zeichentabelle, und aus jedem Umlaut werden zwei
+       falsche Zeichen. (Das Beispiel dafuer steht hier bewusst NICHT
+       ausgeschrieben: Es enthaelt ein Eurozeichen, und darauf schlaegt
+       scripts/pruefe-keine-preise.sh an - zu Recht, denn sie kann nicht
+       wissen, dass es ein Anzeigefehler sein soll.) */
+    var blob = new Blob(['\ufeff' + csvBauen(letzteDaten)],
+      { type: 'text/csv;charset=utf-8;' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bv-besucher-' + (letzteDaten.von || 'auswertung') + '-' + tage + 'tage.csv';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+  el('neuladen').addEventListener('click', laden);
 
   /* Der Abschalter liegt im localStorage des Geräts – js/messung.js
      liest genau diesen Schlüssel und hört dann auf zu zählen. */
