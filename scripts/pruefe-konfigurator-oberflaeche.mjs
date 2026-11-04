@@ -938,7 +938,8 @@ await page.waitForTimeout(600);
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
       + '.k3d-label output{max-width:18px!important}'
       + '.k3d-gefuehrt .k3d-nav{z-index:6!important}'
-      + '.k3d-zahlfeld{max-width:40px!important}' }).catch(() => {});
+      + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
+      }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
   await hy.waitForTimeout(3200);
@@ -958,12 +959,15 @@ await page.waitForTimeout(600);
          Betreibers. Gegengeprueft: Mit z-index 6 meldet die Pruefung
          in Schritt 5 drei Punkte, mit 4 keinen. */
       + '.k3d-gefuehrt .k3d-nav{z-index:6!important}'
-      /* Vierundzwanzigster Fehler: Das Zahlenfeld wird eingeschnuert -
-         dann laeuft die Zahl aus ihrem Kasten. Der alte Fehler zielte
-         auf die Wertanzeige in der Beschriftung; die ist seit heute
-         versteckt, und er lief ins Leere (von der Gegenprobe selbst
-         gemeldet). */
-      + '.k3d-zahlfeld{max-width:40px!important}' }).catch(() => {});
+      /* Vierundzwanzigster Fehler: Das Zahlenfeld wird breiter als
+         seine Huelle - dann laeuft die Zahl aus ihrem Kasten.
+         ZWEI ANLAEUFE: Erst sollte die Huelle schmaler werden
+         (max-width 40px). Wirkungslos, denn ihr Inhalt darf schrumpfen
+         (flex: 0 1 auto) und tat es auch - gemeldet hat das die
+         Gegenprobe selbst. Jetzt waechst das Feld und darf nicht mehr
+         schrumpfen. */
+      + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
+      }).catch(() => {});
   }
   const schritte = [];
   for (let i = 0; i < 5; i++) {
@@ -1059,6 +1063,26 @@ await page.waitForTimeout(600);
     obenDrauf.length === 0,
     obenDrauf.length ? obenDrauf.map((x) => x.y + ' px: ' + x.treffer.join(', ')).join(' | ')
       : 'an acht Scrollstellen nichts davor');
+
+  /* DIESELBE SACHE, ZWEITER WEG - und der ist der verlaessliche.
+     Die Abfrage oben trifft nur, wenn die Fusszeile GERADE ueber der
+     Buehne steht; das haengt an der Scrollstelle und an der Laenge des
+     Schrittes. GEMESSEN am 04.11.2026: Mit zurueckgedrehter
+     Zeichenreihenfolge meldete sie in einem Schritt drei Punkte, im
+     anderen keinen - als alleinige Wache zu wacklig.
+
+     Die Reihenfolge selbst ist dagegen eindeutig und jederzeit
+     ablesbar: Die Buehne muss vorne liegen. */
+  const reihenfolge = await hy.evaluate(() => {
+    const z = (s) => {
+      const w = getComputedStyle(document.querySelector(s)).zIndex;
+      return w === 'auto' ? 0 : Number(w);
+    };
+    return { buehne: z('.k3d-buehne'), nav: z('#k3dNav') };
+  });
+  pruef('Am Handy wird das Modell über der Bedienung gezeichnet',
+    reihenfolge.nav < reihenfolge.buehne,
+    'Bühne ' + reihenfolge.buehne + ', Fußzeile ' + reihenfolge.nav);
   await hy.close();
 }
 
@@ -2452,7 +2476,7 @@ const sollenScheitern = [
   'Die Einheit steht direkt hinter der Zahl',
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
-  'Am Handy liegt die Fußzeile nie über dem Modell',
+  'Am Handy wird das Modell über der Bedienung gezeichnet',
   'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',
