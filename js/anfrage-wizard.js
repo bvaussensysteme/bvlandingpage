@@ -12,7 +12,7 @@
   var KONTAKT_API = '/api/kontakt'; // Worker → Neon-Datenbank
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
-  var ASSET_VER = '20260715a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
+  var ASSET_VER = '20261104a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* „Wie sind Sie auf uns aufmerksam geworden?" – optionale Herkunftsfrage */
   var ANREDE_OPTS = ['Frau', 'Herr', 'Divers'];
@@ -249,8 +249,7 @@
       steps.push('komfort', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary');
       return steps;
     }
-    if (p === 'Sonstiges')
-      return ['produkt', 'wunsch', 'masse', 'montage', 'kontakt', 'summary'];
+
     // Direktkontakt: nur kurze Nachricht, keine Montagefrage
     if (p === 'Direkt anfragen')
       return ['produkt', 'wunsch', 'kontakt', 'summary'];
@@ -438,10 +437,16 @@
           { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },
           { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
           { value: 'Carport', img: 'carport', photo: true, hint: 'TDS · Flat Line · Flat Box' },
-          { value: 'Balkonüberdachung', icon: I.sonst, hint: 'Für den Balkon – auf Brüstung oder Boden' },
+          { value: 'Balkonüberdachung', img: 'balkon', photo: true, hint: 'Für den Balkon – auf Brüstung oder Boden' },
           { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'Lamellendach · Faltdach · Velaris' },
-          { value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' },
-          { value: 'Direkt anfragen', icon: I.brief, hint: 'Ohne Fragen – kurze Nachricht senden' }
+          /* „Sonstiges" ist am 04.11.2026 weggefallen: „Sonstiges kann
+             weg, weil den selben zweck erfüllt schon direkt anfragen"
+             (Betreiber). Damit die Faelle, die dort standen, trotzdem
+             ihren Weg finden, nennt „Direkt anfragen" sie jetzt beim
+             Namen - sonst sucht jemand mit einer Markise vergeblich
+             nach seinem Produkt. */
+          { value: 'Direkt anfragen', icon: I.brief,
+            hint: 'Markise, Geländer, Vordach … oder kurze Nachricht' }
         ], 'aw-options--equal');
       },
       valid: function () { return answers.produkt ? null : 'Bitte wählen Sie ein Produkt.'; }
@@ -536,7 +541,6 @@
       title: 'Gewünschte Maße',
       sub: 'Grobe Angaben genügen – wir messen später vor Ort exakt nach',
       render: function () {
-        var opt = answers.produkt === 'Sonstiges';
         var tds = answers.produkt === 'Terrassendach TDS' ||
                   answers.produkt === 'Balkonüberdachung';
         var cpUeber = answers.carportvariante === 'Carport mit Überstand';
@@ -547,10 +551,9 @@
           (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 300', 'mm') : '') +
           (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 1000', 'mm') : '') +
           '</div>' +
-          '<p class="aw-note">Alle Maße in Millimeter (mm).' + (opt ? ' Optional – Sie können auch ohne Maße fortfahren.' : ' Grobe Angaben genügen.') + '</p>';
+          '<p class="aw-note">Alle Maße in Millimeter (mm). Grobe Angaben genügen.</p>';
       },
       valid: function () {
-        if (answers.produkt === 'Sonstiges') return null; // optional
         if (!answers.breite || !answers.tiefe) return 'Bitte geben Sie mindestens Breite und Tiefe an.';
         return null;
       }

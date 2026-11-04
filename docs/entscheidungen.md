@@ -12952,3 +12952,57 @@ Verweise dorthin, wo sie hinsollen?
 **Offen, und beim Betreiber:** Weitere Fachseiten mit Werkzeug
 (Abstandsflächen zum Nachbarn, Schneelast auf Bestandsdächern). Die
 bestehenden zwei zeigen, dass das Muster trägt – gebaut wird erst auf Ansage.
+
+## 04.11.2026 – Anfrage-Assistent: Balkon bekommt ein Foto, „Sonstiges" fällt weg
+
+**Anlass.** Bildschirmfoto vom iPhone: „Balkonüberdachung hat kein Foto,
+Sonstiges kann weg, weil den selben zweck erfüllt schon direkt anfragen."
+
+**Das Foto.** Die Balkonkarte trug das Platzhalter-Symbol, während vier von
+fünf Produkten ein Bild hatten. Gebraucht wurde kein neues Foto: Der
+Konfigurator rendert seit dem 04.11. eigene Miniaturen, darunter
+`images/konfigurator/produkt-balkon.jpg`. Daraus ist
+`images/wizard/wz_balkon.webp` (520 × 274, 5,7 kB) zugeschnitten – **eigenes
+Modell, eigene Darstellung**, kein fremdes Bild, und im selben Stil wie die
+Karten im Konfigurator.
+
+**„Sonstiges" ist weg** – und das ist nicht folgenlos. Die beiden Wege waren
+technisch **nicht** gleich:
+
+| | abgefragte Schritte |
+|---|---|
+| Sonstiges | Produkt · Wunsch · **Maße** · **Montage** · Kontakt · Zusammenfassung |
+| Direkt anfragen | Produkt · Wunsch · Kontakt · Zusammenfassung |
+
+Wer also eine Markise über „Sonstiges" angefragt hat, hat **Maße und
+Montageart mitgeschickt**. Über „Direkt anfragen" kommt nur Freitext. Das
+heißt: **Bei Markise, Geländer und Vordach muss künftig häufiger nachgefragt
+werden.** Das ist die Entscheidung des Betreibers – hier steht sie, damit
+niemand später rätselt, warum diese Anfragen dünner sind.
+
+**Damit die Fälle nicht verloren gehen,** nennt „Direkt anfragen" sie jetzt
+beim Namen: *„Markise, Geländer, Vordach … oder kurze Nachricht"*. Vorher
+stand dort nur „Ohne Fragen" – wer eine Markise wollte, hätte seine Kategorie
+nirgends mehr gefunden.
+
+**Verworfen:** die Maß- und Montagefrage in den Direktweg zu holen. Sein
+ganzer Wert ist, dass er **keine** Fragen stellt; zwei Pflichtfelder hätten
+genau das kaputtgemacht. Falls sich im Betrieb zeigt, dass die Nachfragen
+stören, wäre der nächste Schritt ein **optionales** Maßfeld im Freitext –
+nicht die Rückkehr der Karte.
+
+**Abgesichert in `scripts/pruefe-assistent.mjs`,** und zwar **im Browser**:
+Jede Produktkarte muss ein Bild haben, **das wirklich geladen ist**
+(`naturalWidth > 0`) – ein `<img>` mit fehlender Datei steht im Quelltext
+genauso da wie eines, das ankommt. Dazu: kein Produkt heißt mehr
+„Sonstiges", und der Direktweg nennt die Fälle. 16 Prüfungen, Gegenprobe mit
+drei neuen eingebauten Fehlern.
+
+**Eine Falle dabei:** Die Kartenbilder tragen `loading="lazy"`. Außerhalb des
+Blickfelds lädt der Browser sie gar nicht, `naturalWidth` bleibt 0 – die
+erste Fassung der Prüfung meldete **alle fünf** Karten als kaputt, obwohl nur
+eine es war. Die Prüfung holt die Bilder jetzt erst in den Blick und wartet
+auf `onload`.
+
+**Was gegengelesen werden soll.** Im Anfrage-Assistenten am Handy: Trägt die
+Balkonkarte jetzt ein Bild, und stehen noch sechs statt sieben Karten da?
