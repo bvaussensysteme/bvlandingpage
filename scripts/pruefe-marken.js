@@ -123,13 +123,13 @@ var FEHLER = [
      die die neue Scheibe sichtbar machen: volle Deckung, kraeftiger
      Rand, helles Zeichen auf dunklem Grund. */
   ['Die Scheibe wird wieder durchsichtig', 'js',
-   "    g.fillStyle = belegt ? '#C49A2A' : 'rgba(17,17,17,.93)';",
-   "    g.fillStyle = belegt ? 'rgba(196,154,42,.55)' : 'rgba(17,17,17,.45)';"],
+   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.93)';",
+   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.45)';"],
   ['Die Linien werden wieder duenn', 'js',
    '      g.lineWidth = 4.6;', '      g.lineWidth = 2.3;'],
   ['Der Rand verliert seine Farbe und wird zum Haarstrich', 'js',
-   "    g.strokeStyle = belegt ? '#6B4F10' : '#C49A2A';\n    g.lineWidth = 10;",
-   "    g.strokeStyle = belegt ? 'rgba(107,79,16,.30)' : 'rgba(196,154,42,.30)';\n    g.lineWidth = 2;"],
+   "    g.strokeStyle = '#C49A2A';\n    g.lineWidth = 10;",
+   "    g.strokeStyle = 'rgba(196,154,42,.30)';\n    g.lineWidth = 2;"],
   /* MIT DER NACHBARZEILE VERANKERT: Beide Saetze stehen seit dem
      01.11.2026 ZWEIMAL in der Datei - einmal fuer die runden
      Feldzeichen, einmal fuer die Massschilder. Ohne Anker beschaedigte
@@ -274,11 +274,15 @@ var FEHLER = [
      sondern dunkel mit goldenem. „Blass" heisst hier jetzt: der dunkle
      Grund wird hell, womit das weisse Zeichen darauf verschwindet. */
   ['Die Scheibe ist wieder blass', 'js',
-   "    g.fillStyle = belegt ? '#C49A2A' : 'rgba(17,17,17,.93)';",
-   "    g.fillStyle = '#F2F2F2';"],
+   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.93)';",
+   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = '#F2F2F2';"],
   ['Das Zeichen auf der Scheibe ist nicht mehr weiss', 'js',
-   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = belegt ? '#1A1206' : '#FFFFFF';",
+   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#FFFFFF';",
    "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#7A5B12';"],
+  /* NEU 04.11.2026: Seit beide Zustaende dasselbe Kleid tragen, haengt
+     die Unterscheidung allein am Zeichen. */
+  ['Leer und belegt tragen dasselbe Zeichen', 'js',
+   "symbolUmriss(belegt ? 'stift' : 'punkt')", "symbolUmriss('punkt')"],
   ['Das Schild traegt kein Stiftzeichen mehr', 'js',
    "      var u = symbolUmriss('stift');", '      var u = null;'],
   ['Zahl und Einheit sind wieder gleich gross', 'js',
@@ -576,15 +580,27 @@ function lauf(q) {
      trotzdem blass. Jetzt die Formensprache der Leiste ueber der
      Buehne: dunkler Grund, goldener Rand, feines Zeichen.
 
-     ZWEI ZUSTAENDE, und beide werden geprueft - sonst koennte man
-     einen davon abschaffen, ohne dass es auffaellt. */
-  p('Leeres Feld: dunkle Scheibe mit goldenem Rand',
-    /g\.fillStyle = belegt \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(q.js) &&
-    /g\.strokeStyle = belegt \? '#6B4F10' : '#C49A2A';/.test(q.js),
-    'dunkel mit Gold aussen, belegt umgekehrt');
+     GEAENDERT am 04.11.2026: Vorher trugen leeres und belegtes Feld
+     entgegengesetzte Farben (dunkel bzw. gold). Der Betreiber wollte
+     beide im selben dunklen Kleid - „die zwei sachen im selben dunklen
+     design machen wie die runden + buttons". Damit sagt die FARBE
+     nichts mehr ueber den Zustand; unterschieden wird am ZEICHEN.
+     Genau das wird jetzt geprueft: ein Kleid, zwei Zeichen. */
+  p('Jede Scheibe ist dunkel mit goldenem Rand',
+    /g\.arc\(M, M, 100, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = 'rgba\(17,17,17,\.93\)';/.test(q.js) &&
+    /g\.arc\(M, M, 104, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = 'rgba\(17,17,17,\.93\)';/.test(q.js) &&
+    /g\.strokeStyle = '#C49A2A';\s*\n\s*g\.lineWidth = 10;/.test(q.js),
+    'kein Zustand faellt mehr aus der Formensprache');
   p('Das Zeichen steht hell auf dunkel',
-    /g\.strokeStyle = belegt \? '#1A1206' : '#FFFFFF';/.test(q.js),
-    'weiss im leeren Feld, dunkel auf der goldenen Scheibe');
+    /var u = symbolUmriss\(belegt \? 'stift' : 'punkt'\);\s*\n\s*g\.strokeStyle = '#FFFFFF';/.test(q.js),
+    'weiss auf Anthrazit, in beiden Zustaenden');
+  /* NEU 04.11.2026: Wenn die Farbe den Zustand nicht mehr zeigt, muss
+     das Zeichen es tun - sonst sind leer und belegt nicht mehr zu
+     unterscheiden. Deshalb steht diese Pruefung hier und nicht nur bei
+     der Zeichenwahl. */
+  p('Leer und belegt sind am Zeichen zu unterscheiden',
+    /symbolUmriss\(belegt \? 'stift' : 'punkt'\)/.test(q.js),
+    'Pluszeichen heisst leer, Stift heisst belegt');
   p('Der Rand ist als Linie zu erkennen',
     /g\.lineWidth = 10;\s*\n\s*g\.stroke\(\);/.test(q.js),
     '10 von 200 Durchmesser - auf 20 px Abbild noch eine Linie');

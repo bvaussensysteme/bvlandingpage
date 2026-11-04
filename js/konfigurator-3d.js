@@ -3652,8 +3652,12 @@
     g.shadowColor = 'rgba(17,17,17,.45)';
     g.shadowBlur = 14;
     g.shadowOffsetY = 4;
+    /* Dasselbe Kleid wie die Feldmarken (Betreiber, 04.11.2026:
+       „die zwei sachen im selben dunklen design machen wie die
+       runden + buttons") - dunkle Scheibe, goldener Rand, helles
+       Zeichen. */
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    g.fillStyle = '#C49A2A';          // unser Gold
+    g.fillStyle = 'rgba(17,17,17,.93)';
     g.fill();
     g.restore();
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
@@ -3661,7 +3665,7 @@
        (--gold-text #7A5B12 statt --gold-dark #9A7318) und ist einen
        Deut breiter: Auf hellem Pflaster trennt erst der dunkle Rand
        die Scheibe vom Untergrund. */
-    g.strokeStyle = '#7A5B12'; g.lineWidth = 10; g.stroke();
+    g.strokeStyle = '#C49A2A'; g.lineWidth = 10; g.stroke();
 
     var u = symbolUmriss('schieben');
     if (u && window.Path2D) {
@@ -5202,23 +5206,30 @@
        gleichermassen ab, weil der Kontrast aus hell-gegen-dunkel kommt
        statt aus einer Farbe gegen eine andere.
 
-       ZWEI ZUSTAENDE, wie bei den Knoepfen der Leiste:
-         leeres Feld  = dunkle Scheibe, goldener Rand, weisses Zeichen
-         belegtes     = goldene Scheibe, dunkler Rand, dunkles Zeichen
-       Gold heisst hier wie dort „gesetzt". */
+       EIN KLEID FUER BEIDE ZUSTAENDE (geaendert 04.11.2026). Vorher war
+       das belegte Feld umgekehrt gefaerbt: goldene Scheibe, dunkles
+       Zeichen. Der Betreiber dazu, mit zwei Nahaufnahmen: „die zwei
+       sachen im selben dunklen design machen wie die runden + buttons".
+
+       WAS DAS KOSTET, offen gesagt: Die Farbe sagt jetzt nichts mehr
+       ueber den Zustand. Unterschieden werden leer und belegt nur noch
+       am ZEICHEN - Pluszeichen heisst leer, Stift heisst belegt. Das
+       traegt, weil die beiden Zeichen verschieden aussehen und weil der
+       Unterschied ohnehin nie allein an der Farbe haengen darf: Wer
+       Farben schlecht unterscheidet, hatte ihn vorher nicht. */
     g.save();
     g.shadowColor = 'rgba(0,0,0,.45)';
     g.shadowBlur = 16;
     g.shadowOffsetY = 5;
     g.beginPath(); g.arc(M, M, 100, 0, Math.PI * 2);
-    g.fillStyle = belegt ? '#C49A2A' : 'rgba(17,17,17,.93)';
+    g.fillStyle = 'rgba(17,17,17,.93)';
     g.fill();
     g.restore();
 
     /* Der Rand ist die Form: krfaeftig genug, um auf einem zwanzig
        Pixel grossen Abbild noch als Linie zu lesen. */
     g.beginPath(); g.arc(M, M, 100, 0, Math.PI * 2);
-    g.strokeStyle = belegt ? '#6B4F10' : '#C49A2A';
+    g.strokeStyle = '#C49A2A';
     g.lineWidth = 10;
     g.stroke();
 
@@ -5227,14 +5238,14 @@
     g.save();
     g.beginPath();
     g.arc(M, M, 93, Math.PI * 1.15, Math.PI * 1.85);
-    g.strokeStyle = belegt ? 'rgba(255,255,255,.34)' : 'rgba(255,255,255,.16)';
+    g.strokeStyle = 'rgba(255,255,255,.16)';
     g.lineWidth = 5;
     g.lineCap = 'round';
     g.stroke();
     g.restore();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
-    g.strokeStyle = belegt ? '#1A1206' : '#FFFFFF';
+    g.strokeStyle = '#FFFFFF';
     g.lineCap = 'round'; g.lineJoin = 'round';
     g.fillStyle = 'rgba(0,0,0,0)';
     if (u && window.Path2D) {

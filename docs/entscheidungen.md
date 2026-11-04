@@ -12606,3 +12606,39 @@ ungefragt gemacht**, als Vorschlag notiert.
 diesem Prüflauf sagen nichts über ein echtes Gerät: hier rechnet ein
 Software-Renderer ohne Grafikkarte. Belastbar sind Zählwerte
 (Zeichenaufrufe, Grafikpuffer, Bildpunktfarben), nicht Zeiten.
+
+## 04.11.2026 – Ein Kleid für alle runden Zeichen
+
+**Anlass.** Zwei Nahaufnahmen des Betreibers – der Doppelpfeil am
+verschiebbaren Pfosten und die Stiftmarke im belegten Feld, beide als
+goldene Scheibe mit dunklem Zeichen – dazu: „die zwei sachen im selben
+dunklen design machen wie die runden + buttons".
+
+**Was falsch war.** Am Vormittag hatte ich zwei Zustände eingeführt: leeres
+Feld dunkel mit goldenem Rand, belegtes Feld umgekehrt (goldene Scheibe,
+dunkles Zeichen) – „Gold heißt gesetzt". Der Doppelpfeil war schon vorher
+golden. Auf dem Modell standen damit drei runde Zeichen nebeneinander, von
+denen zwei aus der Formensprache fielen.
+
+**Was jetzt gilt.** Alle runden Zeichen tragen dasselbe Kleid:
+Anthrazit `rgba(17,17,17,.93)`, goldener Rand `#C49A2A` in Strichstärke 10,
+helles Zeichen in Weiß. Betroffen sind `feldBild()` (beide Zustände) und
+`ziehZeichenBild()` in `js/konfigurator-3d.js`.
+
+**Was das kostet, offen gesagt.** Die **Farbe sagt jetzt nichts mehr über
+den Zustand**. Leer und belegt unterscheiden sich nur noch am **Zeichen**:
+Pluszeichen heißt leer, Stift heißt belegt. Das trägt – die beiden Zeichen
+sehen verschieden aus, und der Unterschied durfte ohnehin nie allein an der
+Farbe hängen (wer Farben schlecht unterscheidet, hatte ihn vorher nicht).
+Falls sich im Gebrauch zeigt, dass der Zustand zu wenig auffällt, ist der
+nächste Schritt **nicht** die Farbe zurück, sondern ein deutlicherer
+Unterschied im Zeichen.
+
+**Abgesichert.** `scripts/pruefe-marken.js` prüft jetzt beides getrennt: dass
+**jede** Scheibe dunkel mit goldenem Rand ist (Feldmarke mit Radius 100 und
+Ziehzeichen mit Radius 104, einzeln verankert – sonst hätte eine von beiden
+kaputtgehen können, ohne dass die Prüfung anschlägt; genau das ist beim
+ersten Anlauf passiert und die Gegenprobe hat es gemeldet), und dass leer
+und belegt am Zeichen auseinanderzuhalten sind. Stand: **90 von 90
+Prüfungen, 103 von 103 Fehlern bemerkt.** Farbtreue: 995 Bildpunkte genau
+auf `#C49A2A`, null auf dem alten `#CBBD75`.
