@@ -117,6 +117,11 @@ async function fehlerEinbauen(ziel) {
        die Beschwerde („viele gleiche regler"). */
     t = t.replace('steller.appendChild(regler);\n      regler.hidden = true;',
                   'steller.appendChild(regler);');
+    /* Neunzehnter Fehler: Der ⓘ-Knopf wird gar nicht erst gebaut. */
+    t = t.replace("info.className = 'k3d-infoknopf';", 'return;');
+    /* Zwanzigster Fehler: Der Kasten oeffnet, bleibt aber leer - dann
+       haette der Knopf ein Versprechen, das er nicht haelt. */
+    t = t.replace('if (p) p.textContent = text;', 'void text;');
     /* Dreizehnter Fehler: Die Reiterleiste merkt sich nicht, wo man
        schon war - dann fehlt der Haken fuer Erledigtes.
 
@@ -604,6 +609,51 @@ await page.waitForTimeout(600);
   pruef('Unter dem Zahlensteller steht keine Grenzen-Zeile',
     !!steller && steller.grenzen === '' && Number(steller.max) > 0,
     steller ? 'max ' + steller.max + ' steht weiter am Feld' : '');
+  /* ---------- Der ⓘ-Knopf statt der Grenzen-Zeile ----------
+     „du kannst da nen button machen mit nem kreis und nem i wenn man
+     drauftippt kommt popup mit dieser information in normaler größe
+     zum wieder wegklicken" (Betreiber, 04.11.2026).
+
+     Drei Dinge, und jedes laesst sich einzeln kaputtmachen: Der Knopf
+     steht in der Zeile, der Klick oeffnet den Kasten mit den Zahlen,
+     und „Verstanden" macht ihn wieder zu. Die SCHRIFTGROESSE wird
+     mitgemessen - „in normaler größe" war ausdruecklich Teil der
+     Ansage, und ein 11-px-Satz im Dialog waere derselbe Fehler wie
+     vorher die Zeile. */
+  const info = await me.evaluate(() => {
+    const gruppe = document.getElementById('k3dBreite').closest('.k3d-gruppe');
+    const knopf = gruppe.querySelector('.k3d-infoknopf');
+    if (!knopf) return { knopf: false };
+    const kr = knopf.getBoundingClientRect();
+    const zeile = knopf.closest('.k3d-label').getBoundingClientRect();
+    knopf.click();
+    const kasten = document.getElementById('k3dMassInfo');
+    const satz = document.querySelector('#k3dMassInfoText p');
+    const offen = !kasten.hidden;
+    const ok = document.getElementById('k3dMassInfoOk');
+    const text = satz ? satz.textContent : '';
+    const groesse = satz ? parseFloat(getComputedStyle(satz).fontSize) : 0;
+    if (ok) ok.click();
+    return {
+      knopf: true,
+      inDerZeile: kr.top >= zeile.top - 2 && kr.bottom <= zeile.bottom + 10
+        && kr.right <= zeile.right + 1,
+      breite: Math.round(kr.width),
+      offen, text, groesse,
+      wiederZu: kasten.hidden,
+      titel: (document.getElementById('k3dMassInfoTitel') || {}).textContent || ''
+    };
+  });
+  pruef('Am Maß steht ein ⓘ-Knopf in der Zeile',
+    info.knopf && info.inDerZeile && info.breite >= 24,
+    info.knopf ? info.breite + ' px, in der Beschriftungszeile' : 'kein Knopf');
+  pruef('Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
+    info.offen && /\d/.test(info.text) && /bis/.test(info.text) && info.groesse >= 14,
+    info.titel + ': ' + Math.round(info.groesse) + ' px, „'
+    + info.text.slice(0, 44) + '…"');
+  pruef('„Verstanden" schließt den Kasten wieder', info.wiederZu === true,
+    info.wiederZu ? 'zu' : 'bleibt offen');
+
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
       .filter((r) => r.offsetParent !== null).length);
@@ -2247,6 +2297,8 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Am Maß steht ein ⓘ-Knopf in der Zeile',
+  'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
   'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',

@@ -12193,3 +12193,36 @@ Die bisherige Prüfung „Die Grenzen stehen im Klartext darunter" ist
 umgedreht: Sie verlangt jetzt, dass **keine** solche Zeile dasteht – damit sie
 beim nächsten Umbau nicht zurückkommt – und prüft zugleich, dass `max` weiter
 am Feld steht.
+
+## 04.11.2026 – Ein ⓘ-Knopf statt der Grenzen-Zeile
+
+*„mach das überall weg du kannst da nen button machen mit nem kreis und nem i
+wenn man drauftippt kommt popup mit dieser information in normaler größe zum
+wieder wegklicken"* (Betreiber).
+
+Neben jedem Maß steht jetzt ein runder ⓘ-Knopf (30 px, Gold). Ein Tipp öffnet
+denselben Dialogbaustein, den „Zurücksetzen" und der Testbetriebs-Hinweis
+schon benutzen (`.k3d-hinw` + `.k3d-hinw-box`) – **kein zweiter Dialogtyp
+daneben**, das wäre genau die Extra-Arbeit, die `CLAUDE.md` ausschließt.
+
+Im Kasten steht der Name des Maßes als Überschrift und darunter ein Satz in
+normaler Größe (gemessen 14,4 px): *„Möglich sind 1.080 bis 14.080 mm.
+Verstellt wird in Schritten von 10 mm; ein Wert dazwischen wird auf den
+nächsten möglichen gerundet."* Zu geht er über „Verstanden", über die
+Esc-Taste und über einen Klick auf den dunklen Grund – wie die beiden anderen
+Dialoge.
+
+**Ein Dialog für alle Felder, nicht einer je Feld:** Titel und Text setzt der
+Knopf beim Öffnen. Elf gleiche Kästen im Dokument wären elfmal dieselbe
+Wartung.
+
+**Fehler auf dem Weg, gemessen statt vermutet:** Der Knopf hieß zuerst
+`.k3d-info` – **den Namen gibt es in derselben Datei schon**: Die Beschriftung
+über der Bühne trägt ihn, mit `position: absolute`. Sie steht weiter unten und
+gewinnt bei gleicher Spezifität, also landete der Knopf am oberen Bildrand
+statt in seiner Zeile (gemessen: left 20, top −1242). Jetzt `.k3d-infoknopf`.
+*Lehre: Vor einem neuen Klassennamen erst nachsehen, ob es ihn schon gibt.*
+
+Die Zahlen im Dialog kommen aus dem Regler selbst (`min`, `max`, `step`), nicht
+aus einer zweiten Liste – sonst stünde im Kasten irgendwann etwas anderes als
+im Feld.
