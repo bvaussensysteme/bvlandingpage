@@ -1470,8 +1470,23 @@ const spec = await page.locator('#k3dSpec').innerText();
 pruef('Fläche auf der Bühne', /15,00 m²/.test(spec), spec);
 
 // Zahlenfeld
-await page.fill('#k3dBreiteZahl', '4200');
-await page.waitForTimeout(500);
+/* ---------- ERST SEHEN, DANN TIPPEN ----------
+   GEMESSEN am 04.11.2026: In der Gegenprobe brach der ganze Lauf hier
+   ab - „element is not visible", dreissig Sekunden Warten, dann
+   TimeoutError. Mit eingebauten Fehlern steht das Bedienfeld an einer
+   anderen Stelle, und dann gibt es dieses Feld gerade nicht zu sehen.
+
+   Ein Lauf, der abbricht, prueft nichts mehr: Alle Pruefungen danach
+   fallen stumm aus, und die Gegenprobe kann nicht mehr sagen, ob sie
+   angeschlagen haetten. Deshalb wird hier zuerst nachgesehen. Fehlt
+   das Feld, bleiben die beiden Pruefungen darunter rot - was richtig
+   ist, denn dann stellt das Zahlenfeld tatsaechlich nichts. */
+const breiteFeldSichtbar = await page.locator('#k3dBreiteZahl')
+  .isVisible().catch(() => false);
+if (breiteFeldSichtbar) {
+  await page.fill('#k3dBreiteZahl', '4200');
+  await page.waitForTimeout(500);
+}
 pruef('Zahlenfeld stellt den Regler',
   (await page.inputValue('#k3dBreite')) === '4200',
   'Regler: ' + await page.inputValue('#k3dBreite'));
@@ -1485,10 +1500,11 @@ pruef('Ausgabe folgt dem Zahlenfeld',
    abgelesen; so haelt die Pruefung auch die naechste Aenderung aus. */
 /* Die Grenze steht am Regler, nicht am Zahlenfeld. */
 const maxBreite = Number(await page.locator('#k3dBreite').getAttribute('max'));
-await page.fill('#k3dBreiteZahl', String(maxBreite + 1500));
+if (breiteFeldSichtbar) await page.fill('#k3dBreiteZahl', String(maxBreite + 1500));
 await page.waitForTimeout(200);
-const markiert = await page.locator('#k3dBreiteZahl').evaluate(e => e.classList.contains('ist-ausserhalb'));
-await page.locator('#k3dBreiteZahl').blur();
+const markiert = await page.locator('#k3dBreiteZahl')
+  .evaluate((e) => e.classList.contains('ist-ausserhalb')).catch(() => false);
+if (breiteFeldSichtbar) await page.locator('#k3dBreiteZahl').blur();
 await page.waitForTimeout(300);
 const begrenzt = await page.inputValue('#k3dBreiteZahl');
 pruef('Maß außerhalb wird markiert', markiert, (maxBreite + 1500) + ' mm eingegeben');
