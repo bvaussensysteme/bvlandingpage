@@ -11986,3 +11986,40 @@ nur in der Tönung, kleiner wird der Unterschied unsichtbar.
 
 **Gegenzulesen:** Ob die Carport-Miniatur sich deutlich genug vom
 Terrassendach unterscheidet – beide zeigen dieselbe Grundform.
+
+## 04.11.2026 – Sieben Dachbilder, die alle gleich aussahen (Nachtrag)
+
+**Was falsch war:** Die sieben Miniaturen der Dacheindeckung zeigten alle
+dieselbe Schrägansicht wie die Produktbilder. „Glas klar", „Glas opal",
+„Glas graphit" und „Polycarbonat klar" waren auf der Karte nicht zu
+unterscheiden – und die Tönung ist das Einzige, worum es bei dieser Wahl geht.
+Sieben gleiche Bilder sind schlechter als gar keins: Sie versprechen einen
+Unterschied und zeigen keinen.
+
+**Ursache:** `scripts/baue-miniaturen.mjs` klickt für die Eindeckungen auf
+„Von oben". Den Knopf hatte es vorher selbst entfernt – das Aufräumen löscht
+die Ansichtsleiste, damit sie nicht im Bild steht. Ein Klick auf ein gelöschtes
+Element tut nichts, und zwar **lautlos**.
+
+**Was jetzt gilt:** Die Leiste wird versteckt statt gelöscht (ein Knopf mit
+`visibility:hidden` nimmt den Klick weiterhin an), und das Skript prüft nach
+dem Klick, ob die Ansicht wirklich steht – sonst bricht es ab mit der
+Begründung, statt stillschweigend sieben gleiche Bilder abzuliefern.
+
+**Gemessen am Ergebnis, nicht an der Absicht:** mittlere Farbe jeder Miniatur,
+im Browser aus der fertigen Karte gelesen. Glas klar `rgb(182,188,191)`,
+Glas opal `rgb(205,207,209)`, Glas graphit `rgb(151,159,164)`, Polycarbonat
+klar `rgb(187,192,194)`, opal `rgb(209,210,209)`, graphit `rgb(121,126,128)`,
+bronze `rgb(175,152,118)`. Kleinster Abstand **7** (Glas opal / Polycarbonat
+opal – beide milchig, der Unterschied steckt in den Stegen). Die Messung steht
+als Prüfung in `scripts/pruefe-konfigurator-oberflaeche.mjs`, Grenze 5.
+
+**Die neue Prüfung stürzte erst ab, statt anzuschlagen.** Die Gegenprobe
+bricht alle Bilder ab; `drawImage` auf einem kaputten Bild wirft, statt nichts
+zu zeichnen. Genau dafür ist die Gegenprobe da – kaputte Bilder werden jetzt
+übergangen.
+
+**Noch offen und nicht entschieden:** Der öffentliche Konfigurator liefert seit
+dem 31.10.2026 (#497) die Wartungsseite mit HTTP 503. Die neue Oberfläche ist
+live also nicht zu sehen. Freischalten wäre eine Zeile in `worker/index.js`
+(`KONFIGURATOR_GESPERRT = false`) – das entscheidet der Betreiber.
