@@ -546,6 +546,16 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
+| 04.11.2026 | **Farben kamen falsch an** – gemessen: gesetzt `#C49A2A` erschien als `#CBBD75`, `#111111` als `#303030`. Zwei fehlende Umrechnungen (Farbraum-Angabe, Tonwertkorrektur), neue Funktion `uiBild()` neben `rgb()`. Damit ist der Dauereinwand „zu blass“ beantwortet. Neue Prüfung `pruefe-farbtreue.mjs` zählt im **fertigen Bild** 1129 Bildpunkte genau auf `#C49A2A` | **PR #542, wartet auf Freigabe** |
+| 04.11.2026 | **Zwei fremde 3D-Skills geprüft und übernommen** (`three-best-practices`, `3d-high-resolution-textures`, beide MIT, nur Text, nichts ausgeführt), elf abgelehnt. Grenzen in je einer `HERKUNFT.md`: wir fahren three.js **r128**, alles zu WebGPU/TSL/`outputColorSpace` gilt hier nicht | **PR #542** |
+| 04.11.2026 | **Marken und Maßschilder neu**: dunkler Grund, goldener Rand, helles Zeichen – statt großer goldener Fläche („sehen wie spielzeuglogos aus“) | live |
+| 04.11.2026 | **Wettbewerbername aus der Dokumentation entfernt** (6 Stellen). VD und seine Produktnamen bleiben, ebenso TIGER Coatings in den zwei Einträgen, die das Nicht-Übernehmen festhalten | live |
+| 04.11.2026 | **Design-Skill `ui-ux-pro-max` im Repository** (MIT), Daueranweisung in `CLAUDE.md`: Prüflisten ja, fremde Paletten nein | live |
+| 04.11.2026 | **Schwebendes der Website im Konfigurator aus** – Barriere-Knopf, Nach-oben-Knopf, Blase und Sticky-Leiste; der Anfrage-Assistent bleibt (den hatte ich erst mit ausgeblendet, die Prüfung hat es gemeldet) | live |
+| 04.11.2026 | **„Alles schob sich ineinander“** – nicht die Lage war falsch, sondern die Zeichenreihenfolge: `z-index: 4` an der Fußzeile, eine Zeile | live |
+| 04.11.2026 | **ⓘ-Knopf statt Grenzen-Zeile**, rechts neben dem `+`; Maß steht nur noch einmal in der Zeile, Einheit direkt hinter der Zahl | live |
+| 04.11.2026 | **Handybildschirm**: Fußzeilenknöpfe von 72 auf 53 px, „Mehr Einstellungen“ mit vollem Rand, Bildkarten 2-spaltig im 4:3, Ansichtsleiste war 699 px breit in einem 390-px-Fenster (fünf Knöpfe unerreichbar), „Angebot anfragen“ am Handy erst am Ende | live |
+| 04.11.2026 | **Bildkarten aus dem eigenen Modell** (14 Miniaturen); sieben Dachbilder waren identisch, weil das Rendern einen Knopf anklickte, den es nicht mehr gab | live |
 | 04.11.2026 | **Konfigurator nach fremdem Vorbild, eigene Ausführung**: Reiter mit eigenen Zeichen und Haken für Erledigtes, feste Fußzeile mit Zielangabe auf beiden Knöpfen, Anfrage-Weg in jedem Schritt, „Mittelpfosten (empfohlen)" gegen „Statikträger" statt eines Hakens. Analyse in `docs/konfigurator-bedienung.md` | neu |
 | 03.11.2026 | **Konfigurator: ein Weg statt sechs.** Basic/Pro und „Alles auf einen Blick" entfallen, Fachliches liegt hinter „Mehr Einstellungen". Maße haben einen Zahlensteller (−/+) statt Schieberegler; Regler nur noch für Sichtbares (Lamellen, Markise, Tür). Gemessen: 0 statt 6 sichtbare Regler, Schritt 1 von 3,0 auf 1,9 Bildschirme, 129 → 113 Bedienelemente | neu |
 | 03.11.2026 | **Zahlenseite gestalterisch überarbeitet**: Gold nur noch für den Spitzenwert, Abstandsleiter, tabulare Ziffern, Ladeplatzhalter, Wolke am Diagramm, aufklappbare Listen, hell/dunkel. Dabei zwei echte Fehler gefunden (Wolke zog die Seite breiter, `min-width:0` auf Rasterfeldern) | neu |
@@ -559,20 +569,3 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 | 02.11.2026 | **„Zurücksetzen" statt „Bild speichern"** — mit Rückfrage; das PDF hing am entfernten Menü und ruft jetzt direkt | neu |
 | 02.11.2026 | **Unterkante Wandprofil im Modell** — anklickbar; dabei gefunden: Maßschilder standen in der Klickkette hinter den Feldflächen und waren dort nicht erreichbar | neu |
 | 02.11.2026 | **Doppelpfeil am gewählten Pfosten** — die orange Hülle sagt „ausgewählt", der Pfeil sagt „seitlich verschiebbar" | neu |
-| 01.11.2026 | **Pfosten wieder gleichmäßig stellen**: Schalter je Zwischenpfosten, erscheint nur wenn verschoben; nimmt den Versatz weg statt einen Wert zu setzen | neu |
-| 01.11.2026 | **Hausfarben statt Grau**: Maßschild doppelt so groß, weiß mit goldenem Rand, unter dem Zeiger gold gefüllt wie die Knöpfe der Seite; Maßlinien wieder schwarz; + Scheiben gold mit weißem Zeichen | neu |
-| 01.11.2026 | **Bemaßung neu**: dünnere Linien (0,9 statt 1,6 cm), Pfeilspitzen, Maßhilfslinien mit Überstand; das Maß selbst als Bedienelement (heller Grund, Rahmen, Stift, Gold beim Darüberfahren). Klickgrenze von 0,9 auf 2,5 s — gemessen 689 ms für einen Druck von 120 ms | neu |
-| 01.11.2026 | **Maßkasten**: „Übernehmen" ragte 10 px heraus (190 px breit, Knöpfe brauchten 187 + 24 px Polster); eigene − / + Schalter statt der Browser-Pfeilchen, die am Handy gar nicht da sind | neu |
-| 01.11.2026 | **Zwischenpfosten: erst antippen, dann schieben** — und die Toleranz war zu eng hergeleitet (nur eigene Pfostenspalte statt ganzer Tabelle): bei 7.000 mm jetzt ±520 statt ±200 mm | neu |
-| 01.11.2026 | **Zwischenpfosten verschiebbar** — Ziehen am Modell plus Regler, Toleranz aus der Maßtabelle hergeleitet; Lage geht in Teilen-Link und Anfrage mit | live |
-| 01.11.2026 | Jedes Feld entscheidet für sich („Feld 1 … n"), rundes Zeichen nur im leeren Feld, kräftigere Farbe, dünnere Ränder | live |
-| 31.10.2026 | **Maße voreingestellt an und im Bild anklickbar** — Tipp auf ein Maß öffnet ein Zahlenfeld | live |
-| 31.10.2026 | Anklickpunkte kleiner, halbdurchsichtig, **verdeckte werden ausgeblendet**; Werkstatt-Streifen von 4 Zeilen auf eine (28 px) | live |
-| 31.10.2026 | **Keine Emoji mehr**: eigene Symbolsammlung für Konfigurator und Website (Cookie-Banner, Newsletter, Slider, Galerie-Lupe, Ortsanzeige, Bedienhilfe) | live |
-| 31.10.2026 | `pruefe-live.sh`: sechs Marker auf dem gesperrten Konfigurator machten sie unbemerkt rot — ruhen jetzt, mit Beweis der Hinweisseite | live |
-| 31.10.2026 | `pruefe-konfigurator-oberflaeche.mjs`: Abbruch bei Prüfung 67 von 90 behoben (23 Prüfungen liefen seit PR #500 nicht) | live |
-| 31.10.2026 | **Anklickpunkte am Modell**: ein Punkt je Seitenfeld, einer am Dach, Klick springt in den Bereich; abschaltbar | live |
-| 31.10.2026 | Menü in fünf Bereiche geteilt (Anlage · Dach · Seiten · Zubehör · Fertig) mit Reitern und Zähler | live |
-| 31.10.2026 | Werkstatt `/werkstatt/`: Passwortschutz im Worker, Neu-laden-Knopf, Versionsanzeige | live |
-| 31.10.2026 | Öffentlicher Konfigurator gesperrt: Hinweisseite statt Rechner, alle Links raus | live |
-| 31.10.2026 | Aussparung (Hausvorsprung) als Machbarkeitsnachweis — nur in der Werkstatt | **wartet auf Entscheidung** |
