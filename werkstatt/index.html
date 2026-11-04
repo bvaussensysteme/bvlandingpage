@@ -188,6 +188,32 @@
       font-size: .8rem; font-weight: 600; color: var(--black); margin-bottom: 6px;
     }
     .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
+    /* ---------- Der ⓘ-Knopf am Massfeld ----------
+       „du kannst da nen button machen mit nem kreis und nem i wenn man
+       drauftippt kommt popup mit dieser information in normaler größe
+       zum wieder wegklicken" (Betreiber, 04.11.2026).
+
+       Er steht VOR dem Wert, nicht dahinter: Rechts aussen steht die
+       Zahl, und die soll der Daumen nicht treffen, wenn er die
+       Erklaerung will. 30 px sind kleiner als die 44 px, die fuer
+       einen Hauptweg gelten - fuer einen Nebenweg laesst WCAG 2.2
+       (2.5.8) 24 px zu, und mehr wuerde die Zeile sprengen. */
+    /* NICHT .k3d-info: Den Namen gibt es in dieser Datei schon - die
+       Beschriftung ueber der Buehne traegt ihn, mit position: absolute.
+       Sie steht weiter unten und gewinnt bei gleicher Spezifitaet; der
+       Knopf landete dadurch am oberen Bildrand statt in seiner Zeile
+       (gemessen am 04.11.2026: left 20, top -1242). Eigener Name,
+       eigener Platz. */
+    .k3d-infoknopf {
+      flex: none; width: 30px; height: 30px; margin: -6px 0 -6px 8px;
+      display: grid; place-items: center; cursor: pointer;
+      border: 0; background: none; color: var(--gold-dark); border-radius: 50%;
+    }
+    .k3d-infoknopf:hover { background: rgba(196, 154, 42, .14); }
+    .k3d-infoknopf .bvs { width: 19px; height: 19px; stroke-width: 2.1; }
+    /* Der Wert rueckt nach rechts aussen, der Knopf dahinter - sonst
+       stuende die Zahl mitten in der Zeile. */
+    .k3d-label:has(.k3d-infoknopf) output { margin-left: auto; }
     .k3d-select {
       width: 100%; padding: 9px 11px; font: inherit; font-size: .86rem;
       border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--black);
@@ -228,8 +254,15 @@
     /* Die Grenzen stehen sichtbar darunter. Am Regler waren sie nur zu
        erahnen: Man zog bis zum Anschlag und wusste nicht, ob der
        Anschlag das Produkt oder die Statik ist. */
-    .k3d-grenzen { display: block; margin-top: 5px; font-size: .72rem;
-      color: var(--muted); font-variant-numeric: tabular-nums; }
+    /* Die Grenzen-Zeile („von … bis … mm · Schritt …") ist am
+       04.11.2026 ersatzlos entfallen: „Diese rot markierten Minimal-
+       und Maximalmaße rechts, die stören komplett. Lass sowas weg, das
+       überlagert" (Betreiber, mit Bild vom iPhone). Mit ihr sind die
+       Regeln .k3d-grenzen gegangen - eine Regel ohne Element ist eine
+       Falle fuer den Naechsten, der sie fuer gebraucht haelt. */
+    /* ist-steller bleibt: Die Huelle war ein Raster aus zwei Spalten
+       (Schieberegler und Zahlenfeld nebeneinander). Ohne diese Regel
+       bekaeme der Zahlensteller nur die erste Spalte. */
     .k3d-regler.ist-steller { display: block; }
     .k3d-pfostenzeile .k3d-steller { grid-template-columns: 38px 1fr 38px; gap: 5px; }
     .k3d-pfostenzeile .k3d-stell { font-size: 1rem; border-radius: 7px; }
@@ -1237,6 +1270,9 @@
        Abschluss. -->
   <!-- Blatt mit Zeilen: steht fuer das persoenliche Angebot. -->
   <symbol id="bvs-angebot" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6"/><path d="M9 16h6"/></symbol>
+  <!-- Kreis mit „i": eigene Zeichnung im Stil der Sammlung (24er Raster,
+       runde Enden, Strich 1,9 aus .bvs). -->
+  <symbol id="bvs-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6v.9"/></symbol>
   <symbol id="bvs-anlage" viewBox="0 0 24 24"><path d="M3 20V9l9-5 9 5v11"/><path d="M3 20h18"/><path d="M8 20v-6h8v6"/></symbol>
   <symbol id="bvs-dachflaeche" viewBox="0 0 24 24"><path d="M2 16l6-8h14l-6 8z"/><path d="M8.5 8l-6 8"/><path d="M13 8l-6 8"/><path d="M17.5 8l-6 8"/></symbol>
   <symbol id="bvs-seitenfeld" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M12 4v16"/><path d="M4 12h8"/></symbol>
@@ -2615,13 +2651,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104e" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104h" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104e" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104h" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
@@ -2655,6 +2691,25 @@
       <button type="button" class="btn btn-abbruch" id="k3dResetAb">Abbrechen</button>
       <button type="button" class="btn btn-gold" id="k3dResetOk">Zurücksetzen</button>
     </div>
+  </div>
+</div>
+
+<!-- ---------- Was ist bei diesem Mass moeglich? ----------
+     Loest die Zeile „von … bis … mm · Schritt …" ab, die unter jedem
+     Zahlensteller stand und am Handy den Platz nahm („die stören
+     komplett. Lass sowas weg, das überlagert", Betreiber, 04.11.2026).
+
+     EIN Dialog fuer alle Massfelder, nicht je Feld einer: Titel und
+     Text setzt der Knopf beim Oeffnen (siehe zahlenstellerBauen in
+     js/konfigurator-3d.js). Derselbe Baustein wie „Zuruecksetzen" und
+     der Testbetriebs-Hinweis - ein zweiter Dialogtyp daneben waere
+     genau die Extra-Arbeit, die CLAUDE.md ausschliesst. -->
+<div class="k3d-hinw" id="k3dMassInfo" hidden>
+  <div class="k3d-hinw-box" role="dialog" aria-modal="true"
+       aria-labelledby="k3dMassInfoTitel" aria-describedby="k3dMassInfoText">
+    <h2 id="k3dMassInfoTitel">Maß</h2>
+    <div id="k3dMassInfoText"><p></p></div>
+    <button type="button" class="btn btn-gold" id="k3dMassInfoOk">Verstanden</button>
   </div>
 </div>
 

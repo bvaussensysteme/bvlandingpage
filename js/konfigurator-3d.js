@@ -11532,10 +11532,52 @@
     return 'mm';
   }
 
-  function stellerGrenzenText(regler, einheit) {
+  /* ---------- „Was ist hier möglich?" ----------
+     Loest die Zeile „von … bis … mm · Schritt …" ab, die unter jedem
+     Zahlensteller stand: „Diese rot markierten Minimal- und
+     Maximalmaße rechts, die stören komplett. Lass sowas weg, das
+     überlagert … du kannst da nen button machen mit nem kreis und nem
+     i wenn man drauftippt kommt popup mit dieser information in
+     normaler größe zum wieder wegklicken" (Betreiber, 04.11.2026).
+
+     EIN Dialog fuer alle Felder. Titel und Text setzt der Knopf beim
+     Oeffnen - zwanzig gleiche Kaesten im Dokument waeren zwanzigmal
+     dieselbe Wartung. */
+  function massInfoZeigen(titel, text) {
+    var box = document.getElementById('k3dMassInfo');
+    if (!box) return;
+    var t = document.getElementById('k3dMassInfoTitel');
+    var p = document.querySelector('#k3dMassInfoText p');
+    if (t) t.textContent = titel;
+    if (p) p.textContent = text;
+    box.hidden = false;
+    var ok = document.getElementById('k3dMassInfoOk');
+    if (ok) { try { ok.focus(); } catch (e) {} }
+  }
+  (function () {
+    var box = document.getElementById('k3dMassInfo');
+    if (!box) return;
+    function zu() { box.hidden = true; }
+    var ok = document.getElementById('k3dMassInfoOk');
+    if (ok) ok.addEventListener('click', zu);
+    /* Klick auf den dunklen Grund schliesst - wie bei den anderen
+       beiden Dialogen der Seite. */
+    box.addEventListener('click', function (e) { if (e.target === box) zu(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !box.hidden) zu();
+    });
+  })();
+
+  /* Der Satz im Dialog - ganze Worte statt „min/max/step". Die Zahlen
+     kommen aus dem Regler, nicht aus einer zweiten Liste: Sonst stuende
+     im Dialog irgendwann etwas anderes als im Feld. */
+  function massInfoText(regler, einheit) {
     function z(n) { return Number(n).toLocaleString('de-DE'); }
-    return 'von ' + z(regler.min) + ' bis ' + z(regler.max) + ' ' + einheit
-      + ' · Schritt ' + z(regler.step || 1);
+    var schritt = Number(regler.step) || 1;
+    return 'Möglich sind ' + z(regler.min) + ' bis ' + z(regler.max) + ' '
+      + einheit + '. Verstellt wird in Schritten von ' + z(schritt) + ' '
+      + einheit + '; ein Wert dazwischen wird auf den nächsten möglichen '
+      + 'gerundet.';
   }
 
   /* Einmal je Regler. Laeuft mehrfach (nach jedem Schrittwechsel und
@@ -11563,6 +11605,21 @@
       var steller = document.createElement('div');
       steller.className = 'k3d-steller';
       huelle.insertBefore(steller, regler);
+      /* ---------- DIE KLASSE, DIE NIE JEMAND GESETZT HAT ----------
+         GEMELDET am 04.11.2026 mit Bild vom iPhone: Unter „5000 mm"
+         stand „von 1.080 bis 14.080 mm · Schritt 10" in einer
+         handtuchschmalen Spalte und lief rechts aus dem Bildschirm.
+
+         Ursache: .k3d-regler ist ein Raster aus zwei Spalten
+         (1fr 78px) - dort lagen frueher Schieberegler und Zahlenfeld
+         nebeneinander. Seit dem Zahlensteller haengt der Hinweis in
+         derselben Huelle und bekam die 78-px-Spalte. Dagegen gab es
+         bereits die Regel .k3d-regler.ist-steller { display: block },
+         aber DIE KLASSE HAT NIEMAND GESETZT: Sie stand nur im
+         Stylesheet, in keiner Zeile Javascript.
+
+         Deshalb hier, an der einen Stelle, die den Steller baut. */
+      huelle.classList.add('ist-steller');
 
       var minus = document.createElement('button');
       minus.type = 'button';
@@ -11589,22 +11646,52 @@
           ? gruppe.querySelector('.k3d-label').textContent.replace(/\s+/g, ' ').trim()
           : 'Wert') + ' in ' + einheit);
       }
+      /* Der ⓘ-Knopf gehoert an die Beschriftung, nicht an den Steller:
+         Dort steht schon der Name des Masses, und genau danach fragt,
+         wer ihn drueckt. Gibt es keine Beschriftung (Pfostenzeilen
+         haben nur eine Nummer), bleibt der Knopf weg - dort steht das
+         Mass ohnehin im Band am Modell. */
+      var beschriftung = gruppe ? gruppe.querySelector('.k3d-label') : null;
+      if (beschriftung && !beschriftung.querySelector('.k3d-infoknopf')) {
+        var info = document.createElement('button');
+        info.type = 'button';
+        info.className = 'k3d-infoknopf';
+        var name = beschriftung.textContent.replace(/\s+/g, ' ').trim()
+          .replace(/\s*\d[\d.,]*\s*\S*$/, '').trim() || 'Maß';
+        info.setAttribute('aria-label', 'Was ist bei „' + name + '" möglich?');
+        info.title = 'Was ist hier möglich?';
+        info.innerHTML = bvSymbol('info');
+        info.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          massInfoZeigen(name, massInfoText(regler, einheit));
+        });
+        beschriftung.appendChild(info);
+      }
+
       steller.appendChild(minus);
       steller.appendChild(zahl);
       steller.appendChild(plus);
       steller.appendChild(regler);
       regler.hidden = true;
 
-      var hinweis = document.createElement('small');
-      hinweis.className = 'k3d-grenzen';
-      huelle.appendChild(hinweis);
+      /* ---------- KEIN GRENZEN-HINWEIS MEHR ----------
+         „Diese rot markierten Minimal- und Maximalmaße rechts, die
+         stören komplett. Lass sowas weg, das überlagert" (Betreiber,
+         04.11.2026, mit Bild vom iPhone).
+
+         Hier stand bis dahin eine Zeile „von 1.080 bis 14.080 mm ·
+         Schritt 10" unter jedem Zahlensteller. Sie ist ersatzlos weg.
+
+         Die Grenzen selbst bleiben: min, max und step stehen weiter am
+         Zahlenfeld, und setzen() rundet und deckelt wie zuvor. Wer
+         einen unmöglichen Wert eintippt, bekommt den nächsten
+         möglichen - nur eben ohne vorherige Ansage. */
 
       function auffrischen() {
         zahl.min = regler.min; zahl.max = regler.max; zahl.step = regler.step;
         if (document.activeElement !== zahl) zahl.value = regler.value;
         minus.disabled = Number(regler.value) <= Number(regler.min);
         plus.disabled = Number(regler.value) >= Number(regler.max);
-        hinweis.textContent = stellerGrenzenText(regler, einheit);
       }
       function setzen(wert) {
         var schritt = Number(regler.step) || 1;

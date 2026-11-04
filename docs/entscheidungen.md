@@ -12138,3 +12138,91 @@ schieben hat. Gemessen danach: 390 px breit, 698 px Inhalt, schiebbar.
 **Lehre, die bleibt:** Eine Zahl, die am großen Bildschirm gemessen wurde,
 gilt am Handy nicht. Wo eine Regel beide Größen betrifft, wird sie künftig in
 **beiden** Fenstern gemessen – 1440 und 390.
+
+## 04.11.2026 – Eine Klasse, die nie jemand gesetzt hat
+
+**Anlass:** Bild vom iPhone, rot eingekringelt. Unter „5000 mm" stand „von
+1.080 bis 14.080 mm · Schritt 10" in einer handtuchschmalen Spalte und lief
+rechts aus dem Bildschirm.
+
+**Ursache:** `.k3d-regler` ist ein Raster aus zwei Spalten (`1fr 78px`) – dort
+lagen früher Schieberegler und Zahlenfeld nebeneinander. Seit dem
+Zahlensteller (03.11.2026) hängt der Grenzen-Hinweis in derselben Hülle und
+bekam die **78-px-Spalte**. Dagegen gab es bereits die Regel
+`.k3d-regler.ist-steller { display: block }` – **aber die Klasse hat niemand
+gesetzt.** Sie stand nur im Stylesheet, in keiner Zeile Javascript. Jetzt
+setzt sie `zahlenstellerBauen()` an der einen Stelle, die den Steller baut.
+
+Derselbe Fund eine Zeile tiefer: Die Pfostenzeile ist ein Raster aus vier
+Spalten, der Hinweis landete in der letzten (30 px). Er bekommt dort eine
+eigene Zeile über die ganze Breite.
+
+**Warum keine Prüfung das gefunden hat – und was daraus folgt.** Alle
+bisherigen Prüfungen messen **Rechtecke**. Der Kasten des Hinweises war 78 px
+breit und endete brav am Rand des Bedienfeldes; nur der **Text darin** lief
+weiter. Ein Rechteck sieht das nicht – `scrollWidth` gegen `clientWidth`
+schon. Genau diese Lücke schließt die neue Prüfung „Am Handy läuft kein Text
+aus seinem Kasten": Sie geht im 390-px-Fenster jedes Element im Bedienfeld
+durch und vergleicht Inhalt mit Kasten. Wo ausdrücklich geschoben werden darf
+(`overflow-x` nicht `visible`, etwa die Ansichtsleiste), zählt sie nicht mit.
+
+Gemessen vor der Änderung: drei Stellen zu eng (`k3d-pfostenzeile` 336 statt
+341 px, `k3d-grenzen` 30 statt 35 px). Danach: keine.
+
+## 04.11.2026 – Die Grenzen-Zeile ist weg
+
+*„Diese rot markierten Minimal- und Maximalmaße rechts, die stören komplett.
+Lass sowas weg, das überlagert"* (Betreiber, mit Bild vom iPhone).
+
+Unter jedem Zahlensteller stand „von 1.080 bis 14.080 mm · Schritt 10". Die
+Zeile ist **ersatzlos** entfallen, samt ihrer CSS-Regeln – eine Regel ohne
+Element ist eine Falle für den Nächsten, der sie für gebraucht hält.
+
+**Was dadurch verloren geht, offen gesagt:** Die Zeile war die einzige
+Ansage, wo die Grenze liegt. Die Grenzen selbst bleiben (`min`, `max`, `step`
+stehen weiter am Zahlenfeld, `setzen()` rundet und deckelt wie zuvor) – wer
+7.500 mm eintippt, bekommt stillschweigend 7.050. **Vorher sah man, dass bei
+7.050 Schluss ist; jetzt merkt man es erst, wenn die Zahl zurückspringt.**
+
+Dem Betreiber vorgelegt, nicht gebaut: eine kurze Meldung, die **nur dann**
+erscheint, wenn jemand über die Grenze hinaus will („mehr als 7.050 mm geht
+bei diesem System nicht"). Das wäre weniger Text als vorher und trotzdem
+keine stille Korrektur.
+
+Die bisherige Prüfung „Die Grenzen stehen im Klartext darunter" ist
+umgedreht: Sie verlangt jetzt, dass **keine** solche Zeile dasteht – damit sie
+beim nächsten Umbau nicht zurückkommt – und prüft zugleich, dass `max` weiter
+am Feld steht.
+
+## 04.11.2026 – Ein ⓘ-Knopf statt der Grenzen-Zeile
+
+*„mach das überall weg du kannst da nen button machen mit nem kreis und nem i
+wenn man drauftippt kommt popup mit dieser information in normaler größe zum
+wieder wegklicken"* (Betreiber).
+
+Neben jedem Maß steht jetzt ein runder ⓘ-Knopf (30 px, Gold). Ein Tipp öffnet
+denselben Dialogbaustein, den „Zurücksetzen" und der Testbetriebs-Hinweis
+schon benutzen (`.k3d-hinw` + `.k3d-hinw-box`) – **kein zweiter Dialogtyp
+daneben**, das wäre genau die Extra-Arbeit, die `CLAUDE.md` ausschließt.
+
+Im Kasten steht der Name des Maßes als Überschrift und darunter ein Satz in
+normaler Größe (gemessen 14,4 px): *„Möglich sind 1.080 bis 14.080 mm.
+Verstellt wird in Schritten von 10 mm; ein Wert dazwischen wird auf den
+nächsten möglichen gerundet."* Zu geht er über „Verstanden", über die
+Esc-Taste und über einen Klick auf den dunklen Grund – wie die beiden anderen
+Dialoge.
+
+**Ein Dialog für alle Felder, nicht einer je Feld:** Titel und Text setzt der
+Knopf beim Öffnen. Elf gleiche Kästen im Dokument wären elfmal dieselbe
+Wartung.
+
+**Fehler auf dem Weg, gemessen statt vermutet:** Der Knopf hieß zuerst
+`.k3d-info` – **den Namen gibt es in derselben Datei schon**: Die Beschriftung
+über der Bühne trägt ihn, mit `position: absolute`. Sie steht weiter unten und
+gewinnt bei gleicher Spezifität, also landete der Knopf am oberen Bildrand
+statt in seiner Zeile (gemessen: left 20, top −1242). Jetzt `.k3d-infoknopf`.
+*Lehre: Vor einem neuen Klassennamen erst nachsehen, ob es ihn schon gibt.*
+
+Die Zahlen im Dialog kommen aus dem Regler selbst (`min`, `max`, `step`), nicht
+aus einer zweiten Liste – sonst stünde im Kasten irgendwann etwas anderes als
+im Feld.

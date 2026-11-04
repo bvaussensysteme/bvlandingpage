@@ -117,6 +117,11 @@ async function fehlerEinbauen(ziel) {
        die Beschwerde („viele gleiche regler"). */
     t = t.replace('steller.appendChild(regler);\n      regler.hidden = true;',
                   'steller.appendChild(regler);');
+    /* Neunzehnter Fehler: Der ⓘ-Knopf wird gar nicht erst gebaut. */
+    t = t.replace("info.className = 'k3d-infoknopf';", 'return;');
+    /* Zwanzigster Fehler: Der Kasten oeffnet, bleibt aber leer - dann
+       haette der Knopf ein Versprechen, das er nicht haelt. */
+    t = t.replace('if (p) p.textContent = text;', 'void text;');
     /* Dreizehnter Fehler: Die Reiterleiste merkt sich nicht, wo man
        schon war - dann fehlt der Haken fuer Erledigtes.
 
@@ -582,7 +587,8 @@ await page.waitForTimeout(600);
     knoepfe[1].click();
     return { versteckt: r.hidden, vorher, nachher: r.value, zahl: zahl.value,
       schritt: r.step, knoepfe: knoepfe.length,
-      grenzen: (r.closest('.k3d-gruppe').querySelector('.k3d-grenzen') || {}).textContent || '' };
+      grenzen: (r.closest('.k3d-gruppe').querySelector('.k3d-grenzen') || {}).textContent || '',
+      max: zahl.max };
   });
   pruef('Die Breite hat einen Zahlensteller statt eines Reglers',
     !!steller && steller.versteckt && steller.knoepfe === 2,
@@ -591,8 +597,77 @@ await page.waitForTimeout(600);
     !!steller && Number(steller.nachher) - Number(steller.vorher) === Number(steller.schritt)
     && steller.zahl === steller.nachher,
     steller ? steller.vorher + ' -> ' + steller.nachher + ' mm' : '');
-  pruef('Die Grenzen stehen im Klartext darunter',
-    !!steller && /von .* bis .* mm/.test(steller.grenzen), steller ? steller.grenzen : '');
+  /* UMGEKEHRT am 04.11.2026. Bis dahin wurde hier geprueft, dass unter
+     dem Zahlensteller „von … bis … mm · Schritt …" steht. Der
+     Betreiber, mit Bild vom iPhone: „Diese rot markierten Minimal- und
+     Maximalmaße rechts, die stören komplett. Lass sowas weg, das
+     überlagert." Jetzt gilt das Gegenteil - und zwar geprueft, damit
+     die Zeile nicht beim naechsten Umbau zurueckkommt.
+
+     Die Grenzen selbst bleiben am Feld (min/max/step) und werden
+     weiter gedeckelt; das prueft der Plusknopf eine Zeile hoeher. */
+  pruef('Unter dem Zahlensteller steht keine Grenzen-Zeile',
+    !!steller && steller.grenzen === '' && Number(steller.max) > 0,
+    steller ? 'max ' + steller.max + ' steht weiter am Feld' : '');
+  /* ---------- Der ⓘ-Knopf statt der Grenzen-Zeile ----------
+     „du kannst da nen button machen mit nem kreis und nem i wenn man
+     drauftippt kommt popup mit dieser information in normaler größe
+     zum wieder wegklicken" (Betreiber, 04.11.2026).
+
+     Drei Dinge, und jedes laesst sich einzeln kaputtmachen: Der Knopf
+     steht in der Zeile, der Klick oeffnet den Kasten mit den Zahlen,
+     und „Verstanden" macht ihn wieder zu. Die SCHRIFTGROESSE wird
+     mitgemessen - „in normaler größe" war ausdruecklich Teil der
+     Ansage, und ein 11-px-Satz im Dialog waere derselbe Fehler wie
+     vorher die Zeile. */
+  const info = await me.evaluate(() => {
+    const gruppe = document.getElementById('k3dBreite').closest('.k3d-gruppe');
+    const knopf = gruppe.querySelector('.k3d-infoknopf');
+    if (!knopf) return { knopf: false };
+    const kr = knopf.getBoundingClientRect();
+    const zeile = knopf.closest('.k3d-label').getBoundingClientRect();
+    knopf.click();
+    const kasten = document.getElementById('k3dMassInfo');
+    const satz = document.querySelector('#k3dMassInfoText p');
+    const offen = !kasten.hidden;
+    const ok = document.getElementById('k3dMassInfoOk');
+    const text = satz ? satz.textContent : '';
+    const groesse = satz ? parseFloat(getComputedStyle(satz).fontSize) : 0;
+    if (ok) ok.click();
+    return {
+      knopf: true,
+      /* Der Knopf ist ABSICHTLICH hoeher als die Textzeile: 30 px
+         Trefferflaeche auf einer rund 19 px hohen Zeile, mit negativem
+         Aussenabstand darueber und darunter. Gemessen wird deshalb
+         nicht „steht komplett in der Zeile", sondern was die Sache
+         ausmacht: Seine Mitte liegt auf der Zeile, und er ragt rechts
+         nicht heraus. (Erster Versuch verlangte kr.top >= zeile.top
+         und schlug an - zu Recht, aber am falschen Mass.) */
+      inDerZeile: Math.abs((kr.top + kr.bottom) / 2 - (zeile.top + zeile.bottom) / 2) <= 5
+        && kr.right <= zeile.right + 1 && kr.left > zeile.left,
+      breite: Math.round(kr.width),
+      offen, text, groesse,
+      wiederZu: kasten.hidden,
+      titel: (document.getElementById('k3dMassInfoTitel') || {}).textContent || ''
+    };
+  });
+  pruef('Am Maß steht ein ⓘ-Knopf in der Zeile',
+    !!info.knopf && !!info.inDerZeile && (info.breite || 0) >= 24,
+    info.knopf ? info.breite + ' px, Mitte auf der Zeile' : 'kein Knopf');
+  /* OHNE KNOPF GIBT ES NICHTS ZU LESEN, und die Pruefung muss dann
+     ANSCHLAGEN, nicht abstuerzen. GEMESSEN am 04.11.2026: In der
+     Gegenprobe (die den Knopf wegnimmt) stand hier info.text.slice()
+     auf undefined - die ganze Pruefung brach ab, statt den eingebauten
+     Fehler zu melden. Derselbe Fall wie bei drawImage auf einem
+     kaputten Bild. */
+  pruef('Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
+    !!info.offen && /\d/.test(info.text || '') && /bis/.test(info.text || '')
+    && (info.groesse || 0) >= 14,
+    (info.titel || 'kein Kasten') + ': ' + Math.round(info.groesse || 0) + ' px, „'
+    + (info.text || '').slice(0, 44) + '…"');
+  pruef('„Verstanden" schließt den Kasten wieder', info.wiederZu === true,
+    info.wiederZu === true ? 'zu' : 'bleibt offen oder fehlt');
+
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
       .filter((r) => r.offsetParent !== null).length);
@@ -792,15 +867,27 @@ await page.waitForTimeout(600);
   hy.setDefaultTimeout(8000);
   if (GEGENPROBE) {
     await fehlerEinbauen(hy);
-    /* Siebzehnter Fehler: Die Zeile kommt am Handy zurueck. */
-    await hy.addStyleTag({ content: '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}' })
-      .catch(() => {});
+    /* Siebzehnter Fehler: Die Zeile kommt am Handy zurueck.
+       Achtzehnter Fehler: Die Huelle des Massfeldes ist wieder ein
+       Raster aus zwei Spalten - genau der Zustand, in dem der
+       Grenzen-Hinweis in eine 78-px-Spalte gequetscht wurde. */
+    await hy.addStyleTag({ content:
+      '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
+      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
   await hy.waitForTimeout(3200);
   if (GEGENPROBE) {
-    await hy.addStyleTag({ content: '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}' })
-      .catch(() => {});
+    /* Achtzehnter Fehler NEU GEZIELT am 04.11.2026: Vorher machte er
+       die Huelle des Massfeldes wieder zum Zweispalter - der Zustand,
+       in dem der Grenzen-Hinweis in eine 78-px-Spalte gequetscht war.
+       Den Hinweis gibt es seit heute nicht mehr, der Fehler lief also
+       ins Leere, und die Gegenprobe hat genau das gemeldet. Jetzt wird
+       stattdessen der Wert in der Beschriftungszeile eingeengt: „5000
+       mm" in 18 px ist derselbe Fall - Kasten heil, Text laeuft raus. */
+    await hy.addStyleTag({ content:
+      '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
+      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
   }
   const schritte = [];
   for (let i = 0; i < 5; i++) {
@@ -826,6 +913,35 @@ await page.waitForTimeout(600);
      indem man die Anfrage am Handy ganz abschafft. */
   pruef('Am Handy ist der letzte Knopf der Absender',
     /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
+
+  /* ---------- Kein Text laeuft aus seinem Kasten ----------
+     GEMELDET am 04.11.2026 mit Bild vom iPhone, rot eingekringelt:
+     Unter „5000 mm" stand „von 1.080 bis 14.080 mm · Schritt 10" in
+     einer handtuchschmalen Spalte und lief rechts aus dem Bildschirm.
+
+     WARUM DIE ALTEN PRUEFUNGEN DAS NICHT FANDEN: Sie messen
+     Rechtecke. Der Kasten des Hinweises war 78 px breit und endete
+     brav am Rand des Bedienfeldes - nur der TEXT darin lief weiter.
+     Ein Rechteck sieht das nicht; scrollWidth gegen clientWidth
+     schon. Genau diese Luecke schliesst die Pruefung hier.
+
+     overflow-x wird mitgeprueft: Wo ausdruecklich geschoben werden
+     darf (die Ansichtsleiste), ist mehr Inhalt als Kasten gewollt. */
+  const zuEng = await hy.evaluate(() => {
+    const raus = [];
+    document.querySelectorAll('.k3d-sl-rollen *').forEach((e) => {
+      const b = e.getBoundingClientRect();
+      if (b.width > 0 && e.scrollWidth > e.clientWidth + 1
+          && getComputedStyle(e).overflowX === 'visible') {
+        raus.push((e.className || '').toString().split(' ')[0]
+          + ' (' + Math.round(e.clientWidth) + ' statt '
+          + Math.round(e.scrollWidth) + ' px)');
+      }
+    });
+    return raus;
+  });
+  pruef('Am Handy laeuft kein Text aus seinem Kasten',
+    zuEng.length === 0, zuEng.slice(0, 3).join(', ') || 'nichts ragt heraus');
   await hy.close();
 }
 
@@ -2202,7 +2318,10 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Am Maß steht ein ⓘ-Knopf in der Zeile',
+  'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
+  'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',
   'Erledigte Bereiche tragen einen Haken',
