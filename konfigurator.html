@@ -260,18 +260,27 @@
        schon gar keine fremden. Sie zeigen genau das, was nach dem Klick
        auf der Buehne steht, und laufen deshalb nie mit dem Modell
        auseinander. */
-    .k3d-seg--bild { grid-template-columns: repeat(2, 1fr); gap: 9px; }
-    .k3d-seg--bild button { padding: 0 0 9px; overflow: hidden;
+    .k3d-seg--bild { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+    /* Fuenf Produkte in zwei Spalten sind drei Reihen und damit allein
+       schon ein halber Bildschirm. GEMESSEN am 04.11.2026 im
+       1440-px-Fenster: erster Schritt 2,86 Bildschirme mit zwei
+       Spalten, 2,5x mit dreien - und alle fuenf Produkte stehen
+       nebeneinander statt untereinander. Die Dacheindeckungen bleiben
+       bei zwei Spalten: dort unterscheiden sich die Bilder nur in der
+       Tönung, kleiner wird der Unterschied unsichtbar. */
+    .k3d-seg--dreier { grid-template-columns: repeat(3, 1fr); }
+    .k3d-seg--bild button { padding: 0 0 7px; overflow: hidden;
       border-width: 2px; border-radius: 11px; }
     .k3d-seg--bild button img { display: block; width: 100%; height: auto;
-      aspect-ratio: 34 / 23; object-fit: cover; background: var(--light-bg);
-      margin-bottom: 7px; }
+      aspect-ratio: 16 / 9; object-fit: cover; background: var(--light-bg);
+      margin-bottom: 5px; }
     /* Weiche Trennstellen (&shy; im Text) statt harter Umbrueche: Aus
        „Balkonüberdachun / g" wird „Balkon- / überdachung". */
-    .k3d-seg--bild button b { display: block; padding: 0 9px;
-      font-family: 'Barlow Condensed', sans-serif; font-size: .92rem;
+    .k3d-seg--bild button b { display: block; padding: 0 8px;
+      font-family: 'Barlow Condensed', sans-serif; font-size: .88rem;
       letter-spacing: .01em; line-height: 1.15; hyphens: auto; }
-    .k3d-seg--bild button small { padding: 0 9px; margin-top: 1px; }
+    .k3d-seg--bild button small { padding: 0 8px; margin-top: 1px;
+      font-size: .72rem; line-height: 1.1; }
     /* Gewaehlt: goldener Rahmen und heller Goldgrund - NICHT die
        schwarze Fuellung der Textknoepfe. Ueber einem Foto wuerde
        Schwarz-auf-Bild die Beschriftung verschlucken. */
@@ -1288,7 +1297,7 @@
         <div class="k3d-gruppe" data-k3d-schritt="produkt">
           <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
           <input type="hidden" id="k3dProdukt" value="Terrassendach TDS">
-          <div class="k3d-seg k3d-seg--bild" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
+          <div class="k3d-seg k3d-seg--bild k3d-seg--dreier" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
             <button type="button" data-wert="Terrassendach TDS"><img src="images/konfigurator/produkt-terrassendach.jpg" alt="" loading="lazy" width="340" height="245"><b>Terrassendach TDS</b><small>geneigt, Glas oder Polycarbonat</small></button>
             <button type="button" data-wert="Flachdach SkyView"><img src="images/konfigurator/produkt-skyview.jpg" alt="" loading="lazy" width="340" height="245"><b>Flachdach SkyView</b><small>kubisch, flache Neigung</small></button>
             <button type="button" data-wert="Carport"><img src="images/konfigurator/produkt-carport.jpg" alt="" loading="lazy" width="340" height="245"><b>Carport</b><small>TDS, Flat Line oder Flat Box</small></button>

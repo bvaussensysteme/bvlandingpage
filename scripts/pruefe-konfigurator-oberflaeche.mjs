@@ -29,7 +29,7 @@
    ============================================================ */
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
-import { existsSync, readdirSync, mkdirSync } from 'node:fs';
+import { existsSync, readdirSync, mkdirSync, statSync } from 'node:fs';
 
 const GEGENPROBE = process.argv.includes('--gegenprobe');
 const PORT = 8783 + (GEGENPROBE ? 1 : 0);
@@ -332,7 +332,15 @@ const fremderBereichGefuehrt =
    danach 2,4. Die Grenze steht bewusst bei 2,6 - sie haelt den
    erreichten Stand fest und schlaegt an, wenn ein Schritt wieder
    waechst. Kuerzer wird es erst, wenn die Schritte neu geschnitten
-   werden; das ist die naechste Runde und noch nicht entschieden. */
+   werden; das ist die naechste Runde und noch nicht entschieden.
+
+   SIE HAT ANGESCHLAGEN: Mit den Bildkarten stand der erste Schritt am
+   04.11.2026 bei 2,86 Bildschirmen (2571 px im 1440er Fenster) - die
+   Bilder sind hoch. Nicht die Grenze wurde angehoben, sondern das
+   Raster geaendert: fuenf Produkte in drei Spalten statt in zweien,
+   flachere Bilder (16:9 statt 34:23), engere Beschriftung. Gemessen
+   danach 2,55 (2296 px), und alle fuenf Produkte stehen in zwei
+   Reihen nebeneinander. Die Grenze bleibt bei 2,6. */
 async function panelHoehe() {
   return await page.evaluate(() =>
     Math.round(document.querySelector('.k3d-sl-rollen').scrollHeight));
@@ -625,18 +633,42 @@ await page.waitForTimeout(600);
      nur als leerer Rahmen auf, und zwar erst dem Besucher. */
   const karten = await me.evaluate(() => {
     const alle = [...document.querySelectorAll('.k3d-seg--bild img')];
+    /* NUR was gerade auf dem Schirm steht, kann geladen sein. Die
+       Karten der Dacheindeckung stehen in einem spaeteren Schritt, und
+       der ist ausgeblendet; ein Bild mit loading="lazy" laedt dort
+       nicht - und soll es auch nicht. GEMESSEN am 04.11.2026: Die
+       Pruefung meldete sieben kaputte Bilder, die in Wahrheit nur noch
+       nicht an der Reihe waren. */
+    const sichtbar = alle.filter((i) => i.offsetParent !== null);
     return {
       anzahl: alle.length,
-      kaputt: alle.filter((i) => !(i.complete && i.naturalWidth > 0))
+      sichtbar: sichtbar.length,
+      kaputt: sichtbar.filter((i) => !(i.complete && i.naturalWidth > 0))
         .map((i) => i.getAttribute('src')),
       eigen: alle.every((i) => /^images\/konfigurator\/|^\/images\/konfigurator\//
         .test(i.getAttribute('src'))),
+      quellen: alle.map((i) => i.getAttribute('src')),
       aktiv: document.querySelectorAll('.k3d-seg--bild button.is-active').length
     };
   });
   pruef('Die Bildkarten zeigen eigene Bilder, und sie laden',
-    karten.anzahl >= 14 && karten.kaputt.length === 0 && karten.eigen,
-    karten.anzahl + ' Bilder' + (karten.kaputt.length ? ', kaputt: ' + karten.kaputt.join(', ') : ''));
+    karten.anzahl >= 14 && karten.sichtbar >= 7 && karten.kaputt.length === 0
+    && karten.eigen,
+    karten.anzahl + ' Bilder, ' + karten.sichtbar + ' davon im offenen Schritt'
+    + (karten.kaputt.length ? ', kaputt: ' + karten.kaputt.join(', ') : ''));
+  /* Zweiter, anders gebauter Weg zum selben Ergebnis: Die spaeter
+     geladenen Bilder prueft nicht der Browser, sondern die Festplatte.
+     Eine Datei unter 1 kB waere kein Foto, sondern ein Rest. */
+  const ohneDatei = [...new Set(karten.quellen)].filter((q) => {
+    try {
+      return statSync(new URL('../' + q.replace(/^\//, ''), import.meta.url)
+        .pathname).size < 1000;
+    } catch { return true; }
+  });
+  pruef('Zu jeder Bildkarte liegt eine Datei im Repository',
+    ohneDatei.length === 0,
+    [...new Set(karten.quellen)].length + ' Dateien'
+    + (ohneDatei.length ? ', fehlt: ' + ohneDatei.join(', ') : ''));
   pruef('Die gewählte Karte ist markiert', karten.aktiv >= 1,
     karten.aktiv + ' markiert');
   /* Ein Klick auf die Karte muss das Produkt wirklich wechseln. */

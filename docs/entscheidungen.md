@@ -11931,3 +11931,58 @@ Haken, die Fußzeile klebt wirklich (`position: sticky`), beide Knöpfe nennen
 ihr Ziel, der Anfrage-Weg steht in jedem Schritt, und die Zwei-Wege-Karten
 setzen den Schalter wirklich (aus → an → aus). Drei neue eingebaute Fehler in
 der Gegenprobe.
+
+## 04.11.2026 – Bildkarten aus dem eigenen Modell, und was sie gekostet haben
+
+**Anlass:** „Analysiere alle 10 bilder nacheinander, Bilder, Texte, Aufbau,
+kopiere nicht 1:1 mach es rechtssicher in unserem bv aussensysteme look"
+(Betreiber, 03.11.2026) und danach „mach weiter". Die Vorlage zeigt
+Produkt, Aufbau und Dacheindeckung als Bildkarten statt als Textknöpfe.
+
+**Entschieden: eigene Bilder, aufgenommen statt gezeichnet.**
+Die Vorlage zeigt Strichzeichnungen des fremden Anbieters – eigene Werke, die
+weder kopiert noch nachgezeichnet werden dürfen (CLAUDE.md, „Nachbauten").
+Statt zu zeichnen, fotografieren wir unser eigenes Modell:
+`scripts/baue-miniaturen.mjs` fährt den Konfigurator im Browser durch alle
+Varianten und nimmt die Leinwand auf. 14 Bilder, zusammen 473 kB, in
+`images/konfigurator/`.
+
+*Warum so und nicht anders:* Das Ergebnis ist originär, kostet nichts, zeigt
+unser echtes Erzeugnis in unseren Farben – und läuft nie mit dem Modell
+auseinander, weil es **dasselbe Modell ist**. Gezeichnete Symbole hätten
+jedes Mal nachgezogen werden müssen, Stockfotos zeigen fremde Anlagen.
+
+**Verworfen:** Bilder einkaufen (zeigt nicht unser Produkt), Symbole im
+Vorlagenstil nachzeichnen (genau das Risiko, das CLAUDE.md ausschließt).
+
+**Was die Bilder gekostet haben – und was dagegen getan wurde.**
+Die Prüfung „Kein Schritt wird länger als 2,6 Bildschirme" hat angeschlagen:
+Mit zwei Spalten Bildkarten stand der erste Schritt bei **2,86 Bildschirmen**
+(2571 px im 1440er Fenster), vorher 2,4. Fünf Produkte in zwei Spalten sind
+drei Reihen.
+
+Nicht die Grenze wurde angehoben, sondern das Raster geändert: **drei Spalten**
+für die Produkte, flachere Bilder (16:9 statt 34:23), engere Beschriftung.
+Gemessen danach **2,55** (2296 px) – und alle fünf Produkte stehen jetzt in
+zwei Reihen nebeneinander, sind also mit einem Blick zu erfassen. Die
+Dacheindeckungen bleiben bei zwei Spalten: Dort unterscheiden sich die Bilder
+nur in der Tönung, kleiner wird der Unterschied unsichtbar.
+
+**Fehler, die erst die Prüfung gezeigt hat**
+
+1. **Sieben „kaputte" Bilder, die in Wahrheit nur nicht an der Reihe waren.**
+   Die Karten der Dacheindeckung stehen in einem späteren Schritt, der
+   ausgeblendet ist; ein Bild mit `loading="lazy"` lädt dort nicht – und soll
+   es auch nicht. Die Prüfung misst jetzt nur, was gerade auf dem Schirm
+   steht. Für die übrigen gibt es einen **zweiten, anders gebauten Weg**:
+   Nicht der Browser prüft sie, sondern die Festplatte (Datei vorhanden und
+   größer als 1 kB).
+2. Drei Anläufe bei den Aufnahmen, jeder mit gemessenem Grund: falsches
+   Seitenverhältnis (1440 × 520, Modell klein im Rasen), eingebackene
+   Bühnenbeschriftung, Kopfzeile der Website im Pergola-Bild, Knopf der
+   Bedienhilfe im Bild. Gelöst nicht durch Aufzählen jeder Einblendung,
+   sondern durch die Regel: Was fest positioniert ist und nicht zur Bühne
+   gehört, wird vor der Aufnahme entfernt.
+
+**Gegenzulesen:** Ob die Carport-Miniatur sich deutlich genug vom
+Terrassendach unterscheidet – beide zeigen dieselbe Grundform.
