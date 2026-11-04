@@ -67,7 +67,15 @@ await page.evaluate(() => {
   const ok = document.getElementById('k3dTestOk'); if (ok) ok.click();
   weg('.k3d-hinw');
   const panel = document.getElementById('k3dPanel'); if (panel) panel.style.display = 'none';
-  weg('.k3d-leiste'); weg('.k3d-oben'); weg('.k3d-klickhinweis');
+  /* Die Ansichtsleiste wird VERSTECKT, nicht entfernt. GEMESSEN am
+     04.11.2026: Die sieben Miniaturen der Dacheindeckung zeigten alle
+     dieselbe Schraegansicht wie die Produktbilder, und die Toenung war
+     darin kaum zu sehen. Ursache: Weiter unten klickt das Skript auf
+     „Von oben" - den Knopf gab es da schon nicht mehr. Ein Knopf mit
+     display:none nimmt den Klick weiterhin an, ein geloeschter nicht. */
+  const leiste = document.querySelector('.k3d-leiste');
+  if (leiste) leiste.style.visibility = 'hidden';
+  weg('.k3d-oben'); weg('.k3d-klickhinweis');
   /* Die Beschriftung oben links gehoert zur Buehne, nicht aufs Bild -
    beim ersten Versuch stand „Terrassendach TDS / 5000 x 3000 mm" quer
    ueber jeder Miniatur. Auf der Karte steht der Name ohnehin darunter. */
@@ -93,7 +101,7 @@ await page.evaluate(() => {
      zu kennen: Was fest positioniert ist und nicht zur Buehne gehoert,
      kommt raus. */
   document.querySelectorAll('body *').forEach((el) => {
-    if (el.closest('.k3d-buehne')) return;
+    if (el.closest('.k3d-buehne') || el.closest('.k3d-leiste')) return;
     const lage = getComputedStyle(el).position;
     if (lage === 'fixed' || lage === 'sticky') el.remove();
   });
@@ -167,11 +175,19 @@ for (const [wert, name] of [['Wandmontage', 'aufbau-wand'], ['Freistehend', 'auf
 await setzen('k3dAufbau', 'Wandmontage');
 
 /* 3. Eindeckung - hier zählt die Fläche, deshalb von schräg oben */
-await page.evaluate(() => {
+const vonOben = await page.evaluate(() => {
   const k = document.querySelector('[data-k3d-ansicht="Von oben"]');
-  if (k) k.click();
+  if (!k) return 'Knopf fehlt';
+  k.click();
+  return k.classList.contains('is-active') ? 'ok' : 'Klick ohne Wirkung';
 });
+if (vonOben !== 'ok') {
+  console.log('  ABBRUCH: Ansicht „Von oben" nicht gesetzt (' + vonOben + ')');
+  console.log('  Ohne sie zeigen alle sieben Eindeckungen dasselbe Bild.');
+  await browser.close(); server.kill(); process.exit(1);
+}
 await page.waitForTimeout(1200);
+await heranholen(3);
 for (const [wert, name] of [
   ['VSG klar', 'dach-glas-klar'], ['VSG opal', 'dach-glas-opal'],
   ['VSG graphit', 'dach-glas-graphit'], ['Polycarbonat klar', 'dach-poly-klar'],

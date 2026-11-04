@@ -691,6 +691,50 @@ await page.waitForTimeout(600);
   });
   await me.waitForTimeout(1200);
 
+  /* ---------- Sieben Daecher, die man auseinanderhalten kann ----------
+     GEMESSEN am 04.11.2026: Die sieben Miniaturen der Dacheindeckung
+     zeigten alle dieselbe Schraegansicht - die Toenung, um die es bei
+     dieser Wahl allein geht, war darin kaum zu sehen. Ursache war ein
+     Klick auf „Von oben", der ins Leere ging (scripts/baue-miniaturen.mjs).
+     Sieben gleiche Bilder sind schlechter als gar keins: Sie
+     versprechen einen Unterschied und zeigen keinen.
+
+     Gemessen wird deshalb die mittlere Farbe jeder Miniatur. Glas opal
+     und Polycarbonat opal liegen von Natur aus nah beieinander (beide
+     milchig; der Unterschied steckt in den Stegen) - die Grenze von 5
+     trennt „aehnlich" von „dasselbe Bild". */
+  await me.$eval('#k3dWeiter', (e) => e.click());
+  await me.waitForTimeout(1400);
+  const daecher = await me.evaluate(async () => {
+    const imgs = [...document.querySelectorAll('[data-k3d-seg="k3dEindeckung"] img')];
+    await Promise.all(imgs.map((i) => i.complete ? null
+      : new Promise((r) => { i.onload = i.onerror = r; })));
+    const c = document.createElement('canvas'); const x = c.getContext('2d');
+    const farben = imgs.map((i) => {
+      c.width = 40; c.height = 28; x.drawImage(i, 0, 0, 40, 28);
+      const d = x.getImageData(8, 4, 24, 14).data;
+      let R = 0, G = 0, B = 0, n = 0;
+      for (let k = 0; k < d.length; k += 4) { R += d[k]; G += d[k + 1]; B += d[k + 2]; n++; }
+      return [Math.round(R / n), Math.round(G / n), Math.round(B / n)];
+    });
+    let min = 999;
+    for (let i = 0; i < farben.length; i++) {
+      for (let j = i + 1; j < farben.length; j++) {
+        const a = farben[i], b = farben[j];
+        const dd = Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+        if (dd < min) min = dd;
+      }
+    }
+    return { anzahl: imgs.length, geladen: imgs.filter((i) => i.naturalWidth > 0).length,
+      abstand: min === 999 ? 0 : min };
+  });
+  pruef('Die sieben Dachbilder sind auseinanderzuhalten',
+    daecher.anzahl === 7 && daecher.geladen === 7 && daecher.abstand >= 5,
+    daecher.geladen + ' von ' + daecher.anzahl + ' geladen, kleinster Farbabstand '
+    + daecher.abstand);
+  await me.$eval('#k3dZurueck', (e) => e.click());
+  await me.waitForTimeout(1200);
+
   /* ---------- Reiterleiste: Haken fuer Erledigtes ---------- */
   await me.$eval('#k3dWeiter', (e) => e.click());
   await me.waitForTimeout(700);
@@ -2098,6 +2142,7 @@ if (!GEGENPROBE) {
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
+  'Die sieben Dachbilder sind auseinanderzuhalten',
   'Erledigte Bereiche tragen einen Haken',
   'Beide Knöpfe nennen ihr Ziel',
   'Die Karten setzen den Schalter wirklich',
