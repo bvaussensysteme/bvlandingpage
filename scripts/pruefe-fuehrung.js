@@ -92,11 +92,17 @@ pruefe('Kein Schritt steht in zwei Bereichen', doppelt.length === 0,
 /* Seit dem 31.10.2026 setzt der Knopf innerHTML statt textContent: Der
    Pfeil ist ein gezeichnetes Symbol aus der eigenen Sammlung, kein
    Schriftzeichen mehr (iOS machte daraus ein Emoji). Geprueft wird
-   weiter dasselbe - dass der NAME des naechsten Bereichs darin steht. */
+   weiter dasselbe - dass der NAME des naechsten Bereichs darin steht.
+
+   NACHGEZOGEN am 04.11.2026: Gesucht wurde die Zeile
+   weiterKnopf.innerHTML = 'Weiter' woertlich. Die gibt es seit dem
+   03.11.2026 nicht mehr - der Knopf ist zweizeilig („Weiter" oben, der
+   Name des Ziels darunter in .k3d-nav-z). Die Pruefung suchte also eine
+   Schreibweise, nicht die Sache. Jetzt wieder die Sache. */
 pruefe('Der Weiter-Knopf nennt den nächsten Bereich',
        new RegExp(q || "BEREICHE\\[naechster\\]\\.t").test(js) &&
-       new RegExp(q || "weiterKnopf\\.innerHTML = 'Weiter'").test(js),
-       'statt nur „Weiter"');
+       new RegExp(q || "k3d-nav-z").test(js),
+       'zweizeilig: „Weiter" und darunter das Ziel');
 /* UMGEKEHRT seit dem 03.11.2026. Vorher wurde hier geprueft, dass es
    den zweiten Bedienweg „Alles auf einen Blick" GIBT. Gemessen waren
    dann sechs Wege durch dieselbe Bedienung (Basic/Pro, Reiter, Zaehler,

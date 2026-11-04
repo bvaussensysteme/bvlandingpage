@@ -49,9 +49,13 @@ var FEHLER = [
   ['Emoji-Zeichen in einem Knopf ueber der Buehne', 'html',
    '<use href="#bvs-teilen"></use></svg> <span class="k3d-immer">Teilen',
    '</svg>\u2197 <span class="k3d-immer">Teilen'],
-  ['Emoji-Zeichen im Weiter-Knopf', 'html',
-   'Weiter <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg>',
-   'Weiter \u25B6'],
+  /* NACHGEZOGEN am 04.11.2026: Der Weiter-Knopf stand bis zum
+     03.11.2026 fertig in der Seite. Jetzt baut ihn Javascript in der
+     festen Fusszeile zusammen - die gesuchte Stelle gab es im HTML
+     nicht mehr, und die Gegenprobe meldete das zu Recht. */
+  ['Emoji-Zeichen im Weiter-Knopf', 'js',
+   "'<span class=\"k3d-nav-t\">Weiter '\n          + bvSymbol('rechts')",
+   "'<span class=\"k3d-nav-t\">Weiter \u25B6'\n          + ("],
   ['Javascript schreibt wieder ein Schriftzeichen in die Oberflaeche', 'js',
    "if (sym) sym.innerHTML = bvSymbol(Z.abend ? 'tag' : 'abend');",
    "if (sym) sym.textContent = Z.abend ? '\u2600' : '\u263E';"],
@@ -207,6 +211,15 @@ function lauf(q) {
     (aufruf.match(/'([a-z-]+)'/g) || []).forEach(function (w) {
       benutzt['bvs-' + w.replace(/'/g, '')] = true;
     });
+  });
+  /* Die Reiterleiste holt ihr Zeichen nicht aus einem geschriebenen
+     Aufruf, sondern aus der Bereichstabelle: bvSymbol(BEREICHE[nr].zeichen).
+     Der NAME steht dort einmal als Feld - und galt deshalb als
+     ungenutzt. GEMESSEN am 04.11.2026: bvs-anlage, bvs-dachflaeche,
+     bvs-seitenfeld, bvs-zubehoer und bvs-fertig wurden als tot
+     gemeldet, obwohl jeder Reiter sie zeigt. */
+  (q.js.match(/zeichen: '([a-z-]+)'/g) || []).forEach(function (x) {
+    benutzt['bvs-' + x.replace(/.*'([a-z-]+)'.*/, '$1')] = true;
   });
   (q.js.match(/return '([a-z]+)';/g) || []).forEach(function (x) {
     var w = x.replace(/.*'([a-z]+)'.*/, '$1');
