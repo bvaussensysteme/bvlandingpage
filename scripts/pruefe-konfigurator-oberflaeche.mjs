@@ -625,7 +625,14 @@ await page.waitForTimeout(600);
     const knopf = gruppe.querySelector('.k3d-infoknopf');
     if (!knopf) return { knopf: false };
     const kr = knopf.getBoundingClientRect();
-    const zeile = knopf.closest('.k3d-label').getBoundingClientRect();
+    /* UMGEZOGEN am 04.11.2026: „Du kannst das runde mit i bisschen
+       größer machen und rechts neben dem + button platzieren"
+       (Betreiber). Gemessen wird jetzt gegen den PLUSKNOPF, nicht mehr
+       gegen die Beschriftungszeile. */
+    const steller = knopf.closest('.k3d-steller');
+    const plus = steller
+      ? [...steller.querySelectorAll('button.k3d-stell')].pop() : null;
+    const zeile = (plus || knopf).getBoundingClientRect();
     knopf.click();
     const kasten = document.getElementById('k3dMassInfo');
     const satz = document.querySelector('#k3dMassInfoText p');
@@ -636,24 +643,23 @@ await page.waitForTimeout(600);
     if (ok) ok.click();
     return {
       knopf: true,
-      /* Der Knopf ist ABSICHTLICH hoeher als die Textzeile: 30 px
-         Trefferflaeche auf einer rund 19 px hohen Zeile, mit negativem
-         Aussenabstand darueber und darunter. Gemessen wird deshalb
-         nicht „steht komplett in der Zeile", sondern was die Sache
-         ausmacht: Seine Mitte liegt auf der Zeile, und er ragt rechts
-         nicht heraus. (Erster Versuch verlangte kr.top >= zeile.top
-         und schlug an - zu Recht, aber am falschen Mass.) */
-      inDerZeile: Math.abs((kr.top + kr.bottom) / 2 - (zeile.top + zeile.bottom) / 2) <= 5
-        && kr.right <= zeile.right + 1 && kr.left > zeile.left,
+      /* Zwei Dinge, und beide sind die Ansage: RECHTS NEBEN dem
+         Plusknopf (nicht darunter, nicht davor) und auf derselben
+         Hoehe. Die Mitte wird verglichen, nicht die Kanten - der
+         Knopf ist 36 px hoch, der Plusknopf etwas weniger. */
+      inDerZeile: !!plus
+        && kr.left >= zeile.right - 1
+        && Math.abs((kr.top + kr.bottom) / 2 - (zeile.top + zeile.bottom) / 2) <= 4,
       breite: Math.round(kr.width),
       offen, text, groesse,
       wiederZu: kasten.hidden,
       titel: (document.getElementById('k3dMassInfoTitel') || {}).textContent || ''
     };
   });
-  pruef('Am Maß steht ein ⓘ-Knopf in der Zeile',
-    !!info.knopf && !!info.inDerZeile && (info.breite || 0) >= 24,
-    info.knopf ? info.breite + ' px, Mitte auf der Zeile' : 'kein Knopf');
+  pruef('Der ⓘ-Knopf steht rechts neben dem Plusknopf',
+    !!info.knopf && !!info.inDerZeile && (info.breite || 0) >= 32,
+    info.knopf ? info.breite + ' px, rechts neben „+" auf gleicher Höhe'
+      : 'kein Knopf');
   /* OHNE KNOPF GIBT ES NICHTS ZU LESEN, und die Pruefung muss dann
      ANSCHLAGEN, nicht abstuerzen. GEMESSEN am 04.11.2026: In der
      Gegenprobe (die den Knopf wegnimmt) stand hier info.text.slice()
@@ -2318,7 +2324,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
-  'Am Maß steht ein ⓘ-Knopf in der Zeile',
+  'Der ⓘ-Knopf steht rechts neben dem Plusknopf',
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
   'Am Handy laeuft kein Text aus seinem Kasten',

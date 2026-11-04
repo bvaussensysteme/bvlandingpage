@@ -206,16 +206,28 @@
        Knopf landete dadurch am oberen Bildrand statt in seiner Zeile
        (gemessen am 04.11.2026: left 20, top -1242). Eigener Name,
        eigener Platz. */
+    /* ---------- NEBEN DEM PLUSKNOPF, nicht in der Beschriftung ----------
+       „Du kannst das runde mit i bisschen größer machen und rechts
+       neben dem + button platzieren" (Betreiber, 04.11.2026).
+
+       Er stand zuerst rechts in der Beschriftungszeile, auf Hoehe des
+       Wertes. Dort ist er klein (die Zeile ist rund 19 px hoch) und
+       weit weg von dem, was er erklaert. In der Stellerzeile hat er
+       die Hoehe der Knoepfe daneben - 36 statt 30 px, also ueber dem
+       Mindestmass von 24 px (WCAG 2.2, 2.5.8) und nah an den 44 px,
+       die Apple fuer eine Flaeche zum Antippen nennt. */
     .k3d-infoknopf {
-      flex: none; width: 30px; height: 30px; margin: -6px 0 -6px 8px;
+      width: 36px; height: 36px; place-self: center;
       display: grid; place-items: center; cursor: pointer;
       border: 0; background: none; color: var(--gold-dark); border-radius: 50%;
     }
     .k3d-infoknopf:hover { background: rgba(196, 154, 42, .14); }
-    .k3d-infoknopf .bvs { width: 19px; height: 19px; stroke-width: 2.1; }
-    /* Der Wert rueckt nach rechts aussen, der Knopf dahinter - sonst
-       stuende die Zahl mitten in der Zeile. */
-    .k3d-label:has(.k3d-infoknopf) output { margin-left: auto; }
+    .k3d-infoknopf .bvs { width: 22px; height: 22px; stroke-width: 2.1; }
+    /* EIGENE KLASSE statt einer vierten Spalte fuer alle: Ohne Knopf
+       bliebe sonst eine leere Spalte samt Abstand stehen, und die
+       Zahl saesse nicht mehr mittig zwischen − und +. */
+    .k3d-steller.hat-info { grid-template-columns: 46px 1fr 46px 36px; }
+    .k3d-pfostenzeile .k3d-steller.hat-info { grid-template-columns: 38px 1fr 38px 34px; }
     .k3d-select {
       width: 100%; padding: 9px 11px; font: inherit; font-size: .86rem;
       border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--black);
@@ -2658,7 +2670,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261104h" defer></script>
+<script src="js/konfigurator-3d.js?v=20261104i" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

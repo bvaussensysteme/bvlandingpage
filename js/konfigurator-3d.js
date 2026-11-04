@@ -11646,13 +11646,21 @@
           ? gruppe.querySelector('.k3d-label').textContent.replace(/\s+/g, ' ').trim()
           : 'Wert') + ' in ' + einheit);
       }
-      /* Der ⓘ-Knopf gehoert an die Beschriftung, nicht an den Steller:
-         Dort steht schon der Name des Masses, und genau danach fragt,
-         wer ihn drueckt. Gibt es keine Beschriftung (Pfostenzeilen
-         haben nur eine Nummer), bleibt der Knopf weg - dort steht das
-         Mass ohnehin im Band am Modell. */
+      steller.appendChild(minus);
+      steller.appendChild(zahl);
+      steller.appendChild(plus);
+
+      /* ---------- Der ⓘ-Knopf, rechts neben dem Plusknopf ----------
+         „rechts neben dem + button platzieren" (Betreiber,
+         04.11.2026). Vorher stand er in der Beschriftungszeile - dort
+         ist er klein und weit weg von dem, was er erklaert.
+
+         DEN NAMEN HOLT ER SICH WEITER AUS DER BESCHRIFTUNG: Er soll im
+         Kasten „Breite" heissen, nicht „Maß". Gibt es keine
+         Beschriftung (Pfostenzeilen haben nur eine Nummer), bleibt der
+         Knopf weg - dort steht das Mass ohnehin im Band am Modell. */
       var beschriftung = gruppe ? gruppe.querySelector('.k3d-label') : null;
-      if (beschriftung && !beschriftung.querySelector('.k3d-infoknopf')) {
+      if (beschriftung && !steller.querySelector('.k3d-infoknopf')) {
         var info = document.createElement('button');
         info.type = 'button';
         info.className = 'k3d-infoknopf';
@@ -11665,12 +11673,9 @@
           ev.preventDefault();
           massInfoZeigen(name, massInfoText(regler, einheit));
         });
-        beschriftung.appendChild(info);
+        steller.appendChild(info);
+        steller.classList.add('hat-info');
       }
-
-      steller.appendChild(minus);
-      steller.appendChild(zahl);
-      steller.appendChild(plus);
       steller.appendChild(regler);
       regler.hidden = true;
 
