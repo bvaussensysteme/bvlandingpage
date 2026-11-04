@@ -258,18 +258,27 @@
        schon gar keine fremden. Sie zeigen genau das, was nach dem Klick
        auf der Buehne steht, und laufen deshalb nie mit dem Modell
        auseinander. */
-    .k3d-seg--bild { grid-template-columns: repeat(2, 1fr); gap: 9px; }
-    .k3d-seg--bild button { padding: 0 0 9px; overflow: hidden;
+    .k3d-seg--bild { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+    /* Fuenf Produkte in zwei Spalten sind drei Reihen und damit allein
+       schon ein halber Bildschirm. GEMESSEN am 04.11.2026 im
+       1440-px-Fenster: erster Schritt 2,86 Bildschirme mit zwei
+       Spalten, 2,5x mit dreien - und alle fuenf Produkte stehen
+       nebeneinander statt untereinander. Die Dacheindeckungen bleiben
+       bei zwei Spalten: dort unterscheiden sich die Bilder nur in der
+       Tönung, kleiner wird der Unterschied unsichtbar. */
+    .k3d-seg--dreier { grid-template-columns: repeat(3, 1fr); }
+    .k3d-seg--bild button { padding: 0 0 7px; overflow: hidden;
       border-width: 2px; border-radius: 11px; }
     .k3d-seg--bild button img { display: block; width: 100%; height: auto;
-      aspect-ratio: 34 / 23; object-fit: cover; background: var(--light-bg);
-      margin-bottom: 7px; }
+      aspect-ratio: 16 / 9; object-fit: cover; background: var(--light-bg);
+      margin-bottom: 5px; }
     /* Weiche Trennstellen (&shy; im Text) statt harter Umbrueche: Aus
        „Balkonüberdachun / g" wird „Balkon- / überdachung". */
-    .k3d-seg--bild button b { display: block; padding: 0 9px;
-      font-family: 'Barlow Condensed', sans-serif; font-size: .92rem;
+    .k3d-seg--bild button b { display: block; padding: 0 8px;
+      font-family: 'Barlow Condensed', sans-serif; font-size: .88rem;
       letter-spacing: .01em; line-height: 1.15; hyphens: auto; }
-    .k3d-seg--bild button small { padding: 0 9px; margin-top: 1px; }
+    .k3d-seg--bild button small { padding: 0 8px; margin-top: 1px;
+      font-size: .72rem; line-height: 1.1; }
     /* Gewaehlt: goldener Rahmen und heller Goldgrund - NICHT die
        schwarze Fuellung der Textknoepfe. Ueber einem Foto wuerde
        Schwarz-auf-Bild die Beschriftung verschlucken. */
@@ -417,7 +426,7 @@
        durchlaeuft. */
     .k3d-gefuehrt .k3d-nav { position: sticky; bottom: 0; z-index: 6;
       background: var(--white); border-top: 1px solid var(--border);
-      margin: 18px -16px 0; padding: 10px 16px 12px;
+      margin: 14px -16px 0; padding: 8px 16px 10px;
       box-shadow: 0 -6px 18px rgba(16, 24, 32, .06); }
     .k3d-nav-zeile { display: grid; grid-template-columns: 1fr auto 1.25fr;
       gap: 9px; align-items: stretch; }
@@ -453,14 +462,14 @@
        (gemessen am 04.11.2026). Mit beiden Klassen gewinnt diese hier. */
     .k3d-schalter.k3d-nurlesbar { display: none; }
     .k3d-nav-t { display: block; }
-    .k3d-nav-z { display: block; font-size: .74rem; font-weight: 600;
-      opacity: .72; margin-top: 1px; font-family: Inter, sans-serif;
-      letter-spacing: .01em; }
+    .k3d-nav-z { display: block; font-size: .66rem; font-weight: 600;
+      opacity: .78; margin-top: 0; font-family: Inter, sans-serif;
+      letter-spacing: .01em; line-height: 1.25; }
     .k3d-nav-zeile button:disabled .k3d-nav-z { display: none; }
     /* Der Weg zur Anfrage steht dauerhaft da, nicht erst im letzten
        Schritt. */
     .k3d-anfrage-fuss { display: flex; align-items: center; gap: 10px;
-      width: 100%; margin-top: 9px; padding: 9px 12px; cursor: pointer;
+      width: 100%; margin-top: 7px; padding: 8px 12px; cursor: pointer;
       border: 1px solid var(--border); border-radius: 10px; background: var(--offwhite);
       color: var(--black); text-align: left; }
     .k3d-anfrage-fuss:hover { border-color: var(--gold); background: #fff; }
@@ -473,11 +482,17 @@
        sein eigenes Blau fuer Knopftexte – „Zurück" stand dort blau,
        waehrend es im Entwurf schwarz war (Bild des Betreibers,
        02.11.2026). Derselbe Fehler wie zuvor bei „Abbrechen". */
-    .k3d-nav-zeile button { padding: 14px 10px; border-radius: 10px;
+    /* HOEHE: GEMESSEN am 04.11.2026 am iPhone-Bild des Betreibers
+       („buttons zurück weiter viel zu groß"): Der Knopf war 96 px hoch
+       und nahm mit der Anfragezeile darunter ein Drittel des
+       Bedienfeldes. Jetzt rund 54 px - deutlich ueber dem Mindestmaß
+       von 44 px (WCAG 2.2, 2.5.8), aber kein Block mehr. Das Ziel
+       darunter bleibt: Es beantwortet die Frage vor dem Klick. */
+    .k3d-nav-zeile button { padding: 8px 10px 9px; border-radius: 10px;
       border: 2px solid var(--border); background: #fff; cursor: pointer;
-      color: var(--black);
+      color: var(--black); min-height: 50px;
       font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 1.05rem; }
+      font-size: 1rem; line-height: 1.12; }
     .k3d-nav-zeile #k3dWeiter { border-color: var(--gold); }
     /* Im Bereich „Fertig" ist derselbe Knopf der Absender der Anfrage
        (js/konfigurator-3d.js, schrittZeigen). Dann darf er auch
@@ -487,9 +502,21 @@
       background: var(--gold); border-color: var(--gold-dark);
       color: var(--black); }
     .k3d-nav-zeile button[disabled] { opacity: .38; cursor: default; }
-    .k3d-mehr-knopf { width: 100%; margin-bottom: 12px; padding: 10px;
-      border-radius: 9px; border: 1px dashed var(--border); background: none;
-      font-size: .8rem; color: var(--muted); cursor: pointer; }
+    /* SICHTBARKEIT: „mehr einstellungen zu unsichtbar" (Betreiber,
+       04.11.2026, iPhone). Grau auf Weiß mit gestricheltem Rand sah aus
+       wie ein Platzhalter, nicht wie ein Schalter. Jetzt in unseren
+       Farben: goldene Schrift auf hellem Goldgrund, durchgezogener
+       Rand, kraeftiger gesetzt. Gestrichelt bleibt nichts uebrig - auf
+       einem Handybildschirm bei Tageslicht verschwindet es. */
+    .k3d-mehr-knopf { width: 100%; margin-bottom: 12px; padding: 11px 12px;
+      border-radius: 10px; border: 2px solid rgba(196, 154, 42, .55);
+      background: rgba(196, 154, 42, .09);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .98rem; font-weight: 700; letter-spacing: .01em;
+      color: var(--gold-text); cursor: pointer; }
+    .k3d-mehr-knopf:hover { border-color: var(--gold-dark);
+      background: rgba(196, 154, 42, .16); }
+    .k3d-mehr-knopf .bvs { stroke-width: 2.4; }
 
     .k3d-gefuehrt .k3d-sek > summary { display: none; }
     .k3d-gefuehrt .k3d-sek { border: 0; margin: 0; padding: 0; }
@@ -1050,6 +1077,23 @@
 
     @media (max-width: 900px) {
       .k3d-app { flex-direction: column; height: auto; min-height: 0; }
+      /* ---------- „Angebot anfragen" steht am Handy erst am Ende ----------
+         „der angebot anfragen button sollte bei mobile erst ganz am ende
+         kommen" (Betreiber, 04.11.2026).
+
+         Am grossen Bildschirm bleibt die Abkuerzung in jedem Schritt
+         stehen (Entscheidung vom 03.11.2026): Dort kostet sie nichts,
+         das Bedienfeld steht ohnehin neben dem Modell. Am Handy kostet
+         sie 57 px in einer Fusszeile, die schon zu viel Platz nahm -
+         und wer bei „Anlage" steht, hat noch nichts zu schicken.
+
+         WEG IST SIE DAMIT NICHT: Im letzten Bereich ist der Hauptknopf
+         der Fusszeile selbst der Absender („Anfrage abschicken", siehe
+         schrittZeigen), und die Zusammenfassung mit dem Formular steht
+         dort im Bedienfeld. Die Zeile hier zusaetzlich einzublenden
+         waeren zwei Knoepfe fuer dieselbe Sache - genau die Doppelung,
+         die beim Statiktraeger schon weggeraeumt wurde. */
+      .k3d-gefuehrt .k3d-anfrage-fuss { display: none; }
       /* Das 3D-Bild bleibt beim Scrollen oben stehen: „ich hätte ganz
          gerne auf dem handy das die 3d ansicht immer stehen bleibt, weil
          wenn man z.b runterscrollt oder weitere einstellungen öffnet …
@@ -1103,6 +1147,20 @@
          sonst liegt sie über den Knöpfen. */
       .k3d-leiste {
         left: 0; right: 0; bottom: 0; transform: none; max-width: none;
+        /* ZURUECK AUF auto - GEMESSEN am 04.11.2026 im 390-px-Fenster:
+           Die Leiste war 699 px breit und ragte 309 px aus dem Bild.
+           Schieben half nicht, denn sie war selbst so breit wie ihr
+           Inhalt (scrollWidth = clientWidth = 699): „Perspektive",
+           „Vorne", „Seite", „Von oben" und „Darunter" waren am Handy
+           NICHT ERREICHBAR, nicht nur abgeschnitten.
+
+           Ursache ist die allgemeine Regel width: max-content. Die
+           stammt vom grossen Bildschirm, wo die Leiste mittig steht und
+           ohne sie zu schmal zugemessen bekam (31.10.2026). Am Handy
+           spannt sie dagegen von Rand zu Rand - dort muss sie die
+           Fensterbreite nehmen, damit overflow-x ueberhaupt etwas zu
+           schieben hat. */
+        width: auto;
         overflow-x: auto; scrollbar-width: none;
         /* Ein Mittelweg: Erst war sie zu hoch, dann „etwas schmaler",
            jetzt „auf iphone 17 pro is es leicht zu schmal" (Betreiber,
@@ -1118,6 +1176,23 @@
       /* overflow-x, scrollbar-width und flex: none stehen jetzt in der
          allgemeinen Regel - hier bleibt nur, was am Handy anders ist. */
       .k3d-leiste button { padding: 6px 10px; font-size: .72rem; }
+      /* ---------- Bildkarten: am Handy ZWEI Spalten ----------
+         „du machst bei mobile auch komplett falsche proportionen"
+         (Betreiber, 04.11.2026). Zu Recht: Die drei Spalten sind am
+         1440-px-Bildschirm gemessen, wo das Bedienfeld eine schmale
+         Spalte neben dem Modell ist. Am Handy ist es die volle Breite -
+         aus drei Spalten wurden 107 px breite Kaertchen mit einem
+         58 px hohen Foto. Ein Produktbild in Daumennagelgroesse zeigt
+         nichts.
+
+         Zwei Spalten ergeben 165 px Karte mit 124 px Bild. Der erste
+         Schritt wird dadurch wieder laenger - das ist der Preis, und er
+         ist richtig herum bezahlt: Wer am Handy waehlt, soll sehen,
+         was er waehlt. */
+      .k3d-seg--dreier { grid-template-columns: repeat(2, 1fr); }
+      /* Und ein hoeheres Bild, weil die Karte jetzt breit genug dafuer
+         ist: 4:3 statt 16:9. */
+      .k3d-seg--bild button img { aspect-ratio: 4 / 3; }
       .k3d-maushinweis { display: none; }
       .k3d-klickhinweis { bottom: 44px; font-size: .68rem; padding: 4px 8px; }
       /* Der Maushinweis entfaellt am Handy, der Klickhinweis rutscht auf
@@ -1287,7 +1362,7 @@
         <div class="k3d-gruppe" data-k3d-schritt="produkt">
           <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
           <input type="hidden" id="k3dProdukt" value="Terrassendach TDS">
-          <div class="k3d-seg k3d-seg--bild" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
+          <div class="k3d-seg k3d-seg--bild k3d-seg--dreier" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
             <button type="button" data-wert="Terrassendach TDS"><img src="/images/konfigurator/produkt-terrassendach.jpg" alt="" loading="lazy" width="340" height="245"><b>Terrassendach TDS</b><small>geneigt, Glas oder Polycarbonat</small></button>
             <button type="button" data-wert="Flachdach SkyView"><img src="/images/konfigurator/produkt-skyview.jpg" alt="" loading="lazy" width="340" height="245"><b>Flachdach SkyView</b><small>kubisch, flache Neigung</small></button>
             <button type="button" data-wert="Carport"><img src="/images/konfigurator/produkt-carport.jpg" alt="" loading="lazy" width="340" height="245"><b>Carport</b><small>TDS, Flat Line oder Flat Box</small></button>
@@ -2540,13 +2615,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104b" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104e" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104b" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104e" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

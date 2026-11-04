@@ -2682,8 +2682,10 @@ body.bv-konfig-open #bvKonfigBubble {
   background: none;
   font: inherit;
   font-size: .82rem;
-  font-weight: 600;
-  color: #5a646c;
+  /* Kraeftiger als zuvor (600 / #5a646c): Das helle Grau war auf dem
+     Handy kaum vom Hintergrund zu trennen. */
+  font-weight: 700;
+  color: #3d4750;
   cursor: pointer;
   white-space: nowrap;
   transition: color .15s, border-color .15s, background .15s;
@@ -2698,7 +2700,14 @@ body.bv-konfig-open #bvKonfigBubble {
   border-radius: 8px 8px 0 0;
 }
 .k3d-reiter .k3d-reiter-z { display: block; line-height: 0; }
-.k3d-reiter .k3d-reiter-z .bvs { width: 20px; height: 20px; }
+/* GROESSE UND STRICHSTAERKE: „auf dem handy sind diese ganzen runden +
+   etc. zu schlecht sichtbar wir brauchen bessere logos, kräftige
+   saftige farben" (Betreiber, 04.11.2026, iPhone). Ein 20-px-Zeichen
+   mit Haarlinie 1,9 verschwindet auf einem hellen Handybildschirm.
+   Jetzt 24 px und 2,3 - dieselbe Zeichnung, nur kraeftig genug, um
+   gesehen zu werden. Nachgezeichnet wird nichts: Es sind unsere
+   eigenen Symbole aus derselben Sammlung. */
+.k3d-reiter .k3d-reiter-z .bvs { width: 24px; height: 24px; stroke-width: 2.3; }
 /* ERLEDIGT: Haken statt Bereichszeichen, in Gold. „Erledigt" heisst
    hier „schon dagewesen" - siehe reiterZeichnen() in
    js/konfigurator-3d.js. Der Haken sitzt an der Stelle des Zeichens und
@@ -2706,12 +2715,18 @@ body.bv-konfig-open #bvKonfigBubble {
    beim Weitergehen nicht springt. */
 .k3d-reiter button.ist-fertig { color: var(--gold-text); }
 .k3d-reiter button.ist-fertig .k3d-reiter-z .bvs { color: var(--gold-dark); }
-.k3d-reiter button.ist-aktiv { background: rgba(196, 154, 42, .09); }
 .k3d-reiter button:hover { color: var(--gold-text); }
+/* DER AKTIVE REITER TRAEGT FARBE, nicht nur einen Hauch davon: aus
+   9 % Goldgrund und einem 3-px-Balken wurden 16 % und 4 px, das
+   Zeichen steht in Dunkelgold. Auf dem Bildschirm im Freien war vorher
+   nicht zu erkennen, auf welchem Reiter man steht. */
 .k3d-reiter button.ist-aktiv {
-  color: #1f2a33;
+  color: var(--black);
+  background: rgba(196, 154, 42, .16);
   border-bottom-color: var(--gold);
+  border-bottom-width: 4px;
 }
+.k3d-reiter button.ist-aktiv .k3d-reiter-z .bvs { color: var(--gold-dark); }
 .k3d-reiter button:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: -2px;

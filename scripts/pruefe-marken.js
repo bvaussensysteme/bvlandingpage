@@ -116,12 +116,17 @@ var FEHLER = [
    "    g.fillStyle = '#C49A2A';\n    g.fill();",
    "    g.fillStyle = 'rgba(196,154,42,.80)';\n    g.fill();"],
   ['Die Linien werden wieder duenn', 'js',
-   '      g.lineWidth = 4.2;', '      g.lineWidth = 2.3;'],
-  ['Der Rand wird wieder breit', 'js',
-   "       Zeichen bleiben kr\u00e4ftig, nur der Rand wird zur\u00fcckgenommen. */\n" +
-   "    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();",
-   "       Zeichen bleiben kr\u00e4ftig, nur der Rand wird zur\u00fcckgenommen. */\n" +
-   "    g.strokeStyle = '#9A7318'; g.lineWidth = 13; g.stroke();"],
+   '      g.lineWidth = 5.4;', '      g.lineWidth = 2.3;'],
+  /* NEU GEZIELT am 04.11.2026: Der alte Fehler zielte auf den schmalen
+     Ring in mittlerem Gold. Den gibt es nicht mehr - die Scheibe traegt
+     jetzt zwei Ringe (weiss aussen, dunkelgold innen). Die Gegenprobe
+     hat das selbst gemeldet („findet ihre Stelle nicht mehr"). */
+  ['Der Rand verliert seine dunkle Farbe', 'js',
+   "    g.strokeStyle = '#7A5B12'; g.lineWidth = 11; g.stroke();",
+   "    g.strokeStyle = 'rgba(154,115,24,.35)'; g.lineWidth = 3; g.stroke();"],
+  ['Der weisse Aussenring faellt weg', 'js',
+   "    g.beginPath(); g.arc(M, M, 110, 0, Math.PI * 2);\n    g.fillStyle = '#FFFFFF';",
+   "    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);\n    g.fillStyle = '#C49A2A';"],
   /* MIT DER NACHBARZEILE VERANKERT: Beide Saetze stehen seit dem
      01.11.2026 ZWEIMAL in der Datei - einmal fuer die runden
      Feldzeichen, einmal fuer die Massschilder. Ohne Anker beschaedigte
@@ -149,8 +154,9 @@ var FEHLER = [
   ['Das Zeichen traegt keinen Verweis auf sein Feld', 'js',
    '    z.userData.feldMarke = marke;', '    void marke;'],
   ['Das Zeichen wird beliebig klein', 'js',
-   '    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3)) *\n             FELD_ZEICHEN_ANTEIL;',
-   '    var gr = Math.min(laenge, hoehe) / 30;'],
+   '      Math.max(kleinsteKante / 2.4, 28),', '      kleinsteKante / 30,'],
+  ['Das Zeichen darf ueber sein Feld hinausstehen', 'js',
+   '      kleinsteKante * 0.7', '      kleinsteKante * 9'],
   ['Das Zeichen ist wieder so gross wie vorher', 'js',
    '  var FELD_ZEICHEN_ANTEIL = 2 / 3;', '  var FELD_ZEICHEN_ANTEIL = 1;'],
   ['Die Flaeche schneidet weg, was dahinter liegt', 'js',
@@ -550,13 +556,19 @@ function lauf(q) {
     /symbolUmriss\(belegt \? 'stift' : 'punkt'\);\s*\n\s*g\.strokeStyle = '#FFFFFF';/.test(q.js),
     'voll deckend, kein Durchscheinen');
   p('Die Linien sind kraeftig',
-    /g\.lineWidth = 4\.2;/.test(q.js),
-    'Strich 4,2 statt 2,3 - die 2,3 stammten aus dem 24-px-Knopf');
-  /* „dünnere Ränder" (Betreiber, 01.11.2026): 13 verschluckte die
-     Scheibe. Die Linien IM Zeichen bleiben kraeftig. */
-  p('Der Rand ist schmal',
-    /verschluckte die Scheibe[\s\S]{0,120}?g\.strokeStyle = '#9A7318'; g\.lineWidth = 8; g\.stroke\(\);/.test(q.js),
-    'Ring 8 statt 13');
+    /g\.lineWidth = 5\.4;/.test(q.js),
+    'Strich 5,4 - am 04.11.2026 von 4,2 angehoben');
+  /* UMGESTELLT am 04.11.2026. Bis dahin stand hier „Der Rand ist
+     schmal" (Ring 8 statt 13, „dünnere Ränder", 01.11.2026). Am
+     iPhone war die Scheibe dann wieder „zu schlecht sichtbar": Ein
+     schmaler Rand in mittlerem Gold trennt sie vor hellem Pflaster von
+     gar nichts. Jetzt zwei Ringe statt eines - aussen Weiss, innen die
+     dunkelste Goldstufe. Gegen Dunkles traegt das Weiss, gegen Helles
+     das dunkle Gold; eine einzige Randfarbe kann beides nicht. */
+  p('Der Rand traegt zwei Farben, hell aussen und dunkel innen',
+    /g\.arc\(M, M, 110, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = '#FFFFFF';/.test(q.js) &&
+    /g\.strokeStyle = '#7A5B12'; g\.lineWidth = 11; g\.stroke\(\);/.test(q.js),
+    'weisser Aussenring, dunkelgoldener Innenring');
   /* MIT DEN NACHBARZEILEN: Beide Saetze stehen seit dem 01.11.2026
      auch beim Massschild. Ohne Anker bestuende die Pruefung, obwohl
      beim runden Zeichen die Mipmaps zurueck waeren. */
@@ -571,9 +583,20 @@ function lauf(q) {
     /var K = 256, M = K \/ 2;\s+\/\/ Kantenl/.test(q.js),
     '256 Bildpunkte Kantenlaenge');
 
+  /* GROESSER SEIT DEM 04.11.2026: „auf dem handy sind diese ganzen
+     runden + etc. zu schlecht sichtbar" (Betreiber am iPhone). Die
+     Scheibe haengt am Modell, nicht am Bildschirm - bei 5 m Dachbreite
+     auf 390 px blieben von 23 cm rund 18 px. Jetzt bis 60 cm, also
+     rund 36 px.
+
+     DREI SCHRANKEN, und die dritte gewinnt immer: so gross wie
+     moeglich, nie groesser als noetig, nie ueber das eigene Feld
+     hinaus. */
   p('Das Zeichen hat ein Mindest- und ein Hoechstmass',
-    /var gr = Math\.max\(14, Math\.min\(34, Math\.min\(laenge, hoehe\) \/ 3\)\) \*\s*\n\s*FELD_ZEICHEN_ANTEIL;/.test(q.js),
-    'ein Drittel der kurzen Seite, gedeckelt auf 14 bis 34 cm');
+    /Math\.max\(kleinsteKante \/ 2\.4, 28\),/.test(q.js) &&
+    /\n\s*60,/.test(q.js) &&
+    /kleinsteKante \* 0\.7/.test(q.js),
+    'mindestens 28, hoechstens 60 cm - und nie ueber das Feld hinaus');
   p('Das Zeichen ist um ein Drittel kleiner',
     /var FELD_ZEICHEN_ANTEIL = 2 \/ 3;/.test(q.js),
     'zwei Drittel der früheren Groesse, also 9,3 bis 22,7 cm');

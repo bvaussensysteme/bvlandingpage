@@ -11986,3 +11986,155 @@ nur in der Tönung, kleiner wird der Unterschied unsichtbar.
 
 **Gegenzulesen:** Ob die Carport-Miniatur sich deutlich genug vom
 Terrassendach unterscheidet – beide zeigen dieselbe Grundform.
+
+## 04.11.2026 – Sieben Dachbilder, die alle gleich aussahen (Nachtrag)
+
+**Was falsch war:** Die sieben Miniaturen der Dacheindeckung zeigten alle
+dieselbe Schrägansicht wie die Produktbilder. „Glas klar", „Glas opal",
+„Glas graphit" und „Polycarbonat klar" waren auf der Karte nicht zu
+unterscheiden – und die Tönung ist das Einzige, worum es bei dieser Wahl geht.
+Sieben gleiche Bilder sind schlechter als gar keins: Sie versprechen einen
+Unterschied und zeigen keinen.
+
+**Ursache:** `scripts/baue-miniaturen.mjs` klickt für die Eindeckungen auf
+„Von oben". Den Knopf hatte es vorher selbst entfernt – das Aufräumen löscht
+die Ansichtsleiste, damit sie nicht im Bild steht. Ein Klick auf ein gelöschtes
+Element tut nichts, und zwar **lautlos**.
+
+**Was jetzt gilt:** Die Leiste wird versteckt statt gelöscht (ein Knopf mit
+`visibility:hidden` nimmt den Klick weiterhin an), und das Skript prüft nach
+dem Klick, ob die Ansicht wirklich steht – sonst bricht es ab mit der
+Begründung, statt stillschweigend sieben gleiche Bilder abzuliefern.
+
+**Gemessen am Ergebnis, nicht an der Absicht:** mittlere Farbe jeder Miniatur,
+im Browser aus der fertigen Karte gelesen. Glas klar `rgb(182,188,191)`,
+Glas opal `rgb(205,207,209)`, Glas graphit `rgb(151,159,164)`, Polycarbonat
+klar `rgb(187,192,194)`, opal `rgb(209,210,209)`, graphit `rgb(121,126,128)`,
+bronze `rgb(175,152,118)`. Kleinster Abstand **7** (Glas opal / Polycarbonat
+opal – beide milchig, der Unterschied steckt in den Stegen). Die Messung steht
+als Prüfung in `scripts/pruefe-konfigurator-oberflaeche.mjs`, Grenze 5.
+
+**Die neue Prüfung stürzte erst ab, statt anzuschlagen.** Die Gegenprobe
+bricht alle Bilder ab; `drawImage` auf einem kaputten Bild wirft, statt nichts
+zu zeichnen. Genau dafür ist die Gegenprobe da – kaputte Bilder werden jetzt
+übergangen.
+
+**Noch offen und nicht entschieden:** Der öffentliche Konfigurator liefert seit
+dem 31.10.2026 (#497) die Wartungsseite mit HTTP 503. Die neue Oberfläche ist
+live also nicht zu sehen. Freischalten wäre eine Zeile in `worker/index.js`
+(`KONFIGURATOR_GESPERRT = false`) – das entscheidet der Betreiber.
+
+## 04.11.2026 – Handybildschirm: kleinere Knöpfe, kräftigere Zeichen
+
+**Anlass**, zwei iPhone-Bilder des Betreibers: *„buttons zurück weiter viel zu
+groß, mehr einstellungen zu unsichtbar auf dem handy sind diese ganzen runden
++ etc. zu schlecht sichtbar wir brauchen bessere logos, kräftige saftige
+farben das es auch auf dem handybildschirm perfekt is"*.
+
+**1. Zurück und Weiter waren 96 px hoch.** Mit der Anfragezeile darunter nahm
+die Fußzeile ein Drittel des Bedienfeldes. Jetzt 53 px (gemessen bei 390 px
+Fensterbreite) – deutlich über dem Mindestmaß von 44 px aus WCAG 2.2 (2.5.8),
+aber kein Block mehr. Das Ziel unter „Weiter" bleibt: Es beantwortet die
+Frage, die vor dem Klick im Kopf steht.
+
+**2. „Mehr Einstellungen" sah aus wie ein Platzhalter.** Grauer Text auf Weiß
+mit gestricheltem Rand. Auf einem Handybildschirm bei Tageslicht verschwindet
+Gestricheltes. Jetzt goldene Schrift auf hellem Goldgrund mit durchgezogenem
+Rand, 45 px hoch.
+
+**3. Die Reiter waren zu blass.** Schriftfarbe #5a646c bei Gewicht 600, das
+Zeichen 20 px mit Haarlinie 1,9, der aktive Reiter mit 9 % Goldgrund. Jetzt
+#3d4750 bei 700, Zeichen 24 px mit Strichstärke 2,3, aktiver Reiter mit 16 %
+Goldgrund, 4-px-Balken und dunkelgoldenem Zeichen.
+
+**4. Die runden Zeichen am Modell.** Das ist der Punkt, an dem Messen nötig
+war statt Schätzen: Die Scheiben hängen am **Modell**, nicht am Bildschirm.
+Bei 5 m Dachbreite auf 390 px Fensterbreite blieben von 23 cm Durchmesser
+rund 18 px. Jetzt bis 60 cm, also rund 36 px – so groß wie ein Knopf im
+Bedienfeld.
+
+Drei Schranken, und die dritte gewinnt immer: so groß wie möglich
+(`kleinsteKante / 2.4`, mindestens 28 cm), nie größer als nötig (60 cm), **nie
+über das eigene Feld hinaus** (`kleinsteKante * 0.7`). Eine Scheibe, die über
+ihr Feld steht, lässt nicht mehr erkennen, wozu sie gehört.
+
+Dazu ein **weißer Außenring**. Die Scheibe steht mal auf dunklem Anthrazit,
+mal auf hellem Pflaster, mal auf Rasen – eine einzige Randfarbe kann nicht
+gegen alle drei bestehen. Außen Weiß, innen die dunkelste Goldstufe
+(`--gold-text #7A5B12`): Gegen Dunkles trägt das Weiß, gegen Helles das dunkle
+Gold. Dieselbe Überlegung wie bei einer Stecknadel auf einer Landkarte.
+
+**Verworfen – und zwar bewusst nicht entschieden:** Die Scheiben zur Kamera
+drehen (wie eine Landkarten-Nadel), damit sie immer rund und gleich groß
+erscheinen. Das wäre die wirksamste Lösung, widerspricht aber der Ansage vom
+31.10.2026, dass die Feldzeichen **flach am Bauwerk liegen** sollen. Flach
+heißt: Beim Drehen werden sie zu Ellipsen und verschwinden fast, wenn man von
+der Seite schaut. Das ist dem Betreiber vorgelegt, nicht von mir entschieden.
+
+**Grenze der Prüfung – ehrlich:** Meine Bilder entstehen in einem
+Software-Renderer (swiftshader) ohne echte Grafikkarte. Größen und Abstände
+sind damit belastbar gemessen, die **Wirkung der Farben auf einem echten
+iPhone-Bildschirm nicht**. Das kann nur der Betreiber beurteilen.
+
+## 04.11.2026 – „Angebot anfragen" steht am Handy erst am Ende
+
+**Anlass:** *„der angebot anfragen button sollte bei mobile erst ganz am ende
+kommen"* (Betreiber).
+
+Am **großen Bildschirm** bleibt die Abkürzung in jedem Schritt stehen – das
+war die Entscheidung vom 03.11.2026 und bleibt sie: Dort kostet sie nichts,
+das Bedienfeld steht ohnehin neben dem Modell.
+
+Am **Handy** kostet sie 57 px in einer Fußzeile, die ohnehin zu viel Platz
+nahm (gemessen: Fußzeile 212 px → 156 px). Und wer im Schritt „Anlage" steht,
+hat noch nichts zu schicken.
+
+**Weg ist sie damit nicht.** Im letzten Bereich ist der Hauptknopf der
+Fußzeile selbst der Absender („Anfrage abschicken"), und die Zusammenfassung
+mit dem Formular steht dort im Bedienfeld. Die Zeile dort *zusätzlich*
+einzublenden wären zwei Knöpfe für dieselbe Sache – genau die Doppelung, die
+beim Statikträger schon weggeräumt wurde.
+
+**Gemessen, beide Seiten:** Am Handy (390 px) ist die Zeile in allen fünf
+Schritten unsichtbar, und der letzte Knopf heißt „Anfrage abschicken". Am
+großen Bildschirm (1440 px) steht sie in allen fünf Schritten mit 49 px Höhe.
+Beide Sätze stehen als Prüfung in
+`scripts/pruefe-konfigurator-oberflaeche.mjs` – einer allein wäre nur die
+halbe Regel: Die erste Hälfte ließe sich auch erfüllen, indem man die Anfrage
+am Handy ganz abschafft.
+
+## 04.11.2026 – Am Handy gemessen, nicht am Schreibtisch
+
+**Anlass:** *„du machst bei mobile auch komplett falsche proportionen, ich
+schicke dir schon screenshots mit meinem handy und du setzt es nicht um,
+warum?"* (Betreiber).
+
+**Der Fehler war meiner, und er hat eine klare Ursache:** Die drei Spalten der
+Produkt-Bildkarten sind am **1440-px-Bildschirm** gemessen, wo das Bedienfeld
+eine schmale Spalte neben dem Modell ist. Am Handy ist es die volle Breite –
+dort wurden daraus 107 px breite Kärtchen mit einem **58 px hohen Foto**. Ein
+Produktbild in Daumennagelgröße zeigt nichts. Jetzt am Handy zwei Spalten:
+165 px Karte, 124 px Bild (4:3 statt 16:9).
+
+Der erste Schritt wird dadurch am Handy wieder länger (2,8 → 3,2 Bildschirme).
+Das ist der Preis, und er ist richtig herum bezahlt: **Wer am Handy wählt,
+soll sehen, was er wählt.** Am großen Bildschirm bleiben die drei Spalten,
+dort sind die Karten 121 px breit in einer 431-px-Spalte – gemessen 2,53
+Bildschirme, unverändert.
+
+**Dabei gefunden – ein echter Fehler, keine Gestaltung:** Die Ansichtsleiste
+über der Bühne („Maße", „Felder", „Abend", „Drehen", „Perspektive", „Vorne",
+„Seite", „Von oben", „Darunter") war im 390-px-Fenster **699 px breit** und
+ragte 309 px aus dem Bild. Schieben half nicht, denn sie war selbst so breit
+wie ihr Inhalt (`scrollWidth = clientWidth = 699`): Die letzten fünf Knöpfe
+waren am Handy **nicht erreichbar**, nicht nur angeschnitten.
+
+Ursache ist `width: max-content` in der allgemeinen Regel. Die stammt vom
+großen Bildschirm, wo die Leiste mittig steht und ohne sie zu schmal
+zugemessen bekam (31.10.2026). Am Handy spannt sie von Rand zu Rand – dort
+muss sie die Fensterbreite nehmen, damit `overflow-x` überhaupt etwas zu
+schieben hat. Gemessen danach: 390 px breit, 698 px Inhalt, schiebbar.
+
+**Lehre, die bleibt:** Eine Zahl, die am großen Bildschirm gemessen wurde,
+gilt am Handy nicht. Wo eine Regel beide Größen betrifft, wird sie künftig in
+**beiden** Fenstern gemessen – 1440 und 390.
