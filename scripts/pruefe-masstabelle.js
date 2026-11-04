@@ -2271,8 +2271,18 @@ pruefe('Carport-Fachbegriffe bleiben in der Anfrage',
    (Betreiber, 11.10.2026). */
 pruefe('Haekchen fuer den Traeger vorhanden',
        gegen ? !/id="k3dTraeger"/.test(html) : /id="k3dTraeger"/.test(html), '');
-pruefe('Haekchen liegt unter „Mehr Einstellungen"',
-       new RegExp(q || 'data-k3d-mehr data-k3d-fuer="traeger-wunsch"').test(html), '');
+/* UMGEKEHRT am 04.11.2026. Bis dahin wurde hier geprueft, dass der
+   Traeger als HAEKCHEN unter „Mehr Einstellungen" liegt. Seit dem
+   03.11.2026 ist er ein zweiter Weg neben dem Mittelpfosten
+   (docs/entscheidungen.md): zwei Karten, die eine Entscheidung stellen,
+   statt eines Hakens, den man erst aufklappen muss. Das Haekchen
+   #k3dTraeger bleibt die Quelle der Wahrheit und ist nicht mehr
+   sichtbar - zwei Bedienungen fuer dieselbe Entscheidung waeren genau
+   die Verwirrung, um die es ging. */
+pruefe('Der Traeger steht als zweiter Weg neben dem Mittelpfosten',
+       new RegExp(q || 'id="k3dTraegerWahl"').test(html) &&
+       new RegExp(q || 'k3d-schalter k3d-nurlesbar').test(html),
+       'zwei Karten, Haekchen nur noch als Quelle der Wahrheit');
 pruefe('Haekchen nennt die geringere Durchgangshoehe',
        gegen ? !/189 mm niedriger/.test(html) : /189 mm niedriger/.test(html), 'Warnung');
 pruefe('Wunsch erzeugt den Traeger im Modell',

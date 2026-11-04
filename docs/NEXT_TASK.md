@@ -279,14 +279,22 @@ Passwortschranke bleibt als Rückfallebene bestehen (Begründung im Dokument).
 
 Die Analyse der zehn Bilder steht in **`docs/konfigurator-bedienung.md`** –
 samt der Trennung, was Idee ist (übernehmbar) und was Ausführung (nicht).
-Gebaut ist die erste Runde. Offen:
+Gebaut sind Runde 1 (Reiterleiste, Fußzeile, Zwei-Wege-Karten) und Runde 2:
 
-1. **Eigene Miniaturen statt Textkarten** für Produkt, Aufbau, Grundriss und
-   Eindeckung. Die Bilder **aus unserem eigenen 3D-Modell rendern** – originär,
-   kostenlos, zeigt unser echtes Produkt. Ein Skript erzeugt sie einmalig.
-2. **Seiten als Liste mit Zustand** statt als Knopfreihe.
-3. **Berechnetes als Häkchenliste** im Maße-Schritt.
-4. **Anfrage-Dialog** mit Planungskarte und der Zahl fehlender Pflichtangaben.
+- **Bildkarten aus dem eigenen Modell** für Produkt, Aufbau und Dacheindeckung.
+  14 Bilder in `images/konfigurator/`, erzeugt von
+  `scripts/baue-miniaturen.mjs` (läuft nur bei Bedarf neu, nicht im Betrieb).
+  Fünf Produkte stehen in **drei Spalten**, sonst wäre der erste Schritt von
+  2,4 auf 2,86 Bildschirme gewachsen; gemessen jetzt 2,55. Begründung und
+  Messwerte in `docs/entscheidungen.md`, 04.11.2026.
+
+Offen:
+
+1. **Seiten als Liste mit Zustand** statt als Knopfreihe.
+2. **Berechnetes als Häkchenliste** im Maße-Schritt.
+3. **Anfrage-Dialog** mit Planungskarte und der Zahl fehlender Pflichtangaben.
+4. **Carport-Miniatur** sieht dem Terrassendach sehr ähnlich (gleiche
+   Grundform). Entweder freistehender Blickwinkel oder bewusst so lassen.
 
 ### Konfigurator: zweite Runde ist vorbereitet, nicht entschieden *(03.11.2026)*
 
