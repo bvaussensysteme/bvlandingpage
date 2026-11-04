@@ -12,7 +12,7 @@
   var KONTAKT_API = '/api/kontakt'; // Worker → Neon-Datenbank
   var WA_NUMBER = '4915678696609';
   var MAIL = 'info@bv-aussensysteme.de';
-  var ASSET_VER = '20261104a'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
+  var ASSET_VER = '20261104b'; // Versions-Stempel für Wizard-Bilder (Cache-Bust)
 
   /* „Wie sind Sie auf uns aufmerksam geworden?" – optionale Herkunftsfrage */
   var ANREDE_OPTS = ['Frau', 'Herr', 'Divers'];

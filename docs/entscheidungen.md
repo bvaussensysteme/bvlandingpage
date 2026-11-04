@@ -13040,3 +13040,33 @@ eingebauten Fehlern (Felder weg / Felder zur Pflicht gemacht).
 **Was gegengelesen werden soll.** Im Assistenten „Direkt anfragen" wählen:
 Stehen unter dem Textfeld zwei Maßfelder, und kommt man **ohne** Eingabe
 weiter?
+
+## 04.11.2026 (abends) – Ein Durchlauf ALLER Prüfskripte, und was er gefunden hat
+
+**Anlass.** Nach acht Zusammenführungen an einem Tag einmal jedes
+`scripts/pruefe-*` laufen lassen – nicht die, von denen ich dachte, sie
+gehörten dazu. Zwei Funde, beide echt:
+
+**1. `pruefe-markise.js` war seit dem Vormittag rot.** Die Prüfung
+„Der Masskasten deckt voll und trägt die Hausfarben" war auf *weiß mit
+goldenem Rand* festgelegt. Seit dem Umbau der Maßschilder auf **dunkel mit
+goldenem Rand** stimmte das nicht mehr. Niemand hat es bemerkt, weil nach
+dem Umbau nur `pruefe-marken.js` und die Oberflächenprüfung liefen – die
+beiden, die offensichtlich dazugehörten.
+
+**Der Grund, warum das passieren konnte:** `schildBild()` zeichnet die
+Maßschilder **sowohl** für die Bemaßung **als auch** für die Markise. Eine
+Änderung an gemeinsam genutztem Code trifft Prüfungen, an die man nicht
+denkt. **Daraus die Regel: Nach einer Änderung an Code, den mehrere Bereiche
+benutzen, alle Prüfskripte laufen lassen – nicht die vermuteten.**
+
+**2. `pruefe-cache-buster.sh` meldete `anfrage-wizard.js`.** Die Datei wurde
+um 20:45 geändert, ihre Version zuletzt um 19:20 – die freiwilligen Maßfelder
+kamen **nach** dem Hochzählen dazu. Besucher mit der alten Datei im Zwischen-
+speicher hätten die Felder bis zu eine Stunde lang nicht gesehen (`_headers`:
+`/js/* max-age=3600`). Genau der Fall, für den diese Prüfung gebaut wurde –
+sie hat ihn gefangen.
+
+**Was gegengelesen werden soll.** Nichts Sichtbares; beide Funde sind
+Werkzeugfehler, keine Fehler auf der Website. Festgehalten sind sie, weil der
+erste sich wiederholen wird, wenn man es nicht weiß.
