@@ -191,10 +191,27 @@
     }
     .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
     .k3d-label output[hidden] { display: none; }
-    /* Nur die Einheit, ohne Zahl - die steht im Feld zwischen − und +.
-       Ruhig gesetzt: Sie beantwortet eine Frage, sie stellt keine. */
-    .k3d-einheit { margin-left: auto; font-weight: 500; font-size: .74rem;
-      color: var(--muted); }
+    /* ---------- Zahl und Einheit in einer Umrandung ----------
+       Stuende das „mm" daneben, waere es ein zweites Kaestchen fuer
+       etwas, das zur Zahl gehoert. Deshalb traegt die Huelle den
+       Rahmen - und das Feld darin gibt seinen ab. */
+    .k3d-zahlfeld {
+      display: flex; align-items: baseline; justify-content: center; gap: 4px;
+      min-width: 0; border: 1px solid var(--border); border-radius: 8px;
+      background: #fff; padding: 7px 8px;
+    }
+    /* BREITE IN ZEICHEN, nicht in Prozent: Mit width: 100% nahm das
+       Feld die ganze Huelle, und zwischen Zahl und „mm" klaffte eine
+       Handbreit (gemessen am 04.11.2026). 6,5 Zeichen fassen auch
+       14.080, und die Einheit rueckt direkt dahinter. */
+    .k3d-zahlfeld .k3d-zahl {
+      border: 0; border-radius: 0; background: none; padding: 0;
+      text-align: right; flex: 0 1 auto; width: 6.5ch; min-width: 0;
+    }
+    .k3d-zahlfeld .k3d-zahl:focus { outline: none; }
+    .k3d-zahlfeld:focus-within { border-color: var(--gold); }
+    .k3d-einheit { flex: none; text-align: left;
+      font-size: .76rem; color: var(--muted); }
     /* ---------- Der ⓘ-Knopf am Massfeld ----------
        „du kannst da nen button machen mit nem kreis und nem i wenn man
        drauftippt kommt popup mit dieser information in normaler größe
@@ -270,6 +287,16 @@
     .k3d-stell:disabled { opacity: .3; cursor: default; }
     .k3d-steller .k3d-zahl { text-align: center; font-size: .95rem; padding: 9px 4px;
       width: 100%; }
+    /* MIT EINHEIT DANEBEN GELTEN ANDERE WERTE, und zwar staerker: Die
+       Regel darueber ist genauso spezifisch wie .k3d-zahlfeld .k3d-zahl
+       und steht weiter unten - sie gewann, das Feld blieb 144 px breit
+       und mittig, und zwischen „5000" und „mm" klaffte eine Handbreit
+       (gemessen am 04.11.2026: Feld bis 233, Einheit ab 237 ... bei
+       einer Zahl, die schon bei 180 endete). Drei Klassen schlagen
+       zwei. */
+    .k3d-steller .k3d-zahlfeld .k3d-zahl {
+      width: 6.5ch; padding: 0; text-align: right;
+    }
     /* Die Grenzen stehen sichtbar darunter. Am Regler waren sie nur zu
        erahnen: Man zog bis zum Anschlag und wusste nicht, ob der
        Anschlag das Produkt oder die Statik ist. */
@@ -2675,7 +2702,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261104j" defer></script>
+<script src="js/konfigurator-3d.js?v=20261104k" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

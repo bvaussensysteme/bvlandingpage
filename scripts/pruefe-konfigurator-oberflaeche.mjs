@@ -120,6 +120,9 @@ async function fehlerEinbauen(ziel) {
     /* Einundzwanzigster Fehler: Die doppelte Wertanzeige kommt
        zurueck - genau der Zustand, den der Betreiber gemeldet hat. */
     t = t.replace('wertAnzeige.hidden = true;', 'void wertAnzeige;');
+    /* Zweiundzwanzigster Fehler: Die Einheit verschwindet - dann steht
+       dort eine nackte Zahl, und niemand weiss, ob mm oder cm. */
+    t = t.replace("einheitSchild.textContent = einheit;", "einheitSchild.textContent = '';");
     /* Neunzehnter Fehler: Der ⓘ-Knopf wird gar nicht erst gebaut. */
     t = t.replace("info.className = 'k3d-infoknopf';", 'return;');
     /* Zwanzigster Fehler: Der Kasten oeffnet, bleibt aber leer - dann
@@ -690,16 +693,29 @@ await page.waitForTimeout(600);
     const feld = gruppe.querySelector('input[type=number]');
     const sichtbar = (gruppe.querySelector('.k3d-label').innerText || '')
       .replace(/\s+/g, ' ').trim();
+    /* Die Einheit steht seit dem 04.11.2026 NEBEN DER ZAHL, nicht mehr
+       in der Beschriftung: „bei dem maß zwischen - und + dahinter das
+       mm setzen" (Betreiber). Gemessen wird deshalb der Abstand - eine
+       Einheit irgendwo in der Zeile waere nicht dasselbe wie eine
+       direkt hinter der Zahl. */
+    const eh = gruppe.querySelector('.k3d-zahlfeld .k3d-einheit');
+    const lueck = eh
+      ? Math.round(eh.getBoundingClientRect().left - feld.getBoundingClientRect().right)
+      : null;
     return { wert: feld.value, sichtbar,
-      einheit: /\bin (mm|cm|°|%)/.test(sichtbar) };
+      einheitText: eh ? eh.textContent.trim() : '',
+      lueck };
   });
   pruef('Das Maß steht nicht zweimal in der Zeile',
     !!doppelt.wert && doppelt.sichtbar.indexOf(doppelt.wert) < 0,
     '„' + doppelt.sichtbar + '" neben ' + doppelt.wert + ' im Feld');
   /* Die Einheit bleibt: „5000" allein sagt nicht, ob Millimeter oder
-     Zentimeter gemeint sind. */
-  pruef('Die Einheit steht weiter da', doppelt.einheit === true,
-    doppelt.sichtbar);
+     Zentimeter gemeint sind - und sie steht direkt hinter der Zahl. */
+  pruef('Die Einheit steht direkt hinter der Zahl',
+    /^(mm|cm|°|%)$/.test(doppelt.einheitText)
+    && doppelt.lueck !== null && doppelt.lueck >= 0 && doppelt.lueck <= 12,
+    doppelt.einheitText ? '„' + doppelt.einheitText + '", ' + doppelt.lueck
+      + ' px hinter der Zahl' : 'keine Einheit');
 
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
@@ -2353,6 +2369,7 @@ if (!GEGENPROBE) {
 const sollenScheitern = [
   'Der ⓘ-Knopf steht rechts neben dem Plusknopf',
   'Das Maß steht nicht zweimal in der Zeile',
+  'Die Einheit steht direkt hinter der Zahl',
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
   'Am Handy laeuft kein Text aus seinem Kasten',

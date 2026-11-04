@@ -11646,8 +11646,28 @@
           ? gruppe.querySelector('.k3d-label').textContent.replace(/\s+/g, ' ').trim()
           : 'Wert') + ' in ' + einheit);
       }
+      /* ---------- Die Einheit steht hinter der Zahl ----------
+         „diese ‚in mm' auch weg und bei dem maß zwischen - und +
+         dahinter das mm setzen" (Betreiber, 04.11.2026).
+
+         Feld und Einheit teilen sich EINE Umrandung: Stuende das „mm"
+         daneben, waere es ein zweites Kaestchen fuer etwas, das zur
+         Zahl gehoert. Deshalb traegt die Huelle den Rahmen, und das
+         Zahlenfeld gibt seinen ab (siehe .k3d-zahlfeld). */
+      var zahlfeld = document.createElement('span');
+      zahlfeld.className = 'k3d-zahlfeld';
+      var einheitSchild = document.createElement('small');
+      einheitSchild.className = 'k3d-einheit';
+      einheitSchild.textContent = einheit;
+      /* aria-hidden: Das Feld selbst nennt seine Einheit schon im
+         aria-label („Breite in Millimeter"). Zweimal vorgelesen waere
+         es Laerm. */
+      einheitSchild.setAttribute('aria-hidden', 'true');
+
       steller.appendChild(minus);
-      steller.appendChild(zahl);
+      zahlfeld.appendChild(zahl);
+      zahlfeld.appendChild(einheitSchild);
+      steller.appendChild(zahlfeld);
       steller.appendChild(plus);
 
       /* ---------- Der ⓘ-Knopf, rechts neben dem Plusknopf ----------
@@ -11678,15 +11698,7 @@
          Millimeter oder Zentimeter gemeint sind. Sie steht jetzt als
          ruhiger Zusatz in der Beschriftung, ohne Zahl. */
       var wertAnzeige = beschriftung ? beschriftung.querySelector('output') : null;
-      if (wertAnzeige && !wertAnzeige.hidden) {
-        wertAnzeige.hidden = true;
-        if (!beschriftung.querySelector('.k3d-einheit')) {
-          var eh = document.createElement('small');
-          eh.className = 'k3d-einheit';
-          eh.textContent = 'in ' + einheit;
-          beschriftung.appendChild(eh);
-        }
-      }
+      if (wertAnzeige && !wertAnzeige.hidden) wertAnzeige.hidden = true;
 
       if (beschriftung && !steller.querySelector('.k3d-infoknopf')) {
         var info = document.createElement('button');
