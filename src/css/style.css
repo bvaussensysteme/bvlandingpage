@@ -2567,6 +2567,10 @@ body.bv-konfig-open #bvKonfigBubble {
 
 /* Maße */
 .aw-dims { display: grid; grid-template-columns: 1fr; gap: 14px; }
+/* Freiwillige Maße im Freitext-Schritt: abgesetzt vom Textfeld,
+   damit sie wie ein Angebot aussehen und nicht wie eine Pflicht. */
+.aw-dims--frei { margin-top: 18px; padding-top: 16px;
+  border-top: 1px solid var(--border); }
 .aw-dim label { display: block; font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; }
 .aw-dim-in { display: flex; align-items: center; }
 .aw-dim-in input {

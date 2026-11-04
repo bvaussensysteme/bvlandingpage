@@ -13006,3 +13006,37 @@ auf `onload`.
 
 **Was gegengelesen werden soll.** Im Anfrage-Assistenten am Handy: Trägt die
 Balkonkarte jetzt ein Bild, und stehen noch sechs statt sieben Karten da?
+
+## 04.11.2026 – Direktweg: Maße freiwillig, damit der Wegfall von „Sonstiges" nichts kostet
+
+**Anlass.** Eigene Nachbesserung zur Änderung von eben. Mit dem Wegfall der
+Karte „Sonstiges" ist der einzige Weg verschwunden, auf dem eine Markise,
+ein Geländer oder ein Vordach **mit Maßen** angefragt wurde – dort standen
+Breite und Tiefe im Ablauf. Über „Direkt anfragen" kam nur Freitext an, und
+damit begänne jede dieser Anfragen mit einer Rückfrage.
+
+**Was jetzt gilt.** Im Freitext-Schritt stehen zwei **freiwillige** Felder
+für Breite und Tiefe, abgesetzt durch eine Linie, mit dem Hinweis: *„Maße
+helfen uns beim ersten Angebot – wenn Sie sie nicht zur Hand haben, lassen
+Sie die Felder einfach leer."*
+
+**Warum freiwillig und nicht Pflicht.** Der ganze Wert dieses Weges ist, dass
+er **keine** Fragen stellt – so ist die Karte beschriftet. Zwei Pflichtfelder
+hätten genau das kaputtgemacht und aus dem schnellen Weg einen zweiten
+Fragebogen. Wer die Maße kennt, trägt sie ein; wer nicht, geht weiter wie
+bisher.
+
+**Keine neuen Antwortfelder.** Es sind dieselben Schlüssel wie im
+Maßschritt (`breite`, `tiefe`) – damit stehen die Werte ohne weiteres Zutun
+in der Zusammenfassung und in der E-Mail. Ein eigener Satz Felder hätte
+bedeutet, Zusammenfassung und Versand an zwei Stellen zu pflegen.
+
+**Abgesichert, und zwar beides.** `scripts/pruefe-assistent.mjs` prüft, dass
+die Felder **da sind** – und dass man **ohne sie weiterkommt**. Nur die
+zweite Prüfung macht sie freiwillig; ohne sie könnte aus dem Angebot
+unbemerkt eine Pflicht werden. 18 Prüfungen, Gegenprobe mit zwei weiteren
+eingebauten Fehlern (Felder weg / Felder zur Pflicht gemacht).
+
+**Was gegengelesen werden soll.** Im Assistenten „Direkt anfragen" wählen:
+Stehen unter dem Textfeld zwei Maßfelder, und kommt man **ohne** Eingabe
+weiter?

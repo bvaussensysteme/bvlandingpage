@@ -848,9 +848,38 @@
     wunsch: {
       title: 'Was können wir für Sie tun?',
       render: function () {
-        return '<textarea class="aw-textarea" id="awWunsch" placeholder="Beschreiben Sie Ihr Vorhaben – z. B. Sonnenschutz, Geländer, Sichtschutz, Reparatur …">' + esc(answers.wunsch || '') + '</textarea>';
+        /* ---------- Maße, freiwillig ----------
+           ANLASS (04.11.2026): Mit dem Wegfall der Karte „Sonstiges"
+           ist der einzige Weg weggefallen, auf dem eine Markise, ein
+           Geländer oder ein Vordach MIT Maßen angefragt wurde. Dort
+           wurden Breite und Tiefe abgefragt; hier kam bisher nur
+           Freitext an - und damit beginnt jede dieser Anfragen mit
+           einer Rückfrage.
+
+           WARUM FREIWILLIG und nicht als Pflicht: Der ganze Wert
+           dieses Weges ist, dass er KEINE Fragen stellt („Ohne Fragen
+           – kurze Nachricht senden"). Zwei Pflichtfelder hätten genau
+           das kaputtgemacht. Wer die Maße kennt, trägt sie ein; wer
+           nicht, geht weiter wie bisher.
+
+           Dieselben Antwortfelder wie im Maßschritt (breite, tiefe) -
+           damit stehen sie ohne weiteres Zutun in der
+           Zusammenfassung und in der E-Mail. */
+        return '<textarea class="aw-textarea" id="awWunsch" placeholder="Beschreiben Sie Ihr Vorhaben – z. B. Sonnenschutz, Geländer, Sichtschutz, Reparatur …">' + esc(answers.wunsch || '') + '</textarea>' +
+          '<div class="aw-dims aw-dims--frei">' +
+            dimField('breite', 'Breite (optional)', 'z. B. 4000', 'mm') +
+            dimField('tiefe', 'Tiefe (optional)', 'z. B. 3000', 'mm') +
+          '</div>' +
+          '<p class="aw-note">Maße helfen uns beim ersten Angebot – wenn Sie sie ' +
+          'nicht zur Hand haben, lassen Sie die Felder einfach leer.</p>';
       },
-      collect: function () { answers.wunsch = (document.getElementById('awWunsch') || {}).value || ''; },
+      collect: function () {
+        answers.wunsch = (document.getElementById('awWunsch') || {}).value || '';
+        ['breite', 'tiefe'].forEach(function (k) {
+          var e = document.getElementById('aw_' + k);
+          if (e) answers[k] = e.value || '';
+        });
+      },
       valid: function () {
         this.collect();
         return answers.wunsch.trim() ? null : 'Bitte beschreiben Sie kurz Ihr Anliegen.';
