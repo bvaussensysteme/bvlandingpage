@@ -12318,3 +12318,109 @@ die Anfrage tot gewesen, also genau das, womit die Seite Geld verdient. Die
 Prüfung „Anfrage-Assistent öffnet sich" hat es im selben Durchlauf gemeldet.
 Weg gehört nur der **schwebende Knopf**, der ihn aufruft – der Weg zur Anfrage
 steht im Bedienfeld.
+
+## 04.11.2026 – Marken und Maßschilder: dunkler Grund, goldener Rand
+
+**Was falsch war.** Zweimal in Folge derselbe Einwand. Zuerst: „kannst du
+diese designs ändern um sie besser sichtbar zu mchen wie ich schon sagte
+kräftigere farben und sichtbare ränder" (Betreiber, 04.11.2026, zu drei
+Nahaufnahmen). Dann, nach meiner ersten Antwort darauf: „generell sehen die
+jz wie spielzeuglogos aus sie sollen designtechnisch besser sein."
+
+Der zweite Satz ist der wichtigere. Ich hatte auf „kräftiger" mit **mehr**
+geantwortet: größere Scheibe, volles Gold, weißer Außenring, dickere
+Linien. Das war sichtbarer, aber es sah aus wie ein Spielstein – eine
+bunte Fläche ohne Form. Groß und bunt ist nicht dasselbe wie gut sichtbar.
+
+**Was jetzt gilt.** Beide gezeichneten Überlagerungen – die runden Marken in
+den Feldern (`feldBild()`) und die Maßschilder (`schildBild()`,
+beide in `js/konfigurator-3d.js`) – folgen jetzt der **Ansichtsleiste über
+der Bühne**, die es auf der Seite schon gibt: dunkler Grund, goldener Rand,
+feines Zeichen darauf.
+
+| | leeres Feld / ruhendes Schild | belegtes Feld / Schild unter dem Zeiger |
+|---|---|---|
+| Fläche | Anthrazit, `rgba(17,17,17,.93)` | Gold, `#C49A2A` |
+| Rand | Gold `#C49A2A`, Strichstärke 10 | Dunkelgold `#6B4F10` |
+| Zeichen / Zahl | Weiß | `#1A1206` |
+
+Gold heißt hier wie in der Leiste „gesetzt".
+
+**Warum so und nicht anders.** Der Kontrast kommt jetzt aus **hell gegen
+dunkel**, nicht aus einer Farbe gegen eine andere. Das ist der Grund, warum
+es überhaupt trägt: Die Marken liegen vor hellem Pflaster, vor weißer
+Hauswand, vor Rasen und vor dunklem Trapezblech – eine goldene Fläche
+verliert gegen mindestens einen dieser Hintergründe, eine dunkle Scheibe mit
+hellem Rand gegen keinen. Dazu ein weicher Schlagschatten und ein feiner
+heller Bogen am oberen Rand; der gibt der Scheibe eine Wölbung, ohne dass
+sie wieder wie ein Spielstein wirkt.
+
+**Verworfen:** den weißen Außenring beizubehalten (er machte die Scheibe
+optisch größer und unruhiger, ohne Kontrast zu bringen) und die Scheiben
+zusätzlich zu vergrößern (der Einwand war Gestaltung, nicht Größe – größer
+hätte ihn verstärkt).
+
+**Was die Gegenprobe dabei selbst gemeldet hat.** Fünf eingebaute Fehler in
+`scripts/pruefe-marken.js` zielten auf Codestellen, die es nach dem Umbau
+nicht mehr gibt (goldene Fläche, weißer Außenring, Innenring in `#7A5B12`,
+weißer Schildgrund, mittleres Gold `#9A7318`). Die Gegenprobe hat das mit
+„findet ihre Stelle nicht mehr" abgebrochen – genau dafür ist sie da. Alle
+fünf sind auf die neuen Eigenschaften umgehängt: volle Deckung, kräftiger
+Rand, helles Zeichen auf dunklem Grund. Stand danach: **89 von 89
+Prüfungen schlagen an, 101 von 101 Fehlern werden bemerkt.**
+
+**Was gegengelesen werden soll.** Die Farbwirkung – und zwar auf dem Handy,
+nicht in meinen Bildern. Die Prüfbilder entstehen in einem Software-Renderer
+ohne Grafikkarte; Größen und Abstände sind belastbar gemessen, die Wirkung
+der Farben auf einem echten iPhone-Bildschirm ist es nicht.
+
+## 04.11.2026 – Fremder Design-Skill im Repository, nicht global
+
+**Anlass.** „lese das alles durch, auch die anleitung wie du diesen skill
+installieren kannst und installiere und führe diesen skill wenns um ui uix
+und design geht immer aus" (Betreiber, 04.11.2026, mit Link auf
+`github.com/nextlevelbuilder/ui-ux-pro-max-skill`).
+
+**Was jetzt gilt.** „UI/UX Pro Max" v2.15.0 (MIT) liegt unter
+`.claude/skills/ui-ux-pro-max/` im Repository – 75 Dateien, 3,7 MB. Die
+Daueranweisung dazu steht in `CLAUDE.md` („UI, UX und Gestaltung").
+
+**Warum im Repository und nicht global.** Der empfohlene Weg der Anleitung
+ist `npm install -g ui-ux-pro-max-cli` und danach `uipro init --ai claude`.
+Zwei Gründe dagegen:
+
+1. **Global hält nicht.** Die Arbeitsumgebung dieser Sitzungen ist ein
+   Behälter, der nach einer Weile Untätigkeit weggeworfen wird. Was nicht im
+   Repository liegt, ist beim nächsten Mal weg – der Skill wäre genau dann
+   nicht da, wenn jemand ihn braucht. Im Repository ist er in jeder Sitzung
+   automatisch dabei.
+2. **Kein fremdes Installationsprogramm ausführen.** `uipro init` ist Code
+   eines Dritten, der in das Projekt hineinschreibt. Die Schutzschicht der
+   Arbeitsumgebung hat den globalen npm-Befehl von sich aus abgelehnt
+   („Code from External"). Stattdessen wurde das öffentliche Verzeichnis
+   geklont, angesehen und **nur der eine Skillordner kopiert**. Es wurde
+   nichts von dort ausgeführt.
+
+**Was NICHT mitkopiert wurde.** Das Plugin bringt sieben Skills mit
+(`design`, `ui-styling`, `brand`, `design-system`, `slides`,
+`banner-design`), zusammen 11 MB. Übernommen wurde nur `ui-ux-pro-max` – er
+verweist auf keinen der anderen und ist für sich lauffähig. Die
+`LICENSE`-Datei liegt mit im Ordner; MIT verlangt, den Urhebervermerk
+mitzuführen.
+
+**Die Grenze, die gesetzt wurde.** Der Skill schlägt Farbpaletten,
+Schriftpaarungen und Stile vor – teils Tailwind-nah. Das darf die
+Designsprache der Seite nicht verdrängen; verbindlich bleiben
+`src/css/style.css` und die vorhandenen Werte. Genutzt werden seine
+Prüflisten und Begründungen (Kontrast, Antippflächen, sichtbare
+Beschriftungen, kein waagerechtes Scrollen, `prefers-reduced-motion`). So
+steht es auch in `CLAUDE.md`, damit es nicht in Vergessenheit gerät.
+
+**Ehrlich zum Nutzen.** Für die Gestaltung von Seiten und Bedienelementen ist
+der Datenbestand brauchbar. Für die sehr speziellen Sachen in diesem Projekt
+– gezeichnete Überlagerungen auf einer 3D-Bühne – liefert eine Abfrage
+allgemeine Regeln, keine Lösung; das ersetzt das Messen am Gerät nicht.
+
+**Was gegengelesen werden soll.** Nichts am sichtbaren Teil der Website: Der
+Skill ist Werkzeug für die Arbeit, er wird nicht ausgeliefert und nirgends
+eingebunden.

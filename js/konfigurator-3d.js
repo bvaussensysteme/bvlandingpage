@@ -4052,17 +4052,27 @@
        (.ist-gold). Wer die Seite kennt, weiss damit sofort, dass hier
        etwas zu druecken ist. Das Schild ohne Stift (Gefaelle) ist eine
        Notiz und bleibt dunkel. */
+    /* ---------- DUNKLES SCHILD, GOLDENER RAND ----------
+       Umgestellt am 04.11.2026, aus demselben Grund wie die Scheiben:
+       „sie sollen designtechnisch besser sein". Weiss mit duenner
+       grauer Linie verschwand vor hellem Pflaster und sah nebenbei aus
+       wie ein Zettel. Jetzt dieselbe Sprache wie die Leiste ueber der
+       Buehne und wie die Marken: dunkler Grund, goldener Rand.
+
+       UNTER DEM ZEIGER DREHT ES SICH UM - goldener Grund, dunkle
+       Schrift. Das ist genau der Wechsel, den die Knoepfe der Seite
+       auch machen, und er sagt ohne Worte: hier kann man druecken. */
     if (klickbar) {
-      g.fillStyle = wach ? '#C49A2A' : '#ffffff';
+      g.fillStyle = wach ? '#C49A2A' : 'rgba(17,17,17,.93)';
     } else {
-      g.fillStyle = '#111111';
+      g.fillStyle = 'rgba(17,17,17,.93)';
     }
     rundWeg(g, SCHILD_RAND, SCHILD_RAND, innen, SCHILD_PX, rund);
     g.fill();
     g.restore();
     if (klickbar) {
       g.lineWidth = rahmen;
-      g.strokeStyle = wach ? '#9A7318' : '#C49A2A';
+      g.strokeStyle = wach ? '#6B4F10' : '#C49A2A';
       rundWeg(g, SCHILD_RAND + rahmen / 2, SCHILD_RAND + rahmen / 2,
               innen - rahmen, SCHILD_PX - rahmen, rund);
       g.stroke();
@@ -4072,13 +4082,15 @@
     var mitte = SCHILD_RAND + SCHILD_PX / 2;
     var x = SCHILD_RAND + polster;
     g.font = fZahl;
-    g.fillStyle = klickbar ? '#111111' : '#ffffff';
+    /* Zahl weiss auf Dunkel, unter dem Zeiger dunkel auf Gold. */
+    g.fillStyle = (klickbar && wach) ? '#1A1206' : '#ffffff';
     g.fillText(zahl, x, mitte + 2);
     x += wZahl;
     if (einheit) {
       g.font = fEinheit;
-      g.fillStyle = klickbar ? (wach ? '#4a3a0c' : '#9A7318')
-                             : 'rgba(255,255,255,.88)';
+      /* Die Einheit tritt zurueck, ohne zu verschwinden. */
+      g.fillStyle = (klickbar && wach) ? 'rgba(26,18,6,.72)'
+                                       : 'rgba(255,255,255,.72)';
       g.fillText(einheit, x + 12, mitte + 3);
       x += wEinheit;
     }
@@ -4093,7 +4105,7 @@
         g.translate(x + 14, mitte - gr / 2);
         g.scale(gr / u.breite, gr / u.hoehe);
         g.lineWidth = 2.6 * (u.breite / gr);
-        g.strokeStyle = wach ? '#ffffff' : '#C49A2A';
+        g.strokeStyle = wach ? '#1A1206' : '#C49A2A';
         g.lineCap = 'round';
         g.lineJoin = 'round';
         u.d.forEach(function (d) { g.stroke(new Path2D(d)); });
@@ -5092,76 +5104,78 @@
     var g = c.getContext('2d');
     var belegt = (art !== 'punkt');
 
-    /* Schatten nur unter die Scheibe, nicht unter das Zeichen – sonst
-       sähe das Zeichen verschmiert aus. */
-    g.save();
-    g.shadowColor = 'rgba(17,17,17,.45)';
-    g.shadowBlur = 14;
-    g.shadowOffsetY = 4;
-    /* WEISSER AUSSENRING, dritte Fassung vom 04.11.2026 („zu schlecht
-       sichtbar", Betreiber am iPhone). Die Scheibe steht mal auf
-       dunklem Anthrazit, mal auf hellem Pflaster, mal auf Rasen - eine
-       einzige Randfarbe kann nicht gegen alle drei bestehen. Ein
-       weisser Ring um das Gold schon: Gegen Dunkles trennt das Weiss,
-       gegen Helles der dunkle Rand darunter. Dieselbe Ueberlegung wie
-       bei einer Stecknadel auf einer Landkarte.
+    /* ---------- DUNKLE SCHEIBE, GOLDENER RAND ----------
+       „generell sehen die jz wie spielzeuglogos aus sie sollen
+       designtechnisch besser sein" (Betreiber, 04.11.2026), davor
+       zweimal „kräftigere farben und sichtbare ränder".
 
-       Der Ring liegt INNERHALB der Zeichenflaeche (114 + Schatten < 128),
-       sonst schnitte ihn der Rand der Textur ab. Schmal gehalten (110 von
-       128): Das Gold soll die Scheibe tragen, das Weiss nur abgrenzen. */
-    g.beginPath(); g.arc(M, M, 110, 0, Math.PI * 2);
-    g.fillStyle = '#FFFFFF';
+       Die alte Fassung war eine grosse goldene Flaeche mit weissem
+       Aussenring - viel Farbe, wenig Form, und vor hellem Pflaster
+       trotzdem blass. Gross und bunt ist nicht dasselbe wie gut
+       sichtbar.
+
+       Die neue folgt der Leiste ueber der Buehne, die es schon gibt:
+       DUNKLER GRUND, GOLDENER RAND, feines Zeichen. Das ist die
+       Formensprache der Seite - dunkles Anthrazit mit Gold als Akzent -
+       und sie hebt sich gegen hellen Boden, helle Wand und Rasen
+       gleichermassen ab, weil der Kontrast aus hell-gegen-dunkel kommt
+       statt aus einer Farbe gegen eine andere.
+
+       ZWEI ZUSTAENDE, wie bei den Knoepfen der Leiste:
+         leeres Feld  = dunkle Scheibe, goldener Rand, weisses Zeichen
+         belegtes     = goldene Scheibe, dunkler Rand, dunkles Zeichen
+       Gold heisst hier wie dort „gesetzt". */
+    g.save();
+    g.shadowColor = 'rgba(0,0,0,.45)';
+    g.shadowBlur = 16;
+    g.shadowOffsetY = 5;
+    g.beginPath(); g.arc(M, M, 100, 0, Math.PI * 2);
+    g.fillStyle = belegt ? '#C49A2A' : 'rgba(17,17,17,.93)';
     g.fill();
     g.restore();
 
+    /* Der Rand ist die Form: krfaeftig genug, um auf einem zwanzig
+       Pixel grossen Abbild noch als Linie zu lesen. */
+    g.beginPath(); g.arc(M, M, 100, 0, Math.PI * 2);
+    g.strokeStyle = belegt ? '#6B4F10' : '#C49A2A';
+    g.lineWidth = 10;
+    g.stroke();
+
+    /* Ein feiner heller Bogen oben: Er gibt der Scheibe eine Woelbung,
+       ohne dass sie wie ein Spielstein wirkt. */
     g.save();
-    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    /* GOLD GEFUELLT, WEISSES ZEICHEN - unsere Hausfarben, zweite
-       Fassung vom 01.11.2026: „generell auch die + logos etc. alles is
-       so zu grau keine farbe, nutze doch normal unsere firmenfarben das
-       orange/gold das weiß etc" (Betreiber).
-
-       Vorher war die Scheibe fuer ein LEERES Feld weiss mit goldenem
-       Rand und dunkelgoldenem Zeichen. Vor hellem Pflaster und heller
-       Hauswand - also fast ueberall - blieb davon ein blasser Kreis.
-       Seit die Zeichen nur noch in leeren Feldern stehen (01.11.2026)
-       war das sogar der Normalfall. */
-    g.fillStyle = '#C49A2A';
-    g.fill();
+    g.beginPath();
+    g.arc(M, M, 93, Math.PI * 1.15, Math.PI * 1.85);
+    g.strokeStyle = belegt ? 'rgba(255,255,255,.34)' : 'rgba(255,255,255,.16)';
+    g.lineWidth = 5;
+    g.lineCap = 'round';
+    g.stroke();
     g.restore();
-
-    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    /* Schmaler Ring: „dünnere Ränder" (Betreiber, 01.11.2026). 13 war
-       zu breit - der Ring verschluckte die Scheibe. Die Linien im
-       Zeichen bleiben kräftig, nur der Rand wird zurückgenommen. */
-    /* Der Ring traegt die dunkelste unserer Goldstufen (--gold-text
-       #7A5B12 statt --gold-dark #9A7318) und ist einen Deut breiter:
-       Auf hellem Pflaster und heller Hauswand trennt erst der dunkle
-       Rand die Scheibe vom Untergrund. „zu schlecht sichtbar"
-       (Betreiber, 04.11.2026, iPhone). */
-    g.strokeStyle = '#7A5B12'; g.lineWidth = 11; g.stroke();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
-    g.strokeStyle = '#FFFFFF';
+    g.strokeStyle = belegt ? '#1A1206' : '#FFFFFF';
     g.lineCap = 'round'; g.lineJoin = 'round';
     g.fillStyle = 'rgba(0,0,0,0)';
     if (u && window.Path2D) {
-      /* Das Zeichen füllt gut die halbe Scheibe. */
-      var kante = 132;
+      /* Das Zeichen nimmt die halbe Scheibe - feiner als zuvor, dafuer
+         mit Luft ringsum. Ein Zeichen, das den Rand beruehrt, wirkt
+         gedrungen. */
+      var kante = 112;
       var f = kante / Math.max(u.breite, u.hoehe);
       g.save();
       g.translate(M - u.breite * f / 2, M - u.hoehe * f / 2);
       g.scale(f, f);
-      g.lineWidth = 5.4;
+      g.lineWidth = 4.6;
       for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));
       g.restore();
     } else {
-      g.lineWidth = 22;
+      g.lineWidth = 18;
       g.beginPath();
-      g.moveTo(M, M - 46); g.lineTo(M, M + 46);
-      g.moveTo(M - 46, M); g.lineTo(M + 46, M);
+      g.moveTo(M, M - 40); g.lineTo(M, M + 40);
+      g.moveTo(M - 40, M); g.lineTo(M + 40, M);
       g.stroke();
     }
+
     var t = new THREE.CanvasTexture(c);
     /* ---------- Scharf bleiben, auch klein ----------
        GESEHEN im Bild vom 01.11.2026: Die Scheibe war vollfarbig

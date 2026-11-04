@@ -109,3 +109,51 @@ Betreiber.
 Kurzer Bericht: was jetzt läuft, was gegengelesen werden soll (konkret), was
 offen blieb und warum. Keine Zusammenfassung der Arbeitsschritte – die stehen
 in der Doku.
+
+## UI, UX und Gestaltung: Design-Skill immer mitlaufen lassen (permanent)
+
+Ansage des Betreibers (04.11.2026): „installiere und führe diesen skill wenns
+um ui uix und design geht immer aus."
+
+Installiert im Repository unter `.claude/skills/ui-ux-pro-max/`
+(UI/UX Pro Max v2.15.0, MIT-Lizenz, Quelle
+`github.com/nextlevelbuilder/ui-ux-pro-max-skill`). Er liegt absichtlich im
+Repository und nicht global: Die Arbeitsumgebung wird nach jeder Sitzung
+weggeworfen, global Installiertes wäre beim nächsten Mal weg.
+
+**Wann.** Bei allem, was aussieht, sich anfühlt, sich bewegt oder bedient
+wird: neue Abschnitte und Seiten, Umbauten am Bedienfeld, Farben, Schrift,
+Abstände, Raster, Knöpfe, Formulare, Barrierefreiheit, Animation,
+Darstellung am Handy, Diagramme. Nicht bei reiner Rechenlogik, Geometrie im
+3D-Modell, Serverarbeit oder Dokumentation.
+
+**Wie.** Vor dem Bauen abfragen, nicht hinterher:
+
+```bash
+python3 .claude/skills/ui-ux-pro-max/scripts/search.py "<frage>" --domain ux
+```
+
+Bereiche: `ux`, `style`, `color`, `typography`, `icons`, `chart`, `product`,
+`gsap`, `stack`. Für eine ganze neue Seite `--design-system`. Das Skript
+braucht nur Python 3 und geht nicht ins Netz.
+
+Achtung: Die Anleitung im Skill nennt `${CLAUDE_PLUGIN_ROOT}` – das gilt für
+die Plugin-Installation. Hier liegt der Skill im Projekt, also der Pfad
+oben.
+
+**Was er NICHT entscheidet.** Der Skill liefert allgemeine Regeln und
+Vorschläge für Paletten, Schriftpaarungen und Stile. Verbindlich bleibt die
+**eigene Designsprache der Seite**: `src/css/style.css` und das, was die
+Seite schon hat (`--gold #C49A2A`, `--gold-dark #9A7318`,
+`--gold-text #7A5B12`, `--black #111111`, die bestehenden Abstände und
+Schriften). Fremde Paletten, Schriften oder Tailwind-Vorlagen werden nicht
+übernommen – das wäre ein Bruch mit der Regel „Nachbauten: eigene Sprache,
+eigene Namen" weiter oben. Genutzt werden seine **Prüflisten und
+Begründungen**: Kontrast 4,5:1, Mindestfläche 44 × 44 px zum Antippen,
+sichtbare Beschriftungen, kein waagerechtes Scrollen, Rücksicht auf
+`prefers-reduced-motion`.
+
+**Sparsam bleiben.** Eine Abfrage mit 2–5 Begriffen und einem Bereich, nicht
+fünf Abfragen hintereinander, und `references/quick-reference.md` nur lesen,
+wenn eine Abfrage nicht reicht (siehe „Sparsamer Umgang mit
+Nutzungsvolumen").
