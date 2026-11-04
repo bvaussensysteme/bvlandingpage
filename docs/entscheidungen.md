@@ -12642,3 +12642,63 @@ ersten Anlauf passiert und die Gegenprobe hat es gemeldet), und dass leer
 und belegt am Zeichen auseinanderzuhalten sind. Stand: **90 von 90
 Prüfungen, 103 von 103 Fehlern bemerkt.** Farbtreue: 995 Bildpunkte genau
 auf `#C49A2A`, null auf dem alten `#CBBD75`.
+
+## 04.11.2026 – Zurück auf die Ausgangslage, am Modell statt nur im Bedienfeld
+
+**Anlass.** „wenn man den pfosten ausgewählt hat und sobald man ihn
+verschoben hat soll unter dem runden logo nochmal ein rundes logo
+auftauchen in der selben designsprache mit nem zurücksetzen logo damit der
+pfosten wieder auf seine ursprungsposition springt" (Betreiber,
+04.11.2026, mit Bildschirmfoto).
+
+**Was jetzt gilt.** Ist ein Zwischenpfosten ausgewählt **und** verschoben,
+sitzt unter dem Doppelpfeil eine zweite Scheibe: dasselbe dunkle Kleid
+(Anthrazit `rgba(17,17,17,.93)`, Rand `#C49A2A`, weißes Zeichen), darauf der
+Kreispfeil aus der eigenen Sammlung (`bvs-neuladen`). Ein Tipp darauf löscht
+den gespeicherten Versatz; der Pfosten steht wieder gleichmäßig, die
+**Auswahl bleibt** – wer eben geschoben hat, probiert meist gleich weiter.
+
+**Warum am Modell, obwohl es den Weg schon gab.** Der Schalter in der
+Pfostenzeile (`.k3d-pf-mitte`) tut seit dem 01.11. dasselbe. Wer aber am
+Modell zieht, schaut auf das Modell – am Handy steht das Bedienfeld dann
+außerhalb des Bildes. Das Zeichen erscheint deshalb dort, wo die Änderung
+passiert ist. Beide Wege rufen dieselbe Stelle auf.
+
+**Nur wenn es etwas zurückzunehmen gibt.** Ohne gespeicherten Versatz bleibt
+das Zeichen weg. Ein Knopf, der nichts tut, ist schlechter als keiner – und
+er würde beim ersten Antippen eines Pfostens schon erscheinen, bevor
+überhaupt etwas verändert wurde.
+
+**Abgesichert, auf zwei verschiedene Arten.** `scripts/pruefe-pfosten.js`
+prüft am Quelltext die vier Stellen, an denen es scheitern kann (nur bei
+Versatz, unter dem Ziehzeichen, Klick wird vor dem Pfostenklick abgefragt,
+der Versatz wird wirklich gelöscht). `scripts/pruefe-konfigurator-
+oberflaeche.mjs` prüft dasselbe **im Browser und ohne Quelltext**: Das
+Zeichen wird am Zeiger erkannt (über dem gewählten Pfosten `ew-resize`, über
+dem Zeichen `pointer`), es darf ohne Versatz nicht auffindbar sein, nach dem
+Ziehen muss es da sein, und ein Tipp darauf muss die **Achsmaße** auf den
+Ausgangswert zurückbringen.
+
+**Drei Fehler in den Prüfungen selbst, die dabei auffielen** – alle drei
+hätten echte Rückfälle durchgelassen:
+
+1. Ein Anker aus einer früheren Runde (`Die Anfrage nennt die Pfostenlage
+   nicht`) hatte zwei Leerzeichen zu viel und fand seine Stelle nicht mehr.
+   Die Gegenprobe hätte das gemeldet, **bricht aber vorher ab** – gefunden
+   wurde es, indem alle Anker der Datei einzeln gegen die Quelle gezählt
+   wurden. Das ist ein Werkzeug, das es vorher nicht gab und das in Zukunft
+   vor jeder Gegenprobe laufen sollte.
+2. Seit es **zwei** runde Zeichen gibt, stand `g.lineWidth = 15 / f;`
+   zweimal in der Datei. Der eingebaute Fehler beschädigte den Doppelpfeil,
+   die Prüfung fand die heile Zeile des neuen Zeichens – und blieb grün.
+   Dieselbe Falle wie am 01.11. bei den Maßschildern.
+3. Die Prüfung der Klickreihenfolge hing an einer Zeile, die sich durch den
+   neuen Eintrag in der Kette geändert hat.
+
+Alle drei sind jetzt mit ihrer Nachbarzeile verankert.
+
+**Was gegengelesen werden soll.** Am Handy: Erscheint das zweite Zeichen
+erst nach dem Verschieben, sitzt es dicht genug unter dem Doppelpfeil, um
+als Paar gelesen zu werden, und ist es mit dem Daumen gut zu treffen? Die
+Größe ist dieselbe wie beim Doppelpfeil (`ZIEH_ZEICHEN = 30`); ob das am
+Gerät groß genug ist, kann ich nicht messen.

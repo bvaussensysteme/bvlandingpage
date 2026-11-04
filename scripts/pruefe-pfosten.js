@@ -144,13 +144,15 @@ var FEHLER = [
   ['Das Ziehen rastet nicht auf dasselbe Raster wie der Regler', 'js',
    '    mm = (mm < 0 ? -1 : 1) * Math.floor(Math.abs(mm) / PF_SCHRITT) * PF_SCHRITT;',
    '    void PF_SCHRITT;'],
+  /* NACHGEZOGEN 04.11.2026: Zwischen den beiden Zeilen steht jetzt die
+     Abfrage auf das Zurueck-Zeichen. */
   ['Ein Pfosten laesst sich ohne Auswahl schieben', 'js',
-   '    if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
+   '    if (zurueckUnterZeiger(e)) return false;\n    var t = pfostenUnterZeiger(e);\n' +
    '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;',
    '    var t = pfostenUnterZeiger(e);\n    if (!t) return false;'],
   ['Der Tipp auf den Pfosten waehlt ihn nicht', 'js',
-   '    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&',
-   '    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !(false) &&'],
+   '!massGeklickt(e) && !pfostenGeklickt(e) &&',
+   '!massGeklickt(e) && !(false) &&'],
   ['Ein zweiter Tipp hebt die Wahl nicht auf', 'js',
    '    pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });',
    '    pfostenWaehlen({ reihe: t.reihe, nr: t.nr });'],
@@ -198,8 +200,39 @@ var FEHLER = [
    '      if (zeichenGesetzt) return;\n      zeichenGesetzt = true;', '      void 0;'],
   ['Das Zeichenbild wird bei jedem Klick neu gezeichnet', 'js',
    '    if (ziehZeichen) return ziehZeichen;', '    void 0;'],
+  /* ---------- Zurueck auf die Ausgangslage (04.11.2026) ---------- */
+  ['Ohne Auswahl wird trotzdem gegriffen', 'js',
+   'ohne Auswahl soll ja gedreht werden. */\n    if (!PF_WAHL) return false;',
+   'ohne Auswahl soll ja gedreht werden. */'],
+  ['Der Griff am Pfosten liegt vor dem Zurueck-Zeichen', 'js',
+   '    if (zurueckUnterZeiger(e)) return false;', '    void 0;'],
+  ['Das Zurueck-Zeichen erscheint auch ohne Versatz', 'js',
+   '      if (!pfostenVersatzVon(PF_WAHL.reihe, PF_WAHL.nr)) return;',
+   '      void 0;'],
+  ['Das Zurueck-Zeichen sitzt ueber statt unter dem Ziehzeichen', 'js',
+   "                      m.position.y + g.height * 0.17 - ZIEH_ZEICHEN * 1.16,",
+   "                      m.position.y + g.height * 0.17 + ZIEH_ZEICHEN * 1.16,"],
+  ['Der Tipp auf das Zurueck-Zeichen waehlt nur den Pfosten ab', 'js',
+   '!zurueckGeklickt(e) &&\n        ', ''],
+  ['Der Tipp nimmt den Versatz nicht weg', 'js',
+   '      delete Z.pfostenVersatz[z.reihe][String(z.nr)];', '      void z;'],
+  ['Das Zurueck-Zeichen traegt einen anderen Umriss', 'js',
+   "    var u = symbolUmriss('neuladen');", "    var u = symbolUmriss('punkt');"],
+  ['Der Kreispfeil fehlt in der Zeichensammlung', 'html',
+   '<symbol id="bvs-neuladen" viewBox="0 0 24 24">',
+   '<symbol id="bvs-neuladchen" viewBox="0 0 24 24">'],
+  ['Das Zurueck-Bild wird bei jedem Klick neu gezeichnet', 'js',
+   '    if (zurueckZeichen) return zurueckZeichen;', '    void 0;'],
+  ['Der Kreispfeil wird haarduenn gezeichnet', 'js',
+   "      g.strokeStyle = '#FFFFFF';\n      g.lineWidth = 15 / f;",
+   "      g.strokeStyle = '#FFFFFF';\n      g.lineWidth = 2.3 / f;"],
+  /* MIT DER NACHBARZEILE VERANKERT (04.11.2026): Seit es ein zweites
+     rundes Zeichen gibt (zurueck auf die Ausgangslage), steht diese
+     Zeile ZWEIMAL in der Datei. Ohne Anker beschaedigte der eingebaute
+     Fehler beide und die Pruefung fand die jeweils andere. */
   ['Der Pfeil wird wieder haarduenn gezeichnet', 'js',
-   '      g.lineWidth = 15 / f;', '      g.lineWidth = 2.3 / f;'],
+   '         Bildpunkte auf der fertigen Flaeche. */\n      g.lineWidth = 15 / f;',
+   '         Bildpunkte auf der fertigen Flaeche. */\n      g.lineWidth = 2.3 / f;'],
   ['Das Zeichen haengt nicht mehr in der eigenen Gruppe', 'js',
    '      z.renderOrder = 5;\n      ziehGruppe.add(z);',
    '      z.renderOrder = 5;\n      bau.add(z);'],
@@ -249,9 +282,12 @@ var FEHLER = [
   ['Der gelesene Versatz wird gleich wieder weggeraeumt', 'js',
    '    PF_ANZAHL = { vorne: 0, hinten: 0 };\n    if (d.fa) farbeSetzen(d.fa);',
    '    if (d.fa) farbeSetzen(d.fa);'],
+  /* BERICHTIGT 04.11.2026: Der Anker hatte zwei Leerzeichen zu viel
+     und fand seine Stelle nicht mehr - gefunden beim Durchzaehlen
+     aller Anker, nicht von der Gegenprobe: die bricht vorher ab. */
   ['Die Anfrage nennt die Pfostenlage nicht', 'js',
-   "          (pfostenNotiz().length ? ' · ' + pfostenNotiz().join(' · ') : '') +",
-   "          ('') +"],
+   "        (pfostenNotiz().length ? ' · ' + pfostenNotiz().join(' · ') : '') +",
+   "        ('') +"],
   ['Die Kurzfassung nennt die Pfostenlage nicht', 'js',
    '    pfostenNotiz().forEach(function (t) { k.push(t); });', '    void pfostenNotiz;'],
   ['achsenKlemmen() ist nicht mehr auffindbar', 'js',
@@ -491,11 +527,45 @@ function lauf(q) {
      01.11.2026). Ohne Auswahl verschiebt ein Dreh-Versuch am Handy
      unbemerkt einen Pfosten - dort gibt es keinen Zeiger, der vorher
      verraet, was unter dem Finger liegt. */
+  /* GEAENDERT 04.11.2026: Zwischen den beiden Zeilen steht jetzt die
+     Abfrage auf das Zurueck-Zeichen - wer darauf tippt, will nicht den
+     Pfosten anfassen. Geprueft werden deshalb beide Teile einzeln. */
   hat('Ohne Auswahl laesst sich kein Pfosten greifen',
-      'if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
+      'ohne Auswahl soll ja gedreht werden. */\n    if (!PF_WAHL) return false;');
+  hat('Gegriffen wird nur der GEWAEHLTE Pfosten',
+      'var t = pfostenUnterZeiger(e);\n' +
       '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;');
-  hat('Der Tipp auf den Pfosten steht vor allen anderen Klicks',
-      'if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&');
+  hat('Ein Tipp auf das Zurueck-Zeichen greift den Pfosten nicht',
+      'if (zurueckUnterZeiger(e)) return false;');
+  hat('Der Tipp auf den Pfosten steht vor Feldern und Bauteilen',
+      'if (weg < 6 && zeit < 2500 && !zurueckGeklickt(e) &&\n' +
+      '        !massGeklickt(e) && !pfostenGeklickt(e) &&');
+
+  /* ---------- Zurueck auf die Ausgangslage ----------
+     „sobald man ihn verschoben hat soll unter dem runden logo
+     nochmal ein rundes logo auftauchen ... mit nem zuruecksetzen logo"
+     (Betreiber, 04.11.2026). Geprueft wird nicht, dass es das Zeichen
+     gibt, sondern die vier Dinge, an denen es scheitern kann: Es darf
+     nur bei verschobenem Pfosten da sein, es muss UNTER dem Ziehzeichen
+     sitzen, der Tipp darauf muss VOR dem Tipp auf den Pfosten
+     abgefragt werden, und er muss den Versatz wirklich loeschen. */
+  hat('Das Zurueck-Zeichen wird vor dem Pfosten abgefragt',
+      '!zurueckGeklickt(e) &&');
+  hat('Es erscheint nur bei verschobenem Pfosten',
+      'if (!pfostenVersatzVon(PF_WAHL.reihe, PF_WAHL.nr)) return;');
+  hat('Es sitzt UNTER dem Ziehzeichen',
+      "m.position.y + g.height * 0.17 - ZIEH_ZEICHEN * 1.16");
+  hat('Es traegt dieselbe Scheibe wie die uebrigen runden Zeichen',
+      "    g.fillStyle = 'rgba(17,17,17,.93)';\n    g.fill();\n" +
+      "    g.restore();\n    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);\n" +
+      "    g.strokeStyle = '#C49A2A'; g.lineWidth = 10; g.stroke();\n\n" +
+      "    var u = symbolUmriss('neuladen');");
+  hat('Der Kreispfeil steht in der eigenen Zeichensammlung',
+      '<symbol id="bvs-neuladen" viewBox="0 0 24 24">', 'html');
+  hat('Der Tipp nimmt den Versatz wirklich weg',
+      'delete Z.pfostenVersatz[z.reihe][String(z.nr)];');
+  hat('Das Bild wird einmal gebaut und behalten',
+      'if (zurueckZeichen) return zurueckZeichen;');
   hat('Ein zweiter Tipp hebt die Wahl auf',
       'pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });');
   hat('Ein Tipp daneben hebt die Wahl auf',
@@ -548,7 +618,14 @@ function lauf(q) {
   /* GEMESSEN am 02.11.2026: Mit der Strichstaerke aus dem 24-px-Knopf
      (2.3) blieb auf der Scheibe von 256 Bildpunkten ein Haar von zwei
      Punkten - der Stift skaliert mit. */
-  hat('Der Pfeil ist kraeftig genug gezeichnet', 'g.lineWidth = 15 / f;');
+  /* MIT DER NACHBARZEILE (04.11.2026): Seit es zwei runde Zeichen
+     gibt, steht diese Zeile zweimal da. Ohne Anker blieb ein Fehler
+     im Ziehzeichen unbemerkt, weil die Regel auf das Zurueck-Zeichen
+     passte - die Gegenprobe hat das gemeldet. */
+  hat('Der Pfeil ist kraeftig genug gezeichnet',
+      '         Bildpunkte auf der fertigen Flaeche. */\n      g.lineWidth = 15 / f;');
+  hat('Auch das Zurueck-Zeichen ist kraeftig genug gezeichnet',
+      "      g.strokeStyle = '#FFFFFF';\n      g.lineWidth = 15 / f;");
 
   /* ---------- Zurueck auf die gleichmaessige Lage ----------
      „da müsste ne funktion hin um den pfosten wenn man ihn verschoben

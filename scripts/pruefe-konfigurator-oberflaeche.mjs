@@ -98,10 +98,43 @@ page.on('pageerror', e => konsole.push('pageerror: ' + e.message));
    beiden Fehler am Zahlensteller blieben unbemerkt, weil die Pruefung
    dafuer in einer eigenen Seite laeuft und diese Route dort nicht
    eingerichtet war. Deshalb steht das Einbauen jetzt in einer Funktion. */
+/* ---------- Ein Messpunkt, nur fuer die Pruefung ----------
+   Das Zeichen zum Zuruecksetzen ist eine Flaeche IN DER SZENE - es hat
+   kein HTML, das man ansprechen koennte. Der erste Versuch suchte es
+   ueber den Mauszeiger; das ging zweimal daneben, weil auch
+   Massschilder und andere Pfosten 'pointer' melden.
+
+   Deshalb wird fuer den Lauf eine Funktion eingehaengt, die sagt, WO
+   das Zeichen auf dem Schirm steht. Getippt und geprueft wird danach
+   ganz normal von aussen: Der Tipp geht an die Leinwand, nachgelesen
+   werden die Achsmasse im Bedienfeld. Die Funktion liest nur, sie
+   aendert nichts - und sie steht ausschliesslich hier, nicht im
+   ausgelieferten Quelltext. */
+function messpunktEinbauen(t) {
+  return t.replace('  function pfostenWahlZeigen() {',
+    '  window.__bvZurueckPunkt = function () {\n' +
+    '    var ziel = null;\n' +
+    '    ziehGruppe.children.forEach(function (k) {\n' +
+    '      if (k.userData && k.userData.pfostenZurueck) ziel = k;\n' +
+    '    });\n' +
+    '    if (!ziel) return null;\n' +
+    '    var v = ziel.position.clone().project(kamera3);\n' +
+    '    var rr = leinwand.getBoundingClientRect();\n' +
+    '    return { x: Math.round(rr.left + (v.x + 1) / 2 * rr.width),\n' +
+    '             y: Math.round(rr.top + (1 - v.y) / 2 * rr.height) };\n' +
+    '  };\n  function pfostenWahlZeigen() {');
+}
+
+/* EINE EINZIGE Route auf konfigurator-3d.js - zwei waeren eine zu viel:
+   Playwright nimmt den zuletzt gesetzten Handler, der erste erfuellt die
+   Anfrage, und der andere kaeme nie zum Zug. Der Messpunkt gilt also in
+   JEDEM Lauf, die eingebauten Fehler nur in der Gegenprobe. */
 async function fehlerEinbauen(ziel) {
   await ziel.route('**/konfigurator-3d.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
+    t = messpunktEinbauen(t);
+    if (!GEGENPROBE) { await r.fulfill({ response: a, body: t }); return; }
     t = t.replace('function masseZeichnen() {', 'function masseZeichnen() { return;');
     /* Vierter Fehler: Der Griff am Zwischenpfosten wird uebergangen -
        dann dreht sich beim Ziehen die Kamera, wie vor dieser Funktion. */
@@ -118,6 +151,15 @@ async function fehlerEinbauen(ziel) {
     /* Achter Fehler: Der Schalter nimmt den Versatz nicht weg - der
        Pfosten bliebe stehen, wo er ist. */
     t = t.replace('          delete Z.pfostenVersatz.vorne[nr];', '          void nr;');
+    /* Elfter und zwoelfter Fehler (04.11.2026): Das Zeichen am Modell,
+       mit dem der Pfosten wieder auf seine Ausgangslage springt. Einmal
+       erscheint es, obwohl nichts verschoben ist; einmal tut der Tipp
+       darauf nichts. Beide Male sieht der Konfigurator unveraendert aus
+       - nur das Verhalten ist falsch. */
+    t = t.replace('      if (!pfostenVersatzVon(PF_WAHL.reihe, PF_WAHL.nr)) return;',
+                  '      void 0;');
+    t = t.replace('      delete Z.pfostenVersatz[z.reihe][String(z.nr)];',
+                  '      void z;');
     /* Zehnter Fehler steckt im Stylesheet, siehe weiter unten:
        „Abbrechen" verliert seine rote Fassung und faellt auf das Blau
        zurueck, das Safari jedem Knopf von sich aus gibt. */
@@ -164,9 +206,9 @@ async function fehlerEinbauen(ziel) {
   });
 }
 
+await fehlerEinbauen(page);
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
-  await fehlerEinbauen(page);
   await page.route('**/anfrage-wizard.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
@@ -1380,6 +1422,63 @@ pruef('Der Schalter zum Zurücksetzen erscheint erst nach dem Verschieben',
 pruef('Er stellt den Pfosten wieder gleichmäßig',
   pfNachZuruecksetzen === pfAchsVor && pfSchalterDanach === 'versteckt',
   `${pfNachZuruecksetzen} (vorher ${pfAchsVor}), Schalter danach ${pfSchalterDanach}`);
+
+/* ---------- Dasselbe, aber am Modell ----------
+   „sobald man ihn verschoben hat soll unter dem runden logo nochmal
+   ein rundes logo auftauchen ... mit nem zuruecksetzen logo damit der
+   pfosten wieder auf seine ursprungsposition springt" (Betreiber,
+   04.11.2026).
+
+   HIER WIRD NICHT DER QUELLTEXT GELESEN, sondern das Verhalten im
+   Browser gemessen. Erkannt wird das Zeichen am ZEIGER: Ueber dem
+   gewaehlten Pfosten steht er auf 'ew-resize', ueber dem Zeichen auf
+   'pointer'. Gesucht wird nur auf der Pfostenachse und nur oberhalb des
+   Griffpunktes - dort kann sonst nichts liegen.
+
+   Der Stand an dieser Stelle: Pfosten gewaehlt, Versatz gerade ueber
+   den Schalter im Bedienfeld geloescht. Also muss das Zeichen WEG
+   sein - und nach erneutem Ziehen wieder da. */
+async function zurueckZeichenSuchen() {
+  if (!pfGriff) return null;
+  const pkt = await page.evaluate(() =>
+    window.__bvZurueckPunkt ? window.__bvZurueckPunkt() : 'kein Messpunkt');
+  return pkt;
+}
+const zzOhneVersatz = pfGriff ? await zurueckZeichenSuchen() : null;
+pruef('Der Messpunkt fuer die Suche ist eingehaengt',
+  zzOhneVersatz !== 'kein Messpunkt',
+  'ohne ihn prueft der Rest dieses Blocks nichts');
+let zzMitVersatz = null, zzAchsNach = '(nicht geklickt)', zzSchalter = '(nicht geklickt)';
+if (pfGriff) {
+  await pfZiehen(pfGriff);
+  zzMitVersatz = await zurueckZeichenSuchen();
+  if (zzMitVersatz && zzMitVersatz !== 'kein Messpunkt' && zzMitVersatz.x) {
+    await page.evaluate(({ x, y }) => {
+      const c = document.getElementById('k3dCanvas');
+      c.dispatchEvent(new PointerEvent('pointerdown',
+        { clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true }));
+      window.dispatchEvent(new PointerEvent('pointerup',
+        { clientX: x, clientY: y, bubbles: true, pointerId: 1 }));
+    }, zzMitVersatz);
+    await page.waitForTimeout(1200);
+    zzAchsNach = await pfAchsen();
+    zzSchalter = await pfSchalter();
+  }
+}
+pruef('Ohne Versatz gibt es kein Zeichen zum Zuruecksetzen',
+  !pfGriff || !zzOhneVersatz || zzOhneVersatz === 'kein Messpunkt',
+  zzOhneVersatz && zzOhneVersatz.x ? `steht bei ${zzOhneVersatz.x}/${zzOhneVersatz.y}` : 'kein Zeichen in der Szene');
+pruef('Nach dem Verschieben steht es am Pfosten',
+  !pfGriff || (!!zzMitVersatz && zzMitVersatz !== 'kein Messpunkt' && !!zzMitVersatz.x),
+  zzMitVersatz && zzMitVersatz.x ? `steht bei ${zzMitVersatz.x}/${zzMitVersatz.y}` : 'nicht gefunden');
+pruef('Ein Tipp darauf stellt den Pfosten zurueck',
+  !pfGriff || (zzAchsNach === pfAchsVor && zzSchalter === 'versteckt'),
+  `${zzAchsNach} (vorher ${pfAchsVor}), Schalter danach ${zzSchalter}`);
+await page.evaluate(() => {
+  const h = document.getElementById('k3dMasse');
+  if (h && !h.checked) { h.checked = true; h.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.waitForTimeout(700);
 
 /* Zurueck auf die gleichmaessige Lage - dasselbe Bauwerk wie vorher. */
 await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {

@@ -3661,10 +3661,10 @@
     g.fill();
     g.restore();
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    /* Der Ring traegt jetzt die dunkelste unserer Goldstufen
-       (--gold-text #7A5B12 statt --gold-dark #9A7318) und ist einen
-       Deut breiter: Auf hellem Pflaster trennt erst der dunkle Rand
-       die Scheibe vom Untergrund. */
+    /* BERICHTIGT 04.11.2026: Hier stand noch, der Ring trage die
+       dunkelste Goldstufe (#7A5B12). Das gilt nicht mehr - seit alle
+       runden Zeichen dasselbe dunkle Kleid tragen, ist der Ring das
+       helle Gold der Seite auf dunklem Grund. */
     g.strokeStyle = '#C49A2A'; g.lineWidth = 10; g.stroke();
 
     var u = symbolUmriss('schieben');
@@ -3695,6 +3695,78 @@
     }
     ziehZeichen = t;
     return t;
+  }
+
+  /* ---------- Zweites Zeichen: zurueck auf die Ausgangslage ----------
+     „wenn man den pfosten ausgewaehlt hat und sobald man ihn
+     verschoben hat soll unter dem runden logo nochmal ein rundes logo
+     auftauchen in der selben designsprache mit nem zuruecksetzen logo
+     damit der pfosten wieder auf seine ursprungsposition springt"
+     (Betreiber, 04.11.2026).
+
+     WARUM AM MODELL UND NICHT NUR IM BEDIENFELD: Den Weg zurueck gibt
+     es dort schon (der kleine Knopf in der Pfostenzeile, `.k3d-pf-mitte`).
+     Wer aber am Modell zieht, schaut auf das Modell - der Knopf im
+     Bedienfeld steht am Handy ausserhalb des Bildes. Das Zeichen
+     erscheint deshalb dort, wo die Aenderung passiert ist.
+
+     NUR WENN ES ETWAS ZURUECKZUNEHMEN GIBT. Steht der Pfosten auf
+     seiner gleichmaessigen Lage, ist kein Versatz gespeichert und das
+     Zeichen bleibt weg - ein Knopf, der nichts tut, ist schlimmer als
+     keiner.
+
+     DAS ZEICHEN kommt aus der eigenen Sammlung (`bvs-neuladen`, der
+     Kreispfeil) und traegt dieselbe Scheibe wie Ziehzeichen und
+     Feldmarken. Eigene Zeichenflaeche statt Wiederverwendung der
+     Ziehscheibe, weil das Bild einmal gebaut und behalten wird. */
+  var zurueckZeichen = null;
+  function zurueckZeichenBild() {
+    if (zurueckZeichen) return zurueckZeichen;
+    var K = 256, M = K / 2;
+    var c = document.createElement('canvas');
+    c.width = c.height = K;
+    var g = c.getContext('2d');
+    g.save();
+    g.shadowColor = 'rgba(17,17,17,.45)';
+    g.shadowBlur = 14;
+    g.shadowOffsetY = 4;
+    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(17,17,17,.93)';
+    g.fill();
+    g.restore();
+    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
+    g.strokeStyle = '#C49A2A'; g.lineWidth = 10; g.stroke();
+
+    var u = symbolUmriss('neuladen');
+    if (u && window.Path2D) {
+      var kante = 134;
+      var f = kante / Math.max(u.breite, u.hoehe);
+      g.save();
+      g.translate(M - (u.breite * f) / 2, M - (u.hoehe * f) / 2);
+      g.scale(f, f);
+      g.strokeStyle = '#FFFFFF';
+      g.lineWidth = 15 / f;
+      g.lineCap = 'round';
+      g.lineJoin = 'round';
+      u.d.forEach(function (d) { g.stroke(new Path2D(d)); });
+      g.restore();
+    }
+    var t = uiBild(new THREE.Texture(c));
+    t.needsUpdate = true;
+    t.generateMipmaps = false;
+    t.minFilter = THREE.LinearFilter;
+    if (renderer && renderer.capabilities) {
+      t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    }
+    zurueckZeichen = t;
+    return t;
+  }
+
+  /* Der gespeicherte Versatz eines Pfostens in Millimetern - 0, wenn er
+     auf seiner gleichmaessigen Lage steht. */
+  function pfostenVersatzVon(reihe, nr) {
+    var topf = Z.pfostenVersatz && Z.pfostenVersatz[reihe];
+    return topf ? Number(topf[String(nr)]) || 0 : 0;
   }
 
   function pfostenWahlZeigen() {
@@ -3735,7 +3807,55 @@
                      m.position.z);
       z.renderOrder = 5;
       ziehGruppe.add(z);
+
+      /* Darunter, und nur wenn der Pfosten wirklich verschoben ist. */
+      if (!pfostenVersatzVon(PF_WAHL.reihe, PF_WAHL.nr)) return;
+      var zr = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: zurueckZeichenBild(), depthTest: false, transparent: true,
+        toneMapped: false }));
+      zr.scale.set(ZIEH_ZEICHEN, ZIEH_ZEICHEN, 1);
+      /* Eine Scheibenbreite tiefer plus ein Sechstel Luft: Die beiden
+         Zeichen sollen als Paar zu lesen sein, sich aber nicht
+         beruehren. */
+      zr.position.set(m.position.x,
+                      m.position.y + g.height * 0.17 - ZIEH_ZEICHEN * 1.16,
+                      m.position.z);
+      zr.renderOrder = 5;
+      zr.userData.pfostenZurueck = { reihe: PF_WAHL.reihe, nr: PF_WAHL.nr };
+      ziehGruppe.add(zr);
     });
+  }
+
+  /* Das Zeichen unter dem Zeiger - oder null. Eigener Strahl auf die
+     Ziehgruppe: Die beiden Zeichen liegen vor allem anderen
+     (depthTest aus), also darf hier nichts verdecken. */
+  function zurueckUnterZeiger(e) {
+    if (!e || !leinwand || !PF_WAHL || !ziehGruppe.children.length) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects(ziehGruppe.children, false);
+    for (var i = 0; i < treffer.length; i++) {
+      var d = treffer[i].object && treffer[i].object.userData;
+      if (d && d.pfostenZurueck) return d.pfostenZurueck;
+    }
+    return null;
+  }
+
+  /* Tipp auf das Zeichen: Versatz weg, Pfosten steht wieder
+     gleichmaessig. Die Wahl bleibt bestehen - wer eben noch geschoben
+     hat, will meist gleich weiterprobieren. Genau dieselbe Wirkung wie
+     der Knopf in der Pfostenzeile des Bedienfeldes. */
+  function zurueckGeklickt(e) {
+    var z = zurueckUnterZeiger(e);
+    if (!z) return false;
+    if (Z.pfostenVersatz && Z.pfostenVersatz[z.reihe]) {
+      delete Z.pfostenVersatz[z.reihe][String(z.nr)];
+    }
+    aendern();
+    return true;
   }
 
   /* Ein Tipp auf einen Pfosten waehlt ihn, ein zweiter hebt die Wahl
@@ -3798,6 +3918,22 @@
     /* Ohne Auswahl wird gar nicht gestrahlt: Das spart je Zeigerdruck
        einen Strahl - und ohne Auswahl soll ja gedreht werden. */
     if (!PF_WAHL) return false;
+    /* ---------- Das Zurueck-Zeichen geht VOR ----------
+       GEMESSEN am 04.11.2026 in der Oberflaechenpruefung: Ein Tipp auf
+       das Zeichen stellte den Pfosten NICHT zurueck, sondern hob die
+       Auswahl auf.
+
+       Der Grund steckt in der Reihenfolge der Ereignisse. Das Zeichen
+       sitzt auf der Achse des Pfostens, aber es liegt in der
+       Ziehgruppe - fuer den Strahl auf das BAUWERK ist es durchsichtig.
+       Der Zeigerdruck griff deshalb den Pfosten dahinter, und beim
+       Loslassen fing pfostenLoslassen() das Ereignis ab, bevor die
+       Klickkette ueberhaupt bis zurueckGeklickt() kam. Ein Tipp ohne
+       Weg gilt dort als Abwaehlen.
+
+       Wer auf das Zeichen tippt, will nicht den Pfosten anfassen. Also
+       wird hier gar nicht erst gegriffen. */
+    if (zurueckUnterZeiger(e)) return false;
     var t = pfostenUnterZeiger(e);
     if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;
     var r = PFOSTEN_REIHE[t.reihe];
@@ -5448,6 +5584,7 @@
     }
     massSchweben(ms);
     if (PF_ZIEHT) return;
+    if (zurueckUnterZeiger(e)) { leinwand.style.cursor = 'pointer'; return; }
     if (ms || neu) { leinwand.style.cursor = 'pointer'; return; }
     leinwand.style.cursor = !pf ? ''
       : (PF_WAHL && PF_WAHL.reihe === pf.reihe && PF_WAHL.nr === pf.nr
@@ -12034,7 +12171,11 @@
        Feld vor dem Mass, und das neue Hoehenmass hinten - es liegt
        genau ueber der linken Feldflaeche - war damit nicht zu
        erreichen. */
-    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&
+    /* zurueckGeklickt zuerst: Das Zeichen liegt vor dem Pfosten, auf
+       den es zeigt - sonst waehlte der Tipp darauf den Pfosten ab,
+       statt ihn zurueckzustellen. */
+    if (weg < 6 && zeit < 2500 && !zurueckGeklickt(e) &&
+        !massGeklickt(e) && !pfostenGeklickt(e) &&
         !feldGeklickt(e) &&
         !markiseGeklickt(e) && !velarisGeklickt(e)) {
       schiebeGeklickt(e);
