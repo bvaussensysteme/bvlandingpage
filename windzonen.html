@@ -210,6 +210,17 @@
   display: none;
 }
 .wz-results.visible { display: block; }
+/* Der Schritt vom Ergebnis zum Vorhaben. Knoepfe umbrechen am Handy
+   untereinander und bleiben dabei ueber 44 px hoch - sonst trifft sie
+   niemand mit dem Daumen. */
+.wz-weiter { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.wz-weiter-text { max-width: 62ch; margin: 0 auto 16px; text-align: center; line-height: 1.6; }
+.wz-weiter-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.wz-weiter-knoepfe .btn { min-height: 46px; display: inline-flex; align-items: center; }
+@media (max-width: 560px) {
+  .wz-weiter-knoepfe { flex-direction: column; }
+  .wz-weiter-knoepfe .btn { width: 100%; justify-content: center; }
+}
 
 .wz-result-grid {
   display: grid;
@@ -612,12 +623,39 @@
         </p>
       </div>
 
-      <div style="margin-top:24px;text-align:center;">
-        <a href="/#kontakt" class="btn btn-gold" style="margin-right:12px;">Kostenlos beraten lassen</a>
-        <button class="btn btn-outline-white" onclick="wzReset()"
-          style="color:var(--black);border-color:var(--border);">
-          Neue Suche
-        </button>
+      <!-- ===== Von der Zahl zum Vorhaben =====
+           GEMESSEN am 04.11.2026 in der eigenen Statistik: Diese Seite
+           wird nicht gelesen, sie wird BENUTZT - 11 Klicks auf 8
+           Aufrufe, davon dreimal „Standort ermitteln" und dreimal
+           „Ausrechnen". Es ist die einzige Seite, von der aus jemand
+           auf „Jetzt anfragen" ging.
+
+           WAS FEHLTE: Wer sein Ergebnis hat, stand vor einem nackten
+           Knopf. Zwischen „Schneelastzone 2" und „Kostenlos beraten
+           lassen" fehlte der Satz, der sagt, was die Zahl mit einer
+           Ueberdachung zu tun hat - und ein Weg zu den Produkten gab
+           es von hier gar nicht.
+
+           WENIGE ZEILEN SIND KEIN BEFUND: Acht Aufrufe tragen keine
+           Statistik. Dass die Seite als Werkzeug benutzt wird, ist
+           aber kein Zufallswert, sondern an jedem einzelnen Klick
+           abzulesen. -->
+      <div class="wz-weiter">
+        <p class="wz-weiter-text">
+          <strong>Was heißt das für Ihr Vorhaben?</strong> Die Zone entscheidet,
+          wie stark Pfosten, Sparren und Eindeckung ausgelegt werden müssen –
+          und damit, welche Ausführung für Sie in Frage kommt. Schicken Sie uns
+          Ihre Maße, dann rechnen wir das für Ihren Standort durch.
+        </p>
+        <div class="wz-weiter-knoepfe">
+          <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+          <a href="/produkte/terrassenueberdachung.html" class="btn btn-outline-white"
+             style="color:var(--black);border-color:var(--border);">Terrassenüberdachungen ansehen</a>
+          <button class="btn btn-outline-white" onclick="wzReset()"
+            style="color:var(--black);border-color:var(--border);">
+            Neue Suche
+          </button>
+        </div>
       </div>
     </div>
 
