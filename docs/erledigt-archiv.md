@@ -827,3 +827,84 @@ sind Teile im 3D-Bild, keine Knöpfe). Dieselben Werte stehen im Bedienfeld.
 | 31.10.2026 | Werkstatt `/werkstatt/`: Passwortschutz im Worker, Neu-laden-Knopf, Versionsanzeige | live |
 | 31.10.2026 | Öffentlicher Konfigurator gesperrt: Hinweisseite statt Rechner, alle Links raus | live |
 | 31.10.2026 | Aussparung (Hausvorsprung) als Machbarkeitsnachweis — nur in der Werkstatt | **wartet auf Entscheidung** |
+
+## Aus dem Einstieg verschoben am 04.11.2026 (abends) – abgeschlossene Abschnitte
+
+> Anklickbare Felder am Modell, Zuordnung je Feld, verschiebbare Zwischenpfosten.
+> Das *Warum* steht in `docs/entscheidungen.md`.
+
+### Erledigt am 31.10.2026, Einzelheiten im Archiv
+
+- **Aussparung (Hausvorsprung)** in der Werkstatt — Machbarkeit gezeigt.
+- **Menü in fünf Bereichen** — gebaut.
+- **Maße voreingestellt an und antippbar** — gebaut.
+
+Volltext mit Begründungen: `docs/erledigt-archiv.md`, Eintrag 31.10.2026.
+
+### Anklickbare Felder am Modell und Zuordnung je Feld — fertig *(31.10./01.11.2026)*
+
+Jedes Seitenfeld und das Dach sind am Modell markiert (Flächen **in** der Ebene
+des Feldes, orange durchsichtig beim Überfahren, rundes Zeichen nur im leeren
+Feld). Jedes Feld entscheidet **für sich**, was darin steht — „Feld 1", „Feld 2"
+…, von rechts gezählt, bei Längsseiten von der Wand nach vorne. Unverträglich
+wird nur innerhalb eines Feldes geprüft.
+
+Einzelheiten im Archiv (`docs/erledigt-archiv.md`, 31.10./01.11.2026), das
+*Warum* in `docs/entscheidungen.md`. Geprüft von `scripts/pruefe-marken.js` und
+`scripts/pruefe-feldwahl.js`.
+
+### Zwischenpfosten verschieben — fertig *(01.11.2026)*
+
+„kann man außer die eckpfosten die zwischenpfosten verschieben innerhalb den
+erlaubten toleranzen" (Betreiber). Gebaut: Grenze **aus unserer Maßtabelle
+hergeleitet**, bedient durch **Antippen, dann Ziehen** am Modell **plus Regler**
+im Bedienfeld unter „Zwischenpfosten". Die Lage geht in Teilen-Link, Anfrage und
+Kurzfassung mit.
+
+**Erst antippen, dann schieben** (Betreiber, 01.11.2026 nachmittags): Ein Tipp
+wählt den Pfosten (orange Hülle am Pfosten, markierte Zeile im Bedienfeld, Band
+mit Achsmaß und lichter Breite), erst dann lässt er sich ziehen. Zweiter Tipp,
+Tipp daneben oder `Esc` heben die Wahl auf. Ohne Auswahl dreht das Ziehen nur
+die Kamera — am Handy sonst eine unbemerkte Planänderung.
+
+**Die Spanne wurde am 01.11.2026 nachmittags korrigiert**: Sie wird jetzt über
+die **ganze** Maßtabelle gesucht, nicht in der eigenen Pfostenspalte. TDS/Glas
+bei flachem Dach: 970–3970 mm statt 2195–3645 mm; bei 7.000 mm Breite also
+2.980–4.020 mm statt 3.300–3.700 mm. Begründung in `docs/entscheidungen.md`.
+
+**Die Spanne ist abgeleitet, nicht belegt** — siehe die Rückfrage an VD unten.
+Sie ist jetzt breiter, die Rückfrage damit wichtiger. Unter dem Bedienfeld
+steht, woher die Zahl kommt und dass beim Aufmaß die Lage verbindlich
+festgelegt wird.
+
+**Vom Betreiber gegenzulesen:**
+1. Bei 5.000 und 7.000 mm Breite den Mittelpfosten antippen (Hülle muss
+   erscheinen) und ziehen: Ist der Spielraum jetzt genug?
+2. Ohne Auswahl über den Pfosten ziehen: Dreht sich nur die Ansicht?
+3. Am Handy mit dem Finger: Antippen und Ziehen, und lässt sich das Modell
+   weiterhin bequem drehen, wenn der Finger auf einem Pfosten aufsetzt?
+4. Teilen-Link öffnen — stehen die Pfosten dort genauso?
+5. Sind „Achsmaße" und „lichte Breite" die Zahlen, mit denen Sie arbeiten?
+
+Geprüft von `scripts/pruefe-pfosten.js` (88 Prüfungen, darunter 4.000
+Zufallsfälle) und im Browser von `scripts/pruefe-konfigurator-oberflaeche.mjs`.
+
+
+## Aus dem Einstieg verschoben am 04.11.2026 (abends) – Schritte vom 02. und 03.11.2026
+
+> Kurzfassung; das *Warum* steht in `docs/entscheidungen.md`.
+
+| Datum | Was | Stand |
+|---|---|---|
+| 03.11.2026 | **Konfigurator: ein Weg statt sechs.** Basic/Pro und „Alles auf einen Blick" entfallen, Fachliches liegt hinter „Mehr Einstellungen". Maße haben einen Zahlensteller (−/+) statt Schieberegler; Regler nur noch für Sichtbares (Lamellen, Markise, Tür). Gemessen: 0 statt 6 sichtbare Regler, Schritt 1 von 3,0 auf 1,9 Bildschirme, 129 → 113 Bedienelemente | neu |
+| 03.11.2026 | **Zahlenseite gestalterisch überarbeitet**: Gold nur noch für den Spitzenwert, Abstandsleiter, tabulare Ziffern, Ladeplatzhalter, Wolke am Diagramm, aufklappbare Listen, hell/dunkel. Dabei zwei echte Fehler gefunden (Wolke zog die Seite breiter, `min-width:0` auf Rasterfeldern) | neu |
+| 03.11.2026 | **Zahlenseite ausgebaut**: gerade aktiv (30 Min.), Land und Bundesland (von Cloudflare, ohne IP – keine Stadt, keine PLZ), Lesetiefe, worauf geklickt wird, Wochentag × Stunde, Einstiegsseiten, Anfragen je Aufruf, CSV-Export und ein Block **„Was auffällt"**, der die Zahlen in Sätze übersetzt | neu |
+| 03.11.2026 | **Zahlenseite neu gebaut** — in der ersten Fassung fehlten alle Beschriftungen (`max-width:0` ohne feste Tabellenbreite quetscht die Spalte auf null). Jetzt Kennzahlen mit Vergleich zum Zeitraum davor, Tagesdiagramm, Stundendiagramm, Balken **hinter** dem Text statt in eigener Spalte. Die Prüfung misst seitdem die **gerenderte Breite** jeder Beschriftung, nicht ihren Text | neu |
+| 03.11.2026 | **Eigene Reichweitenmessung** (`/api/messung` → D1 in der EU) mit Auswertung unter `/werkstatt/zahlen.html`: Tage, Wochentage, Seiten, Verweildauer, Handlungen, Konfigurator-Trichter. Ohne Cookies, ohne Einwilligung, ohne Besucherkennzeichen – deshalb **keine Zahl „einzelne Besucher"** | neu |
+| 03.11.2026 | **Cookie-Banner: vorbelegter Haken „Externe Dienste" entfernt** (vorbelegte Einwilligung ist keine Einwilligung) und die drei Vorab-Verbindungen zu Google aus dem Kopf der Startseite genommen | neu |
+| 02.11.2026 | **Letzter Knopf schickt ab** („Anfrage abschicken") und der **Konfigurationslink geht in jede Anfrage** — das alte `hidden` wirkte nie, weil `.btn` `display:inline-block` setzt; PDF-Anhang geht nicht kostenlos (Begründung in `docs/entscheidungen.md`) | neu |
+| 02.11.2026 | **„Zurück" stand auf dem iPhone in Safaris Blau** — dritter Fall derselben Art: eine Knopfregel ohne `color` | neu |
+| 02.11.2026 | **„Abbrechen" in Rot** — trug nur `.btn`, und das setzt keine Schriftfarbe: Auf dem iPhone blieb Safaris Blau | neu |
+| 02.11.2026 | **„Zurücksetzen" statt „Bild speichern"** — mit Rückfrage; das PDF hing am entfernten Menü und ruft jetzt direkt | neu |
+| 02.11.2026 | **Unterkante Wandprofil im Modell** — anklickbar; dabei gefunden: Maßschilder standen in der Klickkette hinter den Feldflächen und waren dort nicht erreichbar | neu |
+| 02.11.2026 | **Doppelpfeil am gewählten Pfosten** — die orange Hülle sagt „ausgewählt", der Pfeil sagt „seitlich verschiebbar" | neu |
