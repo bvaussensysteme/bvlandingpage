@@ -1220,18 +1220,22 @@
            nie nach unten schieben - und am Ende steht sie dort, wo sie
            im Textfluss ohnehin stuende. Was dahinter kommt, ist ihr
            gleich.
-         · Platz VOR der Zeile. Das verschiebt genau das, worauf es
-           ankommt: ihren Platz im Textfluss. Gemessen danach: Sie
-           kommt bei 550 bis 706 px zur Ruhe, also unter der Buehne
-           statt mittendrin - und zwar an jeder Scrollposition.
+         WAS WIRKLICH DAHINTERSTECKTE - und was ich drei Anlaeufe lang
+         falsch gemessen habe: Die Zeile RAGTE nicht ins Modell, sie
+         wurde DARUEBER GEZEICHNET. Die Buehne klebt oben und hat
+         z-index 5, die Fusszeile hatte 6. Am Handy laeuft das ganze
+         Bedienfeld unter der Buehne durch - das ist so gewollt und
+         faellt nicht auf, weil die Buehne davorliegt. Nur die Fusszeile
+         lag eben davor.
 
-         Die Hoehe ist dieselbe wie die der Buehne (46svh gegen 45svh):
-         Im schlimmsten Fall steht die Zeile ganz oben im Bedienfeld,
-         und dann braucht sie genau eine Buehnenhoehe, um darunter zu
-         passen. Der Preis ist eine Luecke ueber den Knoepfen, die man
-         nur am Ende des Schrittes sieht. */
-      .k3d-sl-rollen { overflow: visible; flex: none; }
-      .k3d-gefuehrt .k3d-nav { margin-top: 46svh; }
+         Meine ersten drei Versuche (Polster, Platzhalter, fester
+         Rand) haben alle an der LAGE gedreht, obwohl die Lage nie das
+         Problem war. Gemessen hatte ich sich ueberschneidende
+         Rechtecke - die gibt es bei einer klebenden Buehne staendig,
+         sichtbar ist davon nichts. Richtig misst man, WAS OBEN LIEGT.
+
+         Also: eine Zeile Zeichenreihenfolge. Die Buehne gewinnt. */
+      .k3d-gefuehrt .k3d-nav { z-index: 4; }
       /* Flacher, wie die Leiste unten: „die beiden sachen in der höhe
          bissl schmaler ähnlich wie die leiste unten wo maße tag abend
          steht" (Betreiber, 11.10.2026). Gespart wird wieder an den
