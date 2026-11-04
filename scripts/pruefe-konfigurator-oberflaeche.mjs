@@ -118,6 +118,15 @@ async function fehlerEinbauen(ziel) {
     /* Achter Fehler: Der Schalter nimmt den Versatz nicht weg - der
        Pfosten bliebe stehen, wo er ist. */
     t = t.replace('          delete Z.pfostenVersatz.vorne[nr];', '          void nr;');
+    /* Elfter und zwoelfter Fehler (04.11.2026): Das Zeichen am Modell,
+       mit dem der Pfosten wieder auf seine Ausgangslage springt. Einmal
+       erscheint es, obwohl nichts verschoben ist; einmal tut der Tipp
+       darauf nichts. Beide Male sieht der Konfigurator unveraendert aus
+       - nur das Verhalten ist falsch. */
+    t = t.replace('      if (!pfostenVersatzVon(PF_WAHL.reihe, PF_WAHL.nr)) return;',
+                  '      void 0;');
+    t = t.replace('      delete Z.pfostenVersatz[z.reihe][String(z.nr)];',
+                  '      void z;');
     /* Zehnter Fehler steckt im Stylesheet, siehe weiter unten:
        „Abbrechen" verliert seine rote Fassung und faellt auf das Blau
        zurueck, das Safari jedem Knopf von sich aus gibt. */
@@ -1380,6 +1389,60 @@ pruef('Der Schalter zum Zurücksetzen erscheint erst nach dem Verschieben',
 pruef('Er stellt den Pfosten wieder gleichmäßig',
   pfNachZuruecksetzen === pfAchsVor && pfSchalterDanach === 'versteckt',
   `${pfNachZuruecksetzen} (vorher ${pfAchsVor}), Schalter danach ${pfSchalterDanach}`);
+
+/* ---------- Dasselbe, aber am Modell ----------
+   „sobald man ihn verschoben hat soll unter dem runden logo nochmal
+   ein rundes logo auftauchen ... mit nem zuruecksetzen logo damit der
+   pfosten wieder auf seine ursprungsposition springt" (Betreiber,
+   04.11.2026).
+
+   HIER WIRD NICHT DER QUELLTEXT GELESEN, sondern das Verhalten im
+   Browser gemessen. Erkannt wird das Zeichen am ZEIGER: Ueber dem
+   gewaehlten Pfosten steht er auf 'ew-resize', ueber dem Zeichen auf
+   'pointer'. Gesucht wird nur auf der Pfostenachse und nur oberhalb des
+   Griffpunktes - dort kann sonst nichts liegen.
+
+   Der Stand an dieser Stelle: Pfosten gewaehlt, Versatz gerade ueber
+   den Schalter im Bedienfeld geloescht. Also muss das Zeichen WEG
+   sein - und nach erneutem Ziehen wieder da. */
+async function zurueckZeichenSuchen() {
+  if (!pfGriff) return null;
+  for (let dy = 20; dy <= 260; dy += 8) {
+    for (const dx of [0, -4, 4]) {
+      const x = pfGriff.x + dx, y = pfGriff.y - dy;
+      if (y < 4) continue;
+      if (await pfProbe(x, y) === 'pointer') return { x, y };
+    }
+  }
+  return null;
+}
+const zzOhneVersatz = pfGriff ? await zurueckZeichenSuchen() : null;
+let zzMitVersatz = null, zzAchsNach = '(nicht geklickt)', zzSchalter = '(nicht geklickt)';
+if (pfGriff) {
+  await pfZiehen(pfGriff);
+  zzMitVersatz = await zurueckZeichenSuchen();
+  if (zzMitVersatz) {
+    await page.evaluate(({ x, y }) => {
+      const c = document.getElementById('k3dCanvas');
+      c.dispatchEvent(new PointerEvent('pointerdown',
+        { clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true }));
+      window.dispatchEvent(new PointerEvent('pointerup',
+        { clientX: x, clientY: y, bubbles: true, pointerId: 1 }));
+    }, zzMitVersatz);
+    await page.waitForTimeout(1200);
+    zzAchsNach = await pfAchsen();
+    zzSchalter = await pfSchalter();
+  }
+}
+pruef('Ohne Versatz gibt es kein Zeichen zum Zuruecksetzen',
+  !pfGriff || !zzOhneVersatz,
+  zzOhneVersatz ? `pointer bei ${zzOhneVersatz.x}/${zzOhneVersatz.y}` : 'nichts anklickbar ueber dem Pfosten');
+pruef('Nach dem Verschieben steht es ueber dem Pfosten',
+  !pfGriff || !!zzMitVersatz,
+  zzMitVersatz ? `pointer bei ${zzMitVersatz.x}/${zzMitVersatz.y}` : 'nicht gefunden');
+pruef('Ein Tipp darauf stellt den Pfosten zurueck',
+  !pfGriff || (zzAchsNach === pfAchsVor && zzSchalter === 'versteckt'),
+  `${zzAchsNach} (vorher ${pfAchsVor}), Schalter danach ${zzSchalter}`);
 
 /* Zurueck auf die gleichmaessige Lage - dasselbe Bauwerk wie vorher. */
 await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {
