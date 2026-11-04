@@ -117,6 +117,9 @@ async function fehlerEinbauen(ziel) {
        die Beschwerde („viele gleiche regler"). */
     t = t.replace('steller.appendChild(regler);\n      regler.hidden = true;',
                   'steller.appendChild(regler);');
+    /* Einundzwanzigster Fehler: Die doppelte Wertanzeige kommt
+       zurueck - genau der Zustand, den der Betreiber gemeldet hat. */
+    t = t.replace('wertAnzeige.hidden = true;', 'void wertAnzeige;');
     /* Neunzehnter Fehler: Der ⓘ-Knopf wird gar nicht erst gebaut. */
     t = t.replace("info.className = 'k3d-infoknopf';", 'return;');
     /* Zwanzigster Fehler: Der Kasten oeffnet, bleibt aber leer - dann
@@ -673,6 +676,30 @@ await page.waitForTimeout(600);
     + (info.text || '').slice(0, 44) + '…"');
   pruef('„Verstanden" schließt den Kasten wieder', info.wiederZu === true,
     info.wiederZu === true ? 'zu' : 'bleibt offen oder fehlt');
+
+  /* ---------- Die Zahl steht nur EINMAL da ----------
+     „diese 5000mm und 3000mm weglassen es is doppelt gemoppelt. Das
+     maß steht doch schon zwischen - und +" (Betreiber, 04.11.2026).
+
+     Gemessen wird innerText, nicht textContent: Die Anzeige ist
+     versteckt, nicht entfernt (stellerEinheit liest ihren Text ab, um
+     mm von Grad zu unterscheiden). textContent faende sie weiterhin -
+     und damit etwas, das niemand sieht. */
+  const doppelt = await me.evaluate(() => {
+    const gruppe = document.getElementById('k3dBreite').closest('.k3d-gruppe');
+    const feld = gruppe.querySelector('input[type=number]');
+    const sichtbar = (gruppe.querySelector('.k3d-label').innerText || '')
+      .replace(/\s+/g, ' ').trim();
+    return { wert: feld.value, sichtbar,
+      einheit: /\bin (mm|cm|°|%)/.test(sichtbar) };
+  });
+  pruef('Das Maß steht nicht zweimal in der Zeile',
+    !!doppelt.wert && doppelt.sichtbar.indexOf(doppelt.wert) < 0,
+    '„' + doppelt.sichtbar + '" neben ' + doppelt.wert + ' im Feld');
+  /* Die Einheit bleibt: „5000" allein sagt nicht, ob Millimeter oder
+     Zentimeter gemeint sind. */
+  pruef('Die Einheit steht weiter da', doppelt.einheit === true,
+    doppelt.sichtbar);
 
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
@@ -2325,6 +2352,7 @@ if (!GEGENPROBE) {
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
   'Der ⓘ-Knopf steht rechts neben dem Plusknopf',
+  'Das Maß steht nicht zweimal in der Zeile',
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
   'Am Handy laeuft kein Text aus seinem Kasten',

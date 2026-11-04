@@ -11660,6 +11660,34 @@
          Beschriftung (Pfostenzeilen haben nur eine Nummer), bleibt der
          Knopf weg - dort steht das Mass ohnehin im Band am Modell. */
       var beschriftung = gruppe ? gruppe.querySelector('.k3d-label') : null;
+
+      /* ---------- Der Wert steht nur noch EINMAL da ----------
+         „diese 5000mm und 3000mm weglassen es is doppelt gemoppelt.
+         Das maß steht doch schon zwischen - und +" (Betreiber,
+         04.11.2026). Stimmt: Seit dem Zahlensteller steht die Zahl im
+         Feld, und daneben stand sie ein zweites Mal in der
+         Beschriftung.
+
+         VERSTECKT, NICHT ENTFERNT: Die Anzeige wird von mehreren
+         Stellen beschrieben, und stellerEinheit() liest aus ihrem
+         Text ab, ob es um mm, cm, Grad oder Prozent geht. Weg waere
+         sie nur eine Zeile, aber vier Stellen Mehrarbeit - und die
+         Einheit ginge verloren.
+
+         DIE EINHEIT BLEIBT SICHTBAR: „5000" allein sagt nicht, ob
+         Millimeter oder Zentimeter gemeint sind. Sie steht jetzt als
+         ruhiger Zusatz in der Beschriftung, ohne Zahl. */
+      var wertAnzeige = beschriftung ? beschriftung.querySelector('output') : null;
+      if (wertAnzeige && !wertAnzeige.hidden) {
+        wertAnzeige.hidden = true;
+        if (!beschriftung.querySelector('.k3d-einheit')) {
+          var eh = document.createElement('small');
+          eh.className = 'k3d-einheit';
+          eh.textContent = 'in ' + einheit;
+          beschriftung.appendChild(eh);
+        }
+      }
+
       if (beschriftung && !steller.querySelector('.k3d-infoknopf')) {
         var info = document.createElement('button');
         info.type = 'button';

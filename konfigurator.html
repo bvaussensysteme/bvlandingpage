@@ -190,6 +190,11 @@
       font-size: .8rem; font-weight: 600; color: var(--black); margin-bottom: 6px;
     }
     .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
+    .k3d-label output[hidden] { display: none; }
+    /* Nur die Einheit, ohne Zahl - die steht im Feld zwischen − und +.
+       Ruhig gesetzt: Sie beantwortet eine Frage, sie stellt keine. */
+    .k3d-einheit { margin-left: auto; font-weight: 500; font-size: .74rem;
+      color: var(--muted); }
     /* ---------- Der ⓘ-Knopf am Massfeld ----------
        „du kannst da nen button machen mit nem kreis und nem i wenn man
        drauftippt kommt popup mit dieser information in normaler größe
@@ -2670,7 +2675,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261104i" defer></script>
+<script src="js/konfigurator-3d.js?v=20261104j" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
