@@ -12836,3 +12836,119 @@ Datenschutzerklärung wertlos macht.
 Zeitraumzeile der Hinweis, seit wann wirklich gemessen wird? Und füllen sich
 die Kacheln „Besucher" und „Besuche" ab morgen? Heute stehen dort noch
 Striche – ältere Zeilen haben kein Kennzeichen, und das ist richtig so.
+
+## 04.11.2026 – /windzonen: vom Ergebnis zum Vorhaben
+
+**Anlass.** Erste Anwendung der neuen Dauerregel „erst nachsehen, dann
+bauen". Abgefragt wurde die eigene Datenbank, nicht geschätzt:
+
+| | |
+|---|---|
+| Aufrufe | 8 |
+| Verweildauer | 67 Sek. |
+| gelesen | 42 % |
+| **Klicks auf der Seite** | **11** |
+| davon | „Standort ermitteln" 3× · „Ausrechnen" 3× · **„Jetzt anfragen" 1×** |
+
+**Der Befund.** Diese Seite wird nicht gelesen, sie wird **benutzt** – mehr
+Klicks als Aufrufe. Drei von acht Besuchen haben den Rechner wirklich
+bedient, und sie ist die **einzige** Seite, von der aus überhaupt jemand auf
+„Jetzt anfragen" ging. Dass Leute von Google mit einer *Frage* kommen und
+nicht mit Kaufabsicht, steht damit nicht in einer Vermutung, sondern in den
+Klicks.
+
+**Acht Aufrufe tragen keine Statistik** – das gehört dazugesagt und steht
+auch so im Prüfskript. Dass die Seite ein Werkzeug ist, ist aber an jedem
+einzelnen Klick abzulesen und nicht aus einem Durchschnitt gerechnet.
+
+**Was ich erwartet und NICHT gefunden habe.** Meine Annahme war, nach dem
+Ergebnis fehle jeder nächste Schritt. Falsch: Der Knopf „Kostenlos beraten
+lassen" steht längst da, und zwar richtig platziert – innerhalb von
+`#wz-results`, also erst sichtbar, wenn ein Ergebnis vorliegt. Nachgesehen,
+bevor behauptet.
+
+**Was wirklich fehlte,** und nur das wurde geändert:
+
+1. **Der Satz dazwischen.** Zwischen „Schneelastzone 2" und einem nackten
+   Knopf stand nichts, was die Zahl mit einer Überdachung verbindet. Jetzt:
+   *„Was heißt das für Ihr Vorhaben? Die Zone entscheidet, wie stark Pfosten,
+   Sparren und Eindeckung ausgelegt werden müssen …"*
+2. **Kein Weg zu den Produkten.** Von hier führte nur `/#kontakt` oder „Neue
+   Suche". Wer wissen will, *was* wir bauen, musste zurück ins Menü. Jetzt
+   steht ein Verweis auf die Terrassenüberdachungen daneben.
+
+**Warum nicht mehr.** Keine zweite Handlungsaufforderung weiter oben, kein
+Umbau des Rechners: Der Ablauf funktioniert nachweislich (dreimal Standort,
+dreimal Ausrechnen). Was funktioniert, wird nicht angefasst.
+
+**Abgesichert.** `scripts/pruefe-windzonen-weg.mjs` prüft **im Browser und
+auf Handybreite**: Der Block darf vor dem Ergebnis **nicht** sichtbar sein
+(ein Weg vor der Eingabe führt ins Leere), nach dem Ergebnis muss er da
+sein, der Satz muss die Verbindung herstellen, es muss je ein Weg zur
+Anfrage und zu den Produkten geben, und **kein Knopf unter 44 px Höhe**
+(Prüfliste des Design-Skills). 6 Prüfungen, Gegenprobe mit 6 eingebauten
+Fehlern.
+
+**Die Gegenprobe hat dabei einen Fehler in meiner eigenen Prüfung gefunden:**
+Der eingebaute Fehler „Knöpfe zu klein" setzte nur `min-height` von 46 auf
+20 – ohne Wirkung, weil die Höhe aus Polsterung und Zeilenhöhe kommt. Er
+blieb unbemerkt. Jetzt setzt er Polsterung und Schriftgröße mit herunter.
+
+**Was gegengelesen werden soll.** Auf `/windzonen` eine PLZ suchen: Steht
+unter dem Ergebnis der neue Absatz, und sind die drei Knöpfe am Handy
+untereinander und gut zu treffen?
+
+**Offen, und beim Betreiber:** Die stärkste Erkenntnis aus diesen Zahlen ist
+strategisch, nicht gestalterisch – **Fachseiten mit einem Werkzeug ziehen
+Leute von Google**, Produktseiten nicht. Weitere solcher Seiten
+(Schneelastzone, Genehmigungspflicht je Bundesland, Abstandsflächen) wären
+der nächste Schritt. Nicht ungefragt gebaut.
+
+## 04.11.2026 – Die beiden Werkzeugseiten verweisen aufeinander
+
+**Anlass.** „mach ALLES was nötig ist frag nicht jede kleinigkeit mach es
+toll" (Betreiber, 04.11.2026), nach dem Befund zu `/windzonen`.
+
+**Was geprüft wurde, bevor gebaut wurde.** Die naheliegende Idee war, eine
+neue Fachseite zur Genehmigungspflicht zu bauen. **Die gibt es schon** –
+`/baugenehmigung.html` mit den Landesbauordnungen aller 16 Länder
+(`js/baugenehmigung-data.js`, für RLP, Hessen und NRW am Gesetzestext
+gegengeprüft). Auch die Auffindbarkeit ist nicht der Unterschied: Beide
+Seiten sind von **je 52 Seiten** aus verlinkt und beide stehen in der
+Sitemap. Dass `/windzonen` 8 Aufrufe hat und `/baugenehmigung` null, liegt
+also an der Platzierung bei Google – nicht an etwas, das sich hier beheben
+ließe, und schon gar nicht an einem Tag.
+
+**Was wirklich fehlte.** Beide Werkzeuge beantworten eine Frage und lassen
+den Besucher dann stehen, obwohl er **in derselben Lage die jeweils andere
+Frage** hat: Wer seine Lastzone kennt, fragt als Nächstes nach der
+Genehmigung – und umgekehrt. Dazu fehlte beim Genehmigungs-Check jeder Weg
+zu den Produkten (er führte nur zur Anfrage und zu WhatsApp).
+
+**Was jetzt gilt.** Unter dem Ergebnis steht auf beiden Seiten ein **Satz**,
+der zur nächsten Frage führt, und beim Genehmigungs-Check zusätzlich einer zu
+den Produkten.
+
+**Warum ein Satz und kein vierter Knopf.** Vier Knöpfe nebeneinander heißen
+„such dir was aus"; ein Satz heißt „das ist die nächste Frage". Die
+Entscheidung steht als Kommentar an der CSS-Regel, damit sie niemand
+„aufräumt".
+
+**Abgesichert.** `scripts/pruefe-windzonen-weg.mjs` ist zu
+`scripts/pruefe-werkzeugseiten.mjs` geworden und deckt jetzt **beide**
+Seiten ab: 11 Prüfungen, Gegenprobe mit 8 einzeln eingebauten Fehlern.
+
+**Die Gegenprobe hat dabei zwei Fehler in meiner eigenen Prüfung gefunden:**
+1. Der eingebaute Fehler „Knöpfe zu klein" setzte nur `min-height` von 46
+   auf 20 – wirkungslos, weil die Höhe aus Polsterung und Zeilenhöhe kommt.
+2. Der Fehler „kein Weg zu den Produkten" entfernte nur den **ersten** von
+   drei Produktverweisen; die Prüfung blieb grün.
+Beide sind jetzt so gebaut, dass sie wirklich treffen.
+
+**Was gegengelesen werden soll.** Auf beiden Seiten eine Adresse suchen:
+Steht unter dem Ergebnis der Satz zur jeweils anderen Frage, und führen die
+Verweise dorthin, wo sie hinsollen?
+
+**Offen, und beim Betreiber:** Weitere Fachseiten mit Werkzeug
+(Abstandsflächen zum Nachbarn, Schneelast auf Bestandsdächern). Die
+bestehenden zwei zeigen, dass das Muster trägt – gebaut wird erst auf Ansage.

@@ -6,6 +6,12 @@
 (function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
 </script>
 <style>
+/* Querverweise unter dem Ergebnis - als Satz, nicht als weiterer Knopf.
+   Siehe denselben Aufbau auf /windzonen. */
+.bg-weiter-naechste { max-width: 62ch; margin: 14px auto 0; text-align: center;
+  font-size: .95rem; line-height: 1.6; }
+.bg-weiter-naechste a { font-weight: 600; }
+
 .a11y-pre-links a{text-decoration:underline!important;}
 .a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
 </style>
@@ -674,6 +680,25 @@
           <button class="btn btn-outline-white" onclick="bgReset()"
             style="color:var(--black);border-color:var(--border)">Neue Suche</button>
         </div>
+        <!-- ===== Der Schritt vom Ergebnis zum Vorhaben =====
+             GEMESSEN am 04.11.2026: Die Schwesterseite /windzonen wird
+             BENUTZT (11 Klicks auf 8 Aufrufe) und ist die einzige
+             Seite, von der aus jemand angefragt hat. Dort hat derselbe
+             Schritt gefehlt: ein Satz, der die Auskunft mit dem
+             Vorhaben verbindet, und ein Weg zu den Produkten. Diese
+             Seite hatte denselben Mangel - sie fuehrte zur Anfrage und
+             zu WhatsApp, aber nirgends zu dem, was wir bauen. */ -->
+        <p class="bg-weiter-naechste">
+          Die zweite Frage ist fast immer dieselbe:
+          <a href="/windzonen.html">Welche Wind- und Schneelast gilt bei mir?</a> –
+          das entscheidet, wie stark die Konstruktion ausgelegt wird.
+        </p>
+        <p class="bg-weiter-naechste">
+          Und wenn Sie sehen möchten, was wir bauen:
+          <a href="/produkte/terrassenueberdachung.html">Terrassenüberdachungen</a>,
+          <a href="/produkte/carport.html">Carports</a> und
+          <a href="/produkte/pergola.html">Pergolen</a>.
+        </p>
       </div>
 
     </div><!-- /bg-results -->
