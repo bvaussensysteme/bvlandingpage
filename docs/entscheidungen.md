@@ -12467,3 +12467,142 @@ bewusst stehen gelassen und nicht stillschweigend entschieden.
 **Was gegengelesen werden soll.** Nichts Sichtbares – die Änderung betrifft
 nur zwei Dokumentationsdateien. Gegenprobe: `grep -ri "<name>" .` findet
 nichts mehr.
+
+## 04.11.2026 – Warum alles „blass" aussah: zwei fehlende Umrechnungen
+
+**Der wunde Punkt.** Seit dem 01.11. kam derselbe Einwand immer wieder:
+„die Farbe doch etwas kräftiger haben, dass man es besser sieht" (01.11.),
+„wir brauchen bessere logos, kräftige saftige farben" (04.11.),
+„kräftigere farben und sichtbare ränder" (04.11.), „generell sehen die jz
+wie spielzeuglogos aus" (04.11.). Beantwortet wurde das jedes Mal mit
+**Gestaltung**: größer, satter, dickere Linien, zuletzt ein ganz neues
+Formensystem. Die Ursache war keine Gestaltungsfrage.
+
+**Gemessen** am 04.11.2026 mit der verbauten three.js-Fassung (**r128**,
+`js/vendor/three.min.js`, von 2021), denselben Renderer-Einstellungen wie im
+Konfigurator (`outputEncoding = sRGBEncoding`, ACESFilmic, Belichtung 0,72)
+und einem Pixel-Rückleser im Browser:
+
+| gesetzt | kam auf dem Schirm an |
+|---|---|
+| `#C49A2A` (das Gold der Website) | `#CBBD75` – Sandgrau |
+| `#111111` (Maßlinien) | `#303030` – Mittelgrau |
+| `#5A6B76` (Hilfslinien) | `#9AA5AB` – Dunst |
+
+**Zwei Ursachen, beide unsichtbar, beide addieren sich.**
+
+1. **Fehlende Farbraum-Angabe.** three.js rechnet intern linear und
+   schreibt am Ende nach sRGB zurück. Ein Farbwert aus dem Bedienfeld und
+   eine gezeichnete Leinwand sind aber **schon** sRGB. Ohne
+   `encoding = sRGBEncoding` an der Textur bzw. `convertSRGBToLinear()` an
+   der Farbe hält three.js den Wert für linear – und das Zurückschreiben
+   hellt mittlere Töne um etwa das Doppelte auf.
+2. **Tonwertkorrektur.** ACESFilmic zieht Spitzen zusammen und entsättigt.
+   Richtig für Blech, Glas und Rasen. Falsch für eine Marke, die dieselbe
+   Farbe tragen soll wie der Knopf im Bedienfeld daneben. Dafür gibt es
+   `toneMapped: false`.
+
+Beides zusammen trifft den gesetzten Wert aufs Byte: `#C49A2A` bleibt
+`#C49A2A`.
+
+**Was jetzt gilt.** Zwei Klassen, mit einer Regel dazwischen:
+
+* **Bedienelemente im Bild** (Feldmarken, Maßschilder, Maßlinien,
+  Hilfslinien, Ziehzeichen, Hervorhebung, Wasserzeichen) → `uiBild()` bzw.
+  `rgb()` **und** `toneMapped: false`. Sie sind Oberfläche, kein Bauteil,
+  und müssen die Farbe der Seite tragen.
+* **Bauteile und Umgebung** → nur `uiBild()`/`rgb()`, Tonwertkorrektur
+  bleibt an. Ein Dach soll beleuchtet aussehen.
+
+Die Begründung samt Messwerten steht im Quelltext bei `rgb()` und
+`uiBild()` – dort, wo sie gilt.
+
+**Bewusst NICHT angetastet.** Himmelsverlauf und Umgebungsbild speisen das
+Licht der ganzen Szene; ihre Farbraum-Angabe nachzutragen würde die
+Belichtung 0,72 **und** alle nach Augenmaß gewählten Bauteilfarben
+mitverschieben. Dasselbe gilt für die fünf Bauteilfarben, die `rgb()`
+umgehen (`color: 0x2b2e30`, `0x1d2a40`, `0x5c7a3f`, `0xded8c9`, `0xe6e3dc`):
+Sie wurden am Bildschirm ausgesucht, also gegen die falsche Kette. Sie
+„richtig" zu machen würde Haus, Rasen und Wand dunkler machen – das ist
+eine Entscheidung des Betreibers, keine Fehlerbehebung. **Beides steht als
+Angebot offen.**
+
+**Zweiter, anders gebauter Weg:** `scripts/pruefe-farbtreue.mjs` liest
+keinen Quelltext, um die Farbe zu beurteilen. Es lädt den Konfigurator im
+Browser, nimmt das **fertige Bild** der Leinwand und zählt darin die
+Bildpunkte, die genau `#C49A2A` sind: **1129 Treffer, Abstand 0** – und
+**null** Treffer beim alten `#CBBD75`. Die Gegenprobe nimmt die beiden
+Umrechnungen einzeln wieder heraus; jede der drei Prüfungen wird dabei rot.
+
+**Was das rückwirkend heißt.** Der Kommentar bei `feldBild()` behauptete,
+der Grund für „blass" sei die Verkleinerung (Mipmaps) und *nicht* die Farbe.
+Das war nur halb richtig und ist dort jetzt berichtigt. Die
+Gestaltungsrunden davor waren nicht falsch – aber sie haben gegen eine
+verbogene Farbkette gearbeitet.
+
+**Was gegengelesen werden soll.** Am Handy: Gold, Anthrazit und die
+Maßlinien müssen jetzt genauso aussehen wie im Bedienfeld. Wirkt etwas
+**zu** dunkel, ist das die Gegenrichtung desselben Fehlers – dann bitte
+sagen, dann wird die Zeichnung heller angelegt, nicht die Kette wieder
+verbogen.
+
+## 04.11.2026 – Zwei fremde 3D-Skills geprüft und übernommen, elf abgelehnt
+
+**Anlass.** Der Betreiber gab zwei Quellen und bat um Bewertung nach Nutzen,
+Vertrauenswürdigkeit und Verträglichkeit, Installation der sinnvollen und
+Prüfung der Installationsanweisungen auf verdächtige Aktionen:
+`snyk.io/de/articles/top-claude-skills-3d-modeling-game-dev-shader-programming/`
+und `github.com/MengTo/Skills` (`agent-skills/3d/`).
+
+**Übernommen** (nach `.claude/skills/`, je mit `HERKUNFT.md`):
+
+| Skill | Quelle | Lizenz | Warum |
+|---|---|---|---|
+| `three-best-practices` | `emalorenzo/three-agent-skills` 1.2.0 | MIT (nur `package.json`, keine LICENSE-Datei – Vermerk steht in `HERKUNFT.md`) | Reines three.js, genau unser Fall. Brauchbar: Zeichenaufrufe, Freigeben von Geometrie, Handy, Strahlenwurf, Licht/Schatten |
+| `3d-high-resolution-textures` | `MengTo/Skills` | MIT, © 2026 Meng To | 24 KB, trifft Anisotropie, Mipmaps und UV-Dichte – alles im Einsatz |
+
+**Abgelehnt, mit Grund:** `r3f-best-practices` (React Three Fiber – wir haben
+kein React); Game Developer (Unity/Unreal/Godot); 3D Modeling Specialist und
+Shader Techniques (Topologie, UV, HLSL – unsere Geometrie entsteht im Code,
+Shader schreiben wir keine); drei Blender-Skills und Code Buddy
+(Blender kommt nicht vor); CAD Agent (verlangt einen Docker-Container, und
+`build123d` ist 3D-Druck); DavinciDreams 3D Design Team (**keine
+Lizenzangabe** – fremder Text ohne Lizenz gehört nicht ins Repository, und
+der Artikel nennt selbst nur 1 Stern); von MengTos 16 Skills die übrigen
+vierzehn (Wasser, Lichtschächte, Jahreszeiten, Blätter, Rundgang, Stoff,
+Papier, Metall, Holz …) – nichts davon trifft eine Terrassenüberdachung, und
+`metal`/`wood` setzen three.js **r163+** voraus.
+
+**Sicherheitsprüfung vor dem Kopieren.** Der Snyk-Artikel nennt die eigene
+„ToxicSkills"-Untersuchung: in 36 % der geprüften Skills Prompt-Injection, in
+13 % kritische Lücken. Deshalb wurde **nichts ausgeführt**, sondern geklont,
+gelesen und nur Textdateien kopiert: keine Skripte in den beiden
+übernommenen Ordnern, keine `allowed-tools`-Angabe, keine Netz-, Shell- oder
+Schlüsselzugriffe (die Treffer auf „env" sind `envMap` und `process.env` in
+Beispielcode). Die Skripte, die es im Ursprung gibt, gehören zu den
+Demoseiten der abgelehnten Skills (Wasser, Lichtschächte, Bewertungsbogen)
+und sind nicht mitgekommen.
+
+**Die wichtigste Grenze, in beiden `HERKUNFT.md` festgehalten.** Dieses
+Projekt verbaut **three.js r128** (2021). Alles zu WebGPU, TSL,
+Node-Materialien, `outputColorSpace` und `scene.environmentIntensity`
+betrifft r152 und neuer und gilt hier **nicht**. Mehrere Skills warnen
+ausdrücklich, `envMapIntensity` werde ab r163 ignoriert – **bei uns nicht**:
+`environmentIntensity` kommt in r128 gar nicht vor, nachgesehen in
+`js/vendor/three.min.js`. Wer die Warnung ungeprüft befolgt hätte, hätte
+zehn eingestellte Werkstoffwerte zerschossen.
+
+**Was aus den Skills konkret folgte.** Der Strahlenwurf beim Überfahren ist
+schon auf 60 ms gedrosselt und trifft nur die Feldflächen; gezeichnet wird
+nur bei Bedarf; die Schattenkarte aktualisiert nicht dauernd. Geblieben ist
+**ein** offener Punkt: **rund 960 Zeichenaufrufe je Bild** (gemessen mit
+einem Zähler auf `drawElements`/`drawArrays`, 1440 × 900). Das ist der größte
+Posten am Handy. Ihn zu senken heißt, gleiche Teile zusammenzufassen
+(Sparren, Schrauben, Lamellen, Glasfelder) – ein Eingriff in die Geometrie,
+die an Herstellermaßen hängt und von 260 Prüfungen abgesichert ist. **Nicht
+ungefragt gemacht**, als Vorschlag notiert.
+
+**Was NICHT belegt ist.** Die Ladezeit (rund 33–38 s) und die Bildrate aus
+diesem Prüflauf sagen nichts über ein echtes Gerät: hier rechnet ein
+Software-Renderer ohne Grafikkarte. Belastbar sind Zählwerte
+(Zeichenaufrufe, Grafikpuffer, Bildpunktfarben), nicht Zeiten.

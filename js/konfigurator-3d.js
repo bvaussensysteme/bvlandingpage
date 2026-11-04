@@ -1623,7 +1623,7 @@
     var lw = document.createElement('canvas');
     lw.width = 1024; lw.height = 320;
     var c = lw.getContext('2d');
-    var t = new THREE.CanvasTexture(lw);
+    var t = uiBild(new THREE.CanvasTexture(lw));
     t.anisotropy = renderer.capabilities.getMaxAnisotropy
       ? renderer.capabilities.getMaxAnisotropy() : 1;
     WZ_TEXTUR[schl] = t;
@@ -1709,7 +1709,7 @@
        bleiben wie am Tag – es ist eine Kennzeichnung, kein Bauteil.
        depthWrite aus, damit es den Belag nicht aussticht. */
     new THREE.MeshBasicMaterial({ transparent: true, opacity: WZ.deckkraft,
-                                  depthWrite: false })
+                                  depthWrite: false, toneMapped: false })
   );
   wasserzeichen.rotation.x = -Math.PI / 2;
   wasserzeichen.renderOrder = 2;
@@ -1895,6 +1895,51 @@
     return new THREE.Color(hex).convertSRGBToLinear();
   }
 
+  /* ---------- WARUM ES HIER rgb() UND uiBild() GIBT ----------
+     GEMESSEN am 04.11.2026 mit der verbauten three.js-Fassung (r128),
+     denselben Renderer-Einstellungen wie hier (outputEncoding sRGB,
+     ACESFilmic, Belichtung 0,72) und einem Pixel-Rueckleser:
+
+       gesetzt #C49A2A  ->  gezeigt #CBBD75   (Gold wird Sandgrau)
+       gesetzt #111111  ->  gezeigt #303030   (Schwarz wird Mittelgrau)
+       gesetzt #5A6B76  ->  gezeigt #9AA5AB   (Graublau wird Dunst)
+
+     ZWEI URSACHEN, beide unsichtbar, beide addieren sich:
+
+     1. FEHLENDE FARBRAUM-ANGABE. three.js rechnet intern linear und
+        schreibt am Ende nach sRGB zurueck. Ein Farbwert aus dem
+        Bedienfeld (#C49A2A) und eine gezeichnete Leinwand sind aber
+        SCHON sRGB. Ohne `encoding = sRGBEncoding` an der Textur bzw.
+        `convertSRGBToLinear()` an der Farbe nimmt three.js den Wert fuer
+        linear, und das Zurueckschreiben hellt ihn auf – mittlere Toene
+        um rund das Doppelte. Genau das sieht man als „blass".
+
+     2. TONWERTKORREKTUR. ACESFilmic zieht Spitzen zusammen und
+        entsaettigt – richtig fuer Blech, Glas und Rasen, falsch fuer
+        eine Marke, die dieselbe Farbe tragen soll wie der Knopf im
+        Bedienfeld daneben. Dafuer gibt es `toneMapped: false`.
+
+     Beides zusammen trifft den gesetzten Wert aufs Byte: #C49A2A bleibt
+     #C49A2A. Deshalb gilt ab hier:
+
+       Bedienelemente IM BILD  (Marken, Massschilder, Masslinien,
+       Ziehzeichen, Wasserzeichen)  ->  uiBild()/rgb() UND
+       toneMapped: false. Sie sind Oberflaeche, kein Bauteil.
+
+       Bauteile und Umgebung  ->  nur uiBild()/rgb(), Tonwertkorrektur
+       bleibt an. Ein Dach soll beleuchtet aussehen.
+
+     NICHT ANGETASTET (bewusst): Himmelsverlauf und Umgebungsbild speisen
+     das Licht der ganzen Szene; ihre Farbraum-Angabe nachzutragen wuerde
+     die Belichtung 0,72 und alle nach Augenmass gewaehlten Bauteilfarben
+     mitverschieben. Das ist eine Entscheidung des Betreibers, keine
+     Fehlerbehebung. Dasselbe gilt fuer die fuenf Bauteilfarben, die
+     rgb() umgehen (Zeilen mit `color: 0x` ohne rgb()). */
+  function uiBild(t) {
+    t.encoding = THREE.sRGBEncoding;
+    return t;
+  }
+
   /* ---------- Werkstoffe ---------- */
   /* Pulverbeschichtetes Aluminium: nicht blank, aber auch nicht matt.
      metalness hoch und roughness mittel ergibt zusammen mit der Umgebung
@@ -1966,7 +2011,7 @@
     g.fillRect(0, 0, 3, 4);
     g.fillStyle = 'rgba(255,255,255,.75)';   // Lichtkante neben dem Steg
     g.fillRect(3, 0, 2, 4);
-    var t = new THREE.Texture(c);
+    var t = uiBild(new THREE.Texture(c));
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.repeat.set(10, 1);
     t.needsUpdate = true;
@@ -3265,15 +3310,47 @@
     return m;
   }
 
+  /* ---------- Aufräumen, und zwar bis nach unten ----------
+     GEFUNDEN am 04.11.2026 beim Lesen, NICHT gemessen – und das steht
+     hier so, damit es niemand für belegt hält: Diese Schleife gab nur
+     die OBERSTE Ebene frei.
+     Ein Teil des Bauwerks ist aber selbst eine Gruppe (Markise,
+     Unterdachmarkise, Plankenfelder) – deren Kinder wurden aus der
+     Szene genommen, ihre Geometrie blieb aber auf der Grafikkarte
+     liegen. Wer eine Stunde lang an den Maßen dreht, sammelt so
+     hunderte toter Puffer an; am Handy endet das im Verlust des
+     Grafikkontextes, also einem schwarzen Bild.
+
+     WAS GEMESSEN WURDE, und was nicht. Gezählt wurde mit einem Zähler
+     auf createBuffer/deleteBuffer des WebGL-Kontextes: zehn Änderungen
+     der Breite, dann dieselben zehn noch einmal. Erste Runde +15
+     Puffer, zweite Runde +0 – die 15 sind also einmalig
+     zwischengespeicherte Geometrie, KEIN Leck. In der Voreinstellung
+     wächst nichts. Die Prüfung konnte Markise, Unterdachmarkise und
+     Plankenwand vom Testaufbau aus nicht einschalten; genau die bauen
+     aber die verschachtelten Gruppen (bau.add(mk), bau.add(mu),
+     bau.add(g)). Für die ist das Freigeben also unbelegt, aber
+     strukturell fällig.
+
+     traverse() geht in jede Ebene. Eine Geometrie oder ein Werkstoff,
+     der an anderer Stelle noch benutzt wird, verträgt das: dispose()
+     gibt nur den Platz auf der Grafikkarte frei, three.js lädt ihn beim
+     nächsten Bild von selbst wieder hoch. Texturen werden hier
+     ABSICHTLICH NICHT freigegeben – die meisten sind gemeinsam genutzt
+     und zwischengespeichert (feldBild, stegTextur, Fotos). Wo eine
+     Textur je Umbau neu entsteht, gibt die Stelle sie selbst frei (siehe
+     ruheMap/wachMap bei den Maßschildern). */
   function leeren(gruppe) {
     for (var i = gruppe.children.length - 1; i >= 0; i--) {
       var k = gruppe.children[i];
       gruppe.remove(k);
-      if (k.geometry) k.geometry.dispose();
-      if (k.material) {
-        if (Array.isArray(k.material)) k.material.forEach(function (m) { m.dispose(); });
-        else k.material.dispose();
-      }
+      k.traverse(function (o) {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          if (Array.isArray(o.material)) o.material.forEach(function (m) { m.dispose(); });
+          else o.material.dispose();
+        }
+      });
     }
   }
 
@@ -3605,7 +3682,7 @@
       u.d.forEach(function (d) { g.stroke(new Path2D(d)); });
       g.restore();
     }
-    var t = new THREE.Texture(c);
+    var t = uiBild(new THREE.Texture(c));
     t.needsUpdate = true;
     t.generateMipmaps = false;
     t.minFilter = THREE.LinearFilter;
@@ -3633,7 +3710,7 @@
         new THREE.BoxGeometry(g.width + 3, g.height + 0.6, g.depth + 3),
         new THREE.MeshBasicMaterial({
           color: rgb(FELD_ORANGE), transparent: true, opacity: 0.42,
-          depthWrite: false
+          depthWrite: false, toneMapped: false
         }));
       h.position.copy(m.position);
       h.renderOrder = 4;
@@ -3645,7 +3722,8 @@
       if (zeichenGesetzt) return;
       zeichenGesetzt = true;
       var z = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: ziehZeichenBild(), depthTest: false, transparent: true }));
+        map: ziehZeichenBild(), depthTest: false, transparent: true,
+        toneMapped: false }));
       z.scale.set(ZIEH_ZEICHEN, ZIEH_ZEICHEN, 1);
       /* Auf gut zwei Dritteln der Pfostenhoehe: Unten steht Belag,
          Moebel und Bemassung im Weg, ganz oben liegt die Rinne. */
@@ -4113,7 +4191,7 @@
       }
     }
 
-    var t = new THREE.Texture(c);
+    var t = uiBild(new THREE.Texture(c));
     t.needsUpdate = true;
     /* Ohne Mipmaps und mit linearer Filterung bleibt die Haarlinie des
        Rahmens eine Linie statt zu Grau zu zerfliessen. */
@@ -4130,7 +4208,7 @@
   function schild(text, feld) {
     var ruhe = schildBild(text, !!feld, false);
     var s = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: ruhe.map, depthTest: false }));
+      map: ruhe.map, depthTest: false, toneMapped: false }));
     s.scale.set(ruhe.breit / ruhe.hoch * SCHILD_HOCH, SCHILD_HOCH, 1);
     s.userData.ruheMap = ruhe.map;
     if (feld) {
@@ -4218,7 +4296,8 @@
        „die linien sind durch die graue farbe auch schlechter sichtbar"
        (Betreiber, 01.11.2026). Duenn UND hell heisst unsichtbar. Duenn
        und dunkel ist das, was eine technische Zeichnung macht. */
-    var mMass = new THREE.MeshBasicMaterial({ color: 0x111111 });
+    var mMass = new THREE.MeshBasicMaterial({ color: rgb(0x111111),
+                                              toneMapped: false });
     masseGruppe.add(massStab(a, b, mMass));
     /* Steht die Linie (Hoehenmass), zeigen die Hilfslinien waagerecht;
        liegt sie (Breite, Tiefe), zeigen sie nach oben. */
@@ -4353,7 +4432,8 @@
     /* Heller als die Masslinie, aber nicht mehr blass: Das Dreieck ist
        eine Hilfslinie, keine Bemassung - sichtbar muss es trotzdem
        sein. 0x8a8a8a war auf hellem Pflaster kaum zu finden. */
-    var mHilf = new THREE.MeshBasicMaterial({ color: 0x5a6b76 });
+    var mHilf = new THREE.MeshBasicMaterial({ color: rgb(0x5a6b76),
+                                              toneMapped: false });
     masseGruppe.add(massStab(hoch, ecke, mHilf));   // die Waagerechte
     masseGruppe.add(massStab(ecke, tief, mHilf));   // der Hoehenunterschied
     var mm = Math.round((hoch.y - tief.y) * 10);
@@ -5027,7 +5107,8 @@
   function feldStoff(ruhe) {
     var st = new THREE.MeshBasicMaterial({
       color: rgb(0xffffff), side: THREE.DoubleSide,
-      transparent: true, opacity: ruhe, depthWrite: false
+      transparent: true, opacity: ruhe, depthWrite: false,
+      toneMapped: false
     });
     /* depthWrite aus, damit die Fläche nichts dahinter wegschneidet;
        depthTest bleibt AN – das ist die Verdeckung, um die es ging. */
@@ -5176,11 +5257,17 @@
       g.stroke();
     }
 
-    var t = new THREE.CanvasTexture(c);
+    var t = uiBild(new THREE.CanvasTexture(c));
     /* ---------- Scharf bleiben, auch klein ----------
        GESEHEN im Bild vom 01.11.2026: Die Scheibe war vollfarbig
-       gezeichnet und wirkte am Modell trotzdem blass. Grund ist nicht
-       die Farbe, sondern die VERKLEINERUNG: Eine Textur bekommt von
+       gezeichnet und wirkte am Modell trotzdem blass.
+
+       NACHTRAG 04.11.2026: Hier stand, der Grund sei NICHT die Farbe.
+       Das war nur halb richtig. Die Verkleinerung (unten) ist eine
+       Ursache, die fehlende Farbraum-Angabe die zweite und groessere –
+       siehe die Messung bei rgb()/uiBild(). Beide sind jetzt behoben.
+
+       Zur Verkleinerung: Eine Textur bekommt von
        three.js von sich aus eine Mipmap-Kette und wird beim
        Herunterskalieren Stufe fuer Stufe weichgerechnet. Aus einem
        13 Pixel breiten Ring wird dabei ein Hauch.
@@ -5266,8 +5353,10 @@
       new THREE.MeshBasicMaterial({
         map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,
         /* Volle Deckkraft: Das Zeichen soll sich nicht erst mit dem
-           Hintergrund mischen muessen, um gesehen zu werden. */
-        transparent: true, depthWrite: false, opacity: 1
+           Hintergrund mischen muessen, um gesehen zu werden.
+           toneMapped aus: siehe Messung bei rgb()/uiBild(). */
+        transparent: true, depthWrite: false, opacity: 1,
+        toneMapped: false
       }));
     feldRichten(z, marke);
     /* 1,2 cm vor der Fläche: Lagen beide in derselben Ebene, stritten

@@ -263,8 +263,13 @@ var FEHLER = [
   ['Der Schatten unter dem Schild faellt weg', 'js',
    "    g.shadowColor = 'rgba(0,0,0,.30)';", "    g.shadowColor = 'transparent';"],
   ['Die Masslinien sind wieder grau', 'js',
-   '    var mMass = new THREE.MeshBasicMaterial({ color: 0x111111 });',
-   '    var mMass = new THREE.MeshBasicMaterial({ color: 0x8a8a8a });'],
+   '    var mMass = new THREE.MeshBasicMaterial({ color: rgb(0x111111),',
+   '    var mMass = new THREE.MeshBasicMaterial({ color: rgb(0x8a8a8a),'],
+  /* NEU 04.11.2026: Der Farbwert kann stimmen und die Linie trotzdem
+     hell aussehen – wenn die Tonwertkorrektur mitrechnet. */
+  ['Die Tonwertkorrektur hellt die Masslinien wieder auf', 'js',
+   '    var mMass = new THREE.MeshBasicMaterial({ color: rgb(0x111111),\n                                              toneMapped: false });',
+   '    var mMass = new THREE.MeshBasicMaterial({ color: rgb(0x111111) });'],
   /* Derselbe Anlass: Die Scheibe ist nicht mehr gold mit weissem Rand,
      sondern dunkel mit goldenem. „Blass" heisst hier jetzt: der dunkle
      Grund wird hell, womit das weisse Zeichen darauf verschwindet. */
@@ -785,8 +790,14 @@ function lauf(q) {
     /g\.shadowColor = 'rgba\(0,0,0,\.30\)';/.test(q.js) &&
     /var SCHILD_RAND = 9;/.test(q.js),
     'über Pflaster, Rasen und Glas verschwimmt die Kante sonst');
+  /* GEAENDERT 04.11.2026: Vorher wurde nur der Farbwert geprueft. Der
+     Farbwert allein sagt aber nichts – gemessen kam #111111 am Bildschirm
+     als #303030 heraus, also Mittelgrau. Entscheidend sind die beiden
+     Umrechnungen; genau die werden jetzt mitgeprueft. */
   p('Die Maßlinien sind dunkel, nicht grau',
-    /color: 0x111111/.test(q.js), 'dünn und hell heißt unsichtbar');
+    /color: rgb\(0x111111\)/.test(q.js) &&
+    /var mMass = new THREE\.MeshBasicMaterial\(\{ color: rgb\(0x111111\),\s*\n\s*toneMapped: false \}\);/.test(q.js),
+    'dünn und hell heißt unsichtbar – und ohne Farbraum wird aus #111111 ein #303030');
   p('Die Einheit tritt hinter die Zahl zurück',
     /var fEinheit = '600 44px Arial/.test(q.js) &&
     /var fZahl = '700 58px Arial/.test(q.js),
