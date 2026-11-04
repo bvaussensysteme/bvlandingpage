@@ -13104,3 +13104,56 @@ aufgedeckt hat.
 **Was gegengelesen werden soll.** Nichts auf der Website. Wer es prüfen will:
 `docs/NEXT_TASK.md` von oben lesen – nach den ersten beiden Abschnitten muss
 klar sein, was ansteht und was beim Betreiber liegt.
+
+## 04.11.2026 (nachts) – Eingabefelder am Handy auf 16 px, und warum nicht der Einzeiler
+
+**Was falsch war.** Betreiber am iPhone: *„wenn man auf mobile auf RAL Ton
+suchen drückt, zoomt alles so rein"*. Safari zieht beim Antippen die ganze
+Seite heran und bleibt dort; der Konfigurator ist danach nur noch im
+Ausschnitt zu sehen.
+
+Das ist keine Eigenheit dieses Feldes. **iOS Safari zoomt in jedes
+Eingabefeld, dessen Schrift kleiner als 16 px ist.** Gemessen mit Chromium
+bei 390 px Breite und nachgestellter Tippbedienung: **53 von 56 Tippfeldern
+der ganzen Seite** lagen darunter.
+
+| Bereich | betroffen | gemessen |
+|---|---|---|
+| Konfigurator | 43 von 44 | Auswahlfelder 13,8 px · Zahlenfelder 13,1–15,2 px · Link-Feld 11,5 px |
+| Widerrufsformular | 7 von 7 | 15,2 px |
+| Windzonen-Rechner | 3 von 4 | 15,2 px |
+| Anfrage-Assistent | Maß- und Kontaktfelder | 15,2 px |
+
+**Warum das beim Widerruf mehr ist als unschön.** Das Formular setzt eine
+gesetzliche Frist in Gang. Wer es am Telefon nicht ausgefüllt bekommt, übt
+sein Recht womöglich nicht aus. Das gehört zu den Dingen, die man nicht
+„bei Gelegenheit" behebt.
+
+**Was jetzt gilt.** Eine Regel je Bereich, alle unter
+`@media (pointer: coarse)` – also nur am Finger. An der Maus bleibt das
+Bedienfeld so kompakt wie bisher; das wird gegengemessen, nicht angenommen.
+
+**Was verworfen wurde: `maximum-scale=1` im Viewport.** Das ist der
+verbreitete Einzeiler und hätte alle vier Bereiche in einer Zeile erledigt.
+Er verbietet aber das Aufziehen mit zwei Fingern für die **ganze** Seite und
+bricht **WCAG 1.4.4** – wer schlecht sieht, könnte den Text nicht mehr
+vergrößern. Der Zoomfehler wäre gegen eine Sperre getauscht worden, die
+mehr Leute trifft. `scripts/pruefe-tippfelder.mjs` prüft deshalb aktiv, dass
+kein Viewport der Seite `maximum-scale` oder `user-scalable=no` enthält –
+damit der bequeme Weg nicht in einem Jahr doch genommen wird.
+
+**Nebenbei behoben.** `widerruf.html` trug die Feldgestaltung **siebenmal**
+als `style=""` am Element. Ein Inline-Stil schlägt jede Regel aus dem
+Stylesheet; die Schriftgröße wäre dort gar nicht anfassbar gewesen. Jetzt
+`.wr-feld` an einer Stelle.
+
+**Was gegengelesen werden soll.** Am echten iPhone: RAL-Suche im
+Konfigurator, ein Maßfeld, das Widerrufsformular, der Höhenrechner unter
+/windzonen. Beim Antippen darf die Seite **nicht** mehr springen. Und: Mit
+zwei Fingern muss sich die Seite weiterhin aufziehen lassen.
+
+**Offen geblieben.** Bei **320 px** Breite (iPhone SE 1. Generation, iPhone
+5s) fällt ein Maßfeld der Pfostenzeile auf Breite 0 zusammen. Das besteht
+**unabhängig von dieser Änderung** – nachgemessen mit und ohne die neue
+Regel, beide Male 0 px. Ab 375 px ist es in Ordnung. Nicht angefasst, weil
+es eine andere Ursache hat und 320 px heute selten sind.

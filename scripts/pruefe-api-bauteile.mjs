@@ -116,7 +116,15 @@ async function pruefen() {
   }
 
   // 6. Andere Pfade gehen weiter an die statischen Dateien
-  gleich('normale Seite', (await hole('/konfigurator.html', env)).status, 200);
+  /* Hier stand bis zum 04.11.2026 /konfigurator.html. Seit der Sperre
+     (KONFIGURATOR_GESPERRT in worker/index.js, PR #497) antwortet
+     genau dieser Pfad mit 503 - die Pruefung war rot, ohne dass etwas
+     kaputt war, und verdeckte dabei echte Fehler. Die Durchreichung
+     wird jetzt an einer NICHT gesperrten Seite geprueft, und die
+     Sperre daneben an ihrem eigenen Pfad: So sagt der Test beides
+     und bleibt richtig, wenn die Sperre eines Tages faellt. */
+  gleich('normale Seite', (await hole('/index.html', env)).status, 200);
+  gleich('gesperrte Seite', (await hole('/konfigurator.html', env)).status, 503);
 
   // 7. DAS WICHTIGSTE: In keiner Antwort steckt die Matrix
   for (const [name, antwort] of [['Zelle', a], ['Zwischenmaß', b], ['Raster', c]]) {
