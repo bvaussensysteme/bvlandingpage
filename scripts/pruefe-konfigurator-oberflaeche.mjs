@@ -936,7 +936,8 @@ await page.waitForTimeout(600);
        Grenzen-Hinweis in eine 78-px-Spalte gequetscht wurde. */
     await hy.addStyleTag({ content:
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
-      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
+      + '.k3d-label output{max-width:18px!important}'
+      + '.k3d-gefuehrt .k3d-nav{margin-top:0!important}' }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
   await hy.waitForTimeout(3200);
@@ -950,7 +951,10 @@ await page.waitForTimeout(600);
        mm" in 18 px ist derselbe Fall - Kasten heil, Text laeuft raus. */
     await hy.addStyleTag({ content:
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
-      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
+      + '.k3d-label output{max-width:18px!important}'
+      /* Dreiundzwanzigster Fehler: Der Platz vor der Fusszeile faellt
+         weg - dann steht sie am Ende wieder mitten in der Buehne. */
+      + '.k3d-gefuehrt .k3d-nav{margin-top:0!important}' }).catch(() => {});
   }
   const schritte = [];
   for (let i = 0; i < 5; i++) {
@@ -1005,6 +1009,37 @@ await page.waitForTimeout(600);
   });
   pruef('Am Handy laeuft kein Text aus seinem Kasten',
     zuEng.length === 0, zuEng.slice(0, 3).join(', ') || 'nichts ragt heraus');
+
+  /* ---------- Nichts schiebt sich ueber das Modell ----------
+     „guck mal, alles lässt sich ineinander schieben man kann es nicht
+     vernünftig bedienen" (Betreiber, 04.11.2026, mit Bild: die
+     Fusszeile mit „Zurück/Weiter" quer ueber dem Modell).
+
+     Die Buehne klebt am Handy oben, die Fusszeile unten. Am Ende des
+     Bedienfeldes loeste sich die Fusszeile vom unteren Rand und kam
+     dort zur Ruhe, wo sie im Textfluss stand - und das war mitten in
+     der Buehne (gemessen: 176 bis 332 px, Ueberlappung 156 px).
+
+     GEMESSEN WIRD AN MEHREREN SCROLLSTELLEN, nicht nur oben: Der
+     Fehler zeigte sich erst am Ende. Eine Pruefung, die nur den
+     Anfang ansieht, haette ihn durchgelassen. */
+  const schieben = [];
+  for (const y of [0, 400, 900, 1600, 3000]) {
+    await hy.evaluate((v) => window.scrollTo(0, v), y);
+    await hy.waitForTimeout(350);
+    schieben.push(await hy.evaluate(() => {
+      const b = document.querySelector('.k3d-buehne').getBoundingClientRect();
+      const n = document.getElementById('k3dNav').getBoundingClientRect();
+      const ueber = (n.top < b.bottom && n.bottom > b.top)
+        ? Math.round(Math.min(n.bottom, b.bottom) - Math.max(n.top, b.top)) : 0;
+      return { y: Math.round(window.scrollY), ueber };
+    }));
+  }
+  await hy.evaluate(() => window.scrollTo(0, 0));
+  const schlimm = schieben.reduce((a, x) => Math.max(a, x.ueber), 0);
+  pruef('Am Handy schiebt sich die Fußzeile nicht über das Modell',
+    schlimm === 0,
+    schieben.map((x) => x.y + ': ' + x.ueber + ' px').join(' · '));
   await hy.close();
 }
 
@@ -2398,6 +2433,7 @@ const sollenScheitern = [
   'Die Einheit steht direkt hinter der Zahl',
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
+  'Am Handy schiebt sich die Fußzeile nicht über das Modell',
   'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',
