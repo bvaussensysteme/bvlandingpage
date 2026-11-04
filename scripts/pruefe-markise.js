@@ -982,13 +982,25 @@ var kastenDeck = src.match(/g\.fillStyle = 'rgba\(17,17,17,\.(\d+)\)'/);
 /* AUCH HIER UMGEKEHRT: Am 31.10.2026 sollte der Kasten zurueckhaltender
    werden (.86 -> .52), am 01.11.2026 „zu grau zu klein" und „nutze doch
    normal unsere firmenfarben". Ein durchscheinender Grund nimmt jeder
-   Schrift den Halt; jetzt deckt er voll - weiss mit goldenem Rand, unter
-   dem Zeiger gold gefuellt wie die Knoepfe der Seite. */
+   Schrift den Halt; seitdem deckt er voll.
+
+   NACHGEZOGEN AM 04.11.2026: Der Kasten war weiss mit goldenem Rand.
+   Seit „generell sehen die jz wie spielzeuglogos aus sie sollen
+   designtechnisch besser sein" (Betreiber) ist es umgekehrt - dunkler
+   Grund, goldener Rand, helle Schrift, wie die Leiste ueber der Buehne.
+
+   DIESE PRUEFUNG WAR SEIT DEM MORGEN ROT, und niemand hat es gemerkt:
+   Nach dem Umbau wurden nur die Skripte laufen gelassen, die
+   offensichtlich dazugehoerten. Gefunden hat es erst ein Durchlauf
+   ALLER Pruefskripte am Abend. Daraus die Regel: Nach einer Aenderung
+   an gemeinsam genutztem Code (hier schildBild(), das Markise UND
+   Bemassung zeichnet) alle Skripte laufen lassen, nicht die
+   vermuteten. */
 pruefe('Der Masskasten deckt voll und traegt die Hausfarben',
-       gegen ? !/g\.fillStyle = wach \? '#C49A2A' : '#ffffff';/.test(src)
-             : /g\.fillStyle = wach \? '#C49A2A' : '#ffffff';/.test(src) &&
-               /g\.strokeStyle = wach \? '#9A7318' : '#C49A2A';/.test(src),
-       'weiss mit goldenem Rand, unter dem Zeiger gold');
+       gegen ? !/g\.fillStyle = wach \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(src)
+             : /g\.fillStyle = wach \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(src) &&
+               /g\.strokeStyle = wach \? '#6B4F10' : '#C49A2A';/.test(src),
+       'dunkel mit goldenem Rand, unter dem Zeiger gold');
 pruefe('Masslinie duenner',
        new RegExp(q || 'opacity: 0\\.55').test(src), '');
 
