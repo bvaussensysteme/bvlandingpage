@@ -969,32 +969,12 @@ await page.waitForTimeout(600);
       + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
       }).catch(() => {});
   }
-  const schritte = [];
-  for (let i = 0; i < 5; i++) {
-    schritte.push(await hy.evaluate(() => {
-      const e = document.getElementById('k3dAnfrageFuss');
-      return {
-        sichtbar: !!(e && e.offsetParent),
-        knopf: (document.getElementById('k3dWeiter') || {}).innerText
-          ? document.getElementById('k3dWeiter').innerText.replace(/\s+/g, ' ').trim()
-          : ''
-      };
-    }));
-    if (i < 4) {
-      await hy.$eval('#k3dWeiter', (e) => e.click());
-      await hy.waitForTimeout(800);
-    }
-  }
-  pruef('Am Handy steht die Anfrage nicht in jedem Schritt',
-    schritte.every((x) => !x.sichtbar),
-    schritte.filter((x) => x.sichtbar).length + ' von 5 Schritten zeigen sie');
-  /* Weg ist sie damit nicht: Im letzten Bereich IST der Hauptknopf der
-     Absender. Ohne diese zweite Haelfte liesse sich die erste erfuellen,
-     indem man die Anfrage am Handy ganz abschafft. */
-  pruef('Am Handy ist der letzte Knopf der Absender',
-    /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
-
   /* ---------- Kein Text laeuft aus seinem Kasten ----------
+     VOR DER SCHRITTSCHLEIFE, nicht danach: Nach ihr steht der
+     Konfigurator im letzten Bereich, und dort sind die Massfelder gar
+     nicht eingeblendet - gemessen wurde dann an nichts. Genau das
+     meldete die Gegenprobe („hat den eingebauten Fehler NICHT
+     bemerkt"), waehrend der eingebaute Fehler in Ordnung war.
      GEMELDET am 04.11.2026 mit Bild vom iPhone, rot eingekringelt:
      Unter „5000 mm" stand „von 1.080 bis 14.080 mm · Schritt 10" in
      einer handtuchschmalen Spalte und lief rechts aus dem Bildschirm.
@@ -1022,6 +1002,33 @@ await page.waitForTimeout(600);
   });
   pruef('Am Handy laeuft kein Text aus seinem Kasten',
     zuEng.length === 0, zuEng.slice(0, 3).join(', ') || 'nichts ragt heraus');
+
+  const schritte = [];
+  for (let i = 0; i < 5; i++) {
+    schritte.push(await hy.evaluate(() => {
+      const e = document.getElementById('k3dAnfrageFuss');
+      return {
+        sichtbar: !!(e && e.offsetParent),
+        knopf: (document.getElementById('k3dWeiter') || {}).innerText
+          ? document.getElementById('k3dWeiter').innerText.replace(/\s+/g, ' ').trim()
+          : ''
+      };
+    }));
+    if (i < 4) {
+      await hy.$eval('#k3dWeiter', (e) => e.click());
+      await hy.waitForTimeout(800);
+    }
+  }
+  pruef('Am Handy steht die Anfrage nicht in jedem Schritt',
+    schritte.every((x) => !x.sichtbar),
+    schritte.filter((x) => x.sichtbar).length + ' von 5 Schritten zeigen sie');
+  /* Weg ist sie damit nicht: Im letzten Bereich IST der Hauptknopf der
+     Absender. Ohne diese zweite Haelfte liesse sich die erste erfuellen,
+     indem man die Anfrage am Handy ganz abschafft. */
+  pruef('Am Handy ist der letzte Knopf der Absender',
+    /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
+
+
 
   /* ---------- Nichts wird ueber das Modell gezeichnet ----------
      „guck mal, alles lässt sich ineinander schieben man kann es nicht
