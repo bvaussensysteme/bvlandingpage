@@ -12102,3 +12102,39 @@ Beide Sätze stehen als Prüfung in
 `scripts/pruefe-konfigurator-oberflaeche.mjs` – einer allein wäre nur die
 halbe Regel: Die erste Hälfte ließe sich auch erfüllen, indem man die Anfrage
 am Handy ganz abschafft.
+
+## 04.11.2026 – Am Handy gemessen, nicht am Schreibtisch
+
+**Anlass:** *„du machst bei mobile auch komplett falsche proportionen, ich
+schicke dir schon screenshots mit meinem handy und du setzt es nicht um,
+warum?"* (Betreiber).
+
+**Der Fehler war meiner, und er hat eine klare Ursache:** Die drei Spalten der
+Produkt-Bildkarten sind am **1440-px-Bildschirm** gemessen, wo das Bedienfeld
+eine schmale Spalte neben dem Modell ist. Am Handy ist es die volle Breite –
+dort wurden daraus 107 px breite Kärtchen mit einem **58 px hohen Foto**. Ein
+Produktbild in Daumennagelgröße zeigt nichts. Jetzt am Handy zwei Spalten:
+165 px Karte, 124 px Bild (4:3 statt 16:9).
+
+Der erste Schritt wird dadurch am Handy wieder länger (2,8 → 3,2 Bildschirme).
+Das ist der Preis, und er ist richtig herum bezahlt: **Wer am Handy wählt,
+soll sehen, was er wählt.** Am großen Bildschirm bleiben die drei Spalten,
+dort sind die Karten 121 px breit in einer 431-px-Spalte – gemessen 2,53
+Bildschirme, unverändert.
+
+**Dabei gefunden – ein echter Fehler, keine Gestaltung:** Die Ansichtsleiste
+über der Bühne („Maße", „Felder", „Abend", „Drehen", „Perspektive", „Vorne",
+„Seite", „Von oben", „Darunter") war im 390-px-Fenster **699 px breit** und
+ragte 309 px aus dem Bild. Schieben half nicht, denn sie war selbst so breit
+wie ihr Inhalt (`scrollWidth = clientWidth = 699`): Die letzten fünf Knöpfe
+waren am Handy **nicht erreichbar**, nicht nur angeschnitten.
+
+Ursache ist `width: max-content` in der allgemeinen Regel. Die stammt vom
+großen Bildschirm, wo die Leiste mittig steht und ohne sie zu schmal
+zugemessen bekam (31.10.2026). Am Handy spannt sie von Rand zu Rand – dort
+muss sie die Fensterbreite nehmen, damit `overflow-x` überhaupt etwas zu
+schieben hat. Gemessen danach: 390 px breit, 698 px Inhalt, schiebbar.
+
+**Lehre, die bleibt:** Eine Zahl, die am großen Bildschirm gemessen wurde,
+gilt am Handy nicht. Wo eine Regel beide Größen betrifft, wird sie künftig in
+**beiden** Fenstern gemessen – 1440 und 390.

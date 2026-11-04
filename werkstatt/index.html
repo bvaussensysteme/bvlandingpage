@@ -1147,6 +1147,20 @@
          sonst liegt sie über den Knöpfen. */
       .k3d-leiste {
         left: 0; right: 0; bottom: 0; transform: none; max-width: none;
+        /* ZURUECK AUF auto - GEMESSEN am 04.11.2026 im 390-px-Fenster:
+           Die Leiste war 699 px breit und ragte 309 px aus dem Bild.
+           Schieben half nicht, denn sie war selbst so breit wie ihr
+           Inhalt (scrollWidth = clientWidth = 699): „Perspektive",
+           „Vorne", „Seite", „Von oben" und „Darunter" waren am Handy
+           NICHT ERREICHBAR, nicht nur abgeschnitten.
+
+           Ursache ist die allgemeine Regel width: max-content. Die
+           stammt vom grossen Bildschirm, wo die Leiste mittig steht und
+           ohne sie zu schmal zugemessen bekam (31.10.2026). Am Handy
+           spannt sie dagegen von Rand zu Rand - dort muss sie die
+           Fensterbreite nehmen, damit overflow-x ueberhaupt etwas zu
+           schieben hat. */
+        width: auto;
         overflow-x: auto; scrollbar-width: none;
         /* Ein Mittelweg: Erst war sie zu hoch, dann „etwas schmaler",
            jetzt „auf iphone 17 pro is es leicht zu schmal" (Betreiber,
@@ -1162,6 +1176,23 @@
       /* overflow-x, scrollbar-width und flex: none stehen jetzt in der
          allgemeinen Regel - hier bleibt nur, was am Handy anders ist. */
       .k3d-leiste button { padding: 6px 10px; font-size: .72rem; }
+      /* ---------- Bildkarten: am Handy ZWEI Spalten ----------
+         „du machst bei mobile auch komplett falsche proportionen"
+         (Betreiber, 04.11.2026). Zu Recht: Die drei Spalten sind am
+         1440-px-Bildschirm gemessen, wo das Bedienfeld eine schmale
+         Spalte neben dem Modell ist. Am Handy ist es die volle Breite -
+         aus drei Spalten wurden 107 px breite Kaertchen mit einem
+         58 px hohen Foto. Ein Produktbild in Daumennagelgroesse zeigt
+         nichts.
+
+         Zwei Spalten ergeben 165 px Karte mit 124 px Bild. Der erste
+         Schritt wird dadurch wieder laenger - das ist der Preis, und er
+         ist richtig herum bezahlt: Wer am Handy waehlt, soll sehen,
+         was er waehlt. */
+      .k3d-seg--dreier { grid-template-columns: repeat(2, 1fr); }
+      /* Und ein hoeheres Bild, weil die Karte jetzt breit genug dafuer
+         ist: 4:3 statt 16:9. */
+      .k3d-seg--bild button img { aspect-ratio: 4 / 3; }
       .k3d-maushinweis { display: none; }
       .k3d-klickhinweis { bottom: 44px; font-size: .68rem; padding: 4px 8px; }
       /* Der Maushinweis entfaellt am Handy, der Klickhinweis rutscht auf
@@ -2584,13 +2615,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104d" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104e" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104d" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104e" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
