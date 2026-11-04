@@ -939,6 +939,9 @@ await page.waitForTimeout(600);
       + '.k3d-label output{max-width:18px!important}'
       + '.k3d-gefuehrt .k3d-nav{z-index:6!important}'
       + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
+      /* Fuenfundzwanzigster Fehler: Die Leiste der Website kommt auf
+         der Konfiguratorseite zurueck. */
+      + 'body.k3d-app-seite .sticky-cta{display:flex!important}'
       }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
@@ -967,6 +970,9 @@ await page.waitForTimeout(600);
          Gegenprobe selbst. Jetzt waechst das Feld und darf nicht mehr
          schrumpfen. */
       + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
+      /* Fuenfundzwanzigster Fehler: Die Leiste der Website kommt auf
+         der Konfiguratorseite zurueck. */
+      + 'body.k3d-app-seite .sticky-cta{display:flex!important}'
       }).catch(() => {});
   }
   /* ---------- Kein Text laeuft aus seinem Kasten ----------
@@ -1087,6 +1093,56 @@ await page.waitForTimeout(600);
     };
     return { buehne: z('.k3d-buehne'), nav: z('#k3dNav') };
   });
+  /* ---------- Schwebendes der Website: auf dieser Seite weg ----------
+     „ja ausblenden im konfigurator aber nur da" (Betreiber,
+     04.11.2026). Die Leiste „Kostenlos anfragen / WhatsApp" und die
+     drei runden Knoepfe lagen am Handy ueber dem Bedienfeld.
+
+     ZWEI HAELFTEN, und die zweite ist die wichtigere: Auf der
+     Konfiguratorseite sind sie weg - auf der Startseite stehen sie
+     weiter da. Ohne die zweite Haelfte liesse sich diese Pruefung
+     erfuellen, indem man sie ueberall abschafft. */
+  const schwebend = await hy.evaluate(() => {
+    const sicht = (id) => {
+      const e = document.getElementById(id);
+      if (!e) return 'fehlt';
+      const r = e.getBoundingClientRect();
+      return (r.width > 0 && r.height > 0
+        && getComputedStyle(e).display !== 'none') ? 'sichtbar' : 'weg';
+    };
+    return { cta: sicht('stickyCta'), a11y: sicht('bv-a11y-trigger'),
+      nachOben: sicht('bv-scroll-top'), blase: sicht('bvKonfigBubble') };
+  });
+  const nochDa = Object.entries(schwebend).filter(([, w]) => w === 'sichtbar');
+  pruef('Im Konfigurator schwebt nichts von der Website darüber',
+    nochDa.length === 0,
+    nochDa.length ? nochDa.map(([k]) => k).join(', ') + ' noch sichtbar'
+      : 'Leiste und die drei Knöpfe sind weg');
+
+  const start = await browser.newPage({
+    viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true
+  });
+  await start.goto(BASIS.replace('konfigurator.html', 'index.html'),
+    { waitUntil: 'load' }).catch(() => {});
+  await start.waitForTimeout(2500);
+  await start.evaluate(() => window.scrollTo(0, 3000)).catch(() => {});
+  await start.waitForTimeout(900);
+  const aufStartseite = await start.evaluate(() => {
+    const da = (id) => {
+      const e = document.getElementById(id);
+      if (!e) return false;
+      const r = e.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'none';
+    };
+    return { cta: da('stickyCta'), a11y: da('bv-a11y-trigger'),
+      nachOben: da('bv-scroll-top'), blase: da('bvKonfigBubble') };
+  }).catch(() => ({}));
+  await start.close();
+  const nochDort = Object.values(aufStartseite).filter(Boolean).length;
+  pruef('Auf der Startseite stehen sie weiterhin da',
+    nochDort >= 3,
+    nochDort + ' von 4 sichtbar: ' + JSON.stringify(aufStartseite));
+
   pruef('Am Handy wird das Modell über der Bedienung gezeichnet',
     reihenfolge.nav < reihenfolge.buehne,
     'Bühne ' + reihenfolge.buehne + ', Fußzeile ' + reihenfolge.nav);
@@ -2484,6 +2540,7 @@ const sollenScheitern = [
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
   'Am Handy wird das Modell über der Bedienung gezeichnet',
+  'Im Konfigurator schwebt nichts von der Website darüber',
   'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',

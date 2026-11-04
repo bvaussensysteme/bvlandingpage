@@ -12276,3 +12276,37 @@ ihn durchgelassen.
 **Noch offen, nicht angefasst:** Die drei runden Knöpfe rechts unten und die
 Leiste „Kostenlos anfragen / WhatsApp" liegen am Handy ebenfalls über dem
 Bedienfeld. Sie gehören zur ganzen Website, nicht zum Konfigurator.
+
+## 04.11.2026 – Schwebendes der Website: auf der Konfiguratorseite weg
+
+*„ja ausblenden im konfigurator aber nur da"* (Betreiber).
+
+Betroffen sind vier Dinge: die Leiste „Kostenlos anfragen / WhatsApp"
+(`#stickyCta`) und die drei runden Knöpfe – Barrierefreiheit
+(`#bv-a11y-trigger`), nach oben (`#bv-scroll-top`) und die Anfrage-Blase
+(`#bvKonfigBubble`). Am Handy lagen sie über dem Bedienfeld.
+
+**Warum die vorhandene Regel nicht reichte.** Es gab zwei:
+
+1. `body.k3d-im-bild #bv-a11y-trigger { display: none }` blendet die Knöpfe nur
+   aus, **solange der Konfigurator im Bild ist**. Sobald unten das Firmenlogo
+   auftauchte, kamen sie zurück – und lagen dann über dem Bedienfeld. Jetzt
+   zählt die **Seite**, nicht der Ausschnitt: `body.k3d-app-seite` steht nur
+   auf `konfigurator.html` und auf der Werkstattfassung.
+2. `body.k3d-app-seite .sticky-cta { display: none }` gab es schon – ohne
+   Wirkung. `js/main.js` setzt die Leiste beim Scrollen per
+   `style.display = 'flex'` **direkt am Element**, und ein solcher Stil schlägt
+   jede Regel aus dem Stylesheet. Jetzt mit `!important`.
+
+**Gemessen, beide Hälften:** Auf der Konfiguratorseite und in der Werkstatt
+sind alle vier weg; auf der Startseite stehen alle vier weiter da. Beides steht
+als Prüfung – ohne die zweite Hälfte ließe sich die erste auch erfüllen, indem
+man sie überall abschafft.
+
+**Zur Barrierefreiheit, offen gesagt:** Der Knopf mit dem
+Barrierefreiheits-Werkzeug (Schriftgröße, Kontrast) ist einer der drei und
+verschwindet damit auf dieser Seite. Das Werkzeug ist ein **Zusatz**, keine
+gesetzliche Pflicht – die Pflicht (BFSG, seit 28.06.2025 für Verbraucher-
+Angebote) trifft die Seite selbst: Schriftgrößen, Kontraste, Bedienbarkeit per
+Tastatur. Daran ändert sich nichts. Trotzdem gehört es gesagt, statt es
+stillschweigend zu entfernen. Soll der Knopf zurück, genügt eine Zeile.
