@@ -3580,7 +3580,11 @@
     g.fill();
     g.restore();
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();
+    /* Der Ring traegt jetzt die dunkelste unserer Goldstufen
+       (--gold-text #7A5B12 statt --gold-dark #9A7318) und ist einen
+       Deut breiter: Auf hellem Pflaster trennt erst der dunkle Rand
+       die Scheibe vom Untergrund. */
+    g.strokeStyle = '#7A5B12'; g.lineWidth = 10; g.stroke();
 
     var u = symbolUmriss('schieben');
     if (u && window.Path2D) {
@@ -5094,6 +5098,23 @@
     g.shadowColor = 'rgba(17,17,17,.45)';
     g.shadowBlur = 14;
     g.shadowOffsetY = 4;
+    /* WEISSER AUSSENRING, dritte Fassung vom 04.11.2026 („zu schlecht
+       sichtbar", Betreiber am iPhone). Die Scheibe steht mal auf
+       dunklem Anthrazit, mal auf hellem Pflaster, mal auf Rasen - eine
+       einzige Randfarbe kann nicht gegen alle drei bestehen. Ein
+       weisser Ring um das Gold schon: Gegen Dunkles trennt das Weiss,
+       gegen Helles der dunkle Rand darunter. Dieselbe Ueberlegung wie
+       bei einer Stecknadel auf einer Landkarte.
+
+       Der Ring liegt INNERHALB der Zeichenflaeche (114 + Schatten < 128),
+       sonst schnitte ihn der Rand der Textur ab. Schmal gehalten (110 von
+       128): Das Gold soll die Scheibe tragen, das Weiss nur abgrenzen. */
+    g.beginPath(); g.arc(M, M, 110, 0, Math.PI * 2);
+    g.fillStyle = '#FFFFFF';
+    g.fill();
+    g.restore();
+
+    g.save();
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
     /* GOLD GEFUELLT, WEISSES ZEICHEN - unsere Hausfarben, zweite
        Fassung vom 01.11.2026: „generell auch die + logos etc. alles is
@@ -5113,7 +5134,12 @@
     /* Schmaler Ring: „dünnere Ränder" (Betreiber, 01.11.2026). 13 war
        zu breit - der Ring verschluckte die Scheibe. Die Linien im
        Zeichen bleiben kräftig, nur der Rand wird zurückgenommen. */
-    g.strokeStyle = '#9A7318'; g.lineWidth = 8; g.stroke();
+    /* Der Ring traegt die dunkelste unserer Goldstufen (--gold-text
+       #7A5B12 statt --gold-dark #9A7318) und ist einen Deut breiter:
+       Auf hellem Pflaster und heller Hauswand trennt erst der dunkle
+       Rand die Scheibe vom Untergrund. „zu schlecht sichtbar"
+       (Betreiber, 04.11.2026, iPhone). */
+    g.strokeStyle = '#7A5B12'; g.lineWidth = 11; g.stroke();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
     g.strokeStyle = '#FFFFFF';
@@ -5126,7 +5152,7 @@
       g.save();
       g.translate(M - u.breite * f / 2, M - u.hoehe * f / 2);
       g.scale(f, f);
-      g.lineWidth = 4.2;
+      g.lineWidth = 5.4;
       for (var i = 0; i < u.d.length; i++) g.stroke(new Path2D(u.d[i]));
       g.restore();
     } else {
@@ -5196,8 +5222,28 @@
        Auf die Bedienung hat das keine Auswirkung: Angeklickt wird die
        ganze Feldfläche, nicht das Zeichen darin. */
     var FELD_ZEICHEN_ANTEIL = 2 / 3;
-    var gr = Math.max(14, Math.min(34, Math.min(laenge, hoehe) / 3)) *
-             FELD_ZEICHEN_ANTEIL;
+    /* GROESSER SEIT DEM 04.11.2026: „auf dem handy sind diese ganzen
+       runden + etc. zu schlecht sichtbar" (Betreiber, iPhone-Bild).
+       Die Scheibe haengt am Modell, nicht am Bildschirm - bei einem
+       5 m breiten Dach auf 390 px Fensterbreite blieben von 23 cm
+       Durchmesser rund 18 px uebrig. Mit 46 cm sind es rund 36 px und
+       damit so gross wie ein Knopf im Bedienfeld.
+
+       Die Deckelung bleibt an der Feldgroesse haengen (min/2.4 statt
+       min/3): In einem schmalen Feld darf die Scheibe nicht ueber die
+       Kanten stehen - dann saehe niemand mehr, zu welchem Feld sie
+       gehoert. */
+    var kleinsteKante = Math.min(laenge, hoehe);
+    var gr = Math.min(
+      /* So gross wie moeglich ... */
+      Math.max(kleinsteKante / 2.4, 28),
+      /* ... aber nie groesser als noetig ... */
+      60,
+      /* ... und nie ueber die Kanten des eigenen Feldes hinaus. Diese
+         letzte Schranke gewinnt immer: Eine Scheibe, die ueber das Feld
+         steht, laesst nicht mehr erkennen, wozu sie gehoert. */
+      kleinsteKante * 0.7
+    ) * FELD_ZEICHEN_ANTEIL;
     /* WELCHES Zeichen, entscheidet markenZeichen() – dieselbe Regel wie
        in der Knopfliste. Nicht noch einmal „belegt ? stift : punkt"
        hier: Das Dach ist immer belegt, aber die Regel steht an EINER

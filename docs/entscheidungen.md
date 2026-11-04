@@ -12023,3 +12023,55 @@ zu zeichnen. Genau dafür ist die Gegenprobe da – kaputte Bilder werden jetzt
 dem 31.10.2026 (#497) die Wartungsseite mit HTTP 503. Die neue Oberfläche ist
 live also nicht zu sehen. Freischalten wäre eine Zeile in `worker/index.js`
 (`KONFIGURATOR_GESPERRT = false`) – das entscheidet der Betreiber.
+
+## 04.11.2026 – Handybildschirm: kleinere Knöpfe, kräftigere Zeichen
+
+**Anlass**, zwei iPhone-Bilder des Betreibers: *„buttons zurück weiter viel zu
+groß, mehr einstellungen zu unsichtbar auf dem handy sind diese ganzen runden
++ etc. zu schlecht sichtbar wir brauchen bessere logos, kräftige saftige
+farben das es auch auf dem handybildschirm perfekt is"*.
+
+**1. Zurück und Weiter waren 96 px hoch.** Mit der Anfragezeile darunter nahm
+die Fußzeile ein Drittel des Bedienfeldes. Jetzt 53 px (gemessen bei 390 px
+Fensterbreite) – deutlich über dem Mindestmaß von 44 px aus WCAG 2.2 (2.5.8),
+aber kein Block mehr. Das Ziel unter „Weiter" bleibt: Es beantwortet die
+Frage, die vor dem Klick im Kopf steht.
+
+**2. „Mehr Einstellungen" sah aus wie ein Platzhalter.** Grauer Text auf Weiß
+mit gestricheltem Rand. Auf einem Handybildschirm bei Tageslicht verschwindet
+Gestricheltes. Jetzt goldene Schrift auf hellem Goldgrund mit durchgezogenem
+Rand, 45 px hoch.
+
+**3. Die Reiter waren zu blass.** Schriftfarbe #5a646c bei Gewicht 600, das
+Zeichen 20 px mit Haarlinie 1,9, der aktive Reiter mit 9 % Goldgrund. Jetzt
+#3d4750 bei 700, Zeichen 24 px mit Strichstärke 2,3, aktiver Reiter mit 16 %
+Goldgrund, 4-px-Balken und dunkelgoldenem Zeichen.
+
+**4. Die runden Zeichen am Modell.** Das ist der Punkt, an dem Messen nötig
+war statt Schätzen: Die Scheiben hängen am **Modell**, nicht am Bildschirm.
+Bei 5 m Dachbreite auf 390 px Fensterbreite blieben von 23 cm Durchmesser
+rund 18 px. Jetzt bis 60 cm, also rund 36 px – so groß wie ein Knopf im
+Bedienfeld.
+
+Drei Schranken, und die dritte gewinnt immer: so groß wie möglich
+(`kleinsteKante / 2.4`, mindestens 28 cm), nie größer als nötig (60 cm), **nie
+über das eigene Feld hinaus** (`kleinsteKante * 0.7`). Eine Scheibe, die über
+ihr Feld steht, lässt nicht mehr erkennen, wozu sie gehört.
+
+Dazu ein **weißer Außenring**. Die Scheibe steht mal auf dunklem Anthrazit,
+mal auf hellem Pflaster, mal auf Rasen – eine einzige Randfarbe kann nicht
+gegen alle drei bestehen. Außen Weiß, innen die dunkelste Goldstufe
+(`--gold-text #7A5B12`): Gegen Dunkles trägt das Weiß, gegen Helles das dunkle
+Gold. Dieselbe Überlegung wie bei einer Stecknadel auf einer Landkarte.
+
+**Verworfen – und zwar bewusst nicht entschieden:** Die Scheiben zur Kamera
+drehen (wie eine Landkarten-Nadel), damit sie immer rund und gleich groß
+erscheinen. Das wäre die wirksamste Lösung, widerspricht aber der Ansage vom
+31.10.2026, dass die Feldzeichen **flach am Bauwerk liegen** sollen. Flach
+heißt: Beim Drehen werden sie zu Ellipsen und verschwinden fast, wenn man von
+der Seite schaut. Das ist dem Betreiber vorgelegt, nicht von mir entschieden.
+
+**Grenze der Prüfung – ehrlich:** Meine Bilder entstehen in einem
+Software-Renderer (swiftshader) ohne echte Grafikkarte. Größen und Abstände
+sind damit belastbar gemessen, die **Wirkung der Farben auf einem echten
+iPhone-Bildschirm nicht**. Das kann nur der Betreiber beurteilen.
