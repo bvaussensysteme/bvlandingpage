@@ -1177,12 +1177,18 @@
        die Seite selbst (Schriftgroessen, Kontraste, Bedienbarkeit per
        Tastatur), und daran aendert sich nichts. Trotzdem gehoert es
        gesagt, statt es stillschweigend zu entfernen. */
+    /* NUR DIE BLASE, NICHT DER ASSISTENT: Im ersten Versuch standen
+       hier auch #bvKonfigPanel und #bvKonfigOverlay - das ist der
+       Anfrage-Assistent selbst, der sich oeffnet, wenn jemand „Angebot
+       anfragen" drueckt. Damit war die Anfrage tot. Die Pruefung
+       „Anfrage-Assistent oeffnet sich" hat es im selben Durchlauf
+       gemeldet; ohne sie waere es auf die Seite gegangen. Weg gehoert
+       nur der schwebende Knopf, der ihn aufruft - der Weg zur Anfrage
+       steht im Bedienfeld. */
     body.k3d-app-seite #bv-a11y-trigger,
     body.k3d-app-seite #bv-a11y-panel,
     body.k3d-app-seite #bv-scroll-top,
-    body.k3d-app-seite #bvKonfigBubble,
-    body.k3d-app-seite #bvKonfigPanel,
-    body.k3d-app-seite #bvKonfigOverlay {
+    body.k3d-app-seite #bvKonfigBubble {
       display: none !important;
     }
 

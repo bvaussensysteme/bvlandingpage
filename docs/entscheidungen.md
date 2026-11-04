@@ -12310,3 +12310,11 @@ gesetzliche Pflicht – die Pflicht (BFSG, seit 28.06.2025 für Verbraucher-
 Angebote) trifft die Seite selbst: Schriftgrößen, Kontraste, Bedienbarkeit per
 Tastatur. Daran ändert sich nichts. Trotzdem gehört es gesagt, statt es
 stillschweigend zu entfernen. Soll der Knopf zurück, genügt eine Zeile.
+
+**Fehler im ersten Versuch, von der Prüfung gefangen:** Mit ausgeblendet waren
+auch `#bvKonfigPanel` und `#bvKonfigOverlay` – das ist der **Anfrage-Assistent
+selbst**, der sich öffnet, wenn jemand „Angebot anfragen" drückt. Damit wäre
+die Anfrage tot gewesen, also genau das, womit die Seite Geld verdient. Die
+Prüfung „Anfrage-Assistent öffnet sich" hat es im selben Durchlauf gemeldet.
+Weg gehört nur der **schwebende Knopf**, der ihn aufruft – der Weg zur Anfrage
+steht im Bedienfeld.
