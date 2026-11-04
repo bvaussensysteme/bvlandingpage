@@ -277,7 +277,7 @@ var FEHLER = [
    "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.93)';",
    "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = '#F2F2F2';"],
   ['Das Zeichen auf der Scheibe ist nicht mehr weiss', 'js',
-   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = belegt ? '#1A1206' : '#FFFFFF';",
+   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#FFFFFF';",
    "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#7A5B12';"],
   /* NEU 04.11.2026: Seit beide Zustaende dasselbe Kleid tragen, haengt
      die Unterscheidung allein am Zeichen. */

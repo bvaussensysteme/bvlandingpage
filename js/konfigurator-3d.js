@@ -5245,7 +5245,7 @@
     g.restore();
 
     var u = symbolUmriss(belegt ? 'stift' : 'punkt');
-    g.strokeStyle = belegt ? '#1A1206' : '#FFFFFF';
+    g.strokeStyle = '#FFFFFF';
     g.lineCap = 'round'; g.lineJoin = 'round';
     g.fillStyle = 'rgba(0,0,0,0)';
     if (u && window.Path2D) {
