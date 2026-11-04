@@ -652,14 +652,21 @@ await page.waitForTimeout(600);
     };
   });
   pruef('Am Maß steht ein ⓘ-Knopf in der Zeile',
-    info.knopf && info.inDerZeile && info.breite >= 24,
-    info.knopf ? info.breite + ' px, in der Beschriftungszeile' : 'kein Knopf');
+    !!info.knopf && !!info.inDerZeile && (info.breite || 0) >= 24,
+    info.knopf ? info.breite + ' px, Mitte auf der Zeile' : 'kein Knopf');
+  /* OHNE KNOPF GIBT ES NICHTS ZU LESEN, und die Pruefung muss dann
+     ANSCHLAGEN, nicht abstuerzen. GEMESSEN am 04.11.2026: In der
+     Gegenprobe (die den Knopf wegnimmt) stand hier info.text.slice()
+     auf undefined - die ganze Pruefung brach ab, statt den eingebauten
+     Fehler zu melden. Derselbe Fall wie bei drawImage auf einem
+     kaputten Bild. */
   pruef('Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
-    info.offen && /\d/.test(info.text) && /bis/.test(info.text) && info.groesse >= 14,
-    info.titel + ': ' + Math.round(info.groesse) + ' px, „'
-    + info.text.slice(0, 44) + '…"');
+    !!info.offen && /\d/.test(info.text || '') && /bis/.test(info.text || '')
+    && (info.groesse || 0) >= 14,
+    (info.titel || 'kein Kasten') + ': ' + Math.round(info.groesse || 0) + ' px, „'
+    + (info.text || '').slice(0, 44) + '…"');
   pruef('„Verstanden" schließt den Kasten wieder', info.wiederZu === true,
-    info.wiederZu ? 'zu' : 'bleibt offen');
+    info.wiederZu === true ? 'zu' : 'bleibt offen oder fehlt');
 
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
