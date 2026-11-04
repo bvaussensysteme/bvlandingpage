@@ -710,7 +710,12 @@ await page.waitForTimeout(600);
     await Promise.all(imgs.map((i) => i.complete ? null
       : new Promise((r) => { i.onload = i.onerror = r; })));
     const c = document.createElement('canvas'); const x = c.getContext('2d');
-    const farben = imgs.map((i) => {
+    /* Ein kaputtes Bild LAESST SICH NICHT ZEICHNEN - drawImage wirft
+       dann, und die ganze Pruefung stuerzte ab, statt anzuschlagen.
+       GEMESSEN am 04.11.2026 in der Gegenprobe, die genau das tut
+       (sie bricht die Bilder ab). Kaputte werden uebergangen; dass
+       sieben erwartet werden, faengt sie ohnehin. */
+    const farben = imgs.filter((i) => i.complete && i.naturalWidth > 0).map((i) => {
       c.width = 40; c.height = 28; x.drawImage(i, 0, 0, 40, 28);
       const d = x.getImageData(8, 4, 24, 14).data;
       let R = 0, G = 0, B = 0, n = 0;
