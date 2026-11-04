@@ -11646,13 +11646,61 @@
           ? gruppe.querySelector('.k3d-label').textContent.replace(/\s+/g, ' ').trim()
           : 'Wert') + ' in ' + einheit);
       }
-      /* Der ⓘ-Knopf gehoert an die Beschriftung, nicht an den Steller:
-         Dort steht schon der Name des Masses, und genau danach fragt,
-         wer ihn drueckt. Gibt es keine Beschriftung (Pfostenzeilen
-         haben nur eine Nummer), bleibt der Knopf weg - dort steht das
-         Mass ohnehin im Band am Modell. */
+      /* ---------- Die Einheit steht hinter der Zahl ----------
+         „diese ‚in mm' auch weg und bei dem maß zwischen - und +
+         dahinter das mm setzen" (Betreiber, 04.11.2026).
+
+         Feld und Einheit teilen sich EINE Umrandung: Stuende das „mm"
+         daneben, waere es ein zweites Kaestchen fuer etwas, das zur
+         Zahl gehoert. Deshalb traegt die Huelle den Rahmen, und das
+         Zahlenfeld gibt seinen ab (siehe .k3d-zahlfeld). */
+      var zahlfeld = document.createElement('span');
+      zahlfeld.className = 'k3d-zahlfeld';
+      var einheitSchild = document.createElement('small');
+      einheitSchild.className = 'k3d-einheit';
+      einheitSchild.textContent = einheit;
+      /* aria-hidden: Das Feld selbst nennt seine Einheit schon im
+         aria-label („Breite in Millimeter"). Zweimal vorgelesen waere
+         es Laerm. */
+      einheitSchild.setAttribute('aria-hidden', 'true');
+
+      steller.appendChild(minus);
+      zahlfeld.appendChild(zahl);
+      zahlfeld.appendChild(einheitSchild);
+      steller.appendChild(zahlfeld);
+      steller.appendChild(plus);
+
+      /* ---------- Der ⓘ-Knopf, rechts neben dem Plusknopf ----------
+         „rechts neben dem + button platzieren" (Betreiber,
+         04.11.2026). Vorher stand er in der Beschriftungszeile - dort
+         ist er klein und weit weg von dem, was er erklaert.
+
+         DEN NAMEN HOLT ER SICH WEITER AUS DER BESCHRIFTUNG: Er soll im
+         Kasten „Breite" heissen, nicht „Maß". Gibt es keine
+         Beschriftung (Pfostenzeilen haben nur eine Nummer), bleibt der
+         Knopf weg - dort steht das Mass ohnehin im Band am Modell. */
       var beschriftung = gruppe ? gruppe.querySelector('.k3d-label') : null;
-      if (beschriftung && !beschriftung.querySelector('.k3d-infoknopf')) {
+
+      /* ---------- Der Wert steht nur noch EINMAL da ----------
+         „diese 5000mm und 3000mm weglassen es is doppelt gemoppelt.
+         Das maß steht doch schon zwischen - und +" (Betreiber,
+         04.11.2026). Stimmt: Seit dem Zahlensteller steht die Zahl im
+         Feld, und daneben stand sie ein zweites Mal in der
+         Beschriftung.
+
+         VERSTECKT, NICHT ENTFERNT: Die Anzeige wird von mehreren
+         Stellen beschrieben, und stellerEinheit() liest aus ihrem
+         Text ab, ob es um mm, cm, Grad oder Prozent geht. Weg waere
+         sie nur eine Zeile, aber vier Stellen Mehrarbeit - und die
+         Einheit ginge verloren.
+
+         DIE EINHEIT BLEIBT SICHTBAR: „5000" allein sagt nicht, ob
+         Millimeter oder Zentimeter gemeint sind. Sie steht jetzt als
+         ruhiger Zusatz in der Beschriftung, ohne Zahl. */
+      var wertAnzeige = beschriftung ? beschriftung.querySelector('output') : null;
+      if (wertAnzeige && !wertAnzeige.hidden) wertAnzeige.hidden = true;
+
+      if (beschriftung && !steller.querySelector('.k3d-infoknopf')) {
         var info = document.createElement('button');
         info.type = 'button';
         info.className = 'k3d-infoknopf';
@@ -11665,12 +11713,9 @@
           ev.preventDefault();
           massInfoZeigen(name, massInfoText(regler, einheit));
         });
-        beschriftung.appendChild(info);
+        steller.appendChild(info);
+        steller.classList.add('hat-info');
       }
-
-      steller.appendChild(minus);
-      steller.appendChild(zahl);
-      steller.appendChild(plus);
       steller.appendChild(regler);
       regler.hidden = true;
 

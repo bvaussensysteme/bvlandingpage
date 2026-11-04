@@ -188,6 +188,28 @@
       font-size: .8rem; font-weight: 600; color: var(--black); margin-bottom: 6px;
     }
     .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
+    .k3d-label output[hidden] { display: none; }
+    /* ---------- Zahl und Einheit in einer Umrandung ----------
+       Stuende das „mm" daneben, waere es ein zweites Kaestchen fuer
+       etwas, das zur Zahl gehoert. Deshalb traegt die Huelle den
+       Rahmen - und das Feld darin gibt seinen ab. */
+    .k3d-zahlfeld {
+      display: flex; align-items: baseline; justify-content: center; gap: 4px;
+      min-width: 0; border: 1px solid var(--border); border-radius: 8px;
+      background: #fff; padding: 7px 8px;
+    }
+    /* BREITE IN ZEICHEN, nicht in Prozent: Mit width: 100% nahm das
+       Feld die ganze Huelle, und zwischen Zahl und „mm" klaffte eine
+       Handbreit (gemessen am 04.11.2026). 6,5 Zeichen fassen auch
+       14.080, und die Einheit rueckt direkt dahinter. */
+    .k3d-zahlfeld .k3d-zahl {
+      border: 0; border-radius: 0; background: none; padding: 0;
+      text-align: right; flex: 0 1 auto; width: 6.5ch; min-width: 0;
+    }
+    .k3d-zahlfeld .k3d-zahl:focus { outline: none; }
+    .k3d-zahlfeld:focus-within { border-color: var(--gold); }
+    .k3d-einheit { flex: none; text-align: left;
+      font-size: .76rem; color: var(--muted); }
     /* ---------- Der ⓘ-Knopf am Massfeld ----------
        „du kannst da nen button machen mit nem kreis und nem i wenn man
        drauftippt kommt popup mit dieser information in normaler größe
@@ -204,16 +226,28 @@
        Knopf landete dadurch am oberen Bildrand statt in seiner Zeile
        (gemessen am 04.11.2026: left 20, top -1242). Eigener Name,
        eigener Platz. */
+    /* ---------- NEBEN DEM PLUSKNOPF, nicht in der Beschriftung ----------
+       „Du kannst das runde mit i bisschen größer machen und rechts
+       neben dem + button platzieren" (Betreiber, 04.11.2026).
+
+       Er stand zuerst rechts in der Beschriftungszeile, auf Hoehe des
+       Wertes. Dort ist er klein (die Zeile ist rund 19 px hoch) und
+       weit weg von dem, was er erklaert. In der Stellerzeile hat er
+       die Hoehe der Knoepfe daneben - 36 statt 30 px, also ueber dem
+       Mindestmass von 24 px (WCAG 2.2, 2.5.8) und nah an den 44 px,
+       die Apple fuer eine Flaeche zum Antippen nennt. */
     .k3d-infoknopf {
-      flex: none; width: 30px; height: 30px; margin: -6px 0 -6px 8px;
+      width: 36px; height: 36px; place-self: center;
       display: grid; place-items: center; cursor: pointer;
       border: 0; background: none; color: var(--gold-dark); border-radius: 50%;
     }
     .k3d-infoknopf:hover { background: rgba(196, 154, 42, .14); }
-    .k3d-infoknopf .bvs { width: 19px; height: 19px; stroke-width: 2.1; }
-    /* Der Wert rueckt nach rechts aussen, der Knopf dahinter - sonst
-       stuende die Zahl mitten in der Zeile. */
-    .k3d-label:has(.k3d-infoknopf) output { margin-left: auto; }
+    .k3d-infoknopf .bvs { width: 22px; height: 22px; stroke-width: 2.1; }
+    /* EIGENE KLASSE statt einer vierten Spalte fuer alle: Ohne Knopf
+       bliebe sonst eine leere Spalte samt Abstand stehen, und die
+       Zahl saesse nicht mehr mittig zwischen − und +. */
+    .k3d-steller.hat-info { grid-template-columns: 46px 1fr 46px 36px; }
+    .k3d-pfostenzeile .k3d-steller.hat-info { grid-template-columns: 38px 1fr 38px 34px; }
     .k3d-select {
       width: 100%; padding: 9px 11px; font: inherit; font-size: .86rem;
       border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--black);
@@ -251,6 +285,16 @@
     .k3d-stell:disabled { opacity: .3; cursor: default; }
     .k3d-steller .k3d-zahl { text-align: center; font-size: .95rem; padding: 9px 4px;
       width: 100%; }
+    /* MIT EINHEIT DANEBEN GELTEN ANDERE WERTE, und zwar staerker: Die
+       Regel darueber ist genauso spezifisch wie .k3d-zahlfeld .k3d-zahl
+       und steht weiter unten - sie gewann, das Feld blieb 144 px breit
+       und mittig, und zwischen „5000" und „mm" klaffte eine Handbreit
+       (gemessen am 04.11.2026: Feld bis 233, Einheit ab 237 ... bei
+       einer Zahl, die schon bei 180 endete). Drei Klassen schlagen
+       zwei. */
+    .k3d-steller .k3d-zahlfeld .k3d-zahl {
+      width: 6.5ch; padding: 0; text-align: right;
+    }
     /* Die Grenzen stehen sichtbar darunter. Am Regler waren sie nur zu
        erahnen: Man zog bis zum Anschlag und wusste nicht, ob der
        Anschlag das Produkt oder die Statik ist. */
@@ -1150,7 +1194,48 @@
         margin-left: 0 !important;
       }
       /* Kein eigener Scrollbereich: die Seite scrollt, nicht das Bedienfeld */
-      .k3d-sl-rollen { overflow: visible; flex: none; }
+      /* ---------- PLATZ UNTER DEM LETZTEN SCHRITT ----------
+         „guck mal, alles lässt sich ineinander schieben man kann es
+         nicht vernünftig bedienen" (Betreiber, 04.11.2026, mit Bild:
+         Fusszeile mit „Zurück/Weiter" quer ueber dem Modell).
+
+         GEMESSEN im 390-px-Fenster: Die Buehne klebt oben und ist
+         380 px hoch. Die Fusszeile klebt unten - solange, bis das
+         Bedienfeld zu Ende ist. Dann loest sie sich vom unteren Rand
+         und faehrt mit dem Ende des Bedienfeldes nach oben. Am Schluss
+         stand sie bei 176 bis 332 px, also MITTEN IN DER BUEHNE, und
+         ueberlappte sie um 156 px.
+
+         Der Platz hier unten ist der Riegel davor: Das Bedienfeld hoert
+         erst eine Buehnenhoehe spaeter auf, und die Fusszeile bleibt
+         bis dahin unten kleben. Dieselbe Hoehe wie die Buehne (45svh),
+         damit es auf jedem Geraet passt und nicht nur auf diesem.
+
+         DREI VERSUCHE, und nur der dritte wirkt - alle drei gemessen:
+         · padding-bottom am Bedienfeld: unveraendert 176 bis 332 px.
+           Eine klebende Zeile sucht ihren Platz nur innerhalb des
+           INHALTS ihres Elternteils; dessen Polster zaehlt nicht dazu.
+         · Ein Platzhalter-Block HINTER der Zeile: ebenfalls
+           unveraendert. Kleben kann eine Zeile nur nach OBEN halten,
+           nie nach unten schieben - und am Ende steht sie dort, wo sie
+           im Textfluss ohnehin stuende. Was dahinter kommt, ist ihr
+           gleich.
+         WAS WIRKLICH DAHINTERSTECKTE - und was ich drei Anlaeufe lang
+         falsch gemessen habe: Die Zeile RAGTE nicht ins Modell, sie
+         wurde DARUEBER GEZEICHNET. Die Buehne klebt oben und hat
+         z-index 5, die Fusszeile hatte 6. Am Handy laeuft das ganze
+         Bedienfeld unter der Buehne durch - das ist so gewollt und
+         faellt nicht auf, weil die Buehne davorliegt. Nur die Fusszeile
+         lag eben davor.
+
+         Meine ersten drei Versuche (Polster, Platzhalter, fester
+         Rand) haben alle an der LAGE gedreht, obwohl die Lage nie das
+         Problem war. Gemessen hatte ich sich ueberschneidende
+         Rechtecke - die gibt es bei einer klebenden Buehne staendig,
+         sichtbar ist davon nichts. Richtig misst man, WAS OBEN LIEGT.
+
+         Also: eine Zeile Zeichenreihenfolge. Die Buehne gewinnt. */
+      .k3d-gefuehrt .k3d-nav { z-index: 4; }
       /* Flacher, wie die Leiste unten: „die beiden sachen in der höhe
          bissl schmaler ähnlich wie die leiste unten wo maße tag abend
          steht" (Betreiber, 11.10.2026). Gespart wird wieder an den
@@ -2651,13 +2736,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104h" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104n" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104h" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104n" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

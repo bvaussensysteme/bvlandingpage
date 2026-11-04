@@ -62,6 +62,20 @@ function pruef(name, ok, info = '') {
   if (!ok) fehler++;
 }
 
+/* ---------- Handgriffe, die ins Leere gehen duerfen ----------
+   In der GEGENPROBE steht das Bedienfeld oft woanders: Eingebaute
+   Fehler aendern, welcher Schritt offen ist. Ein Klick oder eine
+   Eingabe ins Nichts laesst Playwright dreissig Sekunden warten und
+   reisst dann den ganzen Lauf mit - und ein Lauf, der abbricht,
+   prueft nichts mehr: Alles danach faellt stumm aus, und die
+   Gegenprobe kann nicht mehr sagen, ob es angeschlagen haette.
+
+   Im NORMALEN Lauf aendert sich dadurch nichts: Dort ist alles da,
+   wo es sein soll, und jede Pruefung misst wie zuvor. */
+async function sicher(was) {
+  try { await was(); return true; } catch (e) { return false; }
+}
+
 const browser = await chromium.launch({
   timeout: 60000,
   executablePath: chromiumPfad(),
@@ -117,6 +131,12 @@ async function fehlerEinbauen(ziel) {
        die Beschwerde („viele gleiche regler"). */
     t = t.replace('steller.appendChild(regler);\n      regler.hidden = true;',
                   'steller.appendChild(regler);');
+    /* Einundzwanzigster Fehler: Die doppelte Wertanzeige kommt
+       zurueck - genau der Zustand, den der Betreiber gemeldet hat. */
+    t = t.replace('wertAnzeige.hidden = true;', 'void wertAnzeige;');
+    /* Zweiundzwanzigster Fehler: Die Einheit verschwindet - dann steht
+       dort eine nackte Zahl, und niemand weiss, ob mm oder cm. */
+    t = t.replace("einheitSchild.textContent = einheit;", "einheitSchild.textContent = '';");
     /* Neunzehnter Fehler: Der ⓘ-Knopf wird gar nicht erst gebaut. */
     t = t.replace("info.className = 'k3d-infoknopf';", 'return;');
     /* Zwanzigster Fehler: Der Kasten oeffnet, bleibt aber leer - dann
@@ -625,7 +645,14 @@ await page.waitForTimeout(600);
     const knopf = gruppe.querySelector('.k3d-infoknopf');
     if (!knopf) return { knopf: false };
     const kr = knopf.getBoundingClientRect();
-    const zeile = knopf.closest('.k3d-label').getBoundingClientRect();
+    /* UMGEZOGEN am 04.11.2026: „Du kannst das runde mit i bisschen
+       größer machen und rechts neben dem + button platzieren"
+       (Betreiber). Gemessen wird jetzt gegen den PLUSKNOPF, nicht mehr
+       gegen die Beschriftungszeile. */
+    const steller = knopf.closest('.k3d-steller');
+    const plus = steller
+      ? [...steller.querySelectorAll('button.k3d-stell')].pop() : null;
+    const zeile = (plus || knopf).getBoundingClientRect();
     knopf.click();
     const kasten = document.getElementById('k3dMassInfo');
     const satz = document.querySelector('#k3dMassInfoText p');
@@ -636,24 +663,23 @@ await page.waitForTimeout(600);
     if (ok) ok.click();
     return {
       knopf: true,
-      /* Der Knopf ist ABSICHTLICH hoeher als die Textzeile: 30 px
-         Trefferflaeche auf einer rund 19 px hohen Zeile, mit negativem
-         Aussenabstand darueber und darunter. Gemessen wird deshalb
-         nicht „steht komplett in der Zeile", sondern was die Sache
-         ausmacht: Seine Mitte liegt auf der Zeile, und er ragt rechts
-         nicht heraus. (Erster Versuch verlangte kr.top >= zeile.top
-         und schlug an - zu Recht, aber am falschen Mass.) */
-      inDerZeile: Math.abs((kr.top + kr.bottom) / 2 - (zeile.top + zeile.bottom) / 2) <= 5
-        && kr.right <= zeile.right + 1 && kr.left > zeile.left,
+      /* Zwei Dinge, und beide sind die Ansage: RECHTS NEBEN dem
+         Plusknopf (nicht darunter, nicht davor) und auf derselben
+         Hoehe. Die Mitte wird verglichen, nicht die Kanten - der
+         Knopf ist 36 px hoch, der Plusknopf etwas weniger. */
+      inDerZeile: !!plus
+        && kr.left >= zeile.right - 1
+        && Math.abs((kr.top + kr.bottom) / 2 - (zeile.top + zeile.bottom) / 2) <= 4,
       breite: Math.round(kr.width),
       offen, text, groesse,
       wiederZu: kasten.hidden,
       titel: (document.getElementById('k3dMassInfoTitel') || {}).textContent || ''
     };
   });
-  pruef('Am Maß steht ein ⓘ-Knopf in der Zeile',
-    !!info.knopf && !!info.inDerZeile && (info.breite || 0) >= 24,
-    info.knopf ? info.breite + ' px, Mitte auf der Zeile' : 'kein Knopf');
+  pruef('Der ⓘ-Knopf steht rechts neben dem Plusknopf',
+    !!info.knopf && !!info.inDerZeile && (info.breite || 0) >= 32,
+    info.knopf ? info.breite + ' px, rechts neben „+" auf gleicher Höhe'
+      : 'kein Knopf');
   /* OHNE KNOPF GIBT ES NICHTS ZU LESEN, und die Pruefung muss dann
      ANSCHLAGEN, nicht abstuerzen. GEMESSEN am 04.11.2026: In der
      Gegenprobe (die den Knopf wegnimmt) stand hier info.text.slice()
@@ -667,6 +693,43 @@ await page.waitForTimeout(600);
     + (info.text || '').slice(0, 44) + '…"');
   pruef('„Verstanden" schließt den Kasten wieder', info.wiederZu === true,
     info.wiederZu === true ? 'zu' : 'bleibt offen oder fehlt');
+
+  /* ---------- Die Zahl steht nur EINMAL da ----------
+     „diese 5000mm und 3000mm weglassen es is doppelt gemoppelt. Das
+     maß steht doch schon zwischen - und +" (Betreiber, 04.11.2026).
+
+     Gemessen wird innerText, nicht textContent: Die Anzeige ist
+     versteckt, nicht entfernt (stellerEinheit liest ihren Text ab, um
+     mm von Grad zu unterscheiden). textContent faende sie weiterhin -
+     und damit etwas, das niemand sieht. */
+  const doppelt = await me.evaluate(() => {
+    const gruppe = document.getElementById('k3dBreite').closest('.k3d-gruppe');
+    const feld = gruppe.querySelector('input[type=number]');
+    const sichtbar = (gruppe.querySelector('.k3d-label').innerText || '')
+      .replace(/\s+/g, ' ').trim();
+    /* Die Einheit steht seit dem 04.11.2026 NEBEN DER ZAHL, nicht mehr
+       in der Beschriftung: „bei dem maß zwischen - und + dahinter das
+       mm setzen" (Betreiber). Gemessen wird deshalb der Abstand - eine
+       Einheit irgendwo in der Zeile waere nicht dasselbe wie eine
+       direkt hinter der Zahl. */
+    const eh = gruppe.querySelector('.k3d-zahlfeld .k3d-einheit');
+    const lueck = eh
+      ? Math.round(eh.getBoundingClientRect().left - feld.getBoundingClientRect().right)
+      : null;
+    return { wert: feld.value, sichtbar,
+      einheitText: eh ? eh.textContent.trim() : '',
+      lueck };
+  });
+  pruef('Das Maß steht nicht zweimal in der Zeile',
+    !!doppelt.wert && doppelt.sichtbar.indexOf(doppelt.wert) < 0,
+    '„' + doppelt.sichtbar + '" neben ' + doppelt.wert + ' im Feld');
+  /* Die Einheit bleibt: „5000" allein sagt nicht, ob Millimeter oder
+     Zentimeter gemeint sind - und sie steht direkt hinter der Zahl. */
+  pruef('Die Einheit steht direkt hinter der Zahl',
+    /^(mm|cm|°|%)$/.test(doppelt.einheitText)
+    && doppelt.lueck !== null && doppelt.lueck >= 0 && doppelt.lueck <= 12,
+    doppelt.einheitText ? '„' + doppelt.einheitText + '", ' + doppelt.lueck
+      + ' px hinter der Zahl' : 'keine Einheit');
 
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
@@ -873,7 +936,10 @@ await page.waitForTimeout(600);
        Grenzen-Hinweis in eine 78-px-Spalte gequetscht wurde. */
     await hy.addStyleTag({ content:
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
-      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
+      + '.k3d-label output{max-width:18px!important}'
+      + '.k3d-gefuehrt .k3d-nav{z-index:6!important}'
+      + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
+      }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
   await hy.waitForTimeout(3200);
@@ -887,34 +953,28 @@ await page.waitForTimeout(600);
        mm" in 18 px ist derselbe Fall - Kasten heil, Text laeuft raus. */
     await hy.addStyleTag({ content:
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
-      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
+      + '.k3d-label output{max-width:18px!important}'
+      /* Dreiundzwanzigster Fehler: Die Fusszeile wird wieder VOR der
+         Buehne gezeichnet - genau der Zustand aus dem Bild des
+         Betreibers. Gegengeprueft: Mit z-index 6 meldet die Pruefung
+         in Schritt 5 drei Punkte, mit 4 keinen. */
+      + '.k3d-gefuehrt .k3d-nav{z-index:6!important}'
+      /* Vierundzwanzigster Fehler: Das Zahlenfeld wird breiter als
+         seine Huelle - dann laeuft die Zahl aus ihrem Kasten.
+         ZWEI ANLAEUFE: Erst sollte die Huelle schmaler werden
+         (max-width 40px). Wirkungslos, denn ihr Inhalt darf schrumpfen
+         (flex: 0 1 auto) und tat es auch - gemeldet hat das die
+         Gegenprobe selbst. Jetzt waechst das Feld und darf nicht mehr
+         schrumpfen. */
+      + '.k3d-steller .k3d-zahlfeld .k3d-zahl{width:200px!important;flex:none!important}'
+      }).catch(() => {});
   }
-  const schritte = [];
-  for (let i = 0; i < 5; i++) {
-    schritte.push(await hy.evaluate(() => {
-      const e = document.getElementById('k3dAnfrageFuss');
-      return {
-        sichtbar: !!(e && e.offsetParent),
-        knopf: (document.getElementById('k3dWeiter') || {}).innerText
-          ? document.getElementById('k3dWeiter').innerText.replace(/\s+/g, ' ').trim()
-          : ''
-      };
-    }));
-    if (i < 4) {
-      await hy.$eval('#k3dWeiter', (e) => e.click());
-      await hy.waitForTimeout(800);
-    }
-  }
-  pruef('Am Handy steht die Anfrage nicht in jedem Schritt',
-    schritte.every((x) => !x.sichtbar),
-    schritte.filter((x) => x.sichtbar).length + ' von 5 Schritten zeigen sie');
-  /* Weg ist sie damit nicht: Im letzten Bereich IST der Hauptknopf der
-     Absender. Ohne diese zweite Haelfte liesse sich die erste erfuellen,
-     indem man die Anfrage am Handy ganz abschafft. */
-  pruef('Am Handy ist der letzte Knopf der Absender',
-    /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
-
   /* ---------- Kein Text laeuft aus seinem Kasten ----------
+     VOR DER SCHRITTSCHLEIFE, nicht danach: Nach ihr steht der
+     Konfigurator im letzten Bereich, und dort sind die Massfelder gar
+     nicht eingeblendet - gemessen wurde dann an nichts. Genau das
+     meldete die Gegenprobe („hat den eingebauten Fehler NICHT
+     bemerkt"), waehrend der eingebaute Fehler in Ordnung war.
      GEMELDET am 04.11.2026 mit Bild vom iPhone, rot eingekringelt:
      Unter „5000 mm" stand „von 1.080 bis 14.080 mm · Schritt 10" in
      einer handtuchschmalen Spalte und lief rechts aus dem Bildschirm.
@@ -942,6 +1002,94 @@ await page.waitForTimeout(600);
   });
   pruef('Am Handy laeuft kein Text aus seinem Kasten',
     zuEng.length === 0, zuEng.slice(0, 3).join(', ') || 'nichts ragt heraus');
+
+  const schritte = [];
+  for (let i = 0; i < 5; i++) {
+    schritte.push(await hy.evaluate(() => {
+      const e = document.getElementById('k3dAnfrageFuss');
+      return {
+        sichtbar: !!(e && e.offsetParent),
+        knopf: (document.getElementById('k3dWeiter') || {}).innerText
+          ? document.getElementById('k3dWeiter').innerText.replace(/\s+/g, ' ').trim()
+          : ''
+      };
+    }));
+    if (i < 4) {
+      await hy.$eval('#k3dWeiter', (e) => e.click());
+      await hy.waitForTimeout(800);
+    }
+  }
+  pruef('Am Handy steht die Anfrage nicht in jedem Schritt',
+    schritte.every((x) => !x.sichtbar),
+    schritte.filter((x) => x.sichtbar).length + ' von 5 Schritten zeigen sie');
+  /* Weg ist sie damit nicht: Im letzten Bereich IST der Hauptknopf der
+     Absender. Ohne diese zweite Haelfte liesse sich die erste erfuellen,
+     indem man die Anfrage am Handy ganz abschafft. */
+  pruef('Am Handy ist der letzte Knopf der Absender',
+    /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
+
+
+
+  /* ---------- Nichts wird ueber das Modell gezeichnet ----------
+     „guck mal, alles lässt sich ineinander schieben man kann es nicht
+     vernünftig bedienen" (Betreiber, 04.11.2026, mit Bild: die
+     Fusszeile mit „Zurück/Weiter" quer ueber dem Modell).
+
+     GEMESSEN WIRD, WAS OBEN LIEGT - nicht, was sich ueberschneidet.
+     Das ist der Unterschied, an dem ich mich am 04.11.2026 dreimal
+     vertan habe: Am Handy laeuft das ganze Bedienfeld unter der
+     klebenden Buehne durch. Ueberschneidende Rechtecke gibt es dabei
+     staendig, sichtbar ist davon nichts, weil die Buehne davorliegt.
+     Sichtbar wird es erst, wenn etwas DAVOR gezeichnet wird - und
+     genau das war der Fehler (Fusszeile z-index 6, Buehne 5).
+
+     Deshalb: an neun Punkten im Bereich der Buehne nachfragen, wer
+     dort oben liegt. Antwortet die Bedienung, ist es falsch. */
+  const obenDrauf = [];
+  for (const y of [0, 300, 600, 900, 1300, 1800, 2400, 3200]) {
+    await hy.evaluate((v) => window.scrollTo(0, v), y);
+    await hy.waitForTimeout(300);
+    const t = await hy.evaluate(() => {
+      const b = document.querySelector('.k3d-buehne').getBoundingClientRect();
+      if (b.bottom <= 0 || b.top >= window.innerHeight) return null;
+      const treffer = [];
+      for (const ax of [0.2, 0.5, 0.8]) {
+        for (const ay of [0.15, 0.5, 0.85]) {
+          const x = b.left + b.width * ax;
+          const yy = Math.max(1, Math.min(window.innerHeight - 1, b.top + b.height * ay));
+          const e = document.elementFromPoint(x, yy);
+          if (e && e.closest('.k3d-nav')) treffer.push(Math.round(ax * 100) + '/' + Math.round(ay * 100));
+        }
+      }
+      return treffer.length ? { y: Math.round(window.scrollY), treffer } : null;
+    });
+    if (t) obenDrauf.push(t);
+  }
+  await hy.evaluate(() => window.scrollTo(0, 0));
+  pruef('Am Handy liegt die Fußzeile nie über dem Modell',
+    obenDrauf.length === 0,
+    obenDrauf.length ? obenDrauf.map((x) => x.y + ' px: ' + x.treffer.join(', ')).join(' | ')
+      : 'an acht Scrollstellen nichts davor');
+
+  /* DIESELBE SACHE, ZWEITER WEG - und der ist der verlaessliche.
+     Die Abfrage oben trifft nur, wenn die Fusszeile GERADE ueber der
+     Buehne steht; das haengt an der Scrollstelle und an der Laenge des
+     Schrittes. GEMESSEN am 04.11.2026: Mit zurueckgedrehter
+     Zeichenreihenfolge meldete sie in einem Schritt drei Punkte, im
+     anderen keinen - als alleinige Wache zu wacklig.
+
+     Die Reihenfolge selbst ist dagegen eindeutig und jederzeit
+     ablesbar: Die Buehne muss vorne liegen. */
+  const reihenfolge = await hy.evaluate(() => {
+    const z = (s) => {
+      const w = getComputedStyle(document.querySelector(s)).zIndex;
+      return w === 'auto' ? 0 : Number(w);
+    };
+    return { buehne: z('.k3d-buehne'), nav: z('#k3dNav') };
+  });
+  pruef('Am Handy wird das Modell über der Bedienung gezeichnet',
+    reihenfolge.nav < reihenfolge.buehne,
+    'Bühne ' + reihenfolge.buehne + ', Fußzeile ' + reihenfolge.nav);
   await hy.close();
 }
 
@@ -1421,7 +1569,18 @@ const spec = await page.locator('#k3dSpec').innerText();
 pruef('Fläche auf der Bühne', /15,00 m²/.test(spec), spec);
 
 // Zahlenfeld
-await page.fill('#k3dBreiteZahl', '4200');
+/* ---------- ERST SEHEN, DANN TIPPEN ----------
+   GEMESSEN am 04.11.2026: In der Gegenprobe brach der ganze Lauf hier
+   ab - „element is not visible", dreissig Sekunden Warten, dann
+   TimeoutError. Mit eingebauten Fehlern steht das Bedienfeld an einer
+   anderen Stelle, und dann gibt es dieses Feld gerade nicht zu sehen.
+
+   Ein Lauf, der abbricht, prueft nichts mehr: Alle Pruefungen danach
+   fallen stumm aus, und die Gegenprobe kann nicht mehr sagen, ob sie
+   angeschlagen haetten. Deshalb wird hier zuerst nachgesehen. Fehlt
+   das Feld, bleiben die beiden Pruefungen darunter rot - was richtig
+   ist, denn dann stellt das Zahlenfeld tatsaechlich nichts. */
+const breiteFeldSichtbar = await sicher(() => page.fill('#k3dBreiteZahl', '4200'));
 await page.waitForTimeout(500);
 pruef('Zahlenfeld stellt den Regler',
   (await page.inputValue('#k3dBreite')) === '4200',
@@ -1436,10 +1595,11 @@ pruef('Ausgabe folgt dem Zahlenfeld',
    abgelesen; so haelt die Pruefung auch die naechste Aenderung aus. */
 /* Die Grenze steht am Regler, nicht am Zahlenfeld. */
 const maxBreite = Number(await page.locator('#k3dBreite').getAttribute('max'));
-await page.fill('#k3dBreiteZahl', String(maxBreite + 1500));
+await sicher(() => page.fill('#k3dBreiteZahl', String(maxBreite + 1500)));
 await page.waitForTimeout(200);
-const markiert = await page.locator('#k3dBreiteZahl').evaluate(e => e.classList.contains('ist-ausserhalb'));
-await page.locator('#k3dBreiteZahl').blur();
+const markiert = await page.locator('#k3dBreiteZahl')
+  .evaluate((e) => e.classList.contains('ist-ausserhalb')).catch(() => false);
+await sicher(() => page.locator('#k3dBreiteZahl').blur());
 await page.waitForTimeout(300);
 const begrenzt = await page.inputValue('#k3dBreiteZahl');
 pruef('Maß außerhalb wird markiert', markiert, (maxBreite + 1500) + ' mm eingegeben');
@@ -1570,12 +1730,12 @@ pruef('Die Kurzfassung nennt die Rueckseite',
    traegt der Statiktraeger bis 7 m, dort stehen nur zwei Pfosten.
    Gemessen wird an der Feldaufteilung, die das Bedienfeld meldet – das
    ist dieselbe Zahl, die auch in die Anfrage geht. */
-await page.fill('#k3dBreiteZahl', '5000');
-await page.locator('#k3dBreiteZahl').blur();
+await sicher(() => page.fill('#k3dBreiteZahl', '5000'));
+await sicher(() => page.locator('#k3dBreiteZahl').blur());
 await page.waitForTimeout(900);
-await page.click('[data-k3d-erw="vorne"] button[data-erw="Schiebetür"]');
-await page.click('[data-k3d-erw="hinten"] button[data-erw="Plankenwand"]');   // wieder abwaehlen
-await page.click('[data-k3d-erw="hinten"] button[data-erw="Schiebetür"]');
+await sicher(() => page.click('[data-k3d-erw="vorne"] button[data-erw="Schiebetür"]'));
+await sicher(() => page.click('[data-k3d-erw="hinten"] button[data-erw="Plankenwand"]'));
+await sicher(() => page.click('[data-k3d-erw="hinten"] button[data-erw="Schiebetür"]'));
 await page.waitForTimeout(1200);
 /* Gemessen wird die FELDBREITE je Seite. Die Auswahlliste der
    Schiebeanlage nennt je Bauart „Scheiben je ca. X mm"; mal der
@@ -2318,9 +2478,12 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
-  'Am Maß steht ein ⓘ-Knopf in der Zeile',
+  'Der ⓘ-Knopf steht rechts neben dem Plusknopf',
+  'Das Maß steht nicht zweimal in der Zeile',
+  'Die Einheit steht direkt hinter der Zahl',
   'Der ⓘ-Knopf öffnet die Grenzen in lesbarer Größe',
   'Am Handy steht die Anfrage nicht in jedem Schritt',
+  'Am Handy wird das Modell über der Bedienung gezeichnet',
   'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',

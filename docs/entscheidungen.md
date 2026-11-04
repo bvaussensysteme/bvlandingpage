@@ -12226,3 +12226,53 @@ statt in seiner Zeile (gemessen: left 20, top −1242). Jetzt `.k3d-infoknopf`.
 Die Zahlen im Dialog kommen aus dem Regler selbst (`min`, `max`, `step`), nicht
 aus einer zweiten Liste – sonst stünde im Kasten irgendwann etwas anderes als
 im Feld.
+
+## 04.11.2026 – „Alles lässt sich ineinander schieben"
+
+**Anlass:** Bild vom iPhone – die Fußzeile mit „Zurück/Weiter" stand quer über
+dem Modell, darunter die Ansichtsleiste, darunter schon die Website-Fußzeile.
+*„man kann es nicht vernünftig bedienen"* (Betreiber).
+
+**Gemessen, bevor ich geraten habe.** Ein Skript fährt im 390-px-Fenster
+mehrere Scrollstellen an und vergleicht die Rechtecke von Bühne und Fußzeile:
+
+| Scrollstelle | Überlappung |
+|---|---|
+| 0, 400, 900, 1600 px | 0 px |
+| Ende (2.587 px) | **156 px** – Fußzeile bei 176–332, Bühne 0–380 |
+
+**Die Ursache:** Die Bühne klebt oben (`position: sticky`), die Fußzeile unten.
+Kleben hält eine Zeile nur **nach oben** fest – am Ende des Bedienfeldes löst
+sie sich und kommt dort zur Ruhe, wo sie im Textfluss ohnehin stünde. Und das
+war mitten in der Bühne.
+
+**Drei Versuche, nur der dritte wirkt – alle drei gemessen:**
+
+1. `padding-bottom` am Bedienfeld → unverändert 176–332. Eine klebende Zeile
+   sucht ihren Platz nur innerhalb des **Inhalts** ihres Elternteils; dessen
+   Polster zählt nicht dazu.
+2. Ein Platzhalter-Block **hinter** der Zeile → ebenfalls unverändert. Was
+   hinter ihr kommt, ist ihr gleich.
+3. Platz **vor** der Zeile (`margin-top: 46svh`) → verschiebt genau das,
+   worauf es ankommt: ihren Platz im Textfluss. Gemessen danach: Sie kommt bei
+   550–706 px zur Ruhe, also unter der Bühne – **an jeder Scrollposition 0 px
+   Überlappung.**
+
+Die Höhe ist die der Bühne (46svh gegen 45svh): Im schlimmsten Fall stünde die
+Zeile ganz oben im Bedienfeld und bräuchte genau eine Bühnenhöhe, um darunter
+zu passen. **Der Preis** ist eine Lücke über den Knöpfen, die man nur am Ende
+eines Schrittes sieht.
+
+**Verworfen:** Die Fußzeile am Handy fest an den unteren Fensterrand zu
+heften (`position: fixed`). Hat die Überlappung mit dem Modell gelöst, aber
+eine neue geschaffen – die Zeile lag dann über der Website-Fußzeile, sobald
+man den Konfigurator verließ. Dafür extra eine zweite Sichtbarkeits-Klasse zu
+führen wäre mehr Mechanik für ein schlechteres Ergebnis.
+
+**Die Prüfung misst jetzt an fünf Scrollstellen**, nicht nur oben: Der Fehler
+zeigte sich erst am Ende, und eine Prüfung, die nur den Anfang ansieht, hätte
+ihn durchgelassen.
+
+**Noch offen, nicht angefasst:** Die drei runden Knöpfe rechts unten und die
+Leiste „Kostenlos anfragen / WhatsApp" liegen am Handy ebenfalls über dem
+Bedienfeld. Sie gehören zur ganzen Website, nicht zum Konfigurator.
