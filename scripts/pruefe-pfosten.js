@@ -144,8 +144,10 @@ var FEHLER = [
   ['Das Ziehen rastet nicht auf dasselbe Raster wie der Regler', 'js',
    '    mm = (mm < 0 ? -1 : 1) * Math.floor(Math.abs(mm) / PF_SCHRITT) * PF_SCHRITT;',
    '    void PF_SCHRITT;'],
+  /* NACHGEZOGEN 04.11.2026: Zwischen den beiden Zeilen steht jetzt die
+     Abfrage auf das Zurueck-Zeichen. */
   ['Ein Pfosten laesst sich ohne Auswahl schieben', 'js',
-   '    if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
+   '    if (zurueckUnterZeiger(e)) return false;\n    var t = pfostenUnterZeiger(e);\n' +
    '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;',
    '    var t = pfostenUnterZeiger(e);\n    if (!t) return false;'],
   ['Der Tipp auf den Pfosten waehlt ihn nicht', 'js',
@@ -199,6 +201,11 @@ var FEHLER = [
   ['Das Zeichenbild wird bei jedem Klick neu gezeichnet', 'js',
    '    if (ziehZeichen) return ziehZeichen;', '    void 0;'],
   /* ---------- Zurueck auf die Ausgangslage (04.11.2026) ---------- */
+  ['Ohne Auswahl wird trotzdem gegriffen', 'js',
+   'ohne Auswahl soll ja gedreht werden. */\n    if (!PF_WAHL) return false;',
+   'ohne Auswahl soll ja gedreht werden. */'],
+  ['Der Griff am Pfosten liegt vor dem Zurueck-Zeichen', 'js',
+   '    if (zurueckUnterZeiger(e)) return false;', '    void 0;'],
   ['Das Zurueck-Zeichen erscheint auch ohne Versatz', 'js',
    '      if (!pfostenVersatzVon(PF_WAHL.reihe, PF_WAHL.nr)) return;',
    '      void 0;'],
@@ -520,9 +527,16 @@ function lauf(q) {
      01.11.2026). Ohne Auswahl verschiebt ein Dreh-Versuch am Handy
      unbemerkt einen Pfosten - dort gibt es keinen Zeiger, der vorher
      verraet, was unter dem Finger liegt. */
+  /* GEAENDERT 04.11.2026: Zwischen den beiden Zeilen steht jetzt die
+     Abfrage auf das Zurueck-Zeichen - wer darauf tippt, will nicht den
+     Pfosten anfassen. Geprueft werden deshalb beide Teile einzeln. */
   hat('Ohne Auswahl laesst sich kein Pfosten greifen',
-      'if (!PF_WAHL) return false;\n    var t = pfostenUnterZeiger(e);\n' +
+      'ohne Auswahl soll ja gedreht werden. */\n    if (!PF_WAHL) return false;');
+  hat('Gegriffen wird nur der GEWAEHLTE Pfosten',
+      'var t = pfostenUnterZeiger(e);\n' +
       '    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;');
+  hat('Ein Tipp auf das Zurueck-Zeichen greift den Pfosten nicht',
+      'if (zurueckUnterZeiger(e)) return false;');
   hat('Der Tipp auf den Pfosten steht vor Feldern und Bauteilen',
       'if (weg < 6 && zeit < 2500 && !zurueckGeklickt(e) &&\n' +
       '        !massGeklickt(e) && !pfostenGeklickt(e) &&');

@@ -3918,6 +3918,22 @@
     /* Ohne Auswahl wird gar nicht gestrahlt: Das spart je Zeigerdruck
        einen Strahl - und ohne Auswahl soll ja gedreht werden. */
     if (!PF_WAHL) return false;
+    /* ---------- Das Zurueck-Zeichen geht VOR ----------
+       GEMESSEN am 04.11.2026 in der Oberflaechenpruefung: Ein Tipp auf
+       das Zeichen stellte den Pfosten NICHT zurueck, sondern hob die
+       Auswahl auf.
+
+       Der Grund steckt in der Reihenfolge der Ereignisse. Das Zeichen
+       sitzt auf der Achse des Pfostens, aber es liegt in der
+       Ziehgruppe - fuer den Strahl auf das BAUWERK ist es durchsichtig.
+       Der Zeigerdruck griff deshalb den Pfosten dahinter, und beim
+       Loslassen fing pfostenLoslassen() das Ereignis ab, bevor die
+       Klickkette ueberhaupt bis zurueckGeklickt() kam. Ein Tipp ohne
+       Weg gilt dort als Abwaehlen.
+
+       Wer auf das Zeichen tippt, will nicht den Pfosten anfassen. Also
+       wird hier gar nicht erst gegriffen. */
+    if (zurueckUnterZeiger(e)) return false;
     var t = pfostenUnterZeiger(e);
     if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;
     var r = PFOSTEN_REIHE[t.reihe];
