@@ -217,6 +217,9 @@ async function fehlerEinbauen(ziel) {
 await fehlerEinbauen(page);
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
+  /* Vierzehnter Fehler (04.11.2026): Die Ruecksicht auf „Bewegung
+     reduzieren" wird wieder aufgehoben. */
+  await page.addStyleTag({ content: '@media (prefers-reduced-motion: reduce){body.k3d-app-seite *,body.k3d-app-seite *::after{transition-duration:.25s !important}}' });
   await page.route('**/anfrage-wizard.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
@@ -1287,6 +1290,7 @@ pruef('Zurueck auf eben loescht den Hinweis wieder',
    Bau aus der Szene zurueckgelesen, einmal schmal und einmal breit. Er
    muss mitwachsen, und bei der schmalen Anlage deutlich unter dem alten
    Festwert von 700 liegen. */
+const breiteVorSchatten = await page.$eval('#k3dBreiteZahl', (e) => e.value);
 const schattenLesen = () => page.evaluate(() =>
   window.__bvSchatten ? window.__bvSchatten() : null);
 await page.evaluate(() => {
@@ -1312,6 +1316,44 @@ pruef('Bei kleiner Anlage ist er enger als der alte Festwert',
 pruef('Die Sonne rueckt mit, bleibt aber in Richtung',
   !!schattenBreit && schattenBreit.abstand >= 820,
   schattenBreit ? `Abstand ${schattenBreit.abstand} cm` : '-');
+/* ZURUECK AUF DEN STAND VON VORHER. Beim ersten Lauf blieben 14080 mm
+   stehen, und zwei spaetere Pruefungen verglichen gegen eine Breite,
+   die dieser Block gesetzt hatte - sie waren rot, obwohl an ihnen
+   nichts falsch war. */
+await page.$eval('#k3dBreiteZahl', (e, v) => {
+  e.value = v; e.dispatchEvent(new Event('change', { bubbles: true }));
+}, breiteVorSchatten);
+await page.waitForTimeout(1300);
+pruef('Nach der Schattenmessung steht die Breite wieder wie vorher',
+  (await page.$eval('#k3dBreiteZahl', (e) => e.value)) === breiteVorSchatten,
+  `${breiteVorSchatten} mm`);
+
+/* ---------- Bewegung reduzieren wird beachtet ----------
+   Die Systemeinstellung (iOS: Bedienungshilfen > Bewegung) sagt, dass
+   jemand weniger Bewegung sehen will - meist wegen Schwindel oder
+   Migraene. Der Konfigurator hatte dafuer bis zum 04.11.2026 keine
+   einzige Regel.
+
+   GEMESSEN, nicht im Quelltext nachgelesen: Dem Browser wird die
+   Einstellung vorgegeben, und danach wird die WIRKLICH GERECHNETE
+   Uebergangsdauer eines Bedienelements zurueckgelesen. */
+const uebergangsdauer = () => page.evaluate(() => {
+  const e = document.querySelector('.k3d-sek > summary');
+  if (!e) return null;
+  return getComputedStyle(e, '::after').transitionDuration;
+});
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.waitForTimeout(250);
+const bewegungAus = await uebergangsdauer();
+await page.emulateMedia({ reducedMotion: 'no-preference' });
+await page.waitForTimeout(250);
+const bewegungAn = await uebergangsdauer();
+pruef('Bei reduzierter Bewegung laufen keine Uebergaenge',
+  !!bewegungAus && parseFloat(bewegungAus) <= 0.01,
+  `gerechnet: ${bewegungAus}`);
+pruef('Ohne die Einstellung bleiben die Uebergaenge',
+  !!bewegungAn && parseFloat(bewegungAn) > 0.05,
+  `gerechnet: ${bewegungAn}`);
 
 /* ---------- Zwischenpfosten im Modell ziehen ----------
    „kann man ausser die eckpfosten die zwischenpfosten verschieben
