@@ -210,22 +210,6 @@
   display: none;
 }
 .wz-results.visible { display: block; }
-/* Der Schritt vom Ergebnis zum Vorhaben. Knoepfe umbrechen am Handy
-   untereinander und bleiben dabei ueber 44 px hoch - sonst trifft sie
-   niemand mit dem Daumen. */
-.wz-weiter { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
-.wz-weiter-text { max-width: 62ch; margin: 0 auto 16px; text-align: center; line-height: 1.6; }
-/* Der Querverweis auf das andere Werkzeug. Bewusst als SATZ und nicht
-   als vierter Knopf: Vier Knoepfe nebeneinander heissen „such dir was
-   aus", ein Satz heisst „das ist die naechste Frage". */
-.wz-weiter-naechste { max-width: 62ch; margin: 0 auto 16px; text-align: center;
-  font-size: .95rem; color: var(--muted, #555); line-height: 1.6; }
-.wz-weiter-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-.wz-weiter-knoepfe .btn { min-height: 46px; display: inline-flex; align-items: center; }
-@media (max-width: 560px) {
-  .wz-weiter-knoepfe { flex-direction: column; }
-  .wz-weiter-knoepfe .btn { width: 100%; justify-content: center; }
-}
 
 .wz-result-grid {
   display: grid;
@@ -330,14 +314,6 @@
   background: var(--white); min-width: 190px; cursor: pointer;
 }
 .wz-hoehe-select:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
-
-/* iOS Safari zoomt beim Antippen in jedes Eingabefeld unter 16 px und
-   zoomt nicht wieder heraus (gemeldet am 04.11.2026 vom iPhone, dort
-   zuerst im Konfigurator aufgefallen). 0,95 rem sind 15,2 px – knapp
-   darunter, also betroffen. Nur am Finger, nicht an der Maus. */
-@media (pointer: coarse) {
-  .wz-hoehe-input-wrap input, .wz-hoehe-select { font-size: 16px; }
-}
 .wz-hoehe-result .hr-pruef {
   margin-top: 14px; padding: 12px 14px; border-radius: 8px;
   border-left: 3px solid var(--gold);
@@ -434,6 +410,31 @@
 .wz-cta { background: var(--black); padding: 56px 0; }
 .wz-cta h2 { color: var(--white); margin-bottom: 12px; }
 .wz-cta p { color: rgba(255,255,255,0.7); margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+/* Der Schritt vom Ergebnis zum Vorhaben. Knoepfe umbrechen am Handy
+   untereinander und bleiben dabei ueber 44 px hoch - sonst trifft sie
+   niemand mit dem Daumen. */
+.wz-weiter { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.wz-weiter-text { max-width: 62ch; margin: 0 auto 16px; text-align: center; line-height: 1.6; }
+/* Der Querverweis auf das andere Werkzeug. Bewusst als SATZ und nicht
+   als vierter Knopf: Vier Knoepfe nebeneinander heissen „such dir was
+   aus", ein Satz heisst „das ist die naechste Frage". */
+.wz-weiter-naechste { max-width: 62ch; margin: 0 auto 16px; text-align: center;
+  font-size: .95rem; color: var(--muted, #555); line-height: 1.6; }
+.wz-weiter-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.wz-weiter-knoepfe .btn { min-height: 46px; display: inline-flex; align-items: center; }
+@media (max-width: 560px) {
+  .wz-weiter-knoepfe { flex-direction: column; }
+  .wz-weiter-knoepfe .btn { width: 100%; justify-content: center; }
+}
+
+/* iOS Safari zoomt beim Antippen in jedes Eingabefeld unter 16 px und
+   zoomt nicht wieder heraus (gemeldet am 04.11.2026 vom iPhone, dort
+   zuerst im Konfigurator aufgefallen). 0,95 rem sind 15,2 px – knapp
+   darunter, also betroffen. Nur am Finger, nicht an der Maus. */
+@media (pointer: coarse) {
+  .wz-hoehe-input-wrap input, .wz-hoehe-select { font-size: 16px; }
+}
 
   </style>
 
@@ -646,7 +647,7 @@
            WAS FEHLTE: Wer sein Ergebnis hat, stand vor einem nackten
            Knopf. Zwischen „Schneelastzone 2" und „Kostenlos beraten
            lassen" fehlte der Satz, der sagt, was die Zahl mit einer
-           Ueberdachung zu tun hat - und ein Weg zu den Produkten gab
+           Ueberdachung zu tun hat - und einen Weg zu den Produkten gab
            es von hier gar nicht.
 
            WENIGE ZEILEN SIND KEIN BEFUND: Acht Aufrufe tragen keine
