@@ -300,9 +300,11 @@ var FEHLER = [
   ['Die Hervorhebung bleibt nach einem Neubau haengen', 'js',
    '    massWachSchild = null;\n    leeren(masseGruppe);',
    '    leeren(masseGruppe);'],
+  /* NACHGEZOGEN 04.11.2026: In der Klickkette steht jetzt
+     zurueckGeklickt() voran, die Zeile sieht also anders aus. */
   ['Der Klick faellt bei langsamen Geraeten wieder durch', 'js',
-   '    if (weg < 6 && zeit < 2500 && !massGeklickt(e) && !pfostenGeklickt(e) &&',
-   '    if (weg < 6 && zeit < 900 && !massGeklickt(e) && !pfostenGeklickt(e) &&'],
+   'if (weg < 6 && zeit < 2500 && !zurueckGeklickt(e) &&',
+   'if (weg < 6 && zeit < 900 && !zurueckGeklickt(e) &&'],
   ['Die eigenen Schalter am Masskasten fehlen', 'html',
    'id="k3dMassPlus"', 'id="k3dMassPlusAlt"'],
   ['Die Schalter tun nichts', 'js',
