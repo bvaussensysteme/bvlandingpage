@@ -803,3 +803,27 @@ sind Teile im 3D-Bild, keine Knöpfe). Dieselben Werte stehen im Bedienfeld.
 | 24.10.2026 | Rückseite teilt sich an ihren eigenen Pfosten | live |
 | 24.10.2026 | Maßlinien als Körper mit Endmarken, BV-Logo deutlicher | live |
 | 23.10.2026 | Seitenelemente auch hinten, wenn die Anlage freistehend ist | live |
+
+## Aus dem Einstieg verschoben am 04.11.2026 – Arbeitsschritte vom 31.10. und 01.11.2026
+
+> Nur die Kurzfassung; das *Warum* steht in `docs/entscheidungen.md`.
+
+| Datum | Was | Stand |
+|---|---|---|
+| 01.11.2026 | **Pfosten wieder gleichmäßig stellen**: Schalter je Zwischenpfosten, erscheint nur wenn verschoben; nimmt den Versatz weg statt einen Wert zu setzen | neu |
+| 01.11.2026 | **Hausfarben statt Grau**: Maßschild doppelt so groß, weiß mit goldenem Rand, unter dem Zeiger gold gefüllt wie die Knöpfe der Seite; Maßlinien wieder schwarz; + Scheiben gold mit weißem Zeichen | neu |
+| 01.11.2026 | **Bemaßung neu**: dünnere Linien (0,9 statt 1,6 cm), Pfeilspitzen, Maßhilfslinien mit Überstand; das Maß selbst als Bedienelement (heller Grund, Rahmen, Stift, Gold beim Darüberfahren). Klickgrenze von 0,9 auf 2,5 s — gemessen 689 ms für einen Druck von 120 ms | neu |
+| 01.11.2026 | **Maßkasten**: „Übernehmen" ragte 10 px heraus (190 px breit, Knöpfe brauchten 187 + 24 px Polster); eigene − / + Schalter statt der Browser-Pfeilchen, die am Handy gar nicht da sind | neu |
+| 01.11.2026 | **Zwischenpfosten: erst antippen, dann schieben** — und die Toleranz war zu eng hergeleitet (nur eigene Pfostenspalte statt ganzer Tabelle): bei 7.000 mm jetzt ±520 statt ±200 mm | neu |
+| 01.11.2026 | **Zwischenpfosten verschiebbar** — Ziehen am Modell plus Regler, Toleranz aus der Maßtabelle hergeleitet; Lage geht in Teilen-Link und Anfrage mit | live |
+| 01.11.2026 | Jedes Feld entscheidet für sich („Feld 1 … n"), rundes Zeichen nur im leeren Feld, kräftigere Farbe, dünnere Ränder | live |
+| 31.10.2026 | **Maße voreingestellt an und im Bild anklickbar** — Tipp auf ein Maß öffnet ein Zahlenfeld | live |
+| 31.10.2026 | Anklickpunkte kleiner, halbdurchsichtig, **verdeckte werden ausgeblendet**; Werkstatt-Streifen von 4 Zeilen auf eine (28 px) | live |
+| 31.10.2026 | **Keine Emoji mehr**: eigene Symbolsammlung für Konfigurator und Website (Cookie-Banner, Newsletter, Slider, Galerie-Lupe, Ortsanzeige, Bedienhilfe) | live |
+| 31.10.2026 | `pruefe-live.sh`: sechs Marker auf dem gesperrten Konfigurator machten sie unbemerkt rot — ruhen jetzt, mit Beweis der Hinweisseite | live |
+| 31.10.2026 | `pruefe-konfigurator-oberflaeche.mjs`: Abbruch bei Prüfung 67 von 90 behoben (23 Prüfungen liefen seit PR #500 nicht) | live |
+| 31.10.2026 | **Anklickpunkte am Modell**: ein Punkt je Seitenfeld, einer am Dach, Klick springt in den Bereich; abschaltbar | live |
+| 31.10.2026 | Menü in fünf Bereiche geteilt (Anlage · Dach · Seiten · Zubehör · Fertig) mit Reitern und Zähler | live |
+| 31.10.2026 | Werkstatt `/werkstatt/`: Passwortschutz im Worker, Neu-laden-Knopf, Versionsanzeige | live |
+| 31.10.2026 | Öffentlicher Konfigurator gesperrt: Hinweisseite statt Rechner, alle Links raus | live |
+| 31.10.2026 | Aussparung (Hausvorsprung) als Machbarkeitsnachweis — nur in der Werkstatt | **wartet auf Entscheidung** |
