@@ -57,6 +57,8 @@ const GEGEN_ERWARTET = [
   'Jede Produktkarte zeigt ein geladenes Foto',
   'Kein Produkt heißt mehr „Sonstiges"',
   'Der Direktweg nennt die Fälle, die dort gelandet sind',
+  'Der Direktweg fragt Maße ab – freiwillig',
+  'Ohne Maße geht es trotzdem weiter',
   'Der Schritt nennt den Aufpreis',
   'Alle Eindeckungs-Kacheln sind gleich groß',
   '„braun" findet Brauntöne',
@@ -95,6 +97,13 @@ if (GEGENPROBE) {
            vergeblich. */
     t = t.replace("{ value: 'Balkonüberdachung', img: 'balkon', photo: true,",
                   "{ value: 'Balkonüberdachung', icon: I.sonst,");
+    /* Siebter und achter eingebauter Fehler (04.11.2026): Die
+       freiwilligen Masse im Direktweg fallen weg bzw. werden zur
+       Pflicht - beides nimmt dem Weg genau das, wofuer er da ist. */
+    t = t.replace("'<div class=\"aw-dims aw-dims--frei\">' +", "'' + (0 ? '' : '') +");
+    t = t.replace("return answers.wunsch.trim() ? null : 'Bitte beschreiben Sie kurz Ihr Anliegen.';",
+                  "if (!answers.breite || !answers.tiefe) return 'Bitte Maße angeben.';\n"
+                  + "        return answers.wunsch.trim() ? null : 'Bitte beschreiben Sie kurz Ihr Anliegen.';");
     t = t.replace("{ value: 'Direkt anfragen', icon: I.brief,\n            hint: 'Markise, Geländer, Vordach … oder kurze Nachricht' }",
                   "{ value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' },\n"
                   + "          { value: 'Direkt anfragen', icon: I.brief, hint: 'Ohne Fragen' }");
@@ -144,6 +153,47 @@ await seite.waitForTimeout(1200);
   pruefe('Der Direktweg nennt die Fälle, die dort gelandet sind',
     karten.some((k) => /Direkt anfragen/.test(k.text) && /Markise/.test(k.text)),
     (karten.find((k) => /Direkt anfragen/.test(k.text)) || {}).text || 'keine Karte');
+}
+
+/* ---------- Der Direktweg: Maße freiwillig ----------
+   Mit dem Wegfall von „Sonstiges" kam eine Markisen-Anfrage nur noch
+   als Freitext an - ohne Maße, also mit einer Rueckfrage als erstem
+   Schritt. Jetzt stehen zwei FREIWILLIGE Felder dort.
+
+   GEPRUEFT WIRD BEIDES: dass die Felder da sind, UND dass man ohne
+   sie weiterkommt. Nur das zweite macht sie freiwillig; ohne diese
+   Pruefung koennte aus dem Angebot unbemerkt eine Pflicht werden. */
+{
+  await seite.evaluate(() => {
+    const k = [...document.querySelectorAll('#awBody .aw-option')]
+      .find((b) => /Direkt anfragen/.test(b.innerText || ''));
+    if (k) k.click();
+  });
+  await seite.waitForTimeout(500);
+  await seite.locator('#awNext').click();
+  await seite.waitForTimeout(700);
+  const felder = await seite.$$eval('#awBody .aw-dims--frei input', (n) => n.map((e) => e.id));
+  pruefe('Der Direktweg fragt Maße ab – freiwillig',
+    felder.includes('aw_breite') && felder.includes('aw_tiefe'), felder.join(' '));
+  /* Nur den Freitext ausfuellen, die Masse leer lassen - und weiter. */
+  await seite.evaluate(() => {
+    const t = document.getElementById('awWunsch');
+    if (t) { t.value = 'Markise über der Terrasse, ca. 4 m'; t.dispatchEvent(new Event('input', { bubbles: true })); }
+  });
+  await seite.locator('#awNext').click();
+  await seite.waitForTimeout(700);
+  const weiter = await seite.evaluate(() => {
+    const f = document.querySelector('#awBody .aw-fehler, #awBody .aw-error');
+    const t = (document.querySelector('#awBody') || {}).innerText || '';
+    return { fehler: f ? f.innerText : '', text: t.slice(0, 80).replace(/\n/g, ' ') };
+  });
+  pruefe('Ohne Maße geht es trotzdem weiter',
+    !/Maße/i.test(weiter.fehler) && !/aw_breite/.test(weiter.text),
+    weiter.fehler ? 'Meldung: ' + weiter.fehler : 'weitergekommen: ' + weiter.text);
+  /* Zurueck auf Anfang, damit die folgenden Pruefungen ihren Stand
+     vorfinden - sie klicken sich selbst durch den Produktweg. */
+  await seite.reload({ waitUntil: 'load' });
+  await seite.waitForTimeout(1200);
 }
 
 /* ---------- Bis zum Farbschritt klicken ---------- */
