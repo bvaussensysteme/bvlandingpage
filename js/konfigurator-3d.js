@@ -1419,6 +1419,11 @@
   /* ---------- Szene ---------- */
   var renderer = new THREE.WebGLRenderer({
     canvas: leinwand, antialias: true,
+    /* Auf Geraeten mit zwei Grafikeinheiten (die meisten Notebooks) nimmt
+       der Browser von sich aus die sparsame. Fuer eine Seite, auf der
+       ein Bauwerk gedreht wird, ist die schnellere richtig. Kostet
+       nichts und aendert am Bild nichts. */
+    powerPreference: 'high-performance',
     preserveDrawingBuffer: true   // ohne das liefert toDataURL ein leeres Bild
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -1450,8 +1455,20 @@
   sonne.castShadow = true;
   /* 2048 statt 1024: bei 1024 franst der Schatten eines 70 mm breiten
      Sparrens über 5 m Breite sichtbar aus. normalBias verhindert die
-     Streifen auf den Profilen (Schattenakne). */
-  sonne.shadow.mapSize.set(2048, 2048);
+     Streifen auf den Profilen (Schattenakne).
+
+     AM HANDY DIE HAELFTE (04.11.2026). Eine Schattenkarte von 2048 ×
+     2048 ist der teuerste einzelne Posten im Bild; auf einem Schirm von
+     390 Bildpunkten Breite ist der Unterschied zu 1024 nicht zu sehen,
+     die Rechenlast aber ein Viertel. Entschieden wird EINMAL beim
+     Aufbau: Die Groesse nachträglich zu ändern hiesse, die Karte
+     wegzuwerfen und neu aufzubauen – beim Drehen des Geraets wäre das
+     ein sichtbarer Ruckler für nichts. */
+  var schattenKante = (window.innerWidth || 1200) < 900 ? 1024 : 2048;
+  sonne.shadow.mapSize.set(schattenKante, schattenKante);
+  /* Der Rahmen wird bei jedem Neubau an die wirkliche Baugroesse
+     gezogen, siehe schattenAnpassen(). Die Werte hier sind nur der
+     Stand, bis zum ersten Bau. */
   sonne.shadow.camera.left = -700; sonne.shadow.camera.right = 700;
   sonne.shadow.camera.top = 700;  sonne.shadow.camera.bottom = -700;
   sonne.shadow.camera.far = 2200;
@@ -4623,6 +4640,7 @@
     stimmung();
     masseZeichnen();
     kameraAnpassen();
+    schattenAnpassen();
     /* Die Schattenkarte wird NICHT mehr jedes Bild neu gerechnet – das
        ist bei 2048 × 2048 und weichen Schatten der teuerste Posten der
        Schleife. Sie ändert sich nur, wenn sich das Modell oder das Licht
@@ -9735,6 +9753,48 @@
   /* ---------- Kamera ---------- */
   var kam = { radius: 1000, theta: 0.78, phi: 1.3, ziel: new THREE.Vector3(0, 120, 120) };
   var autoDreht = false;
+
+  /* ---------- Der Schattenrahmen folgt der Baugroesse ----------
+     GEFUNDEN am 04.11.2026 beim Durchgehen der Regeln des three.js-Skills
+     („Tight Shadow Camera Frustum"): Der Rahmen stand FEST auf 14 m im
+     Quadrat – gewaehlt fuer die groesste Anlage, die die Maßtabelle
+     hergibt.
+
+     WAS DAS KOSTETE: Die Schattenkarte hat eine feste Zahl von
+     Bildpunkten (2048, am Handy 1024). Verteilt man sie über 14 m,
+     bekommt ein 3 m breiter Carport nur noch ein Fuenftel davon zu
+     sehen – seine Schattenkanten franzen aus, obwohl die Karte gross
+     genug wäre. Zieht man den Rahmen auf die wirkliche Groesse, liegt
+     dieselbe Zahl Bildpunkte auf einer viel kleineren Flaeche.
+
+     DAS KOSTET NICHTS. Es wird nicht mehr gerechnet, nur enger
+     geschaut. Bei der groessten Anlage bleibt alles, wie es war.
+
+     DIE ZUGABE (Hoehe und 120 cm) deckt ab, was über den Grundriss
+     hinaus Schatten wirft: Dachvorsprung, Markisenkassette, der
+     Schattenwurf selbst, der schräg auf den Boden faellt. Die
+     Untergrenze von 260 cm verhindert, dass eine sehr kleine Anlage
+     ihren eigenen Schattenwurf abschneidet.
+
+     Der Abstand der Sonne wird mitgezogen, die RICHTUNG bleibt gleich:
+     Fuer ein gerichtetes Licht zaehlt nur die Richtung zum Ziel, und
+     die aendert sich nicht, wenn man denselben Vektor verlaengert. Ohne
+     das Mitziehen stuende ein 14 m breites Bauwerk zum Teil hinter der
+     Schattenkamera und wuerfe dort keinen Schatten mehr. */
+  var SONNE_RICHTUNG = new THREE.Vector3(-420, 620, 380).normalize();
+  function schattenAnpassen() {
+    var B = (Z.breite || 5000) / 10, T = (Z.tiefe || 3000) / 10,
+        H = (Z.hoehe || 2500) / 10;
+    var r = Math.sqrt(B * B + T * T) / 2 + H + 120;
+    r = Math.max(260, Math.min(r, 1400));
+    var abstand = Math.max(820, r * 1.35);
+    sonne.position.copy(SONNE_RICHTUNG).multiplyScalar(abstand);
+    sonne.shadow.camera.left = -r;  sonne.shadow.camera.right = r;
+    sonne.shadow.camera.top = r;    sonne.shadow.camera.bottom = -r;
+    sonne.shadow.camera.near = 1;
+    sonne.shadow.camera.far = abstand + r + 200;
+    sonne.shadow.camera.updateProjectionMatrix();
+  }
 
   function kameraAnpassen() {
     /* Der Abstand haengt an der Groesse des Bauwerks, damit auch ein 8 m

@@ -12702,3 +12702,68 @@ erst nach dem Verschieben, sitzt es dicht genug unter dem Doppelpfeil, um
 als Paar gelesen zu werden, und ist es mit dem Daumen gut zu treffen? Die
 Größe ist dieselbe wie beim Doppelpfeil (`ZIEH_ZEICHEN = 30`); ob das am
 Gerät groß genug ist, kann ich nicht messen.
+
+## 04.11.2026 – Schattenrahmen an der Baugröße, Handy-Schattenkarte, „Bewegung reduzieren"
+
+**Anlass.** „mach das beste was geht ohne was kaputt zu machen backup nicht
+vergessen" (Betreiber, 04.11.2026), nachdem ich vier Funde aus den beiden
+neu übernommenen Skills vorgelegt hatte.
+
+**Sicherung zuerst.** Der Stand vor dieser Änderung liegt als Branch
+`sicherung/stand-20261104u-vor-modernisierung` (Commit `f94741b`) auf
+GitHub. Ein **Tag** ließ sich nicht hochladen: `git push origin <tag>`
+meldete „Everything up-to-date", der Server hatte ihn danach aber nicht –
+offenbar lässt der Proxy dieser Arbeitsumgebung keine Tags durch. Nachgesehen
+mit `git ls-remote --tags`, sonst wäre die Sicherung eine Behauptung
+geblieben. **Für künftige Sicherungen also Branch, nicht Tag.**
+
+**1. Der Schattenrahmen folgt der Baugröße.** Er stand fest auf ±700 cm,
+gewählt für die größte Anlage der Maßtabelle. Die Schattenkarte hat aber eine
+feste Zahl Bildpunkte: Über 14 m verteilt bekommt ein 3-m-Carport nur ein
+Fünftel davon, seine Kanten fransen aus. `schattenAnpassen()` zieht den
+Rahmen jetzt bei jedem Neubau auf `√(B²+T²)/2 + H + 120 cm`, begrenzt auf
+260 bis 1400 cm. **Das kostet nichts** – es wird nicht mehr gerechnet, nur
+enger geschaut; bei der größten Anlage bleibt alles wie bisher. Die Sonne
+rückt mit nach außen, ihre **Richtung** bleibt gleich (für ein gerichtetes
+Licht zählt nur die Richtung zum Ziel). Ohne das Mitziehen stünde ein 14 m
+breites Bauwerk zum Teil hinter der Schattenkamera.
+
+**2. Am Handy die halbe Schattenkarte** (1024 statt 2048 unter 900 px
+Breite): ein Viertel der Rechenlast, auf einem 390-px-Schirm kein sichtbarer
+Unterschied. Entschieden **einmal beim Aufbau** – die Größe nachträglich zu
+ändern hieße, die Karte wegzuwerfen und neu aufzubauen; beim Drehen des
+Geräts wäre das ein Ruckler für nichts. Dazu
+`powerPreference: 'high-performance'`: Notebooks mit zwei Grafikeinheiten
+nehmen sonst die sparsame.
+
+**3. „Bewegung reduzieren" wird beachtet.** Der Konfigurator hatte dafür
+keine einzige Regel. Jetzt setzt ein `@media (prefers-reduced-motion: reduce)`
+die vier Übergänge auf 0,01 ms. **Null statt Wegnehmen:** `transition: none`
+kann Abläufe stören, die auf das Ende eines Übergangs warten.
+
+**Korrektur meiner eigenen Darstellung.** Ich hatte dem Betreiber geschrieben,
+„die Autodrehung und die Animationen laufen auch dann". Das war zu weit
+gegriffen: Die Drehung schaltet man selbst mit einem Knopf ein. Die bleibt
+**absichtlich** unangetastet – eine Systemeinstellung soll keinen
+ausdrücklichen Wunsch übergehen. Übrig bleiben vier kurze Übergänge. Der
+Punkt ist damit kleiner als dargestellt; richtig bleibt, dass es vorher gar
+nichts gab. Rechtlich hängt daran das **BFSG** (seit 28.06.2025 für
+Dienstleistungen an Verbraucher); die verbindliche Bewertung holt der
+Betreiber beim Fachmann.
+
+**Bewusst NICHT gemacht.** Pixelverhältnis von 2 auf 1,5 und Kantenglättung
+am Handy abschalten – beides empfiehlt der Skill, beides macht das Bild
+**sichtbar weicher**, und den Gewinn kann ich in einem Software-Renderer ohne
+Grafikkarte nicht messen. Ohne Urteil am echten Gerät wird hier nichts
+verschlechtert. Ebenso die rund 960 Zeichenaufrufe je Bild: zu nah an der
+Geometrie, die an Herstellermaßen hängt.
+
+**Abgesichert, gemessen statt gelesen.** Die neuen Prüfungen in
+`scripts/pruefe-konfigurator-oberflaeche.mjs` lesen den Schattenrahmen nach
+dem Bau **aus der Szene zurück** – einmal bei 3000 mm, einmal bei 14080 mm –
+und fragen die **wirklich gerechnete** Übergangsdauer ab, nachdem dem Browser
+„Bewegung reduzieren" vorgegeben wurde. Dazu zwei neue eingebaute Fehler.
+
+**Was gegengelesen werden soll.** Am Handy bei einer **kleinen** Anlage
+(3000 mm): Sind die Schattenkanten der Sparren jetzt schärfer? Und läuft
+alles weiterhin flüssig?

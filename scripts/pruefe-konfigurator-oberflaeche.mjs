@@ -122,6 +122,11 @@ function messpunktEinbauen(t) {
     '    var rr = leinwand.getBoundingClientRect();\n' +
     '    return { x: Math.round(rr.left + (v.x + 1) / 2 * rr.width),\n' +
     '             y: Math.round(rr.top + (1 - v.y) / 2 * rr.height) };\n' +
+    '  };\n' +
+    '  window.__bvSchatten = function () {\n' +
+    '    return { r: Math.round(sonne.shadow.camera.right),\n' +
+    '             karte: sonne.shadow.mapSize.width,\n' +
+    '             abstand: Math.round(sonne.position.length()) };\n' +
     '  };\n  function pfostenWahlZeigen() {');
 }
 
@@ -160,6 +165,9 @@ async function fehlerEinbauen(ziel) {
                   '      void 0;');
     t = t.replace('      delete Z.pfostenVersatz[z.reihe][String(z.nr)];',
                   '      void z;');
+    /* Dreizehnter Fehler (04.11.2026): Der Schattenrahmen wird nach dem
+       Bau nicht mehr nachgezogen und bleibt auf dem Festwert stehen. */
+    t = t.replace('    schattenAnpassen();\n', '');
     /* Zehnter Fehler steckt im Stylesheet, siehe weiter unten:
        „Abbrechen" verliert seine rote Fassung und faellt auf das Blau
        zurueck, das Safari jedem Knopf von sich aus gibt. */
@@ -209,6 +217,9 @@ async function fehlerEinbauen(ziel) {
 await fehlerEinbauen(page);
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
+  /* Vierzehnter Fehler (04.11.2026): Die Ruecksicht auf „Bewegung
+     reduzieren" wird wieder aufgehoben. */
+  await page.addStyleTag({ content: '@media (prefers-reduced-motion: reduce){body.k3d-app-seite *,body.k3d-app-seite *::after{transition-duration:.25s !important}}' });
   await page.route('**/anfrage-wizard.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
@@ -1269,6 +1280,80 @@ pruef('Zurueck auf eben loescht den Hinweis wieder',
   (await page.locator('#k3dBodenGefaelleStand').innerText()).trim() === '',
   'das Feld laesst sich leeren');
 
+
+/* ---------- Der Schattenrahmen folgt der Baugroesse ----------
+   Der Rahmen stand fest auf 14 m im Quadrat, auch bei einem 3 m breiten
+   Carport - die Schattenkarte verteilte sich dann über das Fuenffache
+   der noetigen Flaeche und die Kanten franzten aus.
+
+   GEMESSEN, NICHT IM QUELLTEXT NACHGELESEN: Der Rahmen wird nach dem
+   Bau aus der Szene zurueckgelesen, einmal schmal und einmal breit. Er
+   muss mitwachsen, und bei der schmalen Anlage deutlich unter dem alten
+   Festwert von 700 liegen. */
+const breiteVorSchatten = await page.$eval('#k3dBreiteZahl', (e) => e.value);
+const schattenLesen = () => page.evaluate(() =>
+  window.__bvSchatten ? window.__bvSchatten() : null);
+await page.evaluate(() => {
+  const e = document.getElementById('k3dBreiteZahl');
+  e.value = 3000; e.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(1300);
+const schattenSchmal = await schattenLesen();
+await page.evaluate(() => {
+  const e = document.getElementById('k3dBreiteZahl');
+  e.value = 14080; e.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(1500);
+const schattenBreit = await schattenLesen();
+pruef('Der Schattenrahmen wird ausgelesen', !!schattenSchmal && !!schattenBreit,
+  schattenSchmal ? `schmal ${schattenSchmal.r} cm, breit ${schattenBreit.r} cm` : 'kein Messpunkt');
+pruef('Der Schattenrahmen waechst mit der Anlage',
+  !!schattenSchmal && !!schattenBreit && schattenBreit.r > schattenSchmal.r + 200,
+  schattenSchmal ? `${schattenSchmal.r} cm bei 3000 mm, ${schattenBreit.r} cm bei 14080 mm` : '-');
+pruef('Bei kleiner Anlage ist er enger als der alte Festwert',
+  !!schattenSchmal && schattenSchmal.r < 700,
+  schattenSchmal ? `${schattenSchmal.r} cm statt fest 700 cm` : '-');
+pruef('Die Sonne rueckt mit, bleibt aber in Richtung',
+  !!schattenBreit && schattenBreit.abstand >= 820,
+  schattenBreit ? `Abstand ${schattenBreit.abstand} cm` : '-');
+/* ZURUECK AUF DEN STAND VON VORHER. Beim ersten Lauf blieben 14080 mm
+   stehen, und zwei spaetere Pruefungen verglichen gegen eine Breite,
+   die dieser Block gesetzt hatte - sie waren rot, obwohl an ihnen
+   nichts falsch war. */
+await page.$eval('#k3dBreiteZahl', (e, v) => {
+  e.value = v; e.dispatchEvent(new Event('change', { bubbles: true }));
+}, breiteVorSchatten);
+await page.waitForTimeout(1300);
+pruef('Nach der Schattenmessung steht die Breite wieder wie vorher',
+  (await page.$eval('#k3dBreiteZahl', (e) => e.value)) === breiteVorSchatten,
+  `${breiteVorSchatten} mm`);
+
+/* ---------- Bewegung reduzieren wird beachtet ----------
+   Die Systemeinstellung (iOS: Bedienungshilfen > Bewegung) sagt, dass
+   jemand weniger Bewegung sehen will - meist wegen Schwindel oder
+   Migraene. Der Konfigurator hatte dafuer bis zum 04.11.2026 keine
+   einzige Regel.
+
+   GEMESSEN, nicht im Quelltext nachgelesen: Dem Browser wird die
+   Einstellung vorgegeben, und danach wird die WIRKLICH GERECHNETE
+   Uebergangsdauer eines Bedienelements zurueckgelesen. */
+const uebergangsdauer = () => page.evaluate(() => {
+  const e = document.querySelector('.k3d-sek > summary');
+  if (!e) return null;
+  return getComputedStyle(e, '::after').transitionDuration;
+});
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.waitForTimeout(250);
+const bewegungAus = await uebergangsdauer();
+await page.emulateMedia({ reducedMotion: 'no-preference' });
+await page.waitForTimeout(250);
+const bewegungAn = await uebergangsdauer();
+pruef('Bei reduzierter Bewegung laufen keine Uebergaenge',
+  !!bewegungAus && parseFloat(bewegungAus) <= 0.01,
+  `gerechnet: ${bewegungAus}`);
+pruef('Ohne die Einstellung bleiben die Uebergaenge',
+  !!bewegungAn && parseFloat(bewegungAn) > 0.05,
+  `gerechnet: ${bewegungAn}`);
 
 /* ---------- Zwischenpfosten im Modell ziehen ----------
    „kann man ausser die eckpfosten die zwischenpfosten verschieben

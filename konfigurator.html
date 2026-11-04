@@ -1192,6 +1192,33 @@
       display: none !important;
     }
 
+    /* ---------- Wer weniger Bewegung will, bekommt weniger ----------
+       GEPRUEFT am 04.11.2026: Der Konfigurator hatte keine einzige
+       Beruecksichtigung von `prefers-reduced-motion`. Das ist die
+       Systemeinstellung „Bewegung reduzieren" (iOS: Bedienungshilfen >
+       Bewegung); wer sie setzt, hat dafuer meist einen Grund -
+       Schwindel, Migraene, Reisekrankheit.
+
+       WAS HIER LAEUFT, ist wenig: vier kurze Uebergaenge von 0,2 bis
+       0,25 Sekunden, alle an einem Handgriff haengend. Die Drehung der
+       Buehne bleibt ABSICHTLICH, wie sie ist - die schaltet man selbst
+       mit einem Knopf ein, und eine Einstellung soll keinen
+       ausdruecklichen Wunsch uebergehen.
+
+       Null statt Wegnehmen: `transition: none` kann Abläufe
+       durcheinanderbringen, die auf das Ende eines Uebergangs warten.
+       Mit 0,01 s ist die Bewegung weg und das Ende kommt trotzdem. */
+    @media (prefers-reduced-motion: reduce) {
+      body.k3d-app-seite *,
+      body.k3d-app-seite *::before,
+      body.k3d-app-seite *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     @media (max-width: 900px) {
       .k3d-app { flex-direction: column; height: auto; min-height: 0; }
       /* ---------- „Angebot anfragen" steht am Handy erst am Ende ----------
@@ -2781,7 +2808,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261104u" defer></script>
+<script src="js/konfigurator-3d.js?v=20261104v" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
