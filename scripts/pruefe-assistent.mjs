@@ -54,6 +54,9 @@ function pruefe(titel, ok, info) {
   else console.log('  ok      ' + titel.padEnd(50) + (info || ''));
 }
 const GEGEN_ERWARTET = [
+  'Jede Produktkarte zeigt ein geladenes Foto',
+  'Kein Produkt heißt mehr „Sonstiges"',
+  'Der Direktweg nennt die Fälle, die dort gelandet sind',
   'Der Schritt nennt den Aufpreis',
   'Alle Eindeckungs-Kacheln sind gleich groß',
   '„braun" findet Brauntöne',
@@ -81,6 +84,20 @@ if (GEGENPROBE) {
        den der Betreiber an der Bronze-Kachel beanstandet hat. */
     t = t.replace("optionCards('verglasung', opts, 'aw-options--equal')",
                   "optionCards('verglasung', opts)");
+    /* Vierter bis sechster eingebauter Fehler (04.11.2026), alle drei
+       am Produktschritt:
+         · die Balkonkarte verliert ihr Foto und faellt auf das
+           Platzhalter-Symbol zurueck - der Zustand, den der Betreiber
+           auf seinem Bildschirmfoto beanstandet hat,
+         · „Sonstiges" kommt als Produkt zurueck,
+         · der Direktweg nennt die Faelle nicht mehr, die vorher unter
+           „Sonstiges" standen - dann sucht jemand mit einer Markise
+           vergeblich. */
+    t = t.replace("{ value: 'Balkonüberdachung', img: 'balkon', photo: true,",
+                  "{ value: 'Balkonüberdachung', icon: I.sonst,");
+    t = t.replace("{ value: 'Direkt anfragen', icon: I.brief,\n            hint: 'Markise, Geländer, Vordach … oder kurze Nachricht' }",
+                  "{ value: 'Sonstiges', icon: I.sonst, hint: 'Markise, Geländer, Vordach …' },\n"
+                  + "          { value: 'Direkt anfragen', icon: I.brief, hint: 'Ohne Fragen' }");
     /* Dritter eingebauter Fehler: der Aufpreis-Hinweis verschwindet. */
     t = t.replace('Die vier Standardfarben ohne Aufpreis – jede andere RAL-Farbe gegen Aufpreis.',
                   'Die Standardfarben.');
@@ -91,6 +108,43 @@ if (GEGENPROBE) {
 
 await seite.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'load' });
 await seite.waitForTimeout(1200);
+
+/* ---------- Der Produktschritt ----------
+   ANLASS (04.11.2026, Bildschirmfoto vom iPhone): „Balkonüberdachung hat
+   kein Foto, Sonstiges kann weg, weil den selben zweck erfüllt schon
+   direkt anfragen."
+
+   GEPRUEFT WIRD IM BROWSER, nicht im Quelltext: ob jedes Bild WIRKLICH
+   geladen ist (naturalWidth > 0). Ein <img>, dessen Datei fehlt, steht
+   im Quelltext genauso da wie eines, das ankommt. */
+{
+  /* Die Bilder tragen loading="lazy" - ausserhalb des Blickfelds laedt
+     der Browser sie gar nicht erst, und naturalWidth bliebe 0, obwohl
+     die Datei da ist. Erst in den Blick holen, dann messen. */
+  await seite.evaluate(async () => {
+    const bilder = [...document.querySelectorAll('#awBody .aw-option img')];
+    bilder.forEach((b) => { b.loading = 'eager'; b.scrollIntoView({ block: 'nearest' }); });
+    await Promise.all(bilder.map((b) => b.complete ? Promise.resolve()
+      : new Promise((r) => { b.onload = r; b.onerror = r; setTimeout(r, 3000); })));
+  });
+  await seite.waitForTimeout(400);
+  const karten = await seite.$$eval('#awBody .aw-option', (n) => n.map((k) => ({
+    text: (k.innerText || '').replace(/\n/g, ' | '),
+    bild: !!k.querySelector('img'),
+    geladen: !!(k.querySelector('img') && k.querySelector('img').naturalWidth > 0)
+  })));
+  const produkte = karten.filter((k) => !/Direkt anfragen/.test(k.text));
+  pruefe('Jede Produktkarte zeigt ein geladenes Foto',
+    produkte.length >= 5 && produkte.every((k) => k.bild && k.geladen),
+    produkte.filter((k) => !k.geladen).map((k) => k.text.split(' | ')[0]).join(', ')
+      || produkte.length + ' Karten, alle mit geladenem Bild');
+  pruefe('Kein Produkt heißt mehr „Sonstiges"',
+    !karten.some((k) => /^Sonstiges/.test(k.text.trim())),
+    karten.map((k) => k.text.split(' | ')[0]).join(' · '));
+  pruefe('Der Direktweg nennt die Fälle, die dort gelandet sind',
+    karten.some((k) => /Direkt anfragen/.test(k.text) && /Markise/.test(k.text)),
+    (karten.find((k) => /Direkt anfragen/.test(k.text)) || {}).text || 'keine Karte');
+}
 
 /* ---------- Bis zum Farbschritt klicken ---------- */
 let titel = '';
