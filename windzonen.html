@@ -314,14 +314,6 @@
   background: var(--white); min-width: 190px; cursor: pointer;
 }
 .wz-hoehe-select:focus { outline: 2px solid var(--gold); outline-offset: 1px; border-color: var(--gold); }
-
-/* iOS Safari zoomt beim Antippen in jedes Eingabefeld unter 16 px und
-   zoomt nicht wieder heraus (gemeldet am 04.11.2026 vom iPhone, dort
-   zuerst im Konfigurator aufgefallen). 0,95 rem sind 15,2 px – knapp
-   darunter, also betroffen. Nur am Finger, nicht an der Maus. */
-@media (pointer: coarse) {
-  .wz-hoehe-input-wrap input, .wz-hoehe-select { font-size: 16px; }
-}
 .wz-hoehe-result .hr-pruef {
   margin-top: 14px; padding: 12px 14px; border-radius: 8px;
   border-left: 3px solid var(--gold);
