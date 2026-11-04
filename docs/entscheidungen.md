@@ -13070,3 +13070,37 @@ sie hat ihn gefangen.
 **Was gegengelesen werden soll.** Nichts Sichtbares; beide Funde sind
 Werkzeugfehler, keine Fehler auf der Website. Festgehalten sind sie, weil der
 erste sich wiederholen wird, wenn man es nicht weiß.
+
+## 04.11.2026 (abends) – Übergabe aufgeräumt: Einstieg wieder unter 400 Zeilen
+
+**Anlass.** Nach neun Zusammenführungen an einem Tag war `docs/NEXT_TASK.md`
+auf **572 Zeilen** gewachsen – deutlich über dem eigenen Ziel von etwa 400.
+Ein Einstieg, den niemand mehr ganz liest, ist kein Einstieg.
+
+**Was jetzt gilt.** 414 Zeilen. Dafür drei Dinge:
+
+1. **Reines Nachschlagewerk ausgelagert** – nach der eigenen Regel
+   („Fachdokumente kommen als `docs/<thema>.md` dazu … Der Einstieg verweist
+   darauf, wiederholt sie nicht"):
+   * `docs/pruefungen.md` – die vollständige Liste der Prüfskripte (104 Zeilen)
+   * `docs/arbeitsweise.md` – Branch, Veröffentlichung, Cache-Buster (47 Zeilen)
+2. **Abgeschlossenes ins Archiv:** die drei fertigen Abschnitte zu
+   Anklickfeldern und Zwischenpfosten, dazu zwölf Zeilen vom 02./03.11.
+3. **Der Stand von heute als Tabelle** ganz oben, mit dem ausdrücklichen
+   Vermerk, was **bewusst nicht** gemacht wurde und warum.
+
+**Zwei Wahrheiten vermieden.** `CLAUDE.md` verlangte, neue Prüfungen in
+`docs/NEXT_TASK.md` aufzulisten – diese Liste steht jetzt woanders. Die Regel
+zeigt auf `docs/pruefungen.md`, und die Tabelle der Übergabedateien nennt die
+drei neuen Dokumente. Eine Anweisung, die auf eine Datei zeigt, in der nichts
+mehr steht, ist schlimmer als keine.
+
+**Mit übernommen:** die Regel aus dem Abendfund – *nach einer Änderung an
+Code, den mehrere Bereiche benutzen, alle Prüfskripte laufen lassen, nicht
+die vermuteten.* Sie steht jetzt in `CLAUDE.md`, in `docs/pruefungen.md` und
+als Kommentar an der Stelle in `scripts/pruefe-markise.js`, die es
+aufgedeckt hat.
+
+**Was gegengelesen werden soll.** Nichts auf der Website. Wer es prüfen will:
+`docs/NEXT_TASK.md` von oben lesen – nach den ersten beiden Abschnitten muss
+klar sein, was ansteht und was beim Betreiber liegt.

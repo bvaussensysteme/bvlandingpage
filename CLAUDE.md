@@ -53,6 +53,9 @@ nahtlos weiterarbeiten können.
 | `docs/NEXT_TASK.md` | **Einstieg.** Was steht an, welche Dateien braucht genau diese Aufgabe, was liegt beim Betreiber. Kurz halten (max. ~400 Zeilen) |
 | `docs/entscheidungen.md` | **Logbuch.** Datum / Entscheidung / Begründung / Anlass. Wird durchsucht, nicht gelesen |
 | `docs/erledigt-archiv.md` | **Archiv.** Abgeschlossenes aus dem Einstieg. Wird durchsucht, nicht gelesen |
+| `docs/pruefungen.md` | **Prüfskripte.** Welche es gibt, was sie prüfen, wie viele Fehler die Gegenprobe einbaut |
+| `docs/arbeitsweise.md` | **Handgriffe.** Branch, Veröffentlichung, Cache-Buster, Konfliktmarken |
+| `docs/zahlen-lesen.md` | **Zahlen.** Abfragen, Spalten, die drei Fallen |
 
 Fachdokumente kommen als `docs/<thema>.md` dazu, sobald ein Bereich mehr als ein
 paar Absätze braucht. Der Einstieg verweist darauf, wiederholt sie nicht.
@@ -84,8 +87,10 @@ Eine Prüfung, die nur die eigene Arbeit bestätigt, ist keine. Deshalb:
   von Prüfungen mit erwartetem Ergebnis. Danach wirklich laufen lassen, nicht
   aus der Erinnerung abhaken.
 - Prüfungen als eigene Skripte unter `scripts/pruefe-*` anlegen, in
-  `docs/NEXT_TASK.md` auflisten und **jeweils mit `--gegenprobe`** versehen:
-  Schlägt die Prüfung auch an, wenn sie soll?
+  **`docs/pruefungen.md`** auflisten und **jeweils mit `--gegenprobe`**
+  versehen: Schlägt die Prüfung auch an, wenn sie soll? **Nach einer
+  Änderung an Code, den mehrere Bereiche benutzen, alle Skripte laufen
+  lassen – nicht die vermuteten.**
 - Wo möglich ein **zweiter, anders gebauter Weg** zum selben Ergebnis – etwa
   eine Zahl aus dem fertigen Dokument zurücklesen statt aus der Eingabe.
 - **Ehrlich berichten.** Läuft eine Prüfung nicht durch, steht das im Bericht.
