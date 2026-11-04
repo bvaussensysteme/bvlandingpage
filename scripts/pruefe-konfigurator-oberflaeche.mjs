@@ -1416,6 +1416,12 @@ async function zurueckZeichenSuchen() {
      ueber ihm steht der Zeiger auf 'ew-resize', und das kann in diesem
      Lauf nichts anderes sein -, dann auf seiner Achse senkrecht nach
      dem 'pointer' des Zeichens suchen. */
+  /* GEMESSEN beim zweiten Anlauf: Der erste 'pointer' auf der Achse war
+     nicht das Zeichen, sondern ein MASSSCHILD - auch die melden
+     'pointer'. Fuer die Dauer dieser Suche werden die Masse im Modell
+     abgeschaltet; dann kann 'pointer' auf der Achse des GEWAEHLTEN
+     Pfostens nichts anderes mehr sein. Danach werden sie wieder
+     eingeschaltet, weil nachfolgende Pruefungen sie brauchen. */
   let achse = null;
   for (let dx = 0; dx <= 200 && achse === null; dx += 8) {
     for (const sx of (dx === 0 ? [0] : [dx, -dx])) {
@@ -1432,6 +1438,14 @@ async function zurueckZeichenSuchen() {
   }
   return null;
 }
+await page.evaluate(() => {
+  const h = document.getElementById('k3dMasse');
+  if (h && h.checked) { h.checked = false; h.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.waitForTimeout(700);
+const zzMasseAus = await page.evaluate(() => !document.getElementById('k3dMasse').checked);
+pruef('Fuer diese Suche sind die Masse im Modell abgeschaltet', zzMasseAus,
+  'sonst meldet auch ein Massschild "pointer"');
 const zzOhneVersatz = pfGriff ? await zurueckZeichenSuchen() : null;
 let zzMitVersatz = null, zzAchsNach = '(nicht geklickt)', zzSchalter = '(nicht geklickt)';
 if (pfGriff) {
@@ -1459,6 +1473,11 @@ pruef('Nach dem Verschieben steht es ueber dem Pfosten',
 pruef('Ein Tipp darauf stellt den Pfosten zurueck',
   !pfGriff || (zzAchsNach === pfAchsVor && zzSchalter === 'versteckt'),
   `${zzAchsNach} (vorher ${pfAchsVor}), Schalter danach ${zzSchalter}`);
+await page.evaluate(() => {
+  const h = document.getElementById('k3dMasse');
+  if (h && !h.checked) { h.checked = true; h.dispatchEvent(new Event('change', { bubbles: true })); }
+});
+await page.waitForTimeout(700);
 
 /* Zurueck auf die gleichmaessige Lage - dasselbe Bauwerk wie vorher. */
 await page.$eval('#k3dPfosten [data-pfosten="1"] input', (e, v) => {
