@@ -792,15 +792,20 @@ await page.waitForTimeout(600);
   hy.setDefaultTimeout(8000);
   if (GEGENPROBE) {
     await fehlerEinbauen(hy);
-    /* Siebzehnter Fehler: Die Zeile kommt am Handy zurueck. */
-    await hy.addStyleTag({ content: '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}' })
-      .catch(() => {});
+    /* Siebzehnter Fehler: Die Zeile kommt am Handy zurueck.
+       Achtzehnter Fehler: Die Huelle des Massfeldes ist wieder ein
+       Raster aus zwei Spalten - genau der Zustand, in dem der
+       Grenzen-Hinweis in eine 78-px-Spalte gequetscht wurde. */
+    await hy.addStyleTag({ content:
+      '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
+      + '.k3d-regler.ist-steller{display:grid!important}' }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
   await hy.waitForTimeout(3200);
   if (GEGENPROBE) {
-    await hy.addStyleTag({ content: '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}' })
-      .catch(() => {});
+    await hy.addStyleTag({ content:
+      '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
+      + '.k3d-regler.ist-steller{display:grid!important}' }).catch(() => {});
   }
   const schritte = [];
   for (let i = 0; i < 5; i++) {
@@ -826,6 +831,35 @@ await page.waitForTimeout(600);
      indem man die Anfrage am Handy ganz abschafft. */
   pruef('Am Handy ist der letzte Knopf der Absender',
     /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
+
+  /* ---------- Kein Text laeuft aus seinem Kasten ----------
+     GEMELDET am 04.11.2026 mit Bild vom iPhone, rot eingekringelt:
+     Unter „5000 mm" stand „von 1.080 bis 14.080 mm · Schritt 10" in
+     einer handtuchschmalen Spalte und lief rechts aus dem Bildschirm.
+
+     WARUM DIE ALTEN PRUEFUNGEN DAS NICHT FANDEN: Sie messen
+     Rechtecke. Der Kasten des Hinweises war 78 px breit und endete
+     brav am Rand des Bedienfeldes - nur der TEXT darin lief weiter.
+     Ein Rechteck sieht das nicht; scrollWidth gegen clientWidth
+     schon. Genau diese Luecke schliesst die Pruefung hier.
+
+     overflow-x wird mitgeprueft: Wo ausdruecklich geschoben werden
+     darf (die Ansichtsleiste), ist mehr Inhalt als Kasten gewollt. */
+  const zuEng = await hy.evaluate(() => {
+    const raus = [];
+    document.querySelectorAll('.k3d-sl-rollen *').forEach((e) => {
+      const b = e.getBoundingClientRect();
+      if (b.width > 0 && e.scrollWidth > e.clientWidth + 1
+          && getComputedStyle(e).overflowX === 'visible') {
+        raus.push((e.className || '').toString().split(' ')[0]
+          + ' (' + Math.round(e.clientWidth) + ' statt '
+          + Math.round(e.scrollWidth) + ' px)');
+      }
+    });
+    return raus;
+  });
+  pruef('Am Handy laeuft kein Text aus seinem Kasten',
+    zuEng.length === 0, zuEng.slice(0, 3).join(', ') || 'nichts ragt heraus');
   await hy.close();
 }
 
@@ -2203,6 +2237,7 @@ if (!GEGENPROBE) {
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
   'Am Handy steht die Anfrage nicht in jedem Schritt',
+  'Am Handy laeuft kein Text aus seinem Kasten',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',
   'Erledigte Bereiche tragen einen Haken',

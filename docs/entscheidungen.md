@@ -12138,3 +12138,33 @@ schieben hat. Gemessen danach: 390 px breit, 698 px Inhalt, schiebbar.
 **Lehre, die bleibt:** Eine Zahl, die am großen Bildschirm gemessen wurde,
 gilt am Handy nicht. Wo eine Regel beide Größen betrifft, wird sie künftig in
 **beiden** Fenstern gemessen – 1440 und 390.
+
+## 04.11.2026 – Eine Klasse, die nie jemand gesetzt hat
+
+**Anlass:** Bild vom iPhone, rot eingekringelt. Unter „5000 mm" stand „von
+1.080 bis 14.080 mm · Schritt 10" in einer handtuchschmalen Spalte und lief
+rechts aus dem Bildschirm.
+
+**Ursache:** `.k3d-regler` ist ein Raster aus zwei Spalten (`1fr 78px`) – dort
+lagen früher Schieberegler und Zahlenfeld nebeneinander. Seit dem
+Zahlensteller (03.11.2026) hängt der Grenzen-Hinweis in derselben Hülle und
+bekam die **78-px-Spalte**. Dagegen gab es bereits die Regel
+`.k3d-regler.ist-steller { display: block }` – **aber die Klasse hat niemand
+gesetzt.** Sie stand nur im Stylesheet, in keiner Zeile Javascript. Jetzt
+setzt sie `zahlenstellerBauen()` an der einen Stelle, die den Steller baut.
+
+Derselbe Fund eine Zeile tiefer: Die Pfostenzeile ist ein Raster aus vier
+Spalten, der Hinweis landete in der letzten (30 px). Er bekommt dort eine
+eigene Zeile über die ganze Breite.
+
+**Warum keine Prüfung das gefunden hat – und was daraus folgt.** Alle
+bisherigen Prüfungen messen **Rechtecke**. Der Kasten des Hinweises war 78 px
+breit und endete brav am Rand des Bedienfeldes; nur der **Text darin** lief
+weiter. Ein Rechteck sieht das nicht – `scrollWidth` gegen `clientWidth`
+schon. Genau diese Lücke schließt die neue Prüfung „Am Handy läuft kein Text
+aus seinem Kasten": Sie geht im 390-px-Fenster jedes Element im Bedienfeld
+durch und vergleicht Inhalt mit Kasten. Wo ausdrücklich geschoben werden darf
+(`overflow-x` nicht `visible`, etwa die Ansichtsleiste), zählt sie nicht mit.
+
+Gemessen vor der Änderung: drei Stellen zu eng (`k3d-pfostenzeile` 336 statt
+341 px, `k3d-grenzen` 30 statt 35 px). Danach: keine.

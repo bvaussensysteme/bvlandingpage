@@ -11563,6 +11563,21 @@
       var steller = document.createElement('div');
       steller.className = 'k3d-steller';
       huelle.insertBefore(steller, regler);
+      /* ---------- DIE KLASSE, DIE NIE JEMAND GESETZT HAT ----------
+         GEMELDET am 04.11.2026 mit Bild vom iPhone: Unter „5000 mm"
+         stand „von 1.080 bis 14.080 mm · Schritt 10" in einer
+         handtuchschmalen Spalte und lief rechts aus dem Bildschirm.
+
+         Ursache: .k3d-regler ist ein Raster aus zwei Spalten
+         (1fr 78px) - dort lagen frueher Schieberegler und Zahlenfeld
+         nebeneinander. Seit dem Zahlensteller haengt der Hinweis in
+         derselben Huelle und bekam die 78-px-Spalte. Dagegen gab es
+         bereits die Regel .k3d-regler.ist-steller { display: block },
+         aber DIE KLASSE HAT NIEMAND GESETZT: Sie stand nur im
+         Stylesheet, in keiner Zeile Javascript.
+
+         Deshalb hier, an der einen Stelle, die den Steller baut. */
+      huelle.classList.add('ist-steller');
 
       var minus = document.createElement('button');
       minus.type = 'button';
