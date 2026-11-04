@@ -98,10 +98,43 @@ page.on('pageerror', e => konsole.push('pageerror: ' + e.message));
    beiden Fehler am Zahlensteller blieben unbemerkt, weil die Pruefung
    dafuer in einer eigenen Seite laeuft und diese Route dort nicht
    eingerichtet war. Deshalb steht das Einbauen jetzt in einer Funktion. */
+/* ---------- Ein Messpunkt, nur fuer die Pruefung ----------
+   Das Zeichen zum Zuruecksetzen ist eine Flaeche IN DER SZENE - es hat
+   kein HTML, das man ansprechen koennte. Der erste Versuch suchte es
+   ueber den Mauszeiger; das ging zweimal daneben, weil auch
+   Massschilder und andere Pfosten 'pointer' melden.
+
+   Deshalb wird fuer den Lauf eine Funktion eingehaengt, die sagt, WO
+   das Zeichen auf dem Schirm steht. Getippt und geprueft wird danach
+   ganz normal von aussen: Der Tipp geht an die Leinwand, nachgelesen
+   werden die Achsmasse im Bedienfeld. Die Funktion liest nur, sie
+   aendert nichts - und sie steht ausschliesslich hier, nicht im
+   ausgelieferten Quelltext. */
+function messpunktEinbauen(t) {
+  return t.replace('  function pfostenWahlZeigen() {',
+    '  window.__bvZurueckPunkt = function () {\n' +
+    '    var ziel = null;\n' +
+    '    ziehGruppe.children.forEach(function (k) {\n' +
+    '      if (k.userData && k.userData.pfostenZurueck) ziel = k;\n' +
+    '    });\n' +
+    '    if (!ziel) return null;\n' +
+    '    var v = ziel.position.clone().project(kamera3);\n' +
+    '    var rr = leinwand.getBoundingClientRect();\n' +
+    '    return { x: Math.round(rr.left + (v.x + 1) / 2 * rr.width),\n' +
+    '             y: Math.round(rr.top + (1 - v.y) / 2 * rr.height) };\n' +
+    '  };\n  function pfostenWahlZeigen() {');
+}
+
+/* EINE EINZIGE Route auf konfigurator-3d.js - zwei waeren eine zu viel:
+   Playwright nimmt den zuletzt gesetzten Handler, der erste erfuellt die
+   Anfrage, und der andere kaeme nie zum Zug. Der Messpunkt gilt also in
+   JEDEM Lauf, die eingebauten Fehler nur in der Gegenprobe. */
 async function fehlerEinbauen(ziel) {
   await ziel.route('**/konfigurator-3d.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
+    t = messpunktEinbauen(t);
+    if (!GEGENPROBE) { await r.fulfill({ response: a, body: t }); return; }
     t = t.replace('function masseZeichnen() {', 'function masseZeichnen() { return;');
     /* Vierter Fehler: Der Griff am Zwischenpfosten wird uebergangen -
        dann dreht sich beim Ziehen die Kamera, wie vor dieser Funktion. */
@@ -173,9 +206,9 @@ async function fehlerEinbauen(ziel) {
   });
 }
 
+await fehlerEinbauen(page);
 if (GEGENPROBE) {
   await page.addStyleTag({ content: '.k3d-sl{width:62px!important} .k3d-buehne{width:0!important}' });
-  await fehlerEinbauen(page);
   await page.route('**/anfrage-wizard.js*', async (r) => {
     const a = await r.fetch();
     let t = await a.text();
@@ -1407,51 +1440,19 @@ pruef('Er stellt den Pfosten wieder gleichmäßig',
    sein - und nach erneutem Ziehen wieder da. */
 async function zurueckZeichenSuchen() {
   if (!pfGriff) return null;
-  /* GEMESSEN am 04.11.2026, nachdem die erste Fassung nichts fand:
-     Der Pfosten STEHT NACH DEM ZIEHEN WOANDERS (hier 460 mm weiter
-     rechts, das sind 96 Bildpunkte), und das Zeichen steht mit ihm.
-     Eine Suche, die am alten Griffpunkt klebt, greift ins Leere.
-
-     Deshalb zwei Schritte: erst den gewaehlten Pfosten wiederfinden -
-     ueber ihm steht der Zeiger auf 'ew-resize', und das kann in diesem
-     Lauf nichts anderes sein -, dann auf seiner Achse senkrecht nach
-     dem 'pointer' des Zeichens suchen. */
-  /* GEMESSEN beim zweiten Anlauf: Der erste 'pointer' auf der Achse war
-     nicht das Zeichen, sondern ein MASSSCHILD - auch die melden
-     'pointer'. Fuer die Dauer dieser Suche werden die Masse im Modell
-     abgeschaltet; dann kann 'pointer' auf der Achse des GEWAEHLTEN
-     Pfostens nichts anderes mehr sein. Danach werden sie wieder
-     eingeschaltet, weil nachfolgende Pruefungen sie brauchen. */
-  let achse = null;
-  for (let dx = 0; dx <= 200 && achse === null; dx += 8) {
-    for (const sx of (dx === 0 ? [0] : [dx, -dx])) {
-      if (await pfProbe(pfGriff.x + sx, pfGriff.y) === 'ew-resize') { achse = pfGriff.x + sx; break; }
-    }
-  }
-  if (achse === null) return null;
-  for (let dy = -60; dy <= 320; dy += 8) {
-    for (const dx of [0, -5, 5]) {
-      const x = achse + dx, y = pfGriff.y - dy;
-      if (y < 4) continue;
-      if (await pfProbe(x, y) === 'pointer') return { x, y };
-    }
-  }
-  return null;
+  const pkt = await page.evaluate(() =>
+    window.__bvZurueckPunkt ? window.__bvZurueckPunkt() : 'kein Messpunkt');
+  return pkt;
 }
-await page.evaluate(() => {
-  const h = document.getElementById('k3dMasse');
-  if (h && h.checked) { h.checked = false; h.dispatchEvent(new Event('change', { bubbles: true })); }
-});
-await page.waitForTimeout(700);
-const zzMasseAus = await page.evaluate(() => !document.getElementById('k3dMasse').checked);
-pruef('Fuer diese Suche sind die Masse im Modell abgeschaltet', zzMasseAus,
-  'sonst meldet auch ein Massschild "pointer"');
 const zzOhneVersatz = pfGriff ? await zurueckZeichenSuchen() : null;
+pruef('Der Messpunkt fuer die Suche ist eingehaengt',
+  zzOhneVersatz !== 'kein Messpunkt',
+  'ohne ihn prueft der Rest dieses Blocks nichts');
 let zzMitVersatz = null, zzAchsNach = '(nicht geklickt)', zzSchalter = '(nicht geklickt)';
 if (pfGriff) {
   await pfZiehen(pfGriff);
   zzMitVersatz = await zurueckZeichenSuchen();
-  if (zzMitVersatz) {
+  if (zzMitVersatz && zzMitVersatz !== 'kein Messpunkt' && zzMitVersatz.x) {
     await page.evaluate(({ x, y }) => {
       const c = document.getElementById('k3dCanvas');
       c.dispatchEvent(new PointerEvent('pointerdown',
@@ -1465,11 +1466,11 @@ if (pfGriff) {
   }
 }
 pruef('Ohne Versatz gibt es kein Zeichen zum Zuruecksetzen',
-  !pfGriff || !zzOhneVersatz,
-  zzOhneVersatz ? `pointer bei ${zzOhneVersatz.x}/${zzOhneVersatz.y}` : 'nichts anklickbar ueber dem Pfosten');
-pruef('Nach dem Verschieben steht es ueber dem Pfosten',
-  !pfGriff || !!zzMitVersatz,
-  zzMitVersatz ? `pointer bei ${zzMitVersatz.x}/${zzMitVersatz.y}` : 'nicht gefunden');
+  !pfGriff || !zzOhneVersatz || zzOhneVersatz === 'kein Messpunkt',
+  zzOhneVersatz && zzOhneVersatz.x ? `steht bei ${zzOhneVersatz.x}/${zzOhneVersatz.y}` : 'kein Zeichen in der Szene');
+pruef('Nach dem Verschieben steht es am Pfosten',
+  !pfGriff || (!!zzMitVersatz && zzMitVersatz !== 'kein Messpunkt' && !!zzMitVersatz.x),
+  zzMitVersatz && zzMitVersatz.x ? `steht bei ${zzMitVersatz.x}/${zzMitVersatz.y}` : 'nicht gefunden');
 pruef('Ein Tipp darauf stellt den Pfosten zurueck',
   !pfGriff || (zzAchsNach === pfAchsVor && zzSchalter === 'versteckt'),
   `${zzAchsNach} (vorher ${pfAchsVor}), Schalter danach ${zzSchalter}`);
