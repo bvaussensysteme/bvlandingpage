@@ -508,7 +508,15 @@ await page.waitForTimeout(600);
 {
   const me = await browser.newPage();
   me.setDefaultTimeout(8000);
-  if (GEGENPROBE) await fehlerEinbauen(me);
+  if (GEGENPROBE) {
+    await fehlerEinbauen(me);
+    /* Sechzehnter Fehler: Die Miniaturen fehlen - genau das, was ein
+       vergessener Lauf von scripts/baue-miniaturen.mjs anrichtet. Die
+       Karten sehen dann aus wie leere Rahmen, und zwar erst beim
+       Besucher. Der Fehler gehoert in die BILDER, nicht ins Skript:
+       Die Karten sind schlichtes HTML. */
+    await me.route('**/images/konfigurator/*.jpg', (r) => r.abort());
+  }
   await me.goto(BASIS, { waitUntil: 'networkidle' });
   await me.waitForTimeout(1600);
   await dialogeWeg(me);
@@ -608,6 +616,48 @@ await page.waitForTimeout(600);
     !!wege && wege.vorher === false && wege.nachKlick === true && wege.zurueck === false
     && wege.markiert === '1',
     wege ? 'aus → an → aus' : '');
+
+  /* ---------- Bildkarten aus dem eigenen Modell ----------
+     Die Bilder entstehen mit scripts/baue-miniaturen.mjs aus unserem
+     eigenen 3D-Modell - keine gezeichneten und erst recht keine
+     fremden Symbole (docs/konfigurator-bedienung.md). Geprueft wird,
+     dass sie WIRKLICH GELADEN sind: Ein fehlendes Bild faellt sonst
+     nur als leerer Rahmen auf, und zwar erst dem Besucher. */
+  const karten = await me.evaluate(() => {
+    const alle = [...document.querySelectorAll('.k3d-seg--bild img')];
+    return {
+      anzahl: alle.length,
+      kaputt: alle.filter((i) => !(i.complete && i.naturalWidth > 0))
+        .map((i) => i.getAttribute('src')),
+      eigen: alle.every((i) => /^images\/konfigurator\/|^\/images\/konfigurator\//
+        .test(i.getAttribute('src'))),
+      aktiv: document.querySelectorAll('.k3d-seg--bild button.is-active').length
+    };
+  });
+  pruef('Die Bildkarten zeigen eigene Bilder, und sie laden',
+    karten.anzahl >= 14 && karten.kaputt.length === 0 && karten.eigen,
+    karten.anzahl + ' Bilder' + (karten.kaputt.length ? ', kaputt: ' + karten.kaputt.join(', ') : ''));
+  pruef('Die gewählte Karte ist markiert', karten.aktiv >= 1,
+    karten.aktiv + ' markiert');
+  /* Ein Klick auf die Karte muss das Produkt wirklich wechseln. */
+  const gewechselt = await me.evaluate(() => {
+    const reihe = document.querySelector('[data-k3d-seg="k3dProdukt"]');
+    const vorher = document.getElementById('k3dProdukt').value;
+    const andere = [...reihe.querySelectorAll('button')]
+      .find((b) => b.getAttribute('data-wert') !== vorher);
+    andere.click();
+    return { vorher, nachher: document.getElementById('k3dProdukt').value,
+      markiert: andere.classList.contains('is-active') };
+  });
+  await me.waitForTimeout(1200);
+  pruef('Ein Klick auf die Bildkarte wechselt das Produkt',
+    gewechselt.vorher !== gewechselt.nachher && gewechselt.markiert,
+    gewechselt.vorher + ' → ' + gewechselt.nachher);
+  await me.evaluate(() => {
+    const k = document.querySelector('[data-k3d-seg="k3dProdukt"] button[data-wert="Terrassendach TDS"]');
+    if (k) k.click();
+  });
+  await me.waitForTimeout(1200);
 
   /* ---------- Reiterleiste: Haken fuer Erledigtes ---------- */
   await me.$eval('#k3dWeiter', (e) => e.click());
@@ -2015,6 +2065,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Erledigte Bereiche tragen einen Haken',
   'Beide Knöpfe nennen ihr Ziel',
   'Die Karten setzen den Schalter wirklich',

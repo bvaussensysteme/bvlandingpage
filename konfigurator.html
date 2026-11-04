@@ -253,6 +253,34 @@
     .k3d-seg button.is-active { background: var(--black); color: #fff; border-color: var(--black); }
     .k3d-seg button.is-active small { color: rgba(255,255,255,.72); }
 
+    /* ---------- Bildkarten ----------
+       Statt einer Knopfreihe mit Text: das Erzeugnis selbst. Die Bilder
+       entstehen aus UNSEREM eigenen 3D-Modell
+       (scripts/baue-miniaturen.mjs) - keine gezeichneten Symbole und
+       schon gar keine fremden. Sie zeigen genau das, was nach dem Klick
+       auf der Buehne steht, und laufen deshalb nie mit dem Modell
+       auseinander. */
+    .k3d-seg--bild { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .k3d-seg--bild button { padding: 0 0 9px; overflow: hidden;
+      border-width: 2px; border-radius: 11px; }
+    .k3d-seg--bild button img { display: block; width: 100%; height: auto;
+      aspect-ratio: 34 / 23; object-fit: cover; background: var(--light-bg);
+      margin-bottom: 7px; }
+    /* Weiche Trennstellen (&shy; im Text) statt harter Umbrueche: Aus
+       „Balkonüberdachun / g" wird „Balkon- / überdachung". */
+    .k3d-seg--bild button b { display: block; padding: 0 9px;
+      font-family: 'Barlow Condensed', sans-serif; font-size: .92rem;
+      letter-spacing: .01em; line-height: 1.15; hyphens: auto; }
+    .k3d-seg--bild button small { padding: 0 9px; margin-top: 1px; }
+    /* Gewaehlt: goldener Rahmen und heller Goldgrund - NICHT die
+       schwarze Fuellung der Textknoepfe. Ueber einem Foto wuerde
+       Schwarz-auf-Bild die Beschriftung verschlucken. */
+    .k3d-seg--bild button.is-active { background: rgba(196, 154, 42, .10);
+      color: var(--black); border-color: var(--gold-dark); }
+    .k3d-seg--bild button.is-active small { color: var(--muted); }
+    .k3d-seg--bild button.is-active b::after { content: ' \2713';
+      color: var(--gold-dark); }
+
     .k3d-farben { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .k3d-farbe {
       border: 2px solid var(--border); border-radius: 8px; background: #fff;
@@ -1260,12 +1288,12 @@
         <div class="k3d-gruppe" data-k3d-schritt="produkt">
           <span class="k3d-label" id="k3dProduktLabel">Produkt</span>
           <input type="hidden" id="k3dProdukt" value="Terrassendach TDS">
-          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
-            <button type="button" data-wert="Terrassendach TDS">Terrassendach TDS<small>geneigt, Glas oder Polycarbonat</small></button>
-            <button type="button" data-wert="Flachdach SkyView">Flachdach SkyView<small>kubisch, flache Neigung</small></button>
-            <button type="button" data-wert="Carport">Carport<small>TDS, Flat Line oder Flat Box</small></button>
-            <button type="button" data-wert="Balkonüberdachung">Balkonüberdachung<small>für den Balkon, auf Brüstung oder Boden</small></button>
-            <button type="button" data-wert="Pergola / Lamellendach">Pergola / Lamellendach<small>drehbare Lamellen, Faltdach, Velaris</small></button>
+          <div class="k3d-seg k3d-seg--bild" data-k3d-seg="k3dProdukt" role="group" aria-labelledby="k3dProduktLabel">
+            <button type="button" data-wert="Terrassendach TDS"><img src="images/konfigurator/produkt-terrassendach.jpg" alt="" loading="lazy" width="340" height="245"><b>Terrassendach TDS</b><small>geneigt, Glas oder Polycarbonat</small></button>
+            <button type="button" data-wert="Flachdach SkyView"><img src="images/konfigurator/produkt-skyview.jpg" alt="" loading="lazy" width="340" height="245"><b>Flachdach SkyView</b><small>kubisch, flache Neigung</small></button>
+            <button type="button" data-wert="Carport"><img src="images/konfigurator/produkt-carport.jpg" alt="" loading="lazy" width="340" height="245"><b>Carport</b><small>TDS, Flat Line oder Flat Box</small></button>
+            <button type="button" data-wert="Balkonüberdachung"><img src="images/konfigurator/produkt-balkon.jpg" alt="" loading="lazy" width="340" height="245"><b>Balkon&shy;überdachung</b><small>auf Brüstung oder Boden</small></button>
+            <button type="button" data-wert="Pergola / Lamellendach"><img src="images/konfigurator/produkt-pergola.jpg" alt="" loading="lazy" width="340" height="245"><b>Pergola / Lamellendach</b><small>drehbare Lamellen, Faltdach</small></button>
           </div>
         </div>
 
@@ -1303,9 +1331,9 @@
         <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="aufbau">
           <span class="k3d-label" id="k3dAufbauLabel">Aufbau</span>
           <input type="hidden" id="k3dAufbau" value="Wandmontage">
-          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dAufbau" role="group" aria-labelledby="k3dAufbauLabel">
-            <button type="button" data-wert="Wandmontage">An der Hauswand</button>
-            <button type="button" data-wert="Freistehend">Freistehend</button>
+          <div class="k3d-seg k3d-seg--bild" data-k3d-seg="k3dAufbau" role="group" aria-labelledby="k3dAufbauLabel">
+            <button type="button" data-wert="Wandmontage"><img src="images/konfigurator/aufbau-wand.jpg" alt="" loading="lazy" width="340" height="245"><b>An der Hauswand</b><small>zwei Pfosten vorne</small></button>
+            <button type="button" data-wert="Freistehend"><img src="images/konfigurator/aufbau-frei.jpg" alt="" loading="lazy" width="340" height="245"><b>Freistehend</b><small>vier Pfosten, ohne Wand</small></button>
           </div>
         </div>
 
@@ -1610,14 +1638,14 @@
         <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="glas">
           <span class="k3d-label" id="k3dEindeckungLabel">Dacheindeckung</span>
           <input type="hidden" id="k3dEindeckung" value="VSG klar">
-          <div class="k3d-seg k3d-seg--2" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
-            <button type="button" data-wert="VSG klar">Glas klar<small>durchsichtig</small></button>
-            <button type="button" data-wert="VSG opal">Glas opal<small>milchig, blickdicht</small></button>
-            <button type="button" data-wert="VSG graphit">Glas graphit<small>getönt, viel Schatten</small></button>
-            <button type="button" data-wert="Polycarbonat klar">Polycarbonat klar<small>Stegplatte, ca. 76 % Licht</small></button>
-            <button type="button" data-wert="Polycarbonat opal">Polycarbonat opal<small>milchig, ca. 48 % Licht</small></button>
-            <button type="button" data-wert="Polycarbonat graphit">Polycarbonat graphit<small>dunkel getönt, viel Schatten</small></button>
-            <button type="button" data-wert="Polycarbonat bronze">Polycarbonat bronze<small>bronzefarben, ca. 35 % Licht</small></button>
+          <div class="k3d-seg k3d-seg--bild" data-k3d-seg="k3dEindeckung" role="group" aria-labelledby="k3dEindeckungLabel">
+            <button type="button" data-wert="VSG klar"><img src="images/konfigurator/dach-glas-klar.jpg" alt="" loading="lazy" width="340" height="245"><b>Glas klar</b><small>durchsichtig</small></button>
+            <button type="button" data-wert="VSG opal"><img src="images/konfigurator/dach-glas-opal.jpg" alt="" loading="lazy" width="340" height="245"><b>Glas opal</b><small>milchig, blickdicht</small></button>
+            <button type="button" data-wert="VSG graphit"><img src="images/konfigurator/dach-glas-graphit.jpg" alt="" loading="lazy" width="340" height="245"><b>Glas graphit</b><small>getönt, viel Schatten</small></button>
+            <button type="button" data-wert="Polycarbonat klar"><img src="images/konfigurator/dach-poly-klar.jpg" alt="" loading="lazy" width="340" height="245"><b>Polycarbonat klar</b><small>Stegplatte, ca. 76 % Licht</small></button>
+            <button type="button" data-wert="Polycarbonat opal"><img src="images/konfigurator/dach-poly-opal.jpg" alt="" loading="lazy" width="340" height="245"><b>Polycarbonat opal</b><small>milchig, ca. 48 % Licht</small></button>
+            <button type="button" data-wert="Polycarbonat graphit"><img src="images/konfigurator/dach-poly-graphit.jpg" alt="" loading="lazy" width="340" height="245"><b>Polycarbonat graphit</b><small>dunkel getönt, viel Schatten</small></button>
+            <button type="button" data-wert="Polycarbonat bronze"><img src="images/konfigurator/dach-poly-bronze.jpg" alt="" loading="lazy" width="340" height="245"><b>Polycarbonat bronze</b><small>bronzefarben, ca. 35 % Licht</small></button>
           </div>
           <p class="k3d-mini">Polycarbonat ist eine Sechsfachstegplatte, 16 mm.
             Die Lichtwerte stammen aus Händler-Datenblättern und sind Richtwerte;
@@ -2519,7 +2547,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261104a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261104b" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
