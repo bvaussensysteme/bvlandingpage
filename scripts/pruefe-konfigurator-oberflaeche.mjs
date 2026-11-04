@@ -122,6 +122,11 @@ function messpunktEinbauen(t) {
     '    var rr = leinwand.getBoundingClientRect();\n' +
     '    return { x: Math.round(rr.left + (v.x + 1) / 2 * rr.width),\n' +
     '             y: Math.round(rr.top + (1 - v.y) / 2 * rr.height) };\n' +
+    '  };\n' +
+    '  window.__bvSchatten = function () {\n' +
+    '    return { r: Math.round(sonne.shadow.camera.right),\n' +
+    '             karte: sonne.shadow.mapSize.width,\n' +
+    '             abstand: Math.round(sonne.position.length()) };\n' +
     '  };\n  function pfostenWahlZeigen() {');
 }
 
@@ -160,6 +165,9 @@ async function fehlerEinbauen(ziel) {
                   '      void 0;');
     t = t.replace('      delete Z.pfostenVersatz[z.reihe][String(z.nr)];',
                   '      void z;');
+    /* Dreizehnter Fehler (04.11.2026): Der Schattenrahmen wird nach dem
+       Bau nicht mehr nachgezogen und bleibt auf dem Festwert stehen. */
+    t = t.replace('    schattenAnpassen();\n', '');
     /* Zehnter Fehler steckt im Stylesheet, siehe weiter unten:
        „Abbrechen" verliert seine rote Fassung und faellt auf das Blau
        zurueck, das Safari jedem Knopf von sich aus gibt. */
@@ -1269,6 +1277,41 @@ pruef('Zurueck auf eben loescht den Hinweis wieder',
   (await page.locator('#k3dBodenGefaelleStand').innerText()).trim() === '',
   'das Feld laesst sich leeren');
 
+
+/* ---------- Der Schattenrahmen folgt der Baugroesse ----------
+   Der Rahmen stand fest auf 14 m im Quadrat, auch bei einem 3 m breiten
+   Carport - die Schattenkarte verteilte sich dann über das Fuenffache
+   der noetigen Flaeche und die Kanten franzten aus.
+
+   GEMESSEN, NICHT IM QUELLTEXT NACHGELESEN: Der Rahmen wird nach dem
+   Bau aus der Szene zurueckgelesen, einmal schmal und einmal breit. Er
+   muss mitwachsen, und bei der schmalen Anlage deutlich unter dem alten
+   Festwert von 700 liegen. */
+const schattenLesen = () => page.evaluate(() =>
+  window.__bvSchatten ? window.__bvSchatten() : null);
+await page.evaluate(() => {
+  const e = document.getElementById('k3dBreiteZahl');
+  e.value = 3000; e.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(1300);
+const schattenSchmal = await schattenLesen();
+await page.evaluate(() => {
+  const e = document.getElementById('k3dBreiteZahl');
+  e.value = 14080; e.dispatchEvent(new Event('change', { bubbles: true }));
+});
+await page.waitForTimeout(1500);
+const schattenBreit = await schattenLesen();
+pruef('Der Schattenrahmen wird ausgelesen', !!schattenSchmal && !!schattenBreit,
+  schattenSchmal ? `schmal ${schattenSchmal.r} cm, breit ${schattenBreit.r} cm` : 'kein Messpunkt');
+pruef('Der Schattenrahmen waechst mit der Anlage',
+  !!schattenSchmal && !!schattenBreit && schattenBreit.r > schattenSchmal.r + 200,
+  schattenSchmal ? `${schattenSchmal.r} cm bei 3000 mm, ${schattenBreit.r} cm bei 14080 mm` : '-');
+pruef('Bei kleiner Anlage ist er enger als der alte Festwert',
+  !!schattenSchmal && schattenSchmal.r < 700,
+  schattenSchmal ? `${schattenSchmal.r} cm statt fest 700 cm` : '-');
+pruef('Die Sonne rueckt mit, bleibt aber in Richtung',
+  !!schattenBreit && schattenBreit.abstand >= 820,
+  schattenBreit ? `Abstand ${schattenBreit.abstand} cm` : '-');
 
 /* ---------- Zwischenpfosten im Modell ziehen ----------
    „kann man ausser die eckpfosten die zwischenpfosten verschieben
