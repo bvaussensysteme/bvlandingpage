@@ -1407,9 +1407,25 @@ pruef('Er stellt den Pfosten wieder gleichmäßig',
    sein - und nach erneutem Ziehen wieder da. */
 async function zurueckZeichenSuchen() {
   if (!pfGriff) return null;
-  for (let dy = 20; dy <= 260; dy += 8) {
-    for (const dx of [0, -4, 4]) {
-      const x = pfGriff.x + dx, y = pfGriff.y - dy;
+  /* GEMESSEN am 04.11.2026, nachdem die erste Fassung nichts fand:
+     Der Pfosten STEHT NACH DEM ZIEHEN WOANDERS (hier 460 mm weiter
+     rechts, das sind 96 Bildpunkte), und das Zeichen steht mit ihm.
+     Eine Suche, die am alten Griffpunkt klebt, greift ins Leere.
+
+     Deshalb zwei Schritte: erst den gewaehlten Pfosten wiederfinden -
+     ueber ihm steht der Zeiger auf 'ew-resize', und das kann in diesem
+     Lauf nichts anderes sein -, dann auf seiner Achse senkrecht nach
+     dem 'pointer' des Zeichens suchen. */
+  let achse = null;
+  for (let dx = 0; dx <= 200 && achse === null; dx += 8) {
+    for (const sx of (dx === 0 ? [0] : [dx, -dx])) {
+      if (await pfProbe(pfGriff.x + sx, pfGriff.y) === 'ew-resize') { achse = pfGriff.x + sx; break; }
+    }
+  }
+  if (achse === null) return null;
+  for (let dy = -60; dy <= 320; dy += 8) {
+    for (const dx of [0, -5, 5]) {
+      const x = achse + dx, y = pfGriff.y - dy;
       if (y < 4) continue;
       if (await pfProbe(x, y) === 'pointer') return { x, y };
     }
