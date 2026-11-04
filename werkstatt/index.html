@@ -73,7 +73,13 @@
        .k3d-seite ist schon die Zeile „Links / Rechts / Vorne" im Bedienfeld
        (ein Raster mit 62-px-Spalte). Als Klasse am body hat genau das die
        ganze Anwendung auf 62 px zusammengezogen – gefunden im Browsertest. */
-    body.k3d-app-seite .sticky-cta { display: none; }   /* eigener Abschlussknopf im Bedienfeld */
+    /* MIT !important: js/main.js setzt die Leiste beim Scrollen per
+       style.display = 'flex' direkt am Element, und ein solcher Stil
+       schlaegt jede Regel aus dem Stylesheet. Ohne das Rufzeichen stand
+       die Leiste trotz dieser Zeile am unteren Rand und lag am Handy
+       ueber der Bedienung (Bild des Betreibers, 04.11.2026). Der
+       Konfigurator hat seinen eigenen Weg zur Anfrage im Bedienfeld. */
+    body.k3d-app-seite .sticky-cta { display: none !important; }
 
     /* Die Seite zentriert ihre Inhalte; die Anwendung soll die ganze Breite
        haben. #bv-a11y-page-wrap legt das Barrierefreiheits-Skript zur
@@ -1149,6 +1155,38 @@
     body.k3d-im-bild #bv-a11y-panel,
     body.k3d-im-bild #bv-scroll-top,
     body.k3d-im-bild #bvKonfigBubble {
+      display: none !important;
+    }
+    /* ---------- AUF DIESER SEITE GANZ WEG ----------
+       „ja ausblenden im konfigurator aber nur da" (Betreiber,
+       04.11.2026). Die Regel darueber blendet die schwebenden Knoepfe
+       nur aus, SOLANGE der Konfigurator im Bild ist - sobald unten das
+       Firmenlogo auftauchte, kamen sie zurueck und lagen am Handy ueber
+       dem Bedienfeld (sein Bild vom 04.11.2026).
+
+       Hier gilt die Seite, nicht der Ausschnitt: body.k3d-app-seite
+       steht nur auf konfigurator.html und auf der Werkstattfassung.
+       Auf allen anderen Seiten bleibt alles, wie es war.
+
+       ZUR BARRIEREFREIHEIT, offen gesagt: Der Knopf mit dem
+       Barrierefreiheits-Werkzeug (Schriftgroesse, Kontrast) ist einer
+       der drei und verschwindet damit auf dieser Seite. Das Werkzeug
+       ist ein Zusatz, keine gesetzliche Pflicht - die Pflicht trifft
+       die Seite selbst (Schriftgroessen, Kontraste, Bedienbarkeit per
+       Tastatur), und daran aendert sich nichts. Trotzdem gehoert es
+       gesagt, statt es stillschweigend zu entfernen. */
+    /* NUR DIE BLASE, NICHT DER ASSISTENT: Im ersten Versuch standen
+       hier auch #bvKonfigPanel und #bvKonfigOverlay - das ist der
+       Anfrage-Assistent selbst, der sich oeffnet, wenn jemand „Angebot
+       anfragen" drueckt. Damit war die Anfrage tot. Die Pruefung
+       „Anfrage-Assistent oeffnet sich" hat es im selben Durchlauf
+       gemeldet; ohne sie waere es auf die Seite gegangen. Weg gehoert
+       nur der schwebende Knopf, der ihn aufruft - der Weg zur Anfrage
+       steht im Bedienfeld. */
+    body.k3d-app-seite #bv-a11y-trigger,
+    body.k3d-app-seite #bv-a11y-panel,
+    body.k3d-app-seite #bv-scroll-top,
+    body.k3d-app-seite #bvKonfigBubble {
       display: none !important;
     }
 
@@ -2736,13 +2774,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104n" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104p" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104n" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104p" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
