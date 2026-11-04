@@ -636,8 +636,15 @@ await page.waitForTimeout(600);
     if (ok) ok.click();
     return {
       knopf: true,
-      inDerZeile: kr.top >= zeile.top - 2 && kr.bottom <= zeile.bottom + 10
-        && kr.right <= zeile.right + 1,
+      /* Der Knopf ist ABSICHTLICH hoeher als die Textzeile: 30 px
+         Trefferflaeche auf einer rund 19 px hohen Zeile, mit negativem
+         Aussenabstand darueber und darunter. Gemessen wird deshalb
+         nicht „steht komplett in der Zeile", sondern was die Sache
+         ausmacht: Seine Mitte liegt auf der Zeile, und er ragt rechts
+         nicht heraus. (Erster Versuch verlangte kr.top >= zeile.top
+         und schlug an - zu Recht, aber am falschen Mass.) */
+      inDerZeile: Math.abs((kr.top + kr.bottom) / 2 - (zeile.top + zeile.bottom) / 2) <= 5
+        && kr.right <= zeile.right + 1 && kr.left > zeile.left,
       breite: Math.round(kr.width),
       offen, text, groesse,
       wiederZu: kasten.hidden,
@@ -859,14 +866,21 @@ await page.waitForTimeout(600);
        Grenzen-Hinweis in eine 78-px-Spalte gequetscht wurde. */
     await hy.addStyleTag({ content:
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
-      + '.k3d-regler.ist-steller{display:grid!important}' }).catch(() => {});
+      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
   }
   await hy.goto(BASIS, { waitUntil: 'load' });
   await hy.waitForTimeout(3200);
   if (GEGENPROBE) {
+    /* Achtzehnter Fehler NEU GEZIELT am 04.11.2026: Vorher machte er
+       die Huelle des Massfeldes wieder zum Zweispalter - der Zustand,
+       in dem der Grenzen-Hinweis in eine 78-px-Spalte gequetscht war.
+       Den Hinweis gibt es seit heute nicht mehr, der Fehler lief also
+       ins Leere, und die Gegenprobe hat genau das gemeldet. Jetzt wird
+       stattdessen der Wert in der Beschriftungszeile eingeengt: „5000
+       mm" in 18 px ist derselbe Fall - Kasten heil, Text laeuft raus. */
     await hy.addStyleTag({ content:
       '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}'
-      + '.k3d-regler.ist-steller{display:grid!important}' }).catch(() => {});
+      + '.k3d-label output{max-width:18px!important}' }).catch(() => {});
   }
   const schritte = [];
   for (let i = 0; i < 5; i++) {
