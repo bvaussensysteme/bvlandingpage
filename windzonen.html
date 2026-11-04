@@ -215,6 +215,11 @@
    niemand mit dem Daumen. */
 .wz-weiter { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
 .wz-weiter-text { max-width: 62ch; margin: 0 auto 16px; text-align: center; line-height: 1.6; }
+/* Der Querverweis auf das andere Werkzeug. Bewusst als SATZ und nicht
+   als vierter Knopf: Vier Knoepfe nebeneinander heissen „such dir was
+   aus", ein Satz heisst „das ist die naechste Frage". */
+.wz-weiter-naechste { max-width: 62ch; margin: 0 auto 16px; text-align: center;
+  font-size: .95rem; color: var(--muted, #555); line-height: 1.6; }
 .wz-weiter-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .wz-weiter-knoepfe .btn { min-height: 46px; display: inline-flex; align-items: center; }
 @media (max-width: 560px) {
@@ -646,6 +651,11 @@
           wie stark Pfosten, Sparren und Eindeckung ausgelegt werden müssen –
           und damit, welche Ausführung für Sie in Frage kommt. Schicken Sie uns
           Ihre Maße, dann rechnen wir das für Ihren Standort durch.
+        </p>
+        <p class="wz-weiter-naechste">
+          Die zweite Frage ist fast immer dieselbe:
+          <a href="/baugenehmigung.html">Brauche ich eine Baugenehmigung?</a> –
+          das klärt der Genehmigungs-Check für Ihr Bundesland.
         </p>
         <div class="wz-weiter-knoepfe">
           <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>

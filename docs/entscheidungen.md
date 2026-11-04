@@ -12903,3 +12903,52 @@ strategisch, nicht gestalterisch – **Fachseiten mit einem Werkzeug ziehen
 Leute von Google**, Produktseiten nicht. Weitere solcher Seiten
 (Schneelastzone, Genehmigungspflicht je Bundesland, Abstandsflächen) wären
 der nächste Schritt. Nicht ungefragt gebaut.
+
+## 04.11.2026 – Die beiden Werkzeugseiten verweisen aufeinander
+
+**Anlass.** „mach ALLES was nötig ist frag nicht jede kleinigkeit mach es
+toll" (Betreiber, 04.11.2026), nach dem Befund zu `/windzonen`.
+
+**Was geprüft wurde, bevor gebaut wurde.** Die naheliegende Idee war, eine
+neue Fachseite zur Genehmigungspflicht zu bauen. **Die gibt es schon** –
+`/baugenehmigung.html` mit den Landesbauordnungen aller 16 Länder
+(`js/baugenehmigung-data.js`, für RLP, Hessen und NRW am Gesetzestext
+gegengeprüft). Auch die Auffindbarkeit ist nicht der Unterschied: Beide
+Seiten sind von **je 52 Seiten** aus verlinkt und beide stehen in der
+Sitemap. Dass `/windzonen` 8 Aufrufe hat und `/baugenehmigung` null, liegt
+also an der Platzierung bei Google – nicht an etwas, das sich hier beheben
+ließe, und schon gar nicht an einem Tag.
+
+**Was wirklich fehlte.** Beide Werkzeuge beantworten eine Frage und lassen
+den Besucher dann stehen, obwohl er **in derselben Lage die jeweils andere
+Frage** hat: Wer seine Lastzone kennt, fragt als Nächstes nach der
+Genehmigung – und umgekehrt. Dazu fehlte beim Genehmigungs-Check jeder Weg
+zu den Produkten (er führte nur zur Anfrage und zu WhatsApp).
+
+**Was jetzt gilt.** Unter dem Ergebnis steht auf beiden Seiten ein **Satz**,
+der zur nächsten Frage führt, und beim Genehmigungs-Check zusätzlich einer zu
+den Produkten.
+
+**Warum ein Satz und kein vierter Knopf.** Vier Knöpfe nebeneinander heißen
+„such dir was aus"; ein Satz heißt „das ist die nächste Frage". Die
+Entscheidung steht als Kommentar an der CSS-Regel, damit sie niemand
+„aufräumt".
+
+**Abgesichert.** `scripts/pruefe-windzonen-weg.mjs` ist zu
+`scripts/pruefe-werkzeugseiten.mjs` geworden und deckt jetzt **beide**
+Seiten ab: 11 Prüfungen, Gegenprobe mit 8 einzeln eingebauten Fehlern.
+
+**Die Gegenprobe hat dabei zwei Fehler in meiner eigenen Prüfung gefunden:**
+1. Der eingebaute Fehler „Knöpfe zu klein" setzte nur `min-height` von 46
+   auf 20 – wirkungslos, weil die Höhe aus Polsterung und Zeilenhöhe kommt.
+2. Der Fehler „kein Weg zu den Produkten" entfernte nur den **ersten** von
+   drei Produktverweisen; die Prüfung blieb grün.
+Beide sind jetzt so gebaut, dass sie wirklich treffen.
+
+**Was gegengelesen werden soll.** Auf beiden Seiten eine Adresse suchen:
+Steht unter dem Ergebnis der Satz zur jeweils anderen Frage, und führen die
+Verweise dorthin, wo sie hinsollen?
+
+**Offen, und beim Betreiber:** Weitere Fachseiten mit Werkzeug
+(Abstandsflächen zum Nachbarn, Schneelast auf Bestandsdächern). Die
+bestehenden zwei zeigen, dass das Muster trägt – gebaut wird erst auf Ansage.
