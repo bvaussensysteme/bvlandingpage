@@ -67,6 +67,7 @@ wird in der **Werkstatt** — beides weiter unten.
 | **Tippfelder am Handy** | **53 von 56** Eingabefeldern waren kleiner als 16 px – iOS zoomt dann beim Antippen hinein und nicht wieder heraus. Jetzt 16 px, aber nur am Finger (`pointer: coarse`). Nicht über `maximum-scale=1`: Das bräche WCAG 1.4.4. Prüfung: `pruefe-tippfelder.mjs` |
 | **„Weiter“ am Handy** | Landete oft in der Fußzeile statt beim nächsten Schritt. Der Code rollte das Bedienfeld – das am Handy gar nicht rollt, weil `.k3d-app { height: auto }`. Jetzt wird gemessen, wer wirklich rollt. Prüfung: `pruefe-schrittwechsel.mjs` |
 | **Zwei tote Prüfungen** | `pruefe-teilen.mjs` stürzte seit dem 03.11. ab, `pruefe-api-bauteile.mjs` war seit PR #497 dauerhaft rot. Beide repariert. `pruefe-cache-buster.sh` sah `style.css` bisher nicht nach |
+| **Vier Seiten nur erzeugt geändert** | 110 Zeilen Datenschutz, 68 Windzonen, 25 Baugenehmigung, 14 Widerruf standen nur in der HTML-Datei, nicht in `src/*.njk`. **Ein `npm run build` hätte sie stillschweigend zurückgenommen** – beim Datenschutz wäre das ein Verstoß ohne Zutun. Übernommen; Prüfung: `pruefe-erzeugte-seiten.sh` |
 
 **Bewusst nicht gemacht**, alle drei als Angebot notiert: Pixelverhältnis und
 Kantenglättung am Handy senken (macht das Bild sichtbar weicher, Gewinn hier

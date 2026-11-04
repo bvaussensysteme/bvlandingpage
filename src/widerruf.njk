@@ -44,30 +44,30 @@ robots: "noindex, follow"
           <input type="checkbox" name="botcheck" style="display:none !important;" tabindex="-1" autocomplete="off">
 
           <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Hiermit widerrufe ich / widerrufen wir den abgeschlossenen Vertrag über *</label>
-          <textarea name="Widerruf betrifft" rows="3" required placeholder="z. B. den Kauf der folgenden Waren / die Erbringung der folgenden Dienstleistung" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;"></textarea>
+          <textarea name="Widerruf betrifft" rows="3" required placeholder="z. B. den Kauf der folgenden Waren / die Erbringung der folgenden Dienstleistung" class="wr-feld"></textarea>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <div>
               <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Bestellt am</label>
-              <input type="text" name="Bestellt am" placeholder="TT.MM.JJJJ" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+              <input type="text" name="Bestellt am" placeholder="TT.MM.JJJJ" class="wr-feld">
             </div>
             <div>
               <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Erhalten am</label>
-              <input type="text" name="Erhalten am" placeholder="TT.MM.JJJJ" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+              <input type="text" name="Erhalten am" placeholder="TT.MM.JJJJ" class="wr-feld">
             </div>
           </div>
 
           <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Name des / der Verbraucher(s) *</label>
-          <input type="text" name="Name" required style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+          <input type="text" name="Name" required class="wr-feld">
 
           <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Anschrift des / der Verbraucher(s) *</label>
-          <textarea name="Anschrift" rows="2" required style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;"></textarea>
+          <textarea name="Anschrift" rows="2" required class="wr-feld"></textarea>
 
           <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Ihre E-Mail (für unsere Bestätigung)</label>
-          <input type="email" name="email" placeholder="max@beispiel.de" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:14px;">
+          <input type="email" name="email" placeholder="max@beispiel.de" class="wr-feld">
 
           <label style="display:block;font-weight:600;font-size:.9rem;margin:0 0 6px;">Datum</label>
-          <input type="text" name="Datum" id="wr-datum" placeholder="TT.MM.JJJJ" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.95rem;margin-bottom:16px;">
+          <input type="text" name="Datum" id="wr-datum" placeholder="TT.MM.JJJJ" class="wr-feld" style="margin-bottom:16px;">
 
           <label style="display:flex;gap:10px;align-items:flex-start;font-size:.88rem;color:var(--muted);margin-bottom:18px;">
             <input type="checkbox" required style="margin-top:3px;">

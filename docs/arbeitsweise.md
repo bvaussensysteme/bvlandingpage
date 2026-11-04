@@ -48,5 +48,15 @@ erzeugt, direkt bearbeiten): `index.html`, `konfigurator.html`, alle
 `terrassenueberdachung-*.html`, `carport-*.html`, `pergola-*.html`,
 `danke.html`.
 
+> ⚠️ **Dieser Liste nicht vertrauen.** Am 04.11.2026 fehlte `widerruf.html`
+> darauf – es *hat* eine Vorlage. Vier Änderungen desselben Tages landeten
+> deshalb nur in erzeugten Dateien, darunter 110 Zeilen Datenschutztext.
+> Ein `npm run build` hätte sie alle stillschweigend zurückgenommen.
+>
+> **Maßgeblich ist nicht diese Liste, sondern `ls src/*.njk`** – und vor
+> dem Veröffentlichen `bash scripts/pruefe-erzeugte-seiten.sh`. Das Skript
+> baut und sieht nach, ob sich etwas verändert hat; es beantwortet die
+> Frage, ohne dass jemand eine Liste pflegen muss.
+
 ---
 

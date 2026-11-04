@@ -59,6 +59,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-hinweise.js` | Bleibt getrennt, was der Kunde sieht, und was nur in die Anfrage-Mail gehört? Prüft Hinweisbox, Kasten „Ihre Konfiguration", Assistenten-Anzeige und alle drei Versandwege – einmal aus dem Quelltext, einmal an wirklich erzeugten Hinweisen |
 | `scripts/pruefe-pdf.js` | Erzeugt die PDFs **beider** Stellen (Konfigurator und Baugenehmigungs-Check) und liest sie mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Bildgröße, Umlaute, und vor allem: Steht jede Angabe **vollständig** da, auch bei 34 langen Zeilen über zwei Seiten? Zweispaltige Seiten werden dafür spaltenweise ausgeschnitten – am Stück gelesen zerreißt pdftotext die umgebrochenen Zeilen |
 | `scripts/pruefe-schrittwechsel.mjs` | **Landet man nach „Weiter“ am Anfang des nächsten Schritts?** Rollt am Handy erst wirklich ans Seitenende und sieht danach nach, wo der Anfang des Bedienfelds liegt – nicht, ob `scrollTo` gerufen wurde (genau diese Prüfung hätte den Fehler gehabt). Dazu: Das klebende 3D-Bild darf den Anfang weder verdecken noch weggerollt sein, und die Fußzeile darf danach nicht mehr im Bild stehen. Am großen Bildschirm gegenläufig: Dort muss das Bedienfeld in sich selbst rollen und die Seite stehen bleiben |
+| `scripts/pruefe-erzeugte-seiten.sh` | **Würde ein `npm run build` etwas zurücknehmen, was schon im Repository liegt?** Baut und sieht nach, ob sich eine Datei verändert hat. Deckt auf, wenn jemand eine erzeugte HTML-Datei von Hand bearbeitet hat statt ihrer `.njk`-Vorlage. Überspringt sich bei ungesichertem Arbeitsbaum – dann wäre der Vergleich bedeutungslos |
 | `scripts/pruefe-tippfelder.mjs` | **Zoomt iOS beim Antippen hinein?** Misst jedes Tippfeld von Konfigurator, Widerruf, Windzonen, Baugenehmigung und Assistent bei 390 px mit nachgestellter Tippbedienung – alles unter 16 px lässt Safari die Seite heranziehen, ohne wieder herauszuzoomen. Prüft zusätzlich, dass **kein** Viewport `maximum-scale`/`user-scalable=no` trägt (das wäre der bequeme Weg und bricht WCAG 1.4.4), und misst gegenläufig an der Maus: Dort müssen die Felder klein bleiben, sonst hängt die Regel nicht wirklich an `pointer: coarse`. Eine eigene Prüfung stellt sicher, dass der Testbrowser Finger und Maus überhaupt unterscheidet – sonst liefe alles gegen eine Regel, die gar nicht gilt |
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`). Marker mit `gesperrt:` ruhen, solange der öffentliche Konfigurator abgeschaltet ist — aber nur, wenn wirklich die **Hinweisseite** kommt; etwas Drittes ist ein Fehler. Gegenprobe dafür: `SPERRE_BELEG=XX bash scripts/pruefe-live.sh` muss die sechs rot machen. **Beim Zurückschalten sagt das Skript selbst, dass `gesperrt:` zu entfernen ist** |
@@ -147,3 +148,34 @@ Version mit der Datei hochgezählt wurde. `src/css/style.css` fehlte – obwohl
 das Stylesheet nach `_headers` genauso 24 Stunden im Browser-Cache liegt.
 Eine Änderung am Aussehen wäre einen Tag lang unsichtbar geblieben, ohne
 dass eine Prüfung etwas gemeldet hätte.
+
+## 04.11.2026 (nachts) – Vier Änderungen, die ein Build zurückgenommen hätte
+
+Beim Nachprüfen des veröffentlichten Standes fiel auf, dass `widerruf.html`
+und `windzonen.html` eine `.njk`-Vorlage haben. Ein `npm run build` im
+leeren Arbeitsbaum zeigte dann das Ausmaß:
+
+| Datei | Zeilen | was verloren gegangen wäre |
+|---|---|---|
+| `datenschutz.html` | 110 | **der ganze Abschnitt 19** zur eigenen Reichweitenmessung |
+| `windzonen.html` | 68 | der Weg vom Ergebnis zum Vorhaben, dazu die 16-px-Regel |
+| `baugenehmigung.html` | 25 | die Querverweise zwischen den Werkzeugseiten |
+| `widerruf.html` | 14 | die 16-px-Felder |
+
+Alle vier waren **veröffentlicht und sichtbar** – sie standen nur in der
+erzeugten Datei, nicht in ihrer Vorlage.
+
+**Der Datenschutzfall ist der schwerste.** Die Messung läuft. Eine
+Datenschutzerklärung, die sie nicht nennt, ist ein eigener Verstoß –
+unabhängig davon, ob die Messung zulässig wäre. Dieser Verstoß wäre
+entstanden, **ohne dass jemand etwas ändert**: allein durch ein Bauen.
+
+`scripts/pruefe-erzeugte-seiten.sh` prüft das jetzt. Die Liste der
+eigenständigen HTML-Dateien in `docs/arbeitsweise.md` war unvollständig –
+statt sie zu pflegen, beantwortet das Bauen die Frage selbst.
+
+**Nebenbei die Lehre für Gegenproben:** Der erste Entwurf dieser Gegenprobe
+änderte die *erzeugte* Datei von Hand. Der Build schrieb sie im selben Lauf
+zurück, danach war nichts mehr zu finden, und die Gegenprobe meldete die
+Prüfung als blind. Geändert wird jetzt die *Vorlage* – derselbe Zustand,
+aber einer, der stehen bleibt.

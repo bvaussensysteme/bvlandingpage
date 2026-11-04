@@ -13202,3 +13202,40 @@ im Bild?**
 klicken, vorwärts und rückwärts, und dazwischen ans Seitenende scrollen.
 Nach jedem „Weiter" muss die Überschrift des neuen Schritts unter dem
 3D-Bild stehen.
+
+## 04.11.2026 (nachts) – Vier Änderungen standen nur in erzeugten Dateien
+
+**Was falsch war.** Beim Nachprüfen des veröffentlichten Standes fiel auf,
+dass `widerruf.html` und `windzonen.html` aus `src/*.njk` erzeugt werden.
+Ein Testbau im leeren Arbeitsbaum zeigte: **Vier Änderungen dieses Tages
+standen nur in der erzeugten Datei, nicht in ihrer Vorlage** – 110 Zeilen
+Datenschutz (der ganze Abschnitt zur Reichweitenmessung), 68 Zeilen
+Windzonen, 25 Zeilen Baugenehmigung, 14 Zeilen Widerruf. Alle vier waren
+live und sichtbar. Ein einziges `npm run build` hätte sie stillschweigend
+zurückgenommen.
+
+**Warum das mehr ist als ein Schönheitsfehler.** Die Besuchermessung läuft
+seit heute. Eine Datenschutzerklärung, die sie nicht nennt, ist ein eigener
+Verstoß – unabhängig davon, ob die Messung zulässig wäre. Dieser Verstoß
+wäre entstanden, **ohne dass jemand etwas ändert**, allein durch ein Bauen,
+und niemand hätte es bemerkt: Die Seite sieht vorher wie nachher aus, nur
+ein Abschnitt fehlt.
+
+**Was jetzt gilt.** Alle vier Änderungen sind in ihre `.njk`-Vorlagen
+übernommen. Der Bau erzeugt die vier Seiten jetzt zeichengleich zu dem, was
+veröffentlicht ist – bei `datenschutz.html` und `widerruf.html` ohne jeden
+Unterschied, bei den beiden anderen nur in der Position eines CSS-Blocks
+(die Seitenstile landen über `extraStyles` an anderer Stelle im Stylesheet)
+und in zwei berichtigten Kommentarzeilen.
+
+**Warum kein gepflegtes Verzeichnis.** `docs/arbeitsweise.md` führte eine
+Liste „Eigenständige HTML-Dateien ohne njk-Vorlage". Sie war unvollständig,
+und genau das war die Ursache: `widerruf.html` stand nicht darauf, also
+wurde es wie eine eigenständige Datei behandelt. Eine Liste, die von Hand
+gepflegt wird, läuft auseinander. `scripts/pruefe-erzeugte-seiten.sh` baut
+stattdessen und sieht nach, ob sich etwas verändert hat – **das Bauen
+beantwortet die Frage selbst, ohne dass jemand eine Liste pflegen muss.**
+
+**Was gegengelesen werden soll.** Nichts Sichtbares – die vier Seiten sehen
+aus wie vorher. Wer es prüfen will: `bash scripts/pruefe-erzeugte-seiten.sh`
+bei sauberem Arbeitsbaum muss „bestanden" melden.
