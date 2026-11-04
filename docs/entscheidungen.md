@@ -12767,3 +12767,72 @@ und fragen die **wirklich gerechnete** Übergangsdauer ab, nachdem dem Browser
 **Was gegengelesen werden soll.** Am Handy bei einer **kleinen** Anlage
 (3000 mm): Sind die Schattenkanten der Sparren jetzt schärfer? Und läuft
 alles weiterhin flüssig?
+
+## 04.11.2026 – Zahlen: Besucher statt nur Aufrufe, und die Datenschutzerklärung im selben Zug
+
+**Anlass.** „nicht nur das machen, analysiere das beste tool das du findest
+und baue es ähnlich ich will ALLE wichtigen daten in einem modernen
+verständlichen dashboard, auch du sollst auf die daten immer zugriff haben
+und es soll in die entscheidungen einfließen" (Betreiber, 04.11.2026).
+
+**Vorher der Fehler, der alles ausgelöst hat.** Die Zahlenseite schrieb
+„06.10. bis heute · 30 Tage", obwohl die Messung erst am **03.11. um 13:07
+Uhr** angelegt worden war. Aus 28 Aufrufen in anderthalb Tagen wurde so
+„ein Besucher am Tag" – und darauf stützte ich dem Betreiber gegenüber die
+Empfehlung, sein Problem sei die Reichweite. Er hat es gemerkt: „bro du hast
+mir die analyseseite erst gestern gebaut haha." Nachgezählt in der
+Datenbank: **03.11. 9 Aufrufe, 04.11. 22 Aufrufe** – rund das Zwanzigfache
+meiner Annahme. Die Empfehlung war damit hinfällig.
+
+**Der Vergleich.** Vorbild ist **Plausible** (eine Seite, keine Untermenüs,
+jede Kennzahl klickbar; Besucher über eine cookielose, täglich wechselnde
+Prüfsumme) und **Umami** (MIT-Lizenz, offene Schnittstelle). Beide zeigen
+dieselbe Grundausstattung: Besucher, Besuche, Aufrufe, Seiten je Besuch,
+Absprungrate, Verweildauer, Zielvorhaben mit Quote.
+
+**Was jetzt gilt.**
+
+| | |
+|---|---|
+| Besucher | Prüfsumme SHA-256 aus **Tagessalz + IP + Browserkennung + Domain**, 16 Zeichen |
+| Tagessalz | Zufallszahl, täglich neu, in Tabelle `salz`; ältere werden gelöscht |
+| Gespeichert | **nur die Prüfsumme** – IP und Browserkennung nirgends |
+| Sitzung | bricht nach 30 Minuten Pause ab, gerechnet in SQL mit Fensterausdruck |
+| Neu dazu | Einstiegsseiten (erste Seite einer Sitzung), Kampagnen (`utm_*`), Browser- und Systemfamilie |
+| Neu oben | Besucher, Besuche, Seiten je Besuch, „Nur eine Seite", Kontaktaufnahmen, Kontakte je Besucher |
+
+**Die Datenschutzerklärung ist im SELBEN Zug geändert worden** – das ist der
+Kern dieses Eintrags. Sie sagte wörtlich zu: *„Nicht erfasst werden: Ihre
+IP-Adresse (auch nicht gekürzt oder als Hashwert) … kein Merkmal, mit dem
+sich wiedererkennen ließe, dass zwei Aufrufe von derselben Person stammen."*
+Hätte ich die Prüfsumme ohne Textänderung gebaut, wäre die veröffentlichte
+Erklärung **falsch** gewesen – ein eigener Verstoß, unabhängig davon, ob die
+Messung selbst zulässig ist. Der Betreiber hat nach dem Hinweis entschieden:
+„oder du baust mit prüfsumme und passt die datenschutzerklärung passend an?"
+
+Der neue Text erklärt die Prüfsumme in vier Punkten (was eingeht, dass nichts
+davon gespeichert wird, dass sie täglich verfällt, dass auf dem Gerät nichts
+gespeichert oder gelesen wird), nennt **Art. 6 Abs. 1 f DSGVO**, das
+**Widerspruchsrecht nach Art. 21** und **§ 25 TDDDG**. **Die verbindliche
+Bewertung holt der Betreiber beim Fachmann** – hier ist sie vorbereitet.
+
+**Verworfen:** die Prüfsumme zu bauen und die Erklärung „später" nachzuziehen.
+Zwei Wahrheiten über dieselbe Sache sind genau das, was eine
+Datenschutzerklärung wertlos macht.
+
+**Drei Prüfungen haben sich dabei selbst gemeldet.**
+1. `Tabelle hat keine Spalte für IP oder Browser` las nur den `CREATE`-Teil –
+   die neuen Spalten kommen über `ALTER` dazu. Die Prüfung wäre **grün
+   geblieben und gegenstandslos geworden**. Jetzt wird die Spaltenliste des
+   `INSERT` geprüft, dazu neu: die IP darf **genau einmal** gelesen werden,
+   und das Salz muss täglich wechseln.
+2. `§ 25 TDDDG` steht seit der Textänderung **zweimal** im Dokument; der
+   eingebaute Fehler traf nur das erste Vorkommen und blieb unbemerkt.
+3. Die Kacheln wurden über ihre **Position** angesprochen – eine neue Kachel
+   in der Mitte hätte jede folgende Prüfung verschoben. Jetzt über die
+   Überschrift.
+
+**Was gegengelesen werden soll.** Auf `/werkstatt/zahlen.html`: Steht in der
+Zeitraumzeile der Hinweis, seit wann wirklich gemessen wird? Und füllen sich
+die Kacheln „Besucher" und „Besuche" ab morgen? Heute stehen dort noch
+Striche – ältere Zeilen haben kein Kennzeichen, und das ist richtig so.

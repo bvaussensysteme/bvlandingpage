@@ -111,6 +111,10 @@
         justify-content:space-between;margin-bottom:16px}
   h1{font-size:1.72rem;line-height:1.1;letter-spacing:-.022em;font-weight:700}
   .zeitraum{color:var(--leise);font-size:.84rem;margin-top:3px;font-variant-numeric:tabular-nums}
+  /* Der Hinweis, dass der gewaehlte Zeitraum weiter zurueckreicht als
+     die Messung. Er muss ins Auge fallen, sonst liest ihn niemand -
+     und genau das ist am 04.11.2026 schiefgegangen. */
+  .warnung{color:var(--gold-text,#7A5B12);font-weight:600}
   .wahl{display:flex;gap:3px;background:var(--karte);border:1px solid var(--rand);
         border-radius:var(--r-mittel);padding:3px;box-shadow:var(--schatten)}
   .wahl button{padding:7px 13px;border:0;border-radius:var(--r-klein);background:none;
@@ -708,26 +712,65 @@
       return x.seite + ': ' + x.aufrufe;
     }).join('\n');
 
-    el('zeitraum').textContent = reihen.length
-      ? (tage === 1 ? 'Heute' : datumKurz(d.von) + ' bis heute · ' + tage + ' Tage')
-      : 'Noch keine Messwerte';
+    /* ---------- Der ECHTE Zeitraum ----------
+       GESCHEITERT am 04.11.2026 an dieser Stelle, und zwar bei mir
+       selbst: Die Zeile sagte „06.10. bis heute - 30 Tage", obwohl es
+       erst seit dem 03.11. Zahlen gab. Aus 28 Aufrufen in anderthalb
+       Tagen wurde so „ein Besucher am Tag", und darauf stuetzte sich
+       dann ein falscher Rat. Eine Beschriftung, die mehr behauptet als
+       die Daten hergeben, ist schlimmer als keine. */
+    var tageEcht = Math.max(1, d.tageMitDaten || 0);
+    var beginnKurz = d.datenBeginn ? datumKurz(d.datenBeginn) : null;
+    var zuFrueh = !!(d.datenBeginn && d.von && d.von < d.datenBeginn);
+    el('zeitraum').innerHTML = !reihen.length
+      ? 'Noch keine Messwerte'
+      : sicher(tage === 1 ? 'Heute' : datumKurz(d.von) + ' bis heute · ' + tage + ' Tage')
+        + (zuFrueh
+            ? ' <span class="warnung">· gemessen wird erst seit ' + sicher(beginnKurz)
+              + ', also an ' + tageEcht + ' Tag' + (tageEcht === 1 ? '' : 'en')
+              + ' – Durchschnitte rechnen durch diese Tage</span>'
+            : '');
 
     var teile = [];
 
+    /* Besucher gibt es erst, seit es ein Kennzeichen gibt (04.11.2026).
+       Fuer aeltere Tage steht hier ein Strich und nicht eine Null -
+       eine Null waere eine Aussage, und zwar eine falsche. */
+    var besucher = d.besucher || 0;
+    var sitzungen = d.sitzungen || 0;
+    var hatBesucher = besucher > 0;
+    var absprungQuote = sitzungen ? (d.absprunge || 0) / sitzungen * 100 : 0;
+    var absprungV = vorher.sitzungen ? (vorher.absprunge || 0) / vorher.sitzungen * 100 : 0;
+    var kontaktQuote = (hatBesucher && besucher) ? (d.handlungenGesamt || 0) / besucher * 100
+      : (summe ? (d.handlungenGesamt || 0) / summe * 100 : 0);
+
     teile.push('<div class="kennzahlen">'
+      + kachel('Besucher', hatBesucher ? zahl(besucher) : '–',
+               hatBesucher ? trend(besucher, vorher.besucher || 0) : '',
+               funke(d.besucherReihe || []))
+      + kachel('Besuche', hatBesucher ? zahl(sitzungen) : '–',
+               hatBesucher ? trend(sitzungen, vorher.sitzungen || 0) : '')
       + kachel('Seitenaufrufe', zahl(summe), trend(summe, vorher.aufrufe), funke(reihen))
-      + kachel('Im Schnitt am Tag', zahl(Math.round(summe / tage)), '')
+      + kachel('Seiten je Besuch',
+               hatBesucher ? (d.seitenJeSitzung || 0).toFixed(1).replace('.', ',') : '–',
+               hatBesucher ? trend(Math.round((d.seitenJeSitzung || 0) * 10),
+                                   Math.round((vorher.seitenJeSitzung || 0) * 10)) : '')
+      + kachel('Nur eine Seite', hatBesucher ? Math.round(absprungQuote) + ' %' : '–',
+               hatBesucher ? trend(Math.round(absprungQuote), Math.round(absprungV), true) : '')
       + kachel('Verweildauer', dauerText(schnittDauer), trend(schnittDauer, vorher.dauer))
       + kachel('Gelesen', schnittTiefe ? schnittTiefe + ' %' : '–', '')
-      + kachel('Anfragen abgeschickt', zahl(anfragen),
-               trend(anfragen, hv['anfrage-gesendet'] || 0))
-      + kachel('Anfragen je Aufruf', quote ? quote.toFixed(1) + ' %' : '–',
-               trend(Math.round(quote * 10), Math.round(quoteV * 10)))
+      + kachel('Kontaktaufnahmen', zahl(d.handlungenGesamt || 0),
+               trend(d.handlungenGesamt || 0,
+                     (vorher.handlungen || []).reduce(function (a, x) { return a + x.anzahl; }, 0)))
+      + kachel('Im Schnitt am Tag', zahl(Math.round(summe / tageEcht)), '')
+      + kachel('Kontakte je ' + (hatBesucher ? 'Besucher' : 'Aufruf'),
+               kontaktQuote ? kontaktQuote.toFixed(1).replace('.', ',') + ' %' : '–', '')
       + '</div>');
 
     if (!summe) {
       teile.push('<div class="karte"><h2>Noch nichts zu sehen – und das ist richtig</h2>'
-        + '<p class="unter">Die eigene Messung läuft seit dem 3. November 2026. '
+        + '<p class="unter">Die eigene Messung läuft seit dem '
+        + sicher(beginnKurz || '3. November 2026') + '. '
         + 'In diesem Zeitraum ist noch kein Seitenaufruf aufgezeichnet worden. '
         + 'Die Zahlen wachsen ab jetzt von selbst; morgen steht hier der erste Tag.</p></div>');
     }
@@ -814,14 +857,75 @@
       + '<p class="unter">Wann die Seite aufgerufen wird (deutsche Zeit).</p>'
       + stundenDiagramm(stundenRoh) + '</div></div>');
 
+    /* ---------- Einstiegsseiten ----------
+       Wo Leute ANKOMMEN, ist eine andere Frage als wo sie am meisten
+       sind. Die alte Zaehlung nahm „es steht eine fremde Herkunft
+       dabei" als Einstieg - damit fiel jeder heraus, der die Adresse
+       direkt eintippt, und genau das ist hier der haeufigste Fall.
+       Jetzt ist der Einstieg die erste Seite einer Sitzung. */
+    var einstiege = d.einstiege || [];
+    if (einstiege.length) {
+      var eH = hoechstwert(einstiege, 'einstiege');
+      teile.push('<div class="karte"><h2>Wo die Leute ankommen</h2>'
+        + '<p class="unter">Die erste Seite eines Besuchs. Hier entscheidet sich, '
+        + 'ob jemand bleibt.</p>'
+        + liste(einstiege.map(function (x) {
+            return reihe(x.seite, eH ? x.einstiege / eH * 100 : 0, zahl(x.einstiege));
+          }), 'noch keine Einstiege mit Kennzeichen')
+        + '</div>');
+    }
+
+    /* ---------- Kampagnen ----------
+       Nur was der Betrieb selbst beschriftet hat (utm_source und
+       Geschwister an einem Verweis). Leer zu sein ist hier kein
+       Mangel - es heisst, dass noch keine beschrifteten Verweise im
+       Umlauf sind. */
+    var kampagnen = d.kampagnen || [];
+    if (kampagnen.length) {
+      var kH = hoechstwert(kampagnen, 'aufrufe');
+      teile.push('<div class="karte"><h2>Eigene Verweise und Kampagnen</h2>'
+        + '<p class="unter">Verweise, die mit <code>utm_source</code> beschriftet '
+        + 'wurden – Flyer, Anzeige, Eintrag in einem Verzeichnis.</p>'
+        + liste(kampagnen.map(function (x) {
+            return reihe((x.kampagne || '–') + (x.quelle ? ' · ' + x.quelle : '')
+              + (x.medium ? ' · ' + x.medium : ''),
+              kH ? x.aufrufe / kH * 100 : 0, zahl(x.aufrufe));
+          }), 'keine beschrifteten Verweise im Umlauf')
+        + '</div>');
+    }
+
+    /* ---------- Browser und System ---------- */
+    var browser = d.browser || [], systeme = d.systeme || [];
+    if (browser.length || systeme.length) {
+      var bH = hoechstwert(browser, 'aufrufe'), sH = hoechstwert(systeme, 'aufrufe');
+      teile.push('<div class="zwei">'
+        + '<div class="karte"><h2>Browser</h2>'
+        + '<p class="unter">Nur die Familie, nie die Fassung – eine Fassungsnummer '
+        + 'wäre ein Fingerabdruck.</p>'
+        + liste(browser.map(function (x) {
+            return reihe(x.browser, bH ? x.aufrufe / bH * 100 : 0, zahl(x.aufrufe));
+          }), 'noch nichts') + '</div>'
+        + '<div class="karte"><h2>Betriebssystem</h2>'
+        + '<p class="unter">Sagt, worauf die Seite wirklich funktionieren muss.</p>'
+        + liste(systeme.map(function (x) {
+            return reihe(x.system, sH ? x.aufrufe / sH * 100 : 0, zahl(x.aufrufe));
+          }), 'noch nichts') + '</div></div>');
+    }
+
     /* Handlungen und Geräte */
     var handlungZeilen = Object.keys(HANDLUNG).map(function (art) {
       return { art: art, anzahl: h[art] || 0 };
     }).sort(function (a, b) { return b.anzahl - a.anzahl; });
     var hH = hoechstwert(handlungZeilen, 'anzahl');
+    /* MIT QUOTE. Eine nackte Zahl sagt nicht, ob sie gut ist: 3
+       WhatsApp-Klicks sind viel bei 40 Besuchern und wenig bei 4000.
+       Bezugsgroesse sind Besucher, solange es welche gibt, sonst
+       Aufrufe - und die Beschriftung sagt, welche von beiden. */
+    var bezug = hatBesucher ? besucher : summe;
     var handlungHtml = handlungZeilen.map(function (x) {
+      var q = bezug ? (x.anzahl / bezug * 100) : 0;
       return reihe(HANDLUNG[x.art], hH ? x.anzahl / hH * 100 : 0, zahl(x.anzahl),
-        hv[x.art] != null ? 'davor ' + zahl(hv[x.art]) : null);
+        (x.anzahl ? q.toFixed(1).replace('.', ',') + ' %' : null));
     });
     var geraete = d.geraete || [];
     var gSumme = geraete.reduce(function (a, g) { return a + g.aufrufe; }, 0);

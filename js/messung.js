@@ -72,6 +72,28 @@
     ? 'handy' : 'rechner';
 
   var quelle = herkunft();
+
+  /* ---------- Kampagne: nur die drei festen utm-Felder ----------
+     Wer einen Verweis selbst beschriftet (Visitenkarte, Flyer,
+     Anzeige, Eintrag in einem Verzeichnis), haengt utm_source,
+     utm_medium und utm_campaign an die Adresse. Nur diese drei werden
+     gelesen, und nur sie - der uebrige Fragezeichen-Teil bleibt
+     draussen, dort stehen Suchbegriffe und geteilte Konfigurationen.
+
+     Wie bei den bekannten Werkzeugen sticht utm_source die
+     Herkunftsseite aus: Eine selbst gesetzte Beschriftung ist die
+     genauere Auskunft als der Gastgebername davor. */
+  var kampagne = null, medium = null, utmQuelle = null;
+  try {
+    var such = new URLSearchParams(location.search);
+    var kurz = function (w) {
+      w = (w || '').trim();
+      return w ? w.slice(0, 60) : null;
+    };
+    utmQuelle = kurz(such.get('utm_source'));
+    medium = kurz(such.get('utm_medium'));
+    kampagne = kurz(such.get('utm_campaign'));
+  } catch (e) { /* alte Browser: dann eben keine Kampagne */ }
   var erstes = true;
   var ereignisse = [];
   var sichtbarSeit = (document.visibilityState === 'hidden') ? 0 : Date.now();
@@ -172,6 +194,9 @@
       ereignisse: ereignisse
     };
     if (erstes && quelle) paket.quelle = quelle;
+    if (erstes && utmQuelle) paket.utmQuelle = utmQuelle;
+    if (erstes && medium) paket.medium = medium;
+    if (erstes && kampagne) paket.kampagne = kampagne;
     try {
       navigator.sendBeacon(ZIEL, new Blob([JSON.stringify(paket)],
         { type: 'text/plain;charset=UTF-8' }));

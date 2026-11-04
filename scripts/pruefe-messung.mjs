@@ -220,7 +220,7 @@ const BASIS = `http://localhost:${PORT}`;
      Darstellung, nicht der Worker. Der 14.11.2026 ist ein Samstag -
      damit muss der Wochentagsblock den Samstag als stärksten zeigen. */
   const BEISPIEL = {
-    von: '2026-11-13', tage: 30,
+    von: '2026-10-16', tage: 30,
     tageReihe: [{ tag: '2026-11-12', aufrufe: 0 }, { tag: '2026-11-13', aufrufe: 10 },
                 { tag: '2026-11-14', aufrufe: 90 }],
     seiten: [{ seite: '/konfigurator.html', aufrufe: 70, dauer: 185, tiefe: 72, einstiege: 20 },
@@ -247,7 +247,22 @@ const BASIS = `http://localhost:${PORT}`;
              { was: 'Knopf 9', seite: '/', anzahl: 3 },
              { was: 'Knopf 10', seite: '/', anzahl: 2 }],
     live: [{ seite: '/konfigurator.html', aufrufe: 2 }],
+    /* AUSBAU 04.11.2026: Besucher, Sitzungen, Einstiege, Kampagnen,
+       Browser, System - und der ECHTE Datenbeginn. Der liegt hier
+       ABSICHTLICH nach dem Beginn des gewaehlten Zeitraums: Genau
+       diesen Fall hat die Seite vorher verschwiegen. */
+    datenBeginn: '2026-11-12', datenBeginnZeit: 1794000000, tageMitDaten: 3,
+    aufrufe: 100, besucher: 40, sitzungen: 50, absprunge: 20,
+    seitenJeSitzung: 2, handlungenGesamt: 10,
+    besucherReihe: [{ tag: '2026-11-13', besucher: 10 },
+                    { tag: '2026-11-14', besucher: 30 }],
+    einstiege: [{ seite: '/', einstiege: 30 },
+                { seite: '/windzonen', einstiege: 20 }],
+    kampagnen: [{ kampagne: 'herbst26', medium: 'flyer', quelle: 'postwurf', aufrufe: 12 }],
+    browser: [{ browser: 'Safari', aufrufe: 60 }, { browser: 'Chrome', aufrufe: 40 }],
+    systeme: [{ system: 'iOS', aufrufe: 55 }, { system: 'Windows', aufrufe: 45 }],
     vorher: { von: '2026-10-14', aufrufe: 50, dauer: 60,
+              besucher: 20, sitzungen: 25, absprunge: 15, seitenJeSitzung: 2,
               handlungen: [{ art: 'anfrage-gesendet', anzahl: 2 }] }
   };
   await page.route('**/werkstatt/api/zahlen*', (r) => r.fulfill({
@@ -305,16 +320,40 @@ const BASIS = `http://localhost:${PORT}`;
 
   /* 4b. Kennzahlen mit Vergleich zum Zeitraum davor */
   const kacheln = await page.$$eval('.kz', (n) => n.map((k) => k.innerText.replace(/\n/g, ' | ')));
-  pruef('Sechs Kennzahlen oben', kacheln.length === 6, kacheln.length + ' Kacheln');
-  pruef('Die Summe stimmt', /\b100\b/.test(kacheln[0] || ''), kacheln[0] || '');
+  const zeitraumText = await page.$eval('#zeitraum', (e) => e.innerText.replace(/\n/g, ' '));
+  /* GEAENDERT 04.11.2026: Die Kacheln sind nicht mehr sechs, und sie
+     werden nicht mehr ueber ihre Position angesprochen - eine neue
+     Kachel in der Mitte haette sonst jede folgende Pruefung verschoben.
+     Gesucht wird ueber die UEBERSCHRIFT. */
+  const kachelMit = (wort) => kacheln.find((k) => new RegExp(wort, 'i').test(k)) || '';
+  pruef('Die Kennzahlenreihe ist vollständig', kacheln.length >= 9,
+    kacheln.length + ' Kacheln');
+  pruef('Besucher und Besuche stehen oben',
+    /\b40\b/.test(kachelMit('^besucher \\|')) && /\b50\b/.test(kachelMit('^besuche \\|')),
+    kachelMit('^besucher \\|') + '   ' + kachelMit('^besuche \\|'));
+  pruef('Die Summe stimmt', /\b100\b/.test(kachelMit('seitenaufrufe')),
+    kachelMit('seitenaufrufe'));
   pruef('Der Vergleich zum Zeitraum davor steht dabei',
-    /\+100 % gegenüber davor/.test(kacheln[0] || ''), kacheln[0] || '');
+    /\+100 % gegenüber davor/.test(kachelMit('seitenaufrufe')),
+    kachelMit('seitenaufrufe'));
+  /* 20 von 50 Sitzungen sahen nur eine Seite - das sind 40 %. Vorher
+     waren es 15 von 25, also 60 %: Die Zahl ist GEFALLEN, und das ist
+     hier eine Verbesserung. Deshalb muss der Pfeil gruen sein. */
+  pruef('Nur eine Seite wird als Quote gezeigt, und weniger ist besser',
+    /40 %/.test(kachelMit('nur eine seite')), kachelMit('nur eine seite'));
+  pruef('Der Durchschnitt rechnet durch die Tage MIT Daten',
+    /\b33\b/.test(kachelMit('im schnitt am tag')),
+    kachelMit('im schnitt am tag') + '  (100 Aufrufe auf 3 Tage, nicht auf 30)');
   /* Ohne das i schlaegt das hier fehl, obwohl alles stimmt: innerText
      liefert die GERENDERTE Schreibweise, und die Kachelueberschrift steht
      per text-transform in Grossbuchstaben. */
-  pruef('Anfragen werden eigens ausgewiesen',
-    /anfragen abgeschickt/i.test(kacheln[4] || '') && /\+50 % gegenüber davor/.test(kacheln[4] || ''),
-    kacheln[4] || '');
+  pruef('Kontaktaufnahmen werden eigens ausgewiesen',
+    /\b10\b/.test(kachelMit('kontaktaufnahmen')), kachelMit('kontaktaufnahmen'));
+  /* DER FEHLER, DER DIESE RUNDE AUSGELOEST HAT: Die Seite schrieb
+     „30 Tage", obwohl erst seit zwei Tagen gemessen wurde. */
+  pruef('Ein zu früh gewählter Zeitraum wird benannt',
+    /gemessen wird erst seit/i.test(zeitraumText) && /3 Tagen/.test(zeitraumText),
+    zeitraumText);
 
   /* 4c. Diagramm, Vollständigkeit der Listen */
   /* .saeule.tag, nicht .saeule: Die Stunden zeichnen inzwischen eigene

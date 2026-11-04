@@ -831,17 +831,33 @@ function konfiguratorGesperrtSeite() {
      · Es kann, was kein fremdes Werkzeug kann: den Weg durch den
        3D-Konfigurator Schritt fuer Schritt zeigen.
 
-   WAS BEWUSST NICHT ERFASST WIRD - und das ist die ganze Begruendung
-   dafuer, dass hier keine Einwilligung noetig ist:
-     · keine IP-Adresse (auch nicht gekuerzt, auch nicht als Hashwert),
-     · kein User-Agent, kein Fingerabdruck,
-     · kein Kennzeichen fuer "derselbe Besucher" - deshalb gibt es hier
-       auch keine Zahl "einzelne Besucher". Was gezaehlt wird, sind
-       Aufrufe und Handlungen, nicht Personen. Wer das aendern will,
-       aendert die Rechtsgrundlage mit: Dann braucht es eine
-       Einwilligung, und die Zahlen fallen auf die Zustimmenden zurueck.
-     · keine Adresszeile mit Fragezeichen (eine Suchanfrage oder ein
-       Teilen-Link stehen dort und gehoeren nicht in eine Statistik).
+   GEAENDERT AM 04.11.2026. Hier stand, es werde kein Kennzeichen fuer
+   "derselbe Besucher" gebildet, und wer das aendere, aendere die
+   Rechtsgrundlage mit. Beides stimmt weiter - die Aenderung ist
+   bewusst getroffen worden: „oder du baust mit pruefsumme und passt
+   die datenschutzerklaerung passend an?" (Betreiber), nachdem ich auf
+   den Widerspruch zur veroeffentlichten Zusage hingewiesen hatte. Die
+   Datenschutzerklaerung ist im SELBEN Zug geaendert worden.
+
+   WAS JETZT ERFASST WIRD, das vorher nicht erfasst wurde:
+     · ein Tageskennzeichen je Besuch (Pruefsumme, siehe
+       messungBesucher() weiter unten),
+     · Browser- und Systemfamilie, ohne Fassungsnummern,
+     · die drei utm-Felder an selbst gesetzten Verweisen.
+
+   WAS WEITER NICHT ERFASST WIRD:
+     · die IP-Adresse und der User-Agent als solche - sie gehen in die
+       Pruefsumme ein und werden danach verworfen, gespeichert wird
+       keines von beiden,
+     · keine Stadt, keine Postleitzahl, keine Koordinaten,
+     · keine Adresszeile mit Fragezeichen ausser den drei utm-Feldern
+       (eine Suchanfrage oder ein Teilen-Link stehen dort und gehoeren
+       nicht in eine Statistik).
+
+   EINWILLIGUNG bleibt entbehrlich, weil auf dem GERAET weiterhin
+   nichts gespeichert und nichts gelesen wird (§ 25 TDDDG). Die
+   Verarbeitung auf dem Server stuetzt sich auf Art. 6 Abs. 1 f DSGVO.
+   Die verbindliche Bewertung holt der Betreiber beim Fachmann.
 
    OEFFENTLICHE SCHREIBADRESSE. Jeder kann hier POSTen. Deshalb nimmt
    die Route nur an, was sie kennt: feste Liste erlaubter Arten,
@@ -917,7 +933,9 @@ async function messungTabelle(env) {
   /* Nachruesten fuer Datenbanken, die vor dem Ausbau angelegt wurden.
      Jede Spalte einzeln und mit Fangnetz: "duplicate column name" ist
      hier der NORMALFALL, kein Fehler. */
-  for (const spalte of ['zeit INTEGER', 'land TEXT', 'region TEXT', 'tiefe INTEGER']) {
+  for (const spalte of ['zeit INTEGER', 'land TEXT', 'region TEXT', 'tiefe INTEGER',
+    /* Ausbau 04.11.2026: Besucherkennzeichen, Kampagne, Browser, System. */
+    'besucher TEXT', 'kampagne TEXT', 'medium TEXT', 'browser TEXT', 'system TEXT']) {
     try {
       await env.MESSUNG.prepare('ALTER TABLE ereignis ADD COLUMN ' + spalte).run();
     } catch (e) { /* Spalte ist schon da */ }
@@ -928,7 +946,116 @@ async function messungTabelle(env) {
   await env.MESSUNG.prepare(
     'CREATE INDEX IF NOT EXISTS ereignis_zeit ON ereignis (zeit)'
   ).run();
+  await env.MESSUNG.prepare(
+    'CREATE INDEX IF NOT EXISTS ereignis_besucher ON ereignis (besucher, zeit)'
+  ).run();
+  /* Das Tagessalz. Eine Zeile je Tag, mehr steht da nicht drin. */
+  await env.MESSUNG.prepare(
+    'CREATE TABLE IF NOT EXISTS salz (tag TEXT PRIMARY KEY, wert TEXT NOT NULL)'
+  ).run();
   messungSchemaGeprueft = true;
+}
+
+/* ============================================================
+   Das Besucherkennzeichen  (eingebaut 04.11.2026)
+   ------------------------------------------------------------
+   ANLASS. „oder du baust mit pruefsumme und passt die
+   datenschutzerklaerung passend an?" (Betreiber, 04.11.2026), nachdem
+   ich darauf hingewiesen hatte, dass die veroeffentlichte
+   Datenschutzerklaerung bis dahin ausdruecklich das Gegenteil zusagte.
+   Der Text ist im selben Zug geaendert worden - Technik und Zusage
+   duerfen nie auseinanderlaufen.
+
+   WARUM UEBERHAUPT. Ohne ein Kennzeichen gibt es keine Besucher,
+   keine Sitzungen, keine Absprungrate und keine Seiten je Besuch -
+   also genau die Zahlen, an denen man ablesen kann, ob eine Seite
+   traegt. Gezaehlt wurden vorher nur Aufrufe.
+
+   WIE, und warum so:
+     · Pruefsumme (SHA-256) aus TAGESSALZ + IP + Browserkennung +
+       Gastgebername. Davon die ersten 16 Zeichen.
+     · Das SALZ ist eine Zufallszahl, die EINMAL AM TAG neu gezogen und
+       in der Tabelle `salz` abgelegt wird. Ohne das Salz laesst sich
+       aus der Pruefsumme nichts zurueckrechnen; mit dem Wechsel um
+       Mitternacht ist niemand ueber den Tag hinaus wiedererkennbar.
+     · IP und Browserkennung werden NICHT gespeichert, nirgends. Sie
+       gehen in die Pruefsumme ein und sind danach weg.
+     · Das ist das Verfahren von Plausible, und es ist der Grund, warum
+       dort kein Einwilligungsbanner noetig ist: Auf dem GERAET wird
+       nichts gespeichert und nichts gelesen, also greift § 25 TDDDG
+       nicht. Die Verarbeitung auf dem Server stuetzt sich auf das
+       berechtigte Interesse (Art. 6 Abs. 1 f DSGVO) - so steht es
+       seit dem 04.11.2026 auch in der Datenschutzerklaerung.
+
+   ALTE ZEILEN HABEN KEIN KENNZEICHEN. Alles vor dem 04.11.2026 traegt
+   `besucher = NULL`. Die Auswertung muss das aushalten, statt diese
+   Tage als "null Besucher" zu zeigen.
+   ============================================================ */
+let salzHeute = { tag: null, wert: null };
+
+async function messungSalz(env, tag) {
+  if (salzHeute.tag === tag && salzHeute.wert) return salzHeute.wert;
+  const treffer = await env.MESSUNG.prepare(
+    'SELECT wert FROM salz WHERE tag = ?1').bind(tag).first();
+  let wert = treffer && treffer.wert;
+  if (!wert) {
+    const roh = new Uint8Array(16);
+    crypto.getRandomValues(roh);
+    wert = Array.from(roh).map((b) => b.toString(16).padStart(2, '0')).join('');
+    /* OR IGNORE: Zwei Aufrufe in derselben Sekunde ziehen sonst zwei
+       verschiedene Salze, und dieselbe Person waere zweimal gezaehlt. */
+    await env.MESSUNG.prepare(
+      'INSERT OR IGNORE INTO salz (tag, wert) VALUES (?1, ?2)').bind(tag, wert).run();
+    const nach = await env.MESSUNG.prepare(
+      'SELECT wert FROM salz WHERE tag = ?1').bind(tag).first();
+    wert = (nach && nach.wert) || wert;
+    /* Aufraeumen: Ein Salz von vorgestern nuetzt niemandem mehr. */
+    await env.MESSUNG.prepare('DELETE FROM salz WHERE tag < ?1').bind(tag).run();
+  }
+  salzHeute = { tag, wert };
+  return wert;
+}
+
+async function messungBesucher(request, env, tag) {
+  try {
+    const ip = request.headers.get('cf-connecting-ip') || '';
+    const ua = request.headers.get('user-agent') || '';
+    if (!ip && !ua) return null;
+    const salz = await messungSalz(env, tag);
+    const roh = new TextEncoder().encode(
+      salz + '|' + ip + '|' + ua + '|' + (new URL(request.url)).hostname);
+    const summe = await crypto.subtle.digest('SHA-256', roh);
+    return Array.from(new Uint8Array(summe)).slice(0, 8)
+      .map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    return null;   // Lieber keine Kennung als ein kaputter Seitenaufruf
+  }
+}
+
+/* Browser und System nur als FAMILIE, nicht als Fassung. „Safari" ist
+   eine Auskunft, „Safari 17.4.1 auf iOS 17.4.1" ist ein Fingerabdruck.
+   Reihenfolge wichtig: Edge und Samsung nennen sich auch Chrome, und
+   jeder Browser auf iOS nennt sich Safari. */
+function messungBrowser(ua) {
+  if (!ua) return null;
+  if (/\bEdg\//.test(ua)) return 'Edge';
+  if (/SamsungBrowser/.test(ua)) return 'Samsung Internet';
+  if (/\bOPR\/|Opera/.test(ua)) return 'Opera';
+  if (/Firefox\/|FxiOS/.test(ua)) return 'Firefox';
+  if (/Chrome\/|CriOS/.test(ua)) return 'Chrome';
+  if (/Safari\//.test(ua)) return 'Safari';
+  if (/bot|crawl|spider|slurp/i.test(ua)) return 'Suchmaschine';
+  return 'anderer';
+}
+
+function messungSystem(ua) {
+  if (!ua) return null;
+  if (/iPhone|iPad|iPod/.test(ua)) return 'iOS';
+  if (/Android/.test(ua)) return 'Android';
+  if (/Windows/.test(ua)) return 'Windows';
+  if (/Mac OS X|Macintosh/.test(ua)) return 'macOS';
+  if (/Linux|X11/.test(ua)) return 'Linux';
+  return 'anderes';
 }
 
 async function handleMessung(request, env) {
@@ -951,6 +1078,14 @@ async function handleMessung(request, env) {
 
   const geraet = MESSUNG_GERAETE.has(body.geraet) ? body.geraet : null;
   const quelle = messungText(body.quelle, 80);
+  /* KAMPAGNE. Nur die drei festen utm-Felder, die der Betrieb selbst an
+     seine Verweise haengt - nie der ganze Fragezeichen-Teil, dort
+     stehen Suchbegriffe und geteilte Konfigurationen. Wie bei
+     Plausible sticht utm_source die Herkunftsseite aus: Wer einen
+     Verweis selbst beschriftet hat, meint diese Beschriftung. */
+  const kampagne = messungText(body.kampagne, 60);
+  const medium = messungText(body.medium, 40);
+  const quelleEcht = messungText(body.utmQuelle, 60) || quelle;
   const dauer = messungZahl(body.dauer, 0, 3600);
 
   /* Wie weit wurde gescrollt (0-100 %)? Sagt mehr als die Verweildauer:
@@ -966,6 +1101,9 @@ async function handleMessung(request, env) {
      Westerwald montiert, ist "aus welcher Gegend kommen die Leute" die
      wichtigste Frage; eine Stadt waere in einem Dorf dagegen schon
      fast eine Person. */
+  const ua = request.headers.get('user-agent') || '';
+  const browser = messungBrowser(ua);
+  const system = messungSystem(ua);
   const cf = request.cf || {};
   const land = messungText(cf.country, 4);
   const region = (land === 'DE') ? messungText(cf.region || cf.regionCode, 40) : null;
@@ -975,7 +1113,7 @@ async function handleMessung(request, env) {
      den Tab wegklickt und zurueckkommt, schickt ein zweites Paket mit
      weiterer Verweildauer - das darf kein zweiter Aufruf werden. */
   if (body.neu) {
-    zeilen.push(['seite', seite, dauer, null, quelle, geraet, tiefe]);
+    zeilen.push(['seite', seite, dauer, null, quelleEcht, geraet, tiefe]);
   } else if (dauer) {
     zeilen.push(['verweilen', seite, dauer, null, null, geraet, tiefe]);
   }
@@ -994,13 +1132,17 @@ async function handleMessung(request, env) {
   const zeit = Math.floor(Date.now() / 1000);
   try {
     await messungTabelle(env);
+    const besucher = await messungBesucher(request, env, tag);
     const satz = env.MESSUNG.prepare(
       'INSERT INTO ereignis (tag, stunde, zeit, art, seite, wert, zusatz, '
-      + 'quelle, geraet, land, region, tiefe) '
-      + 'VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)'
+      + 'quelle, geraet, land, region, tiefe, besucher, kampagne, medium, '
+      + 'browser, system) '
+      + 'VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, '
+      + '?15, ?16, ?17)'
     );
     await env.MESSUNG.batch(zeilen.map((z) => satz.bind(
-      tag, stunde, zeit, z[0], z[1], z[2], z[3], z[4], z[5], land, region, z[6]
+      tag, stunde, zeit, z[0], z[1], z[2], z[3], z[4], z[5], land, region, z[6],
+      besucher, kampagne, medium, browser, system
     )));
   } catch (e) {
     /* Eine Statistik darf nie etwas kaputt machen. Faellt die Datenbank
@@ -1046,10 +1188,43 @@ async function handleZahlen(url, env) {
        bekannten Werkzeuge nehmen. */
     const seitSekunden = Math.floor(Date.now() / 1000) - 30 * 60;
 
+    /* ---------- Sitzungen aus den Zeitstempeln ----------
+       Eine Sitzung bricht nach 30 Minuten Pause ab - dasselbe Fenster
+       wie bei den bekannten Werkzeugen. Gerechnet wird das IN SQL mit
+       einem Fensterausdruck: Jeder Aufruf bekommt eine 1, wenn seit
+       dem vorigen Aufruf desselben Besuchers mehr als 1800 Sekunden
+       vergangen sind; die laufende Summe dieser Einsen ist die
+       Sitzungsnummer.
+
+       NUR ZEILEN MIT KENNZEICHEN. Alles vor dem 04.11.2026 traegt
+       keines; diese Zeilen zaehlen bei Aufrufen weiter mit, bei
+       Besuchern und Sitzungen aber nicht - sonst waere jeder alte Tag
+       eine Sitzung mit null Besuchern. */
+    const sitzungSql = (bis) => (
+      "WITH roh AS (SELECT besucher, zeit, "
+      + "LAG(zeit) OVER (PARTITION BY besucher ORDER BY zeit) AS vorher "
+      + "FROM ereignis WHERE art = 'seite' AND besucher IS NOT NULL "
+      + "AND tag >= ?1" + (bis ? " AND tag < ?2" : "") + "), "
+      + "start AS (SELECT besucher, zeit, "
+      + "CASE WHEN vorher IS NULL OR zeit - vorher > 1800 THEN 1 ELSE 0 END AS neu "
+      + "FROM roh), "
+      + "nummer AS (SELECT besucher, SUM(neu) OVER (PARTITION BY besucher "
+      + "ORDER BY zeit ROWS UNBOUNDED PRECEDING) AS sid FROM start), "
+      + "je AS (SELECT besucher, sid, COUNT(*) AS seiten FROM nummer "
+      + "GROUP BY besucher, sid) "
+      + "SELECT COUNT(*) AS sitzungen, "
+      + "COUNT(DISTINCT besucher) AS besucher, "
+      + "SUM(CASE WHEN seiten = 1 THEN 1 ELSE 0 END) AS absprunge, "
+      + "AVG(seiten) AS seitenJeSitzung FROM je"
+    );
+
     const [tageRows, seitenRows, quellenRows, geraeteRows,
            handlungRows, trichterRows, stundenRows,
            vorherAufrufe, vorherHandlung, vorherDauer,
-           matrixRows, laenderRows, regionenRows, klickRows, liveRows] = await Promise.all([
+           matrixRows, laenderRows, regionenRows, klickRows, liveRows,
+           beginnRows, tageMitDatenRows, sitzungRows, vorherSitzungRows,
+           kampagnenRows, browserRows, systemRows, besucherReiheRows,
+           einstiegRows] = await Promise.all([
       frage("SELECT tag, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 GROUP BY tag ORDER BY tag"),
       /* Je Seite: Aufrufe, Verweildauer, Scrolltiefe und wie oft sie der
@@ -1100,10 +1275,67 @@ async function handleZahlen(url, env) {
         "SELECT seite, COUNT(*) AS aufrufe FROM ereignis "
         + "WHERE art IN ('seite', 'verweilen') AND zeit >= ?1 "
         + "GROUP BY seite ORDER BY aufrufe DESC LIMIT 10").bind(seitSekunden).all(),
+      /* AB WANN GIBT ES UEBERHAUPT ZAHLEN. Ohne diese Angabe rechnet
+         die Seite Durchschnitte durch 30 Tage, von denen es 28 nicht
+         gibt - genau daran ist am 04.11.2026 eine Auswertung
+         gescheitert, und zwar meine eigene. */
+      env.MESSUNG.prepare(
+        "SELECT MIN(tag) AS beginn, MIN(zeit) AS beginnZeit FROM ereignis").all(),
+      frage("SELECT COUNT(DISTINCT tag) AS tage FROM ereignis WHERE tag >= ?1"),
+      env.MESSUNG.prepare(sitzungSql(false)).bind(von).all(),
+      env.MESSUNG.prepare(sitzungSql(true)).bind(vorherVon, von).all(),
+      frage("SELECT kampagne, medium, quelle, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND kampagne IS NOT NULL "
+            + "GROUP BY kampagne, medium, quelle ORDER BY aufrufe DESC LIMIT 20"),
+      frage("SELECT browser, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND browser IS NOT NULL "
+            + "GROUP BY browser ORDER BY aufrufe DESC LIMIT 12"),
+      frage("SELECT system, COUNT(*) AS aufrufe FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND system IS NOT NULL "
+            + "GROUP BY system ORDER BY aufrufe DESC LIMIT 12"),
+      frage("SELECT tag, COUNT(DISTINCT besucher) AS besucher FROM ereignis "
+            + "WHERE art = 'seite' AND tag >= ?1 AND besucher IS NOT NULL "
+            + "GROUP BY tag ORDER BY tag"),
+      /* EINSTIEGSSEITEN je Sitzung: die erste Seite, die jemand sieht.
+         Die bisherige Zaehlung („quelle ist gesetzt") verfehlt jeden,
+         der die Adresse direkt eintippt - und das ist hier der
+         haeufigste Fall. */
+      env.MESSUNG.prepare(
+        "WITH roh AS (SELECT besucher, zeit, seite, "
+        + "LAG(zeit) OVER (PARTITION BY besucher ORDER BY zeit) AS vorher "
+        + "FROM ereignis WHERE art = 'seite' AND besucher IS NOT NULL AND tag >= ?1) "
+        + "SELECT seite, COUNT(*) AS einstiege FROM roh "
+        + "WHERE vorher IS NULL OR zeit - vorher > 1800 "
+        + "GROUP BY seite ORDER BY einstiege DESC LIMIT 20").bind(von).all(),
     ]);
+
+    const sitzung = ((sitzungRows.results || [])[0] || {});
+    const vorherSitzung = ((vorherSitzungRows.results || [])[0] || {});
+    const beginn = ((beginnRows.results || [])[0] || {});
+    const aufrufeJetzt = (tageRows.results || [])
+      .reduce((n, z) => n + (z.aufrufe || 0), 0);
+    const handlungenGesamt = (handlungRows.results || [])
+      .reduce((n, z) => n + (z.anzahl || 0), 0);
 
     return new Response(JSON.stringify({
       von, tage,
+      /* Der ECHTE Datenbeginn und die Zahl der Tage, an denen wirklich
+         etwas gemessen wurde. Beides gehoert auf die Seite, sonst
+         rechnet sie Durchschnitte durch Tage ohne Daten. */
+      datenBeginn: beginn.beginn || null,
+      datenBeginnZeit: beginn.beginnZeit || null,
+      tageMitDaten: ((tageMitDatenRows.results || [])[0] || {}).tage || 0,
+      aufrufe: aufrufeJetzt,
+      besucher: sitzung.besucher || 0,
+      sitzungen: sitzung.sitzungen || 0,
+      absprunge: sitzung.absprunge || 0,
+      seitenJeSitzung: sitzung.seitenJeSitzung || 0,
+      handlungenGesamt,
+      besucherReihe: besucherReiheRows.results || [],
+      einstiege: einstiegRows.results || [],
+      kampagnen: kampagnenRows.results || [],
+      browser: browserRows.results || [],
+      systeme: systemRows.results || [],
       tageReihe: tageRows.results || [],
       seiten: seitenRows.results || [],
       quellen: quellenRows.results || [],
@@ -1121,6 +1353,10 @@ async function handleZahlen(url, env) {
         aufrufe: ((vorherAufrufe.results || [])[0] || {}).aufrufe || 0,
         dauer: ((vorherDauer.results || [])[0] || {}).dauer || 0,
         handlungen: vorherHandlung.results || [],
+        besucher: vorherSitzung.besucher || 0,
+        sitzungen: vorherSitzung.sitzungen || 0,
+        absprunge: vorherSitzung.absprunge || 0,
+        seitenJeSitzung: vorherSitzung.seitenJeSitzung || 0,
       },
     }), {
       status: 200,
