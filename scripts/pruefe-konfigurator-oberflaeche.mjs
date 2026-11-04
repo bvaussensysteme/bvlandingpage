@@ -773,6 +773,62 @@ await page.waitForTimeout(600);
   await me.close();
 }
 
+/* ---------- Am Handy erst am Ende ----------
+   „der angebot anfragen button sollte bei mobile erst ganz am ende
+   kommen" (Betreiber, 04.11.2026).
+
+   Die Pruefung darueber misst den GROSSEN Bildschirm (1280 px): Dort
+   bleibt die Abkuerzung in jedem Schritt stehen. Hier gilt das
+   Gegenteil, und beide Saetze zusammen sind die Regel - eine allein
+   waere nur die Haelfte.
+
+   Gemessen wird offsetParent, nicht die CSS-Regel: Ein Element in
+   einem ausgeblendeten Elternteil hat keinen, und genau das zaehlt
+   fuer den Besucher. */
+{
+  const hy = await browser.newPage({
+    viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true
+  });
+  hy.setDefaultTimeout(8000);
+  if (GEGENPROBE) {
+    await fehlerEinbauen(hy);
+    /* Siebzehnter Fehler: Die Zeile kommt am Handy zurueck. */
+    await hy.addStyleTag({ content: '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}' })
+      .catch(() => {});
+  }
+  await hy.goto(BASIS, { waitUntil: 'load' });
+  await hy.waitForTimeout(3200);
+  if (GEGENPROBE) {
+    await hy.addStyleTag({ content: '.k3d-gefuehrt .k3d-anfrage-fuss{display:flex!important}' })
+      .catch(() => {});
+  }
+  const schritte = [];
+  for (let i = 0; i < 5; i++) {
+    schritte.push(await hy.evaluate(() => {
+      const e = document.getElementById('k3dAnfrageFuss');
+      return {
+        sichtbar: !!(e && e.offsetParent),
+        knopf: (document.getElementById('k3dWeiter') || {}).innerText
+          ? document.getElementById('k3dWeiter').innerText.replace(/\s+/g, ' ').trim()
+          : ''
+      };
+    }));
+    if (i < 4) {
+      await hy.$eval('#k3dWeiter', (e) => e.click());
+      await hy.waitForTimeout(800);
+    }
+  }
+  pruef('Am Handy steht die Anfrage nicht in jedem Schritt',
+    schritte.every((x) => !x.sichtbar),
+    schritte.filter((x) => x.sichtbar).length + ' von 5 Schritten zeigen sie');
+  /* Weg ist sie damit nicht: Im letzten Bereich IST der Hauptknopf der
+     Absender. Ohne diese zweite Haelfte liesse sich die erste erfuellen,
+     indem man die Anfrage am Handy ganz abschafft. */
+  pruef('Am Handy ist der letzte Knopf der Absender',
+    /Anfrage abschicken/.test(schritte[4].knopf), schritte[4].knopf);
+  await hy.close();
+}
+
 /* ---------- Durchgangshoehe unter dem Statiktraeger ----------
    „wenn aber jetzt statikträger in spiel kommen is die durchgangshöhe um
    den statikträger niedriger und das kann man neben dem unterkanten maß
@@ -2146,6 +2202,7 @@ if (!GEGENPROBE) {
 
 /* Diese Prüfungen MÜSSEN bei eingebauten Fehlern anschlagen. */
 const sollenScheitern = [
+  'Am Handy steht die Anfrage nicht in jedem Schritt',
   'Die Bildkarten zeigen eigene Bilder, und sie laden',
   'Die sieben Dachbilder sind auseinanderzuhalten',
   'Erledigte Bereiche tragen einen Haken',

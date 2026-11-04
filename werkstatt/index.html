@@ -1077,6 +1077,23 @@
 
     @media (max-width: 900px) {
       .k3d-app { flex-direction: column; height: auto; min-height: 0; }
+      /* ---------- „Angebot anfragen" steht am Handy erst am Ende ----------
+         „der angebot anfragen button sollte bei mobile erst ganz am ende
+         kommen" (Betreiber, 04.11.2026).
+
+         Am grossen Bildschirm bleibt die Abkuerzung in jedem Schritt
+         stehen (Entscheidung vom 03.11.2026): Dort kostet sie nichts,
+         das Bedienfeld steht ohnehin neben dem Modell. Am Handy kostet
+         sie 57 px in einer Fusszeile, die schon zu viel Platz nahm -
+         und wer bei „Anlage" steht, hat noch nichts zu schicken.
+
+         WEG IST SIE DAMIT NICHT: Im letzten Bereich ist der Hauptknopf
+         der Fusszeile selbst der Absender („Anfrage abschicken", siehe
+         schrittZeigen), und die Zusammenfassung mit dem Formular steht
+         dort im Bedienfeld. Die Zeile hier zusaetzlich einzublenden
+         waeren zwei Knoepfe fuer dieselbe Sache - genau die Doppelung,
+         die beim Statiktraeger schon weggeraeumt wurde. */
+      .k3d-gefuehrt .k3d-anfrage-fuss { display: none; }
       /* Das 3D-Bild bleibt beim Scrollen oben stehen: „ich hätte ganz
          gerne auf dem handy das die 3d ansicht immer stehen bleibt, weil
          wenn man z.b runterscrollt oder weitere einstellungen öffnet …
@@ -2567,13 +2584,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104c" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104d" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104c" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104d" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

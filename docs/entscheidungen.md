@@ -12075,3 +12075,30 @@ der Seite schaut. Das ist dem Betreiber vorgelegt, nicht von mir entschieden.
 Software-Renderer (swiftshader) ohne echte Grafikkarte. Größen und Abstände
 sind damit belastbar gemessen, die **Wirkung der Farben auf einem echten
 iPhone-Bildschirm nicht**. Das kann nur der Betreiber beurteilen.
+
+## 04.11.2026 – „Angebot anfragen" steht am Handy erst am Ende
+
+**Anlass:** *„der angebot anfragen button sollte bei mobile erst ganz am ende
+kommen"* (Betreiber).
+
+Am **großen Bildschirm** bleibt die Abkürzung in jedem Schritt stehen – das
+war die Entscheidung vom 03.11.2026 und bleibt sie: Dort kostet sie nichts,
+das Bedienfeld steht ohnehin neben dem Modell.
+
+Am **Handy** kostet sie 57 px in einer Fußzeile, die ohnehin zu viel Platz
+nahm (gemessen: Fußzeile 212 px → 156 px). Und wer im Schritt „Anlage" steht,
+hat noch nichts zu schicken.
+
+**Weg ist sie damit nicht.** Im letzten Bereich ist der Hauptknopf der
+Fußzeile selbst der Absender („Anfrage abschicken"), und die Zusammenfassung
+mit dem Formular steht dort im Bedienfeld. Die Zeile dort *zusätzlich*
+einzublenden wären zwei Knöpfe für dieselbe Sache – genau die Doppelung, die
+beim Statikträger schon weggeräumt wurde.
+
+**Gemessen, beide Seiten:** Am Handy (390 px) ist die Zeile in allen fünf
+Schritten unsichtbar, und der letzte Knopf heißt „Anfrage abschicken". Am
+großen Bildschirm (1440 px) steht sie in allen fünf Schritten mit 49 px Höhe.
+Beide Sätze stehen als Prüfung in
+`scripts/pruefe-konfigurator-oberflaeche.mjs` – einer allein wäre nur die
+halbe Regel: Die erste Hälfte ließe sich auch erfüllen, indem man die Anfrage
+am Handy ganz abschafft.
