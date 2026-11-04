@@ -58,7 +58,19 @@ async function oeffnen(url) {
   await p.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ })
          .first().click({ timeout: 4000 }).catch(() => {});
   await p.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
-  await p.$eval('#k3dModus', el => el.click());
+  /* Bis zum 03.11.2026 stand hier ein Klick auf #k3dModus - den
+     Umschalter zwischen "Schritt fuer Schritt" und "Alles auf einen
+     Blick". Mit dem Umbau auf EINEN Bedienweg (930ac34) fiel der
+     Knopf weg, und dieses Skript stuerzte seitdem bei jedem Lauf ab:
+     Die Pruefung des Teilen-Links lief einen Tag lang gar nicht.
+     Gebraucht wurde der Klick nur, damit alle Felder im Dokument
+     stehen - also wird jetzt genau das hergestellt, ohne Umweg ueber
+     einen Knopf, den es geben muss. */
+  await p.evaluate(() => {
+    const panel = document.querySelector('.k3d-panel');
+    if (panel) panel.classList.remove('k3d-gefuehrt');
+    document.querySelectorAll('details').forEach((d) => { d.open = true; });
+  });
   await p.waitForTimeout(1200);
   return p;
 }
@@ -87,8 +99,19 @@ const setz = (p, id, w) => p.evaluate(([i, v]) => {
 }, [id, w]);
 
 const p1 = await oeffnen(`http://localhost:${PORT}/konfigurator.html`);
-await p1.$eval('[data-k3d-seg="k3dStufe"] button[data-wert="Pro"]', el => el.click());
-await p1.waitForTimeout(400);
+/* Die Stufenwahl (Basis / Pro) ist am 03.11.2026 entfallen - k3dStufe
+   ist seitdem ein verstecktes Feld, das fest auf "Pro" steht
+   (konfigurator.html). Der Klick ging daher ins Leere und riss das
+   Skript ab. Statt ihn zu entfernen wird der Wert geprueft: Steht da
+   eines Tages etwas anderes, laeuft dieser Test gegen eine andere
+   Planung als gedacht - und das soll auffallen. */
+{
+  const stufe = await p1.$eval('#k3dStufe', (e) => e.value);
+  if (stufe !== 'Pro') {
+    console.error(`  FEHLER  k3dStufe steht auf "${stufe}", erwartet "Pro"`);
+    process.exitCode = 1;
+  }
+}
 await p1.evaluate(() => document.querySelectorAll('details.k3d-sek')
                           .forEach(d => { d.open = true; }));
 
@@ -196,7 +219,13 @@ await p2.waitForTimeout(2200);
 await p2.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ })
         .first().click({ timeout: 4000 }).catch(() => {});
 await p2.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
-await p2.$eval('#k3dModus', el => el.click());
+/* Wie oben in oeffnen(): den Umschalter gibt es nicht mehr, gebraucht
+   wird nur, dass alle Felder im Dokument stehen. */
+await p2.evaluate(() => {
+  const panel = document.querySelector('.k3d-panel');
+  if (panel) panel.classList.remove('k3d-gefuehrt');
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
+});
 await p2.waitForTimeout(1800);
 const nachher = await lesen(p2);
 

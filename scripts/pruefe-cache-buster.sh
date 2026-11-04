@@ -62,8 +62,16 @@ pruefen() {
 bumpPruefen() {
   local fehler=0
   local datei version letzteDatei letzteVersion
+  # src/css/style.css steht hier, weil das Stylesheet genauso lange im
+  # Browser-Cache liegt wie das JavaScript (24 h laut _headers) - es
+  # fehlte bis zum 04.11.2026. An dem Tag aenderte eine Korrektur fuer
+  # iPhones die Schriftgroesse aller Eingabefelder, und die Pruefung
+  # meldete trotzdem "aktuell": Niemand haette die Aenderung einen Tag
+  # lang gesehen. Geprueft wird die QUELLE, nicht css/style.css - das
+  # Minifikat erzeugt der Build, sein Zeitstempel sagt nichts.
   for datei in js/konfigurator-3d.js js/anfrage-wizard.js js/messung.js \
-               js/bauteile.js js/ral.js js/markisenstoffe.js; do
+               js/bauteile.js js/ral.js js/markisenstoffe.js \
+               src/css/style.css; do
     [ -f "$datei" ] || continue
     local name
     name=$(basename "$datei")

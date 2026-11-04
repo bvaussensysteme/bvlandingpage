@@ -2753,3 +2753,46 @@ body.bv-konfig-open #bvKonfigBubble {
    wuerden die Ueberschriften doppelt zu den Abschnitten stehen. */
 .k3d-panel:not(.k3d-gefuehrt) .k3d-abschnitt,
 .k3d-panel:not(.k3d-gefuehrt) .k3d-reiter { display: none; }
+
+/* ---------- Widerrufsformular: Felder ----------
+   Standen bis zum 04.11.2026 siebenmal als identischer style="..."
+   im Markup. Als Klasse sind sie an einer Stelle zu aendern - noetig
+   geworden, weil ein style="" am Element jede Regel aus dieser Datei
+   schlaegt und die Schriftgroesse hier anfassbar sein muss (siehe
+   unten: iOS zoomt unter 16 px). */
+.wr-feld {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: .95rem;
+  margin-bottom: 14px;
+}
+
+/* ---------- Tippfelder am Handy: 16 px ----------
+   iOS Safari zieht beim Antippen eines Eingabefeldes die ganze Seite
+   heran, wenn dessen Schrift kleiner als 16 px ist - und zoomt
+   danach nicht von selbst wieder heraus. Gemeldet am 04.11.2026 vom
+   iPhone fuer die RAL-Suche im Konfigurator; die Messung bei 390 px
+   Breite fand es auf der ganzen Seite: 53 von 56 Tippfeldern lagen
+   darunter, auch die des Widerrufsformulars.
+
+   Beim Widerruf ist das mehr als unschoen: Das Formular setzt eine
+   gesetzliche Frist in Gang. Wer es am Telefon nicht ausgefuellt
+   bekommt, uebt sein Recht womoeglich nicht aus.
+
+   Nicht ueber "maximum-scale=1" im Viewport geloest - das verbietet
+   das Aufziehen mit zwei Fingern und bricht WCAG 1.4.4. Stattdessen
+   echte 16 px, und nur am Finger (pointer: coarse), damit die
+   Darstellung an der Maus unveraendert bleibt. */
+@media (pointer: coarse) {
+  .wr-feld,
+  .aw-field input,
+  .aw-dim-in input,
+  .aw-textarea,
+  .aw-select,
+  .form-group input,
+  .form-group select,
+  .form-group textarea { font-size: 16px; }
+}

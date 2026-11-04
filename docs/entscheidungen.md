@@ -13104,3 +13104,101 @@ aufgedeckt hat.
 **Was gegengelesen werden soll.** Nichts auf der Website. Wer es prüfen will:
 `docs/NEXT_TASK.md` von oben lesen – nach den ersten beiden Abschnitten muss
 klar sein, was ansteht und was beim Betreiber liegt.
+
+## 04.11.2026 (nachts) – Eingabefelder am Handy auf 16 px, und warum nicht der Einzeiler
+
+**Was falsch war.** Betreiber am iPhone: *„wenn man auf mobile auf RAL Ton
+suchen drückt, zoomt alles so rein"*. Safari zieht beim Antippen die ganze
+Seite heran und bleibt dort; der Konfigurator ist danach nur noch im
+Ausschnitt zu sehen.
+
+Das ist keine Eigenheit dieses Feldes. **iOS Safari zoomt in jedes
+Eingabefeld, dessen Schrift kleiner als 16 px ist.** Gemessen mit Chromium
+bei 390 px Breite und nachgestellter Tippbedienung: **53 von 56 Tippfeldern
+der ganzen Seite** lagen darunter.
+
+| Bereich | betroffen | gemessen |
+|---|---|---|
+| Konfigurator | 43 von 44 | Auswahlfelder 13,8 px · Zahlenfelder 13,1–15,2 px · Link-Feld 11,5 px |
+| Widerrufsformular | 7 von 7 | 15,2 px |
+| Windzonen-Rechner | 3 von 4 | 15,2 px |
+| Anfrage-Assistent | Maß- und Kontaktfelder | 15,2 px |
+
+**Warum das beim Widerruf mehr ist als unschön.** Das Formular setzt eine
+gesetzliche Frist in Gang. Wer es am Telefon nicht ausgefüllt bekommt, übt
+sein Recht womöglich nicht aus. Das gehört zu den Dingen, die man nicht
+„bei Gelegenheit" behebt.
+
+**Was jetzt gilt.** Eine Regel je Bereich, alle unter
+`@media (pointer: coarse)` – also nur am Finger. An der Maus bleibt das
+Bedienfeld so kompakt wie bisher; das wird gegengemessen, nicht angenommen.
+
+**Was verworfen wurde: `maximum-scale=1` im Viewport.** Das ist der
+verbreitete Einzeiler und hätte alle vier Bereiche in einer Zeile erledigt.
+Er verbietet aber das Aufziehen mit zwei Fingern für die **ganze** Seite und
+bricht **WCAG 1.4.4** – wer schlecht sieht, könnte den Text nicht mehr
+vergrößern. Der Zoomfehler wäre gegen eine Sperre getauscht worden, die
+mehr Leute trifft. `scripts/pruefe-tippfelder.mjs` prüft deshalb aktiv, dass
+kein Viewport der Seite `maximum-scale` oder `user-scalable=no` enthält –
+damit der bequeme Weg nicht in einem Jahr doch genommen wird.
+
+**Nebenbei behoben.** `widerruf.html` trug die Feldgestaltung **siebenmal**
+als `style=""` am Element. Ein Inline-Stil schlägt jede Regel aus dem
+Stylesheet; die Schriftgröße wäre dort gar nicht anfassbar gewesen. Jetzt
+`.wr-feld` an einer Stelle.
+
+**Was gegengelesen werden soll.** Am echten iPhone: RAL-Suche im
+Konfigurator, ein Maßfeld, das Widerrufsformular, der Höhenrechner unter
+/windzonen. Beim Antippen darf die Seite **nicht** mehr springen. Und: Mit
+zwei Fingern muss sich die Seite weiterhin aufziehen lassen.
+
+**Offen geblieben.** Bei **320 px** Breite (iPhone SE 1. Generation, iPhone
+5s) fällt ein Maßfeld der Pfostenzeile auf Breite 0 zusammen. Das besteht
+**unabhängig von dieser Änderung** – nachgemessen mit und ohne die neue
+Regel, beide Male 0 px. Ab 375 px ist es in Ordnung. Nicht angefasst, weil
+es eine andere Ursache hat und 320 px heute selten sind.
+
+## 04.11.2026 (nachts) – „Weiter" landete am Handy in der Fußzeile
+
+**Was falsch war.** Betreiber am iPhone: *„außerdem sehr oft wenn man weiter
+drückt landet man nicht beim nächsten schritt sondern unten im footer"*.
+
+**Warum.** `schrittWechseln()` rollte `.k3d-sl-rollen` nach oben – das
+Bedienfeld. Am großen Bildschirm ist das richtig: `.k3d-app` hat dort eine
+feste Höhe, das Feld rollt in sich selbst. **Unter 900 px steht aber
+`.k3d-app { height: auto }`** – das Feld wächst mit seinem Inhalt, sein
+`scrollTop` ist immer 0, und der Aufruf tat buchstäblich nichts. Gerollt hat
+die **Seite**, und die blieb stehen, wo sie war. War der neue Schritt kürzer
+als der vorige, stand man danach unter dem Bedienfeld – im Hinweistext oder
+in der Fußzeile. Daher „sehr oft" und nicht immer.
+
+**Was jetzt gilt.** Neue Funktion `anfangZeigen()` in
+`js/konfigurator-3d.js`. Sie **misst**, wer wirklich rollt
+(`scrollHeight > clientHeight`), statt es anzunehmen. Rollt die Seite, fährt
+sie so weit hoch, dass der Anfang des Bedienfelds direkt unter dem klebenden
+3D-Bild sitzt – Bild bleibt sichtbar, der neue Schritt beginnt darunter.
+Die Höhe des Bildes wird gemessen und nicht aus `45svh` gerechnet: Die
+Adressleiste des Handys ändert `svh` während des Scrollens.
+
+Dieselbe Funktion gilt jetzt auch für die **Reiterleiste** (Sprung in einen
+Bereich) – dort stand derselbe Code und hatte denselben Fehler.
+`prefers-reduced-motion` wird beachtet.
+
+**Was beim Prüfen schiefging, und was daraus folgt.** Der erste Entwurf der
+Gegenprobe setzte seinen Fehler in eine **völlig andere Funktion**: Die
+Ankerzeile `var buehne = document.querySelector('.k3d-buehne');` steht
+zweimal in der Datei. Die Gegenprobe meldete daraufhin „alle Prüfungen
+blind" – dabei war nur der Fehler woanders gelandet. Der Fehlerbauer prüft
+jetzt, dass jeder Anker **genau einmal** vorkommt, nicht mindestens einmal.
+Das ist dieselbe Falle wie am Vormittag bei `pruefe-marken.js`.
+
+Zweitens waren zwei Prüfungen zu nachgiebig: „die Seite ist nach oben
+gefahren" war auch im Fehlerfall wahr, weil die Seite beim Schrittwechsel
+kürzer wird und der Browser den Scrollwert von allein kappt. Ersetzt durch
+die Worte des Betreibers, direkt gemessen: **Steht die Fußzeile danach noch
+im Bild?**
+
+**Was gegengelesen werden soll.** Am iPhone durch alle fünf Schritte
+klicken, vorwärts und rückwärts, und dazwischen ans Seitenende scrollen.
+Nach jedem „Weiter" muss die Überschrift des neuen Schritts unter dem
+3D-Bild stehen.

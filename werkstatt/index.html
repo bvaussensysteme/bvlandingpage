@@ -52,7 +52,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261031n" />
+  <link rel="stylesheet" href="/css/style.css?v=20261104w" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -1391,6 +1391,34 @@
          schieben – also wieder darunter statt daneben. */
       .k3d-ral-zelle { grid-column: span 1; }
       .k3d-regler { grid-template-columns: 1fr 66px; }
+    }
+
+    /* ---------- Tippfelder am Handy: 16 px, sonst zoomt iOS ----------
+       Gemeldet am 04.11.2026 vom iPhone: Beim Antippen von „RAL-Ton
+       suchen" zieht Safari die ganze Seite heran – und bleibt dort.
+       Der Konfigurator ist danach nur noch im Ausschnitt zu sehen,
+       das 3D-Bild ragt aus dem Fenster.
+
+       Das ist keine Eigenheit dieses Feldes: iOS Safari zoomt beim
+       Antippen in JEDES Eingabefeld, dessen Schrift kleiner als 16 px
+       ist. Gemessen am 04.11.2026 mit Chromium bei 390 px Breite:
+       43 von 44 Feldern lagen darunter (24 Auswahlfelder 13,8 px,
+       16 Zahlenfelder 13,1–15,2 px, das Link-Feld 11,5 px).
+
+       Der zweite verbreitete Weg wäre „maximum-scale=1" im Viewport.
+       Der kommt nicht in Frage: Er verbietet das Aufziehen mit zwei
+       Fingern für die ganze Seite und bricht damit WCAG 1.4.4 –
+       jemand, der schlecht sieht, könnte den Text nicht mehr
+       vergrößern. Ein Zoomfehler wäre gegen eine Sperre getauscht.
+
+       Nur bei grobem Zeiger, also am Finger. An der Maus bleibt das
+       Bedienfeld so kompakt wie bisher. */
+    @media (pointer: coarse) {
+      .k3d-zahl,
+      .k3d-steller .k3d-zahl,
+      .k3d-steller .k3d-zahlfeld .k3d-zahl,
+      .k3d-select,
+      .k3d-teilen-feld input { font-size: 16px; }
     }
 
     /* Vollbild: im Vollbildmodus trägt die Anwendung die ganze Fläche */
@@ -2807,7 +2835,7 @@
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261104v" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261104x" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

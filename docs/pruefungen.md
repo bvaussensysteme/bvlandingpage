@@ -58,6 +58,8 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-bauteile.js` | Liefert `js/bauteile.js` für jede Zeile der Preisliste dieselben Sparren- und Pfostenzahlen? |
 | `scripts/pruefe-hinweise.js` | Bleibt getrennt, was der Kunde sieht, und was nur in die Anfrage-Mail gehört? Prüft Hinweisbox, Kasten „Ihre Konfiguration", Assistenten-Anzeige und alle drei Versandwege – einmal aus dem Quelltext, einmal an wirklich erzeugten Hinweisen |
 | `scripts/pruefe-pdf.js` | Erzeugt die PDFs **beider** Stellen (Konfigurator und Baugenehmigungs-Check) und liest sie mit **pdfinfo, pdftotext und pdfimages** zurück – fremden Werkzeugen, die unsere Annahmen nicht kennen. Seitenzahl, Format, Bildgröße, Umlaute, und vor allem: Steht jede Angabe **vollständig** da, auch bei 34 langen Zeilen über zwei Seiten? Zweispaltige Seiten werden dafür spaltenweise ausgeschnitten – am Stück gelesen zerreißt pdftotext die umgebrochenen Zeilen |
+| `scripts/pruefe-schrittwechsel.mjs` | **Landet man nach „Weiter“ am Anfang des nächsten Schritts?** Rollt am Handy erst wirklich ans Seitenende und sieht danach nach, wo der Anfang des Bedienfelds liegt – nicht, ob `scrollTo` gerufen wurde (genau diese Prüfung hätte den Fehler gehabt). Dazu: Das klebende 3D-Bild darf den Anfang weder verdecken noch weggerollt sein, und die Fußzeile darf danach nicht mehr im Bild stehen. Am großen Bildschirm gegenläufig: Dort muss das Bedienfeld in sich selbst rollen und die Seite stehen bleiben |
+| `scripts/pruefe-tippfelder.mjs` | **Zoomt iOS beim Antippen hinein?** Misst jedes Tippfeld von Konfigurator, Widerruf, Windzonen, Baugenehmigung und Assistent bei 390 px mit nachgestellter Tippbedienung – alles unter 16 px lässt Safari die Seite heranziehen, ohne wieder herauszuzoomen. Prüft zusätzlich, dass **kein** Viewport `maximum-scale`/`user-scalable=no` trägt (das wäre der bequeme Weg und bricht WCAG 1.4.4), und misst gegenläufig an der Maus: Dort müssen die Felder klein bleiben, sonst hängt die Regel nicht wirklich an `pointer: coarse`. Eine eigene Prüfung stellt sicher, dass der Testbrowser Finger und Maus überhaupt unterscheidet – sonst liefe alles gegen eine Regel, die gar nicht gilt |
 | `scripts/pruefe-api-bauteile.mjs` | Baut den Worker wie Cloudflare, stellt echte Anfragen – und prüft, dass **keine** Antwort die Matrix enthält |
 | `scripts/pruefe-live.sh` | Ist der veröffentlichte Stand tatsächlich draußen? (nutzt `curl -sL`). Marker mit `gesperrt:` ruhen, solange der öffentliche Konfigurator abgeschaltet ist — aber nur, wenn wirklich die **Hinweisseite** kommt; etwas Drittes ist ein Fehler. Gegenprobe dafür: `SPERRE_BELEG=XX bash scripts/pruefe-live.sh` muss die sechs rot machen. **Beim Zurückschalten sagt das Skript selbst, dass `gesperrt:` zu entfernen ist** |
 
@@ -118,3 +120,30 @@ das ist der Normalfall in einem frischen Klon.
 
 ---
 
+
+## 04.11.2026 (nachts) – Was der nächste Durchlauf aller Skripte fand
+
+Anlass war eine Meldung vom iPhone („beim Antippen zoomt alles rein"). Die
+Regel „nach einer Änderung an etwas, das mehrere Bereiche benutzen, **alle**
+Skripte laufen lassen" deckte dabei zwei Prüfungen auf, die **seit Tagen
+nichts mehr prüften**:
+
+| Skript | Seit wann tot | Warum |
+|---|---|---|
+| `pruefe-teilen.mjs` | 03.11., 22:22 Uhr | Klickte `#k3dModus` – den Umschalter zwischen „Schritt für Schritt" und „Alles auf einen Blick". Mit dem Umbau auf **einen** Bedienweg fiel der Knopf weg, das Skript stürzte beim Start ab. 91 verglichene Einstellungen liefen einen Tag lang ins Leere |
+| `pruefe-api-bauteile.mjs` | mit PR #497 | Prüfte die Durchreichung statischer Seiten ausgerechnet an `/konfigurator.html` – dem einen Pfad, den der Worker seit der Sperre absichtlich mit 503 beantwortet. Dauerhaft rot, und dauerhaft rot heißt: Niemand sieht mehr hin |
+
+Beide sind repariert und prüfen jetzt die Absicht statt die alte Mechanik:
+der Teilen-Test stellt sich die Felder selbst her, der Worker-Test prüft die
+Durchreichung an `/index.html` **und** die Sperre an ihrem eigenen Pfad.
+
+**Die Lehre ist nicht „öfter laufen lassen", sondern:** Ein Skript, das
+abstürzt, und eines, das dauerhaft rot ist, sind derselbe Zustand – beide
+sagen nichts mehr. Ein rotes Skript gehört am selben Tag repariert oder
+begründet stillgelegt.
+
+Dazu geschlossen: `pruefe-cache-buster.sh` sah nur JavaScript nach, ob die
+Version mit der Datei hochgezählt wurde. `src/css/style.css` fehlte – obwohl
+das Stylesheet nach `_headers` genauso 24 Stunden im Browser-Cache liegt.
+Eine Änderung am Aussehen wäre einen Tag lang unsichtbar geblieben, ohne
+dass eine Prüfung etwas gemeldet hätte.
