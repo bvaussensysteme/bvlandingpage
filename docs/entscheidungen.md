@@ -13157,3 +13157,48 @@ zwei Fingern muss sich die Seite weiterhin aufziehen lassen.
 **unabhängig von dieser Änderung** – nachgemessen mit und ohne die neue
 Regel, beide Male 0 px. Ab 375 px ist es in Ordnung. Nicht angefasst, weil
 es eine andere Ursache hat und 320 px heute selten sind.
+
+## 04.11.2026 (nachts) – „Weiter" landete am Handy in der Fußzeile
+
+**Was falsch war.** Betreiber am iPhone: *„außerdem sehr oft wenn man weiter
+drückt landet man nicht beim nächsten schritt sondern unten im footer"*.
+
+**Warum.** `schrittWechseln()` rollte `.k3d-sl-rollen` nach oben – das
+Bedienfeld. Am großen Bildschirm ist das richtig: `.k3d-app` hat dort eine
+feste Höhe, das Feld rollt in sich selbst. **Unter 900 px steht aber
+`.k3d-app { height: auto }`** – das Feld wächst mit seinem Inhalt, sein
+`scrollTop` ist immer 0, und der Aufruf tat buchstäblich nichts. Gerollt hat
+die **Seite**, und die blieb stehen, wo sie war. War der neue Schritt kürzer
+als der vorige, stand man danach unter dem Bedienfeld – im Hinweistext oder
+in der Fußzeile. Daher „sehr oft" und nicht immer.
+
+**Was jetzt gilt.** Neue Funktion `anfangZeigen()` in
+`js/konfigurator-3d.js`. Sie **misst**, wer wirklich rollt
+(`scrollHeight > clientHeight`), statt es anzunehmen. Rollt die Seite, fährt
+sie so weit hoch, dass der Anfang des Bedienfelds direkt unter dem klebenden
+3D-Bild sitzt – Bild bleibt sichtbar, der neue Schritt beginnt darunter.
+Die Höhe des Bildes wird gemessen und nicht aus `45svh` gerechnet: Die
+Adressleiste des Handys ändert `svh` während des Scrollens.
+
+Dieselbe Funktion gilt jetzt auch für die **Reiterleiste** (Sprung in einen
+Bereich) – dort stand derselbe Code und hatte denselben Fehler.
+`prefers-reduced-motion` wird beachtet.
+
+**Was beim Prüfen schiefging, und was daraus folgt.** Der erste Entwurf der
+Gegenprobe setzte seinen Fehler in eine **völlig andere Funktion**: Die
+Ankerzeile `var buehne = document.querySelector('.k3d-buehne');` steht
+zweimal in der Datei. Die Gegenprobe meldete daraufhin „alle Prüfungen
+blind" – dabei war nur der Fehler woanders gelandet. Der Fehlerbauer prüft
+jetzt, dass jeder Anker **genau einmal** vorkommt, nicht mindestens einmal.
+Das ist dieselbe Falle wie am Vormittag bei `pruefe-marken.js`.
+
+Zweitens waren zwei Prüfungen zu nachgiebig: „die Seite ist nach oben
+gefahren" war auch im Fehlerfall wahr, weil die Seite beim Schrittwechsel
+kürzer wird und der Browser den Scrollwert von allein kappt. Ersetzt durch
+die Worte des Betreibers, direkt gemessen: **Steht die Fußzeile danach noch
+im Bild?**
+
+**Was gegengelesen werden soll.** Am iPhone durch alle fünf Schritte
+klicken, vorwärts und rückwärts, und dazwischen ans Seitenende scrollen.
+Nach jedem „Weiter" muss die Überschrift des neuen Schritts unter dem
+3D-Bild stehen.

@@ -65,6 +65,7 @@ wird in der **Werkstatt** — beides weiter unten.
 | **Werkzeugseiten** | `/windzonen` und `/baugenehmigung` führen vom Ergebnis weiter und verweisen aufeinander |
 | **Anfrage-Assistent** | Balkonfoto aus dem eigenen Modell, „Sonstiges" weg, Maße im Direktweg freiwillig |
 | **Tippfelder am Handy** | **53 von 56** Eingabefeldern waren kleiner als 16 px – iOS zoomt dann beim Antippen hinein und nicht wieder heraus. Jetzt 16 px, aber nur am Finger (`pointer: coarse`). Nicht über `maximum-scale=1`: Das bräche WCAG 1.4.4. Prüfung: `pruefe-tippfelder.mjs` |
+| **„Weiter“ am Handy** | Landete oft in der Fußzeile statt beim nächsten Schritt. Der Code rollte das Bedienfeld – das am Handy gar nicht rollt, weil `.k3d-app { height: auto }`. Jetzt wird gemessen, wer wirklich rollt. Prüfung: `pruefe-schrittwechsel.mjs` |
 | **Zwei tote Prüfungen** | `pruefe-teilen.mjs` stürzte seit dem 03.11. ab, `pruefe-api-bauteile.mjs` war seit PR #497 dauerhaft rot. Beide repariert. `pruefe-cache-buster.sh` sah `style.css` bisher nicht nach |
 
 **Bewusst nicht gemacht**, alle drei als Angebot notiert: Pixelverhältnis und

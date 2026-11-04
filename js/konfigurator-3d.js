@@ -10386,9 +10386,8 @@
         bereichNr = nr;
         zeigtMehr = false;
         schrittZeigen();
-        var rollen = document.querySelector('.k3d-sl-rollen');
-        if (rollen) { if (rollen.scrollTo) rollen.scrollTo({ top: 0, behavior: 'smooth' });
-                      else rollen.scrollTop = 0; }
+        /* Dieselbe Falle wie bei Weiter/Zurueck - siehe anfangZeigen(). */
+        anfangZeigen();
       });
     }
     var soll = [], i;
@@ -10956,15 +10955,62 @@
     return '<br><span class="hinweis">' + saetze.join(' ') + '</span>';
   }
 
+  /* ---------- Nach einem Schrittwechsel an den Anfang ----------
+     „außerdem sehr oft wenn man weiter drückt landet man nicht beim
+     nächsten schritt sondern unten im footer" (Betreiber, 04.11.2026,
+     am iPhone).
+
+     Hier stand vorher nur rollen.scrollTo({ top: 0 }). Das ist am
+     grossen Bildschirm richtig: Dort hat .k3d-app eine feste Hoehe,
+     das Bedienfeld rollt in sich selbst, und sein Anfang ist der
+     Anfang des Schritts.
+
+     AM HANDY ROLLT ES NICHT. Unter 900 px steht
+     .k3d-app { height: auto } - das Bedienfeld waechst mit seinem
+     Inhalt, scrollTop ist immer 0, und der Aufruf tat buchstaeblich
+     nichts. Gerollt hat die SEITE, und die blieb stehen, wo sie war.
+     Wurde der naechste Schritt kuerzer als der vorige, stand man
+     anschliessend unter dem Bedienfeld - im Hinweistext oder in der
+     Fusszeile. Darum „sehr oft" und nicht immer.
+
+     Jetzt wird gemessen, wer wirklich rollt, statt es anzunehmen.
+     Rollt die Seite, wird so weit hochgefahren, dass der Anfang des
+     Bedienfelds direkt unter dem klebenden 3D-Bild sitzt - das Bild
+     bleibt sichtbar, der neue Schritt beginnt darunter.
+
+     Die Hoehe des Bildes wird gemessen und nicht aus 45svh gerechnet:
+     Die Adressleiste des Handys aendert svh waehrend des Scrollens. */
+  function anfangZeigen() {
+    var rollen = document.querySelector('.k3d-sl-rollen');
+    if (!rollen) return;
+    var sanft = !(window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var art = sanft ? 'smooth' : 'auto';
+    if (rollen.scrollHeight > rollen.clientHeight + 1) {
+      if (rollen.scrollTo) rollen.scrollTo({ top: 0, behavior: art });
+      else rollen.scrollTop = 0;
+      return;
+    }
+    var buehne = document.querySelector('.k3d-buehne');
+    var klebt = buehne && window.getComputedStyle
+      && window.getComputedStyle(buehne).position === 'sticky';
+    var oben = rollen.getBoundingClientRect().top
+      + (window.pageYOffset || document.documentElement.scrollTop || 0);
+    var abzug = klebt ? buehne.getBoundingClientRect().height : 0;
+    var ziel = Math.max(0, oben - abzug - 8);
+    if (window.scrollTo) {
+      try { window.scrollTo({ top: ziel, behavior: art }); }
+      catch (e) { window.scrollTo(0, ziel); }
+    }
+  }
+
   function schrittWechseln(richtung) {
     var ziel = bereichSuchen(bereichNr, richtung);
     if (ziel === bereichNr) return;
     bereichNr = ziel;
     zeigtMehr = false;            // jeder Schritt beginnt schlank
     schrittZeigen();
-    var rollen = document.querySelector('.k3d-sl-rollen');
-    if (rollen && rollen.scrollTo) rollen.scrollTo({ top: 0, behavior: 'smooth' });
-    else if (rollen) rollen.scrollTop = 0;
+    anfangZeigen();
   }
 
   /* ---------- Markise im Bild anklicken ----------
