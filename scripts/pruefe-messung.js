@@ -68,10 +68,29 @@ if (GEGENPROBE) {
     .replace("+ 'zeit INTEGER, land TEXT, region TEXT, tiefe INTEGER)'",
              "+ 'zeit INTEGER, land TEXT, region TEXT, tiefe INTEGER, ip TEXT)'")
     .replace("if (!roh || roh.length > MESSUNG_MAX_BODY) return new Response(null, { status: 204 });",
-             'if (!roh) return new Response(null, { status: 204 });');
+             'if (!roh) return new Response(null, { status: 204 });')
+    /* ---------- Fehler rund um das Tageskennzeichen (04.11.2026) ----------
+       Alle drei sind Fehler, die man beim Bauen wirklich macht: die
+       IP "nur zur Sicherheit" mitschreiben, sie ein zweites Mal
+       auslesen, und das Salz einmal setzen statt taeglich wechseln.
+       Jeder einzelne hebelt die Zusage der Datenschutzerklaerung aus,
+       und keiner davon ist am Bildschirm zu sehen. */
+    .replace("+ 'browser, system) '", "+ 'browser, system, ip) '")
+    .replace("const ip = request.headers.get('cf-connecting-ip') || '';",
+             "const ip = request.headers.get('cf-connecting-ip') || '';\n"
+             + "    void request.headers.get('cf-connecting-ip');")
+    .replace("await env.MESSUNG.prepare('DELETE FROM salz WHERE tag < ?1').bind(tag).run();",
+             'void tag;');
   cookie = cookie.replace("'<input type=\"checkbox\" id=\"cbExternal\" />' +",
                           "'<input type=\"checkbox\" id=\"cbExternal\" checked />' +");
-  datenschutz = datenschutz.replace('§ 25 TDDDG', 'irgendeiner Vorschrift');
+  /* MIT NACHBARTEXT VERANKERT (04.11.2026): § 25 TDDDG steht seit dem
+     Tageskennzeichen ZWEIMAL im Text. Ein Fehler, der nur das erste
+     Vorkommen trifft, blieb unbemerkt - die Gegenprobe hat das
+     gemeldet. */
+  datenschutz = datenschutz.replace(
+    'Einwilligung nach\n            § 25 TDDDG ist dafür deshalb nicht erforderlich',
+    'Einwilligung nach irgendeiner Vorschrift ist nicht erforderlich')
+    .replace('§ 25 TDDDG', 'irgendeiner Vorschrift');
   bauskript = bauskript.replace("['Eigene Reichweitenmessung',", "['Nichts',");
   /* Neunter eingebauter Fehler: Die Vorab-Verbindung zu Google ist
      wieder da - der Zustand vom 03.11.2026 vor dieser Runde. */
@@ -111,9 +130,31 @@ if (GEGENPROBE) {
 (function () {
   var code = ohneKommentar(messung);
   var tabelle = (worker.match(/CREATE TABLE IF NOT EXISTS ereignis[\s\S]{0,400}?\)'/) || [''])[0];
-  pruef('Tabelle hat keine Spalte für IP oder Browser',
-    tabelle.length > 50 && !/\bip\b|adresse|agent|fingerprint|besucher_?id|sitzung/i.test(tabelle),
-    tabelle.length ? 'Spalten geprüft' : 'Tabelle nicht gefunden');
+  /* GEAENDERT 04.11.2026. Hier stand, die Tabelle duerfe keine Spalte
+     fuer "besucher" haben - seit dem Tageskennzeichen hat sie eine,
+     und zwar mit Absicht. Die Pruefung waere also entweder rot oder,
+     schlimmer, stillschweigend gegenstandslos geworden: Sie las nur
+     den CREATE-Teil, und die neuen Spalten kamen ueber ALTER dazu.
+
+     GEPRUEFT WIRD JETZT DAS, WORAUF ES ANKOMMT: dass IP-Adresse und
+     Browserkennung NIRGENDS gespeichert werden. Sie duerfen in die
+     Pruefsumme eingehen - und sonst nirgendwohin. */
+  var einfuegen = (worker.match(/INSERT INTO ereignis[\s\S]{0,400}?VALUES[^']*'/) || [''])[0];
+  pruef('Keine Spalte für IP oder rohe Browserkennung',
+    einfuegen.length > 50 && !/\bip\b|adresse|user_?agent|fingerprint/i.test(einfuegen),
+    einfuegen.length ? 'Spaltenliste des INSERT geprüft' : 'INSERT nicht gefunden');
+  pruef('Die IP wird nur für die Prüfsumme gelesen',
+    (worker.match(/cf-connecting-ip/g) || []).length === 1 &&
+    /crypto\.subtle\.digest\('SHA-256'/.test(worker),
+    'einmal gelesen, danach nur noch als Prüfsumme');
+  pruef('Das Salz wechselt täglich und wird aufgeräumt',
+    /DELETE FROM salz WHERE tag < \?1/.test(worker) &&
+    /crypto\.getRandomValues/.test(worker),
+    'neue Zufallszahl je Tag, ältere gelöscht');
+  pruef('Browser und System nur als Familie, ohne Fassungsnummer',
+    /function messungBrowser/.test(worker) &&
+    !/\\d+\\.\\d+/.test((worker.match(/function messungBrowser[\s\S]*?\n}/) || [''])[0]),
+    'keine Versionsnummern im Quelltext');
   pruef('Nur POST nimmt Messdaten an',
     /url\.pathname === '\/api\/messung' && request\.method === 'POST'/.test(worker));
   pruef('Rumpf ist begrenzt',
@@ -248,9 +289,26 @@ if (GEGENPROBE) {
   pruef('Sie nennt die Vorschrift, die Dauer und den Standort',
     /§ 25 TDDDG/.test(datenschutz) && /400/.test(datenschutz) &&
     /Europ(ä|&auml;)ischen Union/.test(datenschutz));
-  pruef('Sie sagt ausdrücklich, was NICHT erfasst wird',
-    /keine IP-Adresse|Ihre IP-Adresse \(auch nicht/.test(datenschutz) &&
-    /wiedererkennen/.test(datenschutz));
+  /* GEAENDERT 04.11.2026: Seit dem Tageskennzeichen stimmt die alte
+     Zusage („keine IP, auch nicht als Hashwert") nicht mehr. Geprueft
+     wird jetzt, dass der Text die NEUE Wahrheit vollstaendig sagt -
+     und zwar alle vier Punkte, auf denen die Zulaessigkeit beruht.
+     Faellt einer weg, ist die Erklaerung unvollstaendig, und das ist
+     ein eigener Verstoss. */
+  pruef('Das Tageskennzeichen ist vollständig erklärt',
+    /Prüfsumme/.test(datenschutz) &&
+    /täglich um\s*Mitternacht neu gezogen|täglich wechselt/.test(datenschutz) &&
+    /IP-Adresse und Ihre Browserkennung werden nicht\s*gespeichert/.test(datenschutz) &&
+    /über den Tag hinaus nicht möglich/.test(datenschutz),
+    'Prüfsumme, täglicher Wechsel, nichts gespeichert, keine Wiedererkennung');
+  pruef('Sie nennt die Grundlage und das Widerspruchsrecht',
+    /Art\. 6 Abs\. 1 lit\. f DSGVO/.test(datenschutz) &&
+    /jederzeit formlos widersprechen/.test(datenschutz) &&
+    /§ 25 TDDDG/.test(datenschutz),
+    'berechtigtes Interesse, Art. 21, § 25 TDDDG');
+  pruef('Sie nennt Browser- und Systemfamilie und die utm-Felder',
+    /Familie/.test(datenschutz) && /utm_source/.test(datenschutz) &&
+    /ohne Versionsnummern/.test(datenschutz));
   pruef('Die neuen Angaben stehen auch darin',
     /gescrollt/.test(datenschutz) && /Bundesland/.test(datenschutz) &&
     /Beschriftung/.test(datenschutz) &&
@@ -289,7 +347,9 @@ var sollenScheitern = [
   'Rumpf ist begrenzt',
   'Das Bauskript nimmt die Messung dort heraus',
   'Sie nennt die Vorschrift, die Dauer und den Standort',
-  'Tabelle hat keine Spalte für IP oder Browser',
+  'Keine Spalte für IP oder rohe Browserkennung',
+  'Die IP wird nur für die Prüfsumme gelesen',
+  'Das Salz wechselt täglich und wird aufgeräumt',
   'Kein vorbelegter Haken im Cookie-Banner',
   'Keine Vorab-Verbindung zu Google'
 ];

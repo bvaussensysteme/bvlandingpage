@@ -668,28 +668,63 @@
             welcher Gegend Interesse besteht,</li>
         <li>die Angabe, ob die Seite auf einem Handy oder an einem größeren
             Bildschirm aufgerufen wurde (ermittelt aus der Fensterbreite,
-            nicht aus einer Gerätekennung).</li>
+            nicht aus einer Gerätekennung),</li>
+        <li>die <strong>Familie</strong> Ihres Browsers und Betriebssystems
+            (etwa „Safari" und „iOS") – ohne Versionsnummern, damit daraus
+            kein Wiedererkennungsmerkmal entsteht,</li>
+        <li>ein <strong>Tageskennzeichen für den Besuch</strong>. Näheres im
+            nächsten Absatz,</li>
+        <li>die Beschriftung eines von uns selbst gesetzten Werbe- oder
+            Verweislinks, sofern Sie über einen solchen zu uns gelangen
+            (die Felder <code>utm_source</code>, <code>utm_medium</code> und
+            <code>utm_campaign</code> in der Adresszeile).</li>
       </ul>
       <p>
-        <strong>Nicht erfasst werden:</strong> Ihre IP-Adresse (auch nicht
-        gekürzt oder als Hashwert), Ihr Browser- oder Gerätekennzeichen
-        (User-Agent) und <strong>kein Merkmal, mit dem sich wiedererkennen
-        ließe, dass zwei Aufrufe von derselben Person stammen</strong>.
-        Gezählt werden deshalb Seitenaufrufe und Handlungen, nicht
-        Besucherinnen und Besucher. Eine Zusammenführung mit anderen Daten
-        – etwa mit einer Anfrage, die Sie uns gesendet haben – ist
-        technisch nicht möglich.<br /><br />
+        <strong>Das Tageskennzeichen für den Besuch.</strong> Damit wir
+        unterscheiden können, ob zehn Seitenaufrufe von zehn Personen oder
+        von einer Person stammen, berechnen wir bei jedem Aufruf eine
+        <strong>Prüfsumme</strong> aus Ihrer IP-Adresse, Ihrer Browserkennung,
+        unserem Domainnamen und einer <strong>Zufallszahl, die täglich um
+        Mitternacht neu gezogen wird</strong>. Gespeichert wird
+        <strong>ausschließlich diese Prüfsumme</strong>.
+      </p>
+      <ul>
+        <li>Ihre <strong>IP-Adresse und Ihre Browserkennung werden nicht
+            gespeichert</strong> – weder vollständig noch gekürzt. Sie gehen
+            in die Berechnung ein und werden danach verworfen.</li>
+        <li>Aus der Prüfsumme lässt sich <strong>nicht zurückrechnen</strong>,
+            von wem sie stammt; ohne die geheime Zufallszahl des Tages ist
+            das praktisch ausgeschlossen.</li>
+        <li>Weil die Zufallszahl täglich wechselt, ist eine
+            <strong>Wiedererkennung über den Tag hinaus nicht möglich</strong>.
+            Am Folgetag ergibt derselbe Anschluss eine völlig andere
+            Prüfsumme.</li>
+        <li>Auf Ihrem Gerät wird dafür <strong>nichts gespeichert und nichts
+            gelesen</strong> – es werden keine Cookies gesetzt und kein
+            Speicher des Browsers verwendet. Eine Einwilligung nach
+            § 25 TDDDG ist dafür deshalb nicht erforderlich.</li>
+      </ul>
+      <p>
+        <strong>Nicht erfasst werden:</strong> Ihre IP-Adresse und Ihre
+        Browserkennung als solche (siehe oben), Ihr Name, Ihre
+        E-Mail-Adresse, Ihre Stadt oder Postleitzahl, Inhalte, die Sie in
+        Felder eingeben, und der Teil der Adresszeile hinter einem
+        Fragezeichen mit Ausnahme der oben genannten drei Werbefelder. Eine
+        Zusammenführung mit anderen Daten – etwa mit einer Anfrage, die Sie
+        uns gesendet haben – findet nicht statt.<br /><br />
 
         <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO
-        (berechtigtes Interesse daran, die eigene Website anhand
-        anonymer Nutzungszahlen zu verbessern). Da keine
-        personenbezogenen Daten verarbeitet werden, können Sie dieser
-        Messung gegenüber nicht beeinträchtigt werden; einem Widerspruch
-        nach Art. 21 DSGVO kommen wir dennoch jederzeit formlos nach
-        (Kontaktdaten unter
-        <a href="#verantwortlicher">Verantwortlicher</a>).<br /><br />
+        (berechtigtes Interesse daran, die eigene Website anhand von
+        Nutzungszahlen zu verbessern und zu erfahren, welche Inhalte
+        gebraucht werden). Unser Interesse überwiegt, weil die Daten
+        pseudonym sind, das Kennzeichen täglich verfällt und keine
+        Zusammenführung mit anderen Daten stattfindet. Sie können dieser
+        Verarbeitung <strong>jederzeit formlos widersprechen</strong>
+        (Art. 21 DSGVO, Kontaktdaten unter
+        <a href="#verantwortlicher">Verantwortlicher</a>); wir stellen die
+        Messung für Sie dann ab.<br /><br />
 
-        <strong>Speicherdauer:</strong> Die anonymen Zähldaten werden nach
+        <strong>Speicherdauer:</strong> Die Zähldaten werden nach
         <strong>400 Tagen</strong> gelöscht, damit ein Vergleich mit dem
         Vorjahr möglich bleibt.<br /><br />
 
@@ -797,7 +832,7 @@
 <script src="/js/main.js" defer></script>
 <script src="/js/cookie.js" defer></script>
 <script src="/js/metricool.js" defer></script>
-<script src="/js/messung.js?v=20261103b" defer></script>
+<script src="/js/messung.js?v=20261104a" defer></script>
 <script src="/js/accessibility.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>

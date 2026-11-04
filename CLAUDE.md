@@ -157,3 +157,32 @@ sichtbare Beschriftungen, kein waagerechtes Scrollen, Rücksicht auf
 fünf Abfragen hintereinander, und `references/quick-reference.md` nur lesen,
 wenn eine Abfrage nicht reicht (siehe „Sparsamer Umgang mit
 Nutzungsvolumen").
+
+## Zahlen vor Meinung: erst nachsehen, dann bauen (permanent)
+
+Ansage des Betreibers (04.11.2026): „auch du sollst auf die daten immer
+zugriff haben und es soll in die entscheidungen einfließen wie zukünftig die
+webseite gebaut und optimiert wird und zukünftige landingpages."
+
+**Vor** jedem Umbau einer Seite und vor jeder neuen Landingpage erst in die
+eigenen Zahlen sehen – wie das geht, steht in **`docs/zahlen-lesen.md`**
+(Abfragen, Spalten, Fallen). Die Datenbank lässt sich direkt abfragen, die
+Zahlenseite liegt unter `/werkstatt/zahlen.html`.
+
+Drei Regeln dazu, alle drei aus einem Fehler vom 04.11.2026 entstanden:
+
+1. **Immer den echten Datenbeginn mitlesen.** Ein gewählter Zeitraum ist
+   nicht der Datenbestand. „28 Aufrufe in 30 Tagen" waren in Wirklichkeit
+   28 Aufrufe in anderthalb Tagen – darauf stützte sich dann ein falscher
+   Rat an den Betreiber.
+2. **Wenige Zeilen sind kein Befund.** Unter etwa 100 Aufrufen je Seite ist
+   jede Aussage über diese Seite geraten. Das gehört dazugesagt.
+3. **Was die Zahlen nicht hergeben, wird nicht behauptet.** Lieber „dafür
+   reicht es noch nicht" als eine Empfehlung mit erfundener Grundlage.
+
+**Datenschutz ist Teil davon.** Die Messung speichert ein Tageskennzeichen
+(Prüfsumme, täglich wechselnd) – siehe `messungBesucher()` in
+`worker/index.js`. Wird am Umfang der Messung etwas geändert, **muss die
+Datenschutzerklärung im selben Zug mitgeändert werden**. Eine
+Datenschutzerklärung, die nicht stimmt, ist ein eigener Verstoß – unabhängig
+davon, ob die Messung selbst zulässig wäre.
