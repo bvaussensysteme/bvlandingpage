@@ -582,7 +582,8 @@ await page.waitForTimeout(600);
     knoepfe[1].click();
     return { versteckt: r.hidden, vorher, nachher: r.value, zahl: zahl.value,
       schritt: r.step, knoepfe: knoepfe.length,
-      grenzen: (r.closest('.k3d-gruppe').querySelector('.k3d-grenzen') || {}).textContent || '' };
+      grenzen: (r.closest('.k3d-gruppe').querySelector('.k3d-grenzen') || {}).textContent || '',
+      max: zahl.max };
   });
   pruef('Die Breite hat einen Zahlensteller statt eines Reglers',
     !!steller && steller.versteckt && steller.knoepfe === 2,
@@ -591,8 +592,18 @@ await page.waitForTimeout(600);
     !!steller && Number(steller.nachher) - Number(steller.vorher) === Number(steller.schritt)
     && steller.zahl === steller.nachher,
     steller ? steller.vorher + ' -> ' + steller.nachher + ' mm' : '');
-  pruef('Die Grenzen stehen im Klartext darunter',
-    !!steller && /von .* bis .* mm/.test(steller.grenzen), steller ? steller.grenzen : '');
+  /* UMGEKEHRT am 04.11.2026. Bis dahin wurde hier geprueft, dass unter
+     dem Zahlensteller „von … bis … mm · Schritt …" steht. Der
+     Betreiber, mit Bild vom iPhone: „Diese rot markierten Minimal- und
+     Maximalmaße rechts, die stören komplett. Lass sowas weg, das
+     überlagert." Jetzt gilt das Gegenteil - und zwar geprueft, damit
+     die Zeile nicht beim naechsten Umbau zurueckkommt.
+
+     Die Grenzen selbst bleiben am Feld (min/max/step) und werden
+     weiter gedeckelt; das prueft der Plusknopf eine Zeile hoeher. */
+  pruef('Unter dem Zahlensteller steht keine Grenzen-Zeile',
+    !!steller && steller.grenzen === '' && Number(steller.max) > 0,
+    steller ? 'max ' + steller.max + ' steht weiter am Feld' : '');
   const sichtRegler = await me.evaluate(() =>
     [...document.querySelectorAll('input[type=range]')]
       .filter((r) => r.offsetParent !== null).length);

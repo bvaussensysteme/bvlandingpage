@@ -230,15 +230,17 @@
     /* Die Grenzen stehen sichtbar darunter. Am Regler waren sie nur zu
        erahnen: Man zog bis zum Anschlag und wusste nicht, ob der
        Anschlag das Produkt oder die Statik ist. */
-    .k3d-grenzen { display: block; margin-top: 5px; font-size: .72rem;
-      color: var(--muted); font-variant-numeric: tabular-nums; }
+    /* Die Grenzen-Zeile („von … bis … mm · Schritt …") ist am
+       04.11.2026 ersatzlos entfallen: „Diese rot markierten Minimal-
+       und Maximalmaße rechts, die stören komplett. Lass sowas weg, das
+       überlagert" (Betreiber, mit Bild vom iPhone). Mit ihr sind die
+       Regeln .k3d-grenzen gegangen - eine Regel ohne Element ist eine
+       Falle fuer den Naechsten, der sie fuer gebraucht haelt. */
+    /* ist-steller bleibt: Die Huelle war ein Raster aus zwei Spalten
+       (Schieberegler und Zahlenfeld nebeneinander). Ohne diese Regel
+       bekaeme der Zahlensteller nur die erste Spalte. */
     .k3d-regler.ist-steller { display: block; }
     .k3d-pfostenzeile .k3d-steller { grid-template-columns: 38px 1fr 38px; gap: 5px; }
-    /* Derselbe Fund wie beim Massfeld (04.11.2026), nur eine Zeile
-       tiefer: Die Pfostenzeile ist ein Raster aus vier Spalten, und der
-       Grenzen-Hinweis landete in der letzten - 30 px breit. Er bekommt
-       eine eigene Zeile ueber die ganze Breite. */
-    .k3d-pfostenzeile .k3d-grenzen { grid-column: 1 / -1; margin-top: 2px; }
     .k3d-pfostenzeile .k3d-stell { font-size: 1rem; border-radius: 7px; }
     .k3d-zahl.ist-ausserhalb { border-color: #b4532a; background: #fdf3ef; }
 
@@ -2627,7 +2629,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261104f" defer></script>
+<script src="js/konfigurator-3d.js?v=20261104g" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

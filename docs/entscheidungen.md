@@ -12168,3 +12168,28 @@ durch und vergleicht Inhalt mit Kasten. Wo ausdrücklich geschoben werden darf
 
 Gemessen vor der Änderung: drei Stellen zu eng (`k3d-pfostenzeile` 336 statt
 341 px, `k3d-grenzen` 30 statt 35 px). Danach: keine.
+
+## 04.11.2026 – Die Grenzen-Zeile ist weg
+
+*„Diese rot markierten Minimal- und Maximalmaße rechts, die stören komplett.
+Lass sowas weg, das überlagert"* (Betreiber, mit Bild vom iPhone).
+
+Unter jedem Zahlensteller stand „von 1.080 bis 14.080 mm · Schritt 10". Die
+Zeile ist **ersatzlos** entfallen, samt ihrer CSS-Regeln – eine Regel ohne
+Element ist eine Falle für den Nächsten, der sie für gebraucht hält.
+
+**Was dadurch verloren geht, offen gesagt:** Die Zeile war die einzige
+Ansage, wo die Grenze liegt. Die Grenzen selbst bleiben (`min`, `max`, `step`
+stehen weiter am Zahlenfeld, `setzen()` rundet und deckelt wie zuvor) – wer
+7.500 mm eintippt, bekommt stillschweigend 7.050. **Vorher sah man, dass bei
+7.050 Schluss ist; jetzt merkt man es erst, wenn die Zahl zurückspringt.**
+
+Dem Betreiber vorgelegt, nicht gebaut: eine kurze Meldung, die **nur dann**
+erscheint, wenn jemand über die Grenze hinaus will („mehr als 7.050 mm geht
+bei diesem System nicht"). Das wäre weniger Text als vorher und trotzdem
+keine stille Korrektur.
+
+Die bisherige Prüfung „Die Grenzen stehen im Klartext darunter" ist
+umgedreht: Sie verlangt jetzt, dass **keine** solche Zeile dasteht – damit sie
+beim nächsten Umbau nicht zurückkommt – und prüft zugleich, dass `max` weiter
+am Feld steht.

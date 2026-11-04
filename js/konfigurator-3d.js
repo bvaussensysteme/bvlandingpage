@@ -11532,12 +11532,6 @@
     return 'mm';
   }
 
-  function stellerGrenzenText(regler, einheit) {
-    function z(n) { return Number(n).toLocaleString('de-DE'); }
-    return 'von ' + z(regler.min) + ' bis ' + z(regler.max) + ' ' + einheit
-      + ' · Schritt ' + z(regler.step || 1);
-  }
-
   /* Einmal je Regler. Laeuft mehrfach (nach jedem Schrittwechsel und
      nachdem die Pfostenzeilen neu gebaut wurden) und ueberspringt, was
      schon umgebaut ist. */
@@ -11610,16 +11604,24 @@
       steller.appendChild(regler);
       regler.hidden = true;
 
-      var hinweis = document.createElement('small');
-      hinweis.className = 'k3d-grenzen';
-      huelle.appendChild(hinweis);
+      /* ---------- KEIN GRENZEN-HINWEIS MEHR ----------
+         „Diese rot markierten Minimal- und Maximalmaße rechts, die
+         stören komplett. Lass sowas weg, das überlagert" (Betreiber,
+         04.11.2026, mit Bild vom iPhone).
+
+         Hier stand bis dahin eine Zeile „von 1.080 bis 14.080 mm ·
+         Schritt 10" unter jedem Zahlensteller. Sie ist ersatzlos weg.
+
+         Die Grenzen selbst bleiben: min, max und step stehen weiter am
+         Zahlenfeld, und setzen() rundet und deckelt wie zuvor. Wer
+         einen unmöglichen Wert eintippt, bekommt den nächsten
+         möglichen - nur eben ohne vorherige Ansage. */
 
       function auffrischen() {
         zahl.min = regler.min; zahl.max = regler.max; zahl.step = regler.step;
         if (document.activeElement !== zahl) zahl.value = regler.value;
         minus.disabled = Number(regler.value) <= Number(regler.min);
         plus.disabled = Number(regler.value) >= Number(regler.max);
-        hinweis.textContent = stellerGrenzenText(regler, einheit);
       }
       function setzen(wert) {
         var schritt = Number(regler.step) || 1;
