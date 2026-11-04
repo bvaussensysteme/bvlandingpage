@@ -304,8 +304,8 @@ Carport keinen sinnvollen Startwert.
 **Was war falsch.** `konfigurator.html` war eine „Kommt bald"-Seite mit
 Benachrichtigungs-Formular – verlinkt aus der Hauptnavigation, dem Footer und
 von vier Produktseiten. Sie versprach seit Monaten einen 3D-Konfigurator, den
-es nicht gab. Auslöser war die Frage des Betreibers, ob so etwas wie auf
-`antonov-outdoor.de/konfigurator/` machbar sei (derselbe Hersteller).
+es nicht gab. Auslöser war die Frage des Betreibers, ob so etwas wie beim
+Konfigurator eines Wettbewerbers machbar sei (derselbe Hersteller).
 
 **Was jetzt gilt.** Die Seite zeigt ein dreidimensionales Modell des
 Terrassendachs TDS. Wählbar sind Aufbau (Hauswand oder freistehend), Breite,

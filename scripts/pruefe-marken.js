@@ -112,21 +112,24 @@ var FEHLER = [
   ['Das Zeichen dreht sich wieder zur Kamera', 'js',
    '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide,',
    '        map: feldBild(markenZeichen(marke)), side: THREE.DoubleSide, void: new THREE.Sprite(),'],
+  /* NEU GEZIELT am 04.11.2026, zweiter Durchgang: Die Scheibe ist
+     jetzt DUNKEL mit goldenem Rand („generell sehen die jz wie
+     spielzeuglogos aus sie sollen designtechnisch besser sein",
+     Betreiber, 04.11.2026). Die vier alten Fehler zielten auf die
+     goldene Flaeche, den weissen Aussenring und den dunkelgoldenen
+     Innenring - diese drei Stellen gibt es nicht mehr. Die Gegenprobe
+     hat das selbst gemeldet („findet ihre Stelle nicht mehr"); genau
+     dafuer ist sie da. Die Fehler zielen jetzt auf die drei Dinge,
+     die die neue Scheibe sichtbar machen: volle Deckung, kraeftiger
+     Rand, helles Zeichen auf dunklem Grund. */
   ['Die Scheibe wird wieder durchsichtig', 'js',
-   "    g.fillStyle = '#C49A2A';\n    g.fill();",
-   "    g.fillStyle = 'rgba(196,154,42,.80)';\n    g.fill();"],
+   "    g.fillStyle = belegt ? '#C49A2A' : 'rgba(17,17,17,.93)';",
+   "    g.fillStyle = belegt ? 'rgba(196,154,42,.55)' : 'rgba(17,17,17,.45)';"],
   ['Die Linien werden wieder duenn', 'js',
-   '      g.lineWidth = 5.4;', '      g.lineWidth = 2.3;'],
-  /* NEU GEZIELT am 04.11.2026: Der alte Fehler zielte auf den schmalen
-     Ring in mittlerem Gold. Den gibt es nicht mehr - die Scheibe traegt
-     jetzt zwei Ringe (weiss aussen, dunkelgold innen). Die Gegenprobe
-     hat das selbst gemeldet („findet ihre Stelle nicht mehr"). */
-  ['Der Rand verliert seine dunkle Farbe', 'js',
-   "    g.strokeStyle = '#7A5B12'; g.lineWidth = 11; g.stroke();",
-   "    g.strokeStyle = 'rgba(154,115,24,.35)'; g.lineWidth = 3; g.stroke();"],
-  ['Der weisse Aussenring faellt weg', 'js',
-   "    g.beginPath(); g.arc(M, M, 110, 0, Math.PI * 2);\n    g.fillStyle = '#FFFFFF';",
-   "    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);\n    g.fillStyle = '#C49A2A';"],
+   '      g.lineWidth = 4.6;', '      g.lineWidth = 2.3;'],
+  ['Der Rand verliert seine Farbe und wird zum Haarstrich', 'js',
+   "    g.strokeStyle = belegt ? '#6B4F10' : '#C49A2A';\n    g.lineWidth = 10;",
+   "    g.strokeStyle = belegt ? 'rgba(107,79,16,.30)' : 'rgba(196,154,42,.30)';\n    g.lineWidth = 2;"],
   /* MIT DER NACHBARZEILE VERANKERT: Beide Saetze stehen seit dem
      01.11.2026 ZWEIMAL in der Datei - einmal fuer die runden
      Feldzeichen, einmal fuer die Massschilder. Ohne Anker beschaedigte
@@ -245,10 +248,16 @@ var FEHLER = [
   ['Die Masshilfslinien stehen nicht mehr ueber', 'js',
    '        v.y = pkt.y - MASS_UEBER;\n        w.y = pkt.y + MASS_MARKE;',
    '        w.y = pkt.y + MASS_MARKE;'],
+  /* NEU GEZIELT am 04.11.2026, zweiter Durchgang: Das Massschild hat
+     seinen weissen Grund verloren und ist jetzt dunkel mit goldenem
+     Rand - dieselbe Formensprache wie die Feldscheiben und die Leiste
+     ueber der Buehne. Die beiden alten Fehler zielten auf Weiss und
+     auf das mittlere Gold #9A7318; beide Stellen gibt es nicht mehr. */
   ['Das Schild sieht wieder aus wie eine Beschriftung', 'js',
-   "      g.strokeStyle = wach ? '#9A7318' : '#C49A2A';", '      g.strokeStyle = wach ? 1 : 1;'],
+   "      g.strokeStyle = wach ? '#6B4F10' : '#C49A2A';", '      g.strokeStyle = wach ? 1 : 1;'],
   ['Der Zeiger faerbt das Schild nicht mehr gold', 'js',
-   "      g.fillStyle = wach ? '#C49A2A' : '#ffffff';", "      g.fillStyle = '#ffffff';"],
+   "      g.fillStyle = wach ? '#C49A2A' : 'rgba(17,17,17,.93)';",
+   "      g.fillStyle = 'rgba(17,17,17,.93)';"],
   ['Das Schild ist wieder zu klein', 'js',
    '  var SCHILD_HOCH = 22;', '  var SCHILD_HOCH = 14;'],
   ['Der Schatten unter dem Schild faellt weg', 'js',
@@ -256,10 +265,14 @@ var FEHLER = [
   ['Die Masslinien sind wieder grau', 'js',
    '    var mMass = new THREE.MeshBasicMaterial({ color: 0x111111 });',
    '    var mMass = new THREE.MeshBasicMaterial({ color: 0x8a8a8a });'],
+  /* Derselbe Anlass: Die Scheibe ist nicht mehr gold mit weissem Rand,
+     sondern dunkel mit goldenem. „Blass" heisst hier jetzt: der dunkle
+     Grund wird hell, womit das weisse Zeichen darauf verschwindet. */
   ['Die Scheibe ist wieder blass', 'js',
-   "    g.fillStyle = '#C49A2A';\n    g.fill();", "    g.fillStyle = '#FFFFFF';\n    g.fill();"],
+   "    g.fillStyle = belegt ? '#C49A2A' : 'rgba(17,17,17,.93)';",
+   "    g.fillStyle = '#F2F2F2';"],
   ['Das Zeichen auf der Scheibe ist nicht mehr weiss', 'js',
-   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#FFFFFF';",
+   "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = belegt ? '#1A1206' : '#FFFFFF';",
    "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#7A5B12';"],
   ['Das Schild traegt kein Stiftzeichen mehr', 'js',
    "      var u = symbolUmriss('stift');", '      var u = null;'],
@@ -551,24 +564,28 @@ function lauf(q) {
      firmenfarben das orange/gold das weiß etc" (Betreiber,
      01.11.2026). Vor heller Hauswand und hellem Pflaster blieb von
      einer weissen Scheibe mit goldenem Rand ein blasser Kreis. */
-  p('Die Scheibe traegt die Hausfarben: Gold mit weissem Zeichen',
-    /g\.fillStyle = '#C49A2A';\s*\n\s*g\.fill\(\);/.test(q.js) &&
-    /symbolUmriss\(belegt \? 'stift' : 'punkt'\);\s*\n\s*g\.strokeStyle = '#FFFFFF';/.test(q.js),
-    'voll deckend, kein Durchscheinen');
-  p('Die Linien sind kraeftig',
-    /g\.lineWidth = 5\.4;/.test(q.js),
-    'Strich 5,4 - am 04.11.2026 von 4,2 angehoben');
-  /* UMGESTELLT am 04.11.2026. Bis dahin stand hier „Der Rand ist
-     schmal" (Ring 8 statt 13, „dünnere Ränder", 01.11.2026). Am
-     iPhone war die Scheibe dann wieder „zu schlecht sichtbar": Ein
-     schmaler Rand in mittlerem Gold trennt sie vor hellem Pflaster von
-     gar nichts. Jetzt zwei Ringe statt eines - aussen Weiss, innen die
-     dunkelste Goldstufe. Gegen Dunkles traegt das Weiss, gegen Helles
-     das dunkle Gold; eine einzige Randfarbe kann beides nicht. */
-  p('Der Rand traegt zwei Farben, hell aussen und dunkel innen',
-    /g\.arc\(M, M, 110, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = '#FFFFFF';/.test(q.js) &&
-    /g\.strokeStyle = '#7A5B12'; g\.lineWidth = 11; g\.stroke\(\);/.test(q.js),
-    'weisser Aussenring, dunkelgoldener Innenring');
+  /* UMGESTELLT am 04.11.2026: „generell sehen die jz wie
+     spielzeuglogos aus sie sollen designtechnisch besser sein"
+     (Betreiber). Vorher eine grosse goldene Flaeche mit weissem
+     Aussenring - viel Farbe, wenig Form, und vor hellem Pflaster
+     trotzdem blass. Jetzt die Formensprache der Leiste ueber der
+     Buehne: dunkler Grund, goldener Rand, feines Zeichen.
+
+     ZWEI ZUSTAENDE, und beide werden geprueft - sonst koennte man
+     einen davon abschaffen, ohne dass es auffaellt. */
+  p('Leeres Feld: dunkle Scheibe mit goldenem Rand',
+    /g\.fillStyle = belegt \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(q.js) &&
+    /g\.strokeStyle = belegt \? '#6B4F10' : '#C49A2A';/.test(q.js),
+    'dunkel mit Gold aussen, belegt umgekehrt');
+  p('Das Zeichen steht hell auf dunkel',
+    /g\.strokeStyle = belegt \? '#1A1206' : '#FFFFFF';/.test(q.js),
+    'weiss im leeren Feld, dunkel auf der goldenen Scheibe');
+  p('Der Rand ist als Linie zu erkennen',
+    /g\.lineWidth = 10;\s*\n\s*g\.stroke\(\);/.test(q.js),
+    '10 von 200 Durchmesser - auf 20 px Abbild noch eine Linie');
+  p('Die Linien des Zeichens sind kraeftig',
+    /g\.lineWidth = 4\.6;/.test(q.js),
+    'feiner als zuvor, dafuer mit Luft ringsum');
   /* MIT DEN NACHBARZEILEN: Beide Saetze stehen seit dem 01.11.2026
      auch beim Massschild. Ohne Anker bestuende die Pruefung, obwohl
      beim runden Zeichen die Mipmaps zurueck waeren. */
@@ -752,13 +769,16 @@ function lauf(q) {
   p('Die Maßhilfslinien stehen über die Maßlinie hinaus',
     /v\.y = pkt\.y - MASS_UEBER;\s*\n\s*w\.y = pkt\.y \+ MASS_MARKE;/.test(q.js),
     'sonst sehen sie aus wie ein Haken');
+  /* UMGESTELLT am 04.11.2026, aus demselben Grund wie die Scheiben:
+     Weiss mit duenner grauer Linie sah aus wie ein Zettel und
+     verschwand vor hellem Pflaster. */
   p('Das Schild sieht aus wie ein Bedienelement',
-    /g\.strokeStyle = wach \? '#9A7318' : '#C49A2A';/.test(q.js) &&
+    /g\.strokeStyle = wach \? '#6B4F10' : '#C49A2A';/.test(q.js) &&
     /var u = symbolUmriss\('stift'\);/.test(q.js),
-    'weiss mit goldenem Rand, Stift aus der eigenen Sammlung');
-  p('Unter dem Zeiger wird es gold gefüllt, wie die Knöpfe der Seite',
-    /g\.fillStyle = wach \? '#C49A2A' : '#ffffff';/.test(q.js),
-    'dieselben zwei Zustände wie .ist-gold');
+    'dunkel mit goldenem Rand, Stift aus der eigenen Sammlung');
+  p('Unter dem Zeiger dreht es sich um, wie die Knöpfe der Seite',
+    /g\.fillStyle = wach \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(q.js),
+    'ruhend dunkel, unter dem Zeiger gold - dieselben zwei Zustände wie .ist-gold');
   p('Das Schild ist groß genug',
     /var SCHILD_HOCH = 22;/.test(q.js), '22 statt 14 Welt-Einheiten');
   p('Das Schild hebt sich mit einem Schatten vom Hintergrund ab',

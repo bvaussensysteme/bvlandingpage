@@ -14,7 +14,7 @@
 | 09.09.2026 | Statt Preisen eine **ausdrückliche Klarstellung** auf der Kostenseite, im FAQ-Schema und in `llms.txt`: kursierende Richtwerte stammen nicht von uns | KI-Antworten nannten Preisspannen und setzten die Quellenangabe BV AussenSysteme daneben. Wer keine Zahl liefert, überlässt sie der Konkurrenz – eine direkte Aussage kann zitiert werden | Screenshot einer ChatGPT-Antwort mit „4.000–7.000 €" neben unserem Namen |
 | 09.09.2026 | **Kein `aggregateRating`** im Schema | Google verbietet selbstdargestellte Bewertungen über das eigene Unternehmen auf der eigenen Seite (self-serving reviews), unabhängig von der Anzahl | Vorschlag aus einem Sichtbarkeits-Check |
 | 09.09.2026 | KI-Chat entfernt, stattdessen öffnet der schwebende Button den **Anfrage-Assistenten** | Der Chat beantwortete Fragen, der Assistent erzeugt Anfragen | Wunsch des Betreibers |
-| 10.10.2026 | 3D-Konfigurator endet im **Anfrage-Assistenten statt im Richtpreis** | Folgt der Preis-Linie; das Vorbild antonov-outdoor.de zeigt Richtpreise, das kam nicht infrage | Wunsch nach einem Konfigurator wie beim Wettbewerb |
+| 10.10.2026 | 3D-Konfigurator endet im **Anfrage-Assistenten statt im Richtpreis** | Folgt der Preis-Linie; das fremde Vorbild zeigt Richtpreise, das kam nicht infrage | Wunsch nach einem Konfigurator wie beim Wettbewerb |
 | 10.10.2026 | **Maße durchgehend in Millimeter**, auch im Assistenten | So wird im Aufmaß gearbeitet | Ansage des Betreibers: „mm ist okey und richtig überall anwenden" |
 | 10.10.2026 | **Reinweiß entfällt im Konfigurator, sobald Flat Line gewählt ist** (und eine bereits gewählte Farbe springt auf Anthrazit zurück) | Flat Line gibt es nur in drei Standardfarben – dieselbe Einschränkung steht im Anfrage-Assistenten. Sonst stünde in der Anfrage eine Farbe, die es für das Produkt nicht gibt | Abgleich Konfigurator/Assistent |
 
@@ -87,10 +87,11 @@
 | Richtpreise im Konfigurator (wie beim Wettbewerb) | widerspricht der Preis-Linie | Übergabe an den Anfrage-Assistenten |
 | Hochladen der Rechtstext-PDFs ins Repository | sie werden aus den Seiten erzeugt; zwei Fassungen desselben Textes laufen auseinander | bei Bedarf neu erzeugen, siehe `docs/NEXT_TASK.md` |
 
-## 10.10.2026 – Konfigurator als Vollbild-Anwendung, nach dem Vorbild von antonov-outdoor.de
+## 10.10.2026 – Konfigurator als Vollbild-Anwendung, nach einem fremden Vorbild
 
 **Anlass.** Der Betreiber: „analysiere die komplette seite, den code und baue
-den konfigurator ähnlich nur in meinem seitendesign“ (antonov-outdoor.de/konfigurator).
+den konfigurator ähnlich nur in meinem seitendesign“ (zum Konfigurator eines
+Wettbewerbers, der dieselben Profile desselben Herstellers verbaut).
 Vorher war unser Konfigurator eine normale Seite mit Überschrift, Bühne und
 einer Spalte Auswahlfelder daneben.
 
@@ -109,13 +110,13 @@ Taste R, Schiebeelemente als einzelne Flügel mit Öffnen-Regler, Sonnenschutz
 aus Sichtschutzpaneelen.
 
 **Was NICHT übernommen wurde und warum.**
-* **Richtpreis.** Antonovs ganzer Ablauf endet im Richtpreis nach dem Absenden
-  des Formulars – das ist ihr Köder. Dem Betreiber vorgelegt, Antwort: bleibt
+* **Richtpreis.** Dort endet der ganze Ablauf im Richtpreis nach dem Absenden
+  des Formulars – das ist der Köder des Wettbewerbers. Dem Betreiber vorgelegt, Antwort: bleibt
   ohne Preis. Kein Preis im Code, nichts Auslesbares.
 * **Markisenstoff-Kollektionen, Plissee, Zaunpaneele, Holzdekore.** Dafür
   liegen uns keine echten Stoff- und Dekornamen vor. Erfinden wäre eine
   Produktaussage, die im Angebot nicht haltbar ist.
-* **Maße in Zentimetern.** Antonov rechnet in cm, hier bleibt alles in mm –
+* **Maße in Zentimetern.** Dort wird in cm gerechnet, hier bleibt alles in mm –
   so wird aufgemessen.
 
 **Zwei Fehler, die dabei auffielen** (beide vom Browsertest gefunden, nicht beim Lesen):
@@ -12318,3 +12319,151 @@ die Anfrage tot gewesen, also genau das, womit die Seite Geld verdient. Die
 Prüfung „Anfrage-Assistent öffnet sich" hat es im selben Durchlauf gemeldet.
 Weg gehört nur der **schwebende Knopf**, der ihn aufruft – der Weg zur Anfrage
 steht im Bedienfeld.
+
+## 04.11.2026 – Marken und Maßschilder: dunkler Grund, goldener Rand
+
+**Was falsch war.** Zweimal in Folge derselbe Einwand. Zuerst: „kannst du
+diese designs ändern um sie besser sichtbar zu mchen wie ich schon sagte
+kräftigere farben und sichtbare ränder" (Betreiber, 04.11.2026, zu drei
+Nahaufnahmen). Dann, nach meiner ersten Antwort darauf: „generell sehen die
+jz wie spielzeuglogos aus sie sollen designtechnisch besser sein."
+
+Der zweite Satz ist der wichtigere. Ich hatte auf „kräftiger" mit **mehr**
+geantwortet: größere Scheibe, volles Gold, weißer Außenring, dickere
+Linien. Das war sichtbarer, aber es sah aus wie ein Spielstein – eine
+bunte Fläche ohne Form. Groß und bunt ist nicht dasselbe wie gut sichtbar.
+
+**Was jetzt gilt.** Beide gezeichneten Überlagerungen – die runden Marken in
+den Feldern (`feldBild()`) und die Maßschilder (`schildBild()`,
+beide in `js/konfigurator-3d.js`) – folgen jetzt der **Ansichtsleiste über
+der Bühne**, die es auf der Seite schon gibt: dunkler Grund, goldener Rand,
+feines Zeichen darauf.
+
+| | leeres Feld / ruhendes Schild | belegtes Feld / Schild unter dem Zeiger |
+|---|---|---|
+| Fläche | Anthrazit, `rgba(17,17,17,.93)` | Gold, `#C49A2A` |
+| Rand | Gold `#C49A2A`, Strichstärke 10 | Dunkelgold `#6B4F10` |
+| Zeichen / Zahl | Weiß | `#1A1206` |
+
+Gold heißt hier wie in der Leiste „gesetzt".
+
+**Warum so und nicht anders.** Der Kontrast kommt jetzt aus **hell gegen
+dunkel**, nicht aus einer Farbe gegen eine andere. Das ist der Grund, warum
+es überhaupt trägt: Die Marken liegen vor hellem Pflaster, vor weißer
+Hauswand, vor Rasen und vor dunklem Trapezblech – eine goldene Fläche
+verliert gegen mindestens einen dieser Hintergründe, eine dunkle Scheibe mit
+hellem Rand gegen keinen. Dazu ein weicher Schlagschatten und ein feiner
+heller Bogen am oberen Rand; der gibt der Scheibe eine Wölbung, ohne dass
+sie wieder wie ein Spielstein wirkt.
+
+**Verworfen:** den weißen Außenring beizubehalten (er machte die Scheibe
+optisch größer und unruhiger, ohne Kontrast zu bringen) und die Scheiben
+zusätzlich zu vergrößern (der Einwand war Gestaltung, nicht Größe – größer
+hätte ihn verstärkt).
+
+**Was die Gegenprobe dabei selbst gemeldet hat.** Fünf eingebaute Fehler in
+`scripts/pruefe-marken.js` zielten auf Codestellen, die es nach dem Umbau
+nicht mehr gibt (goldene Fläche, weißer Außenring, Innenring in `#7A5B12`,
+weißer Schildgrund, mittleres Gold `#9A7318`). Die Gegenprobe hat das mit
+„findet ihre Stelle nicht mehr" abgebrochen – genau dafür ist sie da. Alle
+fünf sind auf die neuen Eigenschaften umgehängt: volle Deckung, kräftiger
+Rand, helles Zeichen auf dunklem Grund. Stand danach: **89 von 89
+Prüfungen schlagen an, 101 von 101 Fehlern werden bemerkt.**
+
+**Was gegengelesen werden soll.** Die Farbwirkung – und zwar auf dem Handy,
+nicht in meinen Bildern. Die Prüfbilder entstehen in einem Software-Renderer
+ohne Grafikkarte; Größen und Abstände sind belastbar gemessen, die Wirkung
+der Farben auf einem echten iPhone-Bildschirm ist es nicht.
+
+## 04.11.2026 – Fremder Design-Skill im Repository, nicht global
+
+**Anlass.** „lese das alles durch, auch die anleitung wie du diesen skill
+installieren kannst und installiere und führe diesen skill wenns um ui uix
+und design geht immer aus" (Betreiber, 04.11.2026, mit Link auf
+`github.com/nextlevelbuilder/ui-ux-pro-max-skill`).
+
+**Was jetzt gilt.** „UI/UX Pro Max" v2.15.0 (MIT) liegt unter
+`.claude/skills/ui-ux-pro-max/` im Repository – 75 Dateien, 3,7 MB. Die
+Daueranweisung dazu steht in `CLAUDE.md` („UI, UX und Gestaltung").
+
+**Warum im Repository und nicht global.** Der empfohlene Weg der Anleitung
+ist `npm install -g ui-ux-pro-max-cli` und danach `uipro init --ai claude`.
+Zwei Gründe dagegen:
+
+1. **Global hält nicht.** Die Arbeitsumgebung dieser Sitzungen ist ein
+   Behälter, der nach einer Weile Untätigkeit weggeworfen wird. Was nicht im
+   Repository liegt, ist beim nächsten Mal weg – der Skill wäre genau dann
+   nicht da, wenn jemand ihn braucht. Im Repository ist er in jeder Sitzung
+   automatisch dabei.
+2. **Kein fremdes Installationsprogramm ausführen.** `uipro init` ist Code
+   eines Dritten, der in das Projekt hineinschreibt. Die Schutzschicht der
+   Arbeitsumgebung hat den globalen npm-Befehl von sich aus abgelehnt
+   („Code from External"). Stattdessen wurde das öffentliche Verzeichnis
+   geklont, angesehen und **nur der eine Skillordner kopiert**. Es wurde
+   nichts von dort ausgeführt.
+
+**Was NICHT mitkopiert wurde.** Das Plugin bringt sieben Skills mit
+(`design`, `ui-styling`, `brand`, `design-system`, `slides`,
+`banner-design`), zusammen 11 MB. Übernommen wurde nur `ui-ux-pro-max` – er
+verweist auf keinen der anderen und ist für sich lauffähig. Die
+`LICENSE`-Datei liegt mit im Ordner; MIT verlangt, den Urhebervermerk
+mitzuführen.
+
+**Die Grenze, die gesetzt wurde.** Der Skill schlägt Farbpaletten,
+Schriftpaarungen und Stile vor – teils Tailwind-nah. Das darf die
+Designsprache der Seite nicht verdrängen; verbindlich bleiben
+`src/css/style.css` und die vorhandenen Werte. Genutzt werden seine
+Prüflisten und Begründungen (Kontrast, Antippflächen, sichtbare
+Beschriftungen, kein waagerechtes Scrollen, `prefers-reduced-motion`). So
+steht es auch in `CLAUDE.md`, damit es nicht in Vergessenheit gerät.
+
+**Ehrlich zum Nutzen.** Für die Gestaltung von Seiten und Bedienelementen ist
+der Datenbestand brauchbar. Für die sehr speziellen Sachen in diesem Projekt
+– gezeichnete Überlagerungen auf einer 3D-Bühne – liefert eine Abfrage
+allgemeine Regeln, keine Lösung; das ersetzt das Messen am Gerät nicht.
+
+**Was gegengelesen werden soll.** Nichts am sichtbaren Teil der Website: Der
+Skill ist Werkzeug für die Arbeit, er wird nicht ausgeliefert und nirgends
+eingebunden.
+
+## 04.11.2026 – Wettbewerbername aus der Dokumentation entfernt
+
+**Anlass.** Ich hatte gemeldet, dass der Name eines Wettbewerbers noch 6× im
+Repository steht – aus Einträgen vom 10.10., also vor der Dauerregel vom
+31.10. („Nachbauten: eigene Sprache, eigene Namen" in `CLAUDE.md`). Antwort
+des Betreibers: „fremde namen bis au VD entfernen."
+
+**Was jetzt gilt.** Der Name und seine Internetadresse stehen nirgends mehr
+im Repository. Alle sechs Stellen (`docs/entscheidungen.md` 5×,
+`docs/erledigt-archiv.md` 1×) sind umgeschrieben auf „ein fremdes Vorbild",
+„der Konfigurator eines Wettbewerbers", „dort". **Die Aussagen bleiben
+vollständig** – was übernommen wurde, was nicht und warum (Richtpreis,
+Stoffkollektionen, Zentimeter) ist weiter nachvollziehbar, nur ohne Namen.
+Der Hinweis „derselbe Hersteller" bleibt stehen, weil er die Sachlage
+erklärt, ohne jemanden zu benennen.
+
+**Was NICHT entfernt wurde, und warum.** „Alle fremden Namen" wörtlich
+genommen würde die Dokumentation unbrauchbar machen. Entfernt wurden
+**Wettbewerber** – darum geht es in der Regel. Stehen geblieben sind:
+
+* **VD AluSysteme und seine Produktnamen** (TDS, SkyView, Velaris, Linea,
+  SG23 …) – ausdrücklich ausgenommen, das sind die Produkte, die verkauft
+  werden.
+* **TIGER Coatings** in zwei Einträgen. Das ist kein Wettbewerber, sondern
+  ein Beschichter, dessen Farbwerte **bewusst nicht** übernommen wurden –
+  der Eintrag hält genau diese Entscheidung samt ihrem Urhebervermerk fest.
+  Ohne den Namen ist er sinnlos.
+* **Dienstleister und Werkzeuge** (Cloudflare, IONOS, sipgate, Web3Forms,
+  Google Fonts, Next Level Builder als Urheber des Design-Skills). Teils
+  Betriebswissen, das man braucht, teils – bei der MIT-Lizenz – ein
+  Urhebervermerk, den man gar nicht entfernen darf.
+* **Behörden, Verzeichnisse und Presse** in den Fachdokumenten (Landkreise,
+  Gelbe Seiten, Houzz, Rhein-Zeitung) – Eintragsziele und Quellen, keine
+  Konkurrenz.
+
+Sollte eine dieser Gruppen doch mitgemeint sein, bitte sagen; ich habe sie
+bewusst stehen gelassen und nicht stillschweigend entschieden.
+
+**Was gegengelesen werden soll.** Nichts Sichtbares – die Änderung betrifft
+nur zwei Dokumentationsdateien. Gegenprobe: `grep -ri "<name>" .` findet
+nichts mehr.
