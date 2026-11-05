@@ -813,7 +813,11 @@ pruefe('Fuehrung sitzt auf dem Fluegel, nicht am Dach',
 pruefe('Keil beginnt ueber der Fuehrung',
        new RegExp(q || 'var yKeil = yUnten \\+ hoch \\+ fuehrungH;').test(src), '');
 pruefe('Fuehrung zaehlt bei der Keil-Mindesthoehe mit',
-       new RegExp(q || 'KEIL_MIN_VORNE - yUnten - fuehrungH').test(src), '');
+       /* NACHGEZOGEN 05.11.2026: Reserviert wird jetzt die WIRKLICHE
+          Hoehe des Keils vorne (keilVorneMm, in mm), nicht mehr fest
+          die Mindesthoehe. Die Fuehrung zaehlt unveraendert mit - und
+          genau darum geht es hier. */
+       new RegExp(q || 'keilVorneMm / 10 - yUnten - fuehrungH').test(src), '');
 pruefe('Wandanschluss reicht bis ueber die Fuehrung',
        new RegExp(q || 'wandAnschluss\\(achse, mitte - laenge / 2, yUnten \\+ hoch \\+ fuehrungH, quer\\)').test(src), '');
 /* Zweiter Weg: die Lagen durchrechnen und auf Lueckenfreiheit pruefen. */
@@ -997,8 +1001,8 @@ var kastenDeck = src.match(/g\.fillStyle = 'rgba\(17,17,17,\.(\d+)\)'/);
    Bemassung zeichnet) alle Skripte laufen lassen, nicht die
    vermuteten. */
 pruefe('Der Masskasten deckt voll und traegt die Hausfarben',
-       gegen ? !/g\.fillStyle = wach \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(src)
-             : /g\.fillStyle = wach \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(src) &&
+       gegen ? !/g\.fillStyle = wach \? '#C49A2A' : '#111111';/.test(src)
+             : /g\.fillStyle = wach \? '#C49A2A' : '#111111';/.test(src) &&
                /g\.strokeStyle = wach \? '#6B4F10' : '#C49A2A';/.test(src),
        'dunkel mit goldenem Rand, unter dem Zeiger gold');
 pruefe('Masslinie duenner',

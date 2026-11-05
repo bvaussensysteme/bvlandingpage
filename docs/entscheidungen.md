@@ -13609,3 +13609,91 @@ zurücknehmen lässt. Automatisch zusammenführen heißt nicht, Entscheidungen z
 übernehmen, die dem Betreiber gehören.
 
 Steht als Regel in `CLAUDE.md`, damit auch ein neuer Chat sie kennt.
+
+## 05.11.2026 – Der Keil steht unter dem Dach, nicht an seiner Stelle
+
+**Was falsch war.** Der Betreiber meldete nacheinander drei Dinge am Keil,
+alle mit Bild:
+
+1. „da stimmt was nicht und der keil verstellt sih nicht im 3d is auch am
+   anfang zu groß" – ein Keil allein auf einer Seite füllte die ganze Seite
+   (gemessen: 1896 mm statt der 150 mm, die vorne mindestens bleiben müssen).
+2. „das firmenlogo scheint durch die maßanzeige durch" – die Maßschilder
+   waren zu 93 % deckend, das Wasserzeichen schien hindurch.
+3. „sihst du nicht das der rahmen vom keil nicht mit dem glas vom keil
+   übereinstimmt" – Glas und Rahmen liefen auseinander.
+
+**Was jetzt gilt.** Die Vorgabe ist die **kleinste** Höhe (H2 = 150 mm,
+belegt: „du musst auch beachten das vorne höhe IMMER min 150mm sein muss"),
+und von dort aus wird nach Wunsch vergrößert. Die Oberkante hängt am Dach:
+Wird die Höhe kleiner, steigt die **Unterkante**, nicht die Oberkante – sonst
+klaffte oben ein Spalt. Rahmen und Glas rechnen mit denselben beiden Kanten.
+Die Maßschilder sind vollflächig deckend.
+
+**Warum so.** Alles andere hätte zwei Rechenwege für dasselbe Maß bedeutet.
+Der Editor misst nicht nach, er liest, was das Modell gebaut hat.
+
+## 05.11.2026 – „was is mit der glasschiebewand da unten?" – ein Name, zwei Einheiten
+
+**Was falsch war.** Unter dem Keil hörte die Glasschiebewand bei **786 mm**
+auf, darüber klaffte bis zum Keil eine Lücke von **1485 mm** (gemessen im
+Modell, Bild des Betreibers vom 05.11.2026).
+
+Die Ursache war kein Rechenfehler, sondern ein **doppelter Name**: Die
+Mindesthöhe des Keils stand zweimal in `js/konfigurator-3d.js` – einmal bei
+der Zeichnung in Zentimetern (`var KEIL_MIN_VORNE = 15`) und einmal beim
+Editor in Millimetern (`var KEIL_MIN_VORNE = 150`). Beide lagen im **selben
+Gültigkeitsbereich**; die spätere Zuweisung gewann also auch für die
+Zeichnung. Aus „15 cm Luft für den Keil" wurden 150 cm.
+
+**Was jetzt gilt.**
+
+- Die Zahl steht **einmal**, in Millimetern, oben bei der Zeichnung. Wer in
+  Zentimetern rechnet, teilt sichtbar durch 10.
+- Die Wand unter dem Keil reserviert die **wirkliche** Keilhöhe vorne, nicht
+  mehr fest die Mindesthöhe. Sonst wäre sie bei H2 = 600 mm um 450 mm in den
+  Keil hineingelaufen – zwei Bauteile im selben Raum.
+- `keilMassGemerkt` merkt sich zusätzlich den **Platz** (Dach bis Boden,
+  ohne Element) als `platzH1`/`platzH2`. Die Höhe des Keils und der Platz für
+  den Keil sind zweierlei: Seit das Element dem Keil folgt, wandert seine
+  Oberkante mit, und die alte Obergrenze war im Kreis gerechnet – H1 ließ
+  sich nicht mehr über den eigenen aktuellen Wert hinaus vergrößern.
+- Der Hinweis „passt nicht mehr unter das Dach" vergleicht deshalb mit dem
+  Platz, nicht mit der aktuellen Höhe. Über das Eingabefeld ist er nicht mehr
+  erreichbar (das klemmt selbst) – erreichbar bleibt er über einen
+  **geteilten Link**, der zu einem höheren Dach gehörte.
+
+**Was gegengelesen werden soll.** `scripts/pruefe-keil-editor.mjs` misst
+jetzt den Abstand zwischen Elementoberkante und Keilglas – bei Vorgabe und
+bei H2 = 600 mm. Gemessen wird der **ungeklemmte** Wert: `kUntenVorne` ist
+auf null begrenzt, ein zu weit nach oben laufendes Element hätte sich damit
+nicht gezeigt (die Gegenprobe meldete genau das als unbemerkten Fehler).
+
+**Offen beim Betreiber.** `KEIL_REST_UNTEN = 200 mm` – was dem Element unter
+dem Keil mindestens bleiben muss – ist **abgeleitet, nicht belegt**. Die
+Zeichnung hatte diesen Boden immer schon; seit der Editor die Keilhöhe
+freigibt, ist dieselbe Zahl auch die Obergrenze für H1. Beim Hersteller
+nachfragen.
+
+**Was das über die Prüfungen sagt.** Keine der 90 Markierungs- und 99
+Pfosten-Prüfungen hat das gemerkt, weil alle am **Quelltext** messen. Erst
+eine Prüfung, die **im Modell nachmisst**, hat es gezeigt. Das ist der Grund,
+warum es diese Art Prüfung geben muss.
+
+## 05.11.2026 – Eine Prüfung, die zufällig rot wird, ist schlimmer als keine
+
+**Was falsch war.** `scripts/pruefe-schrittwechsel.mjs` maß nach einem festen
+Wartewert (1400 bzw. 1200 ms) – mitten in der noch laufenden Rollbewegung.
+Drei Läufe hintereinander **bei unverändertem Code**: einmal „Panelanfang
+367 px" statt mindestens 372, einmal „scrollTop 396" statt höchstens 4,
+einmal alles grün.
+
+**Was jetzt gilt.** Gewartet wird, bis sich der Rollwert zweimal
+hintereinander nicht mehr ändert (`ruhe()`), höchstens 6 s – nicht eine
+ausgedachte Zahl von Millisekunden.
+
+**Warum das zählt.** Ein zufälliges Rot gewöhnt einem das Hinsehen ab. Beim
+Durchlauf der ganzen Suite an diesem Tag war genau diese Prüfung rot, und sie
+hatte mit der Änderung nichts zu tun – zwei Läufe gingen dafür drauf, das
+festzustellen. Die Gegenprobe (3 eingebaute Fehler, 3 Prüfungen schlagen an)
+bleibt unverändert scharf.

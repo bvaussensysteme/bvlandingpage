@@ -78,6 +78,13 @@ const FEHLER = [
   /* Der Bezugsfehler, der die Linien kreuzen liess. */
   { von: "    var h2Abs = Math.max(1, mass.h2 + vMm);",
     nach: "    var h2Abs = Math.max(1, mass.h2);" },
+  /* Die Einheit der Mindesthoehe - genau der Fehler vom 05.11.2026. */
+  { von: "        var hoechstens = dachUk(zHoehenBezug) - keilVorneMm / 10 - yUnten - fuehrungH;",
+    nach: "        var hoechstens = dachUk(zHoehenBezug) - keilVorneMm - yUnten - fuehrungH;" },
+  /* Die Wand richtet sich wieder nach der Mindesthoehe statt nach dem
+     eingestellten Keil - sichtbar erst bei eigener Hoehe. */
+  { von: "          ? Math.max(KEIL_MIN_VORNE, kPlanHoehe.h2) : KEIL_MIN_VORNE;",
+    nach: "          ? KEIL_MIN_VORNE : KEIL_MIN_VORNE;" },
   /* Die Grenze am Hoehenfeld - das zweite Loch. */
   /* ANKER NACHGEZOGEN am 05.11.2026: Aus den geratenen 50 mm wurde die
      belegte Grenze KEIL_MIN_VORNE (150 mm). */
@@ -96,7 +103,21 @@ const CSS_FEHLER = [
    wirklich gebauten Scheiben, und die Bildschirmlage einer davon.
    Die Lage wird GERECHNET, nicht geraten - beim Pfosten-Zeichen hat
    das Raten am 04.11.2026 einen halben Abend gekostet. */
-const MESSHAKEN = {
+const MESSHAKEN = [{
+  /* Der Abstand zwischen der Oberkante des Elements und der Unterkante
+     des Keilglases. yKeil IST die Oberkante des Elements, darum ist
+     "Dachunterkante ueber yKeil minus Keilhoehe" genau dieser Abstand -
+     in cm, hier in mm gemerkt.
+
+     NICHT kUntenVorne nehmen: Das ist auf null geklemmt. Ein Element,
+     das zu WEIT nach oben laeuft, haette sich damit nicht gezeigt -
+     die Gegenprobe meldete den zweiten eingebauten Fehler als
+     unbemerkt (05.11.2026). Negativ heisst hier: Element und Keil
+     liegen ineinander. */
+  von: "          var kUntenHinten = (kH1 != null)",
+  nach: "          (window.__bvKeilLuecke = window.__bvKeilLuecke || {})[seite] = Math.round((kOben(zVorneK) - kH2) * 10);\n"
+      + "          var kUntenHinten = (kH1 != null)"
+}, {
   von: "                kf.userData.keilFeld = kNr;",
   nach: "                kf.userData.keilFeld = kNr;\n"
       + "                (window.__bvKeilScheiben = window.__bvKeilScheiben || []).push(seite + ':' + kNr);\n"
@@ -110,8 +131,16 @@ const MESSHAKEN = {
       + "                  mesh.localToWorld(c); c.project(kamera3);\n"
       + "                  var r = leinwand.getBoundingClientRect();\n"
       + "                  return { x: r.left + (c.x + 1) / 2 * r.width,\n"
-      + "                           y: r.top + (1 - (c.y + 1) / 2) * r.height }; }; })(kf);"
-};
+      + "                           y: r.top + (1 - (c.y + 1) / 2) * r.height }; }; })(kf);\n"
+      + "                window.__bvKeilPlatz = function (s) { return keilMassGemerkt[s] || null; };\n"
+      + "                window.__bvKeilUeberhoch = function (s) {\n"
+      + "                  var m = keilMassGemerkt[s] || {};\n"
+      + "                  var ab = (m.h1 && m.h2) ? m.h1 - m.h2 : 0;\n"
+      + "                  Z.keilPlan[s] = Z.keilPlan[s] || {};\n"
+      + "                  Z.keilPlan[s].h1 = (m.platzH1 || 1000) + 300;\n"
+      + "                  Z.keilPlan[s].h2 = Z.keilPlan[s].h1 - ab;\n"
+      + "                };"
+}];
 
 /* Ein Anker, der nichts mehr findet, laesst den Fehler gar nicht
    ankommen - und die Gegenprobe meldet dann faelschlich eine blinde
@@ -156,7 +185,7 @@ async function routenSetzen(zielCtx) {
      der Seite. Ohne diese Trennung suchte der Fehlerbauer die
      JS-Anker in der HTML-Datei und meldete acht veraltete Anker. */
   if (istJs) {
-    anwenden(MESSHAKEN);
+    MESSHAKEN.forEach(anwenden);
     if (GEGENPROBE) {
       (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
     }
@@ -282,9 +311,9 @@ pruefe('4-teilig: vier Scheiben im Modell', scheiben4 === 4, `${scheiben4} Schei
 async function waehle(id, wert) {
   await p.selectOption(id, wert, { timeout: 4000 }).catch(() => {});
 }
-await waehle('#k3dKeilGlas0', 'VSG Glas klar');
-await waehle('#k3dKeilGlas1', 'ESG Glas opal (FRF23)');
-await waehle('#k3dKeilGlas2', 'VSG Glas grau');
+await waehle('#k3dKeilGlas0', 'VSG Glas klar (Aufpreis)');
+await waehle('#k3dKeilGlas1', 'ESG Glas opal (Standard)');
+await waehle('#k3dKeilGlas2', 'VSG Glas grau (Aufpreis)');
 await waehle('#k3dKeilGlas3', 'Ohne Glas');
 /* Laenger warten: Jede Glaswahl baut das Modell neu, und erst danach
    steht die Oberflaeche wieder still. */
@@ -299,7 +328,7 @@ await p.waitForTimeout(700);
 const alleGleich = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilGlasFelder select')].map((s) => s.value));
 pruefe('"Feld 1 fuer alle uebernehmen" setzt jedes Feld',
-  alleGleich.every((v) => v === 'VSG Glas klar'), alleGleich.join(' / '));
+  alleGleich.every((v) => v === 'VSG Glas klar (Aufpreis)'), alleGleich.join(' / '));
 const scheibenAlle = await scheibenZaehlen();
 pruefe('Danach stehen wieder vier Scheiben im Modell', scheibenAlle === 4, `${scheibenAlle}`);
 
@@ -332,11 +361,13 @@ const vorher = await p.evaluate(() => ({
   h2: +document.getElementById('k3dKeilH2').value
 }));
 const abfall = vorher.h1 - vorher.h2;
-/* Nur 20 mm absenken. Mit 100 lag H2 anschliessend genau auf der
-   Mindestoeffnung von 50 mm, und jeder Versatz wurde danach zu Recht
-   auf null begrenzt - die naechste Pruefung haette dann nicht den
-   Versatz geprueft, sondern die Begrenzung. */
-await p.fill('#k3dKeilH1', String(vorher.h1 - 20), { timeout: 4000 }).catch(() => {});
+/* HOCH, nicht herunter (geaendert am 05.11.2026): Seit die Vorgabe
+   die kleinste Hoehe ist (H2 = 150 mm), laesst sich von dort aus nicht
+   mehr absenken - jedes kleinere H1 wird zu Recht auf die Grenze
+   geklemmt, und die naechste Pruefung haette dann nicht den Versatz
+   gemessen, sondern die Begrenzung. 200 mm Luft nach oben geben dem
+   Versatz Platz, ohne an die Dachunterkante zu stossen. */
+await p.fill('#k3dKeilH1', String(vorher.h1 + 200), { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(700);
 const nachH1 = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
@@ -428,15 +459,31 @@ await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
 await p.fill('#k3dKeilH1', String(vorH1), { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(700);
 
-/* ---------- Abweichende Masse werden benannt ---------- */
-await p.fill('#k3dKeilH1', '300', { timeout: 4000 }).catch(() => {});
-await p.waitForTimeout(700);
+/* ---------- Ein Keil, der nicht mehr unter das Dach passt ----------
+   NEU GEDACHT am 05.11.2026. Vorher tippte diese Pruefung H1 = 300 ein
+   und erwartete einen Hinweis. Das kann nicht mehr anschlagen: Das
+   Hoehenfeld klemmt die Eingabe selbst auf den Platz unter dem Dach,
+   eine zu hohe Zahl kommt dort gar nicht an.
+
+   Erreichbar ist der Fall nur noch ueber einen GETEILTEN LINK: Der
+   Link traegt eine Hoehe, die zu einem hoeheren Dach gehoerte. Wird er
+   mit niedrigerem Dach geoeffnet, ragt der Keil hinaus - und genau
+   dann muss der Hinweis kommen, samt dem Knopf, der die Masse
+   zuruecksetzt. Also wird der Plan direkt gesetzt, wie ein Link es
+   tut, und der Editor neu geoeffnet. */
+await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
+await p.evaluate(() => { if (window.__bvKeilUeberhoch) window.__bvKeilUeberhoch('links'); });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.waitForTimeout(900);
 const warn = await p.evaluate(() => {
   const w = document.getElementById('k3dKeilWarnung');
-  return { sichtbar: !!(w && !w.hidden), text: w ? w.textContent : '' };
+  const z = document.getElementById('k3dKeilMasseZurueck');
+  return { sichtbar: !!(w && !w.hidden), text: w ? w.textContent : '',
+           zurueck: !!(z && !z.hidden) };
 });
-pruefe('Eine Abweichung vom Modell wird benannt, nicht verschwiegen',
-  warn.sichtbar && /Spalt|hinaus/.test(warn.text), warn.text.slice(0, 70));
+pruefe('Ein Keil, der nicht mehr unter das Dach passt, wird benannt',
+  warn.sichtbar && /Dach/.test(warn.text) && warn.zurueck,
+  (warn.text.slice(0, 70) || 'kein Hinweis') + (warn.zurueck ? '' : ' / ohne Zuruecksetzen-Knopf'));
 await p.click('#k3dKeilMasseZurueck', { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(700);
 
@@ -470,7 +517,20 @@ if (trefferPunkt) {
    "vorne hoehe IMMER min 150mm".
 
    Eine Teilung anzubieten, die sich nicht bauen laesst, ist eine
-   Zusage, die das Angebot zuruecknehmen muss. */
+   Zusage, die das Angebot zuruecknehmen muss.
+
+   ERST HOCHSTELLEN (05.11.2026): Mit der Vorgabe H2 = 150 mm sind die
+   vier zweireihigen Teilungen ZU RECHT gesperrt - 2 x 150 mm passen
+   nicht in 150 mm. Vorher stand hier die alte Vorgabe (die gemessene
+   Resthoehe), und die Pruefung las die Sperre faelschlich als Fehler.
+   Also wird zuerst Platz geschaffen: 600 mm vorne, dann muessen alle
+   acht offen sein. */
+const vorRaum = await p.evaluate(() => ({
+  h1: +document.getElementById('k3dKeilH1').value,
+  h2: +document.getElementById('k3dKeilH2').value
+}));
+await p.fill('#k3dKeilH1', String(vorRaum.h1 - vorRaum.h2 + 600), { timeout: 8000 }).catch(() => {});
+await p.waitForTimeout(1400);
 const vorSperre = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
   h2: +document.getElementById('k3dKeilH2').value
@@ -531,8 +591,49 @@ await p.waitForTimeout(900);
 const alteNamen = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilGlasFelder select')].slice(0, 2).map((s2) => s2.value));
 pruefe('Ein alter Link behaelt seine Glaswahl',
-  alteNamen[0] === 'ESG Glas opal (FRF23)' && alteNamen[1] === 'ESG Glas grau (FRF23)',
+  alteNamen[0] === 'ESG Glas opal (Standard)' && alteNamen[1] === 'ESG Glas grau (Standard)',
   alteNamen.join(' / ') + ' statt der umbenannten ESG-Glaeser');
+
+/* ---------- Die Wand unter dem Keil ----------
+   "was is mit der glasschiebewand da unten? da is doch was falsch"
+   (Betreiber, 05.11.2026, mit Bild). Die Schiebewand hoerte bei 786 mm
+   auf, darueber klaffte bis zum Keil eine Luecke von 1485 mm.
+
+   Ursache war ein doppelter Name: Die Mindesthoehe des Keils stand
+   zweimal in derselben Datei, einmal in Zentimetern (15) und einmal in
+   Millimetern (150), beide im selben Gueltigkeitsbereich. Die Zeichnung
+   reservierte deshalb 150 cm statt 15 cm.
+
+   GEMESSEN WIRD DER ABSTAND IM MODELL, nicht die Konstante im
+   Quelltext: yKeil ist die Oberkante des Elements, kUntenVorne der
+   Abstand von dort bis zum Keilglas. Null heisst buendig. */
+await p.fill('#k3dKeilH1', '', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(900);
+await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
+await p.evaluate(() => {
+  const b = document.querySelector('[data-k3d-erw="links"] button[data-erw="Schiebetür"]');
+  if (b) b.click();
+});
+await p.waitForTimeout(1800);
+const lueckeVorgabe = await p.evaluate(() => (window.__bvKeilLuecke || {}).links);
+pruefe('Die Schiebewand reicht bis an den Keil',
+  lueckeVorgabe != null && Math.abs(lueckeVorgabe) <= 10,
+  `Luecke ${lueckeVorgabe} mm`);
+
+/* Und bei eigener Hoehe ebenso: Wer den Keil hoeher stellt, braucht
+   darunter eine kuerzere Wand - sonst laufen beide ineinander. */
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.waitForTimeout(800);
+const paarW = await p.evaluate(() => ({
+  h1: +document.getElementById('k3dKeilH1').value,
+  h2: +document.getElementById('k3dKeilH2').value
+}));
+await p.fill('#k3dKeilH1', String(paarW.h1 - paarW.h2 + 600), { timeout: 8000 }).catch(() => {});
+await p.waitForTimeout(1800);
+const lueckeHoch = await p.evaluate(() => (window.__bvKeilLuecke || {}).links);
+pruefe('Auch ein hoeherer Keil sitzt ohne Luecke auf der Wand',
+  lueckeHoch != null && Math.abs(lueckeHoch) <= 10,
+  `H2 600 mm, Luecke ${lueckeHoch} mm`);
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 

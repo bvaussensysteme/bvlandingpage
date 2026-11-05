@@ -181,6 +181,7 @@ als keine.
 
 | Frage | Warum sie zählt |
 |---|---|
+| **Wie hoch darf der Keil höchstens werden – und was muss dem Element darunter mindestens bleiben?** | Seit 05.11.2026 lässt sich die Keilhöhe im Editor einstellen. Die Obergrenze für H1 ist im Modell `Platz unter dem Dach − 200 mm`; die **200 mm sind abgeleitet**, nicht belegt (die Zeichnung hatte diesen Boden immer schon, damit kein Element mit der Höhe null entsteht). Daran hängt, ob eine Glasschiebewand unter einem hohen Keil überhaupt noch montierbar ist – bitte den kleinsten zulässigen Elementwert schriftlich geben lassen |
 | **Zulässiger Achsabstand der Pfosten (von … bis), je System** | Seit 01.11.2026 lassen sich die Zwischenpfosten verschieben. Die Spanne wird aus der Maßtabelle **hergeleitet**: größter und kleinster Achsabstand, der in der Tabelle irgendwo vorkommt (TDS/Glas flach: 970–3970 mm, aus den Zeilen 1080 mm/2 Pfosten und 4080 mm/2 Pfosten). Das ist eine Ableitung, keine Herstellerangabe. Daran hängen Statik und Gewährleistung; bitte die wirklichen Grenzwerte schriftlich geben lassen |
 | **Lichtdurchlässigkeit der Sechsfachstegplatte Graphit** | Für klar (76 %), opal (48 %) und bronze (35 %) gibt es Händlerangaben, für Graphit nichts. Im Modell ist die Deckkraft geschätzt |
 | ~~Rippenabstand des Trapezblechs T35M-0,75~~ | **Erledigt 16.10.2026.** Teilung 210 mm, abgeleitet aus der belegten Nutzbreite 1050 mm (1050 / 5); gestützt durch das Nachbarprofil T35/207 mit 1035 mm = 5 × 207 |

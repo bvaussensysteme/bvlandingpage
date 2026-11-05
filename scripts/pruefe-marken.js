@@ -123,7 +123,7 @@ var FEHLER = [
      die die neue Scheibe sichtbar machen: volle Deckung, kraeftiger
      Rand, helles Zeichen auf dunklem Grund. */
   ['Die Scheibe wird wieder durchsichtig', 'js',
-   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.93)';",
+   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = '#111111';",
    "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.45)';"],
   ['Die Linien werden wieder duenn', 'js',
    '      g.lineWidth = 4.6;', '      g.lineWidth = 2.3;'],
@@ -202,11 +202,19 @@ var FEHLER = [
    + '      if (nimmtDenBlick([treffer[i]])) return null;',
    '      if (o.userData && o.userData.feldMarke) return o.userData.feldMarke;\n'
    + '      void 0;'],
+  /* ANKER MIT NACHBARZEILE: Seit es keilUnterZeiger() gibt, steht
+     dieselbe Zeile zweimal in der Datei, und der Fehler landete in der
+     Keil-Suche statt in der Feldsuche - die Gegenprobe meldete die
+     Pruefung als blind, obwohl nur der Fehler woanders ankam
+     (05.11.2026). */
   ['Hauswand und Haustuer nehmen den Klick nicht', 'js',
-   '    if (wand && wand.visible) ziele.push(wand);', '    void wand;'],
+   '    var ziele = [bau, feldGruppe];\n    if (wand && wand.visible) ziele.push(wand);',
+   '    var ziele = [bau, feldGruppe];\n    void wand;'],
+  /* ANKER NACHGEZOGEN: Zwischen den Pfosten und das Feld ist der Keil
+     getreten (keilGeklickt), der VOR dem Feld gefragt werden muss. */
   ['Der Klick aufs Feld wird nicht ausgewertet', 'js',
-   '!massGeklickt(e) && !pfostenGeklickt(e) &&\n        !feldGeklickt(e) &&',
-   '!massGeklickt(e) && !pfostenGeklickt(e) &&'],
+   '!keilGeklickt(e) &&\n        !feldGeklickt(e) &&',
+   '!keilGeklickt(e) &&'],
   ['Der Klick aufs Feld fuehrt nirgendwohin', 'js',
    '    markeSpringen(m);\n    return true;', '    return true;'],
 
@@ -256,8 +264,8 @@ var FEHLER = [
   ['Das Schild sieht wieder aus wie eine Beschriftung', 'js',
    "      g.strokeStyle = wach ? '#6B4F10' : '#C49A2A';", '      g.strokeStyle = wach ? 1 : 1;'],
   ['Der Zeiger faerbt das Schild nicht mehr gold', 'js',
-   "      g.fillStyle = wach ? '#C49A2A' : 'rgba(17,17,17,.93)';",
-   "      g.fillStyle = 'rgba(17,17,17,.93)';"],
+   "      g.fillStyle = wach ? '#C49A2A' : '#111111';",
+   "      g.fillStyle = '#111111';"],
   ['Das Schild ist wieder zu klein', 'js',
    '  var SCHILD_HOCH = 22;', '  var SCHILD_HOCH = 14;'],
   ['Der Schatten unter dem Schild faellt weg', 'js',
@@ -274,7 +282,7 @@ var FEHLER = [
      sondern dunkel mit goldenem. „Blass" heisst hier jetzt: der dunkle
      Grund wird hell, womit das weisse Zeichen darauf verschwindet. */
   ['Die Scheibe ist wieder blass', 'js',
-   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = 'rgba(17,17,17,.93)';",
+   "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = '#111111';",
    "g.arc(M, M, 100, 0, Math.PI * 2);\n    g.fillStyle = '#F2F2F2';"],
   ['Das Zeichen auf der Scheibe ist nicht mehr weiss', 'js',
    "    var u = symbolUmriss(belegt ? 'stift' : 'punkt');\n    g.strokeStyle = '#FFFFFF';",
@@ -589,8 +597,8 @@ function lauf(q) {
      nichts mehr ueber den Zustand; unterschieden wird am ZEICHEN.
      Genau das wird jetzt geprueft: ein Kleid, zwei Zeichen. */
   p('Jede Scheibe ist dunkel mit goldenem Rand',
-    /g\.arc\(M, M, 100, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = 'rgba\(17,17,17,\.93\)';/.test(q.js) &&
-    /g\.arc\(M, M, 104, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = 'rgba\(17,17,17,\.93\)';/.test(q.js) &&
+    /g\.arc\(M, M, 100, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = '#111111';/.test(q.js) &&
+    /g\.arc\(M, M, 104, 0, Math\.PI \* 2\);\s*\n\s*g\.fillStyle = '#111111';/.test(q.js) &&
     /g\.strokeStyle = '#C49A2A';\s*\n\s*g\.lineWidth = 10;/.test(q.js),
     'kein Zustand faellt mehr aus der Formensprache');
   p('Das Zeichen steht hell auf dunkel',
@@ -715,12 +723,16 @@ function lauf(q) {
   p('Der Klick aufs Feld wird ausgewertet und fuehrt ins Bedienfeld',
     /!feldGeklickt\(e\) &&/.test(q.js) &&
     /function feldGeklickt\(e\) \{[\s\S]{0,200}?markeSpringen\(m\);/.test(q.js),
-    'feldGeklickt() als ERSTES in der Klickkette');
+    'feldGeklickt() haengt in der Klickkette, hinter keilGeklickt()');
   p('Hinter einem Bauteil ist das Feld nicht anklickbar',
     /feldMarke\) return o\.userData\.feldMarke;[\s\S]{0,120}?if \(nimmtDenBlick\(\[treffer\[i\]\]\)\) return null;/.test(q.js),
     'was den Blick nimmt, nimmt auch den Klick');
+  /* MIT NACHBARZEILE PRUEFEN: Die Zeile steht zweimal in der Datei
+     (einmal fuer die Felder, einmal fuer die Keile). Ohne den Vorsatz
+     "var ziele = [bau, feldGruppe];" war diese Pruefung blind: Sie fand
+     noch die Keil-Zeile, obwohl die Feld-Zeile fehlte (05.11.2026). */
   p('Hauswand, Vorsprung und Haustuer nehmen den Klick mit',
-    /if \(wand && wand\.visible\) ziele\.push\(wand\);/.test(q.js) &&
+    /var ziele = \[bau, feldGruppe\];\s*\n\s*if \(wand && wand\.visible\) ziele\.push\(wand\);/.test(q.js) &&
     /if \(vorsprung && vorsprung\.visible\) ziele\.push\(vorsprung\);/.test(q.js) &&
     /if \(tuer && tuer\.visible\) ziele\.push\(tuer\);/.test(q.js),
     'sie haengen einzeln in der Szene, nicht am Bauwerk');
@@ -800,7 +812,7 @@ function lauf(q) {
     /var u = symbolUmriss\('stift'\);/.test(q.js),
     'dunkel mit goldenem Rand, Stift aus der eigenen Sammlung');
   p('Unter dem Zeiger dreht es sich um, wie die Knöpfe der Seite',
-    /g\.fillStyle = wach \? '#C49A2A' : 'rgba\(17,17,17,\.93\)';/.test(q.js),
+    /g\.fillStyle = wach \? '#C49A2A' : '#111111';/.test(q.js),
     'ruhend dunkel, unter dem Zeiger gold - dieselben zwei Zustände wie .ist-gold');
   p('Das Schild ist groß genug',
     /var SCHILD_HOCH = 22;/.test(q.js), '22 statt 14 Welt-Einheiten');

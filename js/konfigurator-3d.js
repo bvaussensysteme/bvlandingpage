@@ -3700,7 +3700,7 @@
        runden + buttons") - dunkle Scheibe, goldener Rand, helles
        Zeichen. */
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    g.fillStyle = 'rgba(17,17,17,.93)';
+    g.fillStyle = '#111111';
     g.fill();
     g.restore();
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
@@ -3774,7 +3774,7 @@
     g.shadowBlur = 14;
     g.shadowOffsetY = 4;
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
-    g.fillStyle = 'rgba(17,17,17,.93)';
+    g.fillStyle = '#111111';
     g.fill();
     g.restore();
     g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);
@@ -4324,9 +4324,17 @@
        Schrift. Das ist genau der Wechsel, den die Knoepfe der Seite
        auch machen, und er sagt ohne Worte: hier kann man druecken. */
     if (klickbar) {
-      g.fillStyle = wach ? '#C49A2A' : 'rgba(17,17,17,.93)';
+      /* DECKEND, nicht 93 Prozent. Bis zum 05.11.2026 stand hier
+         rgba(17,17,17,.93) - ueber dunklem Modell unsichtbar, aber
+         ueber dem hellen Firmenzeichen auf dem Belag schien es durch:
+         "das firmenlogo scheint durch die maßanzeige durch"
+         (Betreiber, mit Bild). Ein Massschild muss auf JEDEM
+         Untergrund lesbar sein; die sieben Prozent haben nichts
+         gebracht ausser dieser Stelle. Gilt auch fuer die runden
+         Zeichen, die dieselbe Fuellung hatten. */
+      g.fillStyle = wach ? '#C49A2A' : '#111111';
     } else {
-      g.fillStyle = 'rgba(17,17,17,.93)';
+      g.fillStyle = '#111111';
     }
     rundWeg(g, SCHILD_RAND, SCHILD_RAND, innen, SCHILD_PX, rund);
     g.fill();
@@ -5087,7 +5095,27 @@
      Rahmen eingerechnet (Angabe des Betreibers, 10.10.2026). Ist der
      Spalt zwischen Elementoberkante und Dach vorne kleiner, wird das
      Element darunter entsprechend kürzer – nicht der Keil schmaler. */
-  var KEIL_MIN_VORNE = 15;    // cm, BELEGT durch den Betreiber
+  /* ---------- EINE Zahl, EINE Einheit: Millimeter ----------
+     Bis zum 05.11.2026 stand diese Grenze ZWEIMAL in der Datei: hier in
+     Zentimetern (15) und weiter unten beim Editor in Millimetern (150).
+     Beide hiessen gleich und lagen im selben Gueltigkeitsbereich - die
+     spaetere Zuweisung gewann also auch fuer die Zeichnung. Aus
+     "15 cm Luft fuer den Keil" wurden damit 150 cm: Die Glasschiebewand
+     unter dem Keil wurde auf 786 mm gekuerzt, darueber klaffte eine
+     Luecke (gemeldet vom Betreiber am 05.11.2026, mit Bild; gemessen:
+     hoch = 78,6 cm statt 213,6 cm).
+
+     Deshalb steht sie jetzt genau hier und nur hier. Die Zeichnung
+     rechnet in Zentimetern und teilt darum durch 10 - sichtbar an
+     jeder Stelle, an der sie benutzt wird. */
+  var KEIL_MIN_VORNE = 150;   // mm, BELEGT durch den Betreiber
+  /* Was dem Element unter dem Keil mindestens bleibt. ABGELEITET, nicht
+     belegt: Die Zeichnung hatte hier immer schon einen Boden von 20 cm,
+     damit kein Element mit der Hoehe null entsteht. Seit der Editor die
+     Keilhoehe freigibt, ist dieselbe Zahl auch die OBERGRENZE fuer H1 -
+     sonst koennte man die Schiebewand bis auf nichts zusammendruecken.
+     Beim Hersteller nachfragen, siehe docs/NEXT_TASK.md. */
+  var KEIL_REST_UNTEN = 200;  // mm, ABGELEITET
 
   /* Je angefangene 1,5 m Tiefe bekommt der Keil eine Unterteilung: bei
      3 m also eine, bei 4,5 m zwei. Angabe des Betreibers. */
@@ -5450,7 +5478,7 @@
     g.shadowBlur = 16;
     g.shadowOffsetY = 5;
     g.beginPath(); g.arc(M, M, 100, 0, Math.PI * 2);
-    g.fillStyle = 'rgba(17,17,17,.93)';
+    g.fillStyle = '#111111';
     g.fill();
     g.restore();
 
@@ -6734,8 +6762,23 @@
            höhe des vorderen an" (Betreiber, 15.10.2026, mit Bild).
            Massgeblich ist die engste Stelle, und die ist vorne am Dach. */
         var zHoehenBezug = (quer && dachVorne != null) ? dachVorne : zVorneK;
-        var hoechstens = dachUk(zHoehenBezug) - KEIL_MIN_VORNE - yUnten - fuehrungH;
-        if (hoch > hoechstens) hoch = Math.max(20, hoechstens);
+        /* ---------- Platz fuer den WIRKLICHEN Keil, nicht fuer den
+           kleinstmoeglichen ----------
+           Hier stand bis zum 05.11.2026 fest die Mindesthoehe. Solange
+           der Keil immer so klein wie moeglich war, stimmte das. Seit
+           der Editor eine eigene Hoehe zulaesst ("dann kann man nach
+           wunsch mehr machen"), waere die Wand bei H2 = 600 mm um
+           450 mm in den Keil hineingelaufen - zwei Bauteile im selben
+           Raum, wie es der Betreiber schon bei Rahmen- und Plankenwand
+           beanstandet hat.
+
+           Darum dieselbe Zahl wie die Zeichnung des Keils: die
+           eingestellte vordere Hoehe, mindestens KEIL_MIN_VORNE. */
+        var kPlanHoehe = keilPlanLesen(seite);
+        var keilVorneMm = (kPlanHoehe && kPlanHoehe.h2 != null)
+          ? Math.max(KEIL_MIN_VORNE, kPlanHoehe.h2) : KEIL_MIN_VORNE;
+        var hoechstens = dachUk(zHoehenBezug) - keilVorneMm / 10 - yUnten - fuehrungH;
+        if (hoch > hoechstens) hoch = Math.max(KEIL_REST_UNTEN / 10, hoechstens);
       }
       var hatRahmen = liste.indexOf('Rahmenwand') > -1;
       var hatSchiebe = liste.indexOf('Schiebetür') > -1;
@@ -6930,9 +6973,23 @@
              davon ab, von welcher Seite man hinsieht, und genau da
              braucht das fremde Formular einen Umschalter, den wir
              nicht brauchen. */
+          /* ---------- Hoehe und PLATZ sind zweierlei ----------
+             hH/hV sind die Hoehen des Keils, WIE ER JETZT STEHT. Seit
+             das Element darunter dem Keil folgt (05.11.2026), wandert
+             seine Oberkante mit - und damit waeren diese beiden Zahlen
+             als Obergrenze im Editor im Kreis gerechnet: H1 koennte nie
+             ueber den eigenen aktuellen Wert hinaus ("dann kann man
+             nach wunsch mehr machen" waere damit unmoeglich).
+
+             Darum zusaetzlich der PLATZ: vom Dach bis zum Boden, ohne
+             das Element. Das ist die Zahl, an der die Eingabe im Editor
+             ihre Obergrenze findet. */
+          var yBoden = yUnten + fuehrungH;
           keilMassGemerkt[seite] = { b: Math.round(keilLaenge * 10),
                                      h1: Math.round(hH * 10),
-                                     h2: Math.round(hV * 10) };
+                                     h2: Math.round(hV * 10),
+                                     platzH1: Math.round(Math.max(0, dachUk(zHintenK) - yBoden) * 10),
+                                     platzH2: Math.round(Math.max(0, dachUk(zVorneK) - yBoden) * 10) };
           /* ---------- Der Keil nach dem Plan des Editors ----------
              Eine Scheibe je Feld, jede mit ihrem eigenen Glas. Vorher
              war es EINE Scheibe mit EINEM Glas - "die auswahl soll man
@@ -6971,19 +7028,40 @@
              ragte hinaus. Mit der niedrigsten Stelle kann das nicht
              passieren, und bei einem fast rechteckigen Keil ist es
              dasselbe Ergebnis. */
-          /* Eine eigene Hoehe H1 senkt die OBERKANTE parallel ab - die
-             Dachschraege bleibt dieselbe, der Keil wird nur niedriger.
-             Darum ein fester Abzug und keine Streckung: Eine gestreckte
-             Oberkante haette eine andere Neigung als das Dach darueber,
-             und genau das gibt es am Bau nicht. Masse in cm. */
-          var kModellH1 = Math.round(hH * 10);
-          var kAbzug = (kPlan.h1 != null && kModellH1)
-            ? Math.max(0, (kModellH1 - kPlan.h1) / 10) : 0;
-          /* Der Versatz hebt die Unterkante zum vorderen Ende an. */
+          /* ---------- Der Keil haengt unter dem Dach ----------
+             BERICHTIGT am 05.11.2026. Vorher senkte eine kleinere Hoehe
+             die OBERKANTE ab - dann klaffte zwischen Keil und Dach ein
+             Spalt, und genau das hat der Betreiber im Bild gezeigt
+             ("da stimmt was nicht"). Ein Keil fuellt die Luecke UNTER
+             dem Dach; wird er niedriger, steigt seine UNTERKANTE.
+
+             STANDARD IST DIE KLEINSTE HOEHE: "die standart H2
+             einstellung muss die niedrigste sein also 150mm und dann
+             kann man nach wunsch mehr machen" (Betreiber). Ohne eigene
+             Angabe ist der Keil vorne also KEIL_MIN_VORNE hoch - ein
+             schmaler Keil unter dem Dach, darunter offen oder ein
+             Element. Vorher fuellte er die ganze Seite, wenn nichts
+             darunter stand: "is auch am anfang zu groß".
+
+             Die Unterkante laeuft gerade von hinten nach vorne. Ohne
+             Versatz ergibt sich H1 = H2 + Dachabfall von selbst - das
+             ist dieselbe Kopplung wie im Editor, nur andersherum
+             gerechnet. Masse in cm. */
           var kVersatz = (kPlan.versatz || 0) / 10;
-          function kOben(z) { return Math.max(0, dachUk(z) - yKeil - kAbzug); }
+          function kOben(z) { return Math.max(0, dachUk(z) - yKeil); }
+          var kH2 = (kPlan.h2 != null ? kPlan.h2 : KEIL_MIN_VORNE) / 10;
+          var kH1 = (kPlan.h1 != null ? kPlan.h1 : null);
+          /* Unterkante an beiden Enden. Vorne: Oberkante minus H2.
+             Hinten: aus H1, wenn angegeben, sonst dieselbe Hoehe
+             minus dem Versatz - so bleibt die Unterkante gerade. */
+          var kUntenVorne = Math.max(0, kOben(zVorneK) - kH2);
+          var kUntenHinten = (kH1 != null)
+            ? Math.max(0, kOben(zHintenK) - kH1 / 10)
+            : Math.max(0, kUntenVorne - kVersatz);
           function kUnten(z) {
-            return keilLaenge > 0 ? kVersatz * (z - zHintenK) / keilLaenge : 0;
+            if (keilLaenge <= 0) return kUntenHinten;
+            var t = (z - zHintenK) / keilLaenge;
+            return kUntenHinten + (kUntenVorne - kUntenHinten) * t;
           }
           /* Bezug fuer die waagerechten Sprossen: der HOECHSTE Punkt
              der Unterkante. Mit einem Versatz liegt der vorne - eine
@@ -7048,7 +7126,28 @@
              Rahmen in der Farbe der Überdachung. Vom Betreiber
              beanstandet. Rahmenbreite 40 mm GESCHÄTZT. */
           var rb = 4;
-          platte(rahmen, keilLaenge, rb, achse, keilMitte, yKeil + rb / 2, quer, 0, rb);
+          /* ---------- Der Rahmen folgt dem Glas ----------
+             BERICHTIGT am 05.11.2026: "sihst du nicht das der rahmen
+             vom keil nicht mit dem glas vom keil übereinstimmt"
+             (Betreiber). Ich hatte das Glas an die Dachunterkante
+             gehaengt und die Unterkante steigen lassen - der Rahmen
+             stand aber weiter dort, wo der Keil VORHER war. Ein
+             Rahmen, der nicht um sein Glas liegt, ist schlimmer als
+             gar keiner: Er zeigt ein Bauteil, das es nicht gibt.
+
+             Die Unterkante ist jetzt schraeg (Versatz) oder waagerecht
+             und liegt nicht mehr bei yKeil. Darum eine gedrehte Stange
+             wie oben an der Dachschraege, keine flache Platte. */
+          var uH = kUnten(zHintenK), uV = kUnten(zVorneK);
+          var untenL = Math.sqrt(keilLaenge * keilLaenge + (uH - uV) * (uH - uV));
+          var ug = new THREE.Mesh(new THREE.BoxGeometry(rb, rb, untenL), rahmen);
+          ug.position.set(achse, yKeil + (uH + uV) / 2 + rb / 2, keilMitte);
+          /* Gleiches Vorzeichen wie bei der oberen Stange: positive
+             Drehung senkt das Ende bei +z, und +z ist vorne. Mit
+             Versatz liegt die Unterkante vorne HOEHER, also negativ. */
+          ug.rotation.x = Math.atan2(uH - uV, keilLaenge);
+          ug.castShadow = true;
+          bau.add(ug);
           /* Stirnseiten und Sprossen. Bis zum 05.11.2026 war die Zahl
              automatisch (je angefangene 1,5 m ein Stiel, KEIL_FELD_MAX).
              Jetzt bestimmt sie der Editor - die alte Rechnung bleibt
@@ -7080,10 +7179,14 @@
             });
           }
           stiele.forEach(function (zs) {
-            var hs = Math.max(0, dachUk(zs) - yKeil);
+            /* Vom Glasrand bis zum Glasrand, nicht mehr von yKeil bis
+               zum Dach: Sonst stuenden die Stiele unter dem Glas
+               weiter, wo gar nichts mehr ist. */
+            var uZ = kUnten(zs), oZ = kOben(zs);
+            var hs = Math.max(0, oZ - uZ);
             if (hs < 1) return;
             var sr = new THREE.Mesh(new THREE.BoxGeometry(rb, hs, rb), rahmen);
-            sr.position.set(achse, yKeil + hs / 2, zs);
+            sr.position.set(achse, yKeil + uZ + hs / 2, zs);
             sr.castShadow = true;
             bau.add(sr);
           });
@@ -16460,7 +16563,9 @@
      sollte nicht kleiner sein als die kleinste zulaessige Oeffnung.
      Dieselbe Zahl, bis der Hersteller etwas anderes sagt - und dann
      steht sie hier an einer Stelle. */
-  var KEIL_MIN_VORNE = 150;   // mm, BELEGT
+  /* KEIL_MIN_VORNE steht weiter oben bei der Zeichnung - in
+     Millimetern, und nur dort. Eine zweite Zuweisung hier hat am
+     05.11.2026 die Zeichnung verstellt. */
   var KEIL_MIN_FELD = 150;    // mm, ABGELEITET
 
   var KEIL_TEILUNGEN = [
@@ -16483,12 +16588,15 @@
      ("ESG klar", "ESG opal") wie ein zweites System aussah. Es
      ist keines: FRF23 ist der Produktname einer ESG-Scheibe.
 
-     Darum steht die Glasart vorn und der Produktname dahinter -
-     "ESG Glas klar (FRF23)". Wer die Anfrage liest, sieht auf einen
-     Blick, dass es dieselbe Glasart ist wie anderswo, und hat
-     trotzdem die Bezeichnung zum Bestellen. Nur "ESG" zu schreiben
-     haette die Bezeichnung verloren, nur "FRF23" die Glasart
-     verborgen.
+     In Klammern steht seit dem 05.11.2026, was der Kunde wissen muss,
+     nicht die Herstellerkennung: "bei ESG steht muss nicht FRF23
+     stehen sondern (Standart) und bei VSG (Aufpreis)" (Betreiber).
+     ESG ist die Standardausfuehrung, VSG kostet mehr.
+
+     KEIN BETRAG dahinter - das waere ein Preis auf der Website, und
+     die gibt es hier nicht (siehe CLAUDE.md). Genau wie bei den
+     Sonderfarben: dass es etwas kostet, steht da; was es kostet,
+     sagt das Angebot nach dem Aufmass.
 
      GEKLAERT am 05.11.2026: opal und satinato meinen dasselbe
      ("meinen das selbe kannst opal nennen"). Sichtbar steht jetzt
@@ -16496,8 +16604,8 @@
      alte Teilen-Links ihr mattes Glas behalten. */
   var KEIL_GLAS = [
     'Ohne Glas',
-    'VSG Glas klar', 'VSG Glas opal', 'VSG Glas grau',
-    'ESG Glas klar (FRF23)', 'ESG Glas opal (FRF23)', 'ESG Glas grau (FRF23)'
+    'VSG Glas klar (Aufpreis)', 'VSG Glas opal (Aufpreis)', 'VSG Glas grau (Aufpreis)',
+    'ESG Glas klar (Standard)', 'ESG Glas opal (Standard)', 'ESG Glas grau (Standard)'
   ];
 
   /* Alte Bezeichnungen aus geteilten Links. Bis zum 05.11.2026 hiessen
@@ -16509,9 +16617,15 @@
      Namen. Ohne diese Zuordnung stuende das Auswahlfeld beim Oeffnen
      auf "bitte waehlen" - die Wahl waere stillschweigend weg. */
   var KEIL_GLAS_ALT = {
-    'FRF23 Glas klar': 'ESG Glas klar (FRF23)',
-    'FRF23 Glas opal': 'ESG Glas opal (FRF23)',
-    'FRF23 Glas grau': 'ESG Glas grau (FRF23)'
+    'FRF23 Glas klar': 'ESG Glas klar (Standard)',
+    'FRF23 Glas opal': 'ESG Glas opal (Standard)',
+    'FRF23 Glas grau': 'ESG Glas grau (Standard)',
+    'ESG Glas klar (FRF23)': 'ESG Glas klar (Standard)',
+    'ESG Glas opal (FRF23)': 'ESG Glas opal (Standard)',
+    'ESG Glas grau (FRF23)': 'ESG Glas grau (Standard)',
+    'VSG Glas klar': 'VSG Glas klar (Aufpreis)',
+    'VSG Glas opal': 'VSG Glas opal (Aufpreis)',
+    'VSG Glas grau': 'VSG Glas grau (Aufpreis)'
   };
   function keilGlasName(g) {
     return KEIL_GLAS_ALT[g] || g;
@@ -16606,7 +16720,7 @@
        Vorgabe ist ESG, und ein unbearbeiteter Keil haette im Angebot
        eine andere Glasart getragen als auf der Seite daneben. */
     return mattesGlas(Z.keilGlas)
-      ? 'ESG Glas opal (FRF23)' : 'ESG Glas klar (FRF23)';
+      ? 'ESG Glas opal (Standard)' : 'ESG Glas klar (Standard)';
   }
 
   /* ---------- Die Zeichnung ----------
@@ -16866,17 +16980,36 @@
     return { b: 0, h1: 0, h2: 0 };
   }
 
+  /* ---------- Die Obergrenze fuer H1 ----------
+     Nicht die aktuelle Keilhoehe (die wandert mit dem Element mit und
+     waere im Kreis gerechnet), sondern der Platz vom Dach bis zum
+     Boden, abzueglich dessen, was dem Element unten bleiben muss.
+     0 heisst: noch nichts gemessen - dann wird nicht begrenzt. */
+  function keilEditorPlatz(seite) {
+    var m = keilMassGemerkt[seite];
+    if (!m || !m.platzH1) return 0;
+    return Math.max(KEIL_MIN_VORNE, m.platzH1 - KEIL_REST_UNTEN);
+  }
+
   /* Die Masse, mit denen gezeichnet wird: eigene Eingabe, sonst Modell. */
+  /* ---------- Die Vorgabe ist die KLEINSTE Hoehe ----------
+     "die standart H2 einstellung muss die niedrigste sein also 150mm
+     und dann kann man nach wunsch mehr machen" (Betreiber,
+     05.11.2026).
+
+     Vorher war die Vorgabe die gemessene Resthoehe unter dem Dach.
+     Stand nichts darunter, war der Keil damit 1500 mm hoch und fuellte
+     die ganze Seite - "is auch am anfang zu groß". Jetzt ist er vorne
+     KEIL_MIN_VORNE hoch, und wer mehr will, traegt mehr ein.
+
+     H1 folgt daraus ueber den Dachabfall, genau wie beim Tippen:
+     H1 = H2 + Abfall + Versatz. */
   function keilMassWirksam(seite, plan) {
     var m = keilEditorMass(seite);
-    return {
-      b: m.b,
-      h1: plan.h1 != null ? plan.h1 : m.h1,
-      /* Ohne eigene Eingabe gilt das Modellmass - minus Versatz, denn
-         der hebt die Unterkante vorne an. */
-      h2: plan.h2 != null ? plan.h2 : Math.max(0, m.h2 - (plan.versatz || 0)),
-      versatz: plan.versatz || 0
-    };
+    var abfall = (m.h1 && m.h2) ? (m.h1 - m.h2) : 0;
+    var h2 = plan.h2 != null ? plan.h2 : KEIL_MIN_VORNE;
+    var h1 = plan.h1 != null ? plan.h1 : h2 + abfall + (plan.versatz || 0);
+    return { b: m.b, h1: h1, h2: h2, versatz: plan.versatz || 0 };
   }
 
   function keilEditorZeichnen() {
@@ -17007,22 +17140,28 @@
        niemandem. */
     var warn = document.getElementById('k3dKeilWarnung');
     var zurueck = document.getElementById('k3dKeilMasseZurueck');
-    /* Nur H1 gegen das Modell halten: H2 ist daraus abgeleitet (siehe
-       massFeld). Beide zu melden hiesse, denselben Umstand zweimal zu
-       beklagen. Der Versatz ist KEINE Abweichung - er ist eine eigene
-       Angabe und wird daneben genannt. */
+    /* ---------- Wann gewarnt wird ----------
+       NEU GEDACHT am 05.11.2026. Vorher verglich der Hinweis die
+       Eingabe mit der gemessenen Resthoehe und meldete jede Abweichung
+       als Fehler. Seit die Vorgabe die kleinste Hoehe ist, waere das
+       fast immer der Fall - eine Warnung, die immer leuchtet, liest
+       niemand mehr.
+
+       Gewarnt wird jetzt nur noch, wenn der Keil NICHT MEHR PASST:
+       wenn er hoeher ist als der Platz unter dem Dach. Dann raegte er
+       ueber die Dachunterkante hinaus. */
+    /* Verglichen wird mit dem PLATZ, nicht mit der aktuellen Keilhoehe:
+       Seit das Element dem Keil folgt, ist die aktuelle Hoehe immer
+       gleich der eigenen Angabe - der Hinweis koennte nie erscheinen. */
     var abw = [];
-    if (plan.h1 != null && modell.h1 && Math.abs(plan.h1 - modell.h1) > 2) {
-      abw.push('H1 ' + plan.h1 + ' statt ' + modell.h1);
+    var grenzeH1 = keilEditorPlatz(keilEditorSeite);
+    if (plan.h1 != null && grenzeH1 && plan.h1 > grenzeH1 + 2) {
+      abw.push('H1 ' + plan.h1 + ' statt höchstens ' + grenzeH1);
     }
     if (warn) {
       if (abw.length) {
-        var kleiner = (plan.h1 != null && modell.h1 && plan.h1 < modell.h1);
-        warn.textContent = 'Ihre Angabe weicht vom Modell ab (' + abw.join(', ') + ' mm). '
-          + (kleiner
-              ? 'Der Keil füllt die Öffnung unter dem Dach dann nicht aus – es bleibt ein Spalt.'
-              : 'Der Keil ragt dann über die Dachunterkante hinaus.')
-          + ' Das ist möglich, muss aber gewollt sein.';
+        warn.textContent = 'Der Keil ist höher als der Platz unter dem Dach ('
+          + abw.join(', ') + ' mm) – er würde über die Dachunterkante hinausragen.';
         warn.hidden = false;
       } else { warn.hidden = true; warn.textContent = ''; }
     }
@@ -17301,13 +17440,20 @@
              Abfall + Versatz + 50 mm. Das Feld zeigt den begrenzten
              Wert sofort - stillschweigend zu klemmen waere
              schlimmer als gar nicht zu klemmen. */
+          var platz = keilEditorPlatz(keilEditorSeite);
           if (schluessel === 'h1') {
             if (v < ab + vs + KEIL_MIN_VORNE) {
               v = ab + vs + KEIL_MIN_VORNE; f.value = String(v);
             }
+            /* Nach OBEN begrenzt der Platz unter dem Dach. Hoeher
+               hiesse: der Keil ragt hinaus - das gibt es nicht. */
+            if (platz && v > platz) { v = platz; f.value = String(v); }
             p.h1 = v; p.h2 = v - ab - vs;
           } else {
             if (v < KEIL_MIN_VORNE) { v = KEIL_MIN_VORNE; f.value = String(v); }
+            if (platz && v + ab + vs > platz) {
+              v = Math.max(KEIL_MIN_VORNE, platz - ab - vs); f.value = String(v);
+            }
             p.h2 = v; p.h1 = v + ab + vs;
           }
         }
