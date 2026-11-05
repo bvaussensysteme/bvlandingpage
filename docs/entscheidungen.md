@@ -13697,3 +13697,41 @@ Durchlauf der ganzen Suite an diesem Tag war genau diese Prüfung rot, und sie
 hatte mit der Änderung nichts zu tun – zwei Läufe gingen dafür drauf, das
 festzustellen. Die Gegenprobe (3 eingebaute Fehler, 3 Prüfungen schlagen an)
 bleibt unverändert scharf.
+
+## 05.11.2026 – Maßfelder: geklemmt wird beim Verlassen, nicht beim Tippen
+
+**Was falsch war.** „die 150mm lassen sich mit dem xpfeil nach links in der
+tastatur nicht löschen um ne andere zahl einzutragen" (Betreiber, mit Bild
+vom iPhone).
+
+Aus „150" wird beim Löschen erst „15" – kleiner als die Mindesthöhe. Das Feld
+schrieb daraufhin **bei jedem Tastendruck** sofort wieder „150" hinein. Die
+Rücktaste sah aus, als wäre sie kaputt. Schlimmer: Eine größere Zahl ließ sich
+gar nicht eintippen, denn für „600" muss man erst „6" tippen, und das ist zu
+klein. Die Höhe war damit faktisch unveränderbar – genau die Einstellung, die
+der Betreiber am selben Tag verlangt hatte („dann kann man nach wunsch mehr
+machen").
+
+**Was jetzt gilt.** Während des Tippens wird nur übernommen, was passt; was
+nicht passt, bleibt stehen, wie es dasteht, und das Modell behält seinen
+letzten gültigen Wert. **Geklemmt wird beim Verlassen des Feldes** (`change`).
+So steht am Ende nie eine unmögliche Zahl da. Gilt für H1, H2 und den Versatz.
+
+Der alte Kommentar an der Stelle sagte, stillschweigend zu klemmen wäre
+schlimmer als gar nicht zu klemmen. Das stimmt – der Schluss war falsch: Es
+ging nie um *ob*, sondern um *wann*. Die UI-Regel dazu lautet „validate on
+blur for most fields" (UI/UX-Skill, Forms / Inline Validation).
+
+**Nebenbei abgeschaltet:** Das Versatzfeld hatte bei der Vorgabe rechnerisch
+immer die Grenze 0 – jede Eingabe sprang auf 0 zurück. Ein Feld, in das nichts
+passt, ist eine Sackgasse; es ist jetzt gesperrt, mit der Begründung daneben
+(„Erst möglich, wenn die Höhe vorne über 150 mm liegt"). **Das war nicht
+verlangt** – wenn der Betreiber das Feld lieber offen hätte, ist es ein
+Einzeiler zurück.
+
+**Was gegengelesen werden soll.** Die neuen Prüfungen tippen mit **echten
+Tastendrücken** (`keyboard.press('Backspace')`), nicht mit `fill()`: `fill()`
+setzt den ganzen Wert auf einmal und hätte diesen Fehler nie gezeigt. Die
+Gegenprobe baut das alte Verhalten wieder ein und zeigt genau das Bild des
+Betreibers: nach vier Rücktasten steht „150" im Feld, nach dem Tippen von 600
+steht „150600" darin.

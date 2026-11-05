@@ -32,6 +32,12 @@ const GEGENPROBE = process.argv.includes('--gegenprobe');
    Fehler kann einen anderen verdecken. Wer eine neue Pruefung
    hinzufuegt, sollte ihren Fehler EINZELN laufen lassen. */
 const NUR = process.env.BV_FEHLER ? parseInt(process.env.BV_FEHLER, 10) : null;
+/* Dasselbe fuer die Fehler, die im CSS/Markup der Seite stecken. Ohne
+   das liefen sie nur im Sammellauf mit, und ob JEDER von ihnen eine
+   Pruefung rot macht, war nie gemessen - eine Luecke in der Gegenprobe
+   selbst (05.11.2026). */
+const NUR_CSS = process.env.BV_CSS_FEHLER ? parseInt(process.env.BV_CSS_FEHLER, 10) : null;
+const EINZELN = NUR != null || NUR_CSS != null;
 const PORT = 8277;
 const WURZEL = new URL('..', import.meta.url).pathname;
 
@@ -64,10 +70,13 @@ const FEHLER = [
      Mindestoeffnung umgeschrieben. Der alte Anker fand nichts mehr -
      der Fehler kam gar nicht an, und die Gegenprobe meldete ihn als
      blind. Darum steht unten der Abbruch bei fehlendem Anker. */
-  { von: "            p.h1 = v; p.h2 = v - ab - vs;",
-    nach: "            p.h1 = v;" },
-  { von: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
-    nach: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
+  /* ANKER NACHGEZOGEN 05.11.2026: Das Setzen steckt jetzt in setzen(). */
+  { von: "        if (schluessel === 'h1') { g.p.h1 = v; g.p.h2 = v - g.ab - g.vs; }",
+    nach: "        if (schluessel === 'h1') { g.p.h1 = v; }" },
+  /* ANKER MIT NACHBARZEILE 05.11.2026: Dieselbe Zeile steht jetzt
+     zweimal - einmal beim Tippen, einmal beim Verlassen des Feldes. */
+  { von: "        pv.versatz = neu;\n        if (pv.h1 != null) {\n          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
+    nach: "        pv.versatz = neu;\n        if (pv.h1 != null) {\n          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
   /* Die Sperre zu kleiner Teilungen. */
   { von: "    if (t.reihen > reihen) {", nach: "    if (false) {" },
   /* Die belegte Mindesthoehe vorne. */
@@ -78,6 +87,10 @@ const FEHLER = [
   /* Der Bezugsfehler, der die Linien kreuzen liess. */
   { von: "    var h2Abs = Math.max(1, mass.h2 + vMm);",
     nach: "    var h2Abs = Math.max(1, mass.h2);" },
+  /* Das Hoehenfeld klemmt wieder beim Tippen - der Fehler, den der
+     Betreiber am iPhone gesehen hat. */
+  { von: "        if (v < g.min || (g.max && v > g.max)) return;",
+    nach: "        if (v < g.min) { v = g.min; f.value = String(v); }" },
   /* Die Einheit der Mindesthoehe - genau der Fehler vom 05.11.2026. */
   { von: "        var hoechstens = dachUk(zHoehenBezug) - keilVorneMm / 10 - yUnten - fuehrungH;",
     nach: "        var hoechstens = dachUk(zHoehenBezug) - keilVorneMm - yUnten - fuehrungH;" },
@@ -88,15 +101,28 @@ const FEHLER = [
   /* Die Grenze am Hoehenfeld - das zweite Loch. */
   /* ANKER NACHGEZOGEN am 05.11.2026: Aus den geratenen 50 mm wurde die
      belegte Grenze KEIL_MIN_VORNE (150 mm). */
-  { von: "            if (v < ab + vs + KEIL_MIN_VORNE) {",
-    nach: "            if (v < -99999) {" },
+  /* ANKER NACHGEZOGEN 05.11.2026: Die Grenzen stehen jetzt in grenzen(). */
+  { von: "        var min = (schluessel === 'h1') ? ab + vs + KEIL_MIN_VORNE : KEIL_MIN_VORNE;",
+    nach: "        var min = 0;" },
 ];
 
 /* Der Handy-Fehler steckt im CSS, nicht im JavaScript: Der Dialog
    zurueck in den Stapelkontext des 3D-Bildes. */
 const CSS_FEHLER = [
   { von: '      position: fixed; inset: 0; z-index: 200;',
-    nach: '      position: absolute; inset: 0; z-index: 60;' }
+    nach: '      position: absolute; inset: 0; z-index: 60;' },
+  /* Das Breitenfeld faellt wieder aus der Familie. */
+  { von: '<input type="text" id="k3dKeilB" class="k3d-zahl" readonly',
+    nach: '<input type="text" id="k3dKeilB" readonly' },
+  /* Die Einheit faengt den Tipper ab. */
+  { von: 'font-size: .78rem; color: var(--muted); pointer-events: none;',
+    nach: 'font-size: .78rem; color: var(--muted);' },
+  /* Das (Optional) am Versatz faellt weg. */
+  { von: '                  <span class="k3d-keil-opt">(Optional)</span></label>',
+    nach: '                  </label>' },
+  /* Eine Einheit fehlt. */
+  { von: '<span class="k3d-keil-einheit" aria-hidden="true">mm</span>\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">',
+    nach: '\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">' }
 ];
 
 /* Zwei Lesehaken, beide NUR lesend und nur im Test: eine Liste der
@@ -186,11 +212,11 @@ async function routenSetzen(zielCtx) {
      JS-Anker in der HTML-Datei und meldete acht veraltete Anker. */
   if (istJs) {
     MESSHAKEN.forEach(anwenden);
-    if (GEGENPROBE) {
+    if (GEGENPROBE && NUR_CSS == null) {
       (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
     }
   } else if (GEGENPROBE && NUR == null) {
-    CSS_FEHLER.forEach(anwenden);
+    (NUR_CSS == null ? CSS_FEHLER : [CSS_FEHLER[NUR_CSS]]).filter(Boolean).forEach(anwenden);
   }
     return route.fulfill({ response: antwort, body: text });
   });
@@ -221,6 +247,15 @@ await p.evaluate(() => {
   });
 });
 await p.waitForTimeout(800);
+
+/* ---------- Tippen heisst: eingeben UND das Feld verlassen ----------
+   fill() loest nur 'input' aus. Seit die Masse erst beim Verlassen des
+   Feldes geklemmt werden (05.11.2026), prueft ein Test ohne blur() eine
+   Bedienung, die es so nicht gibt. */
+async function tippe(sel, wert, ms = 4000) {
+  await p.fill(sel, wert, { timeout: ms }).catch(() => {});
+  await p.evaluate((s2) => { const e = document.querySelector(s2); if (e) e.blur(); }, sel);
+}
 
 console.log(`\n=== Keil-Editor ===${GEGENPROBE ? '  (GEGENPROBE – Fehler eingebaut)' : ''}\n`);
 
@@ -367,7 +402,7 @@ const abfall = vorher.h1 - vorher.h2;
    geklemmt, und die naechste Pruefung haette dann nicht den Versatz
    gemessen, sondern die Begrenzung. 200 mm Luft nach oben geben dem
    Versatz Platz, ohne an die Dachunterkante zu stossen. */
-await p.fill('#k3dKeilH1', String(vorher.h1 + 200), { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilH1', String(vorher.h1 + 200), 4000);
 await p.waitForTimeout(700);
 const nachH1 = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
@@ -379,7 +414,7 @@ pruefe('H2 passt sich an, wenn H1 eingetragen wird',
 
 /* Der Versatz hebt die Unterkante vorne an - H2 wird um genau diesen
    Betrag kleiner. */
-await p.fill('#k3dKeilV', '30', { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilV', '30', 4000);
 await p.waitForTimeout(700);
 const nachV = await p.evaluate(() => +document.getElementById('k3dKeilH2').value);
 pruefe('Ein Versatz unten verkleinert H2 um genau sein Mass',
@@ -389,7 +424,7 @@ pruefe('Ein Versatz unten verkleinert H2 um genau sein Mass',
    Unterkante die Dachschraege: Die Zeichnung zerfiel in sich
    ueberschneidende Flaechen, das Modell haette Scheiben mit negativer
    Hoehe gebaut (gemessen am 05.11.2026 mit V = 250 bei H2 = 150). */
-await p.fill('#k3dKeilV', '99999', { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilV', '99999', 4000);
 await p.waitForTimeout(700);
 const begrenzt = await p.evaluate(() => ({
   v: +document.getElementById('k3dKeilV').value,
@@ -399,7 +434,7 @@ const begrenzt = await p.evaluate(() => ({
 pruefe('Ein zu grosser Versatz wird begrenzt, nicht gebaut',
   begrenzt.h2 >= 50 && begrenzt.v < 99999 && /h\u00f6chstens/.test(begrenzt.hinweis),
   `V ${begrenzt.v}, H2 ${begrenzt.h2}`);
-await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilV', '', 4000);
 await p.waitForTimeout(600);
 
 /* ---------- Die Kanten duerfen sich nie kreuzen ----------
@@ -430,7 +465,7 @@ async function kantenPruefen() {
    darum unentdeckt, bis der Betreiber ein Bild mit 6-teilig schickte.
    Eine Pruefung, die nur einen von acht Faellen ansieht, prueft einen
    von acht Faellen. */
-await p.fill('#k3dKeilV', '400', { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilV', '400', 4000);
 await p.waitForTimeout(700);
 const kaputt = [];
 for (const t of ['1', '2w', '2s', '3s', '4s', '4sw', '6', '8']) {
@@ -448,15 +483,15 @@ await p.waitForTimeout(600);
    absenken. Die Begrenzung sass zuerst nur am Versatzfeld - ein Loch,
    das nicht an der Stelle sass, an der es auffiel. */
 const vorH1 = await p.evaluate(() => +document.getElementById('k3dKeilH1').value);
-await p.fill('#k3dKeilH1', '60', { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilH1', '60', 4000);
 await p.waitForTimeout(800);
 const kreuzH = await kantenPruefen();
 const h2Rest = await p.evaluate(() => +document.getElementById('k3dKeilH2').value);
 pruefe('Auch ein zu kleines H1 nach einem Versatz kreuzt nichts',
   kreuzH.length === 0 && h2Rest >= 50,
   'gekreuzt: ' + (kreuzH.join(', ') || 'keins') + ', H2 ' + h2Rest);
-await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
-await p.fill('#k3dKeilH1', String(vorH1), { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilV', '', 4000);
+await tippe('#k3dKeilH1', String(vorH1), 4000);
 await p.waitForTimeout(700);
 
 /* ---------- Ein Keil, der nicht mehr unter das Dach passt ----------
@@ -529,7 +564,7 @@ const vorRaum = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
   h2: +document.getElementById('k3dKeilH2').value
 }));
-await p.fill('#k3dKeilH1', String(vorRaum.h1 - vorRaum.h2 + 600), { timeout: 8000 }).catch(() => {});
+await tippe('#k3dKeilH1', String(vorRaum.h1 - vorRaum.h2 + 600), 8000);
 await p.waitForTimeout(1400);
 const vorSperre = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
@@ -542,7 +577,7 @@ pruefe('Bei ausreichenden Massen ist keine Teilung gesperrt', offenVorher === 8,
 
 /* H1 so weit absenken, dass vorne nur noch gut 200 mm bleiben - zu
    wenig fuer zwei Reihen (2 x 150 mm). */
-await p.fill('#k3dKeilH1', String(vorSperre.h1 - vorSperre.h2 + 220), { timeout: 8000 }).catch(() => {});
+await tippe('#k3dKeilH1', String(vorSperre.h1 - vorSperre.h2 + 220), 8000);
 await p.waitForTimeout(1400);
 const gesperrt = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilTeilungen button')]
@@ -607,7 +642,7 @@ pruefe('Ein alter Link behaelt seine Glaswahl',
    GEMESSEN WIRD DER ABSTAND IM MODELL, nicht die Konstante im
    Quelltext: yKeil ist die Oberkante des Elements, kUntenVorne der
    Abstand von dort bis zum Keilglas. Null heisst buendig. */
-await p.fill('#k3dKeilH1', '', { timeout: 4000 }).catch(() => {});
+await tippe('#k3dKeilH1', '', 4000);
 await p.waitForTimeout(900);
 await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
 await p.evaluate(() => {
@@ -628,12 +663,114 @@ const paarW = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
   h2: +document.getElementById('k3dKeilH2').value
 }));
-await p.fill('#k3dKeilH1', String(paarW.h1 - paarW.h2 + 600), { timeout: 8000 }).catch(() => {});
+await tippe('#k3dKeilH1', String(paarW.h1 - paarW.h2 + 600), 8000);
 await p.waitForTimeout(1800);
 const lueckeHoch = await p.evaluate(() => (window.__bvKeilLuecke || {}).links);
 pruefe('Auch ein hoeherer Keil sitzt ohne Luecke auf der Wand',
   lueckeHoch != null && Math.abs(lueckeHoch) <= 10,
   `H2 600 mm, Luecke ${lueckeHoch} mm`);
+
+/* ---------- Die Ruecktaste muss loeschen koennen ----------
+   "die 150mm lassen sich mit dem xpfeil nach links in der tastatur
+   nicht löschen um ne andere zahl einzutragen" (Betreiber, 05.11.2026,
+   mit Bild vom iPhone).
+
+   Aus "150" wird beim Loeschen erst "15" - kleiner als die
+   Mindesthoehe. Das Feld schrieb daraufhin bei JEDEM Tastendruck
+   sofort wieder "150" hinein. Die Ruecktaste sah aus, als waere sie
+   kaputt, und eine groessere Zahl liess sich nicht eintippen: Fuer
+   "600" muss man erst "6" tippen, und das ist zu klein.
+
+   GEPRUEFT WIRD MIT ECHTEN TASTENDRUECKEN, nicht mit fill(): fill()
+   setzt den ganzen Wert auf einmal und haette den Fehler nie gezeigt. */
+await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.waitForTimeout(800);
+await tippe('#k3dKeilH1', '');
+await p.waitForTimeout(800);
+await p.locator('#k3dKeilH2').click({ timeout: 4000 }).catch(() => {});
+await p.keyboard.press('End');
+for (let i = 0; i < 4; i++) { await p.keyboard.press('Backspace'); await p.waitForTimeout(120); }
+const nachLoeschen = await p.evaluate(() => document.getElementById('k3dKeilH2').value);
+pruefe('Die Ruecktaste leert das Hoehenfeld wirklich',
+  nachLoeschen === '', `im Feld steht "${nachLoeschen}"`);
+
+await p.keyboard.type('600', { delay: 120 });
+const nachTippen = await p.evaluate(() => document.getElementById('k3dKeilH2').value);
+pruefe('Eine groessere Zahl laesst sich eintippen',
+  nachTippen === '600', `im Feld steht "${nachTippen}"`);
+
+await p.evaluate(() => document.getElementById('k3dKeilH2').blur());
+await p.waitForTimeout(900);
+const nachVerlassen = await p.evaluate(() => ({
+  feld: document.getElementById('k3dKeilH2').value,
+  luecke: (window.__bvKeilLuecke || {}).links
+}));
+pruefe('Die getippte Hoehe kommt im Modell an',
+  nachVerlassen.feld === '600' && nachVerlassen.luecke != null
+    && Math.abs(nachVerlassen.luecke) <= 10,
+  `Feld ${nachVerlassen.feld}, Luecke ${nachVerlassen.luecke} mm`);
+
+/* Und eine zu kleine Zahl wird beim VERLASSEN geklemmt - nicht beim
+   Tippen. Sonst waere der Fehler nur verschoben: Dann stuende am Ende
+   eine Hoehe im Feld, die es nicht gibt. */
+await p.locator('#k3dKeilH2').click({ timeout: 4000 }).catch(() => {});
+await p.keyboard.press('End');
+for (let i = 0; i < 4; i++) { await p.keyboard.press('Backspace'); await p.waitForTimeout(120); }
+await p.keyboard.type('20', { delay: 120 });
+const beimTippen = await p.evaluate(() => document.getElementById('k3dKeilH2').value);
+await p.evaluate(() => document.getElementById('k3dKeilH2').blur());
+await p.waitForTimeout(900);
+const beimVerlassen = await p.evaluate(() => document.getElementById('k3dKeilH2').value);
+pruefe('Zu klein wird erst beim Verlassen berichtigt',
+  beimTippen === '20' && beimVerlassen === '150',
+  `beim Tippen "${beimTippen}", nach dem Verlassen "${beimVerlassen}"`);
+
+/* ---------- Die vier Maszfelder sind EINE Familie ----------
+   "nirgens steht mm dahinter und die feste breite in dem linken oberen
+   feld hat nen ganz anderen rahmen als die restlichen 3" (Betreiber,
+   05.11.2026).
+
+   Das Breitenfeld trug als einziges keine Klasse und bekam darum den
+   Rahmen, den der Browser von sich aus zeichnet. GEMESSEN WIRD DER
+   GERECHNETE STIL, nicht das Klassenattribut: Eine Klasse im Markup
+   sagt noch nicht, dass auch dieselbe Regel greift. */
+const rahmen = await p.evaluate(() =>
+  ['k3dKeilB', 'k3dKeilH1', 'k3dKeilH2', 'k3dKeilV'].map((id) => {
+    const c = getComputedStyle(document.getElementById(id));
+    return [c.borderTopWidth, c.borderTopStyle, c.borderTopColor, c.borderTopLeftRadius].join('|');
+  }));
+pruefe('Alle vier Maszfelder tragen denselben Rahmen',
+  new Set(rahmen).size === 1, rahmen.join('  /  '));
+
+const einheiten = await p.evaluate(() =>
+  ['k3dKeilB', 'k3dKeilH1', 'k3dKeilH2', 'k3dKeilV'].map((id) => {
+    const e = document.getElementById(id).parentNode.querySelector('.k3d-keil-einheit');
+    return e && e.offsetParent !== null ? (e.textContent || '').trim() : '';
+  }));
+pruefe('Hinter jedem Maszfeld steht die Einheit',
+  einheiten.every((t) => t === 'mm'), einheiten.join(', ') || 'keine');
+
+/* Die Einheit darf den Tipper nicht abfangen: Wer rechts ins Feld
+   tippt, muss im Feld landen und nicht auf einem Stueck Text. */
+const trifft = await p.evaluate(() => {
+  const e = document.querySelector('#k3dKeilH2').parentNode.querySelector('.k3d-keil-einheit');
+  if (!e) return 'keine Einheit';
+  const r = e.getBoundingClientRect();
+  const t = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+  return t ? (t.id || t.className || t.tagName) : 'nichts';
+});
+pruefe('Ein Tipper auf die Einheit landet im Feld',
+  trifft === 'k3dKeilH2', `getroffen: ${trifft}`);
+
+/* "Bei Versatz noch (Optional)" (Betreiber, 05.11.2026): Es stand nur
+   im Hinweis UNTER dem Feld. Geprueft wird die sichtbare Beschriftung. */
+const optTxt = await p.evaluate(() => {
+  const l = document.querySelector('label[for="k3dKeilV"]');
+  return l ? (l.textContent || '').replace(/\s+/g, ' ').trim() : '';
+});
+pruefe('Am Versatz steht, dass er optional ist',
+  /\(Optional\)/.test(optTxt), optTxt.slice(0, 60));
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 
@@ -723,8 +860,14 @@ if (GEGENPROBE) {
     console.log('ANKER VERALTET – mindestens ein Fehler kam nicht an.');
     process.exit(1);
   }
-  const zahl = NUR == null ? FEHLER.length : 1;
-  console.log(`Gegenprobe: ${zahl} Fehler eingebaut${NUR == null ? '' : ' (Nr. ' + NUR + ')'}, `
+  /* MITZAEHLEN, was wirklich eingebaut wurde: Die CSS-Fehler fehlten in
+     dieser Zahl, der Bericht nannte 15 statt 19 (05.11.2026). Eine
+     Gegenprobe, die sich selbst zu klein rechnet, kann nicht auffallen,
+     wenn eine Pruefung blind wird. */
+  const zahl = EINZELN ? 1 : FEHLER.length + CSS_FEHLER.length;
+  const welcher = NUR != null ? ' (Nr. ' + NUR + ')'
+                : NUR_CSS != null ? ' (CSS Nr. ' + NUR_CSS + ')' : '';
+  console.log(`Gegenprobe: ${zahl} Fehler eingebaut${welcher}, `
     + `${rot.length} Pruefungen schlagen an.`);
   if (rot.length < zahl) { console.log('ZU WENIGE – mindestens eine Pruefung ist blind.'); process.exit(1); }
   process.exit(0);

@@ -17127,11 +17127,22 @@
                                 - ((modell.h1 && modell.h2) ? modell.h1 - modell.h2 : 0)
                                 - KEIL_MIN_VORNE);
       fV.max = String(grenzeV);
+      /* ---------- Ein Feld, in das nichts passt, wird abgeschaltet ----
+         Bei der Vorgabe ist die Grenze rechnerisch immer 0: H2 steht auf
+         der Mindesthöhe, und der Versatz würde sie unterschreiten. Ein
+         offenes Feld, das jede Eingabe wieder auf 0 setzt, ist eine
+         Sackgasse – es sagt nicht, was zu tun wäre. Abgeschaltet mit
+         Begründung daneben ist ehrlicher. */
+      fV.disabled = !grenzeV;
       var hV = document.getElementById('k3dKeilVHinweis');
       if (hV) {
-        hV.textContent = 'Optional. Die Unterkante steigt vorne um dieses Maß an – '
-          + 'höchstens ' + grenzeV + ' mm – vorne müssen '
-          + KEIL_MIN_VORNE + ' mm Höhe bleiben.';
+        hV.textContent = grenzeV
+          ? 'Die Unterkante steigt vorne um dieses Maß an – '
+            + 'höchstens ' + grenzeV + ' mm – vorne müssen '
+            + KEIL_MIN_VORNE + ' mm Höhe bleiben.'
+          : 'Erst möglich, wenn die Höhe vorne über ' + KEIL_MIN_VORNE
+            + ' mm liegt: Die Unterkante steigt vorne an, und vorne müssen '
+            + KEIL_MIN_VORNE + ' mm Höhe bleiben.';
       }
     }
 
@@ -17413,53 +17424,75 @@
       var m = keilEditorMass(seite);
       return (m.h1 && m.h2) ? (m.h1 - m.h2) : 0;
     }
+    /* ---------- Beim Tippen NICHT klemmen ----------
+       "die 150mm lassen sich mit dem xpfeil nach links in der tastatur
+       nicht löschen um ne andere zahl einzutragen" (Betreiber,
+       05.11.2026, mit Bild).
+
+       Was passierte: Aus "150" wird beim Loeschen erst "15", und 15 ist
+       kleiner als die Mindesthoehe. Das Feld schrieb daraufhin SOFORT
+       wieder "150" hinein - bei jedem Tastendruck. Die Ruecktaste sah
+       aus, als waere sie kaputt, und eine andere Zahl liess sich gar
+       nicht eintippen: Fuer "600" muesste man erst "6" tippen, und das
+       ist zu klein.
+
+       Der alte Kommentar an dieser Stelle sagte, stillschweigend zu
+       klemmen waere schlimmer als gar nicht zu klemmen. Das stimmt -
+       nur war der Schluss falsch: Geklemmt wird nicht WAEHREND des
+       Tippens, sondern wenn das Feld verlassen wird. Waehrend des
+       Tippens wird nur uebernommen, was passt; alles andere bleibt
+       stehen, wie es dasteht, und das Modell behaelt seinen letzten
+       gueltigen Wert. So steht am Ende trotzdem nie eine unmoegliche
+       Zahl im Feld. */
     function massFeld(id, schluessel) {
       var f = document.getElementById(id);
       if (!f) return;
+      function grenzen() {
+        var p = keilPlanLesen(keilEditorSeite);
+        var ab = keilAbfall(keilEditorSeite);
+        var vs = p.versatz || 0;
+        var platz = keilEditorPlatz(keilEditorSeite);
+        var min = (schluessel === 'h1') ? ab + vs + KEIL_MIN_VORNE : KEIL_MIN_VORNE;
+        var max = !platz ? 0
+                : (schluessel === 'h1') ? platz
+                : Math.max(min, platz - ab - vs);
+        return { p: p, ab: ab, vs: vs, min: min, max: max };
+      }
+      function setzen(v, g) {
+        if (schluessel === 'h1') { g.p.h1 = v; g.p.h2 = v - g.ab - g.vs; }
+        else { g.p.h2 = v; g.p.h1 = v + g.ab + g.vs; }
+        keilPlanSchreiben(keilEditorSeite, g.p);
+        keilEditorZeichnen();
+        aendern();
+      }
       f.addEventListener('input', function () {
         if (!keilEditorSeite) return;
-        var p = keilPlanLesen(keilEditorSeite);
+        var v = parseInt(f.value, 10);
+        /* Leer oder halb getippt: weitertippen lassen. Was "leer"
+           bedeutet, entscheidet sich beim Verlassen des Feldes. */
+        if (f.value === '' || isNaN(v)) return;
+        var g = grenzen();
+        if (v < g.min || (g.max && v > g.max)) return;
+        setzen(v, g);
+      });
+      f.addEventListener('change', function () {
+        if (!keilEditorSeite) return;
+        var g = grenzen();
         var v = parseInt(f.value, 10);
         if (f.value === '' || isNaN(v)) {
           /* Leer heisst: zurueck zum Modell - fuer BEIDE Hoehen. Nur
              eine zurueckzusetzen hinterliesse ein Paar, das nicht
              zusammenpasst. */
-          p.h1 = null; p.h2 = null;
-        } else {
-          var ab = keilAbfall(keilEditorSeite);
-          var vs = p.versatz || 0;
-          /* ---------- H2 bleibt mindestens 50 mm ----------
-             Die Begrenzung sass bis zum 05.11.2026 NUR am
-             Versatzfeld. Wer erst einen Versatz setzte und danach H1
-             absenkte, bekam ein negatives H2 - und damit genau die
-             gekreuzten Linien, die der Betreiber gemeldet hatte, nur
-             ueber einen anderen Weg. Ein Loch, das nicht an der
-             Stelle sass, an der es auffiel.
-
-             Darum hier dieselbe Grenze: H1 kann nicht unter
-             Abfall + Versatz + 50 mm. Das Feld zeigt den begrenzten
-             Wert sofort - stillschweigend zu klemmen waere
-             schlimmer als gar nicht zu klemmen. */
-          var platz = keilEditorPlatz(keilEditorSeite);
-          if (schluessel === 'h1') {
-            if (v < ab + vs + KEIL_MIN_VORNE) {
-              v = ab + vs + KEIL_MIN_VORNE; f.value = String(v);
-            }
-            /* Nach OBEN begrenzt der Platz unter dem Dach. Hoeher
-               hiesse: der Keil ragt hinaus - das gibt es nicht. */
-            if (platz && v > platz) { v = platz; f.value = String(v); }
-            p.h1 = v; p.h2 = v - ab - vs;
-          } else {
-            if (v < KEIL_MIN_VORNE) { v = KEIL_MIN_VORNE; f.value = String(v); }
-            if (platz && v + ab + vs > platz) {
-              v = Math.max(KEIL_MIN_VORNE, platz - ab - vs); f.value = String(v);
-            }
-            p.h2 = v; p.h1 = v + ab + vs;
-          }
+          g.p.h1 = null; g.p.h2 = null;
+          keilPlanSchreiben(keilEditorSeite, g.p);
+          keilEditorZeichnen();
+          aendern();
+          return;
         }
-        keilPlanSchreiben(keilEditorSeite, p);
-        keilEditorZeichnen();
-        aendern();
+        if (v < g.min) v = g.min;
+        if (g.max && v > g.max) v = g.max;
+        f.value = String(v);
+        setzen(v, g);
       });
     }
     massFeld('k3dKeilH1', 'h1');
@@ -17487,13 +17520,32 @@
         var mO = keilEditorMass(keilEditorSeite);
         var hWand = (pv.h1 != null) ? pv.h1 : mO.h1;
         var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - KEIL_MIN_VORNE);
-        if (pv.versatz > grenze) {
-          pv.versatz = grenze;
-          f.value = String(grenze);
-        }
+        /* Dieselbe Regel wie bei den Hoehenfeldern: beim Tippen nicht
+           ins Feld zurueckschreiben, sonst ist die Ruecktaste wirkungs-
+           los. Was ueber der Grenze liegt, wird jetzt nicht uebernommen
+           und beim Verlassen des Feldes geklemmt (siehe unten). */
+        if (pv.versatz > grenze) return;
         /* Der Versatz hebt die Unterkante vorne an - H2 wird dadurch
            kleiner. Bliebe H2 stehen, zeigte der Editor eine Hoehe, die
            es am Bau nicht gibt. */
+        if (pv.h1 != null) {
+          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;
+        }
+        keilPlanSchreiben(keilEditorSeite, pv);
+        keilEditorZeichnen();
+        aendern();
+      });
+      /* Geklemmt wird beim Verlassen des Feldes. */
+      f.addEventListener('change', function () {
+        if (!keilEditorSeite) return;
+        var pv = keilPlanLesen(keilEditorSeite);
+        var vv = parseInt(f.value, 10);
+        var mO = keilEditorMass(keilEditorSeite);
+        var hWand = (pv.h1 != null) ? pv.h1 : mO.h1;
+        var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - KEIL_MIN_VORNE);
+        var neu = (f.value === '' || isNaN(vv) || vv < 0) ? 0 : Math.min(vv, grenze);
+        f.value = neu ? String(neu) : '';
+        pv.versatz = neu;
         if (pv.h1 != null) {
           pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;
         }
