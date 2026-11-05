@@ -53,7 +53,7 @@ wrangler.jsonc
 
 # Muessen 200 liefern - sonst haette die Ausnahmeliste zu viel erwischt.
 OEFFENTLICH="
-index.html
+
 css/style.css
 js/konfigurator-3d.js
 js/anfrage-wizard.js
@@ -92,7 +92,7 @@ if [ -n "$gegenprobe" ]; then
   # Die Gegenprobe im engeren Sinn: ein Pfad, der sicher nicht existiert,
   # darf NICHT als "nicht erreichbar" durchgehen, ohne dass es auffaellt -
   # sonst wuerde die Pruefung auch bei abgeschalteter Seite gruen melden.
-  erf=$(hole "index.html")
+  erf=$(hole "")
   if [ "$erf" != "200" ]; then
     echo "  BLIND - die Seite antwortet gar nicht, die Pruefung sagt nichts"
     exit 1

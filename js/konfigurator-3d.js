@@ -118,6 +118,16 @@
     sg23Links: '', sg23Rechts: '', sg23Vorne: '', sg23Hinten: '',
     sg23Glas: 'ESG 10 mm klar',
     keilGlas: 'ESG klar',   // laut VD-Formular gibt es nur diese zwei
+    /* ---------- Keil je Seite einzeln einstellbar ----------
+       Wunsch des Betreibers (05.11.2026): Teilung, Masse, Sprossen und
+       Glas JE FELD. keilGlas darueber bleibt die Vorgabe fuer einen
+       Keil, der noch nie bearbeitet wurde - und die Rueckfallebene,
+       wenn ein alter Teilen-Link ohne keilPlan ankommt.
+
+       Leeres Objekt heisst "noch nie angefasst": Dann bestimmt das
+       Modell alles. Erst wer den Editor oeffnet und etwas aendert,
+       bekommt hier einen Eintrag. So bleibt ein alter Link gueltig. */
+    keilPlan: {},
     sg23Schloss: 'ohne',          // ohne | links | rechts
     /* Beide Hälften haben ihre EIGENE Stellung: „man kann obere hälfte
        und untere hälfte seprat öffnen/schließen" (Betreiber,
@@ -5117,6 +5127,54 @@
      Rahmenwand, wenn sie bis ans Dach geht. Gebaut wie der Keil und mit
      derselben Lage und Drehung eingesetzt: So kann die Schräge nicht in
      die falsche Richtung zeigen, ohne dass es auch beim Keil auffiele. */
+  /* Ein Feld des Keils: ein Band zwischen zwei ANTEILEN der Hoehe.
+     f0 = 0, f1 = 1 ist das ganze Dreieck; bei zwei Reihen ist das obere
+     Feld 0,5 bis 1.
+
+     Anteile und nicht feste Hoehen, weil der Keil ueber seine Laenge
+     unterschiedlich hoch ist: Eine waagerechte Trennung auf fester Hoehe
+     liefe an der Schraege aus und saehe aus wie zwei Bauteile. */
+  function keilFeldNetz(laenge, hVorne, hHinten, uVorne, uHinten, yOben, dicke, material) {
+    var form = new THREE.Shape();
+    /* yOben === null heisst: oben folgt die DACHSCHRAEGE. Das gilt nur
+       fuer die oberste Reihe - darunter ist die Oberkante eine gerade,
+       waagerechte Sprosse.
+
+       BERICHTIGT am 05.11.2026 anhand der Bilder des Betreibers: Vorher
+       lief die waagerechte Trennung als ANTEIL der Hoehe mit, folgte
+       also der Schraege. In den Zeichnungen des Herstellers ist sie
+       eine gerade Linie, und die unteren Felder sind Rechtecke. Eine
+       Sprosse, die mit der Schraege kippt, gibt es am Bau nicht. */
+    var oVorne = (yOben == null) ? hVorne : Math.min(yOben, hVorne);
+    var oHinten = (yOben == null) ? hHinten : Math.min(yOben, hHinten);
+    /* uVorne/uHinten sind die Unterkante an beiden Enden. Ohne Versatz
+       sind sie gleich (waagerecht); mit Versatz steigt sie zum vorderen
+       Ende hin an. */
+    form.moveTo(-laenge / 2, Math.min(uVorne, oVorne));
+    form.lineTo(laenge / 2, Math.min(uHinten, oHinten));
+    form.lineTo(laenge / 2, oHinten);
+    form.lineTo(-laenge / 2, oVorne);
+    form.closePath();
+    var g = new THREE.ExtrudeGeometry(form, { depth: dicke, bevelEnabled: false });
+    g.translate(0, 0, -dicke / 2);
+    return new THREE.Mesh(g, material);
+  }
+
+  /* Das Material zu einem Glasnamen aus KEIL_GLAS. "Ohne Glas" gibt
+     null - dann wird gar nichts gezeichnet, und man sieht wirklich
+     hindurch. Eine fast durchsichtige Scheibe waere eine Luege. */
+  function keilGlasMaterial(name) {
+    if (!name || name === 'Ohne Glas') return null;
+    var m = seitenglas();
+    if (name.indexOf('opal') > -1) return satiniert(m);
+    if (name.indexOf('grau') > -1) {
+      m.color = rgb(0x8d9499);
+      m.opacity = 0.42;
+      return m;
+    }
+    return m;
+  }
+
   function keilBandNetz(laenge, hVorne, hHinten, band, dicke, material) {
     var form = new THREE.Shape();
     form.moveTo(-laenge / 2, hVorne - band);
@@ -5607,6 +5665,44 @@
     leinwand.style.cursor = !pf ? ''
       : (PF_WAHL && PF_WAHL.reihe === pf.reihe && PF_WAHL.nr === pf.nr
           ? 'ew-resize' : 'pointer');
+  }
+
+  /* ---------- Den Keil im Modell antippen ----------
+     Wunsch des Betreibers (05.11.2026): "kann man diesen entweder im 3d
+     modell anklicken und somit auswaehlen, oder man hat im menue am keil
+     ein zahnrad".
+
+     Gesucht wird NUR nach dem Keil, nicht nach dem naechstbesten Treffer:
+     Hinter dem Glas liegen Sparren, Pfosten und die Wand, und ein Tipp
+     auf den Keil soll nicht zufaellig davon abhaengen, was dahinter
+     steht. Was den Blick nimmt, nimmt aber auch hier den Klick - sonst
+     waere ein Keil durch eine Hauswand hindurch zu treffen. */
+  function keilUnterZeiger(e) {
+    if (!e || !leinwand) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var ziele = [bau];
+    if (wand && wand.visible) ziele.push(wand);
+    if (vorsprung && vorsprung.visible) ziele.push(vorsprung);
+    if (tuer && tuer.visible) ziele.push(tuer);
+    var treffer = strahl.intersectObjects(ziele, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      if (!o || o.visible === false) continue;
+      if (o.userData && o.userData.keilSeite) return o.userData.keilSeite;
+      if (nimmtDenBlick([treffer[i]])) return null;
+    }
+    return null;
+  }
+
+  function keilGeklickt(e) {
+    var seite = keilUnterZeiger(e);
+    if (!seite) return false;
+    keilEditorOeffnen(seite);
+    return true;
   }
 
   function feldGeklickt(e) {
@@ -6806,24 +6902,150 @@
         var hV = Math.max(0, dachUk(zVorneK) - yKeil);
         var hH = Math.max(0, dachUk(zHintenK) - yKeil);
         if (hH > 1) {
-          var k = keilNetz(keilLaenge, hV, hH, 1.4, mKeil);
-          k.position.set(achse, yKeil, keilMitte);
-          k.rotation.y = Math.PI / 2;   // beide Seiten gleich: hoch zur Wand
-          k.castShadow = true;
-          bau.add(k);
+          /* Die Masse des Keils MESSEN und merken, nicht im Editor
+             noch einmal herleiten. Zwei Rechenwege fuer dasselbe Mass
+             laufen auseinander, sobald einer angefasst wird - und der
+             Editor wuerde dann Zahlen zeigen, die das Modell nicht
+             baut. Einheit hier cm, gemerkt wird in mm.
+
+             hH ist die WANDseite (hinten, hoch), hV die VORDERE
+             (niedrig). Darum heisst H1 im Editor "an der Wand" und H2
+             "vorne" - und nicht links/rechts: Was links ist, haengt
+             davon ab, von welcher Seite man hinsieht, und genau da
+             braucht das fremde Formular einen Umschalter, den wir
+             nicht brauchen. */
+          keilMassGemerkt[seite] = { b: Math.round(keilLaenge * 10),
+                                     h1: Math.round(hH * 10),
+                                     h2: Math.round(hV * 10) };
+          /* ---------- Der Keil nach dem Plan des Editors ----------
+             Eine Scheibe je Feld, jede mit ihrem eigenen Glas. Vorher
+             war es EINE Scheibe mit EINEM Glas - "die auswahl soll man
+             fuer jedes feld machen koennen" (Betreiber, 05.11.2026).
+
+             Spalte 0 liegt an der WAND. Im Editor ist H1 die Wandseite
+             und steht links - Feld 1 ist also dasselbe Feld in der
+             Zeichnung wie im Modell. Waere es umgekehrt, zeigte ein
+             Klick auf Feld 1 im Bild auf das Feld am anderen Ende. */
+          var kPlan = keilPlanLesen(seite);
+          var kT = keilTeilung(kPlan.teilung);
+          var kGrenzen = [zHintenK];
+          var kc;
+          if (kPlan.sprosse === 'frei' && kPlan.sprossenMass.length) {
+            /* Eigene Abstaende: in mm von der Wand aus gemessen. */
+            var eigen = [];
+            for (kc = 0; kc < kT.spalten - 1; kc++) {
+              var mmv = kPlan.sprossenMass[kc];
+              if (!mmv) continue;
+              var zz = zHintenK + mmv / 10;
+              if (zz > zHintenK + 1 && zz < zVorneK - 1) eigen.push(zz);
+            }
+            eigen.sort(function (a, b) { return a - b; });
+            kGrenzen = kGrenzen.concat(eigen);
+          } else {
+            for (kc = 1; kc < kT.spalten; kc++) {
+              kGrenzen.push(zHintenK + (keilLaenge / kT.spalten) * kc);
+            }
+          }
+          kGrenzen.push(zVorneK);
+
+          /* Die Hoehen der waagerechten Sprossen, von unten gezaehlt.
+             Bezugsmass ist die NIEDRIGSTE Stelle des Keils: Eine
+             waagerechte Linie auf halber DURCHSCHNITTShoehe laege am
+             flachen Ende ueber der Dachschraege, und das untere Feld
+             ragte hinaus. Mit der niedrigsten Stelle kann das nicht
+             passieren, und bei einem fast rechteckigen Keil ist es
+             dasselbe Ergebnis. */
+          /* Eine eigene Hoehe H1 senkt die OBERKANTE parallel ab - die
+             Dachschraege bleibt dieselbe, der Keil wird nur niedriger.
+             Darum ein fester Abzug und keine Streckung: Eine gestreckte
+             Oberkante haette eine andere Neigung als das Dach darueber,
+             und genau das gibt es am Bau nicht. Masse in cm. */
+          var kModellH1 = Math.round(hH * 10);
+          var kAbzug = (kPlan.h1 != null && kModellH1)
+            ? Math.max(0, (kModellH1 - kPlan.h1) / 10) : 0;
+          /* Der Versatz hebt die Unterkante zum vorderen Ende an. */
+          var kVersatz = (kPlan.versatz || 0) / 10;
+          function kOben(z) { return Math.max(0, dachUk(z) - yKeil - kAbzug); }
+          function kUnten(z) {
+            return keilLaenge > 0 ? kVersatz * (z - zHintenK) / keilLaenge : 0;
+          }
+          var kHMin = Math.max(0, Math.min(kOben(zVorneK) - kUnten(zVorneK),
+                                           kOben(zHintenK) - kUnten(zHintenK)));
+          var kEbenen = [];
+          for (var ke = 1; ke < kT.reihen; ke++) {
+            var eigenW = (kPlan.sprosseW === 'frei') ? kPlan.sprossenMassW[ke - 1] : 0;
+            kEbenen.push(eigenW ? eigenW / 10 : kHMin * ke / kT.reihen);
+            /* Gemessen ab der Unterkante am WANDende (dort ist sie am
+               tiefsten) - eine waagerechte Sprosse hat nur eine Hoehe. */
+          }
+          kEbenen.sort(function (a, b) { return a - b; });
+
+          var kNr = 0;
+          for (var kr = 0; kr < kT.reihen; kr++) {
+            /* Reihe 0 ist OBEN - wie in der Zeichnung des Editors und
+               wie in den Bildern des Betreibers (1,2,3 oben, 4,5,6
+               unten). */
+            var yOben = (kr === 0) ? null : kEbenen[kT.reihen - 1 - kr];
+            var yUnten = (kr === kT.reihen - 1) ? 0 : kEbenen[kT.reihen - 2 - kr];
+            for (kc = 0; kc < kGrenzen.length - 1; kc++) {
+              var zA = kGrenzen[kc], zB = kGrenzen[kc + 1];
+              var lc = zB - zA;
+              if (lc <= 0.2) { kNr++; continue; }
+              var zc = (zA + zB) / 2;
+              var mGlas = keilGlasMaterial(keilFeldGlas(seite, kNr));
+              if (mGlas) {
+                /* zB ist das VORDERE Ende des Feldes (groesseres z),
+                   zA das hintere an der Wand - so herum erwartet es
+                   keilFeldNetz. */
+                var kf = keilFeldNetz(lc,
+                           kOben(zB), kOben(zA),
+                           kUnten(zB) + yUnten, kUnten(zA) + yUnten,
+                           yOben == null ? null : yOben, 1.4, mGlas);
+                kf.userData.keilSeite = seite;
+                kf.userData.keilFeld = kNr;
+                kf.position.set(achse, yKeil, zc);
+                kf.rotation.y = Math.PI / 2;
+                kf.castShadow = true;
+                bau.add(kf);
+              }
+              kNr++;
+            }
+          }
 
           /* Der Keil ist kein nacktes Glasdreieck: er sitzt in einem
              Rahmen in der Farbe der Überdachung. Vom Betreiber
              beanstandet. Rahmenbreite 40 mm GESCHÄTZT. */
           var rb = 4;
           platte(rahmen, keilLaenge, rb, achse, keilMitte, yKeil + rb / 2, quer, 0, rb);
-          /* Stirnseiten und Unterteilungen: je angefangene 1,5 m Tiefe
-             ein Pfosten im Keil (KEIL_FELD_MAX). */
-          var felderK = Math.min(KEIL_FELD_ZAHL_MAX,
-                                 Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX)));
+          /* Stirnseiten und Sprossen. Bis zum 05.11.2026 war die Zahl
+             automatisch (je angefangene 1,5 m ein Stiel, KEIL_FELD_MAX).
+             Jetzt bestimmt sie der Editor - die alte Rechnung bleibt
+             die VORGABE fuer einen Keil, den niemand bearbeitet hat,
+             damit sich an bestehenden Planungen nichts aendert. */
           var stiele = [zHintenK + rb / 2, zVorneK - rb / 2];
-          for (var fk = 1; fk < felderK; fk++) {
-            stiele.push(zHintenK + (keilLaenge / felderK) * fk);
+          if (Z.keilPlan && Z.keilPlan[seite]) {
+            for (var fk = 1; fk < kGrenzen.length - 1; fk++) stiele.push(kGrenzen[fk]);
+          } else {
+            var felderK = Math.min(KEIL_FELD_ZAHL_MAX,
+                                   Math.max(1, Math.ceil(keilLaenge / KEIL_FELD_MAX)));
+            for (var fk2 = 1; fk2 < felderK; fk2++) {
+              stiele.push(zHintenK + (keilLaenge / felderK) * fk2);
+            }
+          }
+          /* Waagerechte Sprosse bei zwei Reihen. Sie folgt der Schraege,
+             genau wie die Trennung der Scheiben darueber und darunter. */
+          /* Die waagerechten Sprossen liegen WAAGERECHT. Bis zum
+             05.11.2026 liefen sie mit der Dachschraege mit - in den
+             Zeichnungen des Herstellers tun sie das nicht, und am Bau
+             gibt es eine gekippte Sprosse auch nicht. */
+          if (Z.keilPlan && Z.keilPlan[seite] && kT.reihen > 1) {
+            kEbenen.forEach(function (hE) {
+              if (hE <= 0.5) return;
+              var qs = new THREE.Mesh(new THREE.BoxGeometry(rb, rb, keilLaenge), rahmen);
+              qs.position.set(achse, yKeil + hE + kUnten(zHintenK), keilMitte);
+              qs.castShadow = true;
+              bau.add(qs);
+            });
           }
           stiele.forEach(function (zs) {
             var hs = Math.max(0, dachUk(zs) - yKeil);
@@ -12282,6 +12504,10 @@
        statt ihn zurueckzustellen. */
     if (weg < 6 && zeit < 2500 && !zurueckGeklickt(e) &&
         !massGeklickt(e) && !pfostenGeklickt(e) &&
+        /* VOR feldGeklickt: Die Feldflaechen der Seitenwahl liegen
+           hinter dem Keil. Stuende der Keil dahinter, oeffnete ein Tipp
+           auf das Glasdreieck die Seitenauswahl statt des Editors. */
+        !keilGeklickt(e) &&
         !feldGeklickt(e) &&
         !markiseGeklickt(e) && !velarisGeklickt(e)) {
       schiebeGeklickt(e);
@@ -13558,6 +13784,53 @@
         seiten.push(seite + ': ' + (l.length ? l.map(function (w) {
           return w + erwFeldZusatz(seite, w); }).join(' + ') : 'offen'));
       });
+      /* ---------- Der bearbeitete Keil gehoert in die Mail ----------
+         Ohne diese Zeilen waere der Editor eine Spielerei: Teilung,
+         Masse und Glas je Feld staenden im Bild, aber nicht im
+         Angebot. Bestellt wird nach der Mail.
+
+         Nur Seiten, deren Keil wirklich bearbeitet wurde - wer nichts
+         angefasst hat, bekommt die Vorgabe aus "Glas im Keil" wie
+         bisher, und die steht schon weiter oben. */
+      erwSeiten().forEach(function (seite) {
+        if (erwListe(seite).indexOf('Keil') === -1) return;
+        if (!Z.keilPlan || !Z.keilPlan[seite]) return;
+        var kp = keilPlanLesen(seite);
+        var kt = keilTeilung(kp.teilung);
+        var m = keilEditorMass(seite);
+        var zeile = 'Keil ' + seite + ' – ' + kt.name;
+        /* Gemessene Masse mitschicken, auch wenn sie niemand geaendert
+           hat: Wer die Mail liest, hat kein Modell daneben. */
+        zeile += ', B ' + m.b + ' mm';
+        zeile += ', H1 ' + (kp.h1 != null ? kp.h1 : m.h1) + ' mm';
+        zeile += ', H2 ' + (kp.h2 != null ? kp.h2 : m.h2) + ' mm';
+        /* Eine Abweichung von der Dachschraege ist ein Hinweis fuer das
+           Aufmass, kein Nebensatz. */
+        if ((kp.h1 != null && m.h1 && Math.abs(kp.h1 - m.h1) > 2) ||
+            (kp.h2 != null && m.h2 && Math.abs(kp.h2 - m.h2) > 2)) {
+          zeile += ' (ABWEICHEND vom Modell: Modell H1 ' + m.h1 + ' / H2 ' + m.h2 + ' mm)';
+        }
+        if (kp.sprosse === 'frei' && kt.spalten > 1) {
+          var abst = [];
+          for (var i = 0; i < kt.spalten - 1; i++) {
+            abst.push((kp.sprossenMass[i] || Math.round(m.b * (i + 1) / kt.spalten)) + ' mm');
+          }
+          zeile += ', Sprossen von der Wand: ' + abst.join(' / ');
+        } else if (kt.spalten > 1) {
+          zeile += ', Sprossen gleichmaessig';
+        }
+        var zahl = kt.spalten * kt.reihen;
+        var glaeser = [];
+        var offen = false;
+        for (var f = 0; f < zahl; f++) {
+          var g = kp.glas[f];
+          if (!g) { offen = true; g = 'noch nicht gewaehlt'; }
+          glaeser.push('Feld ' + (f + 1) + ': ' + g);
+        }
+        zeile += ' – ' + glaeser.join(', ');
+        if (offen) zeile += ' (NACHFRAGEN: nicht jedes Feld hat ein Glas)';
+        teile.push(zeile);
+      });
       /* HIER STAND EIN ERKLAERSATZ: „Felder je Seite … (Feld 1 ist das
          linke bzw. das hintere)". Dass er noetig war, war das Zeichen,
          dass die Nummern nichts sagen. Seit die Faecher „rechtes Fach",
@@ -14740,6 +15013,15 @@
       if (zeile) zeile.textContent = liste.length
         ? liste.map(function (w) { return w + erwFeldZusatz(seite, w); }).join(' · ')
         : 'offen';
+      /* Das Zahnrad zum Keil-Editor. Es entsteht erst, wenn es einen
+         Keil gibt, und verschwindet mit ihm - ein Knopf, der nichts
+         zu bearbeiten hat, ist eine falsche Zusage.
+
+         Eigener Knopf NEBEN der Reihe, nicht im Keil-Knopf: Ein Knopf
+         im Knopf ist in HTML nicht erlaubt, und am Handy waeren es
+         zwei Ziele auf 44 px. */
+      keilZahnradAnzeigen(seite, reihe, liste.indexOf('Keil') > -1
+                                        && erwMoeglich(seite).indexOf('Keil') > -1);
       feldwahlAnzeigen(seite, reihe);
     });
   }
@@ -16013,6 +16295,13 @@
       if (t && Object.keys(t).length) pv[seite] = t;
     });
     if (Object.keys(pv).length) d.pv = pv;
+    /* Der Keil-Plan MUSS mit, aus demselben Grund wie die Pfostenlage:
+       Ohne ihn zeigt der geteilte Link einen Keil mit der automatischen
+       Teilung und einem Glas fuer alles - und genau der wuerde dann
+       angefragt, obwohl der Kunde vier Felder einzeln eingestellt hat.
+       Nur, was wirklich bearbeitet wurde (leeres Objekt heisst: nie
+       angefasst), damit der Link kurz bleibt. */
+    if (Z.keilPlan && Object.keys(Z.keilPlan).length) d.kp = Z.keilPlan;
     return d;
   }
 
@@ -16099,9 +16388,809 @@
     /* Sonst raeumte pfostenReihe() den gerade gelesenen Versatz wieder
        weg, weil die Pfostenzahl des vorigen Standes noch gemerkt ist. */
     PF_ANZAHL = { vorne: 0, hinten: 0 };
+    /* Ein Link von vor dem 05.11.2026 kennt keinen Keil-Plan. Leeres
+       Verzeichnis heisst "nie bearbeitet", und dann baut der Keil sich
+       wie damals - die alte automatische Teilung samt "Glas im Keil".
+       So bleibt jeder verschickte Link gueltig. */
+    Z.keilPlan = (d.kp && typeof d.kp === 'object') ? d.kp : {};
     if (d.fa) farbeSetzen(d.fa);
     aendern();
     return true;
+  }
+
+
+  /* ================= Keil bearbeiten =================
+     Wunsch des Betreibers (05.11.2026): Den Keil entweder im Modell
+     anklicken oder ueber ein Zahnrad im Menue oeffnen; dann Teilung,
+     Masse, Sprossen und Glas JE FELD waehlen.
+
+     WARUM EIN RASTER UND NICHT ACHT SONDERFAELLE: Die acht Teilungen
+     sind Spalten x Reihen. 6-teilig ist 3x2, 8-teilig ist 4x2. Als
+     Sonderfaelle waeren es acht Zeichenroutinen, acht Stellen fuer
+     jeden spaeteren Fehler. Als Raster ist es eine.
+
+     Die Grenze von vier Spalten steht nicht hier, sondern seit dem
+     11.10.2026 in KEIL_FELD_ZAHL_MAX: "mehr als drei Sprossen zeigt
+     keine der acht Festelement-Zeichnungen" (Betreiber). Genau diese
+     acht sind die Kacheln. */
+  /* Zuletzt GEMESSENE Keilmasse je Seite, in mm. Wird beim Bauen
+     gefuellt (siehe keilNetz-Aufruf) und vom Editor gelesen. */
+  var keilMassGemerkt = {};
+
+  var KEIL_TEILUNGEN = [
+    { id: '1',   spalten: 1, reihen: 1, name: '1-teilig' },
+    { id: '2w',  spalten: 1, reihen: 2, name: '2-teilig waagerecht' },
+    { id: '2s',  spalten: 2, reihen: 1, name: '2-teilig senkrecht' },
+    { id: '3s',  spalten: 3, reihen: 1, name: '3-teilig senkrecht' },
+    { id: '4s',  spalten: 4, reihen: 1, name: '4-teilig senkrecht' },
+    { id: '4sw', spalten: 2, reihen: 2, name: '4-teilig senkr. + waagr.' },
+    { id: '6',   spalten: 3, reihen: 2, name: '6-teilig' },
+    { id: '8',   spalten: 4, reihen: 2, name: '8-teilig' }
+  ];
+
+  /* Die Glasliste des Betreibers (05.11.2026). "Ohne Glas" steht
+     bewusst oben: Es ist die einzige Wahl, die etwas WEGLAESST, und
+     wer sie sucht, sucht sie zuerst.
+
+     ACHTUNG, ZWEI BENENNUNGEN: Der uebrige Konfigurator spricht von
+     ESG klar und ESG satinato (k3dKeilGlas, k3dSg23Glas). Hier steht
+     VSG und FRF23. Beides sind Herstellerangaben, keine erfundenen
+     Namen - aber im Angebot stehen sie nebeneinander. Dem Betreiber
+     gemeldet; bis er entscheidet, bleibt es bei seiner Liste. */
+  var KEIL_GLAS = [
+    'Ohne Glas',
+    'VSG Glas klar', 'VSG Glas opal', 'VSG Glas grau',
+    'FRF23 Glas klar', 'FRF23 Glas opal', 'FRF23 Glas grau'
+  ];
+
+  function keilTeilung(id) {
+    for (var i = 0; i < KEIL_TEILUNGEN.length; i++) {
+      if (KEIL_TEILUNGEN[i].id === id) return KEIL_TEILUNGEN[i];
+    }
+    return KEIL_TEILUNGEN[0];
+  }
+  function keilFeldZahl(id) {
+    var t = keilTeilung(id);
+    return t.spalten * t.reihen;
+  }
+
+  /* Der gespeicherte Plan einer Seite - oder ein frischer. Legt NICHTS
+     in Z an: Wer nur hinsieht, soll keinen Eintrag erzeugen, sonst
+     waere jeder Teilen-Link voller Vorgaben, die niemand gewaehlt hat. */
+  function keilPlanLesen(seite) {
+    var p = (Z.keilPlan || {})[seite];
+    if (!p) {
+      return { teilung: '1', h1: null, h2: null, versatz: 0, sprosse: 'gleich',
+               sprossenMass: [], sprosseW: 'gleich', sprossenMassW: [],
+               glas: [] };
+    }
+    return {
+      teilung: p.teilung || '1',
+      h1: (p.h1 === 0 || p.h1) ? p.h1 : null,
+      h2: (p.h2 === 0 || p.h2) ? p.h2 : null,
+      /* Versatz unten: Die Unterkante steigt zum vorderen Ende hin an.
+         Aus den Bildern des Betreibers (05.11.2026, "V Versatz unten
+         (optional)"). Null heisst: Unterkante waagerecht - der
+         Normalfall, und der Stand vor dieser Aenderung. */
+      versatz: p.versatz > 0 ? p.versatz : 0,
+      sprosse: p.sprosse === 'frei' ? 'frei' : 'gleich',
+      sprossenMass: (p.sprossenMass || []).slice(),
+      /* Zwei getrennte Abstaende: senkrecht und waagerecht. Der
+         Betreiber hat am 05.11.2026 Bilder geschickt, auf denen beide
+         einzeln einstellbar sind - und das ist auch richtig so, es
+         sind zwei verschiedene Bauteile. */
+      sprosseW: p.sprosseW === 'frei' ? 'frei' : 'gleich',
+      sprossenMassW: (p.sprossenMassW || []).slice(),
+      glas: (p.glas || []).slice()
+    };
+  }
+  function keilPlanSchreiben(seite, plan) {
+    if (!Z.keilPlan) Z.keilPlan = {};
+    Z.keilPlan[seite] = plan;
+  }
+
+  /* Das Glas eines Feldes. Faellt auf die alte Einzelwahl zurueck,
+     damit ein Keil ohne Plan aussieht wie bisher. */
+  function keilFeldGlas(seite, nr) {
+    var p = keilPlanLesen(seite);
+    var g = p.glas[nr];
+    if (g) return g;
+    return String(Z.keilGlas || '').indexOf('satinato') > -1
+      ? 'VSG Glas opal' : 'VSG Glas klar';
+  }
+
+  /* ---------- Die Zeichnung ----------
+     Ein Trapez: links H1 hoch, rechts H2. Die Oberkante laeuft dazwischen
+     gerade durch - das ist der Keil unter der Dachschraege.
+
+     Die Felder sind <g>-Elemente mit role=button. Kein <rect> mit
+     onclick: Wer mit der Tastatur bedient, muss sie erreichen und
+     ausloesen koennen, und ein Screenreader muss sagen koennen, welches
+     Feld gerade ausgewaehlt ist. */
+  function keilSkizzeZeichnen(svg, plan, mass, gewaehlt, aufWahl) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var NS = 'http://www.w3.org/2000/svg';
+    var t = keilTeilung(plan.teilung);
+
+    /* Die Masslinien liegen AUSSERHALB des Trapezes: links bei L-30,
+       rechts bei R+30, unten bei UNTEN+28. Der viewBox ist 420 breit -
+       mit R = 390 lag das rechte Schild halb draussen und wurde
+       abgeschnitten (gesehen im ersten Bild vom 05.11.2026). */
+    var L = 86, R = 346, OBEN = 40, UNTEN = 250;       // Zeichenflaeche
+    var hoch = UNTEN - OBEN;
+    var h1 = Math.max(1, mass.h1), h2 = Math.max(1, mass.h2);
+    var gross = Math.max(h1, h2);
+    var y1 = UNTEN - hoch * (h1 / gross);              // Oberkante links
+    var y2 = UNTEN - hoch * (h2 / gross);              // Oberkante rechts
+
+    function el(name, attr) {
+      var e = document.createElementNS(NS, name);
+      for (var k in attr) if (attr.hasOwnProperty(k)) e.setAttribute(k, attr[k]);
+      return e;
+    }
+    var titel = el('title', {}); titel.setAttribute('id', 'k3dKeilSkizzeTitel');
+    titel.textContent = 'Keil, ' + t.name + ', von innen gesehen';
+    svg.appendChild(titel);
+
+    /* Die Oberkante bei einem Anteil x (0 = links, 1 = rechts). */
+    function oben(x) { return y1 + (y2 - y1) * x; }
+
+    /* Spaltengrenzen als Anteile. Bei eigenen Abstaenden sind es die
+       eingegebenen Masse, sonst gleiche Teile. */
+    /* Die Unterkante. Mit Versatz steigt sie zum flachen Ende hin an -
+       genau wie die Oberkante faellt. */
+    var vPix = mass.versatz ? hoch * (mass.versatz / gross) : 0;
+    function unten(x) { return UNTEN - vPix * x; }
+
+    var grenzen = [0];
+    var i, j;
+    if (plan.sprosse === 'frei' && plan.sprossenMass.length) {
+      for (i = 0; i < t.spalten - 1; i++) {
+        var mm = plan.sprossenMass[i];
+        var a = (mm || 0) / Math.max(1, mass.b);
+        grenzen.push(Math.min(0.98, Math.max(0.02, a)));
+      }
+      grenzen.sort(function (x, y) { return x - y; });
+    } else {
+      for (i = 1; i < t.spalten; i++) grenzen.push(i / t.spalten);
+    }
+    grenzen.push(1);
+
+    /* Die waagerechten Sprossen liegen WAAGERECHT, also auf einer
+       festen Hoehe - nicht als Anteil der jeweiligen Feldhoehe.
+       Berichtigt am 05.11.2026 nach den Bildern des Betreibers: Dort
+       ist die Trennlinie gerade, und die unteren Felder sind Rechtecke.
+       Bezug ist die niedrigste Stelle, damit das untere Feld am flachen
+       Ende nicht ueber die Schraege hinausragt. */
+    /* Bezug ist die GERINGSTE lichte Hoehe - also Oberkante minus
+       Unterkante am ungueenstigsten Ende. Vorher stand hier der
+       Abstand zur Grundlinie; mit einem Versatz lag die Sprosse dann
+       unter der angehobenen Unterkante, und das unterste Feld wurde zu
+       einem Splitter (gemessen am 05.11.2026 mit V = 100). */
+    var lichtLinks = unten(0) - y1;
+    var lichtRechts = unten(1) - y2;
+    var lichtMin = Math.max(1, Math.min(lichtLinks, lichtRechts));
+    var ebenen = [];
+    for (i = 1; i < t.reihen; i++) {
+      var eigen = (plan.sprosseW === 'frei') ? plan.sprossenMassW[i - 1] : 0;
+      var hVonUnten = eigen ? hoch * (eigen / gross) : lichtMin * i / t.reihen;
+      /* Gemessen ab der Unterkante am WANDende - dort liegt sie am
+         tiefsten, und eine waagerechte Sprosse hat nur eine Hoehe. */
+      ebenen.push(unten(0) - hVonUnten);
+    }
+    ebenen.sort(function (a, b) { return a - b; });   // oben zuerst
+
+    var nr = 0;
+    for (var r = 0; r < t.reihen; r++) {
+      for (var c = 0; c < t.spalten; c++) {
+        var xa = L + (R - L) * grenzen[c], xb = L + (R - L) * grenzen[c + 1];
+        var oa = oben(grenzen[c]), ob = oben(grenzen[c + 1]);
+        var ua = unten(grenzen[c]), ub = unten(grenzen[c + 1]);
+        /* Reihe 0 ist oben: dort folgt die Oberkante der Schraege.
+           Darunter ist sie eine gerade Sprosse. */
+        var ya = (r === 0) ? oa : Math.max(oa, ebenen[r - 1]);
+        var yb = (r === 0) ? ob : Math.max(ob, ebenen[r - 1]);
+        var yc = (r === t.reihen - 1) ? ub : Math.max(ob, ebenen[r]);
+        var yd = (r === t.reihen - 1) ? ua : Math.max(oa, ebenen[r]);
+
+        var g = el('g', { class: 'k3d-keil-feld', tabindex: '0', role: 'button' });
+        var an = (nr === gewaehlt);
+        g.setAttribute('aria-pressed', an ? 'true' : 'false');
+        g.setAttribute('aria-label', 'Feld ' + (nr + 1)
+          + (an ? ', ausgewählt' : '') + ', Glas: ' + (plan.glas[nr] || '– bitte wählen –'));
+        var flaeche = el('polygon', {
+          points: xa + ',' + ya + ' ' + xb + ',' + yb + ' ' + xb + ',' + yc + ' ' + xa + ',' + yd,
+          fill: an ? '#E8D6A4' : '#ECEAE5',
+          stroke: '#111111', 'stroke-width': an ? 3 : 1.6, 'stroke-linejoin': 'round'
+        });
+        g.appendChild(flaeche);
+
+        var mx = (xa + xb) / 2, my = (ya + yb + yc + yd) / 4;
+        g.appendChild(el('circle', {
+          cx: mx, cy: my, r: 13,
+          fill: an ? '#9A7318' : '#ffffff',
+          stroke: an ? '#9A7318' : '#111111', 'stroke-width': 1.6
+        }));
+        var zahl = el('text', {
+          x: mx, y: my + 4.5, 'text-anchor': 'middle',
+          'font-size': '13', 'font-weight': '700',
+          fill: an ? '#ffffff' : '#111111'
+        });
+        zahl.textContent = String(nr + 1);
+        g.appendChild(zahl);
+
+        (function (feldNr) {
+          g.addEventListener('click', function () { aufWahl(feldNr); });
+          g.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
+              ev.preventDefault(); aufWahl(feldNr);
+            }
+          });
+        })(nr);
+        svg.appendChild(g);
+        nr++;
+      }
+    }
+
+    /* Masslinien. Eigene Form, bewusst schlicht: Strich mit Endhaken
+       und ein Schild mit der Bezeichnung. */
+    function schild(x, y, text) {
+      var b = Math.max(26, 13 + text.length * 7);
+      svg.appendChild(el('rect', {
+        x: x - b / 2, y: y - 11, width: b, height: 22, rx: 11, fill: '#9A7318'
+      }));
+      var tx = el('text', {
+        x: x, y: y + 4.5, 'text-anchor': 'middle', 'font-size': '12',
+        'font-weight': '700', fill: '#ffffff'
+      });
+      tx.textContent = text;
+      svg.appendChild(tx);
+    }
+    function strich(x1a, y1a, x2a, y2a) {
+      svg.appendChild(el('line', {
+        x1: x1a, y1: y1a, x2: x2a, y2: y2a,
+        stroke: '#9A7318', 'stroke-width': 1.4
+      }));
+    }
+    // H1 links
+    strich(L - 30, y1, L - 30, UNTEN); strich(L - 36, y1, L - 24, y1); strich(L - 36, UNTEN, L - 24, UNTEN);
+    schild(L - 30, (y1 + UNTEN) / 2, 'H1');
+    // H2 rechts - bis zur Unterkante, die mit Versatz hoeher liegt
+    var u2 = unten(1);
+    strich(R + 30, y2, R + 30, u2); strich(R + 24, y2, R + 36, y2); strich(R + 24, u2, R + 36, u2);
+    schild(R + 30, (y2 + u2) / 2, 'H2');
+    /* Das Versatzmass steht nur da, wenn es einen gibt - ein Schild
+       mit der Zahl 0 waere eine Angabe, die niemand gemacht hat. */
+    if (vPix > 1) {
+      strich(R - 4, UNTEN, R - 4, u2); strich(R - 10, UNTEN, R + 2, UNTEN);
+      schild(R - 4, (UNTEN + u2) / 2, 'V ' + mass.versatz);
+    }
+    // B unten
+    strich(L, UNTEN + 28, R, UNTEN + 28); strich(L, UNTEN + 22, L, UNTEN + 34); strich(R, UNTEN + 22, R, UNTEN + 34);
+    schild((L + R) / 2, UNTEN + 28, 'B');
+  }
+
+  /* Das kleine Bild auf einer Teilungs-Kachel. Dieselbe Rasterlogik wie
+     oben, nur ohne Nummern und Masse - damit eine Kachel nicht zeigen
+     kann, was die Zeichnung daneben anders macht. */
+  function keilKachelBild(t) {
+    var NS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 80 44');
+    svg.setAttribute('aria-hidden', 'true');
+    var L = 6, R = 74, OB = 6, UN = 38, OR = 20;   // links hoch, rechts flach
+    var i, r, c;
+    function oben(x) { return OB + (OR - OB) * x; }
+    for (r = 0; r < t.reihen; r++) {
+      for (c = 0; c < t.spalten; c++) {
+        var ga = c / t.spalten, gb = (c + 1) / t.spalten;
+        var xa = L + (R - L) * ga, xb = L + (R - L) * gb;
+        var oa = oben(ga), ob = oben(gb);
+        var ya = oa + (UN - oa) * (r / t.reihen);
+        var yb = ob + (UN - ob) * (r / t.reihen);
+        var yc = ob + (UN - ob) * ((r + 1) / t.reihen);
+        var yd = oa + (UN - oa) * ((r + 1) / t.reihen);
+        var p = document.createElementNS(NS, 'polygon');
+        p.setAttribute('points', xa + ',' + ya + ' ' + xb + ',' + yb + ' ' + xb + ',' + yc + ' ' + xa + ',' + yd);
+        p.setAttribute('fill', '#F4F2ED');
+        p.setAttribute('stroke', '#111111');
+        p.setAttribute('stroke-width', '1.6');
+        p.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(p);
+      }
+    }
+    return svg;
+  }
+
+
+  /* ---------- Der Editor ----------
+     Geoeffnet wird er aus zwei Richtungen: ueber das Zahnrad neben
+     "Keil" im Menue und durch einen Klick auf den Keil im Modell. Beide
+     landen hier. */
+  /* Der Name einer Seite in Worten. Absichtlich hier und nicht aus dem
+     Markup gelesen: Die Knopfbeschriftung im Menue kann sich aendern,
+     die Ueberschrift des Editors soll davon nicht abhaengen. */
+  function keilSeitenName(seite) {
+    return seite === 'links' ? 'linke Seite'
+         : seite === 'rechts' ? 'rechte Seite'
+         : seite === 'vorne' ? 'Vorderseite'
+         : seite === 'hinten' ? 'Rückseite' : String(seite);
+  }
+
+  var keilEditorSeite = null;      // welche Seite gerade bearbeitet wird
+  var keilEditorFeld = 0;          // welches Feld gerade ausgewaehlt ist
+  var keilEditorBereit = false;
+
+  function keilEditorMass(seite) {
+    var m = keilMassGemerkt[seite];
+    if (m && m.b > 0) return m;
+    /* Noch nie gebaut (Keil gerade erst eingeschaltet): lieber ehrlich
+       nichts behaupten als eine erfundene Zahl zeigen. */
+    return { b: 0, h1: 0, h2: 0 };
+  }
+
+  /* Die Masse, mit denen gezeichnet wird: eigene Eingabe, sonst Modell. */
+  function keilMassWirksam(seite, plan) {
+    var m = keilEditorMass(seite);
+    return {
+      b: m.b,
+      h1: plan.h1 != null ? plan.h1 : m.h1,
+      /* Ohne eigene Eingabe gilt das Modellmass - minus Versatz, denn
+         der hebt die Unterkante vorne an. */
+      h2: plan.h2 != null ? plan.h2 : Math.max(0, m.h2 - (plan.versatz || 0)),
+      versatz: plan.versatz || 0
+    };
+  }
+
+  function keilEditorZeichnen() {
+    if (!keilEditorSeite) return;
+    var seite = keilEditorSeite;
+    var plan = keilPlanLesen(seite);
+    var modell = keilEditorMass(seite);
+    var mass = keilMassWirksam(seite, plan);
+    var zahl = keilFeldZahl(plan.teilung);
+    if (keilEditorFeld >= zahl) keilEditorFeld = 0;
+
+    var titel = document.getElementById('k3dKeilTitel');
+    if (titel) titel.textContent = 'Keil bearbeiten – ' + keilSeitenName(seite);
+
+    /* Teilungskacheln */
+    var kacheln = document.getElementById('k3dKeilTeilungen');
+    if (kacheln && !kacheln.firstChild) {
+      KEIL_TEILUNGEN.forEach(function (t) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-teilung', t.id);
+        b.setAttribute('aria-pressed', 'false');
+        b.appendChild(keilKachelBild(t));
+        var s = document.createElement('span');
+        s.textContent = t.name;
+        b.appendChild(s);
+        b.addEventListener('click', function () {
+          var p = keilPlanLesen(keilEditorSeite);
+          p.teilung = t.id;
+          /* Glas und Sprossenmasse auf die neue Feldzahl bringen -
+             stehen lassen, was passt, Rest ergaenzen. Wer von 4 auf 2
+             und zurueck geht, soll seine Wahl wiederfinden. */
+          keilPlanSchreiben(keilEditorSeite, p);
+          keilEditorFeld = 0;
+          keilEditorZeichnen();
+          aendern();
+        });
+        kacheln.appendChild(b);
+      });
+    }
+    if (kacheln) {
+      Array.prototype.forEach.call(kacheln.children, function (b) {
+        var an = b.getAttribute('data-teilung') === plan.teilung;
+        b.classList.toggle('ist-an', an);
+        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+      });
+    }
+
+    /* Zeichnung */
+    var svg = document.getElementById('k3dKeilSkizze');
+    if (svg) {
+      keilSkizzeZeichnen(svg, plan, mass, keilEditorFeld, function (nr) {
+        keilEditorFeld = nr;
+        keilEditorZeichnen();
+      });
+    }
+
+    /* Masse */
+    var fB = document.getElementById('k3dKeilB');
+    if (fB) fB.value = modell.b ? String(modell.b) : '–';
+    var fH1 = document.getElementById('k3dKeilH1');
+    var fH2 = document.getElementById('k3dKeilH2');
+    if (fH1 && document.activeElement !== fH1) fH1.value = mass.h1 ? String(mass.h1) : '';
+    if (fH2 && document.activeElement !== fH2) fH2.value = mass.h2 ? String(mass.h2) : '';
+    var fV = document.getElementById('k3dKeilV');
+    if (fV && document.activeElement !== fV) fV.value = plan.versatz ? String(plan.versatz) : '';
+    /* Die Obergrenze am Feld selbst nennen, nicht erst beim Zuschlagen:
+       Wer sie sieht, laeuft nicht hinein. */
+    if (fV) {
+      var grenzeV = Math.max(0, (plan.h1 != null ? plan.h1 : modell.h1)
+                                - ((modell.h1 && modell.h2) ? modell.h1 - modell.h2 : 0) - 50);
+      fV.max = String(grenzeV);
+      var hV = document.getElementById('k3dKeilVHinweis');
+      if (hV) {
+        hV.textContent = 'Optional. Die Unterkante steigt vorne um dieses Maß an – '
+          + 'höchstens ' + grenzeV + ' mm, sonst bliebe vorne keine Öffnung.';
+      }
+    }
+
+    /* Der Hinweis, wenn die eigene Angabe vom Modell abweicht. Er nennt
+       die Zahl und sagt, was daraus folgt - "weicht ab" allein hilft
+       niemandem. */
+    var warn = document.getElementById('k3dKeilWarnung');
+    var zurueck = document.getElementById('k3dKeilMasseZurueck');
+    /* Nur H1 gegen das Modell halten: H2 ist daraus abgeleitet (siehe
+       massFeld). Beide zu melden hiesse, denselben Umstand zweimal zu
+       beklagen. Der Versatz ist KEINE Abweichung - er ist eine eigene
+       Angabe und wird daneben genannt. */
+    var abw = [];
+    if (plan.h1 != null && modell.h1 && Math.abs(plan.h1 - modell.h1) > 2) {
+      abw.push('H1 ' + plan.h1 + ' statt ' + modell.h1);
+    }
+    if (warn) {
+      if (abw.length) {
+        var kleiner = (plan.h1 != null && modell.h1 && plan.h1 < modell.h1);
+        warn.textContent = 'Ihre Angabe weicht vom Modell ab (' + abw.join(', ') + ' mm). '
+          + (kleiner
+              ? 'Der Keil füllt die Öffnung unter dem Dach dann nicht aus – es bleibt ein Spalt.'
+              : 'Der Keil ragt dann über die Dachunterkante hinaus.')
+          + ' Das ist möglich, muss aber gewollt sein.';
+        warn.hidden = false;
+      } else { warn.hidden = true; warn.textContent = ''; }
+    }
+    if (zurueck) zurueck.hidden = !abw.length;
+
+    /* Sprossen */
+    var gl = document.getElementById('k3dKeilSprosseGleich');
+    var fr = document.getElementById('k3dKeilSprosseFrei');
+    /* is-active, NICHT ist-an: So heisst der Zustand bei jedem anderen
+       Segmentknopf der Seite (.k3d-seg button.is-active). Mit einem
+       eigenen Namen blieb der Knopf unmarkiert - gesehen im ersten
+       Bild vom 05.11.2026. */
+    if (gl) { gl.classList.toggle('is-active', plan.sprosse !== 'frei');
+              gl.setAttribute('aria-pressed', plan.sprosse !== 'frei' ? 'true' : 'false'); }
+    if (fr) { fr.classList.toggle('is-active', plan.sprosse === 'frei');
+              fr.setAttribute('aria-pressed', plan.sprosse === 'frei' ? 'true' : 'false'); }
+    var t = keilTeilung(plan.teilung);
+    var glW = document.getElementById('k3dKeilSprosseWGleich');
+    var frW = document.getElementById('k3dKeilSprosseWFrei');
+    if (glW) { glW.classList.toggle('is-active', plan.sprosseW !== 'frei');
+               glW.setAttribute('aria-pressed', plan.sprosseW !== 'frei' ? 'true' : 'false'); }
+    if (frW) { frW.classList.toggle('is-active', plan.sprosseW === 'frei');
+               frW.setAttribute('aria-pressed', plan.sprosseW === 'frei' ? 'true' : 'false'); }
+    /* Die Bloecke verschwinden ganz, wo es nichts zu teilen gibt: Bei
+       1-teilig waere "Senkrechte Sprossen" eine Frage nach einem
+       Bauteil, das es nicht gibt. */
+    var blockS = document.getElementById('k3dKeilSprosseS');
+    if (blockS) blockS.hidden = t.spalten < 2;
+    var blockW = document.getElementById('k3dKeilSprosseW');
+    if (blockW) blockW.hidden = t.reihen < 2;
+
+    /* Die Masse der waagerechten Sprossen, von unten gemessen. */
+    var smW = document.getElementById('k3dKeilSprosseMasseW');
+    if (smW) {
+      smW.hidden = !(plan.sprosseW === 'frei' && t.reihen > 1);
+      if (!smW.hidden) {
+        var sollW = t.reihen - 1;
+        if (smW.children.length !== sollW) {
+          while (smW.firstChild) smW.removeChild(smW.firstChild);
+          for (var w = 0; w < sollW; w++) {
+            (function (nr) {
+              var wrap = document.createElement('div');
+              wrap.className = 'k3d-keil-mass';
+              var lab = document.createElement('label');
+              lab.setAttribute('for', 'k3dKeilSprosseW' + nr);
+              lab.textContent = 'Waagerechte Sprosse ' + (nr + 1) + ' – Höhe über der Unterkante (mm)';
+              var inp = document.createElement('input');
+              inp.type = 'number'; inp.id = 'k3dKeilSprosseW' + nr;
+              inp.className = 'k3d-zahl'; inp.setAttribute('inputmode', 'numeric');
+              inp.min = '0'; inp.step = '10';
+              inp.addEventListener('input', function () {
+                var pw = keilPlanLesen(keilEditorSeite);
+                var vv = parseInt(inp.value, 10);
+                pw.sprossenMassW[nr] = isNaN(vv) ? 0 : vv;
+                keilPlanSchreiben(keilEditorSeite, pw);
+                keilEditorZeichnen();
+                aendern();
+              });
+              wrap.appendChild(lab); wrap.appendChild(inp);
+              smW.appendChild(wrap);
+            })(w);
+          }
+        }
+        var flach = Math.min(mass.h1, mass.h2);
+        for (var wj = 0; wj < sollW; wj++) {
+          var fw = document.getElementById('k3dKeilSprosseW' + wj);
+          if (fw && document.activeElement !== fw) {
+            fw.value = plan.sprossenMassW[wj]
+              ? String(plan.sprossenMassW[wj])
+              : String(Math.round(flach * (wj + 1) / t.reihen));
+          }
+        }
+      }
+    }
+
+    var sm = document.getElementById('k3dKeilSprosseMasse');
+    if (sm) {
+      sm.hidden = !(plan.sprosse === 'frei' && t.spalten > 1);
+      if (!sm.hidden) {
+        var soll = t.spalten - 1;
+        if (sm.children.length !== soll) {
+          while (sm.firstChild) sm.removeChild(sm.firstChild);
+          for (var i = 0; i < soll; i++) {
+            (function (nr) {
+              var wrap = document.createElement('div');
+              wrap.className = 'k3d-keil-mass';
+              var lab = document.createElement('label');
+              lab.setAttribute('for', 'k3dKeilSprosse' + nr);
+              lab.textContent = 'Sprosse ' + (nr + 1) + ' – Abstand von der Wand (mm)';
+              var inp = document.createElement('input');
+              inp.type = 'number'; inp.id = 'k3dKeilSprosse' + nr;
+              inp.className = 'k3d-zahl'; inp.setAttribute('inputmode', 'numeric');
+              inp.min = '0'; inp.step = '10';
+              inp.addEventListener('input', function () {
+                var p = keilPlanLesen(keilEditorSeite);
+                var v = parseInt(inp.value, 10);
+                p.sprossenMass[nr] = isNaN(v) ? 0 : v;
+                keilPlanSchreiben(keilEditorSeite, p);
+                keilEditorZeichnen();
+                aendern();
+              });
+              wrap.appendChild(lab); wrap.appendChild(inp);
+              sm.appendChild(wrap);
+            })(i);
+          }
+        }
+        for (var j = 0; j < soll; j++) {
+          var f = document.getElementById('k3dKeilSprosse' + j);
+          if (f && document.activeElement !== f) {
+            var vorgabe = Math.round(mass.b * (j + 1) / t.spalten);
+            f.value = plan.sprossenMass[j] ? String(plan.sprossenMass[j]) : String(vorgabe);
+          }
+        }
+      }
+    }
+
+    /* Glas je Feld */
+    var felder = document.getElementById('k3dKeilGlasFelder');
+    if (felder) {
+      if (felder.children.length !== zahl) {
+        while (felder.firstChild) felder.removeChild(felder.firstChild);
+        for (var n = 0; n < zahl; n++) {
+          (function (nr) {
+            var zeile = document.createElement('div');
+            zeile.className = 'k3d-keil-glaszeile';
+            var knopf = document.createElement('button');
+            knopf.type = 'button'; knopf.className = 'k3d-keil-nr';
+            knopf.textContent = String(nr + 1);
+            knopf.setAttribute('aria-label', 'Feld ' + (nr + 1) + ' auswählen');
+            knopf.addEventListener('click', function () {
+              keilEditorFeld = nr; keilEditorZeichnen();
+            });
+            var sel = document.createElement('select');
+            sel.className = 'k3d-select';
+            sel.id = 'k3dKeilGlas' + nr;
+            sel.setAttribute('aria-label', 'Glas für Feld ' + (nr + 1));
+            var leer = document.createElement('option');
+            leer.value = ''; leer.textContent = '– bitte wählen –';
+            sel.appendChild(leer);
+            KEIL_GLAS.forEach(function (g) {
+              var o = document.createElement('option');
+              o.value = g; o.textContent = g;
+              sel.appendChild(o);
+            });
+            sel.addEventListener('focus', function () {
+              keilEditorFeld = nr; keilEditorZeichnen();
+            });
+            sel.addEventListener('change', function () {
+              var p = keilPlanLesen(keilEditorSeite);
+              p.glas[nr] = sel.value;
+              keilPlanSchreiben(keilEditorSeite, p);
+              keilEditorFeld = nr;
+              keilEditorZeichnen();
+              aendern();
+            });
+            zeile.appendChild(knopf); zeile.appendChild(sel);
+            felder.appendChild(zeile);
+          })(n);
+        }
+      }
+      Array.prototype.forEach.call(felder.children, function (zeile, nr) {
+        zeile.classList.toggle('ist-an', nr === keilEditorFeld);
+        var sel = zeile.querySelector('select');
+        if (sel) sel.value = plan.glas[nr] || '';
+      });
+    }
+  }
+
+  /* Zahnrad neben der Erweiterungsreihe. Wird hier erzeugt und nicht
+     ins Markup geschrieben: Es gibt vier Seiten und zwei Faelle je
+     Seite - im Markup waeren das acht Stellen, die auseinanderlaufen
+     koennen. */
+  function keilZahnradAnzeigen(seite, reihe, zeigen) {
+    var huelle = reihe.parentNode;
+    if (!huelle) return;
+    var knopf = huelle.querySelector('[data-k3d-keil-rad]');
+    if (!zeigen) { if (knopf) knopf.hidden = true; return; }
+    if (!knopf) {
+      knopf = document.createElement('button');
+      knopf.type = 'button';
+      knopf.className = 'k3d-keil-rad';
+      knopf.setAttribute('data-k3d-keil-rad', seite);
+      knopf.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"'
+        + ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round"'
+        + ' stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/>'
+        + '<path d="M19.4 14.6a1.6 1.6 0 0 0 .32 1.77l.06.06a1.95 1.95 0 1 1-2.76 2.76l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.46v.17a1.95 1.95 0 1 1-3.9 0v-.09a1.6 1.6 0 0 0-1.05-1.46 1.6 1.6 0 0 0-1.77.32l-.06.06a1.95 1.95 0 1 1-2.76-2.76l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.46-.97h-.17a1.95 1.95 0 1 1 0-3.9h.09a1.6 1.6 0 0 0 1.46-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.95 1.95 0 1 1 2.76-2.76l.06.06a1.6 1.6 0 0 0 1.77.32h.08A1.6 1.6 0 0 0 10.2 3.2v-.17a1.95 1.95 0 1 1 3.9 0v.09a1.6 1.6 0 0 0 .97 1.46 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.95 1.95 0 1 1 2.76 2.76l-.06.06a1.6 1.6 0 0 0-.32 1.77v.08a1.6 1.6 0 0 0 1.46.97h.17a1.95 1.95 0 1 1 0 3.9h-.09a1.6 1.6 0 0 0-1.46.97z"/></svg>'
+        + '<span>Keil bearbeiten</span>';
+      knopf.addEventListener('click', function () {
+        keilEditorOeffnen(knopf.getAttribute('data-k3d-keil-rad'));
+      });
+      huelle.appendChild(knopf);
+    }
+    knopf.hidden = false;
+  }
+
+  function keilEditorOeffnen(seite) {
+    keilDialogAufbauen();
+    keilEditorSeite = seite;
+    keilEditorFeld = 0;
+    var kasten = document.getElementById('k3dKeilDialog');
+    if (!kasten) return;
+    kasten.hidden = false;
+    keilEditorZeichnen();
+    var zu = document.getElementById('k3dKeilZu');
+    if (zu) zu.focus();
+  }
+  function keilEditorSchliessen() {
+    var kasten = document.getElementById('k3dKeilDialog');
+    if (kasten) kasten.hidden = true;
+    keilEditorSeite = null;
+  }
+
+  function keilDialogAufbauen() {
+    if (keilEditorBereit) return;
+    keilEditorBereit = true;
+    var kasten = document.getElementById('k3dKeilDialog');
+    if (!kasten) return;
+
+    var zu = document.getElementById('k3dKeilZu');
+    if (zu) zu.addEventListener('click', keilEditorSchliessen);
+    var fertig = document.getElementById('k3dKeilFertig');
+    if (fertig) fertig.addEventListener('click', keilEditorSchliessen);
+    /* Klick auf den dunklen Rand schliesst - aber NUR dort, nicht
+       irgendwo im Kasten. */
+    kasten.addEventListener('click', function (e) {
+      if (e.target === kasten) keilEditorSchliessen();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !kasten.hidden) keilEditorSchliessen();
+    });
+
+    /* ---------- H1 und H2 haengen zusammen ----------
+       "wenn bei versatz nix eingetragen wird, muss die unterseite
+       waagrecht fest bleiben, das heisst es kann passieren wenn man h1
+       eintraegt das h2 sich mit anpasst" (Betreiber, 05.11.2026).
+
+       Das ist nicht nur ein Wunsch, es ist Geometrie: Die Oberkante
+       folgt der Dachschraege, und die ist durch das Modell festgelegt.
+       Liegt die Unterkante waagerecht, ist mit EINER Hoehe auch die
+       andere bestimmt - der Hoehenunterschied ueber die Breite ist
+       immer derselbe.
+
+       Beide Felder bleiben trotzdem eintippbar: Wer das vordere Mass
+       kennt, soll es eingeben koennen. Es rechnet dann rueckwaerts.
+
+       Der Versatz hebt die Unterkante am vorderen Ende an und
+       verkleinert H2 um genau diesen Betrag. */
+    function keilAbfall(seite) {
+      var m = keilEditorMass(seite);
+      return (m.h1 && m.h2) ? (m.h1 - m.h2) : 0;
+    }
+    function massFeld(id, schluessel) {
+      var f = document.getElementById(id);
+      if (!f) return;
+      f.addEventListener('input', function () {
+        if (!keilEditorSeite) return;
+        var p = keilPlanLesen(keilEditorSeite);
+        var v = parseInt(f.value, 10);
+        if (f.value === '' || isNaN(v)) {
+          /* Leer heisst: zurueck zum Modell - fuer BEIDE Hoehen. Nur
+             eine zurueckzusetzen hinterliesse ein Paar, das nicht
+             zusammenpasst. */
+          p.h1 = null; p.h2 = null;
+        } else {
+          var ab = keilAbfall(keilEditorSeite);
+          if (schluessel === 'h1') { p.h1 = v; p.h2 = v - ab - (p.versatz || 0); }
+          else                     { p.h2 = v; p.h1 = v + ab + (p.versatz || 0); }
+        }
+        keilPlanSchreiben(keilEditorSeite, p);
+        keilEditorZeichnen();
+        aendern();
+      });
+    }
+    massFeld('k3dKeilH1', 'h1');
+    massFeld('k3dKeilH2', 'h2');
+    /* Der Versatz ist KEINE Abweichung vom Modell, sondern eine eigene
+       Angabe - darum eigener Pfad ohne Warnung, und 0 statt null, wenn
+       das Feld leer ist. */
+    (function () {
+      var f = document.getElementById('k3dKeilV');
+      if (!f) return;
+      f.addEventListener('input', function () {
+        if (!keilEditorSeite) return;
+        var pv = keilPlanLesen(keilEditorSeite);
+        var vv = parseInt(f.value, 10);
+        pv.versatz = (f.value === '' || isNaN(vv) || vv < 0) ? 0 : vv;
+        /* ---------- Der Versatz hat eine Obergrenze ----------
+           Er hebt die Unterkante am vorderen Ende an. Wird er groesser
+           als die dortige Hoehe, schneidet die Unterkante die
+           Oberkante - gemessen am 05.11.2026 mit V = 250 bei H2 = 150:
+           Die Zeichnung zerfiel in sich ueberschneidende Flaechen, und
+           das Modell haette Scheiben mit negativer Hoehe gebaut.
+
+           Begrenzt wird auf H2 = 50 mm Restoeffnung. Ein Keil, der
+           vorne auf null zulaeuft, ist kein Bauteil mehr. */
+        var mO = keilEditorMass(keilEditorSeite);
+        var hWand = (pv.h1 != null) ? pv.h1 : mO.h1;
+        var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - 50);
+        if (pv.versatz > grenze) {
+          pv.versatz = grenze;
+          f.value = String(grenze);
+        }
+        /* Der Versatz hebt die Unterkante vorne an - H2 wird dadurch
+           kleiner. Bliebe H2 stehen, zeigte der Editor eine Hoehe, die
+           es am Bau nicht gibt. */
+        if (pv.h1 != null) {
+          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;
+        }
+        keilPlanSchreiben(keilEditorSeite, pv);
+        keilEditorZeichnen();
+        aendern();
+      });
+    })();
+
+    var zurueck = document.getElementById('k3dKeilMasseZurueck');
+    if (zurueck) zurueck.addEventListener('click', function () {
+      if (!keilEditorSeite) return;
+      var p = keilPlanLesen(keilEditorSeite);
+      p.h1 = null; p.h2 = null;
+      keilPlanSchreiben(keilEditorSeite, p);
+      keilEditorZeichnen();
+      aendern();
+    });
+
+    [['k3dKeilSprosseGleich', 'sprosse'], ['k3dKeilSprosseFrei', 'sprosse'],
+     ['k3dKeilSprosseWGleich', 'sprosseW'], ['k3dKeilSprosseWFrei', 'sprosseW']
+    ].forEach(function (paar) {
+      var b = document.getElementById(paar[0]);
+      if (!b) return;
+      b.addEventListener('click', function () {
+        if (!keilEditorSeite) return;
+        var p = keilPlanLesen(keilEditorSeite);
+        p[paar[1]] = b.getAttribute('data-wert');
+        keilPlanSchreiben(keilEditorSeite, p);
+        keilEditorZeichnen();
+        aendern();
+      });
+    });
+
+    var alle = document.getElementById('k3dKeilGlasAlle');
+    if (alle) alle.addEventListener('click', function () {
+      if (!keilEditorSeite) return;
+      var p = keilPlanLesen(keilEditorSeite);
+      var erstes = p.glas[0];
+      if (!erstes) return;
+      var zahl = keilFeldZahl(p.teilung);
+      for (var i = 0; i < zahl; i++) p.glas[i] = erstes;
+      keilPlanSchreiben(keilEditorSeite, p);
+      keilEditorZeichnen();
+      aendern();
+    });
   }
 
   function teilenText() {
