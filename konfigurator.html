@@ -1503,6 +1503,14 @@
     .k3d-keil-mass input { width: 100%; text-align: left; }
     .k3d-keil-mass input[readonly] { background: var(--light-bg, #F1EFEA); color: var(--muted); }
     .k3d-keil-mass .k3d-mini { margin: 3px 0 0; }
+    /* Platz reservieren, damit nichts springt. Der Hinweis unter dem
+       Versatzfeld nennt die Obergrenze, und die haengt vom Modell ab -
+       der Text wechselt dadurch zwischen zwei und drei Zeilen. Alles
+       darunter (auch "Feld 1 fuer alle uebernehmen") ruckte jedes Mal
+       mit. Gemessen am 05.11.2026: Der Knopf war nach einer Aenderung
+       rund eine Sekunde lang in Bewegung - lange genug, um daneben zu
+       tippen. */
+    #k3dKeilVHinweis { min-height: 3.1em; }
     .k3d-keil-warnung {
       margin: 8px 0 0; padding: 8px 10px; border-radius: 8px;
       background: #fdf3ef; color: #8a4a22; border-left: 3px solid #b4532a;
@@ -3107,7 +3115,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261105a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261105b" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

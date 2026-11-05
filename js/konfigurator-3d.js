@@ -6969,12 +6969,18 @@
           function kUnten(z) {
             return keilLaenge > 0 ? kVersatz * (z - zHintenK) / keilLaenge : 0;
           }
-          var kHMin = Math.max(0, Math.min(kOben(zVorneK) - kUnten(zVorneK),
-                                           kOben(zHintenK) - kUnten(zHintenK)));
+          /* Bezug fuer die waagerechten Sprossen: der HOECHSTE Punkt
+             der Unterkante. Mit einem Versatz liegt der vorne - eine
+             waagerechte Sprosse darunter wuerde die Unterkante
+             schneiden. Gemessen wird der Platz darueber, also die
+             lichte Hoehe genau dort. Dieselbe Regel wie in der
+             Zeichnung (keilSkizzeZeichnen). */
+          var kBodenHoch = Math.max(kUnten(zVorneK), kUnten(zHintenK));
+          var kHMin = Math.max(0, Math.min(kOben(zVorneK), kOben(zHintenK)) - kBodenHoch);
           var kEbenen = [];
           for (var ke = 1; ke < kT.reihen; ke++) {
             var eigenW = (kPlan.sprosseW === 'frei') ? kPlan.sprossenMassW[ke - 1] : 0;
-            kEbenen.push(eigenW ? eigenW / 10 : kHMin * ke / kT.reihen);
+            kEbenen.push(Math.min(kHMin, eigenW ? eigenW / 10 : kHMin * ke / kT.reihen));
             /* Gemessen ab der Unterkante am WANDende (dort ist sie am
                tiefsten) - eine waagerechte Sprosse hat nur eine Hoehe. */
           }
@@ -6985,8 +6991,12 @@
             /* Reihe 0 ist OBEN - wie in der Zeichnung des Editors und
                wie in den Bildern des Betreibers (1,2,3 oben, 4,5,6
                unten). */
-            var yOben = (kr === 0) ? null : kEbenen[kT.reihen - 1 - kr];
-            var yUnten = (kr === kT.reihen - 1) ? 0 : kEbenen[kT.reihen - 2 - kr];
+            /* kEbenen sind Hoehen UEBER kBodenHoch, also absolute
+               Hoehen ueber yKeil. Die unterste Reihe sitzt auf der
+               (moeglicherweise schraegen) Unterkante, alle anderen auf
+               einer waagerechten Sprosse. */
+            var yOben = (kr === 0) ? null : kBodenHoch + kEbenen[kT.reihen - 1 - kr];
+            var yUnten = (kr === kT.reihen - 1) ? null : kBodenHoch + kEbenen[kT.reihen - 2 - kr];
             for (kc = 0; kc < kGrenzen.length - 1; kc++) {
               var zA = kGrenzen[kc], zB = kGrenzen[kc + 1];
               var lc = zB - zA;
@@ -6997,10 +7007,16 @@
                 /* zB ist das VORDERE Ende des Feldes (groesseres z),
                    zA das hintere an der Wand - so herum erwartet es
                    keilFeldNetz. */
+                /* yUnten === null heisst: unterste Reihe, sie folgt
+                   der Unterkante. Sonst liegt sie auf einer
+                   waagerechten Sprosse, an beiden Enden gleich hoch -
+                   vorher wurde dort die Schraege der Unterkante
+                   aufaddiert, und die Reihe kippte mit. */
                 var kf = keilFeldNetz(lc,
                            kOben(zB), kOben(zA),
-                           kUnten(zB) + yUnten, kUnten(zA) + yUnten,
-                           yOben == null ? null : yOben, 1.4, mGlas);
+                           yUnten == null ? kUnten(zB) : yUnten,
+                           yUnten == null ? kUnten(zA) : yUnten,
+                           yOben, 1.4, mGlas);
                 kf.userData.keilSeite = seite;
                 kf.userData.keilFeld = kNr;
                 kf.position.set(achse, yKeil, zc);
@@ -7042,7 +7058,7 @@
             kEbenen.forEach(function (hE) {
               if (hE <= 0.5) return;
               var qs = new THREE.Mesh(new THREE.BoxGeometry(rb, rb, keilLaenge), rahmen);
-              qs.position.set(achse, yKeil + hE + kUnten(zHintenK), keilMitte);
+              qs.position.set(achse, yKeil + kBodenHoch + hE, keilMitte);
               qs.castShadow = true;
               bau.add(qs);
             });
@@ -16586,16 +16602,24 @@
        Abstand zur Grundlinie; mit einem Versatz lag die Sprosse dann
        unter der angehobenen Unterkante, und das unterste Feld wurde zu
        einem Splitter (gemessen am 05.11.2026 mit V = 100). */
-    var lichtLinks = unten(0) - y1;
-    var lichtRechts = unten(1) - y2;
-    var lichtMin = Math.max(1, Math.min(lichtLinks, lichtRechts));
+    /* ---------- Wo eine waagerechte Sprosse liegen darf ----------
+       BERICHTIGT am 05.11.2026, zweiter Anlauf. Gemessen wurde vorher
+       ab der Unterkante am WANDende. Mit einem Versatz ist die
+       Unterkante aber VORNE am hoechsten - eine waagerechte Linie
+       unterhalb dieses Punktes schneidet sie. Im Bild des Betreibers
+       (6-teilig mit V = 100) wurde die untere Reihe dadurch zu einem
+       Splitter mit gekreuzten Kanten.
+
+       Bezug ist deshalb der HOECHSTE Punkt der Unterkante, und der
+       Platz darueber ist die lichte Hoehe am vorderen Ende. Nur dort
+       passt eine waagerechte Sprosse ueber die ganze Breite. */
+    var bodenHoch = Math.min(unten(0), unten(1));   // kleineres y = hoeher
+    var lichtVorn = Math.max(1, bodenHoch - y2);
     var ebenen = [];
     for (i = 1; i < t.reihen; i++) {
       var eigen = (plan.sprosseW === 'frei') ? plan.sprossenMassW[i - 1] : 0;
-      var hVonUnten = eigen ? hoch * (eigen / gross) : lichtMin * i / t.reihen;
-      /* Gemessen ab der Unterkante am WANDende - dort liegt sie am
-         tiefsten, und eine waagerechte Sprosse hat nur eine Hoehe. */
-      ebenen.push(unten(0) - hVonUnten);
+      var hVonUnten = eigen ? hoch * (eigen / gross) : lichtVorn * i / t.reihen;
+      ebenen.push(bodenHoch - Math.min(hVonUnten, lichtVorn));
     }
     ebenen.sort(function (a, b) { return a - b; });   // oben zuerst
 

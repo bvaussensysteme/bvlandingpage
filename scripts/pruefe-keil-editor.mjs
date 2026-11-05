@@ -143,6 +143,22 @@ await p.goto(`http://localhost:${PORT}/konfigurator.html`, { waitUntil: 'network
 await p.waitForTimeout(2200);
 await p.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ }).first().click({ timeout: 4000 }).catch(() => {});
 await p.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
+/* Den Cookie-Hinweis sicher aus dem Weg raeumen. Der Klick oben kann
+   danebengehen (anderer Text, anderer Zeitpunkt), und der Hinweis
+   klebt unten am Bild - seit der Editor durch Versatz- und
+   Sprossenfeld laenger ist, liegt er genau ueber "Feld 1 fuer alle
+   uebernehmen". Drei Pruefungen wurden dadurch rot, ohne dass am
+   Produkt etwas falsch war: Die Klicks gingen ins Leere, und das
+   .catch() im Test hat es verschluckt. */
+await p.evaluate(() => {
+  document.querySelectorAll('div,section,aside').forEach((e) => {
+    if (!/Cookie/i.test(e.textContent || '')) return;
+    const r = e.getBoundingClientRect();
+    if (r.height > 60 && r.height < 460 && r.bottom > window.innerHeight - 200) {
+      e.style.display = 'none';
+    }
+  });
+});
 await p.waitForTimeout(800);
 
 console.log(`\n=== Keil-Editor ===${GEGENPROBE ? '  (GEGENPROBE – Fehler eingebaut)' : ''}\n`);
@@ -238,13 +254,15 @@ await waehle('#k3dKeilGlas0', 'VSG Glas klar');
 await waehle('#k3dKeilGlas1', 'FRF23 Glas opal');
 await waehle('#k3dKeilGlas2', 'VSG Glas grau');
 await waehle('#k3dKeilGlas3', 'Ohne Glas');
-await p.waitForTimeout(900);
+/* Laenger warten: Jede Glaswahl baut das Modell neu, und erst danach
+   steht die Oberflaeche wieder still. */
+await p.waitForTimeout(1600);
 const scheibenOhne = await scheibenZaehlen();
 pruefe('"Ohne Glas" laesst das Feld wirklich leer', scheibenOhne === 3,
   `${scheibenOhne} Scheiben statt 3 - eine fast durchsichtige Scheibe waere eine Luege`);
 
 /* ---------- Feld 1 fuer alle ---------- */
-await p.click('#k3dKeilGlasAlle', { timeout: 4000 }).catch(() => {});
+await p.click('#k3dKeilGlasAlle', { timeout: 10000 }).catch((e) => { console.error('  !! Klick auf k3dKeilGlasAlle fehlgeschlagen'); });
 await p.waitForTimeout(700);
 const alleGleich = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilGlasFelder select')].map((s) => s.value));
@@ -343,11 +361,25 @@ async function kantenPruefen() {
     return schlimm;
   });
 }
+/* ALLE ACHT Teilungen mit Versatz, nicht nur eine. Beim ersten Anlauf
+   lief diese Pruefung nur auf "2-teilig senkrecht" - also mit EINER
+   Reihe. Der Fehler sass aber in der waagerechten Sprosse und blieb
+   darum unentdeckt, bis der Betreiber ein Bild mit 6-teilig schickte.
+   Eine Pruefung, die nur einen von acht Faellen ansieht, prueft einen
+   von acht Faellen. */
 await p.fill('#k3dKeilV', '400', { timeout: 4000 }).catch(() => {});
-await p.waitForTimeout(800);
-const kreuzV = await kantenPruefen();
-pruefe('Mit Versatz kreuzen sich die Kanten nicht', kreuzV.length === 0,
-  'Felder mit gekreuzten Kanten: ' + kreuzV.join(', '));
+await p.waitForTimeout(700);
+const kaputt = [];
+for (const t of ['1', '2w', '2s', '3s', '4s', '4sw', '6', '8']) {
+  await p.click(`#k3dKeilTeilungen button[data-teilung="${t}"]`, { timeout: 4000 }).catch(() => {});
+  await p.waitForTimeout(500);
+  const k = await kantenPruefen();
+  if (k.length) kaputt.push(t + ' (Feld ' + k.join(', ') + ')');
+}
+pruefe('Mit Versatz kreuzen sich in KEINER der acht Teilungen die Kanten',
+  kaputt.length === 0, kaputt.join(' · '));
+await p.click('#k3dKeilTeilungen button[data-teilung="4s"]', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(600);
 
 /* Derselbe Zustand ueber den anderen Weg: erst Versatz, DANN H1
    absenken. Die Begrenzung sass zuerst nur am Versatzfeld - ein Loch,

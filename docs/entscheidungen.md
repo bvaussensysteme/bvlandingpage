@@ -13427,3 +13427,39 @@ gemacht wie die Formel.
 **Was gegengelesen werden soll.** Im Keil-Editor einen Versatz eintragen und
 dabei die Zeichnung ansehen – und danach H1 klein machen. In beiden Fällen
 muss die Form ein sauberes Viereck bleiben.
+
+
+## 05.11.2026 (später) – Die Linien kreuzten sich immer noch, zweiter Anlauf
+
+**Was ich beim ersten Mal übersehen hatte.** Der Bezugsfehler bei H2 war nur
+die halbe Ursache. Die zweite: Die waagerechte Sprosse wurde **von der
+Unterkante an der Wand aus** gemessen. Mit einem Versatz ist die Unterkante
+aber **vorne am höchsten** – eine waagerechte Linie unterhalb dieses Punktes
+schneidet sie. Bei 6-teilig mit V = 100 wurde die untere Reihe dadurch zu
+einem Splitter mit gekreuzten Kanten (Bild des Betreibers).
+
+**Was jetzt gilt.** Bezug ist der **höchste** Punkt der Unterkante, und der
+Platz darüber ist die lichte Höhe am vorderen Ende – nur dort passt eine
+waagerechte Sprosse über die ganze Breite. Dieselbe Regel in der Zeichnung
+und im Modell.
+
+**Warum es durchgerutscht ist.** Meine Kantenprüfung lief nur auf *einer*
+Teilung – „2-teilig senkrecht", also mit **einer Reihe**. Der Fehler saß in
+der waagerechten Sprosse und konnte dort nicht auffallen. **Eine Prüfung,
+die einen von acht Fällen ansieht, prüft einen von acht Fällen.** Sie geht
+jetzt alle acht durch.
+
+**Nebenbei behoben: die Oberfläche sprang.** Der Hinweis unter dem
+Versatzfeld nennt die Obergrenze, und die hängt vom Modell ab – der Text
+wechselt dadurch zwischen zwei und drei Zeilen, und alles darunter rückte
+mit. Gemessen: Nach einer Änderung war „Feld 1 für alle übernehmen" rund
+eine Sekunde in Bewegung, lange genug, um daneben zu tippen. Der Hinweis hat
+jetzt feste Mindesthöhe.
+
+**Aufgefallen ist das am Testbrowser**, der den Knopf nicht treffen konnte –
+drei Prüfungen wurden rot, und die Ursache lag nicht dort, wo sie gemeldet
+wurden. Ein Test, der mit `.catch(() => {})` jeden Fehlklick verschluckt,
+verwandelt so etwas in ein Rätsel; der Klick meldet sich jetzt.
+
+**Jeder der neun eingebauten Fehler einzeln geprüft** (`BV_FEHLER=<n>`):
+alle werden gefunden.
