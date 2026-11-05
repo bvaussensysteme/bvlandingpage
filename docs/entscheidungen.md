@@ -13239,3 +13239,53 @@ beantwortet die Frage selbst, ohne dass jemand eine Liste pflegen muss.**
 **Was gegengelesen werden soll.** Nichts Sichtbares – die vier Seiten sehen
 aus wie vorher. Wer es prüfen will: `bash scripts/pruefe-erzeugte-seiten.sh`
 bei sauberem Arbeitsbaum muss „bestanden" melden.
+
+## 05.11.2026 – Das halbe Repository lag öffentlich im Netz
+
+**Was falsch war.** Beim byteweisen Abgleich des Live-Standes fiel auf, dass
+`curl https://bv-aussensysteme.de/scripts/pruefe-marken.js` mit **HTTP 200
+und 54 kB** antwortet. Nachgemessen waren öffentlich erreichbar:
+
+| Pfad | |
+|---|---|
+| `/scripts/…` | alle 40 Prüfskripte |
+| `/src/…` | Vorlagen und Quell-CSS |
+| `/node_modules/…` | **2250 Dateien** |
+| `/.claude/settings.json` | |
+| `/package.json`, `/eleventy.config.js` | |
+
+**Ursache.** `wrangler.jsonc` setzt `"assets": { "directory": "." }` – es
+wird **alles** ausgeliefert, was nicht in `.assetsignore` steht. Die Liste
+gab es, sie war nur unvollständig: Sie nannte `docs/`, `CLAUDE.md`,
+`worker/`, `daten/`, `.git/` – aber nicht `scripts/`, `src/`,
+`node_modules/` und `.claude/`.
+
+**Was es nicht war.** Keine Zugangsdaten. Das Werkstatt-Passwort liegt als
+Cloudflare-Geheimnis in `env.WERKSTATT_PASSWORT`, und `worker/` stand schon
+auf der Liste. Die Herstellerdaten (`daten/`, `js/dachmatrix-daten.*`)
+ebenfalls. Das `salz` der Messung liegt in D1, nicht im Repository.
+
+**Was es trotzdem ist.** `scripts/pruefe-werkstatt.js` beschreibt die
+Passwortschranke – und seine Gegenprobe ist wörtlich eine Liste, wie man sie
+bricht („Ohne hinterlegtes Passwort offen", „Jedes Passwort wird
+angenommen", „Passwort steht im Klartext im Keks"). Dasselbe gilt für
+`pruefe-konfigurator-sperre.js` und `pruefe-messung.*`. Das ist ein Bauplan,
+den niemand von außen braucht. Dazu 2250 Dateien, die bei jedem Deploy als
+öffentliche Dateien mit hochgehen.
+
+**Was jetzt gilt.** `.assetsignore` nennt die Pfade, mit der Messung als
+Begründung im Kommentar. Nachgesehen: **keine Seite verweist auf
+`/src/`, `/scripts/` oder `/node_modules/`** – geprüft in allen `.html` und
+`.njk`.
+
+**Warum eine Live-Prüfung und keine Dateiprüfung.**
+`scripts/pruefe-nicht-oeffentlich.sh` fragt die veröffentlichte Seite ab.
+`.assetsignore` anzusehen beweist nichts – die Liste *existierte* ja und sah
+vollständig aus. Nur der Abruf zeigt, was Cloudflare wirklich herausgibt,
+und genau da lag der Unterschied. Die Gegenprobe fragt umgekehrt Pfade ab,
+die öffentlich sein **müssen**: Sonst wäre eine zu scharfe Ausnahmeliste –
+die die Website selbst abschaltet – unbemerkt geblieben.
+
+**Was gegengelesen werden soll.** Nach dem Veröffentlichen:
+`bash scripts/pruefe-nicht-oeffentlich.sh` muss „bestanden" melden, und die
+Website muss normal laufen (`scripts/pruefe-live.sh`).
