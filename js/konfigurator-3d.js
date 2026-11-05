@@ -2255,7 +2255,7 @@
   /* Satinato ist geätztes ESG: Es lässt das Licht durch, aber kein Bild.
      Im Modell heißt das: deutlich weniger durchsichtig, viel rauer und
      keine Spiegelung – sonst sähe es aus wie klares Glas mit Schleier.
-     Laut VD-Anfrageformular gibt es für SG23 NUR klar und satinato. */
+     Laut VD-Anfrageformular gibt es für SG23 NUR klar und matt. */
   function satiniert(m) {
     m.color = rgb(0xe8eef0);
     m.opacity = 0.62;
@@ -2268,7 +2268,13 @@
 
   function schiebeGlas() {
     var m = seitenglas();
-    return Z.sg23Glas.indexOf('satinato') === -1 ? m : satiniert(m);
+    /* "satinato" bleibt mitgeprueft: Teilen-Links von vor dem
+       05.11.2026 tragen noch das alte Wort. An dem Tag hat der
+       Betreiber klargestellt, dass opal und satinato dasselbe meinen
+       ("meinen das selbe kannst opal nennen") - sichtbar steht jetzt
+       ueberall opal. Ohne das alte Wort hier zeigte ein alter Link
+       klares Glas, obwohl mattes bestellt war. */
+    return mattesGlas(Z.sg23Glas) ? satiniert(m) : m;
   }
 
   /* Das Glas im KEIL – dem Dreieck über einer Wand oder Schiebeanlage.
@@ -2280,9 +2286,19 @@
      will man oft klare Sicht in den Garten. Beides zusammenzulegen
      hieße, dem Kunden eine Entscheidung abzunehmen, die er so nicht
      treffen würde. */
+  /* Ist dieses Glas matt? Prueft BEIDE Woerter. "satinato" und "opal"
+     meinen dasselbe (Betreiber, 05.11.2026: "meinen das selbe kannst
+     opal nennen"); sichtbar steht jetzt ueberall opal, aber geteilte
+     Links von vorher tragen noch das alte Wort. An EINER Stelle
+     gefragt, damit nicht die naechste Abfrage nur die Haelfte kennt. */
+  function mattesGlas(wert) {
+    var w = String(wert || '');
+    return w.indexOf('opal') > -1 || w.indexOf('satinato') > -1;
+  }
+
   function keilGlas() {
     var m = seitenglas();
-    return String(Z.keilGlas || '').indexOf('satinato') === -1 ? m : satiniert(m);
+    return mattesGlas(Z.keilGlas) ? satiniert(m) : m;
   }
 
   function seitenglas() {
@@ -13881,7 +13897,7 @@
               ? ' · hinten: ' + bg.pfosten.hinten.join(' / ') + ' mm' : ''));
         }
       }
-      /* Das Keilglas gehört in die Bestellung: satinato ist eine andere
+      /* Das Keilglas gehört in die Bestellung: opal ist eine andere
          Scheibe, nicht nur eine andere Ansicht. */
       if (erwIrgendwo('Keil')) teile.push('Glas im Keil: ' + Z.keilGlas);
       /* Die Planken haben eine eigene Farbe – sie muss in die Mail, sonst
@@ -16433,6 +16449,20 @@
      gefuellt (siehe keilNetz-Aufruf) und vom Editor gelesen. */
   var keilMassGemerkt = {};
 
+  /* ---------- Mindestmasse am Keil ----------
+     KEIL_MIN_VORNE ist BELEGT durch den Betreiber (05.11.2026): "du
+     musst auch beachten das vorne hoehe IMMER min 150mm sein muss
+     weniger geht nicht". Vorher standen hier 50 mm - von mir geraten,
+     ohne es zu sagen. Das waere im Angebot ein Mass gewesen, das sich
+     nicht bauen laesst.
+
+     KEIL_MIN_FELD ist ABGELEITET, nicht belegt: Ein einzelnes Feld
+     sollte nicht kleiner sein als die kleinste zulaessige Oeffnung.
+     Dieselbe Zahl, bis der Hersteller etwas anderes sagt - und dann
+     steht sie hier an einer Stelle. */
+  var KEIL_MIN_VORNE = 150;   // mm, BELEGT
+  var KEIL_MIN_FELD = 150;    // mm, ABGELEITET
+
   var KEIL_TEILUNGEN = [
     { id: '1',   spalten: 1, reihen: 1, name: '1-teilig' },
     { id: '2w',  spalten: 1, reihen: 2, name: '2-teilig waagerecht' },
@@ -16450,7 +16480,7 @@
 
      FRF23 IST ESG. Klargestellt vom Betreiber am 05.11.2026 ("FRF
      Glas is ESG"), nachdem die Liste neben dem uebrigen Konfigurator
-     ("ESG klar", "ESG satinato") wie ein zweites System aussah. Es
+     ("ESG klar", "ESG opal") wie ein zweites System aussah. Es
      ist keines: FRF23 ist der Produktname einer ESG-Scheibe.
 
      Darum steht die Glasart vorn und der Produktname dahinter -
@@ -16460,10 +16490,10 @@
      haette die Bezeichnung verloren, nur "FRF23" die Glasart
      verborgen.
 
-     OFFEN: Ob "opal" und "satinato" dasselbe meinen, ist damit noch
-     nicht geklaert - es sind zwei verschiedene Verfahren (geaetzt
-     gegenueber milchiger Zwischenschicht). Beide Woerter stehen
-     derzeit nebeneinander auf der Seite. */
+     GEKLAERT am 05.11.2026: opal und satinato meinen dasselbe
+     ("meinen das selbe kannst opal nennen"). Sichtbar steht jetzt
+     ueberall opal; mattesGlas() kennt weiterhin beide Woerter, damit
+     alte Teilen-Links ihr mattes Glas behalten. */
   var KEIL_GLAS = [
     'Ohne Glas',
     'VSG Glas klar', 'VSG Glas opal', 'VSG Glas grau',
@@ -16485,6 +16515,37 @@
   };
   function keilGlasName(g) {
     return KEIL_GLAS_ALT[g] || g;
+  }
+
+  /* ---------- Was passt noch? ----------
+     "einfach nicht waehlbar machen wenn die maße zu klein werden"
+     (Betreiber, 05.11.2026).
+
+     Eine Teilung anzubieten, die sich nicht bauen laesst, ist eine
+     Zusage, die das Angebot zuruecknehmen muss. Also wird sie gar
+     nicht erst angeboten - mit dem Grund daneben, damit niemand
+     raetselt, warum eine Kachel nicht geht.
+
+     Massgeblich ist die lichte Hoehe VORNE: Dort ist der Keil am
+     niedrigsten, und eine waagerechte Sprosse liegt ueber die ganze
+     Laenge auf derselben Hoehe. */
+  function keilPasst(t, mass) {
+    var breite = mass.b || 0;
+    var lichtVorn = Math.max(0, (mass.h2 || 0));
+    var spalten = breite > 0 ? Math.floor(breite / KEIL_MIN_FELD) : 99;
+    var reihen = lichtVorn > 0 ? Math.floor(lichtVorn / KEIL_MIN_FELD) : 99;
+    if (t.spalten > spalten) {
+      return { ok: false, grund: 'zu schmal',
+               lang: 'Bei ' + breite + ' mm Breite passen höchstens '
+                     + Math.max(1, spalten) + ' Felder nebeneinander.' };
+    }
+    if (t.reihen > reihen) {
+      return { ok: false, grund: 'zu flach',
+               lang: 'Vorne bleiben nur ' + lichtVorn + ' mm Höhe – '
+                     + 'für zwei Reihen braucht es mindestens '
+                     + (2 * KEIL_MIN_FELD) + ' mm.' };
+    }
+    return { ok: true };
   }
 
   function keilTeilung(id) {
@@ -16540,11 +16601,11 @@
     var g = p.glas[nr];
     if (g) return keilGlasName(g);
     /* Rueckfall auf die alte Einzelwahl "Glas im Keil" (ESG klar /
-       ESG satinato). Sie faellt auf ESG und nicht auf VSG - bis zum
+       ESG opal). Sie faellt auf ESG und nicht auf VSG - bis zum
        05.11.2026 stand hier VSG, und das war schlicht falsch: Die
        Vorgabe ist ESG, und ein unbearbeiteter Keil haette im Angebot
        eine andere Glasart getragen als auf der Seite daneben. */
-    return String(Z.keilGlas || '').indexOf('satinato') > -1
+    return mattesGlas(Z.keilGlas)
       ? 'ESG Glas opal (FRF23)' : 'ESG Glas klar (FRF23)';
   }
 
@@ -16824,6 +16885,7 @@
     var plan = keilPlanLesen(seite);
     var modell = keilEditorMass(seite);
     var mass = keilMassWirksam(seite, plan);
+    var t0 = keilTeilung(plan.teilung);
     var zahl = keilFeldZahl(plan.teilung);
     if (keilEditorFeld >= zahl) keilEditorFeld = 0;
 
@@ -16858,10 +16920,53 @@
     }
     if (kacheln) {
       Array.prototype.forEach.call(kacheln.children, function (b) {
-        var an = b.getAttribute('data-teilung') === plan.teilung;
-        b.classList.toggle('ist-an', an);
-        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+        var id = b.getAttribute('data-teilung');
+        var an = id === plan.teilung;
+        var passt = keilPasst(keilTeilung(id), mass);
+        b.classList.toggle('ist-an', an && passt.ok);
+        b.setAttribute('aria-pressed', an && passt.ok ? 'true' : 'false');
+        b.disabled = !passt.ok;
+        b.classList.toggle('ist-gesperrt', !passt.ok);
+        /* Der Grund steht AM Knopf, nicht nur als Titel: Ein
+           ausgegrauter Knopf ohne Begruendung sieht nach Fehler aus,
+           und am Handy gibt es keinen Mauszeiger fuer einen Titel. */
+        var note = b.querySelector('.k3d-keil-sperr');
+        if (!passt.ok) {
+          if (!note) {
+            note = document.createElement('em');
+            note.className = 'k3d-keil-sperr';
+            b.appendChild(note);
+          }
+          note.textContent = passt.grund;
+          b.title = passt.lang;
+          b.setAttribute('aria-label', keilTeilung(id).name + ' – nicht möglich: ' + passt.lang);
+        } else if (note) {
+          note.parentNode.removeChild(note);
+          b.removeAttribute('title');
+          b.removeAttribute('aria-label');
+        }
       });
+    }
+
+    /* Passt die GEWAEHLTE Teilung nicht mehr - etwa weil die Anlage
+       schmaler geworden ist -, wird auf die naechste zurueckgefallen,
+       die passt, und der Grund genannt. Stehenzulassen, was nicht
+       gebaut werden kann, waere die schlechtere Haelfte: Das Modell
+       zeigte dann etwas anderes als das Angebot. */
+    var gewaehlt = keilPasst(t0, mass);
+    if (!gewaehlt.ok) {
+      var ersatz = null;
+      for (var ti = KEIL_TEILUNGEN.length - 1; ti >= 0; ti--) {
+        if (keilPasst(KEIL_TEILUNGEN[ti], mass).ok) { ersatz = KEIL_TEILUNGEN[ti]; break; }
+      }
+      if (ersatz && ersatz.id !== plan.teilung) {
+        plan.teilung = ersatz.id;
+        keilPlanSchreiben(seite, plan);
+        keilEditorFeld = 0;
+        keilEditorZeichnen();
+        aendern();
+        return;
+      }
     }
 
     /* Zeichnung */
@@ -16886,12 +16991,14 @@
        Wer sie sieht, laeuft nicht hinein. */
     if (fV) {
       var grenzeV = Math.max(0, (plan.h1 != null ? plan.h1 : modell.h1)
-                                - ((modell.h1 && modell.h2) ? modell.h1 - modell.h2 : 0) - 50);
+                                - ((modell.h1 && modell.h2) ? modell.h1 - modell.h2 : 0)
+                                - KEIL_MIN_VORNE);
       fV.max = String(grenzeV);
       var hV = document.getElementById('k3dKeilVHinweis');
       if (hV) {
         hV.textContent = 'Optional. Die Unterkante steigt vorne um dieses Maß an – '
-          + 'höchstens ' + grenzeV + ' mm, sonst bliebe vorne keine Öffnung.';
+          + 'höchstens ' + grenzeV + ' mm – vorne müssen '
+          + KEIL_MIN_VORNE + ' mm Höhe bleiben.';
       }
     }
 
@@ -17195,10 +17302,12 @@
              Wert sofort - stillschweigend zu klemmen waere
              schlimmer als gar nicht zu klemmen. */
           if (schluessel === 'h1') {
-            if (v < ab + vs + 50) { v = ab + vs + 50; f.value = String(v); }
+            if (v < ab + vs + KEIL_MIN_VORNE) {
+              v = ab + vs + KEIL_MIN_VORNE; f.value = String(v);
+            }
             p.h1 = v; p.h2 = v - ab - vs;
           } else {
-            if (v < 50) { v = 50; f.value = String(v); }
+            if (v < KEIL_MIN_VORNE) { v = KEIL_MIN_VORNE; f.value = String(v); }
             p.h2 = v; p.h1 = v + ab + vs;
           }
         }
@@ -17227,11 +17336,11 @@
            Die Zeichnung zerfiel in sich ueberschneidende Flaechen, und
            das Modell haette Scheiben mit negativer Hoehe gebaut.
 
-           Begrenzt wird auf H2 = 50 mm Restoeffnung. Ein Keil, der
-           vorne auf null zulaeuft, ist kein Bauteil mehr. */
+           Begrenzt wird auf KEIL_MIN_VORNE - das kleinste Mass, das
+           der Hersteller vorne baut. */
         var mO = keilEditorMass(keilEditorSeite);
         var hWand = (pv.h1 != null) ? pv.h1 : mO.h1;
-        var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - 50);
+        var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - KEIL_MIN_VORNE);
         if (pv.versatz > grenze) {
           pv.versatz = grenze;
           f.value = String(grenze);

@@ -68,14 +68,21 @@ const FEHLER = [
     nach: "            p.h1 = v;" },
   { von: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
     nach: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
+  /* Die Sperre zu kleiner Teilungen. */
+  { von: "    if (t.reihen > reihen) {", nach: "    if (false) {" },
+  /* Die belegte Mindesthoehe vorne. */
+  { von: "  var KEIL_MIN_VORNE = 150;   // mm, BELEGT",
+    nach: "  var KEIL_MIN_VORNE = 1;   // mm, BELEGT" },
   /* Die Zuordnung der alten Glasnamen. */
   { von: "    return KEIL_GLAS_ALT[g] || g;", nach: "    return g;" },
   /* Der Bezugsfehler, der die Linien kreuzen liess. */
   { von: "    var h2Abs = Math.max(1, mass.h2 + vMm);",
     nach: "    var h2Abs = Math.max(1, mass.h2);" },
   /* Die Grenze am Hoehenfeld - das zweite Loch. */
-  { von: "            if (v < ab + vs + 50) { v = ab + vs + 50; f.value = String(v); }",
-    nach: "            if (v < -99999) { v = ab + vs + 50; f.value = String(v); }" },
+  /* ANKER NACHGEZOGEN am 05.11.2026: Aus den geratenen 50 mm wurde die
+     belegte Grenze KEIL_MIN_VORNE (150 mm). */
+  { von: "            if (v < ab + vs + KEIL_MIN_VORNE) {",
+    nach: "            if (v < -99999) {" },
 ];
 
 /* Der Handy-Fehler steckt im CSS, nicht im JavaScript: Der Dialog
@@ -456,6 +463,57 @@ if (trefferPunkt) {
   pruefe('Ein Klick auf den Keil im Modell oeffnet den Editor', false,
     'Messpunkt nicht verfuegbar');
 }
+
+/* ---------- Was nicht passt, ist nicht waehlbar ----------
+   "einfach nicht waehlbar machen wenn die maße zu klein werden"
+   (Betreiber, 05.11.2026). Dazu die belegte Grenze vom selben Tag:
+   "vorne hoehe IMMER min 150mm".
+
+   Eine Teilung anzubieten, die sich nicht bauen laesst, ist eine
+   Zusage, die das Angebot zuruecknehmen muss. */
+const vorSperre = await p.evaluate(() => ({
+  h1: +document.getElementById('k3dKeilH1').value,
+  h2: +document.getElementById('k3dKeilH2').value
+}));
+const offenVorher = await p.evaluate(() =>
+  [...document.querySelectorAll('#k3dKeilTeilungen button')].filter((b) => !b.disabled).length);
+pruefe('Bei ausreichenden Massen ist keine Teilung gesperrt', offenVorher === 8,
+  `${offenVorher} von 8 waehlbar`);
+
+/* H1 so weit absenken, dass vorne nur noch gut 200 mm bleiben - zu
+   wenig fuer zwei Reihen (2 x 150 mm). */
+await p.fill('#k3dKeilH1', String(vorSperre.h1 - vorSperre.h2 + 220), { timeout: 8000 }).catch(() => {});
+await p.waitForTimeout(1400);
+const gesperrt = await p.evaluate(() =>
+  [...document.querySelectorAll('#k3dKeilTeilungen button')]
+    .filter((b) => b.disabled)
+    .map((b) => b.getAttribute('data-teilung') + ':' + ((b.querySelector('.k3d-keil-sperr') || {}).textContent || '')));
+const sollGesperrt = ['2w', '4sw', '6', '8'];
+pruefe('Zu flach: alle zweireihigen Teilungen sind gesperrt',
+  sollGesperrt.every((id) => gesperrt.some((g) => g.indexOf(id + ':') === 0))
+    && gesperrt.length === sollGesperrt.length,
+  gesperrt.join(' ') || 'keine gesperrt');
+pruefe('Die gesperrte Kachel nennt den Grund',
+  gesperrt.every((g) => /zu flach|zu schmal/.test(g)), gesperrt.join(' '));
+/* Eine gesperrte Kachel muss auch wirklich nicht waehlbar sein -
+   disabled allein genuegt nicht, wenn ein Zuhoerer trotzdem feuert. */
+const vorKlick = await p.evaluate(() =>
+  (document.querySelector('#k3dKeilTeilungen button.ist-an') || {}).getAttribute
+    ? document.querySelector('#k3dKeilTeilungen button.ist-an').getAttribute('data-teilung') : null);
+await p.evaluate(() => {
+  const b = document.querySelector('#k3dKeilTeilungen button[data-teilung="8"]');
+  if (b) b.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+});
+await p.waitForTimeout(900);
+const nachKlick = await p.evaluate(() => {
+  const b = document.querySelector('#k3dKeilTeilungen button.ist-an');
+  return b ? b.getAttribute('data-teilung') : null;
+});
+pruefe('Ein Klick auf eine gesperrte Kachel aendert nichts',
+  nachKlick === vorKlick, `${vorKlick} -> ${nachKlick}`);
+/* Masse zurueck, damit die folgenden Pruefungen wieder Platz haben. */
+await p.click('#k3dKeilMasseZurueck', { timeout: 8000 }).catch(() => {});
+await p.waitForTimeout(1200);
 
 /* ---------- Alte Namen aus geteilten Links ----------
    Bis zum 05.11.2026 hiessen die drei ESG-Glaeser nur "FRF23", bis

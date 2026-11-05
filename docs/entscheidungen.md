@@ -13546,3 +13546,44 @@ nicht geklärt. Es sind zwei verschiedene Verfahren – geätzt gegenüber
 milchiger Zwischenschicht – und beide Wörter stehen derzeit nebeneinander
 auf der Seite. Das ist eine Frage an den Hersteller, keine, die ich raten
 sollte.
+
+## 05.11.2026 – Zwei Ansagen: „opal" statt „satinato", und 150 mm vorne
+
+**1. „meinen das selbe kannst opal nennen."** opal und satinato bezeichnen
+dasselbe matte Glas. Sichtbar steht jetzt überall **opal** – im Keil und bei
+den Schiebeelementen.
+
+`mattesGlas()` kennt **beide** Wörter und ist die einzige Stelle, die danach
+fragt. Geteilte Links von vorher tragen noch „satinato"; ohne das alte Wort
+zeigte ein alter Link klares Glas, obwohl mattes bestellt war. An *einer*
+Stelle gefragt, damit nicht die nächste Abfrage nur die Hälfte kennt.
+
+**2. „vorne höhe IMMER min 150mm sein muss weniger geht nicht."**
+Ich hatte 50 mm gesetzt – **geraten, ohne es zu sagen**. Das wäre im Angebot
+ein Maß gewesen, das sich nicht bauen lässt. Jetzt `KEIL_MIN_VORNE = 150`,
+als **BELEGT** gekennzeichnet, und an einer Stelle: Höheneingabe, Versatz
+und Hinweistext lesen dieselbe Zahl.
+
+**3. „einfach nicht wählbar machen wenn die maße zu klein werden."**
+Teilungen, die rechnerisch nicht passen, sind **gesperrt** – mit dem Grund
+am Knopf („zu flach", „zu schmal") und der ganzen Erklärung im Titel. Eine
+Teilung anzubieten, die sich nicht bauen lässt, ist eine Zusage, die das
+Angebot zurücknehmen muss.
+
+Maßgeblich ist die lichte Höhe **vorne**: Dort ist der Keil am niedrigsten,
+und eine waagerechte Sprosse liegt über die ganze Länge auf derselben Höhe.
+Bei 220 mm Resthöhe sind alle vier zweireihigen Teilungen gesperrt, die
+einreihigen bleiben.
+
+`KEIL_MIN_FELD` (das Mindestmaß eines *einzelnen* Feldes) ist **abgeleitet,
+nicht belegt**: dieselben 150 mm, bis der Hersteller etwas anderes sagt.
+Steht als solches im Code.
+
+**Passt die gewählte Teilung nicht mehr** – etwa weil die Anlage schmaler
+wurde –, fällt der Editor auf die nächste zurück, die passt. Stehenzulassen,
+was nicht gebaut werden kann, wäre die schlechtere Hälfte: Das Modell zeigte
+dann etwas anderes als das Angebot.
+
+**Geprüft wird, dass die Sperre auch hält:** Ein Klick auf eine gesperrte
+Kachel darf nichts ändern. `disabled` allein genügt nicht, wenn ein Zuhörer
+trotzdem feuert.

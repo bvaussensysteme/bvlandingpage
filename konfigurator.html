@@ -1470,6 +1470,19 @@
     }
     .k3d-keil-teilungen button svg { display: block; width: 100%; height: 34px; margin-bottom: 5px; }
     .k3d-keil-teilungen button:hover { border-color: var(--gold); }
+    /* Gesperrte Kachel: blass UND mit dem Grund darunter. Nicht nur
+       blass - wer Farben schlecht unterscheidet, saehe sonst keinen
+       Unterschied, und "nicht moeglich" ist zu wichtig, um allein an
+       einem Grauton zu haengen. */
+    .k3d-keil-teilungen button.ist-gesperrt {
+      opacity: .5; cursor: not-allowed; border-style: dashed;
+    }
+    .k3d-keil-teilungen button.ist-gesperrt:hover { border-color: var(--border); }
+    .k3d-keil-sperr {
+      display: block; margin-top: 3px; font-style: normal;
+      font-size: .6rem; font-weight: 700; color: #8a4a22;
+      text-transform: uppercase; letter-spacing: .03em;
+    }
     .k3d-keil-teilungen button.ist-an {
       border-color: var(--gold); border-width: 2px; padding: 7px 5px 5px;
       background: var(--light-bg, #F1EFEA); color: var(--gold-text, #7A5B12); font-weight: 700;
@@ -2371,7 +2384,7 @@
           <label class="k3d-label" for="k3dSg23Glas">Glas der Schiebeelemente</label>
           <select id="k3dSg23Glas" class="k3d-select">
             <option value="ESG 10 mm klar">klar – freie Sicht</option>
-            <option value="ESG 10 mm satinato">satinato – matt, blickdicht</option>
+            <option value="ESG 10 mm opal">opal – matt, blickdicht</option>
           </select>
           <p class="k3d-mini">Mehr gibt es beim Hersteller nicht: klar oder satiniert,
             beides 10 mm Einscheiben-Sicherheitsglas.</p>
@@ -2437,7 +2450,7 @@
           <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
           <select id="k3dKeilGlas" class="k3d-select">
             <option value="ESG klar">klar – freie Sicht</option>
-            <option value="ESG satinato">satinato – matt, blickdicht</option>
+            <option value="ESG opal">opal – matt, blickdicht</option>
           </select>
           <p class="k3d-mini">Das Dreieck über der Wand oder der Schiebeanlage.
             Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
@@ -3175,7 +3188,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261105c" defer></script>
+<script src="js/konfigurator-3d.js?v=20261105d" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
