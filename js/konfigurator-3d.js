@@ -16448,16 +16448,44 @@
      bewusst oben: Es ist die einzige Wahl, die etwas WEGLAESST, und
      wer sie sucht, sucht sie zuerst.
 
-     ACHTUNG, ZWEI BENENNUNGEN: Der uebrige Konfigurator spricht von
-     ESG klar und ESG satinato (k3dKeilGlas, k3dSg23Glas). Hier steht
-     VSG und FRF23. Beides sind Herstellerangaben, keine erfundenen
-     Namen - aber im Angebot stehen sie nebeneinander. Dem Betreiber
-     gemeldet; bis er entscheidet, bleibt es bei seiner Liste. */
+     FRF23 IST ESG. Klargestellt vom Betreiber am 05.11.2026 ("FRF
+     Glas is ESG"), nachdem die Liste neben dem uebrigen Konfigurator
+     ("ESG klar", "ESG satinato") wie ein zweites System aussah. Es
+     ist keines: FRF23 ist der Produktname einer ESG-Scheibe.
+
+     Darum steht die Glasart vorn und der Produktname dahinter -
+     "ESG Glas klar (FRF23)". Wer die Anfrage liest, sieht auf einen
+     Blick, dass es dieselbe Glasart ist wie anderswo, und hat
+     trotzdem die Bezeichnung zum Bestellen. Nur "ESG" zu schreiben
+     haette die Bezeichnung verloren, nur "FRF23" die Glasart
+     verborgen.
+
+     OFFEN: Ob "opal" und "satinato" dasselbe meinen, ist damit noch
+     nicht geklaert - es sind zwei verschiedene Verfahren (geaetzt
+     gegenueber milchiger Zwischenschicht). Beide Woerter stehen
+     derzeit nebeneinander auf der Seite. */
   var KEIL_GLAS = [
     'Ohne Glas',
     'VSG Glas klar', 'VSG Glas opal', 'VSG Glas grau',
-    'FRF23 Glas klar', 'FRF23 Glas opal', 'FRF23 Glas grau'
+    'ESG Glas klar (FRF23)', 'ESG Glas opal (FRF23)', 'ESG Glas grau (FRF23)'
   ];
+
+  /* Alte Bezeichnungen aus geteilten Links. Bis zum 05.11.2026 hiessen
+     die drei ESG-Glaeser nur "FRF23" - bis der Betreiber klarstellte:
+     "FRF Glas is ESG". Es waren also nie zwei Systeme nebeneinander,
+     sondern eine Glasart unter einem Produktnamen.
+
+     Ein Link, der vorher verschickt wurde, traegt noch die alten
+     Namen. Ohne diese Zuordnung stuende das Auswahlfeld beim Oeffnen
+     auf "bitte waehlen" - die Wahl waere stillschweigend weg. */
+  var KEIL_GLAS_ALT = {
+    'FRF23 Glas klar': 'ESG Glas klar (FRF23)',
+    'FRF23 Glas opal': 'ESG Glas opal (FRF23)',
+    'FRF23 Glas grau': 'ESG Glas grau (FRF23)'
+  };
+  function keilGlasName(g) {
+    return KEIL_GLAS_ALT[g] || g;
+  }
 
   function keilTeilung(id) {
     for (var i = 0; i < KEIL_TEILUNGEN.length; i++) {
@@ -16497,7 +16525,7 @@
          sind zwei verschiedene Bauteile. */
       sprosseW: p.sprosseW === 'frei' ? 'frei' : 'gleich',
       sprossenMassW: (p.sprossenMassW || []).slice(),
-      glas: (p.glas || []).slice()
+      glas: (p.glas || []).map(keilGlasName)
     };
   }
   function keilPlanSchreiben(seite, plan) {
@@ -16510,9 +16538,14 @@
   function keilFeldGlas(seite, nr) {
     var p = keilPlanLesen(seite);
     var g = p.glas[nr];
-    if (g) return g;
+    if (g) return keilGlasName(g);
+    /* Rueckfall auf die alte Einzelwahl "Glas im Keil" (ESG klar /
+       ESG satinato). Sie faellt auf ESG und nicht auf VSG - bis zum
+       05.11.2026 stand hier VSG, und das war schlicht falsch: Die
+       Vorgabe ist ESG, und ein unbearbeiteter Keil haette im Angebot
+       eine andere Glasart getragen als auf der Seite daneben. */
     return String(Z.keilGlas || '').indexOf('satinato') > -1
-      ? 'VSG Glas opal' : 'VSG Glas klar';
+      ? 'ESG Glas opal (FRF23)' : 'ESG Glas klar (FRF23)';
   }
 
   /* ---------- Die Zeichnung ----------

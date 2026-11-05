@@ -68,6 +68,8 @@ const FEHLER = [
     nach: "            p.h1 = v;" },
   { von: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
     nach: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
+  /* Die Zuordnung der alten Glasnamen. */
+  { von: "    return KEIL_GLAS_ALT[g] || g;", nach: "    return g;" },
   /* Der Bezugsfehler, der die Linien kreuzen liess. */
   { von: "    var h2Abs = Math.max(1, mass.h2 + vMm);",
     nach: "    var h2Abs = Math.max(1, mass.h2);" },
@@ -91,6 +93,10 @@ const MESSHAKEN = {
   von: "                kf.userData.keilFeld = kNr;",
   nach: "                kf.userData.keilFeld = kNr;\n"
       + "                (window.__bvKeilScheiben = window.__bvKeilScheiben || []).push(seite + ':' + kNr);\n"
+      + "                window.__bvKeilAltSetzen = function (seite) {\n"
+      + "                  Z.keilPlan[seite] = Z.keilPlan[seite] || { teilung: '2s' };\n"
+      + "                  Z.keilPlan[seite].glas = ['FRF23 Glas opal', 'FRF23 Glas grau'];\n"
+      + "                };\n"
       + "                window.__bvKeilPunkt = (function (mesh) { return function () {\n"
       + "                  mesh.geometry.computeBoundingSphere();\n"
       + "                  var c = mesh.geometry.boundingSphere.center.clone();\n"
@@ -270,7 +276,7 @@ async function waehle(id, wert) {
   await p.selectOption(id, wert, { timeout: 4000 }).catch(() => {});
 }
 await waehle('#k3dKeilGlas0', 'VSG Glas klar');
-await waehle('#k3dKeilGlas1', 'FRF23 Glas opal');
+await waehle('#k3dKeilGlas1', 'ESG Glas opal (FRF23)');
 await waehle('#k3dKeilGlas2', 'VSG Glas grau');
 await waehle('#k3dKeilGlas3', 'Ohne Glas');
 /* Laenger warten: Jede Glaswahl baut das Modell neu, und erst danach
@@ -450,6 +456,25 @@ if (trefferPunkt) {
   pruefe('Ein Klick auf den Keil im Modell oeffnet den Editor', false,
     'Messpunkt nicht verfuegbar');
 }
+
+/* ---------- Alte Namen aus geteilten Links ----------
+   Bis zum 05.11.2026 hiessen die drei ESG-Glaeser nur "FRF23", bis
+   der Betreiber klarstellte: "FRF Glas is ESG". Ein Link, der vorher
+   verschickt wurde, traegt noch die alten Namen.
+
+   GEPRUEFT WIRD DAS ERGEBNIS IM AUSWAHLFELD, nicht die Zuordnung im
+   Quelltext: Nur so faellt auf, wenn die Umsetzung an der falschen
+   Stelle sitzt und das Feld trotzdem leer bleibt - und genau das
+   waere der Schaden: die Wahl stillschweigend weg. */
+await p.evaluate(() => { if (window.__bvKeilAltSetzen) window.__bvKeilAltSetzen('links'); });
+await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.waitForTimeout(900);
+const alteNamen = await p.evaluate(() =>
+  [...document.querySelectorAll('#k3dKeilGlasFelder select')].slice(0, 2).map((s2) => s2.value));
+pruefe('Ein alter Link behaelt seine Glaswahl',
+  alteNamen[0] === 'ESG Glas opal (FRF23)' && alteNamen[1] === 'ESG Glas grau (FRF23)',
+  alteNamen.join(' / ') + ' statt der umbenannten ESG-Glaeser');
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 

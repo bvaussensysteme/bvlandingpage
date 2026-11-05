@@ -13513,3 +13513,36 @@ Zustand; er macht zwei der fünf Handy-Prüfungen rot.
 Ordnung, und ich habe ihn auch nur dort angesehen. Bei allem, was bedient
 wird, gehört der erste Blick auf das Handy – die Anweisung stand da, ich
 habe sie nicht befolgt.
+
+## 05.11.2026 – „FRF Glas is ESG": es waren nie zwei Systeme
+
+**Anlass.** Ich hatte gemeldet, dass in derselben Anfrage-Mail *ESG klar*
+neben *VSG Glas klar* und *FRF23 Glas opal* steht, und gefragt, ob das
+vereinheitlicht werden soll. Antwort des Betreibers: **„FRF Glas is ESG."**
+
+**Was das heißt.** FRF23 ist kein zweites Glassystem, sondern der
+Produktname einer **ESG**-Scheibe. Die Liste sah nur so aus, als stünden
+zwei Welten nebeneinander.
+
+**Was jetzt gilt.** Die Glasart steht vorn, der Produktname dahinter:
+`ESG Glas klar (FRF23)`. Wer die Anfrage liest, sieht auf einen Blick,
+dass es dieselbe Glasart ist wie anderswo auf der Seite – und hat trotzdem
+die Bezeichnung zum Bestellen. **Nur „ESG" zu schreiben hätte die
+Bezeichnung verloren, nur „FRF23" die Glasart verborgen.**
+
+**Ein Fehler, der dabei auffiel.** Der Rückfall für einen *unbearbeiteten*
+Keil (alte Einzelwahl „Glas im Keil": ESG klar / ESG satinato) landete auf
+**VSG**. Ein Keil, den niemand angefasst hat, hätte im Angebot eine andere
+Glasart getragen als die Seite daneben anzeigt. Jetzt fällt er auf ESG.
+
+**Alte Links bleiben gültig.** `KEIL_GLAS_ALT` setzt die drei alten Namen
+um. Ohne das stünde das Auswahlfeld beim Öffnen auf „bitte wählen" – die
+Wahl wäre stillschweigend weg. Geprüft wird das **am Auswahlfeld**, nicht
+an der Zuordnung im Quelltext: Nur so fällt auf, wenn die Umsetzung an der
+falschen Stelle sitzt und das Feld trotzdem leer bleibt.
+
+**Noch offen.** Ob **„opal" und „satinato" dasselbe meinen**, ist damit
+nicht geklärt. Es sind zwei verschiedene Verfahren – geätzt gegenüber
+milchiger Zwischenschicht – und beide Wörter stehen derzeit nebeneinander
+auf der Seite. Das ist eine Frage an den Hersteller, keine, die ich raten
+sollte.
