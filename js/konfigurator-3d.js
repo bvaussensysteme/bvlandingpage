@@ -17137,7 +17137,7 @@
       var hV = document.getElementById('k3dKeilVHinweis');
       if (hV) {
         hV.textContent = grenzeV
-          ? 'Optional. Die Unterkante steigt vorne um dieses Maß an – '
+          ? 'Die Unterkante steigt vorne um dieses Maß an – '
             + 'höchstens ' + grenzeV + ' mm – vorne müssen '
             + KEIL_MIN_VORNE + ' mm Höhe bleiben.'
           : 'Erst möglich, wenn die Höhe vorne über ' + KEIL_MIN_VORNE

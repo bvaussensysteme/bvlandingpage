@@ -1522,6 +1522,11 @@
       display: flex; align-items: center; gap: 6px; font-size: .78rem;
       font-weight: 600; margin-bottom: 4px;
     }
+    /* "Bei Versatz noch (Optional)" (Betreiber, 05.11.2026). Es stand
+       nur im Hinweistext UNTER dem Feld - wer das Feld ansieht, liest
+       den Hinweis nicht zwangslaeufig. Leichter als die Beschriftung,
+       damit es die drei Pflichtmasse nicht ueberschreit. */
+    .k3d-keil-opt { font-weight: 400; color: var(--muted); }
     .k3d-keil-marke {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 24px; height: 20px; padding: 0 6px; border-radius: 100px;
@@ -3088,13 +3093,14 @@
                    (05.11.2026). Optional, weil die Unterkante im
                    Normalfall waagerecht liegt. -->
               <div class="k3d-keil-mass">
-                <label for="k3dKeilV"><span class="k3d-keil-marke">V</span> Versatz unten</label>
+                <label for="k3dKeilV"><span class="k3d-keil-marke">V</span> Versatz unten
+                  <span class="k3d-keil-opt">(Optional)</span></label>
                 <span class="k3d-keil-eingabe">
                   <input type="number" id="k3dKeilV" class="k3d-zahl" inputmode="numeric" min="0" step="10"
                          aria-describedby="k3dKeilMassEinheit k3dKeilVHinweis">
                   <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
                 </span>
-                <p class="k3d-mini" id="k3dKeilVHinweis">Optional. Die Unterkante steigt vorne um dieses Maß an.</p>
+                <p class="k3d-mini" id="k3dKeilVHinweis">Die Unterkante steigt vorne um dieses Maß an.</p>
               </div>
             </div>
             <p class="k3d-mini k3d-keil-warnung" id="k3dKeilWarnung" hidden></p>
@@ -3225,13 +3231,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105f" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105g" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261105f" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261105g" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

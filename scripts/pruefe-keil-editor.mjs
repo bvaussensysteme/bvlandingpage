@@ -32,6 +32,12 @@ const GEGENPROBE = process.argv.includes('--gegenprobe');
    Fehler kann einen anderen verdecken. Wer eine neue Pruefung
    hinzufuegt, sollte ihren Fehler EINZELN laufen lassen. */
 const NUR = process.env.BV_FEHLER ? parseInt(process.env.BV_FEHLER, 10) : null;
+/* Dasselbe fuer die Fehler, die im CSS/Markup der Seite stecken. Ohne
+   das liefen sie nur im Sammellauf mit, und ob JEDER von ihnen eine
+   Pruefung rot macht, war nie gemessen - eine Luecke in der Gegenprobe
+   selbst (05.11.2026). */
+const NUR_CSS = process.env.BV_CSS_FEHLER ? parseInt(process.env.BV_CSS_FEHLER, 10) : null;
+const EINZELN = NUR != null || NUR_CSS != null;
 const PORT = 8277;
 const WURZEL = new URL('..', import.meta.url).pathname;
 
@@ -111,6 +117,9 @@ const CSS_FEHLER = [
   /* Die Einheit faengt den Tipper ab. */
   { von: 'font-size: .78rem; color: var(--muted); pointer-events: none;',
     nach: 'font-size: .78rem; color: var(--muted);' },
+  /* Das (Optional) am Versatz faellt weg. */
+  { von: '                  <span class="k3d-keil-opt">(Optional)</span></label>',
+    nach: '                  </label>' },
   /* Eine Einheit fehlt. */
   { von: '<span class="k3d-keil-einheit" aria-hidden="true">mm</span>\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">',
     nach: '\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">' }
@@ -203,11 +212,11 @@ async function routenSetzen(zielCtx) {
      JS-Anker in der HTML-Datei und meldete acht veraltete Anker. */
   if (istJs) {
     MESSHAKEN.forEach(anwenden);
-    if (GEGENPROBE) {
+    if (GEGENPROBE && NUR_CSS == null) {
       (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
     }
   } else if (GEGENPROBE && NUR == null) {
-    CSS_FEHLER.forEach(anwenden);
+    (NUR_CSS == null ? CSS_FEHLER : [CSS_FEHLER[NUR_CSS]]).filter(Boolean).forEach(anwenden);
   }
     return route.fulfill({ response: antwort, body: text });
   });
@@ -754,6 +763,15 @@ const trifft = await p.evaluate(() => {
 pruefe('Ein Tipper auf die Einheit landet im Feld',
   trifft === 'k3dKeilH2', `getroffen: ${trifft}`);
 
+/* "Bei Versatz noch (Optional)" (Betreiber, 05.11.2026): Es stand nur
+   im Hinweis UNTER dem Feld. Geprueft wird die sichtbare Beschriftung. */
+const optTxt = await p.evaluate(() => {
+  const l = document.querySelector('label[for="k3dKeilV"]');
+  return l ? (l.textContent || '').replace(/\s+/g, ' ').trim() : '';
+});
+pruefe('Am Versatz steht, dass er optional ist',
+  /\(Optional\)/.test(optTxt), optTxt.slice(0, 60));
+
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 
 /* ---------- Am Handy ----------
@@ -842,8 +860,14 @@ if (GEGENPROBE) {
     console.log('ANKER VERALTET – mindestens ein Fehler kam nicht an.');
     process.exit(1);
   }
-  const zahl = NUR == null ? FEHLER.length : 1;
-  console.log(`Gegenprobe: ${zahl} Fehler eingebaut${NUR == null ? '' : ' (Nr. ' + NUR + ')'}, `
+  /* MITZAEHLEN, was wirklich eingebaut wurde: Die CSS-Fehler fehlten in
+     dieser Zahl, der Bericht nannte 15 statt 19 (05.11.2026). Eine
+     Gegenprobe, die sich selbst zu klein rechnet, kann nicht auffallen,
+     wenn eine Pruefung blind wird. */
+  const zahl = EINZELN ? 1 : FEHLER.length + CSS_FEHLER.length;
+  const welcher = NUR != null ? ' (Nr. ' + NUR + ')'
+                : NUR_CSS != null ? ' (CSS Nr. ' + NUR_CSS + ')' : '';
+  console.log(`Gegenprobe: ${zahl} Fehler eingebaut${welcher}, `
     + `${rot.length} Pruefungen schlagen an.`);
   if (rot.length < zahl) { console.log('ZU WENIGE – mindestens eine Pruefung ist blind.'); process.exit(1); }
   process.exit(0);
