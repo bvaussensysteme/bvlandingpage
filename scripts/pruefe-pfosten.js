@@ -279,9 +279,13 @@ var FEHLER = [
   ['Der Teilen-Link liest die Pfostenlage nicht zurueck', 'js',
    "      vorne: (d.pv && d.pv.vorne && typeof d.pv.vorne === 'object') ? d.pv.vorne : {},",
    '      vorne: {},'],
+  /* ANKER GEKUERZT 05.11.2026: Zwischen die beiden Zeilen ist das Lesen
+     des Keil-Plans getreten, der Anker fand seine Stelle nicht mehr.
+     Jetzt haengt er nur an der einen Zeile - die steht mit dieser
+     Einrueckung genau einmal in der Datei (ohne "var"). */
   ['Der gelesene Versatz wird gleich wieder weggeraeumt', 'js',
-   '    PF_ANZAHL = { vorne: 0, hinten: 0 };\n    if (d.fa) farbeSetzen(d.fa);',
-   '    if (d.fa) farbeSetzen(d.fa);'],
+   '\n    PF_ANZAHL = { vorne: 0, hinten: 0 };\n',
+   '\n'],
   /* BERICHTIGT 04.11.2026: Der Anker hatte zwei Leerzeichen zu viel
      und fand seine Stelle nicht mehr - gefunden beim Durchzaehlen
      aller Anker, nicht von der Gegenprobe: die bricht vorher ab. */
@@ -556,7 +560,7 @@ function lauf(q) {
   hat('Es sitzt UNTER dem Ziehzeichen',
       "m.position.y + g.height * 0.17 - ZIEH_ZEICHEN * 1.16");
   hat('Es traegt dieselbe Scheibe wie die uebrigen runden Zeichen',
-      "    g.fillStyle = 'rgba(17,17,17,.93)';\n    g.fill();\n" +
+      "    g.fillStyle = '#111111';\n    g.fill();\n" +
       "    g.restore();\n    g.beginPath(); g.arc(M, M, 104, 0, Math.PI * 2);\n" +
       "    g.strokeStyle = '#C49A2A'; g.lineWidth = 10; g.stroke();\n\n" +
       "    var u = symbolUmriss('neuladen');");

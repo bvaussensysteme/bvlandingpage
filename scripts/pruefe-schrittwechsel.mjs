@@ -102,6 +102,30 @@ async function seiteOeffnen(ctx) {
 
 console.log(`\n=== Schrittwechsel ===${GEGENPROBE ? '  (GEGENPROBE – Fehler eingebaut)' : ''}\n`);
 
+/* ---------- Warten, bis die Rollbewegung WIRKLICH steht ----------
+   Hier stand ein fester Wartewert. Damit wurde diese Pruefung mal rot,
+   mal gruen, und zwar an WECHSELNDEN Stellen (gemessen am 05.11.2026 in
+   drei Laeufen hintereinander: einmal "Panelanfang 367 px" statt
+   mindestens 372, einmal "scrollTop 396" statt hoechstens 4, einmal
+   alles gruen - bei unveraendertem Code).
+
+   Eine Pruefung, die zufaellig rot wird, ist schlimmer als keine: Man
+   gewoehnt sich an Rot und sieht den echten Fehler nicht mehr. Darum
+   wird jetzt gewartet, bis sich der Wert zweimal hintereinander nicht
+   mehr aendert - und nicht eine ausgedachte Zahl von Millisekunden. */
+async function ruhe(seite, lesen, maxMs = 6000) {
+  let letzter = null, gleich = 0;
+  for (let t = 0; t < maxMs; t += 150) {
+    const jetzt = await seite.evaluate(lesen);
+    if (letzter !== null && Math.abs(jetzt - letzter) < 1) {
+      if (++gleich >= 2) return jetzt;
+    } else gleich = 0;
+    letzter = jetzt;
+    await seite.waitForTimeout(150);
+  }
+  return letzter;
+}
+
 /* ---------- Am Handy ---------- */
 const handy = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
 const ph = await seiteOeffnen(handy);
@@ -133,7 +157,8 @@ pruefe('Der Test steht vor dem Klick wirklich unten',
   vorher.y > 300, `pageYOffset ${vorher.y}`);
 
 await ph.locator('#k3dWeiter').click();
-await ph.waitForTimeout(1400);
+await ph.waitForTimeout(400);
+await ruhe(ph, () => Math.round(window.pageYOffset));
 const nachher = await stand();
 
 /* Der Anfang des Bedienfelds muss im Bild stehen. Etwas Spielraum,
@@ -170,7 +195,8 @@ if (rollt) {
   await pr.evaluate(() => { document.querySelector('.k3d-sl-rollen').scrollTop = 400; });
   await pr.waitForTimeout(200);
   await pr.locator('#k3dWeiter').click();
-  await pr.waitForTimeout(1200);
+  await pr.waitForTimeout(400);
+  await ruhe(pr, () => Math.round(document.querySelector('.k3d-sl-rollen').scrollTop));
   const d = await pr.evaluate(() => ({
     oben: Math.round(document.querySelector('.k3d-sl-rollen').scrollTop),
     seite: Math.round(window.pageYOffset),
