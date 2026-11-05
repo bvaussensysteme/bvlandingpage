@@ -693,7 +693,12 @@ pruefe('Griff an der Schliesskante',
    Bild). Vorher lief die Rahmenwand ueber die volle Hoehe durch und die
    Planken standen im selben Raum davor. */
 pruefe('Planken teilen die Hoehe auf, statt davor zu stehen',
-       new RegExp(q || 'var hPlanke = kombi \\? kombi\\.hoehe : 0;').test(src) &&
+       /* NACHGEZOGEN 05.11.2026: Die Hoehe laeuft seit dem
+          Planken-Editor durch pwHoehe() - ist dort nichts eingetragen,
+          kommt kombi.hoehe unveraendert zurueck. Worum es hier geht,
+          bleibt gleich: Die Planken bekommen einen EIGENEN Anteil an
+          der Hoehe und stehen nicht davor. */
+       new RegExp(q || 'var hPlanke = kombi \\? pwHoehe\\(kombi\\.hoehe\\) : 0;').test(src) &&
        new RegExp(q || 'function plankenKombi').test(src) &&
        !/planken\(laenge, hoch \* 0\.34, achse, mitte, yUnten/.test(src), '');
 pruefe('Rahmenwand und Tuer setzen auf der Plankenwand auf',
@@ -772,6 +777,13 @@ pruefe('Schwelle und Abschlussprofil wandern mit',
        die AUFTEILUNG, deshalb ein fester Stellvertreter. */
     var kombi = (hatPlanken && (hatRahmen || hatSchiebe))
       ? { hoehe: hoch * 0.34, oben: false } : null;
+    /* Seit dem Planken-Editor (05.11.2026) laeuft die Hoehe durch
+       pwHoehe(): Steht im Editor eine eigene Hoehe, gilt die, sonst die
+       Vorgabe. Hier geht es um die AUFTEILUNG, nicht um den Editor -
+       also der Fall "nichts eingetragen", und das ist die Vorgabe
+       unveraendert. Ohne diesen Stellvertreter brach der Test ab
+       ("pwHoehe is not defined") statt zu messen. */
+    function pwHoehe(vorgabe) { return vorgabe; }
     var plankeOben = !!(kombi && kombi.oben);
     var hPlanke = eval(fH), yAuf = eval(fY), hAuf = eval(fA);
     return { plankeOk: yUnten + hPlanke, rahmenUk: yAuf,

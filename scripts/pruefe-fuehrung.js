@@ -3020,7 +3020,12 @@ pruefe('RAL-Feld ist breit genug',
        nichts ein - genau wie k3dTeilenLink. Sie ist readonly, und
        geprueft wird sie in scripts/pruefe-keil-editor.mjs daran, ob
        dort wirklich das Mass aus dem Modell steht. */
-    k3dKeilB: true
+    k3dKeilB: true,
+    /* Dasselbe im Planken-Editor: Die Breite kommt aus dem Modell und
+       ist readonly. Geprueft wird sie in
+       scripts/pruefe-planken-editor.mjs ("Die Breite kommt aus dem
+       Modell"). */
+    k3dPlankenB: true
   };
 
   var offen = ids.filter(function (e) {

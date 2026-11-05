@@ -13735,3 +13735,57 @@ setzt den ganzen Wert auf einmal und hätte diesen Fehler nie gezeigt. Die
 Gegenprobe baut das alte Verhalten wieder ein und zeigt genau das Bild des
 Betreibers: nach vier Rücktasten steht „150" im Feld, nach dem Tippen von 600
 steht „150600" darin.
+
+## 05.11.2026 – Plankenwand: eigener Editor, Höhe in mm, und hochkant
+
+**Anlass.** „genau so ein button auch für rahmenwand bearbeiten, Schiebetür
+bearbeiten, Plankenwand bearbeiten … bei Plankenwand noch h+" und „bei
+plankenwand noch ne option hinzufügen nicht nur waagrecht auch hochkant
+möglich" (Betreiber, 05.11.2026). Auf Rückfrage bestätigt: **VD liefert die
+Plankenwand auch hochkant** – das ist BELEGT, nicht abgeleitet.
+
+**Was jetzt gilt.**
+
+- Ein Zahnrad je Bauteil und Seite. Die Kennung trägt **beides**
+  (`data-k3d-rad` + `data-k3d-rad-seite`): Mit nur einem Attribut für alle
+  holte der Plankenknopf das Keil-Zahnrad und benannte es um. Dafür gibt es
+  eine eigene Prüfung („Das Keil-Zahnrad bleibt davon unberührt").
+- Höhe in **mm je Seite**, optional. **Leer heißt: es gilt der Regler im
+  Bedienfeld** – sonst hätte diese Änderung jede bestehende Einstellung
+  überschrieben und jeden geteilten Link anders aussehen lassen.
+- Sobald eine eigene Höhe eingetragen ist, steht der Prozentregler zurück
+  (`teilbar = false`). Ohne das zöge er von der eigenen Höhe **noch einmal**
+  ab: 900 mm im Editor wären im Modell 786. Zwei Mechanismen für dieselbe
+  Zahl laufen immer auseinander.
+- **Hochkant ist ein eigener Bauweg**, kein Schalter mitten in `plankenFeld()`.
+  Waagerecht liegen die Planken zwischen den Pfosten und tragen sich an den
+  Winkeln; hochkant stehen sie frei und brauchen oben **und** unten eine
+  Querschiene, sonst hängen sie in der Luft. Geteilt wird über die Länge
+  statt über die Höhe – dieselbe Rechnung, andere Richtung.
+- Die Teilhöhe („wie hoch zugesetzt") gibt es hochkant **nicht**: Eine
+  stehende Planke ist so hoch wie die Wand. Einzelne wegzulassen wäre eine
+  Lücke in der Fläche, kein niedrigerer Abschluss.
+- `PLANKE_MIN_H = 80 mm` steht bei `PLANKE`, nicht beim Editor. Grund: Am
+  selben Tag hat genau das schon einmal einen halben Abend gekostet –
+  `KEIL_MIN_VORNE` stand zweimal in der Datei, einmal in cm und einmal in mm.
+
+**Verworfen.** Eine zweite Dialog-Hülle neben der des Keils. Der Planken-Dialog
+nutzt absichtlich dieselben Klassen: Das ist die Hülle, die fürs Handy
+geradegezogen wurde (ganzes Fenster, klebende Kopf- und Fußzeile). Zwei Hüllen
+nebeneinander laufen auseinander, sobald eine angefasst wird. Die Klassen
+heißen noch `k3d-keil-*`; **umbenannt wird, wenn alle vier Editoren stehen** –
+siehe `docs/NEXT_TASK.md`.
+
+**Was gegengelesen werden soll.** `scripts/pruefe-planken-editor.mjs` misst im
+**Modell**, nicht an der Oberfläche: Zahl und Höhe der wirklich gebauten
+Planken über einen Lesehaken. Zwei Fälle waren zuerst blind und sind jetzt
+abgedeckt:
+
+1. Die Begrenzung auf den vorhandenen Platz. Über die Oberfläche kommt nie
+   ein zu großer Wert an (das Feld klemmt selbst) – erreichbar ist der Fall
+   nur über einen **Link, der zu einem höheren Bau gehörte**. Geprüft wird er
+   deshalb über einen direkt gesetzten Plan.
+2. Das Zusammenspiel mit dem Prozentregler. Mit dem Regler auf Vorgabe ist
+   kein Unterschied messbar – die Prüfung stellt ihn jetzt selbst auf −66.
+
+22 Prüfungen, 8 eingebaute Fehler, jeder einzeln nachgefahren.
