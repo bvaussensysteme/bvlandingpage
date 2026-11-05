@@ -13381,3 +13381,231 @@ entstehen.
 150 mm vorne) sind 6- und 8-teilig geometrisch möglich, aber praktisch
 sinnlos – die unteren Felder werden zu Streifen. Eine Warnung dafür ist
 **nicht** gebaut; ob sie nötig ist, entscheidet der Betreiber.
+
+
+## 05.11.2026 – Keil-Editor: gekreuzte Linien beim Versatz
+
+**Was falsch war.** Betreiber: *„da is ein fehler es überschneiden sich die
+linien wenn man versatz auswählt."*
+
+**Warum.** H2 ist die **lichte** Höhe am vorderen Ende – von der dortigen
+Unterkante bis zur Dachschräge. Mit einem Versatz liegt diese Unterkante
+höher als die Grundlinie. Die Zeichnung trug H2 trotzdem **von der
+Grundlinie aus** ab: Die Oberkante rutschte rechts um den Versatz zu tief,
+und sobald der Versatz größer war als die halbe Resthöhe, lag die steigende
+Unterkante über der Oberkante.
+
+Das 3D-Modell war **nicht** betroffen – dort wird die Oberkante aus der
+Dachunterkante gelesen und die Unterkante getrennt angehoben. Nur die
+Skizze rechnete anders als das Modell. Genau die Art Fehler, die entsteht,
+wenn dasselbe Maß an zwei Stellen hergeleitet wird.
+
+**Was jetzt gilt.** Die Skizze rechnet in **absoluten Höhen über der
+Grundlinie**: oben links H1, oben rechts H2 **plus** Versatz. Die
+Dachschräge bleibt dadurch, wo sie ist, und nur die Unterkante steigt –
+wie im Modell.
+
+**Das zweite Loch, das an derselben Stelle nicht saß.** Die Mindestöffnung
+von 50 mm wurde bisher nur am **Versatzfeld** durchgesetzt. Wer erst einen
+Versatz setzte und danach H1 absenkte, bekam ein negatives H2 – dieselben
+gekreuzten Linien über einen anderen Weg. Die Grenze gilt jetzt an beiden
+Feldern, und der begrenzte Wert erscheint sofort im Feld: stillschweigend
+zu klemmen wäre schlimmer als gar nicht zu klemmen.
+
+**Was beim Prüfen auffiel: ein Fehler kann einen anderen verdecken.**
+Die beiden neuen Prüfungen blieben in der Gegenprobe **grün**, obwohl ihre
+Fehler eingebaut waren – mit allen neun Fehlern auf einmal zerfällt die
+Zeichnung so weit, dass die Kantenmessung ins Leere läuft. `BV_FEHLER=<n>`
+baut jetzt **einen** Fehler allein ein. Wer eine neue Prüfung hinzufügt,
+sollte ihren Fehler einzeln laufen lassen.
+
+**Gemessen wird die Zeichnung selbst**, nicht die Rechnung dahinter: Jedes
+Feld ist ein Viereck; liegt eine Oberkante auf oder unter ihrer Unterkante,
+kreuzen sich die Linien. Eine Prüfung der Formel hätte denselben Denkfehler
+gemacht wie die Formel.
+
+**Was gegengelesen werden soll.** Im Keil-Editor einen Versatz eintragen und
+dabei die Zeichnung ansehen – und danach H1 klein machen. In beiden Fällen
+muss die Form ein sauberes Viereck bleiben.
+
+
+## 05.11.2026 (später) – Die Linien kreuzten sich immer noch, zweiter Anlauf
+
+**Was ich beim ersten Mal übersehen hatte.** Der Bezugsfehler bei H2 war nur
+die halbe Ursache. Die zweite: Die waagerechte Sprosse wurde **von der
+Unterkante an der Wand aus** gemessen. Mit einem Versatz ist die Unterkante
+aber **vorne am höchsten** – eine waagerechte Linie unterhalb dieses Punktes
+schneidet sie. Bei 6-teilig mit V = 100 wurde die untere Reihe dadurch zu
+einem Splitter mit gekreuzten Kanten (Bild des Betreibers).
+
+**Was jetzt gilt.** Bezug ist der **höchste** Punkt der Unterkante, und der
+Platz darüber ist die lichte Höhe am vorderen Ende – nur dort passt eine
+waagerechte Sprosse über die ganze Breite. Dieselbe Regel in der Zeichnung
+und im Modell.
+
+**Warum es durchgerutscht ist.** Meine Kantenprüfung lief nur auf *einer*
+Teilung – „2-teilig senkrecht", also mit **einer Reihe**. Der Fehler saß in
+der waagerechten Sprosse und konnte dort nicht auffallen. **Eine Prüfung,
+die einen von acht Fällen ansieht, prüft einen von acht Fällen.** Sie geht
+jetzt alle acht durch.
+
+**Nebenbei behoben: die Oberfläche sprang.** Der Hinweis unter dem
+Versatzfeld nennt die Obergrenze, und die hängt vom Modell ab – der Text
+wechselt dadurch zwischen zwei und drei Zeilen, und alles darunter rückte
+mit. Gemessen: Nach einer Änderung war „Feld 1 für alle übernehmen" rund
+eine Sekunde in Bewegung, lange genug, um daneben zu tippen. Der Hinweis hat
+jetzt feste Mindesthöhe.
+
+**Aufgefallen ist das am Testbrowser**, der den Knopf nicht treffen konnte –
+drei Prüfungen wurden rot, und die Ursache lag nicht dort, wo sie gemeldet
+wurden. Ein Test, der mit `.catch(() => {})` jeden Fehlklick verschluckt,
+verwandelt so etwas in ein Rätsel; der Klick meldet sich jetzt.
+
+**Jeder der neun eingebauten Fehler einzeln geprüft** (`BV_FEHLER=<n>`):
+alle werden gefunden.
+
+## 05.11.2026 – Der Keil-Editor am Handy: der Dialog lag im 3D-Bild
+
+**Was falsch war.** Betreiber mit Bild: *„du hast die mobile first anweisung
+nicht beachtet auf handy is es schlimm."* Zu Recht.
+
+**Zwei Ursachen, beide im Aufbau.**
+
+1. **Der Dialog lag *innerhalb* des 3D-Bildes** (`.k3d-buehne`). Das ist
+   unter 900 px nur **45svh** hoch. Der Kasten konnte gar nicht größer
+   werden als dieser Streifen – Teilungen, Zeichnung und Formular wurden
+   abgeschnitten, „Fertig" war nicht zu erreichen.
+2. `.k3d-buehne` ist am Handy **sticky mit `z-index: 5`** und damit ein
+   eigener Stapelkontext. Alles darin bleibt darunter, **egal welchen Wert
+   der Dialog bekommt**. Die klebende Kopfzeile der Seite (`.navbar`,
+   `z-index: 100`) lag deshalb über dem Dialog: „Keil bearbeiten" und
+   „Schließen" waren verdeckt. Ich habe erst den z-Wert von 60 auf 200
+   gesetzt – ohne Wirkung, weil nicht der Wert das Problem war, sondern der
+   Kontext.
+
+**Was jetzt gilt.** Der Dialog steht vor `</main>`, außerhalb jedes
+Stapelkontexts, und ist `position: fixed` mit `z-index: 200` – über der
+Kopfzeile (100), unter dem Cookie-Hinweis (9999), denn eine Einwilligung
+gehört nach oben.
+
+Am Handy ist er eine **Vollbild-Fläche**: Kopfzeile und „Fertig" kleben,
+damit man den Dialog immer verlassen kann, ohne durch das ganze Formular
+zurückzurollen. Die acht Teilungen stehen als **Raster 4 × 2** statt als
+waagerechte Rolle – was man seitlich wegschieben muss, findet man nicht.
+Unter 380 px sind es drei Spalten.
+
+**Nebenbei:** Unter dem klebenden „Fertig" schien der Inhalt durch – der
+Kasten hatte dort noch Polsterung, und der klebende Fuß haftet am Rand des
+Rollbereichs, nicht am Rand der Polsterung. Die Polsterung trägt jetzt der
+Fuß selbst, samt `env(safe-area-inset-bottom)`.
+
+**Wie geprüft wird.** Fünf neue Prüfungen messen das **Ergebnis auf dem
+Bildschirm**: Deckt der Dialog das Fenster ab? Liegt wirklich nichts über
+seiner Kopfzeile (`elementFromPoint`)? Ist „Fertig" zu sehen und mindestens
+44 px hoch? Kein waagerechtes Scrollen? Stehen alle acht Teilungen im Bild?
+**Eine Prüfung auf `position: fixed` hätte den Stapelkontext nicht bemerkt**
+– genau daran bin ich zuerst gescheitert.
+
+Der eingebaute Gegenprobe-Fehler setzt den Dialog zurück in den alten
+Zustand; er macht zwei der fünf Handy-Prüfungen rot.
+
+**Was ich daraus mitnehme.** Der Dialog war am Rechner von Anfang an in
+Ordnung, und ich habe ihn auch nur dort angesehen. Bei allem, was bedient
+wird, gehört der erste Blick auf das Handy – die Anweisung stand da, ich
+habe sie nicht befolgt.
+
+## 05.11.2026 – „FRF Glas is ESG": es waren nie zwei Systeme
+
+**Anlass.** Ich hatte gemeldet, dass in derselben Anfrage-Mail *ESG klar*
+neben *VSG Glas klar* und *FRF23 Glas opal* steht, und gefragt, ob das
+vereinheitlicht werden soll. Antwort des Betreibers: **„FRF Glas is ESG."**
+
+**Was das heißt.** FRF23 ist kein zweites Glassystem, sondern der
+Produktname einer **ESG**-Scheibe. Die Liste sah nur so aus, als stünden
+zwei Welten nebeneinander.
+
+**Was jetzt gilt.** Die Glasart steht vorn, der Produktname dahinter:
+`ESG Glas klar (FRF23)`. Wer die Anfrage liest, sieht auf einen Blick,
+dass es dieselbe Glasart ist wie anderswo auf der Seite – und hat trotzdem
+die Bezeichnung zum Bestellen. **Nur „ESG" zu schreiben hätte die
+Bezeichnung verloren, nur „FRF23" die Glasart verborgen.**
+
+**Ein Fehler, der dabei auffiel.** Der Rückfall für einen *unbearbeiteten*
+Keil (alte Einzelwahl „Glas im Keil": ESG klar / ESG satinato) landete auf
+**VSG**. Ein Keil, den niemand angefasst hat, hätte im Angebot eine andere
+Glasart getragen als die Seite daneben anzeigt. Jetzt fällt er auf ESG.
+
+**Alte Links bleiben gültig.** `KEIL_GLAS_ALT` setzt die drei alten Namen
+um. Ohne das stünde das Auswahlfeld beim Öffnen auf „bitte wählen" – die
+Wahl wäre stillschweigend weg. Geprüft wird das **am Auswahlfeld**, nicht
+an der Zuordnung im Quelltext: Nur so fällt auf, wenn die Umsetzung an der
+falschen Stelle sitzt und das Feld trotzdem leer bleibt.
+
+**Noch offen.** Ob **„opal" und „satinato" dasselbe meinen**, ist damit
+nicht geklärt. Es sind zwei verschiedene Verfahren – geätzt gegenüber
+milchiger Zwischenschicht – und beide Wörter stehen derzeit nebeneinander
+auf der Seite. Das ist eine Frage an den Hersteller, keine, die ich raten
+sollte.
+
+## 05.11.2026 – Zwei Ansagen: „opal" statt „satinato", und 150 mm vorne
+
+**1. „meinen das selbe kannst opal nennen."** opal und satinato bezeichnen
+dasselbe matte Glas. Sichtbar steht jetzt überall **opal** – im Keil und bei
+den Schiebeelementen.
+
+`mattesGlas()` kennt **beide** Wörter und ist die einzige Stelle, die danach
+fragt. Geteilte Links von vorher tragen noch „satinato"; ohne das alte Wort
+zeigte ein alter Link klares Glas, obwohl mattes bestellt war. An *einer*
+Stelle gefragt, damit nicht die nächste Abfrage nur die Hälfte kennt.
+
+**2. „vorne höhe IMMER min 150mm sein muss weniger geht nicht."**
+Ich hatte 50 mm gesetzt – **geraten, ohne es zu sagen**. Das wäre im Angebot
+ein Maß gewesen, das sich nicht bauen lässt. Jetzt `KEIL_MIN_VORNE = 150`,
+als **BELEGT** gekennzeichnet, und an einer Stelle: Höheneingabe, Versatz
+und Hinweistext lesen dieselbe Zahl.
+
+**3. „einfach nicht wählbar machen wenn die maße zu klein werden."**
+Teilungen, die rechnerisch nicht passen, sind **gesperrt** – mit dem Grund
+am Knopf („zu flach", „zu schmal") und der ganzen Erklärung im Titel. Eine
+Teilung anzubieten, die sich nicht bauen lässt, ist eine Zusage, die das
+Angebot zurücknehmen muss.
+
+Maßgeblich ist die lichte Höhe **vorne**: Dort ist der Keil am niedrigsten,
+und eine waagerechte Sprosse liegt über die ganze Länge auf derselben Höhe.
+Bei 220 mm Resthöhe sind alle vier zweireihigen Teilungen gesperrt, die
+einreihigen bleiben.
+
+`KEIL_MIN_FELD` (das Mindestmaß eines *einzelnen* Feldes) ist **abgeleitet,
+nicht belegt**: dieselben 150 mm, bis der Hersteller etwas anderes sagt.
+Steht als solches im Code.
+
+**Passt die gewählte Teilung nicht mehr** – etwa weil die Anlage schmaler
+wurde –, fällt der Editor auf die nächste zurück, die passt. Stehenzulassen,
+was nicht gebaut werden kann, wäre die schlechtere Hälfte: Das Modell zeigte
+dann etwas anderes als das Angebot.
+
+**Geprüft wird, dass die Sperre auch hält:** Ein Klick auf eine gesperrte
+Kachel darf nichts ändern. `disabled` allein genügt nicht, wenn ein Zuhörer
+trotzdem feuert.
+
+## 05.11.2026 – „immer auto merge"
+
+**Ansage des Betreibers.** Fertige Arbeit wird ohne Rückfrage zusammengeführt
+und veröffentlicht. Das hebt die frühere Vorgabe „kein Deployment ohne
+Freigabe" (vom selben Tag, aus dem 3D-Auftrag) auf.
+
+**Was dadurch wichtiger wird, nicht unwichtiger.** Die Freigabe war bisher
+die letzte Stelle, an der ein Mensch hingesehen hat. Fällt sie weg, trägt die
+Prüfung allein:
+
+1. **Alle** Prüfskripte vor dem Veröffentlichen – nicht die vermuteten.
+2. Nach dem Zusammenführen **byteweise** gegen `origin/main` prüfen, ob es
+   wirklich draußen ist, plus `scripts/pruefe-live.sh`.
+3. Berichten, was veröffentlicht wurde **und was offen blieb**.
+
+**Was weiterhin gefragt wird:** das Entfernen aller VD-Inhalte, das Löschen
+von Daten, Preise auf der Seite, und alles, was sich nicht ohne Weiteres
+zurücknehmen lässt. Automatisch zusammenführen heißt nicht, Entscheidungen zu
+übernehmen, die dem Betreiber gehören.
+
+Steht als Regel in `CLAUDE.md`, damit auch ein neuer Chat sie kennt.

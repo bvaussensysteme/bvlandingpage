@@ -2255,7 +2255,7 @@
   /* Satinato ist geätztes ESG: Es lässt das Licht durch, aber kein Bild.
      Im Modell heißt das: deutlich weniger durchsichtig, viel rauer und
      keine Spiegelung – sonst sähe es aus wie klares Glas mit Schleier.
-     Laut VD-Anfrageformular gibt es für SG23 NUR klar und satinato. */
+     Laut VD-Anfrageformular gibt es für SG23 NUR klar und matt. */
   function satiniert(m) {
     m.color = rgb(0xe8eef0);
     m.opacity = 0.62;
@@ -2268,7 +2268,13 @@
 
   function schiebeGlas() {
     var m = seitenglas();
-    return Z.sg23Glas.indexOf('satinato') === -1 ? m : satiniert(m);
+    /* "satinato" bleibt mitgeprueft: Teilen-Links von vor dem
+       05.11.2026 tragen noch das alte Wort. An dem Tag hat der
+       Betreiber klargestellt, dass opal und satinato dasselbe meinen
+       ("meinen das selbe kannst opal nennen") - sichtbar steht jetzt
+       ueberall opal. Ohne das alte Wort hier zeigte ein alter Link
+       klares Glas, obwohl mattes bestellt war. */
+    return mattesGlas(Z.sg23Glas) ? satiniert(m) : m;
   }
 
   /* Das Glas im KEIL – dem Dreieck über einer Wand oder Schiebeanlage.
@@ -2280,9 +2286,19 @@
      will man oft klare Sicht in den Garten. Beides zusammenzulegen
      hieße, dem Kunden eine Entscheidung abzunehmen, die er so nicht
      treffen würde. */
+  /* Ist dieses Glas matt? Prueft BEIDE Woerter. "satinato" und "opal"
+     meinen dasselbe (Betreiber, 05.11.2026: "meinen das selbe kannst
+     opal nennen"); sichtbar steht jetzt ueberall opal, aber geteilte
+     Links von vorher tragen noch das alte Wort. An EINER Stelle
+     gefragt, damit nicht die naechste Abfrage nur die Haelfte kennt. */
+  function mattesGlas(wert) {
+    var w = String(wert || '');
+    return w.indexOf('opal') > -1 || w.indexOf('satinato') > -1;
+  }
+
   function keilGlas() {
     var m = seitenglas();
-    return String(Z.keilGlas || '').indexOf('satinato') === -1 ? m : satiniert(m);
+    return mattesGlas(Z.keilGlas) ? satiniert(m) : m;
   }
 
   function seitenglas() {
@@ -6969,12 +6985,18 @@
           function kUnten(z) {
             return keilLaenge > 0 ? kVersatz * (z - zHintenK) / keilLaenge : 0;
           }
-          var kHMin = Math.max(0, Math.min(kOben(zVorneK) - kUnten(zVorneK),
-                                           kOben(zHintenK) - kUnten(zHintenK)));
+          /* Bezug fuer die waagerechten Sprossen: der HOECHSTE Punkt
+             der Unterkante. Mit einem Versatz liegt der vorne - eine
+             waagerechte Sprosse darunter wuerde die Unterkante
+             schneiden. Gemessen wird der Platz darueber, also die
+             lichte Hoehe genau dort. Dieselbe Regel wie in der
+             Zeichnung (keilSkizzeZeichnen). */
+          var kBodenHoch = Math.max(kUnten(zVorneK), kUnten(zHintenK));
+          var kHMin = Math.max(0, Math.min(kOben(zVorneK), kOben(zHintenK)) - kBodenHoch);
           var kEbenen = [];
           for (var ke = 1; ke < kT.reihen; ke++) {
             var eigenW = (kPlan.sprosseW === 'frei') ? kPlan.sprossenMassW[ke - 1] : 0;
-            kEbenen.push(eigenW ? eigenW / 10 : kHMin * ke / kT.reihen);
+            kEbenen.push(Math.min(kHMin, eigenW ? eigenW / 10 : kHMin * ke / kT.reihen));
             /* Gemessen ab der Unterkante am WANDende (dort ist sie am
                tiefsten) - eine waagerechte Sprosse hat nur eine Hoehe. */
           }
@@ -6985,8 +7007,12 @@
             /* Reihe 0 ist OBEN - wie in der Zeichnung des Editors und
                wie in den Bildern des Betreibers (1,2,3 oben, 4,5,6
                unten). */
-            var yOben = (kr === 0) ? null : kEbenen[kT.reihen - 1 - kr];
-            var yUnten = (kr === kT.reihen - 1) ? 0 : kEbenen[kT.reihen - 2 - kr];
+            /* kEbenen sind Hoehen UEBER kBodenHoch, also absolute
+               Hoehen ueber yKeil. Die unterste Reihe sitzt auf der
+               (moeglicherweise schraegen) Unterkante, alle anderen auf
+               einer waagerechten Sprosse. */
+            var yOben = (kr === 0) ? null : kBodenHoch + kEbenen[kT.reihen - 1 - kr];
+            var yUnten = (kr === kT.reihen - 1) ? null : kBodenHoch + kEbenen[kT.reihen - 2 - kr];
             for (kc = 0; kc < kGrenzen.length - 1; kc++) {
               var zA = kGrenzen[kc], zB = kGrenzen[kc + 1];
               var lc = zB - zA;
@@ -6997,10 +7023,16 @@
                 /* zB ist das VORDERE Ende des Feldes (groesseres z),
                    zA das hintere an der Wand - so herum erwartet es
                    keilFeldNetz. */
+                /* yUnten === null heisst: unterste Reihe, sie folgt
+                   der Unterkante. Sonst liegt sie auf einer
+                   waagerechten Sprosse, an beiden Enden gleich hoch -
+                   vorher wurde dort die Schraege der Unterkante
+                   aufaddiert, und die Reihe kippte mit. */
                 var kf = keilFeldNetz(lc,
                            kOben(zB), kOben(zA),
-                           kUnten(zB) + yUnten, kUnten(zA) + yUnten,
-                           yOben == null ? null : yOben, 1.4, mGlas);
+                           yUnten == null ? kUnten(zB) : yUnten,
+                           yUnten == null ? kUnten(zA) : yUnten,
+                           yOben, 1.4, mGlas);
                 kf.userData.keilSeite = seite;
                 kf.userData.keilFeld = kNr;
                 kf.position.set(achse, yKeil, zc);
@@ -7042,7 +7074,7 @@
             kEbenen.forEach(function (hE) {
               if (hE <= 0.5) return;
               var qs = new THREE.Mesh(new THREE.BoxGeometry(rb, rb, keilLaenge), rahmen);
-              qs.position.set(achse, yKeil + hE + kUnten(zHintenK), keilMitte);
+              qs.position.set(achse, yKeil + kBodenHoch + hE, keilMitte);
               qs.castShadow = true;
               bau.add(qs);
             });
@@ -13865,7 +13897,7 @@
               ? ' · hinten: ' + bg.pfosten.hinten.join(' / ') + ' mm' : ''));
         }
       }
-      /* Das Keilglas gehört in die Bestellung: satinato ist eine andere
+      /* Das Keilglas gehört in die Bestellung: opal ist eine andere
          Scheibe, nicht nur eine andere Ansicht. */
       if (erwIrgendwo('Keil')) teile.push('Glas im Keil: ' + Z.keilGlas);
       /* Die Planken haben eine eigene Farbe – sie muss in die Mail, sonst
@@ -16417,6 +16449,20 @@
      gefuellt (siehe keilNetz-Aufruf) und vom Editor gelesen. */
   var keilMassGemerkt = {};
 
+  /* ---------- Mindestmasse am Keil ----------
+     KEIL_MIN_VORNE ist BELEGT durch den Betreiber (05.11.2026): "du
+     musst auch beachten das vorne hoehe IMMER min 150mm sein muss
+     weniger geht nicht". Vorher standen hier 50 mm - von mir geraten,
+     ohne es zu sagen. Das waere im Angebot ein Mass gewesen, das sich
+     nicht bauen laesst.
+
+     KEIL_MIN_FELD ist ABGELEITET, nicht belegt: Ein einzelnes Feld
+     sollte nicht kleiner sein als die kleinste zulaessige Oeffnung.
+     Dieselbe Zahl, bis der Hersteller etwas anderes sagt - und dann
+     steht sie hier an einer Stelle. */
+  var KEIL_MIN_VORNE = 150;   // mm, BELEGT
+  var KEIL_MIN_FELD = 150;    // mm, ABGELEITET
+
   var KEIL_TEILUNGEN = [
     { id: '1',   spalten: 1, reihen: 1, name: '1-teilig' },
     { id: '2w',  spalten: 1, reihen: 2, name: '2-teilig waagerecht' },
@@ -16432,16 +16478,75 @@
      bewusst oben: Es ist die einzige Wahl, die etwas WEGLAESST, und
      wer sie sucht, sucht sie zuerst.
 
-     ACHTUNG, ZWEI BENENNUNGEN: Der uebrige Konfigurator spricht von
-     ESG klar und ESG satinato (k3dKeilGlas, k3dSg23Glas). Hier steht
-     VSG und FRF23. Beides sind Herstellerangaben, keine erfundenen
-     Namen - aber im Angebot stehen sie nebeneinander. Dem Betreiber
-     gemeldet; bis er entscheidet, bleibt es bei seiner Liste. */
+     FRF23 IST ESG. Klargestellt vom Betreiber am 05.11.2026 ("FRF
+     Glas is ESG"), nachdem die Liste neben dem uebrigen Konfigurator
+     ("ESG klar", "ESG opal") wie ein zweites System aussah. Es
+     ist keines: FRF23 ist der Produktname einer ESG-Scheibe.
+
+     Darum steht die Glasart vorn und der Produktname dahinter -
+     "ESG Glas klar (FRF23)". Wer die Anfrage liest, sieht auf einen
+     Blick, dass es dieselbe Glasart ist wie anderswo, und hat
+     trotzdem die Bezeichnung zum Bestellen. Nur "ESG" zu schreiben
+     haette die Bezeichnung verloren, nur "FRF23" die Glasart
+     verborgen.
+
+     GEKLAERT am 05.11.2026: opal und satinato meinen dasselbe
+     ("meinen das selbe kannst opal nennen"). Sichtbar steht jetzt
+     ueberall opal; mattesGlas() kennt weiterhin beide Woerter, damit
+     alte Teilen-Links ihr mattes Glas behalten. */
   var KEIL_GLAS = [
     'Ohne Glas',
     'VSG Glas klar', 'VSG Glas opal', 'VSG Glas grau',
-    'FRF23 Glas klar', 'FRF23 Glas opal', 'FRF23 Glas grau'
+    'ESG Glas klar (FRF23)', 'ESG Glas opal (FRF23)', 'ESG Glas grau (FRF23)'
   ];
+
+  /* Alte Bezeichnungen aus geteilten Links. Bis zum 05.11.2026 hiessen
+     die drei ESG-Glaeser nur "FRF23" - bis der Betreiber klarstellte:
+     "FRF Glas is ESG". Es waren also nie zwei Systeme nebeneinander,
+     sondern eine Glasart unter einem Produktnamen.
+
+     Ein Link, der vorher verschickt wurde, traegt noch die alten
+     Namen. Ohne diese Zuordnung stuende das Auswahlfeld beim Oeffnen
+     auf "bitte waehlen" - die Wahl waere stillschweigend weg. */
+  var KEIL_GLAS_ALT = {
+    'FRF23 Glas klar': 'ESG Glas klar (FRF23)',
+    'FRF23 Glas opal': 'ESG Glas opal (FRF23)',
+    'FRF23 Glas grau': 'ESG Glas grau (FRF23)'
+  };
+  function keilGlasName(g) {
+    return KEIL_GLAS_ALT[g] || g;
+  }
+
+  /* ---------- Was passt noch? ----------
+     "einfach nicht waehlbar machen wenn die maße zu klein werden"
+     (Betreiber, 05.11.2026).
+
+     Eine Teilung anzubieten, die sich nicht bauen laesst, ist eine
+     Zusage, die das Angebot zuruecknehmen muss. Also wird sie gar
+     nicht erst angeboten - mit dem Grund daneben, damit niemand
+     raetselt, warum eine Kachel nicht geht.
+
+     Massgeblich ist die lichte Hoehe VORNE: Dort ist der Keil am
+     niedrigsten, und eine waagerechte Sprosse liegt ueber die ganze
+     Laenge auf derselben Hoehe. */
+  function keilPasst(t, mass) {
+    var breite = mass.b || 0;
+    var lichtVorn = Math.max(0, (mass.h2 || 0));
+    var spalten = breite > 0 ? Math.floor(breite / KEIL_MIN_FELD) : 99;
+    var reihen = lichtVorn > 0 ? Math.floor(lichtVorn / KEIL_MIN_FELD) : 99;
+    if (t.spalten > spalten) {
+      return { ok: false, grund: 'zu schmal',
+               lang: 'Bei ' + breite + ' mm Breite passen höchstens '
+                     + Math.max(1, spalten) + ' Felder nebeneinander.' };
+    }
+    if (t.reihen > reihen) {
+      return { ok: false, grund: 'zu flach',
+               lang: 'Vorne bleiben nur ' + lichtVorn + ' mm Höhe – '
+                     + 'für zwei Reihen braucht es mindestens '
+                     + (2 * KEIL_MIN_FELD) + ' mm.' };
+    }
+    return { ok: true };
+  }
 
   function keilTeilung(id) {
     for (var i = 0; i < KEIL_TEILUNGEN.length; i++) {
@@ -16481,7 +16586,7 @@
          sind zwei verschiedene Bauteile. */
       sprosseW: p.sprosseW === 'frei' ? 'frei' : 'gleich',
       sprossenMassW: (p.sprossenMassW || []).slice(),
-      glas: (p.glas || []).slice()
+      glas: (p.glas || []).map(keilGlasName)
     };
   }
   function keilPlanSchreiben(seite, plan) {
@@ -16494,9 +16599,14 @@
   function keilFeldGlas(seite, nr) {
     var p = keilPlanLesen(seite);
     var g = p.glas[nr];
-    if (g) return g;
-    return String(Z.keilGlas || '').indexOf('satinato') > -1
-      ? 'VSG Glas opal' : 'VSG Glas klar';
+    if (g) return keilGlasName(g);
+    /* Rueckfall auf die alte Einzelwahl "Glas im Keil" (ESG klar /
+       ESG opal). Sie faellt auf ESG und nicht auf VSG - bis zum
+       05.11.2026 stand hier VSG, und das war schlicht falsch: Die
+       Vorgabe ist ESG, und ein unbearbeiteter Keil haette im Angebot
+       eine andere Glasart getragen als auf der Seite daneben. */
+    return mattesGlas(Z.keilGlas)
+      ? 'ESG Glas opal (FRF23)' : 'ESG Glas klar (FRF23)';
   }
 
   /* ---------- Die Zeichnung ----------
@@ -16518,10 +16628,29 @@
        abgeschnitten (gesehen im ersten Bild vom 05.11.2026). */
     var L = 86, R = 346, OBEN = 40, UNTEN = 250;       // Zeichenflaeche
     var hoch = UNTEN - OBEN;
-    var h1 = Math.max(1, mass.h1), h2 = Math.max(1, mass.h2);
-    var gross = Math.max(h1, h2);
+    /* ---------- Wovon aus gemessen wird ----------
+       BERICHTIGT am 05.11.2026, gemeldet vom Betreiber: "es
+       ueberschneiden sich die linien wenn man versatz auswaehlt".
+
+       H2 ist die LICHTE Hoehe am vorderen Ende, also von der dortigen
+       Unterkante bis zur Dachschraege. Mit einem Versatz liegt diese
+       Unterkante hoeher als die Grundlinie. Vorher wurde H2 trotzdem
+       von der Grundlinie aus abgetragen - die Oberkante rutschte
+       rechts um den Versatz zu tief, und sobald der Versatz groesser
+       war als die halbe Resthoehe, lag die steigende Unterkante ueber
+       der Oberkante: die Linien kreuzten sich.
+
+       Gerechnet wird jetzt in absoluten Hoehen ueber der Grundlinie.
+       Oben links ist das H1, oben rechts H2 PLUS Versatz - die
+       Dachschraege bleibt dadurch, wo sie ist, und nur die Unterkante
+       steigt. Genau so baut es auch das Modell (siehe kOben/kUnten im
+       Keil-Abschnitt). */
+    var h1 = Math.max(1, mass.h1);
+    var vMm = mass.versatz || 0;
+    var h2Abs = Math.max(1, mass.h2 + vMm);            // Oberkante rechts, ueber Grundlinie
+    var gross = Math.max(h1, h2Abs);
     var y1 = UNTEN - hoch * (h1 / gross);              // Oberkante links
-    var y2 = UNTEN - hoch * (h2 / gross);              // Oberkante rechts
+    var y2 = UNTEN - hoch * (h2Abs / gross);           // Oberkante rechts
 
     function el(name, attr) {
       var e = document.createElementNS(NS, name);
@@ -16539,7 +16668,7 @@
        eingegebenen Masse, sonst gleiche Teile. */
     /* Die Unterkante. Mit Versatz steigt sie zum flachen Ende hin an -
        genau wie die Oberkante faellt. */
-    var vPix = mass.versatz ? hoch * (mass.versatz / gross) : 0;
+    var vPix = vMm ? hoch * (vMm / gross) : 0;
     function unten(x) { return UNTEN - vPix * x; }
 
     var grenzen = [0];
@@ -16567,16 +16696,24 @@
        Abstand zur Grundlinie; mit einem Versatz lag die Sprosse dann
        unter der angehobenen Unterkante, und das unterste Feld wurde zu
        einem Splitter (gemessen am 05.11.2026 mit V = 100). */
-    var lichtLinks = unten(0) - y1;
-    var lichtRechts = unten(1) - y2;
-    var lichtMin = Math.max(1, Math.min(lichtLinks, lichtRechts));
+    /* ---------- Wo eine waagerechte Sprosse liegen darf ----------
+       BERICHTIGT am 05.11.2026, zweiter Anlauf. Gemessen wurde vorher
+       ab der Unterkante am WANDende. Mit einem Versatz ist die
+       Unterkante aber VORNE am hoechsten - eine waagerechte Linie
+       unterhalb dieses Punktes schneidet sie. Im Bild des Betreibers
+       (6-teilig mit V = 100) wurde die untere Reihe dadurch zu einem
+       Splitter mit gekreuzten Kanten.
+
+       Bezug ist deshalb der HOECHSTE Punkt der Unterkante, und der
+       Platz darueber ist die lichte Hoehe am vorderen Ende. Nur dort
+       passt eine waagerechte Sprosse ueber die ganze Breite. */
+    var bodenHoch = Math.min(unten(0), unten(1));   // kleineres y = hoeher
+    var lichtVorn = Math.max(1, bodenHoch - y2);
     var ebenen = [];
     for (i = 1; i < t.reihen; i++) {
       var eigen = (plan.sprosseW === 'frei') ? plan.sprossenMassW[i - 1] : 0;
-      var hVonUnten = eigen ? hoch * (eigen / gross) : lichtMin * i / t.reihen;
-      /* Gemessen ab der Unterkante am WANDende - dort liegt sie am
-         tiefsten, und eine waagerechte Sprosse hat nur eine Hoehe. */
-      ebenen.push(unten(0) - hVonUnten);
+      var hVonUnten = eigen ? hoch * (eigen / gross) : lichtVorn * i / t.reihen;
+      ebenen.push(bodenHoch - Math.min(hVonUnten, lichtVorn));
     }
     ebenen.sort(function (a, b) { return a - b; });   // oben zuerst
 
@@ -16748,6 +16885,7 @@
     var plan = keilPlanLesen(seite);
     var modell = keilEditorMass(seite);
     var mass = keilMassWirksam(seite, plan);
+    var t0 = keilTeilung(plan.teilung);
     var zahl = keilFeldZahl(plan.teilung);
     if (keilEditorFeld >= zahl) keilEditorFeld = 0;
 
@@ -16782,10 +16920,53 @@
     }
     if (kacheln) {
       Array.prototype.forEach.call(kacheln.children, function (b) {
-        var an = b.getAttribute('data-teilung') === plan.teilung;
-        b.classList.toggle('ist-an', an);
-        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+        var id = b.getAttribute('data-teilung');
+        var an = id === plan.teilung;
+        var passt = keilPasst(keilTeilung(id), mass);
+        b.classList.toggle('ist-an', an && passt.ok);
+        b.setAttribute('aria-pressed', an && passt.ok ? 'true' : 'false');
+        b.disabled = !passt.ok;
+        b.classList.toggle('ist-gesperrt', !passt.ok);
+        /* Der Grund steht AM Knopf, nicht nur als Titel: Ein
+           ausgegrauter Knopf ohne Begruendung sieht nach Fehler aus,
+           und am Handy gibt es keinen Mauszeiger fuer einen Titel. */
+        var note = b.querySelector('.k3d-keil-sperr');
+        if (!passt.ok) {
+          if (!note) {
+            note = document.createElement('em');
+            note.className = 'k3d-keil-sperr';
+            b.appendChild(note);
+          }
+          note.textContent = passt.grund;
+          b.title = passt.lang;
+          b.setAttribute('aria-label', keilTeilung(id).name + ' – nicht möglich: ' + passt.lang);
+        } else if (note) {
+          note.parentNode.removeChild(note);
+          b.removeAttribute('title');
+          b.removeAttribute('aria-label');
+        }
       });
+    }
+
+    /* Passt die GEWAEHLTE Teilung nicht mehr - etwa weil die Anlage
+       schmaler geworden ist -, wird auf die naechste zurueckgefallen,
+       die passt, und der Grund genannt. Stehenzulassen, was nicht
+       gebaut werden kann, waere die schlechtere Haelfte: Das Modell
+       zeigte dann etwas anderes als das Angebot. */
+    var gewaehlt = keilPasst(t0, mass);
+    if (!gewaehlt.ok) {
+      var ersatz = null;
+      for (var ti = KEIL_TEILUNGEN.length - 1; ti >= 0; ti--) {
+        if (keilPasst(KEIL_TEILUNGEN[ti], mass).ok) { ersatz = KEIL_TEILUNGEN[ti]; break; }
+      }
+      if (ersatz && ersatz.id !== plan.teilung) {
+        plan.teilung = ersatz.id;
+        keilPlanSchreiben(seite, plan);
+        keilEditorFeld = 0;
+        keilEditorZeichnen();
+        aendern();
+        return;
+      }
     }
 
     /* Zeichnung */
@@ -16810,12 +16991,14 @@
        Wer sie sieht, laeuft nicht hinein. */
     if (fV) {
       var grenzeV = Math.max(0, (plan.h1 != null ? plan.h1 : modell.h1)
-                                - ((modell.h1 && modell.h2) ? modell.h1 - modell.h2 : 0) - 50);
+                                - ((modell.h1 && modell.h2) ? modell.h1 - modell.h2 : 0)
+                                - KEIL_MIN_VORNE);
       fV.max = String(grenzeV);
       var hV = document.getElementById('k3dKeilVHinweis');
       if (hV) {
         hV.textContent = 'Optional. Die Unterkante steigt vorne um dieses Maß an – '
-          + 'höchstens ' + grenzeV + ' mm, sonst bliebe vorne keine Öffnung.';
+          + 'höchstens ' + grenzeV + ' mm – vorne müssen '
+          + KEIL_MIN_VORNE + ' mm Höhe bleiben.';
       }
     }
 
@@ -17105,8 +17288,28 @@
           p.h1 = null; p.h2 = null;
         } else {
           var ab = keilAbfall(keilEditorSeite);
-          if (schluessel === 'h1') { p.h1 = v; p.h2 = v - ab - (p.versatz || 0); }
-          else                     { p.h2 = v; p.h1 = v + ab + (p.versatz || 0); }
+          var vs = p.versatz || 0;
+          /* ---------- H2 bleibt mindestens 50 mm ----------
+             Die Begrenzung sass bis zum 05.11.2026 NUR am
+             Versatzfeld. Wer erst einen Versatz setzte und danach H1
+             absenkte, bekam ein negatives H2 - und damit genau die
+             gekreuzten Linien, die der Betreiber gemeldet hatte, nur
+             ueber einen anderen Weg. Ein Loch, das nicht an der
+             Stelle sass, an der es auffiel.
+
+             Darum hier dieselbe Grenze: H1 kann nicht unter
+             Abfall + Versatz + 50 mm. Das Feld zeigt den begrenzten
+             Wert sofort - stillschweigend zu klemmen waere
+             schlimmer als gar nicht zu klemmen. */
+          if (schluessel === 'h1') {
+            if (v < ab + vs + KEIL_MIN_VORNE) {
+              v = ab + vs + KEIL_MIN_VORNE; f.value = String(v);
+            }
+            p.h1 = v; p.h2 = v - ab - vs;
+          } else {
+            if (v < KEIL_MIN_VORNE) { v = KEIL_MIN_VORNE; f.value = String(v); }
+            p.h2 = v; p.h1 = v + ab + vs;
+          }
         }
         keilPlanSchreiben(keilEditorSeite, p);
         keilEditorZeichnen();
@@ -17133,11 +17336,11 @@
            Die Zeichnung zerfiel in sich ueberschneidende Flaechen, und
            das Modell haette Scheiben mit negativer Hoehe gebaut.
 
-           Begrenzt wird auf H2 = 50 mm Restoeffnung. Ein Keil, der
-           vorne auf null zulaeuft, ist kein Bauteil mehr. */
+           Begrenzt wird auf KEIL_MIN_VORNE - das kleinste Mass, das
+           der Hersteller vorne baut. */
         var mO = keilEditorMass(keilEditorSeite);
         var hWand = (pv.h1 != null) ? pv.h1 : mO.h1;
-        var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - 50);
+        var grenze = Math.max(0, hWand - keilAbfall(keilEditorSeite) - KEIL_MIN_VORNE);
         if (pv.versatz > grenze) {
           pv.versatz = grenze;
           f.value = String(grenze);

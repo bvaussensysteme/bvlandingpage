@@ -23,6 +23,15 @@ import { existsSync, readdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const GEGENPROBE = process.argv.includes('--gegenprobe');
+/* ---------- Einen Fehler allein einbauen ----------
+   BV_FEHLER=3 node scripts/pruefe-keil-editor.mjs --gegenprobe
+
+   Noetig geworden am 05.11.2026: Mit allen Fehlern auf einmal
+   zerfaellt die Zeichnung so weit, dass die Kantenpruefung ins Leere
+   laeuft - sie blieb gruen, obwohl ihr Fehler eingebaut war. Ein
+   Fehler kann einen anderen verdecken. Wer eine neue Pruefung
+   hinzufuegt, sollte ihren Fehler EINZELN laufen lassen. */
+const NUR = process.env.BV_FEHLER ? parseInt(process.env.BV_FEHLER, 10) : null;
 const PORT = 8277;
 const WURZEL = new URL('..', import.meta.url).pathname;
 
@@ -51,10 +60,36 @@ const FEHLER = [
   { von: "          keilMassGemerkt[seite] = { b: Math.round(keilLaenge * 10),",
     nach: "          keilMassGemerkt[seite] = { b: 0," },
   { von: "        !keilGeklickt(e) &&\n", nach: "" },
-  { von: "          if (schluessel === 'h1') { p.h1 = v; p.h2 = v - ab - (p.versatz || 0); }",
-    nach: "          if (schluessel === 'h1') { p.h1 = v; }" },
+  /* ANKER NACHGEZOGEN am 05.11.2026: Die Zeile wurde beim Einbau der
+     Mindestoeffnung umgeschrieben. Der alte Anker fand nichts mehr -
+     der Fehler kam gar nicht an, und die Gegenprobe meldete ihn als
+     blind. Darum steht unten der Abbruch bei fehlendem Anker. */
+  { von: "            p.h1 = v; p.h2 = v - ab - vs;",
+    nach: "            p.h1 = v;" },
   { von: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
     nach: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
+  /* Die Sperre zu kleiner Teilungen. */
+  { von: "    if (t.reihen > reihen) {", nach: "    if (false) {" },
+  /* Die belegte Mindesthoehe vorne. */
+  { von: "  var KEIL_MIN_VORNE = 150;   // mm, BELEGT",
+    nach: "  var KEIL_MIN_VORNE = 1;   // mm, BELEGT" },
+  /* Die Zuordnung der alten Glasnamen. */
+  { von: "    return KEIL_GLAS_ALT[g] || g;", nach: "    return g;" },
+  /* Der Bezugsfehler, der die Linien kreuzen liess. */
+  { von: "    var h2Abs = Math.max(1, mass.h2 + vMm);",
+    nach: "    var h2Abs = Math.max(1, mass.h2);" },
+  /* Die Grenze am Hoehenfeld - das zweite Loch. */
+  /* ANKER NACHGEZOGEN am 05.11.2026: Aus den geratenen 50 mm wurde die
+     belegte Grenze KEIL_MIN_VORNE (150 mm). */
+  { von: "            if (v < ab + vs + KEIL_MIN_VORNE) {",
+    nach: "            if (v < -99999) {" },
+];
+
+/* Der Handy-Fehler steckt im CSS, nicht im JavaScript: Der Dialog
+   zurueck in den Stapelkontext des 3D-Bildes. */
+const CSS_FEHLER = [
+  { von: '      position: fixed; inset: 0; z-index: 200;',
+    nach: '      position: absolute; inset: 0; z-index: 60;' }
 ];
 
 /* Zwei Lesehaken, beide NUR lesend und nur im Test: eine Liste der
@@ -65,6 +100,10 @@ const MESSHAKEN = {
   von: "                kf.userData.keilFeld = kNr;",
   nach: "                kf.userData.keilFeld = kNr;\n"
       + "                (window.__bvKeilScheiben = window.__bvKeilScheiben || []).push(seite + ':' + kNr);\n"
+      + "                window.__bvKeilAltSetzen = function (seite) {\n"
+      + "                  Z.keilPlan[seite] = Z.keilPlan[seite] || { teilung: '2s' };\n"
+      + "                  Z.keilPlan[seite].glas = ['FRF23 Glas opal', 'FRF23 Glas grau'];\n"
+      + "                };\n"
       + "                window.__bvKeilPunkt = (function (mesh) { return function () {\n"
       + "                  mesh.geometry.computeBoundingSphere();\n"
       + "                  var c = mesh.geometry.boundingSphere.center.clone();\n"
@@ -74,6 +113,12 @@ const MESSHAKEN = {
       + "                           y: r.top + (1 - (c.y + 1) / 2) * r.height }; }; })(kf);"
 };
 
+/* Ein Anker, der nichts mehr findet, laesst den Fehler gar nicht
+   ankommen - und die Gegenprobe meldet dann faelschlich eine blinde
+   Pruefung (oder, schlimmer, gar nichts). Das MUSS den Lauf scheitern
+   lassen: process.exitCode genuegt nicht, weil process.exit() am Ende
+   ihn ueberschreibt. */
+let ankerKaputt = false;
 let ok = 0; const rot = [];
 function pruefe(was, bedingung, beleg) {
   if (bedingung) { ok++; console.log(`  ok      ${was}`); }
@@ -91,23 +136,37 @@ const ctx = await browser.newContext({ viewport: { width: 1400, height: 950 } })
 /* EIN Handler je Adresse. Der Lesehaken geht IMMER mit, die Fehler nur
    in der Gegenprobe - beides durch denselben Handler, sonst hebt die
    zweite Route die erste auf und nichts kommt an. */
-await ctx.route('**/*', async (route) => {
+async function routenSetzen(zielCtx) {
+  await zielCtx.route('**/*', async (route) => {
   const pfad = new URL(route.request().url()).pathname;
-  if (!pfad.endsWith('/js/konfigurator-3d.js')) return route.continue();
+  const istJs = pfad.endsWith('/js/konfigurator-3d.js');
+  const istSeite = pfad.endsWith('/konfigurator.html');
+  if (!istJs && !istSeite) return route.continue();
   const antwort = await route.fetch();
   let text = await antwort.text();
   const anwenden = (f) => {
     const n = text.split(f.von).length - 1;
     if (n !== 1) {
       console.error(`  !! Anker kommt ${n}x vor (erwartet 1x): ${f.von.slice(0, 50)}`);
-      process.exitCode = 2;
+      ankerKaputt = true;
     }
     text = text.replace(f.von, f.nach);
   };
-  anwenden(MESSHAKEN);
-  if (GEGENPROBE) FEHLER.forEach(anwenden);
-  return route.fulfill({ response: antwort, body: text });
-});
+  /* Die JS-Fehler gehoeren ins JavaScript, der Handy-Fehler ins CSS
+     der Seite. Ohne diese Trennung suchte der Fehlerbauer die
+     JS-Anker in der HTML-Datei und meldete acht veraltete Anker. */
+  if (istJs) {
+    anwenden(MESSHAKEN);
+    if (GEGENPROBE) {
+      (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
+    }
+  } else if (GEGENPROBE && NUR == null) {
+    CSS_FEHLER.forEach(anwenden);
+  }
+    return route.fulfill({ response: antwort, body: text });
+  });
+}
+await routenSetzen(ctx);
 
 const p = await ctx.newPage();
 const seitenfehler = [];
@@ -116,6 +175,22 @@ await p.goto(`http://localhost:${PORT}/konfigurator.html`, { waitUntil: 'network
 await p.waitForTimeout(2200);
 await p.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ }).first().click({ timeout: 4000 }).catch(() => {});
 await p.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
+/* Den Cookie-Hinweis sicher aus dem Weg raeumen. Der Klick oben kann
+   danebengehen (anderer Text, anderer Zeitpunkt), und der Hinweis
+   klebt unten am Bild - seit der Editor durch Versatz- und
+   Sprossenfeld laenger ist, liegt er genau ueber "Feld 1 fuer alle
+   uebernehmen". Drei Pruefungen wurden dadurch rot, ohne dass am
+   Produkt etwas falsch war: Die Klicks gingen ins Leere, und das
+   .catch() im Test hat es verschluckt. */
+await p.evaluate(() => {
+  document.querySelectorAll('div,section,aside').forEach((e) => {
+    if (!/Cookie/i.test(e.textContent || '')) return;
+    const r = e.getBoundingClientRect();
+    if (r.height > 60 && r.height < 460 && r.bottom > window.innerHeight - 200) {
+      e.style.display = 'none';
+    }
+  });
+});
 await p.waitForTimeout(800);
 
 console.log(`\n=== Keil-Editor ===${GEGENPROBE ? '  (GEGENPROBE – Fehler eingebaut)' : ''}\n`);
@@ -208,16 +283,18 @@ async function waehle(id, wert) {
   await p.selectOption(id, wert, { timeout: 4000 }).catch(() => {});
 }
 await waehle('#k3dKeilGlas0', 'VSG Glas klar');
-await waehle('#k3dKeilGlas1', 'FRF23 Glas opal');
+await waehle('#k3dKeilGlas1', 'ESG Glas opal (FRF23)');
 await waehle('#k3dKeilGlas2', 'VSG Glas grau');
 await waehle('#k3dKeilGlas3', 'Ohne Glas');
-await p.waitForTimeout(900);
+/* Laenger warten: Jede Glaswahl baut das Modell neu, und erst danach
+   steht die Oberflaeche wieder still. */
+await p.waitForTimeout(1600);
 const scheibenOhne = await scheibenZaehlen();
 pruefe('"Ohne Glas" laesst das Feld wirklich leer', scheibenOhne === 3,
   `${scheibenOhne} Scheiben statt 3 - eine fast durchsichtige Scheibe waere eine Luege`);
 
 /* ---------- Feld 1 fuer alle ---------- */
-await p.click('#k3dKeilGlasAlle', { timeout: 4000 }).catch(() => {});
+await p.click('#k3dKeilGlasAlle', { timeout: 10000 }).catch((e) => { console.error('  !! Klick auf k3dKeilGlasAlle fehlgeschlagen'); });
 await p.waitForTimeout(700);
 const alleGleich = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilGlasFelder select')].map((s) => s.value));
@@ -294,6 +371,63 @@ pruefe('Ein zu grosser Versatz wird begrenzt, nicht gebaut',
 await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(600);
 
+/* ---------- Die Kanten duerfen sich nie kreuzen ----------
+   "da is ein fehler es ueberschneiden sich die linien wenn man versatz
+   auswaehlt" (Betreiber, 05.11.2026). Ursache war der Bezug: H2 ist
+   die LICHTE Hoehe ueber der angehobenen Unterkante, wurde aber von
+   der Grundlinie aus abgetragen.
+
+   GEPRUEFT WIRD DIE ZEICHNUNG SELBST, nicht die Rechnung dahinter:
+   Jedes Feld ist ein Viereck aus oben-links, oben-rechts, unten-rechts,
+   unten-links. Liegt eine Oberkante auf oder unter ihrer Unterkante,
+   kreuzen sich die Linien. */
+async function kantenPruefen() {
+  return p.evaluate(() => {
+    const g = [...document.querySelectorAll('#k3dKeilSkizze .k3d-keil-feld polygon')];
+    const schlimm = [];
+    g.forEach((pg, i) => {
+      const pts = pg.getAttribute('points').trim().split(/\s+/).map((t) => t.split(',').map(Number));
+      const [ol, or_, ur, ul] = pts;
+      if (ol[1] >= ul[1] - 0.5 || or_[1] >= ur[1] - 0.5) schlimm.push(i + 1);
+    });
+    return schlimm;
+  });
+}
+/* ALLE ACHT Teilungen mit Versatz, nicht nur eine. Beim ersten Anlauf
+   lief diese Pruefung nur auf "2-teilig senkrecht" - also mit EINER
+   Reihe. Der Fehler sass aber in der waagerechten Sprosse und blieb
+   darum unentdeckt, bis der Betreiber ein Bild mit 6-teilig schickte.
+   Eine Pruefung, die nur einen von acht Faellen ansieht, prueft einen
+   von acht Faellen. */
+await p.fill('#k3dKeilV', '400', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(700);
+const kaputt = [];
+for (const t of ['1', '2w', '2s', '3s', '4s', '4sw', '6', '8']) {
+  await p.click(`#k3dKeilTeilungen button[data-teilung="${t}"]`, { timeout: 4000 }).catch(() => {});
+  await p.waitForTimeout(500);
+  const k = await kantenPruefen();
+  if (k.length) kaputt.push(t + ' (Feld ' + k.join(', ') + ')');
+}
+pruefe('Mit Versatz kreuzen sich in KEINER der acht Teilungen die Kanten',
+  kaputt.length === 0, kaputt.join(' · '));
+await p.click('#k3dKeilTeilungen button[data-teilung="4s"]', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(600);
+
+/* Derselbe Zustand ueber den anderen Weg: erst Versatz, DANN H1
+   absenken. Die Begrenzung sass zuerst nur am Versatzfeld - ein Loch,
+   das nicht an der Stelle sass, an der es auffiel. */
+const vorH1 = await p.evaluate(() => +document.getElementById('k3dKeilH1').value);
+await p.fill('#k3dKeilH1', '60', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(800);
+const kreuzH = await kantenPruefen();
+const h2Rest = await p.evaluate(() => +document.getElementById('k3dKeilH2').value);
+pruefe('Auch ein zu kleines H1 nach einem Versatz kreuzt nichts',
+  kreuzH.length === 0 && h2Rest >= 50,
+  'gekreuzt: ' + (kreuzH.join(', ') || 'keins') + ', H2 ' + h2Rest);
+await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
+await p.fill('#k3dKeilH1', String(vorH1), { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(700);
+
 /* ---------- Abweichende Masse werden benannt ---------- */
 await p.fill('#k3dKeilH1', '300', { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(700);
@@ -330,15 +464,168 @@ if (trefferPunkt) {
     'Messpunkt nicht verfuegbar');
 }
 
+/* ---------- Was nicht passt, ist nicht waehlbar ----------
+   "einfach nicht waehlbar machen wenn die maße zu klein werden"
+   (Betreiber, 05.11.2026). Dazu die belegte Grenze vom selben Tag:
+   "vorne hoehe IMMER min 150mm".
+
+   Eine Teilung anzubieten, die sich nicht bauen laesst, ist eine
+   Zusage, die das Angebot zuruecknehmen muss. */
+const vorSperre = await p.evaluate(() => ({
+  h1: +document.getElementById('k3dKeilH1').value,
+  h2: +document.getElementById('k3dKeilH2').value
+}));
+const offenVorher = await p.evaluate(() =>
+  [...document.querySelectorAll('#k3dKeilTeilungen button')].filter((b) => !b.disabled).length);
+pruefe('Bei ausreichenden Massen ist keine Teilung gesperrt', offenVorher === 8,
+  `${offenVorher} von 8 waehlbar`);
+
+/* H1 so weit absenken, dass vorne nur noch gut 200 mm bleiben - zu
+   wenig fuer zwei Reihen (2 x 150 mm). */
+await p.fill('#k3dKeilH1', String(vorSperre.h1 - vorSperre.h2 + 220), { timeout: 8000 }).catch(() => {});
+await p.waitForTimeout(1400);
+const gesperrt = await p.evaluate(() =>
+  [...document.querySelectorAll('#k3dKeilTeilungen button')]
+    .filter((b) => b.disabled)
+    .map((b) => b.getAttribute('data-teilung') + ':' + ((b.querySelector('.k3d-keil-sperr') || {}).textContent || '')));
+const sollGesperrt = ['2w', '4sw', '6', '8'];
+pruefe('Zu flach: alle zweireihigen Teilungen sind gesperrt',
+  sollGesperrt.every((id) => gesperrt.some((g) => g.indexOf(id + ':') === 0))
+    && gesperrt.length === sollGesperrt.length,
+  gesperrt.join(' ') || 'keine gesperrt');
+pruefe('Die gesperrte Kachel nennt den Grund',
+  gesperrt.every((g) => /zu flach|zu schmal/.test(g)), gesperrt.join(' '));
+/* Eine gesperrte Kachel muss auch wirklich nicht waehlbar sein -
+   disabled allein genuegt nicht, wenn ein Zuhoerer trotzdem feuert. */
+const vorKlick = await p.evaluate(() =>
+  (document.querySelector('#k3dKeilTeilungen button.ist-an') || {}).getAttribute
+    ? document.querySelector('#k3dKeilTeilungen button.ist-an').getAttribute('data-teilung') : null);
+await p.evaluate(() => {
+  const b = document.querySelector('#k3dKeilTeilungen button[data-teilung="8"]');
+  if (b) b.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+});
+await p.waitForTimeout(900);
+const nachKlick = await p.evaluate(() => {
+  const b = document.querySelector('#k3dKeilTeilungen button.ist-an');
+  return b ? b.getAttribute('data-teilung') : null;
+});
+pruefe('Ein Klick auf eine gesperrte Kachel aendert nichts',
+  nachKlick === vorKlick, `${vorKlick} -> ${nachKlick}`);
+/* Masse zurueck, damit die folgenden Pruefungen wieder Platz haben. */
+await p.click('#k3dKeilMasseZurueck', { timeout: 8000 }).catch(() => {});
+await p.waitForTimeout(1200);
+
+/* ---------- Alte Namen aus geteilten Links ----------
+   Bis zum 05.11.2026 hiessen die drei ESG-Glaeser nur "FRF23", bis
+   der Betreiber klarstellte: "FRF Glas is ESG". Ein Link, der vorher
+   verschickt wurde, traegt noch die alten Namen.
+
+   GEPRUEFT WIRD DAS ERGEBNIS IM AUSWAHLFELD, nicht die Zuordnung im
+   Quelltext: Nur so faellt auf, wenn die Umsetzung an der falschen
+   Stelle sitzt und das Feld trotzdem leer bleibt - und genau das
+   waere der Schaden: die Wahl stillschweigend weg. */
+await p.evaluate(() => { if (window.__bvKeilAltSetzen) window.__bvKeilAltSetzen('links'); });
+await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.waitForTimeout(900);
+const alteNamen = await p.evaluate(() =>
+  [...document.querySelectorAll('#k3dKeilGlasFelder select')].slice(0, 2).map((s2) => s2.value));
+pruefe('Ein alter Link behaelt seine Glaswahl',
+  alteNamen[0] === 'ESG Glas opal (FRF23)' && alteNamen[1] === 'ESG Glas grau (FRF23)',
+  alteNamen.join(' / ') + ' statt der umbenannten ESG-Glaeser');
+
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
+
+/* ---------- Am Handy ----------
+   "du hast die mobile first anweisung nicht beachtet auf handy is es
+   schlimm" (Betreiber, 05.11.2026, mit Bild).
+
+   Der Dialog lag IM 3D-Bild, und das ist unter 900 px nur 45svh hoch
+   und ausserdem sticky mit z-index 5 - also ein eigener
+   Stapelkontext. Der Kasten konnte gar nicht groesser werden als
+   dieser Streifen, und die klebende Kopfzeile der Seite lag darueber.
+
+   GEPRUEFT WIRD DAS ERGEBNIS AUF DEM BILDSCHIRM: Deckt der Dialog das
+   Fenster wirklich ab, liegt wirklich nichts darueber, ist "Fertig"
+   wirklich zu sehen. Eine Pruefung auf "position: fixed" haette den
+   Stapelkontext nicht bemerkt. */
+const handy = await browser.newContext({
+  viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2
+});
+if (GEGENPROBE) await routenSetzen(handy);
+const ph = await handy.newPage();
+await ph.goto(`http://localhost:${PORT}/konfigurator.html`, { waitUntil: 'networkidle' });
+await ph.waitForTimeout(2400);
+await ph.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ }).first().click({ timeout: 4000 }).catch(() => {});
+await ph.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
+await ph.evaluate(() => {
+  document.querySelectorAll('div,section,aside').forEach((e) => {
+    if (!/Cookie/i.test(e.textContent || '')) return;
+    const r = e.getBoundingClientRect();
+    if (r.height > 60 && r.height < 460 && r.bottom > window.innerHeight - 200) e.style.display = 'none';
+  });
+});
+await ph.waitForTimeout(900);
+await ph.evaluate(() => {
+  const r = [...document.querySelectorAll('.k3d-reiter button[data-bereich]')];
+  const s2 = r.find((b) => /Seiten/i.test(b.textContent || ''));
+  if (s2) s2.click();
+});
+await ph.waitForTimeout(900);
+await ph.evaluate(() => {
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
+  const b = document.querySelector('[data-k3d-erw="links"] button[data-erw="Keil"]');
+  if (b) b.click();
+});
+await ph.waitForTimeout(1600);
+await ph.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await ph.waitForTimeout(1000);
+
+const amHandy = await ph.evaluate(() => {
+  const d = document.getElementById('k3dKeilDialog');
+  const r = d.getBoundingClientRect();
+  const kopf = document.querySelector('.k3d-keil-kopf');
+  const kr = kopf.getBoundingClientRect();
+  const obenDrauf = document.elementFromPoint(Math.round(kr.left + kr.width / 2), Math.round(kr.top + 6));
+  const f = document.getElementById('k3dKeilFertig');
+  const fr = f.getBoundingClientRect();
+  const kacheln = [...document.querySelectorAll('#k3dKeilTeilungen button')];
+  return {
+    deckt: Math.round(r.top) === 0 && Math.round(r.height) >= window.innerHeight - 1,
+    kopfFrei: !!(obenDrauf && d.contains(obenDrauf)),
+    kopfOben: Math.round(kr.top) <= 1,
+    fertigImBild: fr.top < window.innerHeight && fr.bottom > 0 && fr.height >= 44,
+    quer: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    kachelZahl: kacheln.length,
+    kachelnSichtbar: kacheln.filter((b) => {
+      const br = b.getBoundingClientRect();
+      return br.left >= -1 && br.right <= window.innerWidth + 1;
+    }).length
+  };
+});
+pruefe('Am Handy deckt der Dialog das ganze Fenster ab', amHandy.deckt,
+  'der Kasten lag im 3D-Bild und war nur so hoch wie dieses');
+pruefe('Am Handy liegt nichts ueber der Kopfzeile des Dialogs',
+  amHandy.kopfFrei && amHandy.kopfOben, 'die klebende Kopfzeile der Seite lag darueber');
+pruefe('Am Handy ist "Fertig" zu sehen und gross genug', amHandy.fertigImBild);
+pruefe('Am Handy kein waagerechtes Scrollen', amHandy.quer <= 0, `${amHandy.quer}px`);
+pruefe('Am Handy stehen alle acht Teilungen im Bild, ohne seitliches Schieben',
+  amHandy.kachelZahl === 8 && amHandy.kachelnSichtbar === 8,
+  `${amHandy.kachelnSichtbar} von ${amHandy.kachelZahl} sichtbar`);
 
 await browser.close();
 server.kill();
 
 console.log(`\n${ok} bestanden, ${rot.length} offen`);
 if (GEGENPROBE) {
-  console.log(`Gegenprobe: ${FEHLER.length} Fehler eingebaut, ${rot.length} Pruefungen schlagen an.`);
-  if (rot.length < FEHLER.length) { console.log('ZU WENIGE – mindestens eine Pruefung ist blind.'); process.exit(1); }
+  if (ankerKaputt) {
+    console.log('ANKER VERALTET – mindestens ein Fehler kam nicht an.');
+    process.exit(1);
+  }
+  const zahl = NUR == null ? FEHLER.length : 1;
+  console.log(`Gegenprobe: ${zahl} Fehler eingebaut${NUR == null ? '' : ' (Nr. ' + NUR + ')'}, `
+    + `${rot.length} Pruefungen schlagen an.`);
+  if (rot.length < zahl) { console.log('ZU WENIGE – mindestens eine Pruefung ist blind.'); process.exit(1); }
   process.exit(0);
 }
 process.exit(rot.length ? 1 : 0);

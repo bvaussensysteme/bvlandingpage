@@ -20,6 +20,29 @@ Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (oder ähn
 2. Nach Bestätigung: `docs/VD-INHALTE-INVENTAR.md` als Grundlage nutzen (vollständige Liste aller betroffenen Bilder, Dateien, Textstellen).
 3. Darauf hinweisen, dass reines Entfernen Lücken hinterlässt (fehlende Fotos, generische Produktnamen nötig) – das ist beabsichtigt, muss aber kommuniziert werden.
 
+## Veröffentlichen ohne Rückfrage (permanent)
+
+Ansage des Betreibers (05.11.2026): „immer auto merge".
+
+**Das hebt die frühere Regel „kein Deployment ohne Freigabe" auf.** Fertige
+Arbeit wird zusammengeführt und veröffentlicht, ohne vorher zu fragen.
+
+Was deshalb **nicht** entfällt – im Gegenteil, es trägt jetzt allein:
+
+- **Erst grün, dann raus.** Alle Prüfskripte laufen lassen (`scripts/pruefe-*`),
+  nicht die vermuteten. Ein rotes Skript ist ein Grund, nicht zu
+  veröffentlichen – auch wenn niemand widerspricht.
+- **Live nachprüfen.** Nach dem Zusammenführen die geänderten Dateien
+  byteweise gegen `origin/main` vergleichen (`sha256`) und
+  `scripts/pruefe-live.sh` laufen lassen. Ohne das weiß niemand, ob es
+  draußen ist.
+- **Ehrlich berichten**, was veröffentlicht wurde und was offen blieb.
+
+**Weiterhin wird vorher gefragt bei:** dem Entfernen aller VD-Inhalte (eigene
+Regel oben), dem Löschen von Daten, Preisen auf der Seite, und allem, was
+sich nicht ohne Weiteres zurücknehmen lässt. Automatisch zusammenführen heißt
+nicht, Entscheidungen zu übernehmen, die dem Betreiber gehören.
+
 ## Nachbauten: eigene Sprache, eigene Namen (permanent)
 
 Wird etwas nachgebaut, das es bei einem Wettbewerber schon gibt (eine Funktion,
