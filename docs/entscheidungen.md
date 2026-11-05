@@ -13587,3 +13587,25 @@ dann etwas anderes als das Angebot.
 **Geprüft wird, dass die Sperre auch hält:** Ein Klick auf eine gesperrte
 Kachel darf nichts ändern. `disabled` allein genügt nicht, wenn ein Zuhörer
 trotzdem feuert.
+
+## 05.11.2026 – „immer auto merge"
+
+**Ansage des Betreibers.** Fertige Arbeit wird ohne Rückfrage zusammengeführt
+und veröffentlicht. Das hebt die frühere Vorgabe „kein Deployment ohne
+Freigabe" (vom selben Tag, aus dem 3D-Auftrag) auf.
+
+**Was dadurch wichtiger wird, nicht unwichtiger.** Die Freigabe war bisher
+die letzte Stelle, an der ein Mensch hingesehen hat. Fällt sie weg, trägt die
+Prüfung allein:
+
+1. **Alle** Prüfskripte vor dem Veröffentlichen – nicht die vermuteten.
+2. Nach dem Zusammenführen **byteweise** gegen `origin/main` prüfen, ob es
+   wirklich draußen ist, plus `scripts/pruefe-live.sh`.
+3. Berichten, was veröffentlicht wurde **und was offen blieb**.
+
+**Was weiterhin gefragt wird:** das Entfernen aller VD-Inhalte, das Löschen
+von Daten, Preise auf der Seite, und alles, was sich nicht ohne Weiteres
+zurücknehmen lässt. Automatisch zusammenführen heißt nicht, Entscheidungen zu
+übernehmen, die dem Betreiber gehören.
+
+Steht als Regel in `CLAUDE.md`, damit auch ein neuer Chat sie kennt.
