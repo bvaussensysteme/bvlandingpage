@@ -64,10 +64,13 @@ const FEHLER = [
      Mindestoeffnung umgeschrieben. Der alte Anker fand nichts mehr -
      der Fehler kam gar nicht an, und die Gegenprobe meldete ihn als
      blind. Darum steht unten der Abbruch bei fehlendem Anker. */
-  { von: "            p.h1 = v; p.h2 = v - ab - vs;",
-    nach: "            p.h1 = v;" },
-  { von: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
-    nach: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
+  /* ANKER NACHGEZOGEN 05.11.2026: Das Setzen steckt jetzt in setzen(). */
+  { von: "        if (schluessel === 'h1') { g.p.h1 = v; g.p.h2 = v - g.ab - g.vs; }",
+    nach: "        if (schluessel === 'h1') { g.p.h1 = v; }" },
+  /* ANKER MIT NACHBARZEILE 05.11.2026: Dieselbe Zeile steht jetzt
+     zweimal - einmal beim Tippen, einmal beim Verlassen des Feldes. */
+  { von: "        pv.versatz = neu;\n        if (pv.h1 != null) {\n          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
+    nach: "        pv.versatz = neu;\n        if (pv.h1 != null) {\n          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
   /* Die Sperre zu kleiner Teilungen. */
   { von: "    if (t.reihen > reihen) {", nach: "    if (false) {" },
   /* Die belegte Mindesthoehe vorne. */
@@ -92,15 +95,25 @@ const FEHLER = [
   /* Die Grenze am Hoehenfeld - das zweite Loch. */
   /* ANKER NACHGEZOGEN am 05.11.2026: Aus den geratenen 50 mm wurde die
      belegte Grenze KEIL_MIN_VORNE (150 mm). */
-  { von: "            if (v < ab + vs + KEIL_MIN_VORNE) {",
-    nach: "            if (v < -99999) {" },
+  /* ANKER NACHGEZOGEN 05.11.2026: Die Grenzen stehen jetzt in grenzen(). */
+  { von: "        var min = (schluessel === 'h1') ? ab + vs + KEIL_MIN_VORNE : KEIL_MIN_VORNE;",
+    nach: "        var min = 0;" },
 ];
 
 /* Der Handy-Fehler steckt im CSS, nicht im JavaScript: Der Dialog
    zurueck in den Stapelkontext des 3D-Bildes. */
 const CSS_FEHLER = [
   { von: '      position: fixed; inset: 0; z-index: 200;',
-    nach: '      position: absolute; inset: 0; z-index: 60;' }
+    nach: '      position: absolute; inset: 0; z-index: 60;' },
+  /* Das Breitenfeld faellt wieder aus der Familie. */
+  { von: '<input type="text" id="k3dKeilB" class="k3d-zahl" readonly',
+    nach: '<input type="text" id="k3dKeilB" readonly' },
+  /* Die Einheit faengt den Tipper ab. */
+  { von: 'font-size: .78rem; color: var(--muted); pointer-events: none;',
+    nach: 'font-size: .78rem; color: var(--muted);' },
+  /* Eine Einheit fehlt. */
+  { von: '<span class="k3d-keil-einheit" aria-hidden="true">mm</span>\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">',
+    nach: '\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">' }
 ];
 
 /* Zwei Lesehaken, beide NUR lesend und nur im Test: eine Liste der
@@ -703,6 +716,43 @@ const beimVerlassen = await p.evaluate(() => document.getElementById('k3dKeilH2'
 pruefe('Zu klein wird erst beim Verlassen berichtigt',
   beimTippen === '20' && beimVerlassen === '150',
   `beim Tippen "${beimTippen}", nach dem Verlassen "${beimVerlassen}"`);
+
+/* ---------- Die vier Maszfelder sind EINE Familie ----------
+   "nirgens steht mm dahinter und die feste breite in dem linken oberen
+   feld hat nen ganz anderen rahmen als die restlichen 3" (Betreiber,
+   05.11.2026).
+
+   Das Breitenfeld trug als einziges keine Klasse und bekam darum den
+   Rahmen, den der Browser von sich aus zeichnet. GEMESSEN WIRD DER
+   GERECHNETE STIL, nicht das Klassenattribut: Eine Klasse im Markup
+   sagt noch nicht, dass auch dieselbe Regel greift. */
+const rahmen = await p.evaluate(() =>
+  ['k3dKeilB', 'k3dKeilH1', 'k3dKeilH2', 'k3dKeilV'].map((id) => {
+    const c = getComputedStyle(document.getElementById(id));
+    return [c.borderTopWidth, c.borderTopStyle, c.borderTopColor, c.borderTopLeftRadius].join('|');
+  }));
+pruefe('Alle vier Maszfelder tragen denselben Rahmen',
+  new Set(rahmen).size === 1, rahmen.join('  /  '));
+
+const einheiten = await p.evaluate(() =>
+  ['k3dKeilB', 'k3dKeilH1', 'k3dKeilH2', 'k3dKeilV'].map((id) => {
+    const e = document.getElementById(id).parentNode.querySelector('.k3d-keil-einheit');
+    return e && e.offsetParent !== null ? (e.textContent || '').trim() : '';
+  }));
+pruefe('Hinter jedem Maszfeld steht die Einheit',
+  einheiten.every((t) => t === 'mm'), einheiten.join(', ') || 'keine');
+
+/* Die Einheit darf den Tipper nicht abfangen: Wer rechts ins Feld
+   tippt, muss im Feld landen und nicht auf einem Stueck Text. */
+const trifft = await p.evaluate(() => {
+  const e = document.querySelector('#k3dKeilH2').parentNode.querySelector('.k3d-keil-einheit');
+  if (!e) return 'keine Einheit';
+  const r = e.getBoundingClientRect();
+  const t = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+  return t ? (t.id || t.className || t.tagName) : 'nichts';
+});
+pruefe('Ein Tipper auf die Einheit landet im Feld',
+  trifft === 'k3dKeilH2', `getroffen: ${trifft}`);
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 

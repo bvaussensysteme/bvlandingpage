@@ -1528,7 +1528,37 @@
       background: var(--gold-dark); color: #fff; font-size: .66rem; font-weight: 700;
     }
     .k3d-keil-mass input { width: 100%; text-align: left; }
+    /* ---------- Alle vier Felder sehen gleich aus ----------
+       "die feste breite in dem linken oberen feld hat nen ganz anderen
+       rahmen als die restlichen 3" (Betreiber, 05.11.2026). Das Breiten-
+       feld trug als einziges KEINE Klasse und bekam darum den Rahmen,
+       den der Browser von sich aus zeichnet. Jetzt tragen alle vier
+       .k3d-zahl; dass die Breite aus dem Modell kommt und nicht
+       eingetippt wird, zeigt allein der graue Grund. */
     .k3d-keil-mass input[readonly] { background: var(--light-bg, #F1EFEA); color: var(--muted); }
+    /* ---------- Die Einheit steht am Feld, nicht nur in der Ueberschrift
+       "nirgens steht mm dahinter" (Betreiber, 05.11.2026). Die
+       Ueberschrift "Maße in mm" steht ueber vier Feldern - wer beim
+       dritten ist, sieht sie nicht mehr. Das mm liegt IM Feld rechts,
+       der Text bekommt links davon Platz. pointer-events: none, damit
+       ein Tipper darauf trotzdem im Feld landet: 44 x 44 px Zielflaeche
+       bleiben so erhalten. */
+    .k3d-keil-eingabe { position: relative; display: block; }
+    .k3d-keil-mass .k3d-keil-eingabe input { padding-right: 36px; }
+    .k3d-keil-einheit {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      font-size: .78rem; color: var(--muted); pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Ohne das stuende das Pfeilchen des Browsers auf dem mm. */
+    .k3d-keil-mass input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+    .k3d-keil-mass input[type=number]::-webkit-inner-spin-button,
+    .k3d-keil-mass input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+    /* Ein gesperrtes Feld muss als gesperrt zu erkennen sein, ohne dass
+       der Text unleserlich wird: #666 auf #F1EFEA sind 5,3:1. */
+    .k3d-keil-mass input:disabled { background: var(--light-bg, #F1EFEA); color: var(--muted); }
     .k3d-keil-mass .k3d-mini { margin: 3px 0 0; }
     /* Platz reservieren, damit nichts springt. Der Hinweis unter dem
        Versatzfeld nennt die Obergrenze, und die haengt vom Modell ab -
@@ -3027,29 +3057,43 @@
           </div>
 
           <div class="k3d-keil-form">
-            <p class="k3d-keil-ueberschrift">Maße in mm</p>
+            <p class="k3d-keil-ueberschrift" id="k3dKeilMassEinheit">Maße in mm</p>
             <div class="k3d-keil-masse">
               <div class="k3d-keil-mass">
                 <label for="k3dKeilB"><span class="k3d-keil-marke">B</span> Breite</label>
-                <input type="text" id="k3dKeilB" readonly
-                       aria-describedby="k3dKeilBHinweis">
+                <span class="k3d-keil-eingabe">
+                  <input type="text" id="k3dKeilB" class="k3d-zahl" readonly
+                         aria-describedby="k3dKeilMassEinheit k3dKeilBHinweis">
+                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                </span>
                 <p class="k3d-mini" id="k3dKeilBHinweis">Kommt aus dem Modell.</p>
               </div>
               <div class="k3d-keil-mass">
                 <label for="k3dKeilH1"><span class="k3d-keil-marke">H1</span> Höhe an der Wand</label>
-                <input type="number" id="k3dKeilH1" class="k3d-zahl" inputmode="numeric" min="0" step="10">
+                <span class="k3d-keil-eingabe">
+                  <input type="number" id="k3dKeilH1" class="k3d-zahl" inputmode="numeric" min="0" step="10"
+                         aria-describedby="k3dKeilMassEinheit">
+                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                </span>
               </div>
               <div class="k3d-keil-mass">
                 <label for="k3dKeilH2"><span class="k3d-keil-marke">H2</span> Höhe vorne</label>
-                <input type="number" id="k3dKeilH2" class="k3d-zahl" inputmode="numeric" min="0" step="10">
+                <span class="k3d-keil-eingabe">
+                  <input type="number" id="k3dKeilH2" class="k3d-zahl" inputmode="numeric" min="0" step="10"
+                         aria-describedby="k3dKeilMassEinheit">
+                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                </span>
               </div>
               <!-- Versatz unten: aus den Bildern des Betreibers
                    (05.11.2026). Optional, weil die Unterkante im
                    Normalfall waagerecht liegt. -->
               <div class="k3d-keil-mass">
                 <label for="k3dKeilV"><span class="k3d-keil-marke">V</span> Versatz unten</label>
-                <input type="number" id="k3dKeilV" class="k3d-zahl" inputmode="numeric" min="0" step="10"
-                       aria-describedby="k3dKeilVHinweis">
+                <span class="k3d-keil-eingabe">
+                  <input type="number" id="k3dKeilV" class="k3d-zahl" inputmode="numeric" min="0" step="10"
+                         aria-describedby="k3dKeilMassEinheit k3dKeilVHinweis">
+                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                </span>
                 <p class="k3d-mini" id="k3dKeilVHinweis">Optional. Die Unterkante steigt vorne um dieses Maß an.</p>
               </div>
             </div>
@@ -3181,13 +3225,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105e" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105f" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261105e" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261105f" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
