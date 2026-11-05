@@ -1457,6 +1457,20 @@
       background: var(--light-bg, #F1EFEA); color: var(--gold-text, #7A5B12); font-weight: 700;
     }
 
+    /* [hidden] fuer alles mit eigener display-Angabe. "wenn man
+       bestimmte sachen auswaehlt kommen die felder manchmal nicht
+       immer" (Betreiber, 11.10.2026): Eine eigene display-Angabe
+       schlaegt das Attribut hidden - dann steht das Feld immer da.
+       Geprueft von scripts/pruefe-fuehrung.js. */
+    .k3d-keil-kopf[hidden] { display: none; }
+    .k3d-keil-zu[hidden] { display: none; }
+    .k3d-keil-teilungen[hidden] { display: none; }
+    .k3d-keil-spalten[hidden] { display: none; }
+    .k3d-keil-masse[hidden] { display: none; }
+    .k3d-keil-marke[hidden] { display: none; }
+    .k3d-keil-glaskopf[hidden] { display: none; }
+    .k3d-keil-glaszeile[hidden] { display: none; }
+    .k3d-keil-nr[hidden] { display: none; }
     .k3d-keil-spalten { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
     .k3d-keil-bild {
       background: var(--light-bg, #F1EFEA); border-radius: 10px; padding: 10px;
@@ -1565,6 +1579,10 @@
       .k3d-steller .k3d-zahl,
       .k3d-steller .k3d-zahlfeld .k3d-zahl,
       .k3d-select,
+      /* Auch die Felder im Keil-Editor - das schreibgeschuetzte
+         Breitenfeld eingeschlossen: iOS zoomt auch in ein Feld, das
+         man nicht aendern kann, sobald es den Fokus bekommt. */
+      .k3d-keil-mass input,
       .k3d-teilen-feld input { font-size: 16px; }
     }
 
@@ -3082,7 +3100,7 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261104x" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105a" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
