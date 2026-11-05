@@ -2937,6 +2937,39 @@ pruefe('RAL-Feld ist breit genug',
   (js.match(/\['(k3d[A-Za-z0-9]+)', '(k3d[A-Za-z0-9]+Zahl)'\]/g) || []).forEach(function (x) {
     verdrahtet[x.replace(/.*'(k3d[A-Za-z0-9]+Zahl)'.*/, '$1')] = true;
   });
+  /* ---------- Direkt verdrahtete Felder ----------
+     ERWEITERT am 05.11.2026. Bis dahin galt nur als verdrahtet, was in
+     der grossen Liste oben steht. Die Felder des Keil-Editors haengen
+     aber einzeln an ihrem eigenen Zuhoerer - sie SIND verdrahtet, nur
+     anders, und die Pruefung meldete sie trotzdem.
+
+     Statt sie als Ausnahme einzutragen (das waere ein Schlupfloch und
+     haette den naechsten Fall gleich mit durchgelassen) wird jetzt die
+     Verdrahtung selbst gesucht: Steht die Kennung im JavaScript und
+     folgt in Reichweite ein aendern(), dann loest das Feld wirklich
+     ein Neuzeichnen aus. Das erkennt auch jede kuenftige Verdrahtung
+     dieser Art. */
+  /* Felder, die ueber einen Helfer verdrahtet werden. massFeld() haengt
+     einen Zuhoerer an und ruft aendern() - wer dort uebergeben wird,
+     ist verdrahtet. Der Helfer steht WEITER OBEN als seine Aufrufe,
+     darum findet ihn die Suche nach vorne unten nicht. */
+  (js.match(/massFeld\('(k3d[A-Za-z0-9]+)'/g) || []).forEach(function (x) {
+    verdrahtet[x.replace(/.*'(k3d[A-Za-z0-9]+)'.*/, '$1')] = true;
+  });
+  ids.forEach(function (e) {
+    if (verdrahtet[e.id]) return;
+    var suche = new RegExp("'" + e.id + "'", 'g'), treffer;
+    while ((treffer = suche.exec(js)) !== null) {
+      /* 1800 statt 900: Der Zuhoerer des Versatzfeldes traegt eine
+         lange Begruendung (die Obergrenze und warum es sie gibt), und
+         aendern() steht erst dahinter. Eine Pruefung, die an der
+         Laenge eines Kommentars scheitert, misst den Kommentar. */
+      if (js.slice(treffer.index, treffer.index + 1800).indexOf('aendern()') > -1) {
+        verdrahtet[e.id] = true;
+        return;
+      }
+    }
+  });
 
   /* AUSNAHME mit Begruendung, nicht als Schlupfloch: Das Suchfeld der
      RAL-Lupe stellt nichts ein. Es sucht einen Farbton heraus; gesetzt
@@ -2960,7 +2993,12 @@ pruefe('RAL-Feld ist breit genug',
        Geprueft wird dafuer in scripts/pruefe-marken.js, dass die Zahl
        den Weg ueber das Zahlenfeld nimmt - und im Browser gemessen,
        dass 99999 mm auf das Hoechstmass begrenzt wird. */
-    k3dMassWert: true
+    k3dMassWert: true,
+    /* Die Breite im Keil-Editor ZEIGT das gemessene Mass, sie stellt
+       nichts ein - genau wie k3dTeilenLink. Sie ist readonly, und
+       geprueft wird sie in scripts/pruefe-keil-editor.mjs daran, ob
+       dort wirklich das Mass aus dem Modell steht. */
+    k3dKeilB: true
   };
 
   var offen = ids.filter(function (e) {

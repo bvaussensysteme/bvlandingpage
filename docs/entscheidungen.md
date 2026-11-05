@@ -13289,3 +13289,95 @@ die die Website selbst abschaltet – unbemerkt geblieben.
 **Was gegengelesen werden soll.** Nach dem Veröffentlichen:
 `bash scripts/pruefe-nicht-oeffentlich.sh` muss „bestanden" melden, und die
 Website muss normal laufen (`scripts/pruefe-live.sh`).
+
+## 05.11.2026 – Keil-Editor: Teilung, Maße und Glas je Feld
+
+**Anlass.** Betreiber: *„wenn man einen keil aktiviert hat, kann man diesen
+entweder im 3d modell anklicken und somit auswählen, oder man hat im menü am
+keil ein zahnrad … man kann dann höhe in mm H1 und H2 angeben, die Breite B
+kommt ja automatisch vom modell … und die auswahl soll man für jedes feld
+machen können."* Dazu Bilder aus dem Konfigurator von VD AluSysteme, mit der
+ausdrücklichen Freigabe, das *mit unseren Farben und unserem Design* zu
+übernehmen.
+
+**Was vorher war.** Der Keil war **eine** dreieckige Scheibe je Seite mit
+**einer** Glaswahl für alle Keile (`k3dKeilGlas`, ESG klar / satinato), und
+einer automatischen Unterteilung (ein Stiel je 1,5 m).
+
+**Was jetzt gilt.**
+
+| | |
+|---|---|
+| **Acht Teilungen** | 1-teilig, 2-teilig waagerecht, 2/3/4-teilig senkrecht, 4-teilig senkr.+waagr., 6-teilig, 8-teilig |
+| **Zwei Wege hinein** | Zahnrad neben „Keil" im Menü, oder Klick auf den Keil im 3D-Modell |
+| **Maße** | B gemessen aus dem Modell, H1/H2 vorbelegt und überschreibbar, Versatz unten optional |
+| **Sprossen** | senkrecht und waagerecht **getrennt**, je gleichmäßig oder mit eigenen Maßen |
+| **Glas je Feld** | Ohne Glas, VSG klar/opal/grau, FRF23 klar/opal/grau – plus „Feld 1 für alle übernehmen" |
+
+**Als Raster gebaut, nicht als acht Sonderfälle.** Jede Teilung ist Spalten ×
+Reihen; 6-teilig ist 3×2, 8-teilig ist 4×2. Acht Sonderfälle wären acht
+Stellen für jeden späteren Fehler. Dass es genau acht sind, stand schon im
+Code: *„mehr als drei Sprossen zeigt keine der acht Festelement-Zeichnungen"*
+(`KEIL_FELD_ZAHL_MAX`, 11.10.2026).
+
+**Was ich anders gemacht habe als die Vorlage, und warum.**
+
+1. **Kein Umschalter „H1 links / H1 rechts".** Bei einem Einzelprodukt muss
+   man sagen, welche Seite die hohe ist. Hier weiß das Modell es: Der Keil
+   ist an der Wand hoch und vorne niedrig. H1 heißt deshalb *an der Wand*,
+   H2 *vorne* – links und rechts hängen davon ab, von welcher Seite man
+   hinsieht.
+2. **H1 und H2 hängen zusammen.** *„wenn bei versatz nix eingetragen wird,
+   muss die unterseite waagrecht fest bleiben, das heißt es kann passieren
+   wenn man h1 einträgt das h2 sich mit anpasst"* (Betreiber). Das ist nicht
+   nur ein Wunsch, es ist Geometrie: Bei waagerechter Unterkante und fester
+   Dachschräge ist mit einer Höhe auch die andere bestimmt. Beide Felder
+   bleiben eintippbar und rechnen gegenseitig um.
+3. **Eigene Zahlenfelder je Sprosse** statt eines Freitextfeldes. Die
+   Vorlage lässt die Abstände als Fließtext beschreiben; eine Zahl je
+   Sprosse geht genauer ins Angebot.
+4. **Keine Figur, die „Ansicht von innen" erklärt** – auf Wunsch des
+   Betreibers weggelassen. Der Satz steht da.
+
+**Zwei Fehler, die erst die Bilder des Betreibers aufdeckten.**
+Ich hatte die waagerechte Trennung als *Anteil* der jeweiligen Höhe gebaut,
+sie folgte also der Dachschräge. In den Zeichnungen ist sie eine **gerade,
+waagerechte Linie**, und die unteren Felder sind Rechtecke – am Bau gibt es
+eine gekippte Sprosse auch nicht. Und es sind **zwei** Abstandswahlen,
+senkrecht und waagerecht, nicht eine.
+
+**Gemessen, nicht hergeleitet.** Die Keilmaße werden beim Bauen in
+`keilMassGemerkt` geschrieben und vom Editor gelesen. Zwei Rechenwege für
+dasselbe Maß laufen auseinander, sobald einer angefasst wird – der Editor
+zeigte dann Zahlen, die das Modell nicht baut.
+
+**Der Versatz hat eine Obergrenze.** Gemessen am 05.11.2026: Mit V = 250 bei
+H2 = 150 schnitt die angehobene Unterkante die Dachschräge, die Zeichnung
+zerfiel in sich überschneidende Flächen, und das Modell hätte Scheiben mit
+negativer Höhe gebaut. Begrenzt auf 50 mm Restöffnung; das Feld nennt die
+Grenze, bevor man hineinläuft.
+
+**Was mitgeht, weil es sonst still verloren ginge.** Der Plan steht im
+Teilen-Link (`d.kp`) und im Fachtext der Anfrage – mit Teilung, Maßen,
+Sprossenabständen und dem Glas jedes Feldes, dazu ein ausdrücklicher Hinweis,
+wenn ein Feld noch kein Glas hat oder die Höhe vom Modell abweicht. Ein
+Editor, dessen Wahl das Angebot nicht erreicht, wäre eine Attrappe.
+
+**Alte Links bleiben gültig.** Leerer `keilPlan` heißt „nie bearbeitet" –
+dann baut der Keil sich wie vorher, mit der automatischen Teilung und
+`Glas im Keil`.
+
+**Zwei Benennungen nebeneinander.** Der übrige Konfigurator sagt *ESG klar /
+ESG satinato*, die neue Liste sagt *VSG* und *FRF23*. Beides sind
+Herstellerangaben, aber im Angebot stehen sie nebeneinander. **Offen beim
+Betreiber.**
+
+**Was gegengelesen werden soll.** Im Konfigurator einen Keil einschalten,
+Zahnrad öffnen, durch alle acht Teilungen gehen und prüfen, ob das Modell
+jeder folgt. Dann ein Feld auf „Ohne Glas" – dort muss wirklich eine Lücke
+entstehen.
+
+**Offen geblieben.** Bei einem flachen Keil (im Beispiel 546 mm an der Wand,
+150 mm vorne) sind 6- und 8-teilig geometrisch möglich, aber praktisch
+sinnlos – die unteren Felder werden zu Streifen. Eine Warnung dafür ist
+**nicht** gebaut; ob sie nötig ist, entscheidet der Betreiber.

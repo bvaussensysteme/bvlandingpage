@@ -676,8 +676,13 @@ function lauf(q) {
       "vorne: (d.pv && d.pv.vorne && typeof d.pv.vorne === 'object') ? d.pv.vorne : {},");
   /* MIT DER FOLGEZEILE: Dieselbe Zuweisung steht oben als Erklaerung
      der Variablen. Ohne Anker wuerde dort beschaedigt. */
+  /* ANKER NACHGEZOGEN am 05.11.2026: Zwischen den beiden Zeilen steht
+     jetzt das Lesen des Keil-Plans. Die Absicht ist unveraendert -
+     nach PF_ANZAHL darf nichts mehr den gelesenen Versatz wegraeumen -
+     nur die Nachbarzeile ist eine andere. */
   hat('Nach dem Lesen wird der Versatz nicht weggeraeumt',
-      'PF_ANZAHL = { vorne: 0, hinten: 0 };\n    if (d.fa) farbeSetzen(d.fa);');
+      "PF_ANZAHL = { vorne: 0, hinten: 0 };\n"
+      + "    /* Ein Link von vor dem 05.11.2026 kennt keinen Keil-Plan.");
   hat('Die Anfrage nennt die Pfostenlage',
       "(pfostenNotiz().length ? ' · ' + pfostenNotiz().join(' · ') : '') +");
   hat('Die Kurzfassung nennt sie auch',
