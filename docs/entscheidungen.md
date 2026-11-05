@@ -13463,3 +13463,53 @@ verwandelt so etwas in ein Rätsel; der Klick meldet sich jetzt.
 
 **Jeder der neun eingebauten Fehler einzeln geprüft** (`BV_FEHLER=<n>`):
 alle werden gefunden.
+
+## 05.11.2026 – Der Keil-Editor am Handy: der Dialog lag im 3D-Bild
+
+**Was falsch war.** Betreiber mit Bild: *„du hast die mobile first anweisung
+nicht beachtet auf handy is es schlimm."* Zu Recht.
+
+**Zwei Ursachen, beide im Aufbau.**
+
+1. **Der Dialog lag *innerhalb* des 3D-Bildes** (`.k3d-buehne`). Das ist
+   unter 900 px nur **45svh** hoch. Der Kasten konnte gar nicht größer
+   werden als dieser Streifen – Teilungen, Zeichnung und Formular wurden
+   abgeschnitten, „Fertig" war nicht zu erreichen.
+2. `.k3d-buehne` ist am Handy **sticky mit `z-index: 5`** und damit ein
+   eigener Stapelkontext. Alles darin bleibt darunter, **egal welchen Wert
+   der Dialog bekommt**. Die klebende Kopfzeile der Seite (`.navbar`,
+   `z-index: 100`) lag deshalb über dem Dialog: „Keil bearbeiten" und
+   „Schließen" waren verdeckt. Ich habe erst den z-Wert von 60 auf 200
+   gesetzt – ohne Wirkung, weil nicht der Wert das Problem war, sondern der
+   Kontext.
+
+**Was jetzt gilt.** Der Dialog steht vor `</main>`, außerhalb jedes
+Stapelkontexts, und ist `position: fixed` mit `z-index: 200` – über der
+Kopfzeile (100), unter dem Cookie-Hinweis (9999), denn eine Einwilligung
+gehört nach oben.
+
+Am Handy ist er eine **Vollbild-Fläche**: Kopfzeile und „Fertig" kleben,
+damit man den Dialog immer verlassen kann, ohne durch das ganze Formular
+zurückzurollen. Die acht Teilungen stehen als **Raster 4 × 2** statt als
+waagerechte Rolle – was man seitlich wegschieben muss, findet man nicht.
+Unter 380 px sind es drei Spalten.
+
+**Nebenbei:** Unter dem klebenden „Fertig" schien der Inhalt durch – der
+Kasten hatte dort noch Polsterung, und der klebende Fuß haftet am Rand des
+Rollbereichs, nicht am Rand der Polsterung. Die Polsterung trägt jetzt der
+Fuß selbst, samt `env(safe-area-inset-bottom)`.
+
+**Wie geprüft wird.** Fünf neue Prüfungen messen das **Ergebnis auf dem
+Bildschirm**: Deckt der Dialog das Fenster ab? Liegt wirklich nichts über
+seiner Kopfzeile (`elementFromPoint`)? Ist „Fertig" zu sehen und mindestens
+44 px hoch? Kein waagerechtes Scrollen? Stehen alle acht Teilungen im Bild?
+**Eine Prüfung auf `position: fixed` hätte den Stapelkontext nicht bemerkt**
+– genau daran bin ich zuerst gescheitert.
+
+Der eingebaute Gegenprobe-Fehler setzt den Dialog zurück in den alten
+Zustand; er macht zwei der fünf Handy-Prüfungen rot.
+
+**Was ich daraus mitnehme.** Der Dialog war am Rechner von Anfang an in
+Ordnung, und ich habe ihn auch nur dort angesehen. Bei allem, was bedient
+wird, gehört der erste Blick auf das Handy – die Anweisung stand da, ich
+habe sie nicht befolgt.

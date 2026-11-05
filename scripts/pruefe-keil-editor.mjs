@@ -76,6 +76,13 @@ const FEHLER = [
     nach: "            if (v < -99999) { v = ab + vs + 50; f.value = String(v); }" },
 ];
 
+/* Der Handy-Fehler steckt im CSS, nicht im JavaScript: Der Dialog
+   zurueck in den Stapelkontext des 3D-Bildes. */
+const CSS_FEHLER = [
+  { von: '      position: fixed; inset: 0; z-index: 200;',
+    nach: '      position: absolute; inset: 0; z-index: 60;' }
+];
+
 /* Zwei Lesehaken, beide NUR lesend und nur im Test: eine Liste der
    wirklich gebauten Scheiben, und die Bildschirmlage einer davon.
    Die Lage wird GERECHNET, nicht geraten - beim Pfosten-Zeichen hat
@@ -116,9 +123,12 @@ const ctx = await browser.newContext({ viewport: { width: 1400, height: 950 } })
 /* EIN Handler je Adresse. Der Lesehaken geht IMMER mit, die Fehler nur
    in der Gegenprobe - beides durch denselben Handler, sonst hebt die
    zweite Route die erste auf und nichts kommt an. */
-await ctx.route('**/*', async (route) => {
+async function routenSetzen(zielCtx) {
+  await zielCtx.route('**/*', async (route) => {
   const pfad = new URL(route.request().url()).pathname;
-  if (!pfad.endsWith('/js/konfigurator-3d.js')) return route.continue();
+  const istJs = pfad.endsWith('/js/konfigurator-3d.js');
+  const istSeite = pfad.endsWith('/konfigurator.html');
+  if (!istJs && !istSeite) return route.continue();
   const antwort = await route.fetch();
   let text = await antwort.text();
   const anwenden = (f) => {
@@ -129,12 +139,21 @@ await ctx.route('**/*', async (route) => {
     }
     text = text.replace(f.von, f.nach);
   };
-  anwenden(MESSHAKEN);
-  if (GEGENPROBE) {
-    (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
+  /* Die JS-Fehler gehoeren ins JavaScript, der Handy-Fehler ins CSS
+     der Seite. Ohne diese Trennung suchte der Fehlerbauer die
+     JS-Anker in der HTML-Datei und meldete acht veraltete Anker. */
+  if (istJs) {
+    anwenden(MESSHAKEN);
+    if (GEGENPROBE) {
+      (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
+    }
+  } else if (GEGENPROBE && NUR == null) {
+    CSS_FEHLER.forEach(anwenden);
   }
-  return route.fulfill({ response: antwort, body: text });
-});
+    return route.fulfill({ response: antwort, body: text });
+  });
+}
+await routenSetzen(ctx);
 
 const p = await ctx.newPage();
 const seitenfehler = [];
@@ -433,6 +452,83 @@ if (trefferPunkt) {
 }
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
+
+/* ---------- Am Handy ----------
+   "du hast die mobile first anweisung nicht beachtet auf handy is es
+   schlimm" (Betreiber, 05.11.2026, mit Bild).
+
+   Der Dialog lag IM 3D-Bild, und das ist unter 900 px nur 45svh hoch
+   und ausserdem sticky mit z-index 5 - also ein eigener
+   Stapelkontext. Der Kasten konnte gar nicht groesser werden als
+   dieser Streifen, und die klebende Kopfzeile der Seite lag darueber.
+
+   GEPRUEFT WIRD DAS ERGEBNIS AUF DEM BILDSCHIRM: Deckt der Dialog das
+   Fenster wirklich ab, liegt wirklich nichts darueber, ist "Fertig"
+   wirklich zu sehen. Eine Pruefung auf "position: fixed" haette den
+   Stapelkontext nicht bemerkt. */
+const handy = await browser.newContext({
+  viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2
+});
+if (GEGENPROBE) await routenSetzen(handy);
+const ph = await handy.newPage();
+await ph.goto(`http://localhost:${PORT}/konfigurator.html`, { waitUntil: 'networkidle' });
+await ph.waitForTimeout(2400);
+await ph.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ }).first().click({ timeout: 4000 }).catch(() => {});
+await ph.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
+await ph.evaluate(() => {
+  document.querySelectorAll('div,section,aside').forEach((e) => {
+    if (!/Cookie/i.test(e.textContent || '')) return;
+    const r = e.getBoundingClientRect();
+    if (r.height > 60 && r.height < 460 && r.bottom > window.innerHeight - 200) e.style.display = 'none';
+  });
+});
+await ph.waitForTimeout(900);
+await ph.evaluate(() => {
+  const r = [...document.querySelectorAll('.k3d-reiter button[data-bereich]')];
+  const s2 = r.find((b) => /Seiten/i.test(b.textContent || ''));
+  if (s2) s2.click();
+});
+await ph.waitForTimeout(900);
+await ph.evaluate(() => {
+  document.querySelectorAll('details').forEach((d) => { d.open = true; });
+  const b = document.querySelector('[data-k3d-erw="links"] button[data-erw="Keil"]');
+  if (b) b.click();
+});
+await ph.waitForTimeout(1600);
+await ph.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await ph.waitForTimeout(1000);
+
+const amHandy = await ph.evaluate(() => {
+  const d = document.getElementById('k3dKeilDialog');
+  const r = d.getBoundingClientRect();
+  const kopf = document.querySelector('.k3d-keil-kopf');
+  const kr = kopf.getBoundingClientRect();
+  const obenDrauf = document.elementFromPoint(Math.round(kr.left + kr.width / 2), Math.round(kr.top + 6));
+  const f = document.getElementById('k3dKeilFertig');
+  const fr = f.getBoundingClientRect();
+  const kacheln = [...document.querySelectorAll('#k3dKeilTeilungen button')];
+  return {
+    deckt: Math.round(r.top) === 0 && Math.round(r.height) >= window.innerHeight - 1,
+    kopfFrei: !!(obenDrauf && d.contains(obenDrauf)),
+    kopfOben: Math.round(kr.top) <= 1,
+    fertigImBild: fr.top < window.innerHeight && fr.bottom > 0 && fr.height >= 44,
+    quer: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    kachelZahl: kacheln.length,
+    kachelnSichtbar: kacheln.filter((b) => {
+      const br = b.getBoundingClientRect();
+      return br.left >= -1 && br.right <= window.innerWidth + 1;
+    }).length
+  };
+});
+pruefe('Am Handy deckt der Dialog das ganze Fenster ab', amHandy.deckt,
+  'der Kasten lag im 3D-Bild und war nur so hoch wie dieses');
+pruefe('Am Handy liegt nichts ueber der Kopfzeile des Dialogs',
+  amHandy.kopfFrei && amHandy.kopfOben, 'die klebende Kopfzeile der Seite lag darueber');
+pruefe('Am Handy ist "Fertig" zu sehen und gross genug', amHandy.fertigImBild);
+pruefe('Am Handy kein waagerechtes Scrollen', amHandy.quer <= 0, `${amHandy.quer}px`);
+pruefe('Am Handy stehen alle acht Teilungen im Bild, ohne seitliches Schieben',
+  amHandy.kachelZahl === 8 && amHandy.kachelnSichtbar === 8,
+  `${amHandy.kachelnSichtbar} von ${amHandy.kachelZahl} sichtbar`);
 
 await browser.close();
 server.kill();
