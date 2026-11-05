@@ -3143,6 +3143,62 @@
         </div>
       </div>
     </div>
+
+    <!-- ---------- Plankenwand bearbeiten ----------
+         "genau so ein button auch für ... Plankenwand bearbeiten ... bei
+         Plankenwand noch h+" und "nicht nur waagrecht auch hochkant
+         möglich" (Betreiber, 05.11.2026).
+
+         Nutzt ABSICHTLICH dieselben Klassen wie der Keil-Dialog: Das ist
+         die Hülle, die am 05.11.2026 fürs Handy geradegezogen wurde
+         (ganzes Fenster, klebende Kopf- und Fußzeile). Zwei Hüllen
+         nebeneinander liefen auseinander, sobald eine angefasst wird.
+         Die Klassen heißen noch "keil" – umbenannt wird, wenn alle vier
+         Editoren stehen, siehe docs/NEXT_TASK.md. -->
+    <div class="k3d-keil" id="k3dPlankenDialog" role="dialog" aria-modal="true"
+         aria-labelledby="k3dPlankenTitel" hidden>
+      <div class="k3d-keil-kasten">
+        <div class="k3d-keil-kopf">
+          <h3 id="k3dPlankenTitel">Plankenwand bearbeiten</h3>
+          <button type="button" class="k3d-keil-zu" id="k3dPlankenZu">
+            <svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen
+          </button>
+        </div>
+
+        <div class="k3d-keil-teilungen" id="k3dPlankenRichtung" role="group"
+             aria-label="Richtung der Planken"></div>
+
+        <div class="k3d-keil-form">
+          <p class="k3d-keil-ueberschrift" id="k3dPlankenMassEinheit">Maße in mm</p>
+          <div class="k3d-keil-masse">
+            <div class="k3d-keil-mass">
+              <label for="k3dPlankenB"><span class="k3d-keil-marke">B</span> Breite</label>
+              <span class="k3d-keil-eingabe">
+                <input type="text" id="k3dPlankenB" class="k3d-zahl" readonly
+                       aria-describedby="k3dPlankenMassEinheit k3dPlankenBHinweis">
+                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+              </span>
+              <p class="k3d-mini" id="k3dPlankenBHinweis">Kommt aus dem Modell.</p>
+            </div>
+            <div class="k3d-keil-mass">
+              <label for="k3dPlankenH"><span class="k3d-keil-marke">H</span> Höhe
+                <span class="k3d-keil-opt">(Optional)</span></label>
+              <span class="k3d-keil-eingabe">
+                <input type="number" id="k3dPlankenH" class="k3d-zahl" inputmode="numeric"
+                       min="0" step="10"
+                       aria-describedby="k3dPlankenMassEinheit k3dPlankenHHinweis">
+                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+              </span>
+              <p class="k3d-mini" id="k3dPlankenHHinweis">Leer: es gilt der Regler im Bedienfeld.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="k3d-keil-fuss">
+          <button type="button" class="k3d-keil-fertig" id="k3dPlankenFertig">Fertig</button>
+        </div>
+      </div>
+    </div>
 </main>
 
 <footer role="contentinfo">
@@ -3231,13 +3287,13 @@
   </div>
 </footer>
 
-<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105g" defer></script>
+<script src="/js/vendor/three.min.js" defer></script><script src="/js/werkstatt-pfade.js?v=20261105h" defer></script>
 <script src="/js/masstabelle.js?v=20261025i" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-3d.js?v=20261105g" defer></script>
+<script src="/js/konfigurator-3d.js?v=20261105h" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>

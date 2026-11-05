@@ -128,6 +128,9 @@
        Modell alles. Erst wer den Editor oeffnet und etwas aendert,
        bekommt hier einen Eintrag. So bleibt ein alter Link gueltig. */
     keilPlan: {},
+    /* Dasselbe fuer die Plankenwand: Hoehe in mm und Richtung je Seite.
+       Leer heisst "nie bearbeitet" - dann gilt der Regler im Bedienfeld. */
+    plankenPlan: {},
     sg23Schloss: 'ohne',          // ohne | links | rechts
     /* Beide Hälften haben ihre EIGENE Stellung: „man kann obere hälfte
        und untere hälfte seprat öffnen/schließen" (Betreiber,
@@ -367,6 +370,14 @@
      die Materialstärke des Winkels (hier 2 mm) und die Fugenbreite.
      Die Fuge ist allerdings kein fester Wert mehr, siehe planken(). */
   var PLANKE = { hoehe: 7.04, dicke: 2.53 };
+  /* Was eine Plankenwand mindestens hoch sein muss, damit ueberhaupt eine
+     Planke hineinpasst. ABGELEITET aus PLANKE.hoehe (70,4 mm).
+
+     Steht HIER und nicht beim Editor: Am 05.11.2026 hat genau das schon
+     einmal einen halben Abend gekostet - KEIL_MIN_VORNE stand zweimal in
+     der Datei, einmal in cm und einmal in mm, und die zweite Zuweisung
+     verstellte die Zeichnung. Eine Zahl, eine Stelle, eine Einheit. */
+  var PLANKE_MIN_H = 80;   // mm, ABGELEITET
   var FUGE_MAX = 60;       // mm; darüber ist es kein Sichtschutz mehr
   /* Zielwert, auf den die automatische Teilung zugeht. 10 mm ist der
      Wert, mit dem Alu-Plankenwände üblicherweise gesetzt werden –
@@ -6291,32 +6302,44 @@
       return { anzahl: n, laenge: (laenge - (n - 1) * ZWISCHEN.breite) / n };
     }
 
-    function planken(laenge, hoehe, achse, mitte, yUnten, quer, teilbar) {
+    function planken(laenge, hoehe, achse, mitte, yUnten, quer, teilbar, richtung) {
       if (laenge <= 0 || hoehe < PLANKE.hoehe) return;
+      var hoch = richtung === 'hochkant';
       var fe = plankenFelder(laenge);
       if (fe.anzahl > 1) {
         var schrittF = fe.laenge + ZWISCHEN.breite;
         var start = mitte - laenge / 2 + fe.laenge / 2;
         for (var k = 0; k < fe.anzahl; k++) {
-          plankenFeld(fe.laenge, hoehe, achse, start + k * schrittF, yUnten, quer, teilbar);
+          (hoch ? plankenFeldHochkant : plankenFeld)(
+            fe.laenge, hoehe, achse, start + k * schrittF, yUnten, quer, teilbar);
           /* Zwischenprofil in jede Fuge zwischen zwei Feldern */
           if (k < fe.anzahl - 1) {
             zwischenprofil(hoehe, achse, start + k * schrittF + schrittF / 2,
-                           yUnten, quer, teilbar);
+                           yUnten, quer, teilbar, richtung);
           }
         }
         PLANKEN_IST.felder = fe.anzahl;
         PLANKEN_IST.feldLaenge = Math.round(fe.laenge * 10);
         return;
       }
-      plankenFeld(laenge, hoehe, achse, mitte, yUnten, quer, teilbar);
+      (hoch ? plankenFeldHochkant : plankenFeld)(
+        laenge, hoehe, achse, mitte, yUnten, quer, teilbar);
       PLANKEN_IST.felder = 1;
       PLANKEN_IST.feldLaenge = Math.round(laenge * 10);
     }
 
     /* Das Zwischenprofil steht senkrecht und geht über die Höhe, die die
        Planken wirklich einnehmen – bei halbhoher Wand also nicht weiter. */
-    function zwischenprofil(hoehe, achse, lage, yUnten, quer, teilbar) {
+    function zwischenprofil(hoehe, achse, lage, yUnten, quer, teilbar, richtung) {
+      /* Hochkant stehen die Planken ueber die volle Hoehe - das
+         Zwischenprofil also auch. Mit der waagerechten Rechnung waere
+         es nur so hoch wie der Plankenstapel, und der ist hier ein
+         anderer. */
+      if (richtung === 'hochkant') {
+        platte(plankeMaterial(ZWISCHEN.breite), ZWISCHEN.breite, hoehe, achse, lage,
+               yUnten + hoehe / 2, quer, 0, PLANKE.dicke);
+        return;
+      }
       var t = plankenTeilung(hoehe);
       var schritt = PLANKE.hoehe + t.fuge;
       var a = teilbar === false ? { von: 0, anzahl: t.anzahl }
@@ -6359,6 +6382,46 @@
       }
       if (uk === null) return;
       plankenWinkel(laenge, ok - uk, achse, mitte, uk, quer, mPlankeWand);
+    }
+
+    /* ---------- Planken hochkant ----------
+       "bei plankenwand noch ne option hinzufügen nicht nur waagrecht
+       auch hochkant möglich" (Betreiber, 05.11.2026). Dass VD das so
+       liefert, ist seine Angabe - BELEGT.
+
+       Es ist nicht dieselbe Wand gedreht: Waagerecht liegen die Planken
+       zwischen den Pfosten und tragen sich an den Winkeln. Hochkant
+       stehen sie frei und brauchen oben UND unten eine Querschiene,
+       sonst haengen sie in der Luft. Darum ein eigener Weg und nicht
+       ein Schalter mitten in plankenFeld().
+
+       Geteilt wird ueber die LAENGE statt ueber die Hoehe - dieselbe
+       Rechnung, nur andere Richtung. Die Teilhoehe (Regler "wie hoch
+       zugesetzt") gibt es hier nicht: Eine stehende Planke ist so hoch
+       wie die Wand, Weglassen einzelner Planken waere eine Luecke in
+       der Flaeche, kein niedrigerer Abschluss. */
+    function plankenFeldHochkant(laenge, hoehe, achse, mitte, yUnten, quer) {
+      var m = plankeMaterial(hoehe);
+      var t = plankenTeilung(laenge);
+      var schritt = PLANKE.hoehe + t.fuge;
+      var breit = t.anzahl * schritt - t.fuge;
+      var start = mitte - breit / 2 + PLANKE.hoehe / 2;
+      /* Die Querschienen zuerst: Sie bestimmen, wie viel Hoehe den
+         Planken bleibt. */
+      var schiene = Math.min(ZWISCHEN.breite, hoehe / 4);
+      var hPl = Math.max(0, hoehe - 2 * schiene);
+      platte(m, laenge, schiene, achse, mitte, yUnten + schiene / 2, quer, 0, PLANKE.dicke);
+      platte(m, laenge, schiene, achse, mitte, yUnten + hoehe - schiene / 2, quer,
+             0, PLANKE.dicke);
+      for (var i = 0; i < t.anzahl && hPl > 0; i++) {
+        platte(m, PLANKE.hoehe, hPl, achse, start + i * schritt,
+               yUnten + schiene + hPl / 2, quer, 0, PLANKE.dicke);
+      }
+      PLANKEN_IST = { anzahl: t.anzahl, gesamt: t.anzahl,
+                      fuge: Math.round(t.fuge * 100) / 10,
+                      hoehe: Math.round(hoehe * 10), lage: 'voll',
+                      richtung: 'hochkant',
+                      frei: 0, licht: Math.round(hoehe * 10) };
     }
 
     /* Der Winkel läuft senkrecht am Pfosten hoch; die Planken werden an
@@ -6801,9 +6864,27 @@
          Plankenwand steckt, ist derselbe Fehler. Ob diese Kombination
          überhaupt angeboten werden soll, ist eine Produktfrage und steht
          in docs/NEXT_TASK.md. */
+      /* ---------- Was im Planken-Editor steht, schlaegt den Regler ----
+         Aber nur, wenn dort wirklich etwas steht: Ein leeres Feld heisst
+         "nie bearbeitet", und dann gilt weiter das Bedienfeld. Sonst
+         haette diese Aenderung jede bestehende Einstellung ueberschrieben
+         und jeden geteilten Link anders aussehen lassen.
+
+         Begrenzt wird auf die Hoehe, die die Seite ueberhaupt hat - eine
+         Plankenwand, die ueber das Dach hinausragt, gibt es nicht. */
+      var pwPlan = plankenPlanLesen(seite);
+      /* MESSEN und merken, nicht im Editor noch einmal herleiten -
+         dieselbe Regel wie beim Keil. b ist die Breite der Seite, platz
+         die Hoehe, die ueberhaupt zur Verfuegung steht. */
+      plankenMassGemerkt[seite] = { b: Math.round(laenge * 10),
+                                    platz: Math.round(hoch * 10) };
+      function pwHoehe(vorgabe) {
+        if (pwPlan.h == null) return vorgabe;
+        return Math.max(PLANKE_MIN_H / 10, Math.min(hoch, pwPlan.h / 10));
+      }
       var kombi = (hatPlanken && (hatRahmen || hatSchiebe))
         ? plankenKombi(hoch) : null;
-      var hPlanke = kombi ? kombi.hoehe : 0;
+      var hPlanke = kombi ? pwHoehe(kombi.hoehe) : 0;
       var plankeOben = !!(kombi && kombi.oben);
       /* Liegen die Planken oben, beginnt die Rahmenwand unten – sonst
          umgekehrt. Zusammen ergeben beide immer die volle Höhe. */
@@ -6848,7 +6929,12 @@
           }
         }
       } else if (hatPlanken) {
-        planken(laenge, hoch, achse, mitte, yUnten, quer);
+        /* teilbar = false, sobald eine eigene Hoehe eingetragen ist:
+           Sonst zoege der Prozentregler von dieser Hoehe NOCH einmal ab,
+           und 800 mm im Editor waeren im Modell 270. Zwei Mechanismen
+           fuer dieselbe Zahl laufen immer auseinander. */
+        planken(laenge, pwHoehe(hoch), achse, mitte, yUnten, quer,
+                pwPlan.h != null ? false : undefined, pwPlan.richtung);
       }
       // Plankenwand zusätzlich zu Rahmen/Schiebe: als unteres Drittel davor
       if (hatRahmen && hatSchiebe) {
@@ -6856,7 +6942,8 @@
            ebenfalls ein Rahmenelement, kein Blech. */
       }
       if (hPlanke > 0) {
-        planken(laenge, hPlanke, achse, mitte, yPlanke, quer, false);
+        planken(laenge, hPlanke, achse, mitte, yPlanke, quer, false,
+                pwPlan.richtung);
         /* Dem Bedienfeld die WIRKLICHE Lage melden. planken() baut die
            zugewiesene Höhe voll aus und meldet deshalb „volle Höhe" –
            das stimmt für das Plankenband, nicht für die Seite. Was
@@ -15155,8 +15242,11 @@
          Eigener Knopf NEBEN der Reihe, nicht im Keil-Knopf: Ein Knopf
          im Knopf ist in HTML nicht erlaubt, und am Handy waeren es
          zwei Ziele auf 44 px. */
-      keilZahnradAnzeigen(seite, reihe, liste.indexOf('Keil') > -1
-                                        && erwMoeglich(seite).indexOf('Keil') > -1);
+      var moeglich = erwMoeglich(seite);
+      zahnradAnzeigen(seite, reihe, 'Keil',
+                      liste.indexOf('Keil') > -1 && moeglich.indexOf('Keil') > -1);
+      zahnradAnzeigen(seite, reihe, 'Plankenwand',
+                      liste.indexOf('Plankenwand') > -1);
       feldwahlAnzeigen(seite, reihe);
     });
   }
@@ -16437,6 +16527,7 @@
        Nur, was wirklich bearbeitet wurde (leeres Objekt heisst: nie
        angefasst), damit der Link kurz bleibt. */
     if (Z.keilPlan && Object.keys(Z.keilPlan).length) d.kp = Z.keilPlan;
+    if (Z.plankenPlan && Object.keys(Z.plankenPlan).length) d.pp = Z.plankenPlan;
     return d;
   }
 
@@ -16528,6 +16619,10 @@
        wie damals - die alte automatische Teilung samt "Glas im Keil".
        So bleibt jeder verschickte Link gueltig. */
     Z.keilPlan = (d.kp && typeof d.kp === 'object') ? d.kp : {};
+    /* Ein Link von vor dem 05.11.2026 kennt keinen Plankenplan.
+       Leer heisst "nie bearbeitet" - dann gilt der Regler im
+       Bedienfeld, wie bisher. */
+    Z.plankenPlan = (d.pp && typeof d.pp === 'object') ? d.pp : {};
     if (d.fa) farbeSetzen(d.fa);
     aendern();
     return true;
@@ -16707,6 +16802,29 @@
     if (!Z.keilPlan) Z.keilPlan = {};
     Z.keilPlan[seite] = plan;
   }
+
+  /* ---------- Der Plan der Plankenwand ----------
+     Je Seite, wie beim Keil, und wie dort heisst "nichts eingetragen":
+     Es bleibt bei dem, was im Bedienfeld steht. Nur wer den Editor
+     benutzt, loest sich davon - sonst haette diese Aenderung jede
+     bestehende Einstellung ueberschrieben.
+
+     richtung: "waagerecht" liegen die Planken zwischen den Pfosten,
+     "hochkant" stehen sie und brauchen oben und unten eine Querschiene.
+     Dass VD das hochkant liefert, ist eine Angabe des Betreibers
+     (05.11.2026) - BELEGT, nicht abgeleitet. */
+  function plankenPlanLesen(seite) {
+    var p = (Z.plankenPlan && Z.plankenPlan[seite]) || {};
+    return {
+      h: (p.h > 0) ? p.h : null,
+      richtung: p.richtung === 'hochkant' ? 'hochkant' : 'waagerecht'
+    };
+  }
+  function plankenPlanSchreiben(seite, plan) {
+    if (!Z.plankenPlan) Z.plankenPlan = {};
+    Z.plankenPlan[seite] = plan;
+  }
+
 
   /* Das Glas eines Feldes. Faellt auf die alte Einzelwahl zurueck,
      damit ein Keil ohne Plan aussieht wie bisher. */
@@ -17345,23 +17463,192 @@
      ins Markup geschrieben: Es gibt vier Seiten und zwei Faelle je
      Seite - im Markup waeren das acht Stellen, die auseinanderlaufen
      koennen. */
-  function keilZahnradAnzeigen(seite, reihe, zeigen) {
+  /* EIN Zahnrad je Bauteil und Seite. Die Kennung traegt beides, damit
+     sich die Knoepfe nicht gegenseitig finden: Mit nur einem Attribut
+     fuer alle holte der Plankenknopf das Keil-Zahnrad und benannte es
+     um (05.11.2026 beim Bauen bemerkt). */
+  /* ---------- Der Editor der Plankenwand ----------
+     Dieselbe Huelle wie der Keil-Editor (die ist fuers Handy
+     geradegezogen), aber ein eigener Inhalt: Richtung und Hoehe. */
+  var plankenMassGemerkt = {};
+  var plankenEditorSeite = null;
+  var PLANKEN_RICHTUNGEN = [
+    { id: 'waagerecht', name: 'Waagerecht' },
+    { id: 'hochkant',   name: 'Hochkant' }
+  ];
+  /* Eigene kleine Zeichnung, keine fremden Bilder: ein Rahmen und die
+     Planken darin, einmal liegend, einmal stehend. */
+  function plankenKachelBild(id) {
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 60 44');
+    svg.setAttribute('aria-hidden', 'true');
+    var r = document.createElementNS(ns, 'rect');
+    r.setAttribute('x', '2'); r.setAttribute('y', '2');
+    r.setAttribute('width', '56'); r.setAttribute('height', '40');
+    r.setAttribute('fill', 'none'); r.setAttribute('stroke', 'currentColor');
+    r.setAttribute('stroke-width', '2');
+    svg.appendChild(r);
+    var n = 4;
+    for (var i = 0; i < n; i++) {
+      var b = document.createElementNS(ns, 'rect');
+      if (id === 'hochkant') {
+        b.setAttribute('x', String(8 + i * 12)); b.setAttribute('y', '8');
+        b.setAttribute('width', '7'); b.setAttribute('height', '28');
+      } else {
+        b.setAttribute('x', '8'); b.setAttribute('y', String(8 + i * 8));
+        b.setAttribute('width', '44'); b.setAttribute('height', '5');
+      }
+      b.setAttribute('fill', 'currentColor');
+      svg.appendChild(b);
+    }
+    return svg;
+  }
+
+  function plankenEditorOeffnen(seite) {
+    plankenEditorVerdrahten();
+    plankenEditorSeite = seite;
+    var kasten = document.getElementById('k3dPlankenDialog');
+    if (!kasten) return;
+    kasten.hidden = false;
+    var t = document.getElementById('k3dPlankenTitel');
+    if (t) t.textContent = 'Plankenwand bearbeiten – ' + keilSeitenName(seite);
+    plankenEditorZeichnen();
+  }
+  function plankenEditorSchliessen() {
+    var kasten = document.getElementById('k3dPlankenDialog');
+    if (kasten) kasten.hidden = true;
+    plankenEditorSeite = null;
+  }
+  /* Die Obergrenze: der Platz, den die Seite hat. Null heisst "noch
+     nichts gemessen" - dann wird nicht begrenzt. */
+  function plankenEditorPlatz(seite) {
+    var m = plankenMassGemerkt[seite];
+    return (m && m.platz) ? m.platz : 0;
+  }
+  function plankenEditorZeichnen() {
+    if (!plankenEditorSeite) return;
+    var plan = plankenPlanLesen(plankenEditorSeite);
+    var mass = plankenMassGemerkt[plankenEditorSeite] || { b: 0, platz: 0 };
+
+    var kacheln = document.getElementById('k3dPlankenRichtung');
+    if (kacheln && !kacheln.firstChild) {
+      PLANKEN_RICHTUNGEN.forEach(function (r) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-richtung', r.id);
+        b.setAttribute('aria-pressed', 'false');
+        b.appendChild(plankenKachelBild(r.id));
+        var sp = document.createElement('span');
+        sp.textContent = r.name;
+        b.appendChild(sp);
+        b.addEventListener('click', function () {
+          var p = plankenPlanLesen(plankenEditorSeite);
+          p.richtung = r.id;
+          plankenPlanSchreiben(plankenEditorSeite, p);
+          plankenEditorZeichnen();
+          aendern();
+        });
+        kacheln.appendChild(b);
+      });
+    }
+    if (kacheln) {
+      Array.prototype.forEach.call(kacheln.children, function (b) {
+        var an = b.getAttribute('data-richtung') === plan.richtung;
+        b.classList.toggle('ist-an', an);
+        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+      });
+    }
+
+    var fB = document.getElementById('k3dPlankenB');
+    if (fB) fB.value = mass.b ? String(mass.b) : '–';
+    var fH = document.getElementById('k3dPlankenH');
+    if (fH && document.activeElement !== fH) {
+      fH.value = plan.h != null ? String(plan.h) : '';
+    }
+    var hH = document.getElementById('k3dPlankenHHinweis');
+    if (hH) {
+      hH.textContent = mass.platz
+        ? 'Leer: es gilt der Regler im Bedienfeld. Höchstens ' + mass.platz + ' mm.'
+        : 'Leer: es gilt der Regler im Bedienfeld.';
+    }
+  }
+
+  /* Die Bedienung des Planken-Dialogs. Einmal verdrahten, beim ersten
+     Oeffnen - wie beim Keil. */
+  var plankenEditorBereit = false;
+  function plankenEditorVerdrahten() {
+    if (plankenEditorBereit) return;
+    plankenEditorBereit = true;
+    var kasten = document.getElementById('k3dPlankenDialog');
+    if (!kasten) return;
+    var zu = document.getElementById('k3dPlankenZu');
+    if (zu) zu.addEventListener('click', plankenEditorSchliessen);
+    var fertig = document.getElementById('k3dPlankenFertig');
+    if (fertig) fertig.addEventListener('click', plankenEditorSchliessen);
+    kasten.addEventListener('click', function (e) {
+      if (e.target === kasten) plankenEditorSchliessen();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !kasten.hidden) plankenEditorSchliessen();
+    });
+    var f = document.getElementById('k3dPlankenH');
+    if (!f) return;
+    /* DIESELBE REGEL wie bei den Keil-Massen: beim Tippen nicht ins Feld
+       zurueckschreiben, sonst ist die Ruecktaste wirkungslos
+       ("die 150mm lassen sich ... nicht löschen", Betreiber,
+       05.11.2026). Geklemmt wird beim Verlassen. */
+    function setzen(v) {
+      var p = plankenPlanLesen(plankenEditorSeite);
+      p.h = v;
+      plankenPlanSchreiben(plankenEditorSeite, p);
+      plankenEditorZeichnen();
+      aendern();
+    }
+    f.addEventListener('input', function () {
+      if (!plankenEditorSeite) return;
+      var v = parseInt(f.value, 10);
+      if (f.value === '' || isNaN(v)) return;
+      var max = plankenEditorPlatz(plankenEditorSeite);
+      if (v < PLANKE_MIN_H || (max && v > max)) return;
+      setzen(v);
+    });
+    f.addEventListener('change', function () {
+      if (!plankenEditorSeite) return;
+      var v = parseInt(f.value, 10);
+      if (f.value === '' || isNaN(v)) { f.value = ''; setzen(null); return; }
+      var max = plankenEditorPlatz(plankenEditorSeite);
+      if (v < PLANKE_MIN_H) v = PLANKE_MIN_H;
+      if (max && v > max) v = max;
+      f.value = String(v);
+      setzen(v);
+    });
+  }
+
+  var ZAHNRAD = {
+    'Keil': { text: 'Keil bearbeiten', oeffnen: function (s2) { keilEditorOeffnen(s2); } },
+    'Plankenwand': { text: 'Plankenwand bearbeiten',
+                     oeffnen: function (s2) { plankenEditorOeffnen(s2); } }
+  };
+  function zahnradAnzeigen(seite, reihe, art, zeigen) {
     var huelle = reihe.parentNode;
     if (!huelle) return;
-    var knopf = huelle.querySelector('[data-k3d-keil-rad]');
+    var wahl = '[data-k3d-rad="' + art + '"]';
+    var knopf = huelle.querySelector(wahl);
     if (!zeigen) { if (knopf) knopf.hidden = true; return; }
     if (!knopf) {
       knopf = document.createElement('button');
       knopf.type = 'button';
       knopf.className = 'k3d-keil-rad';
-      knopf.setAttribute('data-k3d-keil-rad', seite);
+      knopf.setAttribute('data-k3d-rad', art);
+      knopf.setAttribute('data-k3d-rad-seite', seite);
       knopf.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"'
         + ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round"'
         + ' stroke-linejoin="round"><circle cx="12" cy="12" r="3.1"/>'
         + '<path d="M19.4 14.6a1.6 1.6 0 0 0 .32 1.77l.06.06a1.95 1.95 0 1 1-2.76 2.76l-.06-.06a1.6 1.6 0 0 0-1.77-.32 1.6 1.6 0 0 0-.97 1.46v.17a1.95 1.95 0 1 1-3.9 0v-.09a1.6 1.6 0 0 0-1.05-1.46 1.6 1.6 0 0 0-1.77.32l-.06.06a1.95 1.95 0 1 1-2.76-2.76l.06-.06a1.6 1.6 0 0 0 .32-1.77 1.6 1.6 0 0 0-1.46-.97h-.17a1.95 1.95 0 1 1 0-3.9h.09a1.6 1.6 0 0 0 1.46-1.05 1.6 1.6 0 0 0-.32-1.77l-.06-.06a1.95 1.95 0 1 1 2.76-2.76l.06.06a1.6 1.6 0 0 0 1.77.32h.08A1.6 1.6 0 0 0 10.2 3.2v-.17a1.95 1.95 0 1 1 3.9 0v.09a1.6 1.6 0 0 0 .97 1.46 1.6 1.6 0 0 0 1.77-.32l.06-.06a1.95 1.95 0 1 1 2.76 2.76l-.06.06a1.6 1.6 0 0 0-.32 1.77v.08a1.6 1.6 0 0 0 1.46.97h.17a1.95 1.95 0 1 1 0 3.9h-.09a1.6 1.6 0 0 0-1.46.97z"/></svg>'
-        + '<span>Keil bearbeiten</span>';
+        + '<span>' + ZAHNRAD[art].text + '</span>';
       knopf.addEventListener('click', function () {
-        keilEditorOeffnen(knopf.getAttribute('data-k3d-keil-rad'));
+        ZAHNRAD[art].oeffnen(knopf.getAttribute('data-k3d-rad-seite'));
       });
       huelle.appendChild(knopf);
     }

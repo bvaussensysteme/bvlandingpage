@@ -269,7 +269,7 @@ await p.evaluate(() => {
 await p.waitForTimeout(800);
 
 const radVorher = await p.evaluate(() => {
-  const k = document.querySelector('[data-k3d-keil-rad]');
+  const k = document.querySelector('[data-k3d-rad="Keil"]');
   return !!(k && !k.hidden);
 });
 pruefe('Ohne Keil gibt es kein Zahnrad', !radVorher, 'ein Knopf ohne Keil waere eine falsche Zusage');
@@ -281,12 +281,12 @@ await p.evaluate(() => {
 await p.waitForTimeout(1500);
 
 const radNachher = await p.evaluate(() => {
-  const k = document.querySelector('[data-k3d-keil-rad]');
+  const k = document.querySelector('[data-k3d-rad="Keil"]');
   return !!(k && !k.hidden && k.offsetParent);
 });
 pruefe('Mit Keil erscheint das Zahnrad', radNachher);
 
-await p.click('[data-k3d-keil-rad]');
+await p.click('[data-k3d-rad="Keil"]');
 await p.waitForTimeout(700);
 
 const auf = await p.evaluate(() => {
@@ -508,7 +508,7 @@ await p.waitForTimeout(700);
    tut, und der Editor neu geoeffnet. */
 await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
 await p.evaluate(() => { if (window.__bvKeilUeberhoch) window.__bvKeilUeberhoch('links'); });
-await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-rad="Keil"]'); if (k) k.click(); });
 await p.waitForTimeout(900);
 const warn = await p.evaluate(() => {
   const w = document.getElementById('k3dKeilWarnung');
@@ -621,7 +621,7 @@ await p.waitForTimeout(1200);
    waere der Schaden: die Wahl stillschweigend weg. */
 await p.evaluate(() => { if (window.__bvKeilAltSetzen) window.__bvKeilAltSetzen('links'); });
 await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
-await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-rad="Keil"]'); if (k) k.click(); });
 await p.waitForTimeout(900);
 const alteNamen = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilGlasFelder select')].slice(0, 2).map((s2) => s2.value));
@@ -657,7 +657,7 @@ pruefe('Die Schiebewand reicht bis an den Keil',
 
 /* Und bei eigener Hoehe ebenso: Wer den Keil hoeher stellt, braucht
    darunter eine kuerzere Wand - sonst laufen beide ineinander. */
-await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-rad="Keil"]'); if (k) k.click(); });
 await p.waitForTimeout(800);
 const paarW = await p.evaluate(() => ({
   h1: +document.getElementById('k3dKeilH1').value,
@@ -684,7 +684,7 @@ pruefe('Auch ein hoeherer Keil sitzt ohne Luecke auf der Wand',
    GEPRUEFT WIRD MIT ECHTEN TASTENDRUECKEN, nicht mit fill(): fill()
    setzt den ganzen Wert auf einmal und haette den Fehler nie gezeigt. */
 await p.evaluate(() => { const d = document.getElementById('k3dKeilDialog'); if (d) d.hidden = true; });
-await p.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await p.evaluate(() => { const k = document.querySelector('[data-k3d-rad="Keil"]'); if (k) k.click(); });
 await p.waitForTimeout(800);
 await tippe('#k3dKeilH1', '');
 await p.waitForTimeout(800);
@@ -816,7 +816,7 @@ await ph.evaluate(() => {
   if (b) b.click();
 });
 await ph.waitForTimeout(1600);
-await ph.evaluate(() => { const k = document.querySelector('[data-k3d-keil-rad]'); if (k) k.click(); });
+await ph.evaluate(() => { const k = document.querySelector('[data-k3d-rad="Keil"]'); if (k) k.click(); });
 await ph.waitForTimeout(1000);
 
 const amHandy = await ph.evaluate(() => {

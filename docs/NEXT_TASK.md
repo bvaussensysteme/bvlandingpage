@@ -52,35 +52,6 @@ Livesystem nachgeprüft (Konfigurator `v=20261104v`, Assistent
 `v=20261104b`). Der öffentliche Konfigurator ist **gesperrt**, gearbeitet
 wird in der **Werkstatt** — beides weiter unten.
 
-### Am 04.11.2026 gebaut und live *(Einzelheiten in `docs/entscheidungen.md`)*
-
-| | |
-|---|---|
-| **Farbtreue** | Gemessen: gesetzt `#C49A2A` erschien als `#CBBD75`. Zwei fehlende Umrechnungen (Farbraum, Tonwertkorrektur), neue Funktion `uiBild()` neben `rgb()`. **Das war die Ursache hinter „zu blass", nicht die Gestaltung.** Prüfung: `pruefe-farbtreue.mjs` zählt im fertigen Bild |
-| **Marken und Schilder** | Ein Kleid für alles Runde: Anthrazit, goldener Rand, helles Zeichen. Zustand nur noch am Zeichen, nicht an der Farbe |
-| **Zurück-Zeichen am Pfosten** | Unter dem Doppelpfeil, nur bei verschobenem Pfosten |
-| **Schattenrahmen** | Folgt der Baugröße (562 cm bei 3000 mm statt fest 700). Kostet nichts, schärfere Kanten bei kleinen Anlagen |
-| **Handy** | Schattenkarte 1024 statt 2048 unter 900 px, `powerPreference`, `prefers-reduced-motion` |
-| **Besucherzählung** | Besucher, Besuche, Absprungrate, Einstiegsseiten, Kampagnen, Browser/System. Datenschutztext im selben Zug |
-| **Werkzeugseiten** | `/windzonen` und `/baugenehmigung` führen vom Ergebnis weiter und verweisen aufeinander |
-| **Anfrage-Assistent** | Balkonfoto aus dem eigenen Modell, „Sonstiges" weg, Maße im Direktweg freiwillig |
-| **Tippfelder am Handy** | **53 von 56** Eingabefeldern waren kleiner als 16 px – iOS zoomt dann beim Antippen hinein und nicht wieder heraus. Jetzt 16 px, aber nur am Finger (`pointer: coarse`). Nicht über `maximum-scale=1`: Das bräche WCAG 1.4.4. Prüfung: `pruefe-tippfelder.mjs` |
-| **„Weiter“ am Handy** | Landete oft in der Fußzeile statt beim nächsten Schritt. Der Code rollte das Bedienfeld – das am Handy gar nicht rollt, weil `.k3d-app { height: auto }`. Jetzt wird gemessen, wer wirklich rollt. Prüfung: `pruefe-schrittwechsel.mjs` |
-| **Zwei tote Prüfungen** | `pruefe-teilen.mjs` stürzte seit dem 03.11. ab, `pruefe-api-bauteile.mjs` war seit PR #497 dauerhaft rot. Beide repariert. `pruefe-cache-buster.sh` sah `style.css` bisher nicht nach |
-| **Vier Seiten nur erzeugt geändert** | 110 Zeilen Datenschutz, 68 Windzonen, 25 Baugenehmigung, 14 Widerruf standen nur in der HTML-Datei, nicht in `src/*.njk`. **Ein `npm run build` hätte sie stillschweigend zurückgenommen** – beim Datenschutz wäre das ein Verstoß ohne Zutun. Übernommen; Prüfung: `pruefe-erzeugte-seiten.sh` |
-| **Halbes Repository lag offen** | `/scripts/`, `/src/`, `/node_modules/` (2250 Dateien) und `/.claude/settings.json` waren öffentlich abrufbar – `wrangler.jsonc` liefert `"."` aus, und `.assetsignore` war unvollständig. **Keine Zugangsdaten darunter**, aber der Bauplan der Passwortschranke. Prüfung: `pruefe-nicht-oeffentlich.sh` |
-| **Keil-Editor** | Zahnrad am Keil oder Klick ins Modell öffnet einen Editor: acht Teilungen, H1/H2 (gekoppelt über die Dachschräge), Versatz unten, Sprossen senkrecht und waagerecht getrennt, **Glas je Feld**. Geht in Teilen-Link und Anfrage. Prüfung: `pruefe-keil-editor.mjs` |
-
-**Bewusst nicht gemacht**, alle drei als Angebot notiert: Pixelverhältnis und
-Kantenglättung am Handy senken (macht das Bild sichtbar weicher, Gewinn hier
-nicht messbar), die rund **960 Zeichenaufrufe je Bild** senken (greift in die
-Geometrie ein, die an Herstellermaßen hängt), Himmel und Umgebungsbild über
-die berichtigte Farbkette ziehen (verschiebt Belichtung und alle nach
-Augenmaß gewählten Bauteilfarben).
-
-**Sicherung des Stands davor:** Branch
-`sicherung/stand-20261104u-vor-modernisierung`.
-
 ### Konfigurator-Produkte *(fertig bis auf Zubehör)*
 
 Gebaut: Terrassendach TDS, Flachdach SkyView, Carport (TDS, Flat Line, Flat
@@ -176,6 +147,43 @@ es keine Grenze — die Pfosten hinten werden entsprechend lang. Gibt es eine
 maximale Pfostenlänge oder Höhe hinten im System? Solange das niemand
 beziffert hat, wird **nicht** gekappt; eine erfundene Grenze wäre schlimmer
 als keine.
+
+### Bearbeiten-Knöpfe: einer steht, drei fehlen *(05.11.2026)*
+
+Der Betreiber will je Bauteil ein Zahnrad wie beim Keil: „genau so ein button
+auch für rahmenwand bearbeiten, Schiebetür bearbeiten, Plankenwand
+bearbeiten … und Velaris bearbeiten".
+
+| Bauteil | Stand |
+|---|---|
+| Keil | **fertig** (PR #554–#557) |
+| Plankenwand | **fertig** – Höhe in mm je Seite, waagerecht/hochkant |
+| Rahmenwand | offen |
+| Schiebetür | offen – **Achtung:** Die Flügelzahl kommt aus der Lieferbreiten-Tabelle (`sg23Bauart`) und ist **nicht frei wählbar**. Vorher klären, was dort überhaupt eingestellt werden soll (Öffnungsrichtung? Glas? Höhe?) |
+| Velaris | offen |
+
+**Danach aufräumen:** Die Dialog-Hülle heißt noch `k3d-keil-*`, wird aber von
+jedem Editor benutzt. Umbenennen auf einen neutralen Namen, wenn alle vier
+stehen – vorher lohnt der Diff nicht, und die Handy-Hülle ist frisch
+geradegezogen.
+
+### Balkon: drei Bilder liegen beim Betreiber *(05.11.2026)*
+
+Er hat drei Bilder geschickt: ein Foto einer Balkonüberdachung („nimm im
+konfigurator für Balkonüberdachungen dieses bild") und zwei Darstellungen für
+die zwei Montagearten – „das erste bild (auf der brüstung), zweite bild hinter
+dem geländer". Die beiden Montagearten **gibt es im Konfigurator schon**
+(`Z.pfostenAuf` = `Brüstung` | `Boden`), sie haben nur keine Bilder; das
+Muster dafür steht bereit (`images/konfigurator/aufbau-frei.jpg` /
+`aufbau-wand.jpg`), und `images/konfigurator/produkt-balkon.jpg` wäre das Ziel
+für das Foto.
+
+**Was fehlt:** Die Bilder kamen als Anhang im Chat an und liegen nicht als
+Datei vor – sie müssen noch einmal geschickt oder ins Repository gelegt
+werden. Dazu die Frage, woher die beiden Darstellungen stammen: Wenn sie aus
+einem fremden Konfigurator kommen, gilt „Nachbauten: eigene Sprache, eigene
+Namen" aus `CLAUDE.md` – dann zeichnen wir zwei eigene Symbole statt sie zu
+übernehmen.
 
 ### Offene Rückfragen an VD (aus dem Konfigurator)
 
