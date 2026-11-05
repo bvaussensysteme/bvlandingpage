@@ -23,6 +23,15 @@ import { existsSync, readdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const GEGENPROBE = process.argv.includes('--gegenprobe');
+/* ---------- Einen Fehler allein einbauen ----------
+   BV_FEHLER=3 node scripts/pruefe-keil-editor.mjs --gegenprobe
+
+   Noetig geworden am 05.11.2026: Mit allen Fehlern auf einmal
+   zerfaellt die Zeichnung so weit, dass die Kantenpruefung ins Leere
+   laeuft - sie blieb gruen, obwohl ihr Fehler eingebaut war. Ein
+   Fehler kann einen anderen verdecken. Wer eine neue Pruefung
+   hinzufuegt, sollte ihren Fehler EINZELN laufen lassen. */
+const NUR = process.env.BV_FEHLER ? parseInt(process.env.BV_FEHLER, 10) : null;
 const PORT = 8277;
 const WURZEL = new URL('..', import.meta.url).pathname;
 
@@ -51,10 +60,20 @@ const FEHLER = [
   { von: "          keilMassGemerkt[seite] = { b: Math.round(keilLaenge * 10),",
     nach: "          keilMassGemerkt[seite] = { b: 0," },
   { von: "        !keilGeklickt(e) &&\n", nach: "" },
-  { von: "          if (schluessel === 'h1') { p.h1 = v; p.h2 = v - ab - (p.versatz || 0); }",
-    nach: "          if (schluessel === 'h1') { p.h1 = v; }" },
+  /* ANKER NACHGEZOGEN am 05.11.2026: Die Zeile wurde beim Einbau der
+     Mindestoeffnung umgeschrieben. Der alte Anker fand nichts mehr -
+     der Fehler kam gar nicht an, und die Gegenprobe meldete ihn als
+     blind. Darum steht unten der Abbruch bei fehlendem Anker. */
+  { von: "            p.h1 = v; p.h2 = v - ab - vs;",
+    nach: "            p.h1 = v;" },
   { von: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite) - pv.versatz;",
     nach: "          pv.h2 = pv.h1 - keilAbfall(keilEditorSeite);" },
+  /* Der Bezugsfehler, der die Linien kreuzen liess. */
+  { von: "    var h2Abs = Math.max(1, mass.h2 + vMm);",
+    nach: "    var h2Abs = Math.max(1, mass.h2);" },
+  /* Die Grenze am Hoehenfeld - das zweite Loch. */
+  { von: "            if (v < ab + vs + 50) { v = ab + vs + 50; f.value = String(v); }",
+    nach: "            if (v < -99999) { v = ab + vs + 50; f.value = String(v); }" },
 ];
 
 /* Zwei Lesehaken, beide NUR lesend und nur im Test: eine Liste der
@@ -74,6 +93,12 @@ const MESSHAKEN = {
       + "                           y: r.top + (1 - (c.y + 1) / 2) * r.height }; }; })(kf);"
 };
 
+/* Ein Anker, der nichts mehr findet, laesst den Fehler gar nicht
+   ankommen - und die Gegenprobe meldet dann faelschlich eine blinde
+   Pruefung (oder, schlimmer, gar nichts). Das MUSS den Lauf scheitern
+   lassen: process.exitCode genuegt nicht, weil process.exit() am Ende
+   ihn ueberschreibt. */
+let ankerKaputt = false;
 let ok = 0; const rot = [];
 function pruefe(was, bedingung, beleg) {
   if (bedingung) { ok++; console.log(`  ok      ${was}`); }
@@ -100,12 +125,14 @@ await ctx.route('**/*', async (route) => {
     const n = text.split(f.von).length - 1;
     if (n !== 1) {
       console.error(`  !! Anker kommt ${n}x vor (erwartet 1x): ${f.von.slice(0, 50)}`);
-      process.exitCode = 2;
+      ankerKaputt = true;
     }
     text = text.replace(f.von, f.nach);
   };
   anwenden(MESSHAKEN);
-  if (GEGENPROBE) FEHLER.forEach(anwenden);
+  if (GEGENPROBE) {
+    (NUR == null ? FEHLER : [FEHLER[NUR]]).filter(Boolean).forEach(anwenden);
+  }
   return route.fulfill({ response: antwort, body: text });
 });
 
@@ -294,6 +321,49 @@ pruefe('Ein zu grosser Versatz wird begrenzt, nicht gebaut',
 await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(600);
 
+/* ---------- Die Kanten duerfen sich nie kreuzen ----------
+   "da is ein fehler es ueberschneiden sich die linien wenn man versatz
+   auswaehlt" (Betreiber, 05.11.2026). Ursache war der Bezug: H2 ist
+   die LICHTE Hoehe ueber der angehobenen Unterkante, wurde aber von
+   der Grundlinie aus abgetragen.
+
+   GEPRUEFT WIRD DIE ZEICHNUNG SELBST, nicht die Rechnung dahinter:
+   Jedes Feld ist ein Viereck aus oben-links, oben-rechts, unten-rechts,
+   unten-links. Liegt eine Oberkante auf oder unter ihrer Unterkante,
+   kreuzen sich die Linien. */
+async function kantenPruefen() {
+  return p.evaluate(() => {
+    const g = [...document.querySelectorAll('#k3dKeilSkizze .k3d-keil-feld polygon')];
+    const schlimm = [];
+    g.forEach((pg, i) => {
+      const pts = pg.getAttribute('points').trim().split(/\s+/).map((t) => t.split(',').map(Number));
+      const [ol, or_, ur, ul] = pts;
+      if (ol[1] >= ul[1] - 0.5 || or_[1] >= ur[1] - 0.5) schlimm.push(i + 1);
+    });
+    return schlimm;
+  });
+}
+await p.fill('#k3dKeilV', '400', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(800);
+const kreuzV = await kantenPruefen();
+pruefe('Mit Versatz kreuzen sich die Kanten nicht', kreuzV.length === 0,
+  'Felder mit gekreuzten Kanten: ' + kreuzV.join(', '));
+
+/* Derselbe Zustand ueber den anderen Weg: erst Versatz, DANN H1
+   absenken. Die Begrenzung sass zuerst nur am Versatzfeld - ein Loch,
+   das nicht an der Stelle sass, an der es auffiel. */
+const vorH1 = await p.evaluate(() => +document.getElementById('k3dKeilH1').value);
+await p.fill('#k3dKeilH1', '60', { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(800);
+const kreuzH = await kantenPruefen();
+const h2Rest = await p.evaluate(() => +document.getElementById('k3dKeilH2').value);
+pruefe('Auch ein zu kleines H1 nach einem Versatz kreuzt nichts',
+  kreuzH.length === 0 && h2Rest >= 50,
+  'gekreuzt: ' + (kreuzH.join(', ') || 'keins') + ', H2 ' + h2Rest);
+await p.fill('#k3dKeilV', '', { timeout: 4000 }).catch(() => {});
+await p.fill('#k3dKeilH1', String(vorH1), { timeout: 4000 }).catch(() => {});
+await p.waitForTimeout(700);
+
 /* ---------- Abweichende Masse werden benannt ---------- */
 await p.fill('#k3dKeilH1', '300', { timeout: 4000 }).catch(() => {});
 await p.waitForTimeout(700);
@@ -337,8 +407,14 @@ server.kill();
 
 console.log(`\n${ok} bestanden, ${rot.length} offen`);
 if (GEGENPROBE) {
-  console.log(`Gegenprobe: ${FEHLER.length} Fehler eingebaut, ${rot.length} Pruefungen schlagen an.`);
-  if (rot.length < FEHLER.length) { console.log('ZU WENIGE – mindestens eine Pruefung ist blind.'); process.exit(1); }
+  if (ankerKaputt) {
+    console.log('ANKER VERALTET – mindestens ein Fehler kam nicht an.');
+    process.exit(1);
+  }
+  const zahl = NUR == null ? FEHLER.length : 1;
+  console.log(`Gegenprobe: ${zahl} Fehler eingebaut${NUR == null ? '' : ' (Nr. ' + NUR + ')'}, `
+    + `${rot.length} Pruefungen schlagen an.`);
+  if (rot.length < zahl) { console.log('ZU WENIGE – mindestens eine Pruefung ist blind.'); process.exit(1); }
   process.exit(0);
 }
 process.exit(rot.length ? 1 : 0);

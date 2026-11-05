@@ -16518,10 +16518,29 @@
        abgeschnitten (gesehen im ersten Bild vom 05.11.2026). */
     var L = 86, R = 346, OBEN = 40, UNTEN = 250;       // Zeichenflaeche
     var hoch = UNTEN - OBEN;
-    var h1 = Math.max(1, mass.h1), h2 = Math.max(1, mass.h2);
-    var gross = Math.max(h1, h2);
+    /* ---------- Wovon aus gemessen wird ----------
+       BERICHTIGT am 05.11.2026, gemeldet vom Betreiber: "es
+       ueberschneiden sich die linien wenn man versatz auswaehlt".
+
+       H2 ist die LICHTE Hoehe am vorderen Ende, also von der dortigen
+       Unterkante bis zur Dachschraege. Mit einem Versatz liegt diese
+       Unterkante hoeher als die Grundlinie. Vorher wurde H2 trotzdem
+       von der Grundlinie aus abgetragen - die Oberkante rutschte
+       rechts um den Versatz zu tief, und sobald der Versatz groesser
+       war als die halbe Resthoehe, lag die steigende Unterkante ueber
+       der Oberkante: die Linien kreuzten sich.
+
+       Gerechnet wird jetzt in absoluten Hoehen ueber der Grundlinie.
+       Oben links ist das H1, oben rechts H2 PLUS Versatz - die
+       Dachschraege bleibt dadurch, wo sie ist, und nur die Unterkante
+       steigt. Genau so baut es auch das Modell (siehe kOben/kUnten im
+       Keil-Abschnitt). */
+    var h1 = Math.max(1, mass.h1);
+    var vMm = mass.versatz || 0;
+    var h2Abs = Math.max(1, mass.h2 + vMm);            // Oberkante rechts, ueber Grundlinie
+    var gross = Math.max(h1, h2Abs);
     var y1 = UNTEN - hoch * (h1 / gross);              // Oberkante links
-    var y2 = UNTEN - hoch * (h2 / gross);              // Oberkante rechts
+    var y2 = UNTEN - hoch * (h2Abs / gross);           // Oberkante rechts
 
     function el(name, attr) {
       var e = document.createElementNS(NS, name);
@@ -16539,7 +16558,7 @@
        eingegebenen Masse, sonst gleiche Teile. */
     /* Die Unterkante. Mit Versatz steigt sie zum flachen Ende hin an -
        genau wie die Oberkante faellt. */
-    var vPix = mass.versatz ? hoch * (mass.versatz / gross) : 0;
+    var vPix = vMm ? hoch * (vMm / gross) : 0;
     function unten(x) { return UNTEN - vPix * x; }
 
     var grenzen = [0];
@@ -17105,8 +17124,26 @@
           p.h1 = null; p.h2 = null;
         } else {
           var ab = keilAbfall(keilEditorSeite);
-          if (schluessel === 'h1') { p.h1 = v; p.h2 = v - ab - (p.versatz || 0); }
-          else                     { p.h2 = v; p.h1 = v + ab + (p.versatz || 0); }
+          var vs = p.versatz || 0;
+          /* ---------- H2 bleibt mindestens 50 mm ----------
+             Die Begrenzung sass bis zum 05.11.2026 NUR am
+             Versatzfeld. Wer erst einen Versatz setzte und danach H1
+             absenkte, bekam ein negatives H2 - und damit genau die
+             gekreuzten Linien, die der Betreiber gemeldet hatte, nur
+             ueber einen anderen Weg. Ein Loch, das nicht an der
+             Stelle sass, an der es auffiel.
+
+             Darum hier dieselbe Grenze: H1 kann nicht unter
+             Abfall + Versatz + 50 mm. Das Feld zeigt den begrenzten
+             Wert sofort - stillschweigend zu klemmen waere
+             schlimmer als gar nicht zu klemmen. */
+          if (schluessel === 'h1') {
+            if (v < ab + vs + 50) { v = ab + vs + 50; f.value = String(v); }
+            p.h1 = v; p.h2 = v - ab - vs;
+          } else {
+            if (v < 50) { v = 50; f.value = String(v); }
+            p.h2 = v; p.h1 = v + ab + vs;
+          }
         }
         keilPlanSchreiben(keilEditorSeite, p);
         keilEditorZeichnen();

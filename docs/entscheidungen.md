@@ -13381,3 +13381,49 @@ entstehen.
 150 mm vorne) sind 6- und 8-teilig geometrisch möglich, aber praktisch
 sinnlos – die unteren Felder werden zu Streifen. Eine Warnung dafür ist
 **nicht** gebaut; ob sie nötig ist, entscheidet der Betreiber.
+
+
+## 05.11.2026 – Keil-Editor: gekreuzte Linien beim Versatz
+
+**Was falsch war.** Betreiber: *„da is ein fehler es überschneiden sich die
+linien wenn man versatz auswählt."*
+
+**Warum.** H2 ist die **lichte** Höhe am vorderen Ende – von der dortigen
+Unterkante bis zur Dachschräge. Mit einem Versatz liegt diese Unterkante
+höher als die Grundlinie. Die Zeichnung trug H2 trotzdem **von der
+Grundlinie aus** ab: Die Oberkante rutschte rechts um den Versatz zu tief,
+und sobald der Versatz größer war als die halbe Resthöhe, lag die steigende
+Unterkante über der Oberkante.
+
+Das 3D-Modell war **nicht** betroffen – dort wird die Oberkante aus der
+Dachunterkante gelesen und die Unterkante getrennt angehoben. Nur die
+Skizze rechnete anders als das Modell. Genau die Art Fehler, die entsteht,
+wenn dasselbe Maß an zwei Stellen hergeleitet wird.
+
+**Was jetzt gilt.** Die Skizze rechnet in **absoluten Höhen über der
+Grundlinie**: oben links H1, oben rechts H2 **plus** Versatz. Die
+Dachschräge bleibt dadurch, wo sie ist, und nur die Unterkante steigt –
+wie im Modell.
+
+**Das zweite Loch, das an derselben Stelle nicht saß.** Die Mindestöffnung
+von 50 mm wurde bisher nur am **Versatzfeld** durchgesetzt. Wer erst einen
+Versatz setzte und danach H1 absenkte, bekam ein negatives H2 – dieselben
+gekreuzten Linien über einen anderen Weg. Die Grenze gilt jetzt an beiden
+Feldern, und der begrenzte Wert erscheint sofort im Feld: stillschweigend
+zu klemmen wäre schlimmer als gar nicht zu klemmen.
+
+**Was beim Prüfen auffiel: ein Fehler kann einen anderen verdecken.**
+Die beiden neuen Prüfungen blieben in der Gegenprobe **grün**, obwohl ihre
+Fehler eingebaut waren – mit allen neun Fehlern auf einmal zerfällt die
+Zeichnung so weit, dass die Kantenmessung ins Leere läuft. `BV_FEHLER=<n>`
+baut jetzt **einen** Fehler allein ein. Wer eine neue Prüfung hinzufügt,
+sollte ihren Fehler einzeln laufen lassen.
+
+**Gemessen wird die Zeichnung selbst**, nicht die Rechnung dahinter: Jedes
+Feld ist ein Viereck; liegt eine Oberkante auf oder unter ihrer Unterkante,
+kreuzen sich die Linien. Eine Prüfung der Formel hätte denselben Denkfehler
+gemacht wie die Formel.
+
+**Was gegengelesen werden soll.** Im Keil-Editor einen Versatz eintragen und
+dabei die Zeichnung ansehen – und danach H1 klein machen. In beiden Fällen
+muss die Form ein sauberes Viereck bleiben.
