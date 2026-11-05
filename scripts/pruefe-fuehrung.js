@@ -546,10 +546,21 @@ pruefe('Freie Resthoehe wird mitgerechnet',
 pruefe('Griffhoehe 1100 mm laut Formular',
        new RegExp(q || 'hoehe: 110, randAbstand').test(js) &&
        !/hoehe: 105,/.test(js), '');
-pruefe('Nur klar und satinato',
+/* HIESS BIS ZUM 05.11.2026 "Nur klar und satinato". Der Betreiber hat
+   an dem Tag klargestellt, dass opal und satinato dasselbe matte Glas
+   meinen ("meinen das selbe kannst opal nennen"); sichtbar steht jetzt
+   ueberall opal.
+
+   Geprueft wird weiterhin BEIDES: dass es nur die zwei Glaeser gibt,
+   UND dass die Abfrage das alte Wort noch kennt - geteilte Links von
+   vorher tragen "satinato", und ohne das zeigte ein alter Link klares
+   Glas, obwohl mattes bestellt war. */
+pruefe('Nur klar und opal, und das alte Wort wird noch verstanden',
        /value="ESG 10 mm klar"/.test(html) &&
-       /value="ESG 10 mm satinato"/.test(html) &&
-       new RegExp(q || "Z\\.sg23Glas\\.indexOf\\('satinato'\\)").test(js) &&
+       /value="ESG 10 mm opal"/.test(html) &&
+       !/value="ESG 10 mm satinato"/.test(html) &&
+       new RegExp(q || "mattesGlas\\(Z\\.sg23Glas\\)").test(js) &&
+       new RegExp(q || "w\\.indexOf\\('satinato'\\) > -1").test(js) &&
        !/ESG 10 mm (grau|bronze)/i.test(html), '');
 pruefe('Glasart steht in der Anfrage',
        new RegExp(q || "b\\[1\\] \\+ '-türig, ' \\+ Z\\.sg23Glas").test(js) &&
@@ -1791,24 +1802,35 @@ pruefe('Satinato steht an EINER Stelle',
        'Schiebeelement und Keil teilen die Rechnung');
 pruefe('Keilglas geht in die Anfrage',
        new RegExp(q || "teile\\.push\\('Glas im Keil: ' \\+ Z\\.keilGlas\\)").test(js),
-       'satinato ist eine andere Scheibe, nicht nur eine Ansicht');
+       'opal ist eine andere Scheibe, nicht nur eine Ansicht');
 (function () {
   /* Zweiter Weg: die echte Funktion laufen lassen - klar bleibt klar,
      satinato wird matt, und die Wahl der Schiebeelemente faerbt NICHT
      auf den Keil ab. */
   var fn = (js.match(/function keilGlas\(\)[\s\S]*?\n  \}/) || [''])[0];
   var sat = (js.match(/function satiniert\(m\)[\s\S]*?\n  \}/) || [''])[0];
-  if (!fn || !sat) { pruefe('Keilglas lesbar', false, 'nicht gefunden'); return; }
-  var Z = { keilGlas: 'ESG klar', sg23Glas: 'ESG 10 mm satinato' };
+  /* mattesGlas() MUSS mit herausgeschnitten werden, seit keilGlas() sie
+     aufruft - sonst scheitert der Ausschnitt mit "mattesGlas is not
+     defined", und das meldete sich als roter Lauf ohne erkennbaren
+     Grund (05.11.2026). */
+  var matt = (js.match(/function mattesGlas\(wert\)[\s\S]*?\n  \}/) || [''])[0];
+  if (!fn || !sat || !matt) { pruefe('Keilglas lesbar', false, 'nicht gefunden'); return; }
+  var Z = { keilGlas: 'ESG klar', sg23Glas: 'ESG 10 mm opal' };
   function rgb(x) { return x; }
   function seitenglas() { return { opacity: 0.3, roughness: 0.04 }; }
   var satiniert = eval('(' + sat + ')');
+  var mattesGlas = eval('(' + matt + ')');
   var keilGlas = eval('(' + fn + ')');
   var falsch = 0, meld = [];
   if (keilGlas().opacity !== 0.3) { falsch++; meld.push('klar ist nicht klar'); }
+  Z.keilGlas = 'ESG opal';
+  if (keilGlas().opacity !== 0.62) { falsch++; meld.push('opal wirkt nicht'); }
+  /* Das ALTE Wort muss weiter wirken: Geteilte Links von vor dem
+     05.11.2026 tragen "satinato". Ohne das zeigte ein alter Link
+     klares Glas, obwohl mattes bestellt war. */
   Z.keilGlas = 'ESG satinato';
-  if (keilGlas().opacity !== 0.62) { falsch++; meld.push('satinato wirkt nicht'); }
-  Z.keilGlas = 'ESG klar'; Z.sg23Glas = 'ESG 10 mm satinato';
+  if (keilGlas().opacity !== 0.62) { falsch++; meld.push('altes Wort satinato wirkt nicht mehr'); }
+  Z.keilGlas = 'ESG klar'; Z.sg23Glas = 'ESG 10 mm opal';
   if (keilGlas().opacity !== 0.3) { falsch++; meld.push('Schiebewahl faerbt auf den Keil ab'); }
   if (gegen) falsch = falsch ? 0 : 1;
   pruefe('Keilglas rechnet unabhaengig', falsch === 0,
