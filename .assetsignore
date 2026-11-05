@@ -20,3 +20,36 @@ js/dachmatrix-daten.json
 wrangler.jsonc
 .assetsignore
 worker/
+
+# GEFUNDEN AM 05.11.2026: Das Verzeichnis in wrangler.jsonc ist ".",
+# also wird ALLES ausgeliefert, was hier nicht steht. Nachgemessen an
+# der Live-Seite lagen offen:
+#
+#   /scripts/pruefe-marken.js        HTTP 200, 54 kB
+#   /src/_includes/layout.njk        HTTP 200
+#   /node_modules/...                2250 Dateien
+#   /.claude/settings.json           HTTP 200
+#   /package.json, /eleventy.config.js
+#
+# Keine Zugangsdaten darunter - das Werkstatt-Passwort ist ein
+# Cloudflare-Geheimnis und worker/ steht oben schon drin. Aber
+# scripts/pruefe-werkstatt.js beschreibt die Passwortschranke samt
+# der Liste, wie sie zu brechen waere (das sind die eingebauten
+# Fehler der Gegenprobe), und pruefe-konfigurator-sperre.js und
+# pruefe-messung.* beschreiben Sperre und Messung. Das ist ein
+# Bauplan, den niemand von aussen braucht.
+#
+# node_modules ist zusaetzlich eine Frage der Menge: 2250 Dateien
+# gehen bei jedem Deploy als oeffentliche Dateien mit hoch.
+#
+# Keine Seite verweist auf einen dieser Pfade - nachgesehen in allen
+# .html und .njk. Geprueft von scripts/pruefe-nicht-oeffentlich.sh.
+scripts/
+src/
+node_modules/
+.claude/
+package.json
+package-lock.json
+eleventy.config.js
+.gitignore
+.editorconfig

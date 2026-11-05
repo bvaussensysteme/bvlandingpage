@@ -68,6 +68,7 @@ wird in der **Werkstatt** — beides weiter unten.
 | **„Weiter“ am Handy** | Landete oft in der Fußzeile statt beim nächsten Schritt. Der Code rollte das Bedienfeld – das am Handy gar nicht rollt, weil `.k3d-app { height: auto }`. Jetzt wird gemessen, wer wirklich rollt. Prüfung: `pruefe-schrittwechsel.mjs` |
 | **Zwei tote Prüfungen** | `pruefe-teilen.mjs` stürzte seit dem 03.11. ab, `pruefe-api-bauteile.mjs` war seit PR #497 dauerhaft rot. Beide repariert. `pruefe-cache-buster.sh` sah `style.css` bisher nicht nach |
 | **Vier Seiten nur erzeugt geändert** | 110 Zeilen Datenschutz, 68 Windzonen, 25 Baugenehmigung, 14 Widerruf standen nur in der HTML-Datei, nicht in `src/*.njk`. **Ein `npm run build` hätte sie stillschweigend zurückgenommen** – beim Datenschutz wäre das ein Verstoß ohne Zutun. Übernommen; Prüfung: `pruefe-erzeugte-seiten.sh` |
+| **Halbes Repository lag offen** | `/scripts/`, `/src/`, `/node_modules/` (2250 Dateien) und `/.claude/settings.json` waren öffentlich abrufbar – `wrangler.jsonc` liefert `"."` aus, und `.assetsignore` war unvollständig. **Keine Zugangsdaten darunter**, aber der Bauplan der Passwortschranke. Prüfung: `pruefe-nicht-oeffentlich.sh` |
 
 **Bewusst nicht gemacht**, alle drei als Angebot notiert: Pixelverhältnis und
 Kantenglättung am Handy senken (macht das Bild sichtbar weicher, Gewinn hier
