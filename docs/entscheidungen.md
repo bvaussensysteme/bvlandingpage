@@ -14156,3 +14156,22 @@ Telefon 390 × 844 → 366 × 518 px, Oberkante 169 (ganz sichtbar);
 Tablet 820 × 1180 → 780 × 552 px, Bedienleiste bei 1153 (alles sichtbar);
 Schreibtisch 1280 × 900 → 948 × 670 px. Kein waagerechtes Scrollen auf
 keiner Größe.
+
+### 06.11.2026: PDF und Teilen hinter drei Punkten
+
+Ansage des Betreibers (mit Bildschirmfoto der Bedienleiste): „mach den
+pdf runterladen button weg und einen genauso viereckigen button wie die
+anderen daneben mit drei punkten wenn man das antippt erst dort steht
+dann pdf teilen".
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | Der breite goldene **PDF-Knopf fällt aus der Bedienleiste**; an seine Stelle tritt ein quadratischer Knopf mit drei Punkten, der ein kleines Menü mit **PDF herunterladen** und **Teilen** öffnet | Der goldene Balken war doppelt so breit wie die drei Zeichenknöpfe daneben und riss die Leiste auseinander. Im Kopfbereich (ab 700 px) und im Abschnitt darunter steht der PDF-Knopf weiterhin | Ansage des Betreibers |
+| 06.11.2026 | **Geteilt wird die Seite, nicht die PDF-Datei** | Wer den Link bekommt, soll blättern können – und findet das PDF dort auch. Ein geteilter Dateilink führt in einen PDF-Betrachter und von dort nirgendwohin | eigene Abwägung |
+| 06.11.2026 | Ohne Teilen-Dialog des Geräts (die meisten Schreibtisch-Browser kennen `navigator.share` nicht) wandert die Adresse in die **Zwischenablage**, und das Menü sagt „Link kopiert" | Ein Knopf, der auf dem Schreibtisch nichts tut, ist schlimmer als keiner. Ersatzweg über ein verstecktes Feld, falls auch die Zwischenablage nicht freigegeben ist | – |
+| 06.11.2026 | `:hover` der Knöpfe steht jetzt in `@media (hover: hover)`; das offene Menü zeigt der Knopf über `aria-expanded="true"` | Am Telefon bleibt ein `:hover` nach dem Antippen hängen – der Knopf sähe dauerhaft ausgewählt aus, obwohl nichts offen ist. Gesehen auf dem eigenen Bildschirmfoto | eigene Durchsicht |
+
+**Zwei neue Prüfungen** (jetzt 27): Das Menü ist zuerst zu, nach dem
+Antippen stehen PDF **und** Teilen darin; und `navigator.share` wird im
+Testbrowser eingesetzt, um mitzuschreiben, **welche Adresse** Teilen
+weitergeben hätte – die der Seite, nicht die der Datei.

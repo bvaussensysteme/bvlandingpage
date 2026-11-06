@@ -267,6 +267,9 @@ var T = [
    'Found something that fits? Then send us a short note about your plans – we will get back to you with a proposal and a fixed price.',
    'Нашли подходящий вариант? Напишите нам коротко о своих планах – мы ответим с предложением и фиксированной ценой.'],
   ['Broschüre als PDF','Brochure as PDF','Брошюра в PDF'],
+  ['Mehr','More','Ещё'],
+  ['Teilen','Share','Поделиться'],
+  ['Link kopiert','Link copied','Ссылка скопирована'],
 
 ];
 

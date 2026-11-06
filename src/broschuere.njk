@@ -68,7 +68,14 @@ extraScripts: |
     min-height:44px; min-width:44px; padding:10px 16px; border-radius:8px; cursor:pointer;
     font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
     background:#2b2b2b; color:#fff; border:1.5px solid rgba(255,255,255,.28); }
-  .bro-knopf:hover:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  /* Hervorheben nur, wo es ein Zeigegeraet gibt. Am Telefon bleibt ein
+     :hover nach dem Antippen haengen - der Knopf saehe dann dauerhaft
+     ausgewaehlt aus, obwohl nichts offen ist. */
+  @media (hover: hover) {
+    .bro-knopf:hover:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  }
+  /* Offenes Menue: der Knopf zeigt das, und zwar auf jedem Geraet. */
+  .bro-knopf[aria-expanded="true"] { background:var(--gold); color:var(--black); border-color:var(--gold); }
   .bro-knopf:focus-visible { outline:3px solid var(--gold-light); outline-offset:2px; }
   .bro-knopf:disabled { opacity:.45; cursor:default; }
   /* Gleiche Falle wie bei den Ebenen: inline-flex schlaegt das
@@ -77,8 +84,30 @@ extraScripts: |
   .bro-knopf[hidden] { display:none; }
   .bro-knopf svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2;
     stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
-  .bro-knopf--haupt { background:var(--gold); color:var(--black); border-color:var(--gold); }
-  .bro-knopf--haupt:hover { background:var(--gold-dark); color:var(--white); border-color:var(--gold-dark); }
+
+  /* Drei-Punkte-Knopf: gleiche Form wie Zoom, Vollbild und Uebersicht.
+     Der PDF-Knopf stand vorher als breiter goldener Balken daneben und
+     riss die Leiste auseinander; jetzt steht er zusammen mit "Teilen"
+     in dem kleinen Menue, das dieser Knopf oeffnet. */
+  .bro-mehr { position:relative; display:inline-flex; }
+  .bro-knopf svg.bro-punkte { fill:currentColor; stroke:none; }
+  .bro-mehr-menue { position:absolute; top:calc(100% + 8px); right:0; z-index:50;
+    min-width:224px; background:#1d1d1d; border:1.5px solid rgba(255,255,255,.22);
+    border-radius:10px; padding:6px; box-shadow:0 14px 34px rgba(0,0,0,.55);
+    display:flex; flex-direction:column; gap:4px; }
+  /* Dieselbe Falle wie bei den Ebenen: ein ausdrueckliches display
+     schlaegt das Standard-[hidden]. */
+  .bro-mehr-menue[hidden] { display:none; }
+  .bro-mehr-eintrag { display:flex; align-items:center; gap:10px; width:100%;
+    min-height:44px; padding:10px 12px; border:0; border-radius:7px; background:none;
+    color:#fff; font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
+    text-align:left; text-decoration:none; cursor:pointer; }
+  @media (hover: hover) { .bro-mehr-eintrag:hover { background:var(--gold); color:var(--black); } }
+  .bro-mehr-eintrag:focus-visible { outline:3px solid var(--gold-light); outline-offset:-2px; }
+  .bro-mehr-eintrag svg { width:18px; height:18px; fill:none; stroke:currentColor;
+    stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+  .bro-mehr-status:empty { display:none; }
+  .bro-mehr-status { display:block; padding:4px 12px 6px; font-size:.82rem; color:var(--gold-light); }
 
   .bro-zaehler { min-width:92px; text-align:center; color:var(--gold-light);
     font-weight:700; font-size:.95rem; letter-spacing:.02em; }
@@ -107,8 +136,10 @@ extraScripts: |
     background:none; cursor:pointer; }
   .bro-raster-knopf img { display:block; width:100%; height:auto; border-radius:4px; background:#fff; }
   .bro-raster-knopf span { display:block; color:rgba(255,255,255,.75); font-size:.78rem; padding:6px 0 0; }
-  .bro-raster-knopf:hover { border-color:var(--gold); }
-  .bro-raster-knopf:hover span { color:var(--gold-light); }
+  @media (hover: hover) {
+    .bro-raster-knopf:hover { border-color:var(--gold); }
+    .bro-raster-knopf:hover span { color:var(--gold-light); }
+  }
   .bro-raster-knopf:focus-visible { outline:3px solid var(--gold-light); outline-offset:2px; }
 
   .bro-zoom-flaeche { display:flex; gap:12px; justify-content:center; align-items:flex-start; }
@@ -201,9 +232,21 @@ extraScripts: |
         <button type="button" class="bro-knopf bro-knopf--schmal" id="broUebersicht" title="Seitenübersicht">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Seitenübersicht</span>
         </button>
-        <a href="/assets/broschuere/BV-Broschuere.pdf" class="bro-knopf bro-knopf--haupt" download>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF herunterladen
-        </a>
+        <div class="bro-mehr">
+          <button type="button" class="bro-knopf bro-knopf--schmal" id="broMehr" title="Mehr"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="broMehrMenue">
+            <svg class="bro-punkte" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg><span>Mehr</span>
+          </button>
+          <div class="bro-mehr-menue" id="broMehrMenue" hidden>
+            <a href="/assets/broschuere/BV-Broschuere.pdf" class="bro-mehr-eintrag" id="broMenuePdf" download>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF herunterladen
+            </a>
+            <button type="button" class="bro-mehr-eintrag" id="broTeilen">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>Teilen
+            </button>
+            <span class="bro-mehr-status" id="broTeilenStatus" role="status" aria-live="polite"></span>
+          </div>
+        </div>
       </div>
 
       <noscript>

@@ -25,6 +25,8 @@
   var knopfVoll= document.getElementById('broVollbild');
   var knopfUeb = document.getElementById('broUebersicht');
   var knopfZoom= document.getElementById('broZoom');
+  var knopfMehr= document.getElementById('broMehr');
+  var mehrMenue= document.getElementById('broMehrMenue');
   var buehne   = document.getElementById('broBuehne');
   var hinweis  = document.getElementById('broHinweis');
 
@@ -54,6 +56,7 @@
   function notfallListe() {
     behaelter.classList.add('bro-buch--liste');
     for (var i = 1; i <= ANZAHL; i++) bildLaden(i);
+    /* knopfMehr bleibt sichtbar: darin steckt der Weg zum PDF. */
     [knopfZur, knopfWei, knopfVoll, knopfUeb, knopfZoom].forEach(function (k) {
       if (k) k.hidden = true;
     });
@@ -135,7 +138,7 @@
   document.addEventListener('keydown', function (ev) {
     var z = ev.target;
     if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA' || z.tagName === 'SELECT')) return;
-    if (ev.key === 'Escape') { ebeneSchliessen(); return; }
+    if (ev.key === 'Escape') { mehrZu(); ebeneSchliessen(); return; }
     if (ebeneOffen()) return;
     if (ev.key === 'ArrowRight') { buch.flipNext(); ev.preventDefault(); }
     if (ev.key === 'ArrowLeft')  { buch.flipPrev(); ev.preventDefault(); }
@@ -276,6 +279,87 @@
   });
   if (zoomMinus) zoomMinus.addEventListener('click', function () {
     if (stufe > 0) { stufe--; zoomZeichnen(); }
+  });
+
+  /* ---- Drei-Punkte-Menue: PDF und Teilen ---------------------
+     Der PDF-Knopf stand vorher breit und golden in der Leiste. Jetzt
+     ein Knopf in derselben Form wie die anderen; was er oeffnet, ist
+     ein kleines Menue mit zwei Eintraegen. */
+  var teilenStatus = document.getElementById('broTeilenStatus');
+
+  function mehrZu() {
+    if (!mehrMenue) return;
+    mehrMenue.hidden = true;
+    if (knopfMehr) knopfMehr.setAttribute('aria-expanded', 'false');
+    if (teilenStatus) teilenStatus.textContent = '';
+  }
+  function mehrAuf() {
+    if (!mehrMenue) return;
+    mehrMenue.hidden = false;
+    if (knopfMehr) knopfMehr.setAttribute('aria-expanded', 'true');
+    var erster = mehrMenue.querySelector('.bro-mehr-eintrag');
+    if (erster) erster.focus();
+  }
+  if (knopfMehr && mehrMenue) {
+    knopfMehr.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      if (mehrMenue.hidden) { mehrAuf(); } else { mehrZu(); }
+    });
+    /* Ein Klick irgendwo sonst schliesst das Menue. */
+    document.addEventListener('click', function (ev) {
+      if (mehrMenue.hidden) return;
+      if (mehrMenue.contains(ev.target) || knopfMehr.contains(ev.target)) return;
+      mehrZu();
+    });
+  }
+  var menuePdf = document.getElementById('broMenuePdf');
+  if (menuePdf) menuePdf.addEventListener('click', function () { setTimeout(mehrZu, 50); });
+
+  var knopfTeilen = document.getElementById('broTeilen');
+  function kopierHinweis() {
+    if (!teilenStatus) return;
+    teilenStatus.textContent = 'Link kopiert';
+    setTimeout(function () { if (teilenStatus) teilenStatus.textContent = ''; }, 4000);
+  }
+  function adresseKopieren() {
+    var adresse = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(adresse).then(kopierHinweis, altKopieren);
+    } else {
+      altKopieren();
+    }
+    function altKopieren() {
+      try {
+        var feld = document.createElement('input');
+        feld.value = adresse;
+        feld.setAttribute('readonly', 'readonly');
+        feld.style.position = 'fixed';
+        feld.style.opacity = '0';
+        document.body.appendChild(feld);
+        feld.select();
+        document.execCommand('copy');
+        document.body.removeChild(feld);
+        kopierHinweis();
+      } catch (e) {
+        if (teilenStatus) teilenStatus.textContent = adresse;
+      }
+    }
+  }
+  if (knopfTeilen) knopfTeilen.addEventListener('click', function () {
+    /* Geteilt wird die SEITE, nicht die PDF-Datei: Wer den Link
+       bekommt, soll blaettern koennen und findet das PDF dort auch.
+       Ohne Teilen-Dialog (die meisten Schreibtisch-Browser) wandert
+       die Adresse in die Zwischenablage. */
+    var daten = {
+      title: 'Produktbroschüre von BV AussenSysteme',
+      text: 'Unsere Produktbroschüre zum Durchblättern',
+      url: window.location.href
+    };
+    if (navigator.share) {
+      navigator.share(daten).then(mehrZu, function () {});
+      return;
+    }
+    adresseKopieren();
   });
 
   /* Groessenaenderung: Buch neu rechnen lassen */

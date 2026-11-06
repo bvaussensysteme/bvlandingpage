@@ -84,6 +84,10 @@ const FEHLER = [
     suchen: 'usePortrait: true,', ersetzen: 'usePortrait: false,' },
   { name: 'Wischen blaettert nicht mehr', muster: '**/js/broschuere.js*',
     suchen: 'swipeDistance: 15', ersetzen: 'swipeDistance: 9000' },
+  { name: 'Das Menue hinter den drei Punkten geht nicht auf', muster: '**/broschuere.html*',
+    suchen: 'id="broMehr"', ersetzen: 'id="broMehrAnders"' },
+  { name: 'Teilen gibt die falsche Adresse weiter', muster: '**/js/broschuere.js*',
+    suchen: 'url: window.location.href', ersetzen: "url: '/assets/broschuere/BV-Broschuere.pdf'" },
   { name: 'Die Navigation fuehrt nicht zur Broschuere', muster: '**/stoffe.html*',
     suchen: '/broschuere.html', ersetzen: '/nirgendwohin.html' },
   { name: 'Die Startseite fuehrt nicht zur Broschuere', muster: '**/index.html*',
@@ -262,6 +266,39 @@ async function lauf(fehler) {
     /<a href="\/assets\/broschuere\/BV-Broschuere\.pdf">\s*<img/.test(ohneJs),
     ohneJs ? 'Titelbild verweist aufs PDF' : 'kein noscript');
 
+  /* Drei-Punkte-Menue: zuerst zu, nach dem Antippen PDF und Teilen. */
+  const menueOffen = () => seite.evaluate(() => {
+    const m = document.getElementById('broMehrMenue');
+    if (!m) return null;
+    const r = m.getBoundingClientRect();
+    return { sichtbar: r.width > 0 && r.height > 0, text: m.innerText.replace(/\s+/g, ' ').trim(),
+             pdf: !!m.querySelector('a[href$=".pdf"][download]') };
+  });
+  const vorAuf = await menueOffen();
+  await klick('#broMehr');
+  await seite.waitForTimeout(350);
+  const nachAuf = await menueOffen();
+  p('Die drei Punkte öffnen PDF und Teilen',
+    !!vorAuf && vorAuf.sichtbar === false && !!nachAuf && nachAuf.sichtbar === true &&
+    nachAuf.pdf === true && /Teilen/.test(nachAuf.text),
+    nachAuf ? nachAuf.text.slice(0, 40) : 'kein Menü');
+
+  /* Teilen reicht die Adresse der SEITE weiter, nicht die der Datei.
+     navigator.share gibt es im Testbrowser nicht - also wird es
+     eingesetzt und mitgeschrieben, was es bekommen haette. */
+  await seite.evaluate(() => {
+    window.__geteilt = null;
+    navigator.share = function (d) { window.__geteilt = d; return Promise.resolve(); };
+  });
+  await klick('#broTeilen');
+  await seite.waitForTimeout(350);
+  const geteilt = await seite.evaluate(() => window.__geteilt);
+  p('Teilen gibt die Adresse der Seite weiter',
+    !!geteilt && /\/broschuere\.html$/.test(String(geteilt.url || '')),
+    geteilt ? String(geteilt.url).replace(/^https?:\/\/[^/]+/, '') : 'nichts geteilt');
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(200);
+
   /* Verweise und Nebendateien - durch den Browser gelesen, damit die
      Gegenprobe sie genauso umschreiben kann wie die Seite selbst. */
   const text = async (u) => seite.evaluate(async (x) => {
@@ -283,7 +320,7 @@ async function lauf(fehler) {
 
   const uebersetzung = await text('/js/i18n.js');
   const braucht = ['Broschüre ansehen', 'Seitenübersicht', 'Vollbild', 'Seite vergrößern',
-    'Unsere Produktbroschüre', 'PDF herunterladen'];
+    'Unsere Produktbroschüre', 'PDF herunterladen', 'Teilen'];
   const fehltUeb = braucht.filter((b) => !uebersetzung.includes("['" + b + "'") &&
     !uebersetzung.includes("['" + b + "',"));
   p('Die Übersetzungen sind eingetragen', fehltUeb.length === 0,
