@@ -547,36 +547,53 @@
         var tds = answers.produkt === 'Terrassendach TDS' ||
                   answers.produkt === 'Balkonüberdachung';
         var cpUeber = answers.carportvariante === 'Carport mit Überstand';
+        /* ---------- Die Frage steht DIREKT unter der Hoehe ----------
+           "das sollte direkt unter dem höhenfeld stehen, wenn man bei
+           höhe was einträgt und dann soll man das beantworten MÜSSEN"
+           (Betreiber, 06.11.2026, mit Bild).
+
+           Darum bricht das Maszraster hier auf: Die Auswahl steht
+           zwischen der Hoehe und dem Rest, nicht darunter am Ende.
+           Sie erscheint erst, wenn eine Hoehe eingetragen ist - ohne
+           Hoehe gibt es nichts zu beziehen. */
+        var rest = (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 300', 'mm') : '') +
+                   (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 1000', 'mm') : '');
         return '<div class="aw-dims">' +
           dimField('breite', 'Breite', 'z. B. 4000', 'mm') +
           dimField('tiefe', 'Tiefe', 'z. B. 3000', 'mm') +
           dimField('hoehe', 'Höhe (optional)', 'z. B. 2500', 'mm') +
-          (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 300', 'mm') : '') +
-          (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 1000', 'mm') : '') +
           '</div>' +
-          /* ---------- Worauf sich die Hoehe bezieht ----------
-             "damit spaeter eindeutig klar ist, welches Hoehenmass
-             gemeint ist" (Betreiber, 06.11.2026). Wer zu Hause misst,
-             trifft nicht zwangslaeufig unseren Bezugspunkt.
-
-             Freiwillig, mit "Bitte waehlen ..." als Vorgabe: Eine
-             vorausgewaehlte Antwort legte dem Kunden etwas in den Mund,
-             was er gar nicht gesagt hat - und in der Anfrage staende
-             dann eine Angabe, auf die sich niemand verlassen kann. */
-          '<div class="aw-subchoice">' +
-          selectField('awHoeheBezug', 'Worauf bezieht sich Ihre Höhenangabe? (optional)',
-                      answers.hoehebezug || '', HOEHE_BEZUEGE) +
-          (answers.hoehebezug === 'Sonstiges'
-            ? '<label class="aw-group-h" for="awHoeheBezugText">Welches Maß haben Sie gemessen?</label>' +
-              '<textarea class="aw-textarea aw-textarea--sm" id="awHoeheBezugText" ' +
-              'placeholder="z. B. Oberkante Mauerabdeckung">' +
-              esc(answers.hoehebezug_text || '') + '</textarea>'
+          (answers.hoehe
+            ? '<div class="aw-subchoice">' +
+              selectField('awHoeheBezug', 'Worauf bezieht sich Ihre Höhenangabe?',
+                          answers.hoehebezug || '', HOEHE_BEZUEGE) +
+              (answers.hoehebezug === 'Sonstiges'
+                ? '<label class="aw-group-h" for="awHoeheBezugText">Welches Maß haben Sie gemessen?</label>' +
+                  '<textarea class="aw-textarea aw-textarea--sm" id="awHoeheBezugText" ' +
+                  'placeholder="z. B. Oberkante Mauerabdeckung">' +
+                  esc(answers.hoehebezug_text || '') + '</textarea>'
+                : '') +
+              '</div>'
             : '') +
-          '</div>' +
+          (rest ? '<div class="aw-dims">' + rest + '</div>' : '') +
           '<p class="aw-note">Alle Maße in Millimeter (mm). Grobe Angaben genügen.</p>';
       },
       valid: function () {
         if (!answers.breite || !answers.tiefe) return 'Bitte geben Sie mindestens Breite und Tiefe an.';
+        /* Wer eine Hoehe eintraegt, MUSS sagen, worauf sie sich
+           bezieht (Betreiber, 06.11.2026). Eine Hoehe ohne Bezugspunkt
+           ist keine Angabe, sondern eine Zahl - und beim Aufmass faengt
+           das Raten an.
+
+           Vorausgewaehlt wird trotzdem nichts: Das legte dem Kunden
+           etwas in den Mund, was er nicht gesagt hat. Lieber die
+           Rueckfrage hier als eine erfundene Angabe im Angebot. */
+        if (answers.hoehe && !answers.hoehebezug) {
+          return 'Bitte geben Sie an, worauf sich Ihre Höhenangabe bezieht.';
+        }
+        if (answers.hoehebezug === 'Sonstiges' && !answers.hoehebezug_text) {
+          return 'Bitte beschreiben Sie kurz, welches Maß Sie gemessen haben.';
+        }
         return null;
       }
     },
@@ -1324,6 +1341,18 @@
        das Freitextfeld erscheint - dieselbe Mechanik wie beim LED-Set.
        Vorher die Masse einsammeln, sonst waeren die gerade getippten
        Zahlen nach dem Neuzeichnen wieder weg. */
+    /* Die Auswahl erscheint erst, wenn eine Hoehe dasteht - also muss
+       das Hoehenfeld beim VERLASSEN neu zeichnen. Nicht bei jedem
+       Tastendruck: Das Neuzeichnen nimmt dem Feld den Fokus, und man
+       koennte die Zahl nicht zu Ende tippen. */
+    var hFeld = bodyEl.querySelector('#aw_hoehe');
+    if (hFeld) {
+      hFeld.addEventListener('blur', function () {
+        var vorher = !!answers.hoehe;
+        collectMasse();
+        if (!!answers.hoehe !== vorher) rerenderKeepScroll();
+      });
+    }
     var hBezug = bodyEl.querySelector('#awHoeheBezug');
     if (hBezug) {
       hBezug.addEventListener('change', function () {

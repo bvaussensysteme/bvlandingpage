@@ -81,6 +81,12 @@ FEHLER.push({
   nach: "      void 0;"
 }, {
   wizard: true,
+  /* Die Antwort ist wieder freiwillig - eine Hoehe ohne Bezugspunkt
+     kaeme dann unbemerkt durch. */
+  von: "        if (answers.hoehe && !answers.hoehebezug) {",
+  nach: "        if (false) {"
+}, {
+  wizard: true,
   /* Der Wortlaut faellt auf den alten zurueck - dann fragen beide
      Konfiguratoren dasselbe mit verschiedenen Worten. */
   von: "Zusätzliche Angaben zur Fassade (optional)",
@@ -367,6 +373,22 @@ pruefe('Beide Angaben überstehen den geteilten Link',
 /* ---------- Im Assistenten selbst ---------- */
 const pw = await ctx.newPage();
 pw.on('pageerror', (e) => seitenfehler.push(String(e)));
+/* ---------- NICHTS NACH DRAUSSEN ----------
+   Auf dem Zusammenfassungs-Schritt ist "Weiter" der ABSENDEN-Knopf
+   (goNext: if (id === 'summary') { submit(); return; }), und submit()
+   ruft api.web3forms.com bzw. formspree.io - beides echte Adressen, die
+   auch von localhost aus erreichbar waeren. Ein Testlauf, der an einem
+   unguenstigen Punkt einmal zu oft klickt, schickt eine echte Anfrage
+   ins Postfach des Betriebs.
+
+   Darum: Diese beiden Adressen werden im Test hart abgeschnitten und
+   jeder Versuch gezaehlt. Die Zahl wird unten geprueft - ein Test, der
+   Post verschickt, ist selbst ein Fehler. */
+let sendeVersuche = 0;
+await pw.route(/(web3forms\.com|formspree\.io)/, (route) => {
+  sendeVersuche++;
+  return route.abort();
+});
 await pw.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'load' });
 await pw.waitForTimeout(1500);
 /* Durchklicken, bis der Schritt mit den Maszen da ist: auf jedem
@@ -383,6 +405,22 @@ for (let i = 0; i < 9 && !gefunden; i++) {
       const l = document.querySelector('label[for="fassadeText"]');
       return { text: l ? l.textContent.trim() : '', platz: t.placeholder };
     });
+  }
+  /* Die Auswahl erscheint erst, wenn eine Hoehe dasteht. Also beim
+     Maszschritt zuerst die Masze eintragen und das Hoehenfeld
+     VERLASSEN - und zwar durch einen echten Klick ins naechste Feld.
+     Ein abgeschicktes blur-Ereignis loest den Lauscher nicht aus; der
+     Test meldete dann, es gebe die Auswahl gar nicht - ein Fehler im
+     Test, nicht im Produkt (06.11.2026). */
+  if (await pw.evaluate(() => {
+    const h = document.getElementById('aw_hoehe');
+    return !!h && !h.value;
+  })) {
+    await pw.fill('#aw_breite', '4000');
+    await pw.fill('#aw_tiefe', '3000');
+    await pw.fill('#aw_hoehe', '2500');
+    await pw.locator('#aw_breite').click();
+    await pw.waitForTimeout(800);
   }
   gefunden = await pw.evaluate(() => !!document.getElementById('awHoeheBezug'));
   if (gefunden) break;
@@ -427,16 +465,38 @@ if (gefunden) {
     return {
       namen: [...s2.options].slice(1).map((o) => o.textContent.trim()),
       vorgabe: s2.value,
-      /* Sie muss BEI den Maßen stehen, nicht in einem anderen Schritt. */
-      beiDenMassen: !!(dims && dims.parentNode && dims.parentNode.contains(s2)),
+      /* DIREKT unter dem Hoehenfeld: zwischen dem Hoehenfeld und dem,
+         was danach kommt - nicht irgendwo im selben Schritt. */
+      unterDerHoehe: (function () {
+        const h = document.getElementById('aw_hoehe');
+        if (!h || !dims) return false;
+        const rh = h.getBoundingClientRect();
+        const rs = s2.getBoundingClientRect();
+        return rs.top >= rh.bottom - 2 && rs.top - rh.bottom < 160;
+      })(),
     };
   });
-  pruefe('Sie steht bei den Maßen', wizWahl.beiDenMassen);
+  pruefe('Sie steht direkt unter dem Höhenfeld', wizWahl.unterDerHoehe,
+    'nicht am Ende des Schritts, sondern dort, wo die Zahl eingetippt wird');
   pruefe('Nichts ist vorausgewählt',
     wizWahl.vorgabe === '',
     'eine vorgewählte Antwort legte dem Kunden etwas in den Mund');
   pruefe('Die drei Möglichkeiten stehen zur Wahl',
     wizWahl.namen.length === 3, wizWahl.namen.join(' | '));
+
+  /* "wenn man bei höhe was einträgt und dann soll man das beantworten
+     MÜSSEN" (Betreiber, 06.11.2026). Eine Hoehe ohne Bezugspunkt ist
+     keine Angabe, sondern eine Zahl - beim Aufmass faengt dann das
+     Raten an. */
+  await pw.locator('#awNext').click({ timeout: 4000 }).catch(() => {});
+  await pw.waitForTimeout(700);
+  const ohneAntwort = await pw.evaluate(() => ({
+    meldung: ((document.querySelector('.aw-error, #awError') || {}).textContent || '').trim(),
+    nochDa: !!document.getElementById('awHoeheBezug'),
+  }));
+  pruefe('Ohne Antwort geht es nicht weiter',
+    /worauf sich Ihre Höhenangabe bezieht/i.test(ohneAntwort.meldung) && ohneAntwort.nochDa,
+    ohneAntwort.meldung || 'keine Meldung – der Schritt war einfach durch');
 
   await pw.evaluate(() => {
     const s2 = document.getElementById('awHoeheBezug');
@@ -524,6 +584,18 @@ if (gefunden) {
       });
     });
     await pw.waitForTimeout(350);
+    /* ---------- AUF DER ZUSAMMENFASSUNG NICHT WEITERKLICKEN ----------
+       Dort ist "Weiter" der ABSENDEN-Knopf. Am 06.11.2026 hat genau das
+       echte Anfragen ins Postfach geschickt: Lief die Pruefung mit dem
+       eingebauten Fehler, der die Zeile aus der Zusammenfassung nimmt,
+       fand die Schleife ihren Abbruchgrund nicht - und klickte weiter.
+       Das Abschneiden der Versandadressen weiter oben ist das Netz
+       darunter; DIES hier ist die Ursache. */
+    if (await pw.evaluate(() =>
+      /absenden/i.test((document.getElementById('awNext') || {}).textContent || ''))) {
+      fassungTxt = await pw.evaluate(() => (document.getElementById('awBody') || {}).textContent || '');
+      break;
+    }
     await pw.locator('#awNext').click({ timeout: 4000 }).catch(() => {});
     await pw.waitForTimeout(600);
     fassungTxt = await pw.evaluate(() => (document.getElementById('awBody') || {}).textContent || '');
@@ -553,6 +625,9 @@ pruefe('Der Assistent fragt die Fassaden-Notiz mit denselben Worten',
   fassadeWortlaut
     ? `"${fassadeWortlaut.text}" / "${fassadeWortlaut.platz}"`
     : 'Fassadenschritt nicht erreicht');
+
+pruefe('Der Test hat keine echte Anfrage abgeschickt', sendeVersuche === 0,
+  sendeVersuche + ' Versuch(e) an web3forms/formspree');
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 
