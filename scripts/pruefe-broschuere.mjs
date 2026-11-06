@@ -92,6 +92,9 @@ const FEHLER = [
     suchen: '/broschuere.html', ersetzen: '/nirgendwohin.html' },
   { name: 'Die Startseite fuehrt nicht zur Broschuere', muster: '**/index.html*',
     suchen: '/broschuere.html', ersetzen: '/nirgendwohin.html' },
+  { name: 'Der Zugang zum Katalog rutscht aus dem Hero', muster: '**/index.html*',
+    suchen: '<a href="/broschuere.html" class="btn btn-outline-white hero-katalog-btn">',
+    ersetzen: '<a href="/woanders.html" class="btn btn-outline-white hero-katalog-btn">' },
   { name: 'Die Broschuere fehlt in der sitemap', muster: '**/sitemap.xml',
     suchen: 'broschuere.html', ersetzen: 'broschuere-weg.html' },
   { name: 'Eine Uebersetzung fehlt', muster: '**/js/i18n.js*',
@@ -151,7 +154,7 @@ async function lauf(fehler) {
   const titel = await seite.title();
   const beschr = await seite.$eval('meta[name="description"]', (m) => m.content).catch(() => '');
   p('Titel und Beschreibung stehen in der Seite',
-    /Produktbroschüre/.test(titel) && beschr.length > 50 && /Broschüre|Terrassen/.test(beschr),
+    /Produktkatalog/.test(titel) && beschr.length > 50 && /Broschüre|Terrassen/.test(beschr),
     titel.slice(0, 30));
 
   const og = await seite.$eval('meta[property="og:image"]', (m) => m.content).catch(() => '');
@@ -280,7 +283,7 @@ async function lauf(fehler) {
   const nachAuf = await menueOffen();
   p('Die drei Punkte öffnen PDF und Teilen',
     !!vorAuf && vorAuf.sichtbar === false && !!nachAuf && nachAuf.sichtbar === true &&
-    nachAuf.pdf === true && /Teilen/.test(nachAuf.text),
+    nachAuf.pdf === true && /Diesen Katalog teilen/.test(nachAuf.text),
     nachAuf ? nachAuf.text.slice(0, 40) : 'kein Menü');
 
   /* Teilen reicht die Adresse der SEITE weiter, nicht die der Datei.
@@ -319,8 +322,8 @@ async function lauf(fehler) {
     /<loc>https:\/\/bv-aussensysteme\.de\/broschuere\.html<\/loc>/.test(karte));
 
   const uebersetzung = await text('/js/i18n.js');
-  const braucht = ['Broschüre ansehen', 'Seitenübersicht', 'Vollbild', 'Seite vergrößern',
-    'Unsere Produktbroschüre', 'PDF herunterladen', 'Teilen'];
+  const braucht = ['Katalog ansehen', 'Seitenübersicht', 'Vollbild', 'Seite vergrößern',
+    'Unser Produktkatalog', 'PDF herunterladen', 'Diesen Katalog teilen'];
   const fehltUeb = braucht.filter((b) => !uebersetzung.includes("['" + b + "'") &&
     !uebersetzung.includes("['" + b + "',"));
   p('Die Übersetzungen sind eingetragen', fehltUeb.length === 0,
@@ -390,6 +393,26 @@ async function lauf(fehler) {
     (n) => n.filter((s) => s.getBoundingClientRect().width > 50).length);
   p('Am Handy steht nur eine Seite', sichtbareSeiten === 1,
     sichtbareSeiten + ' Seite(n) sichtbar nach dem Blättern');
+
+  /* DER ZUGANG ZUM KATALOG MUSS OBEN STEHEN. Gemessen wird nicht, ob
+     irgendwo ein Verweis liegt, sondern ob er beim Aufschlagen der
+     Startseite OHNE SCROLLEN zu sehen und mit dem Daumen zu treffen
+     ist - am Handy, wo der Platz knapp ist. */
+  const mstart = await mctx.newPage();
+  mstart.setDefaultTimeout(20000);
+  await strecke(mstart);
+  await mstart.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'load' });
+  await mstart.waitForTimeout(1400);
+  const zugang = await mstart.evaluate(() => {
+    const a = document.querySelector('#heroSlider a[href="/broschuere.html"]');
+    if (!a) return null;
+    const r = a.getBoundingClientRect();
+    return { oben: Math.round(r.top), unten: Math.round(r.bottom), hoehe: Math.round(r.height),
+             fenster: window.innerHeight, text: a.textContent.trim() };
+  });
+  p('Der Katalog steht am Handy ohne Scrollen bereit',
+    !!zugang && zugang.oben >= 0 && zugang.unten <= zugang.fenster && zugang.hoehe >= 44,
+    zugang ? `"${zugang.text}" bei ${zugang.oben} von ${zugang.fenster} px` : 'kein Weg im Hero');
 
   await browser.close();
   return ergebnis;

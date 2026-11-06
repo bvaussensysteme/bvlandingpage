@@ -14175,3 +14175,24 @@ dann pdf teilen".
 Antippen stehen PDF **und** Teilen darin; und `navigator.share` wird im
 Testbrowser eingesetzt, um mitzuschreiben, **welche Adresse** Teilen
 weitergeben hätte – die der Seite, nicht die der Datei.
+
+### 06.11.2026: „diesen Katalog teilen" und der Zugang ganz oben
+
+Ansage des Betreibers: „bzw. nicht pdf runterladen oder pdf teilen
+sondern diesen katalog teilen also wer den geteilten linkt klickt
+landet im katalog" und „platziere den zugangsbutton zum Katalog weit
+oben in der seite, das wenn man auf der seite landet direkt drauf kann.
+mach es professionell".
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | Der Eintrag im Menü heißt **„Diesen Katalog teilen"** und steht an erster Stelle; geteilt wird die Adresse der Seite | Wer den Link antippt, landet im Katalog und kann blättern. Ein geteilter PDF-Link führt in einen Betrachter und von dort nirgendwohin | Ansage des Betreibers |
+| 06.11.2026 | **„PDF herunterladen" bleibt im Menü** als zweiter Eintrag | Am Telefon ist das der einzige Weg zur Datei – im Kopfbereich steht der PDF-Knopf erst ab 700 px. Entfernen wäre ein Verlust, den niemand verlangt hat; er ist aber mit einem Wort rückgängig zu machen | eigene Abwägung, dem Betreiber gemeldet |
+| 06.11.2026 | **Zugang zum Katalog im Hero der Startseite**: zweiter Knopf neben „Kostenlos konfigurieren", als heller Umriss mit Buch-Zeichen | „weit oben … direkt drauf". Gemessen: der Knopf steht am Handy (390 × 844) bei 578 px, auf einem kleinen Gerät (360 × 640) bei 493 px, am Schreibtisch bei 668 px – überall **ohne Scrollen** erreichbar und 57 px hoch | Ansage des Betreibers |
+| 06.11.2026 | Die **Einstiegspunkte heißen jetzt einheitlich „Katalog"**: Navigation, Handy-Menü, Hero-Knopf, Abschnitt auf der Startseite, Teilen-Eintrag; ebenso die Überschrift der Seite (`Unser Produktkatalog`) und der Seitentitel | „mach es professionell" – zwei Wörter für dieselbe Sache nebeneinander ist das Gegenteil davon. In der Fließtext-Beschreibung steht weiter „Broschüre", weil dort die **Datei** gemeint ist (PDF, 36 Seiten). Adresse bleibt `/broschuere.html` – eine Umbenennung würde Verweise und den Suchmaschinen-Eintrag brechen | eigene Abwägung |
+| 06.11.2026 | Der Stil des Hero-Knopfes steht im **Kopf** von `index.html`, nicht im Stilblock weiter unten | Sonst erschiene der Knopf für den Bruchteil einer Sekunde unfertig, bis der Block gelesen ist | – |
+
+**Neue Prüfung (jetzt 28):** „Der Katalog steht am Handy ohne Scrollen
+bereit" – gemessen wird nicht, ob *irgendwo* ein Verweis liegt, sondern
+ob er beim Aufschlagen der Startseite im sichtbaren Bereich steht und
+mindestens 44 px hoch ist.

@@ -223,10 +223,11 @@ Hinweis: Der Score ist niedriger als am 04.07. (86/100), obwohl an diesem Tag vi
 - **Handy zuerst gebaut**: Grundregeln gelten fürs Telefon, `@media (min-width:700px)` und `1100px` bauen Tablet und Schreibtisch darauf auf. Am Telefon (390 × 844) ist das Buch vollständig sichtbar, ohne zu scrollen
 - Echte Blätter-Animation mit Falte und Schatten (800 ms), Tippen auf die linke/rechte Hälfte blättert, Wischen ebenso; bei `prefers-reduced-motion` ohne Animation
 - Bilder werden nachgeladen (`data-src`, Umfeld der aktuellen Seite) – beim Start nur zwei
-- Bedienleiste: Zurück/Weiter, Seitenzahl, Zoom, Vollbild, Seitenübersicht (36 Vorschaubilder) und ein Knopf mit drei Punkten für PDF-Download und Teilen
+- Bedienleiste: Zurück/Weiter, Seitenzahl, Zoom, Vollbild, Seitenübersicht (36 Vorschaubilder) und ein Knopf mit drei Punkten für „Diesen Katalog teilen" und PDF-Download
+- Zugang im Hero der Startseite („Katalog ansehen"), ohne Scrollen erreichbar; Einstiegspunkte heißen einheitlich „Katalog"
 - Pfeiltasten blättern, Escape schließt die Ebenen
 - Ohne JavaScript: Titelbild mit Verweis auf das PDF; lädt die Bibliothek nicht, erscheinen alle Seiten als Liste
-- Geprüft von `scripts/pruefe-broschuere.mjs` (27 Prüfungen, Wischgeste und Teilen eingeschlossen) und `scripts/pruefe-broschuere-bilder.sh` (Bilder gegen das PDF)
+- Geprüft von `scripts/pruefe-broschuere.mjs` (28 Prüfungen, Wischgeste, Teilen und der Zugang im Hero eingeschlossen) und `scripts/pruefe-broschuere-bilder.sh` (Bilder gegen das PDF)
 
 ---
 

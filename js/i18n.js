@@ -232,6 +232,8 @@ var T = [
   ['Broschüre ansehen','View brochure','Посмотреть брошюру'],
   ['Zum Durchblättern','Flip through','Для просмотра'],
   ['Unsere Produktbroschüre','Our product brochure','Наша брошюра о продукции'],
+  ['Unser Produktkatalog','Our product catalogue','Наш каталог продукции'],
+  ['Katalog','Catalogue','Каталог'],
   ['36 Seiten Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – mit Aufbau, möglichen Maßen und Ausstattung. Direkt im Browser blättern oder als PDF mitnehmen.',
    '36 pages of patio roofs, carports, pergolas, glass sliding walls and sun protection in aluminium – with construction, possible dimensions and equipment. Flip through it in your browser or take it along as a PDF.',
    '36 страниц: навесы для террас, автонавесы, перголы, стеклянные раздвижные стены и солнцезащита из алюминия – с конструкцией, возможными размерами и оснащением. Листайте прямо в браузере или скачайте PDF.'],
@@ -269,6 +271,8 @@ var T = [
   ['Broschüre als PDF','Brochure as PDF','Брошюра в PDF'],
   ['Mehr','More','Ещё'],
   ['Teilen','Share','Поделиться'],
+  ['Diesen Katalog teilen','Share this catalogue','Поделиться этим каталогом'],
+  ['Katalog ansehen','View catalogue','Открыть каталог'],
   ['Link kopiert','Link copied','Ссылка скопирована'],
 
 ];

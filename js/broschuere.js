@@ -346,13 +346,14 @@
     }
   }
   if (knopfTeilen) knopfTeilen.addEventListener('click', function () {
-    /* Geteilt wird die SEITE, nicht die PDF-Datei: Wer den Link
-       bekommt, soll blaettern koennen und findet das PDF dort auch.
+    /* Geteilt wird der KATALOG, also diese Seite - nicht die
+       PDF-Datei: Wer den Link antippt, landet im Katalog und kann
+       blaettern; das PDF findet er dort auch.
        Ohne Teilen-Dialog (die meisten Schreibtisch-Browser) wandert
        die Adresse in die Zwischenablage. */
     var daten = {
-      title: 'Produktbroschüre von BV AussenSysteme',
-      text: 'Unsere Produktbroschüre zum Durchblättern',
+      title: 'Produktkatalog von BV AussenSysteme',
+      text: 'Unseren Katalog zum Durchblättern ansehen',
       url: window.location.href
     };
     if (navigator.share) {

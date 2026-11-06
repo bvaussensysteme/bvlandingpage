@@ -1,12 +1,12 @@
 ---
 layout: layout.njk
 permalink: /broschuere.html
-title: "Produktbroschüre durchblättern – Terrassenüberdachung, Carport & Pergola | BV AussenSysteme"
+title: "Produktkatalog durchblättern – Terrassenüberdachung, Carport & Pergola | BV AussenSysteme"
 description: "Unsere Produktbroschüre zum Durchblättern: Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – 36 Seiten, auch als PDF zum Herunterladen."
 canonical: "https://bv-aussensysteme.de/broschuere.html"
 robots: "index, follow"
 extendedNav: true
-ogTitle: "Produktbroschüre von BV AussenSysteme"
+ogTitle: "Produktkatalog von BV AussenSysteme"
 ogDescription: "36 Seiten Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz aus Aluminium – online durchblättern oder als PDF herunterladen."
 ogImage: "https://bv-aussensysteme.de/assets/broschuere/og-broschuere.jpg"
 skipLink: |
@@ -92,7 +92,7 @@ extraScripts: |
   .bro-mehr { position:relative; display:inline-flex; }
   .bro-knopf svg.bro-punkte { fill:currentColor; stroke:none; }
   .bro-mehr-menue { position:absolute; top:calc(100% + 8px); right:0; z-index:50;
-    min-width:224px; background:#1d1d1d; border:1.5px solid rgba(255,255,255,.22);
+    min-width:248px; background:#1d1d1d; border:1.5px solid rgba(255,255,255,.22);
     border-radius:10px; padding:6px; box-shadow:0 14px 34px rgba(0,0,0,.55);
     display:flex; flex-direction:column; gap:4px; }
   /* Dieselbe Falle wie bei den Ebenen: ein ausdrueckliches display
@@ -196,7 +196,7 @@ extraScripts: |
   <section class="hero-section bro-kopf" style="background:var(--dark);text-align:center;">
     <div class="container">
       <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Zum Durchblättern</p>
-      <h1 style="color:#fff;">Unsere Produktbroschüre</h1>
+      <h1 style="color:#fff;">Unser Produktkatalog</h1>
       <p class="bro-kopf-text" style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 22px;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie die Broschüre als PDF herunter.</p>
       <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
     </div>
@@ -238,12 +238,12 @@ extraScripts: |
             <svg class="bro-punkte" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg><span>Mehr</span>
           </button>
           <div class="bro-mehr-menue" id="broMehrMenue" hidden>
+            <button type="button" class="bro-mehr-eintrag" id="broTeilen">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>Diesen Katalog teilen
+            </button>
             <a href="/assets/broschuere/BV-Broschuere.pdf" class="bro-mehr-eintrag" id="broMenuePdf" download>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF herunterladen
             </a>
-            <button type="button" class="bro-mehr-eintrag" id="broTeilen">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>Teilen
-            </button>
             <span class="bro-mehr-status" id="broTeilenStatus" role="status" aria-live="polite"></span>
           </div>
         </div>
