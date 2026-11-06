@@ -374,6 +374,13 @@ E-Mails an `info@bv-aussensysteme.de` verschickt. Intern sollte er raus oder
 stillgelegt werden; das ist bewusst nicht vorweggenommen (siehe Abschnitt 6
 des Export-Dokuments).
 
+## 2c. Design-Skills
+
+13 Skills unter `.claude/skills/`, jeder mit `HERKUNFT.md` und Lizenz.
+Welcher wofür, was bewusst **nicht** eingebaut wurde und warum:
+**`docs/design-skills.md`**. Kein fremdes Installationsskript wurde
+ausgeführt.
+
 ## 3. Prüfskripte
 
 **Die vollständige Liste mit Zweck, Prüfungszahl und Gegenprobe steht in

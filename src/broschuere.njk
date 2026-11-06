@@ -51,7 +51,11 @@ extraScripts: |
   .bro-rahmen { width:100%; margin:0 auto; max-width:1000px; }
   .bro-buch { width:100%; margin:0 auto; }
   .bro-buch .bro-seite { background:#fff; overflow:hidden; }
-  .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff; }
+  /* Die Buchseiten sind Bilder, aber hier sind sie eine Bedienflaeche:
+     Wer an der Ecke zieht, soll kein "Bild sichern"-Fenster bekommen.
+     Zum Behalten gibt es das PDF. */
+  .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff;
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
   /* Das Buch liegt auf der Flaeche, es klebt nicht darauf. Der Schatten
      sitzt auf der Huelle der Bibliothek - die hat genau die Groesse des
      aufgeschlagenen Buches. (Ihre eigene Regel dafuer heisst .sft__wrapper
@@ -70,12 +74,19 @@ extraScripts: |
     margin:18px auto 0; max-width:1000px; }
   .bro-knopf { display:inline-flex; align-items:center; justify-content:center; gap:8px;
     min-height:44px; min-width:44px; padding:10px 16px; border-radius:var(--radius); cursor:pointer;
+    /* touch-action: manipulation nimmt die Wartezeit auf den Doppeltipp
+       heraus; die eigene Rueckmeldung steht in :active, darum keine
+       graue Flaeche des Systems obendrauf. */
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    /* Ein Knopf ist Bedienung, kein Text: langes Antippen soll ihn
+       nicht markieren und kein Kopieren-Fenster oeffnen. */
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
     font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
     background:#2b2b2b; color:#fff; border:1.5px solid rgba(255,255,255,.4); }
   /* Hervorheben nur, wo es ein Zeigegeraet gibt. Am Telefon bleibt ein
      :hover nach dem Antippen haengen - der Knopf saehe dann dauerhaft
      ausgewaehlt aus, obwohl nichts offen ist. */
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .bro-knopf:hover:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
   }
   /* Offenes Menue: der Knopf zeigt das, und zwar auf jedem Geraet. */
@@ -108,10 +119,12 @@ extraScripts: |
      schlaegt das Standard-[hidden]. */
   .bro-mehr-menue[hidden] { display:none; }
   .bro-mehr-eintrag { display:flex; align-items:center; gap:10px; width:100%;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    user-select:none; -webkit-user-select:none;
     min-height:44px; padding:10px 12px; border:0; border-radius:calc(var(--radius) - 3px); background:none;
     color:#fff; font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
     text-align:left; text-decoration:none; cursor:pointer; }
-  @media (hover: hover) { .bro-mehr-eintrag:hover { background:var(--gold); color:var(--black); } }
+  @media (hover: hover) and (pointer: fine) { .bro-mehr-eintrag:hover { background:var(--gold); color:var(--black); } }
   .bro-mehr-eintrag:focus-visible { outline:3px solid var(--gold-light); outline-offset:-2px; }
   .bro-mehr-eintrag svg { width:18px; height:18px; fill:none; stroke:currentColor;
     stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
@@ -119,12 +132,27 @@ extraScripts: |
   .bro-mehr-status { display:block; padding:4px 12px 6px; font-size:.875rem; color:var(--gold-light); }
 
   .bro-zaehler { min-width:92px; text-align:center; color:var(--gold-light);
-    font-weight:700; font-size:.95rem; letter-spacing:.02em; }
+    font-weight:700; font-size:.95rem; letter-spacing:.02em;
+    /* gleich breite Ziffern: sonst wackelt die Leiste beim Blaettern */
+    font-variant-numeric:tabular-nums; }
   .bro-hinweis { text-align:center; color:rgba(255,255,255,.62); font-size:.875rem; margin:12px 0 0; }
+  .bro-nur-maus { display:none; }
+  @media (pointer: fine) {
+    .bro-nur-finger { display:none; }
+    .bro-nur-maus { display:inline; }
+  }
 
   /* Am Telefon tragen die Zeichen allein, die Woerter wuerden umbrechen. */
   .bro-knopf--schmal span { position:absolute; width:1px; height:1px; overflow:hidden;
     clip:rect(0 0 0 0); white-space:nowrap; }
+
+  .bro-ende { max-width:560px; margin:20px auto 0; text-align:center;
+    background:#2b2b2b; border:1.5px solid var(--gold); border-radius:var(--radius);
+    padding:20px 18px; }
+  .bro-ende[hidden] { display:none; }
+  .bro-ende-frage { color:#fff; font-size:1.1rem; font-weight:700; margin:0 0 6px; }
+  .bro-ende-text { color:rgba(255,255,255,.78); font-size:.92rem; line-height:1.6; margin:0 0 16px; }
+  .bro-ende-knoepfe { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
   /* Ebenen (Uebersicht, Zoom) */
   /* z-index 5000: ueber den schwebenden Knoepfen der Website
@@ -154,15 +182,18 @@ extraScripts: |
   .bro-ebene-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.14); flex-wrap:wrap; }
   .bro-ebene-kopf h2 { color:#fff; font-size:1.15rem; margin:0; }
-  .bro-ebene-koerper { flex:1; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch; }
+  .bro-ebene-koerper { flex:1; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch;
+    /* ohne contain scrollt am Ende die Seite dahinter weiter */
+    overscroll-behavior:contain; }
 
   .bro-raster { display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
     gap:12px; max-width:1100px; margin:0 auto; }
   .bro-raster-knopf { display:block; padding:0; border:2px solid transparent; border-radius:6px;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
     background:none; cursor:pointer; }
   .bro-raster-knopf img { display:block; width:100%; height:auto; border-radius:4px; background:#fff; }
   .bro-raster-knopf span { display:block; color:rgba(255,255,255,.75); font-size:.8125rem; padding:6px 0 0; }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .bro-raster-knopf:hover { border-color:var(--gold); }
     .bro-raster-knopf:hover span { color:var(--gold-light); }
   }
@@ -184,11 +215,24 @@ extraScripts: |
   .bro-zoom-flaeche img { display:block; background:#fff; height:auto;
     flex-shrink:0; max-width:none; }
 
+  /* Inhalt als Text - aufklappbar, nicht versteckt. Text, den nur
+     Suchmaschinen sehen, waere Verschleierung; hier kann ihn jeder
+     oeffnen. */
+  .bro-text-seite { border-bottom:1px solid var(--border); padding:4px 0; }
+  .bro-text-seite summary { cursor:pointer; padding:12px 4px; font-weight:600;
+    display:flex; gap:10px; align-items:baseline; line-height:1.4; }
+  .bro-text-seite summary::marker { color:var(--gold-text); }
+  .bro-text-seite[open] summary { color:var(--gold-text); }
+  .bro-text-nr { color:var(--muted); font-weight:500; font-size:.85rem;
+    white-space:nowrap; min-width:72px; }
+  .bro-text-seite p { margin:0 0 10px 82px; line-height:1.65; }
+  @media (max-width:560px) { .bro-text-seite p { margin-left:0; } }
+
   /* Kopfbereich am Telefon knapp halten: Das Buch soll ohne Scrollen
      anfangen. Der PDF-Knopf steht gleich darunter in der Bedienleiste,
      darum hier keiner. */
   .bro-kopf { padding:18px 0 14px; }
-  .bro-kopf h1 { font-size:1.6rem; }
+  .bro-kopf h1 { font-size:1.6rem; text-wrap:balance; }
   /* Am Telefon zaehlt, dass das Buch gleich dasteht. Der erklaerende
      Satz und der PDF-Knopf fallen hier weg - beides steht unterhalb des
      Buches noch einmal (Abschnitt "Was in der Broschuere steht" und in
@@ -233,7 +277,7 @@ extraScripts: |
       <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Zum Durchblättern</p>
       <h1 style="color:#fff;">Unser Produktkatalog</h1>
       <p class="bro-kopf-text" style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 22px;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie den Katalog als PDF herunter.</p>
-      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
+      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
     </div>
   </section>
 
@@ -248,7 +292,10 @@ extraScripts: |
 {% endfor %}      </div>
       </div>
 
-      <p class="bro-hinweis" id="broHinweis">Ziehen Sie an der Seitenecke, wischen Sie auf dem Handy oder blättern Sie mit den Pfeiltasten.</p>
+      <!-- Ein Hinweis, der zum Geraet passt: "Pfeiltasten" hilft am
+           Telefon niemandem, "wischen" an der Maus auch nicht.
+           (Design fuer den wahrscheinlichen Fall.) -->
+      <p class="bro-hinweis" id="broHinweis"><span class="bro-nur-finger">Wischen oder auf den Seitenrand tippen zum Blättern.</span><span class="bro-nur-maus">An der Seitenecke ziehen oder mit den Pfeiltasten blättern.</span></p>
 
       <!-- role="group", nicht "toolbar": eine Toolbar verspricht, dass die
            Pfeiltasten zwischen den Knoepfen springen. Hier blaettern sie
@@ -275,7 +322,8 @@ extraScripts: |
                Pfeiltastenbedienung an. Hier sind es normale Knoepfe und
                Verweise - also das einfache Aufklapp-Muster mit
                aria-expanded und aria-controls. -->
-          <button type="button" class="bro-knopf bro-knopf--schmal" id="broMehr" title="Mehr"
+          <button type="button" class="bro-knopf bro-knopf--schmal" id="broMehr" title="Teilen und PDF"
+                  aria-label="Mehr: Teilen und PDF"
                   aria-expanded="false" aria-controls="broMehrMenue">
             <svg class="bro-punkte" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg><span>Mehr</span>
           </button>
@@ -291,13 +339,26 @@ extraScripts: |
         </div>
       </div>
 
+      <!-- DAS ENDE IST DER WICHTIGSTE AUGENBLICK (Peak-End-Regel):
+           Wer bis zur Rueckseite blaettert, hat Interesse. Bisher
+           passierte dort nichts. Der Block erscheint erst auf der
+           letzten Seite - vorher waere er Beiwerk. -->
+      <div class="bro-ende" id="broEnde" hidden>
+        <p class="bro-ende-frage">Etwas gefunden, das passt?</p>
+        <p class="bro-ende-text">Schreiben Sie uns kurz, was Sie vorhaben – wir melden uns mit einem Vorschlag und einem Festpreis.</p>
+        <div class="bro-ende-knoepfe">
+          <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+          <button type="button" class="bro-knopf" id="broVonVorn">Noch einmal von vorn</button>
+        </div>
+      </div>
+
       <noscript>
         <div style="max-width:420px;margin:0 auto;text-align:center;">
           <a href="/assets/broschuere/BV-Broschuere.pdf">
             <img src="/assets/broschuere/vorschau/seite-01.webp" width="300" height="421" alt="Titelseite des Produktkatalogs von BV AussenSysteme" style="display:block;width:100%;height:auto;border-radius:6px;background:#fff;" />
           </a>
           <p style="color:#fff;margin:16px 0 0;line-height:1.6;">Zum Durchblättern im Browser wird JavaScript benötigt.
-            <a href="/assets/broschuere/BV-Broschuere.pdf" style="color:var(--gold-light);">Katalog als PDF öffnen (36 Seiten, 4,4 MB)</a>.</p>
+            <a href="/assets/broschuere/BV-Broschuere.pdf" style="color:var(--gold-light);">Katalog als PDF öffnen (36 Seiten, 4,4 MB)</a>.</p>
         </div>
       </noscript>
 
@@ -314,6 +375,17 @@ extraScripts: |
         <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-outline" download>Katalog als PDF</a>
       </p>
     </div>
+  </section>
+
+  <section class="section section--alt" id="katalogtext" aria-labelledby="katalogtext-h">
+    <div class="container" style="max-width:820px;">
+      <h2 id="katalogtext-h">Inhalt als Text</h2>
+      <p style="color:var(--muted);">Die Katalogseiten oben sind Bilder. Damit der Inhalt auch vorgelesen, durchsucht und kopiert werden kann, steht er hier Seite für Seite noch einmal als Text.</p>
+{% for s in katalogtext.seiten %}{% if s.absaetze.length %}      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite {{ s.nr }}</span>{{ s.absaetze[0] }}</summary>
+{% for a in s.absaetze %}        <p>{{ a }}</p>
+{% endfor %}      </details>
+{% endif %}{% endfor %}    </div>
   </section>
 
 </main>

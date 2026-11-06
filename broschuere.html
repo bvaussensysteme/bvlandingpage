@@ -146,7 +146,11 @@
   .bro-rahmen { width:100%; margin:0 auto; max-width:1000px; }
   .bro-buch { width:100%; margin:0 auto; }
   .bro-buch .bro-seite { background:#fff; overflow:hidden; }
-  .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff; }
+  /* Die Buchseiten sind Bilder, aber hier sind sie eine Bedienflaeche:
+     Wer an der Ecke zieht, soll kein "Bild sichern"-Fenster bekommen.
+     Zum Behalten gibt es das PDF. */
+  .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff;
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
   /* Das Buch liegt auf der Flaeche, es klebt nicht darauf. Der Schatten
      sitzt auf der Huelle der Bibliothek - die hat genau die Groesse des
      aufgeschlagenen Buches. (Ihre eigene Regel dafuer heisst .sft__wrapper
@@ -165,12 +169,19 @@
     margin:18px auto 0; max-width:1000px; }
   .bro-knopf { display:inline-flex; align-items:center; justify-content:center; gap:8px;
     min-height:44px; min-width:44px; padding:10px 16px; border-radius:var(--radius); cursor:pointer;
+    /* touch-action: manipulation nimmt die Wartezeit auf den Doppeltipp
+       heraus; die eigene Rueckmeldung steht in :active, darum keine
+       graue Flaeche des Systems obendrauf. */
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    /* Ein Knopf ist Bedienung, kein Text: langes Antippen soll ihn
+       nicht markieren und kein Kopieren-Fenster oeffnen. */
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
     font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
     background:#2b2b2b; color:#fff; border:1.5px solid rgba(255,255,255,.4); }
   /* Hervorheben nur, wo es ein Zeigegeraet gibt. Am Telefon bleibt ein
      :hover nach dem Antippen haengen - der Knopf saehe dann dauerhaft
      ausgewaehlt aus, obwohl nichts offen ist. */
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .bro-knopf:hover:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
   }
   /* Offenes Menue: der Knopf zeigt das, und zwar auf jedem Geraet. */
@@ -203,10 +214,12 @@
      schlaegt das Standard-[hidden]. */
   .bro-mehr-menue[hidden] { display:none; }
   .bro-mehr-eintrag { display:flex; align-items:center; gap:10px; width:100%;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    user-select:none; -webkit-user-select:none;
     min-height:44px; padding:10px 12px; border:0; border-radius:calc(var(--radius) - 3px); background:none;
     color:#fff; font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
     text-align:left; text-decoration:none; cursor:pointer; }
-  @media (hover: hover) { .bro-mehr-eintrag:hover { background:var(--gold); color:var(--black); } }
+  @media (hover: hover) and (pointer: fine) { .bro-mehr-eintrag:hover { background:var(--gold); color:var(--black); } }
   .bro-mehr-eintrag:focus-visible { outline:3px solid var(--gold-light); outline-offset:-2px; }
   .bro-mehr-eintrag svg { width:18px; height:18px; fill:none; stroke:currentColor;
     stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
@@ -214,12 +227,27 @@
   .bro-mehr-status { display:block; padding:4px 12px 6px; font-size:.875rem; color:var(--gold-light); }
 
   .bro-zaehler { min-width:92px; text-align:center; color:var(--gold-light);
-    font-weight:700; font-size:.95rem; letter-spacing:.02em; }
+    font-weight:700; font-size:.95rem; letter-spacing:.02em;
+    /* gleich breite Ziffern: sonst wackelt die Leiste beim Blaettern */
+    font-variant-numeric:tabular-nums; }
   .bro-hinweis { text-align:center; color:rgba(255,255,255,.62); font-size:.875rem; margin:12px 0 0; }
+  .bro-nur-maus { display:none; }
+  @media (pointer: fine) {
+    .bro-nur-finger { display:none; }
+    .bro-nur-maus { display:inline; }
+  }
 
   /* Am Telefon tragen die Zeichen allein, die Woerter wuerden umbrechen. */
   .bro-knopf--schmal span { position:absolute; width:1px; height:1px; overflow:hidden;
     clip:rect(0 0 0 0); white-space:nowrap; }
+
+  .bro-ende { max-width:560px; margin:20px auto 0; text-align:center;
+    background:#2b2b2b; border:1.5px solid var(--gold); border-radius:var(--radius);
+    padding:20px 18px; }
+  .bro-ende[hidden] { display:none; }
+  .bro-ende-frage { color:#fff; font-size:1.1rem; font-weight:700; margin:0 0 6px; }
+  .bro-ende-text { color:rgba(255,255,255,.78); font-size:.92rem; line-height:1.6; margin:0 0 16px; }
+  .bro-ende-knoepfe { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
 
   /* Ebenen (Uebersicht, Zoom) */
   /* z-index 5000: ueber den schwebenden Knoepfen der Website
@@ -249,15 +277,18 @@
   .bro-ebene-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.14); flex-wrap:wrap; }
   .bro-ebene-kopf h2 { color:#fff; font-size:1.15rem; margin:0; }
-  .bro-ebene-koerper { flex:1; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch; }
+  .bro-ebene-koerper { flex:1; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch;
+    /* ohne contain scrollt am Ende die Seite dahinter weiter */
+    overscroll-behavior:contain; }
 
   .bro-raster { display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
     gap:12px; max-width:1100px; margin:0 auto; }
   .bro-raster-knopf { display:block; padding:0; border:2px solid transparent; border-radius:6px;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
     background:none; cursor:pointer; }
   .bro-raster-knopf img { display:block; width:100%; height:auto; border-radius:4px; background:#fff; }
   .bro-raster-knopf span { display:block; color:rgba(255,255,255,.75); font-size:.8125rem; padding:6px 0 0; }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .bro-raster-knopf:hover { border-color:var(--gold); }
     .bro-raster-knopf:hover span { color:var(--gold-light); }
   }
@@ -279,11 +310,24 @@
   .bro-zoom-flaeche img { display:block; background:#fff; height:auto;
     flex-shrink:0; max-width:none; }
 
+  /* Inhalt als Text - aufklappbar, nicht versteckt. Text, den nur
+     Suchmaschinen sehen, waere Verschleierung; hier kann ihn jeder
+     oeffnen. */
+  .bro-text-seite { border-bottom:1px solid var(--border); padding:4px 0; }
+  .bro-text-seite summary { cursor:pointer; padding:12px 4px; font-weight:600;
+    display:flex; gap:10px; align-items:baseline; line-height:1.4; }
+  .bro-text-seite summary::marker { color:var(--gold-text); }
+  .bro-text-seite[open] summary { color:var(--gold-text); }
+  .bro-text-nr { color:var(--muted); font-weight:500; font-size:.85rem;
+    white-space:nowrap; min-width:72px; }
+  .bro-text-seite p { margin:0 0 10px 82px; line-height:1.65; }
+  @media (max-width:560px) { .bro-text-seite p { margin-left:0; } }
+
   /* Kopfbereich am Telefon knapp halten: Das Buch soll ohne Scrollen
      anfangen. Der PDF-Knopf steht gleich darunter in der Bedienleiste,
      darum hier keiner. */
   .bro-kopf { padding:18px 0 14px; }
-  .bro-kopf h1 { font-size:1.6rem; }
+  .bro-kopf h1 { font-size:1.6rem; text-wrap:balance; }
   /* Am Telefon zaehlt, dass das Buch gleich dasteht. Der erklaerende
      Satz und der PDF-Knopf fallen hier weg - beides steht unterhalb des
      Buches noch einmal (Abschnitt "Was in der Broschuere steht" und in
@@ -328,7 +372,7 @@
       <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Zum Durchblättern</p>
       <h1 style="color:#fff;">Unser Produktkatalog</h1>
       <p class="bro-kopf-text" style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 22px;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie den Katalog als PDF herunter.</p>
-      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
+      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
     </div>
   </section>
 
@@ -448,7 +492,10 @@
       </div>
       </div>
 
-      <p class="bro-hinweis" id="broHinweis">Ziehen Sie an der Seitenecke, wischen Sie auf dem Handy oder blättern Sie mit den Pfeiltasten.</p>
+      <!-- Ein Hinweis, der zum Geraet passt: "Pfeiltasten" hilft am
+           Telefon niemandem, "wischen" an der Maus auch nicht.
+           (Design fuer den wahrscheinlichen Fall.) -->
+      <p class="bro-hinweis" id="broHinweis"><span class="bro-nur-finger">Wischen oder auf den Seitenrand tippen zum Blättern.</span><span class="bro-nur-maus">An der Seitenecke ziehen oder mit den Pfeiltasten blättern.</span></p>
 
       <!-- role="group", nicht "toolbar": eine Toolbar verspricht, dass die
            Pfeiltasten zwischen den Knoepfen springen. Hier blaettern sie
@@ -475,7 +522,8 @@
                Pfeiltastenbedienung an. Hier sind es normale Knoepfe und
                Verweise - also das einfache Aufklapp-Muster mit
                aria-expanded und aria-controls. -->
-          <button type="button" class="bro-knopf bro-knopf--schmal" id="broMehr" title="Mehr"
+          <button type="button" class="bro-knopf bro-knopf--schmal" id="broMehr" title="Teilen und PDF"
+                  aria-label="Mehr: Teilen und PDF"
                   aria-expanded="false" aria-controls="broMehrMenue">
             <svg class="bro-punkte" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg><span>Mehr</span>
           </button>
@@ -491,13 +539,26 @@
         </div>
       </div>
 
+      <!-- DAS ENDE IST DER WICHTIGSTE AUGENBLICK (Peak-End-Regel):
+           Wer bis zur Rueckseite blaettert, hat Interesse. Bisher
+           passierte dort nichts. Der Block erscheint erst auf der
+           letzten Seite - vorher waere er Beiwerk. -->
+      <div class="bro-ende" id="broEnde" hidden>
+        <p class="bro-ende-frage">Etwas gefunden, das passt?</p>
+        <p class="bro-ende-text">Schreiben Sie uns kurz, was Sie vorhaben – wir melden uns mit einem Vorschlag und einem Festpreis.</p>
+        <div class="bro-ende-knoepfe">
+          <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+          <button type="button" class="bro-knopf" id="broVonVorn">Noch einmal von vorn</button>
+        </div>
+      </div>
+
       <noscript>
         <div style="max-width:420px;margin:0 auto;text-align:center;">
           <a href="/assets/broschuere/BV-Broschuere.pdf">
             <img src="/assets/broschuere/vorschau/seite-01.webp" width="300" height="421" alt="Titelseite des Produktkatalogs von BV AussenSysteme" style="display:block;width:100%;height:auto;border-radius:6px;background:#fff;" />
           </a>
           <p style="color:#fff;margin:16px 0 0;line-height:1.6;">Zum Durchblättern im Browser wird JavaScript benötigt.
-            <a href="/assets/broschuere/BV-Broschuere.pdf" style="color:var(--gold-light);">Katalog als PDF öffnen (36 Seiten, 4,4 MB)</a>.</p>
+            <a href="/assets/broschuere/BV-Broschuere.pdf" style="color:var(--gold-light);">Katalog als PDF öffnen (36 Seiten, 4,4 MB)</a>.</p>
         </div>
       </noscript>
 
@@ -513,6 +574,844 @@
         <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
         <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-outline" download>Katalog als PDF</a>
       </p>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="katalogtext" aria-labelledby="katalogtext-h">
+    <div class="container" style="max-width:820px;">
+      <h2 id="katalogtext-h">Inhalt als Text</h2>
+      <p style="color:var(--muted);">Die Katalogseiten oben sind Bilder. Damit der Inhalt auch vorgelesen, durchsucht und kopiert werden kann, steht er hier Seite für Seite noch einmal als Text.</p>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 1</span>ÜBERDACHT</summary>
+        <p>ÜBERDACHT</p>
+        <p>DURCHDACHT</p>
+        <p>ZUVERLÄSSIG</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 2</span>ÜBER UNS</summary>
+        <p>ÜBER UNS</p>
+        <p>Wir beraten, messen auf</p>
+        <p>und montieren selbst.</p>
+        <p>BV AussenSysteme ist ein Fachbetrieb für Aluminium-Außensysteme aus Dernbach im Westerwald. Hinter dem</p>
+        <p>Unsere Systeme stammen von VD AluSysteme, einem</p>
+        <p>deutschen Hersteller, der jede Anlage nach Maß fertigt.</p>
+        <p>Namen stehen Alexander Becker und Josef Voronin.</p>
+        <p>Wir beide haben die Schulung des Herstellers absolviert.</p>
+        <p>Wir beraten Sie persönlich bei Ihnen zu Hause, nehmen</p>
+        <p>die Maße selbst auf und montieren Ihre Überdachung mit</p>
+        <p>So bekommen Sie gefertigte Qualität aus Deutschland und</p>
+        <p>einen Betrieb aus Ihrer Region, der auch nach der Mon-</p>
+        <p>unserem eigenen Team. Sie haben von der ersten Frage</p>
+        <p>bis zur Übergabe dieselben Ansprechpartner.</p>
+        <p>tage erreichbar bleibt.</p>
+        <p>Alexander Becker &amp; Josef Voronin</p>
+        <p>Gründer, BV AussenSysteme GbR</p>
+        <p>Kostenlose Beratung vor Ort</p>
+        <p>Aufmaß durch uns, nicht durch Dritte</p>
+        <p>Montage durch das eigene Team</p>
+        <p>Muster der Systeme beim Termin zum Anfassen</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 3</span>I N H A LT</summary>
+        <p>I N H A LT</p>
+        <p>01 Terrassendächer</p>
+        <p>Terrassendach TDS</p>
+        <p>Terrassendach Skyview</p>
+        <p>TDS oder Skyview?</p>
+        <p>Lamellendach</p>
+        <p>Kaltwintergarten</p>
+        <p>02 Carports</p>
+        <p>Carport TDS</p>
+        <p>Flat Line</p>
+        <p>03 Sonnenschutz</p>
+        <p>Auf- und Unterdachmarkise</p>
+        <p>Senkrechtmarkise ZIP</p>
+        <p>Steuerung und Stoffe</p>
+        <p>Eingang und Balkon</p>
+        <p>Von der Idee zur Montage</p>
+        <p>Kontakt</p>
+        <p>WEGWEISER</p>
+        <p>Welche Lösung passt zu Ihnen?</p>
+        <p>Terrasse vor Regen schützen, Licht</p>
+        <p>behalten</p>
+        <p>Terrassendach TDS oder Skyview</p>
+        <p>Sonne und Schatten nach Bedarf einstellen Lamellendach</p>
+        <p>Draußen sitzen, auch bei Wind und kühlem Kaltwintergarten</p>
+        <p>Wetter</p>
+        <p>Auto, Fahrrad oder E-Bike geschützt</p>
+        <p>abstellen</p>
+        <p>Carport TDS, Flat Line</p>
+        <p>Hitze unter dem Glasdach vermeiden</p>
+        <p>Aufdach- und Unterdachmarkise</p>
+        <p>Sicht- und Windschutz an der offenen Seite Senkrechtmarkise ZIP</p>
+        <p>Trocken ins Haus, geschützt auf dem</p>
+        <p>Vordach, Balkonüberdachung</p>
+        <p>Balkon</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 4</span>Terrassendächer</summary>
+        <p>Terrassendächer</p>
+        <p>Eine Überdachung macht aus Ihrer Terrasse einen Raum, den Sie fast das ganze Jahr</p>
+        <p>nutzen: Die Gartenmöbel bleiben trocken, der Grill steht geschützt, und ein Sommerregen ist kein Grund mehr, hineinzugehen.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 5</span>WA R U M A L U M I N I U M ?</summary>
+        <p>WA R U M A L U M I N I U M ?</p>
+        <p>Rostfrei</p>
+        <p>Nach Maß</p>
+        <p>Wiederverwertbar</p>
+        <p>Die Pulverbeschichtung schützt dauerhaft. Streichen oder Lasieren wie</p>
+        <p>Jede Anlage wird für Ihr Haus gefertigt – in Breite, Tiefe, Höhe und</p>
+        <p>Aluminium ist zu 100 % recycelbar</p>
+        <p>und bleibt auch nach Jahren ein</p>
+        <p>bei Holz entfällt.</p>
+        <p>Farbe.</p>
+        <p>wertvoller Rohstoff.</p>
+        <p>IN DIESEM KAPITEL</p>
+        <p>Terrassendach TDS</p>
+        <p>Terrassendach Skyview</p>
+        <p>TDS oder Skyview? Eindeckung und Farben</p>
+        <p>Lamellendach SunPro Plus und SunPro One</p>
+        <p>Kaltwintergarten TDS</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 6</span>Terrassendach TDS als Wandanbau – zwei Beispiele.</summary>
+        <p>Terrassendach TDS als Wandanbau – zwei Beispiele.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 7</span>TERRASSENDACH</summary>
+        <p>TERRASSENDACH</p>
+        <p>TDS</p>
+        <p>Klassisch geneigt, individuell geplant – das Terrassendach für</p>
+        <p>fast jedes Haus.</p>
+        <p>Das Terrassendach TDS verbindet eine robuste, pulverbeschichtete Aluminiumkonstruktion mit klarer, zeitloser</p>
+        <p>Linienführung. Wir planen es exakt auf Ihr Haus – als</p>
+        <p>Wandanbau, freistehend, mit Seitenverglasung oder über</p>
+        <p>Eck zusammengeführt.</p>
+        <p>Das Ergebnis ist ein geschützter Platz im Freien, der wetterbeständig, rostfrei und pflegeleicht bleibt. Auf Wunsch</p>
+        <p>ergänzen wir Markisen auf oder unter dem Dach und</p>
+        <p>Senkrechtmarkisen an den Seiten.</p>
+        <p>AUSFÜHRUNGEN</p>
+        <p>Wandanbau</p>
+        <p>Mit Seitenverglasung</p>
+        <p>Freistehend</p>
+        <p>Zusammengeführt</p>
+        <p>EINDECKUNG</p>
+        <p>LICHT</p>
+        <p>ENERGIE</p>
+        <p>SCHALLDÄMMUNG</p>
+        <p>VSG-Glas 8 mm klar</p>
+        <p>88 %</p>
+        <p>85 %</p>
+        <p>36 dB</p>
+        <p>VSG-Glas 8 mm opal</p>
+        <p>63 %</p>
+        <p>52 %</p>
+        <p>36 dB</p>
+        <p>Polycarbonat 16 mm klar</p>
+        <p>70 %</p>
+        <p>62 %</p>
+        <p>21 dB</p>
+        <p>Polycarbonat 16 mm opal</p>
+        <p>55 %</p>
+        <p>54 %</p>
+        <p>21 dB</p>
+        <p>S TA N D A R D FA R B E N</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>RAL 9010</p>
+        <p>Reinweiß</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+        <p>10 Jahre Herstellergarantie</p>
+        <p>Pulverbeschichtet, rostfrei, pflegeleicht</p>
+        <p>Auf Wunsch auch mit verzinktem Trapezblech</p>
+        <p>Zubehör: dimmbare LED-Spots, Bluetooth-Lautsprecher</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 9</span>TERRASSENDACH</summary>
+        <p>TERRASSENDACH</p>
+        <p>Skyview</p>
+        <p>Flache Optik, klare Linie – mit innenliegendem Gefälle.</p>
+        <p>Skyview wirkt wie ein modernes Flachdach. Das Gefälle</p>
+        <p>liegt innen, das Regenwasser läuft über eine integrierte</p>
+        <p>Rinne durch die Pfosten ab – außen sind keine Fallrohre</p>
+        <p>zu sehen. So entsteht eine ruhige, waagerechte Linie, die</p>
+        <p>besonders gut zu Häusern mit klarer Architektur passt.</p>
+        <p>Wie beim TDS wählen Sie zwischen Glas und Polycarbonat und zwischen Wandanbau, freistehender Ausführung,</p>
+        <p>Seitenverglasung oder zusammengeführten Dächern. Für</p>
+        <p>Schatten sorgen Unterdach- und Senkrechtmarkisen; eine</p>
+        <p>Aufdachmarkise ist beim Flachdach nicht möglich.</p>
+        <p>AUSFÜHRUNGEN</p>
+        <p>Wandanbau</p>
+        <p>Mit Seitenverglasung</p>
+        <p>Freistehend</p>
+        <p>Zusammengeführt</p>
+        <p>S TA N D A R D FA R B E N</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+        <p>10 Jahre Herstellergarantie</p>
+        <p>Flachdach-Optik, Entwässerung verdeckt durch die Pfosten</p>
+        <p>Eindeckung in Glas oder Polycarbonat – Werte auf Seite 09</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 10</span>TDS</summary>
+        <p>TDS</p>
+        <p>Skyview</p>
+        <p>IM VERGLEICH</p>
+        <p>TDS oder Skyview?</p>
+        <p>Beide Systeme teilen sich Technik, Eindeckung und Ausführungen. Der Unterschied liegt in der Form: Das</p>
+        <p>TDS zeigt sein Gefälle offen, Skyview versteckt es und wirkt dadurch flach. Deshalb passt eine Aufdachmarkise nur auf das TDS. Welche Form zu Ihrem Haus passt, besprechen wir gern beim Termin vor Ort.</p>
+        <p>TDS</p>
+        <p>Skyview</p>
+        <p>Dachform</p>
+        <p>klassisch geneigt</p>
+        <p>flache Optik, Gefälle innenliegend</p>
+        <p>Wirkung</p>
+        <p>zeitlos, passt zu fast jedem Haus</p>
+        <p>geradlinig, ideal zu moderner Architektur</p>
+        <p>Ausführungen</p>
+        <p>Wandanbau, freistehend, mit</p>
+        <p>Seitenverglasung, zusammengeführt</p>
+        <p>Wandanbau, freistehend, mit</p>
+        <p>Seitenverglasung, zusammengeführt</p>
+        <p>Eindeckung</p>
+        <p>VSG-Glas 8 mm oder Polycarbonat 16</p>
+        <p>mm, klar oder opal</p>
+        <p>VSG-Glas 8 mm oder Polycarbonat 16</p>
+        <p>mm, klar oder opal</p>
+        <p>Standardfarben</p>
+        <p>RAL 7016, 9006, 9007, 9010</p>
+        <p>RAL 7016, 9006, 9007</p>
+        <p>Wunschfarbe</p>
+        <p>jeder RAL-Ton, gegen Aufpreis</p>
+        <p>jeder RAL-Ton, gegen Aufpreis</p>
+        <p>Herstellergarantie</p>
+        <p>10 Jahre</p>
+        <p>10 Jahre</p>
+        <p>Beschattung</p>
+        <p>Aufdach-, Unterdach- und</p>
+        <p>Unterdach- und Senkrechtmarkise – keine</p>
+        <p>Senkrechtmarkise</p>
+        <p>Aufdachmarkise</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 11</span>E I N D E C K U N G U N D FA R B E N</summary>
+        <p>E I N D E C K U N G U N D FA R B E N</p>
+        <p>Glas oder Polycarbonat?</p>
+        <p>Die Eindeckung bestimmt, wie hell es unter dem Dach wird, wie viel Sonnenwärme durchkommt und wie</p>
+        <p>laut Regen klingt. Glas dämpft Regengeräusche deutlich stärker als Polycarbonat. Opale Varianten</p>
+        <p>streuen das Licht und mindern die Blendung.</p>
+        <p>VSG-Glas 8 mm klar</p>
+        <p>VSG-Glas 8 mm opal</p>
+        <p>Maximales Tageslicht, freier Blick in den Himmel.</p>
+        <p>Weiches, gestreutes Licht und weniger Blendung.</p>
+        <p>Lichtdurchlässigkeit</p>
+        <p>88 %</p>
+        <p>Lichtdurchlässigkeit</p>
+        <p>63 %</p>
+        <p>Energiedurchlässigkeit</p>
+        <p>85 %</p>
+        <p>Energiedurchlässigkeit</p>
+        <p>52 %</p>
+        <p>Geräuschdämpfung</p>
+        <p>36 dB</p>
+        <p>Geräuschdämpfung</p>
+        <p>36 dB</p>
+        <p>Polycarbonat 16 mm klar</p>
+        <p>Polycarbonat 16 mm opal</p>
+        <p>Leichte Stegplatte mit viel Licht.</p>
+        <p>Stegplatte mit diffusem, blendarmem Licht.</p>
+        <p>Lichtdurchlässigkeit</p>
+        <p>70 %</p>
+        <p>Lichtdurchlässigkeit</p>
+        <p>55 %</p>
+        <p>Energiedurchlässigkeit</p>
+        <p>62 %</p>
+        <p>Energiedurchlässigkeit</p>
+        <p>54 %</p>
+        <p>Geräuschdämpfung</p>
+        <p>21 dB</p>
+        <p>Geräuschdämpfung</p>
+        <p>21 dB</p>
+        <p>Lichtdurchlässigkeit: Anteil des sichtbaren Tageslichts. Energiedurchlässigkeit: Anteil der Sonnenwärme. Geräuschdämpfung: Schalldämmung</p>
+        <p>der Platte. Werte laut Hersteller; gelten für TDS, Skyview, Carport TDS, Kaltwintergarten, Eingangs- und Balkonüberdachung.</p>
+        <p>S TA N D A R D FA R B E N D E R A L U M I N I U M - S Y S T E M E</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>RAL 9010</p>
+        <p>Reinweiß</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+        <p>Bildschirm- und Druckfarben weichen vom Original ab. Wir bringen Farbmuster zum Termin mit.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 12</span>LAMELLENDACH</summary>
+        <p>LAMELLENDACH</p>
+        <p>SunPro Plus</p>
+        <p>Bei Sonne öffnen, bei Regen schließen: Die Aluminium-Lamellen der SunPro Plus lassen sich per Elektromotor stufenlos bis 135° drehen. So bestimmen Sie selbst, wie viel</p>
+        <p>Licht und Luft auf Ihre Terrasse kommen.</p>
+        <p>Geschlossen ist das Dach wasserdicht. Das Regenwasser</p>
+        <p>läuft über ein integriertes Rinnenprofil verdeckt durch</p>
+        <p>eine Stütze ab. Ein optionaler Regensensor schließt das</p>
+        <p>Dach schon bei den ersten Tropfen.</p>
+        <p>Bis 5 × 4,5 m mit 4 Pfosten, bis 7 × 4,5 m mit 6 Pfosten</p>
+        <p>Freistehend oder an der Hauswand, längs oder quer</p>
+        <p>Somfy-Steuerung, Sensoren für Regen, Wind und Schnee</p>
+        <p>Frostschutz-Stellung für den ganzjährigen Einsatz</p>
+        <p>Zubehör: LED-Beleuchtung, integrierte ZIP-Screens, Heizstrahler</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 13</span>LAMELLENDACH</summary>
+        <p>LAMELLENDACH</p>
+        <p>SunPro One</p>
+        <p>Das kompakte Lamellendach – mit Funkfernbedienung für Lamellen,</p>
+        <p>Licht und Wärme.</p>
+        <p>Die Lamellen der SunPro One öffnen motorisch bis 110°</p>
+        <p>und schließen regendicht. Das Wasser läuft über ein integriertes Rinnenprofil verdeckt durch eine Stütze ab.</p>
+        <p>Mit einer Funkfernbedienung steuern Sie Lamellen, Senkrechtmarkisen, Beleuchtung und Heizstrahler. Montiert</p>
+        <p>wird freistehend oder an der Hauswand.</p>
+        <p>SUNPRO PLUS UND SUNPRO ONE IM VERGLEICH</p>
+        <p>Größe</p>
+        <p>SunPro Plus</p>
+        <p>SunPro One</p>
+        <p>bis 5 × 4,5 m (4 Pfosten) oder 7 × 4,5 m (6</p>
+        <p>400 × 540 cm, Höhe bis 270 cm</p>
+        <p>Pfosten)</p>
+        <p>Lamellen</p>
+        <p>stufenlos bis 135°</p>
+        <p>motorisch bis 110°</p>
+        <p>Steuerung</p>
+        <p>Somfy</p>
+        <p>Funkfernbedienung Teleco</p>
+        <p>Sensoren</p>
+        <p>Regen, Wind, Schnee (optional)</p>
+        <p>optional</p>
+        <p>Zubehör</p>
+        <p>LED, ZIP-Screens, Heizstrahler</p>
+        <p>Senkrechtmarkise ShadeZip One, LED im</p>
+        <p>Rahmen, Heizstrahler</p>
+        <p>Montage</p>
+        <p>freistehend, Wand längs oder quer</p>
+        <p>freistehend oder Wand</p>
+        <p>Standardfarben</p>
+        <p>RAL 9010, 9007, 7016</p>
+        <p>RAL 9010, 9007, 7016</p>
+        <p>Wunschfarbe</p>
+        <p>RAL gegen Aufpreis</p>
+        <p>RAL gegen Aufpreis</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 15</span>K A LT W I N T E R G A R T E N</summary>
+        <p>K A LT W I N T E R G A R T E N</p>
+        <p>Kaltwintergarten TDS</p>
+        <p>Mehr Raum im Freien – geschützt vor Wind, Regen und Schnee.</p>
+        <p>Der Kaltwintergarten TDS schließt Ihre Terrasse rundum</p>
+        <p>mit Glas. Er ist kein beheizter Wohnraum, sondern ein geschützter Raum zwischen Haus und Garten.</p>
+        <p>Im Frühjahr ist er schon hell und warm, im Herbst bleibt</p>
+        <p>der Wind draußen, und im Winter stehen Gartenmöbel</p>
+        <p>trocken. Die Seiten schließen Sie mit Schiebeelementen</p>
+        <p>oder mit Festverglasung.</p>
+        <p>AUSFÜHRUNGEN</p>
+        <p>Mit Schiebeelementen</p>
+        <p>Mit seitlicher Festverglasung</p>
+        <p>EINDECKUNG</p>
+        <p>LICHT</p>
+        <p>ENERGIE</p>
+        <p>SCHALLDÄMMUNG</p>
+        <p>VSG-Glas 8 mm klar</p>
+        <p>88 %</p>
+        <p>85 %</p>
+        <p>36 dB</p>
+        <p>VSG-Glas 8 mm opal</p>
+        <p>63 %</p>
+        <p>52 %</p>
+        <p>36 dB</p>
+        <p>Polycarbonat 16 mm klar</p>
+        <p>70 %</p>
+        <p>62 %</p>
+        <p>21 dB</p>
+        <p>Polycarbonat 16 mm opal</p>
+        <p>55 %</p>
+        <p>54 %</p>
+        <p>21 dB</p>
+        <p>S TA N D A R D FA R B E N</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>RAL 9010</p>
+        <p>Reinweiß</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+        <p>10 Jahre Herstellergarantie</p>
+        <p>Schutz vor Wind, Regen und Schnee</p>
+        <p>Beschattung: Aufdach-, Unterdach- und Senkrechtmarkise</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 16</span>Carports</summary>
+        <p>Carports</p>
+        <p>Ein Carport schützt Ihr Auto vor Regen, Schnee und Sonne und bleibt dabei offen</p>
+        <p>und luftig. Unter dem Dach finden auch Fahrräder, E-Bikes oder Mülltonnen einen</p>
+        <p>trockenen Platz.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 17</span>ZWEI BAUWEISEN</summary>
+        <p>ZWEI BAUWEISEN</p>
+        <p>Carport TDS</p>
+        <p>Flat Line</p>
+        <p>Aus dem System unseres Terrassendachs: Glas oder Polycarbonat lässt Licht durch, die Einfahrt bleibt hell.</p>
+        <p>Flachdach mit Trapezblech: geschlossen, geradlinig und</p>
+        <p>auf Wunsch begrünt oder als Unterlage für eine Photovoltaik-Anlage.</p>
+        <p>IN DIESEM KAPITEL</p>
+        <p>Carport TDS</p>
+        <p>Flat Line</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 18</span>CARPORT</summary>
+        <p>CARPORT</p>
+        <p>Carport TDS</p>
+        <p>Stabiler Schutz für Ihr Fahrzeug – hell und wetterfest.</p>
+        <p>Der Carport TDS ist aus demselben Aluminium-System</p>
+        <p>wie unser Terrassendach gebaut. Das lichtdurchlässige</p>
+        <p>Dach aus Glas oder Polycarbonat hält Regen und Schnee</p>
+        <p>ab, ohne den Bereich vor Ihrem Haus zu verdunkeln.</p>
+        <p>Die pulverbeschichtete Konstruktion ist rostfrei und pflegeleicht. Wir planen ihn an der Hauswand, freistehend</p>
+        <p>oder mit Überstand – und auf Wunsch so, dass er später</p>
+        <p>erweitert werden kann.</p>
+        <p>10 Jahre Herstellergarantie</p>
+        <p>Schutz vor Regen, Schnee, Sonne und Witterung</p>
+        <p>Individuelle Maße und Erweiterungsmöglichkeiten</p>
+        <p>Pulverbeschichtet, rostfrei, pflegeleicht</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 19</span>AUSFÜHRUNGEN</summary>
+        <p>AUSFÜHRUNGEN</p>
+        <p>Mit Wandmontage</p>
+        <p>Freistehend</p>
+        <p>Mit Überstand</p>
+        <p>EINDECKUNG</p>
+        <p>LICHT</p>
+        <p>ENERGIE</p>
+        <p>SCHALLDÄMMUNG</p>
+        <p>VSG-Glas 8 mm klar</p>
+        <p>88 %</p>
+        <p>85 %</p>
+        <p>36 dB</p>
+        <p>VSG-Glas 8 mm opal</p>
+        <p>63 %</p>
+        <p>52 %</p>
+        <p>36 dB</p>
+        <p>Polycarbonat 16 mm klar</p>
+        <p>70 %</p>
+        <p>62 %</p>
+        <p>21 dB</p>
+        <p>Polycarbonat 16 mm opal</p>
+        <p>55 %</p>
+        <p>54 %</p>
+        <p>21 dB</p>
+        <p>S TA N D A R D FA R B E N</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>RAL 9010</p>
+        <p>Reinweiß</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 20</span>CARPORT</summary>
+        <p>CARPORT</p>
+        <p>Flat Line</p>
+        <p>Das Flachdach aus Aluminium – geradlinig und vielseitig.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 21</span>Die Flat Line unterstreicht moderne Architektur: gerade Linien, ein flaches Dach und schlanke Pfosten. Die</summary>
+        <p>Die Flat Line unterstreicht moderne Architektur: gerade Linien, ein flaches Dach und schlanke Pfosten. Die</p>
+        <p>Aluminiumprofile werden nach hohen Standards gefertigt und pulverbeschichtet.</p>
+        <p>Trapezblech</p>
+        <p>Dachbegrünung</p>
+        <p>Photovoltaik</p>
+        <p>Verzinkt und pulverbeschichtet, auf</p>
+        <p>Ein begrüntes Dach schützt vor extre-</p>
+        <p>Aluminiumsparren und Trapezblech bil-</p>
+        <p>Wunsch mit Antikondensbeschichtung.</p>
+        <p>mer Hitze und Kälte, filtert Feinstaub</p>
+        <p>den einen stabilen Untergrund für die</p>
+        <p>Robust, langlebig und in verschiedenen</p>
+        <p>und kann helfen, Niederschlagswasser-</p>
+        <p>Träger der PV-Module.</p>
+        <p>Farben erhältlich.</p>
+        <p>gebühren zu sparen.</p>
+        <p>BEISPIELGRÖSSEN</p>
+        <p>Ein Fahrzeug</p>
+        <p>Zwei Fahrzeuge</p>
+        <p>Ein Fahrzeug und Eingang</p>
+        <p>Zwei Fahrzeuge und Eingang</p>
+        <p>Optional mit Seitenteilen, Fenster oder Tür als Nebenraum</p>
+        <p>Standardfarben RAL 7016, 9006, 9007 und Reinweiß, Wunschfarbe nach RAL</p>
+        <p>Begrünung oder Photovoltaik möglich</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 22</span>Sonnenschutz</summary>
+        <p>Sonnenschutz</p>
+        <p>Unter einem Glasdach kann es im Sommer schnell warm werden. Eine Markise spendet Schatten, schützt vor Blendung und sorgt für ein angenehmes Klima auf der Terrasse und in den Räumen dahinter.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 23</span>GRUNDLAGEN</summary>
+        <p>GRUNDLAGEN</p>
+        <p>Aufdach oder Unterdach?</p>
+        <p>Aufdachmarkise</p>
+        <p>Unterdachmarkise</p>
+        <p>Die Markise liegt über dem Glasdach und hält die Sonne</p>
+        <p>ab, bevor die Wärme darunter gelangt. Geeignet für geneigte Dächer wie TDS und Kaltwintergarten, nicht für</p>
+        <p>das Flachdach Skyview.</p>
+        <p>Die Markise sitzt unter dem Glas. Sie spendet zuverlässig</p>
+        <p>Schatten, das Tuch ist vor Wetter und Schmutz geschützt.</p>
+        <p>Möglich bei TDS, Skyview und Kaltwintergarten.</p>
+        <p>Senkrechtmarkise</p>
+        <p>Senkrecht an der offenen Seite: Schutz vor tief stehender</p>
+        <p>Sonne, Wind und neugierigen Blicken.</p>
+        <p>IN DIESEM KAPITEL</p>
+        <p>Auf- und Unterdachmarkise</p>
+        <p>Senkrechtmarkise ZIP</p>
+        <p>Steuerung, Komfort und Stoffe</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 24</span>SONNENSCHUTZ</summary>
+        <p>SONNENSCHUTZ</p>
+        <p>Auf- und Unterdachmarkise</p>
+        <p>Unsere Markisen für Terrassendächer und Wintergärten</p>
+        <p>Für große Flächen werden mehrere Anlagen nebeneinander montiert, auch mit unterschiedlichen Ausfalllängen.</p>
+        <p>Beide Reihen erreichen Windwiderstandsklasse 3. Die Aufdachmarkise eignet sich nicht für das Flachdach Skyview.</p>
+        <p>gibt es in zwei Modellreihen: VD Linea für kompaktere und</p>
+        <p>VD Solara für große Dachflächen. Beide gibt es als Aufdach- und als Unterdachmarkise, wahlweise mit ZIP-Führung ohne Lichtspalt.</p>
+        <p>MODELLREIHE</p>
+        <p>MAX. BREITE</p>
+        <p>MAX. AUSFALL</p>
+        <p>MONTAGE</p>
+        <p>VD Linea A / AZ</p>
+        <p>500 cm</p>
+        <p>450 cm</p>
+        <p>Aufdach</p>
+        <p>VD Linea U / UZ</p>
+        <p>600 cm</p>
+        <p>450 cm</p>
+        <p>Unterdach</p>
+        <p>VD Solara A / AZ, U / UZ</p>
+        <p>650 cm</p>
+        <p>600 cm</p>
+        <p>Auf- oder Unterdach</p>
+        <p>Maximalmaße laut Hersteller, Z = mit ZIP-Führung. Linea Aufdach max. 22,5 m², Solara max. 39 m². Die mögliche Größe hängt vom Dach ab – wir</p>
+        <p>prüfen sie beim Aufmaß.</p>
+        <p>W E L C H E B E S C H AT T U N G PA S S T Z U W E L C H E M D A C H ?</p>
+        <p>ÜBERDACHUNG</p>
+        <p>AUFDACH</p>
+        <p>UNTERDACH</p>
+        <p>SENKRECHT</p>
+        <p>Terrassendach TDS</p>
+        <p>Terrassendach Skyview</p>
+        <p>Kaltwintergarten TDS</p>
+        <p>Balkonüberdachung TDS</p>
+        <p>Lamellendach SunPro</p>
+        <p>✓ integriert</p>
+        <p>✓ möglich · – nicht möglich bzw. nicht vorgesehen. Beim Lamellendach übernehmen die Lamellen die Beschattung von oben.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 25</span>TECHNIK</summary>
+        <p>TECHNIK</p>
+        <p>ZUBEHÖR</p>
+        <p>Wahlweise ZIP-Führung ohne Lichtspalt</p>
+        <p>LED-Beleuchtung in Kassette oder Führungsschiene</p>
+        <p>Rundum geschlossene Kassette für Tuch und Technik</p>
+        <p>Zusätzliche Lichtschiene</p>
+        <p>Windwiderstandsklasse 3</p>
+        <p>Infrarot-Heizstrahler mit Funkdimmer</p>
+        <p>Funkmotor mit Handsender oder Motor mit</p>
+        <p>Wandschalter</p>
+        <p>Wind-, Sonnen- und Regensensor</p>
+        <p>Smart-Home-Steuerung möglich</p>
+        <p>5 Jahre Herstellergarantie</p>
+        <p>G E S T E L L FA R B E N</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>RAL 9010</p>
+        <p>Reinweiß</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 26</span>SONNENSCHUTZ</summary>
+        <p>SONNENSCHUTZ</p>
+        <p>Senkrechtmarkise ZIP</p>
+        <p>Die Senkrechtmarkise schließt die offenen Seiten Ihrer</p>
+        <p>Überdachung. Sie schützt vor tief stehender Sonne, hält</p>
+        <p>Wind ab und sorgt für Privatsphäre. Eingefahren verschwinden Tuch und Endstab fast unsichtbar in einer</p>
+        <p>schmalen Kassette.</p>
+        <p>Sie passt an Terrassendächer, Lamellendächer, Balkonüberdachungen und Wintergärten – und als Fenstermarkise auch direkt an die Fassade.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 27</span>ZIP-TECHNIK</summary>
+        <p>ZIP-TECHNIK</p>
+        <p>Das Tuch läuft über einen Reißverschluss in der Führungsschiene –</p>
+        <p>besonders windstabil und ohne Lichtspalt an der Seite.</p>
+        <p>MODELL</p>
+        <p>BAUGRÖSSEN</p>
+        <p>KASTEN</p>
+        <p>VD eZip 105</p>
+        <p>bis 600 × 240 cm oder 300 × 300 cm</p>
+        <p>105 mm, eckig</p>
+        <p>VD eZip 125</p>
+        <p>bis 500 × 300 cm</p>
+        <p>Solar</p>
+        <p>bis 400 × 280 cm</p>
+        <p>104 mm</p>
+        <p>Breite × Höhe laut Hersteller. Montage mit Führungsschiene. Die Solar-Variante arbeitet mit Solar- oder Hybridantrieb.</p>
+        <p>A U S S TAT T U N G</p>
+        <p>STOFFE</p>
+        <p>Funkmotor mit Handsender oder Motor mit</p>
+        <p>Wandschalter</p>
+        <p>Screenstoffe der Kollektionen Ecole 1 % und Serge, von</p>
+        <p>Schwarz bis Perlweiß. Mehr dazu auf Seite 27.</p>
+        <p>Smart-Home-Steuerung möglich</p>
+        <p>Wind- und Sonnenautomatik als Zubehör</p>
+        <p>5 Jahre Herstellergarantie</p>
+        <p>G E S T E L L FA R B E N</p>
+        <p>RAL 7016</p>
+        <p>Anthrazit</p>
+        <p>RAL 9006</p>
+        <p>Weißaluminium</p>
+        <p>RAL 9007</p>
+        <p>Graualuminium</p>
+        <p>RAL 9010</p>
+        <p>Reinweiß</p>
+        <p>Wunschfarbe</p>
+        <p>nach RAL</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 28</span>KOMFORT</summary>
+        <p>KOMFORT</p>
+        <p>Steuerung und Zubehör</p>
+        <p>Mit dem Funkmotor bedienen Sie Ihre Markise per Handsender – und auf Wunsch auch Beleuchtung und</p>
+        <p>Heizstrahler. Sensoren reagieren auf Wind, Sonne und Regen, sodass die Markise sich nach dem Wetter</p>
+        <p>richtet, auch wenn Sie nicht zu Hause sind.</p>
+        <p>Windsensor</p>
+        <p>Regensensor</p>
+        <p>Erkennt starke Bewegungen der Markise und fährt sie auto-</p>
+        <p>Registriert beginnenden Regen und fährt die Markise rechtzei-</p>
+        <p>matisch ein.</p>
+        <p>tig ein.</p>
+        <p>Smart Home</p>
+        <p>Licht und Wärme</p>
+        <p>Mit der TaHoma Box von Somfy steuern Sie die Markise per</p>
+        <p>Dimmbare LED-Streifen und Infrarot-Heizstrahler verlängern</p>
+        <p>Smartphone-App.</p>
+        <p>den Abend draußen.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 29</span>S T O F F W E LT</summary>
+        <p>S T O F F W E LT</p>
+        <p>Mehr als 50 Markisenstoffe</p>
+        <p>Gestell und Stoff stellen Sie frei zusammen: vier Standardfarben für das Gestell oder Ihre Wunschfarbe</p>
+        <p>nach RAL, dazu Stoffe in sechs Farbfamilien – von ruhigem Grau bis zu kräftigem Rot und Gelb.</p>
+        <p>Sunset</p>
+        <p>Beach</p>
+        <p>Ocean</p>
+        <p>Mountain</p>
+        <p>Canyon</p>
+        <p>Greenery</p>
+        <p>Auswahl. Stofffarben im Druck nur annähernd. Für Linea, Solara und weitere Kassettenmarkisen; für die Senkrechtmarkise ZIP gibt es eigene</p>
+        <p>Screenstoffe.</p>
+        <p>Alle Stoffe online ansehen</p>
+        <p>bv-aussensysteme.de/stoffe.html</p>
+        <p>Stoffmuster zeigen wir Ihnen gern beim Termin vor Ort.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 30</span>EINGANG</summary>
+        <p>EINGANG</p>
+        <p>Vordächer</p>
+        <p>Vordach FLY</p>
+        <p>Vordach Front Line</p>
+        <p>Das Glasvordach wirkt, als würde es schweben: Ein pulverbeschichteter Aluminiumträger hält 17 mm starkes Sicherheitsglas, klar oder opal. Optional mit dimmbaren</p>
+        <p>LED-Spots.</p>
+        <p>Vordach wahlweise mit Seitenteil links, rechts oder beidseitig. LED-Beleuchtung serienmäßig, Bewegungsmelder</p>
+        <p>und Briefkasten im Seitenteil optional.</p>
+        <p>VARIANTE</p>
+        <p>TIEFE</p>
+        <p>BREITEN</p>
+        <p>Tiefe</p>
+        <p>bis 90 cm</p>
+        <p>Front Line</p>
+        <p>900 mm</p>
+        <p>1600 / 2000 / 2500 mm</p>
+        <p>Breite</p>
+        <p>ab 100 cm</p>
+        <p>Front Line Plus</p>
+        <p>1250 mm</p>
+        <p>2500 mm</p>
+        <p>Farbe</p>
+        <p>RAL 7016, Wunsch-RAL</p>
+        <p>Front Line Wood</p>
+        <p>900 mm</p>
+        <p>1600 / 2000 / 2500 mm</p>
+        <p>Seitenteil jeweils 2200 mm hoch. Front Line Plus mit Pfosten,</p>
+        <p>verstellbar 2000–2500 mm. Front Line Wood kombiniert Holz und</p>
+        <p>Glas.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 31</span>EINGANG</summary>
+        <p>EINGANG</p>
+        <p>BALKON</p>
+        <p>Eingangsüberdachung TDS</p>
+        <p>Balkonüberdachung TDS</p>
+        <p>Schützt Ihren Eingang vor Regen, Schnee und Sonne – mit</p>
+        <p>derselben Technik und Eindeckung wie das Terrassen-</p>
+        <p>Hält Regen, Schnee und intensive Sonne vom Balkon fern</p>
+        <p>– passend gefertigt für Ihre Balkonform.</p>
+        <p>dach TDS.</p>
+        <p>Mit Überstand</p>
+        <p>Wandmontage</p>
+        <p>Freistehend</p>
+        <p>Mit Seitenverglasung</p>
+        <p>Mit Verglasung</p>
+        <p>Mit Überstand</p>
+        <p>10 Jahre Herstellergarantie, 4 Standardfarben und Wunsch-RAL</p>
+        <p>Eindeckung in VSG-Glas oder Polycarbonat, klar oder opal (Seite 09)</p>
+        <p>Balkon: Aufdach-, Unterdach- und Senkrechtmarkise möglich</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 32</span>ABLAUF</summary>
+        <p>ABLAUF</p>
+        <p>Von der Idee zur fertigen</p>
+        <p>Überdachung</p>
+        <p>Anfrage</p>
+        <p>Über unsere Website, per E-Mail, Telefon oder WhatsApp. Wir melden uns in der Regel innerhalb von 24</p>
+        <p>Stunden.</p>
+        <p>Beratung vor Ort</p>
+        <p>Aufmaß</p>
+        <p>Angebot</p>
+        <p>Fertigung</p>
+        <p>Montage</p>
+        <p>Wir kommen zu Ihnen, sehen uns Haus und Terrasse an und zeigen Ihnen Muster der Systeme. Kostenlos und</p>
+        <p>unverbindlich.</p>
+        <p>Wir nehmen alle Maße selbst auf – die Grundlage dafür, dass Ihre Anlage später genau passt.</p>
+        <p>Sie erhalten ein transparentes, unverbindliches Angebot, meist innerhalb von zwei bis drei Werktagen.</p>
+        <p>Nach Ihrem Auftrag fertigt der Hersteller die Anlage nach Maß. Die Lieferzeit beträgt meist zwei bis vier</p>
+        <p>Wochen.</p>
+        <p>Wir montieren mit unserem eigenen Team und übergeben Ihnen die fertige Anlage.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 33</span>GUT ZU WISSEN</summary>
+        <p>GUT ZU WISSEN</p>
+        <p>Brauche ich eine Baugenehmigung?</p>
+        <p>Ob eine Terrassenüberdachung, ein Carport oder ein Kaltwintergarten genehmigt werden muss, hängt</p>
+        <p>vom Bundesland, von der Größe und vom Abstand zur Grundstücksgrenze ab. Mit unserem kostenlosen</p>
+        <p>Online-Check sehen Sie in wenigen Schritten, was für Ihr Vorhaben gilt. Die statische Berechnung des Herstellers gehört zum Lieferumfang und kann beim Bauamt vorgelegt werden. Bei Bedarf unterstützen wir</p>
+        <p>Sie bei der Genehmigung.</p>
+        <p>Genehmigung online prüfen</p>
+        <p>bv-aussensysteme.de/baugenehmigung.html</p>
+        <p>Die Angaben dienen zur ersten Orientierung.</p>
+        <p>Garantie</p>
+        <p>Pflege</p>
+        <p>10 Jahre Herstellergarantie auf die Aluminium-Systeme</p>
+        <p>Pulverbeschichtetes Aluminium braucht keinen Anstrich.</p>
+        <p>von VD AluSysteme, 5 Jahre auf Markisen. Die Garantiebedingungen erhalten Sie mit Ihrem Angebot.</p>
+        <p>Gelegentliches Reinigen von Profilen und Eindeckung</p>
+        <p>genügt.</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 34</span>K O N TA K T</summary>
+        <p>K O N TA K T</p>
+        <p>Lassen Sie sich</p>
+        <p>beraten.</p>
+        <p>Wir sind im Westerwald und Umgebung für Sie da – rund um Montabaur, Neuwied, Koblenz</p>
+        <p>und Altenkirchen. Erzählen Sie uns von Ihrem Vorhaben, wir vereinbaren einen Termin bei</p>
+        <p>Ihnen vor Ort.</p>
+        <p>T E L E F O N U N D W H AT S A P P</p>
+        <p>ANSCHRIFT</p>
+        <p>0156 78696609</p>
+        <p>BV AussenSysteme GbR</p>
+        <p>Alexander Becker &amp; Josef Voronin</p>
+        <p>E-MAIL</p>
+        <p>Am Driesch 1</p>
+        <p>info@bv-aussensysteme.de</p>
+        <p>WEBSITE</p>
+        <p>bv-aussensysteme.de</p>
+        <p>Beratungstermin anfragen</p>
+        <p>bv-aussensysteme.de – Kontaktformular</p>
+        <p>56428 Dernbach</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 35</span>IHRE PLANUNG</summary>
+        <p>IHRE PLANUNG</p>
+        <p>Maße und Notizen</p>
+        <p>Für Ihre eigenen Überlegungen oder zum Ausfüllen beim Termin vor Ort.</p>
+        <p>Terrassendach</p>
+        <p>Markise</p>
+        <p>Lamellendach</p>
+        <p>Senkrechtmarkise</p>
+        <p>Kaltwintergarten</p>
+        <p>Vordach</p>
+        <p>Carport</p>
+        <p>Balkonüberdachung</p>
+        <p>Breite (cm)</p>
+        <p>Tiefe (cm)</p>
+        <p>Höhe Wandanschluss (cm)</p>
+        <p>Durchgangshöhe vorn (cm)</p>
+        <p>EINDECKUNG</p>
+        <p>FA R B E</p>
+        <p>SKIZZE</p>
+        <p>NOTIZEN</p>
+        <p>Glas klar</p>
+        <p>RAL 7016</p>
+        <p>Glas opal</p>
+        <p>RAL 9006</p>
+        <p>Polycarbonat klar</p>
+        <p>RAL 9007</p>
+        <p>RAL 9010</p>
+        <p>Polycarbonat opal</p>
+        <p>RAL ______</p>
+      </details>
+      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite 36</span>ÜBERDACHT</summary>
+        <p>ÜBERDACHT</p>
+        <p>DURCHDACHT</p>
+        <p>TERRASSENDÄCHER</p>
+        <p>CARPORTS</p>
+        <p>ZUVERLÄSSIG</p>
+        <p>SONNENSCHUTZ</p>
+        <p>bv-aussensysteme.de</p>
+        <p>BV AussenSysteme GbR</p>
+        <p>Alexander Becker &amp; Josef Voronin</p>
+        <p>Am Driesch 1 · 56428 Dernbach</p>
+        <p>Telefon und WhatsApp 0156 78696609</p>
+        <p>info@bv-aussensysteme.de</p>
+        <p>Systeme von VD AluSysteme, gefertigt in Deutschland. Abbildungen zeigen Ausstattungsbeispiele. Farben können im Druck abweichen. Technische Änderungen des Herstellers</p>
+        <p>vorbehalten. Stand 2026.</p>
+      </details>
     </div>
   </section>
 

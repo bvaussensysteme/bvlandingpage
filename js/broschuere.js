@@ -36,6 +36,7 @@
   var knopfZoom= document.getElementById('broZoom');
   var knopfMehr= document.getElementById('broMehr');
   var mehrMenue= document.getElementById('broMehrMenue');
+  var ende     = document.getElementById('broEnde');
   var buehne   = document.getElementById('broBuehne');
   var hinweis  = document.getElementById('broHinweis');
 
@@ -69,6 +70,7 @@
     [knopfZur, knopfWei, knopfVoll, knopfUeb, knopfZoom].forEach(function (k) {
       if (k) k.hidden = true;
     });
+    if (ende) ende.hidden = false;   /* Liste: der Weg weiter steht am Schluss */
     if (zaehler) zaehler.textContent = ANZAHL + ' Seiten';
     if (hinweis) hinweis.textContent = 'Alle Seiten untereinander - zum Blättern bitte die Seite neu laden.';
   }
@@ -118,13 +120,32 @@
        Eingabe und die Anzeige kann hin- und herspringen.
      - Untergrenze ist MIN_SEITE (bzw. das Doppelte bei zwei Seiten),
        damit das Buch nie breiter wird als sein Rahmen. */
+  /* HOEHE STABIL MESSEN. window.innerHeight ist auf dem Telefon die
+     GERADE sichtbare Hoehe - sie waechst, sobald die Adresszeile beim
+     Scrollen einklappt. Danach waere das Buch ploetzlich groesser und
+     die Seite ruckt. Gefragt ist die KLEINSTE Hoehe (100svh); die
+     bleibt gleich. Gemessen wird sie mit einem unsichtbaren Streifen,
+     weil es dafuer keine Javascript-Angabe gibt. */
+  var hoehenMesser = null;
+  function sichtbareHoehe() {
+    if (!hoehenMesser) {
+      hoehenMesser = document.createElement('div');
+      hoehenMesser.setAttribute('aria-hidden', 'true');
+      hoehenMesser.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100svh;' +
+        'pointer-events:none;visibility:hidden';
+      document.body.appendChild(hoehenMesser);
+    }
+    var h = hoehenMesser.offsetHeight;
+    return h > 200 ? h : (window.innerHeight || 800);
+  }
+
   function rahmenBreite() {
     var rahmen = behaelter.parentElement;
     if (!rahmen || !rahmen.classList.contains('bro-rahmen')) return;
     var platz = rahmen.parentElement ? rahmen.parentElement.clientWidth : 0;
     if (!platz) return;
     var hoch = platz < 2 * MIN_SEITE;
-    var hoehe = window.innerHeight || 800;
+    var hoehe = sichtbareHoehe();
     /* Abzug: Navigationsleiste, Seitenkopf, Hinweis und Bedienleiste.
        Am Telefon ist mehr davon zu sehen als am Schreibtisch. */
     var frei = hoch ? (hoehe - 190) / 1.4142 : (hoehe - 230) * 1.4142;
@@ -164,15 +185,67 @@
     abschalten(knopfZur, (nr <= 1), knopfWei);
     abschalten(knopfWei, (nr >= ANZAHL) || (!einzelseite() && nr + 1 >= ANZAHL), knopfZur);
     if (zaehler) zaehler.setAttribute('aria-label', 'Seite ' + nr + ' von ' + ANZAHL);
+    /* Auf der letzten Seite steht, wie es weitergeht - vorher nicht. */
+    if (ende) ende.hidden = !(nr >= ANZAHL || (!einzelseite() && nr + 1 >= ANZAHL));
   }
 
-  buch.on('flip', aktualisieren);
+  /* DIE ADRESSE TRAEGT DIE SEITENZAHL. Wer "Diesen Katalog teilen"
+     antippt, teilt damit die Seite, auf der er gerade steht - der
+     Empfaenger landet nicht auf dem Titel, sondern dort. Mit
+     replaceState, nicht pushState: sonst wuerde die Zurueck-Taste des
+     Browsers zum Rueckwaertsblaettern und man kaeme nie von der Seite
+     herunter. */
+  var hashEigen = false;
+  function adresseSchreiben(nr) {
+    if (!window.history || !window.history.replaceState) return;
+    var ziel = nr > 1
+      ? window.location.pathname + window.location.search + '#seite-' + nr
+      : window.location.pathname + window.location.search;
+    try { hashEigen = true; window.history.replaceState(null, '', ziel); } catch (e) {}
+  }
+  function hashSeite() {
+    var m = /^#seite-(\d+)$/.exec(window.location.hash || '');
+    if (!m) return 0;
+    var n = parseInt(m[1], 10);
+    return (n >= 1 && n <= ANZAHL) ? n : 0;
+  }
+
+  buch.on('flip', function () { aktualisieren(); adresseSchreiben(aktuelleNummer()); });
+  /* Beim Aufschlagen: steht eine Seite in der Adresse, dorthin. */
+  (function () {
+    var start = hashSeite();
+    if (start > 1) {
+      umfeldLaden(start);
+      setTimeout(function () {
+        try { buch.turnToPage(start - 1); } catch (e) {}
+        setTimeout(aktualisieren, 60);
+      }, 120);
+    }
+  })();
+  /* Aendert jemand die Adresse von Hand oder kommt ueber einen Verweis
+     zurueck, wird auch das befolgt. */
+  window.addEventListener('hashchange', function () {
+    if (hashEigen) { hashEigen = false; return; }
+    var n = hashSeite();
+    if (!n) return;
+    umfeldLaden(n);
+    try { buch.turnToPage(n - 1); } catch (e) {}
+    setTimeout(aktualisieren, 60);
+  });
+
   buch.on('changeOrientation', function () {
     rahmenBreite();
     setTimeout(function () { try { buch.update(); } catch (e) {} aktualisieren(); }, 30);
   });
   aktualisieren();
 
+  var knopfVornZurueck = document.getElementById('broVonVorn');
+  if (knopfVornZurueck) knopfVornZurueck.addEventListener('click', function () {
+    umfeldLaden(1);
+    try { buch.turnToPage(0); } catch (e) {}
+    setTimeout(function () { aktualisieren(); adresseSchreiben(1); }, 60);
+    if (behaelter.scrollIntoView) behaelter.scrollIntoView({ block: 'center' });
+  });
   if (knopfZur) knopfZur.addEventListener('click', function () { buch.flipPrev(); });
   if (knopfWei) knopfWei.addEventListener('click', function () { buch.flipNext(); });
 
@@ -484,7 +557,18 @@
 
   /* Groessenaenderung: Buch neu rechnen lassen */
   var warte = null;
+  var letzteBreite = window.innerWidth;
+  var letzteHoehe = window.innerHeight;
   window.addEventListener('resize', function () {
+    /* Auf dem Telefon meldet der Browser eine Groessenaenderung, sobald
+       die Adresszeile ein- oder ausklappt. Die Breite bleibt dabei
+       gleich. Wuerde das Buch dann neu gerechnet, zappelte es beim
+       Scrollen. Darum: nur bei echter Aenderung. */
+    var breiteGleich = (window.innerWidth === letzteBreite);
+    var kleineHoehe = Math.abs(window.innerHeight - letzteHoehe) < 120;
+    letzteBreite = window.innerWidth;
+    letzteHoehe = window.innerHeight;
+    if (breiteGleich && kleineHoehe) return;
     clearTimeout(warte);
     warte = setTimeout(function () {
       rahmenBreite();

@@ -104,6 +104,21 @@ const FEHLER = [
     ersetzen: 'body.bro-ebene-offen .nichts-dergleichen { display:none; }' },
   { name: 'Der Fokus kann die offene Ebene verlassen', muster: '**/js/broschuere.js*',
     suchen: "if (ev.key !== 'Tab') return;", ersetzen: "if (ev.key !== 'TabulatorX') return;" },
+  { name: 'Das Buch wird bei jeder Groessenmeldung neu gerechnet', muster: '**/js/broschuere.js*',
+    suchen: 'if (breiteGleich && kleineHoehe) return;', ersetzen: 'if (false) return;' },
+  { name: 'Bedienflaechen lassen sich wieder markieren', muster: '**/broschuere.html*',
+    suchen: '    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;\n    font-family:inherit;',
+    ersetzen: '    font-family:inherit;' },
+  { name: 'Am Ende des Katalogs steht nichts', muster: '**/broschuere.html*',
+    suchen: 'id="broEnde"', ersetzen: 'id="broEndeWeg"' },
+  { name: 'Der Weg zurueck auf Seite 1 fehlt', muster: '**/broschuere.html*',
+    suchen: 'id="broVonVorn"', ersetzen: 'id="broVonVornWeg"' },
+  { name: 'Der Hinweis nennt am Handy die Pfeiltasten', muster: '**/broschuere.html*',
+    suchen: '  .bro-nur-maus { display:none; }', ersetzen: '  .bro-nur-maus { display:inline; }' },
+  { name: 'Die Adresse merkt sich die Seite nicht', muster: '**/js/broschuere.js*',
+    suchen: "'#seite-' + nr", ersetzen: "''" },
+  { name: 'Die Textfassung des Katalogs fehlt', muster: '**/broschuere.html*',
+    suchen: 'id="katalogtext"', ersetzen: 'id="katalogtext-weg"' },
   { name: 'Der Zugang zum Katalog rutscht aus dem Hero', muster: '**/index.html*',
     suchen: '<a href="/broschuere.html" class="btn btn-outline-white hero-katalog-btn">',
     ersetzen: '<a href="/woanders.html" class="btn btn-outline-white hero-katalog-btn">' },
@@ -336,11 +351,48 @@ async function lauf(fehler) {
   await klick('#broTeilen');
   await seite.waitForTimeout(350);
   const geteilt = await seite.evaluate(() => window.__geteilt);
-  p('Teilen gibt die Adresse der Seite weiter',
-    !!geteilt && /\/broschuere\.html$/.test(String(geteilt.url || '')),
-    geteilt ? String(geteilt.url).replace(/^https?:\/\/[^/]+/, '') : 'nichts geteilt');
+  const istSeite = await zaehler();
+  const nrJetzt = parseInt(String(istSeite).replace(/[^0-9].*$/, ''), 10);
+  p('Teilen gibt die Adresse der Seite weiter – mitsamt Seitenzahl',
+    !!geteilt && /\/broschuere\.html(#seite-\d+)?$/.test(String(geteilt.url || '')) &&
+    (nrJetzt <= 1 || String(geteilt.url).endsWith('#seite-' + nrJetzt)),
+    geteilt ? String(geteilt.url).replace(/^https?:\/\/[^/]+/, '') + ' bei ' + istSeite : 'nichts geteilt');
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(200);
+
+  /* DAS ENDE. Wer bis zur Rueckseite blaettert, hat Interesse - dort
+     darf keine Sackgasse stehen (Peak-End-Regel). Vorher aber auch
+     nicht: sonst waere es Beiwerk.
+     Eigene Seite statt Weiterklicken: So haengt die Pruefung nicht an
+     dem, was die Pruefungen davor im Fenster hinterlassen haben. */
+  const endeVorher = await seite.evaluate(() => {
+    const e = document.getElementById('broEnde');
+    return e ? (e.hidden || e.getBoundingClientRect().height === 0) : null;
+  });
+  const letzte = await ctx.newPage();
+  letzte.setDefaultTimeout(20000);
+  await strecke(letzte);
+  await letzte.goto(`http://localhost:${PORT}/broschuere.html#seite-36`, { waitUntil: 'load' });
+  await letzte.waitForTimeout(2800);
+  const endeNachher = await letzte.evaluate(() => {
+    const e = document.getElementById('broEnde');
+    if (!e) return null;
+    const r = e.getBoundingClientRect();
+    return { sichtbar: !e.hidden && r.height > 0,
+             kontakt: !!e.querySelector('a[href*="#kontakt"]'),
+             vonVorn: !!e.querySelector('#broVonVorn') };
+  });
+  p('Am Ende des Katalogs steht, wie es weitergeht',
+    endeVorher === true && !!endeNachher && endeNachher.sichtbar &&
+    endeNachher.kontakt && endeNachher.vonVorn,
+    endeNachher ? 'vorher verborgen: ' + endeVorher + ', am Schluss: ' + JSON.stringify(endeNachher)
+      : 'kein Block');
+  await letzte.click('#broVonVorn').catch(() => {});
+  await letzte.waitForTimeout(1600);
+  const zurueckAufEins = await letzte.$eval('#broZaehler', (e) => e.textContent.trim()).catch(() => '-');
+  p('„Noch einmal von vorn" führt zurück auf Seite 1',
+    zurueckAufEins === '1 / ' + ANZAHL, zurueckAufEins);
+  await letzte.close();
 
   /* TASTATUR. Wer das Menue mit Escape schliesst, darf den Fokus nicht
      verlieren - sonst beginnt das Tabben wieder ganz vorn. */
@@ -388,6 +440,56 @@ async function lauf(fehler) {
     obenauf.length ? 'davor liegt: ' + obenauf.join(', ') : '4 Punkte, alle in der Ebene');
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(300);
+
+  /* DIE ADRESSE MUSS MITWANDERN, sonst landet jeder Geteilte auf dem
+     Titel statt auf der gemeinten Seite. */
+  const hashNachBlaettern = await seite.evaluate(() => window.location.hash);
+  p('Die Adresse trägt die Seitenzahl', /^#seite-\d+$/.test(hashNachBlaettern),
+    hashNachBlaettern || '(leer)');
+
+  const tiefLink = await ctx.newPage();
+  tiefLink.setDefaultTimeout(20000);
+  await strecke(tiefLink);
+  await tiefLink.goto(`http://localhost:${PORT}/broschuere.html#seite-12`, { waitUntil: 'load' });
+  await tiefLink.waitForTimeout(2600);
+  const beiZwoelf = await tiefLink.$eval('#broZaehler', (e) => e.textContent.trim()).catch(() => '-');
+  p('Ein Link auf eine Seite öffnet auch diese Seite', /\b12\b/.test(beiZwoelf), beiZwoelf);
+
+  /* WCAG 1.4.5: Die Katalogseiten sind Bilder von Text. Eine
+     Textfassung muss daneben stehen - sichtbar, nicht nur fuer
+     Suchmaschinen. */
+  const textfassung = await tiefLink.evaluate(() => {
+    const ab = document.getElementById('katalogtext');
+    if (!ab) return null;
+    const auf = ab.querySelectorAll('details');
+    /* textContent, nicht innerText: In einem zugeklappten <details>
+       steht der Text im Dokument (Vorlesesoftware und Suchmaschinen
+       finden ihn), innerText meldet ihn aber nicht. Zusaetzlich wird
+       darum aufgeklappt und nachgesehen, dass er dann WIRKLICH zu
+       sehen ist - sonst waere es versteckter Text. */
+    window.__vorher = ab.innerText.length;
+    /* ALLE aufklappen, nicht nur die erste: Die Titelseite traegt nur
+       drei Woerter, daran waere nicht zu erkennen, ob das Aufklappen
+       wirklich Text sichtbar macht. */
+    auf.forEach(function (d) { d.open = true; });
+    return { seiten: auf.length, zeichen: ab.textContent.length,
+             probe: /Klassisch geneigt/.test(ab.textContent),
+             sichtbar: ab.getBoundingClientRect().height > 0 };
+  });
+  await tiefLink.waitForTimeout(300);
+  const aufgeklappt = await tiefLink.evaluate(() => {
+    const ab = document.getElementById('katalogtext');
+    if (!ab) return false;
+    const nachher = ab.innerText.length;
+    ab.querySelectorAll('details').forEach(function (d) { d.open = false; });
+    return nachher > (window.__vorher || 0) + 5000;
+  });
+  p('Der Katalog steht auch als Text da',
+    !!textfassung && textfassung.seiten >= 30 && textfassung.zeichen > 15000 &&
+    textfassung.probe && textfassung.sichtbar && aufgeklappt,
+    textfassung ? textfassung.seiten + ' Seiten, ' + textfassung.zeichen + ' Zeichen, aufklappbar: ' +
+      aufgeklappt : 'kein Abschnitt');
+  await tiefLink.close();
 
   /* Verweise und Nebendateien - durch den Browser gelesen, damit die
      Gegenprobe sie genauso umschreiben kann wie die Seite selbst. */
@@ -438,6 +540,16 @@ async function lauf(fehler) {
       const r = b.getBoundingClientRect();
       return r.width > 0 && (r.height < 44 || r.width < 44);
     }).length);
+  /* Der Hinweis muss zum Geraet passen: "Pfeiltasten" hilft am Telefon
+     niemandem. Geprueft wird, was dort WIRKLICH zu lesen ist. */
+  const hinweisHandy = await mseite.evaluate(() => {
+    const e = document.getElementById('broHinweis');
+    return e ? e.innerText.replace(/\s+/g, ' ').trim() : '';
+  });
+  p('Der Hinweis zum Blättern passt zum Gerät',
+    /Wischen/.test(hinweisHandy) && !/Pfeiltasten/.test(hinweisHandy),
+    hinweisHandy.slice(0, 48));
+
   p('Am Handy sind die Knöpfe mit dem Daumen zu treffen', klein === 0,
     klein ? klein + ' zu klein' : 'alle mindestens 44 px');
 
@@ -516,6 +628,33 @@ async function lauf(fehler) {
     quer ? 'Buch ' + quer.buch + ' px in Rahmen ' + quer.rahmen + ' px' : 'nichts gemessen');
   await mseite.setViewportSize({ width: 390, height: 844 });
   await mseite.waitForTimeout(700);
+
+  /* DIE ADRESSZEILE DARF DAS BUCH NICHT VERSTELLEN. Auf dem Telefon
+     meldet der Browser eine Groessenaenderung, sobald sie ein- oder
+     ausklappt - die Breite bleibt dabei gleich. Wuerde das Buch dann
+     neu gerechnet, zappelte es beim Scrollen. */
+  const breiteVorher = await mseite.evaluate(() =>
+    Math.round(document.querySelector('.bro-rahmen').getBoundingClientRect().width));
+  await mseite.setViewportSize({ width: 390, height: 784 });
+  await mseite.waitForTimeout(800);
+  const breiteNachher = await mseite.evaluate(() =>
+    Math.round(document.querySelector('.bro-rahmen').getBoundingClientRect().width));
+  await mseite.setViewportSize({ width: 390, height: 844 });
+  await mseite.waitForTimeout(600);
+  p('Das Buch zappelt nicht, wenn die Adresszeile einklappt',
+    breiteVorher === breiteNachher, breiteVorher + ' -> ' + breiteNachher + ' px');
+
+  /* Langes Antippen darf Knopfbeschriftungen nicht markieren. */
+  const markierbar = await mseite.evaluate(() => {
+    const schlecht = [];
+    document.querySelectorAll('.bro-leiste .bro-knopf, #broBuch .bro-bild').forEach(function (e) {
+      const cs = getComputedStyle(e);
+      if ((cs.webkitUserSelect || cs.userSelect) !== 'none') schlecht.push(e.id || e.className);
+    });
+    return schlecht;
+  });
+  p('Langes Antippen markiert keine Bedienflächen', markierbar.length === 0,
+    markierbar.length ? markierbar.join(', ') : 'Knöpfe und Seiten gesperrt');
 
   p('Der Katalog steht am Handy ohne Scrollen bereit',
     !!zugang && zugang.oben >= 0 && zugang.unten <= zugang.fenster && zugang.hoehe >= 44,
