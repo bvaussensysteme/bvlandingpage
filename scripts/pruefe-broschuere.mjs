@@ -99,9 +99,11 @@ const FEHLER = [
   { name: 'Der Fokus kehrt nicht zum Mehr-Knopf zurueck', muster: '**/js/broschuere.js*',
     suchen: 'if ((fokusZurueck || drin) && knopfMehr.focus) knopfMehr.focus();',
     ersetzen: 'if (false) knopfMehr.focus();' },
+  /* Ein ungueltiger Auswaehler in einer Liste verwirft die GANZE Regel -
+     damit kommen alle Schwebe-Knoepfe zurueck, nicht nur einer. */
   { name: 'Die Schwebe-Knoepfe liegen wieder ueber der Ebene', muster: '**/broschuere.html*',
-    suchen: 'body.bro-ebene-offen .sticky-cta { display:none !important; }',
-    ersetzen: 'body.bro-ebene-offen .nichts-dergleichen { display:none; }' },
+    suchen: '  body.bro-ebene-offen #bv-a11y-trigger,',
+    ersetzen: '  body.bro-ebene-offen ?ungueltig,' },
   { name: 'Der Fokus kann die offene Ebene verlassen', muster: '**/js/broschuere.js*',
     suchen: "if (ev.key !== 'Tab') return;", ersetzen: "if (ev.key !== 'TabulatorX') return;" },
   { name: 'Das Buch wird bei jeder Groessenmeldung neu gerechnet', muster: '**/js/broschuere.js*',
@@ -426,22 +428,36 @@ async function lauf(fehler) {
 
   /* Liegt die Ebene wirklich obenauf? z-index allein reicht nicht:
      die schwebenden Knoepfe der Website gehen bis 2147483647.
-     Gemessen wird an vier Punkten, was der Browser dort anfasst. */
+     ERSTE FASSUNG WAR ZU SCHWACH (06.11.2026): Sie fragte vier feste
+     Punkte ab - und die lagen NEBEN den Knoepfen. Der eingebaute
+     Fehler der Gegenprobe blieb deshalb unbemerkt. Jetzt werden die
+     Knoepfe selbst gesucht: Solange eine Ebene offen ist, darf keiner
+     von ihnen eine Flaeche haben, und an seiner Mitte muss die Ebene
+     liegen. */
   const obenauf = await seite.evaluate(() => {
     const el = document.getElementById('broUebersichtEbene');
+    const schwebend = '#bv-a11y-trigger, #bv-a11y-panel, #bv-scroll-top, #bvKonfigBubble, .sticky-cta';
+    const schlecht = [];
+    document.querySelectorAll(schwebend).forEach((e) => {
+      const r = e.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        schlecht.push((e.id || String(e.className).split(' ')[0]) + ' sichtbar');
+      }
+    });
     const w = window.innerWidth, h = window.innerHeight;
-    const punkte = [[w - 40, h - 40], [w - 40, 60], [40, h - 40], [w / 2, h / 2]];
-    return punkte.map(([x, y]) => {
+    [[w - 40, h - 40], [w - 40, 60], [40, h - 40], [w / 2, h / 2], [w - 40, h / 2]].forEach(([x, y]) => {
       const t = document.elementFromPoint(x, y);
-      if (t && el.contains(t)) return null;
+      if (t && el.contains(t)) return;
       /* Das Einwilligungsbanner DARF oben liegen - es muss bedienbar
          bleiben, solange niemand entschieden hat. Alles andere nicht. */
-      if (t && t.closest && t.closest('#cookieBanner')) return null;
-      return t ? (t.id || String(t.className).split(' ')[0] || t.tagName) : 'nichts';
-    }).filter(Boolean);
+      if (t && t.closest && t.closest('#cookieBanner')) return;
+      schlecht.push('bei ' + Math.round(x) + ',' + Math.round(y) + ': ' +
+        (t ? (t.id || String(t.className).split(' ')[0] || t.tagName) : 'nichts'));
+    });
+    return schlecht;
   });
   p('Nichts liegt über der offenen Ebene', obenauf.length === 0,
-    obenauf.length ? 'davor liegt: ' + obenauf.join(', ') : '4 Punkte, alle in der Ebene');
+    obenauf.length ? 'davor liegt: ' + obenauf.join(', ') : 'Schwebe-Knöpfe weg, 5 Punkte in der Ebene');
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(300);
 

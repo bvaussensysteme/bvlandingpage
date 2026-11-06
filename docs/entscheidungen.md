@@ -14285,3 +14285,29 @@ diese Durchsicht.
 Fensterbreite hinaus, linker Rand erreichbar, Buch passt im Querformat
 in seinen Rahmen, Fokus kehrt nach Escape zurück, Fokus bleibt in der
 Ebene, nichts liegt über der offenen Ebene.
+
+### 06.11.2026 (nachts): Eine Prüfung, die neben dem Problem maß
+
+Die Gegenprobe meldete: Eingebauter Fehler „Die Schwebe-Knöpfe liegen
+wieder über der Ebene" **bleibt unbemerkt**. Nachgesehen: Der Fehler
+war richtig, die **Prüfung war falsch**. Sie fragte vier feste Punkte
+der Bildschirmecken ab (`elementFromPoint`) – die runden Knöpfe der
+Website sitzen aber bei etwa 740 und 800 px Höhe, also zwischen den
+Messpunkten.
+
+Jetzt werden die Knöpfe selbst gesucht
+(`#bv-a11y-trigger, #bv-a11y-panel, #bv-scroll-top, #bvKonfigBubble,
+.sticky-cta`): Solange eine Ebene offen ist, darf keiner von ihnen eine
+Fläche haben. Der eingebaute Fehler macht jetzt die **ganze** CSS-Regel
+ungültig (ein ungültiger Auswähler in einer Liste verwirft die Regel),
+nicht nur deren letzte Zeile.
+
+**Nebenbefund, gemessen:** Ohne diese Regel kommen **alle fünf**
+schwebenden Elemente über die Ebene zurück. Die Regel ist also kein
+Gürtel-und-Hosenträger, sondern trägt – `z-index: 5000` allein reicht
+gegen `2147483647` nicht.
+
+**Die Lehre ist die alte in neuer Form:** Eine Prüfung, die grün
+bleibt, wenn der Fehler eingebaut ist, prüft nichts. Dass die
+Gegenprobe das gemeldet hat, ist der einzige Grund, warum es
+aufgefallen ist.
