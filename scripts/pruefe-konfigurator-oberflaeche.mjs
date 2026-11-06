@@ -2200,11 +2200,18 @@ await page.route('https://api.web3forms.com/**', r => r.fulfill({ status: 200, b
    einen Schritt weiter, aber NICHT absenden. */
 const anrede = page.locator('#bvKonfigPanel button', { hasText: /^Frau$/ }).first();
 if (await anrede.count()) await anrede.click();
+/* ---------- Testdaten, die als Testdaten erkennbar sind ----------
+   "wenn du testanfragen machst dann bitte als Erika Mustermann,
+   Musterstraße 1, 11111 Musterstadt" (Betreiber, 06.11.2026). Der
+   Nachname bleibt "Testfall": Der Assistent weist "Mustermann"
+   ausdruecklich ab (FAKE_FULL_NAMES) - und das soll er auch. Ort und
+   Postleitzahl sind jetzt die vom Betreiber genannten; vorher stand
+   hier ein echter Ort aus der Nachbarschaft. */
 await page.fill('#k_nachname', 'Testfall');
 await page.fill('#k_email', 'pruefung@bv-aussensysteme.de');
-await page.fill('#k_telefon', '026311234567');
-await page.fill('#k_plz', '57537');
-await page.fill('#k_ort', 'Hirtscheid');
+await page.fill('#k_telefon', '01111111111');
+await page.fill('#k_plz', '11111');
+await page.fill('#k_ort', 'Musterstadt');
 await haken(page, '#k_consent');
 await page.click('#awNext');
 await page.waitForTimeout(500);
@@ -2683,9 +2690,9 @@ if (!assistentDa) {
   if (await anredeF.count()) await anredeF.click();
   await f.fill('#k_nachname', 'Testfall');
   await f.fill('#k_email', 'pruefung@bv-aussensysteme.de');
-  await f.fill('#k_telefon', '026311234567');
-  await f.fill('#k_plz', '57537');
-  await f.fill('#k_ort', 'Hirtscheid');
+  await f.fill('#k_telefon', '01111111111');
+  await f.fill('#k_plz', '11111');
+  await f.fill('#k_ort', 'Musterstadt');
   await haken(f, '#k_consent');
   await f.click('#awNext');                       // zur Zusammenfassung
   await f.waitForTimeout(600);

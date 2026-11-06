@@ -68,9 +68,10 @@ const FEHLER = [
 FEHLER.push({
   wizard: true,
   /* Die Auswahl erscheint im Assistenten gar nicht. */
-  von: "          selectField('awHoeheBezug', 'Worauf bezieht sich Ihre Höhenangabe? (optional)',\n"
-     + "                      answers.hoehebezug || '', HOEHE_BEZUEGE) +",
-  nach: "          '' +"
+  /* ANKER NACHGEZOGEN 06.11.2026: Die Auswahl steht jetzt direkt unter
+     dem Hoehenfeld und haengt an answers.hoehe. */
+  von: "          (answers.hoehe\n            ? '<div class=\"aw-subchoice\">' +",
+  nach: "          (false\n            ? '<div class=\"aw-subchoice\">' +"
 }, {
   wizard: true,
   /* Die Angabe erreicht die Anfrage nicht. */
@@ -521,6 +522,13 @@ if (gefunden) {
     });
   });
   await pw.waitForTimeout(400);
+  /* ---------- Die Fake-Erkennung muss Erika Mustermann abweisen ------
+     "wenn du testanfragen machst dann bitte als Erika Mustermann"
+     (Betreiber, 06.11.2026) - genau dieser Name steht in der
+     Fake-Erkennung des Assistenten, und das ist gut so: Er haelt
+     Platzhalter-Eingaben von echten Kunden ab. Hier wird geprueft,
+     dass er das wirklich tut. */
+  let fakeAbgewiesen = null;
   /* Bis zur Zusammenfassung weiterklicken. */
   let fassungTxt = '';
   for (let i = 0; i < 12; i++) {
@@ -562,16 +570,32 @@ if (gefunden) {
           return;
         }
         const n = (e.id + ' ' + (e.name || '') + ' ' + (e.type || '')).toLowerCase();
-        /* Eine Adresse, die die Fake-Erkennung des Assistenten
-           durchlaesst - "example.org" tut sie nicht, und der Test kam
-           damit nie ueber den Kontaktschritt hinaus. */
-        e.value = /mail/.test(n) ? 'a.mueller@web.de'
-                : /tel|phone/.test(n) ? '02601 1234567'
-                : /plz|zip/.test(n) ? '56410'
-                : /ort|city/.test(n) ? 'Montabaur'
-                : /name/.test(n) ? 'Mueller'
+        /* ---------- Testdaten, die als Testdaten erkennbar sind ------
+           "wenn du testanfragen machst dann bitte als Erika Mustermann,
+           Musterstraße 1, 11111 Musterstadt" (Betreiber, 06.11.2026).
+
+           Vorher stand hier "a.mueller@web.de" mit 56410 Montabaur -
+           eine plausible fremde Adresse in einem echten Ort. Sie steht
+           als ANTWORTADRESSE in der Anfrage; faellt so etwas einmal
+           durch, bekommt ein Unbeteiligter Post. Die E-Mail bleibt auf
+           der eigenen Domain. */
+        e.value = /mail/.test(n) ? 'pruefung@bv-aussensysteme.de'
+                : /tel|phone/.test(n) ? '01111 111111'
+                : /plz|zip/.test(n) ? '11111'
+                : /ort|city/.test(n) ? 'Musterstadt'
+                : /stra|street|adres/.test(n) ? 'Musterstraße 1'
+                : /vorname|firstname/.test(n) ? 'Erika'
+                /* NICHT "Mustermann": Der Assistent lehnt genau diesen
+                   Namen ab (FAKE_FULL_NAMES enthaelt "erika
+                   mustermann"), und das soll er auch. Zusammen mit
+                   Musterstraße 1, 11111 Musterstadt und der eigenen
+                   E-Mail-Adresse ist die Anfrage trotzdem auf den
+                   ersten Blick als Test zu erkennen. Dass die
+                   Fake-Erkennung greift, prueft der Abschnitt
+                   "Erika Mustermann" weiter unten. */
+                : /name/.test(n) ? 'Probe'
                 : e.type === 'number' ? '1'
-                : 'Pruefung';
+                : 'Musterangabe';
         e.dispatchEvent(new Event('input', { bubbles: true }));
         e.dispatchEvent(new Event('change', { bubbles: true }));
       });
@@ -582,6 +606,25 @@ if (gefunden) {
       [...document.querySelectorAll('#awBody input[type=checkbox]')].forEach((c) => {
         if (!c.checked) c.click();
       });
+    });
+    /* Auf dem Kontaktschritt einmal "Erika Mustermann" versuchen. */
+    if (fakeAbgewiesen === null && await pw.evaluate(() => !!document.getElementById('k_nachname'))) {
+      fakeAbgewiesen = await pw.evaluate(async () => {
+        const v = document.getElementById('k_vorname');
+        const nn = document.getElementById('k_nachname');
+        if (v) { v.value = 'Erika'; v.dispatchEvent(new Event('input', { bubbles: true })); }
+        if (nn) { nn.value = 'Mustermann'; nn.dispatchEvent(new Event('input', { bubbles: true })); }
+        const b2 = document.getElementById('awNext');
+        if (b2) b2.click();
+        await new Promise((r) => setTimeout(r, 450));
+        const m = ((document.querySelector('.aw-error, #awError') || {}).textContent || '').trim();
+        /* Zurueck auf die Angaben, mit denen der Test weiterkommt. */
+        if (nn) { nn.value = 'Probe'; nn.dispatchEvent(new Event('input', { bubbles: true })); }
+        return m;
+      });
+      await pw.waitForTimeout(400);
+    }
+    await pw.evaluate(() => {
     });
     await pw.waitForTimeout(350);
     /* ---------- AUF DER ZUSAMMENFASSUNG NICHT WEITERKLICKEN ----------
@@ -607,6 +650,10 @@ if (gefunden) {
     titel: ((document.querySelector('#awTitle, #awBody h2, #awBody h3') || {}).textContent || '').trim(),
     fehler: ((document.querySelector('.aw-error, #awError') || {}).textContent || '').trim(),
   }));
+  pruefe('„Erika Mustermann" weist der Assistent ab',
+    !!fakeAbgewiesen && /echten Namen/i.test(fakeAbgewiesen),
+    fakeAbgewiesen || 'keine Meldung – ein Platzhaltername käme durch');
+
   pruefe('Die Angabe steht in der Zusammenfassung des Assistenten',
     /Höhenangabe bezieht sich auf/.test(fassungTxt)
     && /Oberkante Mauerabdeckung/.test(fassungTxt),
