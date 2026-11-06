@@ -68,9 +68,10 @@ const FEHLER = [
 FEHLER.push({
   wizard: true,
   /* Die Auswahl erscheint im Assistenten gar nicht. */
-  von: "          selectField('awHoeheBezug', 'Worauf bezieht sich Ihre Höhenangabe? (optional)',\n"
-     + "                      answers.hoehebezug || '', HOEHE_BEZUEGE) +",
-  nach: "          '' +"
+  /* ANKER NACHGEZOGEN 06.11.2026: Die Auswahl steht jetzt direkt unter
+     dem Hoehenfeld und haengt an answers.hoehe. */
+  von: "          (answers.hoehe\n            ? '<div class=\"aw-subchoice\">' +",
+  nach: "          (false\n            ? '<div class=\"aw-subchoice\">' +"
 }, {
   wizard: true,
   /* Die Angabe erreicht die Anfrage nicht. */
@@ -79,6 +80,12 @@ FEHLER.push({
      + "          + (answers.hoehebezug_text ? ' – ' + answers.hoehebezug_text : '')]);\n"
      + "      }",
   nach: "      void 0;"
+}, {
+  wizard: true,
+  /* Die Antwort ist wieder freiwillig - eine Hoehe ohne Bezugspunkt
+     kaeme dann unbemerkt durch. */
+  von: "        if (answers.hoehe && !answers.hoehebezug) {",
+  nach: "        if (false) {"
 }, {
   wizard: true,
   /* Der Wortlaut faellt auf den alten zurueck - dann fragen beide
@@ -367,6 +374,22 @@ pruefe('Beide Angaben überstehen den geteilten Link',
 /* ---------- Im Assistenten selbst ---------- */
 const pw = await ctx.newPage();
 pw.on('pageerror', (e) => seitenfehler.push(String(e)));
+/* ---------- NICHTS NACH DRAUSSEN ----------
+   Auf dem Zusammenfassungs-Schritt ist "Weiter" der ABSENDEN-Knopf
+   (goNext: if (id === 'summary') { submit(); return; }), und submit()
+   ruft api.web3forms.com bzw. formspree.io - beides echte Adressen, die
+   auch von localhost aus erreichbar waeren. Ein Testlauf, der an einem
+   unguenstigen Punkt einmal zu oft klickt, schickt eine echte Anfrage
+   ins Postfach des Betriebs.
+
+   Darum: Diese beiden Adressen werden im Test hart abgeschnitten und
+   jeder Versuch gezaehlt. Die Zahl wird unten geprueft - ein Test, der
+   Post verschickt, ist selbst ein Fehler. */
+let sendeVersuche = 0;
+await pw.route(/(web3forms\.com|formspree\.io)/, (route) => {
+  sendeVersuche++;
+  return route.abort();
+});
 await pw.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'load' });
 await pw.waitForTimeout(1500);
 /* Durchklicken, bis der Schritt mit den Maszen da ist: auf jedem
@@ -383,6 +406,22 @@ for (let i = 0; i < 9 && !gefunden; i++) {
       const l = document.querySelector('label[for="fassadeText"]');
       return { text: l ? l.textContent.trim() : '', platz: t.placeholder };
     });
+  }
+  /* Die Auswahl erscheint erst, wenn eine Hoehe dasteht. Also beim
+     Maszschritt zuerst die Masze eintragen und das Hoehenfeld
+     VERLASSEN - und zwar durch einen echten Klick ins naechste Feld.
+     Ein abgeschicktes blur-Ereignis loest den Lauscher nicht aus; der
+     Test meldete dann, es gebe die Auswahl gar nicht - ein Fehler im
+     Test, nicht im Produkt (06.11.2026). */
+  if (await pw.evaluate(() => {
+    const h = document.getElementById('aw_hoehe');
+    return !!h && !h.value;
+  })) {
+    await pw.fill('#aw_breite', '4000');
+    await pw.fill('#aw_tiefe', '3000');
+    await pw.fill('#aw_hoehe', '2500');
+    await pw.locator('#aw_breite').click();
+    await pw.waitForTimeout(800);
   }
   gefunden = await pw.evaluate(() => !!document.getElementById('awHoeheBezug'));
   if (gefunden) break;
@@ -427,16 +466,38 @@ if (gefunden) {
     return {
       namen: [...s2.options].slice(1).map((o) => o.textContent.trim()),
       vorgabe: s2.value,
-      /* Sie muss BEI den Maßen stehen, nicht in einem anderen Schritt. */
-      beiDenMassen: !!(dims && dims.parentNode && dims.parentNode.contains(s2)),
+      /* DIREKT unter dem Hoehenfeld: zwischen dem Hoehenfeld und dem,
+         was danach kommt - nicht irgendwo im selben Schritt. */
+      unterDerHoehe: (function () {
+        const h = document.getElementById('aw_hoehe');
+        if (!h || !dims) return false;
+        const rh = h.getBoundingClientRect();
+        const rs = s2.getBoundingClientRect();
+        return rs.top >= rh.bottom - 2 && rs.top - rh.bottom < 160;
+      })(),
     };
   });
-  pruefe('Sie steht bei den Maßen', wizWahl.beiDenMassen);
+  pruefe('Sie steht direkt unter dem Höhenfeld', wizWahl.unterDerHoehe,
+    'nicht am Ende des Schritts, sondern dort, wo die Zahl eingetippt wird');
   pruefe('Nichts ist vorausgewählt',
     wizWahl.vorgabe === '',
     'eine vorgewählte Antwort legte dem Kunden etwas in den Mund');
   pruefe('Die drei Möglichkeiten stehen zur Wahl',
     wizWahl.namen.length === 3, wizWahl.namen.join(' | '));
+
+  /* "wenn man bei höhe was einträgt und dann soll man das beantworten
+     MÜSSEN" (Betreiber, 06.11.2026). Eine Hoehe ohne Bezugspunkt ist
+     keine Angabe, sondern eine Zahl - beim Aufmass faengt dann das
+     Raten an. */
+  await pw.locator('#awNext').click({ timeout: 4000 }).catch(() => {});
+  await pw.waitForTimeout(700);
+  const ohneAntwort = await pw.evaluate(() => ({
+    meldung: ((document.querySelector('.aw-error, #awError') || {}).textContent || '').trim(),
+    nochDa: !!document.getElementById('awHoeheBezug'),
+  }));
+  pruefe('Ohne Antwort geht es nicht weiter',
+    /worauf sich Ihre Höhenangabe bezieht/i.test(ohneAntwort.meldung) && ohneAntwort.nochDa,
+    ohneAntwort.meldung || 'keine Meldung – der Schritt war einfach durch');
 
   await pw.evaluate(() => {
     const s2 = document.getElementById('awHoeheBezug');
@@ -461,6 +522,13 @@ if (gefunden) {
     });
   });
   await pw.waitForTimeout(400);
+  /* ---------- Die Fake-Erkennung muss Erika Mustermann abweisen ------
+     "wenn du testanfragen machst dann bitte als Erika Mustermann"
+     (Betreiber, 06.11.2026) - genau dieser Name steht in der
+     Fake-Erkennung des Assistenten, und das ist gut so: Er haelt
+     Platzhalter-Eingaben von echten Kunden ab. Hier wird geprueft,
+     dass er das wirklich tut. */
+  let fakeAbgewiesen = null;
   /* Bis zur Zusammenfassung weiterklicken. */
   let fassungTxt = '';
   for (let i = 0; i < 12; i++) {
@@ -502,16 +570,32 @@ if (gefunden) {
           return;
         }
         const n = (e.id + ' ' + (e.name || '') + ' ' + (e.type || '')).toLowerCase();
-        /* Eine Adresse, die die Fake-Erkennung des Assistenten
-           durchlaesst - "example.org" tut sie nicht, und der Test kam
-           damit nie ueber den Kontaktschritt hinaus. */
-        e.value = /mail/.test(n) ? 'a.mueller@web.de'
-                : /tel|phone/.test(n) ? '02601 1234567'
-                : /plz|zip/.test(n) ? '56410'
-                : /ort|city/.test(n) ? 'Montabaur'
-                : /name/.test(n) ? 'Mueller'
+        /* ---------- Testdaten, die als Testdaten erkennbar sind ------
+           "wenn du testanfragen machst dann bitte als Erika Mustermann,
+           Musterstraße 1, 11111 Musterstadt" (Betreiber, 06.11.2026).
+
+           Vorher stand hier "a.mueller@web.de" mit 56410 Montabaur -
+           eine plausible fremde Adresse in einem echten Ort. Sie steht
+           als ANTWORTADRESSE in der Anfrage; faellt so etwas einmal
+           durch, bekommt ein Unbeteiligter Post. Die E-Mail bleibt auf
+           der eigenen Domain. */
+        e.value = /mail/.test(n) ? 'pruefung@bv-aussensysteme.de'
+                : /tel|phone/.test(n) ? '01111 111111'
+                : /plz|zip/.test(n) ? '11111'
+                : /ort|city/.test(n) ? 'Musterstadt'
+                : /stra|street|adres/.test(n) ? 'Musterstraße 1'
+                : /vorname|firstname/.test(n) ? 'Erika'
+                /* NICHT "Mustermann": Der Assistent lehnt genau diesen
+                   Namen ab (FAKE_FULL_NAMES enthaelt "erika
+                   mustermann"), und das soll er auch. Zusammen mit
+                   Musterstraße 1, 11111 Musterstadt und der eigenen
+                   E-Mail-Adresse ist die Anfrage trotzdem auf den
+                   ersten Blick als Test zu erkennen. Dass die
+                   Fake-Erkennung greift, prueft der Abschnitt
+                   "Erika Mustermann" weiter unten. */
+                : /name/.test(n) ? 'Probe'
                 : e.type === 'number' ? '1'
-                : 'Pruefung';
+                : 'Musterangabe';
         e.dispatchEvent(new Event('input', { bubbles: true }));
         e.dispatchEvent(new Event('change', { bubbles: true }));
       });
@@ -523,7 +607,38 @@ if (gefunden) {
         if (!c.checked) c.click();
       });
     });
+    /* Auf dem Kontaktschritt einmal "Erika Mustermann" versuchen. */
+    if (fakeAbgewiesen === null && await pw.evaluate(() => !!document.getElementById('k_nachname'))) {
+      fakeAbgewiesen = await pw.evaluate(async () => {
+        const v = document.getElementById('k_vorname');
+        const nn = document.getElementById('k_nachname');
+        if (v) { v.value = 'Erika'; v.dispatchEvent(new Event('input', { bubbles: true })); }
+        if (nn) { nn.value = 'Mustermann'; nn.dispatchEvent(new Event('input', { bubbles: true })); }
+        const b2 = document.getElementById('awNext');
+        if (b2) b2.click();
+        await new Promise((r) => setTimeout(r, 450));
+        const m = ((document.querySelector('.aw-error, #awError') || {}).textContent || '').trim();
+        /* Zurueck auf die Angaben, mit denen der Test weiterkommt. */
+        if (nn) { nn.value = 'Probe'; nn.dispatchEvent(new Event('input', { bubbles: true })); }
+        return m;
+      });
+      await pw.waitForTimeout(400);
+    }
+    await pw.evaluate(() => {
+    });
     await pw.waitForTimeout(350);
+    /* ---------- AUF DER ZUSAMMENFASSUNG NICHT WEITERKLICKEN ----------
+       Dort ist "Weiter" der ABSENDEN-Knopf. Am 06.11.2026 hat genau das
+       echte Anfragen ins Postfach geschickt: Lief die Pruefung mit dem
+       eingebauten Fehler, der die Zeile aus der Zusammenfassung nimmt,
+       fand die Schleife ihren Abbruchgrund nicht - und klickte weiter.
+       Das Abschneiden der Versandadressen weiter oben ist das Netz
+       darunter; DIES hier ist die Ursache. */
+    if (await pw.evaluate(() =>
+      /absenden/i.test((document.getElementById('awNext') || {}).textContent || ''))) {
+      fassungTxt = await pw.evaluate(() => (document.getElementById('awBody') || {}).textContent || '');
+      break;
+    }
     await pw.locator('#awNext').click({ timeout: 4000 }).catch(() => {});
     await pw.waitForTimeout(600);
     fassungTxt = await pw.evaluate(() => (document.getElementById('awBody') || {}).textContent || '');
@@ -535,6 +650,10 @@ if (gefunden) {
     titel: ((document.querySelector('#awTitle, #awBody h2, #awBody h3') || {}).textContent || '').trim(),
     fehler: ((document.querySelector('.aw-error, #awError') || {}).textContent || '').trim(),
   }));
+  pruefe('„Erika Mustermann" weist der Assistent ab',
+    !!fakeAbgewiesen && /echten Namen/i.test(fakeAbgewiesen),
+    fakeAbgewiesen || 'keine Meldung – ein Platzhaltername käme durch');
+
   pruefe('Die Angabe steht in der Zusammenfassung des Assistenten',
     /Höhenangabe bezieht sich auf/.test(fassungTxt)
     && /Oberkante Mauerabdeckung/.test(fassungTxt),
@@ -553,6 +672,9 @@ pruefe('Der Assistent fragt die Fassaden-Notiz mit denselben Worten',
   fassadeWortlaut
     ? `"${fassadeWortlaut.text}" / "${fassadeWortlaut.platz}"`
     : 'Fassadenschritt nicht erreicht');
+
+pruefe('Der Test hat keine echte Anfrage abgeschickt', sendeVersuche === 0,
+  sendeVersuche + ' Versuch(e) an web3forms/formspree');
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 
