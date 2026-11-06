@@ -174,6 +174,23 @@
     unterzugAuto: true,
     farbe: 'Anthrazit',
     fassade: 'Rauputz',        // nur bei Wandmontage
+    /* Was der Kunde ueber seine Wand sonst noch weiss - Daemmung und
+       Daemmstaerke entscheiden ueber die Befestigung und stehen in
+       keiner Auswahl. Geht als Freitext in die Anfrage. */
+    fassadeNotiz: '',
+    /* ---------- Worauf sich die eingegebene Hoehe bezieht ----------
+       Wer zu Hause misst, trifft nicht zwangslaeufig unseren
+       Bezugspunkt. Das Modell baut unveraendert mit der Durchgangshoehe
+       (Unterkante Rinne vorne) - diese Angabe sagt nur, welches Mass
+       der Kunde GEMEINT hat, und geht in die Anfrage mit.
+
+       ABSICHTLICH ohne Umrechnung: Das Modell stillschweigend anders
+       zu bauen, als die Zahl im Feld sagt, waere schlimmer als die
+       Rueckfrage beim Aufmass. Stattdessen steht unter der Auswahl,
+       was das Modell an der genannten Stelle misst - dann sieht der
+       Kunde selbst, ob seine Zahl dazu passt. */
+    hoeheBezug: 'durchgang',   // durchgang | wandOk | sonstiges
+    hoeheBezugText: '',
     /* Voreinstellung 0: Mit Vorsprung kommt ein Statikträger dazu (siehe
        bauenTerrasseGeschaetzt). Bei 300 mm bekam damit JEDES Terrassendach
        einen Träger, auch das kleinste. Angabe des Betreibers am
@@ -11307,6 +11324,58 @@
     return ' (Durchgang ' + ist + ' mm)';
   }
 
+  /* ---------- Worauf sich die Hoehenangabe bezieht ----------
+     Der Name steht EINMAL, naemlich in der Auswahl selbst - von dort
+     wird er gelesen. Eine zweite Liste im Code hiesse frueher oder
+     spaeter an zwei Stellen anders, und in der Anfrage stuende dann
+     etwas anderes als auf dem Bildschirm. */
+  function hoeheBezugName() {
+    var sel = document.getElementById('k3dHoeheBezug');
+    var txt = '';
+    if (sel) {
+      Array.prototype.forEach.call(sel.options, function (o) {
+        if (o.value === Z.hoeheBezug) txt = o.textContent.trim();
+      });
+    }
+    if (!txt) txt = Z.hoeheBezug;
+    if (Z.hoeheBezug === 'sonstiges' && Z.hoeheBezugText) {
+      txt += ' – ' + Z.hoeheBezugText;
+    }
+    return txt;
+  }
+
+  /* Die Oberkante an der Hauswand: Unterkante Wandprofil plus dessen
+     Hoehe. 143,6 mm ist BELEGT (Betreiber, 14.10.2026), siehe
+     WANDPROFIL - deshalb hier gerechnet und nicht geschaetzt. */
+  function wandOberkante() {
+    return Math.round(Z.hoeheHinten + WANDPROFIL.hoehe * 10);
+  }
+
+  function hoeheBezugZeigen() {
+    var hin = document.getElementById('k3dHoeheBezugHinweis');
+    var feld = document.getElementById('k3dHoeheBezugText');
+    var lab = document.getElementById('k3dHoeheBezugTextLabel');
+    var frei = Z.hoeheBezug === 'sonstiges';
+    if (feld) feld.hidden = !frei;
+    if (lab) lab.hidden = !frei;
+    if (!hin) return;
+    if (Z.hoeheBezug === 'wandOk') {
+      /* Die Zahl, die das Modell an GENAU dieser Stelle misst - damit
+         der Kunde selbst sieht, ob seine Angabe dazu passt. Umgerechnet
+         wird nichts: Das Modell stillschweigend anders zu bauen, als im
+         Feld steht, waere schlimmer als die Rueckfrage beim Aufmass. */
+      hin.textContent = 'Das Feld oben ist die Durchgangshöhe vorne. '
+        + 'An der Hauswand misst das Modell gerade ' + wandOberkante()
+        + ' mm bis Oberkante. Passt das nicht zu Ihrem Maß, tragen wir '
+        + 'es beim Aufmaß zusammen.';
+    } else if (frei) {
+      hin.textContent = 'Bitte kurz angeben, welches Maß Sie gemessen haben – '
+        + 'wir klären es beim Aufmaß.';
+    } else {
+      hin.textContent = '';
+    }
+  }
+
   function plankenStandZeigen() {
     var e = document.getElementById('k3dPlankenStand');
     if (!e) return;
@@ -13838,7 +13907,13 @@
       if (Z.verkRechts) vk.push('rechts');
       if (vk.length) k.push('Verkleidung ' + Z.verkRichtung + ': ' + vk.join(', '));
     }
-    if (gruppeGilt('fassade')) k.push('Fassade: ' + Z.fassade);
+    if (gruppeGilt('fassade')) {
+      k.push('Fassade: ' + Z.fassade);
+      if (Z.fassadeNotiz) k.push('Zur Fassade: ' + Z.fassadeNotiz);
+    }
+    if (Z.hoeheBezug !== 'durchgang') {
+      k.push('Höhenangabe bezieht sich auf: ' + hoeheBezugName());
+    }
     var komfort = [];
     if (Z.led) komfort.push('Beleuchtung');
     if (!istCarport() && Z.sound) komfort.push('Lautsprecher');
@@ -14245,7 +14320,16 @@
     if (!istCarport() && Z.sound) teile.push('Lautsprecher: ' + Z.soundset);
     if (istPergola() && Z.heizung) teile.push('mit Heizstrahler');
     if (istPergola() && Z.wettersensor) teile.push('mit Wetter-Automatik');
-    if (gruppeGilt('fassade')) teile.push('Hauswand: ' + Z.fassade);
+    if (gruppeGilt('fassade')) {
+      teile.push('Hauswand: ' + Z.fassade);
+      if (Z.fassadeNotiz) teile.push('Zur Fassade: ' + Z.fassadeNotiz);
+    }
+    /* Nur wenn es nicht die Vorgabe ist: Eine Zeile, die immer dasteht
+       und dasselbe sagt, wird ueberlesen - und in der Anfrage kostet
+       sie Platz, den die Abweichungen brauchen. */
+    if (Z.hoeheBezug !== 'durchgang') {
+      teile.push('Höhenangabe bezieht sich auf: ' + hoeheBezugName());
+    }
     teile.push('Untergrund: ' + Z.untergrund);
     teile.push(Z.montage === 'Ja, mit Fachmontage' ? 'Montage durch BV AussenSysteme' : 'Selbstmontage');
     return teile;
@@ -14383,6 +14467,9 @@
     Z.bodenGefaelle = gefaelleAus('k3dBodenGefaelle');
     Z.bodenGefaelleQuer = gefaelleAus('k3dBodenGefaelleQuer');
     Z.fassade = wert('k3dFassade') || Z.fassade;
+    Z.fassadeNotiz = (wert('k3dFassadeNotiz') || '').slice(0, 300);
+    Z.hoeheBezug = wert('k3dHoeheBezug') || 'durchgang';
+    Z.hoeheBezugText = (wert('k3dHoeheBezugText') || '').slice(0, 120);
     Z.untergrund = wert('k3dUntergrund') || Z.untergrund;
     vorsprungGrenzeSetzen();
     hoeheHintenKoppeln();
@@ -14598,6 +14685,7 @@
         + (wandUkSpanne() / 1000).toFixed(2).replace('.', ',')
         + ' m Dachtiefe – so rechnet auch das Bestellformular.';
     }
+    hoeheBezugZeigen();
     var lw = document.getElementById('k3dLamellenWert');
     if (lw) lw.textContent = Z.lamellen + '° geöffnet';
     var gw = document.getElementById('k3dGlasOffenWert');
@@ -14882,7 +14970,8 @@
    'k3dGlasOffen', 'k3dMarkise', 'k3dSonneAus',
    'k3dVerkRueck', 'k3dVerkLinks', 'k3dVerkRechts', 'k3dVerkRichtung',
    'k3dBodenGefaelle', 'k3dBodenGefaelleQuer',
-   'k3dBoden', 'k3dMasse', 'k3dMarken', 'k3dFassade', 'k3dUntergrund', 'k3dVorsprung',
+   'k3dBoden', 'k3dMasse', 'k3dMarken', 'k3dFassade', 'k3dFassadeNotiz',
+   'k3dHoeheBezug', 'k3dHoeheBezugText', 'k3dUntergrund', 'k3dVorsprung',
    'k3dLedSet', 'k3dLedAnzahl', 'k3dSound', 'k3dSoundSet',
    'k3dHeizung', 'k3dWetter', 'k3dGlasstaerke', 'k3dTraeger', 'k3dVorsprungHinten',
    'k3dHoeheHinten', 'k3dHoeheGetrennt', 'k3dKoppel',
@@ -16514,7 +16603,11 @@
   function teilenFelder() {
     var f = {};
     Array.prototype.forEach.call(
-      document.querySelectorAll('input[id^="k3d"], select[id^="k3d"]'),
+      /* textarea gehoert dazu, seit es im Bedienfeld Freitext gibt
+         (Notiz zur Fassade, 06.11.2026). Ohne sie waere die Angabe im
+         geteilten Link weg - und der Kunde haette sie geschrieben,
+         ohne dass sie jemanden erreicht. */
+      document.querySelectorAll('input[id^="k3d"], select[id^="k3d"], textarea[id^="k3d"]'),
       function (e) {
         var k = e.id.slice(3);
         if (TEILEN_AUS[k]) return;

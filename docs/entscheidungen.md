@@ -13919,3 +13919,56 @@ Schrittwechsel-Test vom 05.11.2026.
 **Nicht geändert:** Die drei anderen Editor-Prüfungen erreichen ihre Zahl im
 Sammellauf; beim Keil-Editor wären 20 Einzelläufe auch zu teuer. Dort bleibt
 `BV_FEHLER=<n>` das Mittel der Wahl, wenn eine neue Prüfung dazukommt.
+
+## 06.11.2026 – Höhenangabe: worauf sie sich bezieht, und eine Notiz zur Fassade
+
+**Anlass.** Zwei Bestellungen des Betreibers: Der Kunde soll bei der Höhe
+angeben können, auf welches Maß sie sich bezieht (niedrigste Durchgangshöhe /
+maximale Höhe an der Hauswand / Sonstiges mit Freitext), und bei der
+Fassadenart ein optionales Notizfeld bekommen.
+
+**Was jetzt gilt.**
+
+- Unter dem Höhenfeld steht „Worauf bezieht sich Ihr Maß?" mit den drei
+  Möglichkeiten. Die Angabe geht in die Anfrage – aber **nur, wenn sie von der
+  Vorgabe abweicht**: Eine Zeile, die immer dasteht und dasselbe sagt, wird
+  überlesen und kostet in der Anfrage den Platz, den die Abweichungen brauchen.
+- Bei der Fassade ein Textfeld „Zusätzliche Angaben zur Fassade (optional)",
+  Platzhalter „z. B. Wanddämmung, Dämmstärke oder Mauerwerk". Dämmung und
+  Dämmstärke entscheiden über die Befestigung und stehen in keiner Auswahl.
+
+**Die Entscheidung, die hier wirklich zu treffen war: Das Modell rechnet
+nicht um.** Wer „Maximale Höhe an der Hauswand" wählt, ändert damit **nicht**,
+was gebaut wird – das Feld oben bleibt die Durchgangshöhe. Stattdessen steht
+unter der Auswahl, was das Modell an genau dieser Stelle misst (Unterkante
+Wandprofil + 143,6 mm, BELEGT). Dann sieht der Kunde selbst, ob seine Zahl dazu
+passt.
+
+Begründung: Das Modell stillschweigend anders zu bauen, als die Zahl im Feld
+sagt, wäre schlimmer als die Rückfrage beim Aufmaß – der Kunde sähe ein
+Bauwerk, das er so nie eingegeben hat. Der Betreiber hat außerdem ausdrücklich
+gesagt: „Alle anderen Funktionen und Abläufe sollen unverändert bleiben."
+
+**Soll die Wahl das Modell steuern, ist das der nächste Schritt** und keine
+Kleinigkeit: Die Höhe an der Wand hängt an der Dachneigung, und dafür gibt es
+im Bedienfeld schon einen eigenen Weg („Statt der Dachneigung die Unterkante
+Wandprofil angeben"). Ein zweiter Weg zur selben Zahl wäre genau die Doppelung,
+die hier mehrfach Schaden angerichtet hat.
+
+**Zwei Fallen, beide beim Bauen gefunden:**
+
+1. **Eine versteckte Beschriftung stand trotzdem da.** `.k3d-label` setzt
+   `display: flex`, und das schlägt das eingebaute `display: none` von
+   `[hidden]`. Dieselbe Falle wie schon bei neun anderen Stellen in dieser
+   Datei; jetzt gibt es auch für `.k3d-label` die Regel.
+2. **Freitext wäre im geteilten Link verschwunden.** Der Link sammelt
+   `input` und `select` – `textarea` gab es im Bedienfeld bisher nicht. Ohne
+   die Erweiterung hätte der Kunde seine Notiz geschrieben, und sie hätte
+   niemanden erreicht.
+
+**Was gegengelesen werden soll.** `scripts/pruefe-angaben-wand-hoehe.mjs`
+prüft **bis in die Anfrage**: Eine Angabe, die der Kunde macht und die
+niemanden erreicht, ist schlimmer als keine – er glaubt, er habe es gesagt.
+Geprüft werden deshalb nicht die Felder, sondern die Zusammenfassung, aus der
+die Anfrage gebaut wird, und der geteilte Link. 20 Prüfungen, 8 eingebaute
+Fehler, jeder einzeln nachgefahren.

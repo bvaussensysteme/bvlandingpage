@@ -195,6 +195,11 @@
       display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
       font-size: .8rem; font-weight: 600; color: var(--black); margin-bottom: 6px;
     }
+    /* display: flex weiter oben schlaegt das eingebaute display: none
+       von [hidden] - eine versteckte Beschriftung stand sonst trotzdem
+       da (gesehen am 06.11.2026 beim Hoehenbezug). Dieselbe Falle wie
+       schon bei neun anderen Stellen in dieser Datei. */
+    .k3d-label[hidden] { display: none; }
     .k3d-label output { font-weight: 600; color: var(--gold-text); font-variant-numeric: tabular-nums; }
     .k3d-label output[hidden] { display: none; }
     /* ---------- Zahl und Einheit in einer Umrandung ----------
@@ -266,6 +271,21 @@
        tippen für das genaue Maß. Beide schreiben denselben Wert. */
     .k3d-regler { display: grid; grid-template-columns: 1fr 78px; gap: 9px; align-items: center; }
     .k3d-range { width: 100%; accent-color: var(--gold-dark); height: 26px; }
+    /* ---------- Freitext im Bedienfeld ----------
+       Sieht aus wie die Zahlenfelder (gleicher Rahmen, gleicher Radius,
+       gleiche Schrift), nur linksbuendig und ohne Ziffernausrichtung -
+       es ist Text, keine Zahl. Die 16 px auf Fingergeraeten stehen
+       weiter unten im Block fuer pointer: coarse; darunter zoomt iOS
+       beim Antippen hinein. */
+    .k3d-text, .k3d-notiz {
+      width: 100%; padding: 7px 8px; font: inherit; font-size: .82rem;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: #fff; color: var(--black);
+    }
+    .k3d-notiz { resize: vertical; min-height: 2.6em; line-height: 1.45; }
+    .k3d-text:focus, .k3d-notiz:focus { outline: none; border-color: var(--gold); }
+    .k3d-text[hidden], .k3d-notiz[hidden] { display: none; }
+
     .k3d-zahl {
       width: 100%; padding: 7px 8px; font: inherit; font-size: .82rem; text-align: right;
       border: 1px solid var(--border); border-radius: 8px; font-variant-numeric: tabular-nums;
@@ -1703,6 +1723,10 @@
          Breitenfeld eingeschlossen: iOS zoomt auch in ein Feld, das
          man nicht aendern kann, sobald es den Fokus bekommt. */
       .k3d-bearb-mass input,
+      /* Die neuen Freitextfelder genauso: Ein Textfeld unter 16 px
+         laesst iOS beim Antippen in die Seite hineinzoomen, und der
+         Zoom geht von allein nicht wieder weg. */
+      .k3d-text, .k3d-notiz,
       .k3d-teilen-feld input { font-size: 16px; }
     }
 
@@ -1978,6 +2002,13 @@
             <button type="button" data-wert="Sonstiges / weiß nicht">Weiß nicht</button>
           </div>
           <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
+          <!-- Optionales Notizfeld: Was an der Wand sonst noch wichtig
+               ist, weiß nur der Kunde – Dämmung und Dämmstärke
+               entscheiden über die Befestigung und stehen in keiner
+               Auswahl. Der Text geht in die Anfrage mit. -->
+          <label class="k3d-label" for="k3dFassadeNotiz">Zusätzliche Angaben zur Fassade (optional)</label>
+          <textarea id="k3dFassadeNotiz" class="k3d-notiz" rows="2" maxlength="300"
+                    placeholder="z. B. Wanddämmung, Dämmstärke oder Mauerwerk"></textarea>
         </div>
       </details>
 
@@ -2026,6 +2057,25 @@
             <input type="range" id="k3dHoehe" class="k3d-range" min="2000" max="2700" step="50" value="2300">
             <input type="number" id="k3dHoeheZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Höhe in Millimeter">
           </div>
+          <!-- ---------- Worauf sich das Maß bezieht ----------
+               Wer zu Hause misst, trifft nicht zwangsläufig unseren
+               Bezugspunkt. Die Angabe sagt, welches Maß gemeint ist –
+               sie geht in die Anfrage mit ein. Das Modell baut
+               unverändert mit der Durchgangshöhe; bei einer anderen
+               Angabe steht darunter, was das Modell an dieser Stelle
+               misst, damit niemand aneinander vorbeirechnet. -->
+          <label class="k3d-label" for="k3dHoeheBezug">Worauf bezieht sich Ihr Maß?</label>
+          <select id="k3dHoeheBezug" class="k3d-select"
+                  aria-describedby="k3dHoeheBezugHinweis">
+            <option value="durchgang">Niedrigste Durchgangshöhe (Unterkante)</option>
+            <option value="wandOk">Maximale Höhe an der Hauswand (Oberkante)</option>
+            <option value="sonstiges">Sonstiges</option>
+          </select>
+          <p class="k3d-mini" id="k3dHoeheBezugHinweis"></p>
+          <label class="k3d-label" for="k3dHoeheBezugText" id="k3dHoeheBezugTextLabel"
+                 hidden>Welches Maß haben Sie gemessen?</label>
+          <input type="text" id="k3dHoeheBezugText" class="k3d-text" maxlength="120"
+                 placeholder="z. B. Oberkante Mauerabdeckung" hidden>
         </div>
 
         <!-- Die Neigung steht bewusst DIREKT unter der Durchgangshöhe:
@@ -3467,7 +3517,7 @@
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261106b" defer></script>
+<script src="js/konfigurator-3d.js?v=20261106c" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>
