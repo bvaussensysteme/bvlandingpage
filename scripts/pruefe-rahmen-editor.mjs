@@ -238,7 +238,7 @@ pruefe('Beide Maszfelder tragen denselben Rahmen',
   new Set(rahmen).size === 1, rahmen.join('  /  '));
 const einheiten = await p.evaluate(() =>
   ['k3dRahmenB', 'k3dRahmenH'].map((id) => {
-    const e = document.getElementById(id).parentNode.querySelector('.k3d-keil-einheit');
+    const e = document.getElementById(id).parentNode.querySelector('.k3d-bearb-einheit');
     return e && e.offsetParent !== null ? (e.textContent || '').trim() : '';
   }));
 pruefe('Hinter jedem Maszfeld steht die Einheit',

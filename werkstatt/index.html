@@ -1395,16 +1395,16 @@
 
     /* Zahnrad zum Keil-Editor, neben der Erweiterungsreihe.
        44 px hoch, damit es am Handy zu treffen ist. */
-    .k3d-keil-rad {
+    .k3d-bearb-rad {
       display: inline-flex; align-items: center; gap: 7px;
       margin-top: 7px; padding: 10px 12px; min-height: 44px;
       background: #fff; border: 1px solid var(--border); border-radius: 9px;
       font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer;
       color: var(--gold-text, #7A5B12);
     }
-    .k3d-keil-rad[hidden] { display: none; }
-    .k3d-keil-rad:hover { border-color: var(--gold); background: var(--light-bg, #F1EFEA); }
-    .k3d-keil-rad svg { width: 17px; height: 17px; flex: none; }
+    .k3d-bearb-rad[hidden] { display: none; }
+    .k3d-bearb-rad:hover { border-color: var(--gold); background: var(--light-bg, #F1EFEA); }
+    .k3d-bearb-rad svg { width: 17px; height: 17px; flex: none; }
 
     /* ---------- Keil bearbeiten ----------
        Heller Kasten, nicht dunkel wie der Teilen-Dialog: Das hier ist ein
@@ -1427,7 +1427,17 @@
 
        Mit fixed deckt der Dialog das Fenster ab - das ist ohnehin, was
        ein modaler Dialog tun soll. */
-    .k3d-keil {
+    /* ---------- Die Hülle der Bearbeiten-Dialoge ----------
+       UMBENANNT am 06.11.2026 von k3d-keil-* auf k3d-bearb-*. Sie war
+       für den Keil gebaut und hieß danach, wird aber von allen vier
+       Editoren benutzt (Keil, Plankenwand, Rahmenwand, Schiebetür,
+       Velaris). Ein Name, der nach dem Bauteil heißt, für das etwas
+       zufällig zuerst gebaut wurde, führt den nächsten in die Irre.
+
+       Was wirklich nur zum Keil gehört, heißt weiter k3d-keil-*:
+       -feld, -glaszeile, -glaskopf, -nr, -bild, -innen, -spalten,
+       -warnung, -zurueck, -uebernehmen. */
+    .k3d-bearb {
       /* 200: ueber der klebenden Kopfzeile der Seite (.navbar, z 100),
          die sonst oben ueber dem Dialog liegt - die Zeile "Keil
          bearbeiten" samt "Schliessen" war dadurch am Handy verdeckt.
@@ -1437,51 +1447,51 @@
       display: flex; align-items: center; justify-content: center;
       background: rgba(10,10,10,.62); padding: 12px;
     }
-    .k3d-keil[hidden] { display: none; }
-    .k3d-keil-kasten {
+    .k3d-bearb[hidden] { display: none; }
+    .k3d-bearb-kasten {
       background: #fff; color: var(--black); border-radius: 14px;
       box-shadow: 0 18px 50px rgba(0,0,0,.45);
       width: 100%; max-width: 860px; max-height: 100%; overflow-y: auto;
       padding: 14px 16px 16px;
     }
-    .k3d-keil-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .k3d-keil-kopf h3 { margin: 0; font-size: 1.05rem; }
-    .k3d-keil-zu {
+    .k3d-bearb-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .k3d-bearb-kopf h3 { margin: 0; font-size: 1.05rem; }
+    .k3d-bearb-zu {
       background: 0 0; border: 0; color: var(--muted); font: inherit;
       font-size: .82rem; cursor: pointer; padding: 8px 6px; min-height: 44px;
       display: inline-flex; align-items: center; gap: 5px;
     }
-    .k3d-keil-zu:hover { color: var(--black); }
+    .k3d-bearb-zu:hover { color: var(--black); }
 
     /* Die acht Teilungen. Waagerecht rollbar statt gequetscht: Acht
        Kacheln nebeneinander waeren am Handy je 40 px breit und als
        Zeichnung nicht mehr zu erkennen. */
-    .k3d-keil-teilungen {
+    .k3d-bearb-kacheln {
       display: flex; gap: 8px; margin: 12px 0 14px; padding-bottom: 6px;
       overflow-x: auto; scrollbar-width: thin;
     }
-    .k3d-keil-teilungen button {
+    .k3d-bearb-kacheln button {
       flex: none; width: 92px; padding: 8px 6px 6px; cursor: pointer;
       background: #fff; border: 1px solid var(--border); border-radius: 10px;
       font: inherit; font-size: .7rem; color: var(--muted); text-align: center;
       min-height: 76px;
     }
-    .k3d-keil-teilungen button svg { display: block; width: 100%; height: 34px; margin-bottom: 5px; }
-    .k3d-keil-teilungen button:hover { border-color: var(--gold); }
+    .k3d-bearb-kacheln button svg { display: block; width: 100%; height: 34px; margin-bottom: 5px; }
+    .k3d-bearb-kacheln button:hover { border-color: var(--gold); }
     /* Gesperrte Kachel: blass UND mit dem Grund darunter. Nicht nur
        blass - wer Farben schlecht unterscheidet, saehe sonst keinen
        Unterschied, und "nicht moeglich" ist zu wichtig, um allein an
        einem Grauton zu haengen. */
-    .k3d-keil-teilungen button.ist-gesperrt {
+    .k3d-bearb-kacheln button.ist-gesperrt {
       opacity: .5; cursor: not-allowed; border-style: dashed;
     }
-    .k3d-keil-teilungen button.ist-gesperrt:hover { border-color: var(--border); }
-    .k3d-keil-sperr {
+    .k3d-bearb-kacheln button.ist-gesperrt:hover { border-color: var(--border); }
+    .k3d-bearb-sperr {
       display: block; margin-top: 3px; font-style: normal;
       font-size: .6rem; font-weight: 700; color: #8a4a22;
       text-transform: uppercase; letter-spacing: .03em;
     }
-    .k3d-keil-teilungen button.ist-an {
+    .k3d-bearb-kacheln button.ist-an {
       border-color: var(--gold); border-width: 2px; padding: 7px 5px 5px;
       background: var(--light-bg, #F1EFEA); color: var(--gold-text, #7A5B12); font-weight: 700;
     }
@@ -1491,12 +1501,12 @@
        immer" (Betreiber, 11.10.2026): Eine eigene display-Angabe
        schlaegt das Attribut hidden - dann steht das Feld immer da.
        Geprueft von scripts/pruefe-fuehrung.js. */
-    .k3d-keil-kopf[hidden] { display: none; }
-    .k3d-keil-zu[hidden] { display: none; }
-    .k3d-keil-teilungen[hidden] { display: none; }
+    .k3d-bearb-kopf[hidden] { display: none; }
+    .k3d-bearb-zu[hidden] { display: none; }
+    .k3d-bearb-kacheln[hidden] { display: none; }
     .k3d-keil-spalten[hidden] { display: none; }
-    .k3d-keil-masse[hidden] { display: none; }
-    .k3d-keil-marke[hidden] { display: none; }
+    .k3d-bearb-masse[hidden] { display: none; }
+    .k3d-bearb-marke[hidden] { display: none; }
     .k3d-keil-glaskopf[hidden] { display: none; }
     .k3d-keil-glaszeile[hidden] { display: none; }
     .k3d-keil-nr[hidden] { display: none; }
@@ -1514,11 +1524,11 @@
     .k3d-keil-feld:focus-visible rect, .k3d-keil-feld:focus-visible polygon,
     .k3d-keil-feld:focus-visible path { stroke: var(--gold-dark); stroke-width: 3; }
 
-    .k3d-keil-ueberschrift {
+    .k3d-bearb-ueberschrift {
       margin: 0 0 7px; font-size: .78rem; font-weight: 700; color: var(--black);
     }
-    .k3d-keil-masse { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-    .k3d-keil-mass label {
+    .k3d-bearb-masse { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .k3d-bearb-mass label {
       display: flex; align-items: center; gap: 6px; font-size: .78rem;
       font-weight: 600; margin-bottom: 4px;
     }
@@ -1526,13 +1536,13 @@
        nur im Hinweistext UNTER dem Feld - wer das Feld ansieht, liest
        den Hinweis nicht zwangslaeufig. Leichter als die Beschriftung,
        damit es die drei Pflichtmasse nicht ueberschreit. */
-    .k3d-keil-opt { font-weight: 400; color: var(--muted); }
-    .k3d-keil-marke {
+    .k3d-bearb-opt { font-weight: 400; color: var(--muted); }
+    .k3d-bearb-marke {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 24px; height: 20px; padding: 0 6px; border-radius: 100px;
       background: var(--gold-dark); color: #fff; font-size: .66rem; font-weight: 700;
     }
-    .k3d-keil-mass input { width: 100%; text-align: left; }
+    .k3d-bearb-mass input { width: 100%; text-align: left; }
     /* ---------- Alle vier Felder sehen gleich aus ----------
        "die feste breite in dem linken oberen feld hat nen ganz anderen
        rahmen als die restlichen 3" (Betreiber, 05.11.2026). Das Breiten-
@@ -1540,7 +1550,7 @@
        den der Browser von sich aus zeichnet. Jetzt tragen alle vier
        .k3d-zahl; dass die Breite aus dem Modell kommt und nicht
        eingetippt wird, zeigt allein der graue Grund. */
-    .k3d-keil-mass input[readonly] { background: var(--light-bg, #F1EFEA); color: var(--muted); }
+    .k3d-bearb-mass input[readonly] { background: var(--light-bg, #F1EFEA); color: var(--muted); }
     /* ---------- Die Einheit steht am Feld, nicht nur in der Ueberschrift
        "nirgens steht mm dahinter" (Betreiber, 05.11.2026). Die
        Ueberschrift "Maße in mm" steht ueber vier Feldern - wer beim
@@ -1548,23 +1558,23 @@
        der Text bekommt links davon Platz. pointer-events: none, damit
        ein Tipper darauf trotzdem im Feld landet: 44 x 44 px Zielflaeche
        bleiben so erhalten. */
-    .k3d-keil-eingabe { position: relative; display: block; }
-    .k3d-keil-mass .k3d-keil-eingabe input { padding-right: 36px; }
-    .k3d-keil-einheit {
+    .k3d-bearb-eingabe { position: relative; display: block; }
+    .k3d-bearb-mass .k3d-bearb-eingabe input { padding-right: 36px; }
+    .k3d-bearb-einheit {
       position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
       font-size: .78rem; color: var(--muted); pointer-events: none;
       font-variant-numeric: tabular-nums;
     }
     /* Ohne das stuende das Pfeilchen des Browsers auf dem mm. */
-    .k3d-keil-mass input[type=number] { appearance: textfield; -moz-appearance: textfield; }
-    .k3d-keil-mass input[type=number]::-webkit-inner-spin-button,
-    .k3d-keil-mass input[type=number]::-webkit-outer-spin-button {
+    .k3d-bearb-mass input[type=number] { appearance: textfield; -moz-appearance: textfield; }
+    .k3d-bearb-mass input[type=number]::-webkit-inner-spin-button,
+    .k3d-bearb-mass input[type=number]::-webkit-outer-spin-button {
       -webkit-appearance: none; margin: 0;
     }
     /* Ein gesperrtes Feld muss als gesperrt zu erkennen sein, ohne dass
        der Text unleserlich wird: #666 auf #F1EFEA sind 5,3:1. */
-    .k3d-keil-mass input:disabled { background: var(--light-bg, #F1EFEA); color: var(--muted); }
-    .k3d-keil-mass .k3d-mini { margin: 3px 0 0; }
+    .k3d-bearb-mass input:disabled { background: var(--light-bg, #F1EFEA); color: var(--muted); }
+    .k3d-bearb-mass .k3d-mini { margin: 3px 0 0; }
     /* Platz reservieren, damit nichts springt. Der Hinweis unter dem
        Versatzfeld nennt die Obergrenze, und die haengt vom Modell ab -
        der Text wechselt dadurch zwischen zwei und drei Zeilen. Alles
@@ -1578,19 +1588,19 @@
       background: #fdf3ef; color: #8a4a22; border-left: 3px solid #b4532a;
     }
     .k3d-keil-warnung[hidden] { display: none; }
-    .k3d-keil-zurueck {
+    .k3d-bearb-zurueck {
       margin: 8px 0 0; background: 0 0; border: 0; padding: 8px 0;
       font: inherit; font-size: .76rem; font-weight: 600; cursor: pointer;
       color: var(--gold-text, #7A5B12); text-decoration: underline; min-height: 44px;
     }
-    .k3d-keil-zurueck[hidden] { display: none; }
-    .k3d-keil-form > .k3d-keil-ueberschrift { margin-top: 16px; }
+    .k3d-bearb-zurueck[hidden] { display: none; }
+    .k3d-bearb-form > .k3d-bearb-ueberschrift { margin-top: 16px; }
 
     .k3d-keil-glaskopf {
       display: flex; align-items: baseline; justify-content: space-between;
       gap: 10px; margin-top: 16px; flex-wrap: wrap;
     }
-    .k3d-keil-glaskopf .k3d-keil-ueberschrift { margin: 0; }
+    .k3d-keil-glaskopf .k3d-bearb-ueberschrift { margin: 0; }
     .k3d-keil-uebernehmen {
       background: 0 0; border: 0; padding: 8px 0; font: inherit; font-size: .74rem;
       font-weight: 600; cursor: pointer; color: var(--gold-text, #7A5B12);
@@ -1609,13 +1619,13 @@
     .k3d-keil-glaszeile select { flex: 1; min-width: 0; }
     .k3d-keil-glaszeile.ist-an select { border-color: var(--gold); border-width: 2px; }
 
-    .k3d-keil-fuss { margin-top: 16px; text-align: right; }
-    .k3d-keil-fertig {
+    .k3d-bearb-fuss { margin-top: 16px; text-align: right; }
+    .k3d-bearb-fertig {
       background: var(--gold); color: #111; border: 0; border-radius: 9px;
       padding: 12px 26px; font: inherit; font-weight: 700; cursor: pointer;
       min-height: 46px;
     }
-    .k3d-keil-fertig:hover { background: var(--gold-light, #d8b45a); }
+    .k3d-bearb-fertig:hover { background: var(--gold-light, #d8b45a); }
 
     /* ---------- Am Handy ----------
        Der Dialog nimmt die ganze Hoehe. Kopf und Fuss kleben, damit
@@ -1626,8 +1636,8 @@
        Rolle: Was man seitlich wegschieben muss, findet man nicht. Acht
        Kacheln in zwei Reihen passen auf jedes Handy. */
     @media (max-width: 720px) {
-      .k3d-keil { padding: 0; align-items: stretch; }
-      .k3d-keil-kasten {
+      .k3d-bearb { padding: 0; align-items: stretch; }
+      .k3d-bearb-kasten {
         border-radius: 0; max-width: none; height: 100%; max-height: none;
         /* KEINE Polsterung unten: Der klebende Fuss haftet am unteren
            Rand des Rollbereichs, und eine Polsterung darunter waere ein
@@ -1637,29 +1647,29 @@
         padding: 0 12px 0;
         display: flex; flex-direction: column;
       }
-      .k3d-keil-kopf {
+      .k3d-bearb-kopf {
         position: sticky; top: 0; z-index: 2; background: #fff;
         padding: 10px 0 8px; border-bottom: 1px solid var(--border);
       }
-      .k3d-keil-teilungen {
+      .k3d-bearb-kacheln {
         display: grid; grid-template-columns: repeat(4, 1fr);
         gap: 6px; overflow-x: visible; margin: 10px 0 12px; padding-bottom: 0;
       }
-      .k3d-keil-teilungen button { width: auto; font-size: .62rem; padding: 6px 3px 5px; min-height: 68px; }
-      .k3d-keil-teilungen button.ist-an { padding: 5px 2px 4px; }
-      .k3d-keil-teilungen button svg { height: 28px; }
+      .k3d-bearb-kacheln button { width: auto; font-size: .62rem; padding: 6px 3px 5px; min-height: 68px; }
+      .k3d-bearb-kacheln button.ist-an { padding: 5px 2px 4px; }
+      .k3d-bearb-kacheln button svg { height: 28px; }
       .k3d-keil-spalten { grid-template-columns: 1fr; gap: 14px; }
-      .k3d-keil-fuss {
+      .k3d-bearb-fuss {
         position: sticky; bottom: 0; z-index: 2; background: #fff;
         margin-top: auto; border-top: 1px solid var(--border);
         padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
       }
-      .k3d-keil-fertig { width: 100%; }
+      .k3d-bearb-fertig { width: 100%; }
     }
     /* Ganz schmale Geraete: vier Kacheln nebeneinander waeren je 70 px
        und die Beschriftung nicht mehr lesbar. */
     @media (max-width: 380px) {
-      .k3d-keil-teilungen { grid-template-columns: repeat(3, 1fr); }
+      .k3d-bearb-kacheln { grid-template-columns: repeat(3, 1fr); }
     }
 
     /* ---------- Tippfelder am Handy: 16 px, sonst zoomt iOS ----------
@@ -1690,7 +1700,7 @@
       /* Auch die Felder im Keil-Editor - das schreibgeschuetzte
          Breitenfeld eingeschlossen: iOS zoomt auch in ein Feld, das
          man nicht aendern kann, sobald es den Fokus bekommt. */
-      .k3d-keil-mass input,
+      .k3d-bearb-mass input,
       .k3d-teilen-feld input { font-size: 16px; }
     }
 
@@ -3038,17 +3048,17 @@
          "Ansicht von innen" steht als Satz da. Eine Figur, die es
          erklaert, waere uebernommen - der Betreiber hat sie ausdruecklich
          weggelassen haben wollen. -->
-    <div class="k3d-keil" id="k3dKeilDialog" role="dialog" aria-modal="true"
+    <div class="k3d-bearb" id="k3dKeilDialog" role="dialog" aria-modal="true"
          aria-labelledby="k3dKeilTitel" hidden>
-      <div class="k3d-keil-kasten">
-        <div class="k3d-keil-kopf">
+      <div class="k3d-bearb-kasten">
+        <div class="k3d-bearb-kopf">
           <h3 id="k3dKeilTitel">Keil bearbeiten</h3>
-          <button type="button" class="k3d-keil-zu" id="k3dKeilZu">
+          <button type="button" class="k3d-bearb-zu" id="k3dKeilZu">
             <svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen
           </button>
         </div>
 
-        <div class="k3d-keil-teilungen" id="k3dKeilTeilungen" role="group"
+        <div class="k3d-bearb-kacheln" id="k3dKeilTeilungen" role="group"
              aria-label="Aufteilung des Keils"></div>
 
         <div class="k3d-keil-spalten">
@@ -3061,50 +3071,50 @@
               dessen Glas ein.</p>
           </div>
 
-          <div class="k3d-keil-form">
-            <p class="k3d-keil-ueberschrift" id="k3dKeilMassEinheit">Maße in mm</p>
-            <div class="k3d-keil-masse">
-              <div class="k3d-keil-mass">
-                <label for="k3dKeilB"><span class="k3d-keil-marke">B</span> Breite</label>
-                <span class="k3d-keil-eingabe">
+          <div class="k3d-bearb-form">
+            <p class="k3d-bearb-ueberschrift" id="k3dKeilMassEinheit">Maße in mm</p>
+            <div class="k3d-bearb-masse">
+              <div class="k3d-bearb-mass">
+                <label for="k3dKeilB"><span class="k3d-bearb-marke">B</span> Breite</label>
+                <span class="k3d-bearb-eingabe">
                   <input type="text" id="k3dKeilB" class="k3d-zahl" readonly
                          aria-describedby="k3dKeilMassEinheit k3dKeilBHinweis">
-                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                  <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
                 </span>
                 <p class="k3d-mini" id="k3dKeilBHinweis">Kommt aus dem Modell.</p>
               </div>
-              <div class="k3d-keil-mass">
-                <label for="k3dKeilH1"><span class="k3d-keil-marke">H1</span> Höhe an der Wand</label>
-                <span class="k3d-keil-eingabe">
+              <div class="k3d-bearb-mass">
+                <label for="k3dKeilH1"><span class="k3d-bearb-marke">H1</span> Höhe an der Wand</label>
+                <span class="k3d-bearb-eingabe">
                   <input type="number" id="k3dKeilH1" class="k3d-zahl" inputmode="numeric" min="0" step="10"
                          aria-describedby="k3dKeilMassEinheit">
-                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                  <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
                 </span>
               </div>
-              <div class="k3d-keil-mass">
-                <label for="k3dKeilH2"><span class="k3d-keil-marke">H2</span> Höhe vorne</label>
-                <span class="k3d-keil-eingabe">
+              <div class="k3d-bearb-mass">
+                <label for="k3dKeilH2"><span class="k3d-bearb-marke">H2</span> Höhe vorne</label>
+                <span class="k3d-bearb-eingabe">
                   <input type="number" id="k3dKeilH2" class="k3d-zahl" inputmode="numeric" min="0" step="10"
                          aria-describedby="k3dKeilMassEinheit">
-                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                  <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
                 </span>
               </div>
               <!-- Versatz unten: aus den Bildern des Betreibers
                    (05.11.2026). Optional, weil die Unterkante im
                    Normalfall waagerecht liegt. -->
-              <div class="k3d-keil-mass">
-                <label for="k3dKeilV"><span class="k3d-keil-marke">V</span> Versatz unten
-                  <span class="k3d-keil-opt">(Optional)</span></label>
-                <span class="k3d-keil-eingabe">
+              <div class="k3d-bearb-mass">
+                <label for="k3dKeilV"><span class="k3d-bearb-marke">V</span> Versatz unten
+                  <span class="k3d-bearb-opt">(Optional)</span></label>
+                <span class="k3d-bearb-eingabe">
                   <input type="number" id="k3dKeilV" class="k3d-zahl" inputmode="numeric" min="0" step="10"
                          aria-describedby="k3dKeilMassEinheit k3dKeilVHinweis">
-                  <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                  <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
                 </span>
                 <p class="k3d-mini" id="k3dKeilVHinweis">Die Unterkante steigt vorne um dieses Maß an.</p>
               </div>
             </div>
             <p class="k3d-mini k3d-keil-warnung" id="k3dKeilWarnung" hidden></p>
-            <button type="button" class="k3d-keil-zurueck" id="k3dKeilMasseZurueck" hidden>
+            <button type="button" class="k3d-bearb-zurueck" id="k3dKeilMasseZurueck" hidden>
               Maße aus dem Modell übernehmen
             </button>
 
@@ -3112,7 +3122,7 @@
                  Es sind zwei verschiedene Bauteile, und der Betreiber
                  hat sie am 05.11.2026 einzeln eingestellt gezeigt. -->
             <div id="k3dKeilSprosseS" hidden>
-              <p class="k3d-keil-ueberschrift" id="k3dKeilSprosseTitel">Senkrechte Sprossen</p>
+              <p class="k3d-bearb-ueberschrift" id="k3dKeilSprosseTitel">Senkrechte Sprossen</p>
               <div class="k3d-seg k3d-seg--2" role="group" aria-labelledby="k3dKeilSprosseTitel">
                 <button type="button" id="k3dKeilSprosseGleich" data-wert="gleich">Gleichmäßig</button>
                 <button type="button" id="k3dKeilSprosseFrei" data-wert="frei">Eigene Abstände</button>
@@ -3120,7 +3130,7 @@
               <div id="k3dKeilSprosseMasse" hidden></div>
             </div>
             <div id="k3dKeilSprosseW" hidden>
-              <p class="k3d-keil-ueberschrift" id="k3dKeilSprosseWTitel">Waagerechte Sprossen</p>
+              <p class="k3d-bearb-ueberschrift" id="k3dKeilSprosseWTitel">Waagerechte Sprossen</p>
               <div class="k3d-seg k3d-seg--2" role="group" aria-labelledby="k3dKeilSprosseWTitel">
                 <button type="button" id="k3dKeilSprosseWGleich" data-wert="gleich">Gleichmäßig</button>
                 <button type="button" id="k3dKeilSprosseWFrei" data-wert="frei">Eigene Abstände</button>
@@ -3129,7 +3139,7 @@
             </div>
 
             <div class="k3d-keil-glaskopf">
-              <p class="k3d-keil-ueberschrift" id="k3dKeilGlasTitel">Glas je Feld</p>
+              <p class="k3d-bearb-ueberschrift" id="k3dKeilGlasTitel">Glas je Feld</p>
               <button type="button" class="k3d-keil-uebernehmen" id="k3dKeilGlasAlle">
                 Feld 1 für alle übernehmen
               </button>
@@ -3138,8 +3148,8 @@
           </div>
         </div>
 
-        <div class="k3d-keil-fuss">
-          <button type="button" class="k3d-keil-fertig" id="k3dKeilFertig">Fertig</button>
+        <div class="k3d-bearb-fuss">
+          <button type="button" class="k3d-bearb-fertig" id="k3dKeilFertig">Fertig</button>
         </div>
       </div>
     </div>
@@ -3155,47 +3165,47 @@
          nebeneinander liefen auseinander, sobald eine angefasst wird.
          Die Klassen heißen noch "keil" – umbenannt wird, wenn alle vier
          Editoren stehen, siehe docs/NEXT_TASK.md. -->
-    <div class="k3d-keil" id="k3dPlankenDialog" role="dialog" aria-modal="true"
+    <div class="k3d-bearb" id="k3dPlankenDialog" role="dialog" aria-modal="true"
          aria-labelledby="k3dPlankenTitel" hidden>
-      <div class="k3d-keil-kasten">
-        <div class="k3d-keil-kopf">
+      <div class="k3d-bearb-kasten">
+        <div class="k3d-bearb-kopf">
           <h3 id="k3dPlankenTitel">Plankenwand bearbeiten</h3>
-          <button type="button" class="k3d-keil-zu" id="k3dPlankenZu">
+          <button type="button" class="k3d-bearb-zu" id="k3dPlankenZu">
             <svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen
           </button>
         </div>
 
-        <div class="k3d-keil-teilungen" id="k3dPlankenRichtung" role="group"
+        <div class="k3d-bearb-kacheln" id="k3dPlankenRichtung" role="group"
              aria-label="Richtung der Planken"></div>
 
-        <div class="k3d-keil-form">
-          <p class="k3d-keil-ueberschrift" id="k3dPlankenMassEinheit">Maße in mm</p>
-          <div class="k3d-keil-masse">
-            <div class="k3d-keil-mass">
-              <label for="k3dPlankenB"><span class="k3d-keil-marke">B</span> Breite</label>
-              <span class="k3d-keil-eingabe">
+        <div class="k3d-bearb-form">
+          <p class="k3d-bearb-ueberschrift" id="k3dPlankenMassEinheit">Maße in mm</p>
+          <div class="k3d-bearb-masse">
+            <div class="k3d-bearb-mass">
+              <label for="k3dPlankenB"><span class="k3d-bearb-marke">B</span> Breite</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dPlankenB" class="k3d-zahl" readonly
                        aria-describedby="k3dPlankenMassEinheit k3dPlankenBHinweis">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
               <p class="k3d-mini" id="k3dPlankenBHinweis">Kommt aus dem Modell.</p>
             </div>
-            <div class="k3d-keil-mass">
-              <label for="k3dPlankenH"><span class="k3d-keil-marke">H</span> Höhe
-                <span class="k3d-keil-opt">(Optional)</span></label>
-              <span class="k3d-keil-eingabe">
+            <div class="k3d-bearb-mass">
+              <label for="k3dPlankenH"><span class="k3d-bearb-marke">H</span> Höhe
+                <span class="k3d-bearb-opt">(Optional)</span></label>
+              <span class="k3d-bearb-eingabe">
                 <input type="number" id="k3dPlankenH" class="k3d-zahl" inputmode="numeric"
                        min="0" step="10"
                        aria-describedby="k3dPlankenMassEinheit k3dPlankenHHinweis">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
               <p class="k3d-mini" id="k3dPlankenHHinweis">Leer: es gilt der Regler im Bedienfeld.</p>
             </div>
           </div>
         </div>
 
-        <div class="k3d-keil-fuss">
-          <button type="button" class="k3d-keil-fertig" id="k3dPlankenFertig">Fertig</button>
+        <div class="k3d-bearb-fuss">
+          <button type="button" class="k3d-bearb-fertig" id="k3dPlankenFertig">Fertig</button>
         </div>
       </div>
     </div>
@@ -3205,37 +3215,37 @@
          gibt es die Aufteilung; Breite und Höhe kommen aus dem Modell
          und sind nicht eintippbar: Die Höhe ergibt sich aus dem, was
          neben der Rahmenwand noch an der Seite steht. -->
-    <div class="k3d-keil" id="k3dRahmenDialog" role="dialog" aria-modal="true"
+    <div class="k3d-bearb" id="k3dRahmenDialog" role="dialog" aria-modal="true"
          aria-labelledby="k3dRahmenTitel" hidden>
-      <div class="k3d-keil-kasten">
-        <div class="k3d-keil-kopf">
+      <div class="k3d-bearb-kasten">
+        <div class="k3d-bearb-kopf">
           <h3 id="k3dRahmenTitel">Rahmenwand bearbeiten</h3>
-          <button type="button" class="k3d-keil-zu" id="k3dRahmenZu">
+          <button type="button" class="k3d-bearb-zu" id="k3dRahmenZu">
             <svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen
           </button>
         </div>
 
-        <div class="k3d-keil-teilungen" id="k3dRahmenTeilungen" role="group"
+        <div class="k3d-bearb-kacheln" id="k3dRahmenTeilungen" role="group"
              aria-label="Aufteilung der Rahmenwand"></div>
 
-        <div class="k3d-keil-form">
-          <p class="k3d-keil-ueberschrift" id="k3dRahmenMassEinheit">Maße in mm</p>
-          <div class="k3d-keil-masse">
-            <div class="k3d-keil-mass">
-              <label for="k3dRahmenB"><span class="k3d-keil-marke">B</span> Breite</label>
-              <span class="k3d-keil-eingabe">
+        <div class="k3d-bearb-form">
+          <p class="k3d-bearb-ueberschrift" id="k3dRahmenMassEinheit">Maße in mm</p>
+          <div class="k3d-bearb-masse">
+            <div class="k3d-bearb-mass">
+              <label for="k3dRahmenB"><span class="k3d-bearb-marke">B</span> Breite</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dRahmenB" class="k3d-zahl" readonly
                        aria-describedby="k3dRahmenMassEinheit k3dRahmenBHinweis">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
               <p class="k3d-mini" id="k3dRahmenBHinweis">Kommt aus dem Modell.</p>
             </div>
-            <div class="k3d-keil-mass">
-              <label for="k3dRahmenH"><span class="k3d-keil-marke">H</span> Höhe</label>
-              <span class="k3d-keil-eingabe">
+            <div class="k3d-bearb-mass">
+              <label for="k3dRahmenH"><span class="k3d-bearb-marke">H</span> Höhe</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dRahmenH" class="k3d-zahl" readonly
                        aria-describedby="k3dRahmenMassEinheit k3dRahmenHHinweis">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
               <p class="k3d-mini" id="k3dRahmenHHinweis">Ergibt sich aus dem, was sonst
                 an dieser Seite steht.</p>
@@ -3243,8 +3253,8 @@
           </div>
         </div>
 
-        <div class="k3d-keil-fuss">
-          <button type="button" class="k3d-keil-fertig" id="k3dRahmenFertig">Fertig</button>
+        <div class="k3d-bearb-fuss">
+          <button type="button" class="k3d-bearb-fertig" id="k3dRahmenFertig">Fertig</button>
         </div>
       </div>
     </div>
@@ -3255,58 +3265,58 @@
          schon je Seite im Bedienfeld und wird hier nur gespiegelt – es
          gibt die Einstellung also weiterhin genau einmal. Glas und
          Schloss gelten für die ganze Anlage, das steht dabei. -->
-    <div class="k3d-keil" id="k3dSchiebeDialog" role="dialog" aria-modal="true"
+    <div class="k3d-bearb" id="k3dSchiebeDialog" role="dialog" aria-modal="true"
          aria-labelledby="k3dSchiebeTitel" hidden>
-      <div class="k3d-keil-kasten">
-        <div class="k3d-keil-kopf">
+      <div class="k3d-bearb-kasten">
+        <div class="k3d-bearb-kopf">
           <h3 id="k3dSchiebeTitel">Schiebetür bearbeiten</h3>
-          <button type="button" class="k3d-keil-zu" id="k3dSchiebeZu">
+          <button type="button" class="k3d-bearb-zu" id="k3dSchiebeZu">
             <svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen
           </button>
         </div>
 
-        <div class="k3d-keil-form">
-          <p class="k3d-keil-ueberschrift" id="k3dSchiebeMassEinheit">Maße in mm</p>
-          <div class="k3d-keil-masse">
-            <div class="k3d-keil-mass">
-              <label for="k3dSchiebeB"><span class="k3d-keil-marke">B</span> Breite</label>
-              <span class="k3d-keil-eingabe">
+        <div class="k3d-bearb-form">
+          <p class="k3d-bearb-ueberschrift" id="k3dSchiebeMassEinheit">Maße in mm</p>
+          <div class="k3d-bearb-masse">
+            <div class="k3d-bearb-mass">
+              <label for="k3dSchiebeB"><span class="k3d-bearb-marke">B</span> Breite</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dSchiebeB" class="k3d-zahl" readonly
                        aria-describedby="k3dSchiebeMassEinheit">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
             </div>
-            <div class="k3d-keil-mass">
-              <label for="k3dSchiebeH"><span class="k3d-keil-marke">H</span> Höhe</label>
-              <span class="k3d-keil-eingabe">
+            <div class="k3d-bearb-mass">
+              <label for="k3dSchiebeH"><span class="k3d-bearb-marke">H</span> Höhe</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dSchiebeH" class="k3d-zahl" readonly
                        aria-describedby="k3dSchiebeMassEinheit">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
             </div>
           </div>
-          <p class="k3d-keil-ueberschrift">Aufteilung dieser Seite</p>
+          <p class="k3d-bearb-ueberschrift">Aufteilung dieser Seite</p>
           <select id="k3dSchiebeTeilung" class="k3d-select"
                   aria-label="Aufteilung der Schiebeanlage auf dieser Seite"></select>
           <p class="k3d-mini">Flügel: <output id="k3dSchiebeFluegel">–</output> –
             die Flügelzahl ergibt sich aus der Breite und den lieferbaren
             Aufteilungen, sie lässt sich nicht frei wählen.</p>
 
-          <p class="k3d-keil-ueberschrift">Gilt für die ganze Anlage</p>
-          <div class="k3d-keil-masse">
-            <div class="k3d-keil-mass">
+          <p class="k3d-bearb-ueberschrift">Gilt für die ganze Anlage</p>
+          <div class="k3d-bearb-masse">
+            <div class="k3d-bearb-mass">
               <label for="k3dSchiebeGlas">Glas der Schiebeelemente</label>
               <select id="k3dSchiebeGlas" class="k3d-select"></select>
             </div>
-            <div class="k3d-keil-mass">
+            <div class="k3d-bearb-mass">
               <label for="k3dSchiebeSchloss">Abschließbar?</label>
               <select id="k3dSchiebeSchloss" class="k3d-select"></select>
             </div>
           </div>
         </div>
 
-        <div class="k3d-keil-fuss">
-          <button type="button" class="k3d-keil-fertig" id="k3dSchiebeFertig">Fertig</button>
+        <div class="k3d-bearb-fuss">
+          <button type="button" class="k3d-bearb-fertig" id="k3dSchiebeFertig">Fertig</button>
         </div>
       </div>
     </div>
@@ -3315,38 +3325,38 @@
          Alles, was Velaris einstellbar hat, gilt für die ganze Anlage und
          nicht je Seite. Dieser Dialog ist ein bequemer Zugriff am
          Bauteil, keine neue Möglichkeit – und sagt das auch. -->
-    <div class="k3d-keil" id="k3dVelarisDialog" role="dialog" aria-modal="true"
+    <div class="k3d-bearb" id="k3dVelarisDialog" role="dialog" aria-modal="true"
          aria-labelledby="k3dVelarisTitel" hidden>
-      <div class="k3d-keil-kasten">
-        <div class="k3d-keil-kopf">
+      <div class="k3d-bearb-kasten">
+        <div class="k3d-bearb-kopf">
           <h3 id="k3dVelarisTitel">Velaris bearbeiten</h3>
-          <button type="button" class="k3d-keil-zu" id="k3dVelarisZu">
+          <button type="button" class="k3d-bearb-zu" id="k3dVelarisZu">
             <svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen
           </button>
         </div>
 
-        <div class="k3d-keil-form">
-          <p class="k3d-keil-ueberschrift" id="k3dVelarisMassEinheit">Maße in mm</p>
-          <div class="k3d-keil-masse">
-            <div class="k3d-keil-mass">
-              <label for="k3dVelarisB"><span class="k3d-keil-marke">B</span> Breite</label>
-              <span class="k3d-keil-eingabe">
+        <div class="k3d-bearb-form">
+          <p class="k3d-bearb-ueberschrift" id="k3dVelarisMassEinheit">Maße in mm</p>
+          <div class="k3d-bearb-masse">
+            <div class="k3d-bearb-mass">
+              <label for="k3dVelarisB"><span class="k3d-bearb-marke">B</span> Breite</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dVelarisB" class="k3d-zahl" readonly
                        aria-describedby="k3dVelarisMassEinheit">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
             </div>
-            <div class="k3d-keil-mass">
-              <label for="k3dVelarisH"><span class="k3d-keil-marke">H</span> Höhe</label>
-              <span class="k3d-keil-eingabe">
+            <div class="k3d-bearb-mass">
+              <label for="k3dVelarisH"><span class="k3d-bearb-marke">H</span> Höhe</label>
+              <span class="k3d-bearb-eingabe">
                 <input type="text" id="k3dVelarisH" class="k3d-zahl" readonly
                        aria-describedby="k3dVelarisMassEinheit">
-                <span class="k3d-keil-einheit" aria-hidden="true">mm</span>
+                <span class="k3d-bearb-einheit" aria-hidden="true">mm</span>
               </span>
             </div>
           </div>
 
-          <p class="k3d-keil-ueberschrift">Gilt für die ganze Anlage</p>
+          <p class="k3d-bearb-ueberschrift">Gilt für die ganze Anlage</p>
           <label class="k3d-label" for="k3dVelarisEdFarbe">Oberfläche der Lamellen</label>
           <select id="k3dVelarisEdFarbe" class="k3d-select"></select>
           <label class="k3d-label" for="k3dVelarisEdOben">Obere Hälfte
@@ -3357,8 +3367,8 @@
           <input type="range" id="k3dVelarisEdUnten" class="k3d-range">
         </div>
 
-        <div class="k3d-keil-fuss">
-          <button type="button" class="k3d-keil-fertig" id="k3dVelarisFertig">Fertig</button>
+        <div class="k3d-bearb-fuss">
+          <button type="button" class="k3d-bearb-fertig" id="k3dVelarisFertig">Fertig</button>
         </div>
       </div>
     </div>

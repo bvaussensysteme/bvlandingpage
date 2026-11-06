@@ -118,10 +118,10 @@ const CSS_FEHLER = [
   { von: 'font-size: .78rem; color: var(--muted); pointer-events: none;',
     nach: 'font-size: .78rem; color: var(--muted);' },
   /* Das (Optional) am Versatz faellt weg. */
-  { von: '                  <span class="k3d-keil-opt">(Optional)</span></label>',
+  { von: '                  <span class="k3d-bearb-opt">(Optional)</span></label>',
     nach: '                  </label>' },
   /* Eine Einheit fehlt. */
-  { von: '<span class="k3d-keil-einheit" aria-hidden="true">mm</span>\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">',
+  { von: '<span class="k3d-bearb-einheit" aria-hidden="true">mm</span>\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">',
     nach: '\n                </span>\n                <p class="k3d-mini" id="k3dKeilBHinweis">' }
 ];
 
@@ -582,7 +582,7 @@ await p.waitForTimeout(1400);
 const gesperrt = await p.evaluate(() =>
   [...document.querySelectorAll('#k3dKeilTeilungen button')]
     .filter((b) => b.disabled)
-    .map((b) => b.getAttribute('data-teilung') + ':' + ((b.querySelector('.k3d-keil-sperr') || {}).textContent || '')));
+    .map((b) => b.getAttribute('data-teilung') + ':' + ((b.querySelector('.k3d-bearb-sperr') || {}).textContent || '')));
 const sollGesperrt = ['2w', '4sw', '6', '8'];
 pruefe('Zu flach: alle zweireihigen Teilungen sind gesperrt',
   sollGesperrt.every((id) => gesperrt.some((g) => g.indexOf(id + ':') === 0))
@@ -745,7 +745,7 @@ pruefe('Alle vier Maszfelder tragen denselben Rahmen',
 
 const einheiten = await p.evaluate(() =>
   ['k3dKeilB', 'k3dKeilH1', 'k3dKeilH2', 'k3dKeilV'].map((id) => {
-    const e = document.getElementById(id).parentNode.querySelector('.k3d-keil-einheit');
+    const e = document.getElementById(id).parentNode.querySelector('.k3d-bearb-einheit');
     return e && e.offsetParent !== null ? (e.textContent || '').trim() : '';
   }));
 pruefe('Hinter jedem Maszfeld steht die Einheit',
@@ -754,7 +754,7 @@ pruefe('Hinter jedem Maszfeld steht die Einheit',
 /* Die Einheit darf den Tipper nicht abfangen: Wer rechts ins Feld
    tippt, muss im Feld landen und nicht auf einem Stueck Text. */
 const trifft = await p.evaluate(() => {
-  const e = document.querySelector('#k3dKeilH2').parentNode.querySelector('.k3d-keil-einheit');
+  const e = document.querySelector('#k3dKeilH2').parentNode.querySelector('.k3d-bearb-einheit');
   if (!e) return 'keine Einheit';
   const r = e.getBoundingClientRect();
   const t = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
@@ -822,7 +822,7 @@ await ph.waitForTimeout(1000);
 const amHandy = await ph.evaluate(() => {
   const d = document.getElementById('k3dKeilDialog');
   const r = d.getBoundingClientRect();
-  const kopf = document.querySelector('.k3d-keil-kopf');
+  const kopf = document.querySelector('.k3d-bearb-kopf');
   const kr = kopf.getBoundingClientRect();
   const obenDrauf = document.elementFromPoint(Math.round(kr.left + kr.width / 2), Math.round(kr.top + 6));
   const f = document.getElementById('k3dKeilFertig');
