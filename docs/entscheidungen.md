@@ -13972,3 +13972,47 @@ niemanden erreicht, ist schlimmer als keine – er glaubt, er habe es gesagt.
 Geprüft werden deshalb nicht die Felder, sondern die Zusammenfassung, aus der
 die Anfrage gebaut wird, und der geteilte Link. 20 Prüfungen, 8 eingebaute
 Fehler, jeder einzeln nachgefahren.
+
+## 06.11.2026 – Dieselben zwei Angaben auch im Anfrage-Assistenten
+
+**Anlass.** „also mit konfigurator meinte ich nicht nur den 3d konfigurator
+sondern unseren auf der webseite auch" (Betreiber).
+
+**Was vorgefunden wurde.** Das Notizfeld zur Fassade gab es im Assistenten
+**schon** – nur mit anderem Wortlaut („Ergänzung zur Fassade (optional)",
+Platzhalter „z. B. Fassadenart, Dämmung (z. B. WDVS), Dämmstärke in mm …").
+Die Höhenangabe hatte dort gar keinen Bezug.
+
+**Was jetzt gilt.**
+
+- Beide Konfiguratoren fragen mit **denselben Worten**. Zwei Formulierungen für
+  dasselbe Feld lesen sich wie zwei verschiedene Fragen.
+- Im Schritt „Gewünschte Maße" steht die Auswahl „Worauf bezieht sich Ihre
+  Höhenangabe? (optional)". **Nichts ist vorausgewählt** – anders als im
+  3D-Konfigurator, wo das Modell eine Vorgabe braucht. Eine vorausgewählte
+  Antwort legte dem Kunden etwas in den Mund, was er gar nicht gesagt hat, und
+  in der Anfrage stünde eine Angabe, auf die sich niemand verlassen kann.
+- Der 3D-Konfigurator gibt beide Angaben als **eigene Felder** an den
+  Assistenten weiter, nicht nur als Text in der Fachnotiz – sonst steht es zwar
+  in der E-Mail, aber im Assistenten ist das Feld leer, und beim
+  Zurückblättern ist die Angabe weg.
+
+**Die stille Gefahr dabei: der Wortlaut muss Wort für Wort passen.** Der
+3D-Konfigurator übergibt seine Wahl an das Auswahlfeld des Assistenten. Was
+dort nicht genau einer der drei Möglichkeiten entspricht, landet auf „Bitte
+wählen …" – die Angabe wäre **stillschweigend weg**. Dafür gibt es eine eigene
+Prüfung, die beide Quelltexte gegeneinander hält.
+
+**Drei Fallen beim Bauen der Prüfung – alle drei im Test, nicht im Produkt:**
+
+1. Der Durchlauf blieb bei „Gewünschte Maße" stehen: Ein `input type="number"`
+   nimmt den Wert „Pruefung" nicht an, das Feld blieb leer.
+2. Danach bei der Glasstärke: Sie sind keine Karten, sondern Pillen
+   (`data-pill`) – der Klicker sah sie nicht.
+3. Zuletzt beim Kontaktschritt: Die Fake-Erkennung des Assistenten lässt
+   `example.org` nicht durch. Gut so – aber der Test braucht eine Adresse, die
+   durchkommt.
+
+Und eine vierte, die zählt: Die Prüfung des Wortlauts las zuerst die **Datei
+auf der Platte** und war damit blind – der eingebaute Fehler kommt durch den
+Browser. Jetzt prüft sie, was der Kunde sieht.
