@@ -94,6 +94,48 @@ const CSS_FEHLER = [
     nach: '' },
 ];
 
+/* ---------- Die Gegenprobe faehrt JEDEN Fehler einzeln ----------
+   Mit allen auf einmal verdecken sie sich gegenseitig: Wird die Auswahl
+   gar nicht erst gezeichnet, koennen die Fehler daneben nichts mehr
+   zeigen. Der Sammellauf meldete "11 eingebaut, 9 schlagen an" und
+   behauptete, eine Pruefung sei blind - sie war es nicht (gemessen
+   06.11.2026, jeder Fehler einzeln nachgefahren).
+
+   Eine Gegenprobe, die falschen Alarm schlaegt, ist fast so schaedlich
+   wie eine, die schweigt: Man gewoehnt sich an das Rot. Darum ruft sich
+   dieses Skript selbst auf, einmal je Fehler, und urteilt erst danach.
+   Mit BV_FEHLER=<n> bzw. BV_CSS_FEHLER=<n> laeuft einer allein, ohne
+   diesen Umweg. */
+if (GEGENPROBE && !EINZELN && !process.env.BV_KIND) {
+  const { spawnSync } = await import('node:child_process');
+  const selbst = new URL(import.meta.url).pathname;
+  const alle = FEHLER.map((f, i) => ['BV_FEHLER', i, f.von])
+    .concat(CSS_FEHLER.map((f, i) => ['BV_CSS_FEHLER', i, f.von]));
+  console.log(`\n=== Höhenbezug und Fassaden-Notiz (GEGENPROBE, ${alle.length} Fehler einzeln) ===\n`);
+  let blind = 0;
+  for (const [schalter, nr, von] of alle) {
+    const r = spawnSync(process.execPath, [selbst, '--gegenprobe'],
+      { env: { ...process.env, [schalter]: String(nr), BV_KIND: '1' }, encoding: 'utf8' });
+    const txt = (r.stdout || '') + (r.stderr || '');
+    const roteZeilen = txt.split('\n').filter((z) => /^\s*FEHLER /.test(z));
+    const marke = (schalter === 'BV_CSS_FEHLER' ? 'CSS ' : '') + nr;
+    if (/ANKER VERALTET/.test(txt)) {
+      console.log(`  ANKER   Fehler ${marke}: kam nicht an – Anker veraltet`);
+      blind++;
+    } else if (!roteZeilen.length) {
+      console.log(`  BLIND   Fehler ${marke}: ${String(von).slice(0, 48).trim()}`);
+      blind++;
+    } else {
+      console.log(`  scharf  Fehler ${marke} → ${roteZeilen.length} Pruefung(en): `
+        + roteZeilen[0].replace(/^\s*FEHLER\s+/, '').slice(0, 58));
+    }
+  }
+  console.log(`\nGegenprobe: ${alle.length} Fehler einzeln gefahren, ${blind} ohne Wirkung.`);
+  if (blind) { console.log('MINDESTENS EINE PRUEFUNG IST BLIND.'); process.exit(1); }
+  console.log('Gegenprobe in Ordnung.');
+  process.exit(0);
+}
+
 let ankerKaputt = false;
 let ok = 0; const rot = [];
 function pruefe(was, bedingung, beleg) {
