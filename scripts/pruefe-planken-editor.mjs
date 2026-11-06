@@ -54,6 +54,9 @@ const FEHLER = [
   /* Der Prozentregler zieht von der eigenen Hoehe noch einmal ab. */
   { von: "                pwPlan.h != null ? false : undefined, pwPlan.richtung);",
     nach: "                undefined, pwPlan.richtung);" },
+  /* Der Plan faehrt im geteilten Link nicht mit. */
+  { von: "    if (Z.plankenPlan && Object.keys(Z.plankenPlan).length) d.pp = Z.plankenPlan;",
+    nach: "    void 0;" },
   /* Das Hoehenfeld klemmt wieder beim Tippen. */
   { von: "      if (v < PLANKE_MIN_H || (max && v > max)) return;",
     nach: "      if (v < PLANKE_MIN_H) { v = PLANKE_MIN_H; f.value = String(v); }" },
@@ -333,6 +336,39 @@ pruefe('Der Regler zieht von der eigenen Hoehe nicht noch einmal ab',
   reglerDa && !!mitRegler && Math.abs(mitRegler.hoehe - 900) <= 20,
   reglerDa ? (mitRegler ? `gebaut ${mitRegler.hoehe} mm, erwartet 900` : 'nichts gebaut')
            : 'Regler im Bedienfeld nicht gefunden');
+
+/* ---------- Der geteilte Link ----------
+   Ein Plan, der den Link nicht uebersteht, geht dem Kunden beim
+   Oeffnen stillschweigend verloren. Darum der ECHTE Rundlauf: teilen,
+   Link in einem frischen Tab oeffnen, im Modell nachmessen. */
+/* Richtung hier noch einmal setzen: Der Lesehaken fuer den "alten
+   Link" weiter oben schreibt den GANZEN Plan neu, Richtung inbegriffen.
+   Ohne das pruefte dieser Rundlauf eine Richtung, die vorher gar nicht
+   gewaehlt war - und meldete einen Fehler, der keiner ist. */
+await p.evaluate(() => {
+  const b2 = document.querySelector('#k3dPlankenRichtung button[data-richtung="hochkant"]');
+  if (b2) b2.click();
+});
+await p.waitForTimeout(1200);
+await p.evaluate(() => { const d = document.getElementById('k3dPlankenDialog'); if (d) d.hidden = true; });
+await p.evaluate(() => { const t = document.getElementById('k3dTeilen'); if (t) t.click(); });
+await p.waitForTimeout(1200);
+const link = await p.evaluate(() => (document.getElementById('k3dTeilenLink') || {}).value || '');
+let ausLink = null;
+if (link.indexOf('#k=') > -1) {
+  const p2 = await ctx.newPage();
+  p2.on('pageerror', (e) => seitenfehler.push(String(e)));
+  await p2.goto(link, { waitUntil: 'networkidle' });
+  await p2.waitForTimeout(2400);
+  await p2.getByRole('button', { name: /Nur notwendige|Alle akzeptieren/ }).first().click({ timeout: 4000 }).catch(() => {});
+  await p2.locator('#k3dTestOk').click({ timeout: 4000 }).catch(() => {});
+  await p2.waitForTimeout(1400);
+  ausLink = await p2.evaluate(() => (window.__bvPlanken || []).slice(-1)[0] || null);
+}
+pruefe('Richtung und Hoehe ueberstehen den geteilten Link',
+  !!ausLink && ausLink.richtung === 'hochkant' && Math.abs(ausLink.hoehe - 900) <= 20,
+  ausLink ? `${ausLink.richtung}, ${ausLink.hoehe} mm (erwartet hochkant, 900)`
+          : (link.indexOf('#k=') > -1 ? 'nichts gebaut' : 'kein Link erzeugt'));
 
 pruefe('Keine Fehler im Browser', seitenfehler.length === 0, seitenfehler.slice(0, 2).join(' | '));
 

@@ -158,14 +158,15 @@ bearbeiten … und Velaris bearbeiten".
 |---|---|
 | Keil | **fertig** (PR #554–#557) |
 | Plankenwand | **fertig** – Höhe in mm je Seite, waagerecht/hochkant |
-| Rahmenwand | offen |
-| Schiebetür | offen – **Achtung:** Die Flügelzahl kommt aus der Lieferbreiten-Tabelle (`sg23Bauart`) und ist **nicht frei wählbar**. Vorher klären, was dort überhaupt eingestellt werden soll (Öffnungsrichtung? Glas? Höhe?) |
-| Velaris | offen |
+| Rahmenwand | **fertig** – Aufteilung je Seite (vorher galt sie für alle Seiten zugleich) |
+| Schiebetür | **fertig** – Maße und Flügelzahl aus dem Modell, Aufteilung dieser Seite, Glas und Schloss (gelten für die ganze Anlage). Die Flügelzahl bleibt nicht wählbar: sie kommt aus der Lieferbreiten-Tabelle |
+| Velaris | **fertig** – Maße aus dem Modell, Lamellen-Oberfläche und die beiden Winkel. Alles gilt für die ganze Anlage, der Dialog sagt das |
 
-**Danach aufräumen:** Die Dialog-Hülle heißt noch `k3d-keil-*`, wird aber von
-jedem Editor benutzt. Umbenennen auf einen neutralen Namen, wenn alle vier
-stehen – vorher lohnt der Diff nicht, und die Handy-Hülle ist frisch
-geradegezogen.
+**Jetzt fällig: aufräumen.** Alle vier Editoren stehen, die Dialog-Hülle heißt
+aber immer noch `k3d-keil-*` und wird von jedem benutzt. Umbenennen auf einen
+neutralen Namen (`k3d-bearb-*`) – ein rein mechanischer Schnitt durch
+`konfigurator.html`, `js/konfigurator-3d.js` und die vier Prüfskripte. Danach
+heißt nichts mehr nach dem Bauteil, für das es zufällig zuerst gebaut wurde.
 
 ### Balkon: drei Bilder liegen beim Betreiber *(05.11.2026)*
 

@@ -13789,3 +13789,83 @@ abgedeckt:
    kein Unterschied messbar – die Prüfung stellt ihn jetzt selbst auf −66.
 
 22 Prüfungen, 8 eingebaute Fehler, jeder einzeln nachgefahren.
+
+## 06.11.2026 – Rahmenwand: Aufteilung je Seite, und der geteilte Link wird endlich geprüft
+
+**Anlass.** „genau so ein button auch für rahmenwand bearbeiten …" (Betreiber,
+05.11.2026). Der zweite der vier Editoren.
+
+**Was falsch war.** Die Aufteilung der Rahmenwand (acht belegte Varianten, von
+„ohne Sprosse" bis „8-teilig") stand im Bedienfeld und galt damit für **alle
+Seiten zugleich**. Wer links eine Sprosse wollte und rechts keine, konnte das
+nicht planen.
+
+**Was jetzt gilt.** Die Wahl steht am Bauteil, je Seite. Leer heißt wie bei der
+Plankenwand: es gilt das Bedienfeld – und steht dort „automatisch", rechnet das
+System sie wie bisher aus. Breite und Höhe kommen aus dem Modell und sind
+**nicht eintippbar**: Die Höhe ergibt sich aus dem, was sonst noch an der Seite
+steht (Plankenwand, Keil, Schiebetür). Sie hier zum Eingabefeld zu machen hieße,
+zwei Stellen über dieselbe Zahl entscheiden zu lassen.
+
+**Die Namen der acht Aufteilungen stehen nur einmal.** Der Editor liest sie aus
+dem Auswahlfeld des Bedienfelds, statt eine zweite Liste zu führen – sonst hieße
+dieselbe Aufteilung früher oder später an zwei Stellen anders. Dafür gibt es
+eine eigene Prüfung.
+
+**Was dabei auffiel und mehr wert ist als der Editor selbst.** Beim Bau der
+Gegenprobe zeigte sich: Der Fehler „der Plan fährt im geteilten Link nicht mit"
+machte **keine einzige Prüfung rot** – weder bei der Rahmenwand noch bei der
+Plankenwand. Ein Plan, der den Link nicht übersteht, geht dem Kunden beim
+Öffnen **stillschweigend** verloren; genau die Art Fehler, die niemand meldet,
+weil niemand sie bemerkt.
+
+Beide Editor-Prüfungen machen jetzt den **echten Rundlauf**: teilen, Link in
+einem frischen Tab öffnen, im Modell nachmessen. `pruefe-teilen.mjs` prüft den
+Link weiterhin für die Felder des Bedienfelds – die Pläne der Bauteile sind
+keine Felder und waren dort nie erfasst.
+
+**Dabei gelernt:** Die erste Fassung der Link-Prüfung meldete einen Fehler, der
+keiner war. Der Lesehaken für den „alten Link" weiter oben im selben Test
+schreibt den **ganzen** Plan neu, Richtung inbegriffen – geprüft wurde also eine
+Richtung, die vorher gar nicht gewählt war. Ein Test, der seinen eigenen Zustand
+nicht kennt, misst das Falsche.
+
+## 06.11.2026 – Schiebetür und Velaris: Editoren, die nichts Eigenes einstellen
+
+**Anlass.** „… Schiebetür bearbeiten … und Velaris bearbeiten" (Betreiber,
+05.11.2026), auf Rückfrage bestätigt. Damit stehen alle vier Editoren.
+
+**Die Entscheidung dahinter.** Diese beiden führen **keine eigene Einstellung**.
+Zwei Stellen, die dieselbe Sache einstellen, laufen auseinander – dagegen hilft
+kein Abgleich, sondern nur: Es gibt die Einstellung genau einmal. Beide Dialoge
+**spiegeln** deshalb die Felder des Bedienfelds und lösen dort dasselbe Ereignis
+aus wie ein Mensch (`spiegelSelect`, `spiegelRegler`). Alles, was daran hängt –
+Grenzen, Neuzeichnen, geteilter Link – gilt damit unverändert weiter.
+
+**Schiebetür.** Die Flügelzahl ist **nicht frei wählbar**: Sie kommt aus der
+Tabelle der lieferbaren Breiten (`sg23Bauart`). Der Dialog zeigt sie, mit dem
+Satz dazu, warum. Wählbar ist die Aufteilung – die stand schon je Seite im
+Bedienfeld und wird hier ans Bauteil gespiegelt. Glas und Schloss gelten für die
+ganze Anlage; das steht im Dialog.
+
+**Velaris.** Alles Einstellbare gilt für die ganze Anlage, nicht je Seite. Der
+Dialog ist deshalb ein bequemer Zugriff am Bauteil, keine neue Möglichkeit – und
+**sagt das auch**, mit einer eigenen Überschrift „Gilt für die ganze Anlage".
+Dafür gibt es eine Prüfung: Ein Dialog, der etwas für die ganze Anlage ändert
+und das verschweigt, lässt den Bediener glauben, er verstelle nur diese Seite.
+
+**Was dabei schiefging – eine Reihenfolge-Falle.** Der erste Entwurf ließ den
+Winkelregler im Dialog bei jedem Zucken das volle Neuzeichnen auslösen. Die
+Lauscher liefen dann in dieser Reihenfolge: erst Neuzeichnen (setzt den
+Dialogregler aus dem Bedienfeld zurück auf 45), dann Durchreichen (schreibt die
+zurückgesetzte 45 ins Bedienfeld). **Der Regler ließ sich nicht bewegen** und
+sah aus wie ein totes Bedienelement. Jetzt läuft beim Schieben nur die
+Beschriftung mit, nicht der Regler.
+
+Gefunden hat das die neue Prüfung, nicht das Auge: Sie misst den Winkel, mit dem
+die Lamellen **im Modell** wirklich stehen.
+
+**Was `pruefe-fuehrung.js` dazu sagt.** Die gespiegelten Felder stehen dort als
+„ohne eigene Wirkung" – zu Recht: Das Neuzeichnen hängt am Original, nicht am
+Spiegel. Dass der Durchgriff trotzdem funktioniert, prüft
+`pruefe-schiebe-velaris.mjs`, und zwar bis ins Modell.
