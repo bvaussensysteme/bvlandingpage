@@ -11329,7 +11329,7 @@
      wird er gelesen. Eine zweite Liste im Code hiesse frueher oder
      spaeter an zwei Stellen anders, und in der Anfrage stuende dann
      etwas anderes als auf dem Bildschirm. */
-  function hoeheBezugName() {
+  function hoeheBezugKlartext() {
     var sel = document.getElementById('k3dHoeheBezug');
     var txt = '';
     if (sel) {
@@ -11337,7 +11337,10 @@
         if (o.value === Z.hoeheBezug) txt = o.textContent.trim();
       });
     }
-    if (!txt) txt = Z.hoeheBezug;
+    return txt || Z.hoeheBezug;
+  }
+  function hoeheBezugName() {
+    var txt = hoeheBezugKlartext();
     if (Z.hoeheBezug === 'sonstiges' && Z.hoeheBezugText) {
       txt += ' – ' + Z.hoeheBezugText;
     }
@@ -16413,7 +16416,20 @@
        eigenes Feld hinüber – nicht nur als Text in der Notiz. Sonst
        steht es zwar in der E-Mail, aber im Assistenten ist nichts
        markiert, und beim Zurückblättern ist die Angabe weg. */
-    if (gruppeGilt('fassade')) v.fassade = Z.fassade;
+    if (gruppeGilt('fassade')) {
+      v.fassade = Z.fassade;
+      /* Als EIGENES Feld hinueber, nicht nur als Text in der Notiz -
+         sonst steht es zwar in der E-Mail, aber im Assistenten ist das
+         Feld leer, und beim Zurueckblaettern ist die Angabe weg
+         (dieselbe Begruendung wie beim Rest hier oben). */
+      if (Z.fassadeNotiz) v.fassade_text = Z.fassadeNotiz;
+    }
+    /* Der Hoehenbezug ebenso. Der Klartext MUSS Wort fuer Wort einer
+       der drei Moeglichkeiten im Assistenten entsprechen (HOEHE_BEZUEGE
+       in js/anfrage-wizard.js) - was nicht genau passt, landet dort auf
+       "Bitte waehlen ...", und die Angabe waere stillschweigend weg. */
+    v.hoehebezug = hoeheBezugKlartext();
+    if (Z.hoeheBezugText) v.hoehebezug_text = Z.hoeheBezugText;
     if (Z.led) {
       v.ledset = Z.ledset;
       if (Z.ledsetzahl > 1) v.ledsetzahl = String(Z.ledsetzahl);

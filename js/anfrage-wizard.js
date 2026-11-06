@@ -259,7 +259,7 @@
   // Beim Produktwechsel alle Konfigurations-Antworten löschen (Kontaktdaten bleiben)
   function resetConfig() {
     ['aufbau', 'fassade', 'fassade_text', 'carporttyp', 'carportvariante',
-     'breite', 'tiefe', 'hoehe', 'vorsprung', 'ueberstand',
+     'breite', 'tiefe', 'hoehe', 'hoehebezug', 'hoehebezug_text', 'vorsprung', 'ueberstand',
      'verglasung', 'glasstaerke', 'markise', 'led', 'ledset', 'ledsetzahl', 'sound', 'soundset',
      'dachart', 'dachausfuehrung', 'seitenschutz', 'heizung', 'wettersensor', 'farbe', 'dach',
      'erw_links', 'erw_rechts', 'erw_vorne', 'erw_hinten', 'untergrund', 'montage', 'wunsch', 'extras',
@@ -530,8 +530,11 @@
           { value: 'Verklinkert', img: 'verklinkert', photo: true },
           { value: 'Sonstiges / weiß nicht', icon: I.frage }
         ]) +
-          '<div class="aw-subchoice"><label class="aw-group-h" for="fassadeText">Ergänzung zur Fassade (optional)</label>' +
-          '<textarea class="aw-textarea aw-textarea--sm" id="fassadeText" placeholder="z. B. Fassadenart, Dämmung (z. B. WDVS), Dämmstärke in mm …">' + esc(answers.fassade_text || '') + '</textarea></div>';
+          /* Wortlaut vom Betreiber vorgegeben (06.11.2026) - und zwar
+             DERSELBE wie im 3D-Konfigurator. Zwei Formulierungen fuer
+             dasselbe Feld lesen sich wie zwei verschiedene Fragen. */
+          '<div class="aw-subchoice"><label class="aw-group-h" for="fassadeText">Zusätzliche Angaben zur Fassade (optional)</label>' +
+          '<textarea class="aw-textarea aw-textarea--sm" id="fassadeText" placeholder="z. B. Wanddämmung, Dämmstärke oder Mauerwerk">' + esc(answers.fassade_text || '') + '</textarea></div>';
       },
       collect: function () { var e = document.getElementById('fassadeText'); if (e) answers.fassade_text = e.value; },
       valid: function () { return answers.fassade ? null : 'Bitte wählen Sie Ihre Fassade.'; }
@@ -550,6 +553,25 @@
           dimField('hoehe', 'Höhe (optional)', 'z. B. 2500', 'mm') +
           (tds ? dimField('vorsprung', 'Dachvorsprung (optional)', 'z. B. 300', 'mm') : '') +
           (cpUeber ? dimField('ueberstand', 'Überstand', 'z. B. 1000', 'mm') : '') +
+          '</div>' +
+          /* ---------- Worauf sich die Hoehe bezieht ----------
+             "damit spaeter eindeutig klar ist, welches Hoehenmass
+             gemeint ist" (Betreiber, 06.11.2026). Wer zu Hause misst,
+             trifft nicht zwangslaeufig unseren Bezugspunkt.
+
+             Freiwillig, mit "Bitte waehlen ..." als Vorgabe: Eine
+             vorausgewaehlte Antwort legte dem Kunden etwas in den Mund,
+             was er gar nicht gesagt hat - und in der Anfrage staende
+             dann eine Angabe, auf die sich niemand verlassen kann. */
+          '<div class="aw-subchoice">' +
+          selectField('awHoeheBezug', 'Worauf bezieht sich Ihre Höhenangabe? (optional)',
+                      answers.hoehebezug || '', HOEHE_BEZUEGE) +
+          (answers.hoehebezug === 'Sonstiges'
+            ? '<label class="aw-group-h" for="awHoeheBezugText">Welches Maß haben Sie gemessen?</label>' +
+              '<textarea class="aw-textarea aw-textarea--sm" id="awHoeheBezugText" ' +
+              'placeholder="z. B. Oberkante Mauerabdeckung">' +
+              esc(answers.hoehebezug_text || '') + '</textarea>'
+            : '') +
           '</div>' +
           '<p class="aw-note">Alle Maße in Millimeter (mm). Grobe Angaben genügen.</p>';
       },
@@ -1040,6 +1062,16 @@
       '<div class="aw-dd-panel" data-dd-panel="' + id + '"' + (isOpen ? '' : ' hidden') + '>' + opts + hint + '</div>' +
       '</div>';
   }
+  /* Die drei Bezuege stehen hier EINMAL. Sie muessen Wort fuer Wort
+     denen im 3D-Konfigurator entsprechen: Der uebergibt seine Wahl an
+     dieses Feld, und was nicht genau passt, landet auf "Bitte
+     waehlen ..." - die Angabe waere stillschweigend weg. */
+  var HOEHE_BEZUEGE = [
+    'Niedrigste Durchgangshöhe (Unterkante)',
+    'Maximale Höhe an der Hauswand (Oberkante)',
+    'Sonstiges'
+  ];
+
   function dimField(id, label, ph, unit) {
     return '<div class="aw-dim"><label for="aw_' + id + '">' + label + '</label>' +
       '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>' + (unit || 'mm') + '</span></div></div>';
@@ -1063,6 +1095,11 @@
       var e = document.getElementById('aw_' + k);
       if (e) answers[k] = e.value.trim();
     });
+    var b2 = document.getElementById('awHoeheBezug');
+    if (b2) answers.hoehebezug = b2.value;
+    var t2 = document.getElementById('awHoeheBezugText');
+    if (t2) answers.hoehebezug_text = t2.value.trim();
+    if (answers.hoehebezug !== 'Sonstiges') answers.hoehebezug_text = '';
   }
 
   /* ---------- Zusammenfassung ---------- */
@@ -1078,6 +1115,12 @@
     if (inFlow('masse')) {
       var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
       if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
+      /* Nur wenn der Kunde wirklich etwas gewaehlt hat - eine leere
+         Zeile in der Anfrage hilft niemandem. */
+      if (answers.hoehebezug) {
+        p.push(['Höhenangabe bezieht sich auf', answers.hoehebezug
+          + (answers.hoehebezug_text ? ' – ' + answers.hoehebezug_text : '')]);
+      }
       if ((answers.produkt === 'Terrassendach TDS' ||
            answers.produkt === 'Balkonüberdachung') && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' mm']);
       if (answers.balkonbruestung) p.push(['Brüstung', answers.balkonbruestung]);
@@ -1277,6 +1320,19 @@
         if (f === 'ledset') rerenderKeepScroll();
       });
     });
+    /* Der Hoehenbezug: merken und neu zeichnen, damit bei "Sonstiges"
+       das Freitextfeld erscheint - dieselbe Mechanik wie beim LED-Set.
+       Vorher die Masse einsammeln, sonst waeren die gerade getippten
+       Zahlen nach dem Neuzeichnen wieder weg. */
+    var hBezug = bodyEl.querySelector('#awHoeheBezug');
+    if (hBezug) {
+      hBezug.addEventListener('change', function () {
+        collectMasse();
+        answers.hoehebezug = hBezug.value;
+        if (answers.hoehebezug !== 'Sonstiges') answers.hoehebezug_text = '';
+        rerenderKeepScroll();
+      });
+    }
     // Anzahl der Sets (optional, Standard 1)
     var ledSets = bodyEl.querySelector('#ledSets');
     if (ledSets) {
@@ -1502,7 +1558,8 @@
     var felder = ['produkt', 'aufbau', 'breite', 'tiefe', 'hoehe', 'verglasung',
                   'farbe', 'led', 'montage', 'dachart', 'carporttyp', 'carportvariante',
                   'dach', 'ueberstand', 'seitenschutz', 'dachausfuehrung',
-                  'fassade', 'untergrund', 'vorsprung', 'markise',
+                  'fassade', 'fassade_text', 'hoehebezug', 'hoehebezug_text',
+                  'untergrund', 'vorsprung', 'markise',
                   'ledset', 'ledsetzahl', 'sound', 'soundset',
                   'heizung', 'wettersensor', 'stoff', 'stoffzip'];
     felder.forEach(function (k) {
