@@ -14016,3 +14016,52 @@ Prüfung, die beide Quelltexte gegeneinander hält.
 Und eine vierte, die zählt: Die Prüfung des Wortlauts las zuerst die **Datei
 auf der Platte** und war damit blind – der eingebaute Fehler kommt durch den
 Browser. Jetzt prüft sie, was der Kunde sieht.
+
+## 06.11.2026 – Der Testlauf hat echte Anfragen verschickt
+
+**Was passiert ist.** Der Betreiber fragte: „war die anfrage von
+a.mueller@web.de echt?" – Ja. Nicht von einem Kunden, von einem Prüflauf.
+
+Im Anfrage-Assistenten ist auf der Zusammenfassung der **„Weiter"-Knopf der
+Absenden-Knopf** (`goNext`: `if (id === 'summary') { submit(); return; }`). Die
+neue Prüfung klickt sich bis zur Zusammenfassung durch und hält dort an der
+Zeile an, auf die sie wartet. In der Gegenprobe wird aber genau diese Zeile
+entfernt – und dann fand die Schleife ihren Haltepunkt nicht und klickte
+weiter. Auf „Absenden".
+
+**Warum es rausging.** `api.web3forms.com` ist von diesem Rechner aus nicht
+erreichbar; der Assistent hat dafür einen Ersatzweg (**Formspree**), und der
+ist erreichbar. Gemessen: **6 Versuche je Lauf**, der betroffene Lauf fand
+zweimal statt. Die Datenbank blieb unberührt – `/api/kontakt` ist eine relative
+Adresse und lief auf dem Testserver ins Leere.
+
+**Doppelt repariert:**
+
+1. **Ursache:** Der Test erkennt am Knopftext „Absenden" und hört davor auf –
+   auch wenn er seinen Haltepunkt nicht findet.
+2. **Netz darunter:** Beide Versandadressen sind im Test abgeschnitten, und
+   eine Prüfung schlägt fehl, sobald ein Lauf es auch nur **versucht**. Mit dem
+   eingebauten Fehler nachgefahren: vorher 6 Versuche, jetzt 0.
+
+**Die zweite Lehre: Testdaten müssen als Testdaten erkennbar sein.** Benutzt
+wurde `a.mueller@web.de` mit 56410 Montabaur – eine plausible fremde Adresse in
+einem echten Ort, und sie steht als **Antwortadresse** in der Anfrage. Fällt so
+etwas einmal durch, bekommt ein Unbeteiligter Post.
+
+Ansage des Betreibers: „wenn du testanfragen machst dann bitte als Erika
+Mustermann, Musterstraße 1, 11111 Musterstadt."
+
+**Dabei kam heraus: Der Assistent lehnt „Erika Mustermann" ab.** Der Name steht
+ausdrücklich in seiner Fake-Erkennung (`FAKE_FULL_NAMES`), neben „Max
+Mustermann" und „John Doe" – und das soll er auch, er hält Platzhalter-Eingaben
+von echten Kunden ab. Deshalb: Musterstraße 1, 11111 Musterstadt, Telefon
+01111 111111, E-Mail auf der eigenen Domain, Nachname „Probe". In Kombination
+ist die Anfrage auf den ersten Blick als Test zu erkennen. Dass die
+Fake-Erkennung greift, hat jetzt eine eigene Prüfung.
+
+**Was eine Pflichtangabe nach sich zieht.** Seit die Frage nach dem Höhenbezug
+beantwortet werden **muss**, blieben zwei andere Prüfungen beim Maßschritt
+stehen (`pruefe-assistent.mjs`, `pruefe-ral-assistent.mjs`). Sie lassen die
+Höhe jetzt leer – ohne Höhe entfällt die Frage, und um sie geht es dort nicht.
+Das ist kein Schönheitsfehler, sondern der Normalfall: Eine neue Pflicht im
+Formular trifft jeden, der das Formular durchläuft.

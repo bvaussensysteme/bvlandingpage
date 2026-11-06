@@ -254,7 +254,16 @@ for (let i = 0; i < 26; i++) {
   }
   const zahlen = seite.locator('#awBody .aw-dim input');
   const n = await zahlen.count();
-  for (let k = 0; k < n; k++) await zahlen.nth(k).fill(['4000', '3000', '2500'][k] || '2500');
+  /* Hoehe BEWUSST leer lassen: Seit dem 06.11.2026 muss beantwortet
+     werden, worauf sie sich bezieht, sobald eine dasteht - und darum
+     geht es in dieser Pruefung nicht. Ohne Hoehe entfaellt die Frage,
+     der Schritt bleibt gueltig. Geprueft wird die Pflicht in
+     scripts/pruefe-angaben-wand-hoehe.mjs. */
+  for (let k = 0; k < n; k++) {
+    const id = await zahlen.nth(k).getAttribute('id');
+    if (id === 'aw_hoehe') continue;
+    await zahlen.nth(k).fill(['4000', '3000'][k] || '');
+  }
   await seite.waitForTimeout(150);
   await seite.locator('#awNext').click();
   await seite.waitForTimeout(350);
