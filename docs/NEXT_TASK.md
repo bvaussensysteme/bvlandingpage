@@ -428,7 +428,7 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
-| 06.11.2026 | **Broschüre `/broschuere.html`** – 36 PDF-Seiten als WebP, Blättern mit `page-flip` (MIT) **lokal**, Bedienleiste, Seitenübersicht, Zoom, Vollbild, Nachladen von Hand, Weg ohne JavaScript. Dabei gefunden: `js/i18n.js` war seit Langem ein Syntaxfehler und die Übersetzung auf **keiner** Seite eingebunden | live |
+| 06.11.2026 | **Broschüre `/broschuere.html`** – 36 PDF-Seiten als WebP, Blättern mit `page-flip` (MIT) **lokal**, echte Blätter-Animation, **Handy zuerst gebaut**, Wischgeste, Bedienleiste, Seitenübersicht, Zoom, Vollbild, Nachladen von Hand, Weg ohne JavaScript. Dabei gefunden: `js/i18n.js` war seit Langem ein Syntaxfehler und die Übersetzung auf **keiner** Seite eingebunden | live |
 | 06.11.2026 | **Höhenbezug als Pflichtangabe** (Unterkante / Oberkante / Sonstiges mit freiem Text) und **Fassadennotiz** – in beiden Konfiguratoren, auf der Website direkt unter dem Höhenfeld | live |
 | 06.11.2026 | **Dialog-Hülle heißt `k3d-bearb-*`**, nicht mehr `k3d-keil-*` (181 Stellen) | live |
 | 05./06.11.2026 | **Vier Bearbeiten-Knöpfe** (Plankenwand, Rahmenwand, Schiebetür, Velaris) neben dem Keil; Plankenwand auch hochkant | live |

@@ -69,17 +69,27 @@
       width: 495,
       height: 700,                 /* DIN A4 Hochformat: 1 : 1,414 */
       size: 'stretch',
-      minWidth: 240,
+      /* minWidth entscheidet, WANN auf eine Seite umgeschaltet wird:
+         die Bibliothek nimmt Hochformat, sobald weniger als 2 x minWidth
+         Platz ist. 330 setzt diesen Punkt auf dieselbe Breite, an der
+         auch das Aussehen umschaltet (Medienabfrage 700 px) - sonst
+         staenden kurzzeitig zwei winzige Seiten nebeneinander. */
+      minWidth: 330,
       maxWidth: 700,
       minHeight: 339,
       maxHeight: 990,
       showCover: true,             /* Titel und Rueckseite einzeln */
       usePortrait: true,           /* Handy im Hochformat: eine Seite */
       mobileScrollSupport: true,
-      maxShadowOpacity: 0.5,
+      /* Das Umblaettern soll nach Papier aussehen: kraeftiger Schatten
+         in der Falte, eine Ecke, die sich schon beim Annaehern hebt,
+         und ein Tippen auf die rechte oder linke Haelfte blaettert. */
+      maxShadowOpacity: 0.8,
+      showPageCorners: true,
+      disableFlipByClick: false,
       drawShadow: !wenigBewegung,
-      flippingTime: wenigBewegung ? 1 : 700,
-      swipeDistance: 20
+      flippingTime: wenigBewegung ? 1 : 800,
+      swipeDistance: 15
     });
     buch.loadFromHTML(seiten);
   } catch (e) {

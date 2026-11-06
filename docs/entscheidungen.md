@@ -14129,3 +14129,30 @@ hält das offen.
 
 **Lehre:** Ein Fehler, der wie Gestaltung aussieht, wird nicht gemeldet.
 Darum sucht die Prüfung nicht das Aussehen, sondern die Struktur.
+
+### 06.11.2026 (später am Abend): „wie ein echter Katalog", Handy zuerst
+
+Ansage des Betreibers: „es soll sich wie ein echter katalog blättern
+lassen, mobile first, pc und tablet 2nd – also natürlich auch animation
+wie seiten umblättern".
+
+Die Blätter-Animation lief bereits (die Bibliothek kann nichts anderes);
+was fehlte, war der **Zuschnitt fürs Telefon**. Gemessen am 390 × 844-Bild
+stand das Buch erst bei 341 px, weil der Kopfbereich 264 px hoch war.
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | **Die Gestaltung ist von unten gebaut**: die Grundregeln gelten fürs Telefon, erst `@media (min-width: 700px)` und `1100px` bauen Tablet und Schreibtisch darauf auf | „mobile first, pc und tablet 2nd" | Ansage des Betreibers |
+| 06.11.2026 | **Die Breite des Buches steht auf einem eigenen Rahmen** (`.bro-rahmen`), nicht auf dem Buch | Die Bibliothek setzt dem Buch selbst einen **Inline-Stil** `max-width: 2 × maxWidth` (1400 px). Inline schlägt jede Regel aus dem Stilblatt – gemessen: die eigene Rechnung kam gar nicht an, das Buch war am Schreibtisch 1060 px breit statt 948 | eigene Messung |
+| 06.11.2026 | **Die Höhe wird über die Breite gesteuert** (`max-width: min(100%, (100svh − 190px) / 1,4142)`) | Die Bibliothek rechnet die Höhe aus der Breite (sie setzt dafür selbst eine Innenpolsterung in Prozent). Über `height` ist nichts zu erreichen | – |
+| 06.11.2026 | Am Telefon **kein erklärender Satz und kein PDF-Knopf im Kopfbereich** | Beides steht unterhalb des Buches noch einmal (Bedienleiste, Abschnitt „Was in der Broschüre steht"). Damit beginnt das Buch bei 169 px statt 341 px und ist auf einem 390 × 844-Bildschirm **vollständig zu sehen, ohne zu scrollen** | eigene Messung |
+| 06.11.2026 | Der Hinweis zum Blättern steht **vor** der Bedienleiste | Am Telefon bleibt so das Wichtigste – wie geblättert wird – im sichtbaren Bereich; die Bedienleiste ist eine Scrollbewegung entfernt | – |
+| 06.11.2026 | `minWidth` der Bibliothek von 240 auf **330** | Sie schaltet auf eine Seite um, sobald weniger als 2 × `minWidth` Platz ist. 330 legt diesen Punkt auf dieselbe Breite, an der auch das Aussehen umschaltet (700 px) – sonst stünden dazwischen zwei winzige Seiten nebeneinander | – |
+| 06.11.2026 | Papier-Anmutung: `maxShadowOpacity` 0,5 → **0,8**, Blätterdauer 700 → **800 ms**, Schatten unter dem Buch, Tippen auf die linke/rechte Hälfte blättert, `swipeDistance` 20 → **15** | „wie ein echter Katalog". Bei `prefers-reduced-motion` bleibt es bei 1 ms und ohne Schatten | Ansage des Betreibers |
+| 06.11.2026 | **Die Wischgeste ist jetzt eine eigene Prüfung** | Am Telefon ist Wischen der Hauptweg, nicht der Knopf. Eine Prüfung, die nur Knöpfe klickt, würde nicht merken, wenn das Wischen ausfällt | – |
+
+**Gemessen nach dem Umbau** (Breite × Höhe des Buches, Oberkante):
+Telefon 390 × 844 → 366 × 518 px, Oberkante 169 (ganz sichtbar);
+Tablet 820 × 1180 → 780 × 552 px, Bedienleiste bei 1153 (alles sichtbar);
+Schreibtisch 1280 × 900 → 948 × 670 px. Kein waagerechtes Scrollen auf
+keiner Größe.

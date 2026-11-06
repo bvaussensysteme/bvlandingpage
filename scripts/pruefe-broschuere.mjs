@@ -82,6 +82,8 @@ const FEHLER = [
     ersetzen: 'min-height:12px; min-width:12px; padding:0; font-size:8px; line-height:1;' },
   { name: 'Am Handy stehen zwei Seiten nebeneinander', muster: '**/js/broschuere.js*',
     suchen: 'usePortrait: true,', ersetzen: 'usePortrait: false,' },
+  { name: 'Wischen blaettert nicht mehr', muster: '**/js/broschuere.js*',
+    suchen: 'swipeDistance: 15', ersetzen: 'swipeDistance: 9000' },
   { name: 'Die Navigation fuehrt nicht zur Broschuere', muster: '**/stoffe.html*',
     suchen: '/broschuere.html', ersetzen: '/nirgendwohin.html' },
   { name: 'Die Startseite fuehrt nicht zur Broschuere', muster: '**/index.html*',
@@ -311,6 +313,35 @@ async function lauf(fehler) {
     }).length);
   p('Am Handy sind die Knöpfe mit dem Daumen zu treffen', klein === 0,
     klein ? klein + ' zu klein' : 'alle mindestens 44 px');
+
+  /* WISCHEN IST AM HANDY DER HAUPTWEG - wichtiger als jeder Knopf.
+     Die Bibliothek hoert touchstart am Buch und touchmove/touchend am
+     Fenster ab; genau so werden die Ereignisse hier ausgeloest. */
+  const mZaehler = () => mseite.$eval('#broZaehler', (e) => e.textContent.trim()).catch(() => '-');
+  const vorWisch = await mZaehler();
+  await mseite.evaluate(() => {
+    var el = document.querySelector('#broBuch .stf__block') || document.getElementById('broBuch');
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    var y = r.top + r.height * 0.6;
+    var x1 = r.left + r.width * 0.85, x2 = r.left + r.width * 0.15;
+    function mach(typ, x, ziel) {
+      var t = new Touch({ identifier: 1, target: el, clientX: x, clientY: y, pageX: x, pageY: y });
+      ziel.dispatchEvent(new TouchEvent(typ, {
+        touches: typ === 'touchend' ? [] : [t],
+        targetTouches: typ === 'touchend' ? [] : [t],
+        changedTouches: [t], bubbles: true, cancelable: true
+      }));
+    }
+    mach('touchstart', x1, el);
+    mach('touchmove', (x1 + x2) / 2, window);
+    mach('touchmove', x2, window);
+    mach('touchend', x2, window);
+  });
+  await mseite.waitForTimeout(1500);
+  const nachWisch = await mZaehler();
+  p('Am Handy blättert eine Wischgeste', nachWisch !== vorWisch,
+    vorWisch + ' -> ' + nachWisch);
 
   /* ERST EINMAL BLAETTERN. Auf der Titelseite liegt ohnehin nur ein
      Blatt offen (showCover) - gezaehlt wird also im Inneren, sonst

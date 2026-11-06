@@ -21,23 +21,49 @@ extraScripts: |
   <script src="/js/i18n.js?v=20261106a" defer></script>
 ---
 <style>
-  /* ---- Broschuere: eigene Gestaltung, Tokens aus src/css/style.css ---- */
-  .bro-buehne { background:#3a3a3a; padding:40px 0 48px; }
-  .bro-buehne .container { max-width:1100px; }
+  /* ============================================================
+     Broschuere - HANDY ZUERST.
+     Die Grundregeln gelten fuer das Telefon; erst die Medienabfragen
+     weiter unten bauen Tablet und Schreibtisch darauf auf.
 
-  .bro-buch { margin:0 auto; max-width:1000px; }
+     DIE EINE WICHTIGE REGEL: Die Bibliothek rechnet die HOEHE des
+     Buches aus seiner BREITE (Seitenverhaeltnis DIN A4, und sie setzt
+     dafuer selbst eine Innenpolsterung). Ueber die Hoehe laesst sich
+     also nichts steuern - wer will, dass eine ganze Seite ohne
+     Scrollen in den Bildschirm passt, muss die BREITE begrenzen.
+     Darum die Rechnung mit 100svh: sichtbare Hoehe minus das, was
+     Bedienleiste und Abstaende brauchen, geteilt durch 1,4142.
+     ============================================================ */
+  .bro-buehne { background:#3a3a3a; padding:12px 0 22px; }
+  .bro-buehne .container { max-width:1100px; padding-left:12px; padding-right:12px; }
+
+  /* ACHTUNG: Die Bibliothek setzt dem Buch selbst einen Inline-Stil
+     max-width = 2 x maxWidth (also 1400px). Ein Inline-Stil schlaegt
+     jede Regel von hier - gemessen am 06.11.2026: max-width kam als
+     1400px an, die eigene Rechnung wirkte nicht. Darum steht die
+     Breite auf dem RAHMEN, den die Bibliothek nicht anfasst. */
+  .bro-rahmen { width:100%; margin:0 auto;
+    max-width: min(100%, calc((100vh - 190px) / 1.4142));
+    max-width: min(100%, calc((100svh - 190px) / 1.4142)); }
+  .bro-buch { width:100%; margin:0 auto; }
   .bro-buch .bro-seite { background:#fff; overflow:hidden; }
   .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff; }
+  /* Das Buch liegt auf der Flaeche, es klebt nicht darauf. Der Schatten
+     sitzt auf der Huelle der Bibliothek - die hat genau die Groesse des
+     aufgeschlagenen Buches. (Ihre eigene Regel dafuer heisst .sft__wrapper
+     und greift nie: Tippfehler in der Bibliothek, der Bauteil heisst
+     stf__wrapper. Nicht korrigieren - fremde Datei.) */
+  .bro-buch .stf__wrapper { box-shadow:0 16px 40px rgba(0,0,0,.5); }
 
   /* Ohne Bibliothek (Skript blockiert o. Ae.): einfache Liste statt Buch */
-  .bro-buch--liste { display:grid; gap:14px; }
+  .bro-buch--liste { display:grid; gap:14px; max-width:100%; }
   .bro-buch--liste .bro-seite { display:block !important; position:static !important;
     width:100% !important; height:auto !important; transform:none !important;
     border-radius:4px; box-shadow:0 6px 20px rgba(0,0,0,.35); }
 
   /* Bedienleiste */
-  .bro-leiste { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center;
-    margin:26px auto 0; max-width:1000px; }
+  .bro-leiste { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;
+    margin:18px auto 0; max-width:1000px; }
   .bro-knopf { display:inline-flex; align-items:center; justify-content:center; gap:8px;
     min-height:44px; min-width:44px; padding:10px 16px; border-radius:8px; cursor:pointer;
     font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
@@ -54,9 +80,13 @@ extraScripts: |
   .bro-knopf--haupt { background:var(--gold); color:var(--black); border-color:var(--gold); }
   .bro-knopf--haupt:hover { background:var(--gold-dark); color:var(--white); border-color:var(--gold-dark); }
 
-  .bro-zaehler { min-width:104px; text-align:center; color:var(--gold-light);
+  .bro-zaehler { min-width:92px; text-align:center; color:var(--gold-light);
     font-weight:700; font-size:.95rem; letter-spacing:.02em; }
-  .bro-hinweis { text-align:center; color:rgba(255,255,255,.62); font-size:.82rem; margin:14px 0 0; }
+  .bro-hinweis { text-align:center; color:rgba(255,255,255,.62); font-size:.8rem; margin:12px 0 0; }
+
+  /* Am Telefon tragen die Zeichen allein, die Woerter wuerden umbrechen. */
+  .bro-knopf--schmal span { position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0 0 0 0); white-space:nowrap; }
 
   /* Ebenen (Uebersicht, Zoom) */
   .bro-ebene { position:fixed; inset:0; z-index:4000; background:rgba(17,17,17,.94);
@@ -66,13 +96,13 @@ extraScripts: |
      Browser-Standard-[hidden] { display:none }. Darum die eigene Regel,
      sonst waere eine Ebene mit data-offen UND hidden trotzdem sichtbar. */
   .bro-ebene[hidden] { display:none; }
-  .bro-ebene-kopf { display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.14); }
-  .bro-ebene-kopf h2 { color:#fff; font-size:1.05rem; margin:0; }
-  .bro-ebene-koerper { flex:1; overflow:auto; padding:18px; }
+  .bro-ebene-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.14); flex-wrap:wrap; }
+  .bro-ebene-kopf h2 { color:#fff; font-size:1rem; margin:0; }
+  .bro-ebene-koerper { flex:1; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch; }
 
-  .bro-raster { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
-    gap:14px; max-width:1100px; margin:0 auto; }
+  .bro-raster { display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
+    gap:12px; max-width:1100px; margin:0 auto; }
   .bro-raster-knopf { display:block; padding:0; border:2px solid transparent; border-radius:6px;
     background:none; cursor:pointer; }
   .bro-raster-knopf img { display:block; width:100%; height:auto; border-radius:4px; background:#fff; }
@@ -87,13 +117,44 @@ extraScripts: |
      die Flaeche scrollen. */
   .bro-zoom-flaeche img { display:block; background:#fff; height:auto; flex-shrink:0; }
 
-  @media (max-width:760px) {
-    .bro-buehne { padding:22px 0 30px; }
-    .bro-leiste { gap:8px; }
-    .bro-knopf { padding:10px 12px; font-size:.86rem; }
-    .bro-knopf--schmal span { position:absolute; width:1px; height:1px; overflow:hidden;
-      clip:rect(0 0 0 0); white-space:nowrap; }
+  /* Kopfbereich am Telefon knapp halten: Das Buch soll ohne Scrollen
+     anfangen. Der PDF-Knopf steht gleich darunter in der Bedienleiste,
+     darum hier keiner. */
+  .bro-kopf { padding:18px 0 14px; }
+  .bro-kopf h1 { font-size:1.6rem; margin-bottom:8px; }
+  /* Am Telefon zaehlt, dass das Buch gleich dasteht. Der erklaerende
+     Satz und der PDF-Knopf fallen hier weg - beides steht unterhalb des
+     Buches noch einmal (Abschnitt "Was in der Broschuere steht" und in
+     der Bedienleiste). Ab 700 px ist genug Platz, dann kommen sie. */
+  .bro-kopf .bro-kopf-text { display:none; }
+  .bro-kopf .bro-kopf-knopf { display:none; }
+  .bro-kopf h1 { margin-bottom:0; }
+
+  /* ---------- Tablet: zwei Seiten nebeneinander ---------- */
+  @media (min-width: 700px) {
+    .bro-buehne { padding:28px 0 34px; }
+    .bro-buehne .container { padding-left:20px; padding-right:20px; }
+    .bro-rahmen { max-width: min(1000px, 100%, calc((100vh - 230px) * 1.4142));
+                  max-width: min(1000px, 100%, calc((100svh - 230px) * 1.4142)); }
+    .bro-leiste { gap:10px; margin-top:24px; }
+    .bro-knopf--schmal span { position:static; width:auto; height:auto; clip:auto; }
+    .bro-hinweis { font-size:.85rem; }
+    .bro-raster { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
+    .bro-ebene-kopf { padding:14px 18px; }
+    .bro-ebene-kopf h2 { font-size:1.05rem; }
+    .bro-ebene-koerper { padding:18px; }
+    .bro-kopf { padding:56px 0 40px; }
+    .bro-kopf h1 { font-size:2.4rem; margin-bottom:16px; }
+    .bro-kopf h1 { margin-bottom:16px; }
+    .bro-kopf .bro-kopf-text { display:block; font-size:1rem; line-height:1.7; }
+    .bro-kopf .bro-kopf-knopf { display:inline-flex; }
   }
+
+  @media (min-width: 1100px) {
+    .bro-buehne { padding:40px 0 48px; }
+    .bro-kopf { padding:64px 0 44px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .bro-buch, .bro-buch * { transition-duration:.01ms !important; }
   }
@@ -101,23 +162,27 @@ extraScripts: |
 
 <main id="main-content" role="main">
 
-  <section class="hero-section" style="background:var(--dark);padding:64px 0 44px;text-align:center;">
+  <section class="hero-section bro-kopf" style="background:var(--dark);text-align:center;">
     <div class="container">
-      <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">Zum Durchblättern</p>
-      <h1 style="color:#fff;margin-bottom:16px;">Unsere Produktbroschüre</h1>
-      <p style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 24px;line-height:1.7;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie die Broschüre als PDF herunter.</p>
-      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold" download>PDF herunterladen (4,4 MB)</a>
+      <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Zum Durchblättern</p>
+      <h1 style="color:#fff;">Unsere Produktbroschüre</h1>
+      <p class="bro-kopf-text" style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 22px;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie die Broschüre als PDF herunter.</p>
+      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
     </div>
   </section>
 
   <section class="bro-buehne" id="broBuehne" aria-label="Broschüre durchblättern">
     <div class="container">
 
+      <div class="bro-rahmen">
       <div id="broBuch" class="bro-buch">
 {% for i in range(1, 37) %}{% set n = ("0" ~ i) if i < 10 else ("" ~ i) %}        <div class="bro-seite" data-density="{{ "hard" if i == 1 or i == 36 else "soft" }}" data-seite="{{ i }}">
           <img class="bro-bild" {% if i <= 2 %}src="/assets/broschuere/seite-{{ n }}.webp"{% endif %} data-src="/assets/broschuere/seite-{{ n }}.webp" width="1400" height="1966" alt="Broschüre, Seite {{ i }} von 36" />
         </div>
 {% endfor %}      </div>
+      </div>
+
+      <p class="bro-hinweis" id="broHinweis">Ziehen Sie an der Seitenecke, wischen Sie auf dem Handy oder blättern Sie mit den Pfeiltasten.</p>
 
       <div class="bro-leiste" role="toolbar" aria-label="Broschüre bedienen" id="broLeiste">
         <button type="button" class="bro-knopf" id="broZurueck">
@@ -140,8 +205,6 @@ extraScripts: |
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF herunterladen
         </a>
       </div>
-
-      <p class="bro-hinweis" id="broHinweis">Ziehen Sie an der Seitenecke, wischen Sie auf dem Handy oder blättern Sie mit den Pfeiltasten.</p>
 
       <noscript>
         <div style="max-width:420px;margin:0 auto;text-align:center;">
