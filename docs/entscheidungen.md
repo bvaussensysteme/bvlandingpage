@@ -13869,3 +13869,53 @@ die Lamellen **im Modell** wirklich stehen.
 „ohne eigene Wirkung" – zu Recht: Das Neuzeichnen hängt am Original, nicht am
 Spiegel. Dass der Durchgriff trotzdem funktioniert, prüft
 `pruefe-schiebe-velaris.mjs`, und zwar bis ins Modell.
+
+## 06.11.2026 – Die Dialog-Hülle heißt nicht mehr nach dem Keil
+
+**Was falsch war.** Die Hülle der Bearbeiten-Dialoge (Überlagerung, Kasten,
+Kopf- und Fußzeile, Maßfelder, Kacheln, Zahnrad) wurde für den Keil gebaut und
+hieß danach: `k3d-keil-*`. Seit dem 06.11.2026 benutzen sie **alle vier**
+Editoren – Plankenwand, Rahmenwand, Schiebetür, Velaris. Ein Name, der nach dem
+Bauteil heißt, für das etwas zufällig zuerst gebaut wurde, führt den nächsten in
+die Irre: Er sucht die Regel für seinen Dialog und findet eine, die „keil"
+heißt, und ändert sie dann lieber nicht.
+
+**Was jetzt gilt.** Die Hülle heißt `k3d-bearb-*`. Was wirklich nur zum Keil
+gehört, heißt weiter `k3d-keil-*`: `-feld`, `-glaszeile`, `-glaskopf`, `-nr`,
+`-bild`, `-innen`, `-spalten`, `-warnung`, `-zurueck`, `-uebernehmen`.
+
+Zwei Namen wurden dabei auch inhaltlich richtiggestellt:
+`k3d-keil-teilungen` → **`k3d-bearb-kacheln`**. Der Kasten hält beim Keil
+Aufteilungen, bei der Plankenwand Richtungen und bei der Rahmenwand wieder
+Aufteilungen – „Teilungen" stimmte für zwei von drei.
+
+**Warum erst jetzt.** Vor dem vierten Editor hätte der Schnitt denselben
+Aufwand gekostet und weniger genützt; die Handy-Hülle war außerdem frisch
+geradegezogen und sollte sich erst bewähren.
+
+**Wie geprüft.** Rein mechanisch, ohne sichtbare Wirkung – also muss das auch
+gemessen sein: Alle vier Editor-Prüfungen samt Gegenprobe liefen vorher und
+nachher. Die Reihenfolge der Ersetzung war dabei nicht beliebig:
+`k3d-keil-mass` ist ein **Präfix** von `k3d-keil-masse`, und `k3d-keil` ein
+Präfix von allem. Längste zuerst, die Hülle zuletzt und nur als ganzes Wort.
+
+## 06.11.2026 – Eine Gegenprobe, die falschen Alarm schlägt
+
+**Was falsch war.** `pruefe-schiebe-velaris.mjs` meldete im Sammellauf „5 Fehler
+eingebaut, 4 Prüfungen schlagen an – mindestens eine Prüfung ist blind". Das
+stimmte nicht: Einzeln gefahren machte **jeder** der fünf Fehler genau eine
+Prüfung rot. Mit allen auf einmal verdecken sie sich gegenseitig – ist das Maß
+schon auf null gesetzt, kann der Fehler daneben nichts mehr zeigen.
+
+**Was jetzt gilt.** Die Gegenprobe dieses Skripts fährt **jeden Fehler einzeln**
+und urteilt erst danach; sie ruft sich dafür selbst auf (`BV_KIND`). `BV_FEHLER=<n>`
+läuft weiterhin ohne diesen Umweg.
+
+**Warum das zählt.** Eine Gegenprobe, die falschen Alarm schlägt, ist fast so
+schädlich wie eine, die schweigt: Man gewöhnt sich an das Rot und sieht den
+echten Fehler nicht mehr. Dieselbe Begründung wie beim zufällig roten
+Schrittwechsel-Test vom 05.11.2026.
+
+**Nicht geändert:** Die drei anderen Editor-Prüfungen erreichen ihre Zahl im
+Sammellauf; beim Keil-Editor wären 20 Einzelläufe auch zu teuer. Dort bleibt
+`BV_FEHLER=<n>` das Mittel der Wahl, wenn eine neue Prüfung dazukommt.

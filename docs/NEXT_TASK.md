@@ -162,11 +162,9 @@ bearbeiten … und Velaris bearbeiten".
 | Schiebetür | **fertig** – Maße und Flügelzahl aus dem Modell, Aufteilung dieser Seite, Glas und Schloss (gelten für die ganze Anlage). Die Flügelzahl bleibt nicht wählbar: sie kommt aus der Lieferbreiten-Tabelle |
 | Velaris | **fertig** – Maße aus dem Modell, Lamellen-Oberfläche und die beiden Winkel. Alles gilt für die ganze Anlage, der Dialog sagt das |
 
-**Jetzt fällig: aufräumen.** Alle vier Editoren stehen, die Dialog-Hülle heißt
-aber immer noch `k3d-keil-*` und wird von jedem benutzt. Umbenennen auf einen
-neutralen Namen (`k3d-bearb-*`) – ein rein mechanischer Schnitt durch
-`konfigurator.html`, `js/konfigurator-3d.js` und die vier Prüfskripte. Danach
-heißt nichts mehr nach dem Bauteil, für das es zufällig zuerst gebaut wurde.
+**Erledigt am 06.11.2026:** Die Dialog-Hülle heißt jetzt `k3d-bearb-*`, nicht
+mehr `k3d-keil-*`. Nur was wirklich zum Keil gehört, trägt seinen Namen weiter
+(Einzelheiten in `docs/entscheidungen.md`).
 
 ### Balkon: drei Bilder liegen beim Betreiber *(05.11.2026)*
 

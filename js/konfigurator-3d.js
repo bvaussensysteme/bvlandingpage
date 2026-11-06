@@ -17227,11 +17227,11 @@
         /* Der Grund steht AM Knopf, nicht nur als Titel: Ein
            ausgegrauter Knopf ohne Begruendung sieht nach Fehler aus,
            und am Handy gibt es keinen Mauszeiger fuer einen Titel. */
-        var note = b.querySelector('.k3d-keil-sperr');
+        var note = b.querySelector('.k3d-bearb-sperr');
         if (!passt.ok) {
           if (!note) {
             note = document.createElement('em');
-            note.className = 'k3d-keil-sperr';
+            note.className = 'k3d-bearb-sperr';
             b.appendChild(note);
           }
           note.textContent = passt.grund;
@@ -17379,7 +17379,7 @@
           for (var w = 0; w < sollW; w++) {
             (function (nr) {
               var wrap = document.createElement('div');
-              wrap.className = 'k3d-keil-mass';
+              wrap.className = 'k3d-bearb-mass';
               var lab = document.createElement('label');
               lab.setAttribute('for', 'k3dKeilSprosseW' + nr);
               lab.textContent = 'Waagerechte Sprosse ' + (nr + 1) + ' – Höhe über der Unterkante (mm)';
@@ -17422,7 +17422,7 @@
           for (var i = 0; i < soll; i++) {
             (function (nr) {
               var wrap = document.createElement('div');
-              wrap.className = 'k3d-keil-mass';
+              wrap.className = 'k3d-bearb-mass';
               var lab = document.createElement('label');
               lab.setAttribute('for', 'k3dKeilSprosse' + nr);
               lab.textContent = 'Sprosse ' + (nr + 1) + ' – Abstand von der Wand (mm)';
@@ -17993,7 +17993,7 @@
     if (!knopf) {
       knopf = document.createElement('button');
       knopf.type = 'button';
-      knopf.className = 'k3d-keil-rad';
+      knopf.className = 'k3d-bearb-rad';
       knopf.setAttribute('data-k3d-rad', art);
       knopf.setAttribute('data-k3d-rad-seite', seite);
       knopf.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none"'

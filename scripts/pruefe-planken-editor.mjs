@@ -68,7 +68,7 @@ const CSS_FEHLER = [
   { von: '<input type="text" id="k3dPlankenB" class="k3d-zahl" readonly',
     nach: '<input type="text" id="k3dPlankenB" readonly' },
   /* Die Einheit am Hoehenfeld fehlt. */
-  { von: '<span class="k3d-keil-einheit" aria-hidden="true">mm</span>\n              </span>\n              <p class="k3d-mini" id="k3dPlankenHHinweis">',
+  { von: '<span class="k3d-bearb-einheit" aria-hidden="true">mm</span>\n              </span>\n              <p class="k3d-mini" id="k3dPlankenHHinweis">',
     nach: '\n              </span>\n              <p class="k3d-mini" id="k3dPlankenHHinweis">' },
 ];
 
@@ -283,7 +283,7 @@ pruefe('Beide Maszfelder tragen denselben Rahmen',
   new Set(rahmen).size === 1, rahmen.join('  /  '));
 const einheiten = await p.evaluate(() =>
   ['k3dPlankenB', 'k3dPlankenH'].map((id) => {
-    const e = document.getElementById(id).parentNode.querySelector('.k3d-keil-einheit');
+    const e = document.getElementById(id).parentNode.querySelector('.k3d-bearb-einheit');
     return e && e.offsetParent !== null ? (e.textContent || '').trim() : '';
   }));
 pruefe('Hinter jedem Maszfeld steht die Einheit',
