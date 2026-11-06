@@ -131,6 +131,9 @@
     /* Dasselbe fuer die Plankenwand: Hoehe in mm und Richtung je Seite.
        Leer heisst "nie bearbeitet" - dann gilt der Regler im Bedienfeld. */
     plankenPlan: {},
+    /* Aufteilung der Rahmenwand je Seite. Leer heisst: es gilt das
+       Auswahlfeld im Bedienfeld. */
+    rahmenPlan: {},
     sg23Schloss: 'ohne',          // ohne | links | rechts
     /* Beide Hälften haben ihre EIGENE Stellung: „man kann obere hälfte
        und untere hälfte seprat öffnen/schließen" (Betreiber,
@@ -6124,8 +6127,12 @@
        geteilt. Welche der acht belegten Aufteilungen genommen wird,
        rechnet das System aus dem lichten Maß aus; in den erweiterten
        Einstellungen lässt sie sich wählen – wie bei den Schiebeanlagen. */
-    function rahmenwandTeilung(laengeCm, hoeheCm) {
-      var wunsch = parseInt(Z.rahmenTeilung, 10);
+    function rahmenwandTeilung(laengeCm, hoeheCm, seite) {
+      /* Die Wahl AM BAUTEIL schlaegt die im Bedienfeld - wie beim
+         Planken-Editor. Leer heisst dort weiterhin: Bedienfeld, und
+         steht das auf "automatisch", rechnet die Formel unten. */
+      var eigen = seite ? rahmenPlanLesen(seite).teilung : '';
+      var wunsch = parseInt(eigen !== '' ? eigen : Z.rahmenTeilung, 10);
       if (!isNaN(wunsch) && RAHMENW_TEILUNGEN[wunsch]) return RAHMENW_TEILUNGEN[wunsch];
       /* Automatik (Betreiber, 11.10.2026): „bei der automatischen
          auswahl soll keine wagrechte sprosse sein und die senkrechten
@@ -6153,10 +6160,16 @@
        „da oben beim dreieck is kein rahmen und der mittelsprossen geht
        nicht bis hoch" (Betreiber, 11.10.2026, mit Bild). */
     function rahmenwand(laenge, hoehe, achse, mitte, yUnten, quer, obenProfil,
-                        extraOben) {
+                        extraOben, seite) {
       if (laenge <= 2 * RAHMENW.profil || hoehe <= 2 * RAHMENW.profil) return;
       var P = RAHMENW.profil, S = RAHMENW.sprosse, T = RAHMENW.tiefe;
-      var t = rahmenwandTeilung(laenge, hoehe);
+      /* MESSEN und merken, damit der Editor die wirklichen Masse zeigt
+         und sie nicht ein zweites Mal herleitet. */
+      if (seite) {
+        rahmenMassGemerkt[seite] = { b: Math.round(laenge * 10),
+                                     h: Math.round(hoehe * 10) };
+      }
+      var t = rahmenwandTeilung(laenge, hoehe, seite);
       var sv = t[0], sh = t[1];
       RAHMENW_IST = { senkrecht: sv, waagerecht: sh, teile: (sv + 1) * (sh + 1),
                       bisDach: false };
@@ -6896,7 +6909,7 @@
          Anfrage-Assistenten, und so wird es montiert. */
       if (hatRahmen && hatSchiebe) {
         var unten = hAuf * 0.38;
-        rahmenwand(laenge, unten, achse, mitte, yAuf, quer);
+        rahmenwand(laenge, unten, achse, mitte, yAuf, quer, undefined, null, seite);
         schiebetuer(laenge, hAuf - unten, achse, mitte, yAuf + unten, quer, seite, richtung);
       } else if (hatSchiebe) {
         schiebetuer(laenge, hAuf, achse, mitte, yAuf, quer, seite, richtung);
@@ -6909,7 +6922,8 @@
         var bisDach = !hatKeil && quer && neig > 0.001 && !!dachUk;
         var yO = yUnten + hoch;
         rahmenwand(laenge, hAuf, achse, mitte, yAuf, quer, !bisDach,
-                   bisDach ? function (pos) { return dachUk(pos) - yO; } : null);
+                   bisDach ? function (pos) { return dachUk(pos) - yO; } : null,
+                   seite);
         if (bisDach) {
           var hVo = Math.max(0, dachUk(zVorneK) - yO);
           var hHi = Math.max(0, dachUk(zHintenK) - yO);
@@ -15247,6 +15261,8 @@
                       liste.indexOf('Keil') > -1 && moeglich.indexOf('Keil') > -1);
       zahnradAnzeigen(seite, reihe, 'Plankenwand',
                       liste.indexOf('Plankenwand') > -1);
+      zahnradAnzeigen(seite, reihe, 'Rahmenwand',
+                      liste.indexOf('Rahmenwand') > -1);
       feldwahlAnzeigen(seite, reihe);
     });
   }
@@ -16528,6 +16544,7 @@
        angefasst), damit der Link kurz bleibt. */
     if (Z.keilPlan && Object.keys(Z.keilPlan).length) d.kp = Z.keilPlan;
     if (Z.plankenPlan && Object.keys(Z.plankenPlan).length) d.pp = Z.plankenPlan;
+    if (Z.rahmenPlan && Object.keys(Z.rahmenPlan).length) d.rp = Z.rahmenPlan;
     return d;
   }
 
@@ -16623,6 +16640,7 @@
        Leer heisst "nie bearbeitet" - dann gilt der Regler im
        Bedienfeld, wie bisher. */
     Z.plankenPlan = (d.pp && typeof d.pp === 'object') ? d.pp : {};
+    Z.rahmenPlan = (d.rp && typeof d.rp === 'object') ? d.rp : {};
     if (d.fa) farbeSetzen(d.fa);
     aendern();
     return true;
@@ -16823,6 +16841,20 @@
   function plankenPlanSchreiben(seite, plan) {
     if (!Z.plankenPlan) Z.plankenPlan = {};
     Z.plankenPlan[seite] = plan;
+  }
+
+  /* ---------- Der Plan der Rahmenwand ----------
+     Bisher galt die Aufteilung fuer ALLE Seiten zugleich (ein
+     Auswahlfeld im Bedienfeld). Je Seite ist sie jetzt einzeln
+     waehlbar; leer heisst wie gehabt: es gilt das Bedienfeld, und
+     steht dort "automatisch", rechnet das System sie aus. */
+  function rahmenPlanLesen(seite) {
+    var p = (Z.rahmenPlan && Z.rahmenPlan[seite]) || {};
+    return { teilung: (p.teilung === 0 || p.teilung) ? String(p.teilung) : '' };
+  }
+  function rahmenPlanSchreiben(seite, plan) {
+    if (!Z.rahmenPlan) Z.rahmenPlan = {};
+    Z.rahmenPlan[seite] = plan;
   }
 
 
@@ -17574,6 +17606,129 @@
     }
   }
 
+  /* ---------- Der Editor der Rahmenwand ----------
+     Dieselbe Huelle, derselbe Aufbau wie beim Planken-Editor. Zu waehlen
+     gibt es hier die Aufteilung; Breite und Hoehe kommen aus dem Modell
+     und sind nicht eintippbar: Die Hoehe ergibt sich aus dem, was neben
+     der Rahmenwand noch an der Seite steht (Plankenwand, Keil,
+     Schiebetuer). Sie hier zum Eingabefeld zu machen hiesse, zwei
+     Stellen ueber dieselbe Zahl entscheiden zu lassen. */
+  var rahmenMassGemerkt = {};
+  var rahmenEditorSeite = null;
+  /* Dieselben acht Aufteilungen wie im Bedienfeld, in derselben
+     Reihenfolge - die Namen stehen EINMAL hier und werden von dort
+     gelesen, damit sie nicht auseinanderlaufen. */
+  function rahmenTeilungsNamen() {
+    var sel = document.getElementById('k3dRahmenTeilung');
+    if (!sel) return [];
+    return Array.prototype.map.call(sel.options, function (o) {
+      return { id: o.value, name: o.textContent.trim() };
+    });
+  }
+  /* Eigene kleine Zeichnung: ein Rahmen mit den Sprossen darin. */
+  function rahmenKachelBild(id) {
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 60 44');
+    svg.setAttribute('aria-hidden', 'true');
+    function linie(x1, y1, x2, y2, dick) {
+      var l = document.createElementNS(ns, 'line');
+      l.setAttribute('x1', String(x1)); l.setAttribute('y1', String(y1));
+      l.setAttribute('x2', String(x2)); l.setAttribute('y2', String(y2));
+      l.setAttribute('stroke', 'currentColor');
+      l.setAttribute('stroke-width', String(dick));
+      svg.appendChild(l);
+    }
+    var r = document.createElementNS(ns, 'rect');
+    r.setAttribute('x', '2'); r.setAttribute('y', '2');
+    r.setAttribute('width', '56'); r.setAttribute('height', '40');
+    r.setAttribute('fill', 'none'); r.setAttribute('stroke', 'currentColor');
+    r.setAttribute('stroke-width', '2');
+    svg.appendChild(r);
+    var t = RAHMENW_TEILUNGEN[parseInt(id, 10)];
+    if (!t) {                                   // "automatisch"
+      var fr = document.createElementNS(ns, 'text');
+      fr.setAttribute('x', '30'); fr.setAttribute('y', '28');
+      fr.setAttribute('text-anchor', 'middle');
+      fr.setAttribute('font-size', '16'); fr.setAttribute('fill', 'currentColor');
+      fr.textContent = 'A';
+      svg.appendChild(fr);
+      return svg;
+    }
+    var sv = t[0], sh = t[1];
+    for (var i = 1; i <= sv; i++) linie(2 + i * (56 / (sv + 1)), 2, 2 + i * (56 / (sv + 1)), 42, 2);
+    for (var j = 1; j <= sh; j++) linie(2, 2 + j * (40 / (sh + 1)), 58, 2 + j * (40 / (sh + 1)), 2);
+    return svg;
+  }
+
+  function rahmenEditorOeffnen(seite) {
+    rahmenEditorVerdrahten();
+    rahmenEditorSeite = seite;
+    var kasten = document.getElementById('k3dRahmenDialog');
+    if (!kasten) return;
+    kasten.hidden = false;
+    var t = document.getElementById('k3dRahmenTitel');
+    if (t) t.textContent = 'Rahmenwand bearbeiten – ' + keilSeitenName(seite);
+    rahmenEditorZeichnen();
+  }
+  function rahmenEditorSchliessen() {
+    var kasten = document.getElementById('k3dRahmenDialog');
+    if (kasten) kasten.hidden = true;
+    rahmenEditorSeite = null;
+  }
+  function rahmenEditorZeichnen() {
+    if (!rahmenEditorSeite) return;
+    var plan = rahmenPlanLesen(rahmenEditorSeite);
+    var mass = rahmenMassGemerkt[rahmenEditorSeite] || { b: 0, h: 0 };
+    var kacheln = document.getElementById('k3dRahmenTeilungen');
+    if (kacheln && !kacheln.firstChild) {
+      rahmenTeilungsNamen().forEach(function (o) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-teilung', o.id);
+        b.setAttribute('aria-pressed', 'false');
+        b.appendChild(rahmenKachelBild(o.id));
+        var sp = document.createElement('span');
+        sp.textContent = o.name;
+        b.appendChild(sp);
+        b.addEventListener('click', function () {
+          rahmenPlanSchreiben(rahmenEditorSeite, { teilung: o.id });
+          rahmenEditorZeichnen();
+          aendern();
+        });
+        kacheln.appendChild(b);
+      });
+    }
+    if (kacheln) {
+      Array.prototype.forEach.call(kacheln.children, function (b) {
+        var an = b.getAttribute('data-teilung') === plan.teilung;
+        b.classList.toggle('ist-an', an);
+        b.setAttribute('aria-pressed', an ? 'true' : 'false');
+      });
+    }
+    var fB = document.getElementById('k3dRahmenB');
+    if (fB) fB.value = mass.b ? String(mass.b) : '–';
+    var fH = document.getElementById('k3dRahmenH');
+    if (fH) fH.value = mass.h ? String(mass.h) : '–';
+  }
+  var rahmenEditorBereit = false;
+  function rahmenEditorVerdrahten() {
+    if (rahmenEditorBereit) return;
+    rahmenEditorBereit = true;
+    var kasten = document.getElementById('k3dRahmenDialog');
+    if (!kasten) return;
+    var zu = document.getElementById('k3dRahmenZu');
+    if (zu) zu.addEventListener('click', rahmenEditorSchliessen);
+    var fertig = document.getElementById('k3dRahmenFertig');
+    if (fertig) fertig.addEventListener('click', rahmenEditorSchliessen);
+    kasten.addEventListener('click', function (e) {
+      if (e.target === kasten) rahmenEditorSchliessen();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !kasten.hidden) rahmenEditorSchliessen();
+    });
+  }
+
   /* Die Bedienung des Planken-Dialogs. Einmal verdrahten, beim ersten
      Oeffnen - wie beim Keil. */
   var plankenEditorBereit = false;
@@ -17628,7 +17783,9 @@
   var ZAHNRAD = {
     'Keil': { text: 'Keil bearbeiten', oeffnen: function (s2) { keilEditorOeffnen(s2); } },
     'Plankenwand': { text: 'Plankenwand bearbeiten',
-                     oeffnen: function (s2) { plankenEditorOeffnen(s2); } }
+                     oeffnen: function (s2) { plankenEditorOeffnen(s2); } },
+    'Rahmenwand': { text: 'Rahmenwand bearbeiten',
+                    oeffnen: function (s2) { rahmenEditorOeffnen(s2); } }
   };
   function zahnradAnzeigen(seite, reihe, art, zeigen) {
     var huelle = reihe.parentNode;

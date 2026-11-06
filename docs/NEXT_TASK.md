@@ -158,9 +158,9 @@ bearbeiten … und Velaris bearbeiten".
 |---|---|
 | Keil | **fertig** (PR #554–#557) |
 | Plankenwand | **fertig** – Höhe in mm je Seite, waagerecht/hochkant |
-| Rahmenwand | offen |
+| Rahmenwand | **fertig** – Aufteilung je Seite (vorher galt sie für alle Seiten zugleich) |
 | Schiebetür | offen – **Achtung:** Die Flügelzahl kommt aus der Lieferbreiten-Tabelle (`sg23Bauart`) und ist **nicht frei wählbar**. Vorher klären, was dort überhaupt eingestellt werden soll (Öffnungsrichtung? Glas? Höhe?) |
-| Velaris | offen |
+| Velaris | offen – **Rückfrage:** Alles, was Velaris einstellbar hat (Lamellenwinkel oben/unten, Verschieben, Oberfläche der Lamellen), ist heute eine Einstellung für die ganze Anlage, nicht je Seite. Ein Editor dort wäre also eine Sammelstelle, keine neue Möglichkeit – außer es soll je Seite unterschiedlich sein. Vorher klären |
 
 **Danach aufräumen:** Die Dialog-Hülle heißt noch `k3d-keil-*`, wird aber von
 jedem Editor benutzt. Umbenennen auf einen neutralen Namen, wenn alle vier

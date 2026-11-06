@@ -13789,3 +13789,43 @@ abgedeckt:
    kein Unterschied messbar – die Prüfung stellt ihn jetzt selbst auf −66.
 
 22 Prüfungen, 8 eingebaute Fehler, jeder einzeln nachgefahren.
+
+## 06.11.2026 – Rahmenwand: Aufteilung je Seite, und der geteilte Link wird endlich geprüft
+
+**Anlass.** „genau so ein button auch für rahmenwand bearbeiten …" (Betreiber,
+05.11.2026). Der zweite der vier Editoren.
+
+**Was falsch war.** Die Aufteilung der Rahmenwand (acht belegte Varianten, von
+„ohne Sprosse" bis „8-teilig") stand im Bedienfeld und galt damit für **alle
+Seiten zugleich**. Wer links eine Sprosse wollte und rechts keine, konnte das
+nicht planen.
+
+**Was jetzt gilt.** Die Wahl steht am Bauteil, je Seite. Leer heißt wie bei der
+Plankenwand: es gilt das Bedienfeld – und steht dort „automatisch", rechnet das
+System sie wie bisher aus. Breite und Höhe kommen aus dem Modell und sind
+**nicht eintippbar**: Die Höhe ergibt sich aus dem, was sonst noch an der Seite
+steht (Plankenwand, Keil, Schiebetür). Sie hier zum Eingabefeld zu machen hieße,
+zwei Stellen über dieselbe Zahl entscheiden zu lassen.
+
+**Die Namen der acht Aufteilungen stehen nur einmal.** Der Editor liest sie aus
+dem Auswahlfeld des Bedienfelds, statt eine zweite Liste zu führen – sonst hieße
+dieselbe Aufteilung früher oder später an zwei Stellen anders. Dafür gibt es
+eine eigene Prüfung.
+
+**Was dabei auffiel und mehr wert ist als der Editor selbst.** Beim Bau der
+Gegenprobe zeigte sich: Der Fehler „der Plan fährt im geteilten Link nicht mit"
+machte **keine einzige Prüfung rot** – weder bei der Rahmenwand noch bei der
+Plankenwand. Ein Plan, der den Link nicht übersteht, geht dem Kunden beim
+Öffnen **stillschweigend** verloren; genau die Art Fehler, die niemand meldet,
+weil niemand sie bemerkt.
+
+Beide Editor-Prüfungen machen jetzt den **echten Rundlauf**: teilen, Link in
+einem frischen Tab öffnen, im Modell nachmessen. `pruefe-teilen.mjs` prüft den
+Link weiterhin für die Felder des Bedienfelds – die Pläne der Bauteile sind
+keine Felder und waren dort nie erfasst.
+
+**Dabei gelernt:** Die erste Fassung der Link-Prüfung meldete einen Fehler, der
+keiner war. Der Lesehaken für den „alten Link" weiter oben im selben Test
+schreibt den **ganzen** Plan neu, Richtung inbegriffen – geprüft wurde also eine
+Richtung, die vorher gar nicht gewählt war. Ein Test, der seinen eigenen Zustand
+nicht kennt, misst das Falsche.
