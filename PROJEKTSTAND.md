@@ -118,12 +118,13 @@ bv-aussensysteme/
 ├── konfigurator.html             ← Platzhalter "Demnächst"
 ├── pflege.html
 ├── windzonen.html                ← Wind- & Schneelastzonen-Tool (DIBt-Daten)
+├── broschuere.html               ← Produktbroschüre zum Durchblättern (36 Seiten)
 ├── baugenehmigung.html           ← Baugenehmigung-Checker (alle 16 Bundesländer)
 ├── einzugsgebiet.html            ← Leaflet.js Karte
 ├── partner.html
 ├── kontakt.html                  ← Redirect → /#kontakt
 ├── vorschau.html                 ← noindex, intern
-├── sitemap.xml                   ← 26 Seiten
+├── sitemap.xml                   ← 49 Seiten
 ├── robots.txt
 ├── llms.txt / llms-full.txt      ← KI-Optimierung
 ├── _headers                      ← Cloudflare Security Headers
@@ -138,6 +139,9 @@ bv-aussensysteme/
 │   └── baugenehmigung-data.js    ← LBO-Daten alle 16 Bundesländer
 ├── data/
 │   └── lastzonen_deutschland.geojson
+├── assets/
+│   ├── js/page-flip.browser.js   ← Blätter-Bibliothek, lokal (MIT, kein CDN)
+│   └── broschuere/               ← seite-01..36.webp, vorschau/, BV-Broschuere.pdf
 ├── images/                       ← vd_* Prefix = VD-Lieferantenbilder
 ├── agents/ audits/ roadmap/ docs/ improvements/
 └── produkte/ (16 Seiten)
@@ -211,6 +215,16 @@ Hinweis: Der Score ist niedriger als am 04.07. (86/100), obwohl an diesem Tag vi
 
 ### Einzugsgebiet-Karte (einzugsgebiet.html)
 - Leaflet.js, CSS-Marker (kein divIcon!)
+
+### Broschüre zum Durchblättern (broschuere.html)
+- 36 Seiten der Produktbroschüre als WebP (1400 px, Qualität 82) aus `BV-Broschuere.pdf`
+- Blätter-Bibliothek `page-flip` (MIT) **lokal** unter `/assets/js/` – kein CDN, kein Fremdanbieter
+- Titel und Rückseite einzeln, dazwischen Doppelseiten; am Handy im Hochformat eine Seite mit Wischgesten
+- Bilder werden nachgeladen (`data-src`, Umfeld der aktuellen Seite) – beim Start nur zwei
+- Bedienleiste: Zurück/Weiter, Seitenzahl, Zoom, Vollbild, Seitenübersicht (36 Vorschaubilder), PDF-Download
+- Pfeiltasten blättern, Escape schließt die Ebenen
+- Ohne JavaScript: Titelbild mit Verweis auf das PDF; lädt die Bibliothek nicht, erscheinen alle Seiten als Liste
+- Geprüft von `scripts/pruefe-broschuere.mjs` (24 Prüfungen) und `scripts/pruefe-broschuere-bilder.sh` (Bilder gegen das PDF)
 
 ---
 

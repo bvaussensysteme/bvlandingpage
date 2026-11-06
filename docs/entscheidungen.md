@@ -14065,3 +14065,67 @@ stehen (`pruefe-assistent.mjs`, `pruefe-ral-assistent.mjs`). Sie lassen die
 Höhe jetzt leer – ohne Höhe entfällt die Frage, und um sie geht es dort nicht.
 Das ist kein Schönheitsfehler, sondern der Normalfall: Eine neue Pflicht im
 Formular trifft jeden, der das Formular durchläuft.
+
+## Broschüre zum Durchblättern (/broschuere.html)
+
+*Angelegt am 06.11.2026.*
+
+**Anlass.** Ansage des Betreibers: eine Seite, auf der die 36-seitige
+Produktbroschüre im Browser geblättert werden kann, mit der Bibliothek
+StPageFlip (npm-Paket `page-flip`, MIT), **nicht über ein CDN**, sondern
+lokal unter `/assets/js/`.
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | Die Bibliothek liegt als Datei im Repository (`assets/js/page-flip.browser.js`, 44 kB, dazu `page-flip.css` und `page-flip.LICENSE.txt`) | Ein CDN-Verweis schickt bei jedem Aufruf die IP des Besuchers an einen Dritten – das wäre eine Einwilligung nötig, die niemand gibt, nur um eine Broschüre zu blättern. Im Bundle steht keine einzige externe Adresse (nachgezählt: 0 Treffer auf `http`), eine Prüfung schreibt jede Netzanfrage mit und verlangt, dass keine an einen fremden Host geht | Vorgabe des Betreibers |
+| 06.11.2026 | **36 Bilder statt PDF im Browser.** Jede Seite als WebP, 1400 px breit, Qualität 82 (zusammen 3,9 MB), dazu 36 Vorschaubilder mit 300 px (0,6 MB) | Ein PDF-Betrachter im Browser bräuchte eine zweite, große Bibliothek und blättert nicht. Die Bilder sind klein genug, dass die Seite sofort anfängt | – |
+| 06.11.2026 | **Nachladen von Hand, nicht `loading="lazy"`** | Die noch nicht aufgeschlagenen Seiten stehen auf `display:none`. Darin lädt der Browser ein `loading="lazy"`-Bild **nicht** – beim Umblättern stünde für einen Moment eine weiße Seite. Darum stehen die Adressen in `data-src`, und `umfeldLaden()` holt immer die Seite und ihr Umfeld (−2 bis +3). Beim Start sind nur zwei Bilder gesetzt, gemessen 4 von 36 nach dem Aufschlagen | – |
+| 06.11.2026 | **Zoom als eigene Ebene, kein `transform: scale` auf dem Buch** | Eine Skalierung verschiebt die Zeigerkoordinaten; das Ziehen an der Seitenecke trifft danach daneben. Die Zoom-Ebene zeigt dieselben Bilder in voller Auflösung und scrollt – dafür brauchen die Bilder `flex-shrink: 0`, sonst schrumpfen sie auf die Fensterbreite zurück und der Zoom tut sichtbar nichts (erst gemessen: 1140 → 1244 px statt 1140 → 1520) | eigene Messung in der Prüfung |
+| 06.11.2026 | **Der Vollbild-Knopf verschwindet, wenn der Browser kein Element-Vollbild kann** (iOS Safari) | Besser kein Knopf als einer, der nichts tut | – |
+| 06.11.2026 | **Im Vollbild wandern Übersicht und Zoom in das Vollbild-Element** und danach zurück | Der Browser zeigt im Vollbild nur den Teilbaum des Vollbild-Elements. Die Ebenen hängen am Ende des Dokuments – dort wären sie unsichtbar gewesen, der Knopf hätte scheinbar nichts getan. Nachgemessen: Ebene liegt im Vollbild-Element, ist sichtbar, und nach dem Schließen wieder am `body` | eigene Durchsicht, nicht gemeldet |
+| 06.11.2026 | Ohne JavaScript zeigt die Seite die **Titelseite als Bild mit Verweis auf das PDF** | Der Weg zur Broschüre darf nicht an einer Bibliothek hängen. Lädt die Bibliothek nicht (blockiert, Datei fehlt), schaltet das Skript zusätzlich auf eine einfache Liste aller 36 Seiten um | – |
+| 06.11.2026 | Im **Navigationsbalken** steht „Broschüre", im Handy-Menü und auf der Startseite „Broschüre ansehen" | Gewünscht war „Broschüre ansehen". Im Balken stehen ab 960 px sechs Einträge neben dem Logo; der lange Text hätte dort umgebrochen. Das ist die einzige Abweichung von der Vorgabe und sie ist bewusst | eigene Abwägung, dem Betreiber gemeldet |
+| 06.11.2026 | Die **Seitenzahl zeigt eine Spanne**, wenn zwei Seiten offen liegen („2–3 / 36"), und eine einzelne Zahl bei einer Seite („3 / 36") | Gewünscht war „3 / 36". Bei aufgeschlagenem Buch sind aber zwei Seiten zu sehen; eine einzelne Zahl wäre dann die halbe Wahrheit | eigene Abwägung |
+
+**Vor dem Veröffentlichen nachgesehen: keine Preise in der Broschüre.** `pruefe-keine-preise.sh` liest HTML, nicht PDF und nicht Bilder – ein PDF mit Preisen wäre also durchgerutscht und hätte die Grundregel „Keine Preise auf der Website" gebrochen, ohne dass eine Prüfung anschlägt. Der Text des PDF wurde dafür ausgelesen (`pdftotext`): Treffer sind „gegen Aufpreis" (ohne Betrag), „kostenlose Beratung" und „ab 100 cm" – kein Geldbetrag, kein Eurozeichen. **Bei einer neuen Broschüre erneut nachsehen.**
+
+**Gemessen am 06.11.2026** (örtlicher Server, Chromium): DOMContentLoaded 186 ms, `load` 261 ms, erstes Bild 252 ms, Buch sichtbar 307 ms, 27 Anfragen, 1054 kB. Davon rund 500 kB die vier Seitenbilder, die zum Start geladen werden (Seite 1 bis 4 – das Umfeld der aufgeschlagenen Seite). Am Handy dieselben Zahlen, eher schneller. Wollte man weniger Anfangslast, müsste man das Umfeld verkleinern; dann steht beim ersten Umblättern kurz eine weiße Seite. So herum ist es entschieden.
+
+### Was dabei gefunden wurde: `js/i18n.js` war seit Langem kaputt
+
+`js/i18n.js` enthielt in Zeile 210 ein unmaskiertes Hochkomma
+(`Das war's` innerhalb eines mit `'` begrenzten Textes). Die Datei war
+damit **kein ausführbares JavaScript** – `node --check` bricht ab, ein
+Browser hätte sie mit einem Syntaxfehler verworfen. Aufgefallen ist das
+erst, als die Broschürenseite die Datei als erste Seite überhaupt
+einbindet.
+
+**Nebenbefund dazu:** Die Übersetzung DE/EN/RU war bis dahin **auf keiner
+Seite eingebunden** – `js/i18n.js` stand nur in `_template.html`, und
+einen Sprachumschalter (`#langDropdown`) hat keine Seite. Die
+`data-i18n`-Attribute in `index.html` sind Reste. Geändert wurde nur das
+Nötige: das Hochkomma ist jetzt ein typografisches (`Das war’s`), die
+Broschürenseite lädt die Datei, und ihre Texte stehen als DE/EN/RU im
+Feld `T`. **Ohne Umschalter greift die Übersetzung nur, wenn
+`localStorage.bv_lang` schon auf `en` oder `ru` steht.** Ob der
+Umschalter auf allen Seiten wieder sichtbar werden soll, ist eine
+Entscheidung des Betreibers und wurde nicht ungefragt getroffen.
+
+### Nebenbefund 06.11.2026: ein Kommentar im Kommentar, sichtbar auf 35 Seiten
+
+Beim Sperren des öffentlichen Konfigurators (31.10.2026) wurde der
+Navigationseintrag auskommentiert – und dabei ein Kommentar **in** einen
+anderen gesetzt. HTML kennt keine geschachtelten Kommentare: Der erste
+Abschluss beendet den ganzen Kommentar. Übrig blieb ein Reststück, das
+als **Text im Navigationsbalken** stand, direkt neben „Galerie" – auf
+allen 35 Seiten, die aus `src/_includes/layout.njk` gebaut werden, und in
+`_template.html`.
+
+Aufgefallen ist es erst auf dem Bildschirmfoto der neuen Broschürenseite,
+weil es bei dieser Schriftgröße wie ein Pfeil aussieht. Repariert als
+**ein** Kommentar (die Sperre selbst bleibt unverändert, der Konfigurator
+ist weiter nicht verlinkt). Neue Prüfung `scripts/pruefe-kommentare.py`
+hält das offen.
+
+**Lehre:** Ein Fehler, der wie Gestaltung aussieht, wird nicht gemeldet.
+Darum sucht die Prüfung nicht das Aussehen, sondern die Struktur.

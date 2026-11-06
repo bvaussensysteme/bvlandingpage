@@ -1,0 +1,196 @@
+---
+layout: layout.njk
+permalink: /broschuere.html
+title: "Produktbroschüre durchblättern – Terrassenüberdachung, Carport & Pergola | BV AussenSysteme"
+description: "Unsere Produktbroschüre zum Durchblättern: Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – 36 Seiten, auch als PDF zum Herunterladen."
+canonical: "https://bv-aussensysteme.de/broschuere.html"
+robots: "index, follow"
+extendedNav: true
+ogTitle: "Produktbroschüre von BV AussenSysteme"
+ogDescription: "36 Seiten Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz aus Aluminium – online durchblättern oder als PDF herunterladen."
+ogImage: "https://bv-aussensysteme.de/assets/broschuere/og-broschuere.jpg"
+skipLink: |
+  <a href="#main-content" class="skip-link"
+     style="position:absolute;top:-40px;left:0;background:var(--gold);color:var(--black);padding:8px 16px;text-decoration:none;font-weight:700;z-index:9999;border-radius:0 0 6px 0;transition:top .2s"
+     onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Zum Hauptinhalt springen</a>
+extraHead: |
+  <link rel="stylesheet" href="/assets/js/page-flip.css?v=20261106a" />
+extraScripts: |
+  <script src="/assets/js/page-flip.browser.js?v=20261106a" defer></script>
+  <script src="/js/broschuere.js?v=20261106a" defer></script>
+  <script src="/js/i18n.js?v=20261106a" defer></script>
+---
+<style>
+  /* ---- Broschuere: eigene Gestaltung, Tokens aus src/css/style.css ---- */
+  .bro-buehne { background:#3a3a3a; padding:40px 0 48px; }
+  .bro-buehne .container { max-width:1100px; }
+
+  .bro-buch { margin:0 auto; max-width:1000px; }
+  .bro-buch .bro-seite { background:#fff; overflow:hidden; }
+  .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff; }
+
+  /* Ohne Bibliothek (Skript blockiert o. Ae.): einfache Liste statt Buch */
+  .bro-buch--liste { display:grid; gap:14px; }
+  .bro-buch--liste .bro-seite { display:block !important; position:static !important;
+    width:100% !important; height:auto !important; transform:none !important;
+    border-radius:4px; box-shadow:0 6px 20px rgba(0,0,0,.35); }
+
+  /* Bedienleiste */
+  .bro-leiste { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center;
+    margin:26px auto 0; max-width:1000px; }
+  .bro-knopf { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:44px; min-width:44px; padding:10px 16px; border-radius:8px; cursor:pointer;
+    font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
+    background:#2b2b2b; color:#fff; border:1.5px solid rgba(255,255,255,.28); }
+  .bro-knopf:hover:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  .bro-knopf:focus-visible { outline:3px solid var(--gold-light); outline-offset:2px; }
+  .bro-knopf:disabled { opacity:.45; cursor:default; }
+  /* Gleiche Falle wie bei den Ebenen: inline-flex schlaegt das
+     Standard-[hidden]. Der Vollbild-Knopf wird ausgeblendet, wenn
+     der Browser kein Element-Vollbild kann (iOS Safari). */
+  .bro-knopf[hidden] { display:none; }
+  .bro-knopf svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2;
+    stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+  .bro-knopf--haupt { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  .bro-knopf--haupt:hover { background:var(--gold-dark); color:var(--white); border-color:var(--gold-dark); }
+
+  .bro-zaehler { min-width:104px; text-align:center; color:var(--gold-light);
+    font-weight:700; font-size:.95rem; letter-spacing:.02em; }
+  .bro-hinweis { text-align:center; color:rgba(255,255,255,.62); font-size:.82rem; margin:14px 0 0; }
+
+  /* Ebenen (Uebersicht, Zoom) */
+  .bro-ebene { position:fixed; inset:0; z-index:4000; background:rgba(17,17,17,.94);
+    display:none; flex-direction:column; }
+  .bro-ebene[data-offen="1"] { display:flex; }
+  /* Reihenfolge beachten: ein ausdrueckliches display schlaegt das
+     Browser-Standard-[hidden] { display:none }. Darum die eigene Regel,
+     sonst waere eine Ebene mit data-offen UND hidden trotzdem sichtbar. */
+  .bro-ebene[hidden] { display:none; }
+  .bro-ebene-kopf { display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.14); }
+  .bro-ebene-kopf h2 { color:#fff; font-size:1.05rem; margin:0; }
+  .bro-ebene-koerper { flex:1; overflow:auto; padding:18px; }
+
+  .bro-raster { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+    gap:14px; max-width:1100px; margin:0 auto; }
+  .bro-raster-knopf { display:block; padding:0; border:2px solid transparent; border-radius:6px;
+    background:none; cursor:pointer; }
+  .bro-raster-knopf img { display:block; width:100%; height:auto; border-radius:4px; background:#fff; }
+  .bro-raster-knopf span { display:block; color:rgba(255,255,255,.75); font-size:.78rem; padding:6px 0 0; }
+  .bro-raster-knopf:hover { border-color:var(--gold); }
+  .bro-raster-knopf:hover span { color:var(--gold-light); }
+  .bro-raster-knopf:focus-visible { outline:3px solid var(--gold-light); outline-offset:2px; }
+
+  .bro-zoom-flaeche { display:flex; gap:12px; justify-content:center; align-items:flex-start; }
+  /* flex-shrink:0 ist hier Absicht: ohne das schrumpft das Bild auf
+     die Fensterbreite und der Zoom tut nichts - stattdessen soll
+     die Flaeche scrollen. */
+  .bro-zoom-flaeche img { display:block; background:#fff; height:auto; flex-shrink:0; }
+
+  @media (max-width:760px) {
+    .bro-buehne { padding:22px 0 30px; }
+    .bro-leiste { gap:8px; }
+    .bro-knopf { padding:10px 12px; font-size:.86rem; }
+    .bro-knopf--schmal span { position:absolute; width:1px; height:1px; overflow:hidden;
+      clip:rect(0 0 0 0); white-space:nowrap; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bro-buch, .bro-buch * { transition-duration:.01ms !important; }
+  }
+</style>
+
+<main id="main-content" role="main">
+
+  <section class="hero-section" style="background:var(--dark);padding:64px 0 44px;text-align:center;">
+    <div class="container">
+      <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">Zum Durchblättern</p>
+      <h1 style="color:#fff;margin-bottom:16px;">Unsere Produktbroschüre</h1>
+      <p style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 24px;line-height:1.7;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie die Broschüre als PDF herunter.</p>
+      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold" download>PDF herunterladen (4,4 MB)</a>
+    </div>
+  </section>
+
+  <section class="bro-buehne" id="broBuehne" aria-label="Broschüre durchblättern">
+    <div class="container">
+
+      <div id="broBuch" class="bro-buch">
+{% for i in range(1, 37) %}{% set n = ("0" ~ i) if i < 10 else ("" ~ i) %}        <div class="bro-seite" data-density="{{ "hard" if i == 1 or i == 36 else "soft" }}" data-seite="{{ i }}">
+          <img class="bro-bild" {% if i <= 2 %}src="/assets/broschuere/seite-{{ n }}.webp"{% endif %} data-src="/assets/broschuere/seite-{{ n }}.webp" width="1400" height="1966" alt="Broschüre, Seite {{ i }} von 36" />
+        </div>
+{% endfor %}      </div>
+
+      <div class="bro-leiste" role="toolbar" aria-label="Broschüre bedienen" id="broLeiste">
+        <button type="button" class="bro-knopf" id="broZurueck">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>Zurück
+        </button>
+        <span class="bro-zaehler" id="broZaehler" aria-live="polite" data-notranslate="1">1 / 36</span>
+        <button type="button" class="bro-knopf" id="broWeiter">
+          Weiter<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button type="button" class="bro-knopf bro-knopf--schmal" id="broZoom" title="Zoom">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg><span>Zoom</span>
+        </button>
+        <button type="button" class="bro-knopf bro-knopf--schmal" id="broVollbild" title="Vollbild">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg><span>Vollbild</span>
+        </button>
+        <button type="button" class="bro-knopf bro-knopf--schmal" id="broUebersicht" title="Seitenübersicht">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Seitenübersicht</span>
+        </button>
+        <a href="/assets/broschuere/BV-Broschuere.pdf" class="bro-knopf bro-knopf--haupt" download>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF herunterladen
+        </a>
+      </div>
+
+      <p class="bro-hinweis" id="broHinweis">Ziehen Sie an der Seitenecke, wischen Sie auf dem Handy oder blättern Sie mit den Pfeiltasten.</p>
+
+      <noscript>
+        <div style="max-width:420px;margin:0 auto;text-align:center;">
+          <a href="/assets/broschuere/BV-Broschuere.pdf">
+            <img src="/assets/broschuere/vorschau/seite-01.webp" width="300" height="421" alt="Titelseite der Produktbroschüre von BV AussenSysteme" style="display:block;width:100%;height:auto;border-radius:6px;background:#fff;" />
+          </a>
+          <p style="color:#fff;margin:16px 0 0;line-height:1.6;">Zum Durchblättern im Browser wird JavaScript benötigt.
+            <a href="/assets/broschuere/BV-Broschuere.pdf" style="color:var(--gold-light);">Broschüre als PDF öffnen (36 Seiten, 4,4 MB)</a>.</p>
+        </div>
+      </noscript>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:760px;">
+      <h2>Was in der Broschüre steht</h2>
+      <p>Die Broschüre zeigt unsere Systeme aus Aluminium von der Terrassenüberdachung über Carport und Pergola bis zu Glasschiebewänden, Senkrechtmarkisen und Geländern – mit Aufbau, möglichen Maßen, Dacheindeckungen und Ausstattung. Preise stehen nicht darin: Jede Anlage wird nach Maß gefertigt, deshalb rechnen wir sie für Ihre Situation einzeln.</p>
+      <p>Haben Sie etwas gefunden, das passt? Dann schreiben Sie uns kurz, was Sie vorhaben – wir melden uns mit einem Vorschlag und einem Festpreis.</p>
+      <p style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+        <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-outline" download>Broschüre als PDF</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<div class="bro-ebene" id="broUebersichtEbene" role="dialog" aria-modal="true" aria-labelledby="broUebersichtTitel" hidden>
+  <div class="bro-ebene-kopf">
+    <h2 id="broUebersichtTitel">Seitenübersicht</h2>
+    <button type="button" class="bro-knopf" data-bro-schliessen="broUebersichtEbene">Schließen</button>
+  </div>
+  <div class="bro-ebene-koerper">
+    <div class="bro-raster" id="broRaster"></div>
+  </div>
+</div>
+
+<div class="bro-ebene" id="broZoomEbene" role="dialog" aria-modal="true" aria-labelledby="broZoomTitel" hidden>
+  <div class="bro-ebene-kopf">
+    <h2 id="broZoomTitel">Seite vergrößern</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button type="button" class="bro-knopf" id="broZoomKleiner" aria-label="Kleiner">−</button>
+      <span class="bro-zaehler" id="broZoomStufe" data-notranslate="1">100 %</span>
+      <button type="button" class="bro-knopf" id="broZoomGroesser" aria-label="Größer">+</button>
+      <button type="button" class="bro-knopf" data-bro-schliessen="broZoomEbene">Schließen</button>
+    </div>
+  </div>
+  <div class="bro-ebene-koerper">
+    <div class="bro-zoom-flaeche" id="broZoomFlaeche"></div>
+  </div>
+</div>

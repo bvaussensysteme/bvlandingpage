@@ -447,6 +447,7 @@
     <ul class="nav-links" role="list">
       <li><a href="#leistungen" data-i18n="nav_leistungen">Leistungen</a></li>
       <li><a href="#galerie" data-i18n="nav_galerie">Galerie</a></li>
+      <li><a href="/broschuere.html" data-i18n="nav_broschuere">Broschüre</a></li>
       <li><a href="#kontakt" class="nav-konfigurator"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a></li>
       <li><a href="#warum-wir" data-i18n="nav_ueberuns">Über uns</a></li>
       <li><a href="#prozess" data-i18n="nav_ablauf">Ablauf</a></li>
@@ -464,6 +465,7 @@
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
   <a href="#leistungen" data-i18n="nav_leistungen">Leistungen</a>
   <a href="#galerie" data-i18n="nav_galerie">Galerie</a>
+  <a href="/broschuere.html">Broschüre ansehen</a>
   <a href="#kontakt" style="color:var(--gold);"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a>
   <a href="#warum-wir" data-i18n="nav_ueberuns">Über uns</a>
   <a href="#prozess" data-i18n="nav_ablauf">Ablauf</a>
@@ -633,6 +635,35 @@
 
     </div>
 
+  </div>
+</section>
+
+<!-- ===== BROSCHUERE ===== -->
+<style>
+  .bro-band { background:#3a3a3a; }
+  .bro-band .bro-band-inner { display:grid; grid-template-columns:184px 1fr; gap:34px; align-items:center; }
+  .bro-band img { display:block; width:100%; height:auto; border-radius:6px;
+    box-shadow:0 10px 30px rgba(0,0,0,.42); background:#fff; }
+  .bro-band h2 { color:#fff; margin:0 0 10px; }
+  .bro-band p.bro-band-tag { color:var(--gold-light); font-size:.85rem; letter-spacing:.1em;
+    text-transform:uppercase; margin:0 0 10px; }
+  .bro-band p.bro-band-txt { color:rgba(255,255,255,.78); max-width:580px; line-height:1.7; margin:0 0 22px; }
+  @media (max-width:700px) {
+    .bro-band .bro-band-inner { grid-template-columns:1fr; gap:22px; justify-items:start; }
+    .bro-band img { max-width:160px; }
+  }
+</style>
+<section class="section bro-band" id="broschuere" aria-labelledby="broschuere-h">
+  <div class="container bro-band-inner">
+    <a href="/broschuere.html" tabindex="-1" aria-hidden="true">
+      <img src="/assets/broschuere/vorschau/seite-01.webp" width="300" height="421" loading="lazy" alt="" />
+    </a>
+    <div>
+      <p class="bro-band-tag">Zum Durchblättern</p>
+      <h2 id="broschuere-h">Unsere Produktbroschüre</h2>
+      <p class="bro-band-txt">36 Seiten Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – mit Aufbau, möglichen Maßen und Ausstattung. Direkt im Browser blättern oder als PDF mitnehmen.</p>
+      <a href="/broschuere.html" class="btn btn-gold">Broschüre ansehen</a>
+    </div>
   </div>
 </section>
 
