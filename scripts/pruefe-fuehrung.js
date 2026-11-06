@@ -1000,7 +1000,11 @@ pruefe('Velaris laesst sich anklicken',
          falsch + ' Abweichungen');
 })();
 pruefe('Die Richtung kommt von der Seite',
-       new RegExp(q || 'velaris\\(laenge, hoch, achse, mitte, yUnten, quer, richtung\\)').test(js) &&
+       /* NACHGEZOGEN 06.11.2026: velaris() bekommt seit dem Editor
+          zusaetzlich die Seite - gemessen und gemerkt wird dort die
+          Breite und Hoehe. An der Richtung aendert das nichts, und
+          genau um die geht es hier. */
+       new RegExp(q || 'velaris\\(laenge, hoch, achse, mitte, yUnten, quer, richtung, seite\\)').test(js) &&
        new RegExp(q || "var rk = \\(richtung === -1\\) \\? -1 : 1").test(js), '');
 
 (function () {
@@ -3025,7 +3029,28 @@ pruefe('RAL-Feld ist breit genug',
        ist readonly. Geprueft wird sie in
        scripts/pruefe-planken-editor.mjs ("Die Breite kommt aus dem
        Modell"). */
-    k3dPlankenB: true
+    k3dPlankenB: true,
+    /* Im Rahmen-Editor ZEIGEN beide Felder nur: Die Breite kommt aus dem
+       Modell, die Hoehe ergibt sich aus dem, was sonst an der Seite
+       steht. Beide readonly; geprueft werden sie in
+       scripts/pruefe-rahmen-editor.mjs ("Breite und Hoehe kommen aus
+       dem Modell"). */
+    k3dRahmenB: true,
+    k3dRahmenH: true,
+    /* Schiebetuer- und Velaris-Editor zeigen Masse aus dem Modell
+       (readonly) und SPIEGELN im Uebrigen die Felder des Bedienfelds:
+       Sie reichen Wahl und Wert dorthin durch und loesen dort dasselbe
+       Ereignis aus wie ein Mensch. Das Neuzeichnen haengt also am
+       Original, nicht am Spiegel - zwei Stellen, die dasselbe
+       einstellen, waeren genau der Fehler, den diese Pruefung sucht.
+       Geprueft wird der Durchgriff in
+       scripts/pruefe-schiebe-velaris.mjs, und zwar bis ins Modell
+       ("Und sie erreicht das Modell", "Und die Lamellen stellen sich
+       im Modell wirklich um"). */
+    k3dSchiebeB: true, k3dSchiebeH: true,
+    k3dSchiebeTeilung: true, k3dSchiebeGlas: true, k3dSchiebeSchloss: true,
+    k3dVelarisB: true, k3dVelarisH: true,
+    k3dVelarisEdFarbe: true, k3dVelarisEdOben: true, k3dVelarisEdUnten: true
   };
 
   var offen = ids.filter(function (e) {

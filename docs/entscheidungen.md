@@ -13829,3 +13829,43 @@ keiner war. Der Lesehaken für den „alten Link" weiter oben im selben Test
 schreibt den **ganzen** Plan neu, Richtung inbegriffen – geprüft wurde also eine
 Richtung, die vorher gar nicht gewählt war. Ein Test, der seinen eigenen Zustand
 nicht kennt, misst das Falsche.
+
+## 06.11.2026 – Schiebetür und Velaris: Editoren, die nichts Eigenes einstellen
+
+**Anlass.** „… Schiebetür bearbeiten … und Velaris bearbeiten" (Betreiber,
+05.11.2026), auf Rückfrage bestätigt. Damit stehen alle vier Editoren.
+
+**Die Entscheidung dahinter.** Diese beiden führen **keine eigene Einstellung**.
+Zwei Stellen, die dieselbe Sache einstellen, laufen auseinander – dagegen hilft
+kein Abgleich, sondern nur: Es gibt die Einstellung genau einmal. Beide Dialoge
+**spiegeln** deshalb die Felder des Bedienfelds und lösen dort dasselbe Ereignis
+aus wie ein Mensch (`spiegelSelect`, `spiegelRegler`). Alles, was daran hängt –
+Grenzen, Neuzeichnen, geteilter Link – gilt damit unverändert weiter.
+
+**Schiebetür.** Die Flügelzahl ist **nicht frei wählbar**: Sie kommt aus der
+Tabelle der lieferbaren Breiten (`sg23Bauart`). Der Dialog zeigt sie, mit dem
+Satz dazu, warum. Wählbar ist die Aufteilung – die stand schon je Seite im
+Bedienfeld und wird hier ans Bauteil gespiegelt. Glas und Schloss gelten für die
+ganze Anlage; das steht im Dialog.
+
+**Velaris.** Alles Einstellbare gilt für die ganze Anlage, nicht je Seite. Der
+Dialog ist deshalb ein bequemer Zugriff am Bauteil, keine neue Möglichkeit – und
+**sagt das auch**, mit einer eigenen Überschrift „Gilt für die ganze Anlage".
+Dafür gibt es eine Prüfung: Ein Dialog, der etwas für die ganze Anlage ändert
+und das verschweigt, lässt den Bediener glauben, er verstelle nur diese Seite.
+
+**Was dabei schiefging – eine Reihenfolge-Falle.** Der erste Entwurf ließ den
+Winkelregler im Dialog bei jedem Zucken das volle Neuzeichnen auslösen. Die
+Lauscher liefen dann in dieser Reihenfolge: erst Neuzeichnen (setzt den
+Dialogregler aus dem Bedienfeld zurück auf 45), dann Durchreichen (schreibt die
+zurückgesetzte 45 ins Bedienfeld). **Der Regler ließ sich nicht bewegen** und
+sah aus wie ein totes Bedienelement. Jetzt läuft beim Schieben nur die
+Beschriftung mit, nicht der Regler.
+
+Gefunden hat das die neue Prüfung, nicht das Auge: Sie misst den Winkel, mit dem
+die Lamellen **im Modell** wirklich stehen.
+
+**Was `pruefe-fuehrung.js` dazu sagt.** Die gespiegelten Felder stehen dort als
+„ohne eigene Wirkung" – zu Recht: Das Neuzeichnen hängt am Original, nicht am
+Spiegel. Dass der Durchgriff trotzdem funktioniert, prüft
+`pruefe-schiebe-velaris.mjs`, und zwar bis ins Modell.

@@ -6068,6 +6068,12 @@
        zeigt der Regler „geöffnet" etwas Echtes – einer bleibt stehen. */
     function schiebetuer(laenge, hoehe, achse, mitte, yUnten, quer, seite, richtung) {
       var n = fluegelAnzahl(laenge, seite);
+      /* MESSEN und merken fuer den Editor - nicht dort noch einmal
+         herleiten. Dieselbe Regel wie bei Keil, Planken und Rahmen. */
+      if (seite) {
+        schiebeMassGemerkt[seite] = { b: Math.round(laenge * 10),
+                                      h: Math.round(hoehe * 10), fluegel: n };
+      }
       var flB = laenge / n;
       var offen = offenSeite(seite);
       /* richtung = -1: die Flügel stapeln sich am linken Ende (Standard,
@@ -6556,7 +6562,11 @@
       return Z.velarisArt === 'verschiebbar' && n <= VELARIS.schiebbarMax;
     }
 
-    function velaris(laenge, hoehe, achse, mitte, yUnten, quer, richtung) {
+    function velaris(laenge, hoehe, achse, mitte, yUnten, quer, richtung, seite) {
+      if (seite) {
+        velarisMassGemerkt[seite] = { b: Math.round(laenge * 10),
+                                      h: Math.round(hoehe * 10) };
+      }
       if (laenge <= 0 || hoehe <= VELARIS.rahmen * 2) return;
       var anzahl = velarisElemente(laenge);
       if (!anzahl) { VELARIS_IST = { elemente: 0, breite: 0, schienen: 0 }; return; }
@@ -7043,7 +7053,7 @@
       if (liste.indexOf('Velaris') > -1) {
         /* Die Pfostenachse, nicht die Elementebene: Wo die Schienen
            liegen, hängt am Pfosten – siehe velarisVersatz(). */
-        velaris(laenge, hoch, achse, mitte, yUnten, quer, richtung);
+        velaris(laenge, hoch, achse, mitte, yUnten, quer, richtung, seite);
       }
 
       /* Keil: das Dreieck zwischen waagerechter Oberkante des Elements und
@@ -15263,6 +15273,10 @@
                       liste.indexOf('Plankenwand') > -1);
       zahnradAnzeigen(seite, reihe, 'Rahmenwand',
                       liste.indexOf('Rahmenwand') > -1);
+      zahnradAnzeigen(seite, reihe, 'Schiebetür',
+                      liste.indexOf('Schiebetür') > -1);
+      zahnradAnzeigen(seite, reihe, 'Velaris',
+                      liste.indexOf('Velaris') > -1);
       feldwahlAnzeigen(seite, reihe);
     });
   }
@@ -17606,6 +17620,185 @@
     }
   }
 
+  /* ---------- Ein Feld im Editor SPIEGELT eines im Bedienfeld ----------
+     Zwei Stellen, die dieselbe Sache einstellen, laufen auseinander -
+     dagegen hilft kein Abgleich, sondern nur: Es gibt die Einstellung
+     genau einmal. Der Editor zeigt deshalb KEINE eigene Kopie, sondern
+     reicht Wahl und Wert an das Feld im Bedienfeld durch und loest dort
+     dasselbe Ereignis aus wie ein Mensch. Alles, was daran haengt
+     (Grenzen, Neuzeichnen, geteilter Link), gilt damit unveraendert. */
+  function spiegelSelect(zielId, quelleId) {
+    var ziel = document.getElementById(zielId);
+    var quelle = document.getElementById(quelleId);
+    if (!ziel || !quelle) return;
+    ziel.innerHTML = quelle.innerHTML;
+    ziel.value = quelle.value;
+    if (!ziel.dataset.gespiegelt) {
+      ziel.dataset.gespiegelt = quelleId;
+      ziel.addEventListener('change', function () {
+        var q = document.getElementById(ziel.dataset.gespiegelt);
+        if (!q) return;
+        q.value = ziel.value;
+        q.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    } else {
+      ziel.dataset.gespiegelt = quelleId;
+    }
+  }
+  function spiegelRegler(zielId, quelleId) {
+    var ziel = document.getElementById(zielId);
+    var quelle = document.getElementById(quelleId);
+    if (!ziel || !quelle) return;
+    ziel.min = quelle.min; ziel.max = quelle.max; ziel.step = quelle.step;
+    ziel.value = quelle.value;
+    if (!ziel.dataset.gespiegelt) {
+      ziel.dataset.gespiegelt = quelleId;
+      ziel.addEventListener('input', function () {
+        var q = document.getElementById(ziel.dataset.gespiegelt);
+        if (!q) return;
+        q.value = ziel.value;
+        q.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+  }
+
+  /* ---------- Der Editor der Schiebetuer ----------
+     Die Fluegelzahl ist NICHT frei waehlbar: Sie kommt aus der Tabelle
+     der lieferbaren Breiten (sg23Bauart). Waehlbar ist die Aufteilung -
+     und die steht schon je Seite im Bedienfeld; der Editor spiegelt sie
+     nur ans Bauteil. Glas und Schloss gelten fuer die ganze Anlage,
+     das steht im Dialog dabei. */
+  var schiebeMassGemerkt = {};
+  var schiebeEditorSeite = null;
+  var SG23_FELD = { links: 'k3dSg23Links', rechts: 'k3dSg23Rechts',
+                    vorne: 'k3dSg23Vorne', hinten: 'k3dSg23Hinten' };
+  function schiebeEditorOeffnen(seite) {
+    schiebeEditorVerdrahten();
+    schiebeEditorSeite = seite;
+    var kasten = document.getElementById('k3dSchiebeDialog');
+    if (!kasten) return;
+    kasten.hidden = false;
+    var t = document.getElementById('k3dSchiebeTitel');
+    if (t) t.textContent = 'Schiebetür bearbeiten – ' + keilSeitenName(seite);
+    schiebeEditorZeichnen();
+  }
+  function schiebeEditorSchliessen() {
+    var k = document.getElementById('k3dSchiebeDialog');
+    if (k) k.hidden = true;
+    schiebeEditorSeite = null;
+  }
+  function schiebeEditorZeichnen() {
+    if (!schiebeEditorSeite) return;
+    var m = schiebeMassGemerkt[schiebeEditorSeite] || { b: 0, h: 0, fluegel: 0 };
+    var fB = document.getElementById('k3dSchiebeB');
+    if (fB) fB.value = m.b ? String(m.b) : '–';
+    var fH = document.getElementById('k3dSchiebeH');
+    if (fH) fH.value = m.h ? String(m.h) : '–';
+    var fF = document.getElementById('k3dSchiebeFluegel');
+    if (fF) fF.value = m.fluegel ? String(m.fluegel) : '–';
+    spiegelSelect('k3dSchiebeTeilung', SG23_FELD[schiebeEditorSeite]);
+    spiegelSelect('k3dSchiebeGlas', 'k3dSg23Glas');
+    spiegelSelect('k3dSchiebeSchloss', 'k3dSg23Schloss');
+  }
+  var schiebeEditorBereit = false;
+  function schiebeEditorVerdrahten() {
+    if (schiebeEditorBereit) return;
+    schiebeEditorBereit = true;
+    var kasten = document.getElementById('k3dSchiebeDialog');
+    if (!kasten) return;
+    var zu = document.getElementById('k3dSchiebeZu');
+    if (zu) zu.addEventListener('click', schiebeEditorSchliessen);
+    var fertig = document.getElementById('k3dSchiebeFertig');
+    if (fertig) fertig.addEventListener('click', schiebeEditorSchliessen);
+    kasten.addEventListener('click', function (e) {
+      if (e.target === kasten) schiebeEditorSchliessen();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !kasten.hidden) schiebeEditorSchliessen();
+    });
+  }
+
+  /* ---------- Der Editor von Velaris ----------
+     Alles, was Velaris einstellbar hat, gilt fuer die GANZE Anlage und
+     nicht je Seite. Dieser Dialog ist deshalb ein bequemer Zugriff am
+     Bauteil, keine neue Moeglichkeit - und sagt das auch. */
+  var velarisMassGemerkt = {};
+  var velarisEditorSeite = null;
+  function velarisEditorOeffnen(seite) {
+    velarisEditorVerdrahten();
+    velarisEditorSeite = seite;
+    var kasten = document.getElementById('k3dVelarisDialog');
+    if (!kasten) return;
+    kasten.hidden = false;
+    var t = document.getElementById('k3dVelarisTitel');
+    if (t) t.textContent = 'Velaris bearbeiten – ' + keilSeitenName(seite);
+    velarisEditorZeichnen();
+  }
+  function velarisEditorSchliessen() {
+    var k = document.getElementById('k3dVelarisDialog');
+    if (k) k.hidden = true;
+    velarisEditorSeite = null;
+  }
+  function velarisEditorZeichnen() {
+    if (!velarisEditorSeite) return;
+    var m = velarisMassGemerkt[velarisEditorSeite] || { b: 0, h: 0 };
+    var fB = document.getElementById('k3dVelarisB');
+    if (fB) fB.value = m.b ? String(m.b) : '–';
+    var fH = document.getElementById('k3dVelarisH');
+    if (fH) fH.value = m.h ? String(m.h) : '–';
+    spiegelSelect('k3dVelarisEdFarbe', 'k3dVelarisFarbe');
+    spiegelRegler('k3dVelarisEdOben', 'k3dVelarisWinkelOben');
+    spiegelRegler('k3dVelarisEdUnten', 'k3dVelarisWinkelUnten');
+    velarisBeschriftung();
+  }
+  /* NUR die Beschriftung, ohne die Regler anzufassen.
+     ---------- Die Reihenfolge-Falle vom 06.11.2026 ----------
+     Vorher rief der Regler im Dialog bei jedem Zucken das volle
+     Neuzeichnen - und das setzte ihn aus dem Bedienfeld zurueck, BEVOR
+     sein Wert dort ankam. Die Lauscher liefen in dieser Reihenfolge:
+     erst Neuzeichnen (Dialogregler zurueck auf 45), dann Durchreichen
+     (schreibt die 45 ins Bedienfeld). Ergebnis: Der Regler liess sich
+     nicht bewegen, und es sah nach einem toten Bedienelement aus.
+     Gefunden hat es die neue Pruefung, nicht das Auge. */
+  function velarisBeschriftung() {
+    [['k3dVelarisEdObenWert', 'k3dVelarisWinkelObenWert'],
+     ['k3dVelarisEdUntenWert', 'k3dVelarisWinkelUntenWert']].forEach(function (paar) {
+      var z = document.getElementById(paar[0]);
+      var q = document.getElementById(paar[1]);
+      if (z && q) z.textContent = q.textContent;
+    });
+  }
+  var velarisEditorBereit = false;
+  function velarisEditorVerdrahten() {
+    if (velarisEditorBereit) return;
+    velarisEditorBereit = true;
+    var kasten = document.getElementById('k3dVelarisDialog');
+    if (!kasten) return;
+    var zu = document.getElementById('k3dVelarisZu');
+    if (zu) zu.addEventListener('click', velarisEditorSchliessen);
+    var fertig = document.getElementById('k3dVelarisFertig');
+    if (fertig) fertig.addEventListener('click', velarisEditorSchliessen);
+    kasten.addEventListener('click', function (e) {
+      if (e.target === kasten) velarisEditorSchliessen();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !kasten.hidden) velarisEditorSchliessen();
+    });
+    /* Die Beschriftung laeuft mit, die REGLER nicht: Sie beim Schieben
+       aus dem Bedienfeld zurueckzusetzen, machte sie unbedienbar
+       (siehe velarisBeschriftung). Der kleine Verzug wartet auf das
+       gebremste Neuzeichnen, das die Beschriftung im Bedienfeld
+       schreibt. */
+    ['k3dVelarisEdOben', 'k3dVelarisEdUnten'].forEach(function (id) {
+      var r = document.getElementById(id);
+      if (r) {
+        r.addEventListener('input', function () {
+          setTimeout(velarisBeschriftung, 140);
+        });
+      }
+    });
+  }
+
   /* ---------- Der Editor der Rahmenwand ----------
      Dieselbe Huelle, derselbe Aufbau wie beim Planken-Editor. Zu waehlen
      gibt es hier die Aufteilung; Breite und Hoehe kommen aus dem Modell
@@ -17785,7 +17978,11 @@
     'Plankenwand': { text: 'Plankenwand bearbeiten',
                      oeffnen: function (s2) { plankenEditorOeffnen(s2); } },
     'Rahmenwand': { text: 'Rahmenwand bearbeiten',
-                    oeffnen: function (s2) { rahmenEditorOeffnen(s2); } }
+                    oeffnen: function (s2) { rahmenEditorOeffnen(s2); } },
+    'Schiebetür': { text: 'Schiebetür bearbeiten',
+                    oeffnen: function (s2) { schiebeEditorOeffnen(s2); } },
+    'Velaris': { text: 'Velaris bearbeiten',
+                 oeffnen: function (s2) { velarisEditorOeffnen(s2); } }
   };
   function zahnradAnzeigen(seite, reihe, art, zeigen) {
     var huelle = reihe.parentNode;
