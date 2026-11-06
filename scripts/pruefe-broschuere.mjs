@@ -396,7 +396,11 @@ async function lauf(fehler) {
 
   /* TASTATUR. Wer das Menue mit Escape schliesst, darf den Fokus nicht
      verlieren - sonst beginnt das Tabben wieder ganz vorn. */
-  await seite.focus('#broMehr');
+  /* Wie beim Klicken: Ein eingebauter Fehler der Gegenprobe benennt
+     den Knopf um. Dann soll die Pruefung ROT werden, nicht der Lauf
+     abstuerzen (gemessen am 06.11.2026: page.focus lief in den
+     Zeitablauf und riss den ganzen Durchgang mit). */
+  await seite.focus('#broMehr', { timeout: 4000 }).catch(() => {});
   await seite.keyboard.press('Enter');
   await seite.waitForTimeout(300);
   await seite.keyboard.press('Escape');
