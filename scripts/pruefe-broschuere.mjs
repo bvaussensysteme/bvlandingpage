@@ -69,7 +69,7 @@ const FEHLER = [
   { name: 'Der Sprung aus der Uebersicht geht nicht', muster: '**/js/broschuere.js*',
     suchen: 'buch.turnToPage(ziel - 1)', ersetzen: 'buch.turnToSeite(ziel - 1)' },
   { name: 'Der Zoom vergroessert nicht', muster: '**/js/broschuere.js*',
-    suchen: 'var STUFEN = [1, 1.5, 2];', ersetzen: 'var STUFEN = [1, 1, 1];' },
+    suchen: 'var STUFEN = [1, 1.5, 2.5, 4];', ersetzen: 'var STUFEN = [1, 1, 1, 1];' },
   { name: 'Der Vollbild-Knopf fehlt', muster: '**/broschuere.html*',
     suchen: 'id="broVollbild"', ersetzen: 'id="broVollbildAnders"' },
   { name: 'Das PDF fehlt', muster: '**/BV-Broschuere.pdf', suchen: null, status: 404 },
@@ -92,6 +92,18 @@ const FEHLER = [
     suchen: '/broschuere.html', ersetzen: '/nirgendwohin.html' },
   { name: 'Die Startseite fuehrt nicht zur Broschuere', muster: '**/index.html*',
     suchen: '/broschuere.html', ersetzen: '/nirgendwohin.html' },
+  { name: 'Der Zoom wird wieder vom globalen img-max-width gedeckelt', muster: '**/broschuere.html*',
+    suchen: 'flex-shrink:0; max-width:none; }', ersetzen: 'flex-shrink:0; }' },
+  { name: 'Das Buch wird breiter als sein Rahmen', muster: '**/js/broschuere.js*',
+    suchen: 'minWidth: MIN_SEITE,', ersetzen: 'minWidth: 900,' },
+  { name: 'Der Fokus kehrt nicht zum Mehr-Knopf zurueck', muster: '**/js/broschuere.js*',
+    suchen: 'if ((fokusZurueck || drin) && knopfMehr.focus) knopfMehr.focus();',
+    ersetzen: 'if (false) knopfMehr.focus();' },
+  { name: 'Die Schwebe-Knoepfe liegen wieder ueber der Ebene', muster: '**/broschuere.html*',
+    suchen: 'body.bro-ebene-offen .sticky-cta { display:none !important; }',
+    ersetzen: 'body.bro-ebene-offen .nichts-dergleichen { display:none; }' },
+  { name: 'Der Fokus kann die offene Ebene verlassen', muster: '**/js/broschuere.js*',
+    suchen: "if (ev.key !== 'Tab') return;", ersetzen: "if (ev.key !== 'TabulatorX') return;" },
   { name: 'Der Zugang zum Katalog rutscht aus dem Hero', muster: '**/index.html*',
     suchen: '<a href="/broschuere.html" class="btn btn-outline-white hero-katalog-btn">',
     ersetzen: '<a href="/woanders.html" class="btn btn-outline-white hero-katalog-btn">' },
@@ -230,6 +242,34 @@ async function lauf(fehler) {
   const breite2 = await seite.$eval('#broZoomFlaeche img', (i) => i.getBoundingClientRect().width).catch(() => 0);
   p('Der Zoom vergrößert die Seite', breite1 > 0 && breite2 > breite1 + 10,
     Math.round(breite1) + ' -> ' + Math.round(breite2) + ' px');
+
+  /* AUF DIE HOECHSTE STUFE. Hier faellt auf, was die Messung oben
+     nicht sieht: style.css setzt global img { max-width:100% }; damit
+     blieb das Bild am Fenster haengen und der Zoom tat ab einer
+     gewissen Stufe NICHTS mehr (gemessen am Handy: 150 % und 200 %
+     ergaben beide 362 px). Deshalb wird hier verlangt, dass das Bild
+     BREITER als sein Kasten werden kann und dass der linke Rand nach
+     dem Zurueckscrollen erreichbar ist. */
+  for (let i = 0; i < 4; i++) { await klick('#broZoomGroesser'); await seite.waitForTimeout(160); }
+  const gross = await seite.evaluate(() => {
+    const ebene = document.getElementById('broZoomEbene');
+    const kasten = ebene.querySelector('.bro-ebene-koerper');
+    const bild = ebene.querySelector('#broZoomFlaeche img');
+    if (!kasten || !bild) return null;
+    kasten.scrollLeft = 0;
+    return {
+      bild: Math.round(bild.getBoundingClientRect().width),
+      kasten: Math.round(kasten.clientWidth),
+      linkerRand: Math.round(bild.getBoundingClientRect().left - kasten.getBoundingClientRect().left)
+    };
+  });
+  p('Der Zoom geht über die Fensterbreite hinaus',
+    !!gross && gross.bild > gross.kasten + 40,
+    gross ? gross.bild + ' px Bild in ' + gross.kasten + ' px Kasten' : 'nichts gemessen');
+  p('Der linke Rand der Seite bleibt erreichbar',
+    !!gross && gross.linkerRand >= -2,
+    gross ? 'linker Rand bei ' + gross.linkerRand + ' px' : '-');
+
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(200);
 
@@ -301,6 +341,53 @@ async function lauf(fehler) {
     geteilt ? String(geteilt.url).replace(/^https?:\/\/[^/]+/, '') : 'nichts geteilt');
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(200);
+
+  /* TASTATUR. Wer das Menue mit Escape schliesst, darf den Fokus nicht
+     verlieren - sonst beginnt das Tabben wieder ganz vorn. */
+  await seite.focus('#broMehr');
+  await seite.keyboard.press('Enter');
+  await seite.waitForTimeout(300);
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(300);
+  const fokusNachMenue = await seite.evaluate(() => document.activeElement.id || document.activeElement.tagName);
+  p('Nach Escape liegt der Fokus wieder auf den drei Punkten',
+    fokusNachMenue === 'broMehr', fokusNachMenue);
+
+  /* aria-modal="true" verspricht, dass der Rest ruht. Ohne Fokusfang
+     landet man nach ein paar Mal Tab hinter der Ebene - gemessen am
+     06.11.2026 auf den Knoepfen der Fusszeile. */
+  await klick('#broUebersicht');
+  await seite.waitForTimeout(600);
+  let raus = 0;
+  for (let i = 0; i < 12; i++) {
+    await seite.keyboard.press('Tab');
+    const drin = await seite.evaluate(() =>
+      document.getElementById('broUebersichtEbene').contains(document.activeElement));
+    if (!drin) raus++;
+  }
+  p('Der Fokus bleibt in der offenen Ebene', raus === 0,
+    raus ? raus + ' von 12 Schritten lagen dahinter' : '12 Schritte, alle drinnen');
+
+  /* Liegt die Ebene wirklich obenauf? z-index allein reicht nicht:
+     die schwebenden Knoepfe der Website gehen bis 2147483647.
+     Gemessen wird an vier Punkten, was der Browser dort anfasst. */
+  const obenauf = await seite.evaluate(() => {
+    const el = document.getElementById('broUebersichtEbene');
+    const w = window.innerWidth, h = window.innerHeight;
+    const punkte = [[w - 40, h - 40], [w - 40, 60], [40, h - 40], [w / 2, h / 2]];
+    return punkte.map(([x, y]) => {
+      const t = document.elementFromPoint(x, y);
+      if (t && el.contains(t)) return null;
+      /* Das Einwilligungsbanner DARF oben liegen - es muss bedienbar
+         bleiben, solange niemand entschieden hat. Alles andere nicht. */
+      if (t && t.closest && t.closest('#cookieBanner')) return null;
+      return t ? (t.id || String(t.className).split(' ')[0] || t.tagName) : 'nichts';
+    }).filter(Boolean);
+  });
+  p('Nichts liegt über der offenen Ebene', obenauf.length === 0,
+    obenauf.length ? 'davor liegt: ' + obenauf.join(', ') : '4 Punkte, alle in der Ebene');
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(300);
 
   /* Verweise und Nebendateien - durch den Browser gelesen, damit die
      Gegenprobe sie genauso umschreiben kann wie die Seite selbst. */
@@ -410,6 +497,26 @@ async function lauf(fehler) {
     return { oben: Math.round(r.top), unten: Math.round(r.bottom), hoehe: Math.round(r.height),
              fenster: window.innerHeight, text: a.textContent.trim() };
   });
+  /* QUERFORMAT. Hier ist die Hoehe knapp; vorher rechnete der
+     Stilblatt-Haltepunkt eine andere Breite aus als die Bibliothek
+     und das Buch stand links und rechts ueber seinem Rahmen
+     (gemessen 844 x 390: Rahmen 226 px, Buch 330 px). */
+  await mseite.setViewportSize({ width: 844, height: 390 });
+  await mseite.waitForTimeout(900);
+  const quer = await mseite.evaluate(() => {
+    const r = document.querySelector('.bro-rahmen');
+    const w = document.querySelector('.stf__wrapper');
+    if (!r || !w) return null;
+    return { rahmen: Math.round(r.getBoundingClientRect().width),
+             buch: Math.round(w.getBoundingClientRect().width),
+             ueberhang: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+  });
+  p('Im Querformat passt das Buch in seinen Rahmen',
+    !!quer && quer.buch <= quer.rahmen + 2 && quer.ueberhang === 0,
+    quer ? 'Buch ' + quer.buch + ' px in Rahmen ' + quer.rahmen + ' px' : 'nichts gemessen');
+  await mseite.setViewportSize({ width: 390, height: 844 });
+  await mseite.waitForTimeout(700);
+
   p('Der Katalog steht am Handy ohne Scrollen bereit',
     !!zugang && zugang.oben >= 0 && zugang.unten <= zugang.fenster && zugang.hoehe >= 44,
     zugang ? `"${zugang.text}" bei ${zugang.oben} von ${zugang.fenster} px` : 'kein Weg im Hero');

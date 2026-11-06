@@ -13,6 +13,15 @@
   'use strict';
 
   var ANZAHL = 36;
+  /* Kleinste Seitenbreite, mit der die Bibliothek rechnet. Sie taucht
+     zweimal auf: als minWidth in den Einstellungen (dort entscheidet
+     sie zusaetzlich, ab wann auf EINE Seite umgeschaltet wird - naemlich
+     unter 2 x diesem Wert) und als Untergrenze fuer den Rahmen. Beide
+     muessen denselben Wert benutzen, sonst macht die Bibliothek das
+     Buch breiter als seinen Rahmen und es wird am Rand abgeschnitten.
+     Gemessen am 06.11.2026 am Handy im Querformat (844 x 390): Rahmen
+     226 px, Buch 330 px - 52 px standen links und rechts ueber. */
+  var MIN_SEITE = 300;
 
   var behaelter = document.getElementById('broBuch');
   if (!behaelter) return;
@@ -72,12 +81,8 @@
       width: 495,
       height: 700,                 /* DIN A4 Hochformat: 1 : 1,414 */
       size: 'stretch',
-      /* minWidth entscheidet, WANN auf eine Seite umgeschaltet wird:
-         die Bibliothek nimmt Hochformat, sobald weniger als 2 x minWidth
-         Platz ist. 330 setzt diesen Punkt auf dieselbe Breite, an der
-         auch das Aussehen umschaltet (Medienabfrage 700 px) - sonst
-         staenden kurzzeitig zwei winzige Seiten nebeneinander. */
-      minWidth: 330,
+      /* siehe MIN_SEITE oben */
+      minWidth: MIN_SEITE,
       maxWidth: 700,
       minHeight: 339,
       maxHeight: 990,
@@ -100,6 +105,35 @@
     return;
   }
 
+  /* ---- Breite des Rahmens ------------------------------------
+     Die Bibliothek rechnet die HOEHE des Buches aus seiner BREITE.
+     Wer will, dass eine Seite in den Bildschirm passt, muss also die
+     Breite begrenzen. Das stand vorher in Medienabfragen - das ging
+     schief, weil die Umschaltung auf eine Seite bei der Bibliothek an
+     einer anderen Zahl haengt als der Haltepunkt im Stilblatt. Jetzt
+     rechnet dieselbe Regel beides:
+
+     - Grundlage ist der PLATZ IM CONTAINER, nicht die Breite des
+       Rahmens selbst. Sonst beeinflusst das Ergebnis seine eigene
+       Eingabe und die Anzeige kann hin- und herspringen.
+     - Untergrenze ist MIN_SEITE (bzw. das Doppelte bei zwei Seiten),
+       damit das Buch nie breiter wird als sein Rahmen. */
+  function rahmenBreite() {
+    var rahmen = behaelter.parentElement;
+    if (!rahmen || !rahmen.classList.contains('bro-rahmen')) return;
+    var platz = rahmen.parentElement ? rahmen.parentElement.clientWidth : 0;
+    if (!platz) return;
+    var hoch = platz < 2 * MIN_SEITE;
+    var hoehe = window.innerHeight || 800;
+    /* Abzug: Navigationsleiste, Seitenkopf, Hinweis und Bedienleiste.
+       Am Telefon ist mehr davon zu sehen als am Schreibtisch. */
+    var frei = hoch ? (hoehe - 190) / 1.4142 : (hoehe - 230) * 1.4142;
+    var breite = Math.max(hoch ? MIN_SEITE : 2 * MIN_SEITE, frei);
+    breite = Math.min(1000, breite, platz);
+    rahmen.style.maxWidth = Math.round(breite) + 'px';
+  }
+  rahmenBreite();
+
   /* ---- Anzeige gleichziehen -------------------------------- */
   function einzelseite() {
     try { return buch.getOrientation() === 'portrait'; } catch (e) { return true; }
@@ -108,6 +142,11 @@
     var i = 0;
     try { i = buch.getCurrentPageIndex(); } catch (e) {}
     return Math.min(ANZAHL, Math.max(1, i + 1));
+  }
+  function abschalten(knopf, aus, ersatz) {
+    if (!knopf) return;
+    if (aus && document.activeElement === knopf && ersatz && !ersatz.disabled) ersatz.focus();
+    knopf.disabled = !!aus;
   }
   function aktualisieren() {
     var nr = aktuelleNummer();
@@ -119,13 +158,19 @@
         zaehler.textContent = nr + ' / ' + ANZAHL;
       }
     }
-    if (knopfZur) knopfZur.disabled = (nr <= 1);
-    if (knopfWei) knopfWei.disabled = (nr >= ANZAHL) ||
-      (!einzelseite() && nr + 1 >= ANZAHL);
+    /* Einen Knopf abzuschalten, WAEHREND er den Fokus hat, wirft die
+       Tastaturbedienung an den Seitenanfang zurueck. Darum wandert der
+       Fokus in dem Fall zum Gegenknopf. */
+    abschalten(knopfZur, (nr <= 1), knopfWei);
+    abschalten(knopfWei, (nr >= ANZAHL) || (!einzelseite() && nr + 1 >= ANZAHL), knopfZur);
+    if (zaehler) zaehler.setAttribute('aria-label', 'Seite ' + nr + ' von ' + ANZAHL);
   }
 
   buch.on('flip', aktualisieren);
-  buch.on('changeOrientation', function () { setTimeout(aktualisieren, 30); });
+  buch.on('changeOrientation', function () {
+    rahmenBreite();
+    setTimeout(function () { try { buch.update(); } catch (e) {} aktualisieren(); }, 30);
+  });
   aktualisieren();
 
   if (knopfZur) knopfZur.addEventListener('click', function () { buch.flipPrev(); });
@@ -138,8 +183,8 @@
   document.addEventListener('keydown', function (ev) {
     var z = ev.target;
     if (z && (z.tagName === 'INPUT' || z.tagName === 'TEXTAREA' || z.tagName === 'SELECT')) return;
-    if (ev.key === 'Escape') { mehrZu(); ebeneSchliessen(); return; }
-    if (ebeneOffen()) return;
+    if (ev.key === 'Escape') { mehrZu(true); ebeneSchliessen(); return; }
+    if (ebeneOffen() || (mehrMenue && !mehrMenue.hidden)) return;
     if (ev.key === 'ArrowRight') { buch.flipNext(); ev.preventDefault(); }
     if (ev.key === 'ArrowLeft')  { buch.flipPrev(); ev.preventDefault(); }
   });
@@ -176,6 +221,19 @@
      unsichtbar - der Knopf taete scheinbar nichts. Darum wandert sie
      fuer die Dauer des Vollbilds in das Vollbild-Element und danach
      zurueck. */
+  /* aria-modal="true" verspricht, dass der Rest der Seite ruht.
+     Gemessen am 06.11.2026: Mit offener Zoom-Ebene wanderte der Fokus
+     nach fuenf Mal Tab auf die Fusszeilen-Knoepfe DAHINTER - sichtbar
+     war er dort nicht. Also: Fokus einfangen und den Hintergrund nicht
+     mitscrollen lassen. */
+  function fangbar(el) {
+    return [].slice.call(el.querySelectorAll(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter(function (e) {
+      var r = e.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    });
+  }
   function ebeneOeffnen(id, ausloeser) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -184,9 +242,23 @@
     if (voll && !voll.contains(el)) voll.appendChild(el);
     el.hidden = false;
     el.setAttribute('data-offen', '1');
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('bro-ebene-offen');
     var zu = el.querySelector('[data-bro-schliessen]');
     if (zu) zu.focus();
   }
+  /* Tab im Kreis innerhalb der offenen Ebene */
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Tab') return;
+    var el = document.querySelector('.bro-ebene[data-offen="1"]');
+    if (!el) return;
+    var liste = fangbar(el);
+    if (!liste.length) return;
+    var erster = liste[0], letzter = liste[liste.length - 1];
+    if (!el.contains(document.activeElement)) { erster.focus(); ev.preventDefault(); return; }
+    if (ev.shiftKey && document.activeElement === erster) { letzter.focus(); ev.preventDefault(); }
+    else if (!ev.shiftKey && document.activeElement === letzter) { erster.focus(); ev.preventDefault(); }
+  });
   function ebeneSchliessen() {
     var offen = document.querySelectorAll('.bro-ebene[data-offen="1"]');
     if (!offen.length) return;
@@ -195,10 +267,19 @@
       el.hidden = true;
       if (el.parentNode !== document.body) document.body.appendChild(el);
     });
+    document.body.style.overflow = '';
+    document.body.classList.remove('bro-ebene-offen');
     if (letzterKnopf) { letzterKnopf.focus(); letzterKnopf = null; }
   }
   document.querySelectorAll('[data-bro-schliessen]').forEach(function (k) {
     k.addEventListener('click', ebeneSchliessen);
+  });
+  /* Klick auf die dunkle Flaeche neben dem Inhalt schliesst ebenfalls -
+     das erwartet jeder, der so eine Ebene schon einmal gesehen hat. */
+  document.querySelectorAll('.bro-ebene').forEach(function (el) {
+    el.addEventListener('click', function (ev) {
+      if (ev.target === el) ebeneSchliessen();
+    });
   });
 
   /* Seitenuebersicht: Raster aus den kleinen Vorschaubildern */
@@ -227,30 +308,58 @@
     }
     rasterGebaut = true;
   }
+  /* Beim Oeffnen zeigen, wo man gerade ist, und dorthin scrollen -
+     sonst sucht man in 36 gleich grossen Kacheln. */
+  function rasterMarkieren() {
+    if (!raster) return;
+    var nr = aktuelleNummer();
+    var jetzt = null;
+    [].slice.call(raster.querySelectorAll('.bro-raster-knopf')).forEach(function (k) {
+      var ist = parseInt(k.getAttribute('data-ziel'), 10) === nr;
+      if (ist) { k.setAttribute('aria-current', 'true'); jetzt = k; }
+      else k.removeAttribute('aria-current');
+    });
+    if (jetzt && jetzt.scrollIntoView) {
+      try { jetzt.scrollIntoView({ block: 'center' }); } catch (e) { jetzt.scrollIntoView(); }
+    }
+  }
   if (knopfUeb) knopfUeb.addEventListener('click', function () {
     rasterBauen();
     ebeneOeffnen('broUebersichtEbene', knopfUeb);
+    rasterMarkieren();
   });
 
   /* Zoom: die gerade sichtbaren Seiten gross und scrollbar.
      Bewusst eine eigene Ebene und kein transform auf dem Buch -
      eine Skalierung verschiebt die Zeigerkoordinaten und das
      Ziehen an der Seitenecke trifft dann daneben. */
-  var STUFEN = [1, 1.5, 2];
+  /* 100 % heisst: so breit wie der Bildschirm. Die Bilder sind
+     1400 px breit, mehr als 4-fach bringt also nichts mehr.
+     VORHER WAR DER ZOOM WIRKUNGSLOS: style.css setzt global
+     img { max-width: 100% } - damit konnte das Bild nie breiter
+     werden als sein Kasten. Gemessen am Handy: 150 % und 200 %
+     ergaben beide 362 px. Die Gegenregel steht jetzt im Stilblock. */
+  var STUFEN = [1, 1.5, 2.5, 4];
   var stufe = 0;
   var zoomFlaeche = document.getElementById('broZoomFlaeche');
   var zoomStufeTxt = document.getElementById('broZoomStufe');
+  var zoomPlus = document.getElementById('broZoomGroesser');
+  var zoomMinus = document.getElementById('broZoomKleiner');
 
   function zoomBasis() {
-    return Math.max(280, Math.min(760, (window.innerWidth || 800) - 80));
+    return Math.max(280, (window.innerWidth || 800) - 24);
   }
   function zoomZeichnen() {
     if (!zoomFlaeche) return;
-    var breite = Math.round(zoomBasis() * STUFEN[stufe]);
+    /* Mehr als das Doppelte der echten Bildbreite bringt nichts mehr -
+       die Dateien sind 1400 px breit, darueber wird es nur weich. */
+    var breite = Math.min(2800, Math.round(zoomBasis() * STUFEN[stufe]));
     [].slice.call(zoomFlaeche.querySelectorAll('img')).forEach(function (img) {
       img.style.width = breite + 'px';
     });
     if (zoomStufeTxt) zoomStufeTxt.textContent = Math.round(STUFEN[stufe] * 100) + ' %';
+    if (zoomMinus) zoomMinus.disabled = (stufe === 0);
+    if (zoomPlus) zoomPlus.disabled = (stufe === STUFEN.length - 1);
   }
   function zoomFuellen() {
     if (!zoomFlaeche) return;
@@ -262,7 +371,7 @@
       var nn = (i < 10 ? '0' : '') + i;
       var img = document.createElement('img');
       img.src = '/assets/broschuere/seite-' + nn + '.webp';
-      img.alt = 'Broschüre, Seite ' + i + ' von ' + ANZAHL + ', vergrößert';
+      img.alt = 'Katalog, Seite ' + i + ' von ' + ANZAHL + ', vergrößert';
       zoomFlaeche.appendChild(img);
     });
     zoomZeichnen();
@@ -272,8 +381,6 @@
     zoomFuellen();
     ebeneOeffnen('broZoomEbene', knopfZoom);
   });
-  var zoomPlus  = document.getElementById('broZoomGroesser');
-  var zoomMinus = document.getElementById('broZoomKleiner');
   if (zoomPlus)  zoomPlus.addEventListener('click',  function () {
     if (stufe < STUFEN.length - 1) { stufe++; zoomZeichnen(); }
   });
@@ -287,10 +394,16 @@
      ein kleines Menue mit zwei Eintraegen. */
   var teilenStatus = document.getElementById('broTeilenStatus');
 
-  function mehrZu() {
-    if (!mehrMenue) return;
+  function mehrZu(fokusZurueck) {
+    if (!mehrMenue || mehrMenue.hidden) return;
+    var drin = mehrMenue.contains(document.activeElement);
     mehrMenue.hidden = true;
-    if (knopfMehr) knopfMehr.setAttribute('aria-expanded', 'false');
+    if (knopfMehr) {
+      knopfMehr.setAttribute('aria-expanded', 'false');
+      /* Wer mit der Tastatur im Menue war, darf den Fokus nicht
+         verlieren - sonst beginnt das Tabben wieder von vorn. */
+      if ((fokusZurueck || drin) && knopfMehr.focus) knopfMehr.focus();
+    }
     if (teilenStatus) teilenStatus.textContent = '';
   }
   function mehrAuf() {
@@ -309,11 +422,17 @@
     document.addEventListener('click', function (ev) {
       if (mehrMenue.hidden) return;
       if (mehrMenue.contains(ev.target) || knopfMehr.contains(ev.target)) return;
-      mehrZu();
+      mehrZu(false);
+    });
+    /* Ebenso, wer mit Tab hinausgeht. */
+    document.addEventListener('focusin', function (ev) {
+      if (mehrMenue.hidden) return;
+      if (mehrMenue.contains(ev.target) || knopfMehr.contains(ev.target)) return;
+      mehrZu(false);
     });
   }
   var menuePdf = document.getElementById('broMenuePdf');
-  if (menuePdf) menuePdf.addEventListener('click', function () { setTimeout(mehrZu, 50); });
+  if (menuePdf) menuePdf.addEventListener('click', function () { setTimeout(function () { mehrZu(true); }, 50); });
 
   var knopfTeilen = document.getElementById('broTeilen');
   function kopierHinweis() {
@@ -357,7 +476,7 @@
       url: window.location.href
     };
     if (navigator.share) {
-      navigator.share(daten).then(mehrZu, function () {});
+      navigator.share(daten).then(function () { mehrZu(true); }, function () {});
       return;
     }
     adresseKopieren();
@@ -368,6 +487,7 @@
   window.addEventListener('resize', function () {
     clearTimeout(warte);
     warte = setTimeout(function () {
+      rahmenBreite();
       try { buch.update(); } catch (e) {}
       aktualisieren();
     }, 150);

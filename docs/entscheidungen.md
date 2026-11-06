@@ -14196,3 +14196,92 @@ mach es professionell".
 bereit" – gemessen wird nicht, ob *irgendwo* ein Verweis liegt, sondern
 ob er beim Aufschlagen der Startseite im sichtbaren Bereich steht und
 mindestens 44 px hoch ist.
+
+### 06.11.2026: Design-Durchsicht der Katalogseite
+
+Ansage des Betreibers: „lass die letztens installierten ui uix skills
+die seite prüfen, mit design agenten und probleme und falsches design
+ausbessern/verbessern".
+
+Vorgehen: ein Design-Agent hat Quelltext und Designsystem gelesen (er
+hatte keine Kommandozeile, konnte also nichts im Browser messen),
+parallel dazu eine eigene **Messung im Browser** – Kontrastwerte aus den
+tatsächlich gerenderten Farben, Antippflächen, Fokusreihenfolge,
+Überschriftenfolge, waagerechtes Scrollen. **Jede Behauptung des
+Agenten wurde nachgemessen, bevor etwas geändert wurde.** Zwei seiner
+Hochstufungen bestätigten sich, eine Rechnung von ihm war daneben.
+
+#### Der schwerste Fund: der Zoom hat nie vergrößert
+
+`src/css/style.css` setzt global `* { max-width: 100% }` und
+`img { max-width: 100% }`. Damit konnte das Zoom-Bild **nie breiter
+werden als sein Kasten**. Gemessen am Handy: 150 % und 200 % ergaben
+beide 362 px – die Stufen taten sichtbar nichts. Am Schreibtisch fiel
+es nicht auf, weil 150 % dort noch unter die Fensterbreite passte; die
+alte Prüfung verglich nur „vorher kleiner als nachher" und blieb
+deshalb grün. `flex-shrink: 0` allein (eingebaut am selben Tag) half
+nicht, die Deckelung kommt von `max-width`.
+
+Jetzt: `.bro-zoom-flaeche img { max-width: none }`, Stufen
+`[1, 1.5, 2.5, 4]` mit 100 % = Bildschirmbreite, gedeckelt auf 2800 px
+(die Dateien sind 1400 px breit, darüber wird es nur weich).
+`justify-content: safe center` – reines `center` schiebt zu breiten
+Inhalt nach **beiden** Seiten hinaus, und der linke Überstand lässt
+sich nicht erscrollen. Die Prüfung verlangt jetzt beides: Das Bild muss
+**breiter als sein Kasten** werden können, und der linke Rand muss nach
+`scrollLeft = 0` erreichbar sein.
+
+#### Der zweite Fund: das Buch stand über seinem Rahmen
+
+Im Querformat am Handy (844 × 390) war der Rahmen 226 px breit, das
+Buch aber 330 px – es stand links und rechts über. Ursache: Die
+Breite kam aus einer **Medienabfrage** (700 px), die Umschaltung auf
+eine Seite trifft die Bibliothek aber bei einer anderen Zahl
+(`2 × minWidth`), und unter `minWidth` macht sie das Buch trotzdem
+nicht kleiner.
+
+Jetzt rechnet **eine** Funktion beides: `rahmenBreite()` in
+`js/broschuere.js`. Grundlage ist der Platz im Container (nicht die
+Breite des Rahmens selbst – sonst beeinflusst das Ergebnis seine eigene
+Eingabe), Untergrenze ist `MIN_SEITE` bzw. das Doppelte bei zwei
+Seiten. Gemessen nach dem Umbau: Buch 600 px in Rahmen 600 px, kein
+waagerechtes Scrollen.
+
+#### Weitere Befunde, alle gemessen
+
+| Datum | Entscheidung | Begründung |
+|---|---|---|
+| 06.11.2026 | `.btn-outline` nutzt `--gold-text` statt `--gold-dark` | Gemessen 4,34:1 auf Weiß – unter 4,5:1 (WCAG AA). `--gold-text` ist laut Kommentar an der Variablen genau dafür da. Gilt site-weit, Cache-Buster auf `v=20261106a` |
+| 06.11.2026 | Fokus bleibt in der offenen Ebene (Tab im Kreis), Hintergrund scrollt nicht mit, Klick daneben schließt | Gemessen: Mit offener Zoom-Ebene lag der Fokus nach fünf Mal Tab auf den Fußzeilen-Knöpfen **dahinter** – unsichtbar. `aria-modal="true"` verspricht etwas anderes |
+| 06.11.2026 | Nach Escape liegt der Fokus wieder auf den drei Punkten | Gemessen: er fiel auf `body`, das Tabben begann wieder von vorn |
+| 06.11.2026 | Die schwebenden Knöpfe der Website verschwinden, solange eine Ebene offen ist (`body.bro-ebene-offen`) | Sie haben `z-index` bis 2147483647 – dagegen hilft kein eigener Wert. Auf dem Bildschirmfoto lagen sie mitten auf der vergrößerten Seite. Gleiche Lösung wie beim Konfigurator (`body.bv-konfig-open`). Das **Einwilligungsbanner bleibt** oben – es muss bedienbar sein |
+| 06.11.2026 | Pfeiltasten ruhen, solange das Menü offen ist | Sonst blättert das Buch hinter dem offenen Menü |
+| 06.11.2026 | `role="group"` statt `role="toolbar"`, kein `aria-haspopup` | Eine Toolbar verspricht Pfeiltasten zum Springen zwischen Knöpfen; hier blättern sie das Buch. `aria-haspopup` kündigt ein `role="menu"` mit Pfeiltastenbedienung an – die Einträge sind aber normale Knöpfe und Verweise |
+| 06.11.2026 | Ein abgeschalteter Knopf gibt den Fokus an den Gegenknopf weiter | Wer mit der Tastatur auf der letzten Seite ankommt, verlor ihn sonst an `body` |
+| 06.11.2026 | Die Seitenübersicht markiert die aktuelle Seite (`aria-current`, goldener Rand) und scrollt dorthin | 36 gleich große Kacheln ohne Markierung sind eine Suchaufgabe |
+| 06.11.2026 | `:active`-Zustand für alle Knöpfe | `:hover` gilt nur mit Zeigegerät (richtig so) – am Telefon gab es dadurch gar keine Rückmeldung beim Antippen |
+| 06.11.2026 | Radien auf `var(--radius)`, Menügrund auf `var(--dark)` | Es waren 8, 10, 7, 6 und 4 px und ein eigener Grauton `#1d1d1d` neben `--dark` |
+| 06.11.2026 | Schriftgrößen 0,8 → 0,875 rem (Hinweis, Teilen-Status), 0,78 → 0,8125 rem (Kacheln), Ebenen-Überschrift 1 → 1,15 rem | Kontrast reichte, die Größe nicht |
+| 06.11.2026 | Menü bekommt `max-width: calc(100vw - 24px)`, Knopfrand von `.28` auf `.4` | Auf 320-px-Geräten ragte das Menü über den Rand |
+| 06.11.2026 | Haltepunkt der Startseite auf `699.98px` | Bei genau 700 px galten beide Zweige |
+| 06.11.2026 | Begriffe auf der Seite durchgehend „Katalog" | „Was im Katalog steht", „Katalog als PDF"; „Broschüre" bleibt nur in der Suchmaschinen-Beschreibung als zweites Wort |
+
+**Verworfen – der Agent lag daneben:** Er rechnete, der Rahmen werde im
+Querformat „etwa 131 px" breit und schlug eine feste Untergrenze von
+320 px vor. Gemessen wurde 226 px, und die feste Zahl hätte auf
+schmalen Geräten dasselbe Überstehen erzeugt wie vorher. Die Lösung
+hängt stattdessen an `MIN_SEITE`, derselben Zahl, mit der die
+Bibliothek rechnet.
+
+**Nicht umgesetzt, dem Betreiber vorgelegt:** eine zweite
+Handlungsaufforderung („Kostenlos beraten lassen") direkt unter der
+Bedienleiste am Telefon. Das ist ein Vorschlag zur Conversion, kein
+Gestaltungsfehler – und was gebaut wird, entscheidet der Betreiber.
+Ebenso offen: Die Fußzeile springt auf allen Seiten der Website von
+`h2` auf `h4`; das ist eine site-weite Änderung und gehört nicht in
+diese Durchsicht.
+
+**Prüfungen jetzt 34** (vorher 28). Neu: Zoom geht über die
+Fensterbreite hinaus, linker Rand erreichbar, Buch passt im Querformat
+in seinen Rahmen, Fokus kehrt nach Escape zurück, Fokus bleibt in der
+Ebene, nichts liegt über der offenen Ebene.

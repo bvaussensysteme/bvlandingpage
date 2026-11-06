@@ -227,7 +227,7 @@ Hinweis: Der Score ist niedriger als am 04.07. (86/100), obwohl an diesem Tag vi
 - Zugang im Hero der Startseite („Katalog ansehen"), ohne Scrollen erreichbar; Einstiegspunkte heißen einheitlich „Katalog"
 - Pfeiltasten blättern, Escape schließt die Ebenen
 - Ohne JavaScript: Titelbild mit Verweis auf das PDF; lädt die Bibliothek nicht, erscheinen alle Seiten als Liste
-- Geprüft von `scripts/pruefe-broschuere.mjs` (28 Prüfungen, Wischgeste, Teilen und der Zugang im Hero eingeschlossen) und `scripts/pruefe-broschuere-bilder.sh` (Bilder gegen das PDF)
+- Geprüft von `scripts/pruefe-broschuere.mjs` (34 Prüfungen: Wischgeste, Teilen, Zugang im Hero, Zoom über Fensterbreite, Fokusfang in den Ebenen) und `scripts/pruefe-broschuere-bilder.sh` (Bilder gegen das PDF)
 
 ---
 

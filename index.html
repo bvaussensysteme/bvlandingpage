@@ -426,7 +426,7 @@
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261104w" />
+  <link rel="stylesheet" href="css/style.css?v=20261106a" />
 </head>
 <body>
 
@@ -659,7 +659,9 @@
   .bro-band p.bro-band-tag { color:var(--gold-light); font-size:.85rem; letter-spacing:.1em;
     text-transform:uppercase; margin:0 0 10px; }
   .bro-band p.bro-band-txt { color:rgba(255,255,255,.78); max-width:580px; line-height:1.7; margin:0 0 22px; }
-  @media (max-width:700px) {
+  /* 699.98, nicht 700: bei genau 700 px galten sonst beide Zweige
+     (die Katalogseite beginnt dort mit min-width:700px). */
+  @media (max-width:699.98px) {
     .bro-band .bro-band-inner { grid-template-columns:1fr; gap:22px; justify-items:start; }
     .bro-band img { max-width:160px; }
   }
