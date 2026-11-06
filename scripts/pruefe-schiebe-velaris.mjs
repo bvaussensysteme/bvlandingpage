@@ -66,6 +66,44 @@ const MESSHAKEN = [{
       + "      window.__bvVelarisGrad = gradOben;"
 }];
 
+/* ---------- Die Gegenprobe faehrt JEDEN Fehler einzeln ----------
+   Mit allen auf einmal verdecken sie sich gegenseitig: Ist das Mass
+   schon auf null gesetzt, kann der Fehler daneben nichts mehr zeigen.
+   Der Sammellauf meldete deshalb "4 von 5" und behauptete, eine
+   Pruefung sei blind - sie war es nicht (gemessen 06.11.2026).
+
+   Eine Gegenprobe, die faelschlich Alarm schlaegt, ist fast so
+   schaedlich wie eine, die schweigt: Man gewoehnt sich an das Rot.
+   Darum ruft sich dieses Skript selbst auf, einmal je Fehler, und
+   urteilt erst danach. Mit BV_FEHLER=<n> laeuft weiterhin einer
+   allein, ohne diesen Umweg. */
+if (GEGENPROBE && NUR == null && !process.env.BV_KIND) {
+  const { spawnSync } = await import('node:child_process');
+  console.log(`\n=== Schiebetür- und Velaris-Editor (GEGENPROBE, ${FEHLER.length} Fehler einzeln) ===\n`);
+  let blind = 0;
+  for (let i = 0; i < FEHLER.length; i++) {
+    const r = spawnSync(process.execPath, [new URL(import.meta.url).pathname, '--gegenprobe'],
+      { env: { ...process.env, BV_FEHLER: String(i), BV_KIND: '1' }, encoding: 'utf8' });
+    const txt = (r.stdout || '') + (r.stderr || '');
+    const roteZeilen = txt.split('\n').filter((z) => /^\s*FEHLER /.test(z));
+    const veraltet = /ANKER VERALTET/.test(txt);
+    if (veraltet) {
+      console.log(`  ANKER   Fehler ${i}: kam nicht an – Anker veraltet`);
+      blind++;
+    } else if (!roteZeilen.length) {
+      console.log(`  BLIND   Fehler ${i}: ${FEHLER[i].von.slice(0, 48).trim()}`);
+      blind++;
+    } else {
+      console.log(`  scharf  Fehler ${i} → ${roteZeilen.length} Pruefung(en): `
+        + roteZeilen[0].replace(/^\s*FEHLER\s+/, '').slice(0, 60));
+    }
+  }
+  console.log(`\nGegenprobe: ${FEHLER.length} Fehler einzeln gefahren, ${blind} ohne Wirkung.`);
+  if (blind) { console.log('MINDESTENS EINE PRUEFUNG IST BLIND.'); process.exit(1); }
+  console.log('Gegenprobe in Ordnung.');
+  process.exit(0);
+}
+
 let ankerKaputt = false;
 let ok = 0; const rot = [];
 function pruefe(was, bedingung, beleg) {

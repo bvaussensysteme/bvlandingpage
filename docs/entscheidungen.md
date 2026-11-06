@@ -13898,3 +13898,24 @@ gemessen sein: Alle vier Editor-Prüfungen samt Gegenprobe liefen vorher und
 nachher. Die Reihenfolge der Ersetzung war dabei nicht beliebig:
 `k3d-keil-mass` ist ein **Präfix** von `k3d-keil-masse`, und `k3d-keil` ein
 Präfix von allem. Längste zuerst, die Hülle zuletzt und nur als ganzes Wort.
+
+## 06.11.2026 – Eine Gegenprobe, die falschen Alarm schlägt
+
+**Was falsch war.** `pruefe-schiebe-velaris.mjs` meldete im Sammellauf „5 Fehler
+eingebaut, 4 Prüfungen schlagen an – mindestens eine Prüfung ist blind". Das
+stimmte nicht: Einzeln gefahren machte **jeder** der fünf Fehler genau eine
+Prüfung rot. Mit allen auf einmal verdecken sie sich gegenseitig – ist das Maß
+schon auf null gesetzt, kann der Fehler daneben nichts mehr zeigen.
+
+**Was jetzt gilt.** Die Gegenprobe dieses Skripts fährt **jeden Fehler einzeln**
+und urteilt erst danach; sie ruft sich dafür selbst auf (`BV_KIND`). `BV_FEHLER=<n>`
+läuft weiterhin ohne diesen Umweg.
+
+**Warum das zählt.** Eine Gegenprobe, die falschen Alarm schlägt, ist fast so
+schädlich wie eine, die schweigt: Man gewöhnt sich an das Rot und sieht den
+echten Fehler nicht mehr. Dieselbe Begründung wie beim zufällig roten
+Schrittwechsel-Test vom 05.11.2026.
+
+**Nicht geändert:** Die drei anderen Editor-Prüfungen erreichen ihre Zahl im
+Sammellauf; beim Keil-Editor wären 20 Einzelläufe auch zu teuer. Dort bleibt
+`BV_FEHLER=<n>` das Mittel der Wahl, wenn eine neue Prüfung dazukommt.
