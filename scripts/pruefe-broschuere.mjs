@@ -132,6 +132,16 @@ const FEHLER = [
     suchen: 'Das war’s', ersetzen: "Das war's" }
 ];
 
+/* Die Gegenprobe bricht beim ERSTEN blinden Fehler ab. Bei 40 Fehlern
+   kostet jede Runde rund zwanzig Minuten, und man sieht immer nur den
+   naechsten. BV_NUR=teil1,teil2 laeuft nur die Fehler, deren Name einen
+   dieser Teile enthaelt - damit lassen sich die noch nicht erreichten
+   in einem Rutsch nachziehen. Ohne BV_NUR laeuft alles. */
+const NUR = (process.env.BV_NUR || '').split(',').map((x) => x.trim()).filter(Boolean);
+const FEHLER_LAUF = NUR.length
+  ? FEHLER.filter((f) => NUR.some((t) => f.name.toLowerCase().includes(t.toLowerCase())))
+  : FEHLER;
+
 const server = spawn('python3', ['-m', 'http.server', String(PORT)], {
   cwd: new URL('..', import.meta.url).pathname, stdio: 'ignore'
 });
@@ -414,17 +424,28 @@ async function lauf(fehler) {
   /* aria-modal="true" verspricht, dass der Rest ruht. Ohne Fokusfang
      landet man nach ein paar Mal Tab hinter der Ebene - gemessen am
      06.11.2026 auf den Knoepfen der Fusszeile. */
-  await klick('#broUebersicht');
+  /* GEPRUEFT WIRD AN DER ZOOM-EBENE, nicht an der Seitenuebersicht:
+     Die Uebersicht hat 37 Ziele (36 Kacheln und "Schliessen"), da
+     kommt man mit zwoelf Mal Tab gar nicht hinaus - die Pruefung war
+     deshalb blind, die Gegenprobe hat es gemeldet (06.11.2026). Die
+     Zoom-Ebene hat vier; dort zeigt sich in wenigen Schritten, ob der
+     Fokus wirklich eingefangen ist. */
+  await klick('#broZoom');
   await seite.waitForTimeout(600);
   let raus = 0;
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 10; i++) {
     await seite.keyboard.press('Tab');
     const drin = await seite.evaluate(() =>
-      document.getElementById('broUebersichtEbene').contains(document.activeElement));
+      document.getElementById('broZoomEbene').contains(document.activeElement));
     if (!drin) raus++;
   }
   p('Der Fokus bleibt in der offenen Ebene', raus === 0,
-    raus ? raus + ' von 12 Schritten lagen dahinter' : '12 Schritte, alle drinnen');
+    raus ? raus + ' von 10 Schritten lagen dahinter' : '10 Schritte, alle drinnen');
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(300);
+
+  await klick('#broUebersicht');
+  await seite.waitForTimeout(600);
 
   /* Liegt die Ebene wirklich obenauf? z-index allein reicht nicht:
      die schwebenden Knoepfe der Website gehen bis 2147483647.
@@ -697,7 +718,7 @@ if (!GEGEN) {
     server.kill(); process.exit(1);
   }
   const offen = new Set(gut.map(([n]) => n));
-  for (const f of FEHLER) {
+  for (const f of FEHLER_LAUF) {
     const e = await lauf(f);
     const rot = e.filter(([, ok]) => !ok).map(([n]) => n);
     if (!rot.length) {
@@ -706,6 +727,11 @@ if (!GEGEN) {
     }
     console.log(`  Fehler "${f.name}": ${rot.length} Prüfung(en) schlagen an`);
     rot.forEach((n) => offen.delete(n));
+  }
+  if (NUR.length) {
+    console.log(`\nNur ${FEHLER_LAUF.length} von ${FEHLER.length} Fehlern gelaufen (BV_NUR).` +
+      ' Jeder davon schlägt an. Für das Gesamturteil ohne BV_NUR laufen lassen.');
+    server.kill(); process.exit(0);
   }
   if (offen.size) {
     console.log('FEHLER: Diese Prüfungen wurden von keinem Fehler rot:');

@@ -4,6 +4,13 @@
 > kurz bleibt. **Wird durchsucht, nicht gelesen** –
 > `grep -i "stichwort" docs/pruefungen.md`.
 
+**Bei vielen eingebauten Fehlern:** Die Gegenprobe bricht beim **ersten**
+blinden Fehler ab, und jede Runde kostet so viel Zeit wie alle Fehler
+zusammen. `scripts/pruefe-broschuere.mjs` kennt deshalb `BV_NUR=teil1,teil2`
+– damit laufen nur die Fehler, deren Name einen dieser Teile enthält. So
+lassen sich die noch nicht erreichten in einem Rutsch nachziehen. **Das
+Gesamturteil gilt nur ohne `BV_NUR`**; das Skript sagt das auch selbst.
+
 Jedes Skript liegt unter `scripts/pruefe-*` und kennt `--gegenprobe`:
 Die baut jeden Fehler **einzeln** ein und verlangt, dass jede Prüfung in
 mindestens einem Durchgang rot wird. Eine Prüfung, die nie rot wird,
