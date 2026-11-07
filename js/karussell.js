@@ -127,10 +127,82 @@
     return b;
   }
 
+  /* ----------------------------------------------------------------
+     Kopfbild: mehrere Fotos, die sich ueberblenden
+     ------------------------------------------------------------------
+     Gewechselt wird NUR das Bild - Ueberschrift, Claim, Text und
+     Knoepfe bleiben stehen. Das ist Absicht: ein Wechsel ganzer
+     Folien braeuchte fuer jede Folie eine eigene Ueberschrift, also
+     neue Inhalte und eine zweite h1 auf der Seite. Beides war nicht
+     gewollt. So ist es ein Bildwechsel, kein zweiter Seiteninhalt.
+
+     Das erste Bild bleibt im Stylesheet stehen und wird hier nicht
+     angefasst: es ist das Bild, mit dem die Seite oeffnet, und es
+     soll ohne JavaScript und ohne Wartezeit da sein. Die weiteren
+     werden erst geladen, wenn sie an der Reihe sind.
+     ---------------------------------------------------------------- */
+  var WEITERE = [
+    '/images/vd_prod_pergola_sunpro.webp',
+    '/images/vd_prod_carport_tds.webp',
+    '/images/vd_prod_kaltwintergarten_tds.webp'
+  ];
+  var WECHSEL = 6500;
+
+  function kopfbilder() {
+    try {
+      if (ruhig()) return;
+      var folie = document.querySelector('.hero--neu .hs-slide--active');
+      if (!folie) return;
+      var erstes = folie.querySelector('.hs-slide-bg');
+      if (!erstes) return;
+
+      var ebenen = [erstes];
+      WEITERE.forEach(function (pfad) {
+        var e = document.createElement('div');
+        e.className = 'hs-slide-bg hs-slide-bg--weiter';
+        e.setAttribute('aria-hidden', 'true');
+        e.dataset.bild = pfad;
+        folie.insertBefore(e, erstes.nextSibling);
+        ebenen.push(e);
+      });
+
+      var jetzt = 0, timer = null;
+
+      function angehalten() {
+        var w = document.getElementById('bv-a11y-page-wrap');
+        return !!(w && w.classList.contains('a11y-pause-animations'));
+      }
+
+      function weiter() {
+        if (angehalten() || document.hidden) return planen();
+        var naechste = (jetzt + 1) % ebenen.length;
+        var e = ebenen[naechste];
+        if (e.dataset.bild) {
+          e.style.backgroundImage = "url('" + e.dataset.bild + "')";
+          delete e.dataset.bild;
+        }
+        ebenen[jetzt].classList.remove('ist-sichtbar');
+        e.classList.add('ist-sichtbar');
+        jetzt = naechste;
+        planen();
+      }
+      function planen() {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(weiter, WECHSEL);
+      }
+      ebenen[0].classList.add('ist-sichtbar');
+      planen();
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) planen();
+      });
+    } catch (e) { /* Ohne Wechsel bleibt das erste Bild stehen - voellig in Ordnung. */ }
+  }
+
   function los() {
     try {
       document.querySelectorAll('.galerie-grid').forEach(aufbauen);
     } catch (e) { /* Lieber ein Raster ohne Pfeile als eine kaputte Seite. */ }
+    kopfbilder();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', los);
   else los();

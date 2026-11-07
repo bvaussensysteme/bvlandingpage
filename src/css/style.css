@@ -3485,3 +3485,27 @@ body.bv-konfig-open #bvKonfigBubble {
     transform: translateX(5px);
   }
 }
+
+/* ── 8. Kopfbild wechselt ────────────────────────────────────────────
+   Die weiteren Bilder legt js/karussell.js als zusaetzliche Ebenen in
+   dieselbe Folie. Sie liegen uebereinander und werden ueberblendet -
+   deshalb laeuft die ruhige Fahrt (Abschnitt 6) hier auf jeder Ebene
+   einzeln, nicht auf der Folie. */
+.hero--neu .hs-slide-bg--weiter {
+  opacity: 0;
+  transition: opacity 1.4s var(--kurve-weich);
+  will-change: opacity;
+}
+.hero--neu .hs-slide-bg--weiter.ist-sichtbar { opacity: 1; }
+/* Das erste Bild muss verschwinden koennen, wenn ein spaeteres liegt. */
+.hero--neu .hs-slide--active .hs-slide-bg:not(.hs-slide-bg--weiter) {
+  transition: opacity 1.4s var(--kurve-weich);
+}
+.hero--neu .hs-slide--active .hs-slide-bg:not(.hs-slide-bg--weiter):not(.ist-sichtbar) {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero--neu .hs-slide--active .hs-slide-bg--weiter.ist-sichtbar {
+    animation: hintergrundFahrt 24s var(--kurve-weich) infinite alternate;
+  }
+}
