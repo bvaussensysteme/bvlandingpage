@@ -3358,3 +3358,130 @@ body.bv-konfig-open #bvKonfigBubble {
   .leistungen-grid--neu .leistung-img { height: 210px; min-height: 210px; max-height: 210px; }
   .leistungen-grid--neu { gap: var(--sp-6); }
 }
+
+/* ── 5. Karussell fuer die Referenzen ────────────────────────────────
+   Aus dem Raster wird ein waagerechter Lauf. Das Scrollen macht der
+   Browser (scroll-snap), nicht ein Skript - siehe Kommentar in
+   js/karussell.js. Ohne JavaScript bleibt ein Band, das sich normal
+   wischen laesst; Pfeile und Balken fuegt das Skript hinzu. */
+.karussell { position: relative; margin-top: var(--sp-6); }
+
+.galerie-grid.ist-karussell {
+  display: flex;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  gap: var(--sp-3);
+  margin-top: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: 0;
+  scrollbar-width: none;
+  /* Der Finger soll waagerecht wischen und senkrecht die Seite scrollen
+     koennen - pan-y laesst genau das zu. */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--sp-2);
+}
+.galerie-grid.ist-karussell::-webkit-scrollbar { display: none; }
+.galerie-grid.ist-karussell.zieht { cursor: grabbing; scroll-snap-type: none; }
+
+.galerie-grid.ist-karussell > .galerie-item {
+  flex: 0 0 clamp(248px, 76vw, 400px);
+  scroll-snap-align: start;
+  aspect-ratio: 4/3;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+}
+.galerie-grid.ist-karussell > .galerie-item.large {
+  flex-basis: clamp(290px, 86vw, 620px);
+  grid-column: auto;
+  aspect-ratio: 16/9;
+}
+@media (min-width: 900px) {
+  .galerie-grid.ist-karussell > .galerie-item { flex-basis: 360px; }
+  .galerie-grid.ist-karussell > .galerie-item.large { flex-basis: 620px; }
+}
+
+/* Leiste unter dem Lauf: links der Fortschritt, rechts die Pfeile. */
+.karussell-leiste {
+  display: flex; align-items: center; gap: var(--sp-5);
+  margin-top: var(--sp-4);
+}
+.karussell-balken {
+  flex: 1; height: 2px; background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.karussell-balken span {
+  display: block; height: 100%; width: 100%;
+  background: var(--gold);
+  transform-origin: left center;
+  transform: scaleX(.06);
+  transition: transform var(--zeit-mittel) var(--kurve-weich);
+}
+.karussell-knoepfe { display: flex; gap: var(--sp-2); flex-shrink: 0; }
+.karussell-knopf {
+  width: 46px; height: 46px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 50%;
+  background: var(--white); color: var(--black);
+  cursor: pointer; padding: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--zeit-schnell) var(--kurve-weich),
+              border-color var(--zeit-schnell) var(--kurve-weich),
+              color var(--zeit-schnell) var(--kurve-weich),
+              transform var(--zeit-schnell) var(--kurve-raus);
+}
+.karussell-knopf svg {
+  width: 20px; height: 20px;
+  stroke: currentColor; fill: none; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+@media (hover: hover) and (pointer: fine) {
+  .karussell-knopf:hover:not(:disabled) {
+    background: var(--gold-text); border-color: var(--gold-text); color: var(--white);
+  }
+}
+.karussell-knopf:active:not(:disabled) { transform: scale(.94); }
+.karussell-knopf:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
+.karussell-knopf:disabled { opacity: .32; cursor: default; }
+
+/* Auf hellem Grund hat die Leiste weisse Knoepfe; im abgesetzten
+   Abschnitt sitzt sie auf Offwhite - dort bekommt der Knopf die
+   Hintergrundfarbe des Abschnitts, sonst leuchtet er heraus. */
+.section--alt .karussell-knopf { background: var(--white); }
+
+/* ── 6. Ruhige Fahrt im Kopfbild ─────────────────────────────────────
+   Das Bild wandert ueber 24 s kaum merklich - gerade so viel, dass der
+   Kopfbereich nicht wie ein Standbild wirkt. Als ANIMATION, damit das
+   Bedienfeld fuer Barrierefreiheit sie anhalten kann (bei einem Bild
+   ist ein eingefrorener Zustand unkritisch - anders als bei Text, der
+   dann unsichtbar bliebe). */
+@media (prefers-reduced-motion: no-preference) {
+  .hero--neu .hs-slide--active .hs-slide-bg {
+    animation: hintergrundFahrt 24s var(--kurve-weich) infinite alternate;
+  }
+}
+@keyframes hintergrundFahrt {
+  from { transform: scale(1.03) translate3d(0, 0, 0); }
+  to   { transform: scale(1.09) translate3d(-1.2%, -1%, 0); }
+}
+
+/* ── 7. Pfeile, die mitgehen ─────────────────────────────────────────
+   Der Pfeil in "... entdecken →" rutscht beim Zeigen ein Stueck weiter.
+   Er steht als Zeichen IM Text, deshalb wird er hier als eigenes
+   Element nachgebildet und der originale ausgeblendet - der Text im
+   HTML bleibt unveraendert, auch fuer Vorleseprogramme. */
+@media (hover: hover) and (pointer: fine) {
+  .leistung-link, .article-back, .seo-link-list a {
+    display: inline-flex; align-items: center; gap: .4em;
+  }
+  .leistung-link > .pfeil, .article-back > .pfeil {
+    display: inline-block;
+    transition: transform var(--zeit-mittel) var(--kurve-raus);
+  }
+  .leistung-link:hover > .pfeil, .article-back:hover > .pfeil {
+    transform: translateX(5px);
+  }
+}

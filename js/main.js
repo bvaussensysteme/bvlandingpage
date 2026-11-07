@@ -365,3 +365,56 @@ document.addEventListener('click', function (e) {
     warte = setTimeout(function () { setzen(false); }, 1200);
   }, { passive: true });
 })();
+
+/* ============================================================
+   Zahlen zaehlen hoch, wenn sie ins Bild kommen
+   ------------------------------------------------------------
+   Nur die Ziffern laufen, der Rest des Textes bleibt stehen:
+   aus "100%" wird waehrend des Laufs "37%", nicht "37". Das
+   Ergebnis steht IMMER im HTML - gezaehlt wird nur, wenn der
+   Browser mitspielt und niemand weniger Bewegung wuenscht.
+   Faellt irgendetwas aus, steht die richtige Zahl schon da.
+   ============================================================ */
+(function () {
+  'use strict';
+  try {
+    if (!('IntersectionObserver' in window)) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var felder = [].slice.call(document.querySelectorAll('.stat-box .num'));
+    if (!felder.length) return;
+
+    var beobachter = new IntersectionObserver(function (eintraege) {
+      eintraege.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        beobachter.unobserve(e.target);
+        zaehlen(e.target);
+      });
+    }, { threshold: 0.4 });
+
+    felder.forEach(function (el) {
+      var text = (el.textContent || '').trim();
+      var treffer = text.match(/^(\d+)(.*)$/);
+      if (!treffer) return;
+      el.dataset.ziel = treffer[1];
+      el.dataset.rest = treffer[2] || '';
+      beobachter.observe(el);
+    });
+
+    function zaehlen(el) {
+      var ziel = parseInt(el.dataset.ziel, 10);
+      var rest = el.dataset.rest || '';
+      if (!(ziel > 0)) return;
+      var dauer = 900, start = null;
+      function schritt(jetzt) {
+        if (start === null) start = jetzt;
+        var t = Math.min(1, (jetzt - start) / dauer);
+        // Weich auslaufen: schnell los, ruhig ankommen.
+        var w = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(ziel * w) + rest;
+        if (t < 1) window.requestAnimationFrame(schritt);
+        else el.textContent = ziel + rest;
+      }
+      window.requestAnimationFrame(schritt);
+    }
+  } catch (e) { /* Die Zahl steht ohnehin im HTML. */ }
+})();
