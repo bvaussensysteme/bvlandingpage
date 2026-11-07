@@ -53,6 +53,12 @@ extraStyles: |
     border-radius: 12px; padding: 28px 32px; box-shadow: 0 10px 34px rgba(0,0,0,0.28); margin-bottom: 28px;
   }
   .bg-search-label { display: block; font-size: .85rem; font-weight: 600; color: rgba(255,255,255,0.88); margin-bottom: 8px; }
+  /* Dieselbe Klasse sitzt zweimal: im dunklen Suchfeld (dort ist Weiss
+     richtig) und in der weissen Auswahlkarte darueber. Dort stand weisse
+     Schrift auf Weiss - gemessen 1,0:1, also unsichtbar. Gefunden am
+     07.11.2026 von scripts/pruefe-darstellung.mjs. Nicht zusammenfassen:
+     die beiden Stellen haben unterschiedlich hellen Untergrund. */
+  .bg-product-select .bg-search-label { color: var(--black); }
   .bg-input-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
   .bg-input-wrap { flex: 1; min-width: 220px; position: relative; }
   .bg-input {
@@ -71,7 +77,7 @@ extraStyles: |
     cursor: pointer; letter-spacing: .3px;
     transition: background .2s, color .2s, transform .15s;
   }
-  .bg-btn:hover { background: var(--gold-dark); color: var(--white); }
+  .bg-btn:hover { background: var(--gold-text); color: var(--white); }
   .bg-btn:active { transform: scale(.97); }
   .bg-btn:disabled { opacity: .6; cursor: not-allowed; }
 
@@ -92,7 +98,7 @@ extraStyles: |
   }
   .bg-sug-item:last-child { border-bottom: none; }
   .bg-sug-item:hover, .bg-sug-item.active { background: rgba(196,154,42,.10); }
-  .bg-sug-item .s-plz { font-weight: 700; color: var(--gold-dark); flex-shrink: 0; font-size: .82rem; }
+  .bg-sug-item .s-plz { font-weight: 700; color: var(--gold-text); flex-shrink: 0; font-size: .82rem; }
   .bg-sug-item .s-name { font-weight: 600; }
   .bg-sug-item .s-state { color: var(--muted); font-size: .78rem; margin-left: auto; }
   @media(max-width:500px){ .bg-sug-item .s-state { display: none; } }
@@ -134,7 +140,7 @@ extraStyles: |
     padding: 22px 26px; margin-bottom: 20px; color: var(--white);
     border-left: 4px solid var(--gold);
   }
-  .bg-location-header .lh-icon { flex-shrink: 0; margin-top: 2px; color: var(--gold-dark); }
+  .bg-location-header .lh-icon { flex-shrink: 0; margin-top: 2px; color: var(--gold-text); }
   .bg-location-header .lh-icon svg {
     width: 30px; height: 30px; stroke: currentColor; fill: none;
     stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
@@ -155,7 +161,7 @@ extraStyles: |
   .bg-contact-item { display: flex; flex-direction: column; }
   .bg-contact-item .ci-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
   .bg-contact-item .ci-val { font-size: .9rem; font-weight: 500; color: var(--black); overflow-wrap: break-word; word-break: break-word; }
-  .bg-contact-item .ci-val a { color: var(--gold-dark); text-decoration: none; }
+  .bg-contact-item .ci-val a { color: var(--gold-text); text-decoration: none; }
   .bg-contact-item .ci-val a:hover { text-decoration: underline; }
 
   .bg-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
@@ -207,7 +213,7 @@ extraStyles: |
 
   /* LBO-Quelle */
   .bg-source { font-size: .78rem; color: var(--muted); margin-bottom: 20px; padding: 10px 14px; background: var(--offwhite); border-radius: 6px; }
-  .bg-source a { color: var(--gold-dark); }
+  .bg-source a { color: var(--gold-text); }
 
 
   /* Disclaimer */
@@ -304,7 +310,7 @@ extraStyles: |
     background: var(--white); border: 1px solid var(--border);
     border-radius: 10px; padding: 22px; box-shadow: var(--shadow);
   }
-  .bg-info-card .ic-icon { margin-bottom: 10px; color: var(--gold-dark); }
+  .bg-info-card .ic-icon { margin-bottom: 10px; color: var(--gold-text); }
   .bg-info-card .ic-icon svg {
     width: 30px; height: 30px; stroke: currentColor; fill: none;
     stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
@@ -1304,7 +1310,7 @@ skipLink: |
 
       <!-- Disclaimer -->
       <div class="bg-disclaimer" role="note">
-        <span aria-hidden="true" style="flex-shrink:0;margin-top:1px;color:var(--gold-dark);"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+        <span aria-hidden="true" style="flex-shrink:0;margin-top:1px;color:var(--gold-text);"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
         <p>
           <strong>Hinweis:</strong> Alle Angaben dienen lediglich der Orientierung und erfolgen ohne Gewähr.
           Bauvorschriften können sich ändern und Gemeinden können abweichende Festsetzungen im Bebauungsplan treffen.
@@ -1431,7 +1437,7 @@ skipLink: |
           <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a">
-          <p>In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis <strong>50 m³ umbautem Raum</strong> nach <strong>§ 62 Abs. 2 Nr. 2 LBauO genehmigungsfrei</strong>, wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche – 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
+          <p>In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis <strong>50 m³ umbautem Raum</strong> nach <strong>§ 62 Abs. 2 Nr. 2 LBauO genehmigungsfrei</strong>, wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche – 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-text)">Wir beraten Sie kostenlos →</a></p>
         </div>
       </div>
 

@@ -5,6 +5,30 @@
 /* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
 (function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
 </script>
+<script>
+/* Sanftes Einblenden beim Scrollen. Die Klasse wird HIER gesetzt, im Kopf,
+   damit die Karten nicht erst aufblitzen und dann verschwinden. Sobald die
+   vorhandenen Karten einzeln markiert sind, faellt sie wieder weg - alles,
+   was spaeter per JavaScript dazukommt, ist damit sofort sichtbar. Faellt
+   irgendetwas aus - kein IntersectionObserver, ein Fehler, ein Beobachter
+   der nicht ausloest -, ist ebenfalls alles sichtbar. Siehe Kommentar in
+   src/css/style.css. */
+(function(){var W='.leistung-card,.produkt-card,.service-box,.kontakt-card,.zert-card,.pflege-card,.wz-info-card,.bg-info-card,.stat-box,.why-item';var h=document.documentElement;try{
+if(!('IntersectionObserver' in window))return;
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+h.classList.add('bv-einblenden');
+var los=function(){try{
+var z=[].slice.call(document.querySelectorAll(W));
+z.forEach(function(e){e.classList.add('bv-auf');});
+h.classList.remove('bv-einblenden');
+var zeig=function(e,i){if(i)e.style.transitionDelay=(Math.min(i,4)*60)+'ms';e.classList.add('ist-da');};
+var b=new IntersectionObserver(function(ev){var i=0;ev.forEach(function(x){if(x.isIntersecting){zeig(x.target,i++);b.unobserve(x.target);}});},{rootMargin:'0px 0px -6% 0px',threshold:0.01});
+z.forEach(function(e){b.observe(e);});
+setTimeout(function(){z.forEach(function(e){e.classList.add('ist-da');});},3000);
+}catch(e){h.classList.remove('bv-einblenden');z&&z.forEach(function(e){e.classList.add('ist-da');});}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',los);else los();
+}catch(e){h.classList.remove('bv-einblenden');}})();
+</script>
 <style>
 .a11y-pre-links a{text-decoration:underline!important;}
 .a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
@@ -57,7 +81,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261106a" />
+  <link rel="stylesheet" href="/css/style.css?v=20261107a" />
 
 
 
@@ -99,7 +123,7 @@
 <main id="main-content" role="main">
   <section class="section">
     <div class="container" style="max-width:720px;">
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:8px;"><a href="/" style="color:var(--gold-dark);">Startseite</a> › Widerruf</p>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:8px;"><a href="/" style="color:var(--gold-text);">Startseite</a> › Widerruf</p>
       <h1 style="margin-bottom:16px;">Widerruf</h1>
 
       <p>Verbraucherinnen und Verbraucher können einen Vertrag unter den gesetzlichen Voraussetzungen
@@ -112,7 +136,7 @@
         ℹ️ <strong>Hinweis:</strong> Für Waren, die nach Ihren individuellen Vorgaben maßgefertigt werden,
         kann das Widerrufsrecht gesetzlich ausgeschlossen sein (§ 312g Abs. 2 Nr. 1 BGB). Ob und welches
         Widerrufsrecht in Ihrem Fall besteht, richtet sich nach der
-        <a href="/agb.html#widerruf" style="color:var(--gold-dark);">Widerrufsbelehrung in unseren AGB</a>
+        <a href="/agb.html#widerruf" style="color:var(--gold-text);">Widerrufsbelehrung in unseren AGB</a>
         und den gesetzlichen Vorschriften.
       </p>
 
@@ -161,7 +185,7 @@
 
           <label style="display:flex;gap:10px;align-items:flex-start;font-size:.88rem;color:var(--muted);margin-bottom:18px;">
             <input type="checkbox" required style="margin-top:3px;">
-            <span>Ich habe die <a href="/datenschutz.html" target="_blank" rel="noopener" style="color:var(--gold-dark);">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Angaben zur Bearbeitung des Widerrufs einverstanden. *</span>
+            <span>Ich habe die <a href="/datenschutz.html" target="_blank" rel="noopener" style="color:var(--gold-text);">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Angaben zur Bearbeitung des Widerrufs einverstanden. *</span>
           </label>
 
           <button type="submit" class="btn btn-gold" style="width:100%;">Widerruf absenden</button>
@@ -171,7 +195,7 @@
 
       <p style="margin-top:20px;font-size:.9rem;color:var(--muted);">
         Alternativ können Sie den Widerruf jederzeit direkt per E-Mail an
-        <a href="mailto:info@bv-aussensysteme.de?subject=Widerruf" style="color:var(--gold-dark);">info@bv-aussensysteme.de</a>
+        <a href="mailto:info@bv-aussensysteme.de?subject=Widerruf" style="color:var(--gold-text);">info@bv-aussensysteme.de</a>
         oder per Post an die oben genannte Adresse senden.
       </p>
     </div>
@@ -263,7 +287,7 @@
           <li><a href="/windzonen.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>Wind- &amp; Schneelastzonen-Rechner</a></li>
           <li><a href="/baugenehmigung.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Baugenehmigung prüfen</a></li>
           <li><a href="/impressum.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0z"/><path d="M5 7h14"/><path d="M8 3h8"/></svg>Impressum</a></li>
-          <li><a href="/agb.html" style="color:rgba(255,255,255,0.5)"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>AGB</a> ·
+          <li><a href="/agb.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>AGB</a> ·
       <a href="/datenschutz.html">Datenschutz</a></li>
         </ul>
       </div>

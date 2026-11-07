@@ -14362,3 +14362,99 @@ zweite Messung bei einem Dritten.
 **Für die Zukunft:** Eine Prüfung gegen `localhost` kann nicht sehen,
 was am Rand dazukommt. Wer wissen will, was ein Besucher wirklich lädt,
 muss die **veröffentlichte** Adresse mit einem Browser abrufen.
+
+---
+
+## 07.11.2026 – Sichtbarer Auffrischen der ganzen Seite: Marke bleibt, Handwerk darunter wird neu
+
+**Anlass.** Ansage des Betreibers: „Analysiere jetzt meine gesamte
+bestehende Website … Ziel: Ein vollständiger visueller Refresh auf
+modernstem Premium-Agentur-Niveau … Behalte unbedingt meine Firmenfarben,
+Logos, Markenidentität, Inhalte und bestehenden Funktionen bei."
+
+**Was vorher falsch war – gemessen, nicht vermutet.**
+
+| Befund | Zahl |
+|---|---|
+| Schriftgrößen ohne System, frei gesetzt | 13 verschiedene Werte zwischen 0,72 und 1,1 rem |
+| Abstände als lose Pixelwerte | über 15 verschiedene |
+| `transition: all` (bremst, animiert auch, was nicht soll) | 10 Stellen |
+| Eigene Beschleunigungskurven | **keine einzige** |
+| `:hover`-Regeln ohne Maus-Abfrage (bleiben am Handy „kleben") | 75 von 78 |
+| `:focus-visible` (Tastaturbedienung sichtbar) | 6 Stellen |
+| `h4`, `h5`, `h6` | gar nicht definiert |
+| Zeilenhöhe aller Überschriften | 1,08 – für 4,6 rem richtig, für 1,375 rem zu eng |
+
+**Was jetzt gilt.** In `src/css/style.css` stehen oben Marken für Schrift
+(`--txt-*`), Abstand (`--sp-*`), Dauer (`--zeit-*`), Kurve (`--kurve-*`)
+und Schatten (`--schatten-*`). Alles Neue greift darauf zu. Die
+**Markenfarben sind unverändert**: `--gold #C49A2A`, `--gold-dark #9A7318`,
+`--gold-text #7A5B12`, `--black #111111`. Es wurde keine Farbe erfunden,
+keine Schrift getauscht, kein Logo angefasst, kein Text umgeschrieben,
+keine SEO-Angabe verändert.
+
+**Fünf echte Fehler, die dabei herausfielen** (alle gemessen, nicht
+geschätzt):
+
+1. **Weiße Schrift auf Weiß.** Auf `/baugenehmigung` trug die Zeile
+   „Was planen Sie? (optional …)" `rgba(255,255,255,0.88)` und stand in
+   einer **weißen** Karte – Kontrast 1,0:1, also unsichtbar. Dieselbe
+   Klasse sitzt zweimal auf der Seite, einmal im dunklen Suchfeld (dort
+   ist Weiß richtig). Behoben mit einer eigenen Regel für die helle Karte.
+2. **Antwortbereich im FAQ zu niedrig.** `max-height: 250px` hat lange
+   Antworten stillschweigend abgeschnitten. Jetzt `60rem`.
+3. **Eingabefelder mit 15,2 px.** Unter 16 px zoomt iOS Safari beim
+   Antippen die ganze Seite heran. Im Hauptstylesheet behoben; im
+   Windzonen-Rechner galt die bestehende Regel an `(pointer: coarse)` und
+   bleibt wie sie ist – sie ist dort am 04.11.2026 bewusst so gesetzt
+   worden.
+4. **Gold als Textfarbe zu hell.** `#9A7318` auf Weiß ergibt gemessen
+   4,34:1 und verfehlt damit die 4,5:1 der WCAG AA – an 30 Stellen, unter
+   anderem in allen Produkt-Etiketten, den Sternen der Google-Bewertung
+   (dort sogar 1,71:1 in Googles Gelb `#FBBC05`) und den Pflege-Marken
+   (2,62:1). Überall auf `--gold-text #7A5B12` umgestellt: **dieselbe
+   Marke, nur die dafür vorgesehene Stufe.** Auf dunklem Grund gilt
+   umgekehrt `--gold-light`, sonst kippt es ins Gegenteil (dort maß die
+   Prüfung 3,0:1).
+5. **Schalter im Bedienfeld für Barrierefreiheit 40 × 23 px** – unter den
+   24 × 24 px aus WCAG 2.5.8. Jetzt 44 × 26.
+
+**Was neu dazukam.** Karten blenden beim Scrollen ein (14 px Aufsteigen,
+gestaffelt). Dazu drei Entscheidungen, die man später nicht „aufräumen"
+darf – sie stehen auch als Kommentar an der Stelle im Code:
+
+- Der Ausgangszustand hängt an einer Klasse, die ein **winziges Skript im
+  Kopf** setzt, nicht an der Karte selbst. Sonst blitzen die Karten beim
+  Laden einmal auf.
+- Der Endzustand ist eine **Klasse**, keine Animation mit `fill-mode`.
+  Grund: Das Bedienfeld für Barrierefreiheit kann Animationen anhalten –
+  eine angehaltene Einblend-Animation bliebe für immer bei `opacity: 0`
+  stehen. Mit einer Klasse springt der Inhalt stattdessen sofort auf
+  sichtbar.
+- Sobald die vorhandenen Karten markiert sind, fällt die Klasse am `html`
+  wieder weg. Grund: Solange sie steht, erbt **jede** später per
+  JavaScript eingefügte Karte den unsichtbaren Ausgangszustand – und die
+  wird von niemandem mehr beobachtet, bliebe also dauerhaft auf
+  `opacity: 0`. Auf `/baugenehmigung` werden die Hinweiskarten nach einer
+  Suche nachgeliefert, dort wäre das eingetreten. **Ehrlich dazu:** Das
+  ist vorsorglich geändert worden. Die Prüfung hatte zwar 13 unsichtbare
+  Karten gemeldet, aber das lag an ihr selbst – sie las
+  `document.body.scrollHeight`, und weil die Seite im Wrapper des
+  Bedienfelds für Barrierefreiheit hängt, meldete der nur die Fensterhöhe:
+  die Prüfung hat überhaupt nicht gescrollt. Mit
+  `document.documentElement.scrollHeight` und genug Wartezeit sind es 0.
+  Der nachgelieferte Fall ist damit **nicht** nachgewiesen, sondern
+  begründet vermieden.
+
+**Verworfen.** Fremde Paletten, Schriftpaarungen und Vorlagen aus den
+Design-Skills: Die Skills liefern Prüflisten und Begründungen, die
+verbindliche Gestaltung bleibt `src/css/style.css`. Ebenso verworfen:
+auffällige Effekte (Glanz auf Knöpfen, parallaxe Bilder, 3D-Kippen der
+Karten) – der Betreiber hat ausdrücklich „keine generischen KI-Designs,
+überladene Effekte und unnötigen Animationen" verlangt.
+
+**Was gegengelesen werden soll.** `scripts/pruefe-darstellung.mjs` (neu)
+misst Kontrast, Feldgrößen, Tippflächen und das Einblenden auf zwölf
+Seiten in drei Breiten. Die Zeilen unter „nicht messbar" sind Text auf
+Fotos – dort kann kein Skript den Untergrund kennen; die sind an den
+Bildschirmfotos von Hand angesehen worden.

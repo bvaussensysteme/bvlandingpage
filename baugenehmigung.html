@@ -5,6 +5,30 @@
 /* Barrierefreiheit: Klassen sofort setzen (kein Flash) */
 (function(){try{var s=JSON.parse(localStorage.getItem('bv_a11y')||'{}');var b=document.documentElement;if(s.underlineLinks)b.classList.add('a11y-pre-links');if(s.dyslexia)b.classList.add('a11y-pre-dyslexia');if(s.fontSize&&s.fontSize!==0)b.style.fontSize=(16+s.fontSize*2)+'px';}catch(e){}})();
 </script>
+<script>
+/* Sanftes Einblenden beim Scrollen. Die Klasse wird HIER gesetzt, im Kopf,
+   damit die Karten nicht erst aufblitzen und dann verschwinden. Sobald die
+   vorhandenen Karten einzeln markiert sind, faellt sie wieder weg - alles,
+   was spaeter per JavaScript dazukommt, ist damit sofort sichtbar. Faellt
+   irgendetwas aus - kein IntersectionObserver, ein Fehler, ein Beobachter
+   der nicht ausloest -, ist ebenfalls alles sichtbar. Siehe Kommentar in
+   src/css/style.css. */
+(function(){var W='.leistung-card,.produkt-card,.service-box,.kontakt-card,.zert-card,.pflege-card,.wz-info-card,.bg-info-card,.stat-box,.why-item';var h=document.documentElement;try{
+if(!('IntersectionObserver' in window))return;
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+h.classList.add('bv-einblenden');
+var los=function(){try{
+var z=[].slice.call(document.querySelectorAll(W));
+z.forEach(function(e){e.classList.add('bv-auf');});
+h.classList.remove('bv-einblenden');
+var zeig=function(e,i){if(i)e.style.transitionDelay=(Math.min(i,4)*60)+'ms';e.classList.add('ist-da');};
+var b=new IntersectionObserver(function(ev){var i=0;ev.forEach(function(x){if(x.isIntersecting){zeig(x.target,i++);b.unobserve(x.target);}});},{rootMargin:'0px 0px -6% 0px',threshold:0.01});
+z.forEach(function(e){b.observe(e);});
+setTimeout(function(){z.forEach(function(e){e.classList.add('ist-da');});},3000);
+}catch(e){h.classList.remove('bv-einblenden');z&&z.forEach(function(e){e.classList.add('ist-da');});}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',los);else los();
+}catch(e){h.classList.remove('bv-einblenden');}})();
+</script>
 <style>
 .a11y-pre-links a{text-decoration:underline!important;}
 .a11y-pre-dyslexia,.a11y-pre-dyslexia p,.a11y-pre-dyslexia li{font-family:"Arial Rounded MT Bold","Arial",sans-serif!important;letter-spacing:.05em!important;word-spacing:.15em!important;line-height:1.8!important;}
@@ -57,7 +81,7 @@
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261106a" />
+  <link rel="stylesheet" href="/css/style.css?v=20261107a" />
 
   <style>
 /* ── PAGE HERO ── */
@@ -103,6 +127,12 @@
   border-radius: 12px; padding: 28px 32px; box-shadow: 0 10px 34px rgba(0,0,0,0.28); margin-bottom: 28px;
 }
 .bg-search-label { display: block; font-size: .85rem; font-weight: 600; color: rgba(255,255,255,0.88); margin-bottom: 8px; }
+/* Dieselbe Klasse sitzt zweimal: im dunklen Suchfeld (dort ist Weiss
+   richtig) und in der weissen Auswahlkarte darueber. Dort stand weisse
+   Schrift auf Weiss - gemessen 1,0:1, also unsichtbar. Gefunden am
+   07.11.2026 von scripts/pruefe-darstellung.mjs. Nicht zusammenfassen:
+   die beiden Stellen haben unterschiedlich hellen Untergrund. */
+.bg-product-select .bg-search-label { color: var(--black); }
 .bg-input-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
 .bg-input-wrap { flex: 1; min-width: 220px; position: relative; }
 .bg-input {
@@ -121,7 +151,7 @@
   cursor: pointer; letter-spacing: .3px;
   transition: background .2s, color .2s, transform .15s;
 }
-.bg-btn:hover { background: var(--gold-dark); color: var(--white); }
+.bg-btn:hover { background: var(--gold-text); color: var(--white); }
 .bg-btn:active { transform: scale(.97); }
 .bg-btn:disabled { opacity: .6; cursor: not-allowed; }
 
@@ -142,7 +172,7 @@
 }
 .bg-sug-item:last-child { border-bottom: none; }
 .bg-sug-item:hover, .bg-sug-item.active { background: rgba(196,154,42,.10); }
-.bg-sug-item .s-plz { font-weight: 700; color: var(--gold-dark); flex-shrink: 0; font-size: .82rem; }
+.bg-sug-item .s-plz { font-weight: 700; color: var(--gold-text); flex-shrink: 0; font-size: .82rem; }
 .bg-sug-item .s-name { font-weight: 600; }
 .bg-sug-item .s-state { color: var(--muted); font-size: .78rem; margin-left: auto; }
 @media(max-width:500px){ .bg-sug-item .s-state { display: none; } }
@@ -184,7 +214,7 @@
   padding: 22px 26px; margin-bottom: 20px; color: var(--white);
   border-left: 4px solid var(--gold);
 }
-.bg-location-header .lh-icon { flex-shrink: 0; margin-top: 2px; color: var(--gold-dark); }
+.bg-location-header .lh-icon { flex-shrink: 0; margin-top: 2px; color: var(--gold-text); }
 .bg-location-header .lh-icon svg {
   width: 30px; height: 30px; stroke: currentColor; fill: none;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
@@ -205,7 +235,7 @@
 .bg-contact-item { display: flex; flex-direction: column; }
 .bg-contact-item .ci-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
 .bg-contact-item .ci-val { font-size: .9rem; font-weight: 500; color: var(--black); overflow-wrap: break-word; word-break: break-word; }
-.bg-contact-item .ci-val a { color: var(--gold-dark); text-decoration: none; }
+.bg-contact-item .ci-val a { color: var(--gold-text); text-decoration: none; }
 .bg-contact-item .ci-val a:hover { text-decoration: underline; }
 
 .bg-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
@@ -257,7 +287,7 @@
 
 /* LBO-Quelle */
 .bg-source { font-size: .78rem; color: var(--muted); margin-bottom: 20px; padding: 10px 14px; background: var(--offwhite); border-radius: 6px; }
-.bg-source a { color: var(--gold-dark); }
+.bg-source a { color: var(--gold-text); }
 
 
 /* Disclaimer */
@@ -354,7 +384,7 @@
   background: var(--white); border: 1px solid var(--border);
   border-radius: 10px; padding: 22px; box-shadow: var(--shadow);
 }
-.bg-info-card .ic-icon { margin-bottom: 10px; color: var(--gold-dark); }
+.bg-info-card .ic-icon { margin-bottom: 10px; color: var(--gold-text); }
 .bg-info-card .ic-icon svg {
   width: 30px; height: 30px; stroke: currentColor; fill: none;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
@@ -645,7 +675,7 @@
 
       <!-- Disclaimer -->
       <div class="bg-disclaimer" role="note">
-        <span aria-hidden="true" style="flex-shrink:0;margin-top:1px;color:var(--gold-dark);"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+        <span aria-hidden="true" style="flex-shrink:0;margin-top:1px;color:var(--gold-text);"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
         <p>
           <strong>Hinweis:</strong> Alle Angaben dienen lediglich der Orientierung und erfolgen ohne Gewähr.
           Bauvorschriften können sich ändern und Gemeinden können abweichende Festsetzungen im Bebauungsplan treffen.
@@ -772,7 +802,7 @@
           <svg class="faq-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="faq-a">
-          <p>In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis <strong>50 m³ umbautem Raum</strong> nach <strong>§ 62 Abs. 2 Nr. 2 LBauO genehmigungsfrei</strong>, wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche – 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-dark)">Wir beraten Sie kostenlos →</a></p>
+          <p>In Rheinland-Pfalz ist eine unbeheizte Terrassenüberdachung bis <strong>50 m³ umbautem Raum</strong> nach <strong>§ 62 Abs. 2 Nr. 2 LBauO genehmigungsfrei</strong>, wenn sie zu ebener Erde liegt und zu einem Wohngebäude der Gebäudeklassen 1 bis 3 gehört. Maßgeblich ist das Volumen, nicht die Grundfläche – 50 m³ entsprechen grob rund 20 m² bei 2,50 m mittlerer Höhe. Im Außenbereich (§ 35 BauGB) ist immer eine Genehmigung erforderlich. Im Westerwaldkreis, Landkreis Neuwied und Landkreis Altenkirchen gilt diese Regel. <a href="/#kontakt" style="color:var(--gold-text)">Wir beraten Sie kostenlos →</a></p>
         </div>
       </div>
 
@@ -939,7 +969,7 @@
           <li><a href="/windzonen.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>Wind- &amp; Schneelastzonen-Rechner</a></li>
           <li><a href="/baugenehmigung.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Baugenehmigung prüfen</a></li>
           <li><a href="/impressum.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0z"/><path d="M5 7h14"/><path d="M8 3h8"/></svg>Impressum</a></li>
-          <li><a href="/agb.html" style="color:rgba(255,255,255,0.5)"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>AGB</a> ·
+          <li><a href="/agb.html"><svg class="footer-link-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>AGB</a> ·
       <a href="/datenschutz.html">Datenschutz</a></li>
         </ul>
       </div>

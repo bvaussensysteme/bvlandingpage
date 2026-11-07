@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+<script>
+/* Sanftes Einblenden beim Scrollen. Die Klasse wird HIER gesetzt, im Kopf,
+   damit die Karten nicht erst aufblitzen und dann verschwinden. Sobald die
+   vorhandenen Karten einzeln markiert sind, faellt sie wieder weg - alles,
+   was spaeter per JavaScript dazukommt, ist damit sofort sichtbar. Faellt
+   irgendetwas aus - kein IntersectionObserver, ein Fehler, ein Beobachter
+   der nicht ausloest -, ist ebenfalls alles sichtbar. Siehe Kommentar in
+   src/css/style.css. */
+(function(){var W='.leistung-card,.produkt-card,.service-box,.kontakt-card,.zert-card,.pflege-card,.wz-info-card,.bg-info-card,.stat-box,.why-item';var h=document.documentElement;try{
+if(!('IntersectionObserver' in window))return;
+if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+h.classList.add('bv-einblenden');
+var los=function(){try{
+var z=[].slice.call(document.querySelectorAll(W));
+z.forEach(function(e){e.classList.add('bv-auf');});
+h.classList.remove('bv-einblenden');
+var zeig=function(e,i){if(i)e.style.transitionDelay=(Math.min(i,4)*60)+'ms';e.classList.add('ist-da');};
+var b=new IntersectionObserver(function(ev){var i=0;ev.forEach(function(x){if(x.isIntersecting){zeig(x.target,i++);b.unobserve(x.target);}});},{rootMargin:'0px 0px -6% 0px',threshold:0.01});
+z.forEach(function(e){b.observe(e);});
+setTimeout(function(){z.forEach(function(e){e.classList.add('ist-da');});},3000);
+}catch(e){h.classList.remove('bv-einblenden');z&&z.forEach(function(e){e.classList.add('ist-da');});}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',los);else los();
+}catch(e){h.classList.remove('bv-einblenden');}})();
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta charset="UTF-8" />
   <meta http-equiv="refresh" content="0; url=/#kontakt" />

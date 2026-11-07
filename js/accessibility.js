@@ -343,7 +343,9 @@
 
       /* ── Toggle Switch ── */
       '.a11y-toggle {',
-        'width: 42px; height: 24px; border-radius: 100px;',
+        /* 44 x 26 statt 42 x 24: gemessen kam das Feld auf 40 x 23 px und blieb
+         damit unter den 24 x 24 px aus WCAG 2.5.8. */
+        'width: 44px; height: 26px; border-radius: 100px;',
         'background: #ddd; border: none; cursor: pointer;',
         'position: relative; flex-shrink: 0;',
         'transition: background 0.2s; padding: 0;',
@@ -351,7 +353,7 @@
       '.a11y-toggle.on { background: #C49A2A; }',
       '.a11y-toggle-thumb {',
         'position: absolute; top: 3px; left: 3px;',
-        'width: 18px; height: 18px; border-radius: 50%;',
+        'width: 20px; height: 20px; border-radius: 50%;',
         'background: #fff; transition: transform 0.2s;',
         'box-shadow: 0 1px 4px rgba(0,0,0,0.2);',
         'display: block;',
