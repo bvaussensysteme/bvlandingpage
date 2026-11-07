@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Entwurf – BV AussenSysteme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   ENTWURF – komplett neues Gesicht für BV AussenSysteme
+   Eigenes Stylesheet. Nichts hiervon wirkt auf die bestehende Seite.
+   Unveraendert uebernommen: Markenfarben, Logo, Schriften, alle Texte.
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  --gold:#C49A2A; --gold-hell:#E8B840; --gold-text:#7A5B12;
+  --tief:#0C0C0C; --flaeche:#141414; --flaeche-2:#1B1B1B;
+  --linie:rgba(255,255,255,.12); --weiss:#fff;
+  --text:rgba(255,255,255,.72); --text-schwach:rgba(255,255,255,.48);
+  --display:'Barlow Condensed',sans-serif; --lesen:'Inter',system-ui,sans-serif;
+  --rand:clamp(20px,5vw,72px);
+  --kurve:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--tief);color:var(--text);
+  font-family:var(--lesen);font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--display);color:var(--weiss);margin:0;font-weight:700;letter-spacing:-.01em}
+p{margin:0}
+::selection{background:var(--gold);color:#000}
+
+/* Feines Korn ueber allem: nimmt dem Schwarz das Billige. */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.band{padding:clamp(72px,11vw,160px) var(--rand)}
+.band--lauf{padding-left:0;padding-right:0}
+.band--lauf > .innen{padding:0 var(--rand)}
+.innen{max-width:1320px;margin:0 auto}
+
+/* ── Rubrik ────────────────────────────────────────────────── */
+.rubrik{
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--display);font-size:13px;font-weight:700;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--gold-hell);
+  margin:0 0 18px;
+}
+.rubrik::before{content:'';width:48px;height:1px;background:var(--gold);flex:0 0 auto}
+.gross{
+  font-size:clamp(2.1rem,5.4vw,4.2rem);line-height:.98;
+  max-width:18ch;text-wrap:balance;
+}
+.nachsatz{margin-top:22px;max-width:56ch;font-size:1.0625rem}
+
+/* ── Kopfzeile ─────────────────────────────────────────────── */
+.kopfzeile{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;padding:16px var(--rand);
+  transition:background .4s var(--kurve),backdrop-filter .4s var(--kurve),border-color .4s;
+  border-bottom:1px solid transparent;
+}
+@media (max-width:640px){
+  .kopfzeile{padding:12px var(--rand)}
+  .kopfzeile .knopf{padding:11px 14px;font-size:12.5px;min-height:42px;letter-spacing:.06em}
+  .kopfzeile img{height:28px}
+}
+.kopfzeile.fest{background:rgba(12,12,12,.76);backdrop-filter:blur(14px) saturate(140%);border-bottom-color:var(--linie)}
+.kopfzeile img{height:34px;width:auto}
+.kopf-nav{display:none;gap:30px;font-size:14px;letter-spacing:.02em}
+@media (min-width:980px){.kopf-nav{display:flex}}
+.kopf-nav a{text-decoration:none;color:var(--text);position:relative;padding:4px 0;transition:color .2s}
+.kopf-nav a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .32s var(--kurve)}
+.kopf-nav a:hover{color:var(--weiss)}
+.kopf-nav a:hover::after{transform:scaleX(1);transform-origin:left}
+
+.knopf{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;text-decoration:none;
+  padding:15px 26px;min-height:50px;border:1px solid transparent;border-radius:2px;
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  transition:background .28s var(--kurve),color .28s var(--kurve),border-color .28s var(--kurve),transform .18s var(--kurve);
+}
+.knopf--gold{background:var(--gold);color:#121212}
+.knopf--gold:hover{background:var(--gold-hell)}
+.knopf--rand{border-color:rgba(255,255,255,.3);color:var(--weiss)}
+.knopf--rand:hover{border-color:var(--gold);color:var(--gold-hell)}
+.knopf:active{transform:translateY(1px)}
+.knopf:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
+.knopf svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Kopfbereich ───────────────────────────────────────────── */
+.kopf{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;padding-top:124px}
+.kopf-bild{position:absolute;inset:0;z-index:0}
+.kopf-bild i{
+  position:absolute;inset:-6%;background-size:cover;background-position:center;
+  opacity:0;transition:opacity 1.6s var(--kurve);
+}
+.kopf-bild i.da{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+  .kopf-bild i.da{animation:fahrt 26s ease-in-out infinite alternate}
+}
+@keyframes fahrt{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.1) translate3d(-1.5%,-1.5%,0)}}
+.kopf-schleier{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(0deg,var(--tief) 2%,rgba(12,12,12,.3) 42%,rgba(12,12,12,.55) 100%),
+    linear-gradient(90deg,rgba(12,12,12,.86) 0%,rgba(12,12,12,.35) 62%,rgba(12,12,12,.15) 100%);
+}
+.kopf-innen{position:relative;z-index:2;width:100%;padding:0 var(--rand) clamp(40px,7vw,86px);max-width:1320px;margin:0 auto}
+.kopf h1{
+  font-size:clamp(2.7rem,8.4vw,6.6rem);line-height:.9;letter-spacing:-.025em;
+  margin:0 0 26px;max-width:16ch;
+}
+.kopf h1 em{font-style:normal;color:var(--gold-hell)}
+.kopf-claim{
+  font-family:var(--display);font-size:clamp(.95rem,1.5vw,1.15rem);font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--gold-hell);
+  border-left:2px solid var(--gold);padding-left:18px;margin:0 0 26px;
+}
+.kopf-text{max-width:50ch;font-size:clamp(1rem,1.3vw,1.125rem)}
+.kopf-knoepfe{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.kopf-fuss{
+  display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center;
+  margin-top:44px;padding-top:24px;border-top:1px solid var(--linie);
+  font-size:13.5px;color:var(--text-schwach);
+}
+.kopf-fuss span{display:inline-flex;align-items:center;gap:9px}
+.kopf-fuss span::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+/* ── Laufband ──────────────────────────────────────────────── */
+.laufband{
+  border-top:1px solid var(--linie);border-bottom:1px solid var(--linie);
+  overflow:hidden;padding:22px 0;background:var(--flaeche);
+}
+.laufband-spur{display:flex;gap:56px;width:max-content;will-change:transform}
+@media (prefers-reduced-motion:no-preference){.laufband-spur{animation:laufen 48s linear infinite}}
+.laufband:hover .laufband-spur{animation-play-state:paused}
+@keyframes laufen{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.laufband b{
+  font-family:var(--display);font-size:clamp(1.1rem,2.1vw,1.6rem);font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.26);
+  white-space:nowrap;display:inline-flex;align-items:center;gap:56px;
+}
+.laufband b::after{content:'';width:7px;height:7px;background:var(--gold);transform:rotate(45deg)}
+
+/* ── Leistungen: waagerechter Lauf ─────────────────────────── */
+.lauf-kopf{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end;justify-content:space-between}
+.lauf{
+  display:flex;gap:clamp(14px,2vw,26px);margin-top:clamp(36px,5vw,58px);
+  overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  padding-bottom:6px;touch-action:pan-y;cursor:grab;
+  padding-inline:max(var(--rand), calc((100vw - 1320px) / 2));
+  scroll-padding-inline-start:max(var(--rand), calc((100vw - 1320px) / 2));
+}
+.lauf::-webkit-scrollbar{display:none}
+.lauf.zieht{cursor:grabbing;scroll-snap-type:none}
+.stueck{
+  flex:0 0 clamp(262px,78vw,420px);scroll-snap-align:start;text-decoration:none;
+  display:flex;flex-direction:column;
+}
+.stueck-bild{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--flaeche-2)}
+.stueck-bild img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--kurve);transform:scale(1.01)}
+.stueck:hover .stueck-bild img{transform:scale(1.07)}
+.stueck-nr{
+  position:absolute;top:16px;left:16px;z-index:2;
+  font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.2em;
+  color:var(--gold-hell);
+}
+.stueck-bild::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(12,12,12,.75) 0%,rgba(12,12,12,0) 55%)}
+.stueck-text{padding-top:20px;border-top:1px solid var(--linie);margin-top:20px;transition:border-color .3s}
+.stueck:hover .stueck-text{border-top-color:var(--gold)}
+.stueck h3{font-size:clamp(1.3rem,1.9vw,1.6rem);line-height:1.08;margin-bottom:10px}
+.stueck p{font-size:.9rem;color:var(--text-schwach);line-height:1.6}
+.stueck-mehr{
+  margin-top:16px;display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold-hell);
+}
+.stueck-mehr svg{width:15px;height:15px;transition:transform .3s var(--kurve)}
+.stueck:hover .stueck-mehr svg{transform:translateX(5px)}
+
+.lauf-steuer{display:flex;align-items:center;gap:22px;margin-top:30px}
+.lauf-balken{flex:1;height:1px;background:var(--linie);overflow:hidden}
+.lauf-balken span{display:block;height:100%;background:var(--gold);transform-origin:left;transform:scaleX(.08);transition:transform .25s var(--kurve)}
+.rund{
+  width:52px;height:52px;flex:0 0 auto;border-radius:50%;background:transparent;
+  border:1px solid var(--linie);color:var(--weiss);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;padding:0;
+  transition:background .25s,border-color .25s,color .25s,transform .18s;
+}
+.rund svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.rund:hover:not(:disabled){background:var(--gold);border-color:var(--gold);color:#121212}
+.rund:active:not(:disabled){transform:scale(.94)}
+.rund:disabled{opacity:.28;cursor:default}
+.rund:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
+
+/* ── Zweispalter mit haftender Spalte ──────────────────────── */
+.zwei{display:grid;gap:clamp(40px,6vw,96px);align-items:start}
+@media (min-width:980px){.zwei{grid-template-columns:.85fr 1.15fr}.zwei-halt{position:sticky;top:120px}}
+.punkte{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.punkte li{display:grid;grid-template-columns:auto 1fr;gap:22px;padding:26px 0;border-top:1px solid var(--linie)}
+.punkte li:last-child{border-bottom:1px solid var(--linie)}
+.punkte .nr{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--gold)}
+.punkte h3{font-size:1.2rem;margin-bottom:8px;line-height:1.2}
+.punkte p{font-size:.94rem;color:var(--text-schwach)}
+
+/* ── Zahlen ────────────────────────────────────────────────── */
+.zahlen{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--linie);margin-top:clamp(40px,6vw,72px)}
+@media (min-width:860px){.zahlen{grid-template-columns:repeat(4,1fr)}}
+.zahl{background:var(--tief);padding:clamp(26px,3.4vw,44px) clamp(18px,2vw,28px)}
+.zahl b{display:block;font-family:var(--display);font-size:clamp(2.6rem,5.4vw,4.4rem);line-height:.9;color:var(--weiss);font-weight:800}
+.zahl span{display:block;margin-top:12px;font-size:.84rem;color:var(--text-schwach);line-height:1.5}
+
+/* ── Ablauf ────────────────────────────────────────────────── */
+.ablauf{display:grid;gap:0;margin-top:clamp(36px,5vw,64px);counter-reset:s}
+.schritt{
+  display:grid;gap:14px 34px;padding:clamp(26px,3.4vw,42px) 0;
+  border-top:1px solid var(--linie);align-items:start;
+}
+.schritt:last-child{border-bottom:1px solid var(--linie)}
+@media (min-width:860px){.schritt{grid-template-columns:120px 1fr 1.3fr;align-items:center}}
+.schritt-nr{
+  font-family:var(--display);font-size:clamp(2.2rem,4vw,3.4rem);font-weight:800;line-height:.9;
+  color:transparent;-webkit-text-stroke:1px var(--gold);
+}
+.schritt h3{font-size:clamp(1.25rem,2vw,1.7rem);line-height:1.1}
+.schritt p{font-size:.96rem;color:var(--text-schwach)}
+
+/* ── Referenzen ────────────────────────────────────────────── */
+.ref-lauf{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;touch-action:pan-y;
+  padding-inline:max(var(--rand), calc((100vw - 1320px) / 2));
+  scroll-padding-inline-start:max(var(--rand), calc((100vw - 1320px) / 2));
+  margin-top:clamp(36px,5vw,58px)}
+.ref-lauf::-webkit-scrollbar{display:none}
+.ref-lauf.zieht{cursor:grabbing;scroll-snap-type:none}
+.ref{flex:0 0 clamp(268px,82vw,620px);scroll-snap-align:start;position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--flaeche-2)}
+.ref img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--kurve)}
+.ref:hover img{transform:scale(1.05)}
+.ref figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:44px 22px 20px;
+  background:linear-gradient(0deg,rgba(12,12,12,.9),rgba(12,12,12,0));
+  font-size:.86rem;color:rgba(255,255,255,.88);
+}
+
+/* ── Abschluss ─────────────────────────────────────────────── */
+.abschluss{background:var(--flaeche);border-top:1px solid var(--linie)}
+.abschluss h2{font-size:clamp(2.3rem,7vw,5.6rem);line-height:.94;max-width:14ch;letter-spacing:-.02em}
+.abschluss .knopf-reihe{display:flex;flex-wrap:wrap;gap:12px;margin-top:38px}
+.kontakt-zeilen{display:grid;gap:0;margin-top:clamp(40px,5vw,64px)}
+.kontakt-zeilen a{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;
+  padding:22px 0;border-top:1px solid var(--linie);text-decoration:none;
+  transition:padding-left .3s var(--kurve),color .3s;
+}
+.kontakt-zeilen a:last-child{border-bottom:1px solid var(--linie)}
+.kontakt-zeilen a:hover{padding-left:12px;color:var(--weiss)}
+.kontakt-zeilen .was{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hell);min-width:150px}
+.kontakt-zeilen .wert{font-family:var(--display);font-size:clamp(1.2rem,2.4vw,1.9rem);color:var(--weiss);font-weight:700}
+
+/* ── Fusszeile ─────────────────────────────────────────────── */
+.fuss{padding:clamp(48px,6vw,80px) var(--rand);border-top:1px solid var(--linie)}
+.fuss-innen{max-width:1320px;margin:0 auto;display:grid;gap:40px}
+@media (min-width:860px){.fuss-innen{grid-template-columns:1fr auto;align-items:center}}
+.fuss img{height:44px;width:auto;opacity:.9}
+.fuss p{margin-top:16px;font-size:.86rem;color:var(--text-schwach);max-width:46ch}
+.fuss-orte{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.82rem;color:var(--text-schwach)}
+
+/* ── Hinweisband oben ──────────────────────────────────────── */
+.entwurf-hinweis{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:var(--gold);color:#121212;padding:10px var(--rand);
+  font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;text-align:center;
+}
+
+/* ── Einblenden ────────────────────────────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .js .auf{opacity:0;transform:translateY(22px);transition:opacity .9s var(--kurve),transform .9s var(--kurve)}
+  .js .auf.da{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="kopfzeile" id="kopfzeile">
+  <a href="#" aria-label="BV AussenSysteme"><img src="/images/logo-frei.png" alt="BV AussenSysteme" width="200" height="200" /></a>
+  <nav class="kopf-nav" aria-label="Hauptnavigation">
+    <a href="#leistungen">Leistungen</a>
+    <a href="#warum">Warum wir</a>
+    <a href="#ablauf">Ablauf</a>
+    <a href="#referenzen">Referenzen</a>
+    <a href="#kontakt">Kontakt</a>
+  </nav>
+  <a href="#kontakt" class="knopf knopf--gold">Kostenlos anfragen</a>
+</header>
+
+<section class="kopf" id="start">
+  <div class="kopf-bild" id="kopfBild" aria-hidden="true">
+    <i class="da" style="background-image:url('/images/vd_prod_terrasse_tds.webp')"></i>
+  </div>
+  <div class="kopf-schleier" aria-hidden="true"></div>
+  <div class="kopf-innen">
+    <p class="rubrik">Aluminium-Spezialist im Westerwald</p>
+    <h1>Ihr Traumplatz<br>draußen – <em>das<br>ganze Jahr.</em></h1>
+    <p class="kopf-claim">Überdacht. Durchdacht. Zuverlässig.</p>
+    <p class="kopf-text">Maßgefertigte Aluminium-Überdachungen vom Fachbetrieb aus Ihrer Region – kostenlos geplant, fachgerecht montiert, mit 10 Jahren Herstellergarantie.</p>
+    <div class="kopf-knoepfe">
+      <a href="#kontakt" class="knopf knopf--gold">Kostenlos konfigurieren</a>
+      <a href="/broschuere.html" class="knopf knopf--rand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+        Katalog ansehen
+      </a>
+      <a href="tel:+4915678696609" class="knopf knopf--rand">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Anrufen
+      </a>
+    </div>
+    <div class="kopf-fuss">
+      <span>Kostenlos &amp; unverbindlich</span>
+      <span>Antwort meist in 24 Std.</span>
+      <span>Vor-Ort-Termin im Westerwald</span>
+    </div>
+  </div>
+</section>
+
+<div class="laufband" aria-hidden="true">
+  <div class="laufband-spur" id="laufband"></div>
+</div>
+
+<section class="band band--lauf" id="leistungen">
+  <div class="innen">
+    <div class="lauf-kopf auf">
+      <div>
+        <p class="rubrik">Unsere Leistungen</p>
+        <h2 class="gross">Alles für draußen – aus einer Hand</h2>
+      </div>
+      <p class="nachsatz">Neun Bereiche, ein Ansprechpartner. Jedes Stück maßgefertigt, geliefert und montiert vom eigenen Team.</p>
+    </div>
+  </div>
+  <div class="lauf" id="leistungsLauf"></div>
+  <div class="innen">
+    <div class="lauf-steuer">
+      <div class="lauf-balken"><span id="leistungsBalken"></span></div>
+      <button type="button" class="rund" id="lZurueck" aria-label="Zurück"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button type="button" class="rund" id="lVor" aria-label="Weiter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="warum" style="background:var(--flaeche)">
+  <div class="innen zwei">
+    <div class="zwei-halt auf">
+      <p class="rubrik">Warum BV AussenSysteme</p>
+      <h2 class="gross">Ihr Partner vom ersten Gespräch bis zur Montage</h2>
+      <p class="nachsatz">Kein Zwischenhändler, kein Koordinieren von drei Gewerken. Wir planen, liefern und montieren selbst.</p>
+    </div>
+    <div class="auf">
+      <ul class="punkte" id="punkte"></ul>
+    </div>
+  </div>
+  <div class="innen">
+    <div class="zahlen auf" id="zahlen"></div>
+  </div>
+</section>
+
+<section class="band" id="ablauf">
+  <div class="innen">
+    <div class="auf">
+      <p class="rubrik">So einfach geht's</p>
+      <h2 class="gross">Von der Idee zu Ihrem fertigen Außenbereich</h2>
+    </div>
+    <div class="ablauf" id="ablauf"></div>
+  </div>
+</section>
+
+<section class="band band--lauf" id="referenzen" style="background:var(--flaeche)">
+  <div class="innen">
+    <div class="auf">
+      <p class="rubrik">Unsere Referenzen</p>
+      <h2 class="gross">Projekte, die für sich sprechen</h2>
+    </div>
+  </div>
+  <div class="ref-lauf" id="refLauf"></div>
+  <div class="innen">
+    <div class="lauf-steuer">
+      <div class="lauf-balken"><span id="refBalken"></span></div>
+      <button type="button" class="rund" id="rZurueck" aria-label="Zurück"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button type="button" class="rund" id="rVor" aria-label="Weiter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<section class="band abschluss" id="kontakt">
+  <div class="innen">
+    <div class="auf">
+      <p class="rubrik">Kontakt</p>
+      <h2>Kostenlose Beratung – wir kommen zu Ihnen.</h2>
+      <div class="knopf-reihe">
+        <a href="tel:+4915678696609" class="knopf knopf--gold">Jetzt anrufen</a>
+        <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="knopf knopf--rand">WhatsApp schreiben</a>
+      </div>
+      <div class="kontakt-zeilen">
+        <a href="tel:+4915678696609"><span class="was">Telefon</span><span class="wert">0156 78696609</span></a>
+        <a href="mailto:info@bv-aussensysteme.de"><span class="was">E-Mail</span><span class="wert">info@bv-aussensysteme.de</span></a>
+        <a href="/broschuere.html"><span class="was">Katalog</span><span class="wert">36 Seiten durchblättern</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="fuss">
+  <div class="fuss-innen">
+    <div>
+      <img src="/images/logo-frei.png" alt="BV AussenSysteme" width="200" height="200" />
+      <p>Ihr regionaler Spezialist für Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz im Westerwald und Umgebung.</p>
+    </div>
+    <div class="fuss-orte" id="fussOrte"></div>
+  </div>
+</footer>
+
+<div class="entwurf-hinweis">Entwurf – nicht veröffentlicht</div>
+
+<script>
+(function(){
+  'use strict';
+  var ruhig = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var LEISTUNGEN=[
+    ['Terrassenüberdachung','TDS & SkyView – Glas, Polycarbonat oder Flachdach. Mit Stirnseiten, Glasschiebetüren, Velaris-Elementen und Festwänden mit Tür nachrüstbar.','/images/vd_prod_terrasse_tds.webp','/produkte/terrassenueberdachung.html'],
+    ['Carport','TDS, Flat Line & Flat Box – stilvoller Fahrzeugschutz aus Aluminium, individuell mit Glas oder Polycarbonat gestaltbar.','/images/vd_prod_carport_tds.webp','/produkte/carport.html'],
+    ['Pergola & Lamellendach','SunPro Plus & Warema L50 – regulierbare Lamellen per Fernbedienung. Ideal für Terrassen, Gärten und Gastronomie.','/images/vd_prod_pergola_sunpro.webp','/produkte/pergola.html'],
+    ['Kaltwintergarten','Wettergeschützter Raum ohne Heizung – perfekt als überdachter Sitzbereich, harmonisch ans Haus angebaut.','/images/vd_prod_kaltwintergarten_tds.webp','/produkte/kaltwintergarten.html'],
+    ['Sonnenschutz & Markisen','Aufdach-, Unterdach- und Senkrechtbeschattung – elektrisch steuerbar, wetterfest, in vielen Stoffen.','/images/vd_prod_sonnenschutz.webp','/produkte/sonnenschutz.html'],
+    ['Geländer & Glasgeländer','Aluminium- und Ganzglas-Geländer (Easy Rail) für Terrassen, Balkone und Treppen – stabil, pflegeleicht.','/images/vd_prod_gelaender_glas.webp','/produkte/gelaender.html'],
+    ['Eingang & Vordächer','Vordach FLY, Front Line & Eingangsüberdachungen – eleganter Witterungsschutz für jeden Hauseingang.','/images/vd_prod_eingang_fly.webp','/produkte/eingang.html'],
+    ['Balkon & Fassade','Balkonüberdachungen, Fassadenverkleidung Deco Wall und Sichtschutz – hochwertiger Aluminium-Schutz.','/images/vd_prod_decowall_start.webp','/produkte/balkon-fassade.html'],
+    ['Garten & Außenbereich','Gartenhaus TDS, Fahrradüberdachung, Bushaltestelle & Faltdach OpenAir – Aluminium-Lösungen für außen.','/images/vd_prod_gartenhaus.webp','/produkte/garten-aussenbereich.html']
+  ];
+  var PUNKTE=[
+    ['VD AluSysteme – Direktbezug','Wir arbeiten direkt mit einem führenden Aluminium-Hersteller zusammen. Bessere Qualität, schnellere Lieferung, faire Preise – ohne Umweg über den Handel.'],
+    ['Individuelle Maßanfertigung','Jede Terrasse ist anders. Deshalb fertigen wir jede Überdachung, jeden Carport und jede Pergola exakt nach Ihren Maßen.'],
+    ['Alles aus einer Hand','Beratung, Planung, Maßaufnahme, Montage und Nachservice – ein Ansprechpartner von Anfang bis Ende.'],
+    ['Hilfe bei der Baugenehmigung','In Rheinland-Pfalz ist für Terrassenüberdachungen oft eine Genehmigung nötig. Wir kennen die lokalen Vorschriften.'],
+    ['10 Jahre Herstellergarantie','Auf alle Aluminium-Produkte unseres Herstellers – 5 Jahre auf Markisen und Antriebe.'],
+    ['CE-Kennzeichnung & Statik','Alle Produkte sind CE-gekennzeichnet. Statikberechnung mit Nachweis ist inklusive.']
+  ];
+  var ZAHLEN=[['10','Jahre Garantie auf Alu-Produkte'],['100','%','Maßanfertigung nach Wunsch'],['9','Produktkategorien im Angebot'],['1','Ansprechpartner – alles aus einer Hand']];
+  var ABLAUF=[
+    ['Kostenlose Beratung','Anruf oder Nachricht – wir vereinbaren einen unverbindlichen Termin direkt bei Ihnen vor Ort.'],
+    ['Maßaufnahme & Angebot','Wir nehmen exakte Maße, besprechen Ihre Wünsche und erstellen ein transparentes Angebot.'],
+    ['Fertigung & Lieferung','Ihr Produkt wird maßgenau vom Hersteller produziert und direkt zu Ihnen geliefert.'],
+    ['Professionelle Montage','Unser Team montiert sauber, pünktlich und fachgerecht. Sie genießen das Ergebnis.']
+  ];
+  /* Nur die drei ECHTEN Referenzfotos. galerie-4 bis -6 sind im Projekt
+     nur Platzhalter (unter 4 KB) - die stehen auch in docs/NEXT_TASK.md
+     als offener Punkt. Aufgefuellt wird mit Produktfotos, und die sind
+     als solche beschriftet, nicht als ausgefuehrte Projekte. */
+  var REFERENZEN=[
+    ['/images/galerie-1.webp','Referenz · Terrassenüberdachung Aluminium, Westerwaldkreis'],
+    ['/images/galerie-2.webp','Referenz · Aluminium-Profile und Verglasung im Detail'],
+    ['/images/galerie-3.webp','Referenz · Terrassenüberdachung im Westerwald'],
+    ['/images/vd_prod_pergola_sunpro.webp','Produktbild · Pergola SunPro Plus'],
+    ['/images/vd_prod_carport_tds.webp','Produktbild · Carport TDS'],
+    ['/images/vd_prod_kaltwintergarten_tds.webp','Produktbild · Kaltwintergarten TDS']
+  ];
+  var ORTE=['Westerwald','Montabaur','Neuwied','Altenkirchen','Hachenburg','Limburg','Koblenz','Ransbach-Baumbach','Pleckhausen','Horhausen','Wirges','Bad Ems','Diez','Höhr-Grenzhausen'];
+  var KOPFBILDER=['/images/vd_prod_terrasse_tds.webp','/images/vd_prod_pergola_sunpro.webp','/images/vd_prod_carport_tds.webp','/images/vd_prod_kaltwintergarten_tds.webp'];
+
+  function el(t,k,i){var e=document.createElement(t); if(k)e.className=k; if(i!=null)e.innerHTML=i; return e;}
+
+  // Leistungen
+  var lauf=document.getElementById('leistungsLauf');
+  LEISTUNGEN.forEach(function(x,i){
+    var a=el('a','stueck');
+    a.href=x[3];
+    a.innerHTML='<div class="stueck-bild"><span class="stueck-nr">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<img src="'+x[2]+'" alt="'+x[0]+'" loading="lazy" width="800" height="1000" /></div>'+
+      '<div class="stueck-text"><h3>'+x[0]+'</h3><p>'+x[1]+'</p>'+
+      '<span class="stueck-mehr">Entdecken <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>';
+    lauf.appendChild(a);
+  });
+
+  // Punkte
+  var ul=document.getElementById('punkte');
+  PUNKTE.forEach(function(x,i){
+    ul.appendChild(el('li',null,'<span class="nr">'+String(i+1).padStart(2,'0')+'</span><div><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div>'));
+  });
+
+  // Zahlen
+  var zahlenEl=document.getElementById('zahlen');
+  ZAHLEN.forEach(function(x){
+    var wert=x.length===3?x[0]+x[1]:x[0], lbl=x.length===3?x[2]:x[1];
+    var d=el('div','zahl','<b data-ziel="'+x[0]+'" data-rest="'+(x.length===3?x[1]:'')+'">'+wert+'</b><span>'+lbl+'</span>');
+    zahlenEl.appendChild(d);
+  });
+
+  // Ablauf
+  var ab=document.getElementById('ablauf');
+  ABLAUF.forEach(function(x,i){
+    ab.appendChild(el('div','schritt auf','<div class="schritt-nr">'+String(i+1).padStart(2,'0')+'</div><h3>'+x[0]+'</h3><p>'+x[1]+'</p>'));
+  });
+
+  // Referenzen
+  var ref=document.getElementById('refLauf');
+  REFERENZEN.forEach(function(x){
+    ref.appendChild(el('figure','ref','<img src="'+x[0]+'" alt="'+x[1]+'" loading="lazy" width="1200" height="750" /><figcaption>'+x[1]+'</figcaption>'));
+  });
+
+  // Laufband + Fussorte
+  var spur=document.getElementById('laufband');
+  var zeile=ORTE.map(function(o){return '<b>'+o+'</b>';}).join('');
+  spur.innerHTML=zeile+zeile;
+  document.getElementById('fussOrte').innerHTML=ORTE.map(function(o){return '<span>'+o+'</span>';}).join('');
+
+  // Kopfzeile fest ab 40px
+  var kz=document.getElementById('kopfzeile');
+  function stand(){ kz.classList.toggle('fest', window.scrollY>40); }
+  window.addEventListener('scroll',stand,{passive:true}); stand();
+
+  // Kopfbilder wechseln
+  (function(){
+    if(ruhig) return;
+    var box=document.getElementById('kopfBild'), ebenen=[box.firstElementChild], i=0;
+    KOPFBILDER.slice(1).forEach(function(p){
+      var e=document.createElement('i'); e.dataset.bild=p; box.appendChild(e); ebenen.push(e);
+    });
+    setInterval(function(){
+      if(document.hidden) return;
+      var n=(i+1)%ebenen.length, e=ebenen[n];
+      if(e.dataset.bild){ e.style.backgroundImage="url('"+e.dataset.bild+"')"; delete e.dataset.bild; }
+      ebenen[i].classList.remove('da'); e.classList.add('da'); i=n;
+    },6000);
+  })();
+
+  // Laeufe steuerbar machen
+  function steuern(spurEl,balken,zur,vor){
+    function schritt(){var k=spurEl.firstElementChild; if(!k)return spurEl.clientWidth;
+      return k.getBoundingClientRect().width+(parseFloat(getComputedStyle(spurEl).columnGap)||0);}
+    function stand(){var w=spurEl.scrollWidth-spurEl.clientWidth;
+      balken.style.transform='scaleX('+Math.max(.08,Math.min(1,w>1?spurEl.scrollLeft/w:0.08))+')';
+      zur.disabled=spurEl.scrollLeft<4; vor.disabled=spurEl.scrollLeft>w-4;}
+    zur.addEventListener('click',function(){spurEl.scrollBy({left:-schritt(),behavior:ruhig?'auto':'smooth'});});
+    vor.addEventListener('click',function(){spurEl.scrollBy({left:schritt(),behavior:ruhig?'auto':'smooth'});});
+    spurEl.addEventListener('scroll',function(){requestAnimationFrame(stand);},{passive:true});
+    window.addEventListener('resize',stand); stand();
+    if(window.matchMedia&&window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+      var zieht=false,sx=0,sl=0,weg=0;
+      spurEl.addEventListener('pointerdown',function(e){if(e.button!==0)return;zieht=true;weg=0;sx=e.clientX;sl=spurEl.scrollLeft;spurEl.classList.add('zieht');});
+      window.addEventListener('pointermove',function(e){if(!zieht)return;var d=e.clientX-sx;weg=Math.max(weg,Math.abs(d));spurEl.scrollLeft=sl-d;});
+      window.addEventListener('pointerup',function(){if(!zieht)return;zieht=false;spurEl.classList.remove('zieht');
+        if(weg>6){var f=function(ev){ev.stopPropagation();ev.preventDefault();};spurEl.addEventListener('click',f,true);setTimeout(function(){spurEl.removeEventListener('click',f,true);},0);}});
+    }
+  }
+  steuern(lauf,document.getElementById('leistungsBalken'),document.getElementById('lZurueck'),document.getElementById('lVor'));
+  steuern(ref,document.getElementById('refBalken'),document.getElementById('rZurueck'),document.getElementById('rVor'));
+
+  // Einblenden + Zahlen hochzaehlen
+  if('IntersectionObserver' in window && !ruhig){
+    document.documentElement.classList.add('js');
+    var b=new IntersectionObserver(function(ev){ev.forEach(function(x){if(x.isIntersecting){x.target.classList.add('da');b.unobserve(x.target);}});},{rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.auf').forEach(function(e){b.observe(e);});
+    setTimeout(function(){document.querySelectorAll('.auf').forEach(function(e){e.classList.add('da');});},4000);
+
+    var z=new IntersectionObserver(function(ev){ev.forEach(function(x){
+      if(!x.isIntersecting)return; z.unobserve(x.target);
+      var el2=x.target, ziel=parseInt(el2.dataset.ziel,10), rest=el2.dataset.rest||'', s=null;
+      if(!(ziel>0))return;
+      (function lauf2(t){ if(s===null)s=t; var p=Math.min(1,(t-s)/950), w=1-Math.pow(1-p,3);
+        el2.textContent=Math.round(ziel*w)+rest; if(p<1)requestAnimationFrame(lauf2); else el2.textContent=ziel+rest;})(performance.now());
+    });},{threshold:.5});
+    document.querySelectorAll('.zahl b').forEach(function(e){z.observe(e);});
+  }
+})();
+</script>
+</body>
+</html>
