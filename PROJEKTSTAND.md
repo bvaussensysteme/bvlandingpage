@@ -173,11 +173,33 @@ Hinweis: Der Score ist niedriger als am 04.07. (86/100), obwohl an diesem Tag vi
 
 ## DESIGN-SYSTEM
 
-- Gold: `#C49A2A` | Gold-Dark: `#9A7318`
+- Gold: `#C49A2A` | Gold-Dark: `#9A7318` | **Gold-Text: `#7A5B12`** | Gold-Light: `#E8B840`
 - Schwarz: `#111111` | Off-White: `#F5F2EB`
 - WhatsApp-Grün: `#25D366`
 - Fonts: Barlow Condensed (Überschriften) + Inter (Text) – erst nach Cookie-Consent
-- Border-Radius: `--radius: 6px`
+- Border-Radius: `--radius: 10px`, dazu `--radius-sm/lg/xl`
+
+**Welches Gold wofür** (07.11.2026, alle Werte gemessen):
+
+| Marke | Wert | Wofür |
+|---|---|---|
+| `--gold` | `#C49A2A` | Flächen, Rahmen, Linien, Logo. **Nicht** als Textfarbe auf Weiß (2,6:1) |
+| `--gold-dark` | `#9A7318` | Verläufe und Flächen. Als Textfarbe auf Weiß nur 4,34:1 – **verfehlt** die 4,5:1 der WCAG AA |
+| `--gold-text` | `#7A5B12` | **Gold als Schrift auf hellem Grund** (5,9:1) und als Fläche hinter weißer Schrift |
+| `--gold-light` | `#E8B840` | Gold als Schrift auf **dunklem** Grund (10,8:1 auf `#111`) |
+
+**Marken statt loser Werte** (`src/css/style.css`, ganz oben): Schrift
+`--txt-2xs … --txt-xl`, Abstand `--sp-1 … --sp-9` und `--sp-abschnitt`,
+Dauer `--zeit-schnell/mittel/ruhig`, Kurven `--kurve-raus/rein/weich`,
+Schatten `--schatten-1/2/3`. Neues greift darauf zu, statt eigene Werte
+zu setzen.
+
+**Bewegung.** Karten blenden beim Scrollen ein (14 px, gestaffelt).
+Ausgangszustand hängt an einer Klasse, die ein kleines Skript im Kopf der
+Seite setzt; ohne JavaScript, bei `prefers-reduced-motion: reduce` und
+wenn irgendetwas schiefgeht ist alles sofort sichtbar. Warum das so und
+nicht als CSS-Animation gebaut ist: Kommentar in `src/css/style.css` und
+`docs/entscheidungen.md`, 07.11.2026.
 
 ---
 
@@ -361,6 +383,20 @@ Westerwald, Montabaur, Hachenburg, Altenkirchen, Bad Marienberg, Ransbach-Baumba
 ---
 
 ## ÄNDERUNGSHISTORIE
+
+### 07.11.2026 — Sichtbares Auffrischen der ganzen Seite
+Schrift-, Abstands-, Bewegungs- und Schattenmarken eingeführt; Überschriften
+h1–h6 mit eigenen Zeilenhöhen; Knöpfe, Karten, Formularfelder, FAQ und
+Fußzeile daran ausgerichtet; Karten blenden beim Scrollen ein. **Farben,
+Logos, Texte, SEO-Angaben, Backend und Datenbank unverändert.** Fünf echte
+Fehler nebenbei behoben: weiße Schrift auf weißem Grund auf
+`/baugenehmigung` (unsichtbar), abgeschnittene FAQ-Antworten
+(`max-height: 250px`), Eingabefelder unter 16 px (iOS zoomt), Gold als
+Textfarbe an 30 Stellen unter 4,5:1, Schalter im Bedienfeld für
+Barrierefreiheit unter 24 × 24 px. Neue Prüfung
+`scripts/pruefe-darstellung.mjs` (zwölf Seiten × drei Breiten, 144
+Prüfungen). Begründung, Messwerte und was verworfen wurde:
+`docs/entscheidungen.md`, 07.11.2026.
 
 ### 05.07.2026 — 10-Agenten-Audit Runde 2 (Zusammenfassung)
 Zweite komplette Multi-Agenten-Prüfung (SEO, Performance, UX/UI, CRO, Content, Branding, Security, Accessibility, Marketing, Code-Qualität), jeder Agent in eigenem isoliertem Worktree, alle Ergebnisse anschließend manuell zusammengeführt (1 Merge-Konflikt, alle anderen automatisch). Wichtigste Funde (Details siehe Tabelle oben und einzelne History-Einträge):

@@ -1,8 +1,11 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: **06.11.2026 (abends)** · zuletzt bearbeitet: Broschürenseite
-> `/broschuere.html`, Höhenbezug und Fassadennotiz in beiden Konfiguratoren
+> Stand: **07.11.2026** · zuletzt bearbeitet: sichtbares Auffrischen der
+> ganzen Seite (Schrift, Abstände, Bewegung, Kontraste, Fußzeile,
+> Einblenden beim Scrollen) – Begründung und die fünf gefundenen Fehler in
+> `docs/entscheidungen.md`, 07.11.2026; neue Prüfung
+> `scripts/pruefe-darstellung.mjs`
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),

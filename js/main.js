@@ -320,3 +320,48 @@ document.addEventListener('click', function (e) {
   var label = carousel.querySelector('.vd-carousel-label');
   if (label) label.textContent = slides[next].getAttribute('data-label') || '';
 });
+
+/* ============================================================
+   SCHWEBENDE KNOEPFE GEHEN BEIM LESEN AUS DEM WEG (07.11.2026)
+
+   GEMESSEN am Handy (390 x 844, /stoffe): Die drei runden Knöpfe
+   stehen bei x 334-378, y 618-770 - mitten in der Textspalte, die
+   bis x 374 reicht. Beim Lesen liegen sie also auf den Wörtern.
+
+   Statt sie kleiner zu machen oder wegzulassen (beides nimmt
+   Funktion weg): Sie weichen zur Seite, solange nach unten gelesen
+   wird, und kommen zurück, sobald jemand anhält oder nach oben
+   geht. Das ist genau der Augenblick, in dem man sie wieder braucht.
+
+   Nur bei grobem Zeiger - am Schreibtisch stören sie nicht, und wer
+   "Bewegung reduzieren" eingestellt hat, bekommt gar keine.
+   ============================================================ */
+(function () {
+  'use strict';
+  var grob = false, wenigBewegung = false;
+  try {
+    grob = window.matchMedia('(pointer: coarse)').matches;
+    wenigBewegung = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (e) { return; }
+  if (!grob || wenigBewegung) return;
+
+  var letzte = window.pageYOffset || 0;
+  var weg = false, warte = null;
+
+  function setzen(verbergen) {
+    if (verbergen === weg) return;
+    weg = verbergen;
+    document.body.classList.toggle('bv-schwebe-weg', verbergen);
+  }
+
+  window.addEventListener('scroll', function () {
+    var jetzt = window.pageYOffset || 0;
+    /* Erst ab 240 px: ganz oben soll nichts wandern. */
+    if (jetzt > 240 && jetzt > letzte + 8) setzen(true);
+    else if (jetzt < letzte - 8 || jetzt <= 240) setzen(false);
+    letzte = jetzt;
+    /* Nach einer Ruhepause wieder da, auch ohne Hochscrollen. */
+    clearTimeout(warte);
+    warte = setTimeout(function () { setzen(false); }, 1200);
+  }, { passive: true });
+})();

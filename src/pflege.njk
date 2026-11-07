@@ -66,7 +66,9 @@ extraStyles: |
       .pflege-section-label {
         font-family: 'Barlow Condensed', sans-serif;
         font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;
-        text-transform: uppercase; color: var(--gold);
+        /* --gold-text statt --gold: #C49A2A auf Weiss ergibt bei 13 px
+           gemessen 2,62:1 und liegt damit weit unter 4,5:1. */
+        text-transform: uppercase; color: var(--gold-text);
         margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
       }
       .pflege-section-label svg {
@@ -83,7 +85,7 @@ extraStyles: |
         border-radius: 8px; padding: 14px 16px; margin-top: 16px;
         display: flex; gap: 10px; align-items: flex-start;
       }
-      .wartung-box .wi { flex-shrink: 0; color: var(--gold-dark); }
+      .wartung-box .wi { flex-shrink: 0; color: var(--gold-text); }
       .wartung-box .wi svg {
         width: 20px; height: 20px; stroke: currentColor; fill: none;
         stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
@@ -99,7 +101,7 @@ extraStyles: |
         margin-bottom: 32px;
         display: flex; gap: 12px; align-items: flex-start;
       }
-      .hinweis-box .hi { flex-shrink: 0; color: var(--gold-dark); }
+      .hinweis-box .hi { flex-shrink: 0; color: var(--gold-text); }
       .hinweis-box .hi svg {
         width: 24px; height: 24px; stroke: currentColor; fill: none;
         stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;

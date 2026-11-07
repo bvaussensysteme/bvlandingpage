@@ -18,8 +18,91 @@
   --muted:      #666666;
   --border:     #e0ddd6;
   --radius:     10px;
-  --shadow:     0 4px 24px rgba(0,0,0,0.10);
-  --shadow-lg:  0 12px 48px rgba(0,0,0,0.15);
+
+  /* ============================================================
+     GESTALTUNGS-TOKENS (07.11.2026)
+     Angelegt beim visuellen Auffrischen. Die Farben darueber sind
+     unveraendert - das ist die Marke. Was hier dazukommt, ist das,
+     was vorher fehlte: Massstaebe.
+
+     VORHER GEMESSEN: 13 verschiedene Schriftgroessen zwischen 0,72
+     und 1,1 rem (teils 0,02 rem auseinander), 15 verschiedene
+     Pixelabstaende ohne Rhythmus, 8 Radien, 5-mal "transition: all"
+     und KEINE einzige eigene Beschleunigungskurve im ganzen
+     Stilblatt. Genau daher kommt der Eindruck "sauber, aber
+     beliebig": Ohne Massstab wirkt jede Entscheidung fuer sich
+     richtig und keine mit den anderen zusammen.
+     ============================================================ */
+
+  /* ---- Schriftgroessen: eine Stufenleiter statt Einzelwerten.
+     Verhaeltnis rund 1,2 - gross genug, dass Stufen unterscheidbar
+     sind, klein genug fuer eine Textseite. Fluid nur dort, wo die
+     Groesse wirklich mitwachsen soll. */
+  --txt-2xs:  0.75rem;   /* Marken, Fusszeilen-Kleingedrucktes */
+  --txt-xs:   0.8125rem; /* Bildunterschriften, Hinweise */
+  --txt-sm:   0.9375rem; /* Sekundaertext, Kartenbeschreibung */
+  --txt-base: 1rem;      /* Fliesstext */
+  --txt-md:   1.125rem;  /* hervorgehobener Fliesstext, Vorspann */
+  --txt-lg:   1.375rem;  /* h3, Kartentitel */
+  --txt-xl:   clamp(1.5rem, 2.4vw, 1.875rem);  /* h4-Gruppen, kleine Abschnitte */
+
+  /* ---- Abstaende: 4er-Rhythmus. Jeder Abstand ist ein Vielfaches,
+     damit Dinge auf einer gemeinsamen Linie sitzen. */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+  --sp-9:  96px;
+  /* Abschnittshoehe waechst mit dem Fenster: am Handy nicht so viel
+     Leere wie am Schreibtisch. */
+  --sp-abschnitt: clamp(56px, 8vw, 100px);
+
+  /* ---- Bewegung: drei Dauern, drei Kurven, benannt nach ihrem
+     Zweck. "Alles 0,2 s mit Standardkurve" ist der Grund, warum
+     Bewegung billig wirkt - nichts beschleunigt wie etwas, das
+     Gewicht hat. */
+  --zeit-schnell: 120ms;  /* Farbwechsel, Zustaende */
+  --zeit-mittel:  220ms;  /* Heben, Schieben, Aufdecken */
+  --zeit-ruhig:   420ms;  /* Groesseres: Bilder, Ebenen */
+  --kurve-raus:   cubic-bezier(0.16, 1, 0.3, 1);     /* kommt an: schnell los, weich aus */
+  --kurve-rein:   cubic-bezier(0.7, 0, 0.84, 0);     /* geht weg: zieht an */
+  --kurve-weich:  cubic-bezier(0.33, 0.1, 0.25, 1);  /* beides, fuer Zustaende */
+
+  /* ---- Tiefe: zweilagig. Ein einzelner weicher grauer Schatten
+     unter jeder Karte ist genau das Merkmal, an dem maschinell
+     erzeugte Gestaltung erkannt wird. Zwei Lagen - eine enge,
+     dunklere Kante und ein weiter, sehr leichter Abfall - sehen aus
+     wie Licht und nicht wie ein Weichzeichner. */
+  --schatten-1: 0 1px 2px rgba(17,17,17,.06), 0 2px 8px rgba(17,17,17,.05);
+  --schatten-2: 0 1px 2px rgba(17,17,17,.07), 0 8px 24px rgba(17,17,17,.08);
+  --schatten-3: 0 2px 4px rgba(17,17,17,.08), 0 18px 48px rgba(17,17,17,.12);
+  --schatten-gold: 0 2px 4px rgba(122,91,18,.14), 0 12px 28px rgba(122,91,18,.18);
+
+  /* Bestand: zeigen jetzt auf die neue Tiefe, damit alles mitzieht,
+     was sie schon benutzt. */
+  --shadow:     var(--schatten-2);
+  --shadow-lg:  var(--schatten-3);
+
+  /* ---- Radien: drei Stufen statt acht Einzelwerten. */
+  --radius-sm:  6px;
+  --radius-lg:  16px;
+  --radius-xl:  22px;
+
+  /* Ein benannter Uebergang fuer Zustaende. Ersetzt "transition: all":
+     "all" nimmt auch Breite, Hoehe und Polsterung mit - das sind genau
+     die Eigenschaften, die den Browser neu rechnen lassen und Bilder
+     kosten. Hier stehen nur die, die sich wirklich aendern sollen. */
+  --uebergang-zustand:
+    color var(--zeit-schnell) var(--kurve-weich),
+    background-color var(--zeit-schnell) var(--kurve-weich),
+    border-color var(--zeit-schnell) var(--kurve-weich),
+    box-shadow var(--zeit-mittel) var(--kurve-raus),
+    transform var(--zeit-mittel) var(--kurve-raus),
+    opacity var(--zeit-schnell) var(--kurve-weich);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,7 +119,9 @@ body {
 /* ---- LAYOUT ---- */
 .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
 @media (max-width: 400px) { .container { padding: 0 14px; } }
-.section    { padding: 100px 0; }
+/* Abschnittshoehe waechst mit dem Fenster. Vorher starr 100px -
+   am Handy war das viel Leere zwischen wenig Inhalt. */
+.section    { padding: var(--sp-abschnitt) 0; }
 .section--alt { background: var(--offwhite); }
 
 /* ---- TYPOGRAPHY ---- */
@@ -47,26 +132,86 @@ body {
   letter-spacing: 2.5px; text-transform: uppercase;
   color: var(--gold-text); margin-bottom: 10px;
 }
-h1, h2, h3 { font-family: 'Barlow Condensed', sans-serif; line-height: 1.08; font-weight: 800; }
-h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); }
-h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); color: var(--black); }
-h3 { font-size: 1.4rem; color: var(--black); }
+/* .tag ist fuer hellen Grund gebaut: --gold-text (#7A5B12) ergibt auf Weiss
+   5,9:1. In den dunklen Kopfbereichen steht dieselbe Farbe auf #111 und
+   erreicht gemessen nur 3,0:1 - das faellt unter die 4,5:1 fuer normalen
+   Text. Dort gilt deshalb die helle Goldstufe der Marke (10,8:1 auf #111).
+   Nicht "aufraeumen": beide Zeilen sind dieselbe Marke, nur fuer
+   unterschiedlich hellen Untergrund. */
+.hero-section .tag,
+.wz-hero .tag,
+.bg-hero .tag,
+.produkt-hero .tag,
+.pflege-hero .tag,
+.gebiet-hero .tag,
+.legal-hero .tag { color: var(--gold-light); }
+/* ZEILENHOEHE NACH GROESSE, nicht eine fuer alle. 1,08 ist fuer eine
+   Zeile in 4,6 rem richtig und fuer eine zweizeilige h3 in 1,375 rem
+   falsch - da beruehren sich Ober- und Unterlaengen fast. Gesehen am
+   Handy auf /stoffe.
+   text-wrap: balance verteilt mehrzeilige Ueberschriften auf gleich
+   lange Zeilen, statt ein einzelnes Wort haengen zu lassen. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 1.04; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); color: var(--black); line-height: 1.1; }
+h3 { font-size: var(--txt-lg); color: var(--black); line-height: 1.22; }
+/* h4-h6 waren ueberhaupt nicht definiert und erbten den Browser-
+   Standard - sichtbar in der Fusszeile. */
+h4 { font-size: var(--txt-md); color: var(--black); line-height: 1.3; }
+h5 { font-size: var(--txt-base); color: var(--black); line-height: 1.35; }
+h6 { font-size: var(--txt-sm); color: var(--black); line-height: 1.4; }
+
+/* ATEM ZWISCHEN UEBERSCHRIFT UND TEXT. Nur dort, wo direkt ein Absatz
+   folgt - so wird nichts verschoben, was schon eigene Abstaende hat. */
+h1 + p, h2 + p, h3 + p, h4 + p { margin-top: var(--sp-3); }
+h2 + p, h3 + p { max-width: 68ch; }
 
 /* ---- BUTTONS ---- */
 .btn {
-  display: inline-block;
+  /* inline-flex statt inline-block: Viele Knoepfe tragen ein Zeichen
+     oder einen Pfeil neben dem Text - der sitzt so auf der Grundlinie
+     und nicht darunter. */
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sp-2);
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; font-size: 1rem; letter-spacing: 0.4px;
+  min-height: 48px;
   padding: 13px 30px; border-radius: var(--radius);
-  text-decoration: none; transition: all 0.2s ease;
+  text-decoration: none; transition: var(--uebergang-zustand);
   cursor: pointer; border: 2px solid transparent;
+  /* Am Telefon: kein Warten auf den Doppeltipp, kein graues Aufblitzen
+     des Systems ueber der eigenen Rueckmeldung, keine Textmarkierung
+     beim langen Antippen. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
 }
-.btn-gold         { background: var(--gold); color: var(--black); }
-.btn-gold:hover   { background: var(--gold-dark); color: var(--white); }
+/* Rueckmeldung beim Druecken - gilt auf JEDEM Geraet, auch dort, wo es
+   kein Zeigegeraet und damit kein :hover gibt. */
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn:focus-visible { outline: 3px solid var(--gold-light); outline-offset: 3px; }
+
+.btn-gold         { background: var(--gold); color: var(--black); box-shadow: var(--schatten-1); }
+/* HOVER AUF --gold-text, NICHT --gold-dark: #9A7318 ist der ungluecklichste
+   Punkt der Palette - gemessen 4,34:1 mit Weiss und 4,35:1 mit Schwarz,
+   faellt also in BEIDE Richtungen durch. #7A5B12 mit Weiss ergibt 6,3:1
+   und wirkt zugleich wie "tiefer gedrueckt". */
 .btn-outline-white        { background: transparent; color: var(--white); border-color: rgba(255,255,255,0.6); }
-.btn-outline-white:hover  { background: rgba(255,255,255,0.1); border-color: var(--white); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-gold:hover   { background: var(--gold-text); color: var(--white);
+                      transform: translateY(-2px); box-shadow: var(--schatten-gold); }
+  .btn-outline-white:hover  { background: rgba(255,255,255,0.12); border-color: var(--white);
+                              transform: translateY(-2px); }
+}
 .btn-outline        { background: transparent; color: var(--gold-text); border-color: var(--gold); } /* --gold-text statt --gold-dark: #9A7318 auf Weiss ergibt gemessen 4,34:1 und faellt damit unter 4,5:1 (WCAG AA). #7A5B12 ist genau dafuer da - siehe Kommentar an der Variablen. */
-.btn-outline:hover  { background: var(--gold); color: var(--black); }
+@media (hover: hover) and (pointer: fine) {
+  .btn-outline:hover  { background: var(--gold); color: var(--black);
+                        transform: translateY(-2px); box-shadow: var(--schatten-1); }
+}
 /* E-Mail-/Telefon-Angaben nicht mitten im Wort/an der Ziffer umbrechen */
 a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 
@@ -125,7 +270,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700 !important; font-size: 1rem !important;
 }
-.nav-cta:hover { background: var(--gold-dark) !important; color: var(--white) !important; }
+.nav-cta:hover { background: var(--gold-text) !important; color: var(--white) !important; }
 /* „Jetzt anfragen" ist als Gold-Button abgegrenzt – keine zusätzliche Unterstreichung */
 .nav-cta::after { display: none !important; }
 .navbar .navbar-inner {
@@ -140,7 +285,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 }
 .hamburger span {
   display: block; width: 26px; height: 2px;
-  background: var(--black); border-radius: 2px; transition: all 0.3s;
+  background: var(--black); border-radius: 2px; transition: var(--uebergang-zustand);
 }
 
 /* Mobile Menu Overlay */
@@ -161,6 +306,85 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 body.bv-menu-open #bvKonfigBubble,
 body.bv-menu-open #bvKonfigPanel,
 body.bv-menu-open #bvKonfigOverlay,
+/* Beim Lesen aus dem Weg - siehe js/main.js, "SCHWEBENDE KNOEPFE".
+   Nur verschoben, nicht display:none: So bleiben sie fuer die
+   Tastatur erreichbar und kommen ohne Neuaufbau zurueck. */
+body.bv-schwebe-weg #bv-a11y-trigger,
+body.bv-schwebe-weg #bv-scroll-top,
+body.bv-schwebe-weg #bvKonfigBubble {
+  transform: translateX(calc(100% + 18px));
+  opacity: 0;
+  pointer-events: none;
+}
+#bv-a11y-trigger, #bv-scroll-top, #bvKonfigBubble {
+  transition: transform var(--zeit-mittel) var(--kurve-raus),
+              opacity var(--zeit-schnell) var(--kurve-weich);
+}
+/* Wer mit der Tastatur dorthin kommt, holt sie zurueck. */
+body.bv-schwebe-weg #bv-a11y-trigger:focus-visible,
+body.bv-schwebe-weg #bv-scroll-top:focus-visible,
+body.bv-schwebe-weg #bvKonfigBubble:focus-visible {
+  transform: none; opacity: 1; pointer-events: auto;
+}
+/* ── SANFTES EINBLENDEN BEIM SCROLLEN ──────────────────────────────────
+   Karten steigen 14 px auf und blenden ein, einmal, beim ersten Erscheinen.
+   Drei Dinge daran sind Absicht und duerfen nicht "aufgeraeumt" werden:
+
+   1. Der Ausgangszustand haengt an .bv-einblenden auf <html>. Diese Klasse
+      setzt ein winziges Skript im Kopf der Seite - also VOR dem ersten
+      Zeichnen, sonst blitzen die Karten einmal auf. Ohne JavaScript wird
+      die Klasse nie gesetzt und alles ist sofort sichtbar. Das ist der
+      Grund, warum der Ausgangszustand nicht einfach an der Karte haengt.
+   2. Bewegt wird nur opacity und transform. Beides laeuft im Compositor,
+      loest also kein Neuberechnen des Layouts aus.
+   3. Das Bedienfeld fuer Barrierefreiheit kann Uebergaenge abschalten
+      (transition: none). Dann springen die Karten beim Erscheinen einfach
+      auf sichtbar - sie bleiben NICHT unsichtbar haengen. Genau deshalb
+      ist der Endzustand eine eigene Klasse und keine Animation mit
+      animation-fill-mode: die liesse sich pausieren. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Zwei Regelsaetze mit demselben Ergebnis, und das ist Absicht:
+     .bv-einblenden gilt vom Kopf der Seite an fuer ALLES, was zum Zeitpunkt
+     des Zeichnens schon dasteht. Sobald das Skript die vorhandenen Karten
+     einzeln mit .bv-auf markiert hat, faellt .bv-einblenden weg. Ab da ist
+     nur noch unsichtbar, was ausdruecklich markiert wurde - alles, was
+     spaeter per JavaScript dazukommt (Suchergebnisse, nachgeladene Karten),
+     ist sofort sichtbar.
+     Vorher war genau das der Fehler: nachtraeglich eingefuegte Karten
+     erbten den Ausgangszustand, wurden nie beobachtet und blieben dauerhaft
+     auf opacity 0. Gefunden am 07.11.2026 von
+     scripts/pruefe-darstellung.mjs (13 Karten auf 5 Seiten). */
+  .bv-einblenden .leistung-card,
+  .bv-einblenden .produkt-card,
+  .bv-einblenden .service-box,
+  .bv-einblenden .kontakt-card,
+  .bv-einblenden .zert-card,
+  .bv-einblenden .pflege-card,
+  .bv-einblenden .wz-info-card,
+  .bv-einblenden .bg-info-card,
+  .bv-einblenden .stat-box,
+  .bv-einblenden .why-item,
+  .bv-auf {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity var(--zeit-ruhig) var(--kurve-raus),
+                transform var(--zeit-ruhig) var(--kurve-raus);
+    will-change: opacity, transform;
+  }
+  .bv-einblenden .ist-da,
+  .bv-auf.ist-da {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.bv-schwebe-weg #bv-a11y-trigger,
+  body.bv-schwebe-weg #bv-scroll-top,
+  body.bv-schwebe-weg #bvKonfigBubble { transform: none; opacity: 1; pointer-events: auto; }
+}
+
 body.bv-menu-open #bv-a11y-trigger,
 body.bv-menu-open #bv-a11y-panel,
 body.bv-menu-open #bv-scroll-top {
@@ -266,7 +490,7 @@ body.bv-menu-open #bv-scroll-top {
   border-right: 1px solid rgba(0,0,0,0.15);
 }
 .gold-item:last-child { border-right: none; }
-.gold-icon { flex-shrink: 0; color: var(--gold-dark); }
+.gold-icon { flex-shrink: 0; color: var(--gold-text); }
 .gold-icon svg {
   width: 26px; height: 26px; stroke: currentColor; fill: none;
   stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
@@ -290,17 +514,21 @@ body.bv-menu-open #bv-scroll-top {
   margin: 44px auto 0;
 }
 .leistung-card {
-  background: var(--white); border-radius: 10px; overflow: hidden;
-  box-shadow: var(--shadow); border: 1px solid var(--border);
-  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  background: var(--white); border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--schatten-1); border: 1px solid var(--border);
+  /* Ruhigere Kurve: 0,25s mit Standardbeschleunigung laesst eine Karte
+     springen. Mit --kurve-raus kommt sie an, statt anzuhalten. */
+  transition: transform var(--zeit-mittel) var(--kurve-raus),
+              box-shadow var(--zeit-mittel) var(--kurve-raus),
+              border-color var(--zeit-schnell) var(--kurve-weich);
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
 @media (hover: hover) and (pointer: fine) {
   .leistung-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-6px);
+    box-shadow: var(--schatten-3);
     border-color: var(--gold);
   }
 }
@@ -318,7 +546,10 @@ body.bv-menu-open #bv-scroll-top {
 }
 .leistung-img img {
   width: 100%; height: 100%; object-fit: cover;
-  transition: transform 0.4s ease;
+  /* Langsam und weich: Ein Bild, das in 0,4 s mit Standardkurve
+     heranspringt, wirkt hektisch. Ueber --zeit-ruhig gezogen wirkt
+     dieselbe Bewegung teuer. */
+  transition: transform var(--zeit-ruhig) var(--kurve-raus);
 }
 @media (hover: hover) and (pointer: fine) { .leistung-card:hover .leistung-img img { transform: scale(1.05); } }
 .leistung-img::after {
@@ -354,7 +585,15 @@ body.bv-menu-open #bv-scroll-top {
   text-decoration: none;
   cursor: pointer;
 }
-.leistung-link:hover { color: var(--gold-dark); }
+/* Der Hover ging vorher auf --gold-dark und SENKTE damit den Kontrast
+   von 5,9:1 auf 4,34:1 - ein Zustand, der Aufmerksamkeit zeigen soll,
+   machte den Text schlechter lesbar. Jetzt dunkler plus Unterstrich. */
+.leistung-link { text-decoration: none;
+  transition: color var(--zeit-schnell) var(--kurve-weich); }
+@media (hover: hover) and (pointer: fine) {
+  .leistung-link:hover { color: var(--black); text-decoration: underline;
+                         text-underline-offset: 4px; text-decoration-color: var(--gold); }
+}
 
 /* ============================================
    REGIONEN
@@ -396,7 +635,7 @@ body.bv-menu-open #bv-scroll-top {
 #regionInfoTip .rit-zone strong { color: var(--black); }
 #regionInfoTip .rit-bau { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
 #regionInfoTip .rit-links a {
-  color: var(--gold-dark); font-weight: 600; font-size: 0.82rem;
+  color: var(--gold-text); font-weight: 600; font-size: 0.82rem;
   text-decoration: none; display: inline-block; margin-right: 14px;
 }
 #regionInfoTip .rit-links a:hover { text-decoration: underline; }
@@ -519,7 +758,7 @@ body.bv-menu-open #bv-scroll-top {
 .service-box-badges  { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
 .service-box-badge {
   display: inline-flex; align-items: center; gap: 5px;
-  font-size: 0.72rem; font-weight: 700; color: var(--gold-dark);
+  font-size: 0.72rem; font-weight: 700; color: var(--gold-text);
   background: rgba(196,154,42,0.1); border: 1px solid rgba(196,154,42,0.25);
   padding: 3px 10px; border-radius: 100px; white-space: nowrap;
 }
@@ -530,7 +769,7 @@ body.bv-menu-open #bv-scroll-top {
   padding: 9px 18px; border-radius: 100px; text-decoration: none;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-.service-box-cta:hover { background: var(--gold-dark); color: var(--white); transform: translateY(-1px); }
+.service-box-cta:hover { background: var(--gold-text); color: var(--white); transform: translateY(-1px); }
 @media (max-width: 560px) {
   .service-box { flex-direction: column; }
 }
@@ -637,14 +876,28 @@ body.bv-menu-open #bv-scroll-top {
   cursor: pointer; display: flex; justify-content: space-between;
   align-items: center; gap: 12px;
 }
-.faq-q:hover { color: var(--gold); }
-.faq-a {
-  padding: 0 22px; font-size: 0.88rem; color: var(--muted);
-  line-height: 1.65; max-height: 0; overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
+/* Gold #C49A2A auf Weiss ergibt 2,6:1 - der Hover machte die Frage
+   SCHLECHTER lesbar als im Ruhezustand. Jetzt dunkler, nicht heller. */
+@media (hover: hover) and (pointer: fine) {
+  .faq-q:hover { color: var(--gold-text); }
 }
-.faq-item.open .faq-a    { max-height: 250px; padding: 0 22px 16px; }
-.faq-arrow               { transition: transform 0.3s; flex-shrink: 0; color: var(--gold); }
+.faq-q:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; border-radius: var(--radius); }
+.faq-a {
+  padding: 0 22px; font-size: var(--txt-sm); color: var(--muted);
+  line-height: 1.7; max-height: 0; overflow: hidden;
+  transition: max-height var(--zeit-ruhig) var(--kurve-raus),
+              padding var(--zeit-ruhig) var(--kurve-raus);
+}
+/* 250px WAREN ZU WENIG: Eine lange Antwort wurde abgeschnitten, ohne
+   dass es jemand merkt - der Text war einfach weg. 60rem ist weit
+   ueber jeder vorkommenden Antwort; sichtbar wird davon nichts, weil
+   die Hoehe ohnehin vom Inhalt begrenzt ist. */
+.faq-item.open .faq-a    { max-height: 60rem; padding: 0 22px var(--sp-4); }
+.faq-item.open           { border-color: var(--gold); box-shadow: var(--schatten-1); }
+.faq-item                { transition: border-color var(--zeit-schnell) var(--kurve-weich),
+                                       box-shadow var(--zeit-mittel) var(--kurve-raus); }
+.faq-arrow               { transition: transform var(--zeit-mittel) var(--kurve-raus);
+                           flex-shrink: 0; color: var(--gold-text); }
 .faq-item.open .faq-arrow { transform: rotate(180deg); }
 
 /* ============================================
@@ -692,7 +945,7 @@ body.bv-menu-open #bv-scroll-top {
   font-size: 0.85rem; transition: background 0.2s ease, transform 0.2s ease;
 }
 .kontakt-whatsapp-btn svg { width: 15px; height: 15px; fill: currentColor; }
-.kontakt-whatsapp-btn:hover { background: var(--gold-dark); color: var(--white) !important; transform: translateY(-1px); }
+.kontakt-whatsapp-btn:hover { background: var(--gold-text); color: var(--white) !important; transform: translateY(-1px); }
 
 /* Direktkontakt-Leiste – nur mobil, erscheint unter dem Konfigurator */
 .kontakt-quick { display: none; }
@@ -731,10 +984,25 @@ body.bv-menu-open #bv-scroll-top {
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.15);
+  padding: 13px var(--sp-4); border: 1.5px solid rgba(255,255,255,0.18);
   border-radius: var(--radius); font-family: 'Inter', sans-serif;
-  font-size: 0.93rem; color: var(--white);
-  transition: border-color 0.2s, box-shadow 0.2s; background: rgba(255,255,255,0.07);
+  /* 16px IST PFLICHT, kein Geschmack: iOS Safari zieht die Seite heran,
+     sobald ein Feld unter 16px den Fokus bekommt - und zoomt nicht
+     zurueck. Vorher standen hier 0,93rem = 14,9px. Die Felder im
+     Konfigurator und in den Werkzeugseiten waren laengst darauf
+     umgestellt, das Hauptformular auf der Startseite nicht. */
+  font-size: 16px; color: var(--white);
+  transition: border-color var(--zeit-schnell) var(--kurve-weich),
+              box-shadow var(--zeit-schnell) var(--kurve-weich),
+              background-color var(--zeit-schnell) var(--kurve-weich);
+  background: rgba(255,255,255,0.07);
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: rgba(255,255,255,0.45); }
+@media (hover: hover) and (pointer: fine) {
+  .form-group input:hover, .form-group select:hover, .form-group textarea:hover {
+    border-color: rgba(255,255,255,0.32); background: rgba(255,255,255,0.1);
+  }
 }
 .form-group input:focus,
 .form-group select:focus,
@@ -751,7 +1019,7 @@ body.bv-menu-open #bv-scroll-top {
   font-size: 1.1rem; font-weight: 800; cursor: pointer;
   transition: background 0.2s; letter-spacing: 0.3px;
 }
-.form-submit:hover { background: var(--gold-dark); color: var(--white); }
+.form-submit:hover { background: var(--gold-text); color: var(--white); }
 .form-note { font-size: 0.78rem; color: rgba(255,255,255,0.62); text-align: center; margin-top: 10px; }
 .form-note a { color: var(--gold-light); }
 
@@ -760,11 +1028,27 @@ body.bv-menu-open #bv-scroll-top {
    ============================================ */
 footer {
   background: var(--dark); color: rgba(255,255,255,0.75);
-  padding: 56px 0 20px; border-top: 3px solid var(--gold);
+  padding: var(--sp-8) 0 var(--sp-5); border-top: 3px solid var(--gold);
+  /* Ein sehr leichter Verlauf nach unten: Die Fusszeile soll als
+     eigener Raum lesbar sein, nicht als abgeschnittener Seitenrest.
+     Kaum sichtbar, aber der Unterschied zwischen "endet" und
+     "schliesst ab". */
+  background-image: linear-gradient(180deg, rgba(255,255,255,.035) 0%, rgba(255,255,255,0) 220px);
 }
 .footer-grid {
   display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 36px; margin-bottom: 44px;
+  gap: var(--sp-7) var(--sp-6); margin-bottom: var(--sp-7);
+}
+/* SPALTEN AUSBALANCIEREN, OHNE EINEN EINZIGEN VERWEIS ZU VERSCHIEBEN.
+   Vorher: "Regionen" 13 Eintraege, "Unternehmen" 13, "Leistungen" 7 -
+   die rechte Haelfte war doppelt so hoch wie die linke. Die Ortsnamen
+   sind kurz, also fliessen sie ab 900 px in zwei Spalten. Die Liste
+   bleibt dieselbe, nur ihre Form aendert sich. */
+@media (min-width: 900px) {
+  .footer-col--regionen .footer-links {
+    display: block; columns: 2; column-gap: var(--sp-5);
+  }
+  .footer-col--regionen .footer-links li { break-inside: avoid; margin-bottom: var(--sp-2); }
 }
 .footer-logo { height: 44px; width: auto; margin-bottom: 14px; display: block; }
 .footer-brand p { font-size: 0.85rem; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 240px; }
@@ -775,7 +1059,7 @@ footer {
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 50%; display: flex; align-items: center;
   justify-content: center; text-decoration: none;
-  transition: all 0.2s; color: rgba(255,255,255,0.8);
+  transition: var(--uebergang-zustand); color: rgba(255,255,255,0.8);
   flex-shrink: 0;
 }
 .social-btn svg { display: block; }
@@ -794,12 +1078,31 @@ footer {
 .social-btn--whatsapp  { color: #fff; }
 .social-btn--whatsapp:hover  { background: var(--gold); border-color: var(--gold); color: var(--black); }
 footer h4 {
-  font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700;
-  color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: var(--txt-2xs); font-weight: 700;
+  color: var(--gold); letter-spacing: 1.6px; text-transform: uppercase;
+  margin-bottom: var(--sp-4);
+  /* Eine feine goldene Linie unter jeder Spaltenueberschrift: ordnet
+     die vier Spalten sichtbar, ohne Kaesten zu zeichnen. */
+  padding-bottom: var(--sp-2); border-bottom: 1px solid rgba(196,154,42,.28);
 }
-.footer-links { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-.footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.footer-links a:hover { color: var(--gold); }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
+.footer-links a {
+  color: rgba(255,255,255,0.62); text-decoration: none; font-size: var(--txt-xs);
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  /* Mehrzeilige Eintraege wie "Wind- & Schneelastzonen-Rechner" haengen
+     sonst unter dem Zeichen; align-items: flex-start laesst das Zeichen
+     an der ersten Zeile stehen. */
+  align-items: flex-start;
+  transition: color var(--zeit-schnell) var(--kurve-weich),
+              transform var(--zeit-schnell) var(--kurve-raus);
+}
+.footer-links a .footer-link-icon { margin-top: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  /* Zwei Pixel nach rechts: genug, dass die Zeile antwortet, zu wenig,
+     um die Spalte unruhig zu machen. */
+  .footer-links a:hover { color: var(--gold); transform: translateX(2px); }
+}
+.footer-links a:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; border-radius: 3px; }
 .footer-link-icon {
   width: 14px; height: 14px; flex-shrink: 0; stroke: currentColor; fill: none;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85;
@@ -836,7 +1139,7 @@ footer h4 {
   border-color: var(--gold) !important;
   display: flex; align-items: center; gap: 7px;
 }
-.btn-whatsapp:hover { background: var(--gold-dark) !important; border-color: var(--gold-dark) !important; color: var(--white) !important; }
+.btn-whatsapp:hover { background: var(--gold-text) !important; border-color: var(--gold-text) !important; color: var(--white) !important; }
 .btn-whatsapp svg { width: 18px; height: 18px; flex-shrink: 0; }
 .sticky-cta p { font-size: 0.9rem; color: rgba(255,255,255,0.85); }
 .sticky-cta strong { color: var(--gold); }
@@ -912,7 +1215,10 @@ footer h4 {
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem;
   color: var(--black); flex-shrink: 0;
 }
-.trust-badge-stars { color: var(--gold); font-size: 1rem; flex-shrink: 0; }
+/* Gold auf Weiss ergibt bei den Sternen 2,62:1 - gemessen. --gold-text
+   ist derselbe Markenton, nur in der Stufe, die fuer Text auf hellem
+   Grund vorgesehen ist (5,9:1). */
+.trust-badge-stars { color: var(--gold-text); font-size: 1rem; flex-shrink: 0; }
 .trust-badge-text strong { display: block; font-size: 1.1rem; font-family: 'Barlow Condensed', sans-serif; color: var(--black); }
 .trust-badge-text span  { font-size: 0.78rem; color: var(--muted); }
 
@@ -926,7 +1232,7 @@ footer h4 {
   padding: 12px 24px; background: none; border: none;
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
   color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
-  margin-bottom: -2px; transition: all 0.2s;
+  margin-bottom: -2px; transition: var(--uebergang-zustand);
 }
 .reviews-tab:hover { color: var(--black); }
 .reviews-tab.active { color: var(--black); border-bottom-color: var(--gold); }
@@ -1021,13 +1327,13 @@ footer h4 {
 .cb-detail-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 .cb-detail-row > strong { font-size: 0.88rem; color: var(--black); display: block; margin-bottom: 3px; }
 .cb-detail-row p { font-size: 0.8rem; color: var(--muted); margin-top: 4px; line-height: 1.5; }
-.cb-detail-row p a { color: var(--gold-dark); }
+.cb-detail-row p a { color: var(--gold-text); }
 .cb-badge {
   font-size: 0.72rem; font-weight: 700;
   padding: 2px 8px; border-radius: 100px;
   display: inline-block; margin-bottom: 4px;
 }
-.cb-badge--required { background: rgba(196,154,42,0.15); color: var(--gold-dark); }
+.cb-badge--required { background: rgba(196,154,42,0.15); color: var(--gold-text); }
 /* Toggle */
 .cb-toggle-label {
   display: flex; align-items: center; gap: 10px;
@@ -1056,7 +1362,7 @@ footer h4 {
   font-weight: 700; font-size: 0.92rem;
   padding: 11px 16px; border-radius: var(--radius);
   cursor: pointer; border: 1.5px solid transparent;
-  transition: all 0.18s; flex: 1; min-width: 110px;
+  transition: var(--uebergang-zustand); flex: 1; min-width: 110px;
   line-height: 1;
 }
 .cb-btn--reject {
@@ -1074,7 +1380,7 @@ footer h4 {
 .cb-btn--accept {
   background: var(--gold); color: var(--black); border-color: var(--gold);
 }
-.cb-btn--accept:hover { background: var(--gold-dark); color: var(--white); }
+.cb-btn--accept:hover { background: var(--gold-text); color: var(--white); }
 .cb-save-row {
   margin-top: 14px; padding-top: 14px;
   border-top: 1px solid var(--border);
@@ -1083,7 +1389,7 @@ footer h4 {
   background: var(--gold); color: var(--black);
   border-color: var(--gold); width: 100%;
 }
-.cb-btn--save:hover { background: var(--gold-dark); color: var(--white); }
+.cb-btn--save:hover { background: var(--gold-text); color: var(--white); }
 .cb-links {
   font-size: 0.78rem; color: var(--muted);
   display: flex; gap: 8px; align-items: center;
@@ -1116,7 +1422,7 @@ footer h4 {
   border-radius: var(--radius) !important;
   border: 1px solid rgba(196,154,42,0.3) !important;
   font-weight: 600 !important;
-  transition: all 0.2s !important;
+  transition: var(--uebergang-zustand) !important;
 }
 .nav-konfigurator:hover {
   background: var(--gold) !important;
@@ -1378,7 +1684,7 @@ footer h4 {
   font-weight: 700; font-size: 0.82rem;
   padding: 5px 10px; border-radius: 5px;
   cursor: pointer !important;
-  transition: all 0.2s;
+  transition: var(--uebergang-zustand);
   letter-spacing: 0.3px;
   pointer-events: all !important;
   user-select: none;
@@ -1399,7 +1705,7 @@ footer h4 {
   border-color: rgba(0,0,0,0.2);
   color: rgba(0,0,0,0.5);
 }
-.navbar.scrolled .lang-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
+.navbar.scrolled .lang-btn:hover { border-color: var(--gold); color: var(--gold-text); }
 .navbar.scrolled .lang-btn.active { background: var(--gold) !important; color: var(--black) !important; }
 
 /* Mobile: lang switcher inside hamburger menu */
@@ -1447,20 +1753,20 @@ footer h4 {
   padding: 7px 14px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--uebergang-zustand);
   white-space: nowrap;
   opacity: 1 !important;
   visibility: visible !important;
   min-width: 80px;
 }
 .lang-dropdown-btn:hover {
-  background: var(--gold-dark) !important;
+  background: var(--gold-text) !important;
   color: var(--white) !important;
-  border-color: var(--gold-dark) !important;
+  border-color: var(--gold-text) !important;
 }
 .navbar.scrolled .lang-dropdown-btn {
   background: var(--gold) !important;
-  border-color: var(--gold-dark) !important;
+  border-color: var(--gold-text) !important;
   color: var(--black) !important;
 }
 .lang-chevron { font-size: 0.7rem; opacity: 0.7; transition: transform 0.2s; }
@@ -1489,7 +1795,7 @@ footer h4 {
 .lang-dropdown-menu button:hover { background: var(--offwhite); }
 .lang-dropdown-menu button.active {
   background: rgba(196,154,42,0.08);
-  color: var(--gold-dark); font-weight: 600;
+  color: var(--gold-text); font-weight: 600;
 }
 
 /* Mobile lang switcher */
@@ -1506,7 +1812,7 @@ footer h4 {
   border-radius: 6px; color: rgba(255,255,255,0.8);
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; font-size: 0.95rem;
-  cursor: pointer; transition: all 0.2s;
+  cursor: pointer; transition: var(--uebergang-zustand);
 }
 .mobile-lang-switcher button:hover,
 .mobile-lang-switcher button.active {
@@ -1723,8 +2029,12 @@ img { max-width: 100%; height: auto; }
   flex: 1;
 }
 .google-review-btn__stars {
+  /* Die Sterne standen in #FBBC05 (dem Gelb von Google) auf Weiss und
+     erreichten gemessen 1,71:1 - sie tragen die Bewertung, sind also
+     kein Zierrat und brauchen 4,5:1. Jetzt die eigene Goldstufe der
+     Marke: 5,9:1 auf Weiss, und zugleich eine Fremdfarbe weniger. */
   padding: 12px 16px 12px 0;
-  color: #FBBC05;
+  color: var(--gold-text);
   font-size: 0.9rem;
   letter-spacing: 1px;
   flex-shrink: 0;
@@ -2040,7 +2350,7 @@ img { max-width: 100%; height: auto; }
   text-decoration: none; font-size: 0.9rem;
   transition: border-color 0.2s, color 0.2s;
 }
-.seo-link-list a:hover { border-color: var(--gold); color: var(--gold-dark); }
+.seo-link-list a:hover { border-color: var(--gold); color: var(--gold-text); }
 @media (max-width: 768px) {
   .seo-intro-grid { grid-template-columns: 1fr; gap: 32px; }
 }
@@ -2077,7 +2387,7 @@ img { max-width: 100%; height: auto; }
 .article-body > p:first-of-type::first-letter {
   float: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
   font-size: 3.6rem; line-height: .8; padding-right: 10px; padding-top: 6px;
-  color: var(--gold-dark);
+  color: var(--gold-text);
 }
 .article-body h2 {
   margin-top: 2.2em; margin-bottom: .6em; font-size: 1.5rem;
@@ -2097,7 +2407,7 @@ img { max-width: 100%; height: auto; }
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .article-body ul li { position: relative; padding-left: 22px; margin-bottom: 10px; }
-.article-body ul li::before { content: '—'; position: absolute; left: 0; color: var(--gold-dark); font-weight: 700; }
+.article-body ul li::before { content: '—'; position: absolute; left: 0; color: var(--gold-text); font-weight: 700; }
 
 .article-callout {
   margin-top: 48px; padding: 28px; background: var(--light-bg);
@@ -2106,7 +2416,7 @@ img { max-width: 100%; height: auto; }
 .article-callout p:first-child { font-weight: 700; margin-bottom: 8px; font-size: 1.1rem; }
 
 .article-back {
-  display: inline-block; margin-top: 40px; color: var(--gold-dark);
+  display: inline-block; margin-top: 40px; color: var(--gold-text);
   font-weight: 600; text-decoration: none; font-size: .92rem;
 }
 .article-back:hover { text-decoration: underline; }
@@ -2361,7 +2671,7 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-btn--back { background: transparent; color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
 .aw-btn--back:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .aw-btn--next { flex: 1; background: var(--gold); color: var(--black); }
-.aw-btn--next:hover { background: var(--gold-dark); color: #fff; }
+.aw-btn--next:hover { background: var(--gold-text); color: #fff; }
 .aw-btn--send { background: #2a9d4e !important; color: #fff !important; }
 .aw-btn--send:hover { background: #23823f !important; }
 .aw-btn:disabled { opacity: 0.6; cursor: default; }
@@ -2605,7 +2915,7 @@ body.bv-konfig-open #bvKonfigBubble {
   display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
   background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.14);
   border-radius: 100px; padding: 8px 14px; color: rgba(255,255,255,0.85); font-size: 0.85rem;
-  transition: all 0.15s;
+  transition: var(--uebergang-zustand);
 }
 .aw-check:hover { border-color: rgba(196,154,42,0.6); }
 .aw-check-box { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.4); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; flex-shrink: 0; }
@@ -2718,7 +3028,7 @@ body.bv-konfig-open #bvKonfigBubble {
    nicht daneben, damit die Reiter gleich breit bleiben und die Leiste
    beim Weitergehen nicht springt. */
 .k3d-reiter button.ist-fertig { color: var(--gold-text); }
-.k3d-reiter button.ist-fertig .k3d-reiter-z .bvs { color: var(--gold-dark); }
+.k3d-reiter button.ist-fertig .k3d-reiter-z .bvs { color: var(--gold-text); }
 .k3d-reiter button:hover { color: var(--gold-text); }
 /* DER AKTIVE REITER TRAEGT FARBE, nicht nur einen Hauch davon: aus
    9 % Goldgrund und einem 3-px-Balken wurden 16 % und 4 px, das
@@ -2730,7 +3040,7 @@ body.bv-konfig-open #bvKonfigBubble {
   border-bottom-color: var(--gold);
   border-bottom-width: 4px;
 }
-.k3d-reiter button.ist-aktiv .k3d-reiter-z .bvs { color: var(--gold-dark); }
+.k3d-reiter button.ist-aktiv .k3d-reiter-z .bvs { color: var(--gold-text); }
 .k3d-reiter button:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: -2px;
