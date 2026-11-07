@@ -53,7 +53,15 @@
    Ob der Umschalter zurück auf alle Seiten soll, entscheidet der
    Betreiber — Hintergrund in `docs/entscheidungen.md`, 06.11.2026.
    **Nicht ungefragt nachholen.**
-8. **Google-Unternehmensprofil.** Der mit Abstand stärkste Hebel für
+8. **Cloudflare Web Analytics: abschalten oder benennen?** (07.11.2026)
+   Cloudflare fügt auf **jeder** Seite ein eigenes Messskript ein
+   (`static.cloudflareinsights.com`), das nicht im Repository steht und
+   nur bei Browser-Anfragen ausgeliefert wird. In der
+   Datenschutzerklärung steht es nicht. Entweder im
+   Cloudflare-Dashboard abschalten (passt zur eigenen Messung) oder
+   aufnehmen und rechtlich bewerten lassen. Einzelheiten:
+   `docs/entscheidungen.md`, 07.11.2026. **Nichts ungefragt ändern.**
+9. **Google-Unternehmensprofil.** Der mit Abstand stärkste Hebel für
    Sichtbarkeit, und nichts davon lässt sich hier erledigen. In den eigenen
    Zahlen kommen Google und Bing zusammen auf einen kleinen Teil der Aufrufe.
 

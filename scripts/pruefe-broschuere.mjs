@@ -221,7 +221,13 @@ async function lauf(fehler) {
   p('Beim Start sind nur wenige Seitenbilder geladen', vorher >= 1 && vorher <= 6,
     vorher + ' von ' + ANZAHL);
 
-  p('Kein Fremdanbieter auf der Seite', fremdBeimLaden.length === 0,
+  /* GRENZE DIESER PRUEFUNG: Sie laeuft gegen einen oertlichen Server.
+     Sie zeigt, dass der CODE der Seite niemanden ruft - nicht, was
+     zwischen Worker und Browser noch dazukommt. Live legt Cloudflare
+     ein eigenes Messskript dazu (gefunden am 07.11.2026, siehe
+     docs/entscheidungen.md). Wer wissen will, was ein Besucher
+     wirklich laedt, muss die veroeffentlichte Adresse abrufen. */
+  p('Kein Fremdanbieter im Code der Seite', fremdBeimLaden.length === 0,
     fremdBeimLaden.length ? fremdBeimLaden[0].slice(0, 50) : 'alles von hier');
 
   p('Das Buch ist aufgeschlagen', await seite.$('.stf__parent') !== null);

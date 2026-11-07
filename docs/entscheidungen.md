@@ -14311,3 +14311,54 @@ gegen `2147483647` nicht.
 bleibt, wenn der Fehler eingebaut ist, prüft nichts. Dass die
 Gegenprobe das gemeldet hat, ist der einzige Grund, warum es
 aufgefallen ist.
+
+### 07.11.2026: Cloudflare legt auf JEDER Seite ein Messskript dazu
+
+**Gefunden beim Live-Test nach der Veröffentlichung**, mit einem echten
+Browser gegen `https://bv-aussensysteme.de/broschuere`:
+
+```
+https://static.cloudflareinsights.com/beacon.min.js/vce70...  (Cloudflare Web Analytics, 2024.11.0)
+```
+
+Das Skript steht **nicht im Quelltext** und nicht im Repository.
+Cloudflare fügt es am Rand in die HTML-Antwort ein – und zwar nur,
+wenn die Anfrage wie ein Browser aussieht. Mit `curl` ohne
+Browser-Kopfzeilen ist es nicht zu sehen, mit Browser-Kopfzeilen schon.
+Es betrifft **alle Seiten**, auch die Startseite, nicht nur den Katalog.
+
+**Warum keine Prüfung das gemeldet hat.** `scripts/pruefe-broschuere.mjs`
+hat eine Prüfung „Kein Fremdanbieter auf der Seite", die jede
+Netzanfrage mitschreibt. Sie läuft aber gegen einen **örtlichen
+Server** – dort gibt es Cloudflare nicht. Die Prüfung sagt also
+korrekt: *der Code der Seite* ruft niemanden. Sie sagt **nicht**, was
+zwischen Worker und Browser noch dazukommt. Der Satz „beim Aufruf der
+Seite geht keine einzige Anfrage nach außen" war damit zu weit
+gefasst; er gilt für unseren Code, nicht für die ausgelieferte Seite.
+
+**Was das bedeutet.** Vor jeder Einwilligung geht eine Anfrage an einen
+Dritten, mit der IP des Besuchers. Cloudflare Web Analytics setzt
+keinen Keks und erstellt nach eigener Aussage keinen Fingerabdruck,
+und Cloudflare sieht die IP ohnehin, weil die Seite dort gehostet ist.
+Trotzdem: In der Datenschutzerklärung steht Cloudflare als **Hoster
+und CDN**, Cloudflare D1 und cdnjs – von **Web Analytics** steht dort
+nichts.
+
+**Das passt nicht zur eigenen Linie.** Der Betrieb hat eine *eigene*
+Reichweitenmessung gebaut (`worker/index.js`, `messungBesucher()`),
+ausdrücklich um ohne Dritte auszukommen, und Abschnitt 19 der
+Datenschutzerklärung beschreibt sie. Daneben läuft nun unbemerkt eine
+zweite Messung bei einem Dritten.
+
+**Nicht ungefragt geändert.** Zwei Wege, beide gehören dem Betreiber:
+
+1. **Abschalten** im Cloudflare-Dashboard (Web Analytics aus). Dann
+   stimmt die Datenschutzerklärung wieder, und es bleibt bei der
+   eigenen Messung. Das wäre der Linie treu.
+2. **Benennen**: Web Analytics in der Datenschutzerklärung aufnehmen.
+   Dann ist zu klären, ob sie ohne Einwilligung laufen darf – das ist
+   eine Frage für den Fachmann, nicht für mich.
+
+**Für die Zukunft:** Eine Prüfung gegen `localhost` kann nicht sehen,
+was am Rand dazukommt. Wer wissen will, was ein Besucher wirklich lädt,
+muss die **veröffentlichte** Adresse mit einem Browser abrufen.
