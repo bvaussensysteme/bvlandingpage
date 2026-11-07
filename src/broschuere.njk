@@ -1,0 +1,416 @@
+---
+layout: layout.njk
+permalink: /broschuere.html
+title: "Produktkatalog durchblättern – Terrassenüberdachung, Carport & Pergola | BV AussenSysteme"
+description: "Unsere Produktbroschüre zum Durchblättern: Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – 36 Seiten, auch als PDF zum Herunterladen."
+canonical: "https://bv-aussensysteme.de/broschuere.html"
+robots: "index, follow"
+extendedNav: true
+ogTitle: "Produktkatalog von BV AussenSysteme"
+ogDescription: "36 Seiten Terrassenüberdachungen, Carports, Pergolen und Sonnenschutz aus Aluminium – online durchblättern oder als PDF herunterladen."
+ogImage: "https://bv-aussensysteme.de/assets/broschuere/og-broschuere.jpg"
+skipLink: |
+  <a href="#main-content" class="skip-link"
+     style="position:absolute;top:-40px;left:0;background:var(--gold);color:var(--black);padding:8px 16px;text-decoration:none;font-weight:700;z-index:9999;border-radius:0 0 6px 0;transition:top .2s"
+     onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Zum Hauptinhalt springen</a>
+extraHead: |
+  <link rel="stylesheet" href="/assets/js/page-flip.css?v=20261106a" />
+extraScripts: |
+  <script src="/assets/js/page-flip.browser.js?v=20261106a" defer></script>
+  <script src="/js/broschuere.js?v=20261106a" defer></script>
+  <script src="/js/i18n.js?v=20261106a" defer></script>
+---
+<style>
+  /* ============================================================
+     Broschuere - HANDY ZUERST.
+     Die Grundregeln gelten fuer das Telefon; erst die Medienabfragen
+     weiter unten bauen Tablet und Schreibtisch darauf auf.
+
+     DIE EINE WICHTIGE REGEL: Die Bibliothek rechnet die HOEHE des
+     Buches aus seiner BREITE (Seitenverhaeltnis DIN A4, und sie setzt
+     dafuer selbst eine Innenpolsterung). Ueber die Hoehe laesst sich
+     also nichts steuern - wer will, dass eine ganze Seite ohne
+     Scrollen in den Bildschirm passt, muss die BREITE begrenzen.
+     Darum die Rechnung mit 100svh: sichtbare Hoehe minus das, was
+     Bedienleiste und Abstaende brauchen, geteilt durch 1,4142.
+     ============================================================ */
+  .bro-buehne { background:#3a3a3a; padding:12px 0 22px; }
+  .bro-buehne .container { max-width:1100px; padding-left:12px; padding-right:12px; }
+
+  /* ACHTUNG: Die Bibliothek setzt dem Buch selbst einen Inline-Stil
+     max-width = 2 x maxWidth (also 1400px). Ein Inline-Stil schlaegt
+     jede Regel von hier - gemessen am 06.11.2026: max-width kam als
+     1400px an, die eigene Rechnung wirkte nicht. Darum steht die
+     Breite auf dem RAHMEN, den die Bibliothek nicht anfasst. */
+  /* Die Breite setzt rahmenBreite() in js/broschuere.js - dort liegt
+     auch die Begruendung. Hier nur ein Rueckfall, falls kein Skript
+     laeuft. Eine Medienabfrage taugt dafuer nicht: Die Bibliothek
+     schaltet bei einer ANDEREN Breite auf eine Seite um als ein
+     Haltepunkt im Stilblatt, und bei der Abweichung wurde das Buch
+     breiter als sein Rahmen (gemessen im Querformat: 330 statt 226). */
+  .bro-rahmen { width:100%; margin:0 auto; max-width:1000px; }
+  .bro-buch { width:100%; margin:0 auto; }
+  .bro-buch .bro-seite { background:#fff; overflow:hidden; }
+  /* Die Buchseiten sind Bilder, aber hier sind sie eine Bedienflaeche:
+     Wer an der Ecke zieht, soll kein "Bild sichern"-Fenster bekommen.
+     Zum Behalten gibt es das PDF. */
+  .bro-buch .bro-bild { display:block; width:100%; height:100%; object-fit:contain; background:#fff;
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+  /* Das Buch liegt auf der Flaeche, es klebt nicht darauf. Der Schatten
+     sitzt auf der Huelle der Bibliothek - die hat genau die Groesse des
+     aufgeschlagenen Buches. (Ihre eigene Regel dafuer heisst .sft__wrapper
+     und greift nie: Tippfehler in der Bibliothek, der Bauteil heisst
+     stf__wrapper. Nicht korrigieren - fremde Datei.) */
+  .bro-buch .stf__wrapper { box-shadow:0 16px 40px rgba(0,0,0,.5); }
+
+  /* Ohne Bibliothek (Skript blockiert o. Ae.): einfache Liste statt Buch */
+  .bro-buch--liste { display:grid; gap:14px; max-width:100%; }
+  .bro-buch--liste .bro-seite { display:block !important; position:static !important;
+    width:100% !important; height:auto !important; transform:none !important;
+    border-radius:4px; box-shadow:0 6px 20px rgba(0,0,0,.35); }
+
+  /* Bedienleiste */
+  .bro-leiste { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;
+    margin:18px auto 0; max-width:1000px; }
+  .bro-knopf { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:44px; min-width:44px; padding:10px 16px; border-radius:var(--radius); cursor:pointer;
+    /* touch-action: manipulation nimmt die Wartezeit auf den Doppeltipp
+       heraus; die eigene Rueckmeldung steht in :active, darum keine
+       graue Flaeche des Systems obendrauf. */
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    /* Ein Knopf ist Bedienung, kein Text: langes Antippen soll ihn
+       nicht markieren und kein Kopieren-Fenster oeffnen. */
+    user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;
+    font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
+    background:#2b2b2b; color:#fff; border:1.5px solid rgba(255,255,255,.4); }
+  /* Hervorheben nur, wo es ein Zeigegeraet gibt. Am Telefon bleibt ein
+     :hover nach dem Antippen haengen - der Knopf saehe dann dauerhaft
+     ausgewaehlt aus, obwohl nichts offen ist. */
+  @media (hover: hover) and (pointer: fine) {
+    .bro-knopf:hover:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  }
+  /* Offenes Menue: der Knopf zeigt das, und zwar auf jedem Geraet. */
+  .bro-knopf[aria-expanded="true"] { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  /* Rueckmeldung beim Antippen - ohne das passiert am Telefon sichtbar
+     nichts, bis die Seite umblaettert. */
+  .bro-knopf:active:not(:disabled) { background:var(--gold); color:var(--black); border-color:var(--gold); }
+  .bro-mehr-eintrag:active { background:var(--gold); color:var(--black); }
+  .bro-raster-knopf:active { border-color:var(--gold); }
+  .bro-knopf:focus-visible { outline:3px solid var(--gold-light); outline-offset:2px; }
+  .bro-knopf:disabled { opacity:.45; cursor:default; }
+  /* Gleiche Falle wie bei den Ebenen: inline-flex schlaegt das
+     Standard-[hidden]. Der Vollbild-Knopf wird ausgeblendet, wenn
+     der Browser kein Element-Vollbild kann (iOS Safari). */
+  .bro-knopf[hidden] { display:none; }
+  .bro-knopf svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2;
+    stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+  /* Drei-Punkte-Knopf: gleiche Form wie Zoom, Vollbild und Uebersicht.
+     Der PDF-Knopf stand vorher als breiter goldener Balken daneben und
+     riss die Leiste auseinander; jetzt steht er zusammen mit "Teilen"
+     in dem kleinen Menue, das dieser Knopf oeffnet. */
+  .bro-mehr { position:relative; display:inline-flex; }
+  .bro-knopf svg.bro-punkte { fill:currentColor; stroke:none; }
+  .bro-mehr-menue { position:absolute; top:calc(100% + 8px); right:0; z-index:50;
+    min-width:248px; max-width:calc(100vw - 24px); background:var(--dark);
+    border:1.5px solid rgba(255,255,255,.22); border-radius:var(--radius); padding:6px; box-shadow:0 14px 34px rgba(0,0,0,.55);
+    display:flex; flex-direction:column; gap:4px; }
+  /* Dieselbe Falle wie bei den Ebenen: ein ausdrueckliches display
+     schlaegt das Standard-[hidden]. */
+  .bro-mehr-menue[hidden] { display:none; }
+  .bro-mehr-eintrag { display:flex; align-items:center; gap:10px; width:100%;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    user-select:none; -webkit-user-select:none;
+    min-height:44px; padding:10px 12px; border:0; border-radius:calc(var(--radius) - 3px); background:none;
+    color:#fff; font-family:inherit; font-size:.92rem; font-weight:600; line-height:1.2;
+    text-align:left; text-decoration:none; cursor:pointer; }
+  @media (hover: hover) and (pointer: fine) { .bro-mehr-eintrag:hover { background:var(--gold); color:var(--black); } }
+  .bro-mehr-eintrag:focus-visible { outline:3px solid var(--gold-light); outline-offset:-2px; }
+  .bro-mehr-eintrag svg { width:18px; height:18px; fill:none; stroke:currentColor;
+    stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+  .bro-mehr-status:empty { display:none; }
+  .bro-mehr-status { display:block; padding:4px 12px 6px; font-size:.875rem; color:var(--gold-light); }
+
+  .bro-zaehler { min-width:92px; text-align:center; color:var(--gold-light);
+    font-weight:700; font-size:.95rem; letter-spacing:.02em;
+    /* gleich breite Ziffern: sonst wackelt die Leiste beim Blaettern */
+    font-variant-numeric:tabular-nums; }
+  .bro-hinweis { text-align:center; color:rgba(255,255,255,.62); font-size:.875rem; margin:12px 0 0; }
+  .bro-nur-maus { display:none; }
+  @media (pointer: fine) {
+    .bro-nur-finger { display:none; }
+    .bro-nur-maus { display:inline; }
+  }
+
+  /* Am Telefon tragen die Zeichen allein, die Woerter wuerden umbrechen. */
+  .bro-knopf--schmal span { position:absolute; width:1px; height:1px; overflow:hidden;
+    clip:rect(0 0 0 0); white-space:nowrap; }
+
+  .bro-ende { max-width:560px; margin:20px auto 0; text-align:center;
+    background:#2b2b2b; border:1.5px solid var(--gold); border-radius:var(--radius);
+    padding:20px 18px; }
+  .bro-ende[hidden] { display:none; }
+  .bro-ende-frage { color:#fff; font-size:1.1rem; font-weight:700; margin:0 0 6px; }
+  .bro-ende-text { color:rgba(255,255,255,.78); font-size:.92rem; line-height:1.6; margin:0 0 16px; }
+  .bro-ende-knoepfe { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+  /* Ebenen (Uebersicht, Zoom) */
+  /* z-index 5000: ueber den schwebenden Knoepfen der Website
+     (Barrierefreiheit, Nach-oben, Einstellungen), aber unter dem
+     Einwilligungsbanner (9999) - das muss immer oben bleiben.
+     Grund fuer den Deckel: Auf dem Bildschirmfoto vom 06.11.2026 lagen
+     die runden Knoepfe MITTEN auf der vergroesserten Seite.
+     Fast undurchsichtig (.985): vorher schimmerten Logo und
+     Ueberschrift durch den Kopf der Ebene. */
+  .bro-ebene { position:fixed; inset:0; z-index:5000; background:rgba(17,17,17,.985);
+    display:none; flex-direction:column; }
+  .bro-ebene[data-offen="1"] { display:flex; }
+  /* Reihenfolge beachten: ein ausdrueckliches display schlaegt das
+     Browser-Standard-[hidden] { display:none }. Darum die eigene Regel,
+     sonst waere eine Ebene mit data-offen UND hidden trotzdem sichtbar. */
+  .bro-ebene[hidden] { display:none; }
+  /* Die schwebenden Knoepfe der Website haben z-index bis 2147483647 -
+     dagegen hilft kein z-index. Gemessen am 06.11.2026 lagen sie mitten
+     auf der vergroesserten Seite. Dieselbe Loesung wie beim
+     Konfigurator (style.css, body.bv-konfig-open): solange eine Ebene
+     offen ist, sind sie weg. */
+  body.bro-ebene-offen #bv-a11y-trigger,
+  body.bro-ebene-offen #bv-a11y-panel,
+  body.bro-ebene-offen #bv-scroll-top,
+  body.bro-ebene-offen #bvKonfigBubble,
+  body.bro-ebene-offen .sticky-cta { display:none !important; }
+  .bro-ebene-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.14); flex-wrap:wrap; }
+  .bro-ebene-kopf h2 { color:#fff; font-size:1.15rem; margin:0; }
+  .bro-ebene-koerper { flex:1; overflow:auto; padding:14px; -webkit-overflow-scrolling:touch;
+    /* ohne contain scrollt am Ende die Seite dahinter weiter */
+    overscroll-behavior:contain; }
+
+  .bro-raster { display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
+    gap:12px; max-width:1100px; margin:0 auto; }
+  .bro-raster-knopf { display:block; padding:0; border:2px solid transparent; border-radius:6px;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    background:none; cursor:pointer; }
+  .bro-raster-knopf img { display:block; width:100%; height:auto; border-radius:4px; background:#fff; }
+  .bro-raster-knopf span { display:block; color:rgba(255,255,255,.75); font-size:.8125rem; padding:6px 0 0; }
+  @media (hover: hover) and (pointer: fine) {
+    .bro-raster-knopf:hover { border-color:var(--gold); }
+    .bro-raster-knopf:hover span { color:var(--gold-light); }
+  }
+  .bro-raster-knopf[aria-current="true"] { border-color:var(--gold); }
+  .bro-raster-knopf[aria-current="true"] span { color:var(--gold-light); font-weight:700; }
+  .bro-raster-knopf:focus-visible { outline:3px solid var(--gold-light); outline-offset:2px; }
+
+  .bro-zoom-flaeche { display:flex; gap:12px; align-items:flex-start; max-width:none;
+    /* "safe center" zentriert nur, solange es passt. Reines center
+       schiebt zu breiten Inhalt nach BEIDEN Seiten hinaus, und der
+       linke Ueberstand laesst sich nicht erscrollen. Browser ohne
+       "safe" behalten die Zeile darueber. */
+    justify-content:center; justify-content:safe center; }
+  /* HIER STECKTE DER FEHLER: style.css setzt global
+     img { max-width:100% } und * { max-width:100% }. Damit konnte das
+     Bild nie breiter werden als sein Kasten - der Zoom hat gemessen
+     NICHTS getan (150 % und 200 % ergaben am Handy beide 362 px).
+     flex-shrink:0 allein reichte nicht. */
+  .bro-zoom-flaeche img { display:block; background:#fff; height:auto;
+    flex-shrink:0; max-width:none; }
+
+  /* Inhalt als Text - aufklappbar, nicht versteckt. Text, den nur
+     Suchmaschinen sehen, waere Verschleierung; hier kann ihn jeder
+     oeffnen. */
+  .bro-text-seite { border-bottom:1px solid var(--border); padding:4px 0; }
+  .bro-text-seite summary { cursor:pointer; padding:12px 4px; font-weight:600;
+    display:flex; gap:10px; align-items:baseline; line-height:1.4; }
+  .bro-text-seite summary::marker { color:var(--gold-text); }
+  .bro-text-seite[open] summary { color:var(--gold-text); }
+  .bro-text-nr { color:var(--muted); font-weight:500; font-size:.85rem;
+    white-space:nowrap; min-width:72px; }
+  .bro-text-seite p { margin:0 0 10px 82px; line-height:1.65; }
+  @media (max-width:560px) { .bro-text-seite p { margin-left:0; } }
+
+  /* Kopfbereich am Telefon knapp halten: Das Buch soll ohne Scrollen
+     anfangen. Der PDF-Knopf steht gleich darunter in der Bedienleiste,
+     darum hier keiner. */
+  .bro-kopf { padding:18px 0 14px; }
+  .bro-kopf h1 { font-size:1.6rem; text-wrap:balance; }
+  /* Am Telefon zaehlt, dass das Buch gleich dasteht. Der erklaerende
+     Satz und der PDF-Knopf fallen hier weg - beides steht unterhalb des
+     Buches noch einmal (Abschnitt "Was in der Broschuere steht" und in
+     der Bedienleiste). Ab 700 px ist genug Platz, dann kommen sie. */
+  .bro-kopf .bro-kopf-text { display:none; }
+  .bro-kopf .bro-kopf-knopf { display:none; }
+  .bro-kopf h1 { margin-bottom:0; }
+
+  /* ---------- Tablet: zwei Seiten nebeneinander ---------- */
+  @media (min-width: 700px) {
+    .bro-buehne { padding:28px 0 34px; }
+    .bro-buehne .container { padding-left:20px; padding-right:20px; }
+    .bro-leiste { gap:10px; margin-top:24px; }
+    .bro-knopf--schmal span { position:static; width:auto; height:auto; clip:auto; }
+    .bro-hinweis { font-size:.85rem; }
+    .bro-raster { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:14px; }
+    .bro-ebene-kopf { padding:14px 18px; }
+    .bro-ebene-koerper { padding:18px; }
+    .bro-kopf { padding:56px 0 40px; }
+    .bro-kopf h1 { font-size:2.4rem; margin-bottom:16px; }
+    .bro-kopf h1 { margin-bottom:16px; }
+    .bro-kopf .bro-kopf-text { display:block; font-size:1rem; line-height:1.7; }
+    .bro-kopf .bro-kopf-knopf { display:inline-flex; }
+  }
+
+  @media (min-width: 1100px) {
+    .bro-buehne { padding:40px 0 48px; }
+    .bro-kopf { padding:64px 0 44px; }
+  }
+
+  /* Hinweis: "Bewegung reduzieren" wird NICHT hier abgefangen - die
+     Bibliothek animiert mit Javascript, nicht mit CSS-Uebergaengen.
+     Wirksam ist flippingTime/drawShadow in js/broschuere.js
+     (gemessen: 99 ms statt 800 ms). Eine CSS-Regel an dieser Stelle
+     taete nichts und wurde deshalb entfernt. */
+</style>
+
+<main id="main-content" role="main">
+
+  <section class="hero-section bro-kopf" style="background:var(--dark);text-align:center;">
+    <div class="container">
+      <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Zum Durchblättern</p>
+      <h1 style="color:#fff;">Unser Produktkatalog</h1>
+      <p class="bro-kopf-text" style="color:rgba(255,255,255,.78);max-width:660px;margin:0 auto 22px;">Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – auf 36 Seiten mit Aufbau, Maßen und Ausstattung. Blättern Sie hier direkt im Browser oder laden Sie den Katalog als PDF herunter.</p>
+      <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-gold bro-kopf-knopf" download>PDF herunterladen (4,4 MB)</a>
+    </div>
+  </section>
+
+  <section class="bro-buehne" id="broBuehne" aria-label="Katalog durchblättern">
+    <div class="container">
+
+      <div class="bro-rahmen">
+      <div id="broBuch" class="bro-buch">
+{% for i in range(1, 37) %}{% set n = ("0" ~ i) if i < 10 else ("" ~ i) %}        <div class="bro-seite" data-density="{{ "hard" if i == 1 or i == 36 else "soft" }}" data-seite="{{ i }}">
+          <img class="bro-bild" {% if i <= 2 %}src="/assets/broschuere/seite-{{ n }}.webp"{% endif %} data-src="/assets/broschuere/seite-{{ n }}.webp" width="1400" height="1966" alt="Katalog, Seite {{ i }} von 36" />
+        </div>
+{% endfor %}      </div>
+      </div>
+
+      <!-- Ein Hinweis, der zum Geraet passt: "Pfeiltasten" hilft am
+           Telefon niemandem, "wischen" an der Maus auch nicht.
+           (Design fuer den wahrscheinlichen Fall.) -->
+      <p class="bro-hinweis" id="broHinweis"><span class="bro-nur-finger">Wischen oder auf den Seitenrand tippen zum Blättern.</span><span class="bro-nur-maus">An der Seitenecke ziehen oder mit den Pfeiltasten blättern.</span></p>
+
+      <!-- role="group", nicht "toolbar": eine Toolbar verspricht, dass die
+           Pfeiltasten zwischen den Knoepfen springen. Hier blaettern sie
+           das Buch - das ist hier das Nuetzlichere. -->
+      <div class="bro-leiste" role="group" aria-label="Katalog bedienen" id="broLeiste">
+        <button type="button" class="bro-knopf" id="broZurueck">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>Zurück
+        </button>
+        <span class="bro-zaehler" id="broZaehler" aria-live="polite" data-notranslate="1">1 / 36</span>
+        <button type="button" class="bro-knopf" id="broWeiter">
+          Weiter<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button type="button" class="bro-knopf bro-knopf--schmal" id="broZoom" title="Zoom">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg><span>Zoom</span>
+        </button>
+        <button type="button" class="bro-knopf bro-knopf--schmal" id="broVollbild" title="Vollbild">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg><span>Vollbild</span>
+        </button>
+        <button type="button" class="bro-knopf bro-knopf--schmal" id="broUebersicht" title="Seitenübersicht">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Seitenübersicht</span>
+        </button>
+        <div class="bro-mehr">
+          <!-- Kein aria-haspopup: das kuendigt ein role="menu" mit
+               Pfeiltastenbedienung an. Hier sind es normale Knoepfe und
+               Verweise - also das einfache Aufklapp-Muster mit
+               aria-expanded und aria-controls. -->
+          <button type="button" class="bro-knopf bro-knopf--schmal" id="broMehr" title="Teilen und PDF"
+                  aria-label="Mehr: Teilen und PDF"
+                  aria-expanded="false" aria-controls="broMehrMenue">
+            <svg class="bro-punkte" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg><span>Mehr</span>
+          </button>
+          <div class="bro-mehr-menue" id="broMehrMenue" hidden>
+            <button type="button" class="bro-mehr-eintrag" id="broTeilen">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>Diesen Katalog teilen
+            </button>
+            <a href="/assets/broschuere/BV-Broschuere.pdf" class="bro-mehr-eintrag" id="broMenuePdf" download>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF herunterladen
+            </a>
+            <span class="bro-mehr-status" id="broTeilenStatus" role="status" aria-live="polite"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DAS ENDE IST DER WICHTIGSTE AUGENBLICK (Peak-End-Regel):
+           Wer bis zur Rueckseite blaettert, hat Interesse. Bisher
+           passierte dort nichts. Der Block erscheint erst auf der
+           letzten Seite - vorher waere er Beiwerk. -->
+      <div class="bro-ende" id="broEnde" hidden>
+        <p class="bro-ende-frage">Etwas gefunden, das passt?</p>
+        <p class="bro-ende-text">Schreiben Sie uns kurz, was Sie vorhaben – wir melden uns mit einem Vorschlag und einem Festpreis.</p>
+        <div class="bro-ende-knoepfe">
+          <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+          <button type="button" class="bro-knopf" id="broVonVorn">Noch einmal von vorn</button>
+        </div>
+      </div>
+
+      <noscript>
+        <div style="max-width:420px;margin:0 auto;text-align:center;">
+          <a href="/assets/broschuere/BV-Broschuere.pdf">
+            <img src="/assets/broschuere/vorschau/seite-01.webp" width="300" height="421" alt="Titelseite des Produktkatalogs von BV AussenSysteme" style="display:block;width:100%;height:auto;border-radius:6px;background:#fff;" />
+          </a>
+          <p style="color:#fff;margin:16px 0 0;line-height:1.6;">Zum Durchblättern im Browser wird JavaScript benötigt.
+            <a href="/assets/broschuere/BV-Broschuere.pdf" style="color:var(--gold-light);">Katalog als PDF öffnen (36 Seiten, 4,4 MB)</a>.</p>
+        </div>
+      </noscript>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:760px;">
+      <h2>Was im Katalog steht</h2>
+      <p>Der Katalog zeigt unsere Systeme aus Aluminium von der Terrassenüberdachung über Carport und Pergola bis zu Glasschiebewänden, Senkrechtmarkisen und Geländern – mit Aufbau, möglichen Maßen, Dacheindeckungen und Ausstattung. Preise stehen nicht darin: Jede Anlage wird nach Maß gefertigt, deshalb rechnen wir sie für Ihre Situation einzeln.</p>
+      <p>Haben Sie etwas gefunden, das passt? Dann schreiben Sie uns kurz, was Sie vorhaben – wir melden uns mit einem Vorschlag und einem Festpreis.</p>
+      <p style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+        <a href="/assets/broschuere/BV-Broschuere.pdf" class="btn btn-outline" download>Katalog als PDF</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="katalogtext" aria-labelledby="katalogtext-h">
+    <div class="container" style="max-width:820px;">
+      <h2 id="katalogtext-h">Inhalt als Text</h2>
+      <p style="color:var(--muted);">Die Katalogseiten oben sind Bilder. Damit der Inhalt auch vorgelesen, durchsucht und kopiert werden kann, steht er hier Seite für Seite noch einmal als Text.</p>
+{% for s in katalogtext.seiten %}{% if s.absaetze.length %}      <details class="bro-text-seite">
+        <summary><span class="bro-text-nr">Seite {{ s.nr }}</span>{{ s.absaetze[0] }}</summary>
+{% for a in s.absaetze %}        <p>{{ a }}</p>
+{% endfor %}      </details>
+{% endif %}{% endfor %}    </div>
+  </section>
+
+</main>
+
+<div class="bro-ebene" id="broUebersichtEbene" role="dialog" aria-modal="true" aria-labelledby="broUebersichtTitel" hidden>
+  <div class="bro-ebene-kopf">
+    <h2 id="broUebersichtTitel">Seitenübersicht</h2>
+    <button type="button" class="bro-knopf" data-bro-schliessen="broUebersichtEbene">Schließen</button>
+  </div>
+  <div class="bro-ebene-koerper">
+    <div class="bro-raster" id="broRaster"></div>
+  </div>
+</div>
+
+<div class="bro-ebene" id="broZoomEbene" role="dialog" aria-modal="true" aria-labelledby="broZoomTitel" hidden>
+  <div class="bro-ebene-kopf">
+    <h2 id="broZoomTitel">Seite vergrößern</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button type="button" class="bro-knopf" id="broZoomKleiner" aria-label="Kleiner">−</button>
+      <span class="bro-zaehler" id="broZoomStufe" role="status" aria-live="polite" data-notranslate="1">100 %</span>
+      <button type="button" class="bro-knopf" id="broZoomGroesser" aria-label="Größer">+</button>
+      <button type="button" class="bro-knopf" data-bro-schliessen="broZoomEbene">Schließen</button>
+    </div>
+  </div>
+  <div class="bro-ebene-koerper">
+    <div class="bro-zoom-flaeche" id="broZoomFlaeche"></div>
+  </div>
+</div>

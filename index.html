@@ -392,6 +392,11 @@
   <style>
   /* Fallback fonts bis Google Fonts geladen */
   body { font-family: 'Arial', sans-serif; }
+  /* Zugang zum Katalog im Hero - gleiche Form wie Anrufen/WhatsApp,
+     damit die Knopfreihe ruhig bleibt. Steht hier im Kopf und nicht
+     weiter unten im Dokument: sonst erschiene der Knopf kurz unfertig. */
+  .hero-katalog-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+  .hero-katalog-btn svg { width:18px; height:18px; flex-shrink:0; }
 </style>
 <script>
 /* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
@@ -421,7 +426,7 @@
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261104w" />
+  <link rel="stylesheet" href="css/style.css?v=20261106a" />
 </head>
 <body>
 
@@ -447,6 +452,7 @@
     <ul class="nav-links" role="list">
       <li><a href="#leistungen" data-i18n="nav_leistungen">Leistungen</a></li>
       <li><a href="#galerie" data-i18n="nav_galerie">Galerie</a></li>
+      <li><a href="/broschuere.html" data-i18n="nav_broschuere">Katalog</a></li>
       <li><a href="#kontakt" class="nav-konfigurator"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a></li>
       <li><a href="#warum-wir" data-i18n="nav_ueberuns">Über uns</a></li>
       <li><a href="#prozess" data-i18n="nav_ablauf">Ablauf</a></li>
@@ -464,6 +470,7 @@
   <button class="mobile-close" id="mobileClose" aria-label="Menü schließen">✕</button>
   <a href="#leistungen" data-i18n="nav_leistungen">Leistungen</a>
   <a href="#galerie" data-i18n="nav_galerie">Galerie</a>
+  <a href="/broschuere.html">Katalog ansehen</a>
   <a href="#kontakt" style="color:var(--gold);"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.41l1.59 1.59a1 1 0 0 0 1.41 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/></svg>Konfigurator</a>
   <a href="#warum-wir" data-i18n="nav_ueberuns">Über uns</a>
   <a href="#prozess" data-i18n="nav_ablauf">Ablauf</a>
@@ -486,6 +493,12 @@
         <p class="hs-desc">Maßgefertigte Aluminium-Überdachungen vom Fachbetrieb aus Ihrer Region – kostenlos geplant, fachgerecht montiert, mit 10 Jahren Herstellergarantie.</p>
         <div class="hs-slide-btns">
           <a href="#kontakt" class="btn btn-gold">Kostenlos konfigurieren</a>
+          <!-- Zugang zum Katalog gleich im Hero: Wer auf der Seite landet,
+               soll ohne Scrollen hineinblättern können. -->
+          <a href="/broschuere.html" class="btn btn-outline-white hero-katalog-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+            Katalog ansehen
+          </a>
           <div class="hero-contact-row">
             <a href="tel:+4915678696609" class="btn btn-outline-white hero-contact-btn" aria-label="Anrufen: 0156 78696609">
               <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -633,6 +646,37 @@
 
     </div>
 
+  </div>
+</section>
+
+<!-- ===== BROSCHUERE ===== -->
+<style>
+  .bro-band { background:#3a3a3a; }
+  .bro-band .bro-band-inner { display:grid; grid-template-columns:184px 1fr; gap:34px; align-items:center; }
+  .bro-band img { display:block; width:100%; height:auto; border-radius:6px;
+    box-shadow:0 10px 30px rgba(0,0,0,.42); background:#fff; }
+  .bro-band h2 { color:#fff; margin:0 0 10px; }
+  .bro-band p.bro-band-tag { color:var(--gold-light); font-size:.85rem; letter-spacing:.1em;
+    text-transform:uppercase; margin:0 0 10px; }
+  .bro-band p.bro-band-txt { color:rgba(255,255,255,.78); max-width:580px; line-height:1.7; margin:0 0 22px; }
+  /* 699.98, nicht 700: bei genau 700 px galten sonst beide Zweige
+     (die Katalogseite beginnt dort mit min-width:700px). */
+  @media (max-width:699.98px) {
+    .bro-band .bro-band-inner { grid-template-columns:1fr; gap:22px; justify-items:start; }
+    .bro-band img { max-width:160px; }
+  }
+</style>
+<section class="section bro-band" id="broschuere" aria-labelledby="broschuere-h">
+  <div class="container bro-band-inner">
+    <a href="/broschuere.html" tabindex="-1" aria-hidden="true">
+      <img src="/assets/broschuere/vorschau/seite-01.webp" width="300" height="421" loading="lazy" alt="" />
+    </a>
+    <div>
+      <p class="bro-band-tag">Zum Durchblättern</p>
+      <h2 id="broschuere-h">Unser Produktkatalog</h2>
+      <p class="bro-band-txt">36 Seiten Terrassenüberdachungen, Carports, Pergolen, Glasschiebewände und Sonnenschutz aus Aluminium – mit Aufbau, möglichen Maßen und Ausstattung. Direkt im Browser blättern oder als PDF mitnehmen.</p>
+      <a href="/broschuere.html" class="btn btn-gold">Katalog ansehen</a>
+    </div>
   </div>
 </section>
 

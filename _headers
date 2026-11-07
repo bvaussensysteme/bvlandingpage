@@ -14,6 +14,12 @@
 /images/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
+# Broschüre: 36 Seitenbilder, 36 Vorschauen, das PDF und die Blätter-
+# Bibliothek. Gleiche Überlegung wie bei /images/ - wird die Broschüre
+# ausgetauscht, bleiben die Dateinamen gleich, deshalb nur ein Tag.
+/assets/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 # CSS/JS ändern sich häufiger als Bilder und haben keine Cache-Busting-Query-
 # Parameter im HTML -> kürzeres Caching, damit Deploys zeitnah beim Nutzer ankommen
 /css/*

@@ -114,3 +114,6 @@ Pergola & Lamellendach:
 
 # Baugenehmigung-Tool
 /baugenehmigung.html - Kostenloser Online-Check zur Genehmigungspflicht für Terrassenüberdachungen, Carports und Kaltwintergärten in allen 16 deutschen Bundesländern
+
+# Produktbroschüre
+/broschuere.html - Produktbroschüre von BV AussenSysteme zum Durchblättern im Browser (36 Seiten: Terrassenüberdachungen, Carports, Pergolen, Kaltwintergärten, Glasschiebewände, Sonnenschutz, Geländer) und als PDF unter /assets/broschuere/BV-Broschuere.pdf

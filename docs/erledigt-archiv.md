@@ -6,6 +6,51 @@
 
 ---
 
+## 05./06.11.2026 – Bearbeiten-Knöpfe je Bauteil
+
+> Ausgelagert aus `docs/NEXT_TASK.md` am 06.11.2026.
+
+### Bearbeiten-Knöpfe: einer steht, drei fehlen *(05.11.2026)*
+
+Der Betreiber will je Bauteil ein Zahnrad wie beim Keil: „genau so ein button
+auch für rahmenwand bearbeiten, Schiebetür bearbeiten, Plankenwand
+bearbeiten … und Velaris bearbeiten".
+
+| Bauteil | Stand |
+|---|---|
+| Keil | **fertig** (PR #554–#557) |
+| Plankenwand | **fertig** – Höhe in mm je Seite, waagerecht/hochkant |
+| Rahmenwand | **fertig** – Aufteilung je Seite (vorher galt sie für alle Seiten zugleich) |
+| Schiebetür | **fertig** – Maße und Flügelzahl aus dem Modell, Aufteilung dieser Seite, Glas und Schloss (gelten für die ganze Anlage). Die Flügelzahl bleibt nicht wählbar: sie kommt aus der Lieferbreiten-Tabelle |
+| Velaris | **fertig** – Maße aus dem Modell, Lamellen-Oberfläche und die beiden Winkel. Alles gilt für die ganze Anlage, der Dialog sagt das |
+
+**Erledigt am 06.11.2026:** Die Dialog-Hülle heißt jetzt `k3d-bearb-*`, nicht
+mehr `k3d-keil-*`. Nur was wirklich zum Keil gehört, trägt seinen Namen weiter
+(Einzelheiten in `docs/entscheidungen.md`).
+
+
+## 04.11.2026 – Farbtreue, Handybildschirm, fremde Skills
+
+> Ausgelagert aus `docs/NEXT_TASK.md` am 06.11.2026 (Tabelle aus
+> Abschnitt 7 „Letzte Arbeitsschritte"). Das *Warum* steht in
+> `docs/entscheidungen.md`.
+
+| Datum | Was | Stand |
+|---|---|---|
+| 04.11.2026 | **Farben kamen falsch an** – gemessen: gesetzt `#C49A2A` erschien als `#CBBD75`, `#111111` als `#303030`. Zwei fehlende Umrechnungen (Farbraum-Angabe, Tonwertkorrektur), neue Funktion `uiBild()` neben `rgb()`. Damit ist der Dauereinwand „zu blass“ beantwortet. Neue Prüfung `pruefe-farbtreue.mjs` zählt im **fertigen Bild** 1129 Bildpunkte genau auf `#C49A2A` | **PR #542, wartet auf Freigabe** |
+| 04.11.2026 | **Zwei fremde 3D-Skills geprüft und übernommen** (`three-best-practices`, `3d-high-resolution-textures`, beide MIT, nur Text, nichts ausgeführt), elf abgelehnt. Grenzen in je einer `HERKUNFT.md`: wir fahren three.js **r128**, alles zu WebGPU/TSL/`outputColorSpace` gilt hier nicht | **PR #542** |
+| 04.11.2026 | **Marken und Maßschilder neu**: dunkler Grund, goldener Rand, helles Zeichen – statt großer goldener Fläche („sehen wie spielzeuglogos aus“) | live |
+| 04.11.2026 | **Wettbewerbername aus der Dokumentation entfernt** (6 Stellen). VD und seine Produktnamen bleiben, ebenso TIGER Coatings in den zwei Einträgen, die das Nicht-Übernehmen festhalten | live |
+| 04.11.2026 | **Design-Skill `ui-ux-pro-max` im Repository** (MIT), Daueranweisung in `CLAUDE.md`: Prüflisten ja, fremde Paletten nein | live |
+| 04.11.2026 | **Schwebendes der Website im Konfigurator aus** – Barriere-Knopf, Nach-oben-Knopf, Blase und Sticky-Leiste; der Anfrage-Assistent bleibt (den hatte ich erst mit ausgeblendet, die Prüfung hat es gemeldet) | live |
+| 04.11.2026 | **„Alles schob sich ineinander“** – nicht die Lage war falsch, sondern die Zeichenreihenfolge: `z-index: 4` an der Fußzeile, eine Zeile | live |
+| 04.11.2026 | **ⓘ-Knopf statt Grenzen-Zeile**, rechts neben dem `+`; Maß steht nur noch einmal in der Zeile, Einheit direkt hinter der Zahl | live |
+| 04.11.2026 | **Handybildschirm**: Fußzeilenknöpfe von 72 auf 53 px, „Mehr Einstellungen“ mit vollem Rand, Bildkarten 2-spaltig im 4:3, Ansichtsleiste war 699 px breit in einem 390-px-Fenster (fünf Knöpfe unerreichbar), „Angebot anfragen“ am Handy erst am Ende | live |
+| 04.11.2026 | **Bildkarten aus dem eigenen Modell** (14 Miniaturen); sieben Dachbilder waren identisch, weil das Rendern einen Knopf anklickte, den es nicht mehr gab | live |
+| 04.11.2026 | **Konfigurator nach fremdem Vorbild, eigene Ausführung**: Reiter mit eigenen Zeichen und Haken für Erledigtes, feste Fußzeile mit Zielangabe auf beiden Knöpfen, Anfrage-Weg in jedem Schritt, „Mittelpfosten (empfohlen)" gegen „Statikträger" statt eines Hakens. Analyse in `docs/konfigurator-bedienung.md` | neu |
+
+---
+
 ## 31.10./01.11.2026 – Anklickbare Felder am Modell und Zuordnung je Feld
 
 > Ausgelagert aus `docs/NEXT_TASK.md` am 01.11.2026. Das *Warum* steht in

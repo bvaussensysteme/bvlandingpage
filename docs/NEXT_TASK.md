@@ -1,8 +1,8 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach: `CLAUDE.md` und `PROJEKTSTAND.md`.
-> Stand: **04.11.2026 (abends)** · zuletzt bearbeitet: Farbtreue im
-> Konfigurator, Besucherzählung, Werkzeugseiten, Anfrage-Assistent
+> Stand: **06.11.2026 (abends)** · zuletzt bearbeitet: Broschürenseite
+> `/broschuere.html`, Höhenbezug und Fassadennotiz in beiden Konfiguratoren
 >
 > **Erster Schritt in der neuen Sitzung:** Branch auf den aktuellen Stand setzen
 > (`git fetch origin main && git checkout -B claude/bv-aussensysteme-setup-bq7ew4 origin/main`),
@@ -43,7 +43,17 @@
    Reichweitenmessung"). Seit dem 04.11. speichert die Messung ein
    Tageskennzeichen; der Text ist im selben Zug umgeschrieben. Einzelheiten
    und der Weg zurück: Abschnitt „Besucherzahlen" weiter unten.
-7. **Google-Unternehmensprofil.** Der mit Abstand stärkste Hebel für
+7. **Sprachumschalter: Entscheidung offen (06.11.2026).** Beim Bauen der
+   Broschürenseite kam heraus, dass die Übersetzung DE/EN/RU **auf keiner
+   Seite eingebunden** war und `js/i18n.js` zudem einen Syntaxfehler hatte
+   (ein unmaskiertes Hochkomma in Zeile 210, seit Langem). Der Fehler ist
+   behoben, die Broschürenseite lädt die Datei und ihre Texte stehen als
+   DE/EN/RU darin. Einen **Sprachumschalter** hat aber keine Seite, also
+   greift die Übersetzung nur, wenn `localStorage.bv_lang` gesetzt ist.
+   Ob der Umschalter zurück auf alle Seiten soll, entscheidet der
+   Betreiber — Hintergrund in `docs/entscheidungen.md`, 06.11.2026.
+   **Nicht ungefragt nachholen.**
+8. **Google-Unternehmensprofil.** Der mit Abstand stärkste Hebel für
    Sichtbarkeit, und nichts davon lässt sich hier erledigen. In den eigenen
    Zahlen kommen Google und Bing zusammen auf einen kleinen Teil der Aufrufe.
 
@@ -51,6 +61,27 @@ Sonst ist nichts halbfertig: Alles ist gemergt, veröffentlicht und am
 Livesystem nachgeprüft (Konfigurator `v=20261104v`, Assistent
 `v=20261104b`). Der öffentliche Konfigurator ist **gesperrt**, gearbeitet
 wird in der **Werkstatt** — beides weiter unten.
+
+### Broschüre `/broschuere.html` *(fertig, veröffentlicht am 06.11.2026)*
+
+36 Seiten aus `assets/broschuere/BV-Broschuere.pdf` als WebP, Blättern mit
+`page-flip` (MIT) **lokal** unter `/assets/js/`. Was zu wissen ist:
+
+- **Neue Broschüre?** PDF nach `assets/broschuere/BV-Broschuere.pdf` legen
+  und die Bilder neu erzeugen (170 dpi → 1400 px, Qualität 82; die
+  Vorschauen mit 300 px). Danach **beide** Prüfskripte laufen lassen —
+  `scripts/pruefe-broschuere-bilder.sh` vergleicht jedes Bild mit seiner
+  PDF-Seite und fängt eine verrutschte Reihenfolge, die der Browsertest
+  nicht sehen kann. Ändert sich die Seitenzahl, muss `ANZAHL` in
+  `js/broschuere.js` und in beiden Prüfskripten mitgehen, ebenso die
+  Zahl „36" in den Seitentexten und in `js/i18n.js`.
+- **Preise:** `pruefe-keine-preise.sh` liest kein PDF. Bei einer neuen
+  Broschüre selbst nachsehen (`pdftotext … | grep -iE '€|EUR|Preis'`) —
+  am 06.11.2026 war nichts drin.
+- **Größenangabe „4,4 MB"** steht als Text in `src/broschuere.njk` und in
+  `js/i18n.js` — bei einem neuen PDF mitändern.
+- Begründungen (kein CDN, Nachladen von Hand, Zoom als eigene Ebene):
+  `docs/entscheidungen.md`, 06.11.2026.
 
 ### Konfigurator-Produkte *(fertig bis auf Zubehör)*
 
@@ -147,24 +178,6 @@ es keine Grenze — die Pfosten hinten werden entsprechend lang. Gibt es eine
 maximale Pfostenlänge oder Höhe hinten im System? Solange das niemand
 beziffert hat, wird **nicht** gekappt; eine erfundene Grenze wäre schlimmer
 als keine.
-
-### Bearbeiten-Knöpfe: einer steht, drei fehlen *(05.11.2026)*
-
-Der Betreiber will je Bauteil ein Zahnrad wie beim Keil: „genau so ein button
-auch für rahmenwand bearbeiten, Schiebetür bearbeiten, Plankenwand
-bearbeiten … und Velaris bearbeiten".
-
-| Bauteil | Stand |
-|---|---|
-| Keil | **fertig** (PR #554–#557) |
-| Plankenwand | **fertig** – Höhe in mm je Seite, waagerecht/hochkant |
-| Rahmenwand | **fertig** – Aufteilung je Seite (vorher galt sie für alle Seiten zugleich) |
-| Schiebetür | **fertig** – Maße und Flügelzahl aus dem Modell, Aufteilung dieser Seite, Glas und Schloss (gelten für die ganze Anlage). Die Flügelzahl bleibt nicht wählbar: sie kommt aus der Lieferbreiten-Tabelle |
-| Velaris | **fertig** – Maße aus dem Modell, Lamellen-Oberfläche und die beiden Winkel. Alles gilt für die ganze Anlage, der Dialog sagt das |
-
-**Erledigt am 06.11.2026:** Die Dialog-Hülle heißt jetzt `k3d-bearb-*`, nicht
-mehr `k3d-keil-*`. Nur was wirklich zum Keil gehört, trägt seinen Namen weiter
-(Einzelheiten in `docs/entscheidungen.md`).
 
 ### Balkon: drei Bilder liegen beim Betreiber *(05.11.2026)*
 
@@ -361,6 +374,13 @@ E-Mails an `info@bv-aussensysteme.de` verschickt. Intern sollte er raus oder
 stillgelegt werden; das ist bewusst nicht vorweggenommen (siehe Abschnitt 6
 des Export-Dokuments).
 
+## 2c. Design-Skills
+
+13 Skills unter `.claude/skills/`, jeder mit `HERKUNFT.md` und Lizenz.
+Welcher wofür, was bewusst **nicht** eingebaut wurde und warum:
+**`docs/design-skills.md`**. Kein fremdes Installationsskript wurde
+ausgeführt.
+
 ## 3. Prüfskripte
 
 **Die vollständige Liste mit Zweck, Prüfungszahl und Gegenprobe steht in
@@ -415,14 +435,10 @@ Nur die letzten Tage. Älteres vollständig und mit Begründung in
 
 | Datum | Was | Stand |
 |---|---|---|
-| 04.11.2026 | **Farben kamen falsch an** – gemessen: gesetzt `#C49A2A` erschien als `#CBBD75`, `#111111` als `#303030`. Zwei fehlende Umrechnungen (Farbraum-Angabe, Tonwertkorrektur), neue Funktion `uiBild()` neben `rgb()`. Damit ist der Dauereinwand „zu blass“ beantwortet. Neue Prüfung `pruefe-farbtreue.mjs` zählt im **fertigen Bild** 1129 Bildpunkte genau auf `#C49A2A` | **PR #542, wartet auf Freigabe** |
-| 04.11.2026 | **Zwei fremde 3D-Skills geprüft und übernommen** (`three-best-practices`, `3d-high-resolution-textures`, beide MIT, nur Text, nichts ausgeführt), elf abgelehnt. Grenzen in je einer `HERKUNFT.md`: wir fahren three.js **r128**, alles zu WebGPU/TSL/`outputColorSpace` gilt hier nicht | **PR #542** |
-| 04.11.2026 | **Marken und Maßschilder neu**: dunkler Grund, goldener Rand, helles Zeichen – statt großer goldener Fläche („sehen wie spielzeuglogos aus“) | live |
-| 04.11.2026 | **Wettbewerbername aus der Dokumentation entfernt** (6 Stellen). VD und seine Produktnamen bleiben, ebenso TIGER Coatings in den zwei Einträgen, die das Nicht-Übernehmen festhalten | live |
-| 04.11.2026 | **Design-Skill `ui-ux-pro-max` im Repository** (MIT), Daueranweisung in `CLAUDE.md`: Prüflisten ja, fremde Paletten nein | live |
-| 04.11.2026 | **Schwebendes der Website im Konfigurator aus** – Barriere-Knopf, Nach-oben-Knopf, Blase und Sticky-Leiste; der Anfrage-Assistent bleibt (den hatte ich erst mit ausgeblendet, die Prüfung hat es gemeldet) | live |
-| 04.11.2026 | **„Alles schob sich ineinander“** – nicht die Lage war falsch, sondern die Zeichenreihenfolge: `z-index: 4` an der Fußzeile, eine Zeile | live |
-| 04.11.2026 | **ⓘ-Knopf statt Grenzen-Zeile**, rechts neben dem `+`; Maß steht nur noch einmal in der Zeile, Einheit direkt hinter der Zahl | live |
-| 04.11.2026 | **Handybildschirm**: Fußzeilenknöpfe von 72 auf 53 px, „Mehr Einstellungen“ mit vollem Rand, Bildkarten 2-spaltig im 4:3, Ansichtsleiste war 699 px breit in einem 390-px-Fenster (fünf Knöpfe unerreichbar), „Angebot anfragen“ am Handy erst am Ende | live |
-| 04.11.2026 | **Bildkarten aus dem eigenen Modell** (14 Miniaturen); sieben Dachbilder waren identisch, weil das Rendern einen Knopf anklickte, den es nicht mehr gab | live |
-| 04.11.2026 | **Konfigurator nach fremdem Vorbild, eigene Ausführung**: Reiter mit eigenen Zeichen und Haken für Erledigtes, feste Fußzeile mit Zielangabe auf beiden Knöpfen, Anfrage-Weg in jedem Schritt, „Mittelpfosten (empfohlen)" gegen „Statikträger" statt eines Hakens. Analyse in `docs/konfigurator-bedienung.md` | neu |
+| 06.11.2026 | **Broschüre `/broschuere.html`** – 36 PDF-Seiten als WebP, Blättern mit `page-flip` (MIT) **lokal**, echte Blätter-Animation, **Handy zuerst gebaut**, Wischgeste, Bedienleiste, Seitenübersicht, Zoom, Vollbild, Nachladen von Hand, Weg ohne JavaScript. Dabei gefunden: `js/i18n.js` war seit Langem ein Syntaxfehler und die Übersetzung auf **keiner** Seite eingebunden | live |
+| 06.11.2026 | **Höhenbezug als Pflichtangabe** (Unterkante / Oberkante / Sonstiges mit freiem Text) und **Fassadennotiz** – in beiden Konfiguratoren, auf der Website direkt unter dem Höhenfeld | live |
+| 06.11.2026 | **Dialog-Hülle heißt `k3d-bearb-*`**, nicht mehr `k3d-keil-*` (181 Stellen) | live |
+| 05./06.11.2026 | **Vier Bearbeiten-Knöpfe** (Plankenwand, Rahmenwand, Schiebetür, Velaris) neben dem Keil; Plankenwand auch hochkant | live |
+| 05.11.2026 | **Keil**: Rahmen und Glas gingen auseinander, die Glasschiebewand darunter wurde auf 786 mm gekappt – Ursache war ein zweimal vergebener Name (`KEIL_MIN_VORNE` in cm **und** mm im selben Gültigkeitsbereich) | live |
+
+Älteres (04.11.2026 und davor) in `docs/erledigt-archiv.md`.

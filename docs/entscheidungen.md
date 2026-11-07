@@ -14065,3 +14065,249 @@ stehen (`pruefe-assistent.mjs`, `pruefe-ral-assistent.mjs`). Sie lassen die
 Höhe jetzt leer – ohne Höhe entfällt die Frage, und um sie geht es dort nicht.
 Das ist kein Schönheitsfehler, sondern der Normalfall: Eine neue Pflicht im
 Formular trifft jeden, der das Formular durchläuft.
+
+## Broschüre zum Durchblättern (/broschuere.html)
+
+*Angelegt am 06.11.2026.*
+
+**Anlass.** Ansage des Betreibers: eine Seite, auf der die 36-seitige
+Produktbroschüre im Browser geblättert werden kann, mit der Bibliothek
+StPageFlip (npm-Paket `page-flip`, MIT), **nicht über ein CDN**, sondern
+lokal unter `/assets/js/`.
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | Die Bibliothek liegt als Datei im Repository (`assets/js/page-flip.browser.js`, 44 kB, dazu `page-flip.css` und `page-flip.LICENSE.txt`) | Ein CDN-Verweis schickt bei jedem Aufruf die IP des Besuchers an einen Dritten – das wäre eine Einwilligung nötig, die niemand gibt, nur um eine Broschüre zu blättern. Im Bundle steht keine einzige externe Adresse (nachgezählt: 0 Treffer auf `http`), eine Prüfung schreibt jede Netzanfrage mit und verlangt, dass keine an einen fremden Host geht | Vorgabe des Betreibers |
+| 06.11.2026 | **36 Bilder statt PDF im Browser.** Jede Seite als WebP, 1400 px breit, Qualität 82 (zusammen 3,9 MB), dazu 36 Vorschaubilder mit 300 px (0,6 MB) | Ein PDF-Betrachter im Browser bräuchte eine zweite, große Bibliothek und blättert nicht. Die Bilder sind klein genug, dass die Seite sofort anfängt | – |
+| 06.11.2026 | **Nachladen von Hand, nicht `loading="lazy"`** | Die noch nicht aufgeschlagenen Seiten stehen auf `display:none`. Darin lädt der Browser ein `loading="lazy"`-Bild **nicht** – beim Umblättern stünde für einen Moment eine weiße Seite. Darum stehen die Adressen in `data-src`, und `umfeldLaden()` holt immer die Seite und ihr Umfeld (−2 bis +3). Beim Start sind nur zwei Bilder gesetzt, gemessen 4 von 36 nach dem Aufschlagen | – |
+| 06.11.2026 | **Zoom als eigene Ebene, kein `transform: scale` auf dem Buch** | Eine Skalierung verschiebt die Zeigerkoordinaten; das Ziehen an der Seitenecke trifft danach daneben. Die Zoom-Ebene zeigt dieselben Bilder in voller Auflösung und scrollt – dafür brauchen die Bilder `flex-shrink: 0`, sonst schrumpfen sie auf die Fensterbreite zurück und der Zoom tut sichtbar nichts (erst gemessen: 1140 → 1244 px statt 1140 → 1520) | eigene Messung in der Prüfung |
+| 06.11.2026 | **Der Vollbild-Knopf verschwindet, wenn der Browser kein Element-Vollbild kann** (iOS Safari) | Besser kein Knopf als einer, der nichts tut | – |
+| 06.11.2026 | **Im Vollbild wandern Übersicht und Zoom in das Vollbild-Element** und danach zurück | Der Browser zeigt im Vollbild nur den Teilbaum des Vollbild-Elements. Die Ebenen hängen am Ende des Dokuments – dort wären sie unsichtbar gewesen, der Knopf hätte scheinbar nichts getan. Nachgemessen: Ebene liegt im Vollbild-Element, ist sichtbar, und nach dem Schließen wieder am `body` | eigene Durchsicht, nicht gemeldet |
+| 06.11.2026 | Ohne JavaScript zeigt die Seite die **Titelseite als Bild mit Verweis auf das PDF** | Der Weg zur Broschüre darf nicht an einer Bibliothek hängen. Lädt die Bibliothek nicht (blockiert, Datei fehlt), schaltet das Skript zusätzlich auf eine einfache Liste aller 36 Seiten um | – |
+| 06.11.2026 | Im **Navigationsbalken** steht „Broschüre", im Handy-Menü und auf der Startseite „Broschüre ansehen" | Gewünscht war „Broschüre ansehen". Im Balken stehen ab 960 px sechs Einträge neben dem Logo; der lange Text hätte dort umgebrochen. Das ist die einzige Abweichung von der Vorgabe und sie ist bewusst | eigene Abwägung, dem Betreiber gemeldet |
+| 06.11.2026 | Die **Seitenzahl zeigt eine Spanne**, wenn zwei Seiten offen liegen („2–3 / 36"), und eine einzelne Zahl bei einer Seite („3 / 36") | Gewünscht war „3 / 36". Bei aufgeschlagenem Buch sind aber zwei Seiten zu sehen; eine einzelne Zahl wäre dann die halbe Wahrheit | eigene Abwägung |
+
+**Vor dem Veröffentlichen nachgesehen: keine Preise in der Broschüre.** `pruefe-keine-preise.sh` liest HTML, nicht PDF und nicht Bilder – ein PDF mit Preisen wäre also durchgerutscht und hätte die Grundregel „Keine Preise auf der Website" gebrochen, ohne dass eine Prüfung anschlägt. Der Text des PDF wurde dafür ausgelesen (`pdftotext`): Treffer sind „gegen Aufpreis" (ohne Betrag), „kostenlose Beratung" und „ab 100 cm" – kein Geldbetrag, kein Eurozeichen. **Bei einer neuen Broschüre erneut nachsehen.**
+
+**Gemessen am 06.11.2026** (örtlicher Server, Chromium): DOMContentLoaded 186 ms, `load` 261 ms, erstes Bild 252 ms, Buch sichtbar 307 ms, 27 Anfragen, 1054 kB. Davon rund 500 kB die vier Seitenbilder, die zum Start geladen werden (Seite 1 bis 4 – das Umfeld der aufgeschlagenen Seite). Am Handy dieselben Zahlen, eher schneller. Wollte man weniger Anfangslast, müsste man das Umfeld verkleinern; dann steht beim ersten Umblättern kurz eine weiße Seite. So herum ist es entschieden.
+
+### Was dabei gefunden wurde: `js/i18n.js` war seit Langem kaputt
+
+`js/i18n.js` enthielt in Zeile 210 ein unmaskiertes Hochkomma
+(`Das war's` innerhalb eines mit `'` begrenzten Textes). Die Datei war
+damit **kein ausführbares JavaScript** – `node --check` bricht ab, ein
+Browser hätte sie mit einem Syntaxfehler verworfen. Aufgefallen ist das
+erst, als die Broschürenseite die Datei als erste Seite überhaupt
+einbindet.
+
+**Nebenbefund dazu:** Die Übersetzung DE/EN/RU war bis dahin **auf keiner
+Seite eingebunden** – `js/i18n.js` stand nur in `_template.html`, und
+einen Sprachumschalter (`#langDropdown`) hat keine Seite. Die
+`data-i18n`-Attribute in `index.html` sind Reste. Geändert wurde nur das
+Nötige: das Hochkomma ist jetzt ein typografisches (`Das war’s`), die
+Broschürenseite lädt die Datei, und ihre Texte stehen als DE/EN/RU im
+Feld `T`. **Ohne Umschalter greift die Übersetzung nur, wenn
+`localStorage.bv_lang` schon auf `en` oder `ru` steht.** Ob der
+Umschalter auf allen Seiten wieder sichtbar werden soll, ist eine
+Entscheidung des Betreibers und wurde nicht ungefragt getroffen.
+
+### Nebenbefund 06.11.2026: ein Kommentar im Kommentar, sichtbar auf 35 Seiten
+
+Beim Sperren des öffentlichen Konfigurators (31.10.2026) wurde der
+Navigationseintrag auskommentiert – und dabei ein Kommentar **in** einen
+anderen gesetzt. HTML kennt keine geschachtelten Kommentare: Der erste
+Abschluss beendet den ganzen Kommentar. Übrig blieb ein Reststück, das
+als **Text im Navigationsbalken** stand, direkt neben „Galerie" – auf
+allen 35 Seiten, die aus `src/_includes/layout.njk` gebaut werden, und in
+`_template.html`.
+
+Aufgefallen ist es erst auf dem Bildschirmfoto der neuen Broschürenseite,
+weil es bei dieser Schriftgröße wie ein Pfeil aussieht. Repariert als
+**ein** Kommentar (die Sperre selbst bleibt unverändert, der Konfigurator
+ist weiter nicht verlinkt). Neue Prüfung `scripts/pruefe-kommentare.py`
+hält das offen.
+
+**Lehre:** Ein Fehler, der wie Gestaltung aussieht, wird nicht gemeldet.
+Darum sucht die Prüfung nicht das Aussehen, sondern die Struktur.
+
+### 06.11.2026 (später am Abend): „wie ein echter Katalog", Handy zuerst
+
+Ansage des Betreibers: „es soll sich wie ein echter katalog blättern
+lassen, mobile first, pc und tablet 2nd – also natürlich auch animation
+wie seiten umblättern".
+
+Die Blätter-Animation lief bereits (die Bibliothek kann nichts anderes);
+was fehlte, war der **Zuschnitt fürs Telefon**. Gemessen am 390 × 844-Bild
+stand das Buch erst bei 341 px, weil der Kopfbereich 264 px hoch war.
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | **Die Gestaltung ist von unten gebaut**: die Grundregeln gelten fürs Telefon, erst `@media (min-width: 700px)` und `1100px` bauen Tablet und Schreibtisch darauf auf | „mobile first, pc und tablet 2nd" | Ansage des Betreibers |
+| 06.11.2026 | **Die Breite des Buches steht auf einem eigenen Rahmen** (`.bro-rahmen`), nicht auf dem Buch | Die Bibliothek setzt dem Buch selbst einen **Inline-Stil** `max-width: 2 × maxWidth` (1400 px). Inline schlägt jede Regel aus dem Stilblatt – gemessen: die eigene Rechnung kam gar nicht an, das Buch war am Schreibtisch 1060 px breit statt 948 | eigene Messung |
+| 06.11.2026 | **Die Höhe wird über die Breite gesteuert** (`max-width: min(100%, (100svh − 190px) / 1,4142)`) | Die Bibliothek rechnet die Höhe aus der Breite (sie setzt dafür selbst eine Innenpolsterung in Prozent). Über `height` ist nichts zu erreichen | – |
+| 06.11.2026 | Am Telefon **kein erklärender Satz und kein PDF-Knopf im Kopfbereich** | Beides steht unterhalb des Buches noch einmal (Bedienleiste, Abschnitt „Was in der Broschüre steht"). Damit beginnt das Buch bei 169 px statt 341 px und ist auf einem 390 × 844-Bildschirm **vollständig zu sehen, ohne zu scrollen** | eigene Messung |
+| 06.11.2026 | Der Hinweis zum Blättern steht **vor** der Bedienleiste | Am Telefon bleibt so das Wichtigste – wie geblättert wird – im sichtbaren Bereich; die Bedienleiste ist eine Scrollbewegung entfernt | – |
+| 06.11.2026 | `minWidth` der Bibliothek von 240 auf **330** | Sie schaltet auf eine Seite um, sobald weniger als 2 × `minWidth` Platz ist. 330 legt diesen Punkt auf dieselbe Breite, an der auch das Aussehen umschaltet (700 px) – sonst stünden dazwischen zwei winzige Seiten nebeneinander | – |
+| 06.11.2026 | Papier-Anmutung: `maxShadowOpacity` 0,5 → **0,8**, Blätterdauer 700 → **800 ms**, Schatten unter dem Buch, Tippen auf die linke/rechte Hälfte blättert, `swipeDistance` 20 → **15** | „wie ein echter Katalog". Bei `prefers-reduced-motion` bleibt es bei 1 ms und ohne Schatten | Ansage des Betreibers |
+| 06.11.2026 | **Die Wischgeste ist jetzt eine eigene Prüfung** | Am Telefon ist Wischen der Hauptweg, nicht der Knopf. Eine Prüfung, die nur Knöpfe klickt, würde nicht merken, wenn das Wischen ausfällt | – |
+
+**Gemessen nach dem Umbau** (Breite × Höhe des Buches, Oberkante):
+Telefon 390 × 844 → 366 × 518 px, Oberkante 169 (ganz sichtbar);
+Tablet 820 × 1180 → 780 × 552 px, Bedienleiste bei 1153 (alles sichtbar);
+Schreibtisch 1280 × 900 → 948 × 670 px. Kein waagerechtes Scrollen auf
+keiner Größe.
+
+### 06.11.2026: PDF und Teilen hinter drei Punkten
+
+Ansage des Betreibers (mit Bildschirmfoto der Bedienleiste): „mach den
+pdf runterladen button weg und einen genauso viereckigen button wie die
+anderen daneben mit drei punkten wenn man das antippt erst dort steht
+dann pdf teilen".
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | Der breite goldene **PDF-Knopf fällt aus der Bedienleiste**; an seine Stelle tritt ein quadratischer Knopf mit drei Punkten, der ein kleines Menü mit **PDF herunterladen** und **Teilen** öffnet | Der goldene Balken war doppelt so breit wie die drei Zeichenknöpfe daneben und riss die Leiste auseinander. Im Kopfbereich (ab 700 px) und im Abschnitt darunter steht der PDF-Knopf weiterhin | Ansage des Betreibers |
+| 06.11.2026 | **Geteilt wird die Seite, nicht die PDF-Datei** | Wer den Link bekommt, soll blättern können – und findet das PDF dort auch. Ein geteilter Dateilink führt in einen PDF-Betrachter und von dort nirgendwohin | eigene Abwägung |
+| 06.11.2026 | Ohne Teilen-Dialog des Geräts (die meisten Schreibtisch-Browser kennen `navigator.share` nicht) wandert die Adresse in die **Zwischenablage**, und das Menü sagt „Link kopiert" | Ein Knopf, der auf dem Schreibtisch nichts tut, ist schlimmer als keiner. Ersatzweg über ein verstecktes Feld, falls auch die Zwischenablage nicht freigegeben ist | – |
+| 06.11.2026 | `:hover` der Knöpfe steht jetzt in `@media (hover: hover)`; das offene Menü zeigt der Knopf über `aria-expanded="true"` | Am Telefon bleibt ein `:hover` nach dem Antippen hängen – der Knopf sähe dauerhaft ausgewählt aus, obwohl nichts offen ist. Gesehen auf dem eigenen Bildschirmfoto | eigene Durchsicht |
+
+**Zwei neue Prüfungen** (jetzt 27): Das Menü ist zuerst zu, nach dem
+Antippen stehen PDF **und** Teilen darin; und `navigator.share` wird im
+Testbrowser eingesetzt, um mitzuschreiben, **welche Adresse** Teilen
+weitergeben hätte – die der Seite, nicht die der Datei.
+
+### 06.11.2026: „diesen Katalog teilen" und der Zugang ganz oben
+
+Ansage des Betreibers: „bzw. nicht pdf runterladen oder pdf teilen
+sondern diesen katalog teilen also wer den geteilten linkt klickt
+landet im katalog" und „platziere den zugangsbutton zum Katalog weit
+oben in der seite, das wenn man auf der seite landet direkt drauf kann.
+mach es professionell".
+
+| Datum | Entscheidung | Begründung | Anlass |
+|---|---|---|---|
+| 06.11.2026 | Der Eintrag im Menü heißt **„Diesen Katalog teilen"** und steht an erster Stelle; geteilt wird die Adresse der Seite | Wer den Link antippt, landet im Katalog und kann blättern. Ein geteilter PDF-Link führt in einen Betrachter und von dort nirgendwohin | Ansage des Betreibers |
+| 06.11.2026 | **„PDF herunterladen" bleibt im Menü** als zweiter Eintrag | Am Telefon ist das der einzige Weg zur Datei – im Kopfbereich steht der PDF-Knopf erst ab 700 px. Entfernen wäre ein Verlust, den niemand verlangt hat; er ist aber mit einem Wort rückgängig zu machen | eigene Abwägung, dem Betreiber gemeldet |
+| 06.11.2026 | **Zugang zum Katalog im Hero der Startseite**: zweiter Knopf neben „Kostenlos konfigurieren", als heller Umriss mit Buch-Zeichen | „weit oben … direkt drauf". Gemessen: der Knopf steht am Handy (390 × 844) bei 578 px, auf einem kleinen Gerät (360 × 640) bei 493 px, am Schreibtisch bei 668 px – überall **ohne Scrollen** erreichbar und 57 px hoch | Ansage des Betreibers |
+| 06.11.2026 | Die **Einstiegspunkte heißen jetzt einheitlich „Katalog"**: Navigation, Handy-Menü, Hero-Knopf, Abschnitt auf der Startseite, Teilen-Eintrag; ebenso die Überschrift der Seite (`Unser Produktkatalog`) und der Seitentitel | „mach es professionell" – zwei Wörter für dieselbe Sache nebeneinander ist das Gegenteil davon. In der Fließtext-Beschreibung steht weiter „Broschüre", weil dort die **Datei** gemeint ist (PDF, 36 Seiten). Adresse bleibt `/broschuere.html` – eine Umbenennung würde Verweise und den Suchmaschinen-Eintrag brechen | eigene Abwägung |
+| 06.11.2026 | Der Stil des Hero-Knopfes steht im **Kopf** von `index.html`, nicht im Stilblock weiter unten | Sonst erschiene der Knopf für den Bruchteil einer Sekunde unfertig, bis der Block gelesen ist | – |
+
+**Neue Prüfung (jetzt 28):** „Der Katalog steht am Handy ohne Scrollen
+bereit" – gemessen wird nicht, ob *irgendwo* ein Verweis liegt, sondern
+ob er beim Aufschlagen der Startseite im sichtbaren Bereich steht und
+mindestens 44 px hoch ist.
+
+### 06.11.2026: Design-Durchsicht der Katalogseite
+
+Ansage des Betreibers: „lass die letztens installierten ui uix skills
+die seite prüfen, mit design agenten und probleme und falsches design
+ausbessern/verbessern".
+
+Vorgehen: ein Design-Agent hat Quelltext und Designsystem gelesen (er
+hatte keine Kommandozeile, konnte also nichts im Browser messen),
+parallel dazu eine eigene **Messung im Browser** – Kontrastwerte aus den
+tatsächlich gerenderten Farben, Antippflächen, Fokusreihenfolge,
+Überschriftenfolge, waagerechtes Scrollen. **Jede Behauptung des
+Agenten wurde nachgemessen, bevor etwas geändert wurde.** Zwei seiner
+Hochstufungen bestätigten sich, eine Rechnung von ihm war daneben.
+
+#### Der schwerste Fund: der Zoom hat nie vergrößert
+
+`src/css/style.css` setzt global `* { max-width: 100% }` und
+`img { max-width: 100% }`. Damit konnte das Zoom-Bild **nie breiter
+werden als sein Kasten**. Gemessen am Handy: 150 % und 200 % ergaben
+beide 362 px – die Stufen taten sichtbar nichts. Am Schreibtisch fiel
+es nicht auf, weil 150 % dort noch unter die Fensterbreite passte; die
+alte Prüfung verglich nur „vorher kleiner als nachher" und blieb
+deshalb grün. `flex-shrink: 0` allein (eingebaut am selben Tag) half
+nicht, die Deckelung kommt von `max-width`.
+
+Jetzt: `.bro-zoom-flaeche img { max-width: none }`, Stufen
+`[1, 1.5, 2.5, 4]` mit 100 % = Bildschirmbreite, gedeckelt auf 2800 px
+(die Dateien sind 1400 px breit, darüber wird es nur weich).
+`justify-content: safe center` – reines `center` schiebt zu breiten
+Inhalt nach **beiden** Seiten hinaus, und der linke Überstand lässt
+sich nicht erscrollen. Die Prüfung verlangt jetzt beides: Das Bild muss
+**breiter als sein Kasten** werden können, und der linke Rand muss nach
+`scrollLeft = 0` erreichbar sein.
+
+#### Der zweite Fund: das Buch stand über seinem Rahmen
+
+Im Querformat am Handy (844 × 390) war der Rahmen 226 px breit, das
+Buch aber 330 px – es stand links und rechts über. Ursache: Die
+Breite kam aus einer **Medienabfrage** (700 px), die Umschaltung auf
+eine Seite trifft die Bibliothek aber bei einer anderen Zahl
+(`2 × minWidth`), und unter `minWidth` macht sie das Buch trotzdem
+nicht kleiner.
+
+Jetzt rechnet **eine** Funktion beides: `rahmenBreite()` in
+`js/broschuere.js`. Grundlage ist der Platz im Container (nicht die
+Breite des Rahmens selbst – sonst beeinflusst das Ergebnis seine eigene
+Eingabe), Untergrenze ist `MIN_SEITE` bzw. das Doppelte bei zwei
+Seiten. Gemessen nach dem Umbau: Buch 600 px in Rahmen 600 px, kein
+waagerechtes Scrollen.
+
+#### Weitere Befunde, alle gemessen
+
+| Datum | Entscheidung | Begründung |
+|---|---|---|
+| 06.11.2026 | `.btn-outline` nutzt `--gold-text` statt `--gold-dark` | Gemessen 4,34:1 auf Weiß – unter 4,5:1 (WCAG AA). `--gold-text` ist laut Kommentar an der Variablen genau dafür da. Gilt site-weit, Cache-Buster auf `v=20261106a` |
+| 06.11.2026 | Fokus bleibt in der offenen Ebene (Tab im Kreis), Hintergrund scrollt nicht mit, Klick daneben schließt | Gemessen: Mit offener Zoom-Ebene lag der Fokus nach fünf Mal Tab auf den Fußzeilen-Knöpfen **dahinter** – unsichtbar. `aria-modal="true"` verspricht etwas anderes |
+| 06.11.2026 | Nach Escape liegt der Fokus wieder auf den drei Punkten | Gemessen: er fiel auf `body`, das Tabben begann wieder von vorn |
+| 06.11.2026 | Die schwebenden Knöpfe der Website verschwinden, solange eine Ebene offen ist (`body.bro-ebene-offen`) | Sie haben `z-index` bis 2147483647 – dagegen hilft kein eigener Wert. Auf dem Bildschirmfoto lagen sie mitten auf der vergrößerten Seite. Gleiche Lösung wie beim Konfigurator (`body.bv-konfig-open`). Das **Einwilligungsbanner bleibt** oben – es muss bedienbar sein |
+| 06.11.2026 | Pfeiltasten ruhen, solange das Menü offen ist | Sonst blättert das Buch hinter dem offenen Menü |
+| 06.11.2026 | `role="group"` statt `role="toolbar"`, kein `aria-haspopup` | Eine Toolbar verspricht Pfeiltasten zum Springen zwischen Knöpfen; hier blättern sie das Buch. `aria-haspopup` kündigt ein `role="menu"` mit Pfeiltastenbedienung an – die Einträge sind aber normale Knöpfe und Verweise |
+| 06.11.2026 | Ein abgeschalteter Knopf gibt den Fokus an den Gegenknopf weiter | Wer mit der Tastatur auf der letzten Seite ankommt, verlor ihn sonst an `body` |
+| 06.11.2026 | Die Seitenübersicht markiert die aktuelle Seite (`aria-current`, goldener Rand) und scrollt dorthin | 36 gleich große Kacheln ohne Markierung sind eine Suchaufgabe |
+| 06.11.2026 | `:active`-Zustand für alle Knöpfe | `:hover` gilt nur mit Zeigegerät (richtig so) – am Telefon gab es dadurch gar keine Rückmeldung beim Antippen |
+| 06.11.2026 | Radien auf `var(--radius)`, Menügrund auf `var(--dark)` | Es waren 8, 10, 7, 6 und 4 px und ein eigener Grauton `#1d1d1d` neben `--dark` |
+| 06.11.2026 | Schriftgrößen 0,8 → 0,875 rem (Hinweis, Teilen-Status), 0,78 → 0,8125 rem (Kacheln), Ebenen-Überschrift 1 → 1,15 rem | Kontrast reichte, die Größe nicht |
+| 06.11.2026 | Menü bekommt `max-width: calc(100vw - 24px)`, Knopfrand von `.28` auf `.4` | Auf 320-px-Geräten ragte das Menü über den Rand |
+| 06.11.2026 | Haltepunkt der Startseite auf `699.98px` | Bei genau 700 px galten beide Zweige |
+| 06.11.2026 | Begriffe auf der Seite durchgehend „Katalog" | „Was im Katalog steht", „Katalog als PDF"; „Broschüre" bleibt nur in der Suchmaschinen-Beschreibung als zweites Wort |
+
+**Verworfen – der Agent lag daneben:** Er rechnete, der Rahmen werde im
+Querformat „etwa 131 px" breit und schlug eine feste Untergrenze von
+320 px vor. Gemessen wurde 226 px, und die feste Zahl hätte auf
+schmalen Geräten dasselbe Überstehen erzeugt wie vorher. Die Lösung
+hängt stattdessen an `MIN_SEITE`, derselben Zahl, mit der die
+Bibliothek rechnet.
+
+**Nicht umgesetzt, dem Betreiber vorgelegt:** eine zweite
+Handlungsaufforderung („Kostenlos beraten lassen") direkt unter der
+Bedienleiste am Telefon. Das ist ein Vorschlag zur Conversion, kein
+Gestaltungsfehler – und was gebaut wird, entscheidet der Betreiber.
+Ebenso offen: Die Fußzeile springt auf allen Seiten der Website von
+`h2` auf `h4`; das ist eine site-weite Änderung und gehört nicht in
+diese Durchsicht.
+
+**Prüfungen jetzt 34** (vorher 28). Neu: Zoom geht über die
+Fensterbreite hinaus, linker Rand erreichbar, Buch passt im Querformat
+in seinen Rahmen, Fokus kehrt nach Escape zurück, Fokus bleibt in der
+Ebene, nichts liegt über der offenen Ebene.
+
+### 06.11.2026 (nachts): Eine Prüfung, die neben dem Problem maß
+
+Die Gegenprobe meldete: Eingebauter Fehler „Die Schwebe-Knöpfe liegen
+wieder über der Ebene" **bleibt unbemerkt**. Nachgesehen: Der Fehler
+war richtig, die **Prüfung war falsch**. Sie fragte vier feste Punkte
+der Bildschirmecken ab (`elementFromPoint`) – die runden Knöpfe der
+Website sitzen aber bei etwa 740 und 800 px Höhe, also zwischen den
+Messpunkten.
+
+Jetzt werden die Knöpfe selbst gesucht
+(`#bv-a11y-trigger, #bv-a11y-panel, #bv-scroll-top, #bvKonfigBubble,
+.sticky-cta`): Solange eine Ebene offen ist, darf keiner von ihnen eine
+Fläche haben. Der eingebaute Fehler macht jetzt die **ganze** CSS-Regel
+ungültig (ein ungültiger Auswähler in einer Liste verwirft die Regel),
+nicht nur deren letzte Zeile.
+
+**Nebenbefund, gemessen:** Ohne diese Regel kommen **alle fünf**
+schwebenden Elemente über die Ebene zurück. Die Regel ist also kein
+Gürtel-und-Hosenträger, sondern trägt – `z-index: 5000` allein reicht
+gegen `2147483647` nicht.
+
+**Die Lehre ist die alte in neuer Form:** Eine Prüfung, die grün
+bleibt, wenn der Fehler eingebaut ist, prüft nichts. Dass die
+Gegenprobe das gemeldet hat, ist der einzige Grund, warum es
+aufgefallen ist.
