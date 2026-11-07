@@ -674,14 +674,22 @@ async function lauf(fehler) {
      meldet der Browser eine Groessenaenderung, sobald sie ein- oder
      ausklappt - die Breite bleibt dabei gleich. Wuerde das Buch dann
      neu gerechnet, zappelte es beim Scrollen. */
+  /* GEMESSEN WIRD IN DEM BAND, IN DEM DIE HOEHE WIRKLICH ENTSCHEIDET.
+     Bei 390 x 844 begrenzt die Breite des Containers (366 px), nicht
+     die Hoehe - dort kann sich gar nichts aendern, und die Pruefung
+     war blind (von der Gegenprobe gemeldet, 06.11.2026). Zwischen
+     614 und 707 px Hoehe liegt die Rechnung aus der Hoehe ueber der
+     Untergrenze und unter der Containerbreite; genau da wird gemessen. */
+  await mseite.setViewportSize({ width: 390, height: 700 });
+  await mseite.waitForTimeout(900);
   const breiteVorher = await mseite.evaluate(() =>
     Math.round(document.querySelector('.bro-rahmen').getBoundingClientRect().width));
-  await mseite.setViewportSize({ width: 390, height: 784 });
-  await mseite.waitForTimeout(800);
+  await mseite.setViewportSize({ width: 390, height: 640 });
+  await mseite.waitForTimeout(900);
   const breiteNachher = await mseite.evaluate(() =>
     Math.round(document.querySelector('.bro-rahmen').getBoundingClientRect().width));
   await mseite.setViewportSize({ width: 390, height: 844 });
-  await mseite.waitForTimeout(600);
+  await mseite.waitForTimeout(700);
   p('Das Buch zappelt nicht, wenn die Adresszeile einklappt',
     breiteVorher === breiteNachher, breiteVorher + ' -> ' + breiteNachher + ' px');
 
