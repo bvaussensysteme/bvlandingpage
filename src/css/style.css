@@ -3106,3 +3106,255 @@ body.bv-konfig-open #bvKonfigBubble {
   .form-group select,
   .form-group textarea { font-size: 16px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   NEUES GESICHT (07.11.2026)
+   ──────────────────────────────────────────────────────────────────────
+   Anlass: Nach der ersten Runde sah die Seite fuer den Betreiber
+   unveraendert aus - zu Recht. Die Marken fuer Schrift, Abstand und
+   Bewegung lagen darunter, aber die Komposition war dieselbe. Hier
+   aendert sich, was man sieht.
+
+   Was bewusst NICHT angefasst wird: Farben, Logo, Texte, Verweise,
+   Bilder, SEO-Angaben. Geaendert werden Anordnung, Groessenverhaeltnisse
+   und Gewichtung - also Gestaltung, nicht Inhalt.
+
+   Alles haengt an eigenen Zusatzklassen (--neu). Wer eine Entscheidung
+   zurueckdrehen will, nimmt die Klasse aus dem HTML und hat den alten
+   Stand, ohne eine Zeile CSS zu loeschen.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Kopfbereich: aus der Mitte an die Kante ──────────────────────
+   Vorher stand alles mittig und klein in einem 760 px breiten Kasten -
+   das ist die Anordnung, die jede Baukasten-Seite hat. Jetzt steht der
+   Text links an der Kante, die Ueberschrift traegt die Flaeche, und der
+   Blick laeuft von oben links nach unten rechts ins Bild. */
+.hero--neu .hs-content--centered { justify-content: flex-start; }
+.hero--neu .hs-text--center {
+  text-align: left;
+  max-width: 780px;
+  margin-left: 0;
+  margin-right: 0;
+}
+.hero--neu .hs-content { padding-top: 150px; padding-bottom: 120px; }
+
+/* Die Abdunklung zieht jetzt von links, nicht aus der Ecke: links traegt
+   sie die Schrift, rechts bleibt das Bild stehen. */
+.hero--neu .hs-slide-overlay {
+  background:
+    linear-gradient(0deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,0) 38%),
+    linear-gradient(90deg, rgba(0,0,0,.84) 0%, rgba(0,0,0,.58) 42%, rgba(0,0,0,.22) 100%);
+}
+
+/* Die Zeile ueber der Ueberschrift bekommt einen Goldstrich davor -
+   das ist die Stelle, an der die Marke das erste Mal auftritt. */
+.hero--neu .hero-eyebrow {
+  display: flex; align-items: center; gap: var(--sp-3);
+  letter-spacing: .22em;
+  margin-bottom: var(--sp-4);
+}
+.hero--neu .hero-eyebrow::before {
+  content: ''; width: 46px; height: 2px; flex-shrink: 0;
+  background: var(--gold);
+}
+
+/* Die Ueberschrift traegt die Seite. Vorher lief sie bei 3,1 rem aus
+   und stand mittig; jetzt bis 5,4 rem, eng gesetzt und linksbuendig.
+   Die enge Zeilenhoehe (0,94) ist bei dieser Groesse richtig - bei
+   kleinen Zeilen waere sie falsch, deshalb steht sie hier und nicht
+   bei den allgemeinen Ueberschriften. */
+.hero--neu .hs-heading,
+.hero.hero--neu .hs-heading {
+  font-size: clamp(2.5rem, 7.4vw, 5.4rem);
+  line-height: .94;
+  letter-spacing: -.015em;
+  margin-bottom: var(--sp-4);
+  text-wrap: balance;
+}
+
+/* Der Claim steht jetzt als Randnotiz an einer Goldkante, statt als
+   dritte mittige Zeile mitzulaufen. */
+.hero--neu .hero-slogan {
+  border-left: 2px solid var(--gold);
+  padding-left: var(--sp-4);
+  margin-bottom: var(--sp-5) !important;
+}
+.hero--neu .hs-desc {
+  margin-left: 0; margin-right: 0;
+  max-width: 54ch;
+  font-size: var(--txt-md);
+  margin-bottom: var(--sp-6);
+}
+
+/* Knoepfe linksbuendig; Telefon und WhatsApp werden schmaler, damit
+   die Hauptaktion nicht mit drei gleich grossen Flaechen konkurriert. */
+.hero--neu .hs-text--center .hs-slide-btns { justify-content: flex-start; }
+.hero--neu .hero-contact-row { margin: 0; max-width: 420px; }
+
+/* Die Vertrauenszeile wird zu einem Band mit Goldkante statt einer
+   mittigen Aufzaehlung. */
+.hero--neu .hero-trust {
+  justify-content: flex-start;
+  gap: var(--sp-3) var(--sp-6);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-4);
+  border-top: 1px solid rgba(255,255,255,.18);
+  max-width: 780px;
+}
+
+@media (max-width: 760px) {
+  .hero--neu .hs-content { padding-top: 112px; padding-bottom: 76px; }
+  .hero--neu .hero-eyebrow::before { width: 28px; }
+  .hero--neu .hero-trust { gap: var(--sp-2) var(--sp-4); }
+}
+
+/* Auftritt: Die Teile kommen nacheinander, nicht alle gleichzeitig.
+   Als ANIMATION mit forwards - anders als beim Einblenden der Karten
+   ist hier kein Dauerzustand moeglich, der haengen bleibt: ohne
+   JavaScript laeuft sie trotzdem, und bei reduzierter Bewegung gar
+   nicht (die Abfrage umschliesst den ganzen Block). */
+@media (prefers-reduced-motion: no-preference) {
+  .hero--neu .hero-eyebrow,
+  .hero--neu .hs-heading,
+  .hero--neu .hero-slogan,
+  .hero--neu .hs-desc,
+  .hero--neu .hs-slide-btns,
+  .hero--neu .hero-trust {
+    animation: heroAuf .72s var(--kurve-raus) both;
+  }
+  .hero--neu .hs-heading   { animation-delay: .07s; }
+  .hero--neu .hero-slogan  { animation-delay: .14s; }
+  .hero--neu .hs-desc      { animation-delay: .20s; }
+  .hero--neu .hs-slide-btns{ animation-delay: .26s; }
+  .hero--neu .hero-trust   { animation-delay: .34s; }
+}
+@keyframes heroAuf {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── 2. Abschnittskopf: Rubrik statt Zeile ──────────────────────────
+   Ueber der Rubrik steht jetzt ein Goldstrich, die Ueberschrift wird
+   groesser und enger. Das gibt jedem Abschnitt einen Anfang, statt
+   dass Text einfach weiterlaeuft. */
+/* Absichtlich NICHT an eine Zusatzklasse gehaengt, sondern an die Stelle
+   im Aufbau: so bekommt jeder Abschnitt auf jeder Seite denselben Anfang,
+   ohne dass 60 Dateien angefasst werden muessen. Greift nur beim direkten
+   Kind eines Abschnitts - eine Rubrikzeile tiefer in einem Kasten bleibt,
+   wie sie ist. */
+.section > .container > .tag,
+.kopf--neu > .tag {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.section > .container > .tag::before,
+.kopf--neu > .tag::before {
+  content: ''; width: 36px; height: 2px; flex-shrink: 0; background: var(--gold);
+}
+.section > .container > h2,
+.kopf--neu > h2 {
+  font-size: clamp(1.9rem, 4.2vw, 3.1rem);
+  line-height: 1.03;
+  letter-spacing: -.01em;
+  max-width: 26ch;
+}
+
+/* ── 4. Produktkarten auf den Leistungsseiten ────────────────────────
+   Dieselbe Sprache wie im Leistungsraster der Startseite. Die
+   Produktseiten setzen ihre Karten in ihrem eigenen <style> im Kopf -
+   der steht NACH dem Stylesheet und gewinnt bei gleicher Spezifitaet.
+   Deshalb hier ueber zwei Klassen statt einer, nicht mit !important:
+   so bleibt die Regel ueberschreibbar, wenn eine Seite es wirklich
+   anders braucht. */
+.produkt-grid .produkt-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+.produkt-grid .produkt-card-img {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.produkt-grid .produkt-card-body {
+  padding: var(--sp-4) 0 0;
+  margin-top: var(--sp-4);
+  border-top: 2px solid var(--gold);
+  transition: border-color var(--zeit-mittel) var(--kurve-weich);
+}
+@media (hover: hover) and (pointer: fine) {
+  .produkt-grid .produkt-card:hover { transform: translateY(-4px); box-shadow: none; }
+  .produkt-grid .produkt-card:hover .produkt-card-body { border-top-color: var(--gold-text); }
+}
+.produkt-grid .produkt-card-body h3 {
+  font-size: clamp(1.2rem, 1.6vw, 1.45rem);
+  line-height: 1.12;
+  margin-bottom: var(--sp-2);
+}
+
+/* ── 3. Leistungen: Magazinraster statt Kaestchen ────────────────────
+   Vorher: neun weisse Kaestchen mit Rahmen und Schatten, 200 px Bild.
+   Jetzt: das Bild traegt, darunter eine Goldkante und der Name gross
+   in der Hausschrift. Der Rahmen faellt weg - er hat jede Karte wie
+   ein Formularfeld aussehen lassen. */
+.leistungen-grid--neu { gap: var(--sp-6) var(--sp-5); max-width: 1180px; }
+.leistungen-grid--neu .leistung-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+@media (hover: hover) and (pointer: fine) {
+  .leistungen-grid--neu .leistung-card:hover {
+    transform: translateY(-4px);
+    box-shadow: none;
+    border-color: transparent;
+  }
+}
+.leistungen-grid--neu .leistung-img {
+  height: 258px; min-height: 258px; max-height: 258px;
+  border-radius: var(--radius-sm);
+}
+/* Die Goldkante sass bisher IM Bild, unten als 3-px-Streifen. Jetzt
+   traegt sie der Textteil darunter - zwei Goldlinien uebereinander
+   waeren schlicht ein Fehler. */
+.leistungen-grid--neu .leistung-img::after,
+.produkt-grid .produkt-card-img::after { display: none; }
+.leistungen-grid--neu .leistung-body {
+  padding: var(--sp-4) 0 0;
+  border-top: 2px solid var(--gold);
+  margin-top: var(--sp-4);
+  transition: border-color var(--zeit-mittel) var(--kurve-weich);
+}
+@media (hover: hover) and (pointer: fine) {
+  .leistungen-grid--neu .leistung-card:hover .leistung-body { border-top-color: var(--gold-text); }
+}
+.leistungen-grid--neu .leistung-body h3 {
+  font-size: clamp(1.25rem, 1.7vw, 1.5rem);
+  line-height: 1.12;
+  letter-spacing: -.005em;
+  margin-bottom: var(--sp-2);
+}
+.leistungen-grid--neu .leistung-body p {
+  font-size: var(--txt-sm);
+  line-height: 1.6;
+  margin-bottom: var(--sp-4);
+}
+/* Der Weg weiter wird zur kleinen Versalzeile - erkennbar als Aktion,
+   ohne wie ein zweiter Knopf zu wirken. */
+.leistungen-grid--neu .leistung-link {
+  font-size: var(--txt-2xs);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .leistungen-grid--neu .leistung-img { height: 220px; min-height: 220px; max-height: 220px; }
+}
+@media (max-width: 760px) {
+  .leistungen-grid--neu .leistung-img { height: 210px; min-height: 210px; max-height: 210px; }
+  .leistungen-grid--neu { gap: var(--sp-6); }
+}
