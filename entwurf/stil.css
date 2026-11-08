@@ -1,0 +1,396 @@
+/* ══════════════════════════════════════════════════════════════════
+   ENTWURF – gemeinsames Stylesheet für alle Entwurfsseiten
+   Liegt bewusst getrennt von src/css/style.css: der Entwurf kann sich
+   so nicht auf die bestehende Seite auswirken, und umgekehrt.
+   ══════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════
+   ENTWURF – komplett neues Gesicht für BV AussenSysteme
+   Eigenes Stylesheet. Nichts hiervon wirkt auf die bestehende Seite.
+   Unveraendert uebernommen: Markenfarben, Logo, Schriften, alle Texte.
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  --gold:#C49A2A; --gold-hell:#E8B840; --gold-text:#7A5B12;
+  --tief:#0C0C0C; --flaeche:#141414; --flaeche-2:#1B1B1B;
+  --linie:rgba(255,255,255,.12); --weiss:#fff;
+  --text:rgba(255,255,255,.72); --text-schwach:rgba(255,255,255,.48);
+  --display:'Barlow Condensed',sans-serif; --lesen:'Inter',system-ui,sans-serif;
+  --rand:clamp(20px,5vw,72px);
+  --kurve:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--tief);color:var(--text);
+  font-family:var(--lesen);font-size:16px;line-height:1.65;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--display);color:var(--weiss);margin:0;font-weight:700;letter-spacing:-.01em}
+p{margin:0}
+::selection{background:var(--gold);color:#000}
+
+/* Feines Korn ueber allem: nimmt dem Schwarz das Billige. */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.band{padding:clamp(72px,11vw,160px) var(--rand)}
+.band--lauf{padding-left:0;padding-right:0}
+.band--lauf > .innen{padding:0 var(--rand)}
+.innen{max-width:1320px;margin:0 auto}
+
+/* ── Rubrik ────────────────────────────────────────────────── */
+.rubrik{
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--display);font-size:13px;font-weight:700;
+  letter-spacing:.26em;text-transform:uppercase;color:var(--gold-hell);
+  margin:0 0 18px;
+}
+.rubrik::before{content:'';width:48px;height:1px;background:var(--gold);flex:0 0 auto}
+.gross{
+  font-size:clamp(2.1rem,5.4vw,4.2rem);line-height:.98;
+  max-width:18ch;text-wrap:balance;
+}
+.nachsatz{margin-top:22px;max-width:56ch;font-size:1.0625rem}
+
+/* ── Kopfzeile ─────────────────────────────────────────────── */
+.kopfzeile{
+  position:fixed;top:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;padding:16px var(--rand);
+  transition:background .4s var(--kurve),backdrop-filter .4s var(--kurve),border-color .4s;
+  border-bottom:1px solid transparent;
+}
+@media (max-width:640px){
+  .kopfzeile{padding:12px var(--rand)}
+  .kopfzeile .knopf{padding:11px 14px;font-size:12.5px;min-height:42px;letter-spacing:.06em}
+  .kopfzeile img{height:28px}
+}
+.kopfzeile.fest{background:rgba(12,12,12,.76);backdrop-filter:blur(14px) saturate(140%);border-bottom-color:var(--linie)}
+.kopfzeile img{height:34px;width:auto}
+.kopf-nav{display:none;gap:30px;font-size:14px;letter-spacing:.02em}
+@media (min-width:980px){.kopf-nav{display:flex}}
+.kopf-nav a{text-decoration:none;color:var(--text);position:relative;padding:4px 0;transition:color .2s}
+.kopf-nav a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .32s var(--kurve)}
+.kopf-nav a:hover{color:var(--weiss)}
+.kopf-nav a:hover::after{transform:scaleX(1);transform-origin:left}
+
+.knopf{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;text-decoration:none;
+  padding:15px 26px;min-height:50px;border:1px solid transparent;border-radius:2px;
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  transition:background .28s var(--kurve),color .28s var(--kurve),border-color .28s var(--kurve),transform .18s var(--kurve);
+}
+.knopf--gold{background:var(--gold);color:#121212}
+.knopf--gold:hover{background:var(--gold-hell)}
+.knopf--rand{border-color:rgba(255,255,255,.3);color:var(--weiss)}
+.knopf--rand:hover{border-color:var(--gold);color:var(--gold-hell)}
+.knopf:active{transform:translateY(1px)}
+.knopf:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
+.knopf svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Kopfbereich ───────────────────────────────────────────── */
+.kopf{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;padding-top:124px}
+.kopf-bild{position:absolute;inset:0;z-index:0}
+.kopf-bild i{
+  position:absolute;inset:-6%;background-size:cover;background-position:center;
+  opacity:0;transition:opacity 1.6s var(--kurve);
+}
+.kopf-bild i.da{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+  .kopf-bild i.da{animation:fahrt 26s ease-in-out infinite alternate}
+}
+@keyframes fahrt{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.1) translate3d(-1.5%,-1.5%,0)}}
+.kopf-schleier{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(0deg,var(--tief) 2%,rgba(12,12,12,.3) 42%,rgba(12,12,12,.55) 100%),
+    linear-gradient(90deg,rgba(12,12,12,.86) 0%,rgba(12,12,12,.35) 62%,rgba(12,12,12,.15) 100%);
+}
+.kopf-innen{position:relative;z-index:2;width:100%;padding:0 var(--rand) clamp(40px,7vw,86px);max-width:1320px;margin:0 auto}
+.kopf h1{
+  font-size:clamp(2.7rem,8.4vw,6.6rem);line-height:.9;letter-spacing:-.025em;
+  margin:0 0 26px;max-width:16ch;
+}
+.kopf h1 em{font-style:normal;color:var(--gold-hell)}
+.kopf-claim{
+  font-family:var(--display);font-size:clamp(.95rem,1.5vw,1.15rem);font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--gold-hell);
+  border-left:2px solid var(--gold);padding-left:18px;margin:0 0 26px;
+}
+.kopf-text{max-width:50ch;font-size:clamp(1rem,1.3vw,1.125rem)}
+.kopf-knoepfe{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.kopf-fuss{
+  display:flex;flex-wrap:wrap;gap:12px 40px;align-items:center;
+  margin-top:44px;padding-top:24px;border-top:1px solid var(--linie);
+  font-size:13.5px;color:var(--text-schwach);
+}
+.kopf-fuss span{display:inline-flex;align-items:center;gap:9px}
+.kopf-fuss span::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold)}
+
+/* ── Laufband ──────────────────────────────────────────────── */
+.laufband{
+  border-top:1px solid var(--linie);border-bottom:1px solid var(--linie);
+  overflow:hidden;padding:22px 0;background:var(--flaeche);
+}
+.laufband-spur{display:flex;gap:56px;width:max-content;will-change:transform}
+@media (prefers-reduced-motion:no-preference){.laufband-spur{animation:laufen 48s linear infinite}}
+.laufband:hover .laufband-spur{animation-play-state:paused}
+@keyframes laufen{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.laufband b{
+  font-family:var(--display);font-size:clamp(1.1rem,2.1vw,1.6rem);font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.26);
+  white-space:nowrap;display:inline-flex;align-items:center;gap:56px;
+}
+.laufband b::after{content:'';width:7px;height:7px;background:var(--gold);transform:rotate(45deg)}
+
+/* ── Leistungen: waagerechter Lauf ─────────────────────────── */
+.lauf-kopf{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end;justify-content:space-between}
+.lauf{
+  display:flex;gap:clamp(14px,2vw,26px);margin-top:clamp(36px,5vw,58px);
+  overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  padding-bottom:6px;touch-action:pan-y;cursor:grab;
+  padding-inline:max(var(--rand), calc((100vw - 1320px) / 2));
+  scroll-padding-inline-start:max(var(--rand), calc((100vw - 1320px) / 2));
+}
+.lauf::-webkit-scrollbar{display:none}
+.lauf.zieht{cursor:grabbing;scroll-snap-type:none}
+.stueck{
+  flex:0 0 clamp(262px,78vw,420px);scroll-snap-align:start;text-decoration:none;
+  display:flex;flex-direction:column;
+}
+.stueck-bild{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--flaeche-2)}
+.stueck-bild img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--kurve);transform:scale(1.01)}
+.stueck:hover .stueck-bild img{transform:scale(1.07)}
+.stueck-nr{
+  position:absolute;top:16px;left:16px;z-index:2;
+  font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.2em;
+  color:var(--gold-hell);
+}
+.stueck-bild::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(12,12,12,.75) 0%,rgba(12,12,12,0) 55%)}
+.stueck-text{padding-top:20px;border-top:1px solid var(--linie);margin-top:20px;transition:border-color .3s}
+.stueck:hover .stueck-text{border-top-color:var(--gold)}
+.stueck h3{font-size:clamp(1.3rem,1.9vw,1.6rem);line-height:1.08;margin-bottom:10px}
+.stueck p{font-size:.9rem;color:var(--text-schwach);line-height:1.6}
+.stueck-mehr{
+  margin-top:16px;display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold-hell);
+}
+.stueck-mehr svg{width:15px;height:15px;transition:transform .3s var(--kurve)}
+.stueck:hover .stueck-mehr svg{transform:translateX(5px)}
+
+.lauf-steuer{display:flex;align-items:center;gap:22px;margin-top:30px}
+.lauf-balken{flex:1;height:1px;background:var(--linie);overflow:hidden}
+.lauf-balken span{display:block;height:100%;background:var(--gold);transform-origin:left;transform:scaleX(.08);transition:transform .25s var(--kurve)}
+.rund{
+  width:52px;height:52px;flex:0 0 auto;border-radius:50%;background:transparent;
+  border:1px solid var(--linie);color:var(--weiss);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;padding:0;
+  transition:background .25s,border-color .25s,color .25s,transform .18s;
+}
+.rund svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.rund:hover:not(:disabled){background:var(--gold);border-color:var(--gold);color:#121212}
+.rund:active:not(:disabled){transform:scale(.94)}
+.rund:disabled{opacity:.28;cursor:default}
+.rund:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
+
+/* ── Zweispalter mit haftender Spalte ──────────────────────── */
+.zwei{display:grid;gap:clamp(40px,6vw,96px);align-items:start}
+@media (min-width:980px){.zwei{grid-template-columns:.85fr 1.15fr}.zwei-halt{position:sticky;top:120px}}
+.punkte{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.punkte li{display:grid;grid-template-columns:auto 1fr;gap:22px;padding:26px 0;border-top:1px solid var(--linie)}
+.punkte li:last-child{border-bottom:1px solid var(--linie)}
+.punkte .nr{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--gold)}
+.punkte h3{font-size:1.2rem;margin-bottom:8px;line-height:1.2}
+.punkte p{font-size:.94rem;color:var(--text-schwach)}
+
+/* ── Zahlen ────────────────────────────────────────────────── */
+.zahlen{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--linie);margin-top:clamp(40px,6vw,72px)}
+@media (min-width:860px){.zahlen{grid-template-columns:repeat(4,1fr)}}
+.zahl{background:var(--tief);padding:clamp(26px,3.4vw,44px) clamp(18px,2vw,28px)}
+.zahl b{display:block;font-family:var(--display);font-size:clamp(2.6rem,5.4vw,4.4rem);line-height:.9;color:var(--weiss);font-weight:800}
+.zahl span{display:block;margin-top:12px;font-size:.84rem;color:var(--text-schwach);line-height:1.5}
+
+/* ── Ablauf ────────────────────────────────────────────────── */
+.ablauf{display:grid;gap:0;margin-top:clamp(36px,5vw,64px);counter-reset:s}
+.schritt{
+  display:grid;gap:14px 34px;padding:clamp(26px,3.4vw,42px) 0;
+  border-top:1px solid var(--linie);align-items:start;
+}
+.schritt:last-child{border-bottom:1px solid var(--linie)}
+@media (min-width:860px){.schritt{grid-template-columns:120px 1fr 1.3fr;align-items:center}}
+/* Umrissziffern: Die Farbe steckt im Strich, nicht in der Fuellung -
+   eine Kontrastmessung liest hier zwangslaeufig 1,07:1 und liegt damit
+   falsch. Trotzdem war 1 px bei 54 px Schriftgroesse duenn; 1,6 px und
+   eine leichte Fuellung machen die Ziffer ruhiger lesbar, ohne den
+   Umriss-Charakter aufzugeben. Die Ziffer ist ohnehin Beiwerk - die
+   Bedeutung traegt die Ueberschrift daneben. */
+.schritt-nr{
+  font-family:var(--display);font-size:clamp(2.2rem,4vw,3.4rem);font-weight:800;line-height:.9;
+  color:rgba(196,154,42,.14);-webkit-text-stroke:1.6px var(--gold);
+}
+.schritt h3{font-size:clamp(1.25rem,2vw,1.7rem);line-height:1.1}
+.schritt p{font-size:.96rem;color:var(--text-schwach)}
+
+/* ── Referenzen ────────────────────────────────────────────── */
+.ref-lauf{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;touch-action:pan-y;
+  padding-inline:max(var(--rand), calc((100vw - 1320px) / 2));
+  scroll-padding-inline-start:max(var(--rand), calc((100vw - 1320px) / 2));
+  margin-top:clamp(36px,5vw,58px)}
+.ref-lauf::-webkit-scrollbar{display:none}
+.ref-lauf.zieht{cursor:grabbing;scroll-snap-type:none}
+.ref{flex:0 0 clamp(268px,82vw,620px);scroll-snap-align:start;position:relative;aspect-ratio:16/10;overflow:hidden;background:var(--flaeche-2)}
+.ref img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--kurve)}
+.ref:hover img{transform:scale(1.05)}
+.ref figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:44px 22px 20px;
+  background:linear-gradient(0deg,rgba(12,12,12,.9),rgba(12,12,12,0));
+  font-size:.86rem;color:rgba(255,255,255,.88);
+}
+
+/* ── Abschluss ─────────────────────────────────────────────── */
+.abschluss{background:var(--flaeche);border-top:1px solid var(--linie)}
+.abschluss h2{font-size:clamp(2.3rem,7vw,5.6rem);line-height:.94;max-width:14ch;letter-spacing:-.02em}
+.abschluss .knopf-reihe{display:flex;flex-wrap:wrap;gap:12px;margin-top:38px}
+.kontakt-zeilen{display:grid;gap:0;margin-top:clamp(40px,5vw,64px)}
+.kontakt-zeilen a{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;
+  padding:22px 0;border-top:1px solid var(--linie);text-decoration:none;
+  transition:padding-left .3s var(--kurve),color .3s;
+}
+.kontakt-zeilen a:last-child{border-bottom:1px solid var(--linie)}
+.kontakt-zeilen a:hover{padding-left:12px;color:var(--weiss)}
+.kontakt-zeilen .was{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hell);min-width:150px}
+.kontakt-zeilen .wert{font-family:var(--display);font-size:clamp(1.2rem,2.4vw,1.9rem);color:var(--weiss);font-weight:700}
+
+/* ── Fusszeile ─────────────────────────────────────────────── */
+.fuss{padding:clamp(48px,6vw,80px) var(--rand);border-top:1px solid var(--linie)}
+.fuss-innen{max-width:1320px;margin:0 auto;display:grid;gap:40px}
+@media (min-width:860px){.fuss-innen{grid-template-columns:1fr auto;align-items:center}}
+.fuss img{height:44px;width:auto;opacity:.9}
+.fuss p{margin-top:16px;font-size:.86rem;color:var(--text-schwach);max-width:46ch}
+.fuss-orte{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.82rem;color:var(--text-schwach)}
+
+/* ── Hinweisband oben ──────────────────────────────────────── */
+.entwurf-hinweis{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:var(--gold);color:#121212;padding:10px var(--rand);
+  font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;text-align:center;
+}
+
+/* ── Einblenden ────────────────────────────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .js .auf{opacity:0;transform:translateY(22px);transition:opacity .9s var(--kurve),transform .9s var(--kurve)}
+  .js .auf.da{opacity:1;transform:none}
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Unterseite: Produkt
+   ══════════════════════════════════════════════════════════════════ */
+.pfad{
+  display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;
+  font-size:12.5px;letter-spacing:.04em;color:var(--text-schwach);
+}
+.pfad a{text-decoration:none;color:var(--text-schwach);transition:color .2s}
+.pfad a:hover{color:var(--gold-hell)}
+.pfad span[aria-hidden]{opacity:.4}
+
+.p-kopf{position:relative;overflow:hidden;padding-top:112px;background:var(--flaeche)}
+.p-kopf-innen{position:relative;z-index:2;max-width:1320px;margin:0 auto;padding:clamp(40px,6vw,86px) var(--rand) clamp(48px,7vw,96px)}
+.p-kopf h1{font-size:clamp(2.6rem,7.6vw,6rem);line-height:.92;letter-spacing:-.025em;margin:22px 0 26px;max-width:14ch}
+.p-kopf-text{max-width:62ch;font-size:clamp(1rem,1.25vw,1.125rem)}
+.p-kopf-knoepfe{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.p-kopf-bild{position:absolute;inset:0;z-index:0;opacity:.3}
+.p-kopf-bild img{width:100%;height:100%;object-fit:cover}
+.p-kopf::after{content:'';position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,var(--flaeche) 18%,rgba(20,20,20,.72) 58%,rgba(20,20,20,.5) 100%)}
+
+/* Modell: Bild und Text wechseln die Seite */
+.modell{display:grid;gap:clamp(28px,4vw,64px);align-items:center;padding:clamp(48px,7vw,104px) 0;border-top:1px solid var(--linie)}
+@media (min-width:980px){
+  .modell{grid-template-columns:1.05fr .95fr}
+  .modell:nth-child(even) .modell-bild{order:2}
+}
+.modell-bild{position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--flaeche-2)}
+.modell-bild img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--kurve)}
+.modell:hover .modell-bild img{transform:scale(1.04)}
+.modell-marke{
+  display:inline-block;font-family:var(--display);font-size:12px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hell);
+  border:1px solid var(--gold);padding:6px 14px;margin-bottom:20px;
+}
+.modell h2{font-size:clamp(1.9rem,3.6vw,3rem);line-height:1;letter-spacing:-.015em;margin-bottom:18px}
+.modell p{max-width:56ch}
+.merkmale{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:0}
+.merkmale li{
+  display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;
+  padding:14px 0;border-top:1px solid var(--linie);font-size:.92rem;color:var(--text-schwach);
+}
+.merkmale li:last-child{border-bottom:1px solid var(--linie)}
+.merkmale li::before{content:'';width:6px;height:6px;margin-top:9px;background:var(--gold);transform:rotate(45deg)}
+
+/* Ausklapper */
+.klapp{border-top:1px solid var(--linie)}
+.klapp:last-of-type{border-bottom:1px solid var(--linie)}
+.klapp summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:clamp(18px,2.4vw,26px) 0;font-family:var(--display);font-weight:700;
+  font-size:clamp(1.05rem,1.8vw,1.35rem);color:var(--weiss);
+  transition:color .22s;min-height:52px;
+}
+.klapp summary::-webkit-details-marker{display:none}
+.klapp summary:hover{color:var(--gold-hell)}
+.klapp summary:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
+.klapp-zeichen{
+  position:relative;width:22px;height:22px;flex:0 0 auto;
+}
+.klapp-zeichen::before,.klapp-zeichen::after{
+  content:'';position:absolute;left:0;top:50%;width:22px;height:1.5px;background:var(--gold);
+  transition:transform .32s var(--kurve);
+}
+.klapp-zeichen::after{transform:rotate(90deg)}
+.klapp[open] .klapp-zeichen::after{transform:rotate(0)}
+.klapp-text{padding:0 0 clamp(20px,2.6vw,30px);max-width:72ch;color:var(--text-schwach)}
+
+/* Formular */
+.formular{display:grid;gap:clamp(18px,2.2vw,26px);margin-top:clamp(36px,5vw,56px);max-width:760px}
+@media (min-width:720px){.formular .paar{display:grid;grid-template-columns:1fr 1fr;gap:inherit}}
+.feld{display:flex;flex-direction:column;gap:9px}
+.feld label{
+  font-family:var(--display);font-size:12.5px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--gold-hell);
+}
+.feld input,.feld select,.feld textarea{
+  width:100%;font-family:var(--lesen);font-size:16px;color:var(--weiss);
+  background:transparent;border:0;border-bottom:1px solid var(--linie);
+  padding:13px 2px;border-radius:0;
+  transition:border-color .25s var(--kurve),background .25s var(--kurve);
+}
+.feld textarea{min-height:130px;resize:vertical}
+.feld select{appearance:none;background-image:none}
+.feld select option{background:var(--flaeche);color:var(--weiss)}
+/* Platzhalter nicht zu blass: .3 ergibt auf #141414 gemessen rund 2,1:1
+   und ist fuer viele Augen kaum zu lesen. .5 bringt es auf gut 4,5:1,
+   ohne dass der Platzhalter wie eine Eingabe aussieht. */
+.feld input::placeholder,.feld textarea::placeholder{color:rgba(255,255,255,.5)}
+.feld input:hover,.feld select:hover,.feld textarea:hover{border-bottom-color:rgba(255,255,255,.3)}
+.feld input:focus,.feld select:focus,.feld textarea:focus{
+  outline:none;border-bottom-color:var(--gold);background:rgba(255,255,255,.03);
+}
+.feld input:focus-visible,.feld select:focus-visible,.feld textarea:focus-visible{
+  outline:2px solid var(--gold-hell);outline-offset:4px;
+}
+.haken{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;font-size:.86rem;color:var(--text-schwach)}
+.haken input{width:22px;height:22px;accent-color:var(--gold);margin:1px 0 0;flex:0 0 auto}
+.haken a{color:var(--gold-hell)}
+.formular-hinweis{
+  font-size:.8rem;color:var(--text-schwach);border-left:2px solid var(--gold);
+  padding-left:16px;max-width:60ch;
+}
