@@ -398,6 +398,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   }
 
   /* Eine Zeile: Name, Balken DAHINTER, Wert und optionaler Zusatz rechts. */
+  /* ACHTUNG, 08.11.2026: `name` wird als HTML eingesetzt (innerHTML in
+     Zeile ~1006). JEDER Wert, der aus der Datenbank kommt, MUSS vorher
+     durch sicher() - auch kampagne, quelle, medium, browser, system und
+     seite. Die stammen aus dem OEFFENTLICHEN Endpunkt POST /api/messung
+     und sind damit von aussen frei waehlbar.
+     Gefunden am 08.11.2026: An fuenf Stellen fehlte sicher(). Wer eine
+     Kampagne "<img src=x onerror=...>" meldete, bekam seinen Code in
+     der angemeldeten Sitzung des Betreibers ausgefuehrt. */
   function reihe(name, anteil, wert, neben) {
     /* Gold bekommt nur die staerkste Zeile. Welche das ist, steht schon
        im Balken: Der Anteil ist auf den Hoechstwert normiert, 100 %
@@ -894,7 +902,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         + '<p class="unter">Die erste Seite eines Besuchs. Hier entscheidet sich, '
         + 'ob jemand bleibt.</p>'
         + liste(einstiege.map(function (x) {
-            return reihe(x.seite, eH ? x.einstiege / eH * 100 : 0, zahl(x.einstiege));
+            return reihe(sicher(x.seite), eH ? x.einstiege / eH * 100 : 0, zahl(x.einstiege));
           }), 'noch keine Einstiege mit Kennzeichen')
         + '</div>');
     }
@@ -911,8 +919,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         + '<p class="unter">Verweise, die mit <code>utm_source</code> beschriftet '
         + 'wurden – Flyer, Anzeige, Eintrag in einem Verzeichnis.</p>'
         + liste(kampagnen.map(function (x) {
-            return reihe((x.kampagne || '–') + (x.quelle ? ' · ' + x.quelle : '')
-              + (x.medium ? ' · ' + x.medium : ''),
+            return reihe(sicher(x.kampagne || '–')
+              + (x.quelle ? ' · ' + sicher(x.quelle) : '')
+              + (x.medium ? ' · ' + sicher(x.medium) : ''),
               kH ? x.aufrufe / kH * 100 : 0, zahl(x.aufrufe));
           }), 'keine beschrifteten Verweise im Umlauf')
         + '</div>');
@@ -927,12 +936,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         + '<p class="unter">Nur die Familie, nie die Fassung – eine Fassungsnummer '
         + 'wäre ein Fingerabdruck.</p>'
         + liste(browser.map(function (x) {
-            return reihe(x.browser, bH ? x.aufrufe / bH * 100 : 0, zahl(x.aufrufe));
+            return reihe(sicher(x.browser), bH ? x.aufrufe / bH * 100 : 0, zahl(x.aufrufe));
           }), 'noch nichts') + '</div>'
         + '<div class="karte"><h2>Betriebssystem</h2>'
         + '<p class="unter">Sagt, worauf die Seite wirklich funktionieren muss.</p>'
         + liste(systeme.map(function (x) {
-            return reihe(x.system, sH ? x.aufrufe / sH * 100 : 0, zahl(x.aufrufe));
+            return reihe(sicher(x.system), sH ? x.aufrufe / sH * 100 : 0, zahl(x.aufrufe));
           }), 'noch nichts') + '</div></div>');
     }
 

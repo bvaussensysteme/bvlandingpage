@@ -14458,3 +14458,51 @@ misst Kontrast, Feldgrößen, Tippflächen und das Einblenden auf zwölf
 Seiten in drei Breiten. Die Zeilen unter „nicht messbar" sind Text auf
 Fotos – dort kann kein Skript den Untergrund kennen; die sind an den
 Bildschirmfotos von Hand angesehen worden.
+
+
+---
+
+## 08.11.2026 – Gespeichertes XSS in der Zahlenseite
+
+**Gefunden** von der unabhängigen Sicherheitsprüfung, von mir Schritt
+für Schritt nachgeprüft und bestätigt.
+
+**Was falsch war.** Die Kette war geschlossen und offen für jeden:
+
+1. `POST /api/messung` ist **öffentlich**. Es nimmt unter anderem die
+   Felder `kampagne`, `quelle`, `medium` und `seite` entgegen.
+2. `messungText()` in `worker/index.js:896` entfernt nur
+   Steuerzeichen (`\u0000-\u001f`) und kürzt. Es maskiert **nicht**
+   `<`, `>`, `"` oder `&`.
+3. Der Wert landet in der Tabelle `ereignis`.
+4. `werkstatt/zahlen.html` baut daraus eine Zeichenkette und setzt sie
+   in Zeile 1006 per `innerHTML` ein – an fünf Stellen **ohne** die
+   Maskierfunktion `sicher()`.
+
+Wer also eine Kampagne namens `<img src=x onerror=…>` meldete, bekam
+seinen Code ausgeführt, sobald der Betreiber die Zahlenseite öffnet –
+**in dessen angemeldeter Sitzung**. `'unsafe-inline'` in der CSP
+verhindert das nicht.
+
+**Was jetzt gilt.** `sicher()` an allen fünf Stellen ergänzt
+(`seite`, `kampagne`, `quelle`, `medium`, `browser`, `system`). Die
+Funktion gab es die ganze Zeit – sie war schlicht vergessen worden.
+An `reihe()` steht jetzt ein Kommentar, der sagt warum.
+
+**Warum nicht an der Wurzel repariert.** Man könnte auch in
+`messungText()` maskieren. Dagegen spricht: Dann stünde maskierter Text
+in der Datenbank, und jede andere Auswertung bekäme `&lt;` statt `<`.
+Maskiert wird da, wo ausgegeben wird – das ist die Stelle, die weiß,
+dass es HTML wird.
+
+**Was gegengelesen werden soll.**
+`scripts/pruefe-zahlenseite-maskierung.py` (neu). Erste Fassung schlug
+an vier Stellen **falschen** Alarm, weil sie verschachtelte Klammern,
+Nachschlagetabellen und Bedingungen nicht auseinanderhielt. Eine
+Prüfung mit falschem Alarm wird abgeschaltet und prüft dann gar nichts
+mehr – deshalb nachgebessert, bis sie sauber lief. Gegenprobe: 3 von 3.
+
+**Offen und dringend:** Die Korrektur liegt auf dem Arbeitsbranch und
+ist **nicht veröffentlicht**. Auf der Live-Seite besteht die Lücke
+weiter. Das gehört nicht in den Neubau-Zeitplan, sondern als eigene
+kleine Veröffentlichung vorgezogen – entscheidet der Betreiber.
