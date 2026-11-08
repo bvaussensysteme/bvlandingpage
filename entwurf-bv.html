@@ -14,6 +14,7 @@
 </head>
 <body>
 
+<div class="fortschritt" id="fortschritt" aria-hidden="true"></div>
 <header class="leiste">
   <div class="leiste-innen">
     <a href="#start" aria-label="BV AussenSysteme"><img class="logo-dunkel" src="/images/logo-frei.png" alt="BV AussenSysteme" width="200" height="200" /><img class="logo-hell" src="/images/logo-frei-hell.png" alt="BV AussenSysteme" width="200" height="200" /></a>
@@ -56,10 +57,11 @@
       <h2>Alles für draußen – im Westerwald aus einer Hand</h2>
       <p>Neun Bereiche, ein Ansprechpartner. Jedes Stück maßgefertigt, geliefert und montiert vom eigenen Team.</p>
     </div>
-    <div class="kacheln kacheln--drei auf" id="kacheln"></div>
+    <div class="werke auf" id="kacheln"></div>
   </div>
 </section>
 
+<div class="breit"><div class="naht"></div></div>
 <section class="abschnitt" id="warum" style="background:var(--flaeche)">
   <div class="mitte">
     <div class="aussage auf">
@@ -72,20 +74,22 @@
     <ul class="liste auf" id="liste"></ul>
   </div>
   <div class="breit" style="margin-top:clamp(44px,6vw,80px)">
-    <div class="zahlen auf" id="zahlen"></div>
+    <div class="zahlenband auf" id="zahlen"></div>
   </div>
 </section>
 
+<div class="breit"><div class="naht"></div></div>
 <section class="abschnitt" id="ablauf">
   <div class="mitte">
     <div class="kopfzeile auf">
       <p class="marke">So einfach geht's</p>
       <h2>Von der Idee zu Ihrem fertigen Außenbereich</h2>
     </div>
-    <ul class="liste auf" id="ablaufListe"></ul>
+    <div class="weg-liste" id="ablaufListe"></div>
   </div>
 </section>
 
+<div class="breit"><div class="naht"></div></div>
 <section class="abschnitt" id="referenzen" style="background:var(--flaeche)">
   <div class="mitte">
     <div class="kopfzeile auf">
@@ -100,16 +104,15 @@
   </div>
 </section>
 
-<section class="abschnitt" id="kontakt">
-  <div class="breit">
-    <div class="schluss auf">
-      <h2>Kostenlose Beratung – wir kommen zu Ihnen</h2>
-      <p>Anruf oder Nachricht genügt – wir melden uns meist innerhalb von 24 Stunden.</p>
-      <div class="kopf-pillen">
-        <a href="tel:+4915678696609" class="pille pille--voll">0156 78696609</a>
-        <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="pille pille--rand">WhatsApp schreiben</a>
-        <a href="mailto:info@bv-aussensysteme.de" class="pille pille--rand">E-Mail</a>
-      </div>
+<div class="breit"><div class="naht"></div></div>
+<section class="abschnitt ruf" id="kontakt">
+  <div class="breit auf">
+    <p class="ruf-klein">Kostenlose Beratung</p>
+    <a class="ruf-nummer" href="tel:+4915678696609">0156 78696609</a>
+    <div class="ruf-unten">
+      <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="pille pille--voll">WhatsApp schreiben</a>
+      <a href="mailto:info@bv-aussensysteme.de" class="pille pille--rand">info@bv-aussensysteme.de</a>
+      <span>Mo–Fr 8–17 Uhr · Sa 9–13 Uhr</span>
     </div>
   </div>
 </section>
@@ -135,15 +138,15 @@
   var WINKEL='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 
   var LEISTUNGEN=[
-    ['Terrassenüberdachung','TDS & SkyView – Glas, Polycarbonat oder Flachdach. Mit Stirnseiten, Glasschiebetüren und Festwänden nachrüstbar.','/images/vd_prod_terrasse_tds.webp','/produkte/terrassenueberdachung.html'],
-    ['Carport','TDS, Flat Line & Flat Box – stilvoller Fahrzeugschutz aus Aluminium, individuell mit Glas oder Polycarbonat.','/images/vd_prod_carport_tds.webp','/produkte/carport.html'],
-    ['Pergola & Lamellendach','SunPro Plus & Warema L50 – regulierbare Lamellen per Fernbedienung. Ideal für Terrassen und Gastronomie.','/images/vd_prod_pergola_sunpro.webp','/produkte/pergola.html'],
-    ['Kaltwintergarten','Wettergeschützter Raum ohne Heizung – perfekt als überdachter Sitzbereich, harmonisch ans Haus angebaut.','/images/vd_prod_kaltwintergarten_tds.webp','/produkte/kaltwintergarten.html'],
-    ['Sonnenschutz & Markisen','Aufdach-, Unterdach- und Senkrechtbeschattung – elektrisch steuerbar, wetterfest, in vielen Stoffen.','/images/vd_prod_sonnenschutz.webp','/produkte/sonnenschutz.html'],
-    ['Geländer & Glasgeländer','Aluminium- und Ganzglas-Geländer für Terrassen, Balkone und Treppen – stabil und pflegeleicht.','/images/vd_prod_gelaender_glas.webp','/produkte/gelaender.html'],
-    ['Eingang & Vordächer','Vordach FLY, Front Line & Eingangsüberdachungen – eleganter Witterungsschutz für jeden Hauseingang.','/images/vd_prod_eingang_fly.webp','/produkte/eingang.html'],
-    ['Balkon & Fassade','Balkonüberdachungen, Fassadenverkleidung Deco Wall und Sichtschutz aus Aluminium.','/images/vd_prod_decowall_start.webp','/produkte/balkon-fassade.html'],
-    ['Garten & Außenbereich','Gartenhaus TDS, Fahrradüberdachung, Bushaltestelle & Faltdach OpenAir.','/images/vd_prod_gartenhaus.webp','/produkte/garten-aussenbereich.html']
+    ['Terrassenüberdachung','Ihr Dach bekommen Sie mit Glas, mit Polycarbonat oder als Flachdach, in den Modellen TDS und SkyView. Stirnseiten, Glasschiebetüren und Festwände lassen sich später nachrüsten.','/images/vd_prod_terrasse_tds.webp','/produkte/terrassenueberdachung.html'],
+    ['Carport','Schutz fürs Auto aus Aluminium, in den Modellen TDS, Flat Line und Flat Box.','/images/vd_prod_carport_tds.webp','/produkte/carport.html'],
+    ['Pergola & Lamellendach','Die Lamellen von SunPro Plus und Warema L50 verstellen Sie per Fernbedienung.','/images/vd_prod_pergola_sunpro.webp','/produkte/pergola.html'],
+    ['Kaltwintergarten','Ein überdachter Sitzplatz, der vor Wind und Regen schützt, aber nicht geheizt wird.','/images/vd_prod_kaltwintergarten_tds.webp','/produkte/kaltwintergarten.html'],
+    ['Sonnenschutz & Markisen','Beschattung über dem Dach, unter dem Dach oder senkrecht an der Seite.','/images/vd_prod_sonnenschutz.webp','/produkte/sonnenschutz.html'],
+    ['Geländer & Glasgeländer','Geländer für Terrassen, Balkone und Treppen, aus Aluminium oder ganz aus Glas.','/images/vd_prod_gelaender_glas.webp','/produkte/gelaender.html'],
+    ['Eingang & Vordächer','Ein Vordach hält Regen und Schnee von der Haustür fern.','/images/vd_prod_eingang_fly.webp','/produkte/eingang.html'],
+    ['Balkon & Fassade','Wir überdachen Balkone, verkleiden Fassaden mit Deco Wall und bauen Sichtschutz.','/images/vd_prod_decowall_start.webp','/produkte/balkon-fassade.html'],
+    ['Garten & Außenbereich','Gartenhaus TDS, Fahrradüberdachung, Bushaltestelle und das Faltdach OpenAir.','/images/vd_prod_gartenhaus.webp','/produkte/garten-aussenbereich.html']
   ];
   var PUNKTE=[
     ['VD AluSysteme – Direktbezug','Wir arbeiten direkt mit einem führenden Aluminium-Hersteller zusammen. Bessere Qualität, schnellere Lieferung, faire Preise – ohne Umweg über den Handel.'],
@@ -170,21 +173,23 @@
   var ORTE=['Westerwald','Montabaur','Neuwied','Altenkirchen','Hachenburg','Limburg','Koblenz','Ransbach-Baumbach','Pleckhausen','Horhausen','Wirges','Bad Ems','Diez','Höhr-Grenzhausen'];
   var KOPFBILDER=['/images/vd_prod_terrasse_tds.webp','/images/vd_prod_pergola_sunpro.webp','/images/vd_prod_carport_tds.webp'];
 
-  document.getElementById('kacheln').innerHTML = LEISTUNGEN.map(function(x){
-    return '<a class="kachel" href="'+x[3]+'">'+
-      '<div class="kachel-bild"><img src="'+x[2]+'" alt="'+x[0]+'" loading="lazy" width="800" height="550" /></div>'+
-      '<div class="kachel-text"><h3>'+x[0]+'</h3><p>'+x[1]+'</p>'+
-      '<span class="weg">Mehr erfahren '+WINKEL+'</span></div></a>';
+  document.getElementById('kacheln').innerHTML = LEISTUNGEN.map(function(x,i){
+    return '<a class="werk" href="'+x[3]+'">'+
+      '<img src="'+x[2]+'" alt="'+x[0]+'" loading="lazy" width="900" height="700" />'+
+      '<span class="werk-nr">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<span class="werk-strich" aria-hidden="true"></span>'+
+      '<div class="werk-inhalt"><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div></a>';
   }).join('');
 
   document.getElementById('liste').innerHTML = PUNKTE.map(function(x){
     return '<li><h3>'+x[0]+'</h3><p>'+x[1]+'</p></li>';}).join('');
 
   document.getElementById('ablaufListe').innerHTML = ABLAUF.map(function(x,i){
-    return '<li><h3><span style="color:var(--akzent-text)">'+(i+1)+'.</span> '+x[0]+'</h3><p>'+x[1]+'</p></li>';}).join('');
+    return '<div class="weg-schritt auf"><span class="weg-nr">'+String(i+1).padStart(2,'0')+'</span>'+
+      '<h3>'+x[0]+'</h3><p>'+x[1]+'</p></div>';}).join('');
 
   document.getElementById('zahlen').innerHTML = ZAHLEN.map(function(x){
-    return '<div class="zahl"><b data-ziel="'+x[0]+'" data-rest="'+x[1]+'">'+x[0]+x[1]+'</b><span>'+x[2]+'</span></div>';}).join('');
+    return '<div><b data-ziel="'+x[0]+'" data-rest="'+x[1]+'">'+x[0]+x[1]+'</b><span>'+x[2]+'</span></div>';}).join('');
 
   document.getElementById('lauf').innerHTML = REFERENZEN.map(function(x){
     return '<figure><img src="'+x[0]+'" alt="'+x[1]+'" loading="lazy" width="1200" height="750" /><figcaption>'+x[1]+'</figcaption></figure>';}).join('');
@@ -235,7 +240,7 @@
       (function t(n){if(s===null)s=n;var p=Math.min(1,(n-s)/900),w=1-Math.pow(1-p,3);
         el.textContent=Math.round(ziel*w)+rest; if(p<1)requestAnimationFrame(t); else el.textContent=ziel+rest;})(performance.now());
     });},{threshold:.5});
-    document.querySelectorAll('.zahl b').forEach(function(e){zb.observe(e);});
+    document.querySelectorAll('.zahlenband b').forEach(function(e){zb.observe(e);});
   }
 })();
 </script>

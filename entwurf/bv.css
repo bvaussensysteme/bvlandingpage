@@ -299,3 +299,172 @@ h1,h2,h3{margin:0;color:var(--schrift);font-family:var(--anzeige);
 .leiste-tel:hover{color:var(--gold-hell)}
 .leiste-tel:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px;border-radius:4px}
 @media (min-width:720px){.leiste-tel{display:inline-block}}
+
+/* ══════════════════════════════════════════════════════════════════
+   ZWEITE RUNDE – der Teil UNTER dem Kopfbereich
+   ──────────────────────────────────────────────────────────────────
+   Befund des Betreibers: Der Kopf trägt alles, danach fällt die Seite
+   ab. Stimmt. Drei Kacheln im Raster, eine Liste, ein paar Kästen –
+   das ist Ordnung, aber keine Gestaltung.
+
+   Was sich ändert: Rhythmus. Kein Abschnitt sieht aus wie der davor.
+   Großes Bild, dann Hairline-Liste, dann riesige Zahlen über die volle
+   Breite, dann waagerechter Ablauf, dann ein Abschluss, der nur aus
+   einer Telefonnummer besteht. Dazwischen immer dieselbe Goldlinie als
+   Naht - das hält es zusammen, ohne es gleich zu machen.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Naht zwischen den Abschnitten ───────────────────────────────── */
+.naht{height:1px;background:linear-gradient(90deg,
+  transparent 0%, var(--linie) 12%, var(--linie) 88%, transparent 100%)}
+
+/* ── Leistungen: ein großes Stück, acht kleine ───────────────────── */
+.werke{display:grid;gap:clamp(12px,1.4vw,18px)}
+@media (min-width:720px){.werke{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1080px){
+  .werke{grid-template-columns:repeat(4,1fr)}
+  .werke > :first-child{grid-column:span 2;grid-row:span 2}
+}
+.werk{
+  position:relative;display:block;overflow:hidden;text-decoration:none;
+  border-radius:var(--rund-gross);background:var(--flaeche-2);
+  aspect-ratio:4/3;isolation:isolate;
+}
+@media (min-width:1080px){.werke > :first-child{aspect-ratio:auto;min-height:100%}}
+.werk img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform 1.2s var(--kurve),filter .6s var(--kurve);
+  filter:saturate(.92) brightness(.82);
+}
+.werk:hover img{transform:scale(1.06);filter:saturate(1) brightness(.72)}
+.werk::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(0deg,rgba(11,11,11,.92) 0%,rgba(11,11,11,.25) 46%,rgba(11,11,11,0) 72%);
+}
+.werk-inhalt{
+  position:relative;z-index:2;height:100%;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:clamp(18px,2.2vw,30px);
+}
+.werk-nr{
+  position:absolute;top:clamp(16px,2vw,24px);left:clamp(18px,2.2vw,30px);
+  font-family:var(--anzeige);font-size:13px;font-weight:700;letter-spacing:.2em;
+  color:var(--gold-hell);
+  text-shadow:0 1px 6px rgba(11,11,11,.85);
+}
+.werk h3{
+  font-size:clamp(1.3rem,2.4vw,2rem);line-height:1.02;color:#fff;
+  margin-bottom:0;
+}
+.werke > :first-child h3{font-size:clamp(1.6rem,3.4vw,2.9rem)}
+/* Nur das grosse Stueck traegt einen Beschreibungstext. Die acht
+   kleinen zeigen den Namen, mehr nicht.
+
+   Warum nicht ueberall Text, der beim Zeigen erscheint: Ein
+   ausgeblendeter Absatz belegt weiter Platz, und die Ueberschrift
+   haengt dann in der Mitte statt unten - auf dem Bildschirmfoto vom
+   08.11.2026 gut zu sehen. Ihn absolut zu positionieren waere ein
+   Flicken. Und am Finger gibt es kein Zeigen: Dort waere der Text
+   entweder immer da (dann ist die Kachel ueberladen) oder nie
+   erreichbar. Die Beschreibung steht ohnehin auf der Produktseite,
+   einen Fingertipp entfernt. */
+.werk p{display:none}
+.werke > :first-child p{
+  display:block;font-size:16px;line-height:1.55;color:rgba(255,255,255,.82);
+  max-width:44ch;margin-top:14px;
+}
+.werk-strich{
+  position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--gold);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .55s var(--kurve);
+}
+.werk:hover .werk-strich,.werk:focus-visible .werk-strich{transform:scaleX(1)}
+.werk:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
+
+/* ── Zahlen: ueber die volle Breite, ohne Kaesten ────────────────── */
+.zahlenband{display:grid;grid-template-columns:repeat(2,1fr)}
+@media (min-width:880px){.zahlenband{grid-template-columns:repeat(4,1fr)}}
+.zahlenband > div{
+  padding:clamp(30px,4vw,56px) clamp(16px,2vw,32px);
+  border-top:1px solid var(--linie);
+}
+@media (min-width:880px){
+  .zahlenband > div + div{border-left:1px solid var(--linie)}
+}
+@media (max-width:879px){
+  .zahlenband > div:nth-child(even){border-left:1px solid var(--linie)}
+}
+.zahlenband b{
+  display:block;font-family:var(--anzeige);font-weight:700;
+  font-size:clamp(3.2rem,8vw,6.4rem);line-height:.85;letter-spacing:-.03em;
+  color:var(--schrift);
+}
+.zahlenband span{
+  display:block;margin-top:16px;font-size:14.5px;line-height:1.45;
+  color:var(--schrift-3);max-width:24ch;
+}
+
+/* ── Ablauf: waagerecht, mit Linie die mitwaechst ────────────────── */
+.weg-liste{display:grid;gap:0;counter-reset:w;position:relative}
+@media (min-width:900px){
+  .weg-liste{grid-template-columns:repeat(4,1fr);gap:clamp(20px,2.4vw,36px)}
+}
+.weg-schritt{position:relative;padding:clamp(26px,3vw,40px) 0 0}
+.weg-schritt::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--linie);
+}
+.weg-schritt::after{
+  content:'';position:absolute;top:0;left:0;height:1px;width:0;background:var(--gold);
+  transition:width 1s var(--kurve);
+}
+.weg-schritt.ist-da::after{width:100%}
+.weg-schritt:nth-child(2).ist-da::after{transition-delay:.12s}
+.weg-schritt:nth-child(3).ist-da::after{transition-delay:.24s}
+.weg-schritt:nth-child(4).ist-da::after{transition-delay:.36s}
+.weg-nr{
+  display:block;font-family:var(--anzeige);font-size:13px;font-weight:700;
+  letter-spacing:.2em;color:var(--gold-hell);margin-bottom:14px;
+}
+.weg-schritt h3{font-size:clamp(1.2rem,1.9vw,1.55rem);line-height:1.1;margin-bottom:10px}
+.weg-schritt p{font-size:15.5px;line-height:1.55;color:var(--schrift-2);max-width:34ch}
+
+/* ── Abschluss: nur eine Nummer, so gross wie moeglich ───────────── */
+.ruf{padding:clamp(70px,11vw,150px) 0;text-align:left}
+.ruf-klein{
+  font-family:var(--anzeige);font-size:17px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold-hell);
+  margin-bottom:clamp(18px,2.4vw,30px);
+}
+.ruf-nummer{
+  display:inline-block;font-family:var(--anzeige);font-weight:700;
+  font-size:clamp(2.6rem,9.5vw,8rem);line-height:.88;letter-spacing:-.025em;
+  color:var(--schrift);text-decoration:none;
+  transition:color .3s var(--kurve);
+}
+.ruf-nummer:hover{color:var(--gold-hell)}
+.ruf-nummer:focus-visible{outline:2px solid var(--gold-hell);outline-offset:6px}
+.ruf-unten{
+  display:flex;flex-wrap:wrap;gap:14px 34px;align-items:center;
+  margin-top:clamp(30px,4vw,52px);padding-top:clamp(24px,3vw,36px);
+  border-top:1px solid var(--linie);
+}
+.ruf-unten span{font-size:15px;color:var(--schrift-3)}
+
+/* ── Fortschritt am oberen Rand ──────────────────────────────────── */
+.fortschritt{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:31;
+  background:var(--gold);transform:scaleX(0);transform-origin:left;
+}
+@media (prefers-reduced-motion:reduce){.fortschritt{display:none}}
+
+/* ── Zwei Nachbesserungen, 08.11.2026 ────────────────────────────── */
+
+/* Die Liste stand mittig im Abschnitt, die Ueberschrift darueber an der
+   Kante. Das sah aus wie ein Versehen, weil es eines war. */
+.liste{margin:0}
+
+/* .aussage p und .kopfzeile p faerben die Rubrikzeile grau, weil beide
+   spezifischer sind als .marke - dieselbe Falle wie schon zweimal
+   vorher. Deshalb hier einmal zentral und mit hoeherer Spezifitaet,
+   statt sie an jeder neuen Stelle wieder zu uebersehen. */
+p.marke,.aussage .marke,.kopfzeile .marke,.ruf .ruf-klein{color:var(--akzent-text)}
