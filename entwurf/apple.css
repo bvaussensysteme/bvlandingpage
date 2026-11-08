@@ -34,7 +34,7 @@
    ══════════════════════════════════════════════════════════════════ */
 
 :root{
-  color-scheme:dark light;
+  color-scheme:dark;
 
   /* Marke unverändert */
   --gold:#C49A2A; --gold-hell:#E8B840; --gold-text:#7A5B12;
@@ -56,13 +56,21 @@
   --kurve:cubic-bezier(.28,.11,.32,1);
 }
 
-@media (prefers-color-scheme:light){
-  :root{
+/* DUNKEL IST GESETZT (Ansage des Betreibers, 08.11.2026: "ich will
+   dunkles design").
+   Die hellen Werte bleiben hier stehen, sind aber abgeschaltet: Sie
+   haengen jetzt an .hell am <html> statt an der Geraeteeinstellung.
+   Damit ist die Entscheidung mit EINER Zeile umkehrbar, ohne dass die
+   Arbeit daran verloren geht.
+   Ausdruecklich festgehalten, weil es gegen den Rat aus color.md der
+   Apple-Richtlinien geht ("supply light and dark variants") und gegen
+   meinen eigenen Einwand zur Lesbarkeit draussen und zur Altersgruppe.
+   Der Betreiber hat beides gehoert und anders entschieden. */
+:root.hell{
     --grund:#fff; --flaeche:#F5F5F7; --flaeche-2:#EDEDF0;
     --schrift:#1D1D1F; --schrift-2:rgba(29,29,31,.78); --schrift-3:rgba(29,29,31,.66);
     --linie:rgba(0,0,0,.12); --glas:rgba(255,255,255,.72);
     --akzent-text:var(--gold-text);
-  }
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -146,9 +154,7 @@ h1,h2,h3{margin:0;color:var(--schrift);font-weight:600;letter-spacing:-.032em;li
 .kopf-bild i.da{opacity:1}
 .kopf-schleier{position:absolute;inset:0;z-index:1;
   background:linear-gradient(180deg,rgba(0,0,0,.58) 0%,rgba(0,0,0,.42) 42%,rgba(0,0,0,.52) 72%,var(--grund) 99%)}
-@media (prefers-color-scheme:light){
-  .kopf-schleier{background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,rgba(0,0,0,.4) 42%,rgba(0,0,0,.46) 72%,var(--grund) 99%)}
-}
+:root.hell .kopf-schleier{background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,rgba(0,0,0,.4) 42%,rgba(0,0,0,.46) 72%,var(--grund) 99%)}
 /* GEFUNDEN AM 08.11.2026: Im hellen Modus war die Ueberschrift
    #1D1D1F auf dem abgedunkelten Foto - dunkelgrau auf dunkel, die
    erste Zeile praktisch unsichtbar. Die Kontrastmessung hat es nicht
@@ -268,7 +274,5 @@ h1,h2,h3{margin:0;color:var(--schrift);font-weight:600;letter-spacing:-.032em;li
    Beide freigestellt, sonst zeigt sich der Kasten der Originaldatei. */
 .logo-dunkel{display:block}
 .logo-hell{display:none}
-@media (prefers-color-scheme:light){
-  .logo-dunkel{display:none}
-  .logo-hell{display:block}
-}
+:root.hell .logo-dunkel{display:none}
+:root.hell .logo-hell{display:block}

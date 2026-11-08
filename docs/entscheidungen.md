@@ -14506,3 +14506,54 @@ mehr – deshalb nachgebessert, bis sie sauber lief. Gegenprobe: 3 von 3.
 ist **nicht veröffentlicht**. Auf der Live-Seite besteht die Lücke
 weiter. Das gehört nicht in den Neubau-Zeitplan, sondern als eigene
 kleine Veröffentlichung vorgezogen – entscheidet der Betreiber.
+
+---
+
+## 08.11.2026 – Dunkel ist gesetzt, VD-Bildrechte liegen vor
+
+**Zwei Ansagen des Betreibers, beide knapp:** „ich will dunkles design"
+und „Bildrechte von vd hab ich".
+
+### Dunkel
+
+Der Apple-Entwurf hatte dunkel als Voreinstellung **und** eine helle
+Fassung, die automatisch kam, wenn das Gerät so eingestellt war. Das ist
+jetzt weg: Die Seite ist dunkel, unabhängig von der Geräteeinstellung.
+
+**Das geht gegen zwei Dinge, und das soll hier stehen:**
+
+1. Gegen `color.md` der Apple-Richtlinien („supply light and dark
+   variants"), auf die der Entwurf sich sonst beruft.
+2. Gegen meinen eigenen Einwand: Dunkel mit heller Schrift ist draußen
+   in der Sonne schlechter lesbar, und die Zielgruppe – Hausbesitzer ab
+   etwa 45 – liest dunkle Flächen erfahrungsgemäß schwerer. Auch die
+   unabhängige Prüfung kam zu dem Schluss, dunkel sei „für diese Gruppe
+   die falsche Standardwahl".
+
+Der Betreiber hat beides gehört und anders entschieden. **Das ist seine
+Entscheidung, nicht meine.** Festgehalten, damit später niemand denkt,
+es sei übersehen worden.
+
+**Umkehrbar in einer Zeile.** Die hellen Werte stehen weiter in
+`entwurf/apple.css`, sie hängen nur nicht mehr an der
+Geräteeinstellung, sondern an `.hell` am `<html>`. Wer sie
+zurückholen will, tauscht einen Selektor.
+
+**Gemessen nach der Umstellung:** Auf einem hell eingestellten Gerät
+kommt jetzt die dunkle Fassung an (Überschrift `rgb(245,245,247)`,
+Grundfläche schwarz), 0 Textstellen unter dem Kontrast-Soll, Handy und
+Rechner.
+
+### VD-Bildrechte
+
+Der Betreiber sagt, die Bildrechte von VD AluSysteme liegen vor. Damit
+ist der größte Posten aus `docs/NEUBAU-LIZENZREGISTER.md` erledigt: die
+Produktbilder `vd_prod_*`.
+
+**Nicht erledigt, weil es ein anderer Rechteinhaber ist:** die 434
+Stoffbilder unter `images/stoffe/`. Die stammen laut
+`js/markisenstoffe.js` aus der Stoffkarte des **Stoffherstellers**, nicht
+von VD. Das Register hält fest, dass der Rechteinhaber dort vermutlich
+die Weberei ist. **Offene Frage an den Betreiber:** Deckt die
+Vereinbarung mit VD die Stoffkarte mit ab, oder hat VD sie nur
+weitergereicht?
