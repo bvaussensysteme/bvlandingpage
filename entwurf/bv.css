@@ -76,7 +76,9 @@
 }
 
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+/* scroll-padding-top: Die Leiste liegt fest oben (72px). Ohne das rutscht
+   die angesprungene Überschrift darunter und ist nach dem Tippen weg. */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:88px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{
   margin:0;background:var(--grund);color:var(--schrift-2);
@@ -109,6 +111,14 @@ h1,h2,h3{margin:0;color:var(--schrift);font-family:var(--anzeige);
   border-bottom:1px solid var(--linie);
 }
 @media (prefers-reduced-transparency:reduce){
+  .leiste{background:var(--grund);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+/* Am Handy liegt die Leiste über dichtem Listeninhalt. Mit .78 schimmerte
+   die darunterliegende Zeile durch (und auf Geräten ohne backdrop-filter
+   erst recht). Deshalb hier ganz deckend, ohne Glaseffekt: Die Leiste ist
+   Bedienfläche, kein Inhalt. Lesbarkeit geht vor Effekt, und am Handy
+   spart das zusätzlich die Rechenzeit für den Weichzeichner. */
+@media (max-width:719px){
   .leiste{background:var(--grund);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
 .leiste-innen{
@@ -356,7 +366,6 @@ h1,h2,h3{margin:0;color:var(--schrift);font-family:var(--anzeige);
   font-size:clamp(1.3rem,2.4vw,2rem);line-height:1.02;color:#fff;
   margin-bottom:0;
 }
-.werke > :first-child h3{font-size:clamp(1.6rem,3.4vw,2.9rem)}
 /* Nur das grosse Stueck traegt einen Beschreibungstext. Die acht
    kleinen zeigen den Namen, mehr nicht.
 
@@ -369,10 +378,6 @@ h1,h2,h3{margin:0;color:var(--schrift);font-family:var(--anzeige);
    erreichbar. Die Beschreibung steht ohnehin auf der Produktseite,
    einen Fingertipp entfernt. */
 .werk p{display:none}
-.werke > :first-child p{
-  display:block;font-size:16px;line-height:1.55;color:rgba(255,255,255,.82);
-  max-width:44ch;margin-top:14px;
-}
 .werk-strich{
   position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--gold);
   transform:scaleX(0);transform-origin:left;
@@ -468,3 +473,132 @@ h1,h2,h3{margin:0;color:var(--schrift);font-family:var(--anzeige);
    vorher. Deshalb hier einmal zentral und mit hoeherer Spezifitaet,
    statt sie an jeder neuen Stelle wieder zu uebersehen. */
 p.marke,.aussage .marke,.kopfzeile .marke,.ruf .ruf-klein{color:var(--akzent-text)}
+
+/* ══════════════════════════════════════════════════════════════════
+   VOM HANDY AUS GEDACHT (08.11.2026)
+   ──────────────────────────────────────────────────────────────────
+   Ansage des Betreibers: "du sollst Mobile first entwickeln weil
+   70/80% der leute am handy suchen" - und: die Seite sehe aus wie eine
+   Bildergalerie, nicht wie eine Seite.
+
+   Beides zutreffend. Entworfen war am 1440er, das Handy nur geprueft.
+   Dabei herausgekommen:
+
+   1. Die TELEFONNUMMER war am Handy ausgeblendet (erst ab 720 px).
+      Auf dem Geraet, auf dem die meisten suchen, fehlte das Wichtigste.
+   2. Eine Kachel fuellte fast den ganzen Bildschirm, der Text lag auf
+      dem Foto. Neun Bildschirme, um die Leistungen zu ueberfliegen.
+   3. Kein Weg zum Anrufen, ausser nach oben zu scrollen.
+
+   Deshalb gilt ab hier: Die Regeln ohne Abfrage sind die fuers Handy.
+   Groesser wird nur ergaenzt, nicht reparariert.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Kopfzeile am Handy: Nummer statt langem Knopf ───────────────── */
+.leiste-tel{display:inline-flex;align-items:center;gap:8px;font-size:17px}
+.leiste-tel svg{width:17px;height:17px;stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:719px){
+  .leiste-rechts .pille{display:none}          /* der lange Knopf muss weichen */
+  .leiste-tel{
+    color:var(--gold-hell);border:1px solid var(--gold);
+    border-radius:var(--rund);padding:9px 14px;min-height:44px;
+  }
+}
+
+/* ── Leistungen am Handy: Liste statt Bilderstapel ───────────────── */
+.werke{display:flex;flex-direction:column;gap:0}
+.werk{
+  display:grid;grid-template-columns:64px 1fr 18px;gap:16px;align-items:center;
+  aspect-ratio:auto;border-radius:0;background:transparent;
+  padding:16px 0;border-top:1px solid var(--linie);
+  min-height:64px;                      /* bequem zu treffen */
+}
+.werke > :last-child{border-bottom:1px solid var(--linie)}
+.werk img{
+  position:static;width:64px;height:64px;border-radius:var(--rund-klein);
+  object-fit:cover;filter:none;transition:none;
+}
+.werk::after{content:none}
+.werk-nr{display:none}
+.werk-strich{display:none}
+.werk-inhalt{display:block;padding:0;height:auto}
+.werk h3{font-size:1.15rem;line-height:1.15;color:var(--schrift);margin:0}
+.werk p{display:block;font-size:14.5px;line-height:1.45;color:var(--schrift-3);
+  margin-top:4px;max-width:none}
+/* Der Winkel am Zeilenende - macht die Zeile als Weg erkennbar. */
+.werk-pfeil{
+  width:18px;height:18px;stroke:var(--gold-hell);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;justify-self:end;
+}
+.werk:active{background:var(--flaeche)}
+
+/* ── Ab Tablet: zurueck ins Magazinraster ────────────────────────── */
+@media (min-width:900px){
+  .werke{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(12px,1.4vw,18px)}
+  .werk{
+    display:block;position:relative;aspect-ratio:4/3;padding:0;
+    border:none;border-radius:var(--rund-gross);background:var(--flaeche-2);
+    overflow:hidden;isolation:isolate;
+  }
+  .werke > :last-child{border-bottom:none}
+  .werk img{position:absolute;inset:0;width:100%;height:100%;border-radius:0;
+    filter:saturate(.92) brightness(.82);
+    transition:transform 1.2s var(--kurve),filter .6s var(--kurve)}
+  .werk:hover img{transform:scale(1.06);filter:saturate(1) brightness(.72)}
+  .werk::after{content:'';position:absolute;inset:0;
+    background:linear-gradient(0deg,rgba(11,11,11,.92) 0%,rgba(11,11,11,.25) 46%,rgba(11,11,11,0) 72%)}
+  .werk-nr{display:block}
+  .werk-strich{display:block}
+  .werk-pfeil{display:none}
+  .werk-inhalt{position:relative;z-index:2;height:100%;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:clamp(18px,2.2vw,30px)}
+  .werk h3{font-size:clamp(1.3rem,2.4vw,2rem);line-height:1.02;color:#fff}
+  .werk p{display:none}
+}
+@media (min-width:1080px){
+  .werke{grid-template-columns:repeat(4,1fr)}
+  .werke > :first-child{grid-column:span 2;grid-row:span 2;aspect-ratio:auto;min-height:100%}
+  .werke > :first-child h3{font-size:clamp(1.6rem,3.4vw,2.9rem)}
+  .werke > :first-child p{display:block;font-size:16px;line-height:1.55;
+    color:rgba(255,255,255,.82);max-width:44ch;margin-top:14px}
+}
+
+/* ── Immer erreichbar: Leiste am unteren Rand (nur Handy) ────────── */
+.griff{
+  position:fixed;left:0;right:0;bottom:0;z-index:29;
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--linie);
+  padding-bottom:env(safe-area-inset-bottom);
+  transform:translateY(100%);
+  transition:transform .4s var(--kurve);
+}
+.griff.da{transform:none}
+@media (min-width:720px){.griff{display:none}}
+/* Platz unter dem Fuß, damit die Kontaktleiste nichts verdeckt. */
+@media (max-width:719px){
+  .fuss{padding-bottom:calc(56px + env(safe-area-inset-bottom) + 24px)}
+}
+@media (prefers-reduced-motion:reduce){.griff{transition:none}}
+.griff a{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  min-height:56px;text-decoration:none;
+  font-family:var(--anzeige);font-size:16px;font-weight:700;letter-spacing:.04em;
+  background:var(--flaeche);color:var(--schrift);
+}
+.griff a:first-child{background:var(--gold);color:#1A1405}
+.griff svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.griff a:active{filter:brightness(.92)}
+
+/* Das Hinweisband des Entwurfs darf die Leiste nicht verdecken. */
+@media (max-width:719px){.hinweis{bottom:56px}}
+
+/* ── Kopfbereich am Handy etwas niedriger ────────────────────────── */
+@media (max-width:719px){
+  .kopf{min-height:86svh;padding-top:104px}
+  .kopf h1{font-size:clamp(2.4rem,10vw,3.4rem)}
+  .kopf-fuss{margin-top:28px;padding-top:20px;gap:8px 20px;font-size:13.5px}
+  .abschnitt{padding:clamp(60px,14vw,96px) 0}
+}
