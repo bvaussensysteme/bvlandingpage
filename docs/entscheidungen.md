@@ -14550,10 +14550,14 @@ Der Betreiber sagt, die Bildrechte von VD AluSysteme liegen vor. Damit
 ist der größte Posten aus `docs/NEUBAU-LIZENZREGISTER.md` erledigt: die
 Produktbilder `vd_prod_*`.
 
-**Nicht erledigt, weil es ein anderer Rechteinhaber ist:** die 434
-Stoffbilder unter `images/stoffe/`. Die stammen laut
-`js/markisenstoffe.js` aus der Stoffkarte des **Stoffherstellers**, nicht
-von VD. Das Register hält fest, dass der Rechteinhaber dort vermutlich
-die Weberei ist. **Offene Frage an den Betreiber:** Deckt die
-Vereinbarung mit VD die Stoffkarte mit ab, oder hat VD sie nur
-weitergereicht?
+**Nachtrag, noch am selben Tag:** Auf die Rückfrage zur Stoffkarte
+antwortet der Betreiber „ich darf die stoffbilder nehmen". Damit sind
+beide Bildbestände abgedeckt – als **Aussage des Betreibers**, nicht als
+Vertrag, den ich eingesehen hätte. Das ist die richtige Grundlage: Es
+ist seine Vereinbarung und sein Risiko. Festgehalten mit Datum, damit
+später beantwortbar ist, worauf die Nutzung sich stützte.
+
+Offen und nicht drängend bleiben die Detailfragen aus Abschnitt 4.3 des
+Registers: ob die Rechte auch **Bearbeitung** (die Bilder sind
+zugeschnitten und umgewandelt), **Namensnennung** und die Nutzung
+**nach Vertragsende** abdecken.

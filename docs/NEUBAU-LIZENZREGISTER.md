@@ -20,6 +20,30 @@
 
 ---
 
+## 0. Nachtrag 08.11.2026 – zwei Posten vom Betreiber beantwortet
+
+> **Produktbilder (`vd_prod_*`) und die 434 Stoffbilder
+> (`images/stoffe/`):** Der Betreiber erklärt am 08.11.2026, dass er die
+> Bildrechte von VD AluSysteme hat und die Stoffbilder nehmen darf.
+>
+> **Was das heißt und was nicht.** Das ist die Aussage des Betreibers,
+> nicht ein von mir eingesehener Vertrag. Mir liegt keine Vereinbarung
+> vor, und ich habe keine Klausel gelesen. Für die weitere Arbeit ist
+> das die Grundlage – es ist seine Website, sein Vertrag und sein
+> Risiko, und er weiß, was er unterschrieben hat.
+>
+> **Warum es trotzdem hier steht:** Wenn später jemand fragt, auf
+> welcher Grundlage die Bilder verwendet wurden, ist dieser Satz mit
+> Datum die Antwort. Unbeantwortet bleiben die Detailfragen aus
+> Abschnitt 4.3 – ob die Rechte auch **Bearbeitung** (Zuschnitt,
+> Umwandlung), **Namensnennung** und die Nutzung **nach Vertragsende**
+> abdecken. Die lohnen eine kurze Rückfrage bei VD, drängen aber nicht.
+
+**Damit bleiben als Lizenz-Blocker:** Punkt 2 (Herkunft der
+Markenlogo-Pfade) und Punkt 3 (DIBt-Lastzonen gewerblich).
+
+---
+
 ## 1. Die drei größten Lizenzrisiken
 
 | # | Risiko | Warum |
