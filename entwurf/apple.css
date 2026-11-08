@@ -59,7 +59,7 @@
 @media (prefers-color-scheme:light){
   :root{
     --grund:#fff; --flaeche:#F5F5F7; --flaeche-2:#EDEDF0;
-    --schrift:#1D1D1F; --schrift-2:rgba(29,29,31,.72); --schrift-3:rgba(29,29,31,.5);
+    --schrift:#1D1D1F; --schrift-2:rgba(29,29,31,.78); --schrift-3:rgba(29,29,31,.66);
     --linie:rgba(0,0,0,.12); --glas:rgba(255,255,255,.72);
     --akzent-text:var(--gold-text);
   }
@@ -97,7 +97,7 @@ h1,h2,h3{margin:0;color:var(--schrift);font-weight:600;letter-spacing:-.032em;li
   .leiste{background:var(--grund);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
 .leiste-innen{
-  max-width:1320px;margin:0 auto;padding:0 var(--rand);height:52px;
+  max-width:1320px;margin:0 auto;padding:0 var(--rand);min-height:60px;
   display:flex;align-items:center;justify-content:space-between;gap:18px;
 }
 .leiste img{height:26px;width:auto}
@@ -120,7 +120,9 @@ h1,h2,h3{margin:0;color:var(--schrift);font-weight:600;letter-spacing:-.032em;li
 .pille--voll:hover{background:var(--gold-hell)}
 .pille--rand{border-color:var(--linie);color:var(--schrift)}
 .pille--rand:hover{border-color:var(--schrift-3)}
-.pille--klein{padding:8px 16px;min-height:34px;font-size:13.5px}
+/* 44 px statt 34: gemessen kam der Knopf auf 39 px und lag damit
+   unter der Mindestflaeche zum Antippen. */
+.pille--klein{padding:11px 18px;min-height:44px;font-size:13.5px}
 .pille:active{transform:scale(.975)}
 .pille:focus-visible{outline:2px solid var(--gold-hell);outline-offset:3px}
 
@@ -147,7 +149,20 @@ h1,h2,h3{margin:0;color:var(--schrift);font-weight:600;letter-spacing:-.032em;li
 @media (prefers-color-scheme:light){
   .kopf-schleier{background:linear-gradient(180deg,rgba(0,0,0,.52) 0%,rgba(0,0,0,.4) 42%,rgba(0,0,0,.46) 72%,var(--grund) 99%)}
 }
+/* GEFUNDEN AM 08.11.2026: Im hellen Modus war die Ueberschrift
+   #1D1D1F auf dem abgedunkelten Foto - dunkelgrau auf dunkel, die
+   erste Zeile praktisch unsichtbar. Die Kontrastmessung hat es nicht
+   gesehen, weil sie Text auf Bildern nicht misst.
+   Der Kopfbereich liegt in BEIDEN Fassungen auf demselben dunklen
+   Schleier. Seine Schrift folgt deshalb NICHT der Fassung, sondern ist
+   fest hell. Nicht "aufraeumen": das ist der ganze Punkt. */
 .kopf-innen{position:relative;z-index:2;padding:0 var(--rand) clamp(56px,9vw,120px);max-width:980px}
+.kopf h1{color:#F5F5F7}
+.kopf .kopf-satz{color:rgba(245,245,247,.86)}
+.kopf .kopf-fuss{color:rgba(245,245,247,.76)}
+.kopf .marke{color:var(--gold-hell)}
+.kopf .pille--rand{border-color:rgba(245,245,247,.34);color:#F5F5F7}
+.kopf .pille--rand:hover{border-color:rgba(245,245,247,.6)}
 .marke{font-size:19px;font-weight:600;color:var(--akzent-text);margin-bottom:12px;letter-spacing:-.01em}
 .kopf h1{font-size:clamp(2.6rem,7.6vw,5.6rem);margin-bottom:20px}
 .kopf-satz{font-size:clamp(1.15rem,2.2vw,1.6rem);color:var(--schrift-2);
