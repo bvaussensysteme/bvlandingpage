@@ -54,14 +54,20 @@ eleventy.config.js
 .gitignore
 .editorconfig
 
-# GEFUNDEN AM 08.11.2026 durch die unabhaengige Isolationspruefung:
-# Die Entwurfsseiten standen hier NICHT drin. Da das Verzeichnis in
-# wrangler.jsonc "." ist, waeren sie bei einem Produktiv-Deploy
-# oeffentlich gewesen - geschuetzt nur durch ein Meta-Tag im Quelltext,
-# also gar nicht gegen direkte Aufrufe. Auf der Branch-Vorschau sollen
-# sie erreichbar sein, auf der echten Seite nie.
-entwurf/
-entwurf.html
-entwurf-apple.html
-entwurf-produkt.html
-entwurf-bv.html
+# ENTWURFSSEITEN: bewusst NICHT hier eingetragen.
+#
+# Am 08.11.2026 standen sie kurz drin - und waren damit sofort auch aus
+# der BRANCH-VORSCHAU verschwunden (alle vier auf 404 geprueft). Diese
+# Datei gilt fuer jeden Deploy, die Vorschau eingeschlossen. Die
+# Vorschau ist aber genau der Ort, an dem der Betreiber die Entwuerfe
+# ansieht. Gegen die Produktion schuetzen deshalb drei andere Dinge:
+#
+#   1. Es wird nichts nach main zusammengefuehrt ohne den woertlichen
+#      Freigabesatz (CLAUDE.md, Regel vom 08.11.2026).
+#   2. X-Robots-Tag: noindex, nofollow in _headers fuer /entwurf*.
+#   3. docs/NEUBAU-FREIGABE-CHECKLISTE.md - erster Punkt vor jeder
+#      Veroeffentlichung: Entwuerfe loeschen oder hier eintragen.
+#
+# Wer die Entwuerfe vor einem Produktiv-Deploy doch sperren will,
+# traegt sie hier ein - und muss wissen, dass sie dann auch in der
+# Vorschau weg sind.
