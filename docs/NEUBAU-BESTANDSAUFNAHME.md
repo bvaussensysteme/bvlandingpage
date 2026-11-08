@@ -107,3 +107,81 @@ Seite einfügt und das **nicht in der Datenschutzerklärung steht**
 - Marken- und Designrechte Dritter. Eine Register- oder Websuche ist
   **keine Markenfreigabe** – das gehört zum Fachanwalt.
 - Ob Cloudflare Web Analytics ohne Einwilligung laufen darf.
+
+---
+
+## 7. Funde der unabhängigen Isolationsprüfung (08.11.2026)
+
+Ein zweiter Agent hat meine Behauptungen aus Abschnitt 1 nachgeprüft –
+nicht geglaubt, sondern mit eigenen Befehlen belegt. Vier von fünf
+bestätigt, eine eingeschränkt. Drei Lücken kamen dabei heraus:
+
+### 7.1 Entwürfe wären bei einem Produktiv-Deploy öffentlich gewesen — behoben
+
+`wrangler.jsonc` liefert mit `assets.directory: "."` **das ganze
+Projektverzeichnis** aus. Alles, was nicht in `.assetsignore` steht, ist
+nach einem Deploy öffentlich. Die Entwurfsseiten standen dort **nicht**.
+
+Geschützt waren sie nur durch `<meta name="robots" content="noindex">` –
+das hält Suchmaschinen ab, aber niemanden, der die Adresse kennt.
+
+**Behoben:** `entwurf/`, `entwurf.html`, `entwurf-apple.html` und
+`entwurf-produkt.html` stehen jetzt in `.assetsignore`, zusätzlich
+`X-Robots-Tag: noindex, nofollow` in `_headers`. Auf der
+Branch-Vorschau bleiben sie erreichbar – dort sollen sie es sein.
+
+### 7.2 `main` ist ungeschützt — liegt beim Betreiber
+
+Laut GitHub-API ist **kein** Branch geschützt, auch `main` nicht. Ein
+einzelner Merge oder Push löst das Cloudflare-Deployment aus.
+
+Die Regel, die das gefährlich machte („immer auto merge"), ist am
+08.11.2026 aus `CLAUDE.md` entfernt. **Technisch** abgesichert ist es
+damit nicht. Empfehlung an den Betreiber: In den
+GitHub-Repository-Einstellungen unter *Branches* eine Schutzregel für
+`main` anlegen (mindestens: Pull Request erforderlich). Das kann ich
+nicht selbst tun.
+
+### 7.3 Die Vorschau schreibt in die Produktionsdatenbank — nicht behoben
+
+`wrangler.jsonc` hat **keine getrennte Umgebung**. Das D1-Binding
+`MESSUNG` → `bv-messung` gilt für Produktion **und** Vorschau. Die
+Tabelle `ereignis` hat **keine Spalte für den Hostnamen** – in den
+Zahlen ist also nicht zu unterscheiden, ob ein Aufruf von der echten
+Seite oder von einer Vorschau kam.
+
+**Nachgemessen am 08.11.2026:** In der Tabelle stehen für heute 98
+Zeilen gegenüber 16 am Vortag. Keine davon nennt eine Entwurfsseite –
+die Entwürfe binden `js/messung.js` gar nicht ein. **Aber:** Meine
+eigenen Browser-Prüfungen gegen die **echte** Adresse
+(`bv-aussensysteme.de`, je zweimal `/`, `/baugenehmigung`, `/pflege`)
+sind mit hoher Wahrscheinlichkeit in diesen 98 Zeilen enthalten. Wie
+viele es genau sind, lässt sich **nicht** feststellen, weil nichts
+Testverkehr kennzeichnet.
+
+**Das betrifft die Regel „Zahlen vor Meinung" unmittelbar:** Die Zahlen
+der letzten Tage sind durch meine Tests verunreinigt. Wer sie für eine
+Entscheidung heranzieht, muss das wissen.
+
+**Zwei Wege, beide gehören dem Betreiber:**
+
+1. **Getrennte Datenbank für die Vorschau.** In `wrangler.jsonc` eine
+   eigene Umgebung mit eigenem D1-Binding. Sauber, aber eine Änderung
+   an der produktiven Konfiguration – nach Regel 1 nicht ohne Wort.
+2. **Nicht mehr gegen die echte Adresse testen.** Ab sofort laufen alle
+   Browser-Prüfungen gegen `localhost` oder die Branch-Vorschau. Das
+   kostet nichts und ändert an der Produktion nichts. **So mache ich es
+   ab jetzt**, bis anders entschieden.
+
+Was ich **nicht** tue: an der Messung oder an der Datenbank etwas
+ändern. Eine Änderung am Umfang der Messung zieht nach eigener Regel
+eine Änderung der Datenschutzerklärung nach sich.
+
+## 8. Was von hier aus nicht prüfbar ist
+
+- Die Cloudflare-Oberfläche: Build-Einstellungen, welche Branches
+  gebaut werden, DNS.
+- Ob ein Vorschau-Build weitere produktive Bindungen erbt.
+- Die Schutzregeln des GitHub-Repositorys ändern.
+
+Diese drei Punkte kann nur der Betreiber einsehen oder ändern.

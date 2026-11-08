@@ -53,3 +53,14 @@ package-lock.json
 eleventy.config.js
 .gitignore
 .editorconfig
+
+# GEFUNDEN AM 08.11.2026 durch die unabhaengige Isolationspruefung:
+# Die Entwurfsseiten standen hier NICHT drin. Da das Verzeichnis in
+# wrangler.jsonc "." ist, waeren sie bei einem Produktiv-Deploy
+# oeffentlich gewesen - geschuetzt nur durch ein Meta-Tag im Quelltext,
+# also gar nicht gegen direkte Aufrufe. Auf der Branch-Vorschau sollen
+# sie erreichbar sein, auf der echten Seite nie.
+entwurf/
+entwurf.html
+entwurf-apple.html
+entwurf-produkt.html

@@ -1,3 +1,9 @@
+/entwurf*
+  X-Robots-Tag: noindex, nofollow
+
+/entwurf/*
+  X-Robots-Tag: noindex, nofollow
+
 /*
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
