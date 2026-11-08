@@ -14561,3 +14561,64 @@ Offen und nicht drängend bleiben die Detailfragen aus Abschnitt 4.3 des
 Registers: ob die Rechte auch **Bearbeitung** (die Bilder sind
 zugeschnitten und umgewandelt), **Namensnennung** und die Nutzung
 **nach Vertragsende** abdecken.
+
+---
+
+## 08.11.2026 – Entwurf wird vom Handy her gebaut, nicht vom Rechner
+
+**Anlass.** Zwei Sätze des Betreibers: „das sieht aus wie ne
+bildergalerie und ned ne seite" und „du sollst Mobile first entwickeln
+weil 70/80% der leute am handy suchen".
+
+**Was falsch war.** Der Entwurf war am 1440-px-Bild entworfen und
+danach heruntergerechnet. Am Handy blieb davon ein Stapel gleich großer
+Bildkacheln übrig – keine Rangfolge, kein Text, nichts zum Überfliegen.
+Dazu vier handfeste Fehler:
+
+1. **Die Telefonnummer war unter 720 px ausgeblendet.** Mein Fehler,
+   kein Kompromiss. Auf dem Gerät, auf dem der Großteil der Kunden
+   sucht, war der kürzeste Weg zum Kontakt nicht da.
+2. Die untere Kontaktleiste war im CSS fertig, aber **nichts setzte die
+   Klasse `.da`** – sie war nie zu sehen. Eine Gestaltung, die nur im
+   Stylesheet existiert, ist nicht gebaut.
+3. Die Kopfleiste war mit `.78` halbdurchsichtig. Über der dichten
+   Leistungsliste schimmerte die Zeile darunter durch.
+4. Ohne `scroll-padding-top` rutschte jede angesprungene Überschrift
+   unter die feste Kopfleiste.
+
+**Was jetzt gilt.**
+
+- Die Leistungen sind am Handy eine **Liste zum Überfliegen**: 64-px-Bild,
+  Name, eine Zeile, goldener Winkel, Haarlinie dazwischen, Zeile
+  mindestens 64 px hoch. Erst ab 900 px wird daraus wieder das
+  Magazinraster, ab 1080 px mit großer erster Kachel. Neun Bildkacheln
+  untereinander beantworten am Handy keine Frage; neun Zeilen mit Namen
+  tun es.
+- Die **Nummer steht in der Kopfleiste**, goldgerahmt, mindestens 44 px
+  hoch. Der lange Knopf „Kostenlos anfragen" weicht dafür unter 720 px –
+  von zwei Dingen nebeneinander gewinnt das, was sofort zum Gespräch
+  führt.
+- Die **Kontaktleiste unten** (Anrufen / WhatsApp) fährt ein, sobald der
+  Kopfbereich aus dem Bild ist, mit `env(safe-area-inset-bottom)`.
+  Bewusst **nicht** hinter der Bewegungsabfrage: Wer Bewegung reduziert
+  hat, bekommt sie ohne Einfahren, aber er bekommt sie. Die
+  Bewegungsabfrage ist keine Begründung, Bedienelemente wegzulassen.
+- Die **Kopfleiste ist am Handy ganz deckend**, ohne Weichzeichner. Das
+  Glas ist dort kein Gewinn, kostet aber Rechenzeit.
+
+**Was verworfen wurde.** Die Kacheln am Handy nur kleiner zu machen. Das
+war der erste Versuch und es blieb eine Galerie. Ebenso verworfen: die
+Kontaktleiste unten bei reduzierter Bewegung ganz wegzulassen.
+
+**Gegenzulesen.** Am echten Handy: steht die Nummer oben, fährt die
+Leiste unten erst nach dem Kopfbereich ein, verdeckt sie den Fuß nicht,
+landet ein Menüpunkt-Sprung unter oder neben der Kopfleiste.
+
+**Geprüft.** Kontrast 0 unter Soll in allen vier Kombinationen
+(Handy/PC × hell/dunkel), 0 JS-Fehler, kein Querscrollen bei 390 und
+1440 px. `pruefe-konfliktmarken`, `pruefe-keine-preise`,
+`pruefe-nicht-oeffentlich`, `pruefe-kommentare` bestanden. Nicht
+gelaufen: `pruefe-darstellung` – es prüft die bestehenden Seiten, nicht
+den Entwurf; am Entwurf hängt die eigene Kontrastmessung.
+
+**Nicht veröffentlicht.** Nur Arbeitsbranch und Vorschau.
