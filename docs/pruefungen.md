@@ -29,6 +29,7 @@ die nie anschlägt, ist keine.**
 
 | Skript | Was es prüft |
 |---|---|
+| `scripts/pruefe-bewegung.mjs` | Entwurf: Bleibt bei Bewegung, bei reduzierter Bewegung und ganz ohne JavaScript jeder Text sichtbar? Fährt die Ablaufspur wirklich, und endet sie im Bild? Fährt die Kontaktleiste unten ein? (4 Fehler in der Gegenprobe) |
 | `scripts/pruefe-cache-buster.sh` | Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? |
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
@@ -197,3 +198,35 @@ statt sie zu pflegen, beantwortet das Bauen die Frage selbst.
 zurück, danach war nichts mehr zu finden, und die Gegenprobe meldete die
 Prüfung als blind. Geändert wird jetzt die *Vorlage* – derselbe Zustand,
 aber einer, der stehen bleibt.
+
+
+## `pruefe-bewegung.mjs` – warum es diese Prüfung gibt
+
+Nicht wegen der Bewegung. Wegen des Gegenteils.
+
+Im Entwurf standen am 08.11.2026 **drei fertige CSS-Regeln, die nie
+eingeschaltet wurden**: die Kontaktleiste unten (`.griff.da` wurde
+nirgends gesetzt), der Fortschrittsbalken (kein Skript füllte ihn) und
+die Goldlinie über den Ablaufschritten (die Regel hieß `.ist-da`, die
+Klasse, die wirklich gesetzt wird, heißt `.da`). Alle drei sahen im
+Quelltext vollkommen richtig aus und taten nichts. Im Screenshot fällt
+so etwas nur auf, wenn man genau danach sucht.
+
+Die größere Gefahr ist die Umkehrung: Bewegung, die Inhalt **versteckt**,
+solange sie nicht ausgelöst wird. Dann steht der Besucher vor einer
+leeren Seite. Deshalb prüft das Skript in drei Zuständen, und in allen
+dreien muss jeder Text lesbar sein:
+
+1. **normal** – Bewegung erlaubt, JavaScript an, nach dem Durchscrollen
+2. **ruhig** – `prefers-reduced-motion: reduce`, **ohne** Scrollen: Wer
+   Ruhe eingestellt hat, darf nicht erst scrollen müssen, damit Text
+   erscheint
+3. **ohne Skript** – JavaScript aus: Überschrift, Telefonnummer und
+   Kopfbild müssen da sein
+
+**Lehre aus dem ersten Lauf:** Die Prüfung meldete „letzter Schritt
+bleibt rechts außerhalb". Das war kein Fehler der Seite, sondern ihr
+eigener: `scroll-behavior: smooth` im Stylesheet lässt ein normales
+`scrollTo` über mehrere hundert Millisekunden fahren, gemessen wurde
+mitten in der Fahrt. Jetzt `behavior: 'instant'`. Eine Prüfung mit
+falschem Alarm wird abgeschaltet und prüft danach gar nichts mehr.

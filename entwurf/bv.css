@@ -422,10 +422,14 @@ h1,h2,h3{margin:0;color:var(--schrift);font-family:var(--anzeige);
   content:'';position:absolute;top:0;left:0;height:1px;width:0;background:var(--gold);
   transition:width 1s var(--kurve);
 }
-.weg-schritt.ist-da::after{width:100%}
-.weg-schritt:nth-child(2).ist-da::after{transition-delay:.12s}
-.weg-schritt:nth-child(3).ist-da::after{transition-delay:.24s}
-.weg-schritt:nth-child(4).ist-da::after{transition-delay:.36s}
+/* GEFUNDEN AM 08.11.2026: Hier stand .ist-da. Diese Klasse wurde
+   nirgends gesetzt, die Goldlinie ueber den Schritten hat sich also
+   nie gezeichnet. Die Klasse, die der Beobachter wirklich setzt,
+   heisst .da (siehe .auf im Skript). */
+.weg-schritt.da::after{width:100%}
+.weg-schritt:nth-child(2).da::after{transition-delay:.12s}
+.weg-schritt:nth-child(3).da::after{transition-delay:.24s}
+.weg-schritt:nth-child(4).da::after{transition-delay:.36s}
 .weg-nr{
   display:block;font-family:var(--anzeige);font-size:13px;font-weight:700;
   letter-spacing:.2em;color:var(--gold-hell);margin-bottom:14px;
@@ -601,4 +605,327 @@ p.marke,.aussage .marke,.kopfzeile .marke,.ruf .ruf-klein{color:var(--akzent-tex
   .kopf h1{font-size:clamp(2.4rem,10vw,3.4rem)}
   .kopf-fuss{margin-top:28px;padding-top:20px;gap:8px 20px;font-size:13.5px}
   .abschnitt{padding:clamp(60px,14vw,96px) 0}
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   LEBENDIGKEIT – 08.11.2026
+   ──────────────────────────────────────────────────────────────────
+   Ansage des Betreibers: "da fehlt der kick, der swish ... es ist noch
+   langweilig das muss einen von den socken hauen".
+
+   WARUM OHNE FREMDE BIBLIOTHEK. Der naheliegende Griff wäre eine der
+   bekannten Scroll-Animationsbibliotheken gewesen. Dagegen sprechen
+   drei Dinge, die hier schwerer wiegen als die Bequemlichkeit:
+   1. Jede fremde Datei ist ein Eintrag im Lizenzregister und ein
+      Punkt in der Sicherheitsprüfung (fremdes Skript, SRI-Hash,
+      Inhaltsrichtlinie). Das blockiert die Freigabe.
+   2. 60–90 kB zusätzlich auf einem Gerät, das im Westerwald im
+      Mobilfunknetz lädt. Die Seite verkauft Terrassendächer, nicht
+      Technik.
+   3. Alles hier Gebaute kann der Browser selbst: Transformationen,
+      Masken und seit Kurzem Animationen am Scrollstand
+      (animation-timeline). Wo er es nicht kann, steht die Seite
+      einfach still und vollständig da.
+
+   DIE REGEL FÜR ALLES HIER: Bewegung darf nie die Bedingung dafür
+   sein, dass man etwas lesen oder bedienen kann. Jede Zeile unten
+   hängt an "prefers-reduced-motion: no-preference" und an .js am
+   <html>. Ohne JavaScript, ohne Bewegungserlaubnis oder bei einem
+   Fehler steht alles sichtbar da. Das ist kein Nachgedanke, das ist
+   der Grund, warum es so gebaut ist.
+   ══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion:no-preference){
+
+  /* ── 1. Überschriften decken sich wortweise auf ────────────────
+     Der stärkste Einzelgriff und zugleich der sparsamste: kein Effekt
+     über dem Text, sondern der Text selbst, der hinter seiner eigenen
+     Grundlinie hervorkommt. Keine Deckkraft-Blende – die sieht nach
+     Baukasten aus. Die Wörter werden erst beim Anzeigen per Skript
+     eingepackt, der Satz bleibt im Quelltext ein Satz. */
+  .js .zeig .wort{
+    display:inline-block;overflow:hidden;vertical-align:bottom;
+    /* Luft für Unterlängen (g, j, ß), sonst schneidet overflow sie ab */
+    padding-bottom:.16em;margin-bottom:-.16em;
+  }
+  .js .zeig .wort > i{
+    display:inline-block;font-style:inherit;
+    transform:translateY(108%);
+    transition:transform .92s var(--kurve);
+  }
+  .js .zeig.da .wort > i{transform:none}
+
+  /* ── 2. Goldstrich unter der Dachzeile ────────────────────────
+     currentColor, nicht --gold: im Kopfbereich ist die Dachzeile
+     hellgold, in den Abschnitten je nach Fassung anders. */
+  .js .marke::after{
+    content:'';display:block;height:2px;width:56px;margin-top:11px;
+    background:currentColor;transform:scaleX(0);transform-origin:left;
+    transition:transform .85s var(--kurve) .1s;
+  }
+  .js .auf.da .marke::after,
+  .js .zeig.da.marke::after,
+  .js .kopf.da .marke::after{transform:none}
+
+  /* ── 3a. Das Bild zieht auf ───────────────────────────────────
+     Der erste Eindruck: Die Seite steht dunkel da, das Foto rollt von
+     oben herunter, die Worte steigen darunter auf. Gut eine Sekunde,
+     dann ist Schluss.
+     Bewusst als Transition (clip-path) und nicht als Animation:
+     Auf .kopf-bild liegt beim Scrollen schon eine Animation
+     (transform). Zwei Animationen auf einem Element streiten sich,
+     eine Transition auf einer anderen Eigenschaft nicht.
+     Haengt an .js am <html>: Ohne Skript gibt es keinen Beschnitt,
+     das Foto steht sofort da. Es kann also nie passieren, dass der
+     Kopfbereich leer bleibt, weil eine Klasse nicht gesetzt wurde. */
+  .js .kopf-bild{
+    clip-path:inset(0 0 100% 0);
+    transition:clip-path 1.2s var(--kurve) .1s;
+  }
+  .js .kopf.da .kopf-bild{clip-path:inset(0 0 0 0)}
+
+  /* ── 3. Kopfbild atmet ────────────────────────────────────────
+     Langsames Heranfahren über die volle Standzeit eines Bildes
+     (6,5 s Wechsel, 11 s Weg – das Bild kommt also nie zum Stillstand
+     und nie an sein Ende). Richtung wechselt, damit zwei Bilder
+     hintereinander nicht gleich wirken. */
+  .kopf-bild i.da{animation:atem 11s var(--kurve-weich) forwards}
+  .kopf-bild i:nth-child(even).da{animation-name:atem-quer}
+  @keyframes atem{from{transform:scale(1.001)}to{transform:scale(1.085)}}
+  @keyframes atem-quer{
+    from{transform:scale(1.07) translateX(1.2%)}
+    to{transform:scale(1.001) translateX(-.8%)}
+  }
+
+  /* ── 4. Kopfzeile zieht sich zusammen ─────────────────────────
+     72 → 56 px nach 80 px Scrollweg. Macht oben Platz frei und ist
+     das erste, was man von der Seite zurückbekommt. */
+  .leiste-innen{transition:min-height .34s var(--kurve)}
+  .leiste img{transition:height .34s var(--kurve)}
+  .leiste.eng .leiste-innen{min-height:56px}
+  .leiste.eng img{height:21px}
+
+  /* ── 5. Leistungen treten nacheinander ein ────────────────────
+     Am Handy ist die Liste das Herz der Seite. Die Zeilen kommen von
+     links, versetzt, aber schnell: 9 × 60 ms, nach einer halben
+     Sekunde steht alles. Länger wäre Selbstzweck. */
+  .js .werke.da .werk{animation:reihe .62s var(--kurve) both}
+  .js .werke.da .werk:nth-child(1){animation-delay:.02s}
+  .js .werke.da .werk:nth-child(2){animation-delay:.08s}
+  .js .werke.da .werk:nth-child(3){animation-delay:.14s}
+  .js .werke.da .werk:nth-child(4){animation-delay:.2s}
+  .js .werke.da .werk:nth-child(5){animation-delay:.26s}
+  .js .werke.da .werk:nth-child(6){animation-delay:.32s}
+  .js .werke.da .werk:nth-child(7){animation-delay:.38s}
+  .js .werke.da .werk:nth-child(8){animation-delay:.44s}
+  .js .werke.da .werk:nth-child(9){animation-delay:.5s}
+  @keyframes reihe{
+    from{opacity:0;transform:translate3d(-14px,0,0)}
+    to{opacity:1;transform:none}
+  }
+  @media (min-width:900px){
+    /* Im Magazinraster kommen die Kacheln von unten, nicht von der
+       Seite: nebeneinander wirkt seitliches Einlaufen wie ein Ruck. */
+    @keyframes reihe{
+      from{opacity:0;transform:translate3d(0,22px,0) scale(.985)}
+      to{opacity:1;transform:none}
+    }
+  }
+
+  /* ── 6. Goldschimmer über der Kachel ──────────────────────────
+     Nur dort, wo es einen Zeiger gibt. Der Schimmer läuft einmal
+     diagonal durch – wie Licht über eine Alu-Kante. Die Marke ist
+     Aluminium, das ist kein beliebiger Glanz. */
+  @media (hover:hover) and (pointer:fine){
+    .werk::before{
+      content:'';position:absolute;inset:-20%;z-index:2;pointer-events:none;
+      background:linear-gradient(112deg,
+        transparent 38%,rgba(232,184,64,.26) 50%,transparent 62%);
+      transform:translate3d(-130%,0,0);opacity:0;
+      transition:transform .95s var(--kurve),opacity .25s;
+    }
+    .werk:hover::before,.werk:focus-visible::before{
+      transform:translate3d(130%,0,0);opacity:1;
+    }
+  }
+
+  /* ── 7. Zahlenband ────────────────────────────────────────────
+     Die Zahlen zählen schon hoch. Hier kommt der Rahmen dazu: die
+     Felder treten versetzt ein, damit das Hochzählen nicht aus dem
+     Nichts beginnt. */
+  .js .zahlenband.da > div{animation:reihe .6s var(--kurve) both}
+  .js .zahlenband.da > div:nth-child(2){animation-delay:.09s}
+  .js .zahlenband.da > div:nth-child(3){animation-delay:.18s}
+  .js .zahlenband.da > div:nth-child(4){animation-delay:.27s}
+
+  /* ── 8. Nähte zeichnen sich von der Mitte ─────────────────────── */
+  .js .naht{transform:scaleX(0);transition:transform 1.1s var(--kurve)}
+  .js .naht.da{transform:none}
+
+  /* ── 9. Abschlussnummer ───────────────────────────────────────
+     NICHT mit background-clip:text und Goldverlauf gebaut, obwohl das
+     der auffälligere Weg wäre. Dafür müsste die Schriftfarbe
+     transparent sein – und wenn der Browser background-clip:text
+     nicht beherrscht oder das Bild anders zusammensetzt, ist die
+     Telefonnummer unsichtbar. Genau dieser Fehler ist auf dieser
+     Seite schon einmal passiert. Die Nummer ist das Wichtigste auf
+     der Seite; sie bekommt keinen Effekt, der sie verschwinden
+     lassen kann. Stattdessen: sie wächst beim Erscheinen heran, der
+     Strich darunter zieht sich auf. Nicht aufräumen. */
+  .js .ruf-nummer{transition:color .3s var(--kurve),letter-spacing .9s var(--kurve)}
+  .js .auf .ruf-nummer{letter-spacing:.012em}
+  .js .auf.da .ruf-nummer{letter-spacing:-.02em}
+
+  /* ── 10. Fortschritt am oberen Rand ───────────────────────────
+     War angelegt, aber nichts hat ihn je gefüllt. Wo der Browser
+     Animationen am Scrollstand kennt, macht er es ohne Skript; sonst
+     füllt ihn das Skript. */
+  @supports (animation-timeline:scroll()){
+    .fortschritt{animation:fuellen linear both;animation-timeline:scroll(root block)}
+    @keyframes fuellen{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  }
+  @supports not (animation-timeline:scroll()){
+    .fortschritt{transition:transform .1s linear}
+  }
+
+  /* ── 11. Kopfbereich zieht beim Scrollen davon ────────────────
+     Nur wo der Browser Animationen am Scrollstand beherrscht, und
+     NUR auf der Dekorationsebene. Der Fließtext bewegt sich nicht
+     mit – Parallaxe unter Lesetext macht das Lesen unangenehm. */
+  @supports (animation-timeline:view()){
+    .kopf-bild{animation:tiefe linear both;
+      animation-timeline:view();animation-range:exit 0% exit 100%}
+    @keyframes tiefe{to{transform:translate3d(0,13%,0)}}
+    @media (min-width:900px){
+      .kopf-innen{animation:voran linear both;
+        animation-timeline:view();animation-range:exit 0% exit 72%}
+      @keyframes voran{to{opacity:.12;transform:translate3d(0,-30px,0)}}
+    }
+  }
+
+  /* ── 12. Drücken fühlt sich an wie Drücken ────────────────────── */
+  .werk:active{transform:scale(.993)}
+  .griff a:active{transform:scale(.985)}
+  .ruf-unten .pille:active,.kopf-pillen .pille:active{transform:translateY(1px)}
+}
+
+/* Ohne Bewegungserlaubnis: Nähte und Kacheln stehen vollständig da.
+   Ausdrücklich hingeschrieben, damit niemand später die Regeln oben
+   aus dem Medienblock herauszieht und es dann kaputt ist. */
+@media (prefers-reduced-motion:reduce){
+  .naht{transform:none}
+  .werk,.zahlenband > div{opacity:1;transform:none}
+  .js .zeig .wort > i{transform:none}
+}
+
+/* Wo die Überschrift sich schon wortweise aufdeckt, soll der Block
+   darum herum nicht zusätzlich wandern – zwei Bewegungen übereinander
+   wirken unruhig. :has() kennen nicht alle Browser; die, die es nicht
+   kennen, bekommen das bisherige Verhalten. Kein Verlust. */
+@media (prefers-reduced-motion:no-preference){
+  .js .auf:has(.zeig){opacity:1;transform:none}
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ABLAUF: die Seite wechselt einmal die Richtung
+   ──────────────────────────────────────────────────────────────────
+   Man scrollt weiter nach unten, die vier Schritte ziehen seitwärts
+   vorbei. Das ist die eine Stelle, an der die Seite etwas tut, das
+   man nicht erwartet – und sie liegt bewusst dort, wo erklärt wird,
+   wie eine Zusammenarbeit abläuft. Der Richtungswechsel trägt also
+   den Inhalt: ein Weg von links nach rechts.
+
+   GEBAUT OHNE SKRIPT. view-timeline/animation-timeline macht der
+   Browser selbst; es gibt keinen Scroll-Zuhörer, keine Rechnung pro
+   Bild, nichts, was bei schnellem Wischen hinterherhinkt.
+
+   DREI AUSSTIEGE, alle führen zur normalen senkrechten Liste:
+   - Browser kennt animation-timeline nicht  → @supports greift nicht
+   - Nutzer hat Bewegung reduziert           → Medienabfrage greift nicht
+   - Bildschirm zu niedrig (unter 560 px)    → zu wenig Platz zum Anheften
+
+   Die Bühne ist 340 svh hoch. Kürzer wirkt der Wechsel hektisch,
+   länger fühlt es sich an, als klemme die Seite.
+   ══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion:no-preference) and (min-height:560px){
+  @supports (animation-timeline:view()) and (height:100svh){
+
+    .ablauf-buehne{
+      height:340svh;padding:0;position:relative;
+      view-timeline-name:--weg;view-timeline-axis:block;
+    }
+    .ablauf-fest{
+      position:sticky;top:0;height:100svh;overflow:hidden;
+      display:flex;flex-direction:column;justify-content:center;
+      gap:clamp(26px,4vw,54px);
+    }
+    /* Der Rahmen schneidet ab, die Spur darin ist breiter als das Bild.
+       Der Platz unten gehoert der Fortschrittslinie: Sie liegt INNEN,
+       weil overflow:hidden alles ausserhalb wegschneidet - genau das
+       ist beim ersten Versuch passiert, die Linie war unsichtbar. */
+    .weg-rahmen{overflow:hidden;padding-bottom:40px;position:relative}
+    .weg-liste{
+      display:flex;flex-wrap:nowrap;width:max-content;
+      gap:clamp(18px,2.6vw,40px);
+      padding-inline:var(--rand);
+      animation:weg-fahren linear both;
+      animation-timeline:--weg;
+      animation-range:contain 0% contain 100%;
+    }
+    /* Am Handy eine Karte pro Bild, am Rechner bewusst GROSS: bei
+       vier schmalen Karten passen sie fast nebeneinander, dann gibt
+       es kaum Fahrweg und der Richtungswechsel verpufft. Gemessen
+       bei 1440 px: mit 400 px nur 442 px Weg, mit dieser Breite
+       ueber 1100 px. */
+    .weg-schritt{
+      flex:0 0 clamp(244px,72vw,400px);
+      padding-top:clamp(22px,2.6vw,34px);
+    }
+    @media (min-width:900px){
+      .weg-schritt{flex:0 0 min(44vw,600px)}
+      .weg-schritt h3{font-size:clamp(1.5rem,2.6vw,2.3rem)}
+      .weg-schritt p{font-size:17px}
+    }
+    /* Beim Anheften fuellt die Spur den Bildschirm, sonst steht viel
+       Leere darum (gemessen: Inhalt 430 px in 900 px Hoehe). Die
+       Schrittzahl wird dabei zum Ankerpunkt der Karte - gross, gold,
+       die Ziffernform der Kondensschrift traegt das. */
+    .weg-schritt{min-height:clamp(228px,40svh,400px)}
+    .weg-nr{
+      font-size:clamp(2.4rem,6vw,4.4rem);letter-spacing:-.02em;
+      line-height:1;color:var(--gold);margin-bottom:clamp(14px,2vw,24px);
+    }
+    .weg-schritt p{max-width:none}
+    /* -100% ist die Breite der Spur selbst; was rechts noch ins Bild
+       passt, kommt wieder dazu. So endet die Fahrt genau dann, wenn
+       der letzte Schritt am rechten Rand steht. */
+    @keyframes weg-fahren{
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(calc(-100% + 100vw - var(--rand)),0,0)}
+    }
+
+    /* Die Goldlinie oben läuft über die ganze Spur mit und zeigt,
+       wie weit man ist. Gleiche Zeitachse, also immer synchron. */
+    .weg-rahmen::after{
+      content:'';position:absolute;left:var(--rand);right:var(--rand);
+      bottom:16px;height:2px;background:var(--linie);
+    }
+    .weg-rahmen::before{
+      content:'';position:absolute;left:var(--rand);right:var(--rand);
+      bottom:16px;height:2px;background:var(--gold);z-index:1;
+      transform:scaleX(0);transform-origin:left;
+      animation:weg-strich linear both;
+      animation-timeline:--weg;
+      animation-range:contain 0% contain 100%;
+    }
+    @keyframes weg-strich{from{transform:scaleX(.04)}to{transform:scaleX(1)}}
+
+    /* In der Waagerechten sitzt die Überschrift über der Spur und
+       braucht den unteren Abstand nicht. */
+    .ablauf-fest .kopfzeile{margin-bottom:0}
+    /* Die vier Schritte sind beim Anheften alle gleichzeitig im
+       Dokument sichtbar; der Beobachter blendet sie also sofort ein.
+       Das ist hier richtig: Das Nacheinander macht die Fahrt, nicht
+       das Einblenden. */
+  }
 }

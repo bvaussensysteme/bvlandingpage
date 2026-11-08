@@ -14622,3 +14622,84 @@ gelaufen: `pruefe-darstellung` – es prüft die bestehenden Seiten, nicht
 den Entwurf; am Entwurf hängt die eigene Kontrastmessung.
 
 **Nicht veröffentlicht.** Nur Arbeitsbranch und Vorschau.
+
+---
+
+## 08.11.2026 – Bewegung: gebaut ohne fremde Bibliothek
+
+**Anlass.** Der Betreiber: „da fehlt der kick, der swish ... es ist
+noch langweilig das muss einen von den socken hauen".
+
+**Der Zielkonflikt, und wie er aufgelöst wurde.** Die erste Ansage zu
+diesem Umbau lautete „keine überladenen Effekte und unnötigen
+Animationen". Jetzt soll es knallen. Das ist kein Widerspruch, wenn man
+den Unterschied ernst nimmt: **Woher die Bewegung kommt.** Alles hier
+Gebaute arbeitet mit dem Material der Marke – Gold, die Kondensschrift,
+die eigenen Fotos. Keine fremden Paletten, keine Partikel, kein
+Farbverlauf-Nebel, keine Effekte über dem Inhalt.
+
+**Keine Animationsbibliothek.** Der naheliegende Griff wäre eine der
+bekannten Scroll-Bibliotheken gewesen. Verworfen, aus drei Gründen:
+
+1. Jede fremde Datei ist ein Eintrag im Lizenzregister und ein Punkt in
+   der Sicherheitsprüfung (fremdes Skript, SRI-Hash,
+   Inhaltsrichtlinie). Das blockiert die Freigabe.
+2. 60–90 kB zusätzlich auf einem Gerät, das im Westerwald im
+   Mobilfunknetz lädt.
+3. Der Browser kann es inzwischen selbst: `animation-timeline`,
+   `view-timeline`, Masken, Transformationen.
+
+**Was gebaut wurde.** Überschriften decken sich wortweise auf;
+Goldstrich unter jeder Dachzeile; das Kopfbild rollt beim Laden auf und
+fährt danach langsam heran; die Kopfzeile zieht sich beim Scrollen von
+72 auf 56 px zusammen; die Leistungen treten versetzt ein; Goldschimmer
+über der Kachel (nur mit Zeiger); der Fortschrittsbalken wird endlich
+gefüllt. Der **Ablauf** ist das Kernstück: Die Seite heftet sich an und
+die vier Schritte ziehen seitwärts vorbei, während man weiter nach
+unten scrollt. Der Richtungswechsel trägt den Inhalt – ein Weg von
+links nach rechts.
+
+**Drei tote Regeln gefunden.** `.griff.da` (Kontaktleiste unten),
+der Fortschrittsbalken und `.ist-da` (Goldlinie über den
+Ablaufschritten) standen fertig im CSS und wurden **nie eingeschaltet**.
+Alle drei sahen im Quelltext richtig aus und taten nichts. Das ist die
+eigentliche Lehre dieses Schrittes.
+
+**Was NICHT gebaut wurde, und warum.** Die Abschlussnummer sollte einen
+laufenden Goldverlauf bekommen (`background-clip: text`). Dafür müsste
+die Schriftfarbe transparent sein. Beherrscht ein Browser das nicht,
+ist die **Telefonnummer unsichtbar** – genau dieser Fehler ist auf
+dieser Seite schon einmal passiert. Verworfen. Die Nummer bekommt
+keinen Effekt, der sie verschwinden lassen kann.
+
+**Die Regel für alles hier:** Bewegung darf nie die Bedingung dafür
+sein, dass man etwas lesen oder bedienen kann. Jede Regel hängt an
+`prefers-reduced-motion: no-preference` und an `.js` am `<html>`. Ohne
+Skript, ohne Bewegungserlaubnis oder bei einem Fehler steht alles
+sichtbar da.
+
+**Abgesichert durch `scripts/pruefe-bewegung.mjs`** (neu, in
+`docs/pruefungen.md` eingetragen). Prüft in drei Zuständen – normal,
+reduzierte Bewegung, ganz ohne JavaScript – ob jeder Text sichtbar ist,
+ob die Ablaufspur wirklich fährt und im Bild endet, ob die
+Kontaktleiste unten einfährt. Gegenprobe mit 4 eingebauten Fehlern,
+alle vier fallen auf.
+
+**Ein Fehlalarm der eigenen Prüfung.** Der erste Lauf meldete „letzter
+Schritt bleibt rechts außerhalb". Das war kein Fehler der Seite,
+sondern der Messung: `scroll-behavior: smooth` lässt ein normales
+`scrollTo` über mehrere hundert Millisekunden fahren, gemessen wurde
+mitten in der Fahrt. Festgehalten, weil eine Prüfung mit falschem Alarm
+abgeschaltet wird und danach gar nichts mehr prüft.
+
+**Gegenzulesen.** Am echten Handy: Rollt das Kopfbild beim Laden auf,
+ohne dass es sich nach langsamer Seite anfühlt? Fühlt sich der
+Richtungswechsel im Ablauf gut an oder wie eine klemmende Seite? Ist
+der versetzte Einlauf der Leistungsliste zu langsam?
+
+**Geprüft.** Bewegungsprüfung bestanden (14 Punkte), Gegenprobe 4/4.
+Kontrast 0 unter Soll in allen vier Kombinationen. 0 JS-Fehler, kein
+Querscrollen bei 390 und 1440 px. Konfliktmarken, Preisangaben,
+Kommentare bestanden.
+
+**Nicht veröffentlicht.**

@@ -81,13 +81,24 @@
 </section>
 
 <div class="breit"><div class="naht"></div></div>
-<section class="abschnitt" id="ablauf">
-  <div class="mitte">
-    <div class="kopfzeile auf">
-      <p class="marke">So einfach geht's</p>
-      <h2>Von der Idee zu Ihrem fertigen Außenbereich</h2>
+<!-- Der Ablauf ist die Stelle, an der die Seite einmal die Richtung
+     wechselt: Man scrollt weiter nach unten, die vier Schritte ziehen
+     dabei seitwaerts vorbei. Das Geruest dafuer (buehne/fest/spur)
+     steht IMMER im Quelltext, auch wenn der Browser die Animation am
+     Scrollstand nicht kennt. Dann greift keine der Regeln und es ist
+     wieder die ganz normale Liste. Deshalb ist hier nichts an
+     JavaScript gebunden. -->
+<section class="abschnitt ablauf-buehne" id="ablauf">
+  <div class="ablauf-fest">
+    <div class="mitte">
+      <div class="kopfzeile auf">
+        <p class="marke">So einfach geht's</p>
+        <h2>Von der Idee zu Ihrem fertigen Außenbereich</h2>
+      </div>
     </div>
-    <div class="weg-liste" id="ablaufListe"></div>
+    <div class="weg-rahmen">
+      <div class="weg-liste" id="ablaufListe"></div>
+    </div>
   </div>
 </section>
 
@@ -238,6 +249,61 @@
     }
   })();
 
+  // ── Wortweises Aufdecken ───────────────────────────────────────
+  // Die Ueberschriften bleiben im Quelltext ganze Saetze. Erst hier
+  // wird jedes Wort in <span class="wort"><i>..</i></span> gepackt.
+  // Grund: Suchmaschinen, Vorleseprogramme und der Fall "kein
+  // JavaScript" bekommen unveraenderten Text. <br> bleibt erhalten.
+  function zerlegen(el, schritt){
+    if(el.dataset.zerlegt) return; el.dataset.zerlegt='1';
+    var neu=document.createDocumentFragment(), n=0;
+    Array.prototype.slice.call(el.childNodes).forEach(function(k){
+      if(k.nodeType===3){
+        k.nodeValue.split(/(\s+)/).forEach(function(t){
+          if(!t) return;
+          if(/^\s+$/.test(t)){neu.appendChild(document.createTextNode(t));return;}
+          var s=document.createElement('span'); s.className='wort';
+          var i=document.createElement('i'); i.textContent=t;
+          // Versatz gedeckelt: bei langen Ueberschriften soll das
+          // letzte Wort nicht eine Sekunde spaeter kommen.
+          i.style.transitionDelay=Math.min(n*(schritt||55),520)+'ms';
+          s.appendChild(i); neu.appendChild(s); n++;
+        });
+      } else { neu.appendChild(k.cloneNode(true)); }
+    });
+    el.textContent=''; el.appendChild(neu); el.classList.add('zeig');
+  }
+  if(!ruhig){
+    document.querySelectorAll('.kopf h1,.kopfzeile h2,.aussage h2').forEach(function(e){zerlegen(e,58);});
+  }
+
+  // ── Kopfzeile zieht sich zusammen ──────────────────────────────
+  (function(){
+    var l=document.querySelector('.leiste'); if(!l) return;
+    var an=false;
+    function pruefen(){
+      var s=window.scrollY>80;
+      if(s!==an){an=s; l.classList.toggle('eng',s);}
+    }
+    window.addEventListener('scroll',pruefen,{passive:true}); pruefen();
+  })();
+
+  // ── Fortschritt, wenn der Browser es nicht selbst kann ─────────
+  (function(){
+    var f=document.getElementById('fortschritt'); if(!f||ruhig) return;
+    if(window.CSS&&CSS.supports&&CSS.supports('animation-timeline','scroll()')) return;
+    var laeuft=false;
+    function zeichnen(){
+      laeuft=false;
+      var h=document.documentElement.scrollHeight-window.innerHeight;
+      f.style.transform='scaleX('+(h>0?Math.min(1,window.scrollY/h):0)+')';
+    }
+    window.addEventListener('scroll',function(){
+      if(laeuft) return; laeuft=true; requestAnimationFrame(zeichnen);
+    },{passive:true});
+    window.addEventListener('resize',zeichnen); zeichnen();
+  })();
+
   // Schnellkontakt unten: erscheint, sobald der Kopfbereich weg ist.
   // Bewusst NICHT hinter die Bewegungs-Abfrage gelegt: Wer Bewegung
   // reduziert, soll die Telefonnummer trotzdem bekommen – nur ohne
@@ -260,8 +326,18 @@
   if('IntersectionObserver' in window && !ruhig){
     document.documentElement.classList.add('js');
     var b=new IntersectionObserver(function(ev){ev.forEach(function(x){if(x.isIntersecting){x.target.classList.add('da');b.unobserve(x.target);}});},{rootMargin:'0px 0px -8% 0px'});
-    document.querySelectorAll('.auf').forEach(function(e){b.observe(e);});
-    setTimeout(function(){document.querySelectorAll('.auf').forEach(function(e){e.classList.add('da');});},4000);
+    // .zeig (zerlegte Ueberschriften) und .naht gehen durch denselben
+    // Beobachter. Die Sicherheitsleine nach 4 s gilt fuer alle drei:
+    // Bleibt der Beobachter aus irgendeinem Grund stumm, steht die
+    // Seite trotzdem vollstaendig da.
+    var ALLE='.auf,.zeig,.naht';
+    document.querySelectorAll(ALLE).forEach(function(e){b.observe(e);});
+    setTimeout(function(){document.querySelectorAll(ALLE).forEach(function(e){e.classList.add('da');});},4000);
+    // Der Kopfbereich ist beim Laden schon im Bild und wartet nicht
+    // auf ein Scrollereignis.
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      document.querySelectorAll('.kopf .zeig,.kopf').forEach(function(e){e.classList.add('da');});
+    });});
 
     var zb=new IntersectionObserver(function(ev){ev.forEach(function(x){
       if(!x.isIntersecting)return; zb.unobserve(x.target);
