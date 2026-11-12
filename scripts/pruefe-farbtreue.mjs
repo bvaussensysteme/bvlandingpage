@@ -44,13 +44,24 @@ const PORT = 8791;
 const GOLD = [196, 154, 42];        // #C49A2A
 const AUSGEWASCHEN = [203, 189, 117];  // #CBBD75, gemessen
 
+/* Der Browser liegt je nach Umgebung in chrome-linux/ ODER in
+   chrome-linux64/ (am 12.11.2026 umgestellt - danach fanden 18
+   Pruefskripte den Browser nicht mehr und keine Browser-Pruefung lief
+   noch). Deshalb wird der Pfad gesucht statt geraten. */
+function chromeIn(ordner) {
+  const wege = [`${ordner}/chrome-linux/chrome`,
+                `${ordner}/chrome-linux64/chrome`,
+                `${ordner}/chrome`];
+  for (const w of wege) if (existsSync(w)) return w;
+  return undefined;
+}
 function chromiumPfad() {
   if (process.env.BV_CHROMIUM) return process.env.BV_CHROMIUM;
   const basis = '/opt/pw-browsers';
   if (!existsSync(basis)) return undefined;
   const o = readdirSync(basis).filter((d) => /^chromium-\d+$/.test(d)).sort();
   const l = o[o.length - 1];
-  return l ? `${basis}/${l}/chrome-linux/chrome` : undefined;
+  return l ? chromeIn(`${basis}/${l}`) : undefined;
 }
 
 /* Je ein Fehler, den man beim Bauen wirklich macht: eine der beiden

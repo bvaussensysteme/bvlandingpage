@@ -25,7 +25,19 @@
  */
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
-import { readdirSync } from 'node:fs';
+import { readdirSync, existsSync } from 'node:fs';
+
+/* Der Browser liegt je nach Umgebung in chrome-linux/ ODER in
+   chrome-linux64/ (am 12.11.2026 umgestellt - danach fanden 18
+   Pruefskripte den Browser nicht mehr und keine Browser-Pruefung lief
+   noch). Deshalb wird der Pfad gesucht statt geraten. */
+function chromeIn(ordner) {
+  const wege = [`${ordner}/chrome-linux/chrome`,
+                `${ordner}/chrome-linux64/chrome`,
+                `${ordner}/chrome`];
+  for (const w of wege) if (existsSync(w)) return w;
+  return undefined;
+}
 
 const gegen = process.argv.includes('--gegenprobe');
 let fehler = 0, geprueft = 0;
@@ -44,7 +56,7 @@ process.on('exit', () => srv.kill());
 await new Promise(r => setTimeout(r, 900));
 
 const b = await chromium.launch({
-  executablePath: `/opt/pw-browsers/${browser}/chrome-linux/chrome`,
+  executablePath: chromeIn(`/opt/pw-browsers/${browser}`),
   args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox']
 });
 const ctx = await b.newContext({ viewport: { width: 1000, height: 780 } });

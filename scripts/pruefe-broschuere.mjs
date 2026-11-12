@@ -30,13 +30,24 @@ const GEGEN = process.argv.includes('--gegenprobe');
 const PORT = 8794;
 const ANZAHL = 36;
 
+/* Der Browser liegt je nach Umgebung in chrome-linux/ ODER in
+   chrome-linux64/ (am 12.11.2026 umgestellt - danach fanden 18
+   Pruefskripte den Browser nicht mehr und keine Browser-Pruefung lief
+   noch). Deshalb wird der Pfad gesucht statt geraten. */
+function chromeIn(ordner) {
+  const wege = [`${ordner}/chrome-linux/chrome`,
+                `${ordner}/chrome-linux64/chrome`,
+                `${ordner}/chrome`];
+  for (const w of wege) if (existsSync(w)) return w;
+  return undefined;
+}
 function chromiumPfad() {
   if (process.env.BV_CHROMIUM) return process.env.BV_CHROMIUM;
   const basis = '/opt/pw-browsers';
   if (!existsSync(basis)) return undefined;
   const o = readdirSync(basis).filter((d) => /^chromium-\d+$/.test(d)).sort();
   const l = o[o.length - 1];
-  return l ? `${basis}/${l}/chrome-linux/chrome` : undefined;
+  return l ? chromeIn(`${basis}/${l}`) : undefined;
 }
 const nn = (i) => (i < 10 ? '0' : '') + i;
 
@@ -70,6 +81,11 @@ const FEHLER = [
     suchen: 'buch.turnToPage(ziel - 1)', ersetzen: 'buch.turnToSeite(ziel - 1)' },
   { name: 'Der Zoom vergroessert nicht', muster: '**/js/broschuere.js*',
     suchen: 'var STUFEN = [1, 1.5, 2.5, 4];', ersetzen: 'var STUFEN = [1, 1, 1, 1];' },
+  { name: 'Der Zoom springt beim Oeffnen auf eine hohe Stufe', muster: '**/js/broschuere.js*',
+    suchen: '    stufe = 0;\n    /* ERST OEFFNEN', ersetzen: '    stufe = 2;\n    /* ERST OEFFNEN' },
+  { name: 'Der Zoom rechnet die Hoehe nicht mit (alter Fehler)', muster: '**/js/broschuere.js*',
+    suchen: '    return Math.max(200, Math.min(ausBreite, ausHoehe));',
+    ersetzen: '    return Math.max(200, ausBreite);' },
   { name: 'Der Vollbild-Knopf fehlt', muster: '**/broschuere.html*',
     suchen: 'id="broVollbild"', ersetzen: 'id="broVollbildAnders"' },
   { name: 'Das PDF fehlt', muster: '**/BV-Broschuere.pdf', suchen: null, status: 404 },
@@ -268,7 +284,52 @@ async function lauf(fehler) {
   p('Klick in der Übersicht springt zur Seite', /\b20\b/.test(nachSprung), nachSprung);
 
   await klick('#broZoom');
-  await seite.waitForTimeout(400);
+  await seite.waitForTimeout(500);
+
+  /* GEMELDET AM 12.11.2026 vom Betreiber: "der zoom ... vergroessert
+     mit einem kick auf einmal ueber die ganze seite und laesst sich
+     mit - nicht zurueck machen."
+     Nachgemessen bei 1920 x 1080: Der Zoom ging beim Oeffnen auf
+     150 % = 2800 x 3932 px in einer Flaeche von 1920 x 1007 px, und
+     nach einem Druck auf "-" (1896 x 2663 px) war der Knopf AUS. Die
+     ganze Seite liess sich nie herstellen.
+     Diese beiden Pruefungen hat es vorher nicht gegeben - deshalb
+     konnte der Fehler ueberhaupt live gehen. Die 42 Pruefungen
+     davor fragten nur, OB der Zoom vergroessert, nie, ob man wieder
+     auf die ganze Seite kommt. */
+  const ganzeSeite = () => seite.evaluate(() => {
+    const kasten = document.querySelector('#broZoomEbene .bro-ebene-koerper');
+    const spur = document.getElementById('broZoomFlaeche');
+    const bild = spur && spur.querySelector('img');
+    if (!kasten || !bild) return null;
+    const b = bild.getBoundingClientRect(), sp = spur.getBoundingClientRect();
+    return {
+      breite: Math.round(b.width), hoehe: Math.round(b.height),
+      spur: Math.round(sp.width),
+      kastenB: kasten.clientWidth, kastenH: kasten.clientHeight,
+      stufe: (document.getElementById('broZoomStufe') || {}).textContent,
+      passt: Math.round(b.height) <= kasten.clientHeight + 2
+             && Math.round(sp.width) <= kasten.clientWidth + 2
+    };
+  });
+
+  const beimOeffnen = await ganzeSeite();
+  p('Beim Öffnen ist die ganze Seite zu sehen',
+    !!beimOeffnen && beimOeffnen.passt,
+    beimOeffnen
+      ? `${beimOeffnen.breite} x ${beimOeffnen.hoehe} px in ${beimOeffnen.kastenB} x ${beimOeffnen.kastenH} px (${String(beimOeffnen.stufe).trim()})`
+      : 'nichts gemessen');
+
+  for (let i = 0; i < 3; i++) { await klick('#broZoomGroesser'); await seite.waitForTimeout(180); }
+  for (let i = 0; i < 3; i++) { await klick('#broZoomKleiner');  await seite.waitForTimeout(180); }
+  const nachRundlauf = await ganzeSeite();
+  p('Mit „−" kommt man auf die ganze Seite zurück',
+    !!nachRundlauf && nachRundlauf.passt
+      && !!beimOeffnen && nachRundlauf.breite === beimOeffnen.breite,
+    nachRundlauf
+      ? `dreimal „+", dreimal „−" → ${nachRundlauf.breite} px (Start ${beimOeffnen ? beimOeffnen.breite : '?'} px), ganz sichtbar: ${nachRundlauf.passt ? 'ja' : 'nein'}`
+      : 'nichts gemessen');
+
   const breite1 = await seite.$eval('#broZoomFlaeche img', (i) => i.getBoundingClientRect().width).catch(() => 0);
   await klick('#broZoomGroesser');
   await seite.waitForTimeout(300);

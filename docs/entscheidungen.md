@@ -14703,3 +14703,75 @@ Querscrollen bei 390 und 1440 px. Konfliktmarken, Preisangaben,
 Kommentare bestanden.
 
 **Nicht veröffentlicht.**
+
+---
+
+## 12.11.2026 – Broschüre: Zoom sprang und kam nicht zurück
+
+**Anlass.** Meldung des Betreibers, wörtlich: „der zoom in der
+broschürenanzeige klappt nicht, es vergrößert mit einem kick aufeinmal
+über die ganze seite und lässt sich mit - nicht zurück machen."
+Nachgeschoben: „außerdem is sie von anfang an zu klein man kann die
+buchstaben kaum lesen."
+
+**Was falsch war – nachgemessen bei 1920 × 1080:**
+
+| | vorher | jetzt |
+|---|---|---|
+| Zoom beim Öffnen | 150 %, Seite 2800 × 3932 px in einer Fläche von 1920 × 1007 px (rund ein Achtel sichtbar) | 100 %, Seite 700 × 983 px – ganz sichtbar |
+| nach einem Druck auf „−" | 1896 × 2663 px, **danach Knopf aus** | zurück auf die ganze Seite |
+| Buchansicht, eine Seite | 500 × 707 px (36 % der Datei) | 601 × 850 px (+20 %) |
+
+Der Denkfehler steckte in einer einzigen Zeile: `zoomBasis()` gab
+*Fensterbreite minus 24 px* zurück. „100 %" hieß also **so breit wie der
+Bildschirm**, nie **ganze Seite**. Eine Katalogseite ist hoch, kein
+Querformat: Bei voller Bildschirmbreite ist sie immer rund 1,4-mal
+höher als breit und damit zwangsläufig unten abgeschnitten. Die Höhe
+kam in der Rechnung überhaupt nicht vor – deshalb konnte die unterste
+Stufe prinzipiell nie „ganze Seite" sein, und weil die unterste Stufe
+zugleich der Anschlag ist, war der „−"-Knopf dort aus. Das ist der
+Grund, warum es sich „nicht zurück machen" ließ.
+
+Dazu kam die Reihenfolge: `zoomFuellen()` lief **vor** `ebeneOeffnen()`.
+Solange die Ebene `hidden` ist, meldet sie Höhe 0, das Grundmaß fiel auf
+die Fensterhöhe zurück und war zu groß (Seite 1056 px in 1007 px
+Fläche). Jetzt wird erst geöffnet, dann gerechnet.
+
+**Zur zweiten Meldung.** In der Buchansicht deckelte
+`Math.min(1000, …)` die Breite. Bei 1920 × 1080 war die Höhe erst bei
+1202 px erschöpft – der Deckel hat 200 px verschenkt. Jetzt begrenzt die
+Höhe. **Ehrlich dazu:** Auf einem Laptop mit 1440 × 900 ändert das
+nichts, dort war schon vorher die Höhe die Grenze. Ein A4-Katalog, ganz
+auf einen 900-px-Bildschirm gelegt, zeigt eine Seite rund 670 px hoch,
+also bei einem Drittel der Originalgröße. Fließtext ist da nicht
+bequem lesbar, und daran ändert keine Einstellung etwas – dafür sind
+der Zoom (ein Druck auf „+" ergibt 75 % der Originalgröße), das PDF und
+die Textfassung unter dem Buch da.
+
+**Warum der Fehler live gehen konnte.** `pruefe-broschuere.mjs` hatte
+42 Prüfungen, davon vier zum Zoom – aber alle vier fragten nur, **ob**
+er vergrößert. Keine fragte, ob man wieder auf die ganze Seite kommt.
+Neu dazu: „Beim Öffnen ist die ganze Seite zu sehen" und „Mit „−" kommt
+man auf die ganze Seite zurück" (dreimal „+", dreimal „−", Größe muss
+auf den Startwert zurück). Zwei neue Fehler in der Gegenprobe.
+
+**Verworfen:** die Höhe weiter auszureizen, indem der Abzug von 230 px
+für Leiste, Hinweis und Kopf verkleinert wird. Das brächte rund 12 %
+und würde die Bedienleiste aus dem Bild schieben, sobald das Buch höher
+wird als der Bildschirm.
+
+**Nebenbefund, mitrepariert:** 18 Prüfskripte hatten den Pfad zum
+Browser fest eingebaut (`chrome-linux/chrome`). In der Arbeitsumgebung
+heißt der Ordner seit dem 12.11.2026 `chrome-linux64` – damit lief
+**keine einzige Browser-Prüfung mehr**, auch nicht die, mit der ich
+diesen Fehler hätte finden sollen. Der Pfad wird jetzt gesucht statt
+geraten (`chromeIn()`), alle drei Schreibweisen werden probiert.
+
+**Gegenzulesen.** Am eigenen Rechner und am Handy: Öffnet
+„Seite vergrößern" mit der ganzen Seite? Bringt „+" sie lesbar heran?
+Kommt „−" wieder zurück?
+
+**Geprüft.** `pruefe-broschuere` 44 von 44 bestanden. Cache-Buster,
+Konfliktmarken, Preise, Kommentare, Broschürenbilder bestanden.
+
+**Noch nicht veröffentlicht** – liegt auf dem Arbeitsbranch.
