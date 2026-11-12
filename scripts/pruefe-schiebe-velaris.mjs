@@ -28,12 +28,23 @@ const NUR = process.env.BV_FEHLER ? parseInt(process.env.BV_FEHLER, 10) : null;
 const WURZEL = new URL('..', import.meta.url).pathname;
 const PORT = 8773;
 
+/* Der Browser liegt je nach Umgebung in chrome-linux/ ODER in
+   chrome-linux64/ (am 12.11.2026 umgestellt - danach fanden 18
+   Pruefskripte den Browser nicht mehr und keine Browser-Pruefung lief
+   noch). Deshalb wird der Pfad gesucht statt geraten. */
+function chromeIn(ordner) {
+  const wege = [`${ordner}/chrome-linux/chrome`,
+                `${ordner}/chrome-linux64/chrome`,
+                `${ordner}/chrome`];
+  for (const w of wege) if (existsSync(w)) return w;
+  return undefined;
+}
 function chromiumPfad() {
   if (process.env.BV_CHROMIUM) return process.env.BV_CHROMIUM;
   const basis = '/opt/pw-browsers';
   if (!existsSync(basis)) return undefined;
   const o = readdirSync(basis).filter((d) => /^chromium-\d+$/.test(d)).sort();
-  return o.length ? `${basis}/${o[o.length - 1]}/chrome-linux/chrome` : undefined;
+  return o.length ? chromeIn(`${basis}/${o[o.length - 1]}`) : undefined;
 }
 
 const FEHLER = [

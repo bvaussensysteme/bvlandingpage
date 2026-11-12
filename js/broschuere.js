@@ -150,7 +150,16 @@
        Am Telefon ist mehr davon zu sehen als am Schreibtisch. */
     var frei = hoch ? (hoehe - 190) / 1.4142 : (hoehe - 230) * 1.4142;
     var breite = Math.max(hoch ? MIN_SEITE : 2 * MIN_SEITE, frei);
-    breite = Math.min(1000, breite, platz);
+    /* Der Deckel lag bei 1000 px. Bei 1920 x 1080 war die Hoehe erst
+       bei 1202 px erschoepft, der Deckel hat also 200 px verschenkt:
+       eine Seite kam mit 500 px heraus, bei 1400 px Dateibreite also
+       36 % - Flaechentext ist da kaum zu lesen ("von anfang an zu
+       klein", 12.11.2026). Jetzt begrenzt die Hoehe, nicht eine
+       runde Zahl. 1500 px bleibt als Notbremse fuer sehr hohe
+       Bildschirme: Breiter als die Datei (2 x 1400) wird es nie
+       scharf, und ein Buch, das hoeher ist als der Bildschirm,
+       schiebt die Bedienleiste aus dem Bild. */
+    breite = Math.min(1500, breite, platz);
     rahmen.style.maxWidth = Math.round(breite) + 'px';
   }
   rahmenBreite();
@@ -281,7 +290,22 @@
     });
     ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (n) {
       document.addEventListener(n, function () {
-        setTimeout(function () { try { buch.update(); } catch (e) {} aktualisieren(); }, 80);
+        /* rahmenBreite() MUSS hier mit. Ohne sie blieb das Buch im
+           Vollbild genau so gross wie vorher - der Knopf, den man
+           drueckt, WEIL etwas zu klein ist, machte nichts groesser.
+           Auf den Umweg ueber das resize-Ereignis ist kein Verlass:
+           Die Bremse dort laesst Hoehenaenderungen unter 120 px
+           durchgehen, ohne neu zu rechnen (sie ist fuer die
+           einklappende Adresszeile am Telefon da). Beim Wechsel ins
+           Vollbild waechst die Hoehe am Schreibtisch oft nur um die
+           Hoehe der Browserleisten, also um weniger als 120 px.
+           Nicht "aufraeumen": Beim Vollbild hat sich der Platz
+           sicher geaendert, da ist Nachrechnen immer richtig. */
+        setTimeout(function () {
+          rahmenBreite();
+          try { buch.update(); } catch (e) {}
+          aktualisieren();
+        }, 80);
       });
     });
   }
@@ -406,12 +430,26 @@
      Bewusst eine eigene Ebene und kein transform auf dem Buch -
      eine Skalierung verschiebt die Zeigerkoordinaten und das
      Ziehen an der Seitenecke trifft dann daneben. */
-  /* 100 % heisst: so breit wie der Bildschirm. Die Bilder sind
-     1400 px breit, mehr als 4-fach bringt also nichts mehr.
-     VORHER WAR DER ZOOM WIRKUNGSLOS: style.css setzt global
+  /* 100 % HEISST: DIE GANZE SEITE IST ZU SEHEN. Nicht "so breit wie
+     der Bildschirm" - das war bis zum 12.11.2026 die Rechnung und
+     ergab am Schreibtisch Unsinn. Gemessen bei 1920 x 1080:
+     Der Zoom ging beim Oeffnen auf 150 % = 2800 x 3932 px in einer
+     Flaeche von 1920 x 1007 px. Sichtbar war rund ein Achtel der
+     Seite. Ein Druck auf "-" brachte 1896 x 2663 px - immer noch
+     zweieinhalbmal so hoch wie die Flaeche - und danach war der
+     Knopf AUS. Die ganze Seite liess sich also ueberhaupt nicht
+     herstellen. Genau das hat der Betreiber gemeldet: "vergroessert
+     mit einem kick auf einmal ueber die ganze seite und laesst sich
+     mit - nicht zurueck machen".
+     Eine Seite ist hoch, kein Querformat: Bei voller Bildschirm-
+     breite ist sie immer rund 1,4-mal hoeher als breit und damit
+     zwangslaeufig unten weg. Die Hoehe muss also mitgerechnet
+     werden, sonst kann die unterste Stufe nie "ganze Seite" sein.
+     VORHER WAR DER ZOOM GANZ WIRKUNGSLOS: style.css setzt global
      img { max-width: 100% } - damit konnte das Bild nie breiter
      werden als sein Kasten. Gemessen am Handy: 150 % und 200 %
-     ergaben beide 362 px. Die Gegenregel steht jetzt im Stilblock. */
+     ergaben beide 362 px. Die Gegenregel steht im Stilblock. */
+  var SEITE_VERHAELTNIS = 1966 / 1400;   /* Hoehe zu Breite der Dateien */
   var STUFEN = [1, 1.5, 2.5, 4];
   var stufe = 0;
   var zoomFlaeche = document.getElementById('broZoomFlaeche');
@@ -419,8 +457,21 @@
   var zoomPlus = document.getElementById('broZoomGroesser');
   var zoomMinus = document.getElementById('broZoomKleiner');
 
+  /* Grundmass: die Breite, bei der die gerade gezeigten Seiten
+     VOLLSTAENDIG in die Flaeche passen - in der Breite UND in der
+     Hoehe. Gemessen wird die Flaeche selbst, nicht das Fenster:
+     ueber der Flaeche sitzt die Bedienleiste, die Platz wegnimmt. */
   function zoomBasis() {
-    return Math.max(280, (window.innerWidth || 800) - 24);
+    var koerper = zoomFlaeche && zoomFlaeche.parentElement;
+    var flBreite = (koerper && koerper.clientWidth)  || (window.innerWidth  || 800);
+    var flHoehe  = (koerper && koerper.clientHeight) || (window.innerHeight || 600);
+    var anzahl = zoomFlaeche
+      ? Math.max(1, zoomFlaeche.querySelectorAll('img').length) : 1;
+    /* 24 px Luft, 12 px Spalt zwischen zwei Seiten - beides steht so
+       im Stilblock von broschuere.njk (.bro-zoom-flaeche, gap:12px). */
+    var ausBreite = (flBreite - 24 - (anzahl - 1) * 12) / anzahl;
+    var ausHoehe  = (flHoehe  - 24) / SEITE_VERHAELTNIS;
+    return Math.max(200, Math.min(ausBreite, ausHoehe));
   }
   function zoomZeichnen() {
     if (!zoomFlaeche) return;
@@ -450,9 +501,17 @@
     zoomZeichnen();
   }
   if (knopfZoom) knopfZoom.addEventListener('click', function () {
-    stufe = 1;
-    zoomFuellen();
+    /* Beim Oeffnen die unterste Stufe, also die ganze Seite. Vorher
+       stand hier stufe = 1 (150 %) - das war der "Kick", von dem es
+       kein Zurueck gab. Wer naeher heran will, drueckt "+". */
+    stufe = 0;
+    /* ERST OEFFNEN, DANN RECHNEN. Solange die Ebene "hidden" ist, gibt
+       sie clientHeight 0 zurueck; das Grundmass fiel dann auf die
+       Fensterhoehe zurueck und war zu gross. Gemessen bei 1920 x 1080:
+       Seite 1056 px hoch in einer Flaeche von 1007 px - die letzten
+       49 px standen trotz "ganze Seite" unten ueber. */
     ebeneOeffnen('broZoomEbene', knopfZoom);
+    zoomFuellen();
   });
   if (zoomPlus)  zoomPlus.addEventListener('click',  function () {
     if (stufe < STUFEN.length - 1) { stufe++; zoomZeichnen(); }

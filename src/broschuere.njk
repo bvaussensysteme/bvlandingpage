@@ -17,7 +17,7 @@ extraHead: |
   <link rel="stylesheet" href="/assets/js/page-flip.css?v=20261106a" />
 extraScripts: |
   <script src="/assets/js/page-flip.browser.js?v=20261106a" defer></script>
-  <script src="/js/broschuere.js?v=20261106a" defer></script>
+  <script src="/js/broschuere.js?v=20261112a" defer></script>
   <script src="/js/i18n.js?v=20261106a" defer></script>
 ---
 <style>
@@ -35,7 +35,9 @@ extraScripts: |
      Bedienleiste und Abstaende brauchen, geteilt durch 1,4142.
      ============================================================ */
   .bro-buehne { background:#3a3a3a; padding:12px 0 22px; }
-  .bro-buehne .container { max-width:1100px; padding-left:12px; padding-right:12px; }
+  /* 1100 px deckelte das Buch mit, siehe rahmenBreite() in
+     js/broschuere.js. Ein Deckel reicht, und das ist die Hoehe. */
+  .bro-buehne .container { max-width:1560px; padding-left:12px; padding-right:12px; }
 
   /* ACHTUNG: Die Bibliothek setzt dem Buch selbst einen Inline-Stil
      max-width = 2 x maxWidth (also 1400px). Ein Inline-Stil schlaegt
