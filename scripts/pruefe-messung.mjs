@@ -18,13 +18,24 @@ import { existsSync, readdirSync } from 'node:fs';
 const GEGENPROBE = process.argv.includes('--gegenprobe');
 const PORT = 8791 + (GEGENPROBE ? 1 : 0);
 
+/* Der Browser liegt je nach Umgebung in chrome-linux/ ODER in
+   chrome-linux64/ (am 12.11.2026 umgestellt - danach fanden 18
+   Pruefskripte den Browser nicht mehr und keine Browser-Pruefung lief
+   noch). Deshalb wird der Pfad gesucht statt geraten. */
+function chromeIn(ordner) {
+  const wege = [`${ordner}/chrome-linux/chrome`,
+                `${ordner}/chrome-linux64/chrome`,
+                `${ordner}/chrome`];
+  for (const w of wege) if (existsSync(w)) return w;
+  return undefined;
+}
 function chromiumPfad() {
   if (process.env.BV_CHROMIUM) return process.env.BV_CHROMIUM;
   const basis = '/opt/pw-browsers';
   if (!existsSync(basis)) return undefined;
   const ordner = readdirSync(basis).filter((d) => /^chromium-\d+$/.test(d)).sort();
   const letzter = ordner[ordner.length - 1];
-  return letzter ? `${basis}/${letzter}/chrome-linux/chrome` : undefined;
+  return letzter ? chromeIn(`${basis}/${letzter}`) : undefined;
 }
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT)], {
