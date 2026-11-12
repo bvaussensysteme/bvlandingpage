@@ -290,7 +290,22 @@
     });
     ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (n) {
       document.addEventListener(n, function () {
-        setTimeout(function () { try { buch.update(); } catch (e) {} aktualisieren(); }, 80);
+        /* rahmenBreite() MUSS hier mit. Ohne sie blieb das Buch im
+           Vollbild genau so gross wie vorher - der Knopf, den man
+           drueckt, WEIL etwas zu klein ist, machte nichts groesser.
+           Auf den Umweg ueber das resize-Ereignis ist kein Verlass:
+           Die Bremse dort laesst Hoehenaenderungen unter 120 px
+           durchgehen, ohne neu zu rechnen (sie ist fuer die
+           einklappende Adresszeile am Telefon da). Beim Wechsel ins
+           Vollbild waechst die Hoehe am Schreibtisch oft nur um die
+           Hoehe der Browserleisten, also um weniger als 120 px.
+           Nicht "aufraeumen": Beim Vollbild hat sich der Platz
+           sicher geaendert, da ist Nachrechnen immer richtig. */
+        setTimeout(function () {
+          rahmenBreite();
+          try { buch.update(); } catch (e) {}
+          aktualisieren();
+        }, 80);
       });
     });
   }
