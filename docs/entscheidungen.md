@@ -14775,3 +14775,60 @@ Kommt „−" wieder zurück?
 Konfliktmarken, Preise, Kommentare, Broschürenbilder bestanden.
 
 **Noch nicht veröffentlicht** – liegt auf dem Arbeitsbranch.
+
+---
+
+## 13.11.2026 – Goldfarbe freigegeben: #C58A32 statt #C49A2A
+
+**Anlass.** Ausdrückliche Freigabe des Auftraggebers: Das wärmere Gold
+`#C58A32` ersetzt `#C49A2A` als primäres Gold-Token der neuen Webseite.
+Dazu helles Gold `#D9AB64`, Anthrazit `#1D2023`, Warmweiß `#F8F7F4`,
+Schrift Manrope. Die Original-Logos bleiben unverändert.
+
+**Nachgemessen, nicht geglaubt.** Am Vortag stand als offener Punkt im
+Raum, welches Gold eigentlich in den Logos steckt – das war mangels
+Bildbibliothek nicht beantwortet. Nachgeholt mit einem eigenen
+PNG-Leser (reines Python, keine Installation nötig):
+
+| Logodatei | Gold im Logo | zu #C58A32 | zu #C49A2A |
+|---|---|---|---|
+| `logo-frei.png` | `#C58930` | **ΔE 0,8** | ΔE 12,4 |
+| `logo-mark.png` | `#C67F2D` | ΔE 6,8 | ΔE 18,4 |
+| `logo-hell.png` | `#E69B26` | ΔE 15,9 | ΔE 16,0 |
+
+**Das Hauptlogo trägt praktisch exakt das neu freigegebene Gold.** Unter
+ΔE 2,3 sieht das Auge keinen Unterschied; 0,8 liegt deutlich darunter.
+Die Entscheidung korrigiert also eine Abweichung, die vorher bestand:
+Das bisherige Webseiten-Gold lag sichtbar neben dem Logo-Gold. Meine
+Sorge vom Vortag ("ein anderes Gold neben dem Logo sieht aus wie ein
+Druckfehler") war berechtigt – sie traf nur die **alte** Farbe, nicht
+die neue.
+
+**Die Einschränkung, die bleibt.** `#C58A32` auf Warmweiß erreicht
+**2,78:1**. Das liegt unter 4,5:1 und sogar unter 3:1, ist also auch für
+große Schrift zu wenig. Daraus drei Regeln im Designdokument:
+Gold ist auf hellem Grund keine Textfarbe; auf einer Goldfläche steht
+dunkler Text (6,61:1), nicht weißer (2,98:1); für Gold als Text auf
+hellem Grund gibt es einen eigenen, dunkleren Wert.
+
+**Vorgeschlagen, nicht freigegeben:** `#896023` als Textgold – gleicher
+Farbton, aber auf Warmweiß 5,21:1, auf Weiß 5,58:1, auf Steingrau
+4,52:1. Ein Wert für alle drei hellen Gründe ist weniger fehleranfällig
+als drei, die je nach Untergrund gewählt werden müssen. Das letzte Wort
+hat der Auftraggeber.
+
+**Abgesichert durch `scripts/pruefe-palette.py`** (neu, in
+`docs/pruefungen.md` eingetragen). Es liest die Werte **aus dem
+Dokument** und rechnet sie nach – Zahlen in einem Dokument veralten
+still, wenn jemand eine Farbe ändert und die Tabelle stehen lässt.
+
+**Lehre aus der Gegenprobe.** Der erste Entwurf baute alle vier Fehler
+gleichzeitig ein. Zwei davon trafen dieselbe Prüfung, die nur einmal rot
+werden kann – Ergebnis "3 von 4", obwohl nichts fehlte. Jetzt wird jeder
+Fehler einzeln eingebaut und einzeln nachgewiesen. Eine Gegenprobe, die
+ihre eigenen Fehler nicht auseinanderhalten kann, beweist weniger, als
+sie behauptet.
+
+**Nicht geändert:** die Live-Seite. Die Freigabe gilt für die neue
+Webseite; für die laufende Seite gelten weiter die Werte aus
+`src/css/style.css`, bis dazu eigens entschieden wird.

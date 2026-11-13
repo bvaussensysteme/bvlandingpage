@@ -41,7 +41,27 @@ Was NICHT geprüft wurde, gehört hierher – nicht weglassen.>
 
 ## Letzte Übergabe
 
-**13.11.2026 – Agentensystem eingerichtet**
+**13.11.2026 (2) – Goldfarbe freigegeben und nachgemessen**
+
+- **Ziel:** Freigabe `#C58A32` dokumentieren, Kontrast und Logo-Harmonie
+  vor der Umsetzung prüfen.
+- **Stand:** Beide Messungen erledigt. Das Hauptlogo trägt `#C58930` –
+  ΔE 0,8 zum neuen Gold, ΔE 12,4 zum alten. Die Freigabe bringt Seite
+  und Logo zusammen. Neue Prüfung `scripts/pruefe-palette.py`,
+  Gegenprobe 4/4 (jeder Fehler einzeln).
+- **Offen:** Textgold `#896023` ist **vorgeschlagen, nicht freigegeben**.
+  Gold auf hellem Grund erreicht nur 2,78:1 – darf dort kein Text sein.
+  Auto-Merge-Regel auf `main` und die Vorschau-Datenbank bleiben
+  vorrangig (siehe unten).
+- **Git:** Branch `claude/bv-aussensysteme-setup-bq7ew4`.
+- **Geprüft:** pruefe-palette (+Gegenprobe), Konfliktmarken, Preise,
+  Kommentare. Kein Seitencode angefasst, also keine Webseiten-Prüfung
+  nötig.
+- **Nächster sicherer Schritt:** Entscheidung zum Textgold einholen,
+  dann der erste abgegrenzte Audit (`customer-journey-architect` auf der
+  Startseite).
+
+**13.11.2026 (1) – Agentensystem eingerichtet**
 
 - **Ziel:** Zehn Prüfrollen als Agenten einrichten, Dokumentation anlegen.
 - **Stand:** Sechs Agenten neu, vier vorhandene erweitert (Zuordnung in
