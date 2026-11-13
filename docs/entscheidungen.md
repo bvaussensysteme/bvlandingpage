@@ -15415,3 +15415,56 @@ ist, war aus den Fotos nicht sicher zu erkennen – **geraten wird nicht.**
    Laub, Werkzeug, Erdaushub. Fachlich sauber gebaut, als Werbebild aber
    roh. Ein zweiter Termin bei trockenem Wetter und aufgeräumtem Umfeld
    wäre ein besseres Bild.
+
+## 13.11.2026 – „Passt, wenn ..." auf allen neun Produktkarten
+
+**Anlass.** Betreiber: „weiter". Befund 7 aus
+`docs/AUDIT-CUSTOMER-JOURNEY.md`.
+
+**Korrektur am Audit – wieder zu klein gezählt.** Der Agent sprach von
+„fünf Karten nebeneinander". Es sind **neun**: Terrassenüberdachung,
+Carport, Pergola & Lamellendach, Kaltwintergarten, Sonnenschutz &
+Markisen, Geländer & Glasgeländer, Eingang & Vordächer, Balkon &
+Fassade, Garten & Außenbereich.
+
+**Was falsch war.** Neun Karten ohne einen Hinweis, welche zu welchem
+Vorhaben passt. Die Abgrenzung Pergola / Lamellendach / Velaris stand
+nur in der FAQ ganz unten – also erst, nachdem man sich entschieden hat.
+
+**Was jetzt gilt.** Jede Karte hat zwischen Beschreibung und Link eine
+Zeile „**Passt, wenn:** …", etwa beim Carport „Wenn das Auto trocken
+stehen soll, ohne dass eine Garage gebaut wird."
+
+**Warum an derselben Stelle in jeder Karte.** Eine wiederkehrende Hilfe,
+die wandert, ist keine (WCAG 2.2, Consistent Help – aus der Abfrage des
+UI-Skills). Deshalb überall zwischen Beschreibung und Link, nie davor
+oder danach.
+
+**Warum eine eigene Klasse mit hoher Spezifität.** `.leistung-body p`
+setzt `flex: 1`, damit die Beschreibung die Karte auffüllt und alle
+Karten einer Reihe gleich hoch bleiben. Erbte die neue Zeile das, wäre
+das Raster verschoben. Deshalb `.leistung-body p.leistung-passt` mit
+`flex: none` – die niedrigere Spezifität von `.leistung-passt` allein
+hätte nicht gewonnen. Begründung steht als Kommentar in
+`src/css/style.css`.
+
+**Farben aus dem Bestand, nichts Neues.** `--gold-text` (#7A5B12, auf
+Weiß 4,5:1) für das Label, `--border` für die Trennlinie. **Nicht** die
+Palette des Neubaus (#C58A32) – die gilt nur dort, die Live-Seite bleibt
+bei ihrer eigenen.
+
+**Geprüft.** `pruefe-galerie.mjs` 11/11, alle schnellen Skripte grün,
+`pruefe-darstellung.mjs` lief zum Zeitpunkt des Commits noch.
+Cache-Buster `style.css v=20261113a`.
+
+**Was NICHT geprüft ist, ausdrücklich:** Ob die Karten einer Reihe
+weiterhin gleich hoch sind, ist **gemessen worden ist es nicht**. Drei
+Versuche, dafür ein eigenes Browser-Skript zu schreiben, blieben hängen
+(zweimal beim Hero-Text, einmal hier) – nach der Regel „zweimal aus
+demselben Grund gescheitert: stoppen" wurde abgebrochen statt weiter
+gebastelt. Die Begründung aus dem CSS (`flex: none` auf der neuen Zeile,
+`flex: 1` bleibt auf der Beschreibung) spricht dafür, dass es stimmt –
+**ein Argument ist aber keine Messung.** Gehört am Bildschirm angesehen.
+
+**Später prüfen, nicht gemacht:** Die Gegenüberstellung TDS / SkyView auf
+`produkte/terrassenueberdachung.html` (zweiter Teil von Befund 7).

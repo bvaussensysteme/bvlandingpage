@@ -577,6 +577,29 @@ body.bv-menu-open #bv-scroll-top {
 }
 .leistung-body h3 { margin-bottom: 7px; font-size: 1.2rem; }
 .leistung-body p { color: var(--muted); font-size: 0.88rem; line-height: 1.55; margin-bottom: 14px; flex: 1; }
+/* „Passt, wenn ..." – eine Zeile Entscheidungshilfe je Karte.
+   ANLASS (13.11.2026): Neun Produktkarten stehen nebeneinander, ohne dass
+   irgendwo steht, welche zu welchem Vorhaben passt. Die Abgrenzung
+   Pergola / Lamellendach / Velaris stand nur in der FAQ ganz unten.
+   Die Zeile steht in JEDER Karte an derselben Stelle (zwischen
+   Beschreibung und Link) - eine wiederkehrende Hilfe, die wandert, ist
+   keine (WCAG 2.2, Consistent Help).
+   Die Spezifitaet ist Absicht: `.leistung-body p` setzt `flex: 1`, damit
+   die Beschreibung die Karte auffuellt und alle Karten gleich hoch sind.
+   Erbte diese Zeile das auch, waere das Raster verschoben. */
+.leistung-body p.leistung-passt {
+  flex: none;
+  margin: 0 0 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.leistung-body p.leistung-passt strong {
+  color: var(--gold-text);
+  font-weight: 600;
+}
+
 .leistung-link {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; color: var(--gold-text); font-size: 0.9rem;
