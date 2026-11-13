@@ -320,3 +320,67 @@ Zusicherung.**
 | 4 | XSS-Korrektur als eigenen PR vorziehen (seit 08.11. offen)? | ja |
 | 5 | Im Cloudflare-Konto nachsehen: löst ein Push auf `main` eine Veröffentlichung aus? | bitte nachsehen und mitteilen |
 | 6 | Staging-Isolation: die vier Entscheidungen aus dem Plan oben | wie dort |
+
+---
+
+# Stand der Einrichtung (13.11.2026)
+
+## Erledigt
+
+**Vorschau-Datenbank angelegt.** `bv-messung-vorschau`, Kennung
+`9108c797-9654-4342-bcb7-7e8f8f203023`, Region WEUR (EU, wie die
+produktive). Tabellen `ereignis` und `salz` samt der drei Indizes genau
+wie in `bv-messung` – Aufbau aus `sqlite_master` der produktiven
+Datenbank gelesen, nicht nachgetippt. **An `bv-messung` wurde nichts
+geändert**, nur lesend abgefragt. Kosten: keine.
+
+## Der eigentliche Blocker – erst hier gefunden
+
+Die zweite Datenbank allein löst das Problem **nicht**. Grund:
+
+Der Worker läuft auf Cloudflares **altem** Vorschau-Modell (die Adressen
+der Form `<branch>-bvlanding…workers.dev` sind aliasierte
+Versions-URLs). In diesem Modell benutzt die Vorschau **die
+Produktionseinstellungen** – das ist so gebaut, kein Fehler. Deshalb
+schreibt jeder Vorschau-Aufruf in `bv-messung`, und kein Eintrag in
+`wrangler.jsonc` ändert das.
+
+Cloudflares neues Modell („Worker Previews") kann getrennte Bindings je
+Vorschau. Es wird über einen `previews`-Block in `wrangler.jsonc`
+konfiguriert:
+
+```jsonc
+"previews": {
+  "d1_databases": [
+    { "binding": "MESSUNG", "database_name": "bv-messung-vorschau",
+      "database_id": "9108c797-9654-4342-bcb7-7e8f8f203023" }
+  ]
+}
+```
+
+**Zwei Gründe, warum das noch nicht eingetragen ist:**
+
+1. **Der Wechsel ist unumkehrbar.** Cloudflare: „The switch cannot be
+   reversed." Bestehende Worker bleiben im alten Modell, bis der
+   Betreiber im Dashboard einmalig umstellt (Worker → Settings → Builds →
+   „Set up Worker Previews"). Danach sehen die Vorschau-Adressen anders
+   aus. **Das ist keine Entscheidung des Assistenten.**
+2. **`wrangler` ist im Projekt nicht festgelegt** – weder in
+   `package.json` noch in `node_modules`. Worker Previews braucht
+   Wrangler 4.135.0 oder neuer. Eine ältere Fassung kennt den
+   `previews`-Block nicht; ihn auf Verdacht einzutragen könnte das
+   nächste **produktive** Deployment scheitern lassen.
+
+## Was der Betreiber entscheiden muss
+
+| # | Frage |
+|---|---|
+| A | Auf „Worker Previews" umstellen? **Unumkehrbar**, ändert die Vorschau-Adressen |
+| B | Falls ja: `wrangler` in `package.json` festlegen (`wrangler@latest`), damit der `previews`-Block sicher verstanden wird |
+
+Erst nach A und B wird der `previews`-Block eingetragen und die Trennung
+geprüft. **Bis dahin gilt unverändert:** Browsertests gegen `localhost`,
+nicht gegen die Vorschau.
+
+Quelle: Cloudflare-Dokumentation, „Worker Previews – Get started",
+„Build Branches", „Compare Workflows" (abgerufen 13.11.2026).
