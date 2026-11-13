@@ -40,6 +40,42 @@ sie eingerichtet und selbst abgerufen wurde. Testdaten sind erfunden;
 keine echten Anfragen an Kunden, CRM oder produktive
 Benachrichtigungswege.
 
+## Fokus- und Tokensparmodus (permanent, 13.11.2026)
+
+Ergänzt den Abschnitt darunter. Dort steht, **wie** sparsam gearbeitet
+wird; hier, **wie eng** der Auftrag gefasst ist.
+
+**Nur der aktuelle Auftrag.** Keine Nebenarbeiten, spontanen Umbauten,
+zusätzlichen Funktionen, ungefragten Optimierungen oder umfangreichen
+Folgeanalysen.
+
+**Nebenbefunde nur notieren.** Was dabei auffällt, kommt kurz unter
+„Später prüfen" in den Bericht und in `docs/NEXT_TASK.md` – nicht in die
+Arbeit. **Ausnahme:** Bei unmittelbarem Sicherheitsrisiko die betroffene
+Aktion stoppen und den Betreiber informieren.
+
+**Vor dem Anfangen intern festlegen:** Ziel · minimale Schritte ·
+Fertig-Kriterium · was ausdrücklich **nicht** bearbeitet wird.
+
+**Grenzen beim Arbeiten.** Höchstens ein Spezialagent je Teilaufgabe,
+sofern nicht ausdrücklich anders freigegeben. Kein vollständiger
+Durchlauf durch das Repository, wenn die Dateien bekannt sind. Keine
+Wiederholung bereits dokumentierter Analysen. Keine zusätzlichen Pakete
+oder Werkzeuge ohne Notwendigkeit. Scheitert ein Test zweimal aus
+demselben Grund: stoppen und die Ursache berichten. Nach höchstens zwölf
+wesentlichen Tool-Aktionen einen kurzen Zwischenstand geben und prüfen,
+ob der Auftrag noch im Rahmen liegt.
+
+Das sind Arbeitsregeln, **keine Zusicherung** einer Laufzeit oder
+Tokenzahl.
+
+**Fertig heißt fertig.** Ist das beauftragte Ergebnis erreicht: knapp
+prüfen, Ergebnis zusammenfassen, offene Punkte nennen, **stoppen**.
+Keine weitere Verbesserungsrunde ohne neuen Auftrag.
+
+**Abschlussbericht in vier Teilen:** Erledigt · Geprüft · Offen und
+Risiken · Nächster empfohlener Schritt.
+
 ## Sparsamer Umgang mit Nutzungsvolumen (permanent)
 
 Der Betreiber hat einen begrenzten Claude-Plan – das Guthaben soll möglichst lange reichen. Deshalb bei jeder Aufgabe:

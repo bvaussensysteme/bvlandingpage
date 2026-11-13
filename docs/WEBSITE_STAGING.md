@@ -75,3 +75,120 @@ sichtbar** stehen, sonst hält jemand es für kaputt.
 Zu jeder Veröffentlichung gehört der Commit davor, notiert in
 `docs/entscheidungen.md`. Zurück geht es durch Zurücksetzen auf diesen
 Stand – nicht durch Nachbessern unter Zeitdruck.
+
+---
+
+# Freigabeplan für eine sichere Vorschau (13.11.2026)
+
+Beauftragt als Plan, **nicht als Umsetzung**. Nichts davon wird
+eingerichtet, bevor der Betreiber je Schritt zustimmt. Grundlage sind
+die oben dokumentierten Befunde und die tatsächliche Konfiguration in
+`wrangler.jsonc` – keine neue Untersuchung.
+
+## Ausgangslage, belegt
+
+`wrangler.jsonc` hat **keine `env`-Blöcke**. Es gibt also genau eine
+Konfiguration, und jede Auslieferung – Produktion wie Branch-Vorschau –
+benutzt dieselbe D1-Datenbank `bv-messung` und dieselben Einstellungen.
+Das ist die Wurzel von Risiko 1 und 2.
+
+**Was es schon gibt und wiederverwendet werden kann:** Die Werkstatt
+liegt hinter einer Passwortschranke im Worker (`run_worker_first` für
+`/werkstatt*` in `wrangler.jsonc`, Logik in `worker/index.js`, geprüft
+von `scripts/pruefe-werkstatt.js`). Dieselbe Mechanik trägt auch eine
+Schranke vor der ganzen Vorschau. **Kein neues Werkzeug nötig.**
+
+## Die vier Schritte, in dieser Reihenfolge
+
+Die Reihenfolge ist nicht beliebig: Schritt 1 ist der einzige, der
+heute schon Schaden anrichtet.
+
+### Schritt 1 – Messdaten trennen (dringend)
+
+**Problem.** Jeder Aufruf der Vorschau legt Zeilen in den produktiven
+Messdaten ab. Gemessen am 08.11.2026: 98 Zeilen an einem Testtag gegen
+16 am Vortag, ohne Spalte, an der sich Testaufrufe unterscheiden ließen.
+Die Zahlen dieses Tages sind unbrauchbar.
+
+**Zwei Wege, einer davon sofort machbar:**
+
+| | Weg A: eigene Datenbank | Weg B: Herkunftsspalte |
+|---|---|---|
+| Was | zweite D1 für die Vorschau, über einen `env`-Block gebunden | Spalte `herkunft` in `bv-messung`, Vorschau schreibt „vorschau" |
+| Trennung | vollständig | nur per Filter |
+| Eingriff in Produktion | keiner | **Migration der produktiven Datenbank** |
+| Aufwand | gering | gering, aber riskanter |
+| Kosten | im kostenlosen Rahmen von D1 | keine |
+
+**Empfehlung: Weg A.** Weg B ändert die produktive Datenbank – genau
+das, was die Sicherheitsregeln ausschließen. Eine zweite Datenbank
+berührt die produktive nicht.
+
+**Braucht vom Betreiber:** Zustimmung, eine zweite D1 anzulegen (externe
+Aktion bei Cloudflare).
+
+**Sofort und ohne Freigabe wirksam, als Zwischenlösung:** Browsertests
+laufen gegen `localhost`, nicht gegen die Vorschau. Das gilt bereits.
+
+### Schritt 2 – Zugangsschutz vor die Vorschau
+
+**Problem.** Wer die Adresse kennt, sieht alles. Für Entwürfe einer
+Firmenseite vertretbar, für Preisangaben, Kundendaten oder interne
+Werkzeuge nicht.
+
+**Empfehlung:** dieselbe Passwortschranke wie bei der Werkstatt, aber
+für **alle** Pfade – aktiv nur, wenn die Auslieferung nicht die
+Produktion ist. Unterschieden wird an einer Umgebungsvariablen, nicht
+am Hostnamen (ein Hostname lässt sich fälschen, eine Variable nicht).
+
+**Alternative:** Cloudflare Access davorsetzen. Sauberer, aber
+Einrichtung im Cloudflare-Konto und je nach Tarif kostenpflichtig –
+deshalb nicht die Empfehlung.
+
+**Braucht vom Betreiber:** ein Vorschau-Passwort (nicht im Chat nennen,
+nicht in Git) und die Entscheidung Worker-Schranke oder Access.
+
+### Schritt 3 – Nichts verlässt die Vorschau nach außen
+
+**Regel:** Formulare in der Vorschau senden keine E-Mails, legen nichts
+im CRM an und lösen keine Benachrichtigung aus. Wo ein Formular nichts
+sendet, steht das **sichtbar auf der Seite** – sonst hält es jemand für
+kaputt (so ist es auf `entwurf-produkt.html` schon gelöst).
+
+**Zusätzlich zu prüfen, noch nicht untersucht:** `wrangler.jsonc`
+schaltet `observability.logs` mit `invocation_logs` ein. Ob und welche
+Eingaben dort landen, ist offen. Gehört geklärt, bevor die Vorschau
+Testdaten sieht.
+
+**Braucht vom Betreiber:** nichts. Das ist eine Arbeitsregel.
+
+### Schritt 4 – Veröffentlichen bleibt ein eigener Vorgang
+
+Unverändert gültig, hier nur zusammengefasst:
+
+- Kein automatisches Zusammenführen, kein automatisches Deployment
+- Freigabe nur mit dem wörtlichen Satz aus `CLAUDE.md`
+- Vor der Freigabe: Cache-Buster hochgezählt? Alle `scripts/pruefe-*`
+  grün? Rückweg notiert (welcher Commit ist der Stand davor)?
+- Nach der Veröffentlichung: ausgelieferte Datei byteweise gegen `main`,
+  **mit eindeutigem Abfrageanhang gegen den Zwischenspeicher** – ein
+  `cf-cache-status: HIT` hat am 12.11.2026 schon einmal zu der falschen
+  Meldung „ist noch alt" geführt
+
+## Was dieser Plan ausdrücklich NICHT enthält
+
+- Keine Einrichtung. Kein Befehl wurde ausgeführt, nichts bei Cloudflare
+  angelegt oder geändert.
+- Keine Nennung einer Vorschau-Adresse als „gesichert". Die heutige
+  Branch-Vorschau ist weiterhin öffentlich und teilt sich die Datenbank.
+- Keine Aussage zur Rechtslage. Ob die Messung in der heutigen Form
+  zulässig ist, ist eine Frage für den Fachmann, nicht für diesen Plan.
+
+## Entscheidungen, die beim Betreiber liegen
+
+| # | Frage | Empfehlung |
+|---|---|---|
+| 1 | Zweite D1 für die Vorschau anlegen? | ja (Weg A) |
+| 2 | Worker-Schranke oder Cloudflare Access? | Worker-Schranke |
+| 3 | Vorschau-Passwort festlegen | über eine Umgebungsvariable, nie in Git |
+| 4 | Reihenfolge wie oben, oder anders? | Schritt 1 zuerst |
