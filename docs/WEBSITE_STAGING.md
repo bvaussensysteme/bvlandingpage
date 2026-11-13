@@ -300,6 +300,18 @@ ist derselbe Handgriff und sollte zusammen gemacht werden.
 
 ## Entscheidungen, die beim Betreiber liegen
 
+### Kosten, nachgeschlagen am 13.11.2026
+
+| Posten | Kosten | Beleg |
+|---|---|---|
+| Zweite D1 für die Vorschau | **0 €** | Workers-Free-Tarif: 5 Mio. gelesene Zeilen/Tag, 100 000 geschriebene Zeilen/Tag, 5 GB Speicher. Die produktive Datenbank hat in 11 Tagen **354 Zeilen** – das liegt um mehr als drei Größenordnungen unter der Grenze |
+| Passwortschranke im Worker | **0 €** | nutzt die vorhandene Mechanik der Werkstatt, kein neues Werkzeug |
+| Cloudflare Access (Alternative) | **ungeklärt** | der kostenlose Tarif hat eine Nutzerobergrenze, die ich nicht belegen konnte. Vor einer Entscheidung im Konto nachsehen |
+
+Quelle für D1: Cloudflare-Dokumentation, D1 Pricing/FAQ. Preise ändern
+sich – vor einer Buchung im eigenen Konto gegenprüfen. **Keine
+Zusicherung.**
+
 | # | Frage | Empfehlung |
 |---|---|---|
 | 1 | M1: PR mit der korrigierten Freigaberegel nach `main`? | ja, zuerst |
