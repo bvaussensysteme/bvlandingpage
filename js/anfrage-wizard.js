@@ -431,7 +431,14 @@
   var STEPS = {
     produkt: {
       title: 'Was möchten Sie kostenlos konfigurieren?',
-      sub: 'Kostenlos & unverbindlich – Sie stellen sich Ihr Wunschprodukt zusammen und erhalten ein individuelles Angebot.',
+      /* ERGAENZT 13.11.2026: Der Kurzweg ist die sechste von sechs
+         Kacheln und als Abkuerzung nicht zu erkennen - seine Beschriftung
+         nennt nur Beispiele ("Markise, Gelaender, Vordach"). Wer schon
+         weiss, was er will, arbeitet sich stattdessen durch bis zu 13
+         Schritte. Der Satz benennt den kurzen Weg, ohne ihn
+         vorzudraengeln: Die Reihenfolge der Kacheln bleibt, damit die
+         Hauptprodukte oben stehen. */
+      sub: 'Kostenlos & unverbindlich – Sie stellen sich Ihr Wunschprodukt zusammen und erhalten ein individuelles Angebot. Sie wissen schon, was Sie möchten? Mit „Direkt anfragen" ganz unten sind es nur vier Schritte.',
       render: function () {
         return optionCards('produkt', [
           { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },

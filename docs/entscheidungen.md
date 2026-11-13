@@ -15205,3 +15205,51 @@ sonst überspringen sie oder melden falsch.
 der Assistent hat dafür einen eigenen Schritt `carporttyp`. Ebenso
 `pergola` mit vier Modellen. Dort ließe sich ein Schritt mehr
 überspringen. Nicht beauftragt.
+
+## 13.11.2026 – Erster Bildschirm nennt die Produkte; Kurzweg benannt
+
+**Anlass.** Betreiber: „weiter". Die zwei inhaltlichen Befunde mit dem
+größten Hebel aus `docs/AUDIT-CUSTOMER-JOURNEY.md`.
+
+**Befund 2 – was falsch war.** `index.html` sagte im ersten Bildschirm
+„Maßgefertigte Aluminium-Überdachungen vom Fachbetrieb aus Ihrer Region"
+– **kein einziger Produktname.** Terrassenüberdachung, Carport, Pergola
+und Kaltwintergarten standen erst in den Karten ab Zeile 590, also
+unterhalb des ersten Bildschirms. Im `<title>` stehen sie; wer aus der
+Suche kam, fand sie auf der Seite nicht wieder.
+
+**Korrektur am Audit:** Der Agent schrieb, es fehle „weder
+Terrassenüberdachung … noch die Region". **Die Region fehlte nicht** –
+sie steht in der Augenbraue darüber („Aluminium-Spezialist im
+Westerwald"). Nur Produkte und Zielgruppe fehlten. Deshalb werden im
+neuen Satz die Ortsnamen **nicht** wiederholt.
+
+**Was jetzt dort steht.** „Terrassenüberdachung, Carport, Pergola,
+Kaltwintergarten und Sonnenschutz – maßgefertigt aus Aluminium, für
+Privat und Gewerbe." Danach unverändert der Satz zu Planung, Montage und
+Garantie. Überschrift und Slogan blieben, wie sie waren.
+
+**Befund 1 – was jetzt gilt.** Der Produktschritt des Assistenten nennt
+den vorhandenen Kurzweg: „Sie wissen schon, was Sie möchten? Mit
+‚Direkt anfragen' ganz unten sind es nur vier Schritte."
+
+**Warum nur ein Satz und keine Umsortierung.** „Direkt anfragen" nach
+oben zu ziehen hätte die Hauptprodukte nach unten geschoben – der
+Kurzweg ist für die Minderheit, die schon entschieden ist. Die
+Reihenfolge der Kacheln bleibt deshalb unverändert; nur die Beschreibung
+sagt, dass es ihn gibt. Kein Pop-up, keine Verknappung, kein Drängeln.
+
+**Nicht gemacht, bewusst:** die Beschriftung „Konfigurator" geändert
+(siehe Widerspruch im Audit) und die übrigen Befunde 4 bis 7.
+
+**Geprüft.** `pruefe-assistent.mjs` 18/18 (prüft den Produktschritt
+mit), `pruefe-produktwahl.mjs` 132/132, alle schnellen Skripte grün.
+Cache-Buster `v=20261113c`.
+
+**Eigener Umweg, benannt:** Für den längeren Hero-Text wollte ich ein
+eigenes Browser-Skript mit Bildschirmfotos schreiben. Es blieb zweimal
+hängen (`waitUntil:'load'` wartet auf externe Ressourcen, die hier nicht
+erreichbar sind; auch mit `domcontentloaded` kam keine Ausgabe). Statt
+weiter daran zu basteln: `scripts/pruefe-darstellung.mjs` prüft
+`/index.html` längst im Browser auf Kontrast, Feldgrößen und
+Tippflächen. **Vorhandene Prüfung benutzt, keine neue gebaut.**
