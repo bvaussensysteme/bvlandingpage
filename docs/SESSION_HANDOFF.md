@@ -39,6 +39,63 @@ Was NICHT geprüft wurde, gehört hierher – nicht weglassen.>
 
 ---
 
+## ⇢ Aktueller Stand zum Weiterarbeiten (13.11.2026, abends)
+
+> **Alles unten liegt auf `claude/bv-aussensysteme-setup-bq7ew4`.
+> NICHTS ist veröffentlicht.** `main` und die Live-Seite sind unberührt.
+> Veröffentlicht wird nur mit dem wörtlichen Satz aus `CLAUDE.md`.
+> „ok", „alles gut" und „weiter" sind **keine** Freigabe – das ist in
+> dieser Sitzung mehrfach so gehandhabt worden.
+
+### Was heute fertig geworden ist
+
+| # | Was | Geprüft durch |
+|---|---|---|
+| 1 | **Produktwahl kommt im Anfrage-Assistenten an.** Auf allen 16 Produktseiten, 33 Karten. Vorher warf jeder Klick einen Fehler und die Wahl verfiel | `pruefe-produktwahl.mjs` 132/132, Gegenprobe 112/112 |
+| 2 | **Erster Bildschirm nennt die Produkte** (vorher kein einziger Produktname) und der Kurzweg im Assistenten ist benannt | `pruefe-assistent.mjs` 18/18, `pruefe-darstellung.mjs` 144/144 |
+| 3 | **Kontaktschritt sagt den echten Ablauf** statt „Angebot zusenden" | `pruefe-assistent.mjs` 18/18 |
+| 4 | **Windzonen-Rechner gibt PLZ und Ort weiter** an die Anfrage | `pruefe-standort-mitgeben.mjs` 9/9, Gegenprobe 10/10 |
+| 5 | **Eigene Carport-Referenz** in der Galerie (zwei Fotos, Metadaten entfernt) | `pruefe-galerie.mjs` 11/11, Gegenprobe 10/10 |
+| 6 | **„Passt, wenn ..." auf allen neun Produktkarten** der Startseite | `pruefe-darstellung.mjs` 144/144 |
+| 7 | **Gegenüberstellung TDS / SkyView** auf der Terrassenseite | `pruefe-vergleich.mjs` 14/14, Gegenprobe 2/2 |
+
+Dazu: **vier neue Prüfskripte**, jedes mit Gegenprobe (siehe
+`docs/pruefungen.md`). Alle 32 schnellen Skripte grün,
+`pruefe-erzeugte-seiten.sh` und `pruefe-cache-buster.sh` nach jedem
+Commit grün.
+
+### Was heute NICHT gemacht wurde, mit Grund
+
+| Punkt | Grund |
+|---|---|
+| Staging-Isolation | Betreiber hat die unumkehrbare Umstellung auf „Worker Previews" **abgelehnt** (13.11.). Eine private, isolierte Vorschau ist damit nicht herstellbar. **Nicht erneut vorschlagen.** Die leere Vorschau-Datenbank `bv-messung-vorschau` bleibt ungenutzt stehen |
+| Auto-Merge-Schutz auf `main` | Betreiber hat die GitHub-Einstellungen übersprungen. `main` trägt weiterhin „immer auto merge" in `CLAUDE.md` |
+| Telefon-Pflicht im Formular | Geschäftsentscheidung des Betreibers, offen |
+| Verborgener Ergebnisblock auf `/windzonen` | Zweiter Teil von Befund 4, nicht beauftragt |
+
+### Zwei fertige Branches, die einzeln live gehen könnten
+
+| Branch | Inhalt | Status |
+|---|---|---|
+| `claude/xss-zahlenseite` | XSS-Korrektur in `werkstatt/zahlen.html` + Prüfskript | fertig, **wartet auf Freigabe** – die Lücke ist live weiterhin offen |
+| `claude/freigaberegel-main` | `CLAUDE.md` auf `main` richtigstellen | fertig, wartet auf Freigabe |
+
+### Beim Betreiber offen
+
+1. **Einwilligung des Hauseigentümers** für die Carport-Fotos – vor einer Veröffentlichung zu klären. Keine Rechtsberatung.
+2. **Ort und Eindeckung** des Carports (für Beschriftung und lokale Suche).
+3. Telefon-Pflicht: ja oder nein.
+4. Die „2–3 Werktage" bis zum Angebot: betrieblich haltbar?
+5. Lizenz- und Datenschutzpunkte 3.5 bis 3.9 in `docs/NEXT_TASK.md` – **Release-Blocker**.
+
+### Ein Hinweis für den nächsten Chat
+
+Browser-Prüfskripte: `browser.newPage()` und danach `setViewportSize()`
+benutzen. `browser.newContext({viewport})` ließ in dieser Umgebung drei
+Läufe hängen – die Ursache ist dokumentiert in `docs/entscheidungen.md`.
+
+---
+
 ## ⇢ Aktueller Stand zum Weiterarbeiten (13.11.2026)
 
 > **Es läuft eine Folge von fünf Aufträgen.** Auftrag 1 (Staging-Plan)
