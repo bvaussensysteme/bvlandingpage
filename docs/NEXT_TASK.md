@@ -75,11 +75,16 @@ Die Regel steht in `CLAUDE.md`. Andere Formulierungen gelten nicht.
 | # | Punkt | Wer entscheidet |
 |---|---|---|
 | 3.1 | **XSS-Korrektur vorziehen** (Abschnitt 1) | Betreiber |
-| 3.2 | **`main` enthält noch „immer auto merge"** – die strenge Freigaberegel liegt nur auf dem Arbeitsbranch. Ein neuer Chat, der auf `main` startet, liest das Gegenteil der aktuellen Ansage. Reine Dokumentenänderung. | Betreiber |
+| 3.2 | **`main` enthält noch „immer auto merge"** – am 13.11. nachgeprüft: Zeile 25 in `CLAUDE.md` auf `main`, der Freigabesatz vom 08.11. steht dort **0 mal**. Dazu vier alte offene PRs gegen `main` (#1, #2, #3, #53) und kein Branch-Schutz. Plan: `docs/WEBSITE_STAGING.md`, „Freigabeplan 2". | Betreiber |
 | 3.3 | **Die Vorschau schreibt in die produktive Messdatenbank** `bv-messung`. Jeder Testaufruf verfälscht die Zahlen (gemessen 08.11.: 98 statt 16 Zeilen). Es gibt keine getrennte Vorschau-Umgebung. | Betreiber (Cloudflare) |
 | 3.4 | **Die Vorschau ist öffentlich** – kein Passwort, kein Zugangsschutz. | Betreiber |
 
-**Für 3.3 und 3.4 liegt seit dem 13.11.2026 ein fertiger Plan vor:**
+**Für 3.2 bis 3.4 liegen seit dem 13.11.2026 zwei fertige Pläne vor**
+(`docs/WEBSITE_STAGING.md`): „Freigabeplan" für die Vorschau,
+„Freigabeplan 2" für den Auto-Merge-Schutz. Zusammen **sechs**
+Entscheidungen beim Betreiber, nichts davon eingerichtet.
+
+Im Einzelnen zur Vorschau:
 `docs/WEBSITE_STAGING.md`, Abschnitt „Freigabeplan". Vier Schritte,
 Messdaten zuerst. **Vier Entscheidungen warten auf den Betreiber:**
 zweite D1 anlegen (empfohlen) · Worker-Schranke oder Cloudflare Access

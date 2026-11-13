@@ -14873,3 +14873,45 @@ die funktioniert.
 **Offen und nicht rechnerisch lösbar:** ob der Fokus bei fester
 Kopfzeile oder Cookie-Banner verdeckt wird (WCAG 2.4.11). Das braucht
 den Test im Browser.
+
+## 13.11.2026 – Auto-Merge-Schutz: geprüft, Plan erstellt, nichts umgesetzt
+
+**Anlass.** Auftrag des Betreibers: Sicherheitsrisiken und
+Staging-Konfiguration prüfen, sichere Vorschau planen, Freigabeplan für
+Auto-Merge-Schutz und Staging-Isolation erstellen. Stopp vor der
+Umsetzung.
+
+**Was falsch war – mit Beleg.** Die Freigaberegel vom 08.11.2026 liegt
+nur auf dem Arbeitsbranch. Auf `main` steht in `CLAUDE.md` Zeile 25
+weiterhin wörtlich: „Ansage des Betreibers (05.11.2026): ‚immer auto
+merge'", mit dem Zusatz, dies hebe „kein Deployment ohne Freigabe" auf.
+Der wörtliche Freigabesatz kommt auf `main` **0 mal** vor (`grep -c`).
+Dazu: vier offene Pull Requests gegen `main` aus Juni/Juli (#1, #2, #3,
+#53) und kein Branch-Schutz.
+
+**Was dagegen gut ist.** `.github/workflows/` existiert nicht, und
+`package.json` kennt nur `build` und `build:css` – es gibt keine
+Automatik im Repository, die von sich aus baut oder veröffentlicht. Das
+Risiko ist menschlich und dokumentarisch, nicht maschinell.
+
+**Was jetzt gilt.** `docs/WEBSITE_STAGING.md`, Abschnitt „Freigabeplan
+2": vier Maßnahmen (Regel auf `main` richtigstellen · alte PRs
+schließen · Branch-Schutz einschalten · Staging-Isolation wie im ersten
+Plan), sechs Entscheidungen beim Betreiber. **Nichts umgesetzt** – kein
+PR eröffnet oder geschlossen, keine GitHub-Einstellung geändert, nichts
+bei Cloudflare.
+
+**Warum so und nicht anders.** Die Korrektur der Regel auf `main` ist
+selbst ein Merge nach `main` und braucht deshalb Freigabe, obwohl sie
+die Lücke schließt, durch die sie geht. Das aufzulösen, indem man sie
+„weil harmlos" vorbeizieht, wäre genau der Fehler, gegen den die Regel
+geschrieben wurde. Deshalb steht sie als Entscheidung 1 im Plan und
+nicht als erledigter Punkt.
+
+**Was gegengelesen werden soll.** Ob ein Push auf `main` bei Cloudflare
+tatsächlich eine Veröffentlichung auslöst. Das steht im Cloudflare-Konto
+und war von hier aus nicht nachprüfbar – die Branch-Vorschauen legen es
+nahe, bewiesen ist es nicht.
+
+**Nicht geprüft, bewusst:** der Inhalt der vier alten PRs, die
+Live-Seite, die Messdaten. Nicht beauftragt.

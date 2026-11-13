@@ -192,3 +192,119 @@ Unverändert gültig, hier nur zusammengefasst:
 | 2 | Worker-Schranke oder Cloudflare Access? | Worker-Schranke |
 | 3 | Vorschau-Passwort festlegen | über eine Umgebungsvariable, nie in Git |
 | 4 | Reihenfolge wie oben, oder anders? | Schritt 1 zuerst |
+
+---
+
+# Freigabeplan 2: Auto-Merge-Schutz und Staging-Isolation (13.11.2026)
+
+Zweiter Prüfauftrag. Der Plan oben deckt die Vorschau ab; hier kommt
+dazu, was bisher fehlte: **die Veröffentlichung selbst ist technisch
+nicht gesichert.** Alles unten ist in dieser Sitzung nachgesehen, nicht
+übernommen.
+
+## Was geprüft wurde – und was dabei herauskam
+
+| Geprüft | Ergebnis |
+|---|---|
+| `.github/workflows/` | **existiert nicht.** Keine Automatik, die von sich aus baut, zusammenführt oder veröffentlicht. Gute Nachricht |
+| `package.json` → `scripts` | nur `build` und `build:css`. Kein `deploy`, kein `wrangler deploy` |
+| `CLAUDE.md` auf `main`, Zeile 25 | **„Ansage des Betreibers (05.11.2026): ‚immer auto merge'"** – mit dem Zusatz „Das hebt die frühere Regel ‚kein Deployment ohne Freigabe' auf" |
+| `CLAUDE.md` auf `main`, Freigabesatz | **0 Treffer.** Der wörtliche Freigabesatz vom 08.11. steht dort nicht |
+| Offene Pull Requests gegen `main` | **vier**, alle alt: #1 (17.06.), #2 (26.06.), #3 (05.07.), #53 (04.07.) |
+| `werkstatt/zahlen.html`, `sicher()`-Aufrufe | `main` 17, Arbeitsbranch 25. Die XSS-Korrektur ist weiterhin **nur auf dem Branch** |
+
+## Das eigentliche Risiko, in einem Satz
+
+Ein neuer Chat, der auf `main` startet, liest dort „immer auto merge",
+sieht vier offene Pull Requests, findet den Freigabesatz nicht – und
+hält das Zusammenführen für ausdrücklich gewünscht. Die strenge Regel
+vom 08.11.2026 schützt nur Sitzungen, die zufällig auf dem Arbeitsbranch
+anfangen.
+
+**Dazu kommt:** Dass es zu jedem Branch eine Cloudflare-Vorschau gibt,
+heißt, dass die Git-Anbindung von Cloudflare aktiv ist. Dann ist ein
+Zusammenführen nach `main` kein Zwischenschritt, sondern die
+Veröffentlichung. Zwischen „merge" und „live" liegt nichts.
+*Nicht selbst nachgesehen* – das steht im Cloudflare-Konto, nicht im
+Repository (siehe Entscheidung 5).
+
+## Vier Maßnahmen, nach Wirkung sortiert
+
+### M1 – Die Regel auf `main` richtigstellen (dringend, kleinster Eingriff)
+
+Ein eigener kleiner Branch von `main`, der **nur** `CLAUDE.md` ändert:
+Abschnitt „Veröffentlichen ohne Rückfrage" raus, Abschnitt
+„Veröffentlichen NUR auf ausdrückliche Freigabe" rein. Keine Datei der
+Website wird angefasst, am Aussehen ändert sich nichts.
+
+Das ist derselbe Weg, der am 12.11. bei der Broschüren-Korrektur
+funktioniert hat (PR #567): eine Sache, von `main` abgezweigt, ohne den
+Neubau mitzuziehen.
+
+**Reihenfolge-Hinweis:** Diese Maßnahme *ist selbst ein Merge nach
+`main`.* Sie braucht also Freigabe – aber sie ist die einzige, die
+dieselbe Lücke schließt, durch die sie geht.
+
+**Braucht vom Betreiber:** Zustimmung zu diesem einen PR.
+
+### M2 – Die vier alten Pull Requests schließen
+
+#1, #2, #3 und #53 zeigen alle auf `main` und sind vier bis fünf Monate
+alt. Keiner davon gehört zum laufenden Neubau. Solange sie offen sind,
+ist jeder von ihnen ein Knopf, der versehentlich gedrückt werden kann –
+und genau der Zustand, in dem ein „auto merge" Schaden anrichtet.
+
+Schließen löscht nichts: Die Branches bleiben, ein geschlossener PR
+lässt sich wieder öffnen.
+
+**Braucht vom Betreiber:** Zustimmung zum Schließen. Falls einer davon
+doch noch gebraucht wird: welcher.
+
+### M3 – Branch-Schutz auf `main` einschalten (GitHub-Einstellung)
+
+Im Repository unter *Settings → Branches → Add rule* für `main`:
+
+| Einstellung | Wert | Warum |
+|---|---|---|
+| Require a pull request before merging | an | kein direkter Push auf `main` |
+| Require approvals (1) | an | ein Mensch bestätigt |
+| Allow auto-merge (unter *Settings → General*) | **aus** | hebt den Automatismus technisch auf, nicht nur schriftlich |
+| Allow force pushes | aus | Rückweg bleibt nachvollziehbar |
+
+Das ist die einzige Maßnahme, die auch dann trägt, wenn jemand die
+Dokumentation nicht liest.
+
+**Braucht vom Betreiber:** Einrichtung im GitHub-Konto. Vier Klicks,
+rückgängig zu machen.
+
+### M4 – Staging-Isolation: unverändert die vier Schritte oben
+
+Der Plan vom Vormittag gilt weiter und wird hier nicht wiederholt:
+Messdaten trennen (eigene D1) · Zugangsschutz vor die Vorschau ·
+nichts verlässt die Vorschau nach außen · Veröffentlichen bleibt ein
+eigener Vorgang.
+
+**Eine Verbindung zu M1–M3:** Der Zugangsschutz aus Schritt 2 wird über
+eine Umgebungsvariable geschaltet, die es in der Produktion nicht gibt.
+Dafür braucht `wrangler.jsonc` `env`-Blöcke – und sobald es die gibt,
+ist auch die zweite Datenbank aus Schritt 1 nur noch ein Eintrag. Beides
+ist derselbe Handgriff und sollte zusammen gemacht werden.
+
+## Was dieser Plan NICHT enthält
+
+- Keine Umsetzung. Kein PR eröffnet, kein PR geschlossen, keine
+  GitHub-Einstellung geändert, nichts bei Cloudflare angelegt.
+- Keine Aussage darüber, ob `main` heute tatsächlich automatisch
+  veröffentlicht wird. Das steht im Cloudflare-Konto.
+- Keine Rechtsberatung.
+
+## Entscheidungen, die beim Betreiber liegen
+
+| # | Frage | Empfehlung |
+|---|---|---|
+| 1 | M1: PR mit der korrigierten Freigaberegel nach `main`? | ja, zuerst |
+| 2 | M2: die vier alten PRs schließen? | ja, alle vier |
+| 3 | M3: Branch-Schutz auf `main` einschalten? | ja |
+| 4 | XSS-Korrektur als eigenen PR vorziehen (seit 08.11. offen)? | ja |
+| 5 | Im Cloudflare-Konto nachsehen: löst ein Push auf `main` eine Veröffentlichung aus? | bitte nachsehen und mitteilen |
+| 6 | Staging-Isolation: die vier Entscheidungen aus dem Plan oben | wie dort |
