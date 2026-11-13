@@ -15015,3 +15015,45 @@ Ohne sie hätte die Prüfung jede künftige Änderung bestätigt.
 für den Besucher richtig ist, oder ob er die Produktkarte noch einmal
 sehen sollte. Nicht geprüft: die übrigen Produktseiten – ob dort
 dieselbe kaputte Zeile steht.
+
+## 13.11.2026 – Staging grundsätzlich freigegeben, Bedingung: keine Kosten
+
+**Anlass.** Betreiber auf den Staging-Plan: „Grundsätzlich bin ich
+einverstanden, aber es muss 100% alles kostenlos sein."
+
+**Was jetzt gilt.** Die empfohlene Lösung (zweite D1 für die Vorschau +
+Passwortschranke im Worker) bleibt, **Cloudflare Access ist damit
+endgültig raus** – dessen Nutzerobergrenze im kostenlosen Tarif konnte
+nicht belegt werden, und eine unbelegte Grenze verträgt sich nicht mit
+der Bedingung.
+
+**Warum die Lösung kostenlos trägt – und wo die Grenze liegt.**
+- Die Passwortschranke ist **kein zusätzlicher Dienst**, sondern Code im
+  vorhandenen Worker. Dafür kann nichts berechnet werden.
+- Die zweite D1 liegt im Workers-Free-Tarif: 5 Mio. gelesene und 100 000
+  geschriebene Zeilen täglich, 5 GB. Der produktive Bestand sind **354
+  Zeilen in 11 Tagen**.
+- Entscheidend für die Bedingung: Im **kostenlosen** Tarif führt ein
+  Überschreiten der Grenzen zu **Fehlern, nicht zu einer Rechnung**
+  (Cloudflare-Dokumentation, D1 FAQ). Es gibt also keinen Weg, über die
+  Vorschau unbemerkt in Kosten zu laufen.
+- Die Branch-Vorschauen laufen **heute schon**. Was deren Bau kostet,
+  fällt unabhängig von dieser Änderung an – hier kommt nichts dazu.
+
+**Was deshalb NICHT zugesichert wird.** Ob das Konto auf dem kostenlosen
+oder dem bezahlten Workers-Tarif liegt, war von hier aus nicht prüfbar
+(die Cloudflare-Anbindung dieser Sitzung war zum Zeitpunkt der Frage
+nicht erreichbar). Auf einem bezahlten Tarif gelten andere Regeln.
+Formeln wie „100 % kostenlos" werden nicht verwendet – siehe `CLAUDE.md`.
+
+**Blocker, deshalb keine Einrichtung.** Zwei Schritte liegen
+ausschließlich im Cloudflare-Konto: die zweite Datenbank anlegen (ihre
+Kennung wird in `wrangler.jsonc` gebraucht) und das Vorschau-Passwort als
+Geheimnis hinterlegen. Ohne die Kennung wurde **bewusst nichts** in
+`wrangler.jsonc` eingetragen: Eine erfundene Datenbank-Kennung lässt
+jeden Deploy scheitern – dieselbe Falle ist im Kopf der Datei schon für
+den KV-Speicher vermerkt.
+
+**Nicht improvisiert.** Keine env-Blöcke auf Verdacht, keine
+Schrankenlogik ohne die Möglichkeit, sie zu prüfen. Regel des Betreibers:
+bei Blockern stoppen statt improvisieren.
