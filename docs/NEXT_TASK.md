@@ -74,8 +74,8 @@ Die Regel steht in `CLAUDE.md`. Andere Formulierungen gelten nicht.
 
 | # | Punkt | Wer entscheidet |
 |---|---|---|
-| 3.1 | **XSS-Korrektur vorziehen** (Abschnitt 1) | Betreiber |
-| 3.2 | **`main` enthält noch „immer auto merge"** – am 13.11. nachgeprüft: Zeile 25 in `CLAUDE.md` auf `main`, der Freigabesatz vom 08.11. steht dort **0 mal**. Dazu vier alte offene PRs gegen `main` (#1, #2, #3, #53) und kein Branch-Schutz. Plan: `docs/WEBSITE_STAGING.md`, „Freigabeplan 2". | Betreiber |
+| 3.1 | **XSS-Korrektur vorziehen** – am 13.11. als Branch `claude/xss-zahlenseite` von `main` fertig vorbereitet, Prüfung grün, Gegenprobe 3/3. **Kein PR, kein Merge.** Es fehlt nur die Freigabe | Betreiber |
+| 3.2 | **`main` enthält noch „immer auto merge"** – am 13.11. nachgeprüft (Zeile 25 in `CLAUDE.md` auf `main`, Freigabesatz dort 0 mal). Korrektur als Branch `claude/freigaberegel-main` fertig vorbereitet. **Kein PR, kein Merge.** Vier alte PRs (#1, #2, #3, #53) sind geschlossen, null offen. Branch-Schutz fehlt weiter | Betreiber |
 | 3.3 | **Die Vorschau schreibt in die produktive Messdatenbank** `bv-messung`. Jeder Testaufruf verfälscht die Zahlen (gemessen 08.11.: 98 statt 16 Zeilen). Es gibt keine getrennte Vorschau-Umgebung. | Betreiber (Cloudflare) |
 | 3.4 | **Die Vorschau ist öffentlich** – kein Passwort, kein Zugangsschutz. | Betreiber |
 

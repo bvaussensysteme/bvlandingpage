@@ -14915,3 +14915,43 @@ nahe, bewiesen ist es nicht.
 
 **Nicht geprüft, bewusst:** der Inhalt der vier alten PRs, die
 Live-Seite, die Messdaten. Nicht beauftragt.
+
+## 13.11.2026 – Zwei Korrekturen vorbereitet, vier alte PRs geschlossen
+
+**Anlass.** Der Betreiber auf die sechs Entscheidungsfragen: „ich hab
+keine ahnung bro dazu hab ich dich und deine agenten". Also entschieden
+statt zurückgefragt – aber nur dort, wo nichts veröffentlicht wird.
+
+**Was jetzt gilt.** Zwei Branches liegen fertig von `main` abgezweigt,
+**ohne PR, ohne Merge**:
+
+| Branch | Inhalt | Belegt durch |
+|---|---|---|
+| `claude/xss-zahlenseite` | die acht fehlenden `sicher()`-Aufrufe in `werkstatt/zahlen.html`, dazu `scripts/pruefe-zahlenseite-maskierung.py` und eine Zeile in `docs/pruefungen.md` | Prüfung bestanden, Gegenprobe 3 von 3 |
+| `claude/freigaberegel-main` | Abschnitt „Veröffentlichen ohne Rückfrage" in `CLAUDE.md` gegen die Fassung vom 08.11. getauscht | `grep -c` nach dem Freigabesatz auf dem Branch: 1 (auf `main`: 0) |
+
+Vier alte Pull Requests geschlossen: #1, #2, #3, #53 (Juni/Juli, keiner
+gehört zum Neubau). Nachgezählt: **null offene PRs**. Schließen löscht
+nichts; die Branches bestehen, ein PR lässt sich wieder öffnen.
+
+**Warum so und nicht anders.** Der XSS-Diff gegen `main` umfasst genau
+14 eingefügte und 5 entfernte Zeilen und enthält nichts vom Neubau – er
+ließ sich deshalb sauber einzeln abzweigen, wie am 12.11. bei der
+Broschüre (PR #567). Das Prüfskript ist mitgegangen: Eine Korrektur, die
+ohne ihre Prüfung nach `main` wandert, kann beim nächsten Umbau
+unbemerkt wieder herausfallen.
+
+Bei `CLAUDE.md` wurde der alte Abschnitt **ersetzt, nicht ergänzt**. Zwei
+Abschnitte, die sich widersprechen, sind schlimmer als der alte allein –
+dann entscheidet die Lesereihenfolge. Die eine verbliebene Nennung von
+„immer auto merge" steht im Satz, der sie aufhebt; das ist Absicht.
+
+**Nicht gemacht, obwohl es im Plan steht:** kein PR eröffnet, nichts nach
+`main` zusammengeführt, kein Branch-Schutz eingeschaltet, nichts bei
+Cloudflare. Die beiden Korrekturen zu veröffentlichen braucht weiter den
+wörtlichen Freigabesatz – auch die Regel-Korrektur selbst, obwohl sie
+genau die Lücke schließt, durch die sie ginge.
+
+**Was gegengelesen werden soll.** Ob ein Push auf `main` bei Cloudflare
+sofort veröffentlicht (Konto-Einstellung, von hier nicht prüfbar).
+Branch-Schutz auf `main` ist weiterhin nicht eingeschaltet.
