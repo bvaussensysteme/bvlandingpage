@@ -2,6 +2,44 @@
 
 Vollständiger Projektkontext steht in `PROJEKTSTAND.md` (immer zuerst lesen).
 
+## Webseiten-Modernisierung: Agenten und Regeln (permanent, 13.11.2026)
+
+Die Modernisierung läuft schrittweise, über abgegrenzte Prüfaufträge.
+Vier Dokumente, jeweils kurz:
+
+| Datei | Inhalt |
+|---|---|
+| `docs/WEBSITE_AGENT_WORKFLOW.md` | Welcher Agent wofür, wann **kein** Agent, wie die Kosten niedrig bleiben |
+| `docs/WEBSITE_DESIGN_SYSTEM.md` | Marke, Manrope, Farben – **mit dem offenen Punkt**, dass die Zielpalette vom Bestand abweicht |
+| `docs/WEBSITE_STAGING.md` | Anforderungen an eine sichere Vorschau und was daran heute noch fehlt |
+| `docs/SESSION_HANDOFF.md` | Vorlage für die Übergabe an den nächsten Chat |
+
+**Bestandsschutz.** Diese Dinge bleiben, auch wenn ein Umbau sie
+unbequem macht: bestehende URLs und Weiterleitungen, Produktseiten,
+Produktkatalog, 3D-Konfigurator, Wind- und Schneelastzonen-Rechner,
+Baugenehmigungs-Check, Referenzen und alle Kontaktwege. Nichts davon
+wird ohne ausdrückliche Ansage entfernt.
+
+**Prüfende Agenten ändern keinen Code.** Der einzige schreibende Agent
+ist `frontend-developer`. Ein Prüfer, der selbst umbaut, prüft hinterher
+die eigene Arbeit.
+
+**Keine pauschalen Aufrufe.** Nie alle Agenten auf einmal, nie zwei mit
+demselben Auftrag, kein zweiter vollständiger Durchlauf durch das
+Repository für dieselbe Frage. Kleine Änderungen macht der Hauptagent
+direkt – ein Subagent fängt bei null an und liest sich erst wieder ein.
+
+**Nutzerpsychologie ehrlich.** Keine aggressiven Pop-ups, keine Dark
+Patterns, keine künstliche Verknappung, keine erfundenen
+Vertrauenssignale. Conversion-Aussagen ohne Daten sind **Hypothesen**
+und werden so benannt.
+
+**Vorschau und Freigabe.** Kein automatisches Zusammenführen, kein
+automatisches Deployment. Eine Vorschau-Adresse wird erst genannt, wenn
+sie eingerichtet und selbst abgerufen wurde. Testdaten sind erfunden;
+keine echten Anfragen an Kunden, CRM oder produktive
+Benachrichtigungswege.
+
 ## Sparsamer Umgang mit Nutzungsvolumen (permanent)
 
 Der Betreiber hat einen begrenzten Claude-Plan – das Guthaben soll möglichst lange reichen. Deshalb bei jeder Aufgabe:

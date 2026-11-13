@@ -30,3 +30,23 @@ Stand: 24.06.2026 | NEXUS-Strategie aktiv
 - improvements/IMPROVEMENT-LOG.md — Änderungsprotokoll
 
 ## Agency Score: 82/100 — CONDITIONAL READY
+
+---
+
+## Nachtrag 13.11.2026 – Prüfrollen für die Webseiten-Modernisierung
+
+Sechs Agenten neu, vier vorhandene erweitert. **Welche Rolle unter
+welchem Namen liegt, steht in `docs/WEBSITE_AGENT_WORKFLOW.md`** – dort
+auch, wann ein Agent läuft und wann ausdrücklich keiner.
+
+Neu: `conversion-psychology-auditor`, `customer-journey-architect`,
+`mobile-ux-auditor`, `performance-auditor`, `qa-accessibility-auditor`,
+`staging-release-guardian`.
+
+Erweitert: `cto` (auch website-architect), `ux-architect` (auch
+premium-design-guardian), `seo-specialist` (auch seo-content-auditor),
+`security-architect` (auch security-privacy-auditor).
+
+`ux-architect` und `seo-specialist` haben dabei das Werkzeug `Edit`
+verloren: Prüfende Agenten ändern keinen Code. Der einzige schreibende
+Agent ist `frontend-developer`.
