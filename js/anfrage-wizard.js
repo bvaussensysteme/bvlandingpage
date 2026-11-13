@@ -968,7 +968,18 @@
 
     kontakt: {
       title: 'Ihre Kontaktdaten',
-      sub: 'Damit wir Ihnen Ihr persönliches Angebot zusenden können',
+      /* GEAENDERT 13.11.2026. Vorher: „Damit wir Ihnen Ihr persoenliches
+         Angebot zusenden koennen." Das weckt die Erwartung, das Angebot
+         komme aus diesem Formular per Mail. Der eigene Ablauf auf der
+         Startseite sagt etwas anderes (Abschnitt „Prozess", Schritt 1 und
+         2): erst Rueckmeldung, dann Termin und Massaufnahme vor Ort, dann
+         das schriftliche Angebot. Wer ein Angebot per Mail erwartet und
+         einen Aufmasstermin bekommt, fuehlt sich getaeuscht - auch wenn
+         niemand gelogen hat.
+         Beide Zahlen stehen schon auf der Seite und sind nicht erfunden:
+         24 Stunden im Hero (hero-trust) und nach dem Absenden,
+         2-3 Werktage in der FAQ ("Wie lange dauert es bis zum Angebot?"). */
+      sub: 'Wir melden uns meist innerhalb von 24 Stunden – danach Termin und Maßaufnahme vor Ort, das schriftliche Angebot folgt 2–3 Werktage später.',
       render: function () {
         return '<div class="aw-contact">' +
           '<div class="aw-field"><label id="k_anrede_lbl">Anrede *</label>' +

@@ -15253,3 +15253,47 @@ erreichbar sind; auch mit `domcontentloaded` kam keine Ausgabe). Statt
 weiter daran zu basteln: `scripts/pruefe-darstellung.mjs` prüft
 `/index.html` längst im Browser auf Kontrast, Feldgrößen und
 Tippflächen. **Vorhandene Prüfung benutzt, keine neue gebaut.**
+
+## 13.11.2026 – „Was passiert danach" im Kontaktschritt richtiggestellt
+
+**Anlass.** Betreiber: „weiter". Befund 6 aus
+`docs/AUDIT-CUSTOMER-JOURNEY.md`.
+
+**Korrektur am Audit – der Befund war zu breit.** Der Agent meldete, die
+Erwartung werde „uneinheitlich" an vier Stellen erzählt. Nachgesehen:
+**Drei der vier widersprechen sich nicht**, sie sprechen von
+verschiedenen Dingen.
+
+| Stelle | Aussage | Bewertung |
+|---|---|---|
+| `index.html:546` (hero-trust) | „Antwort meist in 24 Std." | die **Rückmeldung** – stimmt |
+| `js/anfrage-wizard.js:1570` (nach dem Absenden) | „in der Regel innerhalb von 24 Stunden" | dasselbe – **deckungsgleich** |
+| `index.html:349` und `:1275` (FAQ) | „2–3 Werktage nach Beratung und Maßaufnahme" | das **schriftliche Angebot** – anderer Zeitpunkt, kein Widerspruch |
+| `js/anfrage-wizard.js:971` (Kontaktschritt) | „Damit wir Ihnen Ihr persönliches Angebot zusenden können" | **einzige irreführende Stelle** |
+
+**Was falsch war.** Der Satz im Kontaktschritt weckt die Erwartung, das
+Angebot komme aus diesem Formular per Mail. Der eigene Ablauf auf der
+Startseite („Prozess", Schritt 1 und 2) sagt etwas anderes: erst
+Rückmeldung, dann Termin und Maßaufnahme vor Ort, dann das Angebot. Wer
+ein Angebot per Mail erwartet und einen Aufmaßtermin bekommt, fühlt sich
+getäuscht – **auch wenn niemand gelogen hat.**
+
+**Was jetzt dort steht.** „Wir melden uns meist innerhalb von 24 Stunden
+– danach Termin und Maßaufnahme vor Ort, das schriftliche Angebot folgt
+2–3 Werktage später."
+
+**Beide Zahlen sind nicht erfunden.** 24 Stunden stehen im Hero und auf
+der Bestätigung, 2–3 Werktage in der FAQ. Es wurde nichts Neues
+zugesagt, nur das Vorhandene an die Stelle geholt, an der es gebraucht
+wird.
+
+**Nur eine Stelle geändert, bewusst.** Hero, Bestätigung und FAQ blieben
+unberührt – sie waren richtig. Eine Änderung dort hätte ein Problem
+gelöst, das es nicht gab.
+
+**Geprüft.** `pruefe-assistent.mjs` 18/18, `pruefe-produktwahl.mjs`
+132/132, alle schnellen Skripte grün. Cache-Buster `v=20261113d`.
+
+**Nicht geprüft:** ob die „2–3 Werktage" betrieblich haltbar sind. Das
+ist die Zusage des Betreibers aus seiner eigenen FAQ, nicht meine
+Messung.
