@@ -15057,3 +15057,44 @@ den KV-Speicher vermerkt.
 **Nicht improvisiert.** Keine env-Blöcke auf Verdacht, keine
 Schrankenlogik ohne die Möglichkeit, sie zu prüfen. Regel des Betreibers:
 bei Blockern stoppen statt improvisieren.
+
+## 13.11.2026 – Umstellung auf „Worker Previews" abgelehnt
+
+**Anlass.** Gefragt, ob die unumkehrbare Umstellung im Cloudflare-Konto
+gemacht werden soll. Antwort des Betreibers: „nein".
+
+**Was jetzt gilt.** Die Umstellung wird **nicht** gemacht. Damit bleibt
+es bei einem Stand, der bewusst so akzeptiert ist:
+
+- Die Branch-Vorschau benutzt weiterhin die Produktionseinstellungen und
+  schreibt in `bv-messung`.
+- Die Vorschau bleibt öffentlich erreichbar, ohne Passwort.
+- Eine **private, isolierte Online-Vorschau ist auf diesem Stand nicht
+  herstellbar.** Das Ziel aus Auftrag 3 bleibt offen – nicht aus
+  technischem Unvermögen, sondern durch Entscheidung.
+
+**Arbeitsregel, die dadurch allein trägt:** Browsertests laufen gegen
+`localhost`, nie gegen die Vorschau und nie gegen die Live-Seite. Wer
+die Vorschau-Adresse selbst aufruft, verfälscht die eigenen Messzahlen –
+bei 354 Zeilen Gesamtbestand fällt jeder Testaufruf ins Gewicht.
+
+**Warum die Umstellung nicht noch einmal vorgeschlagen wird.** Sie ist
+laut Cloudflare nicht rückgängig zu machen und ändert die
+Vorschau-Adressen. Der Betreiber hat das abgewogen und abgelehnt. **Nicht
+erneut vorschlagen**, solange er nicht selbst darauf zurückkommt.
+
+**Was angelegt wurde und liegen bleibt.** Die Datenbank
+`bv-messung-vorschau` (`9108c797-9654-4342-bcb7-7e8f8f203023`, WEUR)
+existiert, ist leer und ungenutzt. Sie kostet nichts und bleibt stehen,
+weil sie der zweite Weg unten ohne weitere Arbeit benutzen könnte.
+Löschen jederzeit möglich, aber nur auf Ansage.
+
+**Nicht verworfen, nur nicht beauftragt: der zweite Weg.** Wrangler
+kennt neben dem Vorschau-Modell auch **Umgebungen** (`--env`), die einen
+**eigenen, zusätzlichen Worker** erzeugen (etwa `bvlanding-vorschau`) mit
+eigener Datenbank-Bindung, eigener Adresse und eigenem Passwort-Geheimnis.
+Das braucht **keine unumkehrbare Umstellung** und nichts am
+Produktions-Worker. Nachteil: Es ist ein zweiter Deploy-Vorgang, und die
+heutigen Branch-Vorschauen bestünden daneben weiter (würden also nicht
+mehr benutzt). Festgehalten, damit es nicht verloren geht – **nicht
+umgesetzt, nicht beauftragt.**
