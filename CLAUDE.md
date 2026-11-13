@@ -20,29 +20,37 @@ Wenn der Betreiber sinngemäß sagt **„Alle VD-Inhalte entfernen"** (oder ähn
 2. Nach Bestätigung: `docs/VD-INHALTE-INVENTAR.md` als Grundlage nutzen (vollständige Liste aller betroffenen Bilder, Dateien, Textstellen).
 3. Darauf hinweisen, dass reines Entfernen Lücken hinterlässt (fehlende Fotos, generische Produktnamen nötig) – das ist beabsichtigt, muss aber kommuniziert werden.
 
-## Veröffentlichen ohne Rückfrage (permanent)
+## ⛔ Veröffentlichen NUR auf ausdrückliche Freigabe (permanent, 08.11.2026)
 
-Ansage des Betreibers (05.11.2026): „immer auto merge".
+**Diese Regel hebt die frühere Regel „immer auto merge" (05.11.2026)
+vollständig auf.** Ansage des Betreibers vom 08.11.2026, wörtlich:
 
-**Das hebt die frühere Regel „kein Deployment ohne Freigabe" auf.** Fertige
-Arbeit wird zusammengeführt und veröffentlicht, ohne vorher zu fragen.
+> „DU DARFST DIE NEUE WEBSITE NICHT AUTOMATISCH VERÖFFENTLICHEN. Auch
+> dann nicht, wenn alle Agenten fertig sind, alle automatisierten Tests
+> bestehen, die Website visuell perfekt erscheint, keine bekannten
+> kritischen Probleme verbleiben."
 
-Was deshalb **nicht** entfällt – im Gegenteil, es trägt jetzt allein:
+**Es wird nichts nach `main` zusammengeführt und nichts veröffentlicht,
+bis genau dieser Satz kommt:**
 
-- **Erst grün, dann raus.** Alle Prüfskripte laufen lassen (`scripts/pruefe-*`),
-  nicht die vermuteten. Ein rotes Skript ist ein Grund, nicht zu
-  veröffentlichen – auch wenn niemand widerspricht.
-- **Live nachprüfen.** Nach dem Zusammenführen die geänderten Dateien
-  byteweise gegen `origin/main` vergleichen (`sha256`) und
-  `scripts/pruefe-live.sh` laufen lassen. Ohne das weiß niemand, ob es
-  draußen ist.
-- **Ehrlich berichten**, was veröffentlicht wurde und was offen blieb.
+> ICH GEBE DIE NEUE WEBSITE ZUR VERÖFFENTLICHUNG FREI.
 
-**Weiterhin wird vorher gefragt bei:** dem Entfernen aller VD-Inhalte (eigene
-Regel oben), dem Löschen von Daten, Preisen auf der Seite, und allem, was
-sich nicht ohne Weiteres zurücknehmen lässt. Automatisch zusammenführen heißt
-nicht, Entscheidungen zu übernehmen, die dem Betreiber gehören.
+Andere Formulierungen gelten **nicht** als Freigabe. Insbesondere nicht:
+Schweigen, „ok", „sieht gut aus", „ja", ein bestandener Testlauf, eine
+grüne Prüfung oder eine allgemeine Zustimmung zu etwas anderem.
 
+**Die Live-Seite bleibt unangetastet.** Keine Änderung an `main`, an der
+Domain, am DNS, am Hosting, an der Produktionsdatenbank
+(`bv-messung`), an produktiven Konfigurationen oder an Kundendaten.
+Gearbeitet wird ausschließlich auf dem Arbeitsbranch; die Vorschau
+unter der Branch-Adresse von Cloudflare ist die Staging-Umgebung.
+
+**Vorher gefragt wird weiterhin** bei allem aus der VD-Regel, beim
+Löschen von Daten und bei Preisen auf der Seite.
+
+**Was deshalb nicht entfällt:** Erst grün, dann berichten. Alle
+`scripts/pruefe-*` laufen lassen, nicht die vermuteten. Ehrlich
+berichten, was geprüft wurde und was offen blieb.
 ## Nachbauten: eigene Sprache, eigene Namen (permanent)
 
 Wird etwas nachgebaut, das es bei einem Wettbewerber schon gibt (eine Funktion,
