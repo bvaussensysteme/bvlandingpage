@@ -1648,7 +1648,21 @@
     'balkonueberdachung': { produkt: 'Balkonüberdachung' },
     'kaltwintergarten':   { produkt: 'Direkt anfragen', wunsch: 'Kaltwintergarten' },
     'sonnenschutz':       { produkt: 'Direkt anfragen', wunsch: 'Sonnenschutz / Markise' },
-    'gelaender':          { produkt: 'Direkt anfragen', wunsch: 'Geländer' }
+    'gelaender':          { produkt: 'Direkt anfragen', wunsch: 'Geländer' },
+    /* Diese Produkte haben im Assistenten keine eigene Kachel. Sie gehen
+       ueber "Direkt anfragen" und tragen ihren Namen gleich im
+       Nachrichtenfeld - sonst kaeme die Anfrage ohne Produkt an.
+       Faltdach und Velaris gehoeren zu "Pergola / Lamellendach", so nennt
+       dessen Beschriftung es selbst ("Lamellendach · Faltdach · Velaris"). */
+    'fassade':            { produkt: 'Direkt anfragen', wunsch: 'Fassadenverkleidung Deco Wall' },
+    'sichtschutz':        { produkt: 'Direkt anfragen', wunsch: 'Sichtschutz Aluminium' },
+    'bushaltestelle':     { produkt: 'Direkt anfragen', wunsch: 'Bushaltestelle' },
+    'fahrradueberdachung':{ produkt: 'Direkt anfragen', wunsch: 'Fahrradüberdachung' },
+    'gartenhaus':         { produkt: 'Direkt anfragen', wunsch: 'Gartenhaus TDS' },
+    'vordach-fly':        { produkt: 'Direkt anfragen', wunsch: 'Vordach FLY' },
+    'vordach-front-line': { produkt: 'Direkt anfragen', wunsch: 'Vordach Front Line' },
+    'vordach-front-line-plus': { produkt: 'Direkt anfragen', wunsch: 'Vordach Front Line Plus' },
+    'eingangsueberdachung-tds':{ produkt: 'Direkt anfragen', wunsch: 'Eingangsüberdachung TDS' }
   };
 
   function produktAusSpeicher() {

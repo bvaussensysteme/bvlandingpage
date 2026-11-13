@@ -224,7 +224,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <h2>Gartenhaus TDS Aluminium</h2>
           <p>Das Gartenhaus TDS aus Aluminium ist die wartungsfreie Alternative zum klassischen Holzhaus. Stabiles Profil-System, Sicherheitsglas, in Ihrer Wunschfarbe. Jederzeit erweiterbar, schnell montiert, jahrzehntelang haltbar.</p>
           <ul class="produkt-features"><li>Aluminium-Profil-System, pulverbeschichtet</li><li>Verglasung: 8 mm VSG-Glas, 16 mm Polycarbonat oder Trapezblech</li><li>Individuelle Maßanfertigung</li><li>Jederzeit erweiterbar</li><li>Kein Streichen, kein Rosten, formstabil, feuerfest</li><li>10 Jahre Herstellergarantie auf Alu-Produkte</li></ul>
-          <a href="/#kontakt" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','gartenhaus')}catch(e){}" class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
         </div>
@@ -368,7 +368,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261113a" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261113b" defer></script>
 
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">

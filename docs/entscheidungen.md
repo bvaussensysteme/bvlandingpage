@@ -15153,3 +15153,55 @@ schlug an – nicht die Seite war falsch, sondern meine Zahl.
 **Nicht geprüft:** `produkte/balkon-fassade.html` hatte das Muster nicht;
 ob dort eine Vorauswahl fehlt, ist offen. Nichts im Browser außerhalb der
 genannten Skripte.
+
+## 13.11.2026 – Produktwahl auf allen 16 Produktseiten vollständig
+
+**Anlass.** Betreiber: „ok" auf den Vorschlag, `balkon-fassade.html`
+nachzusehen. Dabei zeigte sich, dass es nicht um eine Seite ging.
+
+**Was gefunden wurde.** Ein erster Zähllauf meldete „78 Knöpfe in 27
+Dateien ohne Vorauswahl". **Diese Zahl war falsch** – das Muster traf
+auch die allgemeinen „Jetzt anfragen"-Knöpfe aus `layout.njk`
+(Navigation, mobile Leiste, Sticky-Leiste). Die sollen **keine**
+Vorauswahl haben. Nach Einschränkung auf Produktkarten (Pfeil und
+`width:100%`) blieben **18 Knöpfe in 10 Vorlagen**.
+
+**Zweite Entwarnung:** Auf `terrassenueberdachung.njk` wurden 7 Knöpfe
+gezählt, aber nur 2 sind Produktkarten. Die anderen 5 sind
+Zubehör-Ausklapper (Stirn- und Seitenelemente, Glasschiebetür) mit
+anderem Stil (`display:inline-block`). Die Korrektur vom Vormittag war
+dort also vollständig.
+
+**Was jetzt gilt.** Alle 16 Produktseiten geben ihre Produktwahl weiter,
+insgesamt 33 Karten. Neun neue Einträge in `PRODUKTWEGE`
+(`js/anfrage-wizard.js`). Zuordnungen, die eine Begründung brauchen:
+
+| Karte | Weg | Warum |
+|---|---|---|
+| Faltdach OpenAir, Velaris | `pergola` | Die Kachel „Pergola / Lamellendach" nennt selbst „Lamellendach · Faltdach · Velaris" |
+| Balkonüberdachung | eigene Kachel | steht im Assistenten |
+| Vordächer, Bushaltestelle, Fahrradüberdachung, Gartenhaus, Sichtschutz, Fassade | „Direkt anfragen" + Name im Nachrichtenfeld | haben keine eigene Kachel; „Vordach" wird in der Beschriftung des Kurzwegs ausdrücklich genannt |
+
+**Jeder Schlüssel wurde gegen die Überschrift seiner Karte geprüft** –
+nicht aus der Reihenfolge geschlossen. Die Liste steht im Commit.
+
+**Absicherung, anders gebaut als vorher.** Das Prüfskript zählt die
+Knöpfe nicht mehr selbst, sondern sucht im geladenen Dokument alle
+Anfrage-Knöpfe in Produktkarten und verlangt, dass **jeder** eine
+Vorauswahl trägt. Damit fällt eine künftig hinzugefügte Karte ohne
+Vorauswahl von selbst auf, ohne dass das Skript geändert werden muss.
+`pruefe-produktwahl.mjs`: **132/132**, Gegenprobe **112/112**.
+`pruefe-assistent.mjs`: 18/18.
+
+**Zweiter eigener Fehler, benannt:** `pruefe-cache-buster.sh` schlug an,
+weil `js/anfrage-wizard.js` nach dem Hochzählen noch einmal geändert
+wurde. Version jetzt `v=20261113b`. Beide Prüfungen, die mit
+Commit-Zeitstempeln arbeiten (`pruefe-cache-buster.sh`,
+`pruefe-erzeugte-seiten.sh`), brauchen einen sauberen Arbeitsstand –
+sonst überspringen sie oder melden falsch.
+
+**Später prüfen, nicht gemacht:** Die Carport-Seite hat drei Karten
+(Carport TDS, Flat Line, Flat Box), die alle nur `Carport` vorwählen –
+der Assistent hat dafür einen eigenen Schritt `carporttyp`. Ebenso
+`pergola` mit vier Modellen. Dort ließe sich ein Schritt mehr
+überspringen. Nicht beauftragt.

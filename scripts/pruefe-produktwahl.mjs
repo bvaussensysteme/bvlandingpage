@@ -42,7 +42,17 @@ const SEITEN = [
   { datei: 'produkte/pergola.html',               knoepfe: 4 },
   { datei: 'produkte/kaltwintergarten.html',      knoepfe: 1, notiz: 'Kaltwintergarten' },
   { datei: 'produkte/sonnenschutz.html',          knoepfe: 4, notiz: 'Sonnenschutz / Markise' },
-  { datei: 'produkte/gelaender.html',             knoepfe: 2, notiz: 'Geländer' }
+  { datei: 'produkte/gelaender.html',             knoepfe: 2, notiz: 'Geländer' },
+  { datei: 'produkte/balkon-fassade.html',        knoepfe: 3 },
+  { datei: 'produkte/bushaltestelle.html',        knoepfe: 1, notiz: 'Bushaltestelle' },
+  { datei: 'produkte/eingang.html',               knoepfe: 4, notiz: 'Vordach FLY' },
+  { datei: 'produkte/fahrradueberdachung.html',   knoepfe: 1, notiz: 'Fahrradüberdachung' },
+  { datei: 'produkte/faltdach.html',              knoepfe: 1 },
+  { datei: 'produkte/fassade.html',               knoepfe: 1, notiz: 'Fassadenverkleidung Deco Wall' },
+  { datei: 'produkte/garten-aussenbereich.html',  knoepfe: 4, notiz: 'Gartenhaus TDS' },
+  { datei: 'produkte/gartenhaus.html',            knoepfe: 1, notiz: 'Gartenhaus TDS' },
+  { datei: 'produkte/sichtschutz.html',           knoepfe: 1, notiz: 'Sichtschutz Aluminium' },
+  { datei: 'produkte/velaris.html',               knoepfe: 1 }
 ];
 
 function chromeIn(o) {
@@ -91,10 +101,22 @@ for (const s of SEITEN) {
   pruef(`${kurz}: kein Zugriff auf ein Feld, das es nicht gibt`, !kaputt,
     kaputt ? 'alter Aufruf ist zurueck' : 'entfernt');
 
-  const knoepfe = seite.locator('.produkt-card a.btn-gold');
-  const anzahl = await knoepfe.count();
-  pruef(`${kurz}: alle Anfrage-Knöpfe vorhanden`, anzahl === s.knoepfe,
-    `${anzahl} von ${s.knoepfe}`);
+  /* Nicht die Knopfzahl raten, sondern im Dokument nachsehen: Jeder
+     Anfrage-Knopf einer Produktkarte MUSS eine Vorauswahl tragen. So
+     faellt auch eine kuenftig neu hinzugefuegte Karte ohne Vorauswahl
+     auf, ohne dass dieses Skript geaendert werden muss. */
+  const karten = await seite.evaluate(() => {
+    const a = Array.from(document.querySelectorAll('.produkt-card a[href="/#kontakt"]'))
+      .filter((x) => /Jetzt anfragen/.test(x.textContent));
+    return { gesamt: a.length,
+             ohne: a.filter((x) => !/bv-produktwahl/.test(x.outerHTML)).length };
+  });
+  pruef(`${kurz}: Anzahl der Produktkarten wie erwartet`, karten.gesamt === s.knoepfe,
+    `${karten.gesamt} von ${s.knoepfe}`);
+  pruef(`${kurz}: jede Karte hat eine Vorauswahl`, karten.ohne === 0,
+    karten.ohne ? `${karten.ohne} ohne Vorauswahl` : 'alle');
+
+  const knoepfe = seite.locator('.produkt-card a[href="/#kontakt"]');
 
   await knoepfe.first().click();
   await seite.waitForLoadState('domcontentloaded');
