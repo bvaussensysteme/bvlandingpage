@@ -41,6 +41,16 @@ Was NICHT geprüft wurde, gehört hierher – nicht weglassen.>
 
 ## ⇢ Aktueller Stand zum Weiterarbeiten (13.11.2026)
 
+> **Es läuft eine Folge von fünf Aufträgen.** Auftrag 1 (Staging-Plan)
+> ist fertig. Nach dem Leeren des Verlaufs kommt **Auftrag 2 von 5** –
+> Inhalt noch unbekannt. Diese Sitzung hat ihn nicht vorbereitet und
+> soll ihm nicht vorgreifen: erst den Auftrag lesen, dann handeln.
+>
+> **Seit dem 13.11.2026 gilt der Fokus- und Tokensparmodus**
+> (`CLAUDE.md`, erster Abschnitt): nur der aktuelle Auftrag,
+> Nebenbefunde nur notieren, Fertig-Kriterium vorher festlegen,
+> stoppen wenn fertig, Bericht in vier Teilen.
+
 **Einstieg ist `docs/NEXT_TASK.md`.** Dort stehen die offenen Punkte
 vollständig und nach Dringlichkeit. Diese Seite hier ist die Kurzfassung.
 
@@ -92,9 +102,21 @@ erzeugte Seiten, Cache-Buster – alle bestanden.
 (über 30 Minuten Laufzeit, zweimal abgebrochen). Die zwei neuen
 Zoom-Prüfungen wurden gezielt gegengeprüft, die 19 übrigen nicht.
 
+### Zuletzt erledigt (13.11.2026, Auftrag 1 von 5)
+- **Fokus- und Tokensparmodus** in `CLAUDE.md` aufgenommen
+- **Staging-Freigabeplan** in `docs/WEBSITE_STAGING.md`: vier Schritte,
+  Messdaten zuerst. Belegt an `wrangler.jsonc` – keine `env`-Blöcke,
+  deshalb benutzt jede Auslieferung dieselbe Datenbank. Die
+  Passwortschranke der Werkstatt ist wiederverwendbar, kein neues
+  Werkzeug nötig. **Nichts eingerichtet.**
+
 ### Nächster sicherer Schritt
-Erster abgegrenzter Audit: `customer-journey-architect` auf der
-Startseite. Vorher in die Zahlen sehen (`docs/zahlen-lesen.md`).
+Zuerst den neuen Auftrag abwarten. Falls er offen lässt, was zu tun ist,
+gibt es zwei sinnvolle Anschlüsse:
+1. **XSS-Korrektur vorziehen** – schließt ein offenes Risiko, in einer
+   Sitzung erledigt (`docs/NEXT_TASK.md`, Abschnitt 1)
+2. **Erster abgegrenzter Audit** – `customer-journey-architect` auf der
+   Startseite, vorher in die Zahlen sehen (`docs/zahlen-lesen.md`)
 
 ---
 

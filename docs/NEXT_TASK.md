@@ -79,6 +79,13 @@ Die Regel steht in `CLAUDE.md`. Andere Formulierungen gelten nicht.
 | 3.3 | **Die Vorschau schreibt in die produktive Messdatenbank** `bv-messung`. Jeder Testaufruf verfälscht die Zahlen (gemessen 08.11.: 98 statt 16 Zeilen). Es gibt keine getrennte Vorschau-Umgebung. | Betreiber (Cloudflare) |
 | 3.4 | **Die Vorschau ist öffentlich** – kein Passwort, kein Zugangsschutz. | Betreiber |
 
+**Für 3.3 und 3.4 liegt seit dem 13.11.2026 ein fertiger Plan vor:**
+`docs/WEBSITE_STAGING.md`, Abschnitt „Freigabeplan". Vier Schritte,
+Messdaten zuerst. **Vier Entscheidungen warten auf den Betreiber:**
+zweite D1 anlegen (empfohlen) · Worker-Schranke oder Cloudflare Access
+(empfohlen: Worker) · Vorschau-Passwort festlegen · Reihenfolge
+bestätigen. Nichts davon ist eingerichtet.
+
 Details zu 3.3 und 3.4 in `docs/WEBSITE_STAGING.md`.
 
 ### Recht und Lizenzen – blockieren die Freigabe
@@ -99,6 +106,7 @@ Bewertung holt der Betreiber beim Fachmann.
 
 | # | Punkt |
 |---|---|
+| 3.9b | **Später prüfen:** `wrangler.jsonc` schaltet `observability.logs` mit `invocation_logs` ein. Ob und welche Eingaben in den Protokollen landen, ist ungeklärt. Vor den ersten Testdaten in der Vorschau klären |
 | 3.10 | **Fokus-Verdeckung** (WCAG 2.4.11) bei fester Kopfzeile und Cookie-Banner – nur im Browser prüfbar, rechnerisch nicht |
 | 3.11 | **`images/logo-hell.png`** trägt `#E69B26` (ΔE 15,9 zum Markengold). Korrigierte Hell-Variante beim Logo-Urheber anfragen – **Aufgabe des Betreibers** |
 | 3.12 | **Live-Seite auf die neue Palette umstellen?** Noch nicht entschieden. `--gold-text` würde von `#7A5B12` auf `#896023` **heller** werden; danach alle `scripts/pruefe-*` laufen lassen |
@@ -115,6 +123,11 @@ Bewertung holt der Betreiber beim Fachmann.
 ---
 
 ## 4. Der nächste sinnvolle Arbeitsschritt
+
+> **Hinweis:** Der Betreiber arbeitet eine Folge von fünf Aufträgen ab.
+> Auftrag 1 (Staging-Plan) ist fertig. Kommt ein neuer Auftrag, hat der
+> Vorrang vor dem Vorschlag unten – und es gilt der Fokusmodus aus
+> `CLAUDE.md`: nur der beauftragte Umfang.
 
 **Der erste echte Audit.** Alles bisher war Vorbereitung: Agenten,
 Designsystem, Palette. Jetzt wäre der erste abgegrenzte Prüfauftrag
