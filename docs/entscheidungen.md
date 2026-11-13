@@ -15353,3 +15353,65 @@ Cache-Buster `v=20261113e`.
    Prüfung wurde dadurch zunächst falsch rot.
 3. Der Kurzweg verlangt eine Nachricht; ohne sie kommt man nicht zum
    Kontaktschritt. Die Prüfung füllt das Feld jetzt.
+
+## 13.11.2026 – Eigene Carport-Referenz in die Galerie aufgenommen
+
+**Anlass.** Betreiber: „wir haben eine neue eigene referenz, ein carport",
+mit zwei Fotos.
+
+**Warum das mehr wert ist als ein weiteres Herstellerbild.** Die neun
+`vd_ref_*`-Bilder stammen von VD AluSysteme; ihre Nutzungsrechte sind in
+`docs/NEUBAU-LIZENZREGISTER.md` als **ungeklärt** vermerkt und blockieren
+die Freigabe (Punkt 3.5/3.6 in `docs/NEXT_TASK.md`). Eine eigene Aufnahme
+hat dieses Problem nicht. Zudem zeigt die Galerie bisher **keinen einzigen
+eigenen Carport** – nur VD-Carports.
+
+**Was gemacht wurde.**
+- `images/galerie-4.webp` und `galerie-5.webp` (je 800×600, ~92 kB) als
+  Kacheln, `galerie-4-full.webp` (1600×1200) und `galerie-5-full.webp`
+  (1200×1600) für die Lightbox.
+- **Metadaten beim Umwandeln entfernt** (`-strip`). In den Originalen
+  waren keine GPS-Daten – nachgesehen, nicht angenommen. Wäre eine
+  Koordinate drin gewesen, hätte sie die Adresse des Kunden verraten.
+- Eingefügt **hinter** den drei bestehenden eigenen Referenzen, also vor
+  den VD-Bildern: eigene Arbeit zuerst.
+
+**Die Falle dabei.** Die Karten rufen `openLightbox(N)` mit einer festen
+Nummer auf, die in das Feld `lightboxImages` in `js/main.js` zeigt. Zwei
+Karten in der Mitte verschieben **alle folgenden Nummern** (3–11 wurden
+zu 5–13). Geht das schief, öffnet eine Karte lautlos das falsche Bild:
+kein Fehler in der Konsole, kein kaputtes Bild. Bei Eigen- und
+Fremdaufnahmen nebeneinander hieße das, ein Herstellerfoto stünde unter
+„Referenz BV AussenSysteme".
+
+**Absicherung.** `scripts/pruefe-galerie.mjs`: **11/11**, Gegenprobe
+**10/10**. Sie klickt jede der 14 Karten im Browser an und vergleicht,
+welches Bild wirklich erscheint; dazu fortlaufende Nummern, gleiche
+Anzahl, Alternativtexte, Herkunftsangabe, Breite/Höhe und ob alle
+Dateien im Repository liegen. Die Gegenprobe entfernt einen Eintrag –
+13 von 14 Karten zeigen dann das falsche Bild und fallen auf.
+
+**Eigener Fehler, benannt:** Die Prüfung meldete zunächst 15 Karten. Die
+15. ist die Platzhalter-Kachel „Ihr Traumplatz entsteht gerade" – ohne
+Bild und absichtlich nicht anklickbar. Sie wird jetzt ausgenommen
+(`:not(.galerie-placeholder)`).
+
+**Bewusst NICHT behauptet.** Kein Ort, keine Maße, kein Material der
+Eindeckung. Die Beschriftungen sagen „Carport Aluminium anthrazit" und
+„Ansicht von der Seite"; die Alternativtexte sagen „lichtdurchlässige
+Dacheindeckung" statt Glas oder Polycarbonat. Ob es das eine oder andere
+ist, war aus den Fotos nicht sicher zu erkennen – **geraten wird nicht.**
+
+**Offen, liegt beim Betreiber – vor einer Veröffentlichung zu klären:**
+1. **Einwilligung des Kunden.** Auf den Fotos ist ein bestimmtes,
+   wiedererkennbares Wohnhaus zu sehen, dazu das Nachbarhaus. Für die
+   gewerbliche Veröffentlichung gehört die Zustimmung des Eigentümers
+   eingeholt, am besten schriftlich. **Keine Rechtsberatung** – die
+   verbindliche Bewertung holt der Betreiber beim Fachmann.
+2. **Ort** für Beschriftung und lokale Suche (z. B. „Carport Aluminium ·
+   Montabaur").
+3. **Eindeckung**: Glas oder Polycarbonat?
+4. Die Fotos zeigen den Zustand direkt nach der Montage – Mülltonnen,
+   Laub, Werkzeug, Erdaushub. Fachlich sauber gebaut, als Werbebild aber
+   roh. Ein zweiter Termin bei trockenem Wetter und aufgeräumtem Umfeld
+   wäre ein besseres Bild.

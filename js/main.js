@@ -200,6 +200,13 @@ var lightboxImages = [
   { src: 'images/galerie-1-full.jpg', caption: 'Terrassenüberdachung Aluminium · Westerwaldkreis' },
   { src: 'images/galerie-2-full.jpg', caption: 'Detailansicht · Aluminium-Profile & Verglasung' },
   { src: 'images/galerie-3-full.jpg', caption: 'Gesamtansicht · Terrassenüberdachung Westerwaldkreis' },
+  /* Eigene Referenz, 13.11.2026. Die Reihenfolge hier MUSS der
+     Reihenfolge der .galerie-item in index.html entsprechen - die
+     onclick-Nummern zeigen in genau dieses Feld. Wird oben etwas
+     eingefuegt, verschieben sich alle folgenden Nummern.
+     Geprueft von scripts/pruefe-galerie.mjs. */
+  { src: 'images/galerie-4-full.webp', caption: 'Carport Aluminium anthrazit · Referenz BV AussenSysteme' },
+  { src: 'images/galerie-5-full.webp', caption: 'Carport · Ansicht von der Seite · Referenz BV AussenSysteme' },
   { src: 'images/vd_ref_1-full.webp', caption: 'Terrassenüberdachung mit Glasdach · Referenz VD AluSysteme' },
   { src: 'images/vd_ref_2-full.webp', caption: 'Große Aluminium-Terrassenüberdachung · Referenz VD AluSysteme' },
   { src: 'images/vd_ref_3-full.webp', caption: 'Terrassenüberdachung mit Lounge · Referenz VD AluSysteme' },
