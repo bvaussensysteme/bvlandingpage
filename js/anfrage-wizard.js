@@ -1611,10 +1611,52 @@
 
   document.addEventListener('bv-konfig-vorgabe', vorgabeUebernehmen);
 
+  /* Produktwahl von einer Produktseite uebernehmen.
+
+     GEFUNDEN AM 13.11.2026: Die Karten auf produkte/terrassenueberdachung.html
+     setzten per onclick document.getElementById('produkt').value - ein Feld,
+     das es auf dieser Seite gar nicht gibt (nachgezaehlt: 0 Treffer). Der
+     Aufruf warf jedes Mal einen Fehler. Und selbst wenn es das Feld gegeben
+     haette, stand der gesetzte Wert "Terrassenueberdachung" nicht in der
+     Auswahlliste des Schritts "produkt" - die Vorauswahl waere auch dann
+     verfallen.
+
+     Warum sessionStorage und nicht window.bvKonfigVorgabe: Die Karten
+     verweisen auf /#kontakt, also auf eine ANDERE Seite. Beim Seitenwechsel
+     wird window verworfen, bvKonfigVorgabe kann den Weg nicht ueberstehen.
+     Warum kein Adressparameter: Der wuerde eine zweite Adresse der
+     Startseite erzeugen - mit eigenem Zwischenspeicher-Eintrag und einer
+     zusaetzlichen Zeile in der Reichweitenmessung.
+
+     Nur Werte aus dieser Liste werden uebernommen. Ein fremder Wert aus dem
+     Speicher darf nicht in die Antworten geraten und von dort in die
+     Anfrage-E-Mail. */
+  function produktAusSpeicher() {
+    if (answers.produkt) return;   // eine 3D-Vorgabe hat Vorrang
+    var erlaubt = ['Terrassendach TDS', 'Flachdach SkyView', 'Carport',
+                   'Balkonüberdachung', 'Pergola / Lamellendach',
+                   'Direkt anfragen'];
+    var p;
+    try {
+      p = sessionStorage.getItem('bv-produktwahl');
+      /* Nur fuer diesen einen Weg. Ohne das Loeschen haette der Besucher
+         die Wahl beim naechsten Oeffnen der Startseite wieder am Hals. */
+      sessionStorage.removeItem('bv-produktwahl');
+    } catch (e) { return; }        // privates Fenster, gesperrte Speicher
+    if (!p || erlaubt.indexOf(p) === -1) return;
+    answers.produkt = p;
+    flow = computeFlow();
+    /* Einen Schritt weiter, nicht bis zum Kontakt: Der Besucher hat nur das
+       Produkt gewaehlt, nicht konfiguriert. Zurueckblaettern bleibt moeglich. */
+    idx = flow.length > 1 ? 1 : 0;
+    render();
+  }
+
   /* ---------- Start ---------- */
   nextBtn.addEventListener('click', goNext);
   backBtn.addEventListener('click', goBack);
   render();
   // Falls die Vorgabe schon vor dem Laden dieses Skripts gesetzt wurde
   vorgabeUebernehmen();
+  produktAusSpeicher();
 })();

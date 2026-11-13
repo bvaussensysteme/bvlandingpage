@@ -295,7 +295,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
             <li>Statiknachweis Wind- & Schneelasten inklusive</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Terrassenüberdachung';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','Terrassendach TDS')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -317,7 +317,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
             <li>Statiknachweis inklusive</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Terrassenüberdachung';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','Flachdach SkyView')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -570,7 +570,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/konfigurator-widget.js?v=20260916e" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261106b" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261113a" defer></script>
 
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">

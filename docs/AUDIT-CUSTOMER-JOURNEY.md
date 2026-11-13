@@ -45,9 +45,19 @@ Assistenten. Schrittliste in `js/anfrage-wizard.js:216-226`:
 erweiterungen, stoffzip?, led, farbe, untergrund, montage, kontakt,
 summary`.
 
-**Empfehlung:** einen sichtbaren Kurzweg daneben („Name, Telefon, PLZ,
-ein Satz") für die, die schon wissen, was sie wollen. Der Assistent
-bleibt unverändert.
+> **KORREKTUR vom Hauptagenten, 13.11.2026.** Dieser Befund ist so
+> nicht richtig. **Ein Kurzweg existiert bereits:** Die sechste Karte
+> „Direkt anfragen" führt über nur vier Schritte – `produkt, wunsch,
+> kontakt, summary` (`js/anfrage-wizard.js:254-255`, selbst nachgesehen).
+> Der Agent hat das übersehen.
+>
+> Der tatsächliche Mangel ist ein anderer und kleiner: Der Kurzweg steht
+> als **sechste von sechs Karten** und ist nicht als Abkürzung erkennbar.
+> Seine Beschriftung nennt Markise, Geländer und Vordach – nicht „ich
+> weiß schon, was ich will, fragt mich kurz".
+>
+> **Geänderte Empfehlung:** den vorhandenen Kurzweg sichtbarer machen.
+> Keinen zweiten bauen.
 **Hypothese**, nicht belegt: Die 0 Formulare bei 6 Kontakten über
 WhatsApp und E-Mail passen dazu. Die Zahlen sind zu dünn für einen Beweis.
 
@@ -74,9 +84,17 @@ den Unterseiten ist der Navigationseintrag auskommentiert
 Wer „konfigurieren" erwartet, bekommt eine Fragenfolge. Das ist keine
 Absicht, sondern ein Rest der Sperre.
 
-**Empfehlung:** solange die Sperre gilt, ehrlich beschriften, etwa
-„Anfrage in wenigen Schritten starten". Sperre und `konfigurator.html`
-bleiben unberührt (Bestandsschutz).
+> **WIDERSPRUCH vom Hauptagenten, 13.11.2026. Nicht umgesetzt.**
+> Der Agent nennt das irreführend. Ich sehe das anders und habe deshalb
+> nichts geändert: Der Assistent fragt Produkt, Aufbau, Maße, Verglasung,
+> Farbe, LED, Untergrund und Montage ab – **das ist ein Konfigurator**,
+> nur ohne 3D-Bild. Sein eigener erster Schritt heißt „Was möchten Sie
+> kostenlos konfigurieren?" (`js/anfrage-wizard.js:433`). Nirgends auf
+> der Seite wird eine 3D-Ansicht versprochen.
+>
+> Eine Beschriftung zu ändern, die niemanden täuscht, wäre Textarbeit
+> ohne Nutzen. **Bleibt als Beobachtung stehen, nicht als Aufgabe.**
+> Wenn du es anders siehst, sag Bescheid – es sind zwei Zeilen.
 
 ### 4 – Der Windzonen-Rechner führt weiter, gibt das Ergebnis aber nicht mit (mittel)
 Keine Sackgasse: Nach dem Ergebnis folgen Erklärsatz,
@@ -138,9 +156,22 @@ nur vermutlich. Der Besucher wird trotzdem weitergeleitet (ein Fehler im
 `onclick` unterbindet das Folgen des Links nicht), startet den
 Assistenten aber bei null.
 
-**Empfehlung:** Vorauswahl über einen Adressparameter oder
-`window.bvKonfigVorgabe` mitgeben. `kontakt.html` bleibt Weiterleitung
-(Bestandsschutz).
+> **BEHOBEN am 13.11.2026** (nur auf dem Arbeitsbranch, nicht live).
+> Der Fehler war schlimmer als gemeldet: Der gesetzte Wert
+> „Terrassenüberdachung" steht **nicht einmal in der Auswahlliste** des
+> Produktschritts – dort heißt es „Terrassendach TDS". Die Vorauswahl
+> wäre also auch mit vorhandenem Feld verfallen.
+>
+> **Gelöst über `sessionStorage`**, nicht über einen Adressparameter:
+> Ein Parameter hätte eine zweite Adresse der Startseite erzeugt, mit
+> eigenem Zwischenspeicher-Eintrag und einer zusätzlichen Zeile in der
+> Reichweitenmessung. Nur Werte aus der Auswahlliste werden übernommen –
+> ein fremder Wert darf nicht über die Antworten in die Anfrage-E-Mail
+> geraten.
+>
+> Abgesichert durch `scripts/pruefe-produktwahl.mjs` (Browser, echter
+> Seitenwechsel): 7 von 7 bestanden, Gegenprobe 7 von 7 – ein fremder
+> Wert wird verworfen.
 
 ## Was NICHT geprüft wurde
 

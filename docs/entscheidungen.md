@@ -14955,3 +14955,63 @@ genau die Lücke schließt, durch die sie ginge.
 **Was gegengelesen werden soll.** Ob ein Push auf `main` bei Cloudflare
 sofort veröffentlicht (Konto-Einstellung, von hier nicht prüfbar).
 Branch-Schutz auf `main` ist weiterhin nicht eingeschaltet.
+
+## 13.11.2026 – Produktwahl von der Produktseite kommt wieder an
+
+**Anlass.** Auftrag des Betreibers: „an der seite" (statt zuerst an der
+Sichtbarkeit zu arbeiten). Erster Befund aus
+`docs/AUDIT-CUSTOMER-JOURNEY.md`, der ein echter Fehler war.
+
+**Was falsch war – mit Beleg.** `produkte/terrassenueberdachung.html`
+Zeile 298 und 320 setzten per `onclick`
+`document.getElementById('produkt').value = 'Terrassenüberdachung'`.
+Nachgezählt: `id="produkt"` kommt in dieser Datei **0 mal** vor. Jeder
+Klick warf einen Fehler. **Zweiter, schwererer Teil:** Selbst mit Feld
+wäre nichts angekommen – „Terrassenüberdachung" steht nicht in der
+Auswahlliste des Schritts `produkt` (`js/anfrage-wizard.js:436-450`),
+dort heißt es „Terrassendach TDS". Der Besucher landete im Assistenten
+bei null. Beides liegt auch auf `main`, also live.
+
+**Was jetzt gilt.** Die Karten legen ihre Wahl in `sessionStorage`
+(`bv-produktwahl`); `produktAusSpeicher()` in `js/anfrage-wizard.js`
+holt sie, prüft sie gegen die Auswahlliste und springt einen Schritt
+weiter. Cache-Buster auf `v=20261113a` in 53 Dateien.
+
+**Warum so und nicht anders.**
+- *Nicht* `window.bvKonfigVorgabe`: Die Karten verweisen auf `/#kontakt`,
+  also auf eine andere Seite. Beim Seitenwechsel wird `window` verworfen.
+- *Nicht* ein Adressparameter: Der hätte eine zweite Adresse der
+  Startseite erzeugt – eigener Zwischenspeicher-Eintrag und eine
+  zusätzliche Zeile in der Reichweitenmessung.
+- *Nicht* bis zum Kontaktschritt durchspringen wie bei der 3D-Vorgabe:
+  Der Besucher hat nur ein Produkt gewählt, nicht konfiguriert.
+- Nur Werte aus der Liste werden übernommen. Ein fremder Wert käme sonst
+  über die Antworten in die Anfrage-E-Mail.
+
+**Absicherung.** `scripts/pruefe-produktwahl.mjs`, im Browser über einen
+echten Seitenwechsel: 7/7 bestanden, Gegenprobe 7/7 (fremder Wert wird
+verworfen). Dazu `pruefe-assistent.mjs` 18/18 und alle 35 schnellen
+Prüfskripte grün.
+
+**Beim ersten Versuch lief die neue Prüfung hohl.** Der Selektor für den
+Titel war geraten (`#aw-step-title`) und traf nichts – damit war „steht
+nicht mehr beim Produktschritt" automatisch wahr. Richtig ist
+`#awTitle` (`js/anfrage-wizard.js:1235`). Es steht jetzt eine Zeile in
+der Prüfung, die zuerst verlangt, dass der Titel überhaupt lesbar ist.
+Ohne sie hätte die Prüfung jede künftige Änderung bestätigt.
+
+**Zwei Befunde des Agenten korrigiert, nicht umgesetzt:**
+- *Befund 1 („kein Kurzweg"):* falsch. „Direkt anfragen" führt über vier
+  Schritte (`js/anfrage-wizard.js:254-255`). Der echte Mangel: Der
+  Kurzweg ist die sechste von sechs Karten und nicht als Abkürzung
+  erkennbar.
+- *Befund 3 („Konfigurator führt zum Formular"):* widersprochen. Der
+  Assistent fragt Produkt, Maße, Verglasung, Farbe, LED und Montage ab –
+  das ist ein Konfigurator ohne 3D-Bild, und 3D wird nirgends
+  versprochen. Eine Beschriftung zu ändern, die niemanden täuscht, wäre
+  Textarbeit ohne Nutzen.
+
+**Was gegengelesen werden soll.** Ob der Sprung nach „Art des Aufbaus"
+für den Besucher richtig ist, oder ob er die Produktkarte noch einmal
+sehen sollte. Nicht geprüft: die übrigen Produktseiten – ob dort
+dieselbe kaputte Zeile steht.
