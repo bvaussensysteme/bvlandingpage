@@ -15098,3 +15098,58 @@ Produktions-Worker. Nachteil: Es ist ein zweiter Deploy-Vorgang, und die
 heutigen Branch-Vorschauen bestünden daneben weiter (würden also nicht
 mehr benutzt). Festgehalten, damit es nicht verloren geht – **nicht
 umgesetzt, nicht beauftragt.**
+
+## 13.11.2026 – Produktwahl: derselbe Fehler lag auf allen sechs Seiten
+
+**Anlass.** Betreiber: „weiter". Aufgegriffen wurde der zuletzt genannte
+nächste Schritt: Steht die kaputte Zeile auch auf anderen Seiten?
+
+**Was falsch war – mit Beleg.** Ja, auf **allen sechs** Produktseiten,
+insgesamt 15 Knöpfe: `onclick="document.getElementById('produkt').value=…"`
+auf ein Feld, das es dort nicht gibt. **Vier der sechs setzten zusätzlich
+einen Wert, den der Schritt `produkt` gar nicht kennt:**
+„Terrassenüberdachung", „Kaltwintergarten", „Sonnenschutz / Markise",
+„Geländer" (gültig sind nur „Terrassendach TDS", „Flachdach SkyView",
+„Carport", „Balkonüberdachung", „Pergola / Lamellendach",
+„Direkt anfragen").
+
+**Zwei weitere Funde nebenbei:**
+- Die Velaris-Karte auf `sonnenschutz` hatte als einzige von vier
+  **überhaupt keine** Vorauswahl. Sie trägt jetzt `pergola` – Velaris
+  gehört im Assistenten zu „Pergola / Lamellendach", so nennt dessen
+  Beschriftung es selbst („Lamellendach · Faltdach · Velaris").
+- **Die Korrektur vom Vormittag war in Gefahr:** Sie stand direkt in
+  `produkte/terrassenueberdachung.html`, nicht in der `.njk`-Vorlage. Ein
+  `npm run build` hätte sie stillschweigend zurückgenommen – genau die
+  Falle, die `scripts/pruefe-erzeugte-seiten.sh` beschreibt. Jetzt stehen
+  alle Änderungen in den Vorlagen unter `src/produkte/`.
+
+**Was jetzt gilt.** Die Knöpfe legen einen **Schlüssel** in
+`sessionStorage` (`bv-produktwahl`), nicht den Produktnamen. Die Tabelle
+`PRODUKTWEGE` in `js/anfrage-wizard.js` übersetzt ihn. Ein unbekannter
+Schlüssel wird stillschweigend verworfen.
+
+**Warum ein Schlüssel und nicht der Name.** So kann aus dem Speicher
+nichts in die Antworten geraten, was nicht in der Tabelle steht – und
+von dort in die Anfrage-E-Mail. Die erste Fassung vom Vormittag prüfte
+den Namen gegen eine Liste; das war sicher, aber es löste das Problem der
+drei Produkte ohne eigene Kachel nicht.
+
+**Geländer, Markise und Kaltwintergarten** haben im Assistenten keine
+Kachel. Sie gehen über „Direkt anfragen" (vier Schritte) und bekommen
+ihren Namen gleich in das Nachrichtenfeld geschrieben – sonst käme die
+Anfrage ohne Produkt an und begänne mit einer Rückfrage.
+
+**Absicherung.** `scripts/pruefe-produktwahl.mjs` auf alle sechs Seiten
+erweitert: **42/42 bestanden, Gegenprobe 36/36.** Dazu
+`pruefe-assistent.mjs` 18/18 und **alle 32 schnellen Skripte grün** –
+darunter `pruefe-erzeugte-seiten.sh` (Vorlagen und erzeugte Seiten
+stimmen überein) und `pruefe-cache-buster.sh`.
+
+**Eigener Fehler, benannt:** Die erste Erwartung im Prüfskript nannte
+drei Knöpfe für `sonnenschutz`, tatsächlich sind es vier. Die Prüfung
+schlug an – nicht die Seite war falsch, sondern meine Zahl.
+
+**Nicht geprüft:** `produkte/balkon-fassade.html` hatte das Muster nicht;
+ob dort eine Vorauswahl fehlt, ist offen. Nichts im Browser außerhalb der
+genannten Skripte.

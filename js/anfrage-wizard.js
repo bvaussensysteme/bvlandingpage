@@ -1613,38 +1613,58 @@
 
   /* Produktwahl von einer Produktseite uebernehmen.
 
-     GEFUNDEN AM 13.11.2026: Die Karten auf produkte/terrassenueberdachung.html
-     setzten per onclick document.getElementById('produkt').value - ein Feld,
-     das es auf dieser Seite gar nicht gibt (nachgezaehlt: 0 Treffer). Der
-     Aufruf warf jedes Mal einen Fehler. Und selbst wenn es das Feld gegeben
-     haette, stand der gesetzte Wert "Terrassenueberdachung" nicht in der
-     Auswahlliste des Schritts "produkt" - die Vorauswahl waere auch dann
-     verfallen.
+     GEFUNDEN AM 13.11.2026 auf allen sechs Produktseiten: Die
+     Anfrage-Knoepfe setzten per onclick
+     document.getElementById('produkt').value - ein Feld, das es auf
+     diesen Seiten gar nicht gibt. Jeder Klick warf einen Fehler. Und
+     vier der sechs setzten ausserdem einen Wert, den der Schritt
+     "produkt" nicht kennt: "Terrassenueberdachung", "Kaltwintergarten",
+     "Sonnenschutz / Markise", "Gelaender". Die Vorauswahl waere also
+     auch mit vorhandenem Feld verfallen.
 
      Warum sessionStorage und nicht window.bvKonfigVorgabe: Die Karten
-     verweisen auf /#kontakt, also auf eine ANDERE Seite. Beim Seitenwechsel
-     wird window verworfen, bvKonfigVorgabe kann den Weg nicht ueberstehen.
+     verweisen auf /#kontakt, also auf eine ANDERE Seite. Beim
+     Seitenwechsel wird window verworfen.
      Warum kein Adressparameter: Der wuerde eine zweite Adresse der
      Startseite erzeugen - mit eigenem Zwischenspeicher-Eintrag und einer
      zusaetzlichen Zeile in der Reichweitenmessung.
 
-     Nur Werte aus dieser Liste werden uebernommen. Ein fremder Wert aus dem
-     Speicher darf nicht in die Antworten geraten und von dort in die
-     Anfrage-E-Mail. */
+     Warum ein SCHLUESSEL und nicht der Produktname: So kann aus dem
+     Speicher nichts in die Antworten geraten, was hier nicht
+     aufgeschrieben steht - und von dort in die Anfrage-E-Mail. Ein
+     unbekannter Schluessel wird stillschweigend verworfen.
+
+     Drei Produkte haben im Assistenten keine eigene Kachel (Gelaender,
+     Markise, Kaltwintergarten). Die gehen ueber "Direkt anfragen" - so
+     nennt dessen Beschriftung es selbst ("Markise, Gelaender, Vordach
+     … oder kurze Nachricht") - und bekommen den Namen gleich in das
+     Nachrichtenfeld geschrieben, damit die Anfrage nicht ohne Produkt
+     ankommt. */
+  var PRODUKTWEGE = {
+    'terrassendach-tds':  { produkt: 'Terrassendach TDS' },
+    'flachdach-skyview':  { produkt: 'Flachdach SkyView' },
+    'carport':            { produkt: 'Carport' },
+    'pergola':            { produkt: 'Pergola / Lamellendach' },
+    'balkonueberdachung': { produkt: 'Balkonüberdachung' },
+    'kaltwintergarten':   { produkt: 'Direkt anfragen', wunsch: 'Kaltwintergarten' },
+    'sonnenschutz':       { produkt: 'Direkt anfragen', wunsch: 'Sonnenschutz / Markise' },
+    'gelaender':          { produkt: 'Direkt anfragen', wunsch: 'Geländer' }
+  };
+
   function produktAusSpeicher() {
     if (answers.produkt) return;   // eine 3D-Vorgabe hat Vorrang
-    var erlaubt = ['Terrassendach TDS', 'Flachdach SkyView', 'Carport',
-                   'Balkonüberdachung', 'Pergola / Lamellendach',
-                   'Direkt anfragen'];
-    var p;
+    var k;
     try {
-      p = sessionStorage.getItem('bv-produktwahl');
+      k = sessionStorage.getItem('bv-produktwahl');
       /* Nur fuer diesen einen Weg. Ohne das Loeschen haette der Besucher
          die Wahl beim naechsten Oeffnen der Startseite wieder am Hals. */
       sessionStorage.removeItem('bv-produktwahl');
     } catch (e) { return; }        // privates Fenster, gesperrte Speicher
-    if (!p || erlaubt.indexOf(p) === -1) return;
-    answers.produkt = p;
+    var weg = k && Object.prototype.hasOwnProperty.call(PRODUKTWEGE, k)
+      ? PRODUKTWEGE[k] : null;
+    if (!weg) return;
+    answers.produkt = weg.produkt;
+    if (weg.wunsch) answers.wunsch = weg.wunsch;
     flow = computeFlow();
     /* Einen Schritt weiter, nicht bis zum Kontakt: Der Besucher hat nur das
        Produkt gewaehlt, nicht konfiguriert. Zurueckblaettern bleibt moeglich. */

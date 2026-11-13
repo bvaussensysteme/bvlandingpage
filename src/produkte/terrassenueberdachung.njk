@@ -178,7 +178,7 @@ schema: |
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
             <li>Statiknachweis Wind- & Schneelasten inklusive</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Terrassenüberdachung';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','terrassendach-tds')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -200,7 +200,7 @@ schema: |
             <li>10 Jahre Herstellergarantie · CE-zertifiziert</li>
             <li>Statiknachweis inklusive</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Terrassenüberdachung';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','flachdach-skyview')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>

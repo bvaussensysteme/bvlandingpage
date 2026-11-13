@@ -175,7 +175,7 @@ schema: |
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
             <li>Kompatibel mit TDS und SkyView</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonnenschutz / Markise';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -197,7 +197,7 @@ schema: |
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
             <li>Platzsparende Lösung</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonnenschutz / Markise';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -220,7 +220,7 @@ schema: |
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
             <li>Passend zu allen Überdachungen</li>
           </ul>
-          <a href="/#kontakt" onclick="document.getElementById('produkt').value='Sonnenschutz / Markise';return true;"
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
@@ -244,7 +244,11 @@ schema: |
             <li>Integrierbar in Terrassenüberdachungen & Lamellendächer</li>
             <li>Motorisierung auf Wunsch verfügbar</li>
           </ul>
-          <a href="/#kontakt"
+          {# Velaris gehoert im Assistenten zu "Pergola / Lamellendach"
+             (dessen Beschriftung nennt "Lamellendach · Faltdach · Velaris"),
+             nicht zu Sonnenschutz. Dieser Knopf hatte am 13.11.2026 als
+             einziger der vier gar keine Vorauswahl. #}
+          <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','pergola')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:block;box-sizing:border-box;">
             Jetzt anfragen →
           </a>
