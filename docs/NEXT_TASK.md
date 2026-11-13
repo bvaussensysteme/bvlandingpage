@@ -161,5 +161,6 @@ Aussage über diese Seite geraten.
 | `docs/WEBSITE_AGENT_WORKFLOW.md` | Welcher Agent wofür, wann **keiner** |
 | `docs/WEBSITE_DESIGN_SYSTEM.md` | Palette, Manrope, Kontraste, Fokusringe |
 | `docs/WEBSITE_STAGING.md` | Vorschau – Anforderungen und was fehlt |
+| `docs/AUDIT-CUSTOMER-JOURNEY.md` | Erster Audit: Weg bis zur Anfrage, 8 Befunde, nichts geändert |
 | `docs/arbeitsweise.md` | Branch, Cache-Buster, Konfliktmarken |
 | `docs/zahlen-lesen.md` | Messdaten abfragen, die drei Fallen |
