@@ -121,10 +121,17 @@ FEHLER = [
     ('eine ausreichende Kombination steht als "zu wenig" im Dokument',
      '| **Gold `#C58A32` auf Weiß `#FFFFFF`** | **2,98:1** | **zu wenig** |',
      '| **Gold `#C58A32` auf Tiefschwarz `#0B0B0C`** | **2,98:1** | **zu wenig** |'),
-    ('das empfohlene Textgold ist zu hell',
-     '**`#896023`**', '**`#C8A050`**'),
+    ('das Textgold ist zu hell',
+     '`--gold-text: #896023`', '`--gold-text: #C8A050`'),
     ('das Markengold passt nicht mehr zum Logo',
      '#C58A32** ersetzt', '#44AA88** ersetzt'),
+    # Graphit als Ring auf dunklem Grund: 1,38 auf Anthrazit, 1,66 auf
+    # Tiefschwarz. Erster Entwurf nahm hier Markengold - das erreicht auf
+    # allen drei dunklen Gruenden ueber 3:1 und war damit gar kein Fehler.
+    # Die Gegenprobe hat ihren eigenen untauglichen Fehler aufgedeckt.
+    ('ein Fokusring erreicht seinen Untergrund nicht',
+     '| Anthrazit / Tiefschwarz / Graphit | Champagner `#EAD9BB` |',
+     '| Anthrazit / Tiefschwarz / Graphit | Graphit `#34383C` |'),
 ]
 
 # ── Werte aus dem Dokument lesen ────────────────────────────────────
@@ -140,7 +147,7 @@ def pruefen(text):
                        r'\s*\*{0,2}([\d,]+):1\*{0,2}\s*\|\s*\*{0,2}([^|*]+?)\*{0,2}\s*\|', re.M)
     paare = zeile.findall(text)
 
-    m = re.search(r'\*\*`(#[0-9A-Fa-f]{6})`\*\* \(empfohlen', text)
+    m = re.search(r'`--gold-text:\s*(#[0-9A-Fa-f]{6})`', text)
     textgold = m.group(1) if m else None
     m = re.search(r'\*\*(#[0-9A-Fa-f]{6})\*\* ersetzt', text)
     markengold = m.group(1) if m else None
@@ -166,15 +173,50 @@ def pruefen(text):
 
     # 3: Textgold auf allen hellen Gruenden
     if not textgold:
-        p(False, 'Textgold im Dokument', 'kein empfohlener Wert gefunden')
+        p(False, 'Textgold im Dokument', 'kein Token --gold-text gefunden')
     else:
-        hell = [('Warmweiß', '#F8F7F4'), ('Weiß', '#FFFFFF'), ('Steingrau', '#E9E7E2')]
-        zuwenig = [f'{n} {g}: {kontrast(hx(textgold), hx(g)):.2f}:1'
-                   for n, g in hell if kontrast(hx(textgold), hx(g)) < 4.5]
-        p(not zuwenig, f'Textgold {textgold} reicht auf hellem Grund',
-          zuwenig[0] if zuwenig else 'alle drei hellen Gründe über 4,5:1')
+        # Entscheidung der Design-Agenten vom 13.11.2026: EIN Wert fuer
+        # Text UND Bedienelemente auf hellem Grund. Auf Champagner darf
+        # er nur Bedienelement sein (4,03:1), nicht Text.
+        fuerText = [('Warmweiß', '#F8F7F4'), ('Weiß', '#FFFFFF'), ('Steingrau', '#E9E7E2')]
+        fuerElement = fuerText + [('Champagner', '#EAD9BB')]
+        schlecht = [f'Text auf {n} {g}: {kontrast(hx(textgold), hx(g)):.2f}:1'
+                    for n, g in fuerText if kontrast(hx(textgold), hx(g)) < 4.5]
+        schlecht += [f'Bedienelement auf {n} {g}: {kontrast(hx(textgold), hx(g)):.2f}:1'
+                     for n, g in fuerElement if kontrast(hx(textgold), hx(g)) < 3.0]
+        p(not schlecht, f'Textgold {textgold}: Text 4,5:1 und Bedienelement 3:1',
+          schlecht[0] if schlecht else
+          'drei helle Gründe über 4,5:1, alle vier über 3:1 (ein Token statt zwei)')
 
-    # 4: Markengold nahe am Logo
+    # 4: Fokusring - jede Zeile der Tabelle muss 3:1 erreichen
+    ring = re.compile(r'^\|\s*([^|]*?)\s*\|\s*[A-Za-zäöüÄÖÜß ]*`(#[0-9A-Fa-f]{6})`\s*\|'
+                      # Trenner zwischen zwei Zahlen: Gedankenstrich ODER
+                      # Schraegstrich. Erster Entwurf kannte nur den Strich -
+                      # die Zeile "6,61 / 9,33:1" fiel durch, zwei Untergruende
+                      # blieben ungeprueft (7 statt 9).
+                      r'\s*[\d,]+\s*(?:[–/-]\s*[\d,]+\s*)?:1\s*\|', re.M)
+    abschnitt = text[text.find('#### Fokusring'):text.find('Umgeschaltet wird')] \
+        if '#### Fokusring' in text else ''
+    zeilen = ring.findall(abschnitt)
+    if not zeilen:
+        p(False, 'Fokusring-Tabelle gefunden', 'keine Zeile erkannt')
+    else:
+        gefunden = {'Weiß': '#FFFFFF', 'Warmweiß': '#F8F7F4', 'Steingrau': '#E9E7E2',
+                    'Champagner': '#EAD9BB', 'Anthrazit': '#1D2023',
+                    'Tiefschwarz': '#0B0B0C', 'Graphit': '#34383C',
+                    'Markengold': '#C58A32', 'Helles Gold': '#D9AB64'}
+        schwach, geprueft = [], 0
+        for gruende, ringfarbe in zeilen:
+            for name, wert in gefunden.items():
+                if name in gruende:
+                    geprueft += 1
+                    kk = kontrast(hx(ringfarbe), hx(wert))
+                    if kk < 3.0:
+                        schwach.append(f'Ring {ringfarbe} auf {name} {wert}: {kk:.2f}:1')
+        p(not schwach and geprueft >= 8, 'Fokusring erreicht überall 3:1',
+          schwach[0] if schwach else f'{geprueft} Untergründe geprüft')
+
+    # 5: Markengold nahe am Logo
     gold_im_logo = logo_gold(LOGO)
     if not markengold:
         p(False, 'Markengold im Dokument', 'kein Wert gefunden')

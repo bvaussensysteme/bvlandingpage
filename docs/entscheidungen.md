@@ -14832,3 +14832,44 @@ sie behauptet.
 **Nicht geändert:** die Live-Seite. Die Freigabe gilt für die neue
 Webseite; für die laufende Seite gelten weiter die Werte aus
 `src/css/style.css`, bis dazu eigens entschieden wird.
+
+**Nachtrag am selben Tag – die abgeleiteten Werte entscheiden die Agenten**
+
+Der Auftraggeber wies den Vorschlag `#896023` zurück an die Fachrollen:
+„das müssen die design agenten sagen ich bin nur auftraggeber". Richtig –
+die Markenentscheidung ist seine, die abgeleitete Technikentscheidung
+nicht.
+
+Entschieden von `ux-architect` (Farbgebrauch) und
+`qa-accessibility-auditor` (Nicht-Text-Kontrast, Fokus). Ergebnisse
+stehen in `docs/WEBSITE_DESIGN_SYSTEM.md`.
+
+**Was der Hauptagent dabei zusammengeführt hat.** Beide Agenten
+arbeiteten getrennt, mit Absicht – zwei Agenten mit demselben Auftrag
+kosten doppelt. Der Preis dafür: Der zweite schlug für Bedienelemente
+auf hellem Grund einen eigenen Wert `#9A6A1F` vor, ohne den Textwert des
+ersten zu kennen. Nachgerechnet erreicht `#896023` auf allen vier hellen
+Flächen mindestens 4,03:1 und damit auch die 3:1-Schwelle. **Ein Token
+statt zwei.** Das Zusammenführen ist Aufgabe des Hauptagenten, nicht der
+Fachrollen.
+
+**Agentenzahlen wurden nicht geglaubt, sondern nachgerechnet:** sieben
+Stichproben aus beiden Berichten, alle auf die zweite Nachkommastelle
+exakt. Der `ux-architect` hatte einen Wert ausdrücklich als Schätzung
+gekennzeichnet (Goldtext auf Champagner, „etwa 4,0:1"); nachgemessen
+4,03:1 – die Schätzung stimmte und die Kennzeichnung war korrekt.
+
+**Zwei Fehler in der eigenen Gegenprobe gefunden.** Der eingebaute
+Fehler „Fokusring erreicht seinen Untergrund nicht" setzte Markengold
+als Ring auf dunklen Grund – das erreicht dort 3,97 bis 6,61:1 und war
+damit gar kein Fehler. Die Gegenprobe meldete ihn zu Recht als
+übersehen und hat so ihren eigenen untauglichen Testfall aufgedeckt.
+Jetzt steht dort Graphit (1,38:1 auf Anthrazit). Zweiter Fehler: Nach
+dem Umschreiben des Dokuments zeigte ein eingebauter Fehler auf eine
+Textstelle, die es nicht mehr gab – die Gegenprobe meldete „Stelle
+fehlt" statt stillschweigend zu bestehen. Beides ist die Gegenprobe,
+die funktioniert.
+
+**Offen und nicht rechnerisch lösbar:** ob der Fokus bei fester
+Kopfzeile oder Cookie-Banner verdeckt wird (WCAG 2.4.11). Das braucht
+den Test im Browser.

@@ -41,6 +41,30 @@ Was NICHT geprüft wurde, gehört hierher – nicht weglassen.>
 
 ## Letzte Übergabe
 
+**13.11.2026 (3) – Abgeleitete Designwerte von den Agenten entschieden**
+
+- **Ziel:** Der Auftraggeber wollte die Technikentscheidungen von den
+  Design-Agenten, nicht von sich. Richtig so.
+- **Stand:** `ux-architect` und `qa-accessibility-auditor` haben
+  getrennt entschieden, Ergebnisse in `docs/WEBSITE_DESIGN_SYSTEM.md`.
+  Kernpunkte: ein Token `--gold-text: #896023` für Text **und**
+  Bedienelemente auf Hell; Gold auf Hell nur Dekor; auf Goldfläche
+  Tiefschwarz statt Weiß; zwei Fokusringe, umgeschaltet per
+  Abschnittsklasse; Manrope ab 16 px / 400, keine Schnitte darunter.
+- **Vom Hauptagenten zusammengeführt:** Der zweite Agent schlug einen
+  eigenen Wert `#9A6A1F` für Bedienelemente vor. Nachgerechnet:
+  `#896023` erreicht auf allen vier hellen Flächen über 3:1 – ein Token
+  statt zwei. Die getrennt arbeitenden Agenten konnten das nicht sehen.
+- **Offen:** Fokus-Verdeckung (WCAG 2.4.11) bei fester Kopfzeile ist nur
+  im Browser prüfbar, nicht gerechnet. Korrigierte Hell-Variante von
+  `logo-hell.png` liegt beim Auftraggeber. Auto-Merge-Regel auf `main`
+  und Vorschau-Datenbank weiter vorrangig.
+- **Git:** Branch `claude/bv-aussensysteme-setup-bq7ew4`.
+- **Geprüft:** `pruefe-palette` bestanden, Gegenprobe 5/5. Sieben
+  Stichproben aus den Agentenberichten nachgerechnet, alle exakt.
+- **Nächster sicherer Schritt:** erster abgegrenzter Audit
+  (`customer-journey-architect` auf der Startseite).
+
 **13.11.2026 (2) – Goldfarbe freigegeben und nachgemessen**
 
 - **Ziel:** Freigabe `#C58A32` dokumentieren, Kontrast und Logo-Harmonie

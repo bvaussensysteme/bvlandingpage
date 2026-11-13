@@ -29,7 +29,7 @@ die nie anschlägt, ist keine.**
 
 | Skript | Was es prüft |
 |---|---|
-| `scripts/pruefe-palette.py` | Stimmen die Kontrastwerte im Designdokument noch? Reicht das Textgold auf hellem Grund? Passt das Markengold zum Gold im Logo? (4 Fehler in der Gegenprobe, jeder einzeln eingebaut) |
+| `scripts/pruefe-palette.py` | Stimmen die Kontrastwerte im Designdokument noch? Reicht das Textgold auf hellem Grund? Passt das Markengold zum Gold im Logo? Erreicht der Fokusring auf jedem Untergrund 3:1? (5 Fehler in der Gegenprobe, jeder einzeln eingebaut) |
 | `scripts/pruefe-bewegung.mjs` | Entwurf: Bleibt bei Bewegung, bei reduzierter Bewegung und ganz ohne JavaScript jeder Text sichtbar? Fährt die Ablaufspur wirklich, und endet sie im Bild? Fährt die Kontaktleiste unten ein? (4 Fehler in der Gegenprobe) |
 | `scripts/pruefe-cache-buster.sh` | Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? |
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |

@@ -71,22 +71,109 @@ Daraus drei Regeln, die nicht verhandelbar sind:
    (siehe unten) – so, wie die heutige Seite es mit `--gold-text` schon
    macht.
 
-### Abgeleitet: Textgold für hellen Grund
+### Entschieden von den Design-Agenten (13.11.2026)
 
-Gleicher Farbton wie `#C58A32`, nur dunkler, bis 4,5:1 erreicht ist:
+Der Auftraggeber hat die Palette freigegeben; die abgeleiteten
+Technikwerte haben `ux-architect` und `qa-accessibility-auditor`
+entschieden. Alle Zahlen unten sind nachgerechnet – sieben Stichproben
+aus den Agentenberichten stimmten auf die zweite Nachkommastelle.
 
-| Wert | auf Warmweiß | auf Weiß | auf Steingrau |
+#### Ein dunkles Gold, nicht mehrere: `--gold-text: #896023`
+
+| auf | Kontrast | Text (4,5:1) | Bedienelement (3:1) |
 |---|---|---|---|
-| **`#896023`** (empfohlen, ein Wert für alle drei) | 5,21:1 | 5,58:1 | 4,52:1 |
-| `#966926` (knapp, nur Warmweiß) | 4,51:1 | – | – |
+| Warmweiß `#F8F7F4` | 5,21:1 | ja | ja |
+| Weiß `#FFFFFF` | 5,58:1 | ja | ja |
+| Steingrau `#E9E7E2` | 4,52:1 | ja (knapp) | ja |
+| Champagner `#EAD9BB` | 4,03:1 | **nein** | ja |
 
-Empfehlung: **`#896023`** als Token `--gold-text`. Ein Wert, der überall
-reicht, ist weniger fehleranfällig als drei, die je nach Grund gewählt
-werden müssen.
+Begründung des `ux-architect`: Drei Goldbrauntöne nebeneinander fallen
+optisch auseinander und sind in der Pflege fehleranfällig. `#896023` ist
+der dunkelste der geprüften Werte, also der sicherste.
 
-> Diese Ableitung ist mein Vorschlag, nicht Teil der Freigabe. Sie löst
-> ein Problem, das die freigegebene Palette sonst offen lässt – das
-> letzte Wort hast du.
+**Zusammengeführt:** Der `qa-accessibility-auditor` hatte für
+Bedienelemente auf Hell einen eigenen Wert `#9A6A1F` vorgeschlagen. Der
+wird nicht gebraucht – `#896023` erreicht auf allen vier hellen Flächen
+mindestens 4,03:1 und damit auch die 3:1-Schwelle für Bedienelemente.
+**Ein Token statt zwei.** (Die beiden Agenten haben getrennt gearbeitet
+und konnten das nicht sehen.)
+
+#### Wo welches Gold erlaubt ist
+
+| Untergrund | Markengold `#C58A32` | Helles Gold `#D9AB64` | Textgold `#896023` |
+|---|---|---|---|
+| Tiefschwarz `#0B0B0C` | alles, auch Text (6,61) | alles, auch Text (9,33) | – |
+| Anthrazit `#1D2023` | alles, auch Text (5,50) | alles, auch Text (7,76) | – |
+| Graphit `#34383C` | Bedienelement (3,97), **kein Text** | alles, auch Text (5,60) | – |
+| Warmweiß / Weiß | **nur Dekor** (2,78 / 2,98) | **nur Dekor** (1,97 / 2,11) | alles, auch Text |
+| Steingrau `#E9E7E2` | **nur Dekor** (2,41) | **nur Dekor** (1,71) | Text ab halbfett |
+| Champagner `#EAD9BB` | **nur Dekor** (2,15) | **nur Dekor** (1,52) | **kein Text**, Bedienelement ja |
+
+„Nur Dekor" heißt: Fläche, Verlauf, Akzentbalken, Trennlinie ohne
+Aussage, Symbol **neben** einem Text, der dasselbe sagt. Nie als
+alleiniger Träger einer Information – kein Fokusring, kein Feldrahmen,
+kein Symbol ohne Beschriftung, kein Link.
+
+**Auf einer Goldfläche steht Tiefschwarz `#0B0B0C`** (6,61:1), nie Weiß
+(2,98:1). Das betrifft jeden goldenen Knopf.
+
+**Auf Champagner steht kein Goldtext.** Dort Anthrazit (11,80:1) oder
+Tiefschwarz (14,19:1). Ein noch dunkleres Gold (`#7F5920`, 4,52:1)
+würde rechnerisch reichen, verlässt aber die Palette – verworfen.
+
+**Steingrau ist ein Grenzfall:** 4,52:1 bei einer Schwelle von 4,5. Der
+Abstand beträgt 0,02. Für kleinen Fließtext dort besser Anthrazit.
+
+#### Fokusring: zwei Ringe, umgeschaltet am Abschnitt
+
+Es gibt keinen einzelnen Ring, der auf allen neun Palettenfarben 3:1
+erreicht. Geprüft und bestätigt:
+
+| Untergrund | Ring | Kontrast |
+|---|---|---|
+| Weiß / Warmweiß / Steingrau / Champagner | Anthrazit `#1D2023` | 11,80 – 16,37:1 |
+| Anthrazit / Tiefschwarz / Graphit | Champagner `#EAD9BB` | 8,52 – 14,19:1 |
+| Markengold / Helles Gold (Flächen) | Tiefschwarz `#0B0B0C` | 6,61 / 9,33:1 |
+
+Umgeschaltet wird über eine **Abschnittsklasse** (`.hell` / `.dunkel`)
+und `outline-color` – **nicht** über `prefers-color-scheme`. Helle und
+dunkle Bereiche kommen auf derselben Seite vor; die Geräteeinstellung
+sagt nichts darüber, worauf der Ring gerade liegt.
+
+Offen: WCAG 2.4.11 verlangt, dass der Fokus **nicht verdeckt** wird. Bei
+fester Kopfzeile oder Cookie-Banner ist das im Browser zu prüfen
+(`scroll-padding-top`) – rechnerisch nicht feststellbar.
+
+#### Manrope: Größen und Schnitte
+
+- Fließtext mindestens **16 px** (1 rem), Schnitt **Regular 400**
+- Kleintext (Hinweise, Beschriftungen) nicht unter **14 px**, dann
+  mindestens **Medium 500**
+- **Keine Schnitte unter 400.** ExtraLight 200 und Light 300 entfallen
+  auch bei Überschriften – sie franst in Gold und auf Dunkel aus
+- Überschriften **600 bis 800**
+
+Das ist fachliche Festlegung, keine Messung – die WCAG kennen keine
+Mindestgröße. Begründet mit der großen x-Höhe und den offenen Formen
+der Schrift.
+
+#### `images/logo-hell.png` fällt aus der Reihe
+
+Es trägt `#E69B26`, ΔE 15,9 zum Markengold – deutlich oranger als das
+Hauptlogo. **Das Logo wird nicht umgefärbt.** Entscheidung: Neue Seiten
+und Abschnitte benutzen `logo-frei.png`. `logo-hell.png` bleibt nur
+dort, wo es heute schon steht, und kommt nie direkt neben
+Palettenelemente in `#C58A32` oder `#D9AB64`.
+
+**Liegt beim Auftraggeber:** eine korrigierte Hell-Variante beim
+Logo-Urheber anfragen. Bis dahin ist die Abweichung ein dokumentierter
+Bestandsfall, kein Fehler.
+
+#### Beim Umstellen der Live-Seite beachten
+
+Der heutige Wert `--gold-text` ist `#7A5B12`, der neue `#896023` ist
+**heller**. Beim Tausch können knappe Stellen kippen. Danach **alle**
+`scripts/pruefe-*` laufen lassen, nicht die vermuteten.
 
 ### Was noch nicht entschieden ist
 
@@ -129,7 +216,7 @@ in der Einwilligung.
 | Anthrazit | `#1D2023` | abgesetzte dunkle Flächen |
 | Graphit | `#34383C` | Linien und Ränder auf Dunkel |
 | Markengold | `#C58A32` | Akzent, sparsam – **nicht als Text auf Hell** |
-| Textgold | `#896023` | Gold als Text auf hellem Grund (abgeleitet, Vorschlag) |
+| Textgold | `#896023` | Gold als Text **und** Bedienelement auf hellem Grund (von den Design-Agenten entschieden) |
 | Helles Gold | `#D9AB64` | Gold als Text auf dunklem Grund |
 | Champagner | `#EAD9BB` | sehr sparsam, große Flächen |
 | Warmweiß | `#F8F7F4` | heller Grund |

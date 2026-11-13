@@ -10,7 +10,7 @@ Vier Dokumente, jeweils kurz:
 | Datei | Inhalt |
 |---|---|
 | `docs/WEBSITE_AGENT_WORKFLOW.md` | Welcher Agent wofür, wann **kein** Agent, wie die Kosten niedrig bleiben |
-| `docs/WEBSITE_DESIGN_SYSTEM.md` | Marke, Manrope, Farben – **mit dem offenen Punkt**, dass die Zielpalette vom Bestand abweicht |
+| `docs/WEBSITE_DESIGN_SYSTEM.md` | Marke, Manrope, Farben – **freigegeben am 13.11.2026**, mit den gemessenen Kontrasten und Logo-Abständen |
 | `docs/WEBSITE_STAGING.md` | Anforderungen an eine sichere Vorschau und was daran heute noch fehlt |
 | `docs/SESSION_HANDOFF.md` | Vorlage für die Übergabe an den nächsten Chat |
 
@@ -245,11 +245,19 @@ oben.
 
 **Was er NICHT entscheidet.** Der Skill liefert allgemeine Regeln und
 Vorschläge für Paletten, Schriftpaarungen und Stile. Verbindlich bleibt die
-**eigene Designsprache der Seite**: `src/css/style.css` und das, was die
-Seite schon hat (`--gold #C49A2A`, `--gold-dark #9A7318`,
-`--gold-text #7A5B12`, `--black #111111`, die bestehenden Abstände und
-Schriften). Fremde Paletten, Schriften oder Tailwind-Vorlagen werden nicht
-übernommen – das wäre ein Bruch mit der Regel „Nachbauten: eigene Sprache,
+**eigene Designsprache der Seite**. Welche das ist, hängt davon ab, woran
+gearbeitet wird – seit der Freigabe vom 13.11.2026 gibt es zwei:
+
+- **Laufende Live-Seite:** `src/css/style.css` und das, was die Seite
+  schon hat (`--gold #C49A2A`, `--gold-dark #9A7318`,
+  `--gold-text #7A5B12`, `--black #111111`, Barlow Condensed und Inter).
+  Hier ändert sich nichts, bis dazu eigens entschieden wird.
+- **Neue Webseite:** `docs/WEBSITE_DESIGN_SYSTEM.md` (Markengold
+  `#C58A32`, Manrope). Vom Auftraggeber freigegeben.
+
+Beides nebeneinander ist Absicht, nicht Schlamperei: Die Freigabe gilt
+dem Neubau, die Live-Seite läuft unverändert weiter. Fremde Paletten,
+Schriften oder Tailwind-Vorlagen werden nicht übernommen – das wäre ein Bruch mit der Regel „Nachbauten: eigene Sprache,
 eigene Namen" weiter oben. Genutzt werden seine **Prüflisten und
 Begründungen**: Kontrast 4,5:1, Mindestfläche 44 × 44 px zum Antippen,
 sichtbare Beschriftungen, kein waagerechtes Scrollen, Rücksicht auf
