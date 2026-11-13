@@ -39,6 +39,65 @@ Was NICHT geprüft wurde, gehört hierher – nicht weglassen.>
 
 ---
 
+## ⇢ Aktueller Stand zum Weiterarbeiten (13.11.2026)
+
+**Einstieg ist `docs/NEXT_TASK.md`.** Dort stehen die offenen Punkte
+vollständig und nach Dringlichkeit. Diese Seite hier ist die Kurzfassung.
+
+### Ziel der letzten Sitzungen
+Agentensystem für die schrittweise Modernisierung einrichten, Palette
+freigeben lassen, Designwerte von den Fachrollen entscheiden lassen.
+Dazwischen: gemeldeter Fehler in der Broschürenanzeige behoben und
+veröffentlicht.
+
+### Was fertig ist
+- **Broschüren-Zoom korrigiert und live** (PR #567, `main` = `7db6f7a`).
+  Live nachgeprüft: ausgelieferte Datei byteweise identisch mit `main`.
+- **18 Prüfskripte repariert** (Browserpfad), ebenfalls in `main`.
+- **Agentensystem**: 6 neu, 4 erweitert, Zuordnung in
+  `docs/WEBSITE_AGENT_WORKFLOW.md`. Alle 15 Dateien geladen und gültig.
+- **Palette freigegeben** (`#C58A32`), nachgemessen: Das Hauptlogo trägt
+  `#C58930`, ΔE 0,8. Die Entscheidung korrigiert eine Abweichung, die
+  vorher bestand.
+- **Abgeleitete Werte entschieden** von `ux-architect` und
+  `qa-accessibility-auditor`: ein Token `--gold-text: #896023`, Gold auf
+  Hell nur Dekor, zwei Fokusringe, Manrope ab 16 px / 400.
+- **Neue Prüfung** `scripts/pruefe-palette.py`, Gegenprobe 5/5.
+
+### Das Dringendste, das offen ist
+**Die XSS-Korrektur in `werkstatt/zahlen.html` liegt seit dem 08.11. nur
+auf dem Arbeitsbranch.** `main` hat 17 Aufrufe von `sicher()`, der
+Branch 25. Live ist die Lücke offen. Vorschlag seit dem 08.11.
+unbeantwortet: als eigenen kleinen Branch von `main` vorziehen, wie es
+am 12.11. mit der Broschüre gemacht wurde. **Entscheidung beim
+Betreiber.**
+
+Dahinter: `main` enthält noch die Regel „immer auto merge"; die Vorschau
+schreibt in die produktive Messdatenbank und ist ohne Passwort
+erreichbar. Alles in `docs/NEXT_TASK.md`, Abschnitt 3.
+
+### Git
+- Branch: `claude/bv-aussensysteme-setup-bq7ew4`, alles committet und
+  geschoben
+- `main`: `7db6f7a`, enthält den Broschüren-Fix
+- **Der Arbeitsbranch enthält `main` NICHT** – er ist eigenständig
+  gewachsen. Nicht von `main` neu aufsetzen
+
+### Zuletzt geprüft
+`pruefe-palette` (+Gegenprobe 5/5), `pruefe-broschuere` 44/44,
+`pruefe-darstellung` 144/144, Konfliktmarken, Preisangaben, Kommentare,
+erzeugte Seiten, Cache-Buster – alle bestanden.
+
+**Nicht gelaufen:** die vollständige Gegenprobe von `pruefe-broschuere`
+(über 30 Minuten Laufzeit, zweimal abgebrochen). Die zwei neuen
+Zoom-Prüfungen wurden gezielt gegengeprüft, die 19 übrigen nicht.
+
+### Nächster sicherer Schritt
+Erster abgegrenzter Audit: `customer-journey-architect` auf der
+Startseite. Vorher in die Zahlen sehen (`docs/zahlen-lesen.md`).
+
+---
+
 ## Letzte Übergabe
 
 **13.11.2026 (3) – Abgeleitete Designwerte von den Agenten entschieden**
