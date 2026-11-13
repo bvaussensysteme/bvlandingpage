@@ -143,6 +143,36 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
 @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
 
+/* Gegenueberstellung TDS / SkyView.
+   ANLASS (13.11.2026): Die zwei Modelle standen als zwei lange
+   Karten untereinander. Wer wissen wollte, worin sie sich
+   unterscheiden, musste zwei Merkmallisten im Kopf vergleichen.
+   KEIN waagerechtes Scrollen: Die Tabelle bleibt eine Tabelle
+   (Zeilenkoepfe fuer Screenreader), die Zellen werden am Handy
+   nur kleiner. Deshalb sind die Texte bewusst kurz gehalten. */
+.vergleich-wrap { margin-top: 32px; }
+.vergleich {
+  width: 100%; border-collapse: collapse; font-size: 0.86rem;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.vergleich th, .vergleich td {
+  padding: 10px 12px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--border); line-height: 1.45;
+}
+.vergleich thead th { background: var(--light-bg); font-size: 0.9rem; color: var(--black); }
+.vergleich tbody th { font-weight: 600; color: var(--gold-text); width: 26%; }
+.vergleich td { color: var(--muted); }
+.vergleich tr:last-child th, .vergleich tr:last-child td { border-bottom: none; }
+.vergleich-fuss {
+  margin-top: 10px; font-size: 0.82rem; color: var(--muted);
+}
+@media (max-width: 560px) {
+  .vergleich { font-size: 0.78rem; }
+  .vergleich th, .vergleich td { padding: 8px 7px; }
+  .vergleich tbody th { width: 30%; }
+}
+
   </style>
 
 
@@ -324,6 +354,38 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </div>
       </div>
 
+    </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Die beiden Modelle nebeneinander</h3>
+      <table class="vergleich">
+        <caption class="sr-only">Terrassendach TDS und Flachdach SkyView im Vergleich</caption>
+        <thead>
+          <tr><td></td><th scope="col">Terrassendach TDS</th><th scope="col">Flachdach SkyView</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Dachform</th>
+              <td>Geneigt, klassische Linie</td>
+              <td>Flach – das Gefälle liegt innen und ist von außen nicht zu sehen</td></tr>
+          <tr><th scope="row">Verglasung</th>
+              <td>8 mm VSG-Glas <em>oder</em> 16 mm Polycarbonat</td>
+              <td>8 mm VSG-Glas, klar oder opal</td></tr>
+          <tr><th scope="row">Lichtdurchlass</th>
+              <td>bis 88 % mit Glas, bis 70 % mit Polycarbonat</td>
+              <td>88 % klar, 63 % opal (blickdicht)</td></tr>
+          <tr><th scope="row">Aufstellung</th>
+              <td>An der Wand oder freistehend</td>
+              <td>Wandanschluss, Ecke, Nische oder XXL</td></tr>
+          <tr><th scope="row">Erweiterbar</th>
+              <td>Schiebeelemente und Markisen</td>
+              <td>Schiebeelemente in Polycarbonat, Glas oder Aluminium</td></tr>
+          <tr><th scope="row">Passt, wenn</th>
+              <td>Sie zwischen Glas und Polycarbonat wählen möchten</td>
+              <td>das Dach flach sein soll und die Entwässerung nicht zu sehen</td></tr>
+        </tbody>
+      </table>
+      <p class="vergleich-fuss">Bei beiden gleich: 10 Jahre Herstellergarantie, CE-Zertifizierung und
+         Statiknachweis für Wind- und Schneelast. Alle Maße nach Aufmaß gefertigt.</p>
     </div>
   </div>
 </section>

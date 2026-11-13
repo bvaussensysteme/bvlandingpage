@@ -15468,3 +15468,50 @@ gebastelt. Die Begründung aus dem CSS (`flex: none` auf der neuen Zeile,
 
 **Später prüfen, nicht gemacht:** Die Gegenüberstellung TDS / SkyView auf
 `produkte/terrassenueberdachung.html` (zweiter Teil von Befund 7).
+
+## 13.11.2026 – TDS und SkyView stehen jetzt nebeneinander
+
+**Anlass.** Betreiber: „weiter". Zweiter Teil von Befund 7.
+
+**Was falsch war.** Die zwei Modelle standen als zwei lange Karten
+untereinander. Wer den Unterschied wissen wollte, musste zwei
+Merkmallisten im Kopf vergleichen.
+
+**Was jetzt gilt.** Unter den Karten eine Tabelle mit sechs Zeilen:
+Dachform · Verglasung · Lichtdurchlass · Aufstellung · Erweiterbar ·
+„Passt, wenn". Darunter ein Satz, was bei beiden gleich ist (10 Jahre
+Garantie, CE, Statiknachweis).
+
+**Jede Zahl stammt aus den vorhandenen Merkmallisten der Seite** – 88 %,
+70 %, 63 %, 8 mm, 16 mm. Nichts hinzuerfunden, nichts gerundet.
+
+**Bewusst NICHT aufgenommen:**
+- *Preis oder „günstiger"*: Polycarbonat ist die preiswertere Eindeckung,
+  aber Preisangaben auf der Seite brauchen die Zustimmung des Betreibers
+  (`CLAUDE.md`). Deshalb steht in der Zeile „Passt, wenn" beim TDS nur
+  die Wahlmöglichkeit, nicht der Preis.
+- *LED und Lautsprecher*: Die SkyView-Karte nennt beides, die TDS-Karte
+  nicht. Daraus folgt **nicht**, dass es das beim TDS nicht gibt – der
+  Assistent fragt LED bei allen Produkten ab. Eine Zeile „– / vorhanden"
+  wäre eine Behauptung gewesen, die die Seite nicht hergibt.
+
+**Warum eine echte Tabelle und kein gestapeltes Listen-Konstrukt.** Die
+Zeilenköpfe (`th scope="row"`) und Spaltenköpfe sind das, was ein
+Screenreader braucht, um „Verglasung bei SkyView" vorlesen zu können.
+Gestapelte `div`-Konstruktionen verlieren das. Am Handy werden deshalb
+nur Schrift und Innenabstand kleiner, die Struktur bleibt.
+
+**Absicherung.** `scripts/pruefe-vergleich.mjs`: **14/14** auf 390 px und
+1280 px, Gegenprobe **2/2**. Gemessen wird unter anderem, was bei einer
+dreispaltigen Tabelle am Handy wirklich schiefgeht: Auf 390 px ist die
+Tabelle 362 px breit bei 362 px Platz, die Seite scrollt nicht seitwärts.
+Die Gegenprobe schiebt ein 120 Zeichen langes Wort in eine Zelle – die
+Tabelle wächst auf 1016 px und fällt auf.
+
+**Nachtrag zu den drei gescheiterten Hilfsskripten** (siehe Eintrag zu
+Befund 7): Die Ursache ist gefunden. Sie benutzten
+`browser.newContext({viewport})`; damit blieb der Lauf hängen. Die
+funktionierenden Skripte benutzen `browser.newPage()` und danach
+`setViewportSize()`. Dieses Skript tut das auch – und läuft. Damit ist
+auch die Messung nachgeholt, die beim Hero-Text und bei den Produktkarten
+offen geblieben war: **kein waagerechtes Scrollen auf 390 px.**
