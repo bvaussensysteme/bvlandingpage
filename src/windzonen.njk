@@ -843,6 +843,31 @@ extraScripts: |
   function wzAcGetList() { return document.getElementById('wz-suggestions'); }
   function wzAcGetInput() { return document.getElementById('wz-address-input'); }
 
+  /* Den gesuchten Standort an das Anfrageformular weitergeben.
+     Das Suchfeld enthaelt nach einem Treffer "56410 Montabaur" - also
+     PLZ und Ort in einem Feld. Der Assistent hat zwei Felder (k_plz,
+     k_ort), deshalb wird hier getrennt.
+     NUR STRENG GEPRUEFTE WERTE: fuenf Ziffern fuer die PLZ, Buchstaben
+     mit Leerzeichen, Bindestrich und Punkt fuer den Ort, hoechstens 60
+     Zeichen. Was nicht passt, wird weggelassen - aus diesem Speicher
+     darf nichts Beliebiges in die Antworten und von dort in die
+     Anfrage-E-Mail geraten.
+     Der Wert verlaesst den Browser des Besuchers nicht. */
+  function wzStandortMitgeben() {
+    try {
+      var feld = wzAcGetInput();
+      var txt  = feld && feld.value ? feld.value.trim() : '';
+      if (!txt) return;
+      var m = txt.match(/^(\d{5})\s+(.{1,60})$/);
+      var plz = m ? m[1] : (/^\d{5}$/.test(txt) ? txt : '');
+      var ort = m ? m[2].trim() : '';
+      if (ort && !/^[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß\s.\-\/()]*$/.test(ort)) ort = '';
+      if (plz) sessionStorage.setItem('bv-plz', plz);
+      if (ort) sessionStorage.setItem('bv-ort', ort);
+    } catch (e) { /* privates Fenster, gesperrte Speicher - dann eben nicht */ }
+  }
+  window.wzStandortMitgeben = wzStandortMitgeben;
+
   function wzAcBuildLabel(p) {
     // Aus Photon-Properties einen lesbaren Label bauen
     var plz  = p.postcode || '';
@@ -1193,7 +1218,16 @@ skipLink: |
           das klärt der Genehmigungs-Check für Ihr Bundesland.
         </p>
         <div class="wz-weiter-knoepfe">
-          <a href="/#kontakt" class="btn btn-gold">Kostenlos beraten lassen</a>
+          {# ERGAENZT 13.11.2026. Der Satz darueber verspricht "dann
+             rechnen wir das fuer Ihren Standort durch" - der Standort
+             wurde aber nicht mitgegeben. Der Besucher tippte PLZ und Ort
+             im Anfrageformular ein zweites Mal ein, obwohl er sie hier
+             gerade gesucht hat.
+             Nur in SEINEM Browser, nur fuer diesen Besuch: Der Wert geht
+             nicht an den Server und wird nicht gemessen - an der
+             Datenschutzerklaerung aendert sich deshalb nichts. Geprueft
+             von scripts/pruefe-standort-mitgeben.mjs. #}
+          <a href="/#kontakt" class="btn btn-gold" onclick="wzStandortMitgeben()">Kostenlos beraten lassen</a>
           <a href="/produkte/terrassenueberdachung.html" class="btn btn-outline-white"
              style="color:var(--black);border-color:var(--border);">Terrassenüberdachungen ansehen</a>
           <button class="btn btn-outline-white" onclick="wzReset()"

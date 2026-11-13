@@ -1629,6 +1629,39 @@
 
   document.addEventListener('bv-konfig-vorgabe', vorgabeUebernehmen);
 
+  /* Standort aus dem Windzonen-Rechner uebernehmen.
+
+     ANLASS (13.11.2026): Der Rechner unter /windzonen verspricht
+     "Schicken Sie uns Ihre Maße, dann rechnen wir das fuer Ihren
+     Standort durch" - gab den Standort aber nicht weiter. Der Besucher
+     tippte PLZ und Ort hier ein zweites Mal ein, obwohl er sie dort
+     gerade gesucht hatte. /windzonen ist nach der Startseite die
+     zweithaeufigste Einstiegsseite (28 Aufrufe, 70 Sekunden
+     Verweildauer - die laengste von allen).
+
+     Hier wird NOCHMALS geprueft, nicht nur beim Schreiben: Der Speicher
+     liegt im Browser des Besuchers und laesst sich von Hand aendern.
+     Fuenf Ziffern fuer die PLZ, Buchstaben mit Leerzeichen, Bindestrich,
+     Punkt, Schraegstrich und Klammern fuer den Ort, hoechstens 60
+     Zeichen. Alles andere wird verworfen - sonst stuende Beliebiges in
+     der Anfrage-E-Mail.
+
+     Kein Sprung im Ablauf: Der Besucher hat nur einen Ort gesucht, kein
+     Produkt gewaehlt. Die Felder sind vorbelegt und bleiben aenderbar. */
+  function standortAusSpeicher() {
+    var plz, ort;
+    try {
+      plz = sessionStorage.getItem('bv-plz');
+      ort = sessionStorage.getItem('bv-ort');
+      sessionStorage.removeItem('bv-plz');
+      sessionStorage.removeItem('bv-ort');
+    } catch (e) { return; }
+    if (plz && /^\d{5}$/.test(plz) && !answers.k_plz) answers.k_plz = plz;
+    if (ort && ort.length <= 60
+        && /^[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß\s.\-\/()]*$/.test(ort)
+        && !answers.k_ort) answers.k_ort = ort;
+  }
+
   /* Produktwahl von einer Produktseite uebernehmen.
 
      GEFUNDEN AM 13.11.2026 auf allen sechs Produktseiten: Die
@@ -1711,4 +1744,5 @@
   // Falls die Vorgabe schon vor dem Laden dieses Skripts gesetzt wurde
   vorgabeUebernehmen();
   produktAusSpeicher();
+  standortAusSpeicher();
 })();

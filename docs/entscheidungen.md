@@ -15297,3 +15297,59 @@ gelöst, das es nicht gab.
 **Nicht geprüft:** ob die „2–3 Werktage" betrieblich haltbar sind. Das
 ist die Zusage des Betreibers aus seiner eigenen FAQ, nicht meine
 Messung.
+
+## 13.11.2026 – Windzonen-Rechner gibt den Standort an die Anfrage weiter
+
+**Anlass.** Betreiber: „mach weiter". Befund 4 aus
+`docs/AUDIT-CUSTOMER-JOURNEY.md`.
+
+**Was falsch war.** Der Ergebnisblock auf `/windzonen` verspricht
+wörtlich „Schicken Sie uns Ihre Maße, dann rechnen wir das für Ihren
+Standort durch" – und gab den Standort nicht weiter. Wer dort gerade
+„56410 Montabaur" gesucht hatte, tippte PLZ und Ort im Anfrageformular
+ein zweites Mal ein. `/windzonen` ist nach der Startseite die
+zweithäufigste Einstiegsseite (28 Aufrufe in 11 Tagen, 70 Sekunden
+Verweildauer – die längste von allen).
+
+**Was jetzt gilt.** Der Knopf „Kostenlos beraten lassen" legt PLZ und
+Ort in `sessionStorage` (`bv-plz`, `bv-ort`);
+`standortAusSpeicher()` in `js/anfrage-wizard.js` belegt damit die Felder
+`k_plz` und `k_ort` vor. Die Felder bleiben änderbar, es wird **kein**
+Schritt übersprungen – der Besucher hat einen Ort gesucht, kein Produkt
+gewählt.
+
+**Datenschutz, ausdrücklich geprüft.** Der Wert verlässt den Browser des
+Besuchers nicht: kein Serveraufruf, keine Messung, kein Cookie, nur der
+Sitzungsspeicher seines eigenen Browsers, und er wird nach dem
+Übernehmen gelöscht. **An der Datenschutzerklärung ändert sich dadurch
+nichts** – die Regel aus `CLAUDE.md` („Messung geändert → Erklärung im
+selben Zug ändern") greift hier nicht, weil nicht gemessen wird.
+
+**Zweimal geprüft, nicht einmal.** Beim Schreiben (`windzonen.njk`) und
+beim Lesen (`anfrage-wizard.js`): fünf Ziffern für die PLZ, Buchstaben
+mit Leerzeichen, Bindestrich, Punkt, Schrägstrich und Klammern für den
+Ort, höchstens 60 Zeichen. Begründung: Der Speicher liegt im Browser des
+Besuchers und lässt sich von Hand ändern. Ohne die zweite Prüfung
+stünde Beliebiges in der Anfrage-E-Mail.
+
+**Nebenbefund, durch die Prüfung aufgedeckt:** Der ganze Ergebnisblock
+(`.wz-results`) ist verborgen, bis eine Rechnung gelaufen ist. Wer die
+Seite nur liest, sieht diesen Weg nie – das ist der zweite Teil von
+Befund 4 und **bleibt offen.** Die Prüfung deckt den Block deshalb selbst
+auf; sie prüft die Weitergabe, nicht die Ortssuche (die fragt einen
+Dienst im Netz).
+
+**Absicherung.** `scripts/pruefe-standort-mitgeben.mjs`: **9/9**,
+Gegenprobe **10/10** – „abcde" als PLZ und
+`<img src=x onerror=alert(1)>` als Ort werden beide verworfen. Dazu
+`pruefe-assistent.mjs` 18/18, `pruefe-produktwahl.mjs` 132/132,
+`pruefe-werkzeugseiten.mjs` 11/11, alle schnellen Skripte grün.
+Cache-Buster `v=20261113e`.
+
+**Drei eigene Fehler in der neuen Prüfung, benannt:**
+1. Der Knopf war unsichtbar – der Ergebnisblock muss erst aufgedeckt
+   werden. Das war kein Fehler der Seite, sondern ein Befund.
+2. `[null, null].join('|')` ergibt `"|"`, nicht `"null|null"` – die
+   Prüfung wurde dadurch zunächst falsch rot.
+3. Der Kurzweg verlangt eine Nachricht; ohne sie kommt man nicht zum
+   Kontaktschritt. Die Prüfung füllt das Feld jetzt.
