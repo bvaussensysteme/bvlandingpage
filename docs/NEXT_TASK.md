@@ -270,3 +270,16 @@ Zwei Wege, einen muss der Betreiber wählen:
 
 Bis zur Entscheidung werden dort **keine** Gedankenstriche ersetzt.
 Begründung im Logbuch.
+
+## Toter Formularcode (14.11.2026)
+
+Beim Durchsehen der JavaScript-Texte gefunden, **nicht** angefasst:
+- `js/main.js` ab Zeile 84 hängt an `id="formSubmit"`. Diese id gibt
+  es auf keiner Seite. Der Zweig enthält einen Formspree-Weg und einen
+  E-Mail-Betreff.
+- `js/newsletter.js` ist in keiner Seite eingebunden und spricht
+  EmailJS an.
+
+Toter Code mit Formularlogik ist unangenehm: Beim nächsten Umbau nimmt
+jemand an, er sei in Betrieb. Entweder entfernen oder mit einem
+Kommentar versehen, der sagt, dass er ruht.

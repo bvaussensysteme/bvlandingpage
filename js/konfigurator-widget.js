@@ -75,7 +75,7 @@
     id: 'bvKonfigBubble',
     type: 'button',
     title: 'Konfigurator öffnen',
-    'aria-label': 'Konfigurator öffnen – Anfrage in wenigen Schritten'
+    'aria-label': 'Konfigurator öffnen, Anfrage in wenigen Schritten'
   }, ICON);
 
   bubble.setAttribute('aria-expanded', 'false');

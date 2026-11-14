@@ -17077,3 +17077,40 @@ Gerät nicht in der Mitte zerreißen.
 
 **Geprüft:** bei 320, 390 und 430 px kein Umbruch innerhalb einer
 Angabe, Bildschirmfoto angesehen, `pruefe-startseite.mjs` 39/39.
+
+## 14.11.2026 – Gedankenstriche, Abschnitt 4c: der Rest, und warum davon fast nichts bleibt
+
+Nach Assistent und 3D-Konfigurator standen noch 32 Stellen in acht
+Dateien auf der Liste. **Nachgesehen statt ersetzt**, und übrig blieb
+genau eine.
+
+**Geändert, eine Stelle:**
+`js/konfigurator-widget.js`, `aria-label` des Öffnen-Knopfs:
+„Konfigurator öffnen – Anfrage in wenigen Schritten" heißt jetzt
+„Konfigurator öffnen, Anfrage in wenigen Schritten". Das Widget ist
+auf vielen Seiten eingebunden, und ein `aria-label` wird vorgelesen,
+zählt also als sichtbarer Text.
+
+**Nicht geändert, mit Grund:**
+
+| Datei | Stellen | Grund |
+|---|---|---|
+| `js/baugenehmigung-data.js` | 16 | **Rechtshinweise.** Die Dauerregel vom 14.11.2026 nimmt sie ausdrücklich aus, und zwar zu Recht: Der Strich trägt dort die Einschränkung. „bis 50 m³ umbauter Raum – an Wohngebäuden der Gebäudeklassen 1 bis 3, nicht im Außenbereich" oder „genehmigungsfrei – beheizt immer genehmigungspflichtig". Ein Komma statt des Strichs kann die Einschränkung auf einen anderen Satzteil beziehen. Das ist kein Stil, das ist Inhalt. |
+| `js/bauteile.js` | 7 | **Von keiner Seite geladen.** Die Datei ist Werkzeug für die Prüfskripte, kein Seitencode. Ihre Hinweise („ungeprüfte Annahme", „Betriebsregel, nicht Preisliste") sieht kein Besucher. |
+| `js/newsletter.js` | 2 | **In keiner Seite eingebunden.** Toter Code. |
+| `js/main.js` | 3 | Zwei davon sind Platzhalter für leere Felder (`telefon \|\| '–'`). Der dritte ist der Betreff eines Formularzweigs, der an `id="formSubmit"` hängt, und **diese id gibt es auf keiner Seite**. Toter Zweig. |
+| `js/pdf-blatt.js` | 1 | **Zeichentabelle.** `'–': 0x96` ordnet dem Strich sein Byte in der PDF-Kodierung zu. Hier zu ersetzen würde die PDF-Ausgabe beschädigen. |
+| `js/broschuere.js` | 1 | **Seitenzahl-Spanne** („2–3 / 48"). Ausdrückliche Ausnahme der Regel. |
+| `js/werkstatt-pfade.js` | 1 | Meldung in der Entwicklerkonsole, keine Seitenanzeige. |
+
+**Der Punkt dieses Abschnitts.** Von 32 Fundstellen war genau eine zu
+ändern. Hätte ich das Muster aus den Abschnitten davor stur
+weitergezogen, wären 16 Rechtshinweise umformuliert, eine
+PDF-Zeichentabelle zerstört und zehn Stellen in totem Code
+„verbessert" worden. **Die Regel gilt für Text, der auf der Seite
+steht, und für sonst nichts.**
+
+**Gefunden nebenbei, in `docs/NEXT_TASK.md` notiert:** `js/main.js`
+und `js/newsletter.js` enthalten Formularwege, die an nichts hängen.
+Toter Code mit Formularlogik ist unangenehm, weil beim nächsten Umbau
+jemand annimmt, er sei in Betrieb.
