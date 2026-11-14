@@ -1148,6 +1148,26 @@ footer h4 {
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
   vertical-align: -4px; margin-right: 8px;
 }
+/* Telefonnummer in der Fusszeile, auf Ansage des Betreibers vom
+   14.11.2026. Vorher stand sie auf 50 von 58 Seiten nirgends: Wer am
+   Handy auf einer Produktseite stand und kurz anrufen wollte, fand
+   keine Nummer. Bewusst OHNE Oeffnungszeiten, die stehen an zwei
+   gepflegten Stellen auf der Startseite. 58 Kopien waeren 58 Stellen,
+   an denen sie veralten. */
+.footer-tel { margin: 0 0 10px; }
+.footer-tel a {
+  color: var(--gold); text-decoration: none; font-weight: 700;
+  /* Gemessen war die Trefferflaeche 97 x 15 px. Als Link mitten in
+     einem Satz faellt sie zwar unter die Ausnahme der 44-px-Regel,
+     aber am Handy trifft man das trotzdem schlecht. Senkrechtes
+     Innenabstand vergroessert die Flaeche, ohne die Zeile
+     auseinanderzuziehen: bei einem inline-Element wirkt er auf den
+     Treffer, nicht auf die Zeilenhoehe. */
+  padding: 15px 4px;
+  margin: -15px -4px;
+}
+.footer-tel a:hover { text-decoration: underline; }
+
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px;
   display: flex; justify-content: space-between; align-items: center;

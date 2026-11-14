@@ -17328,3 +17328,44 @@ Fehler in der Seite, kein 404 auf eine fehlende Datei. Der einzige
 404 ist `/api/bauteile` auf dem Konfigurator, und der kommt daher,
 dass ein einfacher Dateiserver keine Worker-Schnittstelle bedienen
 kann. Mit der Übersetzung hat er nichts zu tun.
+
+## 14.11.2026 – Telefonnummer auf allen Seiten, Anrufknopf im Kopfbereich
+
+**Ansage des Betreibers** auf die Frage, ob die fehlende Nummer
+Absicht sei: „Ja, zusätzlich Anrufknopf oben."
+
+**Was falsch war.** Gemessen standen auf **50 von 58 Seiten** weder
+ein `tel:`-Link noch die Nummer als Text. Wer am Handy auf der
+Carport-Seite stand und kurz anrufen wollte, fand nichts. Es gab nur
+WhatsApp und das Formular. Der Prüfer hat die Historie geprüft: Die
+Ortsseiten hatten **nie** einen Anrufknopf, das ist kein Rückschritt,
+sondern eine Lücke von Anfang an.
+
+**Was jetzt gilt.**
+
+| | vorher | jetzt |
+|---|---|---|
+| Seiten mit Telefonnummer | 8 von 58 | **52 von 52 Inhaltsseiten** |
+| Anrufknopf im Kopfbereich | 0 | 30 (14 Ortsseiten, 16 Produktseiten) |
+
+Die sechs Seiten ohne Nummer sind Weiterleitungen (`kontakt.html`,
+`termin.html`, zwei alte Produkt-URLs), eine Vorlage und die
+Werkstatt-Vorschau. Nachgesehen: 37 bis 39 Zeilen, nur eine
+Weiterleitung, kein Inhalt. Dort gehört keine Nummer hin.
+
+**Bewusst ohne Öffnungszeiten in der Fußzeile.** Nur die Nummer. Die
+Zeiten stehen an zwei gepflegten Stellen auf der Startseite. Sie auf
+53 Seiten zu kopieren hieße, **53 Stellen zu schaffen, an denen sie
+veralten**. Heute Nachmittag wurden die Zeiten an zwei Stellen
+geändert; bei 55 wäre das nicht mehr zu überblicken. Die Nummer selbst
+ändert sich nicht.
+
+**Trefferfläche nachgebessert, nachdem sie gemessen war.** Der
+Fußzeilen-Link war 97 × 15 px. Als Link mitten in einem Satz fällt er
+unter die Ausnahme der 44-px-Regel, aber am Handy trifft man das
+trotzdem schlecht. Mit senkrechtem Innenabstand und ausgleichendem
+negativem Aussenabstand jetzt **105 × 45 px, bei unveränderter
+Zeilenhöhe von 20 px**. Bei einem Element im Textfluss wirkt der
+Innenabstand auf die Trefferfläche, nicht auf die Zeilenhöhe.
+
+Der Knopf im Kopfbereich misst 128 × 56 px.
