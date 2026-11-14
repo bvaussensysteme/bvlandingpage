@@ -16269,3 +16269,65 @@ muss beide Zeichen suchen und Zahlenspannen, Wochentagsspannen,
 Kommentare, Skripte und die Firmierung ausnehmen. Bisher gibt es kein
 solches Skript, deshalb ist die Regel bisher per Augenmass geprueft
 worden.
+
+## 14.11.2026 – Die Statik-Zusage stand auch in der Uebersetzung und in der Broschuere
+
+**Anlass.** Gegenpruefung durch den QA-Agenten, nachdem ich Startseite
+und Produktseiten angeglichen hatte. Der Pruefer fand vier Reste, die
+ich uebersehen hatte. Alle vier sind behoben.
+
+**1. `js/i18n.js`, acht Stellen in drei Sprachen.** Die
+Uebersetzungstabelle trug die **alten** Saetze, darunter woertlich
+„inkl. aller erforderlichen Statik- und CE-Nachweise" und auf Englisch
+„including all required static and CE certificates". Ein englisch oder
+russisch lesender Besucher bekam also genau die Zusage zu sehen, die
+auf Deutsch gerade entfernt worden war.
+
+Wichtig fuer das Verstaendnis: Die Tabelle ist nach dem **deutschen
+Quelltext** verschluesselt, `applyLang()` vergleicht den normalisierten
+Textknoten. Aendert sich der deutsche Satz auf der Seite, greift der
+Eintrag nicht mehr, und die Uebersetzung bleibt stumm deutsch. Die
+deutschen Schluessel wurden deshalb nicht von Hand getippt, sondern aus
+`index.html` ausgelesen und danach **gegengeprueft**: alle vier
+Schluessel kommen als Textknoten auf der Seite vor.
+
+**2. `src/_data/katalogtext.json` und damit die Broschuere.** Dort
+stand „Die statische Berechnung des Herstellers gehoert zum
+Lieferumfang **und kann beim Bauamt vorgelegt werden**". Der zweite
+Halbsatz sagt dem Leser, das Amt nehme das an. Jetzt: vereinfachte
+Berechnung im Lieferumfang, und ob das Amt damit auskommt, haengt vom
+Bundesland und von der Groesse ab.
+
+**3. `_template.html`.** „mit Statiknachweis geliefert" → „mit
+vereinfachtem Statiknachweis geliefert".
+
+**4. Schema gegen sichtbaren Text.** Im JSON-LD stand „Alle Produkte",
+sichtbar „Alle **unsere** Produkte". Ein Wort Unterschied, aber die
+Regel lautet wortgleich, sonst laufen die beiden Fassungen wieder
+auseinander.
+
+**Nicht geaendert.** Die Entwurfsseiten (`entwurf*.html`) tragen die
+alte Zusage weiter. Sie sind Entwuerfe und nicht verlinkt. Notiert
+unter „Spaeter pruefen".
+
+## 14.11.2026 – Ein Pruefskript lief gar nicht und meldete trotzdem nichts
+
+**Was falsch war.** `scripts/pruefe-bewegung.mjs` suchte den Browser
+unter einem festen Pfad `/opt/pw-browsers/chromium-<nummer>/chrome-linux/chrome`.
+In dieser Umgebung liegt dort nur eine Markerdatei, die Binaerdatei
+heisst `chrome-linux64`. Das Skript brach ab. In einem Sammellauf sieht
+das aus wie ein Fehler unter vielen, geprueft wurde aber **nichts**:
+weder `prefers-reduced-motion` noch die Sichtbarkeit der Texte ohne
+Skript.
+
+**Was jetzt gilt.** Dieselbe Pfadsuche wie in
+`scripts/pruefe-startseite.mjs`: drei moegliche Orte werden geprueft,
+findet sich keiner, wird `undefined` geliefert und Playwright nimmt
+den mitgelieferten Browser. Zusaetzlich laesst sich der Pfad ueber die
+Umgebungsvariable `BV_CHROMIUM` setzen.
+
+**Beleg.** Vor dem Eingriff: „Failed to launch chromium because
+executable doesn't exist". Danach: „Ergebnis: bestanden".
+
+**Warum das zaehlt.** Ein Skript, das nicht startet, ist schlimmer als
+kein Skript: es steht in der Liste und erzeugt Zuversicht.

@@ -18,7 +18,7 @@
  * Aufruf:  node scripts/pruefe-bewegung.mjs [--gegenprobe]
  */
 import { spawn } from 'node:child_process';
-import { readdirSync, readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
@@ -44,10 +44,22 @@ const FEHLER = [
   ['.griff.da{transform:none}', '.griff.da{transform:translateY(100%)}'],
 ];
 
+/* Der Ordner chromium-<nummer> enthaelt je nach Umgebung chrome-linux,
+ * chrome-linux64 oder gar keine Binaerdatei, sondern nur Marker. Deshalb
+ * wird jeder Ort geprueft und im Zweifel undefined geliefert: dann nimmt
+ * Playwright den mitgelieferten Browser. Vorher stand hier ein fester
+ * Pfad, und das Skript brach am 14.11.2026 ab, ohne etwas zu pruefen. */
+function chromeIn(o) {
+  for (const w of [`${o}/chrome-linux/chrome`, `${o}/chrome-linux64/chrome`, `${o}/chrome`])
+    if (existsSync(w)) return w;
+  return undefined;
+}
 function chromePfad(){
+  if (process.env.BV_CHROMIUM) return process.env.BV_CHROMIUM;
   const b = '/opt/pw-browsers';
+  if (!existsSync(b)) return undefined;
   const o = readdirSync(b).filter(d => /^chromium-\d+$/.test(d)).sort();
-  return `${b}/${o[o.length-1]}/chrome-linux/chrome`;
+  return o.length ? chromeIn(`${b}/${o[o.length-1]}`) : undefined;
 }
 
 /* Jeder Text, der auf der Seite steht, muss am Ende sichtbar sein.
