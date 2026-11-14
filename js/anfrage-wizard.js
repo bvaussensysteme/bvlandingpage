@@ -1244,9 +1244,10 @@
          Betrieb. summaryPairs(false) ist die Zusammenfassung, die der
          BESUCHER sieht - dort darf "ausserhalb des Einzugsgebiets" nicht
          auftauchen. Dieselbe Schranke tragen fachnotiz und konfiglink. */
-      var imGebiet = gebietspruefung(answers.k_plz);
-      if (imGebiet === true)  p.push(['Gebiet', 'im üblichen Einzugsgebiet']);
-      if (imGebiet === false) p.push(['Gebiet', 'außerhalb des üblichen Einzugsgebiets, Anfahrt bitte prüfen']);
+      var stufe = gebietspruefung(answers.k_plz);
+      if (stufe === 'kern')   p.push(['Gebiet', 'im Einzugsgebiet']);
+      if (stufe === 'rand')   p.push(['Gebiet', 'Randlage, geschätzt 60 bis 65 km']);
+      if (stufe === 'ferner') p.push(['Gebiet', 'über 65 km, nur nach Absprache']);
     }
     if (answers.k_quelle) p.push(['Aufmerksam geworden durch', answers.k_quelle]);
     return p;
@@ -1742,30 +1743,49 @@
      sagt "Bei groesseren Auftraegen kommen wir auch weiter" - eine Absage
      im Formular wuerde genau die Anfragen kosten, die sich lohnen. Der
      Hinweis steht nur in der Anfrage-E-Mail an den Betrieb. */
-  /* Obergrenze laut Betreiber (14.11.2026): "65km aller maximal".
-     Eine Leitregion ist ein Gebiet, keine Linie - sie laesst sich mit
-     65 km nicht genau zur Deckung bringen. Deshalb gilt hier: Im Zweifel
-     NICHT aufnehmen. Ein falsches "liegt im Gebiet" waere ein falsches
-     Signal in der eigenen Anfrage-E-Mail; ein fehlendes kostet nichts,
-     weil der Besucher ohnehin nichts davon sieht.
-     Herausgenommen am 14.11.2026, weil die Leitregion ueber 65 km
-     hinausreicht: 567 (Mayen reicht bis in die Vulkaneifel, Ulmen liegt
-     rund 85 km entfernt) und 652 (Taunus, Hofheim und Umgebung bei rund
-     70 km).
-     ENTFERNUNGEN SIND GESCHAETZT, NICHT GEMESSEN - aus der Lage der Orte,
-     nicht aus Koordinaten. Warum keine Koordinaten: siehe oben. */
-  var EINZUGSGEBIET = [
+  /* Regel des Betreibers (14.11.2026): "60 grenze 65 maximal ueber 65
+     nach absprache". Drei Stufen also.
+
+     WAS DAMIT NICHT GEHT, ehrlich benannt: Eine Leitregion (die ersten
+     drei Ziffern der PLZ) umfasst ein Gebiet von grob 10 bis 25 km. Die
+     Linie zwischen 60 und 65 km laesst sich damit NICHT ziehen - dafuer
+     braeuchte es Koordinaten, und warum es die hier nicht gibt, steht im
+     Abschnitt darueber. Abgebildet sind deshalb zwei Stufen:
+
+       kern   - liegt sicher im Gebiet (geschaetzt unter 60 km)
+       rand   - liegt an der Grenze (geschaetzt 60 bis 65 km)
+       sonst  - darueber, also nur nach Absprache
+
+     ENTFERNUNGEN SIND GESCHAETZT, NICHT GEMESSEN - aus der Lage der Orte.
+     Im Zweifel wird eine Gegend NICHT in "kern" aufgenommen: Ein falsches
+     "liegt im Gebiet" waere ein falsches Signal in der eigenen E-Mail,
+     ein fehlender Treffer kostet nichts, weil der Besucher davon nichts
+     sieht.
+
+     Herausgenommen, weil die Leitregion weit ueber 65 km hinausreicht:
+     567 (Mayen zieht sich in die Vulkaneifel, Ulmen rund 85 km) und
+     652 (Taunus, Hofheim rund 70 km). */
+  var GEBIET_KERN = [
     '560', '561', '562', '563', '564', '565',  // Koblenz, Lahnstein, Bad Ems, Montabaur, Wirges, Dernbach, Neuwied, Westerburg
     '566',                                     // Andernach, Weissenthurm (rund 40 km)
     '575', '576',                              // Betzdorf, Wissen, Hachenburg, Altenkirchen, Bad Marienberg
-    '535', '536',                              // Linz, Unkel, Asbach, Bad Honnef (rund 35 bis 55 km)
+    '535',                                     // Linz, Unkel, Asbach (rund 35 bis 45 km)
     '655'                                      // Limburg, Diez, Bad Camberg, Idstein (rund 25 bis 50 km)
   ];
+  var GEBIET_RAND = [
+    '536'                                      // Bad Honnef, Koenigswinter, Hennef, Siegburg (rund 55 bis 65 km)
+  ];
 
+  /* Gibt 'kern', 'rand', 'ferner' oder null zurueck. null heisst: keine
+     gueltige PLZ, also wird nichts behauptet. */
   function gebietspruefung(plz) {
-    if (!/^\d{5}$/.test(String(plz || ''))) return null;   // nichts behaupten ohne gueltige PLZ
-    return EINZUGSGEBIET.indexOf(String(plz).slice(0, 3)) > -1;
+    if (!/^\d{5}$/.test(String(plz || ''))) return null;
+    var v = String(plz).slice(0, 3);
+    if (GEBIET_KERN.indexOf(v) > -1) return 'kern';
+    if (GEBIET_RAND.indexOf(v) > -1) return 'rand';
+    return 'ferner';
   }
+
 
   var PRODUKTWEGE = {
     'terrassendach-tds':  { produkt: 'Terrassendach TDS' },
@@ -1806,7 +1826,8 @@
        gefuellt. */
     var pf = document.getElementById('k_plz'), of = document.getElementById('k_ort');
     var plz = pf ? pf.value : answers.k_plz;
-    if (gebietspruefung(plz) === true) {
+    var stufe = gebietspruefung(plz);
+    if (stufe === 'kern' || stufe === 'rand') {
       var ort = ((of ? of.value : answers.k_ort) || '').trim();
       feld.textContent = (ort ? ort + ' liegt in unserem Gebiet. ' : 'Das liegt in unserem Gebiet. ')
         + 'Wir sind dort regelmäßig unterwegs.';

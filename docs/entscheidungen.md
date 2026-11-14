@@ -15850,3 +15850,35 @@ ohnehin nichts davon sieht.
 **Ehrlich dazugesagt:** Die Entfernungen sind aus der Lage der Orte
 geschätzt, **nicht gemessen**. Koordinaten gibt es nicht, und warum,
 steht im Eintrag darüber.
+
+## 14.11.2026 – Drei Stufen statt zwei: 60 / 65 / nach Absprache
+
+**Anlass.** Betreiber: „60 grenze 65 maximal über 65 nach absprache."
+
+**Was damit NICHT geht, und das gehört vorne hin:** Eine Leitregion (die
+ersten drei Ziffern der PLZ) umfasst grob 10 bis 25 km. **Die Linie
+zwischen 60 und 65 km lässt sich damit nicht ziehen.** Dafür bräuchte es
+Koordinaten, und die scheitern an der Lizenzlage (Eintrag weiter oben).
+
+**Was stattdessen abgebildet ist:**
+
+| Stufe | Bedeutung | Besucher sieht | In der Anfrage-E-Mail steht |
+|---|---|---|---|
+| `kern` | sicher im Gebiet, geschätzt unter 60 km | Bestätigung | „im Einzugsgebiet" |
+| `rand` | an der Grenze, geschätzt 60 bis 65 km | Bestätigung | „Randlage, geschätzt 60 bis 65 km" |
+| `ferner` | darüber | **nichts** | „über 65 km, nur nach Absprache" |
+
+**`rand` enthält heute nur 536** (Bad Honnef, Königswinter, Hennef,
+Siegburg). Alle übrigen Gegenden liegen nach Schätzung unter 60 km.
+
+**Warum der Besucher auch bei `rand` eine Bestätigung sieht:** 60 bis
+65 km ist laut Betreiber noch im Rahmen. Nur über 65 km wird es eine
+Absprache, und das ist seine Sache, nicht die des Formulars.
+
+**Warum „nur nach Absprache" und nicht „Anfahrt bitte prüfen":** Der
+Betreiber hat damit gesagt, dass weitere Fahrten möglich sind. Die
+E-Mail soll ihm das sagen, nicht ihn abschrecken.
+
+**Absicherung.** `scripts/pruefe-einzugsgebiet.mjs` auf **12/12**
+erweitert, Gegenprobe 5/5. Neu geprüft: Bad Honnef (Randlage) zeigt die
+Bestätigung, Ulmen (rund 85 km) zeigt nichts.

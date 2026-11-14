@@ -127,8 +127,12 @@ if (GEGENPROBE) {
   pruef('Der eigene Standort liegt im Gebiet', b.sichtbar, b.text.slice(0, 40));
   const c = await tippe('65549', 'Limburg');
   pruef('Limburg: Hinweis erscheint', c.sichtbar, c.text.slice(0, 40));
+  const r = await tippe('53604', 'Bad Honnef');
+  pruef('Randlage Bad Honnef: Hinweis erscheint ebenfalls', r.sichtbar, r.text.slice(0, 40));
   const d = await tippe('20095', 'Hamburg');
   pruef('Hamburg: KEIN Hinweis und keine Absage', !d.sichtbar, 'nichts angezeigt');
+  const m = await tippe('56766', 'Ulmen');
+  pruef('Ulmen (rund 85 km): KEIN Hinweis', !m.sichtbar, 'nichts angezeigt');
   const e = await tippe('123', 'Unfertig');
   pruef('Unvollstaendige PLZ: kein Hinweis', !e.sichtbar, 'nichts behauptet');
   const f = await seite.evaluate(() => {
