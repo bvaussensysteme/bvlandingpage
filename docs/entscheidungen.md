@@ -16347,3 +16347,38 @@ executable doesn't exist". Danach: „Ergebnis: bestanden".
 
 **Warum das zaehlt.** Ein Skript, das nicht startet, ist schlimmer als
 kein Skript: es steht in der Liste und erzeugt Zuversicht.
+
+## 14.11.2026 – Prüfschritt 1 (Architektur): sauber, mit zwei Nebenbefunden
+
+Erster Lauf nach der neuen Regel aus `docs/PRUEFER_REIHENFOLGE.md`.
+
+**Ergebnis.** Kein Verstoß gegen den Bestandsschutz, kein toter
+Verweis, `js/i18n.js` strukturell in Ordnung (Dreier-Arrays, Kommas
+sauber, `node --check` grün), jede Änderung an einer erzeugten Datei
+hat eine passende Änderung in der Vorlage, Rückrollbarkeit gegeben.
+
+**Behoben.** In `src/css/style.css` stand über `.trust-badge-text` noch
+ein Kommentar zum Kontrast der Sterne, die es nicht mehr gibt. Ein
+Kommentar, der eine verschwundene Regel beschreibt, führt den
+Nächsten in die Irre. Neu gefasst, mit dem Grund der Entfernung.
+
+**Eine Aussage des Prüfers war falsch, und das gehört festgehalten.**
+Der Prüfer schrieb, `index.html`, `konfigurator.html` und
+`werkstatt/index.html` lüden `js/i18n.js` ohne Version, und daraus
+folge ein Risiko veralteter Übersetzungen. Nachgesehen: Diese drei
+Seiten laden `js/i18n.js` **gar nicht**. Die Datei wird nur von
+`broschuere.html` (mit Version) und `_template.html` geladen. Damit
+bleibt es bei dem, was schon im Eintrag davor steht: die alten
+Statik-Zusagen in der Übersetzungstabelle waren Altlast und wurden
+nirgends angezeigt.
+
+**Lehre.** Ein Prüferbericht ist eine Hypothese, keine Tatsache. Was
+daraus in den Bericht an den Betreiber wandert, wird vorher am Code
+nachgesehen.
+
+**Später prüfen, nicht behoben:**
+- `entwurf-produkt.html:88` sagt weiter „Statiknachweis inklusive".
+  Die Entwurfsseiten stehen **nicht** in `.assetsignore`, sind also
+  öffentlich abrufbar, nur nicht verlinkt und per `_headers` auf
+  noindex gesetzt.
+- `_template.html` lädt `js/i18n.js` ohne Version.

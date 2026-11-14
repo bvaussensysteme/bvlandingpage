@@ -1238,9 +1238,11 @@ footer h4 {
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem;
   color: var(--black); flex-shrink: 0;
 }
-/* Gold auf Weiss ergibt bei den Sternen 2,62:1 - gemessen. --gold-text
-   ist derselbe Markenton, nur in der Stufe, die fuer Text auf hellem
-   Grund vorgesehen ist (5,9:1). */
+/* Die Sternreihe in den Abzeichen ist am 14.11.2026 entfernt worden:
+   eine Bestnote ohne Quelle. Der Kommentar zum Sternkontrast stand
+   danach ueber einer Regel, die es nicht mehr gibt, und ist deshalb
+   hier raus. Fuer Text auf hellem Grund gilt weiter --gold-text, der
+   Markenton in der dafuer vorgesehenen Stufe. */
 .trust-badge-text strong { display: block; font-size: 1.1rem; font-family: 'Barlow Condensed', sans-serif; color: var(--black); }
 .trust-badge-text span  { font-size: 0.78rem; color: var(--muted); }
 
