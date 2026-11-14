@@ -16505,3 +16505,54 @@ dieser Skripte startet einen eigenen Webserver auf einem festen Port.
 Laufen mehrere gleichzeitig, streiten sie sich darum. **Browserskripte
 nacheinander laufen lassen, nicht parallel.** Ein falsch roter Lauf
 kostet mehr Zeit als die Parallelität spart.
+
+## 14.11.2026 – Gedankenstriche, Abschnitt 2: Ratgeber, Infoseiten, Ortsseiten
+
+**Zwei Teile.** 2a (neun Vorlagen: Pflege, Windzonen, Baugenehmigung,
+fünf Ratgeber, Ratgeber-Übersicht) hat der `frontend-developer`
+gemacht, 98 Stellen. 2b (14 handgepflegte Ortsseiten und `danke.html`)
+habe ich selbst gemacht, 120 Stellen. Dazu kamen vier Dateien, die in
+**meiner** Liste gefehlt hatten: `einzugsgebiet.njk`, `partner.njk`,
+`stoffe.njk` und ein Rest in `danke.html`.
+
+**Beim Gegenlesen gefunden und berichtigt:**
+
+1. **Ein Satz war zerbrochen.** In `danke.html` stand „…persönlich bei
+   Ihnen – per Telefon oder E-Mail." Mein Ersetzen machte daraus einen
+   Punkt, und übrig blieb „persönlich bei Ihnen. per Telefon oder
+   E-Mail." Jetzt ein Komma. Genau dafür wird gegengelesen.
+2. **Komma-Häufungen.** Mein erster Durchgang ersetzte reihum durch
+   Komma. Daraus wurden Sätze wie „Markisen, Raffstore, Zipscreens,
+   auf- und unterdach, Solar optional" (vier Kommas) und
+   Komma-Verbindungen zweier Hauptsätze („…kommt es auf eine solide
+   Konstruktion an, wir dimensionieren jeden Carport…"). 23 solcher
+   Muster wurden in einem zweiten Durchgang auf Doppelpunkt oder Punkt
+   gesetzt.
+3. **„Ja, gerne, Neuwied liegt…"** mit zwei Kommas hintereinander.
+   Jetzt „Ja, gerne. Neuwied liegt…"
+4. **Ein alter Grammatikfehler**, vom Prüfer nebenbei gemeldet: die
+   Überschrift „Baugenehmigung prüfen – kostenloser Tool". Jetzt
+   „kostenloses Tool". Der Fehler war älter als diese Arbeit.
+
+**Geprüft, mit zwei voneinander unabhängigen Wegen.**
+Erstens `git diff --numstat`: in **jeder** Datei gleich viele Zeilen
+hinzugefügt wie entfernt, es ist also kein Text verlorengegangen.
+Zweitens eine Suche über die **erzeugten** Seiten nach „Punkt gefolgt
+von Kleinbuchstabe", um zerbrochene Sätze zu finden. Die 15 Treffer
+sind alle Abkürzungen („bzw.", „vs.") oder Spaltenumbrüche in der
+Broschüre und waren schon vorher da.
+
+**Ergebnis:** 0 Gedankenstriche im sichtbaren Fließtext aller Seiten
+außer Rechtstexten, Entwürfen, `konfigurator.html` und
+`broschuere.html`.
+
+**Bewusst stehen geblieben:** Platzhalter in noch leeren Anzeigefeldern
+(`wz-windzone`, `bg-loc-city` und weitere), Zahlen- und Monatsspannen
+(`1–2×`, `Juni–August`, `0,65–0,85 kN/m²`), die Firmierung, Seitentitel
+und `<meta>`-Beschreibungen.
+
+**Nicht angefasst, eigener Auftrag:** `windzonen.njk` und
+`baugenehmigung.njk` erzeugen per JavaScript sichtbare Ergebnistexte
+mit Gedankenstrichen (etwa „Übersichtsangabe ohne Einzelprüfung –
+bitte beim Bauamt…"). Ebenso `konfigurator.html` mit 63 Stellen und
+`broschuere.html`.
