@@ -298,3 +298,11 @@ die Orte serverseitig in die Seite schreiben (Eleventy kann das aus
 derselben Liste) und das Skript nur noch für Karte und Filter
 benutzen. Dann steht die Antwort auch dann da, wenn JavaScript fehlt
 oder scheitert.
+
+## Übrig nach dem Ausbau der Sprachumschaltung (14.11.2026)
+
+In `src/css/style.css` stehen noch 23 Regeln für den entfernten
+Sprachumschalter (`lang-dropdown`, `lang-switcher`). Sie wirken nicht
+mehr. Entfernen lohnt nur, wenn ohnehin jemand an dieser Datei
+arbeitet: Sie wird von allen 58 Seiten geladen, und für ein paar Byte
+fasst man sie nicht an.

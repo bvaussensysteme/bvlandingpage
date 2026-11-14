@@ -17268,3 +17268,63 @@ war falsch: Ein Selektor, den es nicht gibt, liefert immer null, und
 und einer Gegenprobe **mit** JavaScript (31 Einträge) ist die Messung
 etwas wert. Dieselbe Falle wie am Vormittag bei
 `pruefe-produktwahl.mjs`.
+
+## 14.11.2026 – Drei Entscheidungen des Betreibers umgesetzt
+
+Vorgelegt als Auswahl, beantwortet, umgesetzt.
+
+### Statik: der Hinweis steht jetzt auch auf den Produktseiten
+
+Die Startseite sagte, dass das Bauamt zusätzlich eine prüffähige
+Statik verlangen kann; die Produktseiten sagten nur „vereinfachter
+Statiknachweis inklusive". Dort bereitet der Kunde aber seine
+Entscheidung vor. Der Satz vom Fuß der Produktseiten lautet jetzt in
+**sechs Vorlagen** gleich: „…mit vereinfachtem Statiknachweis
+geliefert. Ob Ihr Bauamt damit auskommt oder eine prüffähige
+Einzelstatik verlangt, hängt vom Bundesland und von der Größe des
+Vorhabens ab. Das klären wir vorab mit Ihnen."
+
+**Die kurzen Stichpunkte in den Produktkarten bleiben kurz.** „Vereinfachter
+Statiknachweis inklusive" ist dort eine Aufzählung, kein Satz; ein
+Nebensatz mit Bauamt und Bundesland wäre an dieser Stelle Lärm. Die
+Einschränkung steht auf derselben Seite, wenige Zeilen tiefer.
+
+### Bewertungen: die Überschrift verspricht nicht mehr, was fehlt
+
+Vorher: „Echte Bewertungen von echten Kunden", darunter keine einzige
+Bewertung, seit die erfundenen Sterne weg sind.
+Jetzt: „Bewertungen finden Sie bei Google und Trustindex", Marke
+„Bewertungen" statt „Das sagen unsere Kunden". Die beiden Links hießen
+beide „Bewertungen ansehen" und waren damit nicht unterscheidbar;
+jetzt „Bei Google lesen" und „Bei Trustindex lesen" mit eigenen
+Unterzeilen.
+
+**Es wurde nichts erfunden.** Der Abschnitt sagt jetzt, was er ist:
+ein Verweis auf zwei Profile, keine Sammlung von Zitaten.
+
+### Sprachumschaltung: ausgebaut
+
+Entscheidung des Betreibers nach dem Befund, dass es **auf keiner
+Seite einen Umschalter** gab und von 189 Einträgen nur 43 zum Text
+passten.
+
+Entfernt: `js/i18n.js` (gelöscht), die Einbindung in
+`src/broschuere.njk` und `_template.html`, **32 `data-i18n`-Attribute**
+in vier Dateien, und das Umschalter-Markup in `_template.html`.
+
+**Vorher geprüft, ob jemand die Attribute liest.** Eine Suche über
+alle `.js` und `.css` findet genau einen Treffer, und das ist ein
+Kommentar in `src/css/start.css`. Kein Selektor, keine Auswertung.
+Deshalb war das Entfernen gefahrlos.
+
+**Das CSS für den Umschalter blieb stehen** (23 Regeln in
+`src/css/style.css`). Ungenutzte Regeln kosten ein paar Byte, aber
+ihr Entfernen fasst eine Datei an, die alle 58 Seiten benutzen. Das
+Verhältnis stimmt nicht. Notiert.
+
+**Nachgesehen statt angenommen:** `index.html`, `broschuere.html`,
+`konfigurator.html` und `_template.html` im Browser geladen, keine
+Fehler in der Seite, kein 404 auf eine fehlende Datei. Der einzige
+404 ist `/api/bauteile` auf dem Konfigurator, und der kommt daher,
+dass ein einfacher Dateiserver keine Worker-Schnittstelle bedienen
+kann. Mit der Übersetzung hat er nichts zu tun.
