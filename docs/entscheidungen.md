@@ -15882,3 +15882,26 @@ E-Mail soll ihm das sagen, nicht ihn abschrecken.
 **Absicherung.** `scripts/pruefe-einzugsgebiet.mjs` auf **12/12**
 erweitert, Gegenprobe 5/5. Neu geprüft: Bad Honnef (Randlage) zeigt die
 Bestätigung, Ulmen (rund 85 km) zeigt nichts.
+
+## 14.11.2026 – Logos kommen am Schluss
+
+**Anlass.** Betreiber: „logos schicke ich wenn alles fertig is die sind
+auf dem pc."
+
+**Was das heißt.** Die vorhandenen PNG-Dateien bleiben bis dahin in
+Benutzung. **Nichts hängt daran** – kein Abschnitt, keine Prüfung und
+keine Gestaltungsentscheidung wartet auf die Vektoren. Sie sind eine
+Verbesserung am Schluss, kein offener Baustein.
+
+**Wenn sie kommen, gehört dazu:**
+1. Austausch gegen die PNG-Dateien (scharf in jeder Größe, kleinere
+   Dateien, besser für Netzhaut-Bildschirme).
+2. Damit erledigt sich die Frage aus `docs/WEBSITE_DESIGN_SYSTEM.md`, ob
+   `logo-hell.png` mit seinem abweichenden Orange (`#E69B26`, ΔE 15,9 zum
+   Markengold) überhaupt noch gebraucht wird.
+3. Herkunft und Nutzungsrechte in `docs/NEUBAU-LIZENZREGISTER.md`
+   eintragen – bei eigenen Logos die Frage, ob der Gestalter die Rechte
+   vollständig übertragen hat.
+
+**Nicht vergessen:** Die Logos werden nicht umgefärbt, auch nicht auf die
+neue Palette. Das steht seit dem 13.11. fest.
