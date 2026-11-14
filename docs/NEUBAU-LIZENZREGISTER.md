@@ -607,3 +607,26 @@ Nach Dringlichkeit. Keine davon lässt sich aus dem Repository beantworten.
 
 **Nichts geändert.** Diese Datei ist die einzige neue Datei; kein Commit,
 kein Push.
+
+## Nachtrag 14.11.2026 – Manrope eingebaut
+
+| Ressource | Rechteinhaber | Lizenz | Kommerziell | Bearbeitung | Namensnennung | Nachweis | offen |
+|---|---|---|---|---|---|---|---|
+| **Manrope** – geladen über Google Fonts (`fonts.googleapis.com`), eingebunden in `index.html` nach der Cookie-Einwilligung, benutzt in `src/css/start.css` | Mikhail Sharanda | **SIL Open Font License 1.1** | ja | ja | nicht im Webauftritt erforderlich (OFL verlangt die Namensnennung nur bei Weitergabe der Schriftdateien selbst) | Projektseite des Urhebers und Google-Fonts-Eintrag nennen die OFL 1.1 | **Nicht selbst nachgelesen** – der Lizenztext wurde in dieser Sitzung nicht abgerufen, die Angabe stützt sich auf die bekannte Lizenzierung der Schrift. Vor der Veröffentlichung gegenlesen |
+
+**Zweiter Punkt, der dazugehört:** Die Schrift kommt von einem Server
+von Google. Das ist eine Datenübermittlung an einen Dritten. Auf dieser
+Seite ist das bereits gelöst – `loadFonts()` in `index.html` lädt die
+Schriften **erst nach der Cookie-Einwilligung**, und der Cookie-Hinweis
+nennt Google Fonts ausdrücklich. Manrope wurde derselben Zeile
+hinzugefügt und folgt damit demselben Weg. **An der
+Datenschutzerklärung ändert sich dadurch nichts** – es kommt keine neue
+Art der Übermittlung dazu, nur eine weitere Schriftfamilie auf demselben
+bereits genannten Weg.
+
+**Eine ruhigere Lösung wäre, die Schrift selbst auszuliefern** (keine
+Verbindung zu Google, keine Einwilligung nötig, schnellerer Aufbau). Das
+ist hier **nicht** gemacht worden: Es hätte Schriftdateien ins
+Repository gebracht und die bestehende Einwilligungsmechanik verändert –
+beides außerhalb des Auftrags „nur die Startseite". **Als Vorschlag
+notiert, nicht umgesetzt.**

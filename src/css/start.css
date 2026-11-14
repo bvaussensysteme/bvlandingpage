@@ -1,0 +1,228 @@
+/* ===========================================================================
+   Startseite – Premium-Schicht (Stufe 5, 14.11.2026)
+
+   WARUM EINE EIGENE DATEI. Die Startseite bekommt das freigegebene
+   Designsystem aus docs/WEBSITE_DESIGN_SYSTEM.md (Manrope, Markengold
+   #C58A32, Tiefschwarz, Anthrazit, Warmweiß). `src/css/style.css` wird von
+   rund 55 weiteren Seiten benutzt – eine Änderung dort hätte alle
+   mitverändert. Der Auftrag sagt ausdrücklich: nur die Startseite.
+
+   WIE ES WIRKT. Alles hängt unter `.start-premium` am <body> von
+   index.html. Darunter werden die vorhandenen Gestaltungs-Token neu
+   belegt; die bestehenden Bauteile (.btn, .leistung-card, .galerie-item …)
+   übernehmen die neuen Werte, ohne dass ihr Code angefasst wird. Keine
+   andere Seite trägt diese Klasse.
+
+   KONTRASTE. Die Werte stehen in docs/WEBSITE_DESIGN_SYSTEM.md und sind
+   dort gemessen, nicht geschätzt. Drei Regeln daraus sind hier verbaut:
+     1. Gold #C58A32 ist auf hellem Grund KEINE Textfarbe (2,78:1).
+        Für Text auf Hell gilt --gold-text #896023 (5,21:1).
+     2. Auf einer Goldfläche steht Tiefschwarz, nie Weiß (6,61 statt 2,98).
+        .btn-gold benutzt var(--black) – das stimmt damit von selbst.
+     3. Keine Schriftschnitte unter 400.
+   =========================================================================== */
+
+.start-premium {
+  /* --- Palette, freigegeben am 13.11.2026 --- */
+  --gold:       #C58A32;   /* Markengold – Fläche, Linie, Akzent */
+  --gold-dark:  #A3701F;   /* nur Flächen (Hover), nie Text auf Hell */
+  --gold-text:  #896023;   /* Gold als TEXT auf hellem Grund, 5,21:1 */
+  --gold-light: #D9AB64;   /* helles Gold – Text auf Dunkel, 7,76:1 */
+  --champagner: #EAD9BB;   /* Fokusring auf dunklen Abschnitten, 11,80:1 */
+
+  --black:      #0B0B0C;   /* Tiefschwarz */
+  --dark:       #1D2023;   /* Anthrazit */
+  --dark2:      #34383C;   /* Graphit */
+  --white:      #FFFFFF;
+  --offwhite:   #F8F7F4;   /* Warmweiß */
+  --light-bg:   #E9E7E2;   /* Steingrau */
+  --muted:      #55595E;   /* auf Warmweiß 7,4:1 – bewusst dunkler als #666 */
+  --border:     #DED9D1;
+
+  --radius:     14px;
+
+  background: var(--offwhite);
+  color: var(--dark);
+}
+
+/* Manrope überall auf dieser Seite. Der Schnitt 400 ist das Minimum –
+   siehe Designsystem: dünnere Schnitte franst die Schrift in Gold und auf
+   Dunkel aus. Die Schrift wird erst NACH der Cookie-Einwilligung geladen
+   (loadFonts() in index.html); bis dahin greift die Systemschrift, und die
+   Seite bleibt vollständig lesbar. */
+.start-premium,
+.start-premium * {
+  font-family: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+.start-premium h1, .start-premium h2, .start-premium h3,
+.start-premium .hs-heading { font-weight: 800; letter-spacing: -0.02em; }
+.start-premium h2 { letter-spacing: -0.015em; }
+.start-premium p  { font-weight: 400; }
+
+/* Fokusring: zwei Ringe, umgeschaltet am Abschnitt – NICHT über
+   prefers-color-scheme. Helle und dunkle Bereiche liegen auf derselben
+   Seite; die Geräteeinstellung sagt nichts darüber, worauf der Ring gerade
+   liegt. Begründung in docs/WEBSITE_DESIGN_SYSTEM.md. */
+.start-premium :focus-visible {
+  outline: 3px solid var(--dark);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.start-premium .pr-dunkel :focus-visible,
+.start-premium .hero :focus-visible {
+  outline-color: var(--champagner);
+}
+
+/* Die feste Kopfzeile darf den Fokus nicht verdecken (WCAG 2.4.11). */
+.start-premium { scroll-padding-top: 96px; }
+
+/* ---------------------------------------------------------------------------
+   HERO – der architektonische Einstieg
+   Dunkel, ruhig, mit einer Goldlinie als einzigem Akzent. Das Bild bleibt
+   das vorhandene (keine neuen Bildrechte), liegt aber hinter einem
+   Verlauf, damit der Text sicher lesbar ist, statt sich auf das Motiv zu
+   verlassen – Text auf Bild ist die Stelle, die sich rechnerisch NICHT
+   prüfen lässt (siehe scripts/pruefe-darstellung.mjs, „nicht messbar").
+   --------------------------------------------------------------------------- */
+.start-premium .hero--neu .hs-slide-overlay {
+  background:
+    linear-gradient(180deg, rgba(11,11,12,0.82) 0%, rgba(11,11,12,0.58) 45%, rgba(11,11,12,0.88) 100%),
+    linear-gradient(90deg, rgba(11,11,12,0.75) 0%, rgba(11,11,12,0.25) 65%);
+}
+.start-premium .hero-eyebrow {
+  color: var(--gold-light);              /* auf Tiefschwarz 9,33:1 */
+  font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  font-size: 0.8rem;
+}
+/* KEINE zusaetzliche Goldlinie hier: Der Bestand setzt bereits einen
+   goldenen Strich VOR die Augenbraue. Eine zweite dahinter stand am
+   14.11.2026 frei im Raum rechts daneben - auf dem Bildschirmfoto sofort
+   zu sehen, im Quelltext nicht. */
+.start-premium .hs-heading {
+  font-size: clamp(2.1rem, 5.6vw, 4rem);
+  line-height: 1.06;
+  text-wrap: balance;
+}
+.start-premium .hero-slogan {
+  color: var(--gold-light) !important;   /* der Bestand setzt hier inline --gold */
+  font-weight: 600;
+}
+.start-premium .hs-desc {
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.6; max-width: 46ch; margin-inline: auto;
+  color: rgba(255,255,255,0.92);
+}
+.start-premium .hero-trust {
+  border-top: 1px solid rgba(234,217,187,0.28);
+  padding-top: 16px; margin-top: 26px;
+}
+.start-premium .hero-trust span { color: var(--champagner); font-weight: 500; }
+
+/* ---------------------------------------------------------------------------
+   VERTRAUENSBAND – das vorhandene Band, premium gefasst
+   Die fuenf Angaben bleiben, wie sie sind: Garantie, Lieferzeit, kostenlose
+   Beratung, Privat & Gewerbe, CE und Statik. Alle fuenf sind belegte
+   Unternehmensangaben und tragen bereits Uebersetzungsschluessel
+   (data-i18n) - deshalb wird hier nur die Gestaltung geaendert und nichts
+   umgebaut. Keine erfundenen Bewertungen, keine Verknappung.
+   Farben nach Designsystem: helles Gold auf Anthrazit 7,76:1,
+   Champagner auf Anthrazit 11,80:1.
+   --------------------------------------------------------------------------- */
+.start-premium .gold-strip {
+  background: var(--dark);
+  padding: clamp(22px, 3.5vw, 34px) 0;
+  border-top: 1px solid rgba(197,138,50,0.35);
+  border-bottom: 1px solid rgba(197,138,50,0.35);
+}
+.start-premium .gold-item strong {
+  color: var(--gold-light); font-weight: 700; letter-spacing: -0.01em;
+}
+.start-premium .gold-item span { color: var(--champagner); font-weight: 500; }
+.start-premium .gold-icon svg { stroke: var(--gold); }
+.start-premium .gold-icon { color: var(--gold); }
+
+/* ---------------------------------------------------------------------------
+   RUHE UND RHYTHMUS – großzügige Abstände, klarer Wechsel hell/dunkel
+   --------------------------------------------------------------------------- */
+.start-premium .section { padding: clamp(56px, 8vw, 104px) 0; }
+.start-premium .section--alt { background: var(--light-bg); }
+.start-premium .tag {
+  color: var(--gold-text);                  /* Gold als TEXT nur in diesem Ton */
+  font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  font-size: 0.78rem;
+}
+.start-premium .section h2 {
+  font-size: clamp(1.7rem, 3.6vw, 2.5rem); line-height: 1.15;
+  text-wrap: balance; margin-bottom: 14px;
+}
+
+/* Karten: ruhiger, weniger Schatten, Gold nur als feine Kante beim Zeigen */
+/* :not(.galerie-placeholder) ist keine Feinheit, sondern eine Korrektur:
+   Ohne sie uebermalte diese Regel die dunkle Platzhalter-Kachel der
+   Galerie weiss - ihr weisser Text stand dann auf Weiss, Kontrast 1:1.
+   Gefunden am 14.11.2026 von scripts/pruefe-darstellung.mjs. */
+.start-premium .leistung-card,
+.start-premium .galerie-item:not(.galerie-placeholder),
+.start-premium .produkt-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--white);
+  box-shadow: 0 1px 2px rgba(11,11,12,0.04);
+}
+@media (hover: hover) and (pointer: fine) {
+  .start-premium .leistung-card:hover {
+    border-color: var(--gold);
+    box-shadow: 0 10px 30px rgba(11,11,12,0.10);
+    transform: translateY(-3px);
+  }
+}
+.start-premium .leistung-body h3 { font-size: 1.22rem; font-weight: 700; }
+.start-premium .leistung-link { color: var(--gold-text); font-weight: 600; }
+
+/* Knöpfe: auf Gold steht Tiefschwarz (6,61:1), nie Weiß (2,98:1). */
+.start-premium .btn { border-radius: 999px; font-weight: 700; letter-spacing: 0.01em; }
+.start-premium .btn-gold { background: var(--gold); color: var(--black); }
+@media (hover: hover) and (pointer: fine) {
+  .start-premium .btn-gold:hover { background: var(--gold-dark); color: var(--black); }
+}
+
+/* Tippflächen: 44 x 44 px ist das Ziel aus CLAUDE.md, strenger als die
+   24 px der WCAG 2.5.8. */
+.start-premium .btn,
+.start-premium .nav-links a,
+.start-premium .leistung-link { min-height: 44px; }
+.start-premium .btn { padding-inline: clamp(18px, 3vw, 30px); }
+
+/* Bewegung nur, wo sie etwas sagt – und nie gegen den Wunsch des Geräts. */
+@media (prefers-reduced-motion: reduce) {
+  .start-premium *, .start-premium *::before, .start-premium *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   HANDY ZUERST. Kein waagerechtes Scrollen, lesbare Größen, Knöpfe, die
+   ohne Zielen zu treffen sind. Geprüft von scripts/pruefe-startseite.mjs.
+   -------------------------------------------------------------------------- */
+.start-premium { overflow-x: hidden; }
+@media (max-width: 560px) {
+  .start-premium .hs-slide-btns { gap: 10px; }
+  .start-premium .hs-slide-btns .btn { width: 100%; }
+  .start-premium .hero-contact-row { display: flex; gap: 10px; width: 100%; }
+  .start-premium .hero-contact-row .btn { flex: 1; }
+  .start-premium .hs-desc { font-size: 1rem; }
+  .start-premium .pr-fakt-text { font-size: 0.84rem; }
+}
+
+/* Platzhalter-Kachel der Galerie in der neuen Palette.
+   Champagner auf Anthrazit ergibt 11,80:1 - die bisherigen
+   rgba(255,255,255,0.5) waren schon vorher grenzwertig. */
+.start-premium .galerie-placeholder,
+.start-premium .galerie-placeholder--dark {
+  background: linear-gradient(135deg, var(--black) 0%, var(--dark) 100%);
+  border: 1px dashed rgba(197,138,50,0.45);
+}
+.start-premium .galerie-placeholder-inner strong { color: var(--offwhite); }
+.start-premium .galerie-placeholder-inner p { color: var(--champagner); }
+.start-premium .galerie-placeholder-inner span { color: var(--gold-light); }

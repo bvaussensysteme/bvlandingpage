@@ -15515,3 +15515,85 @@ funktionierenden Skripte benutzen `browser.newPage()` und danach
 `setViewportSize()`. Dieses Skript tut das auch – und läuft. Damit ist
 auch die Messung nachgeholt, die beim Hero-Text und bei den Produktkarten
 offen geblieben war: **kein waagerechtes Scrollen auf 390 px.**
+
+## 14.11.2026 – Stufe 5: Premium-Startseite, Variante C
+
+**Anlass.** Auftrag „Stufe 5". Die Vorbedingungen 1 und 2 des Auftrags
+(geschützte Staging-Umgebung, keine produktiven Schreibzugriffe) waren
+**nicht erfüllt** – nachgesehen, nicht angenommen:
+
+- Die Passwortschranke in `worker/index.js:69` gilt nur für `/werkstatt*`.
+- `wrangler.jsonc` hat eine einzige D1-Bindung (`bv-messung`, produktiv).
+- Ein abgeschicktes Formular löst **drei** echte Vorgänge aus
+  (`js/anfrage-wizard.js:1497–1540`): Eintrag über `/api/kontakt` in die
+  produktive Datenbank, E-Mail über Web3Forms, Formspree als Fallback.
+
+Dem Betreiber wurden drei Wege vorgelegt. **Er hat C gewählt:** trotzdem
+bauen, beide Risiken bewusst in Kauf nehmen. **Daraus folgt die
+Arbeitsregel für diese Aufgabe: CTAs werden nur bis VOR das Absenden
+geprüft, nie darüber hinaus.** Es wurde kein Formular abgeschickt.
+
+**Was gebaut wurde.** `src/css/start.css` (→ `css/start.css`), eine
+Premium-Schicht, die **ausschließlich** unter
+`<body class="start-premium">` wirkt – also nur auf `index.html`.
+
+**Warum eine eigene Datei und nicht `style.css`.** `src/css/style.css`
+wird von rund 55 Seiten benutzt. Eine Änderung dort hätte alle
+mitverändert; der Auftrag sagt „nur die Startseite". Die Schicht belegt
+unter ihrer Klasse die vorhandenen Token neu – die bestehenden Bauteile
+(`.btn`, `.leistung-card`, `.galerie-item` …) übernehmen die neue Palette,
+**ohne dass ihr Code angefasst wird**. Kein Bauteil wurde umgeschrieben,
+keine Bestandsfunktion verändert.
+
+**Drei Regeln aus `docs/WEBSITE_DESIGN_SYSTEM.md` sind verbaut:**
+1. Gold `#C58A32` ist auf Hell keine Textfarbe (2,78:1) – dort gilt
+   `--gold-text #896023` (5,21:1).
+2. Auf Goldflächen steht Tiefschwarz (6,61:1), nie Weiß (2,98:1).
+   `.btn-gold` benutzt `var(--black)`, das stimmt damit von selbst.
+3. Keine Schnitte unter 400.
+Dazu der Fokusring nach Abschnitt (`--champagner` auf Dunkel,
+Anthrazit auf Hell) und `scroll-padding-top` gegen die feste Kopfzeile.
+
+**Inhaltlich geändert, mit Begründung:**
+- Augenbraue „Aluminium-Spezialist" → „Aluminium-Außensysteme" (sagt das
+  Angebot, nicht einen Titel).
+- Überschrift „…das ganze Jahr." → „…maßgefertigt aus Aluminium."
+  Der Auftrag verlangt eine sofort verständliche Hauptüberschrift.
+- „Kostenlos konfigurieren" → **„Kostenlos anfragen"**, daneben neu
+  **„Produkte ansehen"** (→ `#leistungen`) als zweiter Einstieg für alle,
+  die sich erst umsehen wollen.
+  **Das ist eine Umkehr:** Am 13.11. hatte ich dem Agenten
+  widersprochen, der genau diese Umbenennung wollte (Befund 3 im Audit).
+  Damals ging es um Irreführung – die sehe ich weiterhin nicht. Jetzt
+  verlangt der Auftrag ausdrücklich einen *erkennbaren Anfrage-CTA*, und
+  dafür ist „anfragen" das klarere Wort. Der Grund hat sich geändert,
+  nicht meine Einschätzung von damals.
+- Das Vertrauensband wurde **nicht umgebaut**, nur neu gefasst: Seine
+  fünf Angaben sind belegte Unternehmensangaben mit
+  Übersetzungsschlüsseln. Keine erfundenen Bewertungen, keine Verknappung.
+
+**Manrope** ist in `docs/NEUBAU-LIZENZREGISTER.md` eingetragen (SIL OFL
+1.1, Lizenztext **nicht selbst nachgelesen** – vor der Veröffentlichung
+gegenlesen). Sie wird über dieselbe Zeile wie die bisherigen Schriften
+geladen, also **erst nach der Cookie-Einwilligung**. An der
+Datenschutzerklärung ändert sich nichts: keine neue Art der
+Übermittlung, nur eine weitere Familie auf dem bereits genannten Weg.
+
+**Zwei eigene Fehler, von den Prüfungen gefunden:**
+1. `.start-premium .galerie-item` übermalte die **dunkle
+   Platzhalter-Kachel** der Galerie weiß – ihr weißer Text stand dann auf
+   Weiß, **Kontrast 1:1**. Gefunden von `pruefe-darstellung.mjs`, behoben
+   mit `:not(.galerie-placeholder)` und einer eigenen Fassung der Kachel.
+2. Eine zweite Goldlinie hinter der Augenbraue stand frei im Raum rechts
+   daneben. **Auf dem Bildschirmfoto sofort zu sehen, im Quelltext
+   nicht** – der Bestand setzt bereits einen Strich davor. Entfernt.
+
+**Absicherung.** Neu: `scripts/pruefe-startseite.mjs` – **39/39** auf
+390, 768 und 1280 px, Gegenprobe **3/3**. Sie prüft unter anderem die
+Designregel, die am leichtesten unbemerkt bricht: **steht irgendwo Gold
+als Text auf hellem Grund?** Dazu `pruefe-galerie.mjs` 11/11,
+`pruefe-produktwahl.mjs` 132/132, alle schnellen Skripte grün.
+
+**Später prüfen, nicht bearbeitet (Nebenbefund):** `js/accessibility.js`
+setzt `#C49A2A` fest im Quelltext – das alte Gold, unabhängig von jeder
+Palette. Betrifft alle Seiten, deshalb hier nicht angefasst.

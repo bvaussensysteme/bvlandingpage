@@ -430,7 +430,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var l = document.createElement('link');
     l.id = 'gfonts-loaded';
     l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap';
+    l.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap';
     document.head.appendChild(l);
   }
   function externalOK(raw){
@@ -451,8 +451,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
   <!-- ===== STYLESHEET ===== -->
   <link rel="stylesheet" href="css/style.css?v=20261113a" />
+  <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
+       Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
+       behalten ihr Aussehen. Quelle: src/css/start.css -->
+  <link rel="stylesheet" href="css/start.css?v=20261114a" />
 </head>
-<body>
+<body class="start-premium">
 
 <!-- ===== TOPBAR ===== -->
 <div class="topbar" role="complementary" aria-label="Kontaktinformationen">
@@ -511,8 +515,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="hs-slide-overlay" aria-hidden="true"></div>
     <div class="container hs-content hs-content--centered">
       <div class="hs-text hs-text--center">
-        <p class="hero-eyebrow">Aluminium-Spezialist im Westerwald</p>
-        <h1 class="hs-heading">Ihr Traumplatz draußen –<br>das ganze Jahr.</h1>
+        <p class="hero-eyebrow">Aluminium-Außensysteme im Westerwald</p>
+        <h1 class="hs-heading">Ihr Traumplatz draußen –<br>maßgefertigt aus Aluminium.</h1>
         <p class="hero-slogan" style="color:var(--gold);font-size:1rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Überdacht. Durchdacht. Zuverlässig.</p>
         <!-- GEAENDERT 13.11.2026. Vorher stand hier "Maßgefertigte
              Aluminium-Überdachungen vom Fachbetrieb aus Ihrer Region" -
@@ -525,7 +529,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
              wiederholt. -->
         <p class="hs-desc">Terrassenüberdachung, Carport, Pergola, Kaltwintergarten und Sonnenschutz – maßgefertigt aus Aluminium, für Privat und Gewerbe. Die Planung kostet nichts, montiert wird fachgerecht, und es gibt 10 Jahre Herstellergarantie.</p>
         <div class="hs-slide-btns">
-          <a href="#kontakt" class="btn btn-gold">Kostenlos konfigurieren</a>
+          <!-- GEAENDERT 14.11.2026 (Stufe 5). Vorher "Kostenlos
+               konfigurieren". Der Auftrag verlangt einen gut erkennbaren
+               primaeren ANFRAGE-Knopf; "anfragen" sagt, was passiert.
+               Daneben ein zweiter Einstieg fuer alle, die sich erst
+               umsehen wollen - er fuehrt zu den Produkten auf derselben
+               Seite, nicht aus ihr heraus. -->
+          <a href="#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
+          <a href="#leistungen" class="btn btn-outline-white">Produkte ansehen</a>
           <!-- Zugang zum Katalog gleich im Hero: Wer auf der Seite landet,
                soll ohne Scrollen hineinblättern können. -->
           <a href="/broschuere.html" class="btn btn-outline-white hero-katalog-btn">
