@@ -1742,12 +1742,24 @@
      sagt "Bei groesseren Auftraegen kommen wir auch weiter" - eine Absage
      im Formular wuerde genau die Anfragen kosten, die sich lohnen. Der
      Hinweis steht nur in der Anfrage-E-Mail an den Betrieb. */
+  /* Obergrenze laut Betreiber (14.11.2026): "65km aller maximal".
+     Eine Leitregion ist ein Gebiet, keine Linie - sie laesst sich mit
+     65 km nicht genau zur Deckung bringen. Deshalb gilt hier: Im Zweifel
+     NICHT aufnehmen. Ein falsches "liegt im Gebiet" waere ein falsches
+     Signal in der eigenen Anfrage-E-Mail; ein fehlendes kostet nichts,
+     weil der Besucher ohnehin nichts davon sieht.
+     Herausgenommen am 14.11.2026, weil die Leitregion ueber 65 km
+     hinausreicht: 567 (Mayen reicht bis in die Vulkaneifel, Ulmen liegt
+     rund 85 km entfernt) und 652 (Taunus, Hofheim und Umgebung bei rund
+     70 km).
+     ENTFERNUNGEN SIND GESCHAETZT, NICHT GEMESSEN - aus der Lage der Orte,
+     nicht aus Koordinaten. Warum keine Koordinaten: siehe oben. */
   var EINZUGSGEBIET = [
-    '560', '561', '562', '563', '564', '565',  // Koblenz, Lahnstein, Bad Ems, Montabaur, Westerwald
-    '566', '567',                              // Andernach, Mayen (Randlage)
-    '575', '576',                              // Wissen, Altenkirchen, Hachenburg, Betzdorf
-    '535', '536',                              // Linz, Remagen, Asbach, Bad Honnef (Randlage)
-    '655', '652'                               // Limburg, Diez, Bad Camberg, Idstein (Randlage)
+    '560', '561', '562', '563', '564', '565',  // Koblenz, Lahnstein, Bad Ems, Montabaur, Wirges, Dernbach, Neuwied, Westerburg
+    '566',                                     // Andernach, Weissenthurm (rund 40 km)
+    '575', '576',                              // Betzdorf, Wissen, Hachenburg, Altenkirchen, Bad Marienberg
+    '535', '536',                              // Linz, Unkel, Asbach, Bad Honnef (rund 35 bis 55 km)
+    '655'                                      // Limburg, Diez, Bad Camberg, Idstein (rund 25 bis 50 km)
   ];
 
   function gebietspruefung(plz) {

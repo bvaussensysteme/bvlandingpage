@@ -15827,3 +15827,26 @@ Westerwaldkreises?" als Verstoß. Jetzt auf das Bedienfeld eingegrenzt.
    nachgeprüft**, und die eigene Adresse weiß der Betreiber besser. Beide
    liegen in derselben Leitregion 564, die Prüfung ändert sich dadurch
    nicht. Nur für die Doku wäre es gut zu wissen.
+
+## 14.11.2026 – Einzugsgebiet auf 65 km begrenzt
+
+**Anlass.** Betreiber auf die Frage nach den Randlagen: „65km aller
+maximal". Die ursprüngliche Ansage lautete 60 km; es gilt jetzt 65 km.
+
+**Herausgenommen**, weil die Leitregion deutlich über 65 km hinausreicht:
+- **567** (Mayen): Die Region zieht sich in die Vulkaneifel, Ulmen liegt
+  rund 85 km entfernt.
+- **652** (Taunus): Hofheim und Umgebung liegen bei rund 70 km.
+
+**Geblieben:** 560 bis 566, 575, 576, 535, 536, 655.
+
+**Regel dahinter, im Code als Kommentar festgehalten:** Eine Leitregion
+ist ein Gebiet, keine Linie, und lässt sich mit einer Kilometerzahl nicht
+zur Deckung bringen. **Im Zweifel wird nicht aufgenommen.** Ein falsches
+„liegt im Gebiet" wäre ein falsches Signal in der eigenen
+Anfrage-E-Mail. Ein fehlender Treffer kostet nichts, weil der Besucher
+ohnehin nichts davon sieht.
+
+**Ehrlich dazugesagt:** Die Entfernungen sind aus der Lage der Orte
+geschätzt, **nicht gemessen**. Koordinaten gibt es nicht, und warum,
+steht im Eintrag darüber.
