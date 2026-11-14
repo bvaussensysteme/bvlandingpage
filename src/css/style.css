@@ -1241,7 +1241,6 @@ footer h4 {
 /* Gold auf Weiss ergibt bei den Sternen 2,62:1 - gemessen. --gold-text
    ist derselbe Markenton, nur in der Stufe, die fuer Text auf hellem
    Grund vorgesehen ist (5,9:1). */
-.trust-badge-stars { color: var(--gold-text); font-size: 1rem; flex-shrink: 0; }
 .trust-badge-text strong { display: block; font-size: 1.1rem; font-family: 'Barlow Condensed', sans-serif; color: var(--black); }
 .trust-badge-text span  { font-size: 0.78rem; color: var(--muted); }
 

@@ -16172,3 +16172,69 @@ sichtbarer FAQ-Text und Schema-Text sind wortgleich,
 `terrassenueberdachung.njk`). Dieselbe Ueberzusage, nur an anderer
 Stelle. Nicht geaendert, weil Produktseiten nicht beauftragt waren.
 Dem Betreiber gemeldet.
+
+## 14.11.2026 – Erfundene Bestnote entfernt, Bewertungsknoepfe bleiben
+
+**Anlass.** Ansage des Betreibers: „fuenf sterne? den google bewertungs
+button lassen."
+
+**Was falsch war.** Im Bewertungsabschnitt standen zwei Abzeichen mit
+fest eingebauten fuenf Sternen. Beim Google-Abzeichen zusaetzlich in
+`<strong id="google-rating">`. Diese id wurde von keinem Skript
+befuellt, nachgeprueft per grep ueber `js/`. Es war also eine
+behauptete Bestnote ohne Quelle, direkt neben dem Google-Logo. Das
+faellt unter „keine erfundenen Vertrauenssignale" und ist gegenueber
+einem Mitbewerber angreifbar.
+
+**Was jetzt gilt.** Beide Sternreihen sind weg, beide Links bleiben.
+Aus der behaupteten Note wurde „Bewertungen ansehen". Beim
+Trustindex-Abzeichen bleiben „Verifiziert" und „Alle Bewertungen
+geprueft" stehen, nur die Sterne sind weg. Die tote CSS-Regel
+`.trust-badge-stars` ist mit entfernt.
+
+**Warum nicht einfach die echte Note nachladen.** Das waere eine
+Verbindung zu Google beim Seitenaufruf und damit eine Frage der
+Einwilligung. Erst klaeren, dann einbauen.
+
+**Stehen geblieben, bewusst.** Der Knopf „Bewertung auf Google
+hinterlassen" hat weiterhin fuenf Sterne als Beschriftung
+(`index.html`, `.google-review-btn__stars`). Das ist keine Behauptung
+ueber eine vorhandene Note, sondern eine Aufforderung. Der Betreiber
+wollte den Knopf behalten. **Hinweis an ihn weitergegeben:** fuenf
+gefuellte Sterne auf einem „jetzt bewerten"-Knopf koennen als
+Steuerung zu einer Bestnote gelesen werden. Google untersagt das
+gezielte Einwerben nur positiver Bewertungen. Entscheidung liegt beim
+Betreiber.
+
+## 14.11.2026 – Telefonnummer war bereits Pflicht
+
+**Anlass.** Ansage des Betreibers: „telefon pflicjt ja."
+
+**Befund.** Nichts zu tun. Das Feld heisst im Anfrageassistenten schon
+`Telefon / WhatsApp *` und wird geprueft
+(`js/anfrage-wizard.js`, Schritt Kontakt): leer wird abgewiesen, und
+unter sechs Ziffern ebenfalls. Ein zweites Formular mit Telefonfeld
+gibt es nur in `entwurf-produkt.html`, einer Entwurfsseite, die nicht
+verlinkt ist.
+
+**Offen geblieben als Hypothese, nicht als Tatsache.** Eine
+Telefonpflicht senkt erfahrungsgemaess die Zahl abgeschickter
+Formulare und hebt die Qualitaet der verbleibenden. Belegen laesst
+sich das hier nicht: dafuer reichen die eigenen Zahlen nicht. Der
+Betreiber hat entschieden, es bleibt so.
+
+## 14.11.2026 – Statik-Wortlaut auch auf den Produktseiten
+
+Fortsetzung des Eintrags von heute zur Startseite. 15 Stellen in sechs
+Vorlagen unter `src/produkte/` sagten „Statiknachweis inklusive" oder
+„mit Statiknachweis geliefert". Jetzt ueberall „vereinfachter
+Statiknachweis". Geaendert wurden die `.njk`-Vorlagen, nicht die
+erzeugten Seiten. Ueberschriften wie „Statik-Sicherheit fuer dieses
+Modell pruefen" sind keine Zusage und blieben unveraendert.
+
+## 14.11.2026 – Carport-Fotos: Einverstaendnis liegt vor
+
+Der Betreiber hat bestaetigt, dass der Hauseigentuemer die
+Veroeffentlichung der beiden Carport-Fotos in der Galerie erlaubt.
+Damit ist dieser Freigabe-Blocker erledigt. Offen bleibt nur die
+Bildunterschrift: Ort und Dachmaterial sind weiterhin nicht bekannt.
