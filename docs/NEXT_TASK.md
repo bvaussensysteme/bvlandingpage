@@ -209,3 +209,22 @@ Aussage über diese Seite geraten.
   `g.page/r/.../review`, also auf die Abgabe einer Bewertung. Entweder
   Beschriftung oder Ziel angleichen.
 - **Drei schwebende Knoepfe** ueberlagern Inhalt, auf allen 56 Seiten.
+
+## Ton: Befunde ohne Auftrag (Prüfschritt 5, 14.11.2026)
+
+Vom Prüfer gefunden, **älter als die Gedankenstrich-Arbeit**, deshalb
+nicht angefasst. Erst auf Ansage:
+
+- **Werbesprache in langen Produkttexten.** „eine der vielseitigsten
+  Lösungen", „hochwertigen Aluminium-Lamellen", „fügt sich harmonisch
+  in jede Architektur ein" (`src/produkte/velaris.njk`), „Billige
+  Systeme müssen oft schon nach wenigen Jahren ersetzt werden"
+  (`src/ratgeber/terrassenueberdachung-kosten.njk`).
+- **„Modelle" oder „Lösungen"?** Der Wechsel wirkt zufällig. Auf
+  einigen Seiten steht „Unsere Modelle" doppelt, als Marke und als
+  Überschrift.
+- **Glas: „opal" gegen „satiniert".** Im Konfigurator heißt dieselbe
+  Glasart je nach Stelle anders. Zu klären, welches Wort der
+  Hersteller benutzt, dann durchgängig verwenden.
+- **Dreierformeln** in Überschriften („Wertsteigernd, pflegeleicht,
+  modern") in `fassade.njk`, `gartenhaus.njk`, `sichtschutz.njk`.

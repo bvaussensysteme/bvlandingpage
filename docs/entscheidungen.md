@@ -16633,3 +16633,68 @@ Seite laufen. **Die Regel schützt den Text, nicht die Datei.** Würden
 die Rechtsseiten vom Cache-Buster ausgenommen, bekämen ausgerechnet
 sie veralteten Code aus dem Browserspeicher. Das wäre schlechter, nicht
 besser.
+
+## 14.11.2026 – Prüfschritt 5 (Ton): vier Stellen, die ich heute selbst verdorben hatte
+
+**Urteil des Prüfers:** Startseite, Ortsseiten und Ratgeber klingen
+weiter nach Betrieb vor Ort, die Umformulierung hat den Ton nicht
+verdorben. Vier Stellen waren trotzdem schlechter als vorher, alle
+vier durch meine Ersetzungen von heute. Behoben:
+
+1. **Fünf Überschriften nach demselben Muster** auf
+   `src/produkte/velaris.njk`: „Velaris: Einsteuerbare Lamellen",
+   „Velaris: unsere Lösungen", „Velaris Kombinationen: für jede
+   Terrassensituation die passende Stellung", „Velaris
+   Lamellen-Sichtschutz: Funktion trifft Design", „Velaris im
+   Westerwald: was unsere Kunden besonders schätzen". Der Doppelpunkt
+   ist das bequemste Ersatzzeichen, und genau deshalb wird er zur
+   Masche. Drei davon heißen jetzt „Fünf Stellungen für jede
+   Terrassensituation", „Velaris als Sichtschutz und Raumtrennung"
+   und „Was Kunden im Westerwald an Velaris schätzen". Die Zahl fünf
+   ist gegen den Fließtext geprüft, dort steht „fünf Grundstellungen".
+
+2. **Ein Satzfragment**, ebenfalls Velaris: „Einstellbare Lamellen
+   steuern Licht, Sichtschutz und Belüftung auf einmal. **Als
+   Seitenelement, als eigenständige Konstruktion oder als Erweiterung
+   Ihrer Terrasse.**" Der zweite Teil hing vorher am Gedankenstrich
+   und stand danach als Satz ohne Verb da. Jetzt ein ganzer Satz.
+   Mitgegangen ist dabei „Es ist Architektur für draußen", das durch
+   meine Trennung vom Nebensatz zum eigenen Werbesatz aufgestiegen
+   war.
+
+3. **Zwei Doppelpunkte in einem Satz** (`konfigurator.html`,
+   Hilfetext zur Dachneigung): „Zwei Wege zum selben Dach: genau die
+   beiden, die auch das Bestellformular des Herstellers anbietet: Ohne
+   Häkchen…" Der erste kündigt an, der zweite auch. Jetzt Komma und
+   Punkt.
+
+4. **Vier Kommas und zwei Klammern** im Einstiegssatz der
+   Carport-Ortsseiten. Aufgeteilt in zwei Sätze, auf allen vier
+   Seiten, jeweils mit dem Wortlaut, der dort stand.
+
+**Nicht geändert, weil älter als dieser Auftrag.** Der Prüfer hat das
+sauber getrennt und selbst dazugeschrieben, dass es nicht von heute
+stammt:
+- Werbesprache in den langen Produkttexten („eine der vielseitigsten
+  Lösungen", „fügt sich harmonisch in jede Architektur ein",
+  „Billige Systeme müssen oft schon nach wenigen Jahren ersetzt
+  werden").
+- Der Wechsel zwischen „unsere Modelle" und „unsere Lösungen" wirkt
+  zufällig, und „Unsere Modelle" steht auf manchen Seiten doppelt,
+  einmal als Marke darüber und einmal in der Überschrift.
+- Im Konfigurator heißt dieselbe Glasart einmal „opal" und einmal
+  „satiniert". Der Kunde sucht das eine und findet das andere.
+- Dreierformeln in Überschriften („Wertsteigernd, pflegeleicht,
+  modern").
+
+Alles vier steht in `docs/NEXT_TASK.md`. **Vorschlagen ja, ungefragt
+umsetzen nein**, erst recht nicht an Texten, die der Betreiber nie
+beanstandet hat.
+
+**Eigener Fehler im Ablauf.** Diese Korrekturen wurden gemacht,
+während Prüfschritt 3 noch lief. Damit beschreibt dessen Bericht für
+`velaris`, `konfigurator.html` und die Carport-Ortsseiten den Stand
+davor. Die Darstellungsprüfung wurde deshalb hinterher eigens
+wiederholt. Die Regel „während Prüfer laufen, wird nicht am Code
+gearbeitet" steht in `docs/PRUEFER_REIHENFOLGE.md` aus genau diesem
+Grund und wurde hier gebrochen.
