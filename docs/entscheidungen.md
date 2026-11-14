@@ -16599,3 +16599,37 @@ Hauptsätze („Die Befestigung hängt davon ab, im Modell sehen Sie…")
 auf Punkt gesetzt, dazu zwei Gedankenstriche am Zeilenende, die mein
 Muster nicht gefunden hatte, weil es ein Zeichen vor **und** nach dem
 Strich verlangte.
+
+## 14.11.2026 – Prüfschritt 1, zweiter Durchlauf: kein blockierender Befund
+
+Der Prüfer hat gegengebaut statt zu glauben: Eleventy in einen
+Scratchpad-Ordner laufen lassen und alle 34 erzeugten Seiten **Byte
+für Byte** mit den eingecheckten verglichen. Kein Unterschied. Damit
+ist belegt, dass niemand in eine erzeugte Datei geschrieben hat, und
+zwar belegt und nicht behauptet. Dasselbe für `css/style.css` gegen
+`cleancss` aus der Quelle.
+
+**Die umbenannten Auswahlwerte sind vollständig.** Die alte
+Schreibweise kommt im Code nirgends mehr vor, nur noch im Logbuch als
+Protokoll. Der einzige Vergleich im Code steht in
+`js/anfrage-wizard.js:232` und passt.
+
+**Ein Restrisiko hat der Prüfer aufgeworfen, und es ist ausgeräumt.**
+Seine Frage: Was passiert mit einem Besucher, der einen alten Wert im
+Browserspeicher hat? Nachgesehen: `carporttyp` wird **nirgends**
+gespeichert. Der Anfrageassistent schreibt nur drei Übergabewerte in
+den `sessionStorage` (`bv-plz`, `bv-ort`, `bv-produktwahl`) und löscht
+sie sofort nach dem Lesen. Die Antworten selbst leben nur im
+Arbeitsspeicher und sterben mit dem Tab. Der einzige
+`sessionStorage.setItem` im 3D-Teil speichert eine `'1'`, keinen Wert.
+Es gibt also keinen alten Zustand, der den Zweig verfehlen könnte.
+
+**Eine Klarstellung zur Rechtstext-Regel.** Der Prüfer merkte an, die
+**erzeugten** `agb.html`, `datenschutz.html`, `impressum.html` und
+`widerruf.html` hätten sich geändert. Das stimmt, und es ist richtig
+so: Die Änderung besteht ausschließlich aus den Versionsnummern von
+`style.css` und `anfrage-wizard.js`, die über `layout.njk` auf jede
+Seite laufen. **Die Regel schützt den Text, nicht die Datei.** Würden
+die Rechtsseiten vom Cache-Buster ausgenommen, bekämen ausgerechnet
+sie veralteten Code aus dem Browserspeicher. Das wäre schlechter, nicht
+besser.
