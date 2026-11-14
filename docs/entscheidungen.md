@@ -17041,3 +17041,39 @@ Die Öffnungszeiten dort pflegt nur der Inhaber, und ein Assistent
 greift nicht in produktive Außenauftritte ein. Solange beides
 auseinanderläuft, zeigt Google die alten Zeiten, und das ist die
 Quelle, der die meisten Besucher zuerst begegnen.
+
+## 14.11.2026 – „So nach Vereinbarung" bricht nicht mehr mitten entzwei
+
+**Anlass.** Bildschirmfoto des Betreibers: Am Handy stand „So nach"
+am Zeilenende und „Absprache" allein darunter. Ansage: „mach kein
+umbruch dann pack das So nach vereinbarung zusammen in die mitte."
+Dabei auch das Wort gewechselt, von „Absprache" auf „Vereinbarung".
+
+**Zwei Stellen, zwei verschiedene Lösungen, und das mit Absicht:**
+
+1. **Kontaktkarte** (`.kontakt-card-meta`): bleibt einzeilig mit
+   Trennpunkten. **Gemessen: 326 px bei 1280 px Fensterbreite, eine
+   Zeile.** Die Karte ist am Handy ohnehin ausgeblendet.
+2. **Zeile unter den Kontaktknöpfen** (`.kontakt-quick-meta`): fester
+   Umbruch vor dem Sonntag, **ohne** Trennpunkt. Dieser Block ist
+   ausschließlich am Handy sichtbar, deshalb ist ein fester Umbruch
+   hier unbedenklich und nicht etwa Pfusch.
+
+**Zwei Zwischenstände, die verworfen wurden**, damit es niemand
+nochmal probiert:
+- Nur `white-space: nowrap` auf die Zeitangaben: Der Sonntag rutschte
+  zwar als Ganzes in die nächste Zeile, aber der Trennpunkt blieb am
+  Ende der Zeile davor allein stehen.
+- Trennpunkt an den Anfang der jeweils folgenden Angabe: Dann begann
+  die zweite Zeile mit „· So nach Vereinbarung", was genauso schief
+  aussieht, nur andersherum.
+
+Erst beides zusammen, fester Umbruch **und** kein Trennpunkt, ergibt
+eine saubere zweite Zeile.
+
+**`white-space: nowrap` bleibt trotzdem** auf allen Zeitangaben: Eine
+Zeitspanne ist eine Einheit, und „Mo–Fr 9–17" darf auch am schmalsten
+Gerät nicht in der Mitte zerreißen.
+
+**Geprüft:** bei 320, 390 und 430 px kein Umbruch innerhalb einer
+Angabe, Bildschirmfoto angesehen, `pruefe-startseite.mjs` 39/39.

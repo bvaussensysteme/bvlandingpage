@@ -960,6 +960,12 @@ body.bv-menu-open #bv-scroll-top {
 .kontakt-card a:hover { color: var(--gold); }
 .kontakt-card p { color: var(--muted); font-size: 0.87rem; margin: 0; }
 .kontakt-card-meta { font-size: 0.8rem !important; margin-top: 3px !important; }
+/* Eine Zeitspanne ist eine Einheit und darf nicht in der Mitte
+   umbrechen. Am 14.11.2026 stand am Handy "So nach" am Zeilenende und
+   "Vereinbarung" allein darunter. Mit nowrap rutscht die ganze Angabe
+   gemeinsam in die naechste Zeile und steht dort mittig. Gilt fuer
+   beide Stellen, Kontaktkarte und Zeile unter den Kontaktknoepfen. */
+.zeitspanne { white-space: nowrap; }
 .kontakt-card-note { font-size: 0.75rem !important; margin-top: 6px !important; line-height: 1.4; }
 .kontakt-whatsapp-btn {
   display: inline-flex; align-items: center; gap: 7px;
