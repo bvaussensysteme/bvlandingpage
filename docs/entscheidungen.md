@@ -16062,3 +16062,43 @@ belegte Angabe, kann die Zeile wieder hinein.
 
 **Die übrigen drei Stufen bleiben unverändert:** 10 Jahre Aluminium,
 5 Jahre Markisen, 2 Jahre Elektro.
+
+## 14.11.2026 – „vereinfachte Statik inkl." im Vertrauensband
+
+**Anlass.** Betreiber: „bei CE & Statik anders schreiben: vereinfachte
+Statik inkl."
+
+**Was jetzt gilt.** Im Vertrauensband der Startseite steht unter
+„CE & Statik" nicht mehr „Wind- & Schneelasten-Nachweis", sondern
+**„vereinfachte Statik inkl."**
+
+**Warum das mehr ist als eine Formulierung.** Eine vereinfachte Statik
+(typengeprüft, nach Lastklassen) ist **nicht** dasselbe wie ein
+Standsicherheitsnachweis, den ein Statiker für genau dieses Bauvorhaben
+erstellt. Manche Bauaufsicht verlangt den zweiten. Die Seite wirbt
+zugleich mit „Hilfe bei der Baugenehmigung", also trifft die
+Unterscheidung genau den Punkt, an dem der Kunde sie braucht.
+
+**Vier weitere Stellen auf der Startseite sagen weiterhin mehr**, und
+sie wurden bewusst **nicht** mitgeändert, weil der Betreiber nur die
+eine Stelle genannt hat und nur er weiß, was der Hersteller liefert:
+
+| Zeile | Aussage |
+|---|---|
+| 961 | „CE-Kennzeichnung & **Statiknachweis** inklusive" |
+| 963 | „Statikberechnungen **mit Nachweis** für Wind- und Schneelasten (Lastenklassen) werden direkt vom Hersteller bereitgestellt" |
+| 1302 | „inkl. aller **erforderlichen** Statik- und CE-Nachweise" (FAQ Gewerbe) |
+| 1314 | „Statikberechnungen **mit Nachweisen** … Das ist besonders wichtig für die Baugenehmigung" (FAQ, steht doppelt: sichtbar und in Schema.org) |
+
+**Dem Betreiber vorgelegt, Antwort offen.** Wenn tatsächlich nur eine
+vereinfachte Statik mitkommt, versprechen diese vier Stellen mehr als
+geliefert wird, und Zeile 1314 verknüpft das ausdrücklich mit der
+Baugenehmigung. Das ist dieselbe Richtung wie bei der Garantie am selben
+Tag: zu viel versprochen ist das Risiko, nicht zu wenig.
+
+**Keine Rechtsberatung.** Ob eine vereinfachte Statik im Einzelfall
+reicht, entscheidet die Bauaufsicht, nicht dieser Chat.
+
+**Nebenbefund:** Der Übersetzungsschlüssel `usp_ce_sub` hat in
+`js/i18n.js` keinen Eintrag. Das Attribut ist wirkungslos, die deutsche
+Fassung steht direkt im HTML. Nicht angefasst.
