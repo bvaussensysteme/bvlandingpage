@@ -16556,3 +16556,46 @@ und `<meta>`-Beschreibungen.
 mit Gedankenstrichen (etwa „Übersichtsangabe ohne Einzelprüfung –
 bitte beim Bauamt…"). Ebenso `konfigurator.html` mit 63 Stellen und
 `broschuere.html`.
+
+## 14.11.2026 – Gedankenstriche, Abschnitt 3: der Konfigurator
+
+**Warum einzeln und von Hand.** `konfigurator.html` enthält 69
+Gedankenstriche, aber nur ein Teil davon ist Text, den jemand liest.
+Die übrigen stecken in CSS (44 in `<style>`), in HTML-Kommentaren,
+in `id`- und `value`-Attributen und in JavaScript. Ein stures Ersetzen
+hätte Auswahlwerte verändert und damit die Logik gebrochen.
+
+**Getrennt behandelt:**
+- **Sichtbarer Text, 59 Stellen.** Auswahlfelder bekamen einen
+  Doppelpunkt („Carport TDS: Profildach", „klar: freie Sicht"), weil
+  sich das in einer Liste besser liest als ein Punkt. Erklärsätze
+  bekamen Komma oder Punkt.
+- **CSS, Kommentare, `id`, `class`, `value`, `href`: unberührt.**
+- **Platzhalter** in leeren Anzeigefeldern (`<output>–</output>`)
+  bleiben.
+
+**Zwei Auswahlwerte wurden umbenannt, und zwar überall zugleich.**
+„Noch unsicher – bitte beraten" und „Weiß nicht – Beratung" sind
+keine reinen Beschriftungen: Sie werden gespeichert, stehen in der
+Zusammenfassung, die der Besucher sieht, und in der E-Mail. **Und sie
+werden im Code verglichen**, etwa in `js/anfrage-wizard.js`:
+`if (answers.carporttyp === 'Noch unsicher – bitte beraten')`. Hätte
+ich sie nur in `konfigurator.html` geändert, wäre dieser Zweig still
+nie wieder gelaufen, ohne Fehlermeldung.
+
+Deshalb in einem Zug in allen drei Dateien geändert:
+`js/anfrage-wizard.js` (8 Stellen), `konfigurator.html` (2),
+`werkstatt/index.html` (2). Neuer Wortlaut einheitlich „Noch unsicher,
+bitte beraten" und „Weiß nicht, bitte beraten". Gegengeprüft, dass die
+alte Schreibweise nirgends mehr vorkommt.
+
+**Geprüft nach der Umbenennung:** produktwahl 132/132, assistent
+18/18, feldwahl 44/44, schrittwechsel 7/7, konfigurator bestanden.
+Cache-Buster von `anfrage-wizard.js` hochgezählt, weil die Datei sich
+geändert hat.
+
+**Beim Gegenlesen berichtigt:** 15 Komma-Verbindungen zweier
+Hauptsätze („Die Befestigung hängt davon ab, im Modell sehen Sie…")
+auf Punkt gesetzt, dazu zwei Gedankenstriche am Zeilenende, die mein
+Muster nicht gefunden hatte, weil es ein Zeichen vor **und** nach dem
+Strich verlangte.

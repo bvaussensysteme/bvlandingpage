@@ -228,8 +228,8 @@
     // Carport: eigener Ablauf (Typ → Ausführung). Glas/Poly-Eindeckung nur beim
     // Carport TDS – Flat Line & Flat Box haben ein Trapezblech-Flachdach.
     if (p === 'Carport') {
-      // Bei „Noch unsicher – bitte beraten" die Ausführungs-Auswahl überspringen
-      if (answers.carporttyp === 'Noch unsicher – bitte beraten')
+      // Bei „Noch unsicher, bitte beraten" die Ausführungs-Auswahl überspringen
+      if (answers.carporttyp === 'Noch unsicher, bitte beraten')
         return ['produkt', 'carporttyp', 'masse', 'led', 'farbe', 'untergrund', 'montage', 'kontakt', 'summary'];
       var cpWand = answers.carportvariante === 'Carport mit Wandmontage'; // Fassade nur bei Wandmontage
       var cpTds = answers.carporttyp === 'Carport TDS';
@@ -482,7 +482,7 @@
         return optionCards('balkonbruestung', [
           { value: 'Gemauerte Brüstung', icon: I.sonst, hint: 'Kann die Pfosten tragen' },
           { value: 'Geländer', icon: I.sonst, hint: 'Metall oder Glas – Pfosten stehen dahinter' },
-          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal');
       },
       valid: function () {
@@ -498,7 +498,7 @@
           { value: 'Carport TDS', img: 'cp_tds', photo: true, hint: 'Klassiker mit Profildach' },
           { value: 'Flachdach Flat Line', img: 'cp_flatline', photo: true, hint: 'Modernes, flaches Design' },
           { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' },
-          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal');
       },
       valid: function () { return answers.carporttyp ? null : 'Bitte wählen Sie einen Carport-Typ.'; }
@@ -627,7 +627,7 @@
           { value: 'Polycarbonat Bronze', img: 'poly_bronze', photo: true, hint: 'Bronzefarben, warmes Licht' }
         ];
         // „Noch unsicher" nur zeigen, solange keine VSG-Glas-Variante gewählt ist
-        if (!isGlas(answers.verglasung)) opts.push({ value: 'Noch unsicher – bitte beraten', icon: I.frage });
+        if (!isGlas(answers.verglasung)) opts.push({ value: 'Noch unsicher, bitte beraten', icon: I.frage });
         /* --equal: Die letzte Karte bei ungerader Anzahl bleibt gleich
            gross. Ohne den Schalter laeuft sie ueber die volle Breite –
            bei Polycarbonat Bronze (siebte Karte) wurde daraus mit dem
@@ -689,7 +689,7 @@
                das er gar nicht möchte. Derselbe Wert steht im
                3D-Konfigurator. */
             { value: 'Ohne', icon: I.aus, iconBig: true, muted: true },
-            { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+            { value: 'Noch unsicher, bitte beraten', icon: I.frage }
           ]) +
           '<p class="aw-note">Alle Varianten in vielen Farben erhältlich – den Farbwunsch klären wir persönlich.</p>';
       },
@@ -770,7 +770,7 @@
           { value: 'Lamellendach', img: 'lam_sunpro', photo: true, badge: 'Beliebt', hint: 'Drehbare Alu-Lamellen – Sonne & Regen stufenlos steuern' },
           { value: 'Faltdach', img: 'faltdach', photo: true, hint: 'Textiles Dach – komplett öffnen & schließen' },
           { value: 'Velaris', img: 'velaris', photo: true, hint: 'Pergola mit verschiebbaren Elementen' },
-          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal');
       },
       valid: function () { return answers.dachart ? null : 'Bitte wählen Sie eine Dachart.'; }
@@ -851,7 +851,7 @@
           { value: 'Trapezblech (Standard)', img: 'dach_trapez', photo: true, badge: 'Beliebt', hint: 'Robustes, pflegeleichtes Flachdach' },
           { value: 'Solar (PV-Anlage)', img: 'dach_solar', photo: true, hint: 'Eigener Strom – ideal fürs E-Auto' },
           { value: 'Dachbegrünung', img: 'dach_gruen', photo: true, hint: 'Begrüntes Dach – natürlich & dämmend' },
-          { value: 'Noch unsicher – bitte beraten', icon: I.frage }
+          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal') +
           '<p class="aw-note">Details (z. B. Modulanzahl, Speicher, Wallbox) klären wir persönlich in der Beratung.</p>';
       },
@@ -939,7 +939,7 @@
         return optionCards('untergrund', [
           { value: 'Tragender Untergrund vorhanden', img: 'untergrund_platte', photo: true, hint: 'z. B. Betonplatte oder Streifenfundament' },
           { value: 'Punktfundamente nötig', img: 'untergrund_fundament', photo: true, hint: 'z. B. Rasen, Kies, Erdreich oder Pflaster' },
-          { value: 'Weiß nicht – Beratung', icon: I.frage, iconBig: true, hint: 'Wir prüfen den Untergrund beim Aufmaß-Termin' }
+          { value: 'Weiß nicht, bitte beraten', icon: I.frage, iconBig: true, hint: 'Wir prüfen den Untergrund beim Aufmaß-Termin' }
         ], 'aw-options--equal') +
           '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
           '<span><strong>Unsicher? Kein Problem.</strong> Den Untergrund prüfen wir ohnehin beim ' +
