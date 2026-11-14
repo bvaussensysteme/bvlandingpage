@@ -16456,3 +16456,52 @@ den JSON-LD-Blöcken, weil CLAUDE.md Schema.org ausdrücklich nennt.
 **Offen:** Abschnitt 2 (Ratgeber, Landingpages, übrige Seiten) und
 Abschnitt 3 (`konfigurator.html`, 63 Stellen, teils aus JavaScript
 erzeugte Beschriftungen, deshalb einzeln).
+
+## 14.11.2026 – Prüfschritt 3 (Funktion und Barrierefreiheit): Ergebnis und was daraus folgte
+
+**Gemessen, nicht geschätzt.** 53 von 57 Prüfskripten bestanden, die
+Gegenproben schlagen alle an. Die neun Kartenknöpfe: Schrift und
+Außenlinie 5,58:1 auf Weiß, 308 × 56 px (Mindestmaß 44 × 44),
+Fokusring 3 px dunkel mit 3 px Abstand, Tab-Reihenfolge entspricht der
+Quellreihenfolge, keine Falle. Alle 19 FAQ-Einträge lassen sich mit
+Enter und Leertaste bedienen, `aria-expanded` springt korrekt. Das
+Löschen von `.trust-badge-stars` hat nichts verschoben: beide Abzeichen
+gleich hoch, kein Leerraum.
+
+**Behoben, was der Prüfer fand:**
+
+1. **Neuer Tab wurde nicht angekündigt.** Drei Links öffnen mit
+   `target="_blank"`, ohne dass Text, `aria-label` oder `title` das
+   sagen. Wer nicht sieht, dass sich ein Tab öffnet, verliert die
+   Orientierung und findet den Zurück-Knopf wirkungslos. Jetzt trägt
+   jeder der drei ein `<span class="sr-only">Öffnet in einem neuen
+   Tab</span>`. Sichtbar ändert sich nichts.
+2. **Der Google-Link beschrieb sich doppelt.** „Bewertungen ansehen"
+   und darunter „Bewertungen auf Google". Jetzt „Unser Profil bei
+   Google".
+3. **Das Trustindex-Abzeichen sagte nicht, wohin es führt.** Dort
+   stand „Verifiziert" und „Alle Bewertungen geprüft". Das ist eine
+   Aussage über ein fremdes Prüfverfahren, nicht über das Ziel des
+   Links. Jetzt „Bewertungen ansehen" und „Unser Profil bei
+   Trustindex". **Das ist eine inhaltliche Änderung, nicht nur eine
+   zur Barrierefreiheit, und sie wurde dem Betreiber als solche
+   gemeldet.**
+
+**Schon vorher erledigt.** Der Prüfer bemängelte die fünf Sterne im
+Bewertungsknopf ohne `aria-hidden`. Sie waren zum Zeitpunkt seines
+Berichts bereits durch Umrisse mit `aria-hidden` ersetzt. Ein
+Prüfbericht beschreibt den Stand beim Start des Prüfers, nicht den
+beim Eintreffen.
+
+**Nicht behoben, weil nicht verursacht.** `pruefe-broschuere.mjs`
+bleibt rot (Katalogviewer, Adresszeile). Der Vergleichslauf auf
+`ac6364c` zeigt dasselbe Bild, siehe `docs/pruefungen.md`.
+
+**Wichtiger Betriebsbefund.** Zwei Browserskripte fielen im
+Sammellauf durch und bestanden einzeln: `pruefe-keil-editor.mjs`
+(3 Fehler gegen rc=0) und `pruefe-konfigurator-oberflaeche.mjs`
+(`ERR_CONNECTION_REFUSED` auf Port 8783 gegen 182 von 182). Jedes
+dieser Skripte startet einen eigenen Webserver auf einem festen Port.
+Laufen mehrere gleichzeitig, streiten sie sich darum. **Browserskripte
+nacheinander laufen lassen, nicht parallel.** Ein falsch roter Lauf
+kostet mehr Zeit als die Parallelität spart.

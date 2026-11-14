@@ -262,3 +262,16 @@ Sekunden. `pruefe-darstellung.mjs` besteht mit 144 von 144, wenn es
 280 Sekunden bekommt, und meldet bei 100 Sekunden einen Abbruch, der
 wie ein Fehler aussieht. Wer sie sammelt, gibt jedem **mindestens 280
 Sekunden**.
+
+## Browserskripte nacheinander, nicht parallel (14.11.2026)
+
+Jedes Browserskript startet einen eigenen Webserver auf einem festen
+Port. Laufen mehrere gleichzeitig, streiten sie sich darum, und das
+Ergebnis ist zufällig rot.
+
+Belegt am 14.11.2026: `pruefe-keil-editor.mjs` meldete im Sammellauf
+drei Fehler und bestand einzeln. `pruefe-konfigurator-oberflaeche.mjs`
+brach mit `ERR_CONNECTION_REFUSED` auf Port 8783 ab und bestand einzeln
+mit 182 von 182.
+
+**Also: nacheinander, und je Skript mindestens 280 Sekunden.**
