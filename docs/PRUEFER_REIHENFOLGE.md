@@ -53,3 +53,16 @@ muss, und sie endet mit der Freigabeprüfung.
   `docs/NEXT_TASK.md`.
 - **Ein Prüfbericht ist keine Freigabe.** Veröffentlicht wird nur nach
   dem Freigabesatz des Betreibers.
+- **Gleichzeitig starten ja, Befunde der Reihe nach ja.** Prüfer lesen
+  nur, sie schreiben nicht. Mehrere dürfen deshalb gleichzeitig laufen,
+  solange **niemand** in der Zwischenzeit am Code arbeitet. Verbindlich
+  ist die Reihenfolge beim **Lesen und Abarbeiten** der Befunde: erst
+  1 bis 3, und was dort auffällt, wird behoben, bevor die Befunde aus
+  4 bis 9 angefasst werden. Grund für die Lockerung: Schritt 3 braucht
+  allein etwa 40 Minuten, weil er alle Prüfskripte laufen lässt. Streng
+  nacheinander wären sechs Prüfer ein halber Arbeitstag, ohne dass das
+  Ergebnis besser würde.
+- **Ein Prüfbericht beschreibt den Stand beim Start des Prüfers**, nicht
+  den bei seiner Rückkehr. Läuft er lange, steht in seinem Bericht
+  möglicherweise etwas, das inzwischen erledigt ist. Vor dem
+  Weitergeben am Code nachsehen.
