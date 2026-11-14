@@ -16041,3 +16041,24 @@ nichts.
 4. Sinnvoll wäre, erst am Tag der Veröffentlichung zu leeren, damit die
    Zählung mit der neuen Seite bei null beginnt und sauber vergleichbar
    ist.
+
+## 14.11.2026 – Keine 25-Jahres-Angabe mehr
+
+**Anlass.** Betreiber: „nix mit 25jahren schreiben."
+
+**Was falsch war.** Auf `produkte/fassade.html` stand in der Merkmalliste
+der Deco-Wall-Verkleidung „25 Jahre Garantie auf die Beschichtung".
+Gefunden beim Berichtigen der Garantiezeiten und beim Betreiber
+nachgefragt, statt sie stehen zu lassen.
+
+**Was jetzt gilt.** Die Zeile ist entfernt, in der Vorlage
+`src/produkte/fassade.njk` und damit auch in der erzeugten Seite.
+Gegenprobe: Im ganzen Repository steht keine 25-Jahres-Angabe mehr.
+
+**Warum vollständig entfernt und nicht durch eine kleinere Zahl
+ersetzt:** Der Betreiber hat keine andere genannt. Eine Zahl zu raten
+wäre bei einer Garantiezusage der schlechteste aller Wege. Kommt eine
+belegte Angabe, kann die Zeile wieder hinein.
+
+**Die übrigen drei Stufen bleiben unverändert:** 10 Jahre Aluminium,
+5 Jahre Markisen, 2 Jahre Elektro.
