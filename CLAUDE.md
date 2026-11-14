@@ -153,6 +153,30 @@ Rechtsberatung** und darf nie als solche ausgegeben werden. Formeln wie
 „vollständig rechtskonform", „100 % sicher" oder „garantiert
 fehlerfrei" sind verboten.
 
+## Sprache: keine Gedankenstriche (permanent, 14.11.2026)
+
+Ansage des Betreibers: „Also diese Gedankenstriche versucht ihr
+irgendwie wegzulassen, das sieht zu viel nach KI aus."
+
+**Gilt für jeden Text, der auf der Seite steht** – Überschriften,
+Beschreibungen, Knöpfe, Beschriftungen, FAQ, Schema.org. Statt des
+Gedankenstrichs: ein Punkt und ein neuer Satz, ein Doppelpunkt, ein
+Komma, oder gar nichts.
+
+| statt | besser |
+|---|---|
+| „Ihr Traumplatz draußen – maßgefertigt aus Aluminium." | „Ihr Traumplatz draußen. Maßgefertigt aus Aluminium." |
+| „Warum Aluminium – und nicht Holz?" | „Warum Aluminium und nicht Holz?" |
+| „Wenn eine Kante gesichert werden muss – Balkon, Treppe." | „Wenn eine Kante gesichert werden muss: Balkon, Treppe." |
+
+**Ausgenommen, weil es Typografie ist und kein Stil:** Zahlen- und
+Zeitspannen (`Mo–Fr`, `8–17 Uhr`, `2–3 Werktage`) und die Firmierung im
+Impressum.
+
+**Wird ein Text im sichtbaren Bereich geändert, muss der gleiche Text in
+Schema.org mitgeändert werden** – die FAQ-Fragen stehen doppelt in
+`index.html`, einmal sichtbar und einmal im strukturierten Datenblock.
+
 ## Nachbauten: eigene Sprache, eigene Namen (permanent)
 
 Wird etwas nachgebaut, das es bei einem Wettbewerber schon gibt (eine Funktion,

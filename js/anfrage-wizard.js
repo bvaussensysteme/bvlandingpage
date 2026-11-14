@@ -979,7 +979,7 @@
          Beide Zahlen stehen schon auf der Seite und sind nicht erfunden:
          24 Stunden im Hero (hero-trust) und nach dem Absenden,
          2-3 Werktage in der FAQ ("Wie lange dauert es bis zum Angebot?"). */
-      sub: 'Wir melden uns meist innerhalb von 24 Stunden – danach Termin und Maßaufnahme vor Ort, das schriftliche Angebot folgt 2–3 Werktage später.',
+      sub: 'Wir melden uns meist innerhalb von 24 Stunden. Danach Termin und Maßaufnahme vor Ort, das schriftliche Angebot folgt 2 bis 3 Werktage später.',
       render: function () {
         return '<div class="aw-contact">' +
           '<div class="aw-field"><label id="k_anrede_lbl">Anrede *</label>' +

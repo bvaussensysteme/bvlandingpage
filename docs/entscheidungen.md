@@ -15597,3 +15597,36 @@ als Text auf hellem Grund?** Dazu `pruefe-galerie.mjs` 11/11,
 **Später prüfen, nicht bearbeitet (Nebenbefund):** `js/accessibility.js`
 setzt `#C49A2A` fest im Quelltext – das alte Gold, unabhängig von jeder
 Palette. Betrifft alle Seiten, deshalb hier nicht angefasst.
+
+## 14.11.2026 – Keine Gedankenstriche; Logos vorläufig
+
+**Anlass.** Betreiber nach dem Ansehen der Premium-Startseite:
+„Nachdem ihr Traumplatz draußen, kein Gedankenstrich, mach einfach einen
+Punkt und dann maßgefertigt groß. Also diese Gedankenstriche versucht
+ihr irgendwie wegzulassen, das sieht zu viel nach KI aus."
+
+**Was jetzt gilt.** Die Regel steht ab sofort in `CLAUDE.md` und gilt für
+jeden sichtbaren Text, nicht nur für die Startseite.
+
+**Umgesetzt: 16 Stellen.** Sieben aus meinen eigenen Texten (Überschrift,
+Einstiegsabsatz, drei „Passt, wenn"-Zeilen, der Kontaktschritt des
+Assistenten, die Vergleichstabelle) und neun aus dem Bestand der
+Startseite.
+
+**Zwei davon standen doppelt**, einmal sichtbar und einmal im
+Schema.org-Block („Warum Aluminium …", „Glas oder Polycarbonat …").
+Beide wurden zusammen geändert. Wären sie auseinandergelaufen, hätte
+Google eine andere Frage gelesen als der Besucher sieht.
+
+**Nicht geändert, mit Begründung:** `Mo–Fr`, `8–17 Uhr`, `9–13 Uhr` und
+die Firmierung „BV AussenSysteme – Alexander Becker & Josef Voronin
+GbR". Das sind Spannen und eine Rechtsform-Angabe, also Typografie und
+nicht Stil. Wenn der Betreiber auch die weghaben will, sagt er es.
+
+**Logos.** Ansage: „logos kannst du jetzige ersatzweise nehmen, später
+kriegst du vectors von mir". Es bleibt also bei den vorhandenen
+PNG-Dateien; **nichts wurde umgefärbt oder ersetzt**. Offen beim
+Betreiber: die Vektordateien. Sobald sie da sind, ersetzen sie die PNGs
+(scharf in jeder Größe, kleinere Dateien) – dann auch die Frage aus
+`docs/WEBSITE_DESIGN_SYSTEM.md`, ob `logo-hell.png` mit seinem
+abweichenden Orange (`#E69B26`) noch gebraucht wird.
