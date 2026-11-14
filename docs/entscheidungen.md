@@ -15668,3 +15668,84 @@ Knöpfe (anfragen, Produkte, Katalog, Anrufen, WhatsApp). Das ist viel
 für einen ersten Bildschirm. Weglassen hieße aber, einen Kontaktweg zu
 streichen, und die stehen unter Bestandsschutz. **Als Beobachtung
 notiert, nicht entschieden.**
+
+## 14.11.2026 – Textprüfung der Startseite
+
+**Anlass.** Betreiber: „grundgerüst is eig gut, aber die ganzen texte und
+alles in den kästen etc. muss geprüft werden."
+
+**Vorgehen.** Der sichtbare Text wurde abschnittsweise aus `index.html`
+herausgezogen und gelesen, statt im Quelltext zu scrollen. Kein Agent:
+Ein Subagent hätte sich erst wieder einlesen müssen.
+
+### Behoben
+
+**1. Die Garantiezusage war an einer Stelle zu weit gefasst.** Drei
+Aussagen standen nebeneinander:
+- Einstieg: „es gibt 10 Jahre Herstellergarantie" (ohne Einschränkung)
+- Vertrauensband: „10 J. Alu · 5 J. Elektro"
+- Zahlenkachel: „10 · Jahre Garantie (Alu-Produkte / Elektro-Markisen)"
+
+Die Kachel sagte damit **10 Jahre auch auf Elektro**, der Abschnitt
+„Warum BV AussenSysteme" dagegen 5. Werbung mit einer Garantie, die
+weiter reicht als die tatsächliche, ist kein Schönheitsfehler. Beide
+Stellen sind jetzt auf die Aluminium-Produkte bezogen; die
+differenzierte Aussage im Warum-Abschnitt bleibt, wie sie war.
+
+**2. Fachlicher Fehler.** „Glas (VSG/Einscheibensicherheitsglas)" setzte
+zwei verschiedene Gläser gleich. **VSG ist Verbundsicherheitsglas**, ESG
+ist Einscheibensicherheitsglas. Die Produktseiten nennen durchgehend
+8 mm VSG. Korrigiert.
+
+**3. Neun Kästen sagten „Passt, wenn: Wenn …".** Das doppelte „wenn"
+stammt von mir (13.11.). Entdoppelt. Dabei auch die Doppelung
+„einstellen … verstellen" bei der Pergola aufgelöst.
+
+**4. Übertreibungen, die der eigenen Seite widersprachen.**
+„Aluminium ist das überlegene Material", „absolut wartungsfrei" und
+„die Farbe hält Jahrzehnte" standen im Widerspruch zur eigenen
+Pflege-Antwort weiter unten (einmal jährlich reinigen, Rinnen von Laub
+befreien). Abgeschwächt auf das, was die Seite selbst hergibt.
+
+**5. Sprachliche KI-Muster.** „Wir kümmern uns nicht nur um
+Neuinstallationen, sondern auch um …" umgeschrieben. „Ja!" auf „Ja."
+vereinheitlicht. Markenschreibweise „VD Alusysteme" neunmal auf
+„VD AluSysteme" gebracht.
+
+**6. 52 Gedankenstriche** ersetzt, diesmal auch dort, wo der erste
+Durchgang am 14.11. nicht hinkam: innerhalb von Absätzen, in den
+Meta-Beschreibungen (die stehen im Google-Ergebnis), in den
+Schema.org-Antworten und in den Bildbeschreibungen. Regel: Großbuchstabe
+danach → Punkt, Kleinbuchstabe → Komma. **Code-Kommentare wurden
+zurückgesetzt** (unsichtbar, gehören nicht in die Änderung), die
+Firmierung bleibt.
+**Alle drei JSON-LD-Blöcke danach auf Gültigkeit geprüft** – ich habe in
+JSON hineingeschrieben, ein Tippfehler hätte die strukturierten Daten
+unlesbar gemacht. Alle drei gültig.
+
+### NICHT behoben, weil es eine Entscheidung des Betreibers ist
+
+**Die fünf Sterne bei Google und Trustindex sind fest im Quelltext.**
+`index.html:1080-1098`: `<div class="trust-badge-stars">★★★★★</div>` und
+`<strong id="google-rating">★★★★★</strong>`, Beschriftung „Bewertungen
+auf Google". **Nachgesehen: Nichts füllt `google-rating`** – kein
+Skript, kein Worker. Es gibt auch kein `aggregateRating` im Schema.
+
+Damit zeigt die Seite eine Bestbewertung, ohne dass eine Zahl, ein
+Durchschnitt oder eine Anzahl dahintersteht. Das verstößt gegen die
+eigene Regel in `CLAUDE.md` („keine erfundenen Vertrauenssignale") und
+ist bei Werbung mit Bewertungen ein bekanntes Abmahnfeld. **Keine
+Rechtsberatung** – die Bewertung holt der Betreiber beim Fachmann.
+
+Nicht eigenmächtig entfernt: Das Abzeichen verweist auf ein echtes
+Google-Profil, und der Betreiber hat möglicherweise wirklich gute
+Bewertungen. Die Frage ist nicht, ob sie stimmen, sondern dass die Seite
+sie behauptet, ohne sie zu belegen.
+
+### Später prüfen, nicht bearbeitet
+- „Zwei Tools, die sofort weiterhelfen" – „Tools" ist Denglisch; die
+  Überschrift darüber sagt bereits „Online-Tools".
+- Der Menüpunkt „Konfigurator" führt weiterhin zum Anfrage-Assistenten,
+  solange der 3D-Konfigurator gesperrt ist.
+- Die Angabe „im Umkreis von ca. 60 km um unseren Betriebsstandort"
+  wurde nicht gegengeprüft.
