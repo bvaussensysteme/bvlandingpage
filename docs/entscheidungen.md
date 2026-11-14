@@ -15749,3 +15749,81 @@ sie behauptet, ohne sie zu belegen.
   solange der 3D-Konfigurator gesperrt ist.
 - Die Angabe „im Umkreis von ca. 60 km um unseren Betriebsstandort"
   wurde nicht gegengeprüft.
+
+## 14.11.2026 – Gebietsprüfung im Anfrage-Assistenten
+
+**Anlass.** Betreiber: „wäre auch gut im konfigurator, wenn man am ende
+seine daten einträgt und die plz ort etc. das das system prüft, ob das in
+unserem 60km radius ab 56422 dernbach is."
+
+### Warum es KEIN echter Kilometer-Radius geworden ist
+
+Dafür bräuchte es Koordinaten zu jeder Postleitzahl. Am 14.11.2026
+geprüft, in dieser Reihenfolge:
+
+| Quelle | Ergebnis |
+|---|---|
+| **BKG / Geodatenzentrum** (zuerst empfohlen) | **Scheidet aus.** Die Nutzungsbedingungen (selbst abgerufen und gelesen) sagen wörtlich: geldleistungsfrei „allen oder ausgewählten **Bundesbehörden** und weiteren Nutzungsberechtigten im Sinne des § 4 V GeoBund". Ein Handwerksbetrieb gehört nicht dazu |
+| **OpenPLZ** | stützt sich auf dieselben BKG-Daten |
+| **Eurostat GISCO** | CC-BY-SA 4.0, also Share-alike |
+| **OSM-basierte Listen** | ODbL, ebenfalls Share-alike |
+| **Dienst im Netz abfragen** | hätte die PLZ des Interessenten an einen Dritten geschickt. Datenschutzerklärung müsste mit |
+
+**Meine erste Empfehlung an den Betreiber war das BKG-Paket. Sie war
+falsch.** Aufgefallen ist es nur, weil die Lizenz vor dem Einbau gelesen
+wurde und nicht danach. Festhalten, damit es nicht noch einmal
+vorgeschlagen wird.
+
+### Was jetzt gilt
+
+Eine Liste der **Leitregionen** (erste drei Ziffern der PLZ) in
+`js/anfrage-wizard.js`, Konstante `EINZUGSGEBIET`. Sie stammt aus den
+Orten, die auf der eigenen Seite stehen. Keine fremde Datenbank, keine
+Lizenzpflicht, keine Übermittlung, keine Änderung an der
+Datenschutzerklärung.
+
+**Die Liste ist ein Entwurf und gehört vom Betreiber bestätigt.** Eine
+Leitregion deckt grob 10 bis 25 km ab, ein mathematischer Kreis ist das
+nicht. Ehrlicherweise ist das näher an der Wirklichkeit: Gefahren wird
+auf Straßen, nicht im Kreis.
+
+### Die wichtigere Entscheidung: nur in eine Richtung
+
+- **Im Gebiet:** Der Besucher sieht eine Bestätigung, etwa „Montabaur
+  liegt in unserem Gebiet. Wir sind dort regelmäßig unterwegs."
+- **Außerhalb:** Der Besucher sieht **nichts**. Der Hinweis steht allein
+  in der Anfrage-E-Mail an den Betrieb („außerhalb des üblichen
+  Einzugsgebiets, Anfahrt bitte prüfen").
+
+**Begründung:** Die eigene FAQ sagt „Bei größeren Aufträgen kommen wir
+auch weiter". Eine Absage im Formular würde genau die Anfragen kosten,
+die sich lohnen. Der Nutzen liegt beim Betrieb, nicht beim Kunden.
+
+**Beinahe schiefgegangen:** Die Zeile stand zuerst auch in der
+Zusammenfassung, die der Besucher vor dem Absenden sieht. Beim Lesen des
+Codes aufgefallen, bevor es jemand im Browser gesehen hat. Sie hängt
+jetzt an derselben Schranke (`mitFachtext`) wie Fachnotiz und
+Konfigurator-Link.
+
+### Absicherung
+
+`scripts/pruefe-einzugsgebiet.mjs`: **10/10**, Gegenprobe **5/5**. Die
+Gegenprobe tippt Hamburg und München ein und verlangt, dass **nichts**
+erscheint. Dazu `pruefe-assistent.mjs` 18/18, `pruefe-produktwahl.mjs`
+132/132, `pruefe-startseite.mjs` 39/39,
+`pruefe-standort-mitgeben.mjs` 9/9, alle schnellen Skripte grün.
+
+**Eigener Fehler in der Prüfung:** Sie suchte das Wort „außerhalb" auf
+der ganzen Seite und meldete die FAQ-Frage „Kommen Sie auch außerhalb des
+Westerwaldkreises?" als Verstoß. Jetzt auf das Bedienfeld eingegrenzt.
+
+### Liegt beim Betreiber
+
+1. **Die Liste bestätigen oder korrigieren** (`EINZUGSGEBIET` in
+   `js/anfrage-wizard.js`). Gegenden ergänzen oder streichen ist je eine
+   Zeile.
+2. **56422 oder 56428?** Der Auftrag nennt „56422 dernbach". Nach meinem
+   Kenntnisstand gehört 56422 zu Wirges und 56428 zu Dernbach. **Nicht
+   nachgeprüft**, und die eigene Adresse weiß der Betreiber besser. Beide
+   liegen in derselben Leitregion 564, die Prüfung ändert sich dadurch
+   nicht. Nur für die Doku wäre es gut zu wissen.

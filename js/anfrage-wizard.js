@@ -996,6 +996,7 @@
           txtField('k_plz', 'PLZ *', answers.k_plz, 'z. B. 56410', 'text', 'postal-code', 'inputmode="numeric" maxlength="5"') +
           txtField('k_ort', 'Ort *', answers.k_ort, 'z. B. Montabaur', 'text', 'address-level2') +
           '</div>' +
+          '<p class="aw-gebiet" id="aw-gebiet" hidden></p>' +
           selectField('k_quelle', 'Wie sind Sie auf uns aufmerksam geworden? (optional)', answers.k_quelle, QUELLE_OPTS) +
           '<label class="aw-consent"><input type="checkbox" id="k_consent"' + (answers.k_consent ? ' checked' : '') + '> ' +
           '<span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *</span></label>' +
@@ -1008,6 +1009,7 @@
         answers.k_telefon = val('k_telefon');
         answers.k_plz = val('k_plz');
         answers.k_ort = val('k_ort');
+        gebietshinweisZeigen();
         answers.k_quelle = val('k_quelle');
         var c = document.getElementById('k_consent');
         answers.k_consent = c ? c.checked : false;
@@ -1233,6 +1235,19 @@
     if (answers.k_telefon) p.push(['Telefon', answers.k_telefon]);
     var ort = [answers.k_plz, answers.k_ort].filter(Boolean).join(' ');
     if (ort) p.push(['Ort', ort]);
+    /* Nur fuer die Anfrage-E-Mail an den Betrieb, nicht fuer den
+       Besucher: liegt die PLZ im ueblichen Fahrtgebiet? Siehe
+       EINZUGSGEBIET weiter oben. Bei ungueltiger PLZ steht hier nichts -
+       lieber keine Zeile als eine geratene. */
+    if (mitFachtext) {
+      /* NUR mit mitFachtext, also nur in E-Mail und Übergabe an den
+         Betrieb. summaryPairs(false) ist die Zusammenfassung, die der
+         BESUCHER sieht - dort darf "ausserhalb des Einzugsgebiets" nicht
+         auftauchen. Dieselbe Schranke tragen fachnotiz und konfiglink. */
+      var imGebiet = gebietspruefung(answers.k_plz);
+      if (imGebiet === true)  p.push(['Gebiet', 'im üblichen Einzugsgebiet']);
+      if (imGebiet === false) p.push(['Gebiet', 'außerhalb des üblichen Einzugsgebiets, Anfahrt bitte prüfen']);
+    }
     if (answers.k_quelle) p.push(['Aufmerksam geworden durch', answers.k_quelle]);
     return p;
   }
@@ -1255,6 +1270,13 @@
     subEl.style.display = '';
     bodyEl.innerHTML = step.render();
     bodyEl.scrollTop = 0;
+    if (currentId() === 'kontakt') {
+      ['k_plz', 'k_ort'].forEach(function (id) {
+        var f = document.getElementById(id);
+        if (f) f.addEventListener('input', gebietshinweisZeigen);
+      });
+      gebietshinweisZeigen();
+    }
 
     // Progress
     var pct = flow.length > 1 ? Math.round(idx / (flow.length - 1) * 100) : 0;
@@ -1691,6 +1713,48 @@
      … oder kurze Nachricht") - und bekommen den Namen gleich in das
      Nachrichtenfeld geschrieben, damit die Anfrage nicht ohne Produkt
      ankommt. */
+  /* ======================================================================
+     EINZUGSGEBIET: liegt die Postleitzahl im ueblichen Fahrtgebiet?
+
+     ANLASS (14.11.2026), Betreiber: "waere auch gut im konfigurator, wenn
+     man am ende seine daten eintraegt und die plz ort etc. das das system
+     prueft, ob das in unserem 60km radius ab 56422 dernbach is".
+
+     WARUM KEIN ECHTER KILOMETER-RADIUS. Dafuer braeuchte es Koordinaten zu
+     jeder Postleitzahl. Geprueft am 14.11.2026: Das amtliche BKG-Paket ist
+     laut seinen Nutzungsbedingungen geldleistungsfrei nur fuer
+     "Bundesbehoerden und weitere Nutzungsberechtigte im Sinne des
+     § 4 V GeoBund" - ein Handwerksbetrieb gehoert nicht dazu. OpenPLZ
+     stuetzt sich auf dieselben Daten. Die freien Alternativen (Eurostat
+     CC-BY-SA, OSM/ODbL) tragen Share-alike. Ein Dienst im Netz wiederum
+     haette die PLZ des Interessenten an einen Dritten geschickt und die
+     Datenschutzerklaerung mitgeaendert. Beides wurde verworfen.
+
+     WAS STATTDESSEN. Eine Liste der Leitregionen (die ersten drei Ziffern
+     der PLZ) aus den Orten, die auf der eigenen Seite stehen. Eigene
+     Angaben, keine fremde Datenbank, keine Uebermittlung.
+
+     >>> DIESE LISTE IST EIN ENTWURF UND GEHOERT VOM BETREIBER BESTAETIGT.
+     >>> Eine Leitregion deckt grob 10 bis 25 km ab. Wer eine Gegend
+     >>> ergaenzen oder streichen will, aendert nur diese Zeilen.
+
+     WAS PASSIERT, WENN ES NICHT PASST: dem Besucher NICHTS. Die eigene FAQ
+     sagt "Bei groesseren Auftraegen kommen wir auch weiter" - eine Absage
+     im Formular wuerde genau die Anfragen kosten, die sich lohnen. Der
+     Hinweis steht nur in der Anfrage-E-Mail an den Betrieb. */
+  var EINZUGSGEBIET = [
+    '560', '561', '562', '563', '564', '565',  // Koblenz, Lahnstein, Bad Ems, Montabaur, Westerwald
+    '566', '567',                              // Andernach, Mayen (Randlage)
+    '575', '576',                              // Wissen, Altenkirchen, Hachenburg, Betzdorf
+    '535', '536',                              // Linz, Remagen, Asbach, Bad Honnef (Randlage)
+    '655', '652'                               // Limburg, Diez, Bad Camberg, Idstein (Randlage)
+  ];
+
+  function gebietspruefung(plz) {
+    if (!/^\d{5}$/.test(String(plz || ''))) return null;   // nichts behaupten ohne gueltige PLZ
+    return EINZUGSGEBIET.indexOf(String(plz).slice(0, 3)) > -1;
+  }
+
   var PRODUKTWEGE = {
     'terrassendach-tds':  { produkt: 'Terrassendach TDS' },
     'flachdach-skyview':  { produkt: 'Flachdach SkyView' },
@@ -1715,6 +1779,31 @@
     'vordach-front-line-plus': { produkt: 'Direkt anfragen', wunsch: 'Vordach Front Line Plus' },
     'eingangsueberdachung-tds':{ produkt: 'Direkt anfragen', wunsch: 'Eingangsüberdachung TDS' }
   };
+
+  /* Freundliche Bestaetigung im Kontaktschritt, sobald eine PLZ aus dem
+     Gebiet dasteht. BEWUSST NUR IN EINE RICHTUNG: Liegt die PLZ ausserhalb,
+     erscheint NICHTS. Eine Absage im Formular wuerde Anfragen kosten, die
+     der Betrieb laut eigener FAQ gerne annimmt ("Bei groesseren Auftraegen
+     kommen wir auch weiter"). Der Hinweis fuer den Betrieb steht in der
+     E-Mail, nicht auf dem Bildschirm des Besuchers. */
+  function gebietshinweisZeigen() {
+    var feld = document.getElementById('aw-gebiet');
+    if (!feld) return;
+    /* Direkt aus den Feldern lesen, nicht aus answers: Der Hinweis soll
+       schon beim Tippen erscheinen, answers wird erst beim Weiterklicken
+       gefuellt. */
+    var pf = document.getElementById('k_plz'), of = document.getElementById('k_ort');
+    var plz = pf ? pf.value : answers.k_plz;
+    if (gebietspruefung(plz) === true) {
+      var ort = ((of ? of.value : answers.k_ort) || '').trim();
+      feld.textContent = (ort ? ort + ' liegt in unserem Gebiet. ' : 'Das liegt in unserem Gebiet. ')
+        + 'Wir sind dort regelmäßig unterwegs.';
+      feld.hidden = false;
+    } else {
+      feld.textContent = '';
+      feld.hidden = true;
+    }
+  }
 
   function produktAusSpeicher() {
     if (answers.produkt) return;   // eine 3D-Vorgabe hat Vorrang
