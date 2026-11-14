@@ -16133,3 +16133,42 @@ eine feste Höhe von 56 px, engere Zeilen und `text-wrap: balance`.
 
 **Geprüft.** `pruefe-startseite.mjs` 39/39, alle schnellen Skripte grün,
 kein waagerechtes Scrollen bei 390 px und 1280 px.
+
+## 14.11.2026 – Statik: was zugesagt wird, stimmt jetzt mit dem ueberein, was geliefert wird
+
+**Anlass.** Ansage des Betreibers: „bei CE & Statik anders schreiben:
+vereinfachte Statik inkl." Der Vorteilsstreifen wurde sofort geaendert,
+vier weitere Stellen versprachen danach aber weiter mehr.
+
+**Was falsch war.** Die Seite sagte an fuenf Stellen „Statiknachweis
+inklusive", „Statikberechnungen mit Nachweis" und, am weitesten gehend,
+im gewerblichen Abschnitt „inkl. **aller erforderlichen** Statik- und
+CE-Nachweise". Enthalten ist die vereinfachte Statik des Herstellers
+nach Lastklassen. Eine prueffaehige Einzelstatik ist etwas anderes.
+Zwei dieser Stellen standen doppelt: einmal sichtbar und einmal im
+strukturierten Datenblock, der an Google geht.
+
+**Was jetzt gilt.** Ueberall dieselbe Aussage: CE-Kennzeichnung und die
+vereinfachte Statik sind im Lieferumfang. Ob das Bauamt damit auskommt
+oder eine prueffaehige Einzelstatik verlangt, haengt vom Bundesland und
+von der Groesse des Vorhabens ab; das klaeren wir vorab. Im
+gewerblichen Abschnitt steht statt „aller erforderlichen Nachweise"
+jetzt, was enthalten ist, und dass weitergehende Nachweise vorab
+geklaert werden.
+
+**Warum so und nicht knapper.** Eine Zusage, die mehr verspricht als
+geliefert wird, ist spaeter kein Formulierungsfehler, sondern eine
+zugesagte Leistung. Der Satz ueber das Bauamt kostet zwei Zeilen und
+nimmt den Streit vorweg. Bewusst **nicht** geschrieben wurde „fuer die
+meisten Bauantraege reicht das": dafuer gibt es hier keine Grundlage.
+
+**Geprueft.** Alle drei JSON-LD-Bloecke bleiben gueltiges JSON,
+sichtbarer FAQ-Text und Schema-Text sind wortgleich,
+`pruefe-startseite.mjs` 39/39, keine Gedankenstriche.
+
+**Offen, nicht erledigt.** Die sieben Produktseiten sagen weiterhin
+„Statiknachweis inklusive" und „mit Statiknachweis geliefert" (u.a.
+`src/produkte/carport.njk`, `pergola.njk`,
+`terrassenueberdachung.njk`). Dieselbe Ueberzusage, nur an anderer
+Stelle. Nicht geaendert, weil Produktseiten nicht beauftragt waren.
+Dem Betreiber gemeldet.
