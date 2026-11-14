@@ -65,6 +65,29 @@ function messung(sel) {
       if (s.overflowX === 'auto' || s.overflowX === 'scroll') { gewollt = true; break; }
     }
     if (gewollt) continue;
+    /* Absichtlich versteckte Kaesten ueberspringen. Die Marken-Leiste im
+       3D-Modell (.k3d-marken) ist 1x1 px gross mit overflow:hidden und
+       clip-path, und klappt erst bei Tastaturfokus auf. Ihre Knoepfe sind
+       dann natuerlich "beschnitten". Das ist das uebliche Muster fuer
+       Sprunglinks und Screenreader-Hilfen, kein Fehler. Ohne diese
+       Ausnahme meldete die Pruefung am 14.11.2026 zehn solcher Faelle. */
+    let versteckt = false;
+    for (let e = n; e && e !== document.body; e = e.parentElement) {
+      const s2 = getComputedStyle(e);
+      const winzig = e.clientWidth <= 1 || e.clientHeight <= 1;
+      if ((winzig && s2.overflow !== 'visible') || /inset\(\s*50%/.test(s2.clipPath)) {
+        versteckt = true; break;
+      }
+    }
+    if (versteckt) continue;
+    /* Nur Elemente, die ueberhaupt Text zeigen. Ein reiner Symbolknopf,
+       dessen Grafik absichtlich ueber den Rand ragt, ist kein
+       beschnittener Text. Pseudoelemente zaehlen mit: .k3d-marke traegt
+       seine Beschriftung ueber ::after und waere sonst unsichtbar fuer
+       diese Pruefung. */
+    const pseudo = getComputedStyle(n, '::after').content + getComputedStyle(n, '::before').content;
+    const hatText = (n.innerText || '').trim() !== '' || /[a-zA-Z0-9äöüÄÖÜß]/.test(pseudo);
+    if (!hatText) continue;
     if (n.scrollWidth - n.clientWidth > 2) {
       raus.push({
         tag: n.tagName.toLowerCase(),

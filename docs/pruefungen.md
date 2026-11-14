@@ -351,6 +351,26 @@ Hand. Deutsche Komposita sind lang, das Problem kommt wieder.
 setzt eine Überschrift auf 140 px und erwartet einen Befund, wo vorher
 keiner war. **Erkannt.**
 
+**Erster Durchlauf: zehn Treffer, alle falsch.** Es waren die
+Markierungsknöpfe im 3D-Modell. Ihr Kasten ist absichtlich 1 × 1 px
+groß mit `overflow: hidden` und `clip-path` und klappt erst bei
+Tastaturfokus auf, das übliche Muster für Sprunglinks und
+Screenreader-Hilfen.
+
+**Der erste Reflex war die falsche Lösung.** „Elemente ohne Text
+überspringen" hätte funktioniert, aber aus dem falschen Grund: Diese
+Knöpfe tragen ihre Beschriftung über `::after { content:
+attr(aria-label) }`. Sie **haben** sichtbaren Text, nur nicht dort, wo
+man ihn sucht. Die Prüfung wäre an genau dieser Stelle dauerhaft und
+unbemerkt blind geworden.
+
+**Jetzt zwei präzise Ausnahmen:** versteckte Kästen (1 px mit
+abgeschnittenem Inhalt oder `clip-path: inset(50%)`) und Elemente, die
+auch über Pseudoelemente keinen Text zeigen. Beide mit Begründung im
+Code, damit sie niemand als überflüssig entfernt.
+
+**Stand nach der Korrektur:** 110 Kombinationen, kein Befund.
+
 **Dabei selbst in die Falle getappt:** Im ersten Entwurf wurde die
 Messfunktion als Zeichenkette an den Browser übergeben. Playwright
 wertete sie als Ausdruck aus, das Ergebnis kam als `undefined`
