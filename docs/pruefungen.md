@@ -378,3 +378,33 @@ zurück, und die Prüfung hätte **immer null Befunde** gemeldet. Also
 eine Prüfung, die dauerhaft grün ist, ohne je zu messen. Aufgefallen
 ist es nur, weil die Gegenprobe sofort mitlief. Der vierte Fall dieser
 Art an einem Tag.
+
+## `scripts/pruefe.sh`: die Skripte aufrufen, ohne die Endung zu raten
+
+Die Prüfskripte sind teils `.mjs`, teils `.js`, teils `.py`, teils
+`.sh`. Wer eines einzeln aufruft, rät die Endung, und ein falsch
+geratenes `node scripts/pruefe-stufen.mjs` endet mit
+`MODULE_NOT_FOUND`. In einer Liste von 56 Zeilen sieht das aus wie ein
+abgestürztes Skript.
+
+**Am 14.11.2026 ist das dreimal passiert**, bei `pruefe-fuehrung`,
+`pruefe-stufen` und `pruefe-datenschutz`. Jedes Mal war in Wirklichkeit
+alles in Ordnung, und jedes Mal habe ich erst einen Fehler berichtet
+und ihn danach zurücknehmen müssen.
+
+```
+scripts/pruefe.sh stufen fuehrung datenschutz
+scripts/pruefe.sh --alle
+scripts/pruefe.sh --alle --gegenprobe
+```
+
+**Was er zusätzlich richtig macht:**
+- **Nacheinander, nie parallel.** Browserskripte starten eigene Server
+  auf festen Ports und streiten sich sonst darum.
+- **600 Sekunden je Skript**, weil `pruefe-konfigurator-oberflaeche.mjs`
+  mehr als 300 braucht.
+- **Ein Zeitlimit wird als solches gemeldet**, nicht als Erfolg:
+  „ZEITLIMIT nach 600s (nicht gelaufen, also nicht grün)". Ein Skript,
+  das nicht durchläuft, ist nicht bestanden.
+- Ein Name, den es nicht gibt, meldet „GIBT ES NICHT" statt still
+  nichts zu tun.
