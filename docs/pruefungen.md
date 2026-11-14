@@ -303,3 +303,25 @@ nur im Datenblock, Frage ohne sichtbares Gegenstück, kaputtes JSON)
 und erwartet, dass jeder einzelne anschlägt. **4 von 4 erkannt.**
 
 Umfang heute: 17 Seiten mit FAQ-Auszeichnung, 74 Einträge.
+
+## Drei Skripte, die grün aussehen und nichts geprüft haben (14.11.2026)
+
+Beim vollständigen Lauf nach einer Änderung an `src/css/style.css`
+aufgefallen. **Exit-Code 0 heißt hier nicht bestanden.**
+
+| Skript | Was wirklich passiert |
+|---|---|
+| `pruefe-api-bauteile.mjs` | bricht ab, weil `daten/` fehlt. Meldung: „Dieses Repository ist öffentlich; die Herstellermatrix gehört nicht hinein." Zum Prüfen müssen die Dateien aus `bv-crm/docs/konfigurator-daten/` nach `daten/` kopiert werden. |
+| `pruefe-bauteile.js` | dasselbe |
+| `pruefe-hinweise.js` | der Block „Dieselbe Prüfung an erzeugten Hinweisen" wird übersprungen, ebenfalls wegen `daten/`. In der Gegenprobe schlagen deshalb nur 14 von 15 an. |
+
+Dazu, aus demselben Grund in der anderen Richtung:
+
+| Skript | Was wirklich passiert |
+|---|---|
+| `pruefe-konfigurator.js --gegenprobe` | meldet „NICHT ERKANNT: Stegplatte aus der Artikelliste fehlt im Konfigurator", Ergebnis fehlgeschlagen. Die Prüfung ist an dieser Stelle blind. Fundstelle `scripts/pruefe-konfigurator.js:233-246` und `:501`. Belegt älter als der 14.11.2026: derselbe Lauf auf `ac6364c` ergibt dasselbe. |
+| `pruefe-konfigurator-oberflaeche.mjs` | braucht auf dieser Maschine **mehr als 300 Sekunden**. Bei 290 s Abbruch mit „Target page … closed", einzeln und ohne Limit: 182 Prüfungen bestanden. |
+
+**Merke:** Wer die Skripte sammelt, liest nicht nur den Exit-Code,
+sondern die letzte Zeile. Ein Skript, das sagt „kopiere erst die
+Daten", hat nichts geprüft.
