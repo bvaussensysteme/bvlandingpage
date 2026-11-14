@@ -995,6 +995,13 @@ body.bv-menu-open #bv-scroll-top {
 .kontakt-quick-btn--wa svg { stroke: none; fill: var(--black); }
 .kontakt-quick-meta { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 14px 0 0; }
 .kontakt-quick-meta a { color: var(--gold-text); text-decoration: none; font-weight: 700; }
+/* Zweite Zeile unter den Kontaktknoepfen, auf Wunsch des Betreibers am
+   14.11.2026. Sie steht bewusst eine Stufe leiser als die Zeile mit der
+   Telefonnummer: Die Geschaeftszeiten sind eine Zusage, die
+   WhatsApp-Erreichbarkeit ausdruecklich nicht. "meist" ist kein
+   Fuellwort, sondern der Unterschied zwischen einer Auskunft und einem
+   Versprechen, an dem sich jemand festhaelt. */
+.kontakt-quick-meta--wa { margin-top: 4px; font-size: 0.76rem; opacity: 0.85; }
 
 .kontakt-form {
   background: var(--black); border-radius: 10px; padding: 34px;

@@ -16974,3 +16974,35 @@ bestanden und Gegenprobe 313 von 313, stufen bestanden,
 planken-editor 23/23, schiebe-velaris 22/22, balkon 16/16,
 rahmen-editor 17/17, masstabelle und konfigurator bestanden,
 symbole 14/14.
+
+## 14.11.2026 – Zweite Zeile unter den Kontaktknöpfen: WhatsApp-Erreichbarkeit
+
+**Ansage des Betreibers**, mit Bildschirmfoto: „hier drunter vllt so
+ähnliche Whatsapp 24/7 erreichbar aber das soll nicht zu verbindlich
+klingen vllt Whatsapp meist 24/7 erreichbar."
+
+**Was jetzt dort steht:** „Über WhatsApp meist rund um die Uhr
+erreichbar", eine Stufe leiser gesetzt als die Zeile darüber
+(0,76 rem statt 0,8 rem, leicht gedämpft).
+
+**Zwei Entscheidungen, beide mit Grund:**
+
+1. **„rund um die Uhr" statt „24/7".** Die Seite spricht sonst
+   durchgehend Deutsch, und zwei Zeilen übereinander mit „Mo–Fr 8–17
+   Uhr" und „24/7" mischen zwei Schreibweisen für dieselbe Sache. Wenn
+   der Betreiber „24/7" möchte, ist es ein Wort Änderung.
+2. **Die Zeile steht leiser, und das ist Absicht.** Die
+   Geschäftszeiten darüber sind eine Zusage. Die WhatsApp-Zeile ist
+   ausdrücklich **keine**. Das „meist" ist kein Füllwort, sondern
+   der Unterschied zwischen einer Auskunft und einem Versprechen, an
+   dem sich jemand festhält. Der Grund steht als Kommentar an der
+   CSS-Regel, damit ihn niemand „aufräumt".
+
+**Wo sie erscheint.** Der Block `.kontakt-quick` ist
+**ausschließlich am Handy sichtbar** (`display: none` als Vorgabe,
+eingeblendet nur in der Handy-Regel). Das war schon vorher so. Am
+Rechner sieht man die Zeile also nicht; dort steht das Formular.
+
+**Geprüft:** Bildschirmfoto bei 390 px angesehen, Zeile 362 × 19 px,
+Schriftgröße 12,16 px, keine Überlappung mit der Zeile darüber.
+`pruefe-startseite.mjs` 39/39.
