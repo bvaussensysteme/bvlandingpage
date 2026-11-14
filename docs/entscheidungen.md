@@ -16698,3 +16698,63 @@ davor. Die Darstellungsprüfung wurde deshalb hinterher eigens
 wiederholt. Die Regel „während Prüfer laufen, wird nicht am Code
 gearbeitet" steht in `docs/PRUEFER_REIHENFOLGE.md` aus genau diesem
 Grund und wurde hier gebrochen.
+
+## 14.11.2026 – Prüfschritt 6 (SEO): mein Skript hat die strukturierten Daten übersehen
+
+**Was falsch war, und es war mein Fehler.** Beim Entfernen der
+Gedankenstriche habe ich `<script>`-Blöcke geschützt, damit kein Code
+angefasst wird. Die Schema.org-Daten liegen in genau so einem Block.
+Folge: Der sichtbare Text war geändert, der Datenblock nicht.
+
+Gemessen: **55 Gedankenstriche in 15 Dateien**, davon **35 FAQ-Einträge
+auf 14 Ortsseiten**, die etwas anderes sagten als die Seite. Beispiel
+`terrassenueberdachung-koblenz.html`: sichtbar „Ja, Koblenz liegt in
+unserem Einzugsgebiet", im Datenblock „Ja – Koblenz liegt…". Genau die
+Abweichung, die CLAUDE.md verbietet und die Google abwertet.
+
+**Wie es behoben wurde.** Nicht durch nochmaliges Ersetzen, das wäre
+derselbe Fehler mit anderem Vorzeichen. Stattdessen wird der
+Datenblock **aus dem sichtbaren Text aufgebaut**: Frage und Antwort
+werden ausgelesen und eins zu eins eingesetzt. Damit ist Wortgleichheit
+nicht Absicht, sondern Bauart.
+
+**Zwei weitere Funde desselben Prüfers:**
+
+1. **`index.html`: Der Datenblock war eine Nacherzählung.** 19 Fragen,
+   keine einzige wortgleich, dazu in anderer Reihenfolge, mit
+   Abweichungen wie „bei der Versicherung" gegen „bei meiner
+   Versicherung". Das war **älter als heute**. Ebenfalls aus dem
+   sichtbaren Text neu aufgebaut, 19 von 19 wortgleich.
+
+2. **`baugenehmigung.html`: fünf von sechs Fragen im Datenblock gab es
+   auf der Seite gar nicht.** Unter anderem „Ist ein Carport in
+   Rheinland-Pfalz genehmigungspflichtig?", während sichtbar die Frage
+   zu NRW steht, und „Was gilt im Außenbereich nach § 35 BauGB?", die
+   nirgends als Frage existiert. Das ist gegenüber Google eine Aussage
+   über eine Seite, die es so nicht gibt. Der Block enthält jetzt die
+   **acht sichtbaren** Fragen, wortgleich. **Kein sichtbarer Text wurde
+   geändert und keine Aussage erfunden**, es sind nur die erfundenen
+   Einträge verschwunden.
+
+   Dabei ein eigener Stolperstein: Dieser Block liegt im
+   YAML-Vorspann der Vorlage. Mein erster Versuch zerstörte die
+   Einrückung, und der Bau brach ab. Beim zweiten Mal wird der
+   Grundeinzug mitgeführt. Der Kommentar im Skript sagt warum.
+
+**Damit das nicht wiederkommt: `scripts/pruefe-schema-faq.mjs`.**
+Prüft auf allen Seiten, ob Datenblock und sichtbarer Text wortgleich
+sind, und ob jede Frage ein sichtbares Gegenstück hat. Unterscheidet
+bewusst **Fehler** (Frage nur im Datenblock) von **Hinweis** (Antwort
+auf der Seite nur gekürzt vorhanden, wie im Kostenratgeber, der seine
+Fragen als Überschriften führt). Gegenprobe mit vier gebauten Fällen,
+**4 von 4 erkannt**.
+
+**Stand jetzt:** 93 JSON-LD-Blöcke, alle gültiges JSON, **0
+Gedankenstriche**, 74 FAQ-Einträge geprüft, 0 Abweichungen.
+
+**Befunde des Prüfers, die beim Betreiber liegen** (in
+`docs/NEXT_TASK.md`): Titel, die mehr versprechen als der Text hält
+(„alle 16 Bundesländer" bei drei behandelten, „Preise 2026" in einem
+Artikel, der bewusst keine Preise nennt), „CE-zertifiziert" gegen
+„CE-gekennzeichnet", die Velaris-Benennung, Produktkarten mit H2 statt
+H3, und die Frage, ob 60 km oder 50 km das Einzugsgebiet sind.

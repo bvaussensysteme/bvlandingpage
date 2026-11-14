@@ -228,3 +228,27 @@ nicht angefasst. Erst auf Ansage:
   Hersteller benutzt, dann durchgängig verwenden.
 - **Dreierformeln** in Überschriften („Wertsteigernd, pflegeleicht,
   modern") in `fassade.njk`, `gartenhaus.njk`, `sichtschutz.njk`.
+
+## SEO-Befunde beim Betreiber (Prüfschritt 6, 14.11.2026)
+
+- **Titel versprechen mehr als der Text hält.**
+  `src/ratgeber/baugenehmigung-terrassenueberdachung.njk` heißt „alle
+  Bundesländer", behandelt aber RLP, NRW und Hessen.
+  `terrassenueberdachung-kosten.njk` heißt „Preise & Kosten 2026",
+  nennt aber bewusst keine Preise. `pergola-kaufen-ratgeber.njk`
+  verspricht „Kosten", hat keinen Kostenabschnitt. Entweder Text
+  erweitern oder Titel ehrlich fassen. **Titel ändern ist
+  Betreibersache.**
+- **„CE-zertifiziert" gegen „CE-gekennzeichnet".** Produktseiten sagen
+  das eine, `index.html` und `src/zertifikate.njk` das andere. Ob
+  „zertifiziert" belegt ist, gehört fachlich geklärt.
+- **Velaris heißt vier Dinge:** „Lamellenmarkise" (Schema),
+  „Lamellensystem" (Titel), „Einsteuerbare Lamellen" (H1),
+  „steuerbares Lamellensystem" (FAQ). Einen Begriff festlegen.
+- **Produktkarten tragen H2 statt H3**, auf allen 16 Produktseiten.
+  Bestand, nicht neu.
+- **60 km oder 50 km?** Sichtbar und im Datenblock steht 60 km.
+- **`index.html` Velaris-FAQ verlinkt auf die Pergola-Seite**, obwohl
+  es eine eigene Velaris-Seite gibt.
+- **`carport-oder-garage.njk`: „Carport ist 3-5× günstiger"** ist eine
+  Zahl ohne Beleg auf einer Seite, die sonst keine Preise nennt.

@@ -275,3 +275,31 @@ brach mit `ERR_CONNECTION_REFUSED` auf Port 8783 ab und bestand einzeln
 mit 182 von 182.
 
 **Also: nacheinander, und je Skript mindestens 280 Sekunden.**
+
+## `scripts/pruefe-schema-faq.mjs` (neu am 14.11.2026)
+
+**Was es prüft.** Steht im strukturierten Datenblock (Schema.org
+FAQPage) wortgleich das, was der Besucher sieht? Zusätzlich: Hat jede
+Frage im Datenblock ein sichtbares Gegenstück?
+
+**Warum es entstanden ist.** Beim Entfernen der Gedankenstriche
+schützte mein Skript `<script>`-Blöcke. Die strukturierten Daten
+liegen in genau so einem Block. Ergebnis: 35 FAQ-Einträge auf 14
+Ortsseiten sagten etwas anderes als die Seite, und auf
+`baugenehmigung.html` standen sechs Fragen im Datenblock, von denen
+fünf auf der Seite gar nicht vorkamen. Beides fällt ohne Prüfung
+niemandem auf, weil jede Fassung für sich richtig aussieht.
+
+**Fehler gegen Hinweis.** Eine Frage, die nur im Datenblock steht, ist
+ein **Fehler**: das ist eine Behauptung über eine Seite, die es nicht
+gibt. Eine Antwort, die auf der Seite nur gekürzt steht, ist ein
+**Hinweis**: zulässig, solange die Aussage dort steht. Betrifft
+derzeit `ratgeber/terrassenueberdachung-kosten.html`, das seine Fragen
+als Überschriften führt und nicht als Aufklapper.
+
+**Gegenprobe:** `node scripts/pruefe-schema-faq.mjs --gegenprobe`
+baut vier Fälle nach (Antwort um ein Wort abweichend, Gedankenstrich
+nur im Datenblock, Frage ohne sichtbares Gegenstück, kaputtes JSON)
+und erwartet, dass jeder einzelne anschlägt. **4 von 4 erkannt.**
+
+Umfang heute: 17 Seiten mit FAQ-Auszeichnung, 74 Einträge.
