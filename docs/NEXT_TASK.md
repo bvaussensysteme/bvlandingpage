@@ -283,3 +283,18 @@ Beim Durchsehen der JavaScript-Texte gefunden, **nicht** angefasst:
 Toter Code mit Formularlogik ist unangenehm: Beim nächsten Umbau nimmt
 jemand an, er sei in Betrieb. Entweder entfernen oder mit einem
 Kommentar versehen, der sagt, dass er ruht.
+
+## Einzugsgebiet ohne JavaScript leer (14.11.2026)
+
+`einzugsgebiet.html` baut die Ortsliste erst im Browser:
+`<ul id="orteListe">` steht leer im HTML, gefüllt wird sie von
+`orte.forEach`. Gemessen: ohne JavaScript 0 Einträge, mit 31.
+
+Übrig bleibt ein Grundgerüst von rund 1600 Zeichen, ohne die Antwort
+auf die Frage, für die die Seite gebaut wurde: „Kommt ihr zu mir?"
+
+**Nicht neu**, war vor der Karten-Umstellung schon so. Zu überlegen:
+die Orte serverseitig in die Seite schreiben (Eleventy kann das aus
+derselben Liste) und das Skript nur noch für Karte und Filter
+benutzen. Dann steht die Antwort auch dann da, wenn JavaScript fehlt
+oder scheitert.

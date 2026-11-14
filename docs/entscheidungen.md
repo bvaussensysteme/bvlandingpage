@@ -17217,3 +17217,54 @@ verbessert und dabei Barrierefreiheit verschlechtert, ist keine
 Verbesserung. Gefunden hat ihn keine der 58 Prüfungen, sondern eine
 Frage: „Wo liegt der Fokus, nachdem das angeklickte Element
 verschwunden ist?"
+
+## 14.11.2026 – Die zwei ungeprüften Wege nachgeholt
+
+Ich hatte „Verhalten ohne JavaScript" und „Fehlerzweig, wenn der
+Kartenserver nicht antwortet" als nicht gemessen gemeldet. Beides
+nachgeholt.
+
+### 1. Kartenserver antwortet nicht: hält
+
+Alle Anfragen an `cdnjs.cloudflare.com` im Browser abgewiesen, dann
+„Karte laden" gedrückt:
+
+- Der Platzhalter bleibt stehen.
+- Der Knopf ist **wieder freigegeben**, man kann es erneut versuchen.
+- Der Hinweis lautet „Die Karte konnte nicht geladen werden. Die
+  Ortsliste funktioniert weiterhin."
+- **Keine Fehlermeldung in der Seite**, nichts bricht.
+
+Der Fehlerzweig aus `bgLoadLeaflet` tut also genau das, wofür er
+gebaut wurde.
+
+### 2. Ohne JavaScript: Platzhalter ja, Ortsliste nein
+
+Gemessen mit abgeschaltetem JavaScript:
+
+| | ohne JS | mit JS |
+|---|---|---|
+| externe Anfragen | **keine** | keine, bis geklickt wird |
+| Platzhalter samt Hinweistext | steht | steht |
+| Einträge in `#orteListe` | **0** | 31 |
+
+Der Datenschutzteil hält also auch ohne JavaScript: Es entsteht keine
+Verbindung nach außen.
+
+**Aber die Ortsliste ist leer.** `<ul id="orteListe">` steht leer im
+HTML und wird erst von `orte.forEach` gefüllt. Ohne JavaScript bleibt
+von der Seite ein Grundgerüst von rund 1600 Zeichen übrig, ohne die
+Antwort auf die Frage, für die sie gebaut wurde: „Kommt ihr zu mir?"
+
+**Das ist nicht neu und nicht von dieser Änderung verursacht.**
+Nachgesehen: `orte.forEach` steht auch drei Commits früher schon so im
+Code. Notiert unter „Später prüfen", nicht angefasst.
+
+**Ein eigener Messfehler dabei, weil er lehrreich ist.** Mein erster
+Lauf zählte `.orte-liste li` und fand null Einträge. Die Klasse heißt
+aber `orte-list`, ohne „e". Die Zahl stimmte zufällig, der Weg dorthin
+war falsch: Ein Selektor, den es nicht gibt, liefert immer null, und
+„null gefunden" sieht aus wie ein Befund. Erst mit der richtigen id
+und einer Gegenprobe **mit** JavaScript (31 Einträge) ist die Messung
+etwas wert. Dieselbe Falle wie am Vormittag bei
+`pruefe-produktwahl.mjs`.
