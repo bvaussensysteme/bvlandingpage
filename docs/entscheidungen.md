@@ -17114,3 +17114,59 @@ steht, und für sonst nichts.**
 und `js/newsletter.js` enthalten Formularwege, die an nichts hängen.
 Toter Code mit Formularlogik ist unangenehm, weil beim nächsten Umbau
 jemand annimmt, er sei in Betrieb.
+
+## 14.11.2026 – Karten laden erst auf Klick, damit die Datenschutzerklärung wieder stimmt
+
+**Anlass.** Der Datenschutz-Abgleich ergab: `einzugsgebiet.html` und
+`windzonen.html` bauten **beim bloßen Seitenaufruf** Verbindungen zu
+fremden Servern auf. Die Erklärung sagt dagegen, die Verbindung
+entstehe „erst beim Nutzen des jeweiligen Tools".
+
+**Die Richtung der Lösung ist der Punkt.** Nicht den Text an die
+Wirklichkeit anpassen, sondern die Wirklichkeit an den Text. Das
+folgt der Dauerregel „Rechtstexte nicht anfassen" und ist zugleich das
+bessere Ergebnis: Der Besucher entscheidet, nicht die Seite.
+
+**Was jetzt gilt.** An der Stelle der Karte steht eine Fläche mit dem
+Text „Karte nicht geladen. Die Karte wird erst auf Ihren Wunsch
+eingebunden.", einem Knopf „Karte laden" (138 × 46 px, echtes
+`<button>`, mit Tastatur bedienbar) und darunter dem Satz „Beim Laden
+wird eine Verbindung zu OpenStreetMap aufgebaut. Dabei wird Ihre
+IP-Adresse übertragen."
+
+**Kein neues Muster erfunden.** Der Lader ist `bgLoadLeaflet` aus
+`src/baugenehmigung.njk`, die Seite, die es seit jeher richtig macht,
+samt `integrity`, `crossorigin` und einem Fehlerzweig, der die Karte
+überspringt statt die Seite zu brechen.
+
+**Gemessen, und zwar zweimal unabhängig.** Der bauende Agent hat alle
+Netzwerkanfragen mitgeschrieben, ich habe es danach selbst wiederholt:
+
+| Seite | vor dem Klick | nach dem Klick |
+|---|---|---|
+| `einzugsgebiet.html` | **keine** | cdnjs, dann Kacheln von OpenStreetMap |
+| `windzonen.html` | **keine** | erst nach Suche und Klick |
+
+Die Adresssuche über Photon läuft weiterhin beim Tippen. Das ist eine
+Handlung des Besuchers und bleibt.
+
+**`unpkg.com` ist aus dem Projekt verschwunden.** Die
+Einzugsgebiet-Seite holte Leaflet von dort, und **dieser Dienst stand
+in der Datenschutzerklärung nirgends**. Jetzt kommt Leaflet auf allen
+drei Seiten von `cdnjs.cloudflare.com`, und der ist dort genannt. Ein
+Auslieferer weniger, und der verbliebene ist erklärt.
+
+**Zusätzlich die Sicherheitsrichtlinie nachgezogen.** In `_headers`
+stand `https://unpkg.com` an drei Stellen (`script-src`, `style-src`,
+`img-src`). Von dort wird nichts mehr geladen, also ist die Erlaubnis
+überflüssig. Eine überflüssige Erlaubnis in einer CSP ist eine offene
+Tür ohne Zweck. Entfernt.
+
+**Was ausdrücklich geprüft wurde, weil es Bestandsschutz genießt:**
+Der Wind- und Schneelastzonen-Rechner funktioniert ohne Karte. Die
+Zone kommt aus den eigenen Daten. Wer die Karte nie lädt, bekommt sein
+Ergebnis trotzdem.
+
+**Offen geblieben:** Das Verhalten ohne JavaScript und der
+Fehlerzweig beim Ladefehler sind aus dem Code abgeleitet, nicht
+gemessen. Beides steht unter „Später prüfen".

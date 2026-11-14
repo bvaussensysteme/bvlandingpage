@@ -29,12 +29,28 @@ extraStyles: |
       }
 
       /* Karte */
-      #map {
+      #map, #map-gate {
         height: 540px; border-radius: 12px;
         box-shadow: var(--shadow-lg);
         border: 2px solid var(--border);
         z-index: 0;
       }
+
+      /* Karten-Platzhalter: Verbindung erst nach Klick */
+      #map-gate {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; gap: 12px; padding: 24px; box-sizing: border-box;
+        background: var(--off-white, #f5f5f3); color: var(--text, #222);
+      }
+      #map-gate p { margin: 0; max-width: 460px; font-size: 0.9rem; }
+      #map-gate .kartegate-note { font-size: 0.8rem; color: var(--muted, #555); }
+      #map-gate button {
+        min-height: 44px; min-width: 44px; padding: 10px 24px; cursor: pointer;
+        font: inherit; font-weight: 700; border: 0; border-radius: 8px;
+        background: var(--gold, #C49A2A); color: #111;
+      }
+      #map-gate button:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+      #map-gate[hidden] { display: none; }
 
       /* Ortsliste */
       .orte-panel {
@@ -113,14 +129,10 @@ extraStyles: |
 
       @media (max-width: 860px) {
         .gebiet-layout { grid-template-columns: 1fr; }
-        #map { height: 400px; }
+        #map, #map-gate { height: 400px; }
         .orte-list { max-height: 300px; }
       }
 
-extraHead: |
-    <link rel="preconnect" href="https://unpkg.com" crossorigin />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 extraScripts: |
   <script>
   // Orte mit Koordinaten
@@ -158,40 +170,84 @@ extraScripts: |
     { name: 'Bonn',                       lat: 50.735, lng: 7.100,  hauptort: false, fern: true, info: 'Am Rhein.', hinweis: 'Am Rand unseres Einzugsgebiets – bitte kurz anfragen, ob eine Anfahrt aktuell möglich ist.' },
   ];
 
-  // Karte initialisieren – zentriert auf Westerwald
-  var map = L.map('map', { zoomControl: true }).setView([50.520, 7.800], 10);
+  // ── LEAFLET LAZY-LOADER (Muster wie in baugenehmigung.njk) ───
+  // Bewusst erst nach Klick: Beim Laden von Leaflet und der Kacheln geht die
+  // IP-Adresse an cdnjs.cloudflare.com und tile.openstreetmap.org.
+  var gbLeafletLoaded = false;
+  function gbLoadLeaflet(callback) {
+    if (gbLeafletLoaded && window.L) { callback(); return; }
+    var lcss = document.createElement('link');
+    lcss.rel = 'stylesheet';
+    lcss.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+    lcss.integrity = 'sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb';
+    lcss.crossOrigin = 'anonymous';
+    document.head.appendChild(lcss);
+    var ljs = document.createElement('script');
+    ljs.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    ljs.integrity = 'sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO';
+    ljs.crossOrigin = 'anonymous';
+    ljs.onload = function() { gbLeafletLoaded = true; callback(); };
+    ljs.onerror = function() { callback(); }; // Karte überspringen bei Fehler
+    document.head.appendChild(ljs);
+  }
 
-  // OpenStreetMap Tiles (kostenlos, keine API-Key)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 18
-  }).addTo(map);
-
-
-  // Eigenes Icon fuer "Rand des Einzugsgebiets" (kein Bild-Request noetig, CSP-sicher)
-  var fernIcon = L.divIcon({
-    className: 'orte-fern-marker',
-    html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #8a8a8a;"></span>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7]
-  });
-
-  // Marker & Popups
+  // Karte erst nach Klick aufbauen. Die Ortsliste funktioniert auch ohne Karte.
+  var map = null;
   var markers = [];
-  orte.forEach(function(ort, idx) {
-    var marker = L.marker([ort.lat, ort.lng], ort.fern ? { icon: fernIcon } : {})
-      .addTo(map)
-      .bindPopup(
-        '<div style="font-family:Inter,sans-serif;min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
-          '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
-          '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
-          (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +
-          '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
-        '</div>',
-        { maxWidth: 220, className: 'bv-popup' }
-      );
-    markers.push(marker);
-  });
+  var gbMapPending = null;
+
+  function gbInitMap() {
+    if (map || !window.L) return;
+    document.getElementById('map-gate').hidden = true;
+    document.getElementById('map').hidden = false;
+    map = L.map('map', { zoomControl: true }).setView([50.520, 7.800], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18
+    }).addTo(map);
+
+    var fernIcon = L.divIcon({
+      className: 'orte-fern-marker',
+      html: '<span style="display:block;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #8a8a8a;"></span>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    orte.forEach(function(ort) {
+      var marker = L.marker([ort.lat, ort.lng], ort.fern ? { icon: fernIcon } : {})
+        .addTo(map)
+        .bindPopup(
+          '<div style="font-family:Inter,sans-serif;min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
+            '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
+            '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
+            (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +
+            '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +
+          '</div>',
+          { maxWidth: 220, className: 'bv-popup' }
+        );
+      markers.push(marker);
+    });
+    if (gbMapPending !== null) {
+      var p = gbMapPending; gbMapPending = null;
+      map.setView([p.lat, p.lng], 13, { animate: true });
+      markers[p.idx].openPopup();
+    }
+  }
+
+  function gbMapLaden() {
+    var gbtn = document.getElementById('map-gate-btn');
+    gbtn.disabled = true;
+    gbtn.textContent = 'Karte wird geladen …';
+    gbLoadLeaflet(function() {
+      if (window.L) { gbInitMap(); }
+      else {
+        gbtn.disabled = false;
+        gbtn.textContent = 'Karte laden';
+        gbtn.parentNode.querySelector('.kartegate-note').textContent =
+          'Die Karte konnte nicht geladen werden. Die Ortsliste funktioniert weiterhin.';
+      }
+    });
+  }
+  document.getElementById('map-gate-btn').addEventListener('click', gbMapLaden);
 
   // Ortsliste aufbauen
   var liste = document.getElementById('orteListe');
@@ -207,15 +263,20 @@ extraScripts: |
       liste.querySelectorAll('button').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       // Zur Position zoomen und Popup öffnen
-      map.setView([ort.lat, ort.lng], 13, { animate: true });
-      markers[idx].openPopup();
+      if (map) {
+        map.setView([ort.lat, ort.lng], 13, { animate: true });
+        markers[idx].openPopup();
+      } else {
+        // Karte noch nicht geladen: Auswahl merken, Karte erst auf Klick laden
+        gbMapPending = { lat: ort.lat, lng: ort.lng, idx: idx };
+        document.getElementById('map-gate-btn').focus();
+      }
     });
     li.appendChild(btn);
     liste.appendChild(li);
   });
 
   // Marker-Gruppe für Referenz (kein automatisches fitBounds - wir bleiben bei Dernbach-Zoom)
-  var group = L.featureGroup(markers);
 
   // Info-Tooltip für Randzone-Orte: fixed-positioniert (entkommt dem
   // overflow:hidden/auto der Liste), funktioniert per Klick (Mobil) und Hover (Desktop)
@@ -277,7 +338,12 @@ extraScripts: |
 
       <!-- KARTE -->
       <div>
-        <div id="map"></div>
+        <div id="map-gate">
+          <p><strong>Karte nicht geladen.</strong> Die Karte wird erst auf Ihren Wunsch eingebunden.</p>
+          <button type="button" id="map-gate-btn">Karte laden</button>
+          <p class="kartegate-note">Beim Laden wird eine Verbindung zu OpenStreetMap aufgebaut. Dabei wird Ihre IP-Adresse übertragen.</p>
+        </div>
+        <div id="map" hidden></div>
         <div class="gebiet-cta">
           <h3>Ihr Standort nicht dabei?</h3>
           <p>Melden Sie sich trotzdem. Wir prüfen individuell ob wir zu Ihnen kommen können und suchen gemeinsam nach einer Lösung.</p>

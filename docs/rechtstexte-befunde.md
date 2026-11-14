@@ -177,6 +177,15 @@ des jeweiligen Tools aufgebaut". Genannt sind OpenStreetMap, Leaflet
 2. **`unpkg.com` kommt in der Erklärung überhaupt nicht vor.**
 3. Die Seite `einzugsgebiet.html` wird im Text nicht genannt.
 
+> **Nachtrag 14.11.2026, erledigt auf dem Arbeitsbranch.** Beide Seiten
+> laden Leaflet und die Kartenkacheln jetzt erst auf Klick. Vor dem
+> Klick geht keine Anfrage nach außen, zweimal unabhängig gemessen.
+> `unpkg.com` ist aus dem Projekt verschwunden; Leaflet kommt überall
+> von `cdnjs.cloudflare.com`, der in der Erklärung genannt ist. Damit
+> stimmt der Satz „erst beim Nutzen des jeweiligen Tools" wieder,
+> **ohne dass am Rechtstext etwas geändert wurde.** Noch nicht live:
+> Das gilt erst mit der Freigabe.
+
 **Nicht geändert**, weil an der Live-Seite nichts angefasst wird und
 weil es zwei Wege gibt, die der Betreiber gegeneinander abwägen muss:
 die Bibliothek selbst ausliefern statt vom fremden Server, oder die

@@ -226,8 +226,24 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   margin-bottom: 28px; position: relative;
 }
 .wz-map-wrap.visible { display: block; }
-#wz-map { height: 380px; width: 100%; }
-@media (max-width: 600px) { #wz-map { height: 260px; } }
+#wz-map, #wz-map-gate { height: 380px; width: 100%; }
+/* Karten-Platzhalter: Verbindung erst nach Klick */
+#wz-map-gate {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px; padding: 24px; box-sizing: border-box;
+  background: var(--off-white, #f5f5f3); color: var(--text, #222);
+}
+#wz-map-gate p { margin: 0; max-width: 460px; font-size: 0.9rem; }
+#wz-map-gate .kartegate-note { font-size: 0.8rem; color: var(--muted, #555); }
+#wz-map-gate button {
+  min-height: 44px; min-width: 44px; padding: 10px 24px; cursor: pointer;
+  font: inherit; font-weight: 700; border: 0; border-radius: 8px;
+  background: var(--gold, #C49A2A); color: #111;
+}
+#wz-map-gate button:focus-visible { outline: 3px solid #111; outline-offset: 3px; }
+#wz-map-gate[hidden] { display: none; }
+
+@media (max-width: 600px) { #wz-map, #wz-map-gate { height: 260px; } }
 
 /* ===== RESULTS ===== */
 .wz-results {
@@ -472,12 +488,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <meta property="og:locale" content="de_DE" />
 
 
-<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-<link rel="dns-prefetch" href="https://photon.komoot.io" />
-<link rel="dns-prefetch" href="https://nominatim.openstreetmap.org" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous" />
-
-
 </head>
 <body>
 
@@ -579,7 +589,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
     <!-- Map -->
     <div class="wz-map-wrap" id="wz-map-wrap">
-      <div id="wz-map" aria-label="Karte mit Standortmarkierung"></div>
+      <div id="wz-map-gate">
+          <p><strong>Karte nicht geladen.</strong> Die Karte wird erst auf Ihren Wunsch eingebunden.</p>
+          <button type="button" id="wz-map-gate-btn">Karte laden</button>
+          <p class="kartegate-note">Beim Laden wird eine Verbindung zu OpenStreetMap aufgebaut. Dabei wird Ihre IP-Adresse übertragen.</p>
+        </div>
+      <div id="wz-map" aria-label="Karte mit Standortmarkierung" hidden></div>
     </div>
 
     <!-- Results -->
@@ -1007,9 +1022,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/anfrage-wizard.js?v=20261114h" defer></script>
 
-<!-- Leaflet CSS+JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
-
 <script>
 /* ===================================================
    BV AussenSysteme – Wind- & Schneelastzonen Tool
@@ -1076,9 +1088,32 @@ function wzFindByCoords(lat, lng) {
 }
 
 // ---- Karte ----
-var wzMap = null, wzMarker = null;
+var wzMap = null, wzMarker = null, wzPendingPos = null;
+
+// ── LEAFLET LAZY-LOADER (Muster wie in baugenehmigung.njk) ───
+// Bewusst erst nach Klick: Beim Laden von Leaflet und der Kacheln geht die
+// IP-Adresse an cdnjs.cloudflare.com und tile.openstreetmap.org.
+var wzLeafletLoaded = false;
+function wzLoadLeaflet(callback) {
+  if (wzLeafletLoaded && window.L) { callback(); return; }
+  var lcss = document.createElement('link');
+  lcss.rel = 'stylesheet';
+  lcss.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+  lcss.integrity = 'sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb';
+  lcss.crossOrigin = 'anonymous';
+  document.head.appendChild(lcss);
+  var ljs = document.createElement('script');
+  ljs.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  ljs.integrity = 'sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO';
+  ljs.crossOrigin = 'anonymous';
+  ljs.onload = function() { wzLeafletLoaded = true; callback(); };
+  ljs.onerror = function() { callback(); }; // Karte überspringen bei Fehler
+  document.head.appendChild(ljs);
+}
 
 function wzInitMap(lat, lng) {
+  document.getElementById('wz-map-gate').hidden = true;
+  document.getElementById('wz-map').hidden = false;
   if (!wzMap) {
     wzMap = L.map('wz-map', { scrollWheelZoom: false });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1091,6 +1126,21 @@ function wzInitMap(lat, lng) {
   wzMap.setView([lat,lng], 11);
   setTimeout(function(){ wzMap.invalidateSize(); }, 100);
 }
+
+document.getElementById('wz-map-gate-btn').addEventListener('click', function() {
+  var gbtn = this;
+  gbtn.disabled = true;
+  gbtn.textContent = 'Karte wird geladen …';
+  wzLoadLeaflet(function() {
+    if (window.L && wzPendingPos) {
+      try { wzInitMap(wzPendingPos.lat, wzPendingPos.lng); return; } catch(e) {}
+    }
+    gbtn.disabled = false;
+    gbtn.textContent = 'Karte laden';
+    document.querySelector('#wz-map-gate .kartegate-note').textContent =
+      'Die Karte konnte nicht geladen werden. Ihr Ergebnis steht trotzdem unten.';
+  });
+});
 
 // ---- Ergebnisanzeige ----
 var WZ_INFO = {
@@ -1346,8 +1396,15 @@ function wzSearch() {
       return;
     }
     document.getElementById('wz-map-wrap').classList.add('visible');
-    try { wzInitMap(lat, lng); } catch(e) {
-      document.getElementById('wz-map-wrap').classList.remove('visible');
+    // Karte nur, wenn Leaflet schon geladen ist. Sonst Platzhalter mit Knopf.
+    wzPendingPos = { lat: lat, lng: lng };
+    if (wzLeafletLoaded && window.L) {
+      try { wzInitMap(lat, lng); } catch(e) {
+        document.getElementById('wz-map-wrap').classList.remove('visible');
+      }
+    } else {
+      document.getElementById('wz-map-gate').hidden = false;
+      document.getElementById('wz-map').hidden = true;
     }
     wzShowResults(shortAddr, lat, lng, feature.properties);
   }
