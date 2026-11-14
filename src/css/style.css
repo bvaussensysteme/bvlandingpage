@@ -2053,14 +2053,21 @@ img { max-width: 100%; height: auto; }
   flex: 1;
 }
 .google-review-btn__stars {
-  /* Die Sterne standen in #FBBC05 (dem Gelb von Google) auf Weiss und
-     erreichten gemessen 1,71:1 - sie tragen die Bewertung, sind also
-     kein Zierrat und brauchen 4,5:1. Jetzt die eigene Goldstufe der
-     Marke: 5,9:1 auf Weiss, und zugleich eine Fremdfarbe weniger. */
+  /* Erst standen hier fuenf gefuellte Sterne in Googles Gelb (#FBBC05,
+     gemessen 1,71:1 auf Weiss), dann in der eigenen Goldstufe. Seit
+     dem 14.11.2026 sind es UMRISSE, und zwar nicht aus Geschmack:
+     Fuenf gefuellte Sterne auf einem Knopf, der zum Bewerten auffordert,
+     lesen sich als Vorgabe der gewuenschten Note. Google untersagt das
+     gezielte Einwerben nur positiver Bewertungen. Der Umriss sagt
+     "hier wird bewertet", ohne das Ergebnis vorwegzunehmen.
+     Die Sterne sind jetzt Zierrat (aria-hidden), weil der Knopftext
+     schon alles sagt - der Kontrast ist damit keine Pflicht mehr,
+     --gold-text liegt mit 5,9:1 ohnehin darueber. */
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   padding: 12px 16px 12px 0;
   color: var(--gold-text);
-  font-size: 0.9rem;
-  letter-spacing: 1px;
   flex-shrink: 0;
 }
 @media (max-width: 520px) {

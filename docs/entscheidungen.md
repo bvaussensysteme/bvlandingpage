@@ -16382,3 +16382,31 @@ nachgesehen.
   öffentlich abrufbar, nur nicht verlinkt und per `_headers` auf
   noindex gesetzt.
 - `_template.html` lädt `js/i18n.js` ohne Version.
+
+## 14.11.2026 – Sterne am Bewertungsknopf sind jetzt Umrisse
+
+**Anlass.** Ich hatte den Betreiber darauf hingewiesen, dass fuenf
+**gefuellte** Sterne auf einem Knopf, der zum Bewerten auffordert, sich
+als Vorgabe der gewuenschten Note lesen lassen. Google untersagt das
+gezielte Einwerben nur positiver Bewertungen. Der Betreiber hat
+„Umrisse" gewaehlt.
+
+**Was jetzt gilt.** Fuenf Sterne als SVG-Umriss in `--gold-text`,
+`aria-hidden`, weil der Knopftext „Bewertung auf Google hinterlassen"
+schon alles sagt. Der Umriss sagt „hier wird bewertet", ohne das
+Ergebnis vorwegzunehmen.
+
+**Warum SVG und nicht das Zeichen ☆.** Der leere Stern ist nicht in
+jeder Schrift vorhanden und faellt dann auf ein Ersatzzeichen zurueck.
+Ein Pfad sieht ueberall gleich aus und laesst sich in Strichstaerke und
+Groesse steuern.
+
+**Gemessen.** Knopf 444 × 50 px, Bildschirmfoto angesehen. Am Handy
+blendet die bestehende Regel die Sterne ohnehin aus
+(`@media` unter 760 px, `display: none`), daran wurde nichts geaendert.
+
+**Vorgeschichte, damit sie nicht verloren geht.** Die Sterne standen
+zuerst in Googles Gelb #FBBC05 und erreichten auf Weiss gemessen
+1,71:1. Dann in der eigenen Goldstufe mit 5,9:1. Jetzt Umriss. Der
+Kommentar an der CSS-Regel traegt diese drei Stufen, damit niemand sie
+„aufraeumt".
