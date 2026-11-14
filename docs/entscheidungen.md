@@ -16238,3 +16238,34 @@ Der Betreiber hat bestaetigt, dass der Hauseigentuemer die
 Veroeffentlichung der beiden Carport-Fotos in der Galerie erlaubt.
 Damit ist dieser Freigabe-Blocker erledigt. Offen bleibt nur die
 Bildunterschrift: Ort und Dachmaterial sind weiterhin nicht bekannt.
+
+## 14.11.2026 – Falsches Zeichen geprueft: die Gedankenstrich-Pruefung war wertlos
+
+**Was falsch war.** Ich habe gemeldet „keine Gedankenstriche in
+`index.html`" und dabei `grep -c "—"` benutzt, also den **Geviertstrich
+U+2014**. Der deutsche Gedankenstrich ist der **Halbgeviertstrich
+U+2013 (–)**. Die Pruefung konnte gar nicht anschlagen. Eine Pruefung,
+die das falsche Zeichen sucht, bestaetigt nur sich selbst.
+
+**Was nachgemessen wurde.** Mit dem richtigen Zeichen, Kommentare,
+Skripte, `<title>` und `<meta>` ausgeklammert, Zahlenspannen und die
+Firmierung als erlaubt abgezogen:
+
+- `index.html`: **eine** Fundstelle im Fliesstext, in der FAQ zum
+  Grenzabstand. Behoben, der Strich ist jetzt ein Komma.
+- **Alle uebrigen Seiten zusammen: rund 530 Fundstellen.** Darunter
+  Produktseiten, Ratgeber, Landingpages und die AGB.
+- **24 Seiten** fuehren zusaetzlich einen Gedankenstrich im
+  `<title>`, etwa „Carport Koblenz – Aluminium nach Mass".
+
+**Nicht behoben, bewusst.** Die 530 Stellen sind nicht beauftragt und
+zwei Gruppen davon sind heikel: Seitentitel wirken auf die
+Suchergebnisse, und die AGB sind Rechtstext, in dem ein Strich die
+Satzbedeutung traegt. Das entscheidet der Betreiber, nicht der
+Assistent.
+
+**Lehre fuer kuenftige Pruefungen.** Ein Pruefskript fuer diese Regel
+muss beide Zeichen suchen und Zahlenspannen, Wochentagsspannen,
+Kommentare, Skripte und die Firmierung ausnehmen. Bisher gibt es kein
+solches Skript, deshalb ist die Regel bisher per Augenmass geprueft
+worden.
