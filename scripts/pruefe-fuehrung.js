@@ -271,7 +271,9 @@ pruefe('Bedienfeld waechst mit der Bildschirmbreite',
        !/width: 352px/.test(html), 'clamp statt feste 352px');
 pruefe('Anfrage nennt auch die offenen Seiten',
        new RegExp(q || "'offen'\\)\\);").test(js) &&
-       new RegExp(q || "'Seitenelemente – '").test(js), 'textAktualisieren()');
+       /* Ohne Trennzeichen, siehe pruefe-feldwahl.js: der Doppelpunkt
+          loeste am 14.11.2026 einen Fehlalarm aus. */
+       new RegExp(q || "'Seitenelemente").test(js), 'textAktualisieren()');
 pruefe('Bedienfeld sagt im Klartext, welche Seite offen bleibt',
        new RegExp(q || 'seitenStandZeigen').test(js) &&
        /id="k3dSeitenStand"/.test(html), '');

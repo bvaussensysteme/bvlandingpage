@@ -16932,3 +16932,45 @@ jetzt „bitte wählen".
 
 **Geprüft:** produktwahl 132/132, assistent 18/18, rahmen-editor 17/17.
 Weitere Konfigurator-Prüfungen laufen.
+
+## 14.11.2026 – Zwei Prüfungen hingen am Satzzeichen, und die Gegenprobe hat mich erwischt
+
+**Was passierte.** Nach der Änderung an `js/konfigurator-3d.js` waren
+zwei vorher grüne Prüfungen rot:
+- `pruefe-feldwahl.js`: „Die Anfrage nennt die Fachzahl je Seite"
+- `pruefe-fuehrung.js`: „Anfrage nennt auch die offenen Seiten"
+
+**Beide suchten nach dem Gedankenstrich**, nicht nach der Sache:
+`/Faecher je Seite – /` und `"'Seitenelemente – '"`. Der Code war in
+Ordnung, die Angabe stand weiterhin da, nur mit Doppelpunkt. Die
+Prüfungen haben also richtig angeschlagen und das Falsche gemeldet.
+
+**Wie es behoben wurde.** Nicht durch Eintragen des neuen Zeichens.
+Das wäre dieselbe Sprödigkeit mit anderem Zeichen, und beim nächsten
+Mal ginge es wieder los. Die Muster prüfen jetzt die **Angabe**
+(`/Faecher je Seite/`, `'Seitenelemente`) und nicht die Zeichensetzung
+davor. Der Grund steht als Kommentar an beiden Stellen.
+
+**Und dann hat mich die Gegenprobe erwischt.** `--gegenprobe` von
+`pruefe-feldwahl.js` schlug fehl: „Gegenprobe ‚Die Anfrage nennt die
+Fachzahl nicht' findet ihre Stelle nicht mehr." Die Gegenprobe baut
+den Fehler ein, indem sie **die Originalzeile im Code sucht und
+ersetzt**, und diese Zeile trug noch den alten Gedankenstrich. Eine
+Gegenprobe, die ihre Stelle nicht findet, baut keinen Fehler ein, und
+eine Prüfung, die keinen eingebauten Fehler findet, bestätigt nur sich
+selbst. Nachgezogen, danach „Gegenprobe in Ordnung".
+
+**Das ist der Grund, warum jede Prüfung eine Gegenprobe braucht.**
+Ohne sie hätte ich zwei Prüfungen „repariert" und wäre zufrieden
+gewesen, während eine davon in Wahrheit nichts mehr geprüft hätte.
+
+**Nebenbei:** `pruefe-stufen` heißt `.js` und nicht `.mjs`. Mein
+Sammelaufruf nahm die falsche Endung an und meldete einen Absturz, wo
+keiner war. Mit der richtigen Endung: bestanden. Dasselbe war heute
+früh schon bei `pruefe-fuehrung` passiert.
+
+**Stand:** feldwahl 44/44 und Gegenprobe in Ordnung, fuehrung
+bestanden und Gegenprobe 313 von 313, stufen bestanden,
+planken-editor 23/23, schiebe-velaris 22/22, balkon 16/16,
+rahmen-editor 17/17, masstabelle und konfigurator bestanden,
+symbole 14/14.

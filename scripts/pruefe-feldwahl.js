@@ -156,8 +156,8 @@ var FEHLER = [
    "        seiten.push(seite + ': ' + (l.length ? l.map(function (w) {\n          return w + erwFeldZusatz(seite, w); }).join(' + ') : 'offen'));",
    "        seiten.push(seite + ': ' + (l.length ? l.join(' + ') : 'offen'));"],
   ['Die Anfrage nennt die Fachzahl nicht', 'js',
-   "        teile.push('Faecher je Seite – ' + erwSeiten().map(function (seite) {",
-   "        void 0 || (function () {})('Faecher je Seite ' + erwSeiten().map(function (seite) {"],
+   "        teile.push('Faecher je Seite: ' + erwSeiten().map(function (seite) {",
+   "        void 0 || (function () {})('Faecher je S' + erwSeiten().map(function (seite) {"],
   ['Die Kurzfassung nennt das Fach nicht', 'js',
    "        if (l.length) se.push(seite + ': ' + l.map(function (w) {\n          return w + erwFeldZusatz(seite, w); }).join(' + '));",
    "        if (l.length) se.push(seite + ': ' + l.join(' + '));"],
@@ -369,7 +369,11 @@ function lauf(q) {
     /seiten\.push\(seite \+ ': ' \+ \(l\.length \? l\.map\(function \(w\) \{\s*\n\s*return w \+ erwFeldZusatz\(seite, w\); \}\)/.test(q.js),
     'sonst bliebe offen, welches Fach welches Element bekommt');
   p('Die Anfrage nennt die Fachzahl je Seite',
-    /Faecher je Seite – /.test(q.js) &&
+    /* Absichtlich ohne das Trennzeichen: Am 14.11.2026 wurde aus dem
+       Gedankenstrich ein Doppelpunkt, und diese Pruefung schlug an,
+       obwohl die Angabe unveraendert da war. Geprueft wird die Angabe,
+       nicht die Zeichensetzung davor. */
+    /Faecher je Seite/.test(q.js) &&
     !/Feld 1 ist das linke/.test(q.js),
     'die Zahl ja, der alte Erklaersatz nicht mehr');
   p('Die Kurzfassung nennt das Fach',
