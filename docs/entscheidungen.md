@@ -17006,3 +17006,38 @@ Rechner sieht man die Zeile also nicht; dort steht das Formular.
 **Geprüft:** Bildschirmfoto bei 390 px angesehen, Zeile 362 × 19 px,
 Schriftgröße 12,16 px, keine Überlappung mit der Zeile darüber.
 `pruefe-startseite.mjs` 39/39.
+
+## 14.11.2026 – Neue Öffnungszeiten
+
+**Ansage des Betreibers:** „öffnungszeiten will ich ändern auch auf
+google: Mo - Fr 9 - 17 Uhr / Sa 10 - 15 Uhr / So nach Absprache."
+
+**Vorher:** Mo–Fr 8–17 Uhr · Sa 9–13 Uhr.
+**Jetzt:** Mo–Fr 9–17 Uhr · Sa 10–15 Uhr · So nach Absprache.
+
+Geändert an **zwei sichtbaren Stellen** in `index.html` (Kontaktkarte
+und die Zeile unter den Kontaktknöpfen) und im
+**LocalBusiness-Datenblock**.
+
+**Der Sonntag steht bewusst NICHT im Datenblock.** Schema.org kennt
+dort nur `opens` und `closes`, also feste Uhrzeiten. „Nach Absprache"
+lässt sich damit nicht ausdrücken. Eine erfundene Zeit einzutragen,
+etwa 10 bis 14 Uhr, wäre gegenüber Google eine Zusage, die der
+Betrieb nicht gegeben hat, und Google zeigt Öffnungszeiten prominent
+an. Sichtbar steht der Sonntag da, strukturiert nicht. Das ist kein
+Versehen und soll nicht „vervollständigt" werden.
+
+**Die Schreibweise bleibt typografisch.** Der Betreiber schrieb
+„Mo - Fr 9 - 17 Uhr" mit Bindestrichen; auf der Seite steht weiterhin
+„Mo–Fr 9–17 Uhr" mit Halbgeviertstrich ohne Leerzeichen. Das ist die
+ausdrückliche Ausnahme der Gedankenstrich-Regel: Zahlen- und
+Zeitspannen sind Typografie, kein Stil.
+
+**Geprüft:** JSON-LD gültig, `pruefe-startseite.mjs` 39/39,
+Schema-FAQ wortgleich.
+
+**Beim Betreiber, nicht hier erledigt:** Google Unternehmensprofil.
+Die Öffnungszeiten dort pflegt nur der Inhaber, und ein Assistent
+greift nicht in produktive Außenauftritte ein. Solange beides
+auseinanderläuft, zeigt Google die alten Zeiten, und das ist die
+Quelle, der die meisten Besucher zuerst begegnen.
