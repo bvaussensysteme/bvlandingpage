@@ -16013,3 +16013,31 @@ Zusage, vom Betreiber nicht erwähnt) und die allgemeine Angabe
 steht „Die Garantiebedingungen erhalten Sie mit Ihrem Angebot" – ob die
 Fassung des Herstellers die drei Stufen genauso nennt, ist hier nicht
 nachprüfbar.
+
+## 14.11.2026 – Messdaten werden am Ende geleert, Hinweis entfällt
+
+**Anlass.** Betreiber, auf den wiederholten Hinweis, dass Vorschau-Aufrufe
+in die produktiven Messdaten schreiben: „das is mir egal, sobald alles
+100% fertig is werde ich alles nullen."
+
+**Was jetzt gilt.** Der Hinweis wird nicht mehr wiederholt (aus
+`CLAUDE.md` gestrichen). Dass die Vorschau-Adresse **öffentlich** ist,
+bleibt erwähnenswert, falls sie an Dritte geht.
+
+**Sachlich spricht nichts dagegen.** Der Bestand ist 354 Zeilen aus 11
+Tagen. Keine Seite erreicht die rund 100 Aufrufe, ab denen eine Aussage
+über sie belastbar wäre (`docs/zahlen-lesen.md`, Falle 2). **Es geht
+also keine Erkenntnis verloren**, die es gäbe. Die Entscheidung kostet
+nichts.
+
+**Was beim Leeren zu beachten ist, wenn es so weit ist:**
+1. **Daten löschen bleibt eine Rückfrage.** `CLAUDE.md` verlangt vor dem
+   Löschen von Daten ausdrücklich eine Bestätigung. Diese Ansage ist
+   eine Absichtserklärung für später, **keine Freigabe für jetzt**.
+2. Gelöscht würde die Tabelle `ereignis` in `bv-messung`. Die Tabelle
+   `salz` löscht sich ohnehin täglich selbst.
+3. **An der Datenschutzerklärung ändert sich nichts.** Löschen ist keine
+   Änderung am Umfang der Messung.
+4. Sinnvoll wäre, erst am Tag der Veröffentlichung zu leeren, damit die
+   Zählung mit der neuen Seite bei null beginnt und sauber vergleichbar
+   ist.

@@ -176,8 +176,13 @@ Abfrage zeigt den alten Stand. Am 14.11.2026 ist genau das passiert.
 Dazu einen eindeutigen Abfrageanhang benutzen (`?x=<zufall>`), sonst
 antwortet der Zwischenspeicher.
 
-**Zwei Sätze gehören dazu, solange Variante C gilt:** Die Adresse ist
-öffentlich, und jeder Aufruf schreibt in die produktiven Messdaten.
+**Die Adresse ist öffentlich** – das gehört dazugesagt, wenn ein Dritter
+sie bekommen könnte.
+
+**Nicht mehr dazusagen:** dass Vorschau-Aufrufe in die Messdaten
+schreiben. Ansage des Betreibers vom 14.11.2026: „das is mir egal,
+sobald alles 100% fertig is werde ich alles nullen." Der Hinweis ist
+damit beantwortet und wird nicht wiederholt.
 
 ## Sprache: keine Gedankenstriche (permanent, 14.11.2026)
 
