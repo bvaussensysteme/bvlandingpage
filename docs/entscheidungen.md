@@ -15973,3 +15973,43 @@ Seiten**. Eine Änderung dort ist keine Startseiten-Änderung mehr.
 Eine Prüfung, die Überlappung und Abschneiden misst, fehlt. **Notiert,
 noch nicht gebaut** – sie gehört in denselben Auftrag wie die
 Entscheidung über die schwebenden Knöpfe.
+
+## 14.11.2026 – Garantiezeiten berichtigt: 10 / 5 / 2
+
+**Anlass.** Betreiber: „Garantie: 10 Jahre auf Alu, 5 Jahre Markisen,
+2 Jahre Elektro."
+
+**Was falsch war.** Die Seite kannte nur zwei Stufen und ordnete die
+Elektrik der falschen zu. Gefunden wurden **acht** Stellen in sieben
+Dateien, in sechs verschiedenen Formulierungen:
+
+| Datei | stand da | steht jetzt |
+|---|---|---|
+| `index.html` (Vertrauensband) | „10 J. Alu · 5 J. Elektro" | „10 J. Alu · 5 J. Markisen" |
+| `index.html` (Warum-Abschnitt) | „10 Jahre auf Alu-Produkte · 5 Jahre auf Markisen & Antriebe" | „10 Jahre auf Aluminium · 5 Jahre auf Markisen · 2 Jahre auf Elektro" |
+| `index.html` (Fließtext) | „Auf elektrische Markisen, Antriebe und Warema-Produkte 5 Jahre" | „auf Markisen 5 Jahre und auf die Elektrik, also Antriebe und Steuerungen, 2 Jahre" |
+| `src/pflege.njk` | „5 Jahre Garantie auf alle Antriebe" | „2 Jahre Garantie auf die Antriebe" |
+| `terrassenueberdachung-koblenz.html` | „5 Jahre auf Markisen und Antriebe" | „5 Jahre auf Markisen, 2 Jahre auf Elektro" |
+| `pergola-koblenz.html`, `pergola-neuwied.html`, `pergola-montabaur.html` | „5 Jahre auf Antriebe (und Elektro)" | „5 Jahre auf Markisen, 2 Jahre auf die Elektrik" |
+| `src/ratgeber/aluminium-terrasse-pflegen.njk` | „5 Jahren auf Markisen und Antriebe" | „5 Jahren auf Markisen und 2 Jahren auf die Elektrik" |
+| `entwurf.html`, `entwurf-bv.html`, `entwurf-apple.html` | dito | dito |
+
+**Warum über die Startseite hinaus gearbeitet wurde**, obwohl der
+Fokusmodus das sonst ausschließt: Eine Garantiezusage, die **länger**
+ist als die tatsächliche, ist eine Zusage, an der man gemessen wird.
+„5 Jahre Garantie auf alle Antriebe" in `pflege.html` war genau das.
+Eine halb berichtigte Seite wäre schlechter als gar keine Berichtigung.
+
+**Gegenprobe:** Nach der Änderung sucht nichts mehr im Repository nach
+„5 Jahre … Antriebe" oder „5 J. Elektro". Alle verbliebenen Treffer sind
+die neuen Fassungen. JSON-LD der Startseite danach auf Gültigkeit
+geprüft.
+
+**Nicht angefasst:** „25 Jahre Garantie auf die Beschichtung" (eigene
+Zusage, vom Betreiber nicht erwähnt) und die allgemeine Angabe
+„10 Jahre Herstellergarantie" dort, wo der Zusammenhang Aluminium ist.
+
+**Liegt beim Betreiber:** Die Garantiebedingungen selbst. Auf der Seite
+steht „Die Garantiebedingungen erhalten Sie mit Ihrem Angebot" – ob die
+Fassung des Herstellers die drei Stufen genauso nennt, ist hier nicht
+nachprüfbar.
