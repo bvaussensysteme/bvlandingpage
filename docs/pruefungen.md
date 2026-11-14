@@ -325,3 +325,36 @@ Dazu, aus demselben Grund in der anderen Richtung:
 **Merke:** Wer die Skripte sammelt, liest nicht nur den Exit-Code,
 sondern die letzte Zeile. Ein Skript, das sagt „kopiere erst die
 Daten", hat nichts geprüft.
+
+## `scripts/pruefe-umbruch.mjs` (neu am 14.11.2026)
+
+**Was es prüft.** Läuft sichtbarer Text aus seinem Kasten heraus?
+Gemessen wird je Element `scrollWidth` gegen `clientWidth`, bei
+**320 und 390 px**, auf allen Seiten außer Entwürfen. Erfasst werden
+Überschriften, Knöpfe, Beschriftungen und `strong`.
+
+**Warum es entstanden ist.** Im Kopf von sieben Ortsseiten stand bei
+390 px „Terrassenüberdach" und dann nichts mehr: 451 px Inhalt in
+einem 362 px breiten Kasten. **Die Seite scrollte dabei nicht
+waagerecht**, deshalb hat keines der 56 vorhandenen Skripte es gesehen,
+obwohl mehrere auf Querscrollen prüfen. Gefunden hat es ein Prüfer von
+Hand. Deutsche Komposita sind lang, das Problem kommt wieder.
+
+**Ausgenommen, mit Absicht:**
+- Elemente in einem Kasten mit `overflow-x: auto` oder `scroll`, auch
+  wenn es am Elternteil steht. Die Lastzonen-Tabelle und die
+  Bildergalerie scrollen absichtlich seitwärts.
+- Unsichtbare Elemente, sonst meldet jede eingeklappte Navigation
+  einen Fehler.
+
+**Gegenprobe:** `node scripts/pruefe-umbruch.mjs --gegenprobe`
+setzt eine Überschrift auf 140 px und erwartet einen Befund, wo vorher
+keiner war. **Erkannt.**
+
+**Dabei selbst in die Falle getappt:** Im ersten Entwurf wurde die
+Messfunktion als Zeichenkette an den Browser übergeben. Playwright
+wertete sie als Ausdruck aus, das Ergebnis kam als `undefined`
+zurück, und die Prüfung hätte **immer null Befunde** gemeldet. Also
+eine Prüfung, die dauerhaft grün ist, ohne je zu messen. Aufgefallen
+ist es nur, weil die Gegenprobe sofort mitlief. Der vierte Fall dieser
+Art an einem Tag.
