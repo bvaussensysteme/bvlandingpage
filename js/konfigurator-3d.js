@@ -867,9 +867,9 @@
       ['Flat Line mit Nebenraum', 'Mit Abstellraum']
     ],
     'Flachdach Flat Box': [
-      ['Flat Box – Seiten & Hinterwand verkleidet', 'Teilverkleidet'],
-      ['Flat Box – rundum verkleidet mit Garagentor', 'Mit Garagentor'],
-      ['Flat Box – mit Nebenraum', 'Mit Abstellraum']
+      ['Flat Box: Seiten & Hinterwand verkleidet', 'Teilverkleidet'],
+      ['Flat Box: rundum verkleidet mit Garagentor', 'Mit Garagentor'],
+      ['Flat Box mit Nebenraum', 'Mit Abstellraum']
     ]
   };
 
@@ -15190,7 +15190,7 @@
     if (!liste.length) return;
     var html = '<div class="k3d-stoffe">' +
       '<button type="button" class="k3d-stoff k3d-stoff--leer" data-stoff="" ' +
-      'aria-pressed="false"><span>Noch offen – bitte beraten</span></button></div>';
+      'aria-pressed="false"><span>Noch offen, bitte beraten</span></button></div>';
     var fam = null;
     liste.forEach(function (st) {
       if (st.f !== fam) {

@@ -297,13 +297,13 @@
     }
     var f = String(frage || '').trim();
     if (f.length < 2) {
-      return '<p class="aw-ral-stand">Nummer oder Farbe eingeben – zum Beispiel ' +
+      return '<p class="aw-ral-stand">Nummer oder Farbe eingeben, zum Beispiel ' +
              '<strong>7016</strong>, <strong>Anthrazit</strong> oder <strong>Braun</strong>.</p>';
     }
     var tr = window.BV_RAL.suchen(f);
     if (!tr.length) {
       return '<p class="aw-ral-stand">Dazu finden wir keinen RAL-Ton. ' +
-             'Andere Schreibweise versuchen – oder „Andere / Beratung" wählen.</p>';
+             'Andere Schreibweise versuchen, oder „Andere / Beratung" wählen.</p>';
     }
     var html = '<div class="aw-ral-liste">';
     tr.slice(0, RAL_TREFFER_MAX).forEach(function (t) {
@@ -315,7 +315,7 @@
     });
     html += '</div>';
     if (tr.length > RAL_TREFFER_MAX) {
-      html += '<p class="aw-ral-stand">' + tr.length + ' Treffer – die ersten ' +
+      html += '<p class="aw-ral-stand">' + tr.length + ' Treffer, die ersten ' +
               RAL_TREFFER_MAX + ' stehen hier. Genauer suchen zeigt weniger.</p>';
     }
     return html;
@@ -327,9 +327,9 @@
       'placeholder="z. B. 7016, Anthrazit oder Braun" autocomplete="off"></div>' +
       '<div id="awRalTreffer">' + ralTrefferHtml(ralFrage) + '</div>' +
       '<p class="aw-ral-fuss"><strong>Sonderfarben sind aufpreispflichtig.</strong> ' +
-      'Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen Aufmaß – ' +
+      'Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen Aufmaß, ' +
       'er hängt von Menge und Oberfläche ab.<br>Die Farbe am Bildschirm ist eine ' +
-      'Näherung. Verbindlich ist der RAL-Fächer – wir zeigen Ihnen das Muster beim Aufmaß.</p>' +
+      'Näherung. Verbindlich ist der RAL-Fächer. Wir zeigen Ihnen das Muster beim Aufmaß.</p>' +
       '</div>';
   }
   function ralKachelHtml() {
@@ -341,7 +341,7 @@
     return '<button type="button" class="aw-option' + (g ? ' is-active' : '') +
       '" data-ral-open="1">' + media +
       '<span class="aw-option-lbl">' + esc(g || 'Andere RAL-Farbe suchen') + '</span>' +
-      '<span class="aw-option-hint">' + (g ? 'Aufpreis – Betrag im Angebot' : '217 Töne – Nummer oder Farbname') +
+      '<span class="aw-option-hint">' + (g ? 'Aufpreis, Betrag im Angebot' : '217 Töne, Nummer oder Farbname') +
       '</span></button>';
   }
 
@@ -396,7 +396,7 @@
     var liste = (window.BV_STOFFE && window.BV_STOFFE[gruppe]) || [];
     if (!liste.length) {
       return '<p class="aw-note">Die Stoffauswahl konnte nicht geladen ' +
-             'werden – wir besprechen den Stoff gern persoenlich.</p>';
+             'werden, wir besprechen den Stoff gern persoenlich.</p>';
     }
     function kachel(wert, bild, text) {
       var aktiv = answers[field] === wert ? ' is-active' : '';
@@ -422,7 +422,7 @@
     });
     if (fam !== null) html += '</div>';
     html += '<div class="aw-stoffe aw-stoffe--leer">' +
-      kachel('Noch offen – bitte beraten', '', 'Noch offen – bitte beraten') +
+      kachel('Noch offen, bitte beraten', '', 'Noch offen, bitte beraten') +
       '</div>';
     return html;
   }
@@ -441,10 +441,10 @@
       sub: 'Kostenlos & unverbindlich',
       render: function () {
         return optionCards('produkt', [
-          { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },
+          { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker: Glas oder Polycarbonat' },
           { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
           { value: 'Carport', img: 'carport', photo: true, hint: 'TDS · Flat Line · Flat Box' },
-          { value: 'Balkonüberdachung', img: 'balkon', photo: true, hint: 'Für den Balkon – auf Brüstung oder Boden' },
+          { value: 'Balkonüberdachung', img: 'balkon', photo: true, hint: 'Für den Balkon: auf Brüstung oder Boden' },
           { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'Lamellendach · Faltdach · Velaris' },
           /* „Sonstiges" ist am 04.11.2026 weggefallen: „Sonstiges kann
              weg, weil den selben zweck erfüllt schon direkt anfragen"
@@ -481,7 +481,7 @@
       render: function () {
         return optionCards('balkonbruestung', [
           { value: 'Gemauerte Brüstung', icon: I.sonst, hint: 'Kann die Pfosten tragen' },
-          { value: 'Geländer', icon: I.sonst, hint: 'Metall oder Glas – Pfosten stehen dahinter' },
+          { value: 'Geländer', icon: I.sonst, hint: 'Metall oder Glas, Pfosten stehen dahinter' },
           { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal');
       },
@@ -519,9 +519,9 @@
           { value: 'Flat Line mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
         else opts = [
-          { value: 'Flat Box – Seiten & Hinterwand verkleidet', img: 'cp_fb_offen', photo: true, hint: 'Teilverkleidet, vorne offen' },
-          { value: 'Flat Box – rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' },
-          { value: 'Flat Box – mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
+          { value: 'Flat Box: Seiten & Hinterwand verkleidet', img: 'cp_fb_offen', photo: true, hint: 'Teilverkleidet, vorne offen' },
+          { value: 'Flat Box: rundum verkleidet mit Garagentor', img: 'cp_fb_garage', photo: true, hint: 'Wie eine Garage' },
+          { value: 'Flat Box mit Nebenraum', img: 'cp_fl_nebenraum', photo: true, hint: 'Mit integriertem Abstellraum' }
         ];
         return optionCards('carportvariante', opts, 'aw-options--equal');
       },
@@ -549,7 +549,7 @@
 
     masse: {
       title: 'Gewünschte Maße',
-      sub: 'Grobe Angaben genügen – wir messen später vor Ort exakt nach',
+      sub: 'Grobe Angaben genügen, wir messen später vor Ort exakt nach',
       render: function () {
         var tds = answers.produkt === 'Terrassendach TDS' ||
                   answers.produkt === 'Balkonüberdachung';
@@ -651,19 +651,19 @@
 
     stoff: {
       title: 'Welcher Markisenstoff?',
-      sub: 'Alle Stoffe mit Lichtechtheit 4/5. Die Abbildung dient nur der Orientierung – die Farbe am Bildschirm weicht vom echten Stoff ab.',
+      sub: 'Alle Stoffe mit Lichtechtheit 4/5. Die Abbildung dient nur der Orientierung. Die Farbe am Bildschirm weicht vom echten Stoff ab.',
       render: function () { return stoffRaster('dach', 'stoff'); }
     },
 
     stoffzip: {
       title: 'Welcher Stoff für die Senkrechtmarkise?',
-      sub: 'Jeder Stoff gibt es in zwei Mustern – Konfektion A und B. Die Abbildung dient nur der Orientierung.',
+      sub: 'Jeder Stoff gibt es in zwei Mustern: Konfektion A und B. Die Abbildung dient nur der Orientierung.',
       render: function () { return stoffRaster('zip', 'stoffzip'); }
     },
 
     markise: {
       title: 'Mehr Schatten & Komfort?',
-      sub: 'Eine Markise hält Ihre Terrasse an heißen Tagen spürbar kühler – perfekt für lange Sommerabende.',
+      sub: 'Eine Markise hält Ihre Terrasse an heißen Tagen spürbar kühler, perfekt für lange Sommerabende.',
       render: function () {
         /* Die Aufdachmarkise wird auf die aeusseren Sparren der geneigten
            Dachflaeche geschraubt. Das Flachdach SkyView hat kein
@@ -673,11 +673,11 @@
            3D-Konfigurator in MARKISE_NICHT. */
         var oben = [];
         if (answers.produkt !== 'Flachdach SkyView') {
-          oben.push({ value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben – hält das Glasdach kühl' });
+          oben.push({ value: 'Aufdachmarkise', img: 'markise_auf', photo: true, badge: 'Beliebt', hint: 'Hitzeschutz von oben, hält das Glasdach kühl' });
         } else if (answers.markise === 'Aufdachmarkise') {
           answers.markise = null;
         }
-        oben.push({ value: 'Unterdachmarkise', img: 'markise_unter', photo: true, badge: 'Empfohlen', hint: 'Sanftes, blendfreies Licht – elegant integriert' });
+        oben.push({ value: 'Unterdachmarkise', img: 'markise_unter', photo: true, badge: 'Empfohlen', hint: 'Sanftes, blendfreies Licht, elegant integriert' });
         return '<p class="aw-group-h">Unsere Empfehlung</p>' +
           optionCards('markise', oben) +
           '<p class="aw-group-h aw-group-h--sep">Weitere Sonnenschutz-Varianten</p>' +
@@ -691,17 +691,17 @@
             { value: 'Ohne', icon: I.aus, iconBig: true, muted: true },
             { value: 'Noch unsicher, bitte beraten', icon: I.frage }
           ]) +
-          '<p class="aw-note">Alle Varianten in vielen Farben erhältlich – den Farbwunsch klären wir persönlich.</p>';
+          '<p class="aw-note">Alle Varianten in vielen Farben erhältlich. Den Farbwunsch klären wir persönlich.</p>';
       },
       valid: function () { return answers.markise ? null : 'Bitte wählen Sie eine Option.'; }
     },
 
     erweiterungen: {
       title: 'Machen Sie mehr aus Ihrer Terrasse',
-      sub: 'Schon eine geschlossene Seite bringt Wind-, Sicht- und Wetterschutz – aus der Terrasse wird ein Freiluftzimmer.',
+      sub: 'Schon eine geschlossene Seite bringt Wind-, Sicht- und Wetterschutz, aus der Terrasse wird ein Freiluftzimmer.',
       render: function () {
         return '<div class="aw-tip"><span class="aw-tip-ic">' + svg(I.sommer) + '</span>' +
-          '<span><strong>Beliebt:</strong> Die meisten Kunden schließen mindestens eine Seite – für mehr Schutz und ganzjährige Nutzung.</span></div>' +
+          '<span><strong>Beliebt:</strong> Die meisten Kunden schließen mindestens eine Seite, für mehr Schutz und ganzjährige Nutzung.</span></div>' +
           '<div class="aw-erws">' +
           ddField('erw_links', 'Erweiterung links') +
           ddField('erw_rechts', 'Erweiterung rechts') +
@@ -715,7 +715,7 @@
 
     led: {
       title: function () { return answers.produkt === 'Carport' ? 'Beleuchtung?' : 'Licht & Sound?'; },
-      sub: 'Dezent ins Dachprofil integriert – für stimmungsvolle Abende.',
+      sub: 'Dezent ins Dachprofil integriert, für stimmungsvolle Abende.',
       render: function () {
         var noSound = answers.produkt === 'Carport'; // Carport: keine Lautsprecher (VD bietet sie nicht)
         // LED-Spots
@@ -764,11 +764,11 @@
 
     dachart: {
       title: 'Welches Dach möchten Sie?',
-      sub: 'Bewegliches Dach – Sonne und Schatten auf Knopfdruck',
+      sub: 'Bewegliches Dach: Sonne und Schatten auf Knopfdruck',
       render: function () {
         return optionCards('dachart', [
-          { value: 'Lamellendach', img: 'lam_sunpro', photo: true, badge: 'Beliebt', hint: 'Drehbare Alu-Lamellen – Sonne & Regen stufenlos steuern' },
-          { value: 'Faltdach', img: 'faltdach', photo: true, hint: 'Textiles Dach – komplett öffnen & schließen' },
+          { value: 'Lamellendach', img: 'lam_sunpro', photo: true, badge: 'Beliebt', hint: 'Drehbare Alu-Lamellen: Sonne & Regen stufenlos steuern' },
+          { value: 'Faltdach', img: 'faltdach', photo: true, hint: 'Textiles Dach: komplett öffnen & schließen' },
           { value: 'Velaris', img: 'velaris', photo: true, hint: 'Pergola mit verschiebbaren Elementen' },
           { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal');
@@ -790,7 +790,7 @@
 
     seitenschutz: {
       title: 'Seiten schützen?',
-      sub: 'Wind, Sonne und Blicke an den offenen Seiten – ganz nach Wunsch.',
+      sub: 'Wind, Sonne und Blicke an den offenen Seiten, ganz nach Wunsch.',
       render: function () {
         return optionCards('seitenschutz', [
           { value: 'ZIP-Senkrechtmarkise', img: 'zip', photo: true, badge: 'Beliebt', hint: 'Wind-, Sicht- & Sonnenschutz, windstabil' },
@@ -809,7 +809,7 @@
         // Beleuchtung (Art/Anzahl wird persönlich in der Beratung geklärt)
         var html = '<p class="aw-group-h">Beleuchtung</p>' +
           optionCards('led', [
-            { value: 'Ja, mit Beleuchtung', icon: I.licht, iconBig: true, badge: 'Beliebt', hint: 'Spots oder Streifen – klären wir persönlich' },
+            { value: 'Ja, mit Beleuchtung', icon: I.licht, iconBig: true, badge: 'Beliebt', hint: 'Spots oder Streifen, klären wir persönlich' },
             { value: 'Nein, ohne Beleuchtung', icon: I.aus, iconBig: true, muted: true }
           ]);
         // Heizstrahler
@@ -845,12 +845,12 @@
 
     dach: {
       title: 'Welches Dach möchten Sie?',
-      sub: 'Das Flachdach – klassisch, stromerzeugend oder begrünt.',
+      sub: 'Das Flachdach: klassisch, stromerzeugend oder begrünt.',
       render: function () {
         return optionCards('dach', [
           { value: 'Trapezblech (Standard)', img: 'dach_trapez', photo: true, badge: 'Beliebt', hint: 'Robustes, pflegeleichtes Flachdach' },
-          { value: 'Solar (PV-Anlage)', img: 'dach_solar', photo: true, hint: 'Eigener Strom – ideal fürs E-Auto' },
-          { value: 'Dachbegrünung', img: 'dach_gruen', photo: true, hint: 'Begrüntes Dach – natürlich & dämmend' },
+          { value: 'Solar (PV-Anlage)', img: 'dach_solar', photo: true, hint: 'Eigener Strom, ideal fürs E-Auto' },
+          { value: 'Dachbegrünung', img: 'dach_gruen', photo: true, hint: 'Begrüntes Dach, natürlich & dämmend' },
           { value: 'Noch unsicher, bitte beraten', icon: I.frage }
         ], 'aw-options--equal') +
           '<p class="aw-note">Details (z. B. Modulanzahl, Speicher, Wallbox) klären wir persönlich in der Beratung.</p>';
@@ -865,7 +865,7 @@
          seit dem 11.10.2026, im Assistenten fehlte er. Wortlaut bewusst
          derselbe wie dort – ohne Betrag, denn der haengt von Menge und
          Oberflaeche ab und wird erst mit dem Angebot genannt. */
-      sub: 'Die vier Standardfarben ohne Aufpreis – jede andere RAL-Farbe gegen Aufpreis.',
+      sub: 'Die vier Standardfarben ohne Aufpreis, jede andere RAL-Farbe gegen Aufpreis.',
       render: function () {
         var ANTHRAZIT = { value: 'Anthrazit (RAL 7016)', swatch: '#383e42' };
         var WEISSALU = { value: 'Weißaluminium (RAL 9006)', swatch: '#a9aca9' };
@@ -911,12 +911,12 @@
            Dieselben Antwortfelder wie im Maßschritt (breite, tiefe) -
            damit stehen sie ohne weiteres Zutun in der
            Zusammenfassung und in der E-Mail. */
-        return '<textarea class="aw-textarea" id="awWunsch" placeholder="Beschreiben Sie Ihr Vorhaben – z. B. Sonnenschutz, Geländer, Sichtschutz, Reparatur …">' + esc(answers.wunsch || '') + '</textarea>' +
+        return '<textarea class="aw-textarea" id="awWunsch" placeholder="Beschreiben Sie Ihr Vorhaben, z. B. Sonnenschutz, Geländer, Sichtschutz, Reparatur …">' + esc(answers.wunsch || '') + '</textarea>' +
           '<div class="aw-dims aw-dims--frei">' +
             dimField('breite', 'Breite (optional)', 'z. B. 4000', 'mm') +
             dimField('tiefe', 'Tiefe (optional)', 'z. B. 3000', 'mm') +
           '</div>' +
-          '<p class="aw-note">Maße helfen uns beim ersten Angebot – wenn Sie sie ' +
+          '<p class="aw-note">Maße helfen uns beim ersten Angebot, wenn Sie sie ' +
           'nicht zur Hand haben, lassen Sie die Felder einfach leer.</p>';
       },
       collect: function () {
@@ -934,7 +934,7 @@
 
     untergrund: {
       title: 'Wie ist der Untergrund vor Ort?',
-      sub: 'Wichtig für Statik und Kalkulation – wenn Sie unsicher sind, klären wir das beim Aufmaß.',
+      sub: 'Wichtig für Statik und Kalkulation. Wenn Sie unsicher sind, klären wir das beim Aufmaß.',
       render: function () {
         return optionCards('untergrund', [
           { value: 'Tragender Untergrund vorhanden', img: 'untergrund_platte', photo: true, hint: 'z. B. Betonplatte oder Streifenfundament' },
@@ -951,15 +951,15 @@
 
     montage: {
       title: 'Montage durch unser Fachteam?',
-      sub: 'Fachgerechter Aufbau – damit Ihre volle Herstellergarantie erhalten bleibt.',
+      sub: 'Fachgerechter Aufbau, damit Ihre volle Herstellergarantie erhalten bleibt.',
       render: function () {
         return optionCards('montage', [
           { value: 'Ja, mit Fachmontage', icon: I.werkzeug, iconBig: true, badge: 'Empfohlen', hint: 'Fachgerechter Aufbau durch unser Team' },
           { value: 'Nein, Selbstmontage', icon: I.aus, iconBig: true, muted: true, hint: 'Lieferung ohne Aufbau' }
         ], 'aw-options--equal') +
           '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
-          '<span><strong>Warum wir die Montage empfehlen:</strong> Die volle Herstellergarantie – ' +
-          '<strong>10 Jahre auf Aluminium-Produkte</strong> und <strong>5 Jahre auf Markisen, Antriebe & Elektro</strong> – ' +
+          '<span><strong>Warum wir die Montage empfehlen:</strong> Die volle Herstellergarantie, ' +
+          '<strong>10 Jahre auf Aluminium-Produkte</strong> und <strong>5 Jahre auf Markisen, Antriebe & Elektro</strong>, ' +
           'setzt eine fachgerechte Montage voraus. Bei Selbstmontage können Garantie- und Gewährleistungsansprüche ' +
           'eingeschränkt sein. Unser Team baut millimetergenau und wetterfest auf.</span></div>';
       },
@@ -1022,12 +1022,12 @@
         if (!nachname) return 'Bitte geben Sie Ihren Nachnamen an.';
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
         // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
-        if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein – so können wir Sie persönlich ansprechen.';
+        if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein, so können wir Sie persönlich ansprechen.';
         if (looksFakeEmail(email)) return 'Diese E-Mail-Adresse sieht nicht gültig aus. Bitte geben Sie eine Adresse an, unter der wir Sie erreichen können.';
         // Telefon ist Pflicht: Rueckfragen zu Massen und Untergrund lassen sich
         // am Telefon in Minuten klaeren statt in mehreren E-Mails.
         var telefon = answers.k_telefon.trim();
-        if (!telefon) return 'Bitte geben Sie eine Telefonnummer an – für Rückfragen geht das am schnellsten.';
+        if (!telefon) return 'Bitte geben Sie eine Telefonnummer an, für Rückfragen geht das am schnellsten.';
         // Bewusst tolerant: Schreibweisen wie +49, 0049, Klammern, Schraegstriche
         // und Leerzeichen sind alle in Ordnung, nur die Ziffernzahl zaehlt.
         if (telefon.replace(/[^0-9]/g, '').length < 6) return 'Diese Telefonnummer sieht zu kurz aus. Bitte prüfen Sie Ihre Eingabe.';
@@ -1035,7 +1035,7 @@
         // Standort ist Pflicht: ohne ihn koennen wir weder Aufmass-Termin noch
         // Anfahrt einschaetzen und auch die Lastzonen nicht bestimmen.
         var plz = answers.k_plz.trim();
-        if (!plz) return 'Bitte geben Sie Ihre PLZ an – wir brauchen sie für Aufmaß und Anfahrt.';
+        if (!plz) return 'Bitte geben Sie Ihre PLZ an, wir brauchen sie für Aufmaß und Anfahrt.';
         if (!/^[0-9]{5}$/.test(plz)) return 'Bitte geben Sie eine gültige PLZ mit fünf Ziffern an.';
         if (!answers.k_ort.trim()) return 'Bitte geben Sie Ihren Ort an.';
         if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
@@ -1148,7 +1148,7 @@
     if (inFlow('carportvariante') && answers.carportvariante) p.push(['Ausführung', answers.carportvariante]);
     if (inFlow('dachart') && answers.dachart) p.push(['Dachart', answers.dachart + (inFlow('dachausfuehrung') && answers.dachausfuehrung ? ' · ' + answers.dachausfuehrung : '')]);
     if (inFlow('aufbau') && answers.aufbau) p.push(['Aufbau', answers.aufbau]);
-    if (inFlow('fassade') && answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade_text ? ' – ' + answers.fassade_text : '')]);
+    if (inFlow('fassade') && answers.fassade) p.push(['Fassade', answers.fassade + (answers.fassade_text ? ', ' + answers.fassade_text : '')]);
     if (inFlow('masse')) {
       var masse = [answers.breite, answers.tiefe, answers.hoehe].filter(Boolean);
       if (masse.length) p.push(['Maße (B×T×H)', (answers.breite || '?') + ' × ' + (answers.tiefe || '?') + ' × ' + (answers.hoehe || '?') + ' mm']);
@@ -1156,7 +1156,7 @@
          Zeile in der Anfrage hilft niemandem. */
       if (answers.hoehebezug) {
         p.push(['Höhenangabe bezieht sich auf', answers.hoehebezug
-          + (answers.hoehebezug_text ? ' – ' + answers.hoehebezug_text : '')]);
+          + (answers.hoehebezug_text ? ', ' + answers.hoehebezug_text : '')]);
       }
       if ((answers.produkt === 'Terrassendach TDS' ||
            answers.produkt === 'Balkonüberdachung') && answers.vorsprung) p.push(['Dachvorsprung', answers.vorsprung + ' mm']);
@@ -1180,7 +1180,7 @@
         // Kommt die Angabe aus dem 3D-Konfigurator, ist noch kein Set gewaehlt –
         // dann stand hier vorher eine leere Zeile und der LED-Wunsch fiel aus der E-Mail.
         p.push(['LED-Beleuchtung', hasLed(answers.led)
-          ? (answers.ledset ? (ledZ > 1 ? ledZ + ' × ' : '') + answers.ledset : 'Ja – Set noch offen')
+          ? (answers.ledset ? (ledZ > 1 ? ledZ + ' × ' : '') + answers.ledset : 'Ja, Set noch offen')
           : 'Nein']);
       }
       if (answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? answers.soundset : 'Nein']);
@@ -1321,7 +1321,7 @@
       btn.addEventListener('click', function () {
         var nr = btn.getAttribute('data-ral-pick');
         var name = window.BV_RAL ? window.BV_RAL.TABELLE[nr][1] : '';
-        answers.farbe = 'RAL ' + nr + (name ? ' – ' + name : '');
+        answers.farbe = 'RAL ' + nr + (name ? ', ' + name : '');
         clearError();
         rerenderKeepScroll();
       });
@@ -1515,7 +1515,7 @@
     nextBtn.textContent = 'Wird gesendet …';
 
     var name = [answers.k_vorname, answers.k_nachname].filter(Boolean).join(' ');
-    var subject = 'Anfrage ' + ref + ': ' + (answers.produkt || '') + ' – ' + name;
+    var subject = 'Anfrage ' + ref + ': ' + (answers.produkt || '') + ', ' + name;
 
     // 1) Datenbank (parallel, Fehler werden bewusst ignoriert)
     try {

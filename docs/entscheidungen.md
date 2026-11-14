@@ -16798,3 +16798,52 @@ beanstandet hatte.
 **Dazu eine Kleinigkeit aus Prüfschritt 3:** Das bunte Google-G im
 Bewertungsknopf hatte kein `aria-hidden` und erschien als namenloses
 Bild im Zugänglichkeitsbaum. Ergänzt.
+
+## 14.11.2026 – Gedankenstriche, Abschnitt 4: die Texte aus dem JavaScript
+
+**Was übersehen worden war.** Die Abschnitte 1 bis 3 erfassten
+`.njk`- und `.html`-Dateien. Viele Beschriftungen stehen aber im
+JavaScript und werden erst im Browser eingesetzt: die Kacheln und
+Hinweise im Anfrageassistenten, die Bedienelemente im 3D-Modell, die
+Daten des Baugenehmigungs-Checks. Gezählt wurden **263 Gedankenstriche
+in sichtbarem Text** über elf Dateien, dazu drei in Auswahlwerten.
+
+**Erledigt: `js/anfrage-wizard.js`, 49 Stellen.** Das ist die Datei mit
+der größten Wirkung, denn jeder Anfragende liest sie.
+
+**Vier Werte mussten in zwei Dateien zugleich geändert werden.**
+„Flat Box – Seiten & Hinterwand verkleidet", „Flat Box – rundum
+verkleidet mit Garagentor", „Flat Box – mit Nebenraum" und „Noch
+offen – bitte beraten" stehen **sowohl** in `js/anfrage-wizard.js`
+**als auch** in `js/konfigurator-3d.js`. Der 3D-Konfigurator übergibt
+seine Auswahl an den Assistenten. Hätte ich nur eine Datei geändert,
+würde die Übergabe still danebengreifen, ohne Fehlermeldung. Dieselbe
+Falle wie heute Mittag bei „Noch unsicher", und deshalb diesmal zuerst
+gesucht und dann geändert.
+
+**Auch die Trennzeichen in der Zusammenfassung** waren Gedankenstriche:
+`' – '` zwischen Fassade und Beschreibung, zwischen RAL-Nummer und
+Farbnamen, und im **Betreff der E-Mail** zwischen Produkt und Name.
+Alle auf Komma oder Doppelpunkt.
+
+**Kommentare im Code blieben unberührt.** Sie stehen nicht auf der
+Seite, und eine Regel für sichtbare Sprache gilt dort nicht. Beim
+ersten Durchgang am Vormittag waren versehentlich sieben
+Kommentarköpfe mitgeändert worden; diesmal wurden sie vorher
+ausgenommen.
+
+**Geprüft:** produktwahl 132/132, assistent 18/18, feldwahl 44/44,
+schrittwechsel 7/7, standort 9/9, einzugsgebiet 12/12, führung und
+konfigurator bestanden. Cache-Buster für beide Dateien hochgezählt.
+
+**Noch offen, in dieser Reihenfolge:** `js/konfigurator-3d.js` (95
+Stellen sichtbarer Text), `js/i18n.js` (90), `js/baugenehmigung-data.js`
+(16), `js/bauteile.js` (7), Kleinkram (9).
+
+**`js/i18n.js` braucht besondere Vorsicht** und kommt deshalb zuletzt:
+Die Tabelle ist nach dem **deutschen Quelltext** verschlüsselt.
+Ändert man dort einen Gedankenstrich, ohne dass der Text auf der Seite
+denselben Stand hat, greift der Eintrag nicht mehr, und die
+Übersetzung bleibt stumm deutsch. Vor dem Anfassen muss geklärt sein,
+welche Seiten die Datei überhaupt laden. Derzeit sind das nur
+`broschuere.html` und `_template.html`.
