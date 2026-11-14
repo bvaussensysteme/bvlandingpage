@@ -438,7 +438,7 @@
          Schritte. Der Satz benennt den kurzen Weg, ohne ihn
          vorzudraengeln: Die Reihenfolge der Kacheln bleibt, damit die
          Hauptprodukte oben stehen. */
-      sub: 'Kostenlos & unverbindlich – Sie stellen sich Ihr Wunschprodukt zusammen und erhalten ein individuelles Angebot. Sie wissen schon, was Sie möchten? Mit „Direkt anfragen" ganz unten sind es nur vier Schritte.',
+      sub: 'Kostenlos & unverbindlich',
       render: function () {
         return optionCards('produkt', [
           { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker – Glas oder Polycarbonat' },
