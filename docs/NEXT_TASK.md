@@ -164,3 +164,22 @@ Aussage über diese Seite geraten.
 | `docs/AUDIT-CUSTOMER-JOURNEY.md` | Erster Audit: Weg bis zur Anfrage, 8 Befunde, nichts geändert |
 | `docs/arbeitsweise.md` | Branch, Cache-Buster, Konfliktmarken |
 | `docs/zahlen-lesen.md` | Messdaten abfragen, die drei Fallen |
+
+## Beim Betreiber (Stand 14.11.2026)
+
+- **Produktbilder.** Der Betreiber ersetzt spaeter die Bilder **aller**
+  Produkte. Bis dahin keine Arbeit an Bildzuschnitten, Bildgroessen
+  oder Galerie-Reihenfolge investieren, das waere doppelt. Wenn die
+  neuen Bilder kommen: Dateinamen und `srcset`/`sizes` pruefen,
+  `js/main.js` (`lightboxImages`) mitziehen, `scripts/pruefe-galerie.mjs`
+  laufen lassen.
+- **Vektorlogos** kommen, wenn alles fertig ist.
+- **Fuenf Sterne** im Bewertungskasten: fest eingebaut, ohne Quelle.
+  Vor einer Veroeffentlichung entfernen oder durch die echte
+  Google-Bewertung ersetzen.
+- **Einverstaendnis des Hauseigentuemers** fuer die beiden
+  Carport-Fotos, dazu Ort und Dachmaterial.
+- **Statik auf den sieben Produktseiten.** Dort steht weiterhin
+  „Statiknachweis inklusive". Auf der Startseite steht seit 14.11.2026
+  „vereinfachte Statik". Angleichen, sobald freigegeben.
+- **Telefonnummer-Pflicht** im Formular: Geschaeftsentscheidung.
