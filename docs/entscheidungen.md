@@ -16758,3 +16758,43 @@ Gedankenstriche**, 74 FAQ-Einträge geprüft, 0 Abweichungen.
 Artikel, der bewusst keine Preise nennt), „CE-zertifiziert" gegen
 „CE-gekennzeichnet", die Velaris-Benennung, Produktkarten mit H2 statt
 H3, und die Frage, ob 60 km oder 50 km das Einzugsgebiet sind.
+
+## 14.11.2026 – Abgeschnittene Überschrift auf sieben Ortsseiten
+
+**Was falsch war.** Bei 390 px stand im Kopf von
+`terrassenueberdachung-hachenburg.html` und sechs weiteren Ortsseiten
+„Terrassenüberdach" und dann nichts mehr. Gemessen: die Überschrift
+brauchte **451 px bei 362 px Kastenbreite**, bei 320 px sogar 451 gegen
+292. Die Seite scrollte dabei **nicht** waagerecht, es gab also keinen
+Hinweis darauf. Bildschirmfoto im Scratchpad.
+
+**Warum es niemandem auffiel.** Die globale Regel ist
+`h1 { font-size: clamp(2.6rem, 6vw, 4.6rem) }`. Bei 390 px greift die
+Untergrenze, also 41,6 px. Für `.hero h1` gibt es eine Verkleinerung
+unter 600 px, aber **die Ortsseiten benutzen `.hero-section`**, nicht
+`.hero`, und bekamen sie deshalb nie mit. Zwei Bauweisen für denselben
+Kopfbereich, eine davon ohne Handy-Regel.
+
+**Was jetzt gilt, zwei Dinge:**
+1. `.hero-section h1` bekommt unter 600 px dieselbe Verkleinerung wie
+   `.hero h1`.
+2. `h1, h2, h3` dürfen umbrechen und trennen:
+   `overflow-wrap: break-word; hyphens: auto`. Das ist der eigentliche
+   Schutz, denn das nächste lange Wort kommt bestimmt.
+   `hyphens: auto` trennt nur, wenn es nötig ist, und braucht
+   `lang="de"` am `<html>`, das gesetzt ist.
+
+**Gemessen danach:** 18 von 18 Kombinationen aus neun Seiten und zwei
+Breiten (320 und 390 px) passen in den Kasten, kein waagerechtes
+Scrollen. Bildschirmfoto angesehen: „Terrassenüberda-chung & Carport in
+Hachenburg" über drei Zeilen, vollständig lesbar.
+
+**Nicht von heute verursacht.** Der Prüfer hat die Historie geprüft,
+die Überschrift wurde heute nicht angefasst. Der Fehler bestand schon
+vorher. Behoben wurde er trotzdem, weil der Betreiber genau diesen
+Seitentyp am Handy ansieht und heute früh schon eine ähnliche Stelle
+beanstandet hatte.
+
+**Dazu eine Kleinigkeit aus Prüfschritt 3:** Das bunte Google-G im
+Bewertungsknopf hatte kein `aria-hidden` und erschien als namenloses
+Bild im Zugänglichkeitsbaum. Ergänzt.

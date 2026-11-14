@@ -1880,10 +1880,24 @@ footer h4 {
    AUDIT FIXES – Mobile & Polish
    ============================================ */
 
+/* Lange deutsche Komposita duerfen umbrechen, statt aus dem Kasten zu
+   laufen. "Terrassenueberdachung" ist bei 2,6rem rund 451 px breit und
+   passte am 14.11.2026 auf sieben Ortsseiten nicht in die 362 px eines
+   iPhones: Das Wort brach rechts einfach ab, ohne dass die Seite
+   waagerecht scrollte, also ohne jeden Hinweis darauf. Es gilt fuer
+   alle Ueberschriften, nicht nur fuer die eine Seite, auf der es
+   auffiel. "auto" trennt nur, wenn noetig, und braucht lang="de" am
+   <html>-Element, das gesetzt ist. */
+h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
+
 /* Hero: better mobile spacing */
 @media (max-width: 600px) {
   .hero { padding: 52px 0 56px; }
   .hero h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
+  /* Die Ortsseiten benutzen .hero-section statt .hero und bekamen die
+     Verkleinerung deshalb nie mit. Gleicher Wert, damit beide Bauweisen
+     am Handy gleich aussehen. */
+  .hero-section h1 { font-size: clamp(2rem, 8vw, 2.6rem); }
   .hero-sub { font-size: 0.95rem; }
   .hero-btns { flex-direction: column; max-width: 360px; }
   .hero-btns .btn { width: 100%; min-width: unset; }
