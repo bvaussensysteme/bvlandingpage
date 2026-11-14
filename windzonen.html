@@ -1113,7 +1113,17 @@ function wzLoadLeaflet(callback) {
 
 function wzInitMap(lat, lng) {
   document.getElementById('wz-map-gate').hidden = true;
-  document.getElementById('wz-map').hidden = false;
+  var wzKasten = document.getElementById('wz-map');
+  wzKasten.hidden = false;
+  /* Siehe einzugsgebiet.njk: Der Knopf, auf dem der Fokus lag,
+     verschwindet. Ohne diese Zeilen faellt der Fokus auf <body>
+     zurueck und wer mit der Tastatur arbeitet, steht wieder am
+     Seitenanfang. tabindex="-1" macht den Kasten fokussierbar, ohne
+     ihn in die Tab-Reihenfolge zu haengen. */
+  wzKasten.setAttribute('tabindex', '-1');
+  wzKasten.setAttribute('role', 'region');
+  wzKasten.setAttribute('aria-label', 'Karte mit Ihrem Standort');
+  wzKasten.focus({ preventScroll: true });
   if (!wzMap) {
     wzMap = L.map('wz-map', { scrollWheelZoom: false });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

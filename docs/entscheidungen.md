@@ -17170,3 +17170,50 @@ Ergebnis trotzdem.
 **Offen geblieben:** Das Verhalten ohne JavaScript und der
 Fehlerzweig beim Ladefehler sind aus dem Code abgeleitet, nicht
 gemessen. Beides steht unter „Später prüfen".
+
+## 14.11.2026 – Nach dem Klick auf „Karte laden" war der Fokus weg
+
+**Selbst gemessen, bevor es jemand benutzt hat.** Nach dem Umbau auf
+„Karte erst auf Klick" habe ich den Weg mit der Tastatur nachgespielt:
+Knopf fokussieren, Enter drücken. Ergebnis:
+
+```
+Fokus vor Enter : "Karte laden"
+Karte geladen   : true
+Fokus nach Enter: {"tag":"BODY", ... "istBody":true}
+```
+
+**Der Fokus lag auf `<body>`.** Wer mit der Tastatur arbeitet, stand
+nach dem Drücken unvermittelt wieder am Seitenanfang, ohne jeden
+Hinweis, dass die Karte inzwischen da ist. Der nächste Tabulator hätte
+ihn durch die gesamte Navigation zurückgeführt.
+
+**Ursache.** Der Knopf verschwindet zusammen mit dem Platzhalter. Ein
+Element, das den Fokus hat und entfernt wird, gibt ihn an `<body>`
+zurück. Das ist Standardverhalten des Browsers und fällt mit der Maus
+nicht auf, weil dort niemand einen Fokus verfolgt.
+
+**Was jetzt gilt.** Der Kartenkasten bekommt beim Einblenden
+`tabindex="-1"`, `role="region"` und ein `aria-label`, und der Fokus
+wandert hinein. `tabindex="-1"` macht ihn fokussierbar, **ohne** ihn
+in die Tab-Reihenfolge zu hängen; niemand tabbt künftig durch einen
+leeren Kasten. `preventScroll: true` verhindert, dass die Seite
+zusätzlich springt.
+
+**Nachgemessen:**
+```
+Fokus liegt jetzt auf: map (Karte des Einzugsgebiets)
+nach Tab: leaflet-marker-icon …
+```
+Der nächste Tabulator führt also in die Karte hinein, nicht an den
+Seitenanfang zurück.
+
+Beide Seiten gleich behandelt, `einzugsgebiet.njk` und
+`windzonen.njk`, mit dem Grund als Kommentar an beiden Stellen.
+
+**Warum das hier steht.** Der Fehler entstand durch meine eigene
+Verbesserung von vor einer Stunde. Eine Änderung, die Datenschutz
+verbessert und dabei Barrierefreiheit verschlechtert, ist keine
+Verbesserung. Gefunden hat ihn keine der 58 Prüfungen, sondern eine
+Frage: „Wo liegt der Fokus, nachdem das angeklickte Element
+verschwunden ist?"

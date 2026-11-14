@@ -199,7 +199,19 @@ extraScripts: |
   function gbInitMap() {
     if (map || !window.L) return;
     document.getElementById('map-gate').hidden = true;
-    document.getElementById('map').hidden = false;
+    var kasten = document.getElementById('map');
+    kasten.hidden = false;
+    /* Der Knopf, auf dem der Fokus lag, verschwindet mit dem
+       Platzhalter. Ohne die naechsten zwei Zeilen faellt der Fokus auf
+       <body> zurueck, und wer mit der Tastatur arbeitet, steht
+       unvermittelt wieder am Seitenanfang, ohne Hinweis darauf, dass
+       sich etwas getan hat. Gemessen am 14.11.2026, bevor es jemand
+       benutzt hat. Der Kasten bekommt deshalb tabindex="-1", damit er
+       Fokus annehmen kann, ohne in die Tab-Reihenfolge zu geraten. */
+    kasten.setAttribute('tabindex', '-1');
+    kasten.setAttribute('role', 'region');
+    kasten.setAttribute('aria-label', 'Karte des Einzugsgebiets');
+    kasten.focus({ preventScroll: true });
     map = L.map('map', { zoomControl: true }).setView([50.520, 7.800], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
