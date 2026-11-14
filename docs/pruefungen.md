@@ -237,3 +237,28 @@ eigener: `scroll-behavior: smooth` im Stylesheet lässt ein normales
 `scrollTo` über mehrere hundert Millisekunden fahren, gemessen wurde
 mitten in der Fahrt. Jetzt `behavior: 'instant'`. Eine Prüfung mit
 falschem Alarm wird abgeschaltet und prüft danach gar nichts mehr.
+
+## Zwei Skripte, die schon vor dem 14.11.2026 nicht grün waren
+
+Festgestellt am 14.11.2026 durch einen Vergleichslauf auf dem Stand
+`ac6364c`, also **vor** den Änderungen des Tages, in einem eigenen
+Arbeitsbaum. Beide verhalten sich dort genauso. Sie sind **nicht** durch
+die Statik-Texte oder den Sterne-Umbau verursacht.
+
+| Skript | Verhalten | Beleg |
+|---|---|---|
+| `pruefe-broschuere.mjs` | 43 bestanden, 1 nicht bestanden: „Das Buch zappelt nicht, wenn die Adresszeile einklappt", gemessen 366 gegen 318 px | vorher wie nachher dasselbe Ergebnis |
+| `pruefe-konfigurator-oberflaeche.mjs` | läuft in das Zeitlimit, wartet auf `#k3dHoeheGetrennt` | vorher Abbruch nach 290 s, nachher ebenso |
+
+**Der Broschüren-Befund ist echt und offen.** Es ist dieselbe Art
+Fehler, die am 14.11.2026 im Kopfbereich der Startseite behoben wurde:
+Die Seite rechnet mit der vollen Fensterhöhe, und wenn die Adresszeile
+am Handy einklappt, springt der Inhalt. Auf der Startseite half `svh`
+und ein mitwachsender Kopfbereich. Für die Broschüre ist das **nicht**
+untersucht und nicht beauftragt.
+
+**Zeitlimits.** Mehrere Browser-Skripte brauchen länger als 100
+Sekunden. `pruefe-darstellung.mjs` besteht mit 144 von 144, wenn es
+280 Sekunden bekommt, und meldet bei 100 Sekunden einen Abbruch, der
+wie ein Fehler aussieht. Wer sie sammelt, gibt jedem **mindestens 280
+Sekunden**.
