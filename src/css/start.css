@@ -226,3 +226,14 @@
 .start-premium .galerie-placeholder-inner strong { color: var(--offwhite); }
 .start-premium .galerie-placeholder-inner p { color: var(--champagner); }
 .start-premium .galerie-placeholder-inner span { color: var(--gold-light); }
+
+/* Abschluss des Ablaufs: ein Weg weiter.
+   Mittig unter den vier Schritten, mit genug Luft darueber, damit er als
+   Abschluss wirkt und nicht als fuenfter Schritt. */
+.start-premium .prozess-weiter {
+  margin-top: clamp(30px, 5vw, 48px);
+  text-align: center;
+}
+.start-premium .prozess-weiter p {
+  margin: 0 0 16px; color: var(--muted); font-size: 0.95rem;
+}

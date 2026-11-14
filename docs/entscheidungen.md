@@ -15630,3 +15630,41 @@ Betreiber: die Vektordateien. Sobald sie da sind, ersetzen sie die PNGs
 (scharf in jeder Größe, kleinere Dateien) – dann auch die Frage aus
 `docs/WEBSITE_DESIGN_SYSTEM.md`, ob `logo-hell.png` mit seinem
 abweichenden Orange (`#E69B26`) noch gebraucht wird.
+
+## 14.11.2026 – Der Ablauf endet jetzt mit einem Weg weiter
+
+**Anlass.** Betreiber: „mach weiter". Danach die ganze Startseite
+abschnittsweise im Browser angesehen, statt zu raten, was noch fehlt.
+
+**Was dabei herauskam, und zwar überwiegend positiv:**
+- Der Wechsel hell/dunkel, den der Auftrag verlangt, **gibt es schon**:
+  Einstieg und Vertrauensband dunkel, dann hell, in der Mitte das
+  Einzugsgebiet in Tiefschwarz mit Gold, danach wieder hell. Es war
+  nichts nachzubauen.
+- Ablauf, Warum-wir, Bewertungen und FAQ tragen die neue Schrift und
+  Palette sauber. `pruefe-darstellung.mjs` meldete dabei **144/144**.
+
+**Die eine echte Lücke.** Der Abschnitt „Von der Idee zu Ihrem fertigen
+Außenbereich" endete beim vierten Schritt und dann kam nichts mehr. Wer
+bis dahin gelesen hat, weiß, wie es läuft, und müsste zum Anfragen
+wieder nach oben scrollen. Der Auftrag nennt ausdrücklich den
+„verständlichen Ablauf vom Interesse bis zur Anfrage".
+
+**Was jetzt gilt.** Unter den vier Schritten steht ein Satz und ein
+Knopf: „Schritt 1 kostet Sie nichts und verpflichtet zu nichts." →
+*Kostenlos anfragen*.
+
+**Warum so.** Der Satz nennt den tatsächlichen ersten Schritt aus der
+Liste darüber (kostenlose Beratung) und nimmt die Hürde, ohne Druck zu
+machen. **Keine Verknappung, keine Frist, keine erfundene Zahl.** Mit
+Abstand abgesetzt, damit er wie ein Abschluss wirkt und nicht wie ein
+fünfter Schritt.
+
+**Geprüft.** `pruefe-startseite.mjs` 39/39, alle schnellen Skripte grün.
+Cache-Buster `start.css v=20261114b`.
+
+**Nicht gemacht, bewusst:** Die Startseite trägt im Einstieg fünf
+Knöpfe (anfragen, Produkte, Katalog, Anrufen, WhatsApp). Das ist viel
+für einen ersten Bildschirm. Weglassen hieße aber, einen Kontaktweg zu
+streichen, und die stehen unter Bestandsschutz. **Als Beobachtung
+notiert, nicht entschieden.**
