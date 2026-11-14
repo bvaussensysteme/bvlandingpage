@@ -170,6 +170,37 @@ Das ist eine Referenz für Benutzerführung, keine Erlaubnis:
 Die Regel „Nachbauten: eigene Sprache, eigene Namen" weiter oben gilt
 unverändert und zusätzlich.
 
+## Rechtstexte nicht anfassen, nur warnen (permanent, 14.11.2026)
+
+Ansage des Betreibers: „rechtstexte nicht verändern nur aufmerksam
+machen auf mögliche fehler/gefahren."
+
+**Betroffen:** `src/agb.njk`, `src/datenschutz.njk`,
+`src/impressum.njk`, `src/widerruf.njk` und alles, was daraus erzeugt
+wird. Dazu gehören auch Rechtshinweise, die anderswo stehen, etwa der
+Haftungsausschluss im Baugenehmigungs-Check.
+
+**Es wird dort nichts geändert.** Keine Umformulierung, keine
+Gedankenstriche, keine Rechtschreibkorrektur, kein „nur schnell
+schöner machen". Auch dann nicht, wenn eine andere Regel in diesem
+Dokument es nahelegt: Die Gedankenstrich-Regel endet an der Tür zum
+Rechtstext.
+
+**Stattdessen:** Was auffällt, wird dem Betreiber gemeldet, mit
+Fundstelle, konkretem Risiko und, wo möglich, der Vorschrift oder dem
+Grund. Gesammelt in `docs/rechtstexte-befunde.md`.
+
+**Grund für beides.** Ein Rechtstext ist kein Marketingtext. Eine
+Umformulierung kann eine Frist, eine Einschränkung oder eine
+Pflichtangabe verschieben, ohne dass man es ansieht. Umgekehrt ist
+Schweigen über einen erkannten Fehler schlimmer als der Fehler selbst,
+denn der Betreiber haftet und kann nicht sehen, was er nicht liest.
+
+**Was hier gesagt wird, ist keine Rechtsberatung.** Formeln wie
+„rechtskonform", „100 % sicher" oder „garantiert fehlerfrei" sind
+verboten. Die verbindliche Bewertung holt der Betreiber beim Anwalt;
+hier wird sie vorbereitet.
+
 ## Rechtliche Risiken sind Release-Blocker (permanent, 08.11.2026)
 
 Ungeklärte Fragen zu Nutzungsrechten, Marken, Lizenzen, Datenschutz
