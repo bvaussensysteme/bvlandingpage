@@ -16102,3 +16102,34 @@ reicht, entscheidet die Bauaufsicht, nicht dieser Chat.
 **Nebenbefund:** Der Übersetzungsschlüssel `usp_ce_sub` hat in
 `js/i18n.js` keinen Eintrag. Das Attribut ist wirkungslos, die deutsche
 Fassung steht direkt im HTML. Nicht angefasst.
+
+## 14.11.2026 – Aus dem Textlink in den Produktkarten wird ein Knopf
+
+**Anlass.** Betreiber mit Bildausschnitt: „hier mach richtige buttons wie
+oben."
+
+**Weg dorthin, in drei Schritten an einem Tag.** Erst stand dort
+„TERRASSENÜBERDACHUNG ENTDECKEN" in gesperrten Versalien. Dann gemischte
+Schreibung, aber immer noch nur Text. Jetzt ein Knopf.
+
+**Aussenlinie, nicht gefüllt.** Der gefüllte Goldknopf bleibt dem
+wichtigsten Weg vorbehalten: Anfrage im Einstieg und am Ende des
+Ablaufs. **Neun gefüllte Goldknöpfe nebeneinander würden sich
+gegenseitig und den Hauptweg entwerten.** Dieselbe Rangfolge wie oben im
+Einstieg: einmal gefüllt, alles Weitere mit Aussenlinie.
+
+**Farbe.** `--gold-text` (#896023), **nicht** das Markengold. Auf Weiss
+erreicht das Markengold nur 2,98:1 und ist dort laut Designsystem keine
+Textfarbe; #896023 kommt auf 5,58:1. Beim Zeigen füllt sich der Knopf
+mit Markengold, der Text wird tiefschwarz (6,61:1), nie weiss.
+
+**Gleiche Höhe, obwohl die Beschriftung umbricht.** Erster Versuch:
+Knöpfe 50 und 75 px hoch, weil „Terrassenüberdachung entdecken" auf zwei
+Zeilen geht und „Carport entdecken" nicht. **Gemessen, nicht geschätzt.**
+Statt die Beschriftung zu kürzen und damit unverständlich zu machen
+(„Mehr erfahren" sagt nichts über das Ziel, WCAG 2.4.4), bekam der Knopf
+eine feste Höhe von 56 px, engere Zeilen und `text-wrap: balance`.
+**Nachgemessen: alle neun genau 56 px.**
+
+**Geprüft.** `pruefe-startseite.mjs` 39/39, alle schnellen Skripte grün,
+kein waagerechtes Scrollen bei 390 px und 1280 px.

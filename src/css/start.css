@@ -301,15 +301,64 @@
   .start-premium .gold-icon { flex: 0 0 auto; margin-top: 1px; }
 }
 
-/* --- 3. Der Weg aus der Karte war eine Versalzeile -----------------------
-   "TERRASSENÜBERDACHUNG ENTDECKEN" in Großbuchstaben mit Sperrung ist bei
-   deutschen Komposita eine Mauer und liest sich wie eine Beschriftung,
-   nicht wie ein Link. Gemischte Schreibung, etwas größer, mit Pfeil. */
+/* --- 3. Aus dem Textlink wird ein richtiger Knopf ------------------------
+   Erst stand dort "TERRASSENÜBERDACHUNG ENTDECKEN" in gesperrten
+   Versalien: bei deutschen Komposita eine Mauer, und es las sich wie eine
+   Beschriftung. Danach gemischte Schreibung, aber immer noch nur Text.
+   Betreiber am 14.11.2026 mit Bildausschnitt: "hier mach richtige buttons
+   wie oben".
+
+   AUSSENLINIE, NICHT GEFÜLLT. Der gefüllte Goldknopf bleibt dem
+   wichtigsten Weg vorbehalten (Anfrage im Einstieg und am Ende des
+   Ablaufs). Neun gefüllte Goldknöpfe nebeneinander würden sich
+   gegenseitig und den Hauptweg entwerten. Dieselbe Rangfolge wie oben:
+   einmal gefüllt, alles Weitere mit Aussenlinie.
+
+   FARBE: `--gold-text` (#896023), nicht das Markengold. Auf Weiss
+   erreicht das Markengold nur 2,98:1 und ist dort laut Designsystem
+   keine Textfarbe. #896023 kommt auf 5,58:1.
+   Beim Zeigen füllt sich der Knopf mit Markengold und der Text wird
+   tiefschwarz (6,61:1), nie weiss (2,98:1). */
 .start-premium .leistungen-grid--neu .leistung-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  /* Feste Hoehe, damit alle neun Knoepfe auf einer Linie enden. Vorher
+     waren sie 50 und 75 px hoch, weil lange Produktnamen umbrechen
+     ("Terrassenüberdachung entdecken"). Statt die Beschriftung zu kuerzen
+     und damit unverstaendlich zu machen, darf sie umbrechen - die Hoehe
+     bleibt gleich, weil sie gesetzt ist und die Zeilen enger stehen. */
+  min-height: 56px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--gold-text);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gold-text);
   text-transform: none;
   letter-spacing: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  font-weight: 700;
+  text-align: center;
+  text-wrap: balance;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.start-premium .leistungen-grid--neu .leistung-link .pfeil {
+  transition: transform .18s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .start-premium .leistungen-grid--neu .leistung-link:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+    text-decoration: none;
+  }
+  .start-premium .leistungen-grid--neu .leistung-link:hover .pfeil {
+    transform: translateX(3px);
+  }
 }
 
 /* --- 4. Innenabstände in den Karten --------------------------------------
