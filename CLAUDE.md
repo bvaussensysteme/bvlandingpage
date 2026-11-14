@@ -153,6 +153,32 @@ Rechtsberatung** und darf nie als solche ausgegeben werden. Formeln wie
 „vollständig rechtskonform", „100 % sicher" oder „garantiert
 fehlerfrei" sind verboten.
 
+## Vorschaulink immer mitschicken (permanent, 14.11.2026)
+
+Ansage des Betreibers: „musst mir den vorschaulink schon immer
+mitschicken".
+
+**Bei jedem Bericht über eine Änderung an der Webseite steht die
+Vorschau-Adresse dabei** – nicht nur beim ersten Mal, nicht nur auf
+Nachfrage. Der Betreiber sieht sich die Seite selbst an; ohne Link muss
+er danach suchen.
+
+Vorschau des Arbeitsbranches:
+`https://claude-bv-aussensysteme-setup-bq7ew4-bvlanding.bv-verwaltung.workers.dev`
+(Branch-Name, Schrägstrich durch Bindestrich ersetzt, dann
+`-bvlanding.bv-verwaltung.workers.dev`.)
+
+**Vorher abrufen, nicht nur nennen.** Die Regel aus
+`docs/WEBSITE_STAGING.md` gilt weiter: Eine Adresse wird erst genannt,
+wenn sie selbst abgerufen und gegen den eigenen Stand geprüft wurde. Der
+Cloudflare-Bau braucht nach dem Push ein bis zwei Minuten; eine zu frühe
+Abfrage zeigt den alten Stand. Am 14.11.2026 ist genau das passiert.
+Dazu einen eindeutigen Abfrageanhang benutzen (`?x=<zufall>`), sonst
+antwortet der Zwischenspeicher.
+
+**Zwei Sätze gehören dazu, solange Variante C gilt:** Die Adresse ist
+öffentlich, und jeder Aufruf schreibt in die produktiven Messdaten.
+
 ## Sprache: keine Gedankenstriche (permanent, 14.11.2026)
 
 Ansage des Betreibers: „Also diese Gedankenstriche versucht ihr
