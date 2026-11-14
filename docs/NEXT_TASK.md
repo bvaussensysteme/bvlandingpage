@@ -183,3 +183,29 @@ Aussage über diese Seite geraten.
   „Statiknachweis inklusive". Auf der Startseite steht seit 14.11.2026
   „vereinfachte Statik". Angleichen, sobald freigegeben.
 - **Telefonnummer-Pflicht** im Formular: Geschaeftsentscheidung.
+
+## Spaeter pruefen (Nebenbefunde 14.11.2026)
+
+- **Vier JavaScript-Dateien ohne Cache-Buster.** `metricool.js`,
+  `cookie.js` und `accessibility.js` auf je 53 Seiten, `main.js` auf
+  52, jeweils **ohne** `?v=`. `_headers` erlaubt bis zu 24 Stunden
+  alten Code aus dem Browser-Cache. Eine Aenderung an `cookie.js`
+  (Einwilligung!) erreicht wiederkehrende Besucher also bis zu einen
+  Tag lang nicht. `scripts/pruefe-cache-buster.sh` findet das nicht,
+  weil es nur Dateien prueft, die **schon** ein `?v=` tragen. Zwei
+  Dinge waeren zu tun: Versionen ergaenzen und das Skript um eine
+  Pruefung „JS/CSS ohne Version" erweitern.
+- **`data-i18n` auf der Startseite wirkt nicht.** `index.html` laedt
+  `js/i18n.js` gar nicht, und die Attribute haben keine Entsprechung
+  in der Tabelle. Die Startseite ist einsprachig. Entweder aufraeumen
+  oder die Uebersetzung wirklich anschliessen.
+- **Gedankenstriche:** rund 530 Fundstellen auf den uebrigen Seiten,
+  dazu 24 Seitentitel. Entscheidung des Betreibers steht aus.
+- **Entwurfsseiten** (`entwurf*.html`) tragen die alte Statik-Zusage.
+  Nicht verlinkt, aber abrufbar.
+- **`js/accessibility.js`** enthaelt das alte Gold `#C49A2A` fest
+  verdrahtet.
+- **Google-Link beschriftet mit „Bewertungen ansehen"** zeigt auf
+  `g.page/r/.../review`, also auf die Abgabe einer Bewertung. Entweder
+  Beschriftung oder Ziel angleichen.
+- **Drei schwebende Knoepfe** ueberlagern Inhalt, auf allen 56 Seiten.

@@ -16279,9 +16279,25 @@ ich uebersehen hatte. Alle vier sind behoben.
 **1. `js/i18n.js`, acht Stellen in drei Sprachen.** Die
 Uebersetzungstabelle trug die **alten** Saetze, darunter woertlich
 „inkl. aller erforderlichen Statik- und CE-Nachweise" und auf Englisch
-„including all required static and CE certificates". Ein englisch oder
-russisch lesender Besucher bekam also genau die Zusage zu sehen, die
-auf Deutsch gerade entfernt worden war.
+„including all required static and CE certificates".
+
+**Nachtrag am selben Tag, Korrektur einer eigenen Uebertreibung.** Ich
+hatte hier zuerst geschrieben, ein englisch oder russisch lesender
+Besucher habe diese Zusage zu sehen bekommen. Das stimmt nicht, und
+ich hatte es nicht geprueft, bevor ich es aufschrieb. Nachgesehen:
+`js/i18n.js` wird nur von `broschuere.html` und `_template.html`
+geladen, **nicht** von `index.html`. Und keiner der vier deutschen
+Schluessel kommt auf diesen beiden Seiten vor. Die Zusage stand also
+im Code, wurde aber nirgends angezeigt.
+
+Entfernt gehoert sie trotzdem: falscher Text, der nur gerade nicht
+angezeigt wird, wird angezeigt, sobald jemand den Eintrag
+wiederverwendet. Aber es war kein Vorfall, sondern Altlast.
+
+**Nebenbefund dabei.** Die `data-i18n`-Attribute in `index.html`
+(etwa `data-i18n="usp_ce"`) haben keine Entsprechung in einer
+Uebersetzungstabelle und bewirken nichts. Die Startseite ist derzeit
+einsprachig. Nicht angefasst, notiert.
 
 Wichtig fuer das Verstaendnis: Die Tabelle ist nach dem **deutschen
 Quelltext** verschluesselt, `applyLang()` vergleicht den normalisierten
