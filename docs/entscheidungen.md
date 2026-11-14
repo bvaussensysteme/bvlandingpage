@@ -16410,3 +16410,49 @@ zuerst in Googles Gelb #FBBC05 und erreichten auf Weiss gemessen
 1,71:1. Dann in der eigenen Goldstufe mit 5,9:1. Jetzt Umriss. Der
 Kommentar an der CSS-Regel traegt diese drei Stufen, damit niemand sie
 „aufraeumt".
+
+## 14.11.2026 – Gedankenstriche, Abschnitt 1: die Produktseiten
+
+**Entscheidung des Betreibers** auf meine Rückfrage: nur Fließtext.
+Rechtstexte (AGB, Datenschutz, Impressum, Widerruf) und die 24
+Seitentitel bleiben unberührt.
+
+**Umfang.** 176 Stellen in 16 Vorlagen unter `src/produkte/`.
+Gebaut hat der `frontend-developer`, gegengelesen habe ich.
+
+**Wie ersetzt wurde.** Kein Suchen-und-Ersetzen. Je nach Satz ein
+Doppelpunkt („Carport: unsere Modelle"), ein Punkt („Ein Carport
+schützt Ihr Auto. Unser Carport tut das stilvoll."), ein Komma
+(„Privatsphäre im eigenen Garten ist ein echtes Bedürfnis, besonders
+in Wohngebieten…") oder gar nichts („Wir kommen zu Ihnen im
+Westerwald und Umgebung."). Einschübe wurden paarweise aufgelöst,
+meist zu Kommas: „Das Fundament, eine Punktgründung oder eine
+einfache Bodenplatte, wird vor Ort…"
+
+**Beim Gegenlesen gefunden und berichtigt:**
+1. **Ein Seitentitel war doch geändert worden.** `gartenhaus.njk`
+   trug danach „Gartenhaus Aluminium Westerwald: TDS System". Titel
+   sind ausgenommen, der Betreiber hat das so entschieden, weil sie
+   in den Google-Ergebnissen stehen. Zurückgenommen.
+2. **Eine Datei fehlte in meiner eigenen Liste.**
+   `garten-aussenbereich.njk` hatte sechs Stellen und stand nicht im
+   Auftrag. Nachgeholt.
+3. **Eine Zwischenüberschrift war holprig.** Aus „Velaris –
+   Einsteuerbare Lamellen – unsere Lösungen" war „Velaris,
+   einsteuerbare Lamellen: unsere Lösungen" geworden. Jetzt „Velaris:
+   unsere Lösungen". Die Überschrift darüber nennt die Lamellen schon.
+
+**Gegengelesen, nicht geglaubt.** Der bauende Agent schrieb selbst,
+er habe den Unterschied nicht Wort für Wort nachgelesen. Geprüft
+wurde deshalb: gleiche Zahl hinzugefügter und entfernter Zeilen je
+Datei (kein Text verloren), alle 176 Paare im Wortlaut gelesen, keine
+Stelle im Fließtext übrig, alle 32 JSON-LD-Blöcke gültiges JSON.
+
+**Was bewusst mitgeändert wurde.** Bild-`alt`-Texte und
+`aria-label`: ein Screenreader liest sie vor, sie sind sichtbarer
+Text im Sinne der Regel. Ebenso `description`- und `name`-Felder in
+den JSON-LD-Blöcken, weil CLAUDE.md Schema.org ausdrücklich nennt.
+
+**Offen:** Abschnitt 2 (Ratgeber, Landingpages, übrige Seiten) und
+Abschnitt 3 (`konfigurator.html`, 63 Stellen, teils aus JavaScript
+erzeugte Beschriftungen, deshalb einzeln).
