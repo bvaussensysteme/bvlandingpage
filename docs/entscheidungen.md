@@ -15905,3 +15905,71 @@ Verbesserung am Schluss, kein offener Baustein.
 
 **Nicht vergessen:** Die Logos werden nicht umgefärbt, auch nicht auf die
 neue Palette. Das steht seit dem 13.11. fest.
+
+## 14.11.2026 – Layoutfehler am Handy, vom Betreiber gefunden
+
+**Anlass.** Betreiber mit zwei Bildschirmfotos vom iPhone: „da passen die
+boxen mit den textabständen etc alles nicht, schlafen die agents oderwas".
+
+**Er hatte recht, und die Prüfungen haben es nicht gefunden.** Sie messen
+Kontrast, Tippflächen, Feldgrößen und waagerechtes Scrollen.
+**Abgeschnittener Text, ein ausgefranstes Raster und zu enge
+Innenabstände stehen in keiner dieser Zahlen.** Das ist eine Lücke im
+Prüfsystem, nicht nur ein Gestaltungsfehler.
+
+### 1. Der Einstieg schnitt Text ab (echter Fehler)
+
+**Ursache, am Quelltext belegt:** `.hero-slider` steht auf
+`height: 100vh` mit `overflow: hidden`, `.hs-slide` liegt
+`position: absolute`. Auf dem iPhone ist die sichtbare Höhe **kleiner**
+als `100vh`, solange Safari seine Leiste zeigt. Alles darunter wird
+abgeschnitten, im Bild des Betreibers die Zeile „Kostenlos &
+unverbindlich".
+
+**Erster Versuch reichte nicht:** Mit `height: 100svh` und kleineren
+Abständen brauchte der Inhalt bei 390 × 750 immer noch 862 px. Nachgemessen,
+nicht vermutet.
+
+**Was jetzt gilt:** Der Einstieg wächst mit seinem Inhalt. Die **aktive**
+Folie wird `relative` und gibt die Höhe vor, die übrigen bleiben
+`absolute` und zählen nicht mit. `min-height: 100svh` sorgt weiter dafür,
+dass er den Bildschirm füllt, wenn der Inhalt kürzer ist.
+**Nachgemessen bei 390 × 750: Höhe 922 px, nichts abgeschnitten, kein
+waagerechtes Scrollen.**
+
+**Gefahr geprüft, besteht nicht:** `index.html` hat nur **eine** Folie,
+und `js/slider.js` wechselt nichts von selbst. Ein Höhensprung beim
+Folienwechsel ist damit ausgeschlossen.
+
+### 2. Das Vertrauensband franste aus
+
+Fünf Einträge in zwei Spalten. Der fünfte stand allein und mittig, die
+Zeilenhöhen sprangen, weil „Garantie direkt vom Hersteller" umbricht und
+„für jeden Bedarf" nicht. Am Handy jetzt **eine** Spalte, linksbündig.
+Nachgemessen: fünf Einträge, alle 68 px hoch, eine Spalte.
+
+### 3. „TERRASSENÜBERDACHUNG ENTDECKEN"
+
+Großbuchstaben mit Sperrung sind bei deutschen Komposita eine Mauer und
+lesen sich wie eine Beschriftung, nicht wie ein Link. Jetzt gemischte
+Schreibung, etwas größer.
+
+### 4. Innenabstände in den Karten
+
+Text stand am Handy fast am Rand, die Trennlinie über „Passt, wenn"
+klebte an der Beschreibung. Beides vergrößert.
+
+### Offen, weil es alle Seiten betrifft
+
+**Die drei schwebenden Knöpfe** (Nach-oben, Barrierefreiheit,
+Konfigurator-Blase) liegen über dem Inhalt. Auf dem Bild des Betreibers
+sitzen sie über dem Text der Produktkarte. Sie stehen in
+`src/css/style.css` und `js/accessibility.js`, also auf **allen 56
+Seiten**. Eine Änderung dort ist keine Startseiten-Änderung mehr.
+**Nicht angefasst, dem Betreiber zur Entscheidung vorgelegt.**
+
+### Was daraus für die Prüfungen folgt
+
+Eine Prüfung, die Überlappung und Abschneiden misst, fehlt. **Notiert,
+noch nicht gebaut** – sie gehört in denselben Auftrag wie die
+Entscheidung über die schwebenden Knöpfe.
