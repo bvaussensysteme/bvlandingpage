@@ -252,3 +252,21 @@ nicht angefasst. Erst auf Ansage:
   es eine eigene Velaris-Seite gibt.
 - **`carport-oder-garage.njk`: „Carport ist 3-5× günstiger"** ist eine
   Zahl ohne Beleg auf einer Seite, die sonst keine Preise nennt.
+
+## Sprachumschaltung: fertig bauen oder ausbauen (14.11.2026)
+
+`js/i18n.js` wird von `broschuere.html` geladen, aber **es gibt auf
+keiner echten Seite einen Umschalter**. Von 189 Einträgen passen 43
+noch zum Seitentext, von den 39 Einträgen mit Gedankenstrich lebt
+genau einer. Der Rest gehört zur alten Startseite.
+
+Zwei Wege, einen muss der Betreiber wählen:
+- **Fertig bauen:** Umschalter einbauen, Tabelle an die heutigen Texte
+  anpassen, und bei jeder Textänderung mitpflegen. Das ist dauerhafte
+  Arbeit, keine einmalige.
+- **Ausbauen:** `js/i18n.js` und die wirkungslosen
+  `data-i18n`-Attribute entfernen. Spart einen Dateiabruf auf der
+  Broschürenseite.
+
+Bis zur Entscheidung werden dort **keine** Gedankenstriche ersetzt.
+Begründung im Logbuch.

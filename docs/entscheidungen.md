@@ -16847,3 +16847,42 @@ denselben Stand hat, greift der Eintrag nicht mehr, und die
 Übersetzung bleibt stumm deutsch. Vor dem Anfassen muss geklärt sein,
 welche Seiten die Datei überhaupt laden. Derzeit sind das nur
 `broschuere.html` und `_template.html`.
+
+## 14.11.2026 – Die Übersetzung ist totes Gewicht, und deshalb wird sie nicht poliert
+
+**Anlass.** `js/i18n.js` steht mit 90 Gedankenstrichen auf der Liste.
+Vor dem Anfassen wurde geprüft, was die Datei überhaupt bewirkt.
+
+**Befund, dreifach nachgesehen:**
+
+1. **Kein Umschalter.** Weder `index.html` noch `broschuere.html`
+   enthalten ein Bedienelement, um die Sprache zu wechseln. Nur
+   `_template.html` hat eines, und das ist eine Vorlage, keine Seite,
+   auf die jemand gelangt.
+2. **Geladen wird die Datei nur von zwei Seiten:** `broschuere.html`
+   (mit Version) und `_template.html`. `index.html`, `konfigurator.html`
+   und die Werkstatt laden sie **nicht**. Die `data-i18n`-Attribute auf
+   der Startseite haben keine Entsprechung und bewirken nichts.
+3. **Die Tabelle passt nicht mehr zur Seite.** Sie ist nach dem
+   deutschen Quelltext verschlüsselt. Von 189 Einträgen finden sich 43
+   auf `broschuere.html` wieder, überwiegend kurze Navigationswörter.
+   **Von den 39 Einträgen mit Gedankenstrich lebt genau einer.** Die
+   übrigen 38 gehören zu einer Startseite, die es nicht mehr gibt,
+   darunter „Ihr Traumplatz draußen – das ganze Jahr.", also der Text
+   von vor dem Umbau.
+
+**Entscheidung: nicht poliert.** Gedankenstriche in Texten zu
+ersetzen, die niemand sieht, kostet Zeit und erzeugt den falschen
+Eindruck, die Übersetzung sei gepflegt. Die Regel des Betreibers gilt
+für Text, der auf der Seite steht. Dieser steht nicht darauf.
+
+**Dem Betreiber vorgelegt**, mit zwei Wegen: die Sprachumschaltung
+fertig bauen (Umschalter einbauen, Tabelle an die heutigen Texte
+anpassen, Pflege dauerhaft mitdenken), oder sie ausbauen und die
+Datei entfernen. Ein drittes gibt es nicht, denn der jetzige Zustand
+lädt auf der Broschürenseite eine Datei, die nichts tut.
+
+**Was dabei auffiel und zur Vorsicht mahnt:** Hätte ich die Tabelle
+einfach bereinigt, wäre der eine lebende Eintrag mit Gedankenstrich
+womöglich stillgelegt worden, weil der Schlüssel dann nicht mehr zum
+Seitentext passt. Erst nachsehen, dann ändern.
