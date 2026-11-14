@@ -40,6 +40,32 @@ sie eingerichtet und selbst abgerufen wurde. Testdaten sind erfunden;
 keine echten Anfragen an Kunden, CRM oder produktive
 Benachrichtigungswege.
 
+## Prüfer nach Fachbereich und in Reihenfolge (permanent, 14.11.2026)
+
+Ansage des Betreibers: „IMMER die prüfer nach fachbereich und
+reihenfolge schauen lassen."
+
+Nach jeder Änderung läuft **jeder Fachbereich, den die Änderung
+berührt**, mit **genau einem** lesenden Prüfer, in der festen
+Reihenfolge aus **`docs/PRUEFER_REIHENFOLGE.md`**. Nicht alle Bereiche
+bei jeder Änderung, aber jeder berührte Bereich immer, und nicht nach
+Gutdünken ausgewählt.
+
+Kurzfassung der Reihenfolge: `cto` · `security-architect` ·
+`qa-accessibility-auditor` · `mobile-ux-auditor` · `ux-architect` ·
+`seo-specialist` · `performance-auditor` ·
+`conversion-psychology-auditor` · `customer-journey-architect` ·
+`staging-release-guardian` · `reality-checker`.
+
+`qa-accessibility-auditor` läuft bei **jeder** Code-Änderung.
+`staging-release-guardian` und `reality-checker` zusätzlich vor jeder
+Veröffentlichung.
+
+Das ersetzt nicht die Regel „keine pauschalen Aufrufe" darunter,
+sondern füllt sie: Die Auswahl erfolgt über den berührten Fachbereich,
+nicht über das Bauchgefühl des Hauptagenten. Jeder Prüfauftrag nennt
+die geänderten Dateien, sonst liest der Prüfer das halbe Repository.
+
 ## Fokus- und Tokensparmodus (permanent, 13.11.2026)
 
 Ergänzt den Abschnitt darunter. Dort steht, **wie** sparsam gearbeitet
