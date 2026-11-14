@@ -16886,3 +16886,49 @@ lädt auf der Broschürenseite eine Datei, die nichts tut.
 einfach bereinigt, wäre der eine lebende Eintrag mit Gedankenstrich
 womöglich stillgelegt worden, weil der Schlüssel dann nicht mehr zum
 Seitentext passt. Erst nachsehen, dann ändern.
+
+## 14.11.2026 – Gedankenstriche, Abschnitt 4b: der 3D-Konfigurator
+
+**63 Stellen in `js/konfigurator-3d.js`.** Überwiegend Trennzeichen in
+den Zeilen, die der Konfigurator für die Zusammenfassung und die
+Anfrage erzeugt („Seiten – Element A · Element B" wurde zu
+„Seiten: …"), dazu die Texte der Schrittführung.
+
+**Zwei Dinge wurden bewusst nicht angefasst:**
+
+1. **Der Nachschlage-Schlüssel `'Rovere Pechino – Hell'`.** Er ist
+   kein sichtbarer Text, sondern ein Schlüssel in vier Dateien
+   (`js/konfigurator-3d.js` zweimal, `konfigurator.html`,
+   `werkstatt/index.html`). Sichtbar steht dort „Rovere Pechino hell
+   (Holzdekor)". Vier Dateien für ein unsichtbares Zeichen zu ändern
+   ist Risiko ohne Gegenwert. Notiert.
+2. **Die Platzhalter `'–'`** in noch leeren Anzeigefeldern. Sie sind
+   Zierrat für ein leeres Feld, kein Satzzeichen.
+
+**Der Fund, auf den es ankommt.** Zwei reguläre Ausdrücke in
+`ohneVorbehalt()` und `ohneLieferant()` entfernen Zusätze aus den
+erzeugten Zeilen, etwa „– Aufteilung nach Aufmaß". Sie suchten nach
+`[–-]`, also genau nach dem Zeichen, das ich gerade ersetzt hatte.
+**Nach meiner Änderung hätten sie nichts mehr gefunden**, und der
+Zusatz wäre stehen geblieben, dreifach wiederholt, genau das, was der
+Kommentar darüber zu verhindern versucht: „Bei drei Schiebeanlagen
+stand derselbe Satz dreimal – das liest niemand mehr."
+
+Kein Absturz, keine Fehlermeldung, nur ein Angebot, das plötzlich
+wieder unsicher klingt.
+
+Behoben: Die Zeichenklasse heißt jetzt `[,–-]` und erfasst beide
+Formen, die neue und die alte. **Gegengeprüft mit drei Proben**, die
+die Funktion nachbauen: Komma-Form, alte Strich-Form und eine
+Kontrollzeile. Alle drei werden richtig gekürzt.
+
+**Lehre, die über diesen Fall hinausgeht.** Wer Satzzeichen in Texten
+ersetzt, muss im selben Durchgang nach Code suchen, der **nach diesen
+Satzzeichen sucht**. Ein Suchmuster ist eine stille Abhängigkeit vom
+Wortlaut.
+
+**Außerdem:** Zwei sichtbare Platzhalter „– bitte wählen –" heißen
+jetzt „bitte wählen".
+
+**Geprüft:** produktwahl 132/132, assistent 18/18, rahmen-editor 17/17.
+Weitere Konfigurator-Prüfungen laufen.

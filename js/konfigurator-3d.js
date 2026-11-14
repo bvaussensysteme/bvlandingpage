@@ -360,7 +360,7 @@
      Datei, bricht hier nichts still ab – die Farbauswahl hätte dann keine
      Namen, und das sagt die Meldung auch. */
   var RAL = (window.BV_RAL && window.BV_RAL.TABELLE) || {};
-  if (!window.BV_RAL) console.warn('js/ral.js fehlt – RAL-Farben stehen nicht zur Verfügung');
+  if (!window.BV_RAL) console.warn('js/ral.js fehlt, RAL-Farben stehen nicht zur Verfügung');
 
   /* Aus „RAL 7016", „ral7016" oder „7016" die Nummer herausziehen. */
   function ralNummer() {
@@ -4182,7 +4182,7 @@
      am naechsten kommt. */
   function ledRat(nutzbar, spots, breite, tiefe) {
     if (nutzbar < 1) {
-      return 'In die äußersten beiden Sparren kommt kein Spot – bei diesem' +
+      return 'In die äußersten beiden Sparren kommt kein Spot, bei diesem' +
              ' Dach bleibt dafür kein Sparren übrig.';
     }
     var best = null;
@@ -10802,7 +10802,7 @@
 
   var SCHRITTE = [
     { id: 'produkt',     t: 'Was möchten Sie bauen?',
-      s: 'Wählen Sie Ihr Produkt – alles Weitere richtet sich danach.' },
+      s: 'Wählen Sie Ihr Produkt. Alles Weitere richtet sich danach.' },
     { id: 'aufbau',      t: 'Wo soll es stehen?',
       s: 'An der Hauswand oder frei im Garten?' },
     { id: 'masse',       t: 'Wie groß soll es werden?',
@@ -10810,7 +10810,7 @@
     { id: 'dach',        t: 'Welches Dach?',
       s: 'Klares Glas lässt am meisten Licht durch, mattes blendet weniger.' },
     { id: 'farbe',       t: 'Welche Farbe?',
-      s: 'Die Farbe gilt für alle Profile – Pfosten, Dach und Seiten.' },
+      s: 'Die Farbe gilt für alle Profile: Pfosten, Dach und Seiten.' },
     { id: 'seiten',      t: 'Sollen Seiten geschlossen werden?',
       s: 'Schon eine geschlossene Seite bringt Wind- und Sichtschutz. Sie dürfen auch alles offen lassen.' },
     /* Die Verkleidung war bis 11.10.2026 ein eigener Schritt. Sie ist
@@ -10819,10 +10819,10 @@
     { id: 'sonne',       t: 'Brauchen Sie Sonnenschutz?',
       s: 'Eine Markise hält die Hitze ab, bevor sie unter dem Dach ankommt.' },
     { id: 'technik',     t: 'Licht und Technik?',
-      s: 'Alles freiwillig – Sie können jeden Punkt auch später nachrüsten.' },
+      s: 'Alles freiwillig. Sie können jeden Punkt auch später nachrüsten.' },
     { id: 'umgebung',    t: 'Untergrund und Montage',
       s: 'Zwei Fragen, die wir für das Angebot brauchen.' },
-    { id: 'fertig',      t: 'Fertig – das haben Sie zusammengestellt',
+    { id: 'fertig',      t: 'Fertig: das haben Sie zusammengestellt',
       s: 'Schicken Sie uns die Konfiguration. Sie bekommen ein Angebot nach dem kostenlosen Aufmaß.' }
   ];
 
@@ -11125,7 +11125,7 @@
     var alleNamen = seiten.slice(0, -1).join(', ') + ' und ' + seiten[seiten.length - 1];
     if (!zu.length) {
       el.innerHTML = '<span class="offen">Zurzeit bleiben <b>' + wieViele
-        + ' offen</b> – ' + alleNamen + '.</span>';
+        + ' offen</b>, ' + alleNamen + '.</span>';
       return;
     }
     el.innerHTML = 'So steht es gerade: ' + zu.join(' · ') +
@@ -11212,7 +11212,7 @@
         ? ' in ' + VELARIS_IST.schienen + ' Schiene(n).' : '.') +
       (VELARIS_IST.gewuenscht === 'verschiebbar' && VELARIS_IST.art !== 'verschiebbar'
         ? ' Verschiebbar braucht drei oder vier Elemente (1500 bis 6000 mm' +
-          ' lichte Breite) – hier geht das nicht, deshalb feststehend.'
+          ' lichte Breite), hier geht das nicht, deshalb feststehend.'
         : '');
   }
 
@@ -11228,7 +11228,7 @@
       ' von ' + LED_IST.nutzbar + ' nutzbaren Sparren, je ' + LED_IST.proReihe +
       '. In die äußersten beiden Sparren kommt keiner.' +
       (gezeichnet !== LED_IST.spots
-        ? ' Bestellt sind ' + LED_IST.spots + ' – diese Zahl geht hier nicht' +
+        ? ' Bestellt sind ' + LED_IST.spots + ', diese Zahl geht hier nicht' +
           ' gleichmäßig auf. ' + LED_IST.rat
         : '');
   }
@@ -11240,7 +11240,7 @@
       if (!e) return;
       e.textContent = SONNE_IST.bahnen
         ? 'Gebaut: ' + SONNE_IST.bahnen + ' Bahnen à ca. ' + SONNE_IST.breite +
-          ' × ' + SONNE_IST.laenge + ' mm – je Sparrenfeld eine.'
+          ' × ' + SONNE_IST.laenge + ' mm, je Sparrenfeld eine.'
         : '';
     });
   }
@@ -11342,7 +11342,7 @@
   function hoeheBezugName() {
     var txt = hoeheBezugKlartext();
     if (Z.hoeheBezug === 'sonstiges' && Z.hoeheBezugText) {
-      txt += ' – ' + Z.hoeheBezugText;
+      txt += ', ' + Z.hoeheBezugText;
     }
     return txt;
   }
@@ -11372,7 +11372,7 @@
         + ' mm bis Oberkante. Passt das nicht zu Ihrem Maß, tragen wir '
         + 'es beim Aufmaß zusammen.';
     } else if (frei) {
-      hin.textContent = 'Bitte kurz angeben, welches Maß Sie gemessen haben – '
+      hin.textContent = 'Bitte kurz angeben, welches Maß Sie gemessen haben, '
         + 'wir klären es beim Aufmaß.';
     } else {
       hin.textContent = '';
@@ -11416,11 +11416,11 @@
       if (!zu) { sel.innerHTML = ''; return; }
       var auto = sg23Bauart(mass, null);
       var html = '<option value="">Automatisch' +
-        (auto ? ' – ' + auto[1] + '-türig' : '') + '</option>';
+        (auto ? ', ' + auto[1] + '-türig' : '') + '</option>';
       SG23.bauarten.forEach(function (b) {
         if (!sg23Passt(b, mass)) return;
         html += '<option value="' + b[0] + '|' + b[1] + '">' + b[1] +
-          '-türig, ' + b[0] + ' Schienen – Scheiben je ca. ' +
+          '-türig, ' + b[0] + ' Schienen, Scheiben je ca. ' +
           Math.round(mass / b[1]) + ' mm</option>';
       });
       sel.innerHTML = html;
@@ -11447,12 +11447,12 @@
       var b = sg23Bauart(p[1], p[0]);
       if (!b) {
         zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] +
-          ' mm – außerhalb der Standardbreiten (bis 7000 mm, Scheibe mindestens ' +
+          ' mm, außerhalb der Standardbreiten (bis 7000 mm, Scheibe mindestens ' +
           SCHEIBE_MIN + ' mm), Aufteilung nach Aufmaß');
         return;
       }
       zeilen.push('Schiebeanlage ' + p[0] + ': ' + p[1] + ' mm licht' + zusatz +
-        ' – SG23, ' + b[0] + '-rails, ' + b[1] + '-türig, ' + Z.sg23Glas + ', Scheiben je ca. ' +
+        ', SG23, ' + b[0] + '-rails, ' + b[1] + '-türig, ' + Z.sg23Glas + ', Scheiben je ca. ' +
         Math.round(p[1] / b[1]) + ' mm (Vorschlag, Aufteilung nach Aufmaß)');
     });
     return zeilen;
@@ -11464,7 +11464,7 @@
     var hoehe = Z.hoehe;
     if (hoehe > SG23.hoeheMaxAussen) {
       saetze.push('Die Schiebeanlage ist im Freien bis <b>' +
-        SG23.hoeheMaxAussen + ' mm</b> hoch lieferbar – eingestellt sind ' +
+        SG23.hoeheMaxAussen + ' mm</b> hoch lieferbar, eingestellt sind ' +
         hoehe + ' mm. Das Aufmaß klärt, wie die Fläche aufgeteilt wird.');
     }
     /* Die Elemente laufen in der Tiefe (links/rechts) bzw. in der Breite
@@ -11479,7 +11479,7 @@
     var maxL = Math.max.apply(null, laengen.concat([0]));
     if (maxL > 0 && !sg23Bauart(maxL)) {
       saetze.push('Für <b>' + maxL + ' mm</b> gibt es keine Standard-Bauart ' +
-        '(lieferbar bis 7000 mm) – die Seite wird geteilt.');
+        '(lieferbar bis 7000 mm), die Seite wird geteilt.');
     }
     var teile = [];
     SG23_SEITEN.forEach(function (p) {
@@ -12177,11 +12177,11 @@
                       hinten: 'Hinten (Rückseite)', dach: 'Dach' };
 
   function markenBeschriftung(m) {
-    if (m.art === 'dach') return 'Dach – Eindeckung wählen';
+    if (m.art === 'dach') return 'Dach: Eindeckung wählen';
     var name = MARKEN_NAME[m.seite] || m.seite;
     var wo = (m.anzahl > 1) ? ', Feld ' + (m.feld + 1) + ' von ' + m.anzahl : '';
     var belegt = erwListe(m.seite).length > 0;
-    return name + wo + (belegt ? ' – ändern' : ' – Seite schließen');
+    return name + wo + (belegt ? ', ändern' : ', Seite schließen');
   }
 
   /* Ein Punkt ist belegt, wenn für diese Seite schon etwas gewählt ist.
@@ -13602,13 +13602,13 @@
     if (!n) {
       e.textContent = 'Ohne Nummer zeigen wir Anthrazit. Wir beraten Sie gern.';
     } else if (RAL[n]) {
-      e.textContent = 'RAL ' + n + ' ' + RAL[n][1] + ' wird angezeigt – der Ton' +
+      e.textContent = 'RAL ' + n + ' ' + RAL[n][1] + ' wird angezeigt, der Ton' +
         ' am Bildschirm ist angenähert, verbindlich ist der RAL-Fächer.';
     } else {
       /* Deutlich sichtbar: Sonst sieht es aus, als wäre die Eingabe
          wirkungslos – und genau so kam es beim Betreiber an. */
       e.textContent = 'RAL ' + n + ' können wir im Modell noch nicht darstellen.' +
-        ' Das Bild bleibt anthrazit – lieferbar ist die Farbe trotzdem, sie' +
+        ' Das Bild bleibt anthrazit, lieferbar ist die Farbe trotzdem, sie' +
         ' steht in Ihrer Anfrage.';
       warnt = true;
     }
@@ -13672,7 +13672,7 @@
     });
     if (stand) {
       stand.textContent = !frage
-        ? 'Farbe oder Nummer eingeben – ' + Object.keys(RAL).length +
+        ? 'Farbe oder Nummer eingeben, ' + Object.keys(RAL).length +
           ' RAL-Töne sind hinterlegt.'
         : (alle.length === 0
             ? 'Nichts gefunden. Versuchen Sie es mit Braun, Blau, Grün, Grau …'
@@ -13900,7 +13900,7 @@
         if (l.length) se.push(seite + ': ' + l.map(function (w) {
           return w + erwFeldZusatz(seite, w); }).join(' + '));
       });
-      k.push(se.length ? 'Seiten – ' + se.join(' · ') : 'Seiten offen');
+      k.push(se.length ? 'Seiten: ' + se.join(' · ') : 'Seiten offen');
       if (Z.markise !== 'Ohne') k.push('Sonnenschutz: ' + Z.markise);
     }
     if (gruppeGilt('verkleidung')) {
@@ -13979,7 +13979,7 @@
           teile.push('Unterzug (Statikträger über die ganze Breite): ' +
             uzA + ' mm ab Wand' +
             (Z.unterzugAuto ? ' (mittig)' : ' (verschoben)') +
-            ' – Felder ' + uzA + ' / ' + uzB + ' mm');
+            ', Felder ' + uzA + ' / ' + uzB + ' mm');
           /* Jedes Feld ist ein Dach fuer sich: Ueber 4000 mm braucht es
              dort den Innenkern-Traeger. Bei mittiger Lage faellt das oft
              weg, bei verschobener nicht – deshalb gehoert es in die
@@ -14011,7 +14011,7 @@
              Bildschirm und auf dem Kundenblatt; in Werkssprache liest sie
              sich wie ein Fehler des Kunden. Die Aussage bleibt, auch fuer
              uns eindeutig. */
-          teile.push('Tiefe über dem Höchstmaß des Systems – so nicht ' +
+          teile.push('Tiefe über dem Höchstmaß des Systems, so nicht ' +
                      'lieferbar, Klärung beim Aufmaß');
         }
       }
@@ -14064,7 +14064,7 @@
              Bildschirm und auf dem Kundenblatt; in Werkssprache liest sie
              sich wie ein Fehler des Kunden. Die Aussage bleibt, auch fuer
              uns eindeutig. */
-          teile.push('Tiefe über dem Höchstmaß des Systems – so nicht ' +
+          teile.push('Tiefe über dem Höchstmaß des Systems, so nicht ' +
                      'lieferbar, Klärung beim Aufmaß');
         }
       }
@@ -14122,7 +14122,7 @@
         var kp = keilPlanLesen(seite);
         var kt = keilTeilung(kp.teilung);
         var m = keilEditorMass(seite);
-        var zeile = 'Keil ' + seite + ' – ' + kt.name;
+        var zeile = 'Keil ' + seite + ', ' + kt.name;
         /* Gemessene Masse mitschicken, auch wenn sie niemand geaendert
            hat: Wer die Mail liest, hat kein Modell daneben. */
         zeile += ', B ' + m.b + ' mm';
@@ -14151,7 +14151,7 @@
           if (!g) { offen = true; g = 'noch nicht gewaehlt'; }
           glaeser.push('Feld ' + (f + 1) + ': ' + g);
         }
-        zeile += ' – ' + glaeser.join(', ');
+        zeile += ', ' + glaeser.join(', ');
         if (offen) zeile += ' (NACHFRAGEN: nicht jedes Feld hat ein Glas)';
         teile.push(zeile);
       });
@@ -14163,7 +14163,7 @@
       if (erwSeiten().some(function (seite) { return (FELD_ANZAHL[seite] || 1) > 1; })) {
         /* Die Nummer allein reicht in der Mail nicht: Dort steht kein
            Modell daneben, und bestellt wird nach dieser Angabe. */
-        teile.push('Faecher je Seite – ' + erwSeiten().map(function (seite) {
+        teile.push('Faecher je Seite: ' + erwSeiten().map(function (seite) {
           var n = FELD_ANZAHL[seite] || 1;
           /* Wo Feld 1 liegt, steht HIER und nicht in einer eigenen
              Funktion: Im ersten Anlauf lag die neben feldName() weit
@@ -14175,13 +14175,13 @@
           return seite + ': ' + n + (n > 1 ? ' (' + wo + ')' : '');
         }).join(' · '));
       }
-      teile.push('Seitenelemente – ' + seiten.join(' · '));
+      teile.push('Seitenelemente: ' + seiten.join(' · '));
       /* Bei geneigtem Boden sind die Pfosten verschieden lang – genau das
          wird bestellt, und genau das sieht man dem Winkel nicht an. */
       var bg = bodenGefaelleText();
       if (bg) {
         teile.push('Terrassenboden faellt ' + bg.kurz +
-          ' – Dachneigung ' + neigungGrad() + '° gegen die Waagerechte, ' +
+          ', Dachneigung ' + neigungGrad() + '° gegen die Waagerechte, ' +
           String(bg.ueberBoden).replace('.', ',') + '° gegen den Boden');
         if (bg.pfosten.vorne.length) {
           teile.push('Pfostenlaengen vorne: ' + bg.pfosten.vorne.join(' / ') + ' mm' +
@@ -14243,7 +14243,7 @@
                    (RAHMENW_IST.senkrecht ? ', ' + RAHMENW_IST.senkrecht + ' senkrechte' : '') +
                    (RAHMENW_IST.waagerecht ? ', ' + RAHMENW_IST.waagerecht + ' waagerechte' : '') +
                    (RAHMENW_IST.senkrecht + RAHMENW_IST.waagerecht ? ' Sprosse(n)' : ' ohne Sprosse') +
-                   ' – Aufteilung nach Aufmaß');
+                   ', Aufteilung nach Aufmaß');
       }
       if (erwIrgendwo('Velaris')) {
         teile.push('Velaris ' + VELARIS_IST.art + ': ' +
@@ -14263,9 +14263,9 @@
                      : Z.velarisWinkelUnten + '° offen') +
                    ', Lamellenfarbe ' + Z.velarisFarbe +
                    (Z.velarisFarbe.indexOf('Sonderfarbe') > -1
-                     ? ' – RAL-Nummer noch offen, Aufpreis' : '') +
+                     ? ', RAL-Nummer noch offen, Aufpreis' : '') +
                    ', Rahmenfarbe ' + Z.farbe +
-                   ' – Lamellen- und Rahmenmaße nach Herstellerangabe');
+                   ', Lamellen- und Rahmenmaße nach Herstellerangabe');
       }
       if (erwIrgendwo('Schiebetür')) {
         teile.push('SG23 Richtungsangaben: von INNEN gesehen (links/rechts ' +
@@ -14274,7 +14274,7 @@
         teile.push('SG23 Schloss: ' + (Z.sg23Schloss === 'ohne'
           ? 'nicht vorgesehen' : Z.sg23Schloss + ' (Stückzahl nach Aufmaß)'));
         teile.push('SG23 Bürstendichtung: Bürstenprofil inkl. Bürsten, ' +
-                   'Lieferlänge 2500 mm – Bedarf nach Aufmaß');
+                   'Lieferlänge 2500 mm, Bedarf nach Aufmaß');
       }
       if (gruppeGilt('traeger-wunsch') && Z.traegerWunsch) {
         teile.push('Statikträger 189 × 117 mm unter der Dachrinne auf Kundenwunsch ' +
@@ -14580,7 +14580,7 @@
     if (bh) {
       if (!istBalkon()) bh.textContent = '';
       else if (pfostenAufBruestung()) {
-        bh.textContent = 'Das Dach deckt die Brüstung mit ab – das Wasser ' +
+        bh.textContent = 'Das Dach deckt die Brüstung mit ab, das Wasser ' +
           'tropft außen ab.';
       } else {
         var fehlt = bruestungDicke() * 10 - (Z.vorsprung || 0);
@@ -14588,7 +14588,7 @@
           ? 'Das Dach endet über den Pfosten, also an der Innenkante der ' +
             'Brüstung. Mit ' + Math.round(fehlt) + ' mm mehr Dachvorsprung ' +
             'reicht es bis zur Außenkante, dann tropft das Wasser außen ab.'
-          : 'Mit dem Dachvorsprung reicht das Dach über die Brüstung hinaus – ' +
+          : 'Mit dem Dachvorsprung reicht das Dach über die Brüstung hinaus, ' +
             'das Wasser tropft außen ab.';
       }
     }
@@ -14613,7 +14613,7 @@
         var pf = pfostenText(bt);
         if (tb.breiteTabelle !== Z.breite) {
           saetze.push('Gerechnet wird mit der nächsten lieferbaren Breite: <b>' +
-            tb.breiteTabelle + ' mm</b> – daraus folgen ' + tb.sparren +
+            tb.breiteTabelle + ' mm</b>, daraus folgen ' + tb.sparren +
             ' Sparren und ' + pf + '.');
         } else {
           saetze.push('<b>' + tb.sparren + ' Sparren</b> und <b>' + pf +
@@ -14626,7 +14626,7 @@
              unter der Rinne. Bleiben Dachvorsprung (Pflicht) und Wunsch. */
           var grund = vs > 0
             ? 'Mit Dachvorsprung kommt ein <b>Statikträger</b> (189 × 117 mm) über die volle Breite dazu.'
-            : 'Sie haben den <b>Statikträger</b> (189 × 117 mm) gewählt – er läuft über ' +
+            : 'Sie haben den <b>Statikträger</b> (189 × 117 mm) gewählt, er läuft über ' +
               'die volle Breite und spart ' + (tb.pfosten - pfV) + ' Pfosten.';
           var lage = vs > 0
             ? ' Die Pfosten stehen ' + vs + ' mm weiter innen; der Träger liegt ' +
@@ -14649,13 +14649,13 @@
         }
         if (glasGeteilt()) {
           saetze.push('VSG-Glas gibt es bis <b>4,50 m</b> am Stück. Bei dieser ' +
-            'Tiefe werden die Scheiben <b>quer gestoßen und gekoppelt</b> – im ' +
+            'Tiefe werden die Scheiben <b>quer gestoßen und gekoppelt</b>, im ' +
             'Bild als Querprofil zu sehen.');
         }
         if (!tb.lieferbar) {
           saetze.push('Diese Tiefe liegt über dem Höchstmaß von ' +
             ((regelnJetzt() || M.regeln).tiefeMaxLieferbar / 1000).toFixed(2).replace('.', ',') +
-            ' m – <b>so nicht lieferbar</b>. Sprechen Sie uns an, wir finden eine Lösung.');
+            ' m, <b>so nicht lieferbar</b>. Sprechen Sie uns an, wir finden eine Lösung.');
           warnung = true;
         }
       }
@@ -14686,7 +14686,7 @@
          Wandprofil. */
       whi.textContent = 'Von Unterkante Rinne (' + Z.hoehe + ' mm) über '
         + (wandUkSpanne() / 1000).toFixed(2).replace('.', ',')
-        + ' m Dachtiefe – so rechnet auch das Bestellformular.';
+        + ' m Dachtiefe, so rechnet auch das Bestellformular.';
     }
     hoeheBezugZeigen();
     var lw = document.getElementById('k3dLamellenWert');
@@ -15252,10 +15252,10 @@
     var i2 = document.getElementById('k3dStoffZipInfo');
     if (i2) {
       i2.textContent = (zuBreit.length
-        ? 'Hinweis: ' + zuBreit.join(' und ') + ' über 5 m breit – eine '
+        ? 'Hinweis: ' + zuBreit.join(' und ') + ' über 5 m breit, eine '
           + 'Senkrechtmarkise gibt es bis 5 m am Stück, darüber geteilt. '
         : '') + (Z.stoffZip ? stoffText(Z.stoffZip)
-          : 'Jeder Stoff gibt es in zwei Mustern – Konfektion A und B.');
+          : 'Jeder Stoff gibt es in zwei Mustern, Konfektion A und B.');
     }
   }
 
@@ -15636,7 +15636,7 @@
     var hinweis = document.getElementById('k3dPfostenHinweis');
     if (hinweis) {
       hinweis.textContent = 'Achsabstand zwischen ' + Math.round(r.grenzen.min) +
-        ' und ' + Math.round(r.grenzen.max) + ' mm – hergeleitet aus den ' +
+        ' und ' + Math.round(r.grenzen.max) + ' mm, hergeleitet aus den ' +
         'Breiten, die der Hersteller für dieses System liefert. Im Modell: ' +
         'Pfosten antippen, dann ziehen. Beim Aufmaß wird die Lage ' +
         'verbindlich festgelegt.';
@@ -16033,7 +16033,7 @@
   function ohneVorbehalt(zeile) {
     return String(zeile)
       .replace(/\s*\((?:Vorschlag|Bedarf)[^)]*\)/g, '')
-      .replace(/\s*[–-]\s*(?:Bedarf|Aufteilung) nach Aufmaß/g, '')
+      .replace(/\s*[,–-]\s*(?:Bedarf|Aufteilung) nach Aufmaß/g, '')
       .replace(/\s{2,}/g, ' ')
       .replace(/\s+([,.;])/g, '$1')
       .trim();
@@ -16046,7 +16046,7 @@
       /* Sicherheitsnetz für alles, was später dazukommt: ein Klammerzusatz,
          in dem VD steht, fällt ganz weg. */
       .replace(/\s*\((?:[^()]*\bVD\b[^()]*)\)/g, '')
-      .replace(/\s*[–-]\s*(?:laut|nach)\s+VD\b[^,.;]*/g, '')
+      .replace(/\s*[,–-]\s*(?:laut|nach)\s+VD\b[^.;]*/g, '')
       .replace(/\s{2,}/g, ' ')
       .trim();
   }
@@ -16160,7 +16160,7 @@
     var fuss = [
       'Alle Maße und Aufteilungen sind Vorschläge und werden beim kostenlosen ' +
       'Aufmaß vor Ort verbindlich festgelegt; gefertigt wird nach Ihrem Maß.',
-      'Unverbindliche Darstellung – verbindlich ist unser Angebot. © ' +
+      'Unverbindliche Darstellung, verbindlich ist unser Angebot. © ' +
       new Date().getFullYear() + ' BV AussenSysteme'
     ];
     var kopf = produktName() + ', ' + Z.breite + ' x ' + Z.tiefe + ' mm';
@@ -16891,7 +16891,7 @@
     }
     if (t.reihen > reihen) {
       return { ok: false, grund: 'zu flach',
-               lang: 'Vorne bleiben nur ' + lichtVorn + ' mm Höhe – '
+               lang: 'Vorne bleiben nur ' + lichtVorn + ' mm Höhe, '
                      + 'für zwei Reihen braucht es mindestens '
                      + (2 * KEIL_MIN_FELD) + ' mm.' };
     }
@@ -17121,7 +17121,7 @@
         var an = (nr === gewaehlt);
         g.setAttribute('aria-pressed', an ? 'true' : 'false');
         g.setAttribute('aria-label', 'Feld ' + (nr + 1)
-          + (an ? ', ausgewählt' : '') + ', Glas: ' + (plan.glas[nr] || '– bitte wählen –'));
+          + (an ? ', ausgewählt' : '') + ', Glas: ' + (plan.glas[nr] || 'bitte wählen'));
         var flaeche = el('polygon', {
           points: xa + ',' + ya + ' ' + xb + ',' + yb + ' ' + xb + ',' + yc + ' ' + xa + ',' + yd,
           fill: an ? '#E8D6A4' : '#ECEAE5',
@@ -17296,7 +17296,7 @@
     if (keilEditorFeld >= zahl) keilEditorFeld = 0;
 
     var titel = document.getElementById('k3dKeilTitel');
-    if (titel) titel.textContent = 'Keil bearbeiten – ' + keilSeitenName(seite);
+    if (titel) titel.textContent = 'Keil bearbeiten, ' + keilSeitenName(seite);
 
     /* Teilungskacheln */
     var kacheln = document.getElementById('k3dKeilTeilungen');
@@ -17345,7 +17345,7 @@
           }
           note.textContent = passt.grund;
           b.title = passt.lang;
-          b.setAttribute('aria-label', keilTeilung(id).name + ' – nicht möglich: ' + passt.lang);
+          b.setAttribute('aria-label', keilTeilung(id).name + ', nicht möglich: ' + passt.lang);
         } else if (note) {
           note.parentNode.removeChild(note);
           b.removeAttribute('title');
@@ -17410,8 +17410,8 @@
       var hV = document.getElementById('k3dKeilVHinweis');
       if (hV) {
         hV.textContent = grenzeV
-          ? 'Die Unterkante steigt vorne um dieses Maß an – '
-            + 'höchstens ' + grenzeV + ' mm – vorne müssen '
+          ? 'Die Unterkante steigt vorne um dieses Maß an, '
+            + 'höchstens ' + grenzeV + ' mm, vorne müssen '
             + KEIL_MIN_VORNE + ' mm Höhe bleiben.'
           : 'Erst möglich, wenn die Höhe vorne über ' + KEIL_MIN_VORNE
             + ' mm liegt: Die Unterkante steigt vorne an, und vorne müssen '
@@ -17445,7 +17445,7 @@
     if (warn) {
       if (abw.length) {
         warn.textContent = 'Der Keil ist höher als der Platz unter dem Dach ('
-          + abw.join(', ') + ' mm) – er würde über die Dachunterkante hinausragen.';
+          + abw.join(', ') + ' mm), er würde über die Dachunterkante hinausragen.';
         warn.hidden = false;
       } else { warn.hidden = true; warn.textContent = ''; }
     }
@@ -17491,7 +17491,7 @@
               wrap.className = 'k3d-bearb-mass';
               var lab = document.createElement('label');
               lab.setAttribute('for', 'k3dKeilSprosseW' + nr);
-              lab.textContent = 'Waagerechte Sprosse ' + (nr + 1) + ' – Höhe über der Unterkante (mm)';
+              lab.textContent = 'Waagerechte Sprosse ' + (nr + 1) + ', Höhe über der Unterkante (mm)';
               var inp = document.createElement('input');
               inp.type = 'number'; inp.id = 'k3dKeilSprosseW' + nr;
               inp.className = 'k3d-zahl'; inp.setAttribute('inputmode', 'numeric');
@@ -17534,7 +17534,7 @@
               wrap.className = 'k3d-bearb-mass';
               var lab = document.createElement('label');
               lab.setAttribute('for', 'k3dKeilSprosse' + nr);
-              lab.textContent = 'Sprosse ' + (nr + 1) + ' – Abstand von der Wand (mm)';
+              lab.textContent = 'Sprosse ' + (nr + 1) + ', Abstand von der Wand (mm)';
               var inp = document.createElement('input');
               inp.type = 'number'; inp.id = 'k3dKeilSprosse' + nr;
               inp.className = 'k3d-zahl'; inp.setAttribute('inputmode', 'numeric');
@@ -17583,7 +17583,7 @@
             sel.id = 'k3dKeilGlas' + nr;
             sel.setAttribute('aria-label', 'Glas für Feld ' + (nr + 1));
             var leer = document.createElement('option');
-            leer.value = ''; leer.textContent = '– bitte wählen –';
+            leer.value = ''; leer.textContent = 'bitte wählen';
             sel.appendChild(leer);
             KEIL_GLAS.forEach(function (g) {
               var o = document.createElement('option');
@@ -17667,7 +17667,7 @@
     if (!kasten) return;
     kasten.hidden = false;
     var t = document.getElementById('k3dPlankenTitel');
-    if (t) t.textContent = 'Plankenwand bearbeiten – ' + keilSeitenName(seite);
+    if (t) t.textContent = 'Plankenwand bearbeiten, ' + keilSeitenName(seite);
     plankenEditorZeichnen();
   }
   function plankenEditorSchliessen() {
@@ -17788,7 +17788,7 @@
     if (!kasten) return;
     kasten.hidden = false;
     var t = document.getElementById('k3dSchiebeTitel');
-    if (t) t.textContent = 'Schiebetür bearbeiten – ' + keilSeitenName(seite);
+    if (t) t.textContent = 'Schiebetür bearbeiten, ' + keilSeitenName(seite);
     schiebeEditorZeichnen();
   }
   function schiebeEditorSchliessen() {
@@ -17840,7 +17840,7 @@
     if (!kasten) return;
     kasten.hidden = false;
     var t = document.getElementById('k3dVelarisTitel');
-    if (t) t.textContent = 'Velaris bearbeiten – ' + keilSeitenName(seite);
+    if (t) t.textContent = 'Velaris bearbeiten, ' + keilSeitenName(seite);
     velarisEditorZeichnen();
   }
   function velarisEditorSchliessen() {
@@ -17970,7 +17970,7 @@
     if (!kasten) return;
     kasten.hidden = false;
     var t = document.getElementById('k3dRahmenTitel');
-    if (t) t.textContent = 'Rahmenwand bearbeiten – ' + keilSeitenName(seite);
+    if (t) t.textContent = 'Rahmenwand bearbeiten, ' + keilSeitenName(seite);
     rahmenEditorZeichnen();
   }
   function rahmenEditorSchliessen() {
@@ -18367,12 +18367,12 @@
     var teilenLauf = 0;
 
     var STAND_LANG = 'Dieser Link enthält Ihre Planung selbst und ' +
-      'funktioniert immer – auch ohne unseren Server. Dafür ist er lang.';
+      'funktioniert immer, auch ohne unseren Server. Dafür ist er lang.';
     var STAND_KURZ = 'Kurzlink von bv-aussensysteme.de. Gespeichert wird ' +
-      'nur die Planung – keine persönlichen Daten, kein fremder Dienst.';
+      'nur die Planung, keine persönlichen Daten, kein fremder Dienst.';
 
     function wegeSetzen(link) {
-      var text = teilenText() + ' – ansehen und weiterbearbeiten: ' + link;
+      var text = teilenText() + ', ansehen und weiterbearbeiten: ' + link;
       if (wa) wa.href = 'https://wa.me/?text=' + encodeURIComponent(text);
       if (mail) {
         mail.href = 'mailto:?subject=' +
