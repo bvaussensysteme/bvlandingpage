@@ -17426,3 +17426,65 @@ Ergebnis nach der Änderung: `index.html` 10 Knöpfe, alle 999 px;
 HTML-Datei mehr vor; die Regel ist toter CSS-Code. Ebenso `.lang-btn`,
 `.lang-dropdown-btn` und `.mobile-lang-switcher button` aus der
 entfernten Sprachumschaltung. Steht in `docs/NEXT_TASK.md`.
+
+---
+
+## 15.11.2026 – Zeichen in den Kontaktknöpfen
+
+**Anlass.** Ansage des Betreibers: „vor dem Anrufen ein Telefonhörer,
+vor dem WhatsApp ein WhatsApp-Symbol und vor dem Anfragen, keine
+Ahnung, denkt ihr ein Symbol aus."
+
+**Was falsch war.** Die Zeichen gab es längst, aber nur an einer
+Stelle. Die Startseite trug im Hero bereits Telefonhörer und
+WhatsApp-Zeichen (`index.html`, `.hero-contact-btn`). Die 14
+Ortsseiten und 17 Produktseiten hatten dieselben drei Knöpfe, nur ohne
+Zeichen. Es war also keine neue Idee, sondern eine nicht zu Ende
+geführte.
+
+**Was jetzt gilt.** Dieselben Zeichen wie auf der Startseite, in
+denselben Knöpfen, auf 34 Quelldateien: 30 Knöpfe „Anrufen",
+14 „WhatsApp", 51 „Kostenlos anfragen", 14 „Anfrage stellen".
+
+| Knopf | Zeichen |
+|---|---|
+| Anrufen | Telefonhörer, Strichzeichnung, wie auf der Startseite |
+| WhatsApp | das WhatsApp-Zeichen, wie auf der Startseite |
+| Kostenlos anfragen / Anfrage stellen | Blatt mit Stift |
+
+**Warum Blatt mit Stift und nicht Papierflieger.** Der Papierflieger
+ist das gewohnte Zeichen für „senden", steht hier aber direkt neben
+einem WhatsApp-Zeichen. In dieser Nachbarschaft liest er sich wie das
+Logo eines zweiten Nachrichtendienstes. Das Blatt mit Stift sagt
+außerdem genauer, was passiert: Der Knopf verschickt nichts, er führt
+zum Formular. Verworfen wurden außerdem der Briefumschlag, der nach
+E-Mail aussieht, und die Sprechblase, die schon für WhatsApp steht.
+
+**Technisch.** Die Zeichen stehen als SVG im Knopf, nicht als
+Schriftzeichen und nicht als Bild: keine zusätzliche Datei, keine
+zweite Anfrage ans Netz, und sie nehmen über `currentColor` die Farbe
+des Knopfes an, also Schwarz auf Gold und Weiß auf dunklem Grund. Neue
+Regel in `src/css/style.css`:
+
+```css
+.btn > svg { width: 18px; height: 18px; flex-shrink: 0; }
+```
+
+`flex-shrink: 0`, weil der Flexkasten das Zeichen im engen Knopf sonst
+plattdrückt. Feste 18 px statt einer Angabe in `em`, damit das Zeichen
+am Telefon genauso steht wie am Rechner.
+
+**Barrierefreiheit.** Jedes Zeichen trägt `aria-hidden="true"`. Der
+sichtbare Text steht daneben und bleibt der Name des Links. Ein
+Vorleseprogramm würde sonst „Grafik, Anrufen" sagen. Das entspricht
+dem, was der UI/UX-Skill unter `icons` vorgibt: dekoratives Zeichen
+neben sichtbarem Text, also ausblenden.
+
+**Gegengelesen.** Am Rechner (900 px) und am Telefon (360 px), auf
+einer Ortsseite und einer Produktseite. Dazu alle Prüfskripte, weil
+`style.css` von jeder Seite benutzt wird.
+
+**Nicht geändert.** Knöpfe mit nachgestelltem Pfeil („Jetzt anfragen
+→", 28 Stück) haben kein Zeichen bekommen. Pfeil und Zeichen am selben
+Knopf sind zwei Markierungen für dieselbe Sache. Ob diese Knöpfe
+stattdessen das Zeichen tragen sollen, entscheidet der Betreiber.

@@ -205,6 +205,12 @@ h2 + p, h3 + p { max-width: 68ch; }
    kein Zeigegeraet und damit kein :hover gibt. */
 .btn:active { transform: translateY(1px) scale(.99); }
 .btn:focus-visible { outline: 3px solid var(--gold-light); outline-offset: 3px; }
+/* Zeichen im Knopf (Telefonhoerer, WhatsApp-Zeichen, Blatt mit Stift).
+   Feste 18 px und kein Schrumpfen: Ein Zeichen, das mit der
+   Schriftgroesse mitwaechst, steht am Telefon anders als am Rechner,
+   und ohne flex-shrink: 0 quetscht der Flexkasten es im engen Knopf
+   platt. Die Zeichen tragen aria-hidden, der Text steht daneben. */
+.btn > svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 .btn-gold         { background: var(--gold); color: var(--black); box-shadow: var(--schatten-1); }
 /* HOVER AUF --gold-text, NICHT --gold-dark: #9A7318 ist der ungluecklichste
