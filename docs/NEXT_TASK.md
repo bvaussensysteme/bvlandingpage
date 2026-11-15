@@ -127,6 +127,16 @@ Bewertung holt der Betreiber beim Fachmann.
 
 ---
 
+## Offen beim Betreiber: vier Entwurfsseiten (15.11.2026)
+
+`entwurf.html`, `entwurf-bv.html`, `entwurf-apple.html` und
+`entwurf-produkt.html` sind öffentlich abrufbar, laden Schriften direkt
+von Google und zeigen kein Einwilligungsbanner. Gemessen am
+15.11.2026, Einzelheiten in `docs/rechtstexte-befunde.md`.
+
+Die Frage wurde dem Betreiber vorgelegt und blieb offen. **Nicht
+eigenmächtig ändern**, es geht um Löschen oder Sperren von Inhalten.
+
 ## Ortsseiten: Schritt 2 ist das Quiz (15.11.2026)
 
 Schritt 1 ist erledigt und committet: Verlinkung, Kontrast, Übergabe

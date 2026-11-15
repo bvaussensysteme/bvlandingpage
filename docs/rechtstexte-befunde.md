@@ -292,3 +292,39 @@ Repository), ob die Cloudflare-Einstellungen im Konto von
 Frankfurt liegt, und ob Auftragsverarbeitungsverträge mit Neon,
 Web3Forms, Formspree und Cloudflare bestehen. Die Erklärung behauptet
 sie. Das sind Verträge, die nur der Betreiber einsehen kann.
+
+## Vier Entwurfsseiten laden Google Fonts ohne Einwilligung (15.11.2026)
+
+**Gemessen** auf der Vorschau, mit frischem Browserspeicher, also ohne
+vorhandene Einwilligung:
+
+| Seite | Abruf | Einwilligungsbanner | geladen vor jeder Zustimmung |
+|---|---|---|---|
+| `/entwurf-bv.html` | HTTP 200 | nein | fonts.googleapis.com, fonts.gstatic.com |
+| `/entwurf.html` | HTTP 200 | nein | dieselben |
+| `/entwurf-apple.html` | HTTP 200 | nein | dieselben |
+| `/entwurf-produkt.html` | HTTP 200 | nein | dieselben |
+
+**Was das bedeutet, nüchtern:** Die vier Seiten sind öffentlich
+abrufbar. Beim Aufruf wird die IP-Adresse des Besuchers an Server von
+Google übertragen, ohne dass er gefragt wurde. Zum Nachladen von
+Google Fonts ohne Einwilligung gibt es ein Urteil des Landgerichts
+München I vom 20.01.2022 (Az. 3 O 17493/20).
+
+**Keine Rechtsberatung.** Ob hier ein Verstoß vorliegt, ist nicht hier
+zu entscheiden. Festgehalten ist nur das Gemessene.
+
+**Zum Gegensatz:** Die eigentlichen Seiten sind sauber. Startseite,
+Ortsseiten, Produktseiten, Ratgeber und Datenschutzseite laden vor der
+Einwilligung **keinen** fremden Host, und das Banner erscheint überall.
+Ebenfalls am 15.11.2026 gemessen.
+
+**Stand:** Dem Betreiber am 15.11.2026 vorgelegt, mit den Möglichkeiten
+nicht mehr ausliefern, Schriften lokal einbinden, löschen oder so
+lassen. Er hat die Frage offen gelassen. **Es wurde nichts geändert.**
+
+**Nebenbefund, nicht in diesem Repository:** Die Wartungsseite des
+Konfigurators (HTTP 503) trägt im Titel einen Gedankenstrich
+(„3D-Konfigurator wird überarbeitet – BV AussenSysteme") und verstößt
+damit gegen die Sprachregel vom 14.11.2026. Der Text steht nicht im
+Repository und muss dort geändert werden, wo die Seite herkommt.
