@@ -2808,18 +2808,53 @@ body.bv-konfig-open #bvKonfigBubble {
    Karte aus dem Bild laeuft. Hier ist die Karte der Abschnitt, also
    scrollt die Seite und nicht der Kasten. Ein Kasten mit eigenem
    Scrollbalken mitten auf der Seite ist am Telefon kaum zu bedienen. */
-.aw-gross { max-width: 940px; margin: 0 auto; max-height: none; overflow: visible; border-radius: 16px; }
-.aw-gross .aw-head { padding: 30px 38px 20px; }
-.aw-gross .aw-head h3 { font-size: 2rem; line-height: 1.12; }
-.aw-gross .aw-sub { font-size: 0.95rem; margin-bottom: 14px; }
-.aw-gross .aw-body { padding: 28px 38px; overflow-y: visible; }
-.aw-gross .aw-options { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
-.aw-gross .aw-option { padding: 20px 14px 18px; gap: 10px; border-radius: 16px; }
-.aw-gross .aw-option-ic { height: 96px; }
-.aw-gross .aw-option { min-width: 0; }
+.aw-gross {
+  /* MITWACHSEND STATT IN STUFEN (15.11.2026). Ansage des Betreibers:
+     "am besten es passt sich automatisch an jeden bildschirm an".
+
+     Alle Masse unten stehen als clamp(klein, mitwachsend, gross): Der
+     mittlere Wert haengt an der Fensterbreite, die beiden aeusseren
+     deckeln ihn nach unten und oben. Zwischen Telefon und Rechner gibt
+     es dadurch keinen Sprung mehr, sondern einen stufenlosen Uebergang.
+
+     max-height und der innere Scrollbalken bleiben abgeschaltet: Auf
+     der Ortsseite ist die Karte der Abschnitt, also scrollt die Seite
+     und nicht der Kasten. */
+  max-width: 940px; margin-inline: auto; max-height: none; overflow: visible;
+  border-radius: clamp(12px, 3vw, 16px);
+}
+.aw-gross .aw-head { padding: clamp(18px, 4.5vw, 30px) clamp(14px, 4vw, 38px) clamp(12px, 2.5vw, 20px); }
+.aw-gross .aw-head h3 { font-size: clamp(1.35rem, 5.2vw, 2rem); line-height: 1.12; }
+.aw-gross .aw-sub { font-size: clamp(0.84rem, 2.2vw, 0.95rem); margin-bottom: 14px; }
+.aw-gross .aw-body { padding: clamp(14px, 3.5vw, 28px) clamp(12px, 4vw, 38px); overflow-y: visible; }
+.aw-gross .aw-nav { padding: clamp(12px, 2.5vw, 18px) clamp(12px, 4vw, 38px) clamp(16px, 3vw, 26px); }
+.aw-gross .aw-btn { font-size: clamp(1rem, 2.4vw, 1.08rem); padding: clamp(13px, 2.6vw, 15px) clamp(20px, 4vw, 28px); }
+/* Die Zahl der Spalten ergibt sich aus der Breite, nicht aus einer
+   Stufe. minmax(clamp(150px, 42%, 190px), 1fr) heisst: eine Spalte ist
+   nie schmaler als 150 px und nie breiter noetig als 190 px, und 42 %
+   sorgt dafuer, dass am Telefon zwei nebeneinander passen und am
+   Rechner vier. Das Prozentmass bezieht sich auf das Raster selbst,
+   nicht auf das Fenster. */
+.aw-gross .aw-options {
+  grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 42%, 190px), 1fr));
+  gap: clamp(10px, 2.5vw, 16px);
+}
+.aw-gross .aw-option {
+  padding: clamp(12px, 3vw, 20px) clamp(8px, 1.5vw, 14px) clamp(12px, 2.5vw, 18px);
+  gap: clamp(6px, 1.5vw, 10px); border-radius: clamp(12px, 2.5vw, 16px); min-width: 0;
+}
+.aw-gross .aw-option-ic { height: clamp(68px, 18vw, 96px); }
 /* Lange Produktnamen umbrechen statt die Kachel breiter zu machen. */
 .aw-option-lbl, .aw-option-hint { overflow-wrap: break-word; hyphens: auto; min-width: 0; }
-.aw-gross .aw-option-lbl { font-size: 1.05rem; }
+.aw-gross .aw-option-lbl { font-size: clamp(0.95rem, 2.6vw, 1.05rem); }
+.aw-gross .aw-schritt { font-size: clamp(0.72rem, 1.9vw, 0.8rem); }
+/* Nur dieser eine Haltepunkt bleibt: Der Kasten sitzt in .container
+   mit 14 px Rand. Am Telefon soll er fast bis an die Kante, am
+   Rechner aber nicht aus der Spalte ausbrechen. */
+@media (max-width: 760px) {
+  .aw-gross { margin-left: -8px; margin-right: -8px; }
+}
+
 /* Die letzte Kachel bei ungerader Zahl ueber die volle Breite statt
    allein in einer Reihe. Betrifft die erste Frage mit ihren fuenf
    Antworten, wo "Weiss noch nicht" sonst verloren danebensteht. */
