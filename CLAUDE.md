@@ -66,6 +66,39 @@ sondern füllt sie: Die Auswahl erfolgt über den berührten Fachbereich,
 nicht über das Bauchgefühl des Hauptagenten. Jeder Prüfauftrag nennt
 die geänderten Dateien, sonst liest der Prüfer das halbe Repository.
 
+## Messbare Fehler sofort überall beheben (permanent, 15.11.2026)
+
+Ansage des Betreibers: „wieso nicht überall so, wozu hast du die
+agenten? ich muss immer darauf kommen."
+
+**Das schränkt den Fokusmodus darunter gezielt ein.** Dort steht
+„keine ungefragten Optimierungen", und genau deshalb blieb dasselbe
+Problem an anderen Stellen stehen, bis der Betreiber es selbst
+bemerkte.
+
+**Was ab sofort ohne Rückfrage überall behoben wird**, sobald es an
+einer Stelle gefunden wurde, und zwar im selben Arbeitsgang:
+
+- Kontrast unter 4,5:1
+- Elemente, die aus ihrem Kasten ragen, und waagerechtes Scrollen
+- antippbare Flächen unter 24 × 24 px
+- Verstöße gegen WCAG 2.2 A und AA
+- kaputte Verweise, doppelte IDs, ungültige Attribute
+
+**Was weiterhin vorher gefragt wird:** Texte, Formulierungen, Bilder,
+Preise, Gestaltung, Produktnamen, alles aus der VD-Regel, alles
+Rechtliche.
+
+**Bedingung dabei:** Der Befund muss **gemessen** sein, nicht
+vermutet, und der Bericht nennt die Zahl vorher und nachher. Eine
+Vermutung bleibt ein Nebenbefund und wandert nach
+`docs/NEXT_TASK.md`.
+
+**Dauerhaft abgesichert** durch `scripts/pruefe-mitwachsend.mjs`: Die
+Prüfung lädt mehrere Seiten in sieben Bildschirmbreiten und misst
+genau diese Dinge. Damit muss weder der Betreiber noch der Assistent
+daran denken.
+
 ## Fokus- und Tokensparmodus (permanent, 13.11.2026)
 
 Ergänzt den Abschnitt darunter. Dort steht, **wie** sparsam gearbeitet
