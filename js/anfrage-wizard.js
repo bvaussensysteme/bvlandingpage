@@ -175,6 +175,7 @@
   var flow = ['produkt'];
   var idx = 0;
   var openDd = null; // aktuell geöffnetes Erweiterungs-Dropdown
+  var letzterSchritt = null;   // fuer Fokus und Zaehler beim Schrittwechsel
   var ref = 'BV-' + Date.now().toString(36).slice(-5).toUpperCase();
 
   /* ---------- Escaping für sichere Anzeige von Nutzereingaben ---------- */
@@ -1146,8 +1147,15 @@
             ANREDE_OPTS.map(function (a) { return pill('k_anrede', a); }).join('') +
             '</div></div>' +
           '<div class="aw-row">' +
-          txtField('k_vorname', 'Vorname', answers.k_vorname, 'Max', 'given-name') +
-          txtField('k_nachname', 'Nachname *', answers.k_nachname, 'Mustermann', 'family-name') +
+          /* GEFUNDEN AM 15.11.2026: 'given-name' stand an der Stelle
+             des TYPS, nicht der Ausfuellhilfe. Erzeugt wurde
+             <input type="given-name">, ein Typ, den es nicht gibt. Der
+             Browser faellt dann auf "text" zurueck, es sah also richtig
+             aus, aber die Ausfuellhilfe fehlte: WCAG 2.2, 1.3.5
+             "Identify Input Purpose" (AA). Reihenfolge der Argumente:
+             id, label, wert, platzhalter, typ, ausfuellhilfe, extra. */
+          txtField('k_vorname', 'Vorname', answers.k_vorname, 'Max', 'text', 'given-name') +
+          txtField('k_nachname', 'Nachname *', answers.k_nachname, 'Mustermann', 'text', 'family-name') +
           '</div>' +
           txtField('k_email', 'E-Mail *', answers.k_email, 'max@beispiel.de', 'email', 'email') +
           txtField('k_telefon', 'Telefon / WhatsApp *', answers.k_telefon, '0156 …', 'tel', 'tel') +
@@ -1440,6 +1448,35 @@
       gebietshinweisZeigen();
     }
 
+    /* SCHRITTZAEHLER IN WORTEN (15.11.2026).
+
+       Der Balken allein sagt nicht, wie viel noch kommt, und ein
+       Vorleseprogramm liest ihn gar nicht: Er traegt aria-hidden.
+       "Schritt 2 von 5" steht als Text daneben.
+
+       Zur Belastbarkeit: Villar, Callegaro und Yang (2013,
+       Social Science Computer Review 31(6), Meta-Analyse aus 32
+       randomisierten Versuchen) finden, dass eine gleichmaessige
+       Fortschrittsanzeige Abbrueche NICHT senkt. Schaden richtet nur
+       eine an, die anfangs langsam und am Ende schnell laeuft. Unsere
+       laeuft gleichmaessig ueber die Schritte, waehrend die Arbeit
+       hinten liegt (der Kontaktschritt hat acht Felder): aus Sicht des
+       Besuchers also anfangs schnell, hinten langsam. Das ist der
+       einzige Verlauf, fuer den die Meta-Analyse einen Nutzen findet.
+       Eingebaut wird der Zaehler trotzdem vor allem, weil er ehrlich
+       ist, nicht weil er mehr Anfragen brächte. Das waere unbelegt.
+
+       Der Zaehler wird hier erzeugt und steht nicht im Markup: sonst
+       muessten ihn 15 Seiten mitfuehren. */
+    var zaehler = document.getElementById('awSchritt');
+    if (!zaehler && barEl.parentNode && barEl.parentNode.parentNode) {
+      zaehler = document.createElement('p');
+      zaehler.id = 'awSchritt';
+      zaehler.className = 'aw-schritt';
+      barEl.parentNode.parentNode.insertBefore(zaehler, barEl.parentNode);
+    }
+    if (zaehler) zaehler.textContent = 'Schritt ' + (idx + 1) + ' von ' + flow.length;
+
     // Progress
     var pct = flow.length > 1 ? Math.round(idx / (flow.length - 1) * 100) : 0;
     barEl.style.width = pct + '%';
@@ -1453,6 +1490,31 @@
       nextBtn.textContent = 'Weiter →';
       nextBtn.classList.remove('aw-btn--send');
     }
+
+    /* FOKUS AUF DIE UEBERSCHRIFT DES NEUEN SCHRITTS (15.11.2026).
+
+       Wer mit der Tastatur oder einem Vorleseprogramm arbeitet, steht
+       nach "Weiter" sonst weiterhin auf dem Knopf, waehrend sich der
+       ganze Inhalt darueber geaendert hat: Die neue Frage wird nicht
+       angesagt. WCAG 2.2 hat dafuer kein eigenes Erfolgskriterium, es
+       ergibt sich aus 2.4.3 (Fokus-Reihenfolge) zusammen mit 4.1.3
+       (Statusmeldungen).
+
+       Auf die UEBERSCHRIFT, nicht auf das erste Eingabefeld: Sonst
+       wird die Frage ueberhoert und nur die Feldbeschriftung gelesen.
+
+       NICHT beim ersten Zeichnen: Der Assistent steht weit unten auf
+       der Seite, ein Fokus beim Laden wuerde die Seite dorthin
+       springen lassen, ohne dass jemand etwas angeklickt hat. */
+    var jetzt = currentId();
+    if (letzterSchritt !== null && letzterSchritt !== jetzt) {
+      var titelEl = document.getElementById('awTitle');
+      if (titelEl) {
+        titelEl.setAttribute('tabindex', '-1');
+        try { titelEl.focus({ preventScroll: true }); } catch (e) { titelEl.focus(); }
+      }
+    }
+    letzterSchritt = jetzt;
 
     bindStep();
   }
@@ -1664,8 +1726,14 @@
 
   function goBack() {
     if (currentId() === 'masse') collectMasse();
-    if (currentId() === 'erweiterungen') STEPS.erweiterungen.collect();
-    if (currentId() === 'fassade') STEPS.fassade.collect();
+    /* WCAG 2.2, 3.3.7 "Redundant Entry" (Stufe A, neu in 2.2): Was
+       einmal eingegeben wurde, darf nicht noch einmal verlangt werden.
+       GEFUNDEN AM 15.11.2026: Wer im Kontaktschritt seine Daten
+       eintippte und dann auf "Zurueck" ging, fand die Felder beim
+       Vorblaettern wieder leer. goBack() sammelte nur bei drei
+       Schritten ein. Jetzt bei jedem, der ein collect() hat. */
+    var s = STEPS[currentId()];
+    if (s && typeof s.collect === 'function') s.collect();
     if (idx > 0) { idx--; render(); }
   }
 
@@ -2030,6 +2098,24 @@
     idx = flow.length > 1 ? 1 : 0;
     render();
   }
+
+  /* WCAG 2.2, 2.4.11 "Focus Not Obscured" (AA, neu in 2.2).
+
+     GEMESSEN AM 15.11.2026 bei 390 px Breite: Der schwebende
+     Konfigurator-Knopf (#bvKonfigBubble, z-index 999997) lag ueber dem
+     fokussierten Telefonfeld. Wer dort tippte, sah sein eigenes Feld
+     nur halb.
+
+     Benutzt wird dieselbe Mechanik, die js/main.js beim Lesen schon
+     verwendet: verschieben statt ausblenden, damit die Knoepfe fuer
+     die Tastatur erreichbar bleiben. Eigene Klasse, damit sich die
+     beiden nicht gegenseitig zuruecksetzen. */
+  wizard.addEventListener('focusin', function () {
+    document.body.classList.add('bv-formular-fokus');
+  });
+  wizard.addEventListener('focusout', function (e) {
+    if (!wizard.contains(e.relatedTarget)) document.body.classList.remove('bv-formular-fokus');
+  });
 
   /* ---------- Start ---------- */
   nextBtn.addEventListener('click', goNext);

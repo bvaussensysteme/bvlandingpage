@@ -328,6 +328,12 @@ body.bv-menu-open #bvKonfigOverlay,
    Tastatur erreichbar und kommen ohne Neuaufbau zurueck. */
 body.bv-schwebe-weg #bv-a11y-trigger,
 body.bv-schwebe-weg #bv-scroll-top,
+/* Und solange im Anfrage-Assistenten getippt wird: WCAG 2.2, 2.4.11
+   "Focus Not Obscured". Der Konfigurator-Knopf lag am Telefon ueber
+   dem fokussierten Feld. Siehe js/anfrage-wizard.js, focusin. */
+body.bv-formular-fokus #bv-a11y-trigger,
+body.bv-formular-fokus #bv-scroll-top,
+body.bv-formular-fokus #bvKonfigBubble,
 body.bv-schwebe-weg #bvKonfigBubble {
   transform: translateX(calc(100% + 18px));
   opacity: 0;
@@ -400,6 +406,15 @@ body.bv-schwebe-weg #bvKonfigBubble:focus-visible {
   body.bv-schwebe-weg #bv-a11y-trigger,
   body.bv-schwebe-weg #bv-scroll-top,
   body.bv-schwebe-weg #bvKonfigBubble { transform: none; opacity: 1; pointer-events: auto; }
+  /* AUSNAHME: Beim Tippen im Assistenten bleibt der Knopf weg, auch
+     ohne Bewegung. Das Verschieben dient dort nicht dem Komfort,
+     sondern WCAG 2.2, 2.4.11: Er darf das fokussierte Feld nicht
+     verdecken. Statt herauszuschieben wird er hier hart ausgeblendet,
+     also ohne Bewegung. Sobald der Fokus den Assistenten verlaesst,
+     ist er wieder da. */
+  body.bv-formular-fokus #bv-a11y-trigger,
+  body.bv-formular-fokus #bv-scroll-top,
+  body.bv-formular-fokus #bvKonfigBubble { transform: none; opacity: 0; pointer-events: none; visibility: hidden; }
 }
 
 body.bv-menu-open #bv-a11y-trigger,
@@ -2756,6 +2771,14 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-head { padding: 18px 26px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .aw-head h3 { font-size: 1.35rem; color: var(--white); margin: 0 0 3px; }
 .aw-sub { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin: 0 0 10px; }
+/* Schrittzaehler in Worten neben dem Balken. Der Balken traegt
+   aria-hidden und wird von Vorleseprogrammen nicht gelesen. */
+.aw-schritt { font-size: 0.74rem; color: rgba(255,255,255,0.5); margin: 0 0 7px; letter-spacing: 0.4px; text-transform: uppercase; }
+.aw-gross .aw-schritt { font-size: 0.8rem; }
+/* Die Ueberschrift bekommt beim Schrittwechsel den Fokus. Ohne
+   outline-offset klebt der Rahmen am Text. */
+#awTitle:focus-visible { outline: 3px solid var(--gold-light); outline-offset: 4px; border-radius: 4px; }
+#awTitle:focus:not(:focus-visible) { outline: none; }
 .aw-progress { height: 5px; background: rgba(255,255,255,0.12); border-radius: 100px; overflow: hidden; }
 .aw-progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 100px; transition: width 0.35s ease; }
 .aw-body { flex: 1; overflow-y: auto; padding: 18px 26px; -webkit-overflow-scrolling: touch; }

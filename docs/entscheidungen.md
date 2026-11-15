@@ -18019,3 +18019,112 @@ sechs Wege durchgeklickt und die Überschriften ausgelesen wurden.
 
 Startseite als Gegenprobe unverändert beim vollen Assistenten. Keine
 JavaScript-Fehler. Abgeschickt wurde nichts.
+
+---
+
+## 15.11.2026 – Recherche zu Anfragestrecken, und was davon gebaut wurde
+
+**Anlass.** Ansage des Betreibers: „Recherchiere im Internet, guck, wie
+machen es andere ... lass die Agenten recherchieren, lass das alles
+zusammenfassen, mach was."
+
+Drei Agenten mit Internetzugang, dazu eigene Suche. Berichte: Markt
+und Anfragestrecken, Ortsseiten und Suchmaschinen, Belege zu
+mehrstufigen Formularen.
+
+### Was sich als unbelegt herausgestellt hat
+
+Die Zahlen, die in dieser Branche herumgereicht werden, halten der
+Nachfrage nicht stand. Das ist der wichtigste Befund, weil er davor
+bewahrt, auf ihrer Grundlage zu bauen:
+
+| Behauptung | Was wirklich dahintersteht |
+|---|---|
+| „Mehrstufige Formulare bringen 86 % mehr" | HubSpot zugeschrieben, in keinem Primärbericht auffindbar |
+| „bis zu 300 %" | Venture Harbour, bewirbt damit das eigene Produkt |
+| „743 %" | wandert ohne Methode von Blog zu Blog |
+| „12 Millionen Dollar durch ein Feld weniger" (Expedia) | Es ging nicht um die Feldzahl, sondern um **ein verwirrendes optionales Feld**, in das Kunden ihre Bank eintrugen, worauf die Kartenprüfung scheiterte |
+| „Jedes zusätzliche Feld kostet X Prozent" | Keine tragfähige Quelle. Belegt ist nur ein **korrelativer** Zusammenhang über viele Formulare, mit großer Streuung |
+| „Bilder werden 60.000-mal schneller verarbeitet" | Ohne Quelle, nicht haltbar |
+
+Gegenbeispiel aus demselben Datensatz, der „weniger Felder" belegen
+soll: Behördenformulare mit rund 71 Eingaben und 8,5 Minuten Dauer
+erreichen etwa 85 % Abschluss. Die Absicht schlägt die Länge.
+
+### Was belegt ist
+
+- **Schrittzahl:** Peytchev u. a. (2006, Public Opinion Quarterly)
+  fanden zwischen „eine Frage pro Seite" und „alles auf einer Seite"
+  **keinen Unterschied** bei Abbrüchen, bis zu 268 Fragen. Was zählt,
+  ist die Zahl der **Fragen**, nicht die der Schritte.
+- **Fortschrittsanzeige:** Villar, Callegaro und Yang (2013, Social
+  Science Computer Review 31(6)), Meta-Analyse aus **32 randomisierten
+  Versuchen**: Eine gleichmäßige Anzeige senkt Abbrüche **nicht**.
+  Schaden richtet nur eine an, die anfangs langsam und am Ende schnell
+  läuft.
+- **Zeitpunkt der Kontaktdatenabfrage:** nichts Unabhängiges. Beide
+  verfügbaren Zahlen stammen von Anbietern, die Formulare verkaufen,
+  ohne Stichprobengröße, und messen Abschlüsse, nie die Qualität der
+  Anfragen.
+- **Bild gegenüber Text bei der ersten Frage:** kein einziger
+  kontrollierter Test gefunden.
+
+### Was im Markt zu sehen ist
+
+Aus neun aufgerufenen Seiten, davon vier Vermittlungsportale:
+Sachfrage zuerst, Kontaktdaten zuletzt. Strecken mit sechs bis sieben
+Fragen sind bei Portalen üblich, direkte Anbieter zeigen eher ein
+langes Einzelformular. Fortschrittsanzeigen sind selten. Versprochen
+wird fast immer „kostenlos und unverbindlich", eine Rückmeldezeit nur
+von zweien.
+
+Für die Ortsseiten: Die vorderen Seiten im selben Markt sind lang (ab
+etwa 2.000 Wörtern) und tragen echte örtliche Fakten. Echte
+Projektfotos aus dem Ort hat **eine von sechs**. Mehrere kennzeichnen
+ihre Bilder selbst als Beispielbilder, eine beschriftet dasselbe Bild
+dreimal als Projekt aus Koblenz. Eine Seite nennt in der Tabelle 4.000
+bis 7.000 Euro und in der FAQ 4.200 bis 7.800.
+
+### Gebaut wurde nur, was nicht auf Behauptungen beruht
+
+Vier Befunde aus der Barrierefreiheit, alle **gemessen**, nicht
+geschätzt:
+
+1. **WCAG 2.2, 3.3.7 „Redundant Entry" (A, neu in 2.2).** Wer im
+   Kontaktschritt tippte und dann auf „Zurück" ging, fand die Felder
+   beim Vorblättern leer. `goBack()` sammelte nur bei drei Schritten
+   ein. Jetzt bei jedem, der ein `collect()` hat.
+2. **WCAG 2.2, 1.3.5 „Identify Input Purpose" (AA).** Bei Vor- und
+   Nachname stand `given-name` an der Stelle des **Typs** statt der
+   Ausfüllhilfe. Erzeugt wurde `<input type="given-name">`, ein Typ,
+   den es nicht gibt. Der Browser fällt auf „text" zurück, es sah also
+   richtig aus, aber die Ausfüllhilfe fehlte.
+3. **WCAG 2.2, 2.4.11 „Focus Not Obscured" (AA, neu in 2.2).**
+   Gemessen bei 390 px: Der schwebende Konfigurator-Knopf lag über dem
+   fokussierten Telefonfeld. Jetzt weicht er, solange im Assistenten
+   getippt wird, über dieselbe Mechanik, die `js/main.js` beim Lesen
+   benutzt. Unter `prefers-reduced-motion` wird er ausgeblendet statt
+   verschoben: Dort geht 2.4.11 der Bewegungsarmut vor.
+4. **2.4.3 mit 4.1.3.** Beim Schrittwechsel blieb der Fokus auf dem
+   Knopf „Weiter", die neue Frage wurde nicht angesagt. Jetzt bekommt
+   die **Überschrift** den Fokus, nicht das erste Feld: Sonst wird die
+   Frage überhört. Nicht beim ersten Zeichnen, sonst spränge die Seite
+   beim Laden nach unten.
+
+Dazu ein **Schrittzähler in Worten** („Schritt 2 von 5"), weil der
+Balken `aria-hidden` trägt und von Vorleseprogrammen nicht gelesen
+wird. Er wird aus dem Skript erzeugt, damit ihn nicht 15 Seiten im
+Markup mitführen müssen. Nach der Meta-Analyse ist er kein
+Conversion-Mittel, das wird hier auch nicht behauptet.
+
+**Nicht gebaut**, weil unbelegt oder ungeklärt: Kontaktdaten früher
+abfragen (keine unabhängige Quelle, und Teileingaben zu speichern
+wirft eine Datenschutzfrage auf, die der Betreiber klären lassen
+müsste), Preisspannen (Preise entscheidet der Betreiber), Projektfotos
+(hängen an Fotos, die der Betreiber liefert).
+
+**Gegengelesen im Browser**, mit und ohne `prefers-reduced-motion`:
+Ausfüllhilfe steht an den Namensfeldern, der Typ ist wieder `text`,
+kein festes Element verdeckt das fokussierte Telefonfeld, der Fokus
+springt beim Schrittwechsel auf die Überschrift und beim Laden nicht,
+Eingaben überstehen Zurück und Vor.
