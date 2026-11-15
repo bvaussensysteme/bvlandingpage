@@ -162,6 +162,7 @@
      Wert ist ein Schluessel aus PRODUKTWEGE weiter unten. */
   var kurz = wizard.getAttribute('data-aw-kurz') === '1';
   var vorgabeProdukt = wizard.getAttribute('data-aw-produkt') || '';
+  var vorgabeOrt = wizard.getAttribute('data-aw-ort') || '';
 
   var bodyEl = document.getElementById('awBody');
   var backBtn = document.getElementById('awBack');
@@ -225,9 +226,14 @@
        beantwortet: Wer auf carport-koblenz.html steht, sucht einen
        Carport. */
     if (kurz) {
-      if (p === 'Carport') return ['nutzung', 'carporttyp', 'kontakt', 'summary'];
-      if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'kontakt', 'summary'];
-      return ['produkt', 'kontakt', 'summary'];
+      /* "summary" bleibt im Ablauf: Dort steht der Knopf "Anfrage
+         absenden", und nur dort loest goNext() das Senden aus
+         (siehe unten, if (id === 'summary')). Ohne diesen Schritt
+         gaebe es keinen Weg zum Abschicken. Er ist im kurzen Ablauf
+         nur vier Zeilen lang. */
+      if (p === 'Carport') return ['nutzung', 'carporttyp', 'kontakt_kurz', 'summary'];
+      if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'kontakt_kurz', 'summary'];
+      return ['produkt', 'kontakt_kurz', 'summary'];
     }
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
@@ -1089,6 +1095,62 @@
         var plz = answers.k_plz.trim();
         if (!plz) return 'Bitte geben Sie Ihre PLZ an, wir brauchen sie für Aufmaß und Anfahrt.';
         if (!/^[0-9]{5}$/.test(plz)) return 'Bitte geben Sie eine gültige PLZ mit fünf Ziffern an.';
+        if (!answers.k_ort.trim()) return 'Bitte geben Sie Ihren Ort an.';
+        if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
+        return null;
+      }
+    },
+
+    /* KURZER KONTAKTSCHRITT, nur auf den Ortsseiten (15.11.2026).
+
+       Ansage des Betreibers: Das Quiz soll "nicht seine ganze
+       Lebensgeschichte abfragen". Der volle Schritt "kontakt" verlangt
+       acht Angaben: Anrede, Vorname, Nachname, E-Mail, Telefon, PLZ,
+       Ort, Einwilligung. Hier sind es drei plus den Haken.
+
+       WAS WEGFAELLT UND WAS DAS KOSTET:
+       - Anrede und Vorname: nur Anredeform, nicht noetig zum Zurueckrufen.
+       - E-Mail: der Betrieb ruft an. Telefon bleibt Pflicht, so die
+         ausdrueckliche Ansage des Betreibers ("telefon pflicjt ja").
+       - PLZ: Anfahrt und Lastzone lassen sich daraus genauer bestimmen.
+         Ohne sie muss das im Rueckruf geklaert werden. Der Ort allein
+         reicht fuer die grobe Einordnung.
+       Der Ort steht vorbelegt da, weil die Ortsseite ihn kennt, und
+       bleibt aenderbar: Wer auf carport-koblenz.html liest, wohnt nicht
+       zwingend in Koblenz. Deshalb sichtbares Feld und keine stille
+       Annahme.
+
+       Der Einwilligungstext ist WORTGLEICH aus dem Schritt "kontakt"
+       uebernommen und nicht neu formuliert. */
+    kontakt_kurz: {
+      title: 'Fast geschafft',
+      sub: 'Drei Angaben, dann melden wir uns. Meist innerhalb von 24 Stunden.',
+      render: function () {
+        return '<div class="aw-contact">' +
+          '<div class="aw-row">' +
+          txtField('k_nachname', 'Name *', answers.k_nachname, 'Ihr Name', 'text', 'family-name') +
+          txtField('k_telefon', 'Telefon / WhatsApp *', answers.k_telefon, '0156 …', 'tel', 'tel') +
+          '</div>' +
+          txtField('k_ort', 'Ort *', answers.k_ort || vorgabeOrt, 'z. B. Montabaur', 'text', 'address-level2') +
+          '<label class="aw-consent"><input type="checkbox" id="k_consent"' + (answers.k_consent ? ' checked' : '') + '> ' +
+          '<span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *</span></label>' +
+          '</div>';
+      },
+      collect: function () {
+        answers.k_nachname = val('k_nachname');
+        answers.k_telefon = val('k_telefon');
+        answers.k_ort = val('k_ort');
+        var c = document.getElementById('k_consent');
+        answers.k_consent = c ? c.checked : false;
+      },
+      valid: function () {
+        this.collect();
+        var nachname = answers.k_nachname.trim();
+        if (!nachname) return 'Bitte geben Sie Ihren Namen an.';
+        if (looksFakeName('', nachname)) return 'Bitte geben Sie Ihren echten Namen ein, so können wir Sie persönlich ansprechen.';
+        var telefon = answers.k_telefon.trim();
+        if (!telefon) return 'Bitte geben Sie eine Telefonnummer an, für Rückfragen geht das am schnellsten.';
+        if (telefon.replace(/[^0-9]/g, '').length < 6) return 'Diese Telefonnummer sieht zu kurz aus. Bitte prüfen Sie Ihre Eingabe.';
         if (!answers.k_ort.trim()) return 'Bitte geben Sie Ihren Ort an.';
         if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
         return null;

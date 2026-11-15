@@ -2773,6 +2773,53 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-btn--send:hover { background: #23823f !important; }
 .aw-btn:disabled { opacity: 0.6; cursor: default; }
 
+/* GROSSER KURZER ANFRAGEWEG AUF DEN ORTSSEITEN (15.11.2026).
+
+   Ansage des Betreibers, woertlich: "einfach nur eine ganz kurze
+   Umfrage-Dings, aber was Grosses, also nicht so nur so ein kleines
+   Feld". Derselbe Assistent, nur in gross: breitere Karte, grosse
+   Kacheln, groessere Ueberschrift.
+
+   max-height und der innere Scrollbalken werden hier ABGESCHALTET. In
+   der schmalen Spalte der Startseite verhindert der Deckel, dass die
+   Karte aus dem Bild laeuft. Hier ist die Karte der Abschnitt, also
+   scrollt die Seite und nicht der Kasten. Ein Kasten mit eigenem
+   Scrollbalken mitten auf der Seite ist am Telefon kaum zu bedienen. */
+.aw-gross { max-width: 940px; margin: 0 auto; max-height: none; overflow: visible; border-radius: 16px; }
+.aw-gross .aw-head { padding: 30px 38px 20px; }
+.aw-gross .aw-head h3 { font-size: 2rem; line-height: 1.12; }
+.aw-gross .aw-sub { font-size: 0.95rem; margin-bottom: 14px; }
+.aw-gross .aw-body { padding: 28px 38px; overflow-y: visible; }
+.aw-gross .aw-options { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
+.aw-gross .aw-option { padding: 20px 14px 18px; gap: 10px; border-radius: 16px; }
+.aw-gross .aw-option-ic { height: 96px; }
+.aw-gross .aw-option-lbl { font-size: 1.05rem; }
+/* Die letzte Kachel bei ungerader Zahl ueber die volle Breite statt
+   allein in einer Reihe. Betrifft die erste Frage mit ihren fuenf
+   Antworten, wo "Weiss noch nicht" sonst verloren danebensteht. */
+.aw-gross .aw-options .aw-option:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.aw-gross .aw-nav { padding: 18px 38px 26px; }
+.aw-gross .aw-btn { font-size: 1.08rem; padding: 15px 28px; }
+@media (max-width: 700px) {
+  .aw-gross .aw-head { padding: 22px 18px 14px; }
+  .aw-gross .aw-head h3 { font-size: 1.45rem; }
+  .aw-gross .aw-body { padding: 18px; }
+  .aw-gross .aw-options { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .aw-gross .aw-option-ic { height: 74px; }
+  .aw-gross .aw-nav { padding: 14px 18px 18px; }
+}
+
+/* Die runden Knoepfe unten rechts (nach oben, Barrierefreiheit,
+   Einstellungen) stehen fest im Bild und lagen am Telefon UEBER dem
+   Knopf "Weiter" des Assistenten. Gemessen am 15.11.2026 auf
+   carport-koblenz.html bei 390 px Breite. Wer rechts tippte, traf den
+   falschen Knopf. Der Innenabstand haelt die rechte Spalte frei; die
+   Flaeche zum Antippen bleibt mit rund 260 px weit ueber dem
+   Mindestmass. */
+@media (max-width: 600px) {
+  .aw-nav { padding-right: 66px; }
+}
+
 /* Option-Karten */
 .aw-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 /* Karten untereinander (z. B. Carport-Typ / Ausführung) */

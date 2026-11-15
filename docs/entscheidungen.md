@@ -17740,3 +17740,86 @@ die Startseite. Entscheidung des Betreibers, steht in
 Schritt 1 ist auf diesen sieben Seiten entfernt worden. Sie war für den
 Sprung auf die Startseite gedacht, und den gibt es dort nicht mehr. Auf
 den Produktseiten bleibt sie.
+
+---
+
+## 15.11.2026 – Das Quiz nachgebessert: kürzer und größer
+
+**Anlass.** Rückmeldung des Betreibers zum ersten Entwurf, wörtlich:
+„Das Quiz soll von dem Kunden nicht seine ganze Lebensgeschichte
+abfragen, sondern einfach nur eine ganz kurze Umfrage-Dings, aber was
+Großes, also nicht so nur so ein kleines Feld."
+
+Zwei getrennte Beanstandungen, zwei getrennte Ursachen.
+
+### 1. Zu viel gefragt
+
+Der kurze Weg hatte zwar nur zwei Fragen, endete aber im **vollen**
+Kontaktschritt: Anrede, Vorname, Nachname, E-Mail, Telefon, PLZ, Ort,
+Herkunftsfrage, Einwilligung. Acht Angaben. Dass die beiden Fragen
+davor kurz waren, half dann nichts mehr.
+
+**Jetzt:** ein eigener Schritt `kontakt_kurz` mit drei Angaben und dem
+Haken. Name, Telefon, Ort.
+
+| weggefallen | was das kostet |
+|---|---|
+| Anrede, Vorname | nur die Anredeform. Zum Zurückrufen nicht nötig. |
+| E-Mail | der Betrieb ruft an. Telefon bleibt Pflicht, so die Ansage des Betreibers vom 14.11.2026. |
+| PLZ | Anfahrt und Lastzone wären daraus genauer zu bestimmen. Das muss jetzt im Rückruf geklärt werden. |
+| Herkunftsfrage | war schon vorher freiwillig. |
+
+**Der Ort steht vorbelegt da**, weil die Ortsseite ihn kennt
+(`data-aw-ort="Koblenz"`), aber als **sichtbares, änderbares Feld**.
+Wer auf `carport-koblenz.html` liest, wohnt nicht zwingend in Koblenz.
+Eine stille Annahme im Hintergrund würde im Aufmaßtermin landen, ohne
+dass es jemand gesehen hat. Das Feld zeigt sie und lässt sie
+korrigieren.
+
+**Der Einwilligungstext ist wortgleich** aus dem vollen Schritt
+übernommen, nicht neu formuliert.
+
+**`summary` bleibt im Ablauf.** Dort steht „Anfrage absenden", und nur
+dort löst `goNext()` das Senden aus. Ohne diesen Schritt gäbe es keinen
+Weg zum Abschicken. Beim ersten Versuch hatte ich ihn herausgenommen,
+das wäre ein Quiz ohne Absendeknopf geworden.
+
+### 2. Zu klein
+
+Der Kasten war für die schmale Spalte der Startseite gebaut: 10 px
+Rundung, kleine Kacheln, Deckel bei 95 % Bildschirmhöhe und ein eigener
+Scrollbalken im Kasten.
+
+**Jetzt** trägt er auf den Ortsseiten zusätzlich `.aw-gross`: bis
+940 px breit, Überschrift 2 rem, Kacheln mit 96 px hohem Bild,
+16 px Rundung.
+
+**Deckel und innerer Scrollbalken abgeschaltet.** In der schmalen
+Spalte der Startseite verhindert der Deckel, dass die Karte aus dem
+Bild läuft. Auf der Ortsseite **ist** die Karte der Abschnitt, dort
+soll die Seite scrollen und nicht der Kasten. Ein Kasten mit eigenem
+Scrollbalken mitten auf der Seite ist am Telefon kaum zu bedienen.
+
+### 3. Nebenbei behoben: die festen Knöpfe lagen über „Weiter"
+
+Auf dem Bild des Betreibers zu sehen: Die runden Knöpfe unten rechts
+(nach oben, Barrierefreiheit, Einstellungen) lagen über dem Knopf
+„Weiter". Nachgemessen bei 390 px Breite: Zwei davon überdeckten ihn.
+Wer rechts tippte, traf den falschen Knopf.
+
+`.aw-nav` hat unter 600 px jetzt 66 px Innenabstand rechts. Die Fläche
+zum Antippen bleibt rund 260 px breit. Nach der Änderung gemessen:
+null überdeckende Knöpfe. Das betrifft auch den Assistenten auf der
+Startseite, dort war es derselbe latente Fehler.
+
+### Gegengelesen
+
+| geprüft | Ergebnis |
+|---|---|
+| Schritt 3 auf der Ortsseite | „Fast geschafft" |
+| Felder dort | `k_nachname`, `k_telefon`, `k_ort`, `k_consent` |
+| Ort vorbelegt | „Koblenz" |
+| überdeckende feste Knöpfe über „Weiter" | 0 (vorher 2) |
+| JavaScript-Fehler | keine |
+
+Abgeschickt wurde wieder nichts.
