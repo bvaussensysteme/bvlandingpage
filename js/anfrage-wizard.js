@@ -145,6 +145,24 @@
   var wizard = document.querySelector('.anfrage-wizard');
   if (!wizard) return;
 
+  /* KURZER WEG AUF DEN ORTSSEITEN (15.11.2026).
+
+     Auf der Startseite fuehrt der Assistent durch den vollen Ablauf, beim
+     Carport bis zu elf Schritte. Das ist richtig fuer jemanden, der sich
+     schon entschieden hat und konfigurieren will.
+
+     Wer ueber "Carport Koblenz" auf eine Ortsseite kommt, hat sich noch
+     nicht entschieden. Fuer ihn stehen hier drei Fragen und dann das
+     Absenden. Alles Technische (Masse, Eindeckung, Farbe, Untergrund,
+     Montage) klaert das Aufmass vor Ort ohnehin, und genau das sagt der
+     Assistent im vollen Ablauf beim Untergrund selbst.
+
+     Gesteuert wird das ueber zwei Attribute am Kasten, nicht ueber den
+     Dateinamen: data-aw-kurz="1" und data-aw-produkt="carport". Der
+     Wert ist ein Schluessel aus PRODUKTWEGE weiter unten. */
+  var kurz = wizard.getAttribute('data-aw-kurz') === '1';
+  var vorgabeProdukt = wizard.getAttribute('data-aw-produkt') || '';
+
   var bodyEl = document.getElementById('awBody');
   var backBtn = document.getElementById('awBack');
   var nextBtn = document.getElementById('awNext');
@@ -178,6 +196,9 @@
     steg:     '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 4v16M11 4v16M15 4v16"/>',
     flach:    '<path d="M3 8h18"/><path d="M3 8l2-2h14l2 2"/><line x1="5" y1="8" x2="5" y2="19"/><line x1="19" y1="8" x2="19" y2="19"/><line x1="12" y1="8" x2="12" y2="19"/>',
     pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
+    auto2:    '<path d="M2 10l5-4 5 4"/><path d="M3 10v6h8v-6"/><path d="M12 10l5-4 5 4"/><path d="M13 10v6h8v-6"/>',
+    fahrrad:  '<circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17l3.5-7h5l-2.5 7"/><path d="M8 10h1.5"/><path d="M14.5 10L18 17"/>',
+    raum:     '<rect x="3" y="7" width="18" height="12" rx="1"/><path d="M3 11h18"/><path d="M10 7V5h4v2"/>',
     frage:    '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/>',
     aus:      '<circle cx="12" cy="12" r="9"/><line x1="6" y1="6" x2="18" y2="18"/>',
     markise:  '<path d="M2 4h20v6H2z"/><path d="M2 10l2.5 6M8 10l1 6M14 10l-1 6M22 10l-2.5 6"/>',
@@ -198,6 +219,16 @@
   /* ---------- Ablauf je nach Produkt ---------- */
   function computeFlow() {
     var p = answers.produkt;
+
+    /* Kurzer Weg: drei Fragen, dann Kontakt. Siehe Begruendung oben bei
+       "kurz". Der Schritt "produkt" entfaellt, weil die Ortsseite ihn
+       beantwortet: Wer auf carport-koblenz.html steht, sucht einen
+       Carport. */
+    if (kurz) {
+      if (p === 'Carport') return ['nutzung', 'carporttyp', 'kontakt', 'summary'];
+      if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'kontakt', 'summary'];
+      return ['produkt', 'kontakt', 'summary'];
+    }
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
     if (p === 'Terrassendach TDS' || p === 'Flachdach SkyView' ||
@@ -488,6 +519,27 @@
       valid: function () {
         return answers.balkonbruestung ? null : 'Bitte wählen Sie, was vorne steht.';
       }
+    },
+
+    /* ERSTE FRAGE AUF DER ORTSSEITE. Sie fragt nach der eigenen Lage und
+       nicht nach Technik: Jeder weiss, wie viele Autos vor seinem Haus
+       stehen, niemand weiss aus dem Stand, ob er 4000 oder 5000 mm
+       braucht. Die Antwort ist fuer das Angebot trotzdem brauchbar, sie
+       entscheidet Einzel oder Doppel und gibt die Groessenordnung.
+       Nur im kurzen Weg benutzt. */
+    nutzung: {
+      title: 'Wofür soll der Carport vor allem sein?',
+      sub: 'Eine Antwort genügt, Genaues klären wir beim Aufmaß',
+      render: function () {
+        return optionCards('nutzung', [
+          { value: 'Ein Auto', icon: I.carport },
+          { value: 'Zwei Autos', icon: I.auto2 },
+          { value: 'Auto und Fahrräder oder Anhänger', icon: I.fahrrad },
+          { value: 'Auto und Abstellraum', icon: I.raum },
+          { value: 'Weiß noch nicht, bitte beraten', icon: I.frage }
+        ], 'aw-options--equal');
+      },
+      valid: function () { return answers.nutzung ? null : 'Bitte wählen Sie, wofür der Carport vor allem sein soll.'; }
     },
 
     carporttyp: {
@@ -1144,6 +1196,7 @@
     function inFlow(s) { return flow.indexOf(s) > -1; } // nur Schritte des aktuellen Ablaufs zeigen
     var p = [];
     p.push(['Produkt', answers.produkt]);
+    if (inFlow('nutzung') && answers.nutzung) p.push(['Geplante Nutzung', answers.nutzung]);
     if (inFlow('carporttyp') && answers.carporttyp) p.push(['Carport-Typ', answers.carporttyp]);
     if (inFlow('carportvariante') && answers.carportvariante) p.push(['Ausführung', answers.carportvariante]);
     if (inFlow('dachart') && answers.dachart) p.push(['Dachart', answers.dachart + (inFlow('dachausfuehrung') && answers.dachausfuehrung ? ' · ' + answers.dachausfuehrung : '')]);
@@ -1865,6 +1918,23 @@
   render();
   // Falls die Vorgabe schon vor dem Laden dieses Skripts gesetzt wurde
   vorgabeUebernehmen();
+  /* Produktvorgabe aus dem Attribut der Ortsseite. Vor
+     produktAusSpeicher(), damit ein Speicherwert von einer anderen Seite
+     die Seite, auf der man steht, nicht ueberstimmt. */
+  (function produktAusAttribut() {
+    if (!vorgabeProdukt) return;
+    var weg = Object.prototype.hasOwnProperty.call(PRODUKTWEGE, vorgabeProdukt)
+      ? PRODUKTWEGE[vorgabeProdukt] : null;
+    if (!weg) return;
+    answers.produkt = weg.produkt;
+    if (weg.wunsch) answers.wunsch = weg.wunsch;
+    flow = computeFlow();
+    idx = 0;
+    /* Neu zeichnen: render() lief weiter oben schon einmal, mit dem
+       leeren Ablauf. Ohne diesen Aufruf bliebe der Schritt "produkt"
+       stehen, obwohl das Produkt feststeht. */
+    render();
+  })();
   produktAusSpeicher();
   standortAusSpeicher();
 })();

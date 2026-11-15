@@ -17645,3 +17645,98 @@ bringt, ist unbekannt. Bei 11 Aufrufen auf 14 Seiten trägt keine Zahl
 eine Aussage. Was sich belegen lässt, ist nur das Gegenteil: Ohne
 eingehende Links wird eine Seite kaum gefunden, und ein Kontrast von
 3,78:1 ist unabhängig von jeder Wirkung zu niedrig.
+
+---
+
+## 15.11.2026 – Ortsseiten, Schritt 2: der kurze Anfrageweg auf der Seite
+
+**Anlass.** Auftrag des Betreibers: ein „psychologisch wirkendes Quiz",
+das Besucher einer Ortsseite zu einer abschickbaren Anfrage führt.
+Entscheidung vom 15.11.2026: erst Sichtbarkeit (Schritt 1), dann das
+Quiz.
+
+**Was falsch war.** Fünf Links je Ortsseite zeigten auf `/#kontakt`,
+also auf die **Start**seite. Dort beginnt der Assistent mit „Was
+möchten Sie kostenlos konfigurieren?" Wer über „Carport Koblenz"
+gekommen ist, hat das durch seine Suche beantwortet. Danach warten
+beim Carport bis zu elf Schritte, darunter Fassadenart, Höhenbezug und
+Untergrund, bevor man überhaupt absenden kann.
+
+**Was jetzt gilt.** Der Assistent steht auf den sieben Carport- und
+Pergola-Ortsseiten **auf der Seite selbst**, mit einem kurzen Ablauf:
+
+| Seite | Frage 1 | Frage 2 | dann |
+|---|---|---|---|
+| carport-* | Wofür soll der Carport vor allem sein? | Welchen Carport möchten Sie? | Kontakt, Zusammenfassung, Absenden |
+| pergola-* | Welches Dach möchten Sie? | Wandmontage oder freistehend? | Kontakt, Zusammenfassung, Absenden |
+
+Alle Links auf der Seite zeigen jetzt auf `#kontakt` statt auf
+`/#kontakt`. Kein Seitenwechsel mehr.
+
+**Warum kein zweites Formular, sondern derselbe Assistent.** Ein
+eigener Kurzfragebogen hätte eine zweite Absendestrecke, eine zweite
+Prüfung der Eingaben, eine zweite Einwilligungsstelle und einen
+zweiten Weg zur Anfrage-E-Mail bedeutet. Zwei Strecken heißt: eine
+davon wird bei der nächsten Änderung vergessen. Stattdessen hat
+`computeFlow()` in `js/anfrage-wizard.js` einen kurzen Zweig bekommen,
+und zwei der drei Schritte sind **vorhandene** Schritte. Neu ist genau
+einer: `nutzung`.
+
+**Gesteuert über Attribute, nicht über den Dateinamen.** Am Kasten
+stehen `data-aw-kurz="1"` und `data-aw-produkt="carport"`. Der Wert ist
+ein Schlüssel aus `PRODUKTWEGE`. Über den Dateinamen zu gehen hätte
+geheißen, dass das Skript Seitennamen kennen muss.
+
+**Die erste Frage: „Wofür soll der Carport vor allem sein?"**
+Antworten: ein Auto, zwei Autos, Auto und Fahrräder oder Anhänger,
+Auto und Abstellraum, weiß noch nicht. Sie fragt nach der eigenen Lage
+und nicht nach Technik. Jeder weiß, wie viele Autos vor seinem Haus
+stehen; niemand weiß aus dem Stand, ob er 4000 oder 5000 mm braucht.
+Für das Angebot ist die Antwort trotzdem brauchbar, sie entscheidet
+Einzel oder Doppel und gibt die Größenordnung. Sie steht in der
+Zusammenfassung und damit in der Anfrage-E-Mail als „Geplante
+Nutzung".
+
+Verworfen wurde als erste Frage die Maßangabe. Wer keinen Zollstock in
+der Hand hat, bricht dort ab.
+
+**Was der Prüfer empfahl und was nicht umgesetzt wurde.** Der
+Psychologie-Prüfer schlug vor, Telefon und E-Mail zur Wahl zu stellen
+statt beides zu verlangen. Das steht gegen die ausdrückliche Ansage
+des Betreibers („telefon pflicjt ja"). Die Ansage gilt. Beides bleibt
+Pflicht.
+
+**Gegengelesen, im Browser, nicht im Quelltext:**
+
+| geprüft | Ergebnis |
+|---|---|
+| Knopf im Hero von `carport-koblenz` | bleibt auf der Seite, `#kontakt` |
+| erste Frage dort | „Wofür soll der Carport vor allem sein?" |
+| zweite Frage | „Welchen Carport möchten Sie?" |
+| `pergola-neuwied` | „Welches Dach möchten Sie?" |
+| Startseite, Gegenprobe | unverändert „Was möchten Sie kostenlos konfigurieren?" |
+| Zusammenfassung mit erfundenen Daten | enthält „Geplante Nutzung: Ein Auto" |
+| JavaScript-Fehler auf der Seite | keine |
+
+**Abgeschickt wurde nichts.** Der Durchlauf endete vor dem Knopf
+„Anfrage absenden". Es ist keine Anfrage an den Betrieb gegangen.
+
+**Ein Fehler dabei, und wie er aufgefallen ist.** Die Produktvorgabe
+aus dem Attribut stand zuerst ohne `render()` am Ende der Datei. Da
+`render()` weiter oben schon einmal gelaufen war, blieb der Schritt
+„produkt" stehen, obwohl das Produkt feststand. Im Quelltext sah die
+Änderung richtig aus. Aufgefallen ist es nur, weil der Durchlauf im
+Browser die erste Frage ausgelesen hat statt sie anzunehmen.
+
+**Nicht umgestellt: die sieben Terrassenüberdachungs-Ortsseiten.**
+`PRODUKTWEGE` kennt `terrassendach-tds` und `flachdach-skyview`, aber
+keinen gemeinsamen Schlüssel. Die Ortsseite deckt beide ab, der
+Besucher hat sich nicht entschieden. Entweder bekommt der Assistent
+einen gemeinsamen Einstieg, oder diese Seiten behalten den Sprung auf
+die Startseite. Entscheidung des Betreibers, steht in
+`docs/NEXT_TASK.md`.
+
+**Was damit hinfällig ist.** Die Übergabe per `sessionStorage` aus
+Schritt 1 ist auf diesen sieben Seiten entfernt worden. Sie war für den
+Sprung auf die Startseite gedacht, und den gibt es dort nicht mehr. Auf
+den Produktseiten bleibt sie.
