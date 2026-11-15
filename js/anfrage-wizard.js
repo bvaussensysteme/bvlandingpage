@@ -1475,7 +1475,19 @@
       zaehler.className = 'aw-schritt';
       barEl.parentNode.parentNode.insertBefore(zaehler, barEl.parentNode);
     }
-    if (zaehler) zaehler.textContent = 'Schritt ' + (idx + 1) + ' von ' + flow.length;
+    /* GEFUNDEN AM 15.11.2026 auf der Vorschau: Im ersten Schritt stand
+       "Schritt 1 von 4", nach der ersten Antwort "Schritt 2 von 5".
+       Die Gesamtzahl haengt an der ersten Antwort: Beim Balkon gibt es
+       keine Modellfrage, bei den anderen schon. Eine Gesamtzahl, die
+       sich unterwegs aendert, ist genau der Fall, den Villar u. a.
+       (2013) als schaedlich ausweisen. Deshalb im ersten Schritt gar
+       keine Gesamtzahl nennen statt einer, die gleich nicht mehr
+       stimmt. */
+    if (zaehler) {
+      zaehler.textContent = idx === 0
+        ? 'Schritt 1'
+        : 'Schritt ' + (idx + 1) + ' von ' + flow.length;
+    }
 
     // Progress
     var pct = flow.length > 1 ? Math.round(idx / (flow.length - 1) * 100) : 0;

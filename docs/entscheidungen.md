@@ -18128,3 +18128,15 @@ Ausfüllhilfe steht an den Namensfeldern, der Typ ist wieder `text`,
 kein festes Element verdeckt das fokussierte Telefonfeld, der Fokus
 springt beim Schrittwechsel auf die Überschrift und beim Laden nicht,
 Eingaben überstehen Zurück und Vor.
+
+**Nachtrag am selben Tag, auf der Vorschau gefunden.** Der Zähler
+stand im ersten Schritt auf „Schritt 1 von 4" und sprang nach der
+ersten Antwort auf „Schritt 2 von 5". Die Gesamtzahl hängt an der
+ersten Antwort: Beim Balkon gibt es keine Modellfrage, bei den anderen
+schon. Eine Gesamtzahl, die sich unterwegs ändert, ist genau der Fall,
+den Villar u. a. (2013) als schädlich ausweisen, und ich hatte ihn
+selbst eingebaut, zwei Absätze unter dem Zitat.
+
+Jetzt steht im ersten Schritt nur „Schritt 1", ohne Gesamtzahl.
+Gegengelesen: Carport 1, 2 von 5, 3 von 5, 4 von 5. Balkon 1, 2 von 4,
+3 von 4. Innerhalb eines Weges ändert sich die Zahl nicht mehr.
