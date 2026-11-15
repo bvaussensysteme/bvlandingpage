@@ -229,21 +229,11 @@
        beantwortet: Wer auf carport-koblenz.html steht, sucht einen
        Carport. */
     if (kurz) {
-      /* "summary" bleibt im Ablauf: Dort steht der Knopf "Anfrage
-         absenden", und nur dort loest goNext() das Senden aus
-         (siehe unten, if (id === 'summary')). Ohne diesen Schritt
-         gaebe es keinen Weg zum Abschicken. Er ist im kurzen Ablauf
-         nur vier Zeilen lang. */
-      /* Terrassenueberdachungs-Ortsseiten: Die Seite deckt TDS und
-         SkyView ab, der Besucher hat sich nicht entschieden. Also ist
-         genau das die erste Frage, statt ihm einen Typ unterzuschieben.
-         Die Abfrage steht VOR der Pruefung auf answers.produkt, weil
-         der Schritt "terrassenart" das Produkt erst setzt: sonst
-         sprangen wir nach der Antwort in einen anderen Ablauf. */
-      if (thema === 'terrassendach') return ['terrassenart', 'zeitrahmen', 'kontakt', 'summary'];
-      if (p === 'Carport') return ['nutzung', 'carporttyp', 'zeitrahmen', 'kontakt', 'summary'];
-      if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'zeitrahmen', 'kontakt', 'summary'];
-      return ['produkt', 'zeitrahmen', 'kontakt', 'summary'];
+      var w = answers.wunschprodukt;
+      var schritte = ['wunschprodukt'];
+      if (Object.prototype.hasOwnProperty.call(MODELLE, w)) schritte.push('modell');
+      if (w === 'Etwas anderes') schritte.push('wunsch');
+      return schritte.concat(['zeitrahmen', 'kontakt', 'summary']);
     }
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
@@ -474,6 +464,33 @@
     return html;
   }
 
+  /* Modelle je Produkt. Die Namen sind die des Herstellers, so wie sie
+     auch auf den Produktseiten stehen. Produkte ohne Eintrag haben
+     keine Modellfrage: Beim Balkon gibt es keine Auswahl, und
+     "Etwas anderes" fuehrt stattdessen in das Freitextfeld. */
+  var MODELLE = {
+    'Terrassenüberdachung': [
+      { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker: Glas oder Polycarbonat' },
+      { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' }
+    ],
+    'Carport': [
+      { value: 'Carport TDS', img: 'cp_tds', photo: true, hint: 'Klassiker mit Profildach' },
+      { value: 'Flachdach Flat Line', img: 'cp_flatline', photo: true, hint: 'Modernes, flaches Design' },
+      { value: 'Flachdach Flat Box', img: 'cp_flatbox', photo: true, hint: 'Geschlossene Kubus-Optik' }
+    ],
+    'Pergola / Lamellendach': [
+      { value: 'Lamellendach', img: 'lam_sunpro', photo: true, hint: 'Drehbare Alu-Lamellen' },
+      { value: 'Faltdach', img: 'faltdach', photo: true, hint: 'Textiles Dach, komplett zu öffnen' },
+      { value: 'Velaris', img: 'velaris', photo: true, hint: 'Pergola mit verschiebbaren Elementen' }
+    ],
+    'Eingangsüberdachung': [
+      { value: 'Vordach FLY', icon: I.flach, hint: 'Freitragend, ohne Stützen' },
+      { value: 'Vordach Front Line', icon: I.flach, hint: 'Flache Linie über der Tür' },
+      { value: 'Vordach Front Line Plus', icon: I.flach, hint: 'Breitere Ausführung' },
+      { value: 'Eingangsüberdachung TDS', icon: I.terrasse, hint: 'Mit Profildach wie die Terrasse' }
+    ]
+  };
+
   /* ---------- Schritt-Definitionen ---------- */
   var STEPS = {
     produkt: {
@@ -537,33 +554,6 @@
       }
     },
 
-    /* ERSTE FRAGE AUF DEN TERRASSENUEBERDACHUNGS-ORTSSEITEN (15.11.2026).
-
-       Anders als bei Carport und Pergola kennt die Ortsseite das
-       Produkt nicht genau: Sie fuehrt beide Dachtypen. Diese Frage
-       macht daraus kein Problem, sondern den Einstieg. "Noch unsicher"
-       setzt bewusst KEINEN der beiden Typen, sondern den Oberbegriff,
-       damit in der Anfrage nicht steht, wofuer sich der Besucher
-       entschieden habe, als haette er gewaehlt. */
-    terrassenart: {
-      title: 'Welches Dach möchten Sie?',
-      sub: 'Wenn Sie unsicher sind, beraten wir Sie',
-      render: function () {
-        return optionCards('terrassenart', [
-          { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker: Glas oder Polycarbonat' },
-          { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
-          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
-        ], 'aw-options--equal');
-      },
-      valid: function () {
-        if (!answers.terrassenart) return 'Bitte wählen Sie, welches Dach Sie möchten.';
-        answers.produkt = answers.terrassenart === 'Noch unsicher, bitte beraten'
-          ? 'Terrassenüberdachung, Typ noch offen'
-          : answers.terrassenart;
-        return null;
-      }
-    },
-
     /* DRITTE FRAGE IM KURZEN WEG (15.11.2026).
 
        Ansage des Betreibers: Das Quiz soll fragen, "was er braucht, wie
@@ -592,25 +582,71 @@
       valid: function () { return answers.zeitrahmen ? null : 'Bitte wählen Sie, wie schnell Sie es brauchen.'; }
     },
 
-    /* ERSTE FRAGE AUF DER ORTSSEITE. Sie fragt nach der eigenen Lage und
-       nicht nach Technik: Jeder weiss, wie viele Autos vor seinem Haus
-       stehen, niemand weiss aus dem Stand, ob er 4000 oder 5000 mm
-       braucht. Die Antwort ist fuer das Angebot trotzdem brauchbar, sie
-       entscheidet Einzel oder Doppel und gibt die Groessenordnung.
-       Nur im kurzen Weg benutzt. */
-    nutzung: {
-      title: 'Wofür soll der Carport vor allem sein?',
-      sub: 'Eine Antwort genügt, Genaues klären wir beim Aufmaß',
+    /* FRAGE 1 UND 2 DES QUIZ (15.11.2026).
+
+       Ansage des Betreibers, woertlich: "frag doch die Leute, was
+       wollen die haben? Eine Terrassenueberdachung, ein Carport oder
+       vielleicht eine Balkonueberdachung, Eingangsueberdachung. Der
+       Kunde waehlt aus, dann schlaegst du dem vor TDS, Skyview oder
+       Flatline oder TDS Carport."
+
+       Vorher richtete sich die erste Frage nach der Seite: Auf einer
+       Carportseite ging es nur um Carports. Wer dort landete und eine
+       Terrassenueberdachung wollte, kam nicht weiter. Jetzt fragen
+       alle 14 Ortsseiten dasselbe, und die Seite gibt nichts vor.
+
+       NICHTS IST VORAUSGEWAEHLT, auch nicht das Produkt der Seite.
+       Eine Vorauswahl waere eine Antwort, die der Besucher nicht
+       gegeben hat. */
+    wunschprodukt: {
+      title: 'Was möchten Sie?',
+      sub: 'Alles aus Aluminium, maßgefertigt',
       render: function () {
-        return optionCards('nutzung', [
-          { value: 'Ein Auto', icon: I.carport },
-          { value: 'Zwei Autos', icon: I.auto2 },
-          { value: 'Auto und Fahrräder oder Anhänger', icon: I.fahrrad },
-          { value: 'Auto und Abstellraum', icon: I.raum },
-          { value: 'Weiß noch nicht, bitte beraten', icon: I.frage }
+        return optionCards('wunschprodukt', [
+          { value: 'Terrassenüberdachung', img: 'terrasse', photo: true, hint: 'Glas oder Polycarbonat, Wandanbau oder freistehend' },
+          { value: 'Carport', img: 'carport', photo: true, hint: 'Einzel oder Doppel, mit Abstellraum möglich' },
+          { value: 'Pergola / Lamellendach', img: 'pergola', photo: true, hint: 'Lamellendach, Faltdach, Velaris' },
+          { value: 'Balkonüberdachung', img: 'balkon', photo: true, hint: 'Auf Brüstung oder Boden' },
+          { value: 'Eingangsüberdachung', icon: I.flach, hint: 'Vordach über Haus- oder Nebentür' },
+          { value: 'Etwas anderes', icon: I.brief, hint: 'Markise, Geländer, Sichtschutz, Reparatur …' }
         ], 'aw-options--equal');
       },
-      valid: function () { return answers.nutzung ? null : 'Bitte wählen Sie, wofür der Carport vor allem sein soll.'; }
+      valid: function () {
+        var w = answers.wunschprodukt;
+        if (!w) return 'Bitte wählen Sie, was Sie möchten.';
+        /* Produkte ohne Modellfrage setzen ihr Produkt hier, die
+           anderen im Schritt "modell". */
+        if (w === 'Balkonüberdachung') answers.produkt = 'Balkonüberdachung';
+        if (w === 'Etwas anderes') answers.produkt = 'Direkt anfragen';
+        return null;
+      }
+    },
+
+    /* FRAGE 2: das Modell, passend zur Antwort aus Frage 1.
+
+       "Noch unsicher" steht ueberall zur Wahl und ist keine
+       Verlegenheitsantwort: Wer sich nicht entscheiden kann, soll
+       trotzdem anfragen koennen, und in der Anfrage steht dann, dass
+       der Typ offen ist, statt eines Modells, das niemand gewaehlt
+       hat. */
+    modell: {
+      title: 'Welches Modell?',
+      sub: 'Wenn Sie unsicher sind, beraten wir Sie',
+      render: function () {
+        var m = MODELLE[answers.wunschprodukt];
+        if (!m) return '';
+        return optionCards('modell', m.concat([
+          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
+        ]), 'aw-options--equal');
+      },
+      valid: function () {
+        var w = answers.wunschprodukt, m = answers.modell;
+        if (!m) return 'Bitte wählen Sie ein Modell, oder "Noch unsicher".';
+        var offen = m.indexOf('Noch unsicher') === 0;
+        if (w === 'Terrassenüberdachung') answers.produkt = offen ? 'Terrassenüberdachung, Typ noch offen' : m;
+        else answers.produkt = w;
+        return null;
+      }
     },
 
     carporttyp: {
@@ -1267,7 +1303,7 @@
     function inFlow(s) { return flow.indexOf(s) > -1; } // nur Schritte des aktuellen Ablaufs zeigen
     var p = [];
     p.push(['Produkt', answers.produkt]);
-    if (inFlow('nutzung') && answers.nutzung) p.push(['Geplante Nutzung', answers.nutzung]);
+    if (inFlow('modell') && answers.modell) p.push(['Modell', answers.modell]);
     if (inFlow('zeitrahmen') && answers.zeitrahmen) p.push(['Zeitrahmen', answers.zeitrahmen]);
     if (inFlow('carporttyp') && answers.carporttyp) p.push(['Carport-Typ', answers.carporttyp]);
     if (inFlow('carportvariante') && answers.carportvariante) p.push(['Ausführung', answers.carportvariante]);
@@ -1613,7 +1649,13 @@
     var err = step.valid ? step.valid() : null;
     if (err) { showError(err); return; }
 
-    if (id === 'produkt' || id === 'carporttyp' || id === 'aufbau' || id === 'carportvariante') flow = computeFlow();
+    /* "wunschprodukt" gehoert dazu: Erst die Antwort entscheidet, ob
+       eine Modellfrage folgt (Terrasse, Carport, Pergola, Eingang),
+       ein Freitext (Etwas anderes) oder keines von beidem (Balkon).
+       Ohne diese Zeile blieb der Ablauf von vor der Antwort stehen und
+       der Schritt "modell" fiel aus. Gefunden am 15.11.2026 beim
+       Durchklicken aller sechs Wege. */
+    if (id === 'produkt' || id === 'wunschprodukt' || id === 'carporttyp' || id === 'aufbau' || id === 'carportvariante') flow = computeFlow();
 
     if (id === 'summary') { submit(); return; }
 
@@ -1964,6 +2006,11 @@
   }
 
   function produktAusSpeicher() {
+    /* Im kurzen Weg nicht: Dort beginnt der Ablauf mit der Frage, was
+       der Besucher will. Ein Wert aus dem Speicher wuerde ueber diese
+       Frage hinwegspringen und dann in einem Schritt landen, zu dem es
+       keine Antwort gibt. */
+    if (kurz) return;
     if (answers.produkt) return;   // eine 3D-Vorgabe hat Vorrang
     var k;
     try {
@@ -1994,30 +2041,13 @@
      produktAusSpeicher(), damit ein Speicherwert von einer anderen Seite
      die Seite, auf der man steht, nicht ueberstimmt. */
   (function vorgabeDerOrtsseite() {
-    /* Ort aus dem Attribut in das vorhandene Kontaktfeld. SICHTBAR und
-       aenderbar, nicht still im Hintergrund: Wer auf
-       carport-koblenz.html liest, wohnt nicht zwingend in Koblenz. */
+    /* Die Ortsseite gibt KEIN Produkt mehr vor. Seit dem 15.11.2026
+       fragt das Quiz als Erstes, was der Besucher will, auf jeder der
+       14 Ortsseiten gleich. Uebrig bleibt der Ort: Er steht im
+       Kontaktschritt vorbelegt da, sichtbar und aenderbar, weil wer
+       auf carport-koblenz.html liest nicht zwingend in Koblenz wohnt. */
     if (vorgabeOrt && !answers.k_ort) answers.k_ort = vorgabeOrt;
-
-    /* Produktvorgabe der Carport- und Pergola-Ortsseiten. Die
-       Terrassenueberdachungs-Seiten haben keine, dort ist die Dachwahl
-       die erste Frage (data-aw-thema). */
-    if (vorgabeProdukt) {
-      var weg = Object.prototype.hasOwnProperty.call(PRODUKTWEGE, vorgabeProdukt)
-        ? PRODUKTWEGE[vorgabeProdukt] : null;
-      if (weg) {
-        answers.produkt = weg.produkt;
-        if (weg.wunsch) answers.wunsch = weg.wunsch;
-      }
-    }
-
-    /* Neu zeichnen, sobald der kurze Weg gilt. GEFUNDEN AM 15.11.2026:
-       Stand das vorher nur im Zweig mit dem Produkt, blieb auf den
-       Terrassenueberdachungs-Seiten der Schritt "produkt" stehen, weil
-       dort kein Produkt vorgegeben ist und computeFlow() deshalb nie
-       gerufen wurde. render() lief oben schon einmal, mit dem leeren
-       Ablauf. */
-    if (!kurz && !vorgabeProdukt) return;
+    if (!kurz) return;
     flow = computeFlow();
     idx = 0;
     render();

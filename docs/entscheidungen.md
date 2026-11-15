@@ -17939,3 +17939,83 @@ sobald der kurze Weg gilt, nicht nur bei vorgegebenem Produkt.
 
 Kontaktschritt mit allen acht Feldern, Ortsfeld vorbelegt, keine
 JavaScript-Fehler. Abgeschickt wurde nichts.
+
+---
+
+## 15.11.2026 – Das Quiz fragt zuerst, was der Kunde will
+
+**Hebt die drei Einträge davor in einem Punkt auf:** Die erste Frage
+richtet sich nicht mehr nach der Seite.
+
+**Anlass.** Ansage des Betreibers, wörtlich: „Wieso beachtest du nur
+Carport? Mach doch ein Quiz, frag doch die Leute, was wollen die
+haben? Eine Terrassenüberdachung, ein Carport oder vielleicht eine
+Balkonüberdachung, Eingangsüberdachung. Der Kunde wählt aus, dann
+schlägst du dem vor TDS, Skyview oder Flatline oder TDS Carport."
+
+**Was falsch war, und der Denkfehler dahinter.** Ich hatte die erste
+Frage an die Seite gekoppelt: Carportseite, also Carportfragen.
+Terrassenseite, also Dachtypfrage. Das klang folgerichtig und war es
+nicht. Wer über „Carport Koblenz" kommt und doch eine
+Terrassenüberdachung will, kam damit nicht weiter, obwohl der Betrieb
+beides baut. Eine Landingpage ist ein Einstieg, keine Schranke.
+
+**Was jetzt gilt.** Alle 14 Ortsseiten haben denselben Ablauf. Die
+Seite gibt nichts vor:
+
+| Schritt | Frage |
+|---|---|
+| 1 | Was möchten Sie? Terrassenüberdachung · Carport · Pergola / Lamellendach · Balkonüberdachung · Eingangsüberdachung · Etwas anderes |
+| 2 | Welches Modell? (richtet sich nach Schritt 1) |
+| 3 | Wie schnell brauchen Sie es? |
+| 4 | Kontaktdaten, vollständig |
+| 5 | Zusammenfassung und Absenden |
+
+Die Modelle in Schritt 2:
+
+| Schritt 1 | Schritt 2 |
+|---|---|
+| Terrassenüberdachung | Terrassendach TDS · Flachdach SkyView |
+| Carport | Carport TDS · Flachdach Flat Line · Flachdach Flat Box |
+| Pergola / Lamellendach | Lamellendach · Faltdach · Velaris |
+| Eingangsüberdachung | Vordach FLY · Front Line · Front Line Plus · Eingangsüberdachung TDS |
+| Balkonüberdachung | keine Modellfrage, es gibt keine Auswahl |
+| Etwas anderes | statt Modell das Freitextfeld |
+
+Überall zusätzlich „Noch unsicher, bitte beraten". Bei der
+Terrassenüberdachung steht dann in der Anfrage „Typ noch offen" und
+nicht einer der beiden Typen.
+
+**Nichts ist vorausgewählt**, auch nicht das Produkt der Seite. Eine
+Vorauswahl wäre eine Antwort, die der Besucher nicht gegeben hat.
+
+**Entfernt, nicht auskommentiert:** die Schritte `nutzung`
+(„Wofür soll der Carport vor allem sein?") und `terrassenart`, dazu
+die drei Zeichen, die nur dort gebraucht wurden. Beide sind durch
+Schritt 1 und 2 ersetzt.
+
+**Die Attribute an den Seiten sind weg** bis auf zwei: `data-aw-kurz`
+schaltet den kurzen Weg, `data-aw-ort` belegt das Ortsfeld vor.
+`data-aw-produkt` und `data-aw-thema` werden nicht mehr gebraucht,
+weil die Seite nichts mehr vorgibt.
+
+**Ein Fehler beim Bauen, gefunden durch Durchklicken.** `goNext()`
+berechnet den Ablauf nur nach bestimmten Schritten neu. `wunschprodukt`
+stand nicht in der Liste, also blieb der Ablauf von **vor** der Antwort
+stehen und die Modellfrage fiel aus: Nach „Terrassenüberdachung" kam
+sofort die Zeitfrage. Im Quelltext unsichtbar. Gefunden, weil alle
+sechs Wege durchgeklickt und die Überschriften ausgelesen wurden.
+
+**Gegengelesen, alle sechs Wege:**
+
+| gewählt | Ablauf |
+|---|---|
+| Terrassenüberdachung | Was möchten Sie? · Welches Modell? · Wie schnell? · Kontaktdaten |
+| Carport | dito |
+| Pergola / Lamellendach | dito |
+| Eingangsüberdachung | dito |
+| Balkonüberdachung | Was möchten Sie? · Wie schnell? · Kontaktdaten |
+| Etwas anderes | Was möchten Sie? · Was können wir für Sie tun? · Wie schnell? · Kontaktdaten |
+
+Startseite als Gegenprobe unverändert beim vollen Assistenten. Keine
+JavaScript-Fehler. Abgeschickt wurde nichts.

@@ -41,7 +41,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <script src="js/konfigurator-widget.js?v=20260916f" defer></script>
   <script src="js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="js/ral.js?v=20261029c" defer></script>
-<script src="js/anfrage-wizard.js?v=20261114l" defer></script>
+<script src="js/anfrage-wizard.js?v=20261114m" defer></script>
   <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
 {
@@ -208,15 +208,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
   <!-- CTA -->
     <!-- KURZER ANFRAGEWEG AUF DER SEITE SELBST, 15.11.2026.
-       Wie auf den Carport- und Pergola-Ortsseiten. Hier ohne
-       data-aw-produkt: Die Seite fuehrt zwei Dachtypen, also ist die
-       Wahl die erste Frage (Schritt "terrassenart" in
-       js/anfrage-wizard.js) und wird dem Besucher nicht abgenommen. -->
+       Vorher sprangen alle Anfragelinks dieser Seite auf den
+       Kontaktbereich der STARTseite. Jetzt steht das Quiz hier: drei
+       Fragen, dann die vollstaendigen Kontaktdaten. Die Seite gibt
+       nichts vor, gefragt wird zuerst, was der Besucher will.
+       Siehe js/anfrage-wizard.js bei "kurz". -->
   <section class="section" style="background:var(--dark);">
     <div class="container">
       <h2 style="color:#fff;margin-bottom:12px;text-align:center;">Jetzt kostenlos anfragen</h2>
       <p style="color:rgba(255,255,255,.75);max-width:520px;margin:0 auto 26px;text-align:center;">Drei Fragen, dann Ihre Kontaktdaten. Maße, Farbe und Untergrund klären wir beim Aufmaß vor Ort in Ransbach-Baumbach.</p>
-      <div class="anfrage-wizard aw-gross" id="kontakt" data-aw-kurz="1" data-aw-thema="terrassendach" data-aw-ort="Ransbach-Baumbach" aria-label="Anfrage-Assistent">
+      <div class="anfrage-wizard aw-gross" id="kontakt" data-aw-kurz="1" data-aw-ort="Ransbach-Baumbach" aria-label="Anfrage-Assistent">
         <div class="aw-head">
           <h3 id="awTitle">Kostenlose Anfrage</h3>
           <p class="aw-sub" id="awSub">Unverbindlich, in drei Schritten</p>
