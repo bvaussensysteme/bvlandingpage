@@ -319,9 +319,33 @@ Ortsseiten, Produktseiten, Ratgeber und Datenschutzseite laden vor der
 Einwilligung **keinen** fremden Host, und das Banner erscheint überall.
 Ebenfalls am 15.11.2026 gemessen.
 
-**Stand:** Dem Betreiber am 15.11.2026 vorgelegt, mit den Möglichkeiten
-nicht mehr ausliefern, Schriften lokal einbinden, löschen oder so
-lassen. Er hat die Frage offen gelassen. **Es wurde nichts geändert.**
+**Stand: behoben am 15.11.2026.** Der Betreiber hat entschieden, die
+Seiten zu entfernen, falls sie unwichtig sind. Sie sind es **nicht**:
+Es sind die Gestaltungsentwürfe für den Neubau, zwei davon zuletzt am
+14.11.2026 geändert, und sie stehen in sieben Projektdokumenten,
+darunter der Freigabe-Checkliste. In `.assetsignore` fehlen sie
+absichtlich, weil sie sonst auch aus der Vorschau verschwinden, und
+genau dort sieht der Betreiber sie an. Auf der Live-Seite antworten sie
+bereits mit 404.
+
+Statt zu löschen wurde die Ursache behoben: Die Seiten laden die
+Schriften jetzt **erst nach der Einwilligung**, mit derselben Mechanik
+wie `index.html`, wortgleich übernommen. Dazu binden sie `js/cookie.js`
+ein, sonst gäbe es keine Möglichkeit zuzustimmen.
+
+Zwei Folgefehler kamen dabei ans Licht und sind mitbehoben:
+
+- Das Wasserzeichen „Entwurf, nicht veröffentlicht" (`.hinweis` in
+  `entwurf/bv.css` und `entwurf/apple.css`) liegt über die ganze Breite
+  am unteren Rand und fing **jeden Klick dort ab**. Der
+  Zustimmungsknopf war nicht bedienbar. Jetzt `pointer-events: none`.
+- `entwurf.html` und `entwurf-produkt.html` laden `css/style.css`
+  absichtlich nicht. Das Banner stand dadurch unformatiert im
+  Textfluss am Seitenende, gemessen bei 7313 px, und war praktisch
+  nicht erreichbar. `entwurf/stil.css` hat jetzt die nötigen Regeln.
+
+**Gegengelesen, alle vier Seiten:** vor der Einwilligung kein fremder
+Host, Zustimmungsknopf bedienbar, danach werden die Schriften geladen.
 
 **Nebenbefund, nicht in diesem Repository:** Die Wartungsseite des
 Konfigurators (HTTP 503) trägt im Titel einen Gedankenstrich

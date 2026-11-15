@@ -5,9 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Entwurf – Terrassenüberdachung | BV AussenSysteme</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+/* Google Fonts erst nach Einwilligung laden (15.11.2026).
+
+   GEMESSEN AM 15.11.2026 auf der Vorschau mit frischem Browserspeicher:
+   Diese Entwurfsseite rief fonts.googleapis.com und fonts.gstatic.com
+   auf, BEVOR irgendjemand zugestimmt hatte. Damit ging die IP-Adresse
+   des Besuchers an Google. Die echten Seiten machen das seit Langem
+   richtig, den Entwuerfen fehlte der Schalter.
+
+   Wortgleich uebernommen aus index.html, damit es nur eine Mechanik
+   gibt und nicht zwei, die auseinanderlaufen. js/cookie.js ist
+   zusaetzlich eingebunden, sonst gaebe es hier gar keine Moeglichkeit
+   zuzustimmen, und die Schriften kaemen nie. */
+(function(){
+  function loadFonts(){
+    if(document.getElementById('gfonts-loaded')) return;
+    var l = document.createElement('link');
+    l.id = 'gfonts-loaded';
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap';
+    document.head.appendChild(l);
+  }
+  function externalOK(raw){
+    if (!raw) return false;
+    if (raw === 'all') return true;
+    if (raw === 'necessary' || raw === 'rejected') return false;
+    if (raw.indexOf('custom:') === 0) return raw.indexOf('external=1') !== -1;
+    return false;
+  }
+  try {
+    if (externalOK(localStorage.getItem('bv_cookie_consent'))) loadFonts();
+    window.addEventListener('bv_consent_given', function(){
+      if (externalOK(localStorage.getItem('bv_cookie_consent'))) loadFonts();
+    });
+  } catch(e){ loadFonts(); }
+})();
+</script>
+<script src="js/cookie.js" defer></script>
 <link rel="stylesheet" href="/entwurf/stil.css?v=20261108a" />
 </head>
 <body>

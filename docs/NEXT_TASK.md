@@ -134,8 +134,10 @@ Bewertung holt der Betreiber beim Fachmann.
 von Google und zeigen kein Einwilligungsbanner. Gemessen am
 15.11.2026, Einzelheiten in `docs/rechtstexte-befunde.md`.
 
-Die Frage wurde dem Betreiber vorgelegt und blieb offen. **Nicht
-eigenmächtig ändern**, es geht um Löschen oder Sperren von Inhalten.
+**Erledigt am 15.11.2026.** Nicht gelöscht, weil die Entwürfe zum
+Neubau gehören und in sieben Dokumenten stehen. Stattdessen laden sie
+die Schriften jetzt erst nach der Einwilligung. Einzelheiten in
+`docs/rechtstexte-befunde.md`.
 
 ## Ortsseiten: Schritt 2 ist das Quiz (15.11.2026)
 

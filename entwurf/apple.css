@@ -260,7 +260,11 @@ h1,h2,h3{margin:0;color:var(--schrift);font-weight:600;letter-spacing:-.032em;li
 .fuss-orte{display:flex;flex-wrap:wrap;gap:6px 16px}
 
 /* ── Hinweisband ─────────────────────────────────────────────── */
-.hinweis{position:fixed;inset:auto 0 0;z-index:40;background:var(--gold);color:#1A1405;
+/* pointer-events: none, gefunden am 15.11.2026: Das Wasserzeichen
+   liegt ueber der ganzen Breite am unteren Rand und fing dort jeden
+   Klick ab. Der Zustimmungsknopf des Einwilligungsbanners war damit
+   nicht bedienbar. Ein Hinweis zum Lesen darf nichts abfangen. */
+.hinweis{pointer-events:none;position:fixed;inset:auto 0 0;z-index:40;background:var(--gold);color:#1A1405;
   padding:9px var(--rand);font-size:13px;font-weight:600;text-align:center;letter-spacing:-.005em}
 
 /* ── Einblenden ──────────────────────────────────────────────── */
