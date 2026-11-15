@@ -2827,9 +2827,21 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-gross .aw-nav { padding: 18px 38px 26px; }
 .aw-gross .aw-btn { font-size: 1.08rem; padding: 15px 28px; }
 @media (max-width: 700px) {
-  .aw-gross .aw-head { padding: 22px 18px 14px; }
+  /* Fast ueber die ganze Breite, auf Ansage des Betreibers vom
+     15.11.2026: "du kannst es etwas breiter machen fast so breit wie
+     bildschirm". Der Kasten sitzt in .container mit 14 px Rand; mit
+     -8 px bleibt ein Steg von 6 px, damit die Karte noch als Karte zu
+     erkennen ist und der Schatten nicht abgeschnitten wirkt.
+     Zusammen mit dem kleineren Innenabstand wachsen die Kacheln von
+     156 auf rund 171 px, lange Produktnamen brechen dadurch seltener
+     mitten im Wort. */
+  .aw-gross { margin-left: -8px; margin-right: -8px; }
+  .aw-gross .aw-body { padding: 16px 12px; }
+  .aw-gross .aw-nav { padding: 12px 12px 16px; }
+  .aw-gross .aw-option { padding: 14px 8px 14px; }
+  .aw-gross .aw-option-lbl { font-size: 0.98rem; }
+  .aw-gross .aw-head { padding: 22px 14px 14px; }
   .aw-gross .aw-head h3 { font-size: 1.45rem; }
-  .aw-gross .aw-body { padding: 18px; }
   /* minmax(0, 1fr) statt 1fr: Mit 1fr darf eine Spalte nicht schmaler
      werden als ihr laengstes Wort. "Terrassenueberdachung" und
      "Balkonueberdachung" haben die beiden Spalten deshalb am
@@ -2838,7 +2850,6 @@ body.bv-konfig-open #bvKonfigBubble {
      einem 326 px breiten Kasten. */
   .aw-gross .aw-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .aw-gross .aw-option-ic { height: 74px; }
-  .aw-gross .aw-nav { padding: 14px 18px 18px; }
 }
 
 /* Die runden Knoepfe unten rechts (nach oben, Barrierefreiheit,
