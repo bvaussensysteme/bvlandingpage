@@ -127,6 +127,39 @@ Bewertung holt der Betreiber beim Fachmann.
 
 ---
 
+## Ortsseiten: Schritt 2 ist das Quiz (15.11.2026)
+
+Schritt 1 ist erledigt und committet: Verlinkung, Kontrast, Übergabe
+der Produktwahl. Einzelheiten in `docs/entscheidungen.md`, Eintrag vom
+15.11.2026.
+
+**Was als Nächstes gebaut wird.** Ein kurzer Anfrageweg auf der
+Ortsseite selbst: höchstens drei bis vier Fragen, danach absendbar,
+ohne Seitenwechsel. Vorgeschlagene erste Frage, von zwei Prüfern
+unabhängig empfohlen: „Wofür soll der Carport vor allem sein?"
+
+**Dafür zu klären, bevor gebaut wird:**
+- `js/anfrage-wizard.js` hängt an `.anfrage-wizard` und den IDs
+  `awTitle`, `awSub`, `awProgressBar`, `awBody`, `awNav`, `awBack`,
+  `awNext`. Auf einer Ortsseite gibt es keines davon.
+- Das Skript liest Vorgaben nur aus `sessionStorage`, nicht aus einem
+  Datenattribut. Auf derselben Seite braucht es einen anderen Weg.
+- Die Sticky-Leiste und der eingebettete Assistent dürfen sich nicht
+  verdecken.
+- `id="kontakt"` müsste auf der Ortsseite liegen, sonst springen die
+  fünf vorhandenen `/#kontakt`-Links weiterhin weg.
+
+**Drei Entscheidungen liegen beim Betreiber:**
+1. Sollen die sieben fehlenden Orte in die Fußzeile
+   (`src/_includes/layout.njk:190-195`)? Dagegen spricht eine
+   Linkwand auf jeder Seite.
+2. Soll der Ort aus dem Dateinamen das Ortsfeld vorbelegen? Dagegen
+   spricht, dass der Ort eine Suchabsicht ist und keine Adresse.
+3. Die sieben Terrassenüberdachungs-Ortsseiten geben keine
+   Produktwahl mit, weil `PRODUKTWEGE` nur `terrassendach-tds` und
+   `flachdach-skyview` kennt. Entweder einen gemeinsamen Schlüssel im
+   Assistenten anlegen oder es so lassen.
+
 ## 4. Der nächste sinnvolle Arbeitsschritt
 
 > **Hinweis:** Der Betreiber arbeitet eine Folge von fünf Aufträgen ab.

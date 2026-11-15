@@ -17488,3 +17488,160 @@ einer Ortsseite und einer Produktseite. Dazu alle Prüfskripte, weil
 →", 28 Stück) haben kein Zeichen bekommen. Pfeil und Zeichen am selben
 Knopf sind zwei Markierungen für dieselbe Sache. Ob diese Knöpfe
 stattdessen das Zeichen tragen sollen, entscheidet der Betreiber.
+
+---
+
+## 15.11.2026 – Ortsseiten, Schritt 1: sichtbar machen, bevor umgebaut wird
+
+**Anlass.** Auftrag des Betreibers, die 14 Ortsseiten zu überarbeiten,
+„erst von Agents geprüft, danach überarbeitet mit CTAs, oder besser
+einem psychologisch wirkenden Quiz". Vier Prüfer gelesen: Gestaltung
+(`ux-architect`), Weg des Besuchers (`customer-journey-architect`),
+Psychologie (`conversion-psychology-auditor`), Marketing
+(`growth-hacker`). Jeder Befund unten ist vor der Umsetzung selbst
+nachgemessen worden, nicht übernommen.
+
+**Warum zuerst Sichtbarkeit und nicht das Quiz.** Gemessen am
+13.11.2026 in `bv-messung`: 169 Seitenaufrufe seit dem 03.11. auf der
+ganzen Seite, davon rund 11 auf allen 14 Ortsseiten zusammen, verteilt
+auf 6 Seiten. **Acht der vierzehn Seiten hatten null Aufrufe.** Ein
+Quiz auf einer Seite, die niemand aufruft, ändert nichts. Entscheidung
+des Betreibers am 15.11.2026 nach Vorlage der vier Berichte: erst
+sichtbar machen, dann das Quiz.
+
+### 1. Sieben Ortsseiten waren Waisen
+
+Gezählt wurde, von wie vielen Dateien im Repository jede Ortsseite
+verlinkt wird:
+
+| Seiten | vorher | jetzt |
+|---|---|---|
+| 4 Terrassenüberdachungs-Seiten (Montabaur, Neuwied, Altenkirchen, Koblenz) | 53 | 53 |
+| 3 weitere (Hachenburg, Limburg, Ransbach-Baumbach) | 10 | 10 |
+| 4 Carport-Ortsseiten | 1 bis 2 | **3 bis 4** |
+| 3 Pergola-Ortsseiten | 1 | **4** |
+
+Der Unterschied kommt daher, dass die Fußzeile jeder Seite eine Spalte
+„Regionen" hat, in der nur Terrassenüberdachungs-Ortsseiten stehen. Die
+Carport- und Pergola-Ortsseiten hingen nur an ihren Schwesterseiten
+desselben Ortes.
+
+**Was jetzt gilt.** Zwei Änderungen, beide im Inhalt und nicht in der
+Fußzeile:
+
+- `src/produkte/carport.njk` und `src/produkte/pergola.njk` haben einen
+  Abschnitt „Carport in Ihrer Stadt" beziehungsweise „Pergola in Ihrer
+  Stadt" bekommen, der die zugehörigen Ortsseiten verlinkt. Die
+  Produktseiten stehen selbst in der Fußzeile jeder Seite, der Link
+  steht also an einer gut erreichbaren Stelle und im passenden
+  Zusammenhang.
+- Wo eine Ortsseite in ihren Leistungskarten bisher auf die allgemeine
+  Produktseite verwies, obwohl es die Schwesterseite desselben Ortes
+  gibt, zeigt der Link jetzt dorthin. Zehn Links. Beispiel:
+  `carport-koblenz.html:155` zeigte auf `/produkte/pergola.html`, jetzt
+  auf `/pergola-koblenz.html`, mit der Beschriftung „Pergola &
+  Lamellendach in Koblenz".
+
+**Nicht gemacht:** die sieben fehlenden Orte in die Fußzeile
+aufzunehmen. Eine Fußzeile mit 14 Ortslinks auf jeder Seite ist eine
+Linkwand, und Fußzeilenlinks wiegen ohnehin wenig. Falls der Betreiber
+es trotzdem will, ist die Stelle `src/_includes/layout.njk:190-195`.
+
+### 2. Kontrast der Gold-Links war zu niedrig
+
+**Gemessen**, nicht geschätzt. Formel nach WCAG, Werte aus den
+Hex-Farben:
+
+| Farbe | auf `--light-bg` #F1EFEA | auf Weiß |
+|---|---|---|
+| `--gold-dark` #9A7318 (vorher) | **3,78:1** | **4,34:1** |
+| `--gold-text` #7A5B12 (jetzt) | 5,48:1 | 6,30:1 |
+
+Beides lag unter den 4,5:1, die das Projekt sich selbst gesetzt hat.
+Betroffen waren 75 Textlinks auf den 14 Ortsseiten, alle mit
+`style="color:var(--gold-dark)"`.
+
+**Vorher geprüft, ob es irgendwo auf dunklem Grund steht**, denn dort
+wäre die dunklere Farbe eine Verschlechterung. Im Browser gemessen,
+nicht im Quelltext geraten: alle Vorkommen sitzen auf #F1EFEA oder
+#FFFFFF. Kein einziges auf dunklem Grund.
+
+`--gold-text` ist seit Langem genau dafür da und war nur nicht benutzt.
+
+### 3. Die Anfrage verlor Ort und Produkt
+
+**Was falsch war.** Auf jeder Ortsseite zeigen fünf Links auf
+`/#kontakt`, also auf den Kontaktbereich der **Start**seite. Wer über
+„Carport Koblenz" kommt, wird dorthin geschickt und als Erstes gefragt:
+„Was möchten Sie kostenlos konfigurieren?" Das hat er durch seine Suche
+längst beantwortet.
+
+Dazu kommt: Die Ortsseiten laden `js/anfrage-wizard.js`
+(`carport-koblenz.html:44`), enthalten aber kein Element
+`.anfrage-wizard`. Das Skript bricht deshalb still ab
+(`js/anfrage-wizard.js:146`). 14 Seiten laden eine Datei, die dort
+nichts tun kann.
+
+**Was jetzt gilt.** Die drei Anfrageknöpfe jeder Carport- und
+Pergola-Ortsseite geben die Produktwahl mit, genau so wie es die
+Produktseiten seit dem 13.11.2026 tun:
+
+```html
+<a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','carport')}catch(e){}" class="btn btn-gold">
+```
+
+21 Knöpfe auf 7 Seiten. `produktAusSpeicher()` (Zeile 1841) liest den
+Wert, setzt das Produkt und blättert einen Schritt weiter.
+
+**Warum die sieben Terrassenüberdachungs-Ortsseiten nichts mitgeben.**
+`PRODUKTWEGE` (Zeile 1790) kennt `terrassendach-tds` und
+`flachdach-skyview`, aber keinen gemeinsamen Schlüssel. Die Ortsseite
+deckt beide ab, der Besucher hat sich zwischen ihnen **nicht**
+entschieden. Einen der beiden zu setzen hieße, ihm eine Wahl
+unterzuschieben, die er nicht getroffen hat.
+
+**Warum der Ort nicht mitgegeben wird, obwohl es ginge.**
+`standortAusSpeicher()` (Zeile 1674) liest `bv-plz` und `bv-ort` und
+füllt die Felder vor. Der Ort im Dateinamen ist aber eine **Suchabsicht
+und keine Adresse**: Wer `carport-koblenz.html` liest, wohnt nicht
+zwingend in Koblenz. Ein vorgefülltes Ortsfeld landet am Ende im
+Aufmaßtermin und in der Anfahrt. Produkt ist ein starker Schluss, Ort
+ein schwacher. Wenn der Betreiber den Ort trotzdem vorbelegt haben
+will, ist es eine Zeile mehr je Knopf.
+
+**Gegengelesen, mit Gegenprobe.** Im Browser geklickt, nicht aus dem
+Quelltext geschlossen:
+
+| Weg | erste Frage des Assistenten |
+|---|---|
+| von `carport-koblenz.html` über „Kostenlos anfragen" | „Welchen Carport möchten Sie?" |
+| direkt auf `/index.html#kontakt` | „Was möchten Sie kostenlos konfigurieren?" |
+
+Der Schlüssel war nach dem Lesen wieder leer, wie es der Code
+vorsieht.
+
+### Was offen bleibt und zum Quiz gehört
+
+- Der kurze Anfrageweg auf der Ortsseite selbst. Psychologie- und
+  Journey-Prüfer empfehlen unabhängig voneinander dasselbe: höchstens
+  drei bis vier Fragen vor einem Absenden. Der heutige Assistent
+  braucht beim Carport bis zu elf Schritte und verlangt am Ende
+  Anrede, Nachname, E-Mail, Telefon, PLZ und Ort in einem Schritt
+  (`js/anfrage-wizard.js:985-1002`).
+- Vorgeschlagene erste Frage: „Wofür soll der Carport vor allem sein?"
+  (ein Auto, zwei Autos, Auto und Fahrräder, Abstellraum dazu). Leicht
+  zu beantworten, ohne Fachwort, und sie entscheidet technisch schon
+  Einzel oder Doppel.
+- Kein Foto, keine Referenz, kein Beleg auf allen 14 Seiten. Der
+  Betreiber will ohnehin alle Produktbilder neu hochladen.
+
+**Was ausdrücklich nicht gebaut wird**, von allen vier Prüfern
+abgelehnt und von der Hausregel verboten: Zähler wie „nur noch drei
+Termine", erfundene Kundenzahlen oder Bewertungen, Pop-ups beim
+Verlassen der Seite.
+
+**Ehrliche Einordnung.** Ob eine dieser Änderungen mehr Anfragen
+bringt, ist unbekannt. Bei 11 Aufrufen auf 14 Seiten trägt keine Zahl
+eine Aussage. Was sich belegen lässt, ist nur das Gegenteil: Ohne
+eingehende Links wird eine Seite kaum gefunden, und ein Kontrast von
+3,78:1 ist unabhängig von jeder Wirkung zu niedrig.
