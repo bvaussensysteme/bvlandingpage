@@ -284,6 +284,13 @@ Toter Code mit Formularlogik ist unangenehm: Beim nächsten Umbau nimmt
 jemand an, er sei in Betrieb. Entweder entfernen oder mit einem
 Kommentar versehen, der sagt, dass er ruht.
 
+Dazu am 15.11.2026 gefunden, ebenfalls nicht angefasst: die CSS-Regel
+`.form-submit` in `src/css/style.css` (Zeile 1065) hat keine Stelle
+mehr im HTML. Sie gehört zu demselben alten Formular. Beim Rundmachen
+der Knöpfe wurde sie mitgeändert, damit sie nicht aus der Reihe fällt,
+falls sie je wieder benutzt wird. Sauberer wäre, sie zusammen mit dem
+toten JavaScript zu entfernen.
+
 ## Einzugsgebiet ohne JavaScript leer (14.11.2026)
 
 `einzugsgebiet.html` baut die Ortsliste erst im Browser:

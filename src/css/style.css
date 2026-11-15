@@ -180,7 +180,18 @@ h2 + p, h3 + p { max-width: 68ch; }
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; font-size: 1rem; letter-spacing: 0.4px;
   min-height: 48px;
-  padding: 13px 30px; border-radius: var(--radius);
+  padding: 13px 30px;
+  /* Rund wie auf der Startseite, auf Ansage des Betreibers vom
+     15.11.2026: "mach die knöpfe alle gleich also so rund wie auf der
+     startseite". Vorher war die Startseite ueber .start-premium .btn
+     rund und der Rest der Seite eckig, also zwei Knopfformen auf
+     demselben Auftritt. 999px heisst: immer halbrund, unabhaengig von
+     der Hoehe. Dieselbe Rundung haben deshalb auch .nav-cta,
+     .mobile-cta, .form-submit, .cb-btn, .aw-btn, .aw-photo-btn und
+     .google-review-btn. Nicht gerundet werden Kacheln und Felder
+     (.kontakt-quick-btn, .aw-option, Eingabefelder) und die Reiter im
+     Konfigurator: das sind keine Knoepfe. */
+  border-radius: 999px;
   text-decoration: none; transition: var(--uebergang-zustand);
   cursor: pointer; border: 2px solid transparent;
   /* Am Telefon: kein Warten auf den Doppeltipp, kein graues Aufblitzen
@@ -266,7 +277,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 .nav-links a .nav-icon, .mobile-menu a .nav-icon { margin-right: 0; }
 .nav-cta {
   background: var(--gold) !important; color: var(--black) !important;
-  padding: 10px 22px; border-radius: var(--radius);
+  padding: 10px 22px; border-radius: 999px;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700 !important; font-size: 1rem !important;
 }
@@ -407,7 +418,7 @@ body.bv-menu-open #bv-scroll-top {
 .mobile-cta {
   background: var(--gold) !important;
   color: var(--black) !important;
-  padding: 14px 36px; border-radius: var(--radius);
+  padding: 14px 36px; border-radius: 999px;
 }
 
 /* ============================================
@@ -1051,7 +1062,7 @@ body.bv-menu-open #bv-scroll-top {
 .form-submit {
   width: 100%; padding: 14px;
   background: var(--gold); color: var(--black); border: none;
-  border-radius: var(--radius); font-family: 'Barlow Condensed', sans-serif;
+  border-radius: 999px; font-family: 'Barlow Condensed', sans-serif;
   font-size: 1.1rem; font-weight: 800; cursor: pointer;
   transition: background 0.2s; letter-spacing: 0.3px;
 }
@@ -1417,7 +1428,7 @@ footer h4 {
 .cb-btn {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; font-size: 0.92rem;
-  padding: 11px 16px; border-radius: var(--radius);
+  padding: 11px 16px; border-radius: 999px;
   cursor: pointer; border: 1.5px solid transparent;
   transition: var(--uebergang-zustand); flex: 1; min-width: 110px;
   line-height: 1;
@@ -2060,7 +2071,9 @@ img { max-width: 100%; height: auto; }
   gap: 0;
   background: #fff;
   border: 1px solid #dadce0;
-  border-radius: 4px;
+  /* 15.11.2026: rund wie alle anderen Knoepfe. Vorher 4px, damit war
+     dieser als einziger fast eckig. */
+  border-radius: 999px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
   text-decoration: none;
   font-family: 'Google Sans', 'Roboto', 'Inter', sans-serif;
@@ -2743,7 +2756,7 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-nav { display: flex; gap: 12px; padding: 12px 26px 16px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .aw-btn {
   font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
-  padding: 12px 22px; border-radius: var(--radius); cursor: pointer; border: 2px solid transparent;
+  padding: 12px 22px; border-radius: 999px; cursor: pointer; border: 2px solid transparent;
   transition: background 0.2s, color 0.2s, transform 0.2s; letter-spacing: 0.3px;
 }
 .aw-btn--back { background: transparent; color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.2); }
@@ -3045,7 +3058,7 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-photo-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(196,154,42,0.25); border-radius: 12px; padding: 18px; }
 .aw-photo-h { color: #fff; font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
 .aw-photo-sub { color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-bottom: 14px; }
-.aw-photo-btn { display: block; padding: 12px; border-radius: var(--radius); font-weight: 700; font-family: 'Barlow Condensed', sans-serif; text-decoration: none; margin-bottom: 8px; transition: filter 0.15s; }
+.aw-photo-btn { display: block; padding: 12px; border-radius: 999px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; text-decoration: none; margin-bottom: 8px; transition: filter 0.15s; }
 .aw-photo-btn:hover { filter: brightness(1.08); }
 .aw-photo-btn--wa { background: var(--gold); color: var(--black); }
 .aw-photo-btn--mail { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }

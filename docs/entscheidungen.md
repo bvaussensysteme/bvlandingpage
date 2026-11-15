@@ -17369,3 +17369,60 @@ Zeilenhöhe von 20 px**. Bei einem Element im Textfluss wirkt der
 Innenabstand auf die Trefferfläche, nicht auf die Zeilenhöhe.
 
 Der Knopf im Kopfbereich misst 128 × 56 px.
+
+---
+
+## 15.11.2026 – Alle Knöpfe rund, ein einziger Radius für den ganzen Auftritt
+
+**Anlass.** Ansage des Betreibers, wörtlich: „mach die knöpfe alle
+gleich also so rund wie auf der startseite".
+
+**Was falsch war.** Die neue Startseite hatte über
+`.start-premium .btn` (`src/css/start.css`, Zeile 3793) seit dem Umbau
+`border-radius: 999px`, also halbrunde Knöpfe. Der Rest der Seite stand
+unverändert auf `var(--radius)`. Damit gab es **zwei Knopfformen in
+einem Auftritt**: rund auf der Startseite, eckig auf 57 weiteren
+Seiten, teils direkt untereinander, sobald jemand von der Startseite
+auf eine Ortsseite wechselte. Dazu kamen Einzelfälle mit eigenen
+Werten: der Google-Bewertungsknopf stand auf 4 px, die Weiter- und
+Zurück-Knöpfe im Konfigurator auf 10 px.
+
+**Was jetzt gilt.** Ein Wert für alles, was ein Knopf ist:
+`border-radius: 999px`. Betroffen in `src/css/style.css`: `.btn`
+(Grundform, von allen Seiten benutzt), `.nav-cta` (Kopfzeile),
+`.mobile-cta` (Menü am Handy), `.form-submit`, `.cb-btn`
+(Cookie-Banner), `.aw-btn` und `.aw-photo-btn` (Anfrage-Assistent),
+`.google-review-btn`. Dazu in `konfigurator.html` die Regel
+`.k3d-nav-zeile button`, die mit höherer Spezifität 10 px gesetzt hatte
+und `.btn` damit überstimmte.
+
+**Warum 999px und nicht ein fester Wert.** 999 px heißt in der Praxis
+„immer halbrund, unabhängig von der Höhe". Ein fester Wert wie 28 px
+sieht an einem 56 px hohen Knopf richtig aus und an einem 38 px hohen
+falsch. Die Knöpfe auf der Seite sind zwischen 44 und 56 px hoch.
+
+**Was bewusst eckig bleibt, und warum.** Nicht alles, was anklickbar
+ist, ist ein Knopf:
+
+| Element | Wert | Grund |
+|---|---|---|
+| `.kontakt-quick-btn` | 14 px | Kacheln im Raster, keine Knopfzeile. Rund gezogen wirken 78 px hohe Kacheln wie Tabletten. |
+| `.aw-option`, `.aw-dd-opt` | 8–12 px | Auswahlkarten mit Bild, keine Knöpfe. |
+| Eingabefelder, `textarea` | `var(--radius)` | Ein Feld, das aussieht wie ein Knopf, lädt nicht zum Tippen ein. |
+| `.k3d-reiter button` | 8px 8px 0 0 | Reiter müssen unten bündig auf der Kante sitzen. |
+| `.social-btn`, `.hs-pause-btn`, `.vd-carousel-btn` | 50 % | Waren schon vorher Kreise. |
+
+**Gegengelesen.** Gemessen wurde nicht im Quelltext, sondern am
+berechneten Stil im Browser (`getComputedStyle`), weil nur der zeigt,
+welche Regel am Ende gewinnt. Genau dadurch kam `.k3d-nav-zeile button`
+überhaupt ans Licht: im CSS stand `.btn` richtig, im Browser maß der
+Knopf „Weiter Dach" trotzdem 10 px.
+
+Ergebnis nach der Änderung: `index.html` 10 Knöpfe, alle 999 px;
+`carport-koblenz.html` 4; `produkte/carport.html` 8;
+`konfigurator.html` 12 Knöpfe, alle 999 px, keine Abweichung mehr.
+
+**Nebenbefund, nicht bearbeitet.** `.form-submit` kommt in keiner
+HTML-Datei mehr vor; die Regel ist toter CSS-Code. Ebenso `.lang-btn`,
+`.lang-dropdown-btn` und `.mobile-lang-switcher button` aus der
+entfernten Sprachumschaltung. Steht in `docs/NEXT_TASK.md`.
