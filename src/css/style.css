@@ -2816,6 +2816,9 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-gross .aw-options { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
 .aw-gross .aw-option { padding: 20px 14px 18px; gap: 10px; border-radius: 16px; }
 .aw-gross .aw-option-ic { height: 96px; }
+.aw-gross .aw-option { min-width: 0; }
+/* Lange Produktnamen umbrechen statt die Kachel breiter zu machen. */
+.aw-option-lbl, .aw-option-hint { overflow-wrap: break-word; hyphens: auto; min-width: 0; }
 .aw-gross .aw-option-lbl { font-size: 1.05rem; }
 /* Die letzte Kachel bei ungerader Zahl ueber die volle Breite statt
    allein in einer Reihe. Betrifft die erste Frage mit ihren fuenf
@@ -2827,7 +2830,13 @@ body.bv-konfig-open #bvKonfigBubble {
   .aw-gross .aw-head { padding: 22px 18px 14px; }
   .aw-gross .aw-head h3 { font-size: 1.45rem; }
   .aw-gross .aw-body { padding: 18px; }
-  .aw-gross .aw-options { grid-template-columns: 1fr 1fr; gap: 12px; }
+  /* minmax(0, 1fr) statt 1fr: Mit 1fr darf eine Spalte nicht schmaler
+     werden als ihr laengstes Wort. "Terrassenueberdachung" und
+     "Balkonueberdachung" haben die beiden Spalten deshalb am
+     15.11.2026 ueber die Karte hinausgedrueckt, die rechte Spalte war
+     am Telefon abgeschnitten. Gemessen bei 390 px: 215 + 192 px in
+     einem 326 px breiten Kasten. */
+  .aw-gross .aw-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .aw-gross .aw-option-ic { height: 74px; }
   .aw-gross .aw-nav { padding: 14px 18px 18px; }
 }

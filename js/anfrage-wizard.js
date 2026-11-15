@@ -176,6 +176,7 @@
   var idx = 0;
   var openDd = null; // aktuell geöffnetes Erweiterungs-Dropdown
   var letzterSchritt = null;   // fuer Fokus und Zaehler beim Schrittwechsel
+  var imAufbau = true;         // waehrend des Starts nie den Fokus bewegen
   var ref = 'BV-' + Date.now().toString(36).slice(-5).toUpperCase();
 
   /* ---------- Escaping für sichere Anzeige von Nutzereingaben ---------- */
@@ -1519,7 +1520,14 @@
        der Seite, ein Fokus beim Laden wuerde die Seite dorthin
        springen lassen, ohne dass jemand etwas angeklickt hat. */
     var jetzt = currentId();
-    if (letzterSchritt !== null && letzterSchritt !== jetzt) {
+    /* GEFUNDEN AM 15.11.2026 am Bild des Betreibers: Die Ueberschrift
+       trug beim Laden den Fokusrahmen. Grund: Beim Start zeichnet der
+       Assistent ZWEIMAL, einmal mit dem leeren Ablauf und einmal,
+       nachdem vorgabeDerOrtsseite() den kurzen Weg gesetzt hat. Der
+       zweite Aufbau sah aus wie ein Schrittwechsel. Ein Fokus beim
+       Laden zieht Tastatur und Vorleseprogramm mitten in die Seite,
+       ohne dass jemand etwas angeklickt hat. */
+    if (!imAufbau && letzterSchritt !== null && letzterSchritt !== jetzt) {
       var titelEl = document.getElementById('awTitle');
       if (titelEl) {
         titelEl.setAttribute('tabindex', '-1');
@@ -2152,4 +2160,5 @@
   })();
   produktAusSpeicher();
   standortAusSpeicher();
+  imAufbau = false;   // ab jetzt zaehlt jeder Schrittwechsel
 })();
