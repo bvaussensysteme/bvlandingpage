@@ -46,7 +46,11 @@ for (const pfad of SEITEN) {
          Schlaegt die Pruefung hier NICHT an, misst sie nichts. */
       await seite.evaluate(() => {
         const d = document.createElement('div');
-        d.style.cssText = 'width:3000px;height:30px;background:red';
+        /* min-width, nicht width: style.css hat eine Regel
+           "* { max-width: 100% }", die ein zu breites Element stillschweigend
+           zurechtstutzt. Mit width haette die Gegenprobe nichts gefunden und
+           waere trotzdem durchgelaufen. Gefunden am 15.11.2026. */
+        d.style.cssText = 'min-width:3000px;height:30px;background:red';
         d.id = 'gegenprobe-breit';
         document.body.appendChild(d);
         const b = document.createElement('button');
@@ -92,15 +96,39 @@ for (const pfad of SEITEN) {
           kennung: e.tagName.toLowerCase() + (e.id ? '#' + e.id : ''),
           groesse: Math.round(r.width) + 'x' + Math.round(r.height) });
       });
+      /* NICHT ueber scrollWidth messen: style.css setzt
+         "html, body { overflow-x: hidden }". Damit kann die Seite gar
+         nicht waagerecht scrollen, und die Messung waere immer 0,
+         obwohl Inhalt abgeschnitten wird. Gemessen wird deshalb, ob
+         sichtbare Elemente ueber den rechten Fensterrand hinausragen. */
+      const ueberRand = [];
+      document.querySelectorAll('body *').forEach(e => {
+        if (!sichtbar(e)) return;
+        const s2 = getComputedStyle(e);
+        if (s2.position === 'fixed') return;
+        let p2 = e.parentElement, geschnitten = false;
+        while (p2 && p2 !== document.body) {
+          const ps2 = getComputedStyle(p2);
+          if (ps2.overflowX !== 'visible') { geschnitten = true; break; }
+          p2 = p2.parentElement;
+        }
+        if (geschnitten) return;   // Karussells und Schieber duerfen das
+        const r = e.getBoundingClientRect();
+        if (r.right > window.innerWidth + 2)
+          ueberRand.push({ kennung: e.tagName.toLowerCase() + (e.id ? '#' + e.id : ''),
+            ueber: Math.round(r.right - window.innerWidth) });
+      });
       return {
-        waagerecht: document.documentElement.scrollWidth - window.innerWidth,
+        ueberRandGesamt: ueberRand.length,
+        ueberRand: ueberRand.slice(0, 3),
         raus: raus.slice(0, 5), rausGesamt: raus.length,
         klein: klein.slice(0, 5), kleinGesamt: klein.length
       };
     });
 
-    if (ergebnis.waagerecht > 2)
-      befunde.push(`${pfad} bei ${breite} px: Seite scrollt waagerecht um ${ergebnis.waagerecht} px`);
+    if (ergebnis.ueberRandGesamt)
+      befunde.push(`${pfad} bei ${breite} px: ${ergebnis.ueberRandGesamt} Element(e) ragen ueber den rechten Fensterrand, z. B. ` +
+        ergebnis.ueberRand.map(r => `${r.kennung} um ${r.ueber} px`).join(', '));
     if (ergebnis.rausGesamt)
       befunde.push(`${pfad} bei ${breite} px: ${ergebnis.rausGesamt} Element(e) ragen aus ihrem Kasten, z. B. ` +
         ergebnis.raus.map(r => `${r.kennung} um ${r.ueber} px`).join(', '));
@@ -114,13 +142,27 @@ await browser.close();
 server.kill();
 
 const geprueft = SEITEN.length * BREITEN.length;
+/* Die Gegenprobe prueft NICHT nur, ob ueberhaupt etwas gefunden wurde:
+   Sonst wuerde sie auch dann bestehen, wenn echte Fehler sie zufaellig
+   retten, waehrend die eingebauten unentdeckt bleiben. Sie verlangt
+   beide eingebauten Fehler namentlich. */
+if (GEGENPROBE) {
+  const alles = befunde.join(' | ');
+  const breitErkannt = alles.includes('gegenprobe-breit') || /ueber den rechten Fensterrand/.test(alles);
+  const kleinErkannt = alles.includes('gegenprobe-klein');
+  befunde.forEach(b => console.log('  ' + b));
+  if (breitErkannt && kleinErkannt) {
+    console.log('Ergebnis: Gegenprobe bestanden, beide eingebauten Fehler gefunden');
+    process.exit(0);
+  }
+  console.log('Ergebnis: GEGENPROBE FEHLGESCHLAGEN' +
+    (breitErkannt ? '' : ', zu breites Element nicht gefunden') +
+    (kleinErkannt ? '' : ', zu kleine Flaeche nicht gefunden'));
+  process.exit(1);
+}
 if (befunde.length) {
   befunde.forEach(b => console.log('  ' + b));
   console.log(`Ergebnis: ${befunde.length} Beanstandung(en) in ${geprueft} Messungen`);
-  process.exit(GEGENPROBE ? 0 : 1);
-}
-if (GEGENPROBE) {
-  console.log('Ergebnis: GEGENPROBE FEHLGESCHLAGEN, die Pruefung schlaegt nicht an');
   process.exit(1);
 }
 console.log(`Ergebnis: alle ${geprueft} Messungen ohne Beanstandung`);

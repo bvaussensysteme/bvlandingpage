@@ -408,3 +408,36 @@ scripts/pruefe.sh --alle --gegenprobe
   das nicht durchläuft, ist nicht bestanden.
 - Ein Name, den es nicht gibt, meldet „GIBT ES NICHT" statt still
   nichts zu tun.
+
+## pruefe-mitwachsend.mjs (15.11.2026)
+
+**Was sie prüft.** Lädt `index.html`, `carport-koblenz.html`,
+`produkte/carport.html` und `ratgeber/index.html` in sieben
+Bildschirmbreiten (320, 360, 390, 430, 768, 1024, 1440) und meldet:
+
+1. sichtbare Elemente, die über den rechten Fensterrand hinausragen,
+2. Elemente, die aus ihrem Elternkasten ragen,
+3. antippbare Flächen unter 24 × 24 px (WCAG 2.2, 2.5.8).
+
+28 Messungen je Lauf.
+
+**Warum es sie gibt.** Der Betreiber musste am 15.11.2026 dreimal
+hintereinander selbst darauf hinweisen, dass am Telefon etwas
+abgeschnitten oder zu schmal war. Jedes Mal war es im Quelltext nicht
+zu sehen und erst im Browser messbar.
+
+**Gegenprobe** (`--gegenprobe`) baut zwei Fehler ein, ein zu breites
+Element und einen 12 × 12 px großen Knopf, und verlangt **beide**
+namentlich im Ergebnis. Sie besteht also nicht schon dann, wenn
+irgendetwas gefunden wurde.
+
+**Zwei Fallen, über die die Prüfung beim Bau selbst gestolpert ist:**
+
+- `style.css` setzt `html, body { overflow-x: hidden }`. Über
+  `scrollWidth` gemessen wäre waagerechtes Scrollen deshalb **immer
+  null**, auch wenn Inhalt abgeschnitten wird. Gemessen wird daher der
+  rechte Rand der Elemente, nicht der Scrollbalken.
+- `style.css` setzt `* { max-width: 100% }`. Der eingebaute
+  Gegenprobe-Kasten mit `width: 3000px` wurde davon stillschweigend
+  zurechtgestutzt, die Gegenprobe lief durch, ohne etwas zu finden.
+  Sie benutzt jetzt `min-width`.

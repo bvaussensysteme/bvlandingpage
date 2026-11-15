@@ -246,7 +246,14 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 }
 .topbar a { color: rgba(255,255,255,0.85); text-decoration: none; }
 .topbar a:hover { color: var(--gold); }
-.topbar-links { display: flex; gap: 20px; }
+.topbar-links { display: flex; gap: 20px; align-items: center; }
+/* Gemessen am 15.11.2026: Die vier Links in der obersten Leiste waren
+   20 px hoch und lagen damit unter dem Mindestmass von 24 x 24 px
+   (WCAG 2.2, 2.5.8). Als Flex-Kinder sind sie Bloecke und fallen nicht
+   unter die Ausnahme fuer Links im Fliesstext. Zwei Pixel Innenabstand
+   oben und unten genuegen; die Leiste selbst wird dadurch nicht hoeher,
+   weil sie ihre Hoehe aus ihrem eigenen Innenabstand bezieht. */
+.topbar-links a { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 0; }
 
 /* ============================================
    NAVBAR
@@ -636,6 +643,12 @@ body.bv-menu-open #bv-scroll-top {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700; color: var(--gold-text); font-size: 0.9rem;
   margin-top: auto;
+  /* Gemessen am 15.11.2026: 23 px hoch, also 1 px unter dem
+     Mindestmass von 24 x 24 px (WCAG 2.2, 2.5.8). Als Block mitten in
+     der Karte faellt der Link nicht unter die Ausnahme fuer Links im
+     Fliesstext. 4 px Innenabstand oben und unten statt einer groesseren
+     Schrift, damit sich an der Gestaltung nichts aendert. */
+  padding: 4px 0;
   display: block;
   text-decoration: none;
   cursor: pointer;
@@ -867,7 +880,12 @@ body.bv-menu-open #bv-scroll-top {
 .vd-badge {
   position: absolute; left: 9px; bottom: 9px; z-index: 4;
   display: inline-flex; align-items: center;
-  height: 18px; padding: 0; border: none; border-radius: 9px;
+  /* 24 statt 18 px: Gemessen am 15.11.2026 auf index.html lagen
+     14 dieser Knoepfe bei 18 x 18 px und damit unter dem Mindestmass
+     von 24 x 24 px (WCAG 2.2, 2.5.8). Die Flaeche waechst, das
+     Abzeichen sieht gleich aus: Der Hintergrund bleibt so gross wie
+     vorher, der Zuwachs steckt im Innenabstand. */
+  min-height: 24px; height: auto; padding: 3px 0; border: none; border-radius: 12px;
   background: rgba(45,45,45,0.5); color: rgba(255,255,255,0.9);
   font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10px; line-height: 1;
   white-space: nowrap; overflow: hidden; max-width: 85%;
@@ -875,7 +893,7 @@ body.bv-menu-open #bv-scroll-top {
   transition: opacity .2s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
 }
 .vd-badge-i {
-  flex: 0 0 auto; width: 18px; text-align: center;
+  flex: 0 0 auto; width: 24px; text-align: center;
   font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; font-size: 11px;
 }
 .vd-badge-tip {
@@ -1195,8 +1213,13 @@ footer h4 {
      Innenabstand vergroessert die Flaeche, ohne die Zeile
      auseinanderzuziehen: bei einem inline-Element wirkt er auf den
      Treffer, nicht auf die Zeilenhoehe. */
-  padding: 15px 4px;
-  margin: -15px -4px;
+  /* NACHGEBESSERT 15.11.2026: Der waagerechte Innenabstand mit
+     ausgleichendem negativem Aussenabstand liess den Link 4 px aus
+     seinem Absatz ragen. Gemessen auf allen vier gepruefeten Seiten
+     und in allen sieben Breiten. Die Trefferflaeche braucht ihn nicht:
+     Sie ist mit 97 x 45 px auch ohne ihn weit ueber dem Mindestmass. */
+  padding: 15px 0;
+  margin: -15px 0;
 }
 .footer-tel a:hover { text-decoration: underline; }
 
@@ -1483,7 +1506,13 @@ footer h4 {
   font-size: 0.78rem; color: var(--muted);
   display: flex; gap: 8px; align-items: center;
 }
-.cb-links a { color: var(--muted); text-decoration: none; }
+/* Gemessen am 15.11.2026 bei 320 px: "Datenschutz" 74 x 20 px und
+   "Impressum" 65 x 20 px, beide unter dem Mindestmass von 24 x 24 px
+   (WCAG 2.2, 2.5.8). Als Flex-Kinder sind es Bloecke und damit nicht
+   von der Ausnahme fuer Links im Fliesstext gedeckt. Ausgerechnet im
+   Einwilligungsbanner, wo der Weg zur Datenschutzerklaerung sicher
+   erreichbar sein muss. */
+.cb-links a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; }
 .cb-links a:hover { color: var(--gold); }
 @media (max-width: 600px) {
   .cb-inner { padding: 18px 14px 14px; }
