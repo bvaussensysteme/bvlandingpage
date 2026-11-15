@@ -545,7 +545,9 @@ body.bv-menu-open #bv-scroll-top {
    ============================================ */
 .leistungen-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* Spaltenzahl aus der Breite (15.11.2026). Gemessen vorher: Die
+     Karte war bei 599 px 541 px breit und bei 601 px 263 px. */
+  grid-template-columns: repeat(auto-fit, minmax(clamp(240px, 30%, 340px), 1fr));
   gap: 24px;
   align-items: stretch;
   justify-content: center;
@@ -1270,7 +1272,7 @@ footer h4 {
   .gold-strip-grid    { grid-template-columns: repeat(2,1fr); }
   .gold-item:last-child { grid-column: 1 / -1; justify-content: center; border-bottom: none; }
   .gold-item          { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.12); padding: 10px 14px; }
-  .leistungen-grid    { grid-template-columns: 1fr 1fr; max-width: 720px; margin-left: auto; margin-right: auto; }
+  .leistungen-grid    { max-width: 720px; margin-left: auto; margin-right: auto; }
   .why-grid           { grid-template-columns: 1fr; width: 100%; overflow: hidden; }
   .prozess-grid       { grid-template-columns: 1fr 1fr; gap: 28px; }
   .prozess-grid::before { display: none; }
@@ -1293,7 +1295,7 @@ footer h4 {
    ============================================ */
 @media (max-width: 600px) {
   .section            { padding: 56px 0; }
-  .leistungen-grid    { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; padding: 0 4px; }
+  .leistungen-grid    { max-width: 420px; margin-left: auto; margin-right: auto; padding: 0 4px; }
   .reviews-grid       { grid-template-columns: 1fr; }
   .prozess-grid       { grid-template-columns: 1fr; }
   .form-row           { grid-template-columns: 1fr; }
@@ -2517,11 +2519,18 @@ img { max-width: 100%; height: auto; }
 .article-tag { color: var(--gold); font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
 .article-tag a { color: var(--gold); text-decoration: none; }
 .article-tag a:hover { text-decoration: underline; }
-.article-hero h1 { color: #fff; font-size: clamp(1.9rem, 4.5vw, 3rem); margin-bottom: 14px; line-height: 1.15; }
+/* GEMESSEN AM 15.11.2026: Die H1 war am Telefon mit 30,4 px genauso
+   gross wie eine H2 und bei 1440 px mit 48 px sogar kleiner als die
+   49,6 px einer H2 auf derselben Seite. Die Hauptueberschrift war also
+   die zweitgroesste. Jetzt liegt sie ueber der globalen H2-Regel
+   clamp(1.9rem, 4vw, 2.9rem). */
+.article-hero h1 { color: #fff; font-size: clamp(2.1rem, 5.2vw, 3.6rem); margin-bottom: 14px; line-height: 1.15; }
 .article-meta { color: rgba(255,255,255,.6); font-size: .85rem; margin: 0; }
 
 .article-hero-image { max-width: 900px; margin: -32px auto 0; padding: 0 20px; position: relative; z-index: 2; }
-.article-hero-image img { width: 100%; height: 320px; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: block; }
+/* Hoehe mitwachsend statt in zwei Stufen (15.11.2026). Gemessen
+   vorher: 190 px bei 699 px Fensterbreite, 320 px bei 701 px. */
+.article-hero-image img { width: 100%; height: clamp(190px, 38vw, 320px); object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: block; }
 
 .article-body { font-size: 1.08rem; line-height: 1.85; color: #2b2b2b; }
 .article-body > p:first-of-type { font-size: 1.18rem; }
@@ -2563,7 +2572,6 @@ img { max-width: 100%; height: auto; }
 .article-back:hover { text-decoration: underline; }
 
 @media (max-width: 700px) {
-  .article-hero-image img { height: 190px; }
   .article-body { font-size: 1rem; }
   .article-body > p:first-of-type::first-letter { font-size: 2.6rem; }
   .article-body h2 { font-size: 1.3rem; }
@@ -3577,7 +3585,10 @@ body.bv-konfig-open #bvKonfigBubble {
   }
 }
 .leistungen-grid--neu .leistung-img {
-  height: 258px; min-height: 258px; max-height: 258px;
+  /* Eine mitwachsende Hoehe statt drei festen (15.11.2026). Vorher
+     210, 220 und 258 px, das Seitenverhaeltnis schwankte dadurch von
+     2,6:1 bis 1,25:1. */
+  height: clamp(190px, 22vw, 258px); min-height: 0; max-height: none;
   border-radius: var(--radius-sm);
 }
 /* Die Goldkante sass bisher IM Bild, unten als 3-px-Streifen. Jetzt
@@ -3615,10 +3626,8 @@ body.bv-konfig-open #bvKonfigBubble {
 }
 
 @media (max-width: 1100px) {
-  .leistungen-grid--neu .leistung-img { height: 220px; min-height: 220px; max-height: 220px; }
 }
 @media (max-width: 760px) {
-  .leistungen-grid--neu .leistung-img { height: 210px; min-height: 210px; max-height: 210px; }
   .leistungen-grid--neu { gap: var(--sp-6); }
 }
 

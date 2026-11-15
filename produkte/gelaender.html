@@ -81,7 +81,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261114s" />
+  <link rel="stylesheet" href="/css/style.css?v=20261114t" />
 
   <style>
 .produkt-hero {
@@ -97,7 +97,9 @@ background: var(--white); clip-path: polygon(0 100%, 100% 20%, 100% 100%);
 .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
 .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
 .produkt-grid {
-display: grid; grid-template-columns: repeat(2,1fr);
+/* Spaltenzahl aus der Breite statt aus einer Stufe (15.11.2026),
+   wie auf den uebrigen Produktseiten. */
+display: grid; grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 45%, 420px), 1fr));
 gap: 28px; margin-top: 48px;
 }
 .produkt-card {
@@ -141,7 +143,6 @@ border-bottom: 1px solid var(--border); display: flex; gap: 8px;
 }
 .produkt-features li:last-child { border-bottom: none; }
 .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
-@media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
 
   </style>
 

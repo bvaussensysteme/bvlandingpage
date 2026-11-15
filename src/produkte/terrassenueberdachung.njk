@@ -19,7 +19,13 @@ extraStyles: |
       .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
       .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
       .produkt-grid {
-        display: grid; grid-template-columns: repeat(2,1fr);
+        /* Spaltenzahl aus der Breite statt aus einer Stufe (15.11.2026).
+           Gemessen vorher: Die Karte war bei 699 px Fensterbreite
+           659 px breit und bei 701 px 317 px, halbierte sich also in
+           einem Pixel. clamp(260px, 45%, 420px) heisst: eine Spalte ist
+           nie schmaler als 260 px, und solange zwei nicht passen, bleibt
+           es bei einer. */
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 45%, 420px), 1fr));
         gap: 28px; margin-top: 48px;
       }
       .produkt-card {
@@ -63,7 +69,6 @@ extraStyles: |
       }
       .produkt-features li:last-child { border-bottom: none; }
       .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
-      @media (max-width: 700px) { .produkt-grid { grid-template-columns: 1fr; } }
 
       /* Gegenueberstellung TDS / SkyView.
          ANLASS (13.11.2026): Die zwei Modelle standen als zwei lange
