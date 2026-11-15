@@ -163,6 +163,7 @@
   var kurz = wizard.getAttribute('data-aw-kurz') === '1';
   var vorgabeProdukt = wizard.getAttribute('data-aw-produkt') || '';
   var vorgabeOrt = wizard.getAttribute('data-aw-ort') || '';
+  var thema = wizard.getAttribute('data-aw-thema') || '';
 
   var bodyEl = document.getElementById('awBody');
   var backBtn = document.getElementById('awBack');
@@ -233,6 +234,13 @@
          (siehe unten, if (id === 'summary')). Ohne diesen Schritt
          gaebe es keinen Weg zum Abschicken. Er ist im kurzen Ablauf
          nur vier Zeilen lang. */
+      /* Terrassenueberdachungs-Ortsseiten: Die Seite deckt TDS und
+         SkyView ab, der Besucher hat sich nicht entschieden. Also ist
+         genau das die erste Frage, statt ihm einen Typ unterzuschieben.
+         Die Abfrage steht VOR der Pruefung auf answers.produkt, weil
+         der Schritt "terrassenart" das Produkt erst setzt: sonst
+         sprangen wir nach der Antwort in einen anderen Ablauf. */
+      if (thema === 'terrassendach') return ['terrassenart', 'zeitrahmen', 'kontakt', 'summary'];
       if (p === 'Carport') return ['nutzung', 'carporttyp', 'zeitrahmen', 'kontakt', 'summary'];
       if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'zeitrahmen', 'kontakt', 'summary'];
       return ['produkt', 'zeitrahmen', 'kontakt', 'summary'];
@@ -526,6 +534,33 @@
       },
       valid: function () {
         return answers.balkonbruestung ? null : 'Bitte wählen Sie, was vorne steht.';
+      }
+    },
+
+    /* ERSTE FRAGE AUF DEN TERRASSENUEBERDACHUNGS-ORTSSEITEN (15.11.2026).
+
+       Anders als bei Carport und Pergola kennt die Ortsseite das
+       Produkt nicht genau: Sie fuehrt beide Dachtypen. Diese Frage
+       macht daraus kein Problem, sondern den Einstieg. "Noch unsicher"
+       setzt bewusst KEINEN der beiden Typen, sondern den Oberbegriff,
+       damit in der Anfrage nicht steht, wofuer sich der Besucher
+       entschieden habe, als haette er gewaehlt. */
+    terrassenart: {
+      title: 'Welches Dach möchten Sie?',
+      sub: 'Wenn Sie unsicher sind, beraten wir Sie',
+      render: function () {
+        return optionCards('terrassenart', [
+          { value: 'Terrassendach TDS', img: 'terrasse', photo: true, hint: 'Klassiker: Glas oder Polycarbonat' },
+          { value: 'Flachdach SkyView', img: 'flach', photo: true, hint: 'Modernes Flachdach-Design' },
+          { value: 'Noch unsicher, bitte beraten', icon: I.frage }
+        ], 'aw-options--equal');
+      },
+      valid: function () {
+        if (!answers.terrassenart) return 'Bitte wählen Sie, welches Dach Sie möchten.';
+        answers.produkt = answers.terrassenart === 'Noch unsicher, bitte beraten'
+          ? 'Terrassenüberdachung, Typ noch offen'
+          : answers.terrassenart;
+        return null;
       }
     },
 
@@ -1958,22 +1993,33 @@
   /* Produktvorgabe aus dem Attribut der Ortsseite. Vor
      produktAusSpeicher(), damit ein Speicherwert von einer anderen Seite
      die Seite, auf der man steht, nicht ueberstimmt. */
-  (function produktAusAttribut() {
-    if (!vorgabeProdukt) return;
-    var weg = Object.prototype.hasOwnProperty.call(PRODUKTWEGE, vorgabeProdukt)
-      ? PRODUKTWEGE[vorgabeProdukt] : null;
-    if (!weg) return;
-    answers.produkt = weg.produkt;
-    if (weg.wunsch) answers.wunsch = weg.wunsch;
-    /* Ort aus dem Attribut der Ortsseite in das vorhandene Kontaktfeld.
-       SICHTBAR und aenderbar, nicht still im Hintergrund: Wer auf
+  (function vorgabeDerOrtsseite() {
+    /* Ort aus dem Attribut in das vorhandene Kontaktfeld. SICHTBAR und
+       aenderbar, nicht still im Hintergrund: Wer auf
        carport-koblenz.html liest, wohnt nicht zwingend in Koblenz. */
     if (vorgabeOrt && !answers.k_ort) answers.k_ort = vorgabeOrt;
+
+    /* Produktvorgabe der Carport- und Pergola-Ortsseiten. Die
+       Terrassenueberdachungs-Seiten haben keine, dort ist die Dachwahl
+       die erste Frage (data-aw-thema). */
+    if (vorgabeProdukt) {
+      var weg = Object.prototype.hasOwnProperty.call(PRODUKTWEGE, vorgabeProdukt)
+        ? PRODUKTWEGE[vorgabeProdukt] : null;
+      if (weg) {
+        answers.produkt = weg.produkt;
+        if (weg.wunsch) answers.wunsch = weg.wunsch;
+      }
+    }
+
+    /* Neu zeichnen, sobald der kurze Weg gilt. GEFUNDEN AM 15.11.2026:
+       Stand das vorher nur im Zweig mit dem Produkt, blieb auf den
+       Terrassenueberdachungs-Seiten der Schritt "produkt" stehen, weil
+       dort kein Produkt vorgegeben ist und computeFlow() deshalb nie
+       gerufen wurde. render() lief oben schon einmal, mit dem leeren
+       Ablauf. */
+    if (!kurz && !vorgabeProdukt) return;
     flow = computeFlow();
     idx = 0;
-    /* Neu zeichnen: render() lief weiter oben schon einmal, mit dem
-       leeren Ablauf. Ohne diesen Aufruf bliebe der Schritt "produkt"
-       stehen, obwohl das Produkt feststeht. */
     render();
   })();
   produktAusSpeicher();

@@ -17883,3 +17883,59 @@ Felder (`k_vorname`, `k_nachname`, `k_email`, `k_telefon`, `k_plz`,
 `k_ort`, `k_quelle`, `k_consent`), das Ortsfeld ist mit „Koblenz"
 vorbelegt, „Zurück" führt auf die Zeitfrage zurück, keine
 JavaScript-Fehler. Abgeschickt wurde nichts.
+
+---
+
+## 15.11.2026 – Quiz auch auf den sieben Terrassenüberdachungs-Ortsseiten
+
+**Anlass.** Ansage des Betreibers: „der quiz soll nur auf den
+einzelnen ort landingpages sein", und auf Nachfrage die Entscheidung,
+die restlichen sieben Ortsseiten ebenfalls umzustellen, mit dem
+Dachtyp als erster Frage.
+
+Damit haben **alle 14 Ortsseiten** denselben kurzen Weg, und sonst
+hat ihn keine Seite. Die Startseite behält den vollen Assistenten.
+
+**Das Hindernis und wie es gelöst ist.** Diese Seiten führen zwei
+Dachtypen, TDS und SkyView. Bisher gab es deshalb keine Produktvorgabe
+und damit kein Quiz. Jetzt ist genau diese Wahl die erste Frage,
+statt dem Besucher einen Typ unterzuschieben:
+
+| | Frage |
+|---|---|
+| 1 | Welches Dach möchten Sie? (Terrassendach TDS, Flachdach SkyView, noch unsicher) |
+| 2 | Wie schnell brauchen Sie es? |
+| 3 | Kontaktdaten, vollständig |
+| 4 | Zusammenfassung und Absenden |
+
+**„Noch unsicher" setzt keinen der beiden Typen.** In der Anfrage
+steht dann „Terrassenüberdachung, Typ noch offen". Einen der beiden
+einzutragen hieße, in der Anfrage zu behaupten, der Besucher habe sich
+entschieden. Gegengelesen: Der Weg über „Noch unsicher" endet in der
+Zusammenfassung mit genau dieser Zeile.
+
+**Gesteuert über `data-aw-thema="terrassendach"`**, nicht über
+`data-aw-produkt`, weil es hier kein Produkt gibt, das die Seite
+vorgeben könnte. Die Abfrage steht in `computeFlow()` **vor** der
+Prüfung auf `answers.produkt`: Sonst wäre der Ablauf nach der Antwort
+in den normalen TDS-Zweig gesprungen, mit all seinen Schritten.
+
+**Ein Fehler dabei, derselbe wie gestern in anderer Gestalt.** Die
+Vorgabe der Ortsseite stand in einem Zweig, der nur lief, wenn ein
+Produkt vorgegeben war. Auf den Terrassenüberdachungs-Seiten gibt es
+keines, also wurde `computeFlow()` dort nie gerufen und der Schritt
+„produkt" blieb stehen. Im Quelltext sah es richtig aus. Gefunden hat
+es wieder nur der Durchlauf im Browser, der die erste Frage ausliest.
+Die Stelle heißt jetzt `vorgabeDerOrtsseite()` und zeichnet neu,
+sobald der kurze Weg gilt, nicht nur bei vorgegebenem Produkt.
+
+**Gegengelesen im Browser:**
+
+| Seite | erste Frage |
+|---|---|
+| `terrassenueberdachung-koblenz` | Welches Dach möchten Sie? |
+| `carport-koblenz` | Wofür soll der Carport vor allem sein? |
+| `index.html`, Gegenprobe | Was möchten Sie kostenlos konfigurieren? |
+
+Kontaktschritt mit allen acht Feldern, Ortsfeld vorbelegt, keine
+JavaScript-Fehler. Abgeschickt wurde nichts.
