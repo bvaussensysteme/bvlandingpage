@@ -197,6 +197,8 @@
     steg:     '<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M7 4v16M11 4v16M15 4v16"/>',
     flach:    '<path d="M3 8h18"/><path d="M3 8l2-2h14l2 2"/><line x1="5" y1="8" x2="5" y2="19"/><line x1="19" y1="8" x2="19" y2="19"/><line x1="12" y1="8" x2="12" y2="19"/>',
     pergola:  '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M6 8v12M18 8v12"/><path d="M6 12h12M6 16h12"/>',
+    uhr:      '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    kalender: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
     auto2:    '<path d="M2 10l5-4 5 4"/><path d="M3 10v6h8v-6"/><path d="M12 10l5-4 5 4"/><path d="M13 10v6h8v-6"/>',
     fahrrad:  '<circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17l3.5-7h5l-2.5 7"/><path d="M8 10h1.5"/><path d="M14.5 10L18 17"/>',
     raum:     '<rect x="3" y="7" width="18" height="12" rx="1"/><path d="M3 11h18"/><path d="M10 7V5h4v2"/>',
@@ -231,9 +233,9 @@
          (siehe unten, if (id === 'summary')). Ohne diesen Schritt
          gaebe es keinen Weg zum Abschicken. Er ist im kurzen Ablauf
          nur vier Zeilen lang. */
-      if (p === 'Carport') return ['nutzung', 'carporttyp', 'kontakt_kurz', 'summary'];
-      if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'kontakt_kurz', 'summary'];
-      return ['produkt', 'kontakt_kurz', 'summary'];
+      if (p === 'Carport') return ['nutzung', 'carporttyp', 'zeitrahmen', 'kontakt', 'summary'];
+      if (p === 'Pergola / Lamellendach') return ['dachart', 'aufbau', 'zeitrahmen', 'kontakt', 'summary'];
+      return ['produkt', 'zeitrahmen', 'kontakt', 'summary'];
     }
     var wand = answers.aufbau === 'Wandmontage'; // Fassade nur bei Wandmontage
     // Terrassendach TDS/SkyView: voller Detailablauf (inkl. Seitenelemente → Wintergarten)
@@ -525,6 +527,34 @@
       valid: function () {
         return answers.balkonbruestung ? null : 'Bitte wählen Sie, was vorne steht.';
       }
+    },
+
+    /* DRITTE FRAGE IM KURZEN WEG (15.11.2026).
+
+       Ansage des Betreibers: Das Quiz soll fragen, "was er braucht, wie
+       schnell er das braucht und sowas". Der Zeitrahmen ist die einzige
+       dieser Angaben, die der Assistent sonst nirgends erfasst, und fuer
+       den Betrieb ist sie die wichtigste: Sie entscheidet, welche
+       Anfrage zuerst bearbeitet wird.
+
+       Bewusst OHNE Druck: keine Frist, kein Zaehler, keine Knappheit.
+       "Ich sammle erst Angebote" ist eine gleichwertige Antwort und
+       steht mit derselben Kachel da wie die anderen. Wer ehrlich
+       antwortet, hilft dem Betrieb mehr als wer sich gedraengt fuehlt.
+
+       Nur im kurzen Weg benutzt. */
+    zeitrahmen: {
+      title: 'Wie schnell brauchen Sie es?',
+      sub: 'Damit wir wissen, was zuerst dran ist',
+      render: function () {
+        return optionCards('zeitrahmen', [
+          { value: 'So schnell wie möglich', icon: I.uhr },
+          { value: 'In den nächsten 3 Monaten', icon: I.kalender },
+          { value: 'Zur nächsten Saison', icon: I.sommer },
+          { value: 'Ich sammle erst Angebote', icon: I.frage }
+        ], 'aw-options--equal');
+      },
+      valid: function () { return answers.zeitrahmen ? null : 'Bitte wählen Sie, wie schnell Sie es brauchen.'; }
     },
 
     /* ERSTE FRAGE AUF DER ORTSSEITE. Sie fragt nach der eigenen Lage und
@@ -1101,62 +1131,6 @@
       }
     },
 
-    /* KURZER KONTAKTSCHRITT, nur auf den Ortsseiten (15.11.2026).
-
-       Ansage des Betreibers: Das Quiz soll "nicht seine ganze
-       Lebensgeschichte abfragen". Der volle Schritt "kontakt" verlangt
-       acht Angaben: Anrede, Vorname, Nachname, E-Mail, Telefon, PLZ,
-       Ort, Einwilligung. Hier sind es drei plus den Haken.
-
-       WAS WEGFAELLT UND WAS DAS KOSTET:
-       - Anrede und Vorname: nur Anredeform, nicht noetig zum Zurueckrufen.
-       - E-Mail: der Betrieb ruft an. Telefon bleibt Pflicht, so die
-         ausdrueckliche Ansage des Betreibers ("telefon pflicjt ja").
-       - PLZ: Anfahrt und Lastzone lassen sich daraus genauer bestimmen.
-         Ohne sie muss das im Rueckruf geklaert werden. Der Ort allein
-         reicht fuer die grobe Einordnung.
-       Der Ort steht vorbelegt da, weil die Ortsseite ihn kennt, und
-       bleibt aenderbar: Wer auf carport-koblenz.html liest, wohnt nicht
-       zwingend in Koblenz. Deshalb sichtbares Feld und keine stille
-       Annahme.
-
-       Der Einwilligungstext ist WORTGLEICH aus dem Schritt "kontakt"
-       uebernommen und nicht neu formuliert. */
-    kontakt_kurz: {
-      title: 'Fast geschafft',
-      sub: 'Drei Angaben, dann melden wir uns. Meist innerhalb von 24 Stunden.',
-      render: function () {
-        return '<div class="aw-contact">' +
-          '<div class="aw-row">' +
-          txtField('k_nachname', 'Name *', answers.k_nachname, 'Ihr Name', 'text', 'family-name') +
-          txtField('k_telefon', 'Telefon / WhatsApp *', answers.k_telefon, '0156 …', 'tel', 'tel') +
-          '</div>' +
-          txtField('k_ort', 'Ort *', answers.k_ort || vorgabeOrt, 'z. B. Montabaur', 'text', 'address-level2') +
-          '<label class="aw-consent"><input type="checkbox" id="k_consent"' + (answers.k_consent ? ' checked' : '') + '> ' +
-          '<span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *</span></label>' +
-          '</div>';
-      },
-      collect: function () {
-        answers.k_nachname = val('k_nachname');
-        answers.k_telefon = val('k_telefon');
-        answers.k_ort = val('k_ort');
-        var c = document.getElementById('k_consent');
-        answers.k_consent = c ? c.checked : false;
-      },
-      valid: function () {
-        this.collect();
-        var nachname = answers.k_nachname.trim();
-        if (!nachname) return 'Bitte geben Sie Ihren Namen an.';
-        if (looksFakeName('', nachname)) return 'Bitte geben Sie Ihren echten Namen ein, so können wir Sie persönlich ansprechen.';
-        var telefon = answers.k_telefon.trim();
-        if (!telefon) return 'Bitte geben Sie eine Telefonnummer an, für Rückfragen geht das am schnellsten.';
-        if (telefon.replace(/[^0-9]/g, '').length < 6) return 'Diese Telefonnummer sieht zu kurz aus. Bitte prüfen Sie Ihre Eingabe.';
-        if (!answers.k_ort.trim()) return 'Bitte geben Sie Ihren Ort an.';
-        if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
-        return null;
-      }
-    },
-
     summary: {
       title: 'Zusammenfassung',
       sub: 'Bitte prüfen Sie Ihre Angaben',
@@ -1259,6 +1233,7 @@
     var p = [];
     p.push(['Produkt', answers.produkt]);
     if (inFlow('nutzung') && answers.nutzung) p.push(['Geplante Nutzung', answers.nutzung]);
+    if (inFlow('zeitrahmen') && answers.zeitrahmen) p.push(['Zeitrahmen', answers.zeitrahmen]);
     if (inFlow('carporttyp') && answers.carporttyp) p.push(['Carport-Typ', answers.carporttyp]);
     if (inFlow('carportvariante') && answers.carportvariante) p.push(['Ausführung', answers.carportvariante]);
     if (inFlow('dachart') && answers.dachart) p.push(['Dachart', answers.dachart + (inFlow('dachausfuehrung') && answers.dachausfuehrung ? ' · ' + answers.dachausfuehrung : '')]);
@@ -1990,6 +1965,10 @@
     if (!weg) return;
     answers.produkt = weg.produkt;
     if (weg.wunsch) answers.wunsch = weg.wunsch;
+    /* Ort aus dem Attribut der Ortsseite in das vorhandene Kontaktfeld.
+       SICHTBAR und aenderbar, nicht still im Hintergrund: Wer auf
+       carport-koblenz.html liest, wohnt nicht zwingend in Koblenz. */
+    if (vorgabeOrt && !answers.k_ort) answers.k_ort = vorgabeOrt;
     flow = computeFlow();
     idx = 0;
     /* Neu zeichnen: render() lief weiter oben schon einmal, mit dem

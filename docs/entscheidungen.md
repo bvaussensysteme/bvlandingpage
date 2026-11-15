@@ -17823,3 +17823,63 @@ Startseite, dort war es derselbe latente Fehler.
 | JavaScript-Fehler | keine |
 
 Abgeschickt wurde wieder nichts.
+
+---
+
+## 15.11.2026 – Kontaktdaten wieder vollständig, dafür eine Frage mehr
+
+**Hebt den Teil „1. Zu viel gefragt" des Eintrags davor auf.**
+
+**Anlass.** Ansage des Betreibers, wörtlich: „Nee, die E-Mail-Adresse
+sollst du ganz bestimmt nicht weglassen. Also die Kontaktdaten müssen
+schon vollständig sein, wie sie jetzt schon sind. Es soll einfach nur
+ein Quiz sein, ungefähr wo derjenige herkommt, was er braucht, wie
+schnell er das braucht und sowas. Und dann am Ende die ganzen
+Kontaktdaten."
+
+**Was ich falsch verstanden hatte.** Aus „nicht die ganze
+Lebensgeschichte" hatte ich geschlossen, die Kontaktdaten seien zu
+lang. Gemeint war das Gegenteil: Der **Fragenteil davor** war zu dünn.
+Die Kontaktdaten sind der Zweck der Übung und bleiben vollständig.
+
+**Was jetzt gilt.** Der Schritt `kontakt_kurz` ist wieder entfernt,
+nicht auskommentiert: Toter Code mit Formularlogik ist schlimmer als
+keiner, weil ihn beim nächsten Umbau jemand für in Betrieb hält. Der
+Ablauf auf den Ortsseiten:
+
+| | carport-* | pergola-* |
+|---|---|---|
+| 1 | Wofür soll der Carport vor allem sein? | Welches Dach möchten Sie? |
+| 2 | Welchen Carport möchten Sie? | Wandmontage oder freistehend? |
+| 3 | Wie schnell brauchen Sie es? | Wie schnell brauchen Sie es? |
+| 4 | Ihre Kontaktdaten, **vollständig** | dito |
+| 5 | Zusammenfassung und Absenden | dito |
+
+**Die neue Frage: „Wie schnell brauchen Sie es?"** Antworten: so
+schnell wie möglich, in den nächsten 3 Monaten, zur nächsten Saison,
+ich sammle erst Angebote. Sie ist die einzige der drei Angaben aus der
+Ansage, die der Assistent sonst **nirgends** erfasst, und für den
+Betrieb die nützlichste: Sie entscheidet, welche Anfrage zuerst
+bearbeitet wird. Sie steht in der Zusammenfassung und damit in der
+Anfrage-E-Mail als „Zeitrahmen".
+
+**Ohne Druck gebaut.** Keine Frist, kein Zähler, keine Knappheit. „Ich
+sammle erst Angebote" steht auf derselben Kachel wie die anderen drei
+und ist keine Verlegenheitsantwort. Wer ehrlich antwortet, nützt dem
+Betrieb mehr als wer sich gedrängt fühlt.
+
+**„Ungefähr wo derjenige herkommt" wurde bewusst nicht als eigene
+Frage gebaut.** Der vollständige Kontaktschritt fragt PLZ und Ort,
+beides Pflicht. Eine grobe Ortsfrage davor würde dieselbe Angabe ein
+zweites Mal verlangen, nur ungenauer. Stattdessen steht das Ortsfeld
+im Kontaktschritt schon ausgefüllt da, mit dem Ort der Seite
+(`data-aw-ort`), sichtbar und änderbar. Wenn der Betreiber die Frage
+trotzdem im Quiz haben will, ist das ein weiterer Schritt in
+`computeFlow()`.
+
+**Gegengelesen im Browser:** Die vier Schritte erscheinen in der
+richtigen Reihenfolge, der Kontaktschritt zeigt wieder alle acht
+Felder (`k_vorname`, `k_nachname`, `k_email`, `k_telefon`, `k_plz`,
+`k_ort`, `k_quelle`, `k_consent`), das Ortsfeld ist mit „Koblenz"
+vorbelegt, „Zurück" führt auf die Zeitfrage zurück, keine
+JavaScript-Fehler. Abgeschickt wurde nichts.
