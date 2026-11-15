@@ -2299,7 +2299,10 @@ img { max-width: 100%; height: auto; }
 .hs-text--center .hs-slide-btns { justify-content: center; }
 /* Telefon + WhatsApp als gleich große Buttons nebeneinander (eigene Zeile) */
 .hero-contact-row {
-  display: flex; gap: 12px;
+  /* flex-wrap seit 15.11.2026: In dieser Zeile stehen jetzt drei
+     Knoepfe statt zwei (Katalog kam aus der Hauptreihe dazu). Ohne
+     Umbruch ragte der letzte gemessen 157 px aus der Zeile heraus. */
+  display: flex; gap: 12px; flex-wrap: wrap;
   flex-basis: 100%; width: 100%; max-width: 520px; margin: 0 auto;
 }
 .hero-contact-btn {

@@ -107,6 +107,13 @@
   color: var(--gold-light) !important;   /* der Bestand setzt hier inline --gold */
   font-weight: 600;
 }
+/* GEMESSEN AM 15.11.2026 bei 1280 px: Die Ueberschrift beginnt bei
+   250 px, der Absatz darunter bei 380 px. Ursache ist
+   ".hs-text--center .hs-desc { margin-left: auto }" aus style.css, die
+   aus dem alten, mittig gesetzten Hero stammt. Auf der neuen
+   Startseite steht alles links, nur dieser Absatz rutschte 130 px nach
+   innen und brach die linke Kante. */
+.start-premium .hs-text--center .hs-desc { margin-left: 0; }
 .start-premium .hs-desc {
   font-size: clamp(1rem, 1.6vw, 1.12rem);
   line-height: 1.6; max-width: 46ch; margin-inline: auto;
