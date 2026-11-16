@@ -18272,3 +18272,43 @@ Animation. `pruefe-startseite` 39/39, `pruefe-darstellung` 144/144,
 **Offen.** Das erste Bild kommt erst nach rund 750 ms, weil die
 Stylesheets das Zeichnen blockieren. Das ist ein eigener Befund, steht
 in `docs/NEXT_TASK.md`, hier nicht angefasst.
+
+### Nachtrag vom selben Tag: der Name war nicht die Ursache
+
+Die Umbenennung reichte nicht. Erneut auf der Vorschau gemessen, mit
+Blick auf die Animationsobjekte selbst: Bei Stylesheet Nummer sechs
+lieferte `getAnimations()` ein **neues** Objekt mit `startTime` null.
+Die Animation war also nicht fortgesetzt, sondern ersetzt worden.
+
+Ausloeser ist jedes Stylesheet, das **nach dem ersten Bild** zum
+Dokument dazukommt. Auf dieser Seite sind das zwei, beide per
+JavaScript eingefuegt: die Regeln des Bedienhilfen-Fensters
+(`bv-a11y-styles`, rund 6,5 KB) und ein kleiner Block fuer das
+Katalogband. Sichtbar war: erstes Wort zu drei Vierteln da, weg, ganze
+Folge von vorne.
+
+**Was jetzt gilt.** Die Animation laeuft ueber die
+JavaScript-Schnittstelle (`Element.animate`), gestartet im zweiten
+Bild nach dem ersten Zeichnen. Eine solche Animation setzt kein
+spaeteres Stylesheet zurueck. Die Startwerte stehen in einer Klasse am
+`<html>`, die nur gesetzt wird, wenn JavaScript laeuft und keine
+reduzierte Bewegung gewuenscht ist; ein Notausgang nach drei Sekunden
+nimmt sie in jedem Fall wieder weg.
+
+**Verworfen und warum.** `animation.cancel()` nach dem Lauf: Dann fiel
+das Element auf den CSS-Zustand zurueck, und solange die Klasse noch
+hing, war das Deckkraft 0. Gemessen: Die Woerter verschwanden
+nacheinander wieder, sobald sie fertig waren. Stattdessen haelt die
+Animation ihren Endzustand selbst (`fill: both`).
+
+**Gegengelesen, drei Faelle, je 34 Proben:**
+
+| Fall | Ergebnis |
+|---|---|
+| normal | ein einziges Animationsobjekt, Woerter nacheinander, am Ende alle sichtbar und bleiben es |
+| Bewegung reduziert | ab der ersten Probe alles sichtbar, keine Animation |
+| ohne JavaScript | ab der ersten Probe alles sichtbar |
+
+`pruefe-startseite` 39/39, `pruefe-darstellung` 144/144,
+`pruefe-mitwachsend` 28/28, `pruefe-bewegung` bestanden,
+`pruefe-cache-buster` bestanden.

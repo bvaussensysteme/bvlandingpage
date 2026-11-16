@@ -416,69 +416,40 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <style>
   /* Fallback fonts bis Google Fonts geladen */
   body { font-family: 'Arial', sans-serif; }
-  /* GANZE EINGANGSANIMATION DES HELDENBEREICHS, hier im Kopf und
-     NICHT in style.css (16.11.2026).
+  /* EINGANGSANIMATION DES HELDENBEREICHS (16.11.2026).
 
-     GEMESSEN auf der Vorschau bei 390x750, Deckkraft der drei Woerter
-     alle 90 ms abgefragt: Die Animation stand bis 755 ms auf
-     Zeitpunkt 0, weil vor dem ersten Bild nichts laeuft. Sie startete
-     bei 849 ms, war bei 1038 ms zu zwei Dritteln durch und sprang bei
-     1146 ms zurueck auf Zeitpunkt 50 ms. Sie lief also von vorne los.
+     WARUM NICHT ALS CSS-ANIMATION. Gemessen auf der Vorschau bei
+     390 x 750: Die Wort-Animation lief los und sprang danach auf
+     Anfang zurueck, nachweisbar daran, dass getAnimations() ein neues
+     Objekt mit startTime null lieferte. Ausgeloest hat das jedes
+     Stylesheet, das NACH dem ersten Bild zum Dokument dazukommt. Auf
+     dieser Seite sind das zwei: die Regeln des Bedienhilfen-Fensters
+     und ein kleiner Block weiter unten im Dokument. Der Besucher sah
+     das erste Wort zu drei Vierteln erscheinen, dann verschwinden,
+     dann die ganze Folge von vorne.
 
-     URSACHE: style.css enthielt denselben Namen "@keyframes heroAuf"
-     ein zweites Mal. Kommt eine zweite Definition desselben Namens
-     nachtraeglich an, verwirft der Browser die laufende Animation und
-     setzt sie neu auf. Zeichengleiche Werte helfen dagegen nicht, es
-     ist der Name. Derselbe Grund liess Ueberschrift, Absatz, Knoepfe
-     und Haekchenzeile erst erscheinen, dann wieder verschwinden und
-     erneut einblenden: deren Animation kam ueberhaupt erst mit
-     style.css an.
+     Ein eindeutiger Name reicht dagegen nicht, das war der Versuch
+     davor. Eine Animation ueber die JavaScript-Schnittstelle laesst
+     sich von spaeteren Stylesheets nicht mehr zuruecksetzen.
 
-     Deshalb stehen die Namen heroEin und wortPop nur hier. In
-     style.css steht an der alten Stelle keine Regel mehr, sondern ein
-     Verweis hierher. .hero--neu gibt es nur auf dieser Seite, sonst
-     waere das Verschieben falsch.
+     WARUM ERST NACH DEM ERSTEN BILD. requestAnimationFrame laeuft
+     erst, wenn der Browser wirklich zeichnet. Startete die Folge
+     frueher, liefe sie vor leerem Bildschirm ab und waere vorbei,
+     bevor etwas zu sehen ist. Genau das war die Beschwerde.
 
-     Bei reduzierter Bewegung laeuft nichts, dann steht alles sofort
-     vollstaendig da. */
+     OHNE JAVASCRIPT ODER BEI REDUZIERTER BEWEGUNG steht alles sofort
+     vollstaendig da: Die Klasse wird nur gesetzt, wenn beides
+     vorhanden ist, und ein Notausgang nach drei Sekunden nimmt sie in
+     jedem Fall wieder weg. Nichts im Heldenbereich haengt also daran,
+     dass dieses Skript durchlaeuft. */
+  .hero--neu .hs-claim-wort { display: inline-block; }
   @media (prefers-reduced-motion: no-preference) {
-    .hero--neu .hs-heading,
-    .hero--neu .hs-desc,
-    .hero--neu .hs-slide-btns,
-    .hero--neu .hero-trust {
-      animation: heroEin .72s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .hero--neu .hs-heading   { animation-delay: .05s; }
-    .hero--neu .hs-desc      { animation-delay: .34s; }
-    .hero--neu .hs-slide-btns{ animation-delay: .42s; }
-    .hero--neu .hero-trust   { animation-delay: .50s; }
-
-    /* Der Claim kommt Wort fuer Wort, nicht als Block, deshalb hat der
-       Absatz selbst keine Animation. Abstand 180 ms: kurz genug, dass
-       es eine Bewegung bleibt, lang genug, dass die Reihenfolge zu
-       sehen ist. Die Kurve geht am Ende leicht ueber den Zielwert
-       hinaus, damit das Wort aufspringt und nicht nur einblendet.
-
-       Ein vierter Baustein, etwa ein befristeter Hinweis, braucht nur
-       ein weiteres <span class="hs-claim-wort">, hier ist er schon
-       vorgesehen. */
     .hero--neu .hero-slogan { animation: none; }
-    .hero--neu .hs-claim-wort {
-      display: inline-block;
-      animation: wortPop .5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
-    }
-    .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .22s; }
-    .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .40s; }
-    .hero--neu .hs-claim-wort:nth-child(3) { animation-delay: .58s; }
-    .hero--neu .hs-claim-wort:nth-child(4) { animation-delay: .76s; }
-  }
-  @keyframes heroEin {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: none; }
-  }
-  @keyframes wortPop {
-    from { opacity: 0; transform: translateY(12px) scale(.88); }
-    to   { opacity: 1; transform: none; }
+    .hero-anim-bereit .hero--neu .hs-heading,
+    .hero-anim-bereit .hero--neu .hs-desc,
+    .hero-anim-bereit .hero--neu .hs-slide-btns,
+    .hero-anim-bereit .hero--neu .hero-trust,
+    .hero-anim-bereit .hero--neu .hs-claim-wort { opacity: 0; }
   }
   /* Zugang zum Katalog im Hero - gleiche Form wie Anrufen/WhatsApp,
      damit die Knopfreihe ruhig bleibt. Steht hier im Kopf und nicht
@@ -519,6 +490,58 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
   <link rel="stylesheet" href="css/start.css?v=20261114i" />
+  <script>
+  /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
+     Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,
+     damit die Folge zu lesen ist und die Seite trotzdem zuegig steht. */
+  (function () {
+    var html = document.documentElement;
+    if (!('animate' in Element.prototype)) return;
+    if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+    html.classList.add('hero-anim-bereit');
+    var frei = function () { html.classList.remove('hero-anim-bereit'); };
+    /* Notausgang: Bleibt das Skript haengen, ist der Heldenbereich
+       trotzdem nach drei Sekunden sichtbar. */
+    setTimeout(frei, 3000);
+    function los() {
+      var slide = document.querySelector('.hero--neu');
+      if (!slide) { frei(); return; }
+      var teile = [];
+      var rest = [['.hs-heading', 50], ['.hs-desc', 340], ['.hs-slide-btns', 420], ['.hero-trust', 500]];
+      for (var i = 0; i < rest.length; i++) {
+        var e = slide.querySelector(rest[i][0]);
+        if (e) teile.push([e, rest[i][1], 720, false]);
+      }
+      var w = slide.querySelectorAll('.hs-claim-wort');
+      for (var j = 0; j < w.length; j++) teile.push([w[j], 220 + j * 180, 500, true]);
+      for (var k = 0; k < teile.length; k++) {
+        (function (t) {
+          var von = t[3]
+            ? { opacity: 0, transform: 'translateY(12px) scale(.88)' }
+            : { opacity: 0, transform: 'translateY(16px)' };
+          var a = t[0].animate([von, { opacity: 1, transform: 'none' }], {
+            duration: t[2], delay: t[1], fill: 'both',
+            easing: t[3] ? 'cubic-bezier(0.34, 1.4, 0.64, 1)' : 'cubic-bezier(0.16, 1, 0.3, 1)'
+          });
+          /* KEIN cancel() nach dem Lauf. Gemessen am 16.11.2026: Mit
+             cancel() fiel das Element auf den CSS-Zustand zurueck, und
+             solange die Klasse "hero-anim-bereit" noch am <html> hing,
+             war das Deckkraft 0. Die Woerter verschwanden also wieder,
+             nacheinander, sobald ihre Animation fertig war. Mit
+             fill: both haelt die Animation selbst den Endzustand
+             (Deckkraft 1, keine Verschiebung) und es haengt nichts
+             mehr daran, ob die Klasse rechtzeitig weg ist. */
+        })(teile[k]);
+      }
+      frei();
+    }
+    function nachDemErstenBild() {
+      requestAnimationFrame(function () { requestAnimationFrame(los); });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', nachDemErstenBild);
+    else nachDemErstenBild();
+  })();
+  </script>
 </head>
 <body class="start-premium">
 
