@@ -416,41 +416,68 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <style>
   /* Fallback fonts bis Google Fonts geladen */
   body { font-family: 'Arial', sans-serif; }
-  /* ANFANGSZUSTAND DES CLAIMS, hier im Kopf und nicht in style.css
-     (15.11.2026).
+  /* GANZE EINGANGSANIMATION DES HELDENBEREICHS, hier im Kopf und
+     NICHT in style.css (16.11.2026).
 
-     GEMESSEN auf der Vorschau: 200 ms nach dem Laden standen die drei
-     Woerter voll sichtbar da (Deckkraft 1), ab 400 ms waren sie weg
-     (0), und erst ab etwa 1500 ms blendeten sie nacheinander ein.
-     Grund: style.css kommt als eigene Datei spaeter an. Bis dahin
-     gilt die Regel nicht, danach schlaegt sie zu. Zu sehen war also
-     ein Aufblitzen, dann eine Sekunde Leere, dann die Animation.
+     GEMESSEN auf der Vorschau bei 390x750, Deckkraft der drei Woerter
+     alle 90 ms abgefragt: Die Animation stand bis 755 ms auf
+     Zeitpunkt 0, weil vor dem ersten Bild nichts laeuft. Sie startete
+     bei 849 ms, war bei 1038 ms zu zwei Dritteln durch und sprang bei
+     1146 ms zurueck auf Zeitpunkt 50 ms. Sie lief also von vorne los.
 
-     Steht der Anfangszustand im Kopf, beginnt die Folge mit dem
-     ersten Bild. Die Abfrage auf reduzierte Bewegung ist dieselbe wie
-     in style.css: Wer Bewegung abgeschaltet hat, sieht sofort alles. */
+     URSACHE: style.css enthielt denselben Namen "@keyframes heroAuf"
+     ein zweites Mal. Kommt eine zweite Definition desselben Namens
+     nachtraeglich an, verwirft der Browser die laufende Animation und
+     setzt sie neu auf. Zeichengleiche Werte helfen dagegen nicht, es
+     ist der Name. Derselbe Grund liess Ueberschrift, Absatz, Knoepfe
+     und Haekchenzeile erst erscheinen, dann wieder verschwinden und
+     erneut einblenden: deren Animation kam ueberhaupt erst mit
+     style.css an.
+
+     Deshalb stehen die Namen heroEin und wortPop nur hier. In
+     style.css steht an der alten Stelle keine Regel mehr, sondern ein
+     Verweis hierher. .hero--neu gibt es nur auf dieser Seite, sonst
+     waere das Verschieben falsch.
+
+     Bei reduzierter Bewegung laeuft nichts, dann steht alles sofort
+     vollstaendig da. */
   @media (prefers-reduced-motion: no-preference) {
-    /* Die Animation steht HIER und nicht nur in style.css. Gemessen auf
-       der Vorschau: Stand nur der Anfangszustand im Kopf, blieben die
-       Woerter unsichtbar, bis style.css ankam, und liefen erst dann
-       los. Auf dem Telefon waren das ueber 1,4 Sekunden Leere.
+    .hero--neu .hs-heading,
+    .hero--neu .hs-desc,
+    .hero--neu .hs-slide-btns,
+    .hero--neu .hero-trust {
+      animation: heroEin .72s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .hero--neu .hs-heading   { animation-delay: .05s; }
+    .hero--neu .hs-desc      { animation-delay: .34s; }
+    .hero--neu .hs-slide-btns{ animation-delay: .42s; }
+    .hero--neu .hero-trust   { animation-delay: .50s; }
 
-       Die Werte sind mit style.css identisch gehalten, Kurve als
-       ausgeschriebener Wert statt als Variable, weil die Variable aus
-       style.css kommt und hier noch nicht gilt. Gleiche Werte heissen:
-       Wenn style.css spaeter dieselbe Animation setzt, laeuft sie
-       weiter und faengt nicht von vorne an. */
+    /* Der Claim kommt Wort fuer Wort, nicht als Block, deshalb hat der
+       Absatz selbst keine Animation. Abstand 180 ms: kurz genug, dass
+       es eine Bewegung bleibt, lang genug, dass die Reihenfolge zu
+       sehen ist. Die Kurve geht am Ende leicht ueber den Zielwert
+       hinaus, damit das Wort aufspringt und nicht nur einblendet.
+
+       Ein vierter Baustein, etwa ein befristeter Hinweis, braucht nur
+       ein weiteres <span class="hs-claim-wort">, hier ist er schon
+       vorgesehen. */
+    .hero--neu .hero-slogan { animation: none; }
     .hero--neu .hs-claim-wort {
       display: inline-block;
-      animation: heroAuf .56s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: wortPop .5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
     }
-    .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .14s; }
-    .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .30s; }
-    .hero--neu .hs-claim-wort:nth-child(3) { animation-delay: .46s; }
-    .hero--neu .hs-claim-wort:nth-child(4) { animation-delay: .62s; }
+    .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .22s; }
+    .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .40s; }
+    .hero--neu .hs-claim-wort:nth-child(3) { animation-delay: .58s; }
+    .hero--neu .hs-claim-wort:nth-child(4) { animation-delay: .76s; }
   }
-  @keyframes heroAuf {
+  @keyframes heroEin {
     from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes wortPop {
+    from { opacity: 0; transform: translateY(12px) scale(.88); }
     to   { opacity: 1; transform: none; }
   }
   /* Zugang zum Katalog im Hero - gleiche Form wie Anrufen/WhatsApp,
@@ -487,7 +514,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261114z" />
+  <link rel="stylesheet" href="css/style.css?v=20261116a" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->

@@ -3479,56 +3479,21 @@ body.bv-konfig-open #bvKonfigBubble {
   .hero--neu .hero-trust { gap: var(--sp-2) var(--sp-4); }
 }
 
-/* Auftritt: Die Teile kommen nacheinander, nicht alle gleichzeitig.
-   Als ANIMATION mit forwards - anders als beim Einblenden der Karten
-   ist hier kein Dauerzustand moeglich, der haengen bleibt: ohne
-   JavaScript laeuft sie trotzdem, und bei reduzierter Bewegung gar
-   nicht (die Abfrage umschliesst den ganzen Block). */
-@media (prefers-reduced-motion: no-preference) {
-  .hero--neu .hero-eyebrow,
-  .hero--neu .hs-heading,
-  .hero--neu .hero-slogan,
-  .hero--neu .hs-desc,
-  .hero--neu .hs-slide-btns,
-  .hero--neu .hero-trust {
-    animation: heroAuf .72s var(--kurve-raus) both;
-  }
-  .hero--neu .hs-heading   { animation-delay: .07s; }
-  /* Der Claim erscheint nicht mehr als Block, sondern Wort fuer Wort
-     (Ansage des Betreibers vom 15.11.2026). Deshalb bekommt der
-     Absatz selbst KEINE Animation mehr, sonst liefe sie doppelt und
-     die Woerter starteten erst, wenn der Absatz schon da ist.
+/* Die Eingangsanimation des Heldenbereichs steht seit dem 16.11.2026
+   im Kopf von index.html und nicht mehr hier.
 
-     Die Verzoegerungen stehen fuer bis zu vier Teile: Wer spaeter
-     einen vierten Baustein anhaengen will, zum Beispiel einen
-     befristeten Hinweis, fuegt nur ein weiteres
-     <span class="hs-claim-wort"> ein, ohne hier etwas zu aendern.
+   Grund, gemessen: Diese Datei kommt als eigene Datei spaeter an als
+   die Seite. Standen die Regeln hier, blendete der Heldenbereich erst
+   auf, verschwand dann wieder und lief erneut los, sobald die Datei
+   ankam. Zusaetzlich setzte eine zweite Definition von
+   "@keyframes heroAuf" an dieser Stelle die bereits laufende
+   Wort-Animation auf Anfang zurueck, nachweisbar als Ruecksprung von
+   Zeitpunkt 267 ms auf 50 ms.
 
-     Abstand 160 ms: kurz genug, dass es als eine Bewegung gelesen
-     wird, lang genug, dass man die Reihenfolge sieht. Der ganze Block
-     steht in "prefers-reduced-motion: no-preference", bei reduzierter
-     Bewegung steht der Claim also sofort vollstaendig da. */
-  .hero--neu .hero-slogan  { animation: none; }
-  .hero--neu .hs-claim-wort {
-    /* Kurve ausgeschrieben statt var(--kurve-raus): Dieselbe Regel
-       steht im Kopf von index.html, wo die Variable noch nicht gilt.
-       Nur bei zeichengleichen Werten laeuft die Animation weiter,
-       statt neu zu starten, wenn diese Datei nachtraeglich ankommt. */
-    display: inline-block;
-    animation: heroAuf .56s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .14s; }
-  .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .30s; }
-  .hero--neu .hs-claim-wort:nth-child(3) { animation-delay: .46s; }
-  .hero--neu .hs-claim-wort:nth-child(4) { animation-delay: .62s; }
-  .hero--neu .hs-desc      { animation-delay: .20s; }
-  .hero--neu .hs-slide-btns{ animation-delay: .26s; }
-  .hero--neu .hero-trust   { animation-delay: .34s; }
-}
-@keyframes heroAuf {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: none; }
-}
+   Die Namen heissen dort heroEin und wortPop und stehen absichtlich
+   NUR dort. Wird hier wieder ein Keyframe mit einem dieser Namen
+   angelegt, faengt die Animation von vorne an. .hero--neu gibt es nur
+   auf der Startseite. */
 
 /* ── 2. Abschnittskopf: Rubrik statt Zeile ──────────────────────────
    Ueber der Rubrik steht jetzt ein Goldstrich, die Ueberschrift wird

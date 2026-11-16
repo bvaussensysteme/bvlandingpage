@@ -358,3 +358,14 @@ Sprachumschalter (`lang-dropdown`, `lang-switcher`). Sie wirken nicht
 mehr. Entfernen lohnt nur, wenn ohnehin jemand an dieser Datei
 arbeitet: Sie wird von allen 58 Seiten geladen, und für ein paar Byte
 fasst man sie nicht an.
+
+### Später prüfen (Nebenbefunde 15./16.11.2026)
+1. Die beiden runden Schaltflächen des Bedienhilfen-Fensters am rechten
+   Rand liegen auf dem Telefon (390 px) über dem WhatsApp-Knopf im
+   Heldenbereich. Gesehen auf dem Bildschirmfoto bei 390 × 750. Noch
+   nicht gemessen, ob die antippbare Fläche dadurch unter 24 × 24 px
+   fällt; die Prüfskripte messen Überdeckung bisher nicht.
+2. Das erste Bild der Startseite erscheint erst nach rund 750 ms
+   (gemessen auf der Vorschau, 390 × 750). Bis dahin ist die Seite leer,
+   weil die Stylesheets das Zeichnen blockieren. Betrifft jede
+   Eingangsanimation: Sie kann frühestens danach anfangen.

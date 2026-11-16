@@ -18226,3 +18226,49 @@ Genau das war der Fehler, der zu seinem Bildschirmfoto geführt hat.
 
 **Gegengelesen.** `pruefe-startseite` 39/39, `pruefe-darstellung`
 144/144, `pruefe-mitwachsend` 28/28, `pruefe-cache-buster` bestanden.
+
+## 16.11.2026 – Startseite: Eingangsanimation lief von vorne los
+
+**Anlass.** Betreiber: „animation immernoch nicht da“, nachdem die
+Wort-Animation am 15.11. eingebaut worden war.
+
+**Was war.** Gemessen auf der Vorschau bei 390 × 750, Deckkraft der drei
+Wörter alle 90 ms abgefragt:
+
+| Zeit | Zustand der Animation |
+|---|---|
+| 102 bis 755 ms | Zeitpunkt 0, nichts läuft (vor dem ersten Bild läuft keine CSS-Animation) |
+| 849 ms | Start |
+| 1038 ms | Zeitpunkt 267 ms, erstes Wort zu 79 % da |
+| **1146 ms** | **Zeitpunkt 50 ms. Rücksprung, die Animation lief von vorne los.** |
+
+**Ursache.** `@keyframes heroAuf` stand zweimal im Dokument: im Kopf von
+`index.html` und noch einmal in `style.css`. Kommt eine zweite
+Definition desselben Namens nachträglich an, verwirft der Browser die
+laufende Animation und setzt sie neu auf. Zeichengleiche Werte helfen
+dagegen nicht, es ist der Name. Genau darauf hatte sich der Einbau vom
+15.11. verlassen, der Kommentar im Code behauptete das Gegenteil.
+
+Derselbe Grund betraf Überschrift, Absatz, Knöpfe und Häkchenzeile:
+Deren Animation stand nur in `style.css`. Sie waren ab dem ersten Bild
+sichtbar, wurden beim Eintreffen der Datei wieder unsichtbar und
+blendeten erneut ein.
+
+**Was jetzt gilt.** Die vollständige Eingangsanimation steht im Kopf von
+`index.html`, unter den Namen `heroEin` und `wortPop`, die es nur dort
+gibt. In `style.css` steht an der alten Stelle ein Verweis.
+`.hero--neu` kommt nur auf der Startseite vor, deshalb ist das
+Verschieben zulässig.
+
+Die Wörter springen jetzt auf, statt nur einzublenden: 0,5 s je Wort,
+180 ms Abstand, Kurve mit leichtem Überschwingen.
+
+**Gegengelesen.** Erneut gemessen, 18 Proben: null Rücksprünge, Wörter
+nacheinander bei 1,34 / 1,59 / 1,76 s. Bei `prefers-reduced-motion:
+reduce` steht ab der ersten Probe alles vollständig da, es läuft keine
+Animation. `pruefe-startseite` 39/39, `pruefe-darstellung` 144/144,
+`pruefe-mitwachsend` 28/28, `pruefe-cache-buster` bestanden.
+
+**Offen.** Das erste Bild kommt erst nach rund 750 ms, weil die
+Stylesheets das Zeichnen blockieren. Das ist ein eigener Befund, steht
+in `docs/NEXT_TASK.md`, hier nicht angefasst.
