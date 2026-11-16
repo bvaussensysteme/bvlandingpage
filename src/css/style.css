@@ -3510,8 +3510,12 @@ body.bv-konfig-open #bvKonfigBubble {
      Bewegung steht der Claim also sofort vollstaendig da. */
   .hero--neu .hero-slogan  { animation: none; }
   .hero--neu .hs-claim-wort {
+    /* Kurve ausgeschrieben statt var(--kurve-raus): Dieselbe Regel
+       steht im Kopf von index.html, wo die Variable noch nicht gilt.
+       Nur bei zeichengleichen Werten laeuft die Animation weiter,
+       statt neu zu starten, wenn diese Datei nachtraeglich ankommt. */
     display: inline-block;
-    animation: heroAuf .56s var(--kurve-raus) both;
+    animation: heroAuf .56s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .14s; }
   .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .30s; }

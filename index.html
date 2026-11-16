@@ -430,7 +430,28 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      ersten Bild. Die Abfrage auf reduzierte Bewegung ist dieselbe wie
      in style.css: Wer Bewegung abgeschaltet hat, sieht sofort alles. */
   @media (prefers-reduced-motion: no-preference) {
-    .hero--neu .hs-claim-wort { opacity: 0; }
+    /* Die Animation steht HIER und nicht nur in style.css. Gemessen auf
+       der Vorschau: Stand nur der Anfangszustand im Kopf, blieben die
+       Woerter unsichtbar, bis style.css ankam, und liefen erst dann
+       los. Auf dem Telefon waren das ueber 1,4 Sekunden Leere.
+
+       Die Werte sind mit style.css identisch gehalten, Kurve als
+       ausgeschriebener Wert statt als Variable, weil die Variable aus
+       style.css kommt und hier noch nicht gilt. Gleiche Werte heissen:
+       Wenn style.css spaeter dieselbe Animation setzt, laeuft sie
+       weiter und faengt nicht von vorne an. */
+    .hero--neu .hs-claim-wort {
+      display: inline-block;
+      animation: heroAuf .56s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .14s; }
+    .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .30s; }
+    .hero--neu .hs-claim-wort:nth-child(3) { animation-delay: .46s; }
+    .hero--neu .hs-claim-wort:nth-child(4) { animation-delay: .62s; }
+  }
+  @keyframes heroAuf {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
   }
   /* Zugang zum Katalog im Hero - gleiche Form wie Anrufen/WhatsApp,
      damit die Knopfreihe ruhig bleibt. Steht hier im Kopf und nicht
@@ -466,7 +487,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261114y" />
+  <link rel="stylesheet" href="css/style.css?v=20261114z" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
