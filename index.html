@@ -416,6 +416,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <style>
   /* Fallback fonts bis Google Fonts geladen */
   body { font-family: 'Arial', sans-serif; }
+  /* ANFANGSZUSTAND DES CLAIMS, hier im Kopf und nicht in style.css
+     (15.11.2026).
+
+     GEMESSEN auf der Vorschau: 200 ms nach dem Laden standen die drei
+     Woerter voll sichtbar da (Deckkraft 1), ab 400 ms waren sie weg
+     (0), und erst ab etwa 1500 ms blendeten sie nacheinander ein.
+     Grund: style.css kommt als eigene Datei spaeter an. Bis dahin
+     gilt die Regel nicht, danach schlaegt sie zu. Zu sehen war also
+     ein Aufblitzen, dann eine Sekunde Leere, dann die Animation.
+
+     Steht der Anfangszustand im Kopf, beginnt die Folge mit dem
+     ersten Bild. Die Abfrage auf reduzierte Bewegung ist dieselbe wie
+     in style.css: Wer Bewegung abgeschaltet hat, sieht sofort alles. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero--neu .hs-claim-wort { opacity: 0; }
+  }
   /* Zugang zum Katalog im Hero - gleiche Form wie Anrufen/WhatsApp,
      damit die Knopfreihe ruhig bleibt. Steht hier im Kopf und nicht
      weiter unten im Dokument: sonst erschiene der Knopf kurz unfertig. */
