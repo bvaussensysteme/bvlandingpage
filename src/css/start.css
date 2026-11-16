@@ -275,9 +275,22 @@
      bottom bleiben wirkungslos.
      `min-height: 100svh` sorgt weiter dafuer, dass der Einstieg den
      Bildschirm fuellt, wenn der Inhalt kuerzer ist. */
-  .start-premium .hero-slider { height: auto; min-height: 100svh; }
+  /* NACHGEBESSERT 15.11.2026 auf Ansage des Betreibers ("dann kann
+     alles insgesamt nen stueck hoeher wandern"): Seit die Augenbraue
+     und der zweite Satz der Ueberschrift weg sind, ist der Inhalt
+     kuerzer als der Bildschirm. Mit min-height: 100svh blieb der
+     Einstieg trotzdem genau einen Bildschirm hoch, der Inhalt
+     verteilte sich nur neu, statt nach oben zu rutschen, und vom
+     naechsten Abschnitt war weiterhin nichts zu sehen.
+     85svh laesst ihn hoeher ruecken. height: auto bleibt, der Einstieg
+     waechst also weiterhin mit, wenn der Inhalt doch laenger wird. */
+  .start-premium .hero-slider { height: auto; min-height: 85svh; }
   .start-premium .hero--neu .hs-slide--active { position: relative; }
-  .start-premium .hero--neu .hs-content { padding-top: 104px; padding-bottom: 40px; }
+  /* 72 statt 104 px seit 15.11.2026: Die feste Kopfzeile ist gemessen
+     66 px hoch, der Inhalt begann aber erst bei 172 px, also 106 px
+     darunter. 72 px lassen immer noch 38 px Luft und holen den Rest
+     des naechsten Abschnitts ueber die Bildschirmkante. */
+  .start-premium .hero--neu .hs-content { padding-top: 72px; padding-bottom: 40px; }
   .start-premium .hs-desc { margin-bottom: 18px; }
   .start-premium .hs-slide-btns { gap: 8px; }
   .start-premium .hs-slide-btns .btn { min-height: 48px; padding-block: 11px; }
