@@ -3497,7 +3497,29 @@ body.bv-konfig-open #bvKonfigBubble {
     animation: heroAuf .72s var(--kurve-raus) both;
   }
   .hero--neu .hs-heading   { animation-delay: .07s; }
-  .hero--neu .hero-slogan  { animation-delay: .14s; }
+  /* Der Claim erscheint nicht mehr als Block, sondern Wort fuer Wort
+     (Ansage des Betreibers vom 15.11.2026). Deshalb bekommt der
+     Absatz selbst KEINE Animation mehr, sonst liefe sie doppelt und
+     die Woerter starteten erst, wenn der Absatz schon da ist.
+
+     Die Verzoegerungen stehen fuer bis zu vier Teile: Wer spaeter
+     einen vierten Baustein anhaengen will, zum Beispiel einen
+     befristeten Hinweis, fuegt nur ein weiteres
+     <span class="hs-claim-wort"> ein, ohne hier etwas zu aendern.
+
+     Abstand 160 ms: kurz genug, dass es als eine Bewegung gelesen
+     wird, lang genug, dass man die Reihenfolge sieht. Der ganze Block
+     steht in "prefers-reduced-motion: no-preference", bei reduzierter
+     Bewegung steht der Claim also sofort vollstaendig da. */
+  .hero--neu .hero-slogan  { animation: none; }
+  .hero--neu .hs-claim-wort {
+    display: inline-block;
+    animation: heroAuf .56s var(--kurve-raus) both;
+  }
+  .hero--neu .hs-claim-wort:nth-child(1) { animation-delay: .14s; }
+  .hero--neu .hs-claim-wort:nth-child(2) { animation-delay: .30s; }
+  .hero--neu .hs-claim-wort:nth-child(3) { animation-delay: .46s; }
+  .hero--neu .hs-claim-wort:nth-child(4) { animation-delay: .62s; }
   .hero--neu .hs-desc      { animation-delay: .20s; }
   .hero--neu .hs-slide-btns{ animation-delay: .26s; }
   .hero--neu .hero-trust   { animation-delay: .34s; }

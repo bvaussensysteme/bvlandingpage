@@ -18140,3 +18140,55 @@ selbst eingebaut, zwei Absätze unter dem Zitat.
 Jetzt steht im ersten Schritt nur „Schritt 1", ohne Gesamtzahl.
 Gegengelesen: Carport 1, 2 von 5, 3 von 5, 4 von 5. Balkon 1, 2 von 4,
 3 von 4. Innerhalb eines Weges ändert sich die Zahl nicht mehr.
+
+---
+
+## 15.11.2026 – Der Claim erscheint Wort für Wort
+
+**Anlass.** Ansage des Betreibers: „Das könnte man irgendwie als
+Animation machen das Überdacht, Durchdacht, Zuverlässig nacheinander
+aufploppen."
+
+**Was jetzt gilt.** Die drei Wörter stehen je in einem
+`<span class="hs-claim-wort">` und erscheinen nacheinander, 160 ms
+auseinander, mit derselben Bewegung wie der übrige Einstieg
+(`heroAuf`, Einblenden und 16 px von unten).
+
+**Warum der Absatz selbst keine Animation mehr hat.** Vorher lief er
+als ganzer Block mit. Bliebe das so, liefe die Bewegung doppelt, und
+die Wörter würden erst starten, wenn der Absatz schon da ist.
+
+**Warum 160 ms.** Kurz genug, dass es als eine Bewegung gelesen wird,
+lang genug, dass man die Reihenfolge sieht. Der UI/UX-Skill warnt
+ausdrücklich davor, eine feste Dauer als allgemeingültig auszugeben,
+und rät zu höchstens ein bis zwei bewegten Elementen je Bild. Der
+Einstieg hatte seine Staffelung schon, hier kommt kein neues bewegtes
+Element dazu, nur eine feinere Stufung des vorhandenen.
+
+**Bei reduzierter Bewegung passiert nichts.** Der ganze Block steht in
+`prefers-reduced-motion: no-preference`. Gemessen mit
+`reducedMotion: 'reduce'`: Nach 120 ms stehen alle drei Wörter auf
+Deckkraft 1, also sofort vollständig da.
+
+**Gemessen, normaler Ablauf** (Deckkraft je Wort):
+
+| nach | Wort 1 | Wort 2 | Wort 3 |
+|---|---|---|---|
+| 150 ms | 0 | 0 | 0 |
+| 300 ms | 0,11 | 0 | 0 |
+| 450 ms | 0,86 | 0 | 0 |
+| 620 ms | 0,99 | 0,88 | 0,07 |
+| 1200 ms | 1 | 1 | 1 |
+
+Die Höhe des Einstiegs bleibt bei 760 px, es springt also nichts.
+
+**Für später vorbereitet, aber nicht gebaut.** Die Verzögerungen sind
+für **vier** Teile hinterlegt. Wer einen befristeten Hinweis anhängen
+will, fügt ein viertes `<span class="hs-claim-wort">` ein, mehr nicht.
+
+**Dazu gehört eine Warnung.** Ein befristeter Rabatt ist nur dann
+zulässiger Blickfang, wenn er **echt** ist: mit wirklichem Zeitraum,
+wirklichem Preis davor und danach. Ein Zeitraum, der immer wieder
+verlängert wird, ist irreführende Werbung und zugleich genau die
+künstliche Verknappung, die die Hausregel verbietet. Preisaussagen auf
+der Seite entscheidet ohnehin der Betreiber, nicht dieser Chat.
