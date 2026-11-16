@@ -18192,3 +18192,37 @@ wirklichem Preis davor und danach. Ein Zeitraum, der immer wieder
 verlängert wird, ist irreführende Werbung und zugleich genau die
 künstliche Verknappung, die die Hausregel verbietet. Preisaussagen auf
 der Seite entscheidet ohnehin der Betreiber, nicht dieser Chat.
+
+## 15.11.2026 – Startseite: Heldenbereich rückt nach oben
+
+**Anlass.** Bildschirmfoto des Betreibers vom iPhone, rot markiert war
+der leere Streifen zwischen Kopfzeile und „Ihr Traumplatz draußen“.
+Wörtlich: „dass dann auch unten diese Häkchen mit in 24 Stunden Antwort
+und alles auch nochmal auf einen Bildschirm passt … Natürlich nicht ganz
+nach oben, schon mit bisschen Abstand.“
+
+**Was war.** `.start-premium .hero--neu .hs-content` hatte unter 760 px
+72 px Innenabstand oben und 40 px unten. Der Block war damit 758 px hoch.
+Auf dem Telefon bleiben in Safari nur etwa 750 px sichtbar, weil oben die
+Adresszeile und unten die Leiste Platz wegnehmen. Die Häkchenzeile stand
+dadurch unter dem Rand.
+
+**Was jetzt gilt.** 36 px oben, 28 px unten. Gemessen am gebauten Stand:
+
+| Breite × Höhe | Luft unter der Kopfzeile | Häkchenzeile endet bei | sichtbar |
+|---|---|---|---|
+| 390 × 750 | 38 px | 748 px | ja |
+| 390 × 844 | 38 px | 748 px | ja |
+| 430 × 830 | 38 px | 756 px | ja |
+
+**Warum nicht weniger.** Bei 0 px oben klebt die Überschrift an der
+Kopfzeile. 36 px plus die 2 px Eigenabstand der Überschrift ergeben die
+38 px, die auf dem Bild als ruhiger Rand lesbar sind.
+
+**Warum gegen 750 px gemessen wurde und nicht gegen 844.** Die
+Gerätehöhe ist nicht die nutzbare Höhe. Wer gegen 844 misst, erklärt
+etwas für bestanden, was der Betreiber auf seinem Gerät nicht sieht.
+Genau das war der Fehler, der zu seinem Bildschirmfoto geführt hat.
+
+**Gegengelesen.** `pruefe-startseite` 39/39, `pruefe-darstellung`
+144/144, `pruefe-mitwachsend` 28/28, `pruefe-cache-buster` bestanden.

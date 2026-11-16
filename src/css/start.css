@@ -290,7 +290,16 @@
      66 px hoch, der Inhalt begann aber erst bei 172 px, also 106 px
      darunter. 72 px lassen immer noch 38 px Luft und holen den Rest
      des naechsten Abschnitts ueber die Bildschirmkante. */
-  .start-premium .hero--neu .hs-content { padding-top: 72px; padding-bottom: 40px; }
+  /* 36 statt 72 px oben und 28 statt 40 px unten, 15.11.2026 auf
+     Ansage des Betreibers mit markiertem Bildschirmfoto: "da oben ist
+     noch Platz ... natuerlich nicht ganz nach oben, schon mit bisschen
+     Abstand". Ziel war, dass die Haekchenzeile unten ("Antwort meist
+     in 24 Std.") im selben Bild steht. In Safari ist die nutzbare
+     Hoehe kleiner als die Bildschirmhoehe, weil oben und unten eine
+     Leiste steht; gemessen wurde deshalb gegen 390x750 und 430x830,
+     nicht gegen 390x844. Die feste Kopfzeile ist 66 px hoch, es
+     bleiben also 36 px Luft darunter. */
+  .start-premium .hero--neu .hs-content { padding-top: 36px; padding-bottom: 28px; }
   .start-premium .hs-desc { margin-bottom: 18px; }
   .start-premium .hs-slide-btns { gap: 8px; }
   .start-premium .hs-slide-btns .btn { min-height: 48px; padding-block: 11px; }
