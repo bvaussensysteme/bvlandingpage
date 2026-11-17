@@ -18591,3 +18591,42 @@ Der Betreiber hat Tiefe und Breite genannt.
 **Gegengelesen.** `pruefe-freie-planung.mjs` 19 von 19. Darin neu: die
 beiden öffentlichen Seiten behalten nachweislich die Tabellenwerte
 (Breite bis 14080, Tiefe bis 7050), die freie Seite geht darüber hinaus.
+
+## 17.11.2026 – Freie Planung: was die Seite verlässt, ist gekennzeichnet
+
+**Anlass.** Eigener Punkt aus dem Bericht davor, vom Betreiber mit
+„weiter" freigegeben. Begründung: Das rote Band steht auf dem
+Bildschirm, ein PDF aus der freien Planung sieht einem geprüften zum
+Verwechseln ähnlich.
+
+**Was jetzt gilt.** Vermerk in der Fußzeile **jeder** PDF-Seite, in der
+Kopfzeile, im Dateinamen von PDF und Bild (`FREIE-PLANUNG-...`) und im
+Text des Teilen-Links.
+
+**Was geprüft wurde und wie.** Nicht die Texte im Quelltext, sondern das
+fertige Dokument: Das Prüfskript lädt ein echtes PDF herunter
+(2.850.932 Bytes) und sucht den Vermerk in den Bytes. Ein Vermerk, den
+niemand ins Dokument bekommt, wäre keiner.
+
+**Der Gegenbeweis gehört dazu:** Dasselbe läuft auf
+`werkstatt/index.html` und `konfigurator.html`. Dort darf der Vermerk
+**nicht** auftauchen, sonst wäre er in die gemeinsame Datei
+`js/pdf-blatt.js` gerutscht. Beide liefern
+`Terrassendach-TDS-5000x3000mm-Ansichten.pdf` ohne Vermerk.
+
+**Nebenbefund, der eine Frage beantwortet:** Der Konfigurator verschickt
+selbst keine Anfragen. Er ruft nur `/api/bauteile` und `/api/teilen`. Es
+gibt also keinen Weg von dieser Seite direkt ins CRM.
+
+**Ein Fehler im Prüfskript, der hierher gehört.** Der Klick auf den
+Teilen-Knopf traf auf der öffentlichen Seite die Kopfzeile, die darüber
+liegt. Seitdem wird der Klick über das Element ausgelöst, nicht über die
+Maus.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 25 von 25,
+`pruefe-konfigurator-frei.sh` 12 von 12.
+
+**Offen.** Stückliste und Preis folgen weiterhin nicht der Zeichnung:
+Entfernte Pfosten stehen noch in der Liste, zusätzliche Dächer zählen
+nicht mit, und bei Maßen über der Tabelle stammen die Bauteile aus einer
+kleineren Anlage.

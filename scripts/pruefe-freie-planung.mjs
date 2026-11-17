@@ -15,6 +15,9 @@
    ============================================================ */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const GEGEN = process.argv.includes('--gegenprobe');
 const PORT = 8731;
@@ -30,8 +33,10 @@ const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '1
 await new Promise((r) => setTimeout(r, 2500));
 
 const browser = await chromium.launch();
+const ablage = fs.mkdtempSync(path.join(os.tmpdir(), 'bvfrei-'));
 try {
-  const ctx = await browser.newContext({ viewport: { width: 1400, height: 900 } });
+  const ctx = await browser.newContext({ viewport: { width: 1400, height: 900 },
+    acceptDownloads: true });
   const seite = await ctx.newPage();
   const seitenfehler = [];
   seite.on('pageerror', (e) => seitenfehler.push(e.message.slice(0, 120)));
@@ -115,6 +120,37 @@ try {
     (document.body.innerText.match(/\d{3,5}\s*×\s*\d{3,5}\s*mm/) || ['?'])[0]);
   p('12000 x 9000 mm werden uebernommen', /12000\s*×\s*9000/.test(gross), gross);
 
+  /* ---- Kennzeichnung dessen, was die Seite verlaesst ----
+     Nicht die Texte im Quelltext werden geprueft, sondern das fertige
+     PDF: Dateiname und Bytes. Ein Vermerk, den niemand ins Dokument
+     bekommt, waere keiner. */
+  const kz = await seite.evaluate(() => window.BV_FREI.kennzeichnung());
+  p('Dateiname traegt die Kennzeichnung', /^FREIE-PLANUNG-/.test(kz.datei), kz.datei);
+  p('Teilen-Text traegt die Kennzeichnung', /FREIE PLANUNG/.test(kz.teilen),
+    kz.teilen.slice(0, 48));
+
+  /* Klick ueber das Element statt ueber die Maus: Auf der oeffentlichen
+     Seite liegt die Kopfzeile ueber dem Knopf, der Mausklick landete
+     dort. Gemessen am 17.11.2026. */
+  await seite.evaluate(() => document.getElementById('k3dTeilen').click());
+  await seite.waitForTimeout(1500);
+  const warten = seite.waitForEvent('download', { timeout: 90000 }).catch(() => null);
+  await seite.evaluate(() => document.getElementById('k3dTeilenPdf').click());
+  const datei = await warten;
+  if (!datei) {
+    p('PDF laesst sich erzeugen', false, 'kein Download ausgeloest');
+  } else {
+    const ziel = path.join(ablage, 'frei.pdf');
+    await datei.saveAs(ziel);
+    const roh = fs.readFileSync(ziel).toString('latin1');
+    p('PDF-Dateiname traegt die Kennzeichnung',
+      /^FREIE-PLANUNG-/.test(datei.suggestedFilename()), datei.suggestedFilename());
+    p('der Vermerk steht IM PDF', /FREIE PLANUNG/.test(roh),
+      roh.length + ' Bytes durchsucht');
+  }
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(600);
+
   /* ---- die oeffentlichen Seiten haben nichts davon ---- */
   for (const [pfad, name] of [['/werkstatt/index.html', 'Werkstatt'],
                               ['/konfigurator.html', 'oeffentlich']]) {
@@ -135,11 +171,30 @@ try {
     p(`${name}: Masse bleiben bei der Tabelle`,
       !!gr && gr.bMax <= 15000 && gr.tMax <= 8000,
       gr ? `Breite bis ${gr.bMax}, Tiefe bis ${gr.tMax}` : 'keine Regler gefunden');
+    /* Gegenbeweis: Das PDF der oeffentlichen Seite darf den Vermerk
+       NICHT tragen. Sonst waere die Kennzeichnung in die gemeinsame
+       Datei js/pdf-blatt.js gerutscht. */
+    await s2.evaluate(() => document.getElementById('k3dTeilen').click());
+    await s2.waitForTimeout(1500);
+    const w2 = s2.waitForEvent('download', { timeout: 90000 }).catch(() => null);
+    await s2.evaluate(() => document.getElementById('k3dTeilenPdf').click());
+    const d2 = await w2;
+    if (!d2) {
+      p(`${name}: PDF laesst sich erzeugen`, false, 'kein Download');
+    } else {
+      const z2 = path.join(ablage, name + '.pdf');
+      await d2.saveAs(z2);
+      const r2 = fs.readFileSync(z2).toString('latin1');
+      p(`${name}: PDF OHNE die Kennzeichnung`,
+        !/FREIE PLANUNG/.test(r2) && !/^FREIE-PLANUNG-/.test(d2.suggestedFilename()),
+        d2.suggestedFilename());
+    }
     await s2.close();
   }
 } finally {
   await browser.close();
   server.kill();
+  try { fs.rmSync(ablage, { recursive: true, force: true }); } catch (e) {}
 }
 
 if (GEGEN) {

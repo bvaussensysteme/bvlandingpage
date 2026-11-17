@@ -84,7 +84,8 @@ Server und wäre ein eigenes Projekt.
 | Pfosten einzeln entfernen und zurückholen | **fertig** 17.11.2026 |
 | weitere Dächer hinzufügen, ziehen, drehen, entfernen | **fertig** 17.11.2026 |
 | Stückliste folgt der Zeichnung | offen |
-| Kennzeichnung in PDF, Stückliste, Teilen-Link, CRM | offen |
+| Kennzeichnung in PDF, Bildern und Teilen-Link | **fertig** 17.11.2026 |
+| Stückliste und Preis folgen der Zeichnung | offen |
 | Maße über die Tabellengrenzen hinaus | **fertig** 17.11.2026 |
 | Montageart je Seite, auch „lehnt am Nachbarmodul" | offen |
 | eigene Maße je Modul statt Kopien | offen |
@@ -187,3 +188,27 @@ Freiheit und der Grund für das rote Band.
 
 **Nicht angefasst:** Höhe, Neigung und Dachüberstand sind weiterhin
 begrenzt. Der Betreiber hat Tiefe und Breite genannt.
+
+## Kennzeichnung dessen, was die Seite verlässt
+
+Das rote Band steht auf dem Bildschirm. Ein PDF aus der freien Planung
+sieht einem geprüften zum Verwechseln ähnlich. Deshalb trägt seit dem
+17.11.2026 jede Ausgabe einen Vermerk:
+
+| wo | was |
+|---|---|
+| Fußzeile **jeder** PDF-Seite | „FREIE PLANUNG, NICHT GEPRUEFT. Nicht gegen die Masstabelle gerechnet. Pfosten koennen fehlen, Masse koennen ausserhalb der Tabelle liegen. Kein Angebot und keine Statikaussage." |
+| Kopfzeile der PDF-Seiten | „FREIE PLANUNG · Terrassendach TDS, 12000 x 9000 mm" |
+| Dateiname von PDF und Bild | `FREIE-PLANUNG-...` |
+| Text des Teilen-Links | „FREIE PLANUNG, nicht geprüft. ... Kein Angebot." |
+
+**Der Konfigurator verschickt selbst keine Anfragen.** Geprüft am
+17.11.2026: Er ruft nur `/api/bauteile` und `/api/teilen`. Es gibt also
+keinen Weg von dieser Seite direkt ins CRM, der zu kennzeichnen wäre.
+
+**`js/pdf-blatt.js` wurde nicht angefasst.** Die Datei wird vom
+öffentlichen Konfigurator mitbenutzt. Die Kennzeichnung sitzt
+ausschließlich in `js/konfigurator-frei.js`, und
+`pruefe-freie-planung.mjs` lädt zum Gegenbeweis auch die PDFs der
+beiden öffentlichen Seiten herunter und prüft, dass dort **kein**
+Vermerk steht.

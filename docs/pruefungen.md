@@ -491,6 +491,12 @@ Tabellengrenzen hinaus, 12000 × 9000 mm werden übernommen, und auf den
 beiden öffentlichen Seiten bleiben die Regler bei den Werten der
 Tabelle (Breite bis 14080, Tiefe bis 7050).
 
+Seit dem 17.11.2026 wird außerdem ein **echtes PDF heruntergeladen** und
+in seinen Bytes nach dem Vermerk gesucht, dazu der Dateiname geprüft.
+Zum Gegenbeweis passiert dasselbe auf beiden öffentlichen Seiten: Dort
+darf der Vermerk **nicht** auftauchen. Ein Vermerk, den niemand ins
+Dokument bekommt, wäre keiner.
+
 **Gegenprobe.** Die Aussagekraft der Messung statt eingebauter Fehler:
 Dieselben Messungen laufen gegen `/werkstatt/index.html` und
 `/konfigurator.html`, wo es die Freiheit nicht gibt, und melden dort

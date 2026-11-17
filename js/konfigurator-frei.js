@@ -4064,6 +4064,31 @@ window.BV_KONFIGURATOR_FREI = true;
     return true;
   }
 
+  /* ========== FREIE PLANUNG: Kennzeichnung nach aussen ==========
+     Was diese Seite verlaesst, muss man ihm ansehen: PDF, heruntergeladene
+     Bilder und der Teilen-Link.
+
+     WARUM DAS SEIN MUSS: Das rote Band steht auf dem Bildschirm. Ein PDF
+     aus der freien Planung sieht einem geprueften zum Verwechseln
+     aehnlich. Wer es in zwei Jahren in ein Kundenangebot zieht, kann
+     nicht wissen, dass nie gegen die Masstabelle gerechnet wurde, dass
+     Pfosten fehlen koennen und dass bei Massen ueber der Tabelle die
+     Bauteile einer kleineren Anlage darunterstehen.
+
+     WO DIE KENNZEICHNUNG LANDET:
+       · Fusszeile JEDER PDF-Seite (pdfSeiten, Variable fuss)
+       · Kopfzeile der PDF-Seiten (Variable kopf)
+       · Dateiname von PDF und Bild (bildName)
+       · Text des Teilen-Links (teilenText)
+
+     Die Dateien js/pdf-blatt.js und der oeffentliche Konfigurator sind
+     dafuer NICHT angefasst worden. */
+  var FREI_VERMERK =
+    'FREIE PLANUNG, NICHT GEPRUEFT. Nicht gegen die Masstabelle gerechnet. ' +
+    'Pfosten koennen fehlen, Masse koennen ausserhalb der Tabelle liegen. ' +
+    'Kein Angebot und keine Statikaussage.';
+  var FREI_DATEI = 'FREIE-PLANUNG-';
+
   function pfWegListe() {
     if (!Z.pfostenWeg) Z.pfostenWeg = {};
     return Z.pfostenWeg;
@@ -13162,7 +13187,11 @@ window.BV_KONFIGURATOR_FREI = true;
           return { x: Math.round(m.x), z: Math.round(m.z), dreh: m.dreh || 0 };
         });
       },
-      pfostenWeg: function () { return Object.keys(pfWegListe()); }
+      pfostenWeg: function () { return Object.keys(pfWegListe()); },
+      kennzeichnung: function () {
+        return { vermerk: FREI_VERMERK, datei: bildName('Probe'),
+                 teilen: teilenText() };
+      }
     };
     var bz = document.getElementById('bvFreiDachDazu');
     if (bz) bz.addEventListener('click', function () { modulHinzufuegen(); });
@@ -16156,7 +16185,7 @@ window.BV_KONFIGURATOR_FREI = true;
      Rest wird still verworfen. Ein Blatt mit fünf Ansichten kommt immer
      an und lässt sich außerdem als Ganzes weiterschicken. */
   function bildName(zusatz) {
-    return produktName().replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-').replace(/^-|-$/g, '') +
+    return FREI_DATEI + produktName().replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-').replace(/^-|-$/g, '') +
            '-' + Z.breite + 'x' + Z.tiefe + 'mm' +
            (zusatz ? '-' + zusatz.replace(/[^A-Za-zÄÖÜäöüß0-9]+/g, '-') : '') + '.png';
   }
@@ -16510,12 +16539,13 @@ window.BV_KONFIGURATOR_FREI = true;
        vorher hinter jeder einzelnen Schiebeanlage), dann der übliche
        Hinweis. Beides kursiv – siehe Eintrag vom 12.10.2026. */
     var fuss = [
+      FREI_VERMERK,   /* freie Planung: steht auf jeder Seite */
       'Alle Maße und Aufteilungen sind Vorschläge und werden beim kostenlosen ' +
       'Aufmaß vor Ort verbindlich festgelegt; gefertigt wird nach Ihrem Maß.',
       'Unverbindliche Darstellung, verbindlich ist unser Angebot. © ' +
       new Date().getFullYear() + ' BV AussenSysteme'
     ];
-    var kopf = produktName() + ', ' + Z.breite + ' x ' + Z.tiefe + ' mm';
+    var kopf = 'FREIE PLANUNG · ' + produktName() + ', ' + Z.breite + ' x ' + Z.tiefe + ' mm';
     var seiten = [];
 
     /* 1. Grundzustand: Markisen eingefahren, Schiebeelemente offen. */
@@ -18697,8 +18727,8 @@ window.BV_KONFIGURATOR_FREI = true;
   }
 
   function teilenText() {
-    return 'Meine Planung bei BV AussenSysteme: ' + produktName() + ', ' +
-           Z.breite + ' × ' + Z.tiefe + ' mm';
+    return 'FREIE PLANUNG, nicht geprüft. ' + produktName() + ', ' +
+           Z.breite + ' × ' + Z.tiefe + ' mm. Kein Angebot.';
   }
 
   function teilenDialogAufbauen() {
