@@ -4159,6 +4159,41 @@ window.BV_KONFIGURATOR_FREI = true;
     return z;
   }
 
+  /* Eigener Treffer-Test fuer die freie Planung.
+
+     WARUM NICHT pfostenUnterZeiger(): Der gibt NUR verschiebbare
+     Pfosten zurueck. Eckpfosten haben keine Spanne und werden dort
+     ausdruecklich uebergangen ("sonst haenge man an einem Pfosten, der
+     sich nicht ruehrt"). Fuer das Verschieben ist das richtig. Fuers
+     Wegnehmen ist es falsch: Bei einem Dach mit drei Pfosten waere nur
+     der mittlere anklickbar.
+
+     GEMELDET vom Betreiber am 17.11.2026: "das mit doppelklick etc
+     klappt alles nicht pfosten weg wieder zurueck". Die eigene Pruefung
+     war gruen, weil sie ihren Klickpunkt aus derselben Funktion holte
+     und damit immer den mittleren Pfosten traf. Eine Pruefung, die sich
+     ihr Ziel von der gepruften Logik geben laesst, prueft nichts.
+
+     Die Verdeckungsregel bleibt: Was den Blick nimmt, nimmt auch den
+     Griff. Glas und die durchscheinende Hauswand zaehlen nicht dazu. */
+  function pfostenUnterZeigerFrei(e) {
+    if (!e || !leinwand || !bau) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects([bau], true);
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      if (!o || o.visible === false) continue;
+      var p = o.userData && o.userData.pfosten;
+      if (p) return { reihe: p.reihe, nr: p.nr };
+      if (nimmtDenBlick([treffer[i]])) return null;
+    }
+    return null;
+  }
+
   function pfWegListe() {
     if (!Z.pfostenWeg) Z.pfostenWeg = {};
     return Z.pfostenWeg;
@@ -13248,7 +13283,7 @@ window.BV_KONFIGURATOR_FREI = true;
      preventDefault, damit der Doppelklick nicht den Text der Seite
      markiert. */
   leinwand.addEventListener('dblclick', function (e) {
-    var t = pfostenUnterZeiger(e);
+    var t = pfostenUnterZeigerFrei(e);   /* auch Eckpfosten, siehe oben */
     if (!t) return;
     e.preventDefault();
     pfostenWegSchalten(t.reihe, t.nr);
@@ -13272,6 +13307,29 @@ window.BV_KONFIGURATOR_FREI = true;
       /* Bildschirmpunkt eines Pfostens. Ohne das muesste die Pruefung
          raten, wo einer steht; nach einer Massaenderung stimmte der
          geratene Punkt nicht mehr. */
+      /* Bildschirmpunkte ALLER Pfosten mit ihrem Schluessel. Die
+         Pruefung muss Eckpfosten treffen koennen; genau die hat der
+         erste Entwurf uebersehen. */
+      pfostenPunkte: function () {
+        if (!bau || !leinwand) return [];
+        var r = leinwand.getBoundingClientRect();
+        var aus = [], gesehen = {}, v = new THREE.Vector3();
+        bau.traverse(function (m) {
+          var pf = m.userData && m.userData.pfosten;
+          if (!pf || !m.geometry) return;
+          var k = pf.reihe + '#' + pf.nr;
+          if (gesehen[k]) return;
+          m.getWorldPosition(v);
+          v.project(kamera3);
+          var x = r.left + (v.x + 1) / 2 * r.width;
+          var y = r.top + (1 - (v.y + 1) / 2) * r.height;
+          if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
+          if (!pfostenUnterZeigerFrei({ clientX: x, clientY: y })) return;
+          gesehen[k] = true;
+          aus.push({ schluessel: k, reihe: pf.reihe, nr: pf.nr, x: x, y: y });
+        });
+        return aus;
+      },
       pfostenPunkt: function () {
         if (!bau || !leinwand) return null;
         var r = leinwand.getBoundingClientRect();

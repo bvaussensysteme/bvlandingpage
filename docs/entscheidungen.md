@@ -18672,3 +18672,46 @@ nach.
 `pruefe-konfigurator-frei.sh` 12 von 12.
 
 **Offen.** Der Preis folgt der Zeichnung weiterhin nicht.
+
+## 17.11.2026 – Eckpfosten waren nicht anklickbar, und die Prüfung log
+
+**Anlass.** Betreiber: „das mit doppelklick etc klappt alles nicht
+pfosten weg wieder zurück." Davor hatte er gesagt „das spinnt alles";
+die Messung der Geschwindigkeit war ein Irrweg, der Fehler lag woanders.
+
+**Was falsch war.** Der Doppelklick benutzte `pfostenUnterZeiger()`.
+Die Funktion gibt nur **verschiebbare** Pfosten zurück:
+
+```
+var sp = pfostenSpanne(p.reihe, p.nr);
+/* Eckpfosten (keine Spanne) ... lassen sich nicht greifen */
+if (!sp || sp.bis - sp.von < 0.2) return null;
+```
+
+Bei einem Dach mit drei Pfosten war damit nur der mittlere anklickbar.
+Der Betreiber hat die äußeren erwischt, und nichts passierte.
+
+**Was jetzt gilt.** Eigener Treffer-Test `pfostenUnterZeigerFrei()` in
+der Kopie, der jeden Pfosten zurückgibt. Die Verdeckungsregel bleibt.
+Gemessen: `vorne#0`, `vorne#1`, `vorne#2` lassen sich einzeln wegnehmen
+und am blassen Körper wieder zurückholen.
+
+**Der eigentliche Befund ist die Prüfung, nicht der Code.** Sie war
+grün, obwohl zwei von drei Pfosten nicht funktionierten. Grund: Sie
+holte ihren Klickpunkt aus `pfostenUnterZeiger()`, also aus genau der
+Logik, die sie prüfen sollte, und traf deshalb immer den mittleren.
+
+**Eine Prüfung, die sich ihr Ziel von der geprüften Logik geben lässt,
+prüft nichts.** Sie klickt jetzt jeden Pfosten einzeln an. Die Punkte
+kommen aus `BV_FREI.pfostenPunkte()`, das über den freien Treffer-Test
+geht, und die Zahl der erreichbaren Pfosten ist eine eigene Prüfzeile.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 34 von 34,
+`pruefe-konfigurator-frei.sh` 12 von 12.
+
+**Nebenbefund zur Geschwindigkeit**, damit die Messung nicht verloren
+geht: Der Breite-Regler braucht auf der **unveränderten** Werkstattseite
+1829 / 1737 / 2153 / 2192 ms je Schritt, in der freien Planung ohne
+Kopien 1415 / 2160 / 2187 / 2112 ms und mit drei Kopien 2484 / 2003 /
+2522 / 2273 ms. Die Trägheit ist also vorher da; die Kopien kosten rund
+zehn Prozent. Gehört nach `docs/NEXT_TASK.md`.

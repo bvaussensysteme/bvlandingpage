@@ -51,19 +51,43 @@ try {
   if (!hatFenster) throw new Error('ohne BV_FREI kann nichts gemessen werden');
 
   /* ---- Pfosten ---- */
-  const punkt = await seite.evaluate(() => window.BV_FREI.pfostenPunkt() || {
-    x: 0, y: 0 });
-  await seite.mouse.dblclick(punkt.x, punkt.y);
-  await seite.waitForTimeout(1100);
-  const weg1 = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
-  p('Doppelklick nimmt einen Pfosten weg', weg1.length === 1, JSON.stringify(weg1));
+  /* JEDER Pfosten, nicht nur ein beliebiger. Der erste Entwurf dieser
+     Pruefung holte seinen Klickpunkt aus pfostenUnterZeiger() und traf
+     damit immer den mittleren, verschiebbaren. Die Eckpfosten waren in
+     Wahrheit nicht anklickbar, und die Pruefung war trotzdem gruen.
+     Gemeldet hat das der Betreiber, nicht die Pruefung. */
+  const alle = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  p('alle Pfosten sind anklickbar, auch die Ecken', alle.length >= 3,
+    alle.map((a) => a.schluessel).join(', ') || '(keiner)');
+
+  let jeder = true, gescheitert = '';
+  for (const a of alle) {
+    await seite.mouse.dblclick(a.x, a.y);
+    await seite.waitForTimeout(800);
+    const w = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
+    if (w.indexOf(a.schluessel) < 0) { jeder = false; gescheitert = a.schluessel; break; }
+  }
+  p('Doppelklick nimmt JEDEN Pfosten weg', jeder,
+    jeder ? alle.length + ' von ' + alle.length : 'nicht entfernt: ' + gescheitert);
+
   const band = await seite.evaluate(() =>
     (document.getElementById('bvFreiPfostenZahl') || {}).textContent || '');
-  p('das Band zaehlt mit', /1 Pfosten entfernt/.test(band), band.trim() || '(leer)');
-  await seite.mouse.dblclick(punkt.x, punkt.y);
-  await seite.waitForTimeout(1100);
+  p('das Band zaehlt mit', /Pfosten entfernt/.test(band), band.trim() || '(leer)');
+
+  /* Zurueckholen am BLASSEN Pfosten, an derselben Stelle. */
+  const ecke = alle[0];
+  await seite.mouse.dblclick(ecke.x, ecke.y);
+  await seite.waitForTimeout(900);
+  const nachZurueck = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
+  p('Doppelklick auf den blassen Pfosten holt ihn zurueck',
+    nachZurueck.indexOf(ecke.schluessel) < 0, ecke.schluessel + ' -> ' +
+    JSON.stringify(nachZurueck));
+
+  await seite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
+  await seite.waitForTimeout(900);
   const weg2 = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
-  p('Doppelklick holt ihn zurueck', weg2.length === 0, JSON.stringify(weg2));
+  p('Alle zurueckholen leert die Liste', weg2.length === 0, JSON.stringify(weg2));
+  const punkt = alle[0] || { x: 0, y: 0 };
 
   /* ---- Daecher ---- */
   await seite.click('#bvFreiDachDazu');

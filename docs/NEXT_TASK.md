@@ -388,3 +388,10 @@ bestanden). Sie gehören also nicht zu dieser Arbeit.
    Das Buch im Katalog rechnet in `vh` statt in `svh` oder `dvh`. Klappt
    in Safari die Adresszeile ein, springt es um 48 px. Reine
    Layoutsache, betrifft nur `/broschuere.html`.
+
+### Später prüfen: der Konfigurator ist träge (gemessen 17.11.2026)
+Der Breite-Regler braucht auf der **unveränderten** Werkstattseite rund
+1,7 bis 2,2 Sekunden je Schritt, bis das neue Maß steht. Das ist nicht
+Folge der freien Planung, sondern vorher schon so. Gemessen im Browser
+über vier Schritte. Betrifft `bauen()` in `js/konfigurator-3d.js`, das
+bei jeder Reglerbewegung die ganze Szene neu aufbaut.

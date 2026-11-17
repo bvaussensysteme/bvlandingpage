@@ -104,6 +104,28 @@ Server und wäre ein eigenes Projekt.
 | „Drehen 90°" | dreht das zuletzt angefasste Dach |
 | „Letztes Dach entfernen" | nimmt die zuletzt gesetzte Kopie weg |
 
+### Eckpfosten waren nicht anklickbar
+
+**Gemeldet vom Betreiber am 17.11.2026:** „das mit doppelklick etc
+klappt alles nicht pfosten weg wieder zurück."
+
+Der Doppelklick benutzte `pfostenUnterZeiger()`. Diese Funktion liefert
+nur **verschiebbare** Pfosten; Eckpfosten haben keine Spanne und werden
+dort ausdrücklich übergangen („sonst hänge man an einem Pfosten, der
+sich nicht rührt"). Fürs Verschieben ist das richtig, fürs Wegnehmen
+falsch: Bei einem Dach mit drei Pfosten war nur der mittlere
+anklickbar.
+
+Die freie Planung hat jetzt einen eigenen Treffer-Test,
+`pfostenUnterZeigerFrei()`, der jeden Pfosten zurückgibt. Die
+Verdeckungsregel bleibt: Was den Blick nimmt, nimmt auch den Griff.
+
+**Warum die eigene Prüfung das nicht gefunden hat:** Sie holte ihren
+Klickpunkt aus derselben Funktion und traf damit immer den mittleren
+Pfosten. Eine Prüfung, die sich ihr Ziel von der geprüften Logik geben
+lässt, prüft nichts. Sie klickt jetzt **jeden** Pfosten einzeln an und
+holt die Punkte über `BV_FREI.pfostenPunkte()`.
+
 ### Warum der weggenommene Pfosten stehen bleibt
 
 Ein verschwundener Pfosten wäre nicht mehr anklickbar, und dann
