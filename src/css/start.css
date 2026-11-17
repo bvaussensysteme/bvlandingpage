@@ -3,7 +3,7 @@
 
    WARUM EINE EIGENE DATEI. Die Startseite bekommt das freigegebene
    Designsystem aus docs/WEBSITE_DESIGN_SYSTEM.md (Manrope, Markengold
-   #C58A32, Tiefschwarz, Anthrazit, Warmweiß). `src/css/style.css` wird von
+   #C67F2D, Tiefschwarz, Anthrazit, Warmweiß). `src/css/style.css` wird von
    rund 55 weiteren Seiten benutzt – eine Änderung dort hätte alle
    mitverändert. Der Auftrag sagt ausdrücklich: nur die Startseite.
 
@@ -15,20 +15,35 @@
 
    KONTRASTE. Die Werte stehen in docs/WEBSITE_DESIGN_SYSTEM.md und sind
    dort gemessen, nicht geschätzt. Drei Regeln daraus sind hier verbaut:
-     1. Gold #C58A32 ist auf hellem Grund KEINE Textfarbe (2,78:1).
-        Für Text auf Hell gilt --gold-text #896023 (5,21:1).
-     2. Auf einer Goldfläche steht Tiefschwarz, nie Weiß (6,61 statt 2,98).
-        .btn-gold benutzt var(--black) – das stimmt damit von selbst.
+     1. Gold #C67F2D ist auf hellem Grund KEINE Textfarbe (3,03:1 auf
+        Warmweiß). Für Text auf Hell gilt --gold-text #8C5A20.
+     2. Auf einer Goldfläche steht Tiefschwarz, nie Weiß (6,07 statt 3,24).
+        .btn-gold benutzt var(--black), das stimmt damit von selbst.
      3. Keine Schriftschnitte unter 400.
    =========================================================================== */
 
 .start-premium {
-  /* --- Palette, freigegeben am 13.11.2026 --- */
-  --gold:       #C58A32;   /* Markengold – Fläche, Linie, Akzent */
-  --gold-dark:  #A3701F;   /* nur Flächen (Hover), nie Text auf Hell */
-  --gold-text:  #896023;   /* Gold als TEXT auf hellem Grund, 5,21:1 */
-  --gold-light: #D9AB64;   /* helles Gold – Text auf Dunkel, 7,76:1 */
-  --champagner: #EAD9BB;   /* Fokusring auf dunklen Abschnitten, 11,80:1 */
+  /* --- Palette. Markengold aus der Markenbibliothek, 17.11.2026 ---
+
+     Bis zum 16.11.2026 stand hier #C58A32 aus der Freigabe vom 13.11.
+     Am 17.11. hat der Betreiber die Markenbibliothek geliefert
+     (BV_AussenSysteme_Brand_Library, Stand 30.10.2026). Dort steht
+     Gold #c67f2d als "verbindlich, nicht verhandelbar", dazu der Satz
+     "Markenfarben verändern, auch nicht nur leicht". Auf Nachfrage hat
+     der Betreiber entschieden: Die Bibliothek gilt.
+
+     Die vier abgeleiteten Töne sind neu berechnet, nicht übernommen.
+     Gleicher Farbton (32,2°) und gleiche Sättigung (63 %) wie das
+     Markengold, Helligkeit so weit verschoben, bis der Kontrast gegen
+     den jeweils UNGÜNSTIGSTEN Grund der Seite reicht: Steingrau
+     #E9E7E2 auf der hellen Seite, Graphit #34383C auf der dunklen.
+     Gegen Weiß zu rechnen wäre zu gutmütig gewesen und hätte auf
+     Steingrau durchgefallene Werte ergeben. */
+  --gold:       #C67F2D;   /* Markengold. Fläche, Linie, Akzent */
+  --gold-dark:  #A86C26;   /* nur Flächen (Hover). Tiefschwarz darauf 4,53:1 */
+  --gold-text:  #8C5A20;   /* Gold als TEXT auf Hell. Steingrau 4,72:1 */
+  --gold-light: #D6974D;   /* helles Gold, Text auf Dunkel. Graphit 4,72:1 */
+  --champagner: #D5C5B3;   /* Fokusring auf Dunkel. Graphit 7,02:1 */
 
   --black:      #0B0B0C;   /* Tiefschwarz */
   --dark:       #1D2023;   /* Anthrazit */
@@ -299,7 +314,11 @@
      Leiste steht; gemessen wurde deshalb gegen 390x750 und 430x830,
      nicht gegen 390x844. Die feste Kopfzeile ist 66 px hoch, es
      bleiben also 36 px Luft darunter. */
-  .start-premium .hero--neu .hs-content { padding-top: 36px; padding-bottom: 28px; }
+  /* 30 statt 36 px seit dem 17.11.2026: Die Kopfzeile ist fuer den
+     Schutzraum des Logos 6 px hoeher geworden, diese 6 px werden hier
+     abgezogen. Sonst faellt die Haekchenzeile wieder aus dem ersten
+     Bild; bei 390 x 750 endete sie vorher bei 748 von 750 px. */
+  .start-premium .hero--neu .hs-content { padding-top: 30px; padding-bottom: 28px; }
   .start-premium .hs-desc { margin-bottom: 18px; }
   .start-premium .hs-slide-btns { gap: 8px; }
   .start-premium .hs-slide-btns .btn { min-height: 48px; padding-block: 11px; }

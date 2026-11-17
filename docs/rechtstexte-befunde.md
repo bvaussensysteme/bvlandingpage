@@ -352,3 +352,28 @@ Konfigurators (HTTP 503) trägt im Titel einen Gedankenstrich
 („3D-Konfigurator wird überarbeitet – BV AussenSysteme") und verstößt
 damit gegen die Sprachregel vom 14.11.2026. Der Text steht nicht im
 Repository und muss dort geändert werden, wo die Seite herkommt.
+
+## 17.11.2026 – Hinweis aus der Markenbibliothek, nicht aus den Rechtstexten
+
+Kein Befund an `agb.njk`, `datenschutz.njk`, `impressum.njk` oder
+`widerruf.njk`. Diese Dateien wurden nicht angefasst.
+
+**Fundstelle:** `BV_AussenSysteme_Brand_Library/15_Lizenzen_und_Rechte/_LIESMICH.md`
+(liegt beim Betreiber, nicht im Repository).
+
+**Inhalt:** Für die Produktbilder der VD AluSysteme ist dort nur die
+mündliche Aussage des Betriebsinhabers festgehalten („keine fragen vd is
+erlaubt"), kein Dokument von VD. Das Dokument selbst nennt das als
+fehlenden Nachweis.
+
+**Risiko:** Freistellen, Beschneiden oder Einbauen in eigene Werbemittel
+ist eine Bearbeitung im Sinne des § 23 UrhG. Eine allgemeine Erlaubnis,
+Bilder „zu verwenden", deckt eine Bearbeitung in der Regel nicht ab.
+Solange die Bilder auf der Website stehen, ist die Lage eine andere als
+bei gedruckter Werbung mit Auflage.
+
+**Empfehlung:** Vor der ersten gedruckten Kampagne eine schriftliche
+Freigabe von VD einholen, die die Bearbeitung ausdrücklich einschließt.
+
+Das ist keine Rechtsberatung. Die verbindliche Bewertung gehört zum
+Anwalt.

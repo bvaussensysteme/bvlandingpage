@@ -434,7 +434,9 @@ gearbeitet wird – seit der Freigabe vom 13.11.2026 gibt es zwei:
   `--gold-text #7A5B12`, `--black #111111`, Barlow Condensed und Inter).
   Hier ändert sich nichts, bis dazu eigens entschieden wird.
 - **Neue Webseite:** `docs/WEBSITE_DESIGN_SYSTEM.md` (Markengold
-  `#C58A32`, Manrope). Vom Auftraggeber freigegeben.
+  `#C67F2D` aus der Markenbibliothek, Manrope). Vom Auftraggeber
+  freigegeben; das Gold am 17.11.2026 auf den Wert der
+  Markenbibliothek gesetzt.
 
 Beides nebeneinander ist Absicht, nicht Schlamperei: Die Freigabe gilt
 dem Neubau, die Live-Seite läuft unverändert weiter. Fremde Paletten,

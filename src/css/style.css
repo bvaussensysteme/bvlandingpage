@@ -265,9 +265,29 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 }
 .navbar-inner {
   display: flex; align-items: center;
-  justify-content: space-between; padding: 10px 0;
+  /* 16 px oben statt 10, 17.11.2026. Die Markenbibliothek verlangt
+     rundum die halbe Hoehe des BV-Zeichens frei, bei 32 px Logo sind
+     das 16 px; gemessen waren oben nur 10 px. Niedriger kann das Logo
+     nicht werden: Bei 20 px Hoehe waere es 130 px breit und
+     unterschritte die Mindestbreite von 160 px aus derselben
+     Bibliothek. Beide Regeln zusammen gehen nur ueber die Leiste. Sie
+     wird dadurch 6 px hoeher; dieselben 6 px sind im Heldenbereich
+     der Startseite abgezogen (start.css), damit die Haekchenzeile
+     weiter ins erste Bild passt. */
+  justify-content: space-between; padding: 16px 0 10px;
 }
-.nav-logo { height: 44px; width: auto; padding: 2px 0; }
+/* SCHUTZRAUM DES LOGOS, 17.11.2026.
+   Die Markenbibliothek verlangt rundum mindestens die halbe Hoehe des
+   BV-Zeichens frei. Gemessen vorher: oben 10 px, unten 20 px bei 40 px
+   Logohoehe, verlangt waren rund 20 px. Die naheliegende Loesung, die
+   Kopfzeile hoeher zu machen, scheidet aus: Der Betreiber hat am
+   15.11. ausdruecklich verlangt, dass der Heldenbereich WEITER NACH
+   OBEN rueckt. Stattdessen ist das Logo etwas niedriger.
+   Rechnung: Kopfzeile 66 px, Logo 32 px, bleiben 17 px oben und unten,
+   noetig sind 16 px. Breite 32 x 6,5 = 208 px, die Bibliothek verlangt
+   mindestens 160 px. Am Telefon ist das Logo damit breiter als vorher
+   (208 statt 166 px), nicht kleiner. */
+.nav-logo { height: 32px; width: auto; padding: 0; }
 .nav-links { display: flex; list-style: none; gap: 28px; align-items: center; }
 .nav-links a {
   text-decoration: none; color: var(--black);
@@ -1138,7 +1158,9 @@ footer {
   }
   .footer-col--regionen .footer-links li { break-inside: avoid; margin-bottom: var(--sp-2); }
 }
-.footer-logo { height: 44px; width: auto; margin-bottom: 14px; display: block; }
+/* 40 statt 44 px Hoehe und 20 statt 14 px Abstand darunter: derselbe
+   Schutzraum wie in der Kopfzeile, halbe Hoehe des BV-Zeichens. */
+.footer-logo { height: 40px; width: auto; margin-bottom: 20px; display: block; }
 .footer-brand p { font-size: 0.85rem; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 240px; }
 .footer-social { display: flex; gap: 10px; margin-top: 14px; }
 .social-btn {
@@ -2018,7 +2040,7 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
 
 /* Navbar: tighter on mobile */
 @media (max-width: 400px) {
-  .nav-logo { height: 36px; }
+  .nav-logo { height: 32px; }   /* gleiche Hoehe wie am Rechner, siehe Schutzraum oben */
   .navbar .navbar-inner { padding-left: 14px; padding-right: 10px; }
 }
 

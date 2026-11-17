@@ -18312,3 +18312,91 @@ Animation ihren Endzustand selbst (`fill: both`).
 `pruefe-startseite` 39/39, `pruefe-darstellung` 144/144,
 `pruefe-mitwachsend` 28/28, `pruefe-bewegung` bestanden,
 `pruefe-cache-buster` bestanden.
+
+## 17.11.2026 – Markenbibliothek: Gold und Logos kommen aus der Quelle
+
+**Anlass.** Der Betreiber hat `BV_AussenSysteme_Brand_Library`
+(Stand 30.10.2026) als 7z-Archiv geliefert. 146 Dateien: 20 Logosätze je
+als SVG, PDF, EPS und PNG, dazu `02_Corporate_Design/PROMPT-Werbegestaltung.md`
+und `15_Lizenzen_und_Rechte/_LIESMICH.md`. Zwölf der fünfzehn Ordner sind
+leer und enthalten nur eine LIESMICH-Datei.
+
+**Was falsch war.** Drei verschiedene Goldwerte im Umlauf: `#c67f2d`
+(Bibliothek), `#C58A32` (Freigabe 13.11.), `#C49A2A` (Live-Seite). Die
+Bibliothek nennt ihren Wert „verbindlich, nicht verhandelbar" und
+verbietet ausdrücklich, Markenfarben „auch nicht nur leicht" zu ändern.
+
+Die Freigabe vom 13.11. war nicht nachlässig: Sie stützte sich auf eine
+Messung aus `images/logo-frei.png` (`#C58930`). Dieselbe Messung hatte
+aber schon gezeigt, dass die PNG-Dateien untereinander abweichen,
+`logo-mark.png` trug `#C67F2D` und `logo-hell.png` `#E69B26`. Die
+PNG-Dateien waren Kopien mit Drift, die Bibliothek ist die Quelle.
+
+**Entscheidung des Betreibers auf Nachfrage:** Die Bibliothek gilt.
+
+**Was jetzt gilt.** `.start-premium` trägt:
+
+| Token | alt | neu | geprüft gegen |
+|---|---|---|---|
+| `--gold` | `#C58A32` | `#C67F2D` | Tiefschwarz darauf 6,07:1 |
+| `--gold-dark` | `#A3701F` | `#A86C26` | Tiefschwarz darauf 4,53:1 |
+| `--gold-text` | `#896023` | `#8C5A20` | Steingrau 4,72:1 |
+| `--gold-light` | `#D9AB64` | `#D6974D` | Graphit 4,72:1 |
+| `--champagner` | `#EAD9BB` | `#D5C5B3` | Graphit 7,02:1 |
+
+**Warum gegen Steingrau und Graphit gerechnet wurde.** Der erste
+Durchgang rechnete gegen Weiß und ergab `#A46925`. Das erreicht auf Weiß
+4,54:1, auf Steingrau `#E9E7E2` aber nur 4,24:1 und fällt damit durch.
+Steingrau ist der dunkelste helle Untergrund der Seite, Graphit `#34383C`
+der hellste dunkle. Gegen Weiß zu rechnen ist zu gutmütig. Der Fehler
+wurde vor dem Einbau bemerkt und korrigiert.
+
+**Logos: SVG statt PNG.** `images/logo-schwarz-gold.svg` und
+`images/logo-weiss-gold.svg` aus der Bibliothek ersetzen
+`logo-hell.png` und `logo-dunkel.png` auf 54 Seiten. Die SVG-Dateien
+enthalten genau `#010101` und `#c67f2d`.
+
+**Warum umbenannt.** Die alten Namen meinten den **Untergrund**
+(`logo-hell` = für hellen Grund, enthielt das schwarze B). Der Betreiber
+hat sie am 17.11. als **Logofarbe** gelesen und das Gegenteil
+beschrieben. Die neuen Namen nennen die Farbe des Logos und können nicht
+mehr falsch verstanden werden. Die Zuordnung war und bleibt: weißes B auf
+dunklem Grund (Fußzeile), schwarzes B auf hellem Grund (Kopfzeile).
+
+Nebenbei behoben: Die Logos trugen `width="200" height="200"`, obwohl sie
+5,2:1 breit waren. Eine falsche Seitenverhältnis-Angabe lässt die Seite
+beim Laden springen. Jetzt `1430x220`, die echte Größe.
+
+**Dateigröße.** SVG roh 17.225 Bytes gegen PNG 14.186, nach gzip aber
+7.569 gegen 14.145 Bytes. Also rund halb so groß in der Übertragung und
+auf jedem Bildschirm scharf.
+
+**Schutzraum.** Die Bibliothek verlangt rundum die halbe Höhe des
+BV-Zeichens frei. Gemessen waren oben 10 px bei 40 px Logohöhe, nötig
+rund 20. Beide Regeln der Bibliothek zusammen (Schutzraum und
+Mindestbreite 160 px) ließen sich nur über die Leiste lösen:
+
+| | vorher | nachher | nötig |
+|---|---|---|---|
+| Logo | 208 × 40 px (Telefon 166 × 32) | 208 × 32 px überall | Breite ≥ 160 |
+| Freiraum oben | 10 px | 16 px | 16 px |
+| Freiraum unten | 20 px | 20 px | 16 px |
+| Kopfzeile | 62 px | 68 px | – |
+
+**Verworfen:** das Logo weiter zu verkleinern. Bei 20 px Höhe wäre es
+130 px breit und unterschritte die Mindestbreite aus derselben
+Bibliothek.
+
+Die Kopfzeile wurde dadurch 6 px höher. Dieselben 6 px sind im
+Heldenbereich abgezogen (`padding-top` 36 → 30 px), sonst wäre die
+Häkchenzeile wieder aus dem ersten Bild gefallen; sie endete vorher bei
+748 von 750 px. Nachgemessen: 744 px bei 390 × 750 und bei 430 × 830,
+beides im Bild.
+
+**Offen.** Bei 320 px Breite passt die Häkchenzeile nicht ins erste Bild
+(endet bei 824 von 700 px). Das war vorher schon so und ist keine Folge
+dieser Änderung. Die Seite scrollt dort nicht waagerecht.
+
+**Nicht angefasst.** Die Markenbibliothek liegt nicht im Repository.
+`bvlandingpage` ist öffentlich; der Gestaltungs-Prompt und die
+Lizenznotiz gehören nicht dorthin.
