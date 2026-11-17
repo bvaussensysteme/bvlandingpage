@@ -466,3 +466,27 @@ stand als das echte. Die reine Textsuche war grün, der Browser zeigte
 nichts. Seitdem prüft das Skript, dass das Band nach `</head>` steht,
 und sucht nach `role="note"` statt nach seinem Text: Derselbe Satz steht
 auch im `<title>`.
+
+## `pruefe-freie-planung.mjs`
+
+**Was es prüft.** Im Browser, auf `/werkstatt/frei.html`: Doppelklick
+nimmt einen Pfosten weg und holt ihn zurück, das Band zählt mit, ein
+zusätzliches Dach entsteht neben der Anlage, Ziehen bewegt es, Drehen
+setzt 90 Grad, Entfernen nimmt es weg. Dazu, dass die beiden
+öffentlichen Konfiguratorseiten nichts davon haben und weiter zeichnen.
+
+**Warum im Browser und nicht am Quelltext.** Ob ein Doppelklick wirklich
+einen Pfosten trifft und ob ein Zug das Dach bewegt statt die Kamera zu
+drehen, steht in keiner Datei. Der erste Nachweis am 17.11.2026 verglich
+zwei Bildschirmfotos. Das zeigte nur, dass sich **irgendetwas** geändert
+hatte, und hätte eine gedrehte Kamera für ein verschobenes Dach
+gehalten.
+
+Gemessen wird deshalb über `window.BV_FREI`, ein Lesefenster, das es nur
+in `js/konfigurator-frei.js` gibt. Es liefert die Koordinaten und den
+Winkel jedes Moduls und die Liste der weggenommenen Pfosten.
+
+**Gegenprobe.** Die Aussagekraft der Messung statt eingebauter Fehler:
+Dieselben Messungen laufen gegen `/werkstatt/index.html` und
+`/konfigurator.html`, wo es die Freiheit nicht gibt, und melden dort
+richtig „kein Lesefenster und kein Knopf".

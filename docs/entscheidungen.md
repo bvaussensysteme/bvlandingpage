@@ -18512,3 +18512,55 @@ Anfrage-Assistenten.
 `pruefe-konfliktmarken`, `pruefe-cache-buster` bestanden. Alle drei
 Konfiguratorseiten im Browser geladen: kein Seitenfehler, 3D-Modell
 gezeichnet, Merkmal nur auf der freien Seite gesetzt.
+
+## 17.11.2026 – Freie Planung: Pfosten weg, Dächer dazu
+
+**Anlass.** „mach die pfosten frei anklickbar entfernbar, noch dächer
+hinzufügbar und verschiebbar wie ich will".
+
+**Was jetzt geht**, nur in `js/konfigurator-frei.js` und
+`werkstatt/frei.html`: Doppelklick nimmt einen Pfosten weg und holt ihn
+zurück, „Dach hinzufügen" stellt eine Kopie neben die Anlage, Ziehen
+verschiebt sie, „Drehen 90°" dreht sie. Die Bedienung steht in
+`docs/konfigurator-frei.md`.
+
+**Drei Entscheidungen, die jemand sonst zurückbauen würde:**
+
+1. **Der weggenommene Pfosten bleibt als blasser Körper stehen.**
+   `pfostenUnterZeiger()` überspringt unsichtbare Körper, damit man
+   nicht durch Glas hindurch etwas anfasst. Ein auf `visible = false`
+   gesetzter Pfosten wäre also auch für den Zeiger weg und nur über
+   eine Liste am Rand zurückzuholen. Durchscheinend bleibt er greifbar,
+   und man sieht beim Planen, wo etwas fehlt.
+2. **Zusätzliche Dächer sind Kopien des fertigen Baums**, kein zweiter
+   Aufbaudurchlauf. Der Aufbau schreibt in geteilte Zwischenstände
+   (`MARKEN`, `PFOSTEN_REIHE`, `FELD_ANZAHL`); ein zweiter Durchlauf
+   würde die überschreiben und die Bemaßung des Hauptdachs
+   verfälschen.
+3. **Der Doppelklick statt eines Knopfes im Band.** Das Band wird an
+   mehreren Stellen aufgebaut; ein Knopf dort hätte Änderungen an Code
+   gebracht, der mit Pfosten nichts zu tun hat. Je weniger die Kopie
+   vom Bestand abweicht, desto leichter lässt sich später eine
+   Korrektur aus dem öffentlichen Konfigurator übernehmen.
+
+**Ein eigener Fehler, der hierher gehört.** Der erste Nachweis für das
+Ziehen verglich zwei Bildschirmfotos. Das zeigte nur, dass sich
+**irgendetwas** geändert hatte, und hätte eine gedrehte Kamera für ein
+verschobenes Dach gehalten. Daraufhin ist `window.BV_FREI` entstanden,
+ein Lesefenster, das Koordinaten und Winkel herausgibt. Gemessen wurde
+dann: 501/0 vor dem Zug, 729/719 danach.
+
+Zweiter Fehler: „Dach hinzufügen" setzte die Kopie außerhalb des
+Bildausschnitts, der Knopf sah aus, als täte er nichts. Seitdem zieht
+der Blick beim Hinzufügen und Entfernen mit auf, beim Ziehen
+ausdrücklich nicht.
+
+**Gegengelesen.** Neues Skript `pruefe-freie-planung.mjs`, 14 von 14
+bestanden. `pruefe-konfigurator-frei.sh` 12 von 12, Gegenprobe 4 von 4.
+Beide öffentlichen Konfiguratorseiten geladen: kein Lesefenster, kein
+Knopf, zeichnen weiterhin.
+
+**Offen.** Stückliste, Preis und PDF wissen von beidem nichts. Die
+Kopien zählen nicht mit, und ein weggenommener Pfosten steht weiterhin
+in der Liste. Bis das gelöst ist, trägt nur die Seite selbst den
+Hinweis, das PDF noch nicht.

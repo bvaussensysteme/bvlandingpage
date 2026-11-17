@@ -3881,6 +3881,253 @@ window.BV_KONFIGURATOR_FREI = true;
     return topf ? Number(topf[String(nr)]) || 0 : 0;
   }
 
+  /* ================= FREIE PLANUNG: Pfosten entfernen =================
+     Nur in dieser Kopie. Im oeffentlichen Konfigurator gibt es das
+     nicht, dort bestimmt die Masstabelle die Pfostenzahl.
+
+     WIE ES BEDIENT WIRD: Doppelklick auf einen Pfosten nimmt ihn weg,
+     Doppelklick auf den Geist holt ihn zurueck.
+
+     WARUM GEIST UND NICHT WEG: Ein verschwundener Pfosten waere nicht
+     mehr anklickbar, und dann braeuchte es eine Liste irgendwo am Rand,
+     um ihn zurueckzuholen. Als durchscheinender Koerper bleibt er an
+     seinem Platz, bleibt greifbar, und man SIEHT beim Planen, wo etwas
+     fehlt. Das ist bei einer Anlage ohne Statikpruefung die wichtigere
+     Information.
+
+     WARUM NICHT visible = false: pfostenUnterZeiger() ueberspringt
+     unsichtbare Koerper (eigene Regel, damit man nicht durch Glas
+     hindurch etwas anfasst). Ein unsichtbarer Pfosten waere also auch
+     fuer den Zeiger weg. Deshalb bleibt er sichtbar und wird nur
+     durchscheinend.
+
+     WAS DAS NICHT TUT: Die Stueckliste und das PDF wissen davon noch
+     nichts. Das steht als offener Punkt in docs/konfigurator-frei.md.
+     Bis dahin gilt das rote Band oben auf der Seite. */
+  /* ================= FREIE PLANUNG: mehrere Daecher =================
+     Nur in dieser Kopie.
+
+     WAS ES IST UND WAS NICHT. Ein zusaetzliches Dach ist eine KOPIE
+     des gerade eingestellten Dachs, frei auf dem Boden verschiebbar
+     und in 90-Grad-Schritten drehbar. Es ist noch KEINE eigene
+     Konfiguration: Aendert man Produkt oder Masse, aendern sich alle
+     Kopien mit. Das ist Absicht fuer den ersten Schritt, weil der
+     haeufige Fall mehrere gleiche Felder nebeneinander sind. Eigene
+     Masse je Modul sind der naechste Schritt und stehen in
+     docs/konfigurator-frei.md.
+
+     WARUM KOPIEN DES FERTIGEN BAUS UND KEIN ZWEITER DURCHLAUF: Der
+     Aufbau haengt an rund fuenfzig Einstellungen in Z und schreibt in
+     geteilte Zwischenstaende (MARKEN, PFOSTEN_REIHE, FELD_ANZAHL).
+     Ein zweiter Durchlauf mit anderen Werten wuerde die ueberschreiben
+     und die Bemassung des Hauptdachs verfaelschen. Eine Kopie des
+     fertigen Baums kann das nicht.
+
+     WAS DAS NICHT TUT: Die Kopien zaehlen nicht in Stueckliste, Preis
+     oder PDF. Sie sind eine Planungshilfe. Das rote Band oben sagt
+     das, und docs/konfigurator-frei.md fuehrt es als offenen Punkt. */
+  var modulGruppe = new THREE.Group();
+  szene.add(modulGruppe);
+  var freiStrahl = new THREE.Raycaster();
+  var BODEN = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  var modulZug = null;          /* laufendes Ziehen */
+  var modulAktiv = -1;          /* zuletzt angefasstes Modul, fuer Drehen */
+
+  function modulListe() {
+    if (!Z.module) Z.module = [];
+    return Z.module;
+  }
+
+  /* Breite des aktuellen Dachs in Szeneneinheiten, fuer den Abstand
+     beim Hinzufuegen. Gemessen am fertigen Baum statt aus Z.breite
+     gerechnet: So stimmt es auch bei Ueberstand und Seitenteilen. */
+  function modulBreite() {
+    if (!bau) return 500;
+    var k = new THREE.Box3().setFromObject(bau).getSize(new THREE.Vector3());
+    return k.x > 1 ? k.x : 500;
+  }
+
+  function modulHinzufuegen() {
+    var L = modulListe();
+    L.push({ x: modulBreite() * (L.length + 1), z: 0, dreh: 0 });
+    modulAktiv = L.length - 1;
+    moduleAufbauen();
+    modulAnsichtWeiten();
+    freiBandAuffrischen();
+  }
+  function modulLetztesWeg() {
+    var L = modulListe();
+    if (!L.length) return;
+    L.pop();
+    modulAktiv = L.length - 1;
+    moduleAufbauen();
+    modulAnsichtWeiten();
+    freiBandAuffrischen();
+  }
+  function modulDrehen() {
+    var L = modulListe();
+    var i = modulAktiv >= 0 && modulAktiv < L.length ? modulAktiv : L.length - 1;
+    if (i < 0) return;
+    L[i].dreh = (L[i].dreh + Math.PI / 2) % (Math.PI * 2);
+    moduleAufbauen();
+  }
+
+  /* Nach dem Hinzufuegen oder Entfernen den Blick so weit aufziehen,
+     dass alles im Bild ist. Gemessen am 17.11.2026: Ohne das stand die
+     Kopie neben dem Dach ausserhalb des Ausschnitts, der Knopf sah aus,
+     als taete er nichts. Nur bei den beiden Knoepfen, nicht beim
+     Ziehen: Wer selbst zieht, soll seinen Blick behalten. */
+  function modulAnsichtWeiten() {
+    if (!bau) return;
+    var k = new THREE.Box3().setFromObject(bau);
+    if (modulGruppe.children.length) k.expandByObject(modulGruppe);
+    var mitte = k.getCenter(new THREE.Vector3());
+    var groesse = k.getSize(new THREE.Vector3());
+    kam.ziel.set(mitte.x, Math.max(mitte.y, 80), mitte.z);
+    var noetig = Math.max(groesse.x, groesse.z, 400) * 1.45;
+    if (noetig > kam.radius) kam.radius = noetig;
+    kam.ansicht = '';
+    kameraSetzen();
+  }
+
+  function moduleAufbauen() {
+    leeren(modulGruppe);
+    if (!bau) return;
+    modulListe().forEach(function (m, i) {
+      var k = bau.clone(true);
+      k.position.set(m.x, 0, m.z);
+      k.rotation.y = m.dreh || 0;
+      k.userData.modul = i;
+      modulGruppe.add(k);
+    });
+    neuZeichnen();
+  }
+
+  /* Oberstes Modul unter dem Zeiger, oder null. */
+  function modulUnterZeiger(e) {
+    if (!e || !leinwand || !modulGruppe.children.length) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    freiStrahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = freiStrahl.intersectObjects(modulGruppe.children, true);
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      while (o && o.parent !== modulGruppe) o = o.parent;
+      if (o && o.userData && o.userData.modul != null) return o;
+    }
+    return null;
+  }
+
+  /* Punkt auf dem Boden unter dem Zeiger. */
+  function bodenPunkt(e) {
+    var r = leinwand.getBoundingClientRect();
+    freiStrahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var p = new THREE.Vector3();
+    return freiStrahl.ray.intersectPlane(BODEN, p) ? p : null;
+  }
+
+  /* Dieselben drei Haken wie beim Pfostenziehen: greifen, ziehen,
+     loslassen. Gibt true zurueck, wenn das Ereignis verbraucht ist;
+     dann dreht die Kamera nicht mit. */
+  function modulGreifen(e) {
+    var o = modulUnterZeiger(e);
+    if (!o) return false;
+    var p = bodenPunkt(e);
+    if (!p) return false;
+    modulAktiv = o.userData.modul;
+    modulZug = { i: modulAktiv, dx: o.position.x - p.x, dz: o.position.z - p.z };
+    if (leinwand.setPointerCapture) {
+      try { leinwand.setPointerCapture(e.pointerId); } catch (x) {}
+    }
+    return true;
+  }
+  function modulZiehen(e) {
+    if (!modulZug) return false;
+    var p = bodenPunkt(e);
+    if (!p) return true;
+    var m = modulListe()[modulZug.i];
+    if (!m) return true;
+    m.x = p.x + modulZug.dx;
+    m.z = p.z + modulZug.dz;
+    var k = modulGruppe.children[modulZug.i];
+    if (k) k.position.set(m.x, 0, m.z);
+    neuZeichnen();
+    return true;
+  }
+  function modulLoslassen() {
+    if (!modulZug) return false;
+    modulZug = null;
+    return true;
+  }
+
+  function pfWegListe() {
+    if (!Z.pfostenWeg) Z.pfostenWeg = {};
+    return Z.pfostenWeg;
+  }
+  function pfWegSchluessel(reihe, nr) { return String(reihe) + '#' + String(nr); }
+  function pfostenIstWeg(reihe, nr) {
+    return pfWegListe()[pfWegSchluessel(reihe, nr)] === true;
+  }
+  function pfostenWegZahl() { return Object.keys(pfWegListe()).length; }
+  function pfostenAlleZurueck() {
+    Z.pfostenWeg = {};
+    bauen();
+    freiBandAuffrischen();
+  }
+  function pfostenWegSchalten(reihe, nr) {
+    var k = pfWegSchluessel(reihe, nr), L = pfWegListe();
+    if (L[k]) delete L[k]; else L[k] = true;
+    bauen();
+    freiBandAuffrischen();
+  }
+
+  /* Nach jedem Aufbau: Was weggenommen ist, wird durchscheinend.
+     Das Material wird kopiert, weil mehrere Pfosten sich eines teilen
+     koennen - ohne Kopie wuerden alle blass. */
+  function pfostenGeisterAnwenden() {
+    if (!bau) return;
+    bau.traverse(function (m) {
+      var pf = m.userData && m.userData.pfosten;
+      if (!pf || !m.material) return;
+      if (!pfostenIstWeg(pf.reihe, pf.nr)) return;
+      var mats = Array.isArray(m.material) ? m.material : [m.material];
+      m.material = mats.map(function (mat) {
+        var k = mat.clone();
+        k.transparent = true;
+        k.opacity = 0.16;
+        k.depthWrite = false;
+        return k;
+      });
+      if (!Array.isArray(m.material)) m.material = m.material[0];
+      if (m.material.length === 1) m.material = m.material[0];
+      m.userData.pfostenGeist = true;
+    });
+  }
+
+  /* Das rote Band auf werkstatt/frei.html zaehlt mit. Es steht im
+     HTML und nicht hier, damit die Seite auch ohne JavaScript schon
+     als "nicht geprueft" erkennbar ist. */
+  function freiBandAuffrischen() {
+    var z = document.getElementById('bvFreiPfostenZahl');
+    var b = document.getElementById('bvFreiPfostenZurueck');
+    var n = pfostenWegZahl();
+    if (z) z.textContent = n === 0 ? ''
+      : (n === 1 ? ' 1 Pfosten entfernt.' : ' ' + n + ' Pfosten entfernt.');
+    if (b) b.style.display = n === 0 ? 'none' : 'inline-block';
+    var d = document.getElementById('bvFreiDachZahl');
+    var anz = (Z.module || []).length;
+    if (d) d.textContent = anz === 0 ? ''
+      : (anz === 1 ? ' 1 weiteres Dach.' : ' ' + anz + ' weitere Daecher.');
+    var w = document.getElementById('bvFreiDachWeg');
+    var r = document.getElementById('bvFreiDachDrehen');
+    if (w) w.style.display = anz === 0 ? 'none' : 'inline-block';
+    if (r) r.style.display = anz === 0 ? 'none' : 'inline-block';
+  }
+
   function pfostenWahlZeigen() {
     leeren(ziehGruppe);
     if (!PF_WAHL) return;
@@ -4770,6 +5017,8 @@ window.BV_KONFIGURATOR_FREI = true;
     erwAnzeigen();
     pfostenFelderAnzeigen();
     pfostenWahlZeigen();
+    pfostenGeisterAnwenden();   /* freie Planung, siehe oben */
+    moduleAufbauen();           /* freie Planung, siehe oben */
     neuZeichnen();
   }
 
@@ -12795,6 +13044,7 @@ window.BV_KONFIGURATOR_FREI = true;
     /* ERST DER PFOSTEN: Wer ihn greift, will ihn schieben und nicht die
        Kamera drehen. Trifft der Strahl keinen verschiebbaren Pfosten,
        laeuft alles weiter wie bisher. */
+    if (modulGreifen(e)) return;   /* freie Planung: Dach ziehen */
     if (pfostenGreifen(e)) {
       autoDreht = false;
       if (leinwand.setPointerCapture) {
@@ -12814,6 +13064,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
 
   window.addEventListener('pointermove', function (e) {
+    if (modulZiehen(e)) return;   /* freie Planung */
     if (pfostenZiehen(e)) return;
     if (!zieht) return;
     kam.theta -= (e.clientX - letzteX) * 0.007;
@@ -12823,6 +13074,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
 
   window.addEventListener('pointerup', function (e) {
+    if (modulLoslassen()) return;   /* freie Planung */
     if (pfostenLoslassen()) return;
     zieht = false;
     if (!klickStart) return;
@@ -12880,6 +13132,46 @@ window.BV_KONFIGURATOR_FREI = true;
   window.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && PF_WAHL) pfostenWaehlen(null);
   });
+
+  /* ---------- FREIE PLANUNG: Doppelklick nimmt einen Pfosten weg ----------
+     Eigener Hoerer statt eines Knopfes im Band: Das Band wird an
+     mehreren Stellen aufgebaut, ein Knopf dort haette in diese Kopie
+     Aenderungen an Code gebracht, der mit Pfosten nichts zu tun hat.
+     Der Doppelklick kommt ohne jede Aenderung am Bestand aus.
+
+     preventDefault, damit der Doppelklick nicht den Text der Seite
+     markiert. */
+  leinwand.addEventListener('dblclick', function (e) {
+    var t = pfostenUnterZeiger(e);
+    if (!t) return;
+    e.preventDefault();
+    pfostenWegSchalten(t.reihe, t.nr);
+  });
+
+  /* Knopf im roten Band. Er steht im HTML der Seite, nicht hier. */
+  (function () {
+    var b = document.getElementById('bvFreiPfostenZurueck');
+    if (b) b.addEventListener('click', function () { pfostenAlleZurueck(); });
+    /* Lesefenster fuer die Pruefskripte. Nur Lesen, kein Setzen, und
+       nur in dieser Kopie. Ohne das liesse sich von aussen nicht
+       messen, OB ein Dach sich bewegt hat oder nur die Kamera. Genau
+       daran scheiterte der erste Nachweis am 17.11.2026. */
+    window.BV_FREI = {
+      module: function () {
+        return (Z.module || []).map(function (m) {
+          return { x: Math.round(m.x), z: Math.round(m.z), dreh: m.dreh || 0 };
+        });
+      },
+      pfostenWeg: function () { return Object.keys(pfWegListe()); }
+    };
+    var bz = document.getElementById('bvFreiDachDazu');
+    if (bz) bz.addEventListener('click', function () { modulHinzufuegen(); });
+    var bw = document.getElementById('bvFreiDachWeg');
+    if (bw) bw.addEventListener('click', function () { modulLetztesWeg(); });
+    var bd = document.getElementById('bvFreiDachDrehen');
+    if (bd) bd.addEventListener('click', function () { modulDrehen(); });
+    freiBandAuffrischen();
+  })();
 
   leinwand.addEventListener('wheel', function (e) {
     e.preventDefault();

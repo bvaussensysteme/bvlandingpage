@@ -81,11 +81,53 @@ Server und wäre ein eigenes Projekt.
 |---|---|
 | eigene Seite und eigene Kopie des Skripts | **fertig** 17.11.2026 |
 | Kennzeichnung auf der Seite | **fertig** 17.11.2026 |
-| Pfosten einzeln entfernen, Stückliste folgt der Zeichnung | offen |
+| Pfosten einzeln entfernen und zurückholen | **fertig** 17.11.2026 |
+| weitere Dächer hinzufügen, ziehen, drehen, entfernen | **fertig** 17.11.2026 |
+| Stückliste folgt der Zeichnung | offen |
 | Kennzeichnung in PDF, Stückliste, Teilen-Link, CRM | offen |
 | Maße über die Tabellengrenzen hinaus | offen |
 | Montageart je Seite, auch „lehnt am Nachbarmodul" | offen |
-| mehrere Module, frei setzen, drehen, spiegeln | offen |
+| eigene Maße je Modul statt Kopien | offen |
+
+## Wie es bedient wird
+
+| Handgriff | Wirkung |
+|---|---|
+| Doppelklick auf einen Pfosten | nimmt ihn weg, er bleibt als blasser Körper stehen |
+| Doppelklick auf den blassen Pfosten | holt ihn zurück |
+| „Alle zurückholen" im roten Band | setzt alle Pfosten zurück |
+| „Dach hinzufügen" | stellt eine Kopie exakt neben die Anlage, der Blick zieht sich auf |
+| Ziehen auf einem zusätzlichen Dach | verschiebt es auf dem Boden |
+| „Drehen 90°" | dreht das zuletzt angefasste Dach |
+| „Letztes Dach entfernen" | nimmt die zuletzt gesetzte Kopie weg |
+
+### Warum der weggenommene Pfosten stehen bleibt
+
+Ein verschwundener Pfosten wäre nicht mehr anklickbar, und dann
+bräuchte es eine Liste am Rand, um ihn zurückzuholen. Als
+durchscheinender Körper bleibt er greifbar, und man **sieht** beim
+Planen, wo etwas fehlt. Bei einer Anlage ohne Statikprüfung ist das die
+wichtigere Information.
+
+Technisch kommt dazu: `pfostenUnterZeiger()` überspringt unsichtbare
+Körper, damit man nicht durch Glas hindurch etwas anfasst. Ein auf
+`visible = false` gesetzter Pfosten wäre also auch für den Zeiger weg.
+
+### Was die zusätzlichen Dächer sind und was nicht
+
+Ein zusätzliches Dach ist eine **Kopie** des eingestellten Dachs. Ändert
+man Produkt oder Maße, ändern sich alle Kopien mit. Eigene Maße je Modul
+sind der nächste Schritt.
+
+**Warum Kopien des fertigen Baus und kein zweiter Durchlauf:** Der
+Aufbau hängt an rund fünfzig Einstellungen und schreibt in geteilte
+Zwischenstände (`MARKEN`, `PFOSTEN_REIHE`, `FELD_ANZAHL`). Ein zweiter
+Durchlauf mit anderen Werten würde die überschreiben und die Bemaßung
+des Hauptdachs verfälschen. Eine Kopie des fertigen Baums kann das
+nicht.
+
+**Die Kopien zählen nicht** in Stückliste, Preis oder PDF. Sie sind eine
+Planungshilfe.
 
 ## Offene Fragen an den Betreiber
 
