@@ -18451,3 +18451,64 @@ groß in der Übertragung.
 `pruefe-startseite` 39/39, `pruefe-darstellung` 144/144,
 `pruefe-mitwachsend` 28/28, `pruefe-farbtreue` 3/3, `pruefe-bewegung`
 und `pruefe-cache-buster` bestanden.
+
+## 17.11.2026 – Freie Planung: eigene Seite, eigene Kopie
+
+**Anlass.** „Ich will einen offenen Konfigurator. Für uns intern ...
+Scheißegal, was das System sagt. Wenn ich will, kann ich alle Pfosten
+entfernen und das Dach hängt in der Luft." Und zur Bauweise: „Mach am
+besten noch eine Kopie, noch eine Seite daneben, wo nur intern ist,
+damit du den öffentlichen nicht zerschießt."
+
+**Was jetzt gilt.** Drei Seiten statt zwei:
+
+| Datei | Skript | Zugang |
+|---|---|---|
+| `konfigurator.html` | `js/konfigurator-3d.js` | öffentlich |
+| `werkstatt/index.html` | `js/konfigurator-3d.js` | hinter der Schranke |
+| `werkstatt/frei.html` | `js/konfigurator-frei.js` | hinter der Schranke |
+
+Beide öffentlichen Dateien sind **unverändert**, Byte für Byte. Das war
+die Bedingung des Betreibers und ist der Grund für die Kopie.
+
+**Was dagegen sprach und warum es trotzdem so ist.** Ein Schalter in der
+gemeinsamen Datei wäre wartungsärmer; 18.504 Zeilen liegen jetzt
+doppelt im Repository. Dagegen stand, dass der öffentliche Konfigurator
+kurz vor der Veröffentlichung steht und die freie Fassung sich stark von
+ihm entfernen wird. Der Betreiber hat entschieden. Die Kosten sind
+benannt, nicht verschwiegen: Korrekturen kommen nicht von selbst
+herüber.
+
+**Wie die Abdrift sichtbar bleibt.** Im Kopf der Kopie steht
+„ABGESPALTEN VON: js/konfigurator-3d.js, Stand 4f6a128".
+`scripts/pruefe-konfigurator-frei.sh` vergleicht das mit dem letzten
+Commit der öffentlichen Datei und schlägt an, sobald sie sich ändert.
+Aus stillem Auseinanderlaufen wird damit eine Entscheidung, die jemand
+treffen muss.
+
+**Die eine Grenze, die bleibt.** Ein rotes Band oben auf der Seite:
+„Freie Planung, nur intern. Nicht gegen die Maßtabelle geprüft. Was
+diese Seite verlässt, ist kein geprüftes Angebot." Die Kennzeichnung in
+PDF, Stückliste, Teilen-Link und CRM steht noch aus und ist in
+`docs/konfigurator-frei.md` als offener Punkt vermerkt.
+
+**Ein Fehler beim Bauen, der hierher gehört.** Das Band lag zuerst im
+Kopf der Seite statt im Körper: Mein Suchmuster traf ein `<body>` in
+einem Kommentar auf Zeile 197, der echte Tag steht auf Zeile 1764. Die
+Textprüfung war grün, der Browser zeigte nichts. Gefunden hat es erst
+die Messung im Browser. Danach fiel die geschärfte Prüfung auf denselben
+Satz im `<title>` herein. Beides ist jetzt im Skript abgefangen und in
+`docs/pruefungen.md` begründet.
+
+**Was im Code gefunden wurde und für die nächsten Schritte zählt**,
+steht in `docs/konfigurator-frei.md`: Die Wand ist im Modell immer
+hinten, „Breite" heißt die Richtung entlang der Wand, die Maßtabelle
+wird an sieben Stellen immer als `tabelleBauteile(Z.breite, Z.tiefe)`
+gefragt, und Wandmontage gibt es nur beim Carport TDS, auch im
+Anfrage-Assistenten.
+
+**Gegengelesen.** `pruefe-konfigurator-frei` 12/12, Gegenprobe 4/4,
+`pruefe-nicht-oeffentlich`, `pruefe-kommentare`,
+`pruefe-konfliktmarken`, `pruefe-cache-buster` bestanden. Alle drei
+Konfiguratorseiten im Browser geladen: kein Seitenfehler, 3D-Modell
+gezeichnet, Merkmal nur auf der freien Seite gesetzt.

@@ -441,3 +441,28 @@ irgendetwas gefunden wurde.
   Gegenprobe-Kasten mit `width: 3000px` wurde davon stillschweigend
   zurechtgestutzt, die Gegenprobe lief durch, ohne etwas zu finden.
   Sie benutzt jetzt `min-width`.
+
+## `pruefe-konfigurator-frei.sh`
+
+**Was es prüft.** Dass die freie Planung (`werkstatt/frei.html`,
+`js/konfigurator-frei.js`) von den beiden öffentlichen Konfiguratoren
+getrennt bleibt: wer welche Skriptdatei lädt, dass die freie Seite
+noindex und das sichtbare Band trägt, dass das Merkmal
+`BV_KONFIGURATOR_FREI` nur in der Kopie steht, und dass außerhalb von
+`werkstatt/` nichts auf die freie Fassung zeigt.
+
+**Dazu die Abdrift.** Im Kopf der Kopie steht der Commit, von dem
+abgespalten wurde. Ändert jemand `js/konfigurator-3d.js`, schlägt die
+Prüfung an. Das ist Absicht: Dann ist zu entscheiden, ob die Änderung
+auch in die freie Fassung gehört. Danach wird die Zeile
+„ABGESPALTEN VON" auf den neuen Stand gesetzt.
+
+**Gegenprobe:** 4 eingebaute Fehler, jeder einzeln auf einer
+Wegwerfkopie. Alle 4 werden erkannt.
+
+**Warum die Reihenfolge des Bandes mitgeprüft wird.** Am 17.11.2026 lag
+das Band im Kopf der Seite, weil ein `<body>` in einem Kommentar früher
+stand als das echte. Die reine Textsuche war grün, der Browser zeigte
+nichts. Seitdem prüft das Skript, dass das Band nach `</head>` steht,
+und sucht nach `role="note"` statt nach seinem Text: Derselbe Satz steht
+auch im `<title>`.
