@@ -96,6 +96,25 @@ try {
   const m4 = await seite.evaluate(() => window.BV_FREI.module());
   p('Entfernen nimmt es wieder weg', m4.length === 0, JSON.stringify(m4));
 
+  /* ---- Masse ohne Tabellengrenze ---- */
+  const regler = await seite.evaluate(() => {
+    const b = document.getElementById('k3dBreite'), t = document.getElementById('k3dTiefe');
+    return { bMax: Number(b.max), tMax: Number(t.max) };
+  });
+  p('Breite geht ueber die Tabelle hinaus', regler.bMax >= 20000,
+    'Regler bis ' + regler.bMax + ' mm');
+  p('Tiefe geht ueber die Tabelle hinaus', regler.tMax >= 10000,
+    'Regler bis ' + regler.tMax + ' mm');
+  await seite.evaluate(() => {
+    const b = document.getElementById('k3dBreite'), t = document.getElementById('k3dTiefe');
+    b.value = 12000; b.dispatchEvent(new Event('input', { bubbles: true }));
+    t.value = 9000;  t.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await seite.waitForTimeout(2200);
+  const gross = await seite.evaluate(() =>
+    (document.body.innerText.match(/\d{3,5}\s*×\s*\d{3,5}\s*mm/) || ['?'])[0]);
+  p('12000 x 9000 mm werden uebernommen', /12000\s*×\s*9000/.test(gross), gross);
+
   /* ---- die oeffentlichen Seiten haben nichts davon ---- */
   for (const [pfad, name] of [['/werkstatt/index.html', 'Werkstatt'],
                               ['/konfigurator.html', 'oeffentlich']]) {
@@ -109,6 +128,13 @@ try {
     }));
     p(`${name}: kein Lesefenster und kein Knopf`, !r.fenster && !r.knopf, JSON.stringify(r));
     p(`${name}: zeichnet weiterhin`, r.gemalt, 'Leinwand');
+    const gr = await s2.evaluate(() => {
+      const b = document.getElementById('k3dBreite'), t = document.getElementById('k3dTiefe');
+      return b && t ? { bMax: Number(b.max), tMax: Number(t.max) } : null;
+    });
+    p(`${name}: Masse bleiben bei der Tabelle`,
+      !!gr && gr.bMax <= 15000 && gr.tMax <= 8000,
+      gr ? `Breite bis ${gr.bMax}, Tiefe bis ${gr.tMax}` : 'keine Regler gefunden');
     await s2.close();
   }
 } finally {

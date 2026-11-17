@@ -14135,23 +14135,45 @@ window.BV_KONFIGURATOR_FREI = true;
     return { breiten: bs, tiefen: ts };
   }
 
+  /* ===== FREIE PLANUNG: Breite und Tiefe ohne Tabellengrenze =====
+     Nur in dieser Kopie. Im oeffentlichen Konfigurator setzt diese
+     Funktion die Regler auf den Bereich der Masstabelle und klemmt
+     Z.breite und Z.tiefe hinein. Ansage des Betreibers vom 17.11.2026:
+     "sperre auch nicht die tiefen und breiten".
+
+     WAS DAS HEISST: Der Regler geht von 1000 bis 30000 mm Breite und
+     1000 bis 20000 mm Tiefe. Es wird NICHTS mehr geklemmt. Die
+     Obergrenzen sind keine technische Aussage, sondern nur das Ende
+     des Schiebereglers; ueber das Zahlenfeld geht auch mehr.
+
+     WAS DABEI PASSIERT, damit es niemanden ueberrascht:
+     tabelleBauteile() nimmt bei Massen ueber der Tabelle die groesste
+     Zeile, die es gibt ("breiter als die Tabelle"). Sparren, Pfosten
+     und Unterzug stammen dann aus einer KLEINEREN Anlage. Die
+     Zeichnung stimmt, die Bauteile darunter nicht. Genau dafuer steht
+     das rote Band oben auf der Seite.
+
+     Die urspruengliche Begruendung der Tabellengrenzen steht im
+     Kommentar darueber und gilt fuer den oeffentlichen Konfigurator
+     unveraendert weiter. */
+  var FREI_BREITE = { min: 1000, max: 30000 };
+  var FREI_TIEFE  = { min: 1000, max: 20000 };
+
   function reglerGrenzenSetzen() {
-    var listen = null;
-    var d = datenSystem();
-    if (d && RASTER) listen = RASTER[d.system + '|' + d.material];
-    if (!listen) listen = grenzenAusTabelle();
-    if (!listen) return;
-    [['k3dBreite', 'breiten', 'breite'], ['k3dTiefe', 'tiefen', 'tiefe']].forEach(function (p) {
-      var el = document.getElementById(p[0]);
-      var liste = listen[p[1]] || [];
-      if (!el || !liste.length) return;
-      el.min = liste[0];
-      el.max = liste[liste.length - 1];
-      el.step = 10;
-      if (Z[p[2]] < liste[0]) Z[p[2]] = liste[0];
-      if (Z[p[2]] > liste[liste.length - 1]) Z[p[2]] = liste[liste.length - 1];
-      el.value = Z[p[2]];
-    });
+    [['k3dBreite', FREI_BREITE, 'breite'], ['k3dTiefe', FREI_TIEFE, 'tiefe']]
+      .forEach(function (p) {
+        var el = document.getElementById(p[0]);
+        if (!el) return;
+        el.min = p[1].min;
+        el.max = p[1].max;
+        el.step = 10;
+        /* Kein Klemmen: Was eingestellt ist, bleibt stehen. Nur wenn
+           der Wert ausserhalb des Reglers liegt, waechst der Regler
+           mit, damit der Griff nicht am Anschlag klebt. */
+        if (Z[p[2]] > el.max) el.max = Z[p[2]];
+        if (Z[p[2]] < el.min) el.min = Z[p[2]];
+        el.value = Z[p[2]];
+      });
   }
 
   function produktName() {

@@ -18564,3 +18564,30 @@ Knopf, zeichnen weiterhin.
 Kopien zählen nicht mit, und ein weggenommener Pfosten steht weiterhin
 in der Liste. Bis das gelöst ist, trägt nur die Seite selbst den
 Hinweis, das PDF noch nicht.
+
+## 17.11.2026 – Freie Planung: Breite und Tiefe ohne Tabellengrenze
+
+**Anlass.** „sperre auch nicht die tiefen und breiten."
+
+**Was war.** `reglerGrenzenSetzen()` holt die Regler-Grenzen aus der
+Maßtabelle und klemmt `Z.breite` und `Z.tiefe` hinein. Gemessen auf der
+Werkstattseite: Breite 1080 bis 14080 mm, Tiefe 550 bis 7050 mm. Eine
+eingegebene Tiefe von 9000 mm wurde stillschweigend auf 7050 gesetzt.
+
+**Was jetzt gilt**, nur in `js/konfigurator-frei.js`: Breite 1000 bis
+30000 mm, Tiefe 1000 bis 20000 mm, und **nichts wird geklemmt**. Liegt
+ein Wert über dem Regler, wächst der Regler mit, damit der Griff nicht
+am Anschlag klebt. Gemessen: 12000 × 9000 mm werden übernommen und
+angezeigt, 108,00 m².
+
+**Was das kostet, und das gehört in jedes Angebot aus dieser Seite:**
+`tabelleBauteile()` nimmt bei Maßen über der Tabelle die größte Zeile,
+die es gibt. Sparren, Pfosten und Unterzug stammen dann aus einer
+kleineren Anlage. Die Zeichnung stimmt, die Bauteile darunter nicht.
+
+**Nicht angefasst:** Höhe, Neigung und Dachüberstand bleiben begrenzt.
+Der Betreiber hat Tiefe und Breite genannt.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 19 von 19. Darin neu: die
+beiden öffentlichen Seiten behalten nachweislich die Tabellenwerte
+(Breite bis 14080, Tiefe bis 7050), die freie Seite geht darüber hinaus.

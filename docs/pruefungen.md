@@ -486,6 +486,11 @@ Gemessen wird deshalb über `window.BV_FREI`, ein Lesefenster, das es nur
 in `js/konfigurator-frei.js` gibt. Es liefert die Koordinaten und den
 Winkel jedes Moduls und die Liste der weggenommenen Pfosten.
 
+Seit dem 17.11.2026 zusätzlich: Breite und Tiefe gehen über die
+Tabellengrenzen hinaus, 12000 × 9000 mm werden übernommen, und auf den
+beiden öffentlichen Seiten bleiben die Regler bei den Werten der
+Tabelle (Breite bis 14080, Tiefe bis 7050).
+
 **Gegenprobe.** Die Aussagekraft der Messung statt eingebauter Fehler:
 Dieselben Messungen laufen gegen `/werkstatt/index.html` und
 `/konfigurator.html`, wo es die Freiheit nicht gibt, und melden dort

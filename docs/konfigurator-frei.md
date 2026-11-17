@@ -85,7 +85,7 @@ Server und wäre ein eigenes Projekt.
 | weitere Dächer hinzufügen, ziehen, drehen, entfernen | **fertig** 17.11.2026 |
 | Stückliste folgt der Zeichnung | offen |
 | Kennzeichnung in PDF, Stückliste, Teilen-Link, CRM | offen |
-| Maße über die Tabellengrenzen hinaus | offen |
+| Maße über die Tabellengrenzen hinaus | **fertig** 17.11.2026 |
 | Montageart je Seite, auch „lehnt am Nachbarmodul" | offen |
 | eigene Maße je Modul statt Kopien | offen |
 
@@ -98,6 +98,7 @@ Server und wäre ein eigenes Projekt.
 | „Alle zurückholen" im roten Band | setzt alle Pfosten zurück |
 | „Dach hinzufügen" | stellt eine Kopie exakt neben die Anlage, der Blick zieht sich auf |
 | Ziehen auf einem zusätzlichen Dach | verschiebt es auf dem Boden |
+| Breite und Tiefe | Regler bis 30000 bzw. 20000 mm, nichts wird geklemmt |
 | „Drehen 90°" | dreht das zuletzt angefasste Dach |
 | „Letztes Dach entfernen" | nimmt die zuletzt gesetzte Kopie weg |
 
@@ -162,3 +163,27 @@ Gefunden am 17.11.2026 in `js/konfigurator-3d.js`:
   (`js/anfrage-wizard.js`, Zeile 678), und der füttert das CRM. Wird
   die Ausführung ergänzt, müssen **beide** Listen mit, sonst passen
   Anfrage und Konfigurator nicht mehr zusammen.
+
+## Maße ohne Tabellengrenze
+
+Ansage des Betreibers vom 17.11.2026: „sperre auch nicht die tiefen und
+breiten."
+
+| | öffentlich | freie Planung |
+|---|---|---|
+| Breite | 1080 bis 14080 mm | 1000 bis 30000 mm |
+| Tiefe | 550 bis 7050 mm | 1000 bis 20000 mm |
+| Klemmen | ja, in den Bereich der Tabelle | nein |
+
+Die Obergrenzen sind keine technische Aussage, sondern nur das Ende des
+Schiebereglers. Liegt ein Wert darüber, wächst der Regler mit, damit der
+Griff nicht am Anschlag klebt.
+
+**Was dabei passiert und beachtet werden muss:** `tabelleBauteile()`
+nimmt bei Maßen über der Tabelle die größte Zeile, die es gibt. Sparren,
+Pfosten und Unterzug stammen dann aus einer **kleineren** Anlage. Die
+Zeichnung stimmt, die Bauteile darunter nicht. Das ist der Preis der
+Freiheit und der Grund für das rote Band.
+
+**Nicht angefasst:** Höhe, Neigung und Dachüberstand sind weiterhin
+begrenzt. Der Betreiber hat Tiefe und Breite genannt.
