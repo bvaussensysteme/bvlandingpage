@@ -85,7 +85,8 @@ Server und wäre ein eigenes Projekt.
 | weitere Dächer hinzufügen, ziehen, drehen, entfernen | **fertig** 17.11.2026 |
 | Stückliste folgt der Zeichnung | offen |
 | Kennzeichnung in PDF, Bildern und Teilen-Link | **fertig** 17.11.2026 |
-| Stückliste und Preis folgen der Zeichnung | offen |
+| Stückliste folgt der Zeichnung | **fertig** 17.11.2026 |
+| Preis folgt der Zeichnung | offen |
 | Maße über die Tabellengrenzen hinaus | **fertig** 17.11.2026 |
 | Montageart je Seite, auch „lehnt am Nachbarmodul" | offen |
 | eigene Maße je Modul statt Kopien | offen |
@@ -212,3 +213,34 @@ ausschließlich in `js/konfigurator-frei.js`, und
 `pruefe-freie-planung.mjs` lädt zum Gegenbeweis auch die PDFs der
 beiden öffentlichen Seiten herunter und prüft, dass dort **kein**
 Vermerk steht.
+
+## Stückliste folgt der Zeichnung
+
+Im öffentlichen Konfigurator kommen die Zahlen aus `/api/bauteile`.
+Fehlt die Antwort, bleibt der Kasten „Was daraus folgt" leer: „lass das
+weg" (Betreiber, 11.10.2026), weil ein Kasten, der nur erklärt, dass er
+nichts zu sagen hat, beim Produkt verunsichert.
+
+**In der freien Planung gilt das Gegenteil.** Wer frei plant, braucht
+die Zahlen, und zwar die der Zeichnung. Gerechnet wird aus
+`js/masstabelle.js`, der vom Betriebsinhaber freigegebenen Tabelle.
+
+Beispiel, gemessen am 17.11.2026 bei 20000 × 9000 mm, einem entfernten
+Pfosten und einem zusätzlichen Dach:
+
+| | |
+|---|---|
+| Ihr Maß | 20000 × 9000 mm |
+| Dächer | 2 (ein eingestelltes und 1 Kopie) |
+| Sparren | 21 je Dach, insgesamt 42 |
+| Pfosten | 4 statt 5 (1 entfernt), insgesamt 8 |
+| Über der Maßtabelle | Breite 20000 mm, Tabelle endet bei 14080 mm. Sparren und Pfosten stammen aus der kleineren Anlage. |
+| Freie Planung | Nicht gegen die Maßtabelle gerechnet. Kein Angebot und keine Statikaussage. |
+
+Liegt eine Antwort von `/api/bauteile` vor, bleiben deren Zahlen stehen
+und die Abweichung der Zeichnung steht **daneben**. Beides, damit man
+den Unterschied sieht statt ihn zu erraten.
+
+**Auf den beiden öffentlichen Seiten ändert sich nichts.** Der Kasten
+bleibt dort ohne Schnittstelle leer; `pruefe-freie-planung.mjs` prüft
+das ausdrücklich nach.

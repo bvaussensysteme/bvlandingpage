@@ -51,10 +51,8 @@ try {
   if (!hatFenster) throw new Error('ohne BV_FREI kann nichts gemessen werden');
 
   /* ---- Pfosten ---- */
-  const punkt = await seite.evaluate(() => {
-    const c = document.querySelector('canvas'); const r = c.getBoundingClientRect();
-    return { x: r.left + r.width * 0.33, y: r.top + r.height * 0.72 };
-  });
+  const punkt = await seite.evaluate(() => window.BV_FREI.pfostenPunkt() || {
+    x: 0, y: 0 });
   await seite.mouse.dblclick(punkt.x, punkt.y);
   await seite.waitForTimeout(1100);
   const weg1 = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
@@ -120,6 +118,48 @@ try {
     (document.body.innerText.match(/\d{3,5}\s*×\s*\d{3,5}\s*mm/) || ['?'])[0]);
   p('12000 x 9000 mm werden uebernommen', /12000\s*×\s*9000/.test(gross), gross);
 
+  /* ERST den Pfosten wegnehmen, DANN verbreitern und ein Dach dazu.
+     Andersherum stand nach dem Aufziehen des Blicks an keiner
+     gemessenen Stelle mehr ein Pfosten, und der Doppelklick ging ins
+     Leere - die Pruefung meldete dann faelschlich die Stueckliste als
+     fehlerhaft. */
+  const punkt2 = await seite.evaluate(() => window.BV_FREI.pfostenPunkt());
+  p('ein Pfosten ist am gemessenen Punkt greifbar', !!punkt2,
+    punkt2 ? Math.round(punkt2.x) + '/' + Math.round(punkt2.y) : 'kein Punkt gefunden');
+  if (punkt2) await seite.mouse.dblclick(punkt2.x, punkt2.y);
+  await seite.waitForTimeout(1500);
+
+  /* Breite ueber das Ende der Tabelle (14080 mm), damit der Hinweis
+     dazu geprueft werden kann. 12000 mm von oben reichen dafuer nicht. */
+  await seite.evaluate(() => {
+    const b = document.getElementById('k3dBreite');
+    b.value = 20000; b.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await seite.waitForTimeout(2500);
+  await seite.click('#bvFreiDachDazu');
+  await seite.waitForTimeout(1800);
+
+  /* ---- Stueckliste folgt der Zeichnung ----
+     Zum Zeitpunkt der Pruefung antwortet /api/bauteile nicht. Genau das
+     ist der Fall, der hier zaehlt: Der oeffentliche Konfigurator
+     versteckt den Kasten dann, die freie Planung rechnet ihn aus der
+     freigegebenen Masstabelle. */
+  const zeilen = await seite.evaluate(() =>
+    Array.from(document.querySelectorAll('#k3dFolgt li'))
+      .map((li) => li.innerText.replace(/\s+/g, ' ').trim()));
+  p('Stueckliste ist gefuellt, auch ohne Schnittstelle', zeilen.length >= 3,
+    zeilen.length + ' Zeilen');
+  p('die Pfostenzahl zieht den entfernten ab',
+    zeilen.some((z) => /Pfosten .*statt .*\(1 entfernt\)/.test(z)),
+    zeilen.find((z) => /^Pfosten/.test(z)) || '(keine Pfostenzeile)');
+  p('die zusaetzlichen Daecher zaehlen mit',
+    zeilen.some((z) => /^Dächer 2 /.test(z)) &&
+    zeilen.some((z) => /insgesamt/.test(z)),
+    zeilen.find((z) => /^Dächer/.test(z)) || '(keine Dachzeile)');
+  p('Masse ueber der Tabelle werden benannt',
+    zeilen.some((z) => /Über der Maßtabelle/.test(z)),
+    zeilen.find((z) => /Maßtabelle/.test(z)) || '(kein Hinweis)');
+
   /* ---- Kennzeichnung dessen, was die Seite verlaesst ----
      Nicht die Texte im Quelltext werden geprueft, sondern das fertige
      PDF: Dateiname und Bytes. Ein Vermerk, den niemand ins Dokument
@@ -164,6 +204,14 @@ try {
     }));
     p(`${name}: kein Lesefenster und kein Knopf`, !r.fenster && !r.knopf, JSON.stringify(r));
     p(`${name}: zeichnet weiterhin`, r.gemalt, 'Leinwand');
+    const kastenOffen = await s2.evaluate(() => {
+      const k = document.querySelector('.k3d-zus--folgt');
+      const li = document.querySelectorAll('#k3dFolgt li').length;
+      return { versteckt: k ? !!k.hidden : null, zeilen: li };
+    });
+    p(`${name}: Stueckliste bleibt ohne Schnittstelle leer`,
+      kastenOffen.versteckt === true && kastenOffen.zeilen === 0,
+      JSON.stringify(kastenOffen));
     const gr = await s2.evaluate(() => {
       const b = document.getElementById('k3dBreite'), t = document.getElementById('k3dTiefe');
       return b && t ? { bMax: Number(b.max), tMax: Number(t.max) } : null;

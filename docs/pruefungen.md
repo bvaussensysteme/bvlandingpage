@@ -497,6 +497,11 @@ Zum Gegenbeweis passiert dasselbe auf beiden öffentlichen Seiten: Dort
 darf der Vermerk **nicht** auftauchen. Ein Vermerk, den niemand ins
 Dokument bekommt, wäre keiner.
 
+Seit dem 17.11.2026 außerdem: Die Stückliste ist auch ohne Schnittstelle
+gefüllt, zieht entfernte Pfosten ab, zählt zusätzliche Dächer mit und
+benennt Maße über der Tabelle. Zum Gegenbeweis bleibt der Kasten auf den
+beiden öffentlichen Seiten leer.
+
 **Gegenprobe.** Die Aussagekraft der Messung statt eingebauter Fehler:
 Dieselben Messungen laufen gegen `/werkstatt/index.html` und
 `/konfigurator.html`, wo es die Freiheit nicht gibt, und melden dort

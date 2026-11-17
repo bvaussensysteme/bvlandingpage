@@ -3954,6 +3954,7 @@ window.BV_KONFIGURATOR_FREI = true;
     moduleAufbauen();
     modulAnsichtWeiten();
     freiBandAuffrischen();
+    freiStuecklisteAuffrischen();
   }
   function modulLetztesWeg() {
     var L = modulListe();
@@ -3963,6 +3964,7 @@ window.BV_KONFIGURATOR_FREI = true;
     moduleAufbauen();
     modulAnsichtWeiten();
     freiBandAuffrischen();
+    freiStuecklisteAuffrischen();
   }
   function modulDrehen() {
     var L = modulListe();
@@ -4089,6 +4091,74 @@ window.BV_KONFIGURATOR_FREI = true;
     'Kein Angebot und keine Statikaussage.';
   var FREI_DATEI = 'FREIE-PLANUNG-';
 
+  /* ===== FREIE PLANUNG: Stueckliste folgt der Zeichnung =====
+     Im oeffentlichen Konfigurator kommen die Zahlen aus /api/bauteile.
+     Fehlt die Antwort, bleibt der Kasten "Was daraus folgt" leer: "lass
+     das weg" (Betreiber, 11.10.2026), weil ein Kasten, der nur erklaert,
+     dass er nichts zu sagen hat, beim Produkt verunsichert.
+
+     HIER gilt das Gegenteil. Wer frei plant, braucht die Zahlen, und
+     zwar die der ZEICHNUNG: entfernte Pfosten abgezogen, zusaetzliche
+     Daecher mitgezaehlt. Gerechnet wird aus js/masstabelle.js, der vom
+     Betriebsinhaber freigegebenen Tabelle, nicht geraten.
+
+     WAS DABEI EHRLICH BLEIBEN MUSS: Liegt die Breite ueber der Tabelle,
+     nimmt tabelleBauteile() die groesste Zeile, die es gibt. Dann
+     stammen Sparren und Pfosten aus einer KLEINEREN Anlage. Das steht
+     als eigene Zeile im Kasten, nicht im Kleingedruckten. */
+  function freiZeichnungZahlen() {
+    var tb = null;
+    try { tb = tabelleBauteile(Z.breite, Z.tiefe); } catch (e) { tb = null; }
+    var sparrenJe = tb ? tb.sparren : sparrenGeschaetzt(Z.breite / 10);
+    var pfostenJe = tb ? tb.pfosten : pfostenUnterTraeger(Z.breite) *
+      (Z.aufbau === 'Freistehend' ? 2 : 1);
+    var weg = pfostenWegZahl();
+    var daecher = 1 + (Z.module || []).length;
+    return {
+      daecher: daecher,
+      sparrenJe: sparrenJe,
+      sparrenGesamt: sparrenJe * daecher,
+      pfostenJe: pfostenJe,
+      weg: weg,
+      pfostenJeNachAbzug: Math.max(0, pfostenJe - weg),
+      pfostenGesamt: Math.max(0, pfostenJe - weg) * daecher,
+      unterzug: tb ? tb.unterzug : false,
+      ueberTabelle: !!(tb && tb.breiteTabelle && tb.breiteTabelle < Z.breite),
+      breiteTabelle: tb ? tb.breiteTabelle : null,
+      ausTabelle: !!tb
+    };
+  }
+
+  /* Die Zeilen, die in den Kasten "Was daraus folgt" kommen. */
+  function freiFolgtZeilen() {
+    var f = freiZeichnungZahlen();
+    var z = [];
+    z.push(['Ihr Maß', Z.breite + ' × ' + Z.tiefe + ' mm']);
+    if (f.daecher > 1) z.push(['Dächer', f.daecher + ' (ein eingestelltes und ' +
+      (f.daecher - 1) + (f.daecher === 2 ? ' Kopie)' : ' Kopien)')]);
+    z.push(['Sparren', f.daecher > 1
+      ? f.sparrenJe + ' je Dach, insgesamt ' + f.sparrenGesamt
+      : String(f.sparrenJe)]);
+    var pf = f.weg > 0
+      ? f.pfostenJeNachAbzug + ' statt ' + f.pfostenJe + ' (' + f.weg + ' entfernt)'
+      : String(f.pfostenJe);
+    if (f.daecher > 1) pf += ', insgesamt ' + f.pfostenGesamt;
+    z.push(['Pfosten', pf]);
+    if (f.unterzug) z.push(['Unterzug', 'nötig bei dieser Tiefe']);
+    if (f.ueberTabelle) {
+      z.push(['Über der Maßtabelle',
+        'Breite ' + Z.breite + ' mm, Tabelle endet bei ' + f.breiteTabelle +
+        ' mm. Sparren und Pfosten stammen aus der kleineren Anlage.']);
+    }
+    if (!f.ausTabelle) {
+      z.push(['Ohne Tabelle', 'Für dieses Produkt gibt es keine Tabelle, ' +
+        'die Zahlen sind geschätzt.']);
+    }
+    z.push(['Freie Planung', 'Nicht gegen die Maßtabelle gerechnet. ' +
+      'Kein Angebot und keine Statikaussage.']);
+    return z;
+  }
+
   function pfWegListe() {
     if (!Z.pfostenWeg) Z.pfostenWeg = {};
     return Z.pfostenWeg;
@@ -4102,12 +4172,14 @@ window.BV_KONFIGURATOR_FREI = true;
     Z.pfostenWeg = {};
     bauen();
     freiBandAuffrischen();
+    freiStuecklisteAuffrischen();
   }
   function pfostenWegSchalten(reihe, nr) {
     var k = pfWegSchluessel(reihe, nr), L = pfWegListe();
     if (L[k]) delete L[k]; else L[k] = true;
     bauen();
     freiBandAuffrischen();
+    freiStuecklisteAuffrischen();
   }
 
   /* Nach jedem Aufbau: Was weggenommen ist, wird durchscheinend.
@@ -4136,6 +4208,15 @@ window.BV_KONFIGURATOR_FREI = true;
   /* Das rote Band auf werkstatt/frei.html zaehlt mit. Es steht im
      HTML und nicht hier, damit die Seite auch ohne JavaScript schon
      als "nicht geprueft" erkennbar ist. */
+  /* GEFUNDEN DURCH DIE EIGENE PRUEFUNG am 17.11.2026: Die Stueckliste
+     haengt an aendern(). Pfosten wegnehmen und Daecher hinzufuegen
+     rufen aendern() aber nicht, also blieb der Kasten auf dem alten
+     Stand stehen - er zeigte 6 Pfosten, waehrend einer entfernt war.
+     Deshalb frischt jede dieser Aktionen ihn selbst auf. */
+  function freiStuecklisteAuffrischen() {
+    try { folgtAktualisieren(); } catch (e) {}
+  }
+
   function freiBandAuffrischen() {
     var z = document.getElementById('bvFreiPfostenZahl');
     var b = document.getElementById('bvFreiPfostenZurueck');
@@ -13188,6 +13269,34 @@ window.BV_KONFIGURATOR_FREI = true;
         });
       },
       pfostenWeg: function () { return Object.keys(pfWegListe()); },
+      /* Bildschirmpunkt eines Pfostens. Ohne das muesste die Pruefung
+         raten, wo einer steht; nach einer Massaenderung stimmte der
+         geratene Punkt nicht mehr. */
+      pfostenPunkt: function () {
+        if (!bau || !leinwand) return null;
+        var r = leinwand.getBoundingClientRect();
+        var kandidaten = [];
+        bau.traverse(function (m) {
+          if (m.userData && m.userData.pfosten && m.geometry) kandidaten.push(m);
+        });
+        /* Der Mittelpunkt des ERSTEN Pfostens reichte nicht: Er kann
+           hinter dem Dach liegen, und pfostenUnterZeiger() nimmt dann
+           das Dach. Deshalb wird jeder Punkt mit derselben Trefferlogik
+           geprueft, die auch der Doppelklick benutzt, und der erste
+           zurueckgegeben, der wirklich einen Pfosten trifft. */
+        var v = new THREE.Vector3();
+        for (var i = 0; i < kandidaten.length; i++) {
+          kandidaten[i].getWorldPosition(v);
+          v.project(kamera3);
+          var x = r.left + (v.x + 1) / 2 * r.width;
+          var y = r.top + (1 - (v.y + 1) / 2) * r.height;
+          if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+          if (pfostenUnterZeiger({ clientX: x, clientY: y })) return { x: x, y: y };
+        }
+        return null;
+      },
+      zeichnung: function () { return freiZeichnungZahlen(); },
+      folgtZeilen: function () { return freiFolgtZeilen(); },
       kennzeichnung: function () {
         return { vermerk: FREI_VERMERK, datei: bildName('Probe'),
                  teilen: teilenText() };
@@ -15162,9 +15271,13 @@ window.BV_KONFIGURATOR_FREI = true;
     var kasten = box.closest ? box.closest('.k3d-zus--folgt') : null;
     var e = stueckliste();
     if (!e || e.fehler) {
-      box.innerHTML = '';
+      /* FREIE PLANUNG: statt den Kasten zu verstecken, aus der Zeichnung
+         fuellen. Begruendung siehe freiFolgtZeilen(). */
+      if (kasten) kasten.hidden = false;
+      box.innerHTML = freiFolgtZeilen().map(function (r) {
+        return '<li><span>' + esc(r[0]) + '</span> ' + esc(r[1]) + '</li>';
+      }).join('');
       if (hinBox) hinBox.innerHTML = '';
-      if (kasten) kasten.hidden = true;
       return;
     }
     if (kasten) kasten.hidden = false;
@@ -15179,8 +15292,23 @@ window.BV_KONFIGURATOR_FREI = true;
     }
     z.push(['Sparren', e.sparren + (e.feldbreite ? ' · Achsabstand ' +
             e.feldbreite.achsabstand + ' mm' : '')]);
+    /* FREIE PLANUNG: Die Zahl der Preisliste bleibt stehen, daneben
+       steht, was die Zeichnung zeigt. Beides, damit man die Abweichung
+       sieht statt sie zu erraten. */
+    var fz = freiZeichnungZahlen();
     z.push(['Pfosten', e.pfosten + (e.pfostenReihen > 1
-            ? ' (zwei Reihen zu je ' + e.pfostenJeReihe + ')' : '')]);
+            ? ' (zwei Reihen zu je ' + e.pfostenJeReihe + ')' : '') +
+            (fz.weg > 0 ? ' · in der Zeichnung ' +
+              Math.max(0, e.pfosten - fz.weg) + ' (' + fz.weg + ' entfernt)' : '')]);
+    if (fz.daecher > 1) {
+      z.push(['Dächer', fz.daecher + ' (ein eingestelltes und ' +
+        (fz.daecher - 1) + (fz.daecher === 2 ? ' Kopie)' : ' Kopien)') +
+        ', Zahlen oben gelten je Dach']);
+    }
+    if (fz.ueberTabelle) {
+      z.push(['Über der Maßtabelle', 'Breite ' + Z.breite +
+        ' mm, Tabelle endet bei ' + fz.breiteTabelle + ' mm']);
+    }
     if (e.statiktraeger) z.push(['Statikträger', '189 × 117 mm über die volle Breite']);
     if (e.eindeckungGeteilt) z.push(['Teilung', 'Eindeckung quer geteilt, mit Querfuge']);
     /* Der Innenkern stand hier als eigene Zeile. Er hat mit der

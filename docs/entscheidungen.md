@@ -18630,3 +18630,45 @@ Maus.
 Entfernte Pfosten stehen noch in der Liste, zusätzliche Dächer zählen
 nicht mit, und bei Maßen über der Tabelle stammen die Bauteile aus einer
 kleineren Anlage.
+
+## 17.11.2026 – Freie Planung: die Stückliste folgt der Zeichnung
+
+**Anlass.** Eigener offener Punkt, vom Betreiber mit „weiter"
+freigegeben.
+
+**Was jetzt gilt.** Der Kasten „Was daraus folgt" ist in der freien
+Planung immer gefüllt, auch ohne `/api/bauteile`. Gerechnet wird aus
+`js/masstabelle.js`. Entfernte Pfosten werden abgezogen, zusätzliche
+Dächer mitgezählt, und wenn die Breite über der Tabelle liegt, steht das
+als eigene Zeile da, nicht im Kleingedruckten.
+
+Gemessen bei 20000 × 9000 mm, einem entfernten Pfosten, einem
+zusätzlichen Dach: „Sparren 21 je Dach, insgesamt 42", „Pfosten 4 statt
+5 (1 entfernt), insgesamt 8", „Über der Maßtabelle: Breite 20000 mm,
+Tabelle endet bei 14080 mm".
+
+**Zwei Fehler, die erst die eigene Prüfung gefunden hat.** Beide sind
+der Grund, warum die Prüfung im Browser misst und nicht im Quelltext:
+
+1. **Die Stückliste frischte sich nicht auf.** Sie hängt an `aendern()`.
+   Pfosten wegnehmen und Dächer hinzufügen rufen das nicht, also blieb
+   der Kasten auf dem alten Stand stehen und zeigte 6 Pfosten, während
+   einer entfernt war. Jede dieser Aktionen frischt ihn jetzt selbst
+   auf.
+2. **Der Prüfpunkt traf keinen Pfosten.** Erst war es ein geratener
+   Bildpunkt, dann der Mittelpunkt des ersten Pfostens im Baum. Der
+   kann hinter dem Dach liegen, und die Trefferlogik nimmt dann das
+   Dach. `BV_FREI.pfostenPunkt()` prüft jeden Punkt jetzt mit
+   derselben Logik, die auch der Doppelklick benutzt, und liefert den
+   ersten, der wirklich trifft. Dass ein Punkt gefunden wurde, ist eine
+   eigene Prüfzeile: Ein stilles „nicht getroffen" hätte die Stückliste
+   fälschlich als fehlerhaft gemeldet.
+
+**Nicht geändert:** Auf den beiden öffentlichen Seiten bleibt der Kasten
+ohne Schnittstelle leer. Das prüft `pruefe-freie-planung.mjs` ausdrücklich
+nach.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 32 von 32,
+`pruefe-konfigurator-frei.sh` 12 von 12.
+
+**Offen.** Der Preis folgt der Zeichnung weiterhin nicht.
