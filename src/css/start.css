@@ -3,7 +3,7 @@
 
    WARUM EINE EIGENE DATEI. Die Startseite bekommt das freigegebene
    Designsystem aus docs/WEBSITE_DESIGN_SYSTEM.md (Manrope, Markengold
-   #C67F2D, Tiefschwarz, Anthrazit, Warmweiß). `src/css/style.css` wird von
+   #C58A32, Tiefschwarz, Anthrazit, Warmweiß). `src/css/style.css` wird von
    rund 55 weiteren Seiten benutzt – eine Änderung dort hätte alle
    mitverändert. Der Auftrag sagt ausdrücklich: nur die Startseite.
 
@@ -15,35 +15,36 @@
 
    KONTRASTE. Die Werte stehen in docs/WEBSITE_DESIGN_SYSTEM.md und sind
    dort gemessen, nicht geschätzt. Drei Regeln daraus sind hier verbaut:
-     1. Gold #C67F2D ist auf hellem Grund KEINE Textfarbe (3,03:1 auf
-        Warmweiß). Für Text auf Hell gilt --gold-text #8C5A20.
-     2. Auf einer Goldfläche steht Tiefschwarz, nie Weiß (6,07 statt 3,24).
+     1. Gold #C58A32 ist auf hellem Grund KEINE Textfarbe (2,78:1 auf
+        Warmweiß). Für Text auf Hell gilt --gold-text #896023 (5,21:1).
+     2. Auf einer Goldfläche steht Tiefschwarz, nie Weiß (6,61 statt 2,98).
         .btn-gold benutzt var(--black), das stimmt damit von selbst.
      3. Keine Schriftschnitte unter 400.
    =========================================================================== */
 
 .start-premium {
-  /* --- Palette. Markengold aus der Markenbibliothek, 17.11.2026 ---
+  /* --- Palette, freigegeben am 13.11.2026, bestaetigt am 17.11.2026 ---
 
-     Bis zum 16.11.2026 stand hier #C58A32 aus der Freigabe vom 13.11.
-     Am 17.11. hat der Betreiber die Markenbibliothek geliefert
-     (BV_AussenSysteme_Brand_Library, Stand 30.10.2026). Dort steht
-     Gold #c67f2d als "verbindlich, nicht verhandelbar", dazu der Satz
-     "Markenfarben verändern, auch nicht nur leicht". Auf Nachfrage hat
-     der Betreiber entschieden: Die Bibliothek gilt.
+     HIN UND ZURUECK, und warum das so stehen bleibt. Am 17.11. wurde
+     das Gold kurzzeitig auf #C67F2D gesetzt, den Wert aus der
+     Markenbibliothek. Der Betreiber hat es sich am selben Tag
+     angesehen und entschieden: "ich fand das andere Gold besser".
+     Also zurueck auf #C58A32 und die vier abgeleiteten Toene vom
+     13.11.
 
-     Die vier abgeleiteten Töne sind neu berechnet, nicht übernommen.
-     Gleicher Farbton (32,2°) und gleiche Sättigung (63 %) wie das
-     Markengold, Helligkeit so weit verschoben, bis der Kontrast gegen
-     den jeweils UNGÜNSTIGSTEN Grund der Seite reicht: Steingrau
-     #E9E7E2 auf der hellen Seite, Graphit #34383C auf der dunklen.
-     Gegen Weiß zu rechnen wäre zu gutmütig gewesen und hätte auf
-     Steingrau durchgefallene Werte ergeben. */
-  --gold:       #C67F2D;   /* Markengold. Fläche, Linie, Akzent */
-  --gold-dark:  #A86C26;   /* nur Flächen (Hover). Tiefschwarz darauf 4,53:1 */
-  --gold-text:  #8C5A20;   /* Gold als TEXT auf Hell. Steingrau 4,72:1 */
-  --gold-light: #D6974D;   /* helles Gold, Text auf Dunkel. Graphit 4,72:1 */
-  --champagner: #D5C5B3;   /* Fokusring auf Dunkel. Graphit 7,02:1 */
+     BEWUSSTE ABWEICHUNG, die jemand sonst "aufraeumen" wuerde: Die
+     Logodateien sind seit dem 17.11. die SVG-Dateien der
+     Markenbibliothek und tragen fest #c67f2d. Palette und Logo liegen
+     damit 6,8 ΔE auseinander, sichtbar ab etwa 2,3. Das ist bekannt
+     und so gewollt. Das Logo wird NICHT umgefaerbt: Die
+     Markenbibliothek verbietet das ausdruecklich. Wer die Palette
+     spaeter wieder auf das Logo zieht, aendert eine Entscheidung des
+     Betreibers, nicht einen Fehler. */
+  --gold:       #C58A32;   /* Markengold. Flaeche, Linie, Akzent */
+  --gold-dark:  #A3701F;   /* nur Flaechen (Hover), nie Text auf Hell */
+  --gold-text:  #896023;   /* Gold als TEXT auf hellem Grund, 5,21:1 */
+  --gold-light: #D9AB64;   /* helles Gold, Text auf Dunkel, 7,76:1 */
+  --champagner: #EAD9BB;   /* Fokusring auf dunklen Abschnitten, 11,80:1 */
 
   --black:      #0B0B0C;   /* Tiefschwarz */
   --dark:       #1D2023;   /* Anthrazit */

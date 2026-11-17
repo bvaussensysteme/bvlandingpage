@@ -4,46 +4,49 @@ Stand: 17.11.2026. **Palette und Schrift sind vom Auftraggeber
 freigegeben.** Die Freigabe betrifft die neue Webseite, nicht die
 laufende Live-Seite.
 
-> ## ⚠️ Das Markengold hat sich am 17.11.2026 geändert
+> ## Das Gold: hin und zurück am 17.11.2026
 >
 > Der Betreiber hat die **Markenbibliothek** geliefert
-> (`BV_AussenSysteme_Brand_Library`, Stand 30.10.2026). Dort steht
-> Gold **`#C67F2D`** als „verbindlich, nicht verhandelbar", dazu der
-> Satz „Markenfarben verändern, auch nicht ‚nur leicht'". Auf
-> Nachfrage hat der Betreiber entschieden: **Die Bibliothek gilt.**
+> (`BV_AussenSysteme_Brand_Library`, Stand 30.10.2026). Dort steht Gold
+> `#c67f2d` als „verbindlich, nicht verhandelbar". Die Palette wurde
+> daraufhin auf `#C67F2D` umgestellt.
 >
-> Damit ersetzt `#C67F2D` das am 13.11. freigegebene `#C58A32`.
+> **Der Betreiber hat es sich angesehen und zurückgenommen:** „ich fand
+> das andere Gold besser". Es gilt wieder **`#C58A32`** mit den vier
+> abgeleiteten Tönen vom 13.11.2026.
 >
-> **Warum die Freigabe vom 13.11. trotzdem richtig gearbeitet war:**
-> Sie stützte sich auf eine Messung aus `images/logo-frei.png`
-> (`#C58930`). Die Markenbibliothek zeigt, dass die PNG-Dateien auf
-> der Seite untereinander abwichen. Die Messung weiter unten hatte das
-> schon gesehen: `images/logo-mark.png` trug `#C67F2D`, also exakt den
-> Wert der Bibliothek, `images/logo-hell.png` dagegen `#E69B26`.
-> Die Bibliothek ist die Quelle, die PNG-Dateien waren Kopien mit
-> Drift. Seit dem 17.11. benutzt die Seite die SVG-Dateien der
-> Bibliothek, in denen genau `#010101` und `#c67f2d` stehen.
+> ### Daraus folgt eine bewusste Abweichung
 >
-> **Die vier abgeleiteten Töne sind neu gerechnet, nicht umgefärbt.**
-> Gleicher Farbton (32,2°) und gleiche Sättigung (63 %) wie das
-> Markengold, Helligkeit so weit verschoben, bis der Kontrast gegen
-> den jeweils **ungünstigsten** Grund der Seite reicht: Steingrau
-> `#E9E7E2` auf der hellen Seite, Graphit `#34383C` auf der dunklen.
+> Die Logodateien sind seit dem 17.11. die **SVG-Dateien der
+> Markenbibliothek** und tragen fest `#c67f2d`. Gemessen liegen Palette
+> und Logo **ΔE 6,8** auseinander; sichtbar wird ein Unterschied ab
+> etwa 2,3. Am deutlichsten dort, wo beides aneinanderstößt: die
+> goldene Linie unter der Kopfzeile sitzt direkt unter dem Logo.
+>
+> **Das Logo wird nicht umgefärbt.** Die Markenbibliothek verbietet das
+> ausdrücklich („Markenfarben verändern, auch nicht ‚nur leicht'").
+>
+> Zum Vergleich: Das Gold der laufenden Live-Seite `#C49A2A` liegt
+> ΔE 18,4 vom Logo entfernt. Die Abweichung ist also deutlich kleiner
+> als das, was heute live steht.
+>
+> Das ist eine Entscheidung, kein Versehen. `pruefe-palette.py` prüft
+> die Zahl mit und schlägt an, sobald sie sich ändert.
 
 ## ✅ Freigegeben: die Palette (13.11.2026)
 
-**#C67F2D** ersetzt **#C58A32** als primäres Gold-Token der neuen
-Webseite (Entscheidung vom 17.11.2026 nach der Markenbibliothek; davor
-hatte **#C58A32** am 13.11. das ältere **#C49A2A** ersetzt). Dazu helles Gold **#D6974D**, Anthrazit
+**#C58A32** ersetzt **#C49A2A** als primäres Gold-Token der neuen
+Webseite (Freigabe vom 13.11.2026, am 17.11.2026 bestätigt, nachdem
+`#C67F2D` aus der Markenbibliothek ausprobiert und verworfen wurde). Dazu helles Gold **#D9AB64**, Anthrazit
 **#1D2023**, Warmweiß **#F8F7F4**, Schrift **Manrope**.
 
 | Token | Wert | wofür |
 |---|---|---|
-| `--gold` | `#C67F2D` | Fläche, Linie, Akzent |
-| `--gold-dark` | `#A86C26` | nur Flächen (Hover) |
-| `--gold-text` | `#8C5A20` | Gold als Text auf hellem Grund |
-| `--gold-light` | `#D6974D` | Text auf dunklem Grund |
-| `--champagner` | `#D5C5B3` | Fokusring auf dunklen Abschnitten |
+| `--gold` | `#C58A32` | Fläche, Linie, Akzent |
+| `--gold-dark` | `#A3701F` | nur Flächen (Hover) |
+| `--gold-text` | `#896023` | Gold als Text auf hellem Grund |
+| `--gold-light` | `#D9AB64` | Text auf dunklem Grund |
+| `--champagner` | `#EAD9BB` | Fokusring auf dunklen Abschnitten |
 
 **Die Original-Logos bleiben unverändert und werden nicht umgefärbt.**
 
@@ -85,29 +88,29 @@ keine Abweichung der Palette – vor der Verwendung prüfen, ob sie
 
 | Kombination | Kontrast | |
 |---|---|---|
-| Gold `#C67F2D` auf Anthrazit `#1D2023` | 5,05:1 | ok |
-| Gold `#C67F2D` auf Tiefschwarz `#0B0B0C` | 6,07:1 | ok |
-| Helles Gold `#D6974D` auf Anthrazit `#1D2023` | 6,54:1 | ok |
-| Helles Gold `#D6974D` auf Tiefschwarz `#0B0B0C` | 7,86:1 | ok |
-| Helles Gold `#D6974D` auf Graphit `#34383C` | 4,72:1 | ok |
-| Tiefschwarz `#0B0B0C` auf Goldfläche `#C67F2D` | 6,07:1 | ok |
-| Tiefschwarz `#0B0B0C` auf Gold-Hover `#A86C26` | 4,53:1 | ok |
+| Gold `#C58A32` auf Anthrazit `#1D2023` | 5,50:1 | ok |
+| Gold `#C58A32` auf Tiefschwarz `#0B0B0C` | 6,61:1 | ok |
+| Helles Gold `#D9AB64` auf Anthrazit `#1D2023` | 7,76:1 | ok |
+| Helles Gold `#D9AB64` auf Tiefschwarz `#0B0B0C` | 9,33:1 | ok |
+| Helles Gold `#D9AB64` auf Graphit `#34383C` | 5,60:1 | ok |
+| Tiefschwarz `#0B0B0C` auf Goldfläche `#C58A32` | 6,61:1 | ok |
+| Tiefschwarz `#0B0B0C` auf Gold-Hover `#A3701F` | 4,59:1 | ok |
 | Anthrazit `#1D2023` auf Warmweiß `#F8F7F4` | 15,28:1 | ok |
-| Champagner `#D5C5B3` auf Anthrazit `#1D2023` | 9,72:1 | ok |
-| Champagner `#D5C5B3` auf Graphit `#34383C` | 7,02:1 | ok |
+| Champagner `#EAD9BB` auf Anthrazit `#1D2023` | 11,80:1 | ok |
+| Champagner `#EAD9BB` auf Graphit `#34383C` | 8,52:1 | ok |
 | Graphit `#34383C` auf Warmweiß `#F8F7F4` | 11,03:1 | ok |
-| **Gold `#C67F2D` auf Warmweiß `#F8F7F4`** | **3,03:1** | **zu wenig** |
-| **Gold `#C67F2D` auf Weiß `#FFFFFF`** | **3,24:1** | **zu wenig** |
-| **Weiß `#FFFFFF` auf Goldfläche `#C67F2D`** | **3,24:1** | **zu wenig** |
-| **Helles Gold `#D6974D` auf Warmweiß `#F8F7F4`** | **2,34:1** | **zu wenig** |
+| **Gold `#C58A32` auf Warmweiß `#F8F7F4`** | **2,78:1** | **zu wenig** |
+| **Gold `#C58A32` auf Weiß `#FFFFFF`** | **2,98:1** | **zu wenig** |
+| **Weiß `#FFFFFF` auf Goldfläche `#C58A32`** | **2,98:1** | **zu wenig** |
+| **Helles Gold `#D9AB64` auf Warmweiß `#F8F7F4`** | **1,97:1** | **zu wenig** |
 
 Daraus drei Regeln, die nicht verhandelbar sind:
 
-1. **Gold ist auf hellem Grund keine Textfarbe.** 3,03:1 liegt
-   unter 4,5:1, also auch für große Schrift zu wenig.
+1. **Gold ist auf hellem Grund keine Textfarbe.** 2,78:1 liegt unter
+   4,5:1 und sogar unter 3:1, also auch für große Schrift zu wenig.
    Als Fläche, Linie oder Symbol ist es dort in Ordnung.
 2. **Auf einer Goldfläche steht dunkler Text, nicht weißer.** Weiß
-   erreicht 3,24:1, Tiefschwarz 6,07:1. Goldene Knöpfe bekommen
+   erreicht 2,98:1, Tiefschwarz 6,61:1. Goldene Knöpfe bekommen
    `#0B0B0C`.
 3. **Für Gold als Text auf hellem Grund gibt es einen eigenen Wert**
    (siehe unten) – so, wie die heutige Seite es mit `--gold-text` schon
@@ -120,14 +123,14 @@ Technikwerte haben `ux-architect` und `qa-accessibility-auditor`
 entschieden. Alle Zahlen unten sind nachgerechnet – sieben Stichproben
 aus den Agentenberichten stimmten auf die zweite Nachkommastelle.
 
-#### Ein dunkles Gold, nicht mehrere: `--gold-text: #8C5A20`
+#### Ein dunkles Gold, nicht mehrere: `--gold-text: #896023`
 
 | auf | Kontrast | Text (4,5:1) | Bedienelement (3:1) |
 |---|---|---|---|
-| Warmweiß `#F8F7F4` | 5,45:1 | ja | ja |
-| Weiß `#FFFFFF` | 5,84:1 | ja | ja |
-| Steingrau `#E9E7E2` | 4,72:1 | ja | ja |
-| Champagner `#D5C5B3` | 3,46:1 | **nein** | ja |
+| Warmweiß `#F8F7F4` | 5,21:1 | ja | ja |
+| Weiß `#FFFFFF` | 5,58:1 | ja | ja |
+| Steingrau `#E9E7E2` | 4,52:1 | ja (knapp) | ja |
+| Champagner `#EAD9BB` | 4,03:1 | **nein** | ja |
 
 Ein Wert statt drei: Drei Goldbrauntöne nebeneinander fallen optisch
 auseinander und sind in der Pflege fehleranfällig.
@@ -140,15 +143,15 @@ Steingrau durchfällt. Genau das war bei der ersten Ableitung am
 
 #### Wo welches Gold erlaubt ist
 
-| Untergrund | Markengold `#C67F2D` | Helles Gold `#D6974D` | Textgold `#8C5A20` |
+| Untergrund | Markengold `#C58A32` | Helles Gold `#D9AB64` | Textgold `#896023` |
 |---|---|---|---|
-| Tiefschwarz `#0B0B0C` | alles, auch Text (6,07) | alles, auch Text (7,86) | – |
-| Anthrazit `#1D2023` | alles, auch Text (5,05) | alles, auch Text (6,54) | – |
-| Graphit `#34383C` | Bedienelement (3,64), **kein Text** | alles, auch Text (4,72) | – |
-| Warmweiß `#F8F7F4` | Bedienelement (3,03), **kein Text** | **nur Dekor** (2,34) | alles, auch Text (5,45) |
-| Weiß `#FFFFFF` | Bedienelement (3,24), **kein Text** | **nur Dekor** (2,50) | alles, auch Text (5,84) |
-| Steingrau `#E9E7E2` | **nur Dekor** (2,62) | **nur Dekor** (2,02) | alles, auch Text (4,72) |
-| Champagner `#D5C5B3` | **nur Dekor** (1,93) | **nur Dekor** (1,49) | Bedienelement (3,46), **kein Text** |
+| Tiefschwarz `#0B0B0C` | alles, auch Text (6,61) | alles, auch Text (9,33) | – |
+| Anthrazit `#1D2023` | alles, auch Text (5,50) | alles, auch Text (7,76) | – |
+| Graphit `#34383C` | Bedienelement (3,97), **kein Text** | alles, auch Text (5,60) | – |
+| Warmweiß `#F8F7F4` | **nur Dekor** (2,78) | **nur Dekor** (1,97) | alles, auch Text (5,21) |
+| Weiß `#FFFFFF` | **nur Dekor** (2,98) | **nur Dekor** (2,11) | alles, auch Text (5,58) |
+| Steingrau `#E9E7E2` | **nur Dekor** (2,41) | **nur Dekor** (1,71) | alles, auch Text (4,52) |
+| Champagner `#EAD9BB` | **nur Dekor** (2,15) | **nur Dekor** (1,52) | Bedienelement (4,03), **kein Text** |
 
 „Nur Dekor" heißt: Fläche, Verlauf, Akzentbalken, Trennlinie ohne
 Aussage, Symbol **neben** einem Text, der dasselbe sagt. Nie als
@@ -173,8 +176,8 @@ erreicht. Geprüft und bestätigt:
 | Untergrund | Ring | Kontrast |
 |---|---|---|
 | Weiß / Warmweiß / Steingrau / Champagner | Anthrazit `#1D2023` | 11,80 – 16,37:1 |
-| Anthrazit / Tiefschwarz / Graphit | Champagner `#D5C5B3` | 7,02 – 11,68:1 |
-| Markengold / Helles Gold (Flächen) | Tiefschwarz `#0B0B0C` | 6,07 / 7,86:1 |
+| Anthrazit / Tiefschwarz / Graphit | Champagner `#EAD9BB` | 8,52 – 14,19:1 |
+| Markengold / Helles Gold (Flächen) | Tiefschwarz `#0B0B0C` | 6,61 / 9,33:1 |
 
 Umgeschaltet wird über eine **Abschnittsklasse** (`.hell` / `.dunkel`)
 und `outline-color` – **nicht** über `prefers-color-scheme`. Helle und
@@ -204,7 +207,7 @@ Es trägt `#E69B26`, ΔE 15,9 zum Markengold – deutlich oranger als das
 Hauptlogo. **Das Logo wird nicht umgefärbt.** Entscheidung: Neue Seiten
 und Abschnitte benutzen `logo-frei.png`. `logo-hell.png` bleibt nur
 dort, wo es heute schon steht, und kommt nie direkt neben
-Palettenelemente in `#C67F2D` oder `#D6974D`.
+Palettenelemente in `#C58A32` oder `#D9AB64`.
 
 > **Erledigt am 17.11.2026.** Der offene Punkt ist weg: Die
 > Markenbibliothek liefert das Logo als SVG mit genau `#c67f2d`. Die
@@ -214,7 +217,7 @@ Palettenelemente in `#C67F2D` oder `#D6974D`.
 
 #### Beim Umstellen der Live-Seite beachten
 
-Der heutige Wert `--gold-text` ist `#7A5B12`, der neue `#8C5A20` ist
+Der heutige Wert `--gold-text` ist `#7A5B12`, der neue `#896023` ist
 **heller**. Beim Tausch können knappe Stellen kippen. Danach **alle**
 `scripts/pruefe-*` laufen lassen, nicht die vermuteten.
 
@@ -258,10 +261,10 @@ in der Einwilligung.
 | Tiefschwarz | `#0B0B0C` | dunkle Flächen, Grund |
 | Anthrazit | `#1D2023` | abgesetzte dunkle Flächen |
 | Graphit | `#34383C` | Linien und Ränder auf Dunkel |
-| Markengold | `#C67F2D` | Akzent, sparsam, **nicht als Text auf Hell** |
-| Textgold | `#8C5A20` | Gold als Text **und** Bedienelement auf hellem Grund (von den Design-Agenten entschieden) |
-| Helles Gold | `#D6974D` | Gold als Text auf dunklem Grund |
-| Champagner | `#D5C5B3` | sehr sparsam, große Flächen |
+| Markengold | `#C58A32` | Akzent, sparsam, **nicht als Text auf Hell** |
+| Textgold | `#896023` | Gold als Text **und** Bedienelement auf hellem Grund (von den Design-Agenten entschieden) |
+| Helles Gold | `#D9AB64` | Gold als Text auf dunklem Grund |
+| Champagner | `#EAD9BB` | sehr sparsam, große Flächen |
 | Warmweiß | `#F8F7F4` | heller Grund |
 | Steingrau | `#E9E7E2` | abgesetzte helle Flächen |
 | Weiß | `#FFFFFF` | Karten, Formularfelder |
@@ -304,3 +307,13 @@ eintragen.
 Zurückhaltend und begründet. Nichts Wichtiges darf nur per Animation
 erscheinen. `prefers-reduced-motion` wird beachtet – und wer Bewegung
 reduziert hat, bekommt trotzdem alle Bedienelemente, nur ohne Fahrt.
+
+## Bewusste Abweichung vom Logo-Gold
+
+**Markengold `#C58A32`, Logo-Gold `#c67f2d`, Abstand ΔE 6,8** (CIE76).
+
+Entschieden am 17.11.2026 vom Betreiber, nachdem beide Fassungen auf
+der Vorschau nebeneinander zu sehen waren. Das Logo wird nicht
+umgefärbt. `pruefe-palette.py` liest diese Zeile und rechnet den Wert
+nach: Ändert sich Palette oder Logo, stimmt die Zahl nicht mehr und die
+Prüfung schlägt an.

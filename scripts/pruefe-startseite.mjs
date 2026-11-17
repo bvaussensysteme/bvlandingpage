@@ -8,8 +8,8 @@
  *   1. Ob die Schicht ueberhaupt greift (Reihenfolge, Spezifitaet).
  *   2. Ob die Seite am Handy waagerecht scrollt.
  *   3. Ob Gold als TEXT auf hellem Grund steht - die Regel aus dem
- *      Designsystem, die am leichtesten unbemerkt bricht: #C67F2D
- *      erreicht auf Warmweiss nur 3,03:1 und ist dort keine Textfarbe.
+ *      Designsystem, die am leichtesten unbemerkt bricht: #C58A32
+ *      erreicht auf Warmweiss nur 2,78:1 und ist dort keine Textfarbe.
  *
  * Ausserdem wird nachgesehen, dass die Bestandsfunktionen noch da sind -
  * der Auftrag schuetzt sie ausdruecklich.
@@ -143,14 +143,14 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
 
   if (GEGENPROBE) {
     pruef(`${name}: ohne die Schicht greift die neue Palette nicht`,
-      m.gold !== '#C67F2D', `--gold: ${m.gold || '(leer)'}`);
+      m.gold !== '#C58A32', `--gold: ${m.gold || '(leer)'}`);
     await seite.close();
     continue;
   }
 
   pruef(`${name}: Premium-Schicht liegt an`, m.klasse, 'body.start-premium');
-  pruef(`${name}: Markengold ist gesetzt`, m.gold === '#C67F2D', m.gold);
-  pruef(`${name}: Textgold ist gesetzt`, m.goldText === '#8C5A20', m.goldText);
+  pruef(`${name}: Markengold ist gesetzt`, m.gold === '#C58A32', m.gold);
+  pruef(`${name}: Textgold ist gesetzt`, m.goldText === '#896023', m.goldText);
   pruef(`${name}: Tiefschwarz ist gesetzt`, m.schwarz === '#0B0B0C', m.schwarz);
   pruef(`${name}: Manrope ist die erste Schriftwahl`, /Manrope/i.test(m.schrift), m.schrift.slice(0, 34));
   pruef(`${name}: Kein Gold als Text auf hellem Grund`,

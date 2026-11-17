@@ -18400,3 +18400,54 @@ dieser Änderung. Die Seite scrollt dort nicht waagerecht.
 **Nicht angefasst.** Die Markenbibliothek liegt nicht im Repository.
 `bvlandingpage` ist öffentlich; der Gestaltungs-Prompt und die
 Lizenznotiz gehören nicht dorthin.
+
+## 17.11.2026 – Gold zurück auf #C58A32, und was daraus folgt
+
+**Anlass.** Nach dem Umstellen auf das Gold der Markenbibliothek hat der
+Betreiber es sich auf der Vorschau angesehen: „ich fand das andere Gold
+besser". Entscheidung: zurück auf `#C58A32` und die vier abgeleiteten
+Töne vom 13.11.2026.
+
+**Was jetzt gilt.** `--gold #C58A32`, `--gold-dark #A3701F`,
+`--gold-text #896023`, `--gold-light #D9AB64`, `--champagner #EAD9BB`.
+Die Werte sind dieselben wie vor dem Ausflug, alle Kontrasttabellen im
+Designsystem neu gerechnet und auf diese Werte zurückgestellt.
+
+**Die Logos bleiben die SVG-Dateien der Markenbibliothek.** Das war eine
+eigene Entscheidung und ist von der Farbfrage nicht berührt: schärfer,
+nach gzip halb so groß, und mit dem Schutzraum, den die Bibliothek
+verlangt.
+
+**Daraus folgt eine bewusste Abweichung, und die ist der eigentliche
+Punkt dieses Eintrags.** Die SVG-Dateien tragen fest `#c67f2d`. Palette
+und Logo liegen damit ΔE 6,8 auseinander (CIE76), sichtbar ab etwa 2,3.
+Am deutlichsten dort, wo beides aneinanderstößt: Die goldene Linie unter
+der Kopfzeile sitzt direkt unter dem Logo.
+
+Zur Einordnung: Das Gold der laufenden Live-Seite `#C49A2A` liegt
+ΔE 18,4 vom Logo entfernt. Was jetzt gebaut ist, liegt also deutlich
+näher beieinander als das, was heute live steht.
+
+**Das Logo wird nicht umgefärbt.** Die Markenbibliothek verbietet das
+ausdrücklich: „Markenfarben verändern, auch nicht ‚nur leicht'".
+
+**Wie das abgesichert ist.** `pruefe-palette.py` hat eine neue Regel:
+Eine Abweichung über ΔE 3 ist erlaubt, **wenn** sie im Designsystem mit
+genau der gemessenen Zahl steht. Die Prüfung rechnet die Zahl nach.
+Verschiebt sich Palette oder Logo, stimmt sie nicht mehr und die
+Prüfung schlägt an. Eine Prüfung, die jede Abweichung durchließe, wäre
+wertlos; eine, die eine bewusste Entscheidung verbietet, wäre falsch.
+
+Die Gegenprobe hat dafür einen sechsten eingebauten Fehler bekommen: Die
+dokumentierte Zahl wird auf 1,2 verfälscht. **6 von 6 erkannt.**
+
+**Verworfen:** die PNG-Logos zurückzuholen, deren Gold näher an der
+Palette lag. `logo-frei.png` trug `#C58930`, aber nur diese eine Datei;
+`logo-hell.png` trug `#E69B26` und lag mit ΔE 15,9 weiter weg als die
+jetzige Lösung. Dazu unscharf, mit eingebranntem Kasten und doppelt so
+groß in der Übertragung.
+
+**Gegengelesen.** `pruefe-palette` bestanden, Gegenprobe 6 von 6,
+`pruefe-startseite` 39/39, `pruefe-darstellung` 144/144,
+`pruefe-mitwachsend` 28/28, `pruefe-farbtreue` 3/3, `pruefe-bewegung`
+und `pruefe-cache-buster` bestanden.

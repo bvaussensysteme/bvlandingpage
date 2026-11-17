@@ -132,21 +132,28 @@ def logo_gold(pfad):
 # als sie behauptet.
 FEHLER = [
     ('eine zu schwache Kombination steht als "ok" im Dokument',
-     '| Gold `#C67F2D` auf Anthrazit `#1D2023` | 5,05:1 | ok |',
-     '| Gold `#C67F2D` auf Warmweiß `#F8F7F4` | 5,05:1 | ok |'),
+     '| Gold `#C58A32` auf Anthrazit `#1D2023` | 5,50:1 | ok |',
+     '| Gold `#C58A32` auf Warmweiß `#F8F7F4` | 5,50:1 | ok |'),
     ('eine ausreichende Kombination steht als "zu wenig" im Dokument',
-     '| **Gold `#C67F2D` auf Weiß `#FFFFFF`** | **3,24:1** | **zu wenig** |',
-     '| **Gold `#C67F2D` auf Tiefschwarz `#0B0B0C`** | **3,24:1** | **zu wenig** |'),
+     '| **Gold `#C58A32` auf Weiß `#FFFFFF`** | **2,98:1** | **zu wenig** |',
+     '| **Gold `#C58A32` auf Tiefschwarz `#0B0B0C`** | **2,98:1** | **zu wenig** |'),
     ('das Textgold ist zu hell',
-     '`--gold-text: #8C5A20`', '`--gold-text: #C8A050`'),
+     '`--gold-text: #896023`', '`--gold-text: #C8A050`'),
     ('das Markengold passt nicht mehr zum Logo',
-     '#C67F2D** ersetzt', '#44AA88** ersetzt'),
+     '#C58A32** ersetzt', '#44AA88** ersetzt'),
     # Graphit als Ring auf dunklem Grund: 1,38 auf Anthrazit, 1,66 auf
     # Tiefschwarz. Erster Entwurf nahm hier Markengold - das erreicht auf
     # allen drei dunklen Gruenden ueber 3:1 und war damit gar kein Fehler.
     # Die Gegenprobe hat ihren eigenen untauglichen Fehler aufgedeckt.
+    # Seit dem 17.11.2026 darf das Markengold vom Logo abweichen, wenn
+    # die Abweichung mit ihrer Zahl im Dokument steht. Dieser eingebaute
+    # Fehler prueft genau das: eine falsche Zahl muss auffallen, sonst
+    # waere die Ausnahme ein Freibrief.
+    ('die dokumentierte Abweichung vom Logo-Gold stimmt nicht',
+     'Logo-Gold `#c67f2d`, Abstand ΔE 6,8**',
+     'Logo-Gold `#c67f2d`, Abstand ΔE 1,2**'),
     ('ein Fokusring erreicht seinen Untergrund nicht',
-     '| Anthrazit / Tiefschwarz / Graphit | Champagner `#D5C5B3` |',
+     '| Anthrazit / Tiefschwarz / Graphit | Champagner `#EAD9BB` |',
      '| Anthrazit / Tiefschwarz / Graphit | Graphit `#34383C` |'),
 ]
 
@@ -241,8 +248,31 @@ def pruefen(text):
     else:
         d = abstand(hx(markengold), gold_im_logo)
         lg = '#%02X%02X%02X' % gold_im_logo
-        p(d < 3.0, f'Markengold {markengold} passt zum Logo',
-          f'Logo trägt {lg}, Abstand ΔE {d:.1f} (Soll: unter 3)')
+        # Eine Abweichung ueber ΔE 3 ist erlaubt, WENN sie im Dokument
+        # mit genau der gemessenen Zahl steht. Grund: Am 17.11.2026 hat
+        # der Betreiber das Markengold bewusst auf #C58A32 gelassen,
+        # obwohl das Logo #c67f2d traegt. Eine Pruefung, die das
+        # verbietet, waere falsch; eine, die jede Abweichung durchlaesst,
+        # waere wertlos. Deshalb muss die Zahl im Dokument stehen und
+        # stimmen. Verschiebt sich Palette oder Logo, passt die Zahl
+        # nicht mehr und die Pruefung schlaegt an.
+        m_abw = re.search(r'Markengold `(#[0-9A-Fa-f]{6})`, Logo-Gold '
+                          r'`(#[0-9A-Fa-f]{6})`, Abstand ΔE ([\d,]+)\*\*', text)
+        if d < 3.0:
+            p(True, f'Markengold {markengold} passt zum Logo',
+              f'Logo trägt {lg}, Abstand ΔE {d:.1f} (Soll: unter 3)')
+        elif not m_abw:
+            p(False, f'Markengold {markengold} passt zum Logo',
+              f'Logo trägt {lg}, Abstand ΔE {d:.1f} und keine bewusste '
+              f'Abweichung im Dokument')
+        else:
+            doc_pal, doc_logo, doc_de = m_abw.group(1), m_abw.group(2), m_abw.group(3)
+            stimmt = (doc_pal.lower() == markengold.lower()
+                      and doc_logo.lower() == lg.lower()
+                      and abs(float(doc_de.replace(',', '.')) - d) <= 0.15)
+            p(stimmt, f'Bewusste Abweichung vom Logo-Gold ist dokumentiert',
+              f'gemessen {markengold} zu {lg}, ΔE {d:.1f}; Dokument sagt '
+              f'{doc_pal} zu {doc_logo}, ΔE {doc_de}')
     return ergebnis
 
 # ── Bericht ─────────────────────────────────────────────────────────

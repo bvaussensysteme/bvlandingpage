@@ -434,9 +434,11 @@ gearbeitet wird – seit der Freigabe vom 13.11.2026 gibt es zwei:
   `--gold-text #7A5B12`, `--black #111111`, Barlow Condensed und Inter).
   Hier ändert sich nichts, bis dazu eigens entschieden wird.
 - **Neue Webseite:** `docs/WEBSITE_DESIGN_SYSTEM.md` (Markengold
-  `#C67F2D` aus der Markenbibliothek, Manrope). Vom Auftraggeber
-  freigegeben; das Gold am 17.11.2026 auf den Wert der
-  Markenbibliothek gesetzt.
+  `#C58A32`, Manrope). Vom Auftraggeber freigegeben. Das Gold der
+  Markenbibliothek `#c67f2d` wurde am 17.11.2026 ausprobiert und vom
+  Betreiber verworfen; die Logos sind seitdem trotzdem die SVG-Dateien
+  der Bibliothek. Die Abweichung ΔE 6,8 zwischen Palette und Logo ist
+  bewusst und wird von `scripts/pruefe-palette.py` mitgeprüft.
 
 Beides nebeneinander ist Absicht, nicht Schlamperei: Die Freigabe gilt
 dem Neubau, die Live-Seite läuft unverändert weiter. Fremde Paletten,
