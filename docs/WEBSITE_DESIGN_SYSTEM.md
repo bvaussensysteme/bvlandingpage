@@ -32,9 +32,9 @@ laufende Live-Seite.
 
 ## ✅ Freigegeben: die Palette (13.11.2026)
 
-Primäres Gold-Token der neuen Webseite ist **#C67F2D** aus der
-Markenbibliothek (Entscheidung vom 17.11.2026; davor **#C58A32**,
-davor **#C49A2A**). Dazu helles Gold **#D6974D**, Anthrazit
+**#C67F2D** ersetzt **#C58A32** als primäres Gold-Token der neuen
+Webseite (Entscheidung vom 17.11.2026 nach der Markenbibliothek; davor
+hatte **#C58A32** am 13.11. das ältere **#C49A2A** ersetzt). Dazu helles Gold **#D6974D**, Anthrazit
 **#1D2023**, Warmweiß **#F8F7F4**, Schrift **Manrope**.
 
 | Token | Wert | wofür |
@@ -62,7 +62,14 @@ gesättigte Farbe bestimmt:
 ΔE nach CIE76. Unter rund 2,3 sieht das menschliche Auge keinen
 Unterschied mehr.
 
-**Das Hauptlogo trägt also praktisch exakt #C58A32.** Die Entscheidung
+**Nachtrag 17.11.2026:** Diese Messung las drei PNG-Dateien aus, die
+untereinander abwichen. Die Markenbibliothek zeigt, welche recht
+hatte: `logo-mark.png` mit `#C67F2D`. Die Schlussfolgerung von damals,
+das Hauptlogo trage praktisch exakt `#C58A32`, galt nur für
+`logo-frei.png` und ist überholt. Die Zahlen unten bleiben stehen, weil
+sie richtig gemessen waren.
+
+Die Entscheidung
 korrigiert eine Abweichung, die vorher bestand: Das bisherige
 Webseiten-Gold #C49A2A lag sichtbar neben dem Logo-Gold. Die Freigabe
 bringt Seite und Logo zusammen.
@@ -166,8 +173,8 @@ erreicht. Geprüft und bestätigt:
 | Untergrund | Ring | Kontrast |
 |---|---|---|
 | Weiß / Warmweiß / Steingrau / Champagner | Anthrazit `#1D2023` | 11,80 – 16,37:1 |
-| Anthrazit / Tiefschwarz / Graphit | Champagner `#EAD9BB` | 8,52 – 14,19:1 |
-| Markengold / Helles Gold (Flächen) | Tiefschwarz `#0B0B0C` | 6,61 / 9,33:1 |
+| Anthrazit / Tiefschwarz / Graphit | Champagner `#D5C5B3` | 7,02 – 11,68:1 |
+| Markengold / Helles Gold (Flächen) | Tiefschwarz `#0B0B0C` | 6,07 / 7,86:1 |
 
 Umgeschaltet wird über eine **Abschnittsklasse** (`.hell` / `.dunkel`)
 und `outline-color` – **nicht** über `prefers-color-scheme`. Helle und
@@ -197,15 +204,17 @@ Es trägt `#E69B26`, ΔE 15,9 zum Markengold – deutlich oranger als das
 Hauptlogo. **Das Logo wird nicht umgefärbt.** Entscheidung: Neue Seiten
 und Abschnitte benutzen `logo-frei.png`. `logo-hell.png` bleibt nur
 dort, wo es heute schon steht, und kommt nie direkt neben
-Palettenelemente in `#C58A32` oder `#D9AB64`.
+Palettenelemente in `#C67F2D` oder `#D6974D`.
 
-**Liegt beim Auftraggeber:** eine korrigierte Hell-Variante beim
-Logo-Urheber anfragen. Bis dahin ist die Abweichung ein dokumentierter
-Bestandsfall, kein Fehler.
+> **Erledigt am 17.11.2026.** Der offene Punkt ist weg: Die
+> Markenbibliothek liefert das Logo als SVG mit genau `#c67f2d`. Die
+> Seite benutzt seitdem `images/logo-schwarz-gold.svg` und
+> `images/logo-weiss-gold.svg`. Die abgedrifteten PNG-Dateien stehen
+> nirgends mehr. Es ist nichts mehr beim Logo-Urheber anzufragen.
 
 #### Beim Umstellen der Live-Seite beachten
 
-Der heutige Wert `--gold-text` ist `#7A5B12`, der neue `#896023` ist
+Der heutige Wert `--gold-text` ist `#7A5B12`, der neue `#8C5A20` ist
 **heller**. Beim Tausch können knappe Stellen kippen. Danach **alle**
 `scripts/pruefe-*` laufen lassen, nicht die vermuteten.
 
@@ -249,10 +258,10 @@ in der Einwilligung.
 | Tiefschwarz | `#0B0B0C` | dunkle Flächen, Grund |
 | Anthrazit | `#1D2023` | abgesetzte dunkle Flächen |
 | Graphit | `#34383C` | Linien und Ränder auf Dunkel |
-| Markengold | `#C58A32` | Akzent, sparsam – **nicht als Text auf Hell** |
-| Textgold | `#896023` | Gold als Text **und** Bedienelement auf hellem Grund (von den Design-Agenten entschieden) |
-| Helles Gold | `#D9AB64` | Gold als Text auf dunklem Grund |
-| Champagner | `#EAD9BB` | sehr sparsam, große Flächen |
+| Markengold | `#C67F2D` | Akzent, sparsam, **nicht als Text auf Hell** |
+| Textgold | `#8C5A20` | Gold als Text **und** Bedienelement auf hellem Grund (von den Design-Agenten entschieden) |
+| Helles Gold | `#D6974D` | Gold als Text auf dunklem Grund |
+| Champagner | `#D5C5B3` | sehr sparsam, große Flächen |
 | Warmweiß | `#F8F7F4` | heller Grund |
 | Steingrau | `#E9E7E2` | abgesetzte helle Flächen |
 | Weiß | `#FFFFFF` | Karten, Formularfelder |

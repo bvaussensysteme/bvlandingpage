@@ -21,7 +21,12 @@ from collections import Counter
 
 WURZEL = Path(__file__).resolve().parent.parent
 DOK = WURZEL / 'docs/WEBSITE_DESIGN_SYSTEM.md'
-LOGO = WURZEL / 'images/logo-frei.png'
+# Seit dem 17.11.2026 die SVG-Datei aus der Markenbibliothek und nicht
+# mehr images/logo-frei.png. Grund: Die PNG-Dateien waren Kopien mit
+# Drift und wichen untereinander ab (logo-frei #C58930, logo-mark
+# #C67F2D, logo-hell #E69B26). Gegen eine Kopie zu pruefen heisst, die
+# Kopie zur Wahrheit zu machen. Die SVG-Datei ist die Quelle.
+LOGO = WURZEL / 'images/logo-schwarz-gold.svg'
 GEGEN = '--gegenprobe' in sys.argv
 
 def hx(s):
@@ -58,6 +63,17 @@ def logo_gold(pfad):
     """Haeufigste gesaettigte Farbe im Logo. Ohne Fremdbibliothek, damit
     die Pruefung ohne Installation laeuft."""
     d = pfad.read_bytes()
+    if pfad.suffix.lower() == '.svg':
+        # In einer SVG-Datei stehen die Farben im Klartext. Genommen wird
+        # die gesaettigtste, also nicht Schwarz und nicht Weiss.
+        werte = set(re.findall(r'#([0-9A-Fa-f]{6})', d.decode('utf-8', 'ignore')))
+        beste, bester_wert = None, -1
+        for w in werte:
+            r, g, bl = (int(w[i:i+2], 16) for i in (0, 2, 4))
+            saettigung = max(r, g, bl) - min(r, g, bl)
+            if saettigung > bester_wert:
+                beste, bester_wert = (r, g, bl), saettigung
+        return beste if bester_wert > 30 else None
     if d[:8] != b'\x89PNG\r\n\x1a\n':
         return None
     pos, idat, pal, trns = 8, b'', None, None
@@ -116,21 +132,21 @@ def logo_gold(pfad):
 # als sie behauptet.
 FEHLER = [
     ('eine zu schwache Kombination steht als "ok" im Dokument',
-     '| Gold `#C58A32` auf Anthrazit `#1D2023` | 5,50:1 | ok |',
-     '| Gold `#C58A32` auf Warmweiß `#F8F7F4` | 5,50:1 | ok |'),
+     '| Gold `#C67F2D` auf Anthrazit `#1D2023` | 5,05:1 | ok |',
+     '| Gold `#C67F2D` auf Warmweiß `#F8F7F4` | 5,05:1 | ok |'),
     ('eine ausreichende Kombination steht als "zu wenig" im Dokument',
-     '| **Gold `#C58A32` auf Weiß `#FFFFFF`** | **2,98:1** | **zu wenig** |',
-     '| **Gold `#C58A32` auf Tiefschwarz `#0B0B0C`** | **2,98:1** | **zu wenig** |'),
+     '| **Gold `#C67F2D` auf Weiß `#FFFFFF`** | **3,24:1** | **zu wenig** |',
+     '| **Gold `#C67F2D` auf Tiefschwarz `#0B0B0C`** | **3,24:1** | **zu wenig** |'),
     ('das Textgold ist zu hell',
-     '`--gold-text: #896023`', '`--gold-text: #C8A050`'),
+     '`--gold-text: #8C5A20`', '`--gold-text: #C8A050`'),
     ('das Markengold passt nicht mehr zum Logo',
-     '#C58A32** ersetzt', '#44AA88** ersetzt'),
+     '#C67F2D** ersetzt', '#44AA88** ersetzt'),
     # Graphit als Ring auf dunklem Grund: 1,38 auf Anthrazit, 1,66 auf
     # Tiefschwarz. Erster Entwurf nahm hier Markengold - das erreicht auf
     # allen drei dunklen Gruenden ueber 3:1 und war damit gar kein Fehler.
     # Die Gegenprobe hat ihren eigenen untauglichen Fehler aufgedeckt.
     ('ein Fokusring erreicht seinen Untergrund nicht',
-     '| Anthrazit / Tiefschwarz / Graphit | Champagner `#EAD9BB` |',
+     '| Anthrazit / Tiefschwarz / Graphit | Champagner `#D5C5B3` |',
      '| Anthrazit / Tiefschwarz / Graphit | Graphit `#34383C` |'),
 ]
 

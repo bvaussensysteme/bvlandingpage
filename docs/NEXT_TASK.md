@@ -369,3 +369,22 @@ fasst man sie nicht an.
    (gemessen auf der Vorschau, 390 × 750). Bis dahin ist die Seite leer,
    weil die Stylesheets das Zeichnen blockieren. Betrifft jede
    Eingangsanimation: Sie kann frühestens danach anfangen.
+
+### Altlast, nicht von heute: pruefe-broschuere.mjs beanstandet drei Punkte
+Festgestellt am 17.11.2026. Dieselben drei Beanstandungen stehen auch auf
+dem Stand vor der Markenbibliothek-Änderung (geprüft in einem
+Arbeitsbaum auf Commit `bde6857`: ebenfalls 41 bestanden, 3 nicht
+bestanden). Sie gehören also nicht zu dieser Arbeit.
+
+1. **„Die Übersetzungen sind eingetragen"** und **„Die Übersetzungsdatei
+   läuft ohne Fehler".** Die Prüfung erwartet `js/i18n.js`. Die Datei
+   gibt es nicht mehr; auf der Vorschau antwortet sie mit 404. Gelöscht
+   wurde sie in `625522e` („Drei Entscheidungen umgesetzt: Statik,
+   Bewertungen, Sprachen"). Die Prüfung wurde damals nicht mitgezogen.
+   **Zu entscheiden:** Soll die Mehrsprachigkeit zurückkommen, oder
+   fallen die beiden Prüfpunkte weg? Eine Prüfung, die auf eine
+   absichtlich entfernte Funktion zeigt, verdeckt echte Fehler.
+2. **„Das Buch zappelt nicht, wenn die Adresszeile einklappt" (366 → 318 px).**
+   Das Buch im Katalog rechnet in `vh` statt in `svh` oder `dvh`. Klappt
+   in Safari die Adresszeile ein, springt es um 48 px. Reine
+   Layoutsache, betrifft nur `/broschuere.html`.
