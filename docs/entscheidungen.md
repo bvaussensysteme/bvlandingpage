@@ -18757,3 +18757,38 @@ niemand mehr daran denken.
 „JEDER Pfosten lässt sich verschieben, auch die Ecken".
 `pruefe-konfigurator-frei.sh` 13 von 13, darin neu „Versionsnummer passt
 zum Stand der Skriptdatei".
+
+## 17.11.2026 – Flat Line: ein Doppelklick entfernte zwei Pfosten
+
+**Anlass.** „bei flatline wenn ich einen pfosten dopelklicke entfernt er
+beide auf dieser seite."
+
+**Was falsch war.** `pfostenGriff()` markierte jeden Pfosten mit Reihe
+und Nummer. An drei Stellen (`5233/5235`, `8820/8823`, `9909/9916`)
+bekommen **vorderer und hinterer** Pfosten derselben Achse dieselbe
+Marke `'vorne', iP`. Mein Schlüssel zum Wegnehmen war genau diese
+Marke, also traf er beide.
+
+Beim Terrassendach fiel es nicht auf: Dort steht hinten die Wand, es
+gibt nur eine Reihe. Beim freistehenden Carport gibt es beide.
+
+**Was jetzt gilt.** Die Marke trägt zusätzlich die Tiefe `z`. Der
+Schlüssel lautet `vorne#0#294` statt `vorne#0`. **Verschoben wird
+weiter achsweise** (beide Pfosten einer Achse gehören zusammen),
+**weggenommen einzeln**.
+
+Gemessen bei Carport Flat Line: vier Pfosten, ein Doppelklick entfernt
+genau einen.
+
+**Ein Fehler in der Prüfung, der hierher gehört.** Der erste Lauf meldete
+„nur zwei Pfosten gefunden" und damit einen Fehler, den es nicht gab:
+Die Prüfung las `BV_FREI.pfostenPunkte()`, und das liefert nur
+**sichtbare** Pfosten. Aus dem Blickwinkel, in dem die Prüfung an dieser
+Stelle stand, waren die hinteren verdeckt. Dafür gibt es jetzt
+`BV_FREI.pfostenAlle()`, das am Modell liest statt am Bild.
+
+Das ist dieselbe Fehlerart wie zweimal zuvor an diesem Tag: Die Messung
+nahm die Sicht der geprüften Logik ein, statt unabhängig nachzusehen.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 37 von 37,
+`pruefe-konfigurator-frei.sh` 13 von 13.

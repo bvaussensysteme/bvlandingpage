@@ -126,6 +126,31 @@ freigibt, macht die erste Änderung zugleich jeden Pfosten greifbar.
 Gemessen am 17.11.2026: `vorne#0`, `vorne#1` und `vorne#2` lassen sich
 einzeln wegnehmen, zurückholen und ziehen (Versatz 660, 540 und 410 mm).
 
+### Vorderer und hinterer Pfosten derselben Achse
+
+**Gemeldet vom Betreiber am 17.11.2026:** „bei flatline wenn ich einen
+pfosten dopelklicke entfernt er beide auf dieser seite."
+
+`pfostenGriff()` markierte jeden Pfosten mit Reihe und Nummer. An drei
+Stellen im Code bekommen **vorderer und hinterer** Pfosten derselben
+Achse dieselbe Marke (`'vorne', iP`). Fürs Verschieben ist das richtig,
+sie gehören zur selben Achse. Fürs Wegnehmen war es falsch: ein
+Schlüssel, zwei Pfosten.
+
+Die Marke trägt in der freien Planung jetzt zusätzlich die Tiefe `z`.
+Der Schlüssel lautet `vorne#0#294` statt `vorne#0`. Verschoben wird
+weiter achsweise, weggenommen einzeln.
+
+Gemessen bei Carport Flat Line: vier Pfosten `vorne#0#294`,
+`vorne#0#6`, `vorne#1#294`, `vorne#1#6`; ein Doppelklick entfernt genau
+einen.
+
+**Wie die Prüfung das misst:** am Modell über `BV_FREI.pfostenAlle()`,
+nicht am Bild. `pfostenPunkte()` liefert nur sichtbare Pfosten; aus
+einem ungünstigen Blickwinkel sind die hinteren verdeckt, und eine
+Prüfung darauf meldet einen Fehler, den es nicht gibt. Genau das ist
+beim ersten Lauf passiert.
+
 ### Der Zwischenspeicher, der eine Korrektur verschluckt hat
 
 Zwischen den beiden Meldungen lag eine Korrektur, die der Betreiber

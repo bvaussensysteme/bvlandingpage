@@ -3721,7 +3721,15 @@ window.BV_KONFIGURATOR_FREI = true;
      raten, welchen Pfosten er getroffen hat. Eckpfosten bekommen die
      Marke auch - dass sie feststehen, entscheidet pfostenSpanne(). */
   function pfostenGriff(m, reihe, nr) {
-    if (m) m.userData.pfosten = { reihe: reihe, nr: nr };
+    /* FREIE PLANUNG: zusaetzlich die Tiefe. Vorderer und hinterer
+       Pfosten derselben Achse tragen dieselbe Reihe und dieselbe
+       Nummer (siehe die drei Aufrufe mit 'vorne', iP); fuers
+       Verschieben ist das richtig, denn sie gehoeren zur selben Achse.
+       Fuers Wegnehmen ist es falsch: Gemeldet vom Betreiber am
+       17.11.2026, "bei flatline wenn ich einen pfosten dopelklicke
+       entfernt er beide auf dieser seite". z trennt die beiden. */
+    if (m) m.userData.pfosten = { reihe: reihe, nr: nr,
+                                  z: Math.round(m.position.z) };
     return m;
   }
 
@@ -4214,7 +4222,7 @@ window.BV_KONFIGURATOR_FREI = true;
       var o = treffer[i].object;
       if (!o || o.visible === false) continue;
       var p = o.userData && o.userData.pfosten;
-      if (p) return { reihe: p.reihe, nr: p.nr };
+      if (p) return { reihe: p.reihe, nr: p.nr, z: p.z };
       if (nimmtDenBlick([treffer[i]])) return null;
     }
     return null;
@@ -4224,9 +4232,13 @@ window.BV_KONFIGURATOR_FREI = true;
     if (!Z.pfostenWeg) Z.pfostenWeg = {};
     return Z.pfostenWeg;
   }
-  function pfWegSchluessel(reihe, nr) { return String(reihe) + '#' + String(nr); }
-  function pfostenIstWeg(reihe, nr) {
-    return pfWegListe()[pfWegSchluessel(reihe, nr)] === true;
+  /* Der Schluessel traegt die Tiefe mit, sonst faellt der hintere
+     Pfosten derselben Achse mit weg. Siehe pfostenGriff(). */
+  function pfWegSchluessel(reihe, nr, z) {
+    return String(reihe) + '#' + String(nr) + '#' + String(z == null ? '' : z);
+  }
+  function pfostenIstWeg(reihe, nr, z) {
+    return pfWegListe()[pfWegSchluessel(reihe, nr, z)] === true;
   }
   function pfostenWegZahl() { return Object.keys(pfWegListe()).length; }
   function pfostenAlleZurueck() {
@@ -4235,8 +4247,8 @@ window.BV_KONFIGURATOR_FREI = true;
     freiBandAuffrischen();
     freiStuecklisteAuffrischen();
   }
-  function pfostenWegSchalten(reihe, nr) {
-    var k = pfWegSchluessel(reihe, nr), L = pfWegListe();
+  function pfostenWegSchalten(reihe, nr, z) {
+    var k = pfWegSchluessel(reihe, nr, z), L = pfWegListe();
     if (L[k]) delete L[k]; else L[k] = true;
     bauen();
     freiBandAuffrischen();
@@ -4251,7 +4263,7 @@ window.BV_KONFIGURATOR_FREI = true;
     bau.traverse(function (m) {
       var pf = m.userData && m.userData.pfosten;
       if (!pf || !m.material) return;
-      if (!pfostenIstWeg(pf.reihe, pf.nr)) return;
+      if (!pfostenIstWeg(pf.reihe, pf.nr, pf.z)) return;
       var mats = Array.isArray(m.material) ? m.material : [m.material];
       m.material = mats.map(function (mat) {
         var k = mat.clone();
@@ -13312,7 +13324,7 @@ window.BV_KONFIGURATOR_FREI = true;
     var t = pfostenUnterZeigerFrei(e);   /* auch Eckpfosten, siehe oben */
     if (!t) return;
     e.preventDefault();
-    pfostenWegSchalten(t.reihe, t.nr);
+    pfostenWegSchalten(t.reihe, t.nr, t.z);
   });
 
   /* Knopf im roten Band. Er steht im HTML der Seite, nicht hier. */
@@ -13336,6 +13348,23 @@ window.BV_KONFIGURATOR_FREI = true;
       /* Bildschirmpunkte ALLER Pfosten mit ihrem Schluessel. Die
          Pruefung muss Eckpfosten treffen koennen; genau die hat der
          erste Entwurf uebersehen. */
+      /* ALLE Pfosten des Modells, unabhaengig davon, ob sie gerade zu
+         sehen sind. pfostenPunkte() liefert nur die sichtbaren; aus
+         einem ungeeigneten Blickwinkel fehlen die hinteren, und eine
+         Pruefung darauf meldet faelschlich einen Fehler. */
+      pfostenAlle: function () {
+        if (!bau) return [];
+        var aus = [], gesehen = {};
+        bau.traverse(function (m) {
+          var pf = m.userData && m.userData.pfosten;
+          if (!pf) return;
+          var k = pfWegSchluessel(pf.reihe, pf.nr, pf.z);
+          if (gesehen[k]) return;
+          gesehen[k] = true;
+          aus.push({ schluessel: k, reihe: pf.reihe, nr: pf.nr, z: pf.z });
+        });
+        return aus;
+      },
       pfostenPunkte: function () {
         if (!bau || !leinwand) return [];
         var r = leinwand.getBoundingClientRect();
@@ -13343,7 +13372,7 @@ window.BV_KONFIGURATOR_FREI = true;
         bau.traverse(function (m) {
           var pf = m.userData && m.userData.pfosten;
           if (!pf || !m.geometry) return;
-          var k = pf.reihe + '#' + pf.nr;
+          var k = pfWegSchluessel(pf.reihe, pf.nr, pf.z);
           if (gesehen[k]) return;
           m.getWorldPosition(v);
           v.project(kamera3);
@@ -13352,7 +13381,8 @@ window.BV_KONFIGURATOR_FREI = true;
           if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
           if (!pfostenUnterZeigerFrei({ clientX: x, clientY: y })) return;
           gesehen[k] = true;
-          aus.push({ schluessel: k, reihe: pf.reihe, nr: pf.nr, x: x, y: y });
+          aus.push({ schluessel: k, reihe: pf.reihe, nr: pf.nr, z: pf.z,
+                     x: x, y: y });
         });
         return aus;
       },

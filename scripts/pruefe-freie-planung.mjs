@@ -243,6 +243,49 @@ try {
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(600);
 
+  /* ---- Flat Line: vorderer und hinterer Pfosten einzeln ----
+     "bei flatline wenn ich einen pfosten dopelklicke entfernt er beide
+     auf dieser seite" (Betreiber, 17.11.2026). Vorderer und hinterer
+     Pfosten derselben Achse tragen dieselbe Nummer; erst die Tiefe im
+     Schluessel trennt sie. */
+  await seite.evaluate(() => {
+    const pr = document.getElementById('k3dProdukt');
+    pr.value = 'Carport'; pr.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await seite.waitForTimeout(2500);
+  await seite.evaluate(() => {
+    const t = document.getElementById('k3dCpTyp');
+    t.value = 'Flachdach Flat Line';
+    t.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  await seite.waitForTimeout(3200);
+  await seite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
+  await seite.waitForTimeout(900);
+  /* Am MODELL gemessen, nicht am Bild: Aus dem aktuellen Blickwinkel
+     sind die hinteren Pfosten verdeckt, pfostenPunkte() listet sie dann
+     nicht. Die Frage ist aber, ob das Modell sie unterscheidet. */
+  const flAlle = await seite.evaluate(() => window.BV_FREI.pfostenAlle());
+  const paare = {};
+  flAlle.forEach((a) => {
+    const k = a.reihe + '#' + a.nr;
+    paare[k] = (paare[k] || 0) + 1;
+  });
+  const mitZwei = Object.keys(paare).filter((k) => paare[k] >= 2);
+  p('Flat Line: vorderer und hinterer Pfosten sind getrennt',
+    flAlle.length >= 4 && mitZwei.length >= 2,
+    flAlle.map((a) => a.schluessel).join(', ') || '(keiner)');
+
+  const fl = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  if (fl.length) {
+    await seite.mouse.dblclick(fl[0].x, fl[0].y);
+    await seite.waitForTimeout(1200);
+    const wfl = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
+    p('Flat Line: ein Doppelklick nimmt GENAU EINEN Pfosten weg',
+      wfl.length === 1, JSON.stringify(wfl));
+    await seite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
+    await seite.waitForTimeout(800);
+  }
+
   /* ---- die oeffentlichen Seiten haben nichts davon ---- */
   for (const [pfad, name] of [['/werkstatt/index.html', 'Werkstatt'],
                               ['/konfigurator.html', 'oeffentlich']]) {
