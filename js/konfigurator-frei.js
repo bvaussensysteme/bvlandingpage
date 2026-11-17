@@ -3593,13 +3593,19 @@ window.BV_KONFIGURATOR_FREI = true;
     var gleich = verteilen(anzahl, B, rand);
     var gr = achsGrenzenMm(anzahl, rand, zahlVon);
     var xs = gleich.slice();
+    /* FREIE PLANUNG: Versatz fuer JEDEN Pfosten, auch die Ecken, und
+       ohne achsenKlemmen(). Im oeffentlichen Konfigurator laeuft die
+       Schleife von 1 bis anzahl-2, die Ecken stehen dort fest, und
+       achsenKlemmen() holt jedes Feld in die Toleranz der Preisliste
+       zurueck. Beides ist dort richtig und hier falsch: "es soll ja bei
+       allen pfosten gehen, ausblenden und verschieben" (Betreiber,
+       17.11.2026). */
     var v = Z.pfostenVersatz && Z.pfostenVersatz[reihe];
-    if (v && anzahl >= 3) {
-      for (var i = 1; i < anzahl - 1; i++) {
+    if (v) {
+      for (var i = 0; i < anzahl; i++) {
         var mm = Number(v[String(i)]);
         if (mm) xs[i] = gleich[i] + mm / 10;
       }
-      if (gr) achsenKlemmen(xs, gr);
     }
     PFOSTEN_REIHE[reihe] = { anzahl: anzahl, B: B, rand: rand,
                              grenzen: gr, xs: xs, gleich: gleich };
@@ -3670,7 +3676,27 @@ window.BV_KONFIGURATOR_FREI = true;
      dass beide Felder in der Toleranz bleiben. In cm, wie das Modell.
      Dieselbe Rechnung wie in pfostenReihe() - sie steht hier, damit
      Regler, Zahlenfeld und Klemmen nicht auseinanderlaufen koennen. */
+  /* FREIE PLANUNG: Jeder Pfosten hat eine Spanne, auch die Ecken, und
+     sie ist weit. Im oeffentlichen Konfigurator gibt diese Funktion
+     fuer Eckpfosten null zurueck ("die Eckpfosten stehen fest") und
+     begrenzt die Zwischenpfosten auf die Toleranz der Preisliste. Hier
+     darf alles ueberall stehen; begrenzt wird nur so weit, dass der
+     Pfosten beim Ziehen nicht ins Nichts verschwindet.
+
+     Die Funktion wird auch von pfostenUnterZeiger() benutzt, das einen
+     Pfosten ohne Spanne nicht zum Greifen freigibt. Dass hier jeder
+     eine bekommt, macht also zugleich jeden greifbar. */
   function pfostenSpanne(reihe, nr) {
+    var r = PFOSTEN_REIHE[reihe];
+    if (!r || nr < 0 || nr > r.anzahl - 1) return null;
+    var glF = r.gleich || r.xs;
+    var weit = Math.max(r.B || 0, 300);   /* eine Dachbreite nach jeder Seite */
+    return { von: glF[nr] - weit, bis: glF[nr] + weit, mitte: glF[nr] };
+  }
+
+  /* Die urspruengliche Fassung, nicht mehr gerufen, aber als Beleg
+     dafuer stehen geblieben, was im oeffentlichen Konfigurator gilt. */
+  function pfostenSpanneStreng(reihe, nr) {
     var r = PFOSTEN_REIHE[reihe];
     if (!r || nr < 1 || nr > r.anzahl - 2) return null;
     /* GEGEN DIE WIRKLICHEN NACHBARN, nicht gegen die gleichmaessige
@@ -13352,6 +13378,14 @@ window.BV_KONFIGURATOR_FREI = true;
           if (pfostenUnterZeiger({ clientX: x, clientY: y })) return { x: x, y: y };
         }
         return null;
+      },
+      versatz: function () {
+        var a = {}, v = Z.pfostenVersatz || {};
+        Object.keys(v).forEach(function (r) {
+          a[r] = {};
+          Object.keys(v[r]).forEach(function (n) { a[r][n] = v[r][n]; });
+        });
+        return a;
       },
       zeichnung: function () { return freiZeichnungZahlen(); },
       folgtZeilen: function () { return freiFolgtZeilen(); },

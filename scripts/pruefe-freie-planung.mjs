@@ -89,6 +89,34 @@ try {
   p('Alle zurueckholen leert die Liste', weg2.length === 0, JSON.stringify(weg2));
   const punkt = alle[0] || { x: 0, y: 0 };
 
+  /* ---- jeden Pfosten auch VERSCHIEBEN ----
+     "es soll ja bei allen pfosten gehen, ausblenden und verschieben"
+     (Betreiber, 17.11.2026). Vorher liessen sich nur Zwischenpfosten
+     ziehen, Eckpfosten standen fest. */
+  let gezogen = 0, nichtGezogen = '';
+  const zumZiehen = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  for (const a of zumZiehen) {
+    await seite.mouse.click(a.x, a.y);
+    await seite.waitForTimeout(500);
+    const jetzt = (await seite.evaluate(() => window.BV_FREI.pfostenPunkte()))
+      .find((q) => q.schluessel === a.schluessel) || a;
+    await seite.mouse.move(jetzt.x, jetzt.y);
+    await seite.mouse.down();
+    await seite.mouse.move(jetzt.x + 110, jetzt.y, { steps: 12 });
+    await seite.mouse.up();
+    await seite.waitForTimeout(600);
+    const v = await seite.evaluate(() => window.BV_FREI.versatz());
+    if (v[a.reihe] && Number(v[a.reihe][a.nr])) gezogen++;
+    else nichtGezogen = a.schluessel;
+  }
+  p('JEDER Pfosten laesst sich verschieben, auch die Ecken',
+    gezogen === zumZiehen.length && zumZiehen.length >= 3,
+    gezogen + ' von ' + zumZiehen.length +
+    (nichtGezogen ? ', nicht bewegt: ' + nichtGezogen : ''));
+  /* Zurueck auf die gleichmaessige Lage, damit die naechsten Messungen
+     von einem bekannten Stand ausgehen. */
+  await seite.evaluate(() => { window.BV_FREI.versatz(); });
+
   /* ---- Daecher ---- */
   await seite.click('#bvFreiDachDazu');
   await seite.waitForTimeout(1200);

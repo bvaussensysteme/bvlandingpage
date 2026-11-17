@@ -87,6 +87,20 @@ treffer="$(cd "$WURZEL" && grep -rl 'konfigurator-frei\.js' \
 pruef "kein Verweis auf die freie Fassung ausserhalb von werkstatt/" \
   "$([ -z "$treffer" ] && echo 1 || echo 0)" "${treffer:-nichts gefunden}"
 
+# 6b: Zwischenspeicher. Aendert sich die Skriptdatei, muss die
+# Versionsnummer im Skript-Tag mitwachsen, sonst laedt der Browser die
+# alte Fassung weiter. Am 17.11.2026 genau so passiert.
+standSoll="$(grep -o 'Stand von js/konfigurator-frei\.js: [0-9a-f]*' \
+  "$WURZEL/werkstatt/frei.html" 2>/dev/null | awk '{print $NF}')"
+standIst="$(cd "$WURZEL" && git hash-object js/konfigurator-frei.js 2>/dev/null)"
+if [ -z "$standSoll" ]; then
+  pruef "Stand der Skriptdatei ist in der Seite vermerkt" 0 "Zeile fehlt"
+else
+  pruef "Versionsnummer passt zum Stand der Skriptdatei" \
+    "$([ "$standSoll" = "$standIst" ] && echo 1 || echo 0)" \
+    "Seite sagt ${standSoll:0:12}, Datei ist ${standIst:0:12}"
+fi
+
 # 6: Abdrift
 kopf="$(grep -o 'ABGESPALTEN VON: js/konfigurator-3d.js, Stand [0-9a-f]\{7,\}' \
   "$WURZEL/js/konfigurator-frei.js" 2>/dev/null | awk '{print $NF}')"

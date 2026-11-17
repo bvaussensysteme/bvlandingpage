@@ -3564,7 +3564,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/konfigurator-frei.js?v=20261117a" defer></script>
+<!-- ZWISCHENSPEICHER. Die Zeile darunter haelt den Stand von
+     js/konfigurator-frei.js fest. Aendert sich die Datei, ohne dass die
+     Versionsnummer im Skript-Tag hochgezaehlt wird, laedt der Browser
+     die alte Fassung weiter. Genau das ist am 17.11.2026 passiert: Der
+     Betreiber bekam eine Korrektur nicht zu sehen und meldete sie als
+     weiterhin kaputt. scripts/pruefe-konfigurator-frei.sh vergleicht
+     beides. -->
+<!-- Stand von js/konfigurator-frei.js: 56fab61773b0c5da4b654d452927417b42a61a5d -->
+<script src="/js/konfigurator-frei.js?v=20261117b" defer></script>
 <script src="/js/main.js" defer></script>
 <script src="/js/metricool.js" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916f" defer></script>

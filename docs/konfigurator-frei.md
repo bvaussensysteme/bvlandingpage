@@ -104,7 +104,41 @@ Server und wäre ein eigenes Projekt.
 | „Drehen 90°" | dreht das zuletzt angefasste Dach |
 | „Letztes Dach entfernen" | nimmt die zuletzt gesetzte Kopie weg |
 
-### Eckpfosten waren nicht anklickbar
+### Eckpfosten: weder anklickbar noch verschiebbar
+
+**Gemeldet vom Betreiber am 17.11.2026**, in zwei Schritten: erst „das
+mit doppelklick etc klappt alles nicht pfosten weg wieder zurück", dann
+„beim mittleren pfosten gehts jz aber es soll ja bei allen pfosten
+gehen, ausblenden und verschieben".
+
+Im öffentlichen Konfigurator stehen die Eckpfosten fest. Drei Stellen
+sorgen dafür:
+
+| Stelle | was sie tut | in der freien Planung |
+|---|---|---|
+| `pfostenSpanne()` | gibt für Eckpfosten `null` zurück | jeder Pfosten bekommt eine weite Spanne |
+| `pfostenReihe()` | wendet den Versatz nur auf 1 bis `anzahl-2` an | auf alle |
+| `achsenKlemmen()` | holt jedes Feld in die Toleranz der Preisliste | entfällt |
+
+Weil `pfostenUnterZeiger()` einen Pfosten ohne Spanne nicht zum Greifen
+freigibt, macht die erste Änderung zugleich jeden Pfosten greifbar.
+
+Gemessen am 17.11.2026: `vorne#0`, `vorne#1` und `vorne#2` lassen sich
+einzeln wegnehmen, zurückholen und ziehen (Versatz 660, 540 und 410 mm).
+
+### Der Zwischenspeicher, der eine Korrektur verschluckt hat
+
+Zwischen den beiden Meldungen lag eine Korrektur, die der Betreiber
+**nicht zu sehen bekam**: Die Seite lädt das Skript mit einer
+Versionsnummer, und die hatte ich nicht hochgezählt. Sein Browser nahm
+weiter die alte Datei.
+
+Deshalb steht in `werkstatt/frei.html` jetzt der Stand der Skriptdatei
+als Prüfsumme, und `pruefe-konfigurator-frei.sh` vergleicht ihn mit der
+Datei. Ändert sich die Datei ohne neue Versionsnummer, schlägt die
+Prüfung an.
+
+### Alt: Eckpfosten waren nicht anklickbar
 
 **Gemeldet vom Betreiber am 17.11.2026:** „das mit doppelklick etc
 klappt alles nicht pfosten weg wieder zurück."

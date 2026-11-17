@@ -18715,3 +18715,45 @@ geht: Der Breite-Regler braucht auf der **unveränderten** Werkstattseite
 Kopien 1415 / 2160 / 2187 / 2112 ms und mit drei Kopien 2484 / 2003 /
 2522 / 2273 ms. Die Trägheit ist also vorher da; die Kopien kosten rund
 zehn Prozent. Gehört nach `docs/NEXT_TASK.md`.
+
+## 17.11.2026 – Alle Pfosten: wegnehmen UND verschieben, und ein verschluckter Zwischenspeicher
+
+**Anlass.** „beim mittleren pfosten gehts jz aber es soll ja bei allen
+pfosten gehen, ausblenden und verschieben."
+
+**Zwei Dinge steckten dahinter, und das zweite ist das wichtigere.**
+
+**Erstens, die Eckpfosten.** Im öffentlichen Konfigurator stehen sie
+fest, an drei Stellen: `pfostenSpanne()` gibt für sie `null` zurück,
+`pfostenReihe()` wendet den Versatz nur auf 1 bis `anzahl-2` an, und
+`achsenKlemmen()` holt jedes Feld in die Toleranz der Preisliste. Alle
+drei sind dort richtig. In der Kopie gilt jetzt: jeder Pfosten hat eine
+weite Spanne, der Versatz gilt für alle, und geklemmt wird nicht.
+
+Weil `pfostenUnterZeiger()` einen Pfosten ohne Spanne gar nicht zum
+Greifen freigibt, erledigt die erste Änderung zugleich das Anklicken.
+
+Gemessen: `vorne#0`, `vorne#1`, `vorne#2` einzeln wegnehmbar,
+zurückholbar und ziehbar, Versatz 660 / 540 / 410 mm.
+
+**Zweitens, und das war mein Ablauffehler:** Zwischen seinen beiden
+Meldungen lag eine Korrektur, die er **nie zu sehen bekam**. Die Seite
+lädt `js/konfigurator-frei.js?v=20261117a`, und ich hatte die
+Versionsnummer nach der Korrektur nicht hochgezählt. Sein Browser nahm
+weiter die alte Datei. Für ihn sah es aus, als hätte ich nichts
+repariert.
+
+Bei den CSS-Dateien zähle ich die Version seit Monaten bei jeder
+Änderung hoch. Bei der neuen Skriptdatei habe ich es schlicht vergessen,
+und nichts hat daran erinnert.
+
+**Abgesichert:** In `werkstatt/frei.html` steht jetzt der Stand der
+Skriptdatei als Prüfsumme (`git hash-object`), und
+`pruefe-konfigurator-frei.sh` vergleicht ihn mit der Datei. Ändert sich
+die Datei ohne neue Versionsnummer, schlägt die Prüfung an. Damit muss
+niemand mehr daran denken.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 35 von 35, darin neu
+„JEDER Pfosten lässt sich verschieben, auch die Ecken".
+`pruefe-konfigurator-frei.sh` 13 von 13, darin neu „Versionsnummer passt
+zum Stand der Skriptdatei".
