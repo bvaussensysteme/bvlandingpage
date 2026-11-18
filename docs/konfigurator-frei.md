@@ -151,6 +151,31 @@ einem ungünstigen Blickwinkel sind die hinteren verdeckt, und eine
 Prüfung darauf meldet einen Fehler, den es nicht gibt. Genau das ist
 beim ersten Lauf passiert.
 
+### Jeder Pfosten einzeln verschiebbar
+
+**Ansage des Betreibers vom 17.11.2026:** „ja will auch einzeln
+schieben können."
+
+`Z.pfostenVersatz` gilt je **Achse**: Vorderer und hinterer Pfosten
+bewegen sich zusammen, weil beide aus demselben `x` der Reihe gebaut
+werden. Im öffentlichen Konfigurator ist das richtig.
+
+In der freien Planung gibt es dafür einen zweiten Topf,
+`Z.pfostenEinzeln`, mit dem Schlüssel je physischem Pfosten
+(`vorne#0#294`). Angewendet wird er erst am Bauteil selbst, in
+`pfostenGriff()`.
+
+**Was das bedeutet, und es ist gewollt:** Der Träger darüber spannt
+weiter über die Achsen. Ein einzeln verschobener Pfosten steht also
+nicht mehr unter seiner Achse. In einer Planung ohne Statikprüfung ist
+genau das der Zweck.
+
+Gemessen bei Flat Line, alle vier einzeln:
+`{"vorne#0#294":530,"vorne#0#6":650,"vorne#1#294":340,"vorne#1#6":450}`.
+
+Die Auswahl merkt sich die Tiefe mit, deshalb leuchtet beim Anklicken
+nur der eine Pfosten auf und nicht die ganze Achse.
+
 ### Der Zwischenspeicher, der eine Korrektur verschluckt hat
 
 Zwischen den beiden Meldungen lag eine Korrektur, die der Betreiber

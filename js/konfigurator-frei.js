@@ -3728,8 +3728,13 @@ window.BV_KONFIGURATOR_FREI = true;
        Fuers Wegnehmen ist es falsch: Gemeldet vom Betreiber am
        17.11.2026, "bei flatline wenn ich einen pfosten dopelklicke
        entfernt er beide auf dieser seite". z trennt die beiden. */
-    if (m) m.userData.pfosten = { reihe: reihe, nr: nr,
-                                  z: Math.round(m.position.z) };
+    if (m) {
+      var zz = Math.round(m.position.z);
+      m.userData.pfosten = { reihe: reihe, nr: nr, z: zz };
+      /* Versatz je einzelnem Pfosten, in mm gespeichert, Szene in cm. */
+      var dx = pfEinzelVersatz(reihe, nr, zz);
+      if (dx) m.position.x += dx / 10;
+    }
     return m;
   }
 
@@ -4222,10 +4227,34 @@ window.BV_KONFIGURATOR_FREI = true;
       var o = treffer[i].object;
       if (!o || o.visible === false) continue;
       var p = o.userData && o.userData.pfosten;
-      if (p) return { reihe: p.reihe, nr: p.nr, z: p.z };
+      if (p) return { reihe: p.reihe, nr: p.nr, z: p.z,
+                      punkt: treffer[i].point };
       if (nimmtDenBlick([treffer[i]])) return null;
     }
     return null;
+  }
+
+  /* ===== FREIE PLANUNG: Versatz je EINZELNEM Pfosten =====
+     Z.pfostenVersatz gilt je ACHSE: vorderer und hinterer Pfosten
+     derselben Achse bewegen sich zusammen, weil beide aus demselben x
+     der Reihe gebaut werden. Das ist im oeffentlichen Konfigurator
+     richtig.
+
+     "ja will auch einzeln schieben koennen" (Betreiber, 17.11.2026).
+     Deshalb ein zweiter Topf, der je physischem Pfosten zaehlt
+     (Schluessel mit Tiefe, also vorne#0#294) und erst beim Bauteil
+     selbst angewendet wird, in pfostenGriff().
+
+     WAS DAS BEDEUTET, und es ist gewollt: Der Traeger darueber spannt
+     weiter ueber die Achsen. Ein einzeln verschobener Pfosten steht
+     also nicht mehr unter seiner Achse. In einer freien Planung ohne
+     Statikpruefung ist genau das der Zweck. */
+  function pfEinzelListe() {
+    if (!Z.pfostenEinzeln) Z.pfostenEinzeln = {};
+    return Z.pfostenEinzeln;
+  }
+  function pfEinzelVersatz(reihe, nr, z) {
+    return Number(pfEinzelListe()[pfWegSchluessel(reihe, nr, z)]) || 0;
   }
 
   function pfWegListe() {
@@ -4318,6 +4347,8 @@ window.BV_KONFIGURATOR_FREI = true;
     bau.children.forEach(function (m) {
       var pf = m.userData && m.userData.pfosten;
       if (!pf || pf.reihe !== PF_WAHL.reihe || pf.nr !== PF_WAHL.nr) return;
+      /* Nur der eine Pfosten, nicht die ganze Achse. */
+      if (PF_WAHL.z != null && pf.z !== PF_WAHL.z) return;
       var g = m.geometry && m.geometry.parameters;
       if (!g || g.width == null) return;
       var h = new THREE.Mesh(
@@ -4401,14 +4432,15 @@ window.BV_KONFIGURATOR_FREI = true;
      damit verbraucht ist - ein Klick ins Leere laeuft weiter, sonst
      liesse sich kein Feld mehr anklicken. */
   function pfostenGeklickt(e) {
-    var t = pfostenUnterZeiger(e);
+    var t = pfostenUnterZeigerFrei(e);   /* freie Planung: auch Ecken */
     if (!t) {
       if (!PF_WAHL) return false;
       pfostenWaehlen(null);
       return false;
     }
-    var schon = PF_WAHL && PF_WAHL.reihe === t.reihe && PF_WAHL.nr === t.nr;
-    pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr });
+    var schon = PF_WAHL && PF_WAHL.reihe === t.reihe && PF_WAHL.nr === t.nr &&
+                PF_WAHL.z === t.z;
+    pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr, z: t.z });
     return true;
   }
 
@@ -4472,12 +4504,13 @@ window.BV_KONFIGURATOR_FREI = true;
        Wer auf das Zeichen tippt, will nicht den Pfosten anfassen. Also
        wird hier gar nicht erst gegriffen. */
     if (zurueckUnterZeiger(e)) return false;
-    var t = pfostenUnterZeiger(e);
-    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr) return false;
+    var t = pfostenUnterZeigerFrei(e);
+    if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr ||
+        t.z !== PF_WAHL.z) return false;
     var r = PFOSTEN_REIHE[t.reihe];
     if (!r) return false;
     PF_ZIEHT = {
-      reihe: t.reihe, nr: t.nr, bewegt: false, weg: 0,
+      reihe: t.reihe, nr: t.nr, z: t.z, bewegt: false, weg: 0,
       zeigerX: e.clientX, zeigerY: e.clientY,
       ebene: new THREE.Plane().setFromNormalAndCoplanarPoint(
         kamera3.getWorldDirection(new THREE.Vector3()).negate(), t.punkt),
@@ -4518,9 +4551,8 @@ window.BV_KONFIGURATOR_FREI = true;
        muss ohne Zittern wieder erreichbar sein. 25 mm sind am Bildschirm
        wenige Pixel und am Bauwerk nichts. */
     if (Math.abs(mm) < 25) mm = 0;
-    if (!Z.pfostenVersatz) Z.pfostenVersatz = { vorne: {}, hinten: {} };
-    if (!Z.pfostenVersatz[PF_ZIEHT.reihe]) Z.pfostenVersatz[PF_ZIEHT.reihe] = {};
-    var topf = Z.pfostenVersatz[PF_ZIEHT.reihe], s = String(PF_ZIEHT.nr);
+    /* FREIE PLANUNG: in den Topf je einzelnem Pfosten, nicht je Achse. */
+    var topf = pfEinzelListe(), s = pfWegSchluessel(PF_ZIEHT.reihe, PF_ZIEHT.nr, PF_ZIEHT.z);
     if ((Number(topf[s]) || 0) === mm) return true;
     if (mm) topf[s] = mm; else delete topf[s];
     PF_ZIEHT.bewegt = true;
@@ -13408,6 +13440,11 @@ window.BV_KONFIGURATOR_FREI = true;
           if (pfostenUnterZeiger({ clientX: x, clientY: y })) return { x: x, y: y };
         }
         return null;
+      },
+      einzeln: function () {
+        var a = {}, v = Z.pfostenEinzeln || {};
+        Object.keys(v).forEach(function (k) { a[k] = v[k]; });
+        return a;
       },
       versatz: function () {
         var a = {}, v = Z.pfostenVersatz || {};

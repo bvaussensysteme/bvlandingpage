@@ -18792,3 +18792,38 @@ nahm die Sicht der geprüften Logik ein, statt unabhängig nachzusehen.
 
 **Gegengelesen.** `pruefe-freie-planung.mjs` 37 von 37,
 `pruefe-konfigurator-frei.sh` 13 von 13.
+
+## 17.11.2026 – Jeder Pfosten einzeln verschiebbar
+
+**Anlass.** „ja will auch einzeln schieben können."
+
+**Was war.** `Z.pfostenVersatz` gilt je **Achse**. Vorderer und hinterer
+Pfosten werden aus demselben `x` der Reihe gebaut und bewegten sich
+deshalb zusammen.
+
+**Was jetzt gilt.** Ein zweiter Topf `Z.pfostenEinzeln`, Schlüssel je
+physischem Pfosten (`vorne#0#294`), angewendet erst am Bauteil in
+`pfostenGriff()`. Die Auswahl merkt sich die Tiefe mit, deshalb leuchtet
+nur der eine Pfosten auf und nicht die ganze Achse.
+
+Gemessen bei Flat Line, alle vier mit verschiedenen Werten:
+530 / 650 / 340 / 450 mm.
+
+**Was dabei bewusst in Kauf genommen wird:** Der Träger spannt weiter
+über die Achsen. Ein einzeln verschobener Pfosten steht nicht mehr
+unter seiner Achse. In einer Planung ohne Statikprüfung ist das der
+Zweck, nicht ein Fehler.
+
+**Zwei Fehler in der Prüfung, wieder dieselbe Art.** Der Flat-Line-Teil
+lief auf derselben Seite wie alles davor. Dort waren schon Pfosten
+verschoben und entfernt, und der erste Lauf meldete einen Fehler, der
+aus den Resten kam. Dazu hatte ich für die Messung in die Ansicht „Von
+oben" geschaltet; dort bildet eine Mausbewegung von 90 Bildpunkten
+einen Weg von über zwei Metern ab, und der Pfosten sprang aus dem Bild.
+
+Der Flat-Line-Teil läuft jetzt auf einer **frischen Seite**. Eine
+Prüfung, die auf den Resten der vorigen sitzt, misst nicht das, was sie
+behauptet.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 38 von 38,
+`pruefe-konfigurator-frei.sh` 13 von 13.

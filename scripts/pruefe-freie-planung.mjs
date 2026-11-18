@@ -105,8 +105,9 @@ try {
     await seite.mouse.move(jetzt.x + 110, jetzt.y, { steps: 12 });
     await seite.mouse.up();
     await seite.waitForTimeout(600);
-    const v = await seite.evaluate(() => window.BV_FREI.versatz());
-    if (v[a.reihe] && Number(v[a.reihe][a.nr])) gezogen++;
+    /* Der Versatz liegt je EINZELNEM Pfosten, nicht je Achse. */
+    const v = await seite.evaluate(() => window.BV_FREI.einzeln());
+    if (Number(v[a.schluessel])) gezogen++;
     else nichtGezogen = a.schluessel;
   }
   p('JEDER Pfosten laesst sich verschieben, auch die Ecken',
@@ -243,48 +244,67 @@ try {
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(600);
 
-  /* ---- Flat Line: vorderer und hinterer Pfosten einzeln ----
-     "bei flatline wenn ich einen pfosten dopelklicke entfernt er beide
-     auf dieser seite" (Betreiber, 17.11.2026). Vorderer und hinterer
-     Pfosten derselben Achse tragen dieselbe Nummer; erst die Tiefe im
-     Schluessel trennt sie. */
-  await seite.evaluate(() => {
+  /* ---- Flat Line, auf einer FRISCHEN Seite ----
+     Eigene Seite, weil die Messungen oben Pfosten verschoben und
+     entfernt haben. Auf dem alten Stand stuende Flat Line mit
+     Versaetzen aus dem Terrassendach da, und ein Fehlschlag waere nicht
+     mehr zuzuordnen. Gelernt am 17.11.2026, als genau das passierte. */
+  const flSeite = await ctx.newPage();
+  await flSeite.goto(`http://127.0.0.1:${PORT}/werkstatt/frei.html?t=${Date.now()}`,
+    { waitUntil: 'load' });
+  await flSeite.waitForTimeout(4500);
+  await flSeite.evaluate(() => {
     const pr = document.getElementById('k3dProdukt');
     pr.value = 'Carport'; pr.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await seite.waitForTimeout(2500);
-  await seite.evaluate(() => {
+  await flSeite.waitForTimeout(2500);
+  await flSeite.evaluate(() => {
     const t = document.getElementById('k3dCpTyp');
     t.value = 'Flachdach Flat Line';
     t.dispatchEvent(new Event('change', { bubbles: true }));
   });
-  await seite.waitForTimeout(3200);
-  await seite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
-  await seite.waitForTimeout(900);
-  /* Am MODELL gemessen, nicht am Bild: Aus dem aktuellen Blickwinkel
-     sind die hinteren Pfosten verdeckt, pfostenPunkte() listet sie dann
-     nicht. Die Frage ist aber, ob das Modell sie unterscheidet. */
-  const flAlle = await seite.evaluate(() => window.BV_FREI.pfostenAlle());
+  await flSeite.waitForTimeout(3500);
+
+  /* Am MODELL gemessen, nicht am Bild: Aus einem unguenstigen
+     Blickwinkel sind die hinteren Pfosten verdeckt, und pfostenPunkte()
+     listet sie dann nicht. */
+  const flAlle = await flSeite.evaluate(() => window.BV_FREI.pfostenAlle());
   const paare = {};
-  flAlle.forEach((a) => {
-    const k = a.reihe + '#' + a.nr;
-    paare[k] = (paare[k] || 0) + 1;
-  });
-  const mitZwei = Object.keys(paare).filter((k) => paare[k] >= 2);
+  flAlle.forEach((a) => { const k = a.reihe + '#' + a.nr; paare[k] = (paare[k] || 0) + 1; });
   p('Flat Line: vorderer und hinterer Pfosten sind getrennt',
-    flAlle.length >= 4 && mitZwei.length >= 2,
+    flAlle.length >= 4 && Object.keys(paare).filter((k) => paare[k] >= 2).length >= 2,
     flAlle.map((a) => a.schluessel).join(', ') || '(keiner)');
 
-  const fl = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
-  if (fl.length) {
-    await seite.mouse.dblclick(fl[0].x, fl[0].y);
-    await seite.waitForTimeout(1200);
-    const wfl = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
-    p('Flat Line: ein Doppelklick nimmt GENAU EINEN Pfosten weg',
-      wfl.length === 1, JSON.stringify(wfl));
-    await seite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
-    await seite.waitForTimeout(800);
+  const flSicht = await flSeite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  p('Flat Line: ein Doppelklick nimmt GENAU EINEN Pfosten weg', await (async () => {
+    if (!flSicht.length) return false;
+    await flSeite.mouse.dblclick(flSicht[0].x, flSicht[0].y);
+    await flSeite.waitForTimeout(1200);
+    const w = await flSeite.evaluate(() => window.BV_FREI.pfostenWeg());
+    await flSeite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
+    await flSeite.waitForTimeout(800);
+    return w.length === 1;
+  })(), flSicht.length + ' sichtbar');
+
+  let einzelnOk = 0;
+  for (const a of flSicht) {
+    await flSeite.mouse.click(a.x, a.y);
+    await flSeite.waitForTimeout(500);
+    const jetzt = (await flSeite.evaluate(() => window.BV_FREI.pfostenPunkte()))
+      .find((q) => q.schluessel === a.schluessel) || a;
+    await flSeite.mouse.move(jetzt.x, jetzt.y);
+    await flSeite.mouse.down();
+    await flSeite.mouse.move(jetzt.x + 90, jetzt.y, { steps: 12 });
+    await flSeite.mouse.up();
+    await flSeite.waitForTimeout(600);
+    const v = await flSeite.evaluate(() => window.BV_FREI.einzeln());
+    if (Number(v[a.schluessel])) einzelnOk++;
   }
+  const einzelStand = await flSeite.evaluate(() => window.BV_FREI.einzeln());
+  p('Flat Line: vorderer und hinterer Pfosten einzeln verschiebbar',
+    einzelnOk === flSicht.length && flSicht.length >= 4,
+    einzelnOk + ' von ' + flSicht.length + ': ' + JSON.stringify(einzelStand));
+  await flSeite.close();
 
   /* ---- die oeffentlichen Seiten haben nichts davon ---- */
   for (const [pfad, name] of [['/werkstatt/index.html', 'Werkstatt'],
