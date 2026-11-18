@@ -507,9 +507,15 @@ Dieselben Messungen laufen gegen `/werkstatt/index.html` und
 `/konfigurator.html`, wo es die Freiheit nicht gibt, und melden dort
 richtig „kein Lesefenster und kein Knopf".
 
-### pruefe-freie-planung.mjs: 67 Messungen (Stand 18.11.2026)
+### pruefe-freie-planung.mjs: 75 Messungen (Stand 18.11.2026)
 
 Dazugekommen am 18.11.2026: Blick auf die ganze Anlage (Kameraabstand,
 Blickpunkt, acht projizierte Kastenecken je Ansicht) und Bemassung je
 Dach (eigene Gruppe je Dach, Lage, Marken über die ganze Szene
 gezählt, Haken „Maße" schaltet die Kopien mit).
+
+Dazu am selben Tag die Kamera: Zoomspanne, vierzig Raddrehungen
+heraus und achtzig herein, Winkel unter den Boden und fast senkrecht
+von oben, Kamerafahrt mit der rechten Maustaste als echtes Ereignis,
+kein Zurueckschnappen nach einem Reglerzug, Ansichtsknopf als Weg
+zurueck.

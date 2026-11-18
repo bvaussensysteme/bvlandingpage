@@ -19010,3 +19010,27 @@ Klick in die Nähe einer Masslinie den Pfosten dahinter verdeckt, und
 zweiten Weg: Projektion der acht Kastenecken für den Blick, Zählung der
 Marke `userData.mass` über die ganze Szene für die Bemassung.
 `pruefe-konfigurator-frei.sh` 13 von 13, beide Gegenproben bestanden.
+
+## 18.11.2026 – Kamera in der freien Planung ohne Sperre
+
+**Anlass.** „problem is auch man wird behindert beim rein rauszoomen
+oder kamerafahrten wohin man will und winkel etc" (Betreiber).
+
+**Drei Sperren, eine davon war die eigentliche.** Die Zoomspanne
+(0,45 bis 2,4) und die Winkelgrenze (26 Grad unter dem Horizont) sind
+jetzt weit offen. Entscheidend war aber das **Zurückschnappen**:
+`kameraAnpassen()` setzte den Abstand zurück, sobald er ausserhalb von
+0,9 bis 1,9 des eingepassten lag, und die Funktion läuft nach jedem
+Neubau. Jeder Reglerzug holte das Bild also zurück. Jetzt wird nur beim
+ersten Aufbau eingepasst.
+
+**Neu: Kamerafahrt.** Rechte oder mittlere Maustaste, linke mit
+Umschalt, am Telefon zwei Finger. Der verschobene Blickpunkt bleibt
+über Neubauten stehen; ein Ansichtsknopf holt ihn zurück.
+
+**Nur in der freien Planung.** Im öffentlichen Konfigurator bleiben die
+Sperren: Dort sind sie richtig, weil ein Kunde nicht in der Szene
+verloren gehen soll. `js/konfigurator-3d.js` ist unverändert.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 75 von 75, mit echten Rad-
+und Zeigerereignissen statt gesetzten Zahlen.

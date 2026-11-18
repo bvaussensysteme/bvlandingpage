@@ -565,3 +565,55 @@ Masslinien in der Perspektive ein Stück ausserhalb des Bildes
 (schlimmste Ecke 1,30 von 1). Das gilt genauso im öffentlichen
 Konfigurator und ist älter als diese Arbeit. Steht in
 `docs/NEXT_TASK.md`.
+
+### Kamera ohne Sperre (18.11.2026)
+
+> „problem is auch man wird behindert beim rein rauszoomen oder
+> kamerafahrten wohin man will und winkel etc" (Betreiber, 18.11.2026)
+
+Drei getrennte Sperren, alle im öffentlichen Konfigurator sinnvoll und
+hier im Weg:
+
+**1. Die Zoomspanne.** Sie lag bei 0,45 bis 2,4 des eingepassten
+Abstands. Gemessen: 388 bis 2067 bei einem Standarddach. Jetzt 0,04 bis
+25, gemessen 34 bis 21518. Nah genug für eine Schraube, weit genug für
+fünf Dächer nebeneinander.
+
+**2. Das Zurückschnappen.** Das war die eigentliche Behinderung. In
+`kameraAnpassen()` stand: Liegt der selbst gewählte Abstand ausserhalb
+von 0,9 bis 1,9 des eingepassten, setze ihn zurück. Die Funktion läuft
+nach **jedem** Neubau, und jeder Reglerzug baut neu. Ein weites oder
+nahes Bild hielt deshalb nur bis zur nächsten Änderung. Jetzt wird nur
+beim ersten Aufbau eingepasst.
+
+**3. Der Winkel.** `PHI_MAX_UNTEN` endete 26 Grad unter dem Horizont.
+Jetzt reicht der Blick von 2 Grad unter dem Scheitel bis 2 Grad über
+dem Gegenscheitel, also praktisch die ganze Kugel. Genau senkrecht
+nicht: Dort liegt die Kamera in einer Linie mit der Richtung „oben" und
+das Bild würde kippen. Der Boden wird durchsichtig, sobald die Kamera
+unter ihn fährt. Das kann `bodenDurchsicht()` schon, es war nur nie
+erreichbar.
+
+**Neu dazu: die Kamerafahrt.** Der Blickpunkt lag fest in der Mitte des
+ersten Daches. Drehen und Zoomen gab es, Verschieben nicht. Jetzt
+verschiebt die **rechte** oder mittlere Maustaste, oder die linke mit
+Umschalt; am Telefon verschieben **zwei Finger**, und zwar zugleich mit
+dem Zusammenziehen, weil der Abstand und die Mitte getrennt gemessen
+werden. Gerechnet wird in der Bildebene: Ein Pixel am Schirm ist umso
+mehr Weg in der Szene, je weiter die Kamera weg steht.
+
+Die linke Taste allein bleibt, was sie war: drehen, Pfosten und Dächer
+greifen. Auf der Leinwand ist das Browsermenü abgeschaltet, sonst endete
+eine Fahrt mit der rechten Taste nach einem Pixel.
+
+**Der Weg zurück.** Ein verschobener Blickpunkt bleibt stehen, auch über
+Neubauten (`kam.zielFrei`). Wer sich verfahren hat, drückt einen
+Ansichtsknopf: Der setzt `zielFrei` zurück und holt die Kamera auf die
+Anlage.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 75 von 75. Gemessen mit
+echten Ereignissen, nicht durch Setzen von Zahlen: vierzig Raddrehungen
+heraus (861 auf 21518), achtzig herein (auf 34), Winkel 3,0 und 0,05
+Radiant, eine Fahrt mit der rechten Maustaste über 120 Pixel (Blickpunkt
+von 0/126 auf 32/31), ein Reglerzug danach ohne Rückschnappen, und der
+Ansichtsknopf, der wieder auf 0/126 stellt.

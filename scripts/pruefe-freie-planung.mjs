@@ -517,6 +517,106 @@ try {
   }
   await bSeite.close();
 
+  /* ---- Kamera: zoomen, drehen, fahren ohne Sperre ----
+     „man wird behindert beim rein rauszoomen oder kamerafahrten wohin
+     man will und winkel etc" (Betreiber, 18.11.2026). */
+  const kamSeite = await ctx.newPage();
+  await kamSeite.goto(`http://127.0.0.1:${PORT}/werkstatt/frei.html?t=${Date.now()}`,
+    { waitUntil: 'load' });
+  await kamSeite.waitForTimeout(4500);
+
+  const k0 = await kamSeite.evaluate(() => window.BV_FREI.kamera());
+  p('die Zoomspanne ist weit aufgezogen',
+    k0.max / k0.radius > 15 && k0.radius / k0.min > 15,
+    `${k0.min} bis ${k0.max}, Start ${k0.radius}`);
+
+  /* Wirklich mit dem Rad, nicht durch Setzen der Zahl. */
+  const kRaus = await kamSeite.evaluate(async () => {
+    const c = document.querySelector('canvas');
+    for (let i = 0; i < 40; i++) {
+      c.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+    }
+    await new Promise((r) => setTimeout(r, 300));
+    return window.BV_FREI.kamera().radius;
+  });
+  p('vierzig Raddrehungen zoomen wirklich heraus',
+    kRaus > k0.radius * 5, `${k0.radius} -> ${kRaus}`);
+  const kRein = await kamSeite.evaluate(async () => {
+    const c = document.querySelector('canvas');
+    for (let i = 0; i < 80; i++) {
+      c.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true, cancelable: true }));
+    }
+    await new Promise((r) => setTimeout(r, 300));
+    return window.BV_FREI.kamera().radius;
+  });
+  p('und wieder weit herein', kRein < k0.radius * 0.3,
+    `${kRaus} -> ${kRein}`);
+
+  /* Der Winkel: unter den Boden und ueber den Scheitel. */
+  const wUnten = await kamSeite.evaluate(() => window.BV_FREI.winkel(3.0).phi);
+  const wOben = await kamSeite.evaluate(() => window.BV_FREI.winkel(0.05).phi);
+  p('der Blick darf unter den Boden', wUnten > 2.9, `phi ${wUnten} (Boden bei 1.571)`);
+  p('und bis fast senkrecht von oben', wOben <= 0.06 && wOben > 0,
+    `phi ${wOben}`);
+
+  /* Kamerafahrt mit der rechten Maustaste, als echtes Ereignis.
+     Vorher wieder auf einen normalen Abstand: Der Weg je Pixel haengt
+     am Abstand, und der Block darueber hat die Kamera bis auf 34
+     herangezogen. Dort sind 120 Pixel richtigerweise nur ein paar
+     Zentimeter. */
+  await kamSeite.evaluate(() => window.BV_FREI.zoom(800));
+  const fahrt = await kamSeite.evaluate(async () => {
+    const c = document.querySelector('canvas');
+    const r = c.getBoundingClientRect();
+    const mitte = { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+    const vorher = window.BV_FREI.kamera().ziel;
+    const ab = (t, x, y, b) => c.dispatchEvent(new PointerEvent(t, {
+      bubbles: true, cancelable: true, pointerId: 7, pointerType: 'mouse',
+      button: b, buttons: b === 2 ? 2 : 1, clientX: x, clientY: y }));
+    ab('pointerdown', mitte.x, mitte.y, 2);
+    for (let i = 1; i <= 10; i++) {
+      window.dispatchEvent(new PointerEvent('pointermove', {
+        bubbles: true, pointerId: 7, pointerType: 'mouse', button: 2, buttons: 2,
+        clientX: mitte.x - i * 12, clientY: mitte.y + i * 6 }));
+    }
+    window.dispatchEvent(new PointerEvent('pointerup', {
+      bubbles: true, pointerId: 7, pointerType: 'mouse', button: 2, buttons: 0,
+      clientX: mitte.x - 120, clientY: mitte.y + 60 }));
+    await new Promise((r2) => setTimeout(r2, 300));
+    return { vorher, nachher: window.BV_FREI.kamera() };
+  });
+  p('die rechte Maustaste fuehrt die Kamera',
+    Math.abs(fahrt.nachher.ziel[0] - fahrt.vorher[0]) +
+    Math.abs(fahrt.nachher.ziel[2] - fahrt.vorher[2]) > 20 &&
+    fahrt.nachher.zielFrei === true,
+    `${JSON.stringify(fahrt.vorher)} -> ${JSON.stringify(fahrt.nachher.ziel)}`);
+
+  /* Und der verschobene Blick ueberlebt einen Neubau. */
+  const nachBau = await kamSeite.evaluate(async () => {
+    const b = document.getElementById('k3dBreite');
+    b.value = String(Number(b.value) + 500);
+    b.dispatchEvent(new Event('input', { bubbles: true }));
+    b.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 3500));
+    return window.BV_FREI.kamera();
+  });
+  p('ein Reglerzug zieht das Bild nicht mehr zurueck',
+    Math.abs(nachBau.ziel[0] - fahrt.nachher.ziel[0]) < 5 &&
+    Math.abs(nachBau.radius - fahrt.nachher.radius) < 5,
+    `Ziel x ${nachBau.ziel[0]}, Abstand ${nachBau.radius}`);
+
+  /* Ein Ansichtsknopf ist der Weg zurueck. */
+  const zurueck = await kamSeite.evaluate(async () => {
+    const kn = document.querySelector('[data-k3d-ansicht="Perspektive"]');
+    if (kn) kn.click();
+    await new Promise((r) => setTimeout(r, 600));
+    return window.BV_FREI.kamera();
+  });
+  p('der Ansichtsknopf holt die Kamera zurueck',
+    zurueck.zielFrei === false && Math.abs(zurueck.ziel[0]) < 5,
+    `Ziel ${JSON.stringify(zurueck.ziel)}, frei ${zurueck.zielFrei}`);
+  await kamSeite.close();
+
   /* ---- die oeffentlichen Seiten haben nichts davon ---- */
   for (const [pfad, name] of [['/werkstatt/index.html', 'Werkstatt'],
                               ['/konfigurator.html', 'oeffentlich']]) {

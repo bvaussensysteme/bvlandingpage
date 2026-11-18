@@ -1918,7 +1918,17 @@ window.BV_KONFIGURATOR_FREI = true;
      ein Fehler. */
   /* Rund 26° unter den Horizont – genug, um unter das Dach zu schauen,
      ohne dass das Bild kippt. */
-  var PHI_MAX_UNTEN = Math.PI / 2 + 0.45;
+  /* FREIE PLANUNG: fast die ganze Kugel. Im oeffentlichen Konfigurator
+     endet der Blick 26 Grad unter dem Horizont; hier darf die Kamera
+     bis knapp unter den Boden und bis knapp ueber den Scheitel. Nicht
+     ganz bis 0 und nicht ganz bis 180 Grad: Genau senkrecht ueber oder
+     unter dem Blickpunkt liegt die Kamera in einer Linie mit der
+     Richtung "oben", und lookAt() hat dann keine eindeutige Lage mehr.
+     Das Bild wuerde kippen. „man wird behindert beim rein rauszoomen
+     oder kamerafahrten wohin man will und winkel" (Betreiber,
+     18.11.2026). */
+  var PHI_MAX_UNTEN = Math.PI - 0.04;
+  var PHI_MIN_FREI = 0.04;
 
   var WAND_DURCHSICHT = 0.18;
   var wandDurchsichtig = null;            // noch nichts gesetzt
@@ -4188,6 +4198,71 @@ window.BV_KONFIGURATOR_FREI = true;
     });
     modulMasse.visible = !!Z.masseZeigen;
     neuZeichnen();
+  }
+
+  /* ---------- KAMERAFAHRT: den Blickpunkt verschieben ----------
+     „man wird behindert beim rein rauszoomen oder kamerafahrten wohin
+     man will und winkel etc" (Betreiber, 18.11.2026).
+
+     Drehen und Zoomen gab es, Verschieben nicht: Der Blickpunkt lag
+     fest in der Mitte des ersten Daches. Bei fuenf Daechern
+     nebeneinander kam man damit an das aeussere nicht heran, ausser
+     durch Herauszoomen.
+
+     Angefasst wird mit der RECHTEN oder der MITTLEREN Maustaste, oder
+     mit der linken und Umschalt. Die linke Taste allein bleibt, was
+     sie ist: drehen, Pfosten und Daecher greifen. Am Telefon
+     verschieben zwei Finger.
+
+     Gerechnet wird in der Bildebene: ein Pixel am Schirm ist umso mehr
+     Weg in der Szene, je weiter die Kamera weg steht. */
+  var FREI_SCHIEBT = null;
+  /* Der Stand der Kamera in Zahlen, fuer das Lesefenster und die
+     Pruefung. */
+  function freiKameraStand() {
+    return { radius: Math.round(kam.radius),
+             min: Math.round(kam.radiusMin), max: Math.round(kam.radiusMax),
+             phi: Math.round(kam.phi * 1000) / 1000,
+             phiMax: Math.round((kam.phiMax || PHI_MAX_UNTEN) * 1000) / 1000,
+             phiMin: PHI_MIN_FREI,
+             ziel: [Math.round(kam.ziel.x), Math.round(kam.ziel.y),
+                    Math.round(kam.ziel.z)],
+             zielFrei: !!kam.zielFrei };
+  }
+  function freiSchiebenAb(e) {
+    var mitTaste = e.button === 1 || e.button === 2 ||
+                   (e.button === 0 && (e.shiftKey || e.metaKey));
+    if (!mitTaste) return false;
+    autoDreht = false;
+    kam.ansicht = '';
+    FREI_SCHIEBT = { x: e.clientX, y: e.clientY };
+    if (leinwand.setPointerCapture) {
+      try { leinwand.setPointerCapture(e.pointerId); } catch (x) {}
+    }
+    return true;
+  }
+  function freiSchiebenUm(dx, dy) {
+    var h = leinwand.clientHeight || 600;
+    var mass = 2 * kam.radius * Math.tan(kamera3.fov * Math.PI / 360) / h;
+    var rechts = new THREE.Vector3(), hoch = new THREE.Vector3(),
+        hin = new THREE.Vector3();
+    kamera3.updateMatrixWorld();
+    kamera3.matrixWorld.extractBasis(rechts, hoch, hin);
+    kam.ziel.addScaledVector(rechts, -dx * mass);
+    kam.ziel.addScaledVector(hoch, dy * mass);
+    kam.zielFrei = true;   /* siehe kameraAnpassen(): bleibt stehen */
+    kameraSetzen();
+  }
+  function freiSchiebenZieht(e) {
+    if (!FREI_SCHIEBT) return false;
+    freiSchiebenUm(e.clientX - FREI_SCHIEBT.x, e.clientY - FREI_SCHIEBT.y);
+    FREI_SCHIEBT.x = e.clientX; FREI_SCHIEBT.y = e.clientY;
+    return true;
+  }
+  function freiSchiebenAus() {
+    if (!FREI_SCHIEBT) return false;
+    FREI_SCHIEBT = null;
+    return true;
   }
 
   /* ---------- Pfosten auf einer KOPIE ziehen ----------
@@ -11116,16 +11191,26 @@ window.BV_KONFIGURATOR_FREI = true;
     var passend = spanne / (2 * Math.tan(kamera3.fov * Math.PI / 360)) * 1.18;
     if (kamera3.aspect < 1) passend /= Math.max(0.62, kamera3.aspect);  // Hochformat
     kam.passend = passend;
-    kam.radiusMin = passend * 0.45;
-    kam.radiusMax = passend * 2.4;
-    if (!kameraAnpassen.einmal || kam.radius < passend * 0.9 || kam.radius > passend * 1.9) {
+    /* FREIE PLANUNG: 1/25 bis 25fach statt 0,45 bis 2,4fach. Nahe genug
+       fuer eine Schraube, weit genug fuer fuenf Daecher nebeneinander. */
+    kam.radiusMin = Math.max(5, passend * 0.04);
+    kam.radiusMax = passend * 25;
+    /* UND NUR BEIM ERSTEN MAL EINPASSEN. Vorher stand hier eine
+       Spanne: Lag der selbst gewaehlte Abstand ausserhalb von 0,9 bis
+       1,9 des passenden, sprang die Kamera beim naechsten Neubau
+       zurueck. Jeder Reglerzug baut neu, also schnappte jedes weite
+       oder nahe Bild sofort wieder weg. Genau das meinte der Betreiber
+       mit "man wird behindert". */
+    if (!kameraAnpassen.einmal) {
       kam.radius = passend;
       kameraAnpassen.einmal = true;
     }
     /* Eine gewählte Ansicht überlebt die Maßänderung – sie wird mit den
        neuen Maßen neu gerechnet, statt in die Standardlage zu springen. */
     if (kam.ansicht === 'Darunter') { ansichtInnen(); kameraSetzen(); return; }
-    kam.ziel.set(0, Z.hoehe / 10 * 0.48, Z.tiefe / 10 * 0.42);
+    /* Hat der Betreiber den Blickpunkt selbst verschoben, bleibt er.
+       Sonst zog jeder Reglerzug das Bild wieder auf das erste Dach. */
+    if (!kam.zielFrei) kam.ziel.set(0, Z.hoehe / 10 * 0.48, Z.tiefe / 10 * 0.42);
     kameraSetzen();
   }
 
@@ -11140,7 +11225,7 @@ window.BV_KONFIGURATOR_FREI = true;
        bis gut 25° darunter; der Boden wird dabei durchsichtig (siehe
        bodenDurchsicht). Weiter als das nicht: Bei 90° plus einem rechten
        Winkel stünde das Bild auf dem Kopf. */
-    kam.phi = Math.min(Math.max(kam.phi, 0.18),
+    kam.phi = Math.min(Math.max(kam.phi, PHI_MIN_FREI),
                        kam.phiMax || PHI_MAX_UNTEN);
     var x = kam.radius * Math.sin(kam.phi) * Math.sin(kam.theta);
     var y = kam.radius * Math.cos(kam.phi);
@@ -11206,12 +11291,12 @@ window.BV_KONFIGURATOR_FREI = true;
        Hineinzoomen bleibt möglich – bei etwa halbem Abstand steht man
        wieder mitten darunter. */
     var WEIT = 2.0;
-    kam.phiMax = Math.PI / 2 + 0.5;
+    kam.phiMax = PHI_MAX_UNTEN;
     kam.theta = Math.PI;                   // nach vorne hinaus schauen
     kam.phi = phi;
     kam.radius = r * WEIT;
-    kam.radiusMin = r * 0.45;
-    kam.radiusMax = r * 3.0;
+    kam.radiusMin = Math.max(5, r * 0.04);
+    kam.radiusMax = r * 25;
     kam.ziel.set(0, AUGENHOEHE - r * Math.cos(phi), zielZ);
   }
 
@@ -11284,6 +11369,10 @@ window.BV_KONFIGURATOR_FREI = true;
   function ansichtWaehlen(name) {
     if (!ANSICHTEN[name]) return;
     autoDreht = false;
+    /* Ein Ansichtsknopf ist der Weg zurueck: Er holt eine verschobene
+       Kamera wieder auf die Anlage. Sonst gaebe es keinen Weg heraus,
+       wenn man sich verfahren hat. */
+    kam.zielFrei = false;
     ansichtAnwenden(name);
     Array.prototype.forEach.call(document.querySelectorAll('[data-k3d-ansicht]'),
       function (x) {
@@ -13628,6 +13717,7 @@ window.BV_KONFIGURATOR_FREI = true;
     /* ERST DER PFOSTEN: Wer ihn greift, will ihn schieben und nicht die
        Kamera drehen. Trifft der Strahl keinen verschiebbaren Pfosten,
        laeuft alles weiter wie bisher. */
+    if (freiSchiebenAb(e)) return;   /* rechte Taste: Kamerafahrt */
     if (pfostenModulGreifen(e)) return;   /* Pfosten auf einer Kopie */
     if (modulGreifen(e)) return;   /* freie Planung: Dach ziehen */
     if (pfostenGreifen(e)) {
@@ -13649,6 +13739,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
 
   window.addEventListener('pointermove', function (e) {
+    if (freiSchiebenZieht(e)) return;   /* Kamerafahrt */
     if (pfostenModulZiehen(e)) return;   /* Pfosten auf einer Kopie */
     if (modulZiehen(e)) return;   /* freie Planung */
     if (pfostenZiehen(e)) return;
@@ -13660,6 +13751,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
 
   window.addEventListener('pointerup', function (e) {
+    if (freiSchiebenAus()) return;   /* Kamerafahrt */
     if (pfostenModulLoslassen()) return;   /* Pfosten auf einer Kopie */
     if (modulLoslassen()) return;   /* freie Planung */
     if (pfostenLoslassen()) return;
@@ -13867,6 +13959,15 @@ window.BV_KONFIGURATOR_FREI = true;
         return { vermerk: FREI_VERMERK, datei: bildName('Probe'),
                  teilen: teilenText() };
       },
+      kamera: function () { return freiKameraStand(); },
+      /* Den Winkel von aussen setzen, wie es das Ziehen tut. */
+      winkel: function (phi, theta) {
+        kam.phi = phi; if (theta != null) kam.theta = theta;
+        kam.ansicht = '';
+        kameraSetzen();
+        return freiKameraStand();
+      },
+      zoom: function (r) { kam.radius = r; kameraSetzen(); return freiKameraStand(); },
       /* Was von der Bemassung wo steht. */
       masseKopien: function () {
         var a = [];
@@ -13954,6 +14055,10 @@ window.BV_KONFIGURATOR_FREI = true;
     freiBandAuffrischen();
   })();
 
+  /* Ohne das legt die rechte Taste das Browsermenue ueber die Leinwand
+     und die Fahrt endet nach einem Pixel. */
+  leinwand.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
   leinwand.addEventListener('wheel', function (e) {
     e.preventDefault();
     kam.radius = Math.min(Math.max(kam.radius * (1 + Math.sign(e.deltaY) * 0.1),
@@ -13963,8 +14068,13 @@ window.BV_KONFIGURATOR_FREI = true;
 
   // Zwei Finger: zoomen. touch-action: none im CSS verhindert, dass die
   // Seite dahinter mitscrollt.
+  var letzteMitte = null;
   leinwand.addEventListener('touchstart', function (e) {
-    if (e.touches.length === 2) { zieht = false; letzterAbstand = abstand(e); }
+    if (e.touches.length === 2) {
+      zieht = false; letzterAbstand = abstand(e);
+      letzteMitte = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                      y: (e.touches[0].clientY + e.touches[1].clientY) / 2 };
+    }
   }, { passive: true });
 
   leinwand.addEventListener('touchmove', function (e) {
@@ -13977,6 +14087,16 @@ window.BV_KONFIGURATOR_FREI = true;
       kameraSetzen();
     }
     letzterAbstand = jetzt;
+    /* Wandert die MITTE zwischen den Fingern, ist das eine
+       Kamerafahrt. Beides zugleich geht damit: zusammenziehen und
+       dabei schieben, wie auf einer Karte. */
+    var mitte = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                  y: (e.touches[0].clientY + e.touches[1].clientY) / 2 };
+    if (letzteMitte) {
+      var dx = mitte.x - letzteMitte.x, dy = mitte.y - letzteMitte.y;
+      if (Math.abs(dx) + Math.abs(dy) > 0.5) freiSchiebenUm(dx, dy);
+    }
+    letzteMitte = mitte;
   }, { passive: false });
 
   /* ---------- Größe ---------- */
