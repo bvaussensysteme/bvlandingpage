@@ -19086,3 +19086,47 @@ nicht. Rechtstexte werden hier nicht angefasst; der Befund steht in
 Funktion.
 
 **Gegengelesen.** `scripts/pruefe-hoehe.mjs`, 23 von 23, mit Gegenprobe.
+
+## 18.11.2026 – Die Höhe gilt für die eingetippte Adresse, nicht für den Ort
+
+**Anlass.** Rückfrage des Betreibers: „ich möchte nämlich genau die
+richtige Adresse, nicht nur den Ort oder nicht nur die Postleitzahl,
+sondern genau die Adresse, die ich da eingebe. Straße, Hausnummer, Ort,
+Postleitzahl."
+
+**Was falsch war, mit Beleg.** Zwei Stellen warfen die Hausnummer weg:
+
+1. `wzAcFillValue()` schrieb beim Anklicken eines Vorschlags nur
+   `PLZ + Ort` zurück ins Feld und startete damit eine **zweite**
+   Textsuche. Aus „Hauptstraße 12, 57627 Hachenburg" wurde „57627
+   Hachenburg", und die Höhe kam von der Ortsmitte.
+2. Die Suche nahm den **ersten** Deutschland-Treffer. Photon stellt für
+   „Hauptstraße 1, 57627 Hachenburg" eine Hauptstraße in **Astert** nach
+   vorne, gemessen am 18.11.2026 über die echte Schnittstelle.
+
+**Dass das zählt, ist gemessen:** Hachenburg Ortsmitte 331 m, Schloss
+384 m, also 53 m Unterschied innerhalb desselben Ortes. In
+Schneelastzone 2 sind das rund 10 kg/m² mehr Schneelast.
+
+**Was jetzt gilt.**
+
+- Ein angeklickter Vorschlag wird **nicht noch einmal gesucht**. Er
+  trägt seine Koordinaten bereits; sie werden direkt benutzt
+  (`wzAcUebernehmen`).
+- Die Vorschlagsliste und das Ergebnis zeigen Straße und Hausnummer
+  (`wzAdresseAusPhoton`).
+- `wzBestesFeature()` sortiert nach: Deutschland, dann die eingetippte
+  Postleitzahl, dann der eingetippte Ort, dann Treffer mit Hausnummer,
+  wenn eine eingetippt wurde. Greift ein Schritt nicht, bleibt die Liste
+  wie sie war.
+- Unter der Adresse steht jetzt, **wie genau** der Treffer ist:
+  hausgenau, auf die Straße genau oder auf die Ortsmitte genau. Ein
+  falscher Treffer soll auffallen, statt unbemerkt in die Höhe
+  einzufließen.
+- Der Ersatzweg über Nominatim trägt Straße, Hausnummer und
+  Genauigkeit genauso.
+
+**Gegengelesen.** `pruefe-hoehe.mjs` jetzt 31 von 31, darin sieben neue
+Messungen mit zwei gleich benannten Straßen in zwei Orten derselben
+Postleitzahl. `pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110
+Kombinationen, `pruefe-werkzeugseiten.mjs` 11, alle ohne Beanstandung.

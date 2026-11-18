@@ -274,6 +274,90 @@ try {
   });
   p('der Hinweistext erfuellt den Kontrast 4,5:1', kontrast >= 4.5, kontrast + ':1');
   await C.s.close();
+  /* ---- Genau die eingetippte Adresse, nicht nur Ort und PLZ ----
+     „ich möchte nämlich genau die richtige Adresse … Straße, Hausnummer,
+     Ort, Postleitzahl" (Betreiber, 18.11.2026).
+
+     Zwei Treffer mit demselben Straßennamen und derselben Postleitzahl,
+     in zwei verschiedenen Orten. Photon stellt Astert nach vorne; gemeint
+     ist Hachenburg. Die Hoehen liegen 53 m auseinander. */
+  const HAUS_HBG = { type: 'Feature',
+    geometry: { type: 'Point', coordinates: [7.82473, 50.66148] },
+    properties: { countrycode: 'DE', osm_key: 'place', street: 'Hauptstraße',
+                  housenumber: '1', postcode: '57627', city: 'Hachenburg',
+                  state: 'Rheinland-Pfalz', name: 'Hauptstraße 1' } };
+  const HAUS_AST = { type: 'Feature',
+    geometry: { type: 'Point', coordinates: [7.78230, 50.69481] },
+    properties: { countrycode: 'DE', osm_key: 'place', street: 'Hauptstraße',
+                  housenumber: '1', postcode: '57627', city: 'Astert',
+                  state: 'Rheinland-Pfalz', name: 'Hauptstraße 1' } };
+
+  async function adressSeite() {
+    const s = await ctx.newPage();
+    const rufe = { suche: 0, vorschlag: 0, hoehe: [] };
+    await s.route('**/photon.komoot.io/**', (route) => {
+      const u = route.request().url();
+      if (/limit=7/.test(u)) rufe.vorschlag++; else rufe.suche++;
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ features: [HAUS_AST, HAUS_HBG] }) });
+    });
+    await s.route('**/api/hoehe*', (route) => {
+      const u = new URL(route.request().url());
+      rufe.hoehe.push(u.searchParams.get('lat') + ',' + u.searchParams.get('lon'));
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ hoehe: 384, quelle: 'EU-DEM 25 m (Copernicus)',
+                               datensatz: 'eudem25m' }) });
+    });
+    await s.goto(`http://127.0.0.1:${PORT}/windzonen.html?t=${Date.now()}`,
+      { waitUntil: 'load' });
+    await s.waitForTimeout(1200);
+    return { s, rufe };
+  }
+
+  /* a) Knopf "Standort ermitteln" mit voll eingetippter Adresse. */
+  const D = await adressSeite();
+  await D.s.fill('#wz-address-input', 'Hauptstraße 1, 57627 Hachenburg');
+  await D.s.click('#wz-search-btn');
+  await D.s.waitForSelector('#wz-results.visible', { timeout: 15000 });
+  const dAdr = (await D.s.textContent('#wz-addr-text')) || '';
+  const dGenau = (await D.s.textContent('#wz-addr-genau')) || '';
+  const dKoord = (await D.s.textContent('#wz-addr-coords')) || '';
+  p('die Strasse und die Hausnummer stehen im Ergebnis',
+    /Hauptstraße 1/.test(dAdr) && /57627/.test(dAdr) && /Hachenburg/.test(dAdr), dAdr);
+  p('der richtige Ort gewinnt, nicht der erste Treffer',
+    /Hachenburg/.test(dAdr) && !/Astert/.test(dAdr) && /50\.66148/.test(dKoord),
+    dKoord);
+  p('die Seite sagt, wie genau der Treffer ist',
+    /hausgenau/.test(dGenau), dGenau);
+  await D.s.click('#wz-hoehe-box > summary');
+  await D.s.waitForTimeout(1200);
+  p('die Hoehe wird fuer das Haus geholt, nicht fuer die Ortsmitte',
+    D.rufe.hoehe.length === 1 && D.rufe.hoehe[0] === '50.66148,7.82473',
+    D.rufe.hoehe.join(' '));
+  await D.s.close();
+
+  /* b) Vorschlag anklicken. Vorher ging dabei die Strasse verloren. */
+  const E = await adressSeite();
+  await E.s.fill('#wz-address-input', 'Hauptstraße 1, 57627 Hach');
+  await E.s.waitForSelector('.wz-suggestion-item', { timeout: 15000 });
+  const vorschlagText = (await E.s.textContent('.wz-suggestion-item:nth-child(2)')) || '';
+  p('die Vorschlagsliste zeigt Strasse und Hausnummer',
+    /Hauptstraße 1/.test(vorschlagText), vorschlagText.replace(/\s+/g, ' ').trim());
+  const sucheVorher = E.rufe.suche;
+  await E.s.click('.wz-suggestion-item:nth-child(2)');
+  await E.s.waitForSelector('#wz-results.visible', { timeout: 15000 });
+  const eFeld = await E.s.inputValue('#wz-address-input');
+  const eAdr = (await E.s.textContent('#wz-addr-text')) || '';
+  const eKoord = (await E.s.textContent('#wz-addr-coords')) || '';
+  p('ein angeklickter Vorschlag behaelt Strasse und Hausnummer',
+    /Hauptstraße 1/.test(eFeld) && /57627/.test(eFeld), 'Feld: ' + eFeld);
+  p('und benutzt SEINE Koordinaten, ohne zweite Suche',
+    /50\.66148/.test(eKoord) && E.rufe.suche === sucheVorher,
+    eKoord + ' / ' + (E.rufe.suche - sucheVorher) + ' zusaetzliche Suchen');
+  p('der zweite Vorschlag ist auch der zweite Ort',
+    /Hachenburg/.test(eAdr) && !/Astert/.test(eAdr), eAdr);
+  await E.s.close();
+
 } finally {
   await browser.close();
   server.kill();

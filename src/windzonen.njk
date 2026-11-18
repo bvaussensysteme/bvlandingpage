@@ -323,6 +323,12 @@ extraStyles: |
       .wz-result-address .addr-val {
         font-size: 0.95rem; color: var(--black); font-weight: 500;
       }
+      /* Kontrast gemessen: #5E5E5E auf #FFFFFF ergibt 6,2:1, ueber den
+         4,5:1 der WCAG 2.2 AA. */
+      .wz-result-address .addr-genau {
+        font-size: 0.8rem; color: #5E5E5E; margin-top: 2px;
+      }
+      .wz-result-address .addr-genau:empty { display: none; }
       .wz-result-address .addr-coords {
         font-size: 0.8rem; color: var(--muted); margin-top: 2px;
       }
@@ -757,12 +763,44 @@ extraScripts: |
     out.innerHTML = html;
   }
 
+  /* Einen Standort setzen: Karte, Zonen, Hoehenfeld. Dieselbe Stelle fuer
+     die Suche UND fuer einen angeklickten Vorschlag. Vorher lag das nur
+     in wzSearch(); ein Vorschlag musste deshalb den Umweg ueber eine
+     zweite Textsuche nehmen. */
+  var wzGenauText = '';
+  function wzStandortSetzen(lat, lng, adresse, genau) {
+    var errorEl = document.getElementById('wz-error');
+    var feature = wzFindByCoords(lat, lng);
+    if (!feature) {
+      errorEl.textContent = 'Standort liegt außerhalb Deutschlands oder konnte nicht zugeordnet werden.';
+      errorEl.classList.add('visible');
+      return;
+    }
+    errorEl.classList.remove('visible');
+    document.getElementById('wz-map-wrap').classList.add('visible');
+    wzPendingPos = { lat: lat, lng: lng };
+    if (wzLeafletLoaded && window.L) {
+      try { wzInitMap(lat, lng); } catch (e) {
+        document.getElementById('wz-map-wrap').classList.remove('visible');
+      }
+    } else {
+      document.getElementById('wz-map-gate').hidden = false;
+      document.getElementById('wz-map').hidden = true;
+    }
+    wzGenauText = genau || '';
+    wzShowResults(adresse, lat, lng, feature.properties);
+  }
+
   function wzShowResults(address, lat, lng, props) {
     var wz = props.windzone, slz = String(props.schneelastzone);
     var fn = props.sonderhinweis || '';
     var kreisName = props.name;
 
     document.getElementById('wz-addr-text').textContent = address;
+    var genauEl = document.getElementById('wz-addr-genau');
+    if (genauEl) {
+      genauEl.textContent = wzGenauText ? 'Treffer ' + wzGenauText : '';
+    }
     document.getElementById('wz-addr-coords').textContent =
       'Breite: ' + lat.toFixed(5) + ' | Länge: ' + lng.toFixed(5);
 
@@ -837,25 +875,8 @@ extraScripts: |
       + '&lang=de&limit=5'
       + '&bbox=5.866,47.270,15.042,55.058';
 
-    function wzHandleGeoResult(lat, lng, shortAddr) {
-      var feature = wzFindByCoords(lat, lng);
-      if (!feature) {
-        errorEl.textContent = 'Standort liegt außerhalb Deutschlands oder konnte nicht zugeordnet werden.';
-        errorEl.classList.add('visible');
-        return;
-      }
-      document.getElementById('wz-map-wrap').classList.add('visible');
-      // Karte nur, wenn Leaflet schon geladen ist. Sonst Platzhalter mit Knopf.
-      wzPendingPos = { lat: lat, lng: lng };
-      if (wzLeafletLoaded && window.L) {
-        try { wzInitMap(lat, lng); } catch(e) {
-          document.getElementById('wz-map-wrap').classList.remove('visible');
-        }
-      } else {
-        document.getElementById('wz-map-gate').hidden = false;
-        document.getElementById('wz-map').hidden = true;
-      }
-      wzShowResults(shortAddr, lat, lng, feature.properties);
+    function wzHandleGeoResult(lat, lng, shortAddr, genau) {
+      wzStandortSetzen(lat, lng, shortAddr, genau);
     }
 
     function wzTryNominatim() {
@@ -871,11 +892,14 @@ extraScripts: |
           var a = r.address || {};
           var parts = [];
           if (a.road) parts.push(a.road + (a.house_number ? ' ' + a.house_number : ''));
-          if (a.postcode) parts.push(a.postcode);
-          var city = a.city || a.town || a.village || a.municipality || '';
-          if (city) parts.push(city);
+          var plzOrt = [a.postcode, a.city || a.town || a.village || a.municipality || '']
+            .filter(Boolean).join(' ');
+          if (plzOrt) parts.push(plzOrt);
           if (a.state) parts.push(a.state);
-          return { lat: lat, lng: lng, addr: parts.join(', ') || r.display_name.split(',').slice(0,3).join(',') };
+          return { lat: lat, lng: lng,
+                   addr: parts.join(', ') || r.display_name.split(',').slice(0,3).join(','),
+                   genau: a.house_number ? 'hausgenau'
+                        : (a.road ? 'auf die Straße genau' : 'auf die Ortsmitte genau') };
         });
     }
 
@@ -885,20 +909,10 @@ extraScripts: |
       loader.classList.remove('visible');
       btn.disabled = false;
 
-      // Photon gibt GeoJSON zurück – nur Deutschland-Treffer verwenden
+      /* Nicht mehr der erste Deutschland-Treffer, sondern der, der zur
+         eingetippten Adresse passt: siehe wzBestesFeature(). */
       var features = (geojson && geojson.features) ? geojson.features : [];
-      var deFeature = null;
-      for (var i = 0; i < features.length; i++) {
-        var fp = features[i].properties || {};
-        // Photon liefert "countrycode":"DE" (kein Unterstrich, Großbuchstaben)
-        var cc = (fp.countrycode || fp.country_code || '').toLowerCase();
-        var ctry = (fp.country || '').toLowerCase();
-        if (cc === 'de' || ctry === 'deutschland' || ctry === 'germany') {
-          deFeature = features[i]; break;
-        }
-      }
-      // Falls kein Land-Feld vorhanden: ersten Treffer nutzen (bbox = Deutschland)
-      if (!deFeature && features.length > 0) { deFeature = features[0]; }
+      var deFeature = wzBestesFeature(features, query);
 
       if (!deFeature) {
         errorEl.textContent = 'Adresse nicht gefunden. Bitte Postleitzahl oder Ort eingeben.';
@@ -910,15 +924,9 @@ extraScripts: |
       var coords = deFeature.geometry.coordinates; // [lng, lat]
       var lat = coords[1], lng = coords[0];
       var p = deFeature.properties;
-      var parts = [];
-      if (p.name && p.name !== p.city) parts.push(p.name);
-      if (p.postcode) parts.push(p.postcode);
-      if (p.city) parts.push(p.city);
-      else if (p.town) parts.push(p.town);
-      if (p.state) parts.push(p.state);
-      var shortAddr = parts.filter(Boolean).join(', ') || p.name || query;
+      var shortAddr = wzAdresseAusPhoton(p) || p.name || query;
 
-      wzHandleGeoResult(lat, lng, shortAddr);
+      wzHandleGeoResult(lat, lng, shortAddr, wzGenauigkeit(p));
     })
     .catch(function() {
       // Photon fehlgeschlagen – Nominatim als Fallback versuchen
@@ -926,7 +934,7 @@ extraScripts: |
         .then(function(res) {
           loader.classList.remove('visible');
           btn.disabled = false;
-          wzHandleGeoResult(res.lat, res.lng, res.addr);
+          wzHandleGeoResult(res.lat, res.lng, res.addr, res.genau);
         })
         .catch(function() {
           loader.classList.remove('visible');
@@ -1011,6 +1019,80 @@ extraScripts: |
   }
   window.wzStandortMitgeben = wzStandortMitgeben;
 
+  /* ---- Welche Adresse wurde wirklich getroffen? ---------------------------
+     „ich möchte nämlich genau die richtige Adresse, nicht nur den Ort oder
+     nicht nur die Postleitzahl, sondern genau die Adresse, die ich da
+     eingebe" (Betreiber, 18.11.2026).
+
+     Photon liefert Straße und Hausnummer in eigenen Feldern. Vorher wurden
+     beide weggeworfen: Die Vorschlagsliste zeigte nur PLZ und Ort, und beim
+     Anklicken eines Vorschlags wurde genau dieser gekürzte Text noch einmal
+     gesucht. Aus „Hauptstraße 12, 57627 Hachenburg" wurde damit „57627
+     Hachenburg", und die Höhe kam von der Ortsmitte.
+
+     Dass das nicht egal ist, zeigt eine Messung vom 18.11.2026: In
+     Hachenburg liegt die Ortsmitte auf 331 m, das Schloss auf 384 m. 53 m
+     Unterschied sind in Schneelastzone 2 rund 10 kg/m² mehr Schneelast. */
+  function wzAdresseAusPhoton(p) {
+    var teile = [];
+    var strasse = p.street || (p.osm_key === 'highway' ? p.name : '');
+    if (strasse) teile.push(strasse + (p.housenumber ? ' ' + p.housenumber : ''));
+    else if (p.name && p.name !== p.city) teile.push(p.name);
+    var ort = p.city || p.town || p.village || p.municipality || p.district || '';
+    var plzOrt = [p.postcode, ort].filter(Boolean).join(' ');
+    if (plzOrt) teile.push(plzOrt);
+    if (p.state) teile.push(p.state);
+    return teile.filter(Boolean).join(', ');
+  }
+
+  /* Wie genau ist der Treffer? Steht sichtbar neben der Adresse, damit ein
+     falscher Treffer auffällt, statt unbemerkt in die Höhe einzufließen. */
+  function wzGenauigkeit(p) {
+    if (p.housenumber) return 'hausgenau';
+    if (p.street || p.osm_key === 'highway') return 'auf die Straße genau';
+    return 'auf die Ortsmitte genau';
+  }
+
+  function wzIstDeutschland(f) {
+    var p = f.properties || {};
+    var cc = (p.countrycode || p.country_code || '').toLowerCase();
+    var ctry = (p.country || '').toLowerCase();
+    return cc === 'de' || ctry === 'deutschland' || ctry === 'germany';
+  }
+
+  /* Welcher der Treffer ist gemeint? Photon sortiert nach eigenem Maß und
+     stellt für „Hauptstraße 1, 57627 Hachenburg" eine Hauptstraße in Astert
+     nach vorne. Deshalb wird hier nachsortiert, in dieser Reihenfolge:
+     Deutschland, dann die eingetippte Postleitzahl, dann der eingetippte
+     Ort, dann Treffer MIT Hausnummer, wenn eine eingetippt wurde.
+     Greift ein Schritt nicht, bleibt die Liste wie sie war. */
+  function wzBestesFeature(features, frage) {
+    var liste = (features || []).filter(wzIstDeutschland);
+    if (!liste.length) liste = features || [];
+    if (!liste.length) return null;
+    var q = String(frage || '').toLowerCase();
+
+    var plz = (q.match(/\b(\d{5})\b/) || [])[1];
+    if (plz) {
+      var mitPlz = liste.filter(function (f) { return (f.properties || {}).postcode === plz; });
+      if (mitPlz.length) liste = mitPlz;
+    }
+    var mitOrt = liste.filter(function (f) {
+      var p = f.properties || {};
+      var ort = (p.city || p.town || p.village || p.municipality || '').toLowerCase();
+      return ort && q.indexOf(ort) >= 0;
+    });
+    if (mitOrt.length) liste = mitOrt;
+
+    /* Hausnummer: eine Zahl, die nicht die fünfstellige Postleitzahl ist. */
+    var ohnePlz = q.replace(/\b\d{5}\b/g, ' ');
+    if (/\d/.test(ohnePlz)) {
+      var mitNr = liste.filter(function (f) { return (f.properties || {}).housenumber; });
+      if (mitNr.length) liste = mitNr;
+    }
+    return liste[0];
+  }
+
   function wzAcBuildLabel(p) {
     // Aus Photon-Properties einen lesbaren Label bauen
     var plz  = p.postcode || '';
@@ -1022,13 +1104,20 @@ extraScripts: |
 
   function wzAcFillValue(feature) {
     var p = feature.properties || {};
-    var lbl = wzAcBuildLabel(p);
-    var val = '';
-    if (lbl.plz && lbl.name) val = lbl.plz + ' ' + lbl.name;
-    else if (lbl.plz)         val = lbl.plz;
-    else if (lbl.name)        val = lbl.name;
-    else                      val = p.name || '';
-    wzAcGetInput().value = val;
+    wzAcGetInput().value = wzAdresseAusPhoton(p) || p.name || '';
+  }
+
+  /* Einen Vorschlag uebernehmen. NICHT noch einmal suchen: Der Vorschlag
+     TRAEGT seine Koordinaten schon. Die zweite Suche war die Stelle, an
+     der Strasse und Hausnummer verlorengingen. */
+  function wzAcUebernehmen(feature) {
+    var p = feature.properties || {};
+    var c = feature.geometry && feature.geometry.coordinates;
+    wzAcFillValue(feature);
+    wzAcClose();
+    if (!c || c.length < 2) { wzSearch(); return; }
+    wzStandortSetzen(c[1], c[0], wzAdresseAusPhoton(p) || p.name || '',
+                     wzGenauigkeit(p));
   }
 
   function wzAcRender(features) {
@@ -1063,7 +1152,11 @@ extraScripts: |
       if (lbl.name) {
         var sn = document.createElement('span');
         sn.className = 'sug-name';
-        sn.textContent = lbl.name + (lbl.city && lbl.city !== lbl.name ? ' (' + lbl.city + ')' : '');
+        /* Mit Strasse und Hausnummer, sonst sehen zwei Vorschlaege
+           gleich aus und man kann nicht waehlen. */
+        var strasse = p.street || (p.osm_key === 'highway' ? p.name : '');
+        var voll = strasse ? strasse + (p.housenumber ? ' ' + p.housenumber : '') : lbl.name;
+        sn.textContent = voll + (lbl.city && lbl.city !== voll ? ' (' + lbl.city + ')' : '');
         li.appendChild(sn);
       }
       if (lbl.state) {
@@ -1076,9 +1169,7 @@ extraScripts: |
       // Klick: Wert einfüllen + direkt suchen
       li.addEventListener('mousedown', function(e) {
         e.preventDefault(); // Blur verhindern
-        wzAcFillValue(f);
-        wzAcClose();
-        wzSearch();
+        wzAcUebernehmen(f);
       });
       list.appendChild(li);
     });
@@ -1150,9 +1241,7 @@ extraScripts: |
       } else if (e.key === 'Enter') {
         if (open && wzAcIndex >= 0 && wzAcItems[wzAcIndex]) {
           e.preventDefault();
-          wzAcFillValue(wzAcItems[wzAcIndex]);
-          wzAcClose();
-          wzSearch();
+          wzAcUebernehmen(wzAcItems[wzAcIndex]);
         } else {
           wzAcClose();
           wzSearch();
@@ -1259,6 +1348,7 @@ skipLink: |
       <div class="wz-result-address" id="wz-result-address">
         <div class="addr-label">Ermittelter Standort</div>
         <div class="addr-val" id="wz-addr-text">–</div>
+        <div class="addr-genau" id="wz-addr-genau"></div>
         <div class="addr-coords" id="wz-addr-coords">–</div>
       </div>
 

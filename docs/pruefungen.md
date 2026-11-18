@@ -522,8 +522,8 @@ zurueck.
 
 ### pruefe-hoehe.mjs (neu am 18.11.2026)
 
-Prüft `/api/hoehe` im Worker und das Höhenfeld auf `/windzonen.html`.
-23 Messungen. Der fremde Höhendienst wird durch einen eigenen Ersatz
+Prüft `/api/hoehe` im Worker, das Höhenfeld und die Adressgenauigkeit
+auf `/windzonen.html`. 31 Messungen. Der fremde Höhendienst wird durch einen eigenen Ersatz
 ausgetauscht, der eine gute Antwort, einen Fehler, eine leere Antwort,
 einen Abbruch und zwei unsinnige Höhen (9000 m, minus 500 m) liefert.
 Geprüft wird unter anderem: dass Koordinaten außerhalb Deutschlands
@@ -532,3 +532,9 @@ Koordinate den Server verlässt; dass der zweite Abruf aus dem
 Zwischenspeicher kommt; dass eine von Hand eingetragene Höhe nie
 überschrieben wird; und der gemessene Kontrast des Hinweistextes
 (7,75:1).
+
+Seit dem 18.11.2026 zusätzlich: zwei gleich benannte Straßen in zwei
+Orten derselben Postleitzahl. Geprüft wird, dass der eingetippte Ort
+gewinnt, dass ein angeklickter Vorschlag Straße und Hausnummer behält
+und ohne zweite Suche seine eigenen Koordinaten benutzt, und dass die
+Höhe für das Haus geholt wird und nicht für die Ortsmitte.
