@@ -377,3 +377,49 @@ Freigabe von VD einholen, die die Bearbeitung ausdrücklich einschließt.
 
 Das ist keine Rechtsberatung. Die verbindliche Bewertung gehört zum
 Anwalt.
+
+## 18.11.2026 – Datenschutzerklärung braucht einen Abschnitt zur Höhenermittlung
+
+**Fundstelle:** `src/datenschutz.njk`, Abschnitt 7 „OpenStreetMap
+(Kartentool auf Wind-/Schneelast- und Baugenehmigungs-Seite)".
+
+**Was sich geändert hat.** Auf `/windzonen.html` wird die Geländehöhe
+über NN jetzt automatisch ermittelt, sobald der Besucher den Bereich
+„Höhe über NN" aufklappt. Dafür fragt **der Server von BV
+AussenSysteme** bei Open Topo Data (api.opentopodata.org) an.
+
+**Was dabei tatsächlich passiert**, damit es richtig beschrieben werden
+kann:
+
+- Der Browser des Besuchers ruft **nicht** den fremden Dienst, sondern
+  nur `/api/hoehe` auf dem eigenen Server. Die IP-Adresse des Besuchers
+  erreicht Open Topo Data also **nicht**.
+- Weitergereicht wird ausschließlich die auf vier Nachkommastellen
+  gerundete Koordinate, das sind rund 10 Meter. Kein Name, keine
+  Adresse, keine IP, keine Kennung.
+- Die Koordinate stammt aus der Adresssuche, die der Besucher selbst
+  angestoßen hat; sie wird nicht zusätzlich erhoben.
+- Die Antwort wird 30 Tage zwischengespeichert, Schlüssel ist die
+  gerundete Koordinate. Nichts davon geht in eine Datenbank, nichts wird
+  protokolliert.
+- Betreiber des Dienstes: Open Topo Data, nach eigener Angabe eine
+  Einzelperson; Server über Cloudflare. Sitz und Serverstandort sind
+  nicht öffentlich benannt, ein **Drittlandbezug ist deshalb nicht
+  auszuschließen**.
+- Gleichwertiger Abruf ersatzweise beim Datensatz NASA SRTM 30 m über
+  dieselbe Adresse.
+
+**Konkretes Risiko.** Eine Datenschutzerklärung, die einen tatsächlich
+stattfindenden Abruf bei einem Dritten nicht nennt, ist unvollständig.
+Hinzu kommt die Frage, ob für den möglichen Drittlandbezug eine
+Grundlage nach Art. 44 ff. DSGVO erforderlich ist.
+
+**Was ich nicht getan habe.** Den Text selbst geändert. Rechtstexte
+werden hier nicht angefasst, siehe `CLAUDE.md`.
+
+**Was das bedeutet.** Solange der Abschnitt fehlt, ist die Funktion ein
+Hinderungsgrund für eine Veröffentlichung. Auf der Vorschau ist sie
+unbedenklich, dort ist niemand außer dem Betreiber unterwegs.
+
+**Keine Rechtsberatung.** Die verbindliche Bewertung und die Formulierung
+gehören zum Anwalt.

@@ -519,3 +519,16 @@ heraus und achtzig herein, Winkel unter den Boden und fast senkrecht
 von oben, Kamerafahrt mit der rechten Maustaste als echtes Ereignis,
 kein Zurueckschnappen nach einem Reglerzug, Ansichtsknopf als Weg
 zurueck.
+
+### pruefe-hoehe.mjs (neu am 18.11.2026)
+
+Prüft `/api/hoehe` im Worker und das Höhenfeld auf `/windzonen.html`.
+23 Messungen. Der fremde Höhendienst wird durch einen eigenen Ersatz
+ausgetauscht, der eine gute Antwort, einen Fehler, eine leere Antwort,
+einen Abbruch und zwei unsinnige Höhen (9000 m, minus 500 m) liefert.
+Geprüft wird unter anderem: dass Koordinaten außerhalb Deutschlands
+abgewiesen werden, ohne jemanden zu fragen; dass nur die gerundete
+Koordinate den Server verlässt; dass der zweite Abruf aus dem
+Zwischenspeicher kommt; dass eine von Hand eingetragene Höhe nie
+überschrieben wird; und der gemessene Kontrast des Hinweistextes
+(7,75:1).

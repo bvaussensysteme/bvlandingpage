@@ -41,6 +41,18 @@ export default {
       return handleBauteile(url, env);
     }
 
+    /* Gelaendehoehe fuer die Schneelast-Seite. Laeuft ueber unseren
+       eigenen Server und nicht aus dem Browser heraus, weil der
+       Hoehendienst keinen Access-Control-Allow-Origin-Kopf sendet:
+       Ein Aufruf aus der Seite heraus wuerde vom Browser abgewiesen.
+       Nachgemessen am 18.11.2026, die Antwort traegt diesen Kopf
+       nicht. Nebenwirkung, die uns gelegen kommt: Die Adresse des
+       Besuchers erreicht den fremden Dienst nicht, nur unser Server
+       fragt dort an. */
+    if (url.pathname === '/api/hoehe' && request.method === 'GET') {
+      return handleHoehe(url);
+    }
+
     if (url.pathname === '/api/teilen' && request.method === 'POST') {
       return handleTeilenNeu(request, env);
     }
@@ -574,6 +586,84 @@ async function handleBauteile(url, env) {
 /* Die Antworten hängen nur an den Eingabewerten und ändern sich erst mit
    einer neuen Preisliste – eine Stunde Cache spart Aufrufe und macht die
    Bedienung flüssig. */
+/* ============================================================
+   Gelaendehoehe ueber NN  →  GET /api/hoehe?lat=..&lon=..
+   ------------------------------------------------------------
+   Fuer das Feld "Gelaendehoehe ueber NN" auf /windzonen.html. Die
+   Schneelastzone haengt NICHT an der Hoehe, der charakteristische
+   Wert sk innerhalb der Zone schon (DIN EN 1991-1-3/NA).
+
+   Quelle: oeffentliche Schnittstelle von Open Topo Data, zuerst
+   EU-DEM 25 m (Copernicus, Europa), ersatzweise NASA SRTM 30 m.
+   Deren Grenzen: 1000 Abfragen am Tag, eine je Sekunde. Deshalb
+   wird jede Antwort 30 Tage zwischengespeichert; Gelaende aendert
+   sich nicht. Der Schluessel ist die auf vier Nachkommastellen
+   gerundete Koordinate, das sind rund 10 m.
+
+   WAS HIER NICHT PASSIERT: nichts wird gespeichert, nichts wird
+   protokolliert, es geht nichts in die Datenbank. Weitergereicht
+   werden ausschliesslich die gerundeten Koordinaten, kein Name,
+   keine Adresse, keine IP des Besuchers.
+   ============================================================ */
+const HOEHE_DIENSTE = [
+  { satz: 'eudem25m', name: 'EU-DEM 25 m (Copernicus)' },
+  { satz: 'srtm30m', name: 'NASA SRTM 30 m' },
+];
+
+async function handleHoehe(url) {
+  const lat = Number(url.searchParams.get('lat'));
+  const lon = Number(url.searchParams.get('lon'));
+  /* Nur Deutschland samt einem Rand. Weiter draussen waere die
+     Schneelastzone ohnehin nicht zugeordnet, und eine offene
+     Weiterleitung an einen fremden Dienst soll das hier nicht sein. */
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)
+      || lat < 47.0 || lat > 55.3 || lon < 5.5 || lon > 15.4) {
+    return jsonResponse({ fehler: 'Koordinate liegt ausserhalb Deutschlands.' }, 400);
+  }
+  const la = lat.toFixed(4), lo = lon.toFixed(4);
+
+  const schluessel = new Request(
+    'https://hoehe.bv-aussensysteme.de/' + la + '/' + lo,
+    { method: 'GET' }
+  );
+  const speicher = caches.default;
+  const gemerkt = await speicher.match(schluessel);
+  if (gemerkt) return gemerkt;
+
+  for (const d of HOEHE_DIENSTE) {
+    try {
+      const r = await fetch(
+        'https://api.opentopodata.org/v1/' + d.satz + '?locations=' + la + ',' + lo,
+        { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(6000) }
+      );
+      if (!r.ok) continue;
+      const j = await r.json();
+      const e = j && j.results && j.results[0] ? j.results[0].elevation : null;
+      if (e === null || e === undefined || !Number.isFinite(Number(e))) continue;
+      const m = Math.round(Number(e));
+      /* Hoechster Punkt Deutschlands 2962 m, tiefster rund -4 m. Was
+         darueber hinausgeht, ist ein Fehler des Dienstes und keine
+         Hoehe, die irgendjemand in ein Formular tragen sollte. */
+      if (m < -20 || m > 3000) continue;
+      const antwort = new Response(JSON.stringify({
+        hoehe: Math.max(0, m), quelle: d.name, datensatz: d.satz,
+      }), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'public, max-age=2592000',
+        },
+      });
+      await speicher.put(schluessel, antwort.clone());
+      return antwort;
+    } catch (e) { /* naechster Dienst */ }
+  }
+  return jsonResponse({
+    fehler: 'Die Hoehe konnte gerade nicht ermittelt werden.',
+    hinweis: 'Bitte von Hand eintragen.',
+  }, 503);
+}
+
 function cacheAntwort(daten) {
   return new Response(JSON.stringify(daten), {
     status: 200,

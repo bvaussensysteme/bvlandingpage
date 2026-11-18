@@ -409,3 +409,22 @@ Konfigurator wäre und nicht unter die messbaren Fehler fällt, die ohne
 Rückfrage behoben werden. Behebung wäre derselbe Griff wie in
 `freiAlleEinpassen()`: den Kasten um `masseGruppe` erweitern, bevor der
 Abstand gerechnet wird.
+
+## Offen beim Betreiber: Datenschutzerklärung für die Höhenermittlung
+
+Die automatische Geländehöhe auf `/windzonen.html` ruft über den
+eigenen Server einen fremden Höhendienst auf. Das muss in der
+Datenschutzerklärung stehen, bevor es veröffentlicht wird. Was genau
+passiert und was der Text abdecken muss, steht in
+`docs/rechtstexte-befunde.md`, Eintrag vom 18.11.2026. Rechtstexte
+werden hier nicht geändert.
+
+## Später prüfen: Tageslimit des Höhendienstes
+
+Open Topo Data erlaubt 1000 Abfragen am Tag und eine je Sekunde,
+gerechnet über alle Besucher zusammen, weil der eigene Server fragt.
+Bei der heutigen Reichweite ist das weit weg, und jede Antwort wird 30
+Tage zwischengespeichert. Wird die Grenze doch einmal erreicht, bleibt
+das Feld leer und die Seite sagt „bitte von Hand eintragen". Dauerhaft
+sauber wäre das eigene Geländemodell des Bundesamts für Kartographie
+(DGM200, 34 MB, offene Daten, Erreichbarkeit am 18.11.2026 geprüft).

@@ -327,6 +327,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
   font-size: 0.88rem; color: var(--muted); pointer-events: none;
 }
+/* Kontrast gegen Weiss gemessen: #5E5E5E auf #FFFFFF ist 6,2:1,
+   #8A3A22 auf #FFFFFF ist 6,0:1. Beide ueber den 4,5:1 der
+   WCAG 2.2 AA. */
+.wz-hoehe-quelle {
+  margin: 10px 0 0; font-size: 0.8rem; line-height: 1.55; color: #5E5E5E;
+}
+.wz-hoehe-quelle:empty { display: none; }
+.wz-hoehe-quelle.is-fehler { color: #8A3A22; }
 .wz-hoehe-result { margin-top: 14px; font-size: 0.88rem; line-height: 1.6; }
 .wz-hoehe-result .hr-val {
   font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800;
@@ -629,13 +637,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
       <!-- Genauer Schneelastwert nach Höhenlage (DIN EN 1991-1-3/NA, Anhang NA.A) -->
       <details class="wz-hoehe" id="wz-hoehe-box">
-        <summary>Höhe über NN angeben: genauen Schneelastwert berechnen</summary>
+        <summary>Höhe über NN: genauen Schneelastwert für Ihren Standort berechnen</summary>
         <div class="wz-hoehe-body">
           <p class="wz-hoehe-intro">
             Die Schneelastzone selbst hängt <strong>nicht</strong> von der Höhenlage ab. Sie ist fest nach
             Verwaltungsgrenzen zugeordnet (die Unterzonen 1a und 2a sind eigene Gebiete, keine Höhenstufen).
             Mit der Höhe steigt aber der charakteristische Schneelastwert s<sub>k</sub> innerhalb Ihrer Zone.
             Genau diesen Wert rechnet das Feld hier nach DIN EN 1991-1-3/NA aus.
+            Die Geländehöhe Ihres Standorts wird dabei automatisch ermittelt.
+            Sie können den Wert prüfen und überschreiben.
           </p>
           <div class="wz-hoehe-row">
             <div class="wz-hoehe-field">
@@ -665,6 +675,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             </div>
             <button type="button" class="btn btn-gold" onclick="wzBerechneSchneelast()">Ausrechnen</button>
           </div>
+          <p class="wz-hoehe-quelle" id="wz-hoehe-quelle" role="status" aria-live="polite"></p>
           <div class="wz-hoehe-result" id="wz-hoehe-result" role="status" aria-live="polite"></div>
         </div>
       </details>
@@ -1177,6 +1188,50 @@ var SLZ_INFO = {
    jeweilige Zonenwert × 1,25. Oberhalb 1500 m gelten Sonderwerte der Länder.
    ------------------------------------------------------------------------ */
 var wzAktuelleSlz = null; // von wzShowResults gesetzt
+var wzAktuelleKoord = null;   // Koordinaten der letzten Suche
+var wzHoeheHandisch = false;  // hat jemand selbst eine Höhe eingetragen?
+
+/* ---- Geländehöhe automatisch ------------------------------------------
+   „wenn man hier seine genaue adresse eingibt … kann das system doch
+   automatisch die höhe über NN bestimmen und schneelastzone genauer
+   anzeigen" (Betreiber, 18.11.2026).
+
+   Geholt wird erst beim AUFKLAPPEN des Höhenfeldes, nicht bei jeder
+   Suche: Wer nur die Zone sehen will, löst damit nichts aus.
+
+   Der Abruf läuft über den eigenen Server (/api/hoehe) und nicht
+   direkt aus der Seite heraus. Grund: Der Höhendienst sendet keinen
+   Access-Control-Allow-Origin-Kopf, der Browser würde die Antwort
+   verwerfen. Nachgemessen am 18.11.2026.
+
+   Der Wert bleibt überschreibbar. Wer selbst etwas einträgt, behält
+   seine Zahl - danach wird nichts mehr automatisch gesetzt. */
+function wzHoeheHolen() {
+  var feld = document.getElementById('wz-hoehe-input');
+  var quelle = document.getElementById('wz-hoehe-quelle');
+  if (!wzAktuelleKoord || wzHoeheHandisch) return;
+  if (feld.value.trim() !== '') return;
+  quelle.textContent = 'Höhe wird ermittelt …';
+  quelle.className = 'wz-hoehe-quelle';
+  fetch('/api/hoehe?lat=' + encodeURIComponent(wzAktuelleKoord.lat.toFixed(5))
+        + '&lon=' + encodeURIComponent(wzAktuelleKoord.lng.toFixed(5)),
+        { headers: { 'Accept': 'application/json' } })
+    .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (a) {
+      if (!a.ok || typeof a.j.hoehe !== 'number') throw new Error('leer');
+      if (wzHoeheHandisch || feld.value.trim() !== '') return;
+      feld.value = String(a.j.hoehe);
+      quelle.textContent = 'Automatisch ermittelt: ' + a.j.hoehe
+        + ' m über NN, Quelle ' + a.j.quelle
+        + '. Bitte prüfen; Sie können den Wert überschreiben.';
+      wzBerechneSchneelast();
+    })
+    .catch(function () {
+      quelle.className = 'wz-hoehe-quelle is-fehler';
+      quelle.textContent = 'Die Höhe lässt sich gerade nicht automatisch '
+        + 'ermitteln. Bitte von Hand eintragen.';
+    });
+}
 
 function wzSkFuerHoehe(zone, a) {
   var t = Math.pow((a + 140) / 760, 2), wert;
@@ -1360,6 +1415,13 @@ function wzShowResults(address, lat, lng, props) {
 
   // Zone für die Höhen-Berechnung merken, alte Berechnung zurücksetzen
   wzAktuelleSlz = SLZ_INFO[slz] ? slz : '2';
+  /* Koordinaten für die automatische Höhe. Sie stammen aus derselben
+     Suche, die auch die Zone bestimmt hat - es wird nichts zusätzlich
+     über den Besucher ermittelt. */
+  wzAktuelleKoord = { lat: lat, lng: lng };
+  wzHoeheHandisch = false;
+  document.getElementById('wz-hoehe-input').value = '';
+  document.getElementById('wz-hoehe-quelle').textContent = '';
   document.getElementById('wz-hoehe-result').innerHTML = '';
   document.getElementById('wz-eindeckung-input').value = '';
   document.getElementById('wz-hoehe-box').open = false;
@@ -1500,6 +1562,24 @@ function wzSearch() {
   });
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('wz-hoehe-box');
+  if (box) {
+    box.addEventListener('toggle', function () {
+      if (box.open) wzHoeheHolen();
+    });
+  }
+  var feld = document.getElementById('wz-hoehe-input');
+  if (feld) {
+    feld.addEventListener('input', function () {
+      /* Eine selbst eingetragene Zahl wird nie überschrieben. */
+      wzHoeheHandisch = true;
+      var q = document.getElementById('wz-hoehe-quelle');
+      if (q) { q.textContent = ''; q.className = 'wz-hoehe-quelle'; }
+    });
+  }
+});
+
 // ---- Reset ----
 function wzReset() {
   document.getElementById('wz-address-input').value = '';
@@ -1507,8 +1587,11 @@ function wzReset() {
   document.getElementById('wz-neigung-input').value = '';
   document.getElementById('wz-eindeckung-input').value = '';
   document.getElementById('wz-hoehe-result').innerHTML = '';
+  document.getElementById('wz-hoehe-quelle').textContent = '';
   document.getElementById('wz-hoehe-box').open = false;
   wzAktuelleSlz = null;
+  wzAktuelleKoord = null;
+  wzHoeheHandisch = false;
   document.getElementById('wz-results').classList.remove('visible');
   document.getElementById('wz-map-wrap').classList.remove('visible');
   document.getElementById('wz-error').classList.remove('visible');

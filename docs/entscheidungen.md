@@ -19034,3 +19034,55 @@ verloren gehen soll. `js/konfigurator-3d.js` ist unverändert.
 
 **Gegengelesen.** `pruefe-freie-planung.mjs` 75 von 75, mit echten Rad-
 und Zeigerereignissen statt gesetzten Zahlen.
+
+## 18.11.2026 – Geländehöhe über NN wird automatisch ermittelt
+
+**Anlass.** „wenn man hier seine genaue adresse eingibt, also straße
+nummer plz ort, kann das system doch über wiehochbinich.de oder NASA
+SRTMGL3 v003, OpenStreetMap Nominatim, Open-Meteo Forecast API
+automatisch die höhe über NN bestimmen und schneelastzone genauer
+anzeigen" (Betreiber). Auf Rückfrage: ja, bundesweit, individuell nach
+eingetippter Adresse, geholt beim Aufklappen des Höhenfeldes.
+
+**Was dabei geprüft und verworfen wurde:**
+
+- **Open-Meteo:** verworfen. In den Nutzungsbedingungen steht „You may
+  only use the free API services for non-commercial purposes." Die Seite
+  ist gewerblich. Beim Ausprobieren kam zusätzlich sofort „Daily API
+  request limit exceeded".
+- **wiehochbinich.de:** verworfen. Eine Webseite, keine Schnittstelle.
+  Automatisch auslesen wäre brüchig und rechtlich fragwürdig.
+- **Eigene Höhendaten vom Bundesamt für Kartographie (DGM200, 34 MB,
+  offene Daten, erreichbar geprüft):** vom Betreiber zugunsten des
+  schnellen Weges zurückgestellt. Bleibt der bessere Weg, wenn die
+  Funktion sich bewährt, weil dann kein fremder Dienst mehr nötig ist.
+- **Aufruf direkt aus dem Browser:** geht nicht. Open Topo Data sendet
+  keinen `Access-Control-Allow-Origin`-Kopf, nachgemessen am 18.11.2026
+  mit `curl -D-`. Der Browser würde die Antwort verwerfen.
+
+**Was jetzt gilt.** Der eigene Worker beantwortet
+`GET /api/hoehe?lat=..&lon=..`. Er prüft, ob die Koordinate in
+Deutschland liegt, rundet auf vier Nachkommastellen (rund 10 m), fragt
+Open Topo Data (EU-DEM 25 m, ersatzweise NASA SRTM 30 m) und merkt sich
+die Antwort 30 Tage. Unsinnige Höhen unter minus 20 oder über 3000 m
+werden nicht durchgereicht: Aus dem Wert wird eine Schneelast gerechnet,
+und eine falsche Zahl sieht immer plausibel aus.
+
+**Die Seite fragt erst beim Aufklappen.** Wer nur die Zone sehen will,
+löst keinen Abruf aus. Eine von Hand eingetragene Zahl wird nie
+überschrieben.
+
+**Ehrlich zum Nutzen.** Die Norm hat je Zone einen Sockelwert; darunter
+ändert die Höhe nichts. Ausgerechnet mit der Formel der Seite: Zone 1 ab
+400 m, Zone 2 ab 286 m, Zone 3 ab 256 m. Für Koblenz (74 m), Limburg
+(117 m), Montabaur (229 m), Altenkirchen (245 m) und Dernbach (259 m)
+bleibt der Wert damit unverändert. Erst Hachenburg (331 m) bewegt sich,
+dort von 87 auf 100 kg/m². Der Nutzen liegt also im Hochwesterwald und
+bei auswärtigen Interessenten, nicht im Nahbereich.
+
+**Offen und blockierend.** Die Datenschutzerklärung nennt den Dienst
+nicht. Rechtstexte werden hier nicht angefasst; der Befund steht in
+`docs/rechtstexte-befunde.md` und blockiert die Veröffentlichung dieser
+Funktion.
+
+**Gegengelesen.** `scripts/pruefe-hoehe.mjs`, 23 von 23, mit Gegenprobe.
