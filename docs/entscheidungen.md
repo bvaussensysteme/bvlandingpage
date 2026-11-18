@@ -18979,3 +18979,34 @@ einem Pfosten an.
 Auswahl auf einer Kopie, Ziehen bewegt deren Pfosten (1003 mm),
 Hauptdach bleibt leer, das Dach selbst wandert nicht.
 `pruefe-konfigurator-frei.sh` 13 von 13.
+
+## 18.11.2026 – Blick auf die ganze Anlage, Bemassung je Dach
+
+**Anlass.** Zwei Befunde des Betreibers: Das PDF zoomte auf das erste
+Dach statt auf die ganze Konstruktion, und die zusätzlichen Dächer
+hatten keine Masslinien.
+
+**Dieselbe Ursache.** `kameraAnpassen()` und `masseZeichnen()` rechnen
+aus `Z.breite`, `Z.tiefe`, `Z.hoehe`, also aus dem Hauptdach. `Z.module`
+kommt darin nicht vor. Vor der Abspaltung gab es keine Module.
+
+**Was jetzt gilt.** `freiAlleEinpassen()` misst den umschliessenden
+Kasten am fertigen Baum und zieht den Blick so weit auf, dass alles
+drin ist, Masslinien eingeschlossen. Nur aufziehen, nie zuziehen. Ohne
+zusätzliche Dächer ändert sich nichts.
+
+Die Masslinien jedes Daches werden beim Bauen aus `masseGruppe`
+**herausgenommen** und dem Dach mitgegeben, nicht kopiert: Eine Kopie
+teilte sich die Schilder-Texturen, die `masseZeichnen()` beim nächsten
+Aufruf freigibt. Sie liegen in einer eigenen Gruppe `modulMasse` neben
+`modulGruppe`, damit die Klickstrahlen auf die Pfosten nicht an einer
+Linie hängenbleiben.
+
+**Verworfen:** Die Linien als Kinder des Dach-Klons. Dann hätte jeder
+Klick in die Nähe einer Masslinie den Pfosten dahinter verdeckt, und
+`leeren(modulGruppe)` hätte ihre Geometrie bei jedem Aufbau freigegeben.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 67 von 67, mit je einem
+zweiten Weg: Projektion der acht Kastenecken für den Blick, Zählung der
+Marke `userData.mass` über die ganze Szene für die Bemassung.
+`pruefe-konfigurator-frei.sh` 13 von 13, beide Gegenproben bestanden.

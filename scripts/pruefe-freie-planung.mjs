@@ -433,6 +433,90 @@ try {
     einzelnOk + ' von ' + flSicht.length + ': ' + JSON.stringify(einzelStand));
   await flSeite.close();
 
+  /* ---- der Blick umfasst die ganze Anlage, nicht nur Dach 1 ----
+     „im pdf \u2026 zoomt es immer aufs erste dach anstatt die ganze
+     konstruktion zu zeigen" (Betreiber, 18.11.2026).
+
+     Eigene Seite, weil die Bloecke davor Daecher gedreht und Pfosten
+     verschoben haben. Gemessen wird auf ZWEI Wegen: einmal der Abstand,
+     den die Kamera nimmt, und einmal unabhaengig davon, ob die acht
+     Ecken des umschliessenden Kastens im Bild liegen. */
+  const bSeite = await ctx.newPage();
+  await bSeite.goto(`http://127.0.0.1:${PORT}/werkstatt/frei.html?t=${Date.now()}`,
+    { waitUntil: 'load' });
+  await bSeite.waitForTimeout(4500);
+
+  const alleinBlick = await bSeite.evaluate(() => window.BV_FREI.blick('Perspektive'));
+  const alleinBild = await bSeite.evaluate(() => window.BV_FREI.imBild(false));
+  p('ohne weitere Daecher bleibt der Blick wie vorher',
+    alleinBlick.ziel[0] === 0 && alleinBild !== null && alleinBild <= 1,
+    `Ziel x=${alleinBlick.ziel[0]}, Rand ${alleinBild}`);
+
+  for (let i = 0; i < 2; i++) {
+    await bSeite.evaluate(() => document.getElementById('bvFreiDachDazu').click());
+    await bSeite.waitForTimeout(3000);
+  }
+  const anzB = await bSeite.evaluate(() => window.BV_FREI.module().length);
+  p('zwei weitere Daecher stehen', anzB === 2, anzB + ' Module');
+
+  const weitBlick = await bSeite.evaluate(() => window.BV_FREI.blick('Perspektive'));
+  p('die Kamera geht fuer drei Daecher weiter weg',
+    weitBlick.radius > alleinBlick.radius * 1.3,
+    `${alleinBlick.radius} -> ${weitBlick.radius}`);
+  p('und der Blickpunkt wandert in die Mitte der Anlage',
+    Math.abs(weitBlick.ziel[0]) > 50,
+    `Ziel x=${weitBlick.ziel[0]} statt ${alleinBlick.ziel[0]}`);
+
+  /* ---- jedes Dach bekommt seine eigene Bemassung ----
+     „beim 2,3 dach etc werden auch keine masse angezeigt" (Betreiber,
+     18.11.2026). masseZeichnen() rechnet aus Z.breite, Z.tiefe und
+     Z.hoehe, also aus dem Hauptdach, und zeichnete nur dort. */
+  const mk = await bSeite.evaluate(() => window.BV_FREI.masseKopien());
+  p('jedes weitere Dach hat eine eigene Bemassung',
+    mk.kopien.length === 2 && mk.kopien.every((k) => k.teile > 0),
+    JSON.stringify(mk.kopien));
+  p('die Bemassung steht beim Dach, nicht im Ursprung',
+    mk.kopien.every((k) => Math.abs(k.x) > 50),
+    mk.kopien.map((k) => 'x=' + k.x).join(', '));
+  const mm = await bSeite.evaluate(() => window.BV_FREI.masseMarken());
+  const jeDach = mk.kopien[0] ? mk.kopien[0].teile : 0;
+  p('zweiter Weg: die Marken in der Szene gehen auf',
+    mm.gesamt === mm.imHauptdach + mk.kopien.reduce((a2, k) => a2 + k.teile, 0) &&
+    mm.imHauptdach === mk.haupt,
+    `${mm.gesamt} Marken, davon ${mm.imHauptdach} am Hauptdach, je Kopie ${jeDach}`);
+
+  /* Der Haken gilt fuer die ganze Anlage. */
+  const ausAn = await bSeite.evaluate(async () => {
+    const h = document.getElementById('k3dMasse');
+    const vorher = window.BV_FREI.masseKopien().sichtbar;
+    h.checked = !h.checked;
+    h.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 2500));
+    const nachher = window.BV_FREI.masseKopien().sichtbar;
+    h.checked = !h.checked;
+    h.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 2500));
+    return { vorher, nachher, zurueck: window.BV_FREI.masseKopien().sichtbar };
+  });
+  p('der Haken "Masse" schaltet auch die Kopien',
+    ausAn.vorher === true && ausAn.nachher === false && ausAn.zurueck === true,
+    JSON.stringify(ausAn));
+
+  /* Der zweite, anders gebaute Weg: nachgerechnet statt gerechnet. */
+  for (const ansicht of ['Perspektive', 'Vorne', 'Seite', 'Von oben']) {
+    const rand = await bSeite.evaluate((a) => {
+      window.BV_FREI.blick(a);
+      return [window.BV_FREI.imBild(false), window.BV_FREI.imBild(true)];
+    }, ansicht);
+    p(`Ansicht "${ansicht}": ganze Anlage im Bild`,
+      rand[0] !== null && rand[0] <= 1,
+      `schlimmste Ecke ${rand[0]} (ueber 1 = abgeschnitten)`);
+    p(`Ansicht "${ansicht}": auch die Masszahlen im Bild`,
+      rand[1] !== null && rand[1] <= 1,
+      `mit Bemassung ${rand[1]}`);
+  }
+  await bSeite.close();
+
   /* ---- die oeffentlichen Seiten haben nichts davon ---- */
   for (const [pfad, name] of [['/werkstatt/index.html', 'Werkstatt'],
                               ['/konfigurator.html', 'oeffentlich']]) {

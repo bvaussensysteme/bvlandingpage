@@ -3967,6 +3967,15 @@ window.BV_KONFIGURATOR_FREI = true;
      das, und docs/konfigurator-frei.md fuehrt es als offenen Punkt. */
   var modulGruppe = new THREE.Group();
   szene.add(modulGruppe);
+  /* Die Bemassung der zusaetzlichen Daecher. ABSICHTLICH NEBEN
+     modulGruppe und nicht darin: pfostenUnterZeigerFrei() und
+     modulUnterZeiger() schiessen ihren Strahl auf modulGruppe.children.
+     Lagen die Masslinien darin, traefe der Strahl eine Linie statt des
+     Pfostens dahinter, und der Pfosten liesse sich nicht anklicken.
+     Fuer das Hauptdach gilt dasselbe: dessen masseGruppe steht auch
+     ausserhalb von bau. */
+  var modulMasse = new THREE.Group();
+  szene.add(modulMasse);
   var freiStrahl = new THREE.Raycaster();
   var BODEN = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   var modulZug = null;          /* laufendes Ziehen */
@@ -4000,7 +4009,8 @@ window.BV_KONFIGURATOR_FREI = true;
     if (MODUL_BAUT) return null;
     MODUL_BAUT = true;
     var sicher = { breite: Z.breite, tiefe: Z.tiefe, hoehe: Z.hoehe,
-                   weg: Z.pfostenWeg, einzeln: Z.pfostenEinzeln };
+                   weg: Z.pfostenWeg, einzeln: Z.pfostenEinzeln,
+                   masse: Z.masseZeigen };
     var g = null;
     try {
       Z.breite = m.breite || sicher.breite;
@@ -4010,14 +4020,28 @@ window.BV_KONFIGURATOR_FREI = true;
          fertigen Baum zu diesem Dach gehoeren und nicht zum Hauptdach. */
       Z.pfostenWeg = m.pfostenWeg || {};
       Z.pfostenEinzeln = m.pfostenEinzeln || {};
+      /* Die Bemassung wird IMMER mitgebaut, auch wenn sie gerade
+         ausgeschaltet ist. Sonst stuende beim Einschalten eine leere
+         Kopie da, bis das Dach aus einem anderen Grund neu gebaut wird.
+         Sichtbar gemacht wird sie ueber modulMasse.visible. */
+      Z.masseZeigen = true;
       bauen();
       g = bau.clone(true);
+      /* Die Masslinien dieses Daches aus masseGruppe HERAUSNEHMEN statt
+         sie zu kopieren. Eine Kopie teilte sich die Schilder-Texturen
+         mit dem Hauptdach, und masseZeichnen() gibt die beim naechsten
+         Aufruf mit dispose() frei: Die Schilder der Kopien waeren dann
+         leer. Herausgenommen gehoeren sie niemandem sonst. */
+      var mg = new THREE.Group();
+      while (masseGruppe.children.length) mg.add(masseGruppe.children[0]);
+      g.userData.masseKopie = mg;
     } finally {
       Z.breite = sicher.breite;
       Z.tiefe  = sicher.tiefe;
       Z.hoehe  = sicher.hoehe;
       Z.pfostenWeg = sicher.weg;
       Z.pfostenEinzeln = sicher.einzeln;
+      Z.masseZeigen = sicher.masse;
       /* DIE SPERRE ERST DANACH LOESEN. Beim ersten Versuch stand
          MODUL_BAUT = false VOR diesem bauen(). Dann rief bauen() am
          Ende moduleAufbauen(), das fuer das naechste Modul wieder
@@ -4027,6 +4051,29 @@ window.BV_KONFIGURATOR_FREI = true;
       MODUL_BAUT = false;
     }
     return g;
+  }
+
+  /* Die Bemassung eines Moduls freigeben. masseZeichnen() gibt nur die
+     Schilder frei, die in masseGruppe HAENGEN; die herausgenommenen
+     gehoeren niemandem sonst. Ohne das entstehen bei jeder Maszahl zwei
+     neue Zeichenflaechen je Schild, die niemand wieder einsammelt. */
+  function modulMasseFreigeben(i) {
+    var k = MODUL_BAU[i];
+    var mg = k && k.userData ? k.userData.masseKopie : null;
+    if (!mg) return;
+    if (mg.parent) mg.parent.remove(mg);
+    mg.traverse(function (o) {
+      if (o.userData) {
+        if (o.userData.ruheMap) o.userData.ruheMap.dispose();
+        if (o.userData.wachMap) o.userData.wachMap.dispose();
+      }
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach(function (x) { x.dispose(); });
+        else o.material.dispose();
+      }
+    });
+    k.userData.masseKopie = null;
   }
 
   /* Masse eines einzelnen Moduls setzen. */
@@ -4040,6 +4087,7 @@ window.BV_KONFIGURATOR_FREI = true;
     var w = Math.max(spanne[0], Math.min(spanne[1], Math.round(Number(wert) || 0)));
     if (L[i][feld] === w) return;
     L[i][feld] = w;
+    modulMasseFreigeben(i);
     MODUL_BAU[i] = null;        /* nur dieses eine Modul neu bauen */
     moduleAufbauen();
     freiBandAuffrischen();
@@ -4070,6 +4118,7 @@ window.BV_KONFIGURATOR_FREI = true;
     var L = modulListe();
     if (!L.length) return;
     L.pop();
+    modulMasseFreigeben(MODUL_BAU.length - 1);
     MODUL_BAU.pop();
     modulAktiv = L.length - 1;
     moduleAufbauen();
@@ -4106,6 +4155,12 @@ window.BV_KONFIGURATOR_FREI = true;
   function moduleAufbauen() {
     if (MODUL_BAUT) return;     /* mitten im Modulbau nichts anfassen */
     leeren(modulGruppe);
+    /* OHNE leeren(): Die Masslinien haengen am zwischengespeicherten
+       Baum (userData.masseKopie) und werden gleich wieder aufgestellt.
+       leeren() wuerde ihre Geometrie freigeben. */
+    for (var mi = modulMasse.children.length - 1; mi >= 0; mi--) {
+      modulMasse.remove(modulMasse.children[mi]);
+    }
     if (!bau) return;
     modulListe().forEach(function (m, i) {
       if (!MODUL_BAU[i]) {
@@ -4122,7 +4177,16 @@ window.BV_KONFIGURATOR_FREI = true;
       k.rotation.y = m.dreh || 0;
       k.userData.modul = i;
       modulGruppe.add(k);
+      /* Die Bemassung bekommt dieselbe Lage und Drehung wie das Dach,
+         deshalb stimmt sie auch bei gedrehten Daechern. */
+      var mm = k.userData.masseKopie;
+      if (mm) {
+        mm.position.copy(k.position);
+        mm.rotation.y = k.rotation.y;
+        modulMasse.add(mm);
+      }
     });
+    modulMasse.visible = !!Z.masseZeigen;
     neuZeichnen();
   }
 
@@ -4469,6 +4533,7 @@ window.BV_KONFIGURATOR_FREI = true;
     modulListe().forEach(function (m, i) {
       if (m.pfostenWeg && Object.keys(m.pfostenWeg).length) {
         m.pfostenWeg = {};
+        modulMasseFreigeben(i);
         MODUL_BAU[i] = null;
       }
     });
@@ -4479,7 +4544,10 @@ window.BV_KONFIGURATOR_FREI = true;
   function pfostenWegSchalten(reihe, nr, z, modul) {
     var k = pfWegSchluessel(reihe, nr, z), L = pfWegListe(modul);
     if (L[k]) delete L[k]; else L[k] = true;
-    if (modul != null && modul >= 0) MODUL_BAU[modul] = null;  /* nur dieses Dach */
+    if (modul != null && modul >= 0) {
+      modulMasseFreigeben(modul);
+      MODUL_BAU[modul] = null;   /* nur dieses Dach */
+    }
     bauen();
     freiBandAuffrischen();
     freiStuecklisteAuffrischen();
@@ -5393,6 +5461,10 @@ window.BV_KONFIGURATOR_FREI = true;
        reichte beim Balkon bis z = 131,8 cm und wurde als Dachkante
        gezaehlt, die bei 130,0 cm liegt. */
     masseGruppe.children.forEach(function (k) { k.userData.mass = true; });
+    /* Der Haken "Masse zeigen" gilt fuer die ganze Anlage, nicht nur
+       fuer das erste Dach. Die Kopien werden nicht neu gebaut, nur
+       ein- und ausgeblendet. */
+    if (typeof modulMasse !== 'undefined') modulMasse.visible = !!Z.masseZeigen;
   }
 
   /* Das Dreieck zur liegenden Masslinie a-b. `quer` sagt, zu welcher
@@ -11146,6 +11218,51 @@ window.BV_KONFIGURATOR_FREI = true;
   /* Eine Ansicht anwenden. Steht hier als eigene Funktion, weil sie auch
      nach jedem Neubau gebraucht wird: Sonst sprang die Kamera bei jeder
      Maßänderung in die Standardlage zurück. */
+  /* NUR IN DER FREIEN PLANUNG: Blick auf die GANZE Anlage.
+
+     „im pdf … zoomt es immer aufs erste dach anstatt die ganze
+     konstruktion zu zeigen" (Betreiber, 18.11.2026).
+
+     kameraAnpassen() und ansichtAnwenden() rechnen den Abstand aus
+     Z.breite, Z.tiefe und Z.hoehe, also aus den Massen des HAUPTDACHS.
+     Die zusaetzlichen Daecher stehen in Z.module und kommen darin nicht
+     vor. Vor der Abspaltung gab es sie nicht, deshalb hat das immer
+     gestimmt; mit drei Daechern nebeneinander stand ab hier die Haelfte
+     ausserhalb des Bildes, im PDF genauso wie am Schirm.
+
+     Gemessen wird deshalb am fertigen Baum (bau plus modulGruppe) und
+     nicht aus Zahlen gerechnet: So stimmt es auch bei Ueberstand,
+     Seitenteilen und gedrehten Daechern, wo die Masse allein zu klein
+     waeren. Die Rechnung darunter ist dieselbe wie in
+     kameraAnpassen(), nur mit der gemessenen Groesse statt mit Z.
+
+     Ohne zusaetzliche Daecher aendert diese Funktion nichts. Das
+     Hauptdach allein wird genau wie vorher eingepasst. */
+  function freiAlleEinpassen() {
+    if (!bau || !modulGruppe || !modulGruppe.children.length) return;
+    var k = new THREE.Box3().setFromObject(bau);
+    k.expandByObject(modulGruppe);
+    /* Die Masslinien gehoeren ins Bild: Sie sind der Grund, warum man
+       sich die Zeichnung ansieht. Ohne sie im Kasten standen die Zahlen
+       der aeusseren Daecher knapp ausserhalb. */
+    if (masseGruppe.children.length) k.expandByObject(masseGruppe);
+    if (modulMasse.visible && modulMasse.children.length) k.expandByObject(modulMasse);
+    if (k.isEmpty()) return;
+    var g = k.getSize(new THREE.Vector3());
+    if (!isFinite(g.x) || !isFinite(g.z) || g.x <= 0) return;
+    var mitte = k.getCenter(new THREE.Vector3());
+    kam.ziel.set(mitte.x, Math.max(k.min.y + g.y * 0.48, 20), mitte.z);
+    var spanne = Math.max(g.x * 1.12, (g.z + 120) * 1.3, g.y * 2.4);
+    var passend = spanne / (2 * Math.tan(kamera3.fov * Math.PI / 360)) * 1.18;
+    if (kamera3.aspect < 1) passend /= Math.max(0.62, kamera3.aspect);
+    /* Nur aufziehen, nie zuziehen: Eine Ansicht, die naeher heran soll,
+       bleibt naeher, solange dabei nichts abgeschnitten wird. */
+    if (passend > kam.radius) kam.radius = passend;
+    /* Die Grenzen haengen am Hauptdach und wuerden ein weites Bild beim
+       naechsten Raddreh sofort wieder zusammenziehen. */
+    if (kam.radiusMax < kam.radius * 1.4) kam.radiusMax = kam.radius * 1.4;
+  }
+
   function ansichtAnwenden(name) {
     var a = ANSICHTEN[name];
     if (!a) return;
@@ -11156,6 +11273,7 @@ window.BV_KONFIGURATOR_FREI = true;
     if (a.nah) kam.radius = Math.max(kam.radiusMin, (kam.passend || kam.radius) * a.nah);
     else if (kam.passend) kam.radius = kam.passend;
     kam.ziel.set(0, Z.hoehe / 10 * 0.48, Z.tiefe / 10 * 0.42);
+    freiAlleEinpassen();   /* siehe oben: ganze Anlage, nicht nur Dach 1 */
     kameraSetzen();
   }
 
@@ -13748,6 +13866,72 @@ window.BV_KONFIGURATOR_FREI = true;
       kennzeichnung: function () {
         return { vermerk: FREI_VERMERK, datei: bildName('Probe'),
                  teilen: teilenText() };
+      },
+      /* Was von der Bemassung wo steht. */
+      masseKopien: function () {
+        var a = [];
+        modulMasse.children.forEach(function (g) {
+          a.push({ teile: g.children.length,
+                   x: Math.round(g.position.x),
+                   dreh: Math.round(g.rotation.y * 180 / Math.PI) });
+        });
+        return { sichtbar: !!modulMasse.visible,
+                 haupt: masseGruppe.children.length, kopien: a };
+      },
+      /* ZWEITER, ANDERS GEBAUTER WEG: nicht die Gruppe fragen, sondern
+         die ganze Szene durchlaufen und die Marke zaehlen, die
+         masseZeichnen() auf jedes Teil der Bemassung setzt. Stimmen die
+         beiden Zahlen nicht zusammen, haengt Bemassung irgendwo, wo sie
+         nicht hingehoert. */
+      masseMarken: function () {
+        var n = 0, drin = 0;
+        szene.traverse(function (o) {
+          if (!o.userData || !o.userData.mass) return;
+          n++;
+          var pp = o;
+          while (pp) { if (pp === masseGruppe) { drin++; break; } pp = pp.parent; }
+        });
+        return { gesamt: n, imHauptdach: drin };
+      },
+      /* Eine Ansicht setzen wie das PDF es tut, und sehen, wie weit die
+         Kamera dabei weggeht. */
+      blick: function (name) {
+        ansichtAnwenden(name);
+        return { radius: Math.round(kam.radius),
+                 ziel: [Math.round(kam.ziel.x), Math.round(kam.ziel.y),
+                        Math.round(kam.ziel.z)] };
+      },
+      /* ZWEITER, ANDERS GEBAUTER WEG zur selben Frage. freiAlleEinpassen()
+         rechnet einen Abstand aus der Groesse; das hier rechnet nicht,
+         sondern RECHNET NACH: Jede der acht Ecken des umschliessenden
+         Kastens wird durch die Kamera auf die Bildflaeche geworfen. Ein
+         Wert ueber 1 heisst, diese Ecke liegt ausserhalb des Bildes.
+         Zurueck kommt der schlimmste Wert. */
+      imBild: function (mitMass) {
+        if (!bau) return null;
+        var k = new THREE.Box3().setFromObject(bau);
+        if (modulGruppe && modulGruppe.children.length) k.expandByObject(modulGruppe);
+        /* Die Masslinien nur auf Wunsch: Am Hauptdach allein stehen sie
+           seit immer ein Stueck ausserhalb des Bildes, auch im
+           oeffentlichen Konfigurator. Das ist ein eigener Befund und
+           nicht Teil dieser Messung. */
+        if (mitMass) {
+          if (masseGruppe.children.length) k.expandByObject(masseGruppe);
+          if (modulMasse.visible && modulMasse.children.length) k.expandByObject(modulMasse);
+        }
+        if (k.isEmpty()) return null;
+        kamera3.updateMatrixWorld();
+        kamera3.updateProjectionMatrix();
+        var w = 0;
+        [k.min.x, k.max.x].forEach(function (x) {
+          [k.min.y, k.max.y].forEach(function (y) {
+            [k.min.z, k.max.z].forEach(function (z) {
+              var v = new THREE.Vector3(x, y, z).project(kamera3);
+              w = Math.max(w, Math.abs(v.x), Math.abs(v.y));
+            });
+          });
+        });
+        return Math.round(w * 1000) / 1000;
       }
     };
     var bz = document.getElementById('bvFreiDachDazu');

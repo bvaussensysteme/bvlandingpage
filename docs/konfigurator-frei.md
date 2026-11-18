@@ -506,3 +506,62 @@ Hauptdach. Wer ein Dach schieben will, fasst es neben einem Pfosten an.
 
 Gemessen: Versatz 1003 mm auf der Kopie, Hauptdach leer, das Dach selbst
 steht unverändert bei 501/0.
+
+### Blick auf die ganze Anlage und Bemassung je Dach (18.11.2026)
+
+Zwei Befunde des Betreibers, beide am selben Tag:
+
+> „im pdf sieht man die ausgeblendeten pfosten nicht was gut is, aber
+> es zoomt immer aufs erste dach anstatt die ganze konstruktion zu
+> zeigen"
+
+> „beim 2,3 dach etc werden auch keine masse angezeigt"
+
+**Dieselbe Ursache.** `kameraAnpassen()` und `masseZeichnen()` rechnen
+aus `Z.breite`, `Z.tiefe` und `Z.hoehe`, also aus den Massen des
+**Hauptdachs**. Die zusätzlichen Dächer stehen in `Z.module` und kommen
+darin nicht vor. Vor der Abspaltung gab es sie nicht, deshalb hat das
+immer gestimmt.
+
+**Der Blick.** `freiAlleEinpassen()` misst den umschliessenden Kasten
+über `bau`, `modulGruppe`, `masseGruppe` und `modulMasse` am fertigen
+Baum, nicht aus Zahlen. Gemessen heisst: auch Überstand, Seitenteile
+und gedrehte Dächer zählen mit, wo die Masse allein zu klein wären. Die
+Rechnung darunter ist dieselbe wie in `kameraAnpassen()`. Ohne
+zusätzliche Dächer tut die Funktion nichts, das Hauptdach allein wird
+genau wie vorher eingepasst.
+
+Gemessen: drei Dächer, Kameraabstand 861 auf 2586, Blickpunkt von x = 0
+auf x = 501. Schlimmste Ecke im Bild 0,66 von 1 (über 1 heisst
+abgeschnitten), mit Bemassung 0,69.
+
+**Die Bemassung.** `modulBauen()` baut jedes Dach ohnehin mit seinen
+eigenen Massen; dabei füllt `bauen()` auch `masseGruppe`. Diese Linien
+werden **herausgenommen** und dem Dach mitgegeben, nicht kopiert: Eine
+Kopie teilte sich die Schilder-Texturen mit dem Hauptdach, und
+`masseZeichnen()` gibt die beim nächsten Aufruf frei. Die Schilder der
+Kopien wären dann leer.
+
+Sie landen in `modulMasse` und **nicht** in `modulGruppe`. Der Grund
+steht im Code: Die Strahlen von `pfostenUnterZeigerFrei()` und
+`modulUnterZeiger()` gehen auf `modulGruppe.children`. Läge eine
+Masslinie darin, träfe der Strahl die Linie statt des Pfostens
+dahinter. Für das Hauptdach gilt dasselbe, dessen `masseGruppe` steht
+auch ausserhalb von `bau`.
+
+`modulMasseFreigeben()` gibt die Zeichenflächen frei, sobald ein Dach
+neu gebaut oder entfernt wird. Ohne das entstünden bei jeder Maszahl
+zwei neue je Schild, die niemand einsammelt.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 67 von 67. Darin ein
+zweiter, anders gebauter Weg für beides: Für den Blick werden die acht
+Ecken des Kastens durch die Kamera auf die Bildfläche geworfen, statt
+den Abstand nachzurechnen. Für die Bemassung wird die ganze Szene
+durchlaufen und die Marke `userData.mass` gezählt: 72 Teile, davon 24
+am Hauptdach und je 24 an den beiden Kopien.
+
+**Nebenbefund, nicht geändert.** Am Hauptdach allein stehen die
+Masslinien in der Perspektive ein Stück ausserhalb des Bildes
+(schlimmste Ecke 1,30 von 1). Das gilt genauso im öffentlichen
+Konfigurator und ist älter als diese Arbeit. Steht in
+`docs/NEXT_TASK.md`.
