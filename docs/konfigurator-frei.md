@@ -89,7 +89,7 @@ Server und wäre ein eigenes Projekt.
 | Preis folgt der Zeichnung | offen |
 | Maße über die Tabellengrenzen hinaus | **fertig** 17.11.2026 |
 | Montageart je Seite, auch „lehnt am Nachbarmodul" | offen |
-| eigene Maße je Modul statt Kopien | offen |
+| eigene Maße je Modul | **fertig** 18.11.2026 |
 
 ## Wie es bedient wird
 
@@ -102,6 +102,7 @@ Server und wäre ein eigenes Projekt.
 | Ziehen auf einem zusätzlichen Dach | verschiebt es auf dem Boden |
 | Breite und Tiefe | Regler bis 30000 bzw. 20000 mm, nichts wird geklemmt |
 | „Drehen 90°" | dreht das zuletzt angefasste Dach |
+| Felder für Breite und Tiefe im roten Band | Maße des zuletzt angefassten Daches |
 | „Letztes Dach entfernen" | nimmt die zuletzt gesetzte Kopie weg |
 
 ### Eckpfosten: weder anklickbar noch verschiebbar
@@ -350,3 +351,61 @@ den Unterschied sieht statt ihn zu erraten.
 **Auf den beiden öffentlichen Seiten ändert sich nichts.** Der Kasten
 bleibt dort ohne Schnittstelle leer; `pruefe-freie-planung.mjs` prüft
 das ausdrücklich nach.
+
+## Eigene Maße je Dach
+
+**Ansage des Betreibers vom 17.11.2026:** „auch einzeln die größen bei
+den einzelnen dächern ändern."
+
+Jedes zusätzliche Dach hat jetzt eigene Breite und Tiefe. Klickt man es
+an, erscheinen im roten Band zwei Zahlenfelder.
+
+**Wie es gebaut wird.** `bauen()` schreibt in geteilte Zwischenstände
+(`MARKEN`, `PFOSTEN_REIHE`, `PF_ANZAHL`, `FELD_ANZAHL`). Ein Durchlauf
+mit anderen Maßen überschreibt sie. Deshalb:
+
+1. Maße des Moduls nach `Z` schreiben
+2. `bauen()`, den fertigen Baum kopieren
+3. Maße zurückschreiben
+4. **`bauen()` noch einmal**, damit die Zwischenstände wieder zum
+   Hauptdach gehören
+
+Der Baum wird zwischengespeichert und nur neu gebaut, wenn sich die
+Maße **dieses** Moduls ändern. Beim Schieben und beim Ändern des
+Hauptdachs passiert nichts davon.
+
+**Was das kostet:** Eine Maßänderung an einem Modul braucht rund vier
+Sekunden, weil zwei vollständige Aufbauten nötig sind. Gemessen am
+18.11.2026.
+
+**Verworfen:** die Maße der Module über die Hauptregler zu führen. Dann
+hätte jede Reglerbewegung alle Module neu gebaut, bei drei Modulen also
+acht Sekunden je Schritt.
+
+**Ein Fehler beim Bauen, der hierher gehört.** Zuerst stand die Sperre
+gegen Rekursion vor dem letzten `bauen()`. Dann rief `bauen()` am Ende
+`moduleAufbauen()`, das für das nächste Modul wieder `modulBauen()`
+rief, und so fort: „Maximum call stack size exceeded" in
+`rinneBauen()`. Die Sperre wird jetzt erst danach gelöst.
+
+## Weggenommene Pfosten auf dem Bild
+
+**Ansage des Betreibers vom 18.11.2026:** „später auf dem erstellten pdf
+darf man die ausgeblendeten pfosten garnicht sehen auch nicht so leicht,
+im bearbeitungsmodus is es gut so."
+
+| wo | was man sieht |
+|---|---|
+| beim Planen am Bildschirm | blasser Körper, anklickbar |
+| im PDF | gar nichts |
+| im gespeicherten Bild | gar nichts |
+
+Das ist der richtige Unterschied: Beim Planen sagt der blasse Körper,
+**wo** etwas fehlt, und bleibt greifbar. Auf dem Blatt beim Kunden wäre
+er ein Bauteil, das es nicht gibt.
+
+Gilt auch für die Kopien: `THREE.Object3D.copy()` übernimmt `userData`,
+die Marke steht dort also auch.
+
+Gemessen: beim Bearbeiten 1 blasser Körper sichtbar, während der
+Aufnahme 0, danach wieder 1.
