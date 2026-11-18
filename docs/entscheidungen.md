@@ -18886,3 +18886,27 @@ bei 2300 mm, die Felder im Band zeigen Breite 9000, Tiefe 9000, Höhe
 `pruefe-konfigurator-frei.sh` 13 von 13.
 
 **Offen.** Der Preis folgt der Zeichnung weiterhin nicht.
+
+## 18.11.2026 – Zwei Richtigstellungen zur freien Planung
+
+**1. Es gibt keinen Preis.** In mehreren Berichten an den Betreiber
+stand „der Preis folgt der Zeichnung noch nicht". Das war irreführend.
+Die Website nennt **nirgends** einen Preis; `pruefe-keine-preise.sh`
+erzwingt das, und im Konfigurator steht der Kommentar „PREISE STEHEN
+HIER BEWUSST NICHT und dürfen auch nicht nachgetragen werden". Der
+Punkt ist nicht offen, sondern gegenstandslos. Festgestellt, bevor
+daran gearbeitet wurde.
+
+**2. Pfosten auf den Kopien, gemessen.** Ob ein weggenommener Pfosten
+auch auf den Kopien fehlt, hängt davon ab, wann die Kopie entstanden
+ist. Gemessen: zwei Dächer, ein Pfosten weggenommen, ein blasser Körper
+statt zwei. Grund ist der Zwischenspeicher je Modul: Die Kennzeichnung
+sitzt im Baum des Hauptdachs und wandert beim Kopieren nur mit, wenn
+sie zu diesem Zeitpunkt schon da war.
+
+Das ist eine Nebenwirkung, keine Entscheidung. Die zwei möglichen
+Regelungen stehen in `docs/konfigurator-frei.md`; sie zu wählen ist
+Sache des Betreibers, weil die eine ein größerer Umbau ist (Pfosten auf
+Kopien anklickbar machen) und die andere eine Einschränkung bedeutet
+(an einem Carport ließe sich nicht an einer Stelle ein Pfosten sparen
+und an der anderen nicht).

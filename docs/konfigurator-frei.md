@@ -86,7 +86,7 @@ Server und wäre ein eigenes Projekt.
 | Stückliste folgt der Zeichnung | offen |
 | Kennzeichnung in PDF, Bildern und Teilen-Link | **fertig** 17.11.2026 |
 | Stückliste folgt der Zeichnung | **fertig** 17.11.2026 |
-| Preis folgt der Zeichnung | offen |
+| Preis folgt der Zeichnung | **gegenstandslos**, die Seite nennt keine Preise |
 | Maße über die Tabellengrenzen hinaus | **fertig** 17.11.2026 |
 | Montageart je Seite, auch „lehnt am Nachbarmodul" | offen |
 | eigene Maße je Modul | **fertig** 18.11.2026 |
@@ -426,3 +426,52 @@ die Marke steht dort also auch.
 
 Gemessen: beim Bearbeiten 1 blasser Körper sichtbar, während der
 Aufnahme 0, danach wieder 1.
+
+## Es gibt keinen Preis, auch nicht im Hauptkonfigurator
+
+**Richtigstellung vom 18.11.2026.** In mehreren Berichten stand „der
+Preis folgt der Zeichnung noch nicht". Das war irreführend: Die Website
+nennt **nirgends** einen Preis, und das ist eine ausdrückliche
+Entscheidung des Betriebs.
+
+Belegt an zwei Stellen:
+
+- `scripts/pruefe-keine-preise.sh` durchsucht alle ausgelieferten
+  Dateien nach Geldangaben und schlägt bei jeder an, die nicht in
+  `scripts/preise-ausnahmen.txt` steht. Die Ausnahmen sind Fremdkosten
+  wie Bußgelder, keine eigenen Preise.
+- Im Konfigurator selbst steht der Kommentar: „PREISE STEHEN HIER
+  BEWUSST NICHT und dürfen auch nicht nachgetragen werden."
+
+Es gibt also nichts, was der Zeichnung folgen könnte. Der Punkt ist
+nicht offen, sondern gegenstandslos.
+
+## Offen: Pfosten auf den Kopien
+
+**Gemessen am 18.11.2026.** Ob ein weggenommener Pfosten auch auf den
+Kopien fehlt, hängt davon ab, wann die Kopie entstanden ist:
+
+| Reihenfolge | Ergebnis |
+|---|---|
+| erst Dach kopieren, dann Pfosten wegnehmen | Pfosten fehlt **nur** am Hauptdach |
+| erst Pfosten wegnehmen, dann Dach kopieren | Pfosten fehlt **auch** auf der Kopie |
+
+Grund: Der Baum jedes Moduls wird zwischengespeichert und nur bei
+Änderung seiner eigenen Maße neu gebaut. Die Kennzeichnung der
+weggenommenen Pfosten sitzt im Baum des Hauptdachs und wandert beim
+Kopieren mit, wenn sie zu diesem Zeitpunkt schon da war.
+
+Gemessen: zwei Dächer, ein Pfosten weggenommen, ein blasser Körper in
+der Szene statt zwei.
+
+**Das ist kein gewolltes Verhalten, sondern eine Nebenwirkung.** Zu
+entscheiden ist, was gelten soll:
+
+1. **Jedes Dach hat seine eigenen Pfosten.** Dann muss man Pfosten auf
+   einer Kopie auch anklicken können; heute trifft der Zeiger nur das
+   Hauptdach. Das ist der größere Umbau und das, was eine freie Planung
+   eigentlich braucht.
+2. **Die Kopien sind exakte Kopien.** Dann muss die Kennzeichnung nach
+   jedem Wegnehmen auf alle Kopien übertragen werden. Kleiner Eingriff,
+   aber dann lässt sich an einem Carport nicht an einer Stelle ein
+   Pfosten sparen und an der anderen nicht.
