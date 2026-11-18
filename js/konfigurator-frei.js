@@ -3999,16 +3999,18 @@ window.BV_KONFIGURATOR_FREI = true;
   function modulBauen(m) {
     if (MODUL_BAUT) return null;
     MODUL_BAUT = true;
-    var sicher = { breite: Z.breite, tiefe: Z.tiefe };
+    var sicher = { breite: Z.breite, tiefe: Z.tiefe, hoehe: Z.hoehe };
     var g = null;
     try {
       Z.breite = m.breite || sicher.breite;
       Z.tiefe  = m.tiefe  || sicher.tiefe;
+      Z.hoehe  = m.hoehe  || sicher.hoehe;
       bauen();
       g = bau.clone(true);
     } finally {
       Z.breite = sicher.breite;
       Z.tiefe  = sicher.tiefe;
+      Z.hoehe  = sicher.hoehe;
       /* DIE SPERRE ERST DANACH LOESEN. Beim ersten Versuch stand
          MODUL_BAUT = false VOR diesem bauen(). Dann rief bauen() am
          Ende moduleAufbauen(), das fuer das naechste Modul wieder
@@ -4024,7 +4026,11 @@ window.BV_KONFIGURATOR_FREI = true;
   function modulMassSetzen(i, feld, wert) {
     var L = modulListe();
     if (i < 0 || i >= L.length) return;
-    var w = Math.max(500, Math.min(30000, Math.round(Number(wert) || 0)));
+    /* Grenzen je Feld. Weit, aber nicht unendlich: Der Regler braucht
+       ein Ende, und eine Hoehe von 50 m waere keine Planung mehr. */
+    var spanne = feld === 'hoehe' ? [1200, 6000]
+               : feld === 'tiefe' ? [500, 20000] : [500, 30000];
+    var w = Math.max(spanne[0], Math.min(spanne[1], Math.round(Number(wert) || 0)));
     if (L[i][feld] === w) return;
     L[i][feld] = w;
     MODUL_BAU[i] = null;        /* nur dieses eine Modul neu bauen */
@@ -4045,7 +4051,7 @@ window.BV_KONFIGURATOR_FREI = true;
   function modulHinzufuegen() {
     var L = modulListe();
     L.push({ x: modulBreite() * (L.length + 1), z: 0, dreh: 0,
-             breite: Z.breite, tiefe: Z.tiefe });
+             breite: Z.breite, tiefe: Z.tiefe, hoehe: Z.hoehe });
     MODUL_BAU.push(null);
     modulAktiv = L.length - 1;
     moduleAufbauen();
@@ -4098,7 +4104,8 @@ window.BV_KONFIGURATOR_FREI = true;
       if (!MODUL_BAU[i]) {
         /* Gleiche Masse wie das Hauptdach: eine Kopie reicht und spart
            den zusaetzlichen Aufbau. */
-        MODUL_BAU[i] = (m.breite === Z.breite && m.tiefe === Z.tiefe)
+        MODUL_BAU[i] = (m.breite === Z.breite && m.tiefe === Z.tiefe &&
+                        m.hoehe === Z.hoehe)
           ? bau.clone(true) : modulBauen(m);
       }
       var k = MODUL_BAU[i];
@@ -4446,8 +4453,10 @@ window.BV_KONFIGURATOR_FREI = true;
       var fb = document.getElementById('bvFreiDachBreite');
       var ft = document.getElementById('bvFreiDachTiefe');
       if (nr) nr.textContent = String(i + 1);
+      var fh = document.getElementById('bvFreiDachHoehe');
       if (fb && document.activeElement !== fb) fb.value = L[i].breite || '';
       if (ft && document.activeElement !== ft) ft.value = L[i].tiefe || '';
+      if (fh && document.activeElement !== fh) fh.value = L[i].hoehe || '';
     }
   }
 
@@ -13486,7 +13495,8 @@ window.BV_KONFIGURATOR_FREI = true;
       module: function () {
         return (Z.module || []).map(function (m) {
           return { x: Math.round(m.x), z: Math.round(m.z), dreh: m.dreh || 0,
-                   breite: m.breite || null, tiefe: m.tiefe || null };
+                   breite: m.breite || null, tiefe: m.tiefe || null,
+                   hoehe: m.hoehe || null };
         });
       },
       modulAktiv: function () { return modulAktiv; },
@@ -13594,7 +13604,7 @@ window.BV_KONFIGURATOR_FREI = true;
     if (bw) bw.addEventListener('click', function () { modulLetztesWeg(); });
     var bd = document.getElementById('bvFreiDachDrehen');
     if (bd) bd.addEventListener('click', function () { modulDrehen(); });
-    ['breite', 'tiefe'].forEach(function (feld) {
+    ['breite', 'tiefe', 'hoehe'].forEach(function (feld) {
       var el = document.getElementById('bvFreiDach' +
         feld.charAt(0).toUpperCase() + feld.slice(1));
       if (!el) return;

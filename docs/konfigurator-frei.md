@@ -382,6 +382,23 @@ Sekunden, weil zwei vollständige Aufbauten nötig sind. Gemessen am
 hätte jede Reglerbewegung alle Module neu gebaut, bei drei Modulen also
 acht Sekunden je Schritt.
 
+### Auch die Höhe je Dach
+
+Seit dem 18.11.2026 hat jedes zusätzliche Dach neben Breite und Tiefe
+auch eine eigene Höhe. Drittes Feld im roten Band.
+
+| Feld | Spanne |
+|---|---|
+| Breite | 500 bis 30000 mm |
+| Tiefe | 500 bis 20000 mm |
+| Höhe | 1200 bis 6000 mm |
+
+Die Spannen sind weit, aber nicht unendlich: Der Regler braucht ein
+Ende, und eine Höhe von 50 m wäre keine Planung mehr.
+
+Gemessen: Höhe eines Moduls von 2300 auf 3800 mm, das Hauptdach bleibt
+bei 2300 mm.
+
 **Ein Fehler beim Bauen, der hierher gehört.** Zuerst stand die Sperre
 gegen Rekursion vor dem letzten `bauen()`. Dann rief `bauen()` am Ende
 `moduleAufbauen()`, das für das nächste Modul wieder `modulBauen()`

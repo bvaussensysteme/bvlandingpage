@@ -207,9 +207,18 @@ try {
   });
   await seite.evaluate(() => window.BV_FREI.modulMass(0, 'breite', 9000));
   await seite.waitForTimeout(4500);
+  await seite.evaluate(() => window.BV_FREI.modulMass(0, 'hoehe', 3800));
+  await seite.waitForTimeout(4500);
   const nachMass = await seite.evaluate(() => window.BV_FREI.module());
-  p('ein Dach bekommt eigene Masse', nachMass.length >= 1 && nachMass[0].breite === 9000,
+  p('ein Dach bekommt eigene Breite', nachMass.length >= 1 && nachMass[0].breite === 9000,
     JSON.stringify(nachMass));
+  p('ein Dach bekommt eigene Hoehe', nachMass.length >= 1 && nachMass[0].hoehe === 3800,
+    'Hoehe = ' + (nachMass[0] ? nachMass[0].hoehe : '?'));
+  const felder = await seite.evaluate(() => ['Breite', 'Tiefe', 'Hoehe']
+    .map((f) => { const e = document.getElementById('bvFreiDach' + f);
+                  return f + '=' + (e ? e.value : 'fehlt'); }).join(' '));
+  p('die Felder im Band zeigen die Masse des gewaehlten Daches',
+    /Breite=9000/.test(felder) && /Hoehe=3800/.test(felder), felder);
   const hauptNachher = await seite.evaluate(() => {
     const m = document.body.innerText.match(/(\d{3,5}) × (\d{3,5}) mm/);
     return m ? m[0] : '?';

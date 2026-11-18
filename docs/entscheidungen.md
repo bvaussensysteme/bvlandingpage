@@ -18869,3 +18869,20 @@ wieder 1.
 
 **Gegengelesen.** `pruefe-freie-planung.mjs` 42 von 42,
 `pruefe-konfigurator-frei.sh` 13 von 13.
+
+## 18.11.2026 – Auch die Höhe je Dach
+
+**Anlass.** Fortsetzung der eigenen Maße je Modul; die Höhe fehlte noch.
+
+**Was jetzt gilt.** Drittes Feld im roten Band. Spannen: Breite 500 bis
+30000 mm, Tiefe 500 bis 20000 mm, Höhe 1200 bis 6000 mm. Weit, aber
+nicht unendlich: Der Regler braucht ein Ende.
+
+Gemessen: Höhe eines Moduls von 2300 auf 3800 mm, Hauptdach unverändert
+bei 2300 mm, die Felder im Band zeigen Breite 9000, Tiefe 9000, Höhe
+3800.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 44 von 44,
+`pruefe-konfigurator-frei.sh` 13 von 13.
+
+**Offen.** Der Preis folgt der Zeichnung weiterhin nicht.
