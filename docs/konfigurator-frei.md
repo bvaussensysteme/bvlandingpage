@@ -480,10 +480,29 @@ am Hauptdach: ein blasser Körper, nach dem zweiten zwei.
 **Was das kostet:** Ein zusätzliches Dach braucht jetzt rund vier
 Sekunden statt sofort, weil es wirklich gebaut wird.
 
-### Offen: Ziehen auf einer Kopie
+### Ziehen auf einer Kopie: erledigt am 18.11.2026
 
-Pfosten auf einer Kopie lassen sich **wegnehmen**, aber noch nicht
-**ziehen**. Das Ziehen rechnet mit den Reihendaten des Hauptdachs
-(`PFOSTEN_REIHE`), und die gehören nicht zur Kopie. Ohne Sperre würde
-beim Ziehen auf einer Kopie der Pfosten des **Hauptdachs** wandern.
-Die Sperre steht in `pfostenGreifen()`.
+Pfosten auf einer Kopie lassen sich jetzt auch **ziehen**.
+
+**Warum anders gerechnet wird als am Hauptdach.** Das Ziehen am
+Hauptdach rechnet in Achslagen und braucht `PFOSTEN_REIHE`, die
+Reihendaten des Hauptdachs. Die gehören nicht zur Kopie. Auf einer
+Kopie wird deshalb in der **Verschiebung** gerechnet: Beim Anfassen
+wird der Bodenpunkt gemerkt, beim Ziehen die Differenz auf die Körper
+gelegt, und zwar im örtlichen Koordinatensystem der Kopie, damit es
+auch bei gedrehten Dächern stimmt.
+
+Der Körper wird dabei direkt bewegt, nicht neu gebaut: Ein Aufbau
+dauert rund zwei Sekunden, das wäre kein Ziehen mehr. Erst beim
+Loslassen wird der Wert in die Liste dieses Daches geschrieben.
+
+**Ein Fehler, den erst die Messung gezeigt hat.** Ein Klick auf eine
+Kopie fasste sofort das ganze **Dach** an. Der Zeigerdruck war damit
+verbraucht, `pfostenGeklickt()` kam nie dran, und ein Pfosten auf einer
+Kopie ließ sich nicht einmal auswählen: `PF_WAHL` blieb `null`.
+
+Seitdem hat der Pfosten Vorrang vor dem Dach, dieselbe Rangfolge wie am
+Hauptdach. Wer ein Dach schieben will, fasst es neben einem Pfosten an.
+
+Gemessen: Versatz 1003 mm auf der Kopie, Hauptdach leer, das Dach selbst
+steht unverändert bei 501/0.

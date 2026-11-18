@@ -337,6 +337,38 @@ try {
       haupt.length === 0 && kopie.length === 1,
       'Hauptdach ' + JSON.stringify(haupt) + ', Kopie ' + JSON.stringify(kopie));
   }
+  /* Ziehen auf einer Kopie. Rechnet nicht in Achslagen, sondern in der
+     Verschiebung; deshalb darf dabei weder das Dach wandern noch ein
+     Pfosten des Hauptdachs. */
+  const kPunkte2 = await kSeite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  const zielK = kPunkte2.find((a) => a.modul >= 0);
+  if (zielK) {
+    const dachVorher = await kSeite.evaluate(() => window.BV_FREI.module());
+    await kSeite.mouse.click(zielK.x, zielK.y);
+    await kSeite.waitForTimeout(900);
+    const wahl = await kSeite.evaluate(() => window.BV_FREI.wahl());
+    p('ein Pfosten auf einer Kopie laesst sich auswaehlen',
+      !!wahl && wahl.modul === zielK.modul, JSON.stringify(wahl));
+    const jetzt = (await kSeite.evaluate(() => window.BV_FREI.pfostenPunkte()))
+      .find((q) => q.schluessel === zielK.schluessel) || zielK;
+    await kSeite.mouse.move(jetzt.x, jetzt.y);
+    await kSeite.mouse.down();
+    await kSeite.mouse.move(jetzt.x + 100, jetzt.y, { steps: 14 });
+    await kSeite.mouse.up();
+    await kSeite.waitForTimeout(1200);
+    const vK = await kSeite.evaluate(() => window.BV_FREI.einzelnModul(0));
+    const vH = await kSeite.evaluate(() => window.BV_FREI.einzeln());
+    const dachNachher = await kSeite.evaluate(() => window.BV_FREI.module());
+    p('Ziehen auf einer Kopie bewegt DEREN Pfosten',
+      Object.keys(vK).length === 1, JSON.stringify(vK));
+    p('dabei bleibt das Hauptdach unberuehrt', Object.keys(vH).length === 0,
+      JSON.stringify(vH));
+    p('dabei wandert das Dach selbst nicht',
+      dachVorher[0] && dachNachher[0] && dachVorher[0].x === dachNachher[0].x &&
+      dachVorher[0].z === dachNachher[0].z,
+      (dachVorher[0] ? dachVorher[0].x + '/' + dachVorher[0].z : '?') + ' -> ' +
+      (dachNachher[0] ? dachNachher[0].x + '/' + dachNachher[0].z : '?'));
+  }
   await kSeite.close();
 
   /* ---- Flat Line, auf einer FRISCHEN Seite ----

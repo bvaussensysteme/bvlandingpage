@@ -18949,3 +18949,33 @@ und dass überhaupt ein Pfosten greifbar ist, ist eine eigene Prüfzeile.
 
 **Gegengelesen.** `pruefe-freie-planung.mjs` 47 von 47,
 `pruefe-konfigurator-frei.sh` 13 von 13.
+
+## 18.11.2026 – Pfosten auf den Kopien lassen sich auch ziehen
+
+**Anlass.** Letzter offener Punkt aus der Entscheidung „jedes Dach hat
+seine eigenen Pfosten".
+
+**Was jetzt gilt.** Auf einer Kopie wird nicht in Achslagen gerechnet,
+sondern in der **Verschiebung**: Beim Anfassen wird der Bodenpunkt
+gemerkt, beim Ziehen die Differenz auf die Körper gelegt, im örtlichen
+Koordinatensystem der Kopie. Das kommt ohne die Reihendaten des
+Hauptdachs aus und stimmt auch bei gedrehten Dächern.
+
+Der Körper wird direkt bewegt, nicht neu gebaut. Ein Aufbau dauert rund
+zwei Sekunden, das wäre kein Ziehen. Erst beim Loslassen wird der Wert
+in die Liste dieses Daches geschrieben; `modulBauen()` tauscht sie beim
+nächsten Neubau mit, damit der Versatz erhalten bleibt.
+
+**Der Fehler, den erst die Messung gezeigt hat.** Ein Klick auf eine
+Kopie fasste sofort das ganze Dach an. Der Zeigerdruck war verbraucht,
+`pfostenGeklickt()` kam nie dran, und ein Pfosten auf einer Kopie ließ
+sich nicht einmal auswählen: `PF_WAHL` blieb `null`. Seitdem hat der
+Pfosten Vorrang vor dem Dach, dieselbe Rangfolge wie am Hauptdach.
+
+**Folge für die Bedienung:** Wer ein Dach schieben will, fasst es neben
+einem Pfosten an.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 51 von 51, darin neu:
+Auswahl auf einer Kopie, Ziehen bewegt deren Pfosten (1003 mm),
+Hauptdach bleibt leer, das Dach selbst wandert nicht.
+`pruefe-konfigurator-frei.sh` 13 von 13.

@@ -4000,7 +4000,7 @@ window.BV_KONFIGURATOR_FREI = true;
     if (MODUL_BAUT) return null;
     MODUL_BAUT = true;
     var sicher = { breite: Z.breite, tiefe: Z.tiefe, hoehe: Z.hoehe,
-                   weg: Z.pfostenWeg };
+                   weg: Z.pfostenWeg, einzeln: Z.pfostenEinzeln };
     var g = null;
     try {
       Z.breite = m.breite || sicher.breite;
@@ -4009,6 +4009,7 @@ window.BV_KONFIGURATOR_FREI = true;
       /* Die Pfostenliste DIESES Daches, damit die blassen Koerper im
          fertigen Baum zu diesem Dach gehoeren und nicht zum Hauptdach. */
       Z.pfostenWeg = m.pfostenWeg || {};
+      Z.pfostenEinzeln = m.pfostenEinzeln || {};
       bauen();
       g = bau.clone(true);
     } finally {
@@ -4016,6 +4017,7 @@ window.BV_KONFIGURATOR_FREI = true;
       Z.tiefe  = sicher.tiefe;
       Z.hoehe  = sicher.hoehe;
       Z.pfostenWeg = sicher.weg;
+      Z.pfostenEinzeln = sicher.einzeln;
       /* DIE SPERRE ERST DANACH LOESEN. Beim ersten Versuch stand
          MODUL_BAUT = false VOR diesem bauen(). Dann rief bauen() am
          Ende moduleAufbauen(), das fuer das naechste Modul wieder
@@ -4124,6 +4126,84 @@ window.BV_KONFIGURATOR_FREI = true;
     neuZeichnen();
   }
 
+  /* ---------- Pfosten auf einer KOPIE ziehen ----------
+     Das Ziehen am Hauptdach rechnet mit PFOSTEN_REIHE, den Reihendaten
+     des Hauptdachs. Die gehoeren nicht zur Kopie; ohne eigenen Weg
+     wanderte beim Ziehen auf einer Kopie der Pfosten des Hauptdachs.
+
+     Hier wird deshalb nicht in Achslagen gerechnet, sondern in der
+     VERSCHIEBUNG: Beim Anfassen wird der Bodenpunkt gemerkt, beim
+     Ziehen die Differenz auf die Koerper gelegt. Das kommt ohne
+     Reihendaten aus und gilt auch fuer gedrehte Daecher, weil die
+     Differenz in das oertliche Koordinatensystem der Kopie gerechnet
+     wird.
+
+     Der Koerper wird dabei DIREKT bewegt, nicht neu gebaut: Ein Aufbau
+     dauert rund zwei Sekunden, das waere kein Ziehen mehr. Erst beim
+     Loslassen wird der Wert in die Liste des Daches geschrieben. */
+  var PF_MOD_ZUG = null;
+
+  function pfostenModulGreifen(e) {
+    if (!PF_WAHL || PF_WAHL.modul == null || PF_WAHL.modul < 0) return false;
+    var t = pfostenUnterZeigerFrei(e);
+    if (!t || t.modul !== PF_WAHL.modul || t.reihe !== PF_WAHL.reihe ||
+        t.nr !== PF_WAHL.nr || t.z !== PF_WAHL.z) return false;
+    var klon = modulGruppe.children[t.modul];
+    var p = bodenPunkt(e);
+    if (!klon || !p) return false;
+    var teile = [];
+    klon.traverse(function (m) {
+      var pf = m.userData && m.userData.pfosten;
+      if (pf && pf.reihe === t.reihe && pf.nr === t.nr && pf.z === t.z) {
+        teile.push([m, m.position.x]);
+      }
+    });
+    if (!teile.length) return false;
+    PF_MOD_ZUG = {
+      modul: t.modul, klon: klon, teile: teile,
+      schluessel: pfWegSchluessel(t.reihe, t.nr, t.z),
+      startLokalX: klon.worldToLocal(p.clone()).x,
+      weg: 0, zeigerX: e.clientX, zeigerY: e.clientY
+    };
+    if (leinwand.setPointerCapture) {
+      try { leinwand.setPointerCapture(e.pointerId); } catch (x) {}
+    }
+    return true;
+  }
+
+  function pfostenModulZiehen(e) {
+    if (!PF_MOD_ZUG) return false;
+    PF_MOD_ZUG.weg += Math.abs(e.clientX - PF_MOD_ZUG.zeigerX) +
+                      Math.abs(e.clientY - PF_MOD_ZUG.zeigerY);
+    PF_MOD_ZUG.zeigerX = e.clientX; PF_MOD_ZUG.zeigerY = e.clientY;
+    var p = bodenPunkt(e);
+    if (!p) return true;
+    var jetzt = PF_MOD_ZUG.klon.worldToLocal(p.clone()).x;
+    var d = jetzt - PF_MOD_ZUG.startLokalX;
+    PF_MOD_ZUG.teile.forEach(function (paar) { paar[0].position.x = paar[1] + d; });
+    PF_MOD_ZUG.letzteD = d;
+    neuZeichnen();
+    return true;
+  }
+
+  function pfostenModulLoslassen() {
+    if (!PF_MOD_ZUG) return false;
+    var z = PF_MOD_ZUG;
+    PF_MOD_ZUG = null;
+    if (z.weg >= 6 && z.letzteD) {
+      var L = modulListe()[z.modul];
+      if (L) {
+        if (!L.pfostenEinzeln) L.pfostenEinzeln = {};
+        var alt = Number(L.pfostenEinzeln[z.schluessel]) || 0;
+        /* Szene rechnet in cm, die Liste in mm. */
+        var neu = Math.round(alt + z.letzteD * 10);
+        if (neu) L.pfostenEinzeln[z.schluessel] = neu;
+        else delete L.pfostenEinzeln[z.schluessel];
+      }
+    }
+    return true;
+  }
+
   /* Oberstes Modul unter dem Zeiger, oder null. */
   function modulUnterZeiger(e) {
     if (!e || !leinwand || !modulGruppe.children.length) return null;
@@ -4155,6 +4235,12 @@ window.BV_KONFIGURATOR_FREI = true;
      loslassen. Gibt true zurueck, wenn das Ereignis verbraucht ist;
      dann dreht die Kamera nicht mit. */
   function modulGreifen(e) {
+    /* DER PFOSTEN HAT VORRANG. Ohne das fasst jeder Klick auf eine
+       Kopie sofort das ganze Dach an, der Zeigerdruck ist verbraucht,
+       und pfostenGeklickt() kommt nie dran: Pfosten auf einer Kopie
+       liessen sich nicht einmal auswaehlen. Gemessen am 18.11.2026,
+       PF_WAHL blieb null. Am Hauptdach gilt dieselbe Rangfolge. */
+    if (pfostenUnterZeigerFrei(e)) return false;
     var o = modulUnterZeiger(e);
     if (!o) return false;
     var p = bodenPunkt(e);
@@ -4672,11 +4758,9 @@ window.BV_KONFIGURATOR_FREI = true;
     var t = pfostenUnterZeigerFrei(e);
     if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr ||
         t.z !== PF_WAHL.z) return false;
-    /* Pfosten auf einer KOPIE lassen sich wegnehmen, aber noch nicht
-       ziehen: Das Ziehen rechnet mit den Reihendaten des Hauptdachs
-       (PFOSTEN_REIHE), und die gehoeren nicht zur Kopie. Stuende das
-       hier nicht, wuerde beim Ziehen auf einer Kopie der Pfosten des
-       HAUPTDACHS wandern. Offener Punkt in docs/konfigurator-frei.md. */
+    /* Pfosten auf einer Kopie laufen ueber pfostenModulGreifen(), das
+       in der Zeigerkette davor steht. Kaeme es hier an, wuerde mit den
+       Reihendaten des HAUPTDACHS gerechnet und dessen Pfosten wandern. */
     if (t.modul != null && t.modul >= 0) return false;
     var r = PFOSTEN_REIHE[t.reihe];
     if (!r) return false;
@@ -13426,6 +13510,7 @@ window.BV_KONFIGURATOR_FREI = true;
     /* ERST DER PFOSTEN: Wer ihn greift, will ihn schieben und nicht die
        Kamera drehen. Trifft der Strahl keinen verschiebbaren Pfosten,
        laeuft alles weiter wie bisher. */
+    if (pfostenModulGreifen(e)) return;   /* Pfosten auf einer Kopie */
     if (modulGreifen(e)) return;   /* freie Planung: Dach ziehen */
     if (pfostenGreifen(e)) {
       autoDreht = false;
@@ -13446,6 +13531,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
 
   window.addEventListener('pointermove', function (e) {
+    if (pfostenModulZiehen(e)) return;   /* Pfosten auf einer Kopie */
     if (modulZiehen(e)) return;   /* freie Planung */
     if (pfostenZiehen(e)) return;
     if (!zieht) return;
@@ -13456,6 +13542,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
 
   window.addEventListener('pointerup', function (e) {
+    if (pfostenModulLoslassen()) return;   /* Pfosten auf einer Kopie */
     if (modulLoslassen()) return;   /* freie Planung */
     if (pfostenLoslassen()) return;
     zieht = false;
@@ -13559,6 +13646,13 @@ window.BV_KONFIGURATOR_FREI = true;
       modulMass: function (i, feld, wert) { modulMassSetzen(i, feld, wert); },
       pfostenWeg: function () { return Object.keys(pfWegListe(-1)); },
       pfostenWegModul: function (i) { return Object.keys(pfWegListe(i)); },
+      wahl: function () { return PF_WAHL ? JSON.parse(JSON.stringify(PF_WAHL)) : null; },
+      einzelnModul: function (i) {
+        var L = modulListe()[i];
+        var a = {}, v = (L && L.pfostenEinzeln) || {};
+        Object.keys(v).forEach(function (k) { a[k] = v[k]; });
+        return a;
+      },
       /* Bildschirmpunkt eines Pfostens. Ohne das muesste die Pruefung
          raten, wo einer steht; nach einer Massaenderung stimmte der
          geratene Punkt nicht mehr. */
