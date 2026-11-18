@@ -3977,6 +3977,62 @@ window.BV_KONFIGURATOR_FREI = true;
     return Z.module;
   }
 
+  /* Der fertige Baum je Modul. Liegt NEBEN Z.module und nicht darin:
+     Z wird an mehreren Stellen durchlaufen und in den Teilen-Link
+     geschrieben; ein THREE.Group darin waere dort nichts verloren. */
+  var MODUL_BAU = [];
+  var MODUL_BAUT = false;   /* Schutz gegen Rekursion, siehe unten */
+
+  /* Ein Modul mit SEINEN Massen bauen.
+
+     WARUM SO UND NICHT ANDERS: bauen() schreibt in geteilte
+     Zwischenstaende (MARKEN, PFOSTEN_REIHE, PF_ANZAHL, FELD_ANZAHL).
+     Ein Durchlauf mit anderen Massen ueberschreibt sie. Deshalb wird
+     danach IMMER das Hauptdach noch einmal gebaut: Was am Ende in den
+     Zwischenstaenden steht, gehoert dann wieder zum Hauptdach, und
+     Bemassung, Pfostenauswahl und Stueckliste stimmen.
+
+     Das kostet je Modul einen zusaetzlichen Aufbau. Deshalb wird der
+     Baum zwischengespeichert und nur neu gebaut, wenn sich die Masse
+     DIESES Moduls aendern. Beim Schieben und beim Aendern des
+     Hauptdachs passiert nichts davon. */
+  function modulBauen(m) {
+    if (MODUL_BAUT) return null;
+    MODUL_BAUT = true;
+    var sicher = { breite: Z.breite, tiefe: Z.tiefe };
+    var g = null;
+    try {
+      Z.breite = m.breite || sicher.breite;
+      Z.tiefe  = m.tiefe  || sicher.tiefe;
+      bauen();
+      g = bau.clone(true);
+    } finally {
+      Z.breite = sicher.breite;
+      Z.tiefe  = sicher.tiefe;
+      /* DIE SPERRE ERST DANACH LOESEN. Beim ersten Versuch stand
+         MODUL_BAUT = false VOR diesem bauen(). Dann rief bauen() am
+         Ende moduleAufbauen(), das fuer das naechste Modul wieder
+         modulBauen() rief, und so fort: "Maximum call stack size
+         exceeded" in rinneBauen(). Gemessen am 18.11.2026. */
+      bauen();              /* Hauptdach zuletzt, siehe oben */
+      MODUL_BAUT = false;
+    }
+    return g;
+  }
+
+  /* Masse eines einzelnen Moduls setzen. */
+  function modulMassSetzen(i, feld, wert) {
+    var L = modulListe();
+    if (i < 0 || i >= L.length) return;
+    var w = Math.max(500, Math.min(30000, Math.round(Number(wert) || 0)));
+    if (L[i][feld] === w) return;
+    L[i][feld] = w;
+    MODUL_BAU[i] = null;        /* nur dieses eine Modul neu bauen */
+    moduleAufbauen();
+    freiBandAuffrischen();
+    freiStuecklisteAuffrischen();
+  }
+
   /* Breite des aktuellen Dachs in Szeneneinheiten, fuer den Abstand
      beim Hinzufuegen. Gemessen am fertigen Baum statt aus Z.breite
      gerechnet: So stimmt es auch bei Ueberstand und Seitenteilen. */
@@ -3988,7 +4044,9 @@ window.BV_KONFIGURATOR_FREI = true;
 
   function modulHinzufuegen() {
     var L = modulListe();
-    L.push({ x: modulBreite() * (L.length + 1), z: 0, dreh: 0 });
+    L.push({ x: modulBreite() * (L.length + 1), z: 0, dreh: 0,
+             breite: Z.breite, tiefe: Z.tiefe });
+    MODUL_BAU.push(null);
     modulAktiv = L.length - 1;
     moduleAufbauen();
     modulAnsichtWeiten();
@@ -3999,6 +4057,7 @@ window.BV_KONFIGURATOR_FREI = true;
     var L = modulListe();
     if (!L.length) return;
     L.pop();
+    MODUL_BAU.pop();
     modulAktiv = L.length - 1;
     moduleAufbauen();
     modulAnsichtWeiten();
@@ -4032,10 +4091,18 @@ window.BV_KONFIGURATOR_FREI = true;
   }
 
   function moduleAufbauen() {
+    if (MODUL_BAUT) return;     /* mitten im Modulbau nichts anfassen */
     leeren(modulGruppe);
     if (!bau) return;
     modulListe().forEach(function (m, i) {
-      var k = bau.clone(true);
+      if (!MODUL_BAU[i]) {
+        /* Gleiche Masse wie das Hauptdach: eine Kopie reicht und spart
+           den zusaetzlichen Aufbau. */
+        MODUL_BAU[i] = (m.breite === Z.breite && m.tiefe === Z.tiefe)
+          ? bau.clone(true) : modulBauen(m);
+      }
+      var k = MODUL_BAU[i];
+      if (!k) return;
       k.position.set(m.x, 0, m.z);
       k.rotation.y = m.dreh || 0;
       k.userData.modul = i;
@@ -4080,6 +4147,7 @@ window.BV_KONFIGURATOR_FREI = true;
     var p = bodenPunkt(e);
     if (!p) return false;
     modulAktiv = o.userData.modul;
+    freiBandAuffrischen();   /* Masse des angefassten Daches zeigen */
     modulZug = { i: modulAktiv, dx: o.position.x - p.x, dz: o.position.z - p.z };
     if (leinwand.setPointerCapture) {
       try { leinwand.setPointerCapture(e.pointerId); } catch (x) {}
@@ -4287,6 +4355,38 @@ window.BV_KONFIGURATOR_FREI = true;
   /* Nach jedem Aufbau: Was weggenommen ist, wird durchscheinend.
      Das Material wird kopiert, weil mehrere Pfosten sich eines teilen
      koennen - ohne Kopie wuerden alle blass. */
+  /* Fuer die Aufnahme: weggenommene Pfosten GANZ weg, nicht blass.
+
+     Ansage des Betreibers vom 18.11.2026: "spaeter auf dem erstellten
+     pdf darf man die ausgeblendeten pfosten garnicht sehen auch nicht
+     so leicht, im bearbeitungsmodus is es gut so."
+
+     Das ist der richtige Unterschied: Beim Planen sagt der blasse
+     Koerper, WO etwas fehlt, und bleibt anklickbar. Auf dem Blatt beim
+     Kunden waere er ein Bauteil, das es nicht gibt.
+
+     Gilt auch fuer die Kopien in modulGruppe: THREE.Object3D.copy()
+     uebernimmt userData, die Marke pfostenGeist ist dort also auch. */
+  function geisterFuerBild(verbergen) {
+    var merker = [];
+    szene.traverse(function (m) {
+      if (!m.userData || !m.userData.pfostenGeist) return;
+      if (verbergen) { merker.push([m, m.visible]); m.visible = false; }
+    });
+    return merker;
+  }
+  function geisterZurueck(merker) {
+    if (!merker) return;
+    for (var i = 0; i < merker.length; i++) merker[i][0].visible = merker[i][1];
+  }
+  function geisterSichtbar() {
+    var n = 0;
+    szene.traverse(function (m) {
+      if (m.userData && m.userData.pfostenGeist && m.visible !== false) n++;
+    });
+    return n;
+  }
+
   function pfostenGeisterAnwenden() {
     if (!bau) return;
     bau.traverse(function (m) {
@@ -4334,6 +4434,21 @@ window.BV_KONFIGURATOR_FREI = true;
     var r = document.getElementById('bvFreiDachDrehen');
     if (w) w.style.display = anz === 0 ? 'none' : 'inline-block';
     if (r) r.style.display = anz === 0 ? 'none' : 'inline-block';
+
+    /* Masse des gewaehlten Daches. Nur sichtbar, wenn eines gewaehlt
+       ist; sonst waeren es zwei Zahlenfelder ohne Bezug. */
+    var kasten = document.getElementById('bvFreiDachMass');
+    var L = Z.module || [];
+    var i = modulAktiv >= 0 && modulAktiv < L.length ? modulAktiv : -1;
+    if (kasten) kasten.style.display = i < 0 ? 'none' : 'inline';
+    if (i >= 0) {
+      var nr = document.getElementById('bvFreiDachNr');
+      var fb = document.getElementById('bvFreiDachBreite');
+      var ft = document.getElementById('bvFreiDachTiefe');
+      if (nr) nr.textContent = String(i + 1);
+      if (fb && document.activeElement !== fb) fb.value = L[i].breite || '';
+      if (ft && document.activeElement !== ft) ft.value = L[i].tiefe || '';
+    }
   }
 
   function pfostenWahlZeigen() {
@@ -13370,9 +13485,21 @@ window.BV_KONFIGURATOR_FREI = true;
     window.BV_FREI = {
       module: function () {
         return (Z.module || []).map(function (m) {
-          return { x: Math.round(m.x), z: Math.round(m.z), dreh: m.dreh || 0 };
+          return { x: Math.round(m.x), z: Math.round(m.z), dreh: m.dreh || 0,
+                   breite: m.breite || null, tiefe: m.tiefe || null };
         });
       },
+      modulAktiv: function () { return modulAktiv; },
+      geisterSichtbar: function () { return geisterSichtbar(); },
+      /* Dieselbe Verbergung wie in der Aufnahme, zum Nachmessen: Wie
+         viele blasse Pfosten waeren waehrend des Bildes sichtbar? */
+      geisterProbe: function () {
+        var m = geisterFuerBild(true);
+        var n = geisterSichtbar();
+        geisterZurueck(m);
+        return { waehrendDesBildes: n, danach: geisterSichtbar() };
+      },
+      modulMass: function (i, feld, wert) { modulMassSetzen(i, feld, wert); },
       pfostenWeg: function () { return Object.keys(pfWegListe()); },
       /* Bildschirmpunkt eines Pfostens. Ohne das muesste die Pruefung
          raten, wo einer steht; nach einer Massaenderung stimmte der
@@ -13467,6 +13594,17 @@ window.BV_KONFIGURATOR_FREI = true;
     if (bw) bw.addEventListener('click', function () { modulLetztesWeg(); });
     var bd = document.getElementById('bvFreiDachDrehen');
     if (bd) bd.addEventListener('click', function () { modulDrehen(); });
+    ['breite', 'tiefe'].forEach(function (feld) {
+      var el = document.getElementById('bvFreiDach' +
+        feld.charAt(0).toUpperCase() + feld.slice(1));
+      if (!el) return;
+      /* Auf "change" und nicht auf "input": Jeder Tastendruck wuerde
+         sonst einen vollen Aufbau ausloesen, und der dauert hier rund
+         zwei Sekunden. */
+      el.addEventListener('change', function () {
+        modulMassSetzen(modulAktiv, feld, el.value);
+      });
+    });
     freiBandAuffrischen();
   })();
 
@@ -16501,8 +16639,10 @@ window.BV_KONFIGURATOR_FREI = true;
     var ziehVorher = ziehGruppe.visible;
     feldGruppe.visible = false;
     ziehGruppe.visible = false;
+    var geisterB = geisterFuerBild(true);   /* siehe geisterFuerBild() */
     renderer.render(szene, kamera3);
     var bild = renderer.domElement.toDataURL('image/png');
+    geisterZurueck(geisterB);
     feldGruppe.visible = feldVorher;
     ziehGruppe.visible = ziehVorher;
     if (name && ANSICHTEN[name] && vorher && vorher !== name) ansichtAnwenden(vorher);
@@ -16813,7 +16953,9 @@ window.BV_KONFIGURATOR_FREI = true;
       var ziehVorher = ziehGruppe.visible;
       feldGruppe.visible = false;
       ziehGruppe.visible = false;
+      var geister = geisterFuerBild(true);   /* siehe geisterFuerBild() */
       renderer.render(szene, kamera3);
+      geisterZurueck(geister);
       feldGruppe.visible = feldVorher;
       ziehGruppe.visible = ziehVorher;
       /* JPEG statt PNG: Das PDF übernimmt die JPEG-Bytes unverändert

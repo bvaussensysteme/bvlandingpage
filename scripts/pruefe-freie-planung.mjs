@@ -176,11 +176,16 @@ try {
      gemessenen Stelle mehr ein Pfosten, und der Doppelklick ging ins
      Leere - die Pruefung meldete dann faelschlich die Stueckliste als
      fehlerhaft. */
-  const punkt2 = await seite.evaluate(() => window.BV_FREI.pfostenPunkt());
-  p('ein Pfosten ist am gemessenen Punkt greifbar', !!punkt2,
-    punkt2 ? Math.round(punkt2.x) + '/' + Math.round(punkt2.y) : 'kein Punkt gefunden');
-  if (punkt2) await seite.mouse.dblclick(punkt2.x, punkt2.y);
+  /* Die z-bewusste Liste, nicht der alte Einzelpunkt: Nach den Massen
+     je Modul stimmte der alte Punkt nicht mehr, und die Stueckliste
+     wurde faelschlich beanstandet. Das Entfernen wird gleich hier
+     geprueft, damit ein Fehlschlag dort gemeldet wird, wo er entsteht. */
+  const liste2 = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  if (liste2.length) await seite.mouse.dblclick(liste2[0].x, liste2[0].y);
   await seite.waitForTimeout(1500);
+  const weg3 = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
+  p('ein Pfosten ist weggenommen, bevor die Stueckliste gemessen wird',
+    weg3.length === 1, liste2.length + ' greifbar, entfernt: ' + JSON.stringify(weg3));
 
   /* Breite ueber das Ende der Tabelle (14080 mm), damit der Hinweis
      dazu geprueft werden kann. 12000 mm von oben reichen dafuer nicht. */
@@ -191,6 +196,50 @@ try {
   await seite.waitForTimeout(2500);
   await seite.click('#bvFreiDachDazu');
   await seite.waitForTimeout(1800);
+
+  /* ---- eigene Masse je Dach ----
+     "auch einzeln die groessen bei den einzelnen daechern aendern"
+     (Betreiber, 17.11.2026). Jedes Modul wird dafuer mit SEINEN Massen
+     gebaut, nicht mehr nur kopiert. */
+  const hauptVorher = await seite.evaluate(() => {
+    const m = document.body.innerText.match(/(\d{3,5}) × (\d{3,5}) mm/);
+    return m ? m[0] : '?';
+  });
+  await seite.evaluate(() => window.BV_FREI.modulMass(0, 'breite', 9000));
+  await seite.waitForTimeout(4500);
+  const nachMass = await seite.evaluate(() => window.BV_FREI.module());
+  p('ein Dach bekommt eigene Masse', nachMass.length >= 1 && nachMass[0].breite === 9000,
+    JSON.stringify(nachMass));
+  const hauptNachher = await seite.evaluate(() => {
+    const m = document.body.innerText.match(/(\d{3,5}) × (\d{3,5}) mm/);
+    return m ? m[0] : '?';
+  });
+  p('das Hauptdach bleibt dabei unveraendert', hauptVorher === hauptNachher,
+    hauptVorher + ' -> ' + hauptNachher);
+
+  /* ---- weggenommene Pfosten sind auf dem Bild GANZ weg ----
+     "spaeter auf dem erstellten pdf darf man die ausgeblendeten pfosten
+     garnicht sehen auch nicht so leicht, im bearbeitungsmodus is es gut
+     so" (Betreiber, 18.11.2026). */
+  const gp = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  if (gp.length) {
+    await seite.mouse.dblclick(gp[0].x, gp[0].y);
+    await seite.waitForTimeout(1200);
+  }
+  const sichtbar = await seite.evaluate(() => window.BV_FREI.geisterSichtbar());
+  p('beim Bearbeiten ist der weggenommene Pfosten blass zu sehen', sichtbar > 0,
+    sichtbar + ' blasse Koerper');
+  const probe = await seite.evaluate(() => window.BV_FREI.geisterProbe());
+  p('im Bild und im PDF ist er GAR NICHT zu sehen',
+    probe.waehrendDesBildes === 0 && probe.danach > 0, JSON.stringify(probe));
+  /* NUR DIESEN EINEN zurueckholen, nicht alle. "Alle zurueckholen" nahm
+     auch den Pfosten zurueck, den der Abschnitt zur Stueckliste vorher
+     weggenommen hatte, und die Stueckliste wurde dann faelschlich
+     beanstandet. Gemessen am 18.11.2026. */
+  if (gp.length) {
+    await seite.mouse.dblclick(gp[0].x, gp[0].y);
+    await seite.waitForTimeout(900);
+  }
 
   /* ---- Stueckliste folgt der Zeichnung ----
      Zum Zeitpunkt der Pruefung antwortet /api/bauteile nicht. Genau das

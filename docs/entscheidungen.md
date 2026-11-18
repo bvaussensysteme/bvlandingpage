@@ -18827,3 +18827,45 @@ behauptet.
 
 **Gegengelesen.** `pruefe-freie-planung.mjs` 38 von 38,
 `pruefe-konfigurator-frei.sh` 13 von 13.
+
+## 18.11.2026 – Eigene Maße je Dach, und Pfosten im PDF ganz weg
+
+**Anlass, zwei Ansagen.** „möchte ich aber mehrere dächer an die stelle
+hinzufügen wo ich will also so verschieben wie ich will und auch einzeln
+die größen bei den einzelnen dächern ändern." Und: „später auf dem
+erstellten pdf darf man die ausgeblendeten pfosten garnicht sehen auch
+nicht so leicht, im bearbeitungsmodus is es gut so."
+
+**Eigene Maße je Dach.** Jedes Modul wird mit seinen eigenen Maßen
+gebaut, nicht mehr nur kopiert. Der Weg steht in
+`docs/konfigurator-frei.md`; der Kern ist, dass nach dem Modul **immer
+das Hauptdach noch einmal gebaut wird**, weil `bauen()` in geteilte
+Zwischenstände schreibt. Der Baum jedes Moduls wird zwischengespeichert
+und nur bei Änderung seiner eigenen Maße neu gebaut.
+
+Gemessen: Modul 1 auf 9000 mm Breite, Modul 2 auf 6000 mm Tiefe, das
+Hauptdach bleibt bei 20000 × 9000 mm. Eine Maßänderung dauert rund vier
+Sekunden.
+
+**Verworfen:** die Maße der Module über die Hauptregler zu führen. Dann
+hätte jede Reglerbewegung alle Module neu gebaut, bei drei Modulen also
+acht Sekunden je Schritt.
+
+**Pfosten im Bild.** Beim Planen bleibt der weggenommene Pfosten blass
+sichtbar und anklickbar. In PDF und gespeichertem Bild ist er ganz weg.
+Gemessen: beim Bearbeiten 1 sichtbar, während der Aufnahme 0, danach
+wieder 1.
+
+**Zwei eigene Fehler, beide gefunden und behoben:**
+
+1. **Rekursion.** Die Sperre gegen den Rückruf stand vor dem letzten
+   `bauen()`. Dann rief `bauen()` am Ende `moduleAufbauen()`, das für
+   das nächste Modul wieder `modulBauen()` rief: „Maximum call stack
+   size exceeded" in `rinneBauen()`.
+2. **Die Prüfung räumte zu gründlich auf.** Der neue Abschnitt holte mit
+   „Alle zurückholen" auch den Pfosten zurück, den der Abschnitt zur
+   Stückliste vorher weggenommen hatte. Die Stückliste wurde daraufhin
+   fälschlich beanstandet. Jetzt wird nur der eine zurückgeholt.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 42 von 42,
+`pruefe-konfigurator-frei.sh` 13 von 13.
