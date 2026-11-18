@@ -446,32 +446,44 @@ Belegt an zwei Stellen:
 Es gibt also nichts, was der Zeichnung folgen könnte. Der Punkt ist
 nicht offen, sondern gegenstandslos.
 
-## Offen: Pfosten auf den Kopien
+## Erledigt: Pfosten auf den Kopien (18.11.2026)
 
-**Gemessen am 18.11.2026.** Ob ein weggenommener Pfosten auch auf den
-Kopien fehlt, hängt davon ab, wann die Kopie entstanden ist:
+Die Messung und die beiden Varianten stehen weiter unten; gewählt
+wurde Variante 1.
 
-| Reihenfolge | Ergebnis |
+## Jedes Dach hat seine eigenen Pfosten
+
+**Entscheidung des Betreibers vom 18.11.2026:** auf die Frage, was bei
+den Kopien gelten soll, „1", also Variante 1.
+
+| vorher | jetzt |
 |---|---|
-| erst Dach kopieren, dann Pfosten wegnehmen | Pfosten fehlt **nur** am Hauptdach |
-| erst Pfosten wegnehmen, dann Dach kopieren | Pfosten fehlt **auch** auf der Kopie |
+| Pfosten nur am Hauptdach anklickbar | auf jedem Dach anklickbar |
+| Wegnehmen hing an der Reihenfolge | gilt genau für das angeklickte Dach |
 
-Grund: Der Baum jedes Moduls wird zwischengespeichert und nur bei
-Änderung seiner eigenen Maße neu gebaut. Die Kennzeichnung der
-weggenommenen Pfosten sitzt im Baum des Hauptdachs und wandert beim
-Kopieren mit, wenn sie zu diesem Zeitpunkt schon da war.
+Gemessen am 18.11.2026: Hauptdach und eine Kopie, ein Pfosten auf der
+Kopie weggenommen. Hauptdach `[]`, Kopie `["vorne#0#288"]`. Danach einer
+am Hauptdach: ein blasser Körper, nach dem zweiten zwei.
 
-Gemessen: zwei Dächer, ein Pfosten weggenommen, ein blasser Körper in
-der Szene statt zwei.
+**Was dafür nötig war:**
 
-**Das ist kein gewolltes Verhalten, sondern eine Nebenwirkung.** Zu
-entscheiden ist, was gelten soll:
+1. Der Treffer-Test bestrahlt jetzt auch `modulGruppe` und gibt zurück,
+   zu welchem Dach der Treffer gehört. `-1` ist das Hauptdach.
+2. Jede Modulzeile hat ihre eigene Liste `pfostenWeg`.
+3. `modulBauen()` tauscht beim Bauen nicht nur die Maße, sondern auch
+   diese Liste. Dadurch tragen die blassen Körper im fertigen Baum zu
+   diesem Dach.
+4. **Die Abkürzung über `bau.clone()` ist weg.** Sie sparte bei
+   gleichen Maßen einen Aufbau, übernahm aber die weggenommenen Pfosten
+   des Hauptdachs. Genau das war die gemessene Nebenwirkung.
 
-1. **Jedes Dach hat seine eigenen Pfosten.** Dann muss man Pfosten auf
-   einer Kopie auch anklicken können; heute trifft der Zeiger nur das
-   Hauptdach. Das ist der größere Umbau und das, was eine freie Planung
-   eigentlich braucht.
-2. **Die Kopien sind exakte Kopien.** Dann muss die Kennzeichnung nach
-   jedem Wegnehmen auf alle Kopien übertragen werden. Kleiner Eingriff,
-   aber dann lässt sich an einem Carport nicht an einer Stelle ein
-   Pfosten sparen und an der anderen nicht.
+**Was das kostet:** Ein zusätzliches Dach braucht jetzt rund vier
+Sekunden statt sofort, weil es wirklich gebaut wird.
+
+### Offen: Ziehen auf einer Kopie
+
+Pfosten auf einer Kopie lassen sich **wegnehmen**, aber noch nicht
+**ziehen**. Das Ziehen rechnet mit den Reihendaten des Hauptdachs
+(`PFOSTEN_REIHE`), und die gehören nicht zur Kopie. Ohne Sperre würde
+beim Ziehen auf einer Kopie der Pfosten des **Hauptdachs** wandern.
+Die Sperre steht in `pfostenGreifen()`.

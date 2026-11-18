@@ -3999,18 +3999,23 @@ window.BV_KONFIGURATOR_FREI = true;
   function modulBauen(m) {
     if (MODUL_BAUT) return null;
     MODUL_BAUT = true;
-    var sicher = { breite: Z.breite, tiefe: Z.tiefe, hoehe: Z.hoehe };
+    var sicher = { breite: Z.breite, tiefe: Z.tiefe, hoehe: Z.hoehe,
+                   weg: Z.pfostenWeg };
     var g = null;
     try {
       Z.breite = m.breite || sicher.breite;
       Z.tiefe  = m.tiefe  || sicher.tiefe;
       Z.hoehe  = m.hoehe  || sicher.hoehe;
+      /* Die Pfostenliste DIESES Daches, damit die blassen Koerper im
+         fertigen Baum zu diesem Dach gehoeren und nicht zum Hauptdach. */
+      Z.pfostenWeg = m.pfostenWeg || {};
       bauen();
       g = bau.clone(true);
     } finally {
       Z.breite = sicher.breite;
       Z.tiefe  = sicher.tiefe;
       Z.hoehe  = sicher.hoehe;
+      Z.pfostenWeg = sicher.weg;
       /* DIE SPERRE ERST DANACH LOESEN. Beim ersten Versuch stand
          MODUL_BAUT = false VOR diesem bauen(). Dann rief bauen() am
          Ende moduleAufbauen(), das fuer das naechste Modul wieder
@@ -4102,11 +4107,12 @@ window.BV_KONFIGURATOR_FREI = true;
     if (!bau) return;
     modulListe().forEach(function (m, i) {
       if (!MODUL_BAU[i]) {
-        /* Gleiche Masse wie das Hauptdach: eine Kopie reicht und spart
-           den zusaetzlichen Aufbau. */
-        MODUL_BAU[i] = (m.breite === Z.breite && m.tiefe === Z.tiefe &&
-                        m.hoehe === Z.hoehe)
-          ? bau.clone(true) : modulBauen(m);
+        /* KEINE Abkuerzung ueber bau.clone() mehr, auch nicht bei
+           gleichen Massen. Die Kopie truege sonst die weggenommenen
+           Pfosten des HAUPTDACHS mit sich - genau die Nebenwirkung, die
+           am 18.11.2026 gemessen wurde. Jedes Dach wird mit seiner
+           eigenen Pfostenliste gebaut. */
+        MODUL_BAU[i] = modulBauen(m);
       }
       var k = MODUL_BAU[i];
       if (!k) return;
@@ -4297,13 +4303,26 @@ window.BV_KONFIGURATOR_FREI = true;
     strahl.setFromCamera(new THREE.Vector2(
       ((e.clientX - r.left) / r.width) * 2 - 1,
       -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
-    var treffer = strahl.intersectObjects([bau], true);
+    /* AUCH DIE KOPIEN. Bis zum 18.11.2026 wurde nur das Hauptdach
+       bestrahlt; Pfosten auf einem zusaetzlichen Dach waren nicht
+       anklickbar. Entscheidung des Betreibers: "Jedes Dach hat seine
+       eigenen Pfosten." */
+    var ziele = [bau].concat(modulGruppe.children);
+    var treffer = strahl.intersectObjects(ziele, true);
     for (var i = 0; i < treffer.length; i++) {
       var o = treffer[i].object;
       if (!o || o.visible === false) continue;
       var p = o.userData && o.userData.pfosten;
-      if (p) return { reihe: p.reihe, nr: p.nr, z: p.z,
-                      punkt: treffer[i].point };
+      if (p) {
+        /* Zu welchem Dach gehoert der Treffer? -1 ist das Hauptdach. */
+        var m = -1, k = o;
+        while (k) {
+          if (k.userData && k.userData.modul != null) { m = k.userData.modul; break; }
+          k = k.parent;
+        }
+        return { reihe: p.reihe, nr: p.nr, z: p.z, modul: m,
+                 punkt: treffer[i].point };
+      }
       if (nimmtDenBlick([treffer[i]])) return null;
     }
     return null;
@@ -4332,7 +4351,14 @@ window.BV_KONFIGURATOR_FREI = true;
     return Number(pfEinzelListe()[pfWegSchluessel(reihe, nr, z)]) || 0;
   }
 
-  function pfWegListe() {
+  /* Je Dach eine eigene Liste. modul = -1 ist das Hauptdach. */
+  function pfWegListe(modul) {
+    if (modul != null && modul >= 0) {
+      var L = modulListe();
+      if (!L[modul]) return {};
+      if (!L[modul].pfostenWeg) L[modul].pfostenWeg = {};
+      return L[modul].pfostenWeg;
+    }
     if (!Z.pfostenWeg) Z.pfostenWeg = {};
     return Z.pfostenWeg;
   }
@@ -4344,16 +4370,30 @@ window.BV_KONFIGURATOR_FREI = true;
   function pfostenIstWeg(reihe, nr, z) {
     return pfWegListe()[pfWegSchluessel(reihe, nr, z)] === true;
   }
-  function pfostenWegZahl() { return Object.keys(pfWegListe()).length; }
+  /* Ueber alle Daecher gezaehlt, fuer das Band. */
+  function pfostenWegZahl() {
+    var n = Object.keys(pfWegListe(-1)).length;
+    modulListe().forEach(function (m) {
+      n += Object.keys(m.pfostenWeg || {}).length;
+    });
+    return n;
+  }
   function pfostenAlleZurueck() {
     Z.pfostenWeg = {};
+    modulListe().forEach(function (m, i) {
+      if (m.pfostenWeg && Object.keys(m.pfostenWeg).length) {
+        m.pfostenWeg = {};
+        MODUL_BAU[i] = null;
+      }
+    });
     bauen();
     freiBandAuffrischen();
     freiStuecklisteAuffrischen();
   }
-  function pfostenWegSchalten(reihe, nr, z) {
-    var k = pfWegSchluessel(reihe, nr, z), L = pfWegListe();
+  function pfostenWegSchalten(reihe, nr, z, modul) {
+    var k = pfWegSchluessel(reihe, nr, z), L = pfWegListe(modul);
     if (L[k]) delete L[k]; else L[k] = true;
+    if (modul != null && modul >= 0) MODUL_BAU[modul] = null;  /* nur dieses Dach */
     bauen();
     freiBandAuffrischen();
     freiStuecklisteAuffrischen();
@@ -4563,8 +4603,9 @@ window.BV_KONFIGURATOR_FREI = true;
       return false;
     }
     var schon = PF_WAHL && PF_WAHL.reihe === t.reihe && PF_WAHL.nr === t.nr &&
-                PF_WAHL.z === t.z;
-    pfostenWaehlen(schon ? null : { reihe: t.reihe, nr: t.nr, z: t.z });
+                PF_WAHL.z === t.z && PF_WAHL.modul === t.modul;
+    pfostenWaehlen(schon ? null
+      : { reihe: t.reihe, nr: t.nr, z: t.z, modul: t.modul });
     return true;
   }
 
@@ -4631,6 +4672,12 @@ window.BV_KONFIGURATOR_FREI = true;
     var t = pfostenUnterZeigerFrei(e);
     if (!t || t.reihe !== PF_WAHL.reihe || t.nr !== PF_WAHL.nr ||
         t.z !== PF_WAHL.z) return false;
+    /* Pfosten auf einer KOPIE lassen sich wegnehmen, aber noch nicht
+       ziehen: Das Ziehen rechnet mit den Reihendaten des Hauptdachs
+       (PFOSTEN_REIHE), und die gehoeren nicht zur Kopie. Stuende das
+       hier nicht, wuerde beim Ziehen auf einer Kopie der Pfosten des
+       HAUPTDACHS wandern. Offener Punkt in docs/konfigurator-frei.md. */
+    if (t.modul != null && t.modul >= 0) return false;
     var r = PFOSTEN_REIHE[t.reihe];
     if (!r) return false;
     PF_ZIEHT = {
@@ -13480,7 +13527,7 @@ window.BV_KONFIGURATOR_FREI = true;
     var t = pfostenUnterZeigerFrei(e);   /* auch Eckpfosten, siehe oben */
     if (!t) return;
     e.preventDefault();
-    pfostenWegSchalten(t.reihe, t.nr, t.z);
+    pfostenWegSchalten(t.reihe, t.nr, t.z, t.modul);
   });
 
   /* Knopf im roten Band. Er steht im HTML der Seite, nicht hier. */
@@ -13510,7 +13557,8 @@ window.BV_KONFIGURATOR_FREI = true;
         return { waehrendDesBildes: n, danach: geisterSichtbar() };
       },
       modulMass: function (i, feld, wert) { modulMassSetzen(i, feld, wert); },
-      pfostenWeg: function () { return Object.keys(pfWegListe()); },
+      pfostenWeg: function () { return Object.keys(pfWegListe(-1)); },
+      pfostenWegModul: function (i) { return Object.keys(pfWegListe(i)); },
       /* Bildschirmpunkt eines Pfostens. Ohne das muesste die Pruefung
          raten, wo einer steht; nach einer Massaenderung stimmte der
          geratene Punkt nicht mehr. */
@@ -13534,24 +13582,34 @@ window.BV_KONFIGURATOR_FREI = true;
         });
         return aus;
       },
+      /* Jetzt auch die Pfosten auf den Kopien, mit der Nummer des
+         Daches. Der Schluessel traegt sie mit, sonst waeren Pfosten
+         verschiedener Daecher nicht zu unterscheiden. */
       pfostenPunkte: function () {
         if (!bau || !leinwand) return [];
         var r = leinwand.getBoundingClientRect();
         var aus = [], gesehen = {}, v = new THREE.Vector3();
-        bau.traverse(function (m) {
-          var pf = m.userData && m.userData.pfosten;
-          if (!pf || !m.geometry) return;
-          var k = pfWegSchluessel(pf.reihe, pf.nr, pf.z);
-          if (gesehen[k]) return;
-          m.getWorldPosition(v);
-          v.project(kamera3);
-          var x = r.left + (v.x + 1) / 2 * r.width;
-          var y = r.top + (1 - (v.y + 1) / 2) * r.height;
-          if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
-          if (!pfostenUnterZeigerFrei({ clientX: x, clientY: y })) return;
-          gesehen[k] = true;
-          aus.push({ schluessel: k, reihe: pf.reihe, nr: pf.nr, z: pf.z,
-                     x: x, y: y });
+        var baeume = [[-1, bau]];
+        modulGruppe.children.forEach(function (k) {
+          baeume.push([k.userData.modul, k]);
+        });
+        baeume.forEach(function (paar) {
+          paar[1].traverse(function (m) {
+            var pf = m.userData && m.userData.pfosten;
+            if (!pf || !m.geometry) return;
+            var k = paar[0] + '|' + pfWegSchluessel(pf.reihe, pf.nr, pf.z);
+            if (gesehen[k]) return;
+            m.getWorldPosition(v);
+            v.project(kamera3);
+            var x = r.left + (v.x + 1) / 2 * r.width;
+            var y = r.top + (1 - (v.y + 1) / 2) * r.height;
+            if (x < r.left || x > r.right || y < r.top || y > r.bottom) return;
+            var tr = pfostenUnterZeigerFrei({ clientX: x, clientY: y });
+            if (!tr || tr.modul !== paar[0]) return;
+            gesehen[k] = true;
+            aus.push({ schluessel: k, modul: paar[0], reihe: pf.reihe,
+                       nr: pf.nr, z: pf.z, x: x, y: y });
+          });
         });
         return aus;
       },

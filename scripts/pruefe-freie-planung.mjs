@@ -28,6 +28,12 @@ const p = (name, ok, beleg) => {
   else { console.log(`  FEHLER  ${name.padEnd(52)} ${beleg}`); fehler++; }
 };
 
+/* Der Schluessel aus pfostenPunkte() traegt seit dem 18.11.2026 die
+   Nummer des Daches vorweg (-1 ist das Hauptdach). Die Listen
+   pfostenWeg() und einzeln() fuehren ihn ohne diese Nummer, weil sie
+   schon je Dach gefuehrt werden. */
+const ohneDach = (k) => String(k).split('|').pop();
+
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'],
   { stdio: 'ignore' });
 await new Promise((r) => setTimeout(r, 2500));
@@ -65,7 +71,9 @@ try {
     await seite.mouse.dblclick(a.x, a.y);
     await seite.waitForTimeout(800);
     const w = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
-    if (w.indexOf(a.schluessel) < 0) { jeder = false; gescheitert = a.schluessel; break; }
+    if (w.indexOf(ohneDach(a.schluessel)) < 0) {
+      jeder = false; gescheitert = a.schluessel; break;
+    }
   }
   p('Doppelklick nimmt JEDEN Pfosten weg', jeder,
     jeder ? alle.length + ' von ' + alle.length : 'nicht entfernt: ' + gescheitert);
@@ -80,7 +88,7 @@ try {
   await seite.waitForTimeout(900);
   const nachZurueck = await seite.evaluate(() => window.BV_FREI.pfostenWeg());
   p('Doppelklick auf den blassen Pfosten holt ihn zurueck',
-    nachZurueck.indexOf(ecke.schluessel) < 0, ecke.schluessel + ' -> ' +
+    nachZurueck.indexOf(ohneDach(ecke.schluessel)) < 0, ecke.schluessel + ' -> ' +
     JSON.stringify(nachZurueck));
 
   await seite.evaluate(() => document.getElementById('bvFreiPfostenZurueck').click());
@@ -107,7 +115,7 @@ try {
     await seite.waitForTimeout(600);
     /* Der Versatz liegt je EINZELNEM Pfosten, nicht je Achse. */
     const v = await seite.evaluate(() => window.BV_FREI.einzeln());
-    if (Number(v[a.schluessel])) gezogen++;
+    if (Number(v[ohneDach(a.schluessel)])) gezogen++;
     else nichtGezogen = a.schluessel;
   }
   p('JEDER Pfosten laesst sich verschieben, auch die Ecken',
@@ -229,26 +237,29 @@ try {
   /* ---- weggenommene Pfosten sind auf dem Bild GANZ weg ----
      "spaeter auf dem erstellten pdf darf man die ausgeblendeten pfosten
      garnicht sehen auch nicht so leicht, im bearbeitungsmodus is es gut
-     so" (Betreiber, 18.11.2026). */
-  const gp = await seite.evaluate(() => window.BV_FREI.pfostenPunkte());
+     so" (Betreiber, 18.11.2026).
+
+     Auf einer FRISCHEN Seite: An dieser Stelle war die Anlage 20 m
+     breit und der Blick weit aufgezogen, kein Pfosten im Bild, und die
+     Pruefung meldete "0 blasse Koerper" als Fehler, obwohl nichts
+     kaputt war. */
+  const gSeite = await ctx.newPage();
+  await gSeite.goto(`http://127.0.0.1:${PORT}/werkstatt/frei.html?t=${Date.now()}`,
+    { waitUntil: 'load' });
+  await gSeite.waitForTimeout(4500);
+  const gp = await gSeite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  p('ein Pfosten ist im Bild greifbar', gp.length >= 1, gp.length + ' gefunden');
   if (gp.length) {
-    await seite.mouse.dblclick(gp[0].x, gp[0].y);
-    await seite.waitForTimeout(1200);
+    await gSeite.mouse.dblclick(gp[0].x, gp[0].y);
+    await gSeite.waitForTimeout(1500);
   }
-  const sichtbar = await seite.evaluate(() => window.BV_FREI.geisterSichtbar());
+  const sichtbar = await gSeite.evaluate(() => window.BV_FREI.geisterSichtbar());
   p('beim Bearbeiten ist der weggenommene Pfosten blass zu sehen', sichtbar > 0,
     sichtbar + ' blasse Koerper');
-  const probe = await seite.evaluate(() => window.BV_FREI.geisterProbe());
+  const probe = await gSeite.evaluate(() => window.BV_FREI.geisterProbe());
   p('im Bild und im PDF ist er GAR NICHT zu sehen',
     probe.waehrendDesBildes === 0 && probe.danach > 0, JSON.stringify(probe));
-  /* NUR DIESEN EINEN zurueckholen, nicht alle. "Alle zurueckholen" nahm
-     auch den Pfosten zurueck, den der Abschnitt zur Stueckliste vorher
-     weggenommen hatte, und die Stueckliste wurde dann faelschlich
-     beanstandet. Gemessen am 18.11.2026. */
-  if (gp.length) {
-    await seite.mouse.dblclick(gp[0].x, gp[0].y);
-    await seite.waitForTimeout(900);
-  }
+  await gSeite.close();
 
   /* ---- Stueckliste folgt der Zeichnung ----
      Zum Zeitpunkt der Pruefung antwortet /api/bauteile nicht. Genau das
@@ -301,6 +312,32 @@ try {
   }
   await seite.keyboard.press('Escape');
   await seite.waitForTimeout(600);
+
+  /* ---- jedes Dach hat eigene Pfosten, auf einer FRISCHEN Seite ----
+     Entscheidung des Betreibers vom 18.11.2026 auf die Frage, was bei
+     den Kopien gelten soll: "1", also jedes Dach hat seine eigenen
+     Pfosten. Eigene Seite aus demselben Grund wie beim Flat-Line-Teil:
+     Die Messungen davor haben Pfosten verschoben und entfernt. */
+  const kSeite = await ctx.newPage();
+  await kSeite.goto(`http://127.0.0.1:${PORT}/werkstatt/frei.html?t=${Date.now()}`,
+    { waitUntil: 'load' });
+  await kSeite.waitForTimeout(4500);
+  await kSeite.click('#bvFreiDachDazu');
+  await kSeite.waitForTimeout(5000);
+  const kPunkte = await kSeite.evaluate(() => window.BV_FREI.pfostenPunkte());
+  const aufKopie = kPunkte.filter((a) => a.modul >= 0);
+  p('Pfosten auf einer Kopie sind anklickbar', aufKopie.length >= 1,
+    kPunkte.map((a) => a.schluessel).join(', ') || '(keine)');
+  if (aufKopie.length) {
+    await kSeite.mouse.dblclick(aufKopie[0].x, aufKopie[0].y);
+    await kSeite.waitForTimeout(5000);
+    const haupt = await kSeite.evaluate(() => window.BV_FREI.pfostenWeg());
+    const kopie = await kSeite.evaluate(() => window.BV_FREI.pfostenWegModul(0));
+    p('Wegnehmen auf einer Kopie betrifft NUR dieses Dach',
+      haupt.length === 0 && kopie.length === 1,
+      'Hauptdach ' + JSON.stringify(haupt) + ', Kopie ' + JSON.stringify(kopie));
+  }
+  await kSeite.close();
 
   /* ---- Flat Line, auf einer FRISCHEN Seite ----
      Eigene Seite, weil die Messungen oben Pfosten verschoben und
@@ -356,7 +393,7 @@ try {
     await flSeite.mouse.up();
     await flSeite.waitForTimeout(600);
     const v = await flSeite.evaluate(() => window.BV_FREI.einzeln());
-    if (Number(v[a.schluessel])) einzelnOk++;
+    if (Number(v[ohneDach(a.schluessel)])) einzelnOk++;
   }
   const einzelStand = await flSeite.evaluate(() => window.BV_FREI.einzeln());
   p('Flat Line: vorderer und hinterer Pfosten einzeln verschiebbar',

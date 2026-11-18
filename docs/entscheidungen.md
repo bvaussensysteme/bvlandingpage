@@ -18910,3 +18910,42 @@ Sache des Betreibers, weil die eine ein größerer Umbau ist (Pfosten auf
 Kopien anklickbar machen) und die andere eine Einschränkung bedeutet
 (an einem Carport ließe sich nicht an einer Stelle ein Pfosten sparen
 und an der anderen nicht).
+
+## 18.11.2026 – Jedes Dach hat seine eigenen Pfosten
+
+**Anlass.** Auf die Frage, was bei den Kopien gelten soll, hat der
+Betreiber „1" geantwortet: Jedes Dach hat seine eigenen Pfosten.
+
+**Was jetzt gilt.** Pfosten sind auf jedem Dach anklickbar, und das
+Wegnehmen gilt genau für das angeklickte. Gemessen: Hauptdach und eine
+Kopie, ein Pfosten auf der Kopie weg, Hauptdach `[]`, Kopie
+`["vorne#0#288"]`.
+
+**Vier Änderungen waren nötig**, die vierte ist die wichtigste:
+
+1. Der Treffer-Test bestrahlt auch `modulGruppe` und gibt zurück, zu
+   welchem Dach der Treffer gehört.
+2. Jede Modulzeile hat ihre eigene Liste `pfostenWeg`.
+3. `modulBauen()` tauscht beim Bauen auch diese Liste mit.
+4. **Die Abkürzung über `bau.clone()` ist weg.** Sie sparte bei
+   gleichen Maßen einen Aufbau, übernahm aber die weggenommenen
+   Pfosten des Hauptdachs. Das war die Nebenwirkung, die den ganzen
+   Punkt ausgelöst hat.
+
+**Was das kostet:** Ein zusätzliches Dach braucht rund vier Sekunden
+statt sofort, weil es wirklich gebaut wird.
+
+**Offen geblieben, bewusst:** Pfosten auf einer Kopie lassen sich
+wegnehmen, aber noch nicht ziehen. Das Ziehen rechnet mit den
+Reihendaten des Hauptdachs; ohne Sperre würde beim Ziehen auf einer
+Kopie der Pfosten des Hauptdachs wandern. Die Sperre steht im Code, der
+Grund daneben.
+
+**Drei Prüffehler, alle derselben Art.** Die Prüfung verglich noch
+Schlüssel ohne Dachnummer, und zwei Abschnitte maßen an einer Stelle,
+an der gar kein Pfosten im Bild war (Anlage 20 m breit, Blick weit
+aufgezogen). Beide Abschnitte laufen jetzt auf einer frischen Seite,
+und dass überhaupt ein Pfosten greifbar ist, ist eine eigene Prüfzeile.
+
+**Gegengelesen.** `pruefe-freie-planung.mjs` 47 von 47,
+`pruefe-konfigurator-frei.sh` 13 von 13.
