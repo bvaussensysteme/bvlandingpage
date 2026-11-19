@@ -187,7 +187,7 @@ h2 + p, h3 + p { max-width: 68ch; }
      rund und der Rest der Seite eckig, also zwei Knopfformen auf
      demselben Auftritt. 999px heisst: immer halbrund, unabhaengig von
      der Hoehe. Dieselbe Rundung haben deshalb auch .nav-cta,
-     .mobile-cta, .form-submit, .cb-btn, .aw-btn, .aw-photo-btn und
+     .mobile-cta, .cb-btn, .aw-btn, .aw-photo-btn und
      .google-review-btn. Nicht gerundet werden Kacheln und Felder
      (.kontakt-quick-btn, .aw-option, Eingabefelder) und die Reiter im
      Konfigurator: das sind keine Knoepfe. */
@@ -1156,14 +1156,10 @@ body.bv-menu-open #bv-scroll-top {
 }
 .form-group select option { background: var(--dark); color: var(--white); }
 .form-group textarea { resize: vertical; min-height: 90px; }
-.form-submit {
-  width: 100%; padding: 14px;
-  background: var(--gold); color: var(--black); border: none;
-  border-radius: 999px; font-family: 'Barlow Condensed', sans-serif;
-  font-size: 1.1rem; font-weight: 800; cursor: pointer;
-  transition: background 0.2s; letter-spacing: 0.3px;
-}
-.form-submit:hover { background: var(--gold-text); color: var(--white); }
+/* .form-submit (zwei Regeln) stand hier. Der Knopf gehoert zu einem
+   Formular, das es auf keiner Seite mehr gibt; das zugehoerige
+   JavaScript in js/main.js ist am 19.11.2026 mit entfernt worden.
+   Siehe docs/entscheidungen.md. */
 .form-note { font-size: 0.78rem; color: rgba(255,255,255,0.62); text-align: center; margin-top: 10px; }
 .form-note a { color: var(--gold-light); }
 
@@ -1847,161 +1843,13 @@ footer h4 {
 }
 .galerie-item:not(.galerie-placeholder):hover::after { opacity: 1; }
 
-/* ============================================
-   SPRACHAUSWAHL
-   ============================================ */
-.lang-switcher {
-  display: flex; gap: 4px; align-items: center;
-  margin-left: 12px; flex-shrink: 0;
-}
-.lang-btn {
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.25);
-  color: rgba(255,255,255,0.7);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: 0.82rem;
-  padding: 5px 10px; border-radius: 5px;
-  cursor: pointer !important;
-  transition: var(--uebergang-zustand);
-  letter-spacing: 0.3px;
-  pointer-events: all !important;
-  user-select: none;
-  line-height: 1;
-  white-space: nowrap;
-}
-.lang-btn:hover {
-  border-color: var(--gold);
-  color: var(--gold);
-  background: rgba(196,154,42,0.1);
-}
-.lang-btn.active {
-  background: var(--gold) !important;
-  color: var(--black) !important;
-  border-color: var(--gold) !important;
-}
-.navbar.scrolled .lang-btn {
-  border-color: rgba(0,0,0,0.2);
-  color: rgba(0,0,0,0.5);
-}
-.navbar.scrolled .lang-btn:hover { border-color: var(--gold); color: var(--gold-text); }
-.navbar.scrolled .lang-btn.active { background: var(--gold) !important; color: var(--black) !important; }
-
-/* Mobile: lang switcher inside hamburger menu */
-@media (max-width: 768px) {
-  .lang-switcher { display: none !important; }
-  .mobile-lang-switcher {
-    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-    padding: 16px 0 8px; border-top: 1px solid rgba(255,255,255,0.12);
-    margin-top: 8px;
-  }
-  .mobile-lang-switcher .lang-btn {
-    border-color: rgba(255,255,255,0.3);
-    color: rgba(255,255,255,0.75);
-    padding: 10px 18px; font-size: 0.95rem;
-    flex: 1;
-  }
-  .mobile-lang-switcher .lang-btn.active {
-    background: var(--gold); color: var(--black);
-  }
-}
-/* Desktop: hide mobile switcher, show desktop one */
-@media (min-width: 769px) {
-  .mobile-lang-switcher { display: none !important; }
-  .lang-switcher { display: flex; }
-}
-
-/* ============================================
-   SPRACHAUSWAHL DROPDOWN
-   ============================================ */
-.lang-dropdown {
-  position: relative;
-  margin-left: 6px;
-  flex-shrink: 0;
-}
-.lang-dropdown-btn {
-  display: flex !important;
-  align-items: center;
-  gap: 6px;
-  background: var(--gold) !important;
-  border: 2px solid var(--gold-dark) !important;
-  color: var(--black) !important;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 0.92rem;
-  padding: 7px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: var(--uebergang-zustand);
-  white-space: nowrap;
-  opacity: 1 !important;
-  visibility: visible !important;
-  min-width: 80px;
-}
-.lang-dropdown-btn:hover {
-  background: var(--gold-text) !important;
-  color: var(--white) !important;
-  border-color: var(--gold-text) !important;
-}
-.navbar.scrolled .lang-dropdown-btn {
-  background: var(--gold) !important;
-  border-color: var(--gold-text) !important;
-  color: var(--black) !important;
-}
-.lang-chevron { font-size: 0.7rem; opacity: 0.7; transition: transform 0.2s; }
-.lang-dropdown.open .lang-chevron { transform: rotate(180deg); }
-
-.lang-dropdown-menu {
-  display: none;
-  position: absolute; top: calc(100% + 8px); right: 0;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  overflow: hidden;
-  min-width: 150px;
-  z-index: 9999;
-}
-.lang-dropdown.open .lang-dropdown-menu { display: block; }
-.lang-dropdown-menu button {
-  display: flex; align-items: center; gap: 8px;
-  width: 100%; padding: 11px 16px;
-  background: none; border: none;
-  font-family: 'Inter', sans-serif; font-size: 0.9rem;
-  color: var(--text); cursor: pointer;
-  text-align: left; transition: background 0.15s;
-}
-.lang-dropdown-menu button:hover { background: var(--offwhite); }
-.lang-dropdown-menu button.active {
-  background: rgba(196,154,42,0.08);
-  color: var(--gold-text); font-weight: 600;
-}
-
-/* Mobile lang switcher */
-.mobile-lang-switcher {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-  padding: 14px 0 4px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  margin-top: 8px;
-}
-.mobile-lang-switcher button {
-  flex: 1; padding: 10px 14px;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.2);
-  border-radius: 6px; color: rgba(255,255,255,0.8);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 700; font-size: 0.95rem;
-  cursor: pointer; transition: var(--uebergang-zustand);
-}
-.mobile-lang-switcher button:hover,
-.mobile-lang-switcher button.active {
-  background: var(--gold); color: var(--black); border-color: var(--gold);
-}
-@media (min-width: 769px) {
-  .mobile-lang-switcher { display: none; }
-}
-@media (max-width: 768px) {
-  .lang-dropdown { display: none; }
-}
+/* Die SPRACHAUSWAHL stand hier mit 23 Regeln (.lang-switcher,
+   .lang-btn, .lang-dropdown, .mobile-lang-switcher). Die
+   Sprachumschaltung wurde am 14.11.2026 ausgebaut, Commit 625522e;
+   seitdem gab es im HTML keine einzige dieser Klassen mehr. Entfernt
+   am 19.11.2026, weil ohnehin an dieser Datei gearbeitet wurde. Die
+   Regeln stehen in der Versionsgeschichte, falls sie je zurueck
+   sollen. */
 
 /* ── Leistung Placeholder (statt Produktbild) ───────────── */
 .leistung-placeholder {

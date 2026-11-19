@@ -76,107 +76,15 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('scroll', updateSticky, { passive: true });
   updateSticky();
 
-  // ---- KONTAKT FORM ----
-  // ══════════════════════════════════════════════════════
-  // KONTAKTFORMULAR – Formspree Ajax SDK
-  // formId: xnjkabdv → sendet an info@bv-aussensysteme.de
-  // ══════════════════════════════════════════════════════
-  var formSubmit = document.getElementById('formSubmit');
-  if (formSubmit) {
-    // Kein <form>-Element vorhanden (nur type="button") – daher löst die
-    // Enter-Taste in den Textfeldern bisher kein Absenden aus. Das
-    // erwarten Nutzer aber (v.a. mobil nach dem letzten Feld). Nachbilden:
-    ['vorname', 'nachname', 'email', 'telefon'].forEach(function (id) {
-      var field = document.getElementById(id);
-      if (field) {
-        field.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            formSubmit.click();
-          }
-        });
-      }
-    });
+  /* HIER STAND EIN KONTAKTFORMULAR-ZWEIG (Formspree, rund 100 Zeilen).
+     Er haengte an id="formSubmit", und diese id gibt es auf keiner
+     Seite mehr. Gefunden am 14.11.2026, entfernt am 19.11.2026.
 
-    formSubmit.addEventListener('click', function () {
-      var vorname   = document.getElementById('vorname').value.trim();
-      var nachname  = document.getElementById('nachname').value.trim();
-      var email     = document.getElementById('email').value.trim();
-      var telefon   = document.getElementById('telefon').value.trim();
-      var produkt   = document.getElementById('produkt').value;
-      var nachricht = document.getElementById('nachricht').value.trim();
-      var msgBox    = document.getElementById('formMsg');
-
-      // Validierung
-      if (!vorname || !email) {
-        msgBox.textContent = 'Bitte füllen Sie mindestens Vorname und E-Mail aus.';
-        msgBox.style.color = '#e05555';
-        return;
-      }
-
-      var datenschutzCheck = document.getElementById('datenschutz-consent');
-      if (datenschutzCheck && !datenschutzCheck.checked) {
-        msgBox.textContent = 'Bitte stimmen Sie der Datenschutzerklärung zu.';
-        msgBox.style.color = '#e05555';
-        return;
-      }
-
-      formSubmit.disabled = true;
-      formSubmit.textContent = 'Wird gesendet …';
-      msgBox.textContent = '';
-
-      var formData = new FormData();
-      formData.append('vorname',   vorname);
-      formData.append('nachname',  nachname);
-      formData.append('email',     email);
-      formData.append('telefon',   telefon  || '–');
-      formData.append('produkt',   produkt  || 'Keine Auswahl');
-      formData.append('nachricht', nachricht || '–');
-      formData.append('_subject',  'Neue Anfrage: ' + vorname + ' ' + nachname + ' – BV AussenSysteme');
-      formData.append('_replyto',  email);
-      formData.append('_gotcha',   '');
-
-      fetch('https://formspree.io/f/xnjkabdv', {
-        method:  'POST',
-        body:    formData,
-        headers: { 'Accept': 'application/json' }
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        if (data.ok) {
-          // Vorname kommt aus dem eigenen Formularfeld des Nutzers und wird hier
-          // ins DOM zurückgespiegelt – ohne Escaping wäre das eine DOM-XSS-Lücke
-          // (z.B. Name = "<img src=x onerror=...>"). Daher escapen statt roh einsetzen.
-          var vornameEscaped = String(vorname)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-          msgBox.innerHTML = (window.bvSymbol ? window.bvSymbol('haken') : '') +
-            ' <strong>Vielen Dank, ' + vornameEscaped + '!</strong> Sie werden weitergeleitet…';
-          msgBox.style.color = '#C49A2A';
-          setTimeout(function(){ window.location.href = '/danke.html'; }, 1500);
-          formSubmit.textContent = 'Anfrage gesendet ✓';
-          ['vorname','nachname','email','telefon','nachricht'].forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) el.value = '';
-          });
-          document.getElementById('produkt').value = '';
-        } else {
-          var errors = data.errors ? data.errors.map(function(e){ return e.message; }).join(', ') : 'Unbekannter Fehler';
-          throw new Error(errors);
-        }
-      })
-      .catch(function(err) {
-        msgBox.innerHTML = (window.bvSymbol ? window.bvSymbol('kreuz') : '') + ' Fehler beim Senden. Bitte rufen Sie uns direkt an: <a href="tel:+4915678696609" style="color:var(--gold-dark)">015678696609</a>';
-        msgBox.style.color = '#e05555';
-        formSubmit.disabled = false;
-        formSubmit.textContent = 'Kostenlose Beratung anfordern →';
-        console.error('Formspree:', err);
-      });
-    });
-  }
+     Warum entfernt und nicht nur kommentiert: Toter Code mit
+     Formularlogik ist gefaehrlich, weil beim naechsten Umbau jemand
+     annimmt, er sei in Betrieb, und sich darauf stuetzt. Die Anfragen
+     laufen ueber js/anfrage-wizard.js und /api/kontakt. Der alte Weg
+     steht in der Versionsgeschichte. */
 
   // ---- SMOOTH NAVBAR SHADOW ON SCROLL ----
   // Auch hier pruefen: die Ortsseiten haben eine eigene, schlanke

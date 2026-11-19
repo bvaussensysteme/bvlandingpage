@@ -302,27 +302,13 @@ nicht angefasst. Erst auf Ansage:
 Der Betreiber hat sich für den Ausbau entschieden, umgesetzt in Commit
 625522e. `js/i18n.js` ist gelöscht, die Einbindungen und 32
 data-i18n-Attribute sind entfernt. `pruefe-broschuere.mjs` prüft seit
-dem 19.11.2026, dass nichts davon zurückkommt.
+dem 19.11.2026, dass nichts davon zurückkommt. Die 23 übrigen
+CSS-Regeln sind am 19.11.2026 entfernt worden.
 
-## Toter Formularcode (14.11.2026)
-
-Beim Durchsehen der JavaScript-Texte gefunden, **nicht** angefasst:
-- `js/main.js` ab Zeile 84 hängt an `id="formSubmit"`. Diese id gibt
-  es auf keiner Seite. Der Zweig enthält einen Formspree-Weg und einen
-  E-Mail-Betreff.
-- `js/newsletter.js` ist in keiner Seite eingebunden und spricht
-  EmailJS an.
-
-Toter Code mit Formularlogik ist unangenehm: Beim nächsten Umbau nimmt
-jemand an, er sei in Betrieb. Entweder entfernen oder mit einem
-Kommentar versehen, der sagt, dass er ruht.
-
-Dazu am 15.11.2026 gefunden, ebenfalls nicht angefasst: die CSS-Regel
-`.form-submit` in `src/css/style.css` (Zeile 1065) hat keine Stelle
-mehr im HTML. Sie gehört zu demselben alten Formular. Beim Rundmachen
-der Knöpfe wurde sie mitgeändert, damit sie nicht aus der Reihe fällt,
-falls sie je wieder benutzt wird. Sauberer wäre, sie zusammen mit dem
-toten JavaScript zu entfernen.
+## ERLEDIGT am 19.11.2026: toter Formularcode entfernt
+Der Formspree-Zweig in `js/main.js` (4.529 Zeichen), `js/newsletter.js`
+und die CSS-Regel `.form-submit` sind weg. Siehe
+`docs/entscheidungen.md`.
 
 ## Einzugsgebiet ohne JavaScript leer (14.11.2026)
 
@@ -338,14 +324,6 @@ die Orte serverseitig in die Seite schreiben (Eleventy kann das aus
 derselben Liste) und das Skript nur noch für Karte und Filter
 benutzen. Dann steht die Antwort auch dann da, wenn JavaScript fehlt
 oder scheitert.
-
-## Übrig nach dem Ausbau der Sprachumschaltung (14.11.2026)
-
-In `src/css/style.css` stehen noch 23 Regeln für den entfernten
-Sprachumschalter (`lang-dropdown`, `lang-switcher`). Sie wirken nicht
-mehr. Entfernen lohnt nur, wenn ohnehin jemand an dieser Datei
-arbeitet: Sie wird von allen 58 Seiten geladen, und für ein paar Byte
-fasst man sie nicht an.
 
 ### Später prüfen (Nebenbefunde 15./16.11.2026)
 1. ERLEDIGT am 19.11.2026. Gemessen, bestätigt (42 × 31 px auf

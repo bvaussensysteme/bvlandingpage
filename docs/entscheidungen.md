@@ -19310,3 +19310,38 @@ zuletzt **gesehene** Höhe statt gegen die, mit der zuletzt gerechnet
 wurde. Kleine Änderungen summierten sich damit unbemerkt. Jetzt wird
 gegen den Rechenstand verglichen, und die Entscheidung fällt erst in
 der Nachlaufzeit, wenn die neue Höhe wirklich feststeht.
+
+## 19.11.2026 – Toter Code entfernt: altes Kontaktformular und Sprachauswahl
+
+**Anlass.** Zwei Einträge aus `docs/NEXT_TASK.md` vom 14./15.11.2026.
+Beim Ausbau der Sprachumschaltung stand dort: Entfernen lohnt nur,
+wenn ohnehin jemand an `src/css/style.css` arbeitet. Das war heute der
+Fall.
+
+**Was weg ist, mit Zahlen:**
+
+| Was | Wo | Umfang |
+|---|---|---|
+| Sprachauswahl, 23 Regeln | `src/css/style.css` | 4.770 Zeichen |
+| `.form-submit`, 2 Regeln | `src/css/style.css` | 362 Zeichen |
+| Kontaktformular-Zweig (Formspree) | `js/main.js` | 4.529 Zeichen |
+| `js/newsletter.js` (EmailJS) | ganze Datei | nirgends eingebunden |
+
+**Vorher nachgesehen, nicht vermutet.** Keine der Klassen
+(`.lang-switcher`, `.lang-btn`, `.lang-dropdown`,
+`.mobile-lang-switcher`, `.form-submit`) kommt in HTML, Nunjucks oder
+JavaScript noch vor; die id `formSubmit` gibt es auf keiner Seite;
+`js/newsletter.js` wird von keiner Seite geladen.
+
+**Warum entfernt und nicht nur kommentiert.** Toter Code mit
+Formularlogik ist gefährlich: Beim nächsten Umbau nimmt jemand an, er
+sei in Betrieb, und stützt sich darauf. Die Anfragen laufen über
+`js/anfrage-wizard.js` und `/api/kontakt`. An jeder Stelle steht jetzt
+ein Kommentar, was dort stand und wo es in der Versionsgeschichte
+liegt.
+
+**Gegengelesen.** `pruefe-startseite.mjs` 39, `pruefe-mitwachsend.mjs`
+28, `pruefe-darstellung.mjs` 144, `pruefe-umbruch.mjs` 110
+Kombinationen, `pruefe-cache-buster.sh` grün. Dazu der vollständige
+Durchlauf, weil `style.css` und `main.js` von allen Seiten benutzt
+werden.
