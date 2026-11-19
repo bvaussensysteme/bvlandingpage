@@ -317,14 +317,14 @@ Eleventy eingesetzt). Ohne JavaScript 31 statt 0 Einträge. Abgesichert
 durch `scripts/pruefe-einzugsgebiet.mjs`. Siehe
 `docs/entscheidungen.md`.
 
-## Beim Anwalt: Höhenermittlung in der Datenschutzerklärung
+## Höhenermittlung: Stand 19.11.2026
 
-Der Abschnitt steht seit dem 19.11.2026 **in** der Datenschutzerklärung
-(Abschnitt 7, `src/datenschutz.njk`), auf ausdrückliche Ansage des
-Betreibers und mit der Maßgabe, dass der Anwalt gegenliest. Die
-Grundlage, die offenen Rechtsfragen und der technische Ausweg stehen in
-`docs/datenschutz-entwurf-hoehe.md`. Bis zur Rückmeldung des Anwalts
-bleibt die Funktion ein Hinderungsgrund für eine Veröffentlichung.
+Der Abschnitt steht in der Datenschutzerklärung (Abschnitt 7,
+`src/datenschutz.njk`). Eine anwaltliche Prüfung hat der Betreiber am
+19.11.2026 abgelehnt, ebenso den technischen Ausweg über eigene
+Höhendaten. Beides ist in `docs/entscheidungen.md` festgehalten. Aus
+diesem Chat kommt dazu keine rechtliche Bewertung. Nicht erneut
+vorschlagen, solange sich nichts ändert.
 
 ## Später prüfen: Tageslimit des Höhendienstes
 

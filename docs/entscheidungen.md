@@ -19386,3 +19386,23 @@ eine bezifferbare Verbesserung; die Zahlen geben dafür nichts her.
 sechs Messungen, davon drei mit abgeschaltetem JavaScript. Die
 Gegenprobe baut vier Fehler ein, darunter den alten Zustand (leeres
 `<ul>`) und eine doppelt gebaute Liste; alle vier werden bemerkt.
+
+## 19.11.2026 – Eigene Höhendaten: verworfen, nicht vergessen
+
+**Entscheidung des Betreibers:** nein. Die Höhe kommt weiterhin über
+den fremden Dienst (Open Topo Data), wie am 18.11.2026 gebaut.
+
+**Was damit NICHT passiert ist.** Der Datenschutz-Abschnitt bleibt
+ungeprüft von einem Anwalt; der Betreiber hat dazu gesagt „scheiß auf
+den Anwalt". Das ist seine Entscheidung und steht hier, damit sie
+niemand für ein Versehen hält. **Aus diesem Chat kommt keine
+rechtliche Bewertung**, weder in die eine noch in die andere Richtung.
+
+**Damit es nicht wieder aufgewärmt wird:** Der Vorschlag lautete, das
+Geländemodell des Bundesamts für Kartographie (DGM200, 34 MB, offene
+Daten) auf den eigenen Server zu legen. Vorteile wären gewesen: kein
+Dritter, keine Drittlandfrage, kein Tageslimit, unabhängig davon, ob
+der kostenlose Dienst bestehen bleibt. Kosten: ein bis zwei Stunden
+einmalig. Abgelehnt am 19.11.2026. Nur wieder vorschlagen, wenn sich
+etwas ändert, etwa wenn das Tageslimit tatsächlich greift oder der
+Dienst ausfällt.
