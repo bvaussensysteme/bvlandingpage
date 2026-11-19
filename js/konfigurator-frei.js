@@ -19,7 +19,7 @@
    beiden Dateien auseinanderlaufen, damit das sichtbar bleibt statt
    still zu passieren.
 
-   ABGESPALTEN VON: js/konfigurator-3d.js, Stand 4f6a128 (17.11.2026)
+   ABGESPALTEN VON: js/konfigurator-3d.js, Stand 2cbbc4c (17.11.2026)
 
    WAS HIER ANDERS IST ALS IM OEFFENTLICHEN KONFIGURATOR:
      · FREI === true, siehe unten
