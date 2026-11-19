@@ -19345,3 +19345,44 @@ liegt.
 Kombinationen, `pruefe-cache-buster.sh` grün. Dazu der vollständige
 Durchlauf, weil `style.css` und `main.js` von allen Seiten benutzt
 werden.
+
+## 19.11.2026 – Einzugsgebiet: Die Orte stehen jetzt in der Seite
+
+**Anlass.** Eintrag aus `docs/NEXT_TASK.md` vom 14.11.2026, vom
+Betreiber am 19.11.2026 freigegeben („mach").
+
+**Was falsch war, mit Zahlen.** `<ul id="orteListe">` stand leer im
+HTML und wurde erst im Browser gefüllt. Gemessen: ohne JavaScript 0
+Einträge, mit 31. Die Seite beantwortete ihre eigene Frage („Kommt ihr
+zu mir?") also nur mit Skript. Für Suchmaschinen stand dort ein
+Gerüst.
+
+**Was jetzt gilt.** Die Orte liegen in `src/_data/orte.json` und
+werden an **zwei** Stellen benutzt: Eleventy schreibt daraus die
+sichtbare Liste beim Bauen, und dieselben Daten stehen als
+`<script type="application/json" id="orteDaten">` in der Seite, woraus
+das Skript Karte und Klickverhalten bedient.
+
+**Warum ein JSON-Block und kein JavaScript-Literal.** Zwei Kopien
+derselben Orte laufen irgendwann auseinander. So steht die Liste genau
+einmal in der Seite; die Prüfung zählt das nach (31 Koordinatenpaare,
+nicht 62).
+
+**Warum nicht im Front-Matter.** Das Skript steht dort in
+`extraScripts`. Front-Matter-Text wird von Eleventy nicht als Vorlage
+gerendert, `{{ orte }}` wäre dort also wörtlich geblieben. Der
+JSON-Block steht deshalb im Seitenkörper, der gerendert wird.
+
+**Gemessen nachher:** ohne JavaScript 31 Einträge, 8 Randzonen-Hinweise,
+2 Hauptorte; mit JavaScript dieselben 31, und ein Klick auf den fünften
+Ort markiert „Neuwied" und zoomt die Karte. Sichtbarer Text ohne
+Skript: 1.975 statt rund 1.600 Zeichen.
+
+**Was das NICHT ist.** Eine Zusage für bessere Platzierungen. Google
+führt solche Skripte meistens aus. Was wegfällt, ist das Risiko, nicht
+eine bezifferbare Verbesserung; die Zahlen geben dafür nichts her.
+
+**Dauerhaft abgesichert** durch `scripts/pruefe-einzugsgebiet.mjs`:
+sechs Messungen, davon drei mit abgeschaltetem JavaScript. Die
+Gegenprobe baut vier Fehler ein, darunter den alten Zustand (leeres
+`<ul>`) und eine doppelt gebaute Liste; alle vier werden bemerkt.

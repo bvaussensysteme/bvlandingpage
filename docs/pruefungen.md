@@ -559,3 +559,12 @@ einen vorhandenen.
 `pruefe-broschuere.mjs` prüft statt der ausgebauten Sprachumschaltung
 jetzt, dass von ihr nichts zurückkommt; die Gegenprobe stellt sie
 absichtlich wieder her.
+
+### pruefe-einzugsgebiet.mjs (neu am 19.11.2026)
+
+Sechs Messungen auf `/einzugsgebiet.html`, drei davon mit
+abgeschaltetem JavaScript: ganze Liste vorhanden, Ortsnamen vorhanden,
+Randzonen-Hinweise vorhanden; mit JavaScript keine Verdopplung, ein
+Klick markiert den richtigen Ort, und die Daten stehen nur einmal in
+der Seite. Gegenprobe mit vier eingebauten Fehlern, darunter der alte
+Zustand mit leerer Liste.

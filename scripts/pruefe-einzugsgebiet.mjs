@@ -1,150 +1,135 @@
 #!/usr/bin/env node
-/* Prueft die Gebietspruefung im Anfrage-Assistenten, im echten Browser.
- *
- * ANLASS (14.11.2026), Betreiber: "waere auch gut im konfigurator, wenn
- * man am ende seine daten eintraegt und die plz ort etc. das das system
- * prueft, ob das in unserem 60km radius ab 56422 dernbach is".
- *
- * Die wichtigste Pruefung ist NICHT, ob der Hinweis erscheint, sondern ob
- * er AUSBLEIBT, wenn die PLZ nicht passt. Der Besucher darf nie eine
- * Absage lesen - die eigene FAQ sagt "Bei groesseren Auftraegen kommen wir
- * auch weiter". Der Hinweis fuer den Betrieb gehoert in die E-Mail, nicht
- * auf den Bildschirm. Genau das waere beim Bauen am 14.11.2026 beinahe
- * schiefgegangen: Die Zeile stand zuerst auch in der Zusammenfassung, die
- * der Besucher sieht.
- *
- * Aufruf:  node scripts/pruefe-einzugsgebiet.mjs [--gegenprobe]
- *
- * --gegenprobe traegt eine PLZ weit ausserhalb ein (Hamburg) und verlangt,
- * dass der Hinweis NICHT erscheint. Zusaetzlich wird geprueft, dass das
- * Wort "ausserhalb" nirgends auf der Seite steht.
- */
+/* ============================================================
+   Einzugsgebiet: Die Orte stehen in der Seite, nicht erst im
+   Browser.
+
+   ANLASS (14.11.2026 gefunden, 19.11.2026 behoben): Das <ul> war
+   leer und wurde erst im Browser gefuellt. Gemessen: ohne
+   JavaScript 0 Eintraege, mit 31. Die Seite beantwortete ihre
+   eigene Frage ("Kommt ihr zu mir?") also nur mit Skript, und
+   Suchmaschinen sahen ein Geruest.
+
+   Geprueft wird deshalb BEIDES: ohne JavaScript muss die Liste
+   vollstaendig dastehen, und mit JavaScript darf sie sich nicht
+   verdoppeln und muss weiterhin auf Klicks reagieren.
+
+   Aufruf:     node scripts/pruefe-einzugsgebiet.mjs
+   Gegenprobe: node scripts/pruefe-einzugsgebiet.mjs --gegenprobe
+   ============================================================ */
 import { chromium } from 'playwright';
-import { readdirSync, existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const GEGENPROBE = process.argv.includes('--gegenprobe');
-const PORT = 8271;
+const WURZEL = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const GEGEN = process.argv.includes('--gegenprobe');
+const PORT = 8795;
+let fehler = 0, anzahl = 0;
+const p = (name, ok, beleg) => {
+  anzahl++;
+  if (ok) { if (!GEGEN) console.log(`  ok      ${name.padEnd(52)} ${beleg}`); }
+  else { console.log(`  FEHLER  ${name.padEnd(52)} ${beleg}`); fehler++; }
+};
 
-function chromeIn(o) {
-  for (const w of [`${o}/chrome-linux/chrome`, `${o}/chrome-linux64/chrome`, `${o}/chrome`])
-    if (existsSync(w)) return w;
-  return undefined;
-}
-function chromiumPfad() {
-  if (process.env.BV_CHROMIUM) return process.env.BV_CHROMIUM;
-  const b = '/opt/pw-browsers';
-  if (!existsSync(b)) return undefined;
-  const o = readdirSync(b).filter((d) => /^chromium-\d+$/.test(d)).sort();
-  return o.length ? chromeIn(`${b}/${o[o.length - 1]}`) : undefined;
-}
+/* Die Quelle der Wahrheit: dieselbe Datei, aus der die Seite gebaut wird. */
+const ORTE = JSON.parse(fs.readFileSync(path.join(WURZEL, 'src', '_data', 'orte.json'), 'utf8'));
+const SOLL = ORTE.length;
+const MIT_HINWEIS = ORTE.filter((o) => o.hinweis).length;
 
-const server = spawn('python3', ['-m', 'http.server', String(PORT)], {
-  cwd: new URL('..', import.meta.url).pathname, stdio: 'ignore'
-});
-await new Promise((r) => setTimeout(r, 900));
-process.on('exit', () => server.kill());
+/* Die eingebauten Fehler der Gegenprobe. Jeder stellt genau den
+   Zustand her, den es frueher gab oder der beim naechsten Umbau
+   entstehen koennte. */
+const FEHLER = [
+  { name: 'Die Liste ist wieder leer im HTML',
+    machen: (t) => t.replace(/(<ul class="orte-list" id="orteListe">)[\s\S]*?(<\/ul>)/, '$1$2') },
+  { name: 'Ein Ort fehlt in der Seite',
+    machen: (t) => t.replace(/<li><button type="button" data-ort="3"[\s\S]*?<\/li>/, '') },
+  { name: 'Die Hinweiszeichen fehlen',
+    machen: (t) => t.replace(/ <span class="info-badge" data-tip="[^"]*">i<\/span>/g, '') },
+  { name: 'Das Skript baut die Liste noch einmal dazu',
+    machen: (t) => t.replace('var liste = document.getElementById(\'orteListe\');',
+      'var liste = document.getElementById(\'orteListe\');\n  orte.forEach(function (o) { var li = document.createElement("li"); li.innerHTML = "<button type=\\"button\\">" + o.name + "</button>"; liste.appendChild(li); });') },
+];
 
-let fehler = 0, geprueft = 0;
-function pruef(name, ok, beleg) {
-  geprueft++;
-  if (ok) console.log(`  ok      ${name.padEnd(52)} ${beleg || ''}`);
-  else { fehler++; console.log(`  FEHLER  ${name.padEnd(52)} ${beleg || ''}`); }
-}
+const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'],
+  { cwd: WURZEL, stdio: 'ignore' });
+await new Promise((r) => setTimeout(r, 1800));
+const browser = await chromium.launch();
 
-console.log(GEGENPROBE ? 'Gegenprobe: PLZ weit ausserhalb'
-                       : 'Gebietspruefung im Anfrage-Assistenten');
-
-const browser = await chromium.launch({ executablePath: chromiumPfad(), args: ['--no-sandbox'] });
-const seite = await browser.newPage();
-await seite.setViewportSize({ width: 1280, height: 900 });
-const konsole = [];
-seite.on('pageerror', (e) => konsole.push(String(e)));
-const BASIS = `http://127.0.0.1:${PORT}`;
-await seite.route('**', (r) => r.request().url().startsWith(BASIS) ? r.continue() : r.abort());
-await seite.goto(`${BASIS}/index.html`, { waitUntil: 'domcontentloaded' });
-await seite.waitForTimeout(700);
-
-/* Ueber den Kurzweg zum Kontaktschritt. */
-await seite.evaluate(() => {
-  const k = [...document.querySelectorAll('#awBody .aw-option')]
-    .find((x) => /Direkt anfragen/.test(x.textContent));
-  if (k) k.click();
-});
-await seite.waitForTimeout(250);
-for (let i = 0; i < 5; i++) {
-  const t = await seite.evaluate(() => {
-    const e = document.getElementById('awTitle'); return e ? e.textContent.trim() : '';
-  });
-  if (t === 'Ihre Kontaktdaten') break;
-  await seite.evaluate(() => {
-    const w = document.getElementById('awWunsch');
-    if (w && !w.value) { w.value = 'Testanfrage'; w.dispatchEvent(new Event('input', { bubbles: true })); }
-  });
-  await seite.locator('#awNext').click();
-  await seite.waitForTimeout(320);
-}
-
-const titel = await seite.evaluate(() => {
-  const e = document.getElementById('awTitle'); return e ? e.textContent.trim() : '(fehlt)';
-});
-pruef('Der Kontaktschritt ist erreicht', titel === 'Ihre Kontaktdaten', titel);
-pruef('Das Hinweisfeld ist angelegt',
-  await seite.evaluate(() => !!document.getElementById('aw-gebiet')), 'aw-gebiet da');
-
-async function tippe(plz, ort) {
-  await seite.evaluate(([p, o]) => {
-    const pf = document.getElementById('k_plz'), of = document.getElementById('k_ort');
-    if (pf) { pf.value = p; pf.dispatchEvent(new Event('input', { bubbles: true })); }
-    if (of) { of.value = o; of.dispatchEvent(new Event('input', { bubbles: true })); }
-  }, [plz, ort]);
-  await seite.waitForTimeout(200);
-  return seite.evaluate(() => {
-    const f = document.getElementById('aw-gebiet');
-    return { sichtbar: f ? !f.hidden : false, text: f ? f.textContent.trim() : '' };
-  });
+async function messen(mitJs, umbau) {
+  const ctx = await browser.newContext({ javaScriptEnabled: mitJs,
+    viewport: { width: 390, height: 800 } });
+  const s = await ctx.newPage();
+  if (umbau) {
+    await s.route('**/einzugsgebiet.html', async (route) => {
+      const a = await route.fetch();
+      await route.fulfill({ response: a, body: umbau(await a.text()) });
+    });
+  }
+  await s.goto(`http://127.0.0.1:${PORT}/einzugsgebiet.html`, { waitUntil: 'load' });
+  await s.waitForTimeout(mitJs ? 1800 : 500);
+  const r = await s.evaluate(() => ({
+    eintraege: document.querySelectorAll('#orteListe li').length,
+    knoepfe: document.querySelectorAll('#orteListe button').length,
+    namen: [...document.querySelectorAll('#orteListe button')].map((b) => b.textContent.trim()),
+    badges: document.querySelectorAll('#orteListe .info-badge').length,
+    haupt: document.querySelectorAll('#orteListe .orte-dot.hauptort').length,
+  }));
+  if (mitJs) {
+    try {
+      await s.click('#orteListe button[data-ort="4"]', { timeout: 3000 });
+      await s.waitForTimeout(400);
+      r.aktiv = await s.evaluate(() =>
+        (document.querySelector('#orteListe button.active') || {}).textContent || '');
+    } catch (e) { r.aktiv = ''; }
+  }
+  await ctx.close();
+  return r;
 }
 
-if (GEGENPROBE) {
-  const a = await tippe('20095', 'Hamburg');
-  pruef('Weit ausserhalb: kein Hinweis', !a.sichtbar, a.text || 'nichts angezeigt');
-  const b = await tippe('80331', 'München');
-  pruef('Noch weiter weg: kein Hinweis', !b.sichtbar, b.text || 'nichts angezeigt');
-  /* Nur im Bedienfeld pruefen, nicht auf der ganzen Seite: Die FAQ fragt
-     voellig zu Recht "Kommen Sie auch ausserhalb des Westerwaldkreises?".
-     Daran ist nichts falsch - die Pruefung war beim ersten Lauf am
-     14.11.2026 zu grob und hat genau das gemeldet. */
-  const wort = await seite.evaluate(() => {
-    const w = document.querySelector('.anfrage-wizard') || document.getElementById('awBody');
-    return w ? /außerhalb|ausserhalb/i.test(w.innerText) : false;
-  });
-  pruef('Keine Absage im Bedienfeld', !wort, 'sauber');
-} else {
-  const a = await tippe('56410', 'Montabaur');
-  pruef('Montabaur: Hinweis erscheint', a.sichtbar, a.text.slice(0, 54));
-  pruef('Der Ort wird genannt', /Montabaur/.test(a.text), 'Ortsname im Text');
-  const b = await tippe('56422', 'Dernbach');
-  pruef('Der eigene Standort liegt im Gebiet', b.sichtbar, b.text.slice(0, 40));
-  const c = await tippe('65549', 'Limburg');
-  pruef('Limburg: Hinweis erscheint', c.sichtbar, c.text.slice(0, 40));
-  const r = await tippe('53604', 'Bad Honnef');
-  pruef('Randlage Bad Honnef: Hinweis erscheint ebenfalls', r.sichtbar, r.text.slice(0, 40));
-  const d = await tippe('20095', 'Hamburg');
-  pruef('Hamburg: KEIN Hinweis und keine Absage', !d.sichtbar, 'nichts angezeigt');
-  const m = await tippe('56766', 'Ulmen');
-  pruef('Ulmen (rund 85 km): KEIN Hinweis', !m.sichtbar, 'nichts angezeigt');
-  const e = await tippe('123', 'Unfertig');
-  pruef('Unvollstaendige PLZ: kein Hinweis', !e.sichtbar, 'nichts behauptet');
-  const f = await seite.evaluate(() => {
-    const w = document.querySelector('.anfrage-wizard') || document.getElementById('awBody');
-    return w ? /außerhalb|ausserhalb/i.test(w.innerText) : false;
-  });
-  pruef('Nie eine Absage im Bedienfeld', !f, 'kein „außerhalb" im Assistenten');
-  pruef('Kein Javascript-Fehler', konsole.length === 0,
-    konsole.length ? konsole[0].slice(0, 50) : 'Konsole still');
+try {
+  if (!GEGEN) {
+    const ohne = await messen(false);
+    p('OHNE JavaScript steht die ganze Liste da',
+      ohne.eintraege === SOLL && ohne.knoepfe === SOLL,
+      `${ohne.eintraege} von ${SOLL} Eintraegen`);
+    p('OHNE JavaScript stehen die Ortsnamen da',
+      ORTE.every((o) => ohne.namen.some((n) => n.indexOf(o.name) === 0)),
+      ohne.namen.slice(0, 2).join(' / ') + ' …');
+    p('OHNE JavaScript sind die Randzonen-Hinweise da',
+      ohne.badges === MIT_HINWEIS, `${ohne.badges} von ${MIT_HINWEIS}`);
+
+    const mit = await messen(true);
+    p('MIT JavaScript bleibt die Liste gleich lang',
+      mit.eintraege === SOLL, `${mit.eintraege} von ${SOLL}`);
+    p('MIT JavaScript reagiert ein Ort auf den Klick',
+      mit.aktiv.indexOf(ORTE[4].name) === 0, `markiert: "${mit.aktiv}"`);
+    p('Die Daten stehen nur EINMAL in der Seite',
+      (await (await fetch(`http://127.0.0.1:${PORT}/einzugsgebiet.html`)).text())
+        .split('"lat"').length - 1 === SOLL,
+      `${SOLL} Koordinatenpaare erwartet`);
+  } else {
+    for (const f of FEHLER) {
+      const ohne = await messen(false, f.machen);
+      const mit = await messen(true, f.machen);
+      const bemerkt = ohne.eintraege !== SOLL || ohne.knoepfe !== SOLL ||
+        ohne.badges !== MIT_HINWEIS || mit.eintraege !== SOLL ||
+        !ORTE.every((o) => ohne.namen.some((n) => n.indexOf(o.name) === 0));
+      p(`eingebauter Fehler bemerkt: ${f.name}`, bemerkt,
+        `ohne JS ${ohne.eintraege}/${ohne.badges}, mit JS ${mit.eintraege}`);
+    }
+  }
+} finally {
+  await browser.close();
+  server.kill();
 }
 
-await browser.close();
-console.log(`\nErgebnis: ${fehler === 0 ? `alle ${geprueft} Prüfungen bestanden`
-  : `${fehler} von ${geprueft} Prüfungen fehlgeschlagen`}`);
-process.exit(fehler === 0 ? 0 : 1);
+console.log();
+if (fehler === 0) {
+  console.log(GEGEN ? `Gegenprobe bestanden: alle ${anzahl} eingebauten Fehler bemerkt`
+                    : `Ergebnis: alle ${anzahl} Pruefungen bestanden`);
+  process.exit(0);
+}
+console.log(`Ergebnis: ${fehler} von ${anzahl} ${GEGEN ? 'eingebauten Fehlern NICHT bemerkt' : 'Pruefungen beanstandet'}`);
+process.exit(1);

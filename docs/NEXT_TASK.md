@@ -310,34 +310,12 @@ Der Formspree-Zweig in `js/main.js` (4.529 Zeichen), `js/newsletter.js`
 und die CSS-Regel `.form-submit` sind weg. Siehe
 `docs/entscheidungen.md`.
 
-## Einzugsgebiet ohne JavaScript leer (14.11.2026)
+## ERLEDIGT am 19.11.2026: Einzugsgebiet ohne JavaScript
 
-`einzugsgebiet.html` baut die Ortsliste erst im Browser:
-`<ul id="orteListe">` steht leer im HTML, gefüllt wird sie von
-`orte.forEach`. Gemessen: ohne JavaScript 0 Einträge, mit 31.
-
-Übrig bleibt ein Grundgerüst von rund 1600 Zeichen, ohne die Antwort
-auf die Frage, für die die Seite gebaut wurde: „Kommt ihr zu mir?"
-
-**Nicht neu**, war vor der Karten-Umstellung schon so. Zu überlegen:
-die Orte serverseitig in die Seite schreiben (Eleventy kann das aus
-derselben Liste) und das Skript nur noch für Karte und Filter
-benutzen. Dann steht die Antwort auch dann da, wenn JavaScript fehlt
-oder scheitert.
-
-### Später prüfen (Nebenbefunde 15./16.11.2026)
-1. ERLEDIGT am 19.11.2026. Gemessen, bestätigt (42 × 31 px auf
-   „Katalog ansehen" bei 390 px) und behoben; `pruefe-mitwachsend.mjs`
-   misst Überdeckungen seitdem mit. Siehe `docs/entscheidungen.md`.
-2. Das erste Bild der Startseite erscheint erst nach rund 750 ms
-   (gemessen auf der Vorschau, 390 × 750). Bis dahin ist die Seite leer,
-   weil die Stylesheets das Zeichnen blockieren. Betrifft jede
-   Eingangsanimation: Sie kann frühestens danach anfangen.
-
-### ERLEDIGT am 19.11.2026: pruefe-broschuere.mjs ist grün
-Zwei der drei Befunde waren Reste der ausgebauten Sprachumschaltung,
-der dritte ein Fehler der Prüfung selbst (Seite im Hintergrund,
-gebremste Zeitgeber). Jetzt 44 von 44. Siehe `docs/entscheidungen.md`.
+Die Orte stehen jetzt fest in der Seite (`src/_data/orte.json`, von
+Eleventy eingesetzt). Ohne JavaScript 31 statt 0 Einträge. Abgesichert
+durch `scripts/pruefe-einzugsgebiet.mjs`. Siehe
+`docs/entscheidungen.md`.
 
 ## Beim Anwalt: Höhenermittlung in der Datenschutzerklärung
 
