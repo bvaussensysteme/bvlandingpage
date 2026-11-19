@@ -35,7 +35,7 @@ const p = (name, ok, beleg) => {
 
 const DATEN = JSON.parse(fs.readFileSync(path.join(WURZEL, 'src/_data/galerien.json'), 'utf8'));
 const SEITEN = ['terrassenueberdachung', 'carport', 'gartenhaus',
-                'kaltwintergarten', 'eingang', 'pergola'];
+                'kaltwintergarten', 'eingang', 'pergola', 'balkon-fassade'];
 
 const FEHLER = [
   /* GEZIELT EIN GALERIEBILD treffen. Der erste Versuch ersetzte das

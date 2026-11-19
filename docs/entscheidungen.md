@@ -19521,3 +19521,21 @@ eingebunden.
 **Gegengelesen.** `pruefe-galerie.mjs` 47 von 47 mit Gegenprobe,
 `pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110 Kombinationen,
 `pruefe-darstellung.mjs` 144, Cache-Buster grün.
+
+## 19.11.2026 – Balkon und Fassade: Galerie und 18 Alternativtexte
+
+Die letzten 18 Bilder sind eingebunden, auf
+`/produkte/balkon-fassade.html`. Damit haben **alle 59 Bilder** einen
+Text, der das Bild beschreibt; Platzhalter gibt es keine mehr.
+
+Drei Bildreihen stecken darin: ein weißes Satteldachhaus mit
+überdachtem Balkon über einer verglasten Terrasse (zehn Ansichten,
+eine davon mit ausgefahrener Markise), zwei Haushälften mit Flachdach
+und Glasdächern über den Balkonen (fünf Ansichten), und ein rundum
+verglaster Balkon an einem Walmdachhaus (drei Ansichten).
+
+Diesmal keine Fehlzuordnung: Alle 18 zeigen wirklich Balkone.
+
+`pruefe-galerie.mjs` prüft jetzt sieben Seiten, 52 Messungen,
+Gegenprobe bestanden. `pruefe-mitwachsend.mjs` 28,
+`pruefe-umbruch.mjs` 110 Kombinationen, Cache-Buster grün.

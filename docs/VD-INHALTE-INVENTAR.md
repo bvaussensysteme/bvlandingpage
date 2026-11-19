@@ -129,7 +129,7 @@ Aus dem Paket `VD_Bilde_Portfolio` des Betreibers, abgelegt unter
 | carport | 11 | /produkte/carport.html |
 | kaltwintergarten | 3 | /produkte/kaltwintergarten.html |
 | pergola | 3 | /produkte/pergola.html |
-| balkon-fassade | 18 | noch nirgends |
+| balkon-fassade | 18 | /produkte/balkon-fassade.html |
 
 Es sind Renderings des Herstellers, keine Fotos ausgeführter Anlagen.
 Beim Entfernen von VD-Inhalten fällt der ganze Ordner
