@@ -568,3 +568,14 @@ Randzonen-Hinweise vorhanden; mit JavaScript keine Verdopplung, ein
 Klick markiert den richtigen Ort, und die Daten stehen nur einmal in
 der Seite. Gegenprobe mit vier eingebauten Fehlern, darunter der alte
 Zustand mit leerer Liste.
+
+### pruefe-galerie.mjs (neu am 19.11.2026)
+
+47 Messungen auf den sechs Produktseiten mit Galerie. Darunter: alle
+Bilder im HTML (auch ohne JavaScript), Alternativtext und feste Maße,
+nur das erste Bild ohne `lazy`, nichts über dem rechten Rand, Dialog
+mit role und aria-modal, Fokus hin und zurück, Escape, Pfeiltasten,
+Wischen, Knöpfe 44 × 44 px, Klick zwischen den Pfeilen schließt nicht,
+schwebende Knöpfe verschwinden, `inert` auf dem Hintergrund,
+Fokusring-Kontrast, und die Großansicht bei 320 × 256 px sowie im
+Querformat. Gegenprobe mit vier eingebauten Fehlern.

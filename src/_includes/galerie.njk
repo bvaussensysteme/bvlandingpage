@@ -30,10 +30,13 @@
   <div class="container">
     <h2 id="galerieTitel-{{ galerieSchluessel }}">Ausführungsbeispiele</h2>
     <p class="galerie-streifen-hinweis">
-      {{ g.bezeichnung }}: {{ g.bilder.length }} Ansichten zum Durchblättern.
-      Darstellungen des Herstellers, keine Fotos ausgeführter Anlagen.
+      {{ g.bezeichnung }}: {{ g.bilder.length }} {% if g.bilder.length == 1 %}Ansicht{% else %}Ansichten zum Durchblättern{% endif %}.
+      Herstellerdarstellungen, keine Fotos von uns gebauter Anlagen.
     </p>
+    {#- role="list" ist noetig, weil Safari mit VoiceOver die
+        Listensemantik bei list-style:none verwirft. -#}
     <ul class="galerie-streifen" id="galerieStreifen-{{ galerieSchluessel }}"
+        role="list" aria-labelledby="galerieTitel-{{ galerieSchluessel }}"
         data-galerie="{{ galerieSchluessel }}">
       {%- for b in g.bilder %}
       <li>

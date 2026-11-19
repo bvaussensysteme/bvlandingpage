@@ -48,7 +48,7 @@ const FEHLER = [
   { name: 'Alle Bilder laden sofort', machen: (t) => t.replace(/loading="lazy" /g, '') },
   { name: 'Die Ueberschrift verspricht Referenzen',
     machen: (t) => t.replace('Ausführungsbeispiele', 'Unsere Referenzen')
-                    .replace(/Darstellungen des Herstellers[^<]*/, '') },
+                    .replace(/Herstellerdarstellungen[^<]*/, '') },
 ];
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'],
@@ -126,7 +126,7 @@ try {
       /Ausführungsbeispiele/.test(r0.ueberschrift) && !/Referenz|Projekt/i.test(r0.ueberschrift),
       `"${r0.ueberschrift.trim()}"`);
     p('Der Hinweis nennt die Bilder Herstellerdarstellungen',
-      /Darstellungen des Herstellers/.test(r0.hinweis),
+      /Herstellerdarstellungen/.test(r0.hinweis),
       r0.hinweis.replace(/\s+/g, ' ').trim().slice(0, 60));
 
     /* Grossansicht, vollstaendig durchgespielt. */
@@ -162,6 +162,48 @@ try {
     const pfeil = await s.evaluate(() => document.querySelector('.gg-text').textContent);
     p('Die Pfeiltasten blaettern auch', /\(1 von 3\)/.test(pfeil), pfeil.trim());
 
+    /* ---- Befunde der Pruefer vom 19.11.2026 ----
+       Jede dieser Messungen gehoert zu einem gemeldeten Fehler. */
+
+    /* Ein Klick in die 8 px zwischen den Pfeilen schloss die Ansicht. */
+    var luecke = await s.evaluate(() => {
+      const a = document.querySelector('.gg-zurueck').getBoundingClientRect();
+      const c = document.querySelector('.gg-vor').getBoundingClientRect();
+      return { x: Math.round((a.right + c.left) / 2), y: Math.round(a.top + a.height / 2) };
+    });
+    await s.mouse.click(luecke.x, luecke.y);
+    await s.waitForTimeout(350);
+    p('Ein Klick zwischen den Pfeilen schliesst NICHT',
+      await s.evaluate(() => !document.querySelector('.galerie-gross').hidden),
+      `Punkt ${luecke.x}/${luecke.y}`);
+
+    /* Die schwebenden Knoepfe liegen hoeher und lagen darueber. */
+    p('Die schwebenden Knoepfe sind waehrenddessen weg',
+      0 === await s.evaluate(() => ['#bv-a11y-trigger', '#bvKonfigBubble', '#bv-scroll-top']
+        .map((q) => document.querySelector(q))
+        .filter((e) => e && getComputedStyle(e).visibility !== 'hidden').length),
+      'keiner sichtbar');
+
+    /* Der Rest der Seite ist fuer Hilfsmittel stillgelegt. */
+    p('Der Hintergrund ist stillgelegt (inert)',
+      await s.evaluate(() => !!document.querySelector('main[inert]')), 'main[inert]');
+
+    /* Wischen statt den schmalen Pfeil treffen. */
+    var vorWisch = await s.evaluate(() => document.querySelector('.gg-text').textContent);
+    await s.evaluate(() => {
+      const b = document.querySelector('.gg-bild'); const r = b.getBoundingClientRect();
+      const t = (typ, x) => { const tt = new Touch({ identifier: 1, target: b,
+        clientX: x, clientY: r.top + r.height / 2 });
+        b.dispatchEvent(new TouchEvent(typ, { touches: typ === 'touchend' ? [] : [tt],
+          targetTouches: typ === 'touchend' ? [] : [tt], changedTouches: [tt],
+          bubbles: true, cancelable: true })); };
+      t('touchstart', r.right - 20); t('touchend', r.left + 20);
+    });
+    await s.waitForTimeout(350);
+    var nachWisch = await s.evaluate(() => document.querySelector('.gg-text').textContent);
+    p('Wischen blaettert in der Grossansicht', vorWisch !== nachWisch,
+      nachWisch.trim());
+
     await s.keyboard.press('Escape');
     await s.waitForTimeout(400);
     const zu = await s.evaluate(() => ({
@@ -170,13 +212,52 @@ try {
       gesperrt: document.body.classList.contains('galerie-offen') }));
     p('Escape schliesst und gibt den Fokus zurueck',
       !zu.offen && /galerie-kachel/.test(zu.fokus) && !zu.gesperrt, JSON.stringify(zu));
+
+    /* Der Fokusring der Kachel steht auf Weiss. --gold ergab 2,43:1,
+       WCAG 2.2 1.4.11 verlangt 3:1 fuer Bedienelemente. */
+    var ring = await s.evaluate(() => {
+      const el = document.querySelector('.galerie-kachel'); el.focus();
+      const z = (t) => (t.match(/\d+/g) || []).slice(0, 3).map(Number);
+      const lum = (c) => { const v = c.map((x) => { x /= 255;
+        return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+        return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+      const l1 = lum(z(getComputedStyle(el).outlineColor)), l2 = lum([255, 255, 255]);
+      return Math.round(((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)) * 100) / 100;
+    });
+    p('Der Fokusring der Kachel erfuellt 3:1', ring >= 3, ring + ':1');
     await ctx.close();
+
+    /* ENG UND QUER: Bei 200 % Zoom und im Querformat muss alles
+       erreichbar bleiben (WCAG 2.2, 1.4.4 und 1.4.10). */
+    for (const [w, h, wie] of [[320, 256, '200 % Zoom'], [844, 390, 'Querformat']]) {
+      const e = await browser.newContext({ viewport: { width: w, height: h },
+        isMobile: w < 500, hasTouch: true, deviceScaleFactor: 1 });
+      const es = await e.newPage();
+      await es.goto(`http://127.0.0.1:${PORT}/produkte/carport.html`, { waitUntil: 'load' });
+      await es.waitForTimeout(900);
+      await es.evaluate(() => { const k = document.querySelector('.cb-btn--necessary'); if (k) k.click(); });
+      await es.waitForTimeout(600);
+      await es.evaluate(() => { document.querySelector('.galerie-kachel').scrollIntoView();
+                                document.querySelector('.galerie-kachel').click(); });
+      await es.waitForTimeout(600);
+      const r = await es.evaluate(() => {
+        const im = (x) => { const b = x.getBoundingClientRect();
+          return b.top >= -1 && b.left >= -1 && b.bottom <= innerHeight + 1
+                 && b.right <= innerWidth + 1 && b.width > 0; };
+        return { zu: im(document.querySelector('.gg-zu')),
+                 vor: im(document.querySelector('.gg-vor')),
+                 text: im(document.querySelector('.gg-text')) };
+      });
+      p(`${wie} (${w}x${h}): Schliessen, Blaettern und Text im Bild`,
+        r.zu && r.vor && r.text, JSON.stringify(r));
+      await e.close();
+    }
   } else {
     for (const f of FEHLER) {
       const r = await messen('carport', f.machen);
       const bemerkt = r.ohneAlt > 0 || r.ohneMass > 0 || r.sofort !== 1 ||
         !/Ausführungsbeispiele/.test(r.ueberschrift) ||
-        !/Darstellungen des Herstellers/.test(r.hinweis);
+        !/Herstellerdarstellungen/.test(r.hinweis);
       p(`eingebauter Fehler bemerkt: ${f.name}`, bemerkt,
         `ohneAlt ${r.ohneAlt}, ohneMass ${r.ohneMass}, sofort ${r.sofort}`);
     }

@@ -113,3 +113,27 @@ Nach Ausführung von „Alle VD-Inhalte entfernen" fehlen:
 
 ---
 *Diese Datei wird nicht öffentlich ausgeliefert (siehe `.assetsignore`, `docs/` ist ausgeschlossen).*
+
+
+## 19.11.2026 – 59 Portfoliobilder des Herstellers dazugekommen
+
+Aus dem Paket `VD_Bilde_Portfolio` des Betreibers, abgelegt unter
+`images/portfolio/<produkt>/`, eingebunden über
+`src/_data/galerien.json` und `src/_includes/galerie.njk`.
+
+| Ordner | Dateien | eingebunden auf |
+|---|---|---|
+| terrassenueberdachung | 20 | /produkte/terrassenueberdachung.html |
+| eingang | 8 | /produkte/eingang.html |
+| gartenhaus | 4 | /produkte/gartenhaus.html |
+| carport | 3 | /produkte/carport.html |
+| kaltwintergarten | 3 | /produkte/kaltwintergarten.html |
+| pergola | 3 | /produkte/pergola.html |
+| balkon-fassade | 18 | noch nirgends |
+
+Es sind Renderings des Herstellers, keine Fotos ausgeführter Anlagen.
+Beim Entfernen von VD-Inhalten fällt der ganze Ordner
+`images/portfolio/` weg, dazu `src/_data/galerien.json`,
+`src/_includes/galerie.njk`, `js/galerie.js`, der CSS-Block
+„AUSFUEHRUNGSBEISPIELE" und die sechs Include-Zeilen in den
+Produktvorlagen. Die Seiten bleiben dann ohne Galerie, aber heil.

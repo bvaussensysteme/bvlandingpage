@@ -19406,3 +19406,74 @@ der kostenlose Dienst bestehen bleibt. Kosten: ein bis zwei Stunden
 einmalig. Abgelehnt am 19.11.2026. Nur wieder vorschlagen, wenn sich
 etwas ändert, etwa wenn das Tageslimit tatsächlich greift oder der
 Dienst ausfällt.
+
+## 19.11.2026 – Ausführungsbeispiele: Galerie auf sechs Produktseiten
+
+**Anlass.** Der Betreiber hat ein Bildpaket des Herstellers geliefert
+und darum gebeten, die Bilder einzubinden und das Portfolio zu
+erweitern.
+
+**Was da war:** 69 Dateien, davon 59 verschiedene (zwei Ordner waren
+identische Dubletten). WebP, je 800 × 450 px, zusammen 2,9 MB. Es sind
+**3D-Renderings**, keine Fotos.
+
+**Zuordnung, einmal korrigiert.** SkyView gehört zur
+**Terrassenüberdachung**, nicht zur Pergola. Ansage des Betreibers;
+in der eigenen Broschüre als Terrassendach geführt („TDS oder
+Skyview?"). SunPro One ist das Lamellendach und bleibt bei der
+Pergola.
+
+| Seite | Bilder |
+|---|---|
+| Terrassenüberdachung | 20 (TDS, SkyView, Flachdach mit Verkleidung) |
+| Eingang | 8 |
+| Gartenhaus | 4 |
+| Carport, Kaltwintergarten, Pergola | je 3 |
+| Balkon & Fassade | 18, **noch nicht eingebunden** |
+
+**Die Überschrift heißt „Ausführungsbeispiele".** Nicht „Referenzen"
+und nicht „Unsere Projekte". Darunter steht: Herstellerdarstellungen,
+keine Fotos von uns gebauter Anlagen. Renderings als eigene Projekte
+auszugeben wäre ein erfundenes Vertrauenssignal.
+
+**Aufbau.** `src/_data/galerien.json` → `src/_includes/galerie.njk`
+schreibt den Streifen beim Bauen in die Seite → `js/galerie.js`
+ergänzt die Großansicht. Ohne JavaScript bleibt der Streifen
+bedienbar.
+
+**Vier Prüfer, die Befunde und was daraus wurde**
+
+Behoben, weil messbar:
+
+| Befund | vorher | jetzt |
+|---|---|---|
+| Fokusring der Kachel, WCAG 1.4.11 | `--gold` 2,43:1 | `--gold-text` 6,3:1 |
+| Großansicht bei 200 % Zoom (320 × 256) | Text und Pfeile abgeschnitten | alles im Bild, Dialog scrollt |
+| Klick in die 8 px zwischen den Pfeilen | schloss die Ansicht | schließt nicht mehr |
+| Schwebende Knöpfe (z-index 2147483647) | lagen über der Großansicht | verschwinden, solange sie offen ist |
+| Escape nach einer Wischgeste | wirkungslos, Fokus lag auf `<body>` | Hörer am Dokument statt am Fenster |
+| Blättern ohne Ansage | nichts | `aria-live` auf der Bildunterschrift |
+| Alt-Text doppelt vorgelesen | alt + figcaption | alt leer, Unterschrift trägt den Text |
+| Hintergrund für Hilfsmittel | nur `aria-modal` | zusätzlich `inert` |
+| Aussparung und Bedienbalken | `padding: 16px` | `env(safe-area-inset-*)` |
+| Wischen in der Großansicht | gab es nicht | ab 45 px waagerecht |
+
+**Gemessen, nicht behoben, weil es keine Fehler sind** (aus dem
+Leistungsbericht): Erstaufruf der Terrassenüberdachung 1,41 MB, davon
+51 KB Galerie; `loading="lazy"` greift, 1 von 20 Bildern beim Laden;
+Layoutsprünge 0; `srcset` lohnt nicht, weil die Kachel am Telefon
+318 px breit ist und bei dreifacher Pixeldichte 953 Gerätepixel
+braucht. 800 px ist also die richtige Größe.
+
+**Offen, bewusst nicht gemacht:**
+- **Alternativtexte.** „<Produkt> aus Aluminium, Ausführungsbeispiel N"
+  ist für einen Screenreader dünn, bei 20 gleich klingenden Bildern.
+  Besser wäre ein Satz je Bild, geschrieben von jemandem, der das Bild
+  gesehen hat. Das ist Inhalt und gehört dem Betreiber.
+- Zähler „3 / 20" im Streifen und Pfeile für die Maus am Rechner.
+- Die 18 Balkonbilder.
+
+**Gegengelesen.** `pruefe-galerie.mjs` 47 Messungen, Gegenprobe mit
+vier eingebauten Fehlern bestanden. `pruefe-mitwachsend.mjs` 28,
+`pruefe-umbruch.mjs` 110 Kombinationen, `pruefe-startseite.mjs` 39,
+`pruefe-werkzeugseiten.mjs` 11.

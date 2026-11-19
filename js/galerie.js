@@ -41,7 +41,11 @@
         '</button>' +
         '<figure class="gg-figur">' +
           '<img class="gg-bild" alt="">' +
-          '<figcaption class="gg-text"><span class="gg-beschriftung"></span>' +
+          /* aria-live: Beim Blaettern bleibt der Fokus auf dem Pfeil,
+             nur Bild und Text wechseln. Ohne Live-Bereich erfaehrt ein
+             Screenreader davon nichts (WCAG 2.2, 4.1.3). */
+          '<figcaption class="gg-text" aria-live="polite" aria-atomic="true">' +
+          '<span class="gg-beschriftung"></span>' +
           '<span class="gg-zaehler"></span></figcaption>' +
         '</figure>' +
         '<button type="button" class="gg-knopf gg-vor" aria-label="Nächstes Bild">' +
@@ -56,11 +60,19 @@
     fenster.querySelector('.gg-zu').addEventListener('click', schliessen);
     fenster.querySelector('.gg-zurueck').addEventListener('click', function () { springen(-1); });
     fenster.querySelector('.gg-vor').addEventListener('click', function () { springen(1); });
-    /* Klick auf den dunklen Grund schliesst, Klick aufs Bild nicht. */
+    /* NUR der dunkle Grund schliesst, NICHT die Huelle. Die Huelle
+       liegt auch in den 8 px zwischen "Zurueck" und "Weiter"; ein
+       knapp danebengesetzter Daumen schloss damit die Ansicht,
+       statt zu blaettern. Befund vom 19.11.2026. */
     fenster.addEventListener('click', function (e) {
-      if (e.target === fenster || e.target.classList.contains('gg-huelle')) schliessen();
+      if (e.target === fenster) schliessen();
     });
-    fenster.addEventListener('keydown', function (e) {
+    /* AM DOKUMENT UND NICHT AM FENSTER. Nach einer Wischgeste liegt
+       der Fokus wieder auf <body>; ein Hoerer am Fenster bekommt die
+       Taste dann nicht mehr, und Escape schloss nicht mehr. Gemessen
+       am 19.11.2026: offen blieb offen. */
+    document.addEventListener('keydown', function (e) {
+      if (!fenster || fenster.hidden) return;
       if (e.key === 'Escape') { e.preventDefault(); schliessen(); return; }
       if (e.key === 'ArrowLeft') { e.preventDefault(); springen(-1); return; }
       if (e.key === 'ArrowRight') { e.preventDefault(); springen(1); return; }
@@ -78,7 +90,9 @@
     aktuellerIndex = (i + aktuelleListe.length) % aktuelleListe.length;
     var b = aktuelleListe[aktuellerIndex];
     bildEl.src = b.src;
-    bildEl.alt = b.alt;
+    /* alt bleibt leer: Die Bildunterschrift traegt denselben Text,
+       sonst liest ein Screenreader ihn zweimal. */
+    bildEl.alt = '';
     textEl.textContent = b.alt;
     zaehlerEl.textContent = ' (' + (aktuellerIndex + 1) + ' von ' + aktuelleListe.length + ')';
     var mehr = aktuelleListe.length > 1;
@@ -88,12 +102,23 @@
 
   function springen(d) { zeigen(aktuellerIndex + d); }
 
+  /* Der Rest der Seite wird fuer Hilfsmittel stillgelegt. aria-modal
+     allein reicht bei aelteren Screenreadern nicht. */
+  function hintergrund(aus) {
+    ['main', 'header', 'footer', '.navbar'].forEach(function (w) {
+      Array.prototype.forEach.call(document.querySelectorAll(w), function (e) {
+        if (aus) e.setAttribute('inert', ''); else e.removeAttribute('inert');
+      });
+    });
+  }
+
   function oeffnen(liste, i, kachel) {
     bauen();
     aktuelleListe = liste;
     rueckkehr = kachel;
     fenster.hidden = false;
     document.body.classList.add('galerie-offen');
+    hintergrund(true);
     zeigen(i);
     fenster.querySelector('.gg-zu').focus();
   }
@@ -102,10 +127,34 @@
     if (!fenster || fenster.hidden) return;
     fenster.hidden = true;
     document.body.classList.remove('galerie-offen');
+    hintergrund(false);
     bildEl.removeAttribute('src');
     if (rueckkehr) { try { rueckkehr.focus(); } catch (e) {} }
     rueckkehr = null;
   }
+
+  /* WISCHEN IN DER GROSSANSICHT. Am Telefon erwartet man es; ohne
+     das muss man den schmalen Pfeil treffen. Nur waagerecht und erst
+     ab 45 px, damit ein Antippen nicht versehentlich blaettert. */
+  (function () {
+    var start = null;
+    document.addEventListener('touchstart', function (e) {
+      if (!fenster || fenster.hidden || e.touches.length !== 1) return;
+      if (!fenster.contains(e.target)) return;
+      start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (!start || !fenster || fenster.hidden) { start = null; return; }
+      var t = e.changedTouches[0];
+      var dx = t.clientX - start.x, dy = t.clientY - start.y;
+      start = null;
+      if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      springen(dx < 0 ? 1 : -1);
+      /* Der Fokus soll im Fenster bleiben, sonst laeuft die naechste
+         Tabulatortaste in die stillgelegte Seite dahinter. */
+      try { fenster.querySelector('.gg-zu').focus(); } catch (x) {}
+    }, { passive: true });
+  })();
 
   Array.prototype.forEach.call(streifen, function (s) {
     var kacheln = s.querySelectorAll('.galerie-kachel');
