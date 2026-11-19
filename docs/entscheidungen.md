@@ -19229,3 +19229,84 @@ man sich selbst belügt. Deshalb nachvollziehbar: Die geprüfte
 Eigenschaft ist unverändert, nur die Art der Messung ist weniger
 zerbrechlich, und die Gegenprobe zeigt, dass sie weiterhin anschlägt,
 wenn das Ausschalten fehlt.
+
+## 19.11.2026 – Schwebende Knöpfe decken keine anderen Knöpfe mehr zu
+
+**Anlass.** Ein Nebenbefund vom 15.11.2026 stand als „noch nicht
+gemessen" in `docs/NEXT_TASK.md`. Jetzt gemessen, und er stimmte.
+
+**Was falsch war, mit Zahlen.** Bei 390 × 750 deckte der
+Bedienhilfen-Knopf 42 × 31 px von „Katalog ansehen" ab und die
+Konfigurator-Blase 42 × 36 px von „WhatsApp". Bei 360 und 320 px
+dasselbe mit anderen Knöpfen, auf `/produkte/carport.html` bei 320 px
+42 × 30 px eines Verweises. Ein Tipp auf diese Stelle öffnete das
+Bedienfeld für Barrierefreiheit statt der Seite, auf die der Verweis
+zeigt. Der Tasttest zeigte es direkt: Am rechten Ende von „Katalog
+ansehen" lag `bv-a11y-trigger`.
+
+**Warum die vorhandene Bremse nicht half.** `bv-schwebe-weg` greift
+ausdrücklich erst ab 240 px Scrollweg („ganz oben soll nichts wandern")
+und bringt die Knöpfe nach einer Ruhepause zurück, also genau dorthin,
+wo sie wieder zudecken.
+
+**Was jetzt gilt.** Die schwebenden Knöpfe weichen, solange sie einen
+anderen Knopf auf mindestens **24 × 24 px** zudecken. Das ist die
+Mindestgröße einer antippbaren Fläche nach WCAG 2.2, 2.5.8: Weniger
+kann keine ganze Trefferfläche schlucken, mehr schon. Dieselbe Schwelle
+benutzt die Prüfung, damit Messung und Abhilfe dasselbe meinen.
+
+**Vier Irrwege, alle im Code begründet, damit sie niemand „aufräumt":**
+
+1. **Lage rechnen, nicht messen.** Sobald die Knöpfe weg sind, meldet
+   eine zweite Messung keine Überdeckung mehr, die Klasse fällt weg,
+   die Knöpfe kommen zurück, und das Ganze von vorn. Ihre Abstände zur
+   rechten unteren Ecke ändern sich nie, also wird daraus gerechnet.
+2. **Ausblenden, nicht zur Seite schieben.** Herausgeschoben standen
+   sie 39 px rechts neben dem Fensterrand. `pruefe-mitwachsend.mjs`
+   meldete das sofort: drei Elemente über dem rechten Rand bei 320 und
+   360 px.
+3. **Überdeckung aus den Rechtecken rechnen.** Feste Tastquadrate an
+   den Ecken fanden eine Überdeckung von 42 × 30 px in der Mitte eines
+   44 px hohen Knopfes nicht.
+4. **Ein `<nav>` ist nicht automatisch eine Kopfzeile.** Ausgenommen
+   wird nur, was wirklich festklebt (`position: fixed` oder `sticky`).
+   Eine Liste von Sprungmarken mitten auf der Seite steht auch in einem
+   `<nav>` und ist ganz normaler Inhalt.
+
+**Was das kostet.** Am oberen Rand der Startseite sind die beiden
+runden Knöpfe am Telefon nicht sichtbar. Wer sie braucht, scrollt ein
+Stück oder erreicht sie mit der Tastatur (`:focus-visible` holt sie
+zurück). Das ist der Preis dafür, dass die Hauptknöpfe der Seite
+vollständig antippbar sind.
+
+**Dauerhaft abgesichert.** `pruefe-mitwachsend.mjs` misst Überdeckungen
+jetzt mit, in allen sieben Breiten auf vier Seiten, mit Gegenprobe.
+Überdeckungen unter 24 × 24 px stehen als **Hinweis** im Bericht und
+machen die Prüfung nicht rot; verschwiegen werden sie nicht.
+
+## 19.11.2026 – Broschürenprüfung: drei Dauerbefunde geklärt
+
+**Anlass.** `pruefe-broschuere.mjs` meldete seit dem 17.11.2026
+unverändert drei Beanstandungen. Ein Dauerbefund verdeckt die Sicht auf
+echte Fehler.
+
+**Zwei davon waren Reste der ausgebauten Sprachumschaltung.** Sie
+prüften `js/i18n.js`, das am 14.11.2026 auf Entscheidung des Betreibers
+gelöscht wurde (Commit 625522e). Sie prüfen jetzt das Gegenteil: dass
+von der Umschaltung wirklich nichts mehr da ist, weder die Datei noch
+`window.setLanguage` noch ein `data-i18n`-Attribut. Die Gegenprobe
+stellt beides absichtlich wieder her.
+
+**Der dritte war ein Fehler der Prüfung selbst.** Sie meldete, das Buch
+„zappelt": 366 px bei 700 px Höhe, 318 px bei 640 px. Ursache: Seit die
+Prüfung eine zweite Seite öffnet, liegt die Broschürenseite im
+Hintergrund, und Chromium bremst dort die Zeitgeber. Die 150 ms
+Nachlaufzeit in `js/broschuere.js` feuerten erst nach der nächsten
+Größenänderung, und gemessen wurde eine Breite, die zu einer anderen
+Höhe gehörte. Mit `bringToFront()` vor der Messung: 361 → 361 px.
+
+**Dabei doch etwas Echtes gefunden.** Die Bremse verglich gegen die
+zuletzt **gesehene** Höhe statt gegen die, mit der zuletzt gerechnet
+wurde. Kleine Änderungen summierten sich damit unbemerkt. Jetzt wird
+gegen den Rechenstand verglichen, und die Entscheidung fällt erst in
+der Nachlaufzeit, wenn die neue Höhe wirklich feststeht.

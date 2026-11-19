@@ -298,23 +298,11 @@ nicht angefasst. Erst auf Ansage:
 - **`carport-oder-garage.njk`: „Carport ist 3-5× günstiger"** ist eine
   Zahl ohne Beleg auf einer Seite, die sonst keine Preise nennt.
 
-## Sprachumschaltung: fertig bauen oder ausbauen (14.11.2026)
-
-`js/i18n.js` wird von `broschuere.html` geladen, aber **es gibt auf
-keiner echten Seite einen Umschalter**. Von 189 Einträgen passen 43
-noch zum Seitentext, von den 39 Einträgen mit Gedankenstrich lebt
-genau einer. Der Rest gehört zur alten Startseite.
-
-Zwei Wege, einen muss der Betreiber wählen:
-- **Fertig bauen:** Umschalter einbauen, Tabelle an die heutigen Texte
-  anpassen, und bei jeder Textänderung mitpflegen. Das ist dauerhafte
-  Arbeit, keine einmalige.
-- **Ausbauen:** `js/i18n.js` und die wirkungslosen
-  `data-i18n`-Attribute entfernen. Spart einen Dateiabruf auf der
-  Broschürenseite.
-
-Bis zur Entscheidung werden dort **keine** Gedankenstriche ersetzt.
-Begründung im Logbuch.
+## ERLEDIGT: Sprachumschaltung ausgebaut (14.11.2026)
+Der Betreiber hat sich für den Ausbau entschieden, umgesetzt in Commit
+625522e. `js/i18n.js` ist gelöscht, die Einbindungen und 32
+data-i18n-Attribute sind entfernt. `pruefe-broschuere.mjs` prüft seit
+dem 19.11.2026, dass nichts davon zurückkommt.
 
 ## Toter Formularcode (14.11.2026)
 
@@ -360,41 +348,18 @@ arbeitet: Sie wird von allen 58 Seiten geladen, und für ein paar Byte
 fasst man sie nicht an.
 
 ### Später prüfen (Nebenbefunde 15./16.11.2026)
-1. Die beiden runden Schaltflächen des Bedienhilfen-Fensters am rechten
-   Rand liegen auf dem Telefon (390 px) über dem WhatsApp-Knopf im
-   Heldenbereich. Gesehen auf dem Bildschirmfoto bei 390 × 750. Noch
-   nicht gemessen, ob die antippbare Fläche dadurch unter 24 × 24 px
-   fällt; die Prüfskripte messen Überdeckung bisher nicht.
+1. ERLEDIGT am 19.11.2026. Gemessen, bestätigt (42 × 31 px auf
+   „Katalog ansehen" bei 390 px) und behoben; `pruefe-mitwachsend.mjs`
+   misst Überdeckungen seitdem mit. Siehe `docs/entscheidungen.md`.
 2. Das erste Bild der Startseite erscheint erst nach rund 750 ms
    (gemessen auf der Vorschau, 390 × 750). Bis dahin ist die Seite leer,
    weil die Stylesheets das Zeichnen blockieren. Betrifft jede
    Eingangsanimation: Sie kann frühestens danach anfangen.
 
-### Altlast, nicht von heute: pruefe-broschuere.mjs beanstandet drei Punkte
-Festgestellt am 17.11.2026. Dieselben drei Beanstandungen stehen auch auf
-dem Stand vor der Markenbibliothek-Änderung (geprüft in einem
-Arbeitsbaum auf Commit `bde6857`: ebenfalls 41 bestanden, 3 nicht
-bestanden). Sie gehören also nicht zu dieser Arbeit.
-
-1. **„Die Übersetzungen sind eingetragen"** und **„Die Übersetzungsdatei
-   läuft ohne Fehler".** Die Prüfung erwartet `js/i18n.js`. Die Datei
-   gibt es nicht mehr; auf der Vorschau antwortet sie mit 404. Gelöscht
-   wurde sie in `625522e` („Drei Entscheidungen umgesetzt: Statik,
-   Bewertungen, Sprachen"). Die Prüfung wurde damals nicht mitgezogen.
-   **Zu entscheiden:** Soll die Mehrsprachigkeit zurückkommen, oder
-   fallen die beiden Prüfpunkte weg? Eine Prüfung, die auf eine
-   absichtlich entfernte Funktion zeigt, verdeckt echte Fehler.
-2. **„Das Buch zappelt nicht, wenn die Adresszeile einklappt" (366 → 318 px).**
-   Das Buch im Katalog rechnet in `vh` statt in `svh` oder `dvh`. Klappt
-   in Safari die Adresszeile ein, springt es um 48 px. Reine
-   Layoutsache, betrifft nur `/broschuere.html`.
-
-### Später prüfen: der Konfigurator ist träge (gemessen 17.11.2026)
-Der Breite-Regler braucht auf der **unveränderten** Werkstattseite rund
-1,7 bis 2,2 Sekunden je Schritt, bis das neue Maß steht. Das ist nicht
-Folge der freien Planung, sondern vorher schon so. Gemessen im Browser
-über vier Schritte. Betrifft `bauen()` in `js/konfigurator-3d.js`, das
-bei jeder Reglerbewegung die ganze Szene neu aufbaut.
+### ERLEDIGT am 19.11.2026: pruefe-broschuere.mjs ist grün
+Zwei der drei Befunde waren Reste der ausgebauten Sprachumschaltung,
+der dritte ein Fehler der Prüfung selbst (Seite im Hintergrund,
+gebremste Zeitgeber). Jetzt 44 von 44. Siehe `docs/entscheidungen.md`.
 
 ## Beim Anwalt: Höhenermittlung in der Datenschutzerklärung
 

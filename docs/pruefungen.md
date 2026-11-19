@@ -547,3 +547,15 @@ Probe, dass die Kamera danach wieder steht wie vorher.
 `pruefe-konfigurator-frei.sh` jetzt 15: dazugekommen sind zwei
 Messungen, dass die Bildkorrektur auch in der oeffentlichen Fassung
 steckt und dass beide Rumpfe Zeile fuer Zeile gleich sind.
+
+### 19.11.2026: Überdeckung von Bedienelementen
+
+`pruefe-mitwachsend.mjs` misst als viertes, ob ein schwebendes
+Bedienelement ein anderes zudeckt. Schwelle 24 × 24 px (WCAG 2.2,
+2.5.8); kleinere Überdeckungen erscheinen als Hinweis und machen die
+Prüfung nicht rot. Die Gegenprobe setzt einen schwebenden Knopf über
+einen vorhandenen.
+
+`pruefe-broschuere.mjs` prüft statt der ausgebauten Sprachumschaltung
+jetzt, dass von ihr nichts zurückkommt; die Gegenprobe stellt sie
+absichtlich wieder her.
