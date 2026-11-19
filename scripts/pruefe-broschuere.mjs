@@ -142,10 +142,20 @@ const FEHLER = [
     ersetzen: '<a href="/woanders.html" class="btn btn-outline-white hero-katalog-btn">' },
   { name: 'Die Broschuere fehlt in der sitemap', muster: '**/sitemap.xml',
     suchen: 'broschuere.html', ersetzen: 'broschuere-weg.html' },
-  { name: 'Eine Uebersetzung fehlt', muster: '**/js/i18n.js*',
-    suchen: "['Seitenübersicht','Page overview','Обзор страниц'],", ersetzen: '' },
-  { name: 'Die Uebersetzungsdatei hat einen Syntaxfehler', muster: '**/js/i18n.js*',
-    suchen: 'Das war’s', ersetzen: "Das war's" }
+  /* Die beiden Fehler zur Uebersetzungsdatei sind am 19.11.2026
+     entfallen. Die Sprachumschaltung wurde am 14.11.2026 ausgebaut
+     (Commit 625522e, Entscheidung des Betreibers): js/i18n.js geloescht,
+     Einbindungen und data-i18n-Attribute entfernt. Ein eingebauter
+     Fehler in einer Datei, die es nicht gibt, kann nichts beweisen.
+
+     An ihre Stelle treten zwei Fehler, die das GEGENTEIL herstellen:
+     Die Sprachumschaltung kommt teilweise zurueck. Genau das sollen
+     die beiden neuen Messungen bemerken. */
+  { name: 'Die ausgebaute Uebersetzungsdatei ist wieder da', muster: '**/broschuere.html',
+    suchen: '</head>',
+    ersetzen: '<script>window.setLanguage = function () {};</script></head>' },
+  { name: 'Ein data-i18n-Attribut ist zurueckgeblieben', muster: '**/broschuere.html',
+    suchen: '<body', ersetzen: '<body data-i18n="rest"' }
 ];
 
 /* Die Gegenprobe bricht beim ERSTEN blinden Fehler ab. Bei 40 Fehlern
@@ -618,17 +628,35 @@ async function lauf(fehler) {
   p('Die Broschüre steht in der sitemap',
     /<loc>https:\/\/bv-aussensysteme\.de\/broschuere\.html<\/loc>/.test(karte));
 
-  const uebersetzung = await text('/js/i18n.js');
-  const braucht = ['Katalog ansehen', 'Seitenübersicht', 'Vollbild', 'Seite vergrößern',
-    'Unser Produktkatalog', 'PDF herunterladen', 'Diesen Katalog teilen'];
-  const fehltUeb = braucht.filter((b) => !uebersetzung.includes("['" + b + "'") &&
-    !uebersetzung.includes("['" + b + "',"));
-  p('Die Übersetzungen sind eingetragen', fehltUeb.length === 0,
-    fehltUeb.length ? 'fehlt: ' + fehltUeb.join(', ') : braucht.length + ' Einträge');
+  /* ---- Sprachumschaltung: am 14.11.2026 ausgebaut ----
+     Bis zum 19.11.2026 standen hier zwei Messungen, die js/i18n.js
+     abriefen und window.setLanguage erwarteten. Die Datei wurde am
+     14.11.2026 geloescht (Commit 625522e), die Einbindungen und 32
+     data-i18n-Attribute ebenso. Beide Messungen konnten seitdem nur
+     noch rot sein und verdeckten als Dauerbefund die Sicht auf echte
+     Fehler.
 
-  const laeuft = await seite.evaluate(() => typeof window.setLanguage === 'function');
-  p('Die Übersetzungsdatei läuft ohne Fehler', laeuft === true,
-    laeuft ? 'setLanguage da' : 'Skript bricht ab');
+     Statt sie zu loeschen, pruefen sie jetzt das GEGENTEIL: dass von
+     der ausgebauten Umschaltung wirklich nichts mehr da ist. Waere sie
+     teilweise zurueckgekommen, faellt das hier auf. */
+  const i18nAntwort = await seite.evaluate(async () => {
+    const r = { datei: 0, funktion: typeof window.setLanguage === 'function' };
+    try { r.datei = (await fetch('/js/i18n.js', { cache: 'no-store' })).status; }
+    catch (e) { r.datei = 0; }
+    return r;
+  });
+  p('Die ausgebaute Übersetzungsdatei ist wirklich weg',
+    (i18nAntwort.datei === 404 || i18nAntwort.datei === 0) && !i18nAntwort.funktion,
+    'HTTP ' + i18nAntwort.datei + ', setLanguage ' + i18nAntwort.funktion);
+
+  const i18nReste = await seite.evaluate(() => ({
+    funktion: typeof window.setLanguage === 'function',
+    attribute: document.querySelectorAll('[data-i18n]').length,
+    einbindung: !!document.querySelector('script[src*="i18n"]')
+  }));
+  p('Keine Reste der Sprachumschaltung auf der Seite',
+    !i18nReste.funktion && i18nReste.attribute === 0 && !i18nReste.einbindung,
+    JSON.stringify(i18nReste));
 
   await ctx.close();
 
@@ -721,6 +749,15 @@ async function lauf(fehler) {
      Stilblatt-Haltepunkt eine andere Breite aus als die Bibliothek
      und das Buch stand links und rechts ueber seinem Rahmen
      (gemessen 844 x 390: Rahmen 226 px, Buch 330 px). */
+  /* ZURUECK IN DEN VORDERGRUND. Seit mstart offen ist, liegt mseite im
+     Hintergrund, und Chromium bremst dort die Zeitgeber: Die 150 ms
+     Nachlaufzeit in js/broschuere.js feuerten erst nach der naechsten
+     Groessenaenderung, und die Messung unten las eine Breite, die zu
+     einer anderen Hoehe gehoerte. Gemessen am 19.11.2026: 366 px bei
+     700 px Hoehe, obwohl bei 700 px 361 px herauskommen. Das war ein
+     Fehler DIESER Pruefung, kein Zappeln der Seite. */
+  await mseite.bringToFront();
+  await mseite.waitForTimeout(300);
   await mseite.setViewportSize({ width: 844, height: 390 });
   await mseite.waitForTimeout(900);
   const quer = await mseite.evaluate(() => {

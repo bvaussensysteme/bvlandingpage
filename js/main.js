@@ -374,6 +374,180 @@ document.addEventListener('click', function (e) {
 })();
 
 /* ============================================================
+   SCHWEBENDE KNOEPFE DECKEN KEINE ANDEREN KNOEPFE ZU (19.11.2026)
+
+   GEMESSEN mit scripts/pruefe-mitwachsend.mjs: Bei 390 x 750 deckte
+   der Bedienhilfen-Knopf 42 x 31 px von "Katalog ansehen" ab und die
+   Konfigurator-Blase 42 x 36 px von "WhatsApp"; auf
+   /produkte/carport.html bei 320 px 42 x 30 px eines Verweises. Ein
+   Tipp auf diese Stelle oeffnete also das Bedienfeld statt der Seite,
+   auf die der Verweis zeigt.
+
+   Die Bremse im Block darueber hilft nicht: Sie greift erst ab 240 px
+   Scrollweg und bringt die Knoepfe nach einer Ruhepause zurueck -
+   also genau dorthin, wo sie wieder zudecken.
+
+   WANN GILT ETWAS ALS ZUGEDECKT: wenn unter dem Knopf auf einer
+   Flaeche von 24 x 24 px durchgehend derselbe andere Knopf liegt.
+   24 x 24 px ist die Mindestgroesse einer antippbaren Flaeche nach
+   WCAG 2.2, 2.5.8. Weniger kann keine ganze Trefferflaeche
+   schlucken; mehr schon. Dieselbe Schwelle benutzt die Pruefung.
+
+   GEMESSEN WIRD MIT elementsFromPoint, nicht mit Rechtecken: Das
+   beantwortet genau die Frage, auf die es ankommt ("was liegt hier
+   unter meinem Finger"), kostet vier Abfragen je Knopf statt eines
+   Durchlaufs durch hunderte Elemente, und es stimmt auch dann, wenn
+   etwas anderes dazwischenliegt.
+
+   WARUM DIE LAGE GERECHNET UND NICHT GEMESSEN WIRD: Sobald die Klasse
+   gesetzt ist, sind die Knoepfe unsichtbar. Eine zweite Messung an
+   ihrem Element faende dann nichts mehr, die Klasse fiele weg, die
+   Knoepfe kaemen zurueck, und das Ganze von vorn. Ihre Abstaende zur
+   rechten unteren Ecke aendern sich aber nie, also wird daraus
+   gerechnet. Gemessen am 19.11.2026: ohne das ging die Klasse an und
+   sofort wieder aus.
+   ============================================================ */
+(function () {
+  'use strict';
+  var ziele = ['#bv-a11y-trigger', '#bv-scroll-top', '#bvKonfigBubble'];
+  var BEDIEN = 'a[href], button, [role="button"]';
+  var basis = null;     /* [{rechts, unten, w, h}] */
+  var an = false;
+
+  function basisMessen() {
+    if (document.body.classList.contains('bv-schwebe-hero')) return;
+    var neu = [];
+    ziele.forEach(function (w) {
+      var e = document.querySelector(w);
+      if (!e) return;
+      var cs = window.getComputedStyle(e);
+      if (cs.display === 'none' || cs.visibility === 'hidden') return;
+      var r = e.getBoundingClientRect();
+      if (r.width < 4 || r.height < 4) return;
+      neu.push({ rechts: window.innerWidth - r.right, unten: window.innerHeight - r.bottom,
+                 w: r.width, h: r.height });
+    });
+    /* Nur uebernehmen, wenn mehr gefunden wurde als bisher: Der
+       Nach-oben-Knopf entsteht erst beim Scrollen. */
+    if (!basis || neu.length > basis.length) basis = neu;
+  }
+
+  function lagenJetzt() {
+    if (!basis) return [];
+    var bw = window.innerWidth, bh = window.innerHeight;
+    return basis.map(function (b) {
+      return { left: bw - b.rechts - b.w, right: bw - b.rechts,
+               top: bh - b.unten - b.h, bottom: bh - b.unten };
+    });
+  }
+
+  /* Welcher fremde Knopf liegt an diesem Punkt? Eigene schwebende
+     Knoepfe und die Kopfzeile zaehlen nicht. */
+  function knopfAn(x, y) {
+    if (!document.elementsFromPoint) return null;
+    var liste = document.elementsFromPoint(x, y) || [];
+    for (var i = 0; i < liste.length; i++) {
+      var e = liste[i];
+      if (!e || !e.closest) continue;
+      var k = e.closest(BEDIEN);
+      if (!k) continue;
+      if (window.getComputedStyle(k).position === 'fixed') continue;
+      /* Eine FESTE Kopfzeile, unter der Inhalt durchlaeuft, ist
+         Absicht. Eine Liste von Sprungmarken mitten auf der Seite
+         steht aber auch in einem <nav> und ist ganz normaler Inhalt.
+         Ausgenommen wird deshalb nur, was wirklich festklebt.
+         Gemessen am 19.11.2026: Ohne diese Unterscheidung blieb eine
+         Ueberdeckung von 42 x 30 px auf /produkte/carport.html
+         unbemerkt, weil der Verweis in einem <nav> stand. */
+      var leiste = k.closest('header, nav, [role="banner"], .navbar, .mobile-menu');
+      if (leiste) {
+        var lp = window.getComputedStyle(leiste).position;
+        if (lp === 'fixed' || lp === 'sticky') continue;
+      }
+      return k;
+    }
+    return null;
+  }
+
+  function pruefen() {
+    var lagen = lagenJetzt();
+    var treffer = false;
+    for (var j = 0; j < lagen.length && !treffer; j++) {
+      var f = lagen[j];
+      var cx = (f.left + f.right) / 2, cy = (f.top + f.bottom) / 2;
+      if (cx < 0 || cy < 0 || cx > window.innerWidth || cy > window.innerHeight) continue;
+      /* ERST SUCHEN, DANN RECHNEN. Neun Tastpunkte ueber den Knopf
+         verteilt sagen, WELCHE fremden Knoepfe ueberhaupt darunter
+         liegen; die Ueberdeckung selbst wird danach aus den
+         Rechtecken gerechnet und ist damit exakt.
+
+         Der Umweg ueber feste Quadrate ging schief: Eine Ueberdeckung
+         von 42 x 30 px in der Mitte eines 44 px hohen Knopfes passt
+         in kein Quadrat, das an einer Ecke klebt. Gemessen am
+         19.11.2026 auf /produkte/carport.html bei 320 px. */
+      var kandidaten = [];
+      for (var sx = 0; sx < 3; sx++) {
+        for (var sy = 0; sy < 3; sy++) {
+          var px = f.left + 2 + sx * ((f.right - f.left - 4) / 2);
+          var py = f.top + 2 + sy * ((f.bottom - f.top - 4) / 2);
+          var kand = knopfAn(px, py);
+          if (kand && kandidaten.indexOf(kand) < 0) kandidaten.push(kand);
+        }
+      }
+      for (var ki = 0; ki < kandidaten.length && !treffer; ki++) {
+        var kr = kandidaten[ki].getBoundingClientRect();
+        var ux = Math.min(f.right, kr.right) - Math.max(f.left, kr.left);
+        var uy = Math.min(f.bottom, kr.bottom) - Math.max(f.top, kr.top);
+        if (ux >= 24 && uy >= 24) treffer = true;
+      }
+    }
+    if (treffer === an) return;
+    an = treffer;
+    document.body.classList.toggle('bv-schwebe-hero', treffer);
+  }
+
+  var lauft = false;
+  function anstossen() {
+    if (lauft) return;
+    lauft = true;
+    requestAnimationFrame(function () { lauft = false; pruefen(); });
+  }
+
+  /* Die schwebenden Knoepfe kommen aus eigenen Skripten und stehen
+     beim ersten Durchlauf noch nicht unbedingt da. */
+  function start() { basisMessen(); pruefen(); }
+  start();
+  /* KURZ GETAKTET IN DEN ERSTEN SEKUNDEN. Die schwebenden Knoepfe
+     entstehen aus eigenen Skripten; bis dahin gibt es nichts zu
+     messen. Mit nur drei Versuchen (0, 400, 1200 ms) lag auf
+     /produkte/carport.html bei 320 px noch nach 650 ms eine
+     Ueberdeckung von 42 x 30 px offen. Alle 200 ms nachsehen kostet
+     fast nichts und endet, sobald alles dasteht. */
+  var versuche = 0;
+  var takt = setInterval(function () {
+    versuche++;
+    start();
+    if ((basis && basis.length >= 2) || versuche > 25) clearInterval(takt);
+  }, 200);
+
+  window.addEventListener('scroll', anstossen, { passive: true });
+  window.addEventListener('resize', function () { anstossen(); }, { passive: true });
+  window.addEventListener('load', start);
+  /* UND BEI JEDER UMBRUCHAENDERUNG. Bilder, Schriften und nachgeladene
+     Abschnitte verschieben den Inhalt noch Sekunden nach dem ersten
+     Zeichnen. Auf /produkte/carport.html bei 320 px rutschte ein
+     Verweis erst dadurch unter den Knopf, und ohne diesen Beobachter
+     blieb die Ueberdeckung stehen, bis jemand scrollte. Das Ein- und
+     Ausblenden der Knoepfe aendert die Hoehe des Dokuments nicht, es
+     kann sich also nicht selbst aufschaukeln. */
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(function () { anstossen(); }).observe(document.documentElement);
+    } catch (e) {}
+  }
+})();
+
+/* ============================================================
    Zahlen zaehlen hoch, wenn sie ins Bild kommen
    ------------------------------------------------------------
    Nur die Ziffern laufen, der Rest des Textes bleibt stehen:

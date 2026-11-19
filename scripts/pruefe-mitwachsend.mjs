@@ -30,6 +30,9 @@ await new Promise(r => setTimeout(r, 1200));
 const browser = await chromium.launch();
 const seite = await browser.newPage();
 const befunde = [];
+/* Hinweise sind KEINE Beanstandung: Sie stehen im Bericht, damit sie
+   nicht verschwiegen werden, lassen die Pruefung aber gruen. */
+const hinweise = [];
 
 for (const pfad of SEITEN) {
   for (const breite of BREITEN) {
@@ -58,6 +61,21 @@ for (const pfad of SEITEN) {
         b.style.cssText = 'width:12px;height:12px;padding:0';
         b.id = 'gegenprobe-klein';
         document.body.appendChild(b);
+        /* Ein schwebender Knopf genau ueber einem vorhandenen. */
+        const ziel = [...document.querySelectorAll('a[href], button')]
+          .find(x => { const r = x.getBoundingClientRect();
+            return r.width > 60 && r.height > 20 && r.top > 0 && r.top < window.innerHeight - 40; });
+        if (ziel) {
+          const r = ziel.getBoundingClientRect();
+          const f = document.createElement('button');
+          f.textContent = 'ueber';
+          f.id = 'gegenprobe-deckung';
+          /* Mindestens 24 x 24 px Ueberdeckung, sonst bliebe sie
+             unter der Schwelle und die Gegenprobe waere blind. */
+          f.style.cssText = 'position:fixed;z-index:99999;width:44px;height:44px;left:' +
+            Math.round(r.left + 2) + 'px;top:' + Math.round(Math.max(0, r.top - 6)) + 'px';
+          document.body.appendChild(f);
+        }
       });
       await seite.waitForTimeout(150);
     }
@@ -118,7 +136,59 @@ for (const pfad of SEITEN) {
           ueberRand.push({ kennung: e.tagName.toLowerCase() + (e.id ? '#' + e.id : ''),
             ueber: Math.round(r.right - window.innerWidth) });
       });
+      /* ---- Bedienelemente uebereinander ----
+         ANLASS (19.11.2026): Die beiden runden Knoepfe am rechten Rand
+         lagen am Telefon auf den Knoepfen des Heldenbereichs. Gemessen
+         bei 390 x 750: 42 x 31 px von "Katalog ansehen" und 42 x 36 px
+         von "WhatsApp". Ein Tipp auf das rechte Ende eines Hero-Knopfes
+         oeffnete das Bedienfeld statt der Seite. Keine der drei
+         Messungen oben findet so etwas: Jedes Element fuer sich ist
+         gross genug und ragt nirgends hinaus.
+
+         Gemessen wird nur SCHWEBENDES ueber Normalem. Eine feste
+         Kopfzeile, unter der Inhalt durchlaeuft, ist Absicht und wird
+         deshalb ausgenommen. */
+      const bedien = 'a[href], button, [role="button"], input[type=checkbox], input[type=radio]';
+      const schwebend = [], normal = [];
+      document.querySelectorAll(bedien).forEach(e => {
+        if (!sichtbar(e)) return;
+        const st = getComputedStyle(e);
+        if (st.pointerEvents === 'none') return;
+        if (st.position === 'fixed') {
+          if (e.closest('header, nav, [role="banner"], .navbar, .mobile-menu')) return;
+          schwebend.push(e);
+        } else normal.push(e);
+      });
+      const deckung = [], knapp = [];
+      schwebend.forEach(f => {
+        const a = f.getBoundingClientRect();
+        normal.forEach(l => {
+          const c = l.getBoundingClientRect();
+          if (c.width < 4 || c.height < 4) return;
+          const ux = Math.min(a.right, c.right) - Math.max(a.left, c.left);
+          const uy = Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top);
+          /* SCHWELLE 24 x 24 px, die Mindestgroesse einer antippbaren
+             Flaeche nach WCAG 2.2, 2.5.8. Eine kleinere Ueberdeckung
+             kann keine ganze Trefferflaeche schlucken; eine groessere
+             schon. Dieselbe Schwelle benutzt js/main.js, damit Messung
+             und Abhilfe dasselbe meinen.
+
+             Was knapp darunter liegt, wird unten als Hinweis genannt
+             und nicht verschwiegen. */
+          if (ux < 24 || uy < 24) {
+            if (ux > 2 && uy > 2) knapp.push(Math.round(ux) + 'x' + Math.round(uy));
+            return;
+          }
+          const kn = (x) => x.tagName.toLowerCase() + (x.id ? '#' + x.id : '') +
+            ' "' + (x.textContent || '').trim().slice(0, 18) + '"';
+          deckung.push({ kennung: kn(f) + ' auf ' + kn(l),
+                         ueber: Math.round(ux) + 'x' + Math.round(uy) });
+        });
+      });
       return {
+        deckungGesamt: deckung.length,
+        deckung: deckung.slice(0, 3),
+        knappGesamt: knapp.length, knapp: knapp.slice(0, 3),
         ueberRandGesamt: ueberRand.length,
         ueberRand: ueberRand.slice(0, 3),
         raus: raus.slice(0, 5), rausGesamt: raus.length,
@@ -135,6 +205,12 @@ for (const pfad of SEITEN) {
     if (ergebnis.kleinGesamt)
       befunde.push(`${pfad} bei ${breite} px: ${ergebnis.kleinGesamt} Flaeche(n) unter 24x24 px, z. B. ` +
         ergebnis.klein.map(k => `${k.kennung} ${k.groesse}`).join(', '));
+    if (ergebnis.deckungGesamt)
+      befunde.push(`${pfad} bei ${breite} px: ${ergebnis.deckungGesamt} schwebende(s) Bedienelement(e) liegen auf anderen, z. B. ` +
+        ergebnis.deckung.map(d => `${d.kennung} um ${d.ueber} px`).join(', '));
+    if (ergebnis.knappGesamt)
+      hinweise.push(`${pfad} bei ${breite} px: ${ergebnis.knappGesamt} Ueberdeckung(en) unter 24x24 px: ` +
+        ergebnis.knapp.join(', '));
   }
 }
 
@@ -159,6 +235,10 @@ if (GEGENPROBE) {
     (breitErkannt ? '' : ', zu breites Element nicht gefunden') +
     (kleinErkannt ? '' : ', zu kleine Flaeche nicht gefunden'));
   process.exit(1);
+}
+if (hinweise.length) {
+  console.log('Hinweise (keine Beanstandung):');
+  hinweise.forEach(h => console.log('  ' + h));
 }
 if (befunde.length) {
   befunde.forEach(b => console.log('  ' + b));

@@ -361,6 +361,16 @@ body.bv-schwebe-weg #bv-scroll-top,
 body.bv-formular-fokus #bv-a11y-trigger,
 body.bv-formular-fokus #bv-scroll-top,
 body.bv-formular-fokus #bvKonfigBubble,
+/* Und solange die Knoepfe des Heldenbereichs darunter liegen. GEMESSEN
+   am 19.11.2026 auf der Startseite: Bei 390 x 750 deckt der
+   Bedienhilfen-Knopf 42 x 31 px von "Katalog ansehen" ab und die
+   Konfigurator-Blase 42 x 36 px von "WhatsApp"; bei 360 und 320 px
+   Breite dasselbe mit anderen Knoepfen. Ein Tipp auf das rechte Ende
+   eines Hero-Knopfes oeffnete also das Bedienfeld statt der Seite.
+   Siehe js/main.js, "KNOEPFE DES HELDENBEREICHS". */
+body.bv-schwebe-hero #bv-a11y-trigger,
+body.bv-schwebe-hero #bv-scroll-top,
+body.bv-schwebe-hero #bvKonfigBubble,
 body.bv-schwebe-weg #bvKonfigBubble {
   transform: translateX(calc(100% + 18px));
   opacity: 0;
@@ -370,10 +380,30 @@ body.bv-schwebe-weg #bvKonfigBubble {
   transition: transform var(--zeit-mittel) var(--kurve-raus),
               opacity var(--zeit-schnell) var(--kurve-weich);
 }
+/* AUSNAHME FUER DEN HELDENBEREICH: hier wird NICHT zur Seite geschoben,
+   sondern nur ausgeblendet. Das Herausschieben stellt den Knopf 39 px
+   rechts neben den Fensterrand; solange das beim Scrollen passiert,
+   faellt es nicht auf, aber am oberen Seitenrand steht es dauerhaft so
+   da. scripts/pruefe-mitwachsend.mjs hat genau das gemeldet: drei
+   Elemente ragen bei 320 und 360 px ueber den rechten Rand. */
+body.bv-schwebe-hero #bv-a11y-trigger,
+body.bv-schwebe-hero #bv-scroll-top,
+body.bv-schwebe-hero #bvKonfigBubble {
+  transform: none;
+  visibility: hidden;
+}
+body.bv-schwebe-hero #bv-a11y-trigger:focus-visible,
+body.bv-schwebe-hero #bv-scroll-top:focus-visible,
+body.bv-schwebe-hero #bvKonfigBubble:focus-visible {
+  visibility: visible;
+}
 /* Wer mit der Tastatur dorthin kommt, holt sie zurueck. */
 body.bv-schwebe-weg #bv-a11y-trigger:focus-visible,
 body.bv-schwebe-weg #bv-scroll-top:focus-visible,
-body.bv-schwebe-weg #bvKonfigBubble:focus-visible {
+body.bv-schwebe-weg #bvKonfigBubble:focus-visible,
+body.bv-schwebe-hero #bv-a11y-trigger:focus-visible,
+body.bv-schwebe-hero #bv-scroll-top:focus-visible,
+body.bv-schwebe-hero #bvKonfigBubble:focus-visible {
   transform: none; opacity: 1; pointer-events: auto;
 }
 /* ── SANFTES EINBLENDEN BEIM SCROLLEN ──────────────────────────────────
@@ -441,7 +471,13 @@ body.bv-schwebe-weg #bvKonfigBubble:focus-visible {
      ist er wieder da. */
   body.bv-formular-fokus #bv-a11y-trigger,
   body.bv-formular-fokus #bv-scroll-top,
-  body.bv-formular-fokus #bvKonfigBubble { transform: none; opacity: 0; pointer-events: none; visibility: hidden; }
+  body.bv-formular-fokus #bvKonfigBubble,
+  /* Dasselbe fuer die Hero-Knoepfe: Zwei Bedienelemente uebereinander
+     sind kein Komfortproblem, das man mit "Bewegung reduzieren"
+     abwaehlt. Also auch hier weg, nur ohne Bewegung. */
+  body.bv-schwebe-hero #bv-a11y-trigger,
+  body.bv-schwebe-hero #bv-scroll-top,
+  body.bv-schwebe-hero #bvKonfigBubble { transform: none; opacity: 0; pointer-events: none; visibility: hidden; }
 }
 
 body.bv-menu-open #bv-a11y-trigger,

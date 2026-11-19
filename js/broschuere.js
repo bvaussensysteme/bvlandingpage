@@ -127,6 +127,7 @@
      bleibt gleich. Gemessen wird sie mit einem unsichtbaren Streifen,
      weil es dafuer keine Javascript-Angabe gibt. */
   var hoehenMesser = null;
+  var hoeheGerechnet = 0;   /* siehe rahmenBreite() und die Bremse unten */
   function sichtbareHoehe() {
     if (!hoehenMesser) {
       hoehenMesser = document.createElement('div');
@@ -161,6 +162,17 @@
        schiebt die Bedienleiste aus dem Bild. */
     breite = Math.min(1500, breite, platz);
     rahmen.style.maxWidth = Math.round(breite) + 'px';
+    /* Mit welcher Hoehe wurde zuletzt gerechnet? Die Bremse beim
+       resize-Ereignis vergleicht dagegen, nicht gegen die zuletzt
+       GESEHENE Hoehe. Siehe dort.
+
+       Gemerkt wird die sichtbare Hoehe, mit der gerade gerechnet
+       wurde. Die Bremse liest ihren Wert erst in der Nachlaufzeit,
+       nicht im Augenblick des Ereignisses: Dort stimmt die Hoehe bei
+       Handy-Nachbildung noch nicht, weder als 100svh noch als
+       window.innerHeight (gemessen am 19.11.2026: beim Wechsel auf
+       700 px meldeten beide noch 844). */
+    hoeheGerechnet = hoehe;
   }
   rahmenBreite();
 
@@ -617,19 +629,38 @@
   /* Groessenaenderung: Buch neu rechnen lassen */
   var warte = null;
   var letzteBreite = window.innerWidth;
-  var letzteHoehe = window.innerHeight;
   window.addEventListener('resize', function () {
     /* Auf dem Telefon meldet der Browser eine Groessenaenderung, sobald
        die Adresszeile ein- oder ausklappt. Die Breite bleibt dabei
        gleich. Wuerde das Buch dann neu gerechnet, zappelte es beim
-       Scrollen. Darum: nur bei echter Aenderung. */
-    var breiteGleich = (window.innerWidth === letzteBreite);
-    var kleineHoehe = Math.abs(window.innerHeight - letzteHoehe) < 120;
-    letzteBreite = window.innerWidth;
-    letzteHoehe = window.innerHeight;
-    if (breiteGleich && kleineHoehe) return;
+       Scrollen. Darum: nur bei echter Aenderung.
+
+       VERGLICHEN WIRD GEGEN DIE HOEHE, MIT DER ZULETZT GERECHNET WURDE,
+       nicht gegen die zuletzt gesehene. Vorher merkte sich die Bremse
+       jede gemeldete Hoehe, auch die, bei der sie gerade nichts tat.
+       Zwei Folgen, beide am 19.11.2026 gemessen:
+
+       1. Kleine Aenderungen summierten sich unbemerkt: dreimal 60 px
+          abwaerts galten als dreimal "zu klein", und das Buch blieb auf
+          einer Groesse stehen, die 180 px nicht mehr passte.
+       2. Umgekehrt rechnete es dann doch, wenn es nicht sollte: Nach
+          einem uebersprungenen Schritt lag der Bezugspunkt zu weit weg,
+          und der naechste kleine Schritt riss die 120 px. Genau das
+          meldete pruefe-broschuere.mjs seit dem 17.11.2026 als "Das Buch
+          zappelt": 366 px auf 318 px bei 60 px Hoehenunterschied.
+
+       Gegen den Rechenstand gemessen stimmt beides: Was seit der letzten
+       Rechnung zusammen unter 120 px bleibt, laesst das Buch in Ruhe. */
     clearTimeout(warte);
     warte = setTimeout(function () {
+      /* ERST HIER WIRD GEMESSEN UND ENTSCHIEDEN, nicht im Augenblick
+         des Ereignisses. Dort steht die neue Hoehe noch nicht fest. */
+      var breiteJetzt = window.innerWidth;
+      var hoeheJetzt = sichtbareHoehe();
+      var breiteGleich = (breiteJetzt === letzteBreite);
+      var kleineHoehe = Math.abs(hoeheJetzt - hoeheGerechnet) < 120;
+      letzteBreite = breiteJetzt;
+      if (breiteGleich && kleineHoehe) return;
       rahmenBreite();
       try { buch.update(); } catch (e) {}
       aktualisieren();
