@@ -1851,6 +1851,88 @@ footer h4 {
    Regeln stehen in der Versionsgeschichte, falls sie je zurueck
    sollen. */
 
+/* ============================================
+   AUSFUEHRUNGSBEISPIELE: Streifen und Grossansicht
+   Siehe src/_includes/galerie.njk und js/galerie.js.
+
+   Der Streifen scrollt waagerecht IN SICH, nicht die Seite. Dafuer
+   braucht er overflow-x:auto an einem eigenen Kasten; sonst meldet
+   scripts/pruefe-mitwachsend.mjs zu Recht Elemente ueber dem rechten
+   Rand. scroll-snap laesst ihn am Handy sauber einrasten.
+   ============================================ */
+.galerie-streifen-sektion { padding-top: 0; }
+.galerie-streifen-hinweis {
+  color: var(--muted); font-size: 0.86rem; line-height: 1.6;
+  margin: 6px 0 18px; max-width: 70ch;
+}
+.galerie-streifen {
+  list-style: none; margin: 0; padding: 0 0 10px;
+  display: flex; gap: 14px;
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.galerie-streifen > li { flex: 0 0 auto; scroll-snap-align: start; }
+.galerie-kachel {
+  display: block; padding: 0; border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; background: var(--white);
+  cursor: pointer; line-height: 0;
+  width: min(78vw, 360px);
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.galerie-kachel img { width: 100%; height: auto; display: block; }
+@media (hover: hover) and (pointer: fine) {
+  .galerie-kachel:hover { border-color: var(--gold); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+}
+.galerie-kachel:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* Grossansicht. Sie liegt ueber allem, deshalb bekommt der Koerper
+   waehrenddessen overflow:hidden - sonst scrollt die Seite dahinter
+   weiter, waehrend man wischt. */
+body.galerie-offen { overflow: hidden; }
+.galerie-gross {
+  position: fixed; inset: 0; z-index: 2147483646;
+  background: rgba(10,10,10,.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.galerie-gross[hidden] { display: none; }
+.gg-huelle {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; max-width: 1200px;
+}
+.gg-figur { margin: 0; flex: 1 1 auto; min-width: 0; }
+.gg-bild {
+  width: 100%; height: auto; max-height: 78vh; object-fit: contain;
+  border-radius: 10px; background: #111; display: block;
+}
+.gg-text {
+  color: rgba(255,255,255,.88); font-size: .86rem; line-height: 1.5;
+  text-align: center; margin-top: 10px;
+}
+/* Mindestens 44 x 44 px, WCAG 2.2, 2.5.8. */
+.gg-knopf {
+  flex: 0 0 auto; width: 44px; height: 44px; min-width: 44px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; border: 1px solid rgba(255,255,255,.35);
+  background: rgba(0,0,0,.45); color: #fff; cursor: pointer;
+}
+.gg-knopf svg { width: 22px; height: 22px; }
+.gg-knopf:hover { background: rgba(0,0,0,.75); border-color: var(--gold); }
+.gg-knopf:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.gg-knopf[hidden] { display: none; }
+.gg-zu { position: absolute; top: 14px; right: 14px; }
+@media (max-width: 640px) {
+  .gg-huelle { flex-wrap: wrap; justify-content: center; }
+  .gg-figur { flex: 1 0 100%; order: 1; }
+  .gg-zurueck, .gg-vor { order: 2; }
+  .galerie-kachel { width: min(82vw, 320px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .galerie-gross:not([hidden]) { animation: galerieAuf .18s ease-out; }
+  @keyframes galerieAuf { from { opacity: 0; } to { opacity: 1; } }
+}
+
 /* ── Leistung Placeholder (statt Produktbild) ───────────── */
 .leistung-placeholder {
   height: 200px;

@@ -29,6 +29,9 @@ extraStyles: |
   .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; color: var(--black); }
   .produkt-card-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
 
+extraScripts: |
+  <script src="/js/galerie.js?v=20261119a" defer></script>
+
 schema: |
   <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
@@ -190,6 +193,11 @@ schema: |
     </div>
   </div>
 </section>
+
+{# Ausfuehrungsbeispiele, siehe src/_includes/galerie.njk #}
+{% set galerieSchluessel = "eingang" %}
+{% include "galerie.njk" %}
+
 <section class="section" style="background:var(--light-bg);">
   <div class="container" style="text-align:center;">
     <h2>Kostenlos beraten lassen</h2>

@@ -1,0 +1,51 @@
+{#- ============================================================
+    AUSFUEHRUNGSBEISPIELE: Bilderstreifen mit Grossansicht
+
+    Benutzung in einer Produktseite:
+        {% set galerieSchluessel = "carport" %}
+        {% include "galerie.njk" %}
+
+    Die Bilder kommen aus src/_data/galerien.json, die Dateien aus
+    images/portfolio/<schluessel>/.
+
+    DREI DINGE SIND ABSICHT:
+
+    1. Die Bilder stehen FEST IN DER SEITE, nicht erst nach dem Laden.
+       Ohne JavaScript sieht man den Streifen und kann waagerecht
+       wischen; nur die Grossansicht fehlt dann. Dieselbe Linie wie
+       beim Einzugsgebiet, siehe docs/entscheidungen.md.
+
+    2. Die Ueberschrift heisst "Ausfuehrungsbeispiele" und NICHT
+       "Referenzen" oder "Unsere Projekte". Es sind Darstellungen des
+       Herstellers, keine Fotos ausgefuehrter Anlagen. Alles andere
+       waere ein erfundenes Vertrauenssignal, siehe CLAUDE.md.
+
+    3. Das erste Bild laedt normal, alle weiteren mit loading="lazy".
+       Der Streifen steht weit unten auf der Seite; ohne das laedt
+       jeder Besucher bis zu 15 Bilder, die er nie sieht.
+    ============================================================ -#}
+{%- set g = galerien[galerieSchluessel] -%}
+{%- if g and g.bilder.length > 0 -%}
+<section class="section galerie-streifen-sektion" aria-labelledby="galerieTitel-{{ galerieSchluessel }}">
+  <div class="container">
+    <h2 id="galerieTitel-{{ galerieSchluessel }}">Ausführungsbeispiele</h2>
+    <p class="galerie-streifen-hinweis">
+      {{ g.bezeichnung }}: {{ g.bilder.length }} Ansichten zum Durchblättern.
+      Darstellungen des Herstellers, keine Fotos ausgeführter Anlagen.
+    </p>
+    <ul class="galerie-streifen" id="galerieStreifen-{{ galerieSchluessel }}"
+        data-galerie="{{ galerieSchluessel }}">
+      {%- for b in g.bilder %}
+      <li>
+        <button type="button" class="galerie-kachel" data-nr="{{ loop.index0 }}"
+                aria-label="{{ b.alt }} groß anzeigen">
+          <img src="/images/portfolio/{{ galerieSchluessel }}/{{ b.datei }}"
+               alt="{{ b.alt }}" width="800" height="450"
+               {% if loop.index0 > 0 %}loading="lazy" {% endif %}decoding="async">
+        </button>
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

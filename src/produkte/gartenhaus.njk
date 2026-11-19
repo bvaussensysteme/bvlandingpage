@@ -27,6 +27,9 @@ extraStyles: |
   .produkt-features li:last-child{border-bottom:none;}
   .produkt-features li::before{content:"✓";color:var(--gold);font-weight:700;}
 
+extraScripts: |
+  <script src="/js/galerie.js?v=20261119a" defer></script>
+
 schema: |
   <!-- ===== SCHEMA.ORG – BreadcrumbList ===== -->
   <script type="application/ld+json">
@@ -139,6 +142,11 @@ schema: |
     </div>
   </div>
 </section>
+
+{# Ausfuehrungsbeispiele, siehe src/_includes/galerie.njk #}
+{% set galerieSchluessel = "gartenhaus" %}
+{% include "galerie.njk" %}
+
 <section class="section" style="background:var(--light-bg);">
   <div class="container" style="text-align:center;">
     <h2>Kostenlos beraten lassen</h2>

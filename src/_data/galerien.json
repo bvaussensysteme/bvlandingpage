@@ -1,0 +1,273 @@
+{
+ "terrassenueberdachung": {
+  "bezeichnung": "Terrassenüberdachung aus Aluminium",
+  "bilder": [
+   {
+    "datei": "terrassenueberdachung-01.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "terrassenueberdachung-02.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "terrassenueberdachung-03.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 3"
+   },
+   {
+    "datei": "terrassenueberdachung-04.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 4"
+   },
+   {
+    "datei": "terrassenueberdachung-05.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 5"
+   },
+   {
+    "datei": "terrassenueberdachung-06.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 6"
+   },
+   {
+    "datei": "terrassenueberdachung-07.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 7"
+   },
+   {
+    "datei": "terrassenueberdachung-08.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 8"
+   },
+   {
+    "datei": "terrassenueberdachung-09.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 9"
+   },
+   {
+    "datei": "terrassenueberdachung-10.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 10"
+   },
+   {
+    "datei": "terrassenueberdachung-11.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 11"
+   },
+   {
+    "datei": "terrassenueberdachung-12.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 12"
+   },
+   {
+    "datei": "terrassenueberdachung-13.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 13"
+   },
+   {
+    "datei": "terrassenueberdachung-14.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 14"
+   },
+   {
+    "datei": "terrassenueberdachung-15.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 15"
+   },
+   {
+    "datei": "terrassenueberdachung-16.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 16"
+   },
+   {
+    "datei": "terrassenueberdachung-17.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 17"
+   },
+   {
+    "datei": "terrassenueberdachung-18.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 18"
+   },
+   {
+    "datei": "terrassenueberdachung-19.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 19"
+   },
+   {
+    "datei": "terrassenueberdachung-20.webp",
+    "alt": "Terrassenüberdachung aus Aluminium, Ausführungsbeispiel 20"
+   }
+  ]
+ },
+ "carport": {
+  "bezeichnung": "Carport aus Aluminium",
+  "bilder": [
+   {
+    "datei": "carport-01.webp",
+    "alt": "Carport aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "carport-02.webp",
+    "alt": "Carport aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "carport-03.webp",
+    "alt": "Carport aus Aluminium, Ausführungsbeispiel 3"
+   }
+  ]
+ },
+ "gartenhaus": {
+  "bezeichnung": "Gartenhaus aus Aluminium",
+  "bilder": [
+   {
+    "datei": "gartenhaus-01.webp",
+    "alt": "Gartenhaus aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "gartenhaus-02.webp",
+    "alt": "Gartenhaus aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "gartenhaus-03.webp",
+    "alt": "Gartenhaus aus Aluminium, Ausführungsbeispiel 3"
+   },
+   {
+    "datei": "gartenhaus-04.webp",
+    "alt": "Gartenhaus aus Aluminium, Ausführungsbeispiel 4"
+   }
+  ]
+ },
+ "kaltwintergarten": {
+  "bezeichnung": "Kaltwintergarten aus Aluminium",
+  "bilder": [
+   {
+    "datei": "kaltwintergarten-01.webp",
+    "alt": "Kaltwintergarten aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "kaltwintergarten-02.webp",
+    "alt": "Kaltwintergarten aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "kaltwintergarten-03.webp",
+    "alt": "Kaltwintergarten aus Aluminium, Ausführungsbeispiel 3"
+   }
+  ]
+ },
+ "eingang": {
+  "bezeichnung": "Eingangsüberdachung aus Aluminium",
+  "bilder": [
+   {
+    "datei": "eingang-01.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "eingang-02.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "eingang-03.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 3"
+   },
+   {
+    "datei": "eingang-04.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 4"
+   },
+   {
+    "datei": "eingang-05.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 5"
+   },
+   {
+    "datei": "eingang-06.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 6"
+   },
+   {
+    "datei": "eingang-07.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 7"
+   },
+   {
+    "datei": "eingang-08.webp",
+    "alt": "Eingangsüberdachung aus Aluminium, Ausführungsbeispiel 8"
+   }
+  ]
+ },
+ "pergola": {
+  "bezeichnung": "Lamellendach aus Aluminium",
+  "bilder": [
+   {
+    "datei": "pergola-01.webp",
+    "alt": "Lamellendach aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "pergola-02.webp",
+    "alt": "Lamellendach aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "pergola-03.webp",
+    "alt": "Lamellendach aus Aluminium, Ausführungsbeispiel 3"
+   }
+  ]
+ },
+ "balkon-fassade": {
+  "bezeichnung": "Balkonüberdachung aus Aluminium",
+  "bilder": [
+   {
+    "datei": "balkon-fassade-01.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 1"
+   },
+   {
+    "datei": "balkon-fassade-02.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 2"
+   },
+   {
+    "datei": "balkon-fassade-03.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 3"
+   },
+   {
+    "datei": "balkon-fassade-04.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 4"
+   },
+   {
+    "datei": "balkon-fassade-05.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 5"
+   },
+   {
+    "datei": "balkon-fassade-06.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 6"
+   },
+   {
+    "datei": "balkon-fassade-07.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 7"
+   },
+   {
+    "datei": "balkon-fassade-08.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 8"
+   },
+   {
+    "datei": "balkon-fassade-09.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 9"
+   },
+   {
+    "datei": "balkon-fassade-10.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 10"
+   },
+   {
+    "datei": "balkon-fassade-11.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 11"
+   },
+   {
+    "datei": "balkon-fassade-12.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 12"
+   },
+   {
+    "datei": "balkon-fassade-13.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 13"
+   },
+   {
+    "datei": "balkon-fassade-14.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 14"
+   },
+   {
+    "datei": "balkon-fassade-15.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 15"
+   },
+   {
+    "datei": "balkon-fassade-16.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 16"
+   },
+   {
+    "datei": "balkon-fassade-17.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 17"
+   },
+   {
+    "datei": "balkon-fassade-18.webp",
+    "alt": "Balkonüberdachung aus Aluminium, Ausführungsbeispiel 18"
+   }
+  ]
+ }
+}
