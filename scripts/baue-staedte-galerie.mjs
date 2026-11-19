@@ -13,6 +13,13 @@
    einfach noch einmal laufen lassen.
 
    Aufruf: node scripts/baue-staedte-galerie.mjs
+           node scripts/baue-staedte-galerie.mjs --entfernen
+
+   Die Gegenseite ist scripts/pruefe-staedte-galerie.mjs: Sie laedt
+   dieses Modul, baut die Bloecke aus denselben Daten noch einmal und
+   vergleicht sie mit dem, was wirklich in den 14 Dateien steht. Dafuer
+   sind block(), ANFANG, ENDE und der Dateifilter unten exportiert, und
+   der Schreib-Durchlauf laeuft nur beim direkten Aufruf.
    ============================================================ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,11 +34,13 @@ const DATEN = JSON.parse(fs.readFileSync(path.join(WURZEL, 'src/_data/galerien.j
 const ZUORDNUNG = { carport: 'carport', pergola: 'pergola',
                     terrassenueberdachung: 'terrassenueberdachung' };
 const WIEVIEL = 4;
+const VERSION = '20261119f';   /* Cache-Buster fuer js/galerie.js, hier EINE Quelle */
+const ENTFERNEN = process.argv.includes('--entfernen');
 
-const ANFANG = '  <!-- ANFANG Ausfuehrungsbeispiele (erzeugt von scripts/baue-staedte-galerie.mjs) -->';
-const ENDE = '  <!-- ENDE Ausfuehrungsbeispiele -->';
+export const ANFANG = '  <!-- ANFANG Ausfuehrungsbeispiele (erzeugt von scripts/baue-staedte-galerie.mjs) -->';
+export const ENDE = '  <!-- ENDE Ausfuehrungsbeispiele -->';
 
-function block(schluessel, stadt) {
+export function block(schluessel, stadt) {
   const g = DATEN[schluessel];
   const bilder = g.bilder.slice(0, WIEVIEL);
   const kacheln = bilder.map((b, i) => `        <li><button type="button" class="galerie-kachel" data-nr="${i}" aria-label="${b.alt} groß anzeigen"><img src="/images/portfolio/${schluessel}/${b.datei}" alt="${b.alt}" width="800" height="450"${i > 0 ? ' loading="lazy"' : ''} decoding="async"></button></li>`).join('\n');
@@ -55,9 +64,32 @@ ${kacheln}
 ${ENDE}`;
 }
 
-const dateien = fs.readdirSync(WURZEL)
-  .filter((f) => /^(carport|pergola|terrassenueberdachung)-[a-z-]+\.html$/.test(f));
+export function staedteseiten() {
+  return fs.readdirSync(WURZEL)
+    .filter((f) => /^(carport|pergola|terrassenueberdachung)-[a-z-]+\.html$/.test(f))
+    .sort();
+}
+export function teileAuf(datei) {
+  return { schluessel: ZUORDNUNG[datei.split('-')[0]],
+           stadt: datei.replace(/^[a-z]+-/, '').replace('.html', '') };
+}
+export { WURZEL, VERSION };
+
+/* Nur beim direkten Aufruf schreiben. Beim Import durch die Pruefung
+   darf nichts angefasst werden. */
+const DIREKT = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (!DIREKT) { /* Modulbetrieb: Rest ueberspringen */ }
+
+const dateien = DIREKT ? staedteseiten() : [];
 let geaendert = 0;
+
+/* --entfernen macht die Aenderung rueckgaengig: Block heraus, Skript-Zeile
+   heraus, sonst nichts. ANLASS (19.11.2026): Der cto-Pruefer fand, dass
+   docs/VD-INHALTE-INVENTAR.md eine Rueckrollbarkeit behauptete, die es
+   fuer die 14 Staedteseiten nicht gab. Die Seiten sind von Hand gepflegt
+   und nicht erzeugt, ein "git checkout" wuerde also auch fremde
+   Aenderungen mitnehmen. Deshalb ein Schalter, der nur den eigenen Block
+   trifft. */
 for (const datei of dateien) {
   const schluessel = ZUORDNUNG[datei.split('-')[0]];
   const stadt = datei.replace(/^[a-z]+-/, '').replace('.html', '');
@@ -66,6 +98,19 @@ for (const datei of dateien) {
 
   /* Vorhandenen Block ersetzen statt verdoppeln. */
   const alt = new RegExp(ANFANG.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*?' + ENDE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  if (ENTFERNEN) {
+    if (!alt.test(t)) { console.log(`  ${datei.padEnd(42)} kein Block, nichts zu tun`); continue; }
+    /* Die Leerzeile VOR dem Block gehoert dazu: eingefuegt wird
+       '\n\n' + Block, also muss beides wieder weg, sonst bleibt bei
+       jedem Rueckbau eine Leerzeile stehen. */
+    t = t.replace(new RegExp('\n*' + alt.source), '');
+    t = t.replace(/^.*js\/galerie\.js.*\n/m, '');
+    fs.writeFileSync(pfad, t);
+    geaendert++;
+    console.log(`  ${datei.padEnd(42)} Block und Skript entfernt`);
+    continue;
+  }
+
   if (alt.test(t)) {
     t = t.replace(alt, block(schluessel, stadt));
   } else {
@@ -76,10 +121,14 @@ for (const datei of dateien) {
     t = t.slice(0, stelle) + '\n\n' + block(schluessel, stadt) + t.slice(stelle);
   }
   if (!t.includes('js/galerie.js')) {
-    t = t.replace('</body>', '  <script src="/js/galerie.js?v=20261119e" defer></script>\n</body>');
+    t = t.replace('</body>', `  <script src="/js/galerie.js?v=${VERSION}" defer></script>\n</body>`);
+  } else {
+    /* Version mitziehen. Ohne das blieb der Cache-Buster beim ersten Wert
+       stehen, obwohl js/galerie.js sich geaendert hatte. */
+    t = t.replace(/(js\/galerie\.js\?v=)[0-9a-z]+/, `$1${VERSION}`);
   }
   fs.writeFileSync(pfad, t);
   geaendert++;
   console.log(`  ${datei.padEnd(42)} ${schluessel}, ${WIEVIEL} Bilder`);
 }
-console.log(`\n${geaendert} Staedteseiten mit Bilderstreifen versehen.`);
+if (DIREKT) console.log(`\n${geaendert} Staedteseiten ${ENTFERNEN ? 'zurueckgebaut' : 'mit Bilderstreifen versehen'}.`);

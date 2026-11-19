@@ -112,7 +112,7 @@ var lightboxImages = [
      Reihenfolge der .galerie-item in index.html entsprechen - die
      onclick-Nummern zeigen in genau dieses Feld. Wird oben etwas
      eingefuegt, verschieben sich alle folgenden Nummern.
-     Geprueft von scripts/pruefe-galerie.mjs. */
+     Geprueft von scripts/pruefe-referenz-galerie.mjs. */
   { src: 'images/galerie-4-full.webp', caption: 'Carport Aluminium anthrazit · Referenz BV AussenSysteme' },
   { src: 'images/galerie-5-full.webp', caption: 'Carport · Ansicht von der Seite · Referenz BV AussenSysteme' },
   { src: 'images/vd_ref_1-full.webp', caption: 'Terrassenüberdachung mit Glasdach · Referenz VD AluSysteme' },

@@ -250,8 +250,13 @@ try {
     const sollB = DATEN['balkon-fassade'].bilder.length;
     const lesen = () => ds.evaluate(() => ({
       zaehler: document.querySelector('[data-zaehler]').textContent,
-      zurueckAus: document.querySelector('[data-pfeil="zurueck"]').disabled,
-      vorAus: document.querySelector('[data-pfeil="vor"]').disabled,
+      /* aria-disabled, nicht disabled: ein disabled-Knopf verliert am
+         Anschlag den Tastaturfokus (WCAG 2.2, 2.4.3). Geaendert
+         19.11.2026 nach dem Befund des qa-Pruefers. */
+      zurueckAus: document.querySelector('[data-pfeil="zurueck"]').getAttribute('aria-disabled') === 'true',
+      vorAus: document.querySelector('[data-pfeil="vor"]').getAttribute('aria-disabled') === 'true',
+      hartGesperrt: document.querySelector('[data-pfeil="zurueck"]').disabled
+        || document.querySelector('[data-pfeil="vor"]').disabled,
       anzeige: getComputedStyle(document.querySelector('.galerie-pfeil')).display,
       groesse: (() => { const r = document.querySelector('.galerie-pfeil').getBoundingClientRect();
         return Math.round(r.width) + 'x' + Math.round(r.height); })(),
@@ -262,6 +267,8 @@ try {
       start.zaehler.trim());
     p('Die Pfeile sind am Schreibtisch da und 44 x 44 px gross',
       start.anzeige !== 'none' && start.groesse === '44x44', start.groesse);
+    p('Kein Pfeil ist hart disabled (Fokus bleibt erreichbar)',
+      !start.hartGesperrt, start.hartGesperrt ? 'disabled gesetzt' : 'nur aria-disabled');
     await ds.click('[data-pfeil="vor"]');
     await ds.waitForTimeout(700);
     const weiter2 = await lesen();

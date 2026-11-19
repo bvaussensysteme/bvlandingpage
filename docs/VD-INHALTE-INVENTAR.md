@@ -131,9 +131,38 @@ Aus dem Paket `VD_Bilde_Portfolio` des Betreibers, abgelegt unter
 | pergola | 3 | /produkte/pergola.html |
 | balkon-fassade | 18 | /produkte/balkon-fassade.html |
 
+Dazu kommen **14 Städteseiten** mit je vier Bildern desselben Produkts
+(`carport-*.html`, `pergola-*.html`, `terrassenueberdachung-*.html`).
+Sie sind handgepflegtes HTML und laufen nicht durch Eleventy; den Block
+setzt `scripts/baue-staedte-galerie.mjs` hinein.
+
 Es sind Renderings des Herstellers, keine Fotos ausgeführter Anlagen.
-Beim Entfernen von VD-Inhalten fällt der ganze Ordner
-`images/portfolio/` weg, dazu `src/_data/galerien.json`,
-`src/_includes/galerie.njk`, `js/galerie.js`, der CSS-Block
-„AUSFUEHRUNGSBEISPIELE" und die sechs Include-Zeilen in den
-Produktvorlagen. Die Seiten bleiben dann ohne Galerie, aber heil.
+
+### Rückweg, falls VD-Inhalte entfernt werden
+
+Zuerst zurückfragen, siehe die Regel in `CLAUDE.md`. Dann in dieser
+Reihenfolge:
+
+1. `node scripts/baue-staedte-galerie.mjs --entfernen` nimmt den Block
+   und die Skript-Zeile aus den 14 Städteseiten. **Nur das**, kein
+   `git checkout`: Die Seiten tragen auch fremde Änderungen, die
+   bleiben sollen. Geprüft am 19.11.2026: 0 hinzugefügte, 22 bis 23
+   entfernte Zeilen je Seite.
+2. Ordner `images/portfolio/` löschen.
+3. `src/_data/galerien.json`, `src/_includes/galerie.njk`,
+   `js/galerie.js`, `scripts/baue-staedte-galerie.mjs`,
+   `scripts/pruefe-galerie.mjs` und
+   `scripts/pruefe-staedte-galerie.mjs` löschen.
+4. Den CSS-Block „AUSFUEHRUNGSBEISPIELE" in `src/css/style.css`
+   entfernen.
+5. Die **sieben** Include-Zeilen `{% set galerieSchluessel … %}` und
+   die sieben `js/galerie.js`-Skriptzeilen in den Produktvorlagen
+   entfernen, dazu das Feld `"image"` im Product-Schema derselben
+   sieben Seiten.
+6. In `docs/pruefungen.md` die drei Einträge streichen.
+
+`scripts/pruefe-referenz-galerie.mjs` bleibt: Es prüft die
+Referenz-Galerie der Startseite und hat mit dem Portfolio nichts zu
+tun. Die Seiten bleiben dann ohne Galerie, aber heil.
+
+**Nicht geprüft** wurde dieser Rückweg als Ganzes, nur Schritt 1.

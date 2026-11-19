@@ -189,16 +189,34 @@
          Gemessen am 19.11.2026. */
       if (s.scrollLeft >= ende) nr = kacheln.length;
       if (zaehler) zaehler.textContent = nr + ' / ' + kacheln.length;
-      if (zurueck) zurueck.disabled = s.scrollLeft <= 2;
-      if (vor) vor.disabled = s.scrollLeft >= ende;
+      sperren(zurueck, s.scrollLeft <= 2);
+      sperren(vor, s.scrollLeft >= ende);
+    }
+    /* NICHT disabled, sondern aria-disabled. Ein disabled-Knopf verliert
+       den Tastaturfokus in dem Moment, in dem er gesperrt wird: Man
+       drueckt sich mit der Tastatur durch den Streifen, der Pfeil wird am
+       Anschlag hart, und der Fokus landet unvermittelt am Seitenanfang.
+       Das ist WCAG 2.2, 2.4.3 Fokus-Reihenfolge. Mit aria-disabled bleibt
+       der Knopf erreichbar, sagt aber an, dass er nichts mehr tut, und
+       die Klickroutine faengt ihn ab. Befund des qa-Pruefers 19.11.2026. */
+    function sperren(knopf, aus) {
+      if (!knopf) return;
+      knopf.setAttribute('aria-disabled', aus ? 'true' : 'false');
+    }
+    function gesperrt(knopf) {
+      return knopf.getAttribute('aria-disabled') === 'true';
     }
     function schieben(richtung) {
       s.scrollBy({ left: richtung * schritt(), behavior:
         window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'auto' : 'smooth' });
     }
-    if (zurueck) zurueck.addEventListener('click', function () { schieben(-1); });
-    if (vor) vor.addEventListener('click', function () { schieben(1); });
+    if (zurueck) zurueck.addEventListener('click', function () {
+      if (!gesperrt(zurueck)) schieben(-1);
+    });
+    if (vor) vor.addEventListener('click', function () {
+      if (!gesperrt(vor)) schieben(1);
+    });
 
     var warte = null;
     s.addEventListener('scroll', function () {

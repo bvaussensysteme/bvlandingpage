@@ -62,7 +62,9 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-zahlenseite-maskierung.py` | **Kein Datenbankwert ungemaskiert im HTML der Zahlenseite.** Die Seite baut ihre Inhalte als Zeichenkette und setzt sie per `innerHTML` ein; die Werte kommen aus der Tabelle `ereignis`, und die fuellt der **oeffentliche** Endpunkt `POST /api/messung`. Die Pruefung liest jeden `reihe(`-Aufruf, blendet die drei unbedenklichen Faelle aus (`sicher(...)` klammertief, Nachschlagetabellen `TABELLE[x.feld]`, Bedingungen `x.feld ?`) und meldet jeden Datenbankwert, der uebrig bleibt. Gegenprobe: 3 Fehler, jeder einzeln. Anlass: Am 08.11.2026 fehlte `sicher()` an fuenf Stellen – siehe `docs/entscheidungen.md` |
 | `scripts/pruefe-produktwahl.mjs` | Kommt die Produktwahl **aller sechs Produktseiten** im Anfrage-Assistenten an – über einen echten Seitenwechsel im Browser? Prüft auch, dass Geländer, Markise und Kaltwintergarten über den Kurzweg gehen und ihren Namen im Nachrichtenfeld tragen. Gegenprobe: unbekannter Schlüssel muss verworfen werden |
 | `scripts/pruefe-standort-mitgeben.mjs` | Kommt der im Windzonen-Rechner gesuchte Standort als PLZ und Ort im Anfrageformular an – über einen echten Seitenwechsel im Browser? Gegenprobe: unsinnige Werte im Speicher (`abcde`, `<img src=x onerror=…>`) müssen verworfen werden |
-| `scripts/pruefe-galerie.mjs` | Passen Referenz-Galerie und Lightbox zusammen? Fortlaufende Nummern, gleich viele Einträge, Alternativtexte, Herkunftsangabe, vorhandene Dateien – und jede Karte öffnet im Browser wirklich ihr eigenes Bild. Gegenprobe: ein entfernter Eintrag muss auffallen |
+| `scripts/pruefe-referenz-galerie.mjs` | Passen Referenz-Galerie und Lightbox **auf der Startseite** zusammen? Fortlaufende Nummern, gleich viele Einträge, Alternativtexte, Herkunftsangabe, vorhandene Dateien – und jede Karte öffnet im Browser wirklich ihr eigenes Bild. Gegenprobe: ein entfernter Eintrag muss auffallen |
+| `scripts/pruefe-galerie.mjs` | Die Bildergalerien „Ausführungsbeispiele" auf den sieben Produktseiten und drei Städteseiten im echten Browser. 64 Messungen, siehe Abschnitt weiter unten. Gegenprobe: 4 eingebaute Fehler |
+| `scripts/pruefe-staedte-galerie.mjs` | Passt der erzeugte Bilderstreifen in den 14 Städteseiten noch zu `src/_data/galerien.json`? Lädt den Generator als Modul, baut die Blöcke neu und vergleicht sie Zeichen für Zeichen; dazu ein zweiter Weg, der die Alternativtexte direkt im HTML sucht. Gegenprobe: 2 eingebaute Fehler, einer für jeden Weg |
 | `scripts/pruefe-vergleich.mjs` | Die Gegenüberstellung TDS/SkyView auf der Terrassenseite: sechs vollständige Zeilen, beide Modelle als Spaltenkopf, Beschriftung für Screenreader – und auf 390 px **kein waagerechtes Scrollen**. Gegenprobe: ein zu langes Wort in einer Zelle muss auffallen |
 | `scripts/pruefe-startseite.mjs` | Die Premium-Schicht der Startseite: greift sie überhaupt, stimmen Markengold, Textgold, Tiefschwarz und Manrope, steht **nirgends Gold als Text auf hellem Grund**, sind Anfrage-Knopf und zweiter Einstieg ≥ 44 px, scrollt nichts waagerecht – und sind Navigation, Assistent, Galerie, Produktkarten, Rechner und Fuß noch da? Auf 390, 768 und 1280 px. Gegenprobe: ohne die Klasse `start-premium` muss die Palettenprüfung anschlagen |
 | `scripts/pruefe-einzugsgebiet.mjs` | Erkennt der Anfrage-Assistent, ob eine PLZ im üblichen Fahrtgebiet liegt? Wichtiger noch: Bleibt der Hinweis **aus**, wenn sie es nicht tut, und steht nie eine Absage im Bedienfeld? Gegenprobe: PLZ aus Hamburg und München dürfen keinen Hinweis erzeugen |
@@ -569,20 +571,42 @@ Klick markiert den richtigen Ort, und die Daten stehen nur einmal in
 der Seite. Gegenprobe mit vier eingebauten Fehlern, darunter der alte
 Zustand mit leerer Liste.
 
+### pruefe-referenz-galerie.mjs (hieß bis 19.11.2026 pruefe-galerie.mjs)
+
+**Umbenannt, nicht neu.** Die Datei prüft seit dem 13.11.2026 die
+Referenz-Galerie der Startseite gegen das Feld `lightboxImages` in
+`js/main.js`. Am 19.11.2026 entstand eine zweite, völlig andere Prüfung
+für die neuen Produkt-Galerien und bekam versehentlich denselben
+Dateinamen; der alte Inhalt ging dabei verloren. Gefunden hat das der
+`cto`-Prüfer am selben Tag, zurückgeholt wurde er aus Commit `ff5c7ba`.
+Seitdem: `pruefe-referenz-galerie.mjs` = Startseite,
+`pruefe-galerie.mjs` = Produkt- und Städteseiten. 11 Messungen,
+Gegenprobe: ein entfernter Eintrag in `lightboxImages`.
+
 ### pruefe-galerie.mjs (neu am 19.11.2026)
 
-47 Messungen auf den sechs Produktseiten mit Galerie. Darunter: alle
+64 Messungen auf den sieben Produktseiten mit Galerie und drei
+Städteseiten. Darunter: alle
 Bilder im HTML (auch ohne JavaScript), Alternativtext und feste Maße,
 nur das erste Bild ohne `lazy`, nichts über dem rechten Rand, Dialog
 mit role und aria-modal, Fokus hin und zurück, Escape, Pfeiltasten,
 Wischen, Knöpfe 44 × 44 px, Klick zwischen den Pfeilen schließt nicht,
 schwebende Knöpfe verschwinden, `inert` auf dem Hintergrund,
 Fokusring-Kontrast, und die Großansicht bei 320 × 256 px sowie im
-Querformat. Gegenprobe mit vier eingebauten Fehlern.
+Querformat. Dazu Zähler und Pfeile: Startwert, ein Klick schiebt genau
+eine Kachel, am rechten Anschlag steht die letzte Nummer, und **kein
+Pfeil ist hart `disabled`** (sonst verliert er am Anschlag den
+Tastaturfokus, WCAG 2.2, 2.4.3). Gegenprobe mit vier eingebauten
+Fehlern.
 
 ### baue-staedte-galerie.mjs (neu am 19.11.2026)
 
 Kein Prüfskript, sondern ein Generator: Er setzt den Bilderstreifen in
 die 14 handgepflegten Städteseiten, aus derselben Quelle wie die
-Produktseiten. Wiederholbar, ein vorhandener Block wird ersetzt.
-`pruefe-galerie.mjs` prüft drei der erzeugten Seiten nach.
+Produktseiten. Wiederholbar, ein vorhandener Block wird ersetzt. Mit
+`--entfernen` baut er die Änderung wieder zurück: Block heraus,
+Skript-Zeile heraus, sonst nichts. Das ist der Rückweg für die 14
+handgepflegten Seiten, für die ein `git checkout` zu grob wäre.
+Nachgeprüft wird er von `pruefe-staedte-galerie.mjs` (alle 14 Seiten,
+Zeichen für Zeichen) und von `pruefe-galerie.mjs` (drei Seiten im
+echten Browser).

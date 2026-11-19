@@ -1897,8 +1897,9 @@ footer h4 {
 .galerie-pfeil svg { width: 20px; height: 20px; }
 .galerie-pfeil:hover { border-color: var(--gold); background: var(--offwhite, #F5F2EB); }
 .galerie-pfeil:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 2px; }
-.galerie-pfeil[disabled] { opacity: .35; cursor: default; }
-.galerie-pfeil[disabled]:hover { border-color: var(--border); background: var(--white); }
+/* aria-disabled, nicht disabled: siehe Begruendung in js/galerie.js. */
+.galerie-pfeil[aria-disabled="true"] { opacity: .45; cursor: default; }
+.galerie-pfeil[aria-disabled="true"]:hover { border-color: var(--border); background: var(--white); }
 @media (hover: hover) and (pointer: fine) {
   .galerie-pfeil { display: inline-flex; }
 }

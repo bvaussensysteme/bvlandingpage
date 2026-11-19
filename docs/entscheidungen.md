@@ -19473,8 +19473,8 @@ braucht. 800 px ist also die richtige Größe.
 - Zähler „3 / 20" im Streifen und Pfeile für die Maus am Rechner.
 - Die 18 Balkonbilder.
 
-**Gegengelesen.** `pruefe-galerie.mjs` 47 Messungen, Gegenprobe mit
-vier eingebauten Fehlern bestanden. `pruefe-mitwachsend.mjs` 28,
+**Gegengelesen.** `pruefe-galerie.mjs` 47 Messungen (am selben Tag auf
+64 gewachsen), Gegenprobe mit vier eingebauten Fehlern bestanden. `pruefe-mitwachsend.mjs` 28,
 `pruefe-umbruch.mjs` 110 Kombinationen, `pruefe-startseite.mjs` 39,
 `pruefe-werkzeugseiten.mjs` 11.
 
@@ -19610,3 +19610,138 @@ Städteseiten, 63 Messungen, Gegenprobe bestanden. Dabei wird auf 404
 geachtet, sonst fiele ein falscher Bildpfad erst dem Besucher auf.
 `pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110 Kombinationen,
 `pruefe-nicht-oeffentlich.sh` bestanden.
+
+
+## 19.11.2026 – Eine bestehende Prüfung überschrieben, zurückgeholt
+
+**Was falsch war.** Für die neuen Produkt-Galerien habe ich eine Prüfung
+angelegt und sie `scripts/pruefe-galerie.mjs` genannt. Diesen Namen gab
+es schon: seit dem 13.11.2026, Commit `ff5c7ba`, für die
+Referenz-Galerie der Startseite und ihre Zuordnung zum Feld
+`lightboxImages` in `js/main.js`. Geschrieben wurde mit `cat >`, also
+ohne Warnung. Der alte Inhalt war weg, und mit ihm die einzige Prüfung,
+die bemerkt hätte, dass eine Karte auf der Startseite das falsche Bild
+öffnet. `docs/pruefungen.md` beschrieb weiter die alte Prüfung, und
+`js/main.js` verwies auf einen Dateinamen, hinter dem etwas anderes
+stand. Gefunden hat das der `cto`-Prüfer, nicht ich und nicht der
+Betreiber. Beleg: `git log --diff-filter=A -- scripts/pruefe-galerie.mjs`
+nennt `ff5c7ba 2026-11-13`.
+
+**Was jetzt gilt.** Der alte Inhalt ist aus `ff5c7ba` zurückgeholt und
+heißt `scripts/pruefe-referenz-galerie.mjs` (Startseite, 11 Messungen,
+Gegenprobe bestanden). `scripts/pruefe-galerie.mjs` behält den neuen
+Inhalt (Produkt- und Städteseiten, 64 Messungen). Zwei Prüfungen, zwei
+Namen. Der Verweis in `js/main.js` und beide Einträge in
+`docs/pruefungen.md` zeigen auf das Richtige.
+
+**Warum so.** Umbenennen statt zusammenlegen: Die eine Prüfung braucht
+`lightboxImages` und feste Kartennummern, die andere `galerien.json` und
+einen Scroll-Streifen. Ein gemeinsames Skript hätte zwei Mechaniken in
+einer Datei, und die Gegenproben würden sich im Weg stehen.
+
+**Was daraus folgt.** Vor `cat > scripts/pruefe-*` nachsehen, ob der
+Name schon belegt ist. Ein neues Prüfskript ohne Eintrag in
+`docs/pruefungen.md` ist nicht fertig.
+
+## 19.11.2026 – Zwei Wahrheiten beim Bilderstreifen abgesichert
+
+**Was falsch war.** Derselbe Block steht an zwei Orten:
+`src/_includes/galerie.njk` für die sieben Produktseiten und erzeugtes
+HTML in den 14 handgepflegten Städteseiten. Wer `galerien.json` ändert
+und `scripts/baue-staedte-galerie.mjs` nicht noch einmal laufen lässt,
+hat auf den Produktseiten die neuen Texte und auf den Städteseiten die
+alten. Beides funktioniert, nichts meldet sich. Befund des
+`cto`-Prüfers.
+
+**Was jetzt gilt.** `scripts/pruefe-staedte-galerie.mjs` lädt den
+Generator als Modul, baut die 14 Blöcke aus derselben Quelle neu und
+vergleicht sie Zeichen für Zeichen mit dem, was in den Dateien steht.
+Dazu ein zweiter, anders gebauter Weg: Alle 56 Alternativtexte werden
+direkt aus `galerien.json` im HTML gesucht, ohne den Generator zu
+fragen. Gegenprobe: zwei eingebaute Fehler, einer je Weg, beide werden
+gefunden.
+
+**Warum so und nicht anders.** Der Generator schreibt jetzt nur beim
+direkten Aufruf; beim Import tut er nichts. Verworfen wurde, die Blöcke
+in ein Temp-Verzeichnis zu erzeugen und zu diffen: Dafür müsste das
+Skript 14 Dateien kopieren, und ein Abbruch mitten drin lässt Reste
+zurück. Verworfen wurde auch, die Städteseiten durch Eleventy laufen zu
+lassen; das wäre der saubere Weg, rührt aber 14 gepflegte Seiten an und
+gehört nicht in diesen Auftrag. Steht in `docs/NEXT_TASK.md`.
+
+**Nebenbei behoben:** Der Cache-Buster für `js/galerie.js` stand in den
+Städteseiten fest und wurde beim erneuten Lauf nicht mitgezogen. Jetzt
+gibt es im Generator eine einzige Quelle (`VERSION`), und ein
+vorhandener Verweis wird mitgeändert.
+
+## 19.11.2026 – Pfeile am Bilderstreifen: aria-disabled statt disabled
+
+**Was falsch war.** Am Anschlag setzte `js/galerie.js` den Pfeil auf
+`disabled`. Ein Knopf, der im Moment des Drückens `disabled` wird,
+verliert den Tastaturfokus: Der Fokus fällt auf `<body>` zurück, und der
+nächste Tabulatorschritt beginnt wieder am Seitenanfang. Das ist WCAG
+2.2, Erfolgskriterium 2.4.3 Fokus-Reihenfolge. Befund des
+`qa-accessibility-auditor`, Priorität niedrig, aber messbar.
+
+**Was jetzt gilt.** Der Knopf bleibt erreichbar und trägt
+`aria-disabled="true"`. Die Klickroutine fängt ihn ab, das CSS blendet
+ihn auf Deckkraft 0,45 ab (vorher 0,35). `pruefe-galerie.mjs` prüft
+zusätzlich, dass **kein** Pfeil hart `disabled` ist, damit es nicht
+zurückrutscht.
+
+## 19.11.2026 – Zwölf Alternativtexte, die allein nichts sagten
+
+**Was falsch war.** Zwölf Texte begannen mit „Dasselbe Haus …",
+„Derselbe Carport …", „Dieselbe Anlage …". Im Streifen neben dem
+Nachbarbild liest sich das richtig. In der Großansicht steht der Text
+als einzige Beschriftung da, und in der Bildersuche steht das Bild ganz
+allein. Dann ist „Dasselbe Haus" ohne Bedeutung. Gefunden vom
+`seo-specialist`, gilt genauso für Screenreader (WCAG 1.1.1: Der
+Ersatztext muss denselben Zweck erfüllen).
+
+**Was jetzt gilt.** Alle zwölf stehen jetzt für sich, zum Beispiel
+„Dasselbe Haus aus größerer Entfernung, Carport links" → „Aluminium-Carport
+links am Haus, Vordach über der Haustür rechts, aus größerer Entfernung
+aufgenommen". Das Material ist dabei benannt, wo es das Produkt ausmacht.
+Keine Städtenamen in Alternativtexten: Die Bilder zeigen nichts aus der
+Stadt, das wäre unwahr.
+
+**Nicht geändert.** Die übrigen 47 Texte. Der `aria-label` der Kachel
+bleibt „<Alternativtext> groß anzeigen"; der Name eines Knopfes soll
+sagen, was er tut, und die Länge ist kein Verstoß.
+
+## 19.11.2026 – Bilder im Product-Schema der sieben Galerieseiten
+
+**Was fehlte.** Im `Product`-Block der sieben Produktseiten mit Galerie
+stand kein `image`. Google nennt das Feld für Produkt-Rich-Results als
+Empfehlung. Befund des `seo-specialist`, Priorität mittel.
+
+**Was jetzt gilt.** Je drei absolute Bild-URLs, genau die ersten drei
+Bilder, die auf der Seite auch sichtbar sind. Gegengelesen: alle 82
+JSON-LD-Blöcke der fertigen Seiten lassen sich parsen, 21 Bild-URLs
+ausgezeichnet, alle 21 Dateien liegen im Repository.
+
+**Nicht gemacht.** Kein `ImageObject` je Bild (bringt nichts, verlängert
+den Block), keine Bilder im Schema, die auf der Seite nicht stehen, und
+nichts an `brand`/`manufacturer` „VD AluSysteme" (VD-Regel).
+
+## 19.11.2026 – Ladezeit gemessen, bewusst nichts geändert
+
+**Gemessen** (`performance-auditor`, Startseite 390 px, gedrosselt auf
+1,44 Mbit/s und CPU 4×): FCP 2616 ms, LCP 5568 ms. Zeichenblockierend
+sind genau zwei Dateien, `css/style.css` (gzip 19 KB) und
+`css/start.css` (gzip 2 KB). Ungedrosselt FCP 252 ms, LCP 328 ms.
+Städteseite `carport-koblenz.html`: +89 KB beim Erstaufruf, +243 KB nach
+dem Scrollen zum Streifen, **CLS 0** vorher und nachher.
+
+**Was nicht gemacht wird und warum.** Kritisches CSS inline bringt
+gerechnet höchstens 0 bis 250 ms und würde `style.css` später laden
+lassen. Diese Datei teilen **58 Seiten**; ein nachgeladenes Stylesheet
+erzeugt dort Layoutsprünge und startet auf der Startseite die
+Wort-Animation neu (gemessen am 16.11., Kommentar in `index.html` ab
+Z. 416). Dazu müsste der Inline-Auszug bei jedem `npm run build:css`
+mitgepflegt werden. Das Verhältnis stimmt nicht.
+
+**Offen und nicht gemessen:** die echte Auslieferung über Cloudflare
+(der Messserver liefert unkomprimiert) und die Dateigrößen gegen ein
+Budget.

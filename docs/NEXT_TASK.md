@@ -335,3 +335,35 @@ Tage zwischengespeichert. Wird die Grenze doch einmal erreicht, bleibt
 das Feld leer und die Seite sagt „bitte von Hand eintragen". Dauerhaft
 sauber wäre das eigene Geländemodell des Bundesamts für Kartographie
 (DGM200, 34 MB, offene Daten, Erreichbarkeit am 18.11.2026 geprüft).
+
+## Nebenbefunde der Galerie-Prüfrunde (19.11.2026)
+
+Alles gefunden, nichts davon umgesetzt. Reihenfolge nach Nutzen.
+
+1. **Städteseiten durch Eleventy laufen lassen.** Die 14 Seiten sind
+   handgepflegtes HTML; der Bilderstreifen muss deshalb von
+   `scripts/baue-staedte-galerie.mjs` hineingeschrieben werden. Das ist
+   der eigentliche Grund für die zwei Wahrheiten. Abgesichert ist das
+   jetzt durch `scripts/pruefe-staedte-galerie.mjs`, aber die Ursache
+   bleibt. Umbau rührt 14 gepflegte Seiten an, gehört also in einen
+   eigenen Auftrag.
+2. **Eigene Fotos ausgeführter Anlagen.** Liegt beim Betreiber. Alle
+   59 Galeriebilder sind Renderings des Herstellers; das steht an jeder
+   Galerie dabei. Ein einziges eigenes Foto je Produkt wäre mehr wert
+   als zehn Renderings, und die Referenz-Galerie der Startseite wartet
+   bis heute auf „Weitere Referenzfotos folgen".
+3. **Dateinamen der Portfoliobilder** (Hypothese, nicht gemessen).
+   Google nennt den Dateinamen als schwaches Signal. `carport-01.webp`
+   sagt nichts. Umbenennen kostet Pfade in `galerien.json` und in den
+   Seiten und hat ein Rückwegrisiko, wenn Bilder schon indexiert sind.
+   Nur lohnend, wenn ohnehin neu benannt wird.
+4. **Material im Alternativtext.** Bei 47 der 59 Texte fehlt das Wort
+   Aluminium, obwohl es das Produkt ausmacht. Die zwölf, die allein
+   nichts sagten, sind geändert; der Rest ist Textarbeit und braucht
+   eine Ansage.
+5. **Echte Auslieferung messen.** Die Ladezeit-Zahlen vom 19.11. kommen
+   von einem lokalen Server ohne Komprimierung, sind also zu hoch. Eine
+   belastbare Aussage braucht eine Messung gegen die Vorschau oder die
+   Live-Seite, dazu ein Budget je Seite.
+6. **Kein Bildbudget.** Eine Städteseite lädt nach dem Scrollen 716 KB.
+   Es gibt keine Grenze, gegen die eine Prüfung anschlagen könnte.
