@@ -1935,8 +1935,19 @@ body.galerie-offen { overflow: hidden; }
 }
 @supports not (height: 1dvh) { .gg-bild { max-height: 78vh; } }
 /* Im Querformat und bei starkem Zoom bleibt fuer das Bild weniger
-   uebrig, damit Beschriftung und Pfeile sichtbar bleiben. */
-@media (max-height: 520px) { .gg-bild { max-height: 60dvh; } }
+   uebrig, damit Beschriftung und Pfeile sichtbar bleiben. Die
+   Beschriftung wird dort auf zwei Zeilen gekuerzt: Seit die
+   Alternativtexte ganze Saetze sind, schob eine dreizeilige
+   Beschriftung die Pfeile bei 320 x 256 px aus dem Bild. Gemessen am
+   19.11.2026. Der volle Text bleibt im alt-Attribut der Kachel und
+   damit fuer Screenreader erhalten. */
+@media (max-height: 560px) {
+  .gg-bild { max-height: 46dvh; }
+  .gg-text {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; font-size: .8rem;
+  }
+}
 .gg-text {
   color: rgba(255,255,255,.88); font-size: .86rem; line-height: 1.5;
   text-align: center; margin-top: 10px;

@@ -19477,3 +19477,47 @@ braucht. 800 px ist also die richtige Größe.
 vier eingebauten Fehlern bestanden. `pruefe-mitwachsend.mjs` 28,
 `pruefe-umbruch.mjs` 110 Kombinationen, `pruefe-startseite.mjs` 39,
 `pruefe-werkzeugseiten.mjs` 11.
+
+## 19.11.2026 – Alternativtexte geschrieben, und dabei eine Fehlzuordnung gefunden
+
+**Anlass.** Der Prüfbericht nannte die Alternativtexte „für einen
+Screenreader fast wertlos": 20 Bilder, die alle „Ausführungsbeispiel N"
+hießen. Der Betreiber hat das Schreiben freigegeben.
+
+**Was dabei herauskam.** Ich habe jedes Bild angesehen, und dabei
+stellte sich heraus: Der Ordner **„Flachdach mit Verkleidung" sind
+Garagen und Carports**, keine Terrassendächer. Acht Bilder zeigen eine
+Garage mit Sektionaltor, einen Anhänger im Inneren, Photovoltaik auf
+dem Flachdach und seitliche Verkleidung. Sie standen auf der
+Terrassenüberdachung und sind jetzt beim Carport.
+
+| Seite | vorher | jetzt |
+|---|---|---|
+| Terrassenüberdachung | 20 | 12 (TDS 7, SkyView 5) |
+| Carport | 3 | 11 (3 plus 8 Garagen mit Flachdach) |
+
+**Das wäre ohne Hinsehen nicht aufgefallen.** Ordnernamen beschreiben
+die Bauform, nicht das Produkt. „Flachdach mit Verkleidung" trifft auf
+beides zu.
+
+**Die Texte beschreiben jetzt das Bild**, nicht seine Nummer. Beispiel:
+„Offener Carport mit Flachdach, auf dem Dach liegen
+Photovoltaikmodule, darunter ein weißes Auto." Die 18 Balkonbilder
+haben weiterhin die alten Platzhaltertexte; sie sind auf keiner Seite
+eingebunden.
+
+**Zwei Dinge mussten deshalb nachgezogen werden:**
+
+1. **Die Prüfung hing an den alten Texten.** Sie suchte wörtlich nach
+   „Ausführungsbeispiel 1 (1 von 3)". Jetzt prüft sie die Form des
+   Zählers und vergleicht die Beschriftung mit der Datenquelle. Eine
+   Prüfung, die an einem Text klebt, verbietet jede Verbesserung des
+   Textes.
+2. **Bei 320 × 256 px schob die längere Beschriftung die Pfeile aus
+   dem Bild.** Drei Zeilen statt einer. Dort wird der Text jetzt auf
+   zwei Zeilen gekürzt und das Bild kleiner gehalten; der volle Text
+   bleibt im `alt` der Kachel.
+
+**Gegengelesen.** `pruefe-galerie.mjs` 47 von 47 mit Gegenprobe,
+`pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110 Kombinationen,
+`pruefe-darstellung.mjs` 144, Cache-Buster grün.

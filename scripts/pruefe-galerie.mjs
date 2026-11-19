@@ -42,8 +42,12 @@ const FEHLER = [
      erste alt der ganzen Seite - das gehoerte zum Produktbild oben,
      und die Galerie blieb heil. Die Pruefung meldete dann faelschlich
      "nicht bemerkt". Gemessen am 19.11.2026. */
+  /* Den Alternativtext des ERSTEN Galeriebildes leeren. Frueher stand
+     hier "Ausführungsbeispiel 1"; seit dem 19.11.2026 sind es echte
+     Saetze, und das Muster traf nichts mehr. Getroffen wird jetzt das
+     Bild innerhalb einer Galeriekachel. */
   { name: 'Ein Alternativtext fehlt',
-    machen: (t) => t.replace(/ alt="[^"]*Ausführungsbeispiel 1"/, ' alt=""') },
+    machen: (t) => t.replace(/(class="galerie-kachel"[\s\S]{0,400}?<img[^>]*?) alt="[^"]*"/, '$1 alt=""') },
   { name: 'Die Masse am Bild fehlen', machen: (t) => t.replace(/ width="800" height="450"/g, '') },
   { name: 'Alle Bilder laden sofort', machen: (t) => t.replace(/loading="lazy" /g, '') },
   { name: 'Die Ueberschrift verspricht Referenzen',
@@ -149,18 +153,26 @@ try {
     p('Der Fokus springt in die Grossansicht', /gg-zu/.test(auf.fokus), auf.fokus);
     p('Die Seite dahinter scrollt nicht mit', auf.gesperrt === true, 'body.galerie-offen');
     p('Die Knoepfe sind mindestens 44 x 44 px', auf.knopf === '44x44', auf.knopf);
+    /* NICHT auf einen bestimmten Text pruefen: Die Alternativtexte
+       sind seit dem 19.11.2026 echte Saetze und aendern sich, wenn
+       jemand sie verbessert. Geprueft wird die Form des Zaehlers und
+       dass die Beschriftung aus den Daten kommt. */
+    var sollCarport = DATEN.carport.bilder.length;
     p('Die Grossansicht zeigt Beschriftung und Zaehler',
-      /Ausführungsbeispiel 1 \(1 von 3\)/.test(auf.text), auf.text.trim());
+      auf.text.indexOf(DATEN.carport.bilder[0].alt) === 0 &&
+      auf.text.indexOf('(1 von ' + sollCarport + ')') > 0, auf.text.trim().slice(0, 70));
 
     await s.locator('.gg-vor').click();
     await s.waitForTimeout(400);
     const weiter = await s.evaluate(() => document.querySelector('.gg-text').textContent);
-    p('Blaettern wechselt das Bild', /\(2 von 3\)/.test(weiter), weiter.trim());
+    p('Blaettern wechselt das Bild',
+      weiter.indexOf('(2 von ' + sollCarport + ')') > 0, weiter.trim().slice(0, 70));
 
     await s.keyboard.press('ArrowLeft');
     await s.waitForTimeout(300);
     const pfeil = await s.evaluate(() => document.querySelector('.gg-text').textContent);
-    p('Die Pfeiltasten blaettern auch', /\(1 von 3\)/.test(pfeil), pfeil.trim());
+    p('Die Pfeiltasten blaettern auch',
+      pfeil.indexOf('(1 von ' + sollCarport + ')') > 0, pfeil.trim().slice(0, 70));
 
     /* ---- Befunde der Pruefer vom 19.11.2026 ----
        Jede dieser Messungen gehoert zu einem gemeldeten Fehler. */

@@ -123,10 +123,10 @@ Aus dem Paket `VD_Bilde_Portfolio` des Betreibers, abgelegt unter
 
 | Ordner | Dateien | eingebunden auf |
 |---|---|---|
-| terrassenueberdachung | 20 | /produkte/terrassenueberdachung.html |
+| terrassenueberdachung | 12 | /produkte/terrassenueberdachung.html |
 | eingang | 8 | /produkte/eingang.html |
 | gartenhaus | 4 | /produkte/gartenhaus.html |
-| carport | 3 | /produkte/carport.html |
+| carport | 11 | /produkte/carport.html |
 | kaltwintergarten | 3 | /produkte/kaltwintergarten.html |
 | pergola | 3 | /produkte/pergola.html |
 | balkon-fassade | 18 | noch nirgends |
