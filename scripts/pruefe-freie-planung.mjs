@@ -517,6 +517,34 @@ try {
   }
   await bSeite.close();
 
+  /* ---- die Masslinien stehen im Bild, nicht daneben ----
+     Gemessen am 18.11.2026: In der Perspektive reichten die Masslinien
+     bis 1,30 der halben Bildbreite. Fuer die Aufnahme nimmt die Kamera
+     jetzt so weit zurueck, dass sie hineinpassen; am Schirm bleibt der
+     Blick wie er war. Dieselbe Funktion steckt in
+     js/konfigurator-3d.js, siehe pruefe-konfigurator-frei.sh. */
+  const mSeite = await ctx.newPage();
+  await mSeite.goto(`http://127.0.0.1:${PORT}/werkstatt/frei.html?t=${Date.now()}`,
+    { waitUntil: 'load' });
+  await mSeite.waitForTimeout(4500);
+  for (const ansicht of ['Perspektive', 'Vorne', 'Seite', 'Von oben']) {
+    const r = await mSeite.evaluate((a2) => window.BV_FREI.bildRand(a2), ansicht);
+    p(`Bild "${ansicht}": Masslinien im Bild`,
+      r.imBild !== null && r.imBild <= 1,
+      `ohne Korrektur ${r.ohneKorrektur}, im Bild ${r.imBild}`);
+  }
+  const vorher = await mSeite.evaluate(() => {
+    window.BV_FREI.blick('Perspektive');
+    return window.BV_FREI.kamera().radius;
+  });
+  const nachBild = await mSeite.evaluate(() => {
+    window.BV_FREI.bildRand('Perspektive');
+    return window.BV_FREI.kamera().radius;
+  });
+  p('nach der Aufnahme steht die Kamera wieder wie vorher',
+    Math.abs(vorher - nachBild) < 2, `${vorher} -> ${nachBild}`);
+  await mSeite.close();
+
   /* ---- Kamera: zoomen, drehen, fahren ohne Sperre ----
      „man wird behindert beim rein rauszoomen oder kamerafahrten wohin
      man will und winkel etc" (Betreiber, 18.11.2026). */

@@ -19130,3 +19130,73 @@ Schneelastzone 2 sind das rund 10 kg/m² mehr Schneelast.
 Messungen mit zwei gleich benannten Straßen in zwei Orten derselben
 Postleitzahl. `pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110
 Kombinationen, `pruefe-werkzeugseiten.mjs` 11, alle ohne Beanstandung.
+
+## 19.11.2026 – Datenschutzerklärung: Abschnitt zur Höhenermittlung eingesetzt
+
+**Einmalige Ausnahme von der Regel „Rechtstexte nicht anfassen".** Der
+Betreiber hat sie am 19.11.2026 für genau diesen Abschnitt aufgehoben,
+auf die Rückfrage hin und mit der Maßgabe, dass der Anwalt gegenliest.
+**Die Regel selbst bleibt sonst unverändert bestehen.**
+
+**Was eingesetzt wurde.** Zwei Absätze am Ende von Abschnitt 7
+(`src/datenschutz.njk`). Keine neue Abschnittsnummer, keine neue
+Sprungmarke: Der Anker `#openstreetmap` bleibt, damit vorhandene
+Verweise halten. Überschrift und Inhaltsverzeichnis nennen die
+Geländehöhe zusätzlich.
+
+**Warum nicht in die Aufzählung darüber.** Der Satz vor der Liste sagt,
+dass bei jedem dieser Dritten „Ihre IP-Adresse übertragen wird". Für die
+Höhenermittlung stimmt das nicht, dort fragt der eigene Server. Ein
+vierter Listenpunkt hätte den Satz darüber falsch gemacht.
+
+**Was bewusst NICHT im Text steht.** Eine Risikobewertung. Der Entwurf
+enthielt den Satz „sehen wir das Risiko als gering an"; er ist
+gestrichen. Eine Bewertung gehört nicht von einem Assistenten in einen
+Rechtstext. Genannt werden nur die nachprüfbaren Tatsachen: kein
+Serverstandort bekannt, Drittlandübermittlung nicht auszuschließen,
+übermittelt wird die gerundete Koordinate.
+
+**Offen für den Anwalt**, siehe `docs/datenschutz-entwurf-hoehe.md`:
+Personenbezug der gerundeten Koordinate, fehlender AVV nach Art. 28,
+Drittland nach Art. 44 ff. Bleibt einer dieser Punkte hängen, ist der
+technische Ausweg das eigene Geländemodell des Bundesamts; dann
+entfällt der Abschnitt wieder vollständig.
+
+**Gegengelesen.** `pruefe-datenschutz.py` bestanden, 19 Abschnitte,
+Nummerierung, Verzeichnis, Sprungmarken und Querverweise stimmen;
+Gegenprobe erkennt alle vier eingebauten Fehler.
+
+## 19.11.2026 – Masslinien stehen jetzt im Bild, nicht daneben
+
+**Anlass.** Eigener Befund vom 18.11.2026, vom Betreiber zur Behebung
+freigegeben: In der Ansicht „Perspektive" reichten die Masslinien bis
+zum 1,30-fachen der halben Bildbreite, standen also zu 30 Prozent
+ausserhalb. Betroffen war jedes gespeicherte Bild und jedes PDF, auch
+beim Kunden; die Zahl, die man ablesen will, konnte am Rand
+abgeschnitten sein.
+
+**Ursache.** `kameraAnpassen()` rechnet den Abstand aus `Z.breite`,
+`Z.tiefe` und `Z.hoehe`, also aus dem Bauwerk. Die Masslinien liegen
+daneben: die liegende bis zu 135 cm vor der Kante, die stehende 40 cm
+neben der Seite.
+
+**Was jetzt gilt.** `massAbstandFuerBild()` nimmt die Kamera **nur für
+die Aufnahme** so weit zurück, dass der gemessene Kasten aus Bauwerk
+und Masslinien hineinpasst, und `massAbstandZurueck()` stellt sie
+danach wieder her. Gerechnet wird als Kugel um den Blickpunkt: Damit
+passt derselbe Abstand für alle fünf Ansichten.
+
+**Warum nicht in `kameraAnpassen()`.** Dann wäre das Modell auch am
+Bildschirm rund 30 Prozent kleiner geworden, bei jedem Besucher, für
+ein Problem, das nur die Aufnahme hat. Am Schirm kann ohnehin jeder
+selbst zoomen.
+
+**Gemessen, je Ansicht, ohne und mit Korrektur** (über 1 heisst
+abgeschnitten): Perspektive 1,302 auf 0,727 · Vorne 1,420 auf 0,810 ·
+Seite 1,211 auf 0,621 · Von oben 1,311 auf 0,774. Nach der Aufnahme
+steht die Kamera wieder bei 861, also unverändert.
+
+**In beiden Fassungen.** Die Rechnung steht gleichlautend in
+`js/konfigurator-3d.js` und `js/konfigurator-frei.js`; gemessen wurde
+in der Kopie, weil nur sie ein Lesefenster hat.
+`pruefe-konfigurator-frei.sh` vergleicht beide Rümpfe Zeile für Zeile.

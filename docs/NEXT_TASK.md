@@ -396,28 +396,14 @@ Folge der freien Planung, sondern vorher schon so. Gemessen im Browser
 über vier Schritte. Betrifft `bauen()` in `js/konfigurator-3d.js`, das
 bei jeder Reglerbewegung die ganze Szene neu aufbaut.
 
-## Später prüfen: Masslinien stehen am Hauptdach ausserhalb des Bildes
+## Beim Anwalt: Höhenermittlung in der Datenschutzerklärung
 
-Gemessen am 18.11.2026 mit `BV_FREI.imBild(true)`: In der Ansicht
-„Perspektive" reichen die Masslinien des Hauptdachs bis 1,30 der halben
-Bildbreite, also 30 % über den Rand hinaus. Betrifft **auch den
-öffentlichen Konfigurator** und die Kunden-PDFs; die Zahl selbst kann
-dabei am Rand abgeschnitten sein.
-
-Nicht geändert, weil es eine gestalterische Änderung am laufenden
-Konfigurator wäre und nicht unter die messbaren Fehler fällt, die ohne
-Rückfrage behoben werden. Behebung wäre derselbe Griff wie in
-`freiAlleEinpassen()`: den Kasten um `masseGruppe` erweitern, bevor der
-Abstand gerechnet wird.
-
-## Offen beim Betreiber: Datenschutzerklärung für die Höhenermittlung
-
-Die automatische Geländehöhe auf `/windzonen.html` ruft über den
-eigenen Server einen fremden Höhendienst auf. Das muss in der
-Datenschutzerklärung stehen, bevor es veröffentlicht wird. Was genau
-passiert und was der Text abdecken muss, steht in
-`docs/rechtstexte-befunde.md`, Eintrag vom 18.11.2026. Rechtstexte
-werden hier nicht geändert.
+Der Abschnitt steht seit dem 19.11.2026 **in** der Datenschutzerklärung
+(Abschnitt 7, `src/datenschutz.njk`), auf ausdrückliche Ansage des
+Betreibers und mit der Maßgabe, dass der Anwalt gegenliest. Die
+Grundlage, die offenen Rechtsfragen und der technische Ausweg stehen in
+`docs/datenschutz-entwurf-hoehe.md`. Bis zur Rückmeldung des Anwalts
+bleibt die Funktion ein Hinderungsgrund für eine Veröffentlichung.
 
 ## Später prüfen: Tageslimit des Höhendienstes
 

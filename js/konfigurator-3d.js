@@ -15822,6 +15822,59 @@
   /* Eine Ansicht einstellen, zeichnen, Bild zurückgeben. Die vorherige
      Ansicht wird danach wiederhergestellt – wer ein Bild speichert, will
      nicht woanders stehen als vorher. */
+  /* ---- Masslinien gehoeren ins Bild ----
+     Gemessen am 18.11.2026: In der Ansicht "Perspektive" reichten die
+     Masslinien bis zum 1,30-fachen der halben Bildbreite, standen also
+     zu 30 Prozent ausserhalb. Betroffen war jedes gespeicherte Bild und
+     jedes PDF; die Zahl, die man ablesen will, konnte am Rand
+     abgeschnitten sein.
+
+     kameraAnpassen() rechnet den Abstand aus Z.breite, Z.tiefe und
+     Z.hoehe, also aus dem BAUWERK. Die Masslinien liegen daneben: die
+     liegende bis zu 135 cm vor der Kante, die stehende 40 cm neben der
+     Seite.
+
+     NUR FUER DIE AUFNAHME, nicht fuer die Ansicht am Bildschirm. Dort
+     soll das Modell so gross bleiben wie bisher; wer mehr sehen will,
+     zoomt selbst. Gemessen wird am fertigen Baum statt gerechnet, damit
+     auch Ueberstand, Seitenteile und das Gefaelledreieck zaehlen.
+
+     Der Kasten wird als KUGEL um den Blickpunkt gerechnet. Dadurch
+     passt derselbe Abstand fuer alle fuenf Ansichten, und keine davon
+     braucht eine eigene Sonderrechnung.
+
+     Gibt den vorherigen Abstand zurueck, oder null, wenn nichts zu tun
+     war. */
+  function massAbstandFuerBild() {
+    if (!bau || !masseGruppe.children.length) return null;
+    var k = new THREE.Box3().setFromObject(bau);
+    k.expandByObject(masseGruppe);
+    if (k.isEmpty()) return null;
+    var r = 0, e = new THREE.Vector3();
+    [k.min.x, k.max.x].forEach(function (x) {
+      [k.min.y, k.max.y].forEach(function (y) {
+        [k.min.z, k.max.z].forEach(function (z) {
+          r = Math.max(r, e.set(x, y, z).distanceTo(kam.ziel));
+        });
+      });
+    });
+    if (!isFinite(r) || r <= 0) return null;
+    var noetig = r / Math.tan(kamera3.fov * Math.PI / 360);
+    if (kamera3.aspect < 1) noetig /= Math.max(0.5, kamera3.aspect);
+    noetig *= 1.02;            /* ein Hauch Luft zum Rand */
+    if (noetig <= kam.radius) return null;
+    var alt = kam.radius;
+    kam.radius = noetig;
+    kameraSetzen();
+    return alt;
+  }
+
+  function massAbstandZurueck(alt) {
+    if (alt === null || alt === undefined) return;
+    kam.radius = alt;
+    kameraSetzen();
+  }
+
   function bildVonAnsicht(name) {
     var vorher = kam.ansicht;
     if (name && ANSICHTEN[name]) ansichtAnwenden(name);
@@ -15833,8 +15886,10 @@
     var ziehVorher = ziehGruppe.visible;
     feldGruppe.visible = false;
     ziehGruppe.visible = false;
+    var abstandB = massAbstandFuerBild();   /* Masslinien ins Bild holen */
     renderer.render(szene, kamera3);
     var bild = renderer.domElement.toDataURL('image/png');
+    massAbstandZurueck(abstandB);
     feldGruppe.visible = feldVorher;
     ziehGruppe.visible = ziehVorher;
     if (name && ANSICHTEN[name] && vorher && vorher !== name) ansichtAnwenden(vorher);
@@ -16145,7 +16200,9 @@
       var ziehVorher = ziehGruppe.visible;
       feldGruppe.visible = false;
       ziehGruppe.visible = false;
+      var abstandS = massAbstandFuerBild();   /* Masslinien ins Bild holen */
       renderer.render(szene, kamera3);
+      massAbstandZurueck(abstandS);
       feldGruppe.visible = feldVorher;
       ziehGruppe.visible = ziehVorher;
       /* JPEG statt PNG: Das PDF übernimmt die JPEG-Bytes unverändert

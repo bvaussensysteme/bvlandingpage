@@ -101,6 +101,17 @@ else
     "Seite sagt ${standSoll:0:12}, Datei ist ${standIst:0:12}"
 fi
 
+# 5b: Die Bildkorrektur fuer die Masslinien gehoert in BEIDE Fassungen.
+#     Sie wurde in der Kopie gemessen (pruefe-freie-planung.mjs); dass die
+#     oeffentliche Fassung dieselbe Rechnung hat, wird hier gezeigt.
+pruef "Bildkorrektur fuer die Masslinien in der oeffentlichen Fassung" \
+  "$(hat js/konfigurator-3d.js 'function massAbstandFuerBild')" "js/konfigurator-3d.js"
+rumpfA="$(sed -n '/function massAbstandFuerBild/,/^  }$/p' "$WURZEL/js/konfigurator-3d.js")"
+rumpfB="$(sed -n '/function massAbstandFuerBild/,/^  }$/p' "$WURZEL/js/konfigurator-frei.js")"
+pruef "beide Fassungen rechnen den Bildabstand gleich" \
+  "$([ -n "$rumpfA" ] && [ "$rumpfA" = "$rumpfB" ] && echo 1 || echo 0)" \
+  "$(printf '%s' "$rumpfA" | wc -l) Zeilen verglichen"
+
 # 6: Abdrift
 kopf="$(grep -o 'ABGESPALTEN VON: js/konfigurator-3d.js, Stand [0-9a-f]\{7,\}' \
   "$WURZEL/js/konfigurator-frei.js" 2>/dev/null | awk '{print $NF}')"

@@ -174,7 +174,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <li><a href="#kontaktformular">Kontaktformular & Kontaktaufnahme</a></li>
         <li><a href="#vertrag">Vertragsabwicklung &amp; Anfragen über Marktplätze</a></li>
         <li><a href="#google-fonts">Google Fonts</a></li>
-        <li><a href="#openstreetmap">OpenStreetMap (Kartentool)</a></li>
+        <li><a href="#openstreetmap">OpenStreetMap (Kartentool) und Geländehöhe</a></li>
         <li><a href="#google-business">Google Business Profil</a></li>
         <li><a href="#bewertungen">Bewertungen (Google &amp; Trustindex)</a></li>
         <li><a href="#social-media">Social Media</a></li>
@@ -345,7 +345,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
     <!-- 7 -->
     <div class="legal-block" id="openstreetmap">
-      <h2>7. OpenStreetMap (Kartentool auf Wind-/Schneelast- und Baugenehmigungs-Seite)</h2>
+      <h2>7. OpenStreetMap (Kartentool auf Wind-/Schneelast- und Baugenehmigungs-Seite) und Geländehöhe</h2>
       <p>
         Auf unseren interaktiven Tools „Wind- &amp; Schneelastzonen-Rechner"
         (<a href="/windzonen.html">windzonen.html</a>) und „Baugenehmigung prüfen"
@@ -377,6 +377,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
         Interesse an der Bereitstellung dieser Standort-Tools; die Verbindung wird erst
         beim Nutzen des jeweiligen Tools aufgebaut).
+      </p>
+      <p>
+        <strong>Geländehöhe über NN.</strong> Im Wind- und Schneelastzonen-Rechner
+        können Sie den Bereich „Höhe über NN" aufklappen. Die Geländehöhe Ihres
+        Standorts ermittelt dann <strong>unser eigener Server</strong>. Ihr Browser
+        baut dabei <strong>keine</strong> Verbindung zu einem Dritten auf; Ihre
+        IP-Adresse wird an den Höhendienst nicht übermittelt. Unser Server
+        übermittelt an den Dienst <strong>Open Topo Data</strong>
+        (api.opentopodata.org) ausschließlich die auf etwa 10 Meter gerundete
+        geografische Koordinate. Name, Anschrift, IP-Adresse oder sonstige Kennungen
+        werden nicht übermittelt. Die Antwort speichern wir bis zu 30 Tage zwischen,
+        um wiederholte Abfragen zu vermeiden. Der Abruf erfolgt erst, wenn Sie den
+        Bereich aufklappen; wer nur die Lastzone abruft, löst ihn nicht aus.
+      </p>
+      <p>
+        Der Betreiber von Open Topo Data macht keine Angaben zu Sitz und
+        Serverstandort. Eine Übermittlung in ein Drittland ist daher nicht
+        auszuschließen. Übermittelt wird dabei ausschließlich die gerundete
+        Koordinate.<br /><br />
+        Hinweise des Dienstes:
+        <a href="https://www.opentopodata.org/" target="_blank" rel="noopener noreferrer">opentopodata.org</a><br /><br />
+        <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
+        Interesse daran, die Schneelast für den tatsächlichen Standort statt nur für
+        die Ortsmitte anzugeben).
       </p>
     </div>
 

@@ -538,3 +538,12 @@ Orten derselben Postleitzahl. Geprüft wird, dass der eingetippte Ort
 gewinnt, dass ein angeklickter Vorschlag Straße und Hausnummer behält
 und ohne zweite Suche seine eigenen Koordinaten benutzt, und dass die
 Höhe für das Haus geholt wird und nicht für die Ortsmitte.
+
+### 19.11.2026
+
+`pruefe-freie-planung.mjs` jetzt 80 Messungen: dazugekommen sind die
+vier Ansichten mit und ohne Bildkorrektur fuer die Masslinien und die
+Probe, dass die Kamera danach wieder steht wie vorher.
+`pruefe-konfigurator-frei.sh` jetzt 15: dazugekommen sind zwei
+Messungen, dass die Bildkorrektur auch in der oeffentlichen Fassung
+steckt und dass beide Rumpfe Zeile fuer Zeile gleich sind.
