@@ -239,6 +239,55 @@ try {
     p('Der Fokusring der Kachel erfuellt 3:1', ring >= 3, ring + ':1');
     await ctx.close();
 
+    /* ---- Zaehler und Pfeile am Streifen (19.11.2026) ----
+       Am Schreibtisch, denn nur dort gibt es die Pfeile. */
+    const dctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const ds = await dctx.newPage();
+    await ds.goto(`http://127.0.0.1:${PORT}/produkte/balkon-fassade.html`, { waitUntil: 'load' });
+    await ds.waitForTimeout(1200);
+    await ds.evaluate(() => { const k = document.querySelector('.cb-btn--necessary'); if (k) k.click(); });
+    await ds.waitForTimeout(500);
+    const sollB = DATEN['balkon-fassade'].bilder.length;
+    const lesen = () => ds.evaluate(() => ({
+      zaehler: document.querySelector('[data-zaehler]').textContent,
+      zurueckAus: document.querySelector('[data-pfeil="zurueck"]').disabled,
+      vorAus: document.querySelector('[data-pfeil="vor"]').disabled,
+      anzeige: getComputedStyle(document.querySelector('.galerie-pfeil')).display,
+      groesse: (() => { const r = document.querySelector('.galerie-pfeil').getBoundingClientRect();
+        return Math.round(r.width) + 'x' + Math.round(r.height); })(),
+    }));
+    const start = await lesen();
+    p('Der Zaehler steht am Anfang auf 1',
+      start.zaehler.trim() === '1 / ' + sollB && start.zurueckAus && !start.vorAus,
+      start.zaehler.trim());
+    p('Die Pfeile sind am Schreibtisch da und 44 x 44 px gross',
+      start.anzeige !== 'none' && start.groesse === '44x44', start.groesse);
+    await ds.click('[data-pfeil="vor"]');
+    await ds.waitForTimeout(700);
+    const weiter2 = await lesen();
+    p('Ein Klick auf den Pfeil schiebt genau eine Kachel',
+      weiter2.zaehler.trim() === '2 / ' + sollB && !weiter2.zurueckAus, weiter2.zaehler.trim());
+    await ds.evaluate(() => { const st = document.querySelector('.galerie-streifen');
+      st.scrollLeft = st.scrollWidth; });
+    await ds.waitForTimeout(700);
+    const ende = await lesen();
+    p('Am rechten Anschlag steht die letzte Nummer',
+      ende.zaehler.trim() === sollB + ' / ' + sollB && ende.vorAus, ende.zaehler.trim());
+    await dctx.close();
+
+    /* Am Telefon gibt es keine Pfeile, dort wischt man. */
+    const tctx = await browser.newContext({ viewport: { width: 390, height: 800 },
+      isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    const ts = await tctx.newPage();
+    await ts.goto(`http://127.0.0.1:${PORT}/produkte/balkon-fassade.html`, { waitUntil: 'load' });
+    await ts.waitForTimeout(1200);
+    const tel = await ts.evaluate(() => ({
+      pfeil: getComputedStyle(document.querySelector('.galerie-pfeil')).display,
+      versteckt: document.querySelector('[data-zaehler]').getAttribute('aria-hidden') }));
+    p('Am Telefon keine Pfeile, der Zaehler bleibt still',
+      tel.pfeil === 'none' && tel.versteckt === 'true', JSON.stringify(tel));
+    await tctx.close();
+
     /* ENG UND QUER: Bei 200 % Zoom und im Querformat muss alles
        erreichbar bleiben (WCAG 2.2, 1.4.4 und 1.4.10). */
     for (const [w, h, wie] of [[320, 256, '200 % Zoom'], [844, 390, 'Querformat']]) {

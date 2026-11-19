@@ -19539,3 +19539,38 @@ Diesmal keine Fehlzuordnung: Alle 18 zeigen wirklich Balkone.
 `pruefe-galerie.mjs` prüft jetzt sieben Seiten, 52 Messungen,
 Gegenprobe bestanden. `pruefe-mitwachsend.mjs` 28,
 `pruefe-umbruch.mjs` 110 Kombinationen, Cache-Buster grün.
+
+## 19.11.2026 – Zähler und Pfeile am Bilderstreifen
+
+**Anlass.** Zwei Befunde der Prüfer: Am Streifen fehlt die Position
+(„der Hinweistext nennt 20 Ansichten, im Streifen gibt es keinen
+Zähler"), und am Rechner mit Maus fehlt ein Hinweis, dass es
+weitergeht, weil manche Systeme die Scrollleiste ausblenden.
+
+**Was jetzt gilt.** Rechts über dem Streifen steht „3 / 18", daneben
+zwei Pfeilknöpfe. Die Pfeile erscheinen **nur bei Maus**
+(`hover: hover` und `pointer: fine`); am Telefon wischt man, und zwei
+Knöpfe nähmen dort nur Platz weg.
+
+**Der Zähler trägt `aria-hidden`.** Er ist eine Hilfe fürs Auge. Ein
+Screenreader liest beim Blättern sonst bei jedem Bild eine Zahl vor,
+ohne dass sich am Inhalt etwas ändert. Die Ansage beim Blättern macht
+die Großansicht, dort steht sie im Live-Bereich.
+
+**Gerechnet statt beobachtet.** Welche Kachel gemeint ist, kommt aus
+Scrollweite geteilt durch Kachelbreite, nicht aus einem Beobachter je
+Kachel. Das kommt mit einer Zahl aus und stimmt auch, wenn jemand
+mitten in der Bewegung anhält.
+
+**Ein Fehler, den erst die Messung zeigte.** Am rechten Anschlag stand
+„16 / 18": Am Schreibtisch passen drei Kacheln nebeneinander, und
+gezählt wird die linke davon. Am Anschlag steht jetzt die letzte
+Nummer.
+
+**Die Pfeile schieben um eine Kachel**, nicht um eine ganze Breite.
+Sonst überspringt man bei schmalen Fenstern Bilder. Bei „Bewegung
+reduzieren" springt es ohne Animation.
+
+**Gegengelesen.** `pruefe-galerie.mjs` 57 Messungen, Gegenprobe
+bestanden. `pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110
+Kombinationen, `pruefe-darstellung.mjs` 144, Cache-Buster grün.

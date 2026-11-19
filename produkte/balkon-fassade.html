@@ -81,7 +81,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261119d" />
+  <link rel="stylesheet" href="/css/style.css?v=20261119e" />
 
   <style>
 .produkt-hero{background:var(--black);padding:60px 0 50px;border-bottom:3px solid var(--gold);position:relative;}
@@ -298,10 +298,23 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <section class="section galerie-streifen-sektion" aria-labelledby="galerieTitel-balkon-fassade">
   <div class="container">
     <h2 id="galerieTitel-balkon-fassade">Ausführungsbeispiele</h2>
-    <p class="galerie-streifen-hinweis">
+    <div class="galerie-kopf">
+      <p class="galerie-streifen-hinweis">
       Balkonüberdachung aus Aluminium: 18 Ansichten zum Durchblättern.
       Herstellerdarstellungen, keine Fotos von uns gebauter Anlagen.
-    </p><ul class="galerie-streifen" id="galerieStreifen-balkon-fassade"
+      </p><div class="galerie-steuer">
+        <span class="galerie-zaehler" aria-hidden="true"
+              data-zaehler="balkon-fassade">1 / 18</span>
+        <button type="button" class="galerie-pfeil galerie-pfeil--zurueck"
+                data-pfeil="zurueck" aria-label="Vorherige Bilder zeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="galerie-pfeil galerie-pfeil--vor"
+                data-pfeil="vor" aria-label="Weitere Bilder zeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div><ul class="galerie-streifen" id="galerieStreifen-balkon-fassade"
         role="list" aria-labelledby="galerieTitel-balkon-fassade"
         data-galerie="balkon-fassade">
       <li>
@@ -563,7 +576,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/anfrage-wizard.js?v=20261114q" defer></script>
 
-<script src="/js/galerie.js?v=20261119c" defer></script>
+<script src="/js/galerie.js?v=20261119e" defer></script>
 
 
 <!-- ===== STICKY CTA ===== -->

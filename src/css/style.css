@@ -1873,6 +1873,36 @@ footer h4 {
   color: var(--muted); font-size: 0.86rem; line-height: 1.6;
   margin: 6px 0 18px; max-width: 70ch;
 }
+/* Kopfzeile des Streifens: Hinweis links, Zaehler und Pfeile rechts.
+   Die Pfeile erscheinen nur, wo es eine Maus gibt: Am Telefon wischt
+   man, und zwei zusaetzliche Knoepfe nehmen dort nur Platz weg. Dass
+   es weitergeht, zeigt dort die angeschnittene naechste Kachel. */
+.galerie-kopf {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.galerie-steuer { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.galerie-zaehler {
+  font-size: .82rem; font-weight: 700; color: var(--muted);
+  font-variant-numeric: tabular-nums; min-width: 4.2em; text-align: right;
+}
+.galerie-pfeil {
+  display: none;
+  width: 44px; height: 44px; min-width: 44px;
+  align-items: center; justify-content: center;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: var(--white); color: var(--black); cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.galerie-pfeil svg { width: 20px; height: 20px; }
+.galerie-pfeil:hover { border-color: var(--gold); background: var(--offwhite, #F5F2EB); }
+.galerie-pfeil:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 2px; }
+.galerie-pfeil[disabled] { opacity: .35; cursor: default; }
+.galerie-pfeil[disabled]:hover { border-color: var(--border); background: var(--white); }
+@media (hover: hover) and (pointer: fine) {
+  .galerie-pfeil { display: inline-flex; }
+}
+
 .galerie-streifen {
   list-style: none; margin: 0; padding: 0 0 10px;
   display: flex; gap: 14px;

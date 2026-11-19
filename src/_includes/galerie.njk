@@ -29,10 +29,29 @@
 <section class="section galerie-streifen-sektion" aria-labelledby="galerieTitel-{{ galerieSchluessel }}">
   <div class="container">
     <h2 id="galerieTitel-{{ galerieSchluessel }}">Ausführungsbeispiele</h2>
-    <p class="galerie-streifen-hinweis">
+    <div class="galerie-kopf">
+      <p class="galerie-streifen-hinweis">
       {{ g.bezeichnung }}: {{ g.bilder.length }} {% if g.bilder.length == 1 %}Ansicht{% else %}Ansichten zum Durchblättern{% endif %}.
       Herstellerdarstellungen, keine Fotos von uns gebauter Anlagen.
-    </p>
+      </p>
+      {#- Zaehler und Pfeile. Der Zaehler traegt aria-hidden: Er ist
+          eine Orientierungshilfe fuers Auge; ein Screenreader liest
+          beim Blaettern sonst bei jedem Bild eine Zahl vor, ohne dass
+          sich am Inhalt etwas aendert. Die Pfeile erscheinen nur bei
+          Maus, am Telefon wischt man. -#}
+      <div class="galerie-steuer">
+        <span class="galerie-zaehler" aria-hidden="true"
+              data-zaehler="{{ galerieSchluessel }}">1 / {{ g.bilder.length }}</span>
+        <button type="button" class="galerie-pfeil galerie-pfeil--zurueck"
+                data-pfeil="zurueck" aria-label="Vorherige Bilder zeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="galerie-pfeil galerie-pfeil--vor"
+                data-pfeil="vor" aria-label="Weitere Bilder zeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
     {#- role="list" ist noetig, weil Safari mit VoiceOver die
         Listensemantik bei list-style:none verwirft. -#}
     <ul class="galerie-streifen" id="galerieStreifen-{{ galerieSchluessel }}"

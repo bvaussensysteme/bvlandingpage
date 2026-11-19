@@ -156,7 +156,61 @@
     }, { passive: true });
   })();
 
+  /* ---- Zaehler und Pfeile am Streifen ----
+     Welche Kachel ist gemeint? Die, die am weitesten links noch ganz
+     oder fast ganz zu sehen ist. Gerechnet wird aus der Scrollweite
+     und der Kachelbreite, nicht ueber einen Beobachter je Kachel: Das
+     kommt mit einer Zahl aus und stimmt auch, wenn jemand mitten in
+     der Bewegung stoppt.
+
+     Die Pfeile schieben um eine Kachel weiter, nicht um eine ganze
+     Breite: Sonst ueberspringt man bei schmalen Fenstern Bilder. */
+  function steuerung(s) {
+    var kopf = s.closest('.container');
+    if (!kopf) return;
+    var zaehler = kopf.querySelector('[data-zaehler]');
+    var zurueck = kopf.querySelector('[data-pfeil="zurueck"]');
+    var vor = kopf.querySelector('[data-pfeil="vor"]');
+    var kacheln = s.querySelectorAll('.galerie-kachel');
+    if (!kacheln.length) return;
+
+    function schritt() {
+      var a = kacheln[0].getBoundingClientRect();
+      var b = kacheln.length > 1 ? kacheln[1].getBoundingClientRect() : null;
+      return b ? Math.round(b.left - a.left) : Math.round(a.width + 14);
+    }
+    function nachziehen() {
+      var w = schritt() || 1;
+      var nr = Math.min(kacheln.length, Math.max(1, Math.round(s.scrollLeft / w) + 1));
+      var ende = s.scrollWidth - s.clientWidth - 2;
+      /* Am rechten Anschlag steht die LETZTE Nummer. Sonst meldete der
+         Zaehler dort "16 / 18", weil am Schreibtisch drei Kacheln
+         nebeneinander passen und die linke davon gezaehlt wird.
+         Gemessen am 19.11.2026. */
+      if (s.scrollLeft >= ende) nr = kacheln.length;
+      if (zaehler) zaehler.textContent = nr + ' / ' + kacheln.length;
+      if (zurueck) zurueck.disabled = s.scrollLeft <= 2;
+      if (vor) vor.disabled = s.scrollLeft >= ende;
+    }
+    function schieben(richtung) {
+      s.scrollBy({ left: richtung * schritt(), behavior:
+        window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto' : 'smooth' });
+    }
+    if (zurueck) zurueck.addEventListener('click', function () { schieben(-1); });
+    if (vor) vor.addEventListener('click', function () { schieben(1); });
+
+    var warte = null;
+    s.addEventListener('scroll', function () {
+      if (warte) return;
+      warte = requestAnimationFrame(function () { warte = null; nachziehen(); });
+    }, { passive: true });
+    window.addEventListener('resize', nachziehen, { passive: true });
+    nachziehen();
+  }
+
   Array.prototype.forEach.call(streifen, function (s) {
+    steuerung(s);
     var kacheln = s.querySelectorAll('.galerie-kachel');
     var liste = Array.prototype.map.call(kacheln, function (k) {
       var img = k.querySelector('img');
