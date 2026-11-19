@@ -579,3 +579,10 @@ Wischen, Knöpfe 44 × 44 px, Klick zwischen den Pfeilen schließt nicht,
 schwebende Knöpfe verschwinden, `inert` auf dem Hintergrund,
 Fokusring-Kontrast, und die Großansicht bei 320 × 256 px sowie im
 Querformat. Gegenprobe mit vier eingebauten Fehlern.
+
+### baue-staedte-galerie.mjs (neu am 19.11.2026)
+
+Kein Prüfskript, sondern ein Generator: Er setzt den Bilderstreifen in
+die 14 handgepflegten Städteseiten, aus derselben Quelle wie die
+Produktseiten. Wiederholbar, ein vorhandener Block wird ersetzt.
+`pruefe-galerie.mjs` prüft drei der erzeugten Seiten nach.

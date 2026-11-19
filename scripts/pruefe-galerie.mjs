@@ -288,6 +288,38 @@ try {
       tel.pfeil === 'none' && tel.versteckt === 'true', JSON.stringify(tel));
     await tctx.close();
 
+    /* ---- Staedteseiten (19.11.2026) ----
+       Sie sind handgepflegtes HTML und laufen nicht durch Eleventy;
+       ihr Block kommt aus scripts/baue-staedte-galerie.mjs. Deshalb
+       hier eigens geprueft: Ohne das faellt es niemandem auf, wenn
+       der Generator nicht mehr laeuft. */
+    for (const [seite, schluessel] of [['carport-koblenz.html', 'carport'],
+                                       ['pergola-neuwied.html', 'pergola'],
+                                       ['terrassenueberdachung-hachenburg.html', 'terrassenueberdachung']]) {
+      const soll = Math.min(4, DATEN[schluessel].bilder.length);
+      const sctx = await browser.newContext({ viewport: { width: 390, height: 800 },
+        isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+      const ss = await sctx.newPage();
+      const vierNullVier = [];
+      ss.on('response', (r) => { if (r.status() >= 400) vierNullVier.push(r.url().split('/').pop()); });
+      await ss.goto(`http://127.0.0.1:${PORT}/${seite}`, { waitUntil: 'load' });
+      await ss.waitForTimeout(1100);
+      const r = await ss.evaluate(() => ({
+        kacheln: document.querySelectorAll('.galerie-kachel').length,
+        zaehler: (document.querySelector('[data-zaehler]') || {}).textContent || '',
+        verweis: !!document.querySelector('.galerie-streifen-hinweis a'),
+        ohneAlt: [...document.querySelectorAll('.galerie-kachel img')]
+          .filter((b) => !b.getAttribute('alt')).length,
+      }));
+      p(`${seite}: Bilderstreifen steht in der Seite`,
+        r.kacheln === soll && r.ohneAlt === 0 && vierNullVier.length === 0,
+        `${r.kacheln} von ${soll}, ohne Text ${r.ohneAlt}` +
+        (vierNullVier.length ? ', fehlt: ' + vierNullVier[0] : ''));
+      p(`${seite}: Zaehler und Verweis auf die Produktseite`,
+        r.zaehler.trim() === '1 / ' + soll && r.verweis, r.zaehler.trim());
+      await sctx.close();
+    }
+
     /* ENG UND QUER: Bei 200 % Zoom und im Querformat muss alles
        erreichbar bleiben (WCAG 2.2, 1.4.4 und 1.4.10). */
     for (const [w, h, wie] of [[320, 256, '200 % Zoom'], [844, 390, 'Querformat']]) {

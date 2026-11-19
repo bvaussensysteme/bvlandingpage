@@ -242,6 +242,28 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   
   <!-- Schlusspunkt. Das Quiz steht oben, direkt unter dem Hero; hier
        nur noch der Weg dorthin und die Direktwege. -->
+
+  <!-- ANFANG Ausfuehrungsbeispiele (erzeugt von scripts/baue-staedte-galerie.mjs) -->
+  <section class="section galerie-streifen-sektion" aria-labelledby="galerieTitel-terrassenueberdachung">
+    <div class="container">
+      <h2 id="galerieTitel-terrassenueberdachung">Ausführungsbeispiele</h2>
+      <div class="galerie-kopf">
+        <p class="galerie-streifen-hinweis">Terrassenüberdachung aus Aluminium: 4 Ansichten zum Durchblättern. Herstellerdarstellungen, keine Fotos von uns gebauter Anlagen. Mehr Ansichten auf der <a href="/produkte/terrassenueberdachung.html">Produktseite</a>.</p>
+        <div class="galerie-steuer">
+          <span class="galerie-zaehler" aria-hidden="true" data-zaehler="terrassenueberdachung">1 / 4</span>
+          <button type="button" class="galerie-pfeil galerie-pfeil--zurueck" data-pfeil="zurueck" aria-label="Vorherige Bilder zeigen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+          <button type="button" class="galerie-pfeil galerie-pfeil--vor" data-pfeil="vor" aria-label="Weitere Bilder zeigen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+      </div>
+      <ul class="galerie-streifen" role="list" aria-labelledby="galerieTitel-terrassenueberdachung" data-galerie="terrassenueberdachung">
+        <li><button type="button" class="galerie-kachel" data-nr="0" aria-label="Terrassenüberdachung aus Aluminium in Anthrazit an einem weißen Stadthaus, vom Garten aus gesehen, darunter eine Sitzgruppe groß anzeigen"><img src="/images/portfolio/terrassenueberdachung/terrassenueberdachung-01.webp" alt="Terrassenüberdachung aus Aluminium in Anthrazit an einem weißen Stadthaus, vom Garten aus gesehen, darunter eine Sitzgruppe" width="800" height="450" decoding="async"></button></li>
+        <li><button type="button" class="galerie-kachel" data-nr="1" aria-label="Dasselbe Haus von der Seite: die Überdachung verläuft über die ganze Rückfront bis zur Terrassentür groß anzeigen"><img src="/images/portfolio/terrassenueberdachung/terrassenueberdachung-02.webp" alt="Dasselbe Haus von der Seite: die Überdachung verläuft über die ganze Rückfront bis zur Terrassentür" width="800" height="450" loading="lazy" decoding="async"></button></li>
+        <li><button type="button" class="galerie-kachel" data-nr="2" aria-label="Blick aus dem Garten auf die Terrasse unter dem Glasdach, mit Sofa und Couchtisch, daneben eine Schaukel groß anzeigen"><img src="/images/portfolio/terrassenueberdachung/terrassenueberdachung-03.webp" alt="Blick aus dem Garten auf die Terrasse unter dem Glasdach, mit Sofa und Couchtisch, daneben eine Schaukel" width="800" height="450" loading="lazy" decoding="async"></button></li>
+        <li><button type="button" class="galerie-kachel" data-nr="3" aria-label="Blick von oben auf die Überdachung: die Aufdachmarkise ist eingefahren, man sieht die Sparren und das Glasdach groß anzeigen"><img src="/images/portfolio/terrassenueberdachung/terrassenueberdachung-04.webp" alt="Blick von oben auf die Überdachung: die Aufdachmarkise ist eingefahren, man sieht die Sparren und das Glasdach" width="800" height="450" loading="lazy" decoding="async"></button></li>
+      </ul>
+    </div>
+  </section>
+  <!-- ENDE Ausfuehrungsbeispiele -->
   <section class="section" style="background:var(--dark);text-align:center;">
     <div class="container">
       <h2 style="color:#fff;margin-bottom:12px;">Noch Fragen offen?</h2>
@@ -334,5 +356,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <button class="sticky-close" id="stickyClose" aria-label="Banner schließen">✕</button>
 </div>
 
+  <script src="/js/galerie.js?v=20261119e" defer></script>
 </body>
 </html>

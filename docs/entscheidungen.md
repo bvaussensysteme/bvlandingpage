@@ -19574,3 +19574,39 @@ reduzieren" springt es ohne Animation.
 **Gegengelesen.** `pruefe-galerie.mjs` 57 Messungen, Gegenprobe
 bestanden. `pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110
 Kombinationen, `pruefe-darstellung.mjs` 144, Cache-Buster grün.
+
+## 19.11.2026 – Städteseiten bekommen Bilder, die Startseite bewusst nicht
+
+**Was gefunden wurde.** Die 14 Städteseiten („Carport in Koblenz",
+„Terrassenüberdachung in Montabaur") hatten **kein einziges
+Produktbild**, nur zweimal das Logo. Das sind genau die Seiten, die
+lokal gefunden werden sollen.
+
+**Was jetzt gilt.** Jede Städteseite zeigt vier Ansichten des Produkts,
+um das es dort geht, mit demselben Streifen und derselben Großansicht
+wie die Produktseiten, dazu einen Verweis auf die Produktseite für
+mehr Ansichten.
+
+**Erzeugt, nicht abgetippt.** Die Städteseiten sind handgepflegtes HTML
+und laufen nicht durch Eleventy; der Include greift dort nicht.
+`scripts/baue-staedte-galerie.mjs` erzeugt den Block aus derselben
+Quelle wie die Produktseiten (`src/_data/galerien.json`) und ist
+**wiederholbar**: Ein vorhandener Block wird ersetzt, nicht verdoppelt.
+Nachgewiesen: Zweiter Lauf ändert keine Datei.
+
+**Die Startseite bleibt, wie sie ist, und das ist Absicht.** Dort gibt
+es eine Galerie mit **Referenzfotos** (`vd_ref_*`) und eine
+Platzhalterkachel: „Weitere Referenzfotos folgen nach unseren nächsten
+Projekten." Renderings dort einzumischen hieße, Herstellerbilder als
+eigene Projekte auszugeben. Das wäre genau das erfundene
+Vertrauenssignal, das `CLAUDE.md` verbietet. Die Platzhalterkachel
+bleibt deshalb stehen, bis es echte Fotos gibt.
+
+Geprüft wurde auch, ob auf der Startseite Produktbilder fehlen: Alle
+neun Leistungskarten haben eines.
+
+**Gegengelesen.** `pruefe-galerie.mjs` prüft jetzt auch drei
+Städteseiten, 63 Messungen, Gegenprobe bestanden. Dabei wird auf 404
+geachtet, sonst fiele ein falscher Bildpfad erst dem Besucher auf.
+`pruefe-mitwachsend.mjs` 28, `pruefe-umbruch.mjs` 110 Kombinationen,
+`pruefe-nicht-oeffentlich.sh` bestanden.

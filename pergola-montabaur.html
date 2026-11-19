@@ -236,6 +236,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   
   <!-- Schlusspunkt. Das Quiz steht oben, direkt unter dem Hero; hier
        nur noch der Weg dorthin und die Direktwege. -->
+
+  <!-- ANFANG Ausfuehrungsbeispiele (erzeugt von scripts/baue-staedte-galerie.mjs) -->
+  <section class="section galerie-streifen-sektion" aria-labelledby="galerieTitel-pergola">
+    <div class="container">
+      <h2 id="galerieTitel-pergola">Ausführungsbeispiele</h2>
+      <div class="galerie-kopf">
+        <p class="galerie-streifen-hinweis">Lamellendach aus Aluminium: 3 Ansichten zum Durchblättern. Herstellerdarstellungen, keine Fotos von uns gebauter Anlagen. Mehr Ansichten auf der <a href="/produkte/pergola.html">Produktseite</a>.</p>
+        <div class="galerie-steuer">
+          <span class="galerie-zaehler" aria-hidden="true" data-zaehler="pergola">1 / 3</span>
+          <button type="button" class="galerie-pfeil galerie-pfeil--zurueck" data-pfeil="zurueck" aria-label="Vorherige Bilder zeigen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+          <button type="button" class="galerie-pfeil galerie-pfeil--vor" data-pfeil="vor" aria-label="Weitere Bilder zeigen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+      </div>
+      <ul class="galerie-streifen" role="list" aria-labelledby="galerieTitel-pergola" data-galerie="pergola">
+        <li><button type="button" class="galerie-kachel" data-nr="0" aria-label="Freistehendes Lamellendach neben der Terrasse, darunter ein Esstisch, rechts Grill und Liegen am Haus groß anzeigen"><img src="/images/portfolio/pergola/pergola-01.webp" alt="Freistehendes Lamellendach neben der Terrasse, darunter ein Esstisch, rechts Grill und Liegen am Haus" width="800" height="450" decoding="async"></button></li>
+        <li><button type="button" class="galerie-kachel" data-nr="1" aria-label="Freistehendes Lamellendach über einer Lounge-Sitzgruppe, die Lamellen sind geschlossen groß anzeigen"><img src="/images/portfolio/pergola/pergola-02.webp" alt="Freistehendes Lamellendach über einer Lounge-Sitzgruppe, die Lamellen sind geschlossen" width="800" height="450" loading="lazy" decoding="async"></button></li>
+        <li><button type="button" class="galerie-kachel" data-nr="2" aria-label="Blick von unten in das geöffnete Lamellendach: die weißen Lamellen stehen schräg und lassen Licht durch groß anzeigen"><img src="/images/portfolio/pergola/pergola-03.webp" alt="Blick von unten in das geöffnete Lamellendach: die weißen Lamellen stehen schräg und lassen Licht durch" width="800" height="450" loading="lazy" decoding="async"></button></li>
+      </ul>
+    </div>
+  </section>
+  <!-- ENDE Ausfuehrungsbeispiele -->
   <section class="section" style="background:var(--dark);text-align:center;">
     <div class="container">
       <h2 style="color:#fff;margin-bottom:12px;">Noch Fragen offen?</h2>
@@ -328,5 +349,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <button class="sticky-close" id="stickyClose" aria-label="Banner schließen">✕</button>
 </div>
 
+  <script src="/js/galerie.js?v=20261119e" defer></script>
 </body>
 </html>
