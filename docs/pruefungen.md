@@ -65,6 +65,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-referenz-galerie.mjs` | Passen Referenz-Galerie und Lightbox **auf der Startseite** zusammen? Fortlaufende Nummern, gleich viele Einträge, Alternativtexte, Herkunftsangabe, vorhandene Dateien – und jede Karte öffnet im Browser wirklich ihr eigenes Bild. Gegenprobe: ein entfernter Eintrag muss auffallen |
 | `scripts/pruefe-galerie.mjs` | Die Bildergalerien „Ausführungsbeispiele" auf den sieben Produktseiten und drei Städteseiten im echten Browser. 64 Messungen, siehe Abschnitt weiter unten. Gegenprobe: 4 eingebaute Fehler |
 | `scripts/pruefe-staedte-galerie.mjs` | Passt der erzeugte Bilderstreifen in den 14 Städteseiten noch zu `src/_data/galerien.json`? Lädt den Generator als Modul, baut die Blöcke neu und vergleicht sie Zeichen für Zeichen; dazu ein zweiter Weg, der die Alternativtexte direkt im HTML sucht. Gegenprobe: 2 eingebaute Fehler, einer für jeden Weg |
+| `scripts/pruefe-schema-bilder.mjs` | Zeigen die Bild-URLs im Product-Schema der Produktseiten wirklich auf vorhandene Bilder, die auf derselben Seite auch **sichtbar** sind? Drei Wege: absolute URL auf eigener Domain, Datei liegt im Repository, `src` derselben Datei steht im HTML. Gegenprobe: 3 eingebaute Fehler, einer je Weg |
 | `scripts/pruefe-vergleich.mjs` | Die Gegenüberstellung TDS/SkyView auf der Terrassenseite: sechs vollständige Zeilen, beide Modelle als Spaltenkopf, Beschriftung für Screenreader – und auf 390 px **kein waagerechtes Scrollen**. Gegenprobe: ein zu langes Wort in einer Zelle muss auffallen |
 | `scripts/pruefe-startseite.mjs` | Die Premium-Schicht der Startseite: greift sie überhaupt, stimmen Markengold, Textgold, Tiefschwarz und Manrope, steht **nirgends Gold als Text auf hellem Grund**, sind Anfrage-Knopf und zweiter Einstieg ≥ 44 px, scrollt nichts waagerecht – und sind Navigation, Assistent, Galerie, Produktkarten, Rechner und Fuß noch da? Auf 390, 768 und 1280 px. Gegenprobe: ohne die Klasse `start-premium` muss die Palettenprüfung anschlagen |
 | `scripts/pruefe-einzugsgebiet.mjs` | Erkennt der Anfrage-Assistent, ob eine PLZ im üblichen Fahrtgebiet liegt? Wichtiger noch: Bleibt der Hinweis **aus**, wenn sie es nicht tut, und steht nie eine Absage im Bedienfeld? Gegenprobe: PLZ aus Hamburg und München dürfen keinen Hinweis erzeugen |
@@ -598,6 +599,20 @@ eine Kachel, am rechten Anschlag steht die letzte Nummer, und **kein
 Pfeil ist hart `disabled`** (sonst verliert er am Anschlag den
 Tastaturfokus, WCAG 2.2, 2.4.3). Gegenprobe mit vier eingebauten
 Fehlern.
+
+### pruefe-schema-bilder.mjs (neu am 19.11.2026)
+
+Entstanden aus einem eigenen Fehler. Beim Ergänzen von `"image"` im
+Product-Schema fehlte der Ordnerpfad: Im Schema stand
+`.../carport-01.webp` statt `.../images/portfolio/carport/carport-01.webp`.
+**Alle 21 URLs waren falsch.** Die Gegenprobe, die ich dazu von Hand
+geschrieben hatte, suchte nur URLs, die `images/` enthielten, konnte den
+Fehler also gar nicht finden und meldete trotzdem „0 fehlende Dateien".
+Aufgefallen ist es erst beim Abruf der Vorschau. Lehre: Eine Prüfung, die
+nur den erwarteten Fall sucht, bestätigt die eigene Arbeit. 5 Messungen
+über 18 Produktseiten, Gegenprobe mit drei eingebauten Fehlern, jeder auf
+einer anderen Seite **mit** Galerie. Der erste Versuch der Gegenprobe
+schlug nur einmal an, weil zwei Fehler auf Seiten ohne Galerie landeten.
 
 ### baue-staedte-galerie.mjs (neu am 19.11.2026)
 

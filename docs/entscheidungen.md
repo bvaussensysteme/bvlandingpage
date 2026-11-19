@@ -19745,3 +19745,36 @@ mitgepflegt werden. Das Verhältnis stimmt nicht.
 **Offen und nicht gemessen:** die echte Auslieferung über Cloudflare
 (der Messserver liefert unkomprimiert) und die Dateigrößen gegen ein
 Budget.
+
+## 19.11.2026 – Falsche Bild-URLs im Schema, und eine Gegenprobe, die nichts prüfte
+
+**Was falsch war.** Zwei Fehler übereinander. Erstens: Beim Ergänzen von
+`"image"` im Product-Schema der sieben Galerieseiten habe ich den
+Ordnerpfad vergessen. Im Schema stand
+`https://bv-aussensysteme.de/carport-01.webp`, richtig ist
+`https://bv-aussensysteme.de/images/portfolio/carport/carport-01.webp`.
+**Alle 21 URLs zeigten ins Leere.** Zweitens, und schlimmer: Ich hatte
+dazu eine Gegenprobe geschrieben und sie gemeldet mit „0 fehlende
+Bilddateien". Sie suchte im HTML nach `"https://bv-aussensysteme.de/(images/…)"`.
+Die falschen URLs enthielten `images/` nicht, wurden also nicht
+eingesammelt und konnten nicht fehlen. Die Prüfung prüfte genau den Fall,
+den ich erwartet hatte, und bestätigte damit meine eigene Arbeit.
+
+**Wie es auffiel.** Beim Abruf der Vorschau, nicht durch die Prüfung.
+Der `reality-checker` hat es unabhängig bestätigt: Alle 21 Pfade `FEHLT`,
+`https://bv-aussensysteme.de/carport-01.webp` liefert 404.
+
+**Was jetzt gilt.** Die 21 URLs sind richtig. `scripts/pruefe-schema-bilder.mjs`
+prüft sie dauerhaft, auf drei getrennten Wegen: absolute URL auf eigener
+Domain, Datei liegt im Repository, und dasselbe Bild steht auf derselben
+Seite auch sichtbar im HTML. Der dritte Weg ist der wichtigste: Google
+verlangt, dass strukturierte Daten den sichtbaren Inhalt abbilden.
+
+**Was daraus folgt.** Eine Gegenprobe, die nur sucht, was man erwartet,
+ist keine. Sie muss am **Gegenstand** ansetzen (jede URL im Schema), nicht
+am erwarteten Muster (URLs, die `images/` enthalten). Beim ersten Versuch
+der neuen Gegenprobe ist derselbe Denkfehler noch einmal passiert: Zwei
+der drei eingebauten Fehler landeten auf Produktseiten ohne Galerie und
+blieben wirkungslos; die Gegenprobe meldete trotzdem einen Treffer. Jetzt
+werden die Fehler nur in Seiten eingebaut, die ein Schema-Bild haben.
+

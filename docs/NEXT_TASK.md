@@ -216,8 +216,10 @@ Aussage über diese Seite geraten.
   Produkte. Bis dahin keine Arbeit an Bildzuschnitten, Bildgroessen
   oder Galerie-Reihenfolge investieren, das waere doppelt. Wenn die
   neuen Bilder kommen: Dateinamen und `srcset`/`sizes` pruefen,
-  `js/main.js` (`lightboxImages`) mitziehen, `scripts/pruefe-galerie.mjs`
-  laufen lassen.
+  `js/main.js` (`lightboxImages`) mitziehen,
+  `scripts/pruefe-referenz-galerie.mjs` laufen lassen (hieß bis zum
+  19.11.2026 `pruefe-galerie.mjs`; dieser Name gehört jetzt den
+  Produkt-Galerien).
 - **Vektorlogos** kommen, wenn alles fertig ist.
 - **Fuenf Sterne** im Bewertungskasten: fest eingebaut, ohne Quelle.
   Vor einer Veroeffentlichung entfernen oder durch die echte
