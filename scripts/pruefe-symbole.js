@@ -28,12 +28,23 @@ var WK_ORIG = fs.readFileSync(__dirname + '/../scripts/baue-werkstatt.js', 'utf8
 /* Die Sammlung fuer die uebrige Website und das gemeinsame Stylesheet. */
 var SAM_ORIG = fs.readFileSync(__dirname + '/../js/bv-symbole.js', 'utf8');
 var CSS_ORIG = fs.readFileSync(__dirname + '/../src/css/style.css', 'utf8');
-/* Die Skripte, die frueher Emoji in die Seite geschrieben haben. */
-var SEITEN_JS = ['cookie', 'newsletter', 'region-info', 'main', 'slider',
+/* Die Skripte, die frueher Emoji in die Seite geschrieben haben.
+   js/newsletter.js stand hier mit; die Datei war in keiner Seite
+   eingebunden und wurde am 19.11.2026 entfernt.
+
+   FEHLENDE DATEIEN WERDEN UEBERSPRUNGEN, nicht mit einem Absturz
+   quittiert: Vorher riss ein geloeschtes Skript die ganze Pruefung
+   mit, und im Gesamtdurchlauf stand dann nur "nicht gelaufen" - ohne
+   Hinweis, woran es lag. */
+var SEITEN_JS = ['cookie', 'region-info', 'main', 'slider',
                  'accessibility'].map(function (d) {
-  return { name: 'js/' + d + '.js',
-           text: fs.readFileSync(__dirname + '/../js/' + d + '.js', 'utf8') };
-});
+  var pfad = __dirname + '/../js/' + d + '.js';
+  if (!fs.existsSync(pfad)) {
+    console.log('  Hinweis  js/' + d + '.js gibt es nicht mehr, wird uebersprungen');
+    return null;
+  }
+  return { name: 'js/' + d + '.js', text: fs.readFileSync(pfad, 'utf8') };
+}).filter(Boolean);
 
 /* Die Zeichen, die iOS zum Emoji macht. Bewusst eine LISTE und keine
    Bereichsregel: Gedankenstrich, Anfuehrungszeichen und Auslassungs-
