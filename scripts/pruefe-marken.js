@@ -744,12 +744,25 @@ function lauf(q) {
      Die Flaechen sind Bedienung, kein Bauteil. Als HTML-Knoepfe fielen
      sie von selbst aus dem Bild; jetzt haengen sie in der Szene und
      muessen fuer die Aufnahme ausgeschaltet werden. */
-  p('Die Flaechen bleiben aus dem gespeicherten Bild heraus',
-    /feldGruppe\.visible = false;[\s\S]{0,80}?renderer\.render\(szene, kamera3\);\s*\n\s*var bild = renderer\.domElement\.toDataURL/.test(q.js),
-    'bildVonAnsicht() schaltet sie vor der Aufnahme aus');
-  p('Die Flaechen bleiben aus dem PDF heraus',
-    /feldGruppe\.visible = false;[\s\S]{0,80}?renderer\.render\(szene, kamera3\);\s*\n\s*feldGruppe\.visible = feldVorher;/.test(q.js),
-    'schuss() schaltet sie vor jeder Seite aus');
+  /* REIHENFOLGE STATT NACHBARSCHAFT. Bis zum 19.11.2026 verlangten diese
+     beiden Muster, dass zwischen dem Ausschalten und dem Rendern nichts
+     steht. Das prueft nicht die Absicht, sondern die Zeilenfolge: Als die
+     Bildkorrektur fuer die Masslinien eine Zeile dazwischensetzte,
+     schlugen sie an, obwohl die Flaechen weiterhin ausgeschaltet waren.
+     Gemeint ist: ausschalten VOR dem Rendern, danach wieder herstellen.
+     Genau das wird jetzt geprueft. */
+  (function () {
+    [['bildVonAnsicht', 'Die Flaechen bleiben aus dem gespeicherten Bild heraus'],
+     ['schuss', 'Die Flaechen bleiben aus dem PDF heraus']].forEach(function (x) {
+      var start = q.js.indexOf('function ' + x[0] + '(');
+      var rumpf = start < 0 ? '' : q.js.slice(start, start + 1400);
+      var aus = rumpf.indexOf('feldGruppe.visible = false;');
+      var malen = rumpf.indexOf('renderer.render(szene, kamera3);');
+      var zurueck = rumpf.indexOf('feldGruppe.visible = feldVorher;');
+      p(x[1], start >= 0 && aus >= 0 && malen > aus && zurueck > malen,
+        x[0] + '(): aus vor dem Rendern, zurueck danach');
+    });
+  })();
 
   /* ---------- Ein Maß antippen und ändern ----------
      „Die Maße sollen standartmäßig an sein … wenn man auf ein maß tippt

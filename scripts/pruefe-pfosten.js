@@ -168,13 +168,16 @@ var FEHLER = [
   ['Die Hervorhebung wird nach dem Bauen nicht erneuert', 'js',
    '    pfostenFelderAnzeigen();\n    pfostenWahlZeigen();',
    '    pfostenFelderAnzeigen();'],
+  /* Seit dem 19.11.2026 steht zwischen dem Ausschalten und dem Rendern
+     die Bildkorrektur fuer die Masslinien. Der eingebaute Fehler nimmt
+     deshalb genau die Ausschaltzeile heraus, statt einen Block zu
+     ersetzen, der so nicht mehr dasteht. */
   ['Die Hervorhebung landet im gespeicherten Bild', 'js',
-   '    ziehGruppe.visible = false;\n    renderer.render(szene, kamera3);\n' +
-   "    var bild = renderer.domElement.toDataURL('image/png');",
-   "    renderer.render(szene, kamera3);\n    var bild = renderer.domElement.toDataURL('image/png');"],
+   '    ziehGruppe.visible = false;\n    var abstandB = massAbstandFuerBild();',
+   '    var abstandB = massAbstandFuerBild();'],
   ['Die Hervorhebung landet im PDF', 'js',
-   '      ziehGruppe.visible = false;\n      renderer.render(szene, kamera3);',
-   '      renderer.render(szene, kamera3);'],
+   '      ziehGruppe.visible = false;\n      var abstandS = massAbstandFuerBild();',
+   '      var abstandS = massAbstandFuerBild();'],
   ['Die Wahl bleibt stehen, wenn es den Pfosten nicht mehr gibt', 'js',
    '    if (!pfostenSpanne(PF_WAHL.reihe, PF_WAHL.nr)) { PF_WAHL = null; return; }',
    '    void PF_WAHL;'],
@@ -368,6 +371,8 @@ function lauf(q) {
   function hat(nm, text, wo) {
     p(nm, (wo === 'html' ? q.html : q.js).indexOf(text) > -1, wo || 'js');
   }
+  /* Wie hat(), nur mit fertigem Befund statt mit einer Textsuche. */
+  function hatRoh(nm, ok, beleg) { p(nm, !!ok, beleg); }
   var GR = { min: 2195, max: 3645 };
 
   /* ---------- Das Klemmen, ausgefuehrt ---------- */
@@ -584,10 +589,27 @@ function lauf(q) {
       'var ziehGruppe = new THREE.Group();');
   hat('Die Hervorhebung wird nach jedem Bauen erneuert',
       'pfostenFelderAnzeigen();\n    pfostenWahlZeigen();');
-  hat('Die Hervorhebung bleibt aus dem gespeicherten Bild heraus',
-      'ziehGruppe.visible = false;\n    renderer.render(szene, kamera3);');
-  hat('Die Hervorhebung bleibt aus dem PDF heraus',
-      'ziehGruppe.visible = false;\n      renderer.render(szene, kamera3);');
+  /* REIHENFOLGE STATT NACHBARSCHAFT. Bis zum 19.11.2026 stand hier die
+     Zeile "ziehGruppe.visible = false;" mit der Render-Zeile direkt
+     dahinter. Das prueft nicht, was gemeint ist, sondern dass nichts
+     dazwischenkommt: Als die Bildkorrektur fuer die Masslinien eine
+     Zeile dazwischensetzte, schlug die Pruefung an, obwohl die
+     Hervorhebung weiterhin ausgeschaltet war. Gemeint ist: ausschalten
+     VOR dem Rendern. Genau das wird jetzt geprueft, und das Ausschalten
+     muss weiterhin dastehen. */
+  (function () {
+    var js = q.js;
+    ['bildVonAnsicht', 'schuss'].forEach(function (fn, i) {
+      var start = js.indexOf('function ' + fn + '(');
+      var rumpf = start < 0 ? '' : js.slice(start, start + 1400);
+      var aus = rumpf.indexOf('ziehGruppe.visible = false;');
+      var malen = rumpf.indexOf('renderer.render(szene, kamera3);');
+      hatRoh(i === 0 ? 'Die Hervorhebung bleibt aus dem gespeicherten Bild heraus'
+                     : 'Die Hervorhebung bleibt aus dem PDF heraus',
+             start >= 0 && aus >= 0 && malen > aus,
+             fn + '(): ausgeschaltet vor dem Rendern');
+    });
+  })();
   hat('Die Wahl faellt weg, wenn es den Pfosten nicht mehr gibt',
       'if (!pfostenSpanne(PF_WAHL.reihe, PF_WAHL.nr)) { PF_WAHL = null; return; }');
   hat('Ein Wechsel der Pfostenzahl hebt auch die Wahl auf',

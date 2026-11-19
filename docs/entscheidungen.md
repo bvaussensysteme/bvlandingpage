@@ -19200,3 +19200,32 @@ steht die Kamera wieder bei 861, also unverändert.
 `js/konfigurator-3d.js` und `js/konfigurator-frei.js`; gemessen wurde
 in der Kopie, weil nur sie ein Lesefenster hat.
 `pruefe-konfigurator-frei.sh` vergleicht beide Rümpfe Zeile für Zeile.
+
+## 19.11.2026 – Zwei Prüfungen prüften die Zeilenfolge, nicht die Absicht
+
+**Anlass.** Nach der Bildkorrektur für die Masslinien schlugen
+`pruefe-marken.js` (2 von 90) und `pruefe-pfosten.js` (2 von 99) an,
+obwohl nichts kaputt war.
+
+**Was sie wirklich prüften.** Beide verlangten, dass zwischen
+`feldGruppe.visible = false;` bzw. `ziehGruppe.visible = false;` und
+`renderer.render(...)` **nichts** steht. Gemeint war aber: Die
+Bedienflächen sind beim Rendern ausgeschaltet. Die neue Zeile
+`massAbstandFuerBild()` steht genau dazwischen, und die Flächen waren
+weiterhin aus.
+
+**Was jetzt gilt.** Beide Prüfungen schneiden den Rumpf der Funktion
+heraus und vergleichen die **Reihenfolge**: ausschalten, dann rendern,
+dann zurückstellen. Was dazwischen passiert, ist frei.
+
+**Die Gegenprobe wurde mitgezogen.** Der eingebaute Fehler nimmt jetzt
+die Ausschaltzeile heraus, statt einen Block zu ersetzen, den es so
+nicht mehr gibt. `pruefe-marken.js` 103 von 103 Fehlern erkannt,
+`pruefe-pfosten.js` 101 von 101.
+
+**Warum das hier steht und nicht nur im Code.** Eine Prüfung
+anzupassen, damit sie wieder grün wird, ist genau der Griff, mit dem
+man sich selbst belügt. Deshalb nachvollziehbar: Die geprüfte
+Eigenschaft ist unverändert, nur die Art der Messung ist weniger
+zerbrechlich, und die Gegenprobe zeigt, dass sie weiterhin anschlägt,
+wenn das Ausschalten fehlt.
