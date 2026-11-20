@@ -20128,3 +20128,46 @@ Bild eine Schaltfläche, und dann liegt die vorhandene Schaltfläche
 Schaltflächen sind ungültig. Das ist ein eigener Auftrag und keine
 Zeile nebenbei.
 
+## 20.11.2026 - touch-action: pan-y verhinderte das Wischen
+
+**Meldung des Betreibers vom Telefon:** „die punkte sind da, das
+wischen klappt nicht und man sieht ein stück vom nächsten bild
+rechts am rand“.
+
+**Erster Fehler, und er stand seit Langem da.** Am Referenz-Lauf
+stand `touch-action: pan-y`, mit dem Kommentar „Der Finger soll
+waagerecht wischen und senkrecht die Seite scrollen können, pan-y
+lässt genau das zu“. Das ist falsch herum: `pan-y` erlaubt dem
+Browser NUR senkrechtes Schieben, waagerechte Wischer verwirft er.
+Gemessen im Browser mit echter Geste: `scrollLeft` blieb 0. Die Zeile
+ist weg; ohne sie gilt `auto`, und damit schiebt der Browser
+waagerecht im Lauf, senkrecht die Seite, und das Aufziehen mit zwei
+Fingern bleibt moeglich. `pan-x pan-y` wäre auch gegangen, hätte
+aber das Aufziehen verboten und damit WCAG 2.2, 1.4.4 berührt.
+
+**Zweiter Fehler.** Die Kacheln waren 86vw breit, der Lauf 362 px:
+rund 27 px des nächsten Bildes ragten herein. Das war als Hinweis
+gedacht, dass es weitergeht. Seit dem Umbau machen das die Punkte, und
+der Betreiber wollte den Rest weg. Am Telefon füllt jetzt ein Bild
+den Lauf.
+
+**Warum keine bestehende Prüfung das gefunden hat.** Nachgebaute
+TouchEvents aus der Seite heraus lösen kein natives Scrollen aus. Nur
+eine echte Geste über `Input.dispatchTouchEvent` im
+Entwicklerprotokoll zeigt den Fehler. Das kann jetzt
+`scripts/pruefe-referenz-lauf.mjs`, 10 Messungen, Gegenprobe baut
+beide Fehler wieder ein und bemerkt sie.
+
+**Eigener Messfehler beim ersten Versuch.** Die Geste scheiterte
+scheinbar, in Wahrheit lief noch das sanfte Scrollen von
+`scrollIntoView`, und der Lauf wanderte unter dem Finger weg. Mit
+`reducedMotion` und frisch gelesener Lage ging es. Steht als Warnung
+im Kopf des Skripts.
+
+**Überall nachgesehen, wie die Regel es verlangt.** Alle übrigen
+`touch-action`-Regeln im Repository sind `manipulation` an
+Schaltflächen oder `none` an den 3D-Flächen des Konfigurators, der
+seine Gesten selbst führt. Der Streifen der Produktgalerien steht auf
+`auto` und ließ sich mit echter Geste schieben (0 auf 334). Nur der
+Referenz-Lauf war betroffen.
+

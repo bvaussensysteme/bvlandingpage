@@ -3840,9 +3840,17 @@ body.bv-konfig-open #bvKonfigBubble {
   scroll-snap-type: x mandatory;
   scroll-padding-left: 0;
   scrollbar-width: none;
-  /* Der Finger soll waagerecht wischen und senkrecht die Seite scrollen
-     koennen - pan-y laesst genau das zu. */
-  touch-action: pan-y;
+  /* KEIN touch-action. Bis zum 20.11.2026 stand hier pan-y, mit dem
+     Kommentar, das lasse waagerechtes Wischen zu. Das Gegenteil ist
+     der Fall: pan-y erlaubt dem Browser NUR senkrechtes Schieben, und
+     waagerechte Wischer werden verworfen. Am Telefon liess sich der
+     Lauf deshalb nicht wischen, gemeldet vom Betreiber am 20.11.2026
+     und im Browser nachgestellt (scrollLeft blieb 0).
+
+     Ohne die Zeile gilt auto: Der Browser schiebt waagerecht im Lauf,
+     senkrecht die Seite, und das Aufziehen mit zwei Fingern bleibt
+     moeglich. pan-x pan-y waere auch gegangen, haette aber das
+     Aufziehen verboten und damit WCAG 2.2, 1.4.4 beruehrt. */
   -webkit-overflow-scrolling: touch;
   padding-bottom: var(--sp-2);
 }
@@ -3864,6 +3872,16 @@ body.bv-konfig-open #bvKonfigBubble {
 @media (min-width: 900px) {
   .galerie-grid.ist-karussell > .galerie-item { flex-basis: 360px; }
   .galerie-grid.ist-karussell > .galerie-item.large { flex-basis: 620px; }
+}
+/* Am Telefon ein Bild, ganz. Vorher ragte ein Streifen des naechsten
+   Bildes in den Rand (86vw bei 362 px Lauf, also rund 27 px Rest).
+   Das war als Hinweis gedacht, dass es weitergeht; seit dem
+   20.11.2026 machen das die Punkte, und der Betreiber wollte den
+   Streifen weg. Alle Kacheln bekommen dieselbe Breite; die Hoehe
+   richtet sich ohnehin nach der hoechsten, weil die Flexbox streckt. */
+@media (max-width: 899px) {
+  .galerie-grid.ist-karussell > .galerie-item,
+  .galerie-grid.ist-karussell > .galerie-item.large { flex-basis: 100%; }
 }
 
 /* Punkte unter dem Lauf, einer je Bild. Fortschrittsbalken und die

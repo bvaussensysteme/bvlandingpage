@@ -69,6 +69,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-fokus-verdeckung.mjs` | Tabbt sich durch sieben Seiten in zwei Breiten, mit und ohne offenen Cookie-Hinweis, und meldet jedes fokussierte Element, das **vollständig** hinter einem festen oder klebenden Element liegt (WCAG 2.2, 2.4.11, Stufe AA). Gegenprobe: eine eingebaute feste Leiste über die obersten 220 px muss auffallen |
 | `scripts/pruefe-modellbilder.mjs` | Lassen sich die 34 Modellbilder in den Produktkarten antippen und wischen? Prüft alle 16 Seiten ohne Browser (Skript geladen, Alternativtexte) und zwei davon im echten Browser: öffnen, wischen, Escape, Fokusrückkehr, und der Sonderfall mit nur einem Modell. Gegenprobe: das Skript wird blockiert, der Ausfall muss auffallen |
 | `scripts/pruefe-bilder-blaettern.mjs` | Blättern der Bilder in den sieben Leistungskarten der Startseite. Pfeile am Rechner (unsichtbar bis die Maus drüberfährt, 44 x 44 px, Fokus macht sie sichtbar), am Telefon **keine** Pfeile und Wischen blättert, senkrechtes Wischen nicht. Dazu die Punkte: einer je Bild, der aktive golden **und** größer, im Bild liegend, mit `aria-hidden` und ohne Schaltfläche, daneben der vorgelesene Satz „Bild 2 von 6" und oben rechts die Zahl „1 / 6". Und der Nachweis, dass sich nichts von allein bewegt. Gegenprobe: das Skript wird blockiert |
+| `scripts/pruefe-referenz-lauf.mjs` | Der Lauf „Projekte, die für sich sprechen" am Telefon: Punkte statt Pfeilen, aktiver Punkt golden und größer, **`touch-action` sperrt das waagerechte Wischen nicht**, ein Bild füllt den Lauf ohne Rest am Rand, und eine **echte Fingergeste** über das Entwicklerprotokoll schiebt ihn wirklich. Gegenprobe: beide gemeldeten Fehler werden wieder eingebaut |
 | `scripts/pruefe-vergleich.mjs` | Die Gegenüberstellung TDS/SkyView auf der Terrassenseite: sechs vollständige Zeilen, beide Modelle als Spaltenkopf, Beschriftung für Screenreader – und auf 390 px **kein waagerechtes Scrollen**. Gegenprobe: ein zu langes Wort in einer Zelle muss auffallen |
 | `scripts/pruefe-startseite.mjs` | Die Premium-Schicht der Startseite: greift sie überhaupt, stimmen Markengold, Textgold, Tiefschwarz und Manrope, steht **nirgends Gold als Text auf hellem Grund**, sind Anfrage-Knopf und zweiter Einstieg ≥ 44 px, scrollt nichts waagerecht – und sind Navigation, Assistent, Galerie, Produktkarten, Rechner und Fuß noch da? Auf 390, 768 und 1280 px. Gegenprobe: ohne die Klasse `start-premium` muss die Palettenprüfung anschlagen |
 | `scripts/pruefe-einzugsgebiet.mjs` | Erkennt der Anfrage-Assistent, ob eine PLZ im üblichen Fahrtgebiet liegt? Wichtiger noch: Bleibt der Hinweis **aus**, wenn sie es nicht tut, und steht nie eine Absage im Bedienfeld? Gegenprobe: PLZ aus Hamburg und München dürfen keinen Hinweis erzeugen |
@@ -602,6 +603,35 @@ eine Kachel, am rechten Anschlag steht die letzte Nummer, und **kein
 Pfeil ist hart `disabled`** (sonst verliert er am Anschlag den
 Tastaturfokus, WCAG 2.2, 2.4.3). Gegenprobe mit vier eingebauten
 Fehlern.
+
+### pruefe-referenz-lauf.mjs (neu am 20.11.2026)
+
+**Entstanden aus zwei Meldungen des Betreibers vom Telefon:** „das
+wischen klappt nicht und man sieht ein stück vom nächsten bild rechts
+am rand". Beides bestätigt.
+
+Die Ursache des ersten Fehlers ist lehrreich: Am Lauf stand
+`touch-action: pan-y`, mit dem Kommentar, das lasse waagerechtes
+Wischen zu. **Das Gegenteil ist richtig.** `pan-y` erlaubt dem Browser
+nur senkrechtes Schieben, waagerechte Wischer werden verworfen.
+Gemessen: `scrollLeft` blieb 0. Ohne die Zeile gilt `auto`, und es
+geht.
+
+**Warum kein bestehender Test das gefunden hat:** Der Fehler tritt nur
+mit einer ECHTEN Fingergeste auf. Nachgebaute `TouchEvent`s aus der
+Seite heraus lösen kein natives Scrollen aus. Dieses Skript schickt
+deshalb `Input.dispatchTouchEvent` über das Entwicklerprotokoll.
+
+**Falle beim Ändern:** Vor der Geste muss das sanfte Scrollen aus sein
+(`reducedMotion`) und die Lage frisch gelesen werden. Sonst wandert
+der Lauf unter dem Finger weg, und die Prüfung meldet einen Fehler,
+den es nicht gibt. Genau das ist beim ersten Versuch passiert.
+
+Nachgesehen wurde auch, ob dieselbe Falle anderswo steckt: Alle
+übrigen `touch-action`-Regeln sind `manipulation` (Schaltflächen) oder
+`none` (3D-Flächen des Konfigurators, der seine Gesten selbst führt).
+Der Streifen der Produktgalerien steht auf `auto` und ließ sich mit
+echter Geste schieben (0 auf 334).
 
 ### pruefe-bilder-blaettern.mjs (neu am 20.11.2026)
 
