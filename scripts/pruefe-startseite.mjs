@@ -126,6 +126,34 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
       klasse: document.body.classList.contains('start-premium'),
       gold: hol('--gold'), goldText: hol('--gold-text'), schwarz: hol('--black'),
       schrift: st.fontFamily,
+      /* ALLE Textstellen, nicht nur body. Die Pruefung las bis zum
+         20.11.2026 nur die Schrift am body und meldete "Manrope ist
+         die erste Schriftwahl" - waehrend 38 Stellen weiter in Barlow
+         Condensed und Inter standen, weil Einzelregeln aus style.css
+         mehr Gewicht hatten. Eine Pruefung, die nur die Wurzel ansieht,
+         sieht genau das nicht. */
+      fremdeSchrift: (() => {
+        const treffer = {};
+        document.querySelectorAll('body *').forEach((el) => {
+          if (el.children.length || !el.textContent.trim()) return;
+          const f = getComputedStyle(el).fontFamily.split(',')[0].replace(/['"]/g, '');
+          if (f === 'Manrope') return;
+          /* Der Zahlenwert im Bedienhilfen-Panel bleibt Monospace, damit
+             er beim Schieben nicht springt. Gewollt. */
+          if (el.classList.contains('a11y-range-val')) return;
+          const wo = f + ' an ' + el.tagName.toLowerCase()
+            + '.' + (el.className || '').toString().split(/\s+/)[0];
+          treffer[wo] = (treffer[wo] || 0) + 1;
+        });
+        return Object.keys(treffer).map((k) => `${k} (${treffer[k]}x)`);
+      })(),
+      schriftQuelle: (() => {
+        const l = [...document.querySelectorAll('link[href*="fonts.googleapis"]')]
+          .map((x) => x.href).join(' ');
+        const roh = [...document.querySelectorAll('script')]
+          .map((x) => x.textContent).join(' ');
+        return { geladen: l, imQuelltext: /family=Barlow|family=Inter/.test(roh) };
+      })(),
       h1: (document.querySelector('.hs-slide--active h1') || {}).textContent?.trim().slice(0, 48) || null,
       primaer: sicht(prim), sekundaer: sicht(sek),
       goldTextAufHell: [...new Set(verstoesse)],
@@ -153,6 +181,12 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
   pruef(`${name}: Textgold ist gesetzt`, m.goldText === '#896023', m.goldText);
   pruef(`${name}: Tiefschwarz ist gesetzt`, m.schwarz === '#0B0B0C', m.schwarz);
   pruef(`${name}: Manrope ist die erste Schriftwahl`, /Manrope/i.test(m.schrift), m.schrift.slice(0, 34));
+  pruef(`${name}: KEINE Textstelle in einer anderen Schrift`,
+    m.fremdeSchrift.length === 0,
+    m.fremdeSchrift.length ? m.fremdeSchrift.slice(0, 3).join(' | ') : 'alles Manrope');
+  pruef(`${name}: Es wird nur Manrope nachgeladen`,
+    !m.schriftQuelle.imQuelltext,
+    m.schriftQuelle.imQuelltext ? 'Barlow oder Inter stehen noch im Ladebefehl' : 'nur Manrope');
   pruef(`${name}: Kein Gold als Text auf hellem Grund`,
     m.goldTextAufHell.length === 0,
     m.goldTextAufHell.length ? m.goldTextAufHell.slice(0, 3).join(' ') : 'keine Stelle');

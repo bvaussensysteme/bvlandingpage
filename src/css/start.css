@@ -70,6 +70,29 @@
 .start-premium * {
   font-family: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
+/* DOPPELTE KLASSE, mit Absicht. Die Regel darueber hat das Gewicht
+   (0,1,0) und verlor damit gegen jede Einzelregel in style.css, etwa
+   `.gold-item strong` (0,1,1). Gemessen am 20.11.2026: 38 Textstellen
+   auf der Startseite standen weiter in Barlow Condensed oder Inter,
+   obwohl das freigegebene Designsystem dort Manrope vorsieht. Betroffen
+   waren Mobilmenue, Gold-Liste, Kontaktkarten, "Warum wir"-Kacheln,
+   Zahlen, Vertrauensabzeichen, Cookie-Text und das Bedienhilfen-Panel.
+
+   `.start-premium.start-premium *` hat (0,3,0) und gewinnt gegen die
+   Einzelregeln, ohne ein einziges !important.
+
+   ZWEI AUSNAHMEN, beide gewollt:
+   - `.a11y-range-val` bleibt auf Monospace. Dort steht ein Zahlenwert,
+     der beim Schieben nicht springen soll.
+   - Die Lesehilfe im Bedienhilfen-Panel setzt ihre Schrift mit
+     !important (js/accessibility.js). Sie gewinnt weiterhin, und das
+     muss so sein: Wer sie einschaltet, braucht sie.
+
+   Gilt NUR fuer die Startseite. Die uebrigen 57 Seiten behalten Inter
+   und Barlow Condensed, bis dazu eigens entschieden wird. */
+.start-premium.start-premium *:not(.a11y-range-val) {
+  font-family: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
 .start-premium h1, .start-premium h2, .start-premium h3,
 .start-premium .hs-heading { font-weight: 800; letter-spacing: -0.02em; }
 .start-premium h2 { letter-spacing: -0.015em; }

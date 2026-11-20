@@ -465,7 +465,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var l = document.createElement('link');
     l.id = 'gfonts-loaded';
     l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap';
+    /* Nur Manrope. Barlow Condensed und Inter wurden bis zum
+       20.11.2026 mitgeladen, obwohl die Startseite seit der Freigabe
+       des Designsystems Manrope benutzt. Gemessen an dem Tag: 38
+       Textstellen hingen noch an den alten Schriften, danach null.
+       Die uebrigen 57 Seiten laden sie weiterhin, dort gelten sie. */
+    l.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
     document.head.appendChild(l);
   }
   function externalOK(raw){
@@ -485,11 +490,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261120i" />
+  <link rel="stylesheet" href="css/style.css?v=20261120j" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
-  <link rel="stylesheet" href="css/start.css?v=20261120h" />
+  <link rel="stylesheet" href="css/start.css?v=20261120j" />
   <script>
   /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
      Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,

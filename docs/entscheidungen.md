@@ -20217,3 +20217,43 @@ waagerechten Überlauf.
 bewusste Wahl des Betreibers gegen den Vorschlag, sie aus dem Lauf zu
 nehmen. Sie bekommt deshalb weiterhin einen eigenen Punkt.
 
+## 20.11.2026 - Manrope auf der ganzen Startseite
+
+**Ansage des Betreibers:** „manrope überall umsetzen“, nachdem
+ich gemeldet hatte, dass 38 Textstellen der Startseite noch in Barlow
+Condensed und Inter standen.
+
+**Warum sie dort standen.** `.start-premium *` hat das Gewicht (0,1,0)
+und verliert gegen jede Einzelregel aus `style.css`, etwa
+`.gold-item strong` mit (0,1,1). Betroffen waren Mobilmenü,
+Gold-Liste, Kontaktkarten, „Warum wir“-Kacheln, Zahlen,
+Vertrauensabzeichen, Cookie-Text und das Bedienhilfen-Panel.
+
+**Was jetzt gilt.** Eine zweite Regel mit doppelter Klasse,
+`.start-premium.start-premium *`, Gewicht (0,3,0). Kein einziges
+`!important`. Gemessen danach: 337 Textstellen Manrope, 0 fremd.
+
+**Zwei Ausnahmen, beide gewollt und geprüft.**
+`.a11y-range-val` bleibt Monospace, damit der Zahlenwert beim Schieben
+nicht springt. Und die Lesehilfe im Bedienhilfen-Panel setzt ihre
+Schrift mit `!important`; sie gewinnt weiterhin. Nachgemessen: Mit der
+Klasse `a11y-dyslexia` steht der Text in „Arial Rounded MT Bold“,
+nicht in Manrope. Wer die Hilfe einschaltet, braucht sie.
+
+**Die Startseite lädt jetzt nur noch Manrope.** Barlow Condensed und
+Inter wurden mitgeladen, obwohl sie dort nichts mehr darstellen. Die
+übrigen 57 Seiten laden sie weiter, dort gelten sie.
+
+**Die Prüfung war blind, und das war der eigentliche Fehler.**
+`pruefe-startseite.mjs` las die Schrift NUR am `body` und meldete
+„Manrope ist die erste Schriftwahl“, während 38 Stellen daneben
+lagen. Sie zählt jetzt jede Textstelle einzeln und prüft, dass im
+Ladebefehl keine andere Familie mehr steht. Eine Prüfung, die nur die
+Wurzel ansieht, sieht genau das nicht, was abweicht.
+
+**Nicht geändert: die übrigen 57 Seiten.** Sie behalten Inter und
+Barlow Condensed. `CLAUDE.md` schützt die laufende Gestaltung
+ausdrücklich, bis dazu eigens entschieden wird, und „überall“
+kam unmittelbar nach meinem Bericht ueber die Startseite. Die Frage
+ist dem Betreiber gestellt.
+
