@@ -101,6 +101,18 @@
     }
     kiste.appendChild(punkte);
 
+    /* Die Zahl in der Ecke. Ansage des Betreibers, zweimal genannt:
+       "da muss vielleicht das in der Ecke oder irgendwie steht zum
+       Beispiel 1 von 6 oder 1 von 3, also welches Bild von wie viel
+       das ist, aber so, dass das nicht sehr das Bild stoert."
+       Deshalb oben rechts, klein, und mit aria-hidden: Fuer
+       Hilfsmittel sagt der unsichtbare Satz darunter dasselbe in
+       ganzen Worten. */
+    var zahl = document.createElement('span');
+    zahl.className = 'bildwechsel-zahl';
+    zahl.setAttribute('aria-hidden', 'true');
+    kiste.appendChild(zahl);
+
     var sage = document.createElement('p');
     sage.className = 'sr-only';   /* die vorhandene Klasse der Seite */
     sage.setAttribute('aria-live', 'polite');
@@ -109,6 +121,7 @@
     function anzeigen() {
       var k = punkte.children;
       for (var n = 0; n < k.length; n++) k[n].className = (n === i ? 'ist-da' : '');
+      zahl.textContent = (i + 1) + ' / ' + bilder.length;
       sage.textContent = 'Bild ' + (i + 1) + ' von ' + bilder.length;
     }
 

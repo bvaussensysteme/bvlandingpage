@@ -33,6 +33,9 @@
         WCAG 2.2, 2.5.8.
     10. Daneben ein unsichtbarer Satz "Bild 2 von 6" fuer
         Hilfsmittel, der beim Blaettern mitgeht (WCAG 2.2, 4.1.3).
+    11. Oben rechts die Zahl "1 / 6": klein, im Bild, mit
+        aria-hidden (der Satz aus Punkt 10 sagt dasselbe in
+        ganzen Worten), und sie geht beim Blaettern mit.
 
    Aufruf:     node scripts/pruefe-bilder-blaettern.mjs
    Gegenprobe: node scripts/pruefe-bilder-blaettern.mjs --gegenprobe
@@ -116,6 +119,16 @@ const lesen = (pg) => pg.evaluate(() => {
     punkteImBild: pr ? (pr.left >= kasten.left && pr.right <= kasten.right
       && pr.bottom <= kasten.bottom) : false,
     satz: (e.querySelector('.sr-only') || {}).textContent || '',
+    zahl: (e.querySelector('.bildwechsel-zahl') || {}).textContent || '',
+    zahlVersteckt: (e.querySelector('.bildwechsel-zahl') || {}).getAttribute
+      ? e.querySelector('.bildwechsel-zahl').getAttribute('aria-hidden') : '',
+    zahlImBild: (() => {
+      const z = e.querySelector('.bildwechsel-zahl');
+      if (!z) return false;
+      const r = z.getBoundingClientRect();
+      return r.left >= kasten.left && r.right <= kasten.right
+        && r.top >= kasten.top && r.bottom <= kasten.bottom;
+    })(),
     alleKarten: [...document.querySelectorAll('.leistung-img[data-bilder] .bildwechsel-punkte')]
       .map((x) => x.children.length),
     halt: document.querySelectorAll('.diaschau-halt').length,
@@ -150,6 +163,10 @@ try {
     await pg.waitForTimeout(700);
     const zurueck = await lesen(pg);
     p('Klick links blaettert zurueck', zurueck.src === ruhe.src, zurueck.src);
+    p('Die Zahl geht beim Blaettern mit',
+      weiter.zahl.trim() === '2 / ' + weiter.punkte
+        && zurueck.zahl.trim() === '1 / ' + zurueck.punkte,
+      `${weiter.zahl.trim()} -> ${zurueck.zahl.trim()}`);
     p('Der Punkt und der vorgelesene Satz gehen mit',
       weiter.aktiv === 2 && /Bild 2 von \d/.test(weiter.satz)
         && zurueck.aktiv === 1 && /Bild 1 von \d/.test(zurueck.satz),
@@ -179,6 +196,9 @@ try {
       && parseFloat(pu.aktivBreite) > parseFloat(pu.ruhigBreite),
     `${pu.aktivFarbe}, ${pu.aktivBreite} gegen ${pu.ruhigBreite}`);
   p('Die Punkte liegen im Bild und ragen nirgends heraus', pu.punkteImBild, '');
+  p('Oben rechts steht die Zahl, im Bild und mit aria-hidden',
+    /^\d+ \/ \d+$/.test(pu.zahl.trim()) && pu.zahlImBild && pu.zahlVersteckt === 'true',
+    `"${pu.zahl.trim()}", im Bild ${pu.zahlImBild}`);
   p('Die Punkte sind Anzeige, keine Schaltflaechen (WCAG 2.5.8)',
     pu.punkteVersteckt === 'true' && pu.punkteKnoepfe === 0,
     `aria-hidden ${pu.punkteVersteckt}, ${pu.punkteKnoepfe} Knoepfe`);

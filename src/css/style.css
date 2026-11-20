@@ -753,6 +753,22 @@ body.bv-menu-open #bv-scroll-top {
 @media (prefers-reduced-motion: reduce) {
   .bildwechsel-punkte span { transition: none; }
 }
+/* Die Zahl in der Ecke, zusaetzlich zu den Punkten. Sie sagt, wie
+   viele es insgesamt sind; die Punkte zeigen, wo man steht. Klein und
+   oben rechts, damit sie das Bild nicht stoert. Weiss auf demselben
+   Polster wie die Punkte: ueber dem hellsten denkbaren Foto ergibt
+   das #3C3C3C und damit 11:1, weit ueber den 4,5:1 aus WCAG 1.4.3. */
+.bildwechsel-zahl {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  padding: 3px 8px; border-radius: 999px;
+  background: rgba(17, 17, 17, 0.82);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  color: #fff; font-size: 0.72rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;  /* sonst springt die Breite */
+  line-height: 1.4; letter-spacing: .02em;
+  pointer-events: none;
+}
+
 /* Eine Karte ohne Punkte hat nur ein Bild: dann auch keine Pfeile. */
 .leistung-img:not([data-bilder]) .bildwechsel-punkte { display: none; }
 

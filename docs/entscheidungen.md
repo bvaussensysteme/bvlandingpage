@@ -20049,3 +20049,34 @@ beide Paletten gehen also durch.
 **Gegengelesen.** `scripts/pruefe-bilder-blaettern.mjs`, jetzt 23
 Messungen. Gegenprobe blockiert das Skript, 10 Beanstandungen.
 
+## 20.11.2026 - Die Zahl in der Ecke, zusätzlich zu den Punkten
+
+**Ansage des Betreibers, zweimal gesagt:** „da muss vielleicht das
+in der Ecke oder irgendwie steht zum Beispiel 1 von 6 oder 1 von 3,
+also welches Bild von wie viel das ist, aber so, dass das nicht sehr
+das Bild stört.“
+
+**Was jetzt gilt.** Oben rechts im Bild steht klein „1 / 6“, auf
+demselben dunklen Polster wie die Punkte. Die Punkte bleiben: Sie
+zeigen, wo man steht; die Zahl sagt, wie viele es insgesamt sind.
+
+**Warum beides und nicht nur eins.** Der Betreiber hat die Zahl
+zweimal genannt und die Punkte einmal, also gilt beides als
+gewünscht. Eine Vermutung meinerseits wäre an dieser Stelle teurer
+als ein Hinweis: Wenn eines davon zu viel ist, ist es eine Zeile
+weniger.
+
+**Kleinigkeit mit Wirkung:** `font-variant-numeric: tabular-nums`.
+Ohne das sind die Ziffern unterschiedlich breit, und die Zahl
+zappelt beim Blättern von 9 auf 10.
+
+**aria-hidden an der Zahl.** Für Hilfsmittel sagt der unsichtbare
+Satz darunter dasselbe in ganzen Worten („Bild 2 von 6“). Beides
+vorzulesen wäre doppelt.
+
+**Kontrast.** Weiß auf dem Polster ergibt über dem hellsten
+denkbaren Foto 11:1, weit über den 4,5:1 aus WCAG 1.4.3.
+
+**Gegengelesen.** `scripts/pruefe-bilder-blaettern.mjs`, jetzt 25
+Messungen. Gegenprobe 11 Beanstandungen.
+
