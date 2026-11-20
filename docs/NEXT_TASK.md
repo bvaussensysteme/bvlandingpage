@@ -387,3 +387,19 @@ rechtliche Frage. **Entscheidung liegt beim Betreiber.**
 Der Kommentar in `scripts/pruefe-cache-buster.sh` nennt noch 24 Stunden
 und ist veraltet. Entweder beide Dateien in die Cache-Buster-Liste
 aufnehmen (56 Seiten anfassen) oder den Kommentar richtigstellen.
+
+## Offen beim Betreiber: mehrere Bilder je Modell (20.11.2026)
+
+Seit dem 20.11. lassen sich die 34 Modellbilder in den Produktkarten
+antippen und durchwischen. Gewischt wird dabei durch die **Modelle
+einer Seite**, nicht durch mehrere Bilder desselben Modells.
+
+Mehr geht erst, wenn klar ist, welches Portfoliobild welches Modell
+zeigt. Die 59 Bilder sind nach Produktgruppe sortiert (Carport,
+Terrasse, Pergola), nicht nach Modell (TDS, SkyView, Flat Line). Das
+lässt sich nicht erraten; am 19.11. lag genau so eine Zuordnung daneben
+und musste korrigiert werden.
+
+**Gebraucht wird vom Betreiber:** je Modell eine Liste, welche
+Bilddateien es zeigen. Dann ist der Rest Arbeit von einer Stunde, die
+Technik steht.

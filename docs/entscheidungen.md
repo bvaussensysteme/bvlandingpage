@@ -19846,3 +19846,50 @@ Verzögerung, nicht 24 Stunden. Der Kommentar in
 `scripts/pruefe-cache-buster.sh` nennt noch 24 h und ist damit veraltet.
 Nach `docs/NEXT_TASK.md`.
 
+## 20.11.2026 - Die Modellbilder waren tot, jetzt lassen sie sich wischen
+
+**Was der Betreiber wollte.** Er schickte einen Bildschirmabzug von
+`/produkte/terrassenueberdachung.html` am Telefon. Ich habe daraus
+zuerst den falschen Schluss gezogen und die drei schwebenden Knöpfe
+gemessen, die auf dem Text liegen. Seine Antwort: „die Knöpfe waren
+doch gar nicht das Problem. Ich wollte doch einfach nur dass man die
+Bilder [wischen] kann.“ Die Knöpfe bleiben deshalb unverändert.
+
+**Was falsch war.** In jeder Produktkarte steht ein Bild des Modells.
+34 Stück auf 16 Seiten. Antippen tat nichts, vergrößern ging nicht,
+wischen auch nicht. Die Großansicht, die es seit dem 19.11. gibt, hing
+nur an den Ausführungsbeispielen weiter unten, und neun der 16
+Produktseiten luden `js/galerie.js` gar nicht.
+
+**Was jetzt gilt.** `js/galerie.js` macht aus jedem Modellbild eine
+Schaltfläche und öffnet dieselbe Großansicht. Darin lässt sich durch
+alle Modellbilder derselben Seite wischen, mit Pfeiltasten blättern,
+mit Escape schließen; der Fokus kehrt auf das Bild zurück. Bei nur
+einem Modell gibt es keine Pfeile und keinen Zähler. Alle 16 Seiten
+laden das Skript.
+
+**Warum im Skript und nicht im HTML.** Die Karten stehen in 16 Vorlagen
+und 16 gebauten Seiten; im Skript ist es eine Stelle. Fällt das Skript
+aus, bleibt das Bild sichtbar und lässt sich nur nicht vergrößern.
+
+**Was bewusst nicht gebaut wurde: mehrere Bilder je Modell.** Die 59
+Portfoliobilder sind nach Produktgruppe sortiert, nicht nach Modell.
+Welches Bild ein TDS zeigt und welches ein SkyView, lässt sich nicht
+erraten. Am 19.11.2026 lag ich mit genau so einer Zuordnung daneben,
+der Betreiber musste es richtigstellen. Das ist Inhalt und gehört ihm.
+
+**Gegengelesen.** `scripts/pruefe-modellbilder.mjs`, 14 Messungen,
+Gegenprobe blockiert das Skript und erwartet den Ausfall, 4
+Beanstandungen. `pruefe-galerie.mjs` weiter 64 von 64.
+
+**Nebenbefund, gemessen aber auf Ansage NICHT behoben.** Die drei
+schwebenden Knöpfe liegen am Telefon auf dem Text: bei 390 px stehen
+sie bei x 334 bis 378, die Textspalte reicht bis x 374. Gemessen auf
+`/produkte/terrassenueberdachung.html` nach einer Lesepause, alle drei
+auf Tabellentext. Die Bremse vom 07.11. schiebt sie beim
+Herunterscrollen weg und holt sie nach 1,2 Sekunden Ruhe zurück, also
+genau beim Lesen. Drei Wege wurden vorgeschlagen: beim Lesen
+wegbleiben, Platz freihalten, auf einen Knopf zusammenlegen. Der
+Betreiber hat alle drei abgelehnt und gesagt, die Knöpfe sollen in
+Ruhe gelassen werden. Bleibt so. Nicht erneut vorschlagen.
+
