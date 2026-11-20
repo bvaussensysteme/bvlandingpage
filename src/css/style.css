@@ -106,14 +106,31 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* WCAG 2.2, 2.4.11: Beim Tabben holt der Browser das Element in den
+     sichtbaren Bereich, aber nicht unter einer festen Leiste vorbei.
+     Mit scroll-padding haelt er den Platz frei. Die Werte kommen
+     gemessen aus js/main.js, Block "FOKUS NICHT VERDECKT"; ohne
+     JavaScript bleibt es bei 0 und damit beim alten Verhalten. */
+  scroll-padding-top: var(--fokus-frei-oben, 0px);
+  scroll-padding-bottom: var(--fokus-frei-unten, 0px);
+}
 body {
   font-family: 'Inter', sans-serif;
   background: var(--white);
   color: var(--black);
   line-height: 1.6;
   font-size: 16px;
-  padding-bottom: 60px; /* sticky CTA */
+  /* Platz fuer die feste Leiste unten, und solange der Cookie-Hinweis
+     offen steht, fuer dessen gemessene Hoehe. GRUND (WCAG 2.2, 2.4.11,
+     gemessen am 20.11.2026): Am Seitenende kann nicht weitergescrollt
+     werden, scroll-padding-bottom hilft dort also nicht. Die letzten
+     Verweise im Fuss lagen vollstaendig hinter dem Hinweis, der am
+     Telefon 419 px hoch ist. Der Platz steht UNTER dem Hinweis und ist
+     deshalb nicht zu sehen; sobald der Hinweis weg ist, sind es wieder
+     60 px. Wert aus js/main.js, Block "FOKUS NICHT VERDECKT". */
+  padding-bottom: max(60px, var(--fokus-frei-unten, 0px));
 }
 
 /* ---- LAYOUT ---- */
@@ -2145,7 +2162,7 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
 @media (max-width: 600px) {
   .sticky-cta { padding: 10px 16px; gap: 10px; }
   .sticky-cta .btn { font-size: 0.9rem; padding: 10px 18px; }
-  body { padding-bottom: 64px; }
+  body { padding-bottom: max(64px, var(--fokus-frei-unten, 0px)); }
 }
 
 /* Galerie: mobile */

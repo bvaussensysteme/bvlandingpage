@@ -507,3 +507,140 @@ document.addEventListener('click', function (e) {
     }
   } catch (e) { /* Die Zahl steht ohnehin im HTML. */ }
 })();
+
+/* ============================================
+   FOKUS NICHT VERDECKT (WCAG 2.2, 2.4.11) – 20.11.2026
+
+   GEMESSEN, nicht vermutet. scripts/pruefe-fokus-verdeckung.mjs
+   tabbte sich durch sieben Seiten in zwei Breiten: In 22 von 28
+   Faellen war ein fokussiertes Element VOLLSTAENDIG verdeckt,
+   455 mal vom Cookie-Hinweis, 41 mal von der festen Leiste unten.
+
+   WARUM DAS PASSIERT: Der Browser holt ein fokussiertes Element in
+   den sichtbaren Bereich, nicht unter eine feste Leiste vorbei. Er
+   haelt sich dabei aber an scroll-padding des Scroll-Behaelters, und
+   das hatte die Seite nicht. body hat 60 px Polster unten fuer die
+   Leiste, das hilft dem letzten Element der Seite, aber nicht dem
+   Scrollen dorthin.
+
+   WARUM NICHT inert AUF DEM HINTERGRUND, wie bei der Grossansicht
+   der Galerie: Das waere technisch der saubere Modal-Weg, wuerde
+   aber heissen, dass man die Seite ohne Entscheidung ueber Cookies
+   nicht mehr mit der Tastatur bedienen kann. Das ist eine
+   Cookie-Schranke und eine rechtliche Frage, keine technische. Nicht
+   ohne Ansage. Siehe docs/rechtstexte-befunde.md.
+
+   Die Hoehen werden gemessen und nicht geraten: Der Cookie-Hinweis
+   ist am Telefon ueber 400 px hoch und am Rechner halb so hoch, die
+   Leiste unten laesst sich schliessen, und die Kopfzeile waechst mit
+   der Schriftgroesse.
+   ============================================ */
+(function () {
+  var OBEN = ['.navbar'];
+  var UNTEN = ['#cookieBanner', '.sticky-cta'];
+
+  function hoehe(liste) {
+    var h = 0;
+    for (var i = 0; i < liste.length; i++) {
+      var el = document.querySelector(liste[i]);
+      if (!el) continue;
+      var s = window.getComputedStyle(el);
+      if (s.display === 'none' || s.visibility === 'hidden') continue;
+      if (s.position !== 'fixed' && s.position !== 'sticky') continue;
+      /* KEINE Abfrage auf Deckkraft. Der erste Versuch am 20.11.2026
+         sprang bei opacity < 0.05 heraus, und genau das war der
+         Zustand, in dem der Beobachter feuerte: Der Cookie-Hinweis
+         blendet ueber 0,4 s ein, die Klasse ist sofort da, die
+         Deckkraft noch 0. Gemessen wurde dann 0 px, und danach kam
+         kein Ereignis mehr. Die Lage im Bild genuegt als Kriterium:
+         Vor dem Einblenden steht der Hinweis per translateY(110%)
+         unterhalb des Bildrands. */
+      var r = el.getBoundingClientRect();
+      if (r.height < 1 || r.bottom <= 0 || r.top >= window.innerHeight) continue;
+      h = Math.max(h, Math.round(r.height));
+    }
+    return h;
+  }
+
+  var letztO = -1, letztU = -1;
+  function setzen() {
+    var o = hoehe(OBEN), u = hoehe(UNTEN);
+    if (o !== letztO || u !== letztU) {
+      letztO = o; letztU = u;
+      var w = document.documentElement.style;
+      w.setProperty('--fokus-frei-oben', o + 'px');
+      w.setProperty('--fokus-frei-unten', u + 'px');
+    }
+    leisteSperren();
+  }
+
+  /* Die feste Leiste unten liegt auf z-index 200, der Cookie-Hinweis auf
+     9999. Solange der Hinweis offen ist, ist die Leiste vollstaendig
+     dahinter und trotzdem mit der Tastatur erreichbar: "Kostenlos
+     anfragen", "WhatsApp" und "Banner schliessen" bekommen den Fokus,
+     ohne dass man sie sieht (WCAG 2.2, 2.4.11; gemessen am 20.11.2026).
+     Scrollen hilft hier nicht, beide Leisten sind fest. inert nimmt die
+     untere aus dem Tab-Weg, solange sie unsichtbar ist, und gibt sie
+     danach wieder frei.
+
+     Das betrifft NUR Elemente, die hinter einer undurchsichtigen Leiste
+     liegen. Der Inhalt der Seite bleibt mit der Tastatur bedienbar; eine
+     Cookie-Schranke waere eine rechtliche Frage und wird hier nicht
+     gebaut. */
+  function leisteSperren() {
+    var hinweis = document.querySelector('#cookieBanner');
+    var leiste = document.querySelector('.sticky-cta');
+    if (!leiste) return;
+    var offen = false;
+    if (hinweis) {
+      var s = window.getComputedStyle(hinweis);
+      var r = hinweis.getBoundingClientRect();
+      offen = s.display !== 'none' && s.visibility !== 'hidden'
+        && r.height > 1 && r.top < window.innerHeight && r.bottom > 0;
+    }
+    if (offen) leiste.setAttribute('inert', '');
+    else leiste.removeAttribute('inert');
+  }
+
+  /* Mehrfach nachmessen statt einmal. GRUND, gemessen am 20.11.2026:
+     Der Cookie-Hinweis wird in einem Schritt auf display:flex gesetzt
+     und bekommt die Klasse cb-visible. Beide Mutationen laufen in
+     derselben Aufgabe, der Beobachter feuert danach gesammelt, und zu
+     dem Zeitpunkt steht der Hinweis per translateY(110%) noch
+     unterhalb des Bildrands. Gemessen wurden dann 0 px. Ein einzelnes
+     transitionend reicht auch nicht: Bei prefers-reduced-motion
+     dauert die Einblendung 0,001 ms. Deshalb ein kurzer Nachschlag. */
+  function spaeter() {
+    setzen();
+    [60, 150, 500, 1000].forEach(function (ms) { window.setTimeout(setzen, ms); });
+  }
+
+  spaeter();
+  window.addEventListener('resize', setzen, { passive: true });
+  window.addEventListener('scroll', setzen, { passive: true });
+  window.addEventListener('load', setzen);
+  document.addEventListener('focusin', setzen, { passive: true });
+  /* Nach dem Einblenden noch einmal: Erst dann steht der Hinweis an
+     seinem Platz. */
+  document.addEventListener('transitionend', function (e) {
+    if (e.target && e.target.id === 'cookieBanner') setzen();
+  }, { passive: true });
+
+  /* Der Cookie-Hinweis erscheint und verschwindet ueber eine Klasse
+     und display, die Leiste unten kann geschlossen werden. Beides
+     beobachten statt zu pollen. */
+  try {
+    var beobachter = new MutationObserver(spaeter);
+    for (var i = 0; i < UNTEN.length; i++) {
+      var el = document.querySelector(UNTEN[i]);
+      if (el) beobachter.observe(el, { attributes: true, attributeFilter: ['class', 'style'] });
+    }
+    if (window.ResizeObserver) {
+      var gr = new ResizeObserver(setzen);
+      for (var j = 0; j < UNTEN.concat(OBEN).length; j++) {
+        var e2 = document.querySelector(UNTEN.concat(OBEN)[j]);
+        if (e2) gr.observe(e2);
+      }
+    }
+  } catch (e) { /* Dann bleibt es bei den Ereignissen oben. */ }
+})();

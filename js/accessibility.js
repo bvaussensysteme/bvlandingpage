@@ -438,31 +438,43 @@
     var trigger = document.getElementById('bv-a11y-trigger');
     var panel = document.getElementById('bv-a11y-panel');
 
+    /* WCAG 2.2, 2.4.11 "Fokus nicht verdeckt", gemessen am 20.11.2026
+       mit scripts/pruefe-fokus-verdeckung.mjs: Das geschlossene Panel
+       stand weiter im Tab-Weg. Es ist dann nur opacity:0 und
+       pointer-events:none, also unsichtbar, aber fokussierbar. Wer sich
+       mit der Tastatur durch die Seite bewegt, landet in acht
+       Schaltern, die er nicht sieht, und der Fokus verschwindet
+       scheinbar. inert nimmt sie aus dem Tab-Weg und aus dem
+       Vorlesebaum, solange das Panel zu ist. */
+    function zustand(offen) {
+      panel.classList.toggle('open', offen);
+      trigger.setAttribute('aria-expanded', offen ? 'true' : 'false');
+      if (offen) panel.removeAttribute('inert');
+      else panel.setAttribute('inert', '');
+    }
+    zustand(false);
+
     trigger.addEventListener('click', function (e) {
       e.stopPropagation();
-      var open = panel.classList.toggle('open');
-      trigger.setAttribute('aria-expanded', open);
+      zustand(!panel.classList.contains('open'));
     });
 
     /* Schließen-Button */
     document.getElementById('bv-a11y-close').addEventListener('click', function () {
-      panel.classList.remove('open');
-      trigger.setAttribute('aria-expanded', 'false');
+      zustand(false);
     });
 
     /* Klick außerhalb schließt Panel */
     document.addEventListener('click', function (e) {
       if (!wrapper.contains(e.target)) {
-        panel.classList.remove('open');
-        trigger.setAttribute('aria-expanded', 'false');
+        zustand(false);
       }
     });
 
     /* ESC schließt Panel */
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
-        panel.classList.remove('open');
-        trigger.setAttribute('aria-expanded', 'false');
+        zustand(false);
       }
     });
 
