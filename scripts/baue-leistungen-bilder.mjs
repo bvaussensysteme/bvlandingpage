@@ -46,11 +46,24 @@ const ENTFERNEN = process.argv.includes('--entfernen');
    Produkt, das ist also keine erfundene Zuordnung. */
 const UMDEUTUNG = { 'garten-aussenbereich': 'gartenhaus' };
 
+/* Hoechstens fuenf Bilder aus dem Portfolio je Karte. Mit dem Bild,
+   das schon auf der Karte steht, sind es sechs.
+
+   WARUM BEGRENZT (20.11.2026): Unter dem Bild stehen Punkte, die
+   zeigen, wo man gerade ist. Neunzehn Punkte unter einem 360 x 200
+   grossen Bild sind kein Hinweis mehr, sondern ein Muster. Der
+   Betreiber hat von "1 von 6 oder 1 von 3" gesprochen, also von
+   kleinen Zahlen. Die vollstaendige Gruppe steht weiterhin auf der
+   Produktseite, einen Klick entfernt. Nebenher haelt es die
+   Startseite klein: vorher 132 KB, mit allen Bildern waere sie
+   weiter gewachsen. */
+const HOECHSTENS = 5;
+
 export function listeFuer(gruppe) {
   gruppe = UMDEUTUNG[gruppe] || gruppe;
   const g = DATEN[gruppe];
   if (!g) return null;
-  const bilder = g.bilder || g;
+  const bilder = (g.bilder || g).slice(0, HOECHSTENS);
   return bilder.map((b) => ({ d: `images/portfolio/${gruppe}/${b.datei}`, a: b.alt }));
 }
 

@@ -712,6 +712,50 @@ body.bv-menu-open #bv-scroll-top {
    Pfeilen: Sonst wandern sie mit. */
 .leistung-card:hover .leistung-img .bildwechsel-pfeil { transform: translateY(-50%); }
 
+/* Punkte: der Hinweis, dass es mehr als ein Bild gibt. Immer
+   sichtbar, auch am Telefon, denn dort gibt es keine Pfeile.
+   KEINE Schaltflaechen, sondern Anzeige (siehe js/bilder-blaettern.js):
+   Ein 7-px-Punkt waere eine Tippflaeche weit unter den 24 x 24 px aus
+   WCAG 2.2, 2.5.8.
+
+   Die Werte sind gerechnet, nicht geschaetzt. Das Polster liegt bei
+   Deckkraft 0,82 ueber dem Bild; im hellsten denkbaren Fall, einem
+   weissen Foto, ergibt das #3C3C3C. Davor hat das Markengold der
+   Startseite (#C58A32, gesetzt von start.css) 3,71:1 und der graue
+   Punkt 4,59:1, beide also ueber den 3:1 aus WCAG 1.4.11. Das Gold
+   der Live-Seite (#C49A2A) kaeme auf 4,20:1, beide Paletten gehen
+   also durch.
+
+   Deckkraft 0,78 war der erste Versuch und ergab mit #C58A32 nur
+   3,22:1. Erst nachgerechnet, dann dunkler gemacht.
+
+   Gold und Grau unterscheiden sich in der Helligkeit kaum; deshalb
+   ist der aktive Punkt zusaetzlich groesser, sonst waere Farbe das
+   einzige Mittel (WCAG 1.4.1). */
+.bildwechsel-punkte {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: 10px; z-index: 2;
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 9px; border-radius: 999px;
+  background: rgba(17, 17, 17, 0.82);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+.bildwechsel-punkte span {
+  display: block; width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transition: background .2s, width .2s, height .2s;
+}
+.bildwechsel-punkte span.ist-da {
+  width: 9px; height: 9px;
+  background: var(--gold);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bildwechsel-punkte span { transition: none; }
+}
+/* Eine Karte ohne Punkte hat nur ein Bild: dann auch keine Pfeile. */
+.leistung-img:not([data-bilder]) .bildwechsel-punkte { display: none; }
+
 .leistung-img::after {
   content: ''; position: absolute;
   bottom: 0; left: 0; right: 0; height: 3px;

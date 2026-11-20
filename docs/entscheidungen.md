@@ -20002,3 +20002,50 @@ darunter der Nachweis, dass nichts von allein wechselt und am Telefon
 null Pfeile im Tab-Weg stehen. Gegenprobe blockiert das Skript, 5
 Beanstandungen.
 
+## 20.11.2026 - Punkte unter dem Bild, damit man es überhaupt merkt
+
+**Ansage des Betreibers.** „Das muss natürlich ersichtlich sein,
+dass da mehrere Bilder sind, dass man auch drauf kommt, dass man die
+durchgucken kann. [...] vielleicht so graue Punkte. Und bei dem Bild,
+bei dem man gerade ist, der Punkt ist Gold.“
+
+**Er hat recht, und das war ein echter Mangel.** Am Telefon gibt es
+keine Pfeile, also gab es dort gar keinen Hinweis, dass sich etwas
+wischen lässt. Am Rechner tauchten die Pfeile erst beim
+Drüberfahren auf. Wer nicht zufällig mit der Maus über das Bild
+fuhr, sah ein totes Bild.
+
+**Was jetzt gilt.** Unter jedem Bild stehen so viele Punkte, wie es
+Bilder gibt. Der aktive ist golden und größer, die übrigen grau.
+Sie liegen auf einem kleinen dunklen Polster, damit der Kontrast
+unabhängig vom Foto vorhersagbar ist.
+
+**Höchstens sechs Bilder je Karte.** Der Betreiber sprach von
+„1 von 6 oder 1 von 3“, also von kleinen Zahlen. Balkon &
+Fassade hätte 19 Punkte unter einem 360 x 200 großen Bild ergeben;
+das ist kein Hinweis mehr, sondern ein Muster. Die vollständige
+Gruppe steht weiterhin auf der Produktseite, einen Klick entfernt.
+Nebenher schrumpfte die Startseite von 132 auf 124 KB.
+
+**Die Punkte sind KEINE Schaltflächen.** Ein 7-px-Punkt wäre eine
+Tippfläche weit unter den 24 x 24 px aus WCAG 2.2, 2.5.8. Geblättert
+wird mit Pfeilen und Wischen. Die Punkte tragen `aria-hidden`; für
+Hilfsmittel steht daneben ein unsichtbarer Satz „Bild 2 von 6“
+in einer höflichen Live-Region. Er ändert sich nur, wenn jemand
+selbst blättert, ist also kein Dauerlärm (WCAG 2.2, 4.1.3).
+
+**Warum der aktive Punkt auch größer ist.** Markengold und ein
+helles Grau liegen in der Helligkeit dicht beieinander. Nach WCAG
+1.4.1 darf Farbe nicht das einzige Mittel sein, also kommt die Größe
+dazu: 9 px gegen 6 px.
+
+**Kontrast gerechnet, nicht geschätzt.** Erster Versuch: Polster bei
+Deckkraft 0,78. Über einem weißen Foto ergibt das #454545, und davor
+kam das Gold der Startseite (#C58A32) nur auf 3,22:1, also unter die
+3:1 aus WCAG 1.4.11. Mit 0,82 sind es #3C3C3C und 3,71:1, der graue
+Punkt 4,59:1. Das Gold der Live-Seite (#C49A2A) käme auf 4,20:1,
+beide Paletten gehen also durch.
+
+**Gegengelesen.** `scripts/pruefe-bilder-blaettern.mjs`, jetzt 23
+Messungen. Gegenprobe blockiert das Skript, 10 Beanstandungen.
+

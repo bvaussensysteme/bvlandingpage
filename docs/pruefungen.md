@@ -68,7 +68,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-schema-bilder.mjs` | Zeigen die Bild-URLs im Product-Schema der Produktseiten wirklich auf vorhandene Bilder, die auf derselben Seite auch **sichtbar** sind? Drei Wege: absolute URL auf eigener Domain, Datei liegt im Repository, `src` derselben Datei steht im HTML. Gegenprobe: 3 eingebaute Fehler, einer je Weg |
 | `scripts/pruefe-fokus-verdeckung.mjs` | Tabbt sich durch sieben Seiten in zwei Breiten, mit und ohne offenen Cookie-Hinweis, und meldet jedes fokussierte Element, das **vollständig** hinter einem festen oder klebenden Element liegt (WCAG 2.2, 2.4.11, Stufe AA). Gegenprobe: eine eingebaute feste Leiste über die obersten 220 px muss auffallen |
 | `scripts/pruefe-modellbilder.mjs` | Lassen sich die 34 Modellbilder in den Produktkarten antippen und wischen? Prüft alle 16 Seiten ohne Browser (Skript geladen, Alternativtexte) und zwei davon im echten Browser: öffnen, wischen, Escape, Fokusrückkehr, und der Sonderfall mit nur einem Modell. Gegenprobe: das Skript wird blockiert, der Ausfall muss auffallen |
-| `scripts/pruefe-bilder-blaettern.mjs` | Blättern der Bilder in den sieben Leistungskarten der Startseite: Bildlisten vollständig, ohne JavaScript steht das alte Bild da, am Rechner zwei Pfeile je Karte (unsichtbar bis die Maus drüberfährt, 44 x 44 px, Klick blättert vor und zurück, Fokus macht sie sichtbar), am Telefon **keine** Pfeile und Wischen blättert, senkrechtes Wischen nicht. Dazu der Nachweis, dass sich nichts von allein bewegt und kein Anhalten-Knopf zurückkommt. Gegenprobe: das Skript wird blockiert |
+| `scripts/pruefe-bilder-blaettern.mjs` | Blättern der Bilder in den sieben Leistungskarten der Startseite. Pfeile am Rechner (unsichtbar bis die Maus drüberfährt, 44 x 44 px, Fokus macht sie sichtbar), am Telefon **keine** Pfeile und Wischen blättert, senkrechtes Wischen nicht. Dazu die Punkte: einer je Bild, der aktive golden **und** größer, im Bild liegend, mit `aria-hidden` und ohne Schaltfläche, daneben der vorgelesene Satz „Bild 2 von 6". Und der Nachweis, dass sich nichts von allein bewegt. Gegenprobe: das Skript wird blockiert |
 | `scripts/pruefe-vergleich.mjs` | Die Gegenüberstellung TDS/SkyView auf der Terrassenseite: sechs vollständige Zeilen, beide Modelle als Spaltenkopf, Beschriftung für Screenreader – und auf 390 px **kein waagerechtes Scrollen**. Gegenprobe: ein zu langes Wort in einer Zelle muss auffallen |
 | `scripts/pruefe-startseite.mjs` | Die Premium-Schicht der Startseite: greift sie überhaupt, stimmen Markengold, Textgold, Tiefschwarz und Manrope, steht **nirgends Gold als Text auf hellem Grund**, sind Anfrage-Knopf und zweiter Einstieg ≥ 44 px, scrollt nichts waagerecht – und sind Navigation, Assistent, Galerie, Produktkarten, Rechner und Fuß noch da? Auf 390, 768 und 1280 px. Gegenprobe: ohne die Klasse `start-premium` muss die Palettenprüfung anschlagen |
 | `scripts/pruefe-einzugsgebiet.mjs` | Erkennt der Anfrage-Assistent, ob eine PLZ im üblichen Fahrtgebiet liegt? Wichtiger noch: Bleibt der Hinweis **aus**, wenn sie es nicht tut, und steht nie eine Absage im Bedienfeld? Gegenprobe: PLZ aus Hamburg und München dürfen keinen Hinweis erzeugen |
@@ -615,6 +615,20 @@ Deshalb prüft dieses Skript ausdrücklich mit, dass sich **nichts von
 allein bewegt** und **kein Anhalten-Knopf** zurückkommt. Weil nichts
 läuft, ist WCAG 2.2, 2.2.2 (Pausieren, Stoppen, Ausblenden) kein Thema
 mehr: Es gibt nichts zu pausieren.
+
+**Die Punkte sind Anzeige, keine Bedienelemente.** Ein 7 px großer
+Punkt wäre eine Tippfläche weit unter den 24 x 24 px aus WCAG 2.2,
+2.5.8. Geblättert wird mit Pfeilen und Wischen, beide groß genug; die
+Punkte tragen `aria-hidden`, und für Hilfsmittel steht daneben ein
+unsichtbarer Satz in einer höflichen Live-Region, der sich nur beim
+Blättern ändert (WCAG 2.2, 4.1.3).
+
+**Warum der aktive Punkt auch größer ist, nicht nur golden:**
+Markengold und ein helles Grau liegen in der Helligkeit dicht
+beieinander. Nach WCAG 1.4.1 darf Farbe nicht das einzige Mittel sein,
+deshalb die zweite Unterscheidung über die Größe. Die Kontraste gegen
+das Polster sind gerechnet und stehen im CSS: 3,71:1 für das Gold der
+Startseite, 4,59:1 für den grauen Punkt.
 
 **Was stattdessen geprüft wird und leicht übersehen wird:** Am Telefon
 darf es die Pfeile gar nicht geben. Ein Knopf, der dort nie sichtbar

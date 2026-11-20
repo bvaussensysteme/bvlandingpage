@@ -26,6 +26,13 @@
      7. Mit der Tastatur: Der Pfeil wird sichtbar, sobald er den
         Fokus hat.
      8. Keine Javascript-Fehler.
+     9. Unter jedem Bild stehen Punkte, einer je Bild, der aktive
+        in Gold und groesser. Sie liegen im Bild, tragen
+        aria-hidden und sind KEINE Schaltflaechen: Ein 7-px-Punkt
+        waere eine Tippflaeche weit unter den 24 x 24 px aus
+        WCAG 2.2, 2.5.8.
+    10. Daneben ein unsichtbarer Satz "Bild 2 von 6" fuer
+        Hilfsmittel, der beim Blaettern mitgeht (WCAG 2.2, 4.1.3).
 
    Aufruf:     node scripts/pruefe-bilder-blaettern.mjs
    Gegenprobe: node scripts/pruefe-bilder-blaettern.mjs --gegenprobe
@@ -93,8 +100,24 @@ const lesen = (pg) => pg.evaluate(() => {
   if (!e) return { pfeile: 0, src: '', alt: '' };
   const pf = e.querySelector('.bildwechsel-pfeil');
   const r = pf && pf.getBoundingClientRect();
+  const pk = e.querySelector('.bildwechsel-punkte');
+  const akt = pk && pk.querySelector('.ist-da');
+  const kasten = e.getBoundingClientRect();
+  const pr = pk && pk.getBoundingClientRect();
   return {
     pfeile: document.querySelectorAll('.bildwechsel-pfeil').length,
+    punkte: pk ? pk.children.length : 0,
+    aktiv: akt ? [...pk.children].indexOf(akt) + 1 : 0,
+    aktivFarbe: akt ? getComputedStyle(akt).backgroundColor : '',
+    aktivBreite: akt ? getComputedStyle(akt).width : '',
+    ruhigBreite: pk && pk.children[1] ? getComputedStyle(pk.children[1]).width : '',
+    punkteVersteckt: pk ? pk.getAttribute('aria-hidden') : '',
+    punkteKnoepfe: pk ? pk.querySelectorAll('button,a').length : 0,
+    punkteImBild: pr ? (pr.left >= kasten.left && pr.right <= kasten.right
+      && pr.bottom <= kasten.bottom) : false,
+    satz: (e.querySelector('.sr-only') || {}).textContent || '',
+    alleKarten: [...document.querySelectorAll('.leistung-img[data-bilder] .bildwechsel-punkte')]
+      .map((x) => x.children.length),
     halt: document.querySelectorAll('.diaschau-halt').length,
     src: (e.querySelector('img').getAttribute('src') || '').split('/').pop(),
     alt: e.querySelector('img').getAttribute('alt') || '',
@@ -127,6 +150,10 @@ try {
     await pg.waitForTimeout(700);
     const zurueck = await lesen(pg);
     p('Klick links blaettert zurueck', zurueck.src === ruhe.src, zurueck.src);
+    p('Der Punkt und der vorgelesene Satz gehen mit',
+      weiter.aktiv === 2 && /Bild 2 von \d/.test(weiter.satz)
+        && zurueck.aktiv === 1 && /Bild 1 von \d/.test(zurueck.satz),
+      `${weiter.satz} -> ${zurueck.satz}`);
     /* Tastatur: Fokus macht sichtbar (WCAG 2.2, 2.4.11) */
     const sichtbar = await pg.evaluate(() => {
       const k = document.querySelector('.bildwechsel-pfeil');
@@ -141,12 +168,28 @@ try {
   p('Nichts wechselt von allein', vor.src === nach.src, nach.src);
   p('Kein Anhalten-Knopf mehr', nach.halt === 0, `${nach.halt} gefunden`);
   p('Keine Javascript-Fehler', laerm.length === 0, laerm.slice(0, 1).join(' ') || 'Konsole still');
+
+  /* Punkte: der Hinweis, dass es mehr als ein Bild gibt. */
+  const pu = await lesen(pg);
+  p('Jede Karte hat so viele Punkte wie Bilder',
+    pu.alleKarten.length === 7 && pu.alleKarten.every((n) => n >= 2 && n <= 6),
+    pu.alleKarten.join(', '));
+  p('Der aktive Punkt ist golden UND groesser (WCAG 1.4.1)',
+    /^rgb\(19[0-9], 1[0-9]{2}, [0-9]{1,2}\)$/.test(pu.aktivFarbe)
+      && parseFloat(pu.aktivBreite) > parseFloat(pu.ruhigBreite),
+    `${pu.aktivFarbe}, ${pu.aktivBreite} gegen ${pu.ruhigBreite}`);
+  p('Die Punkte liegen im Bild und ragen nirgends heraus', pu.punkteImBild, '');
+  p('Die Punkte sind Anzeige, keine Schaltflaechen (WCAG 2.5.8)',
+    pu.punkteVersteckt === 'true' && pu.punkteKnoepfe === 0,
+    `aria-hidden ${pu.punkteVersteckt}, ${pu.punkteKnoepfe} Knoepfe`);
   await ctx.close();
 
   /* b) Telefon */
   const m = await seite(true);
   const t1 = await lesen(m.pg);
   p('Am Telefon gibt es keine Pfeile (WCAG 2.4.11)', t1.pfeile === 0, `${t1.pfeile} gefunden`);
+  p('Am Telefon sind die Punkte trotzdem da', t1.punkte >= 2 && t1.punkteImBild,
+    `${t1.punkte} Punkte`);
   const wischen = (dx, dy) => m.pg.evaluate(([dx, dy]) => {
     const e = document.querySelector('.leistung-img[data-bilder]');
     if (!e) return;
