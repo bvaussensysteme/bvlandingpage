@@ -34,7 +34,7 @@ const DATEN = JSON.parse(fs.readFileSync(path.join(WURZEL, 'src/_data/galerien.j
 const ZUORDNUNG = { carport: 'carport', pergola: 'pergola',
                     terrassenueberdachung: 'terrassenueberdachung' };
 const WIEVIEL = 4;
-const VERSION = '20261119f';   /* Cache-Buster fuer js/galerie.js, hier EINE Quelle */
+const VERSION = '20261120a';   /* Cache-Buster fuer js/galerie.js, hier EINE Quelle */
 const ENTFERNEN = process.argv.includes('--entfernen');
 
 export const ANFANG = '  <!-- ANFANG Ausfuehrungsbeispiele (erzeugt von scripts/baue-staedte-galerie.mjs) -->';

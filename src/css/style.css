@@ -3617,6 +3617,30 @@ body.bv-konfig-open #bvKonfigBubble {
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
+/* Das Modellbild ist eine Schaltflaeche und oeffnet die Grossansicht.
+   Siehe js/galerie.js, Block "MODELLBILDER AUF DEN PRODUKTSEITEN".
+   Der Knopf wird vom Skript erzeugt; ohne Skript bleibt das Bild
+   einfach ein Bild. */
+.produkt-bild-knopf {
+  display: block; width: 100%; padding: 0; margin: 0;
+  border: 0; background: none; cursor: zoom-in;
+  border-radius: inherit; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.produkt-bild-knopf img { display: block; width: 100%; height: auto; }
+.produkt-bild-knopf:focus-visible {
+  outline: 3px solid var(--gold-text); outline-offset: 3px;
+}
+/* Ein leiser Hinweis, dass da etwas passiert. Nur mit Maus: Am
+   Telefon gibt es kein Schweben, und eine Dauer-Einblendung waere
+   nur ein Fleck auf dem Bild. */
+@media (hover: hover) and (pointer: fine) {
+  .produkt-bild-knopf img { transition: transform var(--zeit-mittel, .3s) var(--kurve-weich, ease); }
+  .produkt-bild-knopf:hover img { transform: scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .produkt-bild-knopf:hover img { transform: none; }
+}
 .produkt-grid .produkt-card-body {
   padding: var(--sp-4) 0 0;
   margin-top: var(--sp-4);

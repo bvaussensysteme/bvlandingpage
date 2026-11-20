@@ -18,7 +18,8 @@
 (function () {
   'use strict';
   var streifen = document.querySelectorAll('.galerie-streifen[data-galerie]');
-  if (!streifen.length) return;
+  var karten = document.querySelectorAll('.produkt-card-img');
+  if (!streifen.length && !karten.length) return;
 
   var fenster = null, bildEl = null, textEl = null, zaehlerEl = null;
   var aktuelleListe = [], aktuellerIndex = 0, rueckkehr = null;
@@ -94,8 +95,11 @@
        sonst liest ein Screenreader ihn zweimal. */
     bildEl.alt = '';
     textEl.textContent = b.alt;
-    zaehlerEl.textContent = ' (' + (aktuellerIndex + 1) + ' von ' + aktuelleListe.length + ')';
     var mehr = aktuelleListe.length > 1;
+    /* Bei einem einzigen Bild kein "(1 von 1)". Das kommt auf den
+       Produktseiten vor, die nur ein Modell zeigen. */
+    zaehlerEl.textContent = mehr
+      ? ' (' + (aktuellerIndex + 1) + ' von ' + aktuelleListe.length + ')' : '';
     fenster.querySelector('.gg-zurueck').hidden = !mehr;
     fenster.querySelector('.gg-vor').hidden = !mehr;
   }
@@ -225,6 +229,53 @@
     }, { passive: true });
     window.addEventListener('resize', nachziehen, { passive: true });
     nachziehen();
+  }
+
+  /* ============================================================
+     MODELLBILDER AUF DEN PRODUKTSEITEN (20.11.2026)
+
+     ANLASS: Der Betreiber hat am 20.11.2026 einen Bildschirmabzug
+     geschickt und dazu geschrieben, er wolle "einfach nur, dass man
+     die Bilder wischen kann". Gemeint waren nicht die
+     Ausfuehrungsbeispiele weiter unten, sondern die Bilder der
+     Modelle: je Produktseite drei bis zehn Stueck, jedes in einer
+     eigenen Karte, jedes ein totes Bild. Antippen tat nichts.
+
+     JETZT: Jedes Modellbild wird zur Schaltflaeche und oeffnet
+     dieselbe Grossansicht wie die Ausfuehrungsbeispiele. Darin
+     laesst sich durch ALLE Modellbilder der Seite wischen, mit
+     Pfeiltasten blaettern und mit Escape schliessen.
+
+     WARUM IM SKRIPT UND NICHT IM HTML: Die Karten stehen in 16
+     Vorlagen und in 16 gebauten Seiten. Hier ist es eine Stelle.
+     Faellt das Skript aus, bleibt das Bild sichtbar, es laesst sich
+     dann nur nicht vergroessern. Nichts geht verloren.
+
+     NICHT GEMACHT: Mehrere Bilder je Modell. Die 59 Bilder im
+     Portfolio sind nach Produktgruppe sortiert, nicht nach Modell.
+     Welches Bild ein TDS zeigt und welches ein SkyView, kann ich
+     nicht erfinden; am 19.11.2026 lag ich mit genau so einer
+     Zuordnung daneben. Das waere Inhalt und gehoert dem Betreiber.
+     ============================================================ */
+  if (karten.length) {
+    var modellListe = [];
+    var modellKnoepfe = [];
+    Array.prototype.forEach.call(karten, function (huelle) {
+      var img = huelle.querySelector('img');
+      if (!img || huelle.querySelector('button')) return;
+      var alt = img.getAttribute('alt') || '';
+      var knopf = document.createElement('button');
+      knopf.type = 'button';
+      knopf.className = 'produkt-bild-knopf';
+      knopf.setAttribute('aria-label', alt ? alt + ' groß anzeigen' : 'Bild groß anzeigen');
+      img.parentNode.insertBefore(knopf, img);
+      knopf.appendChild(img);
+      modellListe.push({ src: img.getAttribute('src'), alt: alt });
+      modellKnoepfe.push(knopf);
+    });
+    modellKnoepfe.forEach(function (k, i) {
+      k.addEventListener('click', function () { oeffnen(modellListe, i, k); });
+    });
   }
 
   Array.prototype.forEach.call(streifen, function (s) {
