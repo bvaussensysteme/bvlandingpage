@@ -2,7 +2,13 @@
    BV AussenSysteme – Karussell (Referenzen)
    ------------------------------------------------------------
    Macht aus einem vorhandenen Raster einen waagerechten Lauf mit
-   Einrasten, Pfeilen und Fortschrittsbalken.
+   Einrasten und Punkten darunter.
+
+   GEAENDERT AM 20.11.2026, Ansage des Betreibers: "Mach das bei
+   Projekten, die fuer sich sprechen, auch mit diesen Punkten. Also
+   graue Punkte und bei dem Bild, bei dem man ist, ist dann Gold.
+   Und mach diese Pfeile unten rechts weg." Vorher standen dort ein
+   Fortschrittsbalken und zwei runde Pfeile.
 
    Drei Entscheidungen, die man spaeter nicht "aufraeumen" sollte:
 
@@ -11,9 +17,9 @@
       der richtigen Beschleunigung, dem richtigen Gummiband am Rand
       und ohne dass die Seite blockiert. Jede selbstgebaute Loesung
       ist hier schlechter.
-   2. Pfeile und Balken werden HIER eingefuegt, nicht ins HTML
-      geschrieben. Ohne JavaScript bleibt ein Raster, das sich ganz
-      normal scrollen laesst - keine toten Knoepfe.
+   2. Die Punkte werden HIER eingefuegt, nicht ins HTML geschrieben.
+      Ohne JavaScript bleibt ein Raster, das sich ganz normal
+      scrollen laesst - keine tote Anzeige.
    3. Die Bilder behalten ihren Klick auf die Lightbox. Deshalb wird
       beim Ziehen mit der Maus gemerkt, ob wirklich gezogen wurde,
       und nur dann der Klick geschluckt.
@@ -41,21 +47,26 @@
     var leiste = document.createElement('div');
     leiste.className = 'karussell-leiste';
 
-    var balken = document.createElement('div');
-    balken.className = 'karussell-balken';
-    balken.setAttribute('aria-hidden', 'true');
-    var fuellung = document.createElement('span');
-    balken.appendChild(fuellung);
+    /* Punkte statt Fortschrittsbalken, einer je Bild. Sie sind eine
+       ANZEIGE, keine Schaltflaeche: Ein 7-px-Punkt waere eine
+       Tippflaeche weit unter den 24 x 24 px aus WCAG 2.2, 2.5.8.
+       Geschoben wird mit dem Finger, dem Mausrad, dem Ziehen mit
+       der Maus und der Tabulatortaste. */
+    var punkte = document.createElement('div');
+    punkte.className = 'karussell-punkte';
+    punkte.setAttribute('aria-hidden', 'true');
+    for (var n = 0; n < kinder.length; n++) {
+      punkte.appendChild(document.createElement('span'));
+    }
 
-    var knoepfe = document.createElement('div');
-    knoepfe.className = 'karussell-knoepfe';
-    var zurueck = knopf('zurueck', 'Vorheriges Bild');
-    var vor = knopf('vor', 'Nächstes Bild');
-    knoepfe.appendChild(zurueck);
-    knoepfe.appendChild(vor);
+    /* Fuer Hilfsmittel dasselbe in Worten, hoeflich angesagt und nur
+       beim Schieben (WCAG 2.2, 4.1.3). */
+    var sage = document.createElement('p');
+    sage.className = 'sr-only';
+    sage.setAttribute('aria-live', 'polite');
 
-    leiste.appendChild(balken);
-    leiste.appendChild(knoepfe);
+    leiste.appendChild(punkte);
+    leiste.appendChild(sage);
     huelle.appendChild(leiste);
 
     function schritt() {
@@ -65,18 +76,19 @@
       return erstes.getBoundingClientRect().width + abstand;
     }
 
-    function fahren(richtung) {
-      raster.scrollBy({ left: richtung * schritt(), behavior: ruhig() ? 'auto' : 'smooth' });
-    }
-    zurueck.addEventListener('click', function () { fahren(-1); });
-    vor.addEventListener('click', function () { fahren(1); });
-
     function stand() {
       var weg = raster.scrollWidth - raster.clientWidth;
-      var anteil = weg > 1 ? raster.scrollLeft / weg : 0;
-      fuellung.style.transform = 'scaleX(' + Math.max(0.06, Math.min(1, anteil || 0.06)) + ')';
-      zurueck.disabled = raster.scrollLeft < 4;
-      vor.disabled = raster.scrollLeft > weg - 4;
+      var br = schritt() || 1;
+      var nr = Math.min(kinder.length - 1, Math.max(0, Math.round(raster.scrollLeft / br)));
+      /* Am rechten Anschlag der LETZTE Punkt. Sonst bliebe er am
+         vorletzten haengen, wenn zwei Bilder nebeneinander passen.
+         Dasselbe war am 19.11.2026 beim Zaehler der Produktgalerien
+         zu korrigieren. */
+      if (weg > 1 && raster.scrollLeft >= weg - 4) nr = kinder.length - 1;
+      for (var n = 0; n < punkte.children.length; n++) {
+        punkte.children[n].className = (n === nr ? 'ist-da' : '');
+      }
+      sage.textContent = 'Bild ' + (nr + 1) + ' von ' + kinder.length;
     }
     raster.addEventListener('scroll', function () {
       window.requestAnimationFrame(stand);
@@ -115,16 +127,6 @@
       });
       function schlucken(ev) { ev.stopPropagation(); ev.preventDefault(); }
     }
-  }
-
-  function knopf(art, beschriftung) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'karussell-knopf karussell-knopf--' + art;
-    b.setAttribute('aria-label', beschriftung);
-    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-      '<path d="' + (art === 'vor' ? 'M9 6l6 6-6 6' : 'M15 6l-6 6 6 6') + '"/></svg>';
-    return b;
   }
 
   /* ----------------------------------------------------------------

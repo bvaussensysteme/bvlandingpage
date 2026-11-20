@@ -3866,54 +3866,43 @@ body.bv-konfig-open #bvKonfigBubble {
   .galerie-grid.ist-karussell > .galerie-item.large { flex-basis: 620px; }
 }
 
-/* Leiste unter dem Lauf: links der Fortschritt, rechts die Pfeile. */
+/* Punkte unter dem Lauf, einer je Bild. Fortschrittsbalken und die
+   zwei runden Pfeile standen hier bis zum 20.11.2026; der Betreiber
+   wollte stattdessen Punkte und die Pfeile weg.
+
+   DIE FARBEN SIND GERECHNET. Der Abschnitt steht auf Steingrau
+   #E9E7E2 (start.css). Darauf haette das Markengold #C58A32 nur
+   2,41:1 und wuerde die 3:1 aus WCAG 1.4.11 verfehlen; es ist fuer
+   Flaechen auf Dunkel gedacht. Genommen wird deshalb --gold-dark
+   #A3701F mit 3,47:1, laut Palette ausdruecklich "nur Flaechen",
+   und ein Punkt ist eine Flaeche. Der graue Punkt #767676 kommt auf
+   3,68:1.
+
+   Der aktive Punkt ist zusaetzlich groesser. Gold und Grau liegen in
+   der Helligkeit nah beieinander, und nach WCAG 1.4.1 darf Farbe
+   nicht das einzige Mittel sein.
+
+   KEINE Schaltflaechen: siehe js/karussell.js. */
 .karussell-leiste {
-  display: flex; align-items: center; gap: var(--sp-5);
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
   margin-top: var(--sp-4);
 }
-.karussell-balken {
-  flex: 1; height: 2px; background: var(--border);
-  border-radius: 2px; overflow: hidden;
-}
-.karussell-balken span {
-  display: block; height: 100%; width: 100%;
-  background: var(--gold);
-  transform-origin: left center;
-  transform: scaleX(.06);
-  transition: transform var(--zeit-mittel) var(--kurve-weich);
-}
-.karussell-knoepfe { display: flex; gap: var(--sp-2); flex-shrink: 0; }
-.karussell-knopf {
-  width: 46px; height: 46px; flex-shrink: 0;
-  display: inline-flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border); border-radius: 50%;
-  background: var(--white); color: var(--black);
-  cursor: pointer; padding: 0;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
+.karussell-punkte { display: flex; align-items: center; gap: 8px; }
+.karussell-punkte span {
+  display: block; width: 7px; height: 7px; border-radius: 50%;
+  background: #767676;
   transition: background var(--zeit-schnell) var(--kurve-weich),
-              border-color var(--zeit-schnell) var(--kurve-weich),
-              color var(--zeit-schnell) var(--kurve-weich),
-              transform var(--zeit-schnell) var(--kurve-raus);
+              width var(--zeit-schnell) var(--kurve-weich),
+              height var(--zeit-schnell) var(--kurve-weich);
 }
-.karussell-knopf svg {
-  width: 20px; height: 20px;
-  stroke: currentColor; fill: none; stroke-width: 2;
-  stroke-linecap: round; stroke-linejoin: round;
+.karussell-punkte span.ist-da {
+  width: 11px; height: 11px;
+  background: var(--gold-dark, #A3701F);
 }
-@media (hover: hover) and (pointer: fine) {
-  .karussell-knopf:hover:not(:disabled) {
-    background: var(--gold-text); border-color: var(--gold-text); color: var(--white);
-  }
+@media (prefers-reduced-motion: reduce) {
+  .karussell-punkte span { transition: none; }
 }
-.karussell-knopf:active:not(:disabled) { transform: scale(.94); }
-.karussell-knopf:focus-visible { outline: 2px solid var(--gold-text); outline-offset: 2px; }
-.karussell-knopf:disabled { opacity: .32; cursor: default; }
-
-/* Auf hellem Grund hat die Leiste weisse Knoepfe; im abgesetzten
-   Abschnitt sitzt sie auf Offwhite - dort bekommt der Knopf die
-   Hintergrundfarbe des Abschnitts, sonst leuchtet er heraus. */
-.section--alt .karussell-knopf { background: var(--white); }
 
 /* ── 6. Ruhige Fahrt im Kopfbild ─────────────────────────────────────
    Das Bild wandert ueber 24 s kaum merklich - gerade so viel, dass der

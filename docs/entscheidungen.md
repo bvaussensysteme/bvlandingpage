@@ -20080,3 +20080,51 @@ denkbaren Foto 11:1, weit über den 4,5:1 aus WCAG 1.4.3.
 **Gegengelesen.** `scripts/pruefe-bilder-blaettern.mjs`, jetzt 25
 Messungen. Gegenprobe 11 Beanstandungen.
 
+## 20.11.2026 - Referenz-Karussell: Punkte statt Balken, Pfeile weg
+
+**Ansage des Betreibers** zum Abschnitt „Projekte, die für sich
+sprechen“: „Mach das auch mit diesen Punkten. Also graue Punkte
+und bei dem Bild, bei dem man ist, ist dann Gold. Und mach diese
+Pfeile unten rechts weg.“
+
+**Was jetzt gilt.** Unter dem Lauf stehen 15 Punkte, einer je Bild,
+mittig. Der aktive ist golden und größer. Fortschrittsbalken und die
+zwei runden Pfeile sind weg, dazu die Hilfsfunktion `knopf()`, die
+sonst toter Code wäre.
+
+**Das Gold ist hier ein anderes als bei den Leistungskarten, und das
+ist Absicht.** Der Abschnitt steht auf Steingrau #E9E7E2. Darauf
+hätte das Markengold #C58A32 nur 2,41:1 und würde die 3:1 aus WCAG
+1.4.11 verfehlen. Genommen ist --gold-dark #A3701F mit 3,47:1; die
+Palette erlaubt es ausdrücklich für Flächen, und ein Punkt ist eine
+Fläche. Der graue Punkt #767676 kommt auf 3,68:1. Bei den
+Leistungskarten liegen die Punkte auf einem dunklen Polster, dort
+passt das helle Markengold. Zwei Hintergründe, zwei Töne, dieselbe
+Regel.
+
+**Der aktive Punkt ist auch größer** (11 px gegen 7 px), weil Gold
+und Grau in der Helligkeit nah beieinander liegen und Farbe nach WCAG
+1.4.1 nicht das einzige Mittel sein darf.
+
+**Am rechten Anschlag der letzte Punkt.** Sonst bliebe er am
+vorletzten hängen, wenn zwei Bilder nebeneinander passen. Derselbe
+Fehler war am 19.11.2026 beim Zähler der Produktgalerien zu
+korrigieren.
+
+**Was das Entfernen der Pfeile kostet, ehrlich gesagt.** Die Pfeile
+waren mit der Tastatur bedienbar. Sie sind weg. Geschoben werden kann
+der Lauf weiterhin mit der Tastatur, weil in jedem Bild eine
+Schaltfläche sitzt und der Tabulator sie nacheinander ins Bild holt.
+Gemessen: 15 fokussierbare Elemente im Lauf. Es ist also kein neuer
+Verstoß, aber eine Bequemlichkeit weniger.
+
+**Gemessener Altbefund, NICHT behoben, siehe docs/NEXT_TASK.md.** Die
+Bilder dieses Abschnitts öffnen die Grossansicht über `onclick` an
+einem `div`. Mit der Tastatur lässt sich kein einziges Bild öffnen.
+Das ist WCAG 2.2, 2.1.1 (Stufe A) und bestand schon vorher; mit den
+Pfeilen hatte es nichts zu tun. Eine saubere Korrektur macht aus jedem
+Bild eine Schaltfläche, und dann liegt die vorhandene Schaltfläche
+„Referenz BV AussenSysteme“ in einer anderen: verschachtelte
+Schaltflächen sind ungültig. Das ist ein eigener Auftrag und keine
+Zeile nebenbei.
+

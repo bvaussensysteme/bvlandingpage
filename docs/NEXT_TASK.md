@@ -403,3 +403,21 @@ und musste korrigiert werden.
 **Gebraucht wird vom Betreiber:** je Modell eine Liste, welche
 Bilddateien es zeigen. Dann ist der Rest Arbeit von einer Stunde, die
 Technik steht.
+
+## Gemessener Altbefund: Startseiten-Galerie ohne Tastatur (20.11.2026)
+
+Die 15 Bilder im Abschnitt „Projekte, die für sich sprechen" öffnen
+die Großansicht über `onclick` an einem `<div>`. **Mit der Tastatur
+lässt sich kein einziges Bild öffnen.** Das ist WCAG 2.2, 2.1.1,
+Stufe A. Gemessen am 20.11.2026 im Browser: 28 Elemente mit `onclick`,
+kein `tabindex` an den Bildern.
+
+Der Befund ist alt und hat mit dem Umbau auf Punkte nichts zu tun.
+
+**Warum nicht nebenbei behoben:** Eine saubere Korrektur macht aus
+jedem Bild eine `<button>`. In jedem Bild sitzt aber schon eine
+Schaltfläche („Referenz BV AussenSysteme"), und verschachtelte
+Schaltflächen sind ungültiges HTML. Es braucht also eine Entscheidung,
+wie beides nebeneinander funktioniert, und eine Anpassung von
+`scripts/pruefe-referenz-galerie.mjs`. Das ist ein eigener Auftrag.
+
