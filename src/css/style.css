@@ -675,41 +675,42 @@ body.bv-menu-open #bv-scroll-top {
 }
 @media (hover: hover) and (pointer: fine) { .leistung-card:hover .leistung-img img { transform: scale(1.05); } }
 /* ============================================
-   DIASCHAU IN DEN LEISTUNGSKARTEN (20.11.2026)
-   Siehe js/diaschau.js. Der Knopf ist Pflicht, nicht Zierde:
-   WCAG 2.2, 2.2.2 verlangt, dass sich etwas, das von allein
-   laeuft, anhalten laesst.
+   BILDER BLAETTERN IN DEN LEISTUNGSKARTEN (20.11.2026)
+   Siehe js/bilder-blaettern.js. Nichts laeuft von allein; am
+   Rechner tauchen beim Drueberfahren zwei Pfeile auf, am Telefon
+   wird gewischt. Die Pfeile entstehen nur auf Geraeten mit Maus,
+   damit es keinen Knopf gibt, der unsichtbar im Tab-Weg steht
+   (WCAG 2.2, 2.4.11).
    ============================================ */
-.diaschau-halt {
-  position: absolute; right: 8px; bottom: 11px; z-index: 2;
+.bildwechsel-pfeil {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 2;
   width: 44px; height: 44px; min-width: 44px;
   display: flex; align-items: center; justify-content: center;
   border: 0; border-radius: 999px; cursor: pointer;
-  background: rgba(17, 17, 17, 0.62);
+  color: #fff; background: rgba(17, 17, 17, 0.62);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  transition: background .2s;
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease, background .18s ease;
 }
-.diaschau-halt:hover { background: rgba(17, 17, 17, 0.78); }
-.diaschau-halt:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-/* Zwei Striche fuer "laeuft, zum Anhalten druecken", ein Dreieck fuer
-   "angehalten, zum Weiterlaufen druecken". Reine Form, kein Text:
-   Der Name steht im aria-label. */
-.diaschau-sym {
-  display: block; width: 12px; height: 13px;
-  border-left: 4px solid #fff; border-right: 4px solid #fff;
+.bildwechsel-pfeil svg { width: 22px; height: 22px; }
+.bildwechsel-zurueck { left: 6px; }
+.bildwechsel-vor { right: 6px; }
+.bildwechsel-pfeil:hover { background: rgba(17, 17, 17, 0.82); }
+/* Auftauchen beim Drueberfahren, und immer, wenn einer von beiden
+   den Tastaturfokus hat. Ohne das zweite waere der Pfeil fuer die
+   Tastatur zwar erreichbar, aber nicht zu sehen. */
+.leistung-card:hover .bildwechsel-pfeil,
+.leistung-img:focus-within .bildwechsel-pfeil {
+  opacity: 1; pointer-events: auto;
 }
-.diaschau-halt:not(.laeuft) .diaschau-sym {
-  width: 0; height: 0; border: 0;
-  border-left: 13px solid #fff;
-  border-top: 8px solid transparent; border-bottom: 8px solid transparent;
-  margin-left: 4px;
+.bildwechsel-pfeil:focus-visible {
+  opacity: 1; pointer-events: auto;
+  outline: 3px solid #fff; outline-offset: 2px;
 }
-/* Der Wechsel wird kurz weich gezogen. Ohne Bewegung: nichts. */
-.leistung-img.diaschau-wechsel img { animation: diaschauAuf .45s var(--kurve-weich, ease); }
-@keyframes diaschauAuf { from { opacity: .25; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  .leistung-img.diaschau-wechsel img { animation: none; }
-}
+/* Das Heranzoomen beim Drueberfahren gilt dem Bild, nicht den
+   Pfeilen: Sonst wandern sie mit. */
+.leistung-card:hover .leistung-img .bildwechsel-pfeil { transform: translateY(-50%); }
 
 .leistung-img::after {
   content: ''; position: absolute;

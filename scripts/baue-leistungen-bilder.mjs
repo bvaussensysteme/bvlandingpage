@@ -3,14 +3,16 @@
    Haengt an jede Leistungskarte der Startseite die Bildliste
    ihrer Produktgruppe.
 
-   ANLASS (20.11.2026). Der Betreiber: "In den einzelnen Leistungen
-   kann man immer noch nicht mehrere Bilder angucken bzw. swipen,
-   beziehungsweise ich wollte ja so eine Dia-Show haben, dass die
-   Bilder nach einigen Zeit selber nach rechts swipen."
+   ANLASS (20.11.2026). Der Betreiber wollte zuerst eine Diaschau,
+   hat sie nach dem ersten Ansehen verworfen und stattdessen gesagt:
+   "einfach nur, dass man die Bilder swipen kann [...] dass links und
+   rechts so zwei Pfeile auftauchen, wenn man drueber ueber das Bild
+   faehrt mit der Maus". Die Bildliste bleibt dieselbe, nur das
+   Blaettern ist jetzt von Hand.
 
-   WAS HIER PASSIERT: Die Karte bekommt ein Attribut data-diaschau
+   WAS HIER PASSIERT: Die Karte bekommt ein Attribut data-bilder
    mit den Bildern ihrer Gruppe aus src/_data/galerien.json. Das
-   Bild im HTML bleibt unveraendert stehen; js/diaschau.js tauscht
+   Bild im HTML bleibt unveraendert stehen; js/bilder-blaettern.js tauscht
    es spaeter aus. Faellt das Skript aus, steht genau das da, was
    heute da steht.
 
@@ -24,8 +26,8 @@
    Gelaender, Garten & Aussenbereich); sie behalten ihr einzelnes
    Bild. Nichts wird geraten.
 
-   Aufruf: node scripts/baue-leistungen-diaschau.mjs
-           node scripts/baue-leistungen-diaschau.mjs --entfernen
+   Aufruf: node scripts/baue-leistungen-bilder.mjs
+           node scripts/baue-leistungen-bilder.mjs --entfernen
    ============================================================ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -62,7 +64,16 @@ const KARTE = /<article class="leistung-card"[\s\S]*?<\/article>/g;
 export function umbauen(html, entfernen) {
   let getroffen = 0, uebersprungen = [];
   const neu = html.replace(KARTE, (karte) => {
-    const ohne = karte.replace(/(<div class="leistung-img)" data-diaschau="[^"]*"/, '$1"');
+    /* Auch data-diaschau mit heraus: So hiess das Attribut am
+       20.11.2026 fuer ein paar Stunden, als hier noch eine Diaschau
+       stand. Nach dem Umbenennen blieben beide Attribute in der
+       Seite stehen, weil der Generator den alten Namen nicht mehr
+       kannte. Die Zeile raeumt das auf und darf erst weg, wenn
+       sicher keine Seite mehr das alte Attribut traegt. */
+    const ohne = karte
+      .replace(/(<div class="leistung-img)" data-bilder="[^"]*"/, '$1"')
+      .replace(/(<div class="leistung-img)" data-diaschau="[^"]*"/, '$1"')
+      .replace(/ data-diaschau="[^"]*"/, '');
     if (entfernen) { if (ohne !== karte) getroffen++; return ohne; }
     const v = ohne.match(/class="leistung-link" href="produkte\/([a-z-]+)\.html"/);
     const titel = (ohne.match(/itemprop="name">([^<]*)</) || [])[1] || '?';
@@ -71,7 +82,7 @@ export function umbauen(html, entfernen) {
     if (!liste) { uebersprungen.push(`${titel} (keine Bildgruppe "${v[1]}")`); return ohne; }
     getroffen++;
     return ohne.replace('<div class="leistung-img"',
-      `<div class="leistung-img" data-diaschau="${maskieren(JSON.stringify(liste))}"`);
+      `<div class="leistung-img" data-bilder="${maskieren(JSON.stringify(liste))}"`);
   });
   return { neu, getroffen, uebersprungen };
 }
@@ -83,5 +94,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(ENTFERNEN
     ? `${getroffen} Karten zurueckgebaut.`
     : `${getroffen} Leistungskarten mit Bildliste versehen.`);
-  for (const u of uebersprungen) console.log(`  ohne Diaschau: ${u}`);
+  for (const u of uebersprungen) console.log(`  ohne Bilderwechsel: ${u}`);
 }

@@ -19947,3 +19947,58 @@ heraus und fügt nichts hinzu.
 Modelle einer Seite gewischt, noch nicht durch mehrere Bilder
 desselben Modells. Dafür fehlt die Zuordnung Bild zu Modell.
 
+## 20.11.2026 - Diaschau wieder herausgenommen, Blättern von Hand
+
+**Die Diaschau von heute Vormittag ist weg.** Ansage des Betreibers,
+wörtlich: „Ich will nicht so eine Dia-Show mit einem Play-Button,
+sondern einfach nur, dass man die Bilder swipen kann. [...] dass links
+und rechts so zwei Pfeile auftauchen, wenn man drüber über das Bild
+fährt mit der Maus und dann die Bilder weiter swipen kann. Oder wenn
+man auf dem Handy ist, dass man mit dem Finger swipen kann.“
+
+**Was jetzt gilt.** Dieselben sieben Leistungskarten, dieselben Bilder,
+aber nichts bewegt sich von allein. Am Rechner tauchen beim
+Drüberfahren zwei Pfeile auf, am Telefon wird gewischt. Kein Takt,
+kein Anhalten-Knopf.
+
+**Was damit entfällt.** WCAG 2.2, 2.2.2 (Pausieren, Stoppen,
+Ausblenden) war der Grund für den Anhalten-Knopf. Wo nichts läuft,
+gibt es nichts zu pausieren. Der Knopf war also kein Fehler, sondern
+die Pflicht zur damaligen Lösung; mit der Lösung fällt er weg.
+
+**Was dafür NEU zu beachten war.** Die Pfeile entstehen nur auf
+Geräten mit Maus (`hover: hover` und `pointer: fine`). Am Telefon
+wären sie unsichtbar, weil es dort kein Drüberfahren gibt, aber
+trotzdem mit der Tastatur erreichbar: genau der Fall aus WCAG 2.2,
+2.4.11, den ich am selben Tag an zwei anderen Stellen beseitigt habe.
+Also kein Pfeil, der nicht gesehen werden kann. Umgekehrt wird der
+Pfeil am Rechner sichtbar, sobald er den Fokus hat, nicht nur beim
+Drüberfahren.
+
+**Reihenfolge jetzt natürlich, nicht gemischt.** Beim Mischen war die
+Diaschau gemeint; wer von Hand blättert, will beim Zurückblättern
+dasselbe Bild wiedersehen.
+
+**Senkrechtes Wischen blättert nicht.** Das ist Scrollen. Ohne diese
+Unterscheidung springt das Bild weg, während jemand die Seite
+hinunterwischt. Wird mitgeprüft.
+
+**Umbenannt, damit die Namen nicht lügen:** `js/diaschau.js` zu
+`js/bilder-blaettern.js`, `scripts/baue-leistungen-diaschau.mjs` zu
+`baue-leistungen-bilder.mjs`, `pruefe-diaschau.mjs` zu
+`pruefe-bilder-blaettern.mjs`, Attribut `data-diaschau` zu
+`data-bilder`.
+
+**Dabei ein Fehler, den erst die Nachkontrolle fand.** Nach dem
+Umbenennen trug jede Karte BEIDE Attribute: Der Generator kannte den
+alten Namen nicht mehr und konnte ihn deshalb nicht entfernen. Die
+Startseite war dadurch unnötig groß. Der Generator räumt jetzt
+beide Namen ab; die Zeile dafür darf erst weg, wenn sicher keine
+Seite mehr das alte Attribut trägt. Gezählt nachher: 0 mal
+data-diaschau, 7 mal data-bilder.
+
+**Gegengelesen.** `scripts/pruefe-bilder-blaettern.mjs`, 17 Messungen,
+darunter der Nachweis, dass nichts von allein wechselt und am Telefon
+null Pfeile im Tab-Weg stehen. Gegenprobe blockiert das Skript, 5
+Beanstandungen.
+
