@@ -19893,3 +19893,57 @@ wegbleiben, Platz freihalten, auf einen Knopf zusammenlegen. Der
 Betreiber hat alle drei abgelehnt und gesagt, die Knöpfe sollen in
 Ruhe gelassen werden. Bleibt so. Nicht erneut vorschlagen.
 
+## 20.11.2026 - Diaschau in den Leistungskarten
+
+**Ansage des Betreibers.** „In den einzelnen Leistungen kann man
+immer noch nicht mehrere Bilder angucken bzw. swipen, beziehungsweise
+ich wollte ja so eine Dia-Show haben, dass die Bilder nach einigen
+Zeit selber nach rechts swipen und alle immer durcheinander gehen.“
+
+**Was jetzt gilt.** Sieben der zehn Leistungskarten auf der
+Startseite zeigen die Bilder ihrer Produktgruppe. Wechsel alle 5,2
+Sekunden, im Kreis, Reihenfolge bei jedem Aufruf neu gemischt
+(Fisher und Yates, nicht sort mit Zufall: das mischt nachweislich
+schief). Wischen und Anhalten gehen trotzdem.
+
+**Wie die Bilder in die Seite kommen.** Nicht als 59 img-Tags. Die
+Startseite trägt ohnehin am meisten, und 59 zusätzliche Bilder
+wären Ladezeit für etwas, das man nacheinander sieht.
+`scripts/baue-leistungen-diaschau.mjs` schreibt nur die Liste als
+Attribut `data-diaschau` an die Karte; `js/diaschau.js` tauscht das
+eine vorhandene Bild aus und lädt immer nur das nächste vor. Fällt
+das Skript aus, steht genau das da, was vorher da stand.
+
+**Der Anhalten-Knopf ist Pflicht.** WCAG 2.2, Erfolgskriterium 2.2.2
+(Stufe A): Bewegender Inhalt, der länger als fünf Sekunden läuft
+und neben anderem Inhalt steht, muss sich anhalten lassen. Ohne den
+Knopf wäre die Diaschau ein Verstoß auf der niedrigsten Stufe.
+Dazu: Sie ruht, solange jemand mit Finger, Maus oder Tastatur in der
+Karte ist, sie ruht im Hintergrund-Tab, und mit
+`prefers-reduced-motion` läuft sie gar nicht erst los.
+
+**Was NICHT in eine aria-live-Region wandert:** der Bildwechsel. Alle
+fünf Sekunden eine Ansage wäre Lärm. Der Alternativtext am Bild
+wandert mit, mehr nicht.
+
+**Drei Karten ohne Diaschau, mit Grund.** Sonnenschutz & Markisen und
+Geländer & Glasgeländer haben im Portfolio keine Bildgruppe. Bei
+Garten & Außenbereich gibt es eine einzige Umdeutung auf die vier
+Gartenhaus-Bilder, und sie ist belegt: Auf der Karte steht heute
+schon ein Gartenhaus-Bild. Nichts wird geraten.
+
+**Eine Falle beim Bauen.** Die Karten benutzen `<picture>` mit einer
+`<source>` auf eine webp-Datei. Die hätte den Wechsel überstimmt,
+weil der Browser die source dem src vorzieht. Das Skript entfernt sie,
+sobald es übernimmt; die Portfoliobilder sind selbst webp.
+
+**Gegengelesen.** `scripts/pruefe-diaschau.mjs`, 14 Messungen, darunter
+der Nachweis, dass nach dem Anhalten wirklich nichts mehr wechselt.
+Gegenprobe blockiert das Skript, 8 Beanstandungen. Rückbau des
+Generators geprüft: `--entfernen` nimmt genau die sieben Attribute
+heraus und fügt nichts hinzu.
+
+**Offen und beim Betreiber.** In den Produktseiten wird durch die
+Modelle einer Seite gewischt, noch nicht durch mehrere Bilder
+desselben Modells. Dafür fehlt die Zuordnung Bild zu Modell.
+

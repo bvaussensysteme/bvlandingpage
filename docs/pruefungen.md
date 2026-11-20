@@ -68,6 +68,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-schema-bilder.mjs` | Zeigen die Bild-URLs im Product-Schema der Produktseiten wirklich auf vorhandene Bilder, die auf derselben Seite auch **sichtbar** sind? Drei Wege: absolute URL auf eigener Domain, Datei liegt im Repository, `src` derselben Datei steht im HTML. Gegenprobe: 3 eingebaute Fehler, einer je Weg |
 | `scripts/pruefe-fokus-verdeckung.mjs` | Tabbt sich durch sieben Seiten in zwei Breiten, mit und ohne offenen Cookie-Hinweis, und meldet jedes fokussierte Element, das **vollständig** hinter einem festen oder klebenden Element liegt (WCAG 2.2, 2.4.11, Stufe AA). Gegenprobe: eine eingebaute feste Leiste über die obersten 220 px muss auffallen |
 | `scripts/pruefe-modellbilder.mjs` | Lassen sich die 34 Modellbilder in den Produktkarten antippen und wischen? Prüft alle 16 Seiten ohne Browser (Skript geladen, Alternativtexte) und zwei davon im echten Browser: öffnen, wischen, Escape, Fokusrückkehr, und der Sonderfall mit nur einem Modell. Gegenprobe: das Skript wird blockiert, der Ausfall muss auffallen |
+| `scripts/pruefe-diaschau.mjs` | Die Diaschau in den sieben Leistungskarten der Startseite: Bildlisten vorhanden und vollständig, ohne JavaScript steht das alte Bild da, das Bild wechselt von allein, der Anhalten-Knopf ist 44 x 44 px und hält wirklich an (WCAG 2.2, 2.2.2), mit "Bewegung reduzieren" wechselt nichts, Wischen geht von Hand, keine Javascript-Fehler. Gegenprobe: das Skript wird blockiert |
 | `scripts/pruefe-vergleich.mjs` | Die Gegenüberstellung TDS/SkyView auf der Terrassenseite: sechs vollständige Zeilen, beide Modelle als Spaltenkopf, Beschriftung für Screenreader – und auf 390 px **kein waagerechtes Scrollen**. Gegenprobe: ein zu langes Wort in einer Zelle muss auffallen |
 | `scripts/pruefe-startseite.mjs` | Die Premium-Schicht der Startseite: greift sie überhaupt, stimmen Markengold, Textgold, Tiefschwarz und Manrope, steht **nirgends Gold als Text auf hellem Grund**, sind Anfrage-Knopf und zweiter Einstieg ≥ 44 px, scrollt nichts waagerecht – und sind Navigation, Assistent, Galerie, Produktkarten, Rechner und Fuß noch da? Auf 390, 768 und 1280 px. Gegenprobe: ohne die Klasse `start-premium` muss die Palettenprüfung anschlagen |
 | `scripts/pruefe-einzugsgebiet.mjs` | Erkennt der Anfrage-Assistent, ob eine PLZ im üblichen Fahrtgebiet liegt? Wichtiger noch: Bleibt der Hinweis **aus**, wenn sie es nicht tut, und steht nie eine Absage im Bedienfeld? Gegenprobe: PLZ aus Hamburg und München dürfen keinen Hinweis erzeugen |
@@ -601,6 +602,27 @@ eine Kachel, am rechten Anschlag steht die letzte Nummer, und **kein
 Pfeil ist hart `disabled`** (sonst verliert er am Anschlag den
 Tastaturfokus, WCAG 2.2, 2.4.3). Gegenprobe mit vier eingebauten
 Fehlern.
+
+### pruefe-diaschau.mjs (neu am 20.11.2026)
+
+Sieben der zehn Leistungskarten auf der Startseite zeigen eine
+Diaschau aus den Bildern ihrer Produktgruppe. Die Bilder wechseln
+alle 5,2 Sekunden, laufen im Kreis, und die Reihenfolge ist bei
+jedem Aufruf eine andere.
+
+**Warum hier mehr geprüft wird als "es bewegt sich":** Etwas, das
+von allein läuft, ist in der Barrierefreiheit heikel. WCAG 2.2,
+Erfolgskriterium 2.2.2 (Stufe A) verlangt, dass sich bewegender
+Inhalt, der länger als fuenf Sekunden läuft und neben anderem
+Inhalt steht, anhalten lässt. Ohne den Knopf wäre die Diaschau ein
+Verstoß auf der niedrigsten Stufe. Geprüft wird deshalb nicht nur,
+dass der Knopf da ist, sondern dass nach dem Druck wirklich nichts
+mehr wechselt, und dass mit `prefers-reduced-motion` gar nichts
+von allein läuft.
+
+**Nicht geprüft:** die drei Karten ohne Bildgruppe (Sonnenschutz,
+Geländer, Garten & Außenbereich hat eine Umdeutung auf Gartenhaus,
+siehe scripts/baue-leistungen-diaschau.mjs).
 
 ### pruefe-modellbilder.mjs (neu am 20.11.2026)
 
