@@ -369,3 +369,21 @@ Alles gefunden, nichts davon umgesetzt. Reihenfolge nach Nutzen.
    Live-Seite, dazu ein Budget je Seite.
 6. **Kein Bildbudget.** Eine Städteseite lädt nach dem Scrollen 716 KB.
    Es gibt keine Grenze, gegen die eine Prüfung anschlagen könnte.
+
+## ERLEDIGT am 20.11.2026: Punkt 3.10, Fokus-Verdeckung
+
+Gemessen und behoben, Einzelheiten in `docs/entscheidungen.md`
+(20.11.2026). Kurz: 22 von 28 Fällen waren betroffen, jetzt 0 von 28,
+dauerhaft geprüft von `scripts/pruefe-fokus-verdeckung.mjs`.
+
+**Offen geblieben und bewusst nicht gemacht:** `inert` auf dem
+Seiteninhalt, solange der Cookie-Hinweis offen steht. Das wäre der
+saubere Modal-Weg, hieße aber eine Cookie-Schranke, und das ist eine
+rechtliche Frage. **Entscheidung liegt beim Betreiber.**
+
+**Neuer Nebenbefund:** `js/main.js` und `js/accessibility.js` sind auf
+53 bzw. 56 Seiten ohne `?v=` eingebunden. Bei `max-age=3600` aus
+`_headers` heißt das bis zu eine Stunde Verzögerung nach einem Deploy.
+Der Kommentar in `scripts/pruefe-cache-buster.sh` nennt noch 24 Stunden
+und ist veraltet. Entweder beide Dateien in die Cache-Buster-Liste
+aufnehmen (56 Seiten anfassen) oder den Kommentar richtigstellen.

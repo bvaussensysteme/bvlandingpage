@@ -19778,3 +19778,71 @@ der drei eingebauten Fehler landeten auf Produktseiten ohne Galerie und
 blieben wirkungslos; die Gegenprobe meldete trotzdem einen Treffer. Jetzt
 werden die Fehler nur in Seiten eingebaut, die ein Schema-Bild haben.
 
+## 20.11.2026 – Fokus nicht verdeckt: 22 von 28 Fällen, drei Ursachen
+
+**Was falsch war.** Punkt 3.10 lag seit dem 13.11. mit dem Vermerk „nur
+im Browser prüfbar". Richtig gemessen (neues
+`scripts/pruefe-fokus-verdeckung.mjs`, sieben Seiten, zwei Breiten, mit
+und ohne offenen Cookie-Hinweis): **In 22 von 28 Fällen war ein
+fokussiertes Element vollständig verdeckt.** 455 Treffer durch den
+Cookie-Hinweis, der am Telefon 419 px hoch ist, 41 durch die feste
+Leiste unten. Ein Tastaturnutzer tabbt dort ins Nichts: Das Element hat
+den Fokus, man sieht es nicht.
+
+**Drei Ursachen, drei Korrekturen.**
+
+1. **Kein `scroll-padding`.** Der Browser holt ein fokussiertes Element
+   in den sichtbaren Bereich, aber nicht unter einer festen Leiste
+   vorbei. Er hält sich dabei an `scroll-padding` des
+   Scroll-Behälters, und das hatte die Seite nicht. `js/main.js` misst
+   nun die Höhen von Kopfzeile und unteren Leisten und schreibt sie in
+   `--fokus-frei-oben` und `--fokus-frei-unten`; `style.css` benutzt sie.
+   Ohne JavaScript bleibt es bei 0 und damit beim alten Verhalten.
+   Ergebnis: 22 → 9.
+2. **Am Seitenende hilft Scrollen nicht.** Die letzten Verweise im Fuß
+   lagen hinter dem Hinweis, und die Seite kann nicht weiterscrollen.
+   `body` hält jetzt `max(60px, var(--fokus-frei-unten))` frei. Der Platz
+   liegt unter dem Hinweis und ist deshalb nicht zu sehen; sobald der
+   Hinweis weg ist, sind es wieder 60 px. Ergebnis: 9 → 4.
+3. **Zwei Elemente waren unsichtbar und trotzdem im Tab-Weg.** Das
+   geschlossene Barrierefreiheits-Panel ist nur `opacity: 0` und
+   `pointer-events: none`, also fokussierbar: acht Schalter, die man
+   nicht sieht. Und die untere Leiste liegt auf `z-index` 200, der
+   Cookie-Hinweis auf 9999, die Leiste also komplett dahinter, mit
+   „Kostenlos anfragen", „WhatsApp" und „Banner schließen". Beide
+   bekommen `inert`, solange sie unsichtbar sind. Ergebnis: 4 → 0.
+
+**Warum nicht `inert` auf dem Seiteninhalt**, wie bei der Großansicht
+der Galerie. Das wäre technisch der saubere Modal-Weg für den
+Cookie-Hinweis, hieße aber: Ohne Entscheidung über Cookies ist die Seite
+mit der Tastatur nicht mehr bedienbar. Das ist eine Cookie-Schranke und
+damit eine rechtliche Frage, keine technische. **Nicht ohne Ansage.**
+Gesperrt werden nur Elemente, die buchstäblich hinter einer
+undurchsichtigen Leiste liegen.
+
+**Zwei eigene Messfehler, beide im ersten Lauf.** Erstens:
+`html{scroll-behavior:smooth}` ließ jede Messung das Element noch auf
+dem Weg treffen. Die Prüfung meldete hunderte Elemente als „ganz
+außerhalb des Bildes", mit Werten wie top 1810 und top -2938. Reine
+Artefakte. Gemessen wird jetzt mit `prefers-reduced-motion`, wodurch die
+eigene Regel der Seite auf `scroll-behavior:auto` schaltet, und erst
+nach zwei Bildern. Zweitens: Die Höhenmessung sprang bei `opacity < 0.05`
+heraus, und genau das war der Zustand, in dem der Beobachter feuerte. Der
+Hinweis blendet über 0,4 s ein, die Klasse ist sofort da, die Deckkraft
+noch 0. Gemessen wurden 0 px. Jetzt entscheidet die Lage im Bild, und es
+wird mehrfach nachgemessen.
+
+**Und ein Fallstrick beim Bauen.** `npx @11ty/eleventy` allein erzeugt
+`css/style.css` **nicht**. Das Stylesheet wird mit `cleancss` gesondert
+minifiziert (`npm run build:css`). Meine CSS-Änderung lag deshalb eine
+Runde lang in der Quelle und nicht im ausgelieferten Minifikat, und die
+Prüfung meldete weiter Fehler. Wer `src/css/style.css` anfasst, muss
+`npm run build:css` laufen lassen.
+
+**Nebenbefund, nicht behoben:** `js/main.js` und `js/accessibility.js`
+sind auf 53 bzw. 56 Seiten **ohne** `?v=` eingebunden. Bei
+`max-age=3600` aus `_headers` bedeutet das bis zu eine Stunde
+Verzögerung, nicht 24 Stunden. Der Kommentar in
+`scripts/pruefe-cache-buster.sh` nennt noch 24 h und ist damit veraltet.
+Nach `docs/NEXT_TASK.md`.
+
