@@ -20171,3 +20171,49 @@ seine Gesten selbst führt. Der Streifen der Produktgalerien steht auf
 `auto` und ließ sich mit echter Geste schieben (0 auf 334). Nur der
 Referenz-Lauf war betroffen.
 
+## 20.11.2026 - Die letzte Kachel der Referenzgalerie, ruhig gestaltet
+
+**Ansage des Betreibers:** „die letzte kachel is designtechnisch
+nicht so schön“. Aus drei Vorschlägen hat er gewählt: Kachel
+bleibt, aber ruhig gestaltet.
+
+**Was konkret falsch war, benannt statt gefühlt.**
+
+1. Die gestrichelte goldene Linie liest sich wie „unfertig“ oder
+   wie eine Ablagefläche. In einer Referenzgalerie ist das das
+   falsche Signal.
+2. Die Überschrift stand in Barlow Condensed, der Rest der neuen
+   Startseite in Manrope.
+3. Der goldene Knopf stand wenige Zentimeter über der festen Leiste
+   mit „Kostenlos anfragen“: zwei gleiche Aufforderungen
+   übereinander.
+4. Ein schwarzer Kasten zwischen fünfzehn Fotos bricht den Rhythmus.
+
+**Was jetzt gilt.** Dieselbe Karte wie die anderen Kacheln: Weiß,
+dünne durchgezogene Linie, Manrope, Zeichen und Verweis in
+--gold-text. Statt des Knopfes ein Textverweis mit 45 px Tipphöhe.
+Der Inhalt bleibt unverändert; der Design-Skill bestaetigt, dass ein
+leerer Zustand Hinweis und Handlung anbieten soll.
+
+**Gemessene Kontraste auf Weiß:** Überschrift 19,67:1, Text 7,05:1,
+Verweis 5,58:1, Zeichen 5,58:1.
+
+**Zwei Fehler beim Umbau, beide erst durch Messen gefunden.**
+
+Erstens standen drei alte Zeilen weiter unten in start.css, die Text
+und Zeichen auf Offwhite, Champagner und helles Gold setzten. Das
+waren Farben für Text auf Dunkel. Auf der weißen Karte wären sie
+unsichtbar gewesen, Kontrast um 1:1. Entfernt.
+
+Zweitens traf die Regel `.galerie-placeholder-inner span` JEDES span
+in der Kachel, also auch den Pfeil im Textverweis. Er wurde zum Block
+mit 12 px Abstand und schob den Verweis auf drei Zeilen: gemessen
+187 x 85 px statt einer Zeile. Gemeint war immer nur die Hülle um das
+Zeichen. Die Regel heißt jetzt `> span`, direktes Kind. Danach
+205 x 45 px, eine Zeile, bei 320, 390 und 1440 px Fensterbreite, ohne
+waagerechten Überlauf.
+
+**Die Kachel bleibt ein Nicht-Foto zwischen Fotos.** Das war die
+bewusste Wahl des Betreibers gegen den Vorschlag, sie aus dem Lauf zu
+nehmen. Sie bekommt deshalb weiterhin einen eigenen Punkt.
+

@@ -1846,10 +1846,15 @@ footer h4 {
 .galerie-placeholder-inner {
   text-align: center; padding: 24px 20px;
 }
-.galerie-placeholder-inner span {
+/* DIREKTES Kind, nicht jedes span. Die Regel galt vorher fuer jedes
+   span in der Kachel und traf damit am 20.11.2026 auch den Pfeil im
+   Textverweis: Er wurde zum Block mit 12 px Abstand und schob den
+   Verweis auf drei Zeilen (gemessen: 187 x 85 px statt einer Zeile).
+   Gemeint war immer nur die Huelle um das Zeichen. */
+.galerie-placeholder-inner > span {
   display: flex; justify-content: center; margin-bottom: 12px; color: var(--gold);
 }
-.galerie-placeholder-inner span svg {
+.galerie-placeholder-inner > span svg {
   width: 42px; height: 42px; stroke: currentColor; fill: none;
   stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }

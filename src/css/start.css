@@ -241,14 +241,72 @@
 /* Platzhalter-Kachel der Galerie in der neuen Palette.
    Champagner auf Anthrazit ergibt 11,80:1 - die bisherigen
    rgba(255,255,255,0.5) waren schon vorher grenzwertig. */
+/* Die letzte Kachel der Referenzgalerie: Hinweis, dass weitere Fotos
+   folgen. Bis zum 20.11.2026 war sie ein schwarzer Kasten mit
+   gestrichelter goldener Linie und einem zweiten goldenen Knopf.
+   Ansage des Betreibers: "die letzte kachel is designtechnisch nicht
+   so schoen", und seine Wahl aus drei Vorschlaegen: Kachel bleibt,
+   aber ruhig gestaltet.
+
+   Was daran falsch war, benannt:
+   - Die gestrichelte Linie liest sich wie "unfertig" oder wie eine
+     Ablageflaeche. In einer Referenzgalerie ist das das falsche
+     Signal.
+   - Die Ueberschrift stand in Barlow Condensed, der Rest der neuen
+     Startseite in Manrope.
+   - Der goldene Knopf stand wenige Zentimeter ueber der festen
+     Leiste mit "Kostenlos anfragen": zwei gleiche Aufforderungen
+     uebereinander.
+   - Ein schwarzer Kasten zwischen Fotos bricht den Rhythmus.
+
+   Jetzt dieselbe Karte wie die anderen Kacheln: Weiss, duenne
+   durchgezogene Linie, Manrope, und statt des Knopfes ein
+   Textverweis. */
 .start-premium .galerie-placeholder,
 .start-premium .galerie-placeholder--dark {
-  background: linear-gradient(135deg, var(--black) 0%, var(--dark) 100%);
-  border: 1px dashed rgba(197,138,50,0.45);
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(11,11,12,0.04);
 }
-.start-premium .galerie-placeholder-inner strong { color: var(--offwhite); }
-.start-premium .galerie-placeholder-inner p { color: var(--champagner); }
-.start-premium .galerie-placeholder-inner span { color: var(--gold-light); }
+.start-premium .galerie-placeholder-inner { padding: 28px 24px; }
+.start-premium .galerie-placeholder-inner > span {
+  /* Markengold #C58A32 kaeme auf Weiss nur auf 2,98:1. Fuer Zeichen
+     auf hellem Grund ist --gold-text da: 5,64:1. */
+  color: var(--gold-text);
+  margin-bottom: 14px;
+}
+.start-premium .galerie-placeholder-inner > span svg { width: 36px; height: 36px; }
+.start-premium .galerie-placeholder-inner strong {
+  font-family: inherit;            /* Manrope, nicht Barlow Condensed */
+  font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;
+  color: var(--black); margin-bottom: 8px;
+}
+.start-premium .galerie-placeholder-inner p {
+  font-size: 0.9rem; color: var(--muted); line-height: 1.6;
+  max-width: 34ch; margin-left: auto; margin-right: auto;
+}
+.start-premium .galerie-placeholder-link {
+  display: inline-block; margin-top: 16px;
+  font-size: 0.92rem; font-weight: 600;
+  color: var(--gold-text);                 /* 5,21:1 auf Hell */
+  text-decoration: underline; text-underline-offset: 4px;
+  /* Eine Zeile. Ohne nowrap brach "Kostenlos beraten lassen" in zwei
+     bis drei Zeilen um, obwohl in der Kachel Platz war: gemessen am
+     20.11.2026, Verweis 187 px breit in einem 309 px breiten Innenraum,
+     Hoehe 85 px. Bei 320 px Fensterbreite bleiben noch rund 244 px
+     Innenraum, der Text braucht 187. */
+  white-space: nowrap;
+  /* 44 px hoch zum Antippen, ohne wie ein zweiter Knopf zu wirken. */
+  padding: 12px 4px; line-height: 1.4;
+}
+.start-premium .galerie-placeholder-link:hover { text-decoration-thickness: 2px; }
+.start-premium .galerie-placeholder-link:focus-visible {
+  outline: 3px solid var(--gold-text); outline-offset: 3px; border-radius: 4px;
+}
+/* Diese drei Zeilen gehoerten zur dunklen Kachel: Offwhite, Champagner
+   und helles Gold sind Farben fuer Text auf Dunkel. Seit dem
+   20.11.2026 ist die Kachel weiss; auf Weiss waeren sie unsichtbar
+   (Kontrast um 1:1). Die Farben stehen jetzt im Block darueber. */
 
 /* Abschluss des Ablaufs: ein Weg weiter.
    Mittig unter den vier Schritten, mit genug Luft darueber, damit er als
