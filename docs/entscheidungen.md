@@ -20331,3 +20331,45 @@ ist eine eigene Änderung mit eigener Messung und gehört nicht in
 denselben Durchgang. Die vier Entwurfsseiten unter `entwurf/` bleiben
 ebenfalls unberührt, sie warten auf eine Entscheidung.
 
+## 21.11.2026 - Goldene Knöpfe antworten jetzt überall gleich
+
+**Meldung des Betreibers:** „wenn man über whatsapp mit der maus
+fährt wirds weiss (was ich gut finde) bei kostenlos anfragen passiert
+das nicht“, dazu „suche überall nach diesem fehler korregiere
+ihn überall“.
+
+**Gemessen, und die Ursache lag woanders als vermutet.** Der Knopf war
+nicht tot: Er wechselte von #C58A32 auf #A3701F und behielt die
+schwarze Schrift. Der WhatsApp-Knopf wechselte auf #896023 mit weißer
+Schrift. Der Unterschied war da, nur kaum zu sehen.
+
+Warum: `style.css` Z. 288 gibt `.btn-gold:hover` seit Langem
+`--gold-text` mit weißer Schrift. `start.css` Z. 232 überschrieb das
+**nur auf der Startseite** mit `--gold-dark` und schwarzer Schrift,
+weil die Regel dasselbe Gewicht hat und später geladen wird. Auf
+allen anderen Seiten war der Schwebe-Zustand immer richtig. Der Fehler
+war also nicht „überall“, sondern an genau einer Stelle, und das
+Nachsehen überall hat das gezeigt.
+
+**Was jetzt gilt.** Alle goldenen Knöpfe wechseln auf `--gold-text`
+mit weißer Schrift. Gemessen auf fünf Seiten: Startseite 5,58:1,
+übrige Seiten 6,30:1, beide über den 4,5:1 aus WCAG 1.4.3. Der
+Unterschied zwischen den Seiten kommt daher, dass die Startseite die
+neue Palette benutzt und die übrigen die alte; beide halten die
+Grenze.
+
+**Neu: `scripts/pruefe-schwebe.mjs`.** Es fährt mit der Maus über
+jeden sichtbaren goldenen Knopf auf fünf Seiten und prüft vier
+Dinge: Der Knopf antwortet überhaupt, die Schrift wird weiss, weiss
+auf dem neuen Grund hält 4,5:1, und **alle Knöpfe einer Seite
+antworten gleich**. Das letzte ist der Kern: Der Fehler war kein
+kaputter Knopf, sondern zwei verschiedene Antworten auf dieselbe
+Geste. Gegenprobe baut den alten Zustand wieder ein, 9 Beanstandungen.
+
+**Nebenbei repariert.** Mein Schriftwechsel in `js/konfigurator-frei.js`
+hat zwei Marken ungültig gemacht, die `pruefe-konfigurator-frei.sh`
+bewacht: die Versionsnummer der Skriptdatei in `werkstatt/frei.html`
+und den Herkunfts-Commit im Kopf der Kopie. Beide nachgezogen, die
+Prüfung ist wieder bei 15 von 15. Die Prüfung hat genau das getan,
+wofür sie da ist.
+

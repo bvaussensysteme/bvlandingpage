@@ -228,8 +228,25 @@
 /* Knöpfe: auf Gold steht Tiefschwarz (6,61:1), nie Weiß (2,98:1). */
 .start-premium .btn { border-radius: 999px; font-weight: 700; letter-spacing: 0.01em; }
 .start-premium .btn-gold { background: var(--gold); color: var(--black); }
+/* SCHWEBE-ZUSTAND WIE BEIM WHATSAPP-KNOPF (21.11.2026).
+   Meldung des Betreibers: "wenn man ueber whatsapp mit der maus
+   faehrt wirds weiss (was ich gut finde) bei kostenlos anfragen
+   passiert das nicht".
+
+   Gemessen auf der Startseite: Der WhatsApp-Knopf wechselt auf
+   #896023 mit weisser Schrift, der Gold-Knopf nur auf #A3701F und
+   behielt die schwarze Schrift. Der Unterschied war kaum zu sehen.
+
+   Woher der Unterschied kam: style.css Z. 288 gibt .btn-gold:hover
+   laengst --gold-text mit weisser Schrift. Diese Zeile hier hat das
+   auf der Startseite ueberschrieben, weil sie dasselbe Gewicht hat
+   und spaeter geladen wird. Auf allen anderen Seiten war der
+   Schwebe-Zustand also schon richtig; falsch war nur die Startseite.
+
+   Weiss auf #896023 ergibt 5,64:1 und damit ueber den 4,5:1 fuer
+   Text. */
 @media (hover: hover) and (pointer: fine) {
-  .start-premium .btn-gold:hover { background: var(--gold-dark); color: var(--black); }
+  .start-premium .btn-gold:hover { background: var(--gold-text); color: var(--white); }
 }
 
 /* Tippflächen: 44 x 44 px ist das Ziel aus CLAUDE.md, strenger als die
