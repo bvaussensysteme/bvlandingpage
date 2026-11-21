@@ -20373,3 +20373,34 @@ und den Herkunfts-Commit im Kopf der Kopie. Beide nachgezogen, die
 Prüfung ist wieder bei 15 von 15. Die Prüfung hat genau das getan,
 wofür sie da ist.
 
+## 21.11.2026 - Gegenprobe der Broschuerenpruefung: 9 statt 29 Minuten
+
+**Punkt 3.14 aus `docs/NEXT_TASK.md`, erledigt.** Dort stand: Die
+Gegenprobe braucht über 30 Minuten, passt in kein Zeitfenster und
+wird deshalb übersprungen. Eine Absicherung, die zu lang läuft,
+sichert nichts.
+
+**Gemessen vorher:** ein Durchlauf 41 s, 42 eingebaute Fehler, also
+41 + 42 x 41 = rund 29 Minuten.
+
+**Geändert:** Die Runden laufen nebeneinander statt hintereinander,
+vier gleichzeitig, einstellbar über `BV_PARALLEL` zwischen 1 und 8.
+Jede Runde baut ihren eigenen Browser auf und ist unabhaengig; der
+kleine Dateiserver bedient sie nebeneinander.
+
+**Gemessen nachher: 9 Minuten.** Alle 42 eingebauten Fehler werden
+bemerkt, Schlusszeile „Gegenprobe in Ordnung: jede Prüfung schlägt
+an“.
+
+**Die zweite Änderung ist mir wichtiger als die Zeit.** Vorher brach
+die Gegenprobe beim ERSTEN unbemerkten Fehler ab. Man sah immer nur
+den nächsten und musste 42 Mal von vorn anfangen, um die Liste
+zusammenzubekommen. Jetzt laufen alle durch, und am Ende stehen alle
+unbemerkten Fehler auf einmal da.
+
+**Was das nicht löst:** Die Prüfung selbst dauert weiter 41 s, und
+42 Browser-Starts bleiben 42 Browser-Starts. Wer sie schneller will,
+müsste jeden eingebauten Fehler an die Prüfung binden, die ihn
+fangen soll, und nur die laufen lassen. Das wäre der nächste
+Schritt; 9 Minuten passen vorerst in ein Zeitfenster.
+

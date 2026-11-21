@@ -121,7 +121,7 @@ Bewertung holt der Betreiber beim Fachmann.
 
 | # | Punkt |
 |---|---|
-| 3.14 | **`pruefe-broschuere.mjs --gegenprobe` braucht über 30 Minuten** und passt in kein Zeitfenster. Sie baut 21 Fehler einzeln ein und schickt jedes Mal alle 44 Prüfungen durch. Eine Absicherung, die zu lang läuft, wird übersprungen – dann sichert sie nichts. Vorschlag: ein Schalter, der nur die Fehler einer bestimmten Stelle einbaut |
+| ~~3.14~~ | **Erledigt am 21.11.2026.** Die Gegenprobe von `pruefe-broschuere.mjs` lief über 29 Minuten und wurde deshalb übersprungen. Sie läuft jetzt vierfach nebeneinander: gemessen 9 Minuten, alle 42 eingebauten Fehler werden bemerkt. Siehe `docs/entscheidungen.md` |
 | 3.15 | **18 Prüfskripte** hatten den Browserpfad fest eingebaut – repariert am 12.11. (`chromeIn()`), ist in `main` |
 | 3.16 | **ZIP der geänderten Dateien** aus der Broschüren-Aufgabe – seit längerem zugesagt, nie geliefert |
 

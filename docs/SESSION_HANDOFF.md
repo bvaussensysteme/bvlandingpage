@@ -64,6 +64,13 @@ Dazu einmal eine Prüfung überschrieben, weil der Dateiname schon
 belegt war. Vor `cat > scripts/pruefe-*` nachsehen, ob es die Datei
 gibt.
 
+## Erledigt und gemessen, kurz vor Schluss
+
+Die Gegenprobe der Broschürenprüfung lief über 29 Minuten und wurde
+deshalb übersprungen. Sie läuft jetzt vierfach nebeneinander:
+**gemessen 9 Minuten**, alle 42 eingebauten Fehler werden bemerkt.
+Damit ist Punkt 3.14 weg.
+
 ## Was offen ist
 
 Steht vollständig in `docs/NEXT_TASK.md`. Die drei, die am meisten
