@@ -300,25 +300,6 @@ nicht angefasst. Erst auf Ansage:
 - **`carport-oder-garage.njk`: „Carport ist 3-5× günstiger"** ist eine
   Zahl ohne Beleg auf einer Seite, die sonst keine Preise nennt.
 
-## ERLEDIGT: Sprachumschaltung ausgebaut (14.11.2026)
-Der Betreiber hat sich für den Ausbau entschieden, umgesetzt in Commit
-625522e. `js/i18n.js` ist gelöscht, die Einbindungen und 32
-data-i18n-Attribute sind entfernt. `pruefe-broschuere.mjs` prüft seit
-dem 19.11.2026, dass nichts davon zurückkommt. Die 23 übrigen
-CSS-Regeln sind am 19.11.2026 entfernt worden.
-
-## ERLEDIGT am 19.11.2026: toter Formularcode entfernt
-Der Formspree-Zweig in `js/main.js` (4.529 Zeichen), `js/newsletter.js`
-und die CSS-Regel `.form-submit` sind weg. Siehe
-`docs/entscheidungen.md`.
-
-## ERLEDIGT am 19.11.2026: Einzugsgebiet ohne JavaScript
-
-Die Orte stehen jetzt fest in der Seite (`src/_data/orte.json`, von
-Eleventy eingesetzt). Ohne JavaScript 31 statt 0 Einträge. Abgesichert
-durch `scripts/pruefe-einzugsgebiet.mjs`. Siehe
-`docs/entscheidungen.md`.
-
 ## Höhenermittlung: Stand 19.11.2026
 
 Der Abschnitt steht in der Datenschutzerklärung (Abschnitt 7,
@@ -370,24 +351,6 @@ Alles gefunden, nichts davon umgesetzt. Reihenfolge nach Nutzen.
 6. **Kein Bildbudget.** Eine Städteseite lädt nach dem Scrollen 716 KB.
    Es gibt keine Grenze, gegen die eine Prüfung anschlagen könnte.
 
-## ERLEDIGT am 20.11.2026: Punkt 3.10, Fokus-Verdeckung
-
-Gemessen und behoben, Einzelheiten in `docs/entscheidungen.md`
-(20.11.2026). Kurz: 22 von 28 Fällen waren betroffen, jetzt 0 von 28,
-dauerhaft geprüft von `scripts/pruefe-fokus-verdeckung.mjs`.
-
-**Offen geblieben und bewusst nicht gemacht:** `inert` auf dem
-Seiteninhalt, solange der Cookie-Hinweis offen steht. Das wäre der
-saubere Modal-Weg, hieße aber eine Cookie-Schranke, und das ist eine
-rechtliche Frage. **Entscheidung liegt beim Betreiber.**
-
-**Neuer Nebenbefund:** `js/main.js` und `js/accessibility.js` sind auf
-53 bzw. 56 Seiten ohne `?v=` eingebunden. Bei `max-age=3600` aus
-`_headers` heißt das bis zu eine Stunde Verzögerung nach einem Deploy.
-Der Kommentar in `scripts/pruefe-cache-buster.sh` nennt noch 24 Stunden
-und ist veraltet. Entweder beide Dateien in die Cache-Buster-Liste
-aufnehmen (56 Seiten anfassen) oder den Kommentar richtigstellen.
-
 ## Offen beim Betreiber: mehrere Bilder je Modell (20.11.2026)
 
 Seit dem 20.11. lassen sich die 34 Modellbilder in den Produktkarten
@@ -420,4 +383,3 @@ Schaltfläche („Referenz BV AussenSysteme"), und verschachtelte
 Schaltflächen sind ungültiges HTML. Es braucht also eine Entscheidung,
 wie beides nebeneinander funktioniert, und eine Anpassung von
 `scripts/pruefe-referenz-galerie.mjs`. Das ist ein eigener Auftrag.
-

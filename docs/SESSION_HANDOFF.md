@@ -1,73 +1,90 @@
 # Übergabe an den nächsten Chat
 
-**Stand 14.11.2026, Ende des Arbeitstages.**
-Branch `claude/bv-aussensysteme-setup-bq7ew4`, Arbeitsbaum sauber.
-Vorschau: `https://claude-bv-aussensysteme-setup-bq7ew4-bvlanding.bv-verwaltung.workers.dev`
-(öffentlich). **Nichts ist nach `main` gegangen. Die Live-Seite ist
-unverändert.**
+**Stand: 21.11.2026.** Arbeitsbranch
+`claude/bv-aussensysteme-setup-bq7ew4`, alles committet und gepusht.
+`main` ist unberührt, nichts veröffentlicht.
 
-## Was heute passiert ist, in einem Absatz
+Erst diese Datei lesen, dann `docs/NEXT_TASK.md`, dann `CLAUDE.md`.
 
-Die Startseite wurde neu gebaut und abgenommen. Danach lief ein langer
-Durchgang durch Inhalte und Prüfungen: Statik-Zusagen zurückgenommen,
-erfundene Vertrauenssignale entfernt, 566 Gedankenstriche aus dem
-sichtbaren Text geholt, strukturierte Daten an den sichtbaren Text
-angeglichen, eine abgeschnittene Überschrift auf sieben Ortsseiten
-behoben, neue Öffnungszeiten eingetragen. Dazu vier Prüfskripte
-repariert oder entschärft, die stillschweigend nichts geprüft haben.
+## Vorschau
 
-Einzelheiten stehen in `docs/entscheidungen.md`, chronologisch, jeweils
-mit Begründung. **Dieses Dokument wiederholt sie nicht.**
+`https://claude-bv-aussensysteme-setup-bq7ew4-bvlanding.bv-verwaltung.workers.dev`
 
-## Die vier Dauerregeln, die heute dazugekommen sind
+Öffentlich. Nach einem Push ein bis zwei Minuten warten und mit
+Abfrageanhang (`?x=<zufall>`) abrufen, sonst antwortet der
+Zwischenspeicher. **Die Adresse erst nennen, wenn sie selbst abgerufen
+und gegen den eigenen Stand geprüft wurde.**
 
-Alle in `CLAUDE.md`:
-1. **Prüfer nach Fachbereich und in Reihenfolge**, Einzelheiten in
-   `docs/PRUEFER_REIHENFOLGE.md`.
-2. **Rechtstexte nicht anfassen, nur warnen.** Befunde in
-   `docs/rechtstexte-befunde.md`.
-3. **Keine Gedankenstriche** im sichtbaren Text (galt schon, ist jetzt
-   durchgezogen).
-4. **Vorschaulink in jeden Bericht.**
+## Was in dieser Sitzung entschieden wurde
 
-## Was beim Betreiber liegt, nach Dringlichkeit
+| Entscheidung des Betreibers | Folge |
+|---|---|
+| „alle seiten manrope machen, alle seiten design anpassen" | Die laufende Seite ist auf Manrope umgestellt. Damit ist die Frage beantwortet, die `docs/WEBSITE_DESIGN_SYSTEM.md` offen gelassen hatte |
+| „lass die Scheißknöpfe doch in Ruhe" | Die drei schwebenden Knöpfe bleiben, obwohl sie am Telefon auf dem Text liegen. Gemessen, dokumentiert, **nicht erneut vorschlagen** |
+| „Kachel bleibt, aber ruhig gestaltet" | Die letzte Kachel der Referenzgalerie ist weiß statt schwarz, ohne gestrichelte Linie und ohne zweiten Knopf |
+| Keine Diaschau, sondern Pfeile und Wischen | In den Leistungskarten bewegt sich nichts von allein |
 
-**Vor einer Veröffentlichung zu klären:**
-- **Datenschutz gegen Wirklichkeit.** `einzugsgebiet.html` und
-  `windzonen.html` verbinden sich **beim Seitenaufruf** mit `unpkg.com`
-  bzw. `cdnjs.cloudflare.com`, die Erklärung sagt „erst beim Nutzen des
-  Tools". `unpkg.com` fehlt dort ganz. **Das betrifft die laufende
-  Live-Seite.** Siehe `docs/rechtstexte-befunde.md` Abschnitt 7.
-- **Widerrufsrecht bei Maßanfertigung.** Widerrufsseite und AGB sagen
-  Verschiedenes. Abschnitt 1 derselben Datei.
-- **Vier Entwurfsseiten** (`entwurf*.html`) laden Google Fonts ohne
-  Einwilligung. Nur auf dem Arbeitsbranch, nicht live, aber vor einer
-  Veröffentlichung zu klären.
+## Was diese Sitzung gebaut hat
 
-**Entscheidungen, die Arbeit freigeben:**
-- Sprachumschaltung: fertig bauen oder ausbauen?
-- Bewertungsabschnitt: Überschrift verspricht Bewertungen, es gibt
-  keine.
-- Telefonnummer fehlt auf 50 von 58 Seiten. Absicht?
-- Seitentitel mit Gedankenstrich (24 Stück) und Titel, die mehr
-  versprechen als der Text hält.
-- Produktseiten: „vereinfachter Statiknachweis" ohne die
-  Einschränkung, die auf der Startseite steht.
+Bilder zum Blättern an drei Stellen: Leistungskarten der Startseite
+(Pfeile bei Maus, Wischen am Telefon, Punkte und Zahl), Modellbilder
+der 16 Produktseiten (antippen öffnet groß), Referenz-Lauf der
+Startseite (Punkte statt Pfeilen). Dazu Manrope überall und sieben
+neue Prüfskripte.
 
-Vollständig in `docs/NEXT_TASK.md`.
+Einzelheiten stehen im Logbuch `docs/entscheidungen.md`, Einträge vom
+19. bis 21.11.2026. Nicht hier wiederholen.
 
-## Womit der nächste Chat anfängt
+## Die sieben neuen Prüfungen
 
-1. `docs/NEXT_TASK.md` lesen. Nur das.
-2. Prüfen, ob eine der offenen Entscheidungen beantwortet wurde.
-3. Vor jeder Änderung: `docs/PRUEFER_REIHENFOLGE.md`.
+`pruefe-referenz-galerie.mjs` · `pruefe-staedte-galerie.mjs` ·
+`pruefe-schema-bilder.mjs` · `pruefe-fokus-verdeckung.mjs` ·
+`pruefe-modellbilder.mjs` · `pruefe-bilder-blaettern.mjs` ·
+`pruefe-referenz-lauf.mjs` · `pruefe-schrift.mjs` ·
+`pruefe-schwebe.mjs`
 
-## Drei Dinge, die heute Zeit gekostet haben
+Alle mit `--gegenprobe`, alle in `docs/pruefungen.md` beschrieben.
 
-- **Browserskripte nacheinander laufen lassen**, nicht parallel, und
-  **mindestens 300 Sekunden** je Skript. Feste Ports und knappe
-  Zeitlimits erzeugen Fehlalarme, die wie echte Fehler aussehen.
-- **Nicht am Code arbeiten, während ein Prüfer läuft.** Sein Bericht
-  beschreibt sonst einen Stand, den es nicht mehr gibt.
-- **Ein Prüferbericht ist eine Vermutung.** Zweimal stand heute etwas
-  darin, das am Code nachgesehen nicht stimmte.
+## Das Muster dieser Sitzung, bitte ernst nehmen
+
+**Vier Prüfungen haben in drei Tagen nur ihre eigene Annahme
+bestätigt.** Eine las die Schrift nur am `body` und meldete tagelang
+„Manrope", während 38 Stellen daneben lagen. Eine suchte Bild-URLs nur
+dort, wo sie sie erwartete, und übersah, dass alle 21 falsch waren.
+Eine baute ihre Fehler auf Seiten ein, die den Fall gar nicht hatten.
+Eine prüfte Wischen mit nachgebauten Ereignissen, die kein echtes
+Scrollen auslösen.
+
+**Lehre: Eine Gegenprobe muss am Gegenstand ansetzen, nicht am
+erwarteten Muster.** Nicht „alle URLs, die `images/` enthalten",
+sondern „jede URL im Schema". Nicht „die Schrift am `body`", sondern
+„jede Textstelle".
+
+Dazu einmal eine Prüfung überschrieben, weil der Dateiname schon
+belegt war. Vor `cat > scripts/pruefe-*` nachsehen, ob es die Datei
+gibt.
+
+## Was offen ist
+
+Steht vollständig in `docs/NEXT_TASK.md`. Die drei, die am meisten
+hängen:
+
+1. **Die XSS-Korrektur für `werkstatt/zahlen.html` liegt seit dem
+   08.11. unveröffentlicht.** Live ist die Lücke offen. Branch
+   `claude/xss-zahlenseite` ist fertig vorbereitet. Es fehlt nur die
+   Freigabe des Betreibers.
+2. **Die Startseiten-Galerie lässt sich mit der Tastatur nicht
+   öffnen** (WCAG 2.1.1, Stufe A). Gemessen am 20.11. Braucht eine
+   Entscheidung, weil in jedem Bild schon eine Schaltfläche sitzt und
+   verschachtelte Schaltflächen ungültig sind.
+3. **Die Palette ist nicht umgestellt.** Nur die Schrift. Laut
+   Designsystem ist das ein eigener Schritt: `--gold-text` würde
+   heller, knappe Kontraste können kippen.
+
+## Veröffentlichen
+
+Nur auf genau diesen Satz:
+
+> ICH GEBE DIE NEUE WEBSITE ZUR VERÖFFENTLICHUNG FREI.
+
+Nichts anderes zählt. Kein „ok", kein grüner Prüflauf.
