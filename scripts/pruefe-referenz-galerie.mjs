@@ -53,13 +53,22 @@ await new Promise((r) => setTimeout(r, 900));
 process.on('exit', () => server.kill());
 
 let fehler = 0, geprueft = 0;
+/* In der Gegenprobe sind drei Dinge absichtlich kaputt gemacht. Die
+   betroffenen Pruefungen MUESSEN dort fehlschlagen; gewertet wird
+   stattdessen, ob die Sabotage auffaellt (siehe unten). */
+const SABOTIERT = ['Tabulator erreicht jedes Bild', 'Fokus kehrt zum Bild zurueck',
+                   'Jede Karte oeffnet ihr eigenes Bild'];
 function pruef(name, ok, beleg) {
+  if (GEGENPROBE && SABOTIERT.includes(name)) {
+    console.log('  (sabotiert) ' + name.padEnd(48) + ' ' + (beleg || ''));
+    return;
+  }
   geprueft++;
   if (ok) console.log(`  ok      ${name.padEnd(54)} ${beleg || ''}`);
   else { fehler++; console.log(`  FEHLER  ${name.padEnd(54)} ${beleg || ''}`); }
 }
 
-console.log(GEGENPROBE ? 'Gegenprobe: ein Lightbox-Eintrag fehlt'
+console.log(GEGENPROBE ? 'Gegenprobe: Eintrag verschoben, Tastaturweg gekappt, Rueckkehr gekappt'
                        : 'Referenz-Galerie und Lightbox');
 
 const browser = await chromium.launch({ executablePath: chromiumPfad(), args: ['--no-sandbox'] });
@@ -77,7 +86,11 @@ const daten = await seite.evaluate(() => {
      naechste Referenz und wird hier ausgenommen. */
   const karten = [...document.querySelectorAll('#galerie .galerie-item:not(.galerie-placeholder)')].map((k) => {
     const img = k.querySelector('img');
-    const m = (k.getAttribute('onclick') || '').match(/openLightbox\((\d+)\)/);
+    /* Die Nummer stand bis zum 21.11.2026 am div selbst. Seit die
+       Bilder mit der Tastatur zu oeffnen sind, traegt sie die
+       Schaltflaeche .galerie-oeffnen darin. */
+    const knopf = k.querySelector('.galerie-oeffnen');
+    const m = ((knopf || k).getAttribute('onclick') || '').match(/openLightbox\((\d+)/);
     const b = k.querySelector('.vd-badge-tip');
     return { nummer: m ? Number(m[1]) : null,
              bild: img ? img.getAttribute('src') : null,
@@ -113,15 +126,113 @@ pruef('Vollbild und Kachel gehoeren zusammen',
   daten.karten.every((k, i) => stamm(k.bild) === stamm(daten.lightbox[i])),
   daten.karten.map((k, i) => stamm(k.bild) === stamm(daten.lightbox[i]) ? '' : `${i}:${stamm(k.bild)}≠${stamm(daten.lightbox[i])}`).filter(Boolean).join(' ') || 'alle');
 
+/* ============================================================
+   TASTATUR (ab 21.11.2026)
+
+   ANLASS: Bis zum 21.11.2026 hing das onclick an einem div. Mit der
+   Tastatur liess sich kein einziges der 14 Bilder oeffnen - WCAG 2.2,
+   2.1.1, Stufe A. Gemessen am 20.11.2026, behoben am 21.11.2026.
+
+   AM GEGENSTAND, NICHT AM MUSTER: Hier wird nicht geprueft, ob ein
+   <button> im HTML steht. Gezaehlt wird, welche Kachel nach ECHTEN
+   Tastendruecken (Playwright schickt native Ereignisse, keine
+   nachgebauten) wirklich die Grossansicht oeffnet, und wohin der
+   Fokus danach zurueckkehrt. Ein button mit tabindex="-1" oder einer
+   unter einem anderen Element wuerde hier auffallen.
+   ============================================================ */
 if (GEGENPROBE) {
-  await seite.evaluate(() => { window.lightboxImages.splice(0, 1); });
+  /* Sabotage 1: Tastaturweg kappen. */
+  await seite.evaluate(() => {
+    document.querySelectorAll('#galerie .galerie-oeffnen').forEach((k) => k.setAttribute('tabindex', '-1'));
+  });
+  /* Sabotage 2: Rueckkehr des Fokus kappen. */
+  await seite.evaluate(() => {
+    window.__echtesSchliessen = window.closeLightbox;
+    window.closeLightbox = function () {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    };
+  });
+}
+
+/* Keine Schaltflaeche in einer Schaltflaeche. Das waere ungueltiges
+   HTML und genau die Falle, an der die Korrektur haengen blieb: in
+   jeder Kachel sitzt schon das Herkunfts-Abzeichen. */
+const verschachtelt = await seite.$$eval('#galerie button button', (e) => e.length);
+pruef('Keine Schaltflaeche in einer Schaltflaeche', verschachtelt === 0, verschachtelt + ' gefunden');
+
+/* Erreicht der Tabulator die Bilder? Echte Tab-Druecke, ab der
+   Ueberschrift des Abschnitts. 60 Druecke reichen fuer 14 Bilder,
+   14 Abzeichen und Beiwerk. */
+await seite.evaluate(() => {
+  const h = document.getElementById('galerie-h');
+  h.setAttribute('tabindex', '-1');
+  h.focus();
+});
+const ertabbt = new Set();
+for (let i = 0; i < 60; i++) {
+  await seite.keyboard.press('Tab');
+  const n = await seite.evaluate(() => {
+    const a = document.activeElement;
+    if (!a || !a.classList || !a.classList.contains('galerie-oeffnen')) return -1;
+    return [...document.querySelectorAll('#galerie .galerie-oeffnen')].indexOf(a);
+  });
+  if (n >= 0) ertabbt.add(n);
+}
+pruef('Tabulator erreicht jedes Bild', ertabbt.size === daten.karten.length,
+  ertabbt.size + ' von ' + daten.karten.length + ' Bildern');
+
+/* Oeffnet die Eingabetaste, und kommt der Fokus danach zurueck?
+   An allen Kacheln gemessen, nicht an einer Stichprobe. */
+let stummeTaste = [], fokusVerloren = [];
+for (let i = 0; i < daten.karten.length; i++) {
+  const lagRichtig = await seite.evaluate((n) => {
+    const k = document.querySelectorAll('#galerie .galerie-oeffnen')[n];
+    /* Ohne Schaltflaeche ist die Pruefung nicht bestanden, sondern
+       fehlgeschlagen. Beim Messen des alten Standes am 21.11.2026
+       brach das Skript hier mit einer Ausnahme ab, statt einen
+       Fehler zu melden. */
+    if (!k) return false;
+    k.focus();
+    return document.activeElement === k;
+  }, i);
+  await seite.keyboard.press('Enter');
+  await seite.waitForTimeout(90);
+  const offen = await seite.evaluate(() =>
+    document.getElementById('lightbox').classList.contains('open'));
+  if (!offen || !lagRichtig) { stummeTaste.push(i); continue; }
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(90);
+  const zurueck = await seite.evaluate((n) =>
+    document.activeElement === document.querySelectorAll('#galerie .galerie-oeffnen')[n], i);
+  if (!zurueck) fokusVerloren.push(i);
+  await seite.evaluate(() => {
+    const b = document.getElementById('lightbox');
+    if (b) b.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+}
+pruef('Eingabetaste oeffnet jedes Bild', stummeTaste.length === 0,
+  stummeTaste.length ? 'stumm: ' + stummeTaste.join(',') : daten.karten.length + ' Bilder');
+pruef('Fokus kehrt zum Bild zurueck', fokusVerloren.length === 0,
+  fokusVerloren.length ? 'verloren bei: ' + fokusVerloren.join(',') : daten.karten.length + ' Bilder');
+
+if (GEGENPROBE) {
+  await seite.evaluate(() => {
+    if (window.__echtesSchliessen) window.closeLightbox = window.__echtesSchliessen;
+    document.querySelectorAll('#galerie .galerie-oeffnen').forEach((k) => k.removeAttribute('tabindex'));
+    /* Sabotage 3: ein Eintrag verschwindet, alle Nummern verschieben sich. */
+    window.lightboxImages.splice(0, 1);
+  });
 }
 
 /* Jede Karte anklicken und nachsehen, welches Bild wirklich erscheint. */
 let falsch = [];
 for (let i = 0; i < daten.karten.length; i++) {
   await seite.evaluate((n) => {
-    document.querySelectorAll('#galerie .galerie-item:not(.galerie-placeholder)')[n].click();
+    const k = document.querySelectorAll('#galerie .galerie-oeffnen')[n];
+    if (k) k.click();   /* fehlt sie, faellt es oben schon auf */
   }, i);
   await seite.waitForTimeout(120);
   const gezeigt = await seite.evaluate(() => {
@@ -137,6 +248,10 @@ for (let i = 0; i < daten.karten.length; i++) {
 }
 
 if (GEGENPROBE) {
+  pruef('Der gekappte Tastaturweg faellt auf', ertabbt.size < daten.karten.length,
+    'nur ' + ertabbt.size + ' von ' + daten.karten.length + ' ertabbt');
+  pruef('Die gekappte Rueckkehr faellt auf', fokusVerloren.length > 0,
+    fokusVerloren.length + ' Bilder ohne Rueckkehr');
   pruef('Die Verschiebung faellt auf', falsch.length > 0,
     `${falsch.length} Karte(n) zeigen das falsche Bild`);
 } else {

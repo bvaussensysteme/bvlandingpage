@@ -870,28 +870,34 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="galerie-grid">
 
       <!-- GROSS – Panorama Eltern-Terrasse -->
-      <div class="galerie-item large" onclick="openLightbox(0)">
-        <img src="images/galerie-1.webp"
+      <div class="galerie-item large">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(0, this)" aria-label="Terrassenüberdachung Aluminium anthrazit Westerwaldkreis. Referenzprojekt BV AussenSysteme groß anzeigen">
+          <img src="images/galerie-1.webp"
              alt="Terrassenüberdachung Aluminium anthrazit Westerwaldkreis. Referenzprojekt BV AussenSysteme"
              loading="eager" width="1200" height="675" />
+        </button>
         <div class="galerie-label">Terrassenüberdachung Aluminium · Westerwaldkreis</div>
         <button type="button" class="vd-badge" aria-label="Referenz BV AussenSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz BV AussenSysteme</span></button>
       </div>
 
       <!-- Detailaufnahme Profile -->
-      <div class="galerie-item" onclick="openLightbox(1)">
-        <img src="images/galerie-2.webp"
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(1, this)" aria-label="Aluminium-Profile Terrassendach Detailansicht anthrazit Polycarbonat BV AussenSysteme groß anzeigen">
+          <img src="images/galerie-2.webp"
              alt="Aluminium-Profile Terrassendach Detailansicht anthrazit Polycarbonat BV AussenSysteme"
              loading="lazy" width="800" height="600" />
+        </button>
         <div class="galerie-label">Detailansicht · Aluminium-Profile & Verglasung</div>
         <button type="button" class="vd-badge" aria-label="Referenz BV AussenSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz BV AussenSysteme</span></button>
       </div>
 
       <!-- Gesamtübersicht Terrasse -->
-      <div class="galerie-item" onclick="openLightbox(2)">
-        <img src="images/galerie-3.webp"
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(2, this)" aria-label="Terrassenüberdachung Gesamtansicht Aluminium anthrazit mit Sitzbank Westerwaldkreis groß anzeigen">
+          <img src="images/galerie-3.webp"
              alt="Terrassenüberdachung Gesamtansicht Aluminium anthrazit mit Sitzbank Westerwaldkreis"
              loading="lazy" width="800" height="600" />
+        </button>
         <div class="galerie-label">Gesamtansicht · Terrassenüberdachung</div>
         <button type="button" class="vd-badge" aria-label="Referenz BV AussenSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz BV AussenSysteme</span></button>
       </div>
@@ -901,57 +907,79 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
            Lizenzfragen, die bei den VD-Bildern offen sind (siehe
            docs/NEUBAU-LIZENZREGISTER.md). Beim Umwandeln wurden die
            Metadaten entfernt (-strip); GPS-Daten waren keine enthalten. -->
-      <div class="galerie-item" onclick="openLightbox(3)">
-        <img src="images/galerie-4.webp"
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(3, this)" aria-label="Aluminium-Carport anthrazit an einer Hauswand, mit lichtdurchlässiger Dacheindeckung. Referenzprojekt BV AussenSysteme groß anzeigen">
+          <img src="images/galerie-4.webp"
              alt="Aluminium-Carport anthrazit an einer Hauswand, mit lichtdurchlässiger Dacheindeckung. Referenzprojekt BV AussenSysteme"
              loading="lazy" width="800" height="600" />
+        </button>
         <div class="galerie-label">Carport Aluminium anthrazit</div>
         <button type="button" class="vd-badge" aria-label="Referenz BV AussenSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz BV AussenSysteme</span></button>
       </div>
 
-      <div class="galerie-item" onclick="openLightbox(4)">
-        <img src="images/galerie-5.webp"
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(4, this)" aria-label="Aluminium-Carport anthrazit von der Seite, Dachaufbau mit lichtdurchlässiger Eindeckung. Referenzprojekt BV AussenSysteme groß anzeigen">
+          <img src="images/galerie-5.webp"
              alt="Aluminium-Carport anthrazit von der Seite, Dachaufbau mit lichtdurchlässiger Eindeckung. Referenzprojekt BV AussenSysteme"
              loading="lazy" width="800" height="600" />
+        </button>
         <div class="galerie-label">Carport · Ansicht von der Seite</div>
         <button type="button" class="vd-badge" aria-label="Referenz BV AussenSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz BV AussenSysteme</span></button>
       </div>
 
       <!-- VD-Referenzen -->
-      <div class="galerie-item" onclick="openLightbox(5)">
-        <img src="images/vd_ref_1.webp" alt="Terrassenüberdachung mit Glasdach. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(5, this)" aria-label="Terrassenüberdachung mit Glasdach. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_1.webp" alt="Terrassenüberdachung mit Glasdach. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(6)">
-        <img src="images/vd_ref_2.webp" alt="Große Aluminium-Terrassenüberdachung. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(6, this)" aria-label="Große Aluminium-Terrassenüberdachung. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_2.webp" alt="Große Aluminium-Terrassenüberdachung. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(7)">
-        <img src="images/vd_ref_3.webp" alt="Terrassenüberdachung mit Lounge im Garten. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(7, this)" aria-label="Terrassenüberdachung mit Lounge im Garten. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_3.webp" alt="Terrassenüberdachung mit Lounge im Garten. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(8)">
-        <img src="images/vd_ref_4.webp" alt="Glas-Terrassendach über Holzterrasse. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(8, this)" aria-label="Glas-Terrassendach über Holzterrasse. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_4.webp" alt="Glas-Terrassendach über Holzterrasse. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(9)">
-        <img src="images/vd_ref_5.webp" alt="Freistehender Aluminium-Glasanbau / Kaltwintergarten. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(9, this)" aria-label="Freistehender Aluminium-Glasanbau / Kaltwintergarten. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_5.webp" alt="Freistehender Aluminium-Glasanbau / Kaltwintergarten. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(10)">
-        <img src="images/vd_ref_6.webp" alt="Freistehende Terrassenüberdachung Aluminium. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(10, this)" aria-label="Freistehende Terrassenüberdachung Aluminium. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_6.webp" alt="Freistehende Terrassenüberdachung Aluminium. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(11)">
-        <img src="images/vd_ref_7.webp?v=b" alt="Aluminium-Carport. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(11, this)" aria-label="Aluminium-Carport. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_7.webp?v=b" alt="Aluminium-Carport. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(12)">
-        <img src="images/vd_ref_8.webp" alt="Carport mit Flachdach. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(12, this)" aria-label="Carport mit Flachdach. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_8.webp" alt="Carport mit Flachdach. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
-      <div class="galerie-item" onclick="openLightbox(13)">
-        <img src="images/vd_ref_9.webp" alt="Eingangsüberdachung / Vordach aus Glas. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+      <div class="galerie-item">
+        <button type="button" class="galerie-oeffnen" onclick="openLightbox(13, this)" aria-label="Eingangsüberdachung / Vordach aus Glas. Referenz VD AluSysteme groß anzeigen">
+          <img src="images/vd_ref_9.webp" alt="Eingangsüberdachung / Vordach aus Glas. Referenz VD AluSysteme" loading="lazy" width="900" height="675" />
+        </button>
         <button type="button" class="vd-badge" aria-label="Referenz VD AluSysteme" onclick="event.stopPropagation();this.classList.toggle('vd-badge--open');"><span class="vd-badge-i">i</span><span class="vd-badge-tip">Referenz VD AluSysteme</span></button>
       </div>
 

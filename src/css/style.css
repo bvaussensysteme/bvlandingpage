@@ -1097,6 +1097,53 @@ body.bv-menu-open #bv-scroll-top {
   transition: transform 0.4s ease;
 }
 .galerie-item:hover img { transform: scale(1.04); }
+/* ============================================================
+   SCHALTFLAECHE IM GALERIEBILD (21.11.2026)
+
+   VORHER lag das onclick am <div class="galerie-item">. Mit der
+   Tastatur liess sich kein einziges der 14 Bilder oeffnen: ein div
+   nimmt keinen Fokus und reagiert auf keine Taste. Gemessen am
+   20.11.2026, WCAG 2.2, 2.1.1 (Stufe A).
+
+   WARUM NICHT DAS div SELBST ZUR SCHALTFLAECHE: In jeder Kachel
+   sitzt schon das Herkunfts-Abzeichen .vd-badge, und das ist ein
+   <button>. Schaltflaechen duerfen nicht ineinander stehen. Also
+   traegt jetzt eine eigene Schaltflaeche das Bild, und das Abzeichen
+   bleibt ihr Geschwister in derselben Kachel.
+
+   Das div bleibt die Kachel: An ihm haengen Raster, Lauf,
+   Seitenverhaeltnis und der Schnappunkt (16 Regeln). Die
+   Schaltflaeche legt sich nur darueber.
+   ============================================================ */
+.galerie-oeffnen {
+  position: absolute; inset: 0;
+  display: block; width: 100%; height: 100%;
+  padding: 0; border: 0; background: none;
+  border-radius: inherit;   /* sonst steht der Fokusring eckig in der runden Kachel */
+  cursor: zoom-in; -webkit-tap-highlight-color: transparent;
+}
+/* Der Fokusring liegt INNEN, weil die Kachel overflow: hidden hat
+   und ein Ring mit positivem Abstand abgeschnitten wuerde. Das
+   dunkle Innenband ist kein Schmuck: Gold auf einem beliebigen Foto
+   erfuellt die 3:1 aus WCAG 1.4.11 nicht zuverlaessig, Gold neben
+   #111 kommt auf 10,5:1. */
+/* ZWEI MAL GEMESSEN, BEIDE MALE DANEBEN (21.11.2026).
+   Erster Versuch: .galerie-oeffnen:focus-visible. Im Browser kam
+   stattdessen outline: 3px solid #1D2023, outline-offset: 3px heraus.
+   Grund: css/start.css setzt fuer die ganze Startseite
+   ".start-premium :focus-visible" - gleiche Spezifitaet (0,2,0), aber
+   spaeter geladen, also gewinnt sie. Und ein Ring MIT Abstand liegt
+   ausserhalb der Kachel, die overflow: hidden hat: er war komplett
+   weggeschnitten, der Fokus also unsichtbar (WCAG 2.2, 2.4.7).
+   Deshalb hier .galerie-item davor (0,3,0) und der Ring nach innen. */
+.galerie-item .galerie-oeffnen:focus-visible {
+  outline: 3px solid var(--gold-light);
+  outline-offset: -3px;
+  /* Das dunkle Innenband ist kein Schmuck: Gold auf einem beliebigen
+     Foto erfuellt die 3:1 aus WCAG 1.4.11 nicht zuverlaessig, Gold
+     neben #111 kommt auf 8,8:1. */
+  box-shadow: inset 0 0 0 6px rgba(17,17,17,0.85);
+}
 .galerie-label {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: linear-gradient(transparent, rgba(0,0,0,0.75));
@@ -1105,6 +1152,12 @@ body.bv-menu-open #bv-scroll-top {
   font-size: 0.95rem; font-weight: 700;
   opacity: 0; transition: opacity 0.3s;
 }
+/* Beschriftung und Lupe liegen UEBER der Schaltflaeche. Ohne
+   pointer-events: none faengt der untere Streifen bzw. die Lupe den
+   Klick ab, und das Bild oeffnet sich dort nicht mehr. Vor dem
+   21.11.2026 fiel das nicht auf, weil das onclick an der ganzen
+   Kachel hing. */
+.galerie-label { pointer-events: none; }
 .galerie-item:hover .galerie-label { opacity: 1; }
 /* VD-Referenz Info-Badge – dezent unten links (geringste Aufmerksamkeit) */
 .vd-badge {
@@ -2017,6 +2070,7 @@ footer h4 {
   font-size: 0.9rem; opacity: 0;
   transition: opacity 0.2s;
   z-index: 2;
+  pointer-events: none;   /* siehe .galerie-label */
 }
 .galerie-item:not(.galerie-placeholder):hover::after { opacity: 1; }
 

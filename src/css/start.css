@@ -111,6 +111,27 @@
 .start-premium .hero :focus-visible {
   outline-color: var(--champagner);
 }
+/* WO DER RING NACH INNEN MUSS (21.11.2026, gemessen).
+   Die Regel oben gilt fuer die ganze Startseite und hat dieselbe
+   Spezifitaet (0,2,0) wie die Regeln einzelner Bauteile in
+   style.css - sie wird spaeter geladen und gewinnt deshalb. Dort,
+   wo ein Bauteil bewusst outline-offset: -3px gesetzt hatte, weil es
+   in einem Kasten mit overflow: hidden sitzt, schob sie den Ring
+   wieder nach aussen, und der Kasten schnitt ihn vollstaendig ab.
+
+   GEMESSEN am 21.11.2026 auf index.html: 19 von 19 Fragen der
+   Fragenliste hatten einen Ring, von dem im Browser NICHTS zu sehen
+   war (.faq-item laesst 1 px Luft, der Ring braucht 3). Das ist
+   WCAG 2.2, 2.4.7, Stufe AA. Nach dieser Regel: 0 von 19.
+   Gefunden beim Einbau der Galerie-Schaltflaechen, die am selben
+   Tag denselben Fehler hatten.
+
+   Die Farbe bleibt die der Startseite; geaendert wird nur, auf
+   welcher Seite der Kante der Ring liegt. */
+.start-premium .faq-q:focus-visible {
+  outline-offset: -3px;
+  border-radius: var(--radius);
+}
 
 /* Die feste Kopfzeile darf den Fokus nicht verdecken (WCAG 2.4.11). */
 .start-premium { scroll-padding-top: 96px; }

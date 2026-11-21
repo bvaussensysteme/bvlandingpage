@@ -127,17 +127,35 @@ var lightboxImages = [
 ];
 var lightboxIndex = 0;
 
-function openLightbox(index) {
+/* WOHIN DER FOKUS BEIM SCHLIESSEN ZURUECK GEHT.
+   Seit dem 21.11.2026 oeffnen die Galeriebilder ueber eine echte
+   Schaltflaeche und damit auch mit der Tastatur (vorher: onclick an
+   einem div, WCAG 2.2, 2.1.1, Stufe A). Damit entsteht ein zweites
+   Problem, das es vorher nicht geben konnte: Wer das Bild mit der
+   Tastatur oeffnet und schliesst, stand ohne diese Zeile auf
+   <body> und musste sich von oben durch die ganze Seite tabben.
+   Dasselbe macht js/galerie.js fuer die Produktseiten. */
+var lightboxRueckkehr = null;
+
+function openLightbox(index, ausloeser) {
   lightboxIndex = index;
+  lightboxRueckkehr = (ausloeser && ausloeser.focus) ? ausloeser : document.activeElement;
   updateLightbox();
   var lb = document.getElementById('lightbox');
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
+  /* Der Fokus muss IN das Fenster, sonst liegt er weiter hinter dem
+     Vorhang auf der Seite - aria-modal verdeckt ihn nur fuer
+     Vorlesesoftware, nicht fuer den Tabulator. */
+  var zu = document.getElementById('lightbox-close');
+  if (zu) { try { zu.focus(); } catch (e) {} }
 }
 
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   document.body.style.overflow = '';
+  if (lightboxRueckkehr) { try { lightboxRueckkehr.focus(); } catch (e) {} }
+  lightboxRueckkehr = null;
 }
 
 function updateLightbox() {
@@ -171,6 +189,16 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape')      closeLightbox();
   if (e.key === 'ArrowLeft')   lightboxNav(-1);
   if (e.key === 'ArrowRight')  lightboxNav(1);
+  /* Tabulator bleibt im Fenster. Ohne das wandert der Fokus hinter
+     den Vorhang auf die Seite, und zwar unsichtbar. */
+  if (e.key === 'Tab') {
+    var ziele = lb.querySelectorAll('button:not(.hidden)');
+    if (!ziele.length) return;
+    var erste = ziele[0], letzte = ziele[ziele.length - 1];
+    if (e.shiftKey && document.activeElement === erste) { e.preventDefault(); letzte.focus(); }
+    else if (!e.shiftKey && document.activeElement === letzte) { e.preventDefault(); erste.focus(); }
+    else if (!lb.contains(document.activeElement)) { e.preventDefault(); erste.focus(); }
+  }
 });
 
 // Bild-Carousel: Lupen-Icon einfügen + Vollbild-Zoom-Overlay bereitstellen
