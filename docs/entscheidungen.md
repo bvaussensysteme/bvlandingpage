@@ -20404,3 +20404,81 @@ müsste jeden eingebauten Fehler an die Prüfung binden, die ihn
 fangen soll, und nur die laufen lassen. Das wäre der nächste
 Schritt; 9 Minuten passen vorerst in ein Zeitfenster.
 
+
+## 21.11.2026 - Die Galeriebilder der Startseite öffnen sich jetzt mit der Tastatur
+
+**Was falsch war, mit Beleg.** Die 14 Bilder der Referenzgalerie
+öffneten die Großansicht über ein `onclick` an einem `div`. Ein `div`
+nimmt keinen Fokus und reagiert auf keine Taste. Gemessen am
+21.11.2026 im Browser, vor der Änderung: **0 von 14** Bildern mit dem
+Tabulator erreichbar, **14 von 14** stumm auf die Eingabetaste. Das
+ist WCAG 2.2, Erfolgskriterium 2.1.1 „Tastatur", Stufe A. Der Befund
+stand seit dem 20.11.2026 in `docs/NEXT_TASK.md` und war mit „eigener
+Auftrag, keine Zeile nebenbei" vertagt.
+
+**Was jetzt gilt.** In jeder Kachel sitzt eine eigene Schaltfläche
+`.galerie-oeffnen`, die das Bild umschließt. Gemessen nach der
+Änderung: 14 von 14 ertabbt, 14 von 14 öffnen auf die Eingabetaste,
+14 von 14 geben den Fokus nach Escape an ihr Bild zurück.
+
+**Warum nicht das `div` selbst zur Schaltfläche wurde.** In jeder
+Kachel sitzt schon das Herkunfts-Abzeichen („Referenz VD AluSysteme"),
+und das ist ein `button`. Schaltflächen dürfen nicht ineinander
+stehen. Genau daran hing die Korrektur fest. Die Lösung trennt die
+beiden: Die neue Schaltfläche trägt das Bild, das Abzeichen bleibt ihr
+Geschwister in derselben Kachel. Das `div` bleibt, weil an ihm Raster,
+Lauf, Seitenverhältnis und Schnappunkt hängen, 16 Regeln.
+
+**Zwei Kleinigkeiten, die dazugehören.** Beschriftung und Lupe liegen
+über der Schaltfläche; ohne `pointer-events: none` fingen sie den
+Klick ab. Und `closeLightbox` gibt den Fokus an das Bild zurück, aus
+dem die Großansicht kam. Ohne das stünde ein Tastaturnutzer nach dem
+Schließen auf `body` und müsste sich von oben durch die ganze Seite
+tabben. Dasselbe macht `js/galerie.js` seit dem 19.11.2026 für die
+Produktseiten.
+
+**Verworfen: `tabindex="0"` plus `role="button"` am `div`.** Hätte
+weniger Zeilen gekostet und wäre falsch gewesen: Dann muss man die
+Tastenbehandlung selbst schreiben (Leertaste scrollt sonst die Seite),
+und man hat eine Schaltfläche, die keine ist.
+
+### Der zweite Fehler, gefunden beim Messen des Fokusrings
+
+**Der neue Ring war im Browser nicht zu sehen.** Gemessen statt
+geraten: `outline: 3px solid rgb(29,32,35)`, `outline-offset: 3px`,
+obwohl in `src/css/style.css` Gold und `-3px` standen.
+
+**Ursache.** `css/start.css` setzt für die ganze Startseite
+`.start-premium :focus-visible { outline-offset: 3px }`. Diese Regel
+hat **dieselbe Spezifität** (0,2,0) wie die Regeln einzelner Bauteile
+in `style.css`, wird aber später geladen und gewinnt deshalb. Wo ein
+Bauteil bewusst `-3px` gesetzt hatte, weil es in einem Kasten mit
+`overflow: hidden` sitzt, stand der Ring wieder außen, und der Kasten
+schnitt ihn vollständig ab.
+
+**Das traf nicht nur die Galerie.** Gemessen auf `index.html`:
+**19 von 19** Fragen der Fragenliste (`.faq-q`) hatten einen Ring, von
+dem nichts zu sehen war. `.faq-item` lässt 1 px Luft, der Ring braucht
+3. Das ist WCAG 2.2, 2.4.7 „Fokus sichtbar", Stufe AA. Nach der
+Korrektur: **0 von 19**. Behoben ohne Rückfrage, weil messbare A- und
+AA-Verstöße laut `CLAUDE.md` sofort und überall behoben werden;
+`.start-premium` trägt nur `index.html`, damit ist „überall" hier eine
+Seite.
+
+**Warum keine der bestehenden Prüfungen das fand.**
+`pruefe-fokus-verdeckung.mjs` prüft 2.4.11: Liegt etwas **Festes über**
+dem fokussierten Element? Das ist eine andere Frage als: Schneidet der
+**eigene Kasten** den Ring ab. Beide Prüfungen waren grün, während 20
+Ringe unsichtbar waren. Neu deshalb `scripts/pruefe-fokusring.mjs`.
+
+**Der Ring selbst.** 3 px Gold nach innen, dahinter ein dunkles
+Innenband. Gold allein auf einem beliebigen Foto erfüllt die 3:1 aus
+WCAG 1.4.11 nicht zuverlässig; neben `#111` kommt es auf 8,8:1. Das
+Band ist also Technik, nicht Schmuck. **Gegenlesen:** ob das auf den
+hellen Fotos gefällt, ist Geschmack und Sache des Betreibers.
+
+### Was gegengelesen werden soll
+
+Die Großansicht mit der Tastatur öffnen (Tab bis zum ersten Bild,
+Eingabetaste), mit den Pfeiltasten blättern, Escape drücken. Der Fokus
+muss auf demselben Bild wieder sichtbar sein.

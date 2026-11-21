@@ -367,19 +367,24 @@ und musste korrigiert werden.
 Bilddateien es zeigen. Dann ist der Rest Arbeit von einer Stunde, die
 Technik steht.
 
-## Gemessener Altbefund: Startseiten-Galerie ohne Tastatur (20.11.2026)
+## Erledigt am 21.11.2026: Startseiten-Galerie mit der Tastatur
 
-Die 15 Bilder im Abschnitt „Projekte, die für sich sprechen" öffnen
-die Großansicht über `onclick` an einem `<div>`. **Mit der Tastatur
-lässt sich kein einziges Bild öffnen.** Das ist WCAG 2.2, 2.1.1,
-Stufe A. Gemessen am 20.11.2026 im Browser: 28 Elemente mit `onclick`,
-kein `tabindex` an den Bildern.
+Die 14 Bilder im Abschnitt „Projekte, die für sich sprechen" öffnen
+die Großansicht jetzt über eine echte Schaltfläche. Gemessen vorher
+0 von 14 ertabbt, nachher 14 von 14; dazu Eingabetaste und Rückkehr
+des Fokus. Das Abzeichen in der Kachel bleibt daneben statt darin,
+damit keine Schaltfläche in einer Schaltfläche steht.
 
-Der Befund ist alt und hat mit dem Umbau auf Punkte nichts zu tun.
+Beim Messen kam ein zweiter, davon unabhängiger Fehler heraus und
+wurde mitbehoben: 19 von 19 Fragen der Fragenliste auf `index.html`
+hatten einen Fokusring, von dem nichts zu sehen war (WCAG 2.2, 2.4.7,
+Stufe AA). Nachher 0 von 19.
 
-**Warum nicht nebenbei behoben:** Eine saubere Korrektur macht aus
-jedem Bild eine `<button>`. In jedem Bild sitzt aber schon eine
-Schaltfläche („Referenz BV AussenSysteme"), und verschachtelte
-Schaltflächen sind ungültiges HTML. Es braucht also eine Entscheidung,
-wie beides nebeneinander funktioniert, und eine Anpassung von
-`scripts/pruefe-referenz-galerie.mjs`. Das ist ein eigener Auftrag.
+Einzelheiten in `docs/entscheidungen.md`, Eintrag vom 21.11.2026.
+Abgesichert durch `scripts/pruefe-fokusring.mjs` (neu) und die
+erweiterte `scripts/pruefe-referenz-galerie.mjs`.
+
+**Offen geblieben, Geschmacksfrage für den Betreiber:** Der Fokusring
+auf den Fotos ist golden mit dunklem Innenband. Das Band ist nötig,
+weil Gold allein auf einem beliebigen Foto die 3:1 aus WCAG 1.4.11
+nicht sicher erreicht. Ob es gefällt, entscheidet der Betreiber.
