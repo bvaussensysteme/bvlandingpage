@@ -830,15 +830,50 @@ if (!GEGEN) {
     server.kill(); process.exit(1);
   }
   const offen = new Set(gut.map(([n]) => n));
-  for (const f of FEHLER_LAUF) {
-    const e = await lauf(f);
-    const rot = e.filter(([, ok]) => !ok).map(([n]) => n);
-    if (!rot.length) {
-      console.log(`FEHLER: Eingebauter Fehler "${f.name}" bleibt unbemerkt.`);
-      server.kill(); process.exit(1);
+
+  /* NEBENEINANDER STATT HINTEREINANDER (21.11.2026).
+     Punkt 3.14 aus docs/NEXT_TASK.md: Die Gegenprobe lief ueber 30
+     Minuten und wurde deshalb in der Praxis uebersprungen. Eine
+     Absicherung, die zu lang laeuft, sichert nichts.
+
+     Gemessen am 21.11.2026: ein Durchlauf 41 s, 42 eingebaute Fehler,
+     also 41 + 42 x 41 = rund 29 Minuten. Jede Runde baut ihren eigenen
+     Browser auf und ist von den anderen unabhaengig; der kleine
+     Dateiserver bedient sie nebeneinander. Mit vier gleichzeitig sind
+     es rund acht Minuten.
+
+     ZWEITE AENDERUNG, und die ist wichtiger als die Zeit: Frueher
+     brach die Gegenprobe beim ERSTEN unbemerkten Fehler ab, man sah
+     also immer nur den naechsten. Jetzt laufen alle, und am Ende
+     stehen ALLE unbemerkten Fehler da.
+
+     BV_PARALLEL setzt die Anzahl, 1 bis 8. Bei Speichermangel auf 2
+     stellen. */
+  const PARALLEL = Math.max(1, Math.min(8, Number(process.env.BV_PARALLEL || 4)));
+  const ergebnisse = new Array(FEHLER_LAUF.length);
+  let naechster = 0;
+  async function arbeiter() {
+    for (;;) {
+      const i = naechster++;
+      if (i >= FEHLER_LAUF.length) return;
+      ergebnisse[i] = await lauf(FEHLER_LAUF[i]);
     }
+  }
+  console.log(`  ${FEHLER_LAUF.length} Fehler, ${PARALLEL} gleichzeitig. Das dauert.`);
+  await Promise.all(Array.from(
+    { length: Math.min(PARALLEL, FEHLER_LAUF.length) }, arbeiter));
+
+  const blind = [];
+  FEHLER_LAUF.forEach((f, i) => {
+    const rot = (ergebnisse[i] || []).filter(([, ok]) => !ok).map(([n]) => n);
+    if (!rot.length) { blind.push(f.name); return; }
     console.log(`  Fehler "${f.name}": ${rot.length} Prüfung(en) schlagen an`);
     rot.forEach((n) => offen.delete(n));
+  });
+  if (blind.length) {
+    console.log(`\nFEHLER: ${blind.length} eingebaute Fehler bleiben unbemerkt:`);
+    blind.forEach((n) => console.log('   ' + n));
+    server.kill(); process.exit(1);
   }
   if (NUR.length) {
     console.log(`\nNur ${FEHLER_LAUF.length} von ${FEHLER.length} Fehlern gelaufen (BV_NUR).` +
