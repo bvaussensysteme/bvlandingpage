@@ -4,7 +4,33 @@
    Farben: Schwarz #111111 | Gold #C49A2A | Weiß #FFFFFF
    ============================================ */
 
+/* ============================================
+   SCHRIFT: Manrope auf allen Seiten (21.11.2026)
+
+   Ansage des Betreibers: "alle seiten manrope machen, alle seiten
+   design anpassen, erst mobile, dann tablet, dann pc". Damit ist die
+   Entscheidung gefallen, die docs/WEBSITE_DESIGN_SYSTEM.md offen
+   gelassen hatte: Die Freigabe vom 13.11.2026 galt nur der neuen
+   Startseite, fuer die laufende Seite war nichts entschieden.
+
+   Bis hierher standen 45 Regeln auf 'Barlow Condensed' und 5 auf
+   'Inter'. Beide zeigen jetzt auf EINE Variable, damit ein weiterer
+   Wechsel eine Zeile ist und nicht fuenfzig.
+
+   ACHTUNG BEIM NACHMESSEN: Barlow Condensed ist eine SCHMALE Schrift,
+   Manrope eine normal breite. Dieselbe Ueberschrift braucht in
+   Manrope deutlich mehr Platz. Was dadurch bricht, wird in der
+   Reihenfolge Handy, Tablet, Rechner nachgezogen.
+   ============================================ */
 :root {
+  --schrift: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Die Ausweichvariablen aus dem <style> im Kopf (src/_includes/layout.njk)
+     zeigen auf die Systemkette, damit vor dem Nachladen etwas Lesbares
+     dasteht. Sobald dieses Stylesheet greift, sollen sie Manrope sein:
+     gemessen am 21.11.2026 standen sonst th, summary, sub und .rc-value
+     dauerhaft in der Ausweichschrift. */
+  --font-heading: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body:    'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --gold:       #C49A2A;
   --gold-dark:  #9A7318;
   --gold-text:  #7A5B12; /* Gold für Text auf hellem Grund, erfüllt 4.5:1 (WCAG AA) */
@@ -117,7 +143,7 @@ html {
   scroll-padding-bottom: var(--fokus-frei-unten, 0px);
 }
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--schrift);
   background: var(--white);
   color: var(--black);
   line-height: 1.6;
@@ -141,12 +167,27 @@ body {
 .section    { padding: var(--sp-abschnitt) 0; }
 .section--alt { background: var(--offwhite); }
 
+/* Bedienelemente erben die Schrift NICHT von allein: Der Browser gibt
+   button, input, select und textarea seine eigene Schrift, meist Arial.
+   Gemessen am 21.11.2026 auf 18 Seiten: .mobile-close, .sticky-close,
+   .a11y-range-btn, .aw-option-hint und weitere standen in Arial. Das
+   galt auch vorher schon, mit Inter daneben; beim Schriftwechsel ist es
+   nur sichtbar geworden. Einzelne Regeln setzten font-family: inherit,
+   aber eben nur einzelne. */
+button, input, select, textarea, optgroup {
+  font-family: inherit;
+}
+
 /* ---- TYPOGRAPHY ---- */
 .tag {
   display: inline-block;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px; font-weight: 700;
-  letter-spacing: 2.5px; text-transform: uppercase;
+  font-family: var(--schrift);
+  /* 21.11.2026 auf die Werte des Designsystems gezogen (start.css
+     Z. 195): 600 statt 700, 0.16em statt 2.5px. Bei 11 px sind 2,5 px
+     gleich 0,227em; so weit gesperrt zerfaellt Manrope in Einzelbuchstaben,
+     waehrend das schmale Barlow Condensed die Sperrung vertrug. */
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--gold-text); margin-bottom: 10px;
 }
 /* .tag ist fuer hellen Grund gebaut: --gold-text (#7A5B12) ergibt auf Weiss
@@ -169,13 +210,21 @@ body {
    text-wrap: balance verteilt mehrzeilige Ueberschriften auf gleich
    lange Zeilen, statt ein einzelnes Wort haengen zu lassen. */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-weight: 800;
   text-wrap: balance;
 }
-h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 1.04; letter-spacing: -0.01em; }
-h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); color: var(--black); line-height: 1.1; }
-h3 { font-size: var(--txt-lg); color: var(--black); line-height: 1.22; }
+/* LAUFWEITE NACH DEM SCHRIFTWECHSEL (21.11.2026). Die Werte sind nicht
+   erfunden, sondern die des freigegebenen Designsystems fuer Manrope,
+   bisher nur in src/css/start.css: h1 und h3 -0.02em, h2 -0.015em.
+   Barlow Condensed kam ohne aus, weil sie von Haus aus schmal lief;
+   Manrope braucht bei grossen Graden die engere Laufweite, sonst
+   zerfaellt die Zeile. */
+h1 { font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 1.04; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); color: var(--black); line-height: 1.1;
+     letter-spacing: -0.015em; }
+h3 { font-size: var(--txt-lg); color: var(--black); line-height: 1.22;
+     letter-spacing: -0.02em; }
 /* h4-h6 waren ueberhaupt nicht definiert und erbten den Browser-
    Standard - sichtbar in der Fusszeile. */
 h4 { font-size: var(--txt-md); color: var(--black); line-height: 1.3; }
@@ -194,7 +243,7 @@ h2 + p, h3 + p { max-width: 68ch; }
      und nicht darunter. */
   display: inline-flex; align-items: center; justify-content: center;
   gap: var(--sp-2);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-weight: 700; font-size: 1rem; letter-spacing: 0.4px;
   min-height: 48px;
   padding: 13px 30px;
@@ -328,7 +377,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 .nav-cta {
   background: var(--gold) !important; color: var(--black) !important;
   padding: 10px 22px; border-radius: 999px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-weight: 700 !important; font-size: 1rem !important;
 }
 .nav-cta:hover { background: var(--gold-text) !important; color: var(--white) !important; }
@@ -512,7 +561,7 @@ body.bv-menu-open #bv-scroll-top {
 }
 
 .mobile-menu a {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1.8rem; font-weight: 700;
   color: var(--white); text-decoration: none;
   display: inline-flex; align-items: center; gap: 10px;
@@ -561,7 +610,7 @@ body.bv-menu-open #bv-scroll-top {
   gap: 56px; align-items: center;
 }
 .hero-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 0.85rem; font-weight: 700;
   letter-spacing: 3px; text-transform: uppercase;
   color: var(--gold); margin-bottom: 14px;
@@ -569,7 +618,7 @@ body.bv-menu-open #bv-scroll-top {
 .hero h1 { color: var(--white); margin-bottom: 18px; }
 .hero h1 span { color: var(--gold); }
 .hero-slogan {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--gold);
@@ -594,7 +643,7 @@ body.bv-menu-open #bv-scroll-top {
 .hero-card:hover { border-color: var(--gold); }
 .hero-card-icon { font-size: 1.8rem; flex-shrink: 0; }
 .hero-card strong {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
+  display: block; font-family: var(--schrift);
   font-size: 1.05rem; font-weight: 700; color: var(--white);
 }
 .hero-card span { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
@@ -616,7 +665,7 @@ body.bv-menu-open #bv-scroll-top {
   stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
 }
 .gold-item strong {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
+  display: block; font-family: var(--schrift);
   font-size: 0.95rem; font-weight: 700; color: var(--black);
 }
 .gold-item span { font-size: 0.75rem; color: rgba(0,0,0,0.72); }
@@ -821,7 +870,7 @@ body.bv-menu-open #bv-scroll-top {
 }
 
 .leistung-link {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-weight: 700; color: var(--gold-text); font-size: 0.9rem;
   margin-top: auto;
   /* Gemessen am 15.11.2026: 23 px hoch, also 1 px unter dem
@@ -871,13 +920,13 @@ body.bv-menu-open #bv-scroll-top {
 #regionInfoTip {
   display: none; position: fixed; z-index: 1000;
   background: #fff; color: #222;
-  font-family: 'Inter', sans-serif; font-size: 0.85rem;
+  font-family: var(--schrift); font-size: 0.85rem;
   line-height: 1.6; padding: 16px 18px; border-radius: 10px;
   max-width: 260px; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
   border: 1px solid var(--border);
 }
 #regionInfoTip .rit-title {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
+  display: block; font-family: var(--schrift);
   font-size: 1.15rem; font-weight: 700; color: var(--black); margin-bottom: 8px;
 }
 #regionInfoTip .rit-zone { color: var(--muted); font-size: 0.82rem; margin-bottom: 8px; }
@@ -913,7 +962,7 @@ body.bv-menu-open #bv-scroll-top {
   stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
 }
 .why-item strong {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
+  display: block; font-family: var(--schrift);
   font-size: 1.05rem; font-weight: 700; color: var(--black); margin-bottom: 3px;
 }
 .why-item p { color: var(--muted); font-size: 0.88rem; }
@@ -931,7 +980,7 @@ body.bv-menu-open #bv-scroll-top {
   border-radius: 8px; padding: 18px; text-align: center;
 }
 .stat-box .num {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 2.6rem; font-weight: 800; color: var(--gold); line-height: 1;
 }
 .stat-box .lbl { font-size: 0.78rem; color: rgba(255,255,255,0.65); margin-top: 4px; }
@@ -941,7 +990,7 @@ body.bv-menu-open #bv-scroll-top {
   border-radius: 8px; padding: 16px 20px; text-align: center;
 }
 .partner-box strong {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1.05rem; font-weight: 700; color: var(--gold);
   display: block; margin-bottom: 4px;
 }
@@ -973,7 +1022,7 @@ body.bv-menu-open #bv-scroll-top {
 #bv-a11y-page-wrap.a11y-pause-animations .prozess-ring-fg { transition: none; }
 .prozess-num {
   position: relative; z-index: 1;
-  font-family: 'Barlow Condensed', sans-serif; font-size: 1.5rem; font-weight: 800;
+  font-family: var(--schrift); font-size: 1.5rem; font-weight: 800;
   color: var(--muted); transition: color 0.3s ease;
 }
 .prozess-circle.is-done .prozess-num { color: var(--gold); }
@@ -1014,7 +1063,7 @@ body.bv-menu-open #bv-scroll-top {
 .service-box-cta {
   display: inline-flex; align-items: center; gap: 6px;
   background: var(--gold); color: var(--black); font-weight: 700;
-  font-family: 'Barlow Condensed', sans-serif; font-size: 0.92rem;
+  font-family: var(--schrift); font-size: 0.92rem;
   padding: 9px 18px; border-radius: 100px; text-decoration: none;
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -1052,7 +1101,7 @@ body.bv-menu-open #bv-scroll-top {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: linear-gradient(transparent, rgba(0,0,0,0.75));
   color: var(--white); padding: 16px 14px 12px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 0.95rem; font-weight: 700;
   opacity: 0; transition: opacity 0.3s;
 }
@@ -1068,7 +1117,7 @@ body.bv-menu-open #bv-scroll-top {
      vorher, der Zuwachs steckt im Innenabstand. */
   min-height: 24px; height: auto; padding: 3px 0; border: none; border-radius: 12px;
   background: rgba(45,45,45,0.5); color: rgba(255,255,255,0.9);
-  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10px; line-height: 1;
+  font-family: var(--schrift); font-weight: 600; font-size: 10px; line-height: 1;
   white-space: nowrap; overflow: hidden; max-width: 85%;
   opacity: 0.55; cursor: pointer; -webkit-tap-highlight-color: transparent;
   transition: opacity .2s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
@@ -1100,7 +1149,7 @@ body.bv-menu-open #bv-scroll-top {
   background: var(--dark2); color: rgba(255,255,255,0.3);
   font-size: 3rem;
 }
-.img-placeholder span { font-size: 0.8rem; font-family: 'Inter', sans-serif; }
+.img-placeholder span { font-size: 0.8rem; font-family: var(--schrift); }
 
 /* ============================================
    BEWERTUNGEN (Reviews)
@@ -1125,7 +1174,7 @@ body.bv-menu-open #bv-scroll-top {
 .faq-item { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
 .faq-q {
   width: 100%; background: none; border: none; text-align: left;
-  padding: 16px 22px; font-family: 'Barlow Condensed', sans-serif;
+  padding: 16px 22px; font-family: var(--schrift);
   font-size: 1rem; font-weight: 700; color: var(--black);
   cursor: pointer; display: flex; justify-content: space-between;
   align-items: center; gap: 12px;
@@ -1184,7 +1233,7 @@ body.bv-menu-open #bv-scroll-top {
 .kontakt-card-icon--whatsapp { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); }
 .kontakt-card-icon--whatsapp svg { stroke: none; fill: currentColor; }
 .kontakt-card strong {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
+  display: block; font-family: var(--schrift);
   font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 3px;
 }
 .kontakt-card a { color: var(--gold-text); text-decoration: none; font-weight: 600; }
@@ -1210,7 +1259,7 @@ body.bv-menu-open #bv-scroll-top {
 /* Direktkontakt-Leiste – nur mobil, erscheint unter dem Konfigurator */
 .kontakt-quick { display: none; }
 .kontakt-quick-lead {
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-family: var(--schrift); font-weight: 700;
   font-size: 1.05rem; letter-spacing: .3px; color: var(--black);
   text-align: center; margin: 0 0 14px;
 }
@@ -1252,7 +1301,7 @@ body.bv-menu-open #bv-scroll-top {
 .form-group select,
 .form-group textarea {
   padding: 13px var(--sp-4); border: 1.5px solid rgba(255,255,255,0.18);
-  border-radius: var(--radius); font-family: 'Inter', sans-serif;
+  border-radius: var(--radius); font-family: var(--schrift);
   /* 16px IST PFLICHT, kein Geschmack: iOS Safari zieht die Seite heran,
      sobald ein Feld unter 16px den Fokus bekommt - und zoomt nicht
      zurueck. Vorher standen hier 0,93rem = 14,9px. Die Felder im
@@ -1343,7 +1392,7 @@ footer {
 .social-btn--whatsapp  { color: #fff; }
 .social-btn--whatsapp:hover  { background: var(--gold); border-color: var(--gold); color: var(--black); }
 footer h4 {
-  font-family: 'Barlow Condensed', sans-serif; font-size: var(--txt-2xs); font-weight: 700;
+  font-family: var(--schrift); font-size: var(--txt-2xs); font-weight: 700;
   color: var(--gold); letter-spacing: 1.6px; text-transform: uppercase;
   margin-bottom: var(--sp-4);
   /* Eine feine goldene Linie unter jeder Spaltenueberschrift: ordnet
@@ -1502,7 +1551,7 @@ footer h4 {
 .trust-badge:hover { border-color: var(--gold); transform: translateY(-2px); }
 .trust-badge-logo {
   display: flex; align-items: center; gap: 6px;
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem;
+  font-family: var(--schrift); font-weight: 700; font-size: 0.9rem;
   color: var(--black); flex-shrink: 0;
 }
 /* Die Sternreihe in den Abzeichen ist am 14.11.2026 entfernt worden:
@@ -1510,7 +1559,7 @@ footer h4 {
    danach ueber einer Regel, die es nicht mehr gibt, und ist deshalb
    hier raus. Fuer Text auf hellem Grund gilt weiter --gold-text, der
    Markenton in der dafuer vorgesehenen Stufe. */
-.trust-badge-text strong { display: block; font-size: 1.1rem; font-family: 'Barlow Condensed', sans-serif; color: var(--black); }
+.trust-badge-text strong { display: block; font-size: 1.1rem; font-family: var(--schrift); color: var(--black); }
 .trust-badge-text span  { font-size: 0.78rem; color: var(--muted); }
 
 /* Tab Switcher */
@@ -1521,7 +1570,7 @@ footer h4 {
 .reviews-tab {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 24px; background: none; border: none;
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
+  font-family: var(--schrift); font-weight: 700; font-size: 1rem;
   color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
   margin-bottom: -2px; transition: var(--uebergang-zustand);
 }
@@ -1566,7 +1615,7 @@ footer h4 {
 }
 .galerie-coming-icon { font-size: 3.5rem; margin-bottom: 20px; }
 .galerie-coming-soon h3 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1.6rem; font-weight: 800;
   color: var(--black); margin-bottom: 12px;
 }
@@ -1605,7 +1654,7 @@ footer h4 {
 .cb-top { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 18px; }
 .cb-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; }
 .cb-text strong {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1.1rem; font-weight: 700; color: var(--black);
   display: block; margin-bottom: 4px;
 }
@@ -1649,7 +1698,7 @@ footer h4 {
   display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
 }
 .cb-btn {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-weight: 700; font-size: 0.92rem;
   padding: 11px 16px; border-radius: 999px;
   cursor: pointer; border: 1.5px solid transparent;
@@ -1749,7 +1798,7 @@ footer h4 {
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 .kt-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   font-weight: 800; color: var(--white);
   margin-bottom: 14px; line-height: 1.1;
@@ -1774,7 +1823,7 @@ footer h4 {
   width: 26px; height: 26px; stroke: currentColor; fill: none;
   stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
 }
-.kt-feature strong { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; color: var(--white); margin-bottom: 4px; }
+.kt-feature strong { display: block; font-family: var(--schrift); font-size: 0.95rem; color: var(--white); margin-bottom: 4px; }
 .kt-feature p { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin: 0; }
 
 @media (max-width: 760px) {
@@ -1805,7 +1854,7 @@ footer h4 {
   stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }
 .kp-sorry-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1.8rem; font-weight: 800;
   color: var(--white); margin-bottom: 14px;
 }
@@ -1859,7 +1908,7 @@ footer h4 {
   stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
 }
 .galerie-placeholder-inner strong {
-  display: block; font-family: 'Barlow Condensed', sans-serif;
+  display: block; font-family: var(--schrift);
   font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 6px;
 }
 .galerie-placeholder-inner p {
@@ -2456,7 +2505,7 @@ img { max-width: 100%; height: auto; }
 .hero .hs-heading { font-size: clamp(1.8rem, 4.6vw, 3.1rem); line-height: 1.12; }
 
 .hs-heading {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: clamp(2.4rem, 5vw, 3.8rem);
   font-weight: 800;
   color: var(--white);
@@ -2640,7 +2689,7 @@ img { max-width: 100%; height: auto; }
 
 /* ── Leistungen Kategorie-Labels ── */
 .leistung-kategorie-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--schrift);
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -2716,7 +2765,7 @@ img { max-width: 100%; height: auto; }
 .article-body { font-size: 1.08rem; line-height: 1.85; color: #2b2b2b; }
 .article-body > p:first-of-type { font-size: 1.18rem; }
 .article-body > p:first-of-type::first-letter {
-  float: left; font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  float: left; font-family: var(--schrift); font-weight: 800;
   font-size: 3.6rem; line-height: .8; padding-right: 10px; padding-top: 6px;
   color: var(--gold-text);
 }
@@ -3002,7 +3051,7 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-body { flex: 1; overflow-y: auto; padding: 18px 26px; -webkit-overflow-scrolling: touch; }
 .aw-nav { display: flex; gap: 12px; padding: 12px 26px 16px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .aw-btn {
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
+  font-family: var(--schrift); font-weight: 700; font-size: 1rem;
   padding: 12px 22px; border-radius: 999px; cursor: pointer; border: 2px solid transparent;
   transition: background 0.2s, color 0.2s, transform 0.2s; letter-spacing: 0.3px;
 }
@@ -3135,7 +3184,7 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-badge {
   position: absolute; right: 6px; bottom: 6px; z-index: 2;
   background: var(--gold); color: var(--black);
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem;
+  font-family: var(--schrift); font-weight: 700; font-size: 0.66rem;
   letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 100px;
   box-shadow: 0 2px 7px rgba(0,0,0,0.35);
 }
@@ -3193,14 +3242,14 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-ral-stand, .aw-ral-fuss { font-size: .74rem; color: var(--muted); margin: 10px 0 0; line-height: 1.45; }
 .aw-ral-fuss { opacity: .75; }
 
-.aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: 'Barlow Condensed', sans-serif; line-height: 1.15; }
+.aw-option-lbl { font-weight: 700; font-size: 0.92rem; font-family: var(--schrift); line-height: 1.15; }
 .aw-option-hint { font-size: 0.72rem; color: rgba(255,255,255,0.5); line-height: 1.2; }
 
 /* Unterauswahl (z. B. Glasstärke bei VSG-Glas) */
 .aw-subchoice { margin-top: 14px; }
 .aw-pills { display: flex; gap: 10px; flex-wrap: wrap; }
 .aw-pill {
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.95rem;
+  font-family: var(--schrift); font-weight: 700; font-size: 0.95rem;
   padding: 9px 20px; border-radius: 100px; cursor: pointer; color: rgba(255,255,255,0.85);
   background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.16);
   transition: border-color 0.15s, background 0.15s, color 0.15s;
@@ -3217,14 +3266,14 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-pill-input:focus-within { border-color: var(--gold); }
 .aw-pill-input input {
   width: 4.6em; background: transparent; border: none; color: #fff; text-align: center;
-  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem; padding: 9px 4px;
+  font-family: var(--schrift); font-weight: 700; font-size: 1rem; padding: 9px 4px;
   -webkit-appearance: none; -moz-appearance: textfield; appearance: none;
 }
 .aw-pill-input input::-webkit-outer-spin-button,
 .aw-pill-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .aw-pill-input input:focus { outline: none; }
 .aw-pill-input input::placeholder { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
-.aw-pill-input > span { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
+.aw-pill-input > span { font-family: var(--schrift); font-weight: 700; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
 
 /* Tipp-/Nutzen-Banner (sanfter Upsell-Nudge) */
 .aw-tip {
@@ -3240,7 +3289,7 @@ body.bv-konfig-open #bvKonfigBubble {
 
 /* Erweiterungen – Foto-Dropdowns (Design in dunkel/gold) */
 .aw-erws { display: flex; flex-direction: column; gap: 16px; }
-.aw-erw-lbl { display: block; font-size: 1rem; color: #fff; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; margin-bottom: 7px; letter-spacing: 0.2px; }
+.aw-erw-lbl { display: block; font-size: 1rem; color: #fff; font-weight: 700; font-family: var(--schrift); margin-bottom: 7px; letter-spacing: 0.2px; }
 .aw-dd { position: relative; }
 /* Zusammengeklappt: aktuelle Auswahl + Pfeil */
 .aw-dd-toggle {
@@ -3297,13 +3346,13 @@ body.bv-konfig-open #bvKonfigBubble {
 @keyframes awFade { from { opacity: 0; } to { opacity: 1; } }
 .aw-lightbox-inner { position: relative; max-width: 92vw; text-align: center; }
 .aw-lightbox img { max-width: 100%; max-height: 78vh; border-radius: 12px; box-shadow: 0 12px 44px rgba(0,0,0,0.55); }
-.aw-lightbox p { color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.25rem; margin-top: 12px; letter-spacing: 0.3px; }
+.aw-lightbox p { color: #fff; font-family: var(--schrift); font-weight: 700; font-size: 1.25rem; margin-top: 12px; letter-spacing: 0.3px; }
 .aw-lightbox-close {
   position: absolute; top: -16px; right: -16px; width: 40px; height: 40px; border-radius: 50%;
   background: var(--gold); color: var(--black); border: none; font-size: 19px; font-weight: 700; cursor: pointer;
   box-shadow: 0 3px 12px rgba(0,0,0,0.45);
 }
-.aw-dd-lbl { flex: 1; font-size: 0.98rem; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.2px; }
+.aw-dd-lbl { flex: 1; font-size: 0.98rem; font-weight: 700; font-family: var(--schrift); letter-spacing: 0.2px; }
 .aw-dd-note { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.5); text-align: right; flex-shrink: 0; }
 /* Häkchen-Kästchen (Mehrfachauswahl) */
 .aw-dd-check {
@@ -3401,13 +3450,13 @@ body.bv-konfig-open #bvKonfigBubble {
 /* Erfolg / Fotos */
 .aw-done { text-align: center; padding: 8px 0; }
 .aw-done-ic { width: 60px; height: 60px; margin: 0 auto 16px; border-radius: 50%; background: #2a9d4e; color: #fff; font-size: 2rem; display: flex; align-items: center; justify-content: center; }
-.aw-done-lead { color: #fff; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; font-family: 'Barlow Condensed', sans-serif; }
+.aw-done-lead { color: #fff; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; font-family: var(--schrift); }
 .aw-done-ref { color: var(--gold-light); font-size: 0.95rem; margin-bottom: 8px; }
 .aw-done-txt { color: rgba(255,255,255,0.65); font-size: 0.88rem; margin-bottom: 20px; }
 .aw-photo-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(196,154,42,0.25); border-radius: 12px; padding: 18px; }
 .aw-photo-h { color: #fff; font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
 .aw-photo-sub { color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-bottom: 14px; }
-.aw-photo-btn { display: block; padding: 12px; border-radius: 999px; font-weight: 700; font-family: 'Barlow Condensed', sans-serif; text-decoration: none; margin-bottom: 8px; transition: filter 0.15s; }
+.aw-photo-btn { display: block; padding: 12px; border-radius: 999px; font-weight: 700; font-family: var(--schrift); text-decoration: none; margin-bottom: 8px; transition: filter 0.15s; }
 .aw-photo-btn:hover { filter: brightness(1.08); }
 .aw-photo-btn--wa { background: var(--gold); color: var(--black); }
 .aw-photo-btn--mail { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }

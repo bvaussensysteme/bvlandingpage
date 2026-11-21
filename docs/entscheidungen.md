@@ -20257,3 +20257,77 @@ ausdrücklich, bis dazu eigens entschieden wird, und „überall“
 kam unmittelbar nach meinem Bericht ueber die Startseite. Die Frage
 ist dem Betreiber gestellt.
 
+## 21.11.2026 - Manrope auf allen 58 Seiten
+
+**Ansage des Betreibers:** „alle seiten manrope machen, alle seiten
+design anpassen, erst mobile, dann tablet, dann pc“. Damit ist die
+Frage entschieden, die `docs/WEBSITE_DESIGN_SYSTEM.md` ausdrücklich
+offen gelassen hatte: Die Freigabe vom 13.11.2026 galt nur der neuen
+Startseite; für die laufende Seite war nichts entschieden.
+
+**Was umgestellt wurde.** 45 Regeln standen auf Barlow Condensed, 5 auf
+Inter. Alle zeigen jetzt auf EINE Variable `--schrift` in
+`src/css/style.css`, damit ein weiterer Wechsel eine Zeile ist und
+nicht fünfzig. Dazu 25 Dateien mit Schrift in Inline-Stilen, darunter
+die Rechtstexte: Dort wurde **kein Wort angefasst**, nur die
+Schriftangabe im Stilblock. 43 Seiten laden jetzt Manrope statt Barlow
+Condensed und Inter.
+
+**Was am Design nachgezogen wurde, und warum nichts davon erfunden
+ist.** Barlow Condensed ist eine schmale Schrift, Manrope eine normal
+breite. Dieselbe Überschrift braucht mehr Platz, und eine Sperrung,
+die bei einer schmalen Schrift gut aussieht, zerfällt bei einer
+breiten. Übernommen sind die Werte, die das freigegebene Designsystem
+für Manrope bereits festlegt und die bisher nur in `start.css`
+standen: h1 und h3 `-0.02em`, h2 `-0.015em`, die Auszeichnung `.tag`
+mit Schnitt 600 und `0.16em` statt 700 und 2,5 px. Bei 11 px sind
+2,5 px gleich 0,227em; so weit gesperrt zerfällt Manrope in
+Einzelbuchstaben.
+
+**Drei Funde, die der Schriftwechsel erst sichtbar gemacht hat.**
+
+1. **Bedienelemente erben die Schrift nicht.** Der Browser gibt
+   `button`, `input`, `select` und `textarea` seine eigene Schrift,
+   meist Arial. Gemessen auf 18 Seiten: `.mobile-close`,
+   `.sticky-close`, `.a11y-range-btn`, `.aw-option-hint` und weitere
+   standen in Arial. Das galt vorher genauso, nur fiel es neben Inter
+   nicht auf. Jetzt gilt `font-family: inherit` für alle vier.
+2. **Die Ausweichschrift war Arial Black.** Sie steht im Kopf jeder
+   Seite für die Sekunden vor dem Nachladen. Sie war aber nicht nur
+   Platzhalter: `--font-heading` wird wirklich benutzt, gemessen an
+   `th`, `summary`, `sub` und `.rc-value`, die dauerhaft in Arial Black
+   standen. Jetzt dieselbe Systemkette wie in `--schrift`, und das
+   Stylesheet zieht beide Variablen auf Manrope.
+3. **Der Konfigurator beschriftet seine 3D-Maße auf einer Leinwand**
+   und benutzte dafür Inter und Arial. Auch das ist jetzt Manrope.
+
+**Vier Ausnahmen bleiben, jede mit Grund.** Der Zahlenwert im
+Bedienhilfen-Panel und `<code>` bleiben Monospace. Das kursive „i“
+in den Hinweiszeichen bleibt Georgia, es ist ein Zeichen und kein Text.
+Die Beschriftung in den SVG-Symbolen gehört zur Symbolsammlung. Und
+der Google-Bewertungsknopf behält Googles eigene Schriftkette, weil er
+deren Marke zeigt.
+
+**Gemessen, in der verlangten Reihenfolge.** Handy 390 px, Tablet
+820 px, Rechner 1440 px, 19 Seiten je Breite: **0 Seiten mit
+waagerechtem Überlauf**, keine Überschrift läuft auf vier Zeilen,
+keine Textstelle mehr in einer fremden Schrift.
+`pruefe-umbruch.mjs` 110 Kombinationen: kein Text läuft aus seinem
+Kasten. `pruefe-darstellung.mjs` 144 von 144. `pruefe-mitwachsend.mjs`
+28 Messungen.
+
+**Neu: `scripts/pruefe-schrift.mjs`.** Es geht jede Textstelle einzeln
+durch, auf 19 Seiten in zwei Breiten, und prüft zusätzlich, dass
+keine Seite eine andere Familie nachlaedt und keine mehr Arial Black
+als Ausweichschrift hat. Das ist die Lehre aus dem 20.11.2026: Damals
+meldete `pruefe-startseite.mjs` tagelang „Manrope ist die erste
+Schriftwahl“, weil sie nur den `body` las, während 38 Stellen
+daneben lagen.
+
+**Nicht geändert.** Die Palette. `docs/WEBSITE_DESIGN_SYSTEM.md` nennt
+dafür einen eigenen Schritt: `--gold-text` würde von `#7A5B12` auf
+`#896023` **heller**, und knappe Kontraste können dabei kippen. Das
+ist eine eigene Änderung mit eigener Messung und gehört nicht in
+denselben Durchgang. Die vier Entwurfsseiten unter `entwurf/` bleiben
+ebenfalls unberührt, sie warten auf eine Entscheidung.
+

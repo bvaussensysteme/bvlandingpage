@@ -63,7 +63,7 @@ extraStyles: |
         border-bottom: 3px solid var(--gold);
       }
       .orte-panel-header h3 {
-        font-family: 'Barlow Condensed', sans-serif;
+        font-family: var(--schrift);
         font-size: 1.1rem; font-weight: 700; color: var(--white); margin: 0;
       }
       .orte-panel-header p { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 3px; }
@@ -75,7 +75,7 @@ extraStyles: |
         width: 100%; text-align: left; background: none; border: none;
         padding: 11px 20px; cursor: pointer;
         display: flex; align-items: center; gap: 10px;
-        font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text);
+        font-family: var(--schrift); font-size: 0.9rem; color: var(--text);
         transition: background 0.15s; border-bottom: 1px solid var(--border);
       }
       .orte-list li:last-child button { border-bottom: none; }
@@ -99,7 +99,7 @@ extraStyles: |
       #gebietTip {
         display: none; position: fixed; z-index: 1000;
         background: var(--black); color: #fff;
-        font-family: 'Inter', sans-serif; font-size: 0.76rem; font-style: normal;
+        font-family: var(--schrift); font-size: 0.76rem; font-style: normal;
         line-height: 1.5; padding: 9px 13px; border-radius: 8px;
         max-width: 230px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
       }
@@ -123,7 +123,7 @@ extraStyles: |
         padding: 28px; text-align: center; margin-top: 24px;
         border: 1px solid rgba(196,154,42,0.25);
       }
-      .gebiet-cta h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
+      .gebiet-cta h3 { font-family: var(--schrift); font-size: 1.3rem; color: var(--white); margin-bottom: 8px; }
       .gebiet-cta p  { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
 
 
@@ -201,7 +201,7 @@ extraScripts: |
         .addTo(map)
         .bindPopup(
           '<div style="font-family:Inter,sans-serif;min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
-            '<strong style="font-family:Barlow Condensed,sans-serif;font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
+            '<strong style="font-family:var(--schrift);font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
             '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
             (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +
             '<a href="/#kontakt" style="font-size:0.8rem;color:#9A7318;font-weight:600;text-decoration:none;">Jetzt anfragen →</a>' +

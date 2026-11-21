@@ -48,9 +48,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
   <style>
-  /* Fallback fonts bis Google Fonts geladen */
-  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
-  body { font-family: 'Arial', sans-serif; }
+  /* Ausweichschrift, bis Manrope geladen ist (21.11.2026).
+     Vorher stand hier 'Arial Black' fuer Ueberschriften und 'Arial'
+     fuer Text. Das war nicht nur ein Platzhalter: --font-heading wird
+     wirklich benutzt, gemessen an th, summary, sub und .rc-value, die
+     dauerhaft in Arial Black standen. Und als Ausweichschrift fuer
+     Manrope taugt Arial Black nicht, der Sprung beim Nachladen ist zu
+     gross. Jetzt dieselbe Systemkette wie in --schrift, nur ohne
+     Manrope. */
+  :root {
+    --font-heading: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 </style>
 <script>
 /* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
@@ -60,7 +70,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var l = document.createElement('link');
     l.id = 'gfonts-loaded';
     l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    l.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
     document.head.appendChild(l);
   }
   function externalOK(raw){
@@ -78,7 +88,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="css/style.css?v=20261120j" />
+  <link rel="stylesheet" href="css/style.css?v=20261121a" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -173,7 +183,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-sek[open] > summary { border-bottom: 1px solid var(--border); }
     .k3d-sek > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .k3d-sek-t {
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: var(--schrift);
       font-weight: 700; font-size: 1rem; color: var(--black);
       letter-spacing: .3px; white-space: nowrap;
     }
@@ -330,7 +340,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-steller { display: grid; grid-template-columns: 46px 1fr 46px; gap: 7px;
       align-items: stretch; }
     .k3d-stell { border: 1px solid var(--border); background: #fff; color: var(--black);
-      border-radius: 9px; font: 700 1.2rem/1 'Barlow Condensed', sans-serif;
+      border-radius: 9px; font: 700 1.2rem/1 var(--schrift);
       cursor: pointer; -webkit-appearance: none; appearance: none; }
     .k3d-stell:hover { border-color: var(--gold); }
     .k3d-stell:active { background: var(--light-bg); }
@@ -404,7 +414,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     /* Weiche Trennstellen (&shy; im Text) statt harter Umbrueche: Aus
        „Balkonüberdachun / g" wird „Balkon- / überdachung". */
     .k3d-seg--bild button b { display: block; padding: 0 8px;
-      font-family: 'Barlow Condensed', sans-serif; font-size: .88rem;
+      font-family: var(--schrift); font-size: .88rem;
       letter-spacing: .01em; line-height: 1.15; hyphens: auto; }
     .k3d-seg--bild button small { padding: 0 8px; margin-top: 1px;
       font-size: .72rem; line-height: 1.1; }
@@ -544,7 +554,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       background: var(--border); margin: 9px 0 14px; overflow: hidden; }
     .k3d-balken i { display: block; height: 100%; background: var(--gold);
       width: 0; transition: width .25s ease; }
-    .k3d-schritt-t { font-family: 'Barlow Condensed', sans-serif;
+    .k3d-schritt-t { font-family: var(--schrift);
       font-size: 1.5rem; line-height: 1.1; margin: 0 0 5px; }
     .k3d-schritt-s { font-size: .84rem; color: var(--muted); margin: 0; }
 
@@ -574,7 +584,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-zweiwege button:hover { border-color: var(--gold); }
     .k3d-zweiwege button.ist-gewaehlt { border-color: var(--gold);
       background: rgba(196, 154, 42, .07); }
-    .k3d-zweiwege b { display: block; font-family: 'Barlow Condensed', sans-serif;
+    .k3d-zweiwege b { display: block; font-family: var(--schrift);
       font-size: 1.08rem; margin: 5px 0 2px; }
     .k3d-zweiwege small { display: block; font-size: .74rem; color: var(--muted);
       line-height: 1.35; }
@@ -592,7 +602,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-schalter.k3d-nurlesbar { display: none; }
     .k3d-nav-t { display: block; }
     .k3d-nav-z { display: block; font-size: .66rem; font-weight: 600;
-      opacity: .78; margin-top: 0; font-family: Inter, sans-serif;
+      opacity: .78; margin-top: 0; font-family: var(--schrift);
       letter-spacing: .01em; line-height: 1.25; }
     .k3d-nav-zeile button:disabled .k3d-nav-z { display: none; }
     /* Der Weg zur Anfrage steht dauerhaft da, nicht erst im letzten
@@ -604,7 +614,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-anfrage-fuss:hover { border-color: var(--gold); background: #fff; }
     .k3d-anfrage-fuss .bvs { width: 20px; height: 20px; color: var(--gold-dark);
       flex: none; }
-    .k3d-anfrage-fuss b { display: block; font-family: 'Barlow Condensed', sans-serif;
+    .k3d-anfrage-fuss b { display: block; font-family: var(--schrift);
       font-size: 1rem; letter-spacing: .01em; }
     .k3d-anfrage-fuss small { display: block; font-size: .73rem; color: var(--muted); }
     /* color GEHOERT HIERHER: Ohne Angabe nimmt Safari auf dem iPhone
@@ -620,7 +630,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-nav-zeile button { padding: 8px 10px 9px; border-radius: 999px;
       border: 2px solid var(--border); background: #fff; cursor: pointer;
       color: var(--black); min-height: 50px;
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-family: var(--schrift); font-weight: 700;
       font-size: 1rem; line-height: 1.12; }
     .k3d-nav-zeile #k3dWeiter { border-color: var(--gold); }
     /* Im Bereich „Fertig" ist derselbe Knopf der Absender der Anfrage
@@ -640,7 +650,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-mehr-knopf { width: 100%; margin-bottom: 12px; padding: 11px 12px;
       border-radius: 10px; border: 2px solid rgba(196, 154, 42, .55);
       background: rgba(196, 154, 42, .09);
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: var(--schrift);
       font-size: .98rem; font-weight: 700; letter-spacing: .01em;
       color: var(--gold-text); cursor: pointer; }
     .k3d-mehr-knopf:hover { border-color: var(--gold-dark);
@@ -694,7 +704,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-hinw-marke {
       display: inline-block; margin: 0 0 10px; padding: 4px 10px;
       border-radius: 999px; background: var(--gold); color: var(--black);
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-family: var(--schrift); font-weight: 700;
       font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
     }
     .k3d-hinw-box h2 { font-size: 1.5rem; line-height: 1.12; margin: 0 0 10px; }
@@ -716,7 +726,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       line-height: 1.2; margin-bottom: 2px; }
     .k3d-feld > span small { display: block; font-size: .62rem; opacity: .8; }
     .k3d-feld > output, .k3d-feld-ein {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-family: var(--schrift); font-weight: 700;
       font-size: 1.3rem; line-height: 1.1; color: var(--black);
       border: 0; padding: 0; background: none; width: 3.4em;
     }
@@ -766,7 +776,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     .k3d-zus { background: var(--light-bg); border-radius: var(--radius); padding: 13px 15px; margin: 4px 0 10px; }
     .k3d-zus--folgt { background: #fbf7ec; border: 1px solid rgba(196,154,42,0.25); }
     .k3d-zus h2 {
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: var(--schrift);
       font-size: .98rem; font-weight: 700; color: var(--black);
       letter-spacing: .3px; margin: 0 0 8px;
     }
@@ -992,7 +1002,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       pointer-events: none;
     }
     .k3d-info h1 {
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: var(--schrift);
       font-size: 1.25rem; font-weight: 800; color: #16232c;
       margin: 0; line-height: 1.1; text-shadow: 0 1px 0 rgba(255,255,255,.45);
     }
@@ -3540,7 +3550,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/pdf-blatt.js?v=20261025i" defer></script>
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/konfigurator-3d.js?v=20261119a" defer></script>
+<script src="js/konfigurator-3d.js?v=20261121a" defer></script>
 <script src="js/main.js" defer></script>
 <script src="js/cookie.js" defer></script>
 <script src="js/metricool.js" defer></script>

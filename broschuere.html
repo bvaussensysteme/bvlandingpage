@@ -48,9 +48,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
   <meta name="theme-color" content="#C49A2A" />
   <style>
-  /* Fallback fonts bis Google Fonts geladen */
-  :root { --font-heading: 'Arial Black', 'Arial', sans-serif; --font-body: 'Arial', sans-serif; }
-  body { font-family: 'Arial', sans-serif; }
+  /* Ausweichschrift, bis Manrope geladen ist (21.11.2026).
+     Vorher stand hier 'Arial Black' fuer Ueberschriften und 'Arial'
+     fuer Text. Das war nicht nur ein Platzhalter: --font-heading wird
+     wirklich benutzt, gemessen an th, summary, sub und .rc-value, die
+     dauerhaft in Arial Black standen. Und als Ausweichschrift fuer
+     Manrope taugt Arial Black nicht, der Sprung beim Nachladen ist zu
+     gross. Jetzt dieselbe Systemkette wie in --schrift, nur ohne
+     Manrope. */
+  :root {
+    --font-heading: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 </style>
 <script>
 /* Google Fonts nur nach Einwilligung laden (DSGVO-konform) */
@@ -60,7 +70,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var l = document.createElement('link');
     l.id = 'gfonts-loaded';
     l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap';
+    l.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
     document.head.appendChild(l);
   }
   function externalOK(raw){
@@ -81,7 +91,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261120j" />
+  <link rel="stylesheet" href="/css/style.css?v=20261121a" />
 
 
 

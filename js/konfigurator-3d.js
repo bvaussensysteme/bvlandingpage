@@ -1699,7 +1699,7 @@
     function zeile() {
       c.textAlign = 'center';
       c.fillStyle = abend ? '#ffffff' : '#111111';
-      c.font = '600 54px Inter, Arial, sans-serif';
+      c.font = '600 54px Manrope, "Segoe UI", sans-serif';
       hof(true);
       /* Zweimal schreiben: Der Hof baut sich auf, sonst bleibt er bei
          duennen Buchstaben zu blass. */
@@ -1744,7 +1744,7 @@
     bild.onerror = function () {
       c.textAlign = 'center';
       c.fillStyle = abend ? '#ffffff' : '#111111';
-      c.font = '700 110px Inter, Arial, sans-serif';
+      c.font = '700 110px Manrope, "Segoe UI", sans-serif';
       hof(true);
       c.fillText('BV AussenSysteme', 512, 170);
       hof(false);
@@ -4319,8 +4319,8 @@
     var zahl = text, einheit = '';
     var tr = /^([\s\S]*?)\s+(mm)$/.exec(text);
     if (tr) { zahl = tr[1]; einheit = tr[2]; }
-    var fZahl = '700 58px Arial, Helvetica, sans-serif';
-    var fEinheit = '600 44px Arial, Helvetica, sans-serif';
+    var fZahl = '700 58px Manrope, "Segoe UI", sans-serif';
+    var fEinheit = '600 44px Manrope, "Segoe UI", sans-serif';
     g.font = fZahl;
     var wZahl = g.measureText(zahl).width;
     g.font = fEinheit;
