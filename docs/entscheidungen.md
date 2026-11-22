@@ -22076,9 +22076,14 @@ gesehen.
 
 **Was jetzt gilt.** Alle 22 Seiten liegen unter der Grenze, gemessen am
 ausgelieferten HTML mit aufgelösten Entities. Dazu, in einem Zug, die
-Ansage vom 14.11.2026 zu den Gedankenstrichen: An **34 Stellen** in
-Titeln und Beschreibungen stand ein Gedankenstrich, jetzt an keiner
-mehr, außer in den Rechtstexten.
+Ansage vom 14.11.2026 zu den Gedankenstrichen: In Titeln und
+Beschreibungen stand an 33 weiteren Stellen ein Gedankenstrich, jetzt
+an keiner mehr, außer in den Rechtstexten.
+
+**Zusammen 63 geänderte Stellen auf 45 Seiten**, davon 30 wegen der
+Länge und 33 nur wegen des Gedankenstrichs. Jede einzelne steht mit
+Zeichenzahl vorher und nachher in `docs/titel-liste-22-11-2026.md`;
+der Betreiber hat sich das ausdrücklich zeigen lassen wollen.
 
 **Warum die Beschreibungen mitgeändert wurden, obwohl nur von Titeln
 die Rede war.** Beide stehen in derselben Zeile der Vorlage, beide
@@ -22113,6 +22118,9 @@ gezählte `&amp;` (sechs Fehlmeldungen), „Marke am Zeilenende" statt
 „enthalten" (13 Fehlmeldungen), und Rechtstexte zunächst als Fehler
 statt als Hinweis.
 
-**Was gegengelesen werden soll.** Die 22 neuen Titel und die 34
-entschärften Stellen. Der Betreiber hat sich das ausdrücklich zeigen
-lassen wollen; die Liste steht im Bericht an ihn.
+**Was gegengelesen werden soll.** `docs/titel-liste-22-11-2026.md`,
+Stelle für Stelle. Besonders die Titel, bei denen ein Stichwort
+weichen musste, damit die 60 Zeichen reichen: `produkte/carport.html`
+hat „TDS, Flat Line und Flat Box" aus dem Titel verloren (die Namen
+stehen weiter im Text der Seite), und bei den Ortsseiten ist „Carport"
+aus dem Titel in die Beschreibung gewandert.

@@ -76,15 +76,22 @@ den Neubau mitzunehmen. **Entscheidung liegt beim Betreiber.**
 
 ## 2. Was auf dem Arbeitsbranch liegt und nicht veröffentlicht ist
 
-105 Dateien gegenüber `main`. Grob:
+**334 Dateien** gegenüber `main`, Stand 22.11.2026. Grob:
 
 | Was | Wo | Status |
 |---|---|---|
-| Neubau-Entwürfe | `entwurf-bv.html`, `entwurf-apple.html`, `entwurf-produkt.html`, `entwurf/*.css` | wartet auf den Freigabesatz |
+| Neue Gestaltung, überall ausgerollt | `src/css/start.css`, `src/_includes/layout.njk`, alle Seiten | wartet auf den Freigabesatz |
 | XSS-Korrektur | `werkstatt/zahlen.html` | siehe Abschnitt 1 |
-| Neue Texte | `index.html`, `produkte/*`, `ratgeber/*` | entdenglischt, nicht freigegeben |
+| Neue Texte, Titel und Beschreibungen | `index.html`, `produkte/*`, `ratgeber/*`, Ortsseiten | nicht freigegeben, Liste in `docs/titel-liste-22-11-2026.md` |
+| Markisenstoffe auf der Startseite | `index.html`, `scripts/baue-stoffstreifen.mjs`, 53 Miniaturen | fertig |
+| Bremse gegen Überlastung der Schnittstellen | `worker/index.js` | fertig, `scripts/pruefe-bremse.mjs` grün |
 | Agentensystem | `.claude/agents/*` (18 Dateien) | fertig, nur Konfiguration |
 | Designsystem | `docs/WEBSITE_*.md` | fertig, Palette freigegeben |
+
+**Die Entwurfsseiten sind weg.** `entwurf-bv.html`, `entwurf-apple.html`,
+`entwurf-produkt.html`, `vorschau.html` und der Ordner `entwurf/` wurden
+am 22.11.2026 auf Ansage gelöscht („Vor der Veröffentlichung löschen").
+Mit ihnen `scripts/pruefe-bewegung.mjs`, das nur sie prüfte.
 
 **Veröffentlicht wird nichts**, bis genau dieser Satz kommt:
 > ICH GEBE DIE NEUE WEBSITE ZUR VERÖFFENTLICHUNG FREI.
