@@ -21584,3 +21584,50 @@ umbrechen können. Jetzt hält ihn ein geschütztes Leerzeichen. Ebenso
 `datenschutz.html`. Rechtstexte werden nicht verändert, auch nicht
 wegen eines hässlichen Umbruchs. Gemeldet in
 `docs/rechtstexte-befunde.md`.
+
+## 22.11.2026 - Vier Schäden aus der Design-Ausweitung, gemessen und behoben
+
+**Anlass.** Nach der Ausweitung der Designschicht auf alle 58 Seiten
+haben drei Prüfer dieselbe Gegend abgeklopft. Der Gestaltungsprüfer
+hat seine Befunde ausdrücklich als aus dem Quelltext abgeleitet
+gekennzeichnet, nicht gemessen. Ich habe sie deshalb selbst im
+Browser nachgemessen. **Alle vier stimmten.**
+
+**1. Die Marke über dunklen Köpfen war nicht mehr lesbar.**
+Gemessen auf `produkte/carport.html`, `produkte/gelaender.html`,
+`windzonen.html` und `baugenehmigung.html`: `#896023` auf `#0B0B0C`
+ergibt **3,52:1**. WCAG 2.2, 1.4.3 verlangt 4,5:1.
+
+`src/css/style.css` hatte dafür längst eine Regel mit hellem Gold, mit
+einem Kommentar, der genau diesen Fall beschreibt. Sie hat dasselbe
+Gewicht wie `.start-premium .tag` und verlor nur, weil `start.css`
+später geladen wird. Mit `.start-premium` davor gewinnt sie wieder.
+Nachher: **7,76:1**.
+
+**2. Überschriften in Karten und Fließtext sprangen auf 40 px.**
+`.start-premium .section h2` ist für Abschnittsüberschriften gedacht
+und setzt bis 2,5 rem. Gemessen traf es die Titel in Produktkarten
+(40 px in einer 260 bis 420 px breiten Karte), die
+Zwischenüberschriften aller Ratgeber und die Blocküberschriften der
+Stoffseite. Nachher: 22 px in den Karten, 24 px im Fließtext, also
+wieder die Größen, die die Seiten selbst vorgesehen hatten.
+
+**3. Ein reinweißer Keil auf warmweißem Grund.** Die Produkt- und
+Rechnerköpfe zeichnen mit `::after` ein Dreieck in den nächsten
+Abschnitt. Gemessen: `rgb(255,255,255)` auf `rgb(248,247,244)`. Eine
+feine Naht genau an einer scharf gezeichneten Kante. Jetzt beide
+Warmweiß.
+
+**4. 36 Verweise in der Fußzeile waren 21 px hoch.** Auf jeder Seite,
+bei jeder Breite. Die Projektgrenze liegt bei 24 × 24 px. Mit 3 px
+Innenabstand oben und unten sind es jetzt 24 px und mehr; gemessen
+bleibt keiner darunter. Der erste Versuch mit 2 px reichte nicht: Die
+Zeile der Rechtsverweise kam auf 23,6 px und wurde nur gerundet als
+24 angezeigt. Das war der Grund, genau hinzusehen statt zu runden.
+
+**Was das über die Ausweitung sagt.** Eine Schicht, die für eine Seite
+geschrieben wurde, auf 58 Seiten zu legen, geht nicht ohne solche
+Fälle ab. Die Prüfung `pruefe-mitwachsend` war **grün**, bevor diese
+vier Befunde auftauchten: Sie misst neun Seiten, und die vier
+betroffenen Köpfe waren nicht darunter. Das ist keine Ausrede, sondern
+der Grund, warum es die Fachprüfer zusätzlich gibt.

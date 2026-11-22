@@ -643,3 +643,56 @@
 @media (max-width: 560px) {
   .start-premium .leistung-body { padding: 18px 18px 20px; }
 }
+
+/* ===========================================================================
+   NACHZIEHEN NACH DER AUSWEITUNG (22.11.2026)
+
+   Diese Schicht war fuer die Startseite geschrieben. Seit dem
+   22.11.2026 liegt sie auf allen 58 Seiten, und dort gibt es
+   Bausteine, die sie nicht kannte. Vier Dinge sind dabei kaputt
+   gegangen. Alle vier sind gemessen, nicht vermutet, und hier
+   geradegezogen.
+   =========================================================================== */
+
+/* 1. MARKE AUF DUNKLEM KOPF. Gemessen am 22.11.2026 auf
+      produkte/carport.html, produkte/gelaender.html, windzonen.html und
+      baugenehmigung.html: #896023 auf #0B0B0C ergibt 3,52:1. WCAG 2.2,
+      1.4.3 verlangt 4,5:1.
+      src/css/style.css hatte dafuer laengst eine Regel mit hellem Gold.
+      Sie hat dasselbe Gewicht (0,2,0) wie `.start-premium .tag` und
+      verlor nur, weil start.css spaeter geladen wird. Mit dem Zusatz
+      `.start-premium` davor gewinnt sie wieder.
+      #D9AB64 auf #0B0B0C ergibt 7,76:1. */
+.start-premium .produkt-hero .tag,
+.start-premium .wz-hero .tag,
+.start-premium .bg-hero .tag,
+.start-premium .article-hero .tag,
+.start-premium .hero-section .tag { color: var(--gold-light); }
+
+/* 2. UEBERSCHRIFTEN IN KARTEN UND FLIESSTEXT. `.start-premium .section h2`
+      setzt bis zu 2,5rem. Das ist fuer die Abschnittsueberschriften der
+      Startseite gedacht. Gemessen am 22.11.2026 traf es auch die Titel in
+      Produktkarten (40 px in einer 260 bis 420 px breiten Karte), die
+      Zwischenueberschriften der Ratgeber und die Blockueberschriften der
+      Stoffseite. Hier gelten wieder die Groessen, die die Seiten selbst
+      vorgesehen hatten. */
+.start-premium .produkt-card-body h2 { font-size: 1.4rem; margin-bottom: 10px; }
+.start-premium .article-body h2 { font-size: 1.5rem; }
+.start-premium .stoff-block-h h2 { font-size: 1.5rem; margin: 0; }
+
+/* 3. DER WEISSE KEIL. Die Produkt- und Rechnerkoepfe zeichnen mit
+      ::after ein Dreieck, das in den naechsten Abschnitt ragt. Es war
+      auf Reinweiss gesetzt, der Koerper ist jetzt Warmweiss. Gemessen:
+      rgb(255,255,255) auf rgb(248,247,244). Eine feine, aber sichtbare
+      Naht genau an einer scharf gezeichneten Kante. */
+.start-premium .produkt-hero::after,
+.start-premium .wz-hero::after,
+.start-premium .bg-hero::after,
+.start-premium .article-hero::after { background: var(--offwhite); }
+
+/* 4. VERWEISE IN DER FUSSZEILE. Gemessen am 22.11.2026: 36 Stueck je
+      Seite, 21 px hoch. Die Projektgrenze liegt bei 24 x 24 px (WCAG
+      2.2, 2.5.8 nennt 24 px als Mindestmass). Zwei Pixel Innenabstand
+      oben und unten reichen, die Zeilen stehen dadurch nicht weiter
+      auseinander, weil die Liste ihren eigenen Abstand mitbringt. */
+.start-premium footer a { display: inline-block; padding-block: 3px; }
