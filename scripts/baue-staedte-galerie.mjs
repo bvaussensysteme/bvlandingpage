@@ -34,7 +34,11 @@ const DATEN = JSON.parse(fs.readFileSync(path.join(WURZEL, 'src/_data/galerien.j
 const ZUORDNUNG = { carport: 'carport', pergola: 'pergola',
                     terrassenueberdachung: 'terrassenueberdachung' };
 const WIEVIEL = 4;
-const VERSION = '20261120a';   /* Cache-Buster fuer js/galerie.js, hier EINE Quelle */
+const VERSION = '20261122h';   /* Cache-Buster fuer js/galerie.js. ACHTUNG: Diese Zahl steht
+                                  auch in den erzeugten Staedteseiten. Wer die Version von
+                                  galerie.js anhebt, muss sie HIER mit anheben, sonst meldet
+                                  scripts/pruefe-staedte-galerie.mjs "Skript-Version nicht ...".
+                                  Genau das ist am 22.11.2026 passiert. */
 const ENTFERNEN = process.argv.includes('--entfernen');
 
 export const ANFANG = '  <!-- ANFANG Ausfuehrungsbeispiele (erzeugt von scripts/baue-staedte-galerie.mjs) -->';

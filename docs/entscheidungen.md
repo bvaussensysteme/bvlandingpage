@@ -21121,6 +21121,17 @@ Die Kacheln liegen mit 128 px weit über den 24 × 24 px aus WCAG 2.2,
 verschluckt den Wortzwischenraum aus dem Quelltext, gemessen klebte der
 Pfeil am Wort.
 
+**Nebenbefund aus der Gegenprobe, gemessen.** Die Prüfung „Kein
+waagerechtes Scrollen" las bis heute nur
+`document.documentElement.scrollWidth`. `html` und `body` tragen auf
+der Startseite `overflow-x: hidden`; damit meldet dieser Wert **nie**
+einen Überlauf. Belegt: Ein Streifen ohne `overflow-x` schob
+`body.scrollWidth` auf 1284 px, während `documentElement.scrollWidth`
+bei 390 px blieb. `scripts/pruefe-startseite.mjs` misst seitdem beide.
+Der Befund ist damit behoben, nicht nur notiert.
+`scripts/pruefe-mitwachsend.mjs` war nie betroffen: Es misst die Lage
+einzelner Elemente, nicht die Seitenbreite.
+
 **Gegengelesen werden soll:** ob acht Muster die richtige Zahl sind und
 ob es die richtigen acht sind. Die Auswahl steht an einer Stelle, in
 `scripts/baue-stoff-miniaturen.sh`, Zeile `MUSTER=`, und lässt sich

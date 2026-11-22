@@ -158,6 +158,13 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
       primaer: sicht(prim), sekundaer: sicht(sek),
       goldTextAufHell: [...new Set(verstoesse)],
       scrollW: document.documentElement.scrollWidth, fenster: window.innerWidth,
+      /* AUCH DEN KOERPER MESSEN. html und body tragen
+         overflow-x: hidden; damit meldet documentElement.scrollWidth
+         NIE einen Ueberlauf, auch wenn etwas weit nach rechts steht.
+         Gemessen am 22.11.2026: ein Streifen ohne overflow-x schob
+         body.scrollWidth auf 1284 px, waehrend
+         documentElement.scrollWidth bei 390 px blieb. */
+      koerperW: document.body.scrollWidth,
       // Bestandsfunktionen
       nav: document.querySelectorAll('.navbar a').length,
       assistent: !!document.getElementById('awTitle'),
@@ -208,7 +215,7 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
       if (!s) return null;
       s.style.overflowX = 'visible';
       s.style.flexWrap = 'nowrap';
-      return { scrollW: document.documentElement.scrollWidth, fenster: window.innerWidth };
+      return { scrollW: document.body.scrollWidth, fenster: window.innerWidth };
     });
     pruef(`${name}: ohne overflow-x schlaegt die Ueberlaufpruefung an`,
       !!nachher && nachher.scrollW > nachher.fenster + 1,
@@ -236,7 +243,9 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
     !!m.primaer && m.primaer.h >= 44, m.primaer ? `${m.primaer.b}x${m.primaer.h} px` : 'fehlt');
   pruef(`${name}: Zweiter Einstieg zu den Produkten`,
     !!m.sekundaer && m.sekundaer.h >= 44, m.sekundaer ? `${m.sekundaer.b}x${m.sekundaer.h} px` : 'fehlt');
-  pruef(`${name}: Kein waagerechtes Scrollen`, m.scrollW <= m.fenster + 1, `${m.scrollW}/${m.fenster} px`);
+  pruef(`${name}: Kein waagerechtes Scrollen`,
+    m.scrollW <= m.fenster + 1 && m.koerperW <= m.fenster + 1,
+    `Dokument ${m.scrollW}, Koerper ${m.koerperW}, Fenster ${m.fenster} px`);
   pruef(`${name}: Bestand – Navigation, Assistent, Galerie, Produkte`,
     m.nav > 3 && m.assistent && m.galerie >= 14 && m.leistungen === 9,
     `nav ${m.nav}, Galerie ${m.galerie}, Karten ${m.leistungen}`);
