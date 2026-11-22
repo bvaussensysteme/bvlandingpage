@@ -696,3 +696,70 @@
       oben und unten reichen, die Zeilen stehen dadurch nicht weiter
       auseinander, weil die Liste ihren eigenen Abstand mitbringt. */
 .start-premium footer a { display: inline-block; padding-block: 3px; }
+
+/* ===========================================================================
+   BEFUNDE DER BARRIEREFREIHEITSPRUEFUNG VOM 22.11.2026
+
+   Gemessen auf acht Seiten, je rund 120 Tabulatorstationen. Alles
+   hier ist nachgerechnet, nicht vermutet.
+   =========================================================================== */
+
+/* 1. FOKUSRING AUF DUNKLEM GRUND. Der schlimmste Befund des Tages.
+      Gemessen: In der Fusszeile liegt ein Ring #1D2023 auf einem Grund
+      #1D2023, das sind 1,00:1. Auf den dunklen Seitenkoepfen 1,20:1, in
+      der Klebeleiste unten 1,45:1. Wer sich mit der Tastatur bewegt,
+      sieht dort NICHT, wo er steht. WCAG 2.2, 2.4.7 und 1.4.11.
+
+      Die Schicht kannte bisher nur drei dunkle Orte: .hero, .pr-dunkel
+      und den Anfrage-Assistenten. Mit der Ausweitung auf alle Seiten
+      kamen die Fusszeile, die Produkt- und Rechnerkoepfe, die
+      Klebeleiste und die dunklen Abschnitte der Ortsseiten dazu.
+      --champagner #EAD9BB auf #1D2023 ergibt 11,80:1. */
+.start-premium footer :focus-visible,
+.start-premium .produkt-hero :focus-visible,
+.start-premium .wz-hero :focus-visible,
+.start-premium .bg-hero :focus-visible,
+.start-premium .article-hero :focus-visible,
+.start-premium .hero-section :focus-visible,
+.start-premium .sticky-cta :focus-visible,
+.start-premium .wz-cta :focus-visible,
+.start-premium .stadt-cta :focus-visible {
+  outline-color: var(--champagner);
+}
+
+/* 2. FOKUS IN EINER ZUGEKLAPPTEN ANTWORT. Die Antworten der Fragenliste
+      stehen auf max-height: 0 mit overflow: hidden. Das versteckt sie
+      fuer das Auge, NICHT fuer die Tastatur: Gemessen auf
+      baugenehmigung.html und terrassenueberdachung-koblenz.html landete
+      der Fokus auf einem Verweis in einer geschlossenen Antwort, 23,5 px
+      ausserhalb des sichtbaren Kastens. WCAG 2.2, 2.4.3 und 2.4.7.
+
+      visibility: hidden nimmt den Inhalt aus dem Tabulatorlauf und
+      laesst die Hoehenanimation unberuehrt. Die Verzoegerung sorgt
+      dafuer, dass beim Zuklappen erst die Bewegung laeuft und dann die
+      Sichtbarkeit umschlaegt. */
+.start-premium .faq-a { visibility: hidden; transition: max-height var(--zeit-ruhig) var(--kurve-raus), padding var(--zeit-ruhig) var(--kurve-raus), visibility 0s linear var(--zeit-ruhig); }
+.start-premium .faq-item.open .faq-a { visibility: visible; transition-delay: 0s; }
+
+/* 3. FOKUSRING AM MODELLBILD ABGESCHNITTEN. .produkt-card-img traegt
+      overflow: hidden, der Ring liegt 6 px ausserhalb des Knopfes und
+      war damit vollstaendig weg. Gemessen auf produkte/carport.html
+      (drei Knoepfe) und produkte/gelaender.html (zwei).
+      Derselbe Fehlertyp wie beim Bilderstreifen am selben Tag; dort
+      half Innenabstand, hier nicht, weil das Bild den Kasten fuellt.
+      Deshalb ein Ring NACH INNEN: negativer Abstand legt ihn auf das
+      Bild, wo er nicht beschnitten werden kann. */
+.start-premium .produkt-card-img .produkt-bild-knopf:focus-visible {
+  outline-offset: -5px;
+}
+
+/* 4. ZWEI FARBEN, DIE ZU HELL SIND. Gemessen:
+      - --gold-dark #A3701F als Textfarbe auf Warmweiss: 4,00:1.
+        start.css sagt bei der Variablen selbst "nur Flaechen, nie Text
+        auf Hell". Zwei Verweise im Ratgeber taten es trotzdem.
+      - .service-box-badge: #896023 auf #E5DFD0 ergibt 4,21:1.
+      Beide liegen unter den 4,5:1 aus WCAG 2.2, 1.4.3. --black auf dem
+      hellen Abzeichen ergibt 13,6:1, --gold-text auf Warmweiss 5,21:1. */
+.start-premium .article-body a[style*="--gold-dark"],
+.start-premium a[style*="gold-dark"] { color: var(--gold-text) !important; }
+.start-premium .service-box-badge { color: var(--black); }

@@ -27,10 +27,18 @@ const PORT = 8231;
    stimmten also, die Auswahl der Seiten nicht. Dazugekommen sind die
    Seite mit der Tabelle, die drei Seiten mit Karten und Rechnern und
    der Katalog, also die Bauarten, die es vorher hier nicht gab. */
+/* ERWEITERT AM 22.11.2026 von neun auf dreizehn Seiten.
+   Anlass: Die Barrierefreiheitspruefung fand auf partner.html eine
+   Karte, die bei 320 px 318 px breit war und rechts aus dem Bild ragte.
+   Diese Pruefung war trotzdem gruen, weil partner.html nicht in der
+   Liste stand. Dazu kamen stoffe.html, produkte/gelaender.html und ein
+   Ratgeber-Artikel, also je ein Vertreter der Seitengattungen, die
+   bisher gar nicht vorkamen. */
 const SEITEN = ['/index.html', '/carport-koblenz.html', '/produkte/carport.html',
                 '/ratgeber/index.html', '/produkte/terrassenueberdachung.html',
                 '/windzonen.html', '/baugenehmigung.html', '/einzugsgebiet.html',
-                '/broschuere.html'];
+                '/broschuere.html', '/partner.html', '/stoffe.html',
+                '/produkte/gelaender.html', '/ratgeber/terrassenueberdachung-kosten.html'];
 const BREITEN = [320, 360, 390, 430, 768, 1024, 1440];
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'],

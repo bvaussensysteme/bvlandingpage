@@ -21631,3 +21631,74 @@ Fälle ab. Die Prüfung `pruefe-mitwachsend` war **grün**, bevor diese
 vier Befunde auftauchten: Sie misst neun Seiten, und die vier
 betroffenen Köpfe waren nicht darunter. Das ist keine Ausrede, sondern
 der Grund, warum es die Fachprüfer zusätzlich gibt.
+
+## 22.11.2026 - Der Fokusring war auf dunklem Grund unsichtbar, auf allen Seiten
+
+**Anlass.** Die Barrierefreiheitsprüfung hat acht Seiten mit je rund
+120 Tabulatorstationen durchgemessen. Ihr Hauptbefund, von mir
+nachgemessen und bestätigt:
+
+**Was falsch war, mit Zahlen.**
+
+| Ort | Ring auf Grund | Kontrast |
+|---|---|---|
+| Fußzeile, alle Seiten | `#1D2023` auf `#1D2023` | **1,00:1** |
+| Produkt- und Rechnerköpfe | `#1D2023` auf `#0B0B0C` | **1,20:1** |
+| Dunkler Abschnitt der Ortsseiten | `#1D2023` auf `#1D2023` | **1,00:1** |
+| Klebeleiste unten | `#1D2023` auf `#3B3A3A` | **1,45:1** |
+
+Wer sich mit der Tastatur bewegt, sah dort **nicht**, wo er steht.
+WCAG 2.2, 2.4.7 und 1.4.11.
+
+**Warum es entstanden ist.** Die Designschicht kannte drei dunkle
+Orte: `.hero`, `.pr-dunkel` und den Anfrage-Assistenten. Für die
+war der helle Ring in Champagner vorgesehen. Mit der Ausweitung auf
+alle Seiten kamen Fußzeile, Produktköpfe, Rechnerköpfe, Klebeleiste
+und die dunklen Abschnitte der Ortsseiten dazu. Niemand hatte sie auf
+der Liste.
+
+**Nachher gemessen:** Fußzeile **11,80:1**, Köpfe **14,19:1**.
+
+**Vier weitere Befunde derselben Runde, alle gemessen und behoben:**
+
+1. **Fokus in einer zugeklappten Antwort.** Auf `baugenehmigung.html`
+   und den Ortsseiten lag ein Verweis in einer geschlossenen
+   FAQ-Antwort im Tabulatorlauf, 23,5 px außerhalb des sichtbaren
+   Kastens. `max-height: 0` versteckt für das Auge, nicht für die
+   Tastatur. Jetzt zusätzlich `visibility: hidden`, mit Verzögerung,
+   damit die Aufklapp-Bewegung bleibt.
+2. **Ring am Modellbild abgeschnitten.** `.produkt-card-img` trägt
+   `overflow: hidden`. Hier half kein Innenabstand, weil das Bild den
+   Kasten füllt; der Ring liegt jetzt nach innen.
+3. **Zwei Farben zu hell.** `--gold-dark` als Textfarbe auf Warmweiß:
+   4,00:1. Das Abzeichen „VD-Partner": 4,21:1. Beide unter 4,5:1.
+4. **Die schwebenden Knöpfe trugen das alte Gold.** `#C49A2A` als
+   Fokusring auf Warmweiß ergibt 2,45:1. `js/accessibility.js` hatte
+   die Farbe zwölfmal fest verdrahtet. Stand seit dem 14.11.2026 als
+   Nebenbefund in `docs/NEXT_TASK.md`, jetzt gemessen und damit
+   erledigt.
+5. **Zehn Ortsseiten hatten einen Knopf ohne Beschriftung.** Ein
+   goldener Knopf, der nur ein Symbol enthält, ohne Text und ohne
+   `aria-label`. Für ein Vorleseprogramm ein Knopf ohne Namen (WCAG
+   2.2, 4.1.2). Jetzt mit `aria-label="Kostenlos anfragen"`, was dem
+   sichtbaren Text der Geschwisterknöpfe entspricht.
+6. **Die Partnerkarte ragte bei 320 px aus dem Bild.** 318 px breit in
+   einer 292 px breiten Spalte. Ursache war nicht die Rasterangabe,
+   sondern die Mindestbreite des Inhalts: Das Logo hatte feste 220 px,
+   dazu zweimal Innenabstand. Ein Rasterfeld wächst auf die
+   Mindestbreite seines Inhalts, egal was in `grid-template-columns`
+   steht. Jetzt `min-width: 0` und `max-width: min(220px, 100%)`.
+   Nachher: 292 px, kein Überhang.
+
+**Zwei Prüfungen waren grün, während all das drin war.**
+
+- `pruefe-mitwachsend` misst Seiten aus einer festen Liste, und
+  `partner.html` stand nicht darin. Die Liste ist deshalb von neun auf
+  **dreizehn** Seiten erweitert, um je einen Vertreter der bisher
+  fehlenden Gattungen. Direkt danach fand sie einen weiteren echten
+  Befund: einen Verweis auf der Partnerseite mit 23 px Höhe. Auch
+  behoben.
+- `pruefe-fokusring` prüft, ob ein Ring **abgeschnitten** wird, nicht
+  ob man ihn **sieht**. Ein Ring in der Farbe des Untergrunds besteht
+  diese Prüfung. Das ist der nächste Schritt und steht in
+  `docs/NEXT_TASK.md`.
