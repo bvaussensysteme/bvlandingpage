@@ -69,9 +69,17 @@ bumpPruefen() {
   # meldete trotzdem "aktuell": Niemand haette die Aenderung einen Tag
   # lang gesehen. Geprueft wird die QUELLE, nicht css/style.css - das
   # Minifikat erzeugt der Build, sein Zeitstempel sagt nichts.
+  # js/main.js, js/cookie.js, js/accessibility.js und js/metricool.js
+  # stehen hier seit dem 22.11.2026. Bis dahin waren sie ueberhaupt ohne
+  # ?v= eingebunden und fielen damit durch beide Pruefungen durch:
+  # 55 Seiten luden cookie.js ohne Version, und _headers erlaubt 24 h
+  # aus dem Browser-Cache. Eine Aenderung an der Einwilligung haette
+  # wiederkehrende Besucher einen Tag lang nicht erreicht.
+  # src/css/start.css ebenso, aus demselben Grund wie style.css.
   for datei in js/konfigurator-3d.js js/anfrage-wizard.js js/messung.js \
                js/bauteile.js js/ral.js js/markisenstoffe.js \
-               src/css/style.css; do
+               js/main.js js/cookie.js js/accessibility.js js/metricool.js \
+               src/css/style.css src/css/start.css; do
     [ -f "$datei" ] || continue
     local name
     name=$(basename "$datei")
@@ -96,6 +104,32 @@ bumpPruefen() {
     fi
   done
   return $fehler
+}
+
+# ============================================================
+# DRITTE PRUEFUNG: Gibt es Verweise ganz OHNE Version?
+# ------------------------------------------------------------
+# Anlass: Die beiden Pruefungen oben sahen nur Dateien, die schon ein
+# ?v= trugen. Wer eine Datei ohne Version einbindet, kam also ungeprueft
+# durch. Gemessen am 14.11.2026, behoben am 22.11.2026: main.js,
+# cookie.js, accessibility.js und metricool.js hingen auf 51 bis 55
+# Seiten ohne jede Version. Fremde Adressen (http, https, //) zaehlen
+# nicht, ueber deren Zwischenspeicher bestimmt der fremde Server.
+# ============================================================
+ohneVersion() {
+  local wurzel="${1:-.}" treffer
+  treffer=$(grep -rhoE '(src|href)="[^"]+\.(js|css)"' \
+            --include=*.html --include=*.njk \
+            --exclude-dir=node_modules --exclude-dir=export "$wurzel" 2>/dev/null \
+            | grep -vE '="(https?:)?//' | sort | uniq -c | sort -rn)
+  if [ -z "$treffer" ]; then
+    echo "  ok      jede eigene JS- und CSS-Datei wird mit ?v= eingebunden"
+    return 0
+  fi
+  echo "$treffer" | while read -r anzahl verweis; do
+    echo "  FEHLER  ohne Version auf $anzahl Seite(n): $verweis"
+  done
+  return 1
 }
 
 if [ "${1:-}" = "--gegenprobe" ]; then
@@ -133,6 +167,23 @@ if [ "${1:-}" = "--gegenprobe" ]; then
   fi
   echo "  bestanden - die stehen gelassene Version wurde bemerkt"
   rm -rf "$tmp2"
+
+  # ---- Gegenprobe fuer die dritte Pruefung ----
+  echo "Gegenprobe: Datei ganz ohne Version eingebunden"
+  tmp3=$(mktemp -d)
+  printf '<script src="/js/ohne.js"></script>\n' > "$tmp3/a.html"
+  if ohneVersion "$tmp3" >/dev/null 2>&1; then
+    echo "  FEHLGESCHLAGEN - der fehlende ?v= wurde NICHT bemerkt"
+    rm -rf "$tmp3"; exit 1
+  fi
+  # Und umgekehrt: mit Version darf sie NICHT anschlagen.
+  printf '<script src="/js/mit.js?v=1"></script>\n' > "$tmp3/a.html"
+  if ! ohneVersion "$tmp3" >/dev/null 2>&1; then
+    echo "  FEHLGESCHLAGEN - die Prüfung schlägt auch bei sauberem Stand an"
+    rm -rf "$tmp3"; exit 1
+  fi
+  echo "  bestanden - der fehlende ?v= wurde bemerkt, der saubere Fall nicht"
+  rm -rf "$tmp3"
   exit 0
 fi
 
@@ -141,6 +192,8 @@ gesamt=0
 pruefen "." || gesamt=1
 echo "Wurde die Version mit der Datei hochgezählt?"
 bumpPruefen || gesamt=1
+echo "Wird überhaupt jede eigene Datei mit Version eingebunden?"
+ohneVersion "." || gesamt=1
 if [ "$gesamt" = "0" ]; then
   echo "Ergebnis: alle Seiten verweisen auf dieselbe Version, und sie ist aktuell"
   exit 0

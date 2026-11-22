@@ -490,11 +490,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261121b" />
+  <link rel="stylesheet" href="css/style.css?v=20261122a" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
-  <link rel="stylesheet" href="css/start.css?v=20261121b" />
+  <link rel="stylesheet" href="css/start.css?v=20261122a" />
   <script>
   /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
      Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,
@@ -1717,7 +1717,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <button id="lightbox-prev" aria-label="Vorheriges Bild" onclick="lightboxNav(-1)">&#8592;</button>
   <img loading="lazy" id="lightbox-img" src="" alt="" aria-hidden="true" />
   <button id="lightbox-next" aria-label="Nächstes Bild" onclick="lightboxNav(1)">&#8594;</button>
-  <div id="lightbox-caption"></div>
+  <!-- aria-live, damit Vorlesesoftware beim Blaettern erfaehrt, welches
+       Bild jetzt zu sehen ist. Das Bild selbst traegt aria-hidden, und
+       der Name des Fensters ist fest ("Bildansicht"); ohne diese Zeile
+       blieb der Wechsel also stumm. Gemessen am 22.11.2026: vorher kein
+       aria-live, kein role, kein aria-describedby am Fenster. -->
+  <div id="lightbox-caption" aria-live="polite"></div>
 </div>
 
 <!-- ===== JAVASCRIPT ===== -->
@@ -1728,15 +1733,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/anfrage-wizard.js?v=20261114q" defer></script>
-<script src="js/cookie.js" defer></script>
-<script src="js/metricool.js" defer></script>
+<script src="js/cookie.js?v=20261122a" defer></script>
+<script src="js/metricool.js?v=20261122a" defer></script>
 <script src="/js/messung.js?v=20261104a" defer></script>
 <script src="js/slider.js?v=20260714k" defer></script>
-<script src="js/prozess-animation.js" defer></script>
-<script src="js/dibt-lastzonen.js" defer></script>
-<script src="js/region-info.js" defer></script>
+<script src="js/prozess-animation.js?v=20261122a" defer></script>
+<script src="js/dibt-lastzonen.js?v=20261122a" defer></script>
+<script src="js/region-info.js?v=20261122a" defer></script>
 
-<script src="js/accessibility.js" defer></script>
+<script src="js/accessibility.js?v=20261122a" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916f" defer></script>
 </body>
 </html>
