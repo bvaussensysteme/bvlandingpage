@@ -1,5 +1,31 @@
 # Abstand zur Webseite des Lieferanten
 
+> **STAND 22.11.2026, ABENDS: ZURÜCKGENOMMEN.** Alles, was weiter
+> unten unter „Was am 22.11.2026 geändert wurde" steht, ist **nicht
+> mehr in Kraft**. Der Betreiber hat die Umstellung noch am selben Tag
+> zurückgenommen: „stell mein design wieder her auf den stand bevor
+> ich gesagt hab wir ähneln vd zu sehr." Der 141 Zeilen lange Block
+> „Richtung 4" ist aus `src/css/start.css` entfernt. Es gelten wieder
+> die Werte aus der Spalte **„BV, vorher"**: Pille 999 px, Hauptknopf
+> ohne Materialkante, Goldstrich statt Kapsel, Karten 14 px.
+>
+> **Das Dokument bleibt trotzdem stehen**, weil die **Messung** gültig
+> ist. Sie sagt, worin sich die beiden Seiten gleichen, und was man
+> ändern müßte, wenn der Abstand doch gewollt ist. Nur der Satz „jetzt
+> ist es geändert" stimmt nicht mehr.
+>
+> **Offen und unverändert:** Die Ähnlichkeit zum Lieferanten besteht
+> weiter, in genau den Punkten der ersten Tabelle. Ob das rechtlich
+> eine Rolle spielt, beurteilt ein Anwalt, nicht dieses Dokument.
+> Festgehalten, einmal, ohne Wiederholung.
+>
+> **Ein Fehler in der alten Fassung, der hier benannt gehört:** Es
+> stand hier, die Zeile mit dem Goldstrich sei durch eine Kapsel
+> ersetzt. Auf den Produktseiten stimmte das, auf der **Startseite
+> nicht**: Dort heißt das Element `.hero-slogan` und trägt einen
+> `border-left` aus `style.css`, den die Regel nie erfaßt hat.
+> Gesehen erst im Bildschirmfoto, nicht von einer Prüfung.
+
 **Stand: 22.11.2026.** Dieses Dokument hält fest, was an der Gestaltung
 von bv-aussensysteme.de der Seite des Lieferanten VD AluSysteme glich,
 was daraufhin geändert wurde, und welche Werte heute gelten.

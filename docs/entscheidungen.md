@@ -22135,3 +22135,46 @@ weichen musste, damit die 60 Zeichen reichen: `produkte/carport.html`
 hat „TDS, Flat Line und Flat Box" aus dem Titel verloren (die Namen
 stehen weiter im Text der Seite), und bei den Ortsseiten ist „Carport"
 aus dem Titel in die Beschreibung gewandert.
+
+---
+
+## 22.11.2026 abends · Richtung 4 zurückgenommen
+
+**Anlass.** Ansage des Betreibers: „komm is egal, stell mein design
+wieder her auf den stand bevor ich gesagt hab wir ähneln vd zu sehr."
+
+**Was gemacht wurde.** Genau ein Commit, genau eine Datei: der 141
+Zeilen lange Block „Eigene Handschrift: Richtung 4" (e8e9c4c) ist aus
+`src/css/start.css` entfernt. `start.css` war seitdem unverändert, der
+Rückbau ging deshalb ohne Konflikt auf. Version auf `20261122p`
+hochgezählt, sonst bekommen Wiederkehrer die alte Datei aus dem
+Zwischenspeicher.
+
+**Was NICHT zurückgebaut wurde**, weil es nichts mit der Formfrage zu
+tun hat und ausdrücklich bestellt war: das moderne Design auf allen 58
+Seiten (a710592), die vier gemessenen Reparaturen daraus, die
+Fußzeilen-Reparatur, Brotkrumen, die Bremse auf den Schnittstellen,
+SunPro One, die gekürzten Titel und alle inhaltlichen Korrekturen.
+
+**Gemessen nach dem Rückbau, auf der Vorschau, nicht lokal:**
+Knopfradius 999 px, Karten 14 px, keine Materialkante, Kapsel wieder
+durchsichtig, kein waagerechtes Scrollen. Dazu grün:
+`pruefe-darstellung`, `pruefe-mitwachsend`, `pruefe-fokusring`,
+`pruefe-palette`, `pruefe-schwebe`, `pruefe-cache-buster`.
+
+**Was dabei offen bleibt, einmal gesagt und nicht wiederholt.** Die
+Ähnlichkeit zur Seite des Lieferanten besteht wieder in dem Umfang,
+den `docs/ABSTAND-ZUM-LIEFERANTEN.md` gemessen hat: gleiche Pille,
+gleicher durchsichtiger Zweitknopf, gleicher Eckenradius, gleicher
+Aufbau der Zeile über der Überschrift, Gold bis auf zwei Stellen hinter
+dem Komma gleich. Das Gold stammt aus dem eigenen Logo und wäre ohnehin
+nicht das Problem. Ob die Form rechtlich eine Rolle spielt, beurteilt
+ein Anwalt. Hier steht nur, was gemessen wurde.
+
+**Was daraus zu lernen ist.** Acht Entwürfe vorzulegen und einen
+auswählen zu lassen war der falsche Weg. Der Betreiber hat die Richtung
+am Bildschirmfoto beurteilt und sie abgelehnt, als sie gebaut war. Beim
+nächsten Mal: eine Fassung, am echten Inhalt, als Bild, vor dem Einbau.
+Genau so ist am selben Abend „Richtung 5" entstanden, aus zwei
+Vorlagen, die der Betreiber selbst geschickt hat. Sie ist **nicht**
+eingebaut und liegt nur als Bild vor.
