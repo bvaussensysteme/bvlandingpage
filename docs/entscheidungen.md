@@ -21865,3 +21865,46 @@ ab 481 px. Am Telefon war nie etwas zu sehen, der Fehler betraf nur
 ein schmal gezogenes Fenster am Rechner. Gefunden hat es
 `pruefe-mitwachsend`, und zwar erst, seit die Seitenliste von neun auf
 dreizehn erweitert wurde.
+
+## 22.11.2026 - Fehler von mir: display überschrieben und damit die Fußzeile zerlegt
+
+**Gemeldet vom Betreiber** mit zwei Bildschirmabzügen: In der Fußzeile
+klebten die Zeichen an den Wörtern („⚖Impressum"), und die runden
+Symbolknöpfe der sozialen Netze standen nicht mehr mittig.
+
+**Was ich falsch gemacht habe.** Um die 36 zu kleinen Verweise in der
+Fußzeile auf das Mindestmaß zu bringen, hatte ich geschrieben:
+
+    .start-premium footer a { display: inline-block; padding-block: 3px; }
+
+Das `display: inline-block` war unnötig und hat `style.css:1521`
+überschrieben, wo `.footer-links a` auf `display: inline-flex` mit
+`gap` steht. Ohne Flex kein `gap`: Zeichen und Beschriftung rückten
+zusammen. Dieselbe Regel traf die Symbolknöpfe, deren Inhalt mit Flex
+zentriert wird.
+
+**Die Regel hat eine höhere Spezifität** (0,2,0 gegen 0,1,0) und
+gewinnt deshalb auch gegen eine Regel, die ausdrücklich etwas anderes
+will. Genau das ist die Gefahr an einer Schicht, die über allem liegt.
+
+**Was jetzt gilt.** Nur noch Innenabstand, kein `display`. Senkrechter
+Innenabstand vergrößert die anklickbare Fläche auch bei
+inline-Elementen, dafür braucht es kein eigenes `display`.
+
+**Dabei nachgemessen und zwei Reste gefunden:**
+- Die Zeile ganz unten (Telefon, Impressum, Widerruf, Datenschutz,
+  Cookie-Einstellungen) hat eine kleinere Schrift und kam mit 3 px nur
+  auf 23 px. Jetzt 5 px Innenabstand.
+- Der Logo-Verweis im Kopf der Ortsseiten ist ein inline-Element um
+  ein 20 px hohes Bild. Mit `inline-block` und 2 px sind es 24 px.
+  Hier ist `inline-block` richtig, weil der Verweis allein in seiner
+  Zeile steht und nichts überschreibt.
+
+Gemessen danach: 0 Verweise unter 24 px auf Startseite, Stoffseite und
+Ortsseite. `pruefe-mitwachsend` 91 Messungen ohne Beanstandung.
+
+**Was daraus folgt.** Keine Prüfung hat das gemeldet: Die Maße waren
+ja in Ordnung, nur das Aussehen war kaputt. Gesehen hat es der
+Betreiber. Eine Prüfung, die Abstände zwischen Zeichen und Text misst,
+gibt es nicht und wäre auch schwer zu bauen; der Abzug eines Menschen
+bleibt hier das bessere Werkzeug.

@@ -695,7 +695,25 @@
       2.2, 2.5.8 nennt 24 px als Mindestmass). Zwei Pixel Innenabstand
       oben und unten reichen, die Zeilen stehen dadurch nicht weiter
       auseinander, weil die Liste ihren eigenen Abstand mitbringt. */
-.start-premium footer a { display: inline-block; padding-block: 3px; }
+/* NUR Innenabstand, NICHT display. Die erste Fassung setzte hier
+   display: inline-block und hat damit das inline-flex der
+   Fusszeilen-Verweise ueberschrieben (style.css:1521). Folge: Der
+   gap zwischen Zeichen und Beschriftung fiel weg, die Zeichen klebten
+   am Wort, und die runden Symbolknoepfe der sozialen Netze waren
+   nicht mehr mittig. Gemeldet vom Betreiber am 22.11.2026 mit zwei
+   Bildschirmabzuegen.
+   Senkrechter Innenabstand vergroessert die anklickbare Flaeche auch
+   bei inline-Elementen, dafuer braucht es kein eigenes display. */
+.start-premium footer a { padding-block: 3px; }
+/* Die Zeile ganz unten (Telefon, Impressum, Widerruf, Datenschutz,
+   Cookie-Einstellungen) hat eine kleinere Schrift als die Spalten
+   darueber und kam mit 3 px auf 23 px. Ein Pixel mehr. */
+.start-premium .footer-bottom a { padding-block: 5px; }
+/* Der Logo-Verweis im Kopf der Ortsseiten ist ein inline-Element um
+   ein 20 px hohes Bild, gemessen also 20 px hoch. Mit inline-block
+   und 2 px Innenabstand sind es 24 px. inline-block aendert hier
+   nichts am Umbruch, weil der Verweis allein in seiner Zeile steht. */
+.start-premium .nav-logo-link { display: inline-block; padding-block: 2px; }
 
 /* ===========================================================================
    BEFUNDE DER BARRIEREFREIHEITSPRUEFUNG VOM 22.11.2026
