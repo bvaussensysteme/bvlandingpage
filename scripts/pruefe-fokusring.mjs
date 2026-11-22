@@ -161,6 +161,66 @@ for (const pfad of SEITEN) {
   await ctx.close();
 }
 
+/* ============================================================
+   BILDERSTREIFEN: der Ring muss an ALLEN VIER Seiten zu sehen sein.
+
+   ANLASS (22.11.2026). Die Pruefung oben laesst einen Ring
+   durchgehen, sobald er auf EINER Seite zu sehen ist. Beim
+   Stoffstreifen der Startseite war er nur rechts und unten zu
+   sehen: overflow-x: auto macht overflow-y automatisch zu "auto",
+   und der Streifen hatte oben und links 0 Innenabstand. Der
+   Bildschirmabzug zeigte eine halb umrandete Kachel. Gruen war die
+   Pruefung trotzdem.
+
+   Hier wird deshalb die erste Kachel JEDES Streifens angesteuert
+   und jede der vier Seiten einzeln gemessen. Nicht ueber die
+   Tabulatortaste: Mit 53 Kacheln auf der Startseite kaeme die
+   Schleife oben gar nicht mehr bis zum Seitenende.
+   ============================================================ */
+const STREIFEN_SEITEN = ['index.html', 'produkte/carport.html'];
+for (const pfad of STREIFEN_SEITEN) {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const seite = await ctx.newPage();
+  await seite.route('**', (r) => r.request().url().startsWith(BASIS) ? r.continue() : r.abort());
+  await seite.goto(`${BASIS}/${pfad}`, { waitUntil: 'domcontentloaded' });
+  await seite.waitForTimeout(700);
+  if (GEGENPROBE) {
+    /* Gegenprobe: dem Streifen den Innenabstand wieder nehmen. Dann
+       MUSS die Messung oben und links anschlagen. */
+    await seite.addStyleTag({ content: '.galerie-streifen { padding: 0 0 10px !important; margin: 0 !important; }' });
+    await seite.waitForTimeout(150);
+  }
+  /* :focus-visible setzt einen echten Tastendruck voraus. */
+  await seite.keyboard.press('Tab');
+  await seite.waitForTimeout(60);
+  const befund = await seite.evaluate(() => {
+    const aus = [];
+    document.querySelectorAll('.galerie-streifen').forEach((s) => {
+      const k = s.querySelector('.galerie-kachel');
+      if (!k) return;
+      k.focus();
+      const st = getComputedStyle(k);
+      const abstand = parseFloat(st.outlineOffset) + parseFloat(st.outlineWidth);
+      if (!(abstand > 0)) return;
+      const r = k.getBoundingClientRect();
+      const sr = s.getBoundingClientRect();
+      const luft = { oben: r.top - sr.top, links: r.left - sr.left,
+                     rechts: sr.right - r.right, unten: sr.bottom - r.bottom };
+      const fehlt = Object.keys(luft).filter((w) => luft[w] < abstand - 0.5);
+      aus.push({ id: s.id || s.getAttribute('data-galerie') || 'Streifen',
+                 abstand: Math.round(abstand), fehlt });
+    });
+    return aus;
+  });
+  befund.forEach((b) => {
+    pruef(`${pfad}: Ring der ersten Kachel rundherum zu sehen (${b.id})`,
+      b.fehlt.length === 0,
+      b.fehlt.length ? 'abgeschnitten: ' + b.fehlt.join(', ') : `${b.abstand} px Platz an allen vier Seiten`);
+  });
+  if (!befund.length) pruef(`${pfad}: Streifen gefunden`, false, 'kein .galerie-streifen auf der Seite');
+  await ctx.close();
+}
+
 if (GEGENPROBE) {
   pruef('Die herausgeschobenen Ringe fallen auf', gesamtWeg > 0,
     `${gesamtWeg} Stelle(n) ohne sichtbaren Ring`);

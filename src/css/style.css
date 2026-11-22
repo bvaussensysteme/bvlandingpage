@@ -2193,7 +2193,26 @@ footer h4 {
 }
 
 .galerie-streifen {
-  list-style: none; margin: 0; padding: 0 0 10px;
+  list-style: none;
+  /* PLATZ FUER DEN FOKUSRING, gemessen am 22.11.2026. overflow-x: auto
+     macht overflow-y automatisch zu "auto"; der Streifen schneidet also
+     in BEIDE Richtungen ab. Bei padding 0 oben und links lag der Ring
+     der ersten Kachel (3 px breit, 3 px Abstand, zusammen 6 px) genau
+     im abgeschnittenen Bereich: Auf dem Bildschirmabzug war er nur
+     rechts und unten zu sehen. Das ist WCAG 2.2, 2.4.7.
+     6 px Innenabstand rundherum schaffen den Platz, der negative
+     Aussenabstand haelt die erste Kachel trotzdem auf der Flucht mit
+     Ueberschrift und Text. Gilt fuer ALLE Streifen, nicht nur den
+     Stoffstreifen: Auf den Produktseiten war derselbe Ring genauso
+     abgeschnitten. */
+  margin: 0 -6px; padding: 6px 6px 10px;
+  /* scroll-padding gehoert dazu, sonst hilft das padding nichts:
+     Wer die Kachel mit der Tastatur anspringt, loest ein
+     Hereinscrollen aus, und der Browser schiebt sie bis an die
+     Kante des Scrollbereichs. Gemessen am 22.11.2026: scrollLeft
+     sprang auf genau 6 px, die Luft links wurde 0, der Ring war
+     wieder ab. Mit scroll-padding bleibt der Rand stehen. */
+  scroll-padding: 6px;
   display: flex; gap: 14px;
   overflow-x: auto; overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;

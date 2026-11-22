@@ -21153,10 +21153,15 @@ nach Beliebtheitsgrad dann weiter wischen."
    geschrieben werden müssten. Stattdessen `scripts/baue-stoffstreifen.mjs`,
    wie es die Städteseiten schon haben, mit `--pruefen` zum Vergleichen.
 
-   Die Bilder wiegen zusammen 220 KB, aber nur die ersten drei werden
+   Die Bilder wiegen zusammen 64 KB (nachgezählt in Byte; `du` meldet
+   220 KB, das ist die Blockgröße von 53 kleinen Dateien), aber nur die
+   ersten drei werden
    sofort geladen. Alles weitere liegt rechts außerhalb des Bildes und
    kommt erst beim Wischen. Gemessen auf der Vorschau am 22.11.2026 bei
-   390 px: 7 von 53 geladen.
+   390 px: 7 von 53 geladen. Der Ladeprüfer hat es am selben Tag am
+   lokalen Stand nachgemessen: beim ersten Laden 3 von 53, zusammen
+   4,0 KB; nach dem Wischen bis ans Ende alle 53, zusammen 64 KB.
+   Gegenüber vorher sind das drei Anfragen und 4 KB mehr.
 
 2. **Der Knopf ist ein `.btn.btn-gold`**, also derselbe gefüllte Knopf
    wie „Katalog ansehen" weiter oben: Goldfläche, schwarze Schrift,
@@ -21201,3 +21206,54 @@ sich. Nicht gemacht, nicht beauftragt, steht in `docs/NEXT_TASK.md`.
 `pruefe-startseite` 60 von 60 mit Gegenprobe, dazu `pruefe-mitwachsend`,
 `pruefe-darstellung`, `pruefe-galerie`, `pruefe-marken` und
 `pruefe-cache-buster` grün.
+
+## 22.11.2026 - Der Fokusrahmen der Bildkacheln war halb abgeschnitten
+
+**Anlass.** Der Betreiber hat gefragt, ob wirklich alles geprüft sei.
+Darauf liefen vier Fachprüfer über die Änderungen, die nach dem Audit
+vom selben Tag entstanden sind. Die Barrierefreiheitsprüfung hat den
+Befund aus dem CSS abgeleitet, gemessen habe ich ihn selbst.
+
+**Was falsch war, gemessen.** `.galerie-streifen` trägt
+`overflow-x: auto`. Damit wird `overflow-y` nach CSS-Regel ebenfalls
+`auto`, der Streifen schneidet also in **beide** Richtungen ab. Sein
+Innenabstand war `0 0 10px`. Der Fokusrahmen einer Kachel liegt 3 px
+außerhalb und ist 3 px breit, zusammen 6 px. Oben und links standen
+0 px zur Verfügung. Auf dem Bildschirmabzug war die Kachel nur rechts
+und unten umrandet.
+
+Das betraf **nicht nur** den neuen Stoffstreifen, sondern jeden
+Bilderstreifen, also auch die Ausführungsbeispiele auf allen
+Produktseiten. Nach der Regel „messbare Fehler sofort überall beheben"
+ist es überall behoben, nicht nur an der Fundstelle.
+
+**Der zweite Teil, der leicht übersehen wird.** Mit Innenabstand allein
+war der Rahmen trotzdem weg. Wer eine Kachel mit der Tastatur
+anspringt, löst ein Hereinscrollen aus, und der Browser schiebt sie bis
+an die Kante des Scrollbereichs. Gemessen: `scrollLeft` sprang auf
+genau 6 px, die Luft links wurde wieder 0. Erst `scroll-padding: 6px`
+hält den Rand stehen.
+
+Der negative Außenabstand `margin: 0 -6px` gleicht den Innenabstand
+wieder aus, damit die erste Kachel auf der Flucht mit Überschrift und
+Text bleibt. Gemessen danach: 6 px Platz an allen vier Seiten auf
+`index.html`, 5 px auf `produkte/carport.html`, kein waagerechtes
+Scrollen bei 320, 390 und 1440 px.
+
+**Die vorhandene Prüfung war zu nachsichtig, und das ist der
+eigentliche Befund.** `scripts/pruefe-fokusring.mjs` ließ einen Rahmen
+durchgehen, sobald er auf **einer** der vier Seiten sichtbar war.
+Deshalb war sie grün, während die Kachel halb umrandet war. Sie prüft
+jetzt zusätzlich jeden Streifen gezielt: erste Kachel ansteuern, alle
+vier Seiten einzeln messen. Nicht über die Tabulatortaste, denn mit 53
+Kacheln käme die bestehende Schleife von 110 Sprüngen gar nicht mehr
+bis zum Seitenende. Gegenprobe: Nimmt man dem Streifen den
+Innenabstand, meldet sie „abgeschnitten: oben, links".
+
+**Zahlenangabe berichtigt.** Ich hatte die 53 Stoffbilder mit 220 KB
+angegeben. Nachgezählt sind es 65.208 Byte, also 64 KB. Die 220 KB
+waren die Blockgröße von 53 kleinen Dateien, nicht ihr Inhalt. Der
+Ladeprüfer hat unabhängig gemessen: beim ersten Laden 3 Bilder mit
+4,0 KB, nach dem Wischen bis ans Ende alle 53 mit 64 KB, gegenüber
+vorher drei Anfragen und 4 KB mehr, kein Layoutsprung (CLS 0,0000 bei
+390 px), keine Aufgabe über 50 ms beim Wischen.
