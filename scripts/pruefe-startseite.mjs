@@ -165,6 +165,32 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
       leistungen: document.querySelectorAll('.leistungen-grid--neu .leistung-card').length,
       werkzeuge: !!document.querySelector('a[href*="windzonen"]') && !!document.querySelector('a[href*="baugenehmigung"]'),
       fuss: !!document.querySelector('footer'),
+      /* STOFFSTREIFEN (22.11.2026). Acht Muster zum Wischen im
+         Abschnitt "Markisenstoffe". Drei Dinge lassen sich nur im
+         Browser sehen: ob der Streifen in SICH scrollt statt die
+         Seite mitzunehmen, ob der Zaehler mitlaeuft, und wie gross
+         die Kacheln wirklich werden. */
+      stoffe: (() => {
+        const s = document.getElementById('galerieStreifen-stoffe');
+        if (!s) return null;
+        const k = s.querySelectorAll('.galerie-kachel');
+        const r = k.length ? k[0].getBoundingClientRect() : null;
+        const z = document.querySelector('[data-zaehler="stoffe"]');
+        const knopf = document.querySelector('.stoffe-mehr .leistung-link');
+        const kr = knopf ? knopf.getBoundingClientRect() : null;
+        return {
+          kacheln: k.length,
+          alleVerweise: [...k].every((x) => x.tagName === 'A'
+            && x.getAttribute('href') === '/stoffe.html'),
+          alleBeschriftet: [...k].every((x) => (x.getAttribute('aria-label') || '').length > 10),
+          kachelB: r ? Math.round(r.width) : 0,
+          kachelH: r ? Math.round(r.height) : 0,
+          inSichScrollbar: s.scrollWidth > s.clientWidth + 1,
+          zaehler: z ? z.textContent.trim() : null,
+          knopfH: kr ? Math.round(kr.height) : 0,
+          knopfZiel: knopf ? knopf.getAttribute('href') : null
+        };
+      })(),
       konsoleLeer: true
     };
   });
@@ -172,6 +198,21 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
   if (GEGENPROBE) {
     pruef(`${name}: ohne die Schicht greift die neue Palette nicht`,
       m.gold !== '#C58A32', `--gold: ${m.gold || '(leer)'}`);
+    /* Zweite Gegenprobe (22.11.2026): Dem Stoffstreifen das
+       overflow-x nehmen. Dann schiebt er die Seite nach rechts
+       auf, und die Pruefung "Kein waagerechtes Scrollen" MUSS
+       anschlagen. Schlaegt sie auch dann nicht an, prueft sie
+       nichts. */
+    const nachher = await seite.evaluate(() => {
+      const s = document.getElementById('galerieStreifen-stoffe');
+      if (!s) return null;
+      s.style.overflowX = 'visible';
+      s.style.flexWrap = 'nowrap';
+      return { scrollW: document.documentElement.scrollWidth, fenster: window.innerWidth };
+    });
+    pruef(`${name}: ohne overflow-x schlaegt die Ueberlaufpruefung an`,
+      !!nachher && nachher.scrollW > nachher.fenster + 1,
+      nachher ? `${nachher.scrollW}/${nachher.fenster} px` : 'Streifen nicht gefunden');
     await seite.close();
     continue;
   }
@@ -200,6 +241,20 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
     m.nav > 3 && m.assistent && m.galerie >= 14 && m.leistungen === 9,
     `nav ${m.nav}, Galerie ${m.galerie}, Karten ${m.leistungen}`);
   pruef(`${name}: Bestand – Werkzeuge und Fuss`, m.werkzeuge && m.fuss, 'Rechner + Fuss da');
+  pruef(`${name}: Stoffstreifen – acht Muster, alle als Verweis`,
+    !!m.stoffe && m.stoffe.kacheln === 8 && m.stoffe.alleVerweise && m.stoffe.alleBeschriftet,
+    m.stoffe ? `${m.stoffe.kacheln} Kacheln, Ziel ${m.stoffe.alleVerweise ? '/stoffe.html' : 'FALSCH'}` : 'Abschnitt fehlt');
+  pruef(`${name}: Stoffstreifen scrollt in sich, nicht die Seite`,
+    !!m.stoffe && m.stoffe.inSichScrollbar && m.scrollW <= m.fenster + 1,
+    m.stoffe ? `Streifen scrollbar: ${m.stoffe.inSichScrollbar}` : 'Abschnitt fehlt');
+  pruef(`${name}: Stoffkacheln gross genug zum Antippen`,
+    !!m.stoffe && m.stoffe.kachelB >= 44 && m.stoffe.kachelH >= 44,
+    m.stoffe ? `${m.stoffe.kachelB}x${m.stoffe.kachelH} px` : 'Abschnitt fehlt');
+  pruef(`${name}: Stoffzaehler steht auf 1 / 8`,
+    !!m.stoffe && m.stoffe.zaehler === '1 / 8', m.stoffe ? m.stoffe.zaehler : 'fehlt');
+  pruef(`${name}: Knopf zur Stoffseite, mindestens 44 px hoch`,
+    !!m.stoffe && m.stoffe.knopfH >= 44 && m.stoffe.knopfZiel === '/stoffe.html',
+    m.stoffe ? `${m.stoffe.knopfH} px, Ziel ${m.stoffe.knopfZiel}` : 'fehlt');
   pruef(`${name}: Kein Javascript-Fehler`, konsole.length === 0,
     konsole.length ? konsole[0].slice(0, 50) : 'Konsole still');
   await seite.close();

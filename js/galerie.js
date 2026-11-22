@@ -280,6 +280,15 @@
 
   Array.prototype.forEach.call(streifen, function (s) {
     steuerung(s);
+    /* data-gross="nein": Streifen OHNE Grossansicht. Der Stoffstreifen
+       auf der Startseite (22.11.2026) zeigt Ausschnitte von 240 px.
+       Die gross aufzublasen waere unscharf, und der Betreiber hat es
+       anders bestellt: "wenn man alle Markisenstoffe in groesser sehen
+       will, also in der richtigen Form, wie sie auf der
+       Markisenstoffseite sind, dann klickt man auf den Button und ist
+       auf der Markisenstoffseite." Die Kacheln dort sind deshalb
+       Verweise und keine Knoepfe; Wischen, Pfeile und Zaehler bleiben. */
+    if (s.getAttribute('data-gross') === 'nein') return;
     var kacheln = s.querySelectorAll('.galerie-kachel');
     var liste = Array.prototype.map.call(kacheln, function (k) {
       var img = k.querySelector('img');

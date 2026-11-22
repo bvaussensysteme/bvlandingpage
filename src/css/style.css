@@ -2217,6 +2217,21 @@ footer h4 {
    Grossansicht bleibt es bei --gold, dort stimmt der Kontrast. */
 .galerie-kachel:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 2px; }
 
+/* MUSTERSTREIFEN (22.11.2026). Der Stoffstreifen auf der Startseite
+   zeigt quadratische Ausschnitte von 240 px. Die normale Kachelbreite
+   min(78vw, 360px) wuerde sie um die Haelfte hochrechnen, also
+   unscharf. 150 px bleibt unter der Quellgroesse und laesst am
+   Telefon zwei Kacheln plus einen Anschnitt sehen: Dass es
+   weitergeht, ist damit sichtbar, ohne Pfeile.
+   Die Kacheln sind hier Verweise, keine Knoepfe (siehe
+   js/galerie.js); 150 x 150 px liegt weit ueber den 24 x 24 px aus
+   WCAG 2.2, 2.5.8. */
+.galerie-streifen--muster { gap: 10px; }
+.galerie-streifen--muster .galerie-kachel { width: min(40vw, 150px); }
+@media (max-width: 640px) {
+  .galerie-streifen--muster .galerie-kachel { width: min(40vw, 150px); }
+}
+
 /* Grossansicht. Sie liegt ueber allem, deshalb bekommt der Koerper
    waehrenddessen overflow:hidden - sonst scrollt die Seite dahinter
    weiter, waehrend man wischt. */

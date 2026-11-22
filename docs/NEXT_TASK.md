@@ -288,6 +288,11 @@ Aussage über diese Seite geraten.
   `g.page/r/.../review`, also auf die Abgabe einer Bewertung. Entweder
   Beschriftung oder Ziel angleichen.
 - **Drei schwebende Knoepfe** ueberlagern Inhalt, auf allen 56 Seiten.
+- **Keine Sprungmarken je Dessin auf `stoffe.html`** (22.11.2026). Die
+  acht Musterkacheln im Abschnitt „Markisenstoffe" der Startseite
+  führen auf den Anfang der Stoffseite, nicht auf das angetippte
+  Dessin. IDs an den Stoffzeilen würden das lösen; das sind rund 40
+  Zeilen in `stoffe.html` und war nicht beauftragt.
 
 ## Ton: Befunde ohne Auftrag (Prüfschritt 5, 14.11.2026)
 

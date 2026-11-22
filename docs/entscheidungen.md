@@ -21043,3 +21043,85 @@ Schrift und Rand 5,58:1, kein waagerechtes Scrollen bei 390 und
 1440 px, keine doppelten IDs. `pruefe-startseite`,
 `pruefe-mitwachsend` und `pruefe-darstellung` laufen durch. Versionen
 auf `20261122g`.
+
+## 22.11.2026 - Acht Stoffmuster zum Wischen, der Knopf führt auf die Stoffseite
+
+**Was der Betreiber geschrieben hat**, wörtlich: „jz is etwas zuviel
+abstand zu text oben" und „Du kannst das ja so machen, dass bei dem
+Abteil für die Markisenstoffe da einfach die Markisenstoffe ein paar
+Stück als kleine Bilder so vorhanden sind, die man genauso wischen kann
+und sich das nacheinander angucken. Aber dann, wenn man alle
+Markisenstoffe in größer sehen will, also in der richtigen Form, wie sie
+auf der Markisenstoffseite sind, dann klickt man auf den Button und ist
+auf der Markisenstoffseite."
+
+**Was war.** Der Abschnitt „Markisenstoffe" zeigte eine Karte mit Text
+und einem Knopf, sonst nichts. Wer wissen wollte, wie die Stoffe
+aussehen, musste erst die Seite wechseln. Der Knopf im Werkzeug-Abschnitt
+stand mit 20 px Abstand unter seinem Text, nachdem er vorher mit 4 px zu
+nah daran gestanden hatte.
+
+**Was jetzt gilt.**
+
+1. **Acht Muster als Streifen.** Der Abschnitt zeigt acht Kacheln von
+   150 px, waagerecht zu wischen, mit Zähler („1 / 8") und, am
+   Schreibtisch, zwei Pfeilen. Das ist derselbe Baustein wie die
+   Ausführungsbeispiele der Produktseiten: `.galerie-streifen` in
+   `src/css/style.css` und `js/galerie.js`. Kein zweiter Streifen-Bauplan.
+
+2. **Die Kacheln sind Verweise, keine Knöpfe.** Antippen führt auf
+   `/stoffe.html`, genau wie der Knopf darunter. Keine Großansicht im
+   Streifen.
+
+   **Warum keine Großansicht.** Die Kacheln sind Ausschnitte von 240 px
+   (siehe `scripts/baue-stoff-miniaturen.sh`). Groß aufgezogen wären sie
+   unscharf, und die Stoffseite zeigt zu jedem Dessin mehr, als ein
+   Lichtkasten je könnte: das Band in voller Breite, das Foto einer
+   Markise damit, Lichtechtheit, UV-Schutz, Wasserverhalten. Der
+   Betreiber hat genau das bestellt. Technisch hängt es an
+   `data-gross="nein"` am Streifen; `js/galerie.js` bindet dort keine
+   Großansicht an.
+
+3. **Die Bilder sind neu und klein.** `images/stoffe/startseite/*.webp`,
+   acht Stück, zusammen 36 KB. Erzeugt aus den vorhandenen Bändern
+   `images/stoffe/*-flat.png` (je rund 109 KB), die unverändert
+   bleiben. **Nicht** `images/stoffe/mini/`: Das gehört dem
+   3D-Konfigurator. Beim ersten Versuch an diesem Tag habe ich acht
+   Texturen dort überschrieben, mit `git checkout` zurückgeholt,
+   `pruefe-stoffe.js` danach wieder grün. Der Kommentarblock im
+   Erzeugerskript hält das fest, damit es niemand noch einmal macht.
+
+4. **Abstand über dem Knopf: 12 px.** Zwei Meldungen, eine in jede
+   Richtung: erst „zu nah am text" (da waren es 4 px), dann „zuviel
+   abstand" (da waren es 20 px). 12 px liegt dazwischen.
+
+**Verworfen.**
+
+- *Die Bänder selbst in den Streifen legen.* Acht mal 109 KB wären rund
+  870 KB auf einer Startseite, die ohnehin 2,2 MB lädt.
+- *Eine Sprungmarke je Dessin auf der Stoffseite.* `stoffe.html` hat
+  keine IDs an den Zeilen. Die nachzurüsten wäre eine Änderung an 40
+  Stoffzeilen und gehört nicht in diesen Auftrag; steht in
+  `docs/NEXT_TASK.md`.
+
+**Gemessen** (Chromium, 320 / 390 / 1440 px, Startseite):
+
+| | 320 px | 390 px | 1440 px |
+|---|---|---|---|
+| Kachel | 128 × 128 px | 150 × 150 px | 150 × 150 px |
+| Streifen scrollt in sich | ja | ja | ja |
+| Zähler am rechten Anschlag | 8 / 8 | 8 / 8 | 8 / 8 |
+| Pfeil „vor" dort gesperrt | ja | ja | ja |
+| Pfeile sichtbar | nein | nein | ja |
+| Knopf | 200 × 46 px | 200 × 46 px | 200 × 46 px |
+| waagerechtes Scrollen der Seite | nein | nein | nein |
+
+Die Kacheln liegen mit 128 px weit über den 24 × 24 px aus WCAG 2.2,
+2.5.8. Der Pfeil im Knopf bekam `gap: 8px`: `display: inline-flex`
+verschluckt den Wortzwischenraum aus dem Quelltext, gemessen klebte der
+Pfeil am Wort.
+
+**Gegengelesen werden soll:** ob acht Muster die richtige Zahl sind und
+ob es die richtigen acht sind. Die Auswahl steht an einer Stelle, in
+`scripts/baue-stoff-miniaturen.sh`, Zeile `MUSTER=`, und lässt sich
+tauschen.

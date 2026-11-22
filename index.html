@@ -495,11 +495,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261122g" />
+  <link rel="stylesheet" href="css/style.css?v=20261122h" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
-  <link rel="stylesheet" href="css/start.css?v=20261122g" />
+  <link rel="stylesheet" href="css/start.css?v=20261122h" />
   <script>
   /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
      Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,
@@ -879,16 +879,84 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <p class="tag">Stoffauswahl</p>
     <h2 id="stoffe-h" style="margin-bottom:8px;">Markisenstoffe</h2>
     <p style="color:var(--muted);max-width:640px;margin-bottom:28px;">AC-, PA- und ZIP-Stoffe für Markisen, Pergola und Senkrechtbeschattung. Hoher UV-Schutz, viele Farben, Originalmuster zeigen wir bei der Beratung vor Ort.</p>
-    <div class="kontakt-card werkzeug-karte stoffe-karte">
-      <div class="kontakt-card-icon kontakt-card-icon--gold" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0"/><path d="M3 14h18"/><path d="M12 6V3"/><path d="M8 20v-6"/><path d="M16 20v-6"/></svg>
+    <div class="galerie-kopf">
+      <p class="galerie-streifen-hinweis">
+      Acht Muster zum Wischen. Alle Farben und Eigenschaften auf der Stoffseite.
+      </p><div class="galerie-steuer">
+        <span class="galerie-zaehler" aria-hidden="true"
+              data-zaehler="stoffe">1 / 8</span>
+        <button type="button" class="galerie-pfeil galerie-pfeil--zurueck"
+                data-pfeil="zurueck" aria-label="Vorherige Muster zeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="galerie-pfeil galerie-pfeil--vor"
+                data-pfeil="vor" aria-label="Weitere Muster zeigen">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
       </div>
-      <div>
-        <strong>Die ganze Stoffauswahl ansehen</strong>
-        <p>Alle Stoffgruppen mit Farben und Mustern, nach Produkt sortiert.</p>
-      </div>
-      <a class="leistung-link" href="/stoffe.html">Stoffe ansehen <span class="pfeil" aria-hidden="true">→</span></a>
-    </div>
+    </div><ul class="galerie-streifen galerie-streifen--muster" id="galerieStreifen-stoffe"
+        role="list" aria-labelledby="stoffe-h"
+        data-galerie="stoffe" data-gross="nein">
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="0"
+           aria-label="Acrylstoff Dessin AC112 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/AC112.webp"
+               alt="Acrylstoff Dessin AC112, Musterausschnitt" width="240" height="240" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="1"
+           aria-label="Acrylstoff Dessin AC212 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/AC212.webp"
+               alt="Acrylstoff Dessin AC212, Musterausschnitt" width="240" height="240" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="2"
+           aria-label="Acrylstoff Dessin AC321 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/AC321.webp"
+               alt="Acrylstoff Dessin AC321, Musterausschnitt" width="240" height="240" loading="lazy" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="3"
+           aria-label="Acrylstoff Dessin AC423 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/AC423.webp"
+               alt="Acrylstoff Dessin AC423, Musterausschnitt" width="240" height="240" loading="lazy" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="4"
+           aria-label="Acrylstoff Dessin AC519 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/AC519.webp"
+               alt="Acrylstoff Dessin AC519, Musterausschnitt" width="240" height="240" loading="lazy" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="5"
+           aria-label="Acrylstoff Dessin AC631 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/AC631.webp"
+               alt="Acrylstoff Dessin AC631, Musterausschnitt" width="240" height="240" loading="lazy" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="6"
+           aria-label="Polyesterstoff Dessin PA524 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/PA524.webp"
+               alt="Polyesterstoff Dessin PA524, Musterausschnitt" width="240" height="240" loading="lazy" decoding="async">
+        </a>
+      </li>
+      <li>
+        <a class="galerie-kachel" href="/stoffe.html" data-nr="7"
+           aria-label="Polyesterstoff Dessin PA626 auf der Stoffseite ansehen">
+          <img src="/images/stoffe/startseite/PA626.webp"
+               alt="Polyesterstoff Dessin PA626, Musterausschnitt" width="240" height="240" loading="lazy" decoding="async">
+        </a>
+      </li>
+    </ul>
+    <p class="stoffe-mehr">
+      <a class="leistung-link" href="/stoffe.html">Alle Stoffe ansehen <span class="pfeil" aria-hidden="true">→</span></a>
+    </p>
   </div>
 </section>
 
@@ -1758,6 +1826,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- ===== JAVASCRIPT ===== -->
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
 <script src="js/karussell.js?v=20261120f" defer></script>
+<!-- galerie.js kam am 22.11.2026 dazu: Der Stoffstreifen benutzt denselben
+     Baustein wie die Ausfuehrungsbeispiele der Produktseiten (Wischen,
+     Pfeile, Zaehler, Grossansicht). Kein zweiter Streifen-Bauplan. -->
+<script src="js/galerie.js?v=20261122h" defer></script>
 <script src="js/main.js?v=20261122b" defer></script>
   <script src="js/bilder-blaettern.js?v=20261120f" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
