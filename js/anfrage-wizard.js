@@ -953,7 +953,7 @@
       render: function () {
         return optionCards('dachausfuehrung', [
           { value: 'SunPro', img: 'lam_sunpro', photo: true, badge: 'Beliebt', hint: 'Bis 7 × 4,5 m · LED, Heizstrahler & Sensorik' },
-          { value: 'Premium (Warema Lamaxa L50)', img: 'lam_premium', photo: true, hint: 'App & Alexa · dimmbares LED · Lautsprecher · 16 Farben' }
+          { value: 'Premium (Lamaxa L50)', img: 'lam_premium', photo: true, hint: 'App & Alexa · dimmbares LED · Lautsprecher · 16 Farben' }
         ], 'aw-options--equal');
       },
       valid: function () { return answers.dachausfuehrung ? null : 'Bitte wählen Sie eine Ausführung.'; }
@@ -976,7 +976,7 @@
       title: 'Komfort & Technik',
       sub: 'Alles später bequem per Fernbedienung oder App steuerbar.',
       render: function () {
-        var isPremium = answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)';
+        var isPremium = answers.dachausfuehrung === 'Premium (Lamaxa L50)';
         // Beleuchtung (Art/Anzahl wird persönlich in der Beratung geklärt)
         var html = '<p class="aw-group-h">Beleuchtung</p>' +
           optionCards('led', [
@@ -989,7 +989,7 @@
             { value: 'Ja, mit Heizstrahler', icon: I.flamme, iconBig: true, badge: 'Beliebt' },
             { value: 'Nein, ohne Heizung', icon: I.aus, iconBig: true, muted: true }
           ]);
-        // Lautsprecher (nur Premium/Warema)
+        // Lautsprecher (nur Premium, Lamaxa L50)
         if (isPremium) {
           html += '<p class="aw-group-h aw-group-h--sep">Lautsprecher</p>' +
             optionCards('sound', [
@@ -1008,7 +1008,7 @@
       valid: function () {
         if (!answers.led) return 'Bitte wählen Sie, ob Sie Beleuchtung wünschen.';
         if (!answers.heizung) return 'Bitte wählen Sie, ob Sie einen Heizstrahler wünschen.';
-        if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && !answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
+        if (answers.dachausfuehrung === 'Premium (Lamaxa L50)' && !answers.sound) return 'Bitte wählen Sie, ob Sie Lautsprecher wünschen.';
         if (!answers.wettersensor) return 'Bitte wählen Sie, ob Sie die Wetter-Automatik wünschen.';
         return null;
       }
@@ -1377,7 +1377,7 @@
     if (inFlow('komfort')) {
       if (answers.led) p.push(['Beleuchtung', isJa(answers.led) ? 'Ja' : 'Nein']);
       if (answers.heizung) p.push(['Heizstrahler', isJa(answers.heizung) ? 'Ja' : 'Nein']);
-      if (answers.dachausfuehrung === 'Premium (Warema Lamaxa L50)' && answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? 'Ja' : 'Nein']);
+      if (answers.dachausfuehrung === 'Premium (Lamaxa L50)' && answers.sound) p.push(['Lautsprecher', isJa(answers.sound) ? 'Ja' : 'Nein']);
       if (answers.wettersensor) p.push(['Wetter-Automatik', isJa(answers.wettersensor) ? 'Ja' : 'Nein']);
     }
     if (inFlow('dach') && answers.dach) p.push(['Dach', answers.dach]);

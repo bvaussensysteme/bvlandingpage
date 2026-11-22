@@ -30,7 +30,6 @@ die nie anschlägt, ist keine.**
 | Skript | Was es prüft |
 |---|---|
 | `scripts/pruefe-palette.py` | Stimmen die Kontrastwerte im Designdokument noch? Reicht das Textgold auf hellem Grund? Passt das Markengold zum Gold im Logo? Erreicht der Fokusring auf jedem Untergrund 3:1? (5 Fehler in der Gegenprobe, jeder einzeln eingebaut) |
-| `scripts/pruefe-bewegung.mjs` | Entwurf: Bleibt bei Bewegung, bei reduzierter Bewegung und ganz ohne JavaScript jeder Text sichtbar? Fährt die Ablaufspur wirklich, und endet sie im Bild? Fährt die Kontaktleiste unten ein? (4 Fehler in der Gegenprobe) |
 | `scripts/pruefe-cache-buster.sh` | **Drei Fragen.** 1. Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? 2. Wurde die Version mit der Datei hochgezählt (Dateidatum gegen das Datum der letzten Versionsänderung aus der Git-Geschichte)? 3. **Seit 22.11.2026:** Wird überhaupt jede eigene JS- und CSS-Datei mit `?v=` eingebunden? Diese dritte Frage fehlte, und genau dadurch hingen `main.js`, `cookie.js`, `accessibility.js` und `metricool.js` wochenlang ohne jede Version auf 51 bis 55 Seiten. Fremde Adressen (`http`, `https`, `//`) zählen nicht mit. Gegenprobe für alle drei, die dritte in beide Richtungen: fehlende Version muss auffallen, sauberer Stand darf nicht anschlagen |
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
@@ -224,36 +223,46 @@ Prüfung als blind. Geändert wird jetzt die *Vorlage* – derselbe Zustand,
 aber einer, der stehen bleibt.
 
 
-## `pruefe-bewegung.mjs` – warum es diese Prüfung gibt
+## `pruefe-bewegung.mjs` – am 22.11.2026 ausgemustert
 
-Nicht wegen der Bewegung. Wegen des Gegenteils.
+**Das Skript ist gelöscht.** Es prüfte ausschließlich die Entwurfsseite
+`entwurf-bv.html`, und die ist auf Ansage des Betreibers („Vor der
+Veröffentlichung löschen") zusammen mit `entwurf/bv.css` entfernt
+worden. Seitdem brach es mit `ENOENT: entwurf/bv.css` ab, ohne etwas zu
+prüfen. Ein Skript, das nichts prüft, aber rot leuchtet, verdeckt echte
+Befunde im Gesamtlauf.
 
-Im Entwurf standen am 08.11.2026 **drei fertige CSS-Regeln, die nie
-eingeschaltet wurden**: die Kontaktleiste unten (`.griff.da` wurde
-nirgends gesetzt), der Fortschrittsbalken (kein Skript füllte ihn) und
-die Goldlinie über den Ablaufschritten (die Regel hieß `.ist-da`, die
-Klasse, die wirklich gesetzt wird, heißt `.da`). Alle drei sahen im
-Quelltext vollkommen richtig aus und taten nichts. Im Screenshot fällt
-so etwas nur auf, wenn man genau danach sucht.
+**Warum nicht umgeschrieben.** Jeder einzelne Prüfpunkt hing an
+Bauteilen, die es nur im Entwurf gab: `.griff` (Kontaktleiste unten),
+`.ablauf-buehne` und `.weg-liste` (die fahrende Ablaufspur), `.naht`,
+`.kopf-bild`, `.zahlenband`. Auf der echten Seite existiert keiner
+dieser Namen, und auch das Muster, vor dem die Prüfung warnte, gibt es
+dort nicht: Die laufende Seite hat **keine** Klassen wie `.auf`/`.da`,
+die Inhalt erst beim Scrollen einblenden. Eine Neufassung wäre eine
+neue Prüfung gewesen, keine Reparatur.
 
-Die größere Gefahr ist die Umkehrung: Bewegung, die Inhalt **versteckt**,
-solange sie nicht ausgelöst wird. Dann steht der Besucher vor einer
-leeren Seite. Deshalb prüft das Skript in drei Zuständen, und in allen
-dreien muss jeder Text lesbar sein:
+**Wovon der Gedanke heute abgedeckt ist** (alle auf echten Seiten, nicht
+im Entwurf):
 
-1. **normal** – Bewegung erlaubt, JavaScript an, nach dem Durchscrollen
-2. **ruhig** – `prefers-reduced-motion: reduce`, **ohne** Scrollen: Wer
-   Ruhe eingestellt hat, darf nicht erst scrollen müssen, damit Text
-   erscheint
-3. **ohne Skript** – JavaScript aus: Überschrift, Telefonnummer und
-   Kopfbild müssen da sein
+| Frage von damals | prüft heute |
+|---|---|
+| Text sichtbar ganz ohne JavaScript | `pruefe-galerie.mjs`, `pruefe-einzugsgebiet.mjs` |
+| Bewegung bei `prefers-reduced-motion: reduce` | `pruefe-prozess-ringe.mjs`, `pruefe-referenz-lauf.mjs`, `pruefe-schrift.mjs`, `pruefe-fokus-verdeckung.mjs` |
+| Fährt eine Animation wirklich, statt nur im CSS zu stehen | `pruefe-prozess-ringe.mjs` (Messpunkte mitten im Füllen) |
 
-**Lehre aus dem ersten Lauf:** Die Prüfung meldete „letzter Schritt
-bleibt rechts außerhalb". Das war kein Fehler der Seite, sondern ihr
-eigener: `scroll-behavior: smooth` im Stylesheet lässt ein normales
-`scrollTo` über mehrere hundert Millisekunden fahren, gemessen wurde
-mitten in der Fahrt. Jetzt `behavior: 'instant'`. Eine Prüfung mit
-falschem Alarm wird abgeschaltet und prüft danach gar nichts mehr.
+**Was damit verloren ist, offen und ehrlich:** Es gibt keine Prüfung
+mehr, die auf **jeder** Seite nachsieht, ob nach dem Durchscrollen
+jeder Text sichtbar ist. Die drei oben prüfen je einen Bereich. Als
+Nebenbefund in `docs/NEXT_TASK.md` notiert.
+
+**Die Lehre aus dem ersten Lauf bleibt gültig und steht hier weiter,
+weil sie für jedes neue Bewegungs-Skript gilt:** Die Prüfung meldete
+einst „letzter Schritt bleibt rechts außerhalb". Das war kein Fehler
+der Seite, sondern ihr eigener: `scroll-behavior: smooth` im Stylesheet
+lässt ein normales `scrollTo` über mehrere hundert Millisekunden
+fahren, gemessen wurde mitten in der Fahrt. Richtig ist
+`behavior: 'instant'`. Eine Prüfung mit falschem Alarm wird
+abgeschaltet und prüft danach gar nichts mehr.
 
 ## Zwei Skripte, die schon vor dem 14.11.2026 nicht grün waren
 

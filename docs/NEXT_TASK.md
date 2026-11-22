@@ -516,3 +516,22 @@ gemessen:**
   `aria-modal="true"` ist das für neuere Vorlesesoftware in Ordnung,
   für ältere nicht sicher. Nicht gemessen, weil hier keine echte
   Vorlesesoftware läuft.
+
+## Später prüfen: Sichtbarkeit nach dem Durchscrollen (22.11.2026)
+
+Mit `scripts/pruefe-bewegung.mjs` ist die einzige Prüfung entfallen,
+die **eine ganze Seite** durchscrollte und danach jeden Text auf
+Deckkraft und Fläche prüfte. Grund der Ausmusterung steht in
+`docs/pruefungen.md` und `docs/entscheidungen.md` (22.11.2026): Ihr
+Prüfgegenstand `entwurf-bv.html` wurde gelöscht.
+
+Heute prüfen `pruefe-galerie.mjs` und `pruefe-einzugsgebiet.mjs` den
+Zustand ohne JavaScript, und `pruefe-prozess-ringe.mjs`,
+`pruefe-referenz-lauf.mjs`, `pruefe-schrift.mjs` sowie
+`pruefe-fokus-verdeckung.mjs` die reduzierte Bewegung. Jedes aber nur
+für seinen Bereich.
+
+**Gering dringend**, weil die laufende Seite keine Klassen hat, die
+Inhalt erst beim Scrollen einblenden. Das Risiko entsteht erst, wenn so
+etwas eingebaut wird. **Dann** gehört die Prüfung wieder her, neu
+geschrieben für die echten Seiten.

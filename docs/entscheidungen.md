@@ -22004,3 +22004,47 @@ Hauptknopf. Beides steht in `docs/NEXT_TASK.md`.
 
 **Keine Rechtsberatung.** Ob eine Ähnlichkeit rechtlich zählt,
 beurteilt ein Anwalt. Festgehalten ist nur, was gemessen wurde.
+
+---
+
+## 22.11.2026 · `pruefe-bewegung.mjs` ausgemustert statt umgeschrieben
+
+**Anlass.** Im Gesamtlauf über alle Prüfskripte stand
+`FEHL pruefe-bewegung.mjs (Code 1)`. Die Meldung war
+`Error: ENOENT: no such file or directory, open
+'/home/user/bvlandingpage/entwurf/bv.css'`. Das Skript prüfte nichts
+mehr, leuchtete aber rot.
+
+**Was falsch war.** Die Prüfung war am 08.11.2026 für die
+Entwurfsseite `entwurf-bv.html` geschrieben worden. Diese Seite und der
+Ordner `entwurf/` sind am 22.11.2026 auf Ansage des Betreibers („Vor
+der Veröffentlichung löschen") entfernt worden. Beim Löschen wurde das
+zugehörige Prüfskript übersehen.
+
+**Was jetzt gilt.** Das Skript ist gelöscht, nicht umgeschrieben. Alle
+seine Prüfpunkte hingen an Bauteilen, die nur im Entwurf existierten
+(`.griff`, `.ablauf-buehne`, `.weg-liste`, `.naht`, `.kopf-bild`,
+`.zahlenband`). Auch das Muster, vor dem es warnte, gibt es auf der
+laufenden Seite nicht: Dort finden sich keine Klassen wie `.auf`/`.da`,
+die Inhalt erst beim Scrollen einblenden (geprüft mit `grep` über
+`src/css/style.css` und `src/css/start.css`, null Treffer). Eine
+Neufassung wäre eine neue Prüfung gewesen.
+
+**Warum nicht einfach auf `index.html` umgebogen.** Dann hätte das
+Skript Namen gesucht, die es dort nicht gibt, und mit „alles bestanden"
+geantwortet, weil fehlende Elemente in seinen Abfragen als `null`
+durchfallen. Eine Prüfung, die bei fehlendem Prüfgegenstand grün
+meldet, ist schlimmer als keine.
+
+**Was gegengelesen werden soll.** Die drei Zeilen in
+`docs/pruefungen.md`, die zeigen, welche Skripte die drei Fragen von
+damals heute auf echten Seiten beantworten: `pruefe-galerie.mjs` und
+`pruefe-einzugsgebiet.mjs` (ohne JavaScript), `pruefe-prozess-ringe.mjs`
+und `pruefe-referenz-lauf.mjs` (reduzierte Bewegung), und
+`pruefe-prozess-ringe.mjs` für die Frage, ob eine Animation wirklich
+läuft.
+
+**Was offen bleibt.** Es gibt keine Prüfung mehr, die auf *jeder* Seite
+nachsieht, ob nach dem Durchscrollen jeder Text sichtbar ist. Als
+Nebenbefund in `docs/NEXT_TASK.md` notiert, nicht in dieser Runde
+gebaut.
