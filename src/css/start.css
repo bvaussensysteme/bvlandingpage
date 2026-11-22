@@ -159,6 +159,37 @@
     linear-gradient(180deg, rgba(11,11,12,0.82) 0%, rgba(11,11,12,0.58) 45%, rgba(11,11,12,0.88) 100%),
     linear-gradient(90deg, rgba(11,11,12,0.75) 0%, rgba(11,11,12,0.25) 65%);
 }
+/* AM TELEFON OHNE DEN WAAGERECHTEN VERLAUF (22.11.2026).
+
+   Meldung des Betreibers mit Bild: „bei mobile is das hintergrundbild
+   nicht da wie bei pc". Nachgemessen: Das Bild IST da und wird auch
+   geladen (Mobilfassung vd_prod_terrasse_tds_m.webp, HTTP 200). Es
+   verschwand unter dem Schleier.
+
+   Der zweite Verlauf laeuft von links (0,75) nach rechts (0,25). Am
+   Rechner ist das sinnvoll: Der Text steht links, das Foto bleibt
+   rechts sichtbar. Am Telefon laeuft der Text ueber die GANZE Breite,
+   also liegt auch das ganze Bild im dunklen Teil. Dort hat dieser
+   Verlauf keine Aufgabe mehr, er verdunkelt nur.
+
+   GEMESSEN bei 390 px, mittlere Helligkeit des Heldenbereichs von 255:
+   mit beiden Verlaeufen 32 bis 49 je Viertel, nur mit dem senkrechten
+   37 bis 59. Zum Vergleich ohne jeden Schleier: 125.
+
+   WARUM NICHT HELLER. Die Grenze ist der Fliesstext, nicht die
+   Ueberschrift. Gemessen am hellsten Bildpunkt unter dem Text, gegen
+   Weiss: heute 8,2:1, ohne den waagerechten Verlauf 5,03:1, bei einem
+   deutlich helleren Schleier (0,70/0,50/0,80) nur noch 3,85:1 und
+   damit unter den 4,5:1 aus WCAG 1.4.3. Wer das Foto noch staerker
+   sehen will, braucht eine andere Loesung fuer den Text, etwa ein
+   eigenes Polster hinter dem Textblock. Das waere Gestaltung und
+   gehoert dem Betreiber. */
+@media (max-width: 767.98px) {
+  .start-premium .hero--neu .hs-slide-overlay {
+    background:
+      linear-gradient(180deg, rgba(11,11,12,0.82) 0%, rgba(11,11,12,0.58) 45%, rgba(11,11,12,0.88) 100%);
+  }
+}
 .start-premium .hero-eyebrow {
   color: var(--gold-light);              /* auf Tiefschwarz 9,33:1 */
   font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;

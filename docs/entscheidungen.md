@@ -20717,3 +20717,60 @@ Und der Werkstatt-Generator fing einen Folgefehler der
 Versions-Änderung vom selben Tag: Sein Versionsvergleich schloss
 `cookie.js` und `accessibility.js` nicht aus, obwohl er sie selbst aus
 der Werkstattseite entfernt.
+
+## 22.11.2026 - Das Hero-Foto war am Telefon unter dem Schleier verschwunden
+
+**Meldung des Betreibers mit Bild:** „Ich sehe gerade bei mobile is
+das hintergrundbilder nicht da wie bei pc".
+
+**Erst nachgesehen, dann geurteilt.** Das Bild ist da und wird auch
+geladen: `vd_prod_terrasse_tds_m.webp`, die eigene Mobilfassung,
+HTTP 200, per `<link rel="preload" media="(max-width: 767.98px)">`
+vorgeladen. Es war also kein fehlendes Bild, sondern ein zu dunkler
+Schleier.
+
+**Die Ursache.** Über dem Foto liegen zwei Verläufe: ein senkrechter
+(0,82 oben, 0,58 bei 45 Prozent, 0,88 unten) und ein **waagerechter**
+von links 0,75 nach rechts 0,25. Am Rechner ist der waagerechte
+sinnvoll: Der Text steht links, das Foto bleibt rechts sichtbar.
+**Am Telefon läuft der Text über die ganze Breite**, also liegt auch
+das ganze Bild im dunklen Teil. Dort hat dieser Verlauf keine Aufgabe
+mehr, er verdunkelt nur.
+
+**Gemessen, mittlere Helligkeit des Heldenbereichs von 255:**
+
+| | links oben | rechts oben | links unten | rechts unten |
+|---|---|---|---|---|
+| 390 px, vorher | 49,4 | 32,0 | 33,6 | 43,6 |
+| 390 px, jetzt | 59,3 | 36,8 | 45,3 | 49,5 |
+| 1440 px (unverändert) | 30,1 | 35,8 | 79,3 | 79,9 |
+
+Die Zahlen für 1440 px erklären nebenbei, warum es am Rechner nicht
+auffiel: Dort ist die untere Hälfte mit 79 mehr als doppelt so hell
+wie am Telefon, das Foto liest sich also.
+
+**Warum nicht heller.** Die Grenze ist der Fließtext, nicht die
+Überschrift. Gemessen am **hellsten** Bildpunkt unter dem Text, gegen
+Weiß:
+
+| Schleier | Überschrift | Slogan | Fließtext |
+|---|---|---|---|
+| vorher | 15,76:1 | 15,15:1 | 8,20:1 |
+| jetzt | 10,54:1 | 11,73:1 | **5,03:1** |
+| 0,70 / 0,50 / 0,80 | 7,13:1 | 9,15:1 | 3,85:1 |
+| 0,62 / 0,38 / 0,72 | 5,26:1 | 7,23:1 | 2,65:1 |
+
+Die beiden unteren Zeilen verfehlen die 4,5:1 aus WCAG 1.4.3. Wer das
+Foto noch stärker sehen will, braucht eine andere Lösung für den Text,
+etwa ein eigenes Polster hinter dem Textblock. **Das wäre Gestaltung
+und gehört dem Betreiber.**
+
+**Zwei Messfehler auf dem Weg, beide hier festgehalten:** Der erste
+Durchgang maß 132,6 statt 51, weil der weiße Cookie-Kasten im Bild
+lag. Seitdem setzt die Messung die Einwilligung vorher. Und der zweite
+Durchgang maß den Text mit, statt den Untergrund; jetzt wird der Text
+vor der Aufnahme unsichtbar geschaltet.
+
+**Geprüft:** `pruefe-darstellung` 144 von 144, `pruefe-mitwachsend`
+63 Messungen ohne Beanstandung, `pruefe-startseite` 45,
+`pruefe-schwebe` 20. Version auf `20261122c`.
