@@ -22107,6 +22107,17 @@ Regel ohnehin ausgenommen.
   keine `robots`-Angabe, obwohl `termin.html` und die beiden Stummel
   unter `produkte/` längst auf `noindex` stehen. Jetzt auch.
 
+**Nachgeprüft auf der Vorschau, und das korrigiert die Einordnung
+beider Funde.** Beide waren **nicht** erreichbar:
+`/_template.html` antwortet mit **404**, der Worker liefert Dateien mit
+führendem Unterstrich gar nicht aus. `/kontakt.html` antwortet mit
+**301** auf `/#kontakt`, also kommt der Stummel selbst nie beim
+Besucher an. Es war damit **kein offener Mangel auf der Seite**,
+sondern ein Mangel im Quelltext. Das `noindex` bleibt trotzdem
+stehen: Es kostet nichts und greift, falls die Auslieferungsregel
+später einmal anders aussieht. Gemessen am 22.11.2026 mit `curl` ohne
+Folgen von Weiterleitungen, mit eindeutigem Abfrageanhang.
+
 **Abgesichert durch `scripts/pruefe-metatexte.mjs`** (neu). Prüft
 Vorhandensein, Länge, Marke im Titel, Gedankenstriche und Doppelungen
 auf allen 56 ausgelieferten Seiten. Gegenprobe mit zwei eingebauten
