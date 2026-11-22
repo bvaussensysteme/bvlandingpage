@@ -21945,3 +21945,62 @@ derselben Entscheidung.
 und ein fremdes wird nicht genommen. Die Karte kommt vorerst ohne
 Bild aus; das sieht man ihr an. Sobald ein Foto da ist, ist es in
 einer Minute eingesetzt.
+
+## 22.11.2026 - Eigene Handschrift: weg vom Aussehen des Lieferanten
+
+**Anlass.** Der Betreiber hat selbst bemerkt, dass die Seite der Seite
+seines Lieferanten VD AluSysteme stark ähnelt: „die haben selbe button
+designs und vieles mehr oh nein". Nachgemessen in Chromium bei
+1440 px, beide Startseiten geladen und die berechneten Werte
+verglichen. Der Eindruck stimmte: gleiches Gold auf zwei Stellen hinter
+dem Komma, gleiche Pille, gleicher durchsichtiger Zweitknopf, gleicher
+Eckenradius, gleicher Aufbau der Zeile über der Überschrift.
+
+**Was NICHT die Ursache war.** Das Gold stammt aus dem eigenen Logo
+(Markenbibliothek `#c67f2d`, freigegebene Palette `#C58A32`). Beide
+Betriebe liegen in derselben Farbfamilie, weil ihre Logos es tun. Eine
+andere Hauptfarbe hätte mit dem eigenen Logo gebrochen.
+
+**Vorgehen.** Zwei Prüfer: einer hat acht ausgearbeitete Richtungen
+entworfen, einer geprüft, welche davon die Anfragen gefährdet. Alle
+acht wurden mit dem echten Gold und der echten Schrift gerendert und
+dem Betreiber als Bild vorgelegt. Er hat **Richtung 4** gewählt.
+
+**Was jetzt gilt.** Die Einzelheiten mit allen Zahlen stehen in
+`docs/ABSTAND-ZUM-LIEFERANTEN.md`. Kurz:
+
+| Merkmal | vorher | jetzt |
+|---|---|---|
+| Knöpfe | Pille 999 px | 10 px |
+| Hauptknopf | Gold ohne Rand | Gold mit 3 px Materialkante unten |
+| Zweitknopf auf Dunkel | weißer Rand 60 % | Champagner, auch die Schrift |
+| Zeile über der Überschrift | Goldstrich davor | Kapsel ohne Strich |
+| Karten | 14 px | 20 px |
+
+Die Materialkante ist das eigene Erkennungszeichen. Sie greift auf,
+was der Betrieb macht: geschnittene Aluminiumprofile.
+
+**Zwei Fehler unterwegs, beide gemessen und behoben.**
+
+1. Die Kapsel hatte zuerst eine durchscheinende Goldfläche. Damit hing
+   ihr Kontrast vom Abschnitt darunter ab und fiel auf Steingrau auf
+   **4,03:1**, unter die 4,5:1 aus WCAG 2.2, 1.4.3. Mit einer
+   deckenden Farbe sind es überall 5,07:1.
+2. Im Kopf blieben „Jetzt anfragen" und „Konfigurator" rund, während
+   alles darunter schon eckig war. Der Konfigurator-Knopf brauchte
+   dafür ein `!important`, weil seine Grundregel in `style.css` selbst
+   eines benutzt. Zwei Knopfformen auf einem Bildschirm sind schlimmer
+   als eine falsche.
+
+**Was ausdrücklich NICHT geändert wurde:** die runden Symbolknöpfe an
+den Bilderstreifen und am Karussell. Ein runder Knopf um ein einzelnes
+Zeichen ist allgemeiner Standard und taugt nicht als
+Erkennungsmerkmal.
+
+**Nicht angefasst, weil Layout und Sache des Betreibers:** Im Hero
+konkurrieren fünf Handlungen, und in der Klebeleiste sind „Kostenlos
+anfragen" und „WhatsApp" beide golden gefüllt, also zweimal
+Hauptknopf. Beides steht in `docs/NEXT_TASK.md`.
+
+**Keine Rechtsberatung.** Ob eine Ähnlichkeit rechtlich zählt,
+beurteilt ein Anwalt. Festgehalten ist nur, was gemessen wurde.

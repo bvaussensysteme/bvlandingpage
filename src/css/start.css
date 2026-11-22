@@ -781,3 +781,144 @@
 .start-premium .article-body a[style*="--gold-dark"],
 .start-premium a[style*="gold-dark"] { color: var(--gold-text) !important; }
 .start-premium .service-box-badge { color: var(--black); }
+
+/* ===========================================================================
+   EIGENE HANDSCHRIFT, RICHTUNG 4 "WEICH-ECKIG" (22.11.2026)
+
+   ANLASS, gemessen. Der Betreiber hat bemerkt, dass die Seite der
+   Seite seines Lieferanten VD AluSysteme stark ähnelt. Ich habe beide
+   Startseiten im Browser geladen und verglichen:
+
+     Gold als Flaeche   #C58A32  gegen  #C18A3E
+     Gold als Text      #896023  gegen  #8A5D22
+     Hauptknopf         Pille 999px, Gold gefuellt  gegen  dasselbe
+     Zweitknopf dunkel  2px Rand rgba(255,255,255,.6)  gegen  .55
+     Eckenradius Karten 14px  gegen  14px
+     Augenbraue         Goldstrich davor, Versalien  gegen  dasselbe
+
+   Das Gold BLEIBT. Es stammt aus dem eigenen Logo (Markenbibliothek
+   #c67f2d, freigegebene Palette #C58A32), nicht vom Lieferanten. Eine
+   andere Farbe wuerde mit dem eigenen Logo brechen.
+
+   Geaendert wird deshalb die FORM, und zwar vier Dinge, die bisher
+   identisch waren. Ansage des Betreibers: "Nr. 4 und die seite muss
+   jedenfalls so sein das die nicht ankommen und heulen ich hab die
+   kopiert."
+
+   WAS NICHT GEAENDERT WIRD: runde Symbolknoepfe (Pfeile am Streifen und
+   am Karussell). Ein runder Knopf um ein einzelnes Zeichen ist
+   allgemeiner Standard und kein Erkennungsmerkmal.
+
+   Der Unterschied ist in docs/ABSTAND-ZUM-LIEFERANTEN.md mit Zahlen
+   festgehalten.
+   =========================================================================== */
+
+/* 1. KNOEPFE: 10 px statt Pille. Die Pille ist das auffaelligste
+      gemeinsame Merkmal. 10 px ist weit genug weg, dass man es auf
+      einen Blick sieht, und weich genug, dass die Seite freundlich
+      bleibt; die Kundschaft baut ein Dach ueber die Terrasse, keine
+      Maschinenhalle. */
+.start-premium .btn,
+.start-premium .leistungen-grid--neu .leistung-link,
+.start-premium .stoffe-mehr .leistung-link,
+.start-premium .kontakt-card .leistung-link,
+/* Auch die Knoepfe, die nicht .btn heissen. Gemessen am 22.11.2026 am
+   Bildschirmabzug: Im Kopf blieben "Jetzt anfragen" und
+   "Konfigurator" rund, waehrend alles darunter schon eckig war. Zwei
+   Knopfformen auf einem Bildschirm sind schlimmer als eine falsche. */
+.start-premium .nav-cta,
+.start-premium .mobile-cta,
+.start-premium .nav-konfigurator,
+.start-premium .aw-btn,
+.start-premium .aw-photo-btn,
+.start-premium .cb-btn { border-radius: 10px; }
+/* !important nur hier, und nur, weil die Grundregel in style.css
+   selbst !important benutzt (.nav-konfigurator, Zeile 1882 ff.). Ohne
+   das bliebe der Konfigurator-Knopf im Kopf als einziger bei 14 px. */
+.start-premium .nav-konfigurator { border-radius: 10px !important; }
+
+/* 2. MATERIALKANTE am Hauptknopf. Eine 3 px dicke Linie in dunklerem
+      Gold am unteren Rand, wie die Schnittkante eines Profils. Das ist
+      das eigene Erkennungszeichen; der Lieferant hat nichts
+      Vergleichbares. --gold-dark ist hier richtig, weil es eine
+      FLAECHE ist und kein Text: Als Text waere es zu hell (4,00:1). */
+.start-premium .btn-gold {
+  border-bottom: 3px solid var(--gold-dark);
+  padding-bottom: 0;
+}
+
+/* 3. ZWEITKNOPF AUF DUNKEL: Champagner statt Weiss. Der weisse Rand
+      mit 60 Prozent Deckkraft ist beim Lieferanten mit 55 Prozent
+      praktisch derselbe. Champagner gehoert zur eigenen Palette und
+      ergibt auf Anthrazit 11,80:1. */
+.start-premium .btn-outline-white {
+  border-color: var(--champagner);
+  color: var(--champagner);
+}
+@media (hover: hover) and (pointer: fine) {
+  .start-premium .btn-outline-white:hover {
+    background: var(--champagner);
+    border-color: var(--champagner);
+    color: var(--dark);
+  }
+}
+
+/* 4. AUGENBRAUE: Kapsel statt Strich. Der kleine Goldstrich vor einer
+      gesperrten Versalzeile ist dasselbe Muster wie beim Lieferanten.
+      Hier wird daraus eine kleine Kapsel mit hinterlegtem Gold. Der
+      Strich aus style.css wird nur ueberdeckt, nicht geloescht: Die
+      Live-Seite benutzt dieselbe Datei und bleibt unberuehrt. */
+.start-premium .tag::before,
+.start-premium .hero--neu .hero-eyebrow::before { display: none; }
+
+/* ALLE .tag, nicht nur die direkten Kinder eines Abschnitts.
+   Gemessen am 22.11.2026: Auf den Produktseiten sassen zwei Marken in
+   einem anderen Kasten und blieben deshalb ohne Kapsel. Zwei Arten
+   derselben Zeile auf einer Seite sind schlechter als eine. */
+.start-premium .tag:not([style*="color"]) {
+  display: inline-block;
+  /* DECKENDE Farbe, keine Transparenz. Gemessen am 22.11.2026: Mit
+     rgba(197,138,50,.14) haengt der Kontrast vom Abschnitt darunter
+     ab, und auf Steingrau #E9E7E2 fiel er auf 4,03:1, also unter die
+     4,5:1 aus WCAG 2.2, 1.4.3. Mit einem festen Ton stimmt er
+     ueberall gleich. */
+  background: #FAF3E8;
+  color: var(--gold-text);
+  border-radius: 8px;
+  padding: 6px 12px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+/* Auf dunklem Grund die helle Fassung: Champagner auf einer leicht
+   aufgehellten Flaeche, 11,80:1. Betrifft die Koepfe der Produkt-,
+   Rechner- und Ratgeberseiten und das Hero der Startseite. */
+/* :not([style*="color"]) auch hier: Einige Abschnitte setzen die
+   Schriftfarbe direkt im HTML, zum Beispiel der dunkle Schlussblock
+   der Produktseiten. Eine Regel im Stylesheet kommt dagegen nicht an,
+   und auf der hellen Kapsel ergab das gemessen 2,70:1. Diese Zeilen
+   bleiben deshalb schlicht, ohne Kapsel und ohne den alten Strich. */
+.start-premium .produkt-hero .tag:not([style*="color"]),
+.start-premium .wz-hero .tag:not([style*="color"]),
+.start-premium .bg-hero .tag:not([style*="color"]),
+.start-premium .article-hero .tag:not([style*="color"]),
+.start-premium .hero-section .tag:not([style*="color"]),
+.start-premium .pr-dunkel .tag:not([style*="color"]) {
+  background: rgba(234, 217, 187, 0.16);
+  color: var(--champagner);
+}
+.start-premium .hero--neu .hero-eyebrow {
+  display: inline-flex;
+  background: rgba(234, 217, 187, 0.16);
+  color: var(--champagner);             /* auf dunklem Grund 11,80:1 */
+  border-radius: 8px;
+  padding: 6px 12px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+
+/* 5. KARTEN: 20 px statt 14. Weicher als der Lieferant, nicht gleich. */
+.start-premium .leistung-card,
+.start-premium .galerie-item:not(.galerie-placeholder),
+.start-premium .produkt-card,
+.start-premium .kontakt-card,
+.start-premium .werkzeug-karte { border-radius: 20px; }
