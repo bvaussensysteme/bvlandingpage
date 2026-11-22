@@ -22176,5 +22176,20 @@ auswählen zu lassen war der falsche Weg. Der Betreiber hat die Richtung
 am Bildschirmfoto beurteilt und sie abgelehnt, als sie gebaut war. Beim
 nächsten Mal: eine Fassung, am echten Inhalt, als Bild, vor dem Einbau.
 Genau so ist am selben Abend „Richtung 5" entstanden, aus zwei
-Vorlagen, die der Betreiber selbst geschickt hat. Sie ist **nicht**
-eingebaut und liegt nur als Bild vor.
+Vorlagen, die der Betreiber selbst geschickt hat: eine Fassung, am
+echten Inhalt, als Bild, vor dem Einbau. Sie wurde **nie eingebaut**
+und auf Ansage des Betreibers („ok gut richtung 5 weg dann") wieder
+gelöscht. Sie hat nie im Repository gelegen.
+
+**Was von Richtung 5 bleiben soll, auch ohne die Dateien**, weil es
+unabhängig von der Gestaltung gilt und in den Bildern zum ersten Mal
+sichtbar wurde:
+
+- Im Kopfbereich der Startseite konkurrieren **fünf** Handlungen. Am
+  Handy ist das eine Wand aus fünf Knöpfen, bevor man etwas von der
+  Seite gesehen hat. Steht als offener Punkt in `docs/NEXT_TASK.md`.
+- Das Kopfbild ist so dunkel abgedeckt, daß vom Produkt fast nichts
+  zu erkennen ist. Ebenfalls offen, ebenfalls Entscheidung des
+  Betreibers.
+
+Beides ist **nicht** geändert worden.
