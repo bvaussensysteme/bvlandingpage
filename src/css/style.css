@@ -1137,11 +1137,28 @@ body.bv-menu-open #bv-scroll-top {
    weggeschnitten, der Fokus also unsichtbar (WCAG 2.2, 2.4.7).
    Deshalb hier .galerie-item davor (0,3,0) und der Ring nach innen. */
 .galerie-item .galerie-oeffnen:focus-visible {
-  outline: 3px solid var(--gold-light);
+  /* DIE FARBE IST CHAMPAGNER UND NICHT GOLD, und das ist eine
+     Entscheidung des Betreibers vom 22.11.2026. Die Startseite hat
+     genau zwei Ringfarben: --dark auf hellen Abschnitten,
+     --champagner auf dunklen (src/css/start.css). Ein Foto ist fuer
+     einen Ring eine dunkle bis beliebige Flaeche, also gilt der
+     zweite Fall. Gold waere ein dritter Ton gewesen. Vorgeschlagen
+     vom ux-architect, dem Betreiber mit beiden Zahlen vorgelegt.
+     Der Ersatzwert steht da, weil --champagner nur unter
+     .start-premium definiert ist: Ohne ihn waere die ganze Regel
+     ungueltig, sobald eine Galerie auf einer anderen Seite stuende,
+     und der Ring waere wieder weg.
+     RING INNEN, NICHT AUSSEN. Die Produktseiten setzen ihn aussen
+     (.produkt-bild-knopf, .galerie-kachel), dort steht er auf hellem
+     Grund. Hier muss er nach innen, weil die Kachel overflow: hidden
+     hat und ihn sonst abschneidet. Die Regel dahinter: aussen auf
+     Hell, innen auf Foto oder wo etwas abschneidet. */
+  outline: 3px solid var(--champagner, #EAD9BB);
   outline-offset: -3px;
-  /* Das dunkle Innenband ist kein Schmuck: Gold auf einem beliebigen
-     Foto erfuellt die 3:1 aus WCAG 1.4.11 nicht zuverlaessig, Gold
-     neben #111 kommt auf 8,8:1. */
+  /* Das dunkle Innenband ist kein Schmuck, sondern die
+     Kontrastsicherung: Eine helle Linie auf einem beliebigen Foto
+     erfuellt die 3:1 aus WCAG 1.4.11 nicht zuverlaessig. Gerechnet
+     gegen das Band: Champagner 13,6:1 (Gold waere 9,0:1). */
   box-shadow: inset 0 0 0 6px rgba(17,17,17,0.85);
 }
 .galerie-label {

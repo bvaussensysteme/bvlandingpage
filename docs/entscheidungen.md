@@ -20521,3 +20521,38 @@ Blättern also nicht, welches Bild jetzt zu sehen ist (WCAG 4.1.3).
 Und das Herkunfts-Abzeichen `.vd-badge` setzt `outline: none` im
 Fokus und zeigt ihn nur über den goldenen Hintergrund. Beides steht
 in `docs/NEXT_TASK.md`.
+
+## 22.11.2026 - Der Fokusring auf den Fotos ist Champagner, nicht Gold
+
+**Entscheidung des Betreibers**, vorgelegt mit beiden Zahlen,
+empfohlen vom `ux-architect`.
+
+**Worum es ging.** Für die neuen Bildschaltflächen der Startseite
+brauchte es einen sichtbaren Fokusring. Eingebaut war zunächst
+Markengold `#D9AB64`. Der Gestaltungsprüfer wies darauf hin, dass die
+Startseite bewusst genau **zwei** Ringfarben hat: `--dark` auf hellen
+Abschnitten, `--champagner` auf dunklen (`src/css/start.css`). Ein
+Foto ist für einen Ring eine dunkle bis beliebige Fläche, gehört also
+in den zweiten Fall. Gold wäre ein dritter Ton gewesen.
+
+**Was jetzt gilt.** `--champagner` `#EAD9BB`, 3 px, nach innen, dazu
+das dunkle Innenband. Im Browser nachgemessen:
+`rgb(234, 217, 187)`, `outline-offset: -3px`.
+
+**Die Zahlen, die der Entscheidung zugrunde lagen.** Gerechnet gegen
+das Innenband `#111111`: Champagner 13,6:1, Gold 9,0:1. Verlangt sind
+3:1 (WCAG 1.4.11). Beide hätten gereicht; die Wahl war Gestaltung,
+nicht Technik, und darum eine Frage an den Betreiber.
+
+**Ein Ersatzwert steht dabei:** `var(--champagner, #EAD9BB)`.
+`--champagner` ist nur unter `.start-premium` definiert. Ohne den
+Ersatzwert wäre die ganze Regel ungültig, sobald eine Galerie auf
+einer anderen Seite stünde, und der Ring wäre wieder weg. Das ist
+genau die Art Fehler, die am 21.11.2026 zwanzig unsichtbare Ringe
+verursacht hat.
+
+**Die Regel dahinter, damit sie nicht wieder verloren geht:** Ring
+außen auf hellem Grund, Ring innen auf einem Foto oder dort, wo ein
+Kasten mit `overflow: hidden` ihn abschneiden würde. Die
+Produktseiten (`.produkt-bild-knopf`, `.galerie-kachel`) bleiben
+deshalb bei ihrem außen liegenden Ring in `--gold-text`.
