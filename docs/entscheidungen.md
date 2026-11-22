@@ -21393,3 +21393,42 @@ ihr `canonical` zeigt auf die Startseite).
 **Gegenprobe:** Drei falsche Adressen in eine Kopie der Sitemap
 gelegt, eine nicht vorhandene, eine mit `noindex` und die gesperrte.
 Alle drei fallen auf.
+
+## 22.11.2026 - Zwei erfundene Angaben in den strukturierten Daten, und eine Prüflücke
+
+**Anlass.** Die SEO-Prüfung hat die Seite durchgesehen, nachdem der
+Betreiber gesagt hatte, Google müsse die richtigen Seiten indexieren.
+
+**1. Eine Suchfunktion, die es nicht gibt.** `baugenehmigung.html`
+meldete Google eine `SearchAction` unter
+`baugenehmigung.html?q={search_term_string}`. Nachgesehen: Die Seite
+wertet keinen Parameter `q` aus, weder `URLSearchParams` noch
+`location.search` kommen dort vor. Strukturierte Daten dürfen nur
+beschreiben, was die Seite wirklich kann. Entfernt.
+
+**2. Ein Verweis auf sich selbst.** Die Startseite sagte per
+`branchOf` aus, BV AussenSysteme sei eine Niederlassung von
+BV AussenSysteme. Das beschreibt nichts. Entfernt.
+
+**3. Die eigentliche Lehre: ein Kommentar hat den Block zerstört.**
+Beim Entfernen habe ich die Begründung als HTML-Kommentar in den
+JSON-LD-Block geschrieben. JSON kennt keine Kommentare, der Block war
+damit unbrauchbar. **Keine** der 77 vorhandenen Prüfungen hat das
+bemerkt. Aufgefallen ist es nur, weil ich danach zufällig von Hand
+nachgerechnet habe. Google hätte den Block stillschweigend verworfen.
+
+Deshalb neu: `scripts/pruefe-schema-gueltig.mjs`. Es liest jeden
+JSON-LD-Block auf jeder ausgelieferten Seite, zurzeit 93 Blöcke auf
+60 Seiten, und prüft zusätzlich, ob eine versprochene Suche auch
+existiert.
+
+**Was an der Gegenprobe gelernt wurde.** Der erste Versuch legte
+beide Fehler in dieselbe Datei. Das ging schief: Ein Block, der sich
+nicht lesen lässt, wird nicht weiter untersucht, der zweite Befund
+blieb also unsichtbar. Jetzt liegen sie in verschiedenen Dateien, und
+beide fallen auf.
+
+**Begründungen gehören von jetzt an neben den Block, nicht hinein.**
+In einer `.njk`-Vorlage wird `{# ... #}` innerhalb eines
+JSON-LD-Blocks ebenfalls nicht entfernt, auch das ist am selben Tag
+passiert.
