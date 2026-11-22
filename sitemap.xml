@@ -54,12 +54,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-  <url>
-    <loc>https://bv-aussensysteme.de/konfigurator.html</loc>
-    <lastmod>2026-07-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- HERAUSGENOMMEN AM 22.11.2026: /konfigurator.html
+       Der 3D-Konfigurator ist gesperrt (KONFIGURATOR_GESPERRT in
+       worker/index.js) und antwortet mit 503. Ansage des Betreibers
+       am 22.11.2026: "Den 3D konf lassen wir noch gesperrt er is noch
+       in entwicklung."
+       Eine Adresse, die dauerhaft 503 liefert, gehoert nicht in die
+       Sitemap: Google versucht es wieder und wieder, wirft sie
+       irgendwann aus dem Index und bewertet die Sitemap als
+       unzuverlaessig.
+       WIEDER EINTRAGEN, sobald KONFIGURATOR_GESPERRT auf false steht.
+       scripts/pruefe-sitemap.mjs erinnert daran: Es meldet, wenn die
+       Sperre faellt und der Eintrag fehlt. -->
   <url>
     <loc>https://bv-aussensysteme.de/einzugsgebiet.html</loc>
     <lastmod>2026-07-15</lastmod>
@@ -77,24 +83,6 @@
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://bv-aussensysteme.de/agb.html</loc>
-    <lastmod>2026-07-31</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://bv-aussensysteme.de/impressum.html</loc>
-    <lastmod>2026-08-11</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  <url>
-    <loc>https://bv-aussensysteme.de/datenschutz.html</loc>
-    <lastmod>2026-07-27</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
   </url>
 <url>
     <loc>https://bv-aussensysteme.de/produkte/velaris.html</loc>
@@ -189,4 +177,18 @@
   <url><loc>https://bv-aussensysteme.de/ratgeber/pergola-kaufen-ratgeber.html</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://bv-aussensysteme.de/ratgeber/aluminium-terrasse-pflegen.html</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://bv-aussensysteme.de/broschuere.html</loc><lastmod>2026-11-06</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <!-- HERAUSGENOMMEN AM 22.11.2026: /agb.html, /impressum.html,
+       /datenschutz.html
+       Diese drei Seiten tragen selbst <meta name="robots"
+       content="noindex">. Eine Adresse, die in der Sitemap steht und
+       sich gleichzeitig das Indexieren verbietet, ist ein
+       Widerspruch: Das noindex gewinnt, der Eintrag bewirkt nichts
+       und zaehlt bei Google als unsaubere Sitemap.
+       An der Indexierung aendert das NICHTS, die drei Seiten waren
+       auch vorher nicht im Index.
+       NICHT entschieden ist die andere Richtung, naemlich ob diese
+       Seiten ueberhaupt indexierbar sein sollen. Das noindex steht in
+       den Rechtstexten, und die werden nach CLAUDE.md nicht
+       angefasst, sondern dem Betreiber gemeldet. /widerruf.html ist
+       von Anfang an nicht gelistet und damit in sich schluessig. -->
 </urlset>

@@ -21335,3 +21335,61 @@ heute Klicks auf die einzelnen Kacheln mit. Die Abfrage dazu steht im
 Kopf von `scripts/stoff-reihenfolge.txt`. Deckt sich das Ergebnis
 nicht mit dieser Liste, gilt trotzdem die Liste, bis der Betreiber
 etwas anderes sagt: Klicks auf der Startseite sind keine Verkäufe.
+
+## 22.11.2026 - Die Sitemap bot Google drei Seiten an, die sich das Indexieren verbieten
+
+**Ansage des Betreibers**, wörtlich: „außerdem muss sie SEO Optimiert
+sein die Seite, das google die richtigen seiten indexiert und bei
+googlesuche anzeigt" und „Den 3D konf lassen wir noch gesperrt er is
+noch in entwicklung."
+
+**Was falsch war, nachgesehen.**
+
+1. **`/konfigurator.html` stand in der Sitemap und antwortet mit 503.**
+   Der Worker sperrt den 3D-Konfigurator (`KONFIGURATOR_GESPERRT` in
+   `worker/index.js`), und der Betreiber hat heute entschieden, dass
+   das vorerst so bleibt. Google bekam damit eine Adresse angeboten,
+   die der Server nicht ausliefern kann. Ein dauerhaftes 503 führt
+   dazu, dass die Adresse irgendwann aus dem Index fliegt, und eine
+   Sitemap mit toten Adressen gilt als unzuverlässig.
+
+2. **`/agb.html`, `/impressum.html` und `/datenschutz.html` standen in
+   der Sitemap und tragen selbst `<meta name="robots"
+   content="noindex">`.** Das ist ein Widerspruch in sich. Das noindex
+   gewinnt, der Eintrag bewirkt nichts und zählt als unsaubere
+   Sitemap. `/widerruf.html` war von Anfang an nicht gelistet und
+   damit schlüssig.
+
+**Was jetzt gilt.** Alle vier Einträge sind raus, mit Begründung an
+Ort und Stelle. Die Sitemap führt noch 45 Adressen.
+
+**Was sich dadurch NICHT ändert:** Keine dieser Seiten war im Index,
+und keine kommt dadurch hinein oder heraus. Entfernt wurde nur ein
+widersprüchliches Signal.
+
+**Was offen bleibt und dem Betreiber gehört.** Ob AGB, Impressum und
+Datenschutzerklärung überhaupt auf `noindex` stehen sollen, ist nicht
+entschieden. Viele Betriebe lassen diese Seiten indexieren. Das
+`noindex` steht in den Rechtstexten selbst, und die werden nach
+`CLAUDE.md` nicht angefasst, sondern gemeldet. Siehe
+`docs/rechtstexte-befunde.md`.
+
+**Dauerhaft abgesichert** durch `scripts/pruefe-sitemap.mjs`. Es
+prüft fünf Dinge, alle ohne Netz, weil die Sperre im Worker steht und
+ein Dateiserver dort 200 liefern würde:
+
+1. Zu jeder Adresse der Sitemap gibt es eine Datei.
+2. Keine davon trägt `noindex`.
+3. Keine vom Worker gesperrte Adresse steht drin.
+4. Fällt die Sperre, meldet die Prüfung, dass der Eintrag zurück muss.
+   Sonst bliebe der Konfigurator nach dem Freischalten unsichtbar.
+5. Jedes `canonical` zeigt auf die eigene Adresse.
+
+Dazu ein Hinweis ohne Bewertung: welche ausgelieferten Seiten weder
+`noindex` tragen noch in der Sitemap stehen. Zurzeit zwei,
+`konfigurator.html` (gewollt, gesperrt) und `kontakt.html` (gewollt,
+ihr `canonical` zeigt auf die Startseite).
+
+**Gegenprobe:** Drei falsche Adressen in eine Kopie der Sitemap
+gelegt, eine nicht vorhandene, eine mit `noindex` und die gesperrte.
+Alle drei fallen auf.

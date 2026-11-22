@@ -423,3 +423,36 @@ unbedenklich, dort ist niemand außer dem Betreiber unterwegs.
 
 **Keine Rechtsberatung.** Die verbindliche Bewertung und die Formulierung
 gehören zum Anwalt.
+
+## 22.11.2026 – AGB, Impressum und Datenschutzerklärung sind auf „noindex" gestellt
+
+**Fundstelle.** `agb.html`, `impressum.html`, `datenschutz.html` und
+`widerruf.html` tragen jeweils `<meta name="robots"
+content="noindex">`. Erzeugt werden sie aus `src/agb.njk`,
+`src/impressum.njk`, `src/datenschutz.njk` und `src/widerruf.njk`.
+
+**Nicht geändert.** Nach der Regel in `CLAUDE.md` werden diese
+Dateien nicht angefasst, auch nicht an einer technischen Zeile.
+
+**Was das bedeutet.** Google nimmt diese Seiten nicht in den Index
+auf. Wer bei Google „BV AussenSysteme Impressum" sucht, findet die
+Seite nicht über die Suche, sondern nur über den Verweis im Fuß der
+Website.
+
+**Warum das auffällt.** Die Impressumspflicht nach § 5 DDG verlangt,
+dass das Impressum „leicht erkennbar, unmittelbar erreichbar und
+ständig verfügbar" ist. Das zielt auf den Weg über die Website
+selbst, nicht auf die Google-Suche, und dieser Weg ist vorhanden. Ein
+`noindex` ist daher nach allem, was sich hier beurteilen lässt, kein
+Verstoß. Es ist aber auch kein Vorteil, und viele Betriebe lassen
+diese Seiten bewusst indexieren, weil eine auffindbare
+Datenschutzerklärung Vertrauen schafft.
+
+**Das ist keine Rechtsberatung.** Ob die Seiten indexierbar sein
+sollen, entscheidet der Betreiber, im Zweifel nach Rücksprache mit
+seinem Anwalt. Bis dahin bleibt es, wie es ist.
+
+**Was heute geschehen ist, damit es sich nicht widerspricht.** Die
+drei Adressen standen gleichzeitig in `sitemap.xml`. Diese Einträge
+sind entfernt. An der Indexierung ändert das nichts, siehe
+`docs/entscheidungen.md`.
