@@ -384,7 +384,26 @@ Einzelheiten in `docs/entscheidungen.md`, Eintrag vom 21.11.2026.
 Abgesichert durch `scripts/pruefe-fokusring.mjs` (neu) und die
 erweiterte `scripts/pruefe-referenz-galerie.mjs`.
 
+Ein dritter Fehler kam bei der Prüfung heraus und ist ebenfalls
+behoben: Am Ende der Bilderreihe fiel der Fokus auf nichts, weil der
+Pfeil unter dem Fokus verschwindet (WCAG 2.2, 2.4.3). Gemessen und
+abgesichert.
+
 **Offen geblieben, Geschmacksfrage für den Betreiber:** Der Fokusring
 auf den Fotos ist golden mit dunklem Innenband. Das Band ist nötig,
 weil Gold allein auf einem beliebigen Foto die 3:1 aus WCAG 1.4.11
 nicht sicher erreicht. Ob es gefällt, entscheidet der Betreiber.
+
+**Später prüfen, aus derselben Prüfung (21.11.2026), nicht
+gemessen:**
+- Die Bildunterschrift der Großansicht hat kein `aria-live`. Beim
+  Blättern erfährt Vorlesesoftware nicht, welches Bild jetzt zu sehen
+  ist (WCAG 4.1.3). Ein Satz Arbeit, aber ungemessen.
+- Das Herkunfts-Abzeichen `.vd-badge` setzt `outline: none` im Fokus
+  und zeigt ihn nur über den goldenen Hintergrund. Das steht seit
+  Langem so da und wird jetzt häufiger erreicht, weil die Abzeichen in
+  der Tabulatorfolge direkt hinter den neuen Bildschaltflächen liegen.
+- Der Hintergrund der Großansicht bekommt kein `inert`. Bei
+  `aria-modal="true"` ist das für neuere Vorlesesoftware in Ordnung,
+  für ältere nicht sicher. Nicht gemessen, weil hier keine echte
+  Vorlesesoftware läuft.

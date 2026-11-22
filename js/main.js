@@ -165,6 +165,23 @@ function updateLightbox() {
   document.getElementById('lightbox-caption').textContent = item.caption;
   document.getElementById('lightbox-prev').classList.toggle('hidden', lightboxIndex === 0);
   document.getElementById('lightbox-next').classList.toggle('hidden', lightboxIndex === lightboxImages.length - 1);
+  /* WENN DER KNOPF UNTER DEM FOKUS VERSCHWINDET.
+     Gemessen am 21.11.2026: Wer mit der Tastatur auf "Nächstes Bild"
+     bis ans Ende der Reihe blättert, verliert den Fokus an <body> -
+     der Knopf bekommt .hidden (display: none) und nimmt ihn mit.
+     Am Anfang der Reihe dasselbe mit "Vorheriges Bild". Das ist
+     WCAG 2.2, 2.4.3. Erst ein weiterer Tabulatordruck holt den Fokus
+     zurueck; dazwischen steht er nirgends.
+     Also: zum Gegenpfeil, und wenn der auch weg ist, zum Schliessen. */
+  var aktiv = document.activeElement;
+  if (aktiv && aktiv.classList && aktiv.classList.contains('hidden')) {
+    var ersatz = document.getElementById(
+      aktiv.id === 'lightbox-next' ? 'lightbox-prev' : 'lightbox-next');
+    if (!ersatz || ersatz.classList.contains('hidden')) {
+      ersatz = document.getElementById('lightbox-close');
+    }
+    if (ersatz) { try { ersatz.focus(); } catch (e) {} }
+  }
 }
 
 function lightboxNav(dir) {

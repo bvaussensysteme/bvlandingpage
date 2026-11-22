@@ -57,7 +57,7 @@ let fehler = 0, geprueft = 0;
    betroffenen Pruefungen MUESSEN dort fehlschlagen; gewertet wird
    stattdessen, ob die Sabotage auffaellt (siehe unten). */
 const SABOTIERT = ['Tabulator erreicht jedes Bild', 'Fokus kehrt zum Bild zurueck',
-                   'Jede Karte oeffnet ihr eigenes Bild'];
+                   'Fokus bleibt am Ende der Reihe', 'Jede Karte oeffnet ihr eigenes Bild'];
 function pruef(name, ok, beleg) {
   if (GEGENPROBE && SABOTIERT.includes(name)) {
     console.log('  (sabotiert) ' + name.padEnd(48) + ' ' + (beleg || ''));
@@ -145,6 +145,22 @@ if (GEGENPROBE) {
   await seite.evaluate(() => {
     document.querySelectorAll('#galerie .galerie-oeffnen').forEach((k) => k.setAttribute('tabindex', '-1'));
   });
+  /* Sabotage 2b: Die Rettung am Reihenende ausbauen.
+     ERSTER VERSUCH WAR ZU SCHWACH und fiel nicht auf: Er rief blur()
+     auf dem alten Knopf, der den Fokus da schon abgegeben hatte.
+     Jetzt wird das Ergebnis der Rettung zurueckgenommen, also der
+     Fokus dort weggenommen, wo sie ihn gerade hingesetzt hat. */
+  await seite.evaluate(() => {
+    const echt = window.updateLightbox;
+    window.updateLightbox = function () {
+      const a = document.activeElement;
+      const warPfeil = !!(a && (a.id === 'lightbox-next' || a.id === 'lightbox-prev'));
+      echt();
+      if (warPfeil && a.classList.contains('hidden') && document.activeElement !== a) {
+        document.activeElement.blur();
+      }
+    };
+  });
   /* Sabotage 2: Rueckkehr des Fokus kappen. */
   await seite.evaluate(() => {
     window.__echtesSchliessen = window.closeLightbox;
@@ -218,6 +234,35 @@ pruef('Eingabetaste oeffnet jedes Bild', stummeTaste.length === 0,
 pruef('Fokus kehrt zum Bild zurueck', fokusVerloren.length === 0,
   fokusVerloren.length ? 'verloren bei: ' + fokusVerloren.join(',') : daten.karten.length + ' Bilder');
 
+/* AM REIHENENDE (ab 21.11.2026).
+   Gefunden vom qa-accessibility-auditor, selbst nachgemessen: Wer mit
+   der Tastatur bis ans Ende der Reihe blaettert, verlor den Fokus an
+   <body>, weil der Pfeil unter dem Fokus .hidden bekommt und ihn
+   mitnimmt (WCAG 2.2, 2.4.3). An beiden Enden gemessen. */
+async function amEnde(richtung) {
+  const start = richtung === 'vor' ? daten.karten.length - 2 : 1;
+  const pfeil = richtung === 'vor' ? 'lightbox-next' : 'lightbox-prev';
+  await seite.evaluate((n) => document.querySelectorAll('#galerie .galerie-oeffnen')[n].focus(), start);
+  await seite.keyboard.press('Enter');
+  await seite.waitForTimeout(100);
+  await seite.evaluate((id) => document.getElementById(id).focus(), pfeil);
+  await seite.keyboard.press('Enter');
+  await seite.waitForTimeout(120);
+  const wo = await seite.evaluate(() => {
+    const a = document.activeElement;
+    return { leer: a === document.body, versteckt: !!(a.classList && a.classList.contains('hidden')),
+             name: a.id || a.tagName };
+  });
+  await seite.keyboard.press('Escape');
+  await seite.waitForTimeout(100);
+  return wo;
+}
+const endeVor = await amEnde('vor');
+const endeZurueck = await amEnde('zurueck');
+pruef('Fokus bleibt am Ende der Reihe',
+  !endeVor.leer && !endeVor.versteckt && !endeZurueck.leer && !endeZurueck.versteckt,
+  'vorwaerts: ' + endeVor.name + ', rueckwaerts: ' + endeZurueck.name);
+
 if (GEGENPROBE) {
   await seite.evaluate(() => {
     if (window.__echtesSchliessen) window.closeLightbox = window.__echtesSchliessen;
@@ -252,6 +297,9 @@ if (GEGENPROBE) {
     'nur ' + ertabbt.size + ' von ' + daten.karten.length + ' ertabbt');
   pruef('Die gekappte Rueckkehr faellt auf', fokusVerloren.length > 0,
     fokusVerloren.length + ' Bilder ohne Rueckkehr');
+  pruef('Die ausgebaute Rettung am Reihenende faellt auf',
+    endeVor.leer || endeVor.versteckt || endeZurueck.leer || endeZurueck.versteckt,
+    'vorwaerts: ' + endeVor.name + ', rueckwaerts: ' + endeZurueck.name);
   pruef('Die Verschiebung faellt auf', falsch.length > 0,
     `${falsch.length} Karte(n) zeigen das falsche Bild`);
 } else {

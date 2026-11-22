@@ -20482,3 +20482,42 @@ hellen Fotos gefällt, ist Geschmack und Sache des Betreibers.
 Die Großansicht mit der Tastatur öffnen (Tab bis zum ersten Bild,
 Eingabetaste), mit den Pfeiltasten blättern, Escape drücken. Der Fokus
 muss auf demselben Bild wieder sichtbar sein.
+
+## 21.11.2026 - Fokus fiel am Ende der Bilderreihe auf nichts
+
+**Gefunden vom `qa-accessibility-auditor` bei der Prüfung der
+Tastaturkorrektur, selbst nachgemessen, bevor etwas geändert wurde.**
+
+**Was falsch war.** Wer in der Großansicht mit der Tastatur auf
+„Nächstes Bild" bis ans Ende der Reihe blättert, verliert den Fokus.
+Der Pfeil bekommt beim letzten Bild `.hidden` (`display: none`) und
+nimmt den Fokus mit. Gemessen am 21.11.2026: `document.activeElement`
+ist danach `BODY`, an beiden Enden der Reihe. Erst ein weiterer
+Tabulatordruck fängt ihn wieder ein. Das ist WCAG 2.2, 2.4.3
+„Fokus-Reihenfolge", Stufe AA.
+
+**Warum das vorher niemandem auffiel.** Bis zum 21.11.2026 ließ sich
+die Großansicht überhaupt nicht mit der Tastatur öffnen. Der Mangel
+lag im Bestand, erreichbar wurde er erst durch die Korrektur vom
+selben Tag.
+
+**Was jetzt gilt.** Verschwindet der Knopf unter dem Fokus, geht der
+Fokus auf den Gegenpfeil; ist der auch weg, auf „Schließen".
+Gemessen: vorwärts `lightbox-prev`, rückwärts `lightbox-next`, kein
+`BODY` mehr.
+
+**Die Gegenprobe war erst zu schwach, und das gehört hierher.** Der
+erste Versuch rief `blur()` auf dem alten Knopf, der den Fokus da
+schon abgegeben hatte. Die Sabotage fiel deshalb nicht auf, die
+Prüfung meldete fälschlich „bestanden". Jetzt nimmt sie das Ergebnis
+der Rettung zurück, also den Fokus dort weg, wo die Rettung ihn
+hingesetzt hat. **Dasselbe Muster wie am 20.11.2026: eine Gegenprobe
+muss am Gegenstand ansetzen, nicht am erwarteten Ablauf.**
+
+**Zwei weitere Hinweise desselben Prüfers, nicht geändert**, weil
+nicht gemessen und nicht in diesem Auftrag: Die Bildunterschrift der
+Großansicht hat kein `aria-live`, Vorlesesoftware erfährt beim
+Blättern also nicht, welches Bild jetzt zu sehen ist (WCAG 4.1.3).
+Und das Herkunfts-Abzeichen `.vd-badge` setzt `outline: none` im
+Fokus und zeigt ihn nur über den goldenen Hintergrund. Beides steht
+in `docs/NEXT_TASK.md`.
