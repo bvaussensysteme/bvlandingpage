@@ -4198,3 +4198,37 @@ body.bv-konfig-open #bvKonfigBubble {
     animation: hintergrundFahrt 24s var(--kurve-weich) infinite alternate;
   }
 }
+
+/* PFEILE AM REFERENZ-KARUSSELL (22.11.2026). Ansage des Betreibers:
+   links von den Punkten einer nach links, rechts davon einer nach
+   rechts, zum Blaettern am Rechner. Erzeugt von js/karussell.js.
+
+   Sie sehen aus wie die Pfeile an den Bilderstreifen der
+   Produktseiten (.galerie-pfeil) und benutzen bewusst dieselben
+   Werte: eine Seite, eine Pfeilform.
+
+   display: none als Grundzustand, eingeblendet nur fuer Maus und
+   feine Zeigerspitze. Am Telefon wischt man. */
+.karussell-pfeil {
+  display: none;
+  width: 44px; height: 44px; min-width: 44px;
+  align-items: center; justify-content: center;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: var(--white); color: var(--black); cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.karussell-pfeil svg { width: 20px; height: 20px; }
+.karussell-pfeil:hover { border-color: var(--gold); background: var(--offwhite, #F5F2EB); }
+/* --gold-text, nicht --gold: Gemessen am 19.11.2026 ergibt das
+   Markengold auf Weiss nur 2,43:1, WCAG 2.2 1.4.11 verlangt 3:1. */
+.karussell-pfeil:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 2px; }
+.karussell-pfeil[aria-disabled="true"] { opacity: .45; cursor: default; }
+.karussell-pfeil[aria-disabled="true"]:hover { border-color: var(--border); background: var(--white); }
+@media (hover: hover) and (pointer: fine) {
+  .karussell-pfeil { display: inline-flex; }
+}
+/* Etwas mehr Luft zwischen Pfeil und Punktreihe als zwischen den
+   Punkten selbst, sonst klebt der Pfeil am ersten Punkt. */
+@media (hover: hover) and (pointer: fine) {
+  .karussell-leiste { gap: 16px; }
+}

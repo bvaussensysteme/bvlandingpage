@@ -21702,3 +21702,37 @@ der Liste.
   ob man ihn **sieht**. Ein Ring in der Farbe des Untergrunds besteht
   diese Prüfung. Das ist der nächste Schritt und steht in
   `docs/NEXT_TASK.md`.
+
+## 22.11.2026 - Pfeile links und rechts der Punkte am Referenz-Karussell
+
+**Ansage des Betreibers**, wörtlich: „mach unten lenks von den punkten
+pfeil nach links rechts von den punkten pfeil nach rechts zum blättern
+auf pc".
+
+**Was jetzt gilt.** Unter den Referenzbildern steht eine Zeile:
+Pfeil nach links, die Punktreihe, Pfeil nach rechts. Ein Klick schiebt
+um genau ein Bild weiter, nicht um eine ganze Breite. Am Anschlag
+meldet der Pfeil, dass er nichts mehr tut.
+
+**Nur am Rechner.** Die Pfeile stehen auf `display: none` und werden
+erst bei `(hover: hover) and (pointer: fine)` eingeblendet. Am Telefon
+wischt man, dort nähmen zwei Knöpfe nur Platz weg. Das war auch am
+20.11.2026 schon die Linie, als der Betreiber die alten Pfeile unten
+rechts entfernen ließ: Es geht nicht gegen Pfeile, sondern gegen Pfeile
+an der falschen Stelle.
+
+**Warum sie aussehen wie die anderen.** Es sind dieselben Werte wie bei
+`.galerie-pfeil` an den Bilderstreifen der Produktseiten: 44 × 44 px,
+runder Rand, dieselbe Hover-Farbe, derselbe Fokusring in `--gold-text`
+(das Markengold selbst erreicht auf Weiß nur 2,43:1 und ist als
+Ringfarbe zu schwach). Eine Seite, eine Pfeilform.
+
+**`aria-disabled`, nicht `disabled`.** Ein ausgeschalteter Knopf
+verliert den Tastaturfokus in dem Moment, in dem er am Anschlag hart
+wird, und der Fokus springt an den Seitenanfang. Dieselbe Entscheidung
+wie am 19.11.2026 bei den Bilderstreifen.
+
+**Gemessen bei 1440 px:** beide Pfeile 44 × 44 px, links bei x=550,
+rechts bei x=847, die Punkte dazwischen. Ein Klick auf „vor" schiebt
+von 0 auf 632 px, der zweite Punkt wird golden, der Pfeil „zurück"
+entsperrt sich. Bei 390 px sind beide nicht sichtbar.

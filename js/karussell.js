@@ -65,7 +65,41 @@
     sage.className = 'sr-only';
     sage.setAttribute('aria-live', 'polite');
 
+    /* PFEILE LINKS UND RECHTS DER PUNKTE (22.11.2026).
+       Ansage des Betreibers: "mach unten lenks von den punkten pfeil
+       nach links rechts von den punkten pfeil nach rechts zum
+       blaettern auf pc".
+
+       Nur fuer Zeigergeraete: Am Telefon wischt man, und zwei
+       zusaetzliche Knoepfe naehmen dort nur Platz weg. Das Ausblenden
+       macht das CSS ueber (hover: hover) and (pointer: fine), damit es
+       auch beim Wechsel zwischen Maus und Finger stimmt.
+
+       NICHT disabled, sondern aria-disabled: Ein disabled-Knopf
+       verliert den Tastaturfokus in dem Moment, in dem er am Anschlag
+       hart wird, und der Fokus springt an den Seitenanfang. Dasselbe
+       wurde am 19.11.2026 schon bei den Bilderstreifen entschieden. */
+    function pfeil(richtung, beschriftung, pfad) {
+      var k = document.createElement('button');
+      k.type = 'button';
+      k.className = 'karussell-pfeil karussell-pfeil--' + richtung;
+      k.setAttribute('aria-label', beschriftung);
+      k.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" '
+        + 'stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+        + 'stroke-linejoin="round"><path d="' + pfad + '"/></svg>';
+      k.addEventListener('click', function () {
+        if (k.getAttribute('aria-disabled') === 'true') return;
+        raster.scrollBy({ left: (richtung === 'vor' ? 1 : -1) * schritt(),
+                          behavior: ruhig() ? 'auto' : 'smooth' });
+      });
+      return k;
+    }
+    var zurueck = pfeil('zurueck', 'Vorheriges Bild zeigen', 'm15 18-6-6 6-6');
+    var vor = pfeil('vor', 'Nächstes Bild zeigen', 'm9 18 6-6-6-6');
+
+    leiste.appendChild(zurueck);
     leiste.appendChild(punkte);
+    leiste.appendChild(vor);
     leiste.appendChild(sage);
     huelle.appendChild(leiste);
 
@@ -89,6 +123,9 @@
         punkte.children[n].className = (n === nr ? 'ist-da' : '');
       }
       sage.textContent = 'Bild ' + (nr + 1) + ' von ' + kinder.length;
+      /* Am Anschlag sagt der Pfeil an, dass er nichts mehr tut. */
+      zurueck.setAttribute('aria-disabled', raster.scrollLeft <= 2 ? 'true' : 'false');
+      vor.setAttribute('aria-disabled', (weg > 1 && raster.scrollLeft >= weg - 4) ? 'true' : 'false');
     }
     raster.addEventListener('scroll', function () {
       window.requestAnimationFrame(stand);
