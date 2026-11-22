@@ -293,9 +293,13 @@ var FEHLER = [
    "symbolUmriss(belegt ? 'stift' : 'punkt')", "symbolUmriss('punkt')"],
   ['Das Schild traegt kein Stiftzeichen mehr', 'js',
    "      var u = symbolUmriss('stift');", '      var u = null;'],
+  /* Die Schriftfamilie steht hier mit drin, weil die Gegenprobe eine
+     Stelle im Quelltext braucht. Sie musste am 22.11.2026 von Arial
+     auf Manrope nachgezogen werden; die Pruefung selbst fragt seitdem
+     nicht mehr nach der Familie. */
   ['Zahl und Einheit sind wieder gleich gross', 'js',
-   "    var fEinheit = '600 44px Arial, Helvetica, sans-serif';",
-   "    var fEinheit = '700 58px Arial, Helvetica, sans-serif';"],
+   "    var fEinheit = '600 44px Manrope, \"Segoe UI\", sans-serif';",
+   "    var fEinheit = '700 58px Manrope, \"Segoe UI\", sans-serif';"],
   ['Das Schild kennt keine zweite Fassung', 'js',
    "      s.userData.wachMap = schildBild(text, true, true).map;", '      void feld;'],
   ['Der Zeiger auf dem Schild aendert nichts', 'js',
@@ -841,10 +845,22 @@ function lauf(q) {
     /color: rgb\(0x111111\)/.test(q.js) &&
     /var mMass = new THREE\.MeshBasicMaterial\(\{ color: rgb\(0x111111\),\s*\n\s*toneMapped: false \}\);/.test(q.js),
     'dünn und hell heißt unsichtbar – und ohne Farbraum wird aus #111111 ein #303030');
+  /* OHNE SCHRIFTNAMEN, und das ist der Punkt dieser Pruefung.
+     Sie stand bis zum 22.11.2026 auf "Arial" und schlug fehl, seit
+     der Konfigurator am 21.11.2026 auf Manrope umgestellt wurde.
+     Falsch war die Pruefung, nicht der Code: Gemeint ist das
+     Verhaeltnis von Zahl zu Einheit, nicht die Schriftfamilie.
+     Gepruefte Werte: Zahl 700/58 px, Einheit 600/44 px, also
+     fetter und groesser fuer die Zahl. */
+  var mZahl = q.js.match(/var fZahl = '(\d+) (\d+)px /);
+  var mEinheit = q.js.match(/var fEinheit = '(\d+) (\d+)px /);
   p('Die Einheit tritt hinter die Zahl zurück',
-    /var fEinheit = '600 44px Arial/.test(q.js) &&
-    /var fZahl = '700 58px Arial/.test(q.js),
-    'in einer Bemaßung zählt die Zahl - zurücktreten heißt aber nicht unleserlich');
+    !!mZahl && !!mEinheit &&
+    Number(mZahl[1]) > Number(mEinheit[1]) &&
+    Number(mZahl[2]) > Number(mEinheit[2]),
+    mZahl && mEinheit
+      ? 'Zahl ' + mZahl[1] + '/' + mZahl[2] + ' px, Einheit ' + mEinheit[1] + '/' + mEinheit[2] + ' px'
+      : 'eine der beiden Schriftangaben fehlt');
   p('Der Zeiger auf dem Schild macht Rahmen und Stift gold',
     /s\.userData\.wachMap = schildBild\(text, true, true\)\.map;/.test(q.js) &&
     /s\.material\.map = s\.userData\.wachMap;/.test(q.js) &&

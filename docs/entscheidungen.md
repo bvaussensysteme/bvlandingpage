@@ -20601,3 +20601,45 @@ nicht nötig. Und das Herkunfts-Abzeichen hat im Fokus doch einen
 sichtbaren Ring: 3 px, 10 px Luft nach links und unten, dazu der
 Wechsel der Hintergrundfarbe. Der Ring kommt aus `start.css`, nicht
 aus der Regel am Abzeichen selbst.
+
+## 22.11.2026 - Ein Lauf über ALLE 74 Prüfskripte, und was er zutage brachte
+
+**Anlass.** `CLAUDE.md` verlangt nach einer Änderung an gemeinsam
+genutztem Code alle Skripte, nicht die vermuteten. Diese Änderung
+berührte `css/style.css`, `js/main.js` und 59 HTML-Dateien. Also
+einmal alles, nebeneinander, in rund zwölf Minuten.
+
+**Sechs Skripte liefen rot. Keines davon wegen dieser Änderung.**
+
+**Fünf waren Überlast, nicht Befund.** `keil-editor`,
+`planken-editor`, `rahmen-editor`, `schiebe-velaris` und
+`schrittwechsel` brachen mit `TimeoutError` ab, alle an derselben
+Stelle: „waiting for element to be visible, enabled and stable". Zwölf
+gleichzeitige Browser mit dem 3D-Konfigurator darin sind zu viel für
+diese Maschine. **Einzeln hintereinander laufen alle fünf durch**
+(43, 23, 17, 22 Prüfungen bestanden). Wer künftig alles auf einmal
+laufen lässt, sollte die Konfigurator-Prüfungen nacheinander nehmen.
+
+**Einer war eine veraltete Prüfung, nicht ein kaputter Code.**
+`pruefe-marken.js` verlangte `Arial` in den Schriftangaben der
+Bemaßung. Der Konfigurator wurde am 21.11.2026 auf Manrope
+umgestellt; die Prüfung blieb stehen und meldete seitdem einen
+Fehler, der keiner war. **Falsch war die Prüfung.** Sie fragt jetzt
+nach dem Verhältnis statt nach der Schriftfamilie: Zahl 700/58 px
+muss fetter und größer sein als Einheit 600/44 px. Die Sabotage der
+Gegenprobe brauchte dieselbe Nachführung. Danach: 90 von 90
+Prüfungen schlagen an, 103 von 103 eingebauten Fehlern werden
+bemerkt.
+
+**Ein echter Altbefund bleibt offen, siehe `docs/NEXT_TASK.md`.**
+`pruefe-schrittwechsel.mjs` meldet: Am großen Bildschirm (1440 px)
+rollt beim Klick auf „Weiter" die ganze Seite um 64 px, obwohl nur
+das Bedienfeld in sich rollen soll. **Gegengeprüft im Stand vom
+Sitzungsbeginn (Commit 06ca2db): derselbe Fehler, dieselbe Zahl 64.**
+Er ist also älter als diese Arbeit und wird hier nicht nebenbei
+angefasst, weil er im Konfigurator sitzt.
+
+**Was dieser Lauf grundsätzlich zeigt.** Zwei Prüfungen standen
+rot, ohne dass es jemandem auffiel, weil zuletzt immer nur die
+vermuteten Skripte liefen. Die Regel „nach Änderungen an gemeinsamem
+Code alle laufen lassen" ist keine Förmlichkeit.

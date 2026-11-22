@@ -172,6 +172,26 @@ unabhängig empfohlen: „Wofür soll der Carport vor allem sein?"
    `flachdach-skyview` kennt. Entweder einen gemeinsamen Schlüssel im
    Assistenten anlegen oder es so lassen.
 
+## Offener Altbefund: Die Seite rollt im Konfigurator mit (22.11.2026)
+
+`scripts/pruefe-schrittwechsel.mjs` meldet: Am großen Bildschirm
+(1440 px) rollt beim Klick auf „Weiter" die ganze Seite um 64 px,
+obwohl dort nur das Bedienfeld in sich rollen soll. Gemessen
+`pageYOffset 64`, erwartet höchstens 4.
+
+**Nicht von der Arbeit vom 21./22.11.2026.** Gegengeprüft in einem
+eigenen Arbeitsbaum auf Commit 06ca2db, dem Stand vom
+Sitzungsbeginn: derselbe Fehler, dieselbe Zahl.
+
+Nicht angefasst, weil er im 3D-Konfigurator sitzt und damit unter
+Bestandsschutz steht. Braucht einen eigenen Auftrag.
+
+**Dazu ein Hinweis für den nächsten vollständigen Prüflauf:** Die
+fünf Konfigurator-Prüfungen (`keil-editor`, `planken-editor`,
+`rahmen-editor`, `schiebe-velaris`, `schrittwechsel`) brechen mit
+`TimeoutError` ab, wenn zwölf Browser gleichzeitig laufen. Einzeln
+laufen sie durch. Das ist Überlast, kein Befund.
+
 ## 4. Der nächste sinnvolle Arbeitsschritt
 
 > **Hinweis:** Der Betreiber arbeitet eine Folge von fünf Aufträgen ab.
