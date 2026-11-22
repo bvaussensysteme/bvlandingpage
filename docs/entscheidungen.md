@@ -21136,3 +21136,68 @@ einzelner Elemente, nicht die Seitenbreite.
 ob es die richtigen acht sind. Die Auswahl steht an einer Stelle, in
 `scripts/baue-stoff-miniaturen.sh`, Zeile `MUSTER=`, und lässt sich
 tauschen.
+
+## 22.11.2026 - Alle 53 Dessins im Streifen, und der Knopf ist jetzt wirklich einer
+
+**Was der Betreiber geschrieben hat**, wörtlich: „mach nicht nur 8
+Muster zum Durchblättern, sondern schon, ich sag mal so, kannst ja auch
+alle. Und die Verlinkung, das ist immer noch kein Button, das soll ein
+Button sein. Und die beliebten Farbmuster sollen ganz vorne sein und je
+nach Beliebtheitsgrad dann weiter wischen."
+
+**Drei Dinge, eins davon offen.**
+
+1. **Alle 53 Dessins.** Der Streifen zeigt jetzt jedes Muster, das es
+   als Band gibt. Die Kacheln stehen nicht mehr von Hand im Quelltext:
+   53 Stück wären rund 420 Zeilen, die bei jeder Umsortierung neu
+   geschrieben werden müssten. Stattdessen `scripts/baue-stoffstreifen.mjs`,
+   wie es die Städteseiten schon haben, mit `--pruefen` zum Vergleichen.
+
+   Die Bilder wiegen zusammen 220 KB, aber nur die ersten drei werden
+   sofort geladen. Alles weitere liegt rechts außerhalb des Bildes und
+   kommt erst beim Wischen. Gemessen auf der Vorschau am 22.11.2026 bei
+   390 px: 7 von 53 geladen.
+
+2. **Der Knopf ist ein `.btn.btn-gold`**, also derselbe gefüllte Knopf
+   wie „Katalog ansehen" weiter oben: Goldfläche, schwarze Schrift,
+   56 px hoch. Vorher stand dort ein Textverweis, danach die Pille der
+   Leistungskarten. Beides hat der Betreiber nicht als Knopf erkannt,
+   zuletzt mit „das ist immer noch kein Button". Die beiden CSS-Regeln
+   dafür sind ersatzlos raus, nicht übereinandergelegt.
+
+3. **Die Reihenfolge nach Beliebtheit ist OFFEN**, und zwar
+   absichtlich. Nachgesehen am 22.11.2026: Die Messtabelle `ereignis`
+   in `worker/index.js` speichert Seite, Art, Quelle, Gerät, Land und
+   Region. Über Stoffe steht dort nichts. Der 3D-Konfigurator kennt ein
+   Feld `stoff`, schickt es aber nicht in die Messung. **Es gibt also
+   keine Zahl zur Beliebtheit.** Eine ausgedachte Rangfolge wäre ein
+   erfundenes Vertrauenssignal, und das ist in `CLAUDE.md` ausdrücklich
+   verboten.
+
+   Bis der Betreiber seine Reihenfolge nennt, steht in
+   `scripts/stoff-reihenfolge.txt` die Katalogreihenfolge der
+   Stoffseite. Auf der Seite steht nirgends das Wort „beliebt", es wird
+   also nichts behauptet. Umsortieren heißt: Zeilen in dieser Datei
+   tauschen, dann `node scripts/baue-stoffstreifen.mjs`.
+
+**Nebenbefund für später.** Dass die Beliebtheit nicht messbar ist,
+ließe sich ändern: Der Konfigurator könnte die gewählte Stoffnummer als
+Ereignis melden, so wie er es mit anderen Schritten schon tut. Dann
+stünde die Rangfolge nach einigen Wochen in den eigenen Zahlen statt im
+Bauchgefühl. Das wäre eine Änderung am Umfang der Messung und zöge nach
+der Regel in `CLAUDE.md` eine Änderung der Datenschutzerklärung nach
+sich. Nicht gemacht, nicht beauftragt, steht in `docs/NEXT_TASK.md`.
+
+**Gemessen** (Chromium, 320 / 390 / 1440 px):
+
+| | 320 px | 390 px | 1440 px |
+|---|---|---|---|
+| Kacheln | 53 | 53 | 53 |
+| Kachel | 128 × 128 px | 150 × 150 px | 150 × 150 px |
+| Zähler am rechten Anschlag | 53 / 53 | 53 / 53 | 53 / 53 |
+| Knopf | 194 × 56 px | 194 × 56 px | 218 × 56 px |
+| waagerechtes Scrollen der Seite | nein | nein | nein |
+
+`pruefe-startseite` 60 von 60 mit Gegenprobe, dazu `pruefe-mitwachsend`,
+`pruefe-darstellung`, `pruefe-galerie`, `pruefe-marken` und
+`pruefe-cache-buster` grün.

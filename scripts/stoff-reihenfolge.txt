@@ -1,0 +1,78 @@
+# Reihenfolge der Stoffmuster im Streifen auf der Startseite.
+#
+# WOZU. Ansage des Betreibers vom 22.11.2026: "die beliebten
+# Farbmuster sollen ganz vorne sein und je nach Beliebtheitsgrad
+# dann weiter wischen." Oben steht also das Beliebteste, unten das
+# Seltenste. Eine Zeile je Dessin, Doppelkreuz ist ein Kommentar.
+#
+# WARUM ES KEINE GEMESSENE REIHENFOLGE GIBT. Nachgesehen am
+# 22.11.2026: Die Messtabelle `ereignis` in worker/index.js
+# speichert Seite, Art, Quelle, Geraet, Land und Region, aber
+# nichts ueber Stoffe. Der 3D-Konfigurator kennt zwar ein Feld
+# `stoff`, schickt es aber nicht in die Messung. Es gibt also
+# keine Zahl zur Beliebtheit, und eine erfundene Reihenfolge waere
+# ein erfundenes Vertrauenssignal.
+#
+# BIS DER BETREIBER SEINE REIHENFOLGE NENNT steht hier die
+# Katalogreihenfolge der Stoffseite. Das behauptet nichts: Auf der
+# Seite steht nirgends das Wort "beliebt".
+#
+# AENDERN: Zeilen umsortieren, dann
+#   node scripts/baue-stoffstreifen.mjs
+# Das schreibt den Block in index.html neu. Nicht von Hand in
+# index.html sortieren, der Block wird sonst beim naechsten Lauf
+# ueberschrieben.
+
+AC112
+AC117
+AC118
+AC119
+AC121
+AC212
+AC218
+AC219
+AC220
+AC221
+AC223
+AC318
+AC320
+AC321
+AC322
+AC323
+AC324
+AC420
+AC421
+AC423
+AC512
+AC517
+AC518
+AC519
+AC521
+AC522
+AC523
+AC524
+AC626
+AC627
+AC630
+AC631
+AC632
+PA425
+PA522
+PA524
+PA528
+PA532
+PA612
+PA614
+PA616
+PA617
+PA626
+PA627
+PA630
+PA632
+PA633
+PA636
+PA637
+PA639
+PA642
+PA643
+PA645

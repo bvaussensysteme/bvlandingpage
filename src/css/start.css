@@ -538,10 +538,7 @@
    .kontakt-card hier im selben Waehler statt in einer eigenen Regel.
    Die Karten des Kontaktbereichs sind nicht betroffen, dort traegt
    kein Verweis die Klasse .leistung-link. */
-/* Und seit dem 22.11.2026 auch der Knopf unter dem Stoffstreifen, aus
-   demselben Grund: eine Pille, nicht eine zweite Knopfart. */
 .start-premium .leistungen-grid--neu .leistung-link,
-.start-premium .stoffe-mehr .leistung-link,
 .start-premium .kontakt-card .leistung-link {
   display: flex;
   align-items: center;
@@ -570,7 +567,6 @@
   transition: background .18s ease, color .18s ease, border-color .18s ease;
 }
 .start-premium .leistungen-grid--neu .leistung-link .pfeil,
-.start-premium .stoffe-mehr .leistung-link .pfeil,
 .start-premium .kontakt-card .leistung-link .pfeil {
   transition: transform .18s ease;
 }
@@ -612,23 +608,17 @@
 }
 /* Knopf unter dem Musterstreifen (22.11.2026). Er fuehrt auf die
    Stoffseite, wo dieselben Stoffe gross und mit ihren Eigenschaften
-   stehen. Links, nicht mittig: Der Streifen darueber beginnt links,
-   und ein mittiger Knopf unter einer linken Kante steht schief. */
+   stehen.
+
+   ES IST EIN .btn, KEIN .leistung-link. Erst stand dort ein
+   Textverweis, dann die Pille der Leistungskarten. Beides hat der
+   Betreiber abgelehnt, zuletzt mit "die Verlinkung, das ist immer
+   noch kein Button, das soll ein Button sein". Jetzt derselbe
+   gefuellte Knopf wie "Katalog ansehen" weiter oben auf der Seite:
+   Goldflaeche, schwarze Schrift. */
 .start-premium .stoffe-mehr { margin: 18px 0 0; }
-.start-premium .stoffe-mehr > .leistung-link {
-  /* inline-flex statt flex: Die Pille oben setzt width: 100%, damit
-     neun Knoepfe in einem Raster gleich breit sind. Hier steht nur
-     einer, und ueber die ganze Abschnittsbreite waere er ein Balken.
-     Also so breit wie die Beschriftung. */
-  display: inline-flex;
-  width: auto;
-  min-height: 46px;
-  padding: 10px 26px;
-  font-size: 0.86rem;
-}
 @media (hover: hover) and (pointer: fine) {
   .start-premium .leistungen-grid--neu .leistung-link:hover,
-  .start-premium .stoffe-mehr .leistung-link:hover,
   .start-premium .kontakt-card .leistung-link:hover {
     background: var(--gold);
     border-color: var(--gold);
@@ -636,7 +626,6 @@
     text-decoration: none;
   }
   .start-premium .leistungen-grid--neu .leistung-link:hover .pfeil,
-  .start-premium .stoffe-mehr .leistung-link:hover .pfeil,
   .start-premium .kontakt-card .leistung-link:hover .pfeil {
     transform: translateX(3px);
   }

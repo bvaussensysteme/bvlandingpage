@@ -25,10 +25,15 @@
 set -eu
 cd "$(dirname "$0")/.."
 
-# Acht Muster, quer durch beide Reihen (AC und PA), damit die Kacheln
-# nicht alle gleich aussehen. Die Auswahl ist Geschmack und gehoert dem
-# Betreiber; hier steht sie an einer Stelle und laesst sich tauschen.
-MUSTER="AC112 AC212 AC321 AC423 AC519 AC631 PA524 PA626"
+# ALLE Dessins, die es als Band gibt. Ansage des Betreibers vom
+# 22.11.2026: "mach nicht nur 8 Muster zum Durchblaettern, sondern
+# schon, ich sag mal so, kannst ja auch alle."
+#
+# Die REIHENFOLGE im Streifen steht NICHT hier, sondern in
+# scripts/stoff-reihenfolge.txt. Grund: Der Betreiber will die
+# beliebten Muster vorne haben, und Beliebtheit ist nichts, was
+# dieses Skript wissen kann.
+MUSTER=$(ls images/stoffe/*-flat.png | sed 's|.*/||; s|-flat.png||')
 
 # NICHT images/stoffe/mini: Dieses Verzeichnis gehoert dem
 # 3D-Konfigurator. js/konfigurator-3d.js und js/konfigurator-frei.js

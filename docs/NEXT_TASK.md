@@ -288,6 +288,14 @@ Aussage über diese Seite geraten.
   `g.page/r/.../review`, also auf die Abgabe einer Bewertung. Entweder
   Beschriftung oder Ziel angleichen.
 - **Drei schwebende Knoepfe** ueberlagern Inhalt, auf allen 56 Seiten.
+- **Beliebtheit der Stoffe ist nicht messbar** (22.11.2026). Die
+  Tabelle `ereignis` speichert nichts über Stoffe, der Konfigurator
+  schickt sein Feld `stoff` nicht in die Messung. Der Betreiber will
+  die beliebten Muster vorne im Streifen haben; bis er seine
+  Reihenfolge nennt, steht in `scripts/stoff-reihenfolge.txt` die
+  Katalogreihenfolge. Wer das messen will, müsste den Konfigurator
+  die Stoffnummer melden lassen. **Das ändert den Umfang der Messung
+  und zieht eine Änderung der Datenschutzerklärung nach sich.**
 - **Keine Sprungmarken je Dessin auf `stoffe.html`** (22.11.2026). Die
   acht Musterkacheln im Abschnitt „Markisenstoffe" der Startseite
   führen auf den Anfang der Stoffseite, nicht auf das angetippte

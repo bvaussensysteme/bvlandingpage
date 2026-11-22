@@ -183,7 +183,7 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
         const k = s.querySelectorAll('.galerie-kachel');
         const r = k.length ? k[0].getBoundingClientRect() : null;
         const z = document.querySelector('[data-zaehler="stoffe"]');
-        const knopf = document.querySelector('.stoffe-mehr .leistung-link');
+        const knopf = document.querySelector('.stoffe-mehr .btn');
         const kr = knopf ? knopf.getBoundingClientRect() : null;
         return {
           kacheln: k.length,
@@ -250,8 +250,8 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
     m.nav > 3 && m.assistent && m.galerie >= 14 && m.leistungen === 9,
     `nav ${m.nav}, Galerie ${m.galerie}, Karten ${m.leistungen}`);
   pruef(`${name}: Bestand – Werkzeuge und Fuss`, m.werkzeuge && m.fuss, 'Rechner + Fuss da');
-  pruef(`${name}: Stoffstreifen – acht Muster, alle als Verweis`,
-    !!m.stoffe && m.stoffe.kacheln === 8 && m.stoffe.alleVerweise && m.stoffe.alleBeschriftet,
+  pruef(`${name}: Stoffstreifen – alle 53 Muster, alle als Verweis`,
+    !!m.stoffe && m.stoffe.kacheln === 53 && m.stoffe.alleVerweise && m.stoffe.alleBeschriftet,
     m.stoffe ? `${m.stoffe.kacheln} Kacheln, Ziel ${m.stoffe.alleVerweise ? '/stoffe.html' : 'FALSCH'}` : 'Abschnitt fehlt');
   pruef(`${name}: Stoffstreifen scrollt in sich, nicht die Seite`,
     !!m.stoffe && m.stoffe.inSichScrollbar && m.scrollW <= m.fenster + 1,
@@ -259,8 +259,8 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
   pruef(`${name}: Stoffkacheln gross genug zum Antippen`,
     !!m.stoffe && m.stoffe.kachelB >= 44 && m.stoffe.kachelH >= 44,
     m.stoffe ? `${m.stoffe.kachelB}x${m.stoffe.kachelH} px` : 'Abschnitt fehlt');
-  pruef(`${name}: Stoffzaehler steht auf 1 / 8`,
-    !!m.stoffe && m.stoffe.zaehler === '1 / 8', m.stoffe ? m.stoffe.zaehler : 'fehlt');
+  pruef(`${name}: Stoffzaehler steht auf 1 / 53`,
+    !!m.stoffe && m.stoffe.zaehler === '1 / 53', m.stoffe ? m.stoffe.zaehler : 'fehlt');
   pruef(`${name}: Knopf zur Stoffseite, mindestens 44 px hoch`,
     !!m.stoffe && m.stoffe.knopfH >= 44 && m.stoffe.knopfZiel === '/stoffe.html',
     m.stoffe ? `${m.stoffe.knopfH} px, Ziel ${m.stoffe.knopfZiel}` : 'fehlt');
