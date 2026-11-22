@@ -44,6 +44,15 @@ worker/
 #
 # Keine Seite verweist auf einen dieser Pfade - nachgesehen in allen
 # .html und .njk. Geprueft von scripts/pruefe-nicht-oeffentlich.sh.
+# ARBEITSBILDER aus einer Fehlersuche, eingetragen am 22.11.2026.
+# scratch_dd_closed.png und scratch_dd_open.png liegen im
+# Wurzelverzeichnis und wuerden mit ausgeliefert. Keine Seite
+# verwendet sie (nachgesehen in allen .html, .njk, .js, .css).
+# Nicht geloescht, weil ueber das Loeschen von Dateien der Betreiber
+# entscheidet; hier nur aus der Auslieferung genommen.
+scratch_dd_closed.png
+scratch_dd_open.png
+
 # VORLAGEN, eingetragen am 22.11.2026. _template.html lag oeffentlich
 # abrufbar im Wurzelverzeichnis, mit "index, follow", dem Titel und der
 # Beschreibung von produkte/gelaender.html und einer Kanonischen auf
