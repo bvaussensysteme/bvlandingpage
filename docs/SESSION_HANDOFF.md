@@ -1,6 +1,6 @@
 # Übergabe an den nächsten Chat
 
-**Stand: 21.11.2026.** Arbeitsbranch
+**Stand: 22.11.2026.** Arbeitsbranch
 `claude/bv-aussensysteme-setup-bq7ew4`, alles committet und gepusht.
 `main` ist unberührt, nichts veröffentlicht.
 
@@ -80,10 +80,14 @@ hängen:
    08.11. unveröffentlicht.** Live ist die Lücke offen. Branch
    `claude/xss-zahlenseite` ist fertig vorbereitet. Es fehlt nur die
    Freigabe des Betreibers.
-2. **Die Startseiten-Galerie lässt sich mit der Tastatur nicht
-   öffnen** (WCAG 2.1.1, Stufe A). Gemessen am 20.11. Braucht eine
-   Entscheidung, weil in jedem Bild schon eine Schaltfläche sitzt und
-   verschachtelte Schaltflächen ungültig sind.
+2. **Erledigt am 21./22.11.2026.** Die Startseiten-Galerie öffnet
+   sich jetzt mit der Tastatur (vorher 0 von 14, jetzt 14 von 14).
+   Dabei kamen zwei weitere gemessene Verstöße heraus und sind
+   ebenfalls behoben: 19 von 19 Fragen der Fragenliste ohne
+   sichtbaren Fokusring (2.4.7) und Fokusverlust am Ende der
+   Bilderreihe (2.4.3). Einzelheiten in `docs/entscheidungen.md`,
+   Einträge vom 21. und 22.11.2026. Neu:
+   `scripts/pruefe-fokusring.mjs`.
 3. **Die Palette ist nicht umgestellt.** Nur die Schrift. Laut
    Designsystem ist das ein eigener Schritt: `--gold-text` würde
    heller, knappe Kontraste können kippen.
