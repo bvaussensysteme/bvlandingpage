@@ -1,8 +1,15 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach `CLAUDE.md`.
-> **Stand: 13.11.2026.** Der vorherige Einstieg (Stand 07.11.) liegt
+> **Stand: 22.11.2026.** Der vorherige Einstieg (Stand 07.11.) liegt
 > vollständig in `docs/erledigt-archiv.md`.
+>
+> **Berichtigt am 22.11.2026.** Die Gegenprüfung hat gemeldet, dass
+> dieser Kopf ein zu freundliches Bild gab: Er sagte „105 Dateien" und
+> „Alle Prüfungen waren zuletzt grün". Beides stimmte nicht mehr.
+> Gemessen am 22.11.2026: Der Arbeitsbranch unterscheidet sich in
+> **327 Dateien** von `origin/main`, und ein Lauf über alle 77
+> Prüfskripte endet nicht durchweg grün (siehe unten).
 
 ## Erster Schritt in der neuen Sitzung
 
@@ -21,8 +28,26 @@ npm ci                       # node_modules fehlen in frischen Umgebungen
    `node_modules`, hilft
    `ln -s /opt/node-tools/node_modules/playwright node_modules/playwright`.
 
-Nichts ist halbfertig liegen geblieben. Alle Prüfungen waren zuletzt
-grün (Stand siehe `docs/SESSION_HANDOFF.md`).
+**Stand der Prüfungen am 22.11.2026, ehrlich.** Von 77 Skripten laufen
+71 bis 73 grün durch. Der Rest verhält sich so:
+
+- `pruefe-schrittwechsel.mjs` schlägt fehl. Bekannter Altbefund B3 aus
+  `docs/AUDIT-2026-11-22.md`: Am großen Bildschirm rollt beim Klick auf
+  „Weiter" die ganze Seite um 64 px mit.
+- `pruefe-konfigurator-oberflaeche.mjs` meldet 1 von 182 nicht
+  bestanden („Der Zeiger auf dem Schild ändert das Bild"). Ebenfalls
+  Altbefund, Konfigurator unter Bestandsschutz.
+- `pruefe-freie-planung.mjs`, `pruefe-keil-editor.mjs`,
+  `pruefe-prozess-ringe.mjs`, `pruefe-referenz-lauf.mjs` und
+  `pruefe-rahmen-editor.mjs` **flackern**: Nebeneinander gestartet
+  laufen sie in Zeitgrenzen oder Verbindungsfehler, einzeln gestartet
+  sind sie grün. Belegt an diesem Tag von zwei unabhängigen Läufen.
+  **Ein roter Konfigurator-Lauf ist deshalb erst dann ein Befund, wenn
+  er einzeln wiederholt wurde.**
+
+Wer „alle grün" behaupten will, muss die flackernden einzeln
+nachfahren. Das steht hier, weil genau diese Behauptung am 22.11.2026
+zweimal zu früh gemacht wurde.
 
 ---
 
@@ -288,6 +313,19 @@ Aussage über diese Seite geraten.
   `g.page/r/.../review`, also auf die Abgabe einer Bewertung. Entweder
   Beschriftung oder Ziel angleichen.
 - **Drei schwebende Knoepfe** ueberlagern Inhalt, auf allen 56 Seiten.
+- **Beliebtheit der Stoffe: ab jetzt doch messbar** (22.11.2026,
+  Befund der Gegenprüfung). `js/messung.js` meldet bei jedem Klick auf
+  ein `<a>` oder `<button>` dessen Beschriftung als Ereignis `klick`.
+  Die 53 neuen Stoffkacheln tragen ein `aria-label` („Acrylstoff
+  Dessin AC112 auf der Stoffseite ansehen"), werden also ab sofort
+  einzeln gezählt. **Kein neuer Umfang der Messung**, das gab es
+  vorher schon für alle Knöpfe, und die Datenschutzerklärung
+  beschreibt es in `src/datenschutz.njk` (Beschriftung eines
+  angeklickten Knopfes). Nach einigen Wochen steht die Rangfolge
+  damit in den eigenen Zahlen. Abfrage: Ereignisse der Art `klick`
+  mit `zusatz LIKE '%Dessin%'` gruppieren.
+- **Alt, überholt durch den Punkt darüber:** Beliebtheit der Stoffe ist
+  rückwirkend nicht messbar.
 - **Beliebtheit der Stoffe ist nicht messbar** (22.11.2026). Die
   Tabelle `ereignis` speichert nichts über Stoffe, der Konfigurator
   schickt sein Feld `stoff` nicht in die Messung. Der Betreiber will

@@ -21257,3 +21257,51 @@ Ladeprüfer hat unabhängig gemessen: beim ersten Laden 3 Bilder mit
 4,0 KB, nach dem Wischen bis ans Ende alle 53 mit 64 KB, gegenüber
 vorher drei Anfragen und 4 KB mehr, kein Layoutsprung (CLS 0,0000 bei
 390 px), keine Aufgabe über 50 ms beim Wischen.
+
+## 22.11.2026 - Was die Gegenprüfung an meinen eigenen Angaben berichtigt hat
+
+**Anlass.** Der Betreiber hat gefragt, ob wirklich alles geprüft und
+reif zur Veröffentlichung sei. Ein unabhängiger Prüfer hat daraufhin
+neun meiner Aussagen im Code nachgeschlagen. Drei waren nicht richtig.
+Das steht hier, weil sonst die falschen Zahlen weiterwandern.
+
+**1. „Genau ein Fehlschlag" war zu sauber.** Ich hatte nach dem ersten
+Durchgang berichtet, von 77 Skripten bleibe genau ein bekannter
+Altbefund übrig. Der zweite Durchgang ergab sechs rote, der
+unabhängige Lauf fünf, und zwar **teils andere**. Einzeln
+nachgefahren sind `pruefe-prozess-ringe`, `pruefe-referenz-lauf`,
+`pruefe-keil-editor`, `pruefe-rahmen-editor` und
+`pruefe-freie-planung` grün. Es bleiben zwei echte Altbefunde:
+`pruefe-schrittwechsel` (Seite rollt um 64 px mit) und
+`pruefe-konfigurator-oberflaeche` (1 von 182).
+
+**Was daraus folgt, dauerhaft:** Ein roter Konfigurator-Lauf ist erst
+dann ein Befund, wenn er einzeln wiederholt wurde. Steht jetzt im Kopf
+von `docs/NEXT_TASK.md`, damit es nicht wieder jemand aus der
+Erinnerung abhakt.
+
+**2. „62 HTML-Seiten" stimmte nicht.** `git ls-files '*.html'` zählt
+**65**; ohne die vier Entwurfsseiten, die Vorschauseite und
+`_template.html` sind es 58. Die Kernaussage bleibt: Genau **eine**
+davon trägt `body class="start-premium"`, nämlich `index.html`.
+
+**3. Die Beliebtheit der Stoffe ist ab jetzt doch messbar.** Ich hatte
+geschrieben, es gebe keine Daten, und das stimmte für die
+Vergangenheit. Übersehen hatte ich `js/messung.js`: Es meldet bei
+jedem Klick auf ein `<a>` oder `<button>` dessen Beschriftung als
+Ereignis `klick`. Die 53 Stoffkacheln tragen ein `aria-label`, werden
+also ab sofort einzeln gezählt.
+
+Das ist **kein** neuer Umfang der Messung, sondern dieselbe Zählung,
+die es für alle Knöpfe schon gab; `src/datenschutz.njk` beschreibt sie
+ausdrücklich („die Beschriftung eines angeklickten Knopfes oder
+Verweises"). Eine Änderung der Datenschutzerklärung ist deshalb nicht
+nötig, und angefasst wird sie ohnehin nicht.
+
+Nach einigen Wochen steht die Rangfolge damit in den eigenen Zahlen.
+Bis dahin bleibt es bei der Liste des Betreibers.
+
+**Nicht geändert, nur gemeldet.** Die Gegenprüfung weist außerdem auf
+`index.html:493` hin: Klemmt `localStorage`, lädt der Fangzweig die
+Google-Schriften ohne Einwilligung. Das ist Befund B2 aus dem Audit
+und liegt beim Betreiber und seinem Anwalt.
