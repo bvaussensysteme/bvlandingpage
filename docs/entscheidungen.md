@@ -20926,3 +20926,38 @@ nebeneinander, kein waagerechtes Scrollen. Knopf 268 × 56 px am
 Telefon, Schrift und Rand 5,58:1. `pruefe-startseite`,
 `pruefe-mitwachsend`, `pruefe-darstellung` und `pruefe-schema-faq`
 laufen durch. `style.css` auf `20261122f`.
+
+## 22.11.2026 - Firmierung in der Fußzeile umgestellt
+
+**Ansage des Betreibers, mit Bild:** „Im footer den text ändern in
+© 2026 BV AussenSysteme GbR - Alexander Becker & Josef Voronin ·
+Westerwaldkreis, Rheinland-Pfalz".
+
+**Vorher** stand dort: „© 2026 BV AussenSysteme – Alexander Becker &
+Josef Voronin GbR · Westerwaldkreis, Rheinland-Pfalz". Das „GbR" hing
+hinter den Namen und las sich, als hießen die beiden Personen
+zusammen GbR. Jetzt steht die Rechtsform beim Firmennamen, wohin sie
+gehört, und die Gesellschafter folgen.
+
+**Geändert in 55 Dateien**, darunter die Vorlage
+`src/_includes/layout.njk`, aus der die erzeugten Seiten ihre Fußzeile
+bekommen.
+
+**Die vier Rechtstexte wurden NICHT angefasst.** Die Zeile steht auch
+im Fuß von `agb.html`, `datenschutz.html`, `impressum.html` und
+`widerruf.html`, aber sie kommt dort aus `layout.njk` und ist
+Seitenrahmen, nicht Rechtstext. Nachgesehen: `git diff` auf
+`src/impressum.njk`, `src/agb.njk`, `src/datenschutz.njk` und
+`src/widerruf.njk` ist leer. Die Firmierung **im Impressum selbst**
+(Zeilen 46 und 69) steht unverändert da; sie zu ändern wäre ein
+Eingriff in eine Pflichtangabe und bleibt beim Betreiber.
+
+**Zum Bindestrich.** Der Betreiber hat einen einfachen Bindestrich
+geschrieben, und genau der steht jetzt da. Das passt auch zur Regel
+„keine Gedankenstriche": Der bisherige Halbgeviertstrich war einer,
+der Bindestrich ist keiner.
+
+**Geprüft:** `pruefe-startseite`, `pruefe-umbruch`,
+`pruefe-konfliktmarken` bestanden. `npm run build` ändert nichts mehr
+nach. Kein Versionssprung nötig, es wurde kein CSS und kein
+JavaScript angefasst.
