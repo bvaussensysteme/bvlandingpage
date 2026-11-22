@@ -20961,3 +20961,38 @@ der Bindestrich ist keiner.
 `pruefe-konfliktmarken` bestanden. `npm run build` ändert nichts mehr
 nach. Kein Versionssprung nötig, es wurde kein CSS und kein
 JavaScript angefasst.
+
+## 22.11.2026 - Zeichen vor allen Einträgen des Handy-Menüs
+
+**Ansage des Betreibers, mit Bild:** „Hier ist nur bei Konfigurator
+ein Icon davor, mach für alle Bereiche ein icon davor."
+
+**Was gilt.** Beide Handy-Menüs haben jetzt vor jedem Eintrag ein
+Zeichen: das der Startseite (Leistungen, Galerie, Katalog,
+Konfigurator, Über uns, Ablauf, FAQ, Jetzt anfragen) und das der
+Unterseiten aus `src/_includes/layout.njk` (Startseite, Leistungen,
+Katalog, Ratgeber, Über uns, Ablauf, Jetzt anfragen).
+
+**Woher die Zeichen kommen.** Für Über uns, Ablauf, FAQ und Ratgeber
+sind es **genau dieselben Pfade wie in der Fußzeile**, die für diese
+Ziele längst Zeichen hat. Dasselbe Ziel sieht damit überall gleich
+aus. Neu gezeichnet wurden nur vier, im selben Strichstil: Raster für
+Leistungen, Bild für Galerie, Buch für den Katalog, Haus für die
+Startseite. Für „Jetzt anfragen" das Stift-Zeichen, das der
+Anfrage-Knopf im Heldenbereich schon trägt.
+
+**Nur das Handy-Menü, nicht die Kopfzeile am Rechner.** Der Eintrag
+„Leistungen" steht in `index.html` zweimal, einmal in der Kopfzeile
+und einmal im Menü. Geändert wurde nur der Block innerhalb von
+`id="mobileMenu"`. Die Kopfzeile am Rechner bleibt wie sie war; dort
+zu ändern wäre eine eigene Entscheidung.
+
+**Gemessen nach der Änderung:** 8 von 8 Einträgen auf der Startseite
+mit Zeichen, 4 von 4 auf einer Produktseite, jeder Eintrag 46 px hoch,
+der Anfrage-Knopf 74 px. Die Tastaturfalle im Menü hält weiterhin:
+0 von 40 Tabulatorhalten außerhalb, Escape schließt, der Fokus kehrt
+auf den Hamburger zurück.
+
+`pruefe-menue-banner`, `pruefe-mitwachsend`, `pruefe-startseite` und
+`pruefe-fokus-verdeckung` laufen durch. Kein Versionssprung nötig, es
+wurde kein CSS und kein JavaScript geändert.
