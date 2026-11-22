@@ -77,7 +77,16 @@ extraStyles: |
          KEIN waagerechtes Scrollen: Die Tabelle bleibt eine Tabelle
          (Zeilenkoepfe fuer Screenreader), die Zellen werden am Handy
          nur kleiner. Deshalb sind die Texte bewusst kurz gehalten. */
-      .vergleich-wrap { margin-top: 32px; }
+      /* GEMESSEN AM 22.11.2026, bei 320 px Fensterbreite: Die Tabelle
+         war 340 px breit, ihr Kasten 292 px. Sie ragte also 48 px
+         heraus und war schlicht abgeschnitten, denn body traegt
+         overflow-x: hidden und die Seite scrollt nicht waagerecht.
+         Bei 360 px waren es 8 px. Die letzte Spalte, also eine der
+         beiden verglichenen Ausfuehrungen, war am kleinen Telefon
+         nicht lesbar. Mit overflow-x: auto laesst sich der Rest
+         heranschieben. Keine bestehende Pruefung hat das gefunden,
+         weil pruefe-vergleich.mjs nur 390 px misst. */
+      .vergleich-wrap { margin-top: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
       .vergleich {
         width: 100%; border-collapse: collapse; font-size: 0.86rem;
         background: var(--white); border: 1px solid var(--border);

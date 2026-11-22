@@ -160,7 +160,14 @@
        Bildschirme: Breiter als die Datei (2 x 1400) wird es nie
        scharf, und ein Buch, das hoeher ist als der Bildschirm,
        schiebt die Bedienleiste aus dem Bild. */
-    breite = Math.min(1500, breite, platz);
+    /* Der freie Platz deckelt die Breite, aber NIE unter MIN_SEITE:
+       Sonst macht die Bibliothek das Buch breiter als seinen Rahmen,
+       und es wird am Rand abgeschnitten. Genau das war am 22.11.2026
+       bei 320 px zu messen (Rahmen 296, Buch 300). Dass der Rahmen
+       damit breiter werden kann als sein Container, faengt die
+       CSS-Regel .bro-container ab, die unter 324 px den Innenabstand
+       verkleinert. */
+    breite = Math.min(1500, breite, Math.max(platz, MIN_SEITE));
     rahmen.style.maxWidth = Math.round(breite) + 'px';
     /* Mit welcher Hoehe wurde zuletzt gerechnet? Die Bremse beim
        resize-Ereignis vergleicht dagegen, nicht gegen die zuletzt

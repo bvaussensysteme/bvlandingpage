@@ -20,7 +20,17 @@ import { spawn } from 'node:child_process';
 
 const GEGENPROBE = process.argv.includes('--gegenprobe');
 const PORT = 8231;
-const SEITEN = ['/index.html', '/carport-koblenz.html', '/produkte/carport.html', '/ratgeber/index.html'];
+/* WARUM DIESE NEUN. Bis zum 22.11.2026 standen hier vier Seiten, und
+   genau deshalb blieb ein Befund liegen: Auf
+   /produkte/terrassenueberdachung.html ragte die Vergleichstabelle bei
+   320 px 48 px aus ihrem Kasten und war abgeschnitten. Die Breiten
+   stimmten also, die Auswahl der Seiten nicht. Dazugekommen sind die
+   Seite mit der Tabelle, die drei Seiten mit Karten und Rechnern und
+   der Katalog, also die Bauarten, die es vorher hier nicht gab. */
+const SEITEN = ['/index.html', '/carport-koblenz.html', '/produkte/carport.html',
+                '/ratgeber/index.html', '/produkte/terrassenueberdachung.html',
+                '/windzonen.html', '/baugenehmigung.html', '/einzugsgebiet.html',
+                '/broschuere.html'];
 const BREITEN = [320, 360, 390, 430, 768, 1024, 1440];
 
 const server = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'],

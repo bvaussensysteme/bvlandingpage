@@ -50,6 +50,34 @@ extraScripts: |
      Haltepunkt im Stilblatt, und bei der Abweichung wurde das Buch
      breiter als sein Rahmen (gemessen im Querformat: 330 statt 226). */
   .bro-rahmen { width:100%; margin:0 auto; max-width:1000px; }
+  /* GEMESSEN AM 22.11.2026 bei 320 px Fensterbreite: Das Buch war
+     300 px breit, sein Rahmen 296, es ragte also 4 px heraus und war
+     rechts abgeschnitten. Die Seite scrollt nicht waagerecht, der
+     Rest war damit weg.
+
+     URSACHE, und sie steht schon im Kommentar zu MIN_SEITE in
+     js/broschuere.js: Die Bibliothek rechnet mit mindestens 300 px je
+     Seite. Der Rahmen wird aber zusaetzlich auf den freien Platz
+     gedeckelt, und der betraegt bei 320 px Fenster nur 296 px, weil
+     der Container links und rechts je 12 px Innenabstand hat.
+     Unterhalb von 324 px Fenster ist der Abstand also breiter, als
+     die Seite erlaubt.
+
+     Deshalb hier: nur auf der Katalogseite und nur unter 324 px wird
+     der Innenabstand auf 10 px gesetzt. Dann sind genau 300 px frei.
+     Am Rest der Seite aendert sich nichts, an groesseren Fenstern
+     auch nicht.
+
+     ZWEI KLASSEN IM WAEHLER, und das ist noetig: Dieser Stilblock steht
+     im Kopf VOR dem Verweis auf /css/style.css. Bei gleicher
+     Spezifitaet gewinnt die spaeter geladene Regel, also die aus
+     style.css. Mit .container.bro-container (0,2,0) gewinnt sie hier,
+     unabhaengig von der Reihenfolge. Beim ersten Versuch am
+     22.11.2026 stand nur .bro-container da, und gemessen aenderte
+     sich nichts. */
+  @media (max-width: 323px) {
+    .container.bro-container { padding-left: 10px; padding-right: 10px; }
+  }
   .bro-buch { width:100%; margin:0 auto; }
   .bro-buch .bro-seite { background:#fff; overflow:hidden; }
   /* Die Buchseiten sind Bilder, aber hier sind sie eine Bedienflaeche:
@@ -283,7 +311,7 @@ extraScripts: |
   </section>
 
   <section class="bro-buehne" id="broBuehne" aria-label="Katalog durchblättern">
-    <div class="container">
+    <div class="container bro-container">
 
       <div class="bro-rahmen">
       <div id="broBuch" class="bro-buch">

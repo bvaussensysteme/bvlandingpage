@@ -402,7 +402,19 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 .mobile-menu {
   display: none; position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--black); z-index: 999;
+  background: var(--black);
+  /* 10000 statt 999, gemessen am 22.11.2026. Der Cookie-Hinweis liegt
+     auf 9999 und damit UEBER dem geoeffneten Handy-Menue: Bei 320 px
+     waren 5 von 7 Menueeintraegen verdeckt (Leistungen, Katalog, Ueber
+     uns, Ablauf, Jetzt anfragen), bei 390 px 3 von 7. Nachgemessen mit
+     elementFromPoint auf der Mitte jedes Eintrags. Beim ersten Besuch
+     war das Menue also unbedienbar, bevor der Hinweis beantwortet ist,
+     und ein Eintrag mit Tastaturfokus lag vollstaendig verdeckt
+     (WCAG 2.2, 2.4.11, Stufe AA).
+     Warum das Menue nach oben und nicht der Hinweis nach unten: Wer
+     das Menue oeffnet, will dorthin. Der Hinweis bleibt darunter
+     stehen und ist nach dem Schliessen unveraendert da. */
+  z-index: 10000;
   flex-direction: column; align-items: center;
   justify-content: center; gap: 32px;
 }

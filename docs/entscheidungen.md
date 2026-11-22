@@ -20643,3 +20643,77 @@ angefasst, weil er im Konfigurator sitzt.
 rot, ohne dass es jemandem auffiel, weil zuletzt immer nur die
 vermuteten Skripte liefen. Die Regel „nach Änderungen an gemeinsamem
 Code alle laufen lassen" ist keine Förmlichkeit.
+
+## 22.11.2026 - Prüfdurchgang vor der Freigabe: drei Handy-Befunde behoben
+
+Der Betreiber hat die Freigabe ausdrücklich verweigert und stattdessen
+einen vollständigen Prüfdurchgang verlangt. Elf Prüfer nach
+Fachbereich, dazu alle Prüfskripte. Was dabei **gemessen** und sofort
+behoben wurde, weil es unter die Regel „messbare Fehler sofort überall
+beheben" fällt:
+
+### 1. Der Cookie-Hinweis lag über dem geöffneten Handy-Menü
+
+Gemessen mit `elementFromPoint` auf der Mitte jedes Eintrags: bei
+320 px **5 von 7** Einträgen verdeckt, bei 390 px 3 von 7. Der
+Hinweis steht auf `z-index: 9999`, das Menü stand auf `999`. Beim
+ersten Besuch, also genau dann, wenn der Hinweis erscheint, war das
+Menü damit unbedienbar. Ein Eintrag mit Tastaturfokus lag vollständig
+verdeckt, das ist WCAG 2.2, 2.4.11, Stufe AA.
+
+**Jetzt:** Das Menü liegt auf `10000`. Nachgemessen: 0 von 7 verdeckt,
+auf drei Seiten in zwei Breiten. Der Hinweis bleibt darunter stehen
+und ist nach dem Schließen unverändert da.
+
+**Warum das Menü nach oben und nicht der Hinweis nach unten:** Wer das
+Menü öffnet, will dorthin. Ein Einwilligungshinweis muss die
+Navigation nicht blockieren.
+
+Abgesichert durch `scripts/pruefe-menue-banner.mjs` (neu).
+
+### 2. Die Vergleichstabelle war am kleinen Telefon abgeschnitten
+
+`produkte/terrassenueberdachung.html` bei 320 px: Tabelle 340 px,
+Kasten 292 px, **48 px Überstand**. Bei 360 px waren es 8 px. Da
+`body` `overflow-x: hidden` trägt, scrollte die Seite nicht, die
+letzte Spalte war schlicht weg. Das ist eine der beiden verglichenen
+Ausführungen.
+
+**Jetzt:** `.vergleich-wrap` trägt `overflow-x: auto`, der Rest lässt
+sich heranschieben.
+
+**Warum keine Prüfung das fand:** `pruefe-vergleich.mjs` misst nur
+390 px. `pruefe-mitwachsend.mjs` misst zwar 320 px, hatte aber nur
+vier Seiten in der Liste, und diese war nicht dabei. Die Liste steht
+jetzt auf neun Seiten, 63 statt 28 Messungen.
+
+### 3. Das Buch im Katalog ragte bei 320 px aus seinem Rahmen
+
+Gemessen: Buch 300 px, Rahmen 296 px, **4 px Überstand**, rechts
+abgeschnitten. Die Ursache stand seit dem 06.11.2026 im Kommentar zu
+`MIN_SEITE` in `js/broschuere.js`: Die Bibliothek rechnet mit
+mindestens 300 px je Seite, der Rahmen wurde aber zusätzlich auf den
+freien Platz gedeckelt, und der ist bei 320 px Fenster nur 296 px,
+weil der Container 12 px Innenabstand hat.
+
+**Jetzt:** Der Rahmen wird nicht mehr unter `MIN_SEITE` gedeckelt, und
+auf der Katalogseite unter 324 px Fensterbreite ist der Innenabstand
+10 px statt 12. Nachgemessen: Rahmen 300, Buch 300, kein Überstand.
+Die 44 Prüfungen des Katalogs bleiben grün.
+
+**Eine Falle dabei, zum Merken:** Der Stilblock der Katalogseite steht
+im Kopf **vor** dem Verweis auf `/css/style.css`. Bei gleicher
+Spezifität gewinnt die später geladene Regel. Der erste Versuch mit
+`.bro-container` änderte deshalb gar nichts; es braucht
+`.container.bro-container`.
+
+### Dazu zwei Prüfungen, die sich selbst im Weg standen
+
+`pruefe-menue-banner.mjs` meldete im ersten Lauf sechsmal „Hinweis
+nicht sichtbar": Sie prüfte Sichtbarkeit über `offsetParent`, und das
+ist bei `position: fixed` immer `null`. Sie hätte nie etwas gefunden.
+
+Und der Werkstatt-Generator fing einen Folgefehler der
+Versions-Änderung vom selben Tag: Sein Versionsvergleich schloss
+`cookie.js` und `accessibility.js` nicht aus, obwohl er sie selbst aus
+der Werkstattseite entfernt.
