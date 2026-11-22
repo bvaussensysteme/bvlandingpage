@@ -71,6 +71,23 @@ deshalb übersprungen. Sie läuft jetzt vierfach nebeneinander:
 **gemessen 9 Minuten**, alle 42 eingebauten Fehler werden bemerkt.
 Damit ist Punkt 3.14 weg.
 
+## Zusatz vom 22.11.2026
+
+Nach der Tastaturkorrektur lief **einmal alles**: 74 Prüfskripte,
+nicht die vermuteten. Ergebnis in `docs/entscheidungen.md`.
+
+Dabei behoben: Alle eigenen JS- und CSS-Verweise tragen jetzt `?v=`
+(vorher hingen vier Dateien auf 51 bis 55 Seiten ohne jede Version,
+darunter `cookie.js`), `pruefe-cache-buster.sh` findet so etwas
+künftig selbst, und `pruefe-marken.js` verlangte seit der
+Manrope-Umstellung vergeblich Arial.
+
+**Zwei Dinge für den nächsten Lauf:** Die fünf Konfigurator-Prüfungen
+nacheinander laufen lassen, nebeneinander brechen sie mit
+`TimeoutError` ab. Und `pruefe-schrittwechsel.mjs` meldet einen
+echten Altbefund (Seite rollt am großen Bildschirm um 64 px mit),
+der schon im Stand vom Sitzungsbeginn steckt.
+
 ## Was offen ist
 
 Steht vollständig in `docs/NEXT_TASK.md`. Die drei, die am meisten
