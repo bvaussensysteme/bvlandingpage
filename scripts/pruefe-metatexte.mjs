@@ -68,6 +68,9 @@ const FEHLER = [
   ['stoffe.html', /<meta name="description" content="([^"]*)"/,
    '<meta name="description" content="Markisenstoffe in grosser Auswahl: AC-, PA- und ZIP-Stoffe fuer Markisen, Pergola und Senkrechtbeschattung, dazu Hinweise zu UV-Schutz, Lichtdurchlaessigkeit, Pflege, Reinigung, Garantie und Lieferzeit, und am Ende die Muster zum Bestellen."',
    'Beschreibung zu lang'],
+  ['produkte/eingang.html', /<meta property="og:description" content="([^"]*)"/,
+   '<meta property="og:description" content="Carports im Westerwald – TDS, Flat Line und Flat Box."',
+   'Gedankenstrich im Teilen-Feld'],
 ];
 
 function entitaeten(s) {
@@ -92,10 +95,20 @@ function lies(pfad) {
   const t = readFileSync(pfad, 'utf8');
   const ti = t.match(/<title[^>]*>([\s\S]*?)<\/title>/);
   const be = t.match(/<meta\s+name="description"\s+content="([\s\S]*?)"/);
+  /* Auch die Felder fuers Teilen. Sie stehen in WhatsApp, Facebook und
+   * LinkedIn unter der Vorschau und sind damit sichtbarer Text. Am
+   * 22.11.2026 hatte diese Pruefung sie uebersehen, und es standen
+   * noch 17 Gedankenstriche darin, nachdem Titel und Beschreibung
+   * laengst sauber waren. */
+  const teilen = [];
+  const rx = /<meta\s+(?:property|name)="(og:(?:title|description)|twitter:(?:title|description))"\s+content="([\s\S]*?)"/g;
+  let m;
+  while ((m = rx.exec(t)) !== null) teilen.push([m[1], sauber(m[2])]);
   return {
     datei: relative(WURZEL, pfad),
     titel: ti ? sauber(ti[1]) : null,
     beschreibung: be ? sauber(be[1]) : null,
+    teilen,
     noindex: /name="robots"\s+content="[^"]*noindex/.test(t),
   };
 }
@@ -129,6 +142,12 @@ try {
     if (!s.titel.includes(MARKE)) maengel.push([s.datei, 'Titel ohne Marke', s.titel]);
     if (/[–—]/.test(s.titel) && !RECHTSTEXTE.includes(s.datei))
       maengel.push([s.datei, 'Gedankenstrich im Titel', s.titel]);
+    if (!RECHTSTEXTE.includes(s.datei)) {
+      for (const [feld, wert] of s.teilen || []) {
+        if (/[–—]/.test(wert))
+          maengel.push([s.datei, 'Gedankenstrich in ' + feld, wert.slice(0, 70) + '...']);
+      }
+    }
   }
   for (const s of indexierbar) {
     if (s.titel && s.titel.length > TITEL_MAX)
