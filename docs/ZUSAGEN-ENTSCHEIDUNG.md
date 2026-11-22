@@ -207,3 +207,35 @@ Sobald die Spalten ausgefüllt sind:
    Vorschau abrufen, berichten.
 
 **Ohne ausgefüllte Tabelle ändere ich an diesen Texten nichts.**
+
+---
+
+# ENTSCHIEDEN AM 22.11.2026
+
+Der Betreiber hat die offenen Punkte im Chat beantwortet, Frage für
+Frage. Hier steht, was gilt und was daraufhin geändert wurde.
+
+| Punkt | Entscheidung des Betreibers | Umgesetzt |
+|---|---|---|
+| Garantie Lamellendach | **10 Jahre**, die 5 waren falsch | `src/produkte/pergola.njk`, zwei Stellen |
+| Garantie Elektro | **2 Jahre** | Teilen-Beschreibung auf `index.html` berichtigt; sie versprach 5 |
+| Statiknachweis | **Terrassenüberdachung, Carport, Kaltwintergarten, Vordach, Fahrradüberdachung, Bushaltestelle.** Nicht Lamellendach, nicht Geländer, nicht Markise | offen, siehe unten |
+| CE | gilt für alle, aber überall **„CE-gekennzeichnet"** statt „zertifiziert" | 36 Stellen in 13 Dateien |
+| Preis | **unverbindliches Angebot**, „Festpreis" raus | `src/broschuere.njk`, zwei Stellen |
+| Wer haftet | überall **„Herstellergarantie"** | offen, siehe unten |
+| Lieferzeit | **„In der Regel ab Auftragsbestätigung 2 bis 4 Wochen, in einigen Fällen wie Hochsaison auch 6 Wochen und mehr"** | drei Stellen auf `index.html`, sichtbar und im Datenblock |
+| Neuwied | **25 km** | `terrassenueberdachung-neuwied.html` |
+| Warema L50 | **ganz raus, überall**. „Wir haben nur Sun Pro One und Sun Pro Plus" | Produktkarte samt Bild entfernt, 11 Dateien bereinigt, drei Bilddateien gelöscht |
+| Schreibweise | **SunPro Plus und SunPro One** | in den Aufzählungen gesetzt |
+
+**Zum Warema-Befund, damit die Tragweite klar ist.** Das war nicht nur
+ein Name: Auf `produkte/pergola.njk` stand ein **eigenes Produkt mit
+Foto, Beschreibung und Maßangaben**, dazu Erwähnungen in zehn weiteren
+Dateien. Die Seite hat damit ein Produkt beworben, das der Betrieb
+nicht liefert. Das ist schwerer als ein Markenrechtsproblem.
+
+**Noch offen und beim Betreiber:** Für eine eigene Produktkarte
+„SunPro One" fehlen Beschreibung und Foto. Ohne beides würde ich
+erfinden, und das unterbleibt. In den Aufzählungen wird der Name
+genannt, eine eigene Karte bekommt er erst mit Material vom
+Betreiber.
