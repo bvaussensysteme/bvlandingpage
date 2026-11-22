@@ -5,11 +5,37 @@
   'use strict';
 
   var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  /* Bei "Bewegung reduzieren" springt der Ring per CSS sofort auf voll (WCAG 2.3.3) -
-     Timing hier entsprechend verkürzen, damit Ziffer & Ring gemeinsam wechseln statt versetzt. */
-  var FILL_MS = reducedMotion ? 60 : 1900;
-  var GAP_MS = reducedMotion ? 500 : 450;
-  var HOLD_MS = reducedMotion ? 1200 : 2200;
+  /* ============================================================
+     BEI "BEWEGUNG REDUZIEREN" LAEUFT GAR NICHTS MEHR (22.11.2026)
+
+     WAS FALSCH WAR. Bis hierher wurden nur die Zeiten verkuerzt:
+     Fuellen 60 ms, Pause 500 ms, Halten 1200 ms. Der Ring sprang
+     damit von leer auf voll, Kreis fuer Kreis, und der ganze Ablauf
+     begann alle rund vier Sekunden von vorn. Statt weniger Bewegung
+     gab es ein Blinken, das nie aufhoert.
+
+     Meldung des Betreibers vom iPhone, mit Bild: "die animation der
+     kreise is auch nicht wie auf pc das sich der kreis im kreis
+     fuellt und dann der naechste, sondern es blinken die kreise
+     nacheinander komplett auf". Auf dem Geraet war "Bewegung
+     reduzieren" eingeschaltet.
+
+     GEMESSEN am 22.11.2026, Fuellstand aller vier Ringe alle 120 ms
+     ueber 13 Sekunden:
+       - Telefon normal:      14 bis 15 Messpunkte mitten im Fuellen
+                              je Ring, genau wie am Rechner.
+       - Telefon mit "ruhig":  0 Messpunkte dazwischen, dafuer drei
+                              vollstaendige Durchlaeufe in 13 s.
+
+     WAS JETZT GILT. Wer weniger Bewegung eingestellt hat, sieht die
+     vier Ringe sofort und dauerhaft gefuellt. Keine Schleife, kein
+     Blinken, kein Zeitgeber. Das ist der Sinn der Einstellung, und
+     es nimmt auch WCAG 2.2.2 ernst: Was sich endlos bewegt, muss
+     anhalten koennen; am besten faengt es gar nicht erst an.
+     ============================================================ */
+  var FILL_MS = 1900;
+  var GAP_MS = 450;
+  var HOLD_MS = 2200;
   var POLL_MS = 300;
 
   var steps = [];
@@ -55,6 +81,15 @@
       var ring = c.querySelector('.prozess-ring-fg');
       return { circle: c, ring: ring, full: ring.getAttribute('stroke-dasharray') };
     });
+    if (reducedMotion) {
+      /* Endzustand zeigen, nichts bewegen. */
+      steps.forEach(function (s) {
+        s.ring.style.transition = 'none';
+        s.ring.style.strokeDashoffset = '0';
+        s.circle.classList.add('is-done');
+      });
+      return;
+    }
     fillStep(0);
   }
 

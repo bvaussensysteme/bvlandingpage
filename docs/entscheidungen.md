@@ -20807,3 +20807,44 @@ für den Rand.
 **Geprüft:** `pruefe-startseite`, `pruefe-mitwachsend` und
 `pruefe-darstellung` laufen durch. Version von `start.css` auf
 `20261122d`.
+
+## 22.11.2026 - Die Ringe blinkten, statt sich zu füllen
+
+**Meldung des Betreibers vom iPhone, mit Bild:** „die animation der
+kreise is auch nicht wie auf pc das sich der kreis im kreis füllt und
+dann der nächste, sondern es blinken die kreise nacheinander komplett
+auf".
+
+**Erst gemessen, dann geurteilt.** Füllstand aller vier Ringe, alle
+120 ms, über 13 Sekunden:
+
+| | Messpunkte mitten im Füllen, je Ring |
+|---|---|
+| Telefon, normal | 15 / 15 / 14 / 15 |
+| Rechner, normal | 15 / 15 / 15 / 15 |
+| Telefon mit „Bewegung reduzieren" | **0 / 0 / 0 / 0**, dafür drei vollständige Durchläufe in 13 s |
+
+**Es lag also nicht am Telefon.** Am Telefon läuft die Animation
+genauso wie am Rechner. Auf dem Gerät des Betreibers ist unter
+Bedienungshilfen **„Bewegung reduzieren" eingeschaltet**, und was das
+Skript daraus machte, war schlecht: Es verkürzte nur die Zeiten
+(Füllen 60 ms statt 1900), ließ aber die Schleife laufen. Statt
+weniger Bewegung gab es ein Blinken, das nie aufhört.
+
+**Was jetzt gilt.** Bei „Bewegung reduzieren" werden die vier Ringe
+sofort und dauerhaft gefüllt gezeigt. Keine Schleife, kein Zeitgeber.
+Nachgemessen: in 13 Sekunden kein einziger Wertwechsel, alle vier
+Ringe voll. Ohne die Einstellung ändert sich nichts, 15 Zwischenwerte
+je Ring wie vorher.
+
+**Das ist auch der Sinn der Einstellung.** Und es nimmt WCAG 2.2.2
+ernst: Was sich endlos bewegt, muss anhalten können. Am besten fängt
+es gar nicht erst an.
+
+**Ehrlich dazugesagt:** Auf dem iPhone des Betreibers wird der Ring
+sich auch künftig nicht füllen, solange „Bewegung reduzieren" an ist.
+Er sieht jetzt vier ruhige, gefüllte Ringe statt eines Blinkens. Wer
+die Animation sehen will, schaltet die Einstellung aus.
+
+Abgesichert durch `scripts/pruefe-prozess-ringe.mjs` (neu), Gegenprobe
+stellt das Blinken wieder her und bemerkt es.
