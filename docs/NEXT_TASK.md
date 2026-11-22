@@ -517,21 +517,13 @@ gemessen:**
   für ältere nicht sicher. Nicht gemessen, weil hier keine echte
   Vorlesesoftware läuft.
 
-## Später prüfen: Sichtbarkeit nach dem Durchscrollen (22.11.2026)
+## Nicht mehr offen: Sichtbarkeit nach dem Durchscrollen (22.11.2026)
 
-Mit `scripts/pruefe-bewegung.mjs` ist die einzige Prüfung entfallen,
-die **eine ganze Seite** durchscrollte und danach jeden Text auf
-Deckkraft und Fläche prüfte. Grund der Ausmusterung steht in
-`docs/pruefungen.md` und `docs/entscheidungen.md` (22.11.2026): Ihr
-Prüfgegenstand `entwurf-bv.html` wurde gelöscht.
-
-Heute prüfen `pruefe-galerie.mjs` und `pruefe-einzugsgebiet.mjs` den
-Zustand ohne JavaScript, und `pruefe-prozess-ringe.mjs`,
-`pruefe-referenz-lauf.mjs`, `pruefe-schrift.mjs` sowie
-`pruefe-fokus-verdeckung.mjs` die reduzierte Bewegung. Jedes aber nur
-für seinen Bereich.
-
-**Gering dringend**, weil die laufende Seite keine Klassen hat, die
-Inhalt erst beim Scrollen einblenden. Das Risiko entsteht erst, wenn so
-etwas eingebaut wird. **Dann** gehört die Prüfung wieder her, neu
-geschrieben für die echten Seiten.
+Hier stand kurzzeitig, mit dem Ausmustern von `pruefe-bewegung.mjs`
+fehle die Prüfung, ob nach dem Durchscrollen jeder Text sichtbar ist.
+**Das war falsch und ist gestrichen.** `scripts/pruefe-darstellung.mjs`
+prüft genau das: 12 echte Seiten in 3 Breiten, vollständig
+durchgescrollt, danach dieselbe Selektorenliste, die auch in der
+Einblend-Regel in `src/css/style.css` steht, Gegenprobe mit
+`opacity: 0 !important`. Begründung in `docs/entscheidungen.md`
+(22.11.2026).

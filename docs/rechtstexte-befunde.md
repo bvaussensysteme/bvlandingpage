@@ -476,3 +476,43 @@ Aufmerksamkeit für solche Umbrüche gebeten. Beheben ließe es sich mit
 geschützten Leerzeichen, ohne ein einziges Wort zu ändern. Das wäre
 ein Eingriff in den Rechtstext und unterbleibt deshalb, bis der
 Betreiber es ausdrücklich möchte.
+
+---
+
+## 22.11.2026 · Gedankenstriche in Titel und Beschreibung der Rechtstexte
+
+**Gefunden von** `scripts/pruefe-metatexte.mjs`. Die Prüfung beanstandet
+Gedankenstriche in Seitentiteln und Suchbeschreibungen, weil der
+Betreiber am 14.11.2026 gesagt hat: „Also diese Gedankenstriche versucht
+ihr irgendwie wegzulassen, das sieht zu viel nach KI aus." Auf 34
+Stellen der übrigen Seiten ist das am 22.11.2026 geändert worden. **In
+den Rechtstexten nicht**, nach der Regel „Rechtstexte nicht anfassen,
+nur warnen".
+
+**Was dort steht, genau nachgesehen:**
+
+| Fundstelle | Text | Einordnung |
+|---|---|---|
+| `src/agb.njk`, Titel | „AGB – Allgemeine Geschäftsbedingungen \| BV AussenSysteme" | Gedankenstrich als Stilmittel. Fällt unter die Ansage. |
+| `src/widerruf.njk`, Titel | „Widerruf – Muster-Widerrufsformular \| BV AussenSysteme" | dasselbe |
+| `src/impressum.njk`, Titel | „Impressum \| BV AussenSysteme – Dernbach, Westerwald" | dasselbe |
+| `src/agb.njk`, Beschreibung | „... der BV AussenSysteme – Alexander Becker & Josef Voronin GbR ..." | **Firmierung.** Von der Regel ausdrücklich ausgenommen. Bleibt so. |
+| `src/impressum.njk`, Beschreibung | „Impressum von BV AussenSysteme – Alexander Becker & Josef Voronin GbR ..." | **Firmierung.** Bleibt so. |
+| `src/datenschutz.njk` | kein Gedankenstrich in Titel oder Beschreibung | nichts zu tun |
+
+**Risiko: keines.** Ein Seitentitel ist keine Pflichtangabe. Weder § 5
+DDG (Impressumspflicht) noch Art. 246a EGBGB (Widerrufsbelehrung)
+sagen etwas über die Zeichensetzung in `<title>` oder in der
+Suchbeschreibung. Der Titel steht im Browser-Tab und im Suchergebnis,
+nicht im Rechtstext selbst.
+
+**Was ein Eingriff wäre und was nicht.** Die drei Titel ließen sich
+ohne ein einziges inhaltliches Wort ändern („AGB: Allgemeine
+Geschäftsbedingungen"). Weil sie aber in den Dateien
+`src/agb.njk`, `src/widerruf.njk` und `src/impressum.njk` stehen,
+und die Regel für diese Dateien keine Ausnahme kennt, bleibt es beim
+Melden. **Eine Zeile Ansage genügt, dann sind die drei Titel in zwei
+Minuten geändert.**
+
+**Das ist keine Rechtsberatung.** Die verbindliche Bewertung holt der
+Betreiber beim Anwalt.

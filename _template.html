@@ -38,7 +38,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Geländer & Zubehör | BV AussenSysteme Westerwald</title>
   <meta name="description" content="Aluminium-Geländer im Westerwald – Geländer mit VSG-Glas und Ganzglasgeländer von BV AussenSysteme. Maßgefertigt, langlebig." />
-  <meta name="robots" content="index, follow" />
+  <!-- Vorlage, keine echte Seite: Titel und Beschreibung sind mit
+       produkte/gelaender.html identisch. Zwei Seiten mit demselben Titel
+       konkurrieren in der Suche gegeneinander, und Google waehlt selbst
+       aus, welche es zeigt. Deshalb noindex. Gefunden am 22.11.2026 von
+       scripts/pruefe-metatexte.mjs. -->
+  <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://bv-aussensysteme.de/produkte/gelaender.html" />
   <link rel="icon" type="image/x-icon" href="../images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png" />

@@ -31,6 +31,7 @@ die nie anschlägt, ist keine.**
 |---|---|
 | `scripts/pruefe-palette.py` | Stimmen die Kontrastwerte im Designdokument noch? Reicht das Textgold auf hellem Grund? Passt das Markengold zum Gold im Logo? Erreicht der Fokusring auf jedem Untergrund 3:1? (5 Fehler in der Gegenprobe, jeder einzeln eingebaut) |
 | `scripts/pruefe-cache-buster.sh` | **Drei Fragen.** 1. Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? 2. Wurde die Version mit der Datei hochgezählt (Dateidatum gegen das Datum der letzten Versionsänderung aus der Git-Geschichte)? 3. **Seit 22.11.2026:** Wird überhaupt jede eigene JS- und CSS-Datei mit `?v=` eingebunden? Diese dritte Frage fehlte, und genau dadurch hingen `main.js`, `cookie.js`, `accessibility.js` und `metricool.js` wochenlang ohne jede Version auf 51 bis 55 Seiten. Fremde Adressen (`http`, `https`, `//`) zählen nicht mit. Gegenprobe für alle drei, die dritte in beide Richtungen: fehlende Version muss auffallen, sauberer Stand darf nicht anschlagen |
+| `scripts/pruefe-metatexte.mjs` | Titel und Suchbeschreibung jeder ausgelieferten Seite: vorhanden, Titel höchstens 60 und Beschreibung höchstens 155 Zeichen (HTML-Entities vorher aufgelöst), Marke im Titel, kein Gedankenstrich, keine zwei Seiten mit demselben Titel oder derselben Beschreibung. Rechtstexte werden auf Gedankenstriche nur als Hinweis gemeldet, nicht beanstandet. (2 Fehler in der Gegenprobe, in zwei verschiedenen Dateien) |
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
@@ -236,24 +237,38 @@ Befunde im Gesamtlauf.
 Bauteilen, die es nur im Entwurf gab: `.griff` (Kontaktleiste unten),
 `.ablauf-buehne` und `.weg-liste` (die fahrende Ablaufspur), `.naht`,
 `.kopf-bild`, `.zahlenband`. Auf der echten Seite existiert keiner
-dieser Namen, und auch das Muster, vor dem die Prüfung warnte, gibt es
-dort nicht: Die laufende Seite hat **keine** Klassen wie `.auf`/`.da`,
-die Inhalt erst beim Scrollen einblenden. Eine Neufassung wäre eine
-neue Prüfung gewesen, keine Reparatur.
+dieser Namen. Eine Neufassung wäre eine neue Prüfung gewesen, keine
+Reparatur.
+
+**Das Muster selbst gibt es auf der laufenden Seite sehr wohl**, nur
+unter anderen Namen: `.bv-einblenden` auf `<html>`, `.bv-auf` je Karte
+und `.ist-da` als Endzustand (siehe `src/css/style.css`, Abschnitt
+„Sanftes Einblenden beim Scrollen"). Es ist also nicht so, dass die
+Gefahr verschwunden wäre.
 
 **Wovon der Gedanke heute abgedeckt ist** (alle auf echten Seiten, nicht
 im Entwurf):
 
 | Frage von damals | prüft heute |
 |---|---|
+| Bleibt nach dem Durchscrollen etwas auf `opacity: 0` hängen? | **`pruefe-darstellung.mjs`** – scrollt 12 Seiten in 3 Breiten komplett durch und prüft danach genau die Selektorenliste aus der Einblend-Regel; Gegenprobe baut `opacity: 0 !important` ein |
 | Text sichtbar ganz ohne JavaScript | `pruefe-galerie.mjs`, `pruefe-einzugsgebiet.mjs` |
 | Bewegung bei `prefers-reduced-motion: reduce` | `pruefe-prozess-ringe.mjs`, `pruefe-referenz-lauf.mjs`, `pruefe-schrift.mjs`, `pruefe-fokus-verdeckung.mjs` |
 | Fährt eine Animation wirklich, statt nur im CSS zu stehen | `pruefe-prozess-ringe.mjs` (Messpunkte mitten im Füllen) |
 
-**Was damit verloren ist, offen und ehrlich:** Es gibt keine Prüfung
-mehr, die auf **jeder** Seite nachsieht, ob nach dem Durchscrollen
-jeder Text sichtbar ist. Die drei oben prüfen je einen Bereich. Als
-Nebenbefund in `docs/NEXT_TASK.md` notiert.
+**Damit entsteht keine Lücke.** Die wichtigste Frage der alten Prüfung,
+„bleibt Inhalt unsichtbar, weil eine Bewegung nicht ausgelöst wurde",
+prüft `pruefe-darstellung.mjs` auf den echten Seiten und mit derselben
+Selektorenliste, die auch in der CSS-Regel steht. Dieselbe Prüfung hat
+am 07.11.2026 genau diesen Fehler gefunden (13 Karten auf 5 Seiten auf
+`opacity: 0`).
+
+**Ein Zwischenstand, der falsch war und hier stehen bleibt, damit ihn
+niemand noch einmal glaubt:** Beim Ausmustern stand hier zuerst, die
+laufende Seite habe überhaupt keine einblendenden Klassen. Das war ein
+`grep` nach den Entwurfsnamen `.auf`/`.da`, und der fand nichts. Die
+echten Namen sind `.bv-einblenden`, `.bv-auf` und `.ist-da`. Korrigiert
+am selben Tag.
 
 **Die Lehre aus dem ersten Lauf bleibt gültig und steht hier weiter,
 weil sie für jedes neue Bewegungs-Skript gilt:** Die Prüfung meldete
@@ -263,6 +278,62 @@ lässt ein normales `scrollTo` über mehrere hundert Millisekunden
 fahren, gemessen wurde mitten in der Fahrt. Richtig ist
 `behavior: 'instant'`. Eine Prüfung mit falschem Alarm wird
 abgeschaltet und prüft danach gar nichts mehr.
+
+## `pruefe-metatexte.mjs` – warum 60 und 155 Zeichen
+
+**Anlass (22.11.2026).** Der Betreiber hatte auf die Frage nach den zu
+langen Seitentiteln geantwortet: „Kürzen und mir hinterher zeigen."
+Gemessen waren **22 indexierbare Seiten** über der Grenze, der längste
+Titel 94 Zeichen, die längste Beschreibung 187.
+
+**Warum das messbar ist und nicht Geschmack.** Google schneidet nicht
+nach Zeichen ab, sondern nach Pixelbreite: rund 580 px beim Titel, rund
+920 px bei der Beschreibung. Als Faustzahl sind das 60 und 155 Zeichen.
+Was darüber steht, sieht der Suchende nie, und ein Titel, der mitten im
+Wort endet, verliert seine Aussage. Zu kurz ist kein Fehler, nur eine
+verpasste Gelegenheit, deshalb prüft das Skript ausschließlich die
+Obergrenze.
+
+**Was es ausdrücklich NICHT prüft:** ob der Titel gut ist. Ob er das
+richtige Stichwort trägt, zum Inhalt passt oder zum Klicken bringt.
+Das steht in keinem Quelltext.
+
+**Drei Fallen, alle am 22.11.2026 selbst hineingetreten:**
+
+1. **`&amp;` sind fünf Zeichen im Quelltext und eines auf dem
+   Bildschirm.** Die erste Messung zählte roh und meldete sechs Seiten
+   zu viel. Jetzt werden Entities vorher aufgelöst.
+2. **„Marke am Ende" war zu streng.** Die Produktseiten heißen
+   „... | BV AussenSysteme Westerwald", der Ortszusatz dahinter ist
+   Absicht. Die erste Fassung beanstandete 13 richtige Titel. Geprüft
+   wird jetzt, ob die Marke **enthalten** ist.
+3. **Rechtstexte dürfen nicht beanstandet werden.** `src/agb.njk`,
+   `src/widerruf.njk` und `src/impressum.njk` haben Gedankenstriche im
+   Titel. Nach der Regel vom 14.11.2026 werden sie nur gemeldet, nicht
+   geändert. Das Skript nennt sie am Ende als **Hinweis** und verweist
+   auf `docs/rechtstexte-befunde.md`. Die Gedankenstriche in den
+   Beschreibungen von AGB und Impressum sind die **Firmierung** und von
+   der Regel ohnehin ausgenommen.
+
+**Zwei echte Nebenfunde beim ersten Lauf**, beides keine Textänderung
+und deshalb sofort behoben:
+
+- `_template.html` lag mit 26 KB im Web-Wurzelverzeichnis, trug
+  `robots: index, follow` und hatte **denselben Titel und dieselbe
+  Beschreibung** wie `produkte/gelaender.html`. Zwei Seiten mit
+  demselben Titel konkurrieren in der Suche gegeneinander, und Google
+  wählt selbst aus, welche es zeigt. Jetzt `noindex, follow`.
+- `kontakt.html` ist ein Weiterleitungsstummel von 2 KB auf
+  `/#kontakt`, hatte aber **keine** `robots`-Angabe, während
+  `termin.html` und die beiden Stummel unter `produkte/` längst auf
+  `noindex` standen. Jetzt auch.
+
+**Die Gegenprobe baut die zwei Fehler in zwei verschiedene Dateien
+ein** (`index.html` und `stoffe.html`). Grund: Am 22.11.2026 fiel bei
+einer anderen Prüfung der zweite eingebaute Fehler nicht auf, weil
+beide in derselben Datei standen und der erste die Datei schon
+unbrauchbar machte.
+
 
 ## Zwei Skripte, die schon vor dem 14.11.2026 nicht grün waren
 

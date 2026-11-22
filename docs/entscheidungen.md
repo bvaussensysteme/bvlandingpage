@@ -22024,11 +22024,23 @@ zugehörige Prüfskript übersehen.
 **Was jetzt gilt.** Das Skript ist gelöscht, nicht umgeschrieben. Alle
 seine Prüfpunkte hingen an Bauteilen, die nur im Entwurf existierten
 (`.griff`, `.ablauf-buehne`, `.weg-liste`, `.naht`, `.kopf-bild`,
-`.zahlenband`). Auch das Muster, vor dem es warnte, gibt es auf der
-laufenden Seite nicht: Dort finden sich keine Klassen wie `.auf`/`.da`,
-die Inhalt erst beim Scrollen einblenden (geprüft mit `grep` über
-`src/css/style.css` und `src/css/start.css`, null Treffer). Eine
-Neufassung wäre eine neue Prüfung gewesen.
+`.zahlenband`). Eine Neufassung wäre eine neue Prüfung gewesen.
+
+**Eigener Irrtum, am selben Tag korrigiert.** Zuerst stand hier und in
+`docs/pruefungen.md`, die laufende Seite habe gar keine Klassen, die
+Inhalt erst beim Scrollen einblenden. Belegt war das mit einem `grep`
+nach `.auf`/`.da`, null Treffer. Das waren die Namen aus dem Entwurf.
+Die echten heißen `.bv-einblenden`, `.bv-auf` und `.ist-da` und stehen
+in `src/css/style.css`. Die Gefahr besteht also weiter.
+
+**Warum die Ausmusterung trotzdem richtig bleibt.** Genau diese Gefahr
+prüft `scripts/pruefe-darstellung.mjs` längst, und zwar besser: auf 12
+echten Seiten in 3 Breiten, nach vollständigem Durchscrollen, mit
+derselben Selektorenliste, die auch in der CSS-Regel steht, und mit
+einer Gegenprobe, die `opacity: 0 !important` einbaut. Dieselbe Prüfung
+hat am 07.11.2026 genau diesen Fehler gefunden: 13 Karten auf 5 Seiten
+blieben auf `opacity: 0`, weil nachträglich eingefügte Karten den
+Ausgangszustand erbten und nie beobachtet wurden.
 
 **Warum nicht einfach auf `index.html` umgebogen.** Dann hätte das
 Skript Namen gesucht, die es dort nicht gibt, und mit „alles bestanden"
@@ -22036,15 +22048,71 @@ geantwortet, weil fehlende Elemente in seinen Abfragen als `null`
 durchfallen. Eine Prüfung, die bei fehlendem Prüfgegenstand grün
 meldet, ist schlimmer als keine.
 
-**Was gegengelesen werden soll.** Die drei Zeilen in
-`docs/pruefungen.md`, die zeigen, welche Skripte die drei Fragen von
-damals heute auf echten Seiten beantworten: `pruefe-galerie.mjs` und
-`pruefe-einzugsgebiet.mjs` (ohne JavaScript), `pruefe-prozess-ringe.mjs`
-und `pruefe-referenz-lauf.mjs` (reduzierte Bewegung), und
-`pruefe-prozess-ringe.mjs` für die Frage, ob eine Animation wirklich
-läuft.
+**Was gegengelesen werden soll.** Die Tabelle in `docs/pruefungen.md`,
+die zeigt, welches Skript heute welche Frage von damals beantwortet:
+`pruefe-darstellung.mjs` (unsichtbar gebliebener Inhalt),
+`pruefe-galerie.mjs` und `pruefe-einzugsgebiet.mjs` (ohne JavaScript),
+`pruefe-prozess-ringe.mjs`, `pruefe-referenz-lauf.mjs`,
+`pruefe-schrift.mjs` und `pruefe-fokus-verdeckung.mjs` (reduzierte
+Bewegung).
 
-**Was offen bleibt.** Es gibt keine Prüfung mehr, die auf *jeder* Seite
-nachsieht, ob nach dem Durchscrollen jeder Text sichtbar ist. Als
-Nebenbefund in `docs/NEXT_TASK.md` notiert, nicht in dieser Runde
-gebaut.
+**Was offen bleibt.** Nichts aus dieser Sache. Die Prüffrage ist
+abgedeckt, der Nebenbefund in `docs/NEXT_TASK.md` wurde nach der
+Korrektur wieder gestrichen.
+
+---
+
+## 22.11.2026 · Titel und Beschreibungen gekürzt, Gedankenstriche heraus
+
+**Anlass.** Antwort des Betreibers auf die Frage nach den zu langen
+Seitentiteln: „Kürzen und mir hinterher zeigen."
+
+**Was falsch war, gemessen.** 22 indexierbare Seiten lagen über der
+Grenze. Längster Titel 94 Zeichen (`baugenehmigung.html`), längste
+Beschreibung 187 (`konfigurator.html`). Google schneidet bei rund
+580 px Titelbreite und rund 920 px Beschreibungsbreite ab, als
+Faustzahl 60 und 155 Zeichen. Alles darüber hat der Suchende nie
+gesehen.
+
+**Was jetzt gilt.** Alle 22 Seiten liegen unter der Grenze, gemessen am
+ausgelieferten HTML mit aufgelösten Entities. Dazu, in einem Zug, die
+Ansage vom 14.11.2026 zu den Gedankenstrichen: An **34 Stellen** in
+Titeln und Beschreibungen stand ein Gedankenstrich, jetzt an keiner
+mehr, außer in den Rechtstexten.
+
+**Warum die Beschreibungen mitgeändert wurden, obwohl nur von Titeln
+die Rede war.** Beide stehen in derselben Zeile der Vorlage, beide
+erscheinen im selben Suchergebnis, und die Ansage zu den
+Gedankenstrichen nennt „Beschreibungen" ausdrücklich. Ein zweiter
+Durchgang für dieselben Dateien wäre Verschwendung gewesen.
+
+**Was ausdrücklich NICHT geändert wurde.** Die Rechtstexte. `agb.html`,
+`widerruf.html` und `impressum.html` haben Gedankenstriche im Titel;
+sie stehen mit Fundstelle, Einordnung und Risikoabschätzung in
+`docs/rechtstexte-befunde.md`. Die Gedankenstriche in den
+Beschreibungen von AGB und Impressum sind die Firmierung und von der
+Regel ohnehin ausgenommen.
+
+**Zwei Nebenfunde, sofort behoben, weil technisch und nicht Text:**
+
+- `_template.html` (26 KB, im Web-Wurzelverzeichnis, `index, follow`)
+  trug **denselben Titel und dieselbe Beschreibung** wie
+  `produkte/gelaender.html`. Jetzt `noindex, follow`.
+- `kontakt.html`, ein 2-KB-Weiterleitungsstummel auf `/#kontakt`, hatte
+  keine `robots`-Angabe, obwohl `termin.html` und die beiden Stummel
+  unter `produkte/` längst auf `noindex` stehen. Jetzt auch.
+
+**Abgesichert durch `scripts/pruefe-metatexte.mjs`** (neu). Prüft
+Vorhandensein, Länge, Marke im Titel, Gedankenstriche und Doppelungen
+auf allen 56 ausgelieferten Seiten. Gegenprobe mit zwei eingebauten
+Fehlern in zwei verschiedenen Dateien, bestanden.
+
+**Drei eigene Fehlgriffe beim Bau der Prüfung**, alle in
+`docs/pruefungen.md` festgehalten, damit sie nicht wiederkehren: roh
+gezählte `&amp;` (sechs Fehlmeldungen), „Marke am Zeilenende" statt
+„enthalten" (13 Fehlmeldungen), und Rechtstexte zunächst als Fehler
+statt als Hinweis.
+
+**Was gegengelesen werden soll.** Die 22 neuen Titel und die 34
+entschärften Stellen. Der Betreiber hat sich das ausdrücklich zeigen
+lassen wollen; die Liste steht im Bericht an ihn.
