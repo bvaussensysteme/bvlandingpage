@@ -21736,3 +21736,50 @@ wie am 19.11.2026 bei den Bilderstreifen.
 rechts bei x=847, die Punkte dazwischen. Ein Klick auf „vor" schiebt
 von 0 auf 632 px, der zweite Punkt wird golden, der Pfeil „zurück"
 entsperrt sich. Bei 390 px sind beide nicht sichtbar.
+
+## 22.11.2026 - Was der Betreiber Frage für Frage entschieden hat, Teil 2
+
+Fortsetzung. Hier die Punkte außerhalb der Zusagen-Liste.
+
+**Statiknachweis nur dort, wo es ihn gibt.** Entscheidung: nur
+Terrassenüberdachung, Carport, Kaltwintergarten, Vordach,
+Fahrradüberdachung und Bushaltestelle. Der Satz „Alle Produkte werden
+… mit vereinfachtem Statiknachweis geliefert" stand aber auch auf
+Geländer, Sonnenschutz und Pergola. Dort ist er raus, ebenso die
+Listenpunkte „Vereinfachter Statiknachweis inklusive". Bei Vordach,
+Fahrradüberdachung und Bushaltestelle stand die Zusage bisher gar
+nicht; **hinzugefügt wurde sie nicht**, denn eine Zusage ungefragt
+aufzunehmen wäre dasselbe Problem in die andere Richtung.
+
+**„Herstellergarantie" überall.** 29 Stellen in 20 Dateien standen als
+bloße „Garantie" da. Das ist kein Unterschied in der Zahl, aber in der
+Frage, wer haftet: Eine Herstellergarantie gibt der Hersteller, nicht
+BV AussenSysteme.
+
+**Partnerseite.** Die unsichtbare Überschrift „VD AluSysteme Partner"
+(9999 px aus dem Bild geschoben) ist gelöscht, die sichtbare „Unsere
+Partner" ist jetzt die Hauptüberschrift. Am Aussehen ändert sich
+nichts, und die Seite hat weiterhin genau eine Hauptüberschrift. Hätte
+ich nur gelöscht, stünde die Seite ohne Hauptüberschrift da.
+
+**Auswahlknöpfe im Baugenehmigungs-Check.** Gemessen 36 px bei
+13,6 px Schrift, jetzt 45 px bei 15,2 px. Der Rechner ist eine der
+wichtigsten Seiten für Anfragen.
+
+**Eine Adresse, nicht zwei.** Entscheidung: Dernbach ist die
+Hauptadresse. Die 14 Ortsseiten nannten im Datenblock nur den Ort
+„Dernbach" ohne Straße und ohne Koordinaten, die Produktseiten einen
+zweiten Mittelpunkt 11 km entfernt. Der zweite Punkt war im
+`offers`-Block und ist mit ihm verschwunden. Die Ortsseiten tragen
+jetzt dieselbe vollständige Adresse und dieselben Koordinaten wie die
+Startseite. Für Google ist das jetzt ein Betrieb mit einer Adresse.
+
+**Entwurfsseiten gelöscht.** `entwurf.html`, `entwurf-apple.html`,
+`entwurf-bv.html`, `entwurf-produkt.html`, `vorschau.html` und der
+Ordner `entwurf/` mit drei Stilvorlagen. Sie waren über die Adresse
+abrufbar und trugen teils noch die alte Statik-Zusage. In der
+Versionsgeschichte bleiben sie erhalten.
+
+**Nicht geändert, auf Wunsch des Betreibers:** die drei Umbrüche in
+der Datenschutzerklärung, das `noindex` auf den Rechtstexten, und die
+Vorschau bleibt vorerst ohne Passwort und mit gemeinsamer Datenbank.

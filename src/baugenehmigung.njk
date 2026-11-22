@@ -31,8 +31,13 @@ extraStyles: |
   .bg-product-select { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:20px 32px 18px; box-shadow:var(--shadow); margin-bottom:16px; }
   .bg-product-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
   .bg-chip {
-    display:inline-flex; align-items:center; gap:6px;
-    padding:7px 14px; border-radius:20px; font-size:.85rem; font-weight:500;
+    /* 44 px hoch statt 36, Ansage des Betreibers vom 22.11.2026.
+       Gemessen waren es 36 px bei 13,6 px Schrift, also ueber der
+       Projektgrenze von 24 px, aber unter den 44 px, die sich am
+       Daumen sicher treffen lassen. Der Rechner ist eine der
+       wichtigsten Seiten fuer Anfragen. */
+    display:inline-flex; align-items:center; gap:6px; min-height:44px;
+    padding:10px 16px; border-radius:22px; font-size:.95rem; font-weight:500;
     border:2px solid var(--border); background:var(--white); color:var(--black);
     cursor:pointer; transition:all .18s ease; user-select:none;
   }
