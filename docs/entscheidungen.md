@@ -20882,3 +20882,47 @@ Die Untergrenze von 1 rem bleibt über den 14 px, die
 `docs/WEBSITE_DESIGN_SYSTEM.md` für Kleintext verlangt. Die Regel
 gilt für die Überschriften **aller** Schritte, nicht nur des ersten;
 die längeren brechen am Telefon damit später um.
+
+## 22.11.2026 - Markisenstoffe bekommen eine eigene Karte auf der Startseite
+
+**Ansage des Betreibers, mit Bild aus dem Menü:** „Markisenstoffe
+sollte nen Abteil wie Baugenehmigung oder Schneelastzone auf der
+Hauptseite bekommen, mit button was es auf die Markisenstoffe seite
+führt."
+
+**Was gebaut wurde.** Eine dritte Karte im vorhandenen Abschnitt,
+neben Lastzonen-Rechner und Baugenehmigungs-Check. Gleicher
+Kartentyp, gleicher Knopf-Baustein `.leistung-link`, Ziel
+`/stoffe.html`.
+
+**Der Text stammt von der Stoffseite selbst**, nicht aus der Fantasie:
+„AC-, PA- und ZIP-Stoffe für Markisen, Pergola und
+Senkrechtbeschattung. Hoher UV-Schutz, viele Farben." Das ist
+verkürzt aus Titel und Beschreibung von `stoffe.html`.
+
+**Zwei Dinge mussten mitgeändert werden, und das ist nicht beliebig.**
+Der Abschnitt hieß „Jetzt selbst berechnen & prüfen" mit dem Vorsatz
+„**Zwei** Tools, die sofort weiterhelfen". Beides stimmte nicht mehr:
+Es sind jetzt drei, und Stoffe ansehen ist kein Rechnen. Jetzt heißt
+es „Jetzt selbst nachsehen" und „Drei Dinge, die sofort
+weiterhelfen". **Die Formulierung gehört dem Betreiber**; wenn sie
+nicht gefällt, ändere ich sie.
+
+**Das Zeichen ist im Haus gezeichnet**, im selben Strichstil wie die
+beiden anderen: Bogen, Grundlinie, zwei Stützen. Zwei Entwürfe davor
+waren bei 24 px unleserlich, eine Markise mit Volant und eine mit
+Wellenkante. Das ist der Grund, warum es jetzt eine einfache Form ist
+und kein Tuch mit Falten.
+
+**Nebenbei behoben:** Die drei Beschreibungen sind verschieden lang,
+also endeten die drei Knöpfe auf drei Höhen. Die Karten tragen jetzt
+`.werkzeug-karte` und schieben ihren Knopf nach unten. Dieselbe
+Überlegung stand schon bei den Leistungskarten: „Feste Höhe, damit
+alle neun Knöpfe auf einer Linie enden." Die Karten des
+Kontaktbereichs sind nicht betroffen.
+
+**Gemessen:** drei Karten bei 390 px untereinander, bei 1440 px
+nebeneinander, kein waagerechtes Scrollen. Knopf 268 × 56 px am
+Telefon, Schrift und Rand 5,58:1. `pruefe-startseite`,
+`pruefe-mitwachsend`, `pruefe-darstellung` und `pruefe-schema-faq`
+laufen durch. `style.css` auf `20261122f`.

@@ -1323,6 +1323,16 @@ body.bv-menu-open #bv-scroll-top {
 @media (hover: hover) and (pointer: fine) {
   .kontakt-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
 }
+/* DIE DREI WERKZEUG-KARTEN (22.11.2026). Ihre Beschreibungen sind
+   verschieden lang, also endeten die drei Knoepfe auf drei Hoehen.
+   Dieselbe Ueberlegung stand schon bei den Leistungskarten:
+   "Feste Hoehe, damit alle neun Knoepfe auf einer Linie enden."
+   Hier reicht dafuer der Innenkasten als Spalte, der Knopf wird nach
+   unten geschoben. Nur diese drei Karten sind betroffen; die Karten
+   des Kontaktbereichs tragen die Kennung nicht. */
+.werkzeug-karte { align-items: stretch; }
+.werkzeug-karte > div:last-child { display: flex; flex-direction: column; flex: 1; }
+.werkzeug-karte .leistung-link { margin-top: auto; }
 .kontakt-card--whatsapp { background: rgba(196,154,42,0.05); border-color: rgba(196,154,42,0.3); }
 .kontakt-card-icon {
   width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
