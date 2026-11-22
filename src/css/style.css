@@ -3140,7 +3140,19 @@ body.bv-konfig-open #bvKonfigBubble {
   scroll-margin-top: 90px; /* Sprungziel unter der Sticky-Navbar freihalten */
 }
 .aw-head { padding: 18px 26px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
-.aw-head h3 { font-size: 1.35rem; color: var(--white); margin: 0 0 3px; }
+/* MITWACHSENDE UEBERSCHRIFT (22.11.2026). Ansage des Betreibers: Die
+   Frage des ersten Schritts soll in EINE Zeile. Gekuerzt ist sie
+   schon ("Was moechten Sie konfigurieren?", das Wort kostenlos steht
+   in der Unterzeile). Bei festen 1,35 rem brach sie trotzdem um.
+   GEMESSEN, Textbreite in einer Zeile gegen den vorhandenen Platz:
+     390 px Fenster: 324 px Platz, passt ab 21 px Schrift
+     360 px Fenster: 294 px Platz, passt ab 19 px
+     320 px Fenster: 254 px Platz, passt ab 16 px
+   5vw trifft alle drei (19,5 / 18,0 / 16,0 px) und ist ab 432 px
+   Fensterbreite wieder bei den alten 1,35 rem. Am Rechner aendert
+   sich also nichts. Die 1 rem Untergrenze bleibt ueber den 14 px,
+   die das Designsystem fuer Kleintext verlangt. */
+.aw-head h3 { font-size: clamp(1rem, 5vw, 1.35rem); color: var(--white); margin: 0 0 3px; }
 .aw-sub { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin: 0 0 10px; }
 /* Schrittzaehler in Worten neben dem Balken. Der Balken traegt
    aria-hidden und wird von Vorleseprogrammen nicht gelesen. */

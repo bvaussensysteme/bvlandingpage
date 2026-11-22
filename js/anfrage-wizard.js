@@ -496,7 +496,12 @@
   /* ---------- Schritt-Definitionen ---------- */
   var STEPS = {
     produkt: {
-      title: 'Was möchten Sie kostenlos konfigurieren?',
+      /* "kostenlos" stand bis zum 22.11.2026 in der Ueberschrift und
+         brach sie am Telefon auf zwei Zeilen. Ansage des Betreibers:
+         "das mit kostenlos steht schon klein darunter" - naemlich in
+         der Unterzeile "Kostenlos & unverbindlich". Zweimal dasselbe
+         Wort, einmal gross und einmal klein, kostete nur Platz. */
+      title: 'Was möchten Sie konfigurieren?',
       /* ERGAENZT 13.11.2026: Der Kurzweg ist die sechste von sechs
          Kacheln und als Abkuerzung nicht zu erkennen - seine Beschriftung
          nennt nur Beispiele ("Markise, Gelaender, Vordach"). Wer schon

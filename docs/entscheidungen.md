@@ -20848,3 +20848,37 @@ die Animation sehen will, schaltet die Einstellung aus.
 
 Abgesichert durch `scripts/pruefe-prozess-ringe.mjs` (neu), Gegenprobe
 stellt das Blinken wieder her und bemerkt es.
+
+## 22.11.2026 - Die Frage des ersten Schritts passt in eine Zeile
+
+**Ansage des Betreibers:** „Hier Überschrift nicht Was möchten Sie
+kostenlos konfigurieren? sondern lieber: Was möchten Sie
+konfigurieren? (in einer zeile) das mit kostenlos steht schon klein
+darunter."
+
+**Zwei Dinge waren nötig, nicht eines.** Das Wort „kostenlos" ist aus
+der Überschrift raus; es stand ohnehin direkt darunter in der
+Unterzeile „Kostenlos & unverbindlich". **Das allein reichte aber
+nicht:** Gemessen brach die gekürzte Frage am Telefon weiterhin auf
+zwei Zeilen, weil die Überschrift fest auf 1,35 rem stand.
+
+**Gemessen, Textbreite in einer Zeile gegen den vorhandenen Platz:**
+
+| Fenster | Platz | passt ab |
+|---|---|---|
+| 390 px | 324 px | 21 px Schrift (vorhanden waren 21,6) |
+| 360 px | 294 px | 19 px |
+| 320 px | 254 px | 16 px |
+
+Die 21,6 px verfehlten die Zeile also um 0,6 px. Deshalb jetzt
+`clamp(1rem, 5vw, 1.35rem)`: 19,5 px bei 390, 18,0 bei 360, 16,0 bei
+320, und ab 432 px Fensterbreite wieder die alten 1,35 rem. **Am
+Rechner ändert sich nichts**, dort stand die Frage schon immer in
+einer Zeile.
+
+**Nachgemessen:** eine Zeile bei 320, 360, 390 und 1440 px.
+
+Die Untergrenze von 1 rem bleibt über den 14 px, die
+`docs/WEBSITE_DESIGN_SYSTEM.md` für Kleintext verlangt. Die Regel
+gilt für die Überschriften **aller** Schritte, nicht nur des ersten;
+die längeren brechen am Telefon damit später um.
