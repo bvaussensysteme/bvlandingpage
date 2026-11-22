@@ -414,8 +414,13 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
   <!-- ===== FONTS ===== -->
   <style>
-  /* Fallback fonts bis Google Fonts geladen */
-  body { font-family: 'Arial', sans-serif; }
+  /* Ersatzschrift, bis Manrope geladen ist. Stand bis zum 22.11.2026
+     auf Arial und war damit doppelt falsch: Die Regel wird von
+     .start-premium ueberstimmt und wirkte gar nicht, und sie nannte
+     eine Schrift, die seit der Umstellung vom 21.11.2026 nirgends
+     mehr vorgesehen ist. Wer die Einwilligung verweigert, bekommt die
+     Systemschrift, nicht Arial. */
+  body { font-family: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif; }
   /* EINGANGSANIMATION DES HELDENBEREICHS (16.11.2026).
 
      WARUM NICHT ALS CSS-ANIMATION. Gemessen auf der Vorschau bei

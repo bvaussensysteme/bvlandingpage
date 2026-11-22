@@ -41,6 +41,16 @@ html = html.replace(RELATIV, function (_, attr, wert) {
 html = html.replace(/\s*<link rel="canonical"[^>]*>/g, '');
 html = html.replace(/\s*<link rel="alternate" hreflang="[^"]*"[^>]*>/g, '');
 html = html.replace(/\s*<meta property="og:url"[^>]*>/g, '');
+/* Das robots-Feld der Quelle MUSS weg, bevor das strenge gesetzt wird.
+   Sonst stehen zwei widersprechende im Kopf: erst "noindex, nofollow",
+   dann das "index, follow" aus konfigurator.html. Gefunden am
+   22.11.2026 vom seo-specialist, nachgezaehlt: zwei Felder in
+   werkstatt/index.html und werkstatt/frei.html, eins in
+   konfigurator.html. Gefaehrlich war es nicht, weil Suchmaschinen das
+   strengere nehmen und zusaetzlich _headers und die Passwortschranke
+   greifen. Widerspruechlich aber schon, und der naechste Leser muesste
+   erst herausfinden, welches gilt. */
+html = html.replace(/\s*<meta name="robots"[^>]*>/g, '');
 html = html.replace(/<title>[^<]*<\/title>/,
   '<title>Werkstatt – nicht veroeffentlicht</title>\n'
   + '  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">');
@@ -267,11 +277,19 @@ if (rest.length) {
       Stelle nach dem Fehler. */
 /* Verglichen werden nur die GEMEINSAMEN Dateien. js/werkstatt-pfade.js
    gibt es nur hier, js/messung.js absichtlich nur dort (Schritt 2b nimmt
-   es hier heraus) - beide duerfen den Vergleich nicht ausloesen. */
+   es hier heraus) - beide duerfen den Vergleich nicht ausloesen.
+   js/cookie.js und js/accessibility.js stehen seit dem 22.11.2026
+   ebenfalls hier: Schritt 2b nimmt auch sie heraus (Zeilen 80 und 82).
+   Bis dahin fielen sie nicht auf, weil sie ueberhaupt keine Version
+   trugen und damit gar nicht in dieser Liste standen. Seit alle
+   eigenen Dateien ein ?v= haben, meldete der Vergleich zu Recht
+   einen Unterschied - und zwar einen, den dieses Skript selbst
+   erzeugt. */
 function versionen(t) {
   var a = (t.match(/[a-z0-9-]+\.(?:js|css)\?v=[0-9a-z]+/g) || [])
             .filter(function (v) {
-              return v.indexOf('werkstatt-pfade') < 0 && v.indexOf('messung') < 0;
+              return v.indexOf('werkstatt-pfade') < 0 && v.indexOf('messung') < 0
+                  && v.indexOf('cookie') < 0 && v.indexOf('accessibility') < 0;
             })
             .slice().sort();
   return a.join(',');

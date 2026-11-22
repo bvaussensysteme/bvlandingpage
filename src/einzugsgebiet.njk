@@ -200,7 +200,7 @@ extraScripts: |
       var marker = L.marker([ort.lat, ort.lng], ort.fern ? { icon: fernIcon } : {})
         .addTo(map)
         .bindPopup(
-          '<div style="font-family:Inter,sans-serif;min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
+          '<div style="font-family:var(--schrift);min-width:160px;background:#ffffff;padding:12px 14px;border-radius:8px;box-shadow:0 3px 14px rgba(0,0,0,0.35);">' +
             '<strong style="font-family:var(--schrift);font-size:1rem;color:#111;">' + ort.name + '</strong><br>' +
             '<span style="font-size:0.82rem;color:#666;">' + ort.info + '</span><br>' +
             (ort.hinweis ? '<span style="font-size:0.78rem;color:#9A7318;">ℹ️ ' + ort.hinweis + '</span><br>' : '') +

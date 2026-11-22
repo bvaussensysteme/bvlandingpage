@@ -39,7 +39,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <title>Werkstatt – nicht veroeffentlicht</title>
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="description" content="Terrassendach, Flachdach SkyView oder Carport in 3D selbst zusammenstellen: Maße, Eindeckung, Farbe und Ausführung wählen und sofort von allen Seiten ansehen. Kostenlos und unverbindlich." />
-  <meta name="robots" content="index, follow" />
   <link rel="icon" type="image/x-icon" href="/images/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.png" />
@@ -625,7 +624,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        Bedienfeldes. Jetzt rund 54 px - deutlich ueber dem Mindestmaß
        von 44 px (WCAG 2.2, 2.5.8), aber kein Block mehr. Das Ziel
        darunter bleibt: Es beantwortet die Frage vor dem Klick. */
-    .k3d-nav-zeile button { padding: 8px 10px 9px; border-radius: 10px;
+    .k3d-nav-zeile button { padding: 8px 10px 9px; border-radius: 999px;
       border: 2px solid var(--border); background: #fff; cursor: pointer;
       color: var(--black); min-height: 50px;
       font-family: var(--schrift); font-weight: 700;
@@ -1929,9 +1928,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="carport" hidden>
           <label class="k3d-label" for="k3dCpTyp">Carport-Typ</label>
           <select id="k3dCpTyp" class="k3d-select">
-            <option value="Carport TDS">Carport TDS – Profildach</option>
-            <option value="Flachdach Flat Line">Flat Line – Flachdach</option>
-            <option value="Flachdach Flat Box">Flat Box – Kubus-Optik</option>
+            <option value="Carport TDS">Carport TDS: Profildach</option>
+            <option value="Flachdach Flat Line">Flat Line: Flachdach</option>
+            <option value="Flachdach Flat Box">Flat Box: Kubus-Optik</option>
           </select>
         </div>
 
@@ -1943,17 +1942,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="pergola" hidden>
           <label class="k3d-label" for="k3dPgDachart">Dachart</label>
           <select id="k3dPgDachart" class="k3d-select">
-            <option value="Lamellendach">Lamellendach – drehbare Alu-Lamellen</option>
-            <option value="Faltdach">Faltdach – textil, komplett öffenbar</option>
-            <option value="Velaris">Velaris – verschiebbare Elemente</option>
+            <option value="Lamellendach">Lamellendach: drehbare Alu-Lamellen</option>
+            <option value="Faltdach">Faltdach: textil, komplett öffenbar</option>
+            <option value="Velaris">Velaris: verschiebbare Elemente</option>
           </select>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="produkt" data-k3d-fuer="pg-lamellen" hidden>
           <label class="k3d-label" for="k3dPgAusfuehrung">Ausführung</label>
           <select id="k3dPgAusfuehrung" class="k3d-select">
-            <option value="SunPro">SunPro – bis 7 × 4,5 m</option>
-            <option value="Premium (Warema Lamaxa L50)">Premium – Warema Lamaxa L50</option>
+            <option value="SunPro">SunPro: bis 7 × 4,5 m</option>
+            <option value="Premium (Warema Lamaxa L50)">Premium: Warema Lamaxa L50</option>
           </select>
         </div>
 
@@ -1991,7 +1990,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <input type="range" id="k3dBruestungH" class="k3d-range" min="700" max="1400" step="10" value="1000">
             <input type="number" id="k3dBruestungHZahl" class="k3d-zahl" inputmode="numeric" value="1000" aria-label="Höhe der Brüstung in Millimeter">
           </div>
-          <p class="k3d-mini">Vom Balkonboden bis zur Oberkante – meist 100 cm.</p>
+          <p class="k3d-mini">Vom Balkonboden bis zur Oberkante: meist 100 cm.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="aufbau" data-k3d-fuer="balkon-mauer" hidden>
@@ -2019,7 +2018,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           Für ein Dach auf dem Balkon gelten die Erleichterungen, die viele
           Landesbauordnungen für <em>ebenerdige</em> Terrassenüberdachungen
           vorsehen, nicht ohne Weiteres. Dazu kommen Abstandsflächen, das
-          Erscheinungsbild der Fassade und – in einer Eigentümergemeinschaft –
+          Erscheinungsbild der Fassade und, in einer Eigentümergemeinschaft,
           ein Beschluss der übrigen Eigentümer. Bitte vorab beim Bauamt und
           gegebenenfalls bei der Hausverwaltung nachfragen. Ob Balkonplatte
           und Brüstung die Lasten aufnehmen, prüft der Statiker oder unser
@@ -2034,7 +2033,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" data-wert="Verklinkert">Verklinkert</button>
             <button type="button" data-wert="Sonstiges / weiß nicht">Weiß nicht</button>
           </div>
-          <p class="k3d-mini">Die Befestigung hängt davon ab – im Modell sehen Sie die Wand gleich so.</p>
+          <p class="k3d-mini">Die Befestigung hängt davon ab. Im Modell sehen Sie die Wand gleich so.</p>
           <!-- Optionales Notizfeld: Was an der Wand sonst noch wichtig
                ist, weiß nur der Kunde – Dämmung und Dämmstärke
                entscheiden über die Befestigung und stehen in keiner
@@ -2075,7 +2074,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <!-- Was aus Breite und Tiefe folgt: lieferbares Rasterfeld,
                Statikträger, Grenze der Lieferbarkeit. -->
           <p class="k3d-mass-hinweis" id="k3dMassHinweis"></p>
-          <p class="k3d-mini">Alle Maße in Millimeter – so wird aufgemessen. Gebaut wird
+          <p class="k3d-mini">Alle Maße in Millimeter, so wird aufgemessen. Gebaut wird
             nach Ihrem Maß; für Stückzahl und Abrechnung zählt das nächste Rasterfeld
             des Herstellers.</p>
         </div>
@@ -2129,10 +2128,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <span>Daraus folgt die Dachneigung</span>
             <output id="k3dNeigungHinten">8°</output>
           </div>
-          <p class="k3d-mini">Zwei Wege zum selben Dach – genau die beiden, die auch
-            das Bestellformular des Herstellers anbietet: Ohne Häkchen geben Sie die
+          <p class="k3d-mini">Es gibt zwei Wege zum selben Dach, genau die beiden, die auch
+            das Bestellformular des Herstellers anbietet. Ohne Häkchen geben Sie die
             Dachneigung vor und lesen die Unterkante Wandprofil ab. Mit Häkchen geben
-            Sie Unterkante Rinne (oben) und Unterkante Wandprofil vor – daraus
+            Sie Unterkante Rinne (oben) und Unterkante Wandprofil vor. Daraus
             ergibt sich die Neigung. Mindestgefälle 2–3°, Höchstmaß 13–14°; was
             darüber läge, wird gekappt.</p>
         </div>
@@ -2192,7 +2191,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </div>
           <p class="k3d-mini">Üblich sind 1–2 % (gut ein halbes bis ein Grad),
             damit Wasser abläuft. Plus heißt: fällt vom Haus weg bzw. nach
-            rechts. Die Durchgangshöhe gilt weiterhin vorne – die Pfosten
+            rechts. Die Durchgangshöhe gilt weiterhin vorne. Die Pfosten
             werden entsprechend unterschiedlich lang.</p>
           <p class="k3d-mini" id="k3dBodenGefaelleStand"></p>
         </div>
@@ -2250,26 +2249,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
               <small>freie Front · Durchgang 189 mm niedriger</small>
             </button>
           </div>
-          <label class="k3d-schalter k3d-nurlesbar"><input type="checkbox" id="k3dTraeger"> <span>Statikträger unter der Rinne – für weniger Pfosten</span></label>
+          <label class="k3d-schalter k3d-nurlesbar"><input type="checkbox" id="k3dTraeger"> <span>Statikträger unter der Rinne, für weniger Pfosten</span></label>
           <p class="k3d-mini">Ein durchgehender Träger über den Pfosten trägt mehr, dadurch
             brauchen Sie weniger Pfosten (alle 7 m statt alle 4 m). <b>Dafür ist der
             Durchgang unter dem Träger 189 mm niedriger</b> als die eingestellte Höhe.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="unterzug" hidden>
-          <label class="k3d-label" for="k3dUnterzug">Unterzug – Abstand von der Wand <output id="k3dUnterzugWert">0 mm</output></label>
+          <label class="k3d-label" for="k3dUnterzug">Unterzug: Abstand von der Wand <output id="k3dUnterzugWert">0 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dUnterzug" class="k3d-range" min="500" max="4600" step="1" value="2000">
-            <input type="number" id="k3dUnterzugZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Unterzug – Abstand von der Wand in Millimeter">
+            <input type="number" id="k3dUnterzugZahl" class="k3d-zahl" inputmode="numeric" value="0" aria-label="Unterzug: Abstand von der Wand in Millimeter">
           </div>
           <p class="k3d-mini">Ab dieser Tiefe schreibt die Preisliste einen Statikträger
             über die ganze Breite vor, mit eigener Pfostenreihe darunter. Sie können ihn
-            nach vorne oder hinten verschieben – der Regler lässt nur Lagen zu, bei denen
+            nach vorne oder hinten verschieben. Der Regler lässt nur Lagen zu, bei denen
             <b>beide Felder höchstens 4500 mm</b> tief bleiben.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="masse" data-k3d-mehr data-k3d-fuer="kopplung" hidden>
-          <label class="k3d-label" for="k3dKoppel">Glasstoß – Abstand von der Rinne <output id="k3dKoppelWert">0 mm</output></label>
+          <label class="k3d-label" for="k3dKoppel">Glasstoß: Abstand von der Rinne <output id="k3dKoppelWert">0 mm</output></label>
           <div class="k3d-regler">
             <input type="range" id="k3dKoppel" class="k3d-range" min="100" max="4500" step="50" value="2300">
             <input type="number" id="k3dKoppelZahl" class="k3d-zahl" inputmode="numeric" value="2300" aria-label="Abstand des Glasstoßes von der Rinne in Millimeter">
@@ -2315,20 +2314,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" data-wert="10">10 mm<small>dickeres Sicherheitsglas</small></button>
           </div>
           <p class="k3d-mini">Verbund-Sicherheitsglas (VSG). Die Zeichnung rechnet
-            bei beiden Stärken mit dem Sparrenabstand für 8 mm – das ist die
+            bei beiden Stärken mit dem Sparrenabstand für 8 mm, das ist die
             sichere Annahme. Das endgültige Raster legt das Aufmaß fest.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-fuer="cp-flachdach" hidden>
           <label class="k3d-label" for="k3dCpDach">Dacheindeckung</label>
           <select id="k3dCpDach" class="k3d-select">
-            <option value="Trapezblech (Standard)">Trapezblech – nur Blech</option>
+            <option value="Trapezblech (Standard)">Trapezblech: nur Blech</option>
             <option value="Solar (PV-Anlage)">Trapezblech + Solar (PV-Anlage)</option>
             <option value="Dachbegrünung">Trapezblech + Dachbegrünung</option>
           </select>
           <p class="k3d-mini">Eingedeckt wird immer mit Trapezblech. Solarmodule
             und Begrünung liegen darauf, sie ersetzen es nicht. Das Dach liegt
-            waagerecht – ohne sichtbares Gefälle.</p>
+            waagerecht, ohne sichtbares Gefälle.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="dach" data-k3d-mehr data-k3d-fuer="pg-lamellen" hidden>
@@ -2338,7 +2337,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" id="k3dLamZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dLamAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
-          <p class="k3d-mini">0° geschlossen – Regen läuft ab. 90° senkrecht offen – volle Sonne.</p>
+          <p class="k3d-mini">0° geschlossen, Regen läuft ab. 90° senkrecht offen, volle Sonne.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="farbe">
@@ -2386,7 +2385,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="k3d-gruppe" data-k3d-schritt="farbe" data-k3d-fuer="ral-sonder" hidden>
           <p class="k3d-mini"><strong>Sonderfarben sind aufpreispflichtig.</strong>
             Den Aufpreis nennen wir Ihnen mit dem Angebot nach dem kostenlosen
-            Aufmaß – er hängt von Menge und Oberfläche ab.</p>
+            Aufmaß. Er hängt von Menge und Oberfläche ab.</p>
           <!-- Die Suche steht hier und nicht in der Zelle oben: Dort ist
                sie eine Spalte breit, hier die ganze Breite des Bedienfelds
                – die Treffer brauchen Platz. -->
@@ -2511,8 +2510,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-fuer="schiebe" hidden>
           <label class="k3d-label" for="k3dSg23Glas">Glas der Schiebeelemente</label>
           <select id="k3dSg23Glas" class="k3d-select">
-            <option value="ESG 10 mm klar">klar – freie Sicht</option>
-            <option value="ESG 10 mm opal">opal – matt, blickdicht</option>
+            <option value="ESG 10 mm klar">klar: freie Sicht</option>
+            <option value="ESG 10 mm opal">opal: matt, blickdicht</option>
           </select>
           <p class="k3d-mini">Mehr gibt es beim Hersteller nicht: klar oder satiniert,
             beides 10 mm Einscheiben-Sicherheitsglas.</p>
@@ -2525,7 +2524,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <option value="links">Schloss links</option>
             <option value="rechts">Schloss rechts</option>
           </select>
-          <p class="k3d-mini">Links und rechts von innen gesehen – so steht es auch
+          <p class="k3d-mini">Links und rechts von innen gesehen, so steht es auch
             auf dem Bestellformular des Herstellers. Das Schloss zeigt das Modell
             nicht, es steht in der Anfrage.</p>
         </div>
@@ -2533,7 +2532,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="schiebe" hidden>
           <p class="k3d-mini">Normalerweise wählt der Konfigurator die Aufteilung,
             die zu Ihrem Maß am besten aussieht. Links und rechts laufen über die
-            Tiefe, vorne über die Breite – deshalb steht jede Seite für sich.
+            Tiefe, vorne über die Breite, deshalb steht jede Seite für sich.
             Besprechen lässt sich das beim Aufmaß ohnehin noch.</p>
         </div>
 
@@ -2544,7 +2543,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" id="k3dGlasZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dGlasAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
-          <p class="k3d-mini">Die Flügel schieben sich übereinander – geöffnet bleibt
+          <p class="k3d-mini">Die Flügel schieben sich übereinander. Geöffnet bleibt
             immer einer stehen. Wie viele Flügel es werden, legt das Aufmaß fest.</p>
         </div>
 
@@ -2563,10 +2562,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </select>
           <p class="k3d-mini" id="k3dRahmenStand"></p>
           <p class="k3d-mini">Aluminiumrahmen mit Glasfüllung (System FR23). Ohne
-            Keil geht die Wand an den Seiten bis ans Dach – der Rahmen folgt
+            Keil geht die Wand an den Seiten bis ans Dach. Der Rahmen folgt
             dann der Dachschräge.
-            Normalerweise teilt der Konfigurator die Wand wie den Keil auf –
-            ein Feld je angefangene 1,5 m, ohne waagerechte Sprosse. Hier
+            Normalerweise teilt der Konfigurator die Wand wie den Keil auf: ein Feld je angefangene 1,5 m, ohne waagerechte Sprosse. Hier
             können Sie eine der acht Varianten des Herstellers vorgeben.</p>
         </div>
 
@@ -2577,8 +2575,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="k3d-gruppe" data-k3d-schritt="seiten" data-k3d-mehr data-k3d-fuer="keil-glas" hidden>
           <label class="k3d-label" for="k3dKeilGlas">Glas im Keil</label>
           <select id="k3dKeilGlas" class="k3d-select">
-            <option value="ESG klar">klar – freie Sicht</option>
-            <option value="ESG opal">opal – matt, blickdicht</option>
+            <option value="ESG klar">klar: freie Sicht</option>
+            <option value="ESG opal">opal: matt, blickdicht</option>
           </select>
           <p class="k3d-mini">Das Dreieck über der Wand oder der Schiebeanlage.
             Satinato bringt Licht herein, ohne Einblick von der Seite.</p>
@@ -2597,10 +2595,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" id="k3dVelarisUntenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-links"></use></svg> Schließen</button>
             <button type="button" id="k3dVelarisUntenAuf">Öffnen <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
-          <p class="k3d-mini">Beide Hälften lassen sich getrennt stellen – oben
+          <p class="k3d-mini">Beide Hälften lassen sich getrennt stellen, oben
             offen für Licht und Luft, unten zu für den Sichtschutz. Im Bild
             genügt ein Klick auf die Lamellen: Jeder Klick schaltet einen
-            Schritt weiter – Lamellen öffnen, Element zur Seite schieben,
+            Schritt weiter, Lamellen öffnen, Element zur Seite schieben,
             schließen. Was als Nächstes kommt, steht unter dem Modell.</p>
           <label class="k3d-label" for="k3dVelarisOffen">Elemente verschoben <output id="k3dVelarisOffenWert">0 %</output></label>
           <input type="range" data-k3d-schieber id="k3dVelarisOffen" class="k3d-range" min="0" max="100" step="5" value="0">
@@ -2610,7 +2608,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </div>
           <p class="k3d-mini">Nur bei der verschiebbaren Ausführung: Die Elemente
             fahren zur Seite. Vorbei kommen sie nur an Elementen auf einem
-            anderen Laufweg – auf demselben Laufweg stoßen sie aneinander.
+            anderen Laufweg. Auf demselben Laufweg stoßen sie aneinander.
             Deshalb bewegt sich bei einer Schiene nichts. An der Stirnseite
             mit Zwischenpfosten geht jedes Feld nach außen auf.</p>
           <label class="k3d-label" for="k3dVelarisArt">Ausführung</label>
@@ -2621,7 +2619,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <label class="k3d-label" for="k3dVelarisAnzahl">Aufteilung in Elemente</label>
           <select id="k3dVelarisAnzahl" class="k3d-select"></select>
           <p class="k3d-mini">Normalerweise rechnet das System die Aufteilung aus.
-            Hier können Sie eine andere wählen – angeboten wird nur, was zu Ihrem
+            Hier können Sie eine andere wählen. Angeboten wird nur, was zu Ihrem
             Maß passt (Element 500 bis 1500 mm). Bei der verschiebbaren
             Ausführung steht nur, was sich auch wirklich bewegen lässt: drei
             oder vier Elemente, also 1500 bis 6000 mm lichte Breite.</p>
@@ -2631,7 +2629,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <option value="wunsch">Wunsch-Breite (individuell)</option>
           </select>
           <p class="k3d-mini">Bei Wunsch-Breite legen wir die einzelnen Breiten
-            beim Aufmaß mit Ihnen fest – das Modell zeigt so lange die
+            beim Aufmaß mit Ihnen fest. Das Modell zeigt so lange die
             gleichmäßige Aufteilung.</p>
           <label class="k3d-label" for="k3dVelarisFarbe">Oberfläche der Lamellen</label>
           <select id="k3dVelarisFarbe" class="k3d-select">
@@ -2641,10 +2639,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </select>
           <p class="k3d-mini">Nur diese drei: Die vier RAL-Standardtöne gelten für
             den Rahmen, nicht für die Lamellen. Eine Sonderfarbe zeigt das Modell
-            in der Rahmenfarbe – die RAL-Nummer legen wir mit Ihnen fest.</p>
+            in der Rahmenfarbe. Die RAL-Nummer legen wir mit Ihnen fest.</p>
           <p class="k3d-mini" id="k3dVelarisStand"></p>
           <p class="k3d-mini">Waagerechte Lamellen in einem Rahmen, stufenlos
-            verstellbar – zu für vollen Sichtschutz, offen für Licht und Luft.
+            verstellbar, zu für vollen Sichtschutz, offen für Licht und Luft.
             Ein Element ist 500 bis 1500 mm breit, die Anlage höchstens 7000 mm;
             breitere Seiten teilt der Konfigurator gleichmäßig auf.</p>
         </div>
@@ -2662,9 +2660,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </select>
           <p class="k3d-mini">Rechteckprofile 25 × 70 mm, waagerecht an Winkeln
             an den Pfosten. Die Zahl der Planken ergibt sich aus der lichten
-            Höhe – sie werden gleichmäßig verteilt, oben und unten bündig.
+            Höhe. Sie werden gleichmäßig verteilt, oben und unten bündig.
             Die Holzdekore zeigt das Modell mit Maserung; der genaue Farbton
-            ist dem Original nachempfunden – maßgeblich bleibt das Muster. Über 7 m Länge gibt es keine Planke am Stück – dann
+            ist dem Original nachempfunden, maßgeblich bleibt das Muster. Über 7 m Länge gibt es keine Planke am Stück, dann
             wird gleichmäßig geteilt, mit einem Zwischenprofil am Stoß.</p>
         </div>
 
@@ -2680,18 +2678,18 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <input type="range" id="k3dPlankenAnteil" class="k3d-range" min="-90" max="90" step="5" value="0">
           <p class="k3d-mini">In der Mitte ist die Seite ganz zu. Nach links
             bleiben die unteren Planken stehen und oben wird frei, nach rechts
-            umgekehrt – für halbhohe Wände, zwei Drittel und alles dazwischen.
+            umgekehrt, für halbhohe Wände, zwei Drittel und alles dazwischen.
             Die Fuge bleibt dabei dieselbe wie bei der vollen Wand.
             Ist auf derselben Seite zusätzlich eine Rahmenwand oder
             Schiebetür gewählt, bestimmt derselbe Regler, wie viel davon
-            die Planken einnehmen – der Rest ist dann Rahmenwand bzw.
+            die Planken einnehmen. Der Rest ist dann Rahmenwand bzw.
             Tür, nicht offen. In der Mitte bleibt es beim Drittel
             Planken unten.</p>
           <p class="k3d-mini" id="k3dPlankenStand"></p>
           <p class="k3d-mini">Normalerweise rechnet das System die Fuge aus, so
             dass die Wand oben und unten bündig abschließt. Haken weg, und Sie
             stellen sie selbst ein: ganz links liegen die Planken bündig
-            aufeinander – voller Sichtschutz –, nach rechts wird die Wand
+            aufeinander, voller Sichtschutz. Nach rechts wird die Wand
             luftiger. Auch dann bleibt Ihr Wert der Wunsch und die gebaute Fuge
             weicht um wenige Millimeter ab, damit es oben und unten aufgeht.</p>
         </div>
@@ -2753,7 +2751,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </select>
           <p class="k3d-mini">Die fünf Farben des Sonnensegels. Andere gibt es nicht.</p>
           <p class="k3d-mini"><strong>Bedienung:</strong> Jede Bahn wird einzeln
-            von Hand bedient – mit einer Stange, die dafür gedacht ist. Im Modell
+            von Hand bedient, mit einer Stange, die dafür gedacht ist. Im Modell
             laufen die Bahnen deshalb nacheinander auf und zu.</p>
           <label class="k3d-label" for="k3dSegelArt" style="margin-top:10px">Ausführung</label>
           <select id="k3dSegelArt" class="k3d-select">
@@ -2787,7 +2785,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <option value="Schwarz" selected>Schwarz</option>
           </select>
           <p class="k3d-mini"><strong>Bedienung:</strong> Jedes Feld zwischen zwei
-            Sparren wird einzeln von Hand bedient – mit dem Bedienstab (120 cm).
+            Sparren wird einzeln von Hand bedient, mit dem Bedienstab (120 cm).
             Im Modell laufen die Bahnen deshalb nacheinander auf und zu.</p>
           <p class="k3d-mini" id="k3dPlisseeStand"></p>
         </div>
@@ -2806,7 +2804,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <div class="k3d-stoff-liste" id="k3dStoffeZip" role="group"
                aria-labelledby="k3dStoffZipLabel"></div>
           <p class="k3d-mini" id="k3dStoffZipInfo">Jeder Stoff gibt es in zwei
-            Mustern – Konfektion A und B.</p>
+            Mustern: Konfektion A und B.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="sonne" data-k3d-mehr data-k3d-fuer="sonne-aus" hidden>
@@ -2817,7 +2815,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" id="k3dSonneRaus">Ausfahren <svg class="bvs" aria-hidden="true"><use href="#bvs-rechts"></use></svg></button>
           </div>
           <p class="k3d-mini">Sie können auch direkt im Bild auf das Dach
-            tippen – auf die Sparren oder das Glas. Die Beschattung fährt
+            tippen, auf die Sparren oder das Glas. Die Beschattung fährt
             dann aus oder ein.</p>
         </div>
       </details>
@@ -2898,7 +2896,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <button type="button" data-wert="Steinplatten">Steinplatten</button>
             <button type="button" data-wert="Holzdielen">Holzdielen</button>
           </div>
-          <p class="k3d-mini">Nur für die Darstellung – den Bodenbelag bringen Sie selbst mit.</p>
+          <p class="k3d-mini">Nur für die Darstellung. Den Bodenbelag bringen Sie selbst mit.</p>
         </div>
 
         <div class="k3d-gruppe" data-k3d-schritt="umgebung" data-k3d-mehr>
@@ -3040,7 +3038,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <button type="button" class="k3d-teilen-zu" id="k3dTeilenZu"><svg class="bvs" aria-hidden="true"><use href="#bvs-schliessen"></use></svg> Schließen</button>
         <h3 id="k3dTeilenTitel"><svg class="bvs" aria-hidden="true"><use href="#bvs-teilen"></use></svg> Planung teilen</h3>
         <p>Wer den Link öffnet, sieht dasselbe Modell und kann es
-          weiterbearbeiten – auch Sie selbst später wieder. Speichern Sie
+          weiterbearbeiten, auch Sie selbst später wieder. Speichern Sie
           ihn sich als Lesezeichen oder schicken Sie ihn weiter.</p>
         <div class="k3d-teilen-feld">
           <input type="text" id="k3dTeilenLink" readonly
@@ -3151,7 +3149,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
                  aria-labelledby="k3dKeilSkizzeTitel"></svg>
             <p class="k3d-keil-innen"><strong>Ansicht von innen.</strong>
               Sie stehen unter der Überdachung und sehen den Keil von innen.
-              Ein Klick auf ein Feld wählt es aus – darunter stellen Sie
+              Ein Klick auf ein Feld wählt es aus. Darunter stellen Sie
               dessen Glas ein.</p>
           </div>
 
@@ -3382,8 +3380,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <p class="k3d-bearb-ueberschrift">Aufteilung dieser Seite</p>
           <select id="k3dSchiebeTeilung" class="k3d-select"
                   aria-label="Aufteilung der Schiebeanlage auf dieser Seite"></select>
-          <p class="k3d-mini">Flügel: <output id="k3dSchiebeFluegel">–</output> –
-            die Flügelzahl ergibt sich aus der Breite und den lieferbaren
+          <p class="k3d-mini">Flügel: <output id="k3dSchiebeFluegel">–</output>, die Flügelzahl ergibt sich aus der Breite und den lieferbaren
             Aufteilungen, sie lässt sich nicht frei wählen.</p>
 
           <p class="k3d-bearb-ueberschrift">Gilt für die ganze Anlage</p>
@@ -3534,6 +3531,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       </div>
     </div>
     <div class="footer-bottom">
+      <p class="footer-tel">Fragen? Rufen Sie an: <a href="tel:+4915678696609">0156 78696609</a></p>
       <p>© 2026 BV AussenSysteme – Alexander Becker &amp; Josef Voronin GbR · Westerwaldkreis, Rheinland-Pfalz</p>
       <p>
         <a href="/impressum.html">Impressum</a> ·
@@ -3558,7 +3556,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <!-- ===== STICKY CTA ===== -->
 <div class="sticky-cta" id="stickyCta" role="complementary" aria-label="Jetzt anfragen">
   <div class="sticky-btns">
-    <a href="/#kontakt" class="btn btn-gold">Kostenlos anfragen</a>
+    <a href="/#kontakt" class="btn btn-gold"><svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg> Kostenlos anfragen </a>
     <a href="https://wa.me/4915678696609" target="_blank" rel="noopener" class="btn btn-whatsapp">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.526 5.845L.057 23.243a.75.75 0 0 0 .916.916l5.398-1.469A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.696 9.696 0 0 1-4.964-1.366l-.356-.214-3.694 1.004 1.004-3.694-.214-.356A9.696 9.696 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
       WhatsApp

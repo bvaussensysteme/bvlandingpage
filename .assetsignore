@@ -44,6 +44,15 @@ worker/
 #
 # Keine Seite verweist auf einen dieser Pfade - nachgesehen in allen
 # .html und .njk. Geprueft von scripts/pruefe-nicht-oeffentlich.sh.
+# VORLAGEN, eingetragen am 22.11.2026. _template.html lag oeffentlich
+# abrufbar im Wurzelverzeichnis, mit "index, follow", dem Titel und der
+# Beschreibung von produkte/gelaender.html und einer Kanonischen auf
+# genau diese Seite. Die Kanonische entschaerfte den doppelten Titel,
+# aber eine Vorlage gehoert nicht ins Netz. Keine Seite verweist darauf
+# (nachgesehen in allen .html und .njk). Gefunden vom seo-specialist.
+_template.html
+produkte/_template.html
+
 scripts/
 src/
 node_modules/

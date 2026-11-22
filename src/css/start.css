@@ -88,8 +88,11 @@
      !important (js/accessibility.js). Sie gewinnt weiterhin, und das
      muss so sein: Wer sie einschaltet, braucht sie.
 
-   Gilt NUR fuer die Startseite. Die uebrigen 57 Seiten behalten Inter
-   und Barlow Condensed, bis dazu eigens entschieden wird. */
+   Gilt NUR fuer die Startseite, braucht aber keine Sonderrolle mehr:
+   Seit dem 21.11.2026 laeuft die GANZE Seite auf Manrope ("alle seiten
+   manrope machen", Betreiber). Der Satz hier sagte bis zum 22.11.2026
+   das Gegenteil, naemlich dass die uebrigen 57 Seiten Inter und Barlow
+   Condensed behalten. Das stimmte seit vier Tagen nicht mehr. */
 .start-premium.start-premium *:not(.a11y-range-val) {
   font-family: 'Manrope', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
