@@ -5,17 +5,26 @@
 # dann weiter wischen." Oben steht also das Beliebteste, unten das
 # Seltenste. Eine Zeile je Dessin, Doppelkreuz ist ein Kommentar.
 #
-# WARUM ES KEINE GEMESSENE REIHENFOLGE GIBT. Nachgesehen am
-# 22.11.2026: Die Messtabelle `ereignis` in worker/index.js
-# speichert Seite, Art, Quelle, Geraet, Land und Region, aber
-# nichts ueber Stoffe. Der 3D-Konfigurator kennt zwar ein Feld
-# `stoff`, schickt es aber nicht in die Messung. Es gibt also
-# keine Zahl zur Beliebtheit, und eine erfundene Reihenfolge waere
-# ein erfundenes Vertrauenssignal.
+# DIE ERSTEN FUENF kommen vom Betreiber selbst, am 22.11.2026,
+# woertlich: "AC320, AC519, PA626, AC423, AC112 sind die
+# meistverkauften". Das ist seine Verkaufserfahrung, KEINE Messung;
+# so steht es auch in docs/entscheidungen.md. Auf der Seite wird
+# daraus nichts behauptet, dort steht nirgends das Wort "beliebt".
 #
-# BIS DER BETREIBER SEINE REIHENFOLGE NENNT steht hier die
-# Katalogreihenfolge der Stoffseite. Das behauptet nichts: Auf der
-# Seite steht nirgends das Wort "beliebt".
+# DER REST folgt in Katalogreihenfolge der Stoffseite, weil es
+# dafuer keine Grundlage gibt.
+#
+# WAS SICH BALD AENDERN KANN. js/messung.js meldet bei jedem Klick
+# auf einen Verweis dessen Beschriftung als Ereignis "klick". Die
+# Stoffkacheln tragen eine, werden also ab dem 22.11.2026 einzeln
+# gezaehlt. Nach einigen Wochen laesst sich die Rangfolge aus den
+# eigenen Zahlen nachrechnen statt zu schaetzen:
+#   SELECT zusatz, COUNT(*) FROM ereignis
+#   WHERE art='klick' AND zusatz LIKE '%Dessin%'
+#   GROUP BY zusatz ORDER BY 2 DESC;
+# Deckt sich das Ergebnis nicht mit der Liste oben, gilt die Liste,
+# bis der Betreiber etwas anderes sagt: Klicks auf der Startseite
+# sind keine Verkaeufe.
 #
 # AENDERN: Zeilen umsortieren, dann
 #   node scripts/baue-stoffstreifen.mjs
@@ -23,7 +32,14 @@
 # index.html sortieren, der Block wird sonst beim naechsten Lauf
 # ueberschrieben.
 
+# --- Meistverkauft, Angabe des Betreibers vom 22.11.2026 ---
+AC320
+AC519
+PA626
+AC423
 AC112
+
+# --- Uebrige, in Katalogreihenfolge ---
 AC117
 AC118
 AC119
@@ -35,18 +51,15 @@ AC220
 AC221
 AC223
 AC318
-AC320
 AC321
 AC322
 AC323
 AC324
 AC420
 AC421
-AC423
 AC512
 AC517
 AC518
-AC519
 AC521
 AC522
 AC523
@@ -65,7 +78,6 @@ PA612
 PA614
 PA616
 PA617
-PA626
 PA627
 PA630
 PA632

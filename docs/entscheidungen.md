@@ -21305,3 +21305,33 @@ Bis dahin bleibt es bei der Liste des Betreibers.
 `index.html:493` hin: Klemmt `localStorage`, lädt der Fangzweig die
 Google-Schriften ohne Einwilligung. Das ist Befund B2 aus dem Audit
 und liegt beim Betreiber und seinem Anwalt.
+
+## 22.11.2026 - Die fünf meistverkauften Stoffe stehen vorne
+
+**Ansage des Betreibers**, wörtlich: „AC320, AC519, PA626, AC423,
+AC112 sind die meistverkauften".
+
+**Was jetzt gilt.** Diese fünf stehen in genau dieser Reihenfolge am
+Anfang des Streifens, die übrigen 48 folgen in Katalogreihenfolge.
+Festgehalten in `scripts/stoff-reihenfolge.txt`, von dort schreibt
+`scripts/baue-stoffstreifen.mjs` den Block in `index.html`.
+
+**Woher die Zahl kommt und woher nicht.** Das ist die
+Verkaufserfahrung des Betreibers, **keine Messung**. Es steht so in
+der Datei und hier, damit es später niemand für eine ausgewertete
+Zahl hält. Auf der Seite selbst wird nichts behauptet: Das Wort
+„beliebt" kommt dort nicht vor, die Reihenfolge erklärt sich nicht.
+
+**Nebenwirkung, gemessen.** Vorher standen vorne drei Blautöne
+nebeneinander, weil die Katalogreihenfolge nach Farbfamilien sortiert
+ist. Der Gestaltungsprüfer hatte das am selben Tag als ungünstig
+gemeldet: Am Telefon sind nur gut zwei Kacheln plus Anschnitt
+sichtbar, die bestimmen den Eindruck. Jetzt sind die ersten fünf
+Orange, Beige, Hellgrau, Gelb und Blau. Der Befund erledigt sich
+damit, ohne dass dafür etwas Eigenes gebaut werden musste.
+
+**Was in einigen Wochen möglich wird.** `js/messung.js` zählt seit
+heute Klicks auf die einzelnen Kacheln mit. Die Abfrage dazu steht im
+Kopf von `scripts/stoff-reihenfolge.txt`. Deckt sich das Ergebnis
+nicht mit dieser Liste, gilt trotzdem die Liste, bis der Betreiber
+etwas anderes sagt: Klicks auf der Startseite sind keine Verkäufe.
