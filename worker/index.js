@@ -25,9 +25,88 @@ const REDIRECTS = {
   '/kontakt.html': '/#kontakt',
 };
 
+/* ============================================================
+   EINFACHE BREMSE GEGEN MISSBRAUCH (22.11.2026)
+
+   ANLASS. Der Prüfdurchgang hat festgehalten, dass auf den
+   öffentlichen Schnittstellen nichts begrenzt ist: Wer will, kann das
+   Anfrageformular und die Messung in beliebiger Zahl anstoßen. Das
+   füllt das Postfach des Betreibers mit Müll und kostet im schlimmsten
+   Fall Geld. Entscheidung des Betreibers am 22.11.2026: "Einfache
+   Bremse einbauen".
+
+   WIE SIE ARBEITET. Je Absender (CF-Connecting-IP) und Schnittstelle
+   wird gezählt, wie viele Anfragen im laufenden Zeitfenster kamen. Ist
+   das Fenster voll, antwortet der Server mit 429 und sagt über
+   Retry-After, wann es weitergeht.
+
+   WAS SIE NICHT KANN, ehrlich gesagt: Der Zähler lebt im Speicher
+   einer einzelnen Worker-Instanz. Cloudflare startet mehrere davon und
+   wirft sie nach kurzer Zeit weg. Gegen einen verteilten Angriff aus
+   vielen Netzen hilft das nicht, und ein Angreifer mit wechselnden
+   Adressen kommt ebenfalls durch. Es bremst den häufigen Fall: ein
+   Skript, das aus einer Quelle hämmert. Für mehr bräuchte es die
+   kostenpflichtige Ratenbegrenzung von Cloudflare oder einen
+   dauerhaften Speicher; beides ist eine Entscheidung des Betreibers.
+
+   WARUM KEIN SCHREIBEN IN DIE DATENBANK. Ein Zähler in D1 würde bei
+   jedem Seitenaufruf einen Schreibvorgang auslösen. Das kostet mehr,
+   als es verhindert.
+
+   DIE GRENZEN sind so gewählt, dass ein echter Besucher sie nie
+   erreicht. Die Messung feuert bei jedem Seitenaufruf und bei jedem
+   Klick, deshalb ist sie großzügig.
+   ============================================================ */
+const BREMSE = new Map();
+const BREMSE_REGELN = {
+  '/api/kontakt':  { anzahl: 5,   fenster: 600 },
+  '/api/teilen':   { anzahl: 20,  fenster: 3600 },
+  '/api/messung':  { anzahl: 150, fenster: 60 },
+  '/api/hoehe':    { anzahl: 60,  fenster: 60 },
+  '/api/bauteile': { anzahl: 60,  fenster: 60 },
+};
+
+function bremseGreift(request, pfad) {
+  const regel = BREMSE_REGELN[pfad];
+  if (!regel) return null;
+  const wer = request.headers.get('CF-Connecting-IP') || 'unbekannt';
+  const jetzt = Date.now();
+  const schluessel = pfad + '|' + wer;
+  const bisher = (BREMSE.get(schluessel) || []).filter((z) => jetzt - z < regel.fenster * 1000);
+  if (bisher.length >= regel.anzahl) {
+    const wartenMs = regel.fenster * 1000 - (jetzt - bisher[0]);
+    return Math.max(1, Math.ceil(wartenMs / 1000));
+  }
+  bisher.push(jetzt);
+  BREMSE.set(schluessel, bisher);
+  /* Aufräumen, damit die Karte nicht unbegrenzt wächst. Ab 5000
+     Einträgen fliegt alles raus, was älter ist als das längste
+     Fenster. */
+  if (BREMSE.size > 5000) {
+    for (const [k, v] of BREMSE) {
+      if (!v.length || jetzt - v[v.length - 1] > 3600 * 1000) BREMSE.delete(k);
+    }
+  }
+  return null;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    /* Bremse vor allem anderen, damit auch eine gesperrte Anfrage
+       nichts in der Datenbank anfasst. */
+    const warten = bremseGreift(request, url.pathname);
+    if (warten !== null) {
+      return new Response(JSON.stringify({ ok: false, fehler: 'zu viele Anfragen' }), {
+        status: 429,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'retry-after': String(warten),
+          'cache-control': 'no-store',
+        },
+      });
+    }
 
     if (Object.prototype.hasOwnProperty.call(REDIRECTS, url.pathname)) {
       return Response.redirect(new URL(REDIRECTS[url.pathname], url).toString(), 301);

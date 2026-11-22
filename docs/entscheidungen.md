@@ -21783,3 +21783,43 @@ Versionsgeschichte bleiben sie erhalten.
 **Nicht geändert, auf Wunsch des Betreibers:** die drei Umbrüche in
 der Datenschutzerklärung, das `noindex` auf den Rechtstexten, und die
 Vorschau bleibt vorerst ohne Passwort und mit gemeinsamer Datenbank.
+
+## 22.11.2026 - Eine einfache Bremse auf den öffentlichen Schnittstellen
+
+**Ansage des Betreibers:** „Einfache Bremse einbauen".
+
+**Was jetzt gilt.** Je Absender und Schnittstelle zählt der Server,
+wie viele Anfragen im laufenden Zeitfenster kamen. Ist es voll,
+antwortet er mit 429 und sagt über `Retry-After`, wann es weitergeht.
+
+| Schnittstelle | erlaubt | Fenster |
+|---|---|---|
+| `/api/kontakt` (Anfrageformular) | 5 | 10 Minuten |
+| `/api/teilen` | 20 | 1 Stunde |
+| `/api/messung` | 150 | 1 Minute |
+| `/api/hoehe` | 60 | 1 Minute |
+| `/api/bauteile` | 60 | 1 Minute |
+
+Die Messung ist großzügig, weil sie bei jedem Seitenaufruf und jedem
+Klick feuert. Gemessen in der Prüfung: Ein echter Besuch mit 40
+Meldungen läuft nicht hinein.
+
+**Was sie NICHT kann, und das gehört dazugesagt.** Der Zähler lebt im
+Speicher einer einzelnen Worker-Instanz. Cloudflare startet mehrere
+davon und wirft sie nach kurzer Zeit weg. **Gegen einen verteilten
+Angriff aus vielen Netzen hilft das nicht**, und wer die Adresse
+wechselt, kommt ebenfalls durch. Es bremst den häufigen Fall: ein
+Skript, das aus einer Quelle hämmert. Für mehr bräuchte es die
+kostenpflichtige Ratenbegrenzung von Cloudflare oder einen dauerhaften
+Speicher. Das ist eine Entscheidung des Betreibers und steht in
+`docs/NEXT_TASK.md`.
+
+**Warum kein Zähler in der Datenbank.** Das würde bei jedem
+Seitenaufruf einen Schreibvorgang auslösen und mehr kosten, als es
+verhindert.
+
+**Abgesichert durch `scripts/pruefe-bremse.mjs`**, das die Bremse aus
+dem Worker herausschneidet und ihr Anfragen vorspielt. Kein Netz, kein
+Cloudflare-Konto nötig, und geprüft wird genau der Code, der auch
+läuft. Gegenprobe: Grenze auf 999999 gesetzt, die Sperre bleibt aus
+und das fällt auf.
