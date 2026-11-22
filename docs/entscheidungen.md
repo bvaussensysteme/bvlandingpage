@@ -21823,3 +21823,45 @@ dem Worker herausschneidet und ihr Anfragen vorspielt. Kein Netz, kein
 Cloudflare-Konto nötig, und geprüft wird genau der Code, der auch
 läuft. Gegenprobe: Grenze auf 999999 gesetzt, die Sperre bleibt aus
 und das fällt auf.
+
+## 22.11.2026 - Brotkrumen sind jetzt zu sehen, nicht nur gemeldet
+
+**Anlass.** Die SEO-Prüfung fand, dass 19 Seiten Google eine
+Brotkrumen-Navigation melden, sie aber nicht zeigen: die 14 Ortsseiten
+und die 5 Ratgeber-Artikel. Entscheidung des Betreibers: sichtbar
+machen.
+
+**Was jetzt gilt.** Über der Überschrift steht eine Pfadzeile, die
+**genau das** zeigt, was der Datenblock sagt. Nicht ähnlich, sondern
+dasselbe: Die Zeile wird aus dem vorhandenen `BreadcrumbList`
+aufgebaut. Damit können beide nicht auseinanderlaufen.
+
+- Ortsseiten: „Startseite › Carport Neuwied"
+- Ratgeber: „Startseite › Ratgeber › Was kostet eine
+  Terrassenüberdachung? Preise & Kosten 2026"
+
+**Auf den Ratgeberseiten ersetzt sie den Zurück-Verweis**
+(„← Ratgeber"). Er sagte dasselbe, nur weniger: Die Brotkrumen führen
+auch zur Startseite und zeigen zusätzlich, wo man steht. Zwei
+Navigationen übereinander wären Unordnung.
+
+**Gemessen** auf drei Seiten bei 390 und 1280 px: Text 16,37:1,
+Verweise 7,76:1 gegen den dunklen Kopf, Zeile 21 px hoch,
+Verweisflächen nach einer Nachbesserung 29 px hoch. Zuerst waren es 16
+bis 18 px, also unter der Projektgrenze von 24; ein Verweis in einer
+Brotkrumenzeile steht nicht im Fließtext und fällt damit nicht unter
+die Ausnahme von WCAG 2.2, 2.5.8.
+
+**Die Produktseiten bleiben unberührt.** Sie haben ihre eigene
+Brotkrumen-Regel im Kopf der Seite. Die neue Regel ist mit
+`.hero-section` und `.article-hero` davor enger gefasst und kommt
+ihnen nicht in die Quere.
+
+**Nebenbefund derselben Runde, sofort behoben.** Die neuen Pfeile am
+Referenz-Karussell ragten in einem schmalen Browserfenster um 25 px
+aus ihrem Kasten: `(hover: hover)` greift auch dort, und dann passten
+Pfeile und Punkte nicht mehr nebeneinander. Sie erscheinen jetzt erst
+ab 481 px. Am Telefon war nie etwas zu sehen, der Fehler betraf nur
+ein schmal gezogenes Fenster am Rechner. Gefunden hat es
+`pruefe-mitwachsend`, und zwar erst, seit die Seitenliste von neun auf
+dreizehn erweitert wurde.

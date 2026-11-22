@@ -4224,11 +4224,56 @@ body.bv-konfig-open #bvKonfigBubble {
 .karussell-pfeil:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 2px; }
 .karussell-pfeil[aria-disabled="true"] { opacity: .45; cursor: default; }
 .karussell-pfeil[aria-disabled="true"]:hover { border-color: var(--border); background: var(--white); }
-@media (hover: hover) and (pointer: fine) {
+/* min-width zusaetzlich zur Zeigerabfrage: In einem schmalen
+   Browserfenster am Rechner greift (hover: hover) ebenfalls, und dann
+   passten Pfeile, Punkte und Abstaende nicht mehr nebeneinander.
+   Gemessen am 22.11.2026 ragten sie bei 320 px um 25 px aus ihrem
+   Kasten. Unter 481 px bleibt es beim Wischen. */
+@media (hover: hover) and (pointer: fine) and (min-width: 481px) {
   .karussell-pfeil { display: inline-flex; }
 }
 /* Etwas mehr Luft zwischen Pfeil und Punktreihe als zwischen den
    Punkten selbst, sonst klebt der Pfeil am ersten Punkt. */
-@media (hover: hover) and (pointer: fine) {
+@media (hover: hover) and (pointer: fine) and (min-width: 481px) {
   .karussell-leiste { gap: 16px; }
 }
+
+/* SICHTBARE BROTKRUMEN AUF ORTS- UND RATGEBERSEITEN (22.11.2026).
+
+   ANLASS. Die SEO-Pruefung hat gefunden, dass 19 Seiten Google eine
+   Brotkrumen-Navigation melden, sie aber nicht zeigen. Google erwartet,
+   dass strukturierte Daten dem entsprechen, was Besucher sehen.
+   Entscheidung des Betreibers: sichtbar machen.
+
+   Die Produktseiten haben ihre eigene .breadcrumb-Regel im Kopf der
+   Seite. Diese hier ist mit .hero-section und .article-hero davor
+   enger gefasst (0,2,0) und kommt den Produktseiten deshalb nicht in
+   die Quere.
+
+   Beide Koepfe stehen auf var(--dark), die Schrift muss also hell
+   sein. --gold-light statt --gold: gemessen am 22.11.2026 ergibt das
+   Markengold auf #1D2023 nur 4,36:1, das helle Gold 8,37:1. */
+.hero-section .breadcrumb,
+.article-hero .breadcrumb {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.72);
+  margin: 0 0 14px;
+  line-height: 1.6;
+}
+.hero-section .breadcrumb a,
+.article-hero .breadcrumb a {
+  color: var(--gold-light);
+  text-decoration: none;
+  /* Gemessen am 22.11.2026: 16 bis 18 px hoch, also unter der
+     Projektgrenze von 24 px. Ein Verweis in einer Brotkrumen-Zeile
+     steht nicht im Fliesstext und faellt damit nicht unter die
+     Ausnahme von WCAG 2.2, 2.5.8. 4 px Innenabstand oben und unten,
+     die Zeile bleibt optisch gleich. */
+  display: inline-block;
+  padding-block: 4px;
+}
+.hero-section .breadcrumb a:hover,
+.article-hero .breadcrumb a:hover { text-decoration: underline; }
+/* Das Trennzeichen ist Schmuck und wird nicht vorgelesen. */
+.hero-section .breadcrumb .bk-trenner,
+.article-hero .breadcrumb .bk-trenner { color: rgba(255,255,255,0.45); padding: 0 4px; }
