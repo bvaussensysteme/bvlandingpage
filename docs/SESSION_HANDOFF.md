@@ -88,6 +88,24 @@ nacheinander laufen lassen, nebeneinander brechen sie mit
 echten Altbefund (Seite rollt am großen Bildschirm um 64 px mit),
 der schon im Stand vom Sitzungsbeginn steckt.
 
+## Prüfdurchgang vom 22.11.2026
+
+Der Betreiber hat die Freigabe verweigert und einen vollständigen
+Durchgang verlangt. Elf Prüfer, zwei Läufe über alle Skripte.
+**Ergebnis gesammelt in `docs/AUDIT-2026-11-22.md`.**
+
+Behoben und gemessen: vier Fokusringe mit zu wenig Kontrast (bis
+hinunter zu 1,20:1), der Fokus bei offenem Handy-Menü (31 von 31
+Tabulatorhalten lagen außerhalb), zwei Felder ohne Namen, eine
+Fehlermeldung ohne Ansage, der Cookie-Hinweis über dem Menü, eine
+abgeschnittene Vergleichstabelle, das Katalogbuch über dem Rand, dazu
+Schriftreste und fehlende Dateiversionen.
+
+Offen und beim Betreiber: der Merge mit `main` (63 Konflikte), die
+fehlende Ratenbegrenzung, geteilte Vorschau- und Produktionsdatenbank,
+widersprüchliche Garantie- und Statikzusagen, der gesperrte
+Konfigurator in der Sitemap, die vier Rechtsfragen.
+
 ## Was offen ist
 
 Steht vollständig in `docs/NEXT_TASK.md`. Die drei, die am meisten

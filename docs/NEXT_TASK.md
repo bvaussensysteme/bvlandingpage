@@ -192,6 +192,19 @@ fünf Konfigurator-Prüfungen (`keil-editor`, `planken-editor`,
 `TimeoutError` ab, wenn zwölf Browser gleichzeitig laufen. Einzeln
 laufen sie durch. Das ist Überlast, kein Befund.
 
+## Der vollständige Prüfdurchgang vom 22.11.2026
+
+Elf Prüfer, zwei vollständige Skriptläufe. **Alles, was offen ist und
+beim Betreiber liegt, steht gesammelt in `docs/AUDIT-2026-11-22.md`.**
+Dieses Dokument wiederholt es nicht.
+
+Kurz: Sechs Punkte blockieren eine Veröffentlichung (Merge mit `main`,
+fehlende Ratenbegrenzung, geteilte Datenbanken, widersprüchliche
+Garantie- und Statikzusagen, gesperrter Konfigurator in der Sitemap,
+die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
+werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
+`docs/entscheidungen.md`.
+
 ## 4. Der nächste sinnvolle Arbeitsschritt
 
 > **Hinweis:** Der Betreiber arbeitet eine Folge von fünf Aufträgen ab.
