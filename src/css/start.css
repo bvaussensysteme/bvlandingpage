@@ -528,7 +528,18 @@
    keine Textfarbe. #896023 kommt auf 5,58:1.
    Beim Zeigen füllt sich der Knopf mit Markengold und der Text wird
    tiefschwarz (6,61:1), nie weiss (2,98:1). */
-.start-premium .leistungen-grid--neu .leistung-link {
+/* DIESELBE PILLE AUCH IN DEN WERKZEUG-KARTEN (22.11.2026).
+   Ansage des Betreibers zum Abschnitt "Jetzt selbst berechnen und
+   pruefen": „Hier bei Jetzt berechnen und Jetzt pruefen auch lieber
+   buttons". Dort standen zwei Textverweise mit Inline-Stil.
+   Genommen wird der Baustein, den die Leistungskarten schon haben,
+   und KEINE neue Variante: Der ux-architect hatte am selben Tag
+   gezaehlt, wie viele Knopfarten es bereits gibt. Deshalb steht
+   .kontakt-card hier im selben Waehler statt in einer eigenen Regel.
+   Die Karten des Kontaktbereichs sind nicht betroffen, dort traegt
+   kein Verweis die Klasse .leistung-link. */
+.start-premium .leistungen-grid--neu .leistung-link,
+.start-premium .kontakt-card .leistung-link {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -555,17 +566,20 @@
   text-wrap: balance;
   transition: background .18s ease, color .18s ease, border-color .18s ease;
 }
-.start-premium .leistungen-grid--neu .leistung-link .pfeil {
+.start-premium .leistungen-grid--neu .leistung-link .pfeil,
+.start-premium .kontakt-card .leistung-link .pfeil {
   transition: transform .18s ease;
 }
 @media (hover: hover) and (pointer: fine) {
-  .start-premium .leistungen-grid--neu .leistung-link:hover {
+  .start-premium .leistungen-grid--neu .leistung-link:hover,
+  .start-premium .kontakt-card .leistung-link:hover {
     background: var(--gold);
     border-color: var(--gold);
     color: var(--black);
     text-decoration: none;
   }
-  .start-premium .leistungen-grid--neu .leistung-link:hover .pfeil {
+  .start-premium .leistungen-grid--neu .leistung-link:hover .pfeil,
+  .start-premium .kontakt-card .leistung-link:hover .pfeil {
     transform: translateX(3px);
   }
 }

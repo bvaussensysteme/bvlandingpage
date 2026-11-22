@@ -20774,3 +20774,36 @@ vor der Aufnahme unsichtbar geschaltet.
 **Geprüft:** `pruefe-darstellung` 144 von 144, `pruefe-mitwachsend`
 63 Messungen ohne Beanstandung, `pruefe-startseite` 45,
 `pruefe-schwebe` 20. Version auf `20261122c`.
+
+## 22.11.2026 - „Jetzt berechnen" und „Jetzt prüfen" sind Knöpfe
+
+**Ansage des Betreibers** zum Abschnitt „Jetzt selbst berechnen und
+prüfen": „Hier bei Jetzt berechnen und Jetzt prüfen auch lieber
+buttons."
+
+**Was dastand.** Zwei Textverweise mit Inline-Stil
+(`color:var(--gold-text);font-weight:600`). Zwischen zwei Karten, die
+sonst aussehen wie die Leistungskarten darüber, wirkten sie wie
+vergessen.
+
+**Was jetzt gilt.** Beide tragen `.leistung-link`, also **denselben
+Baustein, den die neun Leistungskarten schon benutzen**: Pille mit
+999 px Radius, 1,5 px Rand in Dunkelgold, beim Überfahren füllt sie
+sich golden, der Pfeil rückt 3 px nach rechts.
+
+**Warum kein neuer Knopf.** Der `ux-architect` hatte am selben Tag
+gezählt, wie viele Knopfarten es schon gibt, darunter drei
+WhatsApp-Varianten. Eine zehnte wäre genau der Fehler, den er
+beschreibt. Deshalb steht `.kontakt-card .leistung-link` im selben
+Wähler wie die Leistungskarten und nicht in einer eigenen Regel. Die
+Karten des Kontaktbereichs sind nicht betroffen: Dort trägt kein
+Verweis diese Klasse.
+
+**Gemessen:** 268 × 56 px am Telefon, 430 × 56 px am Rechner. Beide
+über den 44 px der Projekt-Messlatte. Schrift und Rand Dunkelgold
+`#896023` auf Weiß, **5,58:1**, über den 4,5:1 für Text und den 3:1
+für den Rand.
+
+**Geprüft:** `pruefe-startseite`, `pruefe-mitwachsend` und
+`pruefe-darstellung` laufen durch. Version von `start.css` auf
+`20261122d`.
