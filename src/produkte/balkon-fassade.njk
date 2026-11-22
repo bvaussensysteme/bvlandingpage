@@ -73,13 +73,7 @@ schema: |
   "name": "Balkon, Fassade & Sichtschutz",
   "description": "Balkonüberdachungen, Fassadenverkleidung Deco Wall und Aluminium-Sichtschutz im Westerwald.",
   "category": "Balkonüberdachung",
-  "brand": {"@type":"Brand","name":"VD AluSysteme"},
-  "offers": {
-  "@type": "Offer",
-  "priceCurrency": "EUR",
-  "priceSpecification": {"@type":"PriceSpecification","description":"Preis auf Anfrage"},
-  "seller": {"@type":"LocalBusiness","name":"BV AussenSysteme","url":"https://bv-aussensysteme.de"}
-  }
+  "brand": {"@type":"Brand","name":"VD AluSysteme"}
   }
   </script>
 ---
@@ -161,6 +155,14 @@ schema: |
     </div>
   </div>
 </section>
+<!-- KONFIGURATOR GESPERRT, ausgeblendet am 22.11.2026.
+     Ansage des Betreibers: "Den 3D konf lassen wir noch gesperrt er is
+     noch in entwicklung." Der Worker antwortet unter /konfigurator.html
+     mit 503; ein Knopf dorthin fuehrt Besucher auf eine Wartungsseite
+     und Google auf einen Fehler.
+     WIEDER EINBLENDEN, sobald KONFIGURATOR_GESPERRT in worker/index.js
+     auf false steht. scripts/pruefe-konfigurator-verweise.mjs erinnert
+     daran und nennt jede Stelle.
 <section class="section" style="padding-top:0;">
   <div class="container">
     <div class="service-box">
@@ -179,6 +181,7 @@ schema: |
     </div>
   </div>
 </section>
+     ENDE ausgeblendet -->
 
 {# Ausfuehrungsbeispiele, siehe src/_includes/galerie.njk #}
 {% set galerieSchluessel = "balkon-fassade" %}

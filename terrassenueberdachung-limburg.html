@@ -323,7 +323,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <h4>Unternehmen</h4>
         <ul class="footer-links">
           <li><a href="/partner.html">Partner</a></li>
+<!-- KONFIGURATOR GESPERRT, ausgeblendet am 22.11.2026.
+     Ansage des Betreibers: "Den 3D konf lassen wir noch gesperrt er is
+     noch in entwicklung." Der Worker antwortet unter /konfigurator.html
+     mit 503; ein Knopf dorthin fuehrt Besucher auf eine Wartungsseite
+     und Google auf einen Fehler.
+     WIEDER EINBLENDEN, sobald KONFIGURATOR_GESPERRT in worker/index.js
+     auf false steht. scripts/pruefe-konfigurator-verweise.mjs erinnert
+     daran und nennt jede Stelle.
           <li><a href="/konfigurator.html">Konfigurator</a></li>
+     ENDE ausgeblendet -->
           <li><a href="/#warum-wir">Über uns</a></li>
           <li><a href="/ratgeber/">Ratgeber</a></li>
           <li><a href="/einzugsgebiet.html">Einzugsgebiet</a></li>

@@ -21432,3 +21432,67 @@ beide fallen auf.
 In einer `.njk`-Vorlage wird `{# ... #}` innerhalb eines
 JSON-LD-Blocks ebenfalls nicht entfernt, auch das ist am selben Tag
 passiert.
+
+## 22.11.2026 - Der gesperrte Konfigurator wurde 24 mal beworben
+
+**Anlass.** Ansage des Betreibers: „Den 3D konf lassen wir noch
+gesperrt er is noch in entwicklung." Gleichzeitig soll Google die
+richtigen Seiten indexieren.
+
+**Was falsch war, gezählt.** 24 aktive Verweise auf
+`/konfigurator.html`, einer Adresse, unter der der Worker mit 503
+antwortet: sechs Werbekästen auf Produktseiten („Jetzt
+konfigurieren"), zehn Fußzeilen von Stadtseiten, ein Satz im Ratgeber,
+dazu die daraus erzeugten Fassungen. Besucher landeten auf einer
+Wartungsseite, Google auf einem Fehler.
+
+**Entscheidung des Betreibers** (Auswahl im Chat): ausblenden,
+solange die Sperre gilt.
+
+**Was jetzt gilt.** Alle 24 Stellen sind auskommentiert, jede mit
+derselben Marke `KONFIGURATOR GESPERRT, ausgeblendet am 22.11.2026`
+und der Anleitung, wann sie zurückkommt. Auf den Produktseiten ist
+nicht nur der Knopf weg, sondern der ganze Kasten: Ein Kasten mit der
+Überschrift „Ihren Balkon konfigurieren" ohne Knopf wäre schlimmer
+als keiner. Im Ratgeber ist der Satz weg, der den Konfigurator
+anbietet, der Rest des Absatzes steht.
+
+**Dauerhaft abgesichert** durch
+`scripts/pruefe-konfigurator-verweise.mjs`, und zwar in **beide**
+Richtungen:
+
+- Sperre an: kein aktiver Verweis. Auskommentierte zählen nicht,
+  dafür werden HTML- und Nunjucks-Kommentare vorher entfernt.
+- Sperre aus: die ausgeblendeten Stellen **müssen zurück** sein. Sonst
+  wäre der fertige Konfigurator unsichtbar, und niemand würde es
+  merken.
+
+Gegenprobe: ein aktiver Verweis in eine Kopie im Speicher, er fällt
+auf.
+
+**Nicht angefasst:** `/werkstatt/*`. Das sind interne Seiten hinter
+einer Anmeldung, nicht im Index, nicht beworben.
+
+## 22.11.2026 - Produktangaben ohne Preis gestrichen
+
+**Befund der SEO-Prüfung, nachgesehen.** Alle 16 Produktseiten
+meldeten Google ein `offers`, also ein Angebot, aber ohne `price`.
+Drin stand nur eine Beschreibung „Preis auf Anfrage". Google nimmt ein
+Angebot nur mit Preis an; das ergibt Fehler in der Search Console und
+kein Produkt-Ergebnis in der Suche.
+
+**Entscheidung des Betreibers:** Angebot weglassen. Preise auf die
+Seite zu schreiben kommt nach der festen Linie nicht infrage.
+
+**Was jetzt gilt.** Der `offers`-Block ist aus allen 16 Vorlagen raus.
+Der Produkteintrag selbst bleibt gültig, nachgerechnet: 16 von 16
+`Product`-Blöcke lesbar, keiner mit `offers`. An der sichtbaren Seite
+ändert sich nichts.
+
+**Beim Entfernen schiefgegangen und daraus gelernt.** Der erste
+Versuch arbeitete mit einem regulären Ausdruck auf dem Text. Auf den
+Seiten, bei denen nach `offers` noch weitere Angaben folgen, hat er
+zu viel weggeschnitten, und drei Datenblöcke waren kaputt. Gemerkt hat
+es `scripts/pruefe-schema-gueltig.mjs`, das eine Stunde vorher
+entstanden war. Zurückgenommen und mit Klammerzählung wiederholt.
+Danach alle 93 Blöcke auf 60 Seiten lesbar.
