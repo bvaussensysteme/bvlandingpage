@@ -21908,3 +21908,40 @@ ja in Ordnung, nur das Aussehen war kaputt. Gesehen hat es der
 Betreiber. Eine Prüfung, die Abstände zwischen Zeichen und Text misst,
 gibt es nicht und wäre auch schwer zu bauen; der Abzug eines Menschen
 bleibt hier das bessere Werkzeug.
+
+## 22.11.2026 - SunPro One: eigene Fassung aus den Angaben des Herstellers
+
+**Ansage des Betreibers** mit Verweis auf die Herstellerseite: „bitte
+nicht alles 1:1 kopieren, jage es durch agenten und skills und mach
+unsere version daraus".
+
+**Wie vorgegangen wurde.** Ein lesender Agent hat die Herstellerseite
+abgerufen und ausschließlich **Tatsachen** berichtet, mit der
+ausdrücklichen Auflage, nichts zu zitieren und nichts aus
+Allgemeinwissen zu ergänzen. Aus diesen Angaben ist der Text hier neu
+geschrieben. Kein Satz, kein Bild und keine Formulierung des
+Herstellers ist übernommen. Das entspricht der Regel in `CLAUDE.md`:
+Fakten und technische Daten ja, fremde Texte und Dateien nein.
+
+**Was übernommen wurde:** Maße (4,00 × 5,40 m, Höhe bis 2,70 m),
+Öffnungswinkel bis 110°, regendichtes Schließen, verdeckte
+Entwässerung über eine Stütze, Montage freistehend oder an der Wand,
+Funkfernbedienung, optionaler Regensensor, Zubehör (Senkrechtmarkise
+ShadeZip One, dimmbare Beleuchtung im Rahmen, Heizstrahler), die drei
+Standardfarben mit RAL-Nummern.
+
+**Was bewusst NICHT geschrieben wurde**, weil der Hersteller es zu
+diesem Modell nicht angibt: Lamellenbreite, Pfostenzahl,
+Windwiderstandsklasse, Schneelast. Eine Zahl zu erfinden wäre
+schlimmer als eine Lücke.
+
+**Garantie und CE stehen trotzdem in der Karte**, aber nicht von der
+Herstellerseite: Sie nennt zu diesem Modell beides nicht. Die zehn
+Jahre und die CE-Kennzeichnung folgen der Entscheidung des Betreibers
+vom selben Tag. Kein Statiknachweis in der Liste, auch das folgt
+derselben Entscheidung.
+
+**Das Bild fehlt.** Ein eigenes Foto des SunPro One liegt nicht vor,
+und ein fremdes wird nicht genommen. Die Karte kommt vorerst ohne
+Bild aus; das sieht man ihr an. Sobald ein Foto da ist, ist es in
+einer Minute eingesetzt.
