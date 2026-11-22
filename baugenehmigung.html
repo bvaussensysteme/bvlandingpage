@@ -92,6 +92,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
   <link rel="stylesheet" href="/css/style.css?v=20261122i" />
+  
+  <link rel="stylesheet" href="/css/start.css?v=20261122i" />
 
   <style>
 /* ── PAGE HERO ── */
@@ -327,7 +329,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   @page { size: A4 portrait; margin: 10mm 12mm 8mm; }
 
   /* Der Ergebnisbereich haengt beim Drucken in #bv-print-root direkt unter
-     <body> (siehe bgAlsPdf). Damit genuegt eine einzige Regel. */
+     <body class="start-premium"> (siehe bgAlsPdf). Damit genuegt eine einzige Regel. */
   body > *:not(#bv-print-root) { display: none !important; }
   #bv-print-root { display: block !important; }
   #bg-results { display: block !important; margin: 0; padding: 0; box-shadow: none; }
@@ -539,7 +541,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 
 </head>
-<body>
+
+<body class="start-premium">
 
 
 <a href="#main-content" class="skip-link"

@@ -456,3 +456,23 @@ seinem Anwalt. Bis dahin bleibt es, wie es ist.
 drei Adressen standen gleichzeitig in `sitemap.xml`. Diese Einträge
 sind entfernt. An der Indexierung ändert das nichts, siehe
 `docs/entscheidungen.md`.
+
+## 22.11.2026 – Drei unschöne Zeilenumbrüche in der Datenschutzerklärung
+
+**Nicht geändert**, nur gemeldet. Gemessen bei 320 px Bildschirmbreite
+mit `scripts/pruefe-umbruch.mjs`:
+
+| Fundstelle | Letzte Zeile besteht aus |
+|---|---|
+| Abschnitt zur KI-gestützten Gesprächsauswertung | „statt" |
+| Anschrift der Aufsichtsbehörde | „Rheinland-Pfalz" |
+| Überschrift „17. Metricool (Statistik/Analyse)" | „(Statistik/Analyse)" |
+
+**Risiko: keines.** Das ist reine Typografie, kein inhaltlicher
+Mangel. Der Text ist vollständig lesbar, es sieht nur unruhig aus.
+
+**Warum es trotzdem hier steht.** Der Betreiber hat ausdrücklich um
+Aufmerksamkeit für solche Umbrüche gebeten. Beheben ließe es sich mit
+geschützten Leerzeichen, ohne ein einziges Wort zu ändern. Das wäre
+ein Eingriff in den Rechtstext und unterbleibt deshalb, bis der
+Betreiber es ausdrücklich möchte.

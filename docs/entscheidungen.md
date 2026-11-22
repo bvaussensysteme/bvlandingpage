@@ -21496,3 +21496,91 @@ zu viel weggeschnitten, und drei Datenblöcke waren kaputt. Gemerkt hat
 es `scripts/pruefe-schema-gueltig.mjs`, das eine Stunde vorher
 entstanden war. Zurückgenommen und mit Klammerzählung wiederholt.
 Danach alle 93 Blöcke auf 60 Seiten lesbar.
+
+## 22.11.2026 - Das neue Design gilt jetzt für alle 58 Seiten, nicht nur die Startseite
+
+**Ansage des Betreibers**, wörtlich: „auf markisenstoffe seite hast du
+noch nix bearbeitet und die schrift is auch noch alt, wie oft soll ich
+noch sagen prüfe ALLES".
+
+**Was wirklich los war, gemessen.** Die Schrift war **nicht** alt:
+Jede Seite lädt und benutzt Manrope, das hat
+`scripts/pruefe-schrift.mjs` auch bestätigt. Alt war die **Palette**
+und die **Designschicht**. Gemessen am 22.11.2026 über elf Seiten:
+`index.html` hatte `--gold #C58A32` und `body.start-premium`, alle
+übrigen `--gold #C49A2A` und keine Schicht. Der Unterschied ist von
+Weitem genau das, was man „sieht": wärmeres Gold, Warmweiß statt
+Reinweiß, andere Abstände, runde Knöpfe.
+
+Das war kein Versehen, sondern der bis dahin dokumentierte Stand:
+`CLAUDE.md` führt zwei Designsprachen nebeneinander, die neue galt für
+den Neubau der Startseite. Der Betreiber hat diesen Stand jetzt
+aufgehoben.
+
+**Was jetzt gilt.** Alle 58 ausgelieferten Seiten tragen
+`body class="start-premium"` und laden `css/start.css` nach
+`css/style.css`. Zwei Wege, weil es zwei Arten von Seiten gibt:
+
+- 34 Seiten entstehen aus `src/_includes/layout.njk`. Dort steht die
+  Klasse und der Ladebefehl jetzt einmal. `premium: false` im Kopf
+  einer Seite nimmt sie wieder heraus.
+- 21 Seiten sind eigenständige HTML-Dateien, vor allem die 14
+  Ortsseiten. Dort steht beides direkt in der Datei.
+- Vier Dateien (`kontakt.html`, `termin.html`,
+  `produkte/balkonueberdachung.html`,
+  `produkte/sonnenschutz-beschattung.html`) laden **gar kein**
+  Stylesheet. Das sind Weiterleitungshüllen, der Worker schickt per
+  301 weiter. Dort ändert sich nichts.
+
+**Gemessen nach der Umstellung**, nicht geschätzt:
+
+| Prüfung | Ergebnis |
+|---|---|
+| `pruefe-mitwachsend` (9 Seiten × 7 Breiten) | 63 Messungen ohne Beanstandung, kein Kontrast unter 4,5:1, kein waagerechtes Scrollen |
+| `pruefe-darstellung` | 144 von 144 bestanden |
+| `pruefe-schrift` | 19 Seiten, jede Textstelle Manrope, bei 390 und 1440 px |
+| Palette | 11 von 11 geprüften Seiten auf `#C58A32` |
+
+**Was das Risiko war und warum es trotzdem vertretbar ist.** Die
+Umstellung ändert `--gold-text` von `#7A5B12` auf das hellere
+`#896023`. Knappe Kontraste hätten kippen können. Genau dafür gibt es
+`pruefe-mitwachsend`, das jede sichtbare Textstelle gegen ihren
+Hintergrund misst. Es meldet nichts.
+
+## 22.11.2026 - Umbrüche: ein einzelnes Wort auf der letzten Zeile
+
+**Ansage des Betreibers** zu „10 J. Alu · 5 J. Markisen", mit
+Bildschirmabzug: „schreibe das 5j. Markisen unter 10 J. Alu, achte
+bitte auf solche umbrüche die sind maximal ass lass es prüfen die
+ganze seite". Auf dem Abzug stand „10 J. Alu · 5 J." und darunter
+allein „Markisen".
+
+**Was jetzt gilt.** Der Vertrauensstreifen der Startseite bricht die
+Zeile selbst: „10 J. Alu", darunter „5 J. Markisen". Kein
+Mittelpunkt mehr, kein Zufallsumbruch.
+
+**Dauerhaft abgesichert.** `scripts/pruefe-umbruch.mjs` prüfte bisher
+nur, ob Text aus seinem Kasten läuft. Es misst jetzt zusätzlich den
+Umbruch selbst: Ein Textstück wird Zeile für Zeile ausgemessen, und
+bleibt auf der letzten Zeile ein einzelnes Wort stehen, das schmaler
+ist als ein Viertel der breitesten Zeile, wird es gemeldet. Über alle
+55 Seiten bei 320 und 390 px.
+
+**Ein Fehler in der ersten Fassung, und was er lehrt.**
+`Range.getClientRects()` liefert ein Rechteck je **Inline-Kasten**,
+nicht je Zeile. Ein Verweis wie „Carport entdecken ⟶" ergab deshalb
+zwei Rechtecke in derselben Zeile, und der Pfeil sah aus wie eine
+eigene Zeile. Die erste Messung meldete 71 Waisen, von denen keine
+eine war. Jetzt werden Rechtecke nach ihrer Oberkante zu Zeilen
+zusammengefasst. Danach bleiben **vier** echte Fundstellen, alle bei
+320 px.
+
+**Nebenbei behoben:** Bei elf Verweisen auf der Startseite hing der
+Pfeil mit einem gewöhnlichen Leerzeichen am Text und hätte allein
+umbrechen können. Jetzt hält ihn ein geschütztes Leerzeichen. Ebenso
+„50 m³" im Ratgeber zur Baugenehmigung.
+
+**Nicht angefasst:** Drei der vier Fundstellen stehen in
+`datenschutz.html`. Rechtstexte werden nicht verändert, auch nicht
+wegen eines hässlichen Umbruchs. Gemeldet in
+`docs/rechtstexte-befunde.md`.

@@ -92,6 +92,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
   <link rel="stylesheet" href="/css/style.css?v=20261122i" />
+  {# start.css MUSS nach style.css kommen: Beide setzen Regeln mit
+     gleicher Spezifitaet, die spaetere gewinnt. Genau darauf baut die
+     Designschicht auf. #}
+  <link rel="stylesheet" href="/css/start.css?v=20261122i" />
 {% if extraStyles %}
   <style>
 {{ extraStyles | safe }}
@@ -112,7 +116,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 {{ extraHead | safe }}
 {% endif %}
 </head>
-<body{% if bodyId %} id="{{ bodyId }}"{% endif %}>
+{# Designschicht (22.11.2026). Bis heute trug nur index.html die
+   Klasse start-premium, also das freigegebene Designsystem aus
+   docs/WEBSITE_DESIGN_SYSTEM.md. Alle uebrigen Seiten liefen in der
+   alten Palette weiter, obwohl sie dieselbe Schrift laden.
+   Ansage des Betreibers: "auf markisenstoffe seite hast du noch nix
+   bearbeitet und die schrift is auch noch alt".
+   `premium: false` im Kopf einer Seite nimmt sie wieder heraus. #}
+<body class="{% if premium !== false %}start-premium{% endif %}{% if koerperKlasse %} {{ koerperKlasse }}{% endif %}"{% if bodyId %} id="{{ bodyId }}"{% endif %}>
 
 {% if skipLink %}
 {{ skipLink | safe }}
