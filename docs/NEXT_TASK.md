@@ -289,6 +289,32 @@ Aussage über diese Seite geraten.
   „vereinfachte Statik". Angleichen, sobald freigegeben.
 - **Telefonnummer-Pflicht** im Formular: Geschaeftsentscheidung.
 
+## Offen beim Betreiber nach der SEO-Runde (22.11.2026)
+
+- **Neuwied: 25 km oder 40 km?** `carport-neuwied.html:216` sagt „rund
+  25 km", `terrassenueberdachung-neuwied.html:216` sagt „rund 40 km".
+  Beides steht für Kunden sichtbar auf der Seite, eine der beiden
+  Zahlen ist falsch. Gefragt am 22.11.2026, nicht beantwortet. **Nicht
+  geändert**, weil es sichtbarer Text ist.
+- **Einzugsgebiet: 60 km gilt.** Vom Betreiber am 22.11.2026
+  bestätigt. Die Zahl steht auf 16 Seiten und im Datenblock, überall
+  gleich. Die 50 km aus älteren Notizen sind damit erledigt.
+- **AGB, Impressum, Datenschutz tragen `noindex`.** Ob das so bleiben
+  soll, ist offen. Siehe `docs/rechtstexte-befunde.md`. Die
+  widersprüchlichen Sitemap-Einträge sind raus.
+- **Partnerseite:** Die Hauptüberschrift „VD AluSysteme Partner" steht
+  unsichtbar 9999 px außerhalb des Bildes, sichtbar ist „Unsere
+  Partner" als h2. Vorschlag beim Betreiber: die sichtbare Überschrift
+  zur h1 machen und die unsichtbare löschen. Das ändert am Aussehen
+  nichts. Noch nicht entschieden.
+- **Weitere Befunde der SEO-Prüfung**, nicht bearbeitet, weil Text
+  oder Inhalt: zu lange Seitentitel und Beschreibungen (zehn Stellen),
+  die sieben `terrassenueberdachung-*`-Ortsseiten sind weitgehend
+  Schablone mit einem eigenen Absatz, Brotkrumen im Datenblock ohne
+  sichtbare Brotkrumen auf 19 Seiten, zwei widersprüchliche
+  Geo-Koordinaten für denselben Betrieb, Carport- und
+  Pergola-Ortsseiten hängen nur an Geschwisterseiten.
+
 ## Spaeter pruefen (Nebenbefunde 14.11.2026)
 
 - ~~**Vier JavaScript-Dateien ohne Cache-Buster.**~~ **Erledigt am
