@@ -31,7 +31,7 @@ die nie anschlägt, ist keine.**
 |---|---|
 | `scripts/pruefe-palette.py` | Stimmen die Kontrastwerte im Designdokument noch? Reicht das Textgold auf hellem Grund? Passt das Markengold zum Gold im Logo? Erreicht der Fokusring auf jedem Untergrund 3:1? (5 Fehler in der Gegenprobe, jeder einzeln eingebaut) |
 | `scripts/pruefe-bewegung.mjs` | Entwurf: Bleibt bei Bewegung, bei reduzierter Bewegung und ganz ohne JavaScript jeder Text sichtbar? Fährt die Ablaufspur wirklich, und endet sie im Bild? Fährt die Kontaktleiste unten ein? (4 Fehler in der Gegenprobe) |
-| `scripts/pruefe-cache-buster.sh` | Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? |
+| `scripts/pruefe-cache-buster.sh` | **Drei Fragen.** 1. Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? 2. Wurde die Version mit der Datei hochgezählt (Dateidatum gegen das Datum der letzten Versionsänderung aus der Git-Geschichte)? 3. **Seit 22.11.2026:** Wird überhaupt jede eigene JS- und CSS-Datei mit `?v=` eingebunden? Diese dritte Frage fehlte, und genau dadurch hingen `main.js`, `cookie.js`, `accessibility.js` und `metricool.js` wochenlang ohne jede Version auf 51 bis 55 Seiten. Fremde Adressen (`http`, `https`, `//`) zählen nicht mit. Gegenprobe für alle drei, die dritte in beide Richtungen: fehlende Version muss auffallen, sauberer Stand darf nicht anschlagen |
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |

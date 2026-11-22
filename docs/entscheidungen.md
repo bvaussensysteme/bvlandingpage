@@ -20556,3 +20556,48 @@ außen auf hellem Grund, Ring innen auf einem Foto oder dort, wo ein
 Kasten mit `overflow: hidden` ihn abschneiden würde. Die
 Produktseiten (`.produkt-bild-knopf`, `.galerie-kachel`) bleiben
 deshalb bei ihrem außen liegenden Ring in `--gold-text`.
+
+## 22.11.2026 - Jede eigene Datei wird jetzt mit Version eingebunden
+
+**Was falsch war, mit Beleg.** `main.js`, `cookie.js`,
+`accessibility.js` und `metricool.js` hingen auf 51 bis 55 Seiten
+ohne jedes `?v=` im Seitenquelltext. `_headers` erlaubt bis zu 24
+Stunden alten Code aus dem Browser-Cache. Für `cookie.js` heißt das:
+Eine Änderung an der Einwilligung erreicht wiederkehrende Besucher
+einen Tag lang nicht. Der Befund stand seit dem 14.11.2026 unter
+„Später prüfen".
+
+**Was jetzt gilt.** Alle eigenen JS- und CSS-Verweise tragen eine
+Version, auch `three.min.js`, `baugenehmigung-data.js`,
+`region-info.js`, `prozess-animation.js` und `dibt-lastzonen.js`.
+Fremde Adressen bleiben außen vor, über deren Zwischenspeicher
+bestimmt der fremde Server.
+
+**Die Prüfung hatte eine Lücke, und die ist der eigentliche Fund.**
+Beide bisherigen Prüfungen in `pruefe-cache-buster.sh` sahen nur
+Dateien, die **schon** ein `?v=` trugen. Wer eine Datei ganz ohne
+Version einbindet, kam also ungeprüft durch, und genau das war über
+Wochen der Fall. Neu ist eine dritte Prüfung darauf, mit Gegenprobe
+in beide Richtungen: Eine fehlende Version muss auffallen, ein
+sauberer Stand darf nicht anschlagen.
+
+**Zwei Dinge fielen erst durch die erweiterte Prüfung auf:**
+`style.css` und `start.css` standen nach der Fokusring-Änderung vom
+21.11. noch auf `v=20261121b`, die Dateien waren aber neuer. Und
+`index.html` lud `main.js?v=20261119b`, während die übrigen 51 Seiten
+die Datei ohne Version luden. Beides ist angeglichen auf
+`v=20261122a`.
+
+**Dazu, aus derselben Prüfrunde:** Die Bildunterschrift der
+Großansicht hat jetzt `aria-live="polite"`. Gemessen am 22.11.2026:
+vorher kein `aria-live`, kein `role`, kein `aria-describedby` am
+Fenster, und das Bild trägt `aria-hidden`. Beim Blättern blieb also
+stumm, welches Bild zu sehen ist (WCAG 4.1.3).
+
+**Zwei Hinweise derselben Prüfung haben sich beim Messen erledigt,
+nichts geändert:** Der Tabulator kommt hinter der offenen Großansicht
+nicht heraus (0 Stopps außerhalb in 10 Versuchen), `inert` ist also
+nicht nötig. Und das Herkunfts-Abzeichen hat im Fokus doch einen
+sichtbaren Ring: 3 px, 10 px Luft nach links und unten, dazu der
+Wechsel der Hintergrundfarbe. Der Ring kommt aus `start.css`, nicht
+aus der Regel am Abzeichen selbst.

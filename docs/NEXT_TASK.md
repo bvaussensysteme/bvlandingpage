@@ -233,15 +233,14 @@ Aussage über diese Seite geraten.
 
 ## Spaeter pruefen (Nebenbefunde 14.11.2026)
 
-- **Vier JavaScript-Dateien ohne Cache-Buster.** `metricool.js`,
-  `cookie.js` und `accessibility.js` auf je 53 Seiten, `main.js` auf
-  52, jeweils **ohne** `?v=`. `_headers` erlaubt bis zu 24 Stunden
-  alten Code aus dem Browser-Cache. Eine Aenderung an `cookie.js`
-  (Einwilligung!) erreicht wiederkehrende Besucher also bis zu einen
-  Tag lang nicht. `scripts/pruefe-cache-buster.sh` findet das nicht,
-  weil es nur Dateien prueft, die **schon** ein `?v=` tragen. Zwei
-  Dinge waeren zu tun: Versionen ergaenzen und das Skript um eine
-  Pruefung „JS/CSS ohne Version" erweitern.
+- ~~**Vier JavaScript-Dateien ohne Cache-Buster.**~~ **Erledigt am
+  22.11.2026.** Beides gemacht: Alle eigenen JS- und CSS-Verweise
+  tragen jetzt `?v=`, und `scripts/pruefe-cache-buster.sh` hat eine
+  dritte Prüfung „ganz ohne Version", mit Gegenprobe in beide
+  Richtungen. Dabei kam heraus, dass `main.js` auf `index.html` eine
+  andere Version trug als auf den übrigen Seiten, und dass die
+  Version von `style.css` nach der Änderung am Fokusring stehen
+  geblieben war. Einzelheiten in `docs/entscheidungen.md`.
 - **`data-i18n` auf der Startseite wirkt nicht.** `index.html` laedt
   `js/i18n.js` gar nicht, und die Attribute haben keine Entsprechung
   in der Tabelle. Die Startseite ist einsprachig. Entweder aufraeumen
