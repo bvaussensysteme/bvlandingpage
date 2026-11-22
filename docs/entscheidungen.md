@@ -20996,3 +20996,50 @@ auf den Hamburger zurück.
 `pruefe-menue-banner`, `pruefe-mitwachsend`, `pruefe-startseite` und
 `pruefe-fokus-verdeckung` laufen durch. Kein Versionssprung nötig, es
 wurde kein CSS und kein JavaScript geändert.
+
+## 22.11.2026 - Markisenstoffe bekommen einen eigenen Abschnitt, Knöpfe kleiner
+
+**Ansage des Betreibers, mit Bild:** „Die buttons sind etwas zu groß
+und nicht mittig oben zu nah am text, außerdem hatte ich gesagt einen
+eigenen abteil für markisenstoffe mit passendem icon nicht bei
+Baugenehmigung und Schneelastzone dazu packen."
+
+**Der Hauptfehler war meiner.** Die Ansage davor lautete „ein Abteil
+wie Baugenehmigung oder Schneelastzone", also ein eigener Abschnitt
+**von derselben Art**. Gebaut hatte ich stattdessen eine dritte Kachel
+**im** Werkzeug-Abschnitt. Das ist jetzt zurückgenommen:
+
+- Der Werkzeug-Abschnitt heißt wieder „Jetzt selbst berechnen &
+  prüfen" mit „Zwei Tools, die sofort weiterhelfen", also wie vorher.
+- Die Stoffe haben einen eigenen Abschnitt `id="stoffe"` direkt
+  danach, mit eigener Überschrift, eigenem Vorsatz und einer einzelnen
+  Karte. Das Zeichen bleibt die Markise.
+
+**Die drei Dinge am Knopf, einzeln:**
+
+1. **Zu groß.** Der Baustein stammt von den Leistungskarten und ist
+   dort auf volle Breite und 56 px Höhe ausgelegt, damit neun Knöpfe
+   untereinander auf einer Linie enden. In einer Karte mit Text
+   daneben wirkt das wuchtig. Jetzt nur so breit wie die Beschriftung
+   und 46 px hoch: gemessen 184, 156 und 176 px breit statt 268.
+2. **Nicht mittig.** Der Knopf stand **in** der Textspalte und damit
+   um die Breite des Zeichens nach rechts verschoben. Jetzt ist er ein
+   eigenes Kind der Karte in eigener Zeile und sitzt mittig.
+3. **Zu nah am Text.** 20 px Abstand nach oben statt der 4 px, die
+   vorher aus dem Absatz kamen.
+
+**Zwei Umwege dabei, beide hier festgehalten:**
+
+- Mit `align-items: center` rutschte das Zeichen auf halbe Texthöhe
+  und sah aus, als schwebe es. Richtig ist `flex-start`, das Zeichen
+  gehört neben die Überschrift.
+- `flex-basis: 100%` mit `width: fit-content` ergab wieder einen Knopf
+  über die ganze Breite: Bei einem Flex-Kind bestimmt `flex-basis` die
+  Hauptgröße, `width` wird übergangen. Mit `max-width: fit-content`
+  stimmt es.
+
+**Gemessen:** Knöpfe 46 px hoch (über den 44 px der Projekt-Messlatte),
+Schrift und Rand 5,58:1, kein waagerechtes Scrollen bei 390 und
+1440 px, keine doppelten IDs. `pruefe-startseite`,
+`pruefe-mitwachsend` und `pruefe-darstellung` laufen durch. Versionen
+auf `20261122g`.

@@ -570,6 +570,43 @@
 .start-premium .kontakt-card .leistung-link .pfeil {
   transition: transform .18s ease;
 }
+
+/* DER KNOPF IN DEN WERKZEUG- UND STOFFKARTEN (22.11.2026).
+   Meldung des Betreibers zum ersten Versuch: "Die buttons sind etwas
+   zu gross und nicht mittig oben zu nah am text".
+
+   Drei Dinge waren daran:
+   1. ZU GROSS. Der Baustein der Leistungskarten ist auf volle Breite
+      und 56 px Hoehe ausgelegt, damit neun Knoepfe untereinander auf
+      einer Linie enden. In einer Karte mit Text daneben wirkt das
+      wuchtig. Hier also nur so breit wie die Beschriftung, 46 px hoch.
+   2. NICHT MITTIG. Der Knopf stand in der Textspalte und damit um die
+      Breite des Zeichens nach rechts verschoben. Jetzt ist er ein
+      eigenes Kind der Karte, steht in seiner eigenen Zeile und wird
+      mit margin: auto in der GANZEN Karte zentriert.
+   3. ZU NAH AM TEXT. 20 px Abstand nach oben statt der 4 px, die
+      vorher aus dem Absatz kamen. */
+.start-premium .werkzeug-karte > .leistung-link {
+  /* IMMER EIGENE ZEILE, auch wenn daneben Platz waere. Sonst sitzt
+     der Knopf am Rechner rechts neben dem Text und am Telefon
+     darunter, also zweimal anders. flex-basis: 100% erzwingt die
+     Zeile, width: fit-content haelt ihn schmal, margin-inline: auto
+     setzt ihn in die Mitte der Karte. */
+  flex: 0 0 100%;
+  /* max-width und NICHT width: Bei einem Flex-Kind bestimmt
+     flex-basis die Hauptgroesse, width wird dabei uebergangen. Mit
+     flex-basis: 100% und width: fit-content kam deshalb wieder ein
+     Knopf ueber die ganze Breite heraus. max-width deckelt die
+     benutzte Groesse und gewinnt. */
+  max-width: fit-content;
+  min-height: 46px;
+  margin: 20px auto 2px;
+  padding: 10px 26px;
+  font-size: 0.86rem;
+}
+/* Die Stoffkarte steht allein in ihrem Abschnitt und bekaeme sonst die
+   ganze Seitenbreite. */
+.start-premium .stoffe-karte { max-width: 760px; }
 @media (hover: hover) and (pointer: fine) {
   .start-premium .leistungen-grid--neu .leistung-link:hover,
   .start-premium .kontakt-card .leistung-link:hover {

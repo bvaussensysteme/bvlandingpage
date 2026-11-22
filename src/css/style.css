@@ -1330,9 +1330,14 @@ body.bv-menu-open #bv-scroll-top {
    Hier reicht dafuer der Innenkasten als Spalte, der Knopf wird nach
    unten geschoben. Nur diese drei Karten sind betroffen; die Karten
    des Kontaktbereichs tragen die Kennung nicht. */
-.werkzeug-karte { align-items: stretch; }
-.werkzeug-karte > div:last-child { display: flex; flex-direction: column; flex: 1; }
-.werkzeug-karte .leistung-link { margin-top: auto; }
+/* flex-start, nicht center: Das Zeichen gehoert neben die
+   Ueberschrift und nicht auf halbe Texthoehe. Beim ersten Versuch am
+   22.11.2026 stand es mittig und sah aus, als schwebe es. */
+.werkzeug-karte { align-items: flex-start; flex-wrap: wrap; }
+.werkzeug-karte > div:not(.kontakt-card-icon) { flex: 1 1 200px; }
+/* Groesse und Lage des Knopfes stehen in src/css/start.css: Die
+   Grundregel des Bausteins steht dort, und start.css wird nach
+   style.css geladen. Eine Regel hier wuerde verlieren. */
 .kontakt-card--whatsapp { background: rgba(196,154,42,0.05); border-color: rgba(196,154,42,0.3); }
 .kontakt-card-icon {
   width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;

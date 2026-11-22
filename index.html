@@ -495,11 +495,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261122f" />
+  <link rel="stylesheet" href="css/style.css?v=20261122g" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
-  <link rel="stylesheet" href="css/start.css?v=20261122d" />
+  <link rel="stylesheet" href="css/start.css?v=20261122g" />
   <script>
   /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
      Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,
@@ -840,8 +840,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <section class="section section--alt" id="tools" aria-labelledby="tools-h">
   <div class="container">
     <p class="tag">Kostenlose Online-Tools</p>
-    <h2 id="tools-h" style="margin-bottom:8px;">Jetzt selbst nachsehen</h2>
-    <p style="color:var(--muted);max-width:640px;margin-bottom:32px;">Drei Dinge, die sofort weiterhelfen. Kostenlos, ohne Anmeldung.</p>
+    <h2 id="tools-h" style="margin-bottom:8px;">Jetzt selbst berechnen &amp; prüfen</h2>
+    <p style="color:var(--muted);max-width:640px;margin-bottom:32px;">Zwei Tools, die sofort weiterhelfen. Kostenlos, ohne Anmeldung.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">
       <div class="kontakt-card werkzeug-karte">
         <div class="kontakt-card-icon kontakt-card-icon--gold" aria-hidden="true">
@@ -850,8 +850,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div>
           <strong>Wind- &amp; Schneelastzonen-Rechner</strong>
           <p>Kostenlos nach PLZ berechnen, welche Norm-Zone für Ihre Terrassenüberdachung, Ihren Carport oder Ihre Pergola gilt.</p>
-          <a class="leistung-link" href="/windzonen.html">Jetzt berechnen <span class="pfeil" aria-hidden="true">→</span></a>
         </div>
+        <a class="leistung-link" href="/windzonen.html">Jetzt berechnen <span class="pfeil" aria-hidden="true">→</span></a>
       </div>
       <div class="kontakt-card werkzeug-karte">
         <div class="kontakt-card-icon kontakt-card-icon--gold" aria-hidden="true">
@@ -860,25 +860,34 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div>
           <strong>Baugenehmigung nötig?</strong>
           <p>Kostenloser Check nach PLZ, für alle 16 Bundesländer. Dauert Sekunden statt langer Suche.</p>
-          <a class="leistung-link" href="/baugenehmigung.html">Jetzt prüfen <span class="pfeil" aria-hidden="true">→</span></a>
         </div>
+        <a class="leistung-link" href="/baugenehmigung.html">Jetzt prüfen <span class="pfeil" aria-hidden="true">→</span></a>
       </div>
-      <!-- Dritte Karte, 22.11.2026. Ansage des Betreibers: "Markisenstoffe
-           sollte nen Abteil wie Baugenehmigung oder Schneelastzone auf der
-           Hauptseite bekommen, mit button was es auf die Markisenstoffe
-           seite fuehrt." Der Text stammt aus der Stoffseite selbst
-           (Titel und Beschreibung dort), damit nichts dazuerfunden wird.
-           Das Zeichen ist im Haus gezeichnet: Schiene, Tuch, Volant. -->
-      <div class="kontakt-card werkzeug-karte">
-        <div class="kontakt-card-icon kontakt-card-icon--gold" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0"/><path d="M3 14h18"/><path d="M12 6V3"/><path d="M8 20v-6"/><path d="M16 20v-6"/></svg>
-        </div>
-        <div>
-          <strong>Markisenstoffe ansehen</strong>
-          <p>AC-, PA- und ZIP-Stoffe für Markisen, Pergola und Senkrechtbeschattung. Hoher UV-Schutz, viele Farben.</p>
-          <a class="leistung-link" href="/stoffe.html">Stoffe ansehen <span class="pfeil" aria-hidden="true">→</span></a>
-        </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MARKISENSTOFFE =====
+     Eigener Abschnitt, 22.11.2026. Ansage des Betreibers: "ich hatte
+     gesagt einen eigenen abteil fuer markisenstoffe mit passendem icon
+     nicht bei Baugenehmigung und Schneelastzone dazu packen." Vorher
+     stand die Stoffkarte als dritte Kachel im Werkzeug-Abschnitt; das
+     war falsch verstanden. Die Stoffe sind kein Rechner, sie sind
+     Auswahl. -->
+<section class="section" id="stoffe" aria-labelledby="stoffe-h">
+  <div class="container stoffe-teil">
+    <p class="tag">Stoffauswahl</p>
+    <h2 id="stoffe-h" style="margin-bottom:8px;">Markisenstoffe</h2>
+    <p style="color:var(--muted);max-width:640px;margin-bottom:28px;">AC-, PA- und ZIP-Stoffe für Markisen, Pergola und Senkrechtbeschattung. Hoher UV-Schutz, viele Farben, Originalmuster zeigen wir bei der Beratung vor Ort.</p>
+    <div class="kontakt-card werkzeug-karte stoffe-karte">
+      <div class="kontakt-card-icon kontakt-card-icon--gold" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0"/><path d="M3 14h18"/><path d="M12 6V3"/><path d="M8 20v-6"/><path d="M16 20v-6"/></svg>
       </div>
+      <div>
+        <strong>Die ganze Stoffauswahl ansehen</strong>
+        <p>Alle Stoffgruppen mit Farben und Mustern, nach Produkt sortiert.</p>
+      </div>
+      <a class="leistung-link" href="/stoffe.html">Stoffe ansehen <span class="pfeil" aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
