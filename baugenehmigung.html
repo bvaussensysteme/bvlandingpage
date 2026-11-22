@@ -91,7 +91,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261122a" />
+  <link rel="stylesheet" href="/css/style.css?v=20261122b" />
 
   <style>
 /* ── PAGE HERO ── */
@@ -151,7 +151,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   color: var(--black); background: var(--white); box-sizing: border-box;
   transition: border-color .2s, box-shadow .2s;
 }
-.bg-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,154,42,.15); }
+/* Gemessen am 22.11.2026: Der Fokus zeigte sich nur ueber einen
+   Goldrand (#C49A2A auf Weiss, 2,62:1) und einen Schein mit 15 %
+   Deckkraft, der praktisch unsichtbar ist. Das verfehlt die 3:1 aus
+   WCAG 1.4.11. Dunkelgold kommt auf 6,3:1. outline: none ist weg,
+   der Ring ist jetzt das Zeichen und nicht der Schein. */
+.bg-input:focus { outline: 3px solid var(--gold-light); outline-offset: 2px; border-color: var(--gold-text); }
 .bg-input.error { border-color: #dc3545; }
 .bg-btn {
   white-space: nowrap; padding: 13px 28px;
@@ -1014,7 +1019,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </footer>
 
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/main.js?v=20261122a" defer></script>
+<script src="/js/main.js?v=20261122b" defer></script>
 <script src="/js/cookie.js?v=20261122a" defer></script>
 <script src="/js/metricool.js?v=20261122a" defer></script>
 <script src="/js/messung.js?v=20261104a" defer></script>
@@ -1022,7 +1027,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/konfigurator-widget.js?v=20260916f" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261114q" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261122b" defer></script>
 
 <!-- LBO-Datenbasis -->
 <script src="/js/baugenehmigung-data.js?v=20261122a"></script>

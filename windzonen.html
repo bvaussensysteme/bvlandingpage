@@ -91,7 +91,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261122a" />
+  <link rel="stylesheet" href="/css/style.css?v=20261122b" />
 
   <style>
 /* ===== PAGE HERO ===== */
@@ -136,10 +136,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
 }
+/* Siehe baugenehmigung.njk, derselbe Befund vom 22.11.2026:
+   Goldrand auf Weiss 2,62:1, Schein mit 15 % unsichtbar. */
 .wz-input:focus {
-  outline: none;
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+  outline: 3px solid var(--gold-light);
+  outline-offset: 2px;
+  border-color: var(--gold-text);
 }
 .wz-input.error { border-color: #dc3545; }
 .wz-btn-search {
@@ -1041,7 +1043,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </footer>
 
 <script src="/js/bv-symbole.js?v=20261031n" defer></script>
-<script src="/js/main.js?v=20261122a" defer></script>
+<script src="/js/main.js?v=20261122b" defer></script>
 <script src="/js/cookie.js?v=20261122a" defer></script>
 <script src="/js/metricool.js?v=20261122a" defer></script>
 <script src="/js/messung.js?v=20261104a" defer></script>
@@ -1049,7 +1051,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/konfigurator-widget.js?v=20260916f" defer></script>
 <script src="/js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261114q" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261122b" defer></script>
 
 <script>
 /* ===================================================

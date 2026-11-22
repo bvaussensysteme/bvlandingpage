@@ -67,7 +67,12 @@ extraStyles: |
     color: var(--black); background: var(--white); box-sizing: border-box;
     transition: border-color .2s, box-shadow .2s;
   }
-  .bg-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,154,42,.15); }
+  /* Gemessen am 22.11.2026: Der Fokus zeigte sich nur ueber einen
+     Goldrand (#C49A2A auf Weiss, 2,62:1) und einen Schein mit 15 %
+     Deckkraft, der praktisch unsichtbar ist. Das verfehlt die 3:1 aus
+     WCAG 1.4.11. Dunkelgold kommt auf 6,3:1. outline: none ist weg,
+     der Ring ist jetzt das Zeichen und nicht der Schein. */
+  .bg-input:focus { outline: 3px solid var(--gold-light); outline-offset: 2px; border-color: var(--gold-text); }
   .bg-input.error { border-color: #dc3545; }
   .bg-btn {
     white-space: nowrap; padding: 13px 28px;

@@ -111,7 +111,14 @@
   border-radius: 4px;
 }
 .start-premium .pr-dunkel :focus-visible,
-.start-premium .hero :focus-visible {
+.start-premium .hero :focus-visible,
+/* .anfrage-wizard fehlte hier und stand damit auf dem dunklen Polster
+   mit dem dunklen Ring: gemessen am 22.11.2026 rgb(29,32,35) auf
+   rgb(11,11,12), also 1,20:1 statt der geforderten 3:1 (WCAG 1.4.11
+   und 2.4.7). Betroffen waren Weiter, Zurueck, das Einwilligungs-
+   kaestchen und die Herkunftsauswahl, also der ganze letzte Schritt
+   vor dem Absenden. Mit Champagner sind es 13,6:1. */
+.start-premium .anfrage-wizard :focus-visible {
   outline-color: var(--champagner);
 }
 /* WO DER RING NACH INNEN MUSS (21.11.2026, gemessen).

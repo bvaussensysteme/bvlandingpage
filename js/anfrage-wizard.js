@@ -891,8 +891,13 @@
             '</div>';
           // Anzahl der Sets erst nach Auswahl eines Sets – optional (Standard: 1 Set)
           if (answers.ledset) {
-            html += '<p class="aw-group-h aw-group-h--sep">Wie viele Sets? (optional)</p><div class="aw-pills">' +
-              '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="1" max="20" id="ledSets" placeholder="1" value="' + esc(answers.ledsetzahl || '') + '"><span>Sets</span></span>' +
+            /* Die sichtbare Frage und das Wort "Sets" sind zusammen die
+               Beschriftung des Feldes. Beide bekommen eine Kennung und
+               werden ueber aria-labelledby verbunden; so entsteht kein
+               neuer Text, und der Name stimmt mit dem ueberein, was
+               dasteht (WCAG 2.5.3). */
+            html += '<p class="aw-group-h aw-group-h--sep" id="ledSetsFrage">Wie viele Sets? (optional)</p><div class="aw-pills">' +
+              '<span class="aw-pill-input"><input type="number" inputmode="numeric" min="1" max="20" id="ledSets" aria-labelledby="ledSetsFrage ledSetsEinheit" placeholder="1" value="' + esc(answers.ledsetzahl || '') + '"><span id="ledSetsEinheit">Sets</span></span>' +
               '</div><p class="aw-note">Standard: 1 Set. Für mehrere einfach die Anzahl eintragen (z. B. 2 × ' + esc(answers.ledset) + ').</p>';
           }
           html += '</div>';
@@ -1072,7 +1077,15 @@
            Dieselben Antwortfelder wie im Maßschritt (breite, tiefe) -
            damit stehen sie ohne weiteres Zutun in der
            Zusammenfassung und in der E-Mail. */
-        return '<textarea class="aw-textarea" id="awWunsch" placeholder="Beschreiben Sie Ihr Vorhaben, z. B. Sonnenschutz, Geländer, Sichtschutz, Reparatur …">' + esc(answers.wunsch || '') + '</textarea>' +
+        /* aria-labelledby statt nur Platzhalter: Ein Platzhalter ist
+           keine Beschriftung, er verschwindet beim Tippen und wird von
+           Vorlesesoftware nicht zuverlaessig als Name gelesen. Gemessen
+           am 22.11.2026: weder label noch aria-label noch
+           aria-labelledby, also WCAG 2.2, 1.3.1 und 4.1.2 (Stufe A).
+           Verwiesen wird auf die Ueberschrift des Schritts (#awTitle),
+           damit kein neuer Text entsteht: Die Frage, die dort steht,
+           IST die Beschriftung. */
+        return '<textarea class="aw-textarea" id="awWunsch" aria-labelledby="awTitle" placeholder="Beschreiben Sie Ihr Vorhaben, z. B. Sonnenschutz, Geländer, Sichtschutz, Reparatur …">' + esc(answers.wunsch || '') + '</textarea>' +
           '<div class="aw-dims aw-dims--frei">' +
             dimField('breite', 'Breite (optional)', 'z. B. 4000', 'mm') +
             dimField('tiefe', 'Tiefe (optional)', 'z. B. 3000', 'mm') +
@@ -1714,6 +1727,15 @@
     var e = document.createElement('div');
     e.className = 'aw-error';
     e.id = 'awError';
+    /* role="alert" sagt die Meldung an, sobald sie erscheint. Gemessen
+       am 22.11.2026: Der Kasten hatte weder role noch aria-live, der
+       Fokus blieb auf "Weiter". Wer nicht auf den Bildschirm sieht,
+       erfuhr also nicht, warum es nicht weitergeht (WCAG 2.2, 4.1.3,
+       Stufe AA). Sichtbar stand die Meldung schon da, 3.3.1 war
+       erfuellt.
+       Die beiden Rechner (baugenehmigung, windzonen) machen es seit
+       Laengerem so; hier fehlte es. */
+    e.setAttribute('role', 'alert');
     e.textContent = msg;
     bodyEl.appendChild(e);
   }

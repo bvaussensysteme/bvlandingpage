@@ -35,22 +35,81 @@ document.addEventListener('DOMContentLoaded', function () {
   var hamburgerBtn = document.getElementById('hamburgerBtn');
   var mobileClose = document.getElementById('mobileClose');
   if (mobileMenu && hamburgerBtn && mobileClose) {
-    hamburgerBtn.addEventListener('click', function () {
+    /* ============================================================
+       FOKUS IM GEOEFFNETEN MENUE (22.11.2026)
+
+       WAS FALSCH WAR, gemessen bei 390 px mit 40 Tabulatordruecken
+       nach dem Oeffnen: Der Fokus blieb auf der Seite DAHINTER. Auf
+       index.html lagen 31 von 31 Haltepunkten ausserhalb des Menues,
+       auf der Produktseite 35 von 35, auf windzonen und
+       baugenehmigung je 33 von 33. Das Menue liegt als Vollbild
+       darueber, also tabbte man unsichtbar durch die verdeckte
+       Seite. WCAG 2.2, 2.4.3 (Stufe A), und in der Folge 2.4.7.
+       Escape schloss nichts, und der Hamburger hatte kein
+       aria-expanded (4.1.2).
+
+       WAS JETZT GILT: Beim Oeffnen geht der Fokus auf den
+       Schliessen-Knopf, der Tabulator bleibt im Menue, Escape
+       schliesst, und danach steht der Fokus wieder auf dem
+       Hamburger. aria-expanded sagt, was Sache ist.
+
+       WARUM KEIN inert AUF DEM REST: Das waere sauberer, braucht
+       aber einen Elternknoten, der die ganze uebrige Seite umfasst.
+       Den gibt es hier nicht; header, main und footer liegen
+       nebeneinander. Die Falle unten kommt ohne Umbau aus.
+       ============================================================ */
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    var menueVorher = null;
+
+    function menueOeffnen() {
+      menueVorher = document.activeElement;
       mobileMenu.classList.add('open');
       document.body.classList.add('bv-menu-open');
       document.body.style.overflow = 'hidden';
-    });
-    mobileClose.addEventListener('click', function () {
+      hamburgerBtn.setAttribute('aria-expanded', 'true');
+      try { mobileClose.focus(); } catch (e) {}
+    }
+    function menueSchliessen(zurueck) {
       mobileMenu.classList.remove('open');
       document.body.classList.remove('bv-menu-open');
       document.body.style.overflow = '';
-    });
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+      if (zurueck) {
+        /* <body> zaehlt NICHT als Rueckkehrziel: Wer das Menue per
+           Skript oder per Fingertipp geoeffnet hat, stand vorher auf
+           body, und dorthin zurueckzukehren heisst, den Fokus zu
+           verlieren. Gemessen am 22.11.2026: nach Escape stand er auf
+           BODY. Dann lieber auf den Hamburger, von dem aus das Menue
+           kam. */
+        var ziel = (menueVorher && menueVorher.focus && menueVorher !== document.body)
+          ? menueVorher : hamburgerBtn;
+        try { ziel.focus(); } catch (e) {}
+      }
+      menueVorher = null;
+    }
+
+    hamburgerBtn.addEventListener('click', menueOeffnen);
+    mobileClose.addEventListener('click', function () { menueSchliessen(true); });
     mobileMenu.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function () {
-        mobileMenu.classList.remove('open');
-        document.body.classList.remove('bv-menu-open');
-        document.body.style.overflow = '';
-      });
+      /* Beim Verweis NICHT den Fokus zurueckholen: Der Besucher
+         springt an eine andere Stelle, dorthin gehoert er auch. */
+      a.addEventListener('click', function () { menueSchliessen(false); });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!mobileMenu.classList.contains('open')) return;
+      if (e.key === 'Escape') { e.preventDefault(); menueSchliessen(true); return; }
+      if (e.key !== 'Tab') return;
+      var ziele = [].slice.call(mobileMenu.querySelectorAll('a, button'))
+        .concat([mobileClose])
+        .filter(function (el) { return el.offsetParent !== null || el === mobileClose; });
+      if (!ziele.length) return;
+      var erste = ziele[0], letzte = ziele[ziele.length - 1];
+      if (!mobileMenu.contains(document.activeElement) && document.activeElement !== mobileClose) {
+        e.preventDefault(); erste.focus(); return;
+      }
+      if (e.shiftKey && document.activeElement === erste) { e.preventDefault(); letzte.focus(); }
+      else if (!e.shiftKey && document.activeElement === letzte) { e.preventDefault(); erste.focus(); }
     });
   }
 

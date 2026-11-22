@@ -270,7 +270,23 @@ h2 + p, h3 + p { max-width: 68ch; }
 /* Rueckmeldung beim Druecken - gilt auf JEDEM Geraet, auch dort, wo es
    kein Zeigegeraet und damit kein :hover gibt. */
 .btn:active { transform: translateY(1px) scale(.99); }
-.btn:focus-visible { outline: 3px solid var(--gold-light); outline-offset: 3px; }
+/* FOKUSRINGE, gemessen am 22.11.2026 und nachgebessert.
+   WCAG 2.2, 1.4.11 und 2.4.7 verlangen 3:1 zwischen dem Ring und dem,
+   worauf er liegt. Gemessen wurde die TATSAECHLICHE Farbe im Browser
+   gegen den TATSAECHLICHEN Untergrund, nicht die Palette.
+
+   .btn steht mal auf Weiss, mal auf Anthrazit. Hellgold #E8B840 auf
+   Weiss ergibt nur 1,85:1, auf #1a1a1a dagegen 9,42:1 - beides
+   gemessen. Ein fester Farbwert kann das nicht loesen.
+   DESHALB EIN DUNKLES BAND UNTER DEM RING: Der Schatten mit 6 px
+   Spreizung fuellt genau den Streifen, in dem der Ring liegt (3 px
+   Abstand + 3 px Breite). Das Gold liegt damit IMMER auf #111 und
+   kommt auf 9,4:1, gleich auf welcher Seite. Der eigene Schatten des
+   Knopfes bleibt dahinter erhalten. */
+.btn:focus-visible {
+  outline: 3px solid var(--gold-light); outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(17,17,17,0.9), var(--schatten-1);
+}
 /* Zeichen im Knopf (Telefonhoerer, WhatsApp-Zeichen, Blatt mit Stift).
    Feste 18 px und kein Schrumpfen: Ein Zeichen, das mit der
    Schriftgroesse mitwaechst, steht am Telefon anders als am Rechner,
@@ -1266,7 +1282,12 @@ body.bv-menu-open #bv-scroll-top {
 @media (hover: hover) and (pointer: fine) {
   .faq-q:hover { color: var(--gold-text); }
 }
-.faq-q:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; border-radius: var(--radius); }
+/* Gemessen auf windzonen.html: Markengold #C49A2A auf dem weissen
+   Kasten der Fragenliste ergibt 2,62:1 und verfehlt die 3:1 aus
+   WCAG 1.4.11. Dunkelgold --gold-text #7A5B12 kommt auf 6,3:1 und
+   bleibt in der Palette. Auf der Startseite gilt die Regel aus
+   start.css mit dem dunklen Ring, dort waren es 16,37:1. */
+.faq-q:focus-visible { outline: 3px solid var(--gold-text); outline-offset: -3px; border-radius: var(--radius); }
 .faq-a {
   padding: 0 22px; font-size: var(--txt-sm); color: var(--muted);
   line-height: 1.7; max-height: 0; overflow: hidden;

@@ -52,10 +52,12 @@ extraStyles: |
         transition: border-color 0.2s, box-shadow 0.2s;
         box-sizing: border-box;
       }
+      /* Siehe baugenehmigung.njk, derselbe Befund vom 22.11.2026:
+         Goldrand auf Weiss 2,62:1, Schein mit 15 % unsichtbar. */
       .wz-input:focus {
-        outline: none;
-        border-color: var(--gold);
-        box-shadow: 0 0 0 3px rgba(196,154,42,0.15);
+        outline: 3px solid var(--gold-light);
+        outline-offset: 2px;
+        border-color: var(--gold-text);
       }
       .wz-input.error { border-color: #dc3545; }
       .wz-btn-search {
