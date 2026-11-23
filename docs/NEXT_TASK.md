@@ -563,3 +563,28 @@ und die Tabellenzeilen bleiben unangetastet. Oder liegen die Sprünge
 bei SkyView und bei Polycarbonat wirklich später, weil dort ein anderes
 Sparrenprofil trägt? Dann ist der Konfigurator richtig und nur das
 Gefühl täuscht.
+
+## Altbefund: Maßschild wird beim Überfahren nicht gold (23.11.2026)
+
+`scripts/pruefe-konfigurator-oberflaeche.mjs`, 1 von 182 Prüfungen:
+
+```
+FEHLER  Der Zeiger auf dem Schild ändert das Bild   Rahmen und Stift werden gold
+```
+
+**Nicht neu.** Gegengeprüft am 23.11.2026 auf einem Arbeitsbaum des
+Standes **vor** der Unterzug-Änderung (Commit `4f3f135`): Dieselbe
+Prüfung schlägt dort genauso fehl. Der Befund ist also älter und
+unabhängig von den lichten Maßen.
+
+**Was die Prüfung tut.** Sie sucht ein anklickbares Maßschild, klickt
+es (das klappt, der Kasten „Breite in mm" geht auf), fährt dann weg,
+macht ein Bild, fährt auf das Schild und macht ein zweites. Sind beide
+Bilder gleich, gilt der Wechsel auf die goldene Fassung als
+ausgeblieben.
+
+**Noch nicht untersucht:** ob der Wechsel wirklich nicht stattfindet
+oder ob die Prüfung ihn nur nicht sieht (Zeitfenster, 60-ms-Bremse im
+`pointermove`-Hörer, oder ein Schild, das sich beim zweiten Bild an
+anderer Stelle befindet). Die Reihenfolge der Aufrufe steht in
+`massSchweben()` / `massUnterZeiger()` in `js/konfigurator-frei.js`.

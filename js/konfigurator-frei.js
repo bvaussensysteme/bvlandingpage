@@ -5819,9 +5819,20 @@ window.BV_KONFIGURATOR_FREI = true;
     var vorne = reihen[schluessel[schluessel.length - 1]];
     var zPf = Number(schluessel[schluessel.length - 1]) / 10;
     vorne.sort(function (a, b) { return a.x - b.x; });
-    /* Vor die Pfostenreihe, aber hinter die Breitenlinie: Dort ist
-       Platz, und das Mass liegt neben dem, was es misst. */
-    var zM = Math.min(zPf + 32, T + (frei ? 100 : 45));
+    /* HINTER die Pfostenreihe, also unter das Dach.
+
+       Zuerst stand die Linie DAVOR, zwischen Pfosten und Breitenmass.
+       GESEHEN am 23.11.2026 im eigenen Bild: Die Schilder der lichten
+       Masse legten sich ueber das Schild "6000 mm" der Breite. Beide
+       Linien liegen flach auf dem Boden, ihre Schilder weichen zur
+       selben Seite aus, und meine werden zuletzt gebaut - also liegen
+       sie oben. Das Hauptmass war verdeckt.
+
+       Unter dem Dach ist Platz, und das Mass liegt weiter neben dem,
+       was es misst. Verdeckt wird es dort nicht: Die Schilder haengen
+       mit depthTest:false vor der Szene. */
+    var zRuecken = schluessel.length > 1 ? Number(schluessel[0]) / 10 + 20 : 20;
+    var zM = Math.max(zPf - 34, zRuecken);
     var i;
     for (i = 0; i + 1 < vorne.length; i++) {
       var li = vorne[i].x + vorne[i].b / 2;

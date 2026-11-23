@@ -22283,3 +22283,27 @@ KORRIGIEREN". Offen ist daher die Frage an den Betreiber: Gilt die
 4-m-Regel („alle 4000 mm ein Pfosten mehr") für **alle** Systeme und
 Eindeckungen, oder liegen die Sprünge bei SkyView und Polycarbonat
 wirklich später? Steht in `docs/NEXT_TASK.md`.
+
+## 23.11.2026 · Lichte Breitenmaße hinter die Pfosten statt davor
+
+**Was falsch war.** Die Linie der lichten Breiten lag zuerst zwischen
+Pfostenreihe und Breitenmaß. Im eigenen Bild vom selben Tag lagen die
+Schilder „2835 mm" über dem Schild „6000 mm" der Gesamtbreite. Grund:
+Beide Linien liegen flach auf dem Boden, ihre Schilder weichen zur
+selben Seite aus, und die lichten Maße entstehen zuletzt, liegen also
+oben. Sprites zeichnen mit `depthTest: false`, die Reihenfolge
+entscheidet.
+
+**Was jetzt gilt.** Die Linie liegt 34 cm **hinter** der vorderen
+Pfostenreihe, also unter dem Dach, mindestens aber 20 cm vor der Wand
+beziehungsweise vor der hinteren Reihe. Verdeckt wird sie dort nicht,
+weil die Schilder ohnehin vor der Szene hängen.
+
+**Gegengelesen.** Ansicht „Von oben", 6000 × 5500 mm: beide lichten
+Breiten frei lesbar, kein Schild überlagert ein anderes.
+
+**Dabei gefunden, nicht von mir verursacht:** `pruefe-konfigurator-
+oberflaeche.mjs` meldet „Der Zeiger auf dem Schild ändert das Bild"
+als Fehler. Gegengeprüft auf einem Arbeitsbaum des Standes vor der
+Unterzug-Änderung (`4f3f135`): schlägt dort genauso fehl. Altbefund,
+steht in `docs/NEXT_TASK.md`.
