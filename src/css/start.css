@@ -822,7 +822,24 @@
    Verweigerung muss per Tastatur genauso sichtbar sein wie die
    Zustimmung. */
 .start-premium .navbar :focus-visible,
-.start-premium #cookieBanner :focus-visible {
+.start-premium #cookieBanner :focus-visible,
+/* NACHGETRAGEN 23.11.2026, zweite Runde. Gefunden von der neuen
+   Pruefung scripts/pruefe-wirkung.mjs, die als erste die RINGFARBE
+   gegen den tatsaechlichen Untergrund rechnet. Vier weitere dunkle
+   Flaechen standen nicht in dieser Liste:
+     .topbar          Startseite, 4 Verweise (Telefon, WhatsApp,
+                      E-Mail, Beratung), Ring auf rgb(11,11,12) 1,20:1
+     .bro-band        Broschuerenband, Knopf "Katalog ansehen",
+                      Ring auf rgb(58,58,58) 1,44:1
+     .bg-search-box   Baugenehmigungs-Check, Knopf
+                      "Genehmigung pruefen", 1,20:1
+     .pflege-hero     Pflegeseite, Brotkrume, 1,20:1
+   Alle vier WCAG 2.2, 1.4.11 und 2.4.7. Keines der 82 bisherigen
+   Skripte hat sie gefunden, weil keines die Ringfarbe prueft. */
+.start-premium .topbar :focus-visible,
+.start-premium .bro-band :focus-visible,
+.start-premium .bg-search-box :focus-visible,
+.start-premium .pflege-hero :focus-visible {
   outline-color: var(--champagner);
 }
 

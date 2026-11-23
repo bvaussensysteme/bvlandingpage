@@ -22922,3 +22922,99 @@ sichtbar.
 Mit der Tastatur bis zum Beratungsblock am Seitenfuß tabben, auf einer
 Produktseite und auf `baugenehmigung.html`. Der Ring muss hell sein.
 Dann auf der Balkonseite bis zu den Pfeilen des Bildkarussells.
+
+## 23.11.2026 · Die fehlende Prüfung: kommt an, was im Stilblatt steht?
+
+**Anlass.** An einem Tag sechs unsichtbare Fokusringe und fünf
+wirkungslose Schriftgewichte, **keines davon von einer der 82
+Prüfungen gefunden**. Jedes Mal war `pruefe-fokusring.mjs` grün.
+
+**Die gemeinsame Ursache ist nicht Unachtsamkeit.** Im Quelltext steht
+eine Absicht, und niemand vergleicht sie mit dem, was der Browser
+daraus macht. Drei Wege, auf denen eine Absicht verloren geht, alle
+drei am selben Tag belegt:
+
+1. **Ein Token ist in einer zweiten Datei umgesetzt.** `--radius` ist
+   in `style.css` 10 px und in `start.css` 14 px. `--dark` ist
+   `#1a1a1a` gegen `#1D2023`, `--gold-text` `#7A5B12` gegen `#896023`.
+   Wer im Quelltext nachschlägt, liest den falschen Wert. Mir selbst
+   ist das an einem Tag dreimal passiert.
+2. **Eine Regel wird von einer spezifischeren geschlagen.**
+   `.start-premium p` hat Spezifität (0,1,1) und schlägt jede
+   einzelne Klasse. Fünf Gewichte erreichen den Bildschirm nie.
+3. **Eine Liste kennt einen neuen Fall nicht.** Die Champagner-Liste
+   kannte die Kopfleiste nicht, das Cookie-Fenster nicht, acht
+   Beratungsblöcke nicht, die Bildpfeile nicht, und danach noch
+   `.topbar`, `.bro-band`, `.bg-search-box` und `.pflege-hero` nicht.
+
+**Was die Prüfung misst.** `scripts/pruefe-wirkung.mjs`, sechs Seiten:
+die Ringfarbe gegen den tatsächlichen Untergrund (3:1 nach WCAG
+1.4.11), und jede Regel aus `style.css`, die per einzelner Klasse ein
+`font-weight` setzt, gegen das, was ankommt.
+
+### Vier Dinge, die beim Bauen schiefgingen, und was daraus folgt
+
+**1. Ohne Fokus gemessen ist wertlos.** Die erste Fassung las
+`outlineColor` an Elementen, die nicht fokussiert waren.
+`:focus-visible` greift dann nicht. Sie meldete 1,00:1, **obwohl die
+Korrektur schon wirkte**. Die Prüfung klickt deshalb nie und bewegt
+sich ausschließlich mit der Tabulatortaste; nach einem Mausklick
+schaltet Chromium in den Mausmodus und `:focus-visible` greift nicht
+mehr.
+
+**2. Der Ring liegt außerhalb des Elements.** Bei `outline-offset: 3px`
+ist der Untergrund die Fläche des **Elternteils**, nicht die eigene.
+Wer beim Element selbst sucht, misst bei einem goldenen Knopf im
+dunklen Abschnitt Champagner gegen Gold (2,15:1) statt Champagner
+gegen Dunkel (11,80:1). Das waren lauter Fehlalarme.
+
+**3. Eine Prüfung, die drei Viertel ihrer Fälle entschuldigt, prüft
+nichts.** Zuerst galt jede Fläche mit `background-image` als nicht
+beurteilbar, und damit **223 von rund 300** Ringen, darunter die
+ganze Fußzeile, in der früher schon ein unsichtbarer Ring lag. Jetzt
+zählt nur ein echtes Bild (`url(...)`); ein Verlauf ist farbähnlich
+und sehr wohl beurteilbar. Übrig bleiben 19.
+
+**4. Fehlalarme bringen eine Prüfung zum Verschwinden.** Zwei Arten
+mussten raus, weil sie sonst die sorgfältig gebauten Stellen melden:
+- **Bewusstes Überschreiben** auf einen anderen Wert ist eine
+  Entscheidung, kein verlorener Wert. `start.css` setzt
+  `.hero-slogan` absichtlich auf 600 statt 700. Gemeldet wird nur der
+  echte Fehlerfall: Das Gewicht fällt auf den Grundwert **400**
+  zurück, obwohl mehr gewollt war.
+- **Ein dunkles Innenband aus `box-shadow: inset`** ist der
+  Untergrund, wenn der Ring innen liegt. `.galerie-oeffnen` ergibt
+  gegen die weiße Kachel 1,39:1 und gegen das Band **13,6:1**. Richtig
+  ist das Band. Ohne diese Zeile hätte die Prüfung die beste Lösung
+  im Repository als kaputt gemeldet.
+
+### Was sie nicht kann, ehrlich
+
+**Schwebende Elemente** (`position: fixed`) und **Ringe auf einem
+Foto** sind aus den Vorfahren nicht beurteilbar. Was hinter einem
+festen Knopf liegt, ist das, was gerade darunter scrollt. Beides wird
+gezählt und im Ergebnis genannt, statt geraten. Dafür braucht es eine
+Bildpunktprobe. Pro Lauf sind das etwa 19 Ringe auf Bild und 3 bis 4
+schwebende je Seite.
+
+### Gefunden und behoben
+
+Vier weitere dunkle Flächen ohne Eintrag in der Champagner-Liste:
+
+| Fläche | Stelle | vorher |
+|---|---|---|
+| `.topbar` | Startseite, Telefon, WhatsApp, E-Mail, Beratung | **1,20:1** |
+| `.bro-band` | Broschürenband, „Katalog ansehen" | **1,44:1** |
+| `.bg-search-box` | Baugenehmigungs-Check, „Genehmigung prüfen" | **1,20:1** |
+| `.pflege-hero` | Pflegeseite, Brotkrume | **1,20:1** |
+
+Nachher alle bei 8,0:1 bis 14,19:1. **403 Tabulatorhaltepunkte über
+sechs Seiten, alle bestanden.**
+
+### Die Gegenprobe fasst keine Datei an
+
+Sie spielt die Fehler über ein zusätzliches Stilblatt **im Browser**
+ein. Eine Gegenprobe, die Dateien ändert und im `finally`-Block
+zurücksetzt, lässt bei hartem Abbruch kaputte Dateien liegen, und
+`css/style.css` ist ein Bauerzeugnis. Gemessen: 144 Ringbefunde und 8
+Gewichtsbefunde aus eingebauten Fehlern.
