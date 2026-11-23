@@ -625,17 +625,14 @@ sie ist ein Bild und wurde nicht gelesen.
 
 ## Zwei weitere Fragen aus den Herstellerseiten (23.11.2026)
 
-**4. Velaris: Motorisierung.** Unsere Seite sagt „Motorisierung auf
-Wunsch verfügbar", die Pergola-Seite nennt Velaris ebenfalls als
-motorisierbar. Die Velaris-Seite des Herstellers sagt dazu **nichts**.
-Motorsteuerung steht dort nur in einer allgemeinen Frage zu
-Raffstores, nicht zum Produkt. **Bieten Sie Velaris motorisiert an?**
-Wenn ja, bleibt die Zeile; wenn nein, muss sie an zwei Stellen weg.
+**4. Velaris: Motorisierung. ERLEDIGT am 23.11.2026.** Antwort des
+Betreibers: „velaris is nicht motoresiert, es lässt sich die obere
+hälfte und untere hälfte getrennt einstellen". An fünf Stellen
+korrigiert, siehe `docs/entscheidungen.md`.
 
-**5. Fahrradüberdachung: „Für 2 bis 20+ Fahrräder skalierbar".**
-Der Hersteller nennt auf seiner Seite keine Stellplatzzahlen. Woher
-stammt die Angabe? Steht sie in der Broschüre, bleibt sie; sonst
-gehört sie ersetzt durch „modular erweiterbar", was belegt ist.
+**5. Fahrradüberdachung: „2 bis 20+ Fahrräder". ERLEDIGT am
+23.11.2026.** Ansage: „mach modular erweiterbar". An sechs Stellen
+ersetzt.
 
 **Weiterhin ohne Angabe beim Hersteller:** Maße von Gartenhaus,
 Fahrradüberdachung, Bushaltestelle und Velaris. Keine Breite, keine

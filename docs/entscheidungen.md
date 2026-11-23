@@ -22402,3 +22402,47 @@ Breiten, ohne Beanstandung. Dazu `pruefe-schema-gueltig`,
 `pruefe-schema-faq`, `pruefe-metatexte`, `pruefe-umbruch`,
 `pruefe-keine-preise`, `pruefe-erzeugte-seiten`, `pruefe-sitemap`.
 Waagerechtes Scrollen auf den neuen Abschnitten gemessen: 0 px.
+
+## 23.11.2026 · Velaris ist nicht motorisiert, Korrektur an fünf Stellen
+
+**Anlass.** Nachfrage aus der Lieferanten-Runde, Antwort des
+Betreibers wörtlich: „velaris is nicht motoresiert, es lässt sich die
+obere hälfte und untere hälfte getrennt einstellen".
+
+**Was falsch war.** Die Webseite behauptete an fünf Stellen eine
+Motorisierung, die es nicht gibt:
+- `velaris.njk`: og:description „Velaris motorisierte Lamellenmarkise",
+  Schema.org „Motorisierte Velaris-Lamellenmarkise", Merkmal
+  „Motorisierung auf Wunsch verfügbar"
+- `sonnenschutz.njk`: „steuern, per Knopfdruck" und „Motorisierung auf
+  Wunsch verfügbar"
+- `terrassenueberdachung.njk`: „einsteuerbar per Fernbedienung" und
+  „Motorisierung auf Wunsch"
+
+Die Herstellerseite hatte das nicht hergegeben. Dort steht
+Motorsteuerung nur in einer allgemeinen Frage zu Raffstores, nicht zum
+Produkt. Die Vermutung ist offenbar irgendwann in unseren Text
+gewandert und hat sich auf drei Seiten vermehrt.
+
+**Was jetzt gilt.** „Von Hand eingestellt, ohne Motor", und als
+eigentliches Merkmal: „Zweigeteilt: obere und untere Hälfte lassen
+sich getrennt einstellen". Damit ist auch klar, was die
+Herstellerangabe „zweigeteilte Ausführung" meint, die ohne Erklärung
+dastand.
+
+**Warum das zählt.** Eine Motorisierung, die es nicht gibt, ist nicht
+nur ein falsches Merkmal: Wer danach kauft, erwartet sie, und der
+Betrieb muss sie beim Aufmaß zurücknehmen. Die Zweiteilung ist
+dagegen ein echtes Unterscheidungsmerkmal, das vorher nirgends stand.
+
+**Dazu, auf Ansage: „mach modular erweiterbar".** Die Angabe „Für 2
+bis 20+ Fahrräder skalierbar" stammte nicht vom Hersteller und ist an
+sechs Stellen durch „modular erweiterbar" ersetzt: zwei Merkmallisten
+(`fahrradueberdachung.njk`, `garten-aussenbereich.njk`), zwei
+Fließtexte, die Meta-Beschreibung, og:description und Schema.org.
+
+**Gegengelesen.** Volltextsuche nach „Motorisierung auf Wunsch",
+„per Knopfdruck", „2 bis 20" und „20+" über alle Quelldateien: keine
+Treffer mehr. `pruefe-metatexte`, `pruefe-schema-gueltig`,
+`pruefe-schema-faq`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`,
+`pruefe-produktwahl` bestanden.
