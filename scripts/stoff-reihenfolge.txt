@@ -33,24 +33,22 @@
 # ueberschrieben.
 
 # --- Meistverkauft, Angabe des Betreibers vom 22.11.2026 ---
-# MOUNTAIN NACH VORNE, 23.11.2026. Ansage des Betreibers: "kannst du
-# die mountain stoffe eher nach ganz vorne packen". Mountain ist mit
-# 20 Dessins die groesste Gruppe.
+# MOUNTAIN GANZ NACH VORNE, 23.11.2026. Zweite Ansage des Betreibers,
+# nachdem Mountain erst hinter den Meistverkauften stand: "mountain
+# stoffe sind ned ganz vorne". Jetzt stehen alle 20 Mountain-Dessins
+# auf den Plaetzen 1 bis 20.
 #
-# Die fuenf meistverkauften bleiben dabei ganz oben, weil der
-# Betreiber sie am 22.11.2026 ausdruecklich benannt hat. PA626 ist
-# selbst ein Mountain-Stoff und steht schon dort. Danach folgen die
-# uebrigen 19 Mountain-Dessins, dann der Rest in Katalogreihenfolge.
+# DAMIT VERLIEREN DIE MEISTVERKAUFTEN IHREN PLATZ VORNE, und das ist
+# so gewollt. AC320, AC519, AC423 und AC112 folgen auf den Plaetzen 21
+# bis 24; PA626 ist selbst Mountain und steht weiter vorne. Beides
+# zugleich geht nicht, und die neuere Ansage gilt.
 #
-# Soll Mountain wirklich VOR den fuenf meistverkauften stehen, ist das
-# eine Zeile Arbeit; dann aber verlieren die Meistverkauften ihren
-# Platz, und beides zugleich geht nicht.
+# Soll es wieder umgekehrt sein, die fuenf Meistverkauften zuerst und
+# Mountain dahinter: Die vier Zeilen AC320, AC519, AC423, AC112 nach
+# ganz oben ziehen, PA626 dazu, dann
+#   node scripts/baue-stoffstreifen.mjs
 
-AC320
-AC519
 PA626
-AC423
-AC112
 AC626
 AC627
 AC630
@@ -70,6 +68,10 @@ PA639
 PA642
 PA643
 PA645
+AC320
+AC519
+AC423
+AC112
 AC117
 AC118
 AC119
