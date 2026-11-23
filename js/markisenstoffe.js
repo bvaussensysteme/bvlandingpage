@@ -18,65 +18,80 @@
  * wählt eines davon (Angabe des Betreibers, 11.10.2026).
  *
  * Felder: c = Code, f = Farbfamilie, w = Wassersäule in mm, n = Name.
+ *
+ * fb = FARBE, UNSERE EIGENE BESCHREIBUNG, kein Herstellername.
+ * Ergänzt am 23.11.2026. Ansage des Betreibers: "ich meine wirklich den
+ * stofffarbnamen". Gesucht wurde an vier Stellen: in dieser Liste, auf
+ * unserer Stoffseite, auf vd-alusysteme.de/stoffe und im
+ * Herstellerkatalog 2026 (PDF, 21 MB, ausgelesen). Für die 53
+ * Dachstoffe vergibt der Hersteller KEINE Farbnamen, dort heißt es
+ * "CANYON AC320", also Gruppe plus Code. Bestätigt vom Betreiber:
+ * "ne bei ac gibts nicht".
+ * Deshalb ist fb aus dem Musterbild GEMESSEN: häufigste Farbe auf
+ * 64 x 64 Punkten, dann ein deutsches Farbwort dazu
+ * (scripts/miss-stofffarben.mjs im Arbeitsverzeichnis). Es ist eine
+ * Beschreibung, keine Bestellbezeichnung. Bestellt wird über c.
+ * n bleibt dem Hersteller vorbehalten und steht nur bei den
+ * 44 ZIP-Stoffen.
  * Lichtechtheit ist bei allen dach-Stoffen 4/5 und steht deshalb nicht
  * je Zeile. Die Bilder liegen unter images/stoffe/mini/ (Auswahl) und
  * images/stoffe/tex/ (Tuch im 3D-Modell).
  */
 window.BV_STOFFE = {
   dach: [
-    { c: 'AC420', f: 'Sunset', w: 350 },
-    { c: 'AC421', f: 'Sunset', w: 350 },
-    { c: 'AC423', f: 'Sunset', w: 350 },
-    { c: 'PA425', f: 'Sunset', w: 350 },
-    { c: 'AC512', f: 'Beach', w: 350 },
-    { c: 'AC517', f: 'Beach', w: 350 },
-    { c: 'AC518', f: 'Beach', w: 350 },
-    { c: 'AC519', f: 'Beach', w: 350 },
-    { c: 'AC521', f: 'Beach', w: 350 },
-    { c: 'AC522', f: 'Beach', w: 350 },
-    { c: 'AC523', f: 'Beach', w: 350 },
-    { c: 'AC524', f: 'Beach', w: 350 },
-    { c: 'PA522', f: 'Beach', w: 370 },
-    { c: 'PA524', f: 'Beach', w: 350 },
-    { c: 'PA528', f: 'Beach', w: 350 },
-    { c: 'PA532', f: 'Beach', w: 350 },
-    { c: 'AC112', f: 'Ocean', w: 350 },
-    { c: 'AC117', f: 'Ocean', w: 350 },
-    { c: 'AC118', f: 'Ocean', w: 350 },
-    { c: 'AC119', f: 'Ocean', w: 350 },
-    { c: 'AC121', f: 'Ocean', w: 350 },
-    { c: 'AC318', f: 'Canyon', w: 350 },
-    { c: 'AC320', f: 'Canyon', w: 350 },
-    { c: 'AC321', f: 'Canyon', w: 350 },
-    { c: 'AC322', f: 'Canyon', w: 350 },
-    { c: 'AC323', f: 'Canyon', w: 350 },
-    { c: 'AC324', f: 'Canyon', w: 350 },
-    { c: 'AC212', f: 'Greenery', w: 350 },
-    { c: 'AC218', f: 'Greenery', w: 350 },
-    { c: 'AC219', f: 'Greenery', w: 350 },
-    { c: 'AC220', f: 'Greenery', w: 350 },
-    { c: 'AC221', f: 'Greenery', w: 350 },
-    { c: 'AC223', f: 'Greenery', w: 350 },
-    { c: 'AC626', f: 'Mountain', w: 350 },
-    { c: 'AC627', f: 'Mountain', w: 350 },
-    { c: 'AC630', f: 'Mountain', w: 350 },
-    { c: 'AC631', f: 'Mountain', w: 350 },
-    { c: 'AC632', f: 'Mountain', w: 350 },
-    { c: 'PA612', f: 'Mountain', w: 380 },
-    { c: 'PA614', f: 'Mountain', w: 380 },
-    { c: 'PA616', f: 'Mountain', w: 380 },
-    { c: 'PA617', f: 'Mountain', w: 380 },
-    { c: 'PA626', f: 'Mountain', w: 350 },
-    { c: 'PA627', f: 'Mountain', w: 370 },
-    { c: 'PA630', f: 'Mountain', w: 350 },
-    { c: 'PA632', f: 'Mountain', w: 380 },
-    { c: 'PA633', f: 'Mountain', w: 450 },
-    { c: 'PA636', f: 'Mountain', w: 350 },
-    { c: 'PA637', f: 'Mountain', w: 350 },
-    { c: 'PA639', f: 'Mountain', w: 370 },
-    { c: 'PA642', f: 'Mountain', w: 350 },
-    { c: 'PA643', f: 'Mountain', w: 350 },
-    { c: 'PA645', f: 'Mountain', w: 450 }
+    { c: 'AC420', f: 'Sunset', w: 350, fb: 'Gelb' },
+    { c: 'AC421', f: 'Sunset', w: 350, fb: 'Goldgelb' },
+    { c: 'AC423', f: 'Sunset', w: 350, fb: 'Orange' },
+    { c: 'PA425', f: 'Sunset', w: 350, fb: 'Rot' },
+    { c: 'AC512', f: 'Beach', w: 350, fb: 'Grau' },
+    { c: 'AC517', f: 'Beach', w: 350, fb: 'Rosé' },
+    { c: 'AC518', f: 'Beach', w: 350, fb: 'Hellgrau' },
+    { c: 'AC519', f: 'Beach', w: 350, fb: 'Sand' },
+    { c: 'AC521', f: 'Beach', w: 350, fb: 'Sand' },
+    { c: 'AC522', f: 'Beach', w: 350, fb: 'Beige' },
+    { c: 'AC523', f: 'Beach', w: 350, fb: 'Taupe' },
+    { c: 'AC524', f: 'Beach', w: 350, fb: 'Taupe' },
+    { c: 'PA522', f: 'Beach', w: 370, fb: 'Creme' },
+    { c: 'PA524', f: 'Beach', w: 350, fb: 'Beige' },
+    { c: 'PA528', f: 'Beach', w: 350, fb: 'Taupe' },
+    { c: 'PA532', f: 'Beach', w: 350, fb: 'Goldgelb' },
+    { c: 'AC112', f: 'Ocean', w: 350, fb: 'Graublau' },
+    { c: 'AC117', f: 'Ocean', w: 350, fb: 'Graublau' },
+    { c: 'AC118', f: 'Ocean', w: 350, fb: 'Dunkelblau' },
+    { c: 'AC119', f: 'Ocean', w: 350, fb: 'Dunkelblau' },
+    { c: 'AC121', f: 'Ocean', w: 350, fb: 'Graublau' },
+    { c: 'AC318', f: 'Canyon', w: 350, fb: 'Rot' },
+    { c: 'AC320', f: 'Canyon', w: 350, fb: 'Terracotta' },
+    { c: 'AC321', f: 'Canyon', w: 350, fb: 'Rot' },
+    { c: 'AC322', f: 'Canyon', w: 350, fb: 'Rot' },
+    { c: 'AC323', f: 'Canyon', w: 350, fb: 'Rot' },
+    { c: 'AC324', f: 'Canyon', w: 350, fb: 'Rot' },
+    { c: 'AC212', f: 'Greenery', w: 350, fb: 'Olivgrün' },
+    { c: 'AC218', f: 'Greenery', w: 350, fb: 'Olivgrün' },
+    { c: 'AC219', f: 'Greenery', w: 350, fb: 'Olivgrün' },
+    { c: 'AC220', f: 'Greenery', w: 350, fb: 'Grau' },
+    { c: 'AC221', f: 'Greenery', w: 350, fb: 'Graugrün' },
+    { c: 'AC223', f: 'Greenery', w: 350, fb: 'Dunkelgrün' },
+    { c: 'AC626', f: 'Mountain', w: 350, fb: 'Hellgrau' },
+    { c: 'AC627', f: 'Mountain', w: 350, fb: 'Hellgrau' },
+    { c: 'AC630', f: 'Mountain', w: 350, fb: 'Grau' },
+    { c: 'AC631', f: 'Mountain', w: 350, fb: 'Anthrazit' },
+    { c: 'AC632', f: 'Mountain', w: 350, fb: 'Grau' },
+    { c: 'PA612', f: 'Mountain', w: 380, fb: 'Grau' },
+    { c: 'PA614', f: 'Mountain', w: 380, fb: 'Grau' },
+    { c: 'PA616', f: 'Mountain', w: 380, fb: 'Grau' },
+    { c: 'PA617', f: 'Mountain', w: 380, fb: 'Grau' },
+    { c: 'PA626', f: 'Mountain', w: 350, fb: 'Hellgrau' },
+    { c: 'PA627', f: 'Mountain', w: 370, fb: 'Beige' },
+    { c: 'PA630', f: 'Mountain', w: 350, fb: 'Hellgrau' },
+    { c: 'PA632', f: 'Mountain', w: 380, fb: 'Hellgrau' },
+    { c: 'PA633', f: 'Mountain', w: 450, fb: 'Grau' },
+    { c: 'PA636', f: 'Mountain', w: 350, fb: 'Grau' },
+    { c: 'PA637', f: 'Mountain', w: 350, fb: 'Grau' },
+    { c: 'PA639', f: 'Mountain', w: 370, fb: 'Anthrazit' },
+    { c: 'PA642', f: 'Mountain', w: 350, fb: 'Grau' },
+    { c: 'PA643', f: 'Mountain', w: 350, fb: 'Anthrazit' },
+    { c: 'PA645', f: 'Mountain', w: 450, fb: 'Anthrazit' }
   ],
   zip: [
     { c: 'T31818', f: 'Ecole 1%', n: 'UNI SCHWARZ' },
