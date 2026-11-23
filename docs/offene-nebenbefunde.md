@@ -305,3 +305,243 @@ oder ob die Prüfung ihn nur nicht sieht (Zeitfenster, 60-ms-Bremse im
 anderer Stelle befindet). Die Reihenfolge der Aufrufe steht in
 `massSchweben()` / `massUnterZeiger()` in `js/konfigurator-frei.js`.
 
+
+## Nebenbefunde des Prüferdurchgangs 23.11.2026 (Lieferanten-Runde)
+
+Neun Fachbereiche nach `docs/PRUEFER_REIHENFOLGE.md`, Umfang
+`9d6f290..HEAD`. Die vier gemessenen Fehler sind behoben, siehe
+`docs/entscheidungen.md`. Was hier steht, blieb offen.
+
+### Werkzeuge und Absicherung
+
+- **`scripts/pruefe-mitwachsend.mjs` deckt 11 der 29 geänderten
+  Seiten nicht ab.** Die Liste in Zeile 37 bis 41 nennt sieben Seiten.
+  **`fassade`, `sonnenschutz` und `pergola` fehlen, also genau die
+  drei mit den breitesten Wertetabellen.** Der 320-px-Befund auf
+  `fassade` entstand nur, weil ein Prüfer außerhalb der Liste gemessen
+  hat. In `CLAUDE.md` steht, dieses Skript sorge dafür, dass „weder
+  der Betreiber noch der Assistent daran denken" muss. Für diese
+  Seiten stimmt das bis jetzt nicht.
+  **Vorsicht beim Nachtragen:** Mit 29 Seiten meldet das Skript 18
+  Beanstandungen, davon 15 auch auf dem alten Stand `9d6f290`. Wer die
+  Seiten einträgt, muss die 15 Altbefunde mitbehandeln, sonst steht
+  die Prüfung dauerhaft auf rot. Das ist ein eigenes Arbeitspaket.
+- **Keine der 82 Prüfungen prüft die Farbe eines Fokusrings gegen den
+  tatsächlichen Hintergrund.** `pruefe-fokusring.mjs` und
+  `pruefe-fokus-verdeckung.mjs` prüfen nur Abschneiden und Verdeckung.
+  Genau deshalb blieben die beiden 1,00:1-Ringe unbemerkt, obwohl
+  beide Skripte grün waren. Eine Prüfung, die den Ring gegen den
+  gemessenen Grund rechnet, fehlt.
+- **`scripts/pruefe-einwilligung.mjs` prüft nur die Form des
+  Cookie-Fensters, nicht sein Verhalten.** Nicht gemessen wird: ob vor
+  dem Klick Anfragen an fremde Hosts hinausgehen, ob nach „Nur
+  notwendige" nichts nachlädt, ob `localStorage` vorher leer bleibt,
+  ob die Entscheidung ein Neuladen übersteht. Das ist die Kernfrage
+  der Einwilligung. Vorschlag: mit `page.on('request')` belegen, dass
+  vor der Zustimmung kein Host außer `self` angefragt wird.
+  Weiter: Das Skript akzeptiert „Nur notwendige" als Ablehnen-Knopf,
+  ohne zu prüfen, **was** der Knopf tut. Ein Knopf „Nur notwendige",
+  der `all` speichert, würde bestehen. Und die Gegenprobe zählt nur
+  die Anzahl der Beanstandungen, nicht, ob jeder eingebaute Fehler von
+  der passenden Prüfung gefunden wurde.
+- **`scripts/hole-vd-bilder.sh`**: `curl -L` folgt Weiterleitungen auf
+  beliebige Hosts, auch auf `http`. Der MIME-Prüfer lässt
+  `image/svg+xml` durch. Derzeit liegt keine SVG unter den 40 Bildern,
+  gemessen. Vorschlag: `--proto '=https' --proto-redir '=https'` und
+  nur `jpeg`, `png`, `webp` zulassen. Die Liste der Quell-URLs liegt
+  nicht im Repository, die Herkunft einzelner Bilder ist später nur
+  über `docs/VD-INHALTE-INVENTAR.md` belegbar.
+
+### Barrierefreiheit, offen weil nicht belegbar
+
+- **Scrollbare Wertetabellen ohne `tabindex`.** `.vergleich-wrap` in
+  `carport`, `pergola`, `sonnenschutz`, `terrassenueberdachung` und
+  `.dw-wrap` in `fassade` scrollen innerhalb ihres Kastens. Gemessen
+  bei 390 px: Pergola 620 px Inhalt in 362 px Kasten, Carport 443 px,
+  Sonnenschutz 380 px. Die **Seite** scrollt nicht waagerecht, der
+  Befund fällt also nicht unter „ragt aus dem Kasten".
+  Ob das WCAG 2.1.1 verletzt, ließ sich **nicht belegen**: Seit Chrome
+  127 sind scrollbare Bereiche von sich aus tastaturfokussierbar, in
+  Safari nicht. In dieser Umgebung steht nur Chromium zur Verfügung.
+  Ein `tabindex` fügt auf jeder Produktseite einen Tabulatorhalt
+  hinzu, deshalb nicht auf Verdacht gemacht. Zu prüfen auf echtem
+  Safari.
+  Dazu: Es fehlt ein **sichtbarer** Hinweis, dass gewischt werden
+  kann. Beim Carport-Vergleich sieht ein Besucher bei 390 px nur
+  Zeilenkopf und etwa eine Modellspalte. Die Überschrift „Die drei
+  Carports nebeneinander" liegt **innerhalb** von `.vergleich-wrap`
+  und wandert beim Wischen mit aus dem Bild.
+- **Überdeckung schwebender Knöpfe, Altbefund.**
+  `button#bvKonfigBubble` und `#bv-a11y-trigger` liegen bei 1024 px
+  mit 43 × 24 bis 43 × 48 px auf `.produkt-bild-knopf` („Bild groß
+  anzeigen"). Betroffen: `bushaltestelle`, `faltdach`, `gartenhaus`,
+  `kaltwintergarten`, `sichtschutz`, `velaris`,
+  `fahrradueberdachung`, dazu `kaltwintergarten` bei 768 px. Auf dem
+  Stand `9d6f290` identisch, also nicht aus dieser Runde. WCAG 2.5.8.
+- **`konfigurator.html`, Altbefund.** Fünf `.k3d-marke` messen 18 × 66
+  bis 18 × 81 px, Vorgabe 24 px, in allen sieben Breiten. Bei 320 px
+  ragt `button#k3dWeiter` 10 px aus dem Kasten. Die Seite ist per 503
+  gesperrt und steht nicht in der Liste von `pruefe-mitwachsend`.
+- **Der Link „Licht-, Wärme- und Schallwerte im Vergleich"** in
+  `src/produkte/kaltwintergarten.njk:165` misst 287 × 22 px bei 1024
+  und 1440 px, also unter 24 px Höhe. Er ist **neu** in dieser Runde.
+  Er steht mitten im Satz, die Ausnahme für Fließtext-Links nach WCAG
+  2.5.8 greift vermutlich. Derselbe Link in `carport.njk:190` wird
+  nicht gemeldet. Ungeklärt, ob Befund oder Fehlalarm.
+- **Das Cookie-Fenster steht am Ende des Dokuments.** Mit 80
+  Tabulatorschritten kam der Prüfer nicht hinein, die Tastatur
+  erreicht die Knöpfe also erst nach der ganzen Seite. Es ist kein
+  modaler Dialog, deshalb kein formaler Verstoß, aber schwer
+  bedienbar. Es trägt `aria-modal="true"`, obwohl die Seite dahinter
+  bedienbar bleibt und kein Fokus-Käfig gesetzt ist.
+- **Fußzeilen-Überschrift `h4` folgt direkt auf `h2`**, auf allen
+  Seiten, in beiden Ständen gleich. Altbefund, 1.3.1 und 2.4.6.
+
+### Ladezeit
+
+- **`produkte/sonnenschutz.html`, Zeilen 501 bis 506:** Vier
+  Markisen-JPGs mit zusammen etwa 570 KB werden auf 170 × 130 CSS-px
+  dargestellt. Die Dateien sind 1200 px breit. Von jedem existiert ein
+  WebP-Zwilling, der 30 bis 40 % kleiner ist (`gelenkarm_offen_b`
+  207 KB JPG gegen 131 KB WebP, `kassette_b` 157 gegen 92). Die Seite
+  nimmt das JPG. Dazu fehlen `width` und `height`; der gemessene CLS
+  war 0, weil das CSS die Höhe festlegt, das Sprungrisiko entsteht
+  also erst, wenn dieses CSS wegfällt.
+- **`src/produkte/terrassenueberdachung.njk`, Zeile 298 und 313:**
+  Zwei Materialbilder ohne `loading="lazy"`, obwohl sie bei y = 4436
+  und y = 4963 px liegen, also weit unter dem ersten Bildschirm.
+  Geladen werden sie trotzdem sofort, 36 KB plus 39 KB. Zeile 358
+  derselben Gruppe **hat** das Attribut, und im Baustein
+  `eindeck-karten.njk` ist es überall gesetzt. Es ist also eine
+  Unachtsamkeit in der handgeschriebenen Kopie. **Quelle und gebaute
+  Seite stimmen überein, es gibt keinen veralteten Build**, das war
+  nachgeprüft.
+- **`style.css` ist in dieser Runde um 10,7 KB gewachsen** (185,2 auf
+  195,9 KB) und hängt an jeder Seite, auch an denen ohne Produkte.
+  Ob die neuen Regeln dort überhaupt wirken, ist nicht Regel für
+  Regel belegt.
+- **Nicht aus dieser Runde, aber die größte Einsparung der
+  Startseite:** Neben den WebP werden auch die JPG-Zwillinge
+  abgerufen, `vd_prod_terrasse_tds.jpg` 423 KB und
+  `vd_prod_carport_tds.jpg` 450 KB. Sieht nach einem
+  `<picture>`-Rückfall oder einem Vorlade-Eintrag aus. Ursache nicht
+  untersucht.
+
+### Gestaltung und Konsistenz
+
+- **Drei Zwischenradien neben der Skala.** Die Seite hat
+  `--radius-sm` 6, `--radius` 10, `--radius-lg` 16, `--radius-xl` 22.
+  Die Materialkarten benutzen 14 px (`style.css:4486`), die
+  Zubehörbilder 12 px (`:4469`), das Cookie-Fenster 14 px (`:1800`),
+  der heller Einstellungsbereich 8 px, die Wertetabellen 12 px.
+- **Der Baustein `eindeck-karten.njk` benutzt keine einzige Stufe der
+  Schriftleiter.** `0.86rem`, `0.92rem`, `0.82rem`, `0.84rem` gegen
+  `--txt-xs` 0,8125, `--txt-sm` 0,9375, `--txt-base` 1. Abstände 20,
+  28, 14 und 18 px liegen außerhalb des Rasters 4/8/12/16/24/32/48.
+- **Textstile stehen inline im Baustein** (Zeile 26 bis 28, 36, 91),
+  obwohl der Kommentar in `style.css:4435` das Verschieben der
+  Karten-CSS ausdrücklich mit „gegen zwei Wahrheiten" begründet.
+- **Vier eigene Kopien von `.vergleich`**, dazu `.dw-tab` in
+  `fassade` als fünfte unter anderem Namen. Sie weichen voneinander
+  ab: `thead th` 0,9 rem gegen 0,88 rem, Breite der ersten Spalte
+  22 / 18 / 26 % oder keine, `min-width: 620px` nur bei der Pergola,
+  `tabular-nums` nur bei `fassade`. Der Kommentar in `carport.njk`
+  erklärt die Kopien als Absicht („eine gemeinsame Datei wäre eine
+  Abhängigkeit"). Zielkonflikt, nicht ohne Ansage umbauen.
+- **Ausgeschriebene Farbwerte statt Token** in `style.css`: `#ccc`
+  (Zeile 1838, inzwischen ersetzt), `rgba(196,154,42,0.15)` (1830),
+  `#1a1a1a` (1883), `#111111` (1888), `rgba(0,0,0,.92)` (2366), und
+  ein eigener Schatten `0 10px 44px rgba(0,0,0,0.42)` (1801) neben den
+  vorhandenen `--schatten-1..3`.
+- **`docs/WEBSITE_DESIGN_SYSTEM.md` enthält keine Logo-Abstände**,
+  obwohl `CLAUDE.md` sie dort verortet („mit den gemessenen Kontrasten
+  und Logo-Abständen"). Sie stehen nur in `style.css:360-381`: halbe
+  Zeichenhöhe rundum frei, Mindestbreite 160 px. Eine der beiden
+  Stellen gehört angepasst.
+- **Logo-Abstand am Handy ungemessen.** Rechnerisch bleiben unter dem
+  Logo nur rund 10 px bis zum Goldrand, verlangt sind 16. Bei 390 px
+  im Browser nachmessen.
+- **`images/logo-schwarz-gold.svg` wird nirgends mehr geladen**, ist
+  aber noch in `scripts/pruefe-palette.py` und der Doku genannt.
+- **Kleintext unter 14 px** an vielen Stellen des Cookie-Fensters und
+  der Karten (0,72 bis 0,86 rem bei Gewicht 400). Das Designsystem
+  verlangt ab unter 14 px mindestens Medium 500. Die Live-Seite hat
+  selbst `--txt-xs` 13 px, das wäre also eine seitenweite
+  Entscheidung.
+- **Das Cookie-Fenster verdeckt bei 320 × 568 px 75 % des
+  Bildschirms**, bei 360 × 640 px 64 %, bei 390 × 844 px 46 %. Kein
+  Verstoß gegen eine Pflichtgrenze, aber sehr dominant. Es gibt kein
+  festgelegtes Zielmaß, deshalb kein Befund.
+- **`env(safe-area-inset-*)` am Cookie-Fenster nicht geprüft.**
+
+### Struktur und Schema.org
+
+- **Produktkarten sind auf allen Seiten `h2`** und stehen damit auf
+  derselben Ebene wie ihre eigene Abschnittsüberschrift („X: unsere
+  Modelle"). Semantisch wären sie `h3`. Kein WCAG-Fehler, eine
+  Gliederungsfrage.
+- **Die fünf Ratgeber tragen `dateModified` 2026-07-15** (Kosten:
+  2026-07-28), obwohl die Garantiezeilen jetzt geändert wurden. Ob das
+  angehoben wird, hängt davon ab, ob der Betreiber die Änderung als
+  inhaltlich ansieht.
+- **Product-Schema ohne `Offer`, ohne `image`** (außer Carport,
+  Terrasse, Pergola) und ohne Bewertung. Bewusst, weil keine Preise.
+  Die Rich-Results-Prüfung meldet dafür Warnungen.
+- **Alle Product-Blöcke nennen „VD AluSysteme"** als Marke, einige als
+  Hersteller mit URL. Fällt unter die VD-Regel, nicht bewertet.
+- **`gelaender.njk`**: Schema und `ogTitle` schreiben „EasyRail",
+  sichtbar steht „Easy Rail".
+- **Drei Meta-Beschreibungen benutzen „✓"** (`fassade`,
+  `sichtschutz`, `fahrradueberdachung`). Unproblematisch, wird von
+  Google im Snippet manchmal entfernt.
+
+### Wege durch die Seite
+
+- **Sammelseiten ohne Rückweg.** `balkon-fassade` und
+  `garten-aussenbereich` führen zu sechs Detailseiten, die keinen Weg
+  zurück zur Sammelseite haben. Ihre Brotkrumen führen nur zu
+  `/#leistungen`.
+- **`fassade.njk` und `sichtschutz.njk` haben außer Anfrage, Telefon
+  und Brotkrume keinen weiteren Verweis**, kein Werkzeug, kein
+  Nachbarprodukt.
+- **Die Fußzeile nennt nur sieben Leistungen.** Faltdach, Velaris,
+  Eingang, Balkon-Fassade, Garten-Außenbereich, Fahrrad,
+  Bushaltestelle, Gartenhaus, Fassade und Sichtschutz sind nur über
+  `/#leistungen` oder einen Verweis erreichbar.
+- **Rückweg aus den Werkzeugen führt zu anderen Produkten.**
+  `windzonen.njk:1474` bietet nur „Terrassenüberdachungen ansehen".
+  `baugenehmigung.njk:1387` bietet Terrasse, Carport und Pergola,
+  aber nicht Kaltwintergarten, Faltdach oder Gartenhaus.
+- **Pergola, Faltdach und Velaris sind untereinander nicht
+  verknüpft** und nicht vergleichbar: Das Faltdach hat eine Karte
+  ohne Maße und Farben, aber mit „bis 120 km/h"; die Pergola hat
+  Maße, Winkel und Farben, aber keinen Windwert.
+- **Doppelte Verweise mit unpassender Beschriftung.** Der Hero-Knopf
+  „Was kostet das? Kostenfaktoren" und „Mehr zum Thema" zeigen auf
+  dasselbe Ziel (`carport.njk:166` und `:295`, `pergola.njk:164` und
+  `:346`, `terrassenueberdachung.njk:185` und `:522`). Bei Carport und
+  Pergola passt „Was kostet das?" nicht zum Ziel, das ein Vergleich
+  beziehungsweise ein Kaufratgeber ist.
+- **`pruefe-mitwachsend` meldet 9 Hinweise** zu Überdeckungen unter
+  24 × 24 px, die unterhalb der Beanstandungsschwelle liegen.
+
+### Noch zu klären, inhaltlich
+
+- **`eingang.njk:109`**: Das Vordach FLY nennt „17 mm ESG, klar (88 %
+  Licht) oder opal (63 %)". Das sind dieselben Prozentwerte wie bei
+  8 mm VSG. Möglich, aber bei anderem Glas ungewöhnlich. Gegen die
+  Herstellerquelle prüfen.
+- **`fassade.njk:133` „Profilbreiten 30 und 80 mm"** gegen
+  `balkon-fassade.njk:132` „Profile von 30 bis 80 mm Breite". „bis"
+  ist ein Bereich, die Tabelle zeigt zwei Stufen.
+- **`carport.njk:218` und `:220`**: Flat Line führt „CE-gekennzeichnet"
+  doppelt. Dachbegrünung steht neben „vereinfachter Statiknachweis
+  inklusive", ob das bei Begrünung gilt, sagt die Seite nicht.
+- **`bushaltestelle.njk:119` sagt „mattiertes Glas"**, die Karten
+  sagen „opal". Zwei Begriffe für vermutlich dasselbe.
+- **`terrassenueberdachung.njk:280`**: „Passt, wenn: Sie zwischen Glas
+  und Polycarbonat wählen möchten" ist keine Entscheidungshilfe, weil
+  die Wahl nicht erklärt wird.
+- **Auf keiner Produktseite stehen Lieferzeit und Preisrahmen.** Vor
+  der Anfrage bleiben Preis, Dauer und Genehmigung offen. Preise und
+  Zusagen sind Betreibersache.

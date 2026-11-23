@@ -1832,10 +1832,32 @@ footer h4 {
 .cb-toggle-label {
   display: flex; align-items: center; gap: 10px;
   cursor: pointer; margin-bottom: 4px;
+  /* Traeger fuer das abgeblendete Feld darunter. */
+  position: relative;
 }
-.cb-toggle-label input[type="checkbox"] { display: none; }
+/* GEAENDERT 23.11.2026. Vorher stand hier display: none. Ein so
+   verstecktes Feld ist nicht fokussierbar: "Analyse & Statistik" und
+   "Externe Dienste" liessen sich ohne Maus nur ablehnen, nicht
+   einwilligen. WCAG 2.2, 2.1.1 (Stufe A), und bei einer Einwilligung
+   ist das mehr als ein Bedienmangel.
+   Das Feld bleibt unsichtbar, aber im Tabulatorlauf. Nicht
+   width/height 0 benutzen, das nehmen manche Browser ebenfalls aus
+   dem Lauf. */
+.cb-toggle-label input[type="checkbox"] {
+  position: absolute; width: 1px; height: 1px;
+  margin: 0; padding: 0; border: 0;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+/* Der Ring sitzt auf dem Schalter, weil das Feld selbst 1 px gross
+   ist. Ohne diese Regel waere der Fokus nirgends zu sehen. */
+.cb-toggle-label input:focus-visible + .cb-toggle-slider {
+  outline: 3px solid var(--dark); outline-offset: 3px;
+}
+/* GEAENDERT 23.11.2026. Vorher #ccc auf --offwhite, gemessen 1,49:1.
+   WCAG 1.4.11 verlangt 3:1 fuer Bedienelemente. #767676 ergibt
+   4,21:1, der weisse Knopf darauf 4,54:1. */
 .cb-toggle-slider {
-  width: 38px; height: 22px; background: #ccc; border-radius: 100px;
+  width: 38px; height: 22px; background: #767676; border-radius: 100px;
   flex-shrink: 0; position: relative; transition: background 0.2s;
 }
 .cb-toggle-slider::after {
@@ -1844,7 +1866,13 @@ footer h4 {
   border-radius: 50%; top: 3px; left: 3px;
   transition: transform 0.2s;
 }
-.cb-toggle-label input:checked + .cb-toggle-slider { background: var(--gold); }
+/* GEAENDERT 23.11.2026. Vorher --gold (#C49A2A) auf --offwhite,
+   gemessen 2,43:1, verlangt sind 3:1 (WCAG 1.4.11). --gold-text
+   (#7A5B12) ergibt 5,83:1 und ist das Gold, das die Seite fuer
+   dunkle Flaechen auf hellem Grund schon benutzt. Der Zustand bleibt
+   zusaetzlich an der Lage des Knopfs erkennbar, nicht nur an der
+   Farbe (WCAG 1.4.1). */
+.cb-toggle-label input:checked + .cb-toggle-slider { background: var(--gold-text); }
 .cb-toggle-label input:checked + .cb-toggle-slider::after { transform: translateX(16px); }
 .cb-toggle-label strong { font-size: 0.88rem; color: var(--black); }
 /* Buttons */

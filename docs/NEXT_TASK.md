@@ -153,6 +153,48 @@ Bewertung holt der Betreiber beim Fachmann.
 | 3.12 | **Live-Seite auf die neue Palette umstellen?** Noch nicht entschieden. `--gold-text` würde von `#7A5B12` auf `#896023` **heller** werden; danach alle `scripts/pruefe-*` laufen lassen |
 | 3.13 | **Texte der übrigen 55 Seiten** entdenglischen – zurückgestellt auf Wunsch des Betreibers („du veränderst eher wieder texte anstatt das design endlich richtig gut zu machen") |
 
+### 3.17 Acht belegte Widersprüche, entschieden wird vom Betreiber
+
+Aus dem Prüferdurchgang vom 23.11.2026. **Alle acht sind im Quelltext
+belegt, keiner ist Geschmack.** Nichts davon wurde geändert, weil es
+Texte, Produktaussagen und Garantieformulierungen sind.
+
+| # | Fundstelle | Was sich widerspricht |
+|---|---|---|
+| a | `src/_includes/eindeck-karten.njk:81` | Polycarbonat opal heißt dort „am wenigsten Sonnenwärme von außen". Die eigenen Werte im selben Baustein: Polycarbonat opal **54 %** (Zeile 84), VSG opal **52 %** (Zeile 54). Die Aussage ist nach den eigenen Zahlen falsch. Der Baustein steht auf fünf Seiten |
+| b | `src/ratgeber/pergola-kaufen-ratgeber.njk:80` | SunPro Plus „mit 5 Jahren Garantie", `pergola.njk:196` sagt „10 Jahre". Nach der Dauerregel gilt bei Alukonstruktion 10 Jahre. Zu klären, ob die 5 Jahre Tuch oder Motor meinen. Dieselbe Zeile sagt „deutsches Qualitätsprodukt", ein Herkunftsversprechen ohne Beleg im Repository |
+| c | `src/produkte/pergola.njk:335` | „Bei allen vieren gleich: 10 Jahre Herstellergarantie". Zeile 281 (Lamaxa L50 Tex) sagt „10 Jahre auf die Aluminiumkonstruktion, 5 Jahre auf das Tuch". Die Fußzeile ist nicht falsch, aber unvollständig |
+| d | alle Produktseiten mit Elektrik | **Die 2 Jahre auf Elektrik stehen auf keiner Produktseite**, nur im Ratgeber `aluminium-terrasse-pflegen.njk:94`. Verkauft werden Antriebe, Motoren, LED, Lautsprecher und Steuerungen auf Sonnenschutz, Pergola, Terrasse, Eingang und Faltdach. Wer „10 Jahre" neben „motorisierte Lamellen" liest, versteht 10 Jahre auf alles. Bei einem Motorschaden nach drei Jahren entsteht Streit |
+| e | `src/produkte/sonnenschutz.njk:224` gegen `:329` | Die Karte sagt Senkrechtbeschattung „bis 6 x 3 m". Die Tabelle nennt „bis 600 x 240 cm oder 300 x 300 cm". 600 x 300 kommt nirgends vor |
+| f | `eindeck-karten.njk:66`, `fahrradueberdachung.njk:110` | „hagelfest" bei Polycarbonat, während `terrassenueberdachung.njk:332` nur „hell und bruchfest" sagt und `aluminium-terrasse-pflegen.njk:94` Hagelschäden auf die Gebäudeversicherung verweist. Beim ersten Hagelschaden steht die Zusage gegen den Ratgeber |
+| g | `src/produkte/eingang.njk:74` | Das Product-Schema sagt „Vordach FLY, Front Line und TDS … ESG-Glas standard". Sichtbar belegt ist das nur für FLY. Front Line nennt keine Verglasung, TDS nennt „Glas oder Polycarbonat". Das Schema behauptet gegenüber Suchmaschinen mehr, als die Seite trägt |
+| h | `src/ratgeber/terrassenueberdachung-kosten.njk` | Im FAQPage-Block weichen **vier von fünf** Antworten im Wortlaut von den sichtbaren `<details>` ab (Zeile 56 bis 60 gegen 118 bis 137). Das ist der Fall, den die Dauerregel „sichtbarer Text und Schema.org zusammen ändern" adressiert |
+
+**Dazu zwei Entscheidungen zur Wegführung, ebenfalls belegt:**
+
+- **`carport.njk:190` und `kaltwintergarten.njk:165`** schicken auf
+  `/produkte/terrassenueberdachung.html#eindeckung`. Der Besucher
+  landet mitten auf einer fremden Produktseite, ohne Rückweg. **Die
+  „Jetzt anfragen"-Knöpfe dort setzen `bv-produktwahl` auf
+  `terrassendach-tds`.** Wer vom Carport kommt und dort anfragt,
+  startet den Assistenten mit Terrassendach. Das ist eine falsche
+  Anfrage im Posteingang. Balkon, Gartenhaus, Bushaltestelle und
+  Fahrrad machen es anders und binden den Baustein auf der eigenen
+  Seite ein.
+- **Terrassenüberdachung, Carport und Kaltwintergarten haben keinen
+  Weg zum Baugenehmigungs-Check**, obwohl dort die Genehmigung die
+  häufigste Frage ist. Der Kaltwintergarten behauptet „ohne
+  Baugenehmigung in den meisten Fällen" (`:136`) und bietet den Check
+  nicht an. Die Bushaltestelle sagt „benötigen in der Regel eine
+  Baugenehmigung" (`:121`) und verlinkt nur die Windzonen. Umgekehrt
+  haben Pergola, Faltdach, Velaris, Gartenhaus und Eingang den Check,
+  aber keinen Windzonen-Weg. Sechs Seiten haben keines von beiden.
+
+**Weiter offen, aus derselben Runde, aber kein Widerspruch:** Die
+Breadcrumb-Position 2 heißt auf allen 16 Produktseiten „Produkte",
+sichtbar steht „Leistungen", und das Ziel ist `/#leistungen`. Eine
+Seite „Produkte" gibt es nicht. Welcher Name bleibt, ist eine Ansage.
+
 ### Weiteres, ausgelagert
 
 - **Fragen an den Betreiber**, offene wie beantwortete:
@@ -194,9 +236,15 @@ Auftrag des Betreibers vom 23.11.2026, in vier Schritten:
    zwei Themenseiten und fünf Dokumente gelesen, darunter der
    Produktkatalog 2026 mit 96 Seiten. Wegweiser: `docs/vd-quellen.md`.
 2. **Zu unserem System umschreiben, prüfen lassen, verbessern** –
-   inhaltlich fertig. Alle belegten Fakten stehen in eigener
-   Formulierung auf den Seiten. **Der Durchgang der Fachprüfer nach
-   `docs/PRUEFER_REIHENFOLGE.md` steht noch aus.**
+   inhaltlich fertig, **Prüferdurchgang am 23.11.2026 erledigt.** Alle
+   neun berührten Fachbereiche sind gelaufen, je ein lesender Prüfer,
+   in der Reihenfolge aus `docs/PRUEFER_REIHENFOLGE.md`. Die 10 und
+   11 laufen erst vor einer Veröffentlichung.
+   **Vier gemessene Fehler wurden behoben** (Fokusringe und
+   Cookie-Schalter, Zahlen in `docs/entscheidungen.md`). **Offen ist
+   nur noch Inhaltliches**, und das liegt beim Betreiber: siehe
+   Abschnitt 3.17 unten. Nebenbefunde in
+   `docs/offene-nebenbefunde.md`.
 3. **Auf der Vorschau umsetzen** – läuft mit, jeder Stand ist gepusht
    und wurde abgerufen.
 4. **Am Design arbeiten** mit den UI/UX-Skills – noch nicht begonnen.
@@ -216,10 +264,14 @@ Fahrradüberdachung, Bushaltestelle, Velaris. Dazu der Baustein
 `src/_includes/eindeck-karten.njk` und die Materialkarten in
 `src/css/style.css`.
 
-**Der nächste Schritt ist Schritt 2 zu Ende bringen:** jeden berührten
-Fachbereich mit genau einem lesenden Prüfer, in der festen Reihenfolge
-aus `docs/PRUEFER_REIHENFOLGE.md`. Jeder Prüfauftrag nennt die
-geänderten Dateien, sonst liest der Prüfer das halbe Repository.
+**Der nächste Schritt ist Schritt 4: am Design arbeiten** mit den
+UI/UX-Skills. Schritt 2 ist abgeschlossen, Schritt 3 läuft mit.
+
+**Vorher braucht es eine Ansage zu 3.17** (Abschnitt 3 oben). Dort
+stehen acht inhaltliche Widersprüche, die die Prüfer belegt haben und
+die ohne den Betreiber niemand ändern darf. Zwei betreffen die
+Garantie, einer schickt eine falsche Produktwahl in den
+Anfrage-Assistenten.
 
 ## 5. Wo was steht
 

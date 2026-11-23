@@ -757,8 +757,31 @@
 .start-premium .hero-section :focus-visible,
 .start-premium .sticky-cta :focus-visible,
 .start-premium .wz-cta :focus-visible,
-.start-premium .stadt-cta :focus-visible {
+.start-premium .stadt-cta :focus-visible,
+/* NACHGETRAGEN 23.11.2026. Zwei weitere dunkle Orte sind erst in dieser
+   Runde entstanden und standen deshalb nicht in der Liste darueber:
+   die Kopfleiste (.navbar bekam background: var(--dark), als das Logo
+   auf die helle Fassung umgestellt wurde) und das neu gestaltete
+   Cookie-Fenster (dunkle Karte). Gemessen vor der Korrektur: Ring
+   #1D2023 auf Grund #1D2023, also 1,00:1 auf Logo-Link, Hamburger,
+   allen Menuepunkten und allen vier Knoepfen des Cookie-Fensters.
+   WCAG 2.2, 2.4.7 und 1.4.11. Champagner auf #1D2023 ergibt 11,80:1.
+   Beim Cookie-Fenster ist das nicht nur Bedienbarkeit: Die
+   Verweigerung muss per Tastatur genauso sichtbar sein wie die
+   Zustimmung. */
+.start-premium .navbar :focus-visible,
+.start-premium #cookieBanner :focus-visible {
   outline-color: var(--champagner);
+}
+
+/* AUSNAHME IN DER AUSNAHME. Im Cookie-Fenster sitzt der Einstellungs-
+   bereich .cb-details auf --offwhite, also hell in der dunklen Karte
+   (src/css/style.css). Dort waere der Champagner-Ring aus der Regel
+   darueber seinerseits unsichtbar: #EAD9BB auf #F8F6F1 sind rund
+   1,10:1. Die hoehere Spezifitaet holt deshalb den dunklen Ring
+   zurueck, unabhaengig von der Reihenfolge der Regeln. */
+.start-premium #cookieBanner .cb-details :focus-visible {
+  outline-color: var(--dark);
 }
 
 /* 2. FOKUS IN EINER ZUGEKLAPPTEN ANTWORT. Die Antworten der Fragenliste

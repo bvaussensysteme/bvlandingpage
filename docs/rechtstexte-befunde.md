@@ -516,3 +516,52 @@ Minuten geändert.**
 
 **Das ist keine Rechtsberatung.** Die verbindliche Bewertung holt der
 Betreiber beim Anwalt.
+
+---
+
+## 23.11.2026 · Im Cookie-Fenster steht das Wort „Ablehnen" nicht mehr
+
+**Gefunden** beim Prüferdurchgang über die Lieferanten-Runde
+(Fachbereich 2, Sicherheit und Einwilligung).
+
+**Was war.** Das Fenster hatte vier Knöpfe, zwei davon mit demselben
+Ergebnis: „Ablehnen" und „Nur notwendige" setzten beide keine
+Einwilligung, nur unterschiedliche gespeicherte Werte.
+
+**Was jetzt gilt.** Seit Commit `04d02b1` („Cookie-Fenster neu") gibt
+es zwei gleichwertige Hauptknöpfe: **„Nur notwendige"** und **„Alle
+akzeptieren"**. Der Knopf mit der Aufschrift „Ablehnen" ist entfallen.
+Fundstelle `js/cookie.js`, Zeile 196 bis 198.
+
+**Was gemessen wurde, damit die Einordnung auf Zahlen steht.** Beide
+Knöpfe stehen auf derselben Ebene, in einer Reihe, mit `flex: 1`,
+gleicher Größe (255 × 45 px bei 320 px Bildschirmbreite, 325 × 45 px
+bei 390 px) und gleichem Schriftgewicht. Die Verweigerung steht im
+Quelltext **zuerst**. Funktional ist „Nur notwendige" dasselbe wie das
+frühere „Ablehnen": `metricool.js` lädt in beiden Fällen nicht.
+
+**Das Risiko.** Die Zulässigkeit einer Einwilligung hängt unter
+anderem daran, dass das Verweigern nicht schwerer ist als das
+Zustimmen. Das ist hier der Fall. Offen ist eine andere Frage: ob eine
+Aufsichtsbehörde die Beschriftung „Nur notwendige" als ebenso
+deutliche Verweigerung ansieht wie das Wort „Ablehnen". Dazu gibt es
+unterschiedliche Auffassungen, und sie lässt sich aus dem Code nicht
+beantworten.
+
+**Was dem Anwalt vorzulegen ist.** Reicht „Nur notwendige" als
+gleichwertige Ablehnung, oder soll das Wort „Ablehnen" zurück in die
+Beschriftung? Eine Zeile Ansage genügt, die Änderung ist eine Minute
+Arbeit.
+
+**Nicht geändert.** Nach der Regel „Rechtstexte nicht anfassen, nur
+warnen" wurde an der Beschriftung nichts verändert.
+
+**Nebenbefund dazu, technisch und ohne Rechtsfolge.** `rejectAll()` in
+`js/cookie.js` Zeile 104 und `.cb-btn--reject` in `src/css/style.css`
+Zeile 1863 sind seit dem Umbau toter Code: kein Knopf ruft sie mehr
+auf. Der Wert `rejected` wird deshalb nicht mehr gespeichert, neue
+Entscheidungen speichern `necessary`. `parseConsent` versteht beide,
+alte Entscheidungen gelten also weiter.
+
+**Das ist keine Rechtsberatung.** Die verbindliche Bewertung holt der
+Betreiber beim Anwalt.

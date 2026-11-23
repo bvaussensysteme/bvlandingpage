@@ -22682,3 +22682,88 @@ Tuch". Das folgt der Regel genauer als eine der beiden Zahlen allein.
 Garantiezeile: keine ohne. `pruefe-metatexte`, `pruefe-vergleich`,
 `pruefe-schema-gueltig`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`,
 `pruefe-produktwahl` bestanden.
+
+## 23.11.2026 · Fokusringe und Cookie-Schalter: vier gemessene Fehler behoben
+
+**Anlass.** Der Prüferdurchgang über die Lieferanten-Runde, neun
+Fachbereiche nach `docs/PRUEFER_REIHENFOLGE.md`, Änderungsumfang
+`9d6f290..HEAD`.
+
+### Was falsch war, mit Zahlen
+
+| # | Fundstelle | Gemessen vorher | Regel |
+|---|---|---|---|
+| 1 | Fokusring auf `.navbar` (Logo, Hamburger, alle Menüpunkte) | **1,00:1** | WCAG 2.4.7, 1.4.11 |
+| 2 | Fokusring auf allen vier Bedienelementen im Cookie-Fenster | **1,00:1** | WCAG 2.4.7, 1.4.11 |
+| 3 | `.cb-toggle-label input` stand auf `display: none` | **nicht fokussierbar** | WCAG 2.1.1 (A) |
+| 4 | Schalterfläche `#ccc`, angeschaltet `--gold`, auf `--offwhite` | **1,49:1** und **2,43:1** | WCAG 1.4.11 (3:1) |
+
+**Befund 1 und 2 stammen aus dieser Runde.** Die Kopfleiste wurde
+dunkel, als das Logo auf `logo-weiss-gold.svg` umgestellt wurde, und
+das Cookie-Fenster bekam eine dunkle Karte. Die Liste der dunklen Orte
+in `src/css/start.css` ab Zeile 752 kannte beide nicht, also lief der
+Ring `outline: 3px solid var(--dark)` in seine eigene
+Hintergrundfarbe. **Befund 3 und 4 sind älter**, fallen aber unter die
+Dauerregel vom 15.11.2026.
+
+**Warum die vorhandenen Prüfungen das nicht bemerkt haben.**
+`pruefe-fokusring.mjs` und `pruefe-fokus-verdeckung.mjs` prüfen, ob
+ein Ring abgeschnitten oder verdeckt wird. Die **Farbe** des Rings
+gegen den **tatsächlichen** Hintergrund prüft keines der 82 Skripte.
+Das ist die eigentliche Lücke, nicht der einzelne Fehler.
+
+### Was jetzt gilt, nachgemessen im Browser mit echter Tastatur
+
+| # | Nachher | Weg |
+|---|---|---|
+| 1 | **11,80:1** an allen sechs Elementen der Kopfleiste | `.navbar :focus-visible` in die Champagner-Liste |
+| 2 | **11,80:1** an allen vier Elementen des Cookie-Fensters | `#cookieBanner :focus-visible` ebenso |
+| 3 | **2 von 2** per Tabulator erreichbar, Leertaste schaltet, `:focus-visible` greift, Ring **15,28:1** | Feld abgeblendet statt `display: none` |
+| 4 | aus **4,24:1**, an **5,21:1**, weißer Knopf darauf 4,54:1 und 5,58:1 | `#767676` und `--gold-text` |
+
+### Warum so und nicht anders
+
+**Eine Ausnahme in der Ausnahme war nötig.** Im Cookie-Fenster sitzt
+der Einstellungsbereich `.cb-details` auf `--offwhite`, also hell in
+der dunklen Karte. Ein Champagner-Ring wäre dort seinerseits
+unsichtbar gewesen, gerechnet rund 1,10:1. Deshalb holt
+`#cookieBanner .cb-details :focus-visible` über die höhere
+Spezifität den dunklen Ring zurück. Gemessen ergibt das 15,28:1.
+
+**Nicht `width: 0; height: 0` für das versteckte Feld.** Manche
+Browser nehmen so verkleinerte Felder ebenfalls aus dem
+Tabulatorlauf. Benutzt wird `position: absolute` mit 1 × 1 px und
+`clip-path: inset(50%)`.
+
+**Der Zustand des Schalters hängt nicht an der Farbe allein.** Die
+Lage des Knopfs zeigt ihn weiter an, sonst wäre WCAG 1.4.1 verletzt.
+
+**`--gold-text` ist auf den Premium-Seiten `#896023`, nicht
+`#7A5B12`.** `start.css` setzt den Wert heller neu. Die vorab
+gerechneten 5,83:1 waren deshalb falsch, gemessen sind es 5,21:1.
+Immer noch über den verlangten 3:1. **Das ist der Grund, warum eine
+Rechnung aus Farbwerten die Messung im Browser nicht ersetzt.**
+
+### Was ausdrücklich NICHT geändert wurde, und warum
+
+- **Die Beschriftung „Nur notwendige".** Rechtstext-Umfeld, nur
+  gemeldet, siehe `docs/rechtstexte-befunde.md`.
+- **Scrollbare Wertetabellen ohne `tabindex`.** Vermutet, nicht
+  gemessen: Seit Chrome 127 sind scrollbare Bereiche von sich aus
+  tastaturfokussierbar, in Safari nicht. Hier steht nur Chromium zur
+  Verfügung, also ließ sich der Verstoß nicht belegen. Ein `tabindex`
+  fügt auf jeder Produktseite einen Tabulatorhalt hinzu, das wird
+  nicht auf Verdacht gemacht. Nach `docs/offene-nebenbefunde.md`.
+- **Alles Inhaltliche** aus den Fachbereichen 6, 8 und 9. Texte,
+  Produktaussagen und Garantieformulierungen entscheidet der
+  Betreiber.
+- **Ladezeit-Befunde.** Stehen nicht in der Liste der Dinge, die ohne
+  Rückfrage behoben werden.
+
+### Was gegengelesen werden soll
+
+Mit der Tastatur durch die Kopfleiste gehen und durch das
+Cookie-Fenster, auf einer Produktseite und auf der Startseite. Der
+Ring muss überall sichtbar sein, auch auf den beiden Schaltern im
+Einstellungsbereich. Dann einmal „Einstellungen", Schalter per
+Leertaste umlegen, „Auswahl speichern".
