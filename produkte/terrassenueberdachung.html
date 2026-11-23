@@ -193,6 +193,38 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .vergleich-fuss {
   margin-top: 10px; font-size: 0.82rem; color: var(--muted);
 }
+/* KARTEN FUER DIE EINDECKUNG. Ansage des Betreibers vom
+   23.11.2026 zu einer Darstellung beim Lieferanten: "sowas
+   ähnliches wie auf dem bild mit den grafiken gefällt mir auch
+   sehr gut dem kunden es zu veranschaulichen."
+   Eine Zahl allein sagt einem Kunden wenig; neben dem Bild der
+   Platte sagt sie etwas. Deshalb Bild, Name, Werte. */
+.eindeck-karten {
+  display: grid; gap: 20px; margin-top: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(220px, 44%, 280px), 1fr));
+}
+.eindeck-karte {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.eindeck-bild {
+  background: var(--light-bg); aspect-ratio: 4 / 3;
+  display: flex; align-items: center; justify-content: center; padding: 14px;
+}
+.eindeck-bild img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.eindeck-text { padding: 16px 18px 18px; }
+.eindeck-text h4 {
+  font-size: 1rem; margin: 0 0 10px; color: var(--black);
+  font-family: var(--schrift); font-weight: 700;
+}
+.eindeck-werte { list-style: none; margin: 0; padding: 0; }
+.eindeck-werte li {
+  display: flex; justify-content: space-between; gap: 10px;
+  font-size: 0.86rem; color: var(--muted);
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.eindeck-werte li:last-child { border-bottom: none; }
+.eindeck-werte b { color: var(--black); font-weight: 700; font-variant-numeric: tabular-nums; }
 @media (max-width: 560px) {
   .vergleich { font-size: 0.78rem; }
   .vergleich th, .vergleich td { padding: 8px 7px; }
