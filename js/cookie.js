@@ -184,11 +184,21 @@
             '<button class="cb-btn cb-btn--save" onclick="saveCustomCookies()">Auswahl speichern ✓</button>' +
           '</div>' +
         '</div>' +
+        /* GEAENDERT 23.11.2026. Vorher standen hier VIER Knoepfe, davon
+           zwei mit demselben Ergebnis: "Ablehnen" und "Nur notwendige"
+           setzen beide keine Einwilligung, nur unterschiedliche Werte.
+           Wer vier Knoepfe sieht, von denen zwei dasselbe tun, liest
+           erst einmal alle und entscheidet dann gar nicht.
+           Jetzt zwei gleichwertige Hauptknoepfe und darunter die
+           Einstellungen. Die Reihenfolge Ablehnen vor Annehmen ist
+           Absicht: Sie erfuellt die Vorgabe, dass die Verweigerung
+           nicht schwerer erreichbar sein darf als die Einwilligung. */
         '<div class="cb-actions">' +
-          '<button class="cb-btn cb-btn--reject"    onclick="rejectAll()">Ablehnen</button>' +
-          '<button class="cb-btn cb-btn--details"   onclick="showCookieDetails()">Einstellungen ▾</button>' +
           '<button class="cb-btn cb-btn--necessary" onclick="acceptNecessary()">Nur notwendige</button>' +
           '<button class="cb-btn cb-btn--accept"    onclick="acceptAll()">Alle akzeptieren</button>' +
+        '</div>' +
+        '<div class="cb-zweitreihe">' +
+          '<button class="cb-btn cb-btn--details"   onclick="showCookieDetails()">Einstellungen</button>' +
         '</div>' +
         '<div class="cb-links">' +
           '<a href="datenschutz.html">Datenschutz</a>' +

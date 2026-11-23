@@ -334,8 +334,16 @@
 @media (max-width: 560px) {
   .start-premium .hs-slide-btns { gap: 10px; }
   .start-premium .hs-slide-btns .btn { width: 100%; }
-  .start-premium .hero-contact-row { display: flex; gap: 10px; width: 100%; }
-  .start-premium .hero-contact-row .btn { flex: 1; }
+  /* GEAENDERT 23.11.2026. Diese Regel hielt die untere Knopfreihe auch
+     dann als eigene Flex-Zeile zusammen, als .hs-slide-btns laengst ein
+     Raster war, und gewinnt gegen .hero--neu, weil start.css spaeter
+     geladen wird. Gemessen bei 390 px standen "Anrufen", "WhatsApp" und
+     "Stoffe ansehen" mit 121, 140 und 126 px nebeneinander, waehrend die
+     oberen drei je 408 px breit waren. Jetzt gehoeren alle sechs in
+     dasselbe Raster. */
+  /* .hero-contact-row gibt es im Kopfbereich nicht mehr; die Regel
+     ist am 23.11.2026 entfallen, als alle sechs Knoepfe direkte
+     Kinder des Rasters wurden. */
   .start-premium .hs-desc { font-size: 1rem; }
   .start-premium .pr-fakt-text { font-size: 0.84rem; }
 }

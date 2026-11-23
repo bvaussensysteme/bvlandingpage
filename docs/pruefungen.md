@@ -32,6 +32,7 @@ die nie anschlägt, ist keine.**
 | `scripts/pruefe-palette.py` | Stimmen die Kontrastwerte im Designdokument noch? Reicht das Textgold auf hellem Grund? Passt das Markengold zum Gold im Logo? Erreicht der Fokusring auf jedem Untergrund 3:1? (5 Fehler in der Gegenprobe, jeder einzeln eingebaut) |
 | `scripts/pruefe-cache-buster.sh` | **Drei Fragen.** 1. Verweisen alle HTML-Dateien auf dieselbe Version einer CSS-/JS-Datei? 2. Wurde die Version mit der Datei hochgezählt (Dateidatum gegen das Datum der letzten Versionsänderung aus der Git-Geschichte)? 3. **Seit 22.11.2026:** Wird überhaupt jede eigene JS- und CSS-Datei mit `?v=` eingebunden? Diese dritte Frage fehlte, und genau dadurch hingen `main.js`, `cookie.js`, `accessibility.js` und `metricool.js` wochenlang ohne jede Version auf 51 bis 55 Seiten. Fremde Adressen (`http`, `https`, `//`) zählen nicht mit. Gegenprobe für alle drei, die dritte in beide Richtungen: fehlende Version muss auffallen, sauberer Stand darf nicht anschlagen |
 | `scripts/pruefe-metatexte.mjs` | Titel und Suchbeschreibung jeder ausgelieferten Seite: vorhanden, Titel höchstens 60 und Beschreibung höchstens 155 Zeichen (HTML-Entities vorher aufgelöst), Marke im Titel, kein Gedankenstrich, keine zwei Seiten mit demselben Titel oder derselben Beschreibung. Rechtstexte werden auf Gedankenstriche nur als Hinweis gemeldet, nicht beanstandet. (2 Fehler in der Gegenprobe, in zwei verschiedenen Dateien) |
+| `scripts/pruefe-einwilligung.mjs` | Das Cookie-Fenster: Erscheint es? Geht Ablehnen mit **einem** Klick auf derselben Ebene? Haben Ablehnen und Annehmen dieselbe Breite, Höhe, Schrift und beide mindestens 4,5:1? Ist Ablehnen nicht ausgegraut, steht es zuerst, misst die Tippfläche 44 px? Ist kein Kästchen vorangekreuzt? Auf Rechner und Handy. (2 Fehler in der Gegenprobe, in zwei verschiedenen Dateien) |
 | `scripts/pruefe-keine-preise.sh` | Steht irgendwo ein Preis für unsere Leistungen? (Ausnahmen in `scripts/preise-ausnahmen.txt`) |
 | `scripts/pruefe-datenschutz.py` | Nummerierung, Inhaltsverzeichnis, Sprungmarken, Querverweise |
 | `scripts/pruefe-lbo-daten.js` | Widersprüche zwischen Etikett, Farbe und Text der Baugenehmigungs-Daten |
@@ -344,6 +345,54 @@ ein** (`index.html` und `stoffe.html`). Grund: Am 22.11.2026 fiel bei
 einer anderen Prüfung der zweite eingebaute Fehler nicht auf, weil
 beide in derselben Datei standen und der erste die Datei schon
 unbrauchbar machte.
+
+
+## `pruefe-einwilligung.mjs` – wo die Grenze liegt
+
+**Anlass (23.11.2026).** Der Betreiber wollte das Cookie-Fenster so
+gebaut haben, „das leute einfach alles akzeptieren drücken weil die kb
+haben inn die einstellungen etc zu gehen", ausdrücklich „alles im
+legalen rahmen". Diese beiden Sätze vertragen sich bis zu einer
+bestimmten Grenze, und die ist in Pixeln nachmessbar. Genau die misst
+diese Prüfung.
+
+**Woraus die Grenze folgt.** Eine Einwilligung ist nur wirksam, wenn
+sie freiwillig ist und ohne Nachteil verweigert werden kann
+(Art. 4 Nr. 11 und Art. 7 DSGVO; für das Speichern auf dem Gerät
+§ 25 TDDDG). Daraus werden drei messbare Forderungen:
+
+1. **Ablehnen in einem Klick, auf derselben Ebene.** Ein Weg über
+   „Einstellungen" zählt nicht als Ablehnen.
+2. **Gleich auffällig.** Gleiche Breite, gleiche Höhe, gleiche
+   Schriftgröße und -stärke, beide mindestens 4,5:1, keiner
+   ausgegraut. Der kleinere oder blassere Ablehnen-Knopf ist der
+   häufigste Abmahngrund bei Cookie-Fenstern.
+3. **Nichts vorangekreuzt.** Ein Haken, der schon drin ist, ist keine
+   Handlung des Besuchers.
+
+**Was die Prüfung NICHT kann:** beurteilen, ob die Texte inhaltlich
+reichen, ob alle Dienste genannt sind oder ob die
+Datenschutzerklärung dazu passt. Sie misst die Form. **Sie ist keine
+Rechtsberatung**, sie bereitet die Frage nur so auf, dass ein Anwalt
+sie schnell beantworten kann.
+
+**Diese Prüfung wird nicht angepasst, damit sie wieder grün wird.**
+Wer sie reißt, ändert die Rechtslage mit. Soll die Gestaltung anders
+werden, gehört das vorher besprochen.
+
+**Was legal trotzdem möglich ist**, und am 23.11.2026 auch gemacht
+wurde: Aus vier Knöpfen wurden zwei plus „Einstellungen". Vorher gab
+es „Ablehnen" **und** „Nur notwendige", also zwei Knöpfe mit
+demselben Ergebnis. Wer vier Knöpfe sieht, von denen zwei dasselbe
+tun, liest erst alle und entscheidet dann oft gar nicht. Weniger
+Auswahl führt zu mehr Entscheidungen. Das ist kein Trick, sondern
+weniger Verwirrung.
+
+**Eine Falle beim Bau der Gegenprobe:** Die ausgelieferte CSS-Datei
+ist zusammengepresst. Gesucht wurde zuerst nach
+`.cb-btn--necessary {` mit Leerzeichen, in der Datei steht aber
+`.cb-btn--necessary{`. Dadurch wurde nur einer der zwei Fehler
+eingebaut, und die Gegenprobe meldete sich selbst als nicht bestanden.
 
 
 ## Zwei Skripte, die schon vor dem 14.11.2026 nicht grün waren

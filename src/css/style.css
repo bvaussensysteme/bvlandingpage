@@ -340,10 +340,20 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 /* ============================================
    NAVBAR
    ============================================ */
+/* ANLASS 23.11.2026, Ansage des Betreibers mit Bild: "ich moechte das
+   hier in der selben farbe wie der footer mit dem bv logo wie im
+   footer, der orange/goldene streifen kann bleiben als trennung, nur
+   die einzelnen menuepunkte farblich anpassen zum neuen hintergrund".
+
+   Die Leiste traegt jetzt dieselbe Farbe wie die Fusszeile
+   (var(--dark)), das Logo ist die weiss-goldene Fassung, und der
+   Goldstreifen darunter bleibt als Trennung. Der Schlagschatten ist
+   weg: Unter einer dunklen Leiste auf dunklem Kopfbild sieht man ihn
+   ohnehin nicht, er macht die Kante nur unsauber. */
 .navbar {
-  background: var(--white); position: sticky; top: 0; z-index: 100;
+  background: var(--dark); position: sticky; top: 0; z-index: 100;
   border-bottom: 2px solid var(--gold);
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  box-shadow: none;
 }
 .navbar-inner {
   display: flex; align-items: center;
@@ -372,7 +382,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 .nav-logo { height: 32px; width: auto; padding: 0; }
 .nav-links { display: flex; list-style: none; gap: 28px; align-items: center; }
 .nav-links a {
-  text-decoration: none; color: var(--black);
+  text-decoration: none; color: #FFFFFF;
   font-weight: 500; font-size: 0.93rem; transition: color 0.2s;
   display: inline-flex; align-items: center; gap: 6px;
   position: relative;
@@ -382,7 +392,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
   background: var(--gold); border-radius: 2px;
   transform: scaleX(0); transform-origin: left; transition: transform 0.25s ease;
 }
-.nav-links a:hover { color: var(--gold); }
+.nav-links a:hover { color: var(--gold-light); }
 .nav-links a:hover::after { transform: scaleX(1); }
 .nav-icon {
   width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; fill: none;
@@ -411,7 +421,7 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
 }
 .hamburger span {
   display: block; width: 26px; height: 2px;
-  background: var(--black); border-radius: 2px; transition: var(--uebergang-zustand);
+  background: #FFFFFF; border-radius: 2px; transition: var(--uebergang-zustand);
 }
 
 /* Mobile Menu Overlay */
@@ -759,10 +769,24 @@ body.bv-menu-open #bv-scroll-top {
    damit es keinen Knopf gibt, der unsichtbar im Tab-Weg steht
    (WCAG 2.2, 2.4.11).
    ============================================ */
+/* Die Leiste unten: Pfeil, Punkte, Pfeil in einer Reihe. Sie faengt
+   keine Klicks ab, damit das Bild darunter anklickbar bleibt. */
+.bildwechsel-leiste {
+  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
+  z-index: 2; display: flex; align-items: center; gap: 8px;
+  pointer-events: none;
+}
+.bildwechsel-zurueck { order: 0; }
+.bildwechsel-punkte  { order: 1; }
+.bildwechsel-vor     { order: 2; }
 .bildwechsel-pfeil {
-  position: absolute; top: 50%; transform: translateY(-50%);
+  position: static; transform: none;
   z-index: 2;
-  width: 44px; height: 44px; min-width: 44px;
+  /* 36 statt 44 px, auf Ansage "etwas kleiner". Das bleibt deutlich
+     ueber den 24 x 24 px aus WCAG 2.2, 2.5.8, liegt aber unter den
+     44 px, die wir uns sonst vornehmen. Bewusst, weil der Pfeil eine
+     Zusatzhilfe ist: Wischen und Anklicken des Bildes gehen weiter. */
+  width: 36px; height: 36px; min-width: 36px;
   display: flex; align-items: center; justify-content: center;
   border: 0; border-radius: 999px; cursor: pointer;
   color: #fff; background: rgba(17, 17, 17, 0.62);
@@ -770,9 +794,7 @@ body.bv-menu-open #bv-scroll-top {
   opacity: 0; pointer-events: none;
   transition: opacity .18s ease, background .18s ease;
 }
-.bildwechsel-pfeil svg { width: 22px; height: 22px; }
-.bildwechsel-zurueck { left: 6px; }
-.bildwechsel-vor { right: 6px; }
+.bildwechsel-pfeil svg { width: 18px; height: 18px; }
 .bildwechsel-pfeil:hover { background: rgba(17, 17, 17, 0.82); }
 /* Auftauchen beim Drueberfahren, und immer, wenn einer von beiden
    den Tastaturfokus hat. Ohne das zweite waere der Pfeil fuer die
@@ -785,9 +807,9 @@ body.bv-menu-open #bv-scroll-top {
   opacity: 1; pointer-events: auto;
   outline: 3px solid #fff; outline-offset: 2px;
 }
-/* Das Heranzoomen beim Drueberfahren gilt dem Bild, nicht den
-   Pfeilen: Sonst wandern sie mit. */
-.leistung-card:hover .leistung-img .bildwechsel-pfeil { transform: translateY(-50%); }
+/* Das Heranzoomen beim Drueberfahren gilt dem Bild, nicht der Leiste:
+   Sonst wandert sie mit. */
+.leistung-card:hover .leistung-img .bildwechsel-leiste { transform: translateX(-50%); }
 
 /* Punkte: der Hinweis, dass es mehr als ein Bild gibt. Immer
    sichtbar, auch am Telefon, denn dort gibt es keine Pfeile.
@@ -810,8 +832,8 @@ body.bv-menu-open #bv-scroll-top {
    ist der aktive Punkt zusaetzlich groesser, sonst waere Farbe das
    einzige Mittel (WCAG 1.4.1). */
 .bildwechsel-punkte {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  bottom: 10px; z-index: 2;
+  /* Sitzt seit 23.11.2026 in .bildwechsel-leiste und braucht deshalb
+     keine eigene Lage mehr. */
   display: flex; align-items: center; gap: 6px;
   padding: 5px 9px; border-radius: 999px;
   background: rgba(17, 17, 17, 0.82);
@@ -847,7 +869,7 @@ body.bv-menu-open #bv-scroll-top {
 }
 
 /* Eine Karte ohne Punkte hat nur ein Bild: dann auch keine Pfeile. */
-.leistung-img:not([data-bilder]) .bildwechsel-punkte { display: none; }
+.leistung-img:not([data-bilder]) .bildwechsel-leiste { display: none; }
 
 .leistung-img::after {
   content: ''; position: absolute;
@@ -1748,7 +1770,8 @@ footer h4 {
   z-index: 9999;
   display: none;                  /* JS sets display:flex then adds .cb-visible */
   justify-content: center;
-  padding: 0 16px 16px;
+  /* Abstand ringsum: Die Karte klebt nicht mehr am unteren Rand. */
+  padding: 0 16px 18px;
   transform: translateY(110%);
   opacity: 0;
   transition: transform 0.4s ease, opacity 0.4s ease;
@@ -1759,24 +1782,37 @@ footer h4 {
   opacity: 1;
   /* pointer-events automatically work when display:flex + visible */
 }
+/* ANLASS 23.11.2026, Ansage des Betreibers: "das cookies fenster
+   zumindest das design des rahmens bitte ueberarbeiten sieht zu
+   aehnlich vd".
+
+   Vorher: weisse Schublade ueber die ganze Breite, oben zwei runde
+   Ecken, darueber ein 3 px Goldstrich. Genau dieses Muster hat auch
+   die Seite des Lieferanten.
+
+   Jetzt: eine abgesetzte dunkle Karte in der Farbe von Kopf- und
+   Fusszeile, rundum 14 px, mit Abstand zum Bildschirmrand, und das
+   Gold sitzt als schmale Kante LINKS statt als Strich oben. Damit
+   gehoert das Fenster sichtbar zu unserer Seite und nicht zu deren. */
 .cb-inner {
-  background: var(--white);
-  border-radius: 14px 14px 0 0;
-  box-shadow: 0 -4px 40px rgba(0,0,0,0.18);
-  border: 1px solid var(--border);
-  border-bottom: none;
-  max-width: 860px; width: 100%;
-  padding: 24px 28px 20px;
-  border-top: 3px solid var(--gold);
+  background: var(--dark);
+  color: rgba(255,255,255,0.86);
+  border-radius: 14px;
+  box-shadow: 0 10px 44px rgba(0,0,0,0.42);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-left: 4px solid var(--gold);
+  max-width: 680px; width: 100%;
+  padding: 22px 26px 18px;
 }
 .cb-top { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 18px; }
 .cb-icon { font-size: 2rem; flex-shrink: 0; line-height: 1; }
 .cb-text strong {
   font-family: var(--schrift);
-  font-size: 1.1rem; font-weight: 700; color: var(--black);
+  font-size: 1.08rem; font-weight: 700; color: #FFFFFF;
   display: block; margin-bottom: 4px;
 }
-.cb-text p { font-size: 0.83rem; color: var(--muted); line-height: 1.55; }
+.cb-text p { font-size: 0.86rem; color: rgba(255,255,255,0.78); line-height: 1.55; }
+.cb-icon { color: var(--gold-light); }
 .cb-details {
   background: var(--offwhite); border-radius: 8px;
   padding: 16px; margin-bottom: 18px;
@@ -1818,7 +1854,8 @@ footer h4 {
 .cb-btn {
   font-family: var(--schrift);
   font-weight: 700; font-size: 0.92rem;
-  padding: 11px 16px; border-radius: 999px;
+  /* 44 px Gesamthoehe, das Mass aus CLAUDE.md. Vorher 39 px. */
+  padding: 14px 16px; border-radius: 999px;
   cursor: pointer; border: 1.5px solid transparent;
   transition: var(--uebergang-zustand); flex: 1; min-width: 110px;
   line-height: 1;
@@ -1827,18 +1864,33 @@ footer h4 {
   background: transparent; color: var(--muted); border-color: var(--border);
 }
 .cb-btn--reject:hover { border-color: var(--muted); color: var(--black); }
+/* Einstellungen ist eine Nebenaktion und steht in einer eigenen Zeile
+   darunter, nicht neben den beiden Hauptknoepfen. */
 .cb-btn--details {
-  background: transparent; color: var(--black); border-color: var(--border);
+  background: transparent; color: rgba(255,255,255,0.72);
+  border-color: rgba(255,255,255,0.28);
+  flex: 0 0 auto; font-weight: 600; font-size: 0.86rem;
 }
-.cb-btn--details:hover { border-color: var(--black); }
+.cb-btn--details:hover { border-color: #fff; color: #fff; }
+/* GLEICHES GEWICHT FUER ANNEHMEN UND ABLEHNEN. Beide Knoepfe haben
+   dieselbe Groesse, dieselbe Schrift und beide eine deckende Flaeche;
+   sie unterscheiden sich nur in der Farbe. Das ist kein Geschmack:
+   Eine Einwilligung muss genauso leicht zu verweigern wie zu geben
+   sein (Art. 4 Nr. 11 und Art. 7 DSGVO, § 25 TDDDG). Ein ausgegrauter
+   oder kleinerer Ablehnen-Knopf ist der haeufigste Abmahngrund bei
+   Cookie-Fenstern. Wer das hier aendert, aendert die Rechtslage mit. */
 .cb-btn--necessary {
-  background: var(--offwhite); color: var(--black); border-color: var(--border);
+  background: var(--champagner, #EAD9BB); color: #1a1a1a;
+  border-color: var(--champagner, #EAD9BB);
 }
-.cb-btn--necessary:hover { background: #e0ddd6; }
+.cb-btn--necessary:hover { background: #fff; border-color: #fff; }
 .cb-btn--accept {
-  background: var(--gold); color: var(--black); border-color: var(--gold);
+  background: var(--gold); color: #111111; border-color: var(--gold);
 }
-.cb-btn--accept:hover { background: var(--gold-text); color: var(--white); }
+.cb-btn--accept:hover { background: var(--gold-light); border-color: var(--gold-light); }
+.cb-zweitreihe {
+  display: flex; justify-content: center; margin-top: 10px;
+}
 .cb-save-row {
   margin-top: 14px; padding-top: 14px;
   border-top: 1px solid var(--border);
@@ -1849,7 +1901,9 @@ footer h4 {
 }
 .cb-btn--save:hover { background: var(--gold-text); color: var(--white); }
 .cb-links {
-  font-size: 0.78rem; color: var(--muted);
+  /* Auf dem dunklen Grund seit 23.11.2026: var(--muted) ist ein
+     Grauton fuer helle Flaechen und ergab hier gemessen 3,0:1. */
+  font-size: 0.78rem; color: rgba(255,255,255,0.72);
   display: flex; gap: 8px; align-items: center;
 }
 /* Gemessen am 15.11.2026 bei 320 px: "Datenschutz" 74 x 20 px und
@@ -1858,8 +1912,8 @@ footer h4 {
    von der Ausnahme fuer Links im Fliesstext gedeckt. Ausgerechnet im
    Einwilligungsbanner, wo der Weg zur Datenschutzerklaerung sicher
    erreichbar sein muss. */
-.cb-links a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; }
-.cb-links a:hover { color: var(--gold); }
+.cb-links a { color: rgba(255,255,255,0.82); text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: 24px; }
+.cb-links a:hover { color: var(--gold-light); }
 @media (max-width: 600px) {
   .cb-inner { padding: 18px 14px 14px; }
   .cb-actions { flex-direction: column; }
@@ -1880,11 +1934,14 @@ footer h4 {
    KONFIGURATOR NAV ITEM
    ============================================ */
 .nav-konfigurator {
-  background: rgba(196,154,42,0.1) !important;
-  color: #7A5B12 !important; /* dunkleres Gold: 4.5:1-Kontrast auf hellem Button-Hintergrund (WCAG AA) */
+  /* Auf der dunklen Leiste seit 23.11.2026: helles Gold statt des
+     dunklen. Der alte Wert #7A5B12 war fuer weissen Grund gerechnet
+     und haette auf Anthrazit unter 2:1 gelegen. */
+  background: rgba(232,184,64,0.14) !important;
+  color: var(--gold-light) !important;
   padding: 8px 14px !important;
   border-radius: var(--radius) !important;
-  border: 1px solid rgba(196,154,42,0.3) !important;
+  border: 1px solid rgba(232,184,64,0.38) !important;
   font-weight: 600 !important;
   transition: var(--uebergang-zustand) !important;
 }
@@ -3855,7 +3912,47 @@ body.bv-konfig-open #bvKonfigBubble {
 /* Knoepfe linksbuendig; Telefon und WhatsApp werden schmaler, damit
    die Hauptaktion nicht mit drei gleich grossen Flaechen konkurriert. */
 .hero--neu .hs-text--center .hs-slide-btns { justify-content: flex-start; }
-.hero--neu .hero-contact-row { margin: 0; max-width: 420px; }
+/* ANLASS 23.11.2026, Meldung des Betreibers mit Bild: "passe die 2
+   unteren buttons an das sie genau unter dem oberen linken und
+   mittleren sitzen also nicht so ein versatz haben wie jetzt und
+   gleiche größe".
+
+   Vorher waren es zwei getrennte Reihen: oben drei Knoepfe, die sich
+   nach ihrem Text richteten, unten eine eigene Zeile mit eigener
+   Hoechstbreite. Deshalb der Versatz.
+
+   Jetzt ein Raster aus drei gleich breiten Spalten fuer alle sechs
+   Knoepfe. Die untere Reihe hat keinen eigenen Kasten mehr
+   (display: contents), damit ihre Knoepfe direkt im Raster sitzen.
+   Das <div> bleibt im Quelltext stehen, weil es fuer schmale
+   Bildschirme weiter gebraucht wird. */
+.hero--neu .hs-slide-btns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  /* 100 % zuerst, damit das Raster nie breiter wird als sein Platz.
+     Ohne das mass es bei 390 px 408 px und wurde von
+     overflow-x: hidden abgeschnitten, also unsichtbar beschaedigt. */
+  max-width: min(680px, 100%);
+}
+/* Den Zwischenkasten .hero-contact-row gibt es im Kopfbereich der
+   Startseite nicht mehr: Alle sechs Knoepfe sind jetzt direkte Kinder
+   des Rasters. Mit display:contents ging es zwar auch, aber ein
+   Element ohne eigenen Kasten verwirrt jede Messung, die ein Kind mit
+   seinem Elternteil vergleicht. pruefe-mitwachsend meldete am
+   23.11.2026 dreimal "ragt aus seinem Kasten" fuer Knoepfe, die in
+   Wirklichkeit richtig sassen. */
+/* Unter 600 px untereinander, wie vorher. Gemessen bei 390 px ergaben
+   drei Spalten 115 px breite Knoepfe, in denen "Kostenlos anfragen"
+   auf drei Zeilen umbrach und der Knopf 77 px hoch wurde. */
+@media (max-width: 600px) {
+  .hero--neu .hs-slide-btns { grid-template-columns: 1fr; }
+}
+.hero--neu .hs-slide-btns > .btn {
+  width: 100%;
+  padding-inline: 14px;
+  justify-content: center;
+}
 
 /* Die Vertrauenszeile wird zu einem Band mit Goldkante statt einer
    mittigen Aufzaehlung. */

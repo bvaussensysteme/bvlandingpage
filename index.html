@@ -257,7 +257,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       "name": "Wie lange dauert es von der Anfrage bis zur fertigen Montage?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Weil wir direkt mit dem Hersteller zusammenarbeiten, bestellen wir ohne Zwischenhandel. Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2–4 Wochen. In der Hochsaison und bei Sonderfarben können es auch 6 Wochen und mehr werden."
+        "text": "Weil wir direkt mit dem Hersteller zusammenarbeiten, bestellen wir ohne Zwischenhandel. Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2 bis 6 Wochen. In der Hochsaison und bei Sonderfarben kann es auch länger dauern."
       }
     },
     {
@@ -494,7 +494,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261122m" />
+  <link rel="stylesheet" href="css/style.css?v=20261123a" />
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
@@ -571,7 +571,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <nav class="navbar" role="navigation" aria-label="Hauptnavigation">
   <div class="container navbar-inner">
     <a href="/" aria-label="BV AussenSysteme Startseite">
-      <img src="images/logo-schwarz-gold.svg" alt="BV AussenSysteme Logo" class="nav-logo" fetchpriority="high" width="1430" height="220" />
+      <img src="images/logo-weiss-gold.svg" alt="BV AussenSysteme Logo" class="nav-logo" fetchpriority="high" width="1430" height="220" />
     </a>
     <ul class="nav-links" role="list">
       <li><a href="#leistungen">Leistungen</a></li>
@@ -645,7 +645,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
             Katalog ansehen
           </a>
-          <div class="hero-contact-row">
             <a href="tel:+4915678696609" class="btn btn-outline-white hero-contact-btn" aria-label="Anrufen: 0156 78696609">
               <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               Anrufen
@@ -654,7 +653,15 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.526 5.845L.057 23.243a.75.75 0 0 0 .916.916l5.398-1.469A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.696 9.696 0 0 1-4.964-1.366l-.356-.214-3.694 1.004 1.004-3.694-.214-.356A9.696 9.696 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
               WhatsApp
             </a>
-          </div>
+            <!-- Dritter Knopf in der unteren Reihe, auf Ansage des
+                 Betreibers vom 23.11.2026: "platziere eine dritten
+                 button neben whatsapp: Stoffe ansehen mit icon davor".
+                 Das Zeichen zeigt vier Muster nebeneinander, so wie die
+                 Stoffkacheln weiter unten auf der Seite. -->
+            <a href="/stoffe.html" class="btn btn-outline-white hero-contact-btn" aria-label="Markisenstoffe ansehen">
+              <svg viewBox="0 0 24 24" aria-hidden="true" style="stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+              Stoffe ansehen
+            </a>
         </div>
         <p class="hero-trust"><span>Kostenlos &amp; unverbindlich</span><span>Antwort meist in 24 Std.</span><span>Vor-Ort-Termin im Westerwald</span></p>
       </div>
@@ -680,7 +687,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       </div>
       <div class="gold-item">
         <span class="gold-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-        <div><strong>2–4 Wochen</strong><span>ab Auftragsbestätigung bis Montage</span></div>
+        <div><strong>2–6 Wochen</strong><span>ab Auftragsbestätigung bis Montage</span></div>
       </div>
       <div class="gold-item">
         <span class="gold-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12a7.9 7.9 0 0 0 7.8 8 7.7 7.7 0 0 0 5.2-2"/></svg></span>
@@ -1739,8 +1746,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </button>
         <div class="faq-a">
           Weil wir direkt mit dem Hersteller zusammenarbeiten, bestellen wir ohne Zwischenhandel.
-          Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2–4 Wochen. In der
-          Hochsaison und bei Sonderfarben können es auch 6 Wochen und mehr werden.
+          Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2 bis 6 Wochen. In der
+          Hochsaison und bei Sonderfarben kann es auch länger dauern.
         </div>
       </div>
 
@@ -2200,11 +2207,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      Pfeile, Zaehler, Grossansicht). Kein zweiter Streifen-Bauplan. -->
 <script src="js/galerie.js?v=20261122h" defer></script>
 <script src="js/main.js?v=20261122b" defer></script>
-  <script src="js/bilder-blaettern.js?v=20261120f" defer></script>
+  <script src="js/bilder-blaettern.js?v=20261123a" defer></script>
 <script src="js/markisenstoffe.js?v=20261011a" defer></script>
 <script src="js/ral.js?v=20261029c" defer></script>
 <script src="js/anfrage-wizard.js?v=20261122o" defer></script>
-<script src="js/cookie.js?v=20261122a" defer></script>
+<script src="js/cookie.js?v=20261123a" defer></script>
 <script src="js/metricool.js?v=20261122a" defer></script>
 <script src="/js/messung.js?v=20261104a" defer></script>
 <script src="js/slider.js?v=20260714k" defer></script>

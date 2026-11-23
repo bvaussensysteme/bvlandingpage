@@ -92,6 +92,17 @@
     var quelle = kiste.querySelector('picture source');
     if (quelle) quelle.parentNode.removeChild(quelle);
 
+    /* Eine Leiste unten, in der Pfeil, Punkte und Pfeil nebeneinander
+       stehen. Ansage des Betreibers vom 23.11.2026: "mach diese pfeile
+       links/rechts etwas kleiner und platziere sie links von den
+       unteren punkten und rechts". Vorher sassen die Pfeile auf halber
+       Hoehe am Bildrand und die Punkte allein unten.
+       Die Leiste selbst nimmt keine Klicks an, sonst laege ein
+       unsichtbarer Streifen ueber dem Bild; nur die Pfeile tun das. */
+    var leiste = document.createElement('div');
+    leiste.className = 'bildwechsel-leiste';
+    kiste.appendChild(leiste);
+
     /* Punkte und der unsichtbare Satz daneben. */
     var punkte = document.createElement('div');
     punkte.className = 'bildwechsel-punkte';
@@ -99,7 +110,7 @@
     for (var n = 0; n < bilder.length; n++) {
       punkte.appendChild(document.createElement('span'));
     }
-    kiste.appendChild(punkte);
+    leiste.appendChild(punkte);
 
     /* Die Zahl in der Ecke. Ansage des Betreibers, zweimal genannt:
        "da muss vielleicht das in der Ecke oder irgendwie steht zum
@@ -151,7 +162,7 @@
           e.stopPropagation();
           zeigen(i + s[1]);
         });
-        kiste.appendChild(k);
+        leiste.appendChild(k);
       });
     }
 
