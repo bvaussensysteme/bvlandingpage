@@ -96,7 +96,13 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Rechner', 1280, 900]
   if (m.fehlt) { pruef(`${name}: Die Tabelle ist da`, false, 'nicht gefunden'); continue; }
 
   if (!GEGENPROBE) {
-    pruef(`${name}: Sechs Vergleichszeilen`, m.zeilen === 6, `${m.zeilen} Zeilen`);
+    /* Mindestens sechs, nicht genau sechs. Die feste Zahl war am
+     * 23.11.2026 im Weg: Die Tabelle bekam eine siebte Zeile
+     * ("Beschattung"), und die Pruefung meldete das als Fehler,
+     * obwohl die Tabelle besser geworden war. Geprueft wird, was
+     * wirklich zaehlt: dass genug Zeilen da sind und keine davon
+     * halb leer ist. */
+    pruef(`${name}: Mindestens sechs Vergleichszeilen`, m.zeilen >= 6, `${m.zeilen} Zeilen`);
     pruef(`${name}: Jede Zeile hat Kopf und zwei Werte`, m.vollstaendig, 'alle');
     pruef(`${name}: Keine leere Zelle`, m.leer === 0, `${m.leer} Zeile(n) mit Luecke`);
     pruef(`${name}: Beide Modelle als Spaltenkopf`, m.kopfspalten === 2, `${m.kopfspalten}`);
