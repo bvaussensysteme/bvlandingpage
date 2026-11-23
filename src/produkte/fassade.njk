@@ -26,6 +26,19 @@ extraStyles: |
   .produkt-features li{font-size:.85rem;color:var(--muted);padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;}
   .produkt-features li:last-child{border-bottom:none;}
   .produkt-features li::before{content:"✓";color:var(--gold);font-weight:700;}
+  /* Dieselbe Bauart wie die Vergleichstabelle der Terrassenseite:
+     waagerecht scrollbar statt abgeschnitten. GEMESSEN dort am
+     22.11.2026 bei 320 px Fensterbreite, wo eine feste Tabelle
+     48 px aus ihrem Kasten ragte und body overflow-x: hidden traegt. */
+  .dw-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .dw-tab{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--white);
+    border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .dw-tab th,.dw-tab td{padding:10px 12px;text-align:left;vertical-align:top;
+    border-bottom:1px solid var(--border);line-height:1.45;}
+  .dw-tab thead th{background:var(--light-bg);color:var(--black);font-size:.9rem;}
+  .dw-tab tbody th{font-weight:600;color:var(--gold-text);}
+  .dw-tab td{color:var(--muted);font-variant-numeric:tabular-nums;}
+  .dw-tab tr:last-child th,.dw-tab tr:last-child td{border-bottom:none;}
 
 extraScripts: |
   <script src="/js/galerie.js?v=20261122h" defer></script>
@@ -109,7 +122,7 @@ schema: |
           <span class="produkt-tag">Klicksystem vertikal & horizontal</span>
           <h2>Deco Wall Fassadenverkleidung</h2>
           <p>Klare Linien, modernes Design, null Pflegeaufwand. Die Profile werden unsichtbar befestigt. Kein sichtbares Schraubbild. Standardfarben verfügbar, Sonderfarben auf Anfrage, auch in Holzoptik. Für Privat- und Gewerbegebäude. Blättern Sie mit den Pfeilen durch verschiedene Ansichten und Optiken.</p>
-          <ul class="produkt-features"><li>Unsichtbare Befestigung via Klicksystem</li><li>Vertikale oder horizontale Montage, mehrere Profilbreiten (30–80 mm)</li><li>Standardfarben: Anthrazit, Weißalu, Graualuminium, Reinweiß</li><li>Sonderfarben (RAL) gegen Aufpreis</li><li>100% recycelbares Aluminium</li><li>Für Privat- und Gewerbegebäude</li></ul>
+          <ul class="produkt-features"><li>Unsichtbare Befestigung via Klicksystem</li><li>Vertikale oder horizontale Montage, Profilbreiten 30 und 80 mm</li><li>Vier senkrechte Abschlussprofile: schmal, breit, tief oder offen, dazu ein waagerechtes Grundprofil</li><li>Eck-, Endstück- und Übergangsprofil gehören zum System</li><li>Grundprofil auf Wunsch in anderer Farbe, für eine zweifarbige Fassade</li><li>Auch für Türen und Tore, auch als Sichtschutz oder Beschattung</li><li>Standardfarben: Anthrazit, Weißalu, Graualuminium, Reinweiß</li><li>Sonderfarben (RAL) gegen Aufpreis</li><li>100% recycelbares Aluminium</li><li>Für Privat- und Gewerbegebäude</li></ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','fassade')}catch(e){}" class="btn btn-gold" style="width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
             Jetzt anfragen</a>
         </div>
@@ -117,6 +130,41 @@ schema: |
     </div>
   </div>
 </section>
+
+<!-- DIE PROFILE, MIT MASSEN.
+     Angaben des Herstellers zu den Deco-Wall-Profilen, Stand
+     23.11.2026. Auf unserer Seite stand bis dahin nur "mehrere
+     Profilbreiten". Wer eine Fassade plant, will wissen, wie breit
+     und wie tief eine Lamelle baut: Davon haengt ab, wie stark das
+     Schattenspiel ausfaellt und wie weit die Verkleidung auftraegt. -->
+<section class="section" style="background:var(--light-bg);">
+  <div class="container" style="max-width:860px;">
+    <h2 style="margin-bottom:8px;">Die Profile im Überblick</h2>
+    <p style="color:var(--muted);max-width:70ch;margin-bottom:20px;">
+      Alle Profile lassen sich im selben System mischen. Die Breite bestimmt das Linienbild,
+      die Tiefe entscheidet, wie stark die Fassade bei Sonne Schatten wirft.
+    </p>
+    <div class="dw-wrap">
+      <table class="dw-tab">
+        <caption class="sr-only">Deco Wall Profile mit Breite, Tiefe und Lage</caption>
+        <thead>
+          <tr><th scope="col">Profil</th><th scope="col">Breite</th><th scope="col">Tiefe</th><th scope="col">Lage</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">DW230</th><td>30 mm</td><td>20 mm</td><td>senkrecht</td></tr>
+          <tr><th scope="row">DW231</th><td>30 mm</td><td>40 mm</td><td>senkrecht</td></tr>
+          <tr><th scope="row">DW232, H-Profil</th><td>30 mm</td><td>40 mm</td><td>senkrecht</td></tr>
+          <tr><th scope="row">DW240</th><td>80 mm</td><td>20 mm</td><td>senkrecht</td></tr>
+          <tr><th scope="row">DW233</th><td colspan="2">Maße auf Anfrage</td><td>waagerecht</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:12px;font-size:0.82rem;color:var(--muted);">
+      Angaben des Herstellers. Die verbindlichen Maße für Ihr Gebäude legen wir im Angebot fest.
+    </p>
+  </div>
+</section>
+
 <section class="section">
   <div class="container" style="max-width:860px;">
     <h2>Aluminium-Fassadenverkleidung: wertsteigernd, pflegeleicht, modern</h2>

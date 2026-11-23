@@ -22307,3 +22307,58 @@ oberflaeche.mjs` meldet „Der Zeiger auf dem Schild ändert das Bild"
 als Fehler. Gegengeprüft auf einem Arbeitsbaum des Standes vor der
 Unterzug-Änderung (`4f3f135`): schlägt dort genauso fehl. Altbefund,
 steht in `docs/NEXT_TASK.md`.
+
+## 23.11.2026 · Balkon, Fassade, Geländer und Sichtschutz: Zahlen vom Hersteller
+
+**Anlass.** Ansage des Betreibers vom 23.11.2026: „Zieh dir von den
+seiten alle Infos, alle Bilder die du kriegst. Bau meine Seiten
+ähnlich. Nicht 1:1 (mein wunsch) aber von cd darf ich alles nehmen."
+Nach Terrassendach, Carport, Pergola, Kaltwintergarten, Sonnenschutz
+und Eingang sind das die letzten Produktseiten ohne Zahlen gewesen.
+
+**Was falsch war: nichts, es fehlte.** Gezählt vor der Änderung:
+Balkonüberdachung sechs Allgemeinplätze und keine einzige Zahl,
+Easy Rail ebenso, Sichtschutz eine Zahl (14 cm Paneelhöhe), Geländer
+zwei (VSG 8 und 10 mm). Wer eine Fassade oder ein Geländer plant,
+entscheidet aber an Zahlen.
+
+**Was jetzt gilt.**
+- **Balkonüberdachung:** Eindeckung VSG 8 mm oder Polycarbonat 16 mm,
+  jeweils klar oder opal, dazu die vier Materialkarten mit Tageslicht,
+  Sonnenwärme, Schalldämmung und Stärke. Standardfarben mit RAL-Nummer.
+  Mit Überstand oder seitlicher Verglasung. Erweiterbar mit Aufdach-,
+  Unterdach- oder Senkrechtmarkise, LED-Minispots,
+  Bluetooth-Lautsprechern und Seitenwänden.
+- **Deco Wall:** eigene Tabelle mit den Profilen DW230 (30 × 20 mm),
+  DW231 (30 × 40 mm), DW232 H-Profil (30 × 40 mm), DW240 (80 × 20 mm)
+  und DW233 waagerecht. Dazu die vier senkrechten Abschlussprofile
+  (schmal, breit, tief, offen), Eck-, Endstück- und Übergangsprofil,
+  zweifarbige Ausführung über das Grundprofil.
+- **Geländer:** die beiden Ausführungen benannt (Glas fest im
+  Aluminiumprofil / Edelstahl-Klemmhalter), Standardfarben mit
+  RAL-Nummer.
+- **Easy Rail:** rahmenloses System mit schlankem Aluminiumprofil,
+  Handlauf in Anthrazit oder eloxiert, Profilfarben Anthrazit RAL 7016
+  oder eloxiert, für Balkon, Terrasse und Treppe, innen wie außen.
+- **Sichtschutz:** Standardfarben mit RAL-Nummer.
+
+**Der Kartenstil steht jetzt in `src/css/style.css`.** Er stand im
+Kopf von `src/produkte/terrassenueberdachung.njk`. Die Balkonseite
+zeigt dieselben vier Eindeckungen mit denselben Werten; zwei Kopien
+desselben Stils wären zwei Wahrheiten gewesen, und die zweite fällt
+beim nächsten Mal hinten runter.
+
+**Eine Stufe dazu.** Die vorhandenen Spaltenstufen sind für die sechs
+Karten der Terrassenseite gebaut (1, 2, 3). Mit vier Karten stand die
+vierte allein in einer zweiten Reihe, gesehen im eigenen Bild bei
+1280 px. `.eindeck-karten--vier` macht daraus 1, 2 oder 4 Spalten.
+
+**Nicht übernommen, bewusst:** die Angaben des Herstellers zu seinem
+eigenen Betrieb (Montagegebiet, Standort). Die gehören ihm, nicht uns.
+
+**Gegengelesen.** `pruefe-mitwachsend` (91 Messungen in sieben
+Breiten, ohne Beanstandung), `pruefe-darstellung`, `pruefe-fokusring`,
+`pruefe-schrift`, `pruefe-schema-gueltig`, `pruefe-schema-faq`,
+`pruefe-metatexte`, `pruefe-umbruch`, `pruefe-keine-preise`,
+`pruefe-konfliktmarken`, `pruefe-cache-buster`. Waagerechtes Scrollen
+auf beiden geänderten Seiten gemessen: 0 px.

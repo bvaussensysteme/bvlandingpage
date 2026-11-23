@@ -91,7 +91,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261123b" />
+  <link rel="stylesheet" href="/css/style.css?v=20261123f" />
   
   <link rel="stylesheet" href="/css/start.css?v=20261123a" />
 
@@ -193,69 +193,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .vergleich-fuss {
   margin-top: 10px; font-size: 0.82rem; color: var(--muted);
 }
-/* KARTEN FUER DIE EINDECKUNG. Ansage des Betreibers vom
-   23.11.2026 zu einer Darstellung beim Lieferanten: "sowas
-   ähnliches wie auf dem bild mit den grafiken gefällt mir auch
-   sehr gut dem kunden es zu veranschaulichen."
-   Eine Zahl allein sagt einem Kunden wenig; neben dem Bild der
-   Platte sagt sie etwas. Deshalb Bild, Name, Werte. */
-/* Vier Materialien, deshalb 1, 2 oder 4 Spalten, nie 3: Bei drei
-   Spalten steht die vierte Karte allein in einer zweiten Reihe
-   und sieht aus wie vergessen. Gemessen bei 1280 px, bevor die
-   Stufen hier standen. */
-.eindeck-karten {
-  display: grid; gap: 20px; margin-top: 28px;
-  grid-template-columns: 1fr;
-}
-/* ZUBEHOERBILDER im aufklappbaren Abschnitt. Zwei Spalten erst ab
-   420 px: Darunter stuenden zwei Bilder nebeneinander so schmal,
-   dass von einem Minispot nichts mehr zu erkennen ist. */
-.zub-bilder {
-  display: grid; gap: 16px; margin: 0 0 16px;
-  grid-template-columns: 1fr; max-width: 520px;
-}
-@media (min-width: 420px) {
-  .zub-bilder { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-.zub-bild { margin: 0; }
-.zub-bild img {
-  display: block; width: 100%; height: auto; border-radius: 12px;
-  background: var(--white); border: 1px solid var(--border);
-}
-.zub-bild figcaption {
-  margin-top: 8px; font-size: 0.84rem; color: var(--muted);
-}
-@media (min-width: 560px) {
-  .eindeck-karten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-/* Sechs Karten seit dem Nachtrag Grau/Graphit, deshalb jetzt
-   1, 2 oder 3 Spalten. Vier Spalten liessen zwei Karten in einer
-   halbleeren zweiten Reihe stehen. */
-@media (min-width: 1000px) {
-  .eindeck-karten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-.eindeck-karte {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 14px; overflow: hidden;
-}
-.eindeck-bild {
-  background: var(--light-bg); aspect-ratio: 4 / 3;
-  display: flex; align-items: center; justify-content: center; padding: 14px;
-}
-.eindeck-bild img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.eindeck-text { padding: 16px 18px 18px; }
-.eindeck-text h4 {
-  font-size: 1rem; margin: 0 0 10px; color: var(--black);
-  font-family: var(--schrift); font-weight: 700;
-}
-.eindeck-werte { list-style: none; margin: 0; padding: 0; }
-.eindeck-werte li {
-  display: flex; justify-content: space-between; gap: 10px;
-  font-size: 0.86rem; color: var(--muted);
-  padding: 6px 0; border-bottom: 1px solid var(--border);
-}
-.eindeck-werte li:last-child { border-bottom: none; }
-.eindeck-werte b { color: var(--black); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* Der Stil der Materialkarten (.eindeck-*) und der Zubehoerbilder
+   (.zub-*) stand bis zum 23.11.2026 hier. Er steht jetzt in
+   src/css/style.css, weil ihn auch die Balkonseite benutzt: zwei
+   Kopien waeren zwei Wahrheiten, und die zweite wuerde beim
+   naechsten Mal vergessen. */
 @media (max-width: 560px) {
   .vergleich { font-size: 0.78rem; }
   .vergleich th, .vergleich td { padding: 8px 7px; }

@@ -588,3 +588,37 @@ oder ob die Prüfung ihn nur nicht sieht (Zeitfenster, 60-ms-Bremse im
 `pointermove`-Hörer, oder ein Schild, das sich beim zweiten Bild an
 anderer Stelle befindet). Die Reihenfolge der Aufrufe steht in
 `massSchweben()` / `massUnterZeiger()` in `js/konfigurator-frei.js`.
+
+## Drei Fragen aus den Herstellerseiten (23.11.2026)
+
+Beim Auslesen von Balkonüberdachung, Deco Wall, Geländer, Easy Rail
+und Sichtschutz sind drei Stellen aufgefallen, an denen unsere Seite
+mehr behauptet oder anders behauptet als die Quelle. **Nichts davon
+wurde geändert**, weil es Produkt- und Zusageaussagen sind.
+
+**1. Easy Rail: VSG oder nur „Sicherheitsglas"?**
+Unsere Seite schrieb „VSG-Sicherheitsglas: klar, opal oder getönt"
+und „Verschiedene Glasdicken". Die Herstellerseite nennt für Easy Rail
+nur „Sicherheitsglas", ohne Art und ohne Stärke. Ich habe die Zeile
+auf „Sicherheitsglas" geändert, weil eine Glasart ohne Beleg eine
+technische Zusage wäre. **Wenn in Ihren Unterlagen VSG steht, sagen
+Sie Bescheid, dann kommt es zurück, dann aber mit Stärke.**
+
+**2. Deco Wall: 25 Jahre Seaside Beschichtungs-Garantie.**
+Steht auf der Herstellerseite wörtlich, gilt dort den Farben. Nicht
+auf unsere Seite genommen: Eine Garantieaussage über 25 Jahre ist
+nichts, was ich ohne Ihre Bestätigung aufschreibe. **Gilt die
+gegenüber Ihren Kunden?**
+
+**3. „10 Jahre Garantie" bei Geländer, Easy Rail und Sichtschutz.**
+Diese Zahl steht auf den Herstellerseiten nur im Abschnitt für
+Fachhandelspartner, nicht als Zusage an Endkunden. Auf der
+Balkonseite steht bei uns „10 Jahre Herstellergarantie auf
+Alu-Produkte". **Deckt Ihr Liefervertrag das?** Falls nein, gehört
+die Zeile weg, und zwar überall.
+
+**Offen geblieben, weil keine Angabe vorliegt:** Maße der
+Balkonüberdachung (Breite, Tiefe, Höhe), Glasstärke und Profilmaß beim
+Easy Rail, Maße des DW233. Der Hersteller nennt sie auf seinen Seiten
+nicht. Die technische Zeichnung zum Easy Rail könnte sie enthalten;
+sie ist ein Bild und wurde nicht gelesen.
