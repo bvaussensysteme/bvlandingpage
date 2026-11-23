@@ -66,6 +66,29 @@ zurückweist.
 | `images/vd_zub_led_minispots.webp` | dimmbare LED-Minispots | `assets/img/dimmbare-minispots-e285de-960.webp` |
 | `images/vd_zub_lautsprecher.webp` | Bluetooth-Mikrolautsprecher | `assets/img/bluetooth-mikrolautsprecher-5c2d54-960.webp` |
 
+### Zwei eingefärbte Fassungen, 23.11.2026
+
+Ansage des Betreibers: „erstelle so eine grafik auch für glas
+Grau/Graphit" und „und polycarbonat graphit". Für diese beiden
+Varianten gibt es beim Hersteller **kein Bild**: nicht auf den
+Produktseiten, nicht im Katalog 2026 und nicht in den technischen
+Datenblättern.
+
+| Datei | entstanden aus | Ton |
+|---|---|---|
+| `images/vd_mat_vsg8_graphit.webp` | `vd_mat_vsg8_klar.webp` | `#75797E` |
+| `images/vd_mat_pc16_graphit.webp` | `vd_mat_pc16_klar.webp` | `#6E7276` |
+
+Erzeugt mit `scripts/faerbe-platte.mjs`. Die Vorlage hat einen
+durchsichtigen Hintergrund (63 Prozent der Bildpunkte mit Alpha 0),
+deshalb trifft die Einfärbung nur die Platte. Multipliziert statt
+übermalt, damit Glanzlichter und Kanten bleiben.
+
+**Sie tragen trotzdem das `vd_`-Präfix**, obwohl wir sie selbst
+erzeugt haben: Die Vorlage stammt vom Hersteller, das Ergebnis also
+auch. Ohne Präfix fielen sie bei einem Vertragsende durchs Raster.
+Das Skript weist Zielnamen ohne `vd_` ab.
+
 **Benutzt werden bisher** die vier Materialbilder, in den Karten
 „Glas oder Polycarbonat?" auf `produkte/terrassenueberdachung.html`.
 Farbmuster und Zubehörbilder liegen bereit und sind noch nicht

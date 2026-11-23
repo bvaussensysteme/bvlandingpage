@@ -120,8 +120,11 @@ extraStyles: |
       @media (min-width: 560px) {
         .eindeck-karten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       }
+      /* Sechs Karten seit dem Nachtrag Grau/Graphit, deshalb jetzt
+         1, 2 oder 3 Spalten. Vier Spalten liessen zwei Karten in einer
+         halbleeren zweiten Reihe stehen. */
       @media (min-width: 1000px) {
-        .eindeck-karten { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .eindeck-karten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       }
       .eindeck-karte {
         background: var(--white); border: 1px solid var(--border);
@@ -387,6 +390,36 @@ schema: |
           </ul>
         </div>
       </div>
+      <div class="eindeck-karte">
+        <div class="eindeck-bild">
+          <img src="../images/vd_mat_vsg8_graphit.webp" alt="Graphitfarbene Glasplatte als Dacheindeckung, Verbundsicherheitsglas 8 mm" width="960" height="540" loading="lazy" decoding="async">
+        </div>
+        <div class="eindeck-text">
+          <h4>VSG-Glas 8 mm, grau/graphit</h4>
+          <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Dunkel getöntes Glas. Nimmt Sonne und Blendung spürbar zurück.</p>
+          <ul class="eindeck-werte">
+            <li><span>Tageslicht</span><b>auf Anfrage</b></li>
+            <li><span>Sonnenwärme</span><b>auf Anfrage</b></li>
+            <li><span>Schalldämmung</span><b>36 dB</b></li>
+            <li><span>Stärke</span><b>8 mm</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="eindeck-karte">
+        <div class="eindeck-bild">
+          <img src="../images/vd_mat_pc16_graphit.webp" alt="Graphitfarbene Stegplatte aus Polycarbonat, 16 mm stark" width="960" height="540" loading="lazy" decoding="async">
+        </div>
+        <div class="eindeck-text">
+          <h4>Polycarbonat 16 mm, graphit</h4>
+          <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Getönte Stegplatte. Deutlich weniger Licht und Wärme als die klare.</p>
+          <ul class="eindeck-werte">
+            <li><span>Tageslicht</span><b>auf Anfrage</b></li>
+            <li><span>Sonnenwärme</span><b>auf Anfrage</b></li>
+            <li><span>Schalldämmung</span><b>21 dB</b></li>
+            <li><span>Stärke</span><b>16 mm</b></li>
+          </ul>
+        </div>
+      </div>
       </div>
       <p class="vergleich-fuss">
         Tageslicht ist der Anteil des sichtbaren Lichts, der durch die Platte kommt. Sonnenwärme der
@@ -395,6 +428,9 @@ schema: |
         leiser. Werte laut Hersteller. Sie gelten ebenso für Carport TDS, Kaltwintergarten sowie
         Eingangs- und Balkonüberdachung. Auf Wunsch liefern wir das Dach auch mit verzinktem
         Trapezblech, dann ist es geschlossen und lichtundurchlässig.
+        Für die getönten Platten nennt der Hersteller keine Licht- und Wärmewerte. Beide lassen
+        deutlich weniger durch als die klare Ausführung, wie viel genau, sagen wir Ihnen mit dem
+        Angebot. Eine Zahl, die wir nicht belegen können, schreiben wir nicht hin.
       </p>
     </div>
   </div>
