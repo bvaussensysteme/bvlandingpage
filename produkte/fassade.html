@@ -117,6 +117,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    waagerecht scrollbar statt abgeschnitten. GEMESSEN dort am
    22.11.2026 bei 320 px Fensterbreite, wo eine feste Tabelle
    48 px aus ihrem Kasten ragte und body overflow-x: hidden traegt. */
+/* Bild und Text nebeneinander, erst wenn Platz ist. Unter 760 px
+   stuende das hohe Fassadenbild sonst in einer handtuchschmalen
+   Spalte neben der Liste. */
+.holz-block{display:grid;gap:28px;grid-template-columns:1fr;align-items:start;}
+@media (min-width:760px){ .holz-block{grid-template-columns:minmax(0,420px) 1fr;} }
+.holz-bild{margin:0;}
+.holz-bild img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--border);}
+.holz-bild figcaption{margin-top:8px;font-size:0.84rem;color:var(--muted);}
 .dw-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .dw-tab{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--white);
   border:1px solid var(--border);border-radius:12px;overflow:hidden;}
@@ -293,6 +301,59 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <p style="margin-top:12px;font-size:0.82rem;color:var(--muted);">
       Angaben des Herstellers. Die verbindlichen Maße für Ihr Gebäude legen wir im Angebot fest.
     </p>
+  </div>
+</section>
+
+<!-- HOLZDEKORPROFILE, aufgenommen am 23.11.2026.
+     Ansage des Betreibers: "Holdekor bieten wir aber an mit
+     reinnehmen". Das Produkt stand bis dahin auf keiner unserer
+     Seiten, obwohl es im Katalog des Herstellers eine eigene
+     Doppelseite hat.
+     BILD: vd_prod_decowall_holzoptik.webp, eine wirklich in
+     Holzoptik verkleidete Fassade. Die beiden Dateien des
+     Herstellers, deren NAME "holzdekorprofile" lautet, zeigen einen
+     grauen und einen weissen Zaun ohne jede Holzoptik; sie liegen
+     deshalb als vd_prod_sichtschutz_zaun1/2 im Bestand und nicht
+     hier. Ein Dateiname ist kein Beleg fuer den Inhalt. -->
+<section class="section" id="holzdekor">
+  <div class="container">
+    <p class="tag">Holzoptik</p>
+    <h2 style="margin-bottom:8px;">Holzdekorprofile: die Optik von Holz, der Aufwand von Aluminium</h2>
+    <p style="color:var(--muted);max-width:70ch;margin-bottom:24px;">
+      Holz an der Fassade sieht warm aus und will gepflegt werden. Diese Profile sehen aus wie Holz
+      und sind aus Aluminium: Sie verziehen sich nicht, sie müssen nie nachgestrichen werden und sie
+      vergrauen nicht. Für Fassaden, Überdachungen, Zäune und alles, was Sie sonst damit verkleiden
+      wollen.
+    </p>
+    <div class="holz-block">
+      <figure class="holz-bild">
+        <img src="../images/vd_prod_decowall_holzoptik.webp" alt="Fassade mit senkrechten Aluminiumprofilen in Holzoptik" loading="lazy" width="900" height="1080" decoding="async" />
+        <figcaption>Senkrechte Profile in Holzoptik an einer Gewerbefassade</figcaption>
+      </figure>
+      <div>
+        <h3 style="font-size:1.05rem;margin:0 0 10px;">Sechs Ausführungen</h3>
+        <ul class="produkt-features" style="margin-bottom:18px;">
+          <li>Optik Eiche</li>
+          <li>Optik Kiefer</li>
+          <li>Anthrazit RAL 7016</li>
+          <li>Weißaluminium RAL 9006</li>
+          <li>Graualuminium RAL 9007</li>
+          <li>Reinweiß RAL 9010</li>
+        </ul>
+        <h3 style="font-size:1.05rem;margin:0 0 10px;">Warum Aluminium statt Holz</h3>
+        <ul class="produkt-features" style="margin-bottom:18px;">
+          <li>Kein Verziehen, kein Nachstreichen, kein Vergrauen</li>
+          <li>Wetterfest und wartungsfrei</li>
+          <li>Für Fassaden, Überdachungen, Zäune und eigene Projekte</li>
+          <li>Pulverbeschichtet, dieselbe Oberfläche wie unsere Überdachungen</li>
+        </ul>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:18px;">
+          Die Holzoptiken sind Drucke auf Aluminium. Der Farbton kann von einer Abbildung am
+          Bildschirm abweichen. Wir zeigen Ihnen vor der Bestellung ein Muster.
+        </p>
+        <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','fassade')}catch(e){}" class="btn btn-gold" style="display:inline-block;">Muster anfordern</a>
+      </div>
+    </div>
   </div>
 </section>
 

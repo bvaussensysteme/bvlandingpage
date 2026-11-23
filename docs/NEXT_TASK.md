@@ -640,3 +640,22 @@ Tiefe, keine Höhe, kein Profilquerschnitt, keine Stellplatzzahl. Diese
 Zahlen stehen womöglich in den technischen Datenblättern oder im
 Produktkatalog 2026 (PDF, 20,5 MB). Beides wurde nicht abgerufen.
 **Soll ich die PDFs holen und auswerten?**
+
+## Offen beim Hersteller: Holzdekorprofile, Farbzahl (23.11.2026)
+
+Der Produktkatalog 2026 überschreibt die Farbliste der
+Holzdekorprofile TDS mit „ERHÄLTLICH IN 3 FARBEN" und zählt darunter
+sechs auf: Optik Eiche, Optik Kiefer, RAL 7016, RAL 9006, RAL 9007,
+RAL 9010. Auf unserer Seite steht „Sechs Ausführungen" und die Liste;
+die 3 ist nicht übernommen. **Beim Hersteller nachfragen, welche Zahl
+gilt.**
+
+## Noch nicht entschieden (23.11.2026)
+
+- **Garantie je Produkt ausrichten.** Der Katalog nennt „10 Jahre
+  Produktgarantie" bei zehn Produkten namentlich, bei Easy Rail, Deco
+  Wall, Sichtschutz und den Lamellendächern nicht, beim Plissee stehen
+  3 Jahre. Soll die Zeile auf unseren Seiten genau danach gesetzt
+  werden?
+- **Fremde Modellnamen.** Die Markisen-Seite des Herstellers führt
+  Modellnamen einer fremden Marke (Terrea, Climara). Nicht übernommen.

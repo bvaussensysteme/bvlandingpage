@@ -22446,3 +22446,43 @@ Fließtexte, die Meta-Beschreibung, og:description und Schema.org.
 Treffer mehr. `pruefe-metatexte`, `pruefe-schema-gueltig`,
 `pruefe-schema-faq`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`,
 `pruefe-produktwahl` bestanden.
+
+## 23.11.2026 · Holzdekorprofile aufgenommen, Glaszuschnitt nicht
+
+**Anlass.** Beim Auslesen des Produktkatalogs 2026 fiel auf, dass zwei
+Produkte des Herstellers auf keiner unserer Seiten stehen.
+Entscheidung des Betreibers, wörtlich: „Glaszuschnitt machen wir
+nicht, Holdekor bieten wir aber an mit reinnehmen".
+
+**Glaszuschnitt bleibt draußen.** Der Hersteller bietet VSG in 6, 8
+und 10 mm, Bohrungen, Fräsungen und polierte Kanten an und härtet seit
+dem 01.01.2026 ESG im eigenen Ofen. Wir bieten das nicht an, also
+steht es auch nicht auf unserer Seite.
+
+**Holzdekorprofile kommen auf die Fassadenseite.** Eigener Abschnitt
+`#holzdekor` in `src/produkte/fassade.njk`, dazu eine Zeile in der
+Merkmalliste des Sichtschutzes, weil der Katalog ausdrücklich Zäune
+nennt. Inhalt: Optik Eiche, Optik Kiefer und die vier RAL-Farben, dazu
+der eigentliche Verkaufsgrund (kein Verziehen, kein Nachstreichen,
+kein Vergrauen).
+
+**Eine Quellenangabe nicht übernommen.** Der Katalog überschreibt die
+Farbliste mit „ERHÄLTLICH IN 3 FARBEN" und zählt darunter **sechs**
+auf. Die Zahl 3 steht deshalb nicht auf unserer Seite; dort steht
+„Sechs Ausführungen" und die Liste. Welche Zahl stimmt, ist eine
+Frage an den Hersteller und steht in `docs/NEXT_TASK.md`.
+
+**Zwei Bilder umbenannt, bevor sie Schaden anrichten.** Die beiden
+Dateien, die beim Hersteller `holzdekorprofile-1` und
+`holzdekorprofile-3` heißen, zeigen angesehen einen grauen und einen
+weißen Aluminiumzaun **ohne jede Holzoptik**. Sie liegen jetzt als
+`vd_prod_sichtschutz_zaun1/2`. Ein Dateiname ist kein Beleg für den
+Inhalt. Für den Holzdekor-Abschnitt dient
+`vd_prod_decowall_holzoptik.webp`, eine wirklich in Holzoptik
+verkleidete Fassade.
+
+**Gegengelesen.** `pruefe-mitwachsend`: 91 Messungen in sieben
+Breiten, ohne Beanstandung. Dazu `pruefe-metatexte`,
+`pruefe-schema-gueltig`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`,
+`pruefe-keine-preise`. Abschnitt bei 1280 und 390 px gemessen:
+waagerechtes Scrollen 0 px, Bild geladen.

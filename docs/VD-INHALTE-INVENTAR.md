@@ -220,3 +220,16 @@ Referenz-Galerie der Startseite und hat mit dem Portfolio nichts zu
 tun. Die Seiten bleiben dann ohne Galerie, aber heil.
 
 **Nicht geprüft** wurde dieser Rückweg als Ganzes, nur Schritt 1.
+
+## Nachtrag 23.11.2026: zwei Zaunbilder
+
+| Datei | Herkunft | Verwendet auf |
+|---|---|---|
+| `images/vd_prod_sichtschutz_zaun1.webp` | `vd-alusysteme.de/assets/img/holzdekorprofile-1-scaled-f58876-960.webp` | noch nirgends |
+| `images/vd_prod_sichtschutz_zaun2.webp` | `vd-alusysteme.de/assets/img/holzdekorprofile-3-scaled-211ea5-960.webp` | noch nirgends |
+
+**Warum der Name nicht zur Quelle passt.** Beide Dateien heißen beim
+Hersteller „holzdekorprofile", zeigen aber einen grauen und einen
+weißen Aluminiumzaun ohne jede Holzoptik. Angesehen am 23.11.2026.
+Ein Dateiname ist kein Beleg für den Inhalt; deshalb liegen sie unter
+einem Namen, der sagt, was darauf zu sehen ist.
