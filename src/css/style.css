@@ -3958,11 +3958,29 @@ body.bv-konfig-open #bvKonfigBubble {
 @media (prefers-reduced-motion: reduce) {
   .produkt-bild-knopf:hover img { transform: none; }
 }
+/* ANLASS 23.11.2026, Meldung des Betreibers mit Bild: "hier sind die
+   buttons zu gross der text zu nah an dem box rand". Gemessen auf
+   produkte/terrassenueberdachung.html bei 1280 und 390 px: Der Knopf
+   stand 1 px vom Kartenrand entfernt, links, rechts und unten.
+   Ursache war dieses padding, das nur oben einen Wert hatte.
+   Die Goldlinie bleibt dabei ueber die ganze Breite stehen: Ein
+   border-top sitzt am Rand des Elements, das padding liegt darin.
+   Beim Schreiben stand hier zuerst das Gegenteil, nachgesehen im
+   Bild stimmt es nicht. */
 .produkt-grid .produkt-card-body {
-  padding: var(--sp-4) 0 0;
+  padding: var(--sp-4);
   margin-top: var(--sp-4);
   border-top: 2px solid var(--gold);
   transition: border-color var(--zeit-mittel) var(--kurve-weich);
+}
+/* Der Knopf in der Karte ist eine Zweitaktion, keine Hauptaktion der
+   Seite. 56 px hoch und in voller Breite war er zu schwer fuer eine
+   Karte. 48 px bleiben ueber der Mindestflaeche aus WCAG 2.2, 2.5.8
+   (24 px) und ueber den 44 px, die wir uns selbst gesetzt haben. */
+.produkt-grid .produkt-card-body .btn {
+  min-height: 48px;
+  padding: 11px 22px;
+  font-size: 0.95rem;
 }
 @media (hover: hover) and (pointer: fine) {
   .produkt-grid .produkt-card:hover { transform: translateY(-4px); box-shadow: none; }
