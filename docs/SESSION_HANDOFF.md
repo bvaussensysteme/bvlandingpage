@@ -25,7 +25,7 @@ außen kommt nur die Passwortseite, geprüft wird er lokal im Browser.
 | „mach modular erweiterbar" | „Für 2 bis 20+ Fahrräder skalierbar" an sechs Stellen ersetzt |
 | „fremde namen nicht übernehmen" | 15 Kacheln und 26 Bilddateinamen bereinigt. Die Namen standen längst bei uns |
 | „Glaszuschnitt machen wir nicht, Holdekor bieten wir aber an mit reinnehmen" | Holzdekorprofile als eigener Abschnitt auf der Fassadenseite, Glaszuschnitt bleibt draußen |
-| „ja" zur Garantie nach Katalog | Flat Line, SunPro Plus und beide Lamaxa verlieren die Zeile. SunPro One behält sie, weil der Betreiber das am 22.11. ausdrücklich entschieden hat |
+| „10 Jahre, auf markisen 5 Jahre auf Elektro 2 Jahre" | Als Dauerregel in `CLAUDE.md`. Alle 34 Produktkarten tragen die passende Zeile. Der Versuch, sie nach dem Herstellerkatalog auszurichten, war ein Fehler und ist zurückgenommen |
 
 ## Was diese Sitzung gebaut hat
 
@@ -61,11 +61,10 @@ Danach **Schritt 4: das Design**, mit dem Skill unter
 
 ## Was gegengelesen werden soll
 
-1. **Die Garantiezeilen.** Entfernt bei Flat Line, SunPro Plus und
-   beiden Lamaxa, weil der Katalog sie dort nicht führt. **Ein Katalog
-   ist kein Garantiedokument.** Gilt die Zusage aus dem Liefervertrag
-   für alle Produkte, kommen die Zeilen zurück. Frage liegt beim
-   Betreiber, siehe `docs/offene-fragen.md`.
+1. **Die Garantiezeilen sind geklärt und stehen überall.** 10 Jahre
+   auf Aluminium, 5 Jahre auf Markisen, 2 Jahre auf Elektrik. Als
+   Dauerregel in `CLAUDE.md`. Alle 34 Produktkarten geprüft, keine
+   ohne Zeile. **Diese Frage ist nicht erneut zu stellen.**
 2. **Die Eindeckungswerte auf Gartenhaus und Fahrradüberdachung.** Der
    Hersteller nennt sie dort nicht; sie gelten der Platte, nicht dem
    Produkt. Der Fußtext unter den Karten sagt das.

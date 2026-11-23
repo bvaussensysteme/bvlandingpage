@@ -102,10 +102,10 @@ gilt.**
 
 ## Noch nicht entschieden (23.11.2026)
 
-- **Garantie je Produkt ausrichten. ERLEDIGT am 23.11.2026**, Antwort
-  „ja". Offen bleibt die Gegenfrage: Gilt die 10-Jahre-Zusage aus dem
-  Liefervertrag für **alle** Produkte des Herstellers? Dann kommen die
-  entfernten Zeilen zurück. Ein Katalog ist kein Garantiedokument.
+- **Garantie. ENDGÜLTIG GEKLÄRT am 23.11.2026** und als Dauerregel in
+  `CLAUDE.md` festgeschrieben: 10 Jahre auf Aluminium, 5 Jahre auf
+  Markisen, 2 Jahre auf Elektrik. **Nicht mehr fragen.** Alle 34
+  Produktkarten tragen die passende Zeile.
 - **Fremde Modellnamen. ERLEDIGT am 23.11.2026.** Ansage: „fremde
   namen nicht übernehmen". Sie standen bereits auf
   `produkte/sonnenschutz.html` und in 26 Bilddateinamen; beides

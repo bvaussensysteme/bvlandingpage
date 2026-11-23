@@ -203,6 +203,37 @@ Das ist eine Referenz für Benutzerführung, keine Erlaubnis:
 Die Regel „Nachbauten: eigene Sprache, eigene Namen" weiter oben gilt
 unverändert und zusätzlich.
 
+## Garantie: die Zahlen stehen fest (permanent, 23.11.2026)
+
+Ansage des Betreibers, wörtlich: „mit garantie hab ich schon 100 mal
+gesagt 10 Jahre, auf markisen 5 Jahre auf Elektro 2 Jahre was is daran
+nicht zu verstehen".
+
+**Es gilt ohne Rückfrage:**
+
+| Was | Garantie |
+|---|---|
+| Alle Produkte aus Aluminium | **10 Jahre** |
+| Markisen und Beschattung mit Tuch | **5 Jahre** |
+| Elektrik: Antriebe, Motoren, LED, Lautsprecher, Steuerungen | **2 Jahre** |
+
+Ein Produkt mit Alu-Konstruktion **und** Tuch (Faltdach,
+Pergolamarkise) trägt beides: 10 Jahre auf die Konstruktion, 5 Jahre
+auf das Tuch.
+
+**Nicht mehr fragen.** Diese Zahlen stehen seit Langem im Ratgeber
+`src/ratgeber/aluminium-terrasse-pflegen.njk` und sind mehrfach
+mündlich bestätigt worden.
+
+**Was am 23.11.2026 schiefging, damit es sich nicht wiederholt:** Der
+Produktkatalog des Herstellers führt die Garantie nur bei zehn von
+achtzehn Produkten als Merkmal auf. Daraus wurde geschlossen, sie
+gelte bei den übrigen nicht, und die Zeile wurde an vier Stellen
+entfernt. **Ein Werbekatalog ist kein Garantiedokument.** Das
+Schweigen einer Broschüre belegt nichts, und schon gar nichts gegen
+eine ausdrückliche Zusage des Betriebsinhabers. Wo Quelle und
+Betreiber auseinandergehen, gilt der Betreiber.
+
 ## Rechtstexte nicht anfassen, nur warnen (permanent, 14.11.2026)
 
 Ansage des Betreibers: „rechtstexte nicht verändern nur aufmerksam

@@ -22634,3 +22634,51 @@ geprüft.
 1634 Commits**. Dazu der Vermerk, dass der Altbefund in
 `pruefe-konfigurator-oberflaeche.mjs` am 23.11. auf Commit `4f3f135`
 gegengeprüft wurde und schon dort fehlschlug.
+
+## 23.11.2026 · Garantie: Rückname einer falschen Änderung
+
+**Anlass.** Ansage des Betreibers, wörtlich: „mit garantie hab ich
+schon 100 mal gesagt 10 Jahre, auf markisen 5 Jahre auf Elektro 2
+Jahre was is daran nicht zu verstehen".
+
+**Was ich falsch gemacht habe.** Der Produktkatalog des Herstellers
+führt „10 Jahre Produktgarantie" nur bei zehn von achtzehn Produkten
+als Merkmal auf. Daraus habe ich geschlossen, bei den übrigen gebe es
+keine, habe gefragt, ob die Zeile danach ausgerichtet werden soll, ein
+„ja" bekommen und sie an vier Stellen entfernt.
+
+**Der Denkfehler.** Ein Werbekatalog ist kein Garantiedokument. Dass
+eine Broschüre ein Merkmal nicht wiederholt, belegt nichts. Die
+Garantie ist eine Zusage des Betriebs an seine Kunden, keine Angabe
+des Zulieferers. Und sie stand längst richtig auf unserer eigenen
+Seite: `src/ratgeber/aluminium-terrasse-pflegen.njk` sagt seit Langem
+„10 Jahren Herstellergarantie auf Aluminium-Teile, 5 Jahren auf
+Markisen und 2 Jahren auf die Elektrik". Ich hätte die eigene Seite
+lesen müssen, bevor ich eine Broschüre zur Quelle erkläre.
+
+**Was jetzt gilt.** Die Zahlen stehen als Dauerregel in `CLAUDE.md`,
+mit der Begründung, warum nicht mehr danach gefragt wird:
+
+| Was | Garantie |
+|---|---|
+| Alle Produkte aus Aluminium | 10 Jahre |
+| Markisen und Beschattung mit Tuch | 5 Jahre |
+| Elektrik: Antriebe, LED, Lautsprecher, Steuerungen | 2 Jahre |
+
+**Umgesetzt.** Alle **34 Produktkarten** auf sechzehn Produktseiten
+maschinell durchgezählt und jede ohne Garantiezeile ergänzt. Vorher
+hatten **13 Karten gar keine** Zeile, nicht nur die vier, die ich
+entfernt hatte: Deco Wall, Sichtschutz, Bushaltestelle, Vordach FLY,
+Front Line, Front Line Plus, Fahrradüberdachung, Faltdach, Geländer,
+Easy Rail, Velaris und die Kopien auf der Sammelseite. Die Fußnoten
+der beiden Vergleichstabellen und die Seitenbeschreibung der
+Carportseite sind zurückgenommen.
+
+**Zwei Produkte mit Tuch** (Faltdach OpenAir, Lamaxa L50 Tex) tragen
+beides: „10 Jahre auf die Aluminiumkonstruktion, 5 Jahre auf das
+Tuch". Das folgt der Regel genauer als eine der beiden Zahlen allein.
+
+**Gegengelesen.** Maschinelle Liste aller 34 Karten mit ihrer
+Garantiezeile: keine ohne. `pruefe-metatexte`, `pruefe-vergleich`,
+`pruefe-schema-gueltig`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`,
+`pruefe-produktwahl` bestanden.
