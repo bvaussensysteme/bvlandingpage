@@ -310,12 +310,29 @@
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--white);
-  box-shadow: 0 1px 2px rgba(11,11,12,0.04);
+  /* GEAENDERT 23.11.2026, Ansage des Betreibers. Hier stand
+     box-shadow: 0 1px 2px rgba(11,11,12,0.04), also ein einzelner
+     Schatten mit 4 % Deckung. Der Kommentar im Tokenblock von
+     src/css/style.css nennt genau das als Merkmal maschinell
+     erzeugter Gestaltung und sieht zwei Lagen vor: eine enge,
+     dunklere Kante und einen weiten, sehr leichten Abfall.
+     Die Materialkarten benutzen seitdem --schatten-1, diese drei
+     Kartenarten nicht. Zwei Werte fuer dieselbe Kartensprache.
+     Achtung beim Lesen: Die Regel gilt fuer DREI Kartenarten, nicht
+     nur fuer die Produktkarte, also auch fuer die Leistungskarten und
+     die Galerie der Startseite. */
+  box-shadow: var(--schatten-1);
 }
 @media (hover: hover) and (pointer: fine) {
   .start-premium .leistung-card:hover {
     border-color: var(--gold);
-    box-shadow: 0 10px 30px rgba(11,11,12,0.10);
+    /* GEAENDERT 23.11.2026. Vorher 0 10px 30px rgba(11,11,12,0.10),
+       wieder ein roher Einzelschatten. Wenn die Karte im Ruhezustand
+       zwei Lagen traegt, darf sie beim Ueberfahren nicht auf eine
+       zurueckfallen: Die Karte haette sich beim Anheben flacher
+       angefuehlt statt tiefer. --schatten-2 ist die naechste Stufe
+       und liegt mit 0 8px 24px nah am bisherigen Wert. */
+    box-shadow: var(--schatten-2);
     transform: translateY(-3px);
   }
 }

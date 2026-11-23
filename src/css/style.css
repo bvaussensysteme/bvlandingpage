@@ -4577,8 +4577,14 @@ body.bv-konfig-open #bvKonfigBubble {
 }
 /* ANGEGLICHEN 23.11.2026. Vorher --radius-lg (16 px) und kein
    Schatten. Damit war die Materialkarte die einzige Karte der
-   Seite auf dieser Stufe: .start-premium .produkt-card hat 10 px
-   mit Schatten, .produkt-grid .produkt-card gar keinen Kasten.
+   Seite auf dieser Stufe: .start-premium .produkt-card hat ebenfalls
+   var(--radius), .produkt-grid .produkt-card gar keinen Kasten.
+   RICHTIGGESTELLT 23.11.2026: Hier stand "10 px". Das ist der Wert
+   aus dem Tokenblock dieser Datei, aber start.css:58 setzt --radius
+   auf 14 px um, und auf den Seiten mit Designschicht gilt 14.
+   Gemessen im Browser: Materialkarte 14 px, Produktkarte 14 px.
+   Ein Token hier nachzuschlagen sagt NICHT, was auf dem Schirm gilt;
+   dasselbe gilt fuer --dark und --gold-text.
    Alle drei sassen auf der Skala, aber auf verschiedenen Stufen,
    und genau daran erkennt man "jede fuer sich richtig, keine mit
    den anderen zusammen". Jetzt dieselbe Sprache wie die
