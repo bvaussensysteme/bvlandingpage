@@ -158,6 +158,31 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   border-bottom: 1px solid var(--border); display: flex; gap: 8px;
 }
 .produkt-features li:last-child { border-bottom: none; }
+/* Vergleichstabelle, gleicher Bauplan wie auf der Terrassenseite
+   (src/produkte/terrassenueberdachung.njk). Absichtlich kopiert
+   statt gemeinsam gemacht: Die Seiten tragen ihre Stile selbst,
+   und eine gemeinsame Datei waere eine Abhaengigkeit, die bei
+   der naechsten Aenderung an einer Seite die andere mitreisst. */
+.vergleich-wrap { margin-top: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.vergleich {
+  width: 100%; border-collapse: collapse; font-size: 0.86rem;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.vergleich th, .vergleich td {
+  padding: 10px 12px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--border); line-height: 1.45;
+}
+.vergleich thead th { background: var(--light-bg); font-size: 0.9rem; color: var(--black); }
+.vergleich tbody th { font-weight: 600; color: var(--gold-text); width: 22%; }
+.vergleich td { color: var(--muted); }
+.vergleich tr:last-child th, .vergleich tr:last-child td { border-bottom: none; }
+.vergleich-fuss { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+@media (max-width: 560px) {
+  .vergleich { font-size: 0.78rem; }
+  .vergleich th, .vergleich td { padding: 8px 7px; }
+  .vergleich tbody th { width: 26%; }
+}
 .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
 
   </style>
@@ -286,10 +311,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         <div class="produkt-card-body">
           <span class="produkt-tag">Klassiker</span>
           <h2>Carport TDS</h2>
-          <p>Unser robustester Carport für den Alltag. Wandanbau oder freistehend, mit Glas- oder Polycarbonatdach. Er hält, was er verspricht. Witterungsbeständig, wartungsfrei, in allen RAL-Farben erhältlich. Für ein Auto oder mehrere.</p>
+          <p>Unser robustester Carport für den Alltag. Wandanbau oder freistehend, mit Glas- oder Polycarbonatdach. Er hält, was er verspricht. Witterungsbeständig und wartungsfrei, für ein Auto oder mehrere.</p>
           <ul class="produkt-features">
             <li>Robuste Aluminium-Konstruktion</li>
-            <li>Verglasung: 8 mm VSG-Glas oder 16 mm Polycarbonat, jeweils klar oder opal</li>
+            <li>Verglasung: 8 mm VSG-Glas oder 16 mm Polycarbonat, jeweils klar oder opal. <a href="/produkte/terrassenueberdachung.html#eindeckung">Licht-, Wärme- und Schallwerte im Vergleich</a></li>
+            <li>Ausführungen: mit Wandmontage, freistehend oder mit Überstand</li>
+            <li>Standardfarben: Anthrazit (RAL 7016), Weißaluminium (RAL 9006), Graualuminium (RAL 9007), Reinweiß (RAL 9010). Wunschfarbe nach RAL gegen Aufpreis</li>
             <li>Einzel- oder Doppelcarport möglich</li>
             <li>Erweiterbar mit Seitenteilen & Beleuchtung</li>
             <li>10 Jahre Herstellergarantie · CE-gekennzeichnet</li>
@@ -310,10 +337,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <h2>Flachdach Flat Line</h2>
           <p>Die Flat Line ist die ideale Lösung für alle, die modernen Carport-Look wünschen. Das flache Design ermöglicht sogar die Integration einer Photovoltaik-Anlage oder einer Dachbegrünung.</p>
           <ul class="produkt-features">
-            <li>Modernes Flachdach-Design</li>
-            <li>PV-Anlage integrierbar</li>
-            <li>Dachbegrünung möglich</li>
-            <li>Massiver Aluminium-Rahmen</li>
+            <li>Dach aus verzinktem, pulverbeschichtetem Trapezblech, auf Wunsch mit Antikondensbeschichtung</li>
+            <li>Photovoltaik: Aluminiumsparren und Trapezblech bilden den Untergrund für die Träger der Module</li>
+            <li>Dachbegrünung: dämpft Hitze und Kälte, filtert Feinstaub und kann die Niederschlagswassergebühr senken</li>
+            <li>Beispielgrößen: ein Fahrzeug, zwei Fahrzeuge, jeweils auch mit Eingang</li>
+            <li>Optional mit Seitenteilen, Fenster oder Tür als Nebenraum</li>
+            <li>Standardfarben: RAL 7016, 9006, 9007 und Reinweiß, Wunschfarbe nach RAL</li>
             <li>10 Jahre Herstellergarantie · CE-gekennzeichnet</li>
             <li>Vereinfachter Statiknachweis inklusive</li>
           </ul>
@@ -347,6 +376,44 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </div>
       </div>
 
+    </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Die drei Carports nebeneinander</h3>
+      <table class="vergleich">
+        <caption class="sr-only">Carport TDS, Flat Line und Flat Box im Vergleich</caption>
+        <thead>
+          <tr><td></td><th scope="col">Carport TDS</th><th scope="col">Flat Line</th><th scope="col">Flat Box</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Dach</th>
+              <td>Geneigt, lichtdurchlässig</td>
+              <td>Flach, geschlossen</td>
+              <td>Flach, geschlossen</td></tr>
+          <tr><th scope="row">Eindeckung</th>
+              <td>8 mm VSG-Glas oder 16 mm Polycarbonat, klar oder opal</td>
+              <td>Verzinktes Trapezblech, pulverbeschichtet</td>
+              <td>Verzinktes Trapezblech, pulverbeschichtet</td></tr>
+          <tr><th scope="row">Unter dem Dach</th>
+              <td>Hell, die Einfahrt bleibt licht</td>
+              <td>Geschlossen und schattig</td>
+              <td>Geschlossen, mit Abstellraum</td></tr>
+          <tr><th scope="row">Besonderheit</th>
+              <td>Gleiches System wie unser Terrassendach, später erweiterbar</td>
+              <td>Dachbegrünung oder Photovoltaik möglich</td>
+              <td>Seiten mit Sandwichplatten verkleidet</td></tr>
+          <tr><th scope="row">Nebenraum</th>
+              <td>Mit Seitenteilen nachrüstbar</td>
+              <td>Optional Seitenteile, Fenster oder Tür</td>
+              <td>Von Haus aus dabei</td></tr>
+          <tr><th scope="row">Passt, wenn</th>
+              <td>es vor dem Haus nicht dunkel werden soll</td>
+              <td>das Dach noch etwas tragen soll, Grün oder Module</td>
+              <td>Sie neben dem Auto auch Stauraum brauchen</td></tr>
+        </tbody>
+      </table>
+      <p class="vergleich-fuss">Bei allen dreien gleich: 10 Jahre Herstellergarantie, CE-Kennzeichnung,
+         vereinfachter Statiknachweis für Wind- und Schneelast und Fertigung nach Aufmaß.</p>
     </div>
   </div>
 </section>
