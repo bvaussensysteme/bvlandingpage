@@ -3153,6 +3153,16 @@ img { max-width: 100%; height: auto; }
 .vd-model-tile p {
   margin: 0; padding: 10px 12px; font-size: .82rem; font-weight: 600;
   color: var(--black); line-height: 1.35;
+  /* ERGAENZT 23.11.2026. Die Kachel hat overflow: hidden, lange
+     Woerter wurden also abgeschnitten, nicht nur ueberstehend
+     dargestellt. Gemessen bei 320 px Fensterbreite: "Wintergartenmarkise"
+     141 px in einem 135 px breiten Kasten, "Senkrechtmarkise mit
+     Reissverschluss" 155 px in 135 px. Der Wortrest war weg.
+     Deutsche Komposita sind der Normalfall auf dieser Seite, deshalb
+     Trennung erlauben: hyphens braucht lang="de" am html-Element und
+     trennt sinnvoll, overflow-wrap ist die Rueckfallebene, die den
+     Ueberlauf in jedem Fall verhindert. */
+  overflow-wrap: break-word; hyphens: auto;
 }
 @media (max-width: 900px) { .vd-model-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 600px) { .vd-model-grid { grid-template-columns: repeat(2, 1fr); } }

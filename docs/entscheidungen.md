@@ -22767,3 +22767,77 @@ Cookie-Fenster, auf einer Produktseite und auf der Startseite. Der
 Ring muss überall sichtbar sein, auch auf den beiden Schaltern im
 Einstellungsbereich. Dann einmal „Einstellungen", Schalter per
 Leertaste umlegen, „Auswahl speichern".
+
+## 23.11.2026 · Zwei abgeschnittene Textstellen auf der Sonnenschutz-Seite
+
+**Anlass.** Beim Nachmessen der Garantieänderung, nicht durch sie
+verursacht. Beide Befunde sind Altbestand und fallen unter die
+Dauerregel vom 15.11.2026.
+
+### Befund 1: Flex zerlegt einen Satz in vier Teile
+
+**Was falsch war.** `src/produkte/sonnenschutz.njk` setzt in Zeile 90
+bis 92 `display: flex` auf `.produkt-features li`, damit das Häkchen
+aus `::before` neben dem Text sitzt. Bei reinem Fließtext sind das zwei
+Flex-Elemente, und der Text bricht normal um.
+
+Ein Listenpunkt enthält aber ein `<strong>`. Damit zerfällt er in vier
+Flex-Elemente: Häkchen, Text davor, fetter Teil, Text danach. Ohne
+`flex-wrap` müssen die nebeneinander bleiben.
+
+**Gemessen vorher:** 360 px Inhalt in einem 328 px breiten Kasten bei
+390 px Fensterbreite, 62 px Überlauf bei 320 px. Der Kasten der Karte
+schneidet ab, der Satzteil „Nicht auf das Flachdach SkyView" war rechts
+weg. Genau die Einschränkung, die der Satz mitteilen soll.
+
+**Warum der Inhalt in ein `<span>` kam und nicht `flex-wrap` gesetzt
+wurde.** `flex-wrap: wrap` hätte den Satz an den Grenzen der
+Flex-Elemente umbrechen lassen, also mitten im Satz vor und nach dem
+fetten Teil. Das `<span>` macht aus dem Inhalt wieder **ein**
+Flex-Element, das intern normal umbricht. Die CSS-Regel bleibt damit
+unberührt, und alle anderen Listen der Seite sind nicht betroffen.
+
+**Reichweite.** Genau ein Listenpunkt im ganzen Repository enthält ein
+`<strong>` innerhalb von `.produkt-features`. Gegengeprüft über alle
+16 Produktseiten.
+
+### Befund 2: Lange deutsche Komposita wurden abgeschnitten
+
+**Was falsch war.** `.vd-model-tile` in `src/css/style.css` hat
+`overflow: hidden`. Die Beschriftungen der Markisen-Modellkacheln sind
+Komposita, die in einen 135 px breiten Kasten nicht passen.
+
+**Gemessen vorher, bei 320 px Fensterbreite:**
+„Wintergartenmarkise" 141 px in 135 px, „Senkrechtmarkise mit
+Reißverschluss" 155 px in 135 px. Der Wortrest war abgeschnitten, nicht
+nur überstehend.
+
+**Was jetzt gilt.** `overflow-wrap: break-word` und `hyphens: auto` auf
+`.vd-model-tile p`. Das `lang="de"` am html-Element ist gesetzt, also
+trennt der Browser an sinnvollen Stellen. `overflow-wrap` ist die
+Rückfallebene und verhindert den Überlauf in jedem Fall.
+
+**Reichweite.** `.vd-model-tile` kommt nur auf der Sonnenschutz-Seite
+vor, gegengeprüft über alle `.njk` und `.html` des Repositories. Die
+Regel wirkt ausschließlich dann, wenn ein Wort sonst überlaufen würde.
+
+### Nachgemessen
+
+Sieben Bildschirmbreiten von 320 bis 1440 px, jeweils jedes `li`, `td`,
+`th` und `p` der Seite auf Inhalt breiter als Kasten geprüft:
+
+| | vorher | nachher |
+|---|---|---|
+| Elemente mit Inhaltsüberlauf, 320 px | 3 | **0** |
+| 360 px | 1 | **0** |
+| 390 px | 1 | **0** |
+| 768 px | 1 | **0** |
+| 1024 bis 1440 px | 0 | 0 |
+| waagerechtes Seitenscrollen | nein | nein |
+
+Die vier Garantiestellen der Seite laufen in keiner Breite über.
+
+**Warum das vorher niemand bemerkt hat.** Die Sonnenschutz-Seite steht
+nicht in der Seitenliste von `scripts/pruefe-mitwachsend.mjs` (Zeile 37
+bis 41). Das ist derselbe Grund wie beim 320-px-Befund auf der
+Fassadenseite. Siehe `docs/offene-nebenbefunde.md`.

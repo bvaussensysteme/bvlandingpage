@@ -42,10 +42,12 @@ Der Rest verhält sich so:
   `docs/AUDIT-2026-11-22.md`: Am großen Bildschirm rollt beim Klick auf
   „Weiter" die ganze Seite mit. Gemessen am 23.11.2026:
   `pageYOffset 362`, nicht die früher notierten 64 px.
-  **Achtung, dieses Skript meldet unter Last falsches Grün.** Im
-  Reihenlauf über alle 82 Skripte war es grün, einzeln dreimal von
-  drei rot. „Alle grün" aus einem Reihenlauf ist für dieses Skript
-  kein Beleg. Einzelheiten in `docs/offene-nebenbefunde.md`.
+  **Achtung, dieses Skript flackert in beide Richtungen.** Gemessen am
+  23.11.2026 über zwei unabhängige Läufe: im Reihenlauf einmal grün und
+  einmal rot, einzeln achtmal gefahren mit **sechs rot und zwei grün**.
+  Weder ein grüner noch ein roter Einzellauf beweist etwas. Der Befund
+  selbst ist offen, die Meldung lautet immer gleich
+  (`pageYOffset 362`). Einzelheiten in `docs/offene-nebenbefunde.md`.
 - `pruefe-konfigurator-oberflaeche.mjs` meldet 1 von 182 nicht
   bestanden („Der Zeiger auf dem Schild ändert das Bild"). Altbefund.
   **Am 23.11.2026 gegengeprüft** in einem eigenen Arbeitsbaum auf

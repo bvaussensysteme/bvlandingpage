@@ -183,8 +183,24 @@ schema: |
             <li>Verhindert Aufheizen des Dachs · Windwiderstandsklasse 3</li>
             <li>Somfy-Antrieb, elektrisch steuerbar</li>
             <li>Viele Stoffe und Farben</li>
-            <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
-            <li>Passt auf das Terrassendach TDS und den Kaltwintergarten. <strong>Nicht auf das Flachdach SkyView</strong>, dort ist bauartbedingt nur Unterdach- und Senkrechtbeschattung möglich</li>
+            <li>5 Jahre Herstellergarantie (VD AluSysteme), 2 Jahre auf die Elektrik</li>
+            {# Der Inhalt steht absichtlich in einem <span>. Die Regel
+               .produkt-features li oben setzt display: flex, damit das
+               Haekchen aus ::before neben dem Text sitzt. Bei reinem
+               Fliesstext sind das zwei Flex-Elemente und der Text
+               bricht um. Dieser Punkt enthaelt aber ein <strong>, und
+               damit zerfaellt er in vier Flex-Elemente, die ohne
+               flex-wrap nebeneinander bleiben muessen.
+               Gemessen am 23.11.2026 ohne das <span>: 360 px Inhalt in
+               einem 328 px breiten Kasten bei 390 px Fensterbreite, und
+               62 px Ueberlauf bei 320 px. Der Satzteil "Nicht auf das
+               Flachdach SkyView" wurde rechts abgeschnitten.
+               Das <span> macht aus dem Inhalt wieder EIN Flex-Element,
+               das intern normal umbricht. Nicht entfernen, und kein
+               flex-wrap auf die Regel setzen: Dann wuerde der Satz an
+               den Grenzen der Flex-Elemente umbrechen, also mitten im
+               Satz vor und nach dem fetten Teil. #}
+            <li><span>Passt auf das Terrassendach TDS und den Kaltwintergarten. <strong>Nicht auf das Flachdach SkyView</strong>, dort ist bauartbedingt nur Unterdach- und Senkrechtbeschattung möglich</span></li>
           </ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
@@ -204,7 +220,7 @@ schema: |
             <li>Filtert direktes Sonnenlicht · Windwiderstandsklasse 3</li>
             <li>Elektrisch oder manuell</li>
             <li>Verschiedene Stoffe wählbar</li>
-            <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
+            <li>5 Jahre Herstellergarantie (VD AluSysteme), 2 Jahre auf die Elektrik</li>
             <li>Platzsparende Lösung</li>
           </ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
@@ -226,7 +242,7 @@ schema: |
             <li>Ideal als Sichtschutz · optional mit Solarantrieb & LED</li>
             <li>Elektrisch steuerbar</li>
             <li>Reißfeste, UV-beständige Stoffe</li>
-            <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
+            <li>5 Jahre Herstellergarantie (VD AluSysteme), 2 Jahre auf die Elektrik</li>
             <li>Passend zu allen Überdachungen</li>
           </ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
@@ -360,7 +376,7 @@ schema: |
               <td>Anthrazit RAL 7016, Weißaluminium RAL 9006, Graualuminium RAL 9007,
                   Reinweiß RAL 9010. Wunschfarbe nach RAL gegen Aufpreis</td></tr>
           <tr><th scope="row">Garantie</th>
-              <td>5 Jahre Herstellergarantie auf Markisen</td></tr>
+              <td>5 Jahre Herstellergarantie auf Markisen, 2 Jahre auf die Elektrik</td></tr>
         </tbody>
       </table>
     </div>

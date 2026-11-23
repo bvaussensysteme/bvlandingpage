@@ -553,7 +553,7 @@ Prüfskripte nach den Fokusring-Korrekturen.
 
 **Was passiert ist.** Im Reihenlauf meldete
 `scripts/pruefe-schrittwechsel.mjs` nach 22 Sekunden **grün**.
-Einzeln nachgefahren ist es **dreimal von drei rot**, jedes Mal mit
+Einzeln nachgefahren war es dreimal von drei rot, jedes Mal mit
 derselben Meldung:
 
 ```
@@ -566,16 +566,30 @@ nebeneinander laufen, und einzeln grün sind. Daraus ist die Regel
 entstanden: Ein roter Konfigurator-Lauf ist erst ein Befund, wenn er
 einzeln wiederholt wurde.
 
-`pruefe-schrittwechsel.mjs` flackert **in die andere Richtung**: unter
-Last **grün**, einzeln **rot**. Eine Prüfung, die fälschlich grün
-meldet, verdeckt eine echte Verschlechterung, statt eine zu erfinden.
-Die bestehende Regel fängt diesen Fall nicht, denn niemand fährt eine
-grüne Prüfung einzeln nach.
+`pruefe-schrittwechsel.mjs` flackert **in beide Richtungen**.
 
-**Daraus folgt für die Berichtspraxis:** „Alle grün" aus einem
-Reihenlauf ist für dieses Skript **kein Beleg**. Der Altbefund B3 aus
+**RICHTIGGESTELLT am 23.11.2026, noch am selben Tag.** Die erste
+Fassung dieses Eintrags behauptete, das Skript sei einzeln verlässlich
+rot und melde nur unter Last falsches Grün. Das war aus drei Läufen
+geschlossen und ist falsch. Ein zweiter, unabhängiger Prüfer hat es
+fünfmal einzeln gefahren: **drei rot, zwei grün.** Zusammen mit meinen
+drei Läufen sind das **sechs rot und zwei grün aus acht Einzelläufen**,
+dazu im Reihenlauf einmal grün und einmal rot.
+
+**Was daraus folgt.** Weder ein grüner noch ein roter Lauf dieses
+Skripts beweist etwas, einzeln so wenig wie in der Reihe. Das ist
+schlimmer als die fünf bekannten Flacker-Skripte: Bei denen gilt die
+Regel „rot erst nach Einzelwiederholung glauben", und die greift hier
+nicht, weil auch der Einzellauf schwankt. Eine Prüfung, die fälschlich
+grün meldet, verdeckt eine echte Verschlechterung, und niemand fährt
+eine grüne Prüfung nach.
+
+**Daraus folgt für die Berichtspraxis:** „Alle grün" ist für dieses
+Skript **kein Beleg**, und „alle rot" auch nicht. Der Altbefund B3 aus
 `docs/AUDIT-2026-11-22.md` ist unverändert offen, bestätigt mit
-`pageYOffset 362`, nicht mit den früher notierten 64 px.
+`pageYOffset 362`, nicht mit den früher notierten 64 px. Solange das
+Skript schwankt, ist es als Absicherung unbrauchbar und müsste
+überarbeitet werden, bevor jemand sich darauf stützt.
 
 **Zu prüfen:** Warum die Prüfung unter Last besteht. Vermutlich wartet
 sie auf ein Zeitmaß statt auf einen Zustand, und bei langsamer
