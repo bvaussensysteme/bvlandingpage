@@ -68,11 +68,13 @@ export function farbwelten() {
   const teil = roh.slice(anfang, ende);
   while ((m = rx.exec(teil)) !== null) {
     const rest = m[2];
-    const name = /\bn:\s*'([^']+)'/.exec(rest);      // Herstellername
-    const farbe = /\bfb:\s*'([^']+)'/.exec(rest);    // unsere Beschreibung
-    const gruppe = /\bf:\s*'([^']+)'/.exec(rest);    // Kollektionsgruppe
-    const wert = name ? name[1] : (farbe ? farbe[1] : (gruppe ? gruppe[1] : null));
-    if (wert) karte.set(m[1], { text: wert, istName: !!(name || farbe) });
+    /* Nur Herstellername (n), sonst Kollektionsgruppe (f). Ein Feld fb
+     * mit einer selbst gemessenen Farbe gab es am 23.11.2026
+     * kurzzeitig; es ist auf Ansage des Betreibers wieder raus. */
+    const name = /\bn:\s*'([^']+)'/.exec(rest);
+    const gruppe = /\bf:\s*'([^']+)'/.exec(rest);
+    const wert = name ? name[1] : (gruppe ? gruppe[1] : null);
+    if (wert) karte.set(m[1], { text: wert, istName: !!name });
   }
   return karte;
 }
@@ -94,8 +96,8 @@ export function block() {
   }
   const ohneNamen = dessins().filter((d) => !welten.get(d).istName);
   if (ohneNamen.length) {
-    console.log(`Hinweis: ${ohneNamen.length} von ${dessins().length} Dessins haben weder`
-      + ' Herstellernamen (n) noch gemessene Farbe (fb). Dort steht die Gruppe.');
+    console.log(`Hinweis: ${ohneNamen.length} von ${dessins().length} Dessins haben keinen`
+      + ' Herstellernamen. Dort steht die Kollektionsgruppe.');
   }
   dessins().forEach((d, i) => {
     const welt = welten.get(d).text;
