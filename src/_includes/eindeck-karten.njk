@@ -23,9 +23,9 @@
    Licht durch, ob es ueber einer Terrasse oder ueber einem Fahrrad
    liegt. Der Fusstext sagt das.
    ============================================================ #}
-<div id="eindeckung" style="margin-top:44px;">
-  <h3 style="margin-bottom:10px;font-size:1.1rem;">{{ eindeckUeber }}</h3>
-  <p style="margin-bottom:4px;font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:70ch;">{{ eindeckText }}</p>
+<div id="eindeckung" class="eindeck-block">
+  <h3>{{ eindeckUeber }}</h3>
+  <p class="eindeck-intro">{{ eindeckText }}</p>
   <div class="eindeck-karten eindeck-karten--vier">
     <div class="eindeck-karte">
       <div class="eindeck-bild">
@@ -33,7 +33,7 @@
       </div>
       <div class="eindeck-text">
         <h4>VSG-Glas 8 mm, klar</h4>
-        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Das meiste Tageslicht und freier Blick nach oben.</p>
+        <p class="eindeck-beschreibung">Das meiste Tageslicht und freier Blick nach oben.</p>
         <ul class="eindeck-werte">
           <li><span>Tageslicht</span><b>88 %</b></li>
           <li><span>Sonnenwärme</span><b>85 %</b></li>
@@ -48,7 +48,7 @@
       </div>
       <div class="eindeck-text">
         <h4>VSG-Glas 8 mm, opal</h4>
-        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Streut das Licht und nimmt die Blendung heraus.</p>
+        <p class="eindeck-beschreibung">Streut das Licht und nimmt die Blendung heraus.</p>
         <ul class="eindeck-werte">
           <li><span>Tageslicht</span><b>63 %</b></li>
           <li><span>Sonnenwärme</span><b>52 %</b></li>
@@ -63,7 +63,7 @@
       </div>
       <div class="eindeck-text">
         <h4>Polycarbonat 16 mm, klar</h4>
-        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Leichter als Glas, hagelfest, etwas lauter bei Regen.</p>
+        <p class="eindeck-beschreibung">Leichter als Glas, hagelfest, etwas lauter bei Regen.</p>
         <ul class="eindeck-werte">
           <li><span>Tageslicht</span><b>70 %</b></li>
           <li><span>Sonnenwärme</span><b>62 %</b></li>
@@ -78,7 +78,7 @@
       </div>
       <div class="eindeck-text">
         <h4>Polycarbonat 16 mm, opal</h4>
-        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Weiches Licht und am wenigsten Sonnenwärme von außen.</p>
+        <p class="eindeck-beschreibung">Weiches Licht und am wenigsten Sonnenwärme von außen.</p>
         <ul class="eindeck-werte">
           <li><span>Tageslicht</span><b>55 %</b></li>
           <li><span>Sonnenwärme</span><b>54 %</b></li>
@@ -88,7 +88,7 @@
       </div>
     </div>
   </div>
-  <p style="margin-top:12px;font-size:0.82rem;color:var(--muted);">
+  <p class="eindeck-fuss">
     Tageslicht und Sonnenwärme sind Herstellerangaben für die jeweilige Platte.
     Die Schalldämmung bezieht sich auf das Regengeräusch.{% if eindeckFuss %} {{ eindeckFuss }}{% endif %}
     Maße und Statik legen wir im Angebot verbindlich fest.

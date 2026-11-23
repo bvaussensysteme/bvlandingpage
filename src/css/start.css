@@ -100,6 +100,19 @@
 .start-premium .hs-heading { font-weight: 800; letter-spacing: -0.02em; }
 .start-premium h2 { letter-spacing: -0.015em; }
 .start-premium p  { font-weight: 400; }
+/* AUSNAHME 23.11.2026. Die Regel darueber hat als Klasse plus Typ
+   eine hoehere Spezifitaet als eine einzelne Klasse und steht
+   zusaetzlich in der spaeter geladenen Datei. Sie schlaegt damit
+   .eindeck-fuss aus src/css/style.css, obwohl dort font-weight: 500
+   steht.
+   Das ist kein Schoenheitsfehler: docs/WEBSITE_DESIGN_SYSTEM.md
+   verlangt bei Kleintext unter 14 px mindestens Medium 500, und der
+   Quellenhinweis unter den Eindeckkarten ist 13 px gross. Gemessen
+   vor dieser Zeile: 13 px bei Gewicht 400.
+   Die Regel steht hier und nicht in style.css, weil nur hier die
+   Reihenfolge stimmt. In style.css bleibt font-weight: 500 als
+   Grundlage fuer Seiten ohne die Designschicht stehen. */
+.start-premium .eindeck-fuss { font-weight: 500; }
 
 /* Fokusring: zwei Ringe, umgeschaltet am Abschnitt – NICHT über
    prefers-color-scheme. Helle und dunkle Bereiche liegen auf derselben

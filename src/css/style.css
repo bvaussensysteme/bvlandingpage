@@ -4488,9 +4488,56 @@ body.bv-konfig-open #bvKonfigBubble {
    Spalten steht die vierte Karte allein in einer zweiten Reihe
    und sieht aus wie vergessen. Gemessen bei 1280 px, bevor die
    Stufen hier standen. */
+/* AUF DIE MASSSTAEBE GEBRACHT am 23.11.2026 (Schritt 4, Design).
+   Diese Komponente entstand in der Lieferanten-Runde und benutzte
+   keinen einzigen Wert der Gestaltungs-Tokens weiter oben: Radien 14
+   und 12 px neben der Skala 6/10/16/22, Schriftgroessen 0,86 / 0,92 /
+   0,84 / 0,82 rem neben der Leiter, Abstaende 20 / 28 / 18 / 14 / 10 /
+   6 px neben dem 4er-Rhythmus.
+   Der Kommentar im Tokenblock sagt, woran das haengt: Ohne Massstab
+   wirkt jede Entscheidung fuer sich richtig und keine mit den anderen
+   zusammen. Genau so sah diese Karte neben den uebrigen aus.
+   Regel beim Angleichen: nicht der naechste Pixelwert, sondern das
+   Token mit dem passenden ZWECK. --txt-sm heisst laut Kommentar
+   "Sekundaertext, Kartenbeschreibung", --txt-xs
+   "Bildunterschriften, Hinweise". Wo ein Wert genau zwischen zwei
+   Stufen lag (20, 14, 10, 6 px), ging er nach oben: Die Marke setzt
+   auf grosszuegige Leere, nicht auf Enge. */
 .eindeck-karten {
-  display: grid; gap: 20px; margin-top: 28px;
+  display: grid; gap: var(--sp-5); margin-top: var(--sp-6);
   grid-template-columns: 1fr;
+}
+
+/* GEMEINSAME STILE FUER DEN KARTENBLOCK.
+   Angelegt am 23.11.2026, weil src/_includes/eindeck-karten.njk UND
+   src/produkte/terrassenueberdachung.njk dieselben Stile inline
+   trugen, und zwar bis auf einen Wert gleich: 44 px Abstand oben im
+   Baustein gegen 40 px auf der Terrassenseite. Dieselbe Komponente
+   sah an zwei Stellen unterschiedlich aus, und kein Mensch haette
+   gewusst, welcher Wert gilt.
+   Inline-Stile waren hier auch ein Widerspruch in sich: Der
+   Kommentar oben begruendet das Verschieben der Karten-CSS in diese
+   Datei ausdruecklich mit "zwei Kopien waeren zwei Wahrheiten", und
+   die Textstile standen trotzdem weiter in der Vorlage. */
+.eindeck-block { margin-top: var(--sp-7); }
+.eindeck-block > h3 {
+  margin: 0 0 var(--sp-3); font-size: var(--txt-md);
+}
+.eindeck-intro {
+  margin: 0 0 var(--sp-1); font-size: var(--txt-sm);
+  color: var(--muted); line-height: 1.6; max-width: 70ch;
+}
+/* Die kurze Einordnung unter dem Plattennamen. */
+.eindeck-beschreibung {
+  margin: 0 0 var(--sp-3); font-size: var(--txt-sm);
+  color: var(--muted); line-height: 1.5;
+}
+/* Quellenhinweis unter den Karten. Unter 14 px verlangt
+   docs/WEBSITE_DESIGN_SYSTEM.md mindestens Medium 500, deshalb
+   steht das Gewicht hier und nicht auf 400. */
+.eindeck-fuss {
+  margin-top: var(--sp-3); font-size: var(--txt-xs);
+  font-weight: 500; color: var(--muted);
 }
 /* ZUBEHOERBILDER im aufklappbaren Abschnitt. Zwei Spalten erst ab
    420 px: Darunter stuenden zwei Bilder nebeneinander so schmal,
@@ -4504,11 +4551,12 @@ body.bv-konfig-open #bvKonfigBubble {
 }
 .zub-bild { margin: 0; }
 .zub-bild img {
-  display: block; width: 100%; height: auto; border-radius: 12px;
+  display: block; width: 100%; height: auto; border-radius: var(--radius);
   background: var(--white); border: 1px solid var(--border);
 }
 .zub-bild figcaption {
-  margin-top: 8px; font-size: 0.84rem; color: var(--muted);
+  margin-top: var(--sp-2); font-size: var(--txt-xs);
+  font-weight: 500; color: var(--muted);
 }
 @media (min-width: 560px) {
   .eindeck-karten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -4521,23 +4569,23 @@ body.bv-konfig-open #bvKonfigBubble {
 }
 .eindeck-karte {
   background: var(--white); border: 1px solid var(--border);
-  border-radius: 14px; overflow: hidden;
+  border-radius: var(--radius-lg); overflow: hidden;
 }
 .eindeck-bild {
   background: var(--light-bg); aspect-ratio: 4 / 3;
-  display: flex; align-items: center; justify-content: center; padding: 14px;
+  display: flex; align-items: center; justify-content: center; padding: var(--sp-4);
 }
 .eindeck-bild img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.eindeck-text { padding: 16px 18px 18px; }
+.eindeck-text { padding: var(--sp-4); }
 .eindeck-text h4 {
-  font-size: 1rem; margin: 0 0 10px; color: var(--black);
+  font-size: var(--txt-base); margin: 0 0 var(--sp-3); color: var(--black);
   font-family: var(--schrift); font-weight: 700;
 }
 .eindeck-werte { list-style: none; margin: 0; padding: 0; }
 .eindeck-werte li {
-  display: flex; justify-content: space-between; gap: 10px;
-  font-size: 0.86rem; color: var(--muted);
-  padding: 6px 0; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; gap: var(--sp-3);
+  font-size: var(--txt-sm); color: var(--muted);
+  padding: var(--sp-2) 0; border-bottom: 1px solid var(--border);
 }
 .eindeck-werte li:last-child { border-bottom: none; }
 .eindeck-werte b { color: var(--black); font-weight: 700; font-variant-numeric: tabular-nums; }
