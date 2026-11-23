@@ -22545,3 +22545,55 @@ weiterhin auf der Pergola- und der Sonnenschutzseite sowie in
 Steuerungen, keine Wettbewerber, und die Nennung ist eine
 Sachangabe. **Dabei aufgefallen:** Auf der Sonnenschutzseite steht
 „Mit Somfy-Antrieben aus eigener Herstellung". Das widerspricht sich.
+
+## 23.11.2026 · Garantiezeile nach dem Katalog ausgerichtet
+
+**Anlass.** Frage an den Betreiber, ob die Zeile „10 Jahre
+Herstellergarantie" genau dort stehen soll, wo der Produktkatalog
+2026 sie nennt. Antwort: „ja".
+
+**Belegt im Katalog** („10 Jahre Produktgarantie" als Merkmal):
+Terrassendach TDS (S. 4), Sky View (S. 10), Carport TDS (S. 14),
+Flat Box (S. 20), Eingangsüberdachung TDS (S. 30), Vordach FLY
+(S. 34), Balkonüberdachung TDS (S. 38), Kaltwintergarten TDS
+(S. 42), Rahmengeländer TDS (S. 46), Gartenhaus TDS (S. 50).
+Beim Plissee stehen 3 Jahre (S. 90).
+
+**Nicht belegt:** Flat Line (S. 18), SunPro Plus (S. 24), SunPro ONE
+(S. 26), Velaris (S. 28), Vordach Front Line (S. 36), Easy Rail
+(S. 48), Holzdekorprofile (S. 52), DECO WALL (S. 54).
+
+**Geändert:**
+- `carport.njk`: Flat Line verliert die Zeile, behält CE. Die
+  Fußnote der Vergleichstabelle nennt jetzt ausdrücklich, dass
+  Carport TDS und Flat Box die Garantie tragen.
+- `pergola.njk`: SunPro Plus, Lamaxa L50 Lamelle und Lamaxa L50 Tex
+  verlieren die Zeile. Die Fußnote sagt, dass der Hersteller für die
+  Lamellendächer keine Garantie aufführt.
+
+**Eine Ausnahme, mit Grund.** Beim **SunPro One** bleibt die Zeile
+stehen. Sie steht dort seit dem 22.11.2026 auf ausdrückliche
+Entscheidung des Betreibers, festgehalten im Eintrag „SunPro One:
+eigene Fassung aus den Angaben des Herstellers": „Die zehn Jahre und
+die CE-Kennzeichnung folgen der Entscheidung des Betreibers vom
+selben Tag." Eine ausdrückliche Zusage des Betriebsinhabers wiegt
+schwerer als das Schweigen einer Werbebroschüre. Das ist in der
+Fußnote auch so benannt.
+
+**Was das bedeutet, und was offen bleibt.** Ein Katalog ist kein
+Garantiedokument. Dass ein Produkt dort keine Garantiezeile hat,
+heißt nicht zwingend, dass es keine gibt. Die Zeilen sind entfernt,
+weil der Betreiber es so entschieden hat, nicht weil erwiesen wäre,
+dass es die Garantie nicht gibt. **Gilt die Zusage aus dem
+Liefervertrag für alle Produkte des Herstellers, stelle ich die
+entfernten Zeilen in einem Zug wieder her.**
+
+**Nicht angefasst, weil ohne Beleg in beide Richtungen:**
+„5 Jahre Herstellergarantie auf Markisen" (`sonnenschutz.njk`) und
+„2 Jahre Herstellergarantie auf die Antriebe" (`pflege.njk`). Der
+Katalog nennt zu Markisen keine Garantie und beim Plissee 3 Jahre.
+
+**Gegengelesen.** `pruefe-vergleich`, `pruefe-metatexte`,
+`pruefe-schema-gueltig`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`.
+Jede verbliebene Garantiezeile ihrem Produkt zugeordnet und gegen die
+Katalogliste geprüft.

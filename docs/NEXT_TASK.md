@@ -652,11 +652,10 @@ gilt.**
 
 ## Noch nicht entschieden (23.11.2026)
 
-- **Garantie je Produkt ausrichten.** Der Katalog nennt „10 Jahre
-  Produktgarantie" bei zehn Produkten namentlich, bei Easy Rail, Deco
-  Wall, Sichtschutz und den Lamellendächern nicht, beim Plissee stehen
-  3 Jahre. Soll die Zeile auf unseren Seiten genau danach gesetzt
-  werden?
+- **Garantie je Produkt ausrichten. ERLEDIGT am 23.11.2026**, Antwort
+  „ja". Offen bleibt die Gegenfrage: Gilt die 10-Jahre-Zusage aus dem
+  Liefervertrag für **alle** Produkte des Herstellers? Dann kommen die
+  entfernten Zeilen zurück. Ein Katalog ist kein Garantiedokument.
 - **Fremde Modellnamen. ERLEDIGT am 23.11.2026.** Ansage: „fremde
   namen nicht übernehmen". Sie standen bereits auf
   `produkte/sonnenschutz.html` und in 26 Bilddateinamen; beides
