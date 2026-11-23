@@ -669,3 +669,124 @@ Fällen, 0 Überlauf in den Listenpunkten und in den Fußzeilen der
 Vergleiche. Der Mittelpunkt in „· CE-gekennzeichnet" bricht sauber um,
 weil Leerzeichen daneben stehen. Die längste Zeile wird bei 320 px
 etwa vier Zeilen hoch, die Pergola-Fußzeile etwa neun.
+
+## Spezifitätsfalle: fünf Schriftgewichte erreichen den Bildschirm nicht (23.11.2026)
+
+**Gefunden** beim Prüferdurchgang zu Schritt 4 (Fachbereich 1), als
+Folge eines Einzelfalls, der dabei behoben wurde.
+
+### Was dahintersteckt
+
+`src/css/start.css` Zeile 102 enthält:
+
+```css
+.start-premium p  { font-weight: 400; }
+```
+
+Dieser Selektor ist eine Klasse **plus ein Typ**, hat also Spezifität
+(0,1,1). Eine einzelne Klasse wie `.stoff-dessin` hat (0,1,0) und
+verliert damit immer. Dazu kommt, dass `start.css` nach `style.css`
+geladen wird, was in `src/_includes/layout.njk` ausdrücklich so
+gewollt ist („Die Designschicht baut darauf auf").
+
+Ergebnis: **Jedes `font-weight` in `style.css`, das an einem `<p>` per
+einzelner Klasse hängt, ist wirkungslos**, ohne dass irgendwo ein
+Fehler auftaucht. Die Regel steht da, sieht richtig aus und kommt nie
+auf dem Bildschirm an.
+
+### Gemessen
+
+55 erzeugte Seiten bei 1280 px, einmal mit und einmal ohne `start.css`,
+verglichen wurde das berechnete `font-weight`:
+
+| Regel in `style.css` | gewollt | tatsächlich | betroffen |
+|---|---|---|---|
+| `.kontakt-quick-lead` (Zeile 1401) | 700 | **400** | `index.html` und zwei weitere |
+| `.vd-model-tile p` (Zeile 3153) | 600 | **400** | Sonnenschutz-Seiten |
+| `.bg-search-label` | 600 | **400** | `baugenehmigung.html` |
+| `.bro-ende-frage` | 700 | **400** | `broschuere.html` |
+| `.stoff-dessin` | 600 | **400** | `stoffe.html` |
+
+Betroffen sind nur Seiten mit `start-premium` am `<body>`, und das ist
+laut `layout.njk:126` der Normalfall.
+
+### Was am 23.11.2026 davon behoben wurde
+
+Nur der sechste Fall, weil er in der laufenden Arbeit auftrat:
+`.eindeck-fuss` sollte 500 tragen und trug 400, was gegen die Vorgabe
+des Designsystems verstieß (Kleintext unter 14 px braucht mindestens
+Medium 500). Behoben mit `.start-premium .eindeck-fuss` in `start.css`.
+
+**Die fünf Zeilen oben sind absichtlich nicht angefasst.** Sie liegen
+außerhalb des Auftrags, und sie sichtbar fetter zu machen ist eine
+Gestaltungsänderung auf fünf Seiten, die der Betreiber sehen sollte.
+
+### Zwei Wege, und was sie kosten
+
+1. **Je Zeile eine Ausnahme in `start.css`**, nach dem Muster von
+   `.eindeck-fuss`. Sicher und klein, behebt aber nur die bekannten
+   Fälle. Die nächste Klasse mit eigenem Gewicht tappt wieder hinein.
+2. **`start.css:102` auf `:where(.start-premium) p` umstellen.**
+   `:where()` zählt mit Spezifität 0, der Selektor fällt damit auf
+   (0,0,1) und verliert gegen jede Klasse. Das beseitigt die ganze
+   Fehlerklasse auf einmal. Es ändert aber das Aussehen **aller**
+   `<p>`, die ein Klassengewicht tragen, also mindestens der fünf oben.
+   Braucht eine Messung vorher und nachher und eine Freigabe.
+
+### Was dabei zusätzlich fehlt
+
+**Keine der 82 Prüfungen vergleicht das berechnete Schriftgewicht mit
+dem, was in `style.css` steht.** `pruefe-darstellung.mjs` und
+`pruefe-mitwachsend.mjs` messen Gewichte nicht. Das ist dieselbe Art
+Lücke wie bei den Fokusringen: Eine Regel kann im Quelltext stehen,
+komplett wirkungslos sein, und alle Prüfungen bleiben grün. Eine
+Prüfung „berechnetes Gewicht entspricht der Absicht in style.css",
+mit Gegenprobe, würde beide Fälle abdecken.
+
+### Weitere Stellen derselben Art, nicht bewertet
+
+- `start.css:101` `.start-premium h2 { letter-spacing }` schlägt jede
+  Einzelklasse an einem `h2`.
+- `start.css:220` setzt `.hero-slogan` auf 600 statt 700,
+  `start.css:300` `.leistung-body h3` auf 700, `start.css:99` h1 bis h3
+  auf 800. Diese drei sind vermutlich gewollt.
+
+## Nebenbefunde aus Schritt 4 (23.11.2026)
+
+- **Zeilenhöhen 1.6 und 1.5 stehen roh** in `src/css/style.css` bei
+  `.eindeck-intro` und `.eindeck-beschreibung`. Ob es Tokens für
+  Zeilenhöhen gibt, ist ungeprüft. Zwei Werte für zwei Absatzarten in
+  derselben Komponente.
+- **`.eindeck-text h4` setzt `color` und `font-family` erneut**,
+  obwohl beides geerbt wird. Redundanz, kein Fehler.
+- **Die Überschriftenstufe passt nicht zur Tag-Stufe.**
+  `.eindeck-text h4` benutzt `--txt-base`, das ist die Größe des
+  globalen `h5`. Semantisch ist die Gliederung richtig (h3, dann h4),
+  optisch liegt sie eine Stufe tiefer.
+- **Die Rangfolge in der Karte hängt an Gewicht und Farbe, nicht an
+  der Größe.** Kartenüberschrift 16 px gegen Werteliste 15 px ist der
+  kleinste Schritt der Leiter, und die Zahl in der Werteliste ist
+  ebenfalls 700 und schwarz. Im Screenshot bei 390 px trägt die
+  Rangfolge trotzdem, weil die Zahlen rechtsbündig in einer Zeile mit
+  heller Beschriftung stehen und der Titel allein links. Wenn es
+  flacher wirken soll: Titel auf `--txt-md` oder Zahlen auf Gewicht
+  600. Gestaltungsentscheidung.
+- **Die Materialkarte ist die einzige Karte mit 16 px Radius.**
+  `.start-premium .produkt-card` hat 10 px mit Schatten,
+  `.produkt-grid .produkt-card` gar keinen Kasten. Die Karte sitzt auf
+  der Skala, aber auf einer anderen Stufe als die Produktkarten.
+  Gestaltungsentscheidung.
+- **Zwei Wahrheiten bleiben beim Markup**, nicht mehr beim Stil:
+  `terrassenueberdachung.njk` führt sechs Karten mit eigenen Texten,
+  der Baustein vier. Das ist ein Inhaltsunterschied und braucht eine
+  Entscheidung.
+- **Beim Zurücknehmen von `69b48e7`** die Versionsnummern auf einen
+  **neuen** Wert setzen, nicht zurück auf `h` und `b`. Browser halten
+  Dateien laut `_headers` bis zu 24 Stunden; wer zwischendurch `i`
+  geladen hat, behielte sonst den neuen Stand. Danach
+  `scripts/pruefe-cache-buster.sh` laufen lassen.
+- **Kein Befund, geprüft:** Auf einem Screenshot der Kartenkomponente
+  blieben zwei von vier Bildflächen grau. Nachgemessen laden alle vier
+  Bilder einwandfrei mit 960 × 540. Der Screenshot nahm ein 5260 px
+  hohes Element auf einmal auf, und die `loading="lazy"`-Bilder
+  unterhalb des Sichtfensters waren zu dem Zeitpunkt nicht geladen.

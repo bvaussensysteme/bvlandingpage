@@ -4543,7 +4543,9 @@ body.bv-konfig-open #bvKonfigBubble {
    420 px: Darunter stuenden zwei Bilder nebeneinander so schmal,
    dass von einem Minispot nichts mehr zu erkennen ist. */
 .zub-bilder {
-  display: grid; gap: 16px; margin: 0 0 16px;
+  display: grid; gap: var(--sp-4); margin: 0 0 var(--sp-4);
+  /* max-width bleibt ein Einzelwert: Das ist eine Bildbreite, kein
+     Abstand, und steht deshalb auf keiner Abstandsskala. */
   grid-template-columns: 1fr; max-width: 520px;
 }
 @media (min-width: 420px) {
