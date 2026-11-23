@@ -56,10 +56,23 @@ export function farbwelten() {
     console.error('js/markisenstoffe.js: die Abschnitte "dach:" und "zip:" sind nicht zu finden.');
     process.exit(2);
   }
+  /* Bevorzugt den echten Farbnamen (Feld n), sonst die Gruppe (f).
+   * Stand 23.11.2026 haben die 53 Dachstoffe KEIN n, deshalb steht
+   * dort die Gruppe. Ansage des Betreibers: "das sind die Stoff
+   * unterordnungen aber ich meine wirklich den stofffarbnamen".
+   * Sobald die Namen in js/markisenstoffe.js stehen, nimmt die
+   * Beschriftung sie von selbst, ohne Aenderung an diesem Skript. */
   const karte = new Map();
-  const rx = /\{\s*c:\s*'([^']+)',\s*f:\s*'([^']+)'/g;
+  const rx = /\{\s*c:\s*'([^']+)'([^}]*)\}/g;
   let m;
-  while ((m = rx.exec(roh.slice(anfang, ende))) !== null) karte.set(m[1], m[2]);
+  const teil = roh.slice(anfang, ende);
+  while ((m = rx.exec(teil)) !== null) {
+    const rest = m[2];
+    const name = /\bn:\s*'([^']+)'/.exec(rest);
+    const gruppe = /\bf:\s*'([^']+)'/.exec(rest);
+    const wert = name ? name[1] : (gruppe ? gruppe[1] : null);
+    if (wert) karte.set(m[1], { text: wert, istName: !!name });
+  }
   return karte;
 }
 
@@ -78,14 +91,19 @@ export function block() {
     console.error('Keine Farbwelt in js/markisenstoffe.js fuer: ' + ohne.join(', '));
     process.exit(2);
   }
+  const ohneNamen = dessins().filter((d) => !welten.get(d).istName);
+  if (ohneNamen.length) {
+    console.log(`Hinweis: ${ohneNamen.length} von ${dessins().length} Dessins haben keinen`
+      + ' eigenen Farbnamen in js/markisenstoffe.js. Dort steht die Gruppe.');
+  }
   dessins().forEach((d, i) => {
-    const welt = welten.get(d);
+    const welt = welten.get(d).text;
     const faul = i < SOFORT ? '' : ' loading="lazy"';
     zeilen.push('      <li>');
     zeilen.push(`        <a class="galerie-kachel" href="/stoffe.html" data-nr="${i}"`);
-    zeilen.push(`           aria-label="Dessin ${d}, Farbwelt ${welt}, auf der Stoffseite ansehen">`);
+    zeilen.push(`           aria-label="Dessin ${d}, ${welt}, auf der Stoffseite ansehen">`);
     zeilen.push(`          <img src="/images/stoffe/startseite/${d}.webp"`);
-    zeilen.push(`               alt="Markisenstoff Dessin ${d}, Farbwelt ${welt}, Musterausschnitt"`);
+    zeilen.push(`               alt="Markisenstoff Dessin ${d}, ${welt}, Musterausschnitt"`);
     zeilen.push(`               width="240" height="240"${faul} decoding="async">`);
     /* Die Beschriftung, die beim Drueberfahren erscheint. Ansage des
      * Betreibers vom 23.11.2026: "wenn man ueber nen stoff mit der
