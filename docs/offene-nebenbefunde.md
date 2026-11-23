@@ -790,3 +790,89 @@ mit Gegenprobe, würde beide Fälle abdecken.
   Bilder einwandfrei mit 960 × 540. Der Screenshot nahm ein 5260 px
   hohes Element auf einmal auf, und die `loading="lazy"`-Bilder
   unterhalb des Sichtfensters waren zu dem Zeitpunkt nicht geladen.
+
+## Schwebende Knöpfe decken Produktwerte zu (23.11.2026, gemessen)
+
+**Gefunden** beim Ansehen der Vorschau nach Schritt 4. **Nicht durch
+die Designarbeit verursacht**, die Knöpfe und die rechtsbündigen
+Zahlen gab es vorher schon. Durch die größere Schrift fällt es nur
+stärker auf.
+
+### Was passiert
+
+Auf `/produkte/balkon-fassade` liegen bei 390 px vier schwebende
+Elemente über dem Inhalt: `stickyCta`, `bv-a11y-trigger`,
+`bv-scroll-top` und `bvKonfigBubble`. Die drei runden Knöpfe stapeln
+sich am rechten Rand, genau dort, wo die Zahlen der Eindeckkarten
+rechtsbündig stehen.
+
+**Sichtbar im Bild:** „88 %" wird zu „88", „85 %" zu „85". Das
+Prozentzeichen fehlt. Unten deckt die Anfrageleiste die Zeilen
+„Schalldämmung" und „Stärke" zu.
+
+### Wie gemessen wurde
+
+Nicht über den Vergleich von Rechtecken, denn der würde auch
+Überlappungen melden, die der Browser gar nicht zeichnet. Stattdessen
+`document.elementFromPoint` in der Mitte jeder Zahl: Wenn dort ein
+anderes Element antwortet als die Zahl selbst, ist sie wirklich
+verdeckt.
+
+| Breite | wirklich verdeckt |
+|---|---|
+| 320 px | „85 %", „36 dB", „Stärke", „8 mm" |
+| 390 px | „88 %", „85 %", „Schalldämmung", „36 dB", „Stärke", „8 mm" |
+
+Bei 390 px sind das **sechs von acht** Werten und Beschriftungen der
+ersten Karte, an dieser Scrollposition.
+
+### Warum es nicht einfach behoben wurde
+
+Die Knöpfe sind globale Bedienelemente und stehen auf **jeder** Seite.
+Sie zu verschieben, zu verkleinern oder auszublenden ist eine
+Gestaltungsentscheidung mit Wirkung auf die ganze Webseite, nicht auf
+diese Komponente. Sie fällt auch nicht unter die Dauerregel vom
+15.11.2026: Dort stehen Kontrast, Überlauf, Trefferflächen, WCAG A und
+AA, kaputte Verweise, doppelte IDs und ungültige Attribute. Ein
+schwebendes Bedienelement, das Inhalt überdeckt, ist keines davon, und
+es gibt dafür auch kein eindeutiges WCAG-Kriterium.
+
+### Was dagegen hilft, zur Auswahl
+
+1. **Den Karten am Handy rechts mehr Polster geben**, damit die Zahlen
+   nicht unter den Knöpfen liegen. Kleinster Eingriff, hilft aber nur
+   dieser Komponente.
+2. **Die drei runden Knöpfe am Handy enger stellen oder zusammenlegen.**
+   Wirkt überall, ist aber ein sichtbarer Umbau der Bedienung.
+3. **Die Knöpfe beim Scrollen über Inhalt mit Werten ausblenden.**
+   Aufwändiger und schwerer vorhersagbar.
+
+Das ist eine Entscheidung des Betreibers. Ein Bild der Stelle bei
+390 px wurde ihm am 23.11.2026 geschickt.
+
+### Verwandt, schon bekannt
+
+`bvKonfigBubble` und `bv-a11y-trigger` liegen bei 1024 px mit 43 × 24
+bis 43 × 48 px auf `.produkt-bild-knopf`. Siehe weiter oben, Abschnitt
+„Barrierefreiheit, offen weil nicht belegbar". Es ist dasselbe Muster:
+Die schwebenden Knöpfe sind nirgends gegen den Inhalt geprüft, über
+den sie liegen.
+
+## Zwei weitere flackernde Prüfskripte (23.11.2026)
+
+Beim vollständigen Lauf nach Schritt 4 waren fünf Skripte rot. Einzeln
+nachgefahren:
+
+- `pruefe-galerie.mjs`: **zweimal von zwei grün**
+- `pruefe-planken-editor.mjs`: **zweimal von zwei grün**
+
+Beide stehen bisher auf **keiner** Flackerliste. Die bekannte Liste
+nennt `pruefe-freie-planung.mjs`, `pruefe-keil-editor.mjs`,
+`pruefe-prozess-ringe.mjs`, `pruefe-referenz-lauf.mjs` und
+`pruefe-rahmen-editor.mjs`.
+
+**Damit sind es sieben Skripte, die unter Last rot werden und einzeln
+grün sind**, plus `pruefe-schrittwechsel.mjs`, das in beide Richtungen
+flackert. Das ist ein Zehntel aller Prüfungen. Wer einen roten
+Reihenlauf sieht, muss jedes rote Skript einzeln nachfahren, bevor er
+von einem Befund spricht.
