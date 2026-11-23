@@ -22486,3 +22486,62 @@ Breiten, ohne Beanstandung. Dazu `pruefe-metatexte`,
 `pruefe-schema-gueltig`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`,
 `pruefe-keine-preise`. Abschnitt bei 1280 und 390 px gemessen:
 waagerechtes Scrollen 0 px, Bild geladen.
+
+## 23.11.2026 · Fremde Modellnamen von der Sonnenschutzseite entfernt
+
+**Anlass.** Beim Auslesen der Herstellerseiten fiel auf, dass deren
+Markisen-Seite Modellbezeichnungen einer fremden Marke führt. Ich habe
+das als Frage gestellt; die Antwort des Betreibers, wörtlich: „fremde
+namen nicht übernehmen".
+
+**Was dabei herauskam: Sie standen längst bei uns.** Die Frage war
+also keine Vorsichtsmaßnahme, sondern ein Fund. Gezählt am
+23.11.2026:
+- **15 Kacheln** im Abschnitt „Alle Markisen-Modelle im Überblick"
+  auf `produkte/sonnenschutz.html`, je mit Modellnamen in Text und
+  Alt-Text
+- **26 Bilddateien** in `images/`, deren Dateiname den fremden
+  Markennamen trug
+
+Damit stand derselbe Name an 41 Stellen im Repository, das öffentlich
+ist. Das ist genau der Fall, den die Regel „Nachbauten: eigene
+Sprache, eigene Namen" in `CLAUDE.md` abwenden soll: Gegenüber einem
+fremden Markeninhaber ist eine Abmahnung ein reales, teures Risiko,
+und sie kommt ohne Gericht.
+
+**Was jetzt gilt.**
+- Die Dateien heißen nach ihrer **Bauart**:
+  `vd_prod_markise_kassette_a` bis `_e`, `_gelenkarm_halb`,
+  `_gelenkarm_offen_a/b`, `_gelenkarm_fassade`, `_wintergarten_a`
+  bis `_d`.
+- Der Abschnitt zeigt **sechs Bauarten** statt fünfzehn Modelle:
+  Kassette, Gelenkarm halbgeschlossen, Gelenkarm offen,
+  Wintergartenmarkise, Senkrechtmarkise mit Reißverschlussführung,
+  Sonnensegel.
+
+**Warum nicht einfach umbenannt.** Fünf Kassettenmarkisen
+nebeneinander unterscheiden sich für einen Kunden nicht mehr, sobald
+die Modellnummer wegfällt. Eigene Unterschiede zu erfinden („schmaler
+Kasten", „besonders flach") wäre geraten; belegt ist nur die Bauart.
+Darunter steht jetzt, dass es zu jeder Bauart mehrere Ausführungen
+gibt und das Aufmaß entscheidet. Die zehn nicht mehr gezeigten Bilder
+bleiben im Bestand.
+
+**Auch aus den Kommentaren und Notizen.** Der erste Versuch nannte die
+entfernten Namen im Kommentar und in `docs/vd-quellen.md`, um zu
+erklären, worum es geht. Das wäre derselbe Fehler in Grün: Das
+Repository ist öffentlich. Jetzt steht dort die Bauart, nicht die
+Marke.
+
+**Gegengelesen.** Volltextsuche über alle Dateitypen nach den drei
+Namen: keine Treffer mehr. `pruefe-modellbilder`,
+`pruefe-schema-bilder`, `pruefe-metatexte`, `pruefe-schema-gueltig`,
+`pruefe-umbruch`, `pruefe-erzeugte-seiten` bestanden. Jeder Bildpfad
+der Seite gegen das Dateisystem geprüft: keine toten Verweise.
+
+**Nicht angefasst, zur Entscheidung:** `Somfy` und `Teleco` stehen
+weiterhin auf der Pergola- und der Sonnenschutzseite sowie in
+`src/_data/katalogtext.json`. Das sind Hersteller von Antrieben und
+Steuerungen, keine Wettbewerber, und die Nennung ist eine
+Sachangabe. **Dabei aufgefallen:** Auf der Sonnenschutzseite steht
+„Mit Somfy-Antrieben aus eigener Herstellung". Das widerspricht sich.

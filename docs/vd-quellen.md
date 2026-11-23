@@ -155,7 +155,10 @@ Ebenfalls nirgends: Preise.
 ## Vorsicht bei der Markisen-Seite
 
 Die Seite `/produkt/markisen/` führt Modellnamen einer **fremden
-Marke** (Terrea, Climara). Dieselbe Frage wie beim Namen, der am
-22.11.2026 aus `llms.txt` entfernt wurde. Diese Namen gehören nicht
-ungeprüft auf unsere Seite; das ist eine Entscheidung des Betreibers,
-keine des Assistenten.
+Marke**: zwei Namensreihen mit Modellnummern und ein Markenname für
+die Reißverschlussführung. Welche das sind, steht hier nicht: Dieses
+Repository ist öffentlich, und die Regel „Keine fremden Namen.
+Nirgends" aus `CLAUDE.md` gilt auch für eine Notiz.
+
+**Entschieden am 23.11.2026**, Ansage des Betreibers: „fremde namen
+nicht übernehmen". Siehe `docs/entscheidungen.md` zum selben Datum.

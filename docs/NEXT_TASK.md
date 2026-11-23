@@ -657,5 +657,7 @@ gilt.**
   Wall, Sichtschutz und den Lamellendächern nicht, beim Plissee stehen
   3 Jahre. Soll die Zeile auf unseren Seiten genau danach gesetzt
   werden?
-- **Fremde Modellnamen.** Die Markisen-Seite des Herstellers führt
-  Modellnamen einer fremden Marke (Terrea, Climara). Nicht übernommen.
+- **Fremde Modellnamen. ERLEDIGT am 23.11.2026.** Ansage: „fremde
+  namen nicht übernehmen". Sie standen bereits auf
+  `produkte/sonnenschutz.html` und in 26 Bilddateinamen; beides
+  bereinigt, siehe `docs/entscheidungen.md`.
