@@ -28,13 +28,16 @@ npm ci                       # node_modules fehlen in frischen Umgebungen
    `ln -s /opt/node-tools/node_modules/playwright node_modules/playwright`.
 
 **Stand der Prüfungen am 23.11.2026, ehrlich.** Es sind **82 Skripte**
-(48 `.mjs`, 21 `.js`, 9 `.sh`, 4 `.py`). Vollständig gelaufen am
-23.11.2026 nach den Fokusring-Korrekturen: **81 grün, 1 rot.** Das
-eine Rote ist der Altbefund in
-`pruefe-konfigurator-oberflaeche.mjs` (1 von 182 Teilprüfungen).
-`pruefe-cache-buster.sh` war während des Laufs rot, weil die
-Versionsnummern auf den handgepflegten Seiten fehlten; nach der
-Korrektur grün, Exit 0.
+(48 `.mjs`, 21 `.js`, 9 `.sh`, 4 `.py`). Zuletzt vollständig gelaufen
+am 23.11.2026 nach den Garantie- und Überlaufkorrekturen: **80 grün,
+2 rot.** Beide Roten sind Altbefunde:
+`pruefe-konfigurator-oberflaeche.mjs` (1 von 182 Teilprüfungen) und
+`pruefe-schrittwechsel.mjs` (Altbefund B3, flackert, siehe unten).
+
+**Ein Runner muss alle vier Endungen abdecken.** `.js` mit `node`,
+nicht nur `.mjs`. Zwei selbst geschriebene Läufe an diesem Tag haben
+die 21 `.js`-Skripte stillschweigend übersprungen und hätten
+„59 grün" gemeldet, obwohl ein Viertel nicht lief.
 
 Der Rest verhält sich so:
 
@@ -171,19 +174,29 @@ Bewertung holt der Betreiber beim Fachmann.
 ### 3.17 Acht belegte Widersprüche, entschieden wird vom Betreiber
 
 Aus dem Prüferdurchgang vom 23.11.2026. **Alle acht sind im Quelltext
-belegt, keiner ist Geschmack.** Nichts davon wurde geändert, weil es
-Texte, Produktaussagen und Garantieformulierungen sind.
+belegt, keiner ist Geschmack.**
+
+**Drei davon sind am 23.11.2026 erledigt**, nämlich b, c und d. Sie
+betrafen die Garantie, und dort gilt die Ansage „Nicht mehr fragen.
+Diese Zahlen stehen fest.“ Damit waren sie keine offene Frage,
+sondern eine Vorgabe. Zahlen und Begründung in
+`docs/entscheidungen.md`.
+
+**Die übrigen fünf liegen weiter beim Betreiber**, weil sie Texte,
+Produktaussagen oder Werbeaussagen sind.
 
 | # | Fundstelle | Was sich widerspricht |
 |---|---|---|
 | a | `src/_includes/eindeck-karten.njk:81` | Polycarbonat opal heißt dort „am wenigsten Sonnenwärme von außen". Die eigenen Werte im selben Baustein: Polycarbonat opal **54 %** (Zeile 84), VSG opal **52 %** (Zeile 54). Die Aussage ist nach den eigenen Zahlen falsch. Der Baustein steht auf fünf Seiten |
-| b | `src/ratgeber/pergola-kaufen-ratgeber.njk:80` | SunPro Plus „mit 5 Jahren Garantie", `pergola.njk:196` sagt „10 Jahre". Nach der Dauerregel gilt bei Alukonstruktion 10 Jahre. Zu klären, ob die 5 Jahre Tuch oder Motor meinen. Dieselbe Zeile sagt „deutsches Qualitätsprodukt", ein Herkunftsversprechen ohne Beleg im Repository |
-| c | `src/produkte/pergola.njk:335` | „Bei allen vieren gleich: 10 Jahre Herstellergarantie". Zeile 281 (Lamaxa L50 Tex) sagt „10 Jahre auf die Aluminiumkonstruktion, 5 Jahre auf das Tuch". Die Fußzeile ist nicht falsch, aber unvollständig |
-| d | alle Produktseiten mit Elektrik | **Die 2 Jahre auf Elektrik stehen auf keiner Produktseite**, nur im Ratgeber `aluminium-terrasse-pflegen.njk:94`. Verkauft werden Antriebe, Motoren, LED, Lautsprecher und Steuerungen auf Sonnenschutz, Pergola, Terrasse, Eingang und Faltdach. Wer „10 Jahre" neben „motorisierte Lamellen" liest, versteht 10 Jahre auf alles. Bei einem Motorschaden nach drei Jahren entsteht Streit |
+| b | `src/ratgeber/pergola-kaufen-ratgeber.njk:80` | SunPro Plus „mit 5 Jahren Garantie", `pergola.njk:196` sagt „10 Jahre". Nach der Dauerregel gilt bei Alukonstruktion 10 Jahre. Zu klären, ob die 5 Jahre Tuch oder Motor meinen. Dieselbe Zeile sagt „deutsches Qualitätsprodukt", ein Herkunftsversprechen ohne Beleg im Repository **ERLEDIGT 23.11.2026:** Der Ratgeber nennt jetzt 10 Jahre auf die Aluminiumkonstruktion und 2 Jahre auf die Elektrik. „deutsches Qualitätsprodukt“ steht weiter und bleibt offen. |
+| c | `src/produkte/pergola.njk:335` | „Bei allen vieren gleich: 10 Jahre Herstellergarantie". Zeile 281 (Lamaxa L50 Tex) sagt „10 Jahre auf die Aluminiumkonstruktion, 5 Jahre auf das Tuch". Die Fußzeile ist nicht falsch, aber unvollständig **ERLEDIGT 23.11.2026:** Die Fußzeile nennt jetzt die Elektrik mit, und der Tuch-Zusatz für das Lamaxa L50 Tex steht am Ende. |
+| d | alle Produktseiten mit Elektrik | **Die 2 Jahre auf Elektrik stehen auf keiner Produktseite**, nur im Ratgeber `aluminium-terrasse-pflegen.njk:94`. Verkauft werden Antriebe, Motoren, LED, Lautsprecher und Steuerungen auf Sonnenschutz, Pergola, Terrasse, Eingang und Faltdach. Wer „10 Jahre" neben „motorisierte Lamellen" liest, versteht 10 Jahre auf alles. Bei einem Motorschaden nach drei Jahren entsteht Streit **ERLEDIGT 23.11.2026:** Die 2 Jahre stehen jetzt in 18 Zeilen auf 10 Seiten, überall wo Elektrik verkauft wird. Nicht ergänzt bei Carport, Geländer, Sichtschutz, Fassade, Kaltwintergarten und Velaris, die keine Elektrik führen. Offen bleibt allein die Markisen-Konstruktion, siehe unten. |
 | e | `src/produkte/sonnenschutz.njk:224` gegen `:329` | Die Karte sagt Senkrechtbeschattung „bis 6 x 3 m". Die Tabelle nennt „bis 600 x 240 cm oder 300 x 300 cm". 600 x 300 kommt nirgends vor |
 | f | `eindeck-karten.njk:66`, `fahrradueberdachung.njk:110` | „hagelfest" bei Polycarbonat, während `terrassenueberdachung.njk:332` nur „hell und bruchfest" sagt und `aluminium-terrasse-pflegen.njk:94` Hagelschäden auf die Gebäudeversicherung verweist. Beim ersten Hagelschaden steht die Zusage gegen den Ratgeber |
 | g | `src/produkte/eingang.njk:74` | Das Product-Schema sagt „Vordach FLY, Front Line und TDS … ESG-Glas standard". Sichtbar belegt ist das nur für FLY. Front Line nennt keine Verglasung, TDS nennt „Glas oder Polycarbonat". Das Schema behauptet gegenüber Suchmaschinen mehr, als die Seite trägt |
 | h | `src/ratgeber/terrassenueberdachung-kosten.njk` | Im FAQPage-Block weichen **vier von fünf** Antworten im Wortlaut von den sichtbaren `<details>` ab (Zeile 56 bis 60 gegen 118 bis 137). Das ist der Fall, den die Dauerregel „sichtbarer Text und Schema.org zusammen ändern" adressiert |
+
+**Offen geblieben, obwohl es die Garantie betrifft:** `src/produkte/sonnenschutz.njk` nennt an vier Stellen „5 Jahre Herstellergarantie“. Die Elektrikangabe ist dort ergänzt, die 5 Jahre sind unverändert. Ob die Aluminiumkonstruktion einer Gelenkarmmarkise 10 Jahre trägt, sagt die Dauerregel nicht: Sie nennt als Beispiele für „Alu plus Tuch“ das Faltdach und die Pergolamarkise, also Dachkonstruktionen. Eine Erhöhung von 5 auf 10 Jahre **vergrößert** ein Versprechen und wird deshalb nicht geraten. Kommt die Ansage, muss auch die Seitenbeschreibung in Zeile 5 mitgeändert werden, die ebenfalls 5 Jahre nennt.
 
 **Dazu zwei Entscheidungen zur Wegführung, ebenfalls belegt:**
 
