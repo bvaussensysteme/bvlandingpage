@@ -545,3 +545,46 @@ Neun Fachbereiche nach `docs/PRUEFER_REIHENFOLGE.md`, Umfang
 - **Auf keiner Produktseite stehen Lieferzeit und Preisrahmen.** Vor
   der Anfrage bleiben Preis, Dauer und Genehmigung offen. Preise und
   Zusagen sind Betreibersache.
+
+## Wichtig: `pruefe-schrittwechsel.mjs` meldet unter Last falsches Grün (23.11.2026)
+
+**Gemessen am 23.11.2026** beim vollständigen Lauf über alle 82
+Prüfskripte nach den Fokusring-Korrekturen.
+
+**Was passiert ist.** Im Reihenlauf meldete
+`scripts/pruefe-schrittwechsel.mjs` nach 22 Sekunden **grün**.
+Einzeln nachgefahren ist es **dreimal von drei rot**, jedes Mal mit
+derselben Meldung:
+
+```
+FEHLER  Am grossen Bildschirm bleibt die Seite stehen  (pageYOffset 362)
+```
+
+**Warum das wichtiger ist als der Befund selbst.** Die Übergabe kennt
+fünf Konfigurator-Prüfungen, die **flackernd rot** werden, wenn sie
+nebeneinander laufen, und einzeln grün sind. Daraus ist die Regel
+entstanden: Ein roter Konfigurator-Lauf ist erst ein Befund, wenn er
+einzeln wiederholt wurde.
+
+`pruefe-schrittwechsel.mjs` flackert **in die andere Richtung**: unter
+Last **grün**, einzeln **rot**. Eine Prüfung, die fälschlich grün
+meldet, verdeckt eine echte Verschlechterung, statt eine zu erfinden.
+Die bestehende Regel fängt diesen Fall nicht, denn niemand fährt eine
+grüne Prüfung einzeln nach.
+
+**Daraus folgt für die Berichtspraxis:** „Alle grün" aus einem
+Reihenlauf ist für dieses Skript **kein Beleg**. Der Altbefund B3 aus
+`docs/AUDIT-2026-11-22.md` ist unverändert offen, bestätigt mit
+`pageYOffset 362`, nicht mit den früher notierten 64 px.
+
+**Zu prüfen:** Warum die Prüfung unter Last besteht. Vermutlich wartet
+sie auf ein Zeitmaß statt auf einen Zustand, und bei langsamer
+Maschine ist der Rollvorgang beim Messen noch nicht gelaufen. Dann
+wäre die Wartebedingung zu ersetzen, nicht die Zeit zu erhöhen. Das
+ist vermutet, nicht gemessen.
+
+**Nebenbefund zum Runner:** Ein selbst geschriebener Reihenlauf muss
+alle vier Endungen abdecken. Die 82 Skripte verteilen sich auf 48
+`.mjs`, 21 `.js`, 9 `.sh` und 4 `.py`. Ein erster Lauf am 23.11.2026
+übersprang die 21 `.js` stillschweigend und hätte „59 grün" gemeldet,
+obwohl ein Viertel nicht gelaufen war. Nachgefahren: alle 21 grün.

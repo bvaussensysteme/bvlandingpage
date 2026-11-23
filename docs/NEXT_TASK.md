@@ -27,12 +27,25 @@ npm ci                       # node_modules fehlen in frischen Umgebungen
    `node_modules`, hilft
    `ln -s /opt/node-tools/node_modules/playwright node_modules/playwright`.
 
-**Stand der Prüfungen am 22.11.2026, ehrlich.** Von 77 Skripten laufen
-71 bis 73 grün durch. Der Rest verhält sich so:
+**Stand der Prüfungen am 23.11.2026, ehrlich.** Es sind **82 Skripte**
+(48 `.mjs`, 21 `.js`, 9 `.sh`, 4 `.py`). Vollständig gelaufen am
+23.11.2026 nach den Fokusring-Korrekturen: **81 grün, 1 rot.** Das
+eine Rote ist der Altbefund in
+`pruefe-konfigurator-oberflaeche.mjs` (1 von 182 Teilprüfungen).
+`pruefe-cache-buster.sh` war während des Laufs rot, weil die
+Versionsnummern auf den handgepflegten Seiten fehlten; nach der
+Korrektur grün, Exit 0.
+
+Der Rest verhält sich so:
 
 - `pruefe-schrittwechsel.mjs` schlägt fehl. Bekannter Altbefund B3 aus
   `docs/AUDIT-2026-11-22.md`: Am großen Bildschirm rollt beim Klick auf
-  „Weiter" die ganze Seite um 64 px mit.
+  „Weiter" die ganze Seite mit. Gemessen am 23.11.2026:
+  `pageYOffset 362`, nicht die früher notierten 64 px.
+  **Achtung, dieses Skript meldet unter Last falsches Grün.** Im
+  Reihenlauf über alle 82 Skripte war es grün, einzeln dreimal von
+  drei rot. „Alle grün" aus einem Reihenlauf ist für dieses Skript
+  kein Beleg. Einzelheiten in `docs/offene-nebenbefunde.md`.
 - `pruefe-konfigurator-oberflaeche.mjs` meldet 1 von 182 nicht
   bestanden („Der Zeiger auf dem Schild ändert das Bild"). Altbefund.
   **Am 23.11.2026 gegengeprüft** in einem eigenen Arbeitsbaum auf
