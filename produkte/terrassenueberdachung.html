@@ -207,6 +207,24 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   display: grid; gap: 20px; margin-top: 28px;
   grid-template-columns: 1fr;
 }
+/* ZUBEHOERBILDER im aufklappbaren Abschnitt. Zwei Spalten erst ab
+   420 px: Darunter stuenden zwei Bilder nebeneinander so schmal,
+   dass von einem Minispot nichts mehr zu erkennen ist. */
+.zub-bilder {
+  display: grid; gap: 16px; margin: 0 0 16px;
+  grid-template-columns: 1fr; max-width: 520px;
+}
+@media (min-width: 420px) {
+  .zub-bilder { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.zub-bild { margin: 0; }
+.zub-bild img {
+  display: block; width: 100%; height: auto; border-radius: 12px;
+  background: var(--white); border: 1px solid var(--border);
+}
+.zub-bild figcaption {
+  margin-top: 8px; font-size: 0.84rem; color: var(--muted);
+}
 @media (min-width: 560px) {
   .eindeck-karten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -398,6 +416,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <p>Flach, modern, beeindruckend. Das SkyView gibt Ihrer Terrasse einen Charakter der bleibt. Innenliegendes Gefälle: von außen unsichtbar, technisch perfekt. 8 mm VSG-Sicherheitsglas ist Standard. LED und Lautsprecher auf Wunsch. Für alle die etwas Besonderes wollen.</p>
           <ul class="produkt-features">
             <li>8 mm VSG-Sicherheitsglas inklusive: klar (88% Licht, 36dB Schallschutz) oder opal (63% Licht, blickdicht)</li>
+            <li>Auf Wunsch mit Mattfolie, mit wärmereflektierender Beschichtung oder in 16 mm</li>
+            <li>Mindestens 2 Grad Dachneigung. Das Gefälle läuft innen und bleibt von außen unsichtbar</li>
+            <li>Rinnenabdeckung flach, rund oder gerade</li>
             <li>Optional: LED-Beleuchtung & Lautsprecher</li>
             <li>Standardfarben: Anthrazit (RAL 7016), Weißaluminium (RAL 9006), Graualuminium (RAL 9007). Reinweiß gibt es beim Flachdach nicht, Wunschfarbe nach RAL gegen Aufpreis</li>
             <li>Unterdach- und Senkrechtmarkise möglich. Eine Aufdachmarkise passt bauartbedingt nicht auf das Flachdach</li>
@@ -651,6 +672,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </button>
         <div class="faq-a" style="max-height:0;">
           <p style="margin-bottom:12px;">Damit Ihre Terrasse auch nach Sonnenuntergang zum Wohnraum wird: dimmbare LED-Minispots direkt im Dachprofil, dazu wasserfeste Bluetooth-Lautsprecher fürs Musikhören unter der Überdachung. Beides steckbare Systeme, die komplett mit installiert werden.</p>
+          <!-- Die beiden Bilder zeigen, worüber der Text spricht. Ansage des
+               Betreibers vom 23.11.2026 zur Darstellung mit Grafiken: "sowas
+               ähnliches wie auf dem bild mit den grafiken gefällt mir auch sehr
+               gut dem kunden es zu veranschaulichen." -->
+          <div class="zub-bilder">
+            <figure class="zub-bild">
+              <img src="../images/vd_zub_led_minispots.webp" alt="LED-Minispot zum Einbau in das Dachprofil" loading="lazy" width="960" height="960" />
+              <figcaption>LED-Minispot, dimmbar</figcaption>
+            </figure>
+            <figure class="zub-bild">
+              <img src="../images/vd_zub_lautsprecher.webp" alt="Bluetooth-Lautsprecher zum Einbau in das Dachprofil" loading="lazy" width="960" height="960" />
+              <figcaption>Bluetooth-Lautsprecher</figcaption>
+            </figure>
+          </div>
           <ul class="produkt-features" style="margin-bottom:16px;">
             <li>LED-Minispots dimmbar, inkl. Leitungen, Verteiler, Trafo & Fernbedienung</li>
             <li>Bluetooth-Lautsprecher mit wasserdichter Rückseite, direkt im Profil verbaut</li>
@@ -928,7 +963,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/messung.js?v=20261104a" defer></script>
 <script src="/js/accessibility.js?v=20261122k" defer></script>
 <script src="/js/konfigurator-widget.js?v=20260916f" defer></script>
-<script src="/js/markisenstoffe.js?v=20261011a" defer></script>
+<script src="/js/markisenstoffe.js?v=20261123d" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
 <script src="/js/anfrage-wizard.js?v=20261122o" defer></script>
 
