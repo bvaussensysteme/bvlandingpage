@@ -33,6 +33,36 @@ export const ENDE = '      <!-- ENDE Stoffmuster -->';
    sie alle. */
 const SOFORT = 3;
 
+/* Die Farbwelten stehen in js/markisenstoffe.js, der einzigen Liste
+ * im Projekt. Sie wird hier gelesen statt abgeschrieben: Zwei Listen
+ * mit denselben Angaben laufen frueher oder spaeter auseinander.
+ *
+ * ANLASS (23.11.2026). Zuerst stand in der Beschriftung die Stoffart
+ * ("Acrylstoff"). Ansage des Betreibers: "da soll nicht acrylstoff
+ * oderso stehen sondern der farbname, das mit acrylstoff etc steht
+ * dann auf der grossen markisenstoffe seite".
+ *
+ * WAS ES AN FARBNAMEN WIRKLICH GIBT: Die 53 Dachstoffe tragen in der
+ * Stoffkarte keine einzelnen Farbnamen, sondern gehoeren zu einer von
+ * sechs Farbwelten (Sunset, Beach, Ocean, Mountain, Canyon,
+ * Greenery). Nur die 44 ZIP-Stoffe haben eigene Namen wie "UNI
+ * SCHWARZ". Erfunden wird hier nichts: Was in der Beschriftung steht,
+ * steht so in der Liste. */
+export function farbwelten() {
+  const roh = readFileSync(WURZEL + 'js/markisenstoffe.js', 'utf8');
+  const anfang = roh.indexOf('dach:');
+  const ende = roh.indexOf('zip:');
+  if (anfang < 0 || ende < 0 || ende < anfang) {
+    console.error('js/markisenstoffe.js: die Abschnitte "dach:" und "zip:" sind nicht zu finden.');
+    process.exit(2);
+  }
+  const karte = new Map();
+  const rx = /\{\s*c:\s*'([^']+)',\s*f:\s*'([^']+)'/g;
+  let m;
+  while ((m = rx.exec(roh.slice(anfang, ende))) !== null) karte.set(m[1], m[2]);
+  return karte;
+}
+
 export function dessins() {
   return readFileSync(WURZEL + 'scripts/stoff-reihenfolge.txt', 'utf8')
     .split('\n')
@@ -42,21 +72,27 @@ export function dessins() {
 
 export function block() {
   const zeilen = [ANFANG];
+  const welten = farbwelten();
+  const ohne = dessins().filter((d) => !welten.has(d));
+  if (ohne.length) {
+    console.error('Keine Farbwelt in js/markisenstoffe.js fuer: ' + ohne.join(', '));
+    process.exit(2);
+  }
   dessins().forEach((d, i) => {
-    const art = d.startsWith('AC') ? 'Acrylstoff' : 'Polyesterstoff';
+    const welt = welten.get(d);
     const faul = i < SOFORT ? '' : ' loading="lazy"';
     zeilen.push('      <li>');
     zeilen.push(`        <a class="galerie-kachel" href="/stoffe.html" data-nr="${i}"`);
-    zeilen.push(`           aria-label="${art} Dessin ${d} auf der Stoffseite ansehen">`);
+    zeilen.push(`           aria-label="Dessin ${d}, Farbwelt ${welt}, auf der Stoffseite ansehen">`);
     zeilen.push(`          <img src="/images/stoffe/startseite/${d}.webp"`);
-    zeilen.push(`               alt="${art} Dessin ${d}, Musterausschnitt"`);
+    zeilen.push(`               alt="Markisenstoff Dessin ${d}, Farbwelt ${welt}, Musterausschnitt"`);
     zeilen.push(`               width="240" height="240"${faul} decoding="async">`);
     /* Die Beschriftung, die beim Drueberfahren erscheint. Ansage des
      * Betreibers vom 23.11.2026: "wenn man ueber nen stoff mit der
      * maus faehrt ne info steht welcher das is mit code".
      * aria-hidden, weil das aria-label des Links dasselbe schon sagt:
      * Ohne das liest eine Vorlesesoftware den Namen zweimal. */
-    zeilen.push(`          <span class="kachel-info" aria-hidden="true"><b>${d}</b>${art}</span>`);
+    zeilen.push(`          <span class="kachel-info" aria-hidden="true"><b>${d}</b>${welt}</span>`);
     zeilen.push('        </a>');
     zeilen.push('      </li>');
   });
