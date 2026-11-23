@@ -1,6 +1,6 @@
 # Übergabe an den nächsten Chat
 
-**Stand: 22.11.2026.** Arbeitsbranch
+**Stand: 23.11.2026.** Arbeitsbranch
 `claude/bv-aussensysteme-setup-bq7ew4`, alles committet und gepusht.
 `main` ist unberührt, nichts veröffentlicht.
 
@@ -13,124 +13,85 @@ Erst diese Datei lesen, dann `docs/NEXT_TASK.md`, dann `CLAUDE.md`.
 Öffentlich. Nach einem Push ein bis zwei Minuten warten und mit
 Abfrageanhang (`?x=<zufall>`) abrufen, sonst antwortet der
 Zwischenspeicher. **Die Adresse erst nennen, wenn sie selbst abgerufen
-und gegen den eigenen Stand geprüft wurde.**
+und gegen den eigenen Stand geprüft wurde.** Der freie Konfigurator
+unter `/werkstatt/frei.html` liegt hinter dem Werkstatt-Passwort; von
+außen kommt nur die Passwortseite, geprüft wird er lokal im Browser.
 
 ## Was in dieser Sitzung entschieden wurde
 
 | Entscheidung des Betreibers | Folge |
 |---|---|
-| „alle seiten manrope machen, alle seiten design anpassen" | Die laufende Seite ist auf Manrope umgestellt. Damit ist die Frage beantwortet, die `docs/WEBSITE_DESIGN_SYSTEM.md` offen gelassen hatte |
-| „lass die Scheißknöpfe doch in Ruhe" | Die drei schwebenden Knöpfe bleiben, obwohl sie am Telefon auf dem Text liegen. Gemessen, dokumentiert, **nicht erneut vorschlagen** |
-| „Kachel bleibt, aber ruhig gestaltet" | Die letzte Kachel der Referenzgalerie ist weiß statt schwarz, ohne gestrichelte Linie und ohne zweiten Knopf |
-| Keine Diaschau, sondern Pfeile und Wischen | In den Leistungskarten bewegt sich nichts von allein |
+| „velaris is nicht motoresiert, es lässt sich die obere hälfte und untere hälfte getrennt einstellen" | An fünf Stellen korrigiert. Die Seite behauptete eine Motorisierung, die es nicht gibt |
+| „mach modular erweiterbar" | „Für 2 bis 20+ Fahrräder skalierbar" an sechs Stellen ersetzt |
+| „fremde namen nicht übernehmen" | 15 Kacheln und 26 Bilddateinamen bereinigt. Die Namen standen längst bei uns |
+| „Glaszuschnitt machen wir nicht, Holdekor bieten wir aber an mit reinnehmen" | Holzdekorprofile als eigener Abschnitt auf der Fassadenseite, Glaszuschnitt bleibt draußen |
+| „ja" zur Garantie nach Katalog | Flat Line, SunPro Plus und beide Lamaxa verlieren die Zeile. SunPro One behält sie, weil der Betreiber das am 22.11. ausdrücklich entschieden hat |
 
 ## Was diese Sitzung gebaut hat
 
-Bilder zum Blättern an drei Stellen: Leistungskarten der Startseite
-(Pfeile bei Maus, Wischen am Telefon, Punkte und Zahl), Modellbilder
-der 16 Produktseiten (antippen öffnet groß), Referenz-Lauf der
-Startseite (Punkte statt Pfeilen). Dazu Manrope überall und sieben
-neue Prüfskripte.
+**Freier Konfigurator.** Der Unterzug lässt sich jetzt anklicken und
+in der Tiefe ziehen; er trug im Modell gar keine Kennzeichnung und war
+für den Mauszeiger nicht vorhanden. Dazu die lichten Maße in der
+Zeichnung: Feld für Feld von Innenkante zu Innenkante, in der Tiefe
+von der Wand bis zur vorderen Pfostenreihe, am Unterzug geteilt.
 
-Einzelheiten stehen im Logbuch `docs/entscheidungen.md`, Einträge vom
-19. bis 21.11.2026. Nicht hier wiederholen.
+**Inhalte vom Hersteller.** Alle 26 Produktseiten und fünf Dokumente
+gelesen, darunter der Produktkatalog 2026 mit 96 Seiten. Die belegten
+Fakten stehen in eigener Formulierung auf vierzehn Produktseiten:
+Maße, RAL-Nummern mit Nummer, Eindeckungswerte, Profilmaße, Optionen.
 
-## Die sieben neuen Prüfungen
+**Der Baustein `src/_includes/eindeck-karten.njk`.** Die vier
+Eindeckungen mit Tageslicht, Sonnenwärme, Schalldämmung und Stärke
+stehen einmal und werden von vier Seiten eingebunden. Der Kartenstil
+ist aus dem Kopf der Terrassenseite nach `src/css/style.css`
+gewandert.
 
-`pruefe-referenz-galerie.mjs` · `pruefe-staedte-galerie.mjs` ·
-`pruefe-schema-bilder.mjs` · `pruefe-fokus-verdeckung.mjs` ·
-`pruefe-modellbilder.mjs` · `pruefe-bilder-blaettern.mjs` ·
-`pruefe-referenz-lauf.mjs` · `pruefe-schrift.mjs` ·
-`pruefe-schwebe.mjs`
+Einzelheiten im Logbuch `docs/entscheidungen.md`, Einträge vom
+23.11.2026. Nicht hier wiederholen.
 
-Alle mit `--gegenprobe`, alle in `docs/pruefungen.md` beschrieben.
+## Was als Nächstes dran ist
 
-## Das Muster dieser Sitzung, bitte ernst nehmen
+**Schritt 2 der Lieferanten-Runde zu Ende bringen:** jeden berührten
+Fachbereich mit genau einem lesenden Prüfer, in der festen Reihenfolge
+aus `docs/PRUEFER_REIHENFOLGE.md`. Jeder Prüfauftrag nennt die
+geänderten Dateien.
 
-**Vier Prüfungen haben in drei Tagen nur ihre eigene Annahme
-bestätigt.** Eine las die Schrift nur am `body` und meldete tagelang
-„Manrope", während 38 Stellen daneben lagen. Eine suchte Bild-URLs nur
-dort, wo sie sie erwartete, und übersah, dass alle 21 falsch waren.
-Eine baute ihre Fehler auf Seiten ein, die den Fall gar nicht hatten.
-Eine prüfte Wischen mit nachgebauten Ereignissen, die kein echtes
-Scrollen auslösen.
+Danach **Schritt 4: das Design**, mit dem Skill unter
+`.claude/skills/ui-ux-pro-max/` und den Gestaltungsagenten.
 
-**Lehre: Eine Gegenprobe muss am Gegenstand ansetzen, nicht am
-erwarteten Muster.** Nicht „alle URLs, die `images/` enthalten",
-sondern „jede URL im Schema". Nicht „die Schrift am `body`", sondern
-„jede Textstelle".
+## Was gegengelesen werden soll
 
-Dazu einmal eine Prüfung überschrieben, weil der Dateiname schon
-belegt war. Vor `cat > scripts/pruefe-*` nachsehen, ob es die Datei
-gibt.
+1. **Die Garantiezeilen.** Entfernt bei Flat Line, SunPro Plus und
+   beiden Lamaxa, weil der Katalog sie dort nicht führt. **Ein Katalog
+   ist kein Garantiedokument.** Gilt die Zusage aus dem Liefervertrag
+   für alle Produkte, kommen die Zeilen zurück. Frage liegt beim
+   Betreiber, siehe `docs/offene-fragen.md`.
+2. **Die Eindeckungswerte auf Gartenhaus und Fahrradüberdachung.** Der
+   Hersteller nennt sie dort nicht; sie gelten der Platte, nicht dem
+   Produkt. Der Fußtext unter den Karten sagt das.
+3. **Der Holzdekor-Abschnitt.** Der Katalog überschreibt die Farbliste
+   mit „3 Farben" und zählt sechs auf. Auf der Seite steht die Liste
+   ohne die Zahl.
 
-## Erledigt und gemessen, kurz vor Schluss
+## Was offen blieb und warum
 
-Die Gegenprobe der Broschürenprüfung lief über 29 Minuten und wurde
-deshalb übersprungen. Sie läuft jetzt vierfach nebeneinander:
-**gemessen 9 Minuten**, alle 42 eingebauten Fehler werden bemerkt.
-Damit ist Punkt 3.14 weg.
+- **Der vollständige Prüflauf über alle rund 82 Skripte** ist in
+  dieser Sitzung **nicht** gelaufen. Gelaufen sind die fachlich
+  betroffenen, jeweils genannt im Logbuch. `src/css/style.css` wurde
+  geändert, also wäre ein vollständiger Lauf vor einer
+  Veröffentlichung Pflicht.
+- **`pruefe-konfigurator-oberflaeche.mjs`** meldet weiterhin 1 von 182
+  nicht bestanden. Am 23.11. gegengeprüft auf Commit `4f3f135`:
+  derselbe Fehler, also kein Befund aus dieser Arbeit.
+- **Die Quellen des Herstellers liegen nicht im Repository.** Es ist
+  öffentlich. Wer die Zahlen braucht, lädt die Dokumente neu; wo sie
+  stehen, sagt `docs/vd-quellen.md`.
 
-## Zusatz vom 22.11.2026
+## Die Regel, die alles überlagert
 
-Nach der Tastaturkorrektur lief **einmal alles**: 74 Prüfskripte,
-nicht die vermuteten. Ergebnis in `docs/entscheidungen.md`.
-
-Dabei behoben: Alle eigenen JS- und CSS-Verweise tragen jetzt `?v=`
-(vorher hingen vier Dateien auf 51 bis 55 Seiten ohne jede Version,
-darunter `cookie.js`), `pruefe-cache-buster.sh` findet so etwas
-künftig selbst, und `pruefe-marken.js` verlangte seit der
-Manrope-Umstellung vergeblich Arial.
-
-**Zwei Dinge für den nächsten Lauf:** Die fünf Konfigurator-Prüfungen
-nacheinander laufen lassen, nebeneinander brechen sie mit
-`TimeoutError` ab. Und `pruefe-schrittwechsel.mjs` meldet einen
-echten Altbefund (Seite rollt am großen Bildschirm um 64 px mit),
-der schon im Stand vom Sitzungsbeginn steckt.
-
-## Prüfdurchgang vom 22.11.2026
-
-Der Betreiber hat die Freigabe verweigert und einen vollständigen
-Durchgang verlangt. Elf Prüfer, zwei Läufe über alle Skripte.
-**Ergebnis gesammelt in `docs/AUDIT-2026-11-22.md`.**
-
-Behoben und gemessen: vier Fokusringe mit zu wenig Kontrast (bis
-hinunter zu 1,20:1), der Fokus bei offenem Handy-Menü (31 von 31
-Tabulatorhalten lagen außerhalb), zwei Felder ohne Namen, eine
-Fehlermeldung ohne Ansage, der Cookie-Hinweis über dem Menü, eine
-abgeschnittene Vergleichstabelle, das Katalogbuch über dem Rand, dazu
-Schriftreste und fehlende Dateiversionen.
-
-Offen und beim Betreiber: der Merge mit `main` (63 Konflikte), die
-fehlende Ratenbegrenzung, geteilte Vorschau- und Produktionsdatenbank,
-widersprüchliche Garantie- und Statikzusagen, der gesperrte
-Konfigurator in der Sitemap, die vier Rechtsfragen.
-
-## Was offen ist
-
-Steht vollständig in `docs/NEXT_TASK.md`. Die drei, die am meisten
-hängen:
-
-1. **Die XSS-Korrektur für `werkstatt/zahlen.html` liegt seit dem
-   08.11. unveröffentlicht.** Live ist die Lücke offen. Branch
-   `claude/xss-zahlenseite` ist fertig vorbereitet. Es fehlt nur die
-   Freigabe des Betreibers.
-2. **Erledigt am 21./22.11.2026.** Die Startseiten-Galerie öffnet
-   sich jetzt mit der Tastatur (vorher 0 von 14, jetzt 14 von 14).
-   Dabei kamen zwei weitere gemessene Verstöße heraus und sind
-   ebenfalls behoben: 19 von 19 Fragen der Fragenliste ohne
-   sichtbaren Fokusring (2.4.7) und Fokusverlust am Ende der
-   Bilderreihe (2.4.3). Einzelheiten in `docs/entscheidungen.md`,
-   Einträge vom 21. und 22.11.2026. Neu:
-   `scripts/pruefe-fokusring.mjs`.
-3. **Die Palette ist nicht umgestellt.** Nur die Schrift. Laut
-   Designsystem ist das ein eigener Schritt: `--gold-text` würde
-   heller, knappe Kontraste können kippen.
-
-## Veröffentlichen
-
-Nur auf genau diesen Satz:
+Veröffentlicht wird nichts, bis genau dieser Satz kommt:
 
 > ICH GEBE DIE NEUE WEBSITE ZUR VERÖFFENTLICHUNG FREI.
 
-Nichts anderes zählt. Kein „ok", kein grüner Prüflauf.
+Andere Formulierungen gelten nicht. Weder „ok" noch „sieht gut aus"
+noch ein bestandener Testlauf.

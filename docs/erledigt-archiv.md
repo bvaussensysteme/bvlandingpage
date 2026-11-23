@@ -1484,3 +1484,77 @@ rechtliche Frage. **Entscheidung liegt beim Betreiber.**
 Der Kommentar in `scripts/pruefe-cache-buster.sh` nennt noch 24 Stunden
 und ist veraltet. Entweder beide Dateien in die Cache-Buster-Liste
 aufnehmen (56 Seiten anfassen) oder den Kommentar richtigstellen.
+
+
+# ============================================================
+# Aus dem Einstieg ausgelagert am 23.11.2026
+# Abgeschlossene Punkte, die in docs/NEXT_TASK.md standen.
+# ============================================================
+
+## Offen beim Betreiber: vier Entwurfsseiten (15.11.2026)
+
+`entwurf.html`, `entwurf-bv.html`, `entwurf-apple.html` und
+`entwurf-produkt.html` sind öffentlich abrufbar, laden Schriften direkt
+von Google und zeigen kein Einwilligungsbanner. Gemessen am
+15.11.2026, Einzelheiten in `docs/rechtstexte-befunde.md`.
+
+**Erledigt am 15.11.2026.** Nicht gelöscht, weil die Entwürfe zum
+Neubau gehören und in sieben Dokumenten stehen. Stattdessen laden sie
+die Schriften jetzt erst nach der Einwilligung. Einzelheiten in
+`docs/rechtstexte-befunde.md`.
+
+
+## Erledigt am 21.11.2026: Startseiten-Galerie mit der Tastatur
+
+Die 14 Bilder im Abschnitt „Projekte, die für sich sprechen" öffnen
+die Großansicht jetzt über eine echte Schaltfläche. Gemessen vorher
+0 von 14 ertabbt, nachher 14 von 14; dazu Eingabetaste und Rückkehr
+des Fokus. Das Abzeichen in der Kachel bleibt daneben statt darin,
+damit keine Schaltfläche in einer Schaltfläche steht.
+
+Beim Messen kam ein zweiter, davon unabhängiger Fehler heraus und
+wurde mitbehoben: 19 von 19 Fragen der Fragenliste auf `index.html`
+hatten einen Fokusring, von dem nichts zu sehen war (WCAG 2.2, 2.4.7,
+Stufe AA). Nachher 0 von 19.
+
+Einzelheiten in `docs/entscheidungen.md`, Eintrag vom 21.11.2026.
+Abgesichert durch `scripts/pruefe-fokusring.mjs` (neu) und die
+erweiterte `scripts/pruefe-referenz-galerie.mjs`.
+
+Ein dritter Fehler kam bei der Prüfung heraus und ist ebenfalls
+behoben: Am Ende der Bilderreihe fiel der Fokus auf nichts, weil der
+Pfeil unter dem Fokus verschwindet (WCAG 2.2, 2.4.3). Gemessen und
+abgesichert.
+
+**Offen geblieben, Geschmacksfrage für den Betreiber:** Der Fokusring
+auf den Fotos ist golden mit dunklem Innenband. Das Band ist nötig,
+weil Gold allein auf einem beliebigen Foto die 3:1 aus WCAG 1.4.11
+nicht sicher erreicht. Ob es gefällt, entscheidet der Betreiber.
+
+**Später prüfen, aus derselben Prüfung (21.11.2026), nicht
+gemessen:**
+- Die Bildunterschrift der Großansicht hat kein `aria-live`. Beim
+  Blättern erfährt Vorlesesoftware nicht, welches Bild jetzt zu sehen
+  ist (WCAG 4.1.3). Ein Satz Arbeit, aber ungemessen.
+- Das Herkunfts-Abzeichen `.vd-badge` setzt `outline: none` im Fokus
+  und zeigt ihn nur über den goldenen Hintergrund. Das steht seit
+  Langem so da und wird jetzt häufiger erreicht, weil die Abzeichen in
+  der Tabulatorfolge direkt hinter den neuen Bildschaltflächen liegen.
+- Der Hintergrund der Großansicht bekommt kein `inert`. Bei
+  `aria-modal="true"` ist das für neuere Vorlesesoftware in Ordnung,
+  für ältere nicht sicher. Nicht gemessen, weil hier keine echte
+  Vorlesesoftware läuft.
+
+
+## Nicht mehr offen: Sichtbarkeit nach dem Durchscrollen (22.11.2026)
+
+Hier stand kurzzeitig, mit dem Ausmustern von `pruefe-bewegung.mjs`
+fehle die Prüfung, ob nach dem Durchscrollen jeder Text sichtbar ist.
+**Das war falsch und ist gestrichen.** `scripts/pruefe-darstellung.mjs`
+prüft genau das: 12 echte Seiten in 3 Breiten, vollständig
+durchgescrollt, danach dieselbe Selektorenliste, die auch in der
+Einblend-Regel in `src/css/style.css` steht, Gegenprobe mit
+`opacity: 0 !important`. Begründung in `docs/entscheidungen.md`
+(22.11.2026).
+
+

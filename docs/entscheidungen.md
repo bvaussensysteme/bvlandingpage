@@ -22597,3 +22597,40 @@ Katalog nennt zu Markisen keine Garantie und beim Plissee 3 Jahre.
 `pruefe-schema-gueltig`, `pruefe-umbruch`, `pruefe-erzeugte-seiten`.
 Jede verbliebene Garantiezeile ihrem Produkt zugeordnet und gegen die
 Katalogliste geprüft.
+
+## 23.11.2026 · Der Einstieg war auf 662 Zeilen gewachsen
+
+**Anlass.** Ansage des Betreibers vor einem `/clear`: „erst übergabe
+clear vorbereiten".
+
+**Was falsch war.** `docs/NEXT_TASK.md` hatte 662 Zeilen und 27
+Abschnitte. In `CLAUDE.md` steht als Vorgabe „kurz halten (max. ~400
+Zeilen)". Ein Einstieg, den niemand mehr liest, ist keiner: Die
+dringenden Punkte standen oben, und darunter folgten zwölf Abschnitte
+mit Nebenbefunden vom 14. bis 22.11., die keine Veröffentlichung
+blockieren.
+
+**Was jetzt gilt.** Gleiche Inhalte, drei Dateien:
+
+| Datei | Zeilen | Inhalt |
+|---|---|---|
+| `docs/NEXT_TASK.md` | 241 | Einstieg: Start, das Dringendste, was auf dem Branch liegt, was gerade läuft, wo was steht |
+| `docs/offene-fragen.md` | 112 | Fragen an den Betreiber, offene wie beantwortete |
+| `docs/offene-nebenbefunde.md` | 307 | Offen, aber nicht dringend: Ortsseiten-Quiz, Gedankenstriche, SEO- und Tonbefunde, Galerie-Nebenbefunde |
+
+Abgeschlossenes wanderte nach `docs/erledigt-archiv.md`: die vier
+Entwurfsseiten, die Startseiten-Galerie mit der Tastatur, die
+Sichtbarkeit nach dem Durchscrollen.
+
+**Nichts gelöscht.** Die Abschnitte sind wörtlich verschoben, nicht
+zusammengefasst. Gegengelesen mit einer Stichwortprobe über zehn
+Begriffe aus allen verschobenen Abschnitten: Jeder steht in genau
+einer der vier Dateien. Jede in `NEXT_TASK.md` und
+`SESSION_HANDOFF.md` verwiesene Datei wurde gegen das Dateisystem
+geprüft.
+
+**Zahlen aktualisiert.** Der Einstieg sagte „334 Dateien gegenüber
+`main`, Stand 22.11.2026". Gemessen am 23.11.2026: **405 Dateien,
+1634 Commits**. Dazu der Vermerk, dass der Altbefund in
+`pruefe-konfigurator-oberflaeche.mjs` am 23.11. auf Commit `4f3f135`
+gegengeprüft wurde und schon dort fehlschlug.
