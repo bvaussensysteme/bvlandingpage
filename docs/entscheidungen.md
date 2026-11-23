@@ -22193,3 +22193,93 @@ sichtbar wurde:
   Betreibers.
 
 Beides ist **nicht** geändert worden.
+
+## 23.11.2026 · Unterzug anklickbar, lichte Maße in der Zeichnung
+
+**Anlass.** Betreiber, wörtlich: „ich kann den mittleren unterzug nicht
+anklicken und verschieben" und „und ich brauche die maße der
+zwischenräume also innenkante pfosten bis zum anderen innenkante pfosten
+oder wand".
+
+**Was falsch war.** Der Statikträger wurde gezeichnet wie jedes andere
+Profil, ohne Kennzeichnung im Modell. `pfostenUnterZeiger()` nimmt nur
+Objekte mit `userData.pfosten`; für den Strahl war der Träger also gar
+nicht vorhanden. Verschieben ging ausschließlich über den Zahlensteller
+im Bedienfeld unter „Mehr", und der steht dort eingeklappt. Gemessen am
+23.11.2026: Der Regler rechnete richtig (Wert 2688, Bereich 776 bis
+4600), war aber nicht zu sehen. Das ist kein Fehler: Seit dem
+Zahlensteller ist **jeder** Schieberegler der Oberfläche auf `hidden`
+gesetzt, bedient wird über Minus, Zahlenfeld und Plus
+(`zahlenstellerBauen()`). Nur fand der Betreiber den Weg nicht, weil der
+Träger im Bild die naheliegende Stelle zum Anfassen ist.
+
+Bemaßt waren bis dahin nur Breite, Tiefe und Höhe, alles Außenmaße. Das
+Maß, das beim Aufmaß gebraucht wird, der freie Raum zwischen den
+Pfosten, stand nirgends.
+
+**Was jetzt gilt.**
+- Der Unterzug trägt `userData.unterzug` und lässt sich anfassen:
+  erst antippen (orange Hülle und Ziehzeichen), dann in der Tiefe
+  ziehen. Dieselbe Bedienung wie beim Pfosten, mit Absicht.
+- Gezogen wird gegen dieselbe Grenze, die der Zahlensteller kennt
+  (`unterzugBereich()`), Schritt 10 mm, mit Einrasten auf der Mitte.
+  Geschrieben wird **in den Steller**, nicht in `Z.unterzugLage`, damit
+  weiterhin `unterzugEinlesen()` entscheidet, wann die Automatik
+  „mittig" abgeschaltet wird.
+- `lichteMasse()` bemaßt die freien Räume: in der Breite Feld für Feld
+  von Innenkante zu Innenkante, in der Tiefe von der Wand (freistehend:
+  von der hinteren Reihe) bis zur Innenkante der vorderen Reihe, am
+  Unterzug geteilt.
+
+**Warum so und nicht anders.** `lichteMasse()` liest die **fertige
+Zeichnung** aus (`userData.pfosten`, `userData.unterzug`, die
+Geometrieparameter), statt die Lage ein zweites Mal zu rechnen. Diese
+Datei hat genau daran schon einmal gelitten: Am 15.10.2026 liefen
+Trägerbau und Elementaufteilung auseinander, weil beide ihre eigene
+Formel hatten. Eine Bemaßung, die neben dem Bauwerk eine andere Zahl
+zeigt, ist schlimmer als keine.
+
+Die lichten Maße sind **nicht anklickbar** (kein Feldname am Schild).
+Ein lichtes Maß folgt aus Breite und Pfostenversatz; es direkt
+einzutippen hieße rückwärts zu rechnen, und bei mehreren Feldern wäre
+nicht entschieden, welches ausweicht.
+
+**Gegengelesen.** Gemessen im Browser: Breite 6000 mm, Tiefe 5500 mm,
+TDS mit VSG klar. Klick auf den Träger in der Standardansicht wählt ihn
+aus, Ziehen um 90 Bildpunkte setzt Regler und Zahlenfeld von 2687,8 auf
+3557,8. Lichte Breiten 2835 / 2835 mm (nachgerechnet:
+(6000 − 3 × 110) / 2 = 2835), lichte Tiefen 2630 / 2574 mm am Unterzug
+geteilt. Prüfskripte: `pruefe-konfigurator.js`, `pruefe-fuehrung.js`,
+`pruefe-konfigurator-sperre.js`, `pruefe-masstabelle.js`,
+`pruefe-werkstatt.js`, `pruefe-konfigurator-verweise.mjs`,
+`pruefe-freie-planung.mjs`, `pruefe-konfigurator-frei.sh` alle bestanden.
+
+## 23.11.2026 · Dritter Pfosten über 4 m: Befund, nicht geändert
+
+**Anlass.** Betreiber: „und über 4m wird kein 3 pfosten etc
+hinzugefüget".
+
+**Gemessen** im freien Konfigurator, Tiefe 3000 mm, Breite schrittweise:
+
+| System | 4000 | 4100 | 5000 | 5300 |
+|---|---|---|---|---|
+| TDS · VSG Glas | 2 | **3** | 3 | 3 |
+| TDS · Polycarbonat | 2 | 2 | 2 | **3** |
+| SkyView · VSG Glas | 2 | 2 | 2 | **3** |
+| SkyView · Polycarbonat | 2 | 2 | 2 | **3** |
+
+**Ursache.** Die Zahl kommt aus `js/masstabelle.js`, der vom
+Betriebsinhaber am 11.10.2026 freigegebenen Tabelle. Dort stehen die
+Stützfüße je Breite, und die Sprünge liegen je System anders:
+TDS · Glas springt bei 4500, TDS · Polycarbonat erst bei 5080,
+SkyView · Glas erst bei 5900, SkyView · Polycarbonat bei 6000.
+`tabelleBauteile()` nimmt die erste Tabellenzeile, die mindestens so
+breit ist, deshalb greift bei 4100 mm schon die Zeile 4500.
+
+**Nicht geändert, bewusst.** Eine Pfostenzahl ist eine Statikaussage,
+keine Darstellung. Die Tabelle stammt aus der Preisliste des
+Herstellers und trägt im Kopf ausdrücklich den Vermerk „ACHTUNG, NICHT
+KORRIGIEREN". Offen ist daher die Frage an den Betreiber: Gilt die
+4-m-Regel („alle 4000 mm ein Pfosten mehr") für **alle** Systeme und
+Eindeckungen, oder liegen die Sprünge bei SkyView und Polycarbonat
+wirklich später? Steht in `docs/NEXT_TASK.md`.

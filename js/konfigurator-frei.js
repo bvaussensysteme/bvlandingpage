@@ -4840,10 +4840,227 @@ window.BV_KONFIGURATOR_FREI = true;
 
   function pfostenWaehlen(w) {
     PF_WAHL = w;
+    /* Zwei gewaehlte Bauteile zugleich waeren zwei orange Huellen und
+       zwei Ziehzeichen im Bild - und beim Ziehen die Frage, welches
+       gemeint ist. Wer einen Pfosten waehlt, hat den Unterzug
+       losgelassen. */
+    if (w) UZ_WAHL = false;
     pfostenWahlZeigen();
+    unterzugWahlZeigen();
     pfostenBandZeigen();
     pfostenFelderAnzeigen();
     neuZeichnen();
+  }
+
+
+  /* ============================================================
+     DEN UNTERZUG ANFASSEN
+
+     GEMELDET am 23.11.2026: „ich kann den mittleren unterzug nicht
+     anklicken und verschieben".
+
+     Stimmte. Der Statiktraeger wurde gezeichnet wie jedes andere
+     Profil, ohne Kennzeichnung - und pfostenUnterZeiger() nimmt nur
+     Objekte mit userData.pfosten. Fuer den Strahl war der Traeger
+     also gar nicht vorhanden. Verschieben ging nur ueber den
+     Zahlensteller im Bedienfeld unter „Mehr", und der steht dort
+     eingeklappt.
+
+     DIESELBE BEDIENUNG WIE BEIM PFOSTEN, mit Absicht: erst antippen
+     (wird orange und bekommt das Ziehzeichen), dann ziehen. Direktes
+     Ziehen ohne Auswahl waere bequemer, nimmt aber das Drehen der
+     Ansicht weg, sobald der Zeiger zufaellig auf dem Traeger startet -
+     genau der Grund, aus dem die Pfosten am 17.11.2026 die Auswahl
+     bekommen haben („man klickt einen pfosten an er wird ausgewaehlt
+     und dann erst kann man schieben").
+
+     GEZOGEN WIRD IN DER TIEFE, gegen dieselbe Grenze, die der Steller
+     kennt: unterzugBereich(). GESCHRIEBEN WIRD IN DEN STELLER, nicht
+     in Z.unterzugLage. Damit laeuft alles weiter durch
+     unterzugEinlesen(), das die Automatik „mittig" abschaltet. Eine
+     zweite Stelle, die Z.unterzugLage selbst setzt, waere die naechste
+     Rechnung, die auseinanderlaeuft - davon hat diese Datei am
+     15.10.2026 schon eine gehabt (Traeger ab Wand, Keile gespiegelt).
+     ============================================================ */
+  var UZ_WAHL = false;
+  var UZ_ZIEHT = null;
+  /* 10 mm beim Ziehen, obwohl der Regler 1 mm kann: Mit der Maus auf
+     den Millimeter zu zeigen ist vorgetaeuschte Genauigkeit. Wer genau
+     1234 mm braucht, tippt sie ins Zahlenfeld - das bleibt bei 1 mm. */
+  var UZ_SCHRITT = 10;
+
+  function unterzugGriff(m) {
+    /* Nur der WIRKLICHE Unterzug. Bei geteilter Eindeckung ohne
+       Tiefenpflicht zeichnet bauenAusDaten() denselben Traeger auf
+       T / 2, ohne dass es einen Regler gibt, an dem eine Lage haengen
+       koennte - der liesse sich anfassen und nicht bewegen. */
+    if (m && m.userData && unterzugNoetig()) m.userData.unterzug = true;
+    return m;
+  }
+
+  /* Der Unterzug unter dem Zeiger - oder null. Dieselbe
+     Verdeckungsregel wie bei den Pfosten: Was den Blick nimmt, nimmt
+     auch den Griff; Glas und die durchscheinende Wand nicht. */
+  function unterzugUnterZeiger(e) {
+    if (!e || !leinwand || !bau || !unterzugNoetig()) return null;
+    var r = leinwand.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treffer = strahl.intersectObjects([bau], true);
+    for (var i = 0; i < treffer.length; i++) {
+      var o = treffer[i].object;
+      if (!o || o.visible === false) continue;
+      if (o.userData && o.userData.unterzug) {
+        var b = unterzugBereich();
+        /* Bleibt kein Spielraum, laesst sich der Traeger nicht
+           greifen - sonst haengt man an einem Bauteil, das sich nicht
+           ruehrt. Dieselbe Regel wie beim Eckpfosten. */
+        if (!b || b.max - b.min < 2 * UZ_SCHRITT) return null;
+        return { punkt: treffer[i].point, bereich: b };
+      }
+      if (nimmtDenBlick([treffer[i]])) return null;
+    }
+    return null;
+  }
+
+  function unterzugWaehlen(an) {
+    UZ_WAHL = !!an;
+    if (UZ_WAHL && PF_WAHL) { PF_WAHL = null; pfostenWahlZeigen(); }
+    unterzugWahlZeigen();
+    unterzugBandZeigen();
+    neuZeichnen();
+  }
+
+  function unterzugGeklickt(e) {
+    var t = unterzugUnterZeiger(e);
+    if (!t) {
+      if (!UZ_WAHL) return false;
+      unterzugWaehlen(false);
+      return false;
+    }
+    unterzugWaehlen(!UZ_WAHL);
+    return true;
+  }
+
+  /* Orange Huelle und Ziehzeichen. Laeuft NACH pfostenWahlZeigen(),
+     weil das die Ziehgruppe leert - umgekehrt waere die Huelle des
+     Unterzugs beim naechsten Bau wieder weg. */
+  function unterzugWahlZeigen() {
+    if (!UZ_WAHL) return;
+    if (!unterzugNoetig()) { UZ_WAHL = false; return; }
+    bau.children.forEach(function (m) {
+      if (!m.userData || !m.userData.unterzug) return;
+      var g = m.geometry && m.geometry.parameters;
+      if (!g || g.width == null) return;
+      var h = new THREE.Mesh(
+        new THREE.BoxGeometry(g.width + 0.6, g.height + 3, g.depth + 3),
+        new THREE.MeshBasicMaterial({
+          color: rgb(FELD_ORANGE), transparent: true, opacity: 0.42,
+          depthWrite: false, toneMapped: false
+        }));
+      h.position.copy(m.position);
+      h.renderOrder = 4;
+      ziehGruppe.add(h);
+      var z = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: ziehZeichenBild(), depthTest: false, transparent: true,
+        toneMapped: false }));
+      z.scale.set(ZIEH_ZEICHEN, ZIEH_ZEICHEN, 1);
+      /* Auf der Mitte des Traegers, eine halbe Zeichenhoehe darunter:
+         Auf dem Profil selbst verschwindet es im Alu. */
+      z.position.set(m.position.x, m.position.y - ZIEH_ZEICHEN * 0.7,
+                     m.position.z);
+      z.renderOrder = 5;
+      ziehGruppe.add(z);
+    });
+  }
+
+  /* Was beim Ziehen zu lesen ist: die beiden Felder, die der Traeger
+     aufteilt, als Achsmass UND licht. Licht ist das Mass, das beim
+     Aufmass und beim Bestellen gebraucht wird. */
+  function unterzugBandZeigen() {
+    var b = document.getElementById('k3dZiehband');
+    if (!b) return;
+    if (!UZ_WAHL && !UZ_ZIEHT) { if (!PF_WAHL) b.hidden = true; return; }
+    var a = unterzugAchsen();
+    var lage = unterzugAbstand();
+    var tr = STATIKTRAEGER ? STATIKTRAEGER.tiefe * 10 : 117;
+    var hinten = lage - a.hinten, vorne = a.vorne - lage;
+    b.textContent = 'Unterzug ' + Math.round(lage) + ' mm ab Wand · Felder ' +
+      Math.round(hinten) + ' / ' + Math.round(vorne) + ' mm Achsmaß · licht ' +
+      Math.round(hinten - tr / 2) + ' / ' + Math.round(vorne - tr / 2) + ' mm' +
+      (Z.unterzugAuto ? ' · mittig' : '') +
+      (UZ_ZIEHT ? '' : ' · jetzt ziehen oder Zahlenfeld benutzen');
+    b.hidden = false;
+  }
+
+  function unterzugGreifen(e) {
+    if (!UZ_WAHL) return false;
+    var t = unterzugUnterZeiger(e);
+    if (!t) return false;
+    UZ_ZIEHT = {
+      bereich: t.bereich, bewegt: false, weg: 0,
+      zeigerX: e.clientX, zeigerY: e.clientY,
+      ebene: new THREE.Plane().setFromNormalAndCoplanarPoint(
+        kamera3.getWorldDirection(new THREE.Vector3()).negate(), t.punkt),
+      /* Wo am Traeger gegriffen wurde. Ohne diesen Abstand spraenge er
+         beim Anfassen mit seiner Achse unter den Zeiger. */
+      halt: bau.worldToLocal(t.punkt.clone()).z - unterzugAbstand() / 10
+    };
+    leinwand.style.cursor = 'ns-resize';
+    unterzugBandZeigen();
+    return true;
+  }
+
+  function unterzugZiehen(e) {
+    if (!UZ_ZIEHT) return false;
+    var r = leinwand.getBoundingClientRect();
+    UZ_ZIEHT.weg += Math.abs(e.clientX - UZ_ZIEHT.zeigerX) +
+                    Math.abs(e.clientY - UZ_ZIEHT.zeigerY);
+    UZ_ZIEHT.zeigerX = e.clientX; UZ_ZIEHT.zeigerY = e.clientY;
+    if (!r.width || !r.height) return true;
+    strahl.setFromCamera(new THREE.Vector2(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      -((e.clientY - r.top) / r.height) * 2 + 1), kamera3);
+    var treff = strahl.ray.intersectPlane(UZ_ZIEHT.ebene, new THREE.Vector3());
+    if (!treff) return true;
+    var zcm = bau.worldToLocal(treff).z - UZ_ZIEHT.halt;
+    var mm = Math.round(zcm * 10 / UZ_SCHRITT) * UZ_SCHRITT;
+    var bg = UZ_ZIEHT.bereich;
+    /* EINRASTEN AUF DER MITTE: Sie ist der Normalfall und muss ohne
+       Zittern wieder erreichbar sein - dieselbe Regel wie beim
+       Pfosten. 25 mm sind am Schirm wenige Punkte und am Bauwerk
+       nichts. */
+    var mitte = unterzugMitte();
+    if (Math.abs(mm - mitte) < 25) mm = mitte;
+    mm = Math.min(Math.max(mm, bg.min), bg.max);
+    var regler = document.getElementById('k3dUnterzug');
+    if (!regler) return true;
+    if (String(regler.value) !== String(mm)) {
+      regler.value = mm;
+      UZ_ZIEHT.bewegt = true;
+      aendernGebremst();
+    }
+    unterzugBandZeigen();
+    return true;
+  }
+
+  function unterzugLoslassen() {
+    if (!UZ_ZIEHT) return false;
+    var war = UZ_ZIEHT.bewegt;
+    /* Ohne Weg ist es ein Tipp, kein Ziehen - und ein Tipp auf den
+       gewaehlten Traeger hebt die Wahl auf. Gemessen wird der WEG in
+       Bildpunkten, dieselbe Schwelle wie beim Pfosten. */
+    var tipp = UZ_ZIEHT.weg < 6;
+    UZ_ZIEHT = null;
+    leinwand.style.cursor = '';
+    if (tipp) { unterzugWaehlen(false); return true; }
+    unterzugBandZeigen();
+    /* Beim Loslassen einmal ungebremst, sonst bliebe der letzte
+       Zwischenstand stehen, wenn die Bremse gerade lief. */
+    if (war) aendern();
+    return true;
   }
 
   /* Verschiebbarer Pfosten unter dem Zeiger - oder null. Dieselbe
@@ -5529,6 +5746,9 @@ window.BV_KONFIGURATOR_FREI = true;
                         Z.bodenGefaelleQuer, 0);
       }
     }
+    /* Die lichten Masse zuletzt: Sie lesen die fertige Zeichnung aus,
+       nicht die Absicht. */
+    lichteMasse(hintenZ, T, frei);
     /* JEDES TEIL DER BEMASSUNG TRAEGT EINE MARKE. Prüfungen, die das
        Bauwerk vermessen, laufen ueber die ganze Szene - und eine
        Pfeilspitze sieht fuer sie aus wie ein Bauteil. GEMESSEN am
@@ -5540,6 +5760,106 @@ window.BV_KONFIGURATOR_FREI = true;
        fuer das erste Dach. Die Kopien werden nicht neu gebaut, nur
        ein- und ausgeblendet. */
     if (typeof modulMasse !== 'undefined') modulMasse.visible = !!Z.masseZeigen;
+  }
+
+
+  /* ============================================================
+     LICHTE MASSE: VON INNENKANTE ZU INNENKANTE
+
+     ANGEFRAGT am 23.11.2026: „und ich brauche die maße der zwischenräume
+     also innenkante pfosten bis zum anderen innenkante pfosten oder
+     wand".
+
+     Bemasst wurden bis dahin nur Breite, Tiefe und Hoehe - alles
+     Aussenmasse der Anlage. Die Zahl, die beim Aufmass und beim
+     Durchgehen gebraucht wird, ist eine andere: der freie Raum ZWISCHEN
+     den Pfosten, und in der Tiefe von der Wand bis zum Pfosten.
+
+     AUSGELESEN WIRD DIE FERTIGE ZEICHNUNG, nicht die Absicht: Die
+     Pfosten tragen seit dem 17.11.2026 userData.pfosten, der Unterzug
+     seit heute userData.unterzug. Daraus kommen Lage UND Querschnitt.
+     Der Grund steht schon zweimal in dieser Datei: Eine zweite Formel
+     fuer dasselbe Mass laeuft irgendwann auseinander, und dann stimmt
+     die Bemassung nicht mehr mit dem Bauwerk daneben. So kann sie es
+     nicht - sie misst, was da ist.
+
+     Mitgezaehlt wird der Unterzug: Er unterbricht die Tiefe wirklich,
+     und darunter stehen eigene Pfosten.
+
+     Die Schilder tragen KEINEN Feldnamen, sind also nicht anklickbar.
+     Ein lichtes Mass folgt aus Breite und Pfostenversatz; es direkt
+     eintippen zu koennen hiesse, rueckwaerts zu rechnen - und bei
+     mehreren Feldern waere nicht entschieden, welches ausweicht.
+     ============================================================ */
+  function lichteMasse(hintenZ, T, frei) {
+    if (!bau) return;
+    var V = THREE.Vector3;
+    var B = Z.breite / 10;
+    /* Pfosten nach z-Lage buendeln: Das ist die Reihe. Bei
+       freistehenden Anlagen tragen vorderer und hinterer Pfosten
+       dieselbe Nummer, nur ihr z unterscheidet sie. */
+    var reihen = {};
+    var uz = null;
+    bau.children.forEach(function (m) {
+      if (m.visible === false || !m.userData) return;
+      var g = m.geometry && m.geometry.parameters;
+      if (!g || g.width == null) return;
+      if (m.userData.unterzug) {
+        uz = { z: m.position.z, t: g.depth };
+        return;
+      }
+      if (!m.userData.pfosten) return;
+      var k = String(Math.round(m.position.z * 10));
+      (reihen[k] = reihen[k] || []).push({ x: m.position.x, b: g.width, t: g.depth });
+    });
+    var schluessel = Object.keys(reihen).sort(function (a, b) { return a - b; });
+    if (!schluessel.length) return;
+
+    /* ---------- Breite: Feld fuer Feld ---------- */
+    var vorne = reihen[schluessel[schluessel.length - 1]];
+    var zPf = Number(schluessel[schluessel.length - 1]) / 10;
+    vorne.sort(function (a, b) { return a.x - b.x; });
+    /* Vor die Pfostenreihe, aber hinter die Breitenlinie: Dort ist
+       Platz, und das Mass liegt neben dem, was es misst. */
+    var zM = Math.min(zPf + 32, T + (frei ? 100 : 45));
+    var i;
+    for (i = 0; i + 1 < vorne.length; i++) {
+      var li = vorne[i].x + vorne[i].b / 2;
+      var re = vorne[i + 1].x - vorne[i + 1].b / 2;
+      var mm = Math.round((re - li) * 10);
+      /* Unter 100 mm passt kein Schild mehr zwischen die Pfeile; ein
+         Mass, das seine eigene Linie verdeckt, hilft niemandem. */
+      if (mm < 100) continue;
+      masslinie(new V(li, bodenY(li, zM) + 2, zM),
+                new V(re, bodenY(re, zM) + 2, zM), mm + ' mm', null);
+    }
+
+    /* ---------- Tiefe: Wand bis Pfosten, am Unterzug geteilt ----------
+       Bei Wandmontage faengt das lichte Mass an der Wand an (z = 0),
+       freistehend an der Innenkante der hinteren Reihe. */
+    var hinten = reihen[schluessel[0]];
+    var zHinten = Number(schluessel[0]) / 10;
+    var von = (frei && schluessel.length > 1)
+      ? zHinten + hinten[0].t / 2
+      : Math.max(hintenZ, 0);
+    var bis = zPf - vorne[0].t / 2;
+    if (bis - von < 10) return;
+    var kanten = [von];
+    if (uz && uz.z - uz.t / 2 > von + 10 && uz.z + uz.t / 2 < bis - 10) {
+      kanten.push(uz.z - uz.t / 2, uz.z + uz.t / 2);
+    }
+    kanten.push(bis);
+    /* Rechts neben der Anlage, aber INNERHALB der Tiefenlinie
+       (seite = B / 2 + 100): zwei Linien uebereinander waeren nicht zu
+       unterscheiden. */
+    var xM = B / 2 + 58;
+    for (i = 0; i + 1 < kanten.length; i += 2) {
+      var mmT = Math.round((kanten[i + 1] - kanten[i]) * 10);
+      if (mmT < 100) continue;
+      masslinie(new V(xM, bodenY(xM, kanten[i]) + 2, kanten[i]),
+                new V(xM, bodenY(xM, kanten[i + 1]) + 2, kanten[i + 1]),
+                mmT + ' mm', null);
+    }
   }
 
   /* Das Dreieck zur liegenden Masslinie a-b. `quer` sagt, zu welcher
@@ -5630,6 +5950,7 @@ window.BV_KONFIGURATOR_FREI = true;
     erwAnzeigen();
     pfostenFelderAnzeigen();
     pfostenWahlZeigen();
+    unterzugWahlZeigen();   /* NACH pfostenWahlZeigen: das leert die Gruppe */
     pfostenGeisterAnwenden();   /* freie Planung, siehe oben */
     moduleAufbauen();           /* freie Planung, siehe oben */
     neuZeichnen();
@@ -5731,7 +6052,7 @@ window.BV_KONFIGURATOR_FREI = true;
     if (zUnterzug == null) zUnterzug = T / 2;
     if (e.eindeckungGeteilt) {
       var yU = hVorn + Math.tan(neig) * (T - zUnterzug) - stH / 2 + 2;
-      balken(B, stH, stB, 0, yU, zUnterzug, mAlu);
+      unterzugGriff(balken(B, stH, stB, 0, yU, zUnterzug, mAlu));
       balken(B, g.traegerblende.hoehe / 10, g.traegerblende.staerke / 10,
              0, yU + stH / 2 + g.traegerblende.hoehe / 20, zUnterzug + stB / 2, mAlu);
       /* Der Unterzug traegt nur mit eigenen Pfosten. Sie fehlten hier
@@ -9291,7 +9612,7 @@ window.BV_KONFIGURATOR_FREI = true;
       var uzT = STATIKTRAEGER.tiefe;
       var ukUzF = hVorn + (hHinten - hVorn) * (1 - zUzF / T);   // Dachunterkante dort
       var hPfUzF = Math.max(10, ukUzF - uzH);
-      balken(B, uzH, uzT, 0, hPfUzF + uzH / 2, zUzF, mAlu);
+      unterzugGriff(balken(B, uzH, uzT, 0, hPfUzF + uzH / 2, zUzF, mAlu));
       verteilen(pfostenUnterTraeger(Z.breite), B, PROFIL / 2).forEach(function (x) {
         balken(PROFIL, hPfUzF, PROFIL, x, hPfUzF / 2, zUzF, mAlu);
       });
@@ -10384,7 +10705,7 @@ window.BV_KONFIGURATOR_FREI = true;
          auf Sparrenhoehe gekuerzt wird (siehe trH). */
       var uzH = TR_H;
       var hPfUz = Math.max(100, uzOk - uzH);
-      balken(B, uzH, TR_T, 0, uzOk - uzH / 2, zUz, mAlu);
+      unterzugGriff(balken(B, uzH, TR_T, 0, uzOk - uzH / 2, zUz, mAlu));
       verteilen(pfostenUnterTraeger(Z.breite), B, PF / 2).forEach(function (x) {
         balken(PF, hPfUz, PF, x, hPfUz / 2, zUz, mAlu);
       });
@@ -13747,6 +14068,13 @@ window.BV_KONFIGURATOR_FREI = true;
     if (freiSchiebenAb(e)) return;   /* rechte Taste: Kamerafahrt */
     if (pfostenModulGreifen(e)) return;   /* Pfosten auf einer Kopie */
     if (modulGreifen(e)) return;   /* freie Planung: Dach ziehen */
+    if (unterzugGreifen(e)) {   /* Statiktraeger in der Tiefe schieben */
+      autoDreht = false;
+      if (leinwand.setPointerCapture) {
+        try { leinwand.setPointerCapture(e.pointerId); } catch (x) {}
+      }
+      return;
+    }
     if (pfostenGreifen(e)) {
       autoDreht = false;
       if (leinwand.setPointerCapture) {
@@ -13770,6 +14098,7 @@ window.BV_KONFIGURATOR_FREI = true;
     if (pfostenModulZiehen(e)) return;   /* Pfosten auf einer Kopie */
     if (modulZiehen(e)) return;   /* freie Planung */
     if (pfostenZiehen(e)) return;
+    if (unterzugZiehen(e)) return;
     if (!zieht) return;
     kam.theta -= (e.clientX - letzteX) * 0.007;
     kam.phi   -= (e.clientY - letzteY) * 0.007;
@@ -13782,6 +14111,7 @@ window.BV_KONFIGURATOR_FREI = true;
     if (pfostenModulLoslassen()) return;   /* Pfosten auf einer Kopie */
     if (modulLoslassen()) return;   /* freie Planung */
     if (pfostenLoslassen()) return;
+    if (unterzugLoslassen()) return;
     zieht = false;
     if (!klickStart) return;
     var weg = Math.abs(e.clientX - klickStart.x) + Math.abs(e.clientY - klickStart.y);
@@ -13818,6 +14148,10 @@ window.BV_KONFIGURATOR_FREI = true;
        statt ihn zurueckzustellen. */
     if (weg < 6 && zeit < 2500 && !zurueckGeklickt(e) &&
         !massGeklickt(e) && !pfostenGeklickt(e) &&
+        /* NACH dem Pfosten: Der Traeger liegt quer darueber, die
+           beiden koennen sich im Bild ueberlagern. Ein Pfosten ist das
+           naeherliegende Ziel. */
+        !unterzugGeklickt(e) &&
         /* VOR feldGeklickt: Die Feldflaechen der Seitenwahl liegen
            hinter dem Keil. Stuende der Keil dahinter, oeffnete ein Tipp
            auf das Glasdreieck die Seitenauswahl statt des Editors. */
@@ -13829,6 +14163,7 @@ window.BV_KONFIGURATOR_FREI = true;
   });
   window.addEventListener('pointercancel', function () {
     pfostenLoslassen();
+    unterzugLoslassen();
     zieht = false;
   });
 
@@ -13836,7 +14171,9 @@ window.BV_KONFIGURATOR_FREI = true;
      hier ist der Weg fuer die Tastatur - und der naheliegende Reflex,
      wenn man nicht weiss, wohin man klicken soll. */
   window.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && PF_WAHL) pfostenWaehlen(null);
+    if (e.key !== 'Escape') return;
+    if (PF_WAHL) pfostenWaehlen(null);
+    else if (UZ_WAHL) unterzugWaehlen(false);
   });
 
   /* ---------- FREIE PLANUNG: Doppelklick nimmt einen Pfosten weg ----------

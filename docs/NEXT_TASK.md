@@ -534,3 +534,32 @@ durchgescrollt, danach dieselbe Selektorenliste, die auch in der
 Einblend-Regel in `src/css/style.css` steht, Gegenprobe mit
 `opacity: 0 !important`. Begründung in `docs/entscheidungen.md`
 (22.11.2026).
+
+## Frage an den Betreiber: dritter Pfosten über 4 m (23.11.2026)
+
+Gemeldet: „und über 4m wird kein 3 pfosten etc hinzugefüget".
+Gemessen im freien Konfigurator bei Tiefe 3000 mm:
+
+| System | 4000 | 4100 | 5000 | 5300 |
+|---|---|---|---|---|
+| TDS · VSG Glas | 2 | **3** | 3 | 3 |
+| TDS · Polycarbonat | 2 | 2 | 2 | **3** |
+| SkyView · VSG Glas | 2 | 2 | 2 | **3** |
+| SkyView · Polycarbonat | 2 | 2 | 2 | **3** |
+
+Die Zahl kommt aus `js/masstabelle.js` (Preisliste, freigegeben am
+11.10.2026). Dort springen die Stützfüße je System anders: TDS · Glas
+bei 4500, TDS · Polycarbonat bei 5080, SkyView · Glas bei 5900,
+SkyView · Polycarbonat bei 6000.
+
+**Nicht ohne Ansage geändert**, weil eine Pfostenzahl eine
+Statikaussage ist und die Tabelle im Kopf „ACHTUNG, NICHT KORRIGIEREN"
+trägt.
+
+**Zu klären:** Gilt die 4-m-Regel („alle 4000 mm ein Pfosten mehr") für
+alle Systeme und Eindeckungen gleich? Dann bekäme
+`tabelleBauteile()` eine Untergrenze `2 + floor((Breite − 1) / 4000)`,
+und die Tabellenzeilen bleiben unangetastet. Oder liegen die Sprünge
+bei SkyView und bei Polycarbonat wirklich später, weil dort ein anderes
+Sparrenprofil trägt? Dann ist der Konfigurator richtig und nur das
+Gefühl täuscht.
