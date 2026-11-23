@@ -51,6 +51,12 @@ export function block() {
     zeilen.push(`          <img src="/images/stoffe/startseite/${d}.webp"`);
     zeilen.push(`               alt="${art} Dessin ${d}, Musterausschnitt"`);
     zeilen.push(`               width="240" height="240"${faul} decoding="async">`);
+    /* Die Beschriftung, die beim Drueberfahren erscheint. Ansage des
+     * Betreibers vom 23.11.2026: "wenn man ueber nen stoff mit der
+     * maus faehrt ne info steht welcher das is mit code".
+     * aria-hidden, weil das aria-label des Links dasselbe schon sagt:
+     * Ohne das liest eine Vorlesesoftware den Namen zweimal. */
+    zeilen.push(`          <span class="kachel-info" aria-hidden="true"><b>${d}</b>${art}</span>`);
     zeilen.push('        </a>');
     zeilen.push('      </li>');
   });

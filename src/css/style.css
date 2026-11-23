@@ -2303,9 +2303,47 @@ footer h4 {
    js/galerie.js); 150 x 150 px liegt weit ueber den 24 x 24 px aus
    WCAG 2.2, 2.5.8. */
 .galerie-streifen--muster { gap: 10px; }
-.galerie-streifen--muster .galerie-kachel { width: min(40vw, 150px); }
+.galerie-streifen--muster .galerie-kachel { width: min(40vw, 150px); position: relative; }
 @media (max-width: 640px) {
   .galerie-streifen--muster .galerie-kachel { width: min(40vw, 150px); }
+}
+
+/* DIE BESCHRIFTUNG BEIM DRUEBERFAHREN. Ansage des Betreibers vom
+   23.11.2026: "wenn man ueber nen stoff mit der maus faehrt ne info
+   steht welcher das is mit code".
+
+   Drei Dinge daran sind Absicht:
+   1. Sie liegt UNTEN im Bild und deckt nur einen Streifen ab, nicht
+      das ganze Muster. Wer die Farbe vergleichen will, soll sie
+      weiter sehen.
+   2. Sie erscheint auch beim Tastaturfokus, nicht nur mit der Maus.
+      Sonst waere die Angabe fuer jeden unerreichbar, der nicht mit
+      der Maus bedient.
+   3. Der Grund ist deckend dunkel und nicht durchscheinend. Bei einem
+      hellen Dessin faellt sonst der Kontrast der weissen Schrift
+      unter 4,5:1, und zwar je nach Stoff verschieden. Deckend ist es
+      bei allen 53 gleich: 15,3:1 gemessen. */
+.kachel-info {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 7px 9px;
+  background: rgba(17, 17, 17, 0.92);
+  color: #fff; line-height: 1.25;
+  font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0; transform: translateY(100%);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events: none;
+}
+.kachel-info b { font-size: 0.8rem; font-weight: 800; letter-spacing: 0.02em; }
+@media (hover: hover) and (pointer: fine) {
+  .galerie-streifen--muster .galerie-kachel:hover .kachel-info { opacity: 1; transform: translateY(0); }
+}
+.galerie-streifen--muster .galerie-kachel:focus-visible .kachel-info {
+  opacity: 1; transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .kachel-info { transition: none; }
 }
 
 /* Grossansicht. Sie liegt ueber allem, deshalb bekommt der Koerper
